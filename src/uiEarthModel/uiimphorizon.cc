@@ -93,12 +93,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     uiLabeledListBox* attrllb =
-	new uiLabeledListBox( this, "Attribute(s) to import" );
+	new uiLabeledListBox( this, "Attribute(s) to import",
+				uiListBox::AtLeastOne );
     attrllb->attach( alignedBelow, inpfld_ );
     attrlistfld_ = attrllb->box();
-    attrlistfld_->setItemsCheckable( true );
     attrlistfld_->setNrLines( 6 );
-    attrlistfld_->itemChecked.notify( mCB(this,uiImportHorizon,inputChgd) );
+    attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
 
     uiToolButton* addbut = new uiToolButton( this, "addnew", "Add new",
 				mCB(this,uiImportHorizon,addAttribCB) );
@@ -113,7 +113,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrllb );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                   mODHelpKey(mTableImpDataSel3DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, attrllb );
     dataselfld_->attach( ensureBelow, sep );
@@ -208,7 +208,7 @@ void uiImportHorizon::interpolSettingsCB( CallBacker* )
 void uiImportHorizon::inputChgd( CallBacker* cb )
 {
     BufferStringSet attrnms;
-    attrlistfld_->getCheckedItems( attrnms );
+    attrlistfld_->getChosen( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
     const int nrattrib = attrnms.size();
     const bool keepdef = cb==inpfld_ && fd_.isGood();
@@ -247,20 +247,19 @@ void uiImportHorizon::addAttribCB( CallBacker* )
 
     const char* attrnm = dlg.text();
     attrlistfld_->addItem( attrnm );
-    const int idx = attrlistfld_->size() - 1;
-    attrlistfld_->setItemChecked( idx, true );
+    attrlistfld_->setChosen( attrlistfld_->size()-1, true );
 }
 
 
 void uiImportHorizon::rmAttribCB( CallBacker* )
 {
     int selidx = attrlistfld_->currentItem();
-    const bool updatedef = attrlistfld_->isItemChecked( selidx );
+    const bool updatedef = attrlistfld_->isChosen( selidx );
 
     attrlistfld_->removeItem( selidx );
     selidx--;
     if ( selidx < 0 ) selidx = 0;
-    attrlistfld_->setSelected( selidx );
+    attrlistfld_->setChosen( selidx );
 
     if ( updatedef )
 	inputChgd( 0 );
@@ -269,7 +268,7 @@ void uiImportHorizon::rmAttribCB( CallBacker* )
 
 void uiImportHorizon::clearListCB( CallBacker* )
 {
-    const bool updatedef = attrlistfld_->nrChecked() > 0;
+    const bool updatedef = attrlistfld_->nrChosen() > 0;
     attrlistfld_->setEmpty();
 
     if ( updatedef )
@@ -279,8 +278,8 @@ void uiImportHorizon::clearListCB( CallBacker* )
 
 void uiImportHorizon::scanPush( CallBacker* )
 {
-    if ( !isgeom_ && !attrlistfld_->nrChecked() )
-    { uiMSG().error("Please select at least one attribute"); return; }
+    if ( !isgeom_ && !attrlistfld_->nrChosen() )
+	{ uiMSG().error("Please select at least one attribute"); return; }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 
@@ -394,14 +393,17 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 bool uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
-    attrlistfld_->getCheckedItems( attrnms );
-    if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
-    if ( !attrnms.size() ) mErrRet( "No Attributes Selected" );
+    attrlistfld_->getChosen( attrnms );
+    if ( isgeom_ )
+	attrnms.insertAt( new BufferString(sZVals), 0 );
+    if ( attrnms.isEmpty() )
+	mErrRet( "No Attributes Selected" );
 
     EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon ) return false;
 
-    if ( !scanner_ && !doScan() ) return false;
+    if ( !scanner_ && !doScan() )
+	return false;
 
     if ( scanner_->nrPositions() == 0 )
     {
@@ -415,20 +417,13 @@ bool uiImportHorizon::doImport()
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-    {
-	horizon->unRef();
-	mErrRet( "Nothing to import" );
-    }
+	{ horizon->unRef(); mErrRet( "Nothing to import" ); }
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	{
-	    uiMSG().error("No interpolation selected" );
-	    return false;
-	}
-
+	    { uiMSG().error("No interpolation selected" ); return false; }
 	fillUdfs( sections );
     }
 
@@ -476,26 +471,25 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
 
-    const bool res = doImport();
-    if ( res )
-    {
-	if ( isgeom_ )
-	{
-	    const IOObj* ioobj = outputfld_->ioobj();
-	    if ( ioobj )
-	    {
-		ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
-		ioobj->updateCreationPars();
-		IOM().commitChanges( *ioobj );
-	    }
-	}
+    if ( !doImport() )
+	return false;
 
-	uiMSG().message( "Horizon successfully imported" );
-	if ( doDisplay() )
-	    importReady.trigger();
+    if ( isgeom_ )
+    {
+	const IOObj* ioobj = outputfld_->ioobj();
+	if ( ioobj )
+	{
+	    ioobj->pars().update( sKey::CrFrom(), inpfld_->fileName() );
+	    ioobj->updateCreationPars();
+	    IOM().commitChanges( *ioobj );
+	}
     }
 
-    return false;
+    uiMSG().message( "Horizon successfully imported" );
+    if ( doDisplay() )
+	importReady.trigger();
+
+    return true;
 }
 
 

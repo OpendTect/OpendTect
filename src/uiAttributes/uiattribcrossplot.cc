@@ -57,24 +57,23 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( attrgrp, "Attributes", false,
+	new uiLabeledListBox( attrgrp, "Attributes", uiListBox::AtLeastOne,
 			      uiLabeledListBox::AboveMid );
     llb->attach( leftBorder, 20 );
     attrsfld_ = llb->box();
-    attrsfld_->setMultiChoice( true );
 
     if ( ads_.is2D() )
     {
-	attrsfld_->itemChecked.notify(
+	attrsfld_->itemChosen.notify(
 		mCB(this,uiAttribCrossPlot,attrChecked) );
 	attrsfld_->selectionChanged.notify(
 		mCB(this,uiAttribCrossPlot,attrChanged) );
 	uiLabeledListBox* lnmlb =
-	    new uiLabeledListBox( attrgrp, "Line names", true,
+	    new uiLabeledListBox( attrgrp, "Line names", uiListBox::AtLeastOne,
 				  uiLabeledListBox::AboveMid );
 	lnmfld_ = lnmlb->box();
 	lnmlb->attach( rightTo, llb );
-	lnmfld_->selectionChanged.notify(
+	lnmfld_->itemChosen.notify(
 		mCB(this,uiAttribCrossPlot,lineChecked) );
     }
 
@@ -207,7 +206,7 @@ void uiAttribCrossPlot::lineChecked( CallBacker* )
     linenmsset_[selitem].erase();
     for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
     {
-	if ( lnmfld_->isSelected(lidx) )
+	if ( lnmfld_->isChosen(lidx) )
 	    linenmsset_[selitem].addIfNew( lnmfld_->textOfItem(lidx) );
     }
 }
@@ -223,9 +222,10 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	linenmsset_ += BufferStringSet();
 	const int lsidx = linenmsset_.size()-1;
 	NotifyStopper ns( lnmfld_->selectionChanged );
+	NotifyStopper ns2( lnmfld_->itemChosen );
 	for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
 	{
-	    lnmfld_->setSelected( lidx, true );
+	    lnmfld_->setChosen( lidx, true );
 	    linenmsset_[lsidx].add( lnmfld_->textOfItem(lidx) );
 	}
     }
@@ -236,8 +236,10 @@ void uiAttribCrossPlot::attrChecked( CallBacker* )
 	{
 	    selidxs_.removeSingle( selitem );
 	    selids_.removeSingle( selitem );
+	    NotifyStopper ns( lnmfld_->selectionChanged );
+	    NotifyStopper ns2( lnmfld_->itemChosen );
 	    for ( int lidx=0; lidx<lnmfld_->size(); lidx++ )
-		lnmfld_->setSelected( lidx, false );
+		lnmfld_->setChosen( lidx, false );
 
 	    linenmsset_.removeSingle( selitem );
 	}
@@ -250,6 +252,7 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     if ( !lnmfld_ ) return;
 
     NotifyStopper notifystop( lnmfld_->selectionChanged );
+    NotifyStopper notifystop2( lnmfld_->itemChosen );
     lnmfld_->setEmpty();
 
     BufferStringSet linenames; getLineNames( linenames );
@@ -257,42 +260,13 @@ void uiAttribCrossPlot::attrChanged( CallBacker* )
     for ( int lidx=0; lidx<linenames.size(); lidx++ )
     {
 	lnmfld_->addItem( linenames.get(lidx) );
-	lnmfld_->setSelected( lidx, false );
+	lnmfld_->setChosen( lidx, false );
     }
 }
 
 
-#define mErrRet(s) { if ( emiterr ) uiMSG().error(s); return; }
-
-/*void uiAttribCrossPlot::useLineName( bool emiterr )
-    if ( !lnmfld_ ) return;
-
-    const Attrib::Desc* desc = ads_.getFirstStored( false );
-    if ( !desc )
-	mErrRet("No line set information in attribute set")
-    BufferString storedid = desc->getStoredID();
-    LineKey lk( storedid.buf() );
-    const MultiID mid( lk.lineName() );
-    if ( mid.isEmpty() )
-	mErrRet("No line set found in attribute set")
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-	mErrRet("Cannot find line set in object management")
-    Seis2DLineSet ls( ioobj->fullUserExpr(true) );
-    if ( ls.nrLines() < 1 )
-	mErrRet("Line set is empty")
-    //lk.setLineName( lnmfld_->getInput() );
-    const int idxof = ls.indexOf( lk );
-    if ( idxof < 0 )
-	mErrRet("Cannot find selected line in line set")
-
-    //TODO: use l2ddata_ for something
-}*/
-
-
 #define mDPM DPM(DataPackMgr::PointID())
 
-#undef mErrRet
 #define mErrRet(s) \
 { \
     if ( dps ) mDPM.release(dps->id()); \
@@ -369,8 +343,6 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     mDPM.addAndObtain( dps );
 
     uiString errmsg; Attrib::EngineMan aem;
-    //if ( lnmfld_ )
-	//aem.setLineKey( lnmfld_->getInput() );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();

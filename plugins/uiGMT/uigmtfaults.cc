@@ -155,20 +155,19 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     if ( !fltpar )
 	return false;
 
-    faultfld_->getListField()->clearSelection();
+    faultfld_->selectAll( false );
+    TypeSet<MultiID> tosel;
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
 	MultiID mid;
 	if (!fltpar->get( toString(idx), mid ) )
-	    return false;
-
+	    break;
 	IOObj* obj = IOM().get( mid );
-	if ( !obj )
-	    return false;
-
-	const int selid = faultfld_->getListField()->indexOf( obj->name() );
-	faultfld_->getListField()->setSelected( selid, true );
+	if ( obj )
+	    tosel += mid;
+	delete obj;
     }
+    faultfld_->setSelected( tosel );
 
     BufferString nm;
     iop.get( sKey::Name(), nm );

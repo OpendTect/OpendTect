@@ -151,7 +151,8 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, autoloadfld_ );
 
-    defattrlist_ = new uiLabeledListBox( this, attribnames_, "Deafault Sets" );
+    defattrlist_ = new uiLabeledListBox( this, attribnames_, "Default Sets",
+					 uiListBox::OnlyOne );
     defattrlist_->attach( alignedBelow, autoloadfld_ );
 
     lbl_ = new uiLabel( this, "Survey-defined sets" );
@@ -203,10 +204,7 @@ bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
 	{ uiMSG().error("Please select an Attribute Set"); return false; }
     if ( selgrp_->nrSelected() > 0 )
 	ctio_.setObj( selgrp_->selected(0) );
-    if ( !usrdef_ && defattrlist_->box()->nrSelected() < 1 )
-        { uiMSG().error("Please select an Attribute Set"); return false; }
-    if ( defattrlist_->box()->nrSelected() == 1 )
-	defselid_ = defattrlist_->box()->currentItem();
+    defselid_ = defattrlist_->box()->currentItem();
 
     isauto_ = autoloadfld_->getBoolValue();
     return true;

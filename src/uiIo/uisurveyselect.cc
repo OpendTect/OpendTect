@@ -45,7 +45,8 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
     datarootfld_->valuechanged.notify(
 		mCB(this,uiSurveySelectDlg,rootSelCB) );
 
-    surveylistfld_ = new uiListBox( this, "Survey list", false, 10 );
+    surveylistfld_ = new uiListBox( this, "Survey list",
+	    			    uiListBox::OnlyOne, 10 );
     surveylistfld_->attach( alignedBelow, datarootfld_ );
     surveylistfld_->selectionChanged.notify(
 		mCB(this,uiSurveySelectDlg,surveySelCB) );

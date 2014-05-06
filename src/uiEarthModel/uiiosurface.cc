@@ -74,8 +74,9 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
-    attribfld_ = new uiLabeledListBox( this, "Calculated attributes", true,
-	labelabove ? uiLabeledListBox::AboveMid : uiLabeledListBox::LeftTop );
+    attribfld_ = new uiLabeledListBox( this, "Calculated attributes",
+		uiListBox::AtLeastOne, labelabove ? uiLabeledListBox::AboveMid
+						  : uiLabeledListBox::LeftTop );
     attribfld_->setStretch( 2, 2 );
     attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
@@ -83,8 +84,9 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    sectionfld_ = new uiLabeledListBox( this, "Available patches", true,
-	labelabove ? uiLabeledListBox::AboveMid : uiLabeledListBox::LeftTop );
+    sectionfld_ = new uiLabeledListBox( this, "Available patches",
+	    uiListBox::AtLeastOne, labelabove ? uiLabeledListBox::AboveMid
+					      : uiLabeledListBox::LeftTop );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
     sectionfld_->box()->selectionChanged.notify(
@@ -163,22 +165,16 @@ void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 
 void uiIOSurface::getSelAttributes( BufferStringSet& names ) const
 {
-    if ( !attribfld_ )
-	return;
-
-    attribfld_->box()->getSelectedItems( names );
+    names.erase();
+    if ( attribfld_ )
+	attribfld_->box()->getChosen( names );
 }
 
 
 void uiIOSurface::setSelAttributes( const BufferStringSet& attribnames ) const
 {
-    if ( !attribfld_)
-	return;
-
-    if ( attribnames.size() == 0 )
-	attribfld_->box()->setCurrentItem( -1 );
-
-    attribfld_->box()->setSelectedItems( attribnames );
+    if ( attribfld_ )
+	attribfld_->box()->setChosen( attribnames );
 }
 
 
@@ -195,7 +191,7 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
     sectionfld_->box()->setEmpty();
     for ( int idx=0; idx<sections.size(); idx++ )
 	sectionfld_->box()->addItem( sections[idx]->buf() );
-    sectionfld_->box()->selectAll( true );
+    sectionfld_->box()->chooseAll( true );
 }
 
 
@@ -214,12 +210,7 @@ void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 
 bool uiIOSurface::haveAttrSel() const
 {
-    for ( int idx=0; idx<attribfld_->box()->size(); idx++ )
-    {
-	if ( attribfld_->box()->isSelected(idx) )
-	    return true;
-    }
-    return false;
+    return attribfld_->box()->nrChosen() > 0;
 }
 
 
@@ -238,20 +229,11 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     }
 
     sels.selsections.erase();
-    int nrsections = sectionfld_ ? sectionfld_->box()->size() : 1;
-    for ( int idx=0; idx<nrsections; idx++ )
-    {
-	if ( nrsections == 1 || sectionfld_->box()->isSelected(idx) )
-	    sels.selsections += idx;
-    }
-
+    if ( sectionfld_ )
+	sectionfld_->box()->getChosen( sels.selsections );
     sels.selvalues.erase();
-    int nrattribs = attribfld_ ? attribfld_->box()->size() : 0;
-    for ( int idx=0; idx<nrattribs; idx++ )
-    {
-	if ( attribfld_->box()->isSelected(idx) )
-	    sels.selvalues += idx;
-    }
+    if ( attribfld_ )
+	attribfld_->box()->getChosen( sels.selvalues );
 }
 
 
@@ -391,11 +373,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( sectionfld_ && sectionfld_->box()->nrSelected() < 1 )
-    {
-	uiMSG().error( "Please select at least one patch" );
-	return false;
-    }
+    if ( sectionfld_ && sectionfld_->box()->nrChosen() < 1 )
+	{ uiMSG().error( "Horizon has no patches" ); return false; }
 
     if ( !objfld_->commitInput() )
     {
@@ -440,7 +419,7 @@ Color uiSurfaceWrite::getColor() const
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 {
     bool issubsel = sectionfld_ &&
-		sectionfld_->box()->size()!=sectionfld_->box()->nrSelected();
+		sectionfld_->box()->size()!=sectionfld_->box()->nrChosen();
 
     if ( !issubsel && rgfld_ && !rgfld_->isAll() )
     {
@@ -487,7 +466,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 	attribfld_->attach( alignedBelow, objfld_ );
 	if ( sectionfld_ ) sectionfld_->attach( rightTo, attribfld_ );
 	attachobj = attribfld_;
-	attribfld_->box()->setMultiSelect( setup.multiattribsel_ );
+	attribfld_->box()->setMultiChoice( setup.multiattribsel_ );
     }
     else if ( setup.withsectionfld_ )
     {
@@ -515,16 +494,10 @@ void uiSurfaceRead::setIOObj( const MultiID& mid )
 bool uiSurfaceRead::processInput()
 {
     if ( !objfld_->commitInput() )
-    {
-	uiMSG().error( "Please select input" );
-	return false;
-    }
+	{ uiMSG().error( "Please select input" ); return false; }
 
-    if ( sectionfld_ && sectionfld_->box()->nrSelected()<1 )
-    {
-	uiMSG().error( "Please select at least one patch" );
-	return false;
-    }
+    if ( sectionfld_ && sectionfld_->box()->nrChosen()<1 )
+	{ uiMSG().error( "Horizon has no pataches" ); return false; }
 
     return true;
 }
@@ -581,14 +554,15 @@ public:
 	    }
 	}
 
-	fsslistfld_ = new uiListBox(this,"",true,validmids_.size()+1,20);
+	fsslistfld_ = new uiListBox(this,"",uiListBox::AtLeastOne,
+				validmids_.size()+1,20 );
 	fsslistfld_->addItems( validfss_ );
     }
 
     void getSelected( BufferStringSet& nms, TypeSet<MultiID>& mids )
     {
 	TypeSet<int> selids;
-	fsslistfld_->getSelectedItems( selids );
+	fsslistfld_->getChosen( selids );
 	for ( int idx=0; idx<selids.size(); idx++ )
 	{
 	    nms.add( *validfss_[selids[idx]] );
@@ -597,7 +571,7 @@ public:
     }
 
     void setSelectedItems( BufferStringSet sel )
-    { fsslistfld_->setSelectedItems(sel); }
+    { fsslistfld_->setChosen(sel); }
 
 
     uiListBox*		fsslistfld_;
@@ -799,14 +773,13 @@ void uiFaultParSel::doDlg( CallBacker* )
 	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
 				       : mMkCtxtIOObj(EMFault3D);
 	uiIOObjSelDlg dlg( this, *ctio, "Select Faults", true );
-	dlg.selGrp()->getListField()->setSelectedItems( selfaultnms_ );
+	dlg.selGrp()->getListField()->setChosen( selfaultnms_ );
 	if ( !dlg.go() ) return;
 
-	selfaultnms_.erase();
-	selfaultids_.erase();
+	selfaultnms_.erase(); selfaultids_.erase();
 	uiIOObjSelGrp* selgrp = dlg.selGrp();
 	selgrp->processInput();
-	selgrp->getListField()->getSelectedItems( selfaultnms_ );
+	selgrp->getListField()->getChosen( selfaultnms_ );
 	for ( int idx=0; idx<selfaultnms_.size(); idx++ )
 	    selfaultids_ += selgrp->selected(idx);
     }

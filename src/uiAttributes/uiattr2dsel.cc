@@ -119,7 +119,7 @@ void uiAttr2DSelDlg::createSelectionFields()
     BufferStringSet nms;
     SeisIOObjInfo::getDataSetNamesForLine( Survey::GM().getName(geomid_), nms );
 
-    storoutfld_ = new uiListBox( this, nms, "Stored cubes", false );
+    storoutfld_ = new uiListBox( this, nms, "Stored cubes" );
     storoutfld_->setHSzPol( uiObject::Wide );
     storoutfld_->setCurrentItem( 0 );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
@@ -127,8 +127,7 @@ void uiAttr2DSelDlg::createSelectionFields()
 
     if ( haveattribs )
     {
-	attroutfld_ = new uiListBox( this, attrinf_->attrnms_,
-				     "Attributes", false );
+	attroutfld_ = new uiListBox( this, attrinf_->attrnms_, "Attributes" );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->setCurrentItem( 0 );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
@@ -137,13 +136,11 @@ void uiAttr2DSelDlg::createSelectionFields()
 
     if ( attrinf_->nlaoutnms_.size() )
     {
-	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_,
-				    "Attributes", false );
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_, "NLAs" );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->setCurrentItem( 0 );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttr2DSelDlg,accept) );
 	nlaoutfld_->attach( rightOf, selgrp_ );
-
     }
 }
 

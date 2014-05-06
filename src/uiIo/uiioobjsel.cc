@@ -57,8 +57,16 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 }
 
 
-void selectedIDs( TypeSet<MultiID>& mids ) const
-{ selgrp_->getSelected( mids ); }
+MultiID currentID() const
+{
+    return selgrp_->currentID();
+}
+
+
+void getSelectedIDs( TypeSet<MultiID>& mids ) const
+{
+    selgrp_->getSelected( mids );
+}
 
 const char* defExt() const
 {
@@ -149,12 +157,13 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     uiObject* lfatt;
+    const uiListBox::ChoiceMode cm =
+		isMultiSel() ? uiListBox::AtLeastOne : uiListBox::OnlyOne;
     if ( seltxt.isEmpty() )
-	lfatt = listfld_ = new uiListBox( topgrp_ );
+	lfatt = listfld_ = new uiListBox( topgrp_, "Objects", cm );
     else
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt, false,
-						uiLabeledListBox::LeftMid );
+	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt, cm );
 	listfld_ = llb->box();
 	lfatt = llb->attachObj();
     }
@@ -162,9 +171,6 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     topgrp_->setHAlignObj( lfatt );
 
     listfld_->setName( "Objects list" );
-    listfld_->setMultiSelect( false );
-    if ( isMultiSel() )
-	listfld_->setItemsCheckable( true );
     listfld_->setPrefHeightInChar( 8 );
     fullUpdate( -1 );
 
@@ -183,10 +189,11 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	if ( !nm.isEmpty() )
 	{
 	    nmfld_->setText( nm );
-	    if ( listfld_->isPresent( nm ) )
-		listfld_->setCurrentItem( nm );
+	    const int listidx = listfld_->indexOf( nm );
+	    if ( listidx < 0 )
+		listfld_->chooseAll( false );
 	    else
-		listfld_->clearSelection();
+		listfld_->setChosen( listidx );
 	}
     }
 
@@ -207,7 +214,8 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
     listfld_->setHSzPol( uiObject::Wide );
     listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld_->itemChecked.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    if ( isMultiSel() )
+	listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,selChg) );
     listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
     if ( (nmfld_ && !*nmfld_->text()) || !nmfld_ )
 	selChg( this );
@@ -246,7 +254,7 @@ bool uiIOObjSelGrp::isEmpty() const
 
 void uiIOObjSelGrp::selectAll( bool yn )
 {
-    listfld_->selectAll( yn );
+    listfld_->chooseAll( yn );
 }
 
 
@@ -277,13 +285,7 @@ int uiIOObjSelGrp::nrSelected() const
 
 bool uiIOObjSelGrp::isSel( int idx ) const
 {
-    if ( !isMultiSel() )
-	return listfld_->isSelected( idx );
-    else if ( setup_.selmode_ == AnyNumber )
-	return listfld_->isItemChecked( idx );
-
-    const int sidx0 = listfld_->firstChecked();
-    return sidx0>=0 ? listfld_->isItemChecked(idx) : listfld_->isSelected(idx);
+    return listfld_->isChosen( idx );
 }
 
 
@@ -323,17 +325,13 @@ void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
 	return;
 
     if ( isMultiSel() )
-	listfld_->setAllItemsChecked( false );
+	listfld_->chooseAll( false );
 
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	const int selidx = indexOf( ioobjids_, mids[idx] );
-	if ( selidx < 0 ) continue;
-
-	if ( isMultiSel() )
-	    listfld_->setItemChecked( selidx, true );
-	else
-	    listfld_->setSelected( selidx, true );
+	if ( selidx >= 0 )
+	    listfld_->setChosen( selidx, true );
     }
 }
 
@@ -473,12 +471,7 @@ void uiIOObjSelGrp::toStatusBar( const char* txt )
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    bool issel = isSel( idx );
-    if ( idx < 0 || !issel )
-	return 0;
-
-    const MultiID& ky = *ioobjids_[idx];
-    return IOM().get( ky );
+    return ioobjids_.validIdx(idx) ? IOM().get( *ioobjids_[idx] ) : 0;
 }
 
 
@@ -489,15 +482,12 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     const int nrsel = nrSelected();
     if ( isMultiSel() && nrsel>1 )
     {
-	info += "Multiple objects selected (";
-	info += nrsel; info += "/"; info += listfld_->size(); info += ")";
+	info.set( nrsel ).add( "/" ).add( listfld_->size() ).add( " selected" );
 	allowsetdefault = false;
     }
     else
     {
 	int idx = listfld_->currentItem();
-	if ( !isSel(idx) )
-	    idx = listfld_->nextSelected();
 	PtrMan<IOObj> ioobj = getIOObj( idx );
 	ctio_.setObj( ioobj ? ioobj->clone() : 0 );
 	if ( cb && nmfld_ )

@@ -255,7 +255,7 @@ void uiEMPartServer::import2DFaultStickset()
     }
 
     impfss2ddlg_ = new uiImportFaultStickSet2D( parent(),
-	    			EMFaultStickSetTranslatorGroup::keyword() );
+				EMFaultStickSetTranslatorGroup::keyword() );
     impfss2ddlg_->importReady.notify( mCB(this,uiEMPartServer,importReadyCB) );
     impfss2ddlg_->show();
 }
@@ -667,8 +667,6 @@ bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
     uiGetObjectName::Setup setup( "Fault Data", atrrnms );
     setup.inptxt_ = "Attribute";
     uiGetObjectName dlg( parent(), setup );
-    if ( dlg.selFld() )
-	dlg.selFld()->setMultiSelect( false );
     if ( !dlg.go() )
 	return false;
 
@@ -708,13 +706,11 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const EM::ObjectID& id )
     uiSelectFromList::Setup setup( "Fault Data", atrrnms );
     setup.dlgtitle( "Select one attribute to be displayed" );
     uiSelectFromList dlg( parent(), setup );
-    if ( dlg.selFld() )
-	dlg.selFld()->setMultiSelect( false );
     if ( !dlg.go() || !dlg.selFld() )
 	return false;
 
     TypeSet<int> selattribs;
-    dlg.selFld()->getSelectedItems( selattribs );
+    dlg.selFld()->getChosen( selattribs );
     auxdata->setSelected( selattribs );
 
     return true;
@@ -740,11 +736,11 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 		    "and that the mouse pointer is in the scene." );
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
-	dlg.selFld()->setMultiSelect( true );
+	dlg.selFld()->setMultiChoice( true );
     if ( !dlg.go() || !dlg.selFld() ) return false;
 
     TypeSet<int> selattribs;
-    dlg.selFld()->getSelectedItems( selattribs );
+    dlg.selFld()->getChosen( selattribs );
     if ( selattribs.isEmpty() ) return false;
 
     hor3d->auxdata.removeAll();
@@ -1314,7 +1310,7 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
-    const IODir iodir( 
+    const IODir iodir(
 	MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     FixedString groupstr = is2d
 	? EMHorizon2DTranslatorGroup::keyword()
@@ -1349,10 +1345,10 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     }
 
     BinID bid;
-    for ( bid.inl()=hs.start.inl(); bid.inl()<=hs.stop.inl(); 
+    for ( bid.inl()=hs.start.inl(); bid.inl()<=hs.stop.inl();
 	  bid.inl()+=hs.step.inl() )
     {
-	for ( bid.crl()=hs.start.crl(); bid.crl()<=hs.stop.crl(); 
+	for ( bid.crl()=hs.start.crl(); bid.crl()<=hs.stop.crl();
 	      bid.crl()+=hs.step.crl() )
 	{
 	    const EM::SubID subid = bid.toInt64();
@@ -1369,7 +1365,7 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	    if ( !hor3d2 )
 	    {
 		for ( int posidx=0; posidx<z1pos.size(); posidx++ )
-		    bivs.add( bid, (float) z1pos[posidx].z, 
+		    bivs.add( bid, (float) z1pos[posidx].z,
 			      (float) z1pos[posidx].z );
 	    }
 	    else

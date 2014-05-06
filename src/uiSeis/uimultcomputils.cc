@@ -29,15 +29,14 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
     instructions += "and that the mouse pointer is in the scene.";
     setTitleText( instructions );
 
-    compfld_ = new uiListBox( this, complist, "" );
-    compfld_->setMultiSelect();
+    compfld_ = new uiListBox( this, complist, "", uiListBox::AtLeastOne );
     compfld_->doubleClicked.notify( mCB(this,uiMultCompDlg,accept) );
 }
 
 
 void uiMultCompDlg::getCompNrs( TypeSet<int>& selitems ) const
 {
-    compfld_->getSelectedItems( selitems );
+    compfld_->getChosen( selitems );
 }
 
 
@@ -101,13 +100,13 @@ BufferString uiMultCompSel::getSummary() const
 {
     BufferString ret;
     if ( !allowChoice() || !dlg_ || dlg_->useallfld_->getBoolValue()
-	|| dlg_->outlistfld_->box()->nrChecked() == compnms_.size() )
+	|| dlg_->outlistfld_->box()->nrChosen() == compnms_.size() )
 	ret = "-- All components --";
     else
     {
 	BufferStringSet selnms;
 	for ( int idx=0; idx<compnms_.size(); idx++ )
-	    if ( dlg_->outlistfld_->box()->isItemChecked( idx) )
+	    if ( dlg_->outlistfld_->box()->isChosen( idx) )
 		selnms.add( compnms_.get(idx) );
 	ret = selnms.getDispString();
     }
@@ -125,10 +124,8 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     outlistfld_ = new uiLabeledListBox( this, names, "Available components",
-				       false, uiLabeledListBox::AboveMid );
+			   uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
     outlistfld_->attach( ensureBelow, useallfld_ );
-    outlistfld_->box()->setItemsCheckable( true );
-    outlistfld_->box()->setNotSelectable();
 }
 
 
@@ -136,5 +133,3 @@ void uiMultCompSel::MCompDlg::selChg( CallBacker* )
 {
     outlistfld_->display( !useallfld_->getBoolValue() );
 }
-
-

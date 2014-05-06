@@ -192,8 +192,8 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     attrnms.add( uiContourTreeItem::sKeyZValue() );
     eminfo.getAttribNames( attrnms );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( this, attrnms, emioobj ? emioobj->name() : "", 
-			      false, uiLabeledListBox::AboveMid );
+	new uiLabeledListBox( this, attrnms, emioobj ? emioobj->name() : "",
+			      uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
     attrlb_ = llb->box();
 }
 

@@ -70,7 +70,8 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
     uiLabel* attrlabel = new uiLabel( grp, "Attributes" );
-    attrnmsfld_ = new uiListBox( grp, "From attributes", true );
+    attrnmsfld_ = new uiListBox( grp, "From attributes",
+				 uiListBox::AtLeastOne );
     attrnmsfld_->attach( rightOf, paramsfld_ );
     attrlabel->attach( alignedAbove, attrnmsfld_ );
     attrlabel->attach( rightTo, paramlabel );
@@ -244,7 +245,7 @@ void uiCrossAttrEvaluateDlg::getSelDescIDs(
     seldeschildids_.erase();
 
     TypeSet<int> attrselected;
-    attrnmsfld_->getSelectedItems( attrselected );
+    attrnmsfld_->getChosen( attrselected );
 
     Desc& srcad = *attrset_.getDesc( srcid_ );
     const int sel = paramsfld_->currentItem();

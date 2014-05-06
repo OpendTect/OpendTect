@@ -29,7 +29,7 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
     : uiGroup(p,"Surface Selection")
     , ctxt_(*new IOObjContext(ct))
 {
-    listfld_ = new uiListBox( this, "listbox", true );
+    listfld_ = new uiListBox( this, "listbox", uiListBox::AtLeastOne );
     listfld_->setHSzPol( uiObject::Wide );
 }
 
@@ -56,7 +56,7 @@ void uiSurfaceSel::getFullList()
 	mids_ += ioobj->key();
 	names_.add( ioobj->name() );
     }
-    
+
     listfld_->addItems( names_ );
 }
 
@@ -78,14 +78,14 @@ void uiSurfaceSel::removeFromList( const TypeSet<MultiID>& ids )
 void uiSurfaceSel::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     TypeSet<int> selidxs;
-    listfld_->getSelectedItems( selidxs );
+    listfld_->getChosen( selidxs );
     for (  int idx=0; idx<selidxs.size(); idx++ )
 	mids += mids_[ selidxs[idx] ];
 }
 
 
 int uiSurfaceSel::getSelItems() const
-{ return listfld_->nrSelected(); }
+{ return listfld_->nrChosen(); }
 
 
 void uiSurfaceSel::clearList()

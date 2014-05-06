@@ -52,7 +52,8 @@ uiColTabImport::uiColTabImport( uiParent* p )
     dtectusrfld_->attach( alignedBelow, dirfld_ );
     dtectusrfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
 
-    listfld_ = new uiLabeledListBox( this, "Color table(s) to add", true );
+    listfld_ = new uiLabeledListBox( this, "Color table(s) to add",
+	    				uiListBox::AtLeastOne );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 
     choiceSel( 0 );
@@ -155,7 +156,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
     ObjectSet<const ColTab::Sequence> tobeadded;
     for ( int idx=0; idx<listfld_->box()->size(); idx++ )
     {
-	if ( listfld_->box()->isSelected(idx) )
+	if ( listfld_->box()->isChosen(idx) )
 	    tobeadded += seqs_[idx];
     }
 

@@ -101,8 +101,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     uiGroup* procgrp = new uiGroup( grp, "Proc group" );
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
-    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "FLOW", false,
-						   uiLabeledListBox::LeftMid );
+    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "FLOW" );
     procsfld_ = pfld->box();
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
@@ -111,11 +110,11 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 					     uiObject::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
-	    			"Move current command up", butpushcb );
+				"Move current command up", butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
-	    			"Move current command down", butpushcb );
+				"Move current command down", butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
-	    			"Remove current command from flow", butpushcb );
+				"Remove current command from flow", butpushcb );
     bgrp->attach( centeredBelow, pfld );
 
     procgrp->setHAlignObj( pfld );

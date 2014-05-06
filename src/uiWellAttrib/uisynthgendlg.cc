@@ -42,7 +42,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     setCancelText( "&Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( syntlistgrp, "Synthetics", false,
+	new uiLabeledListBox( syntlistgrp, "Synthetics", uiListBox::OnlyOne,
 			      uiLabeledListBox::AboveMid );
     synthnmlb_ = llb->box();
     synthnmlb_->selectionChanged.notify(
@@ -108,7 +108,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 void uiSynthGenDlg::finaliseDone( CallBacker* )
 {
     updateSynthNames();
-    synthnmlb_->setSelected( 0, true );
+    synthnmlb_->setCurrentItem( 0 );
     changeSyntheticsCB( 0 );
 }
 
@@ -149,7 +149,7 @@ void uiSynthGenDlg::updateSynthNames()
 
 void uiSynthGenDlg::changeSyntheticsCB( CallBacker* )
 {
-    FixedString synthnm( synthnmlb_->textOfItem(synthnmlb_->nextSelected()) );
+    FixedString synthnm( synthnmlb_->getText() );
     if ( synthnm.isEmpty() ) return;
     SyntheticData* sd = stratsynth_.getSynthetic( synthnm.buf() );
     if ( !sd ) return;
@@ -175,11 +175,11 @@ void uiSynthGenDlg::parsChanged( CallBacker* )
 
 void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 {
-    const int selidx = synthnmlb_->nextSelected();
+    if ( synthnmlb_->size()==1 )
+	{ uiMSG().error( "Cannot remove all synthetics" ); return; }
+    const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
 	return uiMSG().error( "No synthetic selected" );
-    if ( synthnmlb_->size()==1 )
-	return uiMSG().error( "Cannot remove all synthetics" );
 
     SynthGenParams cursgp = stratsynth_.genParams();
     int nrofzerooffs = 0;
@@ -205,8 +205,8 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	    msg += "Do you want to remove the synthetics?";
 	    if ( !uiMSG().askGoOn(msg) )
 		return;
-	    BufferString synthname( sgp.name_ );
-	    synthnmlb_->removeItem( synthnmlb_->currentItem() );
+	    const BufferString synthname( sgp.name_ );
+	    synthnmlb_->removeItem( synthnmlb_->indexOf(synthname) );
 	    synthRemoved.trigger( synthname );
 	    break;
 	}
@@ -219,8 +219,8 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	return uiMSG().error( msg );
     }
 
-    BufferString synthname( synthnmlb_->textOfItem(selidx) );
-    synthnmlb_->removeItem( synthnmlb_->currentItem() );
+    const BufferString synthname( synthnmlb_->getText() );
+    synthnmlb_->removeItem( selidx );
     synthRemoved.trigger( synthname );
 }
 
@@ -373,13 +373,14 @@ void uiSynthGenDlg::updateWaveletName()
 
 bool uiSynthGenDlg::acceptOK( CallBacker* )
 {
-    if ( !synthnmlb_->nrSelected() ) return true;
-
-    if ( !getFromScreen() ) return false;
-    const int selidx = synthnmlb_->nextSelected();
+    const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
 	return true;
-    BufferString synthname( synthnmlb_->textOfItem(selidx) );
+
+    if ( !getFromScreen() )
+	return false;
+
+    BufferString synthname( synthnmlb_->getText() );
     synthChanged.trigger( synthname );
 
     return true;
@@ -388,11 +389,13 @@ bool uiSynthGenDlg::acceptOK( CallBacker* )
 
 bool uiSynthGenDlg::isCurSynthChanged() const
 {
-    const int selidx = synthnmlb_->nextSelected();
-    if ( selidx < 0 ) return false;
+    const int selidx = synthnmlb_->currentItem();
+    if ( selidx < 0 )
+	return false;
     BufferString selstr = synthnmlb_->textOfItem( selidx );
     SyntheticData* sd = stratsynth_.getSynthetic( selstr );
-    if ( !sd ) return true;
+    if ( !sd )
+	return true;
     SynthGenParams genparams;
     sd->fillGenParams( genparams );
     return !(genparams == stratsynth_.genParams());
@@ -428,8 +431,8 @@ class uiSynthCorrAdvancedDlg : public uiDialog
     public:
 				uiSynthCorrAdvancedDlg(uiParent*);
 
-    uiGenInput* 		stretchmutelimitfld_;
-    uiGenInput* 		mutelenfld_;
+    uiGenInput*		stretchmutelimitfld_;
+    uiGenInput*		mutelenfld_;
 
     protected:
 

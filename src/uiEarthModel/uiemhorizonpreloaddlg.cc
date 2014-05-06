@@ -52,7 +52,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
                                        mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
-    listfld_ = new uiListBox( this, "Loaded entries", true );
+    listfld_ = new uiListBox( this, "Loaded entries", uiListBox::AtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
     uiToolButton* opentb = new uiToolButton( this, "openpreload",
@@ -140,7 +140,7 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
 {
     BufferStringSet selhornms;
-    listfld_->getSelectedItems( selhornms );
+    listfld_->getChosen( selhornms );
     if ( selhornms.isEmpty() )
 	return;
 

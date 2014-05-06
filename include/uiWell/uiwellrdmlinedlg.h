@@ -60,7 +60,7 @@ protected:
     TypeSet<int>	selwellstypes_;
 
     uiListBox*		wellsbox_;
-    uiTable*		selwellsbox_;
+    uiTable*		selwellstbl_;
 
     uiGenInput*		onlytopfld_;
 

@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		May 2006
+ Author:	K. Tingdahl
+ Date:		May 2006
 ___________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup("Create Random Line from Polyline","",
                         mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
-    , rtd_(rtd) 
+    , rtd_(rtd)
 {
     showAlwaysOnTop();
 
@@ -103,7 +103,7 @@ protected:
 uiTreeItem*
     uiODRandomLineTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd, 
+    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
     return rtd ? new uiODRandomLineTreeItem(visid) : 0;
 }
@@ -198,13 +198,13 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int tp )
     {
 	uiSelectFromList seldlg( getUiParent(),
 		uiSelectFromList::Setup("Random lines",linenames) );
-	seldlg.selFld()->setMultiSelect( true );
+	seldlg.selFld()->setMultiChoice( true );
 	uiCheckBox* cb = new uiCheckBox( &seldlg, "Editable" );
 	cb->attach( alignedBelow, seldlg.selFld() );
 	if ( !seldlg.go() )
 	    return false;
 
-	seldlg.selFld()->getSelectedItems( selitms );
+	seldlg.selFld()->getChosen( selitms );
 	lockgeom = !cb->isChecked();
     }
 
@@ -258,8 +258,8 @@ void uiODRandomLineParentTreeItem::genRandLineFromWell()
 void uiODRandomLineParentTreeItem::genRandLineFromTable()
 {
     uiDialog dlg( getUiParent(),
-	    	  uiDialog::Setup("Random lines","Specify node positions",
-		      		  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
+		  uiDialog::Setup("Random lines","Specify node positions",
+				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);
     zrg.scale( mCast(float,SI().zDomain().userFactor()) );
@@ -292,7 +292,7 @@ void uiODRandomLineParentTreeItem::genRandomLineFromPickPolygon()
     ODMainWin()->applMgr().visServer()->setViewMode( false );
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
     addChild( itm, false );
-   
+
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
         ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
 
@@ -410,8 +410,8 @@ void uiODRandomLineTreeItem::createMenu( MenuHandler* menu, bool istb )
 	    nodename = "before node ";
 	    nodename += idx;
 	}
-	
-	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
+
+	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename),
 			    rtd->canAddKnot(idx), false );
     }
 
@@ -427,7 +427,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
-	
+
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
 
@@ -452,7 +452,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	rln->setZRange( hasztf ? SI().zRange(false) : rtdzrg );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
-	    
+
 	if ( mnuid == saveasmnuitem_.id )
 	{
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
@@ -496,8 +496,8 @@ void uiODRandomLineTreeItem::editNodes()
     TypeSet<BinID> bids;
     rtd->getAllKnotPos( bids );
     uiDialog dlg( getUiParent(),
-	    	  uiDialog::Setup("Random lines","Specify node positions",
-		      		  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
+		  uiDialog::Setup("Random lines","Specify node positions",
+				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     table->setBinIDs( bids );
 

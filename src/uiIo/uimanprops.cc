@@ -391,14 +391,14 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
 {
     uiLabeledListBox* llb = 0;
     if ( !lbl || !*lbl )
-	propfld_ = new uiListBox( this, "Available properties" );
+	propfld_ = new uiListBox( this, "Available properties",
+				  uiListBox::AtLeastOne );
     else
     {
-	llb = new uiLabeledListBox( this, lbl, true,
+	llb = new uiLabeledListBox( this, lbl, uiListBox::AtLeastOne,
 				    uiLabeledListBox::AboveMid );
 	propfld_ = llb->box();
     }
-    propfld_->setMultiChoice( true );
     fillList();
 
     uiToolButton* manpropsbut = new uiToolButton( this, "man_props",

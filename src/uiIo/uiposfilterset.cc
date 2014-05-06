@@ -96,14 +96,13 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     }
     else
     {
-	selfld_ = new uiListBox( this, "Filter selection" );
+	selfld_ = new uiListBox( this, "Filter selection",
+				uiListBox::ZeroOrMore );
 	selfld_->addItems( nms );
 	selfld_->selectionChanged.notify( selcb );
 	int ph = nms.size()-1; if ( ph > 9 ) ph = 9;
 	selfld_->setPrefHeightInChar( ph );
 	attobj = selfld_;
-	for ( int idx=0; idx<nms.size(); idx++ )
-	    selfld_->setItemCheckable( idx, true );
     }
 
     for ( int idx=0; idx<grps_.size(); idx++ )
@@ -158,7 +157,7 @@ void uiPosFilterSet::usePar( const IOPar& iop )
     else
     {
 	for ( int idx=0; idx<issel_.size(); idx++ )
-	    selfld_->setItemChecked( idx, issel_[idx] );
+	    selfld_->setChosen( idx, issel_[idx] );
     }
     selChg( this );
 }
@@ -174,7 +173,7 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
 	if ( (ynfld_ && !ynfld_->getBoolValue()) || 
-	     (selfld_ && !selfld_->isItemChecked(igrp) ) )
+	     (selfld_ && !selfld_->isChosen(igrp) ) )
 	    continue;
 
 	const BufferString keybase( IOPar::compKey(sKey::Filter(),ipar) );

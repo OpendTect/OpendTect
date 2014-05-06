@@ -57,7 +57,7 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
     lsfld_->attach( alignedBelow, namefld_ );
 
     labelfld_ = new uiCheckBox( this, "Post label",
-	   			mCB(this,uiGMTRandLinesGrp,labelSel) );
+				mCB(this,uiGMTRandLinesGrp,labelSel) );
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
     labelfontfld_ = lsb->box();
     lsb->attach( alignedBelow, lsfld_ );
@@ -105,12 +105,12 @@ void uiGMTRandLinesGrp::objSel( CallBacker* )
     {
 	uiDialog dlg( this, uiDialog::Setup("Select lines","Select lines",
                                             mNoHelpKey) );
-	uiListBox* lb = new uiListBox( &dlg, "Linelist", true );
+	uiListBox* lb = new uiListBox( &dlg, "Linelist", uiListBox::AtLeastOne);
 	for ( int idx=0; idx<inprls.size(); idx++ )
 	    lb->addItem( inprls.lines()[idx]->name() );
 
 	if ( !dlg.go() ) return;
-	lb->getSelectedItems( linenms_ );
+	lb->getChosen( linenms_ );
     }
 }
 

@@ -47,7 +47,7 @@ static const char* sTypes[] = { "Top", "Bottom", 0 };
 uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
     : uiGroup(p, "Select wells in table" )
     , withpos_(withpos)
-    , wellsbox_(0), selwellsbox_(0), onlytopfld_(0)
+    , wellsbox_(0), selwellstbl_(0), onlytopfld_(0)
 {
     uiGroup* selbuttons = new uiGroup( this, "select buttons" );
     uiGroup* movebuttons = new uiGroup( this, "move buttons" );
@@ -65,27 +65,27 @@ uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
 
 void uiWellSelGrp::createFields()
 {
-    wellsbox_ = new uiListBox( this, "Available Wells", true );
-    selwellsbox_ = new uiTable( this, uiTable::Setup()
+    wellsbox_ = new uiListBox( this, "Available Wells", uiListBox::AtLeastOne );
+    selwellstbl_ = new uiTable( this, uiTable::Setup()
 				        .selmode(uiTable::SelectionMode(3) ),
 				"Wells Table" );
-    selwellsbox_->setNrCols( withpos_ ? 2 : 1 );
-    selwellsbox_->setNrRows( 5 );
-    selwellsbox_->setColumnLabel( 0, "Well Name" );
-    selwellsbox_->setColumnWidth(0,90);
+    selwellstbl_->setNrCols( withpos_ ? 2 : 1 );
+    selwellstbl_->setNrRows( 5 );
+    selwellstbl_->setColumnLabel( 0, "Well Name" );
+    selwellstbl_->setColumnWidth(0,90);
     if ( withpos_ )
     {
-	selwellsbox_->setColumnLabel( 1, "Start at" );
-	selwellsbox_->setColumnWidth(1,90);
+	selwellstbl_->setColumnLabel( 1, "Start at" );
+	selwellstbl_->setColumnWidth(1,90);
 
 	onlytopfld_ = new uiGenInput( this, "Use only wells' top position",
 				      BoolInpSpec(true) );
 	onlytopfld_->valuechanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
-	onlytopfld_->attach( alignedBelow, selwellsbox_ );
+	onlytopfld_->attach( alignedBelow, selwellstbl_ );
 	onlytopfld_->attach( ensureBelow, wellsbox_ );
     }
-    selwellsbox_->setTableReadOnly(true);
-    setHAlignObj( selwellsbox_ );
+    selwellstbl_->setTableReadOnly(true);
+    setHAlignObj( selwellstbl_ );
 }
 
 
@@ -123,11 +123,11 @@ void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
 
 void uiWellSelGrp::attachFields( uiGroup* selbuttons, uiGroup* movebuttons )
 {
-    selbuttons->attach( centeredLeftOf, selwellsbox_ );
+    selbuttons->attach( centeredLeftOf, selwellstbl_ );
     selbuttons->attach( ensureRightOf, wellsbox_ );
-    selwellsbox_->attach( rightTo, wellsbox_ );
-    movebuttons->attach( centeredRightOf, selwellsbox_ );
-    if ( onlytopfld_ ) onlytopfld_->attach( ensureBelow, selwellsbox_ );
+    selwellstbl_->attach( rightTo, wellsbox_ );
+    movebuttons->attach( centeredRightOf, selwellstbl_ );
+    if ( onlytopfld_ ) onlytopfld_->attach( ensureBelow, selwellstbl_ );
 }
 
 
@@ -139,18 +139,18 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	int lastusedidx = 0;
 	for ( int idx=0; idx<wellsbox_->size(); idx++ )
 	{
-	    if ( !wellsbox_->isSelected(idx) ) continue;
+	    if ( !wellsbox_->isChosen(idx) ) continue;
 
 	    int emptyrow = getFirstEmptyRow();
 	    if ( emptyrow == -1 )
 	    {
-		emptyrow = selwellsbox_->nrRows();
-		selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
+		emptyrow = selwellstbl_->nrRows();
+		selwellstbl_->insertRows( selwellstbl_->nrRows(), 1 );
 	    }
-	    selwellsbox_->setText( RowCol(emptyrow,0),
+	    selwellstbl_->setText( RowCol(emptyrow,0),
 				   wellsbox_->textOfItem(idx));
 	    uiComboBox* box = new uiComboBox( 0, "Type" );
-	    selwellsbox_->setCellObject( RowCol(emptyrow,1), box );
+	    selwellstbl_->setCellObject( RowCol(emptyrow,1), box );
 	    box->addItems( sTypes );
 	    box->setValue( 0 );
 	    wellsbox_->removeItem(idx);
@@ -161,45 +161,45 @@ void uiWellSelGrp::selButPush( CallBacker* cb )
 	wellsbox_->setCurrentItem( lastusedidx<wellsbox_->size() ?
 				   lastusedidx : wellsbox_->size()-1 );
 	int selectidx = getFirstEmptyRow()-1<0 ?
-			selwellsbox_->nrRows()-1 : getFirstEmptyRow()-1;
-	selwellsbox_->selectRow( selectidx );
+			selwellstbl_->nrRows()-1 : getFirstEmptyRow()-1;
+	selwellstbl_->selectRow( selectidx );
     }
     else if ( but == fromselect_ )
     {
 	int lastusedidx = 0;
-	for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+	for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
 	{
-	    if ( !selwellsbox_->isRowSelected(idx)
-		|| FixedString(selwellsbox_->text(RowCol(idx,0))).isEmpty() )
+	    if ( !selwellstbl_->isRowSelected(idx)
+		|| FixedString(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
 		continue;
 
-	    wellsbox_->addItem( selwellsbox_->text( RowCol(idx,0) ) );
-	    selwellsbox_->removeRow(idx);
+	    wellsbox_->addItem( selwellstbl_->text( RowCol(idx,0) ) );
+	    selwellstbl_->removeRow(idx);
 	    lastusedidx = idx;
-	    wellsbox_->selectAll(false);
-	    wellsbox_->setSelected( wellsbox_->size()-1 );
+	    wellsbox_->chooseAll(false);
+	    wellsbox_->setChosen( wellsbox_->size()-1 );
 	    wellsbox_->sortItems();
 	    break;
 	}
-	while ( selwellsbox_->nrRows() < 5 )
-	    selwellsbox_->insertRows( selwellsbox_->nrRows(), 1 );
+	while ( selwellstbl_->nrRows() < 5 )
+	    selwellstbl_->insertRows( selwellstbl_->nrRows(), 1 );
 
 	int selectidx;
 
 	if ( lastusedidx<1 )
 	    selectidx = 0;
-	else if ( lastusedidx<selwellsbox_->nrRows() )
+	else if ( lastusedidx<selwellstbl_->nrRows() )
 	    selectidx = lastusedidx-1;
 	else
-	    selectidx = selwellsbox_->nrRows()-1;
+	    selectidx = selwellstbl_->nrRows()-1;
 
-	selwellsbox_->selectRow( selectidx );
+	selwellstbl_->selectRow( selectidx );
     }
 
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*,box,
-			selwellsbox_->getCellObject(RowCol(idx,1)))
+			selwellstbl_->getCellObject(RowCol(idx,1)))
 	if ( box ) box->setName( BufferString("Type",idx) );
     }
 }
@@ -228,15 +228,15 @@ void uiWellSelGrp::setSelectedWells()
     selwellsids_.erase();
     selwellstypes_.erase();
 
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
-	const char* txt = selwellsbox_->text( RowCol(idx,0) );
+	const char* txt = selwellstbl_->text( RowCol(idx,0) );
 	int wellidx = allwellsnames_.indexOf( txt );
 	if ( wellidx<0 ) continue;
 	if ( selwellsids_.addIfNew( allwellsids_[wellidx] ) )
 	{
 	    mDynamicCastGet(uiComboBox*,box,
-			    selwellsbox_->getCellObject(RowCol(idx,1)))
+			    selwellstbl_->getCellObject(RowCol(idx,1)))
 	    if ( box ) selwellstypes_ += box->currentItem();
 	}
     }
@@ -277,47 +277,47 @@ void uiWellSelGrp::getCoordinates( TypeSet<Coord>& coords )
 
 
 #define mInsertRow(rowidx,text,val)\
-	selwellsbox_->insertRows( rowidx, 1 );\
-	selwellsbox_->setText( RowCol(rowidx,0), text );\
+	selwellstbl_->insertRows( rowidx, 1 );\
+	selwellstbl_->setText( RowCol(rowidx,0), text );\
 	uiComboBox* newbox = new uiComboBox(0,"Type"); \
 	newbox->addItems( sTypes ); \
 	newbox->setValue( val ); \
-	selwellsbox_->setCellObject( RowCol(rowidx,1), newbox );
+	selwellstbl_->setCellObject( RowCol(rowidx,1), newbox );
 
 void uiWellSelGrp::moveButPush( CallBacker* cb )
 {
-    int index = selwellsbox_->currentRow();
+    int index = selwellstbl_->currentRow();
     mDynamicCastGet(uiToolButton*,but,cb)
-    if ( !selwellsbox_->isRowSelected( index ) ) return;
+    if ( !selwellstbl_->isRowSelected( index ) ) return;
 
-    if ( FixedString(selwellsbox_->text(RowCol(index,0))).isEmpty() )
+    if ( FixedString(selwellstbl_->text(RowCol(index,0))).isEmpty() )
 	return;
 
     mDynamicCastGet(uiComboBox*,box,
-		    selwellsbox_->getCellObject(RowCol(index,1)))
+		    selwellstbl_->getCellObject(RowCol(index,1)))
     const int value = box ? box->getIntValue(): 0;
-    BufferString text = selwellsbox_->text( RowCol(index,0) );
+    BufferString text = selwellstbl_->text( RowCol(index,0) );
 
     if ( but == moveupward_ && index>0 )
     {
 	mInsertRow( index-1, text.buf(), value );
-	selwellsbox_->removeRow( index+1 );
-	selwellsbox_->selectRow( index-1 );
-	selwellsbox_->setCurrentCell( RowCol(index-1,0) );
+	selwellstbl_->removeRow( index+1 );
+	selwellstbl_->selectRow( index-1 );
+	selwellstbl_->setCurrentCell( RowCol(index-1,0) );
     }
-    else if ( but == movedownward_ && index<selwellsbox_->nrRows()
-	      && !FixedString(selwellsbox_->text(RowCol(index+1,0))).isEmpty() )
+    else if ( but == movedownward_ && index<selwellstbl_->nrRows()
+	      && !FixedString(selwellstbl_->text(RowCol(index+1,0))).isEmpty() )
     {
 	mInsertRow( index+2, text.buf(), value );
-	selwellsbox_->removeRow( index );
-	selwellsbox_->selectRow( index+1 );
-	selwellsbox_->setCurrentCell( RowCol(index+1,0) );
+	selwellstbl_->removeRow( index );
+	selwellstbl_->selectRow( index+1 );
+	selwellstbl_->setCurrentCell( RowCol(index+1,0) );
     }
 
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*,wellbox,
-			selwellsbox_->getCellObject(RowCol(idx,1)))
+			selwellstbl_->getCellObject(RowCol(idx,1)))
 	if ( wellbox ) wellbox->setName( BufferString("Type",idx) );
     }
 }
@@ -325,9 +325,9 @@ void uiWellSelGrp::moveButPush( CallBacker* cb )
 
 int uiWellSelGrp::getFirstEmptyRow()
 {
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
-	if ( FixedString(selwellsbox_->text(RowCol(idx,0))).isEmpty() )
+	if ( FixedString(selwellstbl_->text(RowCol(idx,0))).isEmpty() )
 	    return idx;
     }
 
@@ -337,10 +337,10 @@ int uiWellSelGrp::getFirstEmptyRow()
 
 void uiWellSelGrp::ptsSel( CallBacker* cb )
 {
-    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    for ( int idx=0; idx<selwellstbl_->nrRows(); idx++ )
     {
 	mDynamicCastGet(uiComboBox*,box,
-			selwellsbox_->getCellObject(RowCol(idx,1)))
+			selwellstbl_->getCellObject(RowCol(idx,1)))
 	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
     }
 }

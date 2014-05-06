@@ -52,7 +52,8 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines",
+						  uiListBox::AtLeastOne );
     linelistfld_ = llb->box();
     llb->attach( alignedBelow, namefld_ );
 
@@ -60,7 +61,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     lsfld_->attach( alignedBelow, llb );
 
     labelfld_ = new uiCheckBox( this, "Post Line names",
-	   			mCB(this,uiGMT2DLinesGrp,labelSel) );
+				mCB(this,uiGMT2DLinesGrp,labelSel) );
     const char* posoptions [] = { "Start", "End", "Both", 0 };
     labelposfld_ = new uiGenInput( this, "", StringListInpSpec(posoptions) );
     labelposfld_->attach( alignedBelow, lsfld_ );
@@ -73,7 +74,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     labelfontfld_->setValue( 10 );
 
     trclabelfld_ = new uiCheckBox( this, "Post Trace numbers",
-	    			   mCB(this,uiGMT2DLinesGrp,labelSel) );
+				   mCB(this,uiGMT2DLinesGrp,labelSel) );
     trcstepfld_ = new uiGenInput( this, "Steps", IntInpSpec(100) );
     trcstepfld_->attach( alignedBelow, labelposfld_ );
     trclabelfld_->attach( leftOf, trcstepfld_ );
@@ -133,13 +134,13 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select a lineset")
 
-    if ( !linelistfld_->nrSelected() )
-	mErrRet("Please select at least one line")
+    if ( !linelistfld_->nrChosen() )
+	return true;
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );
     BufferStringSet linenms;
-    linelistfld_->getSelectedItems( linenms );
+    linelistfld_->getChosen( linenms );
     par.set( ODGMT::sKeyLineNames(), linenms );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
@@ -171,10 +172,10 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 
     BufferStringSet linenms;
     par.get( ODGMT::sKeyLineNames(), linenms );
-    linelistfld_->clearSelection();
+    linelistfld_->chooseAll( false );
     for ( int idx=0; idx<linelistfld_->size(); idx++ )
 	if ( linenms.isPresent(linelistfld_->textOfItem(idx)) )
-	    linelistfld_->setSelected( idx, true );
+	    linelistfld_->setChosen( idx, true );
 
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )

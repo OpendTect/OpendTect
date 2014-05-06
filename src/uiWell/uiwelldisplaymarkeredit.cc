@@ -99,7 +99,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
 {
     setOkText( "Ok/Save" );
 
-    mrklist_ = new uiListBox( this, "Markers", false );
+    mrklist_ = new uiListBox( this, "Markers" );
     mrklist_->rightButtonClicked.notify(
 			    mCB(this,uiDispEditMarkerDlg,listRClickCB) );
     mrklist_->setStretch( 2, 2 );
@@ -148,7 +148,7 @@ void uiDispEditMarkerDlg::modeChg( CallBacker* )
     if ( ispicking_ != pickbut_->isOn() )
     {
 	ispicking_ = pickbut_->isOn();
-	mrklist_->setMultiSelect( false );
+	mrklist_->setMultiChoice( false );
 	pickmodechanged.trigger();
     }
 }
@@ -377,7 +377,7 @@ void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 
 void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
-    const char* selnm = mrklist_->nrSelected() ? mrklist_->getText() : 0;
+    const char* selnm = mrklist_->nrChosen() ? mrklist_->getText() : 0;
 
     if ( mrklist_->size() ) mrklist_->setEmpty();
     BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;

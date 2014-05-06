@@ -60,7 +60,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 	horselfld_->addItem( hinfos_[idx]->name );
 
     uiLabeledListBox* llbox = new uiLabeledListBox( this, "Select lines",
-						    true );
+						    uiListBox::AtLeastOne );
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
@@ -98,7 +98,7 @@ uiExport2DHorizon::~uiExport2DHorizon()
 bool uiExport2DHorizon::doExport()
 {
     BufferStringSet linenms;
-    linenmfld_->getSelectedItems( linenms );
+    linenmfld_->getChosen( linenms );
     if ( !linenms.size() )
 	mErrRet("Please select at least one line to proceed")
 

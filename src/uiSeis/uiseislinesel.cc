@@ -225,15 +225,15 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     uiSelectFromList dlg( this, su );
     if ( ismultisel_ && dlg.selFld() )
     {
-	dlg.selFld()->setMultiSelect();
-	dlg.selFld()->setSelectedItems( selidxs_ );
+	dlg.selFld()->setMultiChoice();
+	dlg.selFld()->setChosen( selidxs_ );
     }
 
     if ( !dlg.go() || !dlg.selFld() )
 	return;
 
     selidxs_.erase();
-    dlg.selFld()->getSelectedItems( selidxs_ );
+    dlg.selFld()->getChosen( selidxs_ );
     selectionChanged.trigger();
 }
 
@@ -394,8 +394,8 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
                                     mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
     , zrgfld_(0)
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, lnms,
-	    					  "Select Lines", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, lnms, "Select Lines",
+						  uiListBox::AtLeastOne );
     lnmsfld_ = llb->box();
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
@@ -442,7 +442,7 @@ void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 
 
 void uiSeis2DMultiLineSelDlg::setAll( bool yn )
-{ lnmsfld_->selectAll( yn ); }
+{ lnmsfld_->chooseAll( yn ); }
 
 void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
 				const TypeSet<StepInterval<int> >& trcrgs,
@@ -451,13 +451,13 @@ void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
     if ( trcrgs.size() != selidxs.size() )
 	return;
 
-    lnmsfld_->clearSelection();
+    lnmsfld_->chooseAll( false );
     if ( !selidxs.isEmpty() )
 	lnmsfld_->setCurrentItem( selidxs[0] );
 
     for ( int idx=0; idx<selidxs.size(); idx++ )
     {
-	lnmsfld_->setSelected( selidxs[idx] );
+	lnmsfld_->setChosen( selidxs[idx] );
 	trcrgs_[selidxs[idx]] = trcrgs[idx];
 	zrgs_[selidxs[idx]] = zrgs[idx];
     }
@@ -469,7 +469,7 @@ void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
 void uiSeis2DMultiLineSelDlg::getSelLines( TypeSet<int>& selidxs ) const
 {
     selidxs.erase();
-    lnmsfld_->getSelectedItems( selidxs );
+    lnmsfld_->getChosen( selidxs );
 }
 
 
@@ -478,7 +478,7 @@ void uiSeis2DMultiLineSelDlg::getTrcRgs(TypeSet<StepInterval<int> >& rgs) const
     rgs.erase();
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
     {
-	if ( !lnmsfld_->isSelected(idx) )
+	if ( !lnmsfld_->isChosen(idx) )
 	    continue;
 
 	rgs += trcrgs_[idx];
@@ -489,7 +489,7 @@ void uiSeis2DMultiLineSelDlg::getTrcRgs(TypeSet<StepInterval<int> >& rgs) const
 bool uiSeis2DMultiLineSelDlg::isAll() const
 {
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
-	if ( !lnmsfld_->isSelected(idx) || trcrgs_[idx] != maxtrcrgs_[idx] )
+	if ( !lnmsfld_->isChosen(idx) || trcrgs_[idx] != maxtrcrgs_[idx] )
 	    return false;
 
     return true;
@@ -502,7 +502,7 @@ void uiSeis2DMultiLineSelDlg::getZRgs(
     zrgs.erase();
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
     {
-	if ( !lnmsfld_->isSelected(idx) )
+	if ( !lnmsfld_->isChosen(idx) )
 	    continue;
 
 	zrgs += zrgs_[idx];
@@ -512,13 +512,13 @@ void uiSeis2DMultiLineSelDlg::getZRgs(
 
 void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
 {
-    const bool multisel = lnmsfld_->nrSelected() > 1;
+    const bool multisel = lnmsfld_->nrChosen() > 1;
     trcrgfld_->setSensitive( !multisel );
     if ( zrgfld_ ) zrgfld_->setSensitive( !multisel );
     if ( multisel ) return;
 
     NotifyStopper ns( trcrgfld_->rangeChanged );
-    if ( trcrgs_.isEmpty() || lnmsfld_->nrSelected() <= 0 )
+    if ( trcrgs_.isEmpty() || lnmsfld_->nrChosen() <= 0 )
 	return;
 
     trcrgfld_->setLimitRange( maxtrcrgs_[0] );
@@ -550,7 +550,7 @@ void uiSeis2DMultiLineSelDlg::zRgChanged( CallBacker* )
 
 bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 {
-    if ( lnmsfld_->nrSelected() == 1 )
+    if ( lnmsfld_->nrChosen() == 1 )
 	trcRgChanged( 0 );
     return true;
 }

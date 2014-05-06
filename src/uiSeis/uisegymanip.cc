@@ -248,8 +248,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers", false,
-					uiLabeledListBox::LeftMid );
+    uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers" );
     avtrchdrsfld_ = llb->box();
     avtrchdrsfld_->setHSzPol( uiObject::Small );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
@@ -431,8 +430,8 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     , calcset_(cs)
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Available", false,
-					uiLabeledListBox::AboveMid );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Available",
+			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
     hdrfld_ = llb->box();
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )

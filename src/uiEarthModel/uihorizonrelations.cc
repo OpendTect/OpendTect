@@ -41,12 +41,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle, 
+    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,
                        mODHelpKey(mHorizonRelationsDlgHelpID) ))
     , is2d_( is2d )
 {
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
-				         false, uiLabeledListBox::AboveLeft );
+			     uiListBox::OnlyOne, uiLabeledListBox::AboveLeft );
     relationfld_->box()->setHSzPol( uiObject::Wide );
 
     uiPushButton* orderbut =
@@ -125,7 +125,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     horizonfld_->attach( leftAlignedBelow, lbl );
 
     modefld_ = new uiGenInput( this, "Modify action",
-	    		       BoolInpSpec(true,"Shift","Remove") );
+			       BoolInpSpec(true,"Shift","Remove") );
     modefld_->attach( alignedBelow, horizonfld_ );
 
     savefld_ = new uiGenInput( this, "Save modified horizon",
@@ -176,7 +176,7 @@ bool acceptOK( CallBacker* )
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     MultiID outmid;
     EM::EMObject* outemobj = 0;
-    
+
     if ( saveas )
     {
 	if ( !objfld_->commitInput() )
@@ -196,9 +196,9 @@ bool acceptOK( CallBacker* )
 	    Array2D<float>* arr2d;
 	    arr2d = hor3d->createArray2D( emobj->sectionID(0) );
 	    BinID start( hor3d->geometry().rowRange().start,
-		    	 hor3d->geometry().colRange().start );
+			 hor3d->geometry().colRange().start );
 	    BinID step( hor3d->geometry().step().row(),
-		    	hor3d->geometry().step().col() );
+			hor3d->geometry().step().col() );
 	    outhor3d->setMultiID( outmid );
 	    outhor3d->geometry().sectionGeometry(EM::SectionID(0))->setArray(
 		    start, step, arr2d, true );
@@ -222,7 +222,7 @@ bool acceptOK( CallBacker* )
 
     HorizonModifier modifier( is2d_ );
     modifier.setHorizons( topisstatic ? mid1_ : saveas ? outmid : mid1_,
-	    		  !topisstatic ? mid2_ : saveas ? outmid : mid2_ );
+			  !topisstatic ? mid2_ : saveas ? outmid : mid2_ );
     modifier.setMode( modefld_->getBoolValue() ? HorizonModifier::Shift
 					       : HorizonModifier::Remove );
 
@@ -266,7 +266,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 	for ( int idy=idx+1; idy<horids_.size(); idy++ )
 	{
 	    const int nrcrossings = sorter.getNrCrossings( horids_[idx],
-		    					   horids_[idy] );
+							   horids_[idy] );
 	    if ( nrcrossings == 0 ) continue;
 
 	    TypeSet<MultiID> sortedids;
@@ -274,7 +274,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 	    const int idx1 = sortedids.indexOf( horids_[idx] );
 	    const int idx2 = sortedids.indexOf( horids_[idy] );
 	    HorizonModifyDlg dlg( this, sortedids[mMIN(idx1,idx2)],
-		    		  sortedids[mMAX(idx1,idx2)], is2d_,
+				  sortedids[mMAX(idx1,idx2)], is2d_,
 				  nrcrossings );
 	    dlg.go();
 	    count++;

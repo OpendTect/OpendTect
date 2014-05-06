@@ -120,7 +120,7 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s, bool withreloc,
     robut = addButton( ReadOnly, "Toggle Read only : locked", cb );
     setAlternative( robut, "unlock", "Toggle Read only : editable" );
     if ( withremove )
-	rembut = addButton( Remove, "Remove this object", cb );
+	rembut = addButton( Remove, "Remove selected", cb );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -130,116 +130,150 @@ uiIOObjManipGroup::~uiIOObjManipGroup()
 }
 
 
-void uiIOObjManipGroup::getIOObjs( ObjectSet<IOObj>& objs ) const
-{
-    objs.allowNull();
-    TypeSet<MultiID> mids; subj_.selectedIDs( mids );
-    for ( int idx=0; idx<mids.size(); idx++ )
-	objs += IOM().get( mids[idx] );
-}
-
-
-void uiIOObjManipGroup::commitChgs( IOObj* ioobj )
-{
-    if ( ioobj ) IOM().commitChanges( *ioobj );
-}
-
 
 void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
 {
     if ( tp == FileLocation && locbut )	locbut->click();
     else if ( tp == Rename )		renbut->click();
     else if ( tp == ReadOnly )		robut->click();
-    else if ( tp == Remove && rembut )		rembut->click();
+    else if ( tp == Remove && rembut )	rembut->click();
 }
 
 
 void uiIOObjManipGroup::selChg()
 {
-    ObjectSet<IOObj> objs;
-    getIOObjs( objs );
-    const bool singlesel = objs.size() == 1;
+    const MultiID curid = subj_.currentID();
+    IOObj* curioobj = IOM().get( curid );
+    if ( !curioobj )
+    {
+	renbut->setSensitive( false );
+	robut->setSensitive( false );
+	if ( locbut ) locbut->setSensitive( false );
+	if ( rembut ) rembut->setSensitive( false );
+	return;
+    }
 
-    IOObj* firstioobj = !objs.isEmpty() ? objs[0] : 0;
-    mDynamicCastGet(IOStream*,iostrm,firstioobj)
+    TypeSet<MultiID> chosenids; subj_.getSelectedIDs( chosenids );
+    IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
-    const bool isexisting = firstioobj && firstioobj->implExists(true);
-    const bool isreadonly = isexisting && firstioobj->implReadOnly();
-    if ( locbut ) locbut->setSensitive( singlesel && iostrm && !isreadonly );
-    useAlternative( robut, !isreadonly );
-    renbut->setSensitive( singlesel && firstioobj );
-    if ( rembut ) rembut->setSensitive( firstioobj && !isreadonly );
-    deepErase( objs );
+    BufferString tt;
+#define mSetTBStateAndTT(tb,cond,oper,ioobj,ttextra) \
+    tb->setSensitive( cond ); \
+    if ( !cond ) \
+	tt.setEmpty(); \
+    else \
+	tt.set( oper ).add(" '").add( ioobj->name() ).add("'").add(ttextra); \
+    tb->setToolTip( tt )
+
+
+    if ( locbut )
+    {
+	mDynamicCastGet(IOStream*,iostrm,curioobj)
+	const bool canreloc = iostrm && !iostrm->implReadOnly();
+	mSetTBStateAndTT( locbut, canreloc, "Relocate", curioobj, "" );
+    }
+
+    mSetTBStateAndTT( renbut, true, "Rename", curioobj, "" );
+
+    const bool cantoggro = firstchosenioobj
+			&& firstchosenioobj->implExists(true);
+    const bool isro = cantoggro && firstchosenioobj->implReadOnly();
+    const char* extratt = chosenids.size() > 1 ? ", ..." : "";
+    useAlternative( robut, !isro );
+    mSetTBStateAndTT( robut, cantoggro, isro ? "Unlock":"Lock",
+			firstchosenioobj, extratt );
+
+    if ( rembut )
+    {
+	const bool canrm = firstchosenioobj;
+	mSetTBStateAndTT( rembut, canrm, "Remove", firstchosenioobj, extratt );
+    }
+
+    delete curioobj;
+    delete firstchosenioobj;
 }
 
 
 void uiIOObjManipGroup::tbPush( CallBacker* c )
 {
     mDynamicCastGet(uiToolButton*,tb,c)
-    if ( !tb ) { pErrMsg("CallBacker is not uiToolButton!"); return; }
+    if ( !tb )
+	{ pErrMsg("CallBacker is not uiToolButton!"); return; }
+    const MultiID curid = subj_.currentID();
+    if ( curid.isEmpty() )
+	return;
+
+    const bool isreloc = tb == locbut;
+    const bool issetro = tb == robut;
+    const bool isrename = tb == renbut;
+    const bool isremove = tb == rembut;
+    const bool issingle = isreloc || isrename;
+
+    TypeSet<MultiID> chosenids;
+    if ( !issingle )
+	subj_.getSelectedIDs( chosenids );
+    IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );
+    if ( !firstioobj )
+	return;
 
     mDynamicCastGet(uiMainWin*,mw,subj_.obj_->mainwin())
     uiMsgMainWinSetter mws( mw );
 
-    ObjectSet<IOObj> ioobjs;
-    getIOObjs( ioobjs );
-
-    IOObj* firstioobj = !ioobjs.isEmpty() ? ioobjs[0] : 0;
-    if ( !firstioobj ) return;
-
     PtrMan<Translator> tr = firstioobj->createTranslator();
     bool chgd = false;
-    if ( tb == locbut )
-	chgd = relocEntry( firstioobj, tr );
-    else if ( tb == robut )
+    if ( isreloc )
+	chgd = relocEntry( *firstioobj, tr );
+    else if ( isrename )
+	chgd = renameEntry( *firstioobj, tr );
+    else
     {
-	const bool isro =
-		tr ? tr->implReadOnly(firstioobj) : firstioobj->implReadOnly();
-	for ( int idx=0; idx<ioobjs.size(); idx++ )
+	ObjectSet<IOObj> ioobjs;
+	for ( int idx=0; idx<chosenids.size(); idx++ )
+	    ioobjs += IOM().get( chosenids[idx] );
+
+	if ( issetro )
 	{
-	    IOObj* ioobj = ioobjs[idx];
-	    if ( !ioobj ) continue;
-	    readonlyEntry( ioobj, tr, !isro );
+	    const bool isro = tr ? tr->implReadOnly(firstioobj)
+				 : firstioobj->implReadOnly();
+	    for ( int idx=0; idx<ioobjs.size(); idx++ )
+		readonlyEntry( *ioobjs[idx], tr, !isro );
 	}
-	chgd = false;
-    }
-    else if ( tb == renbut )
-	chgd = renameEntry( firstioobj, tr );
-    else if ( tb == rembut )
-    {
-	for ( int idx=0; idx<ioobjs.size(); idx++ )
+	else if ( isremove )
 	{
-	    IOObj* ioobj = ioobjs[idx];
-	    if ( !ioobj ) continue;
-	    const bool res = rmEntry( ioobj );
-	    if ( !chgd && res ) chgd = res;
+	    for ( int idx=0; idx<ioobjs.size(); idx++ )
+	    {
+		const bool res = rmEntry( *ioobjs[idx] );
+		if ( !chgd && res )
+		    chgd = res;
+	    }
 	}
+	deepErase( ioobjs );
     }
 
+    delete firstioobj;
     if ( chgd )
 	subj_.chgsOccurred();
-    deepErase( ioobjs );
 }
 
 
-bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
+bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 {
     BufferString titl( "Rename '" );
-    titl += ioobj->name(); titl += "'";
+    titl += ioobj.name(); titl += "'";
     uiGenInputDlg dlg( this, titl, "New name",
-			new StringInpSpec(ioobj->name()) );
+			new StringInpSpec(ioobj.name()) );
     if ( !dlg.go() ) return false;
 
     BufferString newnm = dlg.text();
     if ( subj_.names().isPresent(newnm) )
     {
-	if ( newnm != ioobj->name() )
+	if ( newnm != ioobj.name() )
 	    uiMSG().error( "Name already in use" );
 	return false;
     }
     else
     {
-	IOObj* lioobj = IOM().getLocal( newnm, ioobj->group() );
+	IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
 	if ( lioobj )
 	{
 	    BufferString msg( "This name is already used by a ",
@@ -250,9 +284,9 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	}
     }
 
-    ioobj->setName( newnm );
+    ioobj.setName( newnm );
 
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    mDynamicCastGet(IOStream*,iostrm,&ioobj)
     if ( iostrm )
     {
 	if ( !iostrm->implExists(true) )
@@ -296,21 +330,21 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	}
     }
 
-    commitChgs( ioobj );
+    IOM().commitChanges( ioobj );
     return true;
 }
 
 
-bool uiIOObjManipGroup::rmEntry( IOObj* ioobj )
+bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 {
-    PtrMan<Translator> tr = ioobj->createTranslator();
-    const bool exists = tr ? tr->implExists(ioobj,true)
-			   : ioobj->implExists(true);
-    const bool readonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-    bool shldrm = tr ? tr->implShouldRemove(ioobj) : ioobj->implShouldRemove();
+    PtrMan<Translator> tr = ioobj.createTranslator();
+    const bool exists = tr ? tr->implExists(&ioobj,true)
+			   : ioobj.implExists(true);
+    const bool readonly = tr ? tr->implReadOnly(&ioobj) : ioobj.implReadOnly();
+    bool shldrm = tr ? tr->implShouldRemove(&ioobj) : ioobj.implShouldRemove();
     if ( exists && readonly && shldrm )
     {
-	BufferString msg( "'", ioobj->name(), "' " );
+	BufferString msg( "'", ioobj.name(), "' " );
 	msg.add( "is not writable; the actual data will not be removed." )
 	   .addNewLine()
 	   .add( "The entry will only disappear from the list.\nContinue?" );
@@ -319,17 +353,17 @@ bool uiIOObjManipGroup::rmEntry( IOObj* ioobj )
 	shldrm = false;
     }
 
-    return exists ? uiIOObj(*ioobj).removeImpl( true, shldrm )
-		  : IOM().permRemove( ioobj->key() );
+    return exists ? uiIOObj(ioobj).removeImpl( true, shldrm )
+		  : IOM().permRemove( ioobj.key() );
 }
 
 
-bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
+bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* tr )
 {
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
+    mDynamicCastGet(IOStream&,iostrm,ioobj)
     BufferString caption( "New file location for '" );
-    caption += ioobj->name(); caption += "'";
-    BufferString oldfnm( iostrm->getExpandedName(true) );
+    caption += ioobj.name(); caption += "'";
+    BufferString oldfnm( iostrm.getExpandedName(true) );
     BufferString filefilt;
     BufferString defext( subj_.defExt() );
     if ( !defext.isEmpty() )
@@ -343,45 +377,44 @@ bool uiIOObjManipGroup::relocEntry( IOObj* ioobj, Translator* tr )
     if ( !dlg.go() ) return false;
 
     IOStream chiostrm;
-    chiostrm.copyFrom( iostrm );
+    chiostrm.copyFrom( &iostrm );
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
     { uiMSG().error( "Selected path is not a directory" ); return false; }
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
     chiostrm.setFileName( fp.fullPath() );
-    if ( !doReloc(tr,*iostrm,chiostrm) )
+    if ( !doReloc(tr,iostrm,chiostrm) )
 	return false;
 
-    commitChgs( ioobj );
+    IOM().commitChanges( ioobj );
     return true;
 }
 
 
-bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr,
+bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* tr,
 				       bool set2ro )
 {
-    if ( !ioobj ) { pErrMsg("Huh"); return false; }
+    const bool exists = tr ? tr->implExists(&ioobj,true)
+			   : ioobj.implExists(true);
+    if ( !exists )
+	return false;
 
-    const bool exists = tr ? tr->implExists(ioobj,true)
-			   : ioobj->implExists(true);
-    if ( !exists ) return false;
-
-    const bool oldreadonly = tr ? tr->implReadOnly(ioobj)
-				: ioobj->implReadOnly();
+    const bool oldreadonly = tr ? tr->implReadOnly(&ioobj)
+				: ioobj.implReadOnly();
     bool newreadonly = set2ro;
     if ( oldreadonly == newreadonly )
 	return false;
 
     if ( tr )
     {
-	tr->implSetReadOnly( ioobj, newreadonly );
-	newreadonly = tr->implReadOnly( ioobj );
+	tr->implSetReadOnly( &ioobj, newreadonly );
+	newreadonly = tr->implReadOnly( &ioobj );
     }
     else
     {
-	ioobj->implSetReadOnly( newreadonly );
-	newreadonly = ioobj->implReadOnly();
+	ioobj.implSetReadOnly( newreadonly );
+	newreadonly = ioobj.implReadOnly();
     }
 
     if ( oldreadonly == newreadonly )
