@@ -192,8 +192,6 @@ private:
     void		updateFields2ChoiceMode();
     void		setItemCheckable(int,bool);
 
-protected:
-
     void		setItemsCheckable( bool yn )	{ setMultiChoice(yn); }
     void		setAllItemsChecked(bool);
     void		setItemChecked(int,bool);
