@@ -13,8 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapitem.h"
 #include "uidockwin.h"
+#include "uigraphicsview.h"
 #include "uisurvmap.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uitreeview.h"
 
 #include "survinfo.h"
@@ -29,6 +31,9 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
     basemapview_->setPrefHeight( 250 );
     basemapview_->setPrefWidth( 250 );
     basemapview_->setSurveyInfo( &SI() );
+    uiGraphicsView::ScrollBarPolicy sbpol = uiGraphicsView::ScrollBarAsNeeded;
+    basemapview_->view().setScrollBarPolicy( true, sbpol );
+    basemapview_->view().setScrollBarPolicy( false, sbpol );
 
     treedw_ = new uiDockWin( this, "Basemap Tree" );
     addDockWindow( *treedw_, uiMainWin::Left );
@@ -37,6 +42,8 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
     initTree();
     initToolBar();
 
+    BMM().setBasemap( *basemapview_ );
+    BMM().setTreeTop( *topitem_ );
     postFinalise().notify( mCB(this,uiBasemapWin,initWin) );
 }
 
@@ -61,6 +68,8 @@ void uiBasemapWin::initTree()
 void uiBasemapWin::initToolBar()
 {
     toolbar_ = new uiToolBar( this, "Basemap Items" );
+    toolbar_->addObject(
+	basemapview_->view().getSaveImageButton(toolbar_) );
 
     CallBack cb = mCB(this,uiBasemapWin,iconClickCB);
     const BufferStringSet& nms = uiBasemapItem::factory().getNames();
@@ -69,8 +78,6 @@ void uiBasemapWin::initToolBar()
     {
 	uiBasemapItem* itm =
 		uiBasemapItem::factory().create( nms.get(idx) );
-	itm->setBasemap( *basemapview_ );
-	itm->setTreeTop( *topitem_ );
 
 	uiString str( "Add " ); str.append( usrnms[idx] );
 	uiAction* action = new uiAction( str, cb, itm->iconName() );
@@ -89,7 +96,7 @@ void uiBasemapWin::iconClickCB( CallBacker* cb )
     const int itmidx = ids_.indexOf( id );
     if ( !items_.validIdx(itmidx) ) return;
 
-    items_[itmidx]->add();
+    BMM().add( items_[itmidx]->factoryKeyword() );
 }
 
 

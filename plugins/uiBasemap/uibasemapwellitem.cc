@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiaction.h"
 #include "uiioobjsel.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uistrings.h"
 
@@ -22,8 +23,10 @@ ________________________________________________________________________
 
 
 // uiBasemapWellGroup
-uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p, const char* nm )
-    : uiBasemapGroup(p,nm)
+const char* uiBasemapWellGroup::sKeyNrWells()	{ return "Nr Wells"; }
+
+uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p )
+    : uiBasemapGroup(p)
 {
     wellsfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
 	uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
@@ -37,15 +40,45 @@ uiBasemapWellGroup::~uiBasemapWellGroup()
 }
 
 
+bool uiBasemapWellGroup::acceptOK()
+{
+    const int nrwells = wellsfld_->nrSelected();
+    if ( nrwells == 0 )
+    {
+	uiMSG().error( "Select at least one well" );
+	return false;
+    }
+
+    const bool res = uiBasemapGroup::acceptOK();
+    return res;
+}
+
+
 bool uiBasemapWellGroup::fillPar( IOPar& par ) const
 {
-    return true;
+    const bool res = uiBasemapGroup::fillPar( par );
+    TypeSet<MultiID> mids;
+    wellsfld_->getSelected( mids );
+    const int nrwells = mids.size();
+    par.set( sKeyNrWells(), nrwells );
+    for ( int idx=0; idx<nrwells; idx++ )
+	par.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+
+    return res;
 }
 
 
 bool uiBasemapWellGroup::usePar( const IOPar& par )
 {
-    return true;
+    const bool res = uiBasemapGroup::usePar( par );
+    int nrwells = 0;
+    par.get( uiBasemapWellGroup::sKeyNrWells(), nrwells );
+    TypeSet<MultiID> mids( nrwells, MultiID::udf() );
+    for ( int idx=0; idx<nrwells; idx++ )
+	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+
+    wellsfld_->setSelected( mids );
+    return res;
 }
 
 
@@ -54,34 +87,31 @@ const char* uiBasemapWellItem::iconName() const
 { return "well"; }
 
 
-void uiBasemapWellItem::add()
-{
-    ObjectSet<MultiID> wellids;
-    applMgr().selectWells( wellids );
-    if ( wellids.isEmpty() )
-	return;
-
-    for ( int idx=0; idx<wellids.size(); idx++ )
-    {
-	Basemap::WellObject* obj = new Basemap::WellObject( *wellids[idx] );
-	addBasemapObject( *obj );
-	obj->updateGeometry();
-    }
-
-    const char* nm = "Wells";
-    addTreeItem( *new uiBasemapWellTreeItem(nm) );
-}
-
-
-void uiBasemapWellItem::edit()
-{
-}
-
 
 // uiBasemapWellTreeItem
 uiBasemapWellTreeItem::uiBasemapWellTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
 {}
+
+
+bool uiBasemapWellTreeItem::usePar( const IOPar& par )
+{
+    int nrwells = 0;
+    par.get( uiBasemapWellGroup::sKeyNrWells(), nrwells );
+    for ( int idx=0; idx<nrwells; idx++ )
+    {
+	MultiID mid;
+	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
+	    continue;
+
+	Basemap::WellObject* obj = new Basemap::WellObject( mid );
+	addBasemapObject( *obj );
+	obj->updateGeometry();
+    }
+
+    pars_ = par;
+    return true;
+}
 
 
 bool uiBasemapWellTreeItem::showSubMenu()
@@ -97,6 +127,7 @@ bool uiBasemapWellTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid==0 )
     {
+	BMM().edit( factoryKeyword(), name() );
     }
     else
 	return false;

@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id: uibasemaptreeitem.cc 34190 2014-04-16 
 #include "uibasemapitem.h"
 
 #include "uibasemap.h"
+#include "uidialog.h"
 #include "uigeninput.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -21,73 +22,6 @@ static const char* rcsID mUsedVar = "$Id: uibasemaptreeitem.cc 34190 2014-04-16 
 #include "uiodmain.h"
 #include "uistrings.h"
 #include "uitreeview.h"
-
-
-mImplFactory( uiBasemapItem, uiBasemapItem::factory )
-
-uiBasemapItem::uiBasemapItem()
-    : treeitem_(0)
-    , basemap_(0)
-    , treetop_(0)
-{
-}
-
-
-uiBasemapItem::~uiBasemapItem()
-{
-    if ( treeitem_ )
-	treeitem_->checkStatusChange()->remove(
-					mCB(this,uiBasemapItem,checkCB) );
-}
-
-
-void uiBasemapItem::setBasemap( uiBaseMap& bm )
-{ basemap_ = &bm; }
-
-
-void uiBasemapItem::addBasemapObject( BaseMapObject& bmo )
-{
-    basemap_->addObject( &bmo );
-    basemapobjs_ += &bmo;
-}
-
-
-void uiBasemapItem::setTreeTop( uiTreeTopItem& tt )
-{ treetop_ = &tt; }
-
-
-void uiBasemapItem::addTreeItem( uiTreeItem& itm )
-{
-    treeitem_ = &itm;
-    treetop_->addChild( &itm, true );
-    itm.checkStatusChange()->notify( mCB(this,uiBasemapItem,checkCB) );
-}
-
-
-uiParent* uiBasemapItem::parent()
-{ return basemap_ ? basemap_->parent() : 0; }
-
-
-void uiBasemapItem::checkCB( CallBacker* )
-{ show( treeitem_->isChecked() ); }
-
-
-void uiBasemapItem::show( bool yn )
-{
-    for ( int idx=0; idx<basemapobjs_.size(); idx++ )
-	basemap_->show( *basemapobjs_[idx], yn );
-}
-
-
-uiODApplMgr& uiBasemapItem::applMgr()
-{ return ODMainWin()->applMgr(); }
-
-
-void uiBasemapItem::fillPar( IOPar& ) const
-{}
-
-bool uiBasemapItem::usePar( const IOPar& )
-{ return true; }
 
 
 // uiBasemapTreeTop
@@ -99,24 +33,11 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 {}
 
 
-// uiBasemapTreeItem
-uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
-    : uiTreeItem(nm)
-    , par_(*new IOPar)
-{}
-
-uiBasemapTreeItem::~uiBasemapTreeItem()
-{
-    delete &par_;
-}
-
-int uiBasemapTreeItem::uiTreeViewItemType() const
-{ return uiTreeViewItem::CheckBox; }
-
-
 // uiBasemapGroup
-uiBasemapGroup::uiBasemapGroup( uiParent* p, const char* nm )
-    : uiGroup(p,nm)
+mImplFactory1Param( uiBasemapGroup, uiParent*, uiBasemapGroup::factory )
+
+uiBasemapGroup::uiBasemapGroup( uiParent* p )
+    : uiGroup(p)
     , namefld_(0)
 {
 }
@@ -140,19 +61,15 @@ void uiBasemapGroup::setItemName( const char* nm )
 const char* uiBasemapGroup::itemName() const
 { return namefld_ ? namefld_->text() : ""; }
 
+HelpKey uiBasemapGroup::getHelpKey() const
+{ return HelpKey::emptyHelpKey(); }
+
 
 bool uiBasemapGroup::fillPar( IOPar& par ) const
 {
     if ( !namefld_ ) return true;
 
-    const FixedString nm = namefld_->text();
-    if ( nm.isEmpty() )
-    {
-	uiMSG().error( "Please enter a name." );
-	return false;
-    }
-
-    par.set( sKey::Name(), nm );
+    par.set( sKey::Name(), namefld_->text() );
     return true;
 }
 
@@ -163,4 +80,166 @@ bool uiBasemapGroup::usePar( const IOPar& par )
 	namefld_->setText( par.find(sKey::Name()) );
 
     return true;
+}
+
+
+bool uiBasemapGroup::acceptOK()
+{
+    const FixedString nm = namefld_->text();
+    if ( nm.isEmpty() )
+    {
+	uiMSG().error( "Please enter a name." );
+	return false;
+    }
+
+    return true;
+}
+
+
+class uiBasemapGroupDlg : public uiDialog
+{
+public:
+uiBasemapGroupDlg( uiParent* p, const char* itmnm )
+    : uiDialog(p,Setup("Select Basemap parameters",mNoDlgTitle,mNoHelpKey))
+{
+    grp_ = uiBasemapGroup::factory().create( itmnm, this );
+    setHelpKey( grp_->getHelpKey() );
+}
+
+
+bool fillPar( IOPar& par ) const
+{ return grp_->fillPar( par ); }
+
+bool usePar( const IOPar& par )
+{ return grp_->usePar( par ); }
+
+
+bool acceptOK( CallBacker* )
+{ return grp_->acceptOK(); }
+
+    uiBasemapGroup* grp_;
+};
+
+
+// uiBasemapItem
+mImplFactory( uiBasemapItem, uiBasemapItem::factory )
+
+
+
+// uiBasemapTreeItem
+mImplFactory1Param( uiBasemapTreeItem, const char*, uiBasemapTreeItem::factory )
+
+uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
+    : uiTreeItem(nm)
+    , pars_(*new IOPar)
+{
+}
+
+uiBasemapTreeItem::~uiBasemapTreeItem()
+{
+    checkStatusChange()->remove( mCB(this,uiBasemapTreeItem,checkCB) );
+    delete &pars_;
+}
+
+
+bool uiBasemapTreeItem::init()
+{
+    checkStatusChange()->notify( mCB(this,uiBasemapTreeItem,checkCB) );
+    return true;
+}
+
+
+void uiBasemapTreeItem::addBasemapObject( BaseMapObject& bmo )
+{
+    basemapobjs_ += &bmo;
+    BMM().getBasemap().addObject( &bmo );
+}
+
+
+void uiBasemapTreeItem::checkCB( CallBacker* )
+{
+    const bool show = isChecked();
+    for ( int idx=0; idx<basemapobjs_.size(); idx++ )
+	BMM().getBasemap().show( *basemapobjs_[idx], show );
+}
+
+
+int uiBasemapTreeItem::uiTreeViewItemType() const
+{ return uiTreeViewItem::CheckBox; }
+
+
+//uiBasemapManager
+uiBasemapManager& BMM()
+{
+    mDefineStaticLocalObject( PtrMan<uiBasemapManager>, bmm,
+			      (new uiBasemapManager) );
+    return *bmm;
+}
+
+
+uiBasemapManager::uiBasemapManager()
+    : basemap_(0)
+    , treetop_(0)
+{}
+
+
+uiBasemapManager::~uiBasemapManager()
+{}
+
+
+void uiBasemapManager::setBasemap( uiBaseMap& bm )
+{ basemap_ = &bm; }
+
+uiBaseMap& uiBasemapManager::getBasemap()
+{ return *basemap_; }
+
+void uiBasemapManager::setTreeTop( uiTreeTopItem& tt )
+{ treetop_ = &tt; }
+
+
+void uiBasemapManager::add( const char* keyw )
+{
+    uiBasemapGroupDlg dlg( basemap_, keyw );
+    if ( !dlg.go() )
+	return;
+
+    IOPar pars;
+    dlg.fillPar( pars );
+
+    uiBasemapTreeItem* itm =
+	uiBasemapTreeItem::factory().create( keyw, dlg.grp_->itemName() );
+    if ( !itm->usePar(pars) )
+    {
+	delete itm;
+	return;
+    }
+
+    treeitems_ += itm;
+    treetop_->addChild( itm, true );
+}
+
+
+void uiBasemapManager::edit( const char* keyw, const char* itmnm )
+{
+    uiBasemapTreeItem* itm = 0;
+    const FixedString treeitemnm = itmnm;
+    for ( int idx=0; idx<treeitems_.size(); idx++ )
+    {
+	if ( treeitemnm == treeitems_[idx]->name() )
+	{
+	    itm = treeitems_[idx];
+	    break;
+	}
+    }
+
+    if ( !itm ) return;
+
+    uiBasemapGroupDlg dlg( basemap_, keyw );
+    dlg.usePar( itm->pars() );
+    if ( !dlg.go() )
+	return;
+
+    IOPar pars;
+    dlg.fillPar( pars );
+    itm->usePar( pars );
 }

@@ -20,13 +20,24 @@ class uiIOObjSelGrp;
 mExpClass(uiBasemap) uiBasemapWellGroup : public uiBasemapGroup
 {
 public:
-			uiBasemapWellGroup(uiParent*,const char* nm);
+			mDefaultFactoryInstantiation1Param(
+				uiBasemapGroup,
+				uiBasemapWellGroup,
+				uiParent*,
+				"Wells",
+				sFactoryKeyword())
+
 			~uiBasemapWellGroup();
 
+    bool		acceptOK();
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    static const char*	sKeyNrWells();
+
 protected:
+			uiBasemapWellGroup(uiParent*);
+
     uiIOObjSelGrp*	wellsfld_;
 };
 
@@ -41,22 +52,23 @@ public:
 				sFactoryKeyword())
 
     const char*		iconName() const;
-    uiTreeItem*		getTreeItem(const char* nm);
-
-    void		add();
-    void		edit();
-
-protected:
-
 };
 
 
 mExpClass(uiBasemap) uiBasemapWellTreeItem : public uiBasemapTreeItem
 {
 public:
-			uiBasemapWellTreeItem(const char*);
+			mDefaultFactoryInstantiation1Param(
+				uiBasemapTreeItem,
+				uiBasemapWellTreeItem,
+				const char*,
+				"Wells",
+				sFactoryKeyword())
+
+    bool		usePar(const IOPar&);
 
 protected:
+			uiBasemapWellTreeItem(const char*);
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
