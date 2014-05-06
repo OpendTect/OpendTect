@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "file.h"
 #include "filepath.h"
+#include "hiddenparam.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "seis2dline.h"
@@ -43,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
+HiddenParam<uiSeis2DFileMan,BufferStringSet*> attrnms_(0);
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
@@ -51,6 +53,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
 {
     setCtrlStyle( LeaveOnly );
+    attrnms_.setParam( this, new BufferStringSet );
 
     objinfo_ = new uiSeisIOObjInfo( ioobj );
     lineset_ = new Seis2DLineSet( ioobj.fullUserExpr(true) );
@@ -130,7 +133,8 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 {
     BufferStringSet sellines;
     linefld_->getSelectedItems( sellines );
-    BufferStringSet sharedattribs;
+    BufferStringSet& sharedattribs = *attrnms_.getParam(this);
+    sharedattribs.erase();
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
@@ -158,9 +162,24 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	}
     }
 
-    attrfld_->setEmpty();
     sharedattribs.sort();
-    attrfld_->addItems( sharedattribs );
+    BufferStringSet dispnms( sharedattribs );
+    BufferString defkey = IOPar::compKey(sKey::Default(),
+		SeisTrcTranslatorGroup::sKeyDefaultAttrib());
+    const FixedString defattr = SI().getPars().find( defkey );
+    if ( !defattr.isEmpty() )
+    {
+	const int index = dispnms.indexOf( defattr );
+	if ( index >= 0 )
+	{
+	    BufferString& defentry = dispnms.get( index );
+	    defentry.insertAt( 0, "> " );
+	    defentry += " <";
+	}
+    }
+
+    attrfld_->setEmpty();
+    attrfld_->addItems( dispnms );
     attrfld_->setSelected( 0, true );
 }
 
@@ -168,17 +187,19 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 void uiSeis2DFileMan::attribSel( CallBacker* )
 {
     infofld_->setText( "" );
-    BufferStringSet linenms, attribnms;
+    BufferStringSet linenms;
+    const BufferStringSet& attrnms = *attrnms_.getParam( this );
+    TypeSet<int> selattridxs;
     linefld_->getSelectedItems( linenms );
-    attrfld_->getSelectedItems( attribnms );
-    if ( linenms.isEmpty() || attribnms.isEmpty() )
+    attrfld_->getSelectedItems( selattridxs );
+    if ( linenms.isEmpty() || selattridxs.isEmpty() )
     {
 	browsebut_->setSensitive( false );
 	mkdefbut_->setSensitive( false );
 	return;
     }
 
-    const LineKey linekey( linenms.get(0), attribnms.get(0) );
+    const LineKey linekey( linenms.get(0), attrnms.get(selattridxs[0]) );
     const int lineidx = lineset_->indexOf( linekey );
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
@@ -257,7 +278,11 @@ void uiSeis2DFileMan::browsePush( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
 
-    const LineKey lk( linefld_->getText(), attrfld_->getText());
+    const int selattridx = attrfld_->currentItem();
+    const BufferStringSet& attrnms = *attrnms_.getParam( this );
+    if ( !attrnms.validIdx(selattridx) ) return;
+
+    const LineKey lk( linefld_->getText(), attrnms.get(selattridx) );
     uiSeisBrowser::doBrowse( this, *objinfo_->ioObj(), true, &lk );
 }
 
@@ -266,11 +291,15 @@ void uiSeis2DFileMan::makeDefault( CallBacker* )
 {
     if ( !objinfo_ || !objinfo_->ioObj() ) return;
 
-    BufferString attrnm = attrfld_->getText();
+    const int selattridx = attrfld_->currentItem();
+    const BufferStringSet& attrnms = *attrnms_.getParam( this );
+    if ( !attrnms.validIdx(selattridx) ) return;
+
     BufferString key = IOPar::compKey(sKey::Default(),
 		SeisTrcTranslatorGroup::sKeyDefaultAttrib());
-    SI().getPars().set( key, attrnm );
+    SI().getPars().set( key, attrnms.get(selattridx) );
     SI().savePars();
+    lineSel( 0 );
 }
 
 
@@ -300,9 +329,10 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
 
 void uiSeis2DFileMan::removeAttrib( CallBacker* )
 {
-    BufferStringSet attribnms;
-    attrfld_->getSelectedItems( attribnms );
-    if ( attribnms.isEmpty()
+    const BufferStringSet& attrnms = *attrnms_.getParam( this );
+    TypeSet<int> selattridxs;
+    attrfld_->getSelectedItems( selattridxs );
+    if ( selattridxs.isEmpty()
       || !uiMSG().askRemove("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
@@ -312,9 +342,9 @@ void uiSeis2DFileMan::removeAttrib( CallBacker* )
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linename = sellines.get(idx);
-	for ( int ida=0; ida<attribnms.size(); ida++ )
+	for ( int ida=0; ida<selattridxs.size(); ida++ )
 	{
-	    LineKey linekey( linename, attribnms.get(ida) );
+	    LineKey linekey( linename, attrnms.get(selattridxs[ida]) );
 	    if ( !lineset_->remove(linekey) )
 		uiMSG().error( "Could not remove attribute" );
 	}
@@ -363,15 +393,16 @@ void uiSeis2DFileMan::renameLine( CallBacker* )
 
 void uiSeis2DFileMan::renameAttrib( CallBacker* )
 {
-    BufferStringSet attribnms;
-    attrfld_->getSelectedItems( attribnms );
-    if ( attribnms.isEmpty() ) return;
+    const BufferStringSet& attrnms = *attrnms_.getParam( this );
+    TypeSet<int> selattridxs;
+    attrfld_->getSelectedItems( selattridxs );
+    if ( selattridxs.isEmpty() ) return;
 
-    const char* attribnm = attribnms.get(0);
+    const char* attribnm = attrnms.get( selattridxs[0] );
     BufferString newnm;
     if ( !rename(attribnm,newnm) ) return;
 
-    if ( attrfld_->isPresent(newnm) )
+    if ( attrnms.isPresent(newnm) )
     {
 	uiMSG().error( "Attribute name already in use" );
 	return;
