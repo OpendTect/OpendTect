@@ -32,6 +32,8 @@ public:
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 					Batch::JobSpec::ProcType pt
 						=Batch::JobSpec::NonODBase);
+			uiBatchJobDispatcherSel(uiParent*,bool optional,
+						const Batch::JobSpec&);
 
     void		jobSpecUpdated();
     void		setJobSpec(const Batch::JobSpec&);
@@ -57,6 +59,7 @@ protected:
     Batch::JobSpec	jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 
+    void		init(bool optional);
     int			selIdx() const;
 
     void		initFlds(CallBacker*);

@@ -24,6 +24,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
+						  const Batch::JobSpec& js )
+    : uiGroup(p,"Batch job dispatcher selector")
+    , jobspec_(js)
+    , optsbut_(0)
+    , selfld_(0)
+    , dobatchbox_(0)
+    , selectionChange(this)
+{
+    init( optional );
+}
+
+
+uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 					  Batch::JobSpec::ProcType proctyp )
     : uiGroup(p,"Batch job dispatcher selector")
     , jobspec_(proctyp)
@@ -31,6 +44,12 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selfld_(0)
     , dobatchbox_(0)
     , selectionChange(this)
+{
+    init( optional );
+}
+
+
+void uiBatchJobDispatcherSel::init( bool optional )
 {
     Factory1Param<uiBatchJobDispatcherLauncher,Batch::JobSpec&>& fact
 				= uiBatchJobDispatcherLauncher::factory();
