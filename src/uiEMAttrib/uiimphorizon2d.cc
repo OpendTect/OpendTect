@@ -353,6 +353,9 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
+    if ( !setids_.validIdx(setidx) )
+	return;
+
     scanner_ = new Horizon2DScanner( filenms, setids_[setidx], fd_ );
     uiTaskRunner taskrunner( this );
     TaskRunner::execute( &taskrunner, *scanner_ );
@@ -471,6 +474,9 @@ bool uiImportHorizon2D::doImport()
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
+    if ( !setids_.validIdx(setidx) )
+	mUnrefAndDeburstRet( false );
+
     PtrMan<Horizon2DImporter> exec =
 	new Horizon2DImporter( linenms, horizons, setids_[setidx], valset,
 			       (UndefTreat) udftreatfld_->getIntValue() );
