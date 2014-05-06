@@ -81,6 +81,7 @@ public:
 protected:
 
     uiPosProvider*	posprovfld_;
+    uiGenInput*		maxnrpickfld_;
     uiPosFilterSetSel*	posfiltfld_;
     DataPointSet*	dps_;
 

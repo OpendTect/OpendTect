@@ -103,10 +103,14 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
+    maxnrpickfld_ = new uiGenInput( this, "Maximum number of Picks", 
+				    IntInpSpec(100) );
+    maxnrpickfld_->attach( alignedBelow, posprovfld_ );
+
     uiPosFilterSet::Setup fsu( false );
     fsu.seltxt( "Remove locations" ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-    posfiltfld_->attach( alignedBelow, posprovfld_ );
+    posfiltfld_->attach( alignedBelow, maxnrpickfld_ );
 
     addStdFields( posfiltfld_->attachObj() );
 }
@@ -145,8 +149,12 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );
     mRestorCursor();
 
-    const od_int64 dpssize = dps_->size();
-    if ( dpssize>50000 )
+    const int dpssize = dps_->size();
+    int size = maxnrpickfld_->getIntValue();
+    if ( dpssize < size )
+	size = dpssize;
+
+    if ( size>50000 )
     {
 	BufferString msg( "PickSet would contain " );
 	msg += dpssize;
@@ -171,10 +179,19 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 {
     if ( dps_->isEmpty() ) return 0;
 
+    Stats::randGen().init();
     Pick::Set* ps = uiCreatePicks::getPickSet();
-    for ( DataPointSet::RowID idx=0; idx<dps_->size(); idx++ )
+    const int dpssize = dps_->size();
+    int size = maxnrpickfld_->getIntValue();
+    const bool usemaxnrpicks = dpssize > size;
+    if ( !usemaxnrpicks )
+	size = dpssize;
+
+    for ( DataPointSet::RowID idx=0; idx<size; idx++ )
     {
-	const DataPointSet::Pos pos( dps_->pos(idx) );
+	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize ) 
+					 : idx;
+	const DataPointSet::Pos pos( dps_->pos(posidx) );
 	*ps += Pick::Location( pos.coord(), pos.z() );
     }
 
