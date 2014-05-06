@@ -10,6 +10,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstringset.h"
 #include "file.h"
 #include "filepath.h"
+#include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -49,7 +51,23 @@ protected:
 };
 
 
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg );
+/* 0=No old 2D data, 1=First time conversion, 2=Incremental conversion. */
+mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
+{
+    IOObjContext oldctxt( mIOObjContext(SeisTrc) );
+    oldctxt.toselect.allowtransls_ = "2D";
+    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODirEntryList olddel( oldiodir, oldctxt );
+    if ( olddel.isEmpty() )
+	return 0;
+
+    IOObjContext newctxt( mIOObjContext(SeisTrc) );
+    newctxt.toselect.allowtransls_ = "TwoD DataSet";
+    const IODir newiodir( newctxt.getSelKey() );
+    const IODirEntryList newdel( newiodir, newctxt );
+    return newdel.isEmpty() ? 1 : 2;
+}
+
 mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg )
 {
     mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
