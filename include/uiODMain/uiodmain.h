@@ -40,7 +40,7 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 */
 
 mExpClass(uiODMain) uiODMain : public uiMainWin
-{
+{mODTextTranslationClass(uiODMain)
 public:
 
 			uiODMain(uiMain&);
@@ -116,6 +116,8 @@ private:
     Timer&		memtimer_;
     void		timerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
+
+    void		OD_Convert_OD4_Data_To_OD5(CallBacker*);
 
 public:
 
