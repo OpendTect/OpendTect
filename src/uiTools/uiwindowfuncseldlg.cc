@@ -166,9 +166,8 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     : uiGroup(p)
     , funclistselChged(this)
 {
-    funclistfld_ = new uiListBox( this );
+    funclistfld_ = new uiListBox( this, "Function", uiListBox::AtLeastOne );
     funclistfld_->attach( topBorder, 0 );
-    funclistfld_->setMultiSelect();
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
 
     view_ = new uiFunctionDrawer( this, su );
@@ -184,7 +183,7 @@ int uiFuncSelDraw::getListSize() const
 
 int uiFuncSelDraw::getNrSel() const
 {
-    return funclistfld_->nrSelected();
+    return funclistfld_->nrChosen();
 }
 
 
@@ -217,7 +216,7 @@ void uiFuncSelDraw::funcSelChg( CallBacker* cb )
     funclistselChged.trigger();
 
     TypeSet<int> selecteditems;
-    funclistfld_->getSelectedItems( selecteditems );
+    funclistfld_->getChosen( selecteditems );
 
     view_->setSelItems( selecteditems );
     view_->draw( cb );
@@ -245,25 +244,25 @@ void uiFuncSelDraw::addFunction( const char* fcname, FloatMathFunction* mfunc,
 
 void uiFuncSelDraw::getSelectedItems( TypeSet<int>& selitems ) const
 {
-    return funclistfld_->getSelectedItems( selitems );
+    funclistfld_->getChosen( selitems );
 }
 
 
 bool uiFuncSelDraw::isSelected( int idx) const
 {
-    return funclistfld_->isSelected(idx);
+    return funclistfld_->isChosen(idx);
 }
 
 
 void uiFuncSelDraw::setSelected( int idx )
 {
-    funclistfld_->setSelected(idx);
+    funclistfld_->setChosen(idx);
 }
 
 
 const char* uiFuncSelDraw::getCurrentListName() const
 {
-    if ( funclistfld_->nrSelected() == 1 )
+    if ( funclistfld_->nrChosen() == 1 )
 	return funclistfld_->textOfItem( funclistfld_->currentItem() );
     return 0;
 }

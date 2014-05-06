@@ -605,7 +605,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	ccfld_->updateRequested.notify( cb );
     }
 
-    defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations", false );
+    defcorrsfld_ = new uiListBox( ccgrp, "Defined Correlations" );
     if ( editable_ )
 	defcorrsfld_->attach( centeredBelow, addsetbut_ );
     defcorrsfld_->setStretch( 2, 2 );

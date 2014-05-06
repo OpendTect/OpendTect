@@ -396,8 +396,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    {
 		uiSelectFromList seldlg( this,
 			uiSelectFromList::Setup("Random lines",linenames) );
-		seldlg.selFld()->setMultiSelect( false );
-		selitem = seldlg.selFld()->nextSelected(-1);
+		selitem = seldlg.selection();
 	    }
 
 	    const Geometry::RandomLine& rdmline = *lset.lines()[ selitem ];

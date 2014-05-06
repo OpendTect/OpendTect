@@ -47,7 +47,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
     putlnmfld_ = new uiGenInput( this, "Put line names",
-	    			 StringListInpSpec(choices) );
+				 StringListInpSpec(choices) );
     putlnmfld_->setValue( 1 );
     if ( putallfld_ )
 	putlnmfld_->attach( alignedBelow, putallfld_ );
@@ -85,11 +85,11 @@ void uiGoogleExport2DSeis::getInitialSelectedLineNames()
 {
     const uiListBox& lb( *s2dfm_->getListBox(false) );
     sellnms_.erase();
-    const int nrsel = lb.nrSelected();
+    const int nrsel = lb.nrChosen();
     allsel_ = nrsel == 0;
     for ( int idx=0; idx<lb.size(); idx++ )
     {
-	if ( allsel_ || lb.isSelected(idx) )
+	if ( allsel_ || lb.isChosen(idx) )
 	    sellnms_.add( lb.textOfItem(idx) );
     }
     allsel_ = sellnms_.size() == lb.size();

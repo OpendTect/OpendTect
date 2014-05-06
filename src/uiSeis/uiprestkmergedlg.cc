@@ -70,8 +70,9 @@ uiPreStackMergeDlg::~uiPreStackMergeDlg()
 
 void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
-    volsbox_ = new uiListBox( topgrp, "Available Stores", true );
-    selvolsbox_ = new uiListBox( topgrp, "Selected Stores", true );
+    volsbox_ = new uiListBox( topgrp, "Available Stores",
+	    			uiListBox::AtLeastOne );
+    selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
     outctio_.ctxt.forread = false;
     stackfld_ = new uiGenInput( this, "Duplicate traces",
 	    			BoolInpSpec(true,"Stack","Use first") );
@@ -140,7 +141,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	int lastusedidx = 0;
 	for ( int idx=0; idx<volsbox_->size(); idx++ )
 	{
-	    if ( !volsbox_->isSelected(idx) ) continue;
+	    if ( !volsbox_->isChosen(idx) ) continue;
 
 	    selvolsbox_->addItem( volsbox_->textOfItem(idx));
 	    volsbox_->removeItem(idx);
@@ -148,7 +149,7 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	    idx--;
 	}
 	volsbox_->sortItems();
-	volsbox_->setSelected( lastusedidx<volsbox_->size() ?
+	volsbox_->setCurrentItem( lastusedidx<volsbox_->size() ?
 			        lastusedidx : volsbox_->size()-1 );
     }
     else if ( but == fromselect_ )
@@ -156,15 +157,15 @@ void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 	int lastusedidx = 0;
 	for ( int idx=0; idx<selvolsbox_->size(); idx++ )
 	{
-	    if ( !selvolsbox_->isSelected(idx) ) continue;
+	    if ( !selvolsbox_->isChosen(idx) ) continue;
 
 	    volsbox_->addItem( selvolsbox_->textOfItem(idx));
 	    selvolsbox_->removeItem(idx);
 	    lastusedidx = idx;
 	    idx--;
 	}
-	selvolsbox_->setSelected( lastusedidx<selvolsbox_->size() ?
-				  lastusedidx : selvolsbox_->size()-1 );
+	selvolsbox_->setCurrentItem( lastusedidx<selvolsbox_->size() ?
+				     lastusedidx : selvolsbox_->size()-1 );
     }
 }
 
@@ -239,7 +240,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 
 void uiPreStackMergeDlg::moveButPush( CallBacker* cb )
 {
-    if ( selvolsbox_->nrSelected() > 1 ) return;
+    if ( selvolsbox_->nrChosen() != 1 ) return;
 
     const int idx = selvolsbox_->currentItem();
     const char* item = selvolsbox_->textOfItem(idx);

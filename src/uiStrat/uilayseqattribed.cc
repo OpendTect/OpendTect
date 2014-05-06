@@ -76,9 +76,8 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
     {
 	integrgrp_ = new uiGroup( this, "Integrated group" );
 
-	lithofld_ = new uiListBox( integrgrp_, "Lithologies", false,
-				    reftree_.lithologies().size() );
-	lithofld_->setMultiChoice( true );
+	lithofld_ = new uiListBox( integrgrp_, "Lithologies",
+			uiListBox::AtLeastOne, reftree_.lithologies().size() );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
 
@@ -193,7 +192,7 @@ void uiLaySeqAttribEd::putToScreen()
 
 	Strat::UnitRefIter it( reftree_ );
 	while ( it.next() )
-	    unfld_->setSelected( *(Strat::NodeUnitRef*)it.unit(),
+	    unfld_->setSelected( *it.unit(),
 			    attr_.units_.isPresent( it.unit()->fullCode() ) );
 
 	for ( int idx=0; idx<lithofld_->size(); idx++ )

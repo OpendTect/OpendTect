@@ -122,7 +122,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     uiLabeledListBox* avmachfld = 0;
     if ( multihost )
     {
-	avmachfld = new uiLabeledListBox( machgrp, "Available hosts", true,
+	avmachfld = new uiLabeledListBox( machgrp, "Available hosts",
+					  uiListBox::AtLeastOne,
 					  uiLabeledListBox::AboveMid );
 	machgrp->setHAlignObj( avmachfld );
 	avmachfld_ = avmachfld->box();
@@ -142,7 +143,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiLabeledListBox* usedmachfld = new uiLabeledListBox( usedmachgrp,
-				    multihost ? "Used hosts" : "", false,
+				    multihost ? "Used hosts" : "",
+				    uiListBox::OnlyOne,
 				    uiLabeledListBox::AboveMid );
     usedmachfld_ = usedmachfld->box();
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
@@ -443,9 +445,7 @@ void uiMMBatchJobDispatcher::updateCurMachs()
 
     int curit = oldsz > 0 ? usedmachfld_->currentItem() : -1;
     usedmachfld_->setEmpty();
-    if ( newsz < 1 )
-	usedmachfld_->clearSelection();
-    else
+    if ( newsz > 0 )
     {
 	usedmachfld_->addItems( machs );
 	if ( curit >= usedmachfld_->size() )
@@ -669,7 +669,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
     if ( nrmach < 1 )
 	return;
 
-    const int nrsel = avmachfld_ ? avmachfld_->nrSelected() : 1;
+    const int nrsel = avmachfld_ ? avmachfld_->nrChosen() : 1;
     if ( nrsel < 1 )
 	mErrRet("Please select one or more hosts")
 
@@ -682,7 +682,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 
     for ( int idx=0; idx<nrmach; idx++ )
     {
-	if ( avmachfld_ && !avmachfld_->isSelected(idx) ) continue;
+	if ( avmachfld_ && !avmachfld_->isChosen(idx) ) continue;
 
 	BufferString hnm = avmachfld_ ? avmachfld_->textOfItem( idx )
 				      : hdl_[0]->getHostName();

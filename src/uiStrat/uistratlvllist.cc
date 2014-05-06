@@ -25,7 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
-    : uiLabeledListBox(p,"Regional markers",false,uiLabeledListBox::AboveMid)
+    : uiLabeledListBox(p,"Regional markers",uiListBox::OnlyOne,
+			uiLabeledListBox::AboveMid)
     , islocked_(false)
     , anychange_(false)
 {

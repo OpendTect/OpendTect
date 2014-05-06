@@ -155,7 +155,7 @@ void uiGatherPosSliceSel::reDoTable()
     posseltbl_->setNrRows( nrrows );
 
     BufferString lbl( issynthetic_ ? "Model"
-	    			   : is2d_ ? "Trace" : isinl_ ? "CrossLine"
+				   : is2d_ ? "Trace" : isinl_ ? "CrossLine"
 							      : "Inline" );
     lbl += " Nr ";
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
@@ -180,7 +180,7 @@ void uiGatherPosSliceSel::reDoTable()
 		issynthetic_ ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
 						   : cs.hrg.inlRange().step;
 	    StepInterval<int> limitrg( issynthetic_ ? 1 : trcrg.start ,
-		    		       trcrg.stop, limitstep );
+				       trcrg.stop, limitstep );
 	    uiGenInput* inpfld =
 		new uiGenInput( 0, lbl, IntInpSpec(trcrg.atIndex(rowidx))
 						   .setLimits(limitrg) );
@@ -208,7 +208,7 @@ void uiGatherPosSliceSel::setCubeSampling( const CubeSampling& cs )
     cs_ = cs;
     if ( issynthetic_ )
 	cs_.hrg.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
-		    			       stepfld_->box()->getValue()) );
+					       stepfld_->box()->getValue()) );
     uiSliceSel::setCubeSampling( cs );
 }
 
@@ -254,7 +254,7 @@ void uiGatherPosSliceSel::gatherPosChanged( CallBacker* cb )
 	{
 	    CubeSampling cs( true );
 	    StepInterval<int> trcrg( mUdf(int), -mUdf(int),
-		    		     cs.hrg.crlRange().step );
+				     cs.hrg.crlRange().step );
 	    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 		trcrg.include( gatherinfos_[idx].bid_.crl(), false );
 	    selpos = trcrg.atIndex( selpos );
@@ -282,7 +282,7 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), issynthetic_
 	    ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
-	    			  : cs.hrg.inlRange().step );
+				  : cs.hrg.inlRange().step );
     BufferString gnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
@@ -290,7 +290,7 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     {
 	const GatherInfo& ginfo = gatherinfos[gidx];
 	const int trcnr = issynthetic_ ? gidx+1
-	    			       : isinl_ || is2d_ ? ginfo.bid_.crl()
+				       : isinl_ || is2d_ ? ginfo.bid_.crl()
 							 : ginfo.bid_.inl();
 	if ( !issynthetic_ || ginfo.isselected_  )
 	{
@@ -423,12 +423,14 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
     : uiDialog(p,uiDialog::Setup("Select gather data",
-				"Add PS Gather", 
+				"Add PS Gather",
                                 mODHelpKey(mViewer2DSelDataDlgHelpID) ))
     , selgathers_(selgnms)
 {
-    allgatherfld_ = new uiListBox( this, "Available gathers", true );
-    selgatherfld_ = new uiListBox( this, "Selected gathers", true );
+    allgatherfld_ = new uiListBox( this, "Available gathers",
+				   uiListBox::AtLeastOne );
+    selgatherfld_ = new uiListBox( this, "Selected gathers",
+				   uiListBox::AtLeastOne );
 
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );
@@ -441,7 +443,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     toselect_->attach( centeredRightOf, allgatherfld_ );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
-	    			"Move left", cb );
+				"Move left", cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );
@@ -455,7 +457,7 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
     {
 	for ( int idx=allgatherfld_->size()-1; idx>=0; idx-- )
 	{
-	    if ( !allgatherfld_->isSelected(idx) ) continue;
+	    if ( !allgatherfld_->isChosen(idx) ) continue;
 	    const char* txt = allgatherfld_->textOfItem(idx);
 	    if ( selgatherfld_->isPresent( txt ) ) continue;
 	    selgatherfld_->addItem( allgatherfld_->textOfItem(idx));
@@ -466,13 +468,13 @@ void uiViewer2DSelDataDlg::selButPush( CallBacker* cb )
     {
 	for ( int idx=selgatherfld_->size()-1; idx>=0; idx-- )
 	{
-	    if ( !selgatherfld_->isSelected(idx) ) continue;
+	    if ( !selgatherfld_->isChosen(idx) ) continue;
 	    const char* txt = selgatherfld_->textOfItem(idx);
 	    if ( allgatherfld_->isPresent( txt ) ) continue;
 
 	    allgatherfld_->addItem( txt );
 	    selgatherfld_->removeItem(idx);
-	    allgatherfld_->setSelected( allgatherfld_->size()-1 );
+	    allgatherfld_->setChosen( allgatherfld_->size()-1 );
 	}
     }
     allgatherfld_->sortItems();

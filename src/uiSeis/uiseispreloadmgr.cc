@@ -295,10 +295,12 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
     lssel_ = new uiIOObjSel( this, ctio_ );
     lssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
     uiGroup* boxgrp = new uiGroup( this, "List boxes" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)", true,
+    uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)", 
+	    			 uiListBox::AtLeastOne,
 				 uiLabeledListBox::AboveMid );
     linesel_ = lllb->box();
-    uiLabeledListBox* allb = new uiLabeledListBox( boxgrp, "Attribute(s)", true,
+    uiLabeledListBox* allb = new uiLabeledListBox( boxgrp, "Attribute(s)",
+	    			 uiListBox::AtLeastOne,
 				 uiLabeledListBox::AboveMid );
     allb->attach( rightOf, lllb );
     attrsel_ = allb->box();
@@ -328,7 +330,7 @@ void lsSel( CallBacker* )
 
     linesel_->setEmpty(); attrsel_->setEmpty();
     linesel_->addItems( lnms_ ); attrsel_->addItems( attrnms_ );
-    linesel_->selectAll(); attrsel_->selectAll();
+    linesel_->chooseAll(); attrsel_->chooseAll();
 }
 
 
@@ -341,7 +343,7 @@ bool acceptOK( CallBacker* )
     }
 
     lnms_.erase(); attrnms_.erase();
-    linesel_->getSelectedItems(lnms_); attrsel_->getSelectedItems(attrnms_);
+    linesel_->getChosen(lnms_); attrsel_->getChosen(attrnms_);
     if ( lnms_.isEmpty() || attrnms_.isEmpty() )
     {
 	uiMSG().error( "Please select one or more lines and attributes" );
@@ -416,8 +418,8 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
     : uiIOObjSelDlg( p, ctio, "Select data store" )
 {
     setCaption( "Pre-load data" );
-    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), "Lines to load",
-					  true, uiLabeledListBox::AboveMid );
+    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), "Line(s) to load",
+			  uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
     lnmsfld_ = llb->box();
     llb->attach( rightOf, selGrp()->getTopGroup() );
     selGrp()->selectionChg.notify( mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
@@ -432,7 +434,7 @@ void dsSel( CallBacker* )
     lnms_.erase();
     sii.getLineNames( lnms_ );
     lnmsfld_->addItems( lnms_ );
-    lnmsfld_->selectAll();
+    lnmsfld_->chooseAll();
 }
 
 bool acceptOK( CallBacker* )
@@ -443,7 +445,7 @@ bool acceptOK( CallBacker* )
 	return false;
     }
     lnms_.erase();
-    lnmsfld_->getSelectedItems( lnms_ );
+    lnmsfld_->getChosen( lnms_ );
     if ( lnms_.isEmpty() )
     {
 	uiMSG().error( "Please select one or more lines" );

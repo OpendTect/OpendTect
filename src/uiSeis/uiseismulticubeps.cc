@@ -70,7 +70,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     }
 
     uiLabeledListBox* cubesllb = new uiLabeledListBox( this, "Available cubes",
-					false, uiLabeledListBox::AboveMid );
+			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
     cubefld_ = cubesllb->box();
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
@@ -88,7 +88,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     bgrp->attach( centeredRightOf, cubesllb );
 
     uiLabeledListBox* selllb = new uiLabeledListBox( this, "Used cubes",
-					false, uiLabeledListBox::AboveMid );
+			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
     selfld_ = selllb->box();
     selllb->attach( rightTo, cubesllb );
     selllb->attach( ensureRightOf, bgrp );

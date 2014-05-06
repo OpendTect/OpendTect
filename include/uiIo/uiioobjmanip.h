@@ -65,12 +65,13 @@ public:
 				uiIOObjManipGroupSubj( uiObject* o )
 				    : obj_(o), grp_(0)		{}
 
-    virtual void		selectedIDs(TypeSet<MultiID>&) const	= 0;
+    virtual MultiID		currentID() const			= 0;
+    virtual void		getSelectedIDs(TypeSet<MultiID>&) const	= 0;
     virtual const char*		defExt() const				= 0;
     virtual const BufferStringSet& names() const			= 0;
 
     virtual void		chgsOccurred()				= 0;
-    virtual void		relocStart(const char*)		{}
+    virtual void		relocStart(const char*)			{}
 
     uiIOObjManipGroup*		grp_;
     uiObject*			obj_;
@@ -101,15 +102,13 @@ protected:
     uiToolButton*	rembut;
 
 
-    void		getIOObjs(ObjectSet<IOObj>&) const;
     void		tbPush(CallBacker*);
     void		relocCB(CallBacker*);
 
-    bool		rmEntry(IOObj*);
-    bool		renameEntry(IOObj*,Translator*);
-    bool		relocEntry(IOObj*,Translator*);
-    bool		readonlyEntry(IOObj*, Translator*,bool set2ro);
-    void		commitChgs(IOObj*);
+    bool		rmEntry(IOObj&);
+    bool		renameEntry(IOObj&,Translator*);
+    bool		relocEntry(IOObj&,Translator*);
+    bool		readonlyEntry(IOObj&, Translator*,bool set2ro);
 
     bool		doReloc(Translator*,IOStream&,IOStream&);
 

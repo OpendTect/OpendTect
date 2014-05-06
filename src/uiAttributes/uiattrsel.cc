@@ -267,13 +267,13 @@ void uiAttrSelDlg::createSelectionFields()
     const bool havenlaouts = attrinf_->nlaoutnms_.size();
     const bool haveattribs = attrinf_->attrnms_.size();
 
-    storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_ );
+    storoutfld_ = new uiListBox( this, attrinf_->ioobjnms_, "Stored output" );
     storoutfld_->setHSzPol( uiObject::Wide );
     storoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     storoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     storoutfld_->attach( rightOf, selgrp_ );
 
-    steeroutfld_ = new uiListBox( this, attrinf_->steernms_ );
+    steeroutfld_ = new uiListBox( this, attrinf_->steernms_, "Steered output" );
     steeroutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
     steeroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
     steeroutfld_->attach( rightOf, selgrp_ );
@@ -287,7 +287,8 @@ void uiAttrSelDlg::createSelectionFields()
 
     if ( haveattribs )
     {
-	attroutfld_ = new uiListBox( this, attrinf_->attrnms_ );
+	attroutfld_ = new uiListBox( this, attrinf_->attrnms_,
+					"Output attributes" );
 	attroutfld_->setHSzPol( uiObject::Wide );
 	attroutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	attroutfld_->attach( rightOf, selgrp_ );
@@ -295,7 +296,7 @@ void uiAttrSelDlg::createSelectionFields()
 
     if ( havenlaouts )
     {
-	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_ );
+	nlaoutfld_ = new uiListBox( this, attrinf_->nlaoutnms_, "Output NLAs" );
 	nlaoutfld_->setHSzPol( uiObject::Wide );
 	nlaoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
 	nlaoutfld_->attach( rightOf, selgrp_ );
@@ -305,7 +306,7 @@ void uiAttrSelDlg::createSelectionFields()
     {
 	BufferStringSet nms;
 	SelInfo::getZDomainItems( *attrdata_.zdomaininfo_, nms );
-	zdomoutfld_ = new uiListBox( this, nms );
+	zdomoutfld_ = new uiListBox( this, nms, "ZDomain output" );
 	zdomoutfld_->setHSzPol( uiObject::Wide );
 	zdomoutfld_->selectionChanged.notify( mCB(this,uiAttrSelDlg,cubeSel) );
 	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );

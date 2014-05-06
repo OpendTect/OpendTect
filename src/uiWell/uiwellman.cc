@@ -63,8 +63,8 @@ uiWellMan::uiWellMan( uiParent* p )
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
-    logsfld_ = new uiListBox( logsgrp_, "Available logs", false );
-    logsfld_->setMultiChoice( true );
+    logsfld_ = new uiListBox( logsgrp_, "Available logs",
+				uiListBox::AtLeastOne );
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
@@ -92,7 +92,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logdownbut_ = butgrp->addButton( "downarrow", "Move down",
 			mCB(this,uiWellMan,moveLogsPush) );
     logsfld_->selectionChanged.notify( mCB(this,uiWellMan,logSel) );
-    logsfld_->itemChecked.notify( mCB(this,uiWellMan,logSel) );
+    logsfld_->itemChosen.notify( mCB(this,uiWellMan,logSel) );
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 

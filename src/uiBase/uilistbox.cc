@@ -23,17 +23,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QKeyEvent>
 #include <QMouseEvent>
 
-mUseQtnamespace
-
-#define mNoSelection QAbstractItemView::NoSelection
-#define mSingle QAbstractItemView::SingleSelection
-#define mMulti QAbstractItemView::MultiSelection
-#define mExtended QAbstractItemView::ExtendedSelection
-#define mContiguous QAbstractItemView::ContiguousSelection
-
 static const int cIconSz = 16;
-
 int uiListBox::cDefNrLines()	{ return 7; }
+
+
+mUseQtnamespace
 
 
 class uiListBoxItem : public QListWidgetItem
@@ -57,12 +51,9 @@ class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 
 public:
 
-                        uiListBoxBody(uiListBox& hndle,
-				  uiParent* parnt=0,
-				  const char* nm="uiListBoxBody",
-				  bool isMultiSelect=false,
-				  int preferredNrLines=0,
-				  int preferredFieldWidth=0);
+                        uiListBoxBody(uiListBox& hndle, uiParent* parnt,
+			      const char* nm, uiListBox::ChoiceMode cm,
+			      int preferredNrLines, int preferredFieldWidth);
 
     virtual		~uiListBoxBody()		{ delete &messenger_; }
 
@@ -94,8 +85,6 @@ public:
 
     void		setItemAlignment(int idx,Alignment::HPos);
 
-    int			maxNrOfSelections() const;
-
     void		setNrLines( int prefNrLines )
 			{
 			    if( prefNrLines >= 0 )
@@ -126,7 +115,7 @@ private:
 
 
 uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
-			const char* nm, bool ismultiselect,
+			const char* nm, uiListBox::ChoiceMode cm,
 			int preferrednrlines, int preferredfieldwidth )
     : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
     , messenger_(*new i_listMessenger(this,&hndle))
@@ -137,8 +126,8 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     setDragDropMode( QAbstractItemView::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
     setSelectionBehavior( QAbstractItemView::SelectItems );
-    if ( ismultiselect )
-	setSelectionMode( mExtended );
+    setSelectionMode( cm == uiListBox::None ? QAbstractItemView::NoSelection
+					: QAbstractItemView::SingleSelection );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
     setHSzPol( uiObject::Medium );
@@ -149,16 +138,14 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
 
 static void createQString( QString& qs, const uiString& str, bool mark )
 {
-    if ( mark )
+    if ( !mark )
+	qs = str.getQtString();
+    else
     {
 	const char* markstr = ":";
 	qs = markstr;
 	qs += str.getQtString();
 	qs += markstr;
-    }
-    else
-    {
-	qs = str.getQtString();
     }
 }
 
@@ -207,10 +194,16 @@ void uiListBoxBody::removeAll()
 
 
 void uiListBoxBody::setItemID( int idx, int id )
-{ if ( items_.validIdx(idx) ) items_[idx]->id_ = id; }
+{
+    if ( items_.validIdx(idx) )
+	items_[idx]->id_ = id;
+}
 
 int uiListBoxBody::getItemID( int idx ) const
-{ return items_.validIdx(idx) ? items_[idx]->id_ : -1; }
+{
+    return items_.validIdx(idx) ? items_[idx]->id_ : -1;
+}
+
 
 int uiListBoxBody::getItemIdx( int id ) const
 {
@@ -222,7 +215,9 @@ int uiListBoxBody::getItemIdx( int id ) const
 
 
 int uiListBoxBody::indexOf( uiListBoxItem* itm ) const
-{ return items_.indexOf( itm ); }
+{
+    return items_.indexOf( itm );
+}
 
 
 void uiListBoxBody::setItemAlignment( int idx, Alignment::HPos hpos )
@@ -266,71 +261,76 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 }
 
 
-int uiListBoxBody::maxNrOfSelections() const
-{
-    if ( selectionMode() == mNoSelection )	return 0;
-    if ( selectionMode() == mSingle )		return 1;
-    return count();
-}
-
-
 // -------------- uiListBox ---------------
 
-#define mStdInit \
+#define mStdInit(cm) \
+    , choicemode_(cm) \
     , buttonstate_(OD::NoButton) \
     , selectionChanged(this) \
     , doubleClicked(this) \
     , rightButtonClicked(this) \
     , leftButtonClicked(this) \
     , deleteButtonPressed(this) \
-    , itemChecked(this) \
     , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
-    , itemscheckable_(false) \
     , alignment_(Alignment::Left) \
-    , allowduplicates_(true) \
-    , nochosenisvalid_(false)
+    , allowduplicates_(true)
 
 #define mStdConstrEnd \
-    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) ); \
     setBackgroundColor( roBackgroundColor() ); \
-    selectionChanged.notify( mCB(this,uiListBox,selChgCB) )
+    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) )
 
 
-uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw) )
-    mStdInit
+uiListBox::uiListBox( uiParent* p, const char* nm )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OnlyOne,0,0) )
+    mStdInit(OnlyOne)
 {
+    mStdConstrEnd;
+}
+
+
+uiListBox::uiListBox( uiParent* p, const char* nm, ChoiceMode cm,
+			int nl, int pfw )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw) )
+    mStdInit(cm)
+{
+    mStdConstrEnd;
+}
+
+
+uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,uiListBox::OnlyOne,0,0))
+    mStdInit(uiListBox::OnlyOne)
+{
+    addItems( items ); setName( "Select Data" );
     mStdConstrEnd;
 }
 
 
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
-		      bool ms, int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw))
-    mStdInit
+		      ChoiceMode cm, int nl, int pfw )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
+    mStdInit(cm)
 {
-    addItems( items );
-    setName( "Select Data" );
+    addItems( items ); setName( "Select Data" );
     mStdConstrEnd;
 }
 
 
 uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
-		     const char* nm, bool ms, int nl, int pfw )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,ms,nl,pfw))
-    mStdInit
+		     const char* nm, ChoiceMode cm, int nl, int pfw )
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
+    mStdInit(cm)
 {
-    addItems( items );
-    setName( "Select Data" );
+    addItems( items ); setName( "Select Data" );
     mStdConstrEnd;
 }
 
 
-uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
+uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, ChoiceMode cm,
 				  int nl, int pfw )
 {
-    body_ = new uiListBoxBody(*this,p,nm,ms,nl,pfw);
+    body_ = new uiListBoxBody(*this,p,nm,cm,nl,pfw);
     body_->setIconSize( QSize(cIconSz,cIconSz) );
     return *body_;
 }
@@ -342,24 +342,62 @@ uiListBox::~uiListBox()
 }
 
 
-void uiListBox::selChgCB( CallBacker* )
+void uiListBox::setChoiceMode( ChoiceMode cm )
 {
-    if ( !itemscheckable_ || nochosenisvalid_ )
+    if ( choicemode_ == cm )
 	return;
 
-    const int nrchecked = nrChecked();
-    if ( nrchecked != 0 )
+    choicemode_ = cm;
+    updateFields2ChoiceMode();
+}
+
+
+void uiListBox::setMultiChoice( bool yn )
+{
+    if ( isMultiChoice() == yn )
 	return;
 
-    const int curitm = currentItem();
-    if ( curitm >= 0 )
-	itemChosen.trigger( curitm );
+    if ( choicemode_ == OnlyOne )
+	choicemode_ = AtLeastOne;
+    else
+	choicemode_ = OnlyOne;
+
+    updateFields2ChoiceMode();
+}
+
+
+void uiListBox::setAllowNoneChosen( bool yn )
+{
+    if ( choicemode_ == OnlyOne )
+	return;
+    const bool nowallowed = choicemode_ == ZeroOrMore;
+    if ( nowallowed == yn )
+	return;
+
+    choicemode_ = yn ? ZeroOrMore : AtLeastOne;
+    updateFields2ChoiceMode();
+}
+
+
+void uiListBox::setNotSelectable()
+{
+    choicemode_ = None;
+    updateFields2ChoiceMode();
+    body_->setSelectionMode( QAbstractItemView::NoSelection );
+}
+
+
+void uiListBox::updateFields2ChoiceMode()
+{
+    const bool hascheck = isMultiChoice();
+    for ( int idx=0; idx<size(); idx++ )
+	setItemCheckable( idx, hascheck );
 }
 
 
 void uiListBox::menuCB( CallBacker* )
 {
-    if ( !itemscheckable_ ) return;
+    if ( !isMultiChoice() ) return;
 
     rightclickmnu_.clear();
     rightclickmnu_.insertItem( new uiAction("Check all items"), 0 );
@@ -370,61 +408,47 @@ void uiListBox::menuCB( CallBacker* )
 }
 
 
+void uiListBox::handleCheckChange( QListWidgetItem* itm )
+{
+    mDynamicCastGet(uiListBoxItem*,lbitm,itm)
+    if ( !lbitm ) return;
+
+    const bool ischecked = itm->checkState() == 2;
+    if ( lbitm->ischecked_ == ischecked )
+	return;
+
+    lbitm->ischecked_ = ischecked;
+    const int itmidx = body_->indexOf( lbitm );
+
+    NotifyStopper nsic( itemChosen );
+    setCurrentItem( itmidx );
+    nsic.restore();
+
+    itemChosen.trigger( itmidx );
+}
+
+
 void uiListBox::setNrLines( int prefnrlines )
-{ body_->setNrLines( prefnrlines ); }
+{
+    body_->setNrLines( prefnrlines );
+}
 
-void uiListBox::setSelectionMode( SelectionMode mode )
-{ body_->setSelectionMode( (QAbstractItemView::SelectionMode)mode ); }
-
-void uiListBox::setNotSelectable()
-{ setSelectionMode( No ); }
-
-void uiListBox::setMultiSelect( bool yn )
-{ setSelectionMode( yn ? Extended : Single ); }
 
 int uiListBox::maxNrOfSelections() const
-{ return body_->maxNrOfSelections(); }
+{
+    return isMultiChoice() ? size() : (choicemode_ == None ? 0 : 1);
+}
+
 
 int uiListBox::size() const
-{ return body_->count(); }
-
-bool uiListBox::validIndex( int idx ) const
-{ return body_->validItemIndex( idx ); }
-
-
-bool uiListBox::isSelected ( int idx ) const
 {
-    if ( !validIndex(idx) ) return false;
-
-    QListWidgetItem* itm = body_->item( idx );
-    return itm ? itm->isSelected() : false;
+    return body_->count();
 }
 
 
-int uiListBox::nrSelected() const
+bool uiListBox::validIdx( int idx ) const
 {
-    int res = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	{ if ( isSelected(idx) ) res++; }
-    return res;
-}
-
-
-void uiListBox::setSelected( int idx, bool yn )
-{
-    mBlockCmdRec;
-    if ( validIndex(idx) )
-	body_->item( idx )->setSelected( yn );
-}
-
-
-void uiListBox::selectAll( bool yn )
-{
-    mBlockCmdRec;
-    if ( yn )
-	body_->selectAll();
-    else
-	body_->clearSelection();
+    return body_->validItemIndex( idx );
 }
 
 
@@ -461,7 +485,7 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
     mBlockCmdRec;
     body_->addItem( text, mark, id );
     setItemCheckable( size()-1, false ); // Qt bug
-    setItemCheckable( size()-1, itemscheckable_ );
+    setItemCheckable( size()-1, isMultiChoice() );
     body_->setItemAlignment( size()-1, alignment_ );
 }
 
@@ -519,7 +543,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 	    return;
 
 	body_->insertItem( index, text, mark, id );
-	setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
+	setItemCheckable( index<0 ? 0 : index, isMultiChoice() );
 	body_->setItemAlignment( size()-1, alignment_ );
     }
 }
@@ -579,8 +603,8 @@ void uiListBox::setColor( int index, const Color& col )
 {
     QColor qcol( col.r(), col.g(), col.b() );
     QListWidgetItem* itm = body_->item( index );
-    if ( itm ) itm->setBackground( qcol );
-//    body_->setFocus();
+    if ( itm )
+	itm->setBackground( qcol );
 }
 
 
@@ -600,12 +624,6 @@ void uiListBox::setEmpty()
     body_->removeAll();
 }
 
-void uiListBox::clearSelection()
-{
-    mBlockCmdRec;
-    body_->clearSelection();
-}
-
 
 void uiListBox::sortItems( bool asc )
 {
@@ -613,15 +631,14 @@ void uiListBox::sortItems( bool asc )
     if ( sz < 2 ) return;
 
     NotifyStopper nss( selectionChanged );
-    NotifyStopper nsc( itemChecked );
-    NotifyStopper nsch( itemChosen );
-    BoolTypeSet mrkd, selected;
+    NotifyStopper nsc( itemChosen );
+    BoolTypeSet mrkd, chosen;
     const BufferString cur( getText() );
     BufferStringSet nms;
     for ( int idx=0; idx<sz; idx++ )
     {
 	mrkd += isMarked( idx );
-	selected += isSelected( idx );
+	chosen += isChosen( idx );
 	nms.add( textOfItem(idx) );
     }
     int* sortidxs = nms.getSortIndexes(true,asc);
@@ -631,8 +648,8 @@ void uiListBox::sortItems( bool asc )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int newidx = sortidxs[idx];
-	setMarked( newidx, selected[idx] );
-	setSelected( newidx, selected[idx] );
+	setMarked( newidx, chosen[idx] );
+	setChosen( newidx, chosen[idx] );
     }
     delete [] sortidxs;
     if ( !cur.isEmpty() )
@@ -641,27 +658,15 @@ void uiListBox::sortItems( bool asc )
 
 
 void uiListBox::removeItem( const char* txt )
-{ removeItem( indexOf(txt) ); }
+{
+    removeItem( indexOf(txt) );
+}
 
 
 void uiListBox::removeItem( int idx )
 {
     mBlockCmdRec;
     body_->removeItem( idx );
-}
-
-
-int uiListBox::nextSelected( int prev ) const
-{
-    if ( prev<0 ) prev = -1;
-    const int sz = size();
-    for ( int idx=prev+1; idx<sz; idx++ )
-    {
-	if ( isSelected(idx) )
-	    return idx;
-    }
-
-    return -1;
 }
 
 
@@ -681,7 +686,7 @@ bool uiListBox::isPresent( const char* txt ) const
 
 const char* uiListBox::textOfItem( int idx ) const
 {
-    if ( !validIndex(idx) )
+    if ( !validIdx(idx) )
 	return "";
 
     rettxt_ = body_->getItemText(idx).getFullString();
@@ -718,7 +723,7 @@ void uiListBox::setCurrentItem( const char* txt )
     {
 	const char* ptr = textOfItem( idx );
 	mSkipBlanks(ptr);
-	if ( !strcmp(ptr,txt) )
+	if ( FixedString(ptr) == txt )
 	    { setCurrentItem( idx ); return; }
     }
 }
@@ -726,300 +731,58 @@ void uiListBox::setCurrentItem( const char* txt )
 
 void uiListBox::setCurrentItem( int idx )
 {
-    mBlockCmdRec;
-    if ( !validIndex(idx) )
+    if ( !validIdx(idx) )
 	return;
 
+    mBlockCmdRec;
+
     body_->setCurrentRow( idx );
-    if ( body_->selectionMode() != mExtended )
-	setSelected( idx );
+    if ( choicemode_ == OnlyOne )
+	body_->item( idx )->setSelected( true );
 }
 
 
 int uiListBox::indexOf( const char* txt ) const
 {
-    BufferString str( txt );
+    const FixedString str( txt );
     for ( int idx=0; idx<size(); idx++ )
-    {
 	if ( str == textOfItem(idx) )
 	    return idx;
-    }
-
     return -1;
 }
 
 
-void uiListBox::setItemsCheckable( bool yn )
+void uiListBox::setItemID( int idx, int id )
 {
-    itemscheckable_ = yn;
-    for ( int idx=0; idx<size(); idx++ )
-	setItemCheckable( idx, yn );
+    body_->setItemID( idx, id );
 }
 
 
-void uiListBox::setItemCheckable( int idx, bool yn )
+int uiListBox::currentItemID() const
 {
-    if ( !validIndex(idx) ) return;
-
-    Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable);
-    if ( ischeckable == yn )
-	return;
-
-    body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
-    setItemChecked( idx, false );
+    return getItemID( currentItem() );
 }
 
 
-bool uiListBox::isItemCheckable( int idx ) const
+int uiListBox::getItemID( int idx ) const
 {
-    return validIndex(idx) &&
-	body_->item(idx)->flags().testFlag( Qt::ItemIsUserCheckable );
+    return body_->getItemID( idx );
 }
 
 
-void uiListBox::setAllItemsChecked( bool yn )
+int uiListBox::getItemIdx( int id ) const
 {
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	if ( isItemCheckable( idx ) )
-	    setItemChecked( idx, yn );
-    }
-}
-
-
-void uiListBox::setItemChecked( int idx, bool yn )
-{
-    mBlockCmdRec;
-    if ( isItemCheckable(idx) )
-	body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
-}
-
-
-bool uiListBox::isItemChecked( int idx ) const
-{
-    return validIndex(idx) && body_->item(idx)->checkState()== Qt::Checked;
-}
-
-
-void uiListBox::setItemChecked( const char* nm, bool yn )
-{
-    if ( isPresent( nm ) ) setItemChecked( indexOf( nm ), yn );
-}
-
-
-bool uiListBox::isItemChecked( const char* nm ) const
-{
-    return isPresent( nm ) ? isItemChecked( indexOf( nm ) ) : false;
-}
-
-
-int uiListBox::nrChecked() const
-{
-    int res = 0;
-    for ( int idx=0; idx<size(); idx++ )
-	if ( isItemChecked(idx) )
-	    res++;
-    return res;
-}
-
-
-int uiListBox::firstChecked() const
-{
-    for ( int idx=0; idx<size(); idx++ )
-	if ( isItemChecked(idx) )
-	    return idx;
-    return -1;
-}
-
-
-int uiListBox::nrChosen() const
-{
-    int ret = nrChecked();
-    if ( ret < 1 && !nochosenisvalid_ )
-	ret = currentItem() < 0 ? 0 : 1;
-    return ret;
-}
-
-
-bool uiListBox::isChosen( int lidx ) const
-{
-    if ( isItemChecked(lidx) )
-	return true;
-    if ( nochosenisvalid_ )
-	return false;
-
-    const int nrchecked = nrChecked();
-    if ( nrchecked > 0 )
-	return false;
-    return lidx == currentItem();
-}
-
-
-int uiListBox::firstChosen() const
-{
-    int ret = firstChecked();
-    if ( ret == -1 && !nochosenisvalid_ )
-	ret = currentItem();
-    return ret;
-}
-
-
-void uiListBox::getChosen( TypeSet<int>& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isChosen(idx) )
-	    items.add( idx );
-}
-
-
-void uiListBox::getChosen( BufferStringSet& nms ) const
-{
-    TypeSet<int> items; getChosen( items );
-    for ( int idx=0; idx<items.size(); idx++ )
-	nms.add( textOfItem(items[idx]) );
-}
-
-
-void uiListBox::setChosen( int lidx, bool yn )
-{
-    if ( itemscheckable_ )
-	setItemChecked( lidx, yn );
-    if ( yn )
-	setCurrentItem( lidx );
-}
-
-
-void uiListBox::setChosen( const TypeSet<int>& itms )
-{
-    if ( !itemscheckable_ )
-	setSelectedItems( itms );
-    else
-	setCheckedItems( itms );
-}
-
-
-void uiListBox::setChosen( const BufferStringSet& nms )
-{
-    if ( !itemscheckable_ )
-	setSelectedItems( nms );
-    else
-	setCheckedItems( nms );
-}
-
-
-void uiListBox::chooseAll( bool yn )
-{
-    if ( !itemscheckable_ )
-	selectAll( yn );
-    else
-	setAllItemsChecked( yn );
+    return body_->getItemIdx( id );
 }
 
 
 void uiListBox::setItemText( int idx, const uiString& txt )
 {
-    if ( !validIndex(idx) ) return;
+    if ( !validIdx(idx) ) return;
 
     body_->getItemText( idx ) = txt;
     body_->updateText( idx );
 }
-
-
-void uiListBox::setItemSelectable( int idx, bool yn )
-{
-    if ( !validIndex(idx) ) return;
-
-    Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool isselectable = flags.testFlag( Qt::ItemIsSelectable );
-    if ( isselectable == yn )
-	return;
-
-    body_->item(idx)->setFlags( flags^Qt::ItemIsSelectable );
-    setItemChecked( idx, false );
-}
-
-
-bool uiListBox::isItemSelectable( int idx ) const
-{
-    return validIndex(idx) &&
-	body_->item(idx)->flags().testFlag( Qt::ItemIsSelectable );
-}
-
-
-void uiListBox::setSelectedItems( const BufferStringSet& itms )
-{
-    mBlockCmdRec;
-    body_->setCurrentRow( -1 );
-    for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(textOfItem(idx)) );
-}
-
-
-void uiListBox::setSelectedItems( const TypeSet<int>& itms )
-{
-    mBlockCmdRec;
-    body_->setCurrentRow( -1 );
-    for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(idx) );
-}
-
-
-void uiListBox::setCheckedItems( const BufferStringSet& itms )
-{
-    for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
-}
-
-
-void uiListBox::setCheckedItems( const TypeSet<int>& itms )
-{
-    for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, itms.isPresent(idx) );
-}
-
-
-void uiListBox::getSelectedItems( BufferStringSet& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isSelected(idx) ) items.add( textOfItem(idx) );
-}
-
-
-void uiListBox::getSelectedItems( TypeSet<int>& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isSelected(idx) ) items += idx;
-}
-
-
-void uiListBox::getCheckedItems( BufferStringSet& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isItemChecked(idx) )
-	    items.add( textOfItem(idx) );
-}
-
-
-void uiListBox::getCheckedItems( TypeSet<int>& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isItemChecked(idx) )
-	    items += idx;
-}
-
-
-void uiListBox::setItemID( int idx, int id )
-{ body_->setItemID( idx, id ); }
-
-int uiListBox::currentItemID() const
-{ return getItemID(currentItem()); }
-
-int uiListBox::getItemID( int idx ) const
-{ return body_->getItemID( idx ); }
-
-int uiListBox::getItemIdx( int id ) const
-{ return body_->getItemIdx( id ); }
 
 
 void uiListBox::setFieldWidth( int fw )
@@ -1049,27 +812,6 @@ void uiListBox::setAlignment( Alignment::HPos al )
     alignment_ = al;
     for ( int idx=0; idx<size(); idx++ )
 	body_->setItemAlignment( idx, al );
-}
-
-
-void uiListBox::handleCheckChange( QListWidgetItem* itm )
-{
-    mDynamicCastGet(uiListBoxItem*,lbitm,itm)
-    if ( !lbitm ) return;
-
-    const bool ischecked = itm->checkState() == 2;
-    if ( lbitm->ischecked_ == ischecked )
-	return;
-
-    lbitm->ischecked_ = ischecked;
-    const int itmidx = body_->indexOf( lbitm );
-
-    NotifyStopper nsic( itemChosen );
-    setCurrentItem( itmidx );
-    nsic.restore();
-
-    itemChecked.trigger( itmidx );
-    itemChosen.trigger( itmidx );
 }
 
 
@@ -1109,23 +851,352 @@ void uiListBox::translateText()
 }
 
 
-// -------------- uiLabeledListBox ----------------
-uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
-				    bool multisel,
-				    uiLabeledListBox::LblPos pos )
-	: uiGroup(p,"Labeled listbox")
+//---- 'Choose' functions ----
+
+void uiListBox::setChoosable( int idx, bool yn )
 {
-    lb_ = new uiListBox( this, txt.getFullString(), multisel );
+    if ( !validIdx(idx) ) return;
+
+    Qt::ItemFlags flags = body_->item(idx)->flags();
+    const bool isselectable = flags.testFlag( Qt::ItemIsSelectable );
+    if ( isselectable == yn )
+	return;
+
+    body_->item(idx)->setFlags( flags^Qt::ItemIsSelectable );
+}
+
+
+bool uiListBox::isChoosable( int idx ) const
+{
+    return validIdx(idx) &&
+	body_->item(idx)->flags().testFlag( Qt::ItemIsSelectable );
+}
+
+
+int uiListBox::nrChosen() const
+{
+    if ( !isMultiChoice() )
+	return choicemode_ == None || currentItem() < 0 ? 0 : 1;
+
+    int ret = nrChecked();
+    if ( ret < 1 && choicemode_ == AtLeastOne )
+	ret = currentItem() < 0 ? 0 : 1;
+    return ret;
+}
+
+
+bool uiListBox::isChosen( int lidx ) const
+{
+    if ( choicemode_ == None || !validIdx(lidx) )
+	return false;
+    else if ( choicemode_ == OnlyOne )
+	return lidx == currentItem();
+
+    if ( isItemChecked(lidx) )
+	return true;
+    if ( choicemode_ == ZeroOrMore || nrChecked() > 0 )
+	return false;
+
+    return lidx == currentItem();
+}
+
+
+int uiListBox::firstChosen() const
+{
+    if ( !isMultiChoice() )
+	return choicemode_ == None ? -1 : currentItem();
+
+    return nextChosen( -1 );
+}
+
+
+int uiListBox::nextChosen( int prev ) const
+{
+    if ( !isMultiChoice() )
+	return choicemode_ == None || prev >= 0 ? -1 : currentItem();
+
+    if ( prev < -1 ) prev = -1;
+    const int sz = size();
+    for ( int idx=prev+1; idx<sz; idx++ )
+	if ( isChosen(idx) )
+	    return idx;
+
+    return -1;
+}
+
+
+void uiListBox::getChosen( TypeSet<int>& items ) const
+{
+    items.setEmpty();
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isChosen(idx) )
+	    items.add( idx );
+}
+
+
+void uiListBox::getChosen( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    TypeSet<int> items; getChosen( items );
+    for ( int idx=0; idx<items.size(); idx++ )
+	nms.add( textOfItem(items[idx]) );
+}
+
+
+void uiListBox::setChosen( int lidx, bool yn )
+{
+    if ( isMultiChoice() )
+	setItemChecked( lidx, yn );
+    else if ( validIdx(lidx) )
+    {
+	mBlockCmdRec;
+	body_->item( lidx )->setSelected( yn );
+    }
+
+    if ( yn )
+	setCurrentItem( lidx );
+}
+
+
+void uiListBox::setChosen( const TypeSet<int>& itms )
+{
+    if ( isMultiChoice() )
+	setCheckedItems( itms );
+    else if ( !itms.isEmpty() )
+	setCurrentItem( itms[0] );
+}
+
+
+void uiListBox::setChosen( const BufferStringSet& nms )
+{
+    if ( isMultiChoice() )
+	setCheckedItems( nms );
+    else if ( !nms.isEmpty() )
+	setCurrentItem( nms.get(0) );
+}
+
+
+void uiListBox::chooseAll( bool yn )
+{
+    if ( isMultiChoice() )
+	setAllItemsChecked( yn );
+}
+
+
+//---- 'Check' functions ----
+
+
+void uiListBox::setItemCheckable( int idx, bool yn )
+{
+    if ( !validIdx(idx) ) return;
+
+    Qt::ItemFlags flags = body_->item(idx)->flags();
+    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable);
+    if ( ischeckable == yn )
+	return;
+
+    body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
+    setItemChecked( idx, false );
+}
+
+
+void uiListBox::setAllItemsChecked( bool yn )
+{
+    if ( !isMultiChoice() )
+	return;
+
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, yn );
+}
+
+
+void uiListBox::setItemChecked( int idx, bool yn )
+{
+    if ( !isMultiChoice() )
+	return;
+    mBlockCmdRec;
+    body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+}
+
+
+bool uiListBox::isItemChecked( int idx ) const
+{
+    return isMultiChoice() && validIdx(idx) ?
+	   body_->item(idx)->checkState() == Qt::Checked : false;
+}
+
+
+void uiListBox::setItemChecked( const char* nm, bool yn )
+{
+    if ( !isMultiChoice() )
+	return;
+
+    const int idxof = indexOf( nm );
+    if ( idxof >= 0 )
+	setItemChecked( indexOf( nm ), yn );
+}
+
+
+bool uiListBox::isItemChecked( const char* nm ) const
+{
+    if ( !isMultiChoice() )
+	return false;
+
+    const int idxof = indexOf( nm );
+    return idxof < 0 ? false : isItemChecked( idxof );
+}
+
+
+int uiListBox::nrChecked() const
+{
+    if ( !isMultiChoice() )
+	return 0;
+
+    int res = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	if ( isItemChecked(idx) )
+	    res++;
+    return res;
+}
+
+
+//---- 'Select' functions ----
+
+/* QqQ deprecated
+
+void uiListBox::setSelectionMode( SelectionMode mode )
+{
+    pErrMsg("Qt's SelectionMode no longer supported" );
+}
+
+
+void uiListBox::setItemSelectable( int idx, bool yn )
+{
+    setChoosable( idx, yn );
+}
+
+
+bool uiListBox::isItemSelectable( int idx ) const
+{
+    return isChoosable( idx );
+}
+
+
+void uiListBox::setSelectedItems( const BufferStringSet& itms )
+{
+    body_->setCurrentRow( -1 );
+    for ( int idx=0; idx<size(); idx++ )
+	setSelected( idx, itms.isPresent(textOfItem(idx)) );
+}
+
+
+void uiListBox::setSelectedItems( const TypeSet<int>& itms )
+{
+    body_->setCurrentRow( -1 );
+    for ( int idx=0; idx<size(); idx++ )
+	setSelected( idx, itms.isPresent(idx) );
+}
+
+
+bool uiListBox::isSelected ( int idx ) const
+{
+    return isChosen( idx );
+}
+
+
+int uiListBox::nrSelected() const
+{
+    return nrChosen();
+}
+
+
+void uiListBox::setSelected( int idx, bool yn )
+{
+    setChosen( idx, yn );
+}
+
+
+void uiListBox::selectAll( bool yn )
+{
+    mBlockCmdRec;
+    chooseAll( yn );
+}
+
+
+void uiListBox::getSelectedItems( BufferStringSet& items ) const
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isSelected(idx) ) items.add( textOfItem(idx) );
+}
+
+
+void uiListBox::getSelectedItems( TypeSet<int>& items ) const
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isSelected(idx) ) items += idx;
+}
+
+
+QqQ end deprecated */
+
+
+void uiListBox::setCheckedItems( const BufferStringSet& itms )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+}
+
+
+void uiListBox::setCheckedItems( const TypeSet<int>& itms )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, itms.isPresent(idx) );
+}
+
+
+void uiListBox::getCheckedItems( BufferStringSet& items ) const
+{
+    items.setEmpty();
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isItemChecked(idx) )
+	    items.add( textOfItem(idx) );
+}
+
+
+void uiListBox::getCheckedItems( TypeSet<int>& items ) const
+{
+    items.setEmpty();
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isItemChecked(idx) )
+	    items += idx;
+}
+
+
+// -------------- uiLabeledListBox ----------------
+
+
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt )
+    : uiGroup(p,"Labeled listbox")
+{
+    lb_ = new uiListBox( this, txt.getFullString(), uiListBox::OnlyOne );
+    mkRest( txt, LeftMid );
+}
+
+
+uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
+		uiListBox::ChoiceMode cm, uiLabeledListBox::LblPos pos )
+    : uiGroup(p,"Labeled listbox")
+{
+    lb_ = new uiListBox( this, txt.getFullString(), cm );
     mkRest( txt, pos );
 }
 
 
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
-				    const uiString& txt,
-				    bool multisel, uiLabeledListBox::LblPos pos)
-	: uiGroup(p,"Labeled listbox")
+    const uiString& txt, uiListBox::ChoiceMode cm, uiLabeledListBox::LblPos pos)
+    : uiGroup(p,"Labeled listbox")
 {
-    lb_ = new uiListBox( this, s, txt.getFullString(), multisel );
+    lb_ = new uiListBox( this, s, txt.getFullString(), cm );
     mkRest( txt, pos );
 }
 
@@ -1210,4 +1281,3 @@ void uiLabeledListBox::mkRest( const uiString& txt,
 
     deepErase( txts );
 }
-

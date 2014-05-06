@@ -253,14 +253,14 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines to export",
-						    true );
+						    uiListBox::AtLeastOne );
     lnmsfld_ = llb->box();
     SeisIOObjInfo sii( inioobj_ );
     BufferStringSet lnms;
     sii.getLineNames( lnms );
     for ( int idx=0; idx<lnms.size(); idx++ )
 	lnmsfld_->addItem( lnms.get(idx) );
-    lnmsfld_->selectAll();
+    lnmsfld_->chooseAll();
 
     BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken() );
     newfnm += "_"; newfnm += inioobj_.name();
@@ -331,7 +331,7 @@ bool doExp( const FilePath& fp )
     BufferStringSet lnms;
     for ( int idx=0; idx<lnmsfld_->size(); idx++ )
     {
-	if ( lnmsfld_->isSelected(idx) )
+	if ( lnmsfld_->isChosen(idx) )
 	    lnms.add( lnmsfld_->textOfItem(idx) );
     }
     if ( lnms.size() < 1 )

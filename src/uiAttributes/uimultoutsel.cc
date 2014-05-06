@@ -41,7 +41,7 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
-			   "Select the outputs to compute", 
+			   "Select the outputs to compute",
                            mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
 	, outallfld_(0)
@@ -60,8 +60,7 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 
 void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 {
-    outlistfld_ = new uiListBox( this );
-    outlistfld_->setMultiSelect();
+    outlistfld_ = new uiListBox( this, "Outputs", uiListBox::AtLeastOne );
     outlistfld_->addItems( outnames );
 
     outallfld_ = new uiCheckBox( this, "Output all");
@@ -73,14 +72,14 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 void uiMultOutSel::getSelectedOutputs( TypeSet<int>& selouts ) const
 {
     if ( outlistfld_ )
-	outlistfld_->getSelectedItems( selouts );
+	outlistfld_->getChosen( selouts );
 }
 
 
 void uiMultOutSel::getSelectedOutNames( BufferStringSet& seloutnms ) const
 {
     if ( outlistfld_ )
-	outlistfld_->getSelectedItems( seloutnms );
+	outlistfld_->getChosen( seloutnms );
 }
 
 
@@ -92,7 +91,7 @@ bool uiMultOutSel::doDisp() const
 
 void uiMultOutSel::allSel( CallBacker* c )
 {
-    outlistfld_->selectAll( outallfld_->isChecked() );
+    outlistfld_->chooseAll( outallfld_->isChecked() );
 }
 
 
@@ -174,8 +173,8 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     , descset_(ds)
 {
 #define mLblPos uiLabeledListBox::AboveLeft
-    uiLabeledListBox* attrllb =
-	new uiLabeledListBox( this, "Available attributes", true, mLblPos );
+    uiLabeledListBox* attrllb = new uiLabeledListBox( this,
+	    "Available attributes", uiListBox::AtLeastOne, mLblPos );
     attribfld_ = attrllb->box();
     attribfld_->setHSzPol( uiObject::Wide );
     attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
@@ -188,8 +187,8 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
 		      mCB(this,uiMultiAttribSel,doRemove) );
     bgrp->attach( centeredRightOf, attrllb );
 
-    uiLabeledListBox* selllb =
-	new uiLabeledListBox( this, "Selected attributes", true, mLblPos );
+    uiLabeledListBox* selllb = new uiLabeledListBox( this,
+	    "Selected attributes", uiListBox::AtLeastOne, mLblPos );
     selfld_ = selllb->box();
     selfld_->setHSzPol( uiObject::Wide );
     selllb->attach( rightTo, attrllb );
@@ -249,7 +248,7 @@ void uiMultiAttribSel::updateSelFld()
 void uiMultiAttribSel::doAdd( CallBacker* )
 {
     TypeSet<int> selidxs;
-    attribfld_->getSelectedItems( selidxs );
+    attribfld_->getChosen( selidxs );
     if ( selidxs.isEmpty() )
 	return;
 
@@ -297,7 +296,7 @@ void uiMultiAttribSel::doAdd( CallBacker* )
 void uiMultiAttribSel::doRemove( CallBacker* )
 {
     TypeSet<int> selidxs;
-    selfld_->getSelectedItems( selidxs );
+    selfld_->getChosen( selidxs );
     if ( selidxs.isEmpty() )
 	return;
 

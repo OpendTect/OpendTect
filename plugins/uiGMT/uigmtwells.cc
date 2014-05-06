@@ -44,7 +44,8 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Wells")
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Wells", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
+						  uiListBox::AtLeastOne );
     welllistfld_ = llb->box();
     Well::InfoCollector wic( false, false );
     wic.execute();
@@ -62,7 +63,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     symbfld_->attach( alignedBelow, namefld_ );
 
     lebelfld_ = new uiCheckBox( this, "Post labels",
-	   			mCB(this,uiGMTWellsGrp,choiceSel) );
+				mCB(this,uiGMTWellsGrp,choiceSel) );
     lebelalignfld_ = new uiComboBox( this, "Alignment" );
     lebelalignfld_->attach( alignedBelow, symbfld_ );
     lebelfld_->attach( leftOf, lebelalignfld_ );
@@ -89,7 +90,7 @@ void uiGMTWellsGrp::fillItems()
 
 void uiGMTWellsGrp::reset()
 {
-    welllistfld_->clearSelection();
+    welllistfld_->chooseAll( false );
     namefld_->setText( "Wells" );
     symbfld_->reset();
     lebelfld_->setChecked( false );
@@ -112,7 +113,7 @@ void uiGMTWellsGrp::choiceSel( CallBacker* )
 
 bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 {
-    const int nrsel = welllistfld_->nrSelected();
+    const int nrsel = welllistfld_->nrChosen();
     if ( !nrsel )
 	mErrRet("Please select at least one well")
 
@@ -122,7 +123,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     par.set( sKey::Name(), namefld_->text() );
 
     BufferStringSet selnames;
-    welllistfld_->getSelectedItems( selnames );
+    welllistfld_->getChosen( selnames );
     par.set( ODGMT::sKeyWellNames(), selnames );
     symbfld_->fillPar( par );
     par.setYN( ODGMT::sKeyPostLabel(), lebelfld_->isChecked() );
@@ -137,13 +138,11 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     namefld_->setText( par.find(sKey::Name()) );
     BufferStringSet selnames;
     par.get( ODGMT::sKeyWellNames(), selnames );
-    welllistfld_->clearSelection();
+    welllistfld_->chooseAll( false );
     for ( int idx=0; idx<welllistfld_->size(); idx ++ )
     {
-	if ( selnames.isPresent( welllistfld_->textOfItem(idx) ) )
-	    welllistfld_->setSelected( idx, true );
-	else
-	    welllistfld_->setSelected( idx, false );
+	const bool issel = selnames.isPresent( welllistfld_->textOfItem(idx) );
+	welllistfld_->setChosen( idx, issel );
     }
 
     symbfld_->usePar( par );

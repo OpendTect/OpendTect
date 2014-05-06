@@ -59,11 +59,10 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
-						  uiLabeledListBox::AboveMid );
+    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
+			    uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
     linefld_ = lllb->box();
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
-    linefld_->setMultiSelect(true);
 
     linegrp_ = new uiManipButGrp( lllb );
     linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
@@ -116,7 +115,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 {
     infofld_->setText( "" );
     BufferStringSet linenms;
-    linefld_->getSelectedItems( linenms );
+    linefld_->getChosen( linenms );
     BufferString txt;
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
@@ -195,7 +194,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 void uiSeis2DFileMan::removeLine( CallBacker* )
 {
     BufferStringSet sellines;
-    linefld_->getSelectedItems( sellines );
+    linefld_->getChosen( sellines );
     if ( sellines.isEmpty() ||
 	!uiMSG().askRemove("All selected lines "
 	    "will be removed. Do you want to continue?") )
@@ -223,7 +222,7 @@ bool uiSeis2DFileMan::rename( const char* oldnm, BufferString& newnm )
 void uiSeis2DFileMan::renameLine( CallBacker* )
 {
     BufferStringSet linenms;
-    linefld_->getSelectedItems( linenms );
+    linefld_->getChosen( linenms );
     if ( linenms.isEmpty() ) return;
 
     const char* linenm = linenms.get(0);
@@ -380,7 +379,7 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
     BufferStringSet sellnms; int firstsel = -1;
     for ( int idx=0; idx<linefld_->size(); idx++ )
     {
-	if ( linefld_->isSelected(idx) )
+	if ( linefld_->isChosen(idx) )
 	{
 	    sellnms.add( linefld_->textOfItem(idx) );
 	    if ( firstsel < 0 ) firstsel = idx;
@@ -472,7 +471,7 @@ void uiSeis2DFileMan::extrFrom3D( CallBacker* )
 {
     if ( linefld_->size() < 1 ) return;
 
-    BufferStringSet sellnms; linefld_->getSelectedItems( sellnms );
+    BufferStringSet sellnms; linefld_->getChosen( sellnms );
     uiSeis2DExtractFrom3D dlg( this, *objinfo_, sellnms );
     if ( dlg.go() )
 	redoAllLists();

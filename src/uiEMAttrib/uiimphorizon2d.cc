@@ -214,17 +214,16 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	hornms.add( horinfos_[idx]->name );
 
     uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
-					"Select Horizons to import", true );
+			"Horizon(s) to import", uiListBox::AtLeastOne );
     horbox->attach( alignedBelow, inpfld_ );
     horselfld_ = horbox->box();
-    horselfld_->selectAll( false );
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
     uiPushButton* addbut = new uiPushButton( this, "Add new",
 				mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                               mODHelpKey(mTableImpDataSel2DSurfacesHelpID) );
     dataselfld_->attach( alignedBelow, horbox );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
@@ -264,7 +263,7 @@ void uiImportHorizon2D::descChg( CallBacker* cb )
 void uiImportHorizon2D::formatSel( CallBacker* cb )
 {
     BufferStringSet hornms;
-    horselfld_->getSelectedItems( hornms );
+    horselfld_->getChosen( hornms );
     const int nrhors = hornms.size();
     EM::Horizon2DAscIO::updateDesc( fd_, hornms );
     dataselfld_->updateSummary();
@@ -288,16 +287,15 @@ void uiImportHorizon2D::addHor( CallBacker* )
     }
 
     horselfld_->addItem( hornm );
-    const int idx = horselfld_->size() - 1;
-    horselfld_->setSelected( idx, true );
+    horselfld_->setChosen( horselfld_->size()-1, true );
     horselfld_->scrollToBottom();
 }
 
 
 void uiImportHorizon2D::scanPush( CallBacker* cb )
 {
-    if ( !horselfld_->nrSelected() )
-    { uiMSG().error("Please select at least one horizon"); return; }
+    if ( horselfld_->nrChosen() < 1 )
+	return;
 
     if ( !dataselfld_->commit() ) return;
 
@@ -356,7 +354,7 @@ bool uiImportHorizon2D::doImport()
     BufferStringSet linenms;
     scanner_->getLineNames( linenms );
     BufferStringSet hornms;
-    horselfld_->getSelectedItems( hornms );
+    horselfld_->getChosen( hornms );
     ObjectSet<EM::Horizon2D> horizons;
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     EM::EMManager& em = EM::EMM();
@@ -482,8 +480,8 @@ bool uiImportHorizon2D::checkInpFlds()
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
 
-    if ( !horselfld_->nrSelected() )
-	mErrRet("Please select at least one horizon")
+    if ( horselfld_->nrChosen() < 1 )
+	mErrRet("No horizons available")
 
     if ( !dataselfld_->commit() )
 	mErrRet( "Please define data format" );

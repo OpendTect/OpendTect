@@ -21,9 +21,8 @@ uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     , ptselchange_( this )
     , isrectangleselection_( true )
 {
-    listbox_ = new uiListBox( this );
-    listbox_->setMultiSelect( true );
-    listbox_->selectionChanged.notify(
+    listbox_ = new uiListBox( this, "Aux data editors", uiListBox::ZeroOrMore );
+    listbox_->itemChosen.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
     listbox_->rightButtonClicked.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, rightClickedCB) );
@@ -34,12 +33,6 @@ uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
 
 uiFlatViewAuxDataEditorList::~uiFlatViewAuxDataEditorList()
 {
-    listbox_->selectionChanged.remove(
-	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
-
-    listbox_->rightButtonClicked.remove(
-	    mCB(this, uiFlatViewAuxDataEditorList, rightClickedCB) );
-
     uimenuhandler_->unRef();
 }
 
@@ -99,20 +92,18 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 	}
     }
     
-    listbox_->selectAll( false );
+    listbox_->chooseAll( false );
 
     for ( int idy=selectededitors.size()-1; idy>=0; idy-- )
     {
 	const int idx = findEditorIDPair( selectededitors[idy],
 					  selectedids[idy] );
-	if ( idx==-1 )
-	    continue;
-
-       listbox_->setSelected( idx, true );
+	if ( idx>=0 )
+	   listbox_->setChosen( idx, true );
     }
 
     if ( listbox_->size()==1 )
-       listbox_->setSelected( 0, true );
+       listbox_->setChosen( 0, true );
 
     block.restore();
     listbox_->selectionChanged.trigger();
@@ -144,7 +135,7 @@ void uiFlatViewAuxDataEditorList::getSelections(
 {
     for ( int idx=listbox_->size()-1; idx >= 0; idx-- )
     {
-	if ( listbox_->isSelected( idx ) )
+	if ( listbox_->isChosen( idx ) )
 	{
 	    editors += listboxeditors_[idx];
 	    ids += listboxids_[idx];
@@ -160,10 +151,10 @@ void uiFlatViewAuxDataEditorList::setSelection(
     if ( idx<0 ) return;
 
     NotifyStopper block( listbox_->selectionChanged );
-    listbox_->selectAll( false );
+    listbox_->chooseAll( false );
     block.restore();
 
-    listbox_->setSelected( idx, true );
+    listbox_->setChosen( idx, true );
     change_.trigger();
 }
 
@@ -185,9 +176,9 @@ void uiFlatViewAuxDataEditorList::listSelChangeCB( CallBacker* )
     for ( int idx = editors_.size()-1; idx>=0; idx-- )
 	editors_[idx]->setAddAuxData( -1 );
 	
-    if ( listbox_->nrSelected()==1 ) 
+    if ( listbox_->nrChosen()==1 ) 
     {
-	const int idx = listbox_->nextSelected();
+	const int idx = listbox_->firstChosen();
 	listboxeditors_[idx]->setAddAuxData( listboxids_[idx] );
     }
     

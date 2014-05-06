@@ -58,10 +58,11 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 					ctio_.ctxt.trgroup->userName() );
         ioobjids_ += new MultiID( ioobj ? (const char*)ioobj->key() : "" );
     }
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Input Cubes", true );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, "Input Cubes",
+						    uiListBox::ZeroOrMore );
     inpfld_ = llb->box();
-    inpfld_->addItems( ioobjnms );
     inpfld_->setCurrentItem( 0 );
+    inpfld_->addItems( ioobjnms );
     inpfld_->selectionChanged.notify( mCB(this,uiMergeSeis,selChangeCB) );
 
     stackfld_ = new uiGenInput( this, "Duplicate traces",
@@ -102,7 +103,7 @@ void uiMergeSeis::selChangeCB( CallBacker* cb )
 {
     for ( int idx=0; idx<inpfld_->size(); idx++ )
     {
-        if ( !inpfld_->isSelected(idx) )
+        if ( !inpfld_->isChosen(idx) )
 	    continue;
 	
 	PtrMan<IOObj> firstselobj = IOM().get( *ioobjids_[idx] );
@@ -129,7 +130,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     ObjectSet<IOObj> selobjs;
     for ( int idx=0; idx<inpfld_->size(); idx++ )
     {
-        if ( inpfld_->isSelected(idx) )
+        if ( inpfld_->isChosen(idx) )
             selobjs += IOM().get( *ioobjids_[idx] );
     }
 

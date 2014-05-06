@@ -70,7 +70,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	sep->attach( stretchedBelow, lblbox1 );
 
 	unitlithfld_ = new uiStratLithoBox( this );
-	unitlithfld_->setMultiSelect( true );
+	unitlithfld_->setMultiChoice( true );
 	unitlithfld_->attach( alignedBelow, lblbox1 );
 	unitlithfld_->attach( ensureBelow, sep );
 
@@ -90,7 +90,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 		lithids_ += l.lithology();
 	}
 	if ( lithids_.size() )
-	    unitlithfld_->setSelectedItems( lithids_ );
+	    unitlithfld_->setChosen( lithids_ );
 	else if ( !unitlithfld_->isEmpty() )
 	    unitlithfld_->setCurrentItem( 0 );
     }
@@ -108,7 +108,7 @@ void uiStratUnitEditDlg::putToScreen()
     agestartfld_->setValue( unit_.timeRange().start );
     agestopfld_->setValue( unit_.timeRange().stop );
     if ( unit_.isLeaved() )
-	unitlithfld_->setSelectedItems( lithids_ );
+	unitlithfld_->setChosen( lithids_ );
 }
 
 
@@ -123,7 +123,7 @@ void uiStratUnitEditDlg::getFromScreen()
 
     lithids_.erase();
     if ( unit_.isLeaved() )
-	unitlithfld_->getSelectedItems( lithids_ );
+	unitlithfld_->getChosen( lithids_ );
 }
 
 #define mPreventWrongChar(buf,act)\
@@ -192,7 +192,7 @@ void uiStratUnitEditDlg::selLithCB( CallBacker* )
 
 
 uiStratLithoBox::uiStratLithoBox( uiParent* p )
-    : uiListBox( p, "Lithologies",false )
+    : uiListBox( p, "Lithologies" )
 {
     fillLiths( 0 );
     Strat::LithologySet& lithos = Strat::eRT().lithologies();
@@ -212,7 +212,7 @@ void uiStratLithoBox::fillLiths( CallBacker* )
     BufferStringSet selected;
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( isSelected(idx) )
+	if ( isChosen(idx) )
 	    selected.add( textOfItem(idx) );
     }
 
@@ -230,7 +230,7 @@ void uiStratLithoBox::fillLiths( CallBacker* )
 	    dotrigger = true;
 	else
 	{
-	    setSelected( selidx, true );
+	    setChosen( selidx, true );
 	    firstsel = selidx;
 	}
     }
@@ -537,7 +537,7 @@ void itemSwitch( bool up )
 
 uiStratContentsDlg::uiStratContentsDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Manage Contents",
-		"Define special layer contents", 
+		"Define special layer contents",
                 mODHelpKey(mStratContentsDlgHelpID) ))
     , anychg_(false)
 {

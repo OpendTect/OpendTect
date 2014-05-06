@@ -28,7 +28,7 @@ mStartDeclCmdClass( uiCmdDriver, Combo, UiObjectCmd )		mEndDeclCmdClass
 mExpClass(uiCmdDriver) ComboActivator: public Activator
 {
 public:
-    			ComboActivator(const uiComboBox&,int itmidx);
+			ComboActivator(const uiComboBox&,int itmidx);
     void		actCB(CallBacker*);
 protected:
     uiComboBox&		actcombox_;
@@ -43,7 +43,7 @@ mStartDeclCmdClass( uiCmdDriver, ListMenu, UiObjectCmd )	mEndDeclCmdClass
 mExpClass(uiCmdDriver) ListActivator: public Activator
 {
 public:
-    			ListActivator(const uiListBox&,int itmidx,
+			ListActivator(const uiListBox&,int itmidx,
 				      const BufferStringSet& clicktags);
     void		actCB(CallBacker*);
 protected:
@@ -58,7 +58,7 @@ mStartDeclCmdClass( uiCmdDriver, ListSelect, UiObjectCmd )	mEndDeclCmdClass
 mExpClass(uiCmdDriver) ListSelectActivator: public Activator
 {
 public:
-    			ListSelectActivator(const uiListBox&,
+			ListSelectActivator(const uiListBox&,
 					    const TypeSet<int>& selset);
     void		actCB(CallBacker*);
 protected:
@@ -111,7 +111,7 @@ protected:
     void		labelStoredStateNew();
 
     void		writeListSelect();
-    int 		writeListSelect(bool differential,bool virtually=false);
+    int		writeListSelect(bool differential,bool virtually=false);
     void		writeListSelect(int firstidx,int lastidx,
 					int blockstate,bool clear);
     void		writeListButton();
@@ -125,12 +125,9 @@ protected:
     bool		selchanged_;
     bool		listcmdsflushed_;
 
-    TypeSet<int>	selecteditems_; 
-    TypeSet<int>	checkeditems_;
-    TypeSet<int>	wasselecteditems_; 
-    TypeSet<int>	wascheckeditems_;
-    TypeSet<int>	isselecteditems_;
-    TypeSet<int>	ischeckeditems_; 
+    TypeSet<int>	chosenitems_;
+    TypeSet<int>	waschosenitems_;
+    TypeSet<int>	ischosenitems_;
 
 mEndDeclComposerClass
 

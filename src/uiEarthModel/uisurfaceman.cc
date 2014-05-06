@@ -143,8 +143,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-		"Horizon Data", true, uiLabeledListBox::AboveLeft );
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Horizon Data",
+			uiListBox::AtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setHSzPol( uiObject::Wide );
@@ -172,8 +172,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Flt3D )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-		"Fault Data", true, uiLabeledListBox::AboveLeft );
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Fault Data",
+			uiListBox::AtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setToolTip(
@@ -311,11 +311,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     }
 
     BufferStringSet attrnms;
-    attribfld_->getSelectedItems( attrnms );
-    if ( attrnms.isEmpty() &&
-	    !uiMSG().askRemove("All selected Surface Data will be removed.\n"
-			       "Do you want to continue?") )
-	return;
+    attribfld_->getChosen( attrnms );
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {
@@ -339,7 +335,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
-    const char* attribnm = attribfld_->getText();
+    const BufferString attribnm = attribfld_->getText();
     BufferString titl( "Rename '" ); titl += attribnm; titl += "'";
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(attribnm) );
     if ( !dlg.go() ) return;
@@ -412,7 +408,7 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
     attribfld_->setEmpty();
     for ( int idx=0; idx<strs.size(); idx++)
 	attribfld_->addItem( strs[idx]->buf() );
-    attribfld_->selectAll( false );
+    attribfld_->chooseAll( false );
 }
 
 
@@ -641,8 +637,8 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
     setCtrlStyle( CloseOnly );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
-						   uiLabeledListBox::AboveMid );
+    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
+			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
     linelist_ = lllb->box();
     BufferStringSet linenames;
     info.getLineNames( linenames );

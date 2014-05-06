@@ -200,7 +200,7 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
     uiSelectFromList dlg( parent(), setup );
     dlg.setHelpKey(mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
     if ( dlg.selFld() )
-	dlg.selFld()->setMultiSelect();
+	dlg.selFld()->setMultiChoice();
 
     if ( !dlg.go() )
 	return false;
@@ -208,7 +208,7 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
     if ( dlg.selFld() )
     {
 	TypeSet<int> selidxs;
-	dlg.selFld()->getSelectedItems( selidxs );
+	dlg.selFld()->getChosen( selidxs );
 	for ( int idx=0; idx<selidxs.size(); idx++ )
 	{
 	    selnames.add( linenames.get(selidxs[idx]) );

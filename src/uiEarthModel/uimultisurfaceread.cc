@@ -189,13 +189,13 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
 	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpKey) );
-    uiListBox* lb = new uiListBox( &dlg, "Patches", true );
+    uiListBox* lb = new uiListBox( &dlg, "Patches", uiListBox::AtLeastOne );
     lb->addItems( sd.sections );
-    lb->selectAll( true );
+    lb->chooseAll( true );
     if ( dlg.go() )
     {
 	sel.selsections.erase();
-	lb->getSelectedItems( sel.selsections );
+	lb->getChosen( sel.selsections );
 	if ( sel.selsections.isEmpty() )
 	    sel.selsections += 0;
     }

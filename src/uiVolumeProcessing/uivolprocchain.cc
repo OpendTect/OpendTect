@@ -206,7 +206,8 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
     factorylist_ = new uiListBox( flowgrp,
-				  uiStepDialog::factory().getUserNames() );
+				  uiStepDialog::factory().getUserNames(),
+				  "Processing methods", uiListBox::OnlyOne );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
@@ -394,8 +395,8 @@ void uiChain::updateList()
 
 void uiChain::updateButtons()
 {
-    const bool factoryselected = factorylist_->nextSelected(-1)!=-1;
-    const int stepsel = steplist_->nextSelected(-1);
+    const bool factoryselected = factorylist_->firstChosen()!=-1;
+    const int stepsel = steplist_->firstChosen();
 
     addstepbutton_->setSensitive( factoryselected );
     removestepbutton_->setSensitive( stepsel!=-1 );
@@ -465,27 +466,27 @@ void uiChain::savePush( CallBacker* )
 
 void uiChain::factoryClickCB(CallBacker*)
 {
-    if ( factorylist_->nextSelected(-1) == -1 )
+    if ( factorylist_->firstChosen() == -1 )
 	return;
 
-    steplist_->selectAll(false);
+    steplist_->chooseAll(false);
     updateButtons();
 }
 
 
 void uiChain::stepClickCB(CallBacker*)
 {
-    if ( steplist_->nextSelected(-1) == -1 )
+    if ( steplist_->firstChosen() == -1 )
 	return;
 
-    factorylist_->selectAll(false);
+    factorylist_->chooseAll(false);
     updateButtons();
 }
 
 
 void uiChain::stepDoubleClickCB(CallBacker*)
 {
-    factorylist_->selectAll(false);
+    factorylist_->chooseAll(false);
     updateButtons();
 
     showPropDialog( steplist_->currentItem() );
@@ -494,7 +495,7 @@ void uiChain::stepDoubleClickCB(CallBacker*)
 
 void uiChain::addStepPush(CallBacker*)
 {
-    const int sel = factorylist_->nextSelected(-1);
+    const int sel = factorylist_->firstChosen();
     if ( sel == -1 )
 	return;
 
@@ -504,7 +505,7 @@ void uiChain::addStepPush(CallBacker*)
 
     chain_.addStep( step );
     updateList();
-    steplist_->selectAll( false );
+    steplist_->chooseAll( false );
     int curitm = steplist_->size() - 1;
     steplist_->setCurrentItem( curitm );
     if ( !showPropDialog(curitm) )
@@ -521,13 +522,13 @@ void uiChain::addStepPush(CallBacker*)
 
 void uiChain::removeStepPush(CallBacker*)
 {
-    int curitm = steplist_->nextSelected(-1);
+    int curitm = steplist_->firstChosen();
     if ( curitm < 0 )
 	return;
 
     chain_.removeStep( curitm );
     updateList();
-    steplist_->selectAll(false);
+    steplist_->chooseAll(false);
     if ( curitm >= steplist_->size() )
 	curitm--;
     if ( curitm >= 0 )
@@ -539,34 +540,34 @@ void uiChain::removeStepPush(CallBacker*)
 
 void uiChain::moveUpCB(CallBacker*)
 {
-    const int idx = steplist_->nextSelected(-1);
+    const int idx = steplist_->firstChosen();
 
     if ( idx<1 ) return;
 
     chain_.swapSteps( idx, idx-1 );
     updateList();
 
-    steplist_->setSelected( idx-1, true );
+    steplist_->setChosen( idx-1, true );
     updateButtons();
 }
 
 
 void uiChain::moveDownCB(CallBacker*)
 {
-    const int idx = steplist_->nextSelected(-1);
+    const int idx = steplist_->firstChosen();
     if ( idx<0 || idx>=chain_.nrSteps() )
 	return;
 
     chain_.swapSteps( idx, idx+1 );
     updateList();
-    steplist_->setSelected( idx+1, true );
+    steplist_->setChosen( idx+1, true );
     updateButtons();
 }
 
 
 void uiChain::propertiesCB(CallBacker*)
 {
-    const int idx = steplist_->nextSelected(-1);
+    const int idx = steplist_->firstChosen();
     if ( idx<0 ) return;
 
     showPropDialog( idx );

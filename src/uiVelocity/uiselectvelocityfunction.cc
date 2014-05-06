@@ -81,7 +81,7 @@ ObjectSet<FunctionSource>& uiFunctionSel::getVelSources()
 void uiFunctionSel::updateList()
 {
     const int curitem = list_->currentItem();
-    const bool wassel = list_->isSelected(curitem);
+    const bool wassel = list_->isChosen(curitem);
     for ( int idx=0; idx<velsources_.size(); idx++ )
     {
 	if ( idx<list_->size() )
@@ -96,7 +96,7 @@ void uiFunctionSel::updateList()
     if ( curitem<list_->size() )
     {
 	list_->setCurrentItem( curitem );
-	list_->setSelected( curitem, wassel );
+	list_->setChosen( curitem, wassel );
     }
 }
 
@@ -104,7 +104,7 @@ void uiFunctionSel::updateList()
 void uiFunctionSel::selChangedCB(CallBacker*)
 {
     const int curitem = list_->currentItem();
-    const int sel = curitem>=0 && list_->isSelected( curitem ) ? curitem : -1;
+    const int sel = curitem>=0 && list_->isChosen( curitem ) ? curitem : -1;
 
     removebutton_->setSensitive( sel>=0 );
     propbutton_->setSensitive( sel>=0 );
@@ -137,7 +137,7 @@ void uiFunctionSel::addPushedCB(CallBacker*)
 void uiFunctionSel::removePushedCB(CallBacker*)
 {
     const int curitem = list_->currentItem();
-    const int sel = curitem>=0 && list_->isSelected( curitem ) ? curitem : -1;
+    const int sel = curitem>=0 && list_->isChosen( curitem ) ? curitem : -1;
 
     if ( sel<0 ) return;
 
@@ -151,7 +151,7 @@ void uiFunctionSel::removePushedCB(CallBacker*)
 void uiFunctionSel::propPushedCB(CallBacker*)
 {
     const int curitem = list_->currentItem();
-    const int sel = curitem>=0 && list_->isSelected( curitem ) ? curitem : -1;
+    const int sel = curitem>=0 && list_->isChosen( curitem ) ? curitem : -1;
     if ( sel<0 ) return;
 
     uiEditFunction dlg( this, velsources_[sel] );
@@ -165,7 +165,7 @@ void uiFunctionSel::propPushedCB(CallBacker*)
 void uiFunctionSel::colorChanged(CallBacker*)
 {
     const int curitem = list_->currentItem();
-    const int sel = curitem>=0 && list_->isSelected( curitem ) ? curitem : -1;
+    const int sel = curitem>=0 && list_->isChosen( curitem ) ? curitem : -1;
 
     if ( sel<0 ) return;
 

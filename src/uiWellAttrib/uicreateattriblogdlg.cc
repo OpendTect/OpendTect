@@ -79,10 +79,9 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 
     if ( !singlewell )
     {
-	welllistfld_ = new uiListBox( this );
+	welllistfld_ = new uiListBox( this, "Wells", uiListBox::AtLeastOne );
 	welllistfld_->attach( ensureBelow, sep1 );
 	welllistfld_->attach( alignedBelow, attribfld_ );
-	welllistfld_->setMultiSelect();
 	welllistfld_->addItems( wellnames );
     }
 
@@ -138,9 +137,9 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
     BufferStringSet selwells;
     if ( !singlewell_ )
     {
-	if ( welllistfld_->nrSelected() < 1 )
-	    mErrRet( "Select at least one well" );
-	welllistfld_->getSelectedItems( selwells );
+	if ( welllistfld_->nrChosen() < 1 )
+	    return true;
+	welllistfld_->getChosen( selwells );
     }
     else
 	selwells.add( wellnames_.get(0) );
