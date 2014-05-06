@@ -20,7 +20,7 @@ if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" 
     set( OpendTect_VERSION_PATCH a )
 endif()
 
-PROJECT( "OpendTect" )
+PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )
 
 include( CTest )
 
