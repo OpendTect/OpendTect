@@ -25,6 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zdomain.h"
 #include "od_strstream.h"
 
+static const char* sKeySeis()	{ return "Seis"; }	// Legacy (OD4).
+
 
 struct Seis2DLineSetCache
 {
@@ -136,7 +138,7 @@ const char* Seis2DLineSet::attribute( int idx ) const
 {
     const char* res = idx >= 0 && idx < pars_.size()
 		    ? pars_[idx]->find(sKey::Attribute()) : 0;
-    return res ? res : LineKey::sKeyDefAttrib();
+    return res ? res : sKeySeis();
 }
 
 
@@ -919,7 +921,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, od_ostream& o, bool inr, float z,
     }
 
     if ( attrnm.isEmpty() )
-	attrnm = LineKey::sKeyDefAttrib();
+	attrnm = sKeySeis();
     totalnr = lastidx - curidx + 1;
     curmsg = "Extracting geometry";
 }

@@ -147,7 +147,9 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	ctio.ctxt.toselect.require_.set( sKey::Type(), datatype );
     }
 
-    ctio.ctxt.setName( iop.getValue( iop.indexOf( sKey::Attribute() ) ) );
+    FixedString attribnm = iop.find( sKey::Attribute() );
+    if ( attribnm.isEmpty() ) attribnm = "Seis";
+    ctio.ctxt.setName( attribnm );
     if ( ctio.fillObj() == 0 ) return BufferString::empty();
     IOObj* ioobj = ctio.ioobj;
     if ( ioobj->translator() != ctio.ctxt.deftransl )
@@ -247,6 +249,7 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 								*iop,false) );
 	    BufferString attrname;
 	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
+	    if ( attrname.isEmpty() ) attrname = "Seis";
 	    attrname.clean( BufferString::AllowDots );
 	    FilePath newfnm( attrname );
 	    newfnm.add( BufferString(attrname)
