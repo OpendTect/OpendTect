@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id: uiwelldahdisplay.cc";
 uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellDahDisplay::Setup& s )
     : dahobj_(0)
-    , zoverlayval_(2)		  
+    , zoverlayval_(2)
     , xax_(&scn,uiAxisHandler::Setup( isfirst? uiRect::Top : uiRect::Bottom )
 				.border(s.border_)
 				.annotinside(s.annotinside_)
@@ -53,7 +53,7 @@ uiWellDahDisplay::DahObjData::DahObjData( uiGraphicsScene& scn, bool isfirst,
 	yax_.setup().nogridline(true);
     if ( s.xannotinpercents_ )
     {
-	xaxprcts_ = new uiAxisHandler( &scn, uiAxisHandler::Setup( 
+	xaxprcts_ = new uiAxisHandler( &scn, uiAxisHandler::Setup(
 				    isfirst? uiRect::Top : uiRect::Bottom )
 				    .border(s.border_)
 				    .annotinside(s.annotinside_)
@@ -72,7 +72,7 @@ void uiWellDahDisplay::DahObjData::plotAxis()
 }
 
 
-void uiWellDahDisplay::DahObjData::getInfoForDah( float dah, 
+void uiWellDahDisplay::DahObjData::getInfoForDah( float dah,
 						BufferString& msg ) const
 {
     if ( !dahobj_ )
@@ -119,7 +119,7 @@ void uiWellDahDisplay::gatherInfo()
     gatherDataInfo( true );
     gatherDataInfo( false );
 
-    if ( !ld1_->dahobj_ && !ld2_->dahobj_ ) 
+    if ( !ld1_->dahobj_ && !ld2_->dahobj_ )
 	ld1_->valrg_ = ld2_->valrg_ = Interval<float>(mUdf(float),mUdf(float));
 
     setAxisRanges( true );
@@ -135,10 +135,10 @@ void uiWellDahDisplay::gatherInfo()
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
 				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
 
-    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name() 
-			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0; 
-    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name() 
-			 : ld1_->dahobj_ ? ld1_->dahobj_->name() : 0; 
+    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name()
+			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0;
+    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name()
+			 : ld1_->dahobj_ ? ld1_->dahobj_->name() : 0;
     ld1_->xax_.setName( axis1nm );
     ld2_->xax_.setName( axis2nm );
 }
@@ -216,7 +216,7 @@ void uiWellDahDisplay::setAxisRanges( bool first )
     if ( mIsUdf( dispvalrg.start ) )
 	dispvalrg = otherld.valrg_ ;
 
-    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) ) 
+    if ( setup_.samexaxisrange_ && !mIsUdf( otherld.valrg_.start ) )
 	dispvalrg.include( otherld.valrg_ );
 
     if ( setup_.symetricalxaxis_ )
@@ -226,7 +226,7 @@ void uiWellDahDisplay::setAxisRanges( bool first )
 	dispvalrg.stop  =  max;
     }
 
-    if ( ld.xrev_ ) 
+    if ( ld.xrev_ )
 	Swap( dispvalrg.start, dispvalrg.stop );
 
     ld.xax_.setBounds( dispvalrg );
@@ -275,11 +275,11 @@ static const int cMaxNrDahSamples = 2000;
 void uiWellDahDisplay::drawCurve( bool first )
 {
     uiWellDahDisplay::DahObjData& ld = first ? *ld1_ : *ld2_;
-    deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0; 
+    deepErase( ld.curveitms_ ); ld.curvepolyitm_ = 0;
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
 
-    TypeSet<uiPoint> pts; pts.setCapacity( sz );    
+    TypeSet<uiPoint> pts; pts.setCapacity( sz );
     for ( int idx=0; idx<sz; idx++ )
     {
 	mDefZPosInLoop( ld.dahobj_->dah( idx ) );
@@ -290,27 +290,27 @@ void uiWellDahDisplay::drawCurve( bool first )
     if ( pts.isEmpty() )
 	return;
 
-    LineStyle ls(LineStyle::Solid); ls.color_ = ld.col_; 
+    LineStyle ls(LineStyle::Solid); ls.color_ = ld.col_;
     if ( ld.drawascurve_ )
     {
 	TypeSet<uiPoint> ptsforspikes;
 	const bool isreflectivity =
-	    	ld.dahobj_->name().isEqual( "Reflectivity", true );
+		ld.dahobj_->name().isEqual( "Reflectivity", true );
 	if ( isreflectivity )
 	{
 	    ptsforspikes.setCapacity( 3 * sz );
-    	    for ( int idx=0; idx<pts.size(); idx++ )
-    	    {
+	    for ( int idx=0; idx<pts.size(); idx++ )
+	    {
 		const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),pts[idx].y );
-    		ptsforspikes += extrapt;
+		ptsforspikes += extrapt;
 		ptsforspikes += pts[idx];
 		ptsforspikes += extrapt;
-    	    }
+	    }
 	}
 
 	uiPolyLineItem* pli = scene().addItem( new uiPolyLineItem() );
 	pli->setPolyLine( !isreflectivity ? pts : ptsforspikes );
-	ls.width_ = ld.curvesz_; 
+	ls.width_ = ld.curvesz_;
 	pli->setPenStyle( ls );
 	pli->setZValue( ld.zoverlayval_ );
 	ld.curveitms_.add( pli );
@@ -322,7 +322,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 	{
 	    uiCircleItem* ci = scene().addItem(new uiCircleItem( pts[idx], 1) );
 	    ld.curveitms_.add( ci );
-	    ls.width_ = ld.pointsz_; 
+	    ls.width_ = ld.pointsz_;
 	    ci->setPenStyle( ls );
 	    ci->setZValue( ld.zoverlayval_+1 );
 	}
@@ -330,7 +330,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 
     if ( setup_.drawcurvenames_ )
     {
-	Alignment al( Alignment::HCenter, first ? Alignment::Top 
+	Alignment al( Alignment::HCenter, first ? Alignment::Top
 						: Alignment::Bottom );
 	uiTextItem* ti = scene().addItem(new uiTextItem(ld.dahobj_->name(),al));
 	ti->setTextColor( ls.color_ );
@@ -342,7 +342,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 
     /*
     if ( first )
-	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" : 
+	ld.yax_.annotAtEnd( zdata_.zistime_ ? "(ms)" :
 			    zdata_.dispzinft_ ? "(ft)" : "(m)" );
     */
 }
@@ -452,7 +452,7 @@ void uiWellDahDisplay::drawZPicks()
 
 uiWellDahDisplay::MarkerDraw::~MarkerDraw()
 {
-    delete txtitm_; delete lineitm_; 
+    delete txtitm_; delete lineitm_;
 }
 
 
@@ -479,7 +479,7 @@ void uiWellDahDisplay::wellDataToBeDeleted( CallBacker* cb )
     if ( !welldata || welldata!=zdata_.wd_ ) return;
 
     zdata_.wd_ = Well::MGR().get( welldata->multiID(), false );
-    dataChanged();
+    setData( zdata_ );
 }
 
 

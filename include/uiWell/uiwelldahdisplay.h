@@ -132,7 +132,7 @@ public:
 	    zrg_	= d.zrg_;
 	    zistime_	= d.zistime_;
 	    dispzinft_	= d.dispzinft_;
-	    wd_	= d.wd_;
+	    wd_		= d.wd_;
 	}
 	const Well::D2TModel*	d2T() const { return wd_ ? wd_->d2TModel() : 0;}
 	const Well::Track*	track() const {return wd_ ? &wd_->track() : 0; }
