@@ -59,6 +59,9 @@ public:
 
     void			addObject(uiBaseMapObject*);
     				//! object becomes mine, obviously.
+
+    uiGraphicsView&		view()		{ return view_; }
+
 protected:
 
     int				indexOf(const BaseMapObject*) const;
