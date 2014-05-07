@@ -512,7 +512,8 @@ void PluginManager::loadAuto( bool late )
 	if ( data.autotype_ != pitype )
 	    continue;
 
-	if ( data.info_ && dontloadlist.indexOf(data.info_->dispname_)>=0 )
+	const BufferString modnm = moduleName( data.name_ );
+	if ( data.info_ && dontloadlist.isPresent(modnm) )
 	    continue;
 
 	if ( !loadPlugin(data.sla_,GetArgC(),GetArgV(),data.name_) )

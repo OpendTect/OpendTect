@@ -131,8 +131,6 @@ uiODMain* ODMainWin()
 int ODMain( int argc, char** argv )
 {
     OD::ModDeps().ensureLoaded( "AllNonUi" );
-    PIM().loadAuto( false );
-
     OD::ModDeps().ensureLoaded( "uiBase" );
     uiDialog::setTitlePos( -1 );
 
@@ -149,6 +147,7 @@ int ODMain( int argc, char** argv )
 	    return 1;
     }
 
+    PIM().loadAuto( false );
     OD::ModDeps().ensureLoaded( "uiODMain" );
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
@@ -731,7 +730,7 @@ bool uiODMain::closeOK()
 
     if ( !askedanything )
     {
-	bool doask = false;
+	bool doask = true;
 	Settings::common().getYN( "dTect.Ask close", doask );
 	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
 	    return false;

@@ -44,10 +44,10 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
-        
+
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
-    
+
     createUI();
 }
 
@@ -71,17 +71,18 @@ void uiPluginSel::makeProductList(
 	    const bool isodprod = prodnm == "OpendTect (dGB)";
 	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
 		continue;
-	    
+
 	    const int prodidx = getProductIndex( data.info_->productname_ );
 	    if ( !product || prodidx<0 )
 	    {
 		product = new PluginProduct();
 		product->productname_ = data.info_->productname_;
-		product->libs_.add( PIM().userName(data.name_) );
+		product->libs_.add( PIM().moduleName(data.name_) );
 		products_ += product;
 	    }
 	    else
-		products_[prodidx]->libs_.addIfNew( PIM().userName(data.name_));
+		products_[prodidx]->libs_.addIfNew(
+				PIM().moduleName(data.name_) );
 
 	    const int strsz = prodnm.size();
 	    maxpluginname_ = maxpluginname_ < strsz ? strsz : maxpluginname_;
