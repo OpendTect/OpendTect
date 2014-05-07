@@ -417,7 +417,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(), withstep,
-	    			  "Trace range" );
+	    			  "Trace" );
     trcrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );
@@ -438,6 +438,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 
 void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 {
+    lineSel(0);
 }
 
 
@@ -451,6 +452,7 @@ void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
     if ( trcrgs.size() != selidxs.size() )
 	return;
 
+    const bool usezrgs = zrgs.size() == selidxs.size();
     lnmsfld_->chooseAll( false );
     if ( !selidxs.isEmpty() )
 	lnmsfld_->setCurrentItem( selidxs[0] );
@@ -459,7 +461,8 @@ void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
     {
 	lnmsfld_->setChosen( selidxs[idx] );
 	trcrgs_[selidxs[idx]] = trcrgs[idx];
-	zrgs_[selidxs[idx]] = zrgs[idx];
+	if ( usezrgs )
+	    zrgs_[selidxs[idx]] = zrgs[idx];
     }
 
     lineSel(0);
