@@ -731,7 +731,7 @@ bool uiODMain::closeOK()
 
     if ( !askedanything )
     {
-	bool doask = false;
+	bool doask = true;
 	Settings::common().getYN( "dTect.Ask close", doask );
 	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
 	    return false;
