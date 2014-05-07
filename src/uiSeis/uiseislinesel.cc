@@ -518,15 +518,16 @@ void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
     if ( multisel ) return;
 
     NotifyStopper ns( trcrgfld_->rangeChanged );
-    if ( trcrgs_.isEmpty() || lnmsfld_->nrChosen() <= 0 )
+    const int curitm = lnmsfld_->currentItem();
+    if ( !trcrgs_.validIdx(curitm) )
 	return;
 
-    trcrgfld_->setLimitRange( maxtrcrgs_[0] );
-    trcrgfld_->setRange( trcrgs_[0] );
-    if ( !zrgfld_ ) return;
+    trcrgfld_->setLimitRange( maxtrcrgs_[curitm] );
+    trcrgfld_->setRange( trcrgs_[curitm] );
+    if ( !zrgfld_ || !zrgs_.validIdx(curitm) ) return;
 
-    zrgfld_->setRangeLimits( maxzrgs_[0] );
-    zrgfld_->setRange( zrgs_[0] );
+    zrgfld_->setRangeLimits( maxzrgs_[curitm] );
+    zrgfld_->setRange( zrgs_[curitm] );
 }
 
 
