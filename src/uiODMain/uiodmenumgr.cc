@@ -878,7 +878,7 @@ static bool sIsPolySelect = true;
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
-    actviewid_ = cointb_->addButton( "altpick", "Switch view mode",
+    actviewid_ = cointb_->addButton( "altpick", "Switch to view mode",
 			mCB(this,uiODMenuMgr,toggViewMode), false );
     mAddTB(cointb_,"home","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home","Save home position",false,saveHomePos);
@@ -1332,6 +1332,8 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
 {
     inviewmode_ = !inviewmode_;
     cointb_->setIcon( actviewid_, inviewmode_ ? "altview" : "altpick" );
+    cointb_->setToolTip( actviewid_, inviewmode_
+	    ? "Switch to interact mode" : "Switch to view mode" );
     if ( inviewmode_ )
 	sceneMgr().viewMode( cb );
     else
