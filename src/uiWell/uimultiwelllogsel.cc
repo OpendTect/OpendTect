@@ -395,11 +395,11 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, "Wells" );
+	llbw = new uiLabeledListBox( this, "Wells", uiListBox::AtLeastOne,
+				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
-	wellsfld_->setMultiChoice( true );
 	llbl->attach( rightTo, llbw );
 	setHAlignObj( llbw );
     }

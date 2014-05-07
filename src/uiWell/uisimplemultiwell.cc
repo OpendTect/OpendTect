@@ -54,14 +54,16 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup("Simple Multi-Well Creation",mNoDlgTitle,
+    : uiDialog( p, Setup("Import Simple Wells",mNoDlgTitle,
                          mODHelpKey(mSimpleMultiWellCreateHelpID) )
-			.savebutton(true).savetext("Display after creation") )
+			.savebutton(true).savetext("Display after import") )
     , velfld_(0)
     , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , overwritepol_(0)
 {
+    setOkText( uiStrings::sImport() );
+
     tbl_ = new uiTable( this, uiTable::Setup(20,7).rowgrow(true)
 						  .manualresize(true)
 						  .selmode(uiTable::Multi),
@@ -178,7 +180,7 @@ uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
     ti->setName( "Ground Level Elevation" ); fd_.bodyinfos_ += ti;
     fd_.bodyinfos_ += new Table::TargetInfo( "Well ID (UWI)", Table::Optional );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
