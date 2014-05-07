@@ -102,16 +102,27 @@ public:
     int			prefnrlines_;
 
 protected:
+
+    void		mousePressEvent(QMouseEvent*);
+    void		mouseMoveEvent(QMouseEvent*);
     void		mouseReleaseEvent(QMouseEvent*);
     void		keyPressEvent(QKeyEvent*);
 
+    int			itemIdxAtEvPos(QMouseEvent&) const;
+    void		handleSlideChange(int,bool);
+
 private:
 
-    i_listMessenger&		messenger_;
-    ObjectSet<uiListBoxItem>	items_;
-    TypeSet<uiString>		itemstrings_;
+    i_listMessenger&	messenger_;
+    ObjectSet<uiListBoxItem> items_;
+    TypeSet<uiString>	itemstrings_;
     BoolTypeSet		itemmarked_;
+    Interval<int>	sliderg_;
+
 };
+
+
+static bool doslidesel_ = true;
 
 
 uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
@@ -121,6 +132,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     , messenger_(*new i_listMessenger(this,&hndle))
     , fieldwidth_(preferredfieldwidth)
     , prefnrlines_(preferrednrlines)
+    , sliderg_(-1,-1)
 {
     setObjectName( nm );
     setDragDropMode( QAbstractItemView::NoDragDrop );
@@ -236,8 +248,55 @@ uiSize uiListBoxBody::minimumsize() const
 }
 
 
+int uiListBoxBody::itemIdxAtEvPos( QMouseEvent& ev ) const
+{
+    const QListWidgetItem* itm = itemAt( ev.pos() );
+    return itm ? row( itm ) : -1;
+}
+
+
+static bool isCtrlPressed( QMouseEvent& ev )
+{
+    const Qt::KeyboardModifiers modif = ev.modifiers();
+    return modif == Qt::ControlModifier;
+}
+
+
+void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
+{
+    sliderg_.include( newstop, false );
+    handle_.setChosen( sliderg_, !isclear );
+}
+
+
+void uiListBoxBody::mousePressEvent( QMouseEvent* ev )
+{
+    if ( ev && doslidesel_ && ev->button() == Qt::LeftButton
+	    && handle_.isMultiChoice() )
+	sliderg_.start = sliderg_.stop = itemIdxAtEvPos( *ev );
+    else
+	sliderg_.start = -1;
+
+    QListWidget::mousePressEvent( ev );
+}
+
+
+void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
+{
+    if ( ev && sliderg_.start >= 0 )
+    {
+	const int newstop = itemIdxAtEvPos( *ev );
+	if ( newstop != sliderg_.stop )
+	    handleSlideChange( newstop, isCtrlPressed(*ev) );
+    }
+
+    QListWidget::mouseMoveEvent( ev );
+}
+
+
 void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
+    sliderg_.start = -1;
     if ( !ev ) return;
 
     if ( ev->button() == Qt::RightButton )
@@ -298,7 +357,8 @@ uiListBox::uiListBox( uiParent* p, const char* nm, ChoiceMode cm,
 }
 
 
-uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm )
+uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
+				const char* nm )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,uiListBox::OnlyOne,0,0))
     mStdInit(uiListBox::OnlyOne)
 {
@@ -387,11 +447,19 @@ void uiListBox::setNotSelectable()
 }
 
 
+#define mSetChecked(idx,yn) \
+    body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked )
+
+
 void uiListBox::updateFields2ChoiceMode()
 {
     const bool hascheck = isMultiChoice();
     for ( int idx=0; idx<size(); idx++ )
+    {
 	setItemCheckable( idx, hascheck );
+	if ( hascheck )
+	    mSetChecked( idx, false );
+    }
 }
 
 
@@ -477,6 +545,16 @@ void uiListBox::getItems( BufferStringSet& nms ) const
 }
 
 
+void uiListBox::initNewItem( int newidx )
+{
+    const bool ismulti = isMultiChoice();
+    setItemCheckable( newidx, ismulti );
+    if ( ismulti )
+	mSetChecked( newidx, false );
+    body_->setItemAlignment( newidx, alignment_ );
+}
+
+
 void uiListBox::addItem( const uiString& text, bool mark, int id )
 {
     if ( !allowduplicates_ && isPresent( text.getFullString() ) )
@@ -484,9 +562,7 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 
     mBlockCmdRec;
     body_->addItem( text, mark, id );
-    setItemCheckable( size()-1, false ); // Qt bug
-    setItemCheckable( size()-1, isMultiChoice() );
-    body_->setItemAlignment( size()-1, alignment_ );
+    initNewItem( size() - 1 );
 }
 
 
@@ -506,7 +582,7 @@ void uiListBox::addItem( const uiString& text, const Color& col, int id )
 
 void uiListBox::addItems( const char** textList )
 {
-    int curidx = currentItem();
+    const int curidx = currentItem();
     const char** pt_cur = textList;
     while ( *pt_cur )
 	addItem( *pt_cur++ );
@@ -516,7 +592,7 @@ void uiListBox::addItems( const char** textList )
 
 void uiListBox::addItems( const BufferStringSet& strs )
 {
-    int curidx = currentItem();
+    const int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
     setCurrentItem( curidx < 0 ? 0 : curidx );
@@ -525,7 +601,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 
 void uiListBox::addItems( const TypeSet<uiString>& strs )
 {
-    int curidx = currentItem();
+    const int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
     setCurrentItem( curidx < 0 ? 0 : curidx );
@@ -543,8 +619,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 	    return;
 
 	body_->insertItem( index, text, mark, id );
-	setItemCheckable( index<0 ? 0 : index, isMultiChoice() );
-	body_->setItemAlignment( size()-1, alignment_ );
+	initNewItem( index<0 ? 0 : index );
     }
 }
 
@@ -947,14 +1022,29 @@ void uiListBox::setChosen( int lidx, bool yn )
 {
     if ( isMultiChoice() )
 	setItemChecked( lidx, yn );
-    else if ( validIdx(lidx) )
-    {
-	mBlockCmdRec;
-	body_->item( lidx )->setSelected( yn );
-    }
 
     if ( yn )
 	setCurrentItem( lidx );
+}
+
+
+void uiListBox::setChosen( Interval<int> rg, bool yn )
+{
+    if ( rg.start < 0 || rg.stop < 0 )
+	return;
+
+    if ( !isMultiChoice() )
+    {
+	if ( choicemode_ == OnlyOne && rg.start >= 0 )
+	    setCurrentItem( rg.start );
+    }
+    else
+    {
+	rg.sort();
+	for ( int idx=rg.start; idx<=rg.stop; idx++ )
+	    setItemChecked( idx, yn );
+	setCurrentItem( rg.stop );
+    }
 }
 
 
@@ -988,15 +1078,23 @@ void uiListBox::chooseAll( bool yn )
 
 void uiListBox::setItemCheckable( int idx, bool yn )
 {
-    if ( !validIdx(idx) ) return;
-
-    Qt::ItemFlags flags = body_->item(idx)->flags();
-    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable);
-    if ( ischeckable == yn )
+    if ( !validIdx(idx) )
 	return;
 
-    body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
-    setItemChecked( idx, false );
+    Qt::ItemFlags flags = body_->item(idx)->flags();
+    flags |= Qt::ItemFlags(yn ? Qt::ItemIsUserCheckable
+			      : ~Qt::ItemIsUserCheckable);
+    body_->item(idx)->setFlags( flags );
+}
+
+
+void uiListBox::setItemChecked( int idx, bool yn )
+{
+    if ( isMultiChoice() && yn != isItemChecked(idx) )
+    {
+	mBlockCmdRec;
+	mSetChecked( idx, yn );
+    }
 }
 
 
@@ -1007,15 +1105,6 @@ void uiListBox::setAllItemsChecked( bool yn )
 
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, yn );
-}
-
-
-void uiListBox::setItemChecked( int idx, bool yn )
-{
-    if ( !isMultiChoice() )
-	return;
-    mBlockCmdRec;
-    body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
 }
 
 
