@@ -742,7 +742,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     BinID step( dispinlrg.step, dispcrlrg.step );
 
     mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
-	    		BIDValSetArrAdapter(*cache,isz?0:2,step));
+			BIDValSetArrAdapter(*cache,isz?0:2,step));
     const char* catnm = isz ? "Geometry" : "Horizon Data";
     const char* dpnm = isz ? "Depth"
 			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
@@ -1334,9 +1334,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 	if ( !islowest )
 	{
-	    const Color col = getColTabSequence(idx) ? 
-		getColTabSequence(idx)->color(fval) : Color();
-	    if ( col != getColTabSequence(idx)->undefColor() && col.t() == 255 )
+	    const ColTab::Sequence* coltabseq = getColTabSequence( idx );
+	    const Color col = coltabseq ? coltabseq->color(fval) : Color();
+	    if ( (!coltabseq || col!=coltabseq->undefColor()) && col.t()==255 )
 		continue;
 	}
 	    
