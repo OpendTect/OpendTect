@@ -144,9 +144,10 @@ public:
     void		getChosen(TypeSet<int>&) const;
     void		setChoosable(int,bool yn);
     void		setChosen(int,bool yn=true);
+    void		setChosen(Interval<int>,bool yn=true);
+    void		chooseAll(bool yn=true);
     void		setChosen(const BufferStringSet&);
     void		setChosen(const TypeSet<int>&);
-    void		chooseAll(bool yn=true);
 
     bool		isMarked(int) const;
     void		setMarked(int,bool);
@@ -190,6 +191,7 @@ private:
     static int		cDefNrLines();		//!< == 7
 
     void		updateFields2ChoiceMode();
+    void		initNewItem(int);
     void		setItemCheckable(int,bool);
 
     void		setItemsCheckable( bool yn )	{ setMultiChoice(yn); }
