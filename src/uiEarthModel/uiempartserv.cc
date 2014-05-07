@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfaultauxdata.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emhorizonztransform.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
@@ -1293,6 +1294,34 @@ const char* uiEMPartServer::genRandLine( int opt )
     }
 
     return res;
+}
+
+
+ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
+{
+    uiDialog dlg( parent(),
+		  uiDialog::Setup("Select horizon",mNoDlgTitle,mTODOHelpKey) );
+    const IOObjContext ctxt = is2d
+	? EMHorizon2DTranslatorGroup::ioContext()
+	: EMHorizon3DTranslatorGroup::ioContext();
+    uiIOObjSel* horfld = new uiIOObjSel( &dlg, ctxt );
+    if ( !dlg.go() || !horfld->ioobj() ) return 0;
+
+    const MultiID hormid = horfld->key();
+    EM::ObjectID emid = getObjectID( hormid );
+    if ( emid<0 || !isFullyLoaded(emid) )
+	loadSurface( hormid );
+
+    emid = getObjectID( hormid );
+    if ( emid<0 ) return 0;
+
+    EM::EMObject* obj = em_.getObject( emid );
+    mDynamicCastGet(EM::Horizon*,hor,obj)
+    if ( !hor ) return 0;
+
+    EM::HorizonZTransform* transform = new EM::HorizonZTransform();
+    transform->setHorizon( *hor );
+    return transform;
 }
 
 

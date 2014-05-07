@@ -167,6 +167,8 @@ ________________________________________________________________________
 
 #define mAddSceneMnuItm		(mWinMnu + 10)
 #define mAddTmeDepthMnuItm	(mWinMnu + 11)
+#define mAddHorFlat2DMnuItm	(mWinMnu + 12)
+#define mAddHorFlat3DMnuItm	(mWinMnu + 13)
 #define mCascadeMnuItm		(mWinMnu + 20)
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)

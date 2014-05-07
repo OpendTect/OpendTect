@@ -117,6 +117,7 @@ public:
 
     // Scene menu operations
     void			addTimeDepthScene();
+    void			addHorFlatScene(bool is2d);
 
     // Utility menu operations
     void			batchProgs();
