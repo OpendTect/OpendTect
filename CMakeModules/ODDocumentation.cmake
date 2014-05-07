@@ -100,7 +100,7 @@ if ( BUILD_USERDOC )
 			    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 			    COMMENT "Building user documentation" )
 	install( DIRECTORY ${CMAKE_BINARY_DIR}/doc/userdoc/${USERDOC_NAME}
-		 DESTINATION doc/userdoc/${USERDOC_NAME} )
+		 DESTINATION doc/userdoc
     endif( WIN32 )
 
 endif( BUILD_USERDOC )
