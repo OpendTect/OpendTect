@@ -255,7 +255,7 @@ int uiListBoxBody::itemIdxAtEvPos( QMouseEvent& ev ) const
 }
 
 
-static bool isCtrlPressed( QMouseEvent& ev )
+static bool isCtrlPressed( QInputEvent& ev )
 {
     const Qt::KeyboardModifiers modif = ev.modifiers();
     return modif == Qt::ControlModifier;
@@ -315,6 +315,10 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 {
     if ( qkeyev && qkeyev->key() == Qt::Key_Delete )
 	handle_.deleteButtonPressed.trigger();
+    if ( qkeyev && qkeyev->key() == Qt::Key_A && isCtrlPressed(*qkeyev) )
+	handle_.chooseAll( true );
+    if ( qkeyev && qkeyev->key() == Qt::Key_Z && isCtrlPressed(*qkeyev) )
+	handle_.chooseAll( false );
 
     QListWidget::keyPressEvent( qkeyev );
 }
@@ -357,7 +361,8 @@ uiListBox::uiListBox( uiParent* p, const char* nm, ChoiceMode cm,
 }
 
 
-uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm )
+uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
+			const char* nm )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,uiListBox::OnlyOne,0,0))
     mStdInit(uiListBox::OnlyOne)
 {
