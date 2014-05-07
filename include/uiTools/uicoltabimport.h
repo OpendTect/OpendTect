@@ -19,6 +19,7 @@ namespace ColTab { class Sequence; class SeqMgr; }
 
 class uiFileInput;
 class uiGenInput;
+class uiLabel;
 class uiLabeledListBox;
 
 
@@ -36,12 +37,16 @@ protected:
     uiFileInput*	        dirfld_;
     uiGenInput*         	dtectusrfld_;
     uiLabeledListBox*   	listfld_;
+    uiLabel*			messagelbl_;
 
     ObjectSet<ColTab::Sequence> seqs_;
 
     void			choiceSel(CallBacker*);
     void			usrSel(CallBacker*);
     bool			acceptOK(CallBacker*);
+
+    void			showMessage(const char*);
+    void			showList();
 };
 
 #endif
