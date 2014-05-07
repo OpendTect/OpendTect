@@ -15,11 +15,12 @@ ________________________________________________________________________
 #include "attributesmod.h"
 #include "attribprovider.h"
 
-/*!\brief Gap Decon Attribute
-*/
-
 namespace Attrib
 {
+
+/*!
+\brief Gap deconvolution attribute.
+*/
 
 mClass(Attributes) GapDecon : public Provider
 {
