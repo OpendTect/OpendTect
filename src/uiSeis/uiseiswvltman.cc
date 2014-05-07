@@ -46,9 +46,9 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
                                      mODHelpKey(mSeisWvltManHelpID) )
                                      .nrstatusflds(1),
-	    	   WaveletTranslatorGroup::ioContext() )
+		   WaveletTranslatorGroup::ioContext() )
     , wvltext_(0)
-    , wvltpropdlg_(0)			 
+    , wvltpropdlg_(0)
 {
     createDefaultUI();
 
@@ -140,12 +140,12 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().askGoOnAfter( "Which data do you want to use?",
-		0, "&3D", "&2D" );
+	int res = uiMSG().askGoOnAfter( "Use 2D or 3D data?",
+		0, "&2D", "&3D" );
 	if ( res == 2 )
 	    return;
 	else
-	    is2d = res;
+	    is2d = res == 0;
     }
 
     if ( !wvltext_ || wvltext_->isHidden() )
@@ -186,7 +186,7 @@ void uiSeisWvltMan::mkFileInfo()
 	tmp.add( "Sample interval " ).add( SI().getZUnitString(true) )
 	   .add( ": " ).add( wvlt->sampleRate() * zfac ).add( "\n" );
 	tmp.add( "Min/Max amplitude: " ).add( wvlt->getExtrValue(false) )
-	   .add( "/" ).add( wvlt->getExtrValue() ).add( "\n" ); 
+	   .add( "/" ).add( wvlt->getExtrValue() ).add( "\n" );
 	txt.add( tmp );
 	delete wvlt;
 
@@ -238,7 +238,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     dlg.setHelpKey(mODHelpKey(mSeisWvltMangetFromOtherSurveyHelpID) );
     Wavelet* wvlt = 0;
     bool didsel = true;
-    if ( dlg.go() ) 
+    if ( dlg.go() )
 	wvlt = Wavelet::get( ctio.ioobj );
     else
 	didsel = false;
@@ -279,11 +279,11 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-    
+
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
-    {	
+    {
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write rotated phase wavelet to disk");
 	else
@@ -301,10 +301,10 @@ void uiSeisWvltMan::taper( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-    
+
     uiSeisWvltTaperDlg dlg( this, *wvlt );
     if ( dlg.go() )
-    {	
+    {
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write tapered wavelet to disk");
 	else
