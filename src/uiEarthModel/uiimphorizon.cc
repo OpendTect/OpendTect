@@ -92,9 +92,11 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,inputChgd) );
 
+    uiListBox::ChoiceMode mode =
+	isgeom ? uiListBox::ZeroOrMore : uiListBox::AtLeastOne;
     uiLabeledListBox* attrllb =
-	new uiLabeledListBox( this, "Attribute(s) to import",
-				uiListBox::AtLeastOne );
+	new uiLabeledListBox( this, "Attribute(s) to import", mode,
+			      uiLabeledListBox::LeftTop );
     attrllb->attach( alignedBelow, inpfld_ );
     attrlistfld_ = attrllb->box();
     attrlistfld_->setNrLines( 6 );
