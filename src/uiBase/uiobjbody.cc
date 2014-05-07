@@ -23,7 +23,7 @@ mUseQtnamespace
 
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
 
-    
+
 uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     : uiBody()
     , NamedObject( nm )
@@ -52,7 +52,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , vszpol( uiObject::Undef )
 #ifdef USE_DISPLAY_TIMER
     , displaytimer( *new Timer("Display timer"))
-{ 
+{
     displaytimer.tick.notify( mCB(this,uiObjectBody,doDisplay) );
 }
 #else
@@ -60,7 +60,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 #endif
 
 
-uiObjectBody::~uiObjectBody() 
+uiObjectBody::~uiObjectBody()
 {
 #ifdef USE_DISPLAY_TIMER
     delete &displaytimer;
@@ -158,7 +158,7 @@ void uiObjectBody::finalise()
     finalise_();
     finalised_ = true;
     uiObjHandle().postFinalise().trigger( uiObjHandle() );
-    if ( !display_ ) 
+    if ( !display_ )
 	display( display_ );
 }
 
@@ -235,17 +235,17 @@ void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 void uiObjectBody::uisetTextColor( const Color& col )
 {
     QPalette qpal( qwidget()->palette() );
-    qpal.setColor( QPalette::Text,
+    qpal.setColor( QPalette::WindowText,
 		   QColor(col.r(),col.g(),col.b(),255-col.t()) );
     qwidget()->setPalette( qpal );
 }
 
-#define mChkLayoutItm() if ( !layoutItem_ ) { return 0; } 
+#define mChkLayoutItm() if ( !layoutItem_ ) { return 0; }
 
 void uiObjectBody::getSzHint()
 {
     if ( pref_width_hint && pref_height_hint ) return;
-    if ( pref_width_hint || pref_height_hint ) 
+    if ( pref_width_hint || pref_height_hint )
 	{ pErrMsg("Only 1 defined size.."); }
 
     uiSize sh = layoutItem_->prefSize();
@@ -262,25 +262,25 @@ int uiObjectBody::prefHNrPics() const
 	if ( is_hidden )		{ return pref_width_; }
 	mChkLayoutItm();
 
-	if ( pref_width_set >= 0 ) 
+	if ( pref_width_set >= 0 )
 	    { const_cast<uiObjectBody*>(this)->pref_width_ = pref_width_set; }
-	else if ( pref_char_width >= 0 ) 
+	else if ( pref_char_width >= 0 )
 	{
 	    int fw = fontWdt();
 	    if ( !fw )
-	    	{ pErrMsg("Font has 0 width."); return 0; }
+		{ pErrMsg("Font has 0 width."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_width_ =
-					     mNINT32( pref_char_width * fw ); 
+					     mNINT32( pref_char_width * fw );
 	}
 	else
-	{ 
+	{
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
 	    const int baseFldSz = uiObject::baseFldSize();
 
 	    int pwc=0;
-	    bool var=false; 
+	    bool var=false;
 	    switch( szPol(true) )
 	    {
 		case uiObject::Small:    pwc=baseFldSz;     break;
@@ -368,24 +368,24 @@ int uiObjectBody::prefVNrPics() const
 	if ( is_hidden )		{ return pref_height_; }
 	mChkLayoutItm();
 
-	if ( pref_height_set >= 0 ) 
+	if ( pref_height_set >= 0 )
 	    { const_cast<uiObjectBody*>(this)->pref_height_= pref_height_set;}
-	else if ( pref_char_height >= 0 ) 
+	else if ( pref_char_height >= 0 )
 	{
 	    int fh = fontHgt();
 	    if ( !fh )
-	    	{ pErrMsg("Font has 0 height."); return 0; }
+		{ pErrMsg("Font has 0 height."); return 0; }
 
 	    const_cast<uiObjectBody*>(this)->pref_height_ =
-					    mNINT32( pref_char_height * fh ); 
+					    mNINT32( pref_char_height * fh );
 	}
 	else
-	{ 
+	{
 	    const_cast<uiObjectBody*>(this)->getSzHint();
 
 	    if ( nrTxtLines() < 0 && szPol(false) == uiObject::Undef  )
 		const_cast<uiObjectBody*>(this)->pref_height_= pref_height_hint;
-	    else 
+	    else
 	    {
 		float lines = 1.51;
 		if ( nrTxtLines() == 0 )	lines = 7;
@@ -393,7 +393,7 @@ int uiObjectBody::prefVNrPics() const
 
 		const int baseFldSz = 1;
 
-		bool var=false; 
+		bool var=false;
 		switch( szPol(false) )
 		{
 		    case uiObject::Small:    lines=baseFldSz;     break;
@@ -405,7 +405,7 @@ int uiObjectBody::prefVNrPics() const
 			    lines=baseFldSz; var=true; break;
 
 		    case uiObject::MedMax:
-		    case uiObject::MedVar: 
+		    case uiObject::MedVar:
 			    lines=2*baseFldSz+1; var=true; break;
 
 		    case uiObject::WideMax:
@@ -471,8 +471,8 @@ void uiObjectBody::setStretch( int hor, int ver )
 	    { pErrMsg("Not allowed when finalized."); }
 	return;
     }
-    
-    hStretch = hor; 
+
+    hStretch = hor;
     vStretch = ver;
 }
 
@@ -519,9 +519,9 @@ void uiObjectBody::attach ( constraintType tp, uiObject* other, int margin,
 const uiFont* uiObjectBody::uifont() const
 {
     if ( !font_ )
-    { 
+    {
 	QFont qf( qwidget()->font() );
-	const_cast<uiObjectBody*>(this)->font_ = &FontList().getFromQfnt(&qf); 
+	const_cast<uiObjectBody*>(this)->font_ = &FontList().getFromQfnt(&qf);
 	const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
 
@@ -572,7 +572,7 @@ void uiObjectBody::gtFntWdtHgt() const
     if ( fnt_wdt<=0 || fnt_wdt>100 )
 	{ pErrMsg( "Font width no good. Taking 10." ); self.fnt_wdt = 10; }
     if ( fnt_maxwdt<=0 || fnt_maxwdt>100 )
-    { 
+    {
 	for ( char idx=32; idx<127; idx++ )
 	{
 	    QChar ch( idx );
