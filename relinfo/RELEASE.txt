@@ -1,6 +1,21 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0k: May 8, 2014
+ * Made uniform the velocity label to 'Temporary model velocity' 
+   across well import modules
+ * Horizon Tracking Toolbar is now displayed as soon as tracking is started
+ * Fix for crash while moving mouse over a horizon in the 3D scene
+ * Fix for crash while closing Well tie window
+ * Fix for crash in 2D horizon import
+ * Fix for crash while evaluating attribute
+ * Fix for crash in GMT mapping tool batch program
+ * Fix for setting default 2D attribute
+ * Fix for creating a 2D grid from a 3D volume
+ * Fix for writing new lines in a lineset
+ * Fix for the path to the temporary storage output and log files
+   if the BatchHosts file was setup with hostnames
+
 v4.6.0j: April 10, 2014
  * Added auto extension (.sgy) for output file if no extension given in SEGY
    export
