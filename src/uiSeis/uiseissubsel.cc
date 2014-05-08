@@ -173,16 +173,32 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
     	, multiln_(ss.multiline_)
 	, lineSel(this)
+	, multilnmsel_(0)
+	, singlelnmsel_(0)
 {
-    lnmfld_ = new uiSeis2DLineSel( this, multiln_ );
-    setHAlignObj( lnmfld_ );
+    if ( multiln_ )
+    {
+	multilnmsel_ = new uiSeis2DLineSel( this, multiln_ );
+	setHAlignObj( multilnmsel_ );
+	multilnmsel_->selectionChanged.notify(mCB(this,uiSeis2DSubSel,lineChg));
+    }
+    else
+    {
+	singlelnmsel_ = new uiSeis2DLineNameSel( this, !ss.fornewentry_ );
+	setHAlignObj( singlelnmsel_ );
+	singlelnmsel_->nameChanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
+    }
 
     if ( ss.fornewentry_ && multiln_ )
 	selfld_->display( false );
     else
-	selfld_->attach( alignedBelow, lnmfld_ );
+    {
+	if ( multilnmsel_ )
+	    selfld_->attach( alignedBelow, multilnmsel_ );
+	else
+	    selfld_->attach( alignedBelow, singlelnmsel_ );
+    }
 	
-    lnmfld_->selectionChanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
 }
 
 
@@ -195,15 +211,19 @@ void uiSeis2DSubSel::clear()
 {
     uiSeisSubSel::clear();
 
-    lnmfld_->clearSelection();
+    if ( multilnmsel_ )
+	multilnmsel_->clearSelection();
 }
 
 
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
     clear();
-    lnmfld_->setInput( ioobj.key() );
     inpkey_ = ioobj.key();
+    if ( multilnmsel_ )
+	multilnmsel_->setInput( inpkey_ );
+    else
+	singlelnmsel_->setDataSet( inpkey_ );
 }
 
 
@@ -213,7 +233,10 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
 
     BufferStringSet lnms;
     iopar.get( sKey::LineKey(), lnms );
-    lnmfld_->setSelLineNames( lnms );
+    if ( multilnmsel_ )
+	multilnmsel_->setSelLineNames( lnms );
+    else if ( lnms.isEmpty() )
+	singlelnmsel_->setInput( lnms.get(0).buf() );
 }
 
 
@@ -223,7 +246,10 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	return false;
 
     BufferStringSet sellnms;
-    lnmfld_->getSelLineNames( sellnms );
+    if ( multilnmsel_ )
+	multilnmsel_->getSelLineNames( sellnms );
+    else
+	sellnms.add( singlelnmsel_->getInput() );
     if ( sellnms.isEmpty() )
     {
 	BufferString msg( "Please select " );
@@ -243,20 +269,23 @@ bool uiSeis2DSubSel::isSingLine() const
 	return true;
 
     BufferStringSet sellnms;
-    lnmfld_->getSelLineNames( sellnms );
+    multilnmsel_->getSelLineNames( sellnms );
     return sellnms.size() == 1;
 }
 
 
 const char* uiSeis2DSubSel::selectedLine() const
 {
-    return isSingLine() ? lnmfld_->lineName() : "";
+    return multilnmsel_ ? multilnmsel_->lineName() : singlelnmsel_->getInput();
 }
 
 
 void uiSeis2DSubSel::setSelectedLine( const char* nm )
 {
-    lnmfld_->setSelLine( nm );
+    if ( multilnmsel_ )
+	multilnmsel_->setSelLine( nm );
+    else
+	singlelnmsel_->setInput( nm );
 }
 
 
@@ -265,7 +294,9 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
     if ( isSingLine() )
     {
 	selfld_->setSensitive( true );
-	const Pos::GeomID selid = lnmfld_->geomID();
+	const Pos::GeomID selid =
+	    multilnmsel_ ? multilnmsel_->geomID()
+			 : singlelnmsel_->getInputGeomID();
 	SeisIOObjInfo oif( inpkey_ );
 	StepInterval<float> zrg;
 	StepInterval<int> trcrg;

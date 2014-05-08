@@ -312,6 +312,12 @@ const char* uiSeis2DLineNameSel::getInput() const
 }
 
 
+Pos::GeomID uiSeis2DLineNameSel::getInputGeomID() const
+{
+    return Survey::GM().getGeomID( getInput() );
+}
+
+
 int uiSeis2DLineNameSel::getLineIndex() const
 {
     return fld_->currentItem();
