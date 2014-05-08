@@ -82,6 +82,15 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
+    uiButton* okbut = button( OK );
+    uiButton* cancelbut = button( CANCEL );
+    if ( okbut )
+	okbut->setSensitive( false );
+
+    if ( cancelbut )
+	cancelbut->setSensitive( false );
+
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     BufferString report; getReport( report );
     reporter_.getReport() = report;
 

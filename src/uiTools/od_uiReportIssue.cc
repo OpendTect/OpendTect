@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiissuereporter.h"
+#include "moddepmgr.h"
 #include "prog.h"
 #include "uimain.h"
 #include "uimsg.h"
@@ -18,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char ** argv )
 {
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiTools" );
     uiMain app( argc, argv );
     
     uiIssueReporterDlg* dlg = new uiIssueReporterDlg( 0 );
