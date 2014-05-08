@@ -752,12 +752,6 @@ bool uiStratLayerModel::openGenDesc()
     if ( !useDisplayPars( desc_.getWorkBenchParams() ))
 	return false;
 
-    if ( GetEnvVarYN("DTECT_EXPORT_LAYERMODEL") )
-    {
-	if ( !exportLayerModelGDI( fnm ) )
-	    return false;
-    }
-
     //Before calculation
     gentools_->usePar( desc_.getWorkBenchParams() );
     setWinTitle();
@@ -780,22 +774,6 @@ void uiStratLayerModel::seqSel( CallBacker* )
 }
 
 
-static bool getCleanSyntheicName( BufferString& sdnm )
-{
-    if ( sdnm.isEmpty() ) return false;
-    char* cleansdnm = sdnm.getCStr();
-    if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
-    cleansdnm++;
-    int idx = 0;
-    while ( cleansdnm[idx] != ']' && idx<sdnm.size() )
-	idx++;
-
-    cleansdnm[idx] = '\0';
-    sdnm = cleansdnm;
-    return true;
-}
-
-
 void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
 {
     LMPropSpecificDispPars lmpropdp;
@@ -815,13 +793,29 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
 }
 
 
+static bool getCleanSyntheticName( BufferString& sdnm )
+{
+    if ( sdnm.isEmpty() ) return false;
+    char* cleansdnm = sdnm.getCStr();
+    if ( cleansdnm[0] != '[' ) return false; //Is not StratPropSyntheticData
+    cleansdnm++;
+    int idx = 0;
+    while ( cleansdnm[idx] != ']' && idx<sdnm.size() )
+	idx++;
+
+    cleansdnm[idx] = '\0';
+    sdnm = cleansdnm;
+    return true;
+}
+
+
 void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
 {
     SyntheticData* vdsd = synthdisp_->getCurrentSyntheticData( false );
     if ( !vdsd ) return;
 
     BufferString sdnm( vdsd->name() );
-    if ( !getCleanSyntheicName(sdnm) )
+    if ( !getCleanSyntheticName(sdnm) )
 	return;
 
     LMPropSpecificDispPars vddisppars( sdnm );
@@ -852,10 +846,6 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     MouseCursorChanger mcs( MouseCursor::Wait );
 
-    const bool forceupdate = gentools_==cb; // when 'Go' is pressed
-    if ( forceupdate )
-	synthdisp_->setForceUpdate( true );
-
     Strat::LayerModel* newmodl = new Strat::LayerModel;
     newmodl->propertyRefs() = seqdisp_->desc().propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
@@ -870,8 +860,16 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     // transaction succeeded, we move to the new model - period.
 
+    const bool wasforced = synthdisp_->doForceUpdate();
+    const bool wasgo = cb == gentools_;
+    if ( wasgo  ) // i.e. 'Go' is used
+	synthdisp_->setForceUpdate( true );
+
     lmp_.setBaseModel( newmodl );
     handleNewModel();
+
+    if ( wasgo && !wasforced )
+	modtools_->setMkSynthetics( false );
 }
 
 
@@ -1094,7 +1092,7 @@ void uiStratLayerModel::fillDisplayPars( IOPar& par ) const
 
 
 void uiStratLayerModel::helpCB( CallBacker* )
-{ HelpProvider::provideHelp( 
+{ HelpProvider::provideHelp(
     HelpKey(mODHelpKey(mSingleLayerGeneratorEdHelpID) ) ); }
 
 
@@ -1126,93 +1124,4 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
 	}
 	statusBar()->message( msg.buf() );
     }
-}
-
-
-bool uiStratLayerModel::exportLayerModelGDI(BufferString fnm) const
-{
-    BufferString fnmlm;
-    fnmlm = fnm;
-    fnmlm += ".txt";
-    od_ostream strm( fnmlm );
-    if ( !strm.isOK() )
-	{ uiMSG().error( "Cannot open '", fnmlm,"' for write" ); return false; }
-
-    ascostream astrm( strm );
-    const char* typ = "Well group";
-    astrm.putHeader( typ );
-
-    const int nrpswells = layerModel().size();
-    astrm.put( sKey::Name(), BufferString("",nrpswells," pseudowells") );
-    astrm.newParagraph();
-
-    for ( int iwell=0; iwell<nrpswells; iwell++ )
-    {
-	const Strat::LayerSequence& seq = layerModel().sequence( iwell );
-	const int nrlayers = seq.size();
-	if ( nrlayers < 1 )
-	    continue;
-
-	astrm.put( sKey::Name(), BufferString("",iwell+1,"-pseudowell") );
-	const int inlnb = SI().inlRange(true).stop + SI().inlStep();
-	astrm.put( "Inline", inlnb );
-	const int crlnb = SI().crlRange(true).stop +
-			  SI().crlStep() * ( iwell + 1 );
-	astrm.put( "Crossline", crlnb );
-	FileMultiString fms;
-	fms += inlnb; fms += crlnb; fms += inlnb; fms += crlnb;
-	astrm.put( "Rep Area", fms );
-	astrm.putYN( "Simulated", true );
-	astrm.newParagraph();
-
-	astrm.put( "Reference depth", seq.startDepth() );
-	astrm.putYN( "Compact", true );
-	const int nrvals = seq.layers()[0]->nrValues();
-	for ( int ival=0; ival<nrvals; ival++ )
-	{
-	    BufferString propnm = layerModel().propertyRefs()[ival]->name();
-	    propnm.clean( BufferString::AllowDots );
-	    astrm.put( "Quantity", propnm );
-	}
-	astrm.newParagraph();
-
-	BufferString prevunitnm;
-	TypeSet<int> nrliths;
-	TypeSet<BufferString> lithnms;
-	for ( int ilayer=0; ilayer<nrlayers; ilayer++ )
-	{
-	    const Strat::Layer& lay = *seq.layers()[ilayer];
-	    BufferString unitnm = lay.unitRef().parentCode().buf();
-	    BufferString lith = lay.unitRef().code();
-	    if ( unitnm == prevunitnm )
-	    {
-		const int idx = lithnms.isPresent(lith) ?
-				lithnms.indexOf(lith) : lithnms.size();
-		if ( lithnms.isPresent(lith) )
-		    nrliths[idx]++;
-		else
-		    { nrliths += 1; lithnms += lith; }
-	    }
-	    else
-	    {
-		lithnms.erase(); nrliths.erase();
-		lithnms += lith; nrliths += 1;
-	    }
-
-	    prevunitnm = unitnm;
-	    BufferString str = unitnm; str.add( "." ).add( lith );
-	    if ( nrliths[lithnms.indexOf(lith)] > 1 )
-		str.add( "(" ).add( nrliths[lithnms.indexOf(lith)] ).add( ")" );
-	    if ( !lay.content().name().isEmpty() )
-		str.add( "," ).add( lay.content().name() );
-
-	    for ( int ival=0; ival<nrvals; ival++ )
-		str.add( " " ).add( lay.value(ival) );
-	    strm << str << od_newline;
-	}
-	strm << "!\n!\n!\n";
-    }
-
-    const bool res = strm.isOK();
-    return res;
 }

@@ -60,11 +60,11 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 				"Open stored generation description",
 				mCB(this,uiStratGenDescTools,openCB) );
     savetb_ = new uiToolButton( leftgrp, "save",
-	    			"Save generation description",
+				"Save generation description",
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
     uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
-	    			"Select layer properties",
+				"Select layer properties",
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
 
@@ -78,7 +78,7 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setToolTip( "Number of models to generate" );
     nrmodlsfld_->valueChanged.notify( gocb );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
-	    			"Generate this amount of models", gocb );
+				"Generate this amount of models", gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
     rightgrp->setFrame( true );
@@ -107,7 +107,7 @@ bool uiStratGenDescTools::usePar( const IOPar& par )
     int nrmodels;
     if ( par.get( sKeyNrModels(), nrmodels ) )
 	nrmodlsfld_->setValue( nrmodels );
-	
+
     return true;
 }
 
@@ -129,20 +129,20 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
     propfld_ = new uiComboBox( leftgrp, "Display property" );
     propfld_->setToolTip( "Displayed property" );
     propfld_->selectionChanged.notify(
-	    			mCB(this,uiStratLayModEditTools,selPropCB) );
+				mCB(this,uiStratLayModEditTools,selPropCB) );
 
     lvlfld_ = new uiComboBox( leftgrp, "Level" );
     lvlfld_->setToolTip( "Selected stratigraphic level" );
     lvlfld_->attach( rightOf, propfld_ );
     lvlfld_->selectionChanged.notify(
-	    			mCB(this,uiStratLayModEditTools,selLevelCB) );
+				mCB(this,uiStratLayModEditTools,selLevelCB) );
 
     contfld_ = new uiComboBox( leftgrp, "Content" );
     contfld_->setToolTip( "Marked content" );
     contfld_->attach( rightOf, lvlfld_ );
     contfld_->setHSzPol( uiObject::Small );
     contfld_->selectionChanged.notify(
-	    			mCB(this,uiStratLayModEditTools,selContentCB));
+				mCB(this,uiStratLayModEditTools,selContentCB));
 
     eachlbl_ = new uiLabel( leftgrp, "each" );
     eachlbl_->attach( rightOf, contfld_ );
@@ -202,7 +202,7 @@ static void setFldNms( uiComboBox* cb, const BufferStringSet& nms, bool wnone,
 	cb->addItem( sKey::All() );
 
     if ( wnone ) def++;
-    if ( !selnm.isEmpty() ) 
+    if ( !selnm.isEmpty() )
     {
 	def = cb->indexOf( selnm );
 	if ( def < 0 )
@@ -352,6 +352,12 @@ void uiStratLayModEditTools::setShowFlattened( bool yn )
     flattenedtb_->setOn( yn );
 }
 
+
+void uiStratLayModEditTools::setMkSynthetics( bool yn )
+{
+    mksynthtb_->setOn( yn );
+}
+
 #define mGetProp( func, key ) \
 if ( func ) \
 par.set( key, func )
@@ -363,7 +369,7 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
 
     mGetProp( selLevel(), sKeySelectedLevel() );
     mGetProp( selContent(), sKeySelectedContent() );
-    
+
     par.setYN( sKeyZoomToggle(), dispZoomed() );
     par.setYN( sKeyDispLith(), dispLith() );
     par.setYN( sKeyShowFlattened(), showFlattened() );
@@ -402,7 +408,7 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 	setDispEach( decimation );
 	dispEachCB( 0 );
     }
-    
+
     mSetYN( setDispZoomed, sKeyZoomToggle, dispZoomedCB );
     mSetYN( setDispLith, sKeyDispLith, dispLithCB );
     mSetYN( setShowFlattened, sKeyShowFlattened, showFlatCB );
@@ -427,8 +433,8 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 					const PropertyRefSelection& proprefsel)
 	: uiDialog(p,uiDialog::Setup("Property Selector",
-		    		     "There are multiple properties referenced"
-				     " with the same type. \n" 
+				     "There are multiple properties referenced"
+				     " with the same type. \n"
 				     "Please specify which one to use as: ",
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 {
@@ -447,7 +453,7 @@ bool uiStratLayModFRPropSelector::needsDisplay() const
 	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
 	return false;
     }
-    
+
     return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
 }
 

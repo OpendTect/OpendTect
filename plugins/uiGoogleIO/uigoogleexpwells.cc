@@ -35,6 +35,7 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
 					uiListBox::AtLeastOne );
     selfld_ = llb->box();
+    selfld_->chooseAll( true );
 
     mImplFileNameFld("wells");
     fnmfld_->attach( alignedBelow, llb );

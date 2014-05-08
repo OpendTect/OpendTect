@@ -35,14 +35,14 @@ public:
     Notifier<uiStratGenDescTools>	saveReq;
     Notifier<uiStratGenDescTools>	propEdReq;
     Notifier<uiStratGenDescTools>	genReq;
-    
+
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
 protected:
 
     static const char*		sKeyNrModels();
-    
+
     uiSpinBox*	nrmodlsfld_;
     uiToolButton* savetb_;
 
@@ -60,13 +60,13 @@ public:
 
 		uiStratLayModEditTools(uiParent*);
 
-    void 	setProps(const BufferStringSet&);
-    void 	setLevelNames(const BufferStringSet&);
-    void 	setContentNames(const BufferStringSet&);
+    void	setProps(const BufferStringSet&);
+    void	setLevelNames(const BufferStringSet&);
+    void	setContentNames(const BufferStringSet&);
 
     const char*	selProp() const;		//!< May return null
-    const char*	selLevel() const; 		//!< May return null
-    const char*	selContent() const; 		//!< May return null
+    const char*	selLevel() const;		//!< May return null
+    const char*	selContent() const;		//!< May return null
     int		dispEach() const;
     bool	dispZoomed() const;
     bool	dispLith() const;
@@ -80,6 +80,7 @@ public:
     void	setDispZoomed(bool);
     void	setDispLith(bool);
     void	setShowFlattened(bool);
+    void	setMkSynthetics(bool);
     void	setFlatTBSensitive(bool);
 
     void	setNoDispEachFld();
@@ -95,19 +96,19 @@ public:
 
     int		selPropIdx() const;		//!< May return -1
     int		selLevelIdx() const;		//!< May return -1
-    const Strat::Level*	selStratLevel() const; 	//!< May return null
+    const Strat::Level*	selStratLevel() const;	//!< May return null
     Color	selLevelColor() const;		//!< May return NoColor
 
-    uiToolButton* lithButton() 		{ return lithtb_; }
-    uiToolButton* zoomButton() 		{ return zoomtb_; }
-    
+    uiToolButton* lithButton()		{ return lithtb_; }
+    uiToolButton* zoomButton()		{ return zoomtb_; }
+
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
     bool	allownoprop_;
 
 protected:
-    
+
     static const char*		sKeyDisplayedProp();
     static const char*		sKeyDecimation();
     static const char*		sKeySelectedLevel();
