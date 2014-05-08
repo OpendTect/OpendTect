@@ -123,6 +123,13 @@ Engine::Engine()
 }
 
 
+static void releaseDataPack( DataPack::ID dpid )
+{
+    DPM(DataPackMgr::FlatID()).release( dpid );
+    DPM(DataPackMgr::CubeID()).release( dpid );
+}
+
+
 Engine::~Engine()
 {
     deepUnRef( trackers_ );
@@ -132,6 +139,11 @@ Engine::~Engine()
     deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
     deepErase( flatcubescontainer_ );
+
+    for ( int idx=attribcachedatapackids_.size()-1; idx>=0; idx-- )
+	releaseDataPack( attribcachedatapackids_[idx] );
+    for ( int idx=attribbkpcachedatapackids_.size()-1; idx>=0; idx-- )
+	releaseDataPack( attribbkpcachedatapackids_[idx] );
 }
 
 
@@ -528,29 +540,28 @@ DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 }
 
 
-const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
+const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
 {
-    DataPackRef<DataPack> datapack =
-			    DPM( DataPackMgr::FlatID() ).obtain( datapackid );
+    const DataPack* datapack = DPM(DataPackMgr::FlatID()).obtain( datapackid );
     if ( !datapack )
-	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid );
+	datapack = DPM(DataPackMgr::CubeID()).obtain( datapackid );
 
     RefMan<DataHolder> dh = new DataHolder();
 
-    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack.ptr());
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
     if ( cdp )
     {
 	dh->setCubeSampling( cdp->cube().cubeSampling() );
 	dh->set3DData( &cdp->cube() );
     }
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack.ptr());
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
     if ( fdp )
     {
 	dh->setCubeSampling( fdp->cube().cubeSampling() );
 	dh->set3DData( &fdp->cube() );
     }
 
-    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack.ptr());
+    mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
 	dh->setCubeSampling( dp2d->dataarray()->cubesampling_ );
@@ -564,6 +575,7 @@ const DataHolder* Engine::getAttribCache( DataPack::ID datapackid )
 	return res;
     }
 
+    releaseDataPack( datapackid );
     return 0;
 }
 
@@ -583,15 +595,17 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     {
 	if ( cacheid <= DataPack::cNoID() )
 	{
+	    releaseDataPack( attribcachedatapackids_[idx] );
 	    attribcachedatapackids_.removeSingle( idx );
 	    attribcache_.removeSingle( idx )->unRef();
 	    delete attribcachespecs_.removeSingle( idx );
 	}
 	else
 	{
-	    ConstRefMan<DataHolder> newdata = getAttribCache( cacheid );
+	    ConstRefMan<DataHolder> newdata = obtainAttribCache( cacheid );
 	    if ( newdata )
 	    {
+		releaseDataPack( attribcachedatapackids_[idx] );
 		attribcache_[idx]->unRef();
 		attribcachedatapackids_[idx] = cacheid;
 		attribcache_.replace( idx, newdata );
@@ -601,7 +615,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
     }
     else if ( cacheid > DataPack::cNoID() )
     {
-	ConstRefMan<DataHolder> newdata = getAttribCache( cacheid );
+	ConstRefMan<DataHolder> newdata = obtainAttribCache( cacheid );
 	if ( newdata )
 	{
 	    attribcachespecs_ += as.is2D() ?
