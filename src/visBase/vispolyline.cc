@@ -30,12 +30,13 @@ PolyLine::PolyLine()
     , drawstyle_( 0 )
 {
     addPrimitiveSet( coordrange_ );
-    coordrange_->ref();
+    if ( coordrange_ )
+	coordrange_->ref();
 }
 
 
 PolyLine::~PolyLine()
-{ coordrange_->unRef(); }
+{ if ( coordrange_ ) coordrange_->unRef(); }
 
 
 int PolyLine::size() const { return coords_->size(); }
@@ -51,7 +52,8 @@ void PolyLine::setPoint(int idx, const Coord3& pos )
 {
     if ( idx>size() ) return;
     coords_->setPos( idx, pos );
-    coordrange_->setRange( Interval<int>( 0, size()-1 ) );
+    if ( coordrange_ )
+	coordrange_->setRange( Interval<int>( 0, size()-1 ) );
 }
 
 
@@ -61,7 +63,8 @@ Coord3 PolyLine::getPoint( int idx ) const
 
 void PolyLine::removePoint( int idx )
 {
-    coordrange_->setRange( Interval<int>( 0, size()-2 ) );
+    if ( coordrange_ )
+	coordrange_->setRange( Interval<int>( 0, size()-2 ) );
     for ( int idy=idx; idy<size()-1; idy++ )
     {
 	coords_->setPos( idy, coords_->getPos( idy+1 ) );
