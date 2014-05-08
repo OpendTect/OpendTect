@@ -247,14 +247,10 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );
     int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );
-    mAllocVarLenArr( float, wiener, ngap_ );
-    mAllocVarLenArr( float, spiker, ngap_ );
+    if ( safencorr==0 || safelcorr==0 ) return false;
+
     mAllocLargeVarLenArr( float, autocorr, safelcorr );
-
-    OD::memZero( wiener, ngap_ * sizeof( float ) );
-    OD::memZero( spiker, ngap_ * sizeof( float ) );
     OD::memZero( autocorr, safelcorr * sizeof( float ) );
-
     float* crosscorr = autocorr + nlag_;//first sample of gap is at
 					//maxlag_+1 = nlag_ because minlag = 0
 
@@ -287,11 +283,14 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 0, idx, z0, autocorr[idx] );
 	return true;
     }
-    else
-    {
-	autocorr[0] *= 1 + (float)noiselevel_/100;
-	solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
-    }
+
+    mAllocVarLenArr( float, wiener, ngap_ );
+    mAllocVarLenArr( float, spiker, ngap_ );
+    OD::memZero( wiener, ngap_ * sizeof( float ) );
+    OD::memZero( spiker, ngap_ * sizeof( float ) );
+
+    autocorr[0] *= 1 + (float)noiselevel_/100;
+    solveSymToeplitzsystem( ngap_, autocorr, crosscorr, wiener, spiker );
 
     int startgapidx = nlag_;
     int stopgapidx =  startgapidx + ngap_;
