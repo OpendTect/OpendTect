@@ -27,18 +27,6 @@ if ( $status == 0 ) then
 	set startdir="$HOME"
     endif
 
-    set odrundir=/tmp/od_run.$$
-    set nocoredbg=`which gdb |& grep 'not found' | wc -l`
-    if ( $nocoredbg == 0 ) set nocoredbg=`which gdb |& grep 'no ' | wc -l`
-    if ( $nocoredbg == 0 ) then
-	if ( -e $odrundir ) then
-	    rm -rf $odrundir
-	endif
-	mkdir $odrundir
-	set startdir=$odrundir
-	limit coredumpsize unlimited
-    endif
-
     cd "$startdir"
 
     if ( $?DTECT_DEBUG && $?DTECT_WINHOME && $?DTECT_WINSETTINGS ) then
@@ -96,53 +84,6 @@ if ( $status == 0 ) then
 	$DTECT_START_DEBUGGER "${bindir}"/$mainapp
     else
 	$CSHCMD "$DTECT_APPL/bin/od_exec" $mainapp $*
-    endif
-
-    if ( $nocoredbg == 0 ) then
-
-	unsetenv DTECT_FORCE_IMMEDIATE_CRASH
-
-	set corefile=core
-	if ( ! -e $corefile ) then
-	    set nonomatch=true
-	    set corefile=core.*
-	    if ( $corefile == "core.*" ) then
-		set corefile=""
-	    endif
-	endif
-
-	set sendapp="${bindir}"/od_uiReportIssue
-	if ( ("$corefile" != "") && ( -e "${sendapp}") ) then
-	 
-	    set cmdfil="$odrundir/gdb.$$"
-
-	    set outfil="/tmp/od_crash_analysis_$$.txt"
-	    set execfile="${bindir}"/$mainapp
-
-	    echo "echo \n-> Threads:\n" > $cmdfil
-	    echo "info thread" >> $cmdfil
-	    echo "echo \n-> Stack:\n" >> $cmdfil
-	    echo "where" >> $cmdfil
-	    echo "quit" >> $cmdfil
-	    echo "yes" >> $cmdfil
-
-	    if ( -e "$outfil" ) rm -f "$outfil"
-	    if ( -e "$DTECT_APPL"/relinfo/ver.base_${binsubdir}.txt ) then
-		cp "$DTECT_APPL"/relinfo/ver.base_${binsubdir}.txt "$outfil"
-	    else
-		cp "$DTECT_APPL"/.rel.od.$binsubdir "$outfil"
-	    endif
-	    echo "" >> "$outfil"
-	    gdb --command="$cmdfil" "$execfile" "$corefile" >>&! "$outfil"
-	    "${sendapp}" "${outfil}"
-	    rm -f $cmdfil
-	endif
-
-
-    endif
-
-    if ( -e $odrundir ) then
-	rm -rf $odrundir
     endif
 
     if ( $?DTECT_USAGE_LOGFILE ) then
