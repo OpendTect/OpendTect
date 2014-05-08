@@ -27,6 +27,8 @@ v4.6.0j: April 10, 2014
    set to 'All'
  * Fix for Cluster processing parameter file to make it work
  * Fix for demo license installation for Sitfal
+ * Fix for Multi-Machine processing from windows now supports hostnames-based
+   configurations, thus supporting dynamic IP addressing on the LAN
 
 v4.6.0i: March 6, 2014
  * Fix for crash while closing OpendTect if the crossplot settings dialog
