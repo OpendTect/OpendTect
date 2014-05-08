@@ -472,11 +472,21 @@ void uiListBox::menuCB( CallBacker* )
     if ( !isMultiChoice() ) return;
 
     rightclickmnu_.clear();
-    rightclickmnu_.insertItem( new uiAction("Check all items"), 0 );
-    rightclickmnu_.insertItem( new uiAction("Uncheck all items"), 1 );
+    rightclickmnu_.insertItem( new uiAction("&Check all items"), 0 );
+    rightclickmnu_.insertItem( new uiAction("&Uncheck all items"), 1 );
+    if ( nrChosen() > 1 )
+	rightclickmnu_.insertItem( new uiAction("&Revert selection"), 2 );
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
 	setAllItemsChecked( res==0 );
+    else if ( res == 2 )
+    {
+	const int selidx = currentItem();
+	TypeSet<int> chosen; getChosen( chosen );
+	for ( int idx=0; idx<size(); idx++ )
+	    setChosen( idx, !chosen.isPresent(idx) );
+	setCurrentItem( selidx );
+    }
 }
 
 

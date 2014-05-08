@@ -56,8 +56,8 @@ public:
     const Strat::LayerModel&            layerModel() const;
     Strat::LayerModel&                  layerModel();
     const char*				levelName() const; //!< null if none
-    const StratSynth&   		currentStratSynth() const;
-    StratSynth& 			currentStratSynth();
+    const StratSynth&		currentStratSynth() const;
+    StratSynth&			currentStratSynth();
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
@@ -76,14 +76,14 @@ public:
 
     uiStratLayerModelDisp*      getLayModelDisp() const	{ return moddisp_; }
     void			displayFRResult(bool usefr,bool parschanged,
-	    					bool fwd);
+						bool fwd);
     void			prepareFluidRepl();
 
     //Utility
     //SyntheticData*		getCurrentSyntheticData() const;
 
     void			setSynthView(const uiWorldRect& wr);
-    const uiWorldRect&		curSynthView() const; 
+    const uiWorldRect&		curSynthView() const;
 
 protected:
 
@@ -131,20 +131,19 @@ protected:
     void			saveGenDescCB(CallBacker*) { saveGenDesc(); }
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary(
-	    				bool allowcancel=true) const;
+					bool allowcancel=true) const;
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			synthDispParsChangedCB(CallBacker*);
     void			lmDispParsChangedCB(CallBacker*);
 
     bool			closeOK();
-    
+
     void			fillDisplayPars(IOPar&) const;
     void			fillWorkBenchPars(IOPar&) const;
     void			fillSyntheticsPars(IOPar&) const;
     bool			useDisplayPars(const IOPar&);
     bool			useSyntheticsPars(const IOPar&);
-    bool			exportLayerModelGDI(BufferString) const;
 
 public:
 
