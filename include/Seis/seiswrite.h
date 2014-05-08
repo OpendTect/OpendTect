@@ -30,7 +30,7 @@ class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
 namespace Threads { class ConditionVar; }
-namespace Survey { class Geometry2D; }
+namespace PosInfo { class Line2DData; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
@@ -64,10 +64,10 @@ public:
 
 			// 2D
     const GeomIDProvider* geomIDProvider() const	{ return gidp_; }
-    void		setGeomIDProvider( const GeomIDProvider* l )
-							{ gidp_ = l; }
-				//!< If no lineKeyProvider set,
-				//!< seldata's linekey will be used
+    void		setGeomIDProvider(const GeomIDProvider*);
+    void		setSelData(Seis::SelData*);
+				//!< If no GeomIDProvider set,
+				//!< seldata's GeomID will be used
     void		setAttrib( const char* a )	{ attribnm_ = a; }
 				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar_;}
@@ -104,7 +104,7 @@ protected:
     // 2D only
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
-    Survey::Geometry2D&	geom2d_;
+    PosInfo::Line2DData* linedata_;
     IOPar&		lineauxiopar_;
     Pos::GeomID		prevgeomid_;
     const GeomIDProvider* gidp_;

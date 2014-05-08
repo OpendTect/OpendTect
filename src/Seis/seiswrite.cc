@@ -41,9 +41,8 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	, gidp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
-	, geom2d_(*new Survey::Geometry2D())
+	, linedata_(0)
 {
-    geom2d_.ref();
     init();
 }
 
@@ -54,9 +53,8 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
-	, geom2d_(*new Survey::Geometry2D())
+	, linedata_(0)
 {
-    geom2d_.ref();
     init();
 }
 
@@ -74,7 +72,7 @@ void SeisTrcWriter::init()
 SeisTrcWriter::~SeisTrcWriter()
 {
     close();
-    geom2d_.unRef();
+    delete linedata_;
     delete &lineauxiopar_;
     delete &worktrc_;
 }
@@ -86,12 +84,45 @@ bool SeisTrcWriter::close()
     if ( putter_ )
 	{ ret = putter_->close(); if ( !ret ) errmsg_ = putter_->errMsg(); }
 
+    if ( is2D() )
+    {
+	Pos::GeomID geomid = mCurGeomID;
+	Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid );
+	mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+
+	if ( geom2d && geom2d->data().isEmpty() )
+	{
+	    uiString st;
+	    geom2d->dataAdmin() = *linedata_;
+	    Survey::GMAdmin().write( *geom2d, st );
+	}
+    }
+
     delete putter_; putter_ = 0;
     delete pswriter_; pswriter_ = 0;
     psioprov_ = 0;
     ret &= SeisStoreAccess::close();
 
     return ret;
+}
+
+
+void SeisTrcWriter::setGeomIDProvider( const GeomIDProvider* l )
+{
+    gidp_ = l;
+    delete linedata_;
+    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
+}
+
+
+void SeisTrcWriter::setSelData( Seis::SelData* tsel )
+{
+    SeisStoreAccess::setSelData( tsel );
+    if ( !is2D() )
+	return;
+
+    delete linedata_;
+    linedata_ = new PosInfo::Line2DData( Survey::GM().getName(mCurGeomID) );
 }
 
 
@@ -117,14 +148,15 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 
     if ( is2d_ && !psioprov_ )
     {
+	if ( !linedata_ )
+	    return false;
 	if ( !next2DLine() )
 	    return false;
 
 	SamplingData<float> sd = trc.info().sampling;
 	StepInterval<float> zrg( sd.start, 0, sd.step );
 	zrg.stop = sd.start + sd.step * (trc.size()-1);
-	geom2d_.dataAdmin().setZRange( zrg );
-	geom2d_.touch();
+	linedata_->setZRange( zrg );
     }
     else if ( psioprov_ )
     {
@@ -231,7 +263,7 @@ bool SeisTrcWriter::next2DLine()
     BufferString lnm = Survey::GM().getName( geomid );
     if ( lnm.isEmpty() )
     {
-	errmsg_ = "Cannot write to empty line name";
+	errmsg_ = "Invalid 2D Geometry";
 	return false;
     }
 
@@ -259,7 +291,7 @@ bool SeisTrcWriter::next2DLine()
 
 bool SeisTrcWriter::put2D( const SeisTrc& trc )
 {
-    if ( !putter_ ) return false;
+    if ( !putter_ || !linedata_ ) return false;
 
     if ( mCurGeomID != prevgeomid_ )
     {
@@ -273,8 +305,7 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
     PosInfo::Line2DPos pos( trc.info().nr );
     pos.coord_ = trc.info().coord;
-    geom2d_.dataAdmin().add( pos );
-    geom2d_.touch();
+    linedata_->add( pos );
 
     return res;
 }
