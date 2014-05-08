@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
@@ -314,13 +315,24 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     if ( is2d )
     {
-	const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
 	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	{
-	    BufferString msg(
-		    "Geometry of Line '", linenm,
-		    "' is already present." );
+	    BufferString msg( "Geometry of Line '", linenm,
+			      "' is already present." );
 	    uiMSG().warning( msg );
+	}
+	else
+	{
+	    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
+	    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d );
+	    uiString errmsg;
+	    geomid = Survey::GMAdmin().addNewEntry( newgeom2d, errmsg );
+	    if ( !errmsg.isEmpty() )
+	    {
+		uiMSG().error( errmsg );
+		return false;
+	    }
 	}
     }
 
@@ -335,7 +347,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( is2d )
     {
 	if ( linenm && *linenm )
-	    sd->setGeomID(Survey::GM().getGeomID(linenm) );
+	    sd->setGeomID( Survey::GM().getGeomID(linenm)  );
 	wrr->setSelData( sd->clone() );
     }
 

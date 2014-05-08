@@ -52,7 +52,7 @@ public:
     void		setIOObj(const IOObj*);
     const Seis::SelData* selData() const
 			{ return seldata_; }
-    void		setSelData(Seis::SelData*);
+    virtual void	setSelData(Seis::SelData*);
 			//!< The Seis::SelData becomes mine
 
     virtual void	usePar(const IOPar&);
