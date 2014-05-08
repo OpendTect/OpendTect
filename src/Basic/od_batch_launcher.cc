@@ -48,9 +48,12 @@ int main( int argc, char** argv )
 	mErrExit( "Failed to fork process" )
     else if ( pid == 0 )	// Child process
     {
+	BufferString* prog = new BufferString( FilePath(GetBinPlfDir(),argv[1])
+							.fullPath() );
 	char** childargv = new char*[argc];
-	int idx = 0;
-	for ( idx=0; idx<argc-1; idx++ )
+	childargv[0] = prog->getCStr();
+	int idx = 1;
+	for ( ; idx<argc-1; idx++ )
 	{
 	    if ( FixedString(argv[idx+1]) == "--needmonitor" )
 		break; // These arguments are not for the batch process.
@@ -68,9 +71,8 @@ int main( int argc, char** argv )
 	    close( fd );
 	}
 
-	BufferString prog( FilePath(GetBinPlfDir(),argv[1]).fullPath() );
 	childargv[idx] = 0;
-	execv( prog.buf(), childargv );
+	execv( prog->buf(), childargv );
 
 	// We should not reach here if all goes well.
 	mErrExit( "Failed to launch process " )
