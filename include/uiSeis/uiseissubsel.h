@@ -32,6 +32,7 @@ class uiPosSubSel;
 class uiSeis2DSubSel;
 class uiSelSubline;
 class uiSeis2DLineSel;
+class uiSeis2DLineNameSel;
 
 
 mExpClass(uiSeis) uiSeisSubSel : public uiGroup
@@ -101,7 +102,8 @@ public:
 
 protected:
 
-    uiSeis2DLineSel*	lnmfld_;
+    uiSeis2DLineSel*		multilnmsel_;
+    uiSeis2DLineNameSel*	singlelnmsel_;
 
     bool		multiln_;
     MultiID		inpkey_;
