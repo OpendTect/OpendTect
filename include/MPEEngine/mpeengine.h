@@ -203,7 +203,6 @@ public:
 
 protected:
     int				getFreeID();
-    const DataHolder*    	getAttribCache(DataPack::ID);
 
     BufferString		errmsg_;
     CubeSampling		activevolume_;
@@ -261,6 +260,11 @@ protected:
     static const char*		sKeyEnabled()	{ return "Is enabled"; }
     static const char*		sKeyTrackPlane(){ return "Track Plane"; }
     static const char*		sKeySeedConMode(){ return "Seed Connect Mode"; }
+
+private:
+    const DataHolder*		obtainAttribCache(DataPack::ID);
+				/*!Caller is responsible for releasing datapack
+				   in case non-zero dataholder is returned. */
 };
 
 
