@@ -480,8 +480,10 @@ bool BatchProgram::go( std::ostream& strm )
 	float outval;
 	geompar->get( "Outside Value", outval );
 
-	Interval<float> extraz;
+	Interval<float> extraz( 0, 0 );
 	geompar->get( "ExtraZInterval", extraz.start, extraz.stop );
+	if ( extraz.isUdf() )
+	    extraz.set( 0, 0 );
 	extraz.scale(1.f/SI().zDomain().userFactor());
 
 	int nrinterpsamp = 0;
