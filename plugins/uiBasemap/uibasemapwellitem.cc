@@ -107,20 +107,33 @@ uiBasemapWellTreeItem::~uiBasemapWellTreeItem()
 
 bool uiBasemapWellTreeItem::usePar( const IOPar& par )
 {
+    uiBasemapTreeItem::usePar( par );
+
     int nrwells = 0;
     par.get( uiBasemapWellGroup::sKeyNrWells(), nrwells );
+
+    while ( nrwells < basemapobjs_.size() )
+	delete removeBasemapObject( *basemapobjs_[0] );
+
     for ( int idx=0; idx<nrwells; idx++ )
     {
 	MultiID mid;
 	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    continue;
 
-	Basemap::WellObject* obj = new Basemap::WellObject( mid );
-	addBasemapObject( *obj );
-	obj->updateGeometry();
+	if ( basemapobjs_.validIdx(idx) )
+	{
+	    mDynamicCastGet(Basemap::WellObject*,obj,basemapobjs_[idx])
+	    if ( obj ) obj->setMultiID( mid );
+	}
+	else
+	{
+	    Basemap::WellObject* obj = new Basemap::WellObject( mid );
+	    addBasemapObject( *obj );
+	    obj->updateGeometry();
+	}
     }
 
-    pars_ = par;
     return true;
 }
 
@@ -138,7 +151,7 @@ bool uiBasemapWellTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid==0 )
     {
-	BMM().edit( factoryKeyword(), name() );
+	BMM().edit( getFamilyID(), ID() );
     }
     else
 	return false;

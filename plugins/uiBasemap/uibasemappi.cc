@@ -97,8 +97,6 @@ mDefODInitPlugin(uiBasemap)
     mgr = new uiBasemapMgr( ODMainWin() );
 
     uiBasemapWellItem::initClass();
-    uiBasemapWellGroup::initClass();
-    uiBasemapWellTreeItem::initClass();
 
     return 0;
 }

@@ -39,8 +39,6 @@ protected:
 mExpClass(uiBasemap) uiBasemapGroup : public uiGroup
 {
 public:
-			mDefineFactory1ParamInClass(
-				uiBasemapGroup,uiParent*,factory)
     virtual		~uiBasemapGroup();
 
     void		setItemName(const char*);
@@ -63,27 +61,37 @@ protected:
 mExpClass(uiBasemap) uiBasemapTreeItem : public uiTreeItem
 {
 public:
-			mDefineFactory1ParamInClass(
-				uiBasemapTreeItem,const char*,factory)
     virtual		~uiBasemapTreeItem();
 
+    int			ID() const		{ return id_; }
     int			uiTreeViewItemType() const;
 
+    void		setFamilyID( int id )	{ familyid_ = id; }
+    int			getFamilyID() const	{ return familyid_; }
+
     const IOPar&	pars() const		{ return pars_; }
-    virtual bool	usePar(const IOPar&)	 = 0;
+    virtual bool	usePar(const IOPar&);
 
 protected:
 			uiBasemapTreeItem(const char* nm);
 
     bool		init();
     void		addBasemapObject(BaseMapObject&);
+    BaseMapObject*	removeBasemapObject(BaseMapObject&);
     void		checkCB(CallBacker*);
+
+    virtual bool	showSubMenu();
+    virtual bool	handleSubMenu(int);
 
     virtual bool	isSelectable() const { return true; }
     virtual bool	isExpandable() const { return false; }
 
     ObjectSet<BaseMapObject> basemapobjs_;
     IOPar&		pars_;
+
+private:
+    int			id_;
+    int			familyid_;
 };
 
 
@@ -113,14 +121,16 @@ public:
 			uiBasemapManager();
 			~uiBasemapManager();
 
-    void		add(const char* keyw);
-    void		edit(const char* keyw,const char* treeitmname);
+    void		add(int itemid);
+    void		edit(int itmid,int treeitmid);
 
     void		setBasemap(uiBaseMap&);
     uiBaseMap&		getBasemap();
     void		setTreeTop(uiTreeTopItem&);
 
     const ObjectSet<uiBasemapItem>&	items() const	{ return basemapitems_;}
+    uiBasemapItem*	getBasemapItem(int id);
+    uiBasemapTreeItem*	getBasemapTreeItem(int id);
 
 private:
 

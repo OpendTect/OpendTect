@@ -31,9 +31,9 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
     basemapview_->setPrefHeight( 250 );
     basemapview_->setPrefWidth( 250 );
     basemapview_->setSurveyInfo( &SI() );
-    uiGraphicsView::ScrollBarPolicy sbpol = uiGraphicsView::ScrollBarAsNeeded;
-    basemapview_->view().setScrollBarPolicy( true, sbpol );
-    basemapview_->view().setScrollBarPolicy( false, sbpol );
+    basemapview_->view().setMouseTracking( true );
+    basemapview_->view().enableScrollZoom();
+    basemapview_->view().setSceneBorder( 10 );
 
     treedw_ = new uiDockWin( this, "Basemap Tree" );
     addDockWindow( *treedw_, uiMainWin::Left );
@@ -61,13 +61,16 @@ void uiBasemapWin::initWin( CallBacker* )
 void uiBasemapWin::initTree()
 {
     tree_->setColumnText( 0, "Elements" );
+    tree_->setSelectionMode( uiTreeView::Extended );
+    tree_->setRootDecorated( false );
+    tree_->showHeader( false );
     topitem_ = new uiBasemapTreeTop( tree_ );
 }
 
 
 void uiBasemapWin::initToolBar()
 {
-    vwtoolbar_ = new uiToolBar( this, "Viewer Tools" );
+    vwtoolbar_ = new uiToolBar( this, "Viewer Tools", uiToolBar::Left );
     vwtoolbar_->addObject(
 	basemapview_->view().getSaveImageButton(vwtoolbar_) );
 
@@ -78,9 +81,9 @@ void uiBasemapWin::initToolBar()
     {
 	const uiBasemapItem* itm = itms[idx];
 
-	uiString str( "Add " ); //str.append( itm->getDisplayName() );
+	uiString str( "Add " ); str.append( itm->factoryDisplayName() );
 	uiAction* action = new uiAction( str, cb, itm->iconName() );
-	ids_ += itemtoolbar_->insertAction( action );
+	itemtoolbar_->insertAction( action, itm->ID() );
     }
 }
 
@@ -90,12 +93,8 @@ void uiBasemapWin::iconClickCB( CallBacker* cb )
     mDynamicCastGet(uiAction*,action,cb)
     if ( !action ) return;
 
-    const ObjectSet<uiBasemapItem> itms = BMM().items();
     const int id = action->getID();
-    const int itmidx = ids_.indexOf( id );
-    if ( !itms.validIdx(itmidx) ) return;
-
-    BMM().add( itms[itmidx]->factoryKeyword() );
+    BMM().add( id );
 }
 
 

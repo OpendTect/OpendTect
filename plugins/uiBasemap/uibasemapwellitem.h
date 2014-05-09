@@ -20,13 +20,6 @@ class uiIOObjSelGrp;
 mExpClass(uiBasemap) uiBasemapWellGroup : public uiBasemapGroup
 {
 public:
-			mDefaultFactoryInstantiation1Param(
-				uiBasemapGroup,
-				uiBasemapWellGroup,
-				uiParent*,
-				"Wells",
-				sFactoryKeyword())
-
 			uiBasemapWellGroup(uiParent*);
 			~uiBasemapWellGroup();
 
@@ -46,13 +39,6 @@ protected:
 mExpClass(uiBasemap) uiBasemapWellTreeItem : public uiBasemapTreeItem
 {
 public:
-			mDefaultFactoryInstantiation1Param(
-				uiBasemapTreeItem,
-				uiBasemapWellTreeItem,
-				const char*,
-				"Wells",
-				sFactoryKeyword())
-
 			uiBasemapWellTreeItem(const char*);
 			~uiBasemapWellTreeItem();
 

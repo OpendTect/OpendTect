@@ -28,6 +28,8 @@ public:
 			WellObject(const MultiID&);
 			~WellObject();
 
+    const MultiID&	getMultiID() const	{ return wellmid_; }
+    void		setMultiID(const MultiID&);
     const char*		getType() const		{ return "Well"; }
     void		updateGeometry();
 

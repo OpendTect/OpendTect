@@ -27,17 +27,28 @@ WellObject::WellObject( const MultiID& mid )
     , wellmid_(mid)
     , wd_(*new Well::Data)
 {
-    PtrMan<IOObj> ioobj = IOM().get( wellmid_ );
-    if ( ioobj ) setName( ioobj->name() );
-
-    Well::Reader rdr( ioobj->fullUserExpr(true), wd_ );
-    rdr.getInfo();
+    setMultiID( mid );
 }
 
 
 WellObject::~WellObject()
 {
     delete &wd_;
+}
+
+
+void WellObject::setMultiID( const MultiID& mid )
+{
+    wellmid_ = mid;
+    wd_.setEmpty();
+    PtrMan<IOObj> ioobj = IOM().get( wellmid_ );
+    if ( !ioobj ) return;
+
+    setName( ioobj->name() );
+    Well::Reader rdr( ioobj->fullUserExpr(true), wd_ );
+    rdr.getInfo();
+
+    updateGeometry();
 }
 
 
