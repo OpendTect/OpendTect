@@ -309,12 +309,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , enabscrollzoom_(false)
     , isctrlpressed_(false)
 {
-    setScrollBarPolicy( true, enabscrollzoom_
-				? uiGraphicsViewBase::ScrollBarAsNeeded
-				: uiGraphicsViewBase::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, enabscrollzoom_
-				? uiGraphicsViewBase::ScrollBarAsNeeded
-				: uiGraphicsViewBase::ScrollBarAlwaysOff );
+    enableScrollZoom( enabscrollzoom_ );
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );
     getMouseEventHandler().buttonReleased.notify(
@@ -350,6 +345,23 @@ GestureEventHandler& uiGraphicsViewBase::gestureEventHandler()
 
 void uiGraphicsViewBase::rePaint()
 { body_->viewport()->repaint(); }
+
+
+void uiGraphicsViewBase::enableScrollZoom( bool yn )
+{
+    enabscrollzoom_ = yn;
+    setScrollBarPolicy( true, enabscrollzoom_
+				? uiGraphicsViewBase::ScrollBarAsNeeded
+				: uiGraphicsViewBase::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, enabscrollzoom_
+				? uiGraphicsViewBase::ScrollBarAsNeeded
+				: uiGraphicsViewBase::ScrollBarAlwaysOff );
+}
+
+
+void uiGraphicsViewBase::disableScrollZoom()
+{ enableScrollZoom(false); }
+
 
 void uiGraphicsViewBase::setDragMode( ODDragMode dragmode )
 {

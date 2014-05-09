@@ -33,23 +33,23 @@ public:
 				~uiGraphicsViewBase();
 
     void			setScene(uiGraphicsScene&);
-    				//!<Scene becomes mine
+				//!<Scene becomes mine
     uiGraphicsScene&		scene();
     void			show();
     enum ODDragMode		{ NoDrag, ScrollHandDrag, RubberBandDrag };
     enum ScrollBarPolicy	{ ScrollBarAsNeeded, ScrollBarAlwaysOff,
 				  ScrollBarAlwaysOn };
 
-    void			setScrollBarPolicy(bool hor,ScrollBarPolicy); 
-    void			setDragMode(ODDragMode); 
+    void			setScrollBarPolicy(bool hor,ScrollBarPolicy);
+    void			setDragMode(ODDragMode);
     ODDragMode			dragMode() const;
     bool			isRubberBandingOn() const;
 
     void			setMouseTracking(bool);
     bool			hasMouseTracking() const;
 
-    int				width() const; 
-    int				height() const; 
+    int				width() const;
+    int				height() const;
 
     int				getSceneBorder() const;
     void			setSceneBorder(int);
@@ -59,12 +59,12 @@ public:
     void			setSceneRect(const uiRect&);
     void			setSceneAlignment(const Alignment&);
 
-    uiPoint			getCursorPos() const; 
-    uiPoint			getScenePos(float,float) const; 
-    const uiPoint& 		getStartPos() const;
+    uiPoint			getCursorPos() const;
+    uiPoint			getScenePos(float,float) const;
+    const uiPoint&		getStartPos() const;
     const uiRect*		getSelectedArea() const	{return selectedarea_;}
     void			setViewArea(double x,double y,
-	    				    double w,double h);
+					    double w,double h);
     uiRect			getViewArea() const;
 
     void                        setBackgroundColor(const Color&);
@@ -72,19 +72,19 @@ public:
     void                        uisetBackgroundColor(const Color&);
     Color		        uibackgroundColor() const;
     void			setNoBackGround();
-    void			rePaint(); 
-    void			enableScrollZoom()  { enabscrollzoom_ = true; }
-    void			disableScrollZoom() { enabscrollzoom_ = false; }
+    void			rePaint();
+    void			enableScrollZoom(bool yn=true);
+    void			disableScrollZoom();
     bool			scrollZoomEnabled()
-    				{ return enabscrollzoom_; }
+				{ return enabscrollzoom_; }
     uiSize			scrollBarSize(bool horizontal) const;
-    
+
     bool			isCtrlPressed() const	{return isctrlpressed_;}
     void			setCtrlPressed( bool yn )
-    				{ isctrlpressed_ = yn; }
+				{ isctrlpressed_ = yn; }
 
     MouseEventHandler&		getNavigationMouseEventHandler();
-    				/*!<This eventhandler handles events related to
+				/*!<This eventhandler handles events related to
 				    navigation (rubberbands & panning).
 				    For general calls, use
 				    getMouseEventHandler(). */
@@ -97,7 +97,7 @@ public:
     Notifier<uiGraphicsViewBase> rubberBandUsed;
     Notifier<uiGraphicsViewBase> reDrawNeeded;
     Notifier<uiGraphicsViewBase> reDrawn;
-    				//!< In practice, this happens only after reSize
+				//!< In practice, this happens only after reSize
     Notifier<uiGraphicsViewBase> preDraw;
     Notifier<uiGraphicsViewBase> scrollBarUsed;
 
@@ -115,7 +115,7 @@ protected:
 
     bool			isctrlpressed_;
     bool			enabscrollzoom_;
-    void 			rubberBandCB(CallBacker*);
+    void			rubberBandCB(CallBacker*);
 
 };
 
