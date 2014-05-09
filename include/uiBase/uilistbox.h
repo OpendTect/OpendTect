@@ -169,6 +169,10 @@ public:
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
 
+    void		offerReadWriteSelection( const CallBack& rcb,
+						 const CallBack& wcb )
+			{ retrievecb_ = rcb; savecb_ = wcb; }
+			
 private:
 
     void		translateText();
@@ -179,6 +183,8 @@ private:
     uiMenu&		rightclickmnu_;
     mutable BufferString rettxt_;
     OD::ButtonState	buttonstate_;
+    CallBack		savecb_;
+    CallBack		retrievecb_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
