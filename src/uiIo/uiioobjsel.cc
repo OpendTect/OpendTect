@@ -99,54 +99,54 @@ void relocStart( const char* msg )
 };
 
 
+#define muiIOObjSelGrpConstructorCommons \
+      uiGroup(p) \
+    , ctio_(*new CtxtIOObj(c)) \
+    , newStatusMsg(this) \
+    , selectionChanged(this) \
+    , itemChosen(this)
+
+
+// Note: don't combine first and second constructor making the uiString default
+// that will make things compile that shouldn't
+
+
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c )
+    : muiIOObjSelGrpConstructorCommons
+{ init(); }
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+			      const uiString& seltxt )
+    : muiIOObjSelGrpConstructorCommons
+{ init( seltxt ); }
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+			      const uiIOObjSelGrp::Setup& su )
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{ init(); }
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const IOObjContext& c,
+		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su )
+    : muiIOObjSelGrpConstructorCommons
+    , setup_(su)
+{ init( seltxt ); }
+
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
-    : uiGroup(p)
-    , ctio_(c)
-    , newStatusMsg(this)
-    , selectionChanged(this)
-    , itemChosen(this)
-{
-    init();
-}
-
-
+    : muiIOObjSelGrpConstructorCommons
+{ init(); }
+uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
+			      const uiString& seltxt )
+    : muiIOObjSelGrpConstructorCommons
+{ init( seltxt ); }
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const uiIOObjSelGrp::Setup& su )
-    : uiGroup(p)
-    , ctio_(c)
+    : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-    , newStatusMsg(this)
-    , selectionChanged(this)
-    , itemChosen(this)
-{
-    init();
-}
-
-
-uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
-		      const uiString& seltxt )
-    : uiGroup(p)
-    , ctio_(c)
-    , newStatusMsg(this)
-    , selectionChanged(this)
-    , itemChosen(this)
-{
-    init( seltxt );
-}
-
-
+{ init(); }
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 		      const uiString& seltxt, const uiIOObjSelGrp::Setup& su )
-    : uiGroup(p)
-    , ctio_(c)
+    : muiIOObjSelGrpConstructorCommons
     , setup_(su)
-    , newStatusMsg(this)
-    , selectionChanged(this)
-    , itemChosen(this)
-{
-    init( seltxt );
-}
+{ init( seltxt ); }
 
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
@@ -230,6 +230,7 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 	delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
     delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
@@ -378,11 +379,16 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 }
 
 
-
 void uiIOObjSelGrp::setContext( const IOObjContext& c )
 {
     ctio_.ctxt = c; ctio_.setObj( 0 );
     fullUpdate( -1 );
+}
+
+
+const IOObjContext& uiIOObjSelGrp::getContext() const
+{
+    return ctio_.ctxt;
 }
 
 
@@ -672,12 +678,12 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     uiString titletext( seltxt );
     if ( titletext.isEmpty() )
     {
-	if ( selgrp_->getCtxt().forread )
+	if ( selgrp_->getContext().forread )
 	    titletext = tr("Select input %1%2");
 	else
 	    titletext = tr("Select output %1%2");
 
-	if ( selgrp_->getCtxt().name().isEmpty() )
+	if ( selgrp_->getContext().name().isEmpty() )
 	    titletext = titletext.arg( uiString(c.ctxt.trgroup->userName()) );
 	else
 	    titletext = titletext.arg( uiString( c.ctxt.name() ) );
@@ -690,7 +696,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     uiString captn( seltxt );
     if ( captn.isEmpty() )
     {
-	if ( selgrp_->getCtxt().forread )
+	if ( selgrp_->getContext().forread )
 	{
 	    if ( multisel )
 		captn = tr( "Load %1(s)");
@@ -700,7 +706,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	else
 	    captn = tr("Save %1 as" );
 
-	if ( selgrp_->getCtxt().name().isEmpty() )
+	if ( selgrp_->getContext().name().isEmpty() )
 	    captn = captn.arg( uiString( c.ctxt.trgroup->userName() ) );
 	else
 	    captn = captn.arg( uiString( c.ctxt.name() ) );

@@ -544,9 +544,8 @@ uiGroup* uiCreate2DGrid::createHorizonGroup()
 
     horcheckfld_ = new uiCheckBox( grp, "Extract horizons for the new grid",
 				   mCB(this,uiCreate2DGrid,horCheckCB) );
-    IOObjContext horctxt = mIOObjContext( EMHorizon3D );
-    horselfld_ = new uiIOObjSelGrp( grp, horctxt, "Select horizons",
-			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    horselfld_ = new uiIOObjSelGrp( grp, mIOObjContext(EMHorizon3D),
+		"Select horizons", uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
     horselfld_->attach( alignedBelow, horcheckfld_ );
 
     hornmfld_ = new uiGenInput( grp, "Horizon 2D name prefix" );

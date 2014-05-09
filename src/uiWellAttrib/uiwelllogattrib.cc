@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdesc.h"
 #include "attribparam.h"
+#include "ioobj.h"
 #include "welldata.h"
 #include "welllogset.h"
 #include "wellman.h"

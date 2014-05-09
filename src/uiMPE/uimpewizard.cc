@@ -188,11 +188,9 @@ uiIOObjSelGrp* Wizard::createNamePage()
     if ( !ctxttemplate )
 	ctxttemplate = &EMFault3DTranslatorGroup::ioContext();
 
-    PtrMan<IOObjContext> ctxt = new IOObjContext( *ctxttemplate );
-    ctxt->forread = false;
-
-    const CtxtIOObj ctio( *ctxt );
-    return new uiIOObjSelGrp( this, ctio );
+    IOObjContext ctxt( *ctxttemplate );
+    ctxt.forread = false;
+    return new uiIOObjSelGrp( this, ctxt );
 }
 
 

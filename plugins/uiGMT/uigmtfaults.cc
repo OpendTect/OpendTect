@@ -52,7 +52,7 @@ uiGMTOverlayGrp* uiGMTFaultsGrp::createInstance( uiParent* p )
 uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
-    faultfld_ = new uiIOObjSelGrp( this, *mMkCtxtIOObj(EMFault3D),
+    faultfld_ = new uiIOObjSelGrp( this, mIOObjContext(EMFault3D),
 		   "Faults", uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );

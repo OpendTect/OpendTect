@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uiposprovgroup.h"
 #include "multiid.h"
 
-class uiIOObjSelGrp;
 class uiStepOutSel;
 class uiSelZRange;
 class uiWellParSel;
