@@ -879,7 +879,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
 	return true;
 
     const Pos::GeomID geomid = fss->geometry().pickedGeomID( sid, sticknr );
-    if ( geomid != geomid ) return true;
+    if ( geomid != geomid_ ) return true;
 
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
 	    	     Survey::GM().getGeometry(geomid_) );
