@@ -4,7 +4,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		January 2014
- RCS:		$Id: uibasemapwellitem.h 34190 2014-04-16 20:09:04Z nanne.hemstra@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uistrings.h"
 
 #include "basemapwell.h"
+#include "oduicommon.h"
 #include "welltransl.h"
 
 
@@ -29,7 +30,7 @@ uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p )
     : uiBasemapGroup(p)
 {
     wellsfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-	uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
+	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
     addNameField( wellsfld_->attachObj() );
 }
@@ -42,7 +43,7 @@ uiBasemapWellGroup::~uiBasemapWellGroup()
 
 bool uiBasemapWellGroup::acceptOK()
 {
-    const int nrwells = wellsfld_->nrSelected();
+    const int nrwells = wellsfld_->nrChosen();
     if ( nrwells == 0 )
     {
 	uiMSG().error( "Select at least one well" );
@@ -58,7 +59,7 @@ bool uiBasemapWellGroup::fillPar( IOPar& par ) const
 {
     const bool res = uiBasemapGroup::fillPar( par );
     TypeSet<MultiID> mids;
-    wellsfld_->getSelected( mids );
+    wellsfld_->getChosen( mids );
     const int nrwells = mids.size();
     par.set( sKeyNrWells(), nrwells );
     for ( int idx=0; idx<nrwells; idx++ )
@@ -77,7 +78,7 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
     for ( int idx=0; idx<nrwells; idx++ )
 	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
 
-    wellsfld_->setSelected( mids );
+    wellsfld_->setChosen( mids );
     return res;
 }
 

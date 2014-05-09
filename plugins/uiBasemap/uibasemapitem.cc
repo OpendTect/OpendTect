@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uibasemaptreeitem.cc 34190 2014-04-16 20:09:04Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uibasemapitem.h"
