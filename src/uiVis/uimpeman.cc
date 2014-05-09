@@ -1313,7 +1313,7 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
 
     transfld_ = new uiSlider( this, uiSlider::Setup("Transparency")
 				    .nrdec(2), "Slider" );
-    transfld_->setOrientation( uiObject::Horizontal );
+    transfld_->setOrientation( OD::Horizontal );
     transfld_->setMaxValue( 1 );
     transfld_->setToolTip( "Transparency" );
     transfld_->setStretch( 0, 0 );

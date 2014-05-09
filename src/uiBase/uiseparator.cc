@@ -27,7 +27,7 @@ uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 {
     setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
 		 | (raised ? QFrame::Raised
-		     	   : QFrame::Sunken) );
+			   : QFrame::Sunken) );
     setLineWidth( 1 ); setMidLineWidth( 0 );
 }
 
@@ -35,22 +35,22 @@ uiSeparatorBody( uiSeparator& hndl, uiParent* p, const char* nm,
 
 
 uiSeparator::uiSeparator( uiParent* p, const char* txt,
-			uiObject::Orientation ori, bool raised )
-    : uiObject(p,txt,mkbody(p,txt,ori==Horizontal,raised))
+			OD::Orientation ori, bool raised )
+    : uiObject(p,txt,mkbody(p,txt,ori==OD::Horizontal,raised))
 {
 }
 
 
-uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt, 
+uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt,
 				      bool hor, bool raised )
-{ 
+{
     body_= new uiSeparatorBody(*this,p,txt,hor,raised);
-    return *body_; 
+    return *body_;
 }
 
 
 void uiSeparator::setRaised( bool yn )
-{ 
+{
     body_->setFrameShadow( yn ? QFrame::Raised
-	    		      : QFrame::Sunken );
+			      : QFrame::Sunken );
 }

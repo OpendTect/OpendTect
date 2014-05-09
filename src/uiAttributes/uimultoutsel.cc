@@ -60,7 +60,7 @@ uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 
 void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
 {
-    outlistfld_ = new uiListBox( this, "Outputs", uiListBox::AtLeastOne );
+    outlistfld_ = new uiListBox( this, "Outputs", OD::ChooseAtLeastOne );
     outlistfld_->addItems( outnames );
 
     outallfld_ = new uiCheckBox( this, "Output all");
@@ -174,13 +174,13 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
 {
 #define mLblPos uiLabeledListBox::AboveLeft
     uiLabeledListBox* attrllb = new uiLabeledListBox( this,
-	    "Available attributes", uiListBox::AtLeastOne, mLblPos );
+	    "Available attributes", OD::ChooseAtLeastOne, mLblPos );
     attribfld_ = attrllb->box();
     attribfld_->setHSzPol( uiObject::Wide );
     attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
     fillAttribFld();
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "", uiObject::Vertical );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow, "Add",
 		      mCB(this,uiMultiAttribSel,doAdd) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
@@ -188,13 +188,13 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     bgrp->attach( centeredRightOf, attrllb );
 
     uiLabeledListBox* selllb = new uiLabeledListBox( this,
-	    "Selected attributes", uiListBox::AtLeastOne, mLblPos );
+	    "Selected attributes", OD::ChooseAtLeastOne, mLblPos );
     selfld_ = selllb->box();
     selfld_->setHSzPol( uiObject::Wide );
     selllb->attach( rightTo, attrllb );
     selllb->attach( ensureRightOf, bgrp );
 
-    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", uiObject::Vertical );
+    uiButtonGroup* sortgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( sortgrp, uiToolButton::UpArrow,"Move up",
 		      mCB(this,uiMultiAttribSel,moveUp) );
     new uiToolButton( sortgrp, uiToolButton::DownArrow, "Move down",

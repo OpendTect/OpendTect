@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
     name##fld_ = new uiCheckBox( this, label ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
     name##spacingfld_ = new uiGenInput( this, "Spacing (Start/Stop)", \
-	    				IntInpIntervalSpec(true) ); \
+					IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
 
@@ -50,9 +50,9 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     if ( cs.nrInl()>1 )
 	{ mCreateGridFld( inl, "in-line" ) }
     if ( cs.nrCrl()>1 )
-    	{ mCreateGridFld( crl, "cross-line" ) }
+	{ mCreateGridFld( crl, "cross-line" ) }
     if ( cs.nrZ()>1 )
-    	{ mCreateGridFld( z, "z" ) }
+	{ mCreateGridFld( z, "z" ) }
 
     if ( inlfld_ && crlfld_ )
 	crlfld_->attach( leftAlignedBelow, inlspacingfld_ );
@@ -71,9 +71,9 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
 
     BufferString allmsg("Apply to all loaded ");
-    if ( visSurvey::PlaneDataDisplay::Inline == pdd_->getOrientation() )
+    if ( OD::InlineSlice == pdd_->getOrientation() )
 	allmsg += "inlines";
-    else if ( visSurvey::PlaneDataDisplay::Crossline == pdd_->getOrientation() )
+    else if ( OD::CrosslineSlice == pdd_->getOrientation() )
 	allmsg += "crosslines";
     else
 	allmsg += "z slices";
@@ -97,7 +97,7 @@ void uiGridLinesDlg::showGridLineCB( CallBacker* cb )
 	zspacingfld_->setSensitive( zfld_->isChecked() );
 
     lsfld_->setSensitive( (inlfld_ && inlfld_->isChecked()) ||
-	    		  (crlfld_ && crlfld_->isChecked()) ||
+			  (crlfld_ && crlfld_->isChecked()) ||
 			  (zfld_ && zfld_->isChecked()) );
 }
 
@@ -171,7 +171,7 @@ void uiGridLinesDlg::setParameters()
 	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
 	zspacingfld_->setValue(
 		StepInterval<int>(mNINT32(cs.zrg.start),mNINT32(cs.zrg.stop),
-		   		  mNINT32(cs.zrg.step)) );
+				  mNINT32(cs.zrg.step)) );
     }
 
     showGridLineCB(0);

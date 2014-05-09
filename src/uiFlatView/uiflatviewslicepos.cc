@@ -22,14 +22,14 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
 }
 
 
-static uiSlicePos::Orientation getOrientation( const CubeSampling& cs )
+static OD::SliceType getOrientation( const CubeSampling& cs )
 {
     if ( cs.defaultDir() == CubeSampling::Crl )
-	return uiSlicePos::Crossline;
+	return OD::CrosslineSlice;
     if ( cs.defaultDir() == CubeSampling::Z )
-	return uiSlicePos::Zslice;
+	return OD::ZSlice;
 
-    return uiSlicePos::Inline;
+    return OD::InlineSlice;
 }
 
 
@@ -60,7 +60,7 @@ void uiSlicePos2DView::setBoxRanges()
 
 void uiSlicePos2DView::setPosBoxValue()
 {
-    setPosBoxVal( curorientation_, curcs_ ); 
+    setPosBoxVal( curorientation_, curcs_ );
 }
 
 

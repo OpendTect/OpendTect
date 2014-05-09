@@ -52,7 +52,7 @@ class uiListBoxBody : public uiObjBodyImpl<uiListBox,QListWidget>
 public:
 
                         uiListBoxBody(uiListBox& hndle, uiParent* parnt,
-			      const char* nm, uiListBox::ChoiceMode cm,
+			      const char* nm, OD::ChoiceMode cm,
 			      int preferredNrLines, int preferredFieldWidth);
 
     virtual		~uiListBoxBody()		{ delete &messenger_; }
@@ -126,7 +126,7 @@ static bool doslidesel_ = true;
 
 
 uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
-			const char* nm, uiListBox::ChoiceMode cm,
+			const char* nm, OD::ChoiceMode cm,
 			int preferrednrlines, int preferredfieldwidth )
     : uiObjBodyImpl<uiListBox,QListWidget>( hndle, parnt, nm )
     , messenger_(*new i_listMessenger(this,&hndle))
@@ -138,7 +138,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     setDragDropMode( QAbstractItemView::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
     setSelectionBehavior( QAbstractItemView::SelectItems );
-    setSelectionMode( cm == uiListBox::None ? QAbstractItemView::NoSelection
+    setSelectionMode( cm == OD::ChooseNone ? QAbstractItemView::NoSelection
 					: QAbstractItemView::SingleSelection );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
@@ -345,14 +345,14 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OnlyOne,0,0) )
-    mStdInit(OnlyOne)
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OD::ChooseOnlyOne,0,0) )
+    mStdInit(OD::ChooseOnlyOne)
 {
     mStdConstrEnd;
 }
 
 
-uiListBox::uiListBox( uiParent* p, const char* nm, ChoiceMode cm,
+uiListBox::uiListBox( uiParent* p, const char* nm, OD::ChoiceMode cm,
 			int nl, int pfw )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw) )
     mStdInit(cm)
@@ -363,8 +363,8 @@ uiListBox::uiListBox( uiParent* p, const char* nm, ChoiceMode cm,
 
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
 			const char* nm )
-    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,uiListBox::OnlyOne,0,0))
-    mStdInit(uiListBox::OnlyOne)
+    : uiObject( p, nm?nm:"List Box", mkbody(p,nm,OD::ChooseOnlyOne,0,0))
+    mStdInit(OD::ChooseOnlyOne)
 {
     addItems( items ); setName( "Select Data" );
     mStdConstrEnd;
@@ -372,7 +372,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
 
 
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
-		      ChoiceMode cm, int nl, int pfw )
+		      OD::ChoiceMode cm, int nl, int pfw )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
     mStdInit(cm)
 {
@@ -382,7 +382,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
 
 
 uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
-		     const char* nm, ChoiceMode cm, int nl, int pfw )
+		     const char* nm, OD::ChoiceMode cm, int nl, int pfw )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
     mStdInit(cm)
 {
@@ -391,8 +391,8 @@ uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
 }
 
 
-uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, ChoiceMode cm,
-				  int nl, int pfw )
+uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm,
+				OD::ChoiceMode cm, int nl, int pfw )
 {
     body_ = new uiListBoxBody(*this,p,nm,cm,nl,pfw);
     body_->setIconSize( QSize(cIconSz,cIconSz) );
@@ -406,7 +406,7 @@ uiListBox::~uiListBox()
 }
 
 
-void uiListBox::setChoiceMode( ChoiceMode cm )
+void uiListBox::setChoiceMode( OD::ChoiceMode cm )
 {
     if ( choicemode_ == cm )
 	return;
@@ -421,10 +421,10 @@ void uiListBox::setMultiChoice( bool yn )
     if ( isMultiChoice() == yn )
 	return;
 
-    if ( choicemode_ == OnlyOne )
-	choicemode_ = AtLeastOne;
+    if ( choicemode_ == OD::ChooseOnlyOne )
+	choicemode_ = OD::ChooseAtLeastOne;
     else
-	choicemode_ = OnlyOne;
+	choicemode_ = OD::ChooseOnlyOne;
 
     updateFields2ChoiceMode();
 }
@@ -432,20 +432,20 @@ void uiListBox::setMultiChoice( bool yn )
 
 void uiListBox::setAllowNoneChosen( bool yn )
 {
-    if ( choicemode_ == OnlyOne )
+    if ( choicemode_ == OD::ChooseOnlyOne )
 	return;
-    const bool nowallowed = choicemode_ == ZeroOrMore;
+    const bool nowallowed = choicemode_ == OD::ChooseZeroOrMore;
     if ( nowallowed == yn )
 	return;
 
-    choicemode_ = yn ? ZeroOrMore : AtLeastOne;
+    choicemode_ = yn ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;
     updateFields2ChoiceMode();
 }
 
 
 void uiListBox::setNotSelectable()
 {
-    choicemode_ = None;
+    choicemode_ = OD::ChooseNone;
     updateFields2ChoiceMode();
     body_->setSelectionMode( QAbstractItemView::NoSelection );
 }
@@ -475,7 +475,7 @@ void uiListBox::menuCB( CallBacker* )
     rightclickmnu_.insertItem( new uiAction("&Check all items"), 0 );
     rightclickmnu_.insertItem( new uiAction("&Uncheck all items"), 1 );
     if ( nrChosen() > 1 )
-	rightclickmnu_.insertItem( new uiAction("&Revert selection"), 2 );
+	rightclickmnu_.insertItem( new uiAction("&Invert selection"), 2 );
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
 	setAllItemsChecked( res==0 );
@@ -516,9 +516,9 @@ void uiListBox::setNrLines( int prefnrlines )
 }
 
 
-int uiListBox::maxNrOfSelections() const
+int uiListBox::maxNrOfChoices() const
 {
-    return isMultiChoice() ? size() : (choicemode_ == None ? 0 : 1);
+    return isMultiChoice() ? size() : (choicemode_ == OD::ChooseNone ? 0 : 1);
 }
 
 
@@ -826,7 +826,7 @@ void uiListBox::setCurrentItem( int idx )
     mBlockCmdRec;
 
     body_->setCurrentRow( idx );
-    if ( choicemode_ == OnlyOne )
+    if ( choicemode_ == OD::ChooseOnlyOne )
 	body_->item( idx )->setSelected( true );
 }
 
@@ -965,10 +965,10 @@ bool uiListBox::isChoosable( int idx ) const
 int uiListBox::nrChosen() const
 {
     if ( !isMultiChoice() )
-	return choicemode_ == None || currentItem() < 0 ? 0 : 1;
+	return choicemode_ == OD::ChooseNone || currentItem() < 0 ? 0 : 1;
 
     int ret = nrChecked();
-    if ( ret < 1 && choicemode_ == AtLeastOne )
+    if ( ret < 1 && choicemode_ == OD::ChooseAtLeastOne )
 	ret = currentItem() < 0 ? 0 : 1;
     return ret;
 }
@@ -976,14 +976,14 @@ int uiListBox::nrChosen() const
 
 bool uiListBox::isChosen( int lidx ) const
 {
-    if ( choicemode_ == None || !validIdx(lidx) )
+    if ( choicemode_ == OD::ChooseNone || !validIdx(lidx) )
 	return false;
-    else if ( choicemode_ == OnlyOne )
+    else if ( choicemode_ == OD::ChooseOnlyOne )
 	return lidx == currentItem();
 
     if ( isItemChecked(lidx) )
 	return true;
-    if ( choicemode_ == ZeroOrMore || nrChecked() > 0 )
+    if ( choicemode_ == OD::ChooseZeroOrMore || nrChecked() > 0 )
 	return false;
 
     return lidx == currentItem();
@@ -993,7 +993,7 @@ bool uiListBox::isChosen( int lidx ) const
 int uiListBox::firstChosen() const
 {
     if ( !isMultiChoice() )
-	return choicemode_ == None ? -1 : currentItem();
+	return choicemode_ == OD::ChooseNone ? -1 : currentItem();
 
     return nextChosen( -1 );
 }
@@ -1002,7 +1002,7 @@ int uiListBox::firstChosen() const
 int uiListBox::nextChosen( int prev ) const
 {
     if ( !isMultiChoice() )
-	return choicemode_ == None || prev >= 0 ? -1 : currentItem();
+	return choicemode_ == OD::ChooseNone || prev >= 0 ? -1 : currentItem();
 
     if ( prev < -1 ) prev = -1;
     const int sz = size();
@@ -1049,7 +1049,7 @@ void uiListBox::setChosen( Interval<int> rg, bool yn )
 
     if ( !isMultiChoice() )
     {
-	if ( choicemode_ == OnlyOne && rg.start >= 0 )
+	if ( choicemode_ == OD::ChooseOnlyOne && rg.start >= 0 )
 	    setCurrentItem( rg.start );
     }
     else
@@ -1281,13 +1281,13 @@ void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt )
     : uiGroup(p,"Labeled listbox")
 {
-    lb_ = new uiListBox( this, txt.getFullString(), uiListBox::OnlyOne );
+    lb_ = new uiListBox( this, txt.getFullString(), OD::ChooseOnlyOne );
     mkRest( txt, LeftMid );
 }
 
 
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
-		uiListBox::ChoiceMode cm, uiLabeledListBox::LblPos pos )
+		OD::ChoiceMode cm, uiLabeledListBox::LblPos pos )
     : uiGroup(p,"Labeled listbox")
 {
     lb_ = new uiListBox( this, txt.getFullString(), cm );
@@ -1296,7 +1296,7 @@ uiLabeledListBox::uiLabeledListBox( uiParent* p, const uiString& txt,
 
 
 uiLabeledListBox::uiLabeledListBox( uiParent* p, const BufferStringSet& s,
-    const uiString& txt, uiListBox::ChoiceMode cm, uiLabeledListBox::LblPos pos)
+    const uiString& txt, OD::ChoiceMode cm, uiLabeledListBox::LblPos pos)
     : uiGroup(p,"Labeled listbox")
 {
     lb_ = new uiListBox( this, s, txt.getFullString(), cm );

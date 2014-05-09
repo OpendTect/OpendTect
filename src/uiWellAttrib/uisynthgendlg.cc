@@ -42,7 +42,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     setCancelText( "&Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( syntlistgrp, "Synthetics", uiListBox::OnlyOne,
+	new uiLabeledListBox( syntlistgrp, "Synthetics", OD::ChooseOnlyOne,
 			      uiLabeledListBox::AboveMid );
     synthnmlb_ = llb->box();
     synthnmlb_->selectionChanged.notify(

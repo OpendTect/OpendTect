@@ -33,9 +33,9 @@ class ExplFaultStickTexturePositionExtracter : public ParallelTask
 {
 public:
 ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
-       					DataPointSet& dpset )
+					DataPointSet& dpset )
     : explsurf_( efss )
-    , dpset_( dpset )  
+    , dpset_( dpset )
     , sz_( efss.getTextureSize() )
 {
     const DataColDef texture_i( explsurf_.sKeyTextureI() );
@@ -45,7 +45,7 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
     j_column_ = dpset_.dataSet().findColDef(texture_j,PosVecDataSet::NameExact);
 }
 
-    
+
 od_int64 nrIterations() const	{ return explsurf_.getTextureSize().col(); }
 int minThreadSize() const { return 100; }
 
@@ -76,38 +76,38 @@ bool doWork( od_int64 start, od_int64 stop, int )
 		break;
 	    }
 	}
-	
+
 	if ( stickidx==-1 && panelidx==-1 )
 	    return false;
 
 	for( int knotpos=0; knotpos<explsurf_.getTextureSize().row(); knotpos++)
 	{
-    	    Coord3 pos = Coord3::udf();
-    	    bool found = false;
+	    Coord3 pos = Coord3::udf();
+	    bool found = false;
 
-    	    if ( stickidx!=-1 )
-    		found = processPixelOnStick( stickidx, knotpos, pos );
-    	    else if ( panelidx!=-1 )
-    		found = processPixelOnPanel( panelidx, stickpos, knotpos, pos );
+	    if ( stickidx!=-1 )
+		found = processPixelOnStick( stickidx, knotpos, pos );
+	    else if ( panelidx!=-1 )
+		found = processPixelOnPanel( panelidx, stickpos, knotpos, pos );
 
 	    if ( !found || !pos.isDefined() )
 		continue;
- 
+
 	    DataPointSet::Pos dpsetpos( pos );
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( dpset_.nrCols(), mUdf(float) );
-	    datarow.data_[i_column_-dpset_.nrFixedCols()] =  
+	    datarow.data_[i_column_-dpset_.nrFixedCols()] =
 					          mCast( float, knotpos );
-	    datarow.data_[j_column_-dpset_.nrFixedCols()] =  
+	    datarow.data_[j_column_-dpset_.nrFixedCols()] =
 						  mCast( float, stickpos );
-	    dpsetlock_.lock(); 
+	    dpsetlock_.lock();
 	    dpset_.addRow( datarow );
 	    dpsetlock_.unLock();
 	}
 
 	addToNrDone( 1 );
     }
-    
+
     return true;
 }
 
@@ -185,7 +185,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
     const int rpos = explsurf_.texturecolcoords_[panelidx+1];
     if ( stickpos<lpos || stickpos>rpos )
 	return false;
-    
+
     Geometry::PrimitiveSet* lgeomidxps =
 	explsurf_.sticks_[panelidx]->getCoordsPrimitiveSet();
 
@@ -194,11 +194,11 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 
 
     if ( !lgeomidxps->size() || !rgeomidxps->size() )
-	return false;    
+	return false;
 
     const TypeSet<int>& lknots = *explsurf_.textureknotcoords_[panelidx];
     const TypeSet<int>& rknots = *explsurf_.textureknotcoords_[panelidx+1];
-    if ( (knotpos<lknots[0] && knotpos<rknots[0]) || 
+    if ( (knotpos<lknots[0] && knotpos<rknots[0]) ||
 	 (knotpos>lknots[lknots.size()-1] && knotpos>rknots[rknots.size()-1]) )
 	return false;
 
@@ -218,7 +218,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	const int rp0 = rgeomidxps->indexOf(v0);
 	const int rp1 = rgeomidxps->indexOf(v1);
 	const int rp2 = rgeomidxps->indexOf(v2);
-    
+
 	Coord texture0, texture1, texture2;
 
 	if ( lp0!=-1 && lp1!=-1 && rp2!=-1 )
@@ -259,7 +259,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	}
 
 
-	bool intriangle = pointInTriangle2D( checkpos, texture0, texture1, 
+	bool intriangle = pointInTriangle2D( checkpos, texture0, texture1,
 					     texture2, 1e-5 );
 	if ( !intriangle )
 	{
@@ -301,8 +301,8 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 	    const Coord3 p1 = explsurf_.coordlist_->get( v1 );
 	    const Coord3 p2 = explsurf_.coordlist_->get( v2 );
 	    const Coord3 intsectptxy = p1+(p2-p1)*factor12;
-    	    pos = iszero ? p0 : p0+(intsectptxy- p0)/fchkpt0;
-	    
+	    pos = iszero ? p0 : p0+(intsectptxy- p0)/fchkpt0;
+
 	    return true;
 	}
     }
@@ -328,7 +328,7 @@ class ExplFaultStickSurfaceUpdater : public ParallelTask
 {
 public:
     ExplFaultStickSurfaceUpdater( ExplFaultStickSurface& efss,
-	    			  bool updatesticksnotpanels )
+				  bool updatesticksnotpanels )
     : explsurf_( efss )
     , updatesticksnotpanels_( updatesticksnotpanels )
 {}
@@ -467,9 +467,9 @@ void ExplFaultStickSurface::triangulateAlg( TriProjection ta )
     trialg_ = ta;
     if ( ta )
     {
-    	removeAll( true );
-    	insertAll();
-    	reTriangulateSurface();
+	removeAll( true );
+	insertAll();
+	reTriangulateSurface();
     }
     else
 	update( true, 0 );
@@ -507,11 +507,11 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 {
     if ( !surface_ || trialg_==ExplFaultStickSurface::None )
 	return false;
-    
+
     const int nrsticks = sticks_.size();
     for ( int idx=nrsticks-1; idx>=0; idx-- )
 	removePanel( idx );
-    
+
     const float zscale = SI().zScale();
     TypeSet<Coord> knots;
     for ( int idx=0; idx<nrsticks; idx++ )
@@ -521,12 +521,12 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 	{
 	    if ( !stick[idy].isDefined() )
 		continue;
-	
+
 	    const BinID bid = SI().transform( stick[idy] );
-	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
-		    		: bid.inl(), 
-			     trialg_==ExplFaultStickSurface::Zslice ? bid.crl() 
-			     	: stick[idy].z*zscale );
+	    const Coord pos( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
+				: bid.inl(),
+			     trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
+				: stick[idy].z*zscale );
 	    if ( !knots.isPresent(pos) )
 	    {
 		knots += pos;
@@ -549,10 +549,10 @@ bool ExplFaultStickSurface::reTriangulateSurface()
 	paneltriangles_ += triangle;
     else
 	paneltriangles_.replace( 0, triangle );
-    
+
     if ( displaypanels_ )
 	addToGeometries( triangle );
-    
+
     for ( int idx=0; idx<grid.size(); )
     {
 	TypeSet<int> crdindices;
@@ -587,7 +587,7 @@ void ExplFaultStickSurface::updateTextureCoords()
 	    const float rowcoord =
 		(texturecolcoords_[stickidx] + 0.5f)/texturesize_.col();
 
-	    const float knotpos = 
+	    const float knotpos =
 		((*textureknotcoords_[stickidx])[idx]+0.5f)/texturesize_.row();
 
 	    texturecoordlist_->set( ci, Coord3(knotpos,rowcoord,0) );
@@ -603,7 +603,7 @@ void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 	addToGeometries( new IndexedGeometry(IndexedGeometry::Lines,
 			 coordlist_,normallist_,0) );
     }
-    
+
     if ( displaysticks_!=ynsticks )
     {
 	for ( int idx=0; idx<sticks_.size(); idx++ )
@@ -688,9 +688,9 @@ int ExplFaultStickSurface::textureColSz( const int panelidx )
 	    { checkpt=v2; lp0=v0; lp1=v1; }
 	}
 
-    	const int sz = point2LineSampleSz( coordlist_->get(checkpt),
+	const int sz = point2LineSampleSz( coordlist_->get(checkpt),
 		coordlist_->get(lp0), coordlist_->get(lp1) );
-	
+
 	if ( res<sz )
 	    res = sz;
     }
@@ -699,7 +699,7 @@ int ExplFaultStickSurface::textureColSz( const int panelidx )
 }
 
 
-int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point, 
+int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
 	const Coord3& linept0, const Coord3& linept1 )
 {
     const BinID ptbid = SI().transform(point.coord());
@@ -728,7 +728,7 @@ int ExplFaultStickSurface::sampleSize( const Coord3& p0, const Coord3& p1 )
 {
     const BinID bid = SI().transform(p0.coord()) - SI().transform(p1.coord());
     const Coord3 sampl( (float)bid.inl()/texturesampling_.inl(),
-	    		(float)bid.crl()/texturesampling_.crl(),
+			(float)bid.crl()/texturesampling_.crl(),
 			(p0.z-p1.z)/texturesampling_.val() );
     const float nrsamples =  (float) sampl.abs();
     return mNINT32( nrsamples );
@@ -751,7 +751,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 	int sticktexturerowsz = 0;
 	TypeSet<int>& segmentsizes = *new TypeSet<int>;
 	sticksegments += &segmentsizes;
-	
+
 	if ( colrg.start==colrg.stop )
 	{
 	    sticktexturerowsz = 1;
@@ -759,16 +759,16 @@ bool ExplFaultStickSurface::updateTextureSize()
 	}
 	else
 	{
-	    for ( int knotnr=colrg.start; knotnr<=colrg.stop-colrg.step; 
+	    for ( int knotnr=colrg.start; knotnr<=colrg.stop-colrg.step;
 		  knotnr += colrg.step )
 	    {
 		const Coord3 pos0 = surface_->getKnot( RowCol(sticknr,knotnr) );
 		const Coord3 pos1 =
 		    surface_->getKnot( RowCol(sticknr,knotnr+colrg.step));
 
-		const BinIDValue bid0( 
+		const BinIDValue bid0(
 			SI().transform(pos0.coord()), (float)pos0.z );
-		const BinIDValue bid1( 
+		const BinIDValue bid1(
 			SI().transform(pos1.coord()), (float)pos1.z );
 		const int inlsamples =
 		    (bid0.inl()-bid1.inl())/texturesampling_.inl();
@@ -801,16 +801,16 @@ bool ExplFaultStickSurface::updateTextureSize()
 
     if ( !texturerowsz || !texturecolsz )
 	return false;
-   
+
     int po2rowsz = texturerowsz;
     int po2colsz = texturecolsz;
     if ( texturepot_ )
     {
 	const bool df = !mIsUdf(maximumtexturesize_);
 	po2rowsz = df ? getPow2Sz(texturerowsz,true,1,maximumtexturesize_) :
-	    		nextPower( texturerowsz, 2 );
+			nextPower( texturerowsz, 2 );
 	po2colsz = df ? getPow2Sz(texturecolsz,true,1,maximumtexturesize_) :
-	    		nextPower( texturecolsz, 2 );
+			nextPower( texturecolsz, 2 );
     }
 
     texturesize_ = RowCol( po2rowsz, po2colsz );
@@ -830,22 +830,22 @@ bool ExplFaultStickSurface::updateTextureSize()
     deepErase( textureknotcoords_ );
     for ( int idx=0; idx<sticksegments.size(); idx++ )
     {
-    	TypeSet<int>& segmentpositions = *new TypeSet<int>;
-    	textureknotcoords_ += &segmentpositions;
+	TypeSet<int>& segmentpositions = *new TypeSet<int>;
+	textureknotcoords_ += &segmentpositions;
 
 	if ( (*sticksegments[idx]).size()==1 && (*sticksegments[idx])[0]==1 )
 	{
 	    segmentpositions += po2rowsz/2;
-	    continue; 
+	    continue;
 	}
 
 	int sticklength = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size(); idy++ )
 	    sticklength += (*sticksegments[idx])[idy];
-	
-	const float st0 = (po2rowsz-sticklength*rowfactor)/2; 
+
+	const float st0 = (po2rowsz-sticklength*rowfactor)/2;
 	int startpos = mNINT32( st0 );
-	if ( startpos<0 ) 
+	if ( startpos<0 )
 	    startpos = 0;
 
 	segmentpositions += startpos;
@@ -861,7 +861,7 @@ bool ExplFaultStickSurface::updateTextureSize()
     }
 
     updateStickShifting();
-    updateTextureCoords(); 
+    updateTextureCoords();
     deepErase( sticksegments );
     return true;
 }
@@ -952,26 +952,26 @@ void ExplFaultStickSurface::updateStickShifting()
 	{
 	    prevavgdist[shiftstick-1] =
 		getAvgDistance( shiftstick-1, curshift, -shiftunit);
-	    avgdist[shiftstick-1] = 
+	    avgdist[shiftstick-1] =
 		getAvgDistance( shiftstick-1, curshift, 0 );
-	    nextavgdist[shiftstick-1] = 
+	    nextavgdist[shiftstick-1] =
 		getAvgDistance( shiftstick-1, curshift, shiftunit );
 	}
 
 	if ( shiftstick!=sticksz-1 )
 	{
-	    prevavgdist[shiftstick+1] = 
+	    prevavgdist[shiftstick+1] =
 		getAvgDistance( shiftstick+1, curshift, -shiftunit);
-	    avgdist[shiftstick+1] = 
+	    avgdist[shiftstick+1] =
 		getAvgDistance( shiftstick+1, curshift, 0 );
-	    nextavgdist[shiftstick+1] = 
+	    nextavgdist[shiftstick+1] =
 		getAvgDistance( shiftstick+1, curshift, shiftunit );
 	}
 
 	float newsum = 0;
 	for ( int idx=0; idx<sticksz; idx++ )
 	    newsum += avgdist[idx];
-    
+
 	if ( newsum>=totaldist )
 	{
 	    curshift[shiftstick] -= shift;
@@ -982,20 +982,20 @@ void ExplFaultStickSurface::updateStickShifting()
     }
 
     for ( int idx=0; idx<sticksz; idx++ )
-       shiftStick( idx, curshift[idx] );	
+       shiftStick( idx, curshift[idx] );
 }
 
 
 Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
 {
-    if ( stickidx<0 || stickidx>=sticks_.size() || 
+    if ( stickidx<0 || stickidx>=sticks_.size() ||
 	 texturerow<0 || texturerow>texturesize_.row() )
 	return Coord3::udf();
-    
+
     const int sticknr = surface_->rowRange().atIndex( stickidx );
     const StepInterval<int> colrg = surface_->colRange( sticknr );
     const TypeSet<int>& knotpos = *textureknotcoords_[stickidx];
-    
+
     if ( texturerow<=knotpos[0] )
 	return surface_->getKnot( RowCol(sticknr, colrg.start) );
     if ( texturerow>knotpos[knotpos.size()-1] )
@@ -1094,7 +1094,7 @@ void ExplFaultStickSurface::needUpdateTexture( bool yn )
 {
     if ( yn== needsupdatetexture_ )
 	return;
- 
+
     needsupdatetexture_ = yn;
     if ( needsupdatetexture_ )
     {
@@ -1138,10 +1138,10 @@ bool ExplFaultStickSurface::getTexturePositions( DataPointSet& dpset,
     {
 	if ( !updateTextureSize() )
 	    return false;
-	
-    	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
-    	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
-    	return TaskRunner::execute( tr, *extractor );
+
+	PtrMan<ExplFaultStickTexturePositionExtracter> extractor =
+	    new ExplFaultStickTexturePositionExtracter( *this, dpset );
+	return TaskRunner::execute( tr, *extractor );
     }
     else
     {
@@ -1155,7 +1155,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
     //Refine needed for pos calculation
 
     const float zscale = mCast( float, SI().zDomain().userFactor() );
-    
+
     TypeSet<Coord> knots;
     TypeSet<int> knotids;
     Interval<float> zrg;
@@ -1166,12 +1166,12 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	curid = coordlist_->nextID( curid );
 	if ( curid<0 )
 	    break;
-	
+
 	const Coord3& pos = coordlist_->get( curid );
 	const BinID bid = SI().transform( pos );
-	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
+	knots += Coord( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
 							       : bid.inl(),
-			trialg_==ExplFaultStickSurface::Zslice ? bid.crl()
+			trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
 							       : pos.z*zscale );
 	knotids += curid;
 	if ( !found )
@@ -1188,51 +1188,51 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    zrg.include( (float) pos.z );
 	}
     }
-    
+
     if ( !found )
 	return false;
-    
+
     DAGTriangleTree tt;
     tt.setCoordList( &knots, OD::UsePtr );
     DelaunayTriangulator triangulator( tt );
     triangulator.executeParallel( false );
-    
+
     const int inlsamples = inlrg.width()/texturesampling_.inl();
     const int crlsamples = crlrg.width()/texturesampling_.crl();
     const float zsamples = zrg.width()/texturesampling_.val();
-    texturesize_ = RowCol( trialg_==ExplFaultStickSurface::Inline ? crlsamples 
-	    						  : inlsamples,
-	    		   trialg_==ExplFaultStickSurface::Zslice ? crlsamples 
-			   				  : mNINT32(zsamples) );
+    texturesize_ = RowCol( trialg_==ExplFaultStickSurface::Inline ? crlsamples
+							  : inlsamples,
+			   trialg_==ExplFaultStickSurface::ZSlice ? crlsamples
+							  : mNINT32(zsamples) );
     const int nrfc = dps.nrFixedCols();
     const int nrcs = dps.nrCols();
     const DataColDef ti( sKeyTextureI() );
     const DataColDef tj( sKeyTextureJ() );
     const int ic = dps.dataSet().findColDef(ti,PosVecDataSet::NameExact)-nrfc;
     const int jc = dps.dataSet().findColDef(tj,PosVecDataSet::NameExact)-nrfc;
-    
+
     for ( int row=0; row<texturesize_.row(); row++ )
     {
-	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 : 
+	BinID bid( trialg_==ExplFaultStickSurface::Inline ? -1 :
 		texturesampling_.inl()*row+inlrg.start,
-		trialg_!=ExplFaultStickSurface::Inline ? -1 : 
+		trialg_!=ExplFaultStickSurface::Inline ? -1 :
 		texturesampling_.crl()*row+crlrg.start );
 	for ( int col=0; col<texturesize_.col(); col++ )
 	{
 	    float z = -1;
-	    if ( trialg_==ExplFaultStickSurface::Zslice )
+	    if ( trialg_==ExplFaultStickSurface::ZSlice )
 		bid.crl() = texturesampling_.crl()*col+crlrg.start;
 	    else
 		z = texturesampling_.val()*col+zrg.start;
-	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl() 
-		    						   : bid.inl(),
-			    trialg_==ExplFaultStickSurface::Zslice ? bid.crl()
-			    					   : z*zscale );
+	    const Coord pt( trialg_==ExplFaultStickSurface::Inline ? bid.crl()
+								   : bid.inl(),
+			    trialg_==ExplFaultStickSurface::ZSlice ? bid.crl()
+								   : z*zscale );
 	    int dupid = -1;
 	    TypeSet<int> vs;
 	    if ( !tt.getTriangle(pt,dupid,vs) )
 		continue;
-	    
+
 	    Coord3 pos;
 	    if ( dupid!=-1 )
 		pos = coordlist_->get( knotids[dupid] );
@@ -1240,7 +1240,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    {
 		if ( vs[0]<0 || vs[1]<0 || vs[2]<0 )
 		    continue;
-		
+
 		float w[3];
 		interpolateOnTriangle2D( pt, knots[vs[0]], knots[vs[1]],
 			knots[vs[2]], w[0], w[1], w[2] );
@@ -1248,7 +1248,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 		      w[1] * coordlist_->get(knotids[vs[1]]) +
 		      w[2] * coordlist_->get(knotids[vs[2]]);
 	    }
-	    
+
 	    DataPointSet::Pos dpsetpos( pos );
 	    DataPointSet::DataRow datarow( dpsetpos, 1 );
 	    datarow.data_.setSize( nrcs, mUdf(float) );
@@ -1257,7 +1257,7 @@ bool ExplFaultStickSurface::setProjTexturePositions( DataPointSet& dps )
 	    dps.addRow( datarow );
 	}
     }
-    
+
     dps.dataChanged();
     return true;
 }
@@ -1352,7 +1352,7 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 
 #define mSqDist( coordidx1, coordidx2 ) \
     coordlist_->get(coordidx1).scaleBy(scalefacs_).sqDistTo( \
-    coordlist_->get(coordidx2).scaleBy(scalefacs_) ) 
+    coordlist_->get(coordidx2).scaleBy(scalefacs_) )
 
 
 void ExplFaultStickSurface::emptyPanel( int panelidx )
@@ -1360,7 +1360,7 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
     if ( paneltriangles_.validIdx(panelidx) && paneltriangles_[panelidx] )
 	paneltriangles_[panelidx]->removeAll( false );
 
-    if ( panellines_.validIdx(panelidx) && panellines_[panelidx] )  
+    if ( panellines_.validIdx(panelidx) && panellines_[panelidx] )
 	panellines_[panelidx]->removeAll( false );
 
     needsupdate_ = true;
@@ -1400,7 +1400,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
     if ( lines && !lines->isEmpty() )
 	lines->removeAll( false );
-    
+
     Geometry::PrimitiveSet* lknotsps =
 				sticks_[panelidx]->getCoordsPrimitiveSet();
     Geometry::PrimitiveSet* rknotsps =
@@ -1440,17 +1440,17 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     {
 	if ( lsize==1 )
 	{
-    	    for ( int idx=1; idx<rsize; idx++ )
+	    for ( int idx=1; idx<rsize; idx++ )
 	    {
 		addTriangle( triangles, lknotsps->get(0),
 			     rknotsps->get(idx), rknotsps->get(idx-1) );
 	    }
 	}
-	else 
+	else
 	{
-    	    for ( int idx=1; idx<lsize; idx++ )
+	    for ( int idx=1; idx<lsize; idx++ )
 	    {
-    		addTriangle( triangles, lknotsps->get(idx),
+		addTriangle( triangles, lknotsps->get(idx),
 			     lknotsps->get(idx-1), rknotsps->get(0) );
 	    }
 	}

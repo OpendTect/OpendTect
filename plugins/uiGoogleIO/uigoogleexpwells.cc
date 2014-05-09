@@ -33,7 +33,7 @@ uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
                                  mODHelpKey(mGoogleExportWellsHelpID) ) )
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
-					uiListBox::AtLeastOne );
+					OD::ChooseAtLeastOne );
     selfld_ = llb->box();
     selfld_->chooseAll( true );
 

@@ -101,7 +101,7 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
 {
     const CallBack tscb( mCB(this,uiLatLongInp,typSel) );
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Dec/DMS sel grp",
-					     uiObject::Vertical );
+					     OD::Vertical );
     bgrp->setExclusive( true );
     isdecbut_ = new uiRadioButton( bgrp, "Decimal" );
     isdecbut_->setChecked( true );

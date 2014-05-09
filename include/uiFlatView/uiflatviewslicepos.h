@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 {
-public:		
+public:
 			uiSlicePos2DView(uiParent*);
 
     void		setCubeSampling(const CubeSampling&);
@@ -37,8 +37,9 @@ protected:
     void		sliceStepChg(CallBacker*);
 
     CubeSampling	limitscs_;
-    Orientation		curorientation_;
+    SliceDir		curorientation_;
+
 };
 
-#endif
 
+#endif

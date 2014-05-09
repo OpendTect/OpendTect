@@ -48,7 +48,7 @@ public:
 
     void			manageWells();
     void			launchRockPhysics();
-    bool			selectWells(ObjectSet<MultiID>&);
+    bool			selectWells(TypeSet<MultiID>&);
 
     bool			hasLogs(const MultiID&) const;
     void			getLogNames(const MultiID&,

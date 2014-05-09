@@ -108,11 +108,10 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
     if ( !usefld_->getBoolValue() )
 	return true;
 
-    selgrp_->processInput();
-    if ( selgrp_->nrSelected() < 1 )
-        mErrRet("Please select an Attribute Set")
+    if ( selgrp_->nrChosen() < 1 )
+        mErrRet("No Attribute Sets available")
 
-    ctio_.setObj( selgrp_->selected() );
+    ctio_.setObj( selgrp_->chosenID() );
     Attrib::DescSet attrset( is2d_ );
     BufferString bs;
     if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj,bs) )
@@ -152,7 +151,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
     selgrp_->attach( alignedBelow, autoloadfld_ );
 
     defattrlist_ = new uiLabeledListBox( this, attribnames_, "Default Sets",
-					 uiListBox::OnlyOne );
+					 OD::ChooseOnlyOne );
     defattrlist_->attach( alignedBelow, autoloadfld_ );
 
     lbl_ = new uiLabel( this, "Survey-defined sets" );
@@ -199,11 +198,10 @@ void uiAutoAttrSetOpen::setChg( CallBacker* )
 bool uiAutoAttrSetOpen::acceptOK( CallBacker* )
 {
     usrdef_ = defselfld_->getBoolValue();
-    selgrp_->processInput();
-    if ( usrdef_ && selgrp_->nrSelected() < 1 )
-	{ uiMSG().error("Please select an Attribute Set"); return false; }
-    if ( selgrp_->nrSelected() > 0 )
-	ctio_.setObj( selgrp_->selected(0) );
+    if ( usrdef_ && selgrp_->nrChosen() < 1 )
+	{ uiMSG().error("No Attribute Set available"); return false; }
+
+    ctio_.setObj( selgrp_->chosenID() );
     defselid_ = defattrlist_->box()->currentItem();
 
     isauto_ = autoloadfld_->getBoolValue();

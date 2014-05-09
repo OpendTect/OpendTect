@@ -141,19 +141,16 @@ void uiWellPartServer::importReadyCB( CallBacker* cb )
 }
 
 
-bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
+bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
     uiIOObjSelDlg dlg( parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
 
-    deepErase( wellids );
-    const int nrsel = dlg.nrSelected();
-    for ( int idx=0; idx<nrsel; idx++ )
-	wellids += new MultiID( dlg.selected(idx) );
-
-    return wellids.size();
+    wellids.setEmpty();
+    dlg.getChosen( wellids );
+    return !wellids.isEmpty();
 }
 
 
@@ -288,16 +285,13 @@ uiWellRockPhysLauncher( uiParent* p )
     , ctio_(mMkCtxtIOObj(Well))
 {
     selgrp_ = new uiIOObjSelGrp( this, *ctio_,
-			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
+			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 }
 
 bool acceptOK( CallBacker* )
 {
-    if ( !selgrp_->processInput() )
-	return false;
-
     TypeSet<MultiID> mids;
-    selgrp_->getSelected( mids );
+    selgrp_->getChosen( mids );
     if ( mids.isEmpty() )
 	return false;
 
@@ -322,8 +316,8 @@ void uiWellPartServer::launchRockPhysics()
 	dlg.go();
     else
     {
-	dlg.selgrp_->selectAll();
-	TypeSet<MultiID> mids; dlg.selgrp_->getSelected( mids );
+	dlg.selgrp_->chooseAll();
+	TypeSet<MultiID> mids; dlg.selgrp_->getChosen( mids );
 	uiWellLogCalc lcdlg( parent(), mids, true );
 	lcdlg.go();
     }

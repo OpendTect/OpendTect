@@ -289,11 +289,7 @@ void uiControlView::loadHorizons( CallBacker* )
 	selhordlg_ = new uiIOObjSelDlg( this, *ctxt, "Select horizon", true );
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
-    {
-	const int nrsel = selhordlg_->nrSelected();
-	for ( int idx=0; idx<nrsel; idx++ )
-	    horselids += selhordlg_->selected( idx );
-    }
+	selhordlg_->getChosen( horselids );
     delete ctxt->ioobj;
     BufferString errmsg; uiTaskRunner tr( this );
     server_.horizonMgr().setUpHorizons( horselids, errmsg, tr );

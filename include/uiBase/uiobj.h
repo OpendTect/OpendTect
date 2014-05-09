@@ -58,8 +58,6 @@ public:
     enum		SzPolicy{ Undef, Small, Medium, Wide,
 				  SmallVar, MedVar, WideVar,
 				  SmallMax, MedMax, WideMax };
-    enum Orientation	{ Horizontal, Vertical };
-
 
     void		setHSzPol(SzPolicy);
     void		setVSzPol(SzPolicy);

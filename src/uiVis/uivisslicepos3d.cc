@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSlicePos3DDisp::uiSlicePos3DDisp( uiParent* p, uiVisPartServer* server )
     : uiSlicePos( p )
     , curpdd_(0)
-    , curvol_(0) 
+    , curvol_(0)
     , vispartserv_(server)
 {
     const bool isobj = curpdd_ || curvol_;
@@ -43,7 +43,7 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 {
     CallBack movecb( mCB(this,uiSlicePos3DDisp,updatePos) );
     CallBack manipcb( mCB(this,uiSlicePos3DDisp,updatePos) );
-    visSurvey::SurveyObject* prevso = curpdd_ ? 
+    visSurvey::SurveyObject* prevso = curpdd_ ?
 	(visSurvey::SurveyObject*)curpdd_ : (visSurvey::SurveyObject*)curvol_;
     if ( prevso )
     {
@@ -66,7 +66,7 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 
     if ( !isvalidso ) return;
 
-    curpdd_ = pdd; 
+    curpdd_ = pdd;
     curvol_ = vol;
 
     if ( curpdd_ ) curpdd_->ref();
@@ -75,7 +75,7 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
     so->getManipulationNotifier()->notify( manipcb );
 
     zfactor_ = so->getScene() ? so->getScene()->zDomainUserFactor() : 1;
-    setBoxLabel( getOrientation() ); 
+    setBoxLabel( getOrientation() );
     setBoxRanges();
     setPosBoxValue();
     setStepBoxValue();
@@ -84,7 +84,7 @@ void uiSlicePos3DDisp::setDisplay( int dispid )
 
 int uiSlicePos3DDisp::getDisplayID() const
 {
-    return curpdd_ ? curpdd_->id() : curvol_ ? curvol_->id() : -1; 
+    return curpdd_ ? curpdd_->id() : curvol_ ? curvol_->id() : -1;
 }
 
 
@@ -93,8 +93,8 @@ void uiSlicePos3DDisp::setBoxRanges()
     if ( !curpdd_ && !curvol_ ) return;
 
     const CubeSampling& survey = curpdd_ && curpdd_->getScene() ?
-				    curpdd_->getScene()->getCubeSampling() 
-				  : curvol_ ? curvol_->getCubeSampling( 0 ) 
+				    curpdd_->getScene()->getCubeSampling()
+				  : curvol_ ? curvol_->getCubeSampling( 0 )
 				  : SI().sampling( true );
     laststeps_[2] = (int)survey.zrg.step;
     setBoxRg( getOrientation(), survey );
@@ -113,7 +113,7 @@ void uiSlicePos3DDisp::setStepBoxValue()
 {
     if ( !curpdd_ && !curvol_ ) return;
 
-    const uiSlicePos::Orientation orientation = getOrientation();
+    const uiSlicePos::SliceDir orientation = getOrientation();
     slicestepbox_->setValue( laststeps_[(int)orientation] );
     sliceStepChg( 0 );
 }
@@ -135,26 +135,26 @@ void uiSlicePos3DDisp::sliceStepChg( CallBacker* )
 }
 
 
-uiSlicePos::Orientation uiSlicePos3DDisp::getOrientation() const 
+OD::SliceType uiSlicePos3DDisp::getOrientation() const
 {
     if ( curpdd_ )
-	return (uiSlicePos::Orientation) curpdd_->getOrientation();
+	return (uiSlicePos::SliceDir) curpdd_->getOrientation();
     else if ( curvol_ && curvol_->getSelectedSlice() )
     {
 	const int dim = curvol_->getSelectedSlice()->getDim();
 	if ( dim == Volume::cInLine() )
-	    return uiSlicePos::Inline;
+	    return OD::InlineSlice;
 	else if ( dim == Volume::cCrossLine() )
-	    return uiSlicePos::Crossline;
+	    return OD::CrosslineSlice;
 	else if ( dim == Volume::cTimeSlice() )
-	    return uiSlicePos::Zslice;
+	    return OD::ZSlice;
     }
-    return uiSlicePos::Inline;
+    return OD::InlineSlice;
 }
 
 
 CubeSampling uiSlicePos3DDisp::getSampling() const
 {
-    return curpdd_ ? curpdd_->getCubeSampling( true, true ) 
+    return curpdd_ ? curpdd_->getCubeSampling( true, true )
 		   : curvol_->sliceSampling( curvol_->getSelectedSlice() );
 }

@@ -873,7 +873,7 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 
-	if ( plane->getOrientation()==PlaneDataDisplay::Zslice )
+	if ( plane->getOrientation()==OD::ZSlice )
 	{
 	    b01 = BinID( cs.hrg.start.inl(), cs.hrg.stop.crl() );
 	    b10 = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );

@@ -45,7 +45,7 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Wells")
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
-						  uiListBox::AtLeastOne );
+						  OD::ChooseAtLeastOne );
     welllistfld_ = llb->box();
     Well::InfoCollector wic( false, false );
     wic.execute();

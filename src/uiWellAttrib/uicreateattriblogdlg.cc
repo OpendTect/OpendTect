@@ -79,7 +79,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 
     if ( !singlewell )
     {
-	welllistfld_ = new uiListBox( this, "Wells", uiListBox::AtLeastOne );
+	welllistfld_ = new uiListBox( this, "Wells", OD::ChooseAtLeastOne );
 	welllistfld_->attach( ensureBelow, sep1 );
 	welllistfld_->attach( alignedBelow, attribfld_ );
 	welllistfld_->addItems( wellnames );

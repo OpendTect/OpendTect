@@ -32,9 +32,9 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     TypeSet<uiString> nms;
 
     const BufferStringSet& filtnms( setup_.is2d_
-	    		? Pos::Filter2D::factory().getNames()
+			? Pos::Filter2D::factory().getNames()
 			: Pos::Filter3D::factory().getNames() );
-    
+
     const TypeSet<uiString>& usrfiltnms( setup_.is2d_
 				   ? Pos::Filter2D::factory().getUserNames()
 				   : Pos::Filter3D::factory().getUserNames() );
@@ -42,7 +42,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     {
 	const BufferString& nm( filtnms.get(idx) );
 	uiPosFiltGroup* grp = uiPosFiltGroup::factory()
-	    			.create(nm,this,setup_,true);
+				.create(nm,this,setup_,true);
 	if ( grp )
 	{
 	    nms.add( usrfiltnms[idx] );
@@ -57,7 +57,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	const BufferStringSet& provnms( setup_.is2d_
 			    ? Pos::Provider2D::factory().getNames()
 			    : Pos::Provider3D::factory().getNames() );
-	
+
 	const TypeSet<uiString>& usrprovnms( setup_.is2d_
 			       ? Pos::Provider2D::factory().getUserNames()
 			       : Pos::Provider3D::factory().getUserNames() );
@@ -97,7 +97,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     else
     {
 	selfld_ = new uiListBox( this, "Filter selection",
-				uiListBox::ZeroOrMore );
+				OD::ChooseZeroOrMore );
 	selfld_->addItems( nms );
 	selfld_->selectionChanged.notify( selcb );
 	int ph = nms.size()-1; if ( ph > 9 ) ph = 9;
@@ -172,7 +172,7 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
     int ipar = 0;
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
-	if ( (ynfld_ && !ynfld_->getBoolValue()) || 
+	if ( (ynfld_ && !ynfld_->getBoolValue()) ||
 	     (selfld_ && !selfld_->isChosen(igrp) ) )
 	    continue;
 

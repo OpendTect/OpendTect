@@ -177,14 +177,16 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
     if ( !dlg->go() )
 	return;
 
-    const int nrsel = dlg->nrSelected();
+    const int nrsel = dlg->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	if ( surfacelist_.isPresent(dlg->selected(idx)) )
-	    continue;
-
-	PtrMan<IOObj> ioobj = IOM().get( dlg->selected(idx) );
-	addSurfaceTableEntry( *ioobj, false, 0 );
+	const MultiID mid( dlg->chosenID(idx) );
+	if ( !surfacelist_.isPresent(mid) )
+	{
+	    IOObj* ioobj = IOM().get( mid );
+	    addSurfaceTableEntry( *ioobj, false, 0 );
+	    delete ioobj;
+	}
     }
 }
 

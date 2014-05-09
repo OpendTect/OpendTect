@@ -166,8 +166,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     inpsampfld_->attach( alignedBelow, uigi );
     inpsampfld_->setWithCheck( true );
 
-    uiSeparator* sep = new uiSeparator( this, "hor sep",
-	    				uiObject::Horizontal, false );
+    uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, inpsampfld_ );
 
     wellfld_ = new uiIOObjSel( this, mIOObjContext(Well), "Add to Well" );

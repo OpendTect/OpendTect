@@ -125,7 +125,7 @@ uiGroup* uiHorizonSetupGroup::createModeGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Mode" );
 
-    modeselgrp_ = new uiButtonGroup( grp, "ModeSel", uiObject::Vertical );
+    modeselgrp_ = new uiButtonGroup( grp, "ModeSel", OD::Vertical );
     modeselgrp_->setExclusive( true );
     grp->setHAlignObj( modeselgrp_ );
 
@@ -400,7 +400,7 @@ class uiStepDialog : public uiDialog
 public:
 
 uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking","", 
+    : uiDialog(p,Setup("Stepwise tracking","",
                        mODHelpKey(mTrackingWizardHelpID) ))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")
@@ -516,9 +516,9 @@ void uiHorizonSetupGroup::initSimiGroup()
     usesimifld_->setValue( !horadj_->trackByValue() );
 
     const Interval<int> simiintv(
-	    mCast(int,horadj_->similarityWindow().start * 
+	    mCast(int,horadj_->similarityWindow().start *
 		      SI().zDomain().userFactor()),
-	    mCast(int,horadj_->similarityWindow().stop * 
+	    mCast(int,horadj_->similarityWindow().stop *
 		      SI().zDomain().userFactor()) );
 
     compwinfld_->setValue( simiintv );

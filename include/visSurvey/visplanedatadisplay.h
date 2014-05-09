@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "enums.h"
 #include "factory.h"
+#include "oduicommon.h"
 
 template <class T> class Array2D;
 namespace visBase
@@ -48,11 +49,15 @@ class Scene;
 */
 
 mExpClass(visSurvey) PlaneDataDisplay :
-    				public visSurvey::MultiTextureSurveyObject
+				public visSurvey::MultiTextureSurveyObject
 {
 public:
+
+    typedef OD::SliceType	SliceType;
+				DeclareEnumUtils(SliceType);
+
 				PlaneDataDisplay();
-			
+
 				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,
 				    PlaneDataDisplay, "PlaneDataDisplay",
@@ -60,11 +65,8 @@ public:
 
     bool			isInlCrl() const { return true; }
 
-    enum Orientation		{ Inline=0, Crossline=1, Zslice=2 };
-    				DeclareEnumUtils(Orientation);
-
-    void			setOrientation(Orientation);
-    Orientation			getOrientation() const { return orientation_; }
+    void			setOrientation(SliceType);
+    SliceType			getOrientation() const { return orientation_; }
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -75,7 +77,7 @@ public:
     BufferString		getManipulationString() const;
     NotifierAccess*		getManipulationNotifier();
     NotifierAccess*		getMovementNotifier()
-    				{ return &movefinished_; }
+				{ return &movefinished_; }
 
     bool			allowMaterialEdit() const	{ return true; }
 
@@ -86,34 +88,34 @@ public:
 
     CubeSampling		getCubeSampling(int attrib=-1) const;
     CubeSampling		getCubeSampling(bool manippos,
-	    					bool displayspace,
+						bool displayspace,
 						int attrib=-1) const;
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData(int attrib,
-	    					 const DataPointSet*,
+						 const DataPointSet*,
 						 TaskRunner*);
     void			setCubeSampling(const CubeSampling&);
 
     bool			setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*);
+					      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
-    				{ return DataPackMgr::FlatID(); }
+				{ return DataPackMgr::FlatID(); }
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
-   
+
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return MultiTextureSurveyObject
-				    		::getMousePosInfo(ei,iop);}
+						::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					Coord3&,
-	    					BufferString& val,
-	    					BufferString& info) const;
+						Coord3&,
+						BufferString& val,
+						BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
 
     virtual float		calcDist(const Coord3&) const;
@@ -125,22 +127,22 @@ public:
     const ZAxisTransform*	getZAxisTransform() const;
 
     void			setTranslationDragKeys(bool depth, int );
-    				/*!<\param depth specifies wheter the depth or
+				/*!<\param depth specifies wheter the depth or
 						 the plane setting should be
 						 changed.
 				    \param keys   combination of OD::ButtonState
 				    \note only shift/ctrl/alt are used. */
 
     int				getTranslationDragKeys(bool depth) const;
-    				/*!<\param depth specifies wheter the depth or
+				/*!<\param depth specifies wheter the depth or
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
-    bool                	isVerticalPlane() const;
+    bool	isVerticalPlane() const;
 
     virtual bool		canDuplicate() const	{ return true; }
     virtual SurveyObject*	duplicate(TaskRunner*) const;
-   
+
     float			getDisplayMinDataStep(bool x0) const;
 
     virtual void		annotateNextUpdateStage(bool yn);
@@ -159,14 +161,14 @@ protected:
 
     BaseMapObject*		createBaseMapObject();
     void			setVolumeDataPackNoCache(int attrib,
-	    				const Attrib::Flat3DDataPack*);
+					const Attrib::Flat3DDataPack*);
     void			setRandomPosDataNoCache(int attrib,
-	    						const BinIDValueSet*,
+							const BinIDValueSet*,
 							TaskRunner*);
     void			interpolArray(int,float*, int, int,
 				    const Array2D<float>&,TaskRunner*) const;
     void			setDisplayDataPackIDs(int attrib,
-	    				const TypeSet<DataPack::ID>& dpids);
+					const TypeSet<DataPack::ID>& dpids);
     void			updateFromDisplayIDs(int attrib,TaskRunner*);
 
     void			updateMainSwitch();
@@ -174,7 +176,7 @@ protected:
     void			setSceneEventCatcher(visBase::EventCatcher*);
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
-	    				     bool resetz=false);
+					     bool resetz=false);
     void			manipChanged(CallBacker*);
     void			coltabChanged(CallBacker*);
     void			draggerMotion(CallBacker*);
@@ -183,7 +185,7 @@ protected:
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
     void			updateMouseCursorCB(CallBacker*);
-    
+
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
     void			addCache();
@@ -202,8 +204,8 @@ protected:
     RefMan<visBase::DepthTabPlaneDragger> dragger_;
 
     visBase::GridLines*			gridlines_;
-    Orientation				orientation_;
-    
+    SliceType				orientation_;
+
     ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
     ObjectSet<const Attrib::Flat3DDataPack> volumecache_;
@@ -225,7 +227,7 @@ protected:
     {
 	bool		refreeze_;
 	CubeSampling	oldcs_;
-	Orientation	oldorientation_;
+	SliceType	oldorientation_;
 	Coord		oldimagesize_;
     };
     UpdateStageInfo			updatestageinfo_;

@@ -156,8 +156,7 @@ void uiEditSampledProbDenFunc::mkTable( uiGroup* grp )
 	tbl_->setRowLabel( irow, toString(rowval) );
     }
 
-    uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons",
-					     uiObject::Vertical );
+    uiButtonGroup* bgrp = new uiButtonGroup( grp, "Buttons", OD::Vertical );
     new uiToolButton( bgrp, nrdims_ == 1 ? "distmap" : "viewprdf",
 	    "View function", mCB(this,uiEditSampledProbDenFunc,viewPDF) );
     if ( editable_ )
@@ -262,7 +261,7 @@ bool uiEditSampledProbDenFunc::getValsFromScreen( bool* chgd )
 class uiEditSampledProbDenFunc2DDataPack : public FlatDataPack
 {
 public:
-uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d, 
+uiEditSampledProbDenFunc2DDataPack( Array2D<float>* a2d,
       const ProbDenFunc& pdf )
     : FlatDataPack("Probability Density Function",a2d)
     , pdf_(pdf)

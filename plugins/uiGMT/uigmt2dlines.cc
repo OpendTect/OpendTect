@@ -53,7 +53,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     namefld_->attach( alignedBelow, inpfld_ );
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines",
-						  uiListBox::AtLeastOne );
+						  OD::ChooseAtLeastOne );
     linelistfld_ = llb->box();
     llb->attach( alignedBelow, namefld_ );
 

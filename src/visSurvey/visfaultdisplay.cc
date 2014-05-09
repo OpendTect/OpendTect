@@ -1385,7 +1385,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 
-	if ( plane->getOrientation()==PlaneDataDisplay::Zslice )
+	if ( plane->getOrientation()==OD::ZSlice )
 	{
 	    b01 = BinID( cs.hrg.start.inl(), cs.hrg.stop.crl() );
 	    b10 = BinID( cs.hrg.stop.inl(), cs.hrg.start.crl() );
@@ -1874,18 +1874,18 @@ void FaultDisplay::matChangeCB(CallBacker*)
 void FaultDisplay::setPixelDensity( float dpi )
 {
     MultiTextureSurveyObject::setPixelDensity( dpi );
-    
+
     if ( paneldisplay_ )
 	paneldisplay_->setPixelDensity( dpi );
     if ( stickdisplay_ )
 	stickdisplay_->setPixelDensity( dpi );
-    
+
     if ( intersectiondisplay_ )
 	intersectiondisplay_->setPixelDensity( dpi );
 
     if ( activestickmarker_ )
 	activestickmarker_->setPixelDensity( dpi );
-    
+
     for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
 	knotmarkersets_[idx]->setPixelDensity( dpi );
 }

@@ -86,7 +86,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     uiButtonGroup* bgrp = 0;
     if ( wantio || form_.inputsAreSeries() )
-	bgrp = new uiButtonGroup( this, "tool buts", uiObject::Horizontal );
+	bgrp = new uiButtonGroup( this, "tool buts", OD::Horizontal );
 
     if ( form_.inputsAreSeries() )
 	recbut_ = new uiToolButton( bgrp, "recursion",

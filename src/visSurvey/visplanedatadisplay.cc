@@ -71,7 +71,7 @@ PlaneDataDisplayBaseMapObject::PlaneDataDisplayBaseMapObject(
 
 
 const char* PlaneDataDisplayBaseMapObject::getType() const
-{ return PlaneDataDisplay::getOrientationString(pdd_->getOrientation()); }
+{ return PlaneDataDisplay::getSliceTypeString(pdd_->getOrientation()); }
 
 
 void PlaneDataDisplayBaseMapObject::updateGeometry()
@@ -92,7 +92,7 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
     const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
     const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
-    if ( pdd_->getOrientation()==PlaneDataDisplay::Zslice )
+    if ( pdd_->getOrientation()==OD::ZSlice )
     {
 	res += survgeom.transform(hrg.start);
 	res += survgeom.transform(BinID(hrg.start.inl(), hrg.stop.crl()) );
@@ -109,13 +109,14 @@ void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 
 bool PlaneDataDisplayBaseMapObject::close(int) const
 {
-    return pdd_->getOrientation()==PlaneDataDisplay::Zslice;
+    return pdd_->getOrientation()==OD::ZSlice;
 }
 
 
 
-DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
+DefineEnumNames(PlaneDataDisplay,SliceType,1,"Orientation")
 { "Inline", "Crossline", "Z-slice", 0 };
+
 
 PlaneDataDisplay::PlaneDataDisplay()
     : MultiTextureSurveyObject()
@@ -126,7 +127,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , voiid_(-1)
     , moving_(this)
     , movefinished_(this)
-    , orientation_( Inline )
+    , orientation_( OD::InlineSlice )
     , csfromsession_( false )
     , eventcatcher_( 0 )
     , minx0step_( -1 )
@@ -147,7 +148,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
-	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
+			mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     dragger_->setDim( (int) 0 );
 
@@ -180,7 +181,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
     dragger_->motion.remove( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.remove( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->remove(
-	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
+			mCB(this,PlaneDataDisplay,draggerRightClick) );
 
     deepErase( rposcache_ );
     setZAxisTransform( 0,0 );
@@ -204,7 +205,7 @@ PlaneDataDisplay::~PlaneDataDisplay()
 }
 
 
-void PlaneDataDisplay::setOrientation( Orientation nt )
+void PlaneDataDisplay::setOrientation( SliceType nt )
 {
     if ( orientation_==nt )
 	return;
@@ -246,7 +247,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     if ( resetic || resetz || newpos.isEmpty() )
     {
 	newpos = survey;
-	if ( orientation_==Zslice && datatransform_ && resetz )
+	if ( orientation_==OD::ZSlice && datatransform_ && resetz )
 	{
 	    const float center = survey.zrg.snappedCenter();
 	    if ( !mIsUdf(center) )
@@ -273,19 +274,19 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
     res.hrg.snapToSurvey();
     if ( scene_ )
     {
-    	const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
-    	res.zrg.limitTo( scenezrg );
-    	res.zrg.start = scenezrg.snap( res.zrg.start );
-    	res.zrg.stop = scenezrg.snap( res.zrg.stop );
+	const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
+	res.zrg.limitTo( scenezrg );
+	res.zrg.start = scenezrg.snap( res.zrg.start );
+	res.zrg.stop = scenezrg.snap( res.zrg.stop );
 
-	if ( orientation_!=Inline && orientation_!=Crossline )
+	if ( orientation_!=OD::InlineSlice && orientation_!=OD::CrosslineSlice )
 	    res.zrg.start = res.zrg.stop = scenezrg.snap(zrg.center());
     }
 
-    if ( orientation_==Inline )
+    if ( orientation_==OD::InlineSlice )
 	res.hrg.start.inl() = res.hrg.stop.inl() =
 	    s3dgeom_->inlRange().snap( inlrg.center() );
-    else if ( orientation_==Crossline )
+    else if ( orientation_==OD::CrosslineSlice )
 	res.hrg.start.crl() = res.hrg.stop.crl() =
 	    s3dgeom_->crlRange().snap( crlrg.center() );
 
@@ -295,10 +296,10 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
 
 Coord3 PlaneDataDisplay::getNormal( const Coord3& pos ) const
 {
-    if ( orientation_==Zslice )
+    if ( orientation_==OD::ZSlice )
 	return Coord3(0,0,1);
 
-    return Coord3( orientation_==Inline
+    return Coord3( orientation_==OD::InlineSlice
 		  ? s3dgeom_->binID2Coord().rowDir()
 		  : s3dgeom_->binID2Coord().colDir(), 0 );
 }
@@ -327,7 +328,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     : mMIN( abs(binid.crl()-cs.hrg.start.crl()),
 		     abs( binid.crl()-cs.hrg.stop.crl()) );
     const float zfactor = scene_
-    	? scene_->getZScale()
+	? scene_->getZScale()
         : s3dgeom_->zScale();
     zdiff = cs.zrg.includes(xytpos.z,false)
 	? 0
@@ -349,7 +350,7 @@ float PlaneDataDisplay::maxDist() const
     const float zfactor = scene_ ? scene_->getZScale():s3dgeom_->zScale();
     float maxzdist = zfactor * scene_->getFixedZStretch()
 		     * s3dgeom_->zStep() / 2;
-    return orientation_==Zslice ? maxzdist : SurveyObject::sDefMaxDist();
+    return orientation_==OD::ZSlice ? maxzdist : SurveyObject::sDefMaxDist();
 }
 
 
@@ -424,12 +425,13 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
     const CubeSampling oldcs = getCubeSampling(false,true);
 
     bool showplane = false;
-    if ( orientation_==Inline && dragcs.hrg.start.inl()!=oldcs.hrg.start.inl() )
+    if ( orientation_==OD::InlineSlice
+	    && dragcs.hrg.start.inl()!=oldcs.hrg.start.inl() )
 	showplane = true;
-    else if ( orientation_==Crossline &&
+    else if ( orientation_==OD::CrosslineSlice &&
 	      dragcs.hrg.start.crl()!=oldcs.hrg.start.crl() )
 	showplane = true;
-    else if ( orientation_==Zslice && dragcs.zrg.start!=oldcs.zrg.start )
+    else if ( orientation_==OD::ZSlice && dragcs.zrg.start!=oldcs.zrg.start )
 	showplane = true;
 
     dragger_->showPlane( showplane );
@@ -557,9 +559,8 @@ SurveyObject::AttribFormat
     if ( alreadyTransformed(attrib) )
 	return SurveyObject::Cube;
 
-    return datatransform_ && orientation_==Zslice
-	? SurveyObject::RandomPos
-	: SurveyObject::Cube;
+    return datatransform_ && orientation_==OD::ZSlice
+	? SurveyObject::RandomPos : SurveyObject::Cube;
 }
 
 
@@ -609,7 +610,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
     if ( displaycache_[attrib] )
     {
 	TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
-    	for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	for ( int idx=dpids.size()-1; idx>=0; idx-- )
 	    DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
 	dpids.erase();
@@ -699,7 +700,7 @@ void PlaneDataDisplay::setCubeSampling( const CubeSampling& wantedcs )
 
 CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 						bool displayspace,
-       						int attrib ) const
+						int attrib ) const
 {
     CubeSampling res(false);
     Coord3 c0, c1;
@@ -824,7 +825,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     {
 	minx0step_ = (float) f3ddp->posData().range(true).step;
 
-	if ( alreadytransformed || getOrientation()==Zslice )
+	if ( alreadytransformed || getOrientation()==OD::ZSlice )
 	    minx1step_ = (float) f3ddp->posData().range(false).step;
 	else if ( scene_ )
 	    minx1step_ = scene_->getCubeSampling().zrg.step;
@@ -850,7 +851,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    CubeSampling outputcs = getCubeSampling( true, true );
 	    outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
 	    if ( scene_ )
- 		outputcs.zrg.step = scene_->getCubeSampling().zrg.step;
+		outputcs.zrg.step = scene_->getCubeSampling().zrg.step;
 
 	    ztransformdp->setOutputCS( outputcs );
 	    if ( !ztransformdp->transform() )
@@ -1085,12 +1086,12 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
 {
-    if ( orientation_==Inline )
+    if ( orientation_==OD::InlineSlice )
     {
 	info = "In-line: ";
 	info += getCubeSampling(true,true).hrg.start.inl();
     }
-    else if ( orientation_==Crossline )
+    else if ( orientation_==OD::CrosslineSlice )
     {
 	info = "Cross-line: ";
 	info += getCubeSampling(true,true).hrg.start.crl();
@@ -1139,7 +1140,7 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 
 bool PlaneDataDisplay::isVerticalPlane() const
 {
-    return orientation_ != PlaneDataDisplay::Zslice;
+    return orientation_ != OD::ZSlice;
 }
 
 
@@ -1231,7 +1232,7 @@ void PlaneDataDisplay::fillPar( IOPar& par ) const
 {
     MultiTextureSurveyObject::fillPar( par );
 
-    par.set( sKeyOrientation(), getOrientationString( orientation_) );
+    par.set( sKeyOrientation(), getSliceTypeString( orientation_) );
     getCubeSampling( false, true ).fillPar( par );
 }
 
@@ -1241,10 +1242,10 @@ bool PlaneDataDisplay::usePar( const IOPar& par )
     if ( !MultiTextureSurveyObject::usePar( par ) )
 	return false;
 
-    Orientation orientation = Inline;
+    SliceType orientation = OD::InlineSlice;
     FixedString orstr = par.find( sKeyOrientation() );
-    if ( !parseEnumOrientation(orstr,orientation) && orstr == "Timeslice" )
-	orientation = Zslice;		// Backward compatibilty with 4.0
+    if ( !parseEnumSliceType(orstr,orientation) && orstr == "Timeslice" )
+	orientation = OD::ZSlice;	// Backward compatibilty with 4.0
 
     setOrientation( orientation );
     CubeSampling cs;
@@ -1306,7 +1307,7 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     Coord growth( newcs.nrZ()-oldcs.nrZ(), newcs.nrInl()-oldcs.nrInl() );
     updatestageinfo_.refreeze_ = newcs.hrg.start.crl()==oldcs.hrg.start.crl();
 
-    if ( orientation_ == Inline )
+    if ( orientation_ == OD::InlineSlice )
     {
 	samplingratio.y = updatestageinfo_.oldimagesize_.y / oldcs.nrCrl();
 	startdif.y = newcs.hrg.start.crl() - oldcs.hrg.start.crl();
@@ -1315,7 +1316,7 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
 	    newcs.hrg.start.inl()==oldcs.hrg.start.inl();
     }
 
-    if ( orientation_ == Zslice )
+    if ( orientation_ == OD::ZSlice )
     {
 	samplingratio.x = updatestageinfo_.oldimagesize_.x / oldcs.nrCrl();
 	startdif.x = newcs.hrg.start.crl() - oldcs.hrg.start.crl();

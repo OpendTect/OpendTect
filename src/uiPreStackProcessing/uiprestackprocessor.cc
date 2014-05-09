@@ -40,7 +40,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     uiLabel* label = new uiLabel( this, lbltxt );
 
     factorylist_ = new uiListBox( this, Processor::factory().getUserNames(),
-				  lbltxt, uiListBox::OnlyOne );
+				  lbltxt, OD::ChooseOnlyOne );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );

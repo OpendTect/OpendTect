@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		May 2006
+ Author:	K. Tingdahl
+ Date:		May 2006
 ___________________________________________________________________
 
 -*/
@@ -104,15 +104,13 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     if ( mnuid == cAddIdx )
     {
-	ObjectSet<MultiID> emwellids;
+	TypeSet<MultiID> emwellids;
 	applMgr()->selectWells( emwellids );
 	if ( emwellids.isEmpty() )
 	    return false;
 
 	for ( int idx=0; idx<emwellids.size(); idx++ )
-	    addChild(new uiODWellTreeItem(*emwellids[idx]), false );
-
-	deepErase( emwellids );
+	    addChild(new uiODWellTreeItem(emwellids[idx]), false );
     }
 
     else if ( mnuid == cTieIdx )
@@ -299,9 +297,9 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &displaymnuitem_, &logviewermnuitem_, true, false );
     mAddMenuItem( &displaymnuitem_, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,
-	    					wd->wellTopNameShown() );
+						wd->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,
-	    					wd->wellBotNameShown() );
+						wd->wellBotNameShown() );
     mAddMenuItem( &showmnuitem_, &markermnuitem_, wd->canShowMarkers(),
 		 wd->markersShown() );
     mAddMenuItem( &showmnuitem_, &markernamemnuitem_, wd->canShowMarkers(),
@@ -312,7 +310,7 @@ void uiODWellTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     deepErase( logmnuitems_ );
     mAddMenuItem( &displaymnuitem_, &amplspectrummnuitem_, true, false );
-    BufferStringSet lognms; 
+    BufferStringSet lognms;
     applMgr()->wellServer()->getLogNames( wd->getMultiID(), lognms );
     for ( int logidx=0; logidx<lognms.size(); logidx++ )
     {
@@ -360,10 +358,10 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
-    else if ( amplspectrummnuitem_.findItem(mnuid) ) 
+    else if ( amplspectrummnuitem_.findItem(mnuid) )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellServer()->showAmplSpectrum( wellid, 
+	ODMainWin()->applMgr().wellServer()->showAmplSpectrum( wellid,
 		amplspectrummnuitem_.findItem(mnuid)->text.getFullString() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
@@ -395,7 +393,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == showlogmnuitem_.id )
     {
-       	menu->setIsHandled( true );
+	menu->setIsHandled( true );
 	wd->showLogs( !wd->logsShown() );
     }
     else if ( mnuid == storemnuitem_.id )

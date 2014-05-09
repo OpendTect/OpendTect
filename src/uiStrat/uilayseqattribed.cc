@@ -77,7 +77,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	integrgrp_ = new uiGroup( this, "Integrated group" );
 
 	lithofld_ = new uiListBox( integrgrp_, "Lithologies",
-			uiListBox::AtLeastOne, reftree_.lithologies().size() );
+			OD::ChooseAtLeastOne, reftree_.lithologies().size() );
 	for ( int idx=0; idx<reftree_.lithologies().size(); idx++ )
 	    lithofld_->addItem( reftree_.lithologies().getLith(idx).name() );
 

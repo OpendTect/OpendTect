@@ -629,10 +629,10 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	return;
 
     const bool singlehormod = singlehorfld_->getBoolValue();
-    const int nrsel = dlg->nrSelected();
+    const int nrsel = dlg->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID& mid = dlg->selected( idx );
+	const MultiID& mid = dlg->chosenID( idx );
 	if ( isflt )
 	{
 	    if ( surfacelist_.isPresent(mid) )

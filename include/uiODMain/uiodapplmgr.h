@@ -131,7 +131,7 @@ public:
 
     // Tree menu services
     // Selections
-    void			selectWells(ObjectSet<MultiID>&);
+    void			selectWells(TypeSet<MultiID>&);
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
     void			selectPolygonSurface(MultiID&);

@@ -168,10 +168,10 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     if ( !dlg.go() ) return false;
 
     bool retval = false;
-    const int nrsel = dlg.nrSelected();
+    const int nrsel = dlg.nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID id = dlg.selected(idx);
+	const MultiID id = dlg.chosenID(idx);
 	psids += id;
 	PtrMan<IOObj> ioobj = IOM().get( id );
 	const int setidx = psmgr_.indexOf( ioobj->key() );

@@ -281,7 +281,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
 
-    uiSeparator* sep = new uiSeparator( this, "Sep", uiObject::Vertical );
+    uiSeparator* sep = new uiSeparator( this, "Sep", OD::Vertical );
     sep->attach( rightTo, selfld_ );
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );

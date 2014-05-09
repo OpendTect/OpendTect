@@ -86,12 +86,12 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
         addChild( new treeitm(-1,getType(mnuid)), false ); \
     else if ( mnuid==3 ) \
     { \
-	ObjectSet<MultiID> wellids; \
+	TypeSet<MultiID> wellids; \
 	if ( !applMgr()->wellServer()->selectWells(wellids) ) \
 	    return true; \
 	for ( int idx=0; idx<wellids.size(); idx++ ) \
 	{ \
-	    Well::Data* wd = Well::MGR().get( *wellids[idx] ); \
+	    Well::Data* wd = Well::MGR().get( wellids[idx] ); \
 	    if ( !wd ) continue; \
 	    treeitm* itm = new treeitm( -1, getType(0) ); \
 	    addChild( itm, false ); \
@@ -103,7 +103,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
     return true
 
 
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, Orientation o, Type t )
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     : orient_(o)
     , type_(t)
     , positiondlg_(0)
@@ -151,7 +151,7 @@ bool uiODPlaneDataTreeItem::init()
 	    pdd->addAttrib();
 	}
 
-	pdd->setOrientation( (visSurvey::PlaneDataDisplay::Orientation)orient_);
+	pdd->setOrientation( orient_);
 	visserv_->addObject( pdd, sceneID(), true );
 
 	BufferString res;
@@ -191,7 +191,7 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
     const Coord surfacecoord = wd.info().surfacecoord;
     const BinID bid = SI().transform( surfacecoord );
     CubeSampling cs = pdd->getCubeSampling();
-    if ( orient_ == Inline )
+    if ( orient_ == OD::InlineSlice )
 	cs.hrg.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
 	cs.hrg.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
@@ -293,12 +293,11 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
     const CubeSampling cs = pdd->getCubeSampling(true,true);
-    const visSurvey::PlaneDataDisplay::Orientation orientation =
-						    pdd->getOrientation();
+    const OD::SliceType orientation = pdd->getOrientation();
 
-    if ( orientation==visSurvey::PlaneDataDisplay::Inline )
+    if ( orientation==OD::InlineSlice )
 	res = cs.hrg.start.inl();
-    else if ( orientation==visSurvey::PlaneDataDisplay::Crossline )
+    else if ( orientation==OD::CrosslineSlice )
 	res = cs.hrg.start.crl();
     else
     {
@@ -452,17 +451,17 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
     CubeSampling cs = pdd->getCubeSampling();
     const int dir = forward ? step : -step;
 
-    if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
+    if ( pdd->getOrientation() == OD::InlineSlice )
     {
 	cs.hrg.start.inl() += cs.hrg.step.inl() * dir;
 	cs.hrg.stop.inl() = cs.hrg.start.inl();
     }
-    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Crossline )
+    else if ( pdd->getOrientation() == OD::CrosslineSlice )
     {
 	cs.hrg.start.crl() += cs.hrg.step.crl() * dir;
 	cs.hrg.stop.crl() = cs.hrg.start.crl();
     }
-    else if ( pdd->getOrientation() == visSurvey::PlaneDataDisplay::Zslice )
+    else if ( pdd->getOrientation() == OD::ZSlice )
     {
 	cs.zrg.start += cs.zrg.step * dir;
 	cs.zrg.stop = cs.zrg.start;
@@ -480,7 +479,7 @@ uiTreeItem*
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Inline )
+    if ( !pdd || pdd->getOrientation()!=OD::InlineSlice )
 	return 0;
 
     mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
@@ -510,7 +509,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
 
 
 uiODInlineTreeItem::uiODInlineTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, Inline, tp )
+    : uiODPlaneDataTreeItem( id, OD::InlineSlice, tp )
 {}
 
 
@@ -520,7 +519,7 @@ uiTreeItem*
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Crossline )
+    if ( !pdd || pdd->getOrientation()!=OD::CrosslineSlice )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
@@ -549,7 +548,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
 
 
 uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, Crossline, tp )
+    : uiODPlaneDataTreeItem( id, OD::CrosslineSlice, tp )
 {}
 
 
@@ -559,7 +558,7 @@ uiTreeItem*
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd,
 		     ODMainWin()->applMgr().visServer()->getObject(visid));
 
-    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice )
+    if ( !pdd || pdd->getOrientation()!=OD::ZSlice )
 	return 0;
 
     mDynamicCastGet(visBase::RGBATextureChannel2RGBA*,rgba,
@@ -588,6 +587,6 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 
 
 uiODZsliceTreeItem::uiODZsliceTreeItem( int id, Type tp )
-    : uiODPlaneDataTreeItem( id, ZSlice, tp )
+    : uiODPlaneDataTreeItem( id, OD::ZSlice, tp )
 {
 }

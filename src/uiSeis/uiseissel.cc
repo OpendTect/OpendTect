@@ -124,7 +124,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	{
 	    TypeSet<MultiID> selmids;
 	    selmids += c.ioobj->key();
-	    selgrp_->setSelected( selmids );
+	    selgrp_->setChosen( selmids );
 	}
     }
 
@@ -157,27 +157,27 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
 void uiSeisSelDlg::entrySel( CallBacker* )
 {
-    // ioobj should already be filled by base class
-    const IOObj* ioobj = ioObj();
-    if ( !ioobj || ( !compfld_ ) )
+    if ( !compfld_ )
 	return;
 
-    IOObjContext ctxt = selgrp_->getCtxtIOObj().ctxt;
+    const IOObjContext& ctxt = selgrp_->getCtxtIOObj().ctxt;
+    if ( !ctxt.forread )
+	return;
 
-    if ( ctxt.forread && compfld_ )
-    {
+    const IOObj* ioobj = ioObj(); // do NOT call this function when for write
+    if ( !ioobj )
+	return;
 
-        compfld_->box()->setCurrentItem(0);
-	SeisTrcReader rdr( ioobj );
-	if ( !rdr.prepareWork(Seis::PreScan) ) return;
-	SeisTrcTranslator* transl = rdr.seisTranslator();
-	if ( !transl ) return;
-	BufferStringSet compnms;
-	transl->getComponentNames( compnms );
-	compfld_->box()->setEmpty();
-	compfld_->box()->addItems( compnms );
-	compfld_->display( transl->componentInfo().size()>1 );
-    }
+    compfld_->box()->setCurrentItem(0);
+    SeisTrcReader rdr( ioobj );
+    if ( !rdr.prepareWork(Seis::PreScan) ) return;
+    SeisTrcTranslator* transl = rdr.seisTranslator();
+    if ( !transl ) return;
+    BufferStringSet compnms;
+    transl->getComponentNames( compnms );
+    compfld_->box()->setEmpty();
+    compfld_->box()->addItems( compnms );
+    compfld_->display( transl->componentInfo().size()>1 );
 }
 
 

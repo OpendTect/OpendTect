@@ -103,7 +103,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 {
     calcobj_ = new calcFingParsObject( this );
 
-    refgrp_ = new uiButtonGroup( this, "", uiObject::Horizontal );
+    refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
     uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,"Reference position");
@@ -595,13 +595,13 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 
 
 BinID uiFingerPrintAttrib::get2DRefPos() const
-{ 
+{
     const BinID undef( mUdf(int), mUdf(int) );
     if ( !is2d_ )
 	return undef;
 
     mDynamicCastGet(const Survey::Geometry2D*,geom2d,
-	    	    Survey::GM().getGeometry(linefld_->lineName()) );
+		    Survey::GM().getGeometry(linefld_->lineName()) );
     if ( !geom2d )
 	return undef;
 
@@ -631,13 +631,12 @@ bool uiFingerPrintAttrib::areUIParsOK()
 uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
-				   "Specify advanced options", 
+				   "Specify advanced options",
                                    mODHelpKey(mFPAdvancedDlgHelpID) ) )
     , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
 {
-    rangesgrp_ = new uiButtonGroup( this, "Get ranges from",
-				    uiObject::Horizontal );
+    rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
     uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, "Manual" );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     picksetbut_ = new uiRadioButton( rangesgrp_,"Pickset");

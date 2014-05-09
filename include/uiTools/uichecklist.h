@@ -35,21 +35,18 @@ mExpClass(uiTools) uiCheckList : public uiGroup
 {
 public:
 
-    typedef uiObject::Orientation Orientation;
-
-    enum Pol		{ Unrel, NotAll, AtLeastOne, OneOnly, MaybeOne,
+    enum Pol		{ Unrel, NotAll, OneMinimum, OneOnly, MaybeOne,
 			  Chain1st, ChainAll };
 
 			uiCheckList(uiParent*,Pol=Unrel,
-				    Orientation orient=uiObject::Vertical);
+				    OD::Orientation orient=OD::Vertical);
 
     void		setLabel(const char*);
     uiCheckList&	addItem(const char* txt,const char* iconfnm=0);
     uiCheckList&	addItems(const BufferStringSet&);
     Pol			pol() const		{ return pol_; }
-    Orientation		orientation() const	{ return orientation_; }
-    inline bool		isHor() const
-				{ return orientation_ == uiObject::Horizontal; }
+    OD::Orientation	orientation() const	{ return orientation_; }
+    inline bool		isHor() const { return orientation_ == OD::Horizontal; }
 
     int			size() const		{ return boxs_.size(); }
     bool		isChecked(int) const;
@@ -63,7 +60,7 @@ public:
 protected:
 
     const Pol		pol_;
-    const Orientation	orientation_;
+    const OD::Orientation orientation_;
     ObjectSet<uiCheckBox> boxs_;
     uiGroup*		grp_;
     uiLabel*		lbl_;

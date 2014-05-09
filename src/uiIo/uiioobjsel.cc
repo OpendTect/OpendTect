@@ -53,7 +53,7 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
     , selgrp_(sg)
     , manipgrp_(0)
 {
-    selgrp_->selectionChg.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
+    selgrp_->selectionChanged.notify( mCB(this,uiIOObjSelGrpManipSubj,selChg) );
 }
 
 
@@ -63,9 +63,9 @@ MultiID currentID() const
 }
 
 
-void getSelectedIDs( TypeSet<MultiID>& mids ) const
+void getChosenIDs( TypeSet<MultiID>& mids ) const
 {
-    selgrp_->getSelected( mids );
+    selgrp_->getChosen( mids );
 }
 
 const char* defExt() const
@@ -90,7 +90,7 @@ void selChg( CallBacker* )
 
 void relocStart( const char* msg )
 {
-    selgrp_->toStatusBar( msg );
+    selgrp_->triggerStatusMsg( msg );
 }
 
     uiIOObjSelGrp*	selgrp_;
@@ -104,7 +104,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c )
     : uiGroup(p)
     , ctio_(c)
     , newStatusMsg(this)
-    , selectionChg(this)
+    , selectionChanged(this)
+    , itemChosen(this)
 {
     init();
 }
@@ -116,7 +117,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     , ctio_(c)
     , setup_(su)
     , newStatusMsg(this)
-    , selectionChg(this)
+    , selectionChanged(this)
+    , itemChosen(this)
 {
     init();
 }
@@ -127,7 +129,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : uiGroup(p)
     , ctio_(c)
     , newStatusMsg(this)
-    , selectionChg(this)
+    , selectionChanged(this)
+    , itemChosen(this)
 {
     init( seltxt );
 }
@@ -139,7 +142,8 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     , ctio_(c)
     , setup_(su)
     , newStatusMsg(this)
-    , selectionChg(this)
+    , selectionChanged(this)
+    , itemChosen(this)
 {
     init( seltxt );
 }
@@ -149,7 +153,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 {
     nmfld_ = 0; manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt.forread )
-	setup_.selmode( Single );
+	setup_.choicemode( OD::ChooseOnlyOne );
 
     IOM().to( ctio_.ctxt.getSelKey() );
 
@@ -157,13 +161,13 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     uiObject* lfatt;
-    const uiListBox::ChoiceMode cm =
-		isMultiSel() ? uiListBox::AtLeastOne : uiListBox::OnlyOne;
     if ( seltxt.isEmpty() )
-	lfatt = listfld_ = new uiListBox( topgrp_, "Objects", cm );
+	lfatt = listfld_ = new uiListBox( topgrp_, "Objects",
+					  setup_.choicemode_ );
     else
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt, cm );
+	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt,
+							setup_.choicemode_ );
 	listfld_ = llb->box();
 	lfatt = llb->attachObj();
     }
@@ -172,6 +176,8 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
     listfld_->setName( "Objects list" );
     listfld_->setPrefHeightInChar( 8 );
+    listfld_->setHSzPol( uiObject::Wide );
+
     fullUpdate( -1 );
 
     if ( ctio_.ioobj )
@@ -191,7 +197,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	    nmfld_->setText( nm );
 	    const int listidx = listfld_->indexOf( nm );
 	    if ( listidx < 0 )
-		listfld_->chooseAll( false );
+		listfld_->setCurrentItem( 0 );
 	    else
 		listfld_->setChosen( listidx );
 	}
@@ -212,13 +218,6 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	}
     }
 
-    listfld_->setHSzPol( uiObject::Wide );
-    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    if ( isMultiSel() )
-	listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
-    if ( (nmfld_ && !*nmfld_->text()) || !nmfld_ )
-	selChg( this );
     setHAlignObj( topgrp_ );
     postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
@@ -234,65 +233,14 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 }
 
 
-int uiIOObjSelGrp::size() const
-{
-    return listfld_->size();
-}
-
-
-int uiIOObjSelGrp::currentItem() const
-{
-    return listfld_->currentItem();
-}
-
-
-bool uiIOObjSelGrp::isEmpty() const
-{
-    return listfld_->isEmpty();
-}
-
-
-void uiIOObjSelGrp::selectAll( bool yn )
-{
-    listfld_->chooseAll( yn );
-}
-
-
-void uiIOObjSelGrp::setInitial( CallBacker* )
-{
-    const char* presetnm = getNameField() ? getNameField()->text() : "";
-    if ( *presetnm )
-    {
-	if ( !getListField()->isPresent( presetnm ) )
-	    return;
-	else
-	    getListField()->setCurrentItem( presetnm );
-    }
-
-    selChg( 0 );
-}
-
-
-int uiIOObjSelGrp::nrSelected() const
-{
-    int nr = 0;
-    for ( int idx=0; idx<listfld_->size(); idx++ )
-	if ( isSel(idx) ) nr++;
-
-    return nr;
-}
-
-
-bool uiIOObjSelGrp::isSel( int idx ) const
-{
-    return listfld_->isChosen( idx );
-}
-
-
-uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
-{
-    return manipgrpsubj ? manipgrpsubj->grp_ : 0;
-}
+bool uiIOObjSelGrp::isEmpty() const { return listfld_->isEmpty(); }
+int uiIOObjSelGrp::size() const { return listfld_->size(); }
+int uiIOObjSelGrp::currentItem() const { return listfld_->currentItem(); }
+int uiIOObjSelGrp::nrChosen() const { return listfld_->nrChosen(); }
+bool uiIOObjSelGrp::isChosen( int idx ) const { return listfld_->isChosen(idx);}
+void uiIOObjSelGrp::setChosen( int idx, bool yn )
+{ listfld_->setChosen(idx,yn);}
+void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
 
 
 MultiID uiIOObjSelGrp::currentID() const
@@ -302,29 +250,59 @@ MultiID uiIOObjSelGrp::currentID() const
 }
 
 
-const MultiID& uiIOObjSelGrp::selected( int objnr ) const
+const MultiID& uiIOObjSelGrp::chosenID( int objnr ) const
 {
     for ( int idx=0; idx<listfld_->size(); idx++ )
     {
-	if ( isSel(idx) )
+	if ( isChosen(idx) )
 	    objnr--;
 	if ( objnr < 0 )
 	    return *ioobjids_[idx];
     }
 
     BufferString msg( "Should not reach. objnr=" );
-    msg += objnr; msg += " nrsel="; msg += nrSelected();
+    msg += objnr; msg += " nrChosen()="; msg += nrChosen();
     pErrMsg( msg );
     return udfmid;
 }
 
 
-void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
+void uiIOObjSelGrp::getChosen( TypeSet<MultiID>& mids ) const
+{
+    const int nrchosen = nrChosen();
+    for ( int idx=0; idx<nrchosen; idx++ )
+	mids += chosenID( idx );
+}
+
+
+void uiIOObjSelGrp::setCurrent( int curidx )
+{
+    if ( curidx >= ioobjnms_.size() )
+	curidx = ioobjnms_.size() - 1;
+    else if ( curidx < 0 )
+	curidx = 0;
+    if ( !ioobjnms_.isEmpty() )
+    {
+	listfld_->setCurrentItem( curidx );
+	selectionChanged.trigger();
+    }
+}
+
+
+void uiIOObjSelGrp::setCurrent( const MultiID& mid )
+{
+    const int idx = indexOf( ioobjids_, mid );
+    if ( idx >= 0 )
+	setCurrent( idx );
+}
+
+
+void uiIOObjSelGrp::setChosen( const TypeSet<MultiID>& mids )
 {
     if ( mids.isEmpty() )
 	return;
 
-    if ( isMultiSel() )
+    if ( isMultiChoice() )
 	listfld_->chooseAll( false );
 
     for ( int idx=0; idx<mids.size(); idx++ )
@@ -336,45 +314,134 @@ void uiIOObjSelGrp::setSelected( const TypeSet<MultiID>& mids )
 }
 
 
-void uiIOObjSelGrp::getSelected( TypeSet<MultiID>& mids ) const
+bool uiIOObjSelGrp::updateCtxtIOObj()
 {
-    const int nrsel = nrSelected();
-    for ( int idx=0; idx<nrsel; idx++ )
-	mids += selected( idx );
+    const int curitm = listfld_->currentItem();
+    const int sz = listfld_->size();
+    if ( ctio_.ctxt.forread )
+    {
+	if ( isMultiChoice() )
+	    return true;
+
+	if ( curitm < 0 )
+	{
+	    ctio_.setObj( 0 );
+	    if ( sz > 0 )
+		uiMSG().error( "Please select the ", mObjTypeName,
+			       "or press Cancel" );
+	    return false;
+	}
+	PtrMan<IOObj> ioobj = getIOObj( curitm );
+	if ( !ioobj )
+	{
+	    uiMSG().error( "Internal error: "
+		"Cannot retrieve ", mObjTypeName, " details from data store" );
+	    IOM().to( MultiID(0) );
+	    fullUpdate( -1 );
+	    return false;
+	}
+	ctio_.setObj( ioobj->clone() );
+	return true;
+    }
+
+    // from here for write only
+    LineKey lk( nmfld_->text() );
+    const BufferString seltxt( lk.lineName() );
+    int itmidx = ioobjnms_.indexOf( seltxt.buf() );
+    if ( itmidx < 0 )
+	return createEntry( seltxt );
+
+    if ( itmidx != curitm )
+	setCurrent( itmidx );
+    PtrMan<IOObj> ioobj = getIOObj( itmidx );
+    if ( ioobj && ioobj->implExists(true) )
+    {
+	bool allok = true;
+	if ( ioobj->implReadOnly() )
+	{
+	    uiMSG().error( "Chosen ", mObjTypeName, " is read-only" );
+	    allok = false;
+	}
+	else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
+	    allok = uiMSG().askOverwrite(
+		    BufferString("Overwrite existing ",mObjTypeName,"?") );
+
+	if ( !allok )
+	    { asked2overwrite_ = false; return false; }
+
+	asked2overwrite_ = true;
+    }
+
+    ctio_.setObj( ioobj );
+    ioobj.set( 0, false );
+    return true;
 }
 
 
-void uiIOObjSelGrp::delPress( CallBacker* )
+
+void uiIOObjSelGrp::setContext( const IOObjContext& c )
 {
-    if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
-	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
+    ctio_.ctxt = c; ctio_.setObj( 0 );
+    fullUpdate( -1 );
 }
 
 
-void uiIOObjSelGrp::setSurveyDefaultSubsel(const char* subsel)
+uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
+{
+    return manipgrpsubj ? manipgrpsubj->grp_ : 0;
+}
+
+
+void uiIOObjSelGrp::setSurveyDefaultSubsel( const char* subsel )
 {
     surveydefaultsubsel_ = subsel;
 }
 
 
-void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
+bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
 {
-    if ( nrSelected()!=1 )
-	return;
+    if ( !const_cast<uiIOObjSelGrp*>(this)->updateCtxtIOObj() || !ctio_.ioobj )
+	return false;
 
-    PtrMan<IOObj> ioobj = IOM().get( selected() );
-    if ( !ioobj )
-	return;
+    if ( !isMultiChoice() )
+	iop.set( sKey::ID(), ctio_.ioobj->key() );
+    else
+    {
+	TypeSet<MultiID> mids; getChosen( mids );
+	iop.set( sKey::Size(), mids.size() );
+	for ( int idx=0; idx<mids.size(); idx++ )
+	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+    }
 
-    ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
-
-    fullUpdate( 0 );
+    return true;
 }
 
 
-void uiIOObjSelGrp::filtChg( CallBacker* )
+void uiIOObjSelGrp::usePar( const IOPar& iop )
 {
-    fullUpdate( 0 );
+    if ( !isMultiChoice() )
+    {
+	const char* res = iop.find( sKey::ID() );
+	if ( !res || !*res ) return;
+
+	const int selidx = indexOf( ioobjids_, MultiID(res) );
+	if ( selidx >= 0 )
+	    setCurrent( selidx );
+    }
+    else
+    {
+	int nrids;
+	iop.get( sKey::Size(), nrids );
+	TypeSet<MultiID> mids;
+	for ( int idx=0; idx<nrids; idx++ )
+	{
+	    MultiID mid;
+	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
+		mids += mid;
+	}
+
+	setChosen( mids );
+    }
 }
 
 
@@ -387,7 +454,7 @@ void uiIOObjSelGrp::fullUpdate( const MultiID& ky )
     {
 	selidx = indexOf( ioobjids_, ky );
 	if ( selidx >= 0 )
-	    setCur( selidx );
+	    setCurrent( selidx );
     }
 }
 
@@ -439,140 +506,25 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     }
 
     fillListBox();
-    setCur( curidx );
-}
-
-
-void uiIOObjSelGrp::setCur( int curidx )
-{
-    if ( curidx >= ioobjnms_.size() )
-	curidx = ioobjnms_.size() - 1;
-    else if ( curidx < 0 )
-	curidx = 0;
-    if ( !ioobjnms_.isEmpty() )
-	listfld_->setCurrentItem( curidx );
-    selectionChg.trigger();
+    setCurrent( curidx );
 }
 
 
 void uiIOObjSelGrp::fillListBox()
 {
+    NotifyStopper ns1( listfld_->selectionChanged );
+    NotifyStopper ns2( listfld_->itemChosen );
+
     listfld_->setEmpty();
     listfld_->addItems( dispnms_ );
-}
 
-
-void uiIOObjSelGrp::toStatusBar( const char* txt )
-{
-    CBCapsule<const char*> caps( txt, this );
-    newStatusMsg.trigger( &caps );
+    selectionChanged.trigger();
 }
 
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
     return ioobjids_.validIdx(idx) ? IOM().get( *ioobjids_[idx] ) : 0;
-}
-
-
-void uiIOObjSelGrp::selChg( CallBacker* cb )
-{
-    BufferString info;
-    bool allowsetdefault;
-    const int nrsel = nrSelected();
-    if ( isMultiSel() && nrsel>1 )
-    {
-	info.set( nrsel ).add( "/" ).add( listfld_->size() ).add( " selected" );
-	allowsetdefault = false;
-    }
-    else
-    {
-	int idx = listfld_->currentItem();
-	PtrMan<IOObj> ioobj = getIOObj( idx );
-	ctio_.setObj( ioobj ? ioobj->clone() : 0 );
-	if ( cb && nmfld_ )
-	    nmfld_->setText( ioobj ? ioobj->name() : "" );
-	info = getLimitedDisplayString( !ioobj ? "" :
-			 ioobj->fullUserExpr(ctio_.ctxt.forread), 40, false );
-	allowsetdefault = ioobj && ioobj->implExists(true);
-    }
-
-    if ( mkdefbut_ )
-	mkdefbut_->setSensitive( allowsetdefault );
-
-    toStatusBar( info );
-    selectionChg.trigger();
-}
-
-
-void uiIOObjSelGrp::setContext( const IOObjContext& c )
-{
-    ctio_.ctxt = c; ctio_.setObj( 0 );
-    fullUpdate( -1 );
-}
-
-
-bool uiIOObjSelGrp::processInput()
-{
-    const int curitm = listfld_->currentItem();
-    const int sz = listfld_->size();
-    if ( ctio_.ctxt.forread )
-    {
-	if ( isMultiSel() )
-	    return true;
-
-	if ( curitm < 0 )
-	{
-	    ctio_.setObj( 0 );
-	    if ( sz > 0 )
-		uiMSG().error( "Please select the ", mObjTypeName,
-			       "or press Cancel" );
-	    return false;
-	}
-	PtrMan<IOObj> ioobj = getIOObj( curitm );
-	if ( !ioobj )
-	{
-	    uiMSG().error( "Internal error: "
-		"Cannot retrieve ", mObjTypeName, " details from data store" );
-	    IOM().to( MultiID(0) );
-	    fullUpdate( -1 );
-	    return false;
-	}
-	ctio_.setObj( ioobj->clone() );
-	return true;
-    }
-
-    // from here for write only
-    LineKey lk( nmfld_->text() );
-    const BufferString seltxt( lk.lineName() );
-    int itmidx = ioobjnms_.indexOf( seltxt.buf() );
-    if ( itmidx < 0 )
-	return createEntry( seltxt );
-
-    if ( itmidx != curitm )
-	setCur( itmidx );
-    PtrMan<IOObj> ioobj = getIOObj( itmidx );
-    if ( ioobj && ioobj->implExists(true) )
-    {
-	bool allok = true;
-	if ( ioobj->implReadOnly() )
-	{
-	    uiMSG().error( "Selected ", mObjTypeName, " is read-only" );
-	    allok = false;
-	}
-	else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
-	    allok = uiMSG().askOverwrite(
-		    BufferString("Overwrite existing ",mObjTypeName,"?") );
-
-	if ( !allok )
-	    { asked2overwrite_ = false; return false; }
-
-	asked2overwrite_ = true;
-    }
-
-    ctio_.setObj( ioobj );
-    ioobj.set( 0, false );
-    return true;
 }
 
 
@@ -594,55 +546,109 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
 	nmfld_->setText( ioobj->name() );
 
     ctio_.setObj( ioobj->clone() );
-    selectionChg.trigger();
+    selectionChanged.trigger();
     return true;
 }
 
 
-bool uiIOObjSelGrp::fillPar( IOPar& iop ) const
+IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 {
-    if ( !const_cast<uiIOObjSelGrp*>(this)->processInput() || !ctio_.ioobj )
-	return false;
+    BufferString info;
+    const int nrchosen = nrChosen();
+    IOObj* ret = 0;
 
-    if ( !isMultiSel() )
-	iop.set( sKey::ID(), ctio_.ioobj->key() );
+    if ( isMultiChoice() && nrchosen>1 )
+    {
+	info.set( nrchosen ).add( "/" ).add( listfld_->size() )
+			    .add( " chosen" );
+    }
     else
     {
-	TypeSet<MultiID> mids; getSelected( mids );
-	iop.set( sKey::Size(), mids.size() );
-	for ( int idx=0; idx<mids.size(); idx++ )
-	    iop.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+	const int idx = listfld_->currentItem();
+	ret = getIOObj( idx );
+	ctio_.setObj( ret ? ret->clone() : 0 );
+	if ( setnmfld && nmfld_ )
+	    nmfld_->setText( ret ? ret->name() : "" );
+	info = getLimitedDisplayString( !ret ? "" :
+			 ret->fullUserExpr(ctio_.ctxt.forread), 40, false );
     }
 
-    return true;
+    triggerStatusMsg( info );
+    return ret;
 }
 
 
-void uiIOObjSelGrp::usePar( const IOPar& iop )
+void uiIOObjSelGrp::triggerStatusMsg( const char* txt )
 {
-    if ( !isMultiSel() )
-    {
-	const char* res = iop.find( sKey::ID() );
-	if ( !res || !*res ) return;
+    CBCapsule<const char*> caps( txt, this );
+    newStatusMsg.trigger( &caps );
+}
 
-	const int selidx = indexOf( ioobjids_, MultiID(res) );
-	if ( selidx >= 0 )
-	    setCur( selidx );
-    }
-    else
-    {
-	int nrids;
-	iop.get( sKey::Size(), nrids );
-	TypeSet<MultiID> mids;
-	for ( int idx=0; idx<nrids; idx++ )
-	{
-	    MultiID mid;
-	    if ( iop.get(IOPar::compKey(sKey::ID(),idx),mid) )
-		mids += mid;
-	}
 
-	setSelected( mids );
+void uiIOObjSelGrp::setInitial( CallBacker* )
+{
+    const char* presetnm = getNameField() ? getNameField()->text() : "";
+    if ( *presetnm && !listfld_->isPresent(presetnm) )
+    {
+	if ( !listfld_->isPresent(presetnm) )
+	    return;
+
+	listfld_->setCurrentItem( presetnm );
     }
+
+    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
+    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
+
+    selChg( 0 );
+}
+
+
+void uiIOObjSelGrp::selChg( CallBacker* cb )
+{
+    IOObj* ioobj = updStatusBarInfo( cb );
+    if ( mkdefbut_ )
+	mkdefbut_->setSensitive( ioobj && ioobj->implExists(true) );
+    delete ioobj;
+
+    selectionChanged.trigger();
+}
+
+
+void uiIOObjSelGrp::choiceChg( CallBacker* cb )
+{
+    delete updStatusBarInfo( false );
+
+    itemChosen.trigger();
+}
+
+
+void uiIOObjSelGrp::filtChg( CallBacker* )
+{
+    fullUpdate( 0 );
+}
+
+
+
+void uiIOObjSelGrp::delPress( CallBacker* )
+{
+    if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
+	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
+}
+
+
+void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
+{
+    if ( nrChosen()!=1 )
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( chosenID() );
+    if ( !ioobj )
+	return;
+
+    ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
+
+    fullUpdate( 0 );
 }
 
 
@@ -655,10 +661,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 		.nrstatusflds(1))
 	, selgrp_( 0 )
 {
-    uiIOObjSelGrp::SelMode selmode = uiIOObjSelGrp::Single;
-    if ( c.ctxt.forread && multisel )
-	selmode = uiIOObjSelGrp::AtLeastOne;
-    uiIOObjSelGrp::Setup sgsu( selmode );
+    uiIOObjSelGrp::Setup sgsu( c.ctxt.forread && multisel
+			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
     sgsu.allowsetdefault( havesetsurvdefault );
     selgrp_ = new uiIOObjSelGrp( this, c, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
@@ -706,6 +710,13 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     setOkText( "&Ok (Select)" );
     selgrp_->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
+}
+
+
+const IOObj* uiIOObjSelDlg::ioObj() const
+{
+    selgrp_->updateCtxtIOObj();
+    return selgrp_->getCtxtIOObj().ioobj;
 }
 
 

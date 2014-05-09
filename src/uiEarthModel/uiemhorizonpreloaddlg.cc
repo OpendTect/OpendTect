@@ -52,7 +52,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
                                        mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
-    listfld_ = new uiListBox( this, "Loaded entries", uiListBox::AtLeastOne );
+    listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
     uiToolButton* opentb = new uiToolButton( this, "openpreload",
@@ -64,7 +64,7 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     savebut_->attach( rightAlignedBelow, listfld_ );
 
     uiButtonGroup* butgrp = new uiButtonGroup( this, "Manip buttons",
-					       uiObject::Vertical );
+					       OD::Vertical );
     butgrp->attach( rightOf, listfld_ );
 
     if ( SI().has2D() )
@@ -114,17 +114,12 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
 				  : mMkCtxtIOObj(EMHorizon3D);
 
     uiIOObjSelDlg hordlg( this, *ctio, "", true );
-    if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrSelected() <= 0 )
+    if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrChosen() < 1 )
 	return false;
 
     EM::HorizonPreLoader& hpl = EM::HPreL();
     TypeSet<MultiID> selmids;
-    const int nrsel = hordlg.nrSelected();
-    for ( int idx=0; idx<nrsel; idx++ )
-    {
-	const MultiID mid = hordlg.selected( idx );
-	selmids += mid;
-    }
+    hordlg.getChosen( selmids );
 
     uiTaskRunner tr( this );
     hpl.load( selmids, &tr );

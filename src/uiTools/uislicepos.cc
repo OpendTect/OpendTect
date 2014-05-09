@@ -98,11 +98,11 @@ void uiSlicePos::setLabels( const char* inl, const char* crl, const char* z )
 }
 
 
-void uiSlicePos::setBoxLabel( Orientation orientation )
+void uiSlicePos::setBoxLabel( uiSlicePos::SliceDir orientation )
 {
-    if ( orientation == uiSlicePos::Inline )
+    if ( orientation == OD::InlineSlice )
 	label_->setText( boxlabels_.get(0) );
-    else if ( orientation == uiSlicePos::Crossline )
+    else if ( orientation == OD::CrosslineSlice )
 	label_->setText( boxlabels_.get(1) );
     else
 	label_->setText( boxlabels_.get(2) );
@@ -115,14 +115,14 @@ void uiSlicePos::updatePos( CallBacker* )
 }
 
 
-void uiSlicePos::slicePosChanged( Orientation orientation,
+void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
 				  const CubeSampling& oldcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
-    if ( orientation == uiSlicePos::Inline )
+    if ( orientation == OD::InlineSlice )
 	curcs_.hrg.start.inl() = curcs_.hrg.stop.inl() = posbox->getValue();
-    else if ( orientation == uiSlicePos::Crossline )
+    else if ( orientation == OD::CrosslineSlice )
 	curcs_.hrg.start.crl() = curcs_.hrg.stop.crl() = posbox->getValue();
     else
 	curcs_.zrg.start = curcs_.zrg.stop = (float)posbox->getValue()/zfactor_;
@@ -134,7 +134,7 @@ void uiSlicePos::slicePosChanged( Orientation orientation,
 }
 
 
-void uiSlicePos::sliceStepChanged( Orientation orientation )
+void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
 {
     laststeps_[(int)orientation] = slicestepbox_->getValue();
 
@@ -142,21 +142,22 @@ void uiSlicePos::sliceStepChanged( Orientation orientation )
 }
 
 
-void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
+void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
+				const CubeSampling& survcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
     NotifyStopper posstop( posbox->valueChanging );
     NotifyStopper stepstop( stepbox->valueChanged );
 
-    if ( orientation == uiSlicePos::Inline )
+    if ( orientation == OD::InlineSlice )
     {
 	posbox->setInterval( survcs.hrg.start.inl(), survcs.hrg.stop.inl() );
 	stepbox->setInterval( survcs.hrg.step.inl(),
 			      survcs.hrg.stop.inl()-survcs.hrg.start.inl(),
 			      survcs.hrg.step.inl() );
     }
-    else if ( orientation == uiSlicePos::Crossline )
+    else if ( orientation == OD::CrosslineSlice )
     {
 	posbox->setInterval( survcs.hrg.start.crl(), survcs.hrg.stop.crl() );
 	stepbox->setInterval( survcs.hrg.step.crl(),
@@ -174,14 +175,15 @@ void uiSlicePos::setBoxRg( Orientation orientation, const CubeSampling& survcs )
 }
 
 
-void uiSlicePos::setPosBoxVal( Orientation orientation, const CubeSampling& cs )
+void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
+				const CubeSampling& cs )
 {
     uiSpinBox* posbox = sliceposbox_;
     NotifyStopper posstop( posbox->valueChanging );
 
-    if ( orientation == uiSlicePos::Inline )
+    if ( orientation == OD::InlineSlice )
 	posbox->setValue( cs.hrg.start.inl() );
-    else if ( orientation == uiSlicePos::Crossline )
+    else if ( orientation == OD::CrosslineSlice )
 	posbox->setValue( cs.hrg.start.crl() );
     else
 	posbox->setValue( cs.zrg.start*zfactor_ );

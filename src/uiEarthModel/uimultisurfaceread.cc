@@ -47,7 +47,7 @@ void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
 
 bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
 {
-    return surfacefld_->objselGrp()->processInput();
+    return surfacefld_->objselGrp()->nrChosen() > 0;
 }
 
 
@@ -57,8 +57,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* typ )
     , singleSurfaceSelected(this)
 {
     ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_->ctxt,
-			uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
-    ioobjselgrp_->selectionChg.notify( mCB(this,uiMultiSurfaceRead,selCB) );
+			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    ioobjselgrp_->selectionChanged.notify( mCB(this,uiMultiSurfaceRead,selCB) );
     ioobjselgrp_->getListField()->doubleClicked.notify(
 					mCB(this,uiMultiSurfaceRead,dClck) );
 
@@ -92,7 +92,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 {
     if ( !rgfld_->mainObject() || !rgfld_->mainObject()->isDisplayed() ) return;
 
-    const int nrsel = ioobjselgrp_->nrSelected();
+    const int nrsel = ioobjselgrp_->nrChosen();
     if( nrsel == 0 )
 	return;
 
@@ -103,7 +103,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	if ( !processInput() ) return;
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const MultiID& mid = ioobjselgrp_->selected( idx );
+	    const MultiID& mid = ioobjselgrp_->chosenID( idx );
 
 	    EM::IOObjInfo eminfo( mid );
 	    if ( !eminfo.isOK() ) continue;
@@ -124,11 +124,11 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
     {
 	if ( !cb )
 	{
-	    if ( !fillFields(ioobjselgrp_->selected(0), false) )
-		ioobjselgrp_->getListField()->clear();
+	    if ( !fillFields(ioobjselgrp_->chosenID(0), false) )
+		ioobjselgrp_->getListField()->setEmpty();
 	}
 	else
-	    fillFields( ioobjselgrp_->selected(0) );
+	    fillFields( ioobjselgrp_->chosenID(0) );
     }
 }
 
@@ -136,11 +136,11 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
-    const int nrsel = ioobjselgrp_->nrSelected();
+    const int nrsel = ioobjselgrp_->nrChosen();
     BufferString errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID mid = ioobjselgrp_->selected( idx );
+	const MultiID mid = ioobjselgrp_->chosenID( idx );
 	const EM::IOObjInfo info( mid );
 	EM::SurfaceIOData sd;
 	BufferString errmsg;
@@ -176,10 +176,10 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 {
     uiIOSurface::getSelection( sel );
 
-    if ( ioobjselgrp_->nrSelected() != 1 )
+    if ( ioobjselgrp_->nrChosen() != 1 )
 	return;
 
-    const MultiID mid = ioobjselgrp_->selected( 0 );
+    const MultiID mid = ioobjselgrp_->chosenID( 0 );
     const EM::IOObjInfo info( mid );
     EM::SurfaceIOData sd;
     BufferString errmsg;
@@ -189,7 +189,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
 
     uiDialog dlg( const_cast<uiParent*>(parent()),
 	    uiDialog::Setup("Select section(s)",mNoDlgTitle,mNoHelpKey) );
-    uiListBox* lb = new uiListBox( &dlg, "Patches", uiListBox::AtLeastOne );
+    uiListBox* lb = new uiListBox( &dlg, "Patches", OD::ChooseAtLeastOne );
     lb->addItems( sd.sections );
     lb->chooseAll( true );
     if ( dlg.go() )

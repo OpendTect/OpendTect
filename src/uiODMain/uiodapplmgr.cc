@@ -407,7 +407,7 @@ void uiODApplMgr::setWorkingArea()
 }
 
 
-void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
+void uiODApplMgr::selectWells( TypeSet<MultiID>& wellids )
 { wellserv_->selectWells( wellids ); }
 
 bool uiODApplMgr::storePickSets()

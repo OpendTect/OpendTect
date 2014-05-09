@@ -72,7 +72,7 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     zbox_->attach( rightTo, coordfld_ );
 
     stickidsfld_ = new uiCheckList( this, uiCheckList::ChainAll,
-				    uiObject::Horizontal );
+				    OD::Horizontal );
     stickidsfld_->setLabel( "Write" );
     stickidsfld_->addItem( "Stick index" ).addItem( "Node Index" );
     stickidsfld_->setChecked( 0, true ); stickidsfld_->setChecked( 1, true );

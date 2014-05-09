@@ -114,7 +114,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     actbutgrp->attach( centeredBelow, tbl_ );
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
-					   uiObject::Horizontal );
+					   OD::Horizontal );
     uiButton* readbut = new uiPushButton( iobutgrp, "&Read new",
 					    mCB(this,uiWellTrackDlg,readNew),
 					    false );
@@ -264,7 +264,7 @@ public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
 	: uiDialog(p,uiDialog::Setup("Read new Well Track",
-				     "Specify new Well Track", 
+				     "Specify new Well Track",
                                      mODHelpKey(mWellTrackReadDlgHelpID) ))
 	, track_(track)
 {
@@ -650,7 +650,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     }
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
-					   uiObject::Horizontal );
+					   OD::Horizontal );
     new uiPushButton( iobutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
 		      false );
     new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),

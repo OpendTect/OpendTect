@@ -503,7 +503,7 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 	return;
 
     TypeSet<MultiID> mids;
-    dlg.selGrp()->getSelected( mids );
+    dlg.getChosen( mids );
     if ( mids.isEmpty() )
 	return;
 

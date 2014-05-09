@@ -30,7 +30,7 @@ public:
 
     virtual		~uiDialBody()		{ delete &messenger_; }
 
-    virtual int 	nrTxtLines() const	{ return 1; }
+    virtual int	nrTxtLines() const	{ return 1; }
 
 private:
 
@@ -81,28 +81,29 @@ void uiDial::setValue( int val  )
     {
 	int N = maxValue() - minValue();
 	int newval = ( N/2 + val ) % N;
-	body_->setValue( newval ); 
+	body_->setValue( newval );
     }
     else
 	body_->setValue( val );
 }
 
 int uiDial::getValue() const
-{ 
+{
     if ( startAtTop_)
     {
 	int N = maxValue() - minValue();
 	return (body_->value() + N/2) % N;
     }
     else
-	return body_->value(); 
+	return body_->value();
 }
 
-void uiDial::setOrientation( Orientation orient )
-{ body_->setOrientation( orient == Vertical ?  Qt::Vertical : Qt::Horizontal );}
+void uiDial::setOrientation( OD::Orientation orient )
+{ body_->setOrientation( orient == OD::Vertical
+				? Qt::Vertical : Qt::Horizontal );}
 
-uiDial::Orientation uiDial::getOrientation() const
-{ return (uiDial::Orientation)( (int)body_->orientation() ); }
+OD::Orientation uiDial::getOrientation() const
+{ return (OD::Orientation)( (int)body_->orientation() ); }
 
 void uiDial::setInverted( bool yn )
 { body_->setInvertedAppearance( yn ); }
@@ -170,7 +171,7 @@ void uiDial::setStartAtTop( bool top )
 {
 	startAtTop_ = top;
 }
-	
+
 
 bool uiDial::hasStartAtTop() const
 {
@@ -208,7 +209,7 @@ void uiDialExtra::init( const uiDialExtra::Setup& setup, const char* nm )
 
     setHSpacing( 50 );
     setHAlignObj( dial_ );
-    
+
     if ( setup.isvertical_ )
     {
 	if ( lbl_ ) dial_->attach( centeredBelow, lbl_ );
@@ -217,12 +218,12 @@ void uiDialExtra::init( const uiDialExtra::Setup& setup, const char* nm )
     else
     {
 	// to do: attach lbl_ and editfld_ to the borders of the group
-	if ( lbl_ ) 
+	if ( lbl_ )
 	{
 	    //lbl_->attach( leftBorder, 1 );
 	    lbl_->attach( centeredLeftOf, dial_ );
 	}
-	if ( editfld_ ) 
+	if ( editfld_ )
 	{
 	    //editfld_->attach( rightBorder, 1 );
 	    editfld_->attach( centeredRightOf, dial_ );

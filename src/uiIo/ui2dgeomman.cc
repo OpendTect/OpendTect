@@ -244,7 +244,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     MouseCursorChanger chgr( MouseCursor::Wait );
     BufferStringSet msgs;
     TypeSet<MultiID> selids;
-    selgrp_->getSelected( selids );
+    selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( selids[idx] );

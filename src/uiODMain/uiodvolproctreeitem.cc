@@ -123,7 +123,7 @@ bool uiDataTreeItem::selectSetup()
 
     const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
-    if ( !dlg.go() || !dlg.nrSelected() )
+    if ( !dlg.go() || !dlg.nrChosen() < 1 )
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
@@ -139,7 +139,7 @@ bool uiDataTreeItem::selectSetup()
 	}
     }
 
-    mid_ = dlg.selected( 0 );
+    mid_ = dlg.chosenID();
 
     const BufferString def =
 	VolProc::ExternalAttribCalculator::createDefinition( mid_ );

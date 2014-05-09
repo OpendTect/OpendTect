@@ -63,7 +63,7 @@ class uiDPSDispPropDlg : public uiDialog
 public:
 uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 		  const DataPointSetDisplayProp* prevdispprop )
-    : uiDialog(this,uiDialog::Setup("Display Properties", 0, 
+    : uiDialog(this,uiDialog::Setup("Display Properties", 0,
                                     mNoHelpKey).modal(false))
     , plotter_(plotter)
 {
@@ -693,7 +693,7 @@ class uiSelectPosDlg : public uiDialog
 {
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
-    : uiDialog( p, uiDialog::Setup("Select Position for new row", 
+    : uiDialog( p, uiDialog::Setup("Select Position for new row",
                                    0, mNoHelpKey) )
     , grpfld_(0)
 {
@@ -1398,7 +1398,7 @@ bool acceptOK( CallBacker* )
     }
     else
     {
-	if ( !selgrp_->processInput() )
+	if ( !selgrp_->updateCtxtIOObj() )
 	    mErrRet("Please enter a name for the output")
 	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
 	if ( !type_.isEmpty() )

@@ -61,7 +61,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     bldfld_ = new uiMadagascarBldCmd( this );
     bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
 
-    uiSeparator* sep = new uiSeparator( this, "VSep", uiObject::Vertical );
+    uiSeparator* sep = new uiSeparator( this, "VSep", OD::Vertical );
     sep->attach( rightTo, maingrp );
     bldfld_->attach( rightTo, sep );
 
@@ -106,8 +106,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "",
-					     uiObject::Horizontal );
+    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "", OD::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
 				"Move current command up", butpushcb );

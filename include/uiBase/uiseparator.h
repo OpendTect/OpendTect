@@ -23,8 +23,8 @@ mExpClass(uiBase) uiSeparator : public uiObject
 {
 public:
 
-                        uiSeparator(uiParent*,const char* nm="Separator", 
-				    Orientation ori=Horizontal,
+                        uiSeparator(uiParent*,const char* nm="Separator",
+				    OD::Orientation ori=OD::Horizontal,
 				    bool raised=true);
 
 

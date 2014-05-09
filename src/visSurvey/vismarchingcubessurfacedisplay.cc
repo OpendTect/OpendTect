@@ -40,7 +40,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , emsurface_( 0 )
     , displaysurface_( 0 )
     , impbody_( 0 )
-    , displayintersections_( false )		   
+    , displayintersections_( false )
     , model2displayspacetransform_( 0 )
     , intersectiontransform_( 0 )
 
@@ -56,7 +56,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 MarchingCubesDisplay::~MarchingCubesDisplay()
 {
     if ( emsurface_ ) emsurface_->unRef();
-   
+
     delete impbody_;
     deepErase( intsinfo_ );
 
@@ -69,7 +69,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     {
 	if ( !cache_[idx] )
 	    continue;
-	
+
 	DPM( DataPackMgr::PointID() ).release( cache_[idx]->id() );
 	delete cache_[idx];
     }
@@ -86,15 +86,15 @@ void MarchingCubesDisplay::useTexture( bool yn )
 {
     if ( displaysurface_ )
     {
-    	displaysurface_->getShape()->enableColTab( yn );
+	displaysurface_->getShape()->enableColTab( yn );
     }
 }
 
 
 bool MarchingCubesDisplay::usesTexture() const
-{ 
+{
     return displaysurface_ ? displaysurface_->getShape()->isColTabEnabled()
-			   : false; 
+			   : false;
 }
 
 
@@ -106,7 +106,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 	displaysurface_->unRef();
 	displaysurface_ = 0;
     }
-	
+
     if ( emsurface_ ) emsurface_->unRef();
     emsurface_ = 0;
 
@@ -159,7 +159,7 @@ bool MarchingCubesDisplay::setVisSurface(visBase::MarchingCubesSurface* surface)
 	    mCB(this,MarchingCubesDisplay,materialChangeCB));
     emsurface_->setPreferredColor( getColor() );
     emsurface_->setName( name() );
-    
+
     materialChangeCB( 0 );
     return true;
 }
@@ -294,13 +294,13 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	    }
 	    else
 	    {
-		if ( minz>curz ) 
+		if ( minz>curz )
 		    minz = curz;
-		else if ( maxz<curz ) 
+		else if ( maxz<curz )
 		    maxz = curz;
 	    }
 	}
-	    
+
 	vals[valcol] = maxz-minz;
     }
 
@@ -374,9 +374,9 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
     if ( cache_.validIdx(attrib) )
     {
-    	if ( cache_[attrib] )
+	if ( cache_[attrib] )
 	{
-    	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
+	    DPM( DataPackMgr::PointID() ).release( cache_[attrib]->id() );
 	    delete cache_[attrib];
 	}
 
@@ -388,7 +388,7 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 	    cache_ += 0;
 	cache_ += ndps;
     }
-    
+
     if ( cache_[attrib] )
 	DPM( DataPackMgr::PointID() ).obtain( cache_[attrib]->id() );
 }
@@ -400,8 +400,8 @@ void MarchingCubesDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 
 
 void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
- 			    Coord3& xyzpos, BufferString& val,
- 			    BufferString& info) const
+			    Coord3& xyzpos, BufferString& val,
+			    BufferString& info) const
 {
     val = sKey::EmptyString();
     info = "Body: ";
@@ -410,7 +410,7 @@ void MarchingCubesDisplay::getMousePosInfo(const visBase::EventInfo&,
     int valididx = -1;
     for ( int idx=0; idx<cache_.size(); idx++ )
     {
-    	if ( !cache_[idx] ) continue;
+	if ( !cache_[idx] ) continue;
 	valididx = idx;
 	break;
     }
@@ -557,10 +557,10 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
 	    seqpar.set( sKey::Name(), seq->name() );
 	else
 	    seq->fillPar( seqpar );
-	
+
 	attribpar.mergeComp( seqpar, sKeyColTabSequence() );
     }
-    
+
     if ( getColTabMapperSetup( 0, 0 ) )
     {
 	IOPar mapperpar;
@@ -598,7 +598,7 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
     if ( attribpar ) //Right now only one attribute for the body
     {
 	selspec_.usePar( *attribpar );
-	
+
 	PtrMan<IOPar> seqpar = attribpar->subselect( sKeyColTabSequence() );
 	if ( seqpar )
 	{
@@ -606,15 +606,15 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 	    if ( !seq.usePar( *seqpar ) )
 	    {
 		BufferString seqname;
-		if ( seqpar->get( sKey::Name(), seqname ) ) 
+		if ( seqpar->get( sKey::Name(), seqname ) )
 		    ColTab::SM().get( seqname.buf(), seq );
 	    }
-	    
+
 	    setColTabSequence( 0, seq, 0 );
 	}
-	
+
 	PtrMan<IOPar> mappar = attribpar->subselect( sKeyColTabMapper() );
- 	if ( mappar )
+	if ( mappar )
 	{
 	    ColTab::MapperSetup mapper;
 	    mapper.usePar( *mappar );
@@ -661,7 +661,7 @@ void MarchingCubesDisplay::setDisplayTransformation( const mVisTrans* nt)
 
 const mVisTrans* MarchingCubesDisplay::getDisplayTransformation() const
 {
-    return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; 
+    return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0;
 }
 
 
@@ -692,7 +692,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
     Interval<int> inlrg, crlrg, zrg;
     if ( !mcs || !mcs->models_.getRange(0,inlrg) ||
 	 !mcs->models_.getRange(1,crlrg) || !mcs->models_.getRange(2,zrg) )
-   	return;
+	return;
 
     const int inlsz = inlrg.width()+1;
     const int crlsz = crlrg.width()+1;
@@ -727,7 +727,7 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 
 		pos.z = zrg.start+idz*zsp.step;
 		if ( !selector.includes(pos) )
-	    	    continue;
+		    continue;
 
 		arr->set( idx, idy, idz, 1 );
 		narr->set(idx, idy, idz, 1);
@@ -744,15 +744,15 @@ void MarchingCubesDisplay::removeSelection( const Selector<Coord3>& selector,
 }
 
 
-void MarchingCubesDisplay::otherObjectsMoved( 
+void MarchingCubesDisplay::otherObjectsMoved(
 	const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
     if ( !emsurface_ || !displaysurface_ )
 	return;
-    
+
     ObjectSet<const PlaneDataDisplay> activeplanes;
     TypeSet<int> activepids;
-    
+
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
@@ -766,7 +766,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
     for ( int idx=intsinfo_.size()-1; idx>=0; idx-- )
     {
 	const int ipid = intsinfo_[idx]->planeid_;
-	if ( (whichobj>=0 && ipid!=whichobj) || 
+	if ( (whichobj>=0 && ipid!=whichobj) ||
 	     (whichobj<0 && activepids.isPresent(ipid)) )
 	    continue;
 
@@ -779,7 +779,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	bool planepresent = false;
 	for ( int idy=0; idy<intsinfo_.size(); idy++ )
 	{
-    	    if ( intsinfo_[idy]->planeid_ == activepids[idx] )
+	    if ( intsinfo_[idy]->planeid_ == activepids[idx] )
 	    {
 		planepresent = true;
 		break;
@@ -794,12 +794,9 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	addChild( pi->visshape_->osgNode() );
 
 	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
-	PlaneDataDisplay::Orientation ori = activeplanes[idx]->getOrientation();
-	const float pos = ori==PlaneDataDisplay::Zslice
-	    ? cs.zrg.start
-	    : ori==PlaneDataDisplay::Inline
-	    	? cs.hrg.start.inl()
-		: cs.hrg.start.crl();
+	OD::SliceType ori = activeplanes[idx]->getOrientation();
+	const float pos = ori==OD::ZSlice ? cs.zrg.start
+	    : (ori==OD::InlineSlice ? cs.hrg.start.inl() : cs.hrg.start.crl());
 
 	pi->planeorientation_ = (char)ori;
 	pi->planepos_ = pos;
@@ -830,22 +827,22 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 {
     if ( displayintersections_ )
     {
-    	if ( !impbody_ )
-    	    impbody_ = emsurface_->createImplicitBody(0,false);
+	if ( !impbody_ )
+	    impbody_ = emsurface_->createImplicitBody(0,false);
 	if ( !impbody_ ) return;
-	
-    	for ( int idx=0; idx<intsinfo_.size(); idx++ )
-    	{
-    	    if ( intsinfo_[idx]->computed_ )
-    		continue;
-	    
-    	    intsinfo_[idx]->computed_ = true;
-    	    Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_, 
-    		    impbody_->cs_, impbody_->threshold_, 
-    		    intsinfo_[idx]->planeorientation_, 
+
+	for ( int idx=0; idx<intsinfo_.size(); idx++ )
+	{
+	    if ( intsinfo_[idx]->computed_ )
+		continue;
+
+	    intsinfo_[idx]->computed_ = true;
+	    Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_,
+		    impbody_->cs_, impbody_->threshold_,
+		    intsinfo_[idx]->planeorientation_,
 		    intsinfo_[idx]->planepos_, *intsinfo_[idx]->shape_ );
-    	    gii.compute();
-    	}
+	    gii.compute();
+	}
     }
 
     for ( int idx=0; idx<intsinfo_.size(); idx++ )
@@ -856,11 +853,11 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 		intersectiontransform_ );
 	    intsinfo_[idx]->visshape_->touch( false, false );
 	}
-	
+
 	intsinfo_[idx]->visshape_->turnOn( displayintersections_ );
     }
-	
-    if ( displaysurface_ ) 
+
+    if ( displaysurface_ )
 	displaysurface_->turnOn( !displayintersections_ );
 }
 

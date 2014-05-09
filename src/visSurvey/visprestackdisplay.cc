@@ -509,8 +509,7 @@ void PreStackDisplay::dataChangedCB( CallBacker* )
 
     if ( section_ )
     {
-	bool isinline =
-	    section_->getOrientation()==PlaneDataDisplay::Inline;
+	bool isinline = section_->getOrientation()==OD::InlineSlice;
 	planedragger_->setDim( isinline ? 1 : 0 );
 
 	const float xwidth =
@@ -551,7 +550,7 @@ bool PreStackDisplay::isOrientationInline() const
     if ( !section_ )
 	return false;
 
-    return section_->getOrientation() == PlaneDataDisplay::Inline;
+    return section_->getOrientation() == OD::InlineSlice;
 }
 
 
@@ -598,10 +597,10 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 	reader_ = SPSIOPF().get3DReader( *ioobj_ );
 
     const bool offsetalonginl =
-	section_->getOrientation()==PlaneDataDisplay::Crossline;
+	section_->getOrientation()==OD::CrosslineSlice;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
 
-    if ( section_->getOrientation() == PlaneDataDisplay::Zslice )
+    if ( section_->getOrientation() == OD::ZSlice )
 	return;
 
     if ( section_->getMovementNotifier() )
@@ -618,10 +617,9 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
 	return;
     else
     {
-	if ( section_->getOrientation() == PlaneDataDisplay::Inline )
+	if ( section_->getOrientation() == OD::InlineSlice )
 	    newpos.inl() = section_->getCubeSampling( -1 ).hrg.start.inl();
-	else if ( section_->getOrientation() ==
-		PlaneDataDisplay::Crossline )
+	else if ( section_->getOrientation() == OD::CrosslineSlice )
 	    newpos.crl() = section_->getCubeSampling( -1 ).hrg.start.crl();
 	else
 	    return;
@@ -805,13 +803,11 @@ void PreStackDisplay::draggerMotion( CallBacker* )
     const int newinl = SI().inlRange( true ).snap( planedragger_->center().x );
     const int newcrl = SI().crlRange( true ).snap( planedragger_->center().y );
 
-    const PlaneDataDisplay::Orientation orientation =
-	    section_->getOrientation();
+    const OD::SliceType orientation = section_->getOrientation();
     bool showplane = false;
-    if ( orientation==PlaneDataDisplay::Inline && newcrl!=bid_.crl() )
+    if ( orientation==OD::InlineSlice && newcrl!=bid_.crl() )
         showplane = true;
-    else if ( orientation==PlaneDataDisplay::Crossline &&
-	      newinl!=bid_.inl() )
+    else if ( orientation==OD::CrosslineSlice && newinl!=bid_.inl() )
 	showplane = true;
 
     planedragger_->showPlane( showplane );
@@ -828,13 +824,12 @@ void PreStackDisplay::finishedCB( CallBacker* )
 	return;
 
     BinID newpos;
-    if ( section_->getOrientation() == PlaneDataDisplay::Inline )
+    if ( section_->getOrientation() == OD::InlineSlice )
     {
 	newpos.inl() = section_->getCubeSampling( -1 ).hrg.start.inl();
 	newpos.crl() = SI().crlRange(true).snap( planedragger_->center().y );
     }
-    else if ( section_->getOrientation() ==
-	    PlaneDataDisplay::Crossline )
+    else if ( section_->getOrientation() == OD::CrosslineSlice )
     {
 	newpos.inl() = SI().inlRange(true).snap( planedragger_->center().x );
 	newpos.crl() = section_->getCubeSampling( -1 ).hrg.start.crl();
@@ -886,7 +881,7 @@ void PreStackDisplay::getMousePosInfo( const visBase::EventInfo& ei,
 	    return;
 
 	const float cal = posdata.width(true)*distance/width_;
-	if ( section_->getOrientation()==PlaneDataDisplay::Inline )
+	if ( section_->getOrientation()==OD::InlineSlice )
 	    offset = cal*SI().inlDistance()+rg.start;
 	else
 	    offset= cal*SI().crlDistance()+rg.start;
