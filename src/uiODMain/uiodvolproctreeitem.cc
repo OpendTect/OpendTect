@@ -123,7 +123,7 @@ bool uiDataTreeItem::selectSetup()
 
     const CtxtIOObj ctxt( VolProcessingTranslatorGroup::ioContext(),ioobj );
     uiIOObjSelDlg dlg( ODMainWin(), ctxt );
-    if ( !dlg.go() || !dlg.nrChosen() < 1 )
+    if ( !dlg.go() || dlg.nrChosen() < 1 )
 	return false;
 
     RefMan<VolProc::Chain> chain = new VolProc::Chain;
