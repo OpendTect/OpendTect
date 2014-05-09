@@ -74,11 +74,13 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 {
     setCtrlStyle( DoAndStay );
 
+    const IOObjContext wellctxt = mIOObjContext(Well);
+    wellfld_ = new uiIOObjSel( this, wellctxt );
     if ( !wtsetup_.wellid_.isEmpty() )
-	wllctio_.setObj( wtsetup_.wellid_ );
+	wellfld_->setInput( wtsetup_.wellid_ );
 
-    wellfld_ = new uiIOObjSel( this, wllctio_ );
-    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
+    const CallBack wllselcb( mCB(this,uiTieWinMGRDlg,wellSelChg) );
+    wellfld_->selectionDone.notify( wllselcb );
 
     uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
@@ -104,30 +106,42 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( has2d )
     {
 	uiSeisSel::Setup seis2dfldsetup = uiSeisSel::Setup(Seis::Line);
+	seis2dfldsetup.allowsetsurvdefault_ = true;
 	seis2dfldsetup.optional_ = true;
-	seis2dfld_ = new uiSeisSel( seisgrp, seisctio2d_, seis2dfldsetup );
+	const IOObjContext seis2dctxt =
+			uiSeisSel::ioContext( seis2dfldsetup.geom_, true );
+	seis2dfld_ = new uiSeisSel( seisgrp, seis2dctxt, seis2dfldsetup );
 	seis2dfld_->setChecked( true );
+	seis2dfld_->display( !has3d );
 	if ( typefld_ )
 	    seis2dfld_->attach( alignedBelow, typefld_ );
 
-	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
-	seislinefld_->attach( alignedBelow, seis2dfld_ );
-	set2DSeis();
 	seis2dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
 	seis2dfld_->optionalChecked.notify(
 				      mCB(this,uiTieWinMGRDlg,seis2DCheckChg) );
+
+	seislinefld_ = new uiSeis2DLineNameSel( seisgrp, true );
+	seislinefld_->display( !has3d );
+	if ( !seis2dfld_->key().isEmpty() )
+	    seislinefld_->setLineSet( seis2dfld_->key() );
+	else
+	    set2DSeis(); //required if survey type is both 2D/3D
+
+	seislinefld_->attach( alignedBelow, seis2dfld_ );
     }
 
     if ( has3d )
     {
 	uiSeisSel::Setup seis3dfldsetup = uiSeisSel::Setup(Seis::Vol);
+	seis3dfldsetup.allowsetsurvdefault_ = true;
 	seis3dfldsetup.optional_ = true;
-	seis3dfld_ = new uiSeisSel( seisgrp, seisctio3d_, seis3dfldsetup );
+	const IOObjContext seis3dctxt =
+			uiSeisSel::ioContext( seis3dfldsetup.geom_, true );
+	seis3dfld_ = new uiSeisSel( seisgrp, seis3dctxt, seis3dfldsetup );
 	seis3dfld_->setChecked( true );
 	if ( typefld_ )
 	    seis3dfld_->attach( alignedBelow, typefld_ );
 
-	set3DSeis();
 	seis3dfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,seisSelChg) );
     }
 
@@ -154,7 +168,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 					WellTie::Setup::sKeyCSCorrType());
     cscorrfld_->attach( alignedBelow, used2tmbox_ );
     logsgrp->setHAlignObj( cscorrfld_ );
-    used2tmbox_->setChecked( true );
 
     sep = new uiSeparator( this, "Logs2Wavelt Sep" );
     sep->attach( stretchedBelow, logsgrp );
@@ -166,21 +179,21 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    typeSelChg(0);
     postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 }
 
 
 uiTieWinMGRDlg::~uiTieWinMGRDlg()
 {
-    delete &wtsetup_;
-    delete seisctio3d_.ioobj; delete &seisctio3d_;
-    delete seisctio2d_.ioobj; delete &seisctio2d_;
+    delWins();
     if ( extractwvltdlg_ )
 	delete extractwvltdlg_;
 
-    delWins();
-
+    delete &wtsetup_;
+    delete wllctio_.ioobj; delete &wllctio_;
+    delete wvltctio_.ioobj; delete &wvltctio_;
+    delete seisctio3d_.ioobj; delete &seisctio3d_;
+    delete seisctio2d_.ioobj; delete &seisctio2d_;
 }
 
 
@@ -201,16 +214,13 @@ bool uiTieWinMGRDlg::selIs2D() const
 
 void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 {
-    if ( !wellfld_->commitInput() )
-	return;
-
-    const char* nm = Well::IO::getMainFileName( *wllctio_.ioobj );
-    if ( !nm || !*nm ) return;
-
-    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
+    const IOObj* wellobj = wellfld_->ioobj();
+    if ( !wellobj ) return;
+    const char* wllfilenm = Well::IO::getMainFileName( *wellobj );
+    const MultiID& wellid = wellobj->key();
     wd_ = Well::MGR().get( wellid, false );
 
-    logsfld_->wellid_ = wllctio_.ioobj->key();
+    logsfld_->wellid_ = wellid;
     if ( !logsfld_->setLogs(wd_->logs()) )
     {
 	BufferString errmsg = "This well has no valid log to use as input";
@@ -220,10 +230,11 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 	return;
     }
 
-    used2tmbox_->display( wd_->d2TModel() && !mIsUnvalidD2TM((*wd_)) );
-    used2tmbox_->setChecked( wd_->d2TModel() && !mIsUnvalidD2TM((*wd_)) );
+    const bool canuseexistingd2t = wd_->d2TModel() && !mIsUnvalidD2TM((*wd_));
+    used2tmbox_->display( canuseexistingd2t );
+    used2tmbox_->setChecked( canuseexistingd2t );
 
-    getSetup( nm );
+    getSetup( wllfilenm );
 }
 
 
@@ -252,11 +263,12 @@ void uiTieWinMGRDlg::seisSelChg( CallBacker* )
 
     if ( seisfld->isChecked() )
     {
-	if ( !seisfld->commitInput() )
+	const MultiID& seisid = seisfld->key();
+	if ( seisid.isEmpty() )
 	    mErrRet("Please select the input seimic data")
 
 	if ( is2d && seislinefld_ )
-	    seislinefld_->setLineSet( seisctio2d_.ioobj->key() );
+	    seislinefld_->setLineSet( seisid );
     }
 }
 
@@ -344,7 +356,12 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 	if ( seisfld )
 	{
 	    seisfld->setInput( wtsetup_.seisid_ );
-	    seisfld->commitInput();
+	    if ( seisfld->key().isEmpty() )
+	    {
+		seisfld->setEmpty();
+		mErrRet("Cannot restore the seismic data from the setup")
+	    }
+
 	    if ( idinsetupis2d && seislinefld_ &&
 		 !wtsetup_.linekey_.lineName().isEmpty() )
 	    {
@@ -445,10 +462,12 @@ bool uiTieWinMGRDlg::initSetup()
 
     if ( seisfld->isChecked() )
     {
-	if ( !seisfld->commitInput() )
+	const MultiID& seisid = seisfld->key();
+	if ( seisid.isEmpty() )
 	    mErrRet("Please select the input seimic data")
+	    // msg required because the seismic is optional
 
-	wtsetup_.seisid_ = seisfld->ctxtIOObj().ioobj->key();
+	wtsetup_.seisid_ = seisid;
 	if ( is2d )
 	{
 	    wtsetup_.linekey_.setAttrName( seis2dfld_->attrNm() );
@@ -535,7 +554,7 @@ bool uiTieWinMGRDlg::acceptOK( CallBacker* )
     welltiedlgset_ += wtdlg;
     welltiedlgsetcpy_ += wtdlg;
     //windows are stored in a an ObjectSet to be deleted in the destructor
-    wtdlg->windowClosed.notify(	mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
+    wtdlg->windowClosed.notify( mCB(this,uiTieWinMGRDlg,wellTieDlgClosed) );
 
     PtrMan<IOObj> ioobj = IOM().get( wtsetup_.wellid_ );
     if ( !ioobj ) return false;
@@ -566,18 +585,6 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 #define mGetPar(key) \
     defpars->find(SeisTrcTranslatorGroup::key())
 
-void uiTieWinMGRDlg::set3DSeis() const
-{
-    if ( !seis3dfld_->isEmpty() )
-	return;
-
-    PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
-    const FixedString seisidstr = defpars ? mGetPar( sKeyDefault3D ) : 0;
-    const MultiID defaultid = seisidstr;
-    seis3dfld_->setInput( defaultid );
-}
-
-
 void uiTieWinMGRDlg::set2DSeis() const
 {
     if ( !seis2dfld_->isEmpty() )
@@ -585,9 +592,7 @@ void uiTieWinMGRDlg::set2DSeis() const
 
     PtrMan<IOPar> defpars = SI().pars().subselect( sKey::Default() );
     const FixedString lsid = defpars ? mGetPar( sKeyDefault2D ) : 0;
-    const LineKey curlk( seis2dfld_->getKey() );
-    const MultiID curid = curlk.lineName().buf();
-    const MultiID outid = seis2dfld_->isEmpty() ? lsid : curlk.lineName().buf();
+    const MultiID& outid = lsid;
 
     BufferString lineidstr;
     PtrMan<IOObj> lsobj = IOM().get( MultiID(outid) );
@@ -606,8 +611,11 @@ void uiTieWinMGRDlg::set2DSeis() const
     }
 
     lineidstr = LineKey( outid, attrnm );
-    const MultiID seisid = lineidstr.buf();
+    const MultiID& seisid = lineidstr.buf();
     seis2dfld_->setInput( seisid );
+    if ( seis2dfld_->key().isEmpty() )
+	return;
+
     seislinefld_->setLineSet( seisid );
 }
 
