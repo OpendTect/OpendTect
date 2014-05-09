@@ -160,7 +160,6 @@ uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& mousepos,
     uiWorldRect wr( havepan && havezoom
 		? getZoomAndPanRect(mousepos,newsz,cv,bb)
 		: getZoomOrPanRect(mousepos,newsz,cv,bb) );
-    mousepos = wr.centre(); newsz = wr.size();
 
     if ( cv.left() > cv.right() ) wr.swapHor();
     if ( cv.bottom() > cv.top() ) wr.swapVer();
