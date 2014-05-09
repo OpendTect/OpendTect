@@ -49,6 +49,7 @@ public:
 
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
+    void		showHeader(bool yn); // default is true
 
     // take & insert are meant to MOVE an item to another point in the tree
     void		takeItem(uiTreeViewItem*);

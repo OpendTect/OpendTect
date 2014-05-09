@@ -315,6 +315,10 @@ bool uiTreeView::rootDecorated() const
 void uiTreeView::setRootDecorated( bool yn )
 { body_->setRootIsDecorated(yn); }
 
+void uiTreeView::showHeader( bool yn )
+{ body_->setHeaderHidden( !yn ); }
+
+
 /*! \brief insert an already existing item in this object's tree of children
 
     If you need to move an item from one place in the hierarchy to
