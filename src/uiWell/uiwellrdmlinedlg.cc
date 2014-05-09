@@ -65,7 +65,7 @@ uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
 
 void uiWellSelGrp::createFields()
 {
-    wellsbox_ = new uiListBox( this, "Available Wells", uiListBox::AtLeastOne );
+    wellsbox_ = new uiListBox( this, "Available Wells", OD::ChooseAtLeastOne );
     selwellstbl_ = new uiTable( this, uiTable::Setup()
 				        .selmode(uiTable::SelectionMode(3) ),
 				"Wells Table" );

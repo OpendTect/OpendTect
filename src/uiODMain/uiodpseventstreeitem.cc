@@ -49,7 +49,7 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     addStandardItems( mnu );
-  
+
     const int mnusel = mnu.exec();
     if ( mnusel == 0 )
     {
@@ -59,7 +59,7 @@ bool uiODPSEventsParentTreeItem::showSubMenu()
 	    return false;
 
 	child_ = new uiODPSEventsTreeItem( key, eventname );
-	addChild( child_, true ); 
+	addChild( child_, true );
     }
 
     handleStandardItems( mnusel );
@@ -78,11 +78,11 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 	return false;
 
     eventname = dlg.ioObj()->name();
-    key = dlg.selected( 0 );
+    key = dlg.chosenID();
     if ( key.isEmpty() || eventname.isEmpty() )
     {
 	BufferString errmsg = "Failed to load prestack event";
-	uiMSG().error( errmsg ); 
+	uiMSG().error( errmsg );
 	return false;
     }
 
@@ -103,7 +103,7 @@ bool uiODPSEventsParentTreeItem::init()
 {
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
-    
+
     return true;
 }
 
@@ -121,7 +121,7 @@ const char* uiODPSEventsParentTreeItem::parentType() const
 uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 					    const char* eventname )
     : key_(key)
-    , psem_(*new PreStack::EventManager) 
+    , psem_(*new PreStack::EventManager)
     , eventname_(eventname)
     , eventdisplay_(0)
     , dir_(Coord(1,0))
@@ -136,7 +136,7 @@ uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 
 uiODPSEventsTreeItem::~uiODPSEventsTreeItem()
 {
-    ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 
+    ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
 	   &ODMainWin()->colTabEd().getColTabSequence() );
     if ( cseq )
     {
@@ -236,10 +236,10 @@ void uiODPSEventsTreeItem::updateDisplay()
 	eventdisplay_->setName( eventname_ );
 	eventdisplay_->setLineStyle( LineStyle(LineStyle::Solid,4) );
 	eventdisplay_->setEventManager( &psem_ );
-	
-	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>( 
+
+	ColTab::Sequence* cseq = const_cast<ColTab::Sequence*>(
 	   &ODMainWin()->colTabEd().getColTabSequence() );
-   	if ( cseq )
+	if ( cseq )
 	{
 	    cseq->colorChanged.notify(
 			    mCB(this,uiODPSEventsTreeItem,coltabChangeCB) );

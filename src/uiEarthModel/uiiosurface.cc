@@ -75,7 +75,7 @@ uiIOSurface::~uiIOSurface()
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
     attribfld_ = new uiLabeledListBox( this, "Calculated attributes",
-		uiListBox::AtLeastOne, labelabove ? uiLabeledListBox::AboveMid
+		OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
 						  : uiLabeledListBox::LeftTop );
     attribfld_->setStretch( 2, 2 );
     attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
@@ -85,7 +85,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
     sectionfld_ = new uiLabeledListBox( this, "Available patches",
-	    uiListBox::AtLeastOne, labelabove ? uiLabeledListBox::AboveMid
+	    OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
 					      : uiLabeledListBox::LeftTop );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
     sectionfld_->setStretch( 2, 2 );
@@ -554,7 +554,7 @@ public:
 	    }
 	}
 
-	fsslistfld_ = new uiListBox(this,"",uiListBox::AtLeastOne,
+	fsslistfld_ = new uiListBox(this,"",OD::ChooseAtLeastOne,
 				validmids_.size()+1,20 );
 	fsslistfld_->addItems( validfss_ );
     }
@@ -624,10 +624,10 @@ public:
 	if ( !dlg.go() )
 	    return;
 
-	const int nrsel = dlg.nrSelected();
+	const int nrsel = dlg.nrChosen();
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const MultiID& mid = dlg.selected( idx );
+	    const MultiID& mid = dlg.chosenID( idx );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
 	    if ( !ioobj ) continue;
 
@@ -778,10 +778,9 @@ void uiFaultParSel::doDlg( CallBacker* )
 
 	selfaultnms_.erase(); selfaultids_.erase();
 	uiIOObjSelGrp* selgrp = dlg.selGrp();
-	selgrp->processInput();
 	selgrp->getListField()->getChosen( selfaultnms_ );
 	for ( int idx=0; idx<selfaultnms_.size(); idx++ )
-	    selfaultids_ += selgrp->selected(idx);
+	    selfaultids_ += selgrp->chosenID(idx);
     }
 
     selChange.trigger();

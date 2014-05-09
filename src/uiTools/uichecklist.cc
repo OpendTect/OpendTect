@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
-			  uiObject::Orientation ori )
+			  OD::Orientation ori )
     : uiGroup(p,"CheckList")
     , pol_(pl)
     , orientation_(ori)
@@ -40,7 +40,7 @@ uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
     if ( !boxs_.isEmpty() )
 	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
 
-    cb->setStretch( 0, orientation_ == uiObject::Vertical ? 2 : 0 );
+    cb->setStretch( 0, orientation_ == OD::Vertical ? 2 : 0 );
 
     boxs_ += cb;
     return *this;
@@ -78,7 +78,7 @@ void uiCheckList::initObj( CallBacker* )
     else if ( pol_ >= OneOnly )
 	handleRadio( pol_ == MaybeOne );
     else if ( pol_ != Unrel )
-	ensureOne( pol_ == AtLeastOne );
+	ensureOne( pol_ == OneMinimum );
 
     const CallBack cb( mCB(this,uiCheckList,boxChk) );
     for ( int idx=0; idx<boxs_.size(); idx++ )
@@ -135,7 +135,7 @@ void uiCheckList::boxChk( CallBacker* c )
     {
     case Unrel:		break;
     case NotAll:	ensureOne(false); break;
-    case AtLeastOne:	ensureOne(true); break;
+    case OneMinimum:	ensureOne(true); break;
     case OneOnly:	handleRadio(false); break;
     case MaybeOne:	handleRadio(true); break;
     default:		handleChain(); break;

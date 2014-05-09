@@ -392,10 +392,10 @@ uiSelectPropRefs::uiSelectPropRefs( uiParent* p, PropertyRefSelection& prs,
     uiLabeledListBox* llb = 0;
     if ( !lbl || !*lbl )
 	propfld_ = new uiListBox( this, "Available properties",
-				  uiListBox::AtLeastOne );
+				  OD::ChooseAtLeastOne );
     else
     {
-	llb = new uiLabeledListBox( this, lbl, uiListBox::AtLeastOne,
+	llb = new uiLabeledListBox( this, lbl, OD::ChooseAtLeastOne,
 				    uiLabeledListBox::AboveMid );
 	propfld_ = llb->box();
     }

@@ -29,7 +29,7 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
     : uiGroup(p,"Surface Selection")
     , ctxt_(*new IOObjContext(ct))
 {
-    listfld_ = new uiListBox( this, "listbox", uiListBox::AtLeastOne );
+    listfld_ = new uiListBox( this, "listbox", OD::ChooseAtLeastOne );
     listfld_->setHSzPol( uiObject::Wide );
 }
 

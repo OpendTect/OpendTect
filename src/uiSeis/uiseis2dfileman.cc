@@ -60,7 +60,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
-			    uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
+			    OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     linefld_ = lllb->box();
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
 
@@ -68,7 +68,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     linegrp_->addButton( uiManipButGrp::Rename, "Rename line",
 			mCB(this,uiSeis2DFileMan,renameLine) );
     linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
-	    		mCB(this,uiSeis2DFileMan,removeLine) );
+			mCB(this,uiSeis2DFileMan,removeLine) );
     linegrp_->addButton( "mergelines", "Merge lines",
 			mCB(this,uiSeis2DFileMan,mergeLines) );
     if ( SI().has3D() )
@@ -134,7 +134,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    l2dd = geom2d->data();
 	if ( !geom2d || l2dd.isEmpty() )
 	{
-	    txt += ( "\nCannot find geometry for line: " ); 
+	    txt += ( "\nCannot find geometry for line: " );
 	    txt += linenms.get(idx);
 	    continue;
 	}
@@ -181,7 +181,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 
 	txt += "\nLocation: "; txt += fp.pathOnly();
 	txt += "\nFile name: "; txt += fp.fileName();
-	txt += "\nFile size: "; 
+	txt += "\nFile size: ";
 	txt += uiObjFileMan::getFileSizeString( File::getKbSize(fname) );
 	const char* timestr = File::timeLastModified( fname );
 	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
@@ -228,7 +228,7 @@ void uiSeis2DFileMan::renameLine( CallBacker* )
     const char* linenm = linenms.get(0);
     BufferString newnm;
     if ( !rename(linenm,newnm) ) return;
-    
+
     if ( linefld_->isPresent(newnm) )
     {
 	uiMSG().error( "Linename already in use" );
@@ -266,14 +266,14 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
     const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
     mrgoptfld_ = new uiGenInput( this, "Merge method",
-	    			 StringListInpSpec(mrgopts) );
+				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
     stckfld_ = new uiGenInput( this, "Duplicate positions",
-	    			BoolInpSpec(true,"Stack","Use first") );
+				BoolInpSpec(true,"Stack","Use first") );
     stckfld_->attach( alignedBelow, mrgoptfld_ );
     renumbfld_ = new uiGenInput( this, "Renumber; Start/step numbers",
-	    			 IntInpSpec(1), IntInpSpec(1) );
+				 IntInpSpec(1), IntInpSpec(1) );
     renumbfld_->setWithCheck( true );
     renumbfld_->setChecked( true );
     renumbfld_->attach( alignedBelow, stckfld_ );
@@ -413,10 +413,10 @@ uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
     , sellns_(sellns)
 {
     alllnsfld_ = new uiGenInput( this, "Extract for",
-	    		BoolInpSpec(true,"All lines", "Selected line(s)") );
+			BoolInpSpec(true,"All lines", "Selected line(s)") );
     IOObjContext ctxt = uiSeisSel::ioContext(Seis::Vol,true);
     ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    
+
     cubefld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
     cubefld_->attach( alignedBelow, alllnsfld_ );
     cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
@@ -445,15 +445,15 @@ bool acceptOK( CallBacker* )
 	lnms = sellns_;
 
     SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
-	    			     lnms.isEmpty() ? 0 : &lnms );
+				     lnms.isEmpty() ? 0 : &lnms );
     uiTaskRunner tr( this );
-    
+
     if ( !TaskRunner::execute( &tr, extr ) )
     {
 	uiMSG().error( extr.uiMessage() );
 	return false;
     }
-    
+
     return true;
 }
 

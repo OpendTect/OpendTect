@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+#include "oduicommon.h"
 #include "geometry.h"
 #include "enums.h"
 
@@ -24,16 +25,16 @@ typedef Geom::PosRectangle<double> uiWorldRect;
 mExpClass(uiBase) uiSize : public Geom::Size2D<int>
 {
 public:
-    			uiSize( const Geom::Size2D<int>& a )
-			    :  Geom::Size2D<int>( a ) 			{}
-    			uiSize( int wdt=0 , int hgt=0 )
+			uiSize( const Geom::Size2D<int>& a )
+			    :  Geom::Size2D<int>( a )			{}
+			uiSize( int wdt=0 , int hgt=0 )
 			    : Geom::Size2D<int>(wdt,hgt)		{}
 
     inline int          hNrPics() const		{ return width_; }
     inline int          vNrPics() const		{ return height_; }
-			//! nr of pics should be > 0 
+			//! nr of pics should be > 0
     inline void		setHNrPics( int np )	{ width_ = mMAX(np,1); }
-			//! nr of pics should be > 0 
+			//! nr of pics should be > 0
     inline void		setVNrPics( int np )	{ height_ = mMAX(np,1); }
 };
 
@@ -43,7 +44,7 @@ mExpClass(uiBase) uiRect  : public Geom::PixRectangle<int>
 public:
 
     enum Side		{ Left, Right, Top, Bottom };
-    			DeclareEnumUtils(Side)
+			DeclareEnumUtils(Side)
     static inline bool	isHor( Side s )			{ return s > Right; }
     static uiRect::Side	across(uiRect::Side);
     static uiRect::Side	clockWise(uiRect::Side);
@@ -55,14 +56,14 @@ public:
     inline uiSize	getPixelSize() const;
 
     inline uiRect	selectArea( const uiRect& other ) const;
-    inline bool 	topToAtLeast( int ref );
-    inline void 	topTo( int ref );
-    inline bool 	bottomToAtLeast( int ref );
-    inline void 	bottomTo( int ref );
-    inline bool 	leftToAtLeast( int ref );
-    inline void 	leftTo( int ref );
-    inline void 	rightTo( int ref );
-    inline bool 	rightToAtLeast( int ref );
+    inline bool	topToAtLeast( int ref );
+    inline void	topTo( int ref );
+    inline bool	bottomToAtLeast( int ref );
+    inline void	bottomTo( int ref );
+    inline bool	leftToAtLeast( int ref );
+    inline void	leftTo( int ref );
+    inline void	rightTo( int ref );
+    inline bool	rightToAtLeast( int ref );
     inline void		expandTo( const uiRect& oth );
     inline int          hNrPics() const;
     inline int          vNrPics() const;
@@ -77,9 +78,9 @@ public:
 mExpClass(uiBase) uiBorder
 {
 public:
-    			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
-    			uiBorder( int l, int t, int r, int b )
-			    	: lt_(l,t), rb_(r,b)	{}
+			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
+			uiBorder( int l, int t, int r, int b )
+				: lt_(l,t), rb_(r,b)	{}
     bool		operator ==( const uiBorder& b ) const
 			{ return lt_ == b.lt_ && rb_ == b.rb_; }
     bool		operator !=( const uiBorder& b ) const
@@ -138,89 +139,89 @@ inline uiRect uiRect::selectArea( const uiRect& other ) const
     int vOffset = other.top() - top();
     return uiRect( hOffset, vOffset,
 		   other.width(), other.height() );
-} 
+}
 
 
 inline bool uiRect::topToAtLeast( int ref )
 {
     int shift = ref - top();
-    if ( shift > 0 ) 
-    { 
-	setTop( top() + shift ); 
+    if ( shift > 0 )
+    {
+	setTop( top() + shift );
 	setBottom( bottom() + shift);
-	return true; 
+	return true;
     }
     return false;
-} 
+}
 
 
 inline void uiRect::topTo( int ref )
 {
     int shift = ref - top();
-    setTop( top() + shift ); 
+    setTop( top() + shift );
     setBottom( bottom() + shift);
-} 
+}
 
 
 inline bool uiRect::bottomToAtLeast( int ref )
 {
     int shift = ref - bottom();
-    if ( shift > 0 ) 
-    { 
-	setTop( top() + shift ); 
+    if ( shift > 0 )
+    {
+	setTop( top() + shift );
 	setBottom( bottom() + shift);
     }
     return false;
-} 
+}
 
 
 inline void uiRect::bottomTo( int ref )
 {
     int shift = ref - bottom();
-    setTop( top() + shift ); 
+    setTop( top() + shift );
     setBottom( bottom() + shift);
-} 
+}
 
 
 inline bool uiRect::leftToAtLeast( int ref )
 {
     int shift = ref - left();
     if ( shift > 0 )
-    { 
-	setLeft( left() + shift ); 
+    {
+	setLeft( left() + shift );
 	setRight( right() + shift );
-	return true; 
+	return true;
     }
     return false;
-} 
+}
 
 inline void uiRect::leftTo( int ref )
 {
     int shift = ref - left();
-    setLeft( left() + shift ); 
+    setLeft( left() + shift );
     setRight( right() + shift );
-} 
+}
 
 
 inline void uiRect::rightTo( int ref )
 {
     int shift = ref - right();
-    setLeft( left() + shift ); 
+    setLeft( left() + shift );
     setRight( right() + shift );
-} 
+}
 
 
 inline bool uiRect::rightToAtLeast( int ref )
 {
     int shift = ref - right();
-    if ( shift > 0 ) 
-    { 
-	setLeft( left() + shift ); 
+    if ( shift > 0 )
+    {
+	setLeft( left() + shift );
 	setRight( right() + shift );
-	return true; 
+	return true;
     }
     return false;
-} 
+}
 
 
 inline void uiRect::expandTo( const uiRect& oth )
@@ -241,30 +242,30 @@ inline int uiRect::hNrPics() const		{ return width() + 1; }
 inline int uiRect::vNrPics() const		{ return height()+ 1; }
 
 
-//! nr of pics should be > 0 
-inline void uiRect::setHNrPics( int np )	
+//! nr of pics should be > 0
+inline void uiRect::setHNrPics( int np )
 { setRight( left() + mMAX( 1, np ) - 1 ); }
 
 
-//! nr of pics should be > 0 
-inline void uiRect::setVNrPics( int np )	
+//! nr of pics should be > 0
+inline void uiRect::setVNrPics( int np )
 { setBottom( top() + mMAX( 1, np ) - 1 ); }
 
 
 inline uiRect::Side uiRect::across( uiRect::Side s )
 { return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Bottom :uiRect::Top)
-    			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left); }
+			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left); }
 inline uiRect::Side uiRect::clockWise( uiRect::Side s )
 { return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Left :uiRect::Right)
-    			  : (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);}
+			  : (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);}
 
 #define mUIGeomImplSideFns(clss) \
 inline int clss::get( uiRect::Side s ) const \
 { return uiRect::isHor(s) ? (s == uiRect::Top ?  top()  : bottom()) \
-    			  : (s == uiRect::Left ? left() : right() ); } \
+			  : (s == uiRect::Left ? left() : right() ); } \
 inline void clss::set( uiRect::Side s, int i ) \
 { uiRect::isHor(s) ? (s == uiRect::Top ? setTop(i) : setBottom(i)) \
-    		   : (s == uiRect::Left ? setLeft(i) : setRight(i)); }
+		   : (s == uiRect::Left ? setLeft(i) : setRight(i)); }
 
 mUIGeomImplSideFns(uiRect)
 mUIGeomImplSideFns(uiBorder)
@@ -285,7 +286,7 @@ inline uiPoint uiBorder::relPt( const uiPoint& dpt ) const
 inline uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
 {
     return uiRect( lt_.width()+extr, lt_.height()+extr,
-	    	   sz.width()-rb_.width()-2*extr,
+		   sz.width()-rb_.width()-2*extr,
 		   sz.height()-rb_.height()-2*extr );
 }
 
@@ -293,7 +294,7 @@ inline uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
 inline uiRect uiBorder::getRect( const uiRect& rect, int extr ) const
 {
     return uiRect( rect.left()+lt_.width()+extr,rect.top()+lt_.height()+extr,
-	    	   rect.right()-rb_.width()-2*extr,
+		   rect.right()-rb_.width()-2*extr,
 		   rect.bottom()-rb_.height()-2*extr );
 }
 

@@ -27,6 +27,7 @@ class uiString;
 mFDQtclass(QListWidgetItem)
 
 
+
 /*!\brief List Box.
 
   The size of the box is determined automatically (prefNrLines=0) but can be
@@ -62,25 +63,24 @@ friend class i_listMessenger;
 friend class uiListBoxBody;
 public:
 
-    enum ChoiceMode	{ None, OnlyOne, AtLeastOne, ZeroOrMore };
-
                         uiListBox(uiParent*,const char* nm=0); //!< OnlyOne
-                        uiListBox(uiParent*,const char* nm,ChoiceMode cm,
+                        uiListBox(uiParent*,const char* nm,OD::ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
 			uiListBox(uiParent*,const BufferStringSet&,
 				  const char* nm=0);
 			uiListBox(uiParent*,const BufferStringSet&,
-				  const char* nm,ChoiceMode cm,
+				  const char* nm,OD::ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
 			uiListBox(uiParent*,const TypeSet<uiString>&,
-				  const char* nm,ChoiceMode cm,
+				  const char* nm,OD::ChoiceMode cm,
 				  int prefNrLines=0,int prefFieldWidth=0);
 
     virtual		~uiListBox();
 
-    inline ChoiceMode	choiceMode() const	{ return choicemode_; }
-    inline bool		isMultiChoice() const	{ return choicemode_>OnlyOne; }
-    void		setChoiceMode(ChoiceMode);
+    inline OD::ChoiceMode choiceMode() const	{ return choicemode_; }
+    inline bool		isMultiChoice() const
+					{ return ::isMultiChoice(choicemode_); }
+    void		setChoiceMode(OD::ChoiceMode);
     void		setMultiChoice(bool yn=true);
     void		setAllowNoneChosen(bool);
     void		setNotSelectable();
@@ -89,7 +89,7 @@ public:
     inline bool		isEmpty() const		{ return size() == 0; }
     bool		validIdx(int) const;
     bool		isPresent(const char*) const;
-    int			maxNrOfSelections() const;
+    int			maxNrOfChoices() const;
 
     Alignment::HPos	alignment() const	{ return alignment_; }
     void		setAlignment(Alignment::HPos);
@@ -173,7 +173,7 @@ private:
 
     void		translateText();
 
-    ChoiceMode		choicemode_;
+    OD::ChoiceMode	choicemode_;
     Alignment::HPos	alignment_;
     bool		allowduplicates_;
     uiMenu&		rightclickmnu_;
@@ -184,9 +184,9 @@ private:
     void		handleCheckChange(mQtclass(QListWidgetItem*));
 
     uiListBoxBody*	body_;
-    uiListBoxBody&	mkbody(uiParent*,const char*,ChoiceMode,int,int);
+    uiListBoxBody&	mkbody(uiParent*,const char*,OD::ChoiceMode,int,int);
 
-    bool		isNone() const		{ return choicemode_ == None; }
+    bool		isNone() const	{ return choicemode_ == OD::ChooseNone;}
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
     static int		cDefNrLines();		//!< == 7
 
@@ -219,10 +219,10 @@ public:
 
 			uiLabeledListBox(uiParent*,const uiString& lbltxt);
 			uiLabeledListBox(uiParent*,const uiString& lbltxt,
-				     uiListBox::ChoiceMode,LblPos p=LeftMid);
+				     OD::ChoiceMode,LblPos p=LeftMid);
 			uiLabeledListBox(uiParent*,const BufferStringSet&,
 				     const uiString& lbltxt,
-				     uiListBox::ChoiceMode,LblPos p=LeftMid);
+				     OD::ChoiceMode,LblPos p=LeftMid);
 
     uiListBox*		box()				{ return lb_; }
     int			nrLabels() const		{ return lbls_.size(); }

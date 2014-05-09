@@ -210,7 +210,7 @@ void ListActivator::actCB( CallBacker* cb )
 {
     if ( actitmidx_>=0 && actitmidx_<actlist_.size() )
     {
-	if ( actlist_.maxNrOfSelections()>0 )
+	if ( actlist_.maxNrOfChoices()>0 )
 	{
 	    mHandleSelectionChangedBegin( oldselitems );
 	    mInitListSelection( oldselitems, actitmidx_ );
@@ -297,7 +297,7 @@ bool ListSelectCmd::act( const char* parstr )
     mParKeyStrPre( "list", objsfound, nrgrey, keys, selnr );
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
 
-    if ( uilist->maxNrOfSelections() == 0 )
+    if ( uilist->maxNrOfChoices() == 0 )
     {
 	mWinErrStrm << "This list allows no item selection" << od_endl;
 	return false;
@@ -332,7 +332,7 @@ bool ListSelectCmd::act( const char* parstr )
 	selset += idx;
     }
 
-    if ( uilist->maxNrOfSelections()==1 && selset.size()!=1 )
+    if ( uilist->maxNrOfChoices()==1 && selset.size()!=1 )
     {
 	mWinErrStrm << "This single-selection list does not allow "
 		    << selset.size() << " selected items" << od_endl;
@@ -365,7 +365,7 @@ ListSelectActivator::ListSelectActivator( const uiListBox& uilist,
 
 void ListSelectActivator::actCB( CallBacker* cb )
 {
-    const int maxselectable = actlist_.maxNrOfSelections();
+    const int maxselectable = actlist_.maxNrOfChoices();
     if ( maxselectable>0 && actselset_.size()<=maxselectable )
     {
 	mHandleSelectionChangedBegin( oldselitems );
@@ -426,7 +426,7 @@ bool IsListItemOnCmd::act( const char* parstr )
     mDynamicCastGet( const uiListBox*, uilist, objsfound[0] );
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
 
-    const int ison = uilist->maxNrOfSelections()<1 ? -1 :
+    const int ison = uilist->maxNrOfChoices()<1 ? -1 :
 		     uilist->isChosen( itemidxs[0] ) ? 1 : 0;
 
     mParIdentPost( identname, ison, parnext );

@@ -245,8 +245,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     survnmfld_ = new uiGenInput( this, "Survey name" );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
-    pol2dfld_ = new uiCheckList( this, uiCheckList::AtLeastOne,
-				 uiObject::Horizontal );
+    pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( "Available data" );
     pol2dfld_->addItem( "3D" ).addItem( "2D" );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
@@ -462,7 +461,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     dirfld_->setStretch( 2, 2 );
 
     uiButtonGroup* butgrp =
-	new uiButtonGroup( grp, "Buttons", uiObject::Vertical );
+	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
     new uiToolButton( butgrp, "database",
 	"Select Survey Data Root", mCB(this,uiSurvey,dataRootPushed) );

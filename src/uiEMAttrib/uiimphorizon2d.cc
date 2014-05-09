@@ -214,7 +214,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	hornms.add( horinfos_[idx]->name );
 
     uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
-			"Horizon(s) to import", uiListBox::AtLeastOne );
+			"Horizon(s) to import", OD::ChooseAtLeastOne );
     horbox->attach( alignedBelow, inpfld_ );
     horselfld_ = horbox->box();
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));

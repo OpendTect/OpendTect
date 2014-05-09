@@ -59,14 +59,14 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
         ioobjids_ += new MultiID( ioobj ? (const char*)ioobj->key() : "" );
     }
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Input Cubes",
-						    uiListBox::ZeroOrMore );
+						    OD::ChooseZeroOrMore );
     inpfld_ = llb->box();
     inpfld_->setCurrentItem( 0 );
     inpfld_->addItems( ioobjnms );
     inpfld_->selectionChanged.notify( mCB(this,uiMergeSeis,selChangeCB) );
 
     stackfld_ = new uiGenInput( this, "Duplicate traces",
-	    			BoolInpSpec(true,"Stack","Use first") );
+				BoolInpSpec(true,"Stack","Use first") );
     stackfld_->attach( alignedBelow, llb );
 
     scfmtfld_ = new uiSeisFmtScale( this, Seis::Vol, false, false );
@@ -105,10 +105,10 @@ void uiMergeSeis::selChangeCB( CallBacker* cb )
     {
         if ( !inpfld_->isChosen(idx) )
 	    continue;
-	
+
 	PtrMan<IOObj> firstselobj = IOM().get( *ioobjids_[idx] );
 	if ( !firstselobj ) continue;
-	
+
 	scfmtfld_->updateFrom( *firstselobj );
 	break;
     }
@@ -137,9 +137,9 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     const int inpsz = selobjs.size();
     if ( inpsz < 2 )
     {
-	uiMSG().error( "Please select at least 2 inputs" ); 
+	uiMSG().error( "Please select at least 2 inputs" );
 	deepErase( selobjs );
-	return false; 
+	return false;
     }
 
     static const char* optdirkey = "Optimized direction";
@@ -148,7 +148,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	const IOObj& ioobj = *selobjs[idx];
-	if ( idx == 0 ) 
+	if ( idx == 0 )
 	{
 	    if ( ioobj.pars().hasKey(sKey::Type()) )
 		type = ioobj.pars().find(sKey::Type());

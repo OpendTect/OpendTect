@@ -153,7 +153,7 @@ void uiIOObjManipGroup::selChg()
 	return;
     }
 
-    TypeSet<MultiID> chosenids; subj_.getSelectedIDs( chosenids );
+    TypeSet<MultiID> chosenids; subj_.getChosenIDs( chosenids );
     IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
     BufferString tt;
@@ -211,7 +211,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
     TypeSet<MultiID> chosenids;
     if ( !issingle )
-	subj_.getSelectedIDs( chosenids );
+	subj_.getChosenIDs( chosenids );
     IOObj* firstioobj = IOM().get( issingle ? curid : chosenids[0] );
     if ( !firstioobj )
 	return;

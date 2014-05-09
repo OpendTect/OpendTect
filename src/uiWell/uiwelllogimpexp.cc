@@ -252,8 +252,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
-    zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons",
-				   uiObject::Horizontal );
+    zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
     zunitgrp_->attach( alignedBelow, typefld_ );
     uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
     zlbl->attach( leftOf, zunitgrp_ );

@@ -305,7 +305,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 
 #define mDefRetrTB(clss,grp) \
     uiSeparator* sep = new uiSeparator( grp->attachObj()->parent(), \
-			"Vert sep", uiObject::Vertical );\
+			"Vert sep", OD::Vertical );\
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \

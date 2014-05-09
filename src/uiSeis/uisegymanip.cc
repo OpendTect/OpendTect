@@ -431,7 +431,7 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Available",
-			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
+			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     hdrfld_ = llb->box();
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
     for ( int idx=0; idx<calcset_.hdrDef().size(); idx++ )

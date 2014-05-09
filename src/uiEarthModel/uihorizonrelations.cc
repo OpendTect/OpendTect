@@ -46,7 +46,7 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     , is2d_( is2d )
 {
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
-			     uiListBox::OnlyOne, uiLabeledListBox::AboveLeft );
+			     OD::ChooseOnlyOne, uiLabeledListBox::AboveLeft );
     relationfld_->box()->setHSzPol( uiObject::Wide );
 
     uiPushButton* orderbut =

@@ -61,11 +61,11 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 {
     listgrp_ = new uiGroup( this, "List Group" );
     IOM().to( ctxt_.getSelKey(), true );
-    uiIOObjSelGrp::Setup sgsu( multisel ? uiIOObjSelGrp::AtLeastOne
-					: uiIOObjSelGrp::Single );
+    uiIOObjSelGrp::Setup sgsu( multisel ? OD::ChooseAtLeastOne
+					: OD::ChooseOnlyOne );
     sgsu.allowreloc( withreloc ).allowremove( withrm ).allowsetdefault( true );
     selgrp_ = new uiIOObjSelGrp( listgrp_, CtxtIOObj(ctxt_), 0, sgsu );
-    selgrp_->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
+    selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
 
     infogrp_ = new uiGroup( this, "Info Group" );
@@ -167,7 +167,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
 {
     saveNotes(0);
     delete curioobj_;
-    curioobj_ = selgrp_->nrSelected() > 0 ? IOM().get(selgrp_->currentID()) : 0;
+    curioobj_ = selgrp_->nrChosen() > 0 ? IOM().get(selgrp_->currentID()) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
 
     ownSelChg();

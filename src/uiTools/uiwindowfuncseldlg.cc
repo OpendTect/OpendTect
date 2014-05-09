@@ -166,7 +166,7 @@ uiFuncSelDraw::uiFuncSelDraw( uiParent* p, const uiFunctionDrawer::Setup& su )
     : uiGroup(p)
     , funclistselChged(this)
 {
-    funclistfld_ = new uiListBox( this, "Function", uiListBox::AtLeastOne );
+    funclistfld_ = new uiListBox( this, "Function", OD::ChooseAtLeastOne );
     funclistfld_->attach( topBorder, 0 );
     funclistfld_->selectionChanged.notify( mCB(this,uiFuncSelDraw,funcSelChg) );
 

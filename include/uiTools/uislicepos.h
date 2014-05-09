@@ -26,17 +26,17 @@ class uiToolButton;
 
 mExpClass(uiTools) uiSlicePos : public CallBacker
 {
-public:		
+public:
 			uiSlicePos(uiParent*);
 			~uiSlicePos();
+
+    typedef OD::SliceType SliceDir;
+			DeclareEnumUtils(SliceDir);
 
     uiToolBar*		getToolBar() const		{ return toolbar_; }
     CubeSampling	getCubeSampling() const		{ return curcs_; }
 
     void		setLabels(const char* inl,const char* crl,const char*z);
-
-    enum Orientation            { Inline=0, Crossline=1, Zslice=2 };
-				DeclareEnumUtils(Orientation);
 
     Notifier<uiSlicePos> positionChg;
 
@@ -53,7 +53,7 @@ protected:
     CubeSampling	curcs_;
     BufferStringSet	boxlabels_;
 
-    void		setBoxLabel(Orientation);
+    void		setBoxLabel(SliceDir);
     virtual void	setBoxRanges()			=0;
     virtual void	setPosBoxValue()		=0;
     virtual void	setStepBoxValue()		=0;
@@ -62,10 +62,10 @@ protected:
     void		shortcutsChg(CallBacker*);
     void		updatePos(CallBacker*);
     void		initSteps(CallBacker* cb=0);
-    void		slicePosChanged(Orientation,const CubeSampling&);
-    void		sliceStepChanged(Orientation);
-    void		setBoxRg(Orientation,const CubeSampling&);
-    void		setPosBoxVal(Orientation,const CubeSampling&);
+    void		slicePosChanged(SliceDir,const CubeSampling&);
+    void		sliceStepChanged(SliceDir);
+    void		setBoxRg(SliceDir,const CubeSampling&);
+    void		setPosBoxVal(SliceDir,const CubeSampling&);
 
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);

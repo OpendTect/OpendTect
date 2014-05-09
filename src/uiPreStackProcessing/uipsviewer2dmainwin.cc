@@ -278,10 +278,10 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	clearAuxData();
 	deepErase( mutes_ );
 	mutecolors_.erase();
-	const int nrsel = mutesel.selGrp()->nrSelected();
+	const int nrsel = mutesel.nrChosen();
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    const MultiID& muteid = mutesel.selGrp()->selected( idx );
+	    const MultiID& muteid = mutesel.chosenID( idx );
 	    PtrMan<IOObj> muteioobj = IOM().get( muteid );
 		if ( !muteioobj ) continue;
 	    PreStack::MuteDef* mutedef = new PreStack::MuteDef;

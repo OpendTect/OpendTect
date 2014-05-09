@@ -82,7 +82,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->selectionChanged.notify( mCB(this,uiBatchHostsDlg,hostSelCB) );
     table_->attach( leftAlignedBelow, filefld );
 
-    uiButtonGroup* buttons = new uiButtonGroup( this, "", uiObject::Vertical );
+    uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( buttons, "addnew", tr("Add Host"),
 			mCB(this,uiBatchHostsDlg,addHostCB) );
     new uiToolButton( buttons, "stop", tr("Remove Host"),

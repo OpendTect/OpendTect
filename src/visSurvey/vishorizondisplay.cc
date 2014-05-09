@@ -57,7 +57,7 @@ const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
 const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
 const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
-const char* HorizonDisplay::sKeyIntersectLineMaterialID() 
+const char* HorizonDisplay::sKeyIntersectLineMaterialID()
 { return "Intsectline material id"; }
 
 
@@ -70,8 +70,8 @@ HorizonDisplay::HorizonDisplay()
     , edgelineradius_( 3.5 )
     , validtexture_( false )
     , resolution_( 0 )
-    , allowshading_( true )					
-    , intersectionlinematerial_( 0 )	
+    , allowshading_( true )
+    , intersectionlinematerial_( 0 )
     , displayintersectionlines_( true )
     , enabletextureinterp_( true )
     , displaysurfacegrid_( false )
@@ -84,7 +84,7 @@ HorizonDisplay::HorizonDisplay()
     as_ += new Attrib::SelSpec;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
-    
+
     TypeSet<float> shift;
     shift += 0.0;
     curshiftidx_ += 0;
@@ -109,7 +109,7 @@ HorizonDisplay::HorizonDisplay()
 HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
-    if ( intersectionlinematerial_ ) 
+    if ( intersectionlinematerial_ )
 	intersectionlinematerial_->unRef();
 
     coltabmappersetups_.erase();
@@ -328,7 +328,7 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* tr )
 	return false;
 
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    if ( emhorizon ) 
+    if ( emhorizon )
 	emhorizon->edgelinesets.addremovenotify.notify(
 		mCB(this,HorizonDisplay,emEdgeLineChangeCB) );
 
@@ -340,7 +340,7 @@ StepInterval<int> HorizonDisplay::geometryRowRange() const
 {
     mDynamicCastGet(const EM::Horizon3D*, surface, emobject_ );
     if ( !surface ) return parrowrg_;
-    
+
     return surface->geometry().rowRange();
 }
 
@@ -353,7 +353,7 @@ StepInterval<int> HorizonDisplay::geometryColRange() const
 
 
 bool HorizonDisplay::updateFromEM( TaskRunner* tr )
-{ 
+{
     if ( !EMObjectDisplay::updateFromEM( tr ) )
 	return false;
     updateSingleColor();
@@ -372,7 +372,7 @@ void HorizonDisplay::updateFromMPE()
 bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
 {
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    EM::EdgeLineSet* els = emhorizon 
+    EM::EdgeLineSet* els = emhorizon
 	? emhorizon->edgelinesets.getEdgeLineSet(sid,false) : 0;
 
     if ( els )
@@ -386,7 +386,7 @@ bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
 		break;
 	    }
 	}
-	
+
 	if ( !found )
 	{
 	    visSurvey::EdgeLineSetDisplay* elsd =
@@ -425,7 +425,7 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
     usestexture_ = yn;
 
     updateSingleColor();
-    
+
     if ( trigger )
 	changedisplay.trigger();
 }
@@ -445,13 +445,13 @@ bool HorizonDisplay::shouldUseTexture() const
 {
     if ( !validtexture_ || !usestexture_ )
 	 return false;
- 
+
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
- 	if ( isAttribEnabled( idx ) )
- 	    return true;
+	if ( isAttribEnabled( idx ) )
+	    return true;
     }
- 
+
     return false;
 }
 
@@ -466,7 +466,7 @@ bool HorizonDisplay::canHaveMultipleAttribs() const
 
 int HorizonDisplay::nrTextures( int channel ) const
 {
-    if ( channel<0 || channel>=nrAttribs() || !sections_.size() ) 
+    if ( channel<0 || channel>=nrAttribs() || !sections_.size() )
 	return 0;
 
     return sections_[0]->nrVersions( channel );
@@ -494,7 +494,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 
 int HorizonDisplay::selectedTexture( int channel ) const
 {
-    if ( channel<0 || channel>=nrAttribs() || !sections_.size() ) 
+    if ( channel<0 || channel>=nrAttribs() || !sections_.size() )
 	return 0;
 
     return sections_[0]->activeVersion( channel );
@@ -558,7 +558,7 @@ bool HorizonDisplay::addAttrib()
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	sections_[idx]->addChannel();
-    	sections_[idx]->setColTabSequence( curchannel,
+	sections_[idx]->setColTabSequence( curchannel,
 		coltabsequences_[curchannel] );
 
 	sections_[idx]->setColTabMapperSetup( curchannel,
@@ -626,7 +626,7 @@ void HorizonDisplay::setAttribTransparency( int channel, unsigned char nt )
 
 
 unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
-{  
+{
     if ( channel<0 || channel>=nrAttribs() )
        return 0;
 
@@ -667,9 +667,9 @@ const Attrib::SelSpec* HorizonDisplay::getSelSpec( int channel ) const
 
 
 void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
-{ 
-    if ( as_.validIdx(channel) && as_[channel] ) 
-	(*as_[channel]) = as; 
+{
+    if ( as_.validIdx(channel) && as_[channel] )
+	(*as_[channel]) = as;
 }
 
 
@@ -693,7 +693,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	return;
     }
 
-    int depthcol = 
+    int depthcol =
 	positions.dataSet().findColDef( depthdef, PosVecDataSet::NameExact );
     if ( depthcol==-1 )
 	depthcol = 1;
@@ -724,7 +724,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
 					    const DataPointSet* positions,
 					    TaskRunner* tr )
 {
-    if ( !positions || sections_.isEmpty() ) 
+    if ( !positions || sections_.isEmpty() )
 	return;
 
     BufferStringSet* attrnms = new BufferStringSet();
@@ -741,7 +741,7 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
     BinID step( dispinlrg.step, dispcrlrg.step );
 
-    mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr, 
+    mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
 			BIDValSetArrAdapter(*cache,isz?0:2,step));
     const char* catnm = isz ? "Geometry" : "Horizon Data";
     const char* dpnm = isz ? "Depth"
@@ -749,9 +749,9 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
 
     StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
-	    			(double)dispinlrg.step );
+				(double)dispinlrg.step );
     StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
-	    			(double)dispcrlrg.step );
+				(double)dispcrlrg.step );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setProps( inlrg, crlrg, true, &dimnames );
@@ -765,7 +765,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
     //data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->getDataPositions( data, getTranslation().z, 
+	sections_[idx]->getDataPositions( data, getTranslation().z,
 					  sids_[idx], tr );
 
     data.dataChanged();
@@ -800,7 +800,7 @@ void HorizonDisplay::updateSingleColor()
     const bool usesinglecol = !shouldUseTexture();
     const Color col = usesinglecol  ? nontexturecol_ : Color::White();
     material_->setColor( col );
-    if ( intersectionlinematerial_ ) 
+    if ( intersectionlinematerial_ )
 	intersectionlinematerial_->setColor( nontexturecol_ );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
@@ -935,7 +935,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setZAxisTransform( zaxistransform_, tr );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
-    while ( surf->nrChannels()<nrAttribs() ) 
+    while ( surf->nrChannels()<nrAttribs() )
 	surf->addChannel();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -989,7 +989,7 @@ void HorizonDisplay::enableTextureInterpolation( bool yn )
     {
 	if ( !sections_[idx] || !sections_[idx]->getChannels() )
 	    continue;
-	
+
 	sections_[idx]->getChannels()->enableTextureInterpolation( yn );
 
     }
@@ -1070,7 +1070,7 @@ void HorizonDisplay::emEdgeLineChangeCB( CallBacker* cb )
 	for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
 	{
 	    if (edgelinedisplays_[idx]->getEdgeLineSet()->getSection()==section)
-  	    {
+	    {
 		EdgeLineSetDisplay* elsd = edgelinedisplays_[idx--];
 		edgelinedisplays_ -= elsd;
 		elsd->rightClicked()->remove(
@@ -1085,8 +1085,8 @@ void HorizonDisplay::emEdgeLineChangeCB( CallBacker* cb )
 
 
 int HorizonDisplay::nrResolutions() const
-{ 
-    return sections_.size() ? sections_[0]->nrResolutions()+1 : 1; 
+{
+    return sections_.size() ? sections_[0]->nrResolutions()+1 : 1;
 }
 
 
@@ -1101,9 +1101,9 @@ BufferString HorizonDisplay::getResolutionName( int res ) const
 	for ( int idx=0; idx<res; idx++ )
 	    val *= 2;
 
-	if ( val==2 ) 		str = "Half";
-	else if ( val==1 ) 	str = "Full";
-	else 			{ str = "1 / "; str += val; }
+	if ( val==2 )		str = "Half";
+	else if ( val==1 )	str = "Full";
+	else			{ str = "1 / "; str += val; }
     }
 
     return str;
@@ -1160,7 +1160,7 @@ bool HorizonDisplay::canSetColTabSequence() const
 
 
 void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
-       					TaskRunner* )
+					TaskRunner* )
 {
     if ( chan<0 || chan>=nrAttribs() )
        return;
@@ -1258,7 +1258,7 @@ float HorizonDisplay::maxDist() const
 }
 
 
-visBase::HorizonSection* HorizonDisplay::getHorizonSection( 
+visBase::HorizonSection* HorizonDisplay::getHorizonSection(
 	const EM::SectionID& sid )
 {
     for ( int idx=0; idx<sids_.size(); idx++ )
@@ -1294,7 +1294,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	EMObjectDisplay::getSectionID(&eventinfo.pickedobjids);
 
     const int sectionidx = sids_.indexOf( sid );
-    if ( sectionidx<0 || sectionidx>=sections_.size() ) 
+    if ( sectionidx<0 || sectionidx>=sections_.size() )
 	return;
 
     const BinID bid( SI().transform(pos) );
@@ -1304,7 +1304,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( as_[idx]->id().isUnselInvalid() )
 	    return;
 
-	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) || 
+	if ( !sections_[sectionidx]->getChannels2RGBA()->isEnabled(idx) ||
 	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 
@@ -1323,14 +1323,14 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
-	    if ( !sections_[sectionidx]->getCache(idy) || 
+	    if ( !sections_[sectionidx]->getCache(idy) ||
 		 !isAttribEnabled(idy) ||
 		 sections_[sectionidx]->getTransparency(idy)==255 )
 		continue;
-							                 
+
 		islowest = false;
 		break;
-	}    
+	}
 
 	if ( !islowest )
 	{
@@ -1339,7 +1339,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    if ( (!coltabseq || col!=coltabseq->undefColor()) && col.t()==255 )
 		continue;
 	}
-	    
+
 	if ( !mIsUdf(fval) )
 	{
 	    val = fval;
@@ -1351,13 +1351,13 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		attribshift =
 		  attribshifts[version] * s3dgeom_->zDomain().userFactor();
 	    }
-	    
-	    const float zshift = 
+
+	    const float zshift =
 	      (float) getTranslation().z*s3dgeom_->zDomain().userFactor();
 
 	    const bool hasshift = !mIsZero(attribshift,0.1) ||
 				  !mIsZero(zshift,0.1);
- 	    if ( as_.size() > 1 || hasshift )
+	    if ( as_.size() > 1 || hasshift )
 	    {
 		BufferString channelstr = "(";
 		bool first = true;
@@ -1426,7 +1426,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	mAddLinePrimitiveSet();\
     } \
     curline.erase(); \
-} 
+}
 
 
 void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
@@ -1499,7 +1499,7 @@ void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
 		bool hasseed = false;
 		for ( int idx=0; seedposids && idx<seedposids->size(); idx++ )
 		{
-		    const BinID seedbid = BinID::fromInt64( 
+		    const BinID seedbid = BinID::fromInt64(
 						(*seedposids)[idx].subID() );
 		    if ( seedbid[fastdim] == curlinebid[fastdim] )
 		    {
@@ -1539,8 +1539,8 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     const StepInterval<int> inlrg = geom->rowRange();
     const StepInterval<int> crlrg = geom->colRange();
 
-    int startidx; 
-    int stopidx = 0; 
+    int startidx;
+    int stopidx = 0;
     int jumpstart = 0;
 
     TypeSet<Coord3> curline;
@@ -1548,11 +1548,11 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     while ( true )
     {
 	startidx = stopidx;
-	while ( startidx<trclist.size()-1 && 
+	while ( startidx<trclist.size()-1 &&
 		trclist[startidx]==trclist[startidx+1] ) startidx++;
 
 	stopidx = startidx + 1;
-	while ( stopidx<trclist.size()-1 && 
+	while ( stopidx<trclist.size()-1 &&
 		trclist[stopidx]!=trclist[stopidx+1] ) stopidx++;
 
 	if ( stopidx >= trclist.size() )
@@ -1565,12 +1565,12 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	{
 	    const int inlidx = inlrg.getIndex( trclist[cidx].x );
 	    const int inl0 = inlrg.atIndex( inlidx );
-	    const int inl1 = inl0<trclist[cidx].x ? 
+	    const int inl1 = inl0<trclist[cidx].x ?
 			     inlrg.atIndex( inlidx+1 ) : inl0;
 
 	    const int crlidx = crlrg.getIndex( trclist[cidx].y );
 	    const int crl0 = crlrg.atIndex( crlidx );
-	    const int crl1 = crl0<trclist[cidx].y ? 
+	    const int crl1 = crl0<trclist[cidx].y ?
 			     crlrg.atIndex( crlidx+1 ) : crl0;
 
 	    Coord3 p00 = hor->getPos( sid, BinID(inl0,crl0).toInt64() );
@@ -1586,13 +1586,13 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		p11.z = zaxistransform_->transform( p11 );
 	    }
 
-	    if ( p00.isDefined() && p01.isDefined() && 
+	    if ( p00.isDefined() && p01.isDefined() &&
 		 p10.isDefined() && p11.isDefined() )
 	    {
 		const float frac = float(cidx-startidx) / (stopidx-startidx);
 		Coord3 pos = (1-frac) * Coord3(startcrd,0) +
-		    		frac  * Coord3(stopcrd, 0);
-	    
+				frac  * Coord3(stopcrd, 0);
+
 		const float ifrac =
 		    (float) (trclist[cidx].x - inl0) / inlrg.step;
 		const float cfrac =
@@ -1609,7 +1609,7 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 	    }
 	    mAddLinePrimitiveSet();
 	}
-	
+
 	jumpstart = 1;
     }
 
@@ -1619,8 +1619,8 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 
 
 static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
-			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
-			const ZAxisTransform* zaxistransform, 
+			const EM::Horizon3D* hor, const EM::SectionID&  sid,
+			const ZAxisTransform* zaxistransform,
 			visBase::VertexShape* line, int& cii )
 {
     const Geometry::BinIDSurface* geom = hor->geometry().sectionGeometry( sid );
@@ -1635,7 +1635,7 @@ static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
     ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
-    
+
     TypeSet<int> idxps;
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
     {
@@ -1703,7 +1703,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		if ( ( whichobj==objectid || whichobj==id() ) && 
+		if ( ( whichobj==objectid || whichobj==id() ) &&
 		    linestoupdate.indexOf(whichobj)==-1 )
 		{
 		    linestoupdate += objectid;
@@ -1810,7 +1810,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    newline->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
 
 	    newline->setDisplayTransformation(transformation_);
-	    if ( intersectionlinematerial_ ) 
+	    if ( intersectionlinematerial_ )
 		newline->setMaterial( intersectionlinematerial_ );
 	    intersectionlines_ += newline;
 	    addChild( newline->osgNode() );
@@ -1848,7 +1848,7 @@ void HorizonDisplay::updateIntersectionLines(
 
 	visBase::VertexShape* line = intersectionlines_[lineidx];
 	visBase::DataObjectGroup* pointgroup = intersectionpointsets_[lineidx];
-	
+
 	line->getCoordinates()->setEmpty();
 	line->removeAllPrimitiveSets();
 
@@ -1861,7 +1861,7 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    if ( rtdisplay || seis2ddisplay )
 	    {
-		drawHorizonOnRandomTrack( trclist, cs.zrg, sid, 
+		drawHorizonOnRandomTrack( trclist, cs.zrg, sid,
 		    line, cii, pointgroup );
 	    }
 	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )
@@ -1874,7 +1874,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnZSlice( cs, (float) getTranslation().z, horizon, 
+		drawHorizonOnZSlice( cs, (float) getTranslation().z, horizon,
 		    sid, zaxistransform_, line, cii );
 	    }
 	}
@@ -1893,7 +1893,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	(lst.type_==LineStyle::Solid) != (lineStyle()->type_==LineStyle::Solid);
 
     EMObjectDisplay::setLineStyle( lst );
-    
+
     const float radius = ((float) lineStyle()->width_) / 2;
 
     if ( removelines )
@@ -1908,7 +1908,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 	    newline->setDisplayTransformation(transformation_);
 	    newline->getCoordinates()->copyFrom(
 		    *intersectionlines_[idx]->getCoordinates() );
-	    if ( intersectionlinematerial_ ) 
+	    if ( intersectionlinematerial_ )
 		newline->setMaterial( intersectionlinematerial_ );
 
 	    removeChild( intersectionlines_[idx]->osgNode() );
@@ -1949,7 +1949,7 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 }
 
 
-void HorizonDisplay::updateSectionSeeds( 
+void HorizonDisplay::updateSectionSeeds(
 	    const ObjectSet<const SurveyObject>& objs, int movedobj )
 {
     bool refresh = movedobj==-1 || movedobj==id();
@@ -1958,10 +1958,10 @@ void HorizonDisplay::updateSectionSeeds(
     for ( int idx=0; idx<objs.size(); idx++ )
     {
 	mDynamicCastGet(const PlaneDataDisplay*,plane,objs[idx]);
-	if ( plane && plane->getOrientation()!=PlaneDataDisplay::Zslice )
+	if ( plane && plane->getOrientation()!=OD::ZSlice )
 	{
-	    planelist += idx; 
-	    if ( movedobj==plane->id() ) 
+	    planelist += idx;
+	    if ( movedobj==plane->id() )
 		refresh = true;
 	}
 
@@ -1971,8 +1971,8 @@ void HorizonDisplay::updateSectionSeeds(
 	    CubeSampling cs;
 	    if ( mped->getPlanePosition(cs) && cs.nrZ()!=1 )
 	    {
-		planelist += idx; 
-		if ( movedobj==mped->id() ) 
+		planelist += idx;
+		if ( movedobj==mped->id() )
 		    refresh = true;
 	    }
 	}
@@ -2024,8 +2024,8 @@ void HorizonDisplay::doOtherObjectsMoved(
 
 void HorizonDisplay::otherObjectsMoved(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
-{ 
-    updateIntersectionLines( objs, whichobj ); 
+{
+    updateIntersectionLines( objs, whichobj );
     updateSectionSeeds( objs, whichobj );
 }
 
@@ -2108,7 +2108,7 @@ bool HorizonDisplay::usePar( const IOPar& par )
     int intersectlinematid;
     if ( par.get(sKeyIntersectLineMaterialID(),intersectlinematid) )
     {
-	if ( intersectlinematid==-1 ) 
+	if ( intersectlinematid==-1 )
 	    setIntersectLineMaterial( 0 );
 	else
 	{
@@ -2184,7 +2184,7 @@ void HorizonDisplay::setPixelDensity( float dpi )
 
     for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setPixelDensity( dpi );
-    
+
     for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
 	intersectionpointsets_[idx]->setPixelDensity( dpi );
 }

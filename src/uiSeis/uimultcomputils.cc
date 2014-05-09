@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-    	: uiDialog(p,uiDialog::Setup("Data component selection", 0, 
+	: uiDialog(p,uiDialog::Setup("Data component selection", 0,
                                      mNoHelpKey) )
 	, compfld_(0)
 {
@@ -29,7 +29,7 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
     instructions += "and that the mouse pointer is in the scene.";
     setTitleText( instructions );
 
-    compfld_ = new uiListBox( this, complist, "", uiListBox::AtLeastOne );
+    compfld_ = new uiListBox( this, complist, "", OD::ChooseAtLeastOne );
     compfld_->doubleClicked.notify( mCB(this,uiMultCompDlg,accept) );
 }
 
@@ -120,11 +120,11 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
 				   "",mNoHelpKey) )
 {
     useallfld_ = new uiGenInput( this, "Components to use:",
-	    			 BoolInpSpec( true, "All", "Subselection" ) );
+				 BoolInpSpec( true, "All", "Subselection" ) );
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     outlistfld_ = new uiLabeledListBox( this, names, "Available components",
-			   uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
+			   OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }
 

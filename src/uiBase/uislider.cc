@@ -242,15 +242,15 @@ uiSlider::TickPosition uiSlider::tickMarks() const
 { return (uiSlider::TickPosition)( (int)slider_->body().tickPosition() ); }
 
 
-void uiSlider::setOrientation( uiObject::Orientation orient )
+void uiSlider::setOrientation( OD::Orientation orient )
 {
     slider_->body().setOrientation(
-	orient == uiObject::Vertical ? Qt::Vertical : Qt::Horizontal );
+	orient == OD::Vertical ? Qt::Vertical : Qt::Horizontal );
 }
 
 
-uiObject::Orientation uiSlider::getOrientation() const
-{ return (uiObject::Orientation)( (int)slider_->body().orientation() ); }
+OD::Orientation uiSlider::getOrientation() const
+{ return (OD::Orientation)( (int)slider_->body().orientation() ); }
 
 void uiSlider::setInverted( bool yn )
 { slider_->body().setInvertedAppearance( yn ); }

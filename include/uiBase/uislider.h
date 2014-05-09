@@ -85,8 +85,8 @@ public:
     TickPosition	tickMarks() const;
     void		setTickStep(int);
     int			tickStep() const;
-    void		setOrientation(uiObject::Orientation);
-    uiObject::Orientation getOrientation() const;
+    void		setOrientation(OD::Orientation);
+    OD::Orientation	getOrientation() const;
 
     void		setInverted(bool);
     bool		isInverted() const;

@@ -135,7 +135,7 @@ void startCB( CallBacker* cb )
 	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
 	uiSelectFromList dlg( par, sflsu );
 	uiCheckList* defpol = new uiCheckList( &dlg, uiCheckList::Chain1st,
-						uiObject::Horizontal );
+						OD::Horizontal );
 	defpol->addItem( "Set as default" ).addItem( "Always use this type" );
 	defpol->setChecked( 0, defmodnr >= 0 );
 	defpol->attach( centeredBelow, dlg.selFld() );

@@ -193,7 +193,7 @@ uiSelContourAttribDlg( uiParent* p, const EM::ObjectID& id )
     eminfo.getAttribNames( attrnms );
     uiLabeledListBox* llb =
 	new uiLabeledListBox( this, attrnms, emioobj ? emioobj->name() : "",
-			      uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
+			      OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     attrlb_ = llb->box();
 }
 

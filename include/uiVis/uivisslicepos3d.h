@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uislicepos.h"
 
-namespace visSurvey 
-{ 
-    class PlaneDataDisplay; 
-    class VolumeDisplay; 
-    class SurveyObject; 
+namespace visSurvey
+{
+    class PlaneDataDisplay;
+    class VolumeDisplay;
+    class SurveyObject;
 }
 class uiVisPartServer;
 
@@ -27,7 +27,7 @@ class uiVisPartServer;
 
 mExpClass(uiVis) uiSlicePos3DDisp : public uiSlicePos
 {
-public:		
+public:
 			uiSlicePos3DDisp(uiParent*,uiVisPartServer*);
 
     void		setDisplay(int dispid);
@@ -36,10 +36,10 @@ public:
 protected:
 
     visSurvey::PlaneDataDisplay* curpdd_;
-    visSurvey::VolumeDisplay* 	curvol_;
+    visSurvey::VolumeDisplay*	curvol_;
     uiVisPartServer*		vispartserv_;
 
-    uiSlicePos::Orientation 	getOrientation() const;
+    uiSlicePos::SliceDir	getOrientation() const;
     CubeSampling		getSampling() const;
 
     void			slicePosChg(CallBacker*);

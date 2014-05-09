@@ -26,7 +26,7 @@ uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
 {
     FontList().initialise();
     const ObjectSet<uiFont>& fonts = FontList().fonts();
-    uiButtonGroup* butgrp = new uiButtonGroup( this, "", uiObject::Vertical );
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "", OD::Vertical );
     butgrp->setPrefWidthInChar( 25 );
     for ( int idx=0; idx<fonts.size(); idx++ )
     {

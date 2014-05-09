@@ -428,9 +428,9 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers",
-				   uiListBox::AtLeastOne );
+				   OD::ChooseAtLeastOne );
     selgatherfld_ = new uiListBox( this, "Selected gathers",
-				   uiListBox::AtLeastOne );
+				   OD::ChooseAtLeastOne );
 
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );

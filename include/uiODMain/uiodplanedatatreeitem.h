@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "oduicommon.h"
 
 class uiSliceSelDlg;
 class CubeSampling;
@@ -25,10 +26,10 @@ namespace Well { class Data; }
 mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODPlaneDataTreeItem)
 public:
-    enum Type		{ Default, Empty, RGBA };
-    enum Orientation	{ Inline, Crossline, ZSlice };
 
-			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
+    enum Type		{ Default, Empty, RGBA };
+
+			uiODPlaneDataTreeItem(int displayid,OD::SliceType,Type);
 			~uiODPlaneDataTreeItem();
 
     bool		init();
@@ -56,7 +57,7 @@ protected:
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const CubeSampling&);
 
-    const Orientation	orient_;
+    const OD::SliceType	orient_;
     const Type		type_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;

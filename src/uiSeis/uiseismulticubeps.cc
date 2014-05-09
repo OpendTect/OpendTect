@@ -34,9 +34,9 @@ static const char* rcsID mUsedVar = "$Id$";
 class uiSeisMultiCubePSEntry
 {
 public:
-    	uiSeisMultiCubePSEntry( IOObj* i )
+	uiSeisMultiCubePSEntry( IOObj* i )
 	    : ioobj_(i), offs_(mUdf(float)), comp_(0)	{}
-    	uiSeisMultiCubePSEntry( const uiSeisMultiCubePSEntry& i )
+	uiSeisMultiCubePSEntry( const uiSeisMultiCubePSEntry& i )
 	    : ioobj_(i.ioobj_->clone()), offs_(i.offs_), comp_(i.comp_)	{}
 	~uiSeisMultiCubePSEntry()		{ delete ioobj_; }
 
@@ -70,7 +70,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     }
 
     uiLabeledListBox* cubesllb = new uiLabeledListBox( this, "Available cubes",
-			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
+			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     cubefld_ = cubesllb->box();
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
@@ -79,16 +79,15 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubesllb );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons",
-					     uiObject::Vertical );
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
-	    			mCB(this,uiSeisMultiCubePS,addCube) );
+				mCB(this,uiSeisMultiCubePS,addCube) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
-	    			mCB(this,uiSeisMultiCubePS,rmCube) );
+				mCB(this,uiSeisMultiCubePS,rmCube) );
     bgrp->attach( centeredRightOf, cubesllb );
 
     uiLabeledListBox* selllb = new uiLabeledListBox( this, "Used cubes",
-			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
+			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     selfld_ = selllb->box();
     selllb->attach( rightTo, cubesllb );
     selllb->attach( ensureRightOf, bgrp );
@@ -105,8 +104,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     compfld_->attach( rightOf, offsfld_ );
     compfld_->display( false );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep",
-	    				uiObject::Horizontal, false );
+    uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, offsfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 
@@ -331,8 +329,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 	if ( mIsUdf(entry.offs_) )
 	{
 	    uiMSG().error("Please provide the offset for '",
-		    	  entry.ioobj_->name(),
-			  "'");
+			  entry.ioobj_->name(), "'");
 	    return false;
 	}
     }

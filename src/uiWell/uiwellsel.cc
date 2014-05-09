@@ -63,9 +63,8 @@ void uiWellParSel::doDlg( CallBacker* )
     selgrp->usePar( iopar_ );
     if ( !dlg.go() ) return;
 
-    selgrp->processInput();
     selids_.erase();
-    selgrp->getSelected( selids_ );
+    selgrp->getChosen( selids_ );
     iopar_.setEmpty();
     selgrp->fillPar( iopar_ );
 }

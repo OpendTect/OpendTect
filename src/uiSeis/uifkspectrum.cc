@@ -67,8 +67,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
     if ( setbp )
     {
-	uiSeparator* sep = new uiSeparator( this, "HorSep",
-					    uiObject::Horizontal );
+	uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
 	sep->attach( stretchedBelow, ffld_ );
 	uiString minlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
 	minfld_ = new uiGenInput( this, minlbl );

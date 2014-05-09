@@ -96,7 +96,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
 {
     const bool haveattribs = attrinf_->attrnms_.size();
 
-    selgrp_ = new uiButtonGroup( this, "Input selection", uiObject::Vertical );
+    selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 

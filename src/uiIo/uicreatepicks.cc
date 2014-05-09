@@ -103,7 +103,7 @@ uiGenPosPicks::uiGenPosPicks( uiParent* p )
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
 
-    maxnrpickfld_ = new uiGenInput( this, "Maximum number of Picks", 
+    maxnrpickfld_ = new uiGenInput( this, "Maximum number of Picks",
 				    IntInpSpec(100) );
     maxnrpickfld_->attach( alignedBelow, posprovfld_ );
 
@@ -189,7 +189,7 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 
     for ( DataPointSet::RowID idx=0; idx<size; idx++ )
     {
-	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize ) 
+	const int posidx = usemaxnrpicks ? Stats::randGen().getIndex( dpssize )
 					 : idx;
 	const DataPointSet::Pos pos( dps_->pos(posidx) );
 	*ps += Pick::Location( pos.coord(), pos.z() );
@@ -226,7 +226,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     }
 
     linenmfld_ = new uiLabeledListBox( this, lnms, "Line(s)",
-	    				uiListBox::AtLeastOne );
+					OD::ChooseAtLeastOne );
     linenmfld_->attach( alignedBelow, nrfld_ );
 
     if ( hornms.size() )

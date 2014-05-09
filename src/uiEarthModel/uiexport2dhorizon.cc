@@ -60,7 +60,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 	horselfld_->addItem( hinfos_[idx]->name );
 
     uiLabeledListBox* llbox = new uiLabeledListBox( this, "Select lines",
-						    uiListBox::AtLeastOne );
+						    OD::ChooseAtLeastOne );
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
@@ -73,7 +73,7 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     udffld_->setWithCheck( true );
     udffld_->attach( alignedBelow, headerfld_ );
 
-    optsfld_ = new uiCheckList( this, uiCheckList::Unrel, uiObject::Horizontal);
+    optsfld_ = new uiCheckList( this, uiCheckList::Unrel, OD::Horizontal);
     optsfld_->addItem( "Write line name" )
 	     .addItem( SI().zIsTime() ? "Z in msec" : "Z in feet" );
     optsfld_->attach( alignedBelow, udffld_ );

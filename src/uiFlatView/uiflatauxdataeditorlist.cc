@@ -17,11 +17,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     : uiGroup( p )
-    , change_( this )  
+    , change_( this )
     , ptselchange_( this )
     , isrectangleselection_( true )
 {
-    listbox_ = new uiListBox( this, "Aux data editors", uiListBox::ZeroOrMore );
+    listbox_ = new uiListBox( this, "Aux data editors", OD::ChooseZeroOrMore );
     listbox_->itemChosen.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
     listbox_->rightButtonClicked.notify(
@@ -91,7 +91,7 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 	    listboxeditors_ += editors_[idx];
 	}
     }
-    
+
     listbox_->chooseAll( false );
 
     for ( int idy=selectededitors.size()-1; idy>=0; idy-- )
@@ -130,8 +130,8 @@ void uiFlatViewAuxDataEditorList:: rightClickedCB(CallBacker*)
 }
 
 
-void uiFlatViewAuxDataEditorList::getSelections( 
-	ObjectSet<FlatView::AuxDataEditor>& editors, TypeSet<int>& ids ) 
+void uiFlatViewAuxDataEditorList::getSelections(
+	ObjectSet<FlatView::AuxDataEditor>& editors, TypeSet<int>& ids )
 {
     for ( int idx=listbox_->size()-1; idx >= 0; idx-- )
     {
@@ -144,7 +144,7 @@ void uiFlatViewAuxDataEditorList::getSelections(
 }
 
 
-void uiFlatViewAuxDataEditorList::setSelection( 
+void uiFlatViewAuxDataEditorList::setSelection(
 	const FlatView::AuxDataEditor* editor, int id )
 {
     const int idx = findEditorIDPair( editor, id );
@@ -175,18 +175,18 @@ void uiFlatViewAuxDataEditorList::listSelChangeCB( CallBacker* )
 {
     for ( int idx = editors_.size()-1; idx>=0; idx-- )
 	editors_[idx]->setAddAuxData( -1 );
-	
-    if ( listbox_->nrChosen()==1 ) 
+
+    if ( listbox_->nrChosen()==1 )
     {
 	const int idx = listbox_->firstChosen();
 	listboxeditors_[idx]->setAddAuxData( listboxids_[idx] );
     }
-    
+
     change_.trigger();
 }
 
 
-int uiFlatViewAuxDataEditorList::findEditorIDPair( 
+int uiFlatViewAuxDataEditorList::findEditorIDPair(
 	const FlatView::AuxDataEditor* editor, int id ) const
 {
     for ( int idx=0; idx<listboxeditors_.size(); idx++ )
@@ -194,6 +194,6 @@ int uiFlatViewAuxDataEditorList::findEditorIDPair(
 	if ( listboxeditors_[idx]==editor && listboxids_[idx]==id )
 	    return idx;
     }
-    
+
     return -1;
 }

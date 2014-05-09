@@ -71,11 +71,11 @@ uiPreStackMergeDlg::~uiPreStackMergeDlg()
 void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
     volsbox_ = new uiListBox( topgrp, "Available Stores",
-	    			uiListBox::AtLeastOne );
+				OD::ChooseAtLeastOne );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
     outctio_.ctxt.forread = false;
     stackfld_ = new uiGenInput( this, "Duplicate traces",
-	    			BoolInpSpec(true,"Stack","Use first") );
+				BoolInpSpec(true,"Stack","Use first") );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
     uiPosSubSel::Setup psssu( false, false );
@@ -107,7 +107,7 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-	    					"", cb );
+						"", cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -277,7 +277,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
     const bool dostack = stackfld_->getBoolValue();
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
-	    					  dostack, sd );
+						  dostack, sd );
     exec->setName( "Merge Prestack Data Stores" );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
@@ -285,7 +285,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","", 
+    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","",
                                  mODHelpKey(mPreStackCopyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
@@ -302,7 +302,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
 
     BufferString offsetrangestr ( "Offset range ", SI().getXYUnitString() );
     offsrgfld_ = new uiGenInput( this, offsetrangestr,
-	    			 FloatInpSpec(0), FloatInpSpec() );
+				 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
     outctio_.ctxt.forread = false;
@@ -362,7 +362,7 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     ObjectSet<IOObj> selobjs;
     selobjs += inctio_.ioobj;
     PtrMan<SeisPSMerger> exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
-	    					  true, sd );
+						  true, sd );
     const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     const float ofsrgstart = offsrgfld_->getfValue(0) * convfactor;
     const float ofsrgstop = offsrgfld_->getfValue(1) * convfactor;

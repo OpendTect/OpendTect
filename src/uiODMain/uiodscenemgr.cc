@@ -612,7 +612,7 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
 				   "Select area to take snapshot",
                                    mODHelpKey(mSnapshotDlgHelpID) ) )
 {
-    butgrp_ = new uiButtonGroup( this, "Area type", uiObject::Vertical );
+    butgrp_ = new uiButtonGroup( this, "Area type", OD::Vertical );
     butgrp_->setExclusive( true );
     new uiRadioButton( butgrp_, "Scene" );
     new uiRadioButton( butgrp_, "Window" );

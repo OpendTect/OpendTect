@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uidialog.h"
 #include "uiiosel.h"
+#include "uilistbox.h"
 #include "ctxtioobj.h"
 #include "multiid.h"
 
@@ -47,37 +48,35 @@ public:
 
 /*!\brief Basic group for letting the user select an object.
 
-  For the multi-select selection modes the list will be checkable. The SelMode
-  'AnyNumber' will allow the user to not check any item. In the 'AtLeastOne'
-  mode the current item is used if the user doesn't check anything.
-  In all cases 0 selected is possible (e.g. the list can be empty) - it's up
-  to you whether this will be an error.
+  For write, you always need to call updateCtxtIOObj(). as a new IOObj may need
+  to be created. In any case, if you want to have the CtxtIOObj updated,
+  updateCtxtIOObj() is required. Otherwise, this is not needed.
 
 */
+
 
 mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
 {
 public:
 
-    enum SelMode	{ Single, AnyNumber, AtLeastOne };
-
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( SelMode sm=Single )
-			    : selmode_(sm)
+			Setup( OD::ChoiceMode cm=OD::ChooseOnlyOne )
+			    : choicemode_(cm)
 			    , allowreloc_(false)
 			    , allowremove_(true)
 			    , allowsetdefault_(false)
 			    , confirmoverwrite_(true)	{}
 
-	mDefSetupMemb(SelMode,selmode);
+	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);
 	mDefSetupMemb(bool,allowremove);
 	mDefSetupMemb(bool,allowsetdefault);
 	mDefSetupMemb(bool,confirmoverwrite);
 
-	bool		isMultiSel() const	{ return selmode_ != Single; }
+	inline bool	isMultiChoice() const
+			{ return ::isMultiChoice( choicemode_ ); }
 
     };
 			uiIOObjSelGrp(uiParent*,const CtxtIOObj&);
@@ -89,33 +88,33 @@ public:
 			~uiIOObjSelGrp();
     bool		isEmpty() const;
     int			size() const;
-    inline bool		isMultiSel() const	{ return setup_.isMultiSel(); }
+    inline bool		isMultiChoice() const { return setup_.isMultiChoice(); }
 
-    void		fullUpdate(const MultiID& kpselected);
-    bool		processInput();
-				/*!< has to be done before selected() can be
-				   queried. It also creates an entry in IOM if
-				   the selected object is new.  */
-
-    int			nrSelected() const;
-    bool		isSel(int) const;
+			// mostly interesting for read
     int			currentItem() const;
     MultiID		currentID() const;
-    const MultiID&	selected(int idx=0) const;
-				//!<\note processInput should be called first!
-    void		setSelected(const TypeSet<MultiID>&);
-    void		getSelected(TypeSet<MultiID>&) const;
-    void		selectAll(bool yn=true);
+    int			nrChosen() const;
+    bool		isChosen(int) const;
+    const MultiID&	chosenID(int idx=0) const;
+    void		getChosen(TypeSet<MultiID>&) const;
+    void		setCurrent(int);
+    void		setCurrent(const MultiID&);
+    void		setChosen(int,bool yn=true);
+    void		setChosen(const TypeSet<MultiID>&);
+    void		chooseAll(bool yn=true);
 
+			// mostly interesting for write
+    bool		updateCtxtIOObj();
+    const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
 
     void		setContext(const IOObjContext&);
     const IOObjContext&	getCtxt() const			{ return ctio_.ctxt; }
-    const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
     uiListBox*		getListField()			{ return listfld_; }
     uiIOObjManipGroup*	getManipGroup();
     const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
+
     void		setConfirmOverwrite( bool yn )
 				{ setup_.confirmoverwrite_ = yn; }
     void		setAskedToOverwrite( bool yn )
@@ -126,10 +125,13 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    Notifier<uiIOObjSelGrp> selectionChg;
+    Notifier<uiIOObjSelGrp> selectionChanged;
+    Notifier<uiIOObjSelGrp> itemChosen;
     Notifier<uiIOObjSelGrp> newStatusMsg;
 				/*!< Triggers when there is a new message for
 				     statusbars and similar */
+
+    void		fullUpdate(const MultiID& kpselected);
 
 protected:
 
@@ -150,15 +152,15 @@ protected:
     uiToolButton*	mkdefbut_;
 
     void		fullUpdate(int);
-    void		newList();
     void		fillListBox();
-    void		setCur(int);
-    void		toStatusBar(const char*);
     IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);
+    IOObj*		updStatusBarInfo(bool);
+    void		triggerStatusMsg(const char*);
 
     void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
+    void		choiceChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
@@ -185,9 +187,14 @@ public:
 				      bool multisel=false,
 				      bool allowsetsurvdefault=false);
 
-    int			nrSelected() const { return selgrp_->nrSelected(); }
-    const MultiID&	selected( int i ) const	{ return selgrp_->selected(i); }
-    const IOObj*	ioObj() const	{return selgrp_->getCtxtIOObj().ioobj;}
+    int			nrChosen() const	{ return selgrp_->nrChosen(); }
+    const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
+    void		getChosen( TypeSet<MultiID>& ids ) const
+						{ selgrp_->getChosen( ids ); }
+    void		chooseAll( bool yn=true ) { selgrp_->chooseAll( yn ); }
+
+    const IOObj*	ioObj() const;
+
     uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
     bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
     void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
@@ -196,7 +203,8 @@ public:
 
 protected:
 
-    bool		acceptOK(CallBacker*){return selgrp_->processInput();}
+    bool		acceptOK(CallBacker*)
+			{ return selgrp_->updateCtxtIOObj(); }
     void		statusMsgCB(CallBacker*);
 
     uiIOObjSelGrp*	selgrp_;
@@ -252,7 +260,7 @@ public:
 					{ setup_.confirmoverwr_ = yn; }
     void		setHelpKey(const HelpKey& helpkey) { helpkey_=helpkey; }
 
-    virtual void	updateInput();	//!< updates from CtxtIOObj
+    virtual void	updateInput();	//!< a.o. updates from CtxtIOObj
     virtual void	processInput(); //!< Match user typing with existing
 					//!< IOObjs, then set item accordingly
     virtual bool	existingTyped() const

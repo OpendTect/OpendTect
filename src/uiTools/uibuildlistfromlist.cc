@@ -43,7 +43,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
     listfld_->deleteButtonPressed.notify( mCB(this,uiEditObjectList,rmCB) );
     listfld_->selectionChanged.notify( mCB(this,uiEditObjectList,selChgCB) );
 
-    bgrp_ = new uiButtonGroup( this, "Buttons", uiObject::Vertical );
+    bgrp_ = new uiButtonGroup( this, "Buttons", OD::Vertical );
     if ( compact )
     {
 #define mDefBut(butnm,txt,pm,cb,imm) \

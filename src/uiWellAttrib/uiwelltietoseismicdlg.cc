@@ -569,7 +569,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
 					    needNewEstimatedWvlt) );
 
     uiSeparator* verSepar = new uiSeparator( viewersgrp, "Vert sep",
-	    				     uiObject::Vertical );
+					     OD::Vertical );
     verSepar->attach( rightTo, wvltgrp );
 
     corrgrp->attach( rightOf, verSepar );

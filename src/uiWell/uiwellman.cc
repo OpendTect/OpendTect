@@ -64,11 +64,11 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
     uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
     logsfld_ = new uiListBox( logsgrp_, "Available logs",
-				uiListBox::AtLeastOne );
+				OD::ChooseAtLeastOne );
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
-						 uiObject::Horizontal );
+						 OD::Horizontal );
     addlogsbut_ = new uiPushButton( logsbgrp, "&Import", false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
     calclogsbut_ = new uiPushButton( logsbgrp, "&Create", false );
@@ -158,10 +158,10 @@ void uiWellMan::getCurrentWells()
 
     if ( !curioobj_ ) return;
 
-    const int nrsel = selGroup()->nrSelected();
+    const int nrsel = selGroup()->nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const IOObj* obj = IOM().get( selgrp_->selected(idx) );
+	const IOObj* obj = IOM().get( selgrp_->chosenID(idx) );
 	if ( !obj ) continue;
 
 	curmultiids_ += obj->key();

@@ -100,7 +100,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 	plane = 0; \
     bool legalclick = !plane; \
     mCheckTracker( typ, Horizon3D, legalclick, \
-		   plane->getOrientation()!=PlaneDataDisplay::Zslice ); \
+		   plane->getOrientation()!=OD::ZSlice ); \
     mCheckTracker( typ, Fault3D, legalclick, true ); \
     mCheckTracker( typ, FaultStickSet, legalclick, true );
 

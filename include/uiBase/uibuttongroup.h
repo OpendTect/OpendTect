@@ -31,7 +31,7 @@ mExpClass(uiBase) uiButtonGroup : public uiGroup
 {
 public:
 			uiButtonGroup(uiParent*,const char* nm,
-				      uiObject::Orientation);
+				      OD::Orientation);
 			~uiButtonGroup();
 
     void		selectButton(int id);
@@ -52,7 +52,7 @@ protected:
 
     mQtclass(QButtonGroup*)	qbuttongrp_;
     ObjectSet<uiButton>		uibuts_;
-    uiObject::Orientation	orientation_;
+    OD::Orientation		orientation_;
 
 };
 

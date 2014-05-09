@@ -52,8 +52,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace visSurvey
 {
 
-const char* RandomTrackDisplay::sKeyTrack() 	    { return "Random track"; }
-const char* RandomTrackDisplay::sKeyNrKnots() 	    { return "Nr. Knots"; }
+const char* RandomTrackDisplay::sKeyTrack()	    { return "Random track"; }
+const char* RandomTrackDisplay::sKeyNrKnots()	    { return "Nr. Knots"; }
 const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
 const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
@@ -70,8 +70,8 @@ RandomTrackDisplay::RandomTrackDisplay()
     , datatransform_(0)
     , lockgeometry_(false)
     , eventcatcher_(0)
-    , depthrg_(SI().zRange(true)) 
-    , voiidx_(-1)  
+    , depthrg_(SI().zRange(true))
+    , voiidx_(-1)
     , markerset_( visBase::MarkerSet::create() )
 {
     TypeSet<int> randomlines;
@@ -117,14 +117,14 @@ RandomTrackDisplay::RandomTrackDisplay()
     markerset_->setMarkersSingleColor( polyline_->getMaterial()->getColor() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
-    const StepInterval<float> inlrange( 
+    const StepInterval<float> inlrange(
 			    mCast(float,SI().sampling(true).hrg.start.inl()),
-	    		    mCast(float,SI().sampling(true).hrg.stop.inl()),
+			    mCast(float,SI().sampling(true).hrg.stop.inl()),
 			    mCast(float,SI().inlStep()) );
-    const StepInterval<float> crlrange( 
+    const StepInterval<float> crlrange(
 			    mCast(float,SI().sampling(true).hrg.start.crl()),
-	    		    mCast(float,SI().sampling(true).hrg.stop.crl()),
-	    		    mCast(float,SI().crlStep()) );
+			    mCast(float,SI().sampling(true).hrg.stop.crl()),
+			    mCast(float,SI().crlStep()) );
 
     const BinID start( mNINT32(inlrange.center()), mNINT32(crlrange.start) );
     const BinID stop(start.inl(), mNINT32(crlrange.stop) );
@@ -140,7 +140,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 //	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
 
 //    const int baselen = mNINT32((inlrange.width()+crlrange.width())/2);
-    
+
 //  dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
 
     init();
@@ -234,14 +234,14 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
 {
     if ( res==resolution_ )
 	return;
-    
+
     resolution_ = res;
-    
+
     for ( int idx=0; idx<cache_.size(); idx++ )
     {
 	if ( !cache_[idx] || !cache_[idx]->size() )
 	    continue;
-	
+
 	setData( idx, *cache_[idx] );
     }
 }
@@ -323,7 +323,7 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 }
 
 
-static bool decoincideKnots( const TypeSet<BinID>& knots, 
+static bool decoincideKnots( const TypeSet<BinID>& knots,
 			     TypeSet<BinID>& uniqueknots )
 {
     uniqueknots.erase();
@@ -334,8 +334,8 @@ static bool decoincideKnots( const TypeSet<BinID>& knots,
     for ( int idx=1; idx<knots.size(); idx++ )
     {
 	const BinID prev = uniqueknots[uniqueknots.size()-1];
-    	const BinID biddif = prev - knots[idx];
-	const int nrsteps = mMAX( abs(biddif.inl())/SI().inlStep(), 
+	const BinID biddif = prev - knots[idx];
+	const int nrsteps = mMAX( abs(biddif.inl())/SI().inlStep(),
 				  abs(biddif.crl())/SI().crlStep() );
 	const Coord dest = SI().transform( knots[idx] );
 	const Coord crddif = SI().transform(prev) - dest;
@@ -357,8 +357,8 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 {
     TypeSet<BinID> uniquebids;
    if ( !decoincideKnots( newbids, uniquebids ) ) return false;
-   
-    if ( uniquebids.size() < 2 ) 
+
+    if ( uniquebids.size() < 2 )
 	return false;
     while ( nrKnots() > uniquebids.size() )
 	removeKnot( nrKnots()-1 );
@@ -417,9 +417,9 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 void RandomTrackDisplay::removeAllKnots()
 {
 //    for ( int idx=0; idx<knots_.size(); idx++ )
-//    	dragger_->removeKnot( idx );
-    
-    knots_.erase();	
+//	dragger_->removeKnot( idx );
+
+    knots_.erase();
     updatePanelStripPath();
 }
 
@@ -429,9 +429,9 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids ) const
 
 
 void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
-       					   TypeSet<int>* segments ) const
+					   TypeSet<int>* segments ) const
 {
-    const_cast<RandomTrackDisplay*>(this)->trcspath_.erase(); 
+    const_cast<RandomTrackDisplay*>(this)->trcspath_.erase();
     TypeSet<BinID> knots;
     getAllKnotPos( knots );
     Geometry::RandomLine::getPathBids( knots, bids, true, segments );
@@ -454,8 +454,8 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 	const Coord startcoord = SI().transform( start );
 	const Coord stopcoord = SI().transform( stop );
 	const float delx = (float) ( stopcoord.x - startcoord.x ) / nrtraces;
-	const float dely = (float) ( stopcoord.y - startcoord.y ) / nrtraces; 
-   
+	const float dely = (float) ( stopcoord.y - startcoord.y ) / nrtraces;
+
 	for ( int idx=0; idx<nrtraces; idx++ )
 	{
 	    const float x = (float) ( startcoord.x + delx * idx );
@@ -468,7 +468,7 @@ TypeSet<Coord> RandomTrackDisplay::getTrueCoords() const
 
 
 bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
-       			TaskRunner* tr )
+			TaskRunner* tr )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
@@ -504,7 +504,7 @@ DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
 
 
 void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf,
-       					TaskRunner* )
+					TaskRunner* )
 {
     setData( attrib, trcbuf );
 
@@ -536,7 +536,7 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 	datatransform_->unRef();
 	datatransform_ = 0;
     }
-    
+
     datatransform_ = zat;
     voiidx_ = -1;
     if ( datatransform_ )
@@ -566,10 +566,10 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 {
     if ( resetz )
     {
-    	const Interval<float>& depthrg = datatransform_->getZInterval(false);
+	const Interval<float>& depthrg = datatransform_->getZInterval(false);
 	setPanelStripZRange( depthrg );
-//    	dragger_->setDepthRange( depthrg );
-    
+//	dragger_->setDepthRange( depthrg );
+
 	moving_.trigger();
     }
 }
@@ -610,7 +610,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	for ( int pi=0; pi<pathsz; pi++ )
 	    cs.hrg.include( path[pi] );
 	cs.zrg = zrg;
-		
+
 	if ( voiidx_<0 )
 	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
 	else
@@ -649,7 +649,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 		    arrptr[ids] = trc->getValue(ctime,sidx);
 		}
 	    }
-	    else 
+	    else
 	    {
 		SamplingData<float> sd(zrg.start, zrg.step );
 		mAllocVarLenArr(float,res,nrsamp);
@@ -666,7 +666,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	const int sz0 = array->info().getSize(0) * (resolution_+1);
 	const int sz1 = array->info().getSize(1) * (resolution_+1);
 	channels_->setSize( 1, sz0, sz1 );
-	
+
 	if ( resolution_==0 )
 	    channels_->setUnMappedData(attrib,sidx,dataptr,OD::CopyPtr,0);
 	else
@@ -679,7 +679,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
 	}
     }
-    
+
     channels_->turnOn( true );
 }
 
@@ -768,7 +768,7 @@ void RandomTrackDisplay::addKnot( int knotnr )
     else
 	insertKnot( knotnr, newpos );
 }
-    
+
 
 BinID RandomTrackDisplay::proposeNewPos(int knotnr ) const
 {
@@ -801,12 +801,12 @@ bool RandomTrackDisplay::isManipulated() const
     return ismanip_;
 }
 
- 
+
 void RandomTrackDisplay::acceptManipulation()
 {
 /*
     if ( !datatransform_ )
-    	setDepthInterval( dragger_->getDepthRange() );
+	setDepthInterval( dragger_->getDepthRange() );
     else
     {
 	triangles_->setDepthRange( dragger_->getDepthRange() );
@@ -830,7 +830,7 @@ void RandomTrackDisplay::resetManipulation()
 {
 /*
     if ( !datatransform_ )
-    	dragger_->setDepthRange( getDepthInterval() );
+	dragger_->setDepthRange( getDepthInterval() );
 
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
@@ -851,7 +851,7 @@ void RandomTrackDisplay::showManipulator( bool yn )
 //    if ( !yn ) dragger_->showFeedback( false );
 //    dragger_->turnOn( yn );
 }
-   
+
 
 bool RandomTrackDisplay::isManipulatorShown() const
 { return false; /* track->isDraggerShown();*/ }
@@ -871,13 +871,13 @@ BufferString RandomTrackDisplay::getManipulationString() const
 
     return str;
 }
- 
+
 
 void RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
     ismanip_ = true;
     mCBCapsuleUnpack(int,sel,cb);
-    
+
     selknotidx_ = sel;
     knotmoving_.trigger();
 }
@@ -1191,13 +1191,13 @@ void RandomTrackDisplay::setSceneEventCatcher( visBase::EventCatcher* evnt )
 {
     if ( eventcatcher_ )
     {
-	eventcatcher_->eventhappened.remove( 
+	eventcatcher_->eventhappened.remove(
 				     mCB(this,RandomTrackDisplay,pickCB) );
 	eventcatcher_->unRef();
     }
-    
+
     eventcatcher_ = evnt;
-    
+
     if ( eventcatcher_ )
     {
 	eventcatcher_->ref();
@@ -1214,10 +1214,10 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-  
-    if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick && 
+
+    if ( !eventinfo.pressed && eventinfo.type==visBase::MouseClick &&
 			    OD::leftMouseButton( eventinfo.buttonstate_ ) )
-    {  
+    {
 	const Coord3 pos = eventinfo.worldpickedpos;
 	Coord3 inlcrlpos(pos);
 	BinID bid = SI().transform( inlcrlpos );
@@ -1246,7 +1246,7 @@ void RandomTrackDisplay::pickCB( CallBacker* cb )
 	setPickPos( inlcrlpos );
 	eventcatcher_->setHandled();
     }
-} 
+}
 
 
 void RandomTrackDisplay::setPolyLineMode( bool mode )
@@ -1259,7 +1259,7 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
 }
 
 
-bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi, 
+bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 					 const Coord3& pos) const
 {
     const int sz = evi.pickedobjids.size();
@@ -1283,7 +1283,7 @@ bool RandomTrackDisplay::checkValidPick( const visBase::EventInfo& evi,
 	mDynamicCastGet(const HorizonDisplay*,hd,so);
 	mDynamicCastGet(const PlaneDataDisplay*,pdd,so);
 	validpicksurface = hd ||
-		(pdd && pdd->getOrientation() == PlaneDataDisplay::Zslice);
+		(pdd && pdd->getOrientation() == OD::ZSlice);
 
 	if ( eventid!=-1 )
 	    break;
@@ -1298,7 +1298,7 @@ void RandomTrackDisplay::setPickPos( const Coord3& pos )
     polyline_->addPoint( pos );
     markerset_->addPos( pos );
 }
-  
+
 
 void RandomTrackDisplay::removePickPos( const Coord3& pickpos )
 {
@@ -1325,7 +1325,7 @@ bool RandomTrackDisplay::createFromPolyLine()
 	Coord pos = polyline_->getPoint( idx );
 	bids += BinID( (int)pos.x, (int)pos.y );
     }
-    
+
     return setKnotPositions( bids );
 }
 
@@ -1336,7 +1336,7 @@ void RandomTrackDisplay::setPixelDensity( float dpi )
 
     if ( polyline_ )
 	polyline_->setPixelDensity( dpi );
-  
+
     if ( markerset_ )
 	markerset_->setPixelDensity( dpi );
 }

@@ -76,7 +76,7 @@ bool uiODAnnotParentTreeItem::init()
 {
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
- 
+
     addChild( new ScaleBarParentItem(), true );
     getItem()->setOpen( false );
     return true;
@@ -228,7 +228,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     if ( mnusel == 0 )
     {
 	BufferString title = typestr_; title += " Annotations";
-	uiGenInputDlg dlg( getUiParent(), title, "Group name", 
+	uiGenInputDlg dlg( getUiParent(), title, "Group name",
 			   new StringInpSpec );
 	dlg.setCaption( "Annotations" );
 
@@ -339,7 +339,7 @@ void uiODAnnotSubItem::prepareForShutdown()
 bool uiODAnnotSubItem::init()
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( ld )
     {
 	ld->setSetMgr( &Pick::SetMgr::getMgr( managerName()) );
@@ -377,17 +377,17 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
 	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size","Size",
-		    				     mNoHelpKey) );
-	uiSlider* sliderfld = new uiSlider( &dlg, 
+						     mNoHelpKey) );
+	uiSlider* sliderfld = new uiSlider( &dlg,
 			uiSlider::Setup("Size").nrdec(1).logscale(true),
-	       		"Size" );
+			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
 	sliderfld->setValue( 1 );
@@ -442,7 +442,7 @@ bool uiODAnnotSubItem::doesNameExist( const char* nm )
 }
 
 
-char uiODAnnotSubItem::createIOEntry( const char* nm, bool overwrite, 
+char uiODAnnotSubItem::createIOEntry( const char* nm, bool overwrite,
 				    MultiID& mid, const char* mannm )
 {
     if ( !overwrite && doesNameExist(nm) )
@@ -489,12 +489,8 @@ void uiODAnnotSubItem::storeAs( bool trywitoutdlg ) const
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
-	{
-	    delete ctio.ioobj;
-	    return;
-	}
-
-	mid = dlg.selected( 0 );
+	    { delete ctio.ioobj; return; }
+	mid = dlg.chosenID( 0 );
     }
 
     mgr.setID( setidx, mid );
@@ -505,7 +501,7 @@ void uiODAnnotSubItem::storeAs( bool trywitoutdlg ) const
 void uiODAnnotSubItem::setScale( float ns )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     const int newscale = mNINT32( ns );
@@ -522,7 +518,7 @@ void uiODAnnotSubItem::setScale( float ns )
 void uiODAnnotSubItem::setColor( Color nc )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     Pick::Set* set = ld->getSet();

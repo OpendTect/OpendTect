@@ -58,7 +58,7 @@ uiColTabImport::uiColTabImport( uiParent* p )
     dtectusrfld_->updateRequested.notify( mCB(this,uiColTabImport,usrSel) );
 
     listfld_ = new uiLabeledListBox( this, "Color table(s) to add",
-				     uiListBox::AtLeastOne,
+				     OD::ChooseAtLeastOne,
 				     uiLabeledListBox::LeftTop );
     listfld_->attach( alignedBelow, dtectusrfld_ );
 

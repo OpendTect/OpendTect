@@ -27,7 +27,7 @@ mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
 {
 public:
 			uiManipButGrp(uiParent* p)
-			    : uiButtonGroup(p,"ManipButtons",uiObject::Vertical)
+			    : uiButtonGroup(p,"ManipButtons",OD::Vertical)
 			{ altbutdata.allowNull(); }
 			~uiManipButGrp()
 			{ deepErase(butdata); deepErase(altbutdata); }
@@ -66,7 +66,7 @@ public:
 				    : obj_(o), grp_(0)		{}
 
     virtual MultiID		currentID() const			= 0;
-    virtual void		getSelectedIDs(TypeSet<MultiID>&) const	= 0;
+    virtual void		getChosenIDs(TypeSet<MultiID>&) const	= 0;
     virtual const char*		defExt() const				= 0;
     virtual const BufferStringSet& names() const			= 0;
 

@@ -253,7 +253,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines to export",
-						    uiListBox::AtLeastOne );
+						    OD::ChooseAtLeastOne );
     lnmsfld_ = llb->box();
     SeisIOObjInfo sii( inioobj_ );
     BufferStringSet lnms;

@@ -41,8 +41,8 @@ public:
     void		setInterval(const StepInterval<int>&);
     void		getInterval(StepInterval<int>&) const;
 
-    void		setOrientation(Orientation);
-    Orientation		getOrientation() const;
+    void		setOrientation(OD::Orientation);
+    OD::Orientation	getOrientation() const;
 
     void		setInverted(bool);
     bool		isInverted() const;
@@ -91,7 +91,7 @@ public:
 			uiDialExtra(uiParent*,const Setup&, const char* nm);
 
     uiDial*		dial()		{ return dial_; }
-    uiLabel*		label() 	{ return lbl_; }
+    uiLabel*		label()	{ return lbl_; }
 
     void                processInput();
     float               editValue() const;

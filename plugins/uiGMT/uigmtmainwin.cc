@@ -80,7 +80,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     resetbut_->setToolTip( "Reset input fields" );
     resetbut_->attach( rightOf, editbut_ );
 
-    uiSeparator* sep = new uiSeparator( this, "VSep", uiObject::Vertical );
+    uiSeparator* sep = new uiSeparator( this, "VSep", OD::Vertical );
     sep->attach( stretchedLeftTo, rightgrp );
 
     flowgrp_ = new uiGroup( this, "Flow Group" );
@@ -90,8 +90,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
 
     const CallBack butpushcb( mCB(this,uiGMTMainWin,butPush) );
-    uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "",
-					     uiObject::Horizontal );
+    uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", OD::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
 				"Move current item up", butpushcb );

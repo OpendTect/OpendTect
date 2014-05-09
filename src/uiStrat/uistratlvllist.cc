@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
-    : uiLabeledListBox(p,"Regional markers",uiListBox::OnlyOne,
+    : uiLabeledListBox(p,"Regional markers",OD::ChooseOnlyOne,
 			uiLabeledListBox::AboveMid)
     , islocked_(false)
     , anychange_(false)
@@ -34,7 +34,7 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
     box()->setFieldWidth( 15 );
     box()->doubleClicked.notify( mCB(this,uiStratLvlList,editCB) );
 
-    uiButtonGroup* grp = new uiButtonGroup( this, "Tools", uiObject::Vertical );
+    uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
     new uiToolButton( grp, "addnew", "Create New",
 		      mCB(this,uiStratLvlList,addCB) );

@@ -84,7 +84,7 @@ void uiSeis2DLineSel::setSelLineNames( const BufferStringSet& selnms )
 	if ( index >= 0 )
 	    selidxs_ += index;
     }
-    
+
     updateSummary();
 }
 
@@ -98,7 +98,7 @@ void uiSeis2DLineSel::setSelGeomIDs( const TypeSet<Pos::GeomID>& selgeomids )
 	if ( index >= 0 )
 	    selidxs_ += index;
     }
-    
+
     updateSummary();
 }
 
@@ -180,7 +180,7 @@ BufferString uiSeis2DLineSel::getSummary() const
 	ret = "All";
     else
 	ret = selidxs_.size();
-	
+
     ret += " lines";
     return ret;
 }
@@ -366,7 +366,7 @@ public:
     void			getTrcRgs(TypeSet<StepInterval<int> >&) const;
 
     void			setSelection(const TypeSet<int>&,
-	    				const TypeSet<StepInterval<int> >&,
+					const TypeSet<StepInterval<int> >&,
 					const TypeSet<StepInterval<float> >&);
     void			setAll(bool);
     void			setZRgs(const StepInterval<float>&);
@@ -401,7 +401,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     , zrgfld_(0)
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, lnms, "Select Lines",
-						  uiListBox::AtLeastOne );
+						  OD::ChooseAtLeastOne );
     lnmsfld_ = llb->box();
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
@@ -423,7 +423,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(), withstep,
-	    			  "Trace" );
+				  "Trace" );
     trcrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,trcRgChanged) );
     trcrgfld_->attach( alignedBelow, llb );

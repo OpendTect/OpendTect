@@ -53,7 +53,7 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     const bool has2d = SI().has2D();
     const bool has3d = SI().has3D();
     uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Manip buttons",
-					     uiObject::Vertical );
+					     OD::Vertical );
     bgrp->attach( rightOf, listfld_ );
 #   define mAddBut(s,fn) \
     new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )
@@ -295,12 +295,12 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
     lssel_ = new uiIOObjSel( this, ctio_ );
     lssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
     uiGroup* boxgrp = new uiGroup( this, "List boxes" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)", 
-	    			 uiListBox::AtLeastOne,
+    uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)",
+				 OD::ChooseAtLeastOne,
 				 uiLabeledListBox::AboveMid );
     linesel_ = lllb->box();
     uiLabeledListBox* allb = new uiLabeledListBox( boxgrp, "Attribute(s)",
-	    			 uiListBox::AtLeastOne,
+				 OD::ChooseAtLeastOne,
 				 uiLabeledListBox::AboveMid );
     allb->attach( rightOf, lllb );
     attrsel_ = allb->box();
@@ -419,10 +419,11 @@ uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
 {
     setCaption( "Pre-load data" );
     uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), "Line(s) to load",
-			  uiListBox::AtLeastOne, uiLabeledListBox::AboveMid );
+			  OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     lnmsfld_ = llb->box();
     llb->attach( rightOf, selGrp()->getTopGroup() );
-    selGrp()->selectionChg.notify( mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
+    selGrp()->selectionChanged.notify(
+				mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
 }
 
 void dsSel( CallBacker* )

@@ -79,8 +79,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	lastgrp = lcb;
     }
 
-    uiSeparator* sep = new uiSeparator( this, "hor sep", uiObject::Horizontal,
-	    				false );
+    uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, lastgrp );
 
     int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
@@ -95,7 +94,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
 
     postFinalise().notify( mCB(this,uiSEGYDefDlg,initFlds) );
-    	// Need this to get zero padding right
+	// Need this to get zero padding right
 }
 
 
@@ -165,7 +164,7 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
 {
     int nrex = nrTrcExamine();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
-    nrtrcexfld_->setValue( nrex );   
+    nrtrcexfld_->setValue( nrex );
     const char* res = iop.find( sKey::Geometry() );
     if ( res && *res && geomfld_ )
     {

@@ -53,7 +53,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSelGrp( this, *mMkCtxtIOObj(EMFault3D),
-		   "Faults", uiIOObjSelGrp::Setup(uiIOObjSelGrp::AtLeastOne) );
+		   "Faults", uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
@@ -102,13 +102,13 @@ void uiGMTFaultsGrp::useColorCB( CallBacker* )
 
 bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 {
-    const int nrsel = faultfld_->nrSelected();
+    const int nrsel = faultfld_->nrChosen();
     if ( nrsel < 1 )
-	{ uiMSG().message( "Please select atleast one fault" ); return false; }
+	{ uiMSG().message( "No faults available" ); return false; }
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	iop.set( iop.compKey(ODGMT::sKeyFaultID(), idx),
-		 faultfld_->selected(idx) );
+		 faultfld_->chosenID(idx) );
     }
 
     iop.set( sKey::Name(), namefld_->text() );
@@ -155,7 +155,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
     if ( !fltpar )
 	return false;
 
-    faultfld_->selectAll( false );
+    faultfld_->chooseAll( false );
     TypeSet<MultiID> tosel;
     for ( int idx=0; idx<fltpar->size(); idx++ )
     {
@@ -167,7 +167,7 @@ bool uiGMTFaultsGrp::usePar( const IOPar& iop )
 	    tosel += mid;
 	delete obj;
     }
-    faultfld_->setSelected( tosel );
+    faultfld_->setChosen( tosel );
 
     BufferString nm;
     iop.get( sKey::Name(), nm );

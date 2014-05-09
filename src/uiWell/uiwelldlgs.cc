@@ -113,7 +113,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     actbutgrp->attach( centeredBelow, tbl_ );
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
-					   uiObject::Horizontal );
+					   OD::Horizontal );
     uiButton* readbut = new uiPushButton( iobutgrp, "&Import",
 					    mCB(this,uiWellTrackDlg,readNew),
 					    false );
@@ -658,7 +658,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     }
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
-					   uiObject::Horizontal );
+					   OD::Horizontal );
     new uiPushButton( iobutgrp, "&Import", mCB(this,uiD2TModelDlg,readNew),
 		      false );
     new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),

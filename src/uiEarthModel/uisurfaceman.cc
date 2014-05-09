@@ -144,7 +144,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Hor3D || type_ == AnyHor )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Horizon Data",
-			uiListBox::AtLeastOne, uiLabeledListBox::AboveLeft );
+			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setHSzPol( uiObject::Wide );
@@ -173,7 +173,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     if ( type_ == Flt3D )
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Fault Data",
-			uiListBox::AtLeastOne, uiLabeledListBox::AboveLeft );
+			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setToolTip(
@@ -638,7 +638,7 @@ uiSurface2DMan( uiParent* p, const EM::IOObjInfo& info )
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
     uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
-			    uiListBox::OnlyOne, uiLabeledListBox::AboveMid );
+			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     linelist_ = lllb->box();
     BufferStringSet linenames;
     info.getLineNames( linenames );
