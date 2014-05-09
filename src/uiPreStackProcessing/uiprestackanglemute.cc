@@ -35,8 +35,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , isformute_(isformute)
     , anglelbl_(0)
 {
-    IOObjContext ctxt = uiVelSel::ioContext();
-    velfuncsel_ = new uiVelSel( this, ctxt, uiSeisSel::Setup(Seis::Vol), false);
+    velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
+	    			uiSeisSel::Setup(Seis::Vol), false);
     velfuncsel_->setLabelText( "Input velocity volume" );
     if ( !params_.velvolmid_.isUdf() )
        velfuncsel_->setInput( params_.velvolmid_ );

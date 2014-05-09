@@ -13,14 +13,14 @@ ________________________________________________________________________
 -*/
 
 #include "uiiomod.h"
-#include "uidialog.h"
 #include "uiiosel.h"
-#include "uilistbox.h"
-#include "ctxtioobj.h"
+#include "uidialog.h"
 #include "multiid.h"
 
+class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
+class IOObjContext;
 class uiGenInput;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;
@@ -28,10 +28,8 @@ class uiIOObjSelGrpManipSubj;
 class uiListBox;
 class uiToolButton;
 
-/*!
-\brief Dialog letting the user select an object. It returns an IOObj* after
-successful go().
-*/
+/*!\brief Dialog letting the user select an object. It returns an IOObj* after
+	  successful go(). */
 
 mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
 {
@@ -79,13 +77,20 @@ public:
 			{ return ::isMultiChoice( choicemode_ ); }
 
     };
-			uiIOObjSelGrp(uiParent*,const CtxtIOObj&);
-			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
-					const uiString& seltxt);
-			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,const Setup&);
-			uiIOObjSelGrp(uiParent*,const CtxtIOObj&,
-				      const uiString& seltxt,const Setup&);
+
+#   define		mDefuiIOObjSelGrpConstructors(ctxtclss) \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+					const uiString& seltxt); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+					const Setup&); \
+			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
+					const uiString& seltxt,const Setup&)
+
+    			mDefuiIOObjSelGrpConstructors(IOObjContext);
+    			mDefuiIOObjSelGrpConstructors(CtxtIOObj);
 			~uiIOObjSelGrp();
+
     bool		isEmpty() const;
     int			size() const;
     inline bool		isMultiChoice() const { return setup_.isMultiChoice(); }
@@ -103,12 +108,11 @@ public:
     void		setChosen(const TypeSet<MultiID>&);
     void		chooseAll(bool yn=true);
 
-			// mostly interesting for write
-    bool		updateCtxtIOObj();
+    bool		updateCtxtIOObj(); //!< mostly interesting for write
     const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
-
+    const IOObjContext&	getContext() const;
     void		setContext(const IOObjContext&);
-    const IOObjContext&	getCtxt() const			{ return ctio_.ctxt; }
+
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }
     uiListBox*		getListField()			{ return listfld_; }
@@ -135,7 +139,7 @@ public:
 
 protected:
 
-    CtxtIOObj		ctio_;
+    CtxtIOObj&		ctio_;
     Setup		setup_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;

@@ -241,7 +241,7 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 }
 
 
-uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
+uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
 		    const uiSeisSel::Setup& setup, bool iseditbutton )
     : uiSeisSel( p, ctxt, setup )
     , velrgchanged( this )

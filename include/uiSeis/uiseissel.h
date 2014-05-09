@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uicompoundparsel.h"
 #include "seistype.h"
+#include "ctxtioobj.h"
 
 class uiSeisIOObjInfo;
 class uiLabeledComboBox;

@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiIOObjSel;
-class uiIOObjSelGrp;
 class uiPosProvGroup;
 class uiSeisSel;
 class uiSeis2DMultiLineSel;

@@ -92,7 +92,7 @@ protected:
 mExpClass(uiSeis) uiVelSel : public uiSeisSel
 {
 public:
-    				uiVelSel(uiParent*,IOObjContext&,
+    				uiVelSel(uiParent*,const IOObjContext&,
 					 const uiSeisSel::Setup&,
 					 bool iseditbutton=true);
 
