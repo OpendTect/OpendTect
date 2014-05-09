@@ -469,24 +469,46 @@ void uiListBox::updateFields2ChoiceMode()
 
 void uiListBox::menuCB( CallBacker* )
 {
-    if ( !isMultiChoice() ) return;
-
     rightclickmnu_.clear();
-    rightclickmnu_.insertItem( new uiAction("&Check all items"), 0 );
-    rightclickmnu_.insertItem( new uiAction("&Uncheck all items"), 1 );
-    if ( nrChosen() > 1 )
-	rightclickmnu_.insertItem( new uiAction("&Invert selection"), 2 );
+    const int sz = size();
+    if ( sz < 1 )
+	return;
+
+    const int nrchecked = nrChecked();
+    if ( nrchecked < size() )
+	rightclickmnu_.insertItem( new uiAction("&Check all (Ctrl-A)"), 0 );
+    if ( nrchecked > 0 )
+	rightclickmnu_.insertItem( new uiAction("&Uncheck all (Ctrl-Z)"), 1 );
+    rightclickmnu_.insertItem( new uiAction("&Invert selection"), 2 );
+    const bool needretrieve = retrievecb_.willCall();
+    const bool needsave = savecb_.willCall() && nrchecked > 0;
+    if ( needretrieve || needsave )
+    {
+	rightclickmnu_.insertSeparator();
+	if ( needretrieve )
+	    rightclickmnu_.insertItem( new uiAction("&Read selection"), 3 );
+	if ( needsave )
+	    rightclickmnu_.insertItem( new uiAction("&Save selection"), 4 );
+    }
+
+    const int selidx = currentItem();
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
-	setAllItemsChecked( res==0 );
-    else if ( res == 2 )
     {
-	const int selidx = currentItem();
-	TypeSet<int> chosen; getChosen( chosen );
-	for ( int idx=0; idx<size(); idx++ )
-	    setChosen( idx, !chosen.isPresent(idx) );
+	setAllItemsChecked( res==0 );
 	setCurrentItem( selidx );
     }
+    else if ( res == 2 )
+    {
+	TypeSet<int> checked; getCheckedItems( checked );
+	for ( int idx=0; idx<size(); idx++ )
+	    setItemChecked( idx, !checked.isPresent(idx) );
+	setCurrentItem( selidx );
+    }
+    else if ( res == 3 )
+	retrievecb_.doCall( this );
+    else if ( res == 4 )
+	savecb_.doCall( this );
 }
 
 
@@ -1057,7 +1079,7 @@ void uiListBox::setChosen( Interval<int> rg, bool yn )
 	rg.sort();
 	for ( int idx=rg.start; idx<=rg.stop; idx++ )
 	    setItemChecked( idx, yn );
-	setCurrentItem( rg.stop );
+	setCurrentItem( rg.start );
     }
 }
 

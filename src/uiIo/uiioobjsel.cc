@@ -177,6 +177,9 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     listfld_->setName( "Objects list" );
     listfld_->setPrefHeightInChar( 8 );
     listfld_->setHSzPol( uiObject::Wide );
+    if ( isMultiChoice() )
+	listfld_->offerReadWriteSelection( mCB(this,uiIOObjSelGrp,readSel),
+					   mCB(this,uiIOObjSelGrp,writeSel) );
 
     fullUpdate( -1 );
 
@@ -655,6 +658,18 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
 
     fullUpdate( 0 );
+}
+
+
+void uiIOObjSelGrp::readSel(CallBacker*)
+{
+    uiMSG().error( "TODO: implement retrieving stored selection" );
+}
+
+
+void uiIOObjSelGrp::writeSel(CallBacker*)
+{
+    uiMSG().error( "TODO: implement storing the selection" );
 }
 
 

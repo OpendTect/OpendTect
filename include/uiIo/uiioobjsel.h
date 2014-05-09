@@ -168,6 +168,8 @@ protected:
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
+    void		readSel(CallBacker*);
+    void		writeSel(CallBacker*);
 
 private:
 
