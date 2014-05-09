@@ -168,6 +168,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
     gatefld_ = new uiGenInput( prnt, gatelabel,
 	    		FloatInpIntervalSpec().setName("Z Interval Start",0)
 	   				      .setName("Z Interval Stop",1) );
+    gatefld_->setValues(0.f,0.f);
     gatefld_->attach( alignedBelow, seissubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
@@ -459,13 +460,27 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
 	}
     }
+ 
+    IOPar outputsubselpar;
+    outputsubselpar.mergeComp( *subselpar, sKey::Subsel() );
+    iopar.mergeComp( outputsubselpar, sKey::Output() );
 
     CubeSampling::removeInfo( *subselpar );
     iopar.mergeComp( *subselpar, sKey::Geometry() );
 
     Interval<float> zinterval;
     if ( gatefld_ )
+    {
 	zinterval = gatefld_->getFInterval();
+	if ( zinterval.isUdf() || zinterval.width() == 0  )
+	{
+	    const BufferString warning( "No valid Z Interval specified."
+			    "\nDo you still want to continue "
+			    "with the Z Interval of (0,0) ?" );
+	    if ( !uiMSG().askGoOn(warning) )
+		return false;
+	}
+    }
     else
     {
 	zinterval.start = extraztopfld_->getfValue();
