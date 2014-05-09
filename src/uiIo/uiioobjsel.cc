@@ -246,7 +246,7 @@ void uiIOObjSelGrp::chooseAll( bool yn ) { listfld_->chooseAll(yn);}
 MultiID uiIOObjSelGrp::currentID() const
 {
     const int selidx = listfld_->currentItem();
-    return selidx < 0 ? MultiID("") : *ioobjids_[selidx];
+    return ioobjids_.validIdx(selidx) ?  *ioobjids_[selidx] : MultiID("");
 }
 
 
