@@ -67,22 +67,20 @@ void uiBasemapWin::initTree()
 
 void uiBasemapWin::initToolBar()
 {
-    toolbar_ = new uiToolBar( this, "Basemap Items" );
-    toolbar_->addObject(
-	basemapview_->view().getSaveImageButton(toolbar_) );
+    vwtoolbar_ = new uiToolBar( this, "Viewer Tools" );
+    vwtoolbar_->addObject(
+	basemapview_->view().getSaveImageButton(vwtoolbar_) );
 
+    itemtoolbar_ = new uiToolBar( this, "Basemap Items" );
     CallBack cb = mCB(this,uiBasemapWin,iconClickCB);
-    const BufferStringSet& nms = uiBasemapItem::factory().getNames();
-    const TypeSet<uiString>& usrnms = uiBasemapItem::factory().getUserNames();
-    for ( int idx=0; idx<nms.size(); idx++ )
+    const ObjectSet<uiBasemapItem> itms = BMM().items();
+    for ( int idx=0; idx<itms.size(); idx++ )
     {
-	uiBasemapItem* itm =
-		uiBasemapItem::factory().create( nms.get(idx) );
+	const uiBasemapItem* itm = itms[idx];
 
-	uiString str( "Add " ); str.append( usrnms[idx] );
+	uiString str( "Add " ); //str.append( itm->getDisplayName() );
 	uiAction* action = new uiAction( str, cb, itm->iconName() );
-	ids_ += toolbar_->insertAction( action );
-	items_ += itm;
+	ids_ += itemtoolbar_->insertAction( action );
     }
 }
 
@@ -92,11 +90,12 @@ void uiBasemapWin::iconClickCB( CallBacker* cb )
     mDynamicCastGet(uiAction*,action,cb)
     if ( !action ) return;
 
+    const ObjectSet<uiBasemapItem> itms = BMM().items();
     const int id = action->getID();
     const int itmidx = ids_.indexOf( id );
-    if ( !items_.validIdx(itmidx) ) return;
+    if ( !itms.validIdx(itmidx) ) return;
 
-    BMM().add( items_[itmidx]->factoryKeyword() );
+    BMM().add( itms[itmidx]->factoryKeyword() );
 }
 
 

@@ -27,6 +27,7 @@ public:
 				"Wells",
 				sFactoryKeyword())
 
+			uiBasemapWellGroup(uiParent*);
 			~uiBasemapWellGroup();
 
     bool		acceptOK();
@@ -36,23 +37,10 @@ public:
     static const char*	sKeyNrWells();
 
 protected:
-			uiBasemapWellGroup(uiParent*);
 
     uiIOObjSelGrp*	wellsfld_;
 };
 
-
-mExpClass(uiBasemap) uiBasemapWellItem : public uiBasemapItem
-{
-public:
-			mDefaultFactoryInstantiation(
-				uiBasemapItem,
-				uiBasemapWellItem,
-				"Wells",
-				sFactoryKeyword())
-
-    const char*		iconName() const;
-};
 
 
 mExpClass(uiBasemap) uiBasemapWellTreeItem : public uiBasemapTreeItem
@@ -65,15 +53,33 @@ public:
 				"Wells",
 				sFactoryKeyword())
 
+			uiBasemapWellTreeItem(const char*);
+			~uiBasemapWellTreeItem();
+
     bool		usePar(const IOPar&);
 
 protected:
-			uiBasemapWellTreeItem(const char*);
 
     bool		showSubMenu();
     bool		handleSubMenu(int);
     const char*		parentType() const
 			{ return typeid(uiBasemapTreeTop).name(); }
+};
+
+
+
+mExpClass(uiBasemap) uiBasemapWellItem : public uiBasemapItem
+{
+public:
+			mDefaultFactoryInstantiation(
+				uiBasemapItem,
+				uiBasemapWellItem,
+				"Wells",
+				sFactoryKeyword())
+
+    const char*		iconName() const;
+    uiBasemapGroup*	createGroup(uiParent*);
+    uiBasemapTreeItem*	createTreeItem(const char*);
 };
 
 #endif

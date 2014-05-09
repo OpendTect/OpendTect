@@ -87,11 +87,21 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
 const char* uiBasemapWellItem::iconName() const
 { return "well"; }
 
+uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p )
+{ return new uiBasemapWellGroup( p ); }
+
+uiBasemapTreeItem* uiBasemapWellItem::createTreeItem( const char* nm )
+{ return new uiBasemapWellTreeItem( nm ); }
+
 
 
 // uiBasemapWellTreeItem
 uiBasemapWellTreeItem::uiBasemapWellTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
+{}
+
+
+uiBasemapWellTreeItem::~uiBasemapWellTreeItem()
 {}
 
 

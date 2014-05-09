@@ -124,6 +124,11 @@ bool acceptOK( CallBacker* )
 // uiBasemapItem
 mImplFactory( uiBasemapItem, uiBasemapItem::factory )
 
+uiBasemapItem::uiBasemapItem()
+{
+    mDefineStaticLocalObject( Threads::Atomic<int>, itmid, (100) );
+    id_ = itmid++;
+}
 
 
 // uiBasemapTreeItem
@@ -180,11 +185,21 @@ uiBasemapManager& BMM()
 uiBasemapManager::uiBasemapManager()
     : basemap_(0)
     , treetop_(0)
-{}
+{
+    init();
+}
 
 
 uiBasemapManager::~uiBasemapManager()
 {}
+
+
+void uiBasemapManager::init()
+{
+    const BufferStringSet& nms = uiBasemapItem::factory().getNames();
+    for ( int idx=0; idx<nms.size(); idx++ )
+	basemapitems_ += uiBasemapItem::factory().create( nms.get(idx) );
+}
 
 
 void uiBasemapManager::setBasemap( uiBaseMap& bm )

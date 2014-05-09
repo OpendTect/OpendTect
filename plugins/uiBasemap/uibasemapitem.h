@@ -60,16 +60,6 @@ protected:
 };
 
 
-mExpClass(uiBasemap) uiBasemapItem : public CallBacker
-{
-public:
-			mDefineFactoryInClass(uiBasemapItem,factory)
-
-    virtual const char*	iconName() const		= 0;
-};
-
-
-
 mExpClass(uiBasemap) uiBasemapTreeItem : public uiTreeItem
 {
 public:
@@ -97,6 +87,26 @@ protected:
 };
 
 
+
+mExpClass(uiBasemap) uiBasemapItem : public CallBacker
+{
+public:
+			mDefineFactoryInClass(uiBasemapItem,factory)
+
+    int			ID() const		{ return id_; }
+
+    virtual const char*		iconName() const		= 0;
+    virtual uiBasemapGroup*	createGroup(uiParent*)		= 0;
+    virtual uiBasemapTreeItem*	createTreeItem(const char*)	= 0;
+
+protected:
+			uiBasemapItem();
+private:
+    int			id_;
+};
+
+
+
 mExpClass(uiBasemap) uiBasemapManager : public CallBacker
 {
 public:
@@ -110,11 +120,16 @@ public:
     uiBaseMap&		getBasemap();
     void		setTreeTop(uiTreeTopItem&);
 
-protected:
+    const ObjectSet<uiBasemapItem>&	items() const	{ return basemapitems_;}
 
-    uiBaseMap*			basemap_;
-    uiTreeTopItem*		treetop_;
+private:
 
+    void		init();
+
+    uiBaseMap*		basemap_;
+    uiTreeTopItem*	treetop_;
+
+    ObjectSet<uiBasemapItem>		basemapitems_;
     ObjectSet<uiBasemapTreeItem>	treeitems_;
 };
 

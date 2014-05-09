@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "uimainwin.h"
 
-class uiBasemapItem;
 class uiBasemapTreeTop;
 class uiDockWin;
 class uiSurveyMap;
@@ -39,13 +38,13 @@ private:
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
-    uiToolBar*		toolbar_;
+    uiToolBar*		vwtoolbar_;
+    uiToolBar*		itemtoolbar_;
     uiDockWin*		treedw_;
     uiTreeView*		tree_;
     uiBasemapTreeTop*	topitem_;
 
     TypeSet<int>		ids_;
-    ObjectSet<uiBasemapItem>	items_;
 };
 
 #endif
