@@ -57,11 +57,19 @@ public:
 
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;
-    inline SeisTrc*	get( int idx )		{ return trcs_[idx]; }
-    inline const SeisTrc* get( int idx ) const	{ return trcs_[idx]; }
+    inline SeisTrc*	get( int idx )		
+			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
+    inline const SeisTrc* get( int idx ) const	
+			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
     inline void		remove( SeisTrc* t )	{ if ( t ) trcs_ -= t;  }
     inline SeisTrc*	remove( int idx )
-			{ SeisTrc* t = trcs_[idx]; if (t) trcs_-=t; return t;}
+			{ 
+			    if ( !trcs_.validIdx(idx) )
+				return 0;
+			    
+			    SeisTrc* t = trcs_[idx]; 
+			    if (t) trcs_-=t; return t;
+			 }
 
     SeisTrc*		first()		{ return isEmpty()?0:get(0); }
     const SeisTrc*	first() const	{ return isEmpty()?0:get(0); }
