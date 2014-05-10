@@ -313,12 +313,20 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 
 void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
 {
-    if ( qkeyev && qkeyev->key() == Qt::Key_Delete )
-	handle_.deleteButtonPressed.trigger();
-    if ( qkeyev && qkeyev->key() == Qt::Key_A && isCtrlPressed(*qkeyev) )
-	handle_.chooseAll( true );
-    if ( qkeyev && qkeyev->key() == Qt::Key_Z && isCtrlPressed(*qkeyev) )
-	handle_.chooseAll( false );
+    if ( qkeyev )
+    {
+	if ( qkeyev->key() == Qt::Key_Delete )
+	    handle_.deleteButtonPressed.trigger();
+	else if ( isCtrlPressed(*qkeyev) )
+	{
+	    if ( qkeyev->key() == Qt::Key_A )
+		handle_.usrChooseAll( true );
+	    if ( qkeyev->key() == Qt::Key_Z )
+		handle_.usrChooseAll( false );
+	    if ( qkeyev->key() == Qt::Key_M )
+		handle_.menuCB( 0 );
+	}
+    }
 
     QListWidget::keyPressEvent( qkeyev );
 }
@@ -491,15 +499,12 @@ void uiListBox::menuCB( CallBacker* )
 	    rightclickmnu_.insertItem( new uiAction("&Save selection"), 4 );
     }
 
-    const int selidx = currentItem();
     const int res = rightclickmnu_.exec();
     if ( res==0 || res==1 )
-    {
-	setAllItemsChecked( res==0 );
-	setCurrentItem( selidx );
-    }
+	usrChooseAll( res==0 );
     else if ( res == 2 )
     {
+	const int selidx = currentItem();
 	TypeSet<int> checked; getCheckedItems( checked );
 	for ( int idx=0; idx<size(); idx++ )
 	    setItemChecked( idx, !checked.isPresent(idx) );
@@ -529,6 +534,17 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     nsic.restore();
 
     itemChosen.trigger( itmidx );
+}
+
+
+void uiListBox::usrChooseAll( bool yn )
+{
+    if ( isMultiChoice() )
+    {
+	const int selidx = currentItem();
+	setAllItemsChecked( yn );
+	setCurrentItem( selidx );
+    }
 }
 
 
