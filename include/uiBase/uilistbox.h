@@ -172,7 +172,7 @@ public:
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
-			
+
 private:
 
     void		translateText();
@@ -188,6 +188,7 @@ private:
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
+    void		usrChooseAll(bool yn=true);
 
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,OD::ChoiceMode,int,int);
