@@ -36,8 +36,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createImagInpFld( is2d );
 
-    isfftfld_ = new uiGenInput( this, "Filtering method",
-			       BoolInpSpec(true,"FFT","ButterWorth") );
+    isfftfld_ = new uiGenInput( this, tr("Filtering method"),
+			       BoolInpSpec(true,tr("FFT"),tr("ButterWorth")) );
     isfftfld_->attach( alignedBelow, inpfld_ );
     isfftfld_->valuechanged.notify( mCB(this,uiFreqFilterAttrib,isfftSel) );
 
@@ -47,7 +47,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     freqfld_->parchanged.notify(mCB(this,uiFreqFilterAttrib,updateTaperFreqs));
     freqfld_->attach( alignedBelow, isfftfld_ );
 
-    polesfld_ = new uiGenInput( this, "Nr of poles",
+    polesfld_ = new uiGenInput( this, tr("Nr of poles"),
 		IntInpSpec(2).setLimits(Interval<int>(2,99)) );
     polesfld_->attach( ensureBelow, freqfld_ );
     polesfld_->attach( alignedBelow, isfftfld_ );
@@ -74,7 +74,7 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
 	    winflds_ += new uiWindowFunctionSel( this, su );
 	winflds_[idx]->display (false);
     }
-    BufferString seltxt ( "Specify " ); seltxt += "Frequency Taper";
+    uiString seltxt = tr( "Specify Frequency Taper" );
     freqwinselfld_ = new uiCheckBox( this, seltxt );
     freqwinselfld_->attach( alignedBelow, winflds_[0] );
     freqwinselfld_->activated.notify( mCB(this,uiFreqFilterAttrib,freqWinSel) );
@@ -251,9 +251,7 @@ void uiFreqFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	params += EvalParam( "Nr poles", FreqFilter::nrpolesStr() );
 }
 
-#define mErrWinFreqMsg(msg)\
-    errmsg_=msg;\
-    errmsg_+=endmsg;\
+#define mErrWinFreqMsg()\
     updateTaperFreqs(0);\
     return false;
 bool uiFreqFilterAttrib::areUIParsOK()
@@ -263,8 +261,8 @@ bool uiFreqFilterAttrib::areUIParsOK()
 	float paramval = winflds_[0]->windowParamValue();
 	if ( paramval<0 || paramval>1  )
 	{
-	    errmsg_ = "Variable 'Taper length' is not\n";
-	    errmsg_ += "within the allowed range: 0 to 100 (%).";
+	    errmsg_ = tr("Variable 'Taper length' is not\n"
+	              "within the allowed range: 0 to 100 (%).");
 	    return false;
 	}
     }
@@ -272,15 +270,24 @@ bool uiFreqFilterAttrib::areUIParsOK()
     if ( taper )
     {
 	Interval<float> freqresvar = taper->freqValues();
-	BufferString endmsg, msg;
 	if ( freqresvar.start < 0 )
-	{  msg += "min frequency cannot be negative"; mErrWinFreqMsg(msg) }
-	endmsg += " than this of the filter frequency.\n";
-	endmsg += "Please select a different frequency.";
+	{ 
+            errmsg_= tr("min frequency cannot be negative");
+            mErrWinFreqMsg()
+        }
+	
 	if ( freqresvar.start > freqfld_->freqRange().start )
-	{  msg += "Taper min frequency must be lower"; mErrWinFreqMsg(msg) }
+	{
+            errmsg_ = tr("Taper min frequency must be lower than this of the"
+                  " filter frequency.\n Please select a different frequency.");
+            mErrWinFreqMsg()
+        }
 	if ( freqresvar.stop < freqfld_->freqRange().stop )
-	{  msg += "Taper max frequency must be higher"; mErrWinFreqMsg(msg) }
+	{
+            errmsg_ = tr("Taper max frequency must be higher than this of the"
+                  " filter frequency.\n Please select a different frequency.");
+            mErrWinFreqMsg()
+        }
     }
 
     const int passtype = (int)freqfld_->filterType();
@@ -288,12 +295,12 @@ bool uiFreqFilterAttrib::areUIParsOK()
     {
 	if ( mIsZero(freqfld_->freqRange().width(),1e-3) )
 	{
-	    errmsg_ = "min and max frequencies should be different";
+	    errmsg_ = tr("min and max frequencies should be different");
 	    return false;
 	}
 	else if ( freqfld_->freqRange().isRev() )
 	{
-	    errmsg_ = "Min frequency must be lower than max frequency";
+	    errmsg_ = tr("Min frequency must be lower than max frequency");
 	    return false;
 	}
     }
