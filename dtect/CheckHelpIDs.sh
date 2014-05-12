@@ -42,7 +42,8 @@ do
   count=`grep ${helpid} ${searchpath} 2> /dev/null | wc -l`
   if [ $count -lt 2 ]; then
       if [ ${haserror} -ne 1 ]; then
-          echo "Missing HelpIDs:"
+          echo -n "The following HelpIDs are found in ${headerfile} but are not"
+	  echo " found in any source-code:"
 	  haserror=1
       fi
       echo " ${helpid}"
