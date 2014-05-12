@@ -55,9 +55,8 @@ static const int cZCol = 2;
 static const int cMDTrackCol = 3;
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
-	: uiDialog(p,uiDialog::Setup("Well Track",
-				     "Edit Well Track",
-				     mODHelpKey(mWellTrackDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup("Edit Well Track",mNoDlgTitle,
+				     mODHelpKey(mWellTrackDlgHelpID)))
 	, wd_(d)
 	, track_(d.track())
 	, orgtrack_(new Well::Track(d.track()))
@@ -115,7 +114,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    uiButton* readbut = new uiPushButton( iobutgrp, "&Read new",
+    uiButton* readbut = new uiPushButton( iobutgrp, "&Import",
 					    mCB(this,uiWellTrackDlg,readNew),
 					    false );
     uiButton* expbut = new uiPushButton( iobutgrp, "&Export",
@@ -263,11 +262,11 @@ class uiWellTrackReadDlg : public uiDialog
 public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
-	: uiDialog(p,uiDialog::Setup("Read new Well Track",
-				     "Specify new Well Track",
-                                     mODHelpKey(mWellTrackReadDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup("Import New Well Track",mNoDlgTitle,
+				     mODHelpKey(mWellTrackReadDlgHelpID)))
 	, track_(track)
 {
+    setOkText( uiStrings::sImport() );
     wtinfld_ = new uiFileInput( this, "Well Track File",
     uiFileInput::Setup().withexamine(true) );
 
@@ -581,10 +580,19 @@ static const int cTVDCol = 1;
 
 #define mD2TModel (cksh_ ? wd_.checkShotModel() : wd_.d2TModel())
 
+static const char* getD2TModelCaption( const char* prefix, bool cksh )
+{
+    mDeclStaticString( ret );
+    ret = prefix; ret.addSpace().add( cksh ? "Checkshot" : "Time/Depth" );
+    ret.addSpace().add( "Model" );
+    return ret.buf();
+}
+
+
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
-		 BufferString("Edit ",cksh?"Checkshot":"Time/Depth"," model"),
-				     mODHelpKey(mD2TModelDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup(getD2TModelCaption("Edit",cksh),
+				     mNoDlgTitle,
+				     mODHelpKey(mD2TModelDlgHelpID)))
 	, wd_(wd)
 	, cksh_(cksh)
 	, orgd2t_(mD2TModel ? new Well::D2TModel(*mD2TModel) : 0)
@@ -651,7 +659,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    new uiPushButton( iobutgrp, "&Read new", mCB(this,uiD2TModelDlg,readNew),
+    new uiPushButton( iobutgrp, "&Import", mCB(this,uiD2TModelDlg,readNew),
 		      false );
     new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
 		      false );
@@ -1180,12 +1188,13 @@ class uiD2TModelReadDlg : public uiDialog
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
-	: uiDialog(p,uiDialog::Setup("Read new data",
-				     "Specify input file",
+	: uiDialog(p,uiDialog::Setup(getD2TModelCaption("Import",cksh),
+				     mNoDlgTitle,
                                      mODHelpKey(mD2TModelReadDlgHelpID) ))
 	, cksh_(cksh)
 	, wd_(wd)
 {
+    setOkText( uiStrings::sImport() );
     uiD2TModelGroup::Setup su( false );
     su.filefldlbl( "File name" );
     d2tgrp = new uiD2TModelGroup( this, su );

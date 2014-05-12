@@ -59,8 +59,8 @@ static const int cLevelCol = 5;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
-	: uiDialog(p,uiDialog::Setup("Well Markers", "Edit markers",
-                                     mODHelpKey(mMarkerDlgHelpID) ))
+	: uiDialog(p,uiDialog::Setup("Edit Well Markers",mNoDlgTitle,
+				     mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
         , oldmrkrs_(0)
         , table_(0)
@@ -87,7 +87,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
-    uiButton* rfbut = new uiPushButton( this, "&Read new",
+    uiButton* rfbut = new uiPushButton( this, "&Import",
 					mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 

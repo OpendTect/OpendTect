@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "dataclipper.h"
 #include "fftfilter.h"
 #include "fourier.h"
+#include "od_helpids.h"
 #include "statgrubbs.h"
 #include "smoother1d.h"
 #include "welldata.h"
@@ -31,7 +32,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uigeninput.h"
 #include "uifreqfilter.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -42,14 +42,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitable.h"
 #include "uitaskrunner.h"
 #include "uiwelllogdisplay.h"
-#include "od_helpids.h"
 
 
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
-	: uiDialog( p, Setup( "Well log tools", "Select logs", 
-                             mODHelpKey(mWellLogToolWinMgrHelpID) ) )
+	: uiDialog(p,Setup("Select Well(s) and Log(s) for Editing",
+		     mNoDlgTitle,mODHelpKey(mWellLogToolWinMgrHelpID)))
 {
-    setCtrlStyle( RunAndClose );
+    setOkText( uiStrings::sContinue() );
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
     welllogselfld_ = new uiMultiWellLogSel( this, su );
@@ -89,7 +88,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();
-    win->windowClosed.notify( mCB( this, uiWellLogToolWinMgr, winClosed ) );
+    win->windowClosed.notify( mCB(this,uiWellLogToolWinMgr,winClosed) );
 
     return false;
 }
