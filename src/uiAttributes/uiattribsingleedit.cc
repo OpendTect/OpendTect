@@ -20,8 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
-    : uiDialog(p,Setup(isnew ? "Add attribute" : "Edit attribute",
-		    "Define attribute parameters",
+    : uiDialog(p,Setup(isnew ? tr("Add attribute") : tr("Edit attribute"),
+		    tr("Define attribute parameters"),
                     mODHelpKey(mSingleAttribEdHelpID) ))
     , desc_(ad)
     , setman_(new Attrib::DescSetMan(ad.is2D(),ad.descSet(),false))
@@ -54,7 +54,7 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( desc_.userRef() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( "Please enter a valid name" ); return false; }
+	{ uiMSG().error( tr("Please enter a valid name") ); return false; }
 
     if ( oldnm != newnm )
     {
@@ -65,14 +65,14 @@ bool uiSingleAttribEd::acceptOK( CallBacker* )
 	    const Attrib::Desc& desc = *descset.desc( idx );
 	    if ( &desc != &desc_ && newnm == desc.userRef() )
 	    {
-		uiMSG().error("The name is already used for another attribute");
+	uiMSG().error(tr("The name is already used for another attribute"));
 		return false;
 	    }
 	}
     }
 
-    const char* msg = desced_->commit();
-    if ( msg && *msg )
+    uiString msg = desced_->commit();
+    if ( !msg.isEmpty() )
 	{ uiMSG().error( msg ); return false; }
 
     desc_.setUserRef( newnm );
