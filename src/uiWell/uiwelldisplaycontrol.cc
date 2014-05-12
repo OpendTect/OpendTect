@@ -142,13 +142,16 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     info += toString( dispdepth );
     info += depthunitstr; 
     
-    info += "  TVD:";
     const Well::Track* tr = zdata.track();
-    info += toString( tr->getPos(depth_).z+tr->getKbElev() );
-    info += depthunitstr; 
-    info += "  TVDSS:";
-    info += toString( tr->getPos(depth_).z );
-    info += depthunitstr; 
+    if ( tr )
+    {
+	info += "  TVD:";
+	info += toString( tr->getPos(depth_).z+tr->getKbElev() );
+	info += depthunitstr; 
+	info += "  TVDSS:";
+	info += toString( tr->getPos(depth_).z );
+	info += depthunitstr;
+    }
 
     if ( zdata.zistime_ )
     {
