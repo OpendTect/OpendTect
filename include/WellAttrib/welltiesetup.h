@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 #include "enums.h"
-#include "linekey.h"
 #include "multiid.h"
 #include "wellio.h"
 #include "od_iosfwd.h"
@@ -29,67 +28,64 @@ namespace WellTie
 mExpClass(WellAttrib) Setup
 {
 public:
-    			enum CorrType { None, Automatic, UserDefined };
+			enum CorrType { None, Automatic, UserDefined };
 			DeclareEnumUtils(CorrType)
 
 			Setup()
 			    : wellid_(-1)
 			    , seisid_()
 			    , wvltid_(-1)
+			    , linenm_(*new BufferString) //empty = data is 3D
 			    , issonic_(true)
-			    , linekey_(0)
-			    , useexistingd2tm_(true) 
-			    , corrtype_(Automatic)    
-			    , is2d_(false)				 
+			    , useexistingd2tm_(true)
+			    , corrtype_(Automatic)
 			    {}
 
 
-				Setup( const Setup& setup ) 
+				Setup( const Setup& setup )
 				    : wellid_(setup.wellid_)
 				    , seisid_(setup.seisid_)
 				    , wvltid_(setup.wvltid_)
+				    , linenm_(setup.linenm_)
 				    , issonic_(setup.issonic_)
 				    , seisnm_(setup.seisnm_)
 				    , vellognm_(setup.vellognm_)
 				    , denlognm_(setup.denlognm_)
-				    , linekey_(setup.linekey_)
-				    , is2d_(setup.is2d_)
 				    , useexistingd2tm_(setup.useexistingd2tm_)
-				    , corrtype_(setup.corrtype_) 
-				    {}	
-		
+				    , corrtype_(setup.corrtype_)
+				    {}
+
     MultiID			wellid_;
-    MultiID        		seisid_;
-    MultiID               	wvltid_;
-    LineKey			linekey_;
-    BufferString        	seisnm_;
-    BufferString        	vellognm_;
-    BufferString          	denlognm_;
-    bool                	issonic_;
-    bool                	is2d_;
-    bool 			useexistingd2tm_;
+    MultiID			seisid_;
+    MultiID			wvltid_;
+    BufferString		linenm_;
+    BufferString		seisnm_;
+    BufferString		vellognm_;
+    BufferString		denlognm_;
+    bool			issonic_;
+    bool			useexistingd2tm_;
     CorrType			corrtype_;
-    
-    void    	      		usePar(const IOPar&);
-    void          	 	fillPar(IOPar&) const;
+
+    void			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
 
     static Setup&		defaults();
     static void                 commitDefaults();
 
-    static const char* 	sKeyCSCorrType() 
-    				{ return "CheckShot Corrections"; }
-    static const char* 	sKeyUseExistingD2T() 
-    				{ return "Use Existing Depth/Time model"; }
+    static const char*		sKeyCSCorrType()
+				{ return "CheckShot Corrections"; }
+    static const char*		sKeyUseExistingD2T()
+				{ return "Use Existing Depth/Time model"; }
 };
 
 
 mExpClass(WellAttrib) IO : public Well::IO
 {
 public:
-    				IO( const char* f )
+				IO( const char* f )
 				: Well::IO(f)		{}
 
-    static const char*  	sKeyWellTieSetup();
+    static const char*		sKeyWellTieSetup();
 
 };
 
@@ -102,12 +98,13 @@ public:
 
     bool			putWellTieSetup(const WellTie::Setup&) const;
 
-    bool          	        putIOPar(const IOPar&,const char*) const; 
+    bool			putIOPar(const IOPar&,const char*) const;
+
 protected:
 
-    bool          	        putIOPar(const IOPar&,const char*,
-	    					od_ostream&) const; 
-    bool                	wrHdr(od_ostream&,const char*) const;
+    bool			putIOPar(const IOPar&,const char*,
+					 od_ostream&) const;
+    bool			wrHdr(od_ostream&,const char*) const;
 
 };
 
@@ -120,11 +117,11 @@ public:
 
     void			getWellTieSetup(WellTie::Setup&) const;
 
-    IOPar* 			getIOPar(const char*) const;
+    IOPar*			getIOPar(const char*) const;
 
 protected:
 
-    IOPar* 			getIOPar(const char*,od_istream&) const;	
+    IOPar*			getIOPar(const char*,od_istream&) const;
 
 };
 

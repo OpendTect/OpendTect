@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiesetup.h"
 
 #include "keystrs.h"
+#include "linekey.h"
 #include "settings.h"
 #include "ascstream.h"
 #include "od_iostream.h"
@@ -21,15 +22,16 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-const char* IO::sKeyWellTieSetup()   	{ return "Well Tie Setup"; }
+const char* IO::sKeyWellTieSetup()	{ return "Well Tie Setup"; }
 
 static const char* sKeySeisID = "ID of selected seismic";
-static const char* sKeySeisLine = "ID of selected Line";
+static const char* sKeySeisLine = "Line name";
 static const char* sKeyVelLogName = "Velocity log name";
 static const char* sKeyDensLogName = "Density log name";
 static const char* sKeyWavltID = "ID of selected wavelet";
 static const char* sKeyIsSonic = "Provided TWT log is sonic";
 static const char* sKeySetupPar = "Well Tie Setup";
+static const char* sKeySeisLineID = "ID of selected Line"; //backward compat.
 
 DefineEnumNames(Setup,CorrType,0,"Check Shot Corrections")
 { "None", "Automatic", "Use editor", 0 };
@@ -38,26 +40,32 @@ DefineEnumNames(Setup,CorrType,0,"Check Shot Corrections")
 void Setup::usePar( const IOPar& iop )
 {
     iop.get( sKeySeisID, seisid_ );
-    iop.get( sKeySeisLine,linekey_ );
+    LineKey lk;
+    iop.get( sKeySeisLine, linenm_ );
     iop.get( sKeyVelLogName, vellognm_ );
     iop.get( sKeyDensLogName, denlognm_ );
     iop.get( sKeyWavltID, wvltid_ );
     iop.getYN( sKeyIsSonic, issonic_ );
     iop.getYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     parseEnumCorrType( sKeyCSCorrType(), corrtype_ );
+    iop.get( sKeySeisLineID, lk );
+    if ( linenm_.isEmpty() && !lk.lineName().isEmpty() ) //copy old key to new
+	linenm_ = lk.lineName();
 }
 
 
 void Setup::fillPar( IOPar& iop ) const
 {
     iop.set( sKeySeisID, seisid_ );
-    iop.set( sKeySeisLine, linekey_ );
+    iop.set( sKeySeisLine, linenm_ );
     iop.set( sKeyVelLogName, vellognm_ );
     iop.set( sKeyDensLogName, denlognm_ );
     iop.set( sKeyWavltID, wvltid_ );
     iop.setYN( sKeyIsSonic, issonic_ );
     iop.setYN( sKeyUseExistingD2T(), useexistingd2tm_ );
     iop.set( sKeyCSCorrType(), getCorrTypeString( corrtype_ ) );
+    const LineKey lk( linenm_, 0 );
+    iop.set( sKeySeisLineID, lk ); //backward compatibility
 }
 
 

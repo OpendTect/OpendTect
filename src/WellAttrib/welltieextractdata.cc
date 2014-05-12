@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpol1d.h"
 #include "ioman.h"
 #include "datapointset.h"
-#include "linekey.h"
 #include "samplingdata.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -28,20 +27,20 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace WellTie
 {
 
-SeismicExtractor::SeismicExtractor( const IOObj& ioobj ) 
+SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	: Executor("Extracting Seismic positions")
 	, rdr_(new SeisTrcReader( &ioobj ))
-	, trcbuf_(new SeisTrcBuf(false))				   
+	, trcbuf_(new SeisTrcBuf(false))
 	, nrdone_(0)
-	, outtrc_(0)	    
-	, cs_(new CubeSampling(false))	    
+	, outtrc_(0)
+	, cs_(new CubeSampling(false))
 	, extrintv_(SI().zRange(false))
-	, linekey_(0)		  
-	, radius_(1)		  
+	, linenm_(*new BufferString)
+	, radius_(1)
 {}
 
 
-SeismicExtractor::~SeismicExtractor() 
+SeismicExtractor::~SeismicExtractor()
 {
     delete cs_;
     delete rdr_;
@@ -60,12 +59,13 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 }
 
 #define mErrRet(msg) { errmsg_ = msg; return false; }
-bool SeismicExtractor::collectTracesAroundPath() 
+bool SeismicExtractor::collectTracesAroundPath()
 {
-    if ( bidset_.isEmpty() ) 
-	mErrRet( "No position extracted from well track" ); 
+    if ( bidset_.isEmpty() )
+	mErrRet( "No position extracted from well track" );
 
-    if ( rdr_->is2D() )
+    const bool seisid2D = rdr_->is2D();
+    if ( seisid2D )
     {
 	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl(),
 					    bidset_[0].inl()) );
@@ -76,16 +76,17 @@ bool SeismicExtractor::collectTracesAroundPath()
 	for ( int idx=0; idx<bidset_.size(); idx++ )
 	{
 	    BinID bid = bidset_[idx];
-	    cs_->hrg.include( BinID( bid.inl() + radius_, 
+	    cs_->hrg.include( BinID( bid.inl() + radius_,
 				     bid.crl() + radius_ ) );
-	    cs_->hrg.include( BinID( bid.inl() - radius_, 
+	    cs_->hrg.include( BinID( bid.inl() - radius_,
 				     bid.crl() - radius_ ) );
 	}
     }
     cs_->hrg.snapToSurvey();
     cs_->zrg = extrintv_;
     Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
-    sd->setGeomID( Survey::GM().getGeomID(linekey_->lineName()) );
+    if ( seisid2D && !linenm_.isEmpty() )
+	sd->setGeomID( Survey::GM().getGeomID(linenm_) );
 
     rdr_->setSelData( sd );
     rdr_->prepareWork();
@@ -93,6 +94,7 @@ bool SeismicExtractor::collectTracesAroundPath()
     SeisBufReader sbfr( *rdr_, *trcbuf_ );
     if ( !sbfr.execute() )
 	mErrRet( sbfr.uiMessage() );
+
     return true;
 }
 
@@ -101,7 +103,7 @@ void SeismicExtractor::setBIDValues( const TypeSet<BinID>& bids )
 {
     bidset_.erase();
     for ( int idx=0; idx<bids.size(); idx++ )
-    {	
+    {
 	if ( SI().isInside( bids[idx], true ) )
 	    bidset_ += bids[idx];
 	else if ( idx )
@@ -117,7 +119,7 @@ int SeismicExtractor::nextStep()
 
     double zval = extrintv_.atIndex( nrdone_ );
 
-    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps() 
+    if ( zval>extrintv_.stop || nrdone_ >= extrintv_.nrSteps()
 	    || nrdone_ >= bidset_.size() )
 	return Executor::Finished();
 
@@ -133,10 +135,10 @@ int SeismicExtractor::nextStep()
 	const SamplingData<float>& sd = trc->info().sampling;
 	const int trcidx = sd.nearestIndex( zval );
 
-	int xx0 = b.inl()-curbid.inl(); 	xx0 *= xx0; 
+	int xx0 = b.inl()-curbid.inl(); xx0 *= xx0;
 	int yy0 = b.crl()-curbid.crl();	yy0 *= yy0;
-	const float trcval = ( trcidx < 0 || trcidx >= trc->size() ) ? 
-	    					0 : trc->get( trcidx, 0 );
+	const float trcval = ( trcidx < 0 || trcidx >= trc->size() ) ?
+						0 : trc->get( trcidx, 0 );
 
 	if ( ( xx0 + yy0 )  < radius_*radius_ )
 	{

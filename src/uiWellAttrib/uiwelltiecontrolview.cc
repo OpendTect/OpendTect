@@ -12,10 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelltiecontrolview.h"
 
+#include "ioman.h"
 #include "flatviewzoommgr.h"
 #include "keyboardevent.h"
 #include "emsurfacetr.h"
 #include "mouseevent.h"
+#include "seisread.h"
 #include "welltiepickset.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
@@ -282,15 +284,18 @@ void uiControlView::reDrawNeeded( CallBacker* )
 
 void uiControlView::loadHorizons( CallBacker* )
 {
-    bool is2d = server_.is2D();
-    PtrMan<CtxtIOObj> ctxt = is2d ? mMkCtxtIOObj( EMHorizon2D )
-				  : mMkCtxtIOObj( EMHorizon3D );
+    PtrMan<IOObj> ioobj = IOM().get( server_.data().setup().seisid_ );
+    SeisTrcReader rdr( ioobj );
+    const bool is2d = rdr.is2D();
+
+    const IOObjContext horctxt = is2d ? mIOObjContext( EMHorizon2D )
+				      : mIOObjContext( EMHorizon3D );
     if ( !selhordlg_ )
-	selhordlg_ = new uiIOObjSelDlg( this, *ctxt, "Select horizon", true );
+	selhordlg_ = new uiIOObjSelDlg( this, horctxt, "Select horizon", true );
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
 	selhordlg_->getChosen( horselids );
-    delete ctxt->ioobj;
+
     BufferString errmsg; uiTaskRunner tr( this );
     server_.horizonMgr().setUpHorizons( horselids, errmsg, tr );
     if ( !errmsg.isEmpty() )

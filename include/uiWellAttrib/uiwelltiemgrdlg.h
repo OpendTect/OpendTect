@@ -18,7 +18,6 @@ ________________________________________________________________________
 
 namespace Well { class Data; }
 
-class CtxtIOObj;
 class ElasticPropSelection;
 
 class uiIOObjSel;
@@ -49,13 +48,8 @@ public:
 protected:
 
     WellTie::Setup&	wtsetup_;
-    CtxtIOObj&          wllctio_;
-    CtxtIOObj&          wvltctio_;
-    CtxtIOObj&          seisctio2d_;
-    CtxtIOObj&          seisctio3d_;
     ElasticPropSelection& elpropsel_;
     bool		savedefaut_;
-    bool		is2d_;
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
     uiWellPropSel*	logsfld_;
@@ -85,15 +79,14 @@ protected:
     bool		acceptOK(CallBacker*);
     void		extrWvlt(CallBacker*);
     void		extractWvltDone(CallBacker*);
+    void		typeSelChg(CallBacker*);
     void		seisSelChg(CallBacker*);
+    void		seis2DCheckChg(CallBacker*);
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
-    void		set3DSeis() const;
-    void		set2DSeis() const;
-    void		setLine() const;
-    void		setTypeFld();
-    bool		seisIDIs3D(MultiID) const;
+    bool		selIs2D() const;
+    bool		seisIDIs3D(MultiID&) const;
 };
 
 }; //namespace WellTie

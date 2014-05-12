@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "position.h"
 
 class CubeSampling;
-class LineKey;
 class IOObj;
 class SeisTrcReader;
 class SeisTrcBuf;
@@ -38,30 +37,29 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
-    void		setBIDValues(const TypeSet<BinID>&); 
+    void		setBIDValues(const TypeSet<BinID>&);
     void		setInterval(const StepInterval<float>&);
     //Only 2D
-    void		setLineKey(const LineKey* lk) { linekey_ = lk; }
-    void		setAttrNm(const char* nm) { attrnm_ = nm; }
+    void		setLine( const BufferString& nm ) { linenm_ = nm; }
 
     const SeisTrc&	result() const		{ return *outtrc_; }
     uiString		errMsg() const
 			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
-    
+
 protected:
 
     const char*		attrnm_;
     int                 nrdone_;
     int			radius_;
-    CubeSampling* 	cs_;
+    CubeSampling*	cs_;
     TypeSet<BinID>	bidset_;
     SeisTrc*		outtrc_;
     SeisTrcBuf*		trcbuf_;
-    SeisTrcReader* 	rdr_;
+    SeisTrcReader*	rdr_;
     StepInterval<float> extrintv_;
-    const LineKey*	linekey_;
+    BufferString	linenm_;
     uiString		errmsg_;
-  
+
     bool		collectTracesAroundPath();
 };
 

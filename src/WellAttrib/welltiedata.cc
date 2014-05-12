@@ -351,8 +351,7 @@ bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
 
 
 Server::Server( const WellTie::Setup& wts )
-    : is2d_(wts.is2d_)
-    , wellid_(wts.wellid_)
+    : wellid_(wts.wellid_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
@@ -364,7 +363,7 @@ Server::Server( const WellTie::Setup& wts )
     datawriter_ = new DataWriter( *wdata, wts.wellid_ );
     d2tmgr_ = new D2TModelMgr( *wdata, *datawriter_, wts );
     data_ = new Data( wts, *wdata );
-    dataplayer_ = new DataPlayer( *data_, wts.seisid_, &wts.linekey_ );
+    dataplayer_ = new DataPlayer( *data_, wts.seisid_, wts.linenm_ );
     pickmgr_ = new PickSetMgr( data_->pickdata_ );
     hormgr_ = new HorizonMgr( data_->horizons_ );
 

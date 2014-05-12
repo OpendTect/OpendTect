@@ -40,10 +40,11 @@ namespace WellTie
     else errmsg_ = msg;\
     return false; }
 
-DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
+DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
+			const BufferString& lnm )
     : data_(data)
     , seisid_(seisid)
-    , linekey_(lk)
+    , linenm_(lnm)
     , seisarr_(0)
     , syntarr_(0)
     , refarr_(0)
@@ -108,8 +109,8 @@ bool DataPlayer::extractSeismics()
     TaskRunner::execute( data_.trunner_, wtextr );
 
     SeismicExtractor seisextr( *seisobj );
-    if ( linekey_ )
-	seisextr.setLineKey( linekey_ );
+    if ( !linenm_.isEmpty() )
+	seisextr.setLine( linenm_ );
 
     TypeSet<BinID> bids;  wtextr.getBIDs( bids );
     seisextr.setBIDValues( bids );
