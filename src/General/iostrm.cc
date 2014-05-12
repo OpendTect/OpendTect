@@ -284,8 +284,6 @@ bool IOStream::getFrom( ascistream& stream )
 
 bool IOStream::putTo( ascostream& stream ) const
 {
-    if ( !extension_.isEmpty() )
-	stream.put( "$Extension", extension_ );
     if ( isMulti() )
     {
 	FileMultiString fms;
