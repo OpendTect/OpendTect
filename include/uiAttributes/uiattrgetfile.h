@@ -25,7 +25,7 @@ namespace Attrib { class DescSet; }
 */
 
 mExpClass(uiAttributes) uiGetFileForAttrSet : public uiDialog
-{
+{ mODTextTranslationClass(uiGetFileForAttrSet);
 public:
 			uiGetFileForAttrSet(uiParent*,bool isads,bool is2d);
 			~uiGetFileForAttrSet();
@@ -53,7 +53,7 @@ protected:
 */
 
 mExpClass(uiAttributes) uiImpAttrSet : public uiDialog
-{
+{ mODTextTranslationClass(uiImpAttrSet);
 public:
 			uiImpAttrSet(uiParent*);
 			~uiImpAttrSet();

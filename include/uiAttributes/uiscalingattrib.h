@@ -27,7 +27,7 @@ class uiTable;
 /*! \brief Scaling Attribute description editor */
 
 mExpClass(uiAttributes) uiScalingAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiScalingAttrib);
 public:
 
 			uiScalingAttrib(uiParent*,bool);

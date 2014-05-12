@@ -22,7 +22,7 @@ class uiLabeledSpinBox;
 /*! \brief DipFilter Attribute description editor */
 
 mExpClass(uiAttributes) uiDipFilterAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiDipFilterAttrib);
 public:
 
 			uiDipFilterAttrib(uiParent*,bool);

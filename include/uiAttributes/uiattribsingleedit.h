@@ -24,7 +24,7 @@ class uiGenInput;
 /*! \brief Dialog for creating volume output */
 
 mExpClass(uiAttributes) uiSingleAttribEd : public uiDialog
-{
+{ mODTextTranslationClass(uiSingleAttribEd);
 public:
 
 			uiSingleAttribEd(uiParent*,Attrib::Desc&,bool isnew);

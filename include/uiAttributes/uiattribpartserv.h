@@ -58,7 +58,7 @@ template <class T> class Array3D;
 */
 
 mExpClass(uiAttributes) uiAttribPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiAttribPartServer);
 public:
 			uiAttribPartServer(uiApplService&);
 			~uiAttribPartServer();

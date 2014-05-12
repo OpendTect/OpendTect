@@ -28,7 +28,7 @@ class uiStepOutSel;
 /*! \brief VolumeStatistics Attribute description editor */
 
 mExpClass(uiAttributes) uiVolumeStatisticsAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiVolumeStatisticsAttrib);
 public:
 			uiVolumeStatisticsAttrib(uiParent*,bool);
 

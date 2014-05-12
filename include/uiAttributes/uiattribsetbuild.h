@@ -23,7 +23,7 @@ class uiPreStackAttrib;
 
 
 mExpClass(uiAttributes) uiAttribDescSetBuild : public uiBuildListFromList
-{
+{ mODTextTranslationClass(uiAttribDescSetBuild);
 public:
 
     mExpClass(uiAttributes) Setup

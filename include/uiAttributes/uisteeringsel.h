@@ -22,7 +22,7 @@ class uiLabel;
 namespace Attrib { class Desc; class DescSet; class SelSpec; }
 
 mExpClass(uiAttributes) uiSteerAttrSel : public uiSteerCubeSel
-{
+{ mODTextTranslationClass(uiSteerAttrSel);
 public:
 
 				uiSteerAttrSel(uiParent*,

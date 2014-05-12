@@ -25,7 +25,7 @@ namespace Math { class Expression; }
 /*! \brief Math Attribute description editor */
 
 mExpClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiMathAttrib);
 public:
 
 			uiMathAttrib(uiParent*,bool);

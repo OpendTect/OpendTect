@@ -23,7 +23,7 @@ class uiWindowFunctionSel;
 /*! \brief Frequency Attribute description editor */
 
 mExpClass(uiAttributes) uiFrequencyAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiFrequencyAttrib);
 public:
 
 			uiFrequencyAttrib(uiParent*,bool);

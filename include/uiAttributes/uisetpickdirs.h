@@ -30,7 +30,7 @@ namespace Pick { class Set; }
 /*! \brief */
 
 mExpClass(uiAttributes) uiSetPickDirs : public uiDialog
-{
+{ mODTextTranslationClass(uiSetPickDirs);
 public:
     				uiSetPickDirs(uiParent*,Pick::Set&,
 					      const Attrib::DescSet* a=0,

@@ -35,7 +35,7 @@ class uiLabeledComboBox;
 */
 
 mExpClass(uiAttributes) uiAttrSelData
-{
+{ mODTextTranslationClass(uiAttrSelData);
 public:
 
 				uiAttrSelData(bool is2d,bool fillwithdef=true);

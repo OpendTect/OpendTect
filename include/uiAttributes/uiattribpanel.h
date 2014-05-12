@@ -25,8 +25,8 @@ namespace Attrib { class EngineMan; class DescSet;
 
 /*! \brief Attribute preview in a 2d viewer */
 
-mExpClass(uiAttributes) uiAttribPanel
-{
+mExpClass(uiAttributes) uiAttribPanel 
+{ mODTextTranslationClass(uiAttribPanel);
 public:
     			uiAttribPanel(uiParent*);
     			~uiAttribPanel();

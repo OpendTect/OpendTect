@@ -21,7 +21,7 @@ class uiParent;
 */
 
 mExpClass(uiAttributes) AttributeSetCreator
-{
+{ mODTextTranslationClass(AttributeSetCreator);
 public:
 			AttributeSetCreator(uiParent*,
 					    const BufferStringSet&,

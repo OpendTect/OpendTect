@@ -20,7 +20,7 @@ class BufferStringSet;
 
 
 mExpClass(uiAttributes) uiAttrInpDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAttrInpDlg);
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
 				     bool issteer,bool is2d,

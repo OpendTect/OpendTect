@@ -24,7 +24,7 @@ class uiStepOutSel;
 /*! \brief Similarity Attribute description editor */
 
 mExpClass(uiAttributes) uiSimilarityAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiSimilarityAttrib);
 public:
 
 			uiSimilarityAttrib(uiParent*,bool);
@@ -61,7 +61,7 @@ protected:
 
     mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
     {                                                                           
-	public:                                                                     
+	public:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);
 	   
@@ -71,7 +71,7 @@ protected:
 				                                             
 	    Notifier<uiSimiSteeringSel>	typeSelected;
 
-	protected:                                                                  
+	protected:                                                              
 	    void	typeSel(CallBacker*);
     };
 

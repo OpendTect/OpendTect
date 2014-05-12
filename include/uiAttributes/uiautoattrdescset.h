@@ -32,7 +32,7 @@ class IOObj;
 */
 
 mExpClass(uiAttributes) uiAutoAttrSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAutoAttrSelDlg);
 public:
     				uiAutoAttrSelDlg(uiParent* p,bool);
 				~uiAutoAttrSelDlg();

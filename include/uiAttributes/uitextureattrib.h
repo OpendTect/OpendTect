@@ -24,7 +24,7 @@ class CubeSampling;
 class LineKey;
 
 mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiTextureAttrib);
 public:
                         uiTextureAttrib(uiParent*,bool);
     void		getEvalParams(TypeSet<EvalParam>&) const;

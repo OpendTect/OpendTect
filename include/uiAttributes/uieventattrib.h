@@ -24,7 +24,7 @@ class uiLabel;
 /*! \brief Event Attributes description editor */
 
 mExpClass(uiAttributes) uiEventAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiEventAttrib);
 public:
 
                         uiEventAttrib(uiParent*,bool);

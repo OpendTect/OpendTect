@@ -24,7 +24,7 @@ class uiStepOutSel;
 /*! \brief Position Attribute description editor */
 
 mExpClass(uiAttributes) uiPositionAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiPositionAttrib);
 public:
 
 			uiPositionAttrib(uiParent*,bool);

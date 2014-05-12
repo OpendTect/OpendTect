@@ -21,7 +21,7 @@ class uiGenInput;
 /*! \brief DeltaResample Attribute description editor */
 
 mClass(uiAttributes) uiDeltaResampleAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiDeltaResampleAttrib);
 public:
 
 			uiDeltaResampleAttrib(uiParent*,bool);

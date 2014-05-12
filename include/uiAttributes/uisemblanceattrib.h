@@ -24,7 +24,7 @@ class uiSteeringSel;
 /*! \brief Semblance Attribute description editor */
 
 mExpClass(uiAttributes) uiSemblanceAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiSemblanceAttrib);
 public:
 
 			uiSemblanceAttrib(uiParent*,bool);

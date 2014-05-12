@@ -32,7 +32,7 @@ you specify otherwise in the setup.
 */
 
 mExpClass(uiTools) uiFileInput : public uiGenInput
-{
+{ mODTextTranslationClass(uiFileInput);
 public:
 
     mExpClass(uiTools) Setup

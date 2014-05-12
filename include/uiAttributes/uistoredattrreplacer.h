@@ -25,7 +25,7 @@ namespace Attrib
 };
 
 mExpClass(uiAttributes) uiStoredAttribReplacer
-{
+{ mODTextTranslationClass(uiStoredAttribReplacer);
 public:
     				uiStoredAttribReplacer(uiParent*,
 						       Attrib::DescSet*);

@@ -25,7 +25,7 @@ class uiSteeringSel;
 /*! \brief Shift Attribute description editor */
 
 mExpClass(uiAttributes) uiShiftAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiShiftAttrib);
 public:
 
 			uiShiftAttrib(uiParent*,bool);

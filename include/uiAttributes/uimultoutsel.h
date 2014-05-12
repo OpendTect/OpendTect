@@ -24,10 +24,11 @@ class uiListBox;
 namespace Attrib { class Desc; class DescSet; };
 
 /*! \brief Dialog used to determine which outputs of an attribute will be
-computed at once and stored as multiple components when creating a volume output */
+computed at once and stored as multiple 
+components when creating a volume output */
 
 mExpClass(uiAttributes) uiMultOutSel : public uiDialog
-{
+{ mODTextTranslationClass(uiMultOutSel);
 public:
 			uiMultOutSel(uiParent*,const Attrib::Desc&);
 

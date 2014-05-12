@@ -39,7 +39,7 @@ class uiSlider;
 
 
 mExpClass(uiAttributes) AttribParamGroup : public uiGroup
-{
+{ mODTextTranslationClass(AttribParamGroup);
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
 						 const EvalParam&);

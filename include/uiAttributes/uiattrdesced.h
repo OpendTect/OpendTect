@@ -80,7 +80,7 @@ public:
 */
 
 mExpClass(uiAttributes) uiAttrDescEd : public uiGroup
-{
+{ mODTextTranslationClass(uiAttrDescEd);
 public:
 
     virtual		~uiAttrDescEd();
@@ -90,8 +90,8 @@ public:
     Desc*		curDesc()			{ return desc_; }
     const Desc*		curDesc() const			{ return desc_; }
 
-    const char*		errMsgStr(Desc* desc);
-    virtual const char*	commit(Desc* desc=0);
+    uiString		errMsgStr(Desc* desc);
+    virtual uiString	commit(Desc* desc=0);
 			//!< returns null on success, error message otherwise
     			//!< If attribdesc is non-zero, that desc will be
     			//!< filled. If not, the internal desc will be filled.
@@ -169,7 +169,7 @@ protected:
     BufferString	attrnm_;
     DomainType		domtyp_;
     DimensionType	dimtyp_;
-    BufferString	errmsg_;
+    uiString            errmsg_;
     DescSet*		ads_;
     bool		is2d_;
     bool		needinpupd_;
@@ -184,6 +184,8 @@ protected:
     static const char*	sKeyStatsGrp();
     static const char*	sKeyPositionGrp();
     static const char*	sKeyDipGrp();
+
+    static uiString     sInputTypeError(int input); 
 
   
 

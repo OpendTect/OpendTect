@@ -35,7 +35,7 @@ class uiBatchJobDispatcherSel;
 /*! \brief Dialog for creating volume output */
 
 mExpClass(uiAttributes) uiAttrVolOut : public uiDialog
-{
+{ mODTextTranslationClass(uiAttrVolOut);
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,
 				     bool multioutput,

@@ -21,7 +21,7 @@ ________________________________________________________________________
 */
 
 mExpClass(uiAttributes) uiAttrSetMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiAttrSetMan);
 public:
     				uiAttrSetMan(uiParent*);
 				~uiAttrSetMan();

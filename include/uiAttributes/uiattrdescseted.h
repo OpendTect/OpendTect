@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
+
 namespace Attrib
 {
     class Desc;
@@ -43,7 +44,7 @@ class uiToolButton;
 */
 
 mExpClass(uiAttributes) uiAttribDescSetEd : public uiDialog
-{
+{ mODTextTranslationClass(uiAttribDescSetEd);
 public:
 
 			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm,

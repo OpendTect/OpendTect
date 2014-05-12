@@ -24,7 +24,7 @@ class uiGenInput;
 class uiLabeledSpinBox;
 
 mExpClass(uiAttributes) uiGainAnalysisDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiFrequencyAttrib);
 public:
 				uiGainAnalysisDlg(uiParent*,const SeisTrcBuf&,
 				      TypeSet<float>& zvals,

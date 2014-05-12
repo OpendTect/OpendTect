@@ -26,7 +26,7 @@ class uiCheckBox;
 /*! \brief ** Attribute description editor */
 
 mExpClass(uiAttributes) uiFreqFilterAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiFreqFilterAttrib);
 public:
 
 			uiFreqFilterAttrib(uiParent*,bool);

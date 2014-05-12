@@ -29,7 +29,7 @@ class NLAModel;
 */
 
 mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAttr2DSelDlg);
 public:
 
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,

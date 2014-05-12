@@ -30,7 +30,7 @@ namespace PreStack { class uiProcSel; class uiAngleCompGrp;
 /*! \brief PreStack Attribute ui */
 
 mExpClass(uiAttributes) uiPreStackAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiPreStackAttrib);
 public:
 
 			uiPreStackAttrib(uiParent*,bool);

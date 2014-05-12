@@ -23,7 +23,7 @@ class uiGenInput;
 /*! \brief Energy Attribute ui */
 
 mExpClass(uiAttributes) uiEnergyAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiEnergyAttrib);
 public:
 
 			uiEnergyAttrib(uiParent*,bool);

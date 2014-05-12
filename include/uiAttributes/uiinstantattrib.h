@@ -24,7 +24,7 @@ class uiLabeledSpinBox;
 /*! \brief Instantaneous Attribute description editor */
 
 mExpClass(uiAttributes) uiInstantaneousAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiInstantaneousAttrib);
 public:
 
 			uiInstantaneousAttrib(uiParent*,bool);

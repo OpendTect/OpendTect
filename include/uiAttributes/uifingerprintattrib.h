@@ -36,7 +36,7 @@ class calcFingParsObject;
 /*! \brief FingerPrint Attribute description editor */
 
 mExpClass(uiAttributes) uiFingerPrintAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiFingerPrintAttrib);
 public:
 
 			uiFingerPrintAttrib(uiParent*,bool);

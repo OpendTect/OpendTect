@@ -23,7 +23,7 @@ class uiIOObjSel;
 /*! \brief Convolve Attribute description editor */
 
 mExpClass(uiAttributes) uiConvolveAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiConvolveAttrib);
 public:
 
 			uiConvolveAttrib(uiParent*,bool);

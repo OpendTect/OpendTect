@@ -30,7 +30,7 @@ class GapDeconACorrView;
 /*! \brief GapDecon Attribute description editor */
 
 mClass(uiAttributes) uiGapDeconAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiGapDeconAttrib);
 public:
 
 			uiGapDeconAttrib(uiParent*,bool);

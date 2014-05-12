@@ -30,7 +30,7 @@ class uiTrcPositionDlg;
 /*! \brief Spectral Decomposition Attribute description editor */
 
 mExpClass(uiAttributes) uiSpecDecompAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiSpecDecompAttrib);
 public:
 
 			uiSpecDecompAttrib(uiParent*,bool);
