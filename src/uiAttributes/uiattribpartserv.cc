@@ -802,7 +802,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
 DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 						 const LineKey& linekey,
-						 TaskRunner& tr )
+						 TaskRunner& taskrunner )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
     if ( !aem ) return -1;
@@ -813,7 +813,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    if ( !TaskRunner::execute( &tr, *process ) )
+    if ( !TaskRunner::execute( &taskrunner, *process ) )
 	return -1;
 
     int component = 0;

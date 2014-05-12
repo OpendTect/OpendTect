@@ -493,8 +493,8 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     newdesc->setDescSet( attrset_ );
     newdesc->ref();
-    const char* res = curde->commit( newdesc );
-    if ( res ) { newdesc->unRef(); mErrRetNull( res ); }
+    uiString res = curde->commit( newdesc );
+    if ( !res.isEmpty() ) { newdesc->unRef(); mErrRetNull( res ); }
     newdesc->setUserRef( newnm );
     return newdesc;
 }
@@ -677,13 +677,14 @@ bool uiAttribDescSetEd::doAcceptInputs()
     {
 	const DescID descid = attrset_->getID( idx );
 	Desc* desc = attrset_->getDesc( descid );
-	const char* errmsg = curDescEd()->errMsgStr( desc );
-	if ( errmsg )
+	uiString errmsg = curDescEd()->errMsgStr( desc );
+	if ( !errmsg.isEmpty() )
 	{
 	    const char* attribname = desc->userRef();
-	    BufferString msg ( "Input is not correct for attribute '",
-				attribname, "'. " );
-	    uiMSG().error( msg, errmsg );
+	    uiString msg = tr( "Input is not correct for attribute '%1'." )
+			       .arg( attribname );
+	    TypeSet<uiString> msgs( 1, errmsg );
+	    uiMSG().errorWithDetails( msgs, msg );
 	    return false;
 	}
     }
@@ -747,8 +748,8 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( !curdesced )
 	return false;
 
-    const char* res = curdesced->commit();
-    if ( res )
+    const uiString res = curdesced->commit();
+    if ( !res.isEmpty() )
 	mErrRetFalse( res )
 
     return true;
@@ -846,8 +847,8 @@ bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
     if ( newnm == attrdesc->userRef() ) return true;
     else if ( !validName(newnm) ) return false;
 
-    const char* res = curDescEd()->commit();
-    if ( res )
+    uiString res = curDescEd()->commit();
+    if ( !res.isEmpty() )
 	{ uiMSG().error( res ); return false; }
 
     attrdesc->setUserRef( newnm );
