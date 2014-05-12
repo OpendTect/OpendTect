@@ -78,7 +78,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     gatefld_->attach( alignedBelow, inpfld_ );
 
     CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
-    exambut_ = new uiPushButton( this, "&Examine ...", cbexam, true);
+    exambut_ = new uiPushButton( this, tr("&Examine ..."), cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
     BufferString lagstr = "Lag size ";
@@ -91,32 +91,33 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     gapfld_ = new uiGenInput( this, gapstr, FloatInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
 
-    noiselvlfld_ = new uiGenInput( this, "Random noise added", IntInpSpec() );
+    noiselvlfld_ = new uiGenInput( this, tr("Random noise added"), 
+                                  IntInpSpec() );
     noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, "%" );
     percentlbl->attach( rightOf, noiselvlfld_ );
 
-    wantmixfld_ = new uiGenInput( this, "Use trace averaging",
+    wantmixfld_ = new uiGenInput( this, tr("Use trace averaging"),
 				  BoolInpSpec(true) );
     wantmixfld_->valuechanged.notify( mCB(this,uiGapDeconAttrib,mixSel) );
     wantmixfld_->attach( alignedBelow, noiselvlfld_ );
 //    uiLabel* stepoutlbl = new uiLabel( this, "( Smoothing parameter )" );
 //    stepoutlbl->attach( rightOf, wantmixfld_ );
 
-    stepoutfld_ = new uiLabeledSpinBox( this, "stepout" );
+    stepoutfld_ = new uiLabeledSpinBox( this, tr("stepout") );
     stepoutfld_->box()->setMinValue( 1 );
     stepoutfld_->box()->setStep( 1, true );
     stepoutfld_->attach( rightOf, wantmixfld_ );
 
-    BoolInpSpec bis( true, "Zero phase", "Minimum phase" );
-    isinpzerophasefld_ = new uiGenInput( this, "Input is", bis );
+    BoolInpSpec bis( true, tr("Zero phase", "Minimum phase") );
+    isinpzerophasefld_ = new uiGenInput( this, tr("Input is"), bis );
     isinpzerophasefld_->attach( alignedBelow, wantmixfld_ );
 
-    isoutzerophasefld_ = new uiGenInput( this, "Output is", bis );
+    isoutzerophasefld_ = new uiGenInput( this, tr("Output is"), bis );
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
 
     CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
-    qcbut_ = new uiPushButton( this, "Check &parameters ...", cbqc, true);
+    qcbut_ = new uiPushButton( this, tr("Check &parameters ..."), cbqc, true);
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
@@ -220,8 +221,8 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 	createHilbertDesc( desc, inputid );
 	if ( !desc.setInput( 0, desc.descSet()->getDesc(inputid)) )
 	{
-	    errmsg_ += "The suggested attribute for input 0";
-	    errmsg_ += " is incompatible with the input (wrong datatype)";
+	    errmsg_ = tr("The suggested attribute for input 0\n"
+	                 "is incompatible with the input (wrong datatype)");
 	}
     }
 
@@ -235,8 +236,8 @@ bool uiGapDeconAttrib::getInput( Attrib::Desc& desc )
 
 	if ( !desc.setInput( 1, desc.descSet()->getDesc(mixedinputid)) )
 	{
-	    errmsg_ += "The suggested attribute for input 1";
-	    errmsg_ += " is incompatible with the input (wrong datatype)";
+	    errmsg_ = tr("The suggested attribute for input 1\n"
+	                 " is incompatible with the input (wrong datatype)");
 	}
     }
     return true;
@@ -249,9 +250,9 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	 mIsUdf(gatefld_->getFInterval().stop) ||
 	 inpfld_->attribID() == DescID::undef() )
     {
-	BufferString errmsg = "Please, first, fill in the Input Data and the ";
-	errmsg += "Correlation window fields";
-	uiMSG().error( errmsg );
+	uiMSG().error(tr("Please, first, fill in the Input Data\n"
+                                 "and the Correlation window fields"));
+	
 	return;
     }
 
@@ -624,7 +625,8 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 
 uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
 				  bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",0,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",
+                                   0,mNoHelpKey) )
     , cs_( cs )
     , prefcs_(0)
     , is2d_( is2d )
@@ -639,13 +641,14 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
 	BufferStringSet linenames;
 	objinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this,
-					   "Compute autocorrelation on line:" );
+			 "Compute autocorrelation on line:" );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
     }
     else
 	inlcrlfld_ = new uiGenInput( this, "Compute autocorrelation on:",
-				    BoolInpSpec(true,"Inline","Crossline") );
+				    BoolInpSpec(true,"Inline",
+                                    "Crossline") );
     setOkText( uiStrings::sNext() );
 }
 
