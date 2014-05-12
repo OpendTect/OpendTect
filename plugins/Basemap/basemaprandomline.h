@@ -28,8 +28,8 @@ public:
 			RandomLineObject(const MultiID&);
 			~RandomLineObject();
 
-    const MultiID&	getMultiID() const	{ return rdlmid_; }
     void		setMultiID(const MultiID&);
+    const MultiID&	getMultiID() const	{ return mid_; }
     const char*		getType() const		{ return "RandomLine"; }
     void		updateGeometry();
 
@@ -42,7 +42,7 @@ public:
     const LineStyle*	getLineStyle(int) const	{ return &ls_; }
 
 private:
-    MultiID		rdlmid_;
+    MultiID		mid_;
     MarkerStyle2D	ms_;
     LineStyle		ls_;
 

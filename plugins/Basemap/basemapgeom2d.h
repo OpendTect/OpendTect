@@ -26,8 +26,11 @@ public:
 			Geom2DObject(const MultiID&);
 			~Geom2DObject();
 
+    void		setMultiID(const MultiID&);
+    const MultiID&	getMultiID() const	{ return mid_; }
     const char*		getType() const		{ return "Geom2D"; }
     void		updateGeometry();
+
     int			nrShapes() const;
     const char*		getShapeName(int) const;
     void		getPoints(int,TypeSet<Coord>&) const;

@@ -9,6 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapgeom2d.h"
 
+#include "bendpointfinder.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "posinfo2d.h"
+#include "ptrman.h"
+#include "survgeom2d.h"
+
 namespace Basemap
 {
 
@@ -16,11 +23,32 @@ Geom2DObject::Geom2DObject( const MultiID& mid )
     : BaseMapObject(0)
     , mid_(mid)
 {
+    setMultiID( mid );
 }
 
 
 Geom2DObject::~Geom2DObject()
 {}
+
+
+void Geom2DObject::setMultiID( const MultiID& mid )
+{
+    mid_ = mid;
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    if ( !ioobj ) return;
+
+    const BufferString& linename = ioobj->name();
+    setName( linename );
+
+    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	return;
+
+//    const PosInfo::Line2DData geom( linename );
+//    const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
+//    BendPointFinder2D bpf( positions, 1.0 );
+//    bpf.execute();
+}
 
 
 void Geom2DObject::updateGeometry()

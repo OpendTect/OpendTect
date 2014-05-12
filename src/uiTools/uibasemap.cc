@@ -52,10 +52,10 @@ void uiBaseMapObject::update()
 
     Threads::Locker( bmobject_->lock_ );
 
-    TypeSet<Coord> crds;
     int itemnr = 0;
     for ( int idx=0; idx<bmobject_->nrShapes(); idx++ )
     {
+	TypeSet<Coord> crds;
 	bmobject_->getPoints( idx, crds );
 
 	if ( bmobject_->getLineStyle(idx) &&
@@ -137,27 +137,24 @@ void uiBaseMapObject::update()
 	}
 
 	const char* shapenm = bmobject_->getShapeName( idx );
-	if ( shapenm )
+	if ( shapenm && !crds.isEmpty() )
 	{
-	    for ( int ptidx=0; ptidx<crds.size(); ptidx++ )
+	    while ( itemgrp_->size()>itemnr )
 	    {
-		while ( itemgrp_->size()>itemnr )
-		{
-		    mDynamicCastGet(uiTextItem*,itm,
-				    itemgrp_->getUiItem(itemnr));
-		    if ( !itm )
-			itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
-		    else break;
-		}
-
-		if ( itemgrp_->size()<=itemnr )
-		    itemgrp_->add( new uiTextItem() );
-
-		mDynamicCastGet(uiTextItem*,itm,itemgrp_->getUiItem(itemnr));
-		itm->setText( shapenm );
-		itm->setPos( transform_->transform(uiWorldPoint(crds[ptidx])) );
-		itemnr++;
+		mDynamicCastGet(uiTextItem*,itm,
+				itemgrp_->getUiItem(itemnr));
+		if ( !itm )
+		    itemgrp_->remove( itemgrp_->getUiItem(itemnr), true );
+		else break;
 	    }
+
+	    if ( itemgrp_->size()<=itemnr )
+		itemgrp_->add( new uiTextItem() );
+
+	    mDynamicCastGet(uiTextItem*,itm,itemgrp_->getUiItem(itemnr));
+	    itm->setText( shapenm );
+	    itm->setPos( transform_->transform(uiWorldPoint(crds[0])) );
+	    itemnr++;
 	}
     }
 

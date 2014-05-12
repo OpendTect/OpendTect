@@ -25,7 +25,7 @@ namespace Basemap
 
 RandomLineObject::RandomLineObject( const MultiID& mid )
     : BaseMapObject(0)
-    , rdlmid_(mid)
+    , mid_(mid)
     , rdlset_(*new Geometry::RandomLineSet)
 {
     setMultiID( mid );
@@ -40,8 +40,8 @@ RandomLineObject::~RandomLineObject()
 
 void RandomLineObject::setMultiID( const MultiID& mid )
 {
-    rdlmid_ = mid;
-    PtrMan<IOObj> ioobj = IOM().get( rdlmid_ );
+    mid_ = mid;
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !ioobj ) return;
 
     setName( ioobj->name() );
@@ -58,16 +58,14 @@ void RandomLineObject::updateGeometry()
 { changed.trigger(); }
 
 int RandomLineObject::nrShapes() const
-{ return rdlset_.isEmpty() ? 0 : 2; }
+{ return rdlset_.isEmpty() ? 0 : 1; }
 
 const char* RandomLineObject::getShapeName( int idx ) const
-{ return idx==0 ? 0 : name(); }
+{ return name().buf(); }
 
 
 void RandomLineObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 {
-    if ( shapeidx>0 ) return;
-
     const Geometry::RandomLine* rdl = rdlset_.lines()[0];
     const int nrnodes = rdl->nrNodes();
     for ( int idx=0; idx<nrnodes; idx++ )
