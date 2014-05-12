@@ -76,55 +76,36 @@ void od_init_test_program(int argc, char** argv )
 
 
 
-bool isUdfImpl( float val )
+template <class fT>
+static bool isUdfImplImpl( fT val )
 {
+    const bool isnorm = Math::IsNormalNumber( val );
+
 #ifdef __debug__
-    if ( !Math::IsNormalNumber(val) )
+    if ( !isnorm )
     {
 	if ( DBG::crashOnNaN() )
 	{
-	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
+	    pFreeFnErrMsg("Bad fp value found","isUdfImplImp");
 	    DBG::forceCrash(false); return true;
 	}
     }
 #endif
 
-    return Values::isUdf( val );
+    return !isnorm || Values::isUdf( val );
 }
 
+
+bool isUdfImpl( float val )
+{ return isUdfImplImpl(val); }
 
 bool isUdfImpl( double val )
-{
-#ifdef __debug__
-    if ( !Math::IsNormalNumber(val) )
-    {
-	if ( DBG::crashOnNaN() )
-	{
-	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
-	    DBG::forceCrash(false); return true;
-	}
-    }
-#endif
-
-    return Values::isUdf( val );
-}
+{ return isUdfImplImpl(val); }
 
 
 bool isUdfImpl( float_complex val )
 {
-#ifdef __debug__
-    if ( !Math::IsNormalNumber(val.real()) || !Math::IsNormalNumber(val.imag()))
-    {
-	if ( DBG::crashOnNaN() )
-	{
-	    pFreeFnErrMsg("Bad fp value found","dbgIsUdf(fc)");
-	    DBG::forceCrash(false);
-	    return true;
-	}
-    }
-#endif
-
-    return Values::isUdf( val );
+    return isUdfImplImpl(val.real()) || isUdfImplImpl(val.imag());
 }
 
 
