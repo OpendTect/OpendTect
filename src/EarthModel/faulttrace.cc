@@ -94,8 +94,16 @@ FaultTrace* FaultTrace::clone()
 {
     Threads::Locker locker( lock_ );
     FaultTrace* newobj = new FaultTrace;
+    newobj->isinl_ = isinl_;
+    newobj->nr_ = nr_;
+    newobj->editedoncrl_ = editedoncrl_;
     newobj->coords_ = coords_;
+    newobj->coordindices_ = coordindices_;
     newobj->trcnrs_ = trcnrs_;
+    newobj->trcrange_ = trcrange_;
+    newobj->zrange_ = zrange_;
+    newobj->tracesegs_ = tracesegs_;
+
     return newobj;
 }
 
@@ -130,53 +138,69 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 }
 
 
-bool FaultTrace::getHorTerminalPos( const EM::Horizon& hor,
-				    BinID& pos1bid, float& pos1z,
-				    BinID& pos2bid, float& pos2z ) const
-{
-    pos2z = mUdf(float);
-    const EM::SectionID sid = hor.sectionID( 0 );
-    StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
-				     : hor.geometry().rowRange( sid );
-    trcrg.limitTo( trcrange_ );
-    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
-    {
-	pos1bid = BinID( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	pos1z = (float) hor.getPos( sid, pos1bid.toInt64() ).z;
-	if ( mIsUdf(pos1z) )
-	    continue;
-
-	if ( !mIsUdf(pos2z) )
-	{
-	    Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
-	    if ( intsectn.isDefined() )
-		return true;
-	}
-
-	pos2bid = pos1bid;
-	pos2z = pos1z;
+#define mRunInRange( trcrg ) \
+    for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step ) \
+    { \
+	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ ); \
+	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z; \
+	if ( mIsUdf(curz) ) continue; \
+	if ( !mIsUdf(prevz) ) \
+	{ \
+	    const Coord intsect = getIntersection(prevbid,prevz,curbid,curz); \
+	    if ( intsect.isDefined() ) \
+	    { \
+		pos1bids += prevbid; pos1zs += prevz; \
+		pos2bids += curbid; pos2zs += curz; \
+		intersections += intsect; \
+		if ( firstonly ) \
+		    return true; \
+	    } \
+	} \
+	prevbid = curbid; \
+	prevz = curz; \
     }
 
-    return false;
-}
 
+bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
+	TypeSet<BinID>& pos1bids, TypeSet<float>& pos1zs,
+	TypeSet<BinID>& pos2bids, TypeSet<float>& pos2zs,
+	TypeSet<Coord>& intersections, bool firstonly ) const
+{
+    const EM::SectionID sid = hor.sectionID( 0 );
+    const StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
+					      : hor.geometry().rowRange( sid );
+
+    StepInterval<int> trcrg = hortrcrg;
+    trcrg.limitTo( trcrange_ );
+
+    BinID prevbid;
+    float prevz = mUdf(float);
+
+    mRunInRange( trcrg );
+    if ( intersections.size() )
+	return true;
+
+    prevz = mUdf(float);
+    mRunInRange( hortrcrg );
+
+    return intersections.size();
+}
 
 
 bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
 {
-    BinID pos1bid, pos2bid;
-    float pos1z, pos2z;
-    if ( !getHorTerminalPos(hor,pos1bid,pos1z,pos2bid,pos2z) )
+    TypeSet<BinID> pos1bids, pos2bids;
+    TypeSet<float> pos1zs, pos2zs;
+    TypeSet<Coord> intersects;
+    if ( !getHorizonIntersectionInfo( hor, pos1bids, pos1zs, pos2bids,
+		pos2zs, intersects, true ) )
 	return false;
 
     const EM::SectionID sid = hor.sectionID( 0 );
-    StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
-				     : hor.geometry().rowRange( sid );
-    trcrg.limitTo( trcrange_ );
-
-    Coord intsectn = getIntersection( pos1bid, pos1z, pos2bid, pos2z );
-    bid.inl() = isinl_ ? nr_ : trcrg.snap( mNINT32(intsectn.x) );
-    bid.crl() = isinl_ ? trcrg.snap( mNINT32(intsectn.x) ) : nr_;
+    const StepInterval<int> trcrg = isinl_ ? hor.geometry().colRange()
+					   : hor.geometry().rowRange( sid );
+    bid.inl() = isinl_ ? nr_ : trcrg.snap( mNINT32(intersects[0].x) );
+    bid.crl() = isinl_ ? trcrg.snap( mNINT32(intersects[0].x) ) : nr_;
     return true;
 }
 

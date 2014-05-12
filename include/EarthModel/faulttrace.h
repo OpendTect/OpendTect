@@ -69,9 +69,11 @@ public:
 					Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
-    bool		getHorTerminalPos( const EM::Horizon& hor,
-					   BinID& pos1bid, float& pos1z,
-					   BinID& pos2bid, float& pos2z ) const;
+    bool		getHorizonIntersectionInfo(const EM::Horizon& hor,
+				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
+				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,
+				TypeSet<Coord>& intersections,
+				bool findfirstonly=true) const;
     bool		getImage(const BinID& srcbid,float srcz,
 				 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,
