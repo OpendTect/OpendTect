@@ -60,7 +60,8 @@ public:
     void			addObject(uiBaseMapObject*);
     				//! object becomes mine, obviously.
 
-    uiGraphicsView&		view()		{ return view_; }
+    uiGraphicsView&		view()			{ return view_; }
+    const uiWorld2Ui&		transform() const	{ return w2ui_; }
 
 protected:
 
