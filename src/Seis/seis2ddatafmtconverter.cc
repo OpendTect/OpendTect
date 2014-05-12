@@ -20,8 +20,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
 #include "survgeom.h"
+#include "survinfo.h"
 
 #define mCapChar "^"
+
+
+static const char* getSurvDefAttrName()
+{
+    mDefineStaticLocalObject( BufferString, ret,
+	   = SI().getPars().find(IOPar::compKey(sKey::Default(),
+			SeisTrcTranslatorGroup::sKeyDefaultAttrib())) );
+    if ( ret.isEmpty() ) ret = "Seis";
+    return ret.buf();
+}
 
 class OD_2DLineSetTo2DDataSetConverter
 {mODTextTranslationClass(OD_2DLineSetTo2DDataSetConverter);
@@ -163,6 +174,12 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
 	nm = fp.fileName();
 	iop.set( sKey::Attribute(), nm.buf() );
     }
+
+    const FixedString survdefattr( getSurvDefAttrName() );
+    const bool issurvdefset = SI().pars().find( IOPar::compKey(sKey::Default(),
+				SeisTrcTranslatorGroup::sKeyDefault2D()) );
+    if ( !issurvdefset && ctio.ioobj && survdefattr == attribnm )
+	ctio.ioobj->setSurveyDefault();
 
     return BufferString( ctio.ioobj ? ctio.ioobj->fullUserExpr() : "" );
 }

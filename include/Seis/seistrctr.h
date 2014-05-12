@@ -79,7 +79,7 @@ public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
     
     static const char*	sKeyDefault3D() { return "Cube"; }
-    static const char*	sKeyDefault2D()	{ return "DataSet"; }
+    static const char*	sKeyDefault2D() { return "2D Cube"; }
     static const char*	sKeyDefaultAttrib() { return "Attribute"; }
     const char*		getSurveyDefaultKey(const IOObj*) const;
 };
