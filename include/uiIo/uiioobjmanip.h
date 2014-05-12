@@ -67,6 +67,7 @@ public:
 
     virtual MultiID		currentID() const			= 0;
     virtual void		getChosenIDs(TypeSet<MultiID>&) const	= 0;
+    virtual void		getChosenNames(BufferStringSet&) const	= 0;
     virtual const char*		defExt() const				= 0;
     virtual const BufferStringSet& names() const			= 0;
 

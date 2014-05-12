@@ -120,15 +120,18 @@ mExpClass(uiTools) uiGetChoice : public uiDialog
 {
 public:
 
+			uiGetChoice(uiParent*,const char* question=0,
+				    bool allowcancel=true,
+				    const HelpKey& helpkey=mNoHelpKey);
 			uiGetChoice(uiParent*,
 				    const BufferStringSet& options,
 				    const char* question=0,
 				    bool allowcancel=true,
 				    const HelpKey& helpkey=mNoHelpKey);
-
 			uiGetChoice(uiParent*,uiDialog::Setup,
 				    const BufferStringSet& options, bool wc);
 
+    void		addChoice(const char* txt,const char* iconnm=0);
     void		setDefaultChoice(int);
     int			choice() const		{ return choice_; }
 			//!< on cancel will be -1

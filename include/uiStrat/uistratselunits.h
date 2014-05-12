@@ -35,16 +35,16 @@ public:
 			    : type_(t)
 			    , pol_(p)
 			    , maxnrlines_(12)
-			    , autoselchildparent_(true)
-			    , selectallinitial_(false)
+			    , autochoosechildparent_(true)
+			    , chooseallinitial_(false)
 			    , fldtxt_(t==Multi?"Units":"Unit")	{}
 
 	mDefSetupMemb(Type,type)
 	mDefSetupMemb(Strat::UnitRefIter::Pol,pol)
 	mDefSetupMemb(int,maxnrlines)		//!< only used for tree
 	mDefSetupMemb(BufferString,fldtxt)	//!< text next to Simple combo
-	mDefSetupMemb(bool,selectallinitial)	//!< only for Multi
-	mDefSetupMemb(bool,autoselchildparent)	//!< only for Multi:
+	mDefSetupMemb(bool,chooseallinitial)	//!< only for Multi
+	mDefSetupMemb(bool,autochoosechildparent) //!< only for Multi:
 			//!< one child -> parent, parent -> all children
 			//!< deselect last child -> unselect parent
     };
@@ -54,16 +54,17 @@ public:
 					const Setup&);
 			~uiStratSelUnits();
 
-    bool		isSelected(const Strat::UnitRef&) const;
+    bool		isChosen(const Strat::UnitRef&) const;
     bool		isPresent(const Strat::UnitRef&) const;
-    const Strat::UnitRef* firstSelected() const;
-    void		getSelected(ObjectSet<const Strat::UnitRef>&) const;
+    const Strat::UnitRef* firstChosen() const;
+    void		getChosen(ObjectSet<const Strat::UnitRef>&) const;
     void		setCurrent(const Strat::UnitRef&);
-    void		setSelected(const Strat::UnitRef&,bool yn=true);
+    void		setChosen(const Strat::UnitRef&,bool yn=true);
     void		setExpanded(int dpth=mUdf(int)); // not for Simple
 
     Notifier<uiStratSelUnits>	currentChanged;
-    Notifier<uiStratSelUnits>	selectionChanged; //!< Only issued for Multi
+    Notifier<uiStratSelUnits>	unitChosen; //!< Only issued for Multi
+    Notifier<uiStratSelUnits>	unitPicked; //!< Only for Single
     const Strat::UnitRef*	curunit_;
 
 protected:
@@ -71,22 +72,23 @@ protected:
     uiComboBox*			combo_;
     uiTreeView*			tree_;
     ObjectSet<uiStratSelUnitsListItem>	lvitms_;
-    
+
     const Strat::NodeUnitRef&	topnode_;
     Setup			setup_;
-    bool			doingautosel_;
+    bool			doingautochoose_;
 
     void			mkBoxFld();
     void			mkTreeFld();
 
     void			curChg(CallBacker*);
-    void			selChg(CallBacker*);
+    void			choiceChg(CallBacker*);
+    void			treeFinalSel(CallBacker*);
 
     inline bool			isMulti() const { return setup_.type_==Multi; }
-    void			selRelated(const Strat::UnitRef*,bool);
     void			checkParent(const Strat::UnitRef*);
     void			checkChildren(const Strat::UnitRef*,bool);
-    void			unselParentIfLast(const Strat::UnitRef*);
+    void			chooseRelated(const Strat::UnitRef*,bool);
+    void			unChooseParentIfLast(const Strat::UnitRef*);
 
     uiStratSelUnitsListItem*	find(const Strat::UnitRef*);
     const uiStratSelUnitsListItem* find( const Strat::UnitRef* ur ) const

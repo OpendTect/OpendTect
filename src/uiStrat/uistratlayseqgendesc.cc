@@ -701,7 +701,7 @@ bool acceptOK( CallBacker* )
 	}
     }
 
-    const Strat::UnitRef* ur = unfld_->firstSelected();
+    const Strat::UnitRef* ur = unfld_->firstChosen();
     if ( !ur || !ur->isLeaf() )
 	{ uiMSG().error( "Please select the layer" ); return false; }
 
