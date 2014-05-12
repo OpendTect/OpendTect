@@ -104,17 +104,17 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcobj_ = new calcFingParsObject( this );
 
     refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( refgrp_, "Manual" );
+    uiRadioButton* manualbut = new uiRadioButton( refgrp_, tr("Manual") );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    refposbut_ = new uiRadioButton( refgrp_,"Reference position");
+    refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    picksetbut_ = new uiRadioButton( refgrp_, "Pickset" );
+    picksetbut_ = new uiRadioButton( refgrp_, tr("Pickset") );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    uiLabel* lbl = new uiLabel( this, "Get values from" );
+    uiLabel* lbl = new uiLabel( this, tr("Get values from") );
     lbl->attach( centeredLeftOf, refgrp_ );
 
     refposfld_ = new uiGenInput( this,
-			is2d_ ? sKey::TraceNr() : "Position (Inl/Crl)",
+			is2d_ ? sKey::TraceNr() : tr("Position (Inl/Crl)"),
 			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
 			.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );
@@ -141,13 +141,13 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     picksetfld_->attach( alignedBelow, refgrp_ );
     picksetfld_->display( false );
 
-    statsfld_ = new uiGenInput( this, "PickSet statistic",
+    statsfld_ = new uiGenInput( this, tr("PickSet statistic"),
 			       StringListInpSpec(statstrs) );
     statsfld_->attach( alignedBelow, picksetfld_ );
     statsfld_->display( false );
 
     manlbl_ = new uiLabel( this,
-			   "Please select some attributes and go to Advanced" );
+	          tr("Please select some attributes and go to Advanced"));
     manlbl_->attach( alignedBelow, refgrp_ );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute")
@@ -166,7 +166,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     table_->setColumnLabels( collbls );
     table_->setNrRows( cInitNrRows );
     table_->setStretch( 2, 0 );
-    table_->setToolTip( "Right-click to add, insert or remove an attribute" );
+    table_->setToolTip(tr("Right-click to add, insert or remove an attribute"));
     if ( linefld_ )	table_->attach( alignedBelow, linefld_ );
     else		table_->attach( alignedBelow, statsfld_ );
     table_->rowInserted.notify( mCB(this,uiFingerPrintAttrib,insertRowCB) );
@@ -178,11 +178,13 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
     uiPushButton* calcbut =
-		new uiPushButton( this, "Calculate &parameters", cbcalc, true);
+		new uiPushButton( this, tr("Calculate &parameters"),
+                                  cbcalc, true);
     calcbut->attach( alignedBelow, table_ );
 
     CallBack cbrg = mCB(this,uiFingerPrintAttrib,getAdvancedPush);
-    uiPushButton* advbut = new uiPushButton( this, "&Advanced", cbrg, false );
+    uiPushButton* advbut = new uiPushButton( this, tr("&Advanced"),
+                                             cbrg, false );
     advbut->attach( rightAlignedBelow, table_ );
 
     setHAlignObj( table_ );
@@ -513,8 +515,8 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
-	errmsg = "Please choose the pickset from which\n";
-	errmsg += "the ranges will be computed";
+	uiMSG().error(tr("Please choose the pickset from which\n"
+	"the ranges will be computed"));
     }
     if ( !errmsg.isEmpty() )
     {
@@ -552,9 +554,9 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	if ( mIsUdf(refpos.inl()) || mIsUdf(refpos.crl()) || mIsUdf(refposz) )
 	{
 	    if ( is2d_ )
-		errmsg = "2D lineset is not OK";
+		uiMSG().error(tr("2D lineset is not OK"));
 	    else
-		errmsg = "Please fill in the position fields first";
+		uiMSG().error(tr("Please fill in the position fields first"));
 	    return 0;
 	}
 
@@ -569,8 +571,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    errmsg = "Please choose the pickset from which\n";
-	    errmsg += "the values will be extracted";
+	    uiMSG().error(tr("Please choose the pickset from which\n"
+	    "the values will be extracted"));
 	    return 0;
 	}
 
@@ -579,8 +581,8 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 	PickSetTranslator::createBinIDValueSets( ioobjids, values );
 	if ( values.isEmpty() )
 	{
-	    errmsg = "Cannot extract values at PickSet locations."
-		     " PickSet might be empty.";
+	    uiMSG().error(tr("Cannot extract values at PickSet locations."
+		     " PickSet might be empty."));
 	    return 0;
 	}
 
@@ -618,9 +620,9 @@ bool uiFingerPrintAttrib::areUIParsOK()
 {
     if ( calcobj_->getValues().isEmpty() || calcobj_->getRanges().isEmpty() )
     {
-	errmsg_ = "Please fill in all values and ranges fields.\n";
-	errmsg_ += "Press on 'Calculate parameters' to let OpendTect compute\n";
-	errmsg_ += "them or go to 'Advanced...' to do it manually";
+	uiMSG().error(tr("Please fill in all values and ranges fields.\n"
+	          "Press on 'Calculate parameters' to let OpendTect compute\n"
+	          "them or go to 'Advanced...' to do it manually"));
 	return false;
     }
 
