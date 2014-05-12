@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "linekey.h"
 #include "sets.h"
+#include "uistring.h"
 
 class uiParent;
 namespace Attrib

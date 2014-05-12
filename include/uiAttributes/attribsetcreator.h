@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 #include "bufstringset.h"
 #include "multiid.h"
+#include "uistring.h"
 
 namespace Attrib { class Desc; class DescSet; };
 class uiParent;
