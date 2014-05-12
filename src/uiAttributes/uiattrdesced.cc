@@ -30,20 +30,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-
-const char* uiAttrDescEd::timegatestr()	    { return "Time gate"; }
-const char* uiAttrDescEd::stepoutstr()	    { return "Stepout"; }
-const char* uiAttrDescEd::frequencystr()    { return "Frequency"; }
-const char* uiAttrDescEd::filterszstr()	    { return "Filter size"; }
+const char* uiAttrDescEd::timegatestr() 	{ return "Time gate"; }
+const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
+const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
+const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }
 
 const char* uiAttrDescEd::sKeyOtherGrp()	{ return "Other"; }
 const char* uiAttrDescEd::sKeyBasicGrp()	{ return "Basic"; }
 const char* uiAttrDescEd::sKeyFilterGrp()	{ return "Filters"; }
-const char* uiAttrDescEd::sKeyFreqGrp()		{ return "Frequency"; }
+const char* uiAttrDescEd::sKeyFreqGrp()	        { return "Frequency"; }
 const char* uiAttrDescEd::sKeyPatternGrp()	{ return "Patterns"; }
 const char* uiAttrDescEd::sKeyStatsGrp()	{ return "Statistics"; }
 const char* uiAttrDescEd::sKeyPositionGrp()	{ return "Positions"; }
-const char* uiAttrDescEd::sKeyDipGrp()		{ return "Dip"; }
+const char* uiAttrDescEd::sKeyDipGrp()	        { return "Dip"; }
+
+uiString uiAttrDescEd::sInputTypeError( int inp )
+{
+    return tr("The suggested attribute for input %1 "
+            "is incompatible with the input (wrong datatype)")
+            .arg( toString( inp ) );
+}
 
 
 
@@ -112,8 +118,9 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 
     if ( !desc.setInput(inp,desc.descSet()->getDesc(attribid)) )
     {
-	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
-	errmsg_ += " is incompatible with the input (wrong datatype)";
+	errmsg_ = tr("The suggested attribute for input %1 "
+                      "is incompatible with the input (wrong datatype)")
+                      .arg( toString(inp) );
     }
 
     mDynamicCastGet(const uiImagAttrSel*,imagfld,fld)
@@ -136,8 +143,7 @@ void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(descid) ) )
     {
-	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
-	errmsg_ += " is incompatible with the input (wrong datatype)";
+	errmsg_ = sInputTypeError( inp );
     }
 }
 
@@ -157,8 +163,7 @@ void uiAttrDescEd::fillInp( uiSteerAttrSel* fld, Attrib::Desc& desc, int inp )
 
     if ( !desc.setInput( inp, desc.descSet()->getDesc(inlid) ) )
     {
-	errmsg_ += "The suggested attribute for input"; errmsg_ += inp;
-	errmsg_ += " is incompatible with the input (wrong datatype)";
+        errmsg_ = sInputTypeError( inp );
     }
 
     const DescID crlid = fld->crlDipID();
@@ -274,7 +279,7 @@ bool uiAttrDescEd::zIsTime() const
 }
 
 
-const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
+uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 {
     if ( !desc )
 	return 0;
@@ -282,25 +287,28 @@ const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
     if ( desc->isSatisfied() == Desc::Error )
     {
 	const BufferString derrmsg( desc->errMsg() );
-	if ( !desc->isStored() || derrmsg != "Parameter 'id' is not correct" )
-	    errmsg_ = derrmsg;
+	if ( !desc->isStored() || derrmsg 
+                               != "Parameter 'id' is not correct" )
+	                          errmsg_ = derrmsg;
 	else
 	{                                                                       
-	    errmsg_.set( "Cannot find stored data '" ).add( desc->userRef() ); 
-	    errmsg_.add( ".\nData might have been deleted or corrupted"
-			 ".\nPlease select valid stored data as input." );
+	    errmsg_ = tr("Cannot find stored data %1.\n"
+                         "Data might have been deleted or corrupted.\n"
+                         "Please select valid stored data as input.")
+                         .arg( desc->userRef() ); 
 	}
     }
 
     const bool isuiok = areUIParsOK();
     if ( !isuiok && errmsg_.isEmpty() )
-	errmsg_= "Please review your parameters, some of them are not correct";
+	errmsg_= tr("Please review your parameters, "
+                    "some of them are not correct");
 
-    return errmsg_.str();
+    return uiStringCopy(errmsg_);
 }
 
 
-const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
+uiString uiAttrDescEd::commit( Attrib::Desc* editdesc )
 {
     if ( !editdesc ) editdesc = desc_;
     if ( !editdesc ) return 0;
@@ -354,7 +362,6 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     if ( !getInputDPID(inpfld,inpdpfid) )
 	return 0;
 
-
     BufferString dpidstr( "#" );
     dpidstr.add( inpdpfid.buf() );
     Desc* inpdesc = Attrib::PF().createDescCopy( StorageProvider::attribName());
@@ -363,4 +370,3 @@ Desc* uiAttrDescEd::getInputDescFromDP( uiAttrSel* inpfld ) const
     param->setValue( dpidstr.buf() );
     return inpdesc;
 }
-
