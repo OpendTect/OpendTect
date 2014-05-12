@@ -141,6 +141,7 @@ public:
 protected:
 
     CtxtIOObj&		ctio_;
+    CtxtIOObj&		choicectio_;
     Setup		setup_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
@@ -169,8 +170,8 @@ protected:
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
-    void		readSel(CallBacker*);
-    void		writeSel(CallBacker*);
+    void		readChoice(CallBacker*);
+    void		writeChoice(CallBacker*);
 
 private:
 

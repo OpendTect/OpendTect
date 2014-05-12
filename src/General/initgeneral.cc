@@ -15,10 +15,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathproperty.h"
 #include "elasticpropseltransl.h"
 #include "mathformulatransl.h"
+#include "ioobjselectiontransl.h"
 #include "preloads.h"
 #include "geometryio.h"
 #include "survgeometrytransl.h"
 #include "batchjobdispatch.h"
+
+
+mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
+
 
 mDefModInitFn(General)
 {
@@ -26,6 +31,7 @@ mDefModInitFn(General)
 
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
+    IOObjSelectionTranslatorGroup::initClass();
     PreLoadsTranslatorGroup::initClass();
     PreLoadSurfacesTranslatorGroup::initClass();
 
@@ -33,6 +39,7 @@ mDefModInitFn(General)
     dgbPreLoadSurfacesTranslator::initClass();
     odElasticPropSelectionTranslator::initClass();
     odMathFormulaTranslator::initClass();
+    odIOObjSelectionTranslator::initClass();
 
     Pos::RangeProvider3D::initClass();
     Pos::RangeProvider2D::initClass();

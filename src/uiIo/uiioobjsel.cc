@@ -21,6 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "transl.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "ioobjselectiontransl.h"
+#include "od_iostream.h"
+#include "ascstream.h"
 
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
@@ -30,7 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "od_helpids.h"
 
-#define mObjTypeName ctio_.ctxt.objectTypeName()
+#define mCtioObjTypeName(ctio) ctio.ctxt.objectTypeName()
+#define mObjTypeName mCtioObjTypeName(ctio_)
 
 static const MultiID udfmid( "-1" );
 
@@ -108,6 +112,7 @@ void relocStart( const char* msg )
 #define muiIOObjSelGrpConstructorCommons \
       uiGroup(p) \
     , ctio_(*new CtxtIOObj(c)) \
+    , choicectio_(*mMkCtxtIOObj(IOObjSelection)) \
     , newStatusMsg(this) \
     , selectionChanged(this) \
     , itemChosen(this)
@@ -160,6 +165,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     nmfld_ = 0; manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt.forread )
 	setup_.choicemode( OD::ChooseOnlyOne );
+    choicectio_.ctxt.toselect.require_.add( sKey::Type(), mObjTypeName );
 
     IOM().to( ctio_.ctxt.getSelKey() );
 
@@ -184,8 +190,8 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     listfld_->setPrefHeightInChar( 8 );
     listfld_->setHSzPol( uiObject::Wide );
     if ( isMultiChoice() )
-	listfld_->offerReadWriteSelection( mCB(this,uiIOObjSelGrp,readSel),
-					   mCB(this,uiIOObjSelGrp,writeSel) );
+	listfld_->offerReadWriteSelection( mCB(this,uiIOObjSelGrp,readChoice),
+					   mCB(this,uiIOObjSelGrp,writeChoice));
 
     fullUpdate( -1 );
 
@@ -239,7 +245,10 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 	delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
     delete ctio_.ioobj;
+    delete choicectio_.ioobj;
+
     delete &ctio_;
+    delete &choicectio_;
 }
 
 
@@ -679,15 +688,64 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 }
 
 
-void uiIOObjSelGrp::readSel(CallBacker*)
+void uiIOObjSelGrp::readChoice(CallBacker*)
 {
-    uiMSG().error( "TODO: implement retrieving stored selection" );
+    choicectio_.ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, choicectio_ );
+    if ( !dlg.go() ) return;
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj ) return;
+
+    const BufferString fnm( ioobj->fullUserExpr(true) );
+    od_istream strm( fnm );
+    if ( !strm.isOK() )
+    {
+	const BufferString msg( "Cannot open : ", fnm, " for read" );
+	uiMSG().error( msg );
+	return;
+    }
+
+    ascistream astrm( strm, true );
+    if ( !astrm.isOfFileType( mCtioObjTypeName(choicectio_) ) )
+    {
+	const BufferString msg( fnm, " has the wrong file type: ",
+				astrm.fileType() );
+	uiMSG().error( msg );
+	return;
+    }
+
+    TypeSet<MultiID> mids;
+    while ( !atEndOfSection(astrm.next()) )
+	mids += MultiID( astrm.value() );
+    setChosen( mids );
 }
 
 
-void uiIOObjSelGrp::writeSel(CallBacker*)
+void uiIOObjSelGrp::writeChoice( CallBacker* )
 {
-    uiMSG().error( "TODO: implement storing the selection" );
+    choicectio_.ctxt.forread = false;
+    uiIOObjSelDlg dlg( this, choicectio_ );
+    if ( !dlg.go() ) return;
+    const IOObj* ioobj = dlg.ioObj();
+    if ( !ioobj ) return;
+
+    const BufferString fnm( ioobj->fullUserExpr(false) );
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+    {
+	BufferString msg( "Cannot open : ", fnm, " for write" );
+	uiMSG().error( msg );
+	return;
+    }
+
+    ascostream astrm( strm );
+    astrm.putHeader( mCtioObjTypeName(choicectio_) );
+    for ( int idx=0; idx<ioobjids_.size(); idx++ )
+    {
+	if ( isChosen(idx) )
+	    astrm.put( ioobjnms_.get(idx), ioobjids_[idx]->buf() );
+    }
+    astrm.newParagraph();
 }
 
 
@@ -985,7 +1043,7 @@ void uiIOObjSel::doCommit( bool noerr ) const
 	uiString txt( inctio_.ctxt.forread
 			 ? tr( "Please select the %1")
 			 : tr( "Please enter a valid name for the %1" ) );
-	uiMSG().error( txt.arg( workctio_.ctxt.objectTypeName() ) );
+	uiMSG().error( txt.arg( mCtioObjTypeName(workctio_) ) );
     }
 }
 
