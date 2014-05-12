@@ -1,5 +1,5 @@
-#ifndef uibasemapwellitem_h
-#define uibasemapwellitem_h
+#ifndef uibasemaprandomlineitem_h
+#define uibasemaprandomlineitem_h
 
 /*+
 ________________________________________________________________________
@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 class uiIOObjSelGrp;
 
-mExpClass(uiBasemap) uiBasemapWellGroup : public uiBasemapGroup
+mExpClass(uiBasemap) uiBasemapRandomLineGroup : public uiBasemapGroup
 {
 public:
-			uiBasemapWellGroup(uiParent*);
-			~uiBasemapWellGroup();
+			uiBasemapRandomLineGroup(uiParent*);
+			~uiBasemapRandomLineGroup();
 
     bool		acceptOK();
     bool		fillPar(IOPar&) const;
@@ -29,16 +29,16 @@ public:
 
 protected:
 
-    uiIOObjSelGrp*	wellsfld_;
+    uiIOObjSelGrp*	rdlsfld_;
 };
 
 
 
-mExpClass(uiBasemap) uiBasemapWellTreeItem : public uiBasemapTreeItem
+mExpClass(uiBasemap) uiBasemapRandomLineTreeItem : public uiBasemapTreeItem
 {
 public:
-			uiBasemapWellTreeItem(const char*);
-			~uiBasemapWellTreeItem();
+			uiBasemapRandomLineTreeItem(const char*);
+			~uiBasemapRandomLineTreeItem();
 
     bool		usePar(const IOPar&);
 
@@ -52,13 +52,13 @@ protected:
 
 
 
-mExpClass(uiBasemap) uiBasemapWellItem : public uiBasemapItem
+mExpClass(uiBasemap) uiBasemapRandomLineItem : public uiBasemapItem
 {
 public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
-				uiBasemapWellItem,
-				"Wells",
+				uiBasemapRandomLineItem,
+				"RandomLines",
 				sFactoryKeyword())
 
     const char*		iconName() const;

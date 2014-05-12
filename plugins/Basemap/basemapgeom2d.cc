@@ -4,7 +4,7 @@
  * DATE     : January 2014
 -*/
 
-static const char* rcsID mUsedVar = "$Id: basemappi.cc 34122 2014-04-10 18:29:49Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "basemapgeom2d.h"

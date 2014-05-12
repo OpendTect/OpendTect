@@ -19,28 +19,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uitreeview.h"
 
+#include "mouseevent.h"
 #include "survinfo.h"
+#include "uiworld2ui.h"
 
 
 uiBasemapWin::uiBasemapWin( uiParent* p )
     : uiMainWin(p,Setup("Basemap").withmenubar(false).nrstatusflds(3)
 				  .deleteonclose(false))
     , topitem_(0)
+    , mousecursorexchange_(0)
 {
-    basemapview_ = new uiSurveyMap( this );
-    basemapview_->setPrefHeight( 250 );
-    basemapview_->setPrefWidth( 250 );
-    basemapview_->setSurveyInfo( &SI() );
-    basemapview_->view().setMouseTracking( true );
-    basemapview_->view().enableScrollZoom();
-    basemapview_->view().setSceneBorder( 10 );
-
-    treedw_ = new uiDockWin( this, "Basemap Tree" );
-    addDockWindow( *treedw_, uiMainWin::Left );
-
-    tree_ = new uiTreeView( treedw_ );
+    initView();
     initTree();
-    initToolBar();
+    initToolBars();
 
     BMM().setBasemap( *basemapview_ );
     BMM().setTreeTop( *topitem_ );
@@ -58,8 +50,27 @@ void uiBasemapWin::initWin( CallBacker* )
 }
 
 
+void uiBasemapWin::initView()
+{
+    basemapview_ = new uiSurveyMap( this );
+    basemapview_->setPrefHeight( 250 );
+    basemapview_->setPrefWidth( 250 );
+    basemapview_->setSurveyInfo( &SI() );
+    basemapview_->view().setMouseTracking( true );
+    basemapview_->view().enableScrollZoom();
+    basemapview_->view().setSceneBorder( 20 );
+
+    basemapview_->view().getMouseEventHandler().movement.notify(
+	mCB(this,uiBasemapWin,mouseMoveCB) );
+}
+
+
 void uiBasemapWin::initTree()
 {
+    treedw_ = new uiDockWin( this, "Basemap Tree" );
+    addDockWindow( *treedw_, uiMainWin::Left );
+
+    tree_ = new uiTreeView( treedw_ );
     tree_->setColumnText( 0, "Elements" );
     tree_->setSelectionMode( uiTreeView::Extended );
     tree_->setRootDecorated( false );
@@ -68,7 +79,7 @@ void uiBasemapWin::initTree()
 }
 
 
-void uiBasemapWin::initToolBar()
+void uiBasemapWin::initToolBars()
 {
     vwtoolbar_ = new uiToolBar( this, "Viewer Tools", uiToolBar::Left );
     vwtoolbar_->addObject(
@@ -95,6 +106,51 @@ void uiBasemapWin::iconClickCB( CallBacker* cb )
 
     const int id = action->getID();
     BMM().add( id );
+}
+
+
+void uiBasemapWin::setMouseCursorExchange( MouseCursorExchange* mce )
+{
+    if ( mousecursorexchange_ )
+	mousecursorexchange_->notifier.remove(
+		mCB(this,uiBasemapWin,mouseCursorExchangeCB) );
+
+    mousecursorexchange_ = mce;
+
+    if ( mousecursorexchange_ )
+	mousecursorexchange_->notifier.notify(
+		mCB(this,uiBasemapWin,mouseCursorExchangeCB) );
+}
+
+
+void uiBasemapWin::mouseCursorExchangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpackWithCaller(const MouseCursorExchange::Info&,info,caller,cb);
+    if ( caller==this )
+        return;
+
+    BMM().updateMouseCursor( info.surveypos_ );
+}
+
+
+void uiBasemapWin::mouseMoveCB( CallBacker* )
+{
+    const MouseEvent& ev = basemapview_->view().getMouseEventHandler().event();
+    const Coord crd( basemapview_->transform().toWorldX( ev.x() ),
+		     basemapview_->transform().toWorldY( ev.y() ) );
+    if ( !crd.isDefined() )
+    { toStatusBar( "", 0 ); return; }
+
+    const BinID bid = SI().transform( crd );
+    BufferString istr;
+    istr.add( bid.inl() ).add( "/" ).add( bid.crl() ).add( " (" )
+	.add( toString(crd.x,0) ).add( " , " )
+	.add( toString(crd.y,0) ).add( ")" );
+    toStatusBar( istr, 0 );
+
+    MouseCursorExchange::Info info( Coord3(crd,0) );
+    if ( mousecursorexchange_ )
+	mousecursorexchange_->notifier.trigger( info, this );
 }
 
 

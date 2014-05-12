@@ -21,6 +21,7 @@ ________________________________________________________________________
 class uiBaseMap;
 class uiGenInput;
 class uiODApplMgr;
+class BaseMapMarkers;
 class BaseMapObject;
 class IOPar;
 
@@ -49,6 +50,8 @@ public:
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+
+    static const char*	sKeyNrObjs();
 
 protected:
 			uiBasemapGroup(uiParent*);
@@ -132,11 +135,14 @@ public:
     uiBasemapItem*	getBasemapItem(int id);
     uiBasemapTreeItem*	getBasemapTreeItem(int id);
 
+    void		updateMouseCursor(const Coord3&);
+
 private:
 
     void		init();
 
     uiBaseMap*		basemap_;
+    BaseMapMarkers*	basemapcursor_;
     uiTreeTopItem*	treetop_;
 
     ObjectSet<uiBasemapItem>		basemapitems_;

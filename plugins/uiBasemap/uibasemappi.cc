@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapmod.h"
 
+#include "uibasemaprandomlineitem.h"
 #include "uibasemapwellitem.h"
 #include "uibasemapwin.h"
 
@@ -83,7 +84,10 @@ void uiBasemapMgr::updateMenu( CallBacker* )
 void uiBasemapMgr::showCB( CallBacker* )
 {
     if ( !dlg_ )
+    {
 	dlg_ = new uiBasemapWin( appl_ );
+	dlg_->setMouseCursorExchange( &appl_->applMgr().mouseCursorExchange() );
+    }
 
     dlg_->show();
     dlg_->raise();
@@ -97,6 +101,7 @@ mDefODInitPlugin(uiBasemap)
     mgr = new uiBasemapMgr( ODMainWin() );
 
     uiBasemapWellItem::initClass();
+    uiBasemapRandomLineItem::initClass();
 
     return 0;
 }

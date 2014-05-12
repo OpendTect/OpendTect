@@ -24,8 +24,6 @@ ________________________________________________________________________
 
 
 // uiBasemapWellGroup
-const char* uiBasemapWellGroup::sKeyNrWells()	{ return "Nr Wells"; }
-
 uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p )
     : uiBasemapGroup(p)
 {
@@ -61,7 +59,7 @@ bool uiBasemapWellGroup::fillPar( IOPar& par ) const
     TypeSet<MultiID> mids;
     wellsfld_->getChosen( mids );
     const int nrwells = mids.size();
-    par.set( sKeyNrWells(), nrwells );
+    par.set( sKeyNrObjs(), nrwells );
     for ( int idx=0; idx<nrwells; idx++ )
 	par.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
 
@@ -73,7 +71,7 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapGroup::usePar( par );
     int nrwells = 0;
-    par.get( uiBasemapWellGroup::sKeyNrWells(), nrwells );
+    par.get( sKeyNrObjs(), nrwells );
     TypeSet<MultiID> mids( nrwells, MultiID::udf() );
     for ( int idx=0; idx<nrwells; idx++ )
 	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
@@ -110,7 +108,7 @@ bool uiBasemapWellTreeItem::usePar( const IOPar& par )
     uiBasemapTreeItem::usePar( par );
 
     int nrwells = 0;
-    par.get( uiBasemapWellGroup::sKeyNrWells(), nrwells );
+    par.get( uiBasemapGroup::sKeyNrObjs(), nrwells );
 
     while ( nrwells < basemapobjs_.size() )
 	delete removeBasemapObject( *basemapobjs_[0] );

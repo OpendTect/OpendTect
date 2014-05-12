@@ -21,6 +21,7 @@ class uiDockWin;
 class uiSurveyMap;
 class uiToolBar;
 class uiTreeView;
+class MouseCursorExchange;
 
 mClass(uiBasemap) uiBasemapWin : public uiMainWin
 {
@@ -28,13 +29,16 @@ public:
     			uiBasemapWin(uiParent*);
 			~uiBasemapWin();
 
-protected:
+    void		setMouseCursorExchange(MouseCursorExchange*);
 
 private:
     void		initWin(CallBacker*);
-    void		initToolBar();
+    void		initView();
     void		initTree();
+    void		initToolBars();
     void		iconClickCB(CallBacker*);
+    void		mouseCursorExchangeCB(CallBacker*);
+    void		mouseMoveCB(CallBacker*);
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
@@ -43,6 +47,7 @@ private:
     uiDockWin*		treedw_;
     uiTreeView*		tree_;
     uiBasemapTreeTop*	topitem_;
+    MouseCursorExchange* mousecursorexchange_;
 
     TypeSet<int>		ids_;
 };

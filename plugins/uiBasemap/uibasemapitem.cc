@@ -22,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "uistrings.h"
 #include "uitreeview.h"
+
+#include "basemapimpl.h"
 #include "pixmap.h"
 
 
@@ -35,6 +37,8 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 
 
 // uiBasemapGroup
+const char* uiBasemapGroup::sKeyNrObjs()	{ return "Nr Objects"; }
+
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
     : uiGroup(p)
     , namefld_(0)
@@ -221,6 +225,7 @@ uiBasemapManager& BMM()
 
 uiBasemapManager::uiBasemapManager()
     : basemap_(0)
+    , basemapcursor_(0)
     , treetop_(0)
 {
     init();
@@ -314,4 +319,37 @@ uiBasemapTreeItem* uiBasemapManager::getBasemapTreeItem( int id )
     }
 
     return 0;
+}
+
+
+void uiBasemapManager::updateMouseCursor( const Coord3& coord )
+{
+    const bool defined = coord.isDefined();
+
+    if ( defined && !basemapcursor_ )
+    {
+	basemapcursor_ = new BaseMapMarkers;
+	basemapcursor_->setMarkerStyle(0,
+		MarkerStyle2D(MarkerStyle2D::Target,5) );
+	basemap_->addObject( basemapcursor_ );
+    }
+
+    if ( !basemapcursor_ )
+	return;
+
+    Threads::Locker lckr( basemapcursor_->lock_,
+			  Threads::Locker::DontWaitForLock );
+
+    if ( lckr.isLocked() )
+    {
+	if ( !defined )
+	    basemapcursor_->positions().erase();
+	else if ( basemapcursor_->positions().isEmpty() )
+		basemapcursor_->positions() += coord;
+	else
+	    basemapcursor_->positions()[0] = coord;
+
+	lckr.unlockNow();
+	basemapcursor_->updateGeometry();
+    }
 }
