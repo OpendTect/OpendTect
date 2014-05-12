@@ -1652,7 +1652,9 @@ uiObject* uiDialogBody::createChildren()
 	//TODO: Replace with canceltext_ when button can hadle that
     if ( setup_.applybutton_ )
     {
-	applybut_ = new uiPushButton( centralwidget_, sApply(), true );
+	applybut_ =
+	    new uiPushButton( centralwidget_, setup_.applytext_.getFullString(),
+			      true );
 	applybut_->activated.notify( mCB(this,uiDialogBody,applyCB) );
     }
 
