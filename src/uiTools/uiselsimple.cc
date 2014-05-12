@@ -149,6 +149,15 @@ bool uiGetObjectName::acceptOK( CallBacker* )
 }
 
 
+uiGetChoice::uiGetChoice( uiParent* p, const char* qn, bool wcncl,
+			  const HelpKey& helpkey )
+    : uiDialog(p,uiDialog::Setup("Please specify",qn,helpkey))
+    , allowcancel_(wcncl)
+{
+    inpfld_ = new uiCheckList( this, uiCheckList::OneOnly );
+}
+
+
 uiGetChoice::uiGetChoice( uiParent* p, const BufferStringSet& opts,
 			  const char* qn, bool wcncl, const HelpKey& helpkey )
     : uiDialog(p,uiDialog::Setup("Please specify",qn,helpkey))
@@ -169,6 +178,13 @@ uiGetChoice::uiGetChoice( uiParent* p, uiDialog::Setup s,
     inpfld_->addItems( opts );
     setDefaultChoice( 0 );
 }
+
+
+void uiGetChoice::addChoice( const char* txt, const char* iconnm )
+{
+    inpfld_->addItem( txt, iconnm );
+}
+
 
 void uiGetChoice::setDefaultChoice( int nr )
 {

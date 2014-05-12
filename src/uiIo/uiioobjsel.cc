@@ -68,6 +68,12 @@ void getChosenIDs( TypeSet<MultiID>& mids ) const
     selgrp_->getChosen( mids );
 }
 
+
+void getChosenNames( BufferStringSet& nms ) const
+{
+    selgrp_->getChosen( nms );
+}
+
 const char* defExt() const
 {
     return selgrp_->ctio_.ctxt.trgroup->defExtension();
@@ -273,9 +279,21 @@ const MultiID& uiIOObjSelGrp::chosenID( int objnr ) const
 
 void uiIOObjSelGrp::getChosen( TypeSet<MultiID>& mids ) const
 {
+    mids.setEmpty();
     const int nrchosen = nrChosen();
     for ( int idx=0; idx<nrchosen; idx++ )
 	mids += chosenID( idx );
+}
+
+
+void uiIOObjSelGrp::getChosen( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    for ( int idx=0; idx<listfld_->size(); idx++ )
+    {
+	if ( listfld_->isChosen(idx) )
+	    nms.add( ioobjnms_.get( idx ) );
+    }
 }
 
 

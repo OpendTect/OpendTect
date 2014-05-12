@@ -87,8 +87,8 @@ public:
 			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
 					const uiString& seltxt,const Setup&)
 
-    			mDefuiIOObjSelGrpConstructors(IOObjContext);
-    			mDefuiIOObjSelGrpConstructors(CtxtIOObj);
+			mDefuiIOObjSelGrpConstructors(IOObjContext);
+			mDefuiIOObjSelGrpConstructors(CtxtIOObj);
 			~uiIOObjSelGrp();
 
     bool		isEmpty() const;
@@ -102,6 +102,7 @@ public:
     bool		isChosen(int) const;
     const MultiID&	chosenID(int idx=0) const;
     void		getChosen(TypeSet<MultiID>&) const;
+    void		getChosen(BufferStringSet&) const;
     void		setCurrent(int);
     void		setCurrent(const MultiID&);
     void		setChosen(int,bool yn=true);
@@ -197,6 +198,8 @@ public:
     const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
     void		getChosen( TypeSet<MultiID>& ids ) const
 						{ selgrp_->getChosen( ids ); }
+    void		getChosen( BufferStringSet& nms ) const
+						{ selgrp_->getChosen( nms ); }
     void		chooseAll( bool yn=true ) { selgrp_->chooseAll( yn ); }
 
     const IOObj*	ioObj() const;

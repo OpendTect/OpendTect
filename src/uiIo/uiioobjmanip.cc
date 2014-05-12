@@ -154,39 +154,44 @@ void uiIOObjManipGroup::selChg()
     }
 
     TypeSet<MultiID> chosenids; subj_.getChosenIDs( chosenids );
+    BufferStringSet chosennames; subj_.getChosenNames( chosennames );
     IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
     BufferString tt;
-#define mSetTBStateAndTT(tb,cond,oper,ioobj,ttextra) \
+#define mSetTBStateAndTT4Cur(tb,cond,oper) \
     tb->setSensitive( cond ); \
     if ( !cond ) \
 	tt.setEmpty(); \
     else \
-	tt.set( oper ).add(" '").add( ioobj->name() ).add("'").add(ttextra); \
+	tt.set( oper ).add(" '").add( curioobj->name() ).add("'"); \
     tb->setToolTip( tt )
-
 
     if ( locbut )
     {
 	mDynamicCastGet(IOStream*,iostrm,curioobj)
 	const bool canreloc = iostrm && !iostrm->implReadOnly();
-	mSetTBStateAndTT( locbut, canreloc, "Relocate", curioobj, "" );
+	mSetTBStateAndTT4Cur( locbut, canreloc, "Relocate" );
     }
+    mSetTBStateAndTT4Cur( renbut, true, "Rename" );
 
-    mSetTBStateAndTT( renbut, true, "Rename", curioobj, "" );
+#define mSetTBStateAndTT4Chosen(tb,cond,oper) \
+    tb->setSensitive( cond ); \
+    if ( !cond ) \
+	tt.setEmpty(); \
+    else \
+	tt.set( oper ).add(" ").add( chosennames.getDispString(3) ); \
+    tb->setToolTip( tt )
 
     const bool cantoggro = firstchosenioobj
 			&& firstchosenioobj->implExists(true);
     const bool isro = cantoggro && firstchosenioobj->implReadOnly();
-    const char* extratt = chosenids.size() > 1 ? ", ..." : "";
     useAlternative( robut, !isro );
-    mSetTBStateAndTT( robut, cantoggro, isro ? "Unlock":"Lock",
-			firstchosenioobj, extratt );
+    mSetTBStateAndTT4Chosen( robut, cantoggro, isro ? "Unlock":"Lock" );
 
     if ( rembut )
     {
 	const bool canrm = firstchosenioobj;
-	mSetTBStateAndTT( rembut, canrm, "Remove", firstchosenioobj, extratt );
+	mSetTBStateAndTT4Chosen( rembut, canrm, "Remove" );
     }
 
     delete curioobj;

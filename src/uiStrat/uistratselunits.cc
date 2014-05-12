@@ -19,6 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 
 static const char* sUsrNameRT = "**";
+#define mUnitIsValid(un) \
+    ((un) && Strat::UnitRefIter::isValid((*(un)),setup_.pol_))
 
 
 class uiStratSelUnitsListItem : public uiTreeViewItem
@@ -49,10 +51,11 @@ uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
     : uiGroup(p,"Stratigraphic Unit Selector")
     , topnode_(nur)
     , setup_(su)
-    , doingautosel_(false)
+    , doingautochoose_(false)
     , curunit_(0)
     , currentChanged(this)
-    , selectionChanged(this)
+    , unitChosen(this)
+    , unitPicked(this)
 {
     if ( setup_.type_ == Simple )
 	mkBoxFld();
@@ -64,7 +67,7 @@ uiStratSelUnits::uiStratSelUnits( uiParent* p, const Strat::NodeUnitRef& nur,
 uiStratSelUnits::~uiStratSelUnits()
 {
     for ( int idx=0; idx<lvitms_.size(); idx++ )
-	lvitms_[idx]->stateChanged.remove( mCB(this,uiStratSelUnits,selChg) );
+	lvitms_[idx]->stateChanged.remove( mCB(this,uiStratSelUnits,choiceChg));
 }
 
 
@@ -72,7 +75,8 @@ uiStratSelUnits::~uiStratSelUnits()
     const bool topisok = Strat::UnitRefIter::isValid(topnode_,setup_.pol_); \
     const bool topisrt mUnusedVar = &topnode_.refTree() == &topnode_; \
     const CallBack curchgcb( mCB(this,uiStratSelUnits,curChg) ); \
-    const CallBack selchgcb mUnusedVar ( mCB(this,uiStratSelUnits,selChg) ); \
+    const CallBack choicechgcb mUnusedVar \
+			( mCB(this,uiStratSelUnits,choiceChg) ); \
     Strat::UnitRefIter it( topnode_, setup_.pol_ )
 
 
@@ -105,15 +109,15 @@ void uiStratSelUnits::mkTreeFld()
 {
     combo_ = 0; mDefFillVars();
 
-    ObjectSet<const Strat::UnitRef> selunits;
+    ObjectSet<const Strat::UnitRef> selectableuns;
     if ( topisok )
-	selunits += it.unit();
+	selectableuns += it.unit();
     int nrleaves = 0;
     const bool nodeleaves = setup_.pol_ > Strat::UnitRefIter::Leaves;
     while ( it.next() )
     {
 	const Strat::UnitRef* ur = it.unit();
-	selunits += ur;
+	selectableuns += ur;
 	if ( ur->isLeaf()
 	  || (nodeleaves && ((Strat::NodeUnitRef*)ur)->hasLeaves()) )
 	    nrleaves++;
@@ -131,13 +135,13 @@ void uiStratSelUnits::mkTreeFld()
     {
 	const Strat::UnitRef* itun = it.unit();
 	const Strat::UnitRef* toadd = 0;
-	if ( selunits.isPresent( itun ) )
+	if ( selectableuns.isPresent( itun ) )
 	    toadd = itun;
 	else if ( !itun->isLeaf() )
 	{
-	    for ( int iun=0; iun<selunits.size(); iun++ )
+	    for ( int iun=0; iun<selectableuns.size(); iun++ )
 	    {
-		const Strat::UnitRef* ur = selunits[iun];
+		const Strat::UnitRef* ur = selectableuns[iun];
 		if ( itun->isParentOf(*ur) )
 		    { toadd = itun; break; }
 	    }
@@ -160,7 +164,7 @@ void uiStratSelUnits::mkTreeFld()
 
 	    }
 	}
-	const bool issel = selunits.isPresent( curun );
+	const bool issel = selectableuns.isPresent( curun );
 	const bool needcheck = issel && isMulti();
 	uiStratSelUnitsListItem* newit;
 	if ( !parit )
@@ -169,20 +173,22 @@ void uiStratSelUnits::mkTreeFld()
 	    newit = new uiStratSelUnitsListItem( parit, curun, needcheck );
 	if ( !issel )
 	    newit->setSelectable( false );
-	if ( needcheck && setup_.selectallinitial_ )
+	if ( needcheck && setup_.chooseallinitial_ )
 	    newit->setChecked( true );
 
 	if ( needcheck )
-	    newit->stateChanged.notify( selchgcb );
+	    newit->stateChanged.notify( choicechgcb );
 
 	lvitms_ += newit;
     }
 
-    tree_->selectionChanged.notify( curchgcb );
+    tree_->currentChanged.notify( curchgcb );
+    tree_->doubleClicked.notify( mCB(this,uiStratSelUnits,treeFinalSel) );
+    tree_->returnPressed.notify( mCB(this,uiStratSelUnits,treeFinalSel) );
 }
 
 
-bool uiStratSelUnits::isSelected( const Strat::UnitRef& ur ) const
+bool uiStratSelUnits::isChosen( const Strat::UnitRef& ur ) const
 {
     if ( combo_ )
     {
@@ -211,7 +217,7 @@ bool uiStratSelUnits::isPresent( const Strat::UnitRef& ur ) const
 }
 
 
-const Strat::UnitRef* uiStratSelUnits::firstSelected() const
+const Strat::UnitRef* uiStratSelUnits::firstChosen() const
 {
     if ( combo_ )
     {
@@ -223,46 +229,38 @@ const Strat::UnitRef* uiStratSelUnits::firstSelected() const
     else
     {
 	ObjectSet<const Strat::UnitRef> urs;
-	getSelected( urs );
+	getChosen( urs );
 	return urs.isEmpty() ? 0 : urs[0];
     }
 }
 
 
-void uiStratSelUnits::getSelected( ObjectSet<const Strat::UnitRef>& urs ) const
+void uiStratSelUnits::getChosen( ObjectSet<const Strat::UnitRef>& urs ) const
 {
     if ( combo_ )
     {
-	const Strat::UnitRef* ur = firstSelected();
+	const Strat::UnitRef* ur = firstChosen();
 	if ( ur )
 	    urs += ur;
     }
     else
     {
-        const uiTreeViewItem* curitm = tree_->currentItem();
-	for ( int idx=0; idx<lvitms_.size(); idx++ )
+	if ( !isMulti() )
+	    urs += curunit_;
+	else
 	{
-	    const uiStratSelUnitsListItem* itm = lvitms_[idx];
-	    if ( isMulti() )
+	    for ( int idx=0; idx<lvitms_.size(); idx++ )
 	    {
+		const uiStratSelUnitsListItem* itm = lvitms_[idx];
 		if ( itm->isChecked() )
 		    urs += itm->unit_;
-	    }
-	    else
-	    {
-		if ( itm == curitm )
-		{
-		    if ( Strat::UnitRefIter::isValid(*itm->unit_,setup_.pol_) )
-			urs += itm->unit_;
-		    break;
-		}
 	    }
 	}
     }
 }
 
 
-void uiStratSelUnits::setSelected( const Strat::UnitRef& ur, bool yn )
+void uiStratSelUnits::setChosen( const Strat::UnitRef& ur, bool yn )
 {
     if ( combo_ )
 	setCurrent( ur );
@@ -275,7 +273,7 @@ void uiStratSelUnits::setSelected( const Strat::UnitRef& ur, bool yn )
 	else
 	{
 	    lvitm->setChecked( yn );
-	    selRelated( lvitm->unit_, yn );
+	    chooseRelated( lvitm->unit_, yn );
 	    if ( yn )
 		tree_->ensureItemVisible( lvitm );
 	}
@@ -285,13 +283,24 @@ void uiStratSelUnits::setSelected( const Strat::UnitRef& ur, bool yn )
 
 void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
 {
+    const Strat::UnitRef* tosel = &ur;
+    if ( !mUnitIsValid(tosel) )
+    {
+	if ( ur.isLeaf() )
+	    return;
+	Strat::UnitRefIter it( *(const Strat::NodeUnitRef*)tosel, setup_.pol_ );
+	if ( !it.next() )
+	    return;
+	tosel = it.unit();
+    }
+
     if ( combo_ )
-	combo_->setCurrentItem( ur.fullCode() );
+	combo_->setCurrentItem( tosel->fullCode() );
     else if ( !isMulti() )
-	setSelected( ur );
+	setChosen( *tosel );
     else
     {
-	uiStratSelUnitsListItem* lvitm = find( &ur );
+	uiStratSelUnitsListItem* lvitm = find( tosel );
 	if ( lvitm )
 	{
 	    tree_->setCurrentItem( lvitm );
@@ -299,7 +308,8 @@ void uiStratSelUnits::setCurrent( const Strat::UnitRef& ur )
 	    tree_->ensureItemVisible( lvitm );
 	}
     }
-    curunit_ = &ur;
+
+    curunit_ = tosel;
 }
 
 
@@ -329,18 +339,24 @@ void uiStratSelUnits::curChg( CallBacker* )
     else
     {
         uiTreeViewItem* li = tree_->currentItem();
-	if ( !li ) return;
+	if ( !li )
+	    return;
 	mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,li)
-	if ( !sslvi ) { pErrMsg("Huh"); return; }
+	if ( !sslvi )
+	    { pErrMsg("Huh"); return; }
 	curunit_ = sslvi->unit_;
     }
+
+    if ( !mUnitIsValid(curunit_) )
+	curunit_ = 0;
     currentChanged.trigger();
 }
 
 
-void uiStratSelUnits::selChg( CallBacker* cb )
+void uiStratSelUnits::choiceChg( CallBacker* cb )
 {
-    if ( doingautosel_ || combo_ || !isMulti() || !setup_.autoselchildparent_ )
+    if ( combo_ || !isMulti()
+      || doingautochoose_ || !setup_.autochoosechildparent_ )
 	return;
 
     mDynamicCastGet(uiStratSelUnitsListItem*,sslvi,cb)
@@ -348,12 +364,19 @@ void uiStratSelUnits::selChg( CallBacker* cb )
     const Strat::UnitRef* ur = sslvi->unit_;
     if ( !ur ) return;
 
-    selectionChanged.trigger();
+    unitChosen.trigger();
 
     const bool ischk = sslvi->isChecked();
-    selRelated( ur, ischk );
+    chooseRelated( ur, ischk );
     if ( !ischk )
-	unselParentIfLast( ur );
+	unChooseParentIfLast( ur );
+}
+
+
+void uiStratSelUnits::treeFinalSel( CallBacker* )
+{
+    if ( curunit_ )
+	unitPicked.trigger();
 }
 
 
@@ -368,17 +391,17 @@ uiStratSelUnitsListItem* uiStratSelUnits::find( const Strat::UnitRef* ur )
 }
 
 
-void uiStratSelUnits::selRelated( const Strat::UnitRef* ur, bool yn )
+void uiStratSelUnits::chooseRelated( const Strat::UnitRef* ur, bool yn )
 {
-    doingautosel_ = true;
+    doingautochoose_ = true;
     if ( yn )
 	checkParent( ur );
     checkChildren( ur, yn );
-    doingautosel_ = false;
+    doingautochoose_ = false;
 }
 
 
-void uiStratSelUnits::unselParentIfLast( const Strat::UnitRef* ur )
+void uiStratSelUnits::unChooseParentIfLast( const Strat::UnitRef* ur )
 {
     const Strat::NodeUnitRef* par = ur->upNode();
     if ( !par ) return;
@@ -392,10 +415,10 @@ void uiStratSelUnits::unselParentIfLast( const Strat::UnitRef* ur )
 
     uiStratSelUnitsListItem* lvit = find( par );
     if ( !lvit ) return;
-    doingautosel_ = true;
+    doingautochoose_ = true;
     lvit->setChecked( false );
-    doingautosel_ = false;
-    unselParentIfLast( par );
+    doingautochoose_ = false;
+    unChooseParentIfLast( par );
 }
 
 
