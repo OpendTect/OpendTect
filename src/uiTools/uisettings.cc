@@ -465,7 +465,7 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 
     changed_ = false;
     for ( int idx=0; idx<grps_.size(); idx++ )
-	changed_ &= grps_[idx]->isChanged();
+	changed_ = changed_ || grps_[idx]->isChanged();
 
     if ( changed_ && !setts_.write() )
     {
