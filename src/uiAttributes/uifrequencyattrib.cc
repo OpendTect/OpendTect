@@ -52,7 +52,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 			      			    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, inpfld );
 
-    normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );
+    normfld = new uiGenInput( this, tr("Normalize"), BoolInpSpec(false) );
     normfld->attach( alignedBelow, gatefld );
 
     uiWindowFunctionSel::Setup su; su.label_ = "Window/Taper";
@@ -60,7 +60,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     winfld = new uiWindowFunctionSel( this, su );
     winfld->attach( alignedBelow, normfld ); 
 
-    outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld = new uiGenInput( this, tr("Output"), StringListInpSpec(outpstrs) );
     outpfld->setElemSzPol( uiObject::WideVar );
     outpfld->attach( alignedBelow, winfld );
 
@@ -143,8 +143,8 @@ bool uiFrequencyAttrib::areUIParsOK()
 	float paramval = winfld->windowParamValue();
 	if ( paramval<0 || paramval>1  )
 	{
-	    errmsg_ = "Variable 'Taper length' is not\n";
-	    errmsg_ += "within the allowed range: 0 to 100 (%).";
+	    errmsg_ = tr("Variable 'Taper length' is not\n"
+                   "within the allowed range: 0 to 100 (%).");
 	    return false;
 	}
     }
