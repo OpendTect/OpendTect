@@ -58,7 +58,7 @@ protected:
     void			setPrefWidth(int width); //!< width in char
     void			createDefaultUI(bool needreloc=false,
 						bool needremove=true,
-						bool multisel=false);
+						bool multisel=true);
     void			getTimeStamp(const char*,BufferString&);
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
