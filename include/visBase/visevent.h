@@ -112,7 +112,7 @@ public:
 protected:
     				~EventCatcher();
 
-    void			releaseEventsCB();
+    void			releaseEventsCB(CallBacker*);
 
     int				type_;
     ObjectSet<Transformation>	utm2display_;

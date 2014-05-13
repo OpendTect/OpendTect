@@ -364,7 +364,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     if ( !eventcatcher_.eventreleasepostosg_ )
     {
-	eventcatcher_.releaseEventsCB();
+	eventcatcher_.releaseEventsCB( 0 );
 	return eventcatcher_.ishandled_;
     }
 
@@ -586,7 +586,7 @@ void EventCatcher::reHandle( const EventInfo& eventinfo )
 }
 
 
-void EventCatcher::releaseEventsCB()
+void EventCatcher::releaseEventsCB( CallBacker* )
 {
     while ( true )
     {
