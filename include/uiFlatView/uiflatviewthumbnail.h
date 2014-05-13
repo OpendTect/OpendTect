@@ -38,6 +38,7 @@ protected:
 
     void		getUiRect( const uiWorldRect&, uiRect& ) const;
 
+    uiPoint		mousedownpt_;
     uiWorldRect*	feedbackwr_;
     uiFlatViewer&	viewer_;
     MouseEventHandler&	mousehandler_;
@@ -46,6 +47,8 @@ protected:
 
     uiRectItem*		bgrectitem_;
     uiRectItem*		fgrectitem_;
+
+    void		updateWorldRect();
 
     void		reDrawHandler(uiRect);
     void		vwChg(CallBacker*);
