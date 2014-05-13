@@ -123,7 +123,7 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 
 uiODVw2DTreeItem::uiODVw2DTreeItem( const char* name__ )
     : uiTreeItem( name__ )
-    , displayid_(-1)  
+    , displayid_(-1)
 {}
 
 
@@ -169,14 +169,14 @@ uiODViewer2D* uiODVw2DTreeItem::viewer2D()
 
 bool uiODVw2DTreeItem::create( uiTreeItem* treeitem, int visid, int displayid )
 {
-    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer( visid );
+    uiODViewer2D* vwr2d = ODMainWin()->viewer2DMgr().find2DViewer(visid,true);
     if ( !vwr2d ) return false;
 
     return create( treeitem, *vwr2d, displayid );
 }
 
 
-bool uiODVw2DTreeItem::create( 
+bool uiODVw2DTreeItem::create(
 		uiTreeItem* treeitem, const uiODViewer2D& vwr2d, int displayid )
 {
     const uiTreeFactorySet* tfs = vwr2d.uiTreeItemFactorySet();

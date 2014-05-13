@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "callback.h"
-
+#include "datapack.h"
 #include "uiodapplmgr.h"
 
 class uiODViewer2D;
@@ -24,8 +24,9 @@ class uiTreeFactorySet;
 mExpClass(uiODMain) uiODViewer2DMgr : public CallBacker
 {
 public:
-    uiODViewer2D*		find2DViewer(int visid);
+    uiODViewer2D*		find2DViewer(int id,bool byvisid);
 
+    int				displayIn2DViewer(DataPack::ID,bool wva);
     void			displayIn2DViewer(int visid,int attribid,
 						  bool wva);
     void			remove2DViewer(int visid);

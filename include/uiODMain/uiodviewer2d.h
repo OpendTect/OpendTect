@@ -22,6 +22,7 @@ class uiFlatViewWin;
 class uiMainWin;
 class uiODMain;
 class uiODVw2DTreeTop;
+class uiParent;
 class uiSlicePos2DView;
 class uiToolBar;
 class uiTreeFactorySet;
@@ -48,6 +49,7 @@ public:
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			setMouseCursorExchange(MouseCursorExchange*);
 
+    uiParent*			viewerParent();
     uiFlatViewWin*		viewwin()		{ return viewwin_; }
     const uiFlatViewWin*	viewwin() const		{ return viewwin_; }
     Vw2DDataManager*		dataMgr()		{ return datamgr_; }
@@ -93,7 +95,8 @@ public:
 				{ return slicepos_; }
     uiODMain&			appl_;
 
-    int				visid_;
+    int				id_; /*!<Unique identifier */
+    int				visid_; /*!<ID from 3D visualisation */
     BufferString		basetxt_;
 
     virtual void		usePar(const IOPar&);
