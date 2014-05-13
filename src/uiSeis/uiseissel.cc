@@ -63,13 +63,11 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 
     if ( su.geom_ == Seis::Line )
 	ctxt.toselect.allowtransls_ = TwoDDataSeisTrcTranslator::translKey();
-    else
-    {
-	if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
-	    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
-	else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
-	    ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
-    }
+
+    if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
+	ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
+    else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
+	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = su.geom_ == Seis::Line ?
