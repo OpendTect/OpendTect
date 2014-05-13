@@ -23,16 +23,13 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
 	, bgrectitem_(0)
 	, fgrectitem_(0)
 	, mousehandler_(getMouseEventHandler())
-	, feedbackwr_( 0 )
+	, feedbackwr_(0)
 {
     setColors( Color(0,0,200), Color(255,255,200) );
-    viewer_.viewChanged.notify( mCB(this,uiFlatViewThumbnail,vwChg) );
-    mousehandler_.buttonReleased.notify(
-	    		mCB(this,uiFlatViewThumbnail,mouseRelCB) );
-    mousehandler_.buttonPressed.notify(
-	    		mCB(this,uiFlatViewThumbnail,mousePressCB) );
-    mousehandler_.movement.notify(
-	    		mCB(this,uiFlatViewThumbnail,mouseMoveCB) );
+    mAttachCB( viewer_.viewChanged, uiFlatViewThumbnail::vwChg );
+    mAttachCB( mousehandler_.buttonReleased, uiFlatViewThumbnail::mouseRelCB );
+    mAttachCB( mousehandler_.buttonPressed, uiFlatViewThumbnail::mousePressCB );
+    mAttachCB( mousehandler_.movement, uiFlatViewThumbnail::mouseMoveCB );
 
     setPrefWidth( 45 ); setPrefHeight( 30 ); setStretch( 0, 0 );
 }
@@ -40,14 +37,8 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
 
 uiFlatViewThumbnail::~uiFlatViewThumbnail()
 {
+    detachAllNotifiers();
     delete feedbackwr_;
-    mousehandler_.buttonReleased.remove(
-	    		mCB(this,uiFlatViewThumbnail,mouseRelCB) );
-    mousehandler_.buttonPressed.remove(
-	    		mCB(this,uiFlatViewThumbnail,mousePressCB) );
-    mousehandler_.movement.remove(
-	    		mCB(this,uiFlatViewThumbnail,mouseMoveCB) );
-
     delete bgrectitem_;
     delete fgrectitem_;
 }
@@ -62,7 +53,7 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 
 #define mDeclW2UVars( wrsource ) \
     uiWorldRect br = viewer_.boundingBox(); \
-    const uiWorldRect wr = wrsource; \
+    const uiWorldRect& wr = wrsource; \
     if ( wr.left() > wr.right() ) \
 	{ double tmp = br.left(); br.setLeft(br.right()); br.setRight(tmp); } \
     if ( wr.bottom() > wr.top() ) \
@@ -72,13 +63,7 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 
 void uiFlatViewThumbnail::draw()
 {
-    draw( viewer_.curView() );
-}
-
-
-void uiFlatViewThumbnail::draw( const uiWorldRect& viewarea )
-{
-    mDeclW2UVars( viewarea );
+    mDeclW2UVars( viewer_.curView() );
     const uiRect uibr( w2u.transform(br) );
     if ( !bgrectitem_ )
 	bgrectitem_ = scene().addRect( mCast(float,uibr.left()), 
@@ -135,59 +120,61 @@ void uiFlatViewThumbnail::getUiRect( const uiWorldRect& inputwr,
 
 
 void uiFlatViewThumbnail::vwChg( CallBacker* )
-{ draw(); }
-
-
-void uiFlatViewThumbnail::vwChging( CallBacker* cb )
 {
-    mCBCapsuleUnpack(uiWorldRect,viewarea,cb);
-    draw( viewarea );
+    draw();
 }
 
 
 void uiFlatViewThumbnail::mousePressCB( CallBacker* )
 {
-    if ( !mousehandler_.hasEvent() ||
-	 mousehandler_.isHandled() || !viewer_.control() ) return;
+    if ( !mousehandler_.hasEvent() || mousehandler_.isHandled() ) return;
 
-    const uiWorldRect wr = viewer_.curView();
-
+    const uiWorldRect& wr = viewer_.curView();
+    mousedownpt_ =  mousehandler_.event().pos();
     if ( feedbackwr_ ) *feedbackwr_ = wr;
     else feedbackwr_ = new uiWorldRect( wr );
-
     mousehandler_.setHandled( true );
 }
-
 
 
 void uiFlatViewThumbnail::mouseMoveCB( CallBacker* )
 {
-    if ( !mousehandler_.hasEvent() || !feedbackwr_ ||
-	 mousehandler_.isHandled() || !viewer_.control() ) return;
+    updateWorldRect();
+}
+
+
+void uiFlatViewThumbnail::mouseRelCB( CallBacker* cb )
+{
+    if ( !feedbackwr_ || mousehandler_.isHandled() ) return;
+
+    if ( *feedbackwr_ == viewer_.curView() )
+	updateWorldRect(); //!< For changing view when clicked.
+    viewer_.setView( *feedbackwr_ );
+    delete feedbackwr_; feedbackwr_ = 0;
+    mousehandler_.setHandled( true );
+}
+
+
+void uiFlatViewThumbnail::updateWorldRect()
+{
+    MouseEventHandler& meh = mousehandler_;
+    if ( !feedbackwr_ || !meh.hasEvent() || meh.isHandled() ||
+	    !viewer_.control() ) return;
 
     mDeclW2UVars( viewer_.curView() );
-    const MouseEvent& ev = mousehandler_.event();
-    Geom::Point2D<double> wpt = w2u.transform( ev.pos() );
-    Geom::Size2D<double> wsz = wr.size();
-    *feedbackwr_ = viewer_.control()->getNewWorldRect(
-	    wpt, wsz, viewer_.curView(), br );
+    const uiPoint curpt = meh.event().pos();
+    const uiWorldPoint curwpt = w2u.transform( curpt );
+    const bool hasmoved = curpt != mousedownpt_;
+    const uiWorldPoint startwpt = hasmoved ? w2u.transform( mousedownpt_ )
+					   : wr.centre();
+    feedbackwr_->translate( curwpt-startwpt );
+    mousedownpt_ = curpt;
 
-    mousehandler_.setHandled( true );
+    Geom::Point2D<double> oldcentre = wr.centre();
+    Geom::Size2D<double> size = wr.size();
+    *feedbackwr_ = viewer_.control()->getNewWorldRect(
+			    oldcentre, size, *feedbackwr_, br );
+    meh.setHandled( true );
     draw();
 }
 
-
-void uiFlatViewThumbnail::mouseRelCB( CallBacker* )
-{
-    if ( !mousehandler_.hasEvent() ||
-	 mousehandler_.isHandled() || !viewer_.control() ) return;
-
-    delete feedbackwr_; feedbackwr_ = 0;
-
-    mDeclW2UVars( viewer_.curView() );
-    const MouseEvent& ev = mousehandler_.event();
-    Geom::Point2D<double> wpt = w2u.transform( ev.pos() );
-    Geom::Size2D<double> wsz = wr.size();
-    viewer_.control()->setNewView( wpt, wsz );
-    mousehandler_.setHandled( true );
-}

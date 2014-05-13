@@ -31,13 +31,13 @@ public:
     void		setColors(Color fg,Color bg);
 
     void		draw();
-    void		draw(const uiWorldRect&);
     const uiFlatViewer&	viewer()		{ return viewer_; }
 
 protected:
 
     void		getUiRect( const uiWorldRect&, uiRect& ) const;
 
+    uiPoint		mousedownpt_;
     uiWorldRect*	feedbackwr_;
     uiFlatViewer&	viewer_;
     MouseEventHandler&	mousehandler_;
@@ -47,9 +47,9 @@ protected:
     uiRectItem*		bgrectitem_;
     uiRectItem*		fgrectitem_;
 
-    void		reDrawHandler(uiRect);
+    void		updateWorldRect();
+
     void		vwChg(CallBacker*);
-    void		vwChging(CallBacker*);
     void		mouseRelCB(CallBacker*);
     void		mousePressCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
