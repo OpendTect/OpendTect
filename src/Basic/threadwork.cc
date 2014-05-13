@@ -49,17 +49,17 @@ Threads::WorkManager& WorkManager::twm()
 class SimpleWorker : public CallBacker
 {
 public:
-    			SimpleWorker() : retval_( false )	{}
+			SimpleWorker() : retval_( false )	{}
     virtual		~SimpleWorker()				{}
 
     void		runWork(Work& w,CallBack* cb)
-    			{
+			{
 			    retval_ = w.doRun();
 			    if ( cb ) cb->doCall( this );
 			}
 
-    bool		getRetVal() const 	{ return retval_; }
-    			/*!< Do only call when task is finished,
+    bool		getRetVal() const	{ return retval_; }
+			/*!< Do only call when task is finished,
 			     i.e. from the cb or
 			     Threads::WorkManager::imFinished()
 			*/
@@ -77,18 +77,18 @@ and the tasks to be performed.
 class WorkThread : public SimpleWorker
 {
 public:
-    			WorkThread( WorkManager& );
-    			~WorkThread();
+			WorkThread( WorkManager& );
+			~WorkThread();
 
-    			//Interface from manager
+			//Interface from manager
     void		assignTask(const ::Threads::Work&,
-	    			   const CallBack& finishedcb, int queueid );
+				   const CallBack& finishedcb, int queueid );
 
 
     void		cancelWork( const ::Threads::Work* );
-    			//!< If working on this task, cancel it and continue.
-    			//!< If a nullpointer is given, it will cancel
-    			//!< regardless of which task we are working on
+			//!< If working on this task, cancel it and continue.
+			//!< If a nullpointer is given, it will cancel
+			//!< regardless of which task we are working on
     const ::Threads::Work* getTask() const { return &task_; }
 
     const void*		threadID() const { return thread_->threadID(); }
@@ -96,7 +96,7 @@ public:
 protected:
 
     void		doWork(CallBacker*);
-    void 		exitWork(CallBacker*);
+    void		exitWork(CallBacker*);
 
     WorkManager&	manager_;
 
@@ -104,7 +104,7 @@ protected:
 
     bool		exitflag_;	//Set only from destructor
     bool		cancelflag_;	//Cancel current work and continue
-    ::Threads::Work	task_;		
+    ::Threads::Work	task_;
     CallBack		finishedcb_;
     int			queueid_;
 
@@ -131,7 +131,7 @@ Threads::WorkThread::WorkThread( WorkManager& man )
     controlcond_.unLock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
-	    			 mCB( this, WorkThread, exitWork ));
+				 mCB( this, WorkThread, exitWork ));
 }
 
 
@@ -286,7 +286,7 @@ Threads::WorkManager::WorkManager( int nrthreads )
 	threadids_ += wt->threadID();
 	freethreads_ += wt;
     }
-    
+
     workloadcond_.unLock();
 }
 
@@ -312,14 +312,14 @@ void Threads::WorkManager::shutdown()
 
     if ( queueids_.size()>1 )
     {
-	BufferString msg("All queues are not removed. Remaining queues: ");
+	BufferString msg("Not all queues were removed. Remaining queues: ");
 	for ( int idx=1; idx<queueids_.size(); idx++ )
 	{
 	    if ( idx>1 )
 		msg.add( ", " );
 	    msg.add( queuenames_[idx]->buf() );
 	}
-	
+
 	pErrMsg( msg.buf() );
     }
 
@@ -439,7 +439,7 @@ void Threads::WorkManager::emptyQueue( int queueid, bool finishall )
 		::Threads::Work& task = workload_[idx];
 		task.destroy();
 		workload_.removeSingle( idx );
-		
+
 		workqueueid_.removeSingle( idx );
 		callbacks_.removeSingle( idx );
 	    }
@@ -515,11 +515,11 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 	CallBack* cb, int queueid, bool firstinline,
 	bool ignoreduplicates,
 	bool forcedifferentthread )
-       					  
+
 {
     if ( queueid<0 )
 	queueid = cDefaultQueueID();
-    
+
     const int nrthreads = threads_.size();
     if ( !nrthreads )
     {
@@ -541,7 +541,7 @@ void Threads::WorkManager::addWork( const ::Threads::Work& newtask,
 
     if ( ignoreduplicates && workload_.isPresent( newtask ) )
 	return;
- 
+
     const int nrfreethreads = freethreads_.size();
     if ( queuetypes_[queueidx]!=Manual )
     {
