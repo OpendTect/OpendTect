@@ -161,8 +161,20 @@ uiVisPartServer::~uiVisPartServer()
 
     delete &eventmutex_;
     delete mpetools_;
+
+    menu_.createnotifier.remove( mCB(this,uiVisPartServer,createMenuCB) );
+    menu_.handlenotifier.remove( mCB(this,uiVisPartServer,handleMenuCB) );
     menu_.unRef();
-    if ( toolbar_ ) toolbar_->unRef();
+
+    if ( toolbar_ )
+    {
+	toolbar_->createnotifier.remove(
+		mCB(this,uiVisPartServer,addToToolBarCB) );
+	toolbar_->handlenotifier.remove(
+		mCB(this,uiVisPartServer,handleMenuCB) );
+	toolbar_->unRef();
+    }
+
     pickretriever_->unRef();
     delete multirgeditwin_;
     delete dirlightdlg_;
