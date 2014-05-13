@@ -98,7 +98,7 @@ static const int cResolutionIdx = 500;
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
-    , toolbar_(*new uiTreeItemTBHandler(appserv().parent()))
+    , toolbar_(0)
     , resetmanipmnuitem_("R&eset Manipulation",cResetManipIdx)
     , changematerialmnuitem_("&Properties ...",cPropertiesIdx)
     , resmnuitem_("&Resolution",cResolutionIdx)
@@ -116,7 +116,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , zfactor_(1)
     , mpetools_(0)
     , slicepostools_(0)
-    , itemtools_(0)
     , pickretriever_( new uiVisPickRetriever(this) )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
@@ -134,10 +133,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
     menu_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
-
-    toolbar_.ref();
-    toolbar_.createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
-    toolbar_.handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
 
     visBase::DM().selMan().selnotifier.notify(
 	mCB(this,uiVisPartServer,selectObjCB) );
@@ -167,7 +162,7 @@ uiVisPartServer::~uiVisPartServer()
     delete &eventmutex_;
     delete mpetools_;
     menu_.unRef();
-    toolbar_.unRef();
+    if ( toolbar_ ) toolbar_->unRef();
     pickretriever_->unRef();
     delete multirgeditwin_;
     delete dirlightdlg_;
@@ -297,6 +292,12 @@ void uiVisPartServer::createToolBars()
 {
     mpetools_ = new uiMPEMan( appserv().parent(), this );
     getTrackTB()->display( false );
+
+    toolbar_ = new uiTreeItemTBHandler( appserv().parent() );
+    toolbar_->ref();
+    toolbar_->createnotifier.notify( mCB(this,uiVisPartServer,addToToolBarCB) );
+    toolbar_->handlenotifier.notify( mCB(this,uiVisPartServer,handleMenuCB) );
+
     slicepostools_ = new uiSlicePos3DDisp( appserv().parent(), this );
 }
 
@@ -347,7 +348,7 @@ MenuHandler* uiVisPartServer::getMenuHandler()
 { return &menu_; }
 
 MenuHandler* uiVisPartServer::getToolBarHandler()
-{ return &toolbar_; }
+{ return toolbar_; }
 
 
 void uiVisPartServer::shareObject( int sceneid, int id )
@@ -420,7 +421,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
     mDynamicCastGet( visSurvey::SurveyObject*, surobj, dobj );
     if ( surobj )
         surobj->setSaveInSessionsFlag( saveinsessions );
-    
+
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
     {

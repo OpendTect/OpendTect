@@ -376,8 +376,6 @@ public:
     uiSlicePos3DDisp*		getUiSlicePos() const
 				{ return slicepostools_; }
 
-    uiToolBar*			getItemTB() const	{ return itemtools_; }
-
     bool			writeSceneToFile(int id,
 						 const char* dlgtitle) const;
 
@@ -417,11 +415,10 @@ protected:
     ObjectSet<visSurvey::Scene>	scenes_;
 
     uiMenuHandler&		menu_;
-    uiTreeItemTBHandler&	toolbar_;
+    uiTreeItemTBHandler*	toolbar_;
 
     uiMPEMan*			mpetools_;
     uiSlicePos3DDisp*		slicepostools_;
-    uiToolBar*			itemtools_;
 
     uiMultiMapperRangeEditWin*	multirgeditwin_;
     bool			mapperrgeditinact_;
