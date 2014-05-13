@@ -77,20 +77,20 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
     for ( int colidx=0; colidx<dps.nrCols(); colidx++ )
 	colnms.add( dps.colName(colidx) );
 
-    uiLabeledComboBox* llb = new uiLabeledComboBox(
-				this, colnms, "Attribute to display" );
-    llb->attach( alignedBelow, typefld_ );
-    selfld_ = llb->box();
+    selfld_ = new uiLabeledComboBox( this, colnms, "Attribute to display" );
+    selfld_->attach( alignedBelow, typefld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
 	const char* attrnm = dps.colName( prevdispprop->dpsColID() );
-	selfld_->setCurrentItem( attrnm );
+	selfld_->box()->setCurrentItem( attrnm );
     }
 
-    selfld_->selectionChanged.notify(mCB(this,uiDPSDispPropDlg,attribChanged));
+    selfld_->box()->selectionChanged.notify(
+			mCB(this,uiDPSDispPropDlg,attribChanged));
 
-    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow") );
-    coltabfld_->attach( leftAlignedBelow, llb );
+    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence("Rainbow"),
+					false, false );
+    coltabfld_->attach( alignedBelow, selfld_ );
     if ( prevdispprop && !prevdispprop->showSelected() )
     {
 	coltabfld_->setSequence( &prevdispprop->colSequence(), true );
@@ -104,7 +104,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 void attribChanged( CallBacker* )
 {
     const DataPointSet& dps = plotter_.dps();
-    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->text()) );
+    const int bivsidx = dps.bivSetIdx( dps.indexOf(selfld_->box()->text()) );
     Interval<float> valrange = dps.bivSet().valRange( bivsidx );
     coltabfld_->setInterval( valrange );
 }
@@ -120,7 +120,7 @@ bool type() const
 { return typefld_->getBoolValue(); }
 
 const char* colName() const
-{ return selfld_->text(); }
+{ return selfld_->box()->text(); }
 
 const ColTab::Sequence& ctSeq() const
 { return coltabfld_->colTabSeq(); }
@@ -129,7 +129,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 { return coltabfld_->colTabMapperSetup(); }
 
     uiGenInput*				typefld_;
-    uiComboBox*				selfld_;
+    uiLabeledComboBox*			selfld_;
     uiColorTableGroup*			coltabfld_;
     const uiDataPointSetCrossPlotter&	plotter_;
 };
