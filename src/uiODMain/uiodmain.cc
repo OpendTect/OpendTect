@@ -186,7 +186,6 @@ uiODMain::uiODMain( uiMain& a )
     BufferString icntxt( "OpendTect V", GetFullODVersion() );
     setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
-    uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     if ( !ensureGoodDataDir()
       || (IOM().isBad() && !ensureGoodSurveySetup()) )
