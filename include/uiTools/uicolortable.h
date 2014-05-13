@@ -46,7 +46,7 @@ mExpClass(uiTools) uiColorTable : public CallBacker
 {
 public:
     virtual		~uiColorTable();
-    void		createFields(uiParent*,bool vert);
+    void		createFields(uiParent*,bool vert,bool withminmax);
 
     const ColTab::Sequence&	colTabSeq() const	{ return coltabseq_;}
     const ColTab::MapperSetup&	colTabMapperSetup() const { return mapsetup_; }

@@ -250,14 +250,17 @@ uiColorTable::uiColorTable( const ColTab::Sequence& colseq )
 }
 
 
-void uiColorTable::createFields( uiParent* parnt, bool vert )
+void uiColorTable::createFields( uiParent* parnt, bool vert, bool withminmax )
 {
     parent_ = parnt;
 
-    minfld_ = new uiLineEdit( parnt, "Min" );
-    minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-    minfld_->setHSzPol( uiObject::Small );
-    minfld_->setStretch( 0, 0 );
+    if ( withminmax )
+    {
+	minfld_ = new uiLineEdit( parnt, "Min" );
+	minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
+	minfld_->setHSzPol( uiObject::Small );
+	minfld_->setStretch( 0, 0 );
+    }
 
     canvas_ = new uiColorTableCanvas( parnt, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
@@ -268,10 +271,13 @@ void uiColorTable::createFields( uiParent* parnt, bool vert )
     canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
 
-    maxfld_ = new uiLineEdit( parnt, "Max" );
-    maxfld_->setHSzPol( uiObject::Small );
-    maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
-    maxfld_->setStretch( 0, 0 );
+    if ( withminmax )
+    {
+	maxfld_ = new uiLineEdit( parnt, "Max" );
+	maxfld_->setHSzPol( uiObject::Small );
+	maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
+	maxfld_->setStretch( 0, 0 );
+    }
 
     selfld_ = new uiColorTableSel( parnt, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
@@ -367,8 +373,11 @@ void uiColorTable::setMapperSetup( const ColTab::MapperSetup* ms,
 	    scaleChanged.trigger();
     }
 
-    minfld_->setSensitive( ms );
-    maxfld_->setSensitive( ms );
+    if ( minfld_ )
+    {
+	minfld_->setSensitive( ms );
+	maxfld_->setSensitive( ms );
+    }
 }
 
 
@@ -401,7 +410,7 @@ void uiColorTable::canvasClick( CallBacker* )
 	return;
 
     const bool hasseq = selfld_->sensitive();
-    const bool hasmapper = minfld_->sensitive();
+    const bool hasmapper = minfld_ && minfld_->sensitive();
     if ( !hasseq && !hasmapper )
 	return;
 
@@ -441,8 +450,8 @@ void uiColorTable::canvasDoubleClick( CallBacker* )
 
 void uiColorTable::commitInput()
 {
-    mapsetup_.range_.start = minfld_->getfValue();
-    mapsetup_.range_.stop = maxfld_->getfValue();
+    mapsetup_.range_.start = minfld_ ? minfld_->getfValue() : 0.f;
+    mapsetup_.range_.stop = maxfld_ ? maxfld_->getfValue() : 1.f;
     mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
     if ( scalingdlg_ ) scalingdlg_->updateFields();
@@ -551,29 +560,40 @@ uiColorTableGroup::uiColorTableGroup( uiParent* p, const ColTab::Sequence& seq,
 
 void uiColorTableGroup::init( bool vertical, bool nominmax )
 {
-    mDynamicCastGet(uiGroup*,grp,this)
-    createFields( grp, vertical );
+    createFields( this, vertical, !nominmax );
 
     canvas_->setPrefHeight( vertical ? 160 : 25 );
     canvas_->setPrefWidth( vertical ? 30 : 80 );
 
     if ( vertical )
     {
-	maxfld_->attach( topBorder, 2 );
-	canvas_->attach( centeredBelow, maxfld_, 2 );
-	minfld_->attach( centeredBelow, canvas_, 2 );
-	selfld_->attach( centeredBelow, minfld_, 2 );
+	if ( !minfld_ )
+	    selfld_->attach( centeredBelow, canvas_, 2 );
+	else
+	{
+	    maxfld_->attach( topBorder, 2 );
+	    canvas_->attach( centeredBelow, maxfld_, 2 );
+	    minfld_->attach( centeredBelow, canvas_, 2 );
+	    selfld_->attach( centeredBelow, minfld_, 2 );
+	}
+	setHCenterObj(canvas_);
     }
     else
     {
-	canvas_->attach( rightOf, minfld_ );
-	maxfld_->attach( rightOf, canvas_ );
-	selfld_->attach( rightOf, maxfld_ );
-	setHAlignObj(minfld_); setHCenterObj(minfld_);
+	if ( !minfld_ )
+	    selfld_->attach( rightOf, canvas_, 2 );
+	else
+	{
+	    canvas_->attach( rightOf, minfld_ );
+	    maxfld_->attach( rightOf, canvas_ );
+	    selfld_->attach( rightOf, maxfld_ );
+	}
     }
 
-    minfld_->display( !nominmax, true );
-    maxfld_->display( !nominmax, true );
+    if ( minfld_ )
+	setHAlignObj(canvas_);
+    else
+	setHAlignObj(selfld_);
 }
 
 
@@ -606,7 +626,7 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
 void uiColorTableToolBar::init()
 {
     mDynamicCastGet(uiToolBar*,tb,this)
-    createFields( tb, false );
+    createFields( tb, false, true );
 
 #define mAddTBObj( fld, sz ) \
     fld->setMaximumWidth( sz*uiObject::iconSize() ); \
