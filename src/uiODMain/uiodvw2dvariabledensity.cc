@@ -223,10 +223,10 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
     if ( dp2ddh )
     {
-	BufferString ln;
-	dp2ddh->getLineName( ln );
-	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
-					viewer2D()->lineSetID(), ln, false );
+//	BufferString ln;
+//	dp2ddh->getLineName( ln );
+// TODO: Use lnm to get attributes for this line only
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,false);
     }
     else
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
@@ -235,10 +235,10 @@ void uiODVW2DVariableDensityTreeItem::createSelMenu( MenuItem& mnu )
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
     if ( dp2ddh )
     {
-	BufferString ln;
-	dp2ddh->getLineName( ln );
-	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
-					viewer2D()->lineSetID(), ln, true );
+//	BufferString ln;
+//	dp2ddh->getLineName( ln );
+// TODO: Use lnm to get attributes for this line only
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,true);
     }
     else
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true );
@@ -250,7 +250,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 {
     const Attrib::SelSpec& as = viewer2D()->selSpec( false );
     Attrib::SelSpec selas( as );
-    
+
     uiAttribPartServer* attrserv = applMgr()->attrServer();
 
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
@@ -264,7 +264,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     bool dousemulticomp = false;
     if ( dp2ddh )
     {
-	BufferString attrbnm; bool stored = false; 
+	BufferString attrbnm; bool stored = false;
 	bool steering = false;
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 	if ( attrbnm.isEmpty() )
@@ -276,7 +276,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
 	const CubeSampling cs = dp2ddh->getCubeSampling();
 	const LineKey lk( ln.buf(), attrbnm );
-	
+
 	if ( !stored )
 	{
 	    if ( !attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
@@ -285,11 +285,11 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    attrserv->setTargetSelSpec( selas );
 	    newid = attrserv->create2DOutput( cs, lk, uitr );
 	}
-	else 
+	else
 	{
 	    LineKey lky( viewer2D()->lineSetID(), attrbnm );
 
-	    Attrib::DescID attribid = attrserv->getStoredID( lky, true, 
+	    Attrib::DescID attribid = attrserv->getStoredID( lky, true,
 		    					     steering ? 1 : 0 );
 
 	    selas.set( attrbnm, attribid, false, 0 );
@@ -357,7 +357,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 
 	    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
 	    {
-		FlatView::DataDispPars& ddp = 
+		FlatView::DataDispPars& ddp =
 		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
 		ddp.vd_.ctab_ = ctname;
 		ddp.vd_.mappersetup_ = mapper;
@@ -371,7 +371,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 }
 
 
-uiTreeItem* uiODVW2DVariableDensityTreeItemFactory::createForVis( 
+uiTreeItem* uiODVW2DVariableDensityTreeItemFactory::createForVis(
 					const uiODViewer2D&,int id )const
 {
     return 0;
