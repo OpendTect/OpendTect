@@ -70,7 +70,7 @@ mSkipBlanks( strptr ); \
 str = strptr; \
 }
 
-void StratSynthExporter::prepareWriter()
+bool StratSynthExporter::prepareWriter()
 {
     const bool isps = sds_[cursdidx_]->isPS();
     BufferString synthnm;
@@ -109,9 +109,19 @@ void StratSynthExporter::prepareWriter()
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
     Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( linegeom_ );
     uiString errmsg;
-    seldata->setGeomID( Survey::GMAdmin().addNewEntry(newgoem2d,errmsg) );
+    Survey::Geometry::ID newgeomid =
+	Survey::GMAdmin().addNewEntry( newgoem2d, errmsg );
+    if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
+    {
+	if ( !errmsg.isEmpty() )
+	    errmsg_ = errmsg;
+	return false;
+    }
+
+    seldata->setGeomID( newgeomid );
     writer_->setSelData( seldata );
     writer_->setAttrib( synthnm );
+    return true;
 }
 
 
@@ -121,8 +131,8 @@ int StratSynthExporter::nextStep()
 	return Executor::Finished();
 
     const bool isps = sds_[cursdidx_]->isPS();
-    if ( !posdone_ )
-	prepareWriter();
+    if ( !posdone_ && !prepareWriter() )
+	return ErrorOccurred();
 
     return !isps ? writePostStackTrace() : writePreStackTraces();
 }
@@ -130,9 +140,9 @@ int StratSynthExporter::nextStep()
 
 const char* StratSynthExporter::message() const
 {
-    return writer_ ? writer_->errMsg().getOriginalString() : 0;
+    return errmsg_.isEmpty() ? "Exporting syntheic data"
+			     : errmsg_.getOriginalString();
 }
-
 
 #define mErrRetPErr( msg ) \
 { pErrMsg( msg ); return ErrorOccurred(); }
@@ -163,7 +173,10 @@ int StratSynthExporter::writePostStackTrace()
     trc.info().binid = SI().transform( linepos.coord_ );
     trc.info().coord = linepos.coord_;
     if ( !writer_->put(trc) )
+    {
+	errmsg_ = writer_->errMsg();
 	return ErrorOccurred();
+    }
 
     posdone_++;
     return Executor::MoreToDo();
@@ -200,7 +213,10 @@ int StratSynthExporter::writePreStackTraces()
 	trc.info().coord = linepos.coord_;
 	trc.info().offset = offset;
 	if ( !writer_->put(trc) )
+	{
+	    errmsg_ = writer_->errMsg();
 	    return ErrorOccurred();
+	}
     }
 
     posdone_++;
