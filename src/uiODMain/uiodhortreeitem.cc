@@ -479,7 +479,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	setup.cs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
-		uiDialog::Setup("Positions","Specify positions", 
+		uiDialog::Setup("Positions","Specify positions",
                                 mODHelpKey(mPosProvSelHelpID) ) );
 	uiPosProvider pp( &dlg, setup );
 
@@ -549,8 +549,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction( uiStrings::sAdd(true) ), 0 );
-    uiAction* newmenu = new uiAction( tr("&Track new") );
+    mnu.insertItem( new uiAction( uiStrings::sAdd(false) ), 0 );
+    uiAction* newmenu = new uiAction( tr("&Track new ...") );
     mnu.insertItem( newmenu, 1 );
     mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 2 );
     newmenu->setEnabled( !hastransform );
