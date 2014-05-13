@@ -371,11 +371,17 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 		mErrRet("Cannot restore the seismic data from the setup")
 	    }
 
+	    const MultiID& actualseisid = seisfld->key(true);
+	    const bool commitfailed = actualseisid != wtsetup_.seisid_;
+	    if ( commitfailed )
+		seisfld->setInput( actualseisid );
+
 	    if ( idinsetupis2d && seislinefld_ &&
 		 !wtsetup_.linekey_.lineName().isEmpty() )
 	    {
-		seislinefld_->setDataSet( wtsetup_.seisid_ );
-		seislinefld_->setInput( wtsetup_.linekey_.lineName() );
+		seislinefld_->setDataSet( actualseisid );
+		if ( !commitfailed )
+		    seislinefld_->setInput( wtsetup_.linekey_.lineName() );
 	    }
 	}
     }
@@ -594,9 +600,10 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( seisid );
-    SeisTrcReader rdr( ioobj );
+    const bool is2D = SeisTrcTranslator::is2D(*ioobj,true);
+    const bool islineset = SeisTrcTranslator::isLineSet(*ioobj);
 
-    return !rdr.is2D();
+    return !is2D && !islineset;
 }
 
 }; //namespace
