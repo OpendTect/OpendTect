@@ -56,7 +56,7 @@ public:
 			, helpkey_(help_key), savetext_("Save defaults")
 			, oktext_( sOk() ), canceltext_( sCancel() )
 			, modal_(true) // if no parent given, always non-modal
-			, applybutton_(false)
+			, applybutton_(false) , applytext_(sApply())
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
@@ -69,6 +69,7 @@ public:
 	mDefSetupMemb(uiString,savetext)
 	mDefSetupMemb(uiString,oktext)
 	mDefSetupMemb(uiString,canceltext)
+	mDefSetupMemb(uiString,applytext)
 	mDefSetupMemb(bool,modal)
 	mDefSetupMemb(bool,applybutton)
 	mDefSetupMemb(bool,savebutton)
