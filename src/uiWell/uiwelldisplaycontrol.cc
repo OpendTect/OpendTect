@@ -142,14 +142,14 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     info += toString( dispdepth, 2 );
     info += depthunitstr;
 
-    const Well::Track* tr = zdata.track();
-    if ( tr )
+    const Well::Track* track = zdata.track();
+    if ( track )
     {
 	info += "  TVD:";
-	info += toString( tr->getPos(dah_).z+tr->getKbElev(), 2 );
+	info += toString( track->getPos(dah_).z+track->getKbElev(), 2 );
 	info += depthunitstr;
 	info += "  TVDSS:";
-	info += toString( tr->getPos(dah_).z, 2 );
+	info += toString( track->getPos(dah_).z, 2 );
 	info += depthunitstr;
     }
 
