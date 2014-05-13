@@ -188,25 +188,26 @@ const char* GLCM_attrib::attribTypeStr( int attrType )
 
 const char* GLCM_attrib::directTypeStr( int dirType )
 {
-	if ( dirType==mDirection1 ) return "Azimuth 0°, Dip 0°";
-	if ( dirType==mDirection2 ) return "Azimuth 0°, Dip 45°";
-	if ( dirType==mDirection3 ) return "Azimuth 0°, Dip 90°";
-	if ( dirType==mDirection4 ) return "Azimuth 0°, Dip 135°";
-	if ( dirType==mDirection5 ) return "Azimuth 45°, Dip 0°";
-	if ( dirType==mDirection6 ) return "Azimuth 45°, Dip 45°";
-	if ( dirType==mDirection7 ) return "Azimuth 45°, Dip 135°";
-	if ( dirType==mDirection8 ) return "Azimuth 90°, Dip 0°";
-	if ( dirType==mDirection9 ) return "Azimuth 90°, Dip 45°";
-	if ( dirType==mDirection10 ) return "Azimuth 90°, Dip 135°";
-	if ( dirType==mDirection11 ) return "Azimuth 135°, Dip 0°";
-	if ( dirType==mDirection12 ) return "Azimuth 135°, Dip 45°";
-	if ( dirType==mDirection13 ) return "Azimuth 135°, Dip 135";
+	if ( dirType==mDirection1 ) return "Azimuth 0, Dip 0";
+	if ( dirType==mDirection2 ) return "Azimuth 0, Dip 45";
+	if ( dirType==mDirection3 ) return "Azimuth 0, Dip 90";
+	if ( dirType==mDirection4 ) return "Azimuth 0, Dip 135";
+	if ( dirType==mDirection5 ) return "Azimuth 45, Dip 0";
+	if ( dirType==mDirection6 ) return "Azimuth 45, Dip 45";
+	if ( dirType==mDirection7 ) return "Azimuth 45, Dip 135";
+	if ( dirType==mDirection8 ) return "Azimuth 90, Dip 0";
+	if ( dirType==mDirection9 ) return "Azimuth 90, Dip 45";
+	if ( dirType==mDirection10 ) return "Azimuth 90, Dip 135";
+	if ( dirType==mDirection11 ) return "Azimuth 135, Dip 0";
+	if ( dirType==mDirection12 ) return "Azimuth 135, Dip 45";
+	if ( dirType==mDirection13 ) return "Azimuth 135, Dip 135";
 	if ( dirType==mDirectionIL ) return "Inline Direction";
 	if ( dirType==mDirectionXL ) return "Crossline Direction";
 	if ( dirType==mDirectionTime ) return "Timeslice/Depthslice Direction";
 	if ( dirType==mDirectionAll ) return "All Directions";
 	return 0;
 }
+
 
 void GLCM_attrib::updateDesc( Desc& desc )
 {
