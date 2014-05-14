@@ -544,7 +544,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     const FixedString remotemachineaddr = machine.address();
     const bool hasaddress = !remotemachineaddr.isEmpty();
-    const BufferString remhostaddress = hasaddress ? remotemachineaddr
+    const BufferString remhostaddress = hasaddress ? remotemachineaddr.str()
 						   : machine.name();
 #ifdef __msvc__
 // Do not use od_remexe if host is local
