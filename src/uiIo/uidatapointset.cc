@@ -258,6 +258,7 @@ uiDataPointSet::~uiDataPointSet()
     if ( dpsdisppropdlg_ )
 	dpsdisppropdlg_->windowClosed.remove(
 		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
+    delete xplotwin_;
 }
 
 
