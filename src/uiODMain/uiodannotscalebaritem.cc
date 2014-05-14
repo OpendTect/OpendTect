@@ -261,5 +261,3 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     const int setidx = mgr.indexOf( *set_ );
     mgr.setUnChanged( setidx, false );
 }
-
-//} // namespace Annotations

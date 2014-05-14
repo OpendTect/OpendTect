@@ -148,6 +148,63 @@ protected:
 
 };
 
+mExpClass(uiODMain) ArrowSubItem : public uiODAnnotSubItem
+{mODTextTranslationClass(ArrowSubItem);
+public:
+
+    			ArrowSubItem(Pick::Set& pck,int displayid=-1);
+    bool		init();
+
+    static const char*	sKeyManager() 	{ return "ArrowAnnotations"; }
+
+protected:
+			~ArrowSubItem()	{ removeStuff(); }
+    virtual const char*	parentType() const;
+
+    void		fillStoragePar(IOPar&) const;
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
+    void		propertyChange(CallBacker*);
+
+    MenuItem		propmnuitem_;
+    int			arrowtype_;
+
+    bool		hasScale() const	{ return false; }
+    const char*		managerName() const	{ return sKeyManager(); }
+
+    static const char*		sKeyArrowType()	{ return "Arrow Type"; }
+    static const char*		sKeyLineWidth()	{ return "Line width"; }
+
+};
+
+
+mExpClass(uiODMain) ImageSubItem : public uiODAnnotSubItem
+{mODTextTranslationClass(ImageSubItem)
+public:
+    			ImageSubItem(Pick::Set&,int displayid=-1);
+    bool		init();
+    static const char*	sKeyManager() 	{ return "ImageAnnotations"; }
+
+protected:
+			~ImageSubItem()	{ removeStuff(); }
+    const char*		parentType() const;
+    void		fillStoragePar(IOPar&) const;
+
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
+
+    void		retrieveFileName(CallBacker*);
+
+    void		updateColumnText(int col);
+
+    bool		hasScale() const		{ return true; }
+    const char*		managerName() const		{ return sKeyManager();}
+
+    void		selectFileName() const;
+
+    MenuItem		filemnuitem_;
+};
+
 
 #define mDefineParentItem(type,typestr,defsz) \
 class type##ParentItem : public uiODAnnotTreeItem \
@@ -164,6 +221,8 @@ protected: \
 }
 
 
+mDefineParentItem(Arrow,"Arrows",1000);
+mDefineParentItem(Image,"Image",1000);
 mDefineParentItem(ScaleBar,"ScaleBar",1000);
 
 
