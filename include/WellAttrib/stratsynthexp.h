@@ -42,7 +42,7 @@ protected:
     int 				nextStep();
     int					writePostStackTrace();
     int					writePreStackTraces();
-    void				prepareWriter();
+    bool				prepareWriter();
 
     bool				isps_;
     const ObjectSet<const SyntheticData>& sds_;
@@ -50,6 +50,7 @@ protected:
     SeisTrcWriter*			writer_;
     BufferString			prefixstr_;
     BufferString			postfixstr_;
+    uiString				errmsg_;
     int					cursdidx_;
     int					posdone_;
 };
