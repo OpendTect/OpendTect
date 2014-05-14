@@ -91,14 +91,14 @@ void ImageRect::setFileName( const char* fnm )
 }
 
 
-void ImageRect::setImageData( const ImageData& id )
+void ImageRect::setImageData( const ImageData& imgd )
 {
     osg::ref_ptr<osg::Image> image = new osg::Image;
-    image->setImage( id.width_, id.height_, id.depth_, 
-		     id.internalformat_, id.format_, 
-		     id.datatype_, mCast(unsigned char*,id.data_.buf()),
-		     osg::Image::NO_DELETE, id.packing_ );
-    imagedata_ = id;
+    image->setImage( imgd.width_, imgd.height_, imgd.depth_, 
+		     imgd.internalformat_, imgd.format_, 
+		     imgd.datatype_, mCast(unsigned char*,imgd.data_.buf()),
+		     osg::Image::NO_DELETE, imgd.packing_ );
+    imagedata_ = imgd;
     laytex_->setDataLayerImage( layerid_, image );
     texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
 }
