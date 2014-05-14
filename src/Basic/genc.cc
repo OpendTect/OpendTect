@@ -49,6 +49,8 @@ const char* GetIPFromHostName( const char* hostnm )
     static char ret[256];
     struct in_addr addr;
     struct hostent* remotehost = gethostbyname( hostnm );
+    if ( !remotehost )
+	return 0;
     addr.s_addr = *(u_long *)remotehost->h_addr_list[0];
     strcpy( ret, inet_ntoa(addr) );
     return ret;

@@ -542,15 +542,18 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     cmd = "@";
 
-
-
+    const FixedString remotemachineaddr = machine.address();
+    const bool hasaddress = !remotemachineaddr.isEmpty();
+    const BufferString remhostaddress = hasaddress ? remotemachineaddr
+						   : machine.name();
 #ifdef __msvc__
 // Do not use od_remexe if host is local
-    const BufferString remhostaddress = machine.address();
-    if ( remhostaddress != System::localAddress() )
+    
+    if ( remhostaddress !=
+	    ( hasaddress ? System::localAddress() : System::localHostName() ) )
     {
 	cmd.add( "od_remexec" );
-	cmd.add( machine.address() );
+	cmd.add( remhostaddress );
     }
     cmd.add( progname );
     cmd.addFlag( "-masterhost", System::localAddress() );
@@ -564,7 +567,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     if ( remote )
     {
-	cmd.add( machine.address() );
+	cmd.add( remotemachineaddr );
 	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
 	if ( machine.isWin()  ) cmd.add( "--iswin" );
 
