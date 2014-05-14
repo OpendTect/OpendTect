@@ -484,7 +484,7 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     sendEvent( evPickingStatusChange() );
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
-    if ( so && so->getScene() )
+    if ( so && so->getScene() && so->getScene()->getSceneColTab() )
     {
 	const ColTab::Sequence* seq = so->getColTabSequence( selattrib_ );
 	const ColTab::MapperSetup* ms = so->getColTabMapperSetup( selattrib_ );
@@ -882,7 +882,7 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabMapperSetup( attrib, ms, 0 );
-    if ( so->getScene() )
+    if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
     if ( multirgeditwin_ && id==mapperrgeditordisplayid_ )
@@ -924,7 +924,7 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabSequence( attrib, seq, 0 );
-    if ( so->getScene() )
+    if ( so->getScene() && so->getScene()->getSceneColTab() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
     if ( multirgeditwin_ && id == mapperrgeditordisplayid_ )
@@ -2230,17 +2230,25 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	scenes_[idx]->getSceneColTab()->setLegendColor(
-		scenes_[idx]->getAnnotColor() );
-	scenes_[idx]->getSceneColTab()->turnOn( yn );
+	visBase::SceneColTab* scenecoltab = scenes_[idx]->getSceneColTab();
+	if ( scenecoltab )
+	{
+	    scenecoltab->setLegendColor( scenes_[idx]->getAnnotColor() );
+	    scenecoltab->turnOn( yn );
+	}
     }
 }
 
 
 bool uiVisPartServer::sceneColorbarDisplayed()
 {
-    return scenes_.size()>0 && scenes_[0]
-	? scenes_[0]->getSceneColTab()->isOn() : false;
+    if ( scenes_.size()>0 && scenes_[0] )
+    {
+	visBase::SceneColTab* scenecoltab = scenes_[0]->getSceneColTab();
+	return scenecoltab ? scenecoltab->isOn() : false;
+    }
+
+    return false;
 }
 
 
