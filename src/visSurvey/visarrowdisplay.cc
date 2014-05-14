@@ -58,9 +58,9 @@ void ArrowDisplay::setType( Type typ )
 
     for ( int idx=group_->size()-1; idx>=0; idx-- )
     {
-	mDynamicCastGet( visBase::Lines*, pl, group_->getObject(idx));
-	if ( !pl ) continue;
-	updateLineShape( pl );
+	mDynamicCastGet( visBase::Lines*, lines, group_->getObject(idx));
+	if ( !lines ) continue;
+	updateLineShape( lines );
     }
 }
 
@@ -102,35 +102,35 @@ void ArrowDisplay::dispChg( CallBacker* cb )
 
 visBase::VisualObject* ArrowDisplay::createLocation() const
 {
-    visBase::Lines* pl = visBase::Lines::create();
-    pl->setMaterial( 0 );
-    pl->ref();
-    pl->setSelectable( true );
-    pl->setDisplayTransformation( displaytransform_ );
-    pl->addNodeState( linestyle_ );
+    visBase::Lines* lines = visBase::Lines::create();
+    lines->setMaterial( 0 );
+    lines->ref();
+    lines->setSelectable( true );
+    lines->setDisplayTransformation( displaytransform_ );
+    lines->addNodeState( linestyle_ );
     Geometry::IndexedPrimitiveSet* indices =
 				Geometry::IndexedPrimitiveSet::create( false );
     indices->ref();
-    pl->addPrimitiveSet( indices );
-    updateLineShape( pl );
-    pl->unRefNoDelete();
-    return pl;
+    lines->addPrimitiveSet( indices );
+    updateLineShape( lines );
+    lines->unRefNoDelete();
+    return lines;
 }
 	
 
 void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 {
-    mDynamicCastGet( visBase::Lines*, pl, group_->getObject(idx) );
+    mDynamicCastGet( visBase::Lines*, lines, group_->getObject(idx) );
 
-    if ( pl )
-	updateLineShape( pl );
+    if ( lines )
+	updateLineShape( lines );
     else
     {
-	 visBase::Lines* pl =
+	visBase::Lines* newline =
 	    static_cast<visBase::Lines*>( createLocation() );
-	group_->addObject( pl );
+	group_->addObject( newline );
     
-	pl->getCoordinates()->setPos( 0, loc.pos_ );
+	newline->getCoordinates()->setPos( 0, loc.pos_ );
 	if ( mIsUdf(loc.dir_.radius) || mIsUdf(loc.dir_.theta) ||
 	     mIsUdf(loc.dir_.phi) )
 	    return;
@@ -151,7 +151,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 	displayvector *= set_->disp_.pixsize_;
 	//Note: pos.vec points in the direction of the tail, not the arrow.
 	d1 = d0+displayvector;
-	pl->getCoordinates()->setPos( 1, display2World(d1) );
+	newline->getCoordinates()->setPos( 1, display2World(d1) );
 
 	const Coord3 planenormal( sin(loc.dir_.phi), -cos(loc.dir_.phi), 0 );
 	const Quaternion plus45rot(planenormal, M_PI/4);
@@ -159,23 +159,23 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 	displayvector.z /= -scene_->getZScale(); 
 	Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );
 	arrowheadvec.z /= scene_->getZScale(); 
-	pl->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
+	newline->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
     
 	arrowheadvec = plus45rot.rotate( displayvector*.3 );
 	arrowheadvec /= scene_->getZScale(); 
-	pl->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
+	newline->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
     }
 }
 
 
-void ArrowDisplay::updateLineShape( visBase::Lines* pl ) const
+void ArrowDisplay::updateLineShape( visBase::Lines* lines ) const
 {
-    if ( !pl || pl->nrPrimitiveSets()<1 )
+    if ( !lines || lines->nrPrimitiveSets()<1 )
 	return;
 
-    pl->ref();
+    lines->ref();
     mDynamicCastGet(Geometry::IndexedPrimitiveSet*,
-		    indices,pl->getPrimitiveSet(0));
+		    indices,lines->getPrimitiveSet(0));
     if ( !indices )
 	return;
 
@@ -202,9 +202,9 @@ void ArrowDisplay::updateLineShape( visBase::Lines* pl ) const
 
     indices->setEmpty();
     indices->set( indexarray.arr(), indexarray.size() );
-    pl->dirtyCoordinates();
+    lines->dirtyCoordinates();
     requestSingleRedraw();
-    pl->unRef();
+    lines->unRef();
 }
 
 
@@ -221,8 +221,8 @@ int ArrowDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Lines*,pl,group_->getObject(idx));
-	if ( pl && evi.pickedobjids.isPresent(pl->id()) )
+	mDynamicCastGet(visBase::Lines*,lines,group_->getObject(idx));
+	if ( lines && evi.pickedobjids.isPresent(lines->id()) )
 	    return idx;
     }
 
