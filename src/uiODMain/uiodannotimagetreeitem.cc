@@ -25,7 +25,7 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
     , filemnuitem_( "Select image ..." )
 {
-    defscale_ = set_->disp_.pixsize_;
+    defscale_ = mCast(float,set_->disp_.pixsize_);
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     mgr.reportDispChange( this, *set_ );
 }

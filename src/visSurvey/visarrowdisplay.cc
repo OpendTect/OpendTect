@@ -104,35 +104,35 @@ void ArrowDisplay::dispChg( CallBacker* cb )
 
 visBase::VisualObject* ArrowDisplay::createLocation() const
 {
-    visBase::Lines* line = visBase::Lines::create();
-    line->setMaterial( 0 );
-    line->ref();
-    line->setSelectable( true );
-    line->setDisplayTransformation( displaytransform_ );
-    line->addNodeState( linestyle_ );
+    visBase::Lines* lines = visBase::Lines::create();
+    lines->setMaterial( 0 );
+    lines->ref();
+    lines->setSelectable( true );
+    lines->setDisplayTransformation( displaytransform_ );
+    lines->addNodeState( linestyle_ );
     Geometry::IndexedPrimitiveSet* indices =
 				Geometry::IndexedPrimitiveSet::create( false );
     indices->ref();
-    line->addPrimitiveSet( indices );
-    updateLineShape( line );
-    line->unRefNoDelete();
-    return line;
+    lines->addPrimitiveSet( indices );
+    updateLineShape( lines );
+    lines->unRefNoDelete();
+    return lines;
 }
 	
 
 void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 {
-    mDynamicCastGet( visBase::Lines*, line, group_->getObject(idx) );
+    mDynamicCastGet( visBase::Lines*, lines, group_->getObject(idx) );
 
-    if ( line )
-	updateLineShape( line );
+    if ( lines )
+	updateLineShape( lines );
     else
     {
-	 visBase::Lines* line =
+	 visBase::Lines* lines =
 	    static_cast<visBase::Lines*>( createLocation() );
-	group_->addObject( line );
+	group_->addObject( lines );
     
-	line->getCoordinates()->setPos( 0, loc.pos_ );
+	lines->getCoordinates()->setPos( 0, loc.pos_ );
 	if ( mIsUdf(loc.dir_.radius) || mIsUdf(loc.dir_.theta) ||
 	     mIsUdf(loc.dir_.phi) )
 	    return;
@@ -153,7 +153,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 	displayvector *= set_->disp_.pixsize_;
 	//Note: pos.vec points in the direction of the tail, not the arrow.
 	d1 = d0+displayvector;
-	line->getCoordinates()->setPos( 1, display2World(d1) );
+	lines->getCoordinates()->setPos( 1, display2World(d1) );
 
 	const Coord3 planenormal( sin(loc.dir_.phi), -cos(loc.dir_.phi), 0 );
 	const Quaternion plus45rot(planenormal, M_PI/4);
@@ -161,23 +161,23 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
 	displayvector.z /= -scene_->getZScale(); 
 	Coord3 arrowheadvec = minus45rot.rotate( displayvector*.3 );
 	arrowheadvec.z /= scene_->getZScale(); 
-	line->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
+	lines->getCoordinates()->setPos( 2, display2World(d0+arrowheadvec) );
     
 	arrowheadvec = plus45rot.rotate( displayvector*.3 );
 	arrowheadvec /= scene_->getZScale(); 
-	line->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
+	lines->getCoordinates()->setPos( 3, display2World(d0+arrowheadvec) );
     }
 }
 
 
-void ArrowDisplay::updateLineShape( visBase::Lines* line ) const
+void ArrowDisplay::updateLineShape( visBase::Lines* lines ) const
 {
-    if ( !line || line->nrPrimitiveSets()<1 )
+    if ( !lines || lines->nrPrimitiveSets()<1 )
 	return;
 
-    line->ref();
+    lines->ref();
     mDynamicCastGet(Geometry::IndexedPrimitiveSet*,
-		    indices,line->getPrimitiveSet(0));
+		    indices,lines->getPrimitiveSet(0));
     if ( !indices )
 	return;
 
@@ -204,9 +204,9 @@ void ArrowDisplay::updateLineShape( visBase::Lines* line ) const
 
     indices->setEmpty();
     indices->set( indexarray.arr(), indexarray.size() );
-    line->dirtyCoordinates();
+    lines->dirtyCoordinates();
     requestSingleRedraw();
-    line->unRef();
+    lines->unRef();
 }
 
 
@@ -223,8 +223,8 @@ int ArrowDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Lines*,line,group_->getObject(idx));
-	if ( line && evi.pickedobjids.isPresent(line->id()) )
+	mDynamicCastGet(visBase::Lines*,lines,group_->getObject(idx));
+	if ( lines && evi.pickedobjids.isPresent(lines->id()) )
 	    return idx;
     }
 
