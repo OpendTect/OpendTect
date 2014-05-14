@@ -642,7 +642,7 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
-    IOObj* ioobj = updStatusBarInfo( cb );
+    IOObj* ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
 	mkdefbut_->setSensitive( ioobj && ioobj->implExists(true) );
     delete ioobj;

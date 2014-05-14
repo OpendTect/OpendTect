@@ -17,10 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinetr.h"
 #include "seisrandlineto2d.h"
 #include "seistrctr.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
+#include "posinfo2d.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -59,7 +63,7 @@ void uiSeisRandTo2DBase::selCB( CallBacker* )
 { change.trigger(); }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiSeisRandTo2DBase::checkInputs()
 {
     if ( rdlfld_ && !rdlfld_->ioobj() )
@@ -100,8 +104,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 {
     basegrp_ = new uiSeisRandTo2DBase( this, !rln );
 
-    linenmfld_ = new uiGenInput( this, "Line Name",
-				 StringInpSpec(rln?rln->name():"") );
+    linenmfld_ = new uiSeis2DLineNameSel( this, false );
     linenmfld_->attach( alignedBelow, basegrp_ );
 
     trcnrfld_ = new uiGenInput( this, "First Trace Nr", IntInpSpec(1) );
@@ -114,13 +117,13 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     if ( !basegrp_->checkInputs() )
 	return false;
 
-    BufferString linenm = linenmfld_->text();
+    const BufferString linenm = linenmfld_->getInput();
     if ( linenm.isEmpty() )
-	mErrRet("Please enter a Line Name")
+	mErrRet( tr("Please enter a Line Name") )
 
     const int trcnrstart = trcnrfld_->getIntValue();
     if ( mIsUdf(trcnrstart) || trcnrstart <= 0 )
-	mErrRet("Please specify a valid start trace number")
+	mErrRet( tr("Please specify a valid start trace number") )
 
     Geometry::RandomLineSet geom;
     const Geometry::RandomLine* rdl = rdlgeom_;
@@ -130,19 +133,44 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	rdl = geom.isEmpty() ? 0 : geom.lines()[0];
     }
     if ( !rdl )
-	mErrRet("Selected Random line is empty");
+	mErrRet( tr("Selected Random line is empty") );
 
     Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-    SeisRandLineTo2D exec( *basegrp_->getInputIOObj(),
-	    		   *basegrp_->getOutputIOObj(),
-	    		   geomid, trcnrstart, *rdl );
+    if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+    {
+	uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
+			  "its geometry, all the associated data will be "
+			  "affected. Do you still want to overwrite?")
+			.arg(linenm);
+	if ( !uiMSG().askOverwrite(msg) )
+	    return false;
+
+	mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			 Survey::GMAdmin().getGeometry(geomid) );
+	if ( !geom2d )
+	    return false;
+
+	geom2d->dataAdmin().setEmpty();
+	geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom = new Survey::Geometry2D;
+	newgeom->dataAdmin().setLineName( linenm );
+	uiString msg;
+	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+    }
+
+    const IOObj* inobj = basegrp_->getOutputIOObj();
+    const IOObj* outobj = basegrp_->getOutputIOObj();
+    SeisRandLineTo2D exec( *inobj, *outobj, geomid, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
     if ( !TaskRunner::execute( &dlg, exec ) )
 	return false;
     
     if ( !SI().has2D() )
-	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
-	       		 " in survey setup to display the 2D line" );
+	uiMSG().warning( tr("You need to change survey type to 'Both 2D and 3D'"
+			 " in survey setup to display the 2D line") );
 
     return true;
 }
