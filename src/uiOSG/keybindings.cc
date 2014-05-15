@@ -17,11 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include <iostream>
 
-#include <Inventor/events/SoKeyboardEvent.h>
-#include <Inventor/events/SoMouseButtonEvent.h>
-#include <Inventor/events/SoLocation2Event.h>
-#include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-
+#include <osgGeo/TrackballManipulator>
 
 FixedString KeyBindings::sName()    { return "Name"; }
 FixedString KeyBindings::sRotate()  { return "Rotate"; }
@@ -36,20 +32,16 @@ FixedString KeyBindings::sNone()    { return "None"; }
 
 
 KeyBindMan::KeyBindMan()
-    : dozoom(false)
-    , shiftpress(false)
-    , ctrlpress(false)
-    , curkeyb( "Default" )
+    : curkeybinding_( "Default" )
 {
-    StreamData sd = StreamProvider( mGetSetupFileName("MouseControls") )
-			.makeIStream();
-    if ( !sd.usable() ) return;
+    od_istream strm( mGetSetupFileName("MouseControls") );
+    if ( !strm.isOK() ) return;
+    ascistream astrm( strm );
 
-    ascistream astrm( *sd.istrm );
     if ( atEndOfSection(astrm) ) astrm.next();
     if ( astrm.hasKeyword("Default") )
     {
-        curkeyb = astrm.value();
+	curkeybinding_ = astrm.value();
         astrm.next();
         astrm.next();
     }
@@ -62,200 +54,117 @@ KeyBindMan::KeyBindMan()
         {
             BufferString res;
             iopar.get( KeyBindings::sName(), res );
-            keybind.name = res;
+	    keybind.name_ = res;
         }
         if ( iopar.hasKey(KeyBindings::sZoom()) )
-            iopar.get( KeyBindings::sZoom(), keybind.zoom );
+	    iopar.get( KeyBindings::sZoom(), keybind.zoom_ );
         if ( iopar.hasKey(KeyBindings::sRotate()) )
-            iopar.get( KeyBindings::sRotate(), keybind.rotate );
+	    iopar.get( KeyBindings::sRotate(), keybind.rotate_ );
         if ( iopar.hasKey(KeyBindings::sPan()) )
-            iopar.get( KeyBindings::sPan(), keybind.pan );
+	    iopar.get( KeyBindings::sPan(), keybind.pan_ );
         while ( !atEndOfSection(astrm) ) astrm.next();
         astrm.next();
-        keyset += new KeyBindings( keybind );
+	keyset_ += new KeyBindings( keybind );
     }
-    sd.close();
 
-    mSettUse(get,"dTect.MouseControls","Default",curkeyb);
-    setKeyBindings( curkeyb, false );
+    mSettUse(get,"dTect.MouseControls","Default",curkeybinding_);
+    setKeyBindings( curkeybinding_, false );
 }
 
 
 KeyBindMan::~KeyBindMan()
 {
-    deepErase( keyset );
+    deepErase( keyset_ );
+}
+
+
+void KeyBindMan::setTrackballManipulator( osgGeo::TrackballManipulator* manip )
+{
+    manipulator_ = manip;
+    updateTrackballKeyBindings();
 }
 
 
 void KeyBindMan::setKeyBindings( const char* name, bool saveinsett )
 {
-    curkeyb = name;
+    curkeybinding_ = name;
     if ( saveinsett )
     {
-	mSettUse(set,"dTect.MouseControls","Default",curkeyb);
+	mSettUse(set,"dTect.MouseControls","Default",curkeybinding_);
 	Settings::common().write();
     }
 
     KeyBindings keys;
-    for ( int idx=0; idx<keyset.size(); idx++ )
+    for ( int idx=0; idx<keyset_.size(); idx++ )
     {
-        if ( keyset[idx] && keyset[idx]->name == name )
+	if ( keyset_[idx] && keyset_[idx]->name_ == name )
         {
-            keys = *keyset[idx];
+	    keys = *keyset_[idx];
             break;
         }
     }
 
     BufferString res;
     FileMultiString fms;
-    res = keys.zoom;
+    res = keys.zoom_;
     fms = FileMultiString(res);
-    zoom.mousebut = fms.size() ? fms[0] : KeyBindings::sRight();
-    zoom.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
+    zoom_.mousebut_ = fms.size() ? fms[0] : KeyBindings::sRight();
+    zoom_.keybut_ = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 
-    res = keys.rotate;
+    res = keys.rotate_;
     fms = FileMultiString(res);
-    rotate.mousebut = fms.size() ? fms[0] : KeyBindings::sLeft();
-    rotate.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
+    rotate_.mousebut_ = fms.size() ? fms[0] : KeyBindings::sLeft();
+    rotate_.keybut_ = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 
-    res = keys.pan;
+    res = keys.pan_;
     fms = FileMultiString(res);
-    pan.mousebut = fms.size() ? fms[0] : KeyBindings::sMiddle();
-    pan.keybut = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
-}
+    pan_.mousebut_ = fms.size() ? fms[0] : KeyBindings::sMiddle();
+    pan_.keybut_ = fms.size() > 1 ? fms[1] : KeyBindings::sNone();
 
-
-const SoEvent* KeyBindMan::processSoEvent( const SoEvent* const event, 
-					   bool isviewing, bool popupenab )
-{
-    const SoType type( event->getTypeId() );
-    const SoKeyboardEvent* keyevent = 0;
-    if ( type.isDerivedFrom( SoKeyboardEvent::getClassTypeId() ) )
-        keyevent = (SoKeyboardEvent*)event;
-
-    if ( curkeyb == "Default" )
-        return event;
-
-    if ( keyevent )
-    {
-        switch ( keyevent->getKey() )
-        {
-            case SoKeyboardEvent::LEFT_SHIFT:
-            case SoKeyboardEvent::RIGHT_SHIFT:
-            {
-                shiftpress = keyevent->getState() == SoButtonEvent::DOWN;
-            } break;
-            case SoKeyboardEvent::LEFT_CONTROL:
-            case SoKeyboardEvent::RIGHT_CONTROL:
-            {
-                ctrlpress = keyevent->getState() == SoButtonEvent::DOWN;
-            } break;
-	    default:
-	    	break;
-        }
-    }
-
-    useownevent = false;
-    SoMouseButtonEvent* mouseevent = 0;
-    if ( type.isDerivedFrom( SoMouseButtonEvent::getClassTypeId() ) )
-        mouseevent = (SoMouseButtonEvent*)event;
-
-    if ( isviewing && mouseevent )
-    {
-        BufferString buttxt;
-        switch ( mouseevent->getButton() )
-        {
-            case SoMouseButtonEvent::BUTTON1:
-                buttxt = KeyBindings::sLeft();
-                break;
-            case SoMouseButtonEvent::BUTTON2:
-                buttxt = KeyBindings::sRight();
-                break;
-            case SoMouseButtonEvent::BUTTON3:
-                buttxt = KeyBindings::sMiddle();
-                break;
-            case SoMouseButtonEvent::BUTTON4:
-                break;
-            case SoMouseButtonEvent::BUTTON5:
-                break;
-            default:
-                break;
-        }
-
-        if ( buttxt.size() )
-        {
-            if ( correctButtonsPushed( zoom, buttxt ) )
-                doZoom( mouseevent );
-            else if ( correctButtonsPushed( pan, buttxt ) )
-                doPan( mouseevent );
-            else if ( correctButtonsPushed( rotate, buttxt ) )
-                doRotate( mouseevent );
-        }
-
-        if ( popupenab ) useownevent = true;
-        return useownevent ? mouseevent :  0;
-    }
-
-
-    SoLocation2Event* locevent = 0;
-    if ( type.isDerivedFrom(SoLocation2Event::getClassTypeId()) )
-        locevent = (SoLocation2Event*)event;
-
-    if ( locevent )
-    {
-        locevent->setCtrlDown( dozoom );
-        locevent->setShiftDown( false );
-        return locevent;
-    }
-
-    return event;
-}
-
-
-bool KeyBindMan::correctButtonsPushed( EventButton but, const char* txt )
-{
-    return ( but.mousebut == txt ) && (
-                    ( but.keybut == "Shift" && shiftpress ) ||
-                    ( but.keybut == "Control" && ctrlpress ) ||
-                    ( but.keybut == "None" && !shiftpress && !ctrlpress ) );
-}
-
-
-void KeyBindMan::doRotate( SoMouseButtonEvent* event )
-{
-    event->setButton( SoMouseButtonEvent::BUTTON1 );
-    event->setCtrlDown( FALSE );
-    event->setShiftDown( FALSE );
-    event->setAltDown( FALSE );
-    dozoom = false;
-    useownevent = true;
-}
-
-
-void KeyBindMan::doPan( SoMouseButtonEvent* event )
-{
-    event->setButton( SoMouseButtonEvent::BUTTON3 );
-    event->setCtrlDown( FALSE );
-    event->setShiftDown( FALSE );
-    event->setAltDown( FALSE );
-    dozoom = false;
-    useownevent = true;
-}
-
-
-void KeyBindMan::doZoom( SoMouseButtonEvent* event )
-{
-    event->setButton( SoMouseButtonEvent::BUTTON3 );
-    event->setCtrlDown( TRUE );
-    event->setShiftDown( FALSE );
-    event->setAltDown( FALSE );
-    dozoom = true;
-    useownevent = true;
+    updateTrackballKeyBindings();
 }
 
 
 void KeyBindMan::getAllKeyBindings( BufferStringSet& keys )
 {
-    for ( int idx=0; idx<keyset.size(); idx++ )
-	keys.add( keyset[idx]->name );
+    for ( int idx=0; idx<keyset_.size(); idx++ )
+	keys.add( keyset_[idx]->name_ );
+}
+
+
+static osgGeo::TrackballManipulator::MouseButton
+				getMouseButton( BufferString& mousebutstr )
+{
+    if ( mousebutstr == KeyBindings::sRight() )
+	return osgGeo::TrackballManipulator::RightButton;
+    if ( mousebutstr == KeyBindings::sMiddle() )
+	return osgGeo::TrackballManipulator::MiddleButton;
+
+    return osgGeo::TrackballManipulator::LeftButton;
+}
+
+
+static int getModKeyMask( BufferString& keybutstr )
+{
+
+    if ( keybutstr == KeyBindings::sShift() )
+	return osgGA::GUIEventAdapter::MODKEY_SHIFT;
+    if ( keybutstr == KeyBindings::sControl() )
+	return osgGA::GUIEventAdapter::MODKEY_CTRL;
+
+    return 0;
+}
+
+
+void KeyBindMan::updateTrackballKeyBindings()
+{
+    if ( !manipulator_ )
+	return;
+
+    manipulator_->setRotateMouseButton( getMouseButton(rotate_.mousebut_) );
+    manipulator_->setPanMouseButton( getMouseButton(pan_.mousebut_) );
+    manipulator_->setZoomMouseButton( getMouseButton(zoom_.mousebut_) );
+    manipulator_->setRotateModKeyMask( getModKeyMask(rotate_.keybut_) );
+    manipulator_->setPanModKeyMask( getModKeyMask(pan_.keybut_) );
+    manipulator_->setZoomModKeyMask( getModKeyMask(zoom_.keybut_) );
 }

@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "uiosgmod.h"
 #include "bufstringset.h"
 
-class SoMouseButtonEvent;
-class SoEvent;
+#include <osgGeo/TrackballManipulator>
+
 
 /*!
 \brief Class for setting keybindings.
@@ -29,13 +29,13 @@ mExpClass(uiOSG) KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
-				    : name(nm) {};
+				    : name_(nm) {};
 
-    BufferString		name;
+    BufferString		name_;
 
-    BufferString		zoom;
-    BufferString		rotate;
-    BufferString		pan;
+    BufferString		zoom_;
+    BufferString		rotate_;
+    BufferString		pan_;
 
 
     static FixedString		sName();
@@ -61,8 +61,8 @@ mExpClass(uiOSG) EventButton
 public:
                                 EventButton() {}
 
-    BufferString                mousebut;
-    BufferString                keybut;
+    BufferString		mousebut_;
+    BufferString		keybut_;
 };
 
 
@@ -76,31 +76,26 @@ public:
                                 KeyBindMan();
                                 ~KeyBindMan();
 
+    void			setTrackballManipulator(
+						osgGeo::TrackballManipulator*);
+
     void                        setKeyBindings(const char*,bool saveinsett);
     void                        getAllKeyBindings(BufferStringSet&);
     const char*			getCurrentKeyBindings() const
-				{ return curkeyb; }
-
-    const SoEvent*		processSoEvent(const SoEvent* const,bool,bool);
+				{ return curkeybinding_; }
 
 protected:
 
-    bool                        correctButtonsPushed(EventButton,const char*);
-    void                        doZoom(SoMouseButtonEvent*);
-    void                        doPan(SoMouseButtonEvent*);
-    void                        doRotate(SoMouseButtonEvent*);
+    void			updateTrackballKeyBindings();
 
-    ObjectSet<KeyBindings>      keyset;
-    BufferString		curkeyb;
+    ObjectSet<KeyBindings>	keyset_;
+    BufferString		curkeybinding_;
 
-    EventButton                 zoom;
-    EventButton                 pan;
-    EventButton                 rotate;
+    EventButton			zoom_;
+    EventButton			pan_;
+    EventButton			rotate_;
 
-    bool                        dozoom;
-    bool                        shiftpress;
-    bool                        ctrlpress;
-    bool                        useownevent;
+    osg::ref_ptr<osgGeo::TrackballManipulator> manipulator_;
 };
 
 #endif

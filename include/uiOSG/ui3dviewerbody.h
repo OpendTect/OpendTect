@@ -38,6 +38,7 @@ namespace osgGeo { class TrackballManipulator; }
 
 class ui3DViewer;
 class TrackBallManipulatorMessenger;
+class KeyBindMan;
 
 namespace osg
 {
@@ -122,8 +123,7 @@ public:
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
     void			setScenesPixelDensity(float dpi);
 
-
-
+    KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
 
 protected:
@@ -175,6 +175,8 @@ protected:
     bool				setinitialcamerapos_;
     IOPar				homepos_;
     RefMan<visBase::SceneColTab>	visscenecoltab_;
+
+    KeyBindMan&				keybindman_;
 };
 
 #endif
