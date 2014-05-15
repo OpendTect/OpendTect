@@ -143,9 +143,6 @@ uiODMain::uiODMain( uiMain& a )
       || (IOM().isBad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
 
-//    OD_Convert_OD4_Data_To_OD5(0);
-//    IOM().surveyChanged.notify( mCB(this,uiODMain,OD_Convert_OD4_Data_To_OD5) );
-
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
 	failed_ = false;
