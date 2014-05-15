@@ -20,6 +20,7 @@ class IOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
+class uiSeis2DLineNameSel;
 
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
@@ -50,19 +51,19 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisRandTo2DLineDlg : public uiDialog
-{
+{mODTextTranslationClass(uiSeisRandTo2DLineDlg)
 public:
-    			uiSeisRandTo2DLineDlg(uiParent*,
+				uiSeisRandTo2DLineDlg(uiParent*,
 					      const Geometry::RandomLine*);
 
 protected:
 
-    uiSeisRandTo2DBase*	basegrp_;
-    uiGenInput*		linenmfld_;
-    uiGenInput*		trcnrfld_;
+    uiSeisRandTo2DBase*		basegrp_;
+    uiSeis2DLineNameSel*	linenmfld_;
+    uiGenInput*			trcnrfld_;
     const Geometry::RandomLine*	rdlgeom_;
 
-    bool		acceptOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
 };
 
 #endif
