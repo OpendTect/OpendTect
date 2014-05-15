@@ -84,7 +84,8 @@ void Fault3D::apply( const Pos::Filter& pf )
 	    const StepInterval<int> colrg = fssg->colRange( rc.row() );
 	    if ( colrg.isUdf() ) continue;
 
-	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start; rc.col()-=colrg.step )
+	    for ( rc.col()=colrg.stop; rc.col()>=colrg.start; 
+		  rc.col()-=colrg.step )
 	    {
 		const Coord3 pos = fssg->getKnot( rc );
 		if ( !pf.includes( (Coord) pos, (float) pos.z) )
@@ -511,8 +512,6 @@ bool FaultAscIO::get( od_istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( stick->lnm_ );
-	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
-		continue;
 	    fss->geometry().insertStick( sid, sticknr, 0,
 					stick->crds_[0], stick->getNormal(true),
 					geomid, false );
