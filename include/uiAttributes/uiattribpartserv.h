@@ -142,9 +142,6 @@ public:
     void		resetMenuItems();
     MenuItem*		storedAttribMenuItem(const Attrib::SelSpec&,bool is2d,
 					     bool);
-    MenuItem*		stored2DAttribMenuItem(const Attrib::SelSpec&,
-					       const MultiID& lsid,
-					       const char* linenm,bool issteer);
     MenuItem*		calcAttribMenuItem(const Attrib::SelSpec&,bool is2d,
 					   bool);
     MenuItem*		nlaAttribMenuItem(const Attrib::SelSpec&,bool is2d,
@@ -232,12 +229,6 @@ protected:
     void		handleAutoSet();
     void		useAutoSet(bool);
 
-    BufferStringSet	get2DStoredLSets(const Attrib::SelInfo&) const;
-    BufferStringSet	get2DStoredItems(const MultiID&,bool,bool) const;
-    void		insert2DStoredItems(const BufferStringSet&,int,int,
-					    bool,MenuItem*,
-					    const Attrib::SelSpec&,bool,bool,
-					    bool onlymultcomp=false);
     void		insertNumerousItems(const BufferStringSet&,
 					    const Attrib::SelSpec&,
 					    bool,bool,bool);

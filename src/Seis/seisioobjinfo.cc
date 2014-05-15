@@ -311,10 +311,10 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 #define mChkOpts \
    if ( o2d.steerpol_ != 2 ) \
     { \
-	const char* lndt = dset->dataType(); \
+	const char* dt = dset->dataType(); \
 	const char* attrnm = dset->name(); \
-	const bool issteer = (lndt && sKey::Steering()==lndt) || \
-				(!lndt && sKey::Steering()==attrnm); \
+	const bool issteer = (dt && sKey::Steering()==dt) || \
+				(!dt && sKey::Steering()==attrnm); \
 	if ( (o2d.steerpol_ == 0 && issteer) \
 	  || (o2d.steerpol_ == 1 && !issteer) ) \
 	    continue; \
@@ -339,10 +339,10 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
     }
 
    if ( !isOK() || !is2D() || isPS() ) return;
- 
-    PtrMan<Seis2DDataSet> dset 
-	= new Seis2DDataSet( *ioobj_ ); 
-    if ( dset->nrLines() == 0 ) 
+
+    PtrMan<Seis2DDataSet> dset
+	= new Seis2DDataSet( *ioobj_ );
+    if ( dset->nrLines() == 0 )
 	return;
     mGetZDomainGE;
 
@@ -392,12 +392,12 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 }
 
 
-bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid, 
+bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 			       StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
 {
     mChk(false);
-    PtrMan<Seis2DDataSet> dataset = 
+    PtrMan<Seis2DDataSet> dataset =
 				new Seis2DDataSet( *ioobj_ );
     if ( dataset->nrLines() == 0 )
 	return false;
@@ -498,7 +498,7 @@ int SeisIOObjInfo::nrComponents( Pos::GeomID geomid ) const
 }
 
 
-void SeisIOObjInfo::getComponentNames( BufferStringSet& nms, 
+void SeisIOObjInfo::getComponentNames( BufferStringSet& nms,
 				       Pos::GeomID geomid ) const
 {
     getComponentInfo( geomid, &nms );
@@ -512,7 +512,7 @@ void SeisIOObjInfo::getCompNames( const MultiID& mid, BufferStringSet& nms )
 }
 
 
-int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid, 
+int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 				     BufferStringSet* nms ) const
 {
     int ret = 0; if ( nms ) nms->erase();
@@ -574,7 +574,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 }
 
 
-void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm, 
+void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					BufferStringSet& datasets, Opts2D o2d )
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
@@ -593,9 +593,17 @@ void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 		continue;
 	}
 
+	if ( o2d.steerpol_ != 2 )
+	{
+	    const FixedString dt = ioobj.pars().find( sKey::Type() );
+	    const bool issteering = dt==sKey::Steering();
+	    const bool wantsteering = o2d.steerpol_ == 1;
+	    if ( issteering != wantsteering ) continue;
+	}
+
 	SeisIOObjInfo ibjinfo( ioobj );
 	BufferStringSet lnms;
-	ibjinfo.getLineNames( lnms, o2d );
+	ibjinfo.getLineNames( lnms );
 	if ( !lnm || lnms.isPresent(lnm) )
 	    datasets.add( ioobj.name() );
     }

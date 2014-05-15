@@ -37,9 +37,11 @@ public:
 				       const NLAModel* nla,const char* curnm=0);
 			~uiAttr2DSelDlg();
 
-    int			getSelType()		{ return seltype_; }
-    const char*		getStoredAttrName()	{ return storednm_.buf(); }
-    Attrib::DescID	getSelDescID()		{ return descid_; }
+    int			getSelType() const		{ return seltype_; }
+    const char*		getStoredAttrName() const	{ return storednm_; }
+    Attrib::DescID	getSelDescID() const		{ return descid_; }
+    int			getComponent() const		{ return compnr_; }
+    int			getOutputNr() const		{ return outputnr_; }
 
 protected:
 
@@ -50,13 +52,17 @@ protected:
     int			seltype_;
     BufferString	storednm_;
     BufferString	curnm_;
+    int			compnr_;
+    int			outputnr_;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
+    uiRadioButton*	steerfld_;
     uiRadioButton*	attrfld_;
     uiRadioButton*	nlafld_;
 
     uiListBox*		storoutfld_;
+    uiListBox*		steeroutfld_;
     uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
 

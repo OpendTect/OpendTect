@@ -121,58 +121,62 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    addChild( new uiOD2DLineTreeItem(linenames.get(idx),geomids[idx]),
 		      false );
 	cursorchgr.restore();
-	/*
-	if ( !linenames.isEmpty() )
+
+	if ( linenames.isEmpty() ) return true;
+
+	const bool res = uiMSG().askGoOn(
+		"Do you want to select an attribute for these lines?" );
+	if ( !res ) return true;
+
+	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet(
+								    true );
+	const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenames.get(0) );
+	uiAttr2DSelDlg dlg( ODMainWin(), ds, geomid, nla, sKeyRightClick );
+	if ( !dlg.go() ) return false;
+
+	uiTaskRunner uitr( ODMainWin() );
+	ObjectSet<uiTreeItem> set;
+	findChildren( sKeyRightClick, set );
+	const int attrtype = dlg.getSelType();
+	if ( attrtype == 0 || attrtype == 1 )
 	{
-	    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet(
-									true );
-	    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-	    Pos::GeomID geomid = Survey::GM().getGeomID( linenames.get(0) );
-	    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomid, nla, sKeyRightClick );
-	    if ( !dlg.go() ) return false;
-	    uiTaskRunner uitr( ODMainWin() );
-	    ObjectSet<uiTreeItem> set;
-	    findChildren( sKeyRightClick, set );
-	    const int attrtype = dlg.getSelType();
-	    if ( attrtype == 0 )
+	    const char* newattrnm = dlg.getStoredAttrName();
+	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
-		const char* newattrnm = dlg.getStoredAttrName();
-		for ( int idx=0; idx<set.size(); idx++ )
-		{
-		    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		    if ( item ) item->displayStoredData( newattrnm, -1, uitr );
-		}
-	    }
-	    else if ( attrtype == 1 || attrtype == 2 )
-	    {
-		Attrib::SelSpec as;
-		if ( attrtype == 1 )
-		{
-		    const Attrib::Desc* desc =  ds->getDesc(dlg.getSelDescID());
-		    if ( !desc )
-		    {
-			uiMSG().error("Selected attribute is not available");
-			return true;
-		    }
-
-		    as.set( *desc );
-		}
-		else if ( nla )
-		{
-		    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
-		    as.setObjectRef( applMgr()->nlaServer()->modelName() );
-		    as.setRefFromID( *nla );
-		}
-
-		as.set2DFlag( true );
-		for ( int idx=0; idx<set.size(); idx++ )
-		{
-		    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		    item->setAttrib( as, uitr );
-		}
+		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		if ( item ) item->displayStoredData(
+				newattrnm, dlg.getComponent(), uitr );
 	    }
 	}
-	*/
+	else if ( attrtype == 2 || attrtype == 3 )
+	{
+	    Attrib::SelSpec as;
+	    if ( attrtype == 1 )
+	    {
+		const Attrib::Desc* desc =  ds->getDesc(dlg.getSelDescID());
+		if ( !desc )
+		{
+		    uiMSG().error("Selected attribute is not available");
+		    return true;
+		}
+
+		as.set( *desc );
+	    }
+	    else if ( nla )
+	    {
+		as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+		as.setObjectRef( applMgr()->nlaServer()->modelName() );
+		as.setRefFromID( *nla );
+	    }
+
+	    as.set2DFlag( true );
+	    for ( int idx=0; idx<set.size(); idx++ )
+	    {
+		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		item->setAttrib( as, uitr );
+	    }
+	}
     }
     else if ( mnuid == mFrom3D )
 	ODMainWin()->applMgr().create2Dfrom3D();
