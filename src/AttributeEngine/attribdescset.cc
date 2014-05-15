@@ -1123,6 +1123,30 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 }
 
 
+Attrib::Desc* DescSet::getDescFromUIListEntry( BufferString inpstr )
+{
+    if ( inpstr.startsWith("[") )
+    {
+	inpstr.unEmbed( '[', ']' );
+	//generate Info with the same parameters as in fillInUIInputList
+	//which is supposed to be the source of the input string.
+	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false );
+	int iidx = attrinf.ioobjnms_.indexOf( inpstr.buf() );
+	if ( iidx < 0 ) return 0;
+
+	BufferString storedidstr = attrinf.ioobjids_.get( iidx );
+	Attrib::DescID retid = getStoredID( storedidstr.buf(), 0, true, true );
+	return getDesc( retid );
+    }
+    else
+	for ( int dscidx=0; dscidx<descs_.size(); dscidx++ )
+	    if ( descs_[dscidx] && inpstr.matches(descs_[dscidx]->userRef()) )
+		return descs_[dscidx];
+
+    return 0;
+}
+
+
 void DescSet::createAndAddMultOutDescs( const DescID& targetid,
 	                                const TypeSet<int>& seloutputs,
 					const BufferStringSet& seloutnms,
