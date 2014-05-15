@@ -40,8 +40,8 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     BufferStringSet inpnms_;
     asd.attrSet().fillInUIInputList( inpnms_ );
     uiMathFormula::Setup mfsu( "Formula (like 'nearstk + c0 * farstk')" );
-    mfsu.withunits( false );
-    mfsu.stortype_ = "Attribute calculation";
+    mfsu.withunits( false ).maxnrinps( 8 )
+	.stortype( "Attribute calculation" );
     uimathform_ = new uiMathFormula( this, *form_, mfsu );
     uimathform_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
     uimathform_->setNonSpecInputs( inpnms_ );
