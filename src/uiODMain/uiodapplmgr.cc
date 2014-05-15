@@ -64,6 +64,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "externalattrib.h"
 #include "filepath.h"
 #include "flatposdata.h"
+#include "genc.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -121,6 +122,9 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	attrserv_->setAttrsNeedUpdt();
 	tmpprevsurvinfo_.refresh();
     }
+
+    if ( !Convert_OD4_Data_To_OD5() )
+	manageSurvey();
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
@@ -183,19 +187,85 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
 }
 
 
+extern int OD_Get_2D_Data_Conversion_Status();
+extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg);
+
+bool uiODApplMgr::Convert_OD4_Data_To_OD5()
+{
+    const int status = OD_Get_2D_Data_Conversion_Status();
+    if ( !status )
+	return true;
+
+    if ( status == 1 )
+    {
+	uiString msg( tr( "OpendTect v5.0 has a new and improved 2D database. "
+		"The database of survey '%1' will now be converted. "
+		"This may take some time depending on the amount of data. "
+		"Note that after the conversion you will still be able to use "
+		"this 2D data in older versions of OpendTect.")
+		.arg(IOM().surveyName()) );
+
+	const int res = uiMSG().question( msg, tr("Convert now"),
+					  tr("Select another survey"),
+					  tr("Exit OpendTect") );
+	if ( res < 0 )
+	    ExitProgram( 0 );
+
+	if ( !res )
+	{
+	    uiMSG().message( tr("Please note that you can copy the survey "
+			"using 'Copy Survey' tool in the "
+			"'Survey Setup and Selection' window.") );
+
+	    return false;
+	}
+    }
+
+    uiString errmsg;
+    if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
+    if ( !errmsg.isEmpty() )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+
+    return true;
+}
+
+
 int uiODApplMgr::manageSurvey( uiParent* p )
 {
     BufferString prevnm = GetDataDir();
+    bool isconvpending = OD_Get_2D_Data_Conversion_Status()==1;
     if ( !p ) p = ODMainWin();
+    while ( true )
+    {
 	uiSurvey dlg( p );
-    if ( !p )
-	dlg.setModal( true );
-    if ( !dlg.go() )
-	return 0;
-    else if ( prevnm == GetDataDir() )
-	return 1;
-    else
-	return 2;
+	if ( !p )
+	    dlg.setModal( true );
+	if ( !dlg.go() )
+	{
+	    if ( isconvpending )
+		continue;
+
+	    return 0;
+	}
+	else if ( !Convert_OD4_Data_To_OD5() )
+	{
+	    isconvpending = true;
+	    continue;
+	}
+	else if ( prevnm == GetDataDir() )
+	    return 1;
+	else
+	    return 2;
+    }
 }
 
 

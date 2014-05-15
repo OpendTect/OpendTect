@@ -117,8 +117,6 @@ private:
     void		timerCB(CallBacker*);
     void		memTimerCB(CallBacker*);
 
-    void		OD_Convert_OD4_Data_To_OD5(CallBacker*);
-
 public:
 
     bool		sceneMgrAvailable() const	{ return scenemgr_; }

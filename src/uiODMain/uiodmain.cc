@@ -40,7 +40,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
-#include "genc.h"
 #include "envvars.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -67,52 +66,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 extern "C" const char* GetSettingsDataDir();
-extern int OD_Get_2D_Data_Conversion_Status();
-extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg);
-
-void uiODMain::OD_Convert_OD4_Data_To_OD5( CallBacker* cb )
-{
-    const int status = OD_Get_2D_Data_Conversion_Status();
-    if ( !status )
-	return;
-
-    if ( status == 1 )
-    {
-	uiString msg( tr( "OpendTect v5.0 has a new and improved 2D database. "
-		"The database of survey '%1' will now be converted. "
-		"This may take some time depending on the amount of data. "
-		"Note that after the conversion you will still be able to use "
-		"this 2D data in older versions of OpendTect.")
-		.arg(IOM().surveyName()) );
-
-	if ( !uiMSG().askGoOn(msg,tr("Convert"),tr("Cancel")) )
-	{
-	    uiMSG().message( tr("Please note that you can copy the survey "
-			"using 'Copy Survey' tool in the "
-			"'Survey Setup and Selection' window.") );
-	    while ( !uiODApplMgr::manageSurvey() )
-	    {
-		if ( uiMSG().askGoOn( "Without a valid survey, OpendTect "
-			    "cannot start.\nDo you wish to exit?" ) )
-		    ExitProgram(0);
-	    }
-
-	    return;
-	}
-    }
-
-    uiString errmsg;
-    if ( !Survey::GMAdmin().fetchFrom2DGeom(errmsg) )
-    {
-	uiMSG().error( errmsg );
-	return;
-    }
-
-    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
-    if ( !errmsg.isEmpty() )
-	uiMSG().error( errmsg );
-}
-
 
 static uiODMain* manODMainWin( uiODMain* i )
 {
@@ -190,9 +143,6 @@ uiODMain::uiODMain( uiMain& a )
     if ( !ensureGoodDataDir()
       || (IOM().isBad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
-
-    OD_Convert_OD4_Data_To_OD5(0);
-    IOM().surveyChanged.notify( mCB(this,uiODMain,OD_Convert_OD4_Data_To_OD5) );
 
     applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
