@@ -42,7 +42,7 @@ public :
     mExpClass(uiSeis) Setup : public uiDialog::Setup
     { mODTextTranslationClass(Setup)
     public:
-    			Setup(const MultiID&,Seis::GeomType);
+			Setup(const MultiID&,Seis::GeomType);
 	mDefSetupMemb(MultiID,id)
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)
@@ -55,26 +55,26 @@ public :
 			~uiSeisBrowser();
 
     bool		isOK() const			{ return tbl_; }
-    void		setPos(const BinID&);
-    bool		doSetPos(const BinID&,bool force);
+    void		setPos(const BinID&,bool);
+    bool		doSetPos(const BinID&,bool force,bool veryfirst=false);
     void		setZ(float) ;
     void		setCrlWise( bool yn=true )	{ crlwise_ = yn; }
-    void 		commitChanges();
-    bool 		storeChgdData();
+    void		commitChanges();
+    bool		storeChgdData();
     bool		goTo(const BinID&);
 
 
     int			stepOut()			{ return stepout_; }
     void		setStepout(int);
     bool		is2D() const;
-    bool 		is2d_;
+    bool		is2d_;
 
     const BinID&	curBinID() const;
     float		curZ() const;
     void		setCompNr( int compnr )		{ compnr_ = compnr; }
 
     static void		doBrowse(uiParent*,const IOObj&,bool is2d,
-	    			 const LineKey* lk=0);
+				 const LineKey* lk=0);
 
 protected:
 

@@ -137,7 +137,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
     createMenuAndToolBar();
     createTable();
 
-    setPos( su.startpos_ );
+    setPos( su.startpos_, true );
     setZ( su.startz_ );
     tbl_->selectionChanged.notify( mCB(this,uiSeisBrowser,trcselectionChanged));
 }
@@ -207,11 +207,8 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	uiMSG().error( emsg );
 	return false;
     }
-    if ( !tr_->readInfo(ctrc_.info()) )
-    {
-	uiMSG().error( "Input cube is empty" );
-	return false;
-    }
+    if ( !tr_->readInfo(ctrc_.info()) || !tr_->read(ctrc_) )
+	{ uiMSG().error( "Input cube is empty" ); return false; }
 
     nrcomps_ = tr_->componentInfo().size();
     nrsamples_ = tr_->outNrSamples();
@@ -285,31 +282,33 @@ BinID uiSeisBrowser::getNextBid( const BinID& cur, int idx,
 void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
 {
     SeisTrc* newtrc = new SeisTrc;
-    newtrc->info().binid = bid;
-    newtrc->info().coord.x = newtrc->info().coord.y = mUdf(double);
     const int chgbufidx = tbufchgdtrcs_.find( bid, false );
     if ( chgbufidx >= 0 )
 	*newtrc = *tbufchgdtrcs_.get( chgbufidx );
     else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
-	{ fillUdf( *newtrc ); }
+    {
+	newtrc->info().binid = bid;
+	newtrc->info().coord = SI().transform( bid );
+	fillUdf( *newtrc );
+    }
     tbuf.add( newtrc );
 }
 
 
-void uiSeisBrowser::setPos( const BinID& bid )
+void uiSeisBrowser::setPos( const BinID& bid, bool veryfirst )
 {
-    doSetPos( bid, false );
+    doSetPos( bid, false, veryfirst );
 }
 
 
-bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
+bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
 {
-    NotifyStopper notifstop( tbl_->valueChanged );
-
     if ( !tbl_ )
 	return false;
     if ( !force && bid == ctrc_.info().binid )
 	return true;
+
+    NotifyStopper notifstop( tbl_->valueChanged );
 
     commitChanges();
     BinID binid( bid );
@@ -331,11 +330,8 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
 
     const bool havetrc = tr_->goTo( binid );
     const bool canread = havetrc && tr_->read( ctrc_ );
-    if ( !canread )
-    {
-	binid = ctrc_.info().binid;
+    if ( !canread && !veryfirst )
 	uiMSG().error( "Cannot read data at specified location" );
-    }
     if ( !havetrc || !canread )
 	binid = ctrc_.info().binid;
 
@@ -369,7 +365,6 @@ void uiSeisBrowser::setStepout( int nr )
 {
     stepout_ = nr;
     nrtrcsfld_->setValue( nr*2+1 );
-    // TODO? store in user settings
 }
 
 
@@ -519,7 +514,6 @@ void uiSeisBrowser::goToPush( CallBacker* cb )
 {
     uiSeisBrowserGoToDlg dlg( this, curBinID(),is2D() );
     if ( dlg.go() )
-	/* user pressed OK AND input is OK */
     {
 	if ( doSetPos( dlg.pos_, false ) )
 	    trcselectionChanged( cb );
@@ -685,11 +679,8 @@ bool init()
 	uiMSG().error( "Unable to write" );
 	return false;
     }
-    if ( !tri_->readInfo(trc_.info()) )
-    {
-	uiMSG().error( "Input cube is empty" );
-	return false;
-    }
+    if ( !tri_->readInfo(trc_.info()) || !tri_->read(trc_) )
+	{ uiMSG().error( "Input cube is empty" ); return false; }
     msg_ = "Writing";
     return true;
 }

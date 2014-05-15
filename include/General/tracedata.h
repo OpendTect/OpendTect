@@ -58,18 +58,16 @@ public:
     inline bool		isZero( int icomp=0 ) const
 			{ return icomp >= nrcomp_ || data_[icomp]->isZero(); }
 
-    inline float	getValue( int idx, int icomp=0 ) const
-			{ return interp_[icomp]->get(data_[icomp]->data(),idx);}
-    inline void	setValue( int idx, float v, int icomp=0 )
-			{ interp_[icomp]->put( data_[icomp]->data(), idx, v ); }
+    float		getValue(int isamp,int icomp=0) const;
+    void		setValue(int isamp,float,int icomp=0);
 
-    inline DataBuffer*			getComponent( int icomp=0)
+    inline DataBuffer*	getComponent( int icomp=0 )
 					{ return data_[icomp]; }
-    inline const DataBuffer*		getComponent( int icomp=0 ) const
+    inline const DataBuffer* getComponent( int icomp=0 ) const
 					{ return data_[icomp]; }
-    inline TraceDataInterpreter*	getInterpreter( int icomp=0 )
+    inline TraceDataInterpreter* getInterpreter( int icomp=0 )
 					{ return interp_[icomp]; }
-    inline const TraceDataInterpreter*	getInterpreter( int icomp=0 ) const
+    inline const TraceDataInterpreter* getInterpreter( int icomp=0 ) const
 					{ return interp_[icomp]; }
 
     void		addComponent(int ns,const DataCharacteristics&,
@@ -86,7 +84,7 @@ public:
 
     void		handleDataSwapping();
 				//! pre-swaps all buffers that need it
-	
+
 
 protected:
 
@@ -98,11 +96,5 @@ protected:
 };
 
 
-inline int clippedVal( float val, int lim )
-{
-    return val > (float)lim ? lim : (val < -((float)lim) ? -lim : mNINT32(val));
-}
-
 
 #endif
-
