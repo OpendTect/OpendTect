@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "mathformula.h"
+#include "propertyref.h"
 class BufferStringSet;
 class UnitOfMeasure;
 namespace Math { class Formula; class Expression; }
@@ -30,6 +31,7 @@ public:
 			uiMathExpressionVariable(uiParent*,int varidx,
 				    bool displayuom=true,
 				    const Math::SpecVarSet* svs=0);
+			~uiMathExpressionVariable();
 
     void		addInpViewIcon(const char* inm,const char* tooltip,
 					const CallBack&);
@@ -72,7 +74,7 @@ protected:
     bool		isactive_;
     bool		isconst_;
     int			specidx_;
-    Math::SpecVarSet	specvars_;
+    Math::SpecVarSet&	specvars_;
 
     uiLabeledComboBox*	varfld_;
     uiGenInput*		constfld_;

@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ioobj.h"
 #include "mathformula.h"
+#include "mathspecvars.h"
 #include "survinfo.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
@@ -59,7 +60,7 @@ static Math::SpecVarSet& getSpecVars()
     mDefineStaticLocalObject( Math::SpecVarSet, svs, );
     svs.setEmpty();
 
-    svs.add( "MD", "MD, Depth Along Hole", true, PropertyRef::Dist );
+    svs.add( "MD", "Depth Along Hole", true, PropertyRef::Dist );
     svs.add( "TVD", "Z coordinate", true, PropertyRef::Dist );
     svs.add( "TVDSS", "TVD below SS", true, PropertyRef::Dist );
     svs.add( "TVDSD", "TVD below SD", true, PropertyRef::Dist );
@@ -323,6 +324,9 @@ Well::Log* uiWellLogCalc::getLog4InpIdx( Well::LogSet& wls, int varnr )
 
 void uiWellLogCalc::setUnits4Log( int inpidx )
 {
+    if ( form_.isSpec(inpidx) || form_.isConst(inpidx) )
+	return;
+
     const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
     const UnitOfMeasure* uom = 0;
     PropertyRef::StdType ptyp = PropertyRef::Other;

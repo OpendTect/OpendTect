@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirockphysform.h"
 
 #include "separstr.h"
-#include "mathformula.h"
+#include "mathspecvars.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"
 
@@ -39,7 +39,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     , isactive_(true)
     , unfld_(0)
     , vwbut_(0)
-    , specvars_(svs?*svs:emptsvs)
+    , specvars_(*new Math::SpecVarSet(svs?*svs:emptsvs))
     , inpSel(this)
 {
     BufferStringSet inpnms; getInpNms( inpnms );
@@ -67,6 +67,12 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 
     setHAlignObj( varfld_ );
     preFinalise().notify( mCB(this,uiMathExpressionVariable,initFlds) );
+}
+
+
+uiMathExpressionVariable::~uiMathExpressionVariable()
+{
+    delete &specvars_;
 }
 
 
@@ -214,6 +220,8 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
 	BufferString inpdef( form.inputDef(varidx_) );
 	selectInput( inpdef.isEmpty() ? varnm.buf() : inpdef.buf() );
     }
+    else if ( unfld_ )
+	unfld_->setPropType( form.specVars()[specidx_].type_ );
 
     setUnit( form.inputUnit(varidx_) );
 }

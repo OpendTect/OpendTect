@@ -19,6 +19,7 @@ class uiComboBox;
 class uiPushButton;
 class uiButton;
 class uiToolButtonSetup;
+namespace Math { class SpecVarSet; }
 
 
 mExpClass(uiTools) uiMathExpression : public uiGroup
@@ -32,12 +33,14 @@ public:
 			    : label_(lbl)
 			    , withsetbut_(false)
 			    , withfns_(true)
-			    , fnsbelow_(true)		{}
+			    , fnsbelow_(true)
+			    , specvars_(0)		{}
 
 	mDefSetupMemb(bool,withfns);
 	mDefSetupMemb(bool,fnsbelow);
 	mDefSetupMemb(bool,withsetbut);
 	mDefSetupMemb(BufferString,label);
+	mDefSetupMemb(const Math::SpecVarSet*,specvars);
 	mDefSetupMemb(CallBack,setcb);
 		// if withsetbut and not set, will do returnpress
     };

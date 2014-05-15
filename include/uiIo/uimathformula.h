@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uigroup.h"
 #include "mathformula.h"
+#include "propertyref.h"
 class uiButton;
 class uiUnitSel;
 class uiToolButton;
