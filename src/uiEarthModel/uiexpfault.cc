@@ -207,8 +207,9 @@ bool uiExportFault::writeAscii()
 		    fss->geometry().pickedOn2DLine( sectionid, sticknr );
 		if ( pickedon2d && linenmfld_->isChecked() )
 		{
-		    const char* linenm =
-			fss->geometry().pickedName( sectionid, sticknr );
+		    Pos::GeomID geomid =
+			fss->geometry().pickedGeomID( sectionid, sticknr );
+		    const char* linenm = Survey::GM().getName( geomid );
 
 		    if ( linenm )
 			*sdo.ostrm << '\t' << linenm;
