@@ -27,8 +27,15 @@ bool testPing()
 {
     const char* url = "http://opendtect.org";
     BufferString err;
-    if ( !Network::ping( url, err ) )
+    if ( !Network::ping(url,err) )
 	returnError
+
+    const char* missingurl = "http://opendtect.org/thisfiledoesnotexist";
+    if ( Network::ping(missingurl,err) )
+    {
+	od_cout() << "Ping returns success for non-existant URL" << od_endl;
+	return false;
+    }
 
     return true;
 }
