@@ -235,11 +235,16 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	return false;
 
     if ( seltype_ == 0 )
+    {
 	storednm_ = storoutfld_->getText();
+	storedid_ = attrinf_->ioobjids_.get( selidx );
+    }
     else if ( seltype_ == 1 )
     {
 	storednm_ = steeroutfld_->getText();
 	compnr_ = 1;
+
+	storedid_ = attrinf_->steerids_.get( selidx );
     }
     else if ( seltype_ == 2 )
 	descid_ = attrinf_->attrids_[selidx];

@@ -197,8 +197,6 @@ protected:
     MenuItem            steering3dmnuitem_;
     MenuItem            multcomp2d_;
     MenuItem            multcomp3d_;
-    ObjectSet<MenuItem> linesets2dstoredmnuitem_;
-    ObjectSet<MenuItem> linesets2dsteeringmnuitem_;
 
     ObjectSet<uiAttribCrossPlot> attrxplotset_;
     const Attrib::Desc*	dirshwattrdesc_;
