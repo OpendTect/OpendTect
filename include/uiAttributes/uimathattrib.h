@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "uiattrdesced.h"
 
 namespace Attrib { class Desc; };
-class uiAttrSel;
+class uiMathFormula;
 class uiGenInput;
 class uiPushButton;
-class uiTable;
-namespace Math { class Expression; }
+namespace Math { class Formula; }
 
 /*! \brief Math Attribute description editor */
 
@@ -34,31 +33,16 @@ public:
 
 protected:
 
-    uiGenInput*         inpfld_;
-    uiPushButton*	parsebut_;
-    uiTable*            xtable_;
-    uiTable*            ctable_;
-    ObjectSet<uiAttrSel>  attribflds_;
-    uiGenInput*		recstartfld_;
-    uiGenInput*		recstartposfld_;
-
-    int			nrvars_;
-    int			nrcsts_;
-    int			nrspecs_;
-    BufferStringSet	varnms;
-    BufferStringSet	cstnms;
-
-    void		parsePush(CallBacker*);
-    void		updateDisplay(bool);
-    void		getVarsNrAndNms(Math::Expression*);
-    void		setupOneRow(const uiAttrSelData&,int,bool);
-
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
+    void		formSel(CallBacker*);
+
+    Math::Formula*	form_;
+    uiMathFormula*	uimathform_;
 
 			mDeclReqAttribUIFns
 };

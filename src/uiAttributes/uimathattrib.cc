@@ -12,16 +12,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimathattrib.h"
 #include "mathattrib.h"
-#include "mathexpression.h"
+#include "mathformula.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "survinfo.h"
 #include "uiattrsel.h"
-#include "uibutton.h"
 #include "uigeninput.h"
+#include "uimathexpression.h"
+#include "uimathexpressionvariable.h"
+#include "uimathformula.h"
 #include "uimsg.h"
-#include "uitable.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -32,69 +34,18 @@ mInitAttribUI(uiMathAttrib,Attrib::Mathematics,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mMathAttribHelpID) )
-	, nrvars_(0)
-	, nrcsts_(0)
-	, nrspecs_(0)
-
+	, form_(new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
 {
-    inpfld_ = new uiGenInput( this, "Formula",
-			      StringInpSpec().setName("Formula") );
-    inpfld_->updateRequested.notify( mCB(this,uiMathAttrib,parsePush) );
-    inpfld_->setToolTip( "e.g. nearstk + c0 * farstk\n"
-			 "Click on '?' for more examples" );
-
-    parsebut_ = new uiPushButton( this, "Set", true );
-    parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
-    parsebut_->attach( rightTo, inpfld_ );
-
-    xtable_ = new uiTable( this,uiTable::Setup().minrowhgt(1.5)
-					.maxrowhgt(2)
-					.mincolwdt(3.f*uiObject::baseFldSize())
-					.maxcolwdt(3.5f*uiObject::baseFldSize())
-					.defrowlbl("")
-					.fillcol(true)
-					.fillrow(true)
-					.defrowstartidx(0),
-				"Variable attribute table" );
-    const char* xcollbls[] = { "Select input for", 0 };
-    xtable_->setColumnLabels( xcollbls );
-    xtable_->setNrRows( 3 );
-    xtable_->setStretch( 2, 0 );
-    xtable_->setRowResizeMode( uiTable::Fixed );
-    xtable_->setColumnResizeMode( uiTable::Fixed );
-    xtable_->attach( alignedBelow, inpfld_ );
-
-    ctable_ = new uiTable( this,uiTable::Setup().minrowhgt(1)
-					.maxrowhgt(1.2)
-					.mincolwdt(1.f*uiObject::baseFldSize())
-					.maxcolwdt(1.5f*uiObject::baseFldSize())
-					.defrowlbl("")
-					.fillcol(true)
-					.fillrow(true)
-					.defrowstartidx(0),
-				"Constants C table" );
-    const char* ccollbls[] = { "Choose value for", 0 };
-    ctable_->setColumnLabels( ccollbls );
-    ctable_->setNrRows( 3 );
-    ctable_->setStretch( 1, 0 );
-    ctable_->setColumnResizeMode( uiTable::Fixed );
-    ctable_->setRowResizeMode( uiTable::Fixed );
-    ctable_->attach( alignedBelow, xtable_ );
-
-    BufferString str = "Specify starting value(s)\n";
-    str += "for recursive function\n";
-    str += "(comma separated)";
-    recstartfld_ = new uiGenInput( this, str, StringInpSpec() );
-    recstartfld_->setPrefHeightInChar(2);
-    recstartfld_->attach( alignedBelow, ctable_ );
-
-    BufferString lbl = zDepLabel( "Provide a starting",
-				  "\nfor recursive function" );
-    recstartposfld_ = new uiGenInput( this, lbl, DoubleInpSpec() );
-    recstartposfld_->setPrefHeightInChar(2);
-    recstartposfld_->attach( alignedBelow, recstartfld_ );
-    setHAlignObj( inpfld_ );
-    updateDisplay(false);
+    uiAttrSelData asd( is2d );
+    BufferStringSet inpnms_;
+    asd.attrSet().fillInUIInputList( inpnms_ );
+    uiMathFormula::Setup mfsu( "Formula (like 'nearstk + c0 * farstk')" );
+    mfsu.withunits( false );
+    mfsu.stortype_ = "Attribute calculation";
+    uimathform_ = new uiMathFormula( this, *form_, mfsu );
+    uimathform_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
+    uimathform_->setNonSpecInputs( inpnms_ );
+    setHAlignObj( uimathform_ );
 }
 
 
@@ -102,107 +53,13 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 { uiMSG().error( "Could not parse this equation" ); return retval; }
 
 
-void uiMathAttrib::parsePush( CallBacker* cb )
+void uiMathAttrib::formSel( CallBacker* cb )
 {
-    const BufferString usrinp( inpfld_->text() );
-    ::Math::ExpressionParser mep( usrinp );
-    ::Math::Expression* expr = mep.parse();
-    if ( cb && (usrinp.isEmpty() || !expr) )
-    {
-	BufferString errmsg = "Invalid formula:\n";
-	errmsg.add(mep.errMsg()).addNewLine(2)
-	      .add("Formula should have variable names ")
-	      .add("or constants like c0, c1, c2.").addNewLine()
-	      .add("Please read documentation for supported math functions\n")
-	      .add("and detailed examples on recursive formulas, shifts, etc.");
-	uiMSG().error( errmsg.buf() );
-    }
+    if ( !ads_ ) return;	//?
 
-    getVarsNrAndNms( expr );
-    updateDisplay( expr && expr->isRecursive() );
-}
-
-
-void uiMathAttrib::getVarsNrAndNms( ::Math::Expression* expr )
-{
-    //TODO check what extra for specs
-    nrvars_ = 0;
-    nrcsts_ = 0;
-    nrspecs_ = 0;
-    varnms.erase();
-    cstnms.erase();
-    for ( int idx=0; expr && idx<expr->nrUniqueVarNames(); idx++ )
-    {
-	const char* varnm = expr->uniqueVarName( idx );
-	const ::Math::Expression::VarType vtyp
-		= ::Math::ExpressionParser::varTypeOf( varnm );
-	switch ( vtyp )
-	{
-	    case ::Math::Expression::Variable :
-	    {
-		if ( !Attrib::Mathematics::getSpecVars().isPresent(varnm) )
-		{
-		    nrvars_++;
-		    varnms.add( varnm );
-		}
-		break;
-	    }
-	    case ::Math::Expression::Constant :
-	    {
-		nrcsts_++;
-		cstnms.add( varnm );
-		break;
-	    }
-	    default:
-		break;
-	}
-    }
-}
-
-
-void uiMathAttrib::updateDisplay( bool userecfld )
-{
-    const uiAttrSelData asd( is2d_, false );
-    if ( attribflds_.size() != nrvars_ )
-    {
-	attribflds_.erase();
-
-	xtable_->setNrRows( nrvars_ );
-	for ( int idx=0; idx<nrvars_; idx++ )
-	    setupOneRow( asd, idx, true );
-    }
-    else
-	for ( int idx=0; idx<nrvars_; idx++ )
-	    if ( varnms.get(idx) != xtable_->rowLabel(idx) )
-		setupOneRow( asd, idx, false );
-
-    xtable_->display( nrvars_ );
-
-    ctable_->setNrRows( nrcsts_ );
-    ctable_->setRowLabels( cstnms );
-    ctable_->display( nrcsts_ );
-
-    recstartfld_->display( userecfld );
-    recstartposfld_->display( userecfld );
-}
-
-
-void uiMathAttrib::setupOneRow( const uiAttrSelData& asd, int rowidx,
-				bool doadd )
-{
-    uiAttrSel* attrbox = new uiAttrSel( 0, "", asd );
-    attrbox->setDescSet( ads_ );
-
-    if ( dpfids_.size() )
-	attrbox->setPossibleDataPacks( dpfids_ );
-
-    if ( doadd )
-	attribflds_ += attrbox;
-    else
-	attribflds_.replace( rowidx, attrbox );
-
-    xtable_->setCellGroup( RowCol(rowidx,0), attrbox );
-    xtable_->setRowLabel( rowidx, varnms.get(rowidx) );
+    BufferStringSet inpnms_;
+    ads_->fillInUIInputList( inpnms_ );
+    uimathform_->setNonSpecInputs( inpnms_ );
 }
 
 
@@ -212,44 +69,39 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetString( Attrib::Mathematics::expressionStr(), expression,
-		  inpfld_->setText(expression) );
-    parsePush(0);
+		  uimathform_->setText(expression) );
+
+    formSel(0);
 
     if ( desc.getParam(Attrib::Mathematics::cstStr()) )
     {
-	mDescGetConstParamGroup(DoubleParam,cstset,desc,
+	mDescGetConstParamGroup(Attrib::DoubleParam,cstset,desc,
 				Attrib::Mathematics::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
-	    if ( ctable_->nrRows() < idx+1 )
-		ctable_->insertRows( idx, 1 );
-
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    ctable_->setValue( RowCol(idx,0), param.getdValue(0) );
-	    ctable_->setRowLabel( idx, cstnms.get(idx) );
+	    for ( int iinp=0; iinp<form_->nrInputs(); iinp++ )
+	    {
+		BufferString cststr ( "c", idx );
+		if ( (BufferString) form_->variableName(iinp) == cststr )
+		{
+		    form_->setInputDef( iinp, toString(param.getdValue()) );
+		    uimathform_->inpFld(iinp)->use( *form_ );
+		}
+	    }
 	}
     }
 
-    //backward compatibility v3.3 and previous
-    if ( desc.getValParam( Attrib::Mathematics::recstartStr() ) )
+    if ( form_->isRecursive()
+	    && desc.getValParam(Attrib::Mathematics::recstartvalsStr()) )
     {
-	double recstart =
-	    desc.getValParam(Attrib::Mathematics::recstartStr())->getdValue(0);
-	if ( !mIsUdf( recstart ) )
-	    recstartfld_->setText( toString(recstart) );
-    }
-
-    mIfGetString( Attrib::Mathematics::recstartvalsStr(), recstartvals,
-		  recstartfld_->setText(recstartvals) );
-
-    if ( desc.getValParam( Attrib::Mathematics::recstartposStr() ) )
-    {
-	double recstartpos =
-	    desc.getValParam(Attrib::Mathematics::recstartposStr())->
-	    							getdValue(0);
-	if ( !mIsUdf( recstartpos ) )
-	    recstartposfld_->setValue(
-		    recstartpos * SI().zDomain().userFactor() );
+	FileMultiString recvalsstr = desc.getValParam(
+		Attrib::Mathematics::recstartvalsStr())->getStringValue(0);
+	for ( int idx=0; idx<recvalsstr.size(); idx++ )
+	{
+	    const double val = recvalsstr.getDValue( idx );
+	    form_->recStartVals()[idx] = mIsUdf(val) ? 0 : val;
+	}
     }
 
     return true;
@@ -258,8 +110,25 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 
 bool uiMathAttrib::setInput( const Desc& desc )
 {
-    for ( int idx=0; idx<attribflds_.size(); idx++ )
-	putInp( attribflds_[idx], desc, idx );
+    int varinplastidx = 0;
+    for ( int idx=0; idx<desc.nrInputs(); idx++ )
+    {
+	const Desc* inpdsc = desc.getInput( idx );
+	if ( inpdsc )
+	{
+	    BufferString refstr = inpdsc->isStored()
+				? BufferString ( "[",inpdsc->userRef(),"]")
+				: BufferString( inpdsc->userRef() );
+	    for ( int varinpidx = varinplastidx; varinpidx<form_->nrInputs();
+		  varinpidx ++ )
+		if ( !form_->isConst(varinpidx) && !form_->isSpec(varinpidx) )
+		{
+		    form_->setInputDef( varinpidx, refstr );
+		    uimathform_->inpFld(idx)->selectInput( refstr.buf() );
+		    varinplastidx = varinpidx+1;
+		}
+	}
+    }
 
     return true;
 }
@@ -270,45 +139,55 @@ bool uiMathAttrib::getParameters( Desc& desc )
     if ( desc.attribName() != Attrib::Mathematics::attribName() )
 	return false;
 
-    mSetString( Attrib::Mathematics::expressionStr(), inpfld_->text() );
+    mSetString( Attrib::Mathematics::expressionStr(),
+		uimathform_->exprFld()->text() );
 
-    ::Math::ExpressionParser mep( inpfld_->text() );
-    ::Math::Expression* expr = mep.parse();
-    if ( !expr )
-	mErrRet( BufferString("Incorrect formula:\n",mep.errMsg()), false )
-
-    int nrconsts = 0;
-    for ( int idx=0; idx<expr->nrUniqueVarNames(); idx++ )
+    int nrconsts = form_->nrConsts();
+    if ( nrconsts )
     {
-	const ::Math::Expression::VarType vtyp =
-		::Math::ExpressionParser::varTypeOf( expr->uniqueVarName(idx) );
-	if ( vtyp == ::Math::Expression::Constant )
-	    nrconsts++;
+	mDescGetParamGroup(DoubleParam,cstset,desc,
+			   Attrib::Mathematics::cstStr())
+	cstset->setSize( nrconsts );
+	int constidx = -1;
+	for ( int idx=0; idx<form_->nrInputs(); idx++ )
+	{
+	    if ( form_->isConst(idx) )
+	    {
+		constidx++;
+		DoubleParam& dparam = (DoubleParam&)(*cstset)[constidx];
+		dparam.setValue( uimathform_->getConstVal(idx) );
+	    }
+	}
     }
 
-    mDescGetParamGroup(DoubleParam,cstset,desc,Attrib::Mathematics::cstStr())
-    cstset->setSize( nrconsts );
-    if ( ctable_->nrRows() < nrconsts ) return false;
-
-    for ( int idx=0; idx<nrconsts; idx++ )
+    if ( form_->isRecursive() )
     {
-	DoubleParam& dparam = (DoubleParam&)(*cstset)[idx];
-	dparam.setValue( ctable_->getdValue( RowCol(idx,0) ) );
+	FileMultiString fms;
+	for ( int idx=0; idx<form_->maxRecShift(); idx++ )
+	    fms.add( form_->recStartVals()[idx] );
+
+	mSetString( Attrib::Mathematics::recstartvalsStr(), fms );
     }
 
-    mSetString( Attrib::Mathematics::recstartvalsStr(), recstartfld_->text() );
-    mSetDouble( Attrib::Mathematics::recstartposStr(),
-	       recstartposfld_->getdValue() / SI().zDomain().userFactor() );
     return true;
 }
 
 
 bool uiMathAttrib::getInput( Desc& desc )
 {
-    for ( int idx=0; idx<nrvars_; idx++ )
+    int attrinpidx = -1;
+    for ( int idx=0; idx<form_->nrInputs(); idx++ )
     {
-	attribflds_[idx]->processInput();
-	fillInp( attribflds_[idx], desc, idx );
+	if ( !form_->isConst(idx) && !form_->isSpec(idx) )
+	{
+	    attrinpidx++;
+	    if ( attrinpidx >= desc.nrInputs() )
+		return false;
+
+	    Desc* inpdesc = desc.descSet()->getDescFromUIListEntry(
+					uimathform_->inpFld(idx)->getInput() );
+	    desc.setInput( attrinpidx, inpdesc );
+	}
     }
 
     return true;
@@ -319,14 +198,15 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     if ( !curDesc() ) return;
 
-    mDescGetConstParamGroup(DoubleParam,cstset,(*curDesc()),
-			    Attrib::Mathematics::cstStr());
-    BufferString constantbase = "constant c";
-    for ( int idx=0; idx<cstset->size(); idx++ )
+    int cstinpidx = -1;
+    for ( int idx=0; idx<form_->nrInputs(); idx++ )
     {
-	BufferString constantstr = constantbase;
-	constantstr +=idx;
-	params += EvalParam( constantstr, Attrib::Mathematics::cstStr(), 0,
-			     idx );
+	if ( form_->isConst(idx) )
+	{
+	    cstinpidx++;
+	    params += EvalParam( form_->variableName(idx),
+				 Attrib::Mathematics::cstStr(), 0,
+				 idx );
+	}
     }
 }

@@ -106,7 +106,9 @@ public:
  For (2), you need to have extra values in the input value array
  (i.e. you need to loop over the getShifts(iinp).
 
- Before using getValue(), you want to use setInputDef(idx) and maybe set the input unit conversions. This makes it possible to store/retrieve in IOPar, but this is aso required if there are constants in the expression.
+ Before using getValue(), you want to use setInputDef(idx) and maybe
+set the input unit conversions. This makes it possible to store/retrieve
+in IOPar, but this is aso required if there are constants in the expression.
 
  The setOutputUnit() can be used to keep track of what the result
  means, or to get the result in that unit from getValue().
@@ -192,6 +194,7 @@ public:
     bool		inputsAreSeries() const	{ return inputsareseries_; }
     int			nrConsts() const;
     const char*		userDispText() const;
+    int			nrExternalInputs() const;
 
     static const char*	sKeyExpression()	{ return "Expression"; }
     static const char*	sKeyRecStartVals()	{ return "Recursion start"; }

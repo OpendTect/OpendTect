@@ -16,11 +16,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
-#include "mathexpression.h"
+#include "mathformula.h"
 #include "separstr.h"
+#include "survinfo.h"
 
-static const char* specvararr[] = { "DZ", "Inl", "Crl", 0 };
-;
+const Math::SpecVarSet& Attrib::Mathematics::getSpecVars()
+{
+    mDefineStaticLocalObject( Math::SpecVarSet, svs, );
+
+    if ( svs.isEmpty() )
+    {
+	svs.add( "DZ", "Z Step" );
+	svs.add( "Inl", "Inline number" );
+	svs.add( "Crl", "Crossline number" );
+	svs.add( "XCoord", "X Coordinate" );
+	svs.add( "YCoord", "Y Coordinate" );
+	svs.add( "Z", "Z" );
+    }
+
+    return svs;
+}
 
 namespace Attrib
 {
@@ -39,13 +54,7 @@ void Attrib::Mathematics::initClass()
 			new ParamGroup<DoubleParam>( 0, cstStr(), cst );
     desc->addParam( cstset );
 
-    desc->addParam( new DoubleParam(recstartStr(), 0, false) );
     desc->addParam( new StringParam(recstartvalsStr(), 0, false) );
-
-    FloatParam* recstartpos = new FloatParam( recstartposStr() );
-    recstartpos->setDefaultValue( 0 );
-    recstartpos->setRequired( false );
-    desc->addParam( recstartpos );
 
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
@@ -60,59 +69,31 @@ void Attrib::Mathematics::updateDesc( Desc& desc )
     ValParam* expr = desc.getValParam( expressionStr() );
     if ( !expr ) return;
 
-    ::Math::ExpressionParser mep( expr->getStringValue() );
-    PtrMan< ::Math::Expression > formula = mep.parse();
-    if ( !formula ) return;
+    Math::Formula formula( true,Attrib::Mathematics::getSpecVars() );
+    formula.setText( expr->getStringValue() );
+    if ( formula.isBad() ) return;
 
-    int nrconsts = 0;
-    int nrvariables = 0;
-    BufferStringSet varnms;
-    for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
+    bool foundcst = false;
+    BufferStringSet inpnms;
+    for ( int idx=0; idx<formula.nrInputs(); idx++ )
     {
-	const char* uvarnm = formula->uniqueVarName(idx);
-	const ::Math::Expression::VarType vtyp
-			= ::Math::ExpressionParser::varTypeOf(uvarnm);
-	switch ( vtyp )
-	{
-	    case ::Math::Expression::Variable :
-	    {
-		if ( !getSpecVars().isPresent( uvarnm ) )
-		{
-		    nrvariables++;
-		    varnms.add( uvarnm );
-		}
-		break;
-	    }
-	    case ::Math::Expression::Constant :
-		nrconsts++;
-		break;
-	    default:
-		break;
-	}
+	if ( formula.isConst(idx) )
+	    foundcst = true;
+	else if ( !formula.isSpec(idx) )
+	    inpnms.addIfNew( formula.variableName(idx) );
     }
 
-    if ( desc.nrInputs() != nrvariables )
+    if ( desc.nrInputs() != inpnms.size() )
     {
 	while ( desc.nrInputs() )
 	    desc.removeInput(0);
 
-	for ( int idx=0; idx<nrvariables; idx++ )
-	    desc.addInput( InputSpec( varnms.get( idx ), true ) );
+	for ( int idx=0; idx<inpnms.size(); idx++ )
+	    desc.addInput( InputSpec( inpnms.get( idx ), true ) );
     }
 
-    desc.setParamEnabled( cstStr(), nrconsts );
-
-    bool isrec = formula->isRecursive();
-    desc.setParamEnabled( recstartStr(), isrec );
-    desc.setParamEnabled( recstartvalsStr(), isrec );
-    desc.setParamEnabled( recstartposStr(), isrec );
-}
-
-
-const BufferStringSet& Attrib::Mathematics::getSpecVars()
-{
-    mDefineStaticLocalObject( const BufferStringSet, res, (specvararr) );
-    return res;
+    desc.setParamEnabled( cstStr(), foundcst );
+    desc.setParamEnabled( recstartvalsStr(), formula.isRecursive() );
 }
 
 
@@ -120,63 +101,54 @@ Attrib::Mathematics::Mathematics( Desc& dsc )
     : Provider( dsc )
     , desintv_( Interval<float>(0,0) )
     , reqintv_( Interval<int>(0,0) )
-    , recstartpos_( 0 )
-    , maxshift_( 0 )
-    , expression_(0)
+    , formula_(0)
 {
     if ( !isOK() ) return;
 
     inputdata_.allowNull(true);
 
-    ValParam* expr = dsc.getValParam( expressionStr() );
-    if ( !expr ) return;
+    //Called expression for backward compatibility, it is now a Math::Formula
+    ValParam* form = dsc.getValParam( expressionStr() );
+    if ( !form ) return;
 
-    ::Math::ExpressionParser mep( expr->getStringValue() );
-    expression_ = mep.parse();
-    if ( !expression_ )
-    { errmsg_ = mep.errMsg(); return; }
+    formula_ = new Math::Formula( true, Attrib::Mathematics::getSpecVars() );
+    formula_->setText( form->getStringValue() );
+    if ( formula_->isBad() )
+    { errmsg_ = formula_->errMsg(); return; }
 
     mDescGetParamGroup(DoubleParam,cstset,dsc,cstStr())
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	const ValParam& param = (ValParam&)(*cstset)[idx];
-	csts_ += param.getdValue();
+	for ( int iinp=0; iinp<formula_->nrInputs(); iinp++ )
+	{
+	    BufferString cststr ( "c", idx );
+	    if ( (BufferString) formula_->variableName(iinp) == cststr )
+		formula_->setInputDef( iinp, toString(param.getdValue()) );
+	}
     }
 
-    if ( expression_->isRecursive() )
+    if ( formula_->isRecursive() )
     {
 	SeparString recstartstr;
 	mGetString( recstartstr, recstartvalsStr() );
-	if ( recstartstr.isEmpty() )
+	const int nrvals = recstartstr.size();
+	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    //backward compatibility v3.3 and previous
-	    double recstartval = mUdf(double);
-	    mGetDouble( recstartval, recstartStr() );
-	    if ( !mIsUdf(recstartval) ) recstartvals_ += recstartval;
-	}
-	else
-	{
-	    const int nrvals = recstartstr.size();
-	    for ( int idx=0; idx<nrvals; idx++ )
-	    {
-		double val = toDouble( recstartstr[idx] );
-		if ( mIsUdf(val) )
-		    break;
-		recstartvals_ += val;
-	    }
+	    double val = toDouble( recstartstr[idx] );
+	    if ( mIsUdf(val) )
+		break;
+	    formula_->recStartVals()[idx] = val;
 	}
 
-	mGetFloat( recstartpos_, recstartposStr() );
 	desintv_.start = -1000;	//ensure we get the entire trace beginning
     }
-
-    setUpVarsSets();
 }
 
 
 bool Attrib::Mathematics::allowParallelComputation() const
 {
-    return !expression_->isRecursive();
+    return !formula_->isRecursive();
 }
 
 
@@ -188,8 +160,7 @@ bool Attrib::Mathematics::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Attrib::Mathematics::getInputData( const BinID& relpos, int zintv )
 {
-    int nrinputs = expression_->nrUniqueVarNames() -
-				   ( csts_.size() + specstable_.size() );
+    int nrinputs = formula_->nrExternalInputs();
     while ( inputdata_.size() < nrinputs )
     {
 	inputdata_ += 0;
@@ -213,185 +184,49 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 				       const BinID& relpos, int z0,
 				       int nrsamples, int threadid ) const
 {
-    PtrMan< ::Math::Expression > mathobj
-		= expression_ ? expression_->clone() : 0;
+    PtrMan< ::Math::Formula > mathobj
+		= formula_ ? new ::Math::Formula(*formula_) : 0;
     if ( !mathobj ) return false;
 
-    const bool isrec = expression_->isRecursive();
-    const int nrxvars = varstable_.size();
-    const int nrcstvars = cststable_.size();
-    const int nrspecvars = specstable_.size();
-    const int nrvar = mathobj->nrVariables();
-    if ( (nrxvars + nrcstvars + nrspecvars) != nrvar )
-	return false;
+    mathobj->startNewSeries();
 
-    const int recstartidx = mNINT32( recstartpos_/refstep_ );
-
-    //in case first sample is undef prevent result=undef
-    //on whole trace for recursive formulas
-    bool hasudf = isrec ? true : false;
-
-    //exceptional case: recstartpos_>z0
-    if ( isrec && recstartidx>z0 )
+    for ( int idx=0; idx<nrsamples; idx++ )
     {
-	for ( int idx=z0; idx<recstartidx; idx++ )
+	TypeSet<double> inpvals;
+	for ( int inpidx=0; inpidx<formula_->nrInputs(); inpidx++ )
 	{
-	    if ( idx >= z0+nrsamples )
-		return true;
-
-	    setOutputValue( output, 0, idx-z0, z0,
-			    mCast(float,recstartvals_[0]) );
-	}
-    }
-
-    const int loopstartidx = isrec ? recstartidx : z0;
-    const int loopstopidx = z0 + nrsamples;
-
-    //A temp DataHolder is needed for recursive formulas
-    const int tmpholdersz = loopstopidx - recstartidx;
-    DataHolder* tmpholder = isrec ? new DataHolder(recstartidx, tmpholdersz): 0;
-    if ( tmpholder ) tmpholder->add();
-
-    for ( int idx=loopstartidx; idx<loopstopidx; idx++ )
-    {
-	const int sampidx = idx - loopstartidx;
-	if ( isrec && sampidx == 0 )
-	{
-	    setOutputValue( *tmpholder, 0, sampidx, recstartidx,
-			    mCast(float,recstartvals_[0]) );
-	    if ( idx == z0 || recstartidx>z0 )
-		setOutputValue( output, 0, idx-z0, z0,
-				mCast(float,recstartvals_[0]) );
-
-	    continue;
-	}
-
-	for ( int xvaridx=0; xvaridx<nrxvars; xvaridx++ )
-	{
-	    const int variableidx = varstable_[xvaridx].varidx_;
-	    const int inpidx = varstable_[xvaridx].inputidx_;
-	    const int shift = varstable_[xvaridx].shift_;
-	    const DataHolder* inpdata = inpidx == -1 ? tmpholder
-						     : inputdata_[inpidx];
-	    const int refdhidx = inpidx == -1 ? recstartidx : 0;
-	    const int inpsampidx = inpidx == -1 ? sampidx : idx;
-	    int compidx = inpidx == -1 ? 0 : inputidxs_[inpidx];
-	    double val = inpidx==-1 && shift+idx-loopstartidx<0
-		? recstartvals_[shift-maxshift_]
-		: mCast( double, getInputValue( *inpdata, compidx,
-						inpsampidx+shift, refdhidx ) );
-
-	    //in case first samp is undef prevent result=undef
-	    //on whole trace for recursive formulas
-	    if ( inpidx == -1 && mIsUdf( val ) && hasudf )
-		val = recstartvals_[shift-maxshift_];
-
-	    mathobj->setVariableValue( variableidx, val );
-	}
-	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
-	    mathobj->setVariableValue( cststable_[cstidx].fexpvaridx_,
-				       csts_[cstidx] );
-
-	for ( int specidx=0; specidx<nrspecvars; specidx++ )
-	{
-	    double val = mUdf(double);
-	    switch ( specstable_[specidx].specidx_ )
+	    if ( formula_->isConst(inpidx) )
 	    {
-		case 0 :	val = mCast( double, refstep_ ); break;
-		case 1 :	val = mCast( double, currentbid_.inl() ); break;
-		case 2 :	val = mCast( double, currentbid_.crl() ); break;
+		inpvals += formula_->getConstVal( inpidx );
+		continue;
 	    }
-	    mathobj->setVariableValue( specstable_[specidx].fexpvaridx_, val );
+
+	    const int specidx = formula_->specIdx( inpidx );
+	    switch ( formula_->specIdx( inpidx ) )
+	    {
+		case 0 :   inpvals += mCast( double, refstep_ ); break;
+		case 1 :   inpvals += mCast( double, currentbid_.inl() ); break;
+		case 2 :   inpvals += mCast( double, currentbid_.crl() ); break;
+		case 3 :   inpvals += SI().transform(currentbid_).x; break;
+		case 4 :   inpvals += SI().transform(currentbid_).y; break;
+		case 5 :   inpvals += mCast( double,
+					(z0+idx)*refstep_*zFactor() ); break;
+	    }
+	    if ( specidx >=0 )
+		continue;
+
+	    const TypeSet<int>& reqshifts = formula_->getShifts( inpidx );
+	    for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
+		inpvals += mCast( double,getInputValue( *inputdata_[inpidx],
+						  inputidxs_[inpidx],
+						  idx+reqshifts[ishft],z0 ) );
 	}
 
-	const float result = mCast( float, mathobj->getValue() );
-
-	if ( hasudf && !mIsUdf( result ) )
-	    hasudf = false;
-
-	if ( tmpholder )
-	    tmpholder->series(0)->setValue( sampidx, result );
-
-	if ( idx >= z0 )
-	    setOutputValue( output, 0, sampidx+loopstartidx-z0, z0, result );
+	const float result = mCast( float, mathobj->getValue(inpvals.arr()) );
+	setOutputValue( output, 0, idx, z0, result );
     }
 
     return true;
-}
-
-
-void Attrib::Mathematics::setUpVarsSets()
-{
-    int nrcsts = 0;
-    int nrspecs = 0;
-    for ( int idx=0; idx<expression_->nrVariables(); idx++ )
-    {
-	BufferString fvarexp = expression_->fullVariableExpression( idx );
-	const ::Math::Expression::VarType vtyp
-		= ::Math::ExpressionParser::varTypeOf(fvarexp);
-	switch ( vtyp )
-	{
-	    case ::Math::Expression::Variable :
-	    {
-		int shift=0;
-		const BufferString varnm =
-			::Math::ExpressionParser::varNameOf( fvarexp, &shift );
-		const int specidx = getSpecVars().indexOf(varnm);
-		if ( specidx >=0 )
-		{
-		    nrspecs++;
-		    specstable_ += SPECS( idx, specidx );
-		}
-		else
-		{
-		    const int indexvarnm =
-				expression_->indexOfUnVarName( varnm.buf() );
-		    int inputidx = -1;
-		    if ( indexvarnm>=0 )
-		    {
-			const int firstoccurvnm =
-				    expression_->firstOccurVarName( fvarexp);
-			if ( firstoccurvnm == idx )
-			    inputidx = indexvarnm - nrcsts - nrspecs;
-			else
-			{
-			    for ( int vidx=0; vidx<varstable_.size(); vidx++ )
-				if ( varstable_[vidx].varidx_ == firstoccurvnm )
-				{
-				    inputidx = varstable_[vidx].inputidx_;
-				    break;
-				}
-			}
-		    }
-
-		    if ( inputidx<0 && shift<maxshift_ )
-			maxshift_ = shift;
-		    varstable_ += VAR( idx, inputidx, shift );
-		}
-		break;
-	    }
-	    case ::Math::Expression::Constant :
-	    {
-		int constidx = expression_->getConstIdx( idx );
-		cststable_.add( CSTS( idx, constidx ) );
-		nrcsts++;
-		break;
-	    }
-	    case ::Math::Expression::Recursive :
-	    {
-		int shift=0;
-		const BufferString varnm =
-			::Math::ExpressionParser::varNameOf( fvarexp, &shift );
-		varstable_ += VAR( idx, -1, shift );
-	    }
-	}
-    }
-    if ( expression_->isRecursive() )
-	adjustVarSampReqs();
-
-    while ( recstartvals_.size()< -maxshift_ )
-	recstartvals_+= recstartvals_.size() ?
-				recstartvals_[ recstartvals_.size()-1] : 0;
 }
 
 
@@ -400,14 +235,21 @@ const Interval<int>* Attrib::Mathematics::reqZSampMargin( int inp, int ) const
     //Trick: as call to this function is not multithreaded
     //we use a single address for reqintv_ which will be reset for every input
     const_cast< Interval<int>* >(&reqintv_)->set(0,0);
+    int datainpidx = -1;
     bool found = false;
-    for ( int idx=0; idx<varstable_.size(); idx++ )
-	if ( varstable_[idx].inputidx_ == inp )
+    for ( int idx=0; idx<formula_->nrInputs(); idx++ )
+    {
+	if ( !formula_->isConst(idx) && !formula_->isSpec(idx) )
 	{
-	    found = true;
-	    const_cast< Interval<int>* >
-		(&reqintv_)->include( varstable_[idx].sampgate_ );
-	}
+	    datainpidx++;
+	    if ( datainpidx == inp )
+	    {
+		found = true;
+		const_cast< Interval<int>* >
+		    (&reqintv_)->include( formula_->shiftRange( inp ) );
+	    }
+	 }
+    }
 
     return found ? &reqintv_ : 0;
 }
@@ -418,14 +260,3 @@ const Interval<float>* Attrib::Mathematics::desZMargin( int inp, int ) const
     return &desintv_;
 }
 
-
-void Attrib::Mathematics::adjustVarSampReqs()
-{
-    for ( int idx=0; idx<varstable_.size(); idx++ )
-    {
-	Interval<int> varsgate = varstable_[idx].sampgate_;
-	varsgate.start - maxshift_ <= varsgate.stop
-			? varstable_[idx].sampgate_.start -= maxshift_
-			: varstable_[idx].sampgate_.start = varsgate.stop;
-    }
-}
