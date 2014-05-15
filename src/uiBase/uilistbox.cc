@@ -135,6 +135,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     , sliderg_(-1,-1)
 {
     setObjectName( nm );
+    setEditTriggers( QAbstractItemView::NoEditTriggers );
     setDragDropMode( QAbstractItemView::NoDragDrop );
     setAcceptDrops( false ); setDragEnabled( false );
     setSelectionBehavior( QAbstractItemView::SelectItems );
@@ -479,11 +480,11 @@ void uiListBox::menuCB( CallBacker* )
 {
     rightclickmnu_.clear();
     const int sz = size();
-    if ( sz < 1 )
+    if ( sz < 1 || !isMultiChoice() )
 	return;
 
     const int nrchecked = nrChecked();
-    if ( nrchecked < size() )
+    if ( nrchecked < sz )
 	rightclickmnu_.insertItem( new uiAction("&Check all (Ctrl-A)"), 0 );
     if ( nrchecked > 0 )
 	rightclickmnu_.insertItem( new uiAction("&Uncheck all (Ctrl-Z)"), 1 );
@@ -506,7 +507,7 @@ void uiListBox::menuCB( CallBacker* )
     {
 	const int selidx = currentItem();
 	TypeSet<int> checked; getCheckedItems( checked );
-	for ( int idx=0; idx<size(); idx++ )
+	for ( int idx=0; idx<sz; idx++ )
 	    setItemChecked( idx, !checked.isPresent(idx) );
 	setCurrentItem( selidx );
     }
