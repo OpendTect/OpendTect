@@ -130,6 +130,9 @@ public:
 			//!<will prepare strings for each desc, format :
 			//!<Attrib,[stored], [{prestack}]
     void		fillInUIInputList(BufferStringSet&) const;
+			//!<Counterpart: will decode the UI string
+			//!<and return the corresponding Desc*
+    Desc*		getDescFromUIListEntry(BufferString);
 
     			//!<will create an empty DataPointSet
     DataPointSet*	createDataPointSet(Attrib::DescSetup,
