@@ -165,6 +165,12 @@ bool uiMathFormula::setText( const char* txt )
 }
 
 
+const char* uiMathFormula::text() const
+{
+    return exprfld_->text();
+}
+
+
 bool uiMathFormula::updateForm() const
 {
     form_.setText( exprfld_->text() );
