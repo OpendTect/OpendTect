@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 #include "mathformula.h"
+#include "mathspecvars.h"
 #include "mathformulatransl.h"
 #include "od_iostream.h"
 #include "ascstream.h"
@@ -51,7 +52,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     const CallBack unitsetcb( mCB(this,uiMathFormula,formUnitSetCB) );
 
     uiMathExpression::Setup mesu( setup_.label_ );
-    mesu.withsetbut( true ).fnsbelow( false );
+    mesu.withsetbut( true ).fnsbelow( false ).specvars( &form_.specVars() );
     exprfld_ = new uiMathExpression( this, mesu );
     exprfld_->formSet.notify( formsetcb );
     setHAlignObj( exprfld_ );
@@ -203,9 +204,10 @@ bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 	uiMathExpressionVariable& inpfld = *inpflds_[idx];
 	if ( !isbad && idx<form_.nrInputs() )
 	{
-	    const PropertyRef::StdType ptyp
-		= inputtypes && inputtypes->validIdx(idx) ? (*inputtypes)[idx]
-							  : PropertyRef::Other;
+	    const int specidx = form_.specIdx( idx );
+	    PropertyRef::StdType ptyp = PropertyRef::Other;
+	    if ( specidx < 0 && inputtypes && inputtypes->validIdx(idx) )
+		ptyp = (*inputtypes)[idx];
 	    inpfld.setPropType( ptyp );
 	}
 	inpfld.use( form_ );
@@ -306,6 +308,9 @@ void uiMathFormula::inpSetCB( CallBacker* cb )
 	if ( inpflds_[idx] == cb )
 	    { notifinpnr_ = idx; break; }
     }
+    if ( notifinpnr_ < 0 )
+	{ pErrMsg("Huh" ); return; }
+
     inpSet.trigger();
 }
 

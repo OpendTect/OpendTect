@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimathexpression.h"
 #include "mathexpression.h"
+#include "mathspecvars.h"
 
 #include "uitoolbutton.h"
 #include "uilineedit.h"
@@ -54,6 +55,8 @@ uiMathExpression::uiMathExpression( uiParent* p,
 		    Math::ExpressionOperatorDescGroup::supported();
 	for ( int idx=0; idx<grps.size(); idx++ )
 	    grpfld_->addItem( grps[idx]->name_ );
+	if ( setup_.specvars_ )
+	    grpfld_->addItem( "Other" );
 	grpfld_->setCurrentItem( 2 );
 	grpfld_->selectionChanged.notify( mCB(this,uiMathExpression,grpSel) );
 	uiLabel* lbl = new uiLabel( insgrp, setup_.fnsbelow_ ? "   \\":"   /" );
@@ -132,14 +135,28 @@ void uiMathExpression::grpSel( CallBacker* )
 {
     fnfld_->setEmpty();
     const int grpidx = grpfld_->currentItem();
-    const Math::ExpressionOperatorDescGroup& grp =
-		*Math::ExpressionOperatorDescGroup::supported()[grpidx];
-    for ( int idx=0; idx<grp.opers_.size(); idx++ )
+    const ObjectSet<const Math::ExpressionOperatorDescGroup>& grps =
+		Math::ExpressionOperatorDescGroup::supported();
+    if ( grpidx == grps.size() )
     {
-	const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
-	BufferString str( oper.symbol_ );
-	str.add( " (" ).add( oper.desc_ ).add( ")" );
-	fnfld_->addItem( str );
+	for ( int idx=0; idx<setup_.specvars_->size(); idx++ )
+	{
+	    const Math::SpecVar& specvar = (*setup_.specvars_)[idx];
+	    BufferString str( specvar.varnm_ );
+	    str.add( " (" ).add( specvar.dispnm_ ).add( ")" );
+	    fnfld_->addItem( str );
+	}
+    }
+    else
+    {
+	const Math::ExpressionOperatorDescGroup& grp = *grps[grpidx];
+	for ( int idx=0; idx<grp.opers_.size(); idx++ )
+	{
+	    const Math::ExpressionOperatorDesc& oper = *grp.opers_[idx];
+	    BufferString str( oper.symbol_ );
+	    str.add( " (" ).add( oper.desc_ ).add( ")" );
+	    fnfld_->addItem( str );
+	}
     }
 }
 
@@ -148,17 +165,28 @@ void uiMathExpression::doIns( CallBacker* )
 {
     const int grpidx = grpfld_->currentItem();
     const int opidx = fnfld_->currentItem();
-    const Math::ExpressionOperatorDescGroup& grp =
-		*Math::ExpressionOperatorDescGroup::supported()[grpidx];
-    const Math::ExpressionOperatorDesc& oper = *grp.opers_[opidx];
+    const ObjectSet<const Math::ExpressionOperatorDescGroup>& grps =
+		Math::ExpressionOperatorDescGroup::supported();
 
-    BufferString txt( oper.symbol_ );
-    if ( !oper.isoperator_ )
+    BufferString txt;
+    if ( grpidx == grps.size() )
     {
-	txt += "( ";
-	for ( int idx=1; idx<oper.nrargs_; idx++ )
-	    txt += ", ";
-	txt += ")";
+	const Math::SpecVar& specvar = (*setup_.specvars_)[opidx];
+	txt.set( specvar.varnm_ );
     }
+    else
+    {
+	const Math::ExpressionOperatorDescGroup& grp = *grps[grpidx];
+	const Math::ExpressionOperatorDesc& oper = *grp.opers_[opidx];
+	txt.set( oper.symbol_ );
+	if ( !oper.isoperator_ )
+	{
+	    txt += "( ";
+	    for ( int idx=1; idx<oper.nrargs_; idx++ )
+		txt += ", ";
+	    txt += ")";
+	}
+    }
+
     insertText( txt );
 }

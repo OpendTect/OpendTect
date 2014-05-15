@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathformula.h"
+#include "mathspecvars.h"
 #include "mathformulatransl.h"
 #include "mathexpression.h"
 #include "unitofmeasure.h"

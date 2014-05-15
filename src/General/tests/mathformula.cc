@@ -8,6 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mathformula.h"
+#include "mathspecvars.h"
 #include "testprog.h"
 #include "unitofmeasure.h"
 #include "iopar.h"
@@ -43,7 +44,7 @@ static bool testSimpleFormula()
 
     if ( !form.isOK() )
 	{ od_cout() << "Fail:\ndata series mode errmsg="
-	    		<< form.errMsg() << od_endl; return false; }
+			<< form.errMsg() << od_endl; return false; }
 
     const int nrinp = form.nrInputs();
     mTestVal(nrinp,3);
