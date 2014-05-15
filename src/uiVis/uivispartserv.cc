@@ -1414,9 +1414,9 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    continue;
 	newscene->usePar( *scenepar );
 
-	for ( int idx=0; idx<newscene->size(); idx++ )
+	for ( int objidx=0; objidx<newscene->size(); objidx++ )
 	{
-	    int objid = newscene->getObject(idx)->id();
+	    int objid = newscene->getObject(objidx)->id();
 	    setUpConnections( objid );
 	}
 
