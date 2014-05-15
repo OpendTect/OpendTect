@@ -1408,12 +1408,21 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
 	newscene->setID( sceneid );
 	addScene( newscene );
-
+	
 	IOPar* scenepar = par.subselect( key.buf() );
 	if ( !scenepar )
 	    continue;
 	newscene->usePar( *scenepar );
+
+	for ( int idx=0; idx<newscene->size(); idx++ )
+	{
+	    int objid = newscene->getObject(idx)->id();
+	    setUpConnections( objid );
+	}
+	
     }
+
+    objectaddedremoved.trigger();
 
     mpetools_->initFromDisplay();
 

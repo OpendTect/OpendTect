@@ -403,21 +403,34 @@ osgViewer::CompositeViewer* ui3DViewerBody::getCompositeViewer()
     mDefineStaticLocalObject( Threads::Lock, lock, (true) );
     Threads::Locker locker ( lock );
     mDefineStaticLocalObject( osg::ref_ptr<osgViewer::CompositeViewer>,
-			      viewer, = 0 );
-    if ( !viewer )
+	viewer, = 0 );
+
+    if ( !viewer || viewer->done() )
     {
-	viewer = new osgViewer::CompositeViewer;
-	viewer->setThreadingModel( osgViewer::ViewerBase::SingleThreaded );
-	viewer->getEventVisitor()->setTraversalMask(
-					visBase::cEventTraversalMask() );
-	viewer->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
-	viewer->setKeyEventSetsDone( 0 );
-	osgQt::setViewer( viewer.get() );
-        visBase::DataObject::setCommonViewer( viewer );
+	osg::ref_ptr<osgViewer::CompositeViewer> updatedviewer = viewer;
+	if ( !updatedviewer )
+	    updatedviewer = new osgViewer::CompositeViewer;
+	else
+	    updatedviewer->setDone( false );
+
+	updatedviewer->setThreadingModel(osgViewer::ViewerBase::SingleThreaded);
+	updatedviewer->getEventVisitor()->setTraversalMask(
+	    visBase::cEventTraversalMask() );
+	updatedviewer->setRunFrameScheme( osgViewer::ViewerBase::ON_DEMAND );
+	updatedviewer->setKeyEventSetsDone( 0 );
+
+	if ( !viewer )
+	{
+	    viewer = updatedviewer;
+	    osgQt::setViewer( viewer.get() );
+	    visBase::DataObject::setCommonViewer( viewer );
+	}
+
     }
 
     return viewer.get();
 }
+
 
 
 osg::Camera* ui3DViewerBody::getOsgCamera()
