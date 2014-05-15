@@ -231,6 +231,9 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     sels.selsections.erase();
     if ( sectionfld_ )
 	sectionfld_->box()->getChosen( sels.selsections );
+    else
+	sels.selsections += 0;
+
     sels.selvalues.erase();
     if ( attribfld_ )
 	attribfld_->box()->getChosen( sels.selvalues );
