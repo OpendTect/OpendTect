@@ -58,7 +58,7 @@ public:
 					//!< iinp == -1 does all
 
     bool		setText(const char*);
-    const char*		text();
+    const char*		text() const;
 
     bool		useForm(const TypeSet<PropertyRef::StdType>* inptyps=0);
     bool		updateForm() const;
