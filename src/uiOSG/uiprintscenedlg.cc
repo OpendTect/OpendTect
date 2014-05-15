@@ -305,7 +305,7 @@ bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
 	return false;
 
     if ( rgbhudimage.bufferSize()>0 )
-	rgbmainimage.blendWith( rgbhudimage );
+	rgbmainimage.blendWith( rgbhudimage, false, true );
 
     rgbmainimage.save( filepath.fullPath().buf(),fmt );
 
