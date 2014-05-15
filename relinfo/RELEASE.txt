@@ -1,7 +1,7 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0k: May 8, 2014
+v4.6.0k: May 15, 2014
  * Made uniform the velocity label to 'Temporary model velocity' 
    across well import modules
  * Horizon Tracking Toolbar is now displayed as soon as tracking is started
