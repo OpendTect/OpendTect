@@ -87,6 +87,7 @@ install( DIRECTORY doc/Scripts
 #Install data
 install ( DIRECTORY "data" DESTINATION .
 	  PATTERN "install_files" EXCLUDE
+	  PATTERN "icons.Classic" EXCLUDE
 	  PATTERN ".svn" EXCLUDE )
 
 file( GLOB RELINFOFILES ${CMAKE_SOURCE_DIR}/relinfo/*.txt )
