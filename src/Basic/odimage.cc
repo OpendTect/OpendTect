@@ -89,7 +89,8 @@ bool RGBImage::put(unsigned char const* source,bool xdir_slowest, bool opacity)
 
 
 bool RGBImage::blendWith( const RGBImage& sourceimage, 
-			  bool blendequaltransparency  )
+			  bool blendequaltransparency,
+			  bool with_opacity )
 {
     if ( sourceimage.bufferSize() != bufferSize() )
 	return false;
@@ -132,7 +133,7 @@ bool RGBImage::blendWith( const RGBImage& sourceimage,
 	    const unsigned char t = 
 		(unsigned char)( 255 * (a1 + a2 * (1 - a1) ) );
 
-	    if ( !set( idx, idy, Color( r, g, b, t ) ) )
+	    if ( !set( idx, idy, Color( r, g, b, with_opacity ? 255-t : t ) ) )
 		return false;
 	}
     }
