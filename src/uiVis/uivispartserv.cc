@@ -1413,7 +1413,16 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	if ( !scenepar )
 	    continue;
 	newscene->usePar( *scenepar );
+
+	for ( int idx=0; idx<newscene->size(); idx++ )
+	{
+	    int objid = newscene->getObject(idx)->id();
+	    setUpConnections( objid );
+	}
+
     }
+
+    objectaddedremoved.trigger();
 
     mpetools_->initFromDisplay();
 
