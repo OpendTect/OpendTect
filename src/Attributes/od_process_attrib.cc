@@ -77,7 +77,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
     strm << od_newline;
 
-    strm << "Preparing processing" << od_endl;
+    strm << "Preparing processing";
     const char* seisid = pars().find( "Output.0.Seismic.ID" );
     if ( !seisid )
 	seisid = pars().find( "Output.1.Seismic ID" );
@@ -164,7 +164,7 @@ bool BatchProgram::go( od_ostream& strm )
     const bool is2d = attrtypstr && *attrtypstr == '2';
 
     //processing dataset on a single machine
-    if ( alllinenames.isEmpty() && is2d ) 
+    if ( alllinenames.isEmpty() && is2d )
     {
 	MultiID dsid;
 	pars().get( "Input Line Set", dsid );
@@ -197,7 +197,6 @@ bool BatchProgram::go( od_ostream& strm )
 
 	const double pause_sleep_time =
 				GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
-	bool loading = true;
 	int nriter = 0, nrdone = 0;
 
 	while ( true )
@@ -222,25 +221,21 @@ bool BatchProgram::go( od_ostream& strm )
 
 		if ( nriter == 0 && !is2d )
 		{
-		    strm << "\nEstimated number of positions to be processed"
-			 <<"(assuming regular input): "<< proc->totalNr()
-			 << "\nLoading cube data ...\n" << od_endl;
+		    strm << "Estimated number of positions to be processed"
+			 << " (assuming regular input): " << proc->totalNr()
+			 << od_endl << od_endl;
 		    progressmeter.setTotalNr( proc->totalNr() );
 		}
 		if ( nriter == 0 && is2d && alllinenames.size()>1 )
 		{
-		    strm << "\nComputing on line "
-			 << alllinenames.get(idx).buf()<< "\n" << od_endl;
+		    strm << "\nProcessing attribute on line "
+			 << alllinenames.get(idx).buf()
+			 << " (" << idx+1 << "/" << alllinenames.size()
+			 << ")" << "\n" << od_endl;
 		}
 
 		if ( res > 0 )
 		{
-		    if ( loading )
-		    {
-			loading = false;
-			mMessage( "Processing started" );
-		    }
-
 		    if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
 			mRetHostErr( comm_->errMsg() )
 
@@ -274,10 +269,9 @@ bool BatchProgram::go( od_ostream& strm )
 	{ mMessage( "Could not close output data." ); }
 	else
 	{
-	    mMessage( "Processing done; Closing down" );
 	    if ( is2d && alllinenames.size()>1 )
-		strm << "\nComputed line " <<idx+1<< " out of "
-		     << alllinenames.size()<<"\n" << od_endl;
+		strm << "\n\nProcessing on " << alllinenames.get(idx)
+		     << " finished.\n\n\n";
 	}
 
 	mDestroyWorkers
