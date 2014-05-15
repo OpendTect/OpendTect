@@ -725,6 +725,7 @@ bool uiODMain::closeOK()
     IOM().applClosing();
 
     removeDockWindow( ctabwin_ );
+    timer_.tick.remove( mCB(this,uiODMain,timerCB) );
     delete scenemgr_;
     delete menumgr_;
 
