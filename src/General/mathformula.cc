@@ -264,6 +264,17 @@ int Math::Formula::nrConsts() const
 }
 
 
+int Math::Formula::nrExternalInputs() const
+{
+    int nrinputs = 0;
+    for ( int idx=0; idx<nrInputs(); idx++ )
+	if ( !isConst(idx) && !isSpec(idx) )
+	    nrinputs++;
+
+    return nrinputs;
+}
+
+
 int Math::Formula::nrValues2Provide() const
 {
     int nrvals = 0;
