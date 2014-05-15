@@ -10,6 +10,7 @@ v4.6.0k: May 15, 2014
  * Fix for crash in 2D horizon import
  * Fix for crash while evaluating attribute
  * Fix for crash in GMT mapping tool batch program
+ * Fix for crash while closing OpendTect after session restore
  * Fix for setting default 2D attribute
  * Fix for creating a 2D grid from a 3D volume
  * Fix for writing new lines in a lineset
