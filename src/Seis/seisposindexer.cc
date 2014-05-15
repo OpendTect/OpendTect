@@ -99,6 +99,8 @@ bool Seis::PosIndexer::dumpTo( std::ostream& strm ) const
     }
 
     const int nrlines = is2d_ ? 1 : inls_.size();
+    if ( crlsets_.size() < nrlines )
+	return false;
 
     for ( int lineidx=0; lineidx<nrlines; lineidx++ )
     {
