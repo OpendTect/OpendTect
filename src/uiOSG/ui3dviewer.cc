@@ -195,6 +195,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , visscenecoltab_( 0 )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
     , setinitialcamerapos_( true )
+    , keybindman_( *new KeyBindMan )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -211,6 +212,8 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
 
 ui3DViewerBody::~ui3DViewerBody()
 {
+    delete &keybindman_;
+
     manipmessenger_->detach();
     manipmessenger_->unref();
 
@@ -350,6 +353,8 @@ void ui3DViewerBody::setupView()
     osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	new osgGeo::TrackballManipulator(
 	    osgGA::StandardManipulator::DEFAULT_SETTINGS );
+
+    keybindman_.setTrackballManipulator( manip );
 
     manip->addMovementCallback( manipmessenger_ );
     manip->setBoundTraversalMask( visBase::cBBoxTraversalMask() );
@@ -1232,17 +1237,19 @@ Color ui3DViewer::getAnnotationColor() const
 
 void ui3DViewer::getAllKeyBindings( BufferStringSet& keys )
 {
+    osgbody_->keyBindMan().getAllKeyBindings( keys );
 }
 
 
 void ui3DViewer::setKeyBindings( const char* keybindname )
 {
+    osgbody_->keyBindMan().setKeyBindings( keybindname, true );
 }
 
 
 const char* ui3DViewer::getCurrentKeyBindings() const
 {
-    return 0;
+    return osgbody_->keyBindMan().getCurrentKeyBindings();
 }
 
 
