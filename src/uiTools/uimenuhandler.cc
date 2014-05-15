@@ -38,7 +38,7 @@ bool uiMenuHandler::executeMenuInternal()
 {
     //makes sure that object is not removed during a cb
     RefMan<uiMenuHandler> reffer(this);
-    
+
     removeItems();
     MouseCursorManager::setOverride( MouseCursor::Wait );
     initnotifier.trigger();
@@ -60,7 +60,7 @@ bool uiMenuHandler::executeMenuInternal()
     return true;
 }
 
-    
+
 bool uiMenuHandler::executeMenu( int menutype, const TypeSet<int>* path )
 {
     menutype_ = menutype; path_ = path;
@@ -140,7 +140,7 @@ uiTreeItemTBHandler::uiTreeItemTBHandler( uiParent* uiparent )
     : MenuHandler(-1)
     , uiparent_(uiparent)
 {
-    tb_ = new uiToolBar( uiparent, "Item tools" );
+    tb_ = new uiToolBar( uiparent_, "Item tools", uiToolBar::Top, true );
     tb_->buttonClicked.notify( mCB(this,uiTreeItemTBHandler,butClickCB) );
     handleEmpty();
 }
