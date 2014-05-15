@@ -275,7 +275,14 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 	    MultiID mid;
 	    par_->get( linesetkey, mid );
 	    PtrMan<IOObj> ioobj = IOM().get( mid );
-	    if ( !ioobj ) lineids[idx] = mUdf(int);
+	    if ( !ioobj )
+	    {
+		lineids[idx] = mUdf(int);
+		geomids_ += Survey::GM().cUndefGeomID();
+		trcranges += StepInterval<int>::udf();
+		continue;
+	    }
+
 	    Pos::GeomID geomid = Survey::GM().getGeomID( ioobj->name(),
 							 linenames_.get(idx) );
 	    geomids_ += geomid;
@@ -296,6 +303,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
 		lineids.removeSingle( idx );
 		linenames_.removeSingle( idx );
 		geomids_.removeSingle( idx );
+		trcranges.removeSingle( idx );
 		continue;
 	    }
 
