@@ -54,7 +54,7 @@ namespace Pick { class Set; }
  */
 
 mExpClass(uiODMain) uiODApplMgr : public CallBacker
-{
+{mODTextTranslationClass(uiODApplMgr)
 public:
 
     uiPickPartServer*		pickServer()		{ return pickserv_; }
@@ -281,6 +281,8 @@ protected:
     int				otherformatattrib_;
 
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_;
+
+    static bool			Convert_OD4_Data_To_OD5();
 
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;
