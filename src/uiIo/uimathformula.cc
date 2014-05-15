@@ -150,8 +150,8 @@ bool uiMathFormula::checkValidNrInputs() const
     if ( form_.nrInputs() > inpflds_.size() )
     {
 	BufferString msg( "Sorry, the expression contains ", form_.nrInputs(),
-			  "inputs.\nThe maximum number is " );
-	msg.add( inpflds_.size() );
+			  " inputs.\nThe maximum number is " );
+	msg.add( inpflds_.size() ).add( "." );
 	uiMSG().error( msg );
 	return false;
     }
