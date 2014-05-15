@@ -345,7 +345,10 @@ void ui3DViewerBody::setupView()
     view_ = new osgViewer::View;
     view_->setCamera( osgcamera );
     view_->setSceneData( offscreenrenderswitch_ );
-    view_->addEventHandler( new osgViewer::StatsHandler );
+    osgViewer::StatsHandler* statshandler = new osgViewer::StatsHandler;
+    statshandler->setKeyEventTogglesOnScreenStats( 'g' );
+    statshandler->setKeyEventPrintsOutStats( 'G' );
+    view_->addEventHandler( statshandler );
 
     // Unlike Coin, default OSG headlight has zero ambiance
     view_->getLight()->setAmbient( osg::Vec4(0.6f,0.6f,0.6f,1.0f) );
