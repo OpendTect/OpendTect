@@ -375,7 +375,7 @@ void uiTieWin::editD2TPushed( CallBacker* cb )
 
 bool uiTieWin::saveDataPushed( CallBacker* cb )
 {
-    uiSaveDataDlg dlg( this, server_.data(), server_.dataWriter() );
+    uiSaveDataDlg dlg( this, server_ );
     return dlg.go();
 }
 

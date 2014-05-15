@@ -71,10 +71,10 @@ public:
     static const char*		sKeyMarkerFullName()	{ return
 						 "Display markers full name"; }
     static const char*		sKeyHorizonFullName()	{ return
-						 "Display horizon full name"; }	
+						 "Display horizon full name"; }
 
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&); 
+    void		usePar(const IOPar&);
 };
 
 
@@ -83,20 +83,20 @@ mExpClass(WellAttrib) Marker
 public:
 			    Marker(float z)
 				: zpos_(z)
-				, size_(2)  
+				, size_(2)
 				{}
 
     Color			color_;
     float			zpos_;
     BufferString		name_;
-    int 			id_;
+    int				id_;
     int				size_;
 
     bool			operator == ( const Marker& m ) const
 					{ return m.zpos_ == zpos_; }
 };
 
-    
+
 mExpClass(WellAttrib) PickData
 {
 public:
@@ -104,12 +104,12 @@ public:
     TypeSet<Marker>		seispicks_;
 };
 
-    
+
 mExpClass(WellAttrib) Data
 {
 public :
-    				Data(const Setup&,Well::Data& wd);
-    				~Data();
+				Data(const Setup&,Well::Data& wd);
+				~Data();
 
     Well::Data*			wd_;
 
@@ -129,14 +129,14 @@ public :
     void			computeExtractionRange();
 
     const Setup&		setup() const	{ return setup_; }
-    const char* 		density() const	{ return setup_.denlognm_; }
-    const char* 		sonic() const	{ return setup_.vellognm_; }
+    const char*			sKeyDensity() const { return setup_.denlognm_; }
+    const char*			sKeySonic() const { return setup_.vellognm_; }
     bool			isSonic() const	{ return setup_.issonic_; }
 
-    static const char* 		ai()		{ return "AI"; }
-    static const char* 		reflectivity()	{ return "Reflectivity"; }
-    static const char* 		synthetic()	{ return "Synthetic"; }
-    static const char* 		seismic()	{ return "Seismic"; }
+    static const char*		sKeyAI()	{ return "AI"; }
+    static const char*		sKeyReflectivity() { return "Reflectivity"; }
+    static const char*		sKeySynthetic() { return "Synthetic"; }
+    static const char*		sKeySeismic()	{ return "Seismic"; }
     static float		cDefSeisSr();
 
     TypeSet<Marker>		horizons_;
@@ -168,83 +168,67 @@ protected:
 mExpClass(WellAttrib) WellDataMgr : public CallBacker
 {
 public:
-    				WellDataMgr(const MultiID&);
-    				~WellDataMgr();
+				WellDataMgr(const MultiID&);
+				~WellDataMgr();
 
-    Well::Data*          	wd() 		{ return wellData(); }
+    Well::Data*			wd()		{ return wellData(); }
     Notifier<WellDataMgr>	datadeleted_;
 
 protected:
 
-    Well::Data*          	wellData() const;
+    Well::Data*			wellData() const;
 
-    Well::Data*          	wd_;
+    Well::Data*			wd_;
     const MultiID		wellid_;
     void			wellDataDelNotify(CallBacker*);
 };
 
 
-mExpClass(WellAttrib) DataWriter 
-{	
-public:    
+mExpClass(WellAttrib) DataWriter
+{
+public:
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
-    mStruct(WellAttrib) LogData
-    {
-				LogData( const Well::LogSet& logset )
-				    : logset_(logset)
-				    , curlog_(0)  
-				    {}
-
-	ObjectSet<CtxtIOObj> 	seisctioset_;    
-	const Well::LogSet& 	logset_;			    
-	const Well::Log*	curlog_;	 
-	TypeSet<BinID> 		bids_;
-	TypeSet<int>		ctioidxset_;	 
-	int			nrtraces_;
-	int 			curidx_;
-    };			    
-
-    bool 			writeD2TM() const;		
-    bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
+    bool			writeD2TM() const;
+    bool			writeLogs(const Well::LogSet&,
+					  bool todisk) const;
+    bool			removeLogs(const Well::LogSet&) const;
 
     void			setWD(Well::Data* wd)
-    				{ wd_ = wd; setWellWriter(); }
+				{ wd_ = wd; setWellWriter(); }
 
-    const char*			errMsg() const 
-    				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    const char*			errMsg() const
+				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
 
 protected:
 
-    Well::Writer* 		wtr_;
+    Well::Writer*		wtr_;
     Well::Data*			wd_;
     const MultiID&		wellid_;
     BufferString		errmsg_;
 
-    void 			setWellWriter();
-    bool                        writeLog2Cube(LogData&) const;
+    void			setWellWriter();
 };
 
 
 mExpClass(WellAttrib) HorizonMgr
 {
 public:
-    				HorizonMgr(TypeSet<Marker>& hor)
+				HorizonMgr(TypeSet<Marker>& hor)
 				   : wd_(0)
-				   , horizons_(hor)  
+				   , horizons_(hor)
 				   {}
 
-    mStruct(WellAttrib) PosCouple 		
-    { 
-	float 			z1_, z2_; 
-	bool 			operator == ( const PosCouple& pc ) const
+    mStruct(WellAttrib) PosCouple
+    {
+	float			z1_, z2_;
+	bool			operator == ( const PosCouple& pc ) const
 				{ return z1_ == pc.z1_ && z2_ == pc.z2_; }
     };
 
     void			matchHorWithMarkers(TypeSet<PosCouple>&,
-	    						bool bynames) const;
+							bool bynames) const;
     void			setUpHorizons(const TypeSet<MultiID>&,
 						  BufferString&,TaskRunner&);
     void			setWD( const Well::Data* wd)
@@ -260,24 +244,22 @@ protected:
 mExpClass(WellAttrib) Server : public CallBacker
 {
 public :
-    				Server(const WellTie::Setup&);
-    				~Server();
+				Server(const WellTie::Setup&);
+				~Server();
 
-    const Well::Data* 		wd() const	{ return data_->wd_; }
-    Well::Data* 		wd()		{ return data_->wd_; }
+    const Well::Data*		wd() const	{ return data_->wd_; }
+    Well::Data*			wd()		{ return data_->wd_; }
 
     const MultiID&		wellID() const	{ return wellid_; }
 
-    PickSetMgr&			pickMgr() 	{ return *pickmgr_; }
+    PickSetMgr&			pickMgr()	{ return *pickmgr_; }
     D2TModelMgr&		d2TModelMgr()	{ return *d2tmgr_; }
-    HorizonMgr&			horizonMgr() 	{ return *hormgr_; }
+    HorizonMgr&			horizonMgr()	{ return *hormgr_; }
     DispParams&			dispParams()	{ return data_->dispparams_; }
-    DataWriter&			dataWriter()	{ return *datawriter_; } 
-    const Data&			data() const 	{ return *data_; }
+    DataWriter&			dataWriter()	{ return *datawriter_; }
+    const Data&			data() const	{ return *data_; }
 
     uiString			errMSG() const	{ return errmsg_; }
-
-    bool			is2D() const	{ return is2d_; }
 
     bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
@@ -300,10 +282,9 @@ protected :
     HorizonMgr*			hormgr_;
     D2TModelMgr*		d2tmgr_;
     DataWriter*			datawriter_;
-    Data* 			data_;
+    Data*			data_;
     const MultiID&		wellid_;
 
-    bool			is2d_;
     uiString			errmsg_;
 
     void			wellDataDel( CallBacker* );

@@ -113,6 +113,8 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     }
 
     initwvlt_.reSample( cDefSeisSr() );
+    BufferString wvltnm( estimatedwvlt_.name(), " from well ", wdata.name() );
+    estimatedwvlt_.setName( wvltnm );
 }
 
 
@@ -310,49 +312,42 @@ bool DataWriter::writeD2TM() const
 }
 
 
-bool DataWriter::writeLogs( const Well::LogSet& logset ) const
+bool DataWriter::writeLogs( const Well::LogSet& logset, bool todisk ) const
 {
-    if ( !wd_ ) return false;
+    if ( !wd_ || !wtr_ ) return false;
     Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
     for ( int idx=0; idx<logset.size(); idx++ )
-	wdlogset.add( new Well::Log( logset.getLog(idx) ) );
-    return ( wtr_ && wtr_->putLogs() );
+    {
+	Well::Log* log = new Well::Log( logset.getLog(idx) );
+	wdlogset.add( log );
+    }
+
+    if ( todisk )
+	if ( !wtr_->putLogs() )
+	    return false;
+
+    return true;
 }
 
 
-bool DataWriter::writeLogs2Cube( LogData& ld, Interval<float> zrg ) const
+bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 {
-    if ( ld.logset_.isEmpty() )
-	return false;
-
-    Well::Data wd;
-    wd.track() = wd_->track();
-    wd.setD2TModel( new Well::D2TModel( *wd_->d2TModel() ) );
-    wd.logs().setEmpty();
-    LogCubeCreator lcr( wd );
-    ObjectSet<LogCubeCreator::LogCubeData> logdatas;
-    for ( int idx=0; idx<ld.logset_.size(); idx++ )
+    if ( !wd_ ) return false;
+    Well::LogSet& wdlogset = const_cast<Well::LogSet&>( wd_->logs() );
+    int nrlogs = wdlogset.size();
+    for ( int idx=0; idx<logset.size(); idx++ )
     {
-	const Well::Log& log = ld.logset_.getLog( idx );
-	wd.logs().add( new Well::Log( log ) );
-	BufferString lnm( log.name() );
-	int ctxtidx = ld.ctioidxset_.validIdx(idx) ? ld.ctioidxset_[idx] : -1;
-	if ( ctxtidx < 0 ) return false;
-	CtxtIOObj* ctx = new CtxtIOObj( *ld.seisctioset_[ctxtidx] );
-	logdatas += new LogCubeCreator::LogCubeData( lnm, *ctx );
+	nrlogs--;
+	wdlogset.remove( nrlogs );
     }
-    Well::ExtractParams wep; wep.setFixedRange( zrg, true );
-    lcr.setInput( logdatas, ld.nrtraces_, wep );
-    lcr.execute();
-    BufferString errmsg = lcr.errMsg();
-    return errmsg.isEmpty();
+
+    return true;
 }
 
 
 
 Server::Server( const WellTie::Setup& wts )
-    : is2d_(wts.is2d_)
-    , wellid_(wts.wellid_)
+    : wellid_(wts.wellid_)
 {
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );

@@ -17,49 +17,86 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "wellextractdata.h"
 
-class CtxtIOObj;
-
 namespace Well { class Data;  }
 
 mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
 {
 public:
-				LogCubeCreator(const Well::Data&);
+				LogCubeCreator(const BufferStringSet& lognms,
+					       const MultiID& wllid,
+					       const Well::ExtractParams& pars,
+					       int nrtrcs=1);
+				LogCubeCreator(const BufferStringSet& lognms,
+					       const TypeSet<MultiID>& wllids,
+					       const Well::ExtractParams& pars,
+					       int nrtrcs=1);
 				~LogCubeCreator();
-    mStruct(WellAttrib) LogCubeData
-    {
-				LogCubeData(const char* log,CtxtIOObj& c)
-				    : seisctio_(c), lognm_(log) {}
-			        ~LogCubeData();	
 
-	CtxtIOObj& 		seisctio_;  
-	BufferString		lognm_;
-    };
+				//Returns false is an output already exists
+    bool			setOutputNm(const char* postfix=0,
+					    bool withwllnm=true);
 
-				//LogCubeDatas become mine
-    void			setInput(ObjectSet<LogCubeData>&,int nrtrcs);
-    void			setInput(ObjectSet<LogCubeData>&,int nrtrcs,
-	    				const Well::ExtractParams&);
+    void			resetMsg() { errmsg_.setEmpty(); };
+    void			doMerge(bool yn) { domerge_ = yn; }
+    const char*			errMsg() const;
 
-    const char* 		errMsg() const;
-
-    od_int64    		totalNr() const { return nrIterations(); };
+    uiStringCopy		uiNrDoneText() const { return "Logs handled"; };
+    od_int64			totalNr() const { return nrIterations(); };
 
 protected:
 
-    const Well::Data&		wd_;
-    mutable BufferString	errmsg_;
-    TypeSet<BinID>		binids_;
-    HorSampling			hrg_;
-    int				nrduplicatetrcs_;
+    mStruct(WellAttrib) LogCubeData
+    {
+				LogCubeData(const BufferString& lognm, int iwll)
+				    : lognm_(lognm)
+				    , outfnm_(lognm)
+				    , iwll_(iwll)
+				    , seisioobj_(0)
+				{}
+				~LogCubeData();
+
+	bool			isOK();
+	const char*		errMsg() const;
+
+	BufferString		lognm_;
+	BufferString		outfnm_;
+	int			iwll_;
+	IOObj*			seisioobj_;
+	mutable BufferString	errmsg_;
+    };
+
+    mStruct(WellAttrib) WellData
+    {
+				WellData(const MultiID& wid);
+
+	bool			isOK();
+	const char*		errMsg() const;
+
+	const Well::Data*	wd_;
+	TypeSet<BinID>		binids_;
+	HorSampling		hrg_;
+	mutable BufferString	errmsg_;
+    };
+
     ObjectSet<LogCubeData>	logdatas_;
+    ObjectSet<WellData>		welldata_;
     Well::ExtractParams		extractparams_;
+    int				nrduplicatetrcs_;
+
+				//TODO: Implement merging
+    bool			domerge_;
+    ObjectSet<IOObj>		seisioobjs_;
+    BufferStringSet		cbvsnms_;
+
+    mutable BufferString	errmsg_;
 
     od_int64                    nrIterations() const { return logdatas_.size();}
-    od_int64            	nrdone_;
-    
+    od_int64			nrdone_;
+
+    bool			init(const BufferStringSet& lognms,
+				     const TypeSet<MultiID>& wllids);
     bool			doPrepare(int);
-    bool 			doWork(od_int64,od_int64,int);
+    bool			doWork(od_int64,od_int64,int);
 
     bool                        writeLog2Cube(const LogCubeData&) const;
 };

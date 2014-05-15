@@ -426,13 +426,13 @@ bool DataPlayer::hasSeisId() const
 
 bool DataPlayer::setAIModel()
 {
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sonic() );
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
+    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
+    const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
 
     Well::Log* pcvellog = new Well::Log;
     Well::Log* pcdenlog = new Well::Log;
-    if ( !processLog(sonlog,*pcvellog,data_.sonic()) ||
-	 !processLog(denlog,*pcdenlog,data_.density()) )
+    if ( !processLog(sonlog,*pcvellog,data_.sKeySonic()) ||
+	 !processLog(denlog,*pcdenlog,data_.sKeyDensity()) )
 	return false;
 
     if ( data_.isSonic() )
@@ -511,9 +511,9 @@ bool DataPlayer::copyDataToLogSet()
 	ai += layer.getAI();
     }
 
-    createLog( data_.sonic(), dahlog.arr(), son.arr(), son.size() );
-    createLog( data_.density(), dahlog.arr(), den.arr(), den.size() );
-    createLog( data_.ai(), dahlog.arr(), ai.arr(), ai.size() );
+    createLog( data_.sKeySonic(), dahlog.arr(), son.arr(), son.size() );
+    createLog( data_.sKeyDensity(), dahlog.arr(), den.arr(), den.size() );
+    createLog( data_.sKeyAI(), dahlog.arr(), ai.arr(), ai.size() );
 
     TypeSet<float> dahref, refs;
     for ( int idx=0; idx<refmodel_.size(); idx++ )
@@ -532,7 +532,8 @@ bool DataPlayer::copyDataToLogSet()
 	refs += spike.reflectivity_.real();
     }
 
-    createLog( data_.reflectivity(), dahref.arr(), refs.arr(), refs.size() );
+    createLog( data_.sKeyReflectivity(), dahref.arr(), refs.arr(),
+	       refs.size() );
 
     TypeSet<float> dahsynth, synth;
     const StepInterval<float> tracerg = data_.getTraceRange();
@@ -548,11 +549,11 @@ bool DataPlayer::copyDataToLogSet()
 	synth += data_.synthtrc_.get( idx, 0 );
     }
 
-    createLog( data_.synthetic(), dahsynth.arr(), synth.arr(), synth.size() );
+    createLog( data_.sKeySynthetic(), dahsynth.arr(), synth.arr(),synth.size());
 
-    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sonic() );
+    const Well::Log* sonlog = data_.wd_->logs().getLog( data_.sKeySonic() );
     const UnitOfMeasure* sonuom = sonlog ? sonlog->unitOfMeasure() : 0;
-    Well::Log* vellogfrommodel = data_.logset_.getLog( data_.sonic() );
+    Well::Log* vellogfrommodel = data_.logset_.getLog( data_.sKeySonic() );
     if ( vellogfrommodel && sonlog )
     {
 	if ( data_.isSonic() )
@@ -563,9 +564,9 @@ bool DataPlayer::copyDataToLogSet()
 	vellogfrommodel->convertTo( sonuom );
     }
 
-    const Well::Log* denlog = data_.wd_->logs().getLog( data_.density() );
+    const Well::Log* denlog = data_.wd_->logs().getLog( data_.sKeyDensity());
     const UnitOfMeasure* denuom = denlog ? denlog->unitOfMeasure() : 0;
-    Well::Log* denlogfrommodel = data_.logset_.getLog( data_.density() );
+    Well::Log* denlogfrommodel = data_.logset_.getLog( data_.sKeyDensity() );
     if ( denlogfrommodel && denlog )
     {
 	const UnitOfMeasure* denuomfrommodel =
@@ -576,7 +577,7 @@ bool DataPlayer::copyDataToLogSet()
 	denlogfrommodel->convertTo( denuom );
     }
 
-    Well::Log* ailogfrommodel = data_.logset_.getLog( data_.ai() );
+    Well::Log* ailogfrommodel = data_.logset_.getLog( data_.sKeyAI() );
     if ( ailogfrommodel && sonuom && denuom )
     {
 	const PropertyRef::StdType& impprop = PropertyRef::Imp;

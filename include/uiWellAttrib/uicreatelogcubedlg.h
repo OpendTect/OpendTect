@@ -14,7 +14,10 @@
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+#include "uigroup.h"
 
+class uiCheckBox;
+class uiCreateLogCubeOutputSel;
 class uiGenInput;
 class uiLabeledSpinBox;
 class uiMultiWellLogSel;
@@ -22,15 +25,41 @@ class uiMultiWellLogSel;
 mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
 {
 public:
-    				uiCreateLogCubeDlg(uiParent*,const MultiID*);
+				uiCreateLogCubeDlg(uiParent*,const MultiID*);
 
 protected:
 
-    uiGenInput*			savefld_;
-    uiLabeledSpinBox*		repeatfld_;
     uiMultiWellLogSel*		welllogsel_;
-    
+    uiCreateLogCubeOutputSel*	outputgrp_;
+
     bool			acceptOK(CallBacker*);
+};
+
+
+mExpClass(uiWellAttrib) uiCreateLogCubeOutputSel : public uiGroup
+{
+public:
+
+				uiCreateLogCubeOutputSel(uiParent*,
+							 bool withmerge);
+
+    const char*			getPostFix() const;
+    bool			withWellName() const;
+    int				getNrRepeatTrcs() const;
+
+    void			setPostFix(const BufferString&);
+    void			useWellNameFld(bool);
+    void			displayRepeatFld(bool);
+
+    bool			askOverwrite(BufferString errmsg) const;
+
+protected:
+
+    uiLabeledSpinBox*		repeatfld_;
+    uiCheckBox*			savewllnmfld_;
+    uiGenInput*			savepostfix_;
+    uiCheckBox*			domergefld_;
+
 };
 
 #endif
