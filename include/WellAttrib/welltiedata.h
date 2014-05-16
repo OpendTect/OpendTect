@@ -129,14 +129,14 @@ public :
     void			computeExtractionRange();
 
     const Setup&		setup() const	{ return setup_; }
-    const char*			density() const { return setup_.denlognm_; }
-    const char*			sonic() const	{ return setup_.vellognm_; }
+    const char*			sKeyDensity() const { return setup_.denlognm_; }
+    const char*			sKeySonic() const { return setup_.vellognm_; }
     bool			isSonic() const	{ return setup_.issonic_; }
 
-    static const char*		ai()		{ return "AI"; }
-    static const char*		reflectivity()	{ return "Reflectivity"; }
-    static const char*		synthetic()	{ return "Synthetic"; }
-    static const char*		seismic()	{ return "Seismic"; }
+    static const char*		sKeyAI()	{ return "AI"; }
+    static const char*		sKeyReflectivity() { return "Reflectivity"; }
+    static const char*		sKeySynthetic() { return "Synthetic"; }
+    static const char*		sKeySeismic()	{ return "Seismic"; }
     static float		cDefSeisSr();
 
     TypeSet<Marker>		horizons_;
@@ -190,25 +190,10 @@ public:
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
 
-    mStruct(WellAttrib) LogData
-    {
-				LogData( const Well::LogSet& logset )
-				    : logset_(logset)
-				    , curlog_(0)
-				    {}
-
-	ObjectSet<CtxtIOObj>	seisctioset_;
-	const Well::LogSet&	logset_;
-	const Well::Log*	curlog_;
-	TypeSet<BinID>		bids_;
-	TypeSet<int>		ctioidxset_;
-	int			nrtraces_;
-	int			curidx_;
-    };
-
     bool			writeD2TM() const;
-    bool                        writeLogs(const Well::LogSet&) const;
-    bool                        writeLogs2Cube(LogData&,Interval<float>) const;
+    bool			writeLogs(const Well::LogSet&,
+					  bool todisk) const;
+    bool			removeLogs(const Well::LogSet&) const;
 
     void			setWD(Well::Data* wd)
 				{ wd_ = wd; setWellWriter(); }
@@ -224,7 +209,6 @@ protected:
     BufferString		errmsg_;
 
     void			setWellWriter();
-    bool                        writeLog2Cube(LogData&) const;
 };
 
 

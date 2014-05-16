@@ -14,94 +14,44 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellattribmod.h"
+#include "uicreatelogcubedlg.h"
 #include "uidialog.h"
 #include "uigroup.h"
-#include "bufstringset.h"
-#include "welltieunitfactors.h"
 
-class CtxtIOObj;
-class IOObj;
-class IOObjSel;
-class uiGenInput;
+#include "bufstringset.h"
+
 class uiCheckBox;
+class uiCheckList;
+class uiGenInput;
 class uiIOObjSel;
-class uiLabel;
-class uiLabeledSpinBox;
 
 
 namespace WellTie
 {
-    class Data;
-    class DataWriter;
-
-mExpClass(uiWellAttrib) uiSaveDataGroup : public uiGroup
-{
-public:
-
-      mExpClass(uiWellAttrib) Setup
-      {
-	  public:
-				Setup()
-				    : labelcolnm_("Log")   
-				    , saveasioobj_(false)
-				    {}	  
-			
-	    mDefSetupMemb(BufferString,labelcolnm)
-	    mDefSetupMemb(BufferStringSet,itemnames)
-	    mDefSetupMemb(bool,saveasioobj)
-	    mDefSetupMemb(BufferString,wellname)
-	    mDefSetupMemb(ObjectSet<CtxtIOObj>,ctio);
-      };
-
-    				uiSaveDataGroup(uiParent*,const Setup&);
-    				~uiSaveDataGroup(){};
-
-    bool 			getNamesToBeSaved(BufferStringSet&,
-	    					  TypeSet<int>&);
-    int				indexOf( const char* nm ) const
-				{ return itmnames_.indexOf(nm); }
-    const char*			itemName( int idx )
-    				{ return itmnames_.get(idx); }
-    void 			changeLogUIOutput(CallBacker*);
-
-protected:
-
-    ObjectSet<CtxtIOObj>       	ctio_;
-    uiCheckBox*			checkallfld_;
-    ObjectSet<uiGroup> 		objgrps_;
-    ObjectSet<uiLabel> 		titlelblflds_;
-    ObjectSet<uiLabel> 		lblflds_;
-    ObjectSet<uiGenInput> 	nameflds_;
-    ObjectSet<uiCheckBox> 	boxflds_;
-    ObjectSet<uiIOObjSel>  	ioobjselflds_;
-    const BufferStringSet	itmnames_;
-    bool 			saveasioobj_;
-
-    void			checkAll(CallBacker*);
-};
-
+    class Server;
 
 mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
 {
-public: 
-				uiSaveDataDlg(uiParent*,const Data&,
-							const DataWriter&);
-				~uiSaveDataDlg();
+public:
+				uiSaveDataDlg(uiParent*,Server&);
 
 protected :
 
-    ObjectSet<CtxtIOObj>      	wvltctioset_;
-    ObjectSet<CtxtIOObj>      	seisctioset_;
+    uiCheckBox*			logchk_;
+    uiCheckList*		logsfld_;
+    uiCreateLogCubeOutputSel*	outputgrp_;
+    uiGenInput*			saveasfld_;
+    uiCheckBox*			wvltchk_;
+    uiIOObjSel*			initwvltsel_;
+    uiIOObjSel*			estimatedwvltsel_;
+    Server&			dataserver_;
 
-    uiSaveDataGroup* 		savelogsfld_;
-    uiSaveDataGroup* 		savewvltsfld_;
-    uiGenInput* 		saveasfld_;
-    uiLabeledSpinBox*		repeatfld_;
-    const Data& 		data_;
-    const DataWriter&		datawriter_;
-
-    bool 			acceptOK(CallBacker*);
-    void 			changeLogUIOutput(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    bool			saveLogs();
+    bool			saveWvlt(bool isestimated=true);
+    void			changeLogUIOutput(CallBacker*);
+    void			saveLogsSelCB(CallBacker*);
+    void			saveWvltSelCB(CallBacker*);
 };
 
 }; //namespace WellTie

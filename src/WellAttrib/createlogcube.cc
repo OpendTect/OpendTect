@@ -11,114 +11,237 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "createlogcube.h"
 
+#include "ioman.h"
+#include "seiscbvs.h"
 #include "seistrc.h"
 #include "seiswrite.h"
+#include "stattype.h"
 #include "survinfo.h"
-#include "ctxtioobj.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "wellman.h"
 #include "welltrack.h"
-#include "stattype.h"
+
+
+const char* LogCubeCreator::LogCubeData::errMsg() const
+{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 
 LogCubeCreator::LogCubeData::~LogCubeData()
 {
-    delete seisctio_.ioobj;
+    if ( seisioobj_ ) delete seisioobj_;
 }
 
 
-LogCubeCreator::LogCubeCreator( const Well::Data& wd )
-    : wd_(wd)
-    , hrg_(false)
-    , nrduplicatetrcs_(0)		 
+
+LogCubeCreator::WellData::WellData( const MultiID& wid )
+    : wd_(Well::MGR().get(wid))
+    , hrg_(HorSampling(false))
 {
-    Well::SimpleTrackSampler wtextr( wd_.track(), wd_.d2TModel() );
+    if ( !wd_ )
+    { errmsg_.set( "Cannot open well" ); return; }
+
+    Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel() );
     if ( !wtextr.execute() )
-	{ pErrMsg( "unable to extract position" ); }
+    { pErrMsg( "unable to extract position" ); }
+
     wtextr.getBIDs( binids_ );
-    extractparams_.setFixedRange( SI().zRange(true), SI().zDomain().isTime() );
+}
+
+
+const char* LogCubeCreator::WellData::errMsg() const
+{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+
+
+
+LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
+				const MultiID& wllid,
+				const Well::ExtractParams& pars, int nrtrcs )
+    : extractparams_(pars)
+    , nrduplicatetrcs_(nrtrcs)
+    , domerge_(false)
+{
+    TypeSet<MultiID> wllids;
+    wllids += wllid;
+    init( lognms, wllids );
+}
+
+
+LogCubeCreator::LogCubeCreator( const BufferStringSet& lognms,
+				const TypeSet<MultiID>& wllids,
+				const Well::ExtractParams& pars, int nrtrcs )
+    : extractparams_(pars)
+    , nrduplicatetrcs_(nrtrcs)
+    , domerge_(false)
+{
+    init( lognms, wllids );
 }
 
 
 LogCubeCreator::~LogCubeCreator()
 {
     deepErase( logdatas_ );
+    deepErase( welldata_ );
+    deepErase( seisioobjs_ );
 }
 
 
-void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs )
-{
-    while ( !lcds.isEmpty() )
-	logdatas_ += lcds.removeSingle(0);
-
-    nrduplicatetrcs_ = nrdupltrcs;
-}
-
-
-void LogCubeCreator::setInput( ObjectSet<LogCubeData>& lcds, int nrdupltrcs,
-			const Well::ExtractParams& pars )
-{
-    setInput( lcds, nrdupltrcs );
-    extractparams_ = pars;
-}
-
-
-#define mErrRet(msg,withwellname)\
+#define mErrRet(msg,wllnm,act)\
 { \
     if ( !errmsg_.isEmpty() ) \
-    	errmsg_.add( "\n" ); \
+	errmsg_.addNewLine(); \
     \
-    errmsg_.add( msg ); \
-    if ( withwellname ) \
-	errmsg_.add( " for " ).add( wd_.name() ); \
-    return false; \
+    errmsg_.add( msg ).add( " for well " ).add( wllnm ); \
+    act; \
 }
+
+
+#define mGetWellName(idx) ( welldata_[logdatas_[idx]->iwll_]->wd_->name() )
+
+
+bool LogCubeCreator::init( const BufferStringSet& lognms,
+			   const TypeSet<MultiID>& wllids )
+{
+    TypeSet<int> goodwells;
+    for ( int iwell=0; iwell<wllids.size(); iwell++ )
+    {
+	const MultiID& wllid = wllids[iwell];
+	WellData* welldata = new WellData( wllid );
+	if ( !FixedString(welldata->errMsg()).isEmpty() )
+	{
+	    const BufferString wllnm = welldata->wd_
+				     ? BufferString( welldata->wd_->name() )
+				     : BufferString( wllid );
+	    mErrRet( welldata->errMsg(), wllnm, continue );
+	}
+
+	welldata_ += welldata;
+	goodwells += iwell;
+    }
+
+    for ( int ilog=0; ilog<lognms.size(); ilog++ )
+    {
+	for ( int iwell=0; iwell<goodwells.size(); iwell++ )
+	{
+	    LogCubeData* logdata = new LogCubeData( *lognms[ilog],
+						    goodwells[iwell] );
+	    logdatas_ += logdata;
+	}
+    }
+
+    return true;
+}
+
+
+bool LogCubeCreator::setOutputNm( const char* suffix, bool withwllnm )
+{
+    BufferString postfix( suffix );
+    postfix.trimBlanks();
+
+    IOObjContext ctxt = mIOObjContext(SeisTrc);
+    ctxt.deftransl = "3D";
+    ctxt.forread = false;
+    ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+
+    for ( int idx=0; idx<nrIterations(); idx++ )
+    {
+	if ( !logdatas_.validIdx(idx) )
+	    continue;
+
+	LogCubeData& logdata = *logdatas_[idx];
+	if ( withwllnm )
+	    logdata.outfnm_.add( " " ).add( mGetWellName(idx) );
+
+	if ( !postfix.isEmpty() )
+	    logdata.outfnm_.add( " " ).add( postfix );
+
+	const IOObj* presentobj = IOM().getLocal( logdata.outfnm_.buf(),
+						  ctxt.trgroup->userName() );
+	if ( !presentobj )
+	    continue;
+
+	BufferString msg( "Volume: '", logdata.outfnm_, "' is already present");
+	if ( ctxt.deftransl != presentobj->translator() )
+	    msg.add( " as another type\nand won't be created");
+
+	mErrRet( msg, mGetWellName(idx), continue );
+    }
+
+    return !errMsg();
+}
+
+
 bool LogCubeCreator::doPrepare( int )
 {
-    if ( binids_.isEmpty() )
-	mErrRet( "No valid position extracted along the track", true )
+    const BinID bidvar( nrduplicatetrcs_-1, nrduplicatetrcs_-1 );
+    const BufferString msg( "No valid position extracted along the track" );
+    for ( int iwell=0; iwell<welldata_.size(); iwell++ )
+    {
+	if ( !welldata_.validIdx(iwell) )
+	{ pErrMsg( "Invalid well data" ); }
 
-    hrg_ = HorSampling( false );
-    for ( int idx=0; idx<binids_.size(); idx++ )
-	hrg_.include( binids_[idx] );
+	WellData& welldata = *welldata_[iwell];
+	const TypeSet<BinID>& binid = welldata.binids_;
+	if ( binid.isEmpty() )
+	    mErrRet( msg, welldata.wd_->name(), continue )
 
-    BinID bidvar( nrduplicatetrcs_-1, nrduplicatetrcs_-1 );
-    hrg_.stop += bidvar;
-    hrg_.start -= bidvar;
-    hrg_.snapToSurvey();
+	HorSampling& hrg = welldata.hrg_;
+	for ( int ipts=0; ipts<binid.size(); ipts++ )
+	    hrg.include( binid[ipts] );
+
+	hrg.start -= bidvar;
+	hrg.stop += bidvar;
+	hrg.snapToSurvey();
+    }
+
+    IOObjContext ctxt = mIOObjContext(SeisTrc);
+    ctxt.forread = false;
+    ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+
+    for ( int idx=0; idx<nrIterations(); idx++ )
+    {
+	if ( !logdatas_.validIdx(idx) )
+	    continue;
+
+	IOM().to( ctxt.getSelKey() );
+	CtxtIOObj ctio( ctxt );
+	ctio.setName( logdatas_[idx]->outfnm_ );
+	IOM().getEntry( ctio );
+	if ( !ctio.ioobj )
+	    return false;
+
+	IOM().commitChanges( *ctio.ioobj );
+	logdatas_[idx]->seisioobj_ = ctio.ioobj;
+    }
 
     extractparams_.zstep_ = SI().zRange( true ).step;
     extractparams_.extractzintime_ = SI().zIsTime();
     extractparams_.snapZRangeToSurvey( true );
-    
+
     return true;
 }
 
 
 bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 {
-    if ( SI().zIsTime() && !wd_.haveD2TModel() )
-    {
-	errmsg_.setEmpty();
-	BufferString errmsg = "No depth/time model found";
-	errmsg += "\n";
-	errmsg += "No log cubes created";
-	mErrRet( errmsg, true )
-    }
-
+    const BufferString msg( "One or several log cubes could not be computed" );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
 	if ( !shouldContinue() )
 	    return false;
 
+	if ( !logdatas_.validIdx(idx) )
+	{ pErrMsg( "Invalid LogCubeData" ); }
+
 	if ( !writeLog2Cube(*logdatas_[idx]) )
 	{
-	    const bool errmsgwithwellnm = errmsg_.isEmpty();
-	    mErrRet( "One or several log cubes could not be computed",
-		     errmsgwithwellnm )
+	    if ( errmsg_.isEmpty() )
+	    { errmsg_.set( msg ); return false; }
+	    else
+		mErrRet( msg, mGetWellName(idx), return false );
 	}
 
 	addToNrDone( 1 );
@@ -129,16 +252,29 @@ bool LogCubeCreator::doWork( od_int64 start, od_int64 stop, int )
 
 bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 {
-    if ( !lcd.seisctio_.ioobj || lcd.lognm_.isEmpty() )
-	return false;
+    if ( lcd.lognm_.isEmpty() || lcd.outfnm_.isEmpty() )
+	mErrRet( "Internal: No log name", "", return false );
 
+    const int wll = lcd.iwll_;
+    if ( !welldata_.validIdx(wll) )
+	mErrRet( "Internal: No well data", "", return false );
+
+    if ( !lcd.seisioobj_ || lcd.seisioobj_->isBad() )
+	mErrRet( "Internal: No seismic object", "", return false );
+
+    const Well::Data& wd = *welldata_[wll]->wd_;
+    const BufferString wllnm = wd.name();
     BufferStringSet lognms; lognms.add( lcd.lognm_ );
-    Well::LogSampler logsamp( wd_, extractparams_, lognms );
-    if ( !logsamp.executeParallel(false) )
-	mErrRet( logsamp.errMsg(), true )
+    if ( SI().zIsTime() && !wd.haveD2TModel() )
+	mErrRet( "No depth/time model found", wllnm, return false );
 
-    StepInterval<float> zrg = logsamp.zRange();
-    zrg.step = extractparams_.zstep_;
+    Well::LogSampler logsamp( wd, extractparams_, lognms );
+    if ( !logsamp.executeParallel(false) )
+	mErrRet( logsamp.errMsg(), wllnm, return false )
+
+    const int ns = logsamp.nrZSamples();
+    StepInterval<float> zrg( logsamp.zRange().start, logsamp.zRange().stop,
+			     extractparams_.zstep_ );
     SeisTrc trc( SI().zRange(true).nrSteps() + 1 );
     trc.info().sampling = SI().zRange(true);
     for ( int idztrc=0; idztrc<trc.size(); idztrc++ )
@@ -148,26 +284,30 @@ bool LogCubeCreator::writeLog2Cube( const LogCubeData& lcd ) const
 	if ( zrg.includes(depth,true) )
 	{
 	    const int idz = zrg.getIndex( depth );
-	    if ( idz >=0 && idz < logsamp.nrZSamples() )
+	    if ( idz >=0 && idz < ns )
 		val = logsamp.getLogVal( 0, idz );
 	}
 
 	trc.set( idztrc, val, 0 );
     }
 
-    SeisTrcWriter writer( lcd.seisctio_.ioobj );
-    HorSamplingIterator hsit( hrg_ );
+    if ( domerge_ )
+	return true;
+
+    SeisTrcWriter writer( lcd.seisioobj_ );
+    const HorSampling& hrg = welldata_[wll]->hrg_;
+    HorSamplingIterator hsit( hrg );
     BinID bid;
-    while ( hsit.next( bid ) )
+    while ( hsit.next(bid) )
     {
 	trc.info().binid = bid;
 	if ( !writer.put(trc) )
-	    mErrRet( "cannot write new trace", false );
+	    mErrRet( "cannot write new trace", wllnm, return false );
     }
 
     return true;
 }
 
 
-const char* LogCubeCreator::errMsg() const 
+const char* LogCubeCreator::errMsg() const
 { return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }

@@ -80,12 +80,12 @@ void uiTieView::initWellControl()
 void uiTieView::fullRedraw()
 {
     setLogsParams();
-    drawLog( data_.sonic(), true, 0, !data_.isSonic() );
-    drawLog( data_.density(), false, 0, false );
-    drawLog( data_.ai(), true, 1, false );
-    drawLog( data_.reflectivity(), false, 1, false );
+    drawLog( data_.sKeySonic(), true, 0, !data_.isSonic() );
+    drawLog( data_.sKeyDensity(), false, 0, false );
+    drawLog( data_.sKeyAI(), true, 1, false );
+    drawLog( data_.sKeyReflectivity(), false, 1, false );
     drawLogDispWellMarkers();
-    
+
     redrawViewer();
 }
 
@@ -151,12 +151,12 @@ void uiTieView::initFlatViewer()
     app.ddpars_.wva_.mappersetup_.cliprate_.set(0.0,0.0);
     app.ddpars_.wva_.overlap_ = 1;
     app.ddpars_.wva_.right_= app.ddpars_.wva_.wigg_ = Color::Black();
-    app.annot_.x1_.name_ = data_.seismic();
+    app.annot_.x1_.name_ = data_.sKeySeismic();
     app.annot_.x2_.name_ = "TWT (ms)";
     app.annot_.title_ ="Synthetics<---------------------------------->Seismics";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
-    vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify( 
-	    				mCB( this, uiTieView, setInfoMsg ) );
+    vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify(
+					mCB( this, uiTieView, setInfoMsg ) );
 }
 
 
@@ -204,7 +204,7 @@ void uiTieView::drawTraces()
 	trc->info().sampling.scale( mCast(float,SI().zDomain().userFactor()) );
 	trcbuf_.add( trc );
 	bool udf = idx == 0 || idx == midtrc || idx == midtrc+1 || idx>nrtrcs-2;
-	if ( udf ) 
+	if ( udf )
 	    setUdfTrc( *trc );
 	else
 	    { SeisTrcPropChg pc( *trc ); pc.normalize( true ); }
@@ -221,15 +221,15 @@ void uiTieView::setUdfTrc( SeisTrc& trc ) const
 
 
 
-void uiTieView::setDataPack() 
+void uiTieView::setDataPack()
 {
     vwr_->clearAllPacks();
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol, 
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &trcbuf_, Seis::Vol,
 				SeisTrcInfo::TrcNr, "Seismic" );
     dp->trcBufArr2D().setBufMine( false );
     StepInterval<double> xrange( 1, trcbuf_.size(), 1 );
     dp->posData().setRange( true, xrange );
-    dp->setName( data_.seismic() );
+    dp->setName( data_.sKeySeismic() );
     DPM(DataPackMgr::FlatID()).add( dp );
     vwr_->setPack( true, dp->id(), false );
     vwr_->setPack( false, dp->id(), false );
@@ -258,7 +258,7 @@ void uiTieView::drawMarker( FlatView::AuxData* auxdata,
 				    (float) vwr_->boundingBox().right() );
     auxdata->poly_ += FlatView::Point( left ? xrg.start : xrg.width()/2, zpos );
     auxdata->poly_ += FlatView::Point( left ? xrg.width()/2 : xrg.stop, zpos );
-}	
+}
 
 
 void uiTieView::drawLogDispWellMarkers()
@@ -266,7 +266,7 @@ void uiTieView::drawLogDispWellMarkers()
     mGetWD(return)
     for ( int idx=0; idx<logsdisp_.size(); idx++ )
     {
-	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_; 
+	logsdisp_[idx]->markerDisp() = data_.dispparams_.mrkdisp_;
 	logsdisp_[idx]->reDrawAnnots();
     }
 }
@@ -289,24 +289,24 @@ void uiTieView::drawViewerWellMarkers()
     if ( !ismarkerdisp ) return;
 
     const Well::D2TModel* d2tm = wd->d2TModel();
-    if ( !d2tm ) return; 
+    if ( !d2tm ) return;
     for ( int midx=0; midx<wd->markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd->markers()[midx];
 	if ( !marker  ) continue;
 
-	const Well::DisplayProperties::Markers& mrkdisp 
-	    					= data_.dispparams_.mrkdisp_;
+	const Well::DisplayProperties::Markers& mrkdisp
+						= data_.dispparams_.mrkdisp_;
 	if ( !mrkdisp.selmarkernms_.isPresent( marker->name() ) )
 	    continue;
-	
+
 	float zpos = d2tm->getTime( marker->dah(), wd->track() );
-	
+
 	if ( !zrange_.includes( zpos, true ) )
 	    continue;
 
-	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_ 
-	    					: marker->color();
+	const Color& col = mrkdisp.issinglecol_ ? mrkdisp.color_
+						: marker->color();
 
 	if ( col == Color::NoColor() || col == Color::White() )
 	    continue;
@@ -333,17 +333,17 @@ void uiTieView::drawViewerWellMarkers()
 	auxdata->name_ = mtxt;
 	auxdata->namealignment_ = Alignment(Alignment::Left,Alignment::Top);
 	auxdata->namepos_ = 0;
-    
+
 	drawMarker( auxdata, true, zpos );
     }
-}	
+}
 
 
 void uiTieView::drawUserPicks()
 {
     mRemoveSet( userpickauxdatas_ );
     const int nrauxs = mMAX( seispickset_.size(), synthpickset_.size() );
-    
+
     for ( int idx=0; idx<nrauxs; idx++ )
     {
 	FlatView::AuxData* auxdata = vwr_->createAuxData( 0 );
@@ -391,7 +391,7 @@ void uiTieView::drawHorizons()
 	auxdata->namepos_ = 0;
 	LineStyle ls = LineStyle( LineStyle::Dot, 2, hor.color_ );
 	auxdata->linestyle_ = ls;
-    
+
 	drawMarker( auxdata, false, zval );
     }
 }
@@ -402,8 +402,8 @@ void uiTieView::setInfoMsg( CallBacker* cb )
     BufferString infomsg;
     mDynamicCastGet(MouseEventHandler*,mevh,cb)
     if ( !mevh )
-    { 
-	mCBCapsuleUnpack(BufferString,inf,cb); 
+    {
+	mCBCapsuleUnpack(BufferString,inf,cb);
 	infomsg = inf;
     }
     CBCapsule<BufferString> caps( infomsg, this );
@@ -420,10 +420,10 @@ void uiTieView::enableCtrlNotifiers( bool yn )
 
 uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
 	: uiGroup(p)
-    	, data_(d)
+	, data_(d)
 {
-    uiFunctionDisplay::Setup fdsu; 
-    fdsu.border_.setLeft( 2 );		
+    uiFunctionDisplay::Setup fdsu;
+    fdsu.border_.setLeft( 2 );
     fdsu.border_.setRight( 0 );
     fdsu.epsaroundzero_ = 1e-3;
     disp_ = new uiFunctionDisplay( this, fdsu );
@@ -454,8 +454,8 @@ void uiCrossCorrView::draw()
     TypeSet<float> xvals, yvals;
     for ( int idx=-halfsz; idx<halfsz; idx++)
     {
-	float xaxistime = idx * 
-	    		 data_.getTraceRange().step*SI().zDomain().userFactor();
+	float xaxistime = idx *
+			 data_.getTraceRange().step*SI().zDomain().userFactor();
 	if ( fabs( xaxistime ) > lag_ )
 	    continue;
 	xvals += xaxistime;

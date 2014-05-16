@@ -14,27 +14,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uimultiwelllogsel.h"
 #include "uimsg.h"
-#include "uispinbox.h"
+#include "uimultiwelllogsel.h"
 #include "uiseparator.h"
+#include "uispinbox.h"
 #include "uitaskrunner.h"
 
 #include "createlogcube.h"
-#include "ioman.h"
-#include "seiscbvs.h"
-#include "survinfo.h"
-#include "wellman.h"
-#include "welldata.h"
-#include "welllog.h"
-#include "welllogset.h"
+#include "multiid.h"
 #include "od_helpids.h"
+
 
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     : uiDialog(p,uiDialog::Setup("Create Log Cube",
 				 "Select logs to create new cubes",
 				 mid ? mODHelpKey(mCreateLogCubeDlgHelpID)
-	       			     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
+				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
 {
     setCtrlStyle( RunAndClose );
 
@@ -43,87 +38,125 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     welllogsel_ = mid ? new uiMultiWellLogSel( this, su, *mid )
 		      : new uiMultiWellLogSel( this, su );
 
-    repeatfld_ = new uiLabeledSpinBox( this,"Duplicate trace around the track");
-    repeatfld_->attach( alignedBelow, welllogsel_ );
-    repeatfld_->box()->setInterval( 1, 40, 1 );
-
-    uiSeparator* sep = new uiSeparator( this, "Save Separ" );
-    sep->attach( stretchedBelow, repeatfld_ );
-
-    uiLabel* savelbl = new uiLabel( this, "Save CBVS cube(s)" );
-    savelbl->attach( ensureBelow, sep );
-    savefld_ = new uiGenInput( this, "with well name and suffix", "_log cube" );
-    savefld_->attach( rightOf, savelbl );
+    outputgrp_ = new uiCreateLogCubeOutputSel( this, false );
+    outputgrp_->attach( alignedBelow, welllogsel_ );
 }
 
 
 #define mErrRet( msg, act ) { uiMSG().error( msg ); act; }
 bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 {
-    const int nrtrcs = repeatfld_->box()->getValue()+1;
     const Well::ExtractParams& extractparams = welllogsel_->params();
+    const int nrtrcs = outputgrp_->getNrRepeatTrcs() + 1;
 
-    BufferStringSet wids; BufferStringSet lognms;
+    TypeSet<MultiID> wids;
     welllogsel_->getSelWellIDs( wids );
-    welllogsel_->getSelLogNames( lognms );
     if ( wids.isEmpty() )
 	mErrRet("No well selected",return false);
 
-    BufferString suffix = savefld_->text();
-    for ( int idwell=0; idwell<wids.size(); idwell++)
+    if ( wids.size() > 1 && !outputgrp_->withWellName()  )
+	mErrRet("Multiple wells selected, "
+		"output name must contain the well name",return false);
+
+    BufferStringSet lognms;
+    welllogsel_->getSelLogNames( lognms );
+
+    LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
+    if ( !lcr.setOutputNm(outputgrp_->getPostFix(),outputgrp_->withWellName()) )
     {
-	Well::Data* wd = Well::MGR().get( MultiID( wids.get(idwell)) );
-	if ( !wd )
-	    mErrRet("Cannot read well data",return false);
-
-	LogCubeCreator lcr( *wd );
-	ObjectSet<LogCubeCreator::LogCubeData> logdatas;
-	for ( int idlog=0; idlog<lognms.size(); idlog++ )
-	{
-	    const char* lognm = lognms.get( idlog );
-	    const Well::Log* log = wd->logs().getLog( lognm );
-	    if ( !log ) continue;
-
-	    BufferString cbvsnm( lognm );
-	    cbvsnm += " "; cbvsnm += wd->name();
-	    if ( !suffix.isEmpty() )
-		{ cbvsnm += " "; cbvsnm += suffix; }
-
-	    CtxtIOObj* ctio = mMkCtxtIOObj(SeisTrc);
-	    if ( !ctio ) continue;
-	    ctio->ctxt.forread = false;
-	    ctio->ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
-
-	    IOM().to( ctio->ctxt.getSelKey() );
-	    const IOObj* presentobj = IOM().getLocal( cbvsnm.buf(),
-					    ctio->ctxt.trgroup->userName() );
-	    if ( presentobj )
-	    {
-		BufferString msg( cbvsnm, " is already present" );
-
-		if ( ctio->ctxt.deftransl == presentobj->translator() )
-		{
-		    msg.add( " as another type\nand won't be created");
-		    mErrRet( msg, continue );
-		}
-
-		msg.add( ".\nOverwrite?" );
-		if ( !uiMSG().askOverwrite(msg) )
-		    continue;
-	    }
-
-	    ctio->setName( cbvsnm );
-	    ctio->fillObj();
-	    logdatas += new LogCubeCreator::LogCubeData( lognm, *ctio );
-	}
-	if ( logdatas.isEmpty() )
+	if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
 	    return false;
-
-	lcr.setInput( logdatas, nrtrcs, extractparams );
-	uiTaskRunner* tr = new uiTaskRunner( this );
-	if ( !TaskRunner::execute( tr, lcr ) || lcr.errMsg() )
-	    mErrRet( lcr.errMsg(), return false );
+	else
+	    lcr.resetMsg();
     }
+
+    uiTaskRunner* tr = new uiTaskRunner( this );
+    if ( !TaskRunner::execute(tr,lcr) || lcr.errMsg() )
+	mErrRet( lcr.errMsg(), return false );
+
+    uiMSG().message( "Successfully created the log cube(s)" );
+
     return false;
+}
+
+
+
+uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withmerge)
+    : uiGroup(p,"Create LogCube output specification Group")
+    , domergefld_(0)
+{
+    repeatfld_ = new uiLabeledSpinBox( this,"Duplicate trace around the track");
+    repeatfld_->box()->setInterval( 0, 40, 1 );
+    repeatfld_->box()->setValue( 1 );
+
+    uiSeparator* sep = new uiSeparator( this, "Save Separ" );
+    sep->attach( stretchedBelow, repeatfld_ );
+
+    uiGroup* outputgrp = new uiGroup( this, "Output name group" );
+    outputgrp->attach( ensureBelow, sep );
+
+    uiLabel* savelbl = new uiLabel( outputgrp, "Output name" );
+    savewllnmfld_ = new uiCheckBox( outputgrp, "with well name" );
+    savewllnmfld_->setChecked( true );
+    savewllnmfld_->attach( rightOf, savelbl );
+
+    savepostfix_ = new uiGenInput( outputgrp, "Postfix", "log cube" );
+    savepostfix_->attach( rightOf, savewllnmfld_ );
+
+    if ( !withmerge )
+	return;
+
+    domergefld_ = new uiCheckBox( this, "Keep individual volumes" );
+    domergefld_->attach( alignedBelow, outputgrp );
+}
+
+
+const char* uiCreateLogCubeOutputSel::getPostFix() const
+{
+    return savepostfix_->text();
+}
+
+
+bool uiCreateLogCubeOutputSel::withWellName() const
+{
+    return savewllnmfld_->isChecked();
+}
+
+
+int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
+{
+    return repeatfld_->box()->getValue();
+}
+
+
+void uiCreateLogCubeOutputSel::setPostFix( const BufferString& nm )
+{
+    savepostfix_->setText( nm );
+}
+
+
+void uiCreateLogCubeOutputSel::useWellNameFld( bool use )
+{
+    savewllnmfld_->display( use );
+    savewllnmfld_->setChecked( use );
+}
+
+
+void uiCreateLogCubeOutputSel::displayRepeatFld( bool disp )
+{
+    repeatfld_->display( disp );
+}
+
+
+bool uiCreateLogCubeOutputSel::askOverwrite( BufferString errmsg ) const
+{
+    if ( errmsg.find("as another type") )
+    {
+	errmsg.addNewLine().add( "Please choose another postfix" );
+	mErrRet( errmsg, return false );
+    }
+
+    errmsg.addNewLine().add( "Overwrite?" );
+    return uiMSG().askOverwrite( errmsg );
 }
 

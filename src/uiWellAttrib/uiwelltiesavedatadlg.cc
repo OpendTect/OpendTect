@@ -12,9 +12,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwelltiesavedatadlg.h"
 
+#include "createlogcube.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
 #include "wavelet.h"
+#include "wellextractdata.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 #include "welllog.h"
@@ -22,259 +24,232 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 
 #include "uibutton.h"
+#include "uichecklist.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uilabel.h"
-#include "uiseparator.h"
-#include "uispinbox.h"
-#include "uitable.h"
 #include "uimsg.h"
+#include "uiseparator.h"
+#include "uitable.h"
+#include "uitaskrunner.h"
 #include "od_helpids.h"
 
-
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
+//start at 2, the first 2 are sonic and density.
+#define cLogShift	2
+#define mErrRet(msg,act) { uiMSG().error(msg); act; }
 namespace WellTie
 {
 
-uiSaveDataDlg::uiSaveDataDlg(uiParent* p, const Data& d, const DataWriter& wdr )
+uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     : uiDialog( p, uiDialog::Setup("Save current data",
-		"Check the items to be saved", 
+		"Check the items to be saved",
                 mODHelpKey(mWellTieSaveDataDlgHelpID) ) )
-    , data_(d)
-    , datawriter_(wdr)
+    , dataserver_(wdserv)
 {
     setCtrlStyle( RunAndClose );
-    BufferStringSet lognms; 	BufferStringSet wvltnms;
-    wvltctioset_ += mMkCtxtIOObj(Wavelet);
-    wvltctioset_[0]->ctxt.forread = false;
-    wvltnms.add( data_.initwvlt_.name() );
-    wvltctioset_ += mMkCtxtIOObj(Wavelet);
-    wvltctioset_[1]->ctxt.forread = false;
-    wvltnms.add( data_.estimatedwvlt_.name() );
+    const Data& data = dataserver_.data();
 
-    //start at 2, the first 2 are sonic and density.
-    for ( int idx=2; idx<data_.logset_.size(); idx++)
-    {
-	seisctioset_ += mMkCtxtIOObj(SeisTrc);
-	seisctioset_[idx-2]->ctxt.deftransl =CBVSSeisTrcTranslator::translKey();
-	seisctioset_[idx-2]->ctxt.forread = false;
-	lognms.add( data_.logset_.getLog(idx).name() );
-    }
+    uiGroup* loggrp = new uiGroup( this, "Log parameters" );
+    logchk_ = new uiCheckBox( loggrp, "Log(s)" );
+    logchk_->activated.notify( mCB(this,uiSaveDataDlg,saveLogsSelCB) );
 
-    uiSaveDataGroup::Setup su; su.itemnames_=lognms;
-    su.wellname( data_.wd_->name() ); su.ctio_ = seisctioset_;
-    savelogsfld_ = new uiSaveDataGroup( this, su );
+    BufferStringSet lognms;
+    for ( int idx=cLogShift; idx<data.logset_.size(); idx++)
+	lognms.add( data.logset_.getLog(idx).name() );
 
-    saveasfld_ = new uiGenInput( this, "Save as", 
-	    			BoolInpSpec( true, "Log", "Seismic cube") );
-    saveasfld_->attach( centeredBelow, savelogsfld_ );
-    saveasfld_->valuechanged.notify( 
+    logsfld_ = new uiCheckList( loggrp );
+    logsfld_->addItems( lognms );
+    logsfld_->attach( alignedBelow, logchk_ );
+
+    saveasfld_ = new uiGenInput( loggrp, "Save as",
+				BoolInpSpec( true, "Log", "Seismic cube") );
+    saveasfld_->attach( alignedBelow, logsfld_ );
+    saveasfld_->valuechanged.notify(
 			mCB(this,uiSaveDataDlg,changeLogUIOutput) );
-    saveasfld_->valuechanged.notify( 
-			mCB(savelogsfld_,uiSaveDataGroup,changeLogUIOutput) );
-    
-    repeatfld_ = new uiLabeledSpinBox( this, 
-	    				"Duplicate trace around the track" );
-    repeatfld_->attach( centeredBelow, saveasfld_);
-    repeatfld_->box()->setInterval( 1, 40, 1 );
-    repeatfld_->display( false );
+
+    outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, false );
+    outputgrp_->attach( alignedBelow, saveasfld_ );
+    changeLogUIOutput(0);
 
     uiSeparator* horSepar = new uiSeparator( this );
-    horSepar->attach( stretchedBelow, repeatfld_ );
-    
-    su.labelcolnm("Wavelet"); su.itemnames_ = wvltnms; su.saveasioobj_ = true;
-    su.ctio_ = wvltctioset_;
-    savewvltsfld_ = new uiSaveDataGroup( this, su );
-    savewvltsfld_->attach( stretchedBelow, horSepar );
-}
+    horSepar->attach( stretchedBelow, loggrp );
 
+    uiGroup* wvltgrp = new uiGroup( this, "Wavelet parameters" );
+    wvltgrp->attach( ensureBelow, horSepar );
 
-uiSaveDataDlg::~uiSaveDataDlg()
-{
-    for ( int idx=0; idx<wvltctioset_.size(); idx++ )
-	delete wvltctioset_[idx]->ioobj;
-    for ( int idx=0; idx<seisctioset_.size(); idx++ )
-	delete seisctioset_[idx]->ioobj;
-    deepErase( seisctioset_ ); deepErase( wvltctioset_ );
+    wvltchk_ = new uiCheckBox( wvltgrp, "Wavelet" );
+    wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
+
+    IOObjContext ctxt = mIOObjContext(Wavelet);
+    ctxt.forread = false;
+    uiIOObjSel::Setup su( "Initial wavelet" ); su.optional( true );
+
+    initwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
+    initwvltsel_->setInputText( data.initwvlt_.name() );
+    initwvltsel_->attach( alignedBelow, wvltchk_ );
+
+    su.seltxt_ = "Estimated wavelet";
+    estimatedwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
+    estimatedwvltsel_->setInputText( data.estimatedwvlt_.name() );
+    estimatedwvltsel_->attach( alignedBelow, initwvltsel_ );
 }
 
 
 void uiSaveDataDlg::changeLogUIOutput( CallBacker* )
 {
-    repeatfld_->display( !saveasfld_->getBoolValue() );
+    const bool islogcube = !saveasfld_->getBoolValue();
+    outputgrp_->setPostFix( islogcube ? "log cube": "from well tie" );
+    outputgrp_->useWellNameFld( islogcube );
+    outputgrp_->displayRepeatFld( islogcube );
 }
 
 
-#define mCanNotWriteLogs()\
+void uiSaveDataDlg::saveLogsSelCB( CallBacker* )
+{
+    const bool saveall = logchk_->isChecked();
+    for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
+	logsfld_->setChecked( ilog, saveall );
+}
+
+
+void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
+{
+    const bool saveall = wvltchk_->isChecked();
+    initwvltsel_->setChecked( saveall );
+    estimatedwvltsel_->setChecked( saveall );
+}
+
+
+#define mCanNotWriteLogs(iscube)\
 {\
-    BufferString msg = datawriter_.errMsg();\
-    if ( msg.isEmpty() ) msg = "Cannot write log(s)";\
-    mErrRet( msg );\
+    msg.set( dataserver_.dataWriter().errMsg() );\
+    msg.add( "Cannot write log" );\
+    if ( iscube ) msg.add( " cube" );\
+    msg.add("(s)");\
+    msg.addNewLine().add("Check your permissions");\
+    mErrRet( msg, return false );\
 }
+
+
+bool uiSaveDataDlg::saveLogs()
+{
+    const Data& data = dataserver_.data();
+    const bool savetolog = saveasfld_->getBoolValue();
+
+    Well::LogSet logset;
+    BufferStringSet lognms;
+    BufferString msg;
+    for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
+    {
+	if ( !logsfld_->isChecked(ilog) )
+	    continue;
+
+	const Well::Log& log = data.logset_.getLog( ilog+cLogShift );
+	BufferString lognm( log.name() );
+	if ( savetolog )
+	    lognm.addSpace().add( outputgrp_->getPostFix() );
+
+	if ( data.wd_->logs().getLog(lognm) )
+	{
+	    if ( !msg.isEmpty() ) msg.addNewLine();
+	    msg.add( "Log: '" ).add( lognm ).add( "' already exists " );
+	    continue;
+	}
+
+	Well::Log* newlog = new Well::Log( log );
+	newlog->setName( lognm );
+	logset.add( newlog );
+	lognms.add( lognm );
+    }
+
+    if ( !msg.isEmpty() )
+    {
+	msg.addNewLine().add( "Please choose another postfix" );
+	mErrRet( msg, return false );
+    }
+
+    BufferString errmsg( "Can not write " );
+    DataWriter& datawtr = dataserver_.dataWriter();
+    if ( !datawtr.writeLogs(logset,savetolog) )
+    {
+	datawtr.removeLogs( logset );
+	mCanNotWriteLogs(false);
+    }
+
+    if ( !savetolog )
+    {
+	const int nrtraces = outputgrp_->getNrRepeatTrcs() + 1;
+	Well::ExtractParams wep;
+	wep.setFixedRange( data.getModelRange(), true );
+	LogCubeCreator lcr( lognms, dataserver_.wellID(), wep, nrtraces );
+	if ( !lcr.setOutputNm(outputgrp_->getPostFix(),
+			      outputgrp_->withWellName()) )
+	{
+	    if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
+	    {
+		mCanNotWriteLogs(true);
+	    }
+	    else
+		lcr.resetMsg();
+	}
+
+	uiTaskRunner* tr = new uiTaskRunner( this );
+	if ( !TaskRunner::execute(tr,lcr) || lcr.errMsg() )
+	{
+	    datawtr.removeLogs( logset );
+	    mErrRet( lcr.errMsg(), return false );
+	}
+
+	datawtr.removeLogs( logset );
+    }
+
+    return true;
+}
+
+
+bool uiSaveDataDlg::saveWvlt( bool isestimated )
+{
+    uiIOObjSel& wvltsel = isestimated ? *estimatedwvltsel_ : *initwvltsel_;
+    if ( !wvltsel.isChecked() )
+	return true;
+
+    const Data& data = dataserver_.data();
+    const Wavelet& wvlt = isestimated ? data.estimatedwvlt_ : data.initwvlt_;
+    if ( !wvlt.size() && isestimated )
+    {
+	BufferString msg( "No estimated wavelet yet" );
+	msg.addNewLine();
+	msg.add( "Press 'Display additional information' before saving" );
+	mErrRet( msg, return false );
+    }
+
+    const IOObj* wvltioobj = wvltsel.ioobj();
+    if ( !wvltioobj )
+	return false;
+
+    if ( !wvlt.put(wvltioobj) )
+	mErrRet( "Cannot write output wavelet", return false );
+
+    return true;
+}
+
+
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;
-    if ( !savelogsfld_ || !savewvltsfld_ ) 
-	return false;
+    if ( logsfld_->firstChecked() == -1 && !initwvltsel_->isChecked() &&
+	 !estimatedwvltsel_->isChecked() )
+	mErrRet( "Please check at least one item to be saved", return false );
 
-    BufferStringSet lognms, wvltnms; TypeSet<int> logidces, wvltidces;
-    if ( !savelogsfld_->getNamesToBeSaved(lognms,logidces) )
-       return false;
+    if ( !saveLogs() )
+	success = false;
 
-    if ( !savewvltsfld_->getNamesToBeSaved(wvltnms,wvltidces) )
-	return false;
+    if ( !saveWvlt(false) || !saveWvlt(true) )
+	success = false;
 
-    if ( lognms.isEmpty() && wvltnms.isEmpty() )
-	mErrRet( "Please check at least one item to be saved" );
-
-    BufferString errmsg( "Can not write " ); 
-    for ( int idx=0; idx<wvltnms.size(); idx++ )
-    {
-	const char* orgwvltnm = savewvltsfld_->itemName( wvltidces[idx] );
-	const int wvltidx = savewvltsfld_->indexOf( orgwvltnm );
-	if ( wvltidx < 0 || !wvltctioset_[wvltidx]->ioobj ) 
-	{ 
-	    errmsg += wvltnms.get( idx ); 
-	    errmsg += " ";
-	    uiMSG().error( errmsg );
-	    success = false; 
-	    continue;
-	}
-
-	const Wavelet& wvlt = wvltidx ? data_.estimatedwvlt_ : data_.initwvlt_;
-	if ( !wvlt.put( wvltctioset_[wvltidx]->ioobj ) )
-	{
-	    errmsg += wvltnms.get(idx);
-	    errmsg += " ";
-	    mErrRet( errmsg );
-	}
-    }
-
-    Well::LogSet logset;
-    for ( int idx=0; idx<lognms.size(); idx++ )
-    {
-	const char* orglognm = savelogsfld_->itemName( logidces[idx] );
-	const Well::Log* l = data_.logset_.getLog( orglognm );
-	if ( !l )
-	{ 
-	    errmsg += lognms.get(idx);
-	    uiMSG().error(errmsg); 
-	    success = false; 
-	    continue;
-	}
-	Well::Log* newlog = new Well::Log( *l );
-	newlog->setName( lognms.get(idx) );
-	logset.add( newlog );
-    }
-
-    if ( saveasfld_->getBoolValue() )
-    {
-	if ( !datawriter_.writeLogs(logset) )
-	    mCanNotWriteLogs();
-    }
-    else 
-    {
-	DataWriter::LogData lds( logset );
-	lds.seisctioset_ = seisctioset_;
-	lds.nrtraces_ = repeatfld_->box()->getValue() + 1;
-	lds.ctioidxset_ = logidces;
-	if ( !datawriter_.writeLogs2Cube(lds,data_.getModelRange()) )
-	    mCanNotWriteLogs();
-    }
     if ( success )
 	uiMSG().message( "Successfully saved the selected items" );
 
     return false;
-}
-
-
-
-uiSaveDataGroup::uiSaveDataGroup( uiParent* p, const Setup& s )
-    : uiGroup( p, "Save objects")
-    , itmnames_(s.itemnames_)
-    , ctio_(s.ctio_)			  
-    , saveasioobj_(s.saveasioobj_)		       
-{
-    for ( int idx=0; idx<3; idx++ )
-    {
-	objgrps_ += new uiGroup( this, "Object Group");
-	if (idx) objgrps_[idx]->attach( rightOf, objgrps_[idx-1] );
-    }
-    titlelblflds_ += new uiLabel( this, s.labelcolnm_ );
-    titlelblflds_ += new uiLabel( this, "Specify output name : " );
-    checkallfld_ = new uiCheckBox( this, 0 );
-    checkallfld_->activated.notify( mCB(this,uiSaveDataGroup,checkAll) );
-
-    for ( int idx=0; idx<itmnames_.size(); idx++ )
-    {
-	objgrps_ += new uiGroup( this, "Object Group");
-	BufferString objnm(itmnames_.get(idx)); 
-	
-	boxflds_ += new uiCheckBox( objgrps_[0], 0 );
-	lblflds_ += new uiLabel( objgrps_[1], itmnames_.get(idx) );
-	nameflds_ += new uiGenInput( objgrps_[2], "", StringInpSpec() );
-	nameflds_[idx]->setText( objnm );
-	ioobjselflds_ += new uiIOObjSel( objgrps_[2], *ctio_[idx], "" ); 
-
-	nameflds_[idx]->display( !saveasioobj_ );
-	ioobjselflds_[idx]->display( saveasioobj_ );
-	
-	if ( idx )
-	{	    
-	    ioobjselflds_[idx]->attach( ensureBelow, ioobjselflds_[idx-1] );
-	    nameflds_[idx]->attach( ensureBelow, nameflds_[idx-1] );
-	    lblflds_[idx]->attach( ensureBelow, lblflds_[idx-1] );
-	    boxflds_[idx]->attach( ensureBelow, boxflds_[idx-1] );
-	}
-	objnm += "_"; objnm += s.wellname_;
-	ioobjselflds_[idx]->setInputText( objnm );
-    }
-    for ( int idx=0; idx<titlelblflds_.size(); idx++ )
-	titlelblflds_[idx]->attach( alignedAbove, objgrps_[idx+1]  );
-}
-
-
-void uiSaveDataGroup::changeLogUIOutput( CallBacker* cb )
-{
-    mDynamicCastGet( uiGenInput*, cber, cb );
-    if ( !cber ) return;
-
-    saveasioobj_ = !cber->getBoolValue();
-
-    for ( int idx=0; idx<itmnames_.size(); idx++ )
-    {
-	nameflds_[idx]->display( !saveasioobj_ );
-	ioobjselflds_[idx]->display( saveasioobj_ );
-    }
-}
-
-
-void uiSaveDataGroup::checkAll( CallBacker* )
-{
-    bool arechecked = checkallfld_->isChecked(); 
-    for ( int idx=0; idx<boxflds_.size(); idx++ )
-	boxflds_[idx]->setChecked( arechecked );
-}
-
-
-bool uiSaveDataGroup::getNamesToBeSaved( BufferStringSet& nms, 
-					 TypeSet<int>& nmidces )
-{
-    deepErase( nms );
-    for ( int idx=0; idx<itmnames_.size(); idx++ )
-    {
-	if ( !boxflds_[idx]->isChecked() )
-	    continue;
-	if ( saveasioobj_ && !ioobjselflds_[idx]->commitInput() )
-	{
-	    BufferString msg = "Please enter a name for the ";
-	    msg += itmnames_.get(idx);
-	    mErrRet( msg );
-	}
-	nms.add( ioobjselflds_[idx]->getInput() );
-	nmidces += idx;
-    }
-    return true;
 }
 
 }; //namespace Well Tie
