@@ -50,7 +50,6 @@ inline bool isFPEqual( T1 v1, T2 v2, eT eps )	{ return isFPZero(v1-v2,eps); }
 #define mMinLimited(v,lim)	( (v)>(lim) ? (v) : (lim) )
 
 #define mIsZero(x,eps)		isFPZero( x, eps )
-#define mIsStringEmpty(s)	( !(s) || !*(s) )
 #define mIsEqual(x,y,eps)	isFPEqual( x, y, eps )
 #define mIsEqualWithUdf(x,y,e)	((mIsUdf(x) && mIsUdf(y)) || mIsEqual(x,y,e) )
 #define mDefEpsF		(1e-10f)
