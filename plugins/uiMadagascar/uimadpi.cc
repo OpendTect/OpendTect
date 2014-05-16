@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "madio.h"
 #include "odplugin.h"
 #include "separstr.h"
-#include "odusgclient.h"
 
 
 mDefODPluginInfo(uiMadagascar)
@@ -52,7 +51,6 @@ static bool checkEnvVars( BufferString& msg )
 
 
 class uiMadagascarLink	: public CallBacker
-			, public Usage::Client
 {
 public:
 			uiMadagascarLink(uiODMain&);
@@ -73,8 +71,7 @@ public:
 
 
 uiMadagascarLink::uiMadagascarLink( uiODMain& a )
-    : Usage::Client("Madagascar")
-    , mnumgr(a.menuMgr())
+    : mnumgr(a.menuMgr())
     , madwin_(0)
     , ishidden_(false)
     , appl_(a)
@@ -120,7 +117,6 @@ void uiMadagascarLink::survChg( CallBacker* )
 
 void uiMadagascarLink::winHide( CallBacker* )
 {
-    prepUsgEnd( "Process" ); sendUsgInfo();
     ishidden_ = true;
 }
 
@@ -134,15 +130,11 @@ void uiMadagascarLink::doMain( CallBacker* )
 	return;
     }
 
-    bool needreportstart = !madwin_ || ishidden_;
     if ( !madwin_ )
     {
 	madwin_ = new uiMadagascarMain( &appl_ );
 	madwin_->windowHide.notify( mCB(this,uiMadagascarLink,winHide) );
     }
-
-    if ( needreportstart )
-	{ prepUsgStart( "Process" ); sendUsgInfo(); }
 
     ishidden_ = false;
     madwin_->show();
