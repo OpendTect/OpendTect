@@ -140,6 +140,7 @@ void uiAttr2DSelDlg::createSelectionFields()
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
     BufferStringSet nms;
     SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+    nms.sort();
 
     storoutfld_ = new uiListBox( this, nms, "Stored cubes" );
     storoutfld_->setHSzPol( uiObject::Wide );
@@ -153,6 +154,7 @@ void uiAttr2DSelDlg::createSelectionFields()
     const bool havesteer = !nms.isEmpty();
     if ( havesteer )
     {
+	nms.sort();
 	steeroutfld_ = new uiListBox( this, nms, "Steering" );
 	steeroutfld_->setHSzPol( uiObject::Wide );
 	steeroutfld_->setCurrentItem( 0 );
@@ -235,16 +237,11 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	return false;
 
     if ( seltype_ == 0 )
-    {
 	storednm_ = storoutfld_->getText();
-	storedid_ = attrinf_->ioobjids_.get( selidx );
-    }
     else if ( seltype_ == 1 )
     {
 	storednm_ = steeroutfld_->getText();
 	compnr_ = 1;
-
-	storedid_ = attrinf_->steerids_.get( selidx );
     }
     else if ( seltype_ == 2 )
 	descid_ = attrinf_->attrids_[selidx];

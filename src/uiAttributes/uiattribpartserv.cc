@@ -349,7 +349,6 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
     if ( is2d )
     {
-	MultiID mid( selspec.objectRef() );
 	uiAttr2DSelDlg dlg( parent(), adsman->descSet(),
 			    Survey::GM().cUndefGeomID(), attrdata.nlamodel_ );
 	if ( !dlg.go() )
@@ -357,8 +356,10 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
 	if ( dlg.getSelType()==0 || dlg.getSelType()==1 )
 	{
+	    SeisIOObjInfo info( dlg.getStoredAttrName() );
 	    attrdata.attribid_ = adsman->descSet()->getStoredID(
-				dlg.getStoredID(), dlg.getComponent(), true );
+					info.ioObj() ? info.ioObj()->key() : 0,
+					dlg.getComponent(), true );
 	}
 	else
 	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
@@ -1052,7 +1053,7 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 						  bool is2d, bool useext )
 {
-    SelInfo attrinf( DSHolder().getDescSet(is2d,false) );
+    SelInfo attrinf( DSHolder().getDescSet(is2d,false), 0, is2d );
     const bool isattrib = attrinf.attrids_.isPresent( as.id() );
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
@@ -1083,7 +1084,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 
 	nlamnuitem->text = ittxt;
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
-	SelInfo attrinf( dset, nlamodel );
+	SelInfo attrinf( dset, nlamodel, is2d );
 	const bool isnla = as.isNLA();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
 	mInsertItems(nlaoutnms_,nlamnuitem,isnla);

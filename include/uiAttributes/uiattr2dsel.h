@@ -39,7 +39,6 @@ public:
 
     int			getSelType() const		{ return seltype_; }
     const char*		getStoredAttrName() const	{ return storednm_; }
-    const char*		getStoredID() const		{ return storedid_; }
     Attrib::DescID	getSelDescID() const		{ return descid_; }
     int			getComponent() const		{ return compnr_; }
     int			getOutputNr() const		{ return outputnr_; }
@@ -52,7 +51,6 @@ protected:
     const NLAModel*	nla_;
     int			seltype_;
     BufferString	storednm_;
-    BufferString	storedid_;
     BufferString	curnm_;
     int			compnr_;
     int			outputnr_;
