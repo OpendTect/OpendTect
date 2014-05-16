@@ -34,6 +34,9 @@ bool BatchProgram::go( od_ostream& strm )
     TextTaskRunner tr( strm );
     strm.add( "Creating 2D Grid ...\n" ).flush();
     Seis2DGridCreator* seiscr = new Seis2DGridCreator( *seispar );
+    BufferString warningmsg;
+    if ( seiscr->hasWarning(warningmsg) )
+	 strm << warningmsg.buf() << od_endl;
     res = tr.execute( *seiscr );
     if ( !res )
 	{ strm << "  failed.\nProcess stopped" << od_endl; return false; }

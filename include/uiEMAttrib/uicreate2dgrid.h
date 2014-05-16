@@ -36,7 +36,7 @@ class uiSurveyMap;
 namespace Geometry { class RandomLine; }
 
 mExpClass(uiEMAttrib) ui2DGridLines : public uiGroup
-{
+{ mODTextTranslationClass(ui2DGridLines)
 public:
 				~ui2DGridLines();
 
@@ -65,7 +65,7 @@ protected:
 
 
 mExpClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
-{
+{ mODTextTranslationClass(ui2DGridLinesFromInlCrl)
 public:
     				ui2DGridLinesFromInlCrl(uiParent*,
 							const HorSampling&);
@@ -92,7 +92,7 @@ protected:
 
 
 mExpClass(uiEMAttrib) ui2DGridLinesFromRandLine : public ui2DGridLines
-{
+{ mODTextTranslationClass(ui2DGridLinesFromRandLine)
 public:
     				ui2DGridLinesFromRandLine(uiParent*,
 						const HorSampling&,
@@ -119,7 +119,7 @@ protected:
 
 
 mExpClass(uiEMAttrib) uiCreate2DGrid : public uiDialog
-{
+{ mODTextTranslationClass(uiCreate2DGrid)
 public:
 				uiCreate2DGrid(uiParent*,
 					       const Geometry::RandomLine*);
@@ -164,7 +164,7 @@ protected:
     void			fillSeisPar(IOPar&);
     void			fillHorPar(IOPar&);
 
-    bool			checkInput() const;
+    bool			checkInput(IOPar&) const;
     bool			acceptOK(CallBacker*);
 };
 

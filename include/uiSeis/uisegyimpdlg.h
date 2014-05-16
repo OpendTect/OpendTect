@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uisegyreaddlg.h"
+#include "uistring.h"
 class uiSeisSel;
 class CtxtIOObj;
 class uiCheckBox;
@@ -24,7 +25,7 @@ class uiBatchJobDispatcherSel;
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
 mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
-{
+{ mODTextTranslationClass(uiSEGYImpDlg)
 public :
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);

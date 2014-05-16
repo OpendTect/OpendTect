@@ -121,7 +121,7 @@ void uiSEGYImpDlg::use( const IOObj* ioobj, bool force )
 
 
 class uiSEGYImpSimilarDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYImpSimilarDlg)
 public:
 
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
@@ -155,15 +155,15 @@ bool acceptOK( CallBacker* )
     BufferString dirnm( fp.pathOnly() );
     if ( !File::isDirectory(dirnm) )
     {
-	uiMSG().error( "Directory provided not usable" );
+	uiMSG().error( tr("Directory provided not usable") );
 	return false;
     }
     fnm = fp.fullPath();
     if ( !fnm.contains(uiSEGYFileSpec::sKeyLineNmToken()) )
     {
-	BufferString msg( "The file name has to contain at least one '" );
-	msg += uiSEGYFileSpec::sKeyLineNmToken(); msg += "'\n";
-	msg += "That will then become the line name";
+	uiString msg( tr("The file name has to contain at least one '%1")
+			.arg( uiSEGYFileSpec::sKeyLineNmToken() ) );
+	msg.append( "'\n That will then become the line name" );
 	uiMSG().error( msg );
 	return false;
     }
@@ -190,7 +190,7 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
     if ( !res )
     {
 	nofails = false;
-	if ( !islast && !uiMSG().askContinue("Continue with next?") )
+	if ( !islast && !uiMSG().askContinue(tr("Continue with next?")) )
 	    return false;
     }
     return true;
@@ -205,7 +205,10 @@ bool doImp( const FilePath& fp )
     const int nrtok = mask.count( '*' );
     DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
     if ( dl.size() < 1 )
-	{ uiMSG().error( "Cannot find any match for file name" ); return false;}
+    {
+	uiMSG().error( tr("Cannot find any match for file name") );
+	return false;
+    }
 
     BufferString fullmaskfnm( maskfp.fullPath() );
     int lnmoffs = mCast( int, firstOcc( fullmaskfnm.buf(), '*' ) -
@@ -247,14 +250,19 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     if ( !seissel_->commitInput() )
     {
 	if ( seissel_->isEmpty() )
-	    uiMSG().error( "Please select the output data" );
+	    uiMSG().error( tr("Please select the output data") );
 	return false;
     }
 
     const IOObj& outioobj = *ctio_.ioobj;
     const bool is2d = Seis::is2D( setup_.geom_ );
-    const char* lnm = is2d && transffld_->selFld2D() ?
-		      transffld_->selFld2D()->selectedLine() : 0;
+    BufferString lnm = is2d && transffld_->selFld2D() ?
+		       transffld_->selFld2D()->selectedLine() : 0;
+    if ( is2d && lnm.isEmpty() )
+    {
+	uiMSG().error( tr("Linename is empty. Please enter a line name") );
+	return false;
+    }
 
     const IOObj* useinioobj = &inioobj; IOObj* tmpioobj = 0;
     const bool outissidom = ZDomain::isSI( outioobj.pars() );
@@ -270,8 +278,8 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     {
 	retval = impFile( *useinioobj, outioobj, lnm );
 	if ( is2d && retval )
-	    uiMSG().message( "Successfully loaded ",
-				useinioobj->fullUserExpr() );
+	    uiMSG().message( tr("Successfully loaded %1").
+			     arg(useinioobj->fullUserExpr()) );
     }
     else
     {
@@ -318,9 +326,16 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
 	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	{
-	    BufferString msg( "Geometry of Line '", linenm,
-			      "' is already present." );
-	    uiMSG().warning( msg );
+	    const bool overwrite =
+		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
+				    " Do you want to overwrite?").arg(linenm) );
+	    if ( overwrite )
+	    {
+		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
+		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+		geom2d->dataAdmin().setEmpty();
+	    }
+
 	}
 	else
 	{
@@ -368,9 +383,9 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( imp && imp->nrSkipped() > 0 )
 	warns += new BufferString("During import, ", imp->nrSkipped(),
 				  " traces were rejected" );
-    SeisTrcTranslator* tr = rdr->reader().seisTranslator();
-    if ( tr && tr->haveWarnings() )
-	warns.add( tr->warnings(), false );
+    SeisTrcTranslator* transl = rdr->reader().seisTranslator();
+    if ( transl && transl->haveWarnings() )
+	warns.add( transl->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube
 
     displayWarnings( warns );
