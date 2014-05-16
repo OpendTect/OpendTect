@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uivarwizard.h"
-#include "odusgclient.h"
 #include "seistype.h"
 class IOObj;
 class CtxtIOObj;
@@ -29,7 +28,6 @@ class uiSEGYReadRev1Question;
 /*!\brief 'Server' for SEG-Y Reading */
 
 mExpClass(uiSeis) uiSEGYRead : public uiVarWizard
-		  , public Usage::Client
 {
 public:
 

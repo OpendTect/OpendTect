@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissubsel.h"
 #include "uiobjdisposer.h"
 #include "uitaskrunner.h"
-#include "odusginfo.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -54,14 +53,12 @@ static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
 
 uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
     : uiVarWizard(p)
-    , Usage::Client(sKeyBayesClss)
     , is2d_(is2d)
     , inppdfdlg_(0)
     , normdlg_(0)
     , inpseisdlg_(0)
     , outdlg_(0)
 {
-    prepUsgStart( "Definition" ); sendUsgInfo();
     pars_.set( sKey::Type(), is2d_ ? "2D" : "3D" );
 
     state_ = mInpPDFs;
@@ -73,7 +70,6 @@ uiSeisBayesClass::uiSeisBayesClass( uiParent* p, bool is2d )
 
 void uiSeisBayesClass::closeDown()
 {
-    prepUsgEnd(); sendUsgInfo();
     uiVarWizard::closeDown();
 }
 

@@ -171,14 +171,12 @@ BufferString getSummary() const
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y",
                                      mODHelpKey(mSEGYExpHelpID) ))
-	, Usage::Client("SEG-Y")
 	, geom_(gt)
 	, morebox_(0)
 	, manipbox_(0)
 	, autogentxthead_(true)
 	, selcomp_(-1)
 {
-    prepUsgStart( "Export" ); sendUsgInfo();
     setCtrlStyle( RunAndClose );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
@@ -216,12 +214,6 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     }
 
     postFinalise().notify( inpselcb );
-}
-
-
-uiSEGYExp::~uiSEGYExp()
-{
-    prepUsgEnd(); sendUsgInfo();
 }
 
 

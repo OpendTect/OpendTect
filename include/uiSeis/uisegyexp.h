@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "seistype.h"
 #include "iopar.h"
-#include "odusgclient.h"
 class uiSeisSel;
 class uiCheckBox;
 class uiSeisTransfer;
@@ -28,12 +27,10 @@ class uiSEGYExpTxtHeader;
 
 
 mExpClass(uiSeis) uiSEGYExp : public uiDialog
-		 , public Usage::Client
 {
 public:
 
 			uiSEGYExp(uiParent*,Seis::GeomType);
-			~uiSEGYExp();
 
 protected:
 

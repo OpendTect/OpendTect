@@ -35,7 +35,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "filepath.h"
 #include "timefun.h"
-#include "odusginfo.h"
 #include "od_helpids.h"
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
@@ -62,7 +61,6 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
 uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 			const IOPar* iop )
     : uiVarWizard(p)
-    , Usage::Client("SEG-Y")
     , setup_(su)
     , geom_(SI().has3D()?Seis::Vol:Seis::Line)
     , scanner_(0)
@@ -75,8 +73,6 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     , scandlg_(0)
     , rev1qdlg_(0)
 {
-    prepUsgStart( setup_.forScan() ? "Scan" : "Import" ); sendUsgInfo();
-
     if ( iop )
 	usePar( *iop );
 
@@ -99,7 +95,6 @@ uiSEGYRead::~uiSEGYRead()
 
 void uiSEGYRead::closeDown()
 {
-    prepUsgEnd(); sendUsgInfo();
     uiVarWizard::closeDown();
 }
 
