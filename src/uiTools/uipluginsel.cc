@@ -26,6 +26,7 @@ const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 struct PluginProduct
 {
     BufferString	    productname_;
+    BufferString	    creator_;
     BufferStringSet	    libs_;
 };
 
@@ -44,10 +45,10 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
-        
+
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
-    
+
     createUI();
 }
 
@@ -68,16 +69,17 @@ void uiPluginSel::makeProductList(
 	if ( data.sla_ && data.sla_->isOK() )
 	{
 	    const FixedString prodnm = data.info_->productname_;
-	    const bool isodprod = prodnm == "OpendTect (dGB)";
+	    const bool isodprod = prodnm.isEmpty() || prodnm == "OpendTect";
 	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
 		continue;
-	    
+
 	    const int prodidx = getProductIndex( data.info_->productname_ );
 	    if ( !product || prodidx<0 )
 	    {
 		product = new PluginProduct();
 		product->productname_ = data.info_->productname_;
-		product->libs_.add( PIM().userName(data.name_) );
+		product->creator_ = data.info_->creator_;
+		product->libs_.add( PIM().moduleName(data.name_) );
 		products_ += product;
 	    }
 	    else
@@ -101,7 +103,10 @@ void uiPluginSel::createUI()
     const int nrrows = nrproducts % 2 == 0 ? (nrproducts/2) : (nrproducts/2)+1;
     for ( int idx=0; idx<nrproducts; idx++ )
     {
-	uiCheckBox* cb = new uiCheckBox( grp, products_[idx]->productname_ );
+	const PluginProduct& pprod = *products_[idx];
+	uiCheckBox* cb = new uiCheckBox( grp, pprod.productname_ );
+	if ( !pprod.creator_.isEmpty() )
+	    cb->setToolTip( BufferString("a ",pprod.creator_, " plugin") );
 	cb->setPrefWidthInChar( maxpluginname_+5.f );
 	cb->setChecked( true );
 	cbs_ += cb;
