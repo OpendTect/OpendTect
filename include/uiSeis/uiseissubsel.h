@@ -84,7 +84,7 @@ public:
 
 
 mExpClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
-{ 	
+{
 public:
 
 			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);
@@ -99,6 +99,9 @@ public:
     bool		isSingLine() const;
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
+
+    void		selectedLines(BufferStringSet&) const;
+    void		setSelectedLines(const BufferStringSet&);
 
 protected:
 
