@@ -60,7 +60,7 @@ uiODVW2DWiggleVarAreaTreeItem::~uiODVW2DWiggleVarAreaTreeItem()
 		mCB(this,uiODVW2DWiggleVarAreaTreeItem,handleMenuCB) );
 	menu_->unRef();
     }
-    
+
     viewer2D()->dataMgr()->removeObject( dummyview_ );
 }
 
@@ -172,7 +172,7 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
     ConstDataPackRef<FlatDataPack> dp = vwr.obtainPack( true, true );
     if ( !dp ) return;
-    
+
     const Attrib::SelSpec& as = viewer2D()->selSpec( true );
     MenuItem* subitem = 0;
     applMgr()->attrServer()->resetMenuItems();
@@ -180,22 +180,24 @@ void uiODVW2DWiggleVarAreaTreeItem::createSelMenu( MenuItem& mnu )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
     if ( dp2ddh )
     {
-	BufferString ln;
-	dp2ddh->getLineName( ln );
-	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
-					viewer2D()->lineSetID(), ln, false );
+//	BufferString lnm;
+//	dp2ddh->getLineName( lnm );
+// TODO: Use lnm to get attributes for this line only
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,false);
     }
     else
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,false);
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
+
     subitem = applMgr()->attrServer()->calcAttribMenuItem( as, dp2ddh, true );
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );
+
     if ( dp2ddh )
     {
-	BufferString ln;
-	dp2ddh->getLineName( ln );
-	subitem = applMgr()->attrServer()->stored2DAttribMenuItem( as,
-					viewer2D()->lineSetID(), ln, true );
+//	BufferString lnm;
+//	dp2ddh->getLineName( lnm );
+// TODO: Use lnm to get attributes for this line only
+	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,true,true);
     }
     else
 	subitem = applMgr()->attrServer()->storedAttribMenuItem(as,false,true);
@@ -319,7 +321,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 }
 
 
-uiTreeItem* uiODVW2DWiggleVarAreaTreeItemFactory::createForVis( 
+uiTreeItem* uiODVW2DWiggleVarAreaTreeItemFactory::createForVis(
 					    const uiODViewer2D&, int id ) const
 {
     return 0;

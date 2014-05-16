@@ -553,7 +553,7 @@ bool StorageProvider::setTableSelData()
     seldata->extendZ( extraz_ );
     SeisTrcReader& reader = mscprov_->reader();
     if ( reader.is2D() )
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
+	seldata->setGeomID( Survey::GM().cUndefGeomID() );
 
     reader.setSelData( seldata );
     SeisTrcTranslator* transl = reader.seisTranslator();
@@ -943,8 +943,8 @@ bool StorageProvider::compDistBetwTrcsStats( bool force )
     for ( int idx=0; idx<dset->nrLines(); idx++ )
     {
 	PosInfo::Line2DData& linegeom = ls2ddata_->addLine(dset->lineName(idx));
-	const Survey::Geometry* geom = Survey::GM().getGeometry( 
-							    dset->geomID(idx) );
+	const Survey::Geometry* geom =
+		Survey::GM().getGeometry( dset->geomID(idx) );
 	mDynamicCastGet( const Survey::Geometry2D*, geom2d, geom );
 	if ( !geom2d ) continue;
 

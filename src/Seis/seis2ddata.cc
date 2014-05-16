@@ -368,7 +368,8 @@ bool Seis2DDataSet::getTxtInfo( int ipar, BufferString& uinf,
 bool Seis2DDataSet::getRanges( int ipar, StepInterval<int>& sii,
 				 StepInterval<float>& sif ) const
 {
-    return liop_ ? liop_->getRanges(*pars_[ipar],sii,sif) : false;
+    return liop_ && pars_.validIdx(ipar)
+	? liop_->getRanges(*pars_[ipar],sii,sif) : false;
 }
 
 

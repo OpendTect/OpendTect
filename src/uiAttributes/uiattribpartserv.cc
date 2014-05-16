@@ -87,6 +87,21 @@ int uiAttribPartServer::objNLAModel3D()		    { return 101; }
 const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
 
 static const int cMaxNrClasses = 100;
+static const int cMaxMenuSize = 150;
+
+
+static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
+{
+    mDeclStaticString(menutext);
+    if ( is2d )
+	menutext = issteering ? "Stee&ring 2D Data" : "&Stored 2D Data";
+    else
+	menutext = issteering ? "Steer&ing Cubes" : "Stored &Cubes";
+
+    if ( endmenu ) menutext.add( " ..." );
+
+    return menutext;
+}
 
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
@@ -95,10 +110,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , attrsetdlg_(0)
     , is2devsent_(false)
     , attrsetclosetim_("Attrset dialog close")
-    , stored2dmnuitem_("&Stored 2D Data")
-    , stored3dmnuitem_("Stored &Cubes")
-    , steering2dmnuitem_("Stee&ring 2D Data")
-    , steering3dmnuitem_("Steer&ing Cubes")
     , multcomp3d_("3D")
     , multcomp2d_("2D")
     , dpsdispmgr_( 0 )
@@ -125,8 +136,6 @@ uiAttribPartServer::~uiAttribPartServer()
 {
     delete attrsetdlg_;
 
-    deepErase( linesets2dstoredmnuitem_ );
-    deepErase( linesets2dsteeringmnuitem_ );
     deepErase( attrxplotset_ );
     delete &eDSHolder();
     deepErase( attrxplotset_ );
@@ -340,17 +349,17 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
     if ( is2d )
     {
-	MultiID mid( selspec.objectRef() );
 	uiAttr2DSelDlg dlg( parent(), adsman->descSet(),
 			    Survey::GM().cUndefGeomID(), attrdata.nlamodel_ );
 	if ( !dlg.go() )
 	    return false;
 
-
-	if ( dlg.getSelType() == 0 )
+	if ( dlg.getSelType()==0 || dlg.getSelType()==1 )
 	{
-	    LineKey lk( mid, dlg.getStoredAttrName() );
-	    attrdata.attribid_ = adsman->descSet()->getStoredID( lk, 0, true );
+	    SeisIOObjInfo info( dlg.getStoredAttrName() );
+	    attrdata.attribid_ = adsman->descSet()->getStoredID(
+					info.ioObj() ? info.ioObj()->key() : 0,
+					dlg.getComponent(), true );
 	}
 	else
 	    attrdata.attribid_.asInt() = dlg.getSelDescID().asInt();
@@ -802,7 +811,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
 DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 						 const LineKey& linekey,
-						 TaskRunner& tr )
+						 TaskRunner& taskrunner )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
     if ( !aem ) return -1;
@@ -813,7 +822,7 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    if ( !TaskRunner::execute( &tr, *process ) )
+    if ( !TaskRunner::execute( &taskrunner, *process ) )
 	return -1;
 
     int component = 0;
@@ -945,71 +954,6 @@ bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod,
 }
 
 
-//TODO may require a linekey in the as ( for docheck )
-void uiAttribPartServer::insert2DStoredItems( const BufferStringSet& bfset,
-					      int start, int stop,
-					      bool correcttype, MenuItem* mnu,
-					      const SelSpec& as, bool usesubmnu,
-					      bool issteer, bool onlymultcomp )
-{
-    mnu->checkable = true;
-    mnu->enabled = bfset.size();
-    ObjectSet<MenuItem>* lsets2dmnuitem = issteer ? &linesets2dsteeringmnuitem_
-						  : &linesets2dstoredmnuitem_;
-    if ( usesubmnu )
-    {
-	while ( lsets2dmnuitem->size() )
-	{
-	    MenuItem* olditm = lsets2dmnuitem->removeSingle(0);
-	    delete olditm;
-	}
-    }
-    for ( int idx=start; idx<stop; idx++ )
-    {
-	BufferString key = bfset.get(idx);
-	MenuItem* itm = new MenuItem( key );
-	itm->checkable = true;
-	const bool docheck =  correcttype && key == as.userRef();
-	mAddManagedMenuItem( mnu, itm, true, docheck );
-	if ( docheck ) mnu->checked = true;
-	if ( usesubmnu )
-	{
-	    const MultiID mid( bfset.get(idx) );
-	    BufferStringSet nms = get2DStoredItems( mid, issteer, onlymultcomp);
-	    if ( nms.isEmpty() ) continue;
-	    *lsets2dmnuitem += itm;
-	    insert2DStoredItems( nms, 0, nms.size(), correcttype,
-				 itm, as, false, issteer, onlymultcomp );
-	}
-    }
-}
-
-
-BufferStringSet uiAttribPartServer::get2DStoredItems( const MultiID& mid,
-						      bool issteer,
-						      bool onlymultcomp ) const
-{
-    BufferStringSet nms;
-    SelInfo::getAttrNames( mid, nms, issteer, onlymultcomp );
-    return nms;
-}
-
-
-BufferStringSet uiAttribPartServer::get2DStoredLSets( const SelInfo& sinf) const
-{
-    BufferStringSet linesets;
-    for ( int idlset=0; idlset<sinf.ioobjids_.size(); idlset++ )
-    {
-	const char* lsetid = sinf.ioobjids_.get(idlset);
-	const MultiID mid( lsetid );
-	PtrMan<IOObj> ioobj = IOM().get( mid );
-	linesets.add( ioobj->name() );
-    }
-
-    return linesets;
-}
-
-
 #define mInsertItems(list,mnu,correcttype) \
 (mnu)->removeItems(); \
 (mnu)->enabled = attrinf.list.size(); \
@@ -1023,8 +967,6 @@ for ( int idx=start; idx<stop; idx++ ) \
     if ( docheck ) (mnu)->checked = true; \
 }
 
-
-static int cMaxMenuSize = 150;
 
 MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as,
 						    bool is2d, bool issteer )
@@ -1062,33 +1004,14 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
-	if ( is2d )
-	{
-	    if ( nritems == 1 )
-	    {
-		const MultiID mid( attrinf.ioobjids_.get(0) );
-		BufferStringSet nmsset = get2DStoredItems(mid,issteer,multcomp);
-
-		insert2DStoredItems( nmsset, 0, nmsset.size(), isstored,
-				     mnu, as, false, issteer, multcomp );
-	    }
-	    else
-		insert2DStoredItems( bfset, 0, nritems, isstored,
-				     mnu, as, true, issteer, multcomp );
-	}
+	const int start = 0; const int stop = nritems;
+	if ( issteer )
+	{ mInsertItems(steernms_,mnu,isstored); }
 	else
-	{
-	    const int start = 0; const int stop = nritems;
-	    if ( issteer )
-	    { mInsertItems(steernms_,mnu,isstored); }
-	    else
-	    { mInsertItems(ioobjnms_,mnu,isstored); }
-	}
+	{ mInsertItems(ioobjnms_,mnu,isstored); }
     }
-    else
-	insertNumerousItems( bfset, as, isstored, is2d, issteer );
 
-    mnu->enabled = mnu->nrItems();
+    menu->text = getMenuText( is2d, issteer, nritems>cMaxMenuSize );
 }
 
 
@@ -1110,18 +1033,13 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	BufferString stopnm = bfset.get(stop-1);
 	if ( stopnm.size() > 3 ) stopnm[3] = '\0';
 	MenuItem* submnu = new MenuItem( BufferString(startnm," - ",stopnm) );
-	if ( is2d )
-	    insert2DStoredItems( bfset, start, stop, correcttype,
-				 submnu, as, true, issteer );
+
+	SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
+			 DescID::undef() );
+	if ( issteer )
+	{ mInsertItems(steernms_,submnu,correcttype); }
 	else
-	{
-	    SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
-			     DescID::undef() );
-	    if ( issteer )
-	    { mInsertItems(steernms_,submnu,correcttype); }
-	    else
-	    { mInsertItems(ioobjnms_,submnu,correcttype); }
-	}
+	{ mInsertItems(ioobjnms_,submnu,correcttype); }
 
 	MenuItem* storedmnuitem = is2d ? issteer ? &steering2dmnuitem_
 						 : &stored2dmnuitem_
@@ -1132,38 +1050,10 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 }
 
 
-MenuItem* uiAttribPartServer::stored2DAttribMenuItem( const SelSpec& as,
-		const MultiID& mid, const char* linenm, bool issteer )
-{
-    MenuItem* storedmnuitem = issteer ? &steering2dmnuitem_
-	                              : &stored2dmnuitem_;
-    storedmnuitem->removeItems();
-
-    BufferStringSet attribnames;
-    uiSeisIOObjInfo objinfo( mid );
-    SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = issteer ? 1 : 0;
-    objinfo.ioObjInfo().getAttribNamesForLine( linenm, attribnames, o2d );
-
-    bool docheckparent = false;
-    for ( int idx=0; idx<attribnames.size(); idx++ )
-    {
-	const BufferString& nm = attribnames.get( idx );
-	MenuItem* item = new MenuItem( nm );
-	const bool docheck = nm == as.userRef();
-	if ( docheck ) docheckparent=true;
-	mAddManagedMenuItem( storedmnuitem, item, true, docheck );
-    }
-
-    storedmnuitem->checked = docheckparent;
-
-    return storedmnuitem;
-}
-
-
 MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 						  bool is2d, bool useext )
 {
-    SelInfo attrinf( DSHolder().getDescSet(is2d,false) );
+    SelInfo attrinf( DSHolder().getDescSet(is2d,false), 0, is2d );
     const bool isattrib = attrinf.attrids_.isPresent( as.id() );
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
@@ -1194,7 +1084,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 
 	nlamnuitem->text = ittxt;
 	const DescSet* dset = DSHolder().getDescSet(is2d,false);
-	SelInfo attrinf( dset, nlamodel );
+	SelInfo attrinf( dset, nlamodel, is2d );
 	const bool isnla = as.isNLA();
 	const int start = 0; const int stop = attrinf.nlaoutnms_.size();
 	mInsertItems(nlaoutnms_,nlamnuitem,isnla);
@@ -1237,6 +1127,9 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 					      bool& dousemulticomp )
 {
+    if ( stored3dmnuitem_.id == mnuid )
+	return selectAttrib( as, 0, false, "Select Attribute" );
+
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||
 		      nla3dmnuitem_.findItem(mnuid) ||
@@ -1256,8 +1149,6 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     const MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
 					      : &zdomain3dmnuitem_;
-    ObjectSet<MenuItem>* ls2dmnuitm = issteering ? &linesets2dsteeringmnuitem_
-						 : &linesets2dstoredmnuitem_;
 
     DescID attribid = SelSpec::cAttribNotSel();
     int outputnr = -1;
@@ -1286,30 +1177,19 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( stored2dmnuitem_.findItem(mnuid) ||
 	      steering2dmnuitem_.findItem(mnuid) )
     {
-	if ( ls2dmnuitm->isEmpty() )
-	{
-	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
-	    if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
-	    const MultiID mid( attrinf.ioobjids_.get(0) );
-	    idlkey = LineKey( mid, item->text.getFullString() );
-	    attribid = eDSHolder().getDescSet(true,true)->getStoredID( idlkey );
-	    isstored = true;
-	}
-	else
-	{
-	    for ( int idx=0; idx<ls2dmnuitm->size(); idx++ )
-	    {
-		if ( (*ls2dmnuitm)[idx]->findItem(mnuid) )
-		{
-		    const MenuItem* item = (*ls2dmnuitm)[idx]->findItem(mnuid);
-		    const MultiID mid( attrinf.ioobjids_.get(idx) );
-		    idlkey = LineKey( mid, item->text.getFullString() );
-		    attribid = eDSHolder().getDescSet( true, true )
-					->getStoredID( idlkey );
-		    isstored = true;
-		}
-	    }
-	}
+	const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
+	if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
+	if ( !item ) return false;
+
+	const BufferString& itmnm = item->text.getFullString();
+	const int idx = issteering ? attrinf.steernms_.indexOf( itmnm )
+				   : attrinf.ioobjnms_.indexOf( itmnm );
+	idlkey = LineKey( issteering ? attrinf.steerids_.get(idx)
+				     : attrinf.ioobjids_.get(idx) );
+	const int selout = issteering ? 1 : -1;
+	attribid =
+	    eDSHolder().getDescSet(true,true)->getStoredID( idlkey, selout );
+	isstored = true;
     }
     else if ( calcmnuitem->findItem(mnuid) )
     {
@@ -1340,7 +1220,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else
 	return false;
 
-    if ( isstored )
+    const bool nocompsel = is2d && issteering;
+    if ( isstored && !nocompsel )
     {
 	BufferStringSet complist;
 	SeisIOObjInfo::getCompNames( idlkey.buf(), complist );
