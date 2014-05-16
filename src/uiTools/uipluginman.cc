@@ -93,6 +93,19 @@ void uiPluginMan::fillList()
 }
 
 
+static bool needDispProdName( const BufferString& prodnm, BufferString usrnm )
+{
+    if ( prodnm.isEmpty() || prodnm == usrnm || prodnm == "OpendTect" )
+	return false;
+
+    char* vendornm = firstOcc( usrnm.getCStr(), '[' );
+    if ( !vendornm )
+	return true;
+    *(vendornm-1) = '\0';
+    return prodnm != usrnm;
+}
+
+
 void uiPluginMan::selChg( CallBacker* )
 {
     const char* nm = listfld->getText();
@@ -108,27 +121,30 @@ void uiPluginMan::selChg( CallBacker* )
 	    txt = "This plugin was not loaded";
     }
 
-    if ( !data )
-	{ infofld->setText( txt ); return; }
-
-    const PluginInfo& piinf = *data->info_;
-    txt += "Created by: "; txt += piinf.creator_;
-    txt += "\n\nFilename: "; txt += PIM().getFileName( *data );
-    if ( piinf.version_ && *piinf.version_ )
+    if ( data )
     {
-	txt += "\nVersion: ";
+	const PluginInfo& piinf = *data->info_;
+	txt.add( "Created by: " ).add( piinf.creator_ );
+	if ( needDispProdName(piinf.productname_,piinf.dispname_) )
+	    txt.add( "\nProduct: " ).add( piinf.productname_ );
 
-	if ( *piinf.version_ != '=' )
-	    txt += piinf.version_;
-	else
+	txt.add( "\n\nFilename: " ).add( PIM().getFileName(*data) );
+	if ( piinf.version_ && *piinf.version_ )
 	{
-	    BufferString ver; GetSpecificODVersion( 0, ver );
-	    txt += ver;
+	    txt += "\nVersion: ";
+
+	    if ( *piinf.version_ != '=' )
+		txt += piinf.version_;
+	    else
+	    {
+		BufferString ver; GetSpecificODVersion( 0, ver );
+		txt += ver;
+	    }
 	}
+	txt.add( "\n-----------------------------------------\n\n" )
+	    .add( piinf.text_ );
     }
 
-    txt += "\n-----------------------------------------\n\n";
-    txt += piinf.text_;
     infofld->setText( txt );
 }
 
