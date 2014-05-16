@@ -1030,12 +1030,9 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	mpeserv_->setAttribData( *as, datapackid );
     }
     else if ( evid==uiMPEPartServer::evShowToolbar() )
-    {
-	visserv_->disabToolBars( false );
-	visserv_->showMPEToolbar();
-    }
+	visserv_->showMPEToolbar( true );
     else if ( evid==uiMPEPartServer::evHideToolBar() )
-	visserv_->getTrackTB()->display( false );
+	visserv_->showMPEToolbar( false );
     else if ( evid==uiMPEPartServer::evMPEDispIntro() )
 	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession() )

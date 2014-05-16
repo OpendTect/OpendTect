@@ -1408,7 +1408,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	RefMan<visSurvey::Scene> newscene = visSurvey::Scene::create();
 	newscene->setID( sceneid );
 	addScene( newscene );
-	
+
 	IOPar* scenepar = par.subselect( key.buf() );
 	if ( !scenepar )
 	    continue;
@@ -1419,7 +1419,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 	    int objid = newscene->getObject(objidx)->id();
 	    setUpConnections( objid );
 	}
-	
+
     }
 
     objectaddedremoved.trigger();

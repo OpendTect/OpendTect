@@ -60,18 +60,19 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	, createdset_( 0 )
 	, velocity_(vel)
 {
-    SelInfo attrselinfo( ads_, nlamdl_ );
+    const bool is2d = ads_ ? ads_->is2D() : false;
+
+    SelInfo attrselinfo( ads_, nlamdl_, is2d );
     if ( attrselinfo.ioobjids_.size() == 0 )
     {
 	new uiLabel( this, "Please import a seismic cube first" );
 	return;
     }
 
-    const bool is2d = ads_ ? ads_->is2D() : false;
     const bool havesteer = true;
     if ( havesteer )
     {
-	dirinpfld_ = new uiGenInput( this, "Direction from", 
+	dirinpfld_ = new uiGenInput( this, "Direction from",
 			BoolInpSpec(true,"Steering cube","Attributes") );
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
 	steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),

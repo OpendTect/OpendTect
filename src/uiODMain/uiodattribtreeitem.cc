@@ -89,7 +89,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiTreeViewItem* item )
     if ( cantransform ) \
     { \
 	subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
-	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
+	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
 	subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
 	subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
@@ -139,8 +139,11 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
     if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
 
-    selattrmnuitem_.removeItems();
-    createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
+    if ( !istb )
+    {
+	selattrmnuitem_.removeItems();
+	createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
+    }
 
     if ( selattrmnuitem_.nrItems() || isonly2d )
     {
@@ -155,7 +158,7 @@ void uiODAttribTreeItem::createMenu( MenuHandler* menu, bool istb )
     {
 	mAddMenuOrTBItem( istb, 0, menu, &colsettingsmnuitem_, true, false );
     }
-    
+
     uiODDataTreeItem::createMenu( menu, istb );
 }
 
@@ -259,7 +262,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	    uiODDataTreeItem::updateColumnText( col );
 	    return;
 	}
-	
+
 	displayMiniCtab( so->getColTabSequence(attribNr()) );
     }
 

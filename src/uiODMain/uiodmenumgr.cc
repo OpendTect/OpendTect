@@ -73,11 +73,12 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 
     faulttoolman_ = new uiODFaultToolMan( appl_ );
 
-    appl_.applMgr().visServer()->createToolBars();
+    uiVisPartServer* visserv = appl_.applMgr().visServer();
+    visserv->createToolBars();
 
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
-    appl_.applMgr().visServer()->selectionmodechange.notify(
+    visserv->selectionmodechange.notify(
 				mCB(this,uiODMenuMgr,selectionMode) );
 }
 
