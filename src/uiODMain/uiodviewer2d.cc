@@ -72,6 +72,9 @@ uiODViewer2D::uiODViewer2D( uiODMain& appl, int visid )
     , marker_(0)
     , datatransform_(0)
 {
+    mDefineStaticLocalObject( Threads::Atomic<int>, vwrid, (0) );
+    id_ = vwrid++;
+
     setWinTitle();
 
     initSelSpec( vdselspec_ );
@@ -105,6 +108,10 @@ uiODViewer2D::~uiODViewer2D()
     delete marker_;
     delete viewwin();
 }
+
+
+uiParent* uiODViewer2D::viewerParent()
+{ return viewwin_->viewerParent(); }
 
 
 void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )

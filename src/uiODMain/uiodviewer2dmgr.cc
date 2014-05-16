@@ -62,12 +62,20 @@ uiODViewer2DMgr::~uiODViewer2DMgr()
 }
 
 
+int uiODViewer2DMgr::displayIn2DViewer( DataPack::ID dpid, bool wva )
+{
+    uiODViewer2D* vwr = &addViewer2D( -1 );
+    vwr->setUpView( dpid, wva );
+    return vwr->id_;
+}
+
+
 void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
     const int dtpackid = visServ().getDisplayedDataPackID( visid, attribid );
     if ( dtpackid < 0 ) return;
 
-    uiODViewer2D* curvwr = find2DViewer( visid );
+    uiODViewer2D* curvwr = find2DViewer( visid, true );
     bool isnewvwr = false;
     if ( !curvwr )
     {
@@ -125,11 +133,13 @@ uiODViewer2D& uiODViewer2DMgr::addViewer2D( int visid )
 }
 
 
-uiODViewer2D* uiODViewer2DMgr::find2DViewer( int visid )
+uiODViewer2D* uiODViewer2DMgr::find2DViewer( int id, bool byvisid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	if ( viewers2d_[idx]->visid_ == visid )
+	const int vwrid = byvisid ? viewers2d_[idx]->visid_
+				  : viewers2d_[idx]->id_;
+	if ( vwrid == id )
 	    return viewers2d_[idx];
     }
 
@@ -197,7 +207,7 @@ void uiODViewer2DMgr::usePar( const IOPar& iop )
 	    const int nrattribs = visServ().getNrAttribs( visid );
 	    const int attrnr = nrattribs-1;
 	    displayIn2DViewer( visid, attrnr, wva );
-	    uiODViewer2D* curvwr = find2DViewer( visid );
+	    uiODViewer2D* curvwr = find2DViewer( visid, true );
 	    if ( curvwr ) curvwr->usePar( *vwrpar );
 	}
     }
