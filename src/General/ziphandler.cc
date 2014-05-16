@@ -147,7 +147,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSizeFourBytes 4
 #define mSizeEightBytes 8
 #define mMaxChunkSize 10485760	    //10MB
-#define m32BitSizeLimit 4294967294  //4GB
+#define m32BitSizeLimit 4294967294UL  //4GB
 #define m16BitSizeLimit 65534
 #define mSizeOfZIP64Header 20
 #define mLZIP64HeaderID 0

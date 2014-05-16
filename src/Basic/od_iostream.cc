@@ -630,8 +630,14 @@ void od_istream::ignore( od_stream::Count nrbytes )
 
 bool od_istream::skipUntil( char tofind )
 {
+#ifdef __lux32__
+    const std::streamsize maxsize = 0x7FFFFFF;
+#else
+    const std::streamsize maxsize = 0x7FFFFFFFFFFFFFFFLL;
+#endif
+
     mGetWithRetry(
-	stdStream().ignore( 9223372036854775807LL, tofind )
+	stdStream().ignore( maxsize, tofind )
     , isOK() );
 }
 
