@@ -40,18 +40,25 @@ static bool quiet = true;
     int argc = GetArgC(); char** argv = GetArgV(); \
     mInitTestProg()
 
-#define mRunStandardTest( test, desc ) \
+#define mRunStandardTestWithError( test, desc, err ) \
+if ( !quiet ) \
+    od_ostream::logStream() << desc;  \
 if ( (test) ) \
 { \
     if ( !quiet ) \
-	od_ostream::logStream() << desc << " - SUCCESS \n"; \
+	od_ostream::logStream() << " - SUCCESS\n"; \
 } \
 else \
 { \
-    od_ostream::logStream() << desc << " - FAIL \n"; \
+    if ( quiet ) \
+	od_ostream::logStream() << desc; \
+    od_ostream::logStream() << " - FAIL"; \
+    if ( err.str() ) \
+        od_ostream::logStream() << ": " << err.str() << "\n"; \
+\
     return false; \
 }
-
+#define mRunStandardTest( test, desc ) mRunStandardTestWithError( test, desc, BufferString() )
 
 
 #endif

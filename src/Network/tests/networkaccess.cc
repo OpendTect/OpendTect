@@ -16,26 +16,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QCoreApplication>
 
 
-#define returnError \
-{ \
-    od_cout() << err.buf() << od_endl; \
-    return false; \
-}
-
+FilePath tempfile;
 
 bool testPing()
 {
     const char* url = "http://opendtect.org";
     BufferString err;
-    if ( !Network::ping(url,err) )
-	returnError
+	
+    mRunStandardTestWithError( Network::ping(url,err),
+				"Ping existant URL", err );
 
     const char* missingurl = "http://opendtect.org/thisfiledoesnotexist";
-    if ( Network::ping(missingurl,err) )
-    {
-	od_cout() << "Ping returns success for non-existant URL" << od_endl;
-	return false;
-    }
+    mRunStandardTestWithError( Network::ping(missingurl,err)==false,
+	"Ping non-existant URL", err );
 
     return true;
 }
@@ -46,14 +39,12 @@ bool testDownloadToBuffer()
     const char* url = "http://opendtect.org/dlsites.txt";
     DataBuffer* db = new DataBuffer(1000,4);
     BufferString err;
-    if ( !Network::downloadToBuffer( url, db, err ) )
-	returnError
 
-    if ( db->size() != 23 )
-    {
-	err.add( "Downloaded file is corrupt. File size did not match." );
-	returnError
-    }
+    mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
+		      "Download to buffer", err );
+
+    mRunStandardTest( db->size()==23,
+		      "Download to buffer size" );
 
     return true;
 }
@@ -63,17 +54,10 @@ bool testDownloadToFile()
 {
     const char* url = "http://opendtect.org/dlsites.txt";
     BufferString err;
-    FilePath outpath( FilePath::getTempDir() );
-    if ( outpath.isEmpty() )
-    {
-	err.add( "Temp directory path is empty." );
-	returnError
-    }
-
-    outpath.add( "dlsites.txt" );
-    if ( !Network::downloadFile( url, outpath.fullPath(), err ) )
-	returnError
-
+    mRunStandardTestWithError(
+	    Network::downloadFile( url, tempfile.fullPath(), err ),
+	    "Download to file", err );
+	    
     return true;
 }
 
@@ -82,15 +66,13 @@ bool testFileUpload()
 {
     const char* url =
 		    "http://dgbindia2/testing/ctest/php_do_not_delete_it.php";
-    FilePath localfp( FilePath::getTempDir() );
-    localfp.add( "dlsites.txt" );
     const char* remotefn("test_file");
     BufferString err;
     IOPar postvars;
-    if ( !Network::uploadFile(url, localfp.fullPath(), remotefn, "dumpfile",
-			      postvars, err) )
-	  returnError
-
+    mRunStandardTestWithError(
+	    Network::uploadFile(url, tempfile.fullPath(), remotefn, "dumpfile",
+				postvars, err),
+	    "Upload file", err );
 
     return true;
 }
@@ -104,8 +86,8 @@ bool testQueryUpload()
     const char* url =
 		    "http://dgbindia2/testing/ctest/php_do_not_delete_it_2.php";
     BufferString err;
-    if ( !Network::uploadQuery( url, querypars, err ) )
-	returnError
+    mRunStandardTestWithError( Network::uploadQuery( url, querypars, err ),
+	    			"UploadQuery", err );
 
     return true;
 }
@@ -120,10 +102,11 @@ bool testFileSizes()
     url = "http://dgbindia2/testing/ctest/dumpuploads/test_file";
     Network::getRemoteFileSize( url, sizeofuploadedfile, err );
 
-    if ( sizeofuploadedfile < 0 || sizeremotefile < 0 ||
-	 sizeofuploadedfile != sizeremotefile )
-	 returnError
-
+   
+    mRunStandardTestWithError(
+	    sizeofuploadedfile >= 0 && sizeremotefile >= 0 &&
+	    sizeofuploadedfile == sizeremotefile,
+	                                   "TestFileSizes", err ); 
     return true;
 }
 
@@ -133,23 +116,33 @@ int main(int argc, char** argv)
     QCoreApplication app( argc, argv );
     mInitTestProg();
 
-    if ( !testPing() )
-	ExitProgram(1);
+    tempfile = FilePath::getTempDir();
+    mRunStandardTest( !tempfile.isEmpty(), "Temp-dir generation" );
 
-    if ( !testDownloadToBuffer() )
-	ExitProgram(1);
+    BufferString filename( toString(GetPID()), "_dlsites.txt" );
+    tempfile.add( filename );
 
-    if ( !testDownloadToFile() )
-	ExitProgram(1);
+    bool res = true;
 
-    if ( !testFileUpload() )
-	ExitProgram(1);
+    if ( res && !testPing() )
+	res = false;
 
-    if ( !testQueryUpload() )
-	ExitProgram(1);
+    if ( res && !testDownloadToBuffer() )
+	res = false;
 
-    if ( !testFileSizes() )
-	ExitProgram(1);
+    if ( res && !testDownloadToFile() )
+	res = false;
 
-    return ExitProgram(0);
+    if ( res && !testFileUpload() )
+	res = false;
+
+    if ( res && !testQueryUpload() )
+	res = false;
+
+    if ( res && !testFileSizes() )
+	res = false;
+
+    File::remove( tempfile.fullPath() );
+
+    ExitProgram( res ? 0 : 1 );
 }
