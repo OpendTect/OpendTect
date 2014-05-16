@@ -10,7 +10,7 @@ set( LIBLIST Algo AttributeEngine Attributes Basic Batch EarthModel General
 	     PreStackProcessing EMAttrib ExpAttribs Well WellAttrib uiAttributes uiBase uiOSG
 	     uiEarthModel uiEMAttrib uiExpAttribs uiFlatView uiIo uiMPE uiNLA uiODMain uiSeis uiStrat
 	     uiTools uiPreStackProcessing uiVelocity uiViewer2D uiVis uiVolumeProcessing
-	     uiWell uiWellAttrib uiSysAdm Usage visBase visSurvey uiCmdDriver )
+	     uiWell uiWellAttrib uiSysAdm visBase visSurvey uiCmdDriver )
 
 set( EXECLIST od_cbvs_browse od_glxinfo od_osgfileviewer lmhostid
 	      od_main od_sysadmmain od_process_attrib od_process_attrib_em
