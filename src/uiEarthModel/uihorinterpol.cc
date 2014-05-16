@@ -527,7 +527,9 @@ uiTriangulationHor3DInterpol::uiTriangulationHor3DInterpol(uiParent* p)
 	    	mCB(this,uiTriangulationHor3DInterpol,useNeighborCB) );
     useneighborfld_->attach( alignedBelow, fltselfld_ );
     
-    maxdistfld_ = new uiGenInput( this, 0, FloatInpSpec() );
+    BufferString titletext( "Max interpolate distance ", 
+			    SI().getXYUnitString() );
+    maxdistfld_ = new uiGenInput( this, titletext, FloatInpSpec() );
     maxdistfld_->setWithCheck( true );
     maxdistfld_->attach( alignedBelow, useneighborfld_ );
 
