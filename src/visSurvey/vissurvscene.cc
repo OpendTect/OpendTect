@@ -107,7 +107,7 @@ void Scene::updateAnnotationText()
     if ( SI().zRange(true).width() )
 	annot_->setText( 2, zDomainUserName() );
 
-    annot_->setAnnotScale( 2,
+    annot_->setScaleFactor( 2,
 	    zdomaininfo_ ? zdomaininfo_->userFactor() : 1 );
 }
 
@@ -319,6 +319,19 @@ void Scene::setCubeSampling( const CubeSampling& cs )
 
     annot_->setCubeSampling( cs );
 }
+
+
+void Scene::setAnnotScale( const CubeSampling& cs )
+{
+    annotscale_ = cs;
+    if ( !annot_ ) return;
+
+    annot_->setScale( cs );
+}
+
+
+const CubeSampling& Scene::getAnnotScale() const
+{ return annot_ ? annot_->getScale() : annotscale_; }
 
 
 int Scene::size() const

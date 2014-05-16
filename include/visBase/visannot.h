@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "visbasemod.h"
 #include "visosg.h"
 #include "visobject.h"
@@ -71,8 +70,11 @@ public:
     void		setFont(const FontData&);
 
     void		setCubeSampling(const CubeSampling&);
+    const CubeSampling& getCubeSampling() const;
+    void		setScale(const CubeSampling&);
+    const CubeSampling& getScale() const;
 
-    void		setAnnotScale(int dim,int scale);
+    void		setScaleFactor(int dim,int scale);
 
     void		setText(int dim,const uiString&);
     void		fillPar(IOPar&) const;
@@ -90,9 +92,10 @@ protected:
     void		getAxisCoords(int,osg::Vec3f&,osg::Vec3f&) const;
     void		setCorner( int, float, float, float );
 
-    int				annotscale_[3];
+    int				scalefactor_[3];
 
     CubeSampling		cs_;
+    CubeSampling		scale_;
     osg::Geometry*		box_;
     osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;
@@ -110,7 +113,6 @@ protected:
     static const char*		showscalestr();
 };
 
-};
+} // namespace visBase
 
 #endif
-

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimsg.h"
+#include "uiselsurvranges.h"
 #include "uislider.h"
 #include "ui3dviewer.h"
 
@@ -28,8 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fontdata.h"
 #include "od_helpids.h"
 
-bool uiScenePropertyDlg::savestatus_ = true;
 
+bool uiScenePropertyDlg::savestatus_ = true;
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
@@ -66,6 +67,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    oldfont_ = scene_->getAnnotFont();
 	    hadannotscale_ = scene_->isAnnotScaleShown();
 	    hadannotgrid_ = scene_->isAnnotGridShown();
+	    oldscale_ = scene_->getAnnotScale();
 	    annotcolor_ = scene_->getAnnotColor();
 	    oldmarkersize_ = scene_->getMarkerSize();
 	    oldmarkercolor_ = scene_->getMarkerColor();
@@ -84,15 +86,19 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotfld_->setSensitive( survboxfld_->isChecked() );
 
-    annotfontbut_ = new uiPushButton(this, "Font",
+    uiPushButton* annotfontbut = new uiPushButton(this, "Font",
 			mCB(this,uiScenePropertyDlg,selAnnotFontCB), false);
-    annotfontbut_->attach(rightOf,annotfld_);
+    annotfontbut->attach( rightOf, annotfld_ );
 
     annotscalefld_ = new uiCheckBox( this, "Annotation scale" );
     annotscalefld_->setChecked( hadannotscale_ );
     annotscalefld_->attach( alignedBelow, annotfld_ );
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
+
+    uiPushButton* scalebut = new uiPushButton(this, "Set",
+			mCB(this,uiScenePropertyDlg,setAnnotScaleCB), false);
+    scalebut->attach( rightOf, annotscalefld_ );
 
     annotgridfld_ = new uiCheckBox( this, "Annotation grid" );
     annotgridfld_->setChecked( hadannotgrid_ );
@@ -153,6 +159,37 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 }
 
 
+struct uiScaleDlg : public uiDialog
+{
+uiScaleDlg( uiParent* p, const CubeSampling& scale )
+    : uiDialog(p,Setup("Set Annotation Scale",mNoDlgTitle,mNoHelpKey))
+{
+    rangefld_ = new uiSelSubvol( this, true );
+    rangefld_->setSampling( scale );
+}
+
+
+bool acceptOK(CallBacker *)
+{
+    newscale_ = rangefld_->getSampling();
+    return true;
+}
+
+CubeSampling	newscale_;
+uiSelSubvol*	rangefld_;
+
+};
+
+
+void uiScenePropertyDlg::setAnnotScaleCB( CallBacker* )
+{
+    uiScaleDlg dlg( this, scene_->getAnnotScale() );
+    if ( !dlg.go() ) return;
+
+    scene_->setAnnotScale( dlg.newscale_ );
+}
+
+
 void uiScenePropertyDlg::updateCB( CallBacker* )
 {
     if ( scene_ )
@@ -199,10 +236,11 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     if ( scene_ )
     {
         scene_->showAnnot( hadsurveybox_ );
-	scene_->showAnnotScale( hadannot_ );
+	scene_->showAnnotScale( hadannotscale_ );
 	scene_->setAnnotFont( oldfont_ );
-	scene_->showAnnotText( hadannotscale_ );
+	scene_->showAnnotText( hadannot_ );
 	scene_->showAnnotGrid( hadannotgrid_ );
+	scene_->setAnnotScale( oldscale_ );
 	scene_->setMarkerSize( oldmarkersize_ );
 	scene_->setMarkerColor( oldmarkercolor_ );
         scene_->setAnnotColor( annotcolor_ );

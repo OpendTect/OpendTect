@@ -13,7 +13,9 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
+
 #include "color.h"
+#include "cubesampling.h"
 #include "fontdata.h"
 
 class uiCheckBox;
@@ -21,7 +23,6 @@ class uiColorInput;
 class ui3DViewer;
 class uiSlider;
 class uiGenInputDlg;
-class uiPushButton;
 
 namespace visSurvey { class Scene; }
 
@@ -39,6 +40,7 @@ protected:
     void		updateCB(CallBacker*);
     void		setOffsetCB(CallBacker*);
     void		selAnnotFontCB(CallBacker*);
+    void		setAnnotScaleCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
@@ -57,12 +59,12 @@ protected:
     float			oldfactor_;
     float			oldunits_;
     FontData			oldfont_;
+    CubeSampling		oldscale_;
     static bool			savestatus_;
 
     uiCheckBox*			annotfld_;
     uiCheckBox*			annotscalefld_;
     uiCheckBox*			annotgridfld_;
-    uiPushButton*		annotfontbut_;
     uiCheckBox*			survboxfld_;
     uiColorInput*		bgcolfld_;
     uiSlider*			markersizefld_;
@@ -73,4 +75,3 @@ protected:
 };
 
 #endif
-
