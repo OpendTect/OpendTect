@@ -101,6 +101,8 @@ Seis2DDisplay::Seis2DDisplay()
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
 
+    setColor( Color(0,150,75) );
+
     init();
     showPanel( false );
 }
