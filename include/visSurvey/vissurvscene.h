@@ -98,8 +98,8 @@ public:
     void			addInlCrlZObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
 
-    const CubeSampling&		getCubeSampling() const		{ return cs_; }
     void			setCubeSampling(const CubeSampling&);
+    const CubeSampling&		getCubeSampling() const		{ return cs_; }
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -109,8 +109,10 @@ public:
     void			showAnnot(bool);
     bool			isAnnotShown() const;
     void			setAnnotText(int dim,const char*);
-    const FontData&		getAnnotFont() const;
     void			setAnnotFont(const FontData&);
+    const FontData&		getAnnotFont() const;
+    void			setAnnotScale(const CubeSampling&);
+    const CubeSampling&		getAnnotScale() const;
     void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
@@ -234,6 +236,7 @@ protected:
 
     bool			userwantsshading_; //from settings
     CubeSampling		cs_;
+    CubeSampling		annotscale_;
 
     bool			ctshownusepar_;
     bool			usepar_;
@@ -250,7 +253,7 @@ protected:
     static const char*		sKeyBotImageID();
 };
 
-}; // namespace visSurvey
+} // namespace visSurvey
 
 
 #endif

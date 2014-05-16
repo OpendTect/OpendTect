@@ -26,36 +26,37 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgGeo/OneSideRender>
 
 
-mCreateFactoryEntry( visBase::Annotation );
+mCreateFactoryEntry( visBase::Annotation )
 
 namespace visBase
 {
- 
+
 const char* Annotation::textprefixstr()	    { return "Text "; }
 const char* Annotation::cornerprefixstr()   { return "Corner "; }
 const char* Annotation::showtextstr()	    { return "Show Text"; }
 const char* Annotation::showscalestr()	    { return "Show Scale"; }
 
 Annotation::Annotation()
-    : VisualObjectImpl( false )
-    , geode_( new osg::Geode )
-    , axisnames_( Text2::create() )
-    , axisannot_( Text2::create() )
-    , gridlines_( new osgGeo::OneSideRender )
-    , displaytrans_( 0 )
+    : VisualObjectImpl(false )
+    , geode_(new osg::Geode)
+    , axisnames_(Text2::create())
+    , axisannot_(Text2::create())
+    , gridlines_(new osgGeo::OneSideRender)
+    , displaytrans_(0)
+    , scale_(false)
 {
     getStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
     geode_->ref();
     addChild( geode_ );
     gridlines_->ref();
-    annotscale_[0] = annotscale_[1] = annotscale_[2] = 1;
+    scalefactor_[0] = scalefactor_[1] = scalefactor_[2] = 1;
 
     annotcolor_ = Color::White();
 
     setPickable( false, false );
 
 	osg::Vec3f ptr[8];
-	
+
 	ptr[0] = osg::Vec3f( 0, 0, 0 );
 	ptr[1] = osg::Vec3f( 0, 0, 1 );
 	ptr[2] = osg::Vec3f( 0, 1, 1 );
@@ -91,9 +92,9 @@ Annotation::Annotation()
 	text = axisnames_->text( txtidx ); \
 	text->setJustification( Text::Right ); \
     }
-    
+
     Text* text = 0; mAddText mAddText mAddText
-    
+
     gridlinecoords_ = new osg::Vec3Array;
     gridlinecoords_->ref();
     updateTextPos();
@@ -147,9 +148,9 @@ bool Annotation::is##str##Shown() const \
 }
 
 
-mImplSwitches( Text, axisnames_->osgNode() );
-mImplSwitches( Scale, axisannot_->osgNode() );
-mImplSwitches( GridLines, gridlines_ );
+mImplSwitches( Text, axisnames_->osgNode() )
+mImplSwitches( Scale, axisannot_->osgNode() )
+mImplSwitches( GridLines, gridlines_ )
 
 
 const FontData& Annotation::getFont() const
@@ -162,6 +163,26 @@ void Annotation::setFont( const FontData& fd )
     axisnames_->setFontData( fd );
     axisannot_->setFontData( fd );
 }
+
+
+static CubeSampling getDefaultScale( const CubeSampling& cs )
+{
+    CubeSampling scale = cs;
+
+    const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
+    scale.hrg.start.inl() = inlal.sd_.start;
+    scale.hrg.step.inl() = inlal.sd_.step;
+
+    const AxisLayout<int> crlal( (Interval<int>)cs.hrg.crlRange() );
+    scale.hrg.start.crl() = crlal.sd_.start;
+    scale.hrg.step.crl() = crlal.sd_.step;
+
+    const AxisLayout<float> zal( (Interval<float>)cs.zrg );
+    scale.zrg.start = zal.sd_.start; scale.zrg.step = zal.sd_.step;
+
+    return scale;
+}
+
 
 void Annotation::setCubeSampling( const CubeSampling& cs )
 {
@@ -183,10 +204,28 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
     box_->dirtyDisplayList();
     geode_->dirtyBound();
 
+    if ( scale_.isEmpty() )
+	scale_ = getDefaultScale( cs );
+
     updateTextPos();
     updateGridLines();
-
 }
+
+
+const CubeSampling& Annotation::getCubeSampling() const
+{ return cs_; }
+
+
+void Annotation::setScale( const CubeSampling& cs )
+{
+    scale_ = cs;
+    updateTextPos();
+    updateGridLines();
+}
+
+
+const CubeSampling& Annotation::getScale() const
+{ return scale_; }
 
 
 void Annotation::setPixelDensity( float dpi )
@@ -210,6 +249,20 @@ void Annotation::setCorner( int idx, float x, float y, float z )
 void Annotation::setText( int dim, const uiString& string )
 {
     axisnames_->text(dim)->setText( string );
+}
+
+
+static SamplingData<float> getAxisSD( const CubeSampling& cs, int dim )
+{
+    SamplingData<float> sd;
+    if ( dim==0 )
+	sd.set( AxisLayout<int>(cs.hrg.inlRange()).sd_ );
+    else if ( dim==1 )
+	sd.set( AxisLayout<int>(cs.hrg.crlRange()).sd_ );
+    else
+	sd.set( AxisLayout<float>(cs.zrg).sd_ );
+
+    return sd;
 }
 
 
@@ -251,10 +304,10 @@ void Annotation::updateGridLines()
 
     const int* psindexarr[] = {dim0psindexes,dim1psindexes,dim2psindexes};
     const int* coordindexarr[] =
-    	{ dim0coordindexes, dim1coordindexes, dim2coordindexes };
+	{ dim0coordindexes, dim1coordindexes, dim2coordindexes };
 
     const osg::Vec3f* cornercoords = (const osg::Vec3f*)
-    	box_->getVertexArray()->getDataPointer();
+	box_->getVertexArray()->getDataPointer();
 
     for ( int dim=0; dim<3; dim++ )
     {
@@ -275,7 +328,7 @@ void Annotation::updateGridLines()
 	gridlines_->setLine( dim*2+1, osgGeo::Line3(lstart1, -dir) );
 
 	Interval<float> range( p0[dim], p1[dim] );
-	const SamplingData<float> sd = AxisLayout<float>( range ).sd_;
+	const SamplingData<float> sd = getAxisSD( scale_, dim );
 
 	const int* psindexes = psindexarr[dim];
 	const int* cornerarr = coordindexarr[dim];
@@ -357,6 +410,10 @@ void Annotation::getAxisCoords( int dim, osg::Vec3& p0, osg::Vec3& p1 ) const
 
 void Annotation::updateTextPos()
 {
+    // Color and Font are not set to extra added text. Hence this hack.
+    // Both are set again at the end of this function.
+    const Color col = getMaterial()->getColor();
+    const FontData& fd = getFont();
     int curscale = 0;
     for ( int dim=0; dim<3; dim++ )
     {
@@ -373,14 +430,13 @@ void Annotation::updateTextPos()
 	axisnames_->text(dim)->setPosition( tp );
 
 	Interval<float> range( p0[dim], p1[dim] );
-	const SamplingData<float> sd = AxisLayout<float>( range ).sd_;
+	const SamplingData<float> sd = getAxisSD( scale_, dim );
 
 	for ( int idx=0; ; idx++ )
 	{
 	    float val = sd.atIndex(idx);
 	    if ( val <= range.start )		continue;
 	    else if ( val > range.stop )	break;
-
 
 	    if ( curscale>=axisannot_->nrTexts() )
 	    {
@@ -392,11 +448,11 @@ void Annotation::updateTextPos()
 	    osg::Vec3 pos( p0 );
 	    pos[dim] = val;
 	    float displayval = val;
-	    displayval *= annotscale_[dim];
+	    displayval *= scalefactor_[dim];
 
 	    mVisTrans::transform( displaytrans_, pos );
 	    text->setPosition( pos );
-	    text->setText( toString(displayval) );
+	    text->setText( toString(displayval,0) );
 	}
     }
 
@@ -405,12 +461,14 @@ void Annotation::updateTextPos()
 	axisannot_->removeText( axisannot_->text(idx) );
     }
 
+    setFont( fd );
+    getMaterial()->setColor( col );
 }
 
 
-void Annotation::setAnnotScale( int dim, int nv )
+void Annotation::setScaleFactor( int dim, int nv )
 {
-    annotscale_[dim] = nv;
+    scalefactor_[dim] = nv;
     updateTextPos();
 }
 
@@ -482,4 +540,4 @@ bool Annotation::usePar( const IOPar& par )
     return true;
 }
 
-}; //namespace
+} // namespace visBase
