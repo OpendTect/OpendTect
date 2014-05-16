@@ -75,7 +75,7 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 	return;
     }
 
-    double scwdth = wdth < 1e-30 ? -30 : log10( wdth );
+    double scwdth = wdth < 1e-30 ? -30 : log10( (double)wdth );
     int tenpow = 1 - (int)scwdth; if ( scwdth < 0 ) tenpow++;
     double stepfac = Math::IntPowerOf( ((double)10), tenpow );
     scwdth = wdth * stepfac;

@@ -37,7 +37,7 @@ public:
     template <class FT> inline int	nearestIndex(FT) const;
     template <class FT> inline int	indexOnOrAfter(FT,
 						    float eps=mDefEps ) const;
-    					//!\param eps is in number of samples.
+					//!\param eps is in number of samples.
     template <class IT> inline T	atIndex(IT) const;
     template <class FT> inline T	snap(FT) const;
 
@@ -65,7 +65,7 @@ SamplingData<T>::SamplingData( T x0, T y0, T x1, T y1 )
 }
 
 
-template <class T> 
+template <class T>
 template <class FT> inline
 SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
     : start( mCast(T,sd.start) ), step( mCast(T,sd.step) )
@@ -140,7 +140,7 @@ int SamplingData<T>::indexOnOrAfter( FT x, float eps ) const
     const float diff = fres-res;
     if ( diff>eps )
 	res++;
-    
+
     return res;
 }
 
@@ -156,20 +156,20 @@ template <class IT> inline
 T SamplingData<T>::atIndex( IT idx ) const
 { return start + step * (T)idx; }
 
-template <class T> 
+template <class T>
 template <class FT> inline
 void SamplingData<T>::set( FT sa, FT se )
-{ start = sa; step = se; }
+{ start = (T)sa; step = (T)se; }
 
-template <class T> 
+template <class T>
 template <class FT> inline
 void SamplingData<T>::set( const StepInterval<FT>& intv )
-{ start = intv.start; step = intv.step; }
+{ start = (T)intv.start; step = (T)intv.step; }
 
-template <class T> 
+template <class T>
 template <class FT> inline
 void SamplingData<T>::set( const SamplingData<FT>& sd )
-{ start = sd.start; step = sd.step; }
+{ start = (T)sd.start; step = (T)sd.step; }
 
 template <class T> inline
 void SamplingData<T>::scale( T scl )
