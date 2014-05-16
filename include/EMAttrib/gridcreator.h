@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emattribmod.h"
 #include "executor.h"
 
-#include "bufstring.h"
+#include "bufstringset.h"
 
 class CubeSampling;
 class IOObj;
@@ -34,6 +34,7 @@ public:
 
     virtual const char*	nrDoneText() const;
 
+    static const char*	sKeyOverWrite();
     static const char*	sKeyInput();
     static const char*	sKeyOutput();
     static const char*  sKeySelType();
@@ -49,10 +50,12 @@ public:
 
     static const char*	sKeyInlPrefix();
     static const char*	sKeyCrlPrefix();
+    bool		hasWarning(BufferString&) const;
 
 
 protected:
 
+    BufferStringSet	failedlines_;
     bool		init(const IOPar&);
     bool		initFromInlCrl(const IOPar&,const IOObj&,const IOObj&,
 	    			       const CubeSampling&);

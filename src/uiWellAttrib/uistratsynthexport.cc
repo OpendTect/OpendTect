@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 #include "seisbufadapters.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "stratsynth.h"
 #include "stratsynthexp.h"
@@ -350,7 +351,14 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
     switch ( selgeom )
     {
 	case Existing:
-	    return S2DPOS().getGeometry( linegeom );
+	{
+	    const Survey::Geometry* geom =
+		Survey::GM().getGeometry( linegeom.lineName() );
+	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
+	    if ( !geom2d ) return false;
+	    linegeom = geom2d->data();
+	    return true;
+	}
 	case StraightLine:
 	{
 	    ptlist += Coord(coord0fld_->getdValue(0), coord0fld_->getdValue(1));

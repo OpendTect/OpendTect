@@ -127,8 +127,8 @@ ui2DGridLines::ui2DGridLines( uiParent* p, const HorSampling& hs )
     , hs_(hs), grid_(new Grid2D)
     , gridChanged(this)
 {
-    inlprefixfld_ = new uiGenInput( this, "Prefix for parallel lines" );
-    crlprefixfld_ = new uiGenInput( this, "Prefix for perpendicular lines" );
+    inlprefixfld_ = new uiGenInput( this, tr("Prefix for parallel lines") );
+    crlprefixfld_ = new uiGenInput( this, tr("Prefix for perpendicular lines"));
     crlprefixfld_->attach( alignedBelow, inlprefixfld_ );
 }
 
@@ -165,7 +165,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     inlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     inlrgfld_->attach( alignedBelow, inlmodefld_ );
-    inlsfld_ = new uiGenInput( this, "In-lines (comma separated)" );
+    inlsfld_ = new uiGenInput( this, tr("In-lines (comma separated)") );
     inlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     inlsfld_->attach( alignedBelow, inlmodefld_ );
@@ -178,7 +178,7 @@ ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
     crlrgfld_->rangeChanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     crlrgfld_->attach( alignedBelow, crlmodefld_ );
-    crlsfld_ = new uiGenInput( this, "Cross-lines (comma separated)" );
+    crlsfld_ = new uiGenInput( this, tr("Cross-lines (comma separated)") );
     crlsfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromInlCrl,
 					paramsChgCB) );
     crlsfld_->attach( alignedBelow, crlmodefld_ );
@@ -334,10 +334,10 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
     const BinID stopnode = rdl ? rdl->nodePosition( rdl->nrNodes() - 1 )
 			       : BinID::udf();
     baseline_ = new Grid2D::Line( startnode, stopnode );
-    BufferString lbltxt( "Parallel line spacing " );
-    lbltxt += SI().getXYUnitString();
+    uiString parlbl(
+	    tr( "Parallel line spacing %1" ).arg( SI().getXYUnitString() ) );
     const StepInterval<int> spacinglimits( 500, 1000000, 500 );
-    pardistfld_ = new uiGenInput( this, lbltxt.buf(),
+    pardistfld_ = new uiGenInput( this, parlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
     pardistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );
@@ -350,9 +350,9 @@ ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
 	pardistfld_->attach( alignedBelow, rdlfld_ );
     }
 
-    lbltxt = "Perpendicular line spacing ";
-    lbltxt += SI().getXYUnitString();
-    perdistfld_ = new uiGenInput( this, lbltxt.buf(),
+    uiString perlbl(
+	    tr("Perpendicular line spacing %1").arg(SI().getXYUnitString()) );
+    perdistfld_ = new uiGenInput( this, perlbl,
 				  IntInpSpec().setLimits(spacinglimits) );
     perdistfld_->valuechanged.notify( mCB(this,ui2DGridLinesFromRandLine,
 					  paramsChgCB) );
@@ -389,9 +389,10 @@ bool ui2DGridLinesFromRandLine::computeGrid()
     grid_->set( *baseline_, pardist, perdist, hs_ );
     if ( grid_->size(true) > 100 || grid_->size(true) > 100 )
     {
-	BufferString msg = "There are too many lines in the grid";
-	msg += "You may want to increase the grid spacing to get fewer lines.";
-	if ( !uiMSG().askGoOn(msg.buf(),"Continue anyway","Cancel") )
+	uiString msg = tr( "There are too many lines in the grid" );
+	msg.append( "You may want to increase the grid spacing "
+		    "to get fewer lines." );
+	if ( !uiMSG().askGoOn(msg,tr("Continue anyway"),tr("Cancel")) )
 	    return false;
     }
 
@@ -682,7 +683,7 @@ void uiCreate2DGrid::fillHorPar( IOPar& par )
 }
 
 
-bool uiCreate2DGrid::checkInput() const
+bool uiCreate2DGrid::checkInput( IOPar& par ) const
 {
     BufferStringSet linenames;
     const bool frominlcrl = sourceselfld_ ? sourceselfld_->getBoolValue()
@@ -698,12 +699,11 @@ bool uiCreate2DGrid::checkInput() const
 	if ( grp ) grp->getLineNames( linenames );
     }
 
-    S2DPOS().setCurLineSet( outfld_->ioobj()->name() );
-
     BufferStringSet ovwrlinenms;
     for ( int lidx=0; lidx < linenames.size(); lidx++ )
     {
-	if ( S2DPOS().hasLine(linenames.get(lidx)) )
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenames[lidx]->buf() );
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
 	    ovwrlinenms.add( linenames.get(lidx) );
     }
 
@@ -733,21 +733,16 @@ bool uiCreate2DGrid::checkInput() const
 
     if ( !ovwrlinenms.isEmpty() )
     {
-	BufferString msg( "Following lines are already there. Do you want to "
-			  "overwrite? Lines : " );
+	uiString msg = tr( "Following lines are already there. Do you want to "
+			   "overwrite? Lines : " );
 	for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
 	{
-	    msg += ovwrlinenms.get(idx);
-	    msg += idx == ovwrlinenms.size()-1 ? ", " : ".";
+	    msg.append( ovwrlinenms.get(idx) );
+	    msg.append( idx == ovwrlinenms.size()-1 ? ", " : "." );
 	}
 
 	bool res = uiMSG().askGoOn( msg );
-	if ( res )
-	{
-	    for ( int idx=0; idx<ovwrlinenms.size(); idx++ )
-		PosInfo::POS2DAdmin().removeLine( ovwrlinenms.get(idx) );
-	}
-
+	par.setYN( Seis2DGridCreator::sKeyOverWrite(), res );
 	return res;
     }
 
@@ -758,10 +753,10 @@ bool uiCreate2DGrid::checkInput() const
 
 bool uiCreate2DGrid::fillPar()
 {
-    if ( !infld_->ioobj() || !outfld_->ioobj() || !checkInput() )
+    IOPar par;
+    if ( !infld_->ioobj() || !outfld_->ioobj() || !checkInput(par) )
 	return false;
 
-    IOPar par;
     fillSeisPar( par );
     IOPar& batchpar = batchfld_->jobSpec().pars_;
     batchpar.mergeComp( par, "Seis" );
@@ -774,8 +769,11 @@ bool uiCreate2DGrid::fillPar()
     }
 
     if ( !SI().has2D() )
-	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
-			 " in survey setup to display the 2D lines" );
+	uiMSG().warning( tr("You need to change survey type to 'Both 2D and 3D'"
+			    " in survey setup to display the 2D lines") );
+
+    uiMSG().message( tr("Created lines will only reflect in OpendTect "
+			"after restarting the application") );
 
     return true;
 }

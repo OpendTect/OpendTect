@@ -32,8 +32,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "separstr.h"
+#include "survgeom2d.h"
 
 
+const char* Seis2DGridCreator::sKeyOverWrite()	{ return "Do Overwrite"; }
 const char* Seis2DGridCreator::sKeyInput()	{ return "Input ID"; }
 const char* Seis2DGridCreator::sKeyOutput()	{ return "Output ID"; }
 const char* Seis2DGridCreator::sKeySelType()	{ return "Selection Type"; }
@@ -166,6 +168,29 @@ bool Seis2DGridCreator::init( const IOPar& par )
 			       : initFromRandomLine(par,*input,*output,bbox);
 }
 
+#define mHandleLineGeom \
+uiString errmsg; \
+Pos::GeomID geomid = Survey::GM().getGeomID( linenm ); \
+const bool islinepresent = geomid != Survey::GeometryManager::cUndefGeomID(); \
+if ( !islinepresent ) \
+{ \
+    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm ); \
+    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( l2d ); \
+    newgoem2d->ref(); \
+    geomid = Survey::GMAdmin().addNewEntry( newgoem2d, errmsg ); \
+    newgoem2d->unRef(); \
+    if ( geomid == Survey::GeometryManager::cUndefGeomID() ) \
+    { \
+	failedlines_.add( linenm ); \
+	continue; \
+    } \
+} \
+else if ( islinepresent && dooverwrite ) \
+{ \
+    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( geomid ); \
+    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom); \
+    geom2d->dataAdmin().setEmpty(); \
+}
 
 bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 					const IOObj& input, const IOObj& output,
@@ -192,13 +217,19 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 	    inlines += str.getIValue(idx);
     }
 
+    bool dooverwrite = false;
+    if ( par.find(sKeyOverWrite()) )
+	par.getYN( sKeyOverWrite(), dooverwrite );
     FixedString inlstr = par.find( sKeyInlPrefix() );
+    deepErase( failedlines_ );
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.inl() = cs.hrg.stop.inl() = inlines[idx];
-	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(inlstr.str(),
-							  inlines[idx]).buf() );
+	BufferString linenm( inlstr.str() );
+	linenm.add( inlines[idx] );
+
+	mHandleLineGeom
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
@@ -223,8 +254,9 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     {
 	CubeSampling cs = bbox;
 	cs.hrg.start.crl() = cs.hrg.stop.crl() = crosslines[idx];
-	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(crlstr.str(),
-						      crosslines[idx]).buf() );
+	BufferString linenm( crlstr.str() );
+	linenm.add( crosslines[idx] );
+	mHandleLineGeom
 	add( new Seis2DLineCreator(input,cs,output,geomid) );
     }
 
@@ -256,8 +288,12 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
     if ( !grid.totalSize() )
 	return false;
 
+    deepErase( failedlines_ );
     BufferString attribname;
     par.get( sKey::Attribute(), attribname );
+    bool dooverwrite = false;
+    if ( par.find(sKeyOverWrite()) )
+	par.getYN( sKeyOverWrite(), dooverwrite );
 
     FixedString parstr = par.find( sKeyInlPrefix() );
     for ( int idx=0; idx<grid.size(true); idx++ )
@@ -266,8 +302,10 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	if ( !line )
 	    continue;
 
-	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(parstr.str(),
-								   idx).buf() );
+	BufferString linenm( parstr.str() );
+	linenm.add( idx );
+	mHandleLineGeom
+
 	Geometry::RandomLine rdl;
 	rdl.addNode( line->start_ );
 	rdl.addNode( line->stop_ );
@@ -281,8 +319,9 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 	if ( !line )
 	    continue;
 
-	Pos::GeomID geomid = Survey::GM().getGeomID( BufferString(perstr.str(),
-								   idx).buf() );
+	BufferString linenm( perstr.str() );
+	linenm.add( idx );
+	mHandleLineGeom
 	Geometry::RandomLine rdl;
 	rdl.addNode( line->start_ );
 	rdl.addNode( line->stop_ );
@@ -292,6 +331,17 @@ bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
     return true;
 }
 
+
+
+bool Seis2DGridCreator::hasWarning( BufferString& msg ) const
+{
+    msg.setEmpty();
+    if ( failedlines_.isEmpty() )
+	return false;
+    msg.set( "Warning : Following lines could not be created " );
+    msg += failedlines_.getDispString();
+    return true;
+}
 
 
 // ---- Horizon2DGridCreator ----
