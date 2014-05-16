@@ -131,7 +131,7 @@ void dumpInfo( IOPar& iop ) const
 };
 
 
-#define mBytesToMB(bytes) ( bytes / (1024*1024) ) 
+#define mBytesToMB(bytes) ( bytes / (1024*1024) )
 class StreamProviderPreLoadedData : public Executor
 {
 public:
@@ -630,6 +630,9 @@ StreamData StreamProvider::makeOStream( bool binary, bool editmode ) const
             openmode = openmode | std::ios_base::in;
 
 #ifdef __msvc__
+	if ( File::isHidden(retsd.fileName()) )
+	    File::hide( retsd.fileName(), false );
+
 	retsd.ostrm = new std::winofstream( retsd.fileName(), openmode );
 #else
 	retsd.ostrm = new std::ofstream( retsd.fileName(), openmode );
