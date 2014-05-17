@@ -44,10 +44,20 @@ void Geom2DObject::setMultiID( const MultiID& mid )
     if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	return;
 
-//    const PosInfo::Line2DData geom( linename );
-//    const TypeSet<PosInfo::Line2DPos>& positions = geom.positions();
-//    BendPointFinder2D bpf( positions, 1.0 );
-//    bpf.execute();
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(geomid))
+    if ( !geom2d ) return;
+
+    const TypeSet<PosInfo::Line2DPos>& positions = geom2d->data().positions();
+    BendPointFinder2DGeom bpf( positions, 10.0 );
+    bpf.execute();
+
+    bptcoords_.erase();
+    for ( int idx=0; idx<bpf.bendPoints().size(); idx++ )
+    {
+	const int posidx = bpf.bendPoints()[idx];
+	bptcoords_ += positions[posidx].coord_;
+    }
 }
 
 
@@ -62,7 +72,6 @@ const char* Geom2DObject::getShapeName( int ) const
 { return 0; }
 
 void Geom2DObject::getPoints( int, TypeSet<Coord>& crds ) const
-{
-}
+{ crds = bptcoords_; }
 
 } // namespace Basemap

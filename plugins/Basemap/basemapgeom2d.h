@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "basemap.h"
 #include "draw.h"
 #include "multiid.h"
+#include "posinfo2d.h"
 
 namespace Basemap
 {
@@ -39,6 +40,8 @@ public:
 protected:
     LineStyle		ls_;
     MultiID		mid_;
+
+    TypeSet<Coord>	bptcoords_;
 };
 
 } // namespace Basemap

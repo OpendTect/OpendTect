@@ -107,7 +107,6 @@ uiBasemapGroupDlg( uiParent* p, uiBasemapItem& itm )
     , grp_(0)
 {
     grp_ = itm.createGroup( this );
-    grp_->setItemName( itm.factoryDisplayName() );
     setHelpKey( grp_->getHelpKey() );
 }
 
