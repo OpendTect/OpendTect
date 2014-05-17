@@ -121,6 +121,7 @@ void BendPointFinderBase::findInSegment( int idx0, int idx1 )
 }
 
 
+// BendPointFinder2D
 BendPointFinder2D::BendPointFinder2D( const TypeSet<Coord>& crd, float eps )
     : BendPointFinderBase( crd.size(), eps )
     , coords_( crd.arr() )
@@ -158,8 +159,46 @@ float BendPointFinder2D::getMaxSqDistToLine( int& idx, int start,
 }
 
 
+// BendPointFinder2DGeom
+BendPointFinder2DGeom::BendPointFinder2DGeom(
+	const TypeSet<PosInfo::Line2DPos>& pos, float eps )
+    : BendPointFinderBase( pos.size(), eps )
+    , positions_(pos)
+{}
 
-BendPointFinder3D::BendPointFinder3D( const TypeSet<Coord3>& crd, 
+
+const Coord& BendPointFinder2DGeom::coord( int idx ) const
+{ return positions_[idx].coord_; }
+
+
+float BendPointFinder2DGeom::getMaxSqDistToLine( int& idx, int start,
+						 int stop ) const
+{
+    if ( stop-start==2 )
+    {
+	idx = start+1;
+	return (float)(((coord(start)+coord(stop))/2).sqDistTo(coord(idx)));
+    }
+
+    const Line2 line( coord(start), coord(stop) );
+    Coord nearestpt;
+    double dsqmax = 0;
+
+    for ( int ipt=start+1; ipt<stop; ipt++ )
+    {
+	const Coord crd( coord(ipt) );
+	nearestpt = line.closestPoint( crd );
+	const double dsq = nearestpt.sqDistTo( crd );
+	if ( dsq>dsqmax ) { dsqmax = dsq; idx = ipt; }
+    }
+
+    return (float) dsqmax;
+}
+
+
+
+// BendPointFinder3D
+BendPointFinder3D::BendPointFinder3D( const TypeSet<Coord3>& crd,
 				      const Coord3& scale, float eps )
     : BendPointFinderBase( crd.size(), eps )
     , coords_( crd.arr() )

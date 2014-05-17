@@ -13,10 +13,12 @@ ________________________________________________________________________
 */
 
 #include "algomod.h"
-#include "thread.h"
-#include "ranges.h"
-#include "coord.h"
 #include "paralleltask.h"
+
+#include "coord.h"
+#include "ranges.h"
+#include "thread.h"
+#include "posinfo2d.h"
 
 
 /*!
@@ -64,12 +66,29 @@ protected:
 mExpClass(Algo) BendPointFinder2D : public BendPointFinderBase
 {
 public:
-		BendPointFinder2D(const TypeSet<Coord>&, float eps);
-		BendPointFinder2D(const Coord*, int size, float eps);
+		BendPointFinder2D(const TypeSet<Coord>&,float eps);
+		BendPointFinder2D(const Coord*,int size,float eps);
 protected:
-    float	getMaxSqDistToLine(int& idx, int start, int stop ) const;
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
 
     const Coord*	coords_;
+};
+
+
+/*!
+\brief Used to find bendpoints in Line 2D Geometry
+*/
+
+mExpClass(Algo) BendPointFinder2DGeom : public BendPointFinderBase
+{
+public:
+		BendPointFinder2DGeom(const TypeSet<PosInfo::Line2DPos>&,
+				      float eps);
+protected:
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
+
+    const Coord&			coord(int idx) const;
+    const TypeSet<PosInfo::Line2DPos>&	positions_;
 };
 
 
@@ -81,12 +100,12 @@ mExpClass(Algo) BendPointFinder3D : public BendPointFinderBase
 {
 public:
 		BendPointFinder3D(const TypeSet<Coord3>&,
-				  const Coord3& scale, float eps);
+				  const Coord3& scale,float eps);
 protected:
-    float	getMaxSqDistToLine(int& idx, int start, int stop ) const;
+    float	getMaxSqDistToLine(int& idx,int start,int stop) const;
 
     const Coord3*	coords_;
     const Coord3	scale_;
 };
-#endif
 
+#endif
