@@ -1195,7 +1195,7 @@ void uiListBox::setAllItemsChecked( bool yn )
 	return;
 
     const int selidx = currentItem();
-    int lastchg;
+    int lastchg = -1;
     for ( int idx=body_->items_.size()-1; idx>-1; idx-- )
     {
 	uiListBoxItem* itm = body_->items_[idx];
