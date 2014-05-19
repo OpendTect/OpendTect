@@ -642,6 +642,9 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
+    if ( listfld_->doingBurstChoosing() )
+	return;
+
     IOObj* ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
 	mkdefbut_->setSensitive( ioobj && ioobj->implExists(true) );
@@ -653,7 +656,8 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 
 void uiIOObjSelGrp::choiceChg( CallBacker* cb )
 {
-    delete updStatusBarInfo( false );
+    if ( !listfld_->doingBurstChoosing() )
+	delete updStatusBarInfo( false );
 
     itemChosen.trigger();
 }
