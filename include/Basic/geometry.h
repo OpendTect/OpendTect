@@ -147,17 +147,17 @@ public:
     inline T		top() const;
     inline T		right() const;
     inline T		bottom() const;
-    inline void	setLeft(T val);
-    inline void	setTop(T val);
-    inline void	setRight(T val);
-    inline void	setBottom(T val);
+    inline void		setLeft(T val);
+    inline void		setTop(T val);
+    inline void		setRight(T val);
+    inline void		setBottom(T val);
 
     bool		checkCorners(bool leftislow=true,
 				     bool topislow=true) const;
 			//!\returns if the corners are consistent
     void		sortCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
-    inline void	zero();
+    inline void		zero();
 
     inline Rectangle<T>& operator+=(const Point2D<T>&); // shifts
     inline Rectangle<T>& operator-=(const Point2D<T>&);
@@ -167,10 +167,10 @@ public:
     inline void		swapHor();
     inline void		swapVer();
 
-protected:
-
     inline bool		revX() const;
     inline bool		revY() const;
+
+protected:
 
     Point2D<T>		topleft_;
     Point2D<T>		bottomright_;
@@ -836,26 +836,8 @@ inline bool Rectangle<T>::operator >( const Rectangle<T>& r ) const
 template <class T>
 inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
 {
-    if ( revX() )
-    {
-	if ( r.left() < left() ) topleft_.x = r.left();
-	if ( r.right() > right() ) bottomright_.x = r.right();
-    }
-    else
-    {
-	if ( r.left() > left() ) topleft_.x = r.left();
-	if ( r.right() < right() ) bottomright_.x = r.right();
-    }
-    if ( revY() )
-    {
-	if ( r.bottom() < bottom() ) bottomright_.y = r.bottom();
-	if ( r.top() > top() ) topleft_.y = r.top();
-    }
-    else
-    {
-	if ( r.bottom() > bottom() ) bottomright_.y = r.bottom();
-	if ( r.top() < top() ) topleft_.y = r.top();
-    }
+    topleft_ = r.moveInside( topleft_ );
+    bottomright_ = r.moveInside( bottomright_ );
 }
 
 
