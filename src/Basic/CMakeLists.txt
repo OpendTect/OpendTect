@@ -18,6 +18,7 @@ set( OD_TEST_PROGS
 	cubesampling.cc
 	datapack.cc
 	file.cc
+	geometry.cc
 	math2.cc
 	memcopying.cc
 	od_iostream.cc
