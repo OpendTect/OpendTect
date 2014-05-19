@@ -200,6 +200,7 @@ protected:
     const Scene*		getScene(int sceneid) const;
     Timer*			scenetimer_;
     void			sceneTimerCB(CallBacker*);
+    bool			delayedtilingdone_;
 
     friend class		uiODMain;
 };
