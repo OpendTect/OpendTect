@@ -26,6 +26,9 @@ static const char* rcsID mUsedVar = "$Id$";
 static const int cIconSz = 16;
 int uiListBox::cDefNrLines()	{ return 7; }
 
+#define mStartScrolling body_->setAutoScroll( true );
+#define mStopScrolling body_->setAutoScroll( false );
+
 
 mUseQtnamespace
 
@@ -98,6 +101,8 @@ public:
 			{ return prefnrlines_ > 0 ? prefnrlines_
 						  : uiListBox::cDefNrLines(); }
 
+    ObjectSet<uiListBoxItem> items_;
+    BoolTypeSet		itemmarked_;
     int			fieldwidth_;
     int			prefnrlines_;
 
@@ -114,9 +119,7 @@ protected:
 private:
 
     i_listMessenger&	messenger_;
-    ObjectSet<uiListBoxItem> items_;
     TypeSet<uiString>	itemstrings_;
-    BoolTypeSet		itemmarked_;
     Interval<int>	sliderg_;
 
 };
@@ -141,6 +144,7 @@ uiListBoxBody::uiListBoxBody( uiListBox& hndle, uiParent* parnt,
     setSelectionBehavior( QAbstractItemView::SelectItems );
     setSelectionMode( cm == OD::ChooseNone ? QAbstractItemView::NoSelection
 					: QAbstractItemView::SingleSelection );
+    setAutoScroll( false );
 
     setStretch( 2, (nrTxtLines()== 1) ? 0 : 2 );
     setHSzPol( uiObject::Medium );
@@ -346,6 +350,7 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     , itemChosen(this) \
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(Alignment::Left) \
+    , scrollingblocked_(false) \
     , allowduplicates_(true)
 
 #define mStdConstrEnd \
@@ -531,21 +536,11 @@ void uiListBox::handleCheckChange( QListWidgetItem* itm )
     const int itmidx = body_->indexOf( lbitm );
 
     NotifyStopper nsic( itemChosen );
-    setCurrentItem( itmidx );
+    mBlockCmdRec;
+    body_->setCurrentRow( itmidx );
     nsic.restore();
 
     itemChosen.trigger( itmidx );
-}
-
-
-void uiListBox::usrChooseAll( bool yn )
-{
-    if ( isMultiChoice() )
-    {
-	const int selidx = currentItem();
-	setAllItemsChecked( yn );
-	setCurrentItem( selidx );
-    }
 }
 
 
@@ -614,8 +609,14 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 	return;
 
     mBlockCmdRec;
+    if ( !scrollingblocked_ )
+	mStartScrolling;
     body_->addItem( text, mark, id );
-    initNewItem( size() - 1 );
+    const int newidx = size() - 1;
+    body_->setCurrentRow( newidx );
+    if ( !scrollingblocked_ )
+	mStopScrolling;
+    initNewItem( newidx );
 }
 
 
@@ -637,8 +638,10 @@ void uiListBox::addItems( const char** textList )
 {
     const int curidx = currentItem();
     const char** pt_cur = textList;
+    scrollingblocked_ = true;
     while ( *pt_cur )
 	addItem( *pt_cur++ );
+    scrollingblocked_ = false;
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -646,8 +649,10 @@ void uiListBox::addItems( const char** textList )
 void uiListBox::addItems( const BufferStringSet& strs )
 {
     const int curidx = currentItem();
+    scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
+    scrollingblocked_ = false;
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -655,8 +660,10 @@ void uiListBox::addItems( const BufferStringSet& strs )
 void uiListBox::addItems( const TypeSet<uiString>& strs )
 {
     const int curidx = currentItem();
+    scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
+    scrollingblocked_ = false;
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -864,9 +871,13 @@ void uiListBox::setCurrentItem( int idx )
 
     mBlockCmdRec;
 
+    if ( !scrollingblocked_ )
+	mStartScrolling;
     body_->setCurrentRow( idx );
     if ( choicemode_ == OD::ChooseOnlyOne )
 	body_->item( idx )->setSelected( true );
+    if ( !scrollingblocked_ )
+	mStopScrolling;
 }
 
 
@@ -1094,8 +1105,10 @@ void uiListBox::setChosen( Interval<int> rg, bool yn )
     else
     {
 	rg.sort();
+	scrollingblocked_ = true;
 	for ( int idx=rg.start; idx<=rg.stop; idx++ )
 	    setItemChecked( idx, yn );
+	scrollingblocked_ = false;
 	setCurrentItem( rg.start );
     }
 }
@@ -1116,6 +1129,12 @@ void uiListBox::setChosen( const BufferStringSet& nms )
 	setCheckedItems( nms );
     else if ( !nms.isEmpty() )
 	setCurrentItem( nms.get(0) );
+}
+
+
+void uiListBox::usrChooseAll( bool yn )
+{
+    chooseAll( yn );
 }
 
 
@@ -1151,16 +1170,6 @@ void uiListBox::setItemChecked( int idx, bool yn )
 }
 
 
-void uiListBox::setAllItemsChecked( bool yn )
-{
-    if ( !isMultiChoice() )
-	return;
-
-    for ( int idx=0; idx<size(); idx++ )
-	setItemChecked( idx, yn );
-}
-
-
 bool uiListBox::isItemChecked( int idx ) const
 {
     return isMultiChoice() && validIdx(idx) ?
@@ -1176,6 +1185,24 @@ void uiListBox::setItemChecked( const char* nm, bool yn )
     const int idxof = indexOf( nm );
     if ( idxof >= 0 )
 	setItemChecked( indexOf( nm ), yn );
+}
+
+
+void uiListBox::setAllItemsChecked( bool yn )
+{
+    if ( !isMultiChoice() )
+	return;
+
+    const int selidx = currentItem();
+    scrollingblocked_ = true;
+    for ( int idx=0; idx<body_->items_.size(); idx++ )
+    {
+	uiListBoxItem* itm = body_->items_[idx];
+	if ( itm->ischecked_ != yn )
+	    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+    }
+    scrollingblocked_ = false;
+    setCurrentItem( selidx );
 }
 
 
@@ -1202,97 +1229,22 @@ int uiListBox::nrChecked() const
 }
 
 
-//---- 'Select' functions ----
-
-/* QqQ deprecated
-
-void uiListBox::setSelectionMode( SelectionMode mode )
-{
-    pErrMsg("Qt's SelectionMode no longer supported" );
-}
-
-
-void uiListBox::setItemSelectable( int idx, bool yn )
-{
-    setChoosable( idx, yn );
-}
-
-
-bool uiListBox::isItemSelectable( int idx ) const
-{
-    return isChoosable( idx );
-}
-
-
-void uiListBox::setSelectedItems( const BufferStringSet& itms )
-{
-    body_->setCurrentRow( -1 );
-    for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(textOfItem(idx)) );
-}
-
-
-void uiListBox::setSelectedItems( const TypeSet<int>& itms )
-{
-    body_->setCurrentRow( -1 );
-    for ( int idx=0; idx<size(); idx++ )
-	setSelected( idx, itms.isPresent(idx) );
-}
-
-
-bool uiListBox::isSelected ( int idx ) const
-{
-    return isChosen( idx );
-}
-
-
-int uiListBox::nrSelected() const
-{
-    return nrChosen();
-}
-
-
-void uiListBox::setSelected( int idx, bool yn )
-{
-    setChosen( idx, yn );
-}
-
-
-void uiListBox::selectAll( bool yn )
-{
-    mBlockCmdRec;
-    chooseAll( yn );
-}
-
-
-void uiListBox::getSelectedItems( BufferStringSet& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isSelected(idx) ) items.add( textOfItem(idx) );
-}
-
-
-void uiListBox::getSelectedItems( TypeSet<int>& items ) const
-{
-    for ( int idx=0; idx<this->size(); idx++ )
-	if ( isSelected(idx) ) items += idx;
-}
-
-
-QqQ end deprecated */
-
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
 {
+    scrollingblocked_ = true;
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(textOfItem(idx)) );
+    scrollingblocked_ = false;
 }
 
 
 void uiListBox::setCheckedItems( const TypeSet<int>& itms )
 {
+    scrollingblocked_ = true;
     for ( int idx=0; idx<size(); idx++ )
 	setItemChecked( idx, itms.isPresent(idx) );
+    scrollingblocked_ = false;
 }
 
 
