@@ -185,6 +185,7 @@ private:
     OD::ButtonState	buttonstate_;
     CallBack		savecb_;
     CallBack		retrievecb_;
+    bool		scrollingblocked_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));
