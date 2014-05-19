@@ -126,6 +126,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    form_->setInputDef( varinpidx, refstr );
 		    uimathform_->inpFld(idx)->selectInput( refstr.buf() );
 		    varinplastidx = varinpidx+1;
+		    break;
 		}
 	}
     }
