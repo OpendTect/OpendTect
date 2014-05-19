@@ -194,7 +194,6 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , polygonselection_( 0 )
     , visscenecoltab_( 0 )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
-    , setinitialcamerapos_( true )
     , keybindman_( *new KeyBindMan )
 {
     manipmessenger_->ref();
@@ -650,12 +649,6 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
 	handleGestureEvent( gestureevent );
     }
 #endif
-
-    if ( eventfilter_.getCurrentEventType()==
-	uiEventFilter::Show && setinitialcamerapos_ )
-    {
-	viewAll( false );
-    }
 
     if ( eventfilter_.getCurrentEventType()==uiEventFilter::Resize ||
 	 eventfilter_.getCurrentEventType()==uiEventFilter::Show )
@@ -1115,9 +1108,6 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
     manip->setDistance( distance );
 
     requestRedraw();
-
-    setinitialcamerapos_ =  false;
-
     return true;
 
 }

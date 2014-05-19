@@ -125,7 +125,6 @@ public:
 
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
-
 protected:
     void				setupTouch();
     void				setupHUD();
@@ -172,7 +171,6 @@ protected:
     RefMan<visBase::PolygonSelection>	polygonselection_;
     TrackBallManipulatorMessenger*	manipmessenger_;
 
-    bool				setinitialcamerapos_;
     IOPar				homepos_;
     RefMan<visBase::SceneColTab>	visscenecoltab_;
 

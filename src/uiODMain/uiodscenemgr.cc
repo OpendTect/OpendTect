@@ -96,6 +96,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , treeToBeAdded(this)
     , viewModeChanged(this)
     , scenetimer_(new Timer)
+    , delayedtilingdone_(false)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
@@ -189,7 +190,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.mdiwin_->setTitle( title );
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display( true );
-    scn.sovwr_->viewAll( false );
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.mdiwin_->display( true, false, maximized );
@@ -227,8 +227,17 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
 void uiODSceneMgr::sceneTimerCB( CallBacker* )
 {
-    if ( scenes_.size() > 1 )
+    if ( !delayedtilingdone_ && scenes_.size()>1 )
+    {
 	tile();
+	delayedtilingdone_ = true;
+	scenetimer_->start( 50, true );
+    }
+    else
+    {
+	scenes_.last()->sovwr_->viewAll( false );
+	delayedtilingdone_ = false;
+    }
 }
 
 
