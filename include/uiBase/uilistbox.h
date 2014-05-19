@@ -172,6 +172,7 @@ public:
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
+    bool		doingBurstChoosing() const	{ return inburstchse_; }
 
 private:
 
@@ -186,6 +187,7 @@ private:
     CallBack		savecb_;
     CallBack		retrievecb_;
     bool		scrollingblocked_;
+    bool		inburstchse_;
 
     void		menuCB(CallBacker*);
     void		handleCheckChange(mQtclass(QListWidgetItem*));

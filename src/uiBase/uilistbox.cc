@@ -351,6 +351,7 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(Alignment::Left) \
     , scrollingblocked_(false) \
+    , inburstchse_(false) \
     , allowduplicates_(true)
 
 #define mStdConstrEnd \
@@ -1194,10 +1195,23 @@ void uiListBox::setAllItemsChecked( bool yn )
 	return;
 
     const int selidx = currentItem();
-    scrollingblocked_ = true;
-    for ( int idx=0; idx<body_->items_.size(); idx++ )
+    int lastchg;
+    for ( int idx=body_->items_.size()-1; idx>-1; idx-- )
     {
 	uiListBoxItem* itm = body_->items_[idx];
+	if ( itm->ischecked_ != yn )
+	    { lastchg = idx; break; }
+    }
+    if ( lastchg < 0 )
+	return;
+
+    scrollingblocked_ = true;
+    inburstchse_ = true;
+    for ( int idx=0; idx<=lastchg; idx++ )
+    {
+	uiListBoxItem* itm = body_->items_[idx];
+	if ( idx == lastchg )
+	    inburstchse_ = false;
 	if ( itm->ischecked_ != yn )
 	    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
     }
