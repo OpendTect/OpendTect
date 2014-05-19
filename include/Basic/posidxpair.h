@@ -30,24 +30,26 @@ mExpClass(Basic) IdxPair : public ::IdxPair
 {
 public:
 
-    				IdxPair() : ::IdxPair(0,0)	{}
-    				IdxPair( IdxType f, IdxType s )
+				IdxPair() : ::IdxPair(0,0)	{}
+				IdxPair( IdxType f, IdxType s )
 				    : ::IdxPair(f,s)		{}
     inline bool			operator ==(const IdxPair&) const;
     inline bool			operator !=( const IdxPair& oth ) const
 						{ return !(*this == oth); }
+    inline bool			operator <(const IdxPair& oth) const;
+    inline bool			operator >(const IdxPair& oth) const;
 
-    				// aliases for first
+				// aliases for first
     inline IdxType&		inl()		{ return first; }
     inline IdxType&		lineNr()	{ return first; }
     inline IdxType&		row()		{ return first; }
 
-    				// aliases for second
+				// aliases for second
     inline IdxType&		crl()		{ return second; }
     inline IdxType&		trcNr()		{ return second; }
     inline IdxType&		col()		{ return second; }
 
-    				// const versions of the aliases
+				// const versions of the aliases
     inline IdxType		inl() const	{ return first; }
     inline IdxType		crl() const	{ return second; }
     inline IdxType		lineNr() const	{ return first; }
@@ -59,7 +61,7 @@ public:
     inline static IdxPair	fromInt64(od_int64);
     od_int64			sqDistTo(const IdxPair&) const;
     bool			isNeighborTo(const IdxPair&,
-	    			 const IdxPairStep&,bool conn8=true) const;
+				 const IdxPairStep&,bool conn8=true) const;
 
     static const IdxPair&	udf();
 };
@@ -69,6 +71,18 @@ public:
 inline bool IdxPair::operator ==( const IdxPair& oth ) const
 {
     return first == oth.first && second == oth.second;
+}
+
+
+inline bool IdxPair::operator <( const IdxPair& oth ) const
+{
+    return first < oth.first || (first == oth.first && second < oth.second );
+}
+
+
+inline bool IdxPair::operator >( const IdxPair& oth ) const
+{
+    return first > oth.first || (first == oth.first && second > oth.second );
 }
 
 
