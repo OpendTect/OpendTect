@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ptrman.h"
 #include "od_istream.h"
+#include "oddirs.h"
 #include "oscommand.h"
 
 #ifdef __win__
@@ -746,7 +747,7 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    BufferString cmd( "od_FileBrowser" );
+    BufferString cmd( FilePath(GetBinPlfDir(),"od_FileBrowser").fullPath() );
     if ( vp.style_ != Text )
 	cmd.add( " --style ")
 	   .add( vp.style_ == File::Table	? "table"
