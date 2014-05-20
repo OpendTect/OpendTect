@@ -4,14 +4,14 @@
 # Date:		March 2013		
 #RCS:           $Id$
 
-include( CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
+include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 if( UNIX OR APPLE )
     download_packages()
 else()
     message( FATAL_ERROR "Documentation packages are not prepared on Windows" )
 endif()
 
-set( DOCPACKAGES doc dgbdoc )
+set( DOCPACKAGES doc dgbdoc classdoc)
 foreach ( PACKAGE ${DOCPACKAGES} )
     set( PACK ${PACKAGE} )
     message( "Preparing package ${PACK}.zip ......" )

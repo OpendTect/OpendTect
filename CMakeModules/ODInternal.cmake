@@ -218,8 +218,9 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
         -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
-        -DPSD=${PROJECT_SOURCE_DIR}
-        -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
+	-DSOURCE_DIR=${CMAKE_SOURCE_DIR}
+	-DBINARY_DIR=${CMAKE_BINARY_DIR}
+	-P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
          COMMENT "Preparing doc packages" )
 include ( ODSubversion )
 

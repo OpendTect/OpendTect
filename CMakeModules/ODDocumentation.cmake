@@ -55,7 +55,7 @@ macro( OD_BUILD_DOCUMENTATION )
     add_custom_target ( doc
 			COMMAND ${DOXYGEN_EXECUTABLE} ${OD_DOXYGEN_FILE}
 			SOURCES ${OD_DOXYGEN_FILE} )
-    install ( DIRECTORY doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
+    install ( DIRECTORY ${CMAKE_BINARY_DIR}/doc/Programmer/Generated/html DESTINATION doc/Programmer/Generated )
 endmacro()
 
 IF ( BUILD_DOCUMENTATION )
