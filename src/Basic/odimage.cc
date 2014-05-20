@@ -10,8 +10,29 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace OD
 {
+// RGBImageLoader
+
+RGBImage* RGBImageLoader::loadRGBImage( const char* fnm, uiString& errmsg )
+{ 
+    return imageloader_ ? imageloader_->loadImage( fnm, errmsg ) : 0; 
+}
 
 
+void RGBImageLoader::setImageLoader( RGBImageLoader* il )
+{
+    imageloader_ = il;
+}
+
+
+RGBImageLoader::~RGBImageLoader()
+{}
+
+
+PtrMan<RGBImageLoader>  RGBImageLoader::imageloader_;
+
+
+
+//RGBImage
 bool RGBImage::hasAlpha() const
 {
     const char nc = nrComponents();

@@ -52,4 +52,15 @@ protected:
 };
 
 
+mExpClass(uiBase) uiRGBImageLoader : public OD::RGBImageLoader
+{
+public:
+			    
+    static void		    initClass();
+
+private:
+			    uiRGBImageLoader();
+    OD::RGBImage*	    loadImage(const char*, uiString&) const;
+};
+
 #endif

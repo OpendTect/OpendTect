@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 
 #include "bufstringset.h"
+#include "file.h"
 
 #include <QImage>
 #include <QColor>
@@ -136,3 +137,28 @@ void uiRGBArray::supportedImageFormats( BufferStringSet& list )
 	list.add( qlist[idx].constData() );
 }
 
+
+// uiRGBImageLoader
+
+void uiRGBImageLoader::initClass()
+{
+    OD::RGBImageLoader::setImageLoader( new uiRGBImageLoader );
+}
+
+
+uiRGBImageLoader::uiRGBImageLoader()
+{
+}
+
+
+OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
+					    uiString& errmsg )const
+{
+    if ( !File::exists(fnm) )
+    {
+	errmsg = "File does not exist";
+	return 0;
+    }
+
+    return new uiRGBArray( fnm );
+}
