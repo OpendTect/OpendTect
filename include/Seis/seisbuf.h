@@ -81,6 +81,7 @@ public:
 
     bool		isSorted(bool ascending,SeisTrcInfo::Fld) const;
     void		sort(bool ascending,SeisTrcInfo::Fld);
+    void		sortForWrite(bool is2d);
     void		enforceNrTrcs(int nrrequired,SeisTrcInfo::Fld,
 	    			      bool stack_before_remove=false);
     			//!< Makes sure nrtrcs per position is constant
