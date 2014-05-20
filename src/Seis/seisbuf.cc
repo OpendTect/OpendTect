@@ -155,6 +155,43 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 }
 
 
+void SeisTrcBuf::sortForWrite( bool is2d )
+{
+    const int sz = size();
+    if ( sz < 2 )
+	return;
+    else if ( is2d )
+	{ sort( true, SeisTrcInfo::TrcNr ); return; }
+
+    sort( true, SeisTrcInfo::BinIDInl );
+
+    SeisTrcBuf singinlbuf( false );
+    singinlbuf.add( get(0) );
+    ObjectSet<SeisTrc> sortedtrcs;
+#define mAddinlTraces() \
+    singinlbuf.sort( true, SeisTrcInfo::BinIDCrl ); \
+    sortedtrcs.append( singinlbuf.trcs_ ); \
+    singinlbuf.trcs_.erase()
+    for ( int idx=1; idx<sz; idx++ )
+    {
+	SeisTrc* trc = get( idx );
+	const bool issameinl = trc->info().binid.inl()
+				== singinlbuf.get(0)->info().binid.inl();
+	if ( issameinl )
+	    singinlbuf.add( trc );
+	else
+	{
+	    mAddinlTraces();
+	    singinlbuf.add( trc );
+	}
+    }
+    mAddinlTraces();
+
+    trcs_.erase();
+    trcs_.append( sortedtrcs );
+}
+
+
 void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld,
 				bool dostack )
 {
