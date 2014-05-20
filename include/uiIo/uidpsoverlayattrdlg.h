@@ -42,6 +42,7 @@ protected:
     void		doApply(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		attribChanged(CallBacker*);
+    void		scaleChanged(CallBacker*);
 
 };
 

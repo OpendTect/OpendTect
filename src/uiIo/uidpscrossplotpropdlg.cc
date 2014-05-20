@@ -380,7 +380,10 @@ bool parseExp( CallBacker* cb )
     isy1 ? plotter_.y1rmserr_.setEmpty() : plotter_.y2rmserr_.setEmpty();;
     Math::ExpressionParser mep( mathexpr );
     Math::Expression*& mathobj = isy1 ? mathobj_ : mathobj1_;
-    delete mathobj; mathobj = mathexpr.isEmpty() ? 0 : mep.parse();
+    delete mathobj; mathobj = 0;
+    if ( mathexpr.isEmpty() )
+	return false;
+    mathobj = mep.parse();
     uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
 
     if ( !mathobj )
@@ -418,7 +421,7 @@ bool parseExp( CallBacker* cb )
 void drawAxisChanged( CallBacker* )
 {
     plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
-	    !selaxisfld_->getBoolValue(),true );
+	    !selaxisfld_->getBoolValue(), drawlinefld_->isChecked() );
 }
 
 
@@ -428,7 +431,8 @@ void checkedCB( CallBacker* )
 	selaxisfld_->display( drawlinefld_->isChecked() );
 
     plotter_.setUserDefDrawType( drawlinefld_->isChecked(),
-	    selaxisfld_ && !selaxisfld_->getBoolValue(),true );
+	    selaxisfld_ && !selaxisfld_->getBoolValue(),
+	    drawlinefld_->isChecked() );
 
     MouseCursor cursor;
     if ( drawlinefld_->isChecked() )
@@ -533,13 +537,15 @@ void drawPolyLines()
 
 void computePts( bool isy2 )
 {
+    Math::Expression* mathobj = isy2 ? mathobj1_ : mathobj_;
+    if ( !mathobj ) return;
+
     uiDataPointSetCrossPlotter::AxisData& horz = plotter_.axisData(0);
     uiDataPointSetCrossPlotter::AxisData& vert = plotter_.axisData(isy2 ? 2:1);
     vert.handleAutoScale( plotter_.uidps().getRunCalc( vert.colid_ ) );
 
     StepInterval<float> curvyvalrg( mUdf(float), -mUdf(float),
 	    vert.axis_->range().step );
-    Math::Expression* mathobj = isy2 ? mathobj1_ : mathobj_;
     const bool& linedrawn = isy2 ? line2drawn_ : line1drawn_;
     const int nrpts = linedrawn ? 70 : 1000;
     const Interval<float> xrge = horz.rg_;
@@ -766,8 +772,15 @@ bool acceptOK()
     mstyle.size_ = sizefld_->getIntValue();
     mstyle.type_ = (MarkerStyle2D::Type)(shapefld_->currentItem()+1);
     plotter_.axisHandler(1)->setup().style_.color_ = ycolinpfld_->color();
+    plotter_.axisHandler(1)->setup().gridlinestyle_.color_ =
+	ycolinpfld_->color();
     if ( plotter_.isY2Shown() )
+    {
 	plotter_.axisHandler(2)->setup().style_.color_ = y2colinpfld_->color();
+	plotter_.axisHandler(2)->setup().gridlinestyle_.color_ =
+	    y2colinpfld_->color();
+    }
+
     return true;
 }
 
