@@ -39,7 +39,7 @@ helpids=`egrep '^[[:space:]]*#[[:space:]]*define[[:space:]]+[A-Za-z0-9]+[[:space
 haserror=0
 for helpid in ${helpids}
 do
-  count=`grep ${helpid} ${searchpath} 2> /dev/null | wc -l`
+  count=`echo ${searchpath} | xargs -n 2000 grep ${helpid} 2> /dev/null | wc -l`
   if [ $count -lt 2 ]; then
       if [ ${haserror} -ne 1 ]; then
           echo -n "The following HelpIDs are found in ${headerfile} but are not"
