@@ -88,7 +88,8 @@ bool Geometry::exists( const TrcKey& tk )
 
 
 GeometryManager::GeometryManager()
-{ hasduplnms_ = hasDuplicateLineNames(); }
+    : hasduplnms_(false)
+{}
 
 GeometryManager::~GeometryManager()
 { deepUnRef( geometries_ ); }
@@ -406,6 +407,7 @@ bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
 {
     deepUnRef( geometries_ );
     ensureSIPresent();
+    hasduplnms_ = hasDuplicateLineNames();
     PtrMan<GeometryReader> geomreader = GeometryReader::factory()
 				        .create(sKey::TwoD());
     return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
