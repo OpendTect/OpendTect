@@ -69,6 +69,10 @@ public:
 					Interval<float>& topzvals,
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
+
+    float		getIntersectionZ(int trcnr) const;
+    int			getIntersectionTrace(float zval) const;
+
     bool		getHorizonIntersectionInfo(const EM::Horizon& hor,
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
 				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,

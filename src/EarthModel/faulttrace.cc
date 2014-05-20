@@ -205,6 +205,54 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
 }
 
 
+int FaultTrace::getIntersectionTrace( float zval ) const
+{
+    if ( !zrange_.includes(zval,false) )
+	return mUdf(int);
+
+    const float z = zval * SI().zDomain().userFactor();
+    const float eps = SI().zStep() * SI().zDomain().userFactor() * 0.2;
+
+    for ( int idx=0; idx<tracesegs_.size(); idx++ )
+    {
+	const double z0 = tracesegs_[idx].start_.y;
+	const double z1 = tracesegs_[idx].stop_.y;
+	if ( (z<z0 && z<z1) || (z>z0 && z>z1) )
+	    continue;
+
+	const double t0 = tracesegs_[idx].start_.x;
+	const double t1 = tracesegs_[idx].stop_.x;
+	return mIsEqual(z0,z1,eps) ? mNINT32(t0)
+				   : mNINT32(t0+(z-z0)/(z1-z0)*(t1-t0));
+    }
+
+    return mUdf(int);
+}
+
+
+float FaultTrace::getIntersectionZ( int trc ) const
+{
+    if ( trcnrs_.isEmpty() || !trcrange_.includes(trc,false) )
+	return mUdf(float);
+
+    for ( int idx=0; idx<tracesegs_.size(); idx++ )
+    {
+	const int trc0 = mNINT32(tracesegs_[idx].start_.x);
+	const int trc1 = mNINT32(tracesegs_[idx].stop_.x);
+	if ( (trc<trc0 && trc<trc1) || (trc>trc0 && trc>trc1) )
+	    continue;
+
+	const float z0 = mCast(float,tracesegs_[idx].start_.y) /
+	    SI().showZ2UserFactor();
+	const float z1 = mCast(float,tracesegs_[idx].stop_.y) /
+	    SI().showZ2UserFactor();
+	return trc0==trc1 ? z0 : z0+(z1-z0)*(trc-trc0)/mCast(float,trc1-trc0);
+    }
+
+    return mUdf(float);
+}
+
+
 bool FaultTrace::handleUntrimmed( const BinIDValueSet& bvs,
 			Interval<float>& zintv, const BinID& negbid,
 			const BinID& posbid, bool istop ) const
@@ -906,7 +954,7 @@ bool FaultTraceExtractor2D::extractFaultTrace( int stickidx )
     if ( geomid != geomid_ ) return true;
 
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	    	     Survey::GM().getGeometry(geomid_) );
+		     Survey::GM().getGeometry(geomid_) );
     if ( !geom2d )
 	return true;
 
