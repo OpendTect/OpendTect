@@ -129,7 +129,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	const MultiID& mid = objs[idx]->multiID();
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
-	if ( !ioobj )
+	if ( !conn )
 	    continue;
 
 	od_istream& strm = ((StreamConn*)conn)->iStream();
