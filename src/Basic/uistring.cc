@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 #include <QTranslator>
 
+const uiString uiString::emptystring_( sKey::EmptyString() );
 
 class uiStringData
 { mRefCountImplNoDestructor(uiStringData)

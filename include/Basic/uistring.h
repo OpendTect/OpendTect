@@ -80,6 +80,8 @@ public:
 				uiString(const FixedString&);
 				uiString(const BufferString&);
 
+    static const uiString&	emptyString()	{ return emptystring_; }
+
 				~uiString();
 
     bool			isEmpty() const;
@@ -138,6 +140,7 @@ public:
 private:
     friend class		uiStringData;
     uiStringData*		data_;
+    static const uiString	emptystring_;
 public:
 		//Only for expert users
 		uiString(const char* original,
