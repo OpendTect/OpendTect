@@ -164,7 +164,8 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setBitMap( *bmp_ );
     gen_->setPixSizes( availsz.width(), availsz.height() );
 
-    if ( &pack->data() != &data_->data() ) return false;
+    if ( &pack->data() != &data_->data() )
+	return false;
     // TODO: Find a better fix.
 
     gen_->fill();
