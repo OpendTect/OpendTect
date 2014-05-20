@@ -40,12 +40,14 @@ public:
 			Setup( const char* lbl=0 )
 			    : label_(lbl)
 			    , maxnrinps_(6)
+			    , withsubinps_(false)
 			    , withunits_(true)
 			    , proptype_(PropertyRef::Other)	{}
 
 	mDefSetupMemb(BufferString,label);
 	mDefSetupMemb(int,maxnrinps);
 	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
+	mDefSetupMemb(bool,withsubinps);
 	mDefSetupMemb(bool,withunits);
 	mDefSetupMemb(PropertyRef::StdType,proptype); // used if withunits_
 
@@ -56,7 +58,7 @@ public:
 
 
     void		setNonSpecInputs(const BufferStringSet&,int iinp=-1);
-					//!< iinp == -1 does all
+    void		setNonSpecSubInputs(const BufferStringSet&,int iinp=-1);
 
     bool		setText(const char*);
     const char*		text() const;
@@ -78,6 +80,7 @@ public:
 
     Notifier<uiMathFormula> formSet;
     Notifier<uiMathFormula> inpSet;
+    Notifier<uiMathFormula> subInpSet;
     Notifier<uiMathFormula> formUnitSet;
 
     uiMathExpression*	exprFld()		{ return exprfld_; }
@@ -104,10 +107,12 @@ protected:
 
     bool		checkValidNrInputs() const;
     BufferString	getIOFileName(bool forread);
+    bool		setNotifInpNr(const CallBacker*);
 
     void		initFlds(CallBacker*);
     void		formSetCB(CallBacker*);
     void		inpSetCB(CallBacker*);
+    void		subInpSetCB(CallBacker*);
     void		formUnitSetCB(CallBacker*);
     void		recButPush(CallBacker*);
     void		readReq(CallBacker*);

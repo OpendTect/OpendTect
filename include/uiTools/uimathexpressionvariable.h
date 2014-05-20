@@ -18,10 +18,11 @@ ________________________________________________________________________
 class BufferStringSet;
 class UnitOfMeasure;
 namespace Math { class Formula; class Expression; }
+class uiLabel;
 class uiUnitSel;
 class uiGenInput;
+class uiComboBox;
 class uiToolButton;
-class uiLabeledComboBox;
 
 
 mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
@@ -29,13 +30,15 @@ mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
 public:
 
 			uiMathExpressionVariable(uiParent*,int varidx,
-				    bool displayuom=true,
+				    bool withuom=true,
+				    bool withsubinps=false,
 				    const Math::SpecVarSet* svs=0);
 			~uiMathExpressionVariable();
 
     void		addInpViewIcon(const char* inm,const char* tooltip,
 					const CallBack&);
     void		setNonSpecInputs(const BufferStringSet&);
+    void		setNonSpecSubInputs(const BufferStringSet&);
 
     virtual void	use(const Math::Formula&);
     virtual void	use(const Math::Expression*);
@@ -58,32 +61,37 @@ public:
     void		setPropType(PropertyRef::StdType);
 
     Notifier<uiMathExpressionVariable> inpSel;
+    Notifier<uiMathExpressionVariable> subInpSel;
 
     uiGroup*		rightMostField();
     const uiToolButton*	viewBut() const		{ return vwbut_; }
 
 protected:
 
-    void		initFlds(CallBacker*);
-    void		selChg(CallBacker*);
-    void		showHideVwBut(CallBacker*);
+    void		initFlds( CallBacker* ) { updateDisp(); }
+    void		inpChg( CallBacker* )	{ inpSel.trigger(); }
+    void		subInpChg( CallBacker* ) { subInpSel.trigger(); }
+    void		showHideVwBut(CallBacker* cb=0);
 
     const int		varidx_;
     BufferString	varnm_;
     BufferStringSet	nonspecinputs_;
+    BufferStringSet	nonspecsubinputs_;
     bool		isactive_;
     bool		isconst_;
     int			specidx_;
     Math::SpecVarSet&	specvars_;
 
-    uiLabeledComboBox*	varfld_;
+    uiGroup*		inpgrp_;
+    uiLabel*		inplbl_;
+    uiComboBox*		inpfld_;
+    uiComboBox*		subinpfld_;
     uiGenInput*		constfld_;
     uiUnitSel*		unfld_;
     uiToolButton*	vwbut_;
 
-    void		getInpNms(BufferStringSet&) const;
     void		updateDisp();
-    void		updateInpNms();
+    void		updateInpNms(bool sub);
     void		setActive(bool);
     void		setVariable(const char*,bool);
 

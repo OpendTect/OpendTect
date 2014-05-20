@@ -72,7 +72,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     for ( int idx=0; idx<cMaxNrInps; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(
-				varsgrp, idx, true, &svs );
+				varsgrp, idx, true, false, &svs );
 	fld->setNonSpecInputs( availpropnms );
 	if ( idx )
 	    fld->attach( alignedBelow, inpdataflds_[idx-1] );

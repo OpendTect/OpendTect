@@ -41,6 +41,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	, recbut_(0)
 	, formSet(this)
 	, inpSet(this)
+	, subInpSet(this)
 	, formUnitSet(this)
 	, notifinpnr_(-1)
 {
@@ -49,6 +50,7 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 	ctio_.ctxt.toselect.require_.set( sKey::Type(), setup_.stortype_ );
     const CallBack formsetcb( mCB(this,uiMathFormula,formSetCB) );
     const CallBack inpsetcb( mCB(this,uiMathFormula,inpSetCB) );
+    const CallBack subinpsetcb( mCB(this,uiMathFormula,subInpSetCB) );
     const CallBack unitsetcb( mCB(this,uiMathFormula,formUnitSetCB) );
 
     uiMathExpression::Setup mesu( setup_.label_ );
@@ -60,12 +62,14 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
     for ( int idx=0; idx<setup_.maxnrinps_; idx++ )
     {
 	uiMathExpressionVariable* fld = new uiMathExpressionVariable(this,idx,
-				    setup_.withunits_,&form_.specVars());
+				    setup_.withunits_,setup_.withsubinps_,
+				    &form_.specVars());
 	if ( idx )
 	    fld->attach( alignedBelow, inpflds_[idx-1] );
 	else
 	    fld->attach( alignedBelow, exprfld_ );
 	fld->inpSel.notify( inpsetcb );
+	fld->subInpSel.notify( subinpsetcb );
 	inpflds_ += fld;
     }
 
@@ -302,6 +306,20 @@ void uiMathFormula::formSetCB( CallBacker* )
 
 void uiMathFormula::inpSetCB( CallBacker* cb )
 {
+    if ( setNotifInpNr( cb ) )
+	inpSet.trigger();
+}
+
+
+void uiMathFormula::subInpSetCB( CallBacker* cb )
+{
+    if ( setNotifInpNr( cb ) )
+	subInpSet.trigger();
+}
+
+
+bool uiMathFormula::setNotifInpNr( const CallBacker* cb )
+{
     notifinpnr_ = -1;
     for ( int idx=0; idx<inpflds_.size(); idx++ )
     {
@@ -309,9 +327,8 @@ void uiMathFormula::inpSetCB( CallBacker* cb )
 	    { notifinpnr_ = idx; break; }
     }
     if ( notifinpnr_ < 0 )
-	{ pErrMsg("Huh" ); return; }
-
-    inpSet.trigger();
+	{ pErrMsg("Huh" ); return false; }
+    return true;
 }
 
 
