@@ -1,0 +1,70 @@
+#!/bin/csh -f
+# CopyRight:    Copyright(C): dGB Beheer B. V. 2013
+# Description:  Script to create mac common zip files
+# Author:       Nageswara
+# Date:         September 2013
+# RCS:          $Id$
+
+if ( $#argv != 1 ) then                                                                         
+    echo "Usage $0 < zip file name >"
+    exit 0
+endif
+
+set zipfilename=$1
+if( ! -e $zipfilename ) then
+    echo "$zipfilename not found"
+endif
+
+set pkgsdir=`pwd`
+
+set plfpkgnm=$zipfilename:r
+
+if( "$plfpkgnm" != "basedata" && "$plfpkgnm" != "dgbbasedata" && "$plfpkgnm" != "classdoc" && "$plfpkgnm" != "doc" && "$plfpkgnm" != "dgbdoc" ) then
+    echo "$zipfilename  is not a common package"
+    exit 1
+endif()
+
+if ( -d temp ) then
+    rm -rf temp
+endif
+mkdir temp
+cd temp
+cp -p $pkgsdir/$zipfilename .
+unzip -oq $zipfilename
+if( $status != 0 ) then
+    "Error: Failed to unzip $zipfilename"
+     goto removetemp
+     exit 1
+endif
+set dirnm=`zipinfo -1 ${zipfilename} | sed -e 's@/.*@@' | uniq`
+echo "$dirnm"
+if( "$dirnm" == "4.4.0" ) then
+    set macdirnm="OpendTect$dirnm.app"
+else
+    set macdirnm="OpendTect $dirnm.app"
+endif
+
+mv $dirnm "$macdirnm"
+set verfilenm="ver.${plfpkgnm}_mac.txt"
+echo "verfilenm:$verfilenm"
+mv "$macdirnm"/relinfo/ver.$plfpkgnm.txt "$macdirnm"/relinfo/$verfilenm
+if( $status != 0 ) then
+    echo "Error: Failed while creating $verfilenm"
+    goto removetemp
+    exit 1
+endif
+rm -rf $zipfilename
+zip -r -y -q ${plfpkgnm}_mac.zip "$macdirnm"
+if( $status != 0 ) then
+    echo "Error: Zip failed while creating ${plfpkgnm}_mac.zip"
+    goto removetemp
+    exit 1
+endif
+mv "${plfpkgnm}_mac.zip" $pkgsdir/.
+echo ""
+echo "Created ${plfpkgnm}_mac.zip"
+goto removetemp
+
+removetemp:
+    cd $pkgsdir
+    rm -rf temp
