@@ -750,8 +750,8 @@ void TileResolutionData::buildOsgGeometres()
     osgswitch_->setValue( Line, true );
 
     buildTraingleGeometry( Triangle );
-    buildLineGeometry( Line,2.0 );
-    buildLineGeometry( WireFrame, 1.0 );
+    buildLineGeometry( Line,2 );
+    buildLineGeometry( WireFrame, 1 );
     buildPointGeometry( Point );
 
     createPrimitiveSets();
