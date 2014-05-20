@@ -31,41 +31,48 @@ static const Math::SpecVarSet emptsvs;
 
 
 uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
-		    int varidx, bool withunit, const Math::SpecVarSet* svs )
+	int varidx, bool withunit, bool withsub, const Math::SpecVarSet* svs )
     : uiGroup(p,BufferString("MathExprVar ",varidx))
     , varidx_(varidx)
     , isconst_(false)
     , specidx_(-1)
     , isactive_(true)
+    , subinpfld_(0)
     , unfld_(0)
     , vwbut_(0)
     , specvars_(*new Math::SpecVarSet(svs?*svs:emptsvs))
     , inpSel(this)
+    , subInpSel(this)
 {
-    BufferStringSet inpnms; getInpNms( inpnms );
+    inpgrp_ = new uiGroup( this, "Input group" ); 
+    inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
     const BufferString lblstr( "For input number ", varidx_+1, " use" );
-    varfld_ = new uiLabeledComboBox( this, inpnms, lblstr,
-				     BufferString("input ",varidx_+1) );
-    varfld_->label()->setPrefWidthInChar( 35 );
-    varfld_->label()->setAlignment( Alignment::Right );
-    int selidx = varidx_;
-    if ( selidx >= inpnms.size() )
-	selidx = 0;
-    varfld_->box()->setCurrentItem( selidx );
-    varfld_->box()->selectionChanged.notify(
-			mCB(this,uiMathExpressionVariable,selChg) );
+    inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
+    inplbl_->setPrefWidthInChar( 35 );
+    inplbl_->setAlignment( Alignment::Right );
+    inpfld_->selectionChanged.notify(
+	    		mCB(this,uiMathExpressionVariable,inpChg) );
 
-    constfld_ = new uiGenInput( this, "Value for 'c0'", FloatInpSpec() );
-    constfld_->attach( alignedWith, varfld_ );
+    if ( withsub )
+    {
+	subinpfld_ = new uiComboBox( inpgrp_, "Sub Input" );
+	subinpfld_->attach( rightOf, inpfld_ );
+	subinpfld_->selectionChanged.notify(
+			    mCB(this,uiMathExpressionVariable,subInpChg) );
+    }
+
+    constfld_ = new uiGenInput( inpgrp_, "Value for 'c0'", FloatInpSpec() );
+    constfld_->attach( alignedWith, inpfld_ );
 
     if ( withunit )
     {
 	uiUnitSel::Setup uussu( PropertyRef::Other, "convert to:" );
 	uussu.withnone( true );
 	unfld_ = new uiUnitSel( this, uussu );
+	unfld_->attach( rightOf, inpgrp_ );
     }
 
-    setHAlignObj( varfld_ );
+    setHAlignObj( inpfld_ );
     preFinalise().notify( mCB(this,uiMathExpressionVariable,initFlds) );
 }
 
@@ -79,37 +86,43 @@ uiMathExpressionVariable::~uiMathExpressionVariable()
 void uiMathExpressionVariable::addInpViewIcon( const char* icnm, const char* tt,
 						const CallBack& cb )
 {
-    vwbut_ = new uiToolButton( varfld_, "view_log", tt, cb );
-    vwbut_->attach( rightOf, varfld_->box() );
+    vwbut_ = new uiToolButton( inpgrp_, icnm, tt, cb );
+    vwbut_->attach( rightOf, subinpfld_ ? subinpfld_ : inpfld_ );
     inpSel.notify( mCB(this,uiMathExpressionVariable,showHideVwBut) );
 }
 
 
-void uiMathExpressionVariable::getInpNms( BufferStringSet& nms ) const
+void uiMathExpressionVariable::updateInpNms( bool sub )
 {
-    nms.setEmpty();
+    uiComboBox* inpfld = sub ? subinpfld_ : inpfld_;
+    if ( !inpfld )
+	return;
+
+    const BufferString curseltxt( inpfld->text() );
+    inpfld->setEmpty();
+    BufferStringSet nms;
     if ( specidx_ < 0 )
-	nms = nonspecinputs_;
-    else
+	nms = sub ? nonspecsubinputs_ : nonspecinputs_;
+    else if ( !sub )
 	specvars_.getNames( nms );
-}
-
-
-void uiMathExpressionVariable::updateInpNms()
-{
-    const BufferString curseltxt( varfld_->box()->text() );
-    varfld_->box()->setEmpty();
-
-    BufferStringSet nms; getInpNms( nms );
-    varfld_->box()->addItems( nms );
-    varfld_->box()->setCurrentItem( curseltxt );
+    inpfld->addItems( nms );
+    inpfld->setCurrentItem( curseltxt );
+    if ( sub )
+	inpfld->display( !nms.isEmpty() );
 }
 
 
 void uiMathExpressionVariable::setNonSpecInputs( const BufferStringSet& nms )
 {
     nonspecinputs_ = nms;
-    updateInpNms();
+    updateInpNms( false );
+}
+
+
+void uiMathExpressionVariable::setNonSpecSubInputs( const BufferStringSet& nms)
+{
+    nonspecsubinputs_ = nms;
+    updateInpNms( true );
 }
 
 
@@ -117,39 +130,32 @@ uiGroup* uiMathExpressionVariable::rightMostField()
 {
     if ( unfld_ )
 	return unfld_;
-    return varfld_;
-}
-
-
-void uiMathExpressionVariable::initFlds( CallBacker* )
-{
-    updateDisp();
-    if ( unfld_ )
-    {
-	unfld_->attach( rightTo, varfld_ );
-	unfld_->attach( ensureRightOf, constfld_ );
-    }
+    return inpgrp_;
 }
 
 
 void uiMathExpressionVariable::showHideVwBut( CallBacker* )
 {
     if ( vwbut_ )
-	vwbut_->display( !isconst_ && specidx_ < 0 );
+	vwbut_->display( isactive_ && !isconst_ && specidx_ < 0 );
 }
 
 
 void uiMathExpressionVariable::updateDisp()
 {
-    varfld_->display( isactive_ && !isconst_ );
     constfld_->display( isactive_ && isconst_ );
+    bool dodisp = isactive_ && !isconst_;
+    inpfld_->display( dodisp );
+    inplbl_->display( dodisp );
+    if ( subinpfld_ )
+	subinpfld_->display( dodisp && !nonspecsubinputs_.isEmpty() );
     if ( unfld_ )
     {
-	bool dodisp = isactive_ && !isconst_;
 	if ( specidx_ >= 0 )
 	    dodisp = dodisp && specvars_.hasUnits(specidx_);
 	unfld_->display( dodisp );
     }
+    showHideVwBut();
 }
 
 
@@ -166,23 +172,23 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
     varnm_ = varnm;
     specidx_ = specvars_.getIndexOf( varnm );
 
-    updateInpNms();
+    updateInpNms( true ); updateInpNms( false );
 
     BufferString lbltxt;
     bool issens = true;
     if ( isconst_ )
 	constfld_->setTitleText( BufferString("Value for '",varnm_,"'") );
     if ( specidx_ < 0 )
-	varfld_->label()->setText( BufferString("For '", varnm_,"' use") );
+	inplbl_->setText( BufferString("For '", varnm_,"' use") );
     else
     {
-	varfld_->label()->setText( BufferString("'",varnm_,"' filled with") );
-	varfld_->box()->setCurrentItem( specvars_.dispName(specidx_) );
+	inplbl_->setText( BufferString("'",varnm_,"' filled with") );
+	inpfld_->setCurrentItem( specvars_.dispName(specidx_) );
 	issens = false;
 	if ( unfld_ && specvars_.hasUnits(specidx_) )
 	    unfld_->setPropType( specvars_.propType(specidx_) );
     }
-    varfld_->box()->setSensitive( issens );
+    inpfld_->setSensitive( issens );
 
     setActive( true );
     showHideVwBut( 0 );
@@ -209,6 +215,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
     const int nrvars = form.nrInputs();
     if ( varidx_ >= nrvars )
 	{ setActive( false ); return; }
+
     const BufferString varnm = form.variableName( varidx_ );
 
     setVariable( varnm, form.isConst( varidx_ ) );
@@ -230,31 +237,42 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
 void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 {
     if ( !inpnm ) inpnm = "";
-
-    if ( varfld_->box()->isEmpty() )
-    {
-	isconst_ = true;
-	updateDisp();
-	return;
-    }
+    if ( inpfld_->isEmpty() )
+	{ isconst_ = true; updateDisp(); return; }
 
     isconst_ = false;
     updateDisp();
-    BufferString varnm( inpnm );
+    BufferString varnm( inpnm ), subnm;
+    if ( subinpfld_ )
+    {
+	const FileMultiString fms( inpnm );
+	varnm = fms[0]; subnm = fms[1];
+    }
     if ( !exact )
     {
-	BufferStringSet avnms; varfld_->box()->getItems( avnms );
-	const int nearidx = avnms.nearestMatch( inpnm );
+	BufferStringSet avnms; inpfld_->getItems( avnms );
+	const int nearidx = avnms.nearestMatch( varnm );
 	varnm = avnms.get( nearidx );
     }
 
-    varfld_->box()->setCurrentItem( varnm );
+    inpfld_->setCurrentItem( varnm );
+    if ( subinpfld_ )
+	subinpfld_->setCurrentItem( subnm );
 }
 
 
 const char* uiMathExpressionVariable::getInput() const
 {
-    return isconst_ ? constfld_->text() : varfld_->box()->text();
+    if ( isconst_ )
+	return constfld_->text();
+    if ( !subinpfld_ || subinpfld_->isEmpty() )
+	return inpfld_->text();
+
+    FileMultiString fms( inpfld_->text() );
+    fms += subinpfld_->text();
+    mDeclStaticString( ret );
+    ret.set( fms.buf() );
+    return ret;
 }
 
 
@@ -294,10 +312,4 @@ void uiMathExpressionVariable::setPropType( PropertyRef::StdType typ )
 {
     if ( unfld_ )
 	unfld_->setPropType( typ );
-}
-
-
-void uiMathExpressionVariable::selChg( CallBacker* )
-{
-    inpSel.trigger();
 }
