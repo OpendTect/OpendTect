@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadlock.h"
 #include "uigraphicsitemimpl.h"
 #include "uirgbarray.h"
+#include "thread.h"
 
 namespace FlatView
 {
@@ -54,8 +55,8 @@ public:
     void reset()
     {
 	Threads::Locker lckr( lock_ );
-	if ( wvabmpmgr_ ) wvabmpmgr_->setupChg();
-	if ( vdbmpmgr_ ) vdbmpmgr_->setupChg();
+	if ( wvabmpmgr_ ) wvabmpmgr_->clearAll();
+	if ( vdbmpmgr_ ) vdbmpmgr_->clearAll();
     }
 
     bool execute()
@@ -129,7 +130,14 @@ uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
     , display_( new uiDynamicImageItem )
     , basetask_( new uiBitMapDisplayTask( viewer, display_, false ) )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
+    , overlap_( 0.5f )
 {
+    const int nrcpu = Threads::getNrProcessors();
+    if ( nrcpu<4 )
+	overlap_ = 0.25f;
+    else if ( nrcpu<2 )
+	overlap_ = 0.1f;
+
     display_->wantsData().notify( mCB( this, uiBitMapDisplay, reGenerateCB) );
     workqueueid_ = Threads::WorkManager::twm().addQueue( 
 	    			Threads::WorkManager::SingleThread,
@@ -229,7 +237,23 @@ Task* uiBitMapDisplay::createDynamicTask()
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );
 
-    dynamictask->setScope( wr, sz );
+    const bool revx = wr.left() > wr.right();
+    const bool revy = wr.bottom() > wr.top();
+
+    const double expandx = wr.width()*overlap_ * (revx ? -1 : 1 );
+    const double expandy = wr.height()*overlap_ * (revy ? 1 : -1 );
+
+    uiWorldRect computewr( wr.left()-expandx,
+			   wr.top()-expandy,
+			   wr.right()+expandx,
+			   wr.bottom()+expandy );
+    computewr.limitTo( viewer_.boundingBox() );
+    const uiSize computesz(
+	    mNINT32(sz.width()/wr.width()*computewr.width()),
+	    mNINT32(sz.height()/wr.height()*computewr.height()) );
+
+
+    dynamictask->setScope( computewr, computesz );
 
     return dynamictask;
 }
