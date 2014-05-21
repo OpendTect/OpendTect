@@ -1,10 +1,10 @@
-Opendtect 4.6 release info
+Opendtect 5.0 release info
 
 Build platforms/distributions:
 
 Linux 32   : CentOS release 5 (Final)
 Linux 64   : CentOS release 5 (Final)
-Mac	   : Mac OS X 10.5.8 (Leopard, Intel)
+Mac	   : Mac OS X 10.6.8 (Snow Leopard, Intel)
 Windows 32 : Windows Server 2012
 Windows 64 : Windows Server 2012
 
@@ -18,13 +18,7 @@ Windows: Visual C++ 10.0
 
 OpenSource packages/versions used:
 
-Coin et al:
-Coin 3.1.3
-SoQt 1.5.0
-simage 1.7.0
-SIMVoleon 2.0.2a (changeset: 993:0eb85216a1ad)
-
-Qt: 4.8.4
-OSG: 3.1.3
+OpenSceneGraph 3.2
+Qt: 4.8.6
 
 # $Id$
