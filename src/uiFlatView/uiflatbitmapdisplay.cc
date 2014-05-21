@@ -245,8 +245,9 @@ Task* uiBitMapDisplay::createDynamicTask()
 			   wr.right()+expandx,
 			   wr.bottom()+expandy );
     computewr.limitTo( viewer_.boundingBox() );
-    const uiSize computesz( sz.width()/wr.width()*computewr.width(),
-			    sz.height()/wr.height()*computewr.height() );
+    const uiSize computesz(
+	    mNINT32(sz.width()/wr.width()*computewr.width()),
+	    mNINT32(sz.height()/wr.height()*computewr.height()) );
 			
 
     dynamictask->setScope( computewr, computesz );
