@@ -365,17 +365,28 @@ QPointF ODViewerTextItem::getAlignment() const
 }
 
 
+static int border = 5;
+
 QRectF ODViewerTextItem::boundingRect() const
 {
     QFontMetrics qfm( getFont() );
-    const float txtwidth = qfm.width( text_ );
+    const float txtwidth = qfm.width( QString(text_) );
     const float txtheight = qfm.height();
 
+    const double paintangle = Math::ASin(transform().m12());
+    const float boundingwidth = txtwidth * cos(paintangle) +
+				txtheight * fabs(sin(paintangle));
+    const float boundingheight = txtheight + txtwidth * fabs(sin(paintangle));
+
+    const QPointF alignment = getAlignment();
+    const float movex = alignment.x() * boundingwidth;
+    const float movey = alignment.y() * boundingheight;
+
     const QPointF paintpos = mapToScene( QPointF(0,0) );
-    const float radius = mMAX(txtwidth,txtheight);
-    const QRectF scenerect( paintpos.x()-radius, paintpos.y()-radius,
-			    2*radius, 2*radius ); // Largest rectangle is chosen
-    // to avoid clipping when the text is aligned in a different direction.
+    const QRectF scenerect( paintpos.x()+movex-border,paintpos.y()+movey-border,
+			    boundingwidth+2*border,boundingheight+2*border );
+    // Extra space is added to avoid clipping on some platforms and the value
+    // of border is arbitrarily chosen.
     return mapRectFromScene( scenerect );
 }
 
