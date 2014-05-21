@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 #include "threadwork.h"
 #include "threadlock.h"
+#include "thread.h"
 #include "uigraphicsitemimpl.h"
 #include "uirgbarray.h"
 
@@ -131,6 +132,12 @@ uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
     , overlap_( 0.5f )
 {
+    const int nrcpu = Threads::getNrProcessors();
+    if ( nrcpu<4 )
+	overlap_ = 0.25f;
+    else if ( nrcpu<2 )
+	overlap_ = 0.1f;
+
     display_->wantsData().notify( mCB( this, uiBitMapDisplay, reGenerateCB) );
     workqueueid_ = Threads::WorkManager::twm().addQueue( 
 	    			Threads::WorkManager::SingleThread,
@@ -230,8 +237,8 @@ Task* uiBitMapDisplay::createDynamicTask()
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );
 
-    const float expandx = wr.width()*overlap_ * (wr.revX() ? -1 : 1 );
-    const float expandy = wr.height()*overlap_ * (wr.revY() ? 1 : -1 );
+    const double expandx = wr.width()*overlap_ * (wr.revX() ? -1 : 1 );
+    const double expandy = wr.height()*overlap_ * (wr.revY() ? 1 : -1 );
 
     uiWorldRect computewr( wr.left()-expandx,
 			   wr.top()-expandy,
