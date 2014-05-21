@@ -52,7 +52,6 @@ const char* Seis2DGridCreator::sKeyCrlSpacing() { return "Crl Spacing"; }
 const char* Seis2DGridCreator::sKeyInlPrefix()	{ return "Inl Prefix"; }
 const char* Seis2DGridCreator::sKeyCrlPrefix()	{ return "Crl Prefix"; }
 
-
 class Seis2DLineCreator : public Executor
 {
 public:
@@ -160,7 +159,9 @@ bool Seis2DGridCreator::init( const IOPar& par )
 	return false;
 
     CubeSampling bbox;
-    bbox.usePar( par );
+    PtrMan<IOPar> subselpar = par.subselect( sKey::Subsel() );
+    if ( subselpar )
+	bbox.usePar( *subselpar );
 
     BufferString seltype;
     par.get( sKeySelType(), seltype );

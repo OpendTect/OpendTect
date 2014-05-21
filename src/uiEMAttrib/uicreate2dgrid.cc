@@ -666,7 +666,9 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
 	randlinegrdgrp_->fillPar( par );
 
     const CubeSampling& bbox = bboxfld_->envelope();
-    bbox.fillPar( par );
+    IOPar subselpar;
+    bbox.fillPar( subselpar );
+    par.mergeComp( subselpar, sKey::Subsel() );
 }
 
 
