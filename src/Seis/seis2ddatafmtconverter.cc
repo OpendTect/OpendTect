@@ -274,7 +274,7 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 		    .add( Survey::GM().getGeomID(lineset.name(),
 						 lineset.lineName(lineidx)) ) );
 	    newfnm.setExtension( oldfnm.extension() );
-	    iop->set( sKey::FileName(), newfnm.fullPath() );
+	    iop->set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
 	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 									*iop) );
 	    if ( newfullfnm == oldfullfnm )
@@ -286,7 +286,8 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 		if ( ret )
 		{
 		    delete ret;
-		    filestobedeleted.add( oldfullfnm );
+		    if ( File::exists(oldfullfnm) )
+			filestobedeleted.add( oldfullfnm );
 		}
 	    }
 	}
