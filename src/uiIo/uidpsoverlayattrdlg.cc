@@ -35,7 +35,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	colnames.add( userName(dcid) );
     }
 
-    y3coltabfld_ = new uiColorTableGroup( this, plotter_.y3CtSeq() );
+    y3coltabfld_ =
+	new uiColorTableGroup( this, plotter_.y3CtSeq(), false, false );
     y3coltabfld_->enableManage( false );
     y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
     uiLabeledComboBox* y3lblcbx =
@@ -50,7 +51,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     else
 	y3propselfld_->setCurrentItem( 0 );
     y3coltabfld_->scaleChanged.notify(
-	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
+	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
     y3propselfld_->selectionChanged.notify(
 	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     
@@ -58,7 +59,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     uiLabeledComboBox* y4lblcbx = 0;
     if ( plotter_.isY2Shown() )
     {
-        y4coltabfld_ = new uiColorTableGroup( this, plotter_.y4CtSeq() );
+	y4coltabfld_ =
+	    new uiColorTableGroup( this, plotter_.y4CtSeq(), false, false );
 	y4coltabfld_->enableManage( false );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
 	y4lblcbx =
@@ -76,7 +78,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	    y4propselfld_->setCurrentItem( 0 );
     
 	y4coltabfld_->scaleChanged.notify(
-	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
+	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
 	y4propselfld_->selectionChanged.notify(
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
@@ -146,18 +148,16 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 
 void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 {
-    ColTab::MapperSetup mappersetup; 
     if ( y3propselfld_->currentItem() )
     {
-	const int prevy3colid = plotter_.y3Colid();
+	ColTab::MapperSetup prevmsu = y3coltabfld_->colTabMapperSetup();
+	prevmsu.type_ = ColTab::MapperSetup::Auto;
+	prevmsu.cliprate_ = Interval<float>(0.f,0.f);
+	y3coltabfld_->setMapperSetup( &prevmsu, false );
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( true );
 	y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
-	
-	plotter_.setOverlayY1Cols( prevy3colid );
-	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
-	plotter_.updateOverlayMapper( true );
     }
     else
     {
@@ -168,16 +168,41 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
    
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
-	const int prevy4colid = plotter_.y4Colid();
+	ColTab::MapperSetup prevmsu = y4coltabfld_->colTabMapperSetup();
+	prevmsu.type_ = ColTab::MapperSetup::Auto;
+	prevmsu.cliprate_ = Interval<float>(0.f,0.f);
+	y4coltabfld_->setMapperSetup( &prevmsu, false );
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
 	plotter_.updateOverlayMapper( false );
 	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
-	
-	plotter_.setOverlayY2Cols( prevy4colid );
-	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
-	plotter_.updateOverlayMapper( false );
     }
+    else
+    {
+	plotter_.setOverlayY2Cols( mUdf(int) );
+	if ( plotter_.isY2Shown() && y4propselfld_ )
+	{
+	    y4coltabfld_->setInterval( Interval<float>(0,1) );
+	    plotter_.setShowY4( false );
+	}
+    }
+}
+
+
+void uiDPSOverlayPropDlg::scaleChanged( CallBacker* )
+{
+    ColTab::MapperSetup mappersetup;
+    if ( y3propselfld_->currentItem() )
+	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
+    else
+    {
+	plotter_.setOverlayY1Cols( mUdf(int) );
+	y3coltabfld_->setInterval( Interval<float>(0,1) );
+	plotter_.setShowY3( false );
+    }
+
+    if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
+	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
     else
     {
 	plotter_.setOverlayY2Cols( mUdf(int) );

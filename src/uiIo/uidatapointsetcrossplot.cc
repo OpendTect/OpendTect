@@ -124,6 +124,9 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     x_.defaxsu_.style_ = setup_.xstyle_;
     y_.defaxsu_.style_ = setup_.ystyle_;
     y2_.defaxsu_.style_ = setup_.y2style_;
+    x_.defaxsu_.gridlinestyle_ = setup_.xstyle_;
+    y_.defaxsu_.gridlinestyle_ = setup_.ystyle_;
+    y2_.defaxsu_.gridlinestyle_ = setup_.y2style_;
     x_.defaxsu_.border_ = setup_.minborder_;
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
@@ -418,7 +421,7 @@ void uiDataPointSetCrossPlotter::setUserDefDrawType( bool dodrw, bool isy2,
 				     : drawy1userdefpolyline_;
     drawuserdefpolyline = dodrw;
     drawuserdefline_ = drwln;
-    selectable_ = !dodrw;
+    selectable_ = !drwln;
     drawy2_ = isy2;
 }
 
@@ -569,7 +572,8 @@ void uiDataPointSetCrossPlotter::mouseClickedCB( CallBacker* )
 
 void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 {
-    if ( drawuserdefline_ && mousepressed_ )
+    if ( !mousepressed_ ) return;
+    if ( drawuserdefline_ )
     {
 	uiPoint stoppos = getCursorPos();
 	const uiAxisHandler& xah = *x_.axis_;
@@ -612,28 +616,25 @@ void uiDataPointSetCrossPlotter::mouseMoveCB( CallBacker* )
 	return;
     }
 
-    if ( !selectable_ || !mousepressed_ ) return;
+    if ( !selectable_ || rectangleselection_ ) return;
 
-    if ( !rectangleselection_ )
+    SelectionArea& selarea = getCurSelArea();
+    selarea.poly_.add( getCursorPos() );
+    selarea.geomChanged();
+
+    if ( !selectionpolygonitem_ )
     {
-	SelectionArea& selarea = getCurSelArea();
-	selarea.poly_.add( getCursorPos() );
-	selarea.geomChanged();
-
-	if ( !selectionpolygonitem_ )
+	selectionpolygonitem_ = new uiPolygonItem();
+	if ( !selpolyitems_ )
 	{
-	    selectionpolygonitem_ = new uiPolygonItem();
-	    if ( !selpolyitems_ )
-	    {
-		selpolyitems_ = new uiGraphicsItemGroup();
-		scene().addItemGrp( selpolyitems_ );
-		selpolyitems_->setZValue( 5 );
-	    }
-
-	    selpolyitems_->add( selectionpolygonitem_ );
+	    selpolyitems_ = new uiGraphicsItemGroup();
+	    scene().addItemGrp( selpolyitems_ );
+	    selpolyitems_->setZValue( 5 );
 	}
-	selectionpolygonitem_->setPolygon( selarea.poly_ );
+
+	selpolyitems_->add( selectionpolygonitem_ );
     }
+    selectionpolygonitem_->setPolygon( selarea.poly_ );
 }
 
 
@@ -693,12 +694,15 @@ void uiDataPointSetCrossPlotter::drawColTabItem( bool isy1 )
     uiBorder extraborder = setup_.minborder_;
     extraborder.setBottom( extraborder.bottom() + ctsu.sz_.height() );
     x_.axis_->setup().border_ = extraborder;
+    y_.axis_->setup().border_ = extraborder;
+    if ( y2_.axis_ )
+	y2_.axis_->setup().border_ = extraborder;
     setDraw();
 
     const int xpos = isy1 ? x_.axis_->pixBefore()
 			  : width() - x_.axis_->pixAfter() - ctsu.sz_.width();
-    const int ypos = height() - y_.axis_->pixBefore();
-    coltabitem->setPos( mCast(float,xpos), mCast(float,ypos) );
+    const int ypos = height() - extraborder.bottom() - ctsu.sz_.height();
+    coltabitem->setPixmapPos( uiPoint(xpos,ypos) );
     ColTab::Sequence ctab = isy1 ? y3ctab_ : y4ctab_;
     coltabitem->setColTabSequence( ctab );
     const ColTab::MapperSetup& mappersetup = isy1 ? y3mapper_.setup_
