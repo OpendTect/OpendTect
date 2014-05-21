@@ -397,6 +397,8 @@ void uiPolygonItem::setPolygon( type ptlist ) \
     for ( unsigned int idx=0; idx<ptlist.size(); idx++ )\
 	qpolygonf[idx] = QPointF( (float) ptaccess[idx].x, \
 			         (float) ptaccess[idx].y );\
+    if ( !ptlist.isEmpty() && !qpolygonf.isClosed() ) \
+    qpolygonf += qpolygonf.first(); \
     qpolygonitem_->setPolyLine( qpolygonf, true ); \
 }
 
