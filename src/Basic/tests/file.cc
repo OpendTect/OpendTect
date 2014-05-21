@@ -78,6 +78,39 @@ bool testIStream( const char* file )
 }
 
 
+bool testFilePathParsing()
+{
+    FilePath winstyle( "C:\\Program Files\\OpendTect 5.0.0\\file.txt" );
+    if ( winstyle.fileName() != "file.txt" )
+    {
+	od_cout() << "Failed to parse Windows style file path" << od_endl;
+	od_cout() << "Actual result: " << winstyle.fileName() << od_endl;
+	od_cout() << "Expected result: file.txt" << od_endl;
+	return false;
+    }
+
+    FilePath unixstyle( "/data/apps/OpendTect 5.0.0/file.txt" );
+    if ( unixstyle.fileName() != "file.txt" )
+    {
+	od_cout() << "Failed to parse Unix style file path" << od_endl;
+	od_cout() << "Actual result: " << unixstyle.fileName() << od_endl;
+	od_cout() << "Expected result: file.txt" << od_endl;
+	return false;
+    }
+
+    FilePath mixedstyle( "C:\\Program Files/OpendTect\\5.0.0/file.txt" );
+    if ( mixedstyle.fileName() != "file.txt" )
+    {
+	od_cout() << "Failed to parse Windows-Unix mixed file path" << od_endl;
+	od_cout() << "Actual result: " << mixedstyle.fileName() << od_endl;
+	od_cout() << "Expected result: file.txt" << od_endl;
+	return false;
+    }
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
@@ -92,5 +125,7 @@ int main( int argc, char** argv )
       || !testIStream( normalargs.get(0).buf() ) )
 	ExitProgram( 1 );
 
+    if ( testFilePathParsing() )
+	ExitProgram( 1 );
     return ExitProgram(0);
 }
