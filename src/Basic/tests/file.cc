@@ -125,7 +125,8 @@ int main( int argc, char** argv )
       || !testIStream( normalargs.get(0).buf() ) )
 	ExitProgram( 1 );
 
-    if ( testFilePathParsing() )
+    if ( !testFilePathParsing() )
 	ExitProgram( 1 );
+
     return ExitProgram(0);
 }
