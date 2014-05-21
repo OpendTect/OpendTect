@@ -316,7 +316,7 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 {
     mPrepCursor();
 
-    mCapt(!text.isEmpty() ? title : tr("Please specify") );
+    mCapt(title.isEmpty() ? tr("Please specify") : title);
     const int refnr = beginCmdRecEvent( utfwintitle );
 
     const uiString yestxt = yestxtinp.isEmpty() ? uiStrings::sYes() : yestxtinp;
