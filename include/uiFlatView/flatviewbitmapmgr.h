@@ -30,7 +30,8 @@ public:
 			BitMapMgr(const Viewer&,bool wva);
 			~BitMapMgr()			{ clearAll(); }
 
-    void		setupChg();
+    void		clearAll();
+
     Geom::Point2D<int>	dataOffs(const Geom::PosRectangle<double>&,
 	    			 const Geom::Size2D<int>&) const;
     			//!< Returns mUdf(int)'s when outside or incompatible
@@ -42,19 +43,21 @@ public:
     const A2DBitMap*	bitMap() const			{ return bmp_; }
     const A2DBitMapGenerator*	bitMapGen() const	{ return gen_; }
 
-protected:
+private:
 
-    const Viewer&		vwr_;
-    A2DBitMap*			bmp_;
-    A2DBitMapPosSetup*		pos_;
-    A2DBitMapInpData*		data_;
-    A2DBitMapGenerator*		gen_;
-    bool			wva_;
+    void				setup();
 
-    Geom::PosRectangle<double>	wr_;
+    const Viewer&			vwr_;
+    mutable Threads::Lock		lock_;
+    ConstDataPackRef<FlatDataPack>	datapack_;
+    A2DBitMap*				bmp_;
+    A2DBitMapPosSetup*			pos_;
+    A2DBitMapInpData*			data_;
+    A2DBitMapGenerator*			gen_;
+    bool				wva_;
+
+    Geom::PosRectangle<double>		wr_;
     Geom::Size2D<int>		sz_;
-
-    void			clearAll();
 };
 
 

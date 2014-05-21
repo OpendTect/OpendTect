@@ -48,6 +48,9 @@ public:
     uiGraphicsItem*	getDisplay();
     void		removeDisplay();
 
+    void		setOverlap(float v) { overlap_ = v; }
+    float		getOverlap() const  { return overlap_; }
+
     Interval<float>	getDataRange(bool iswva) const;
 
 private:
@@ -59,6 +62,7 @@ private:
 
     uiFlatViewer&		viewer_;
     int				workqueueid_;
+    float			overlap_;
 
     uiDynamicImageItem*		display_;
 

@@ -29,32 +29,39 @@ FlatView::BitMapMgr::BitMapMgr( const FlatView::Viewer& vwr, bool wva )
     , wva_(wva)
     , sz_(mUdf(int),mUdf(int))
     , wr_(mUdf(double),mUdf(double),mUdf(double),mUdf(double))
+    , datapack_( 0 )
 {
-    setupChg();
+    setup();
 }
 
 
 void FlatView::BitMapMgr::clearAll()
 {
-    delete bmp_;	bmp_ = 0;
-    delete pos_;	pos_ = 0;
-    delete data_;	data_ = 0;
-    delete gen_;	gen_ = 0;
+    Threads::Locker locker( lock_ );
+
+    deleteAndZeroPtr( bmp_ );
+    deleteAndZeroPtr( pos_ );
+    deleteAndZeroPtr( data_ );
+    deleteAndZeroPtr( gen_ );
+
+    datapack_ = 0;
 }
 
 
-void FlatView::BitMapMgr::setupChg()
+void FlatView::BitMapMgr::setup()
 {
+    Threads::Locker locker( lock_ );
     clearAll();
+
     if ( !vwr_.isVisible(wva_) ) return;
 
-    ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack( wva_ );
-    if ( !dp ) return;
+    datapack_ = vwr_.obtainPack( wva_ );
+    if ( !datapack_ ) return;
 
-    Threads::Locker updlckr( dp->updateLock() );
-    const FlatPosData& pd = dp->posData();
+    Threads::Locker updlckr( datapack_->updateLock() );
+    const FlatPosData& pd = datapack_->posData();
     const FlatView::Appearance& app = vwr_.appearance();
-    const Array2D<float>& arr = dp->data();
+    const Array2D<float>& arr = datapack_->data();
     if ( pd.nrPts(true) < arr.info().getSize(0) )
 	return;
 
@@ -99,6 +106,8 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
 			const Geom::PosRectangle<double>& inpwr,
 			const Geom::Size2D<int>& inpsz ) const
 {
+    Threads::Locker locker( lock_ );
+
     Geom::Point2D<int> ret( mUdf(int), mUdf(int) );
     if ( mIsUdf(wr_.left()) ) return ret;
 
@@ -137,14 +146,22 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 				    const Geom::Size2D<int>& sz,
 				    const Geom::Size2D<int>& availsz )
 {
+    Threads::Locker locker( lock_ );
     if ( !gen_ )
+    {
+	setup();
+	if ( !gen_ )
+	    return true;
+    }
+
+    if ( !datapack_ )
+    {
+	pErrMsg("Sanity check");
 	return true;
+    }
 
-    ConstDataPackRef<FlatDataPack> pack = vwr_.obtainPack( wva_ );
-    if ( !pack ) return true;
-
-    Threads::Locker updlckr( pack->updateLock() );
-    const FlatPosData& pd = pack->posData();
+    Threads::Locker updlckr( datapack_->updateLock() );
+    const FlatPosData& pd = datapack_->posData();
     pos_->setDimRange( 0, Interval<float>(
 				mCast(float,wr.left()-pd.offset(true)),
 				mCast(float,wr.right()-pd.offset(true))) );
@@ -164,9 +181,11 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setBitMap( *bmp_ );
     gen_->setPixSizes( availsz.width(), availsz.height() );
 
-    if ( &pack->data() != &data_->data() )
+    if ( &datapack_->data() != &data_->data() )
+    {
+	pErrMsg("Santy check failed");
 	return false;
-    // TODO: Find a better fix.
+    }
 
     gen_->fill();
 

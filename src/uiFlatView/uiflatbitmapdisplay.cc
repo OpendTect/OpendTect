@@ -54,8 +54,8 @@ public:
     void reset()
     {
 	Threads::Locker lckr( lock_ );
-	if ( wvabmpmgr_ ) wvabmpmgr_->setupChg();
-	if ( vdbmpmgr_ ) vdbmpmgr_->setupChg();
+	if ( wvabmpmgr_ ) wvabmpmgr_->clearAll();
+	if ( vdbmpmgr_ ) vdbmpmgr_->clearAll();
     }
 
     bool execute()
@@ -129,6 +129,7 @@ uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
     , display_( new uiDynamicImageItem )
     , basetask_( new uiBitMapDisplayTask( viewer, display_, false ) )
     , finishedcb_( mCB( this, uiBitMapDisplay, dynamicTaskFinishCB ) )
+    , overlap_( 0.5f )
 {
     display_->wantsData().notify( mCB( this, uiBitMapDisplay, reGenerateCB) );
     workqueueid_ = Threads::WorkManager::twm().addQueue( 
@@ -229,7 +230,19 @@ Task* uiBitMapDisplay::createDynamicTask()
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );
 
-    dynamictask->setScope( wr, sz );
+    const float expandx = wr.width()*overlap_ * (wr.revX() ? -1 : 1 );
+    const float expandy = wr.height()*overlap_ * (wr.revY() ? 1 : -1 );
+
+    uiWorldRect computewr( wr.left()-expandx,
+			   wr.top()-expandy,
+			   wr.right()+expandx,
+			   wr.bottom()+expandy );
+    computewr.limitTo( viewer_.boundingBox() );
+    const uiSize computesz( sz.width()/wr.width()*computewr.width(),
+			    sz.height()/wr.height()*computewr.height() );
+			
+
+    dynamictask->setScope( computewr, computesz );
 
     return dynamictask;
 }
