@@ -1045,6 +1045,13 @@ bool uiVisPartServer::deleteAllObjects()
     while ( scenes_.size() )
 	removeScene( scenes_[0]->id() );
 
+    if ( multirgeditwin_ )
+    {
+	multirgeditwin_->close();
+	delete multirgeditwin_;
+	multirgeditwin_ = 0;
+    }
+
     scenes_.erase();
     nrsceneschange_.trigger();
     return true; //visBase::DM().removeAll();
