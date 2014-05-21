@@ -48,6 +48,9 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
+#define mLineName LineKey(linekey_).lineName()
+
+
 EngineMan::EngineMan()
     : inpattrset_(0)
     , procattrset_(0)
@@ -542,15 +545,12 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
     if ( !proc )
 	return 0;
 
-    LineKey lkey = linekey_.buf();
-    const Provider* prov = proc->getProvider();
-    if ( prov && !prov->getDesc().isStored() )
-	lkey.setAttrName( proc->getAttribName() );
-
     Interval<int> trcrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
-    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, 
-					  Survey::GM().getGeomID(linekey_) );
+
+    const Pos::GeomID geomid = Survey::GM().getGeomID( mLineName );
+    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid );
+
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
@@ -982,8 +982,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	outid = nlaid;
     }
 
-    Processor* proc =
-	createProcessor( *procattrset_, lineKey().buf(), outid, errmsg );
+    Processor* proc = createProcessor(*procattrset_, mLineName, outid, errmsg);
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )
@@ -1015,7 +1014,7 @@ Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
 	attrout->setTrcsBounds( *cubezbounds );
 
     if ( !linekey_.isEmpty() )
-	attrout->setGeomID( Survey::GM().getGeomID(linekey_) );
+	attrout->setGeomID( Survey::GM().getGeomID(mLineName) );
 
     proc->addOutput( attrout );
     proc->setRdmPaths( trueknotspos, snappedpos );
@@ -1031,16 +1030,16 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  Interval<float>* cubezbounds )
 {
     PtrMan<IOPar> output = pars.subselect( IOPar::compKey(sKey::Output(),"0") );
-    const char* linename = output->find(sKey::LineKey());
-    if ( !linename )
-	linename = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()));
+    const char* linekey = output->find(sKey::LineKey());
+    if ( !linekey )
+	linekey = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()));
 
-    setLineKey( linename );
+    setLineKey( linekey );
 
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
+    const Pos::GeomID geomid = Survey::GM().getGeomID( mLineName );
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid,
 							datapointset, outval );
     attrout->doUsePar( pars );
