@@ -574,6 +574,37 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 }
 
 
+bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( SeisTrcTranslator::isPS(ioobj) )
+	{
+	    const char* linenm = Survey::GM().getName( geomid );
+	    BufferStringSet linenames;
+	    SPSIOPF().getLineNames( ioobj, linenames );
+	    if ( linenames.isPresent(linenm) )
+		return true;
+	}
+	else
+	{
+	    if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T') )
+		continue;
+
+	    Seis2DDataSet dset( ioobj );
+	    if ( dset.indexOf(geomid) >= 0 )
+		return true;
+	}
+    }
+
+    return false;
+}
+
+
 void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
 					BufferStringSet& datasets, Opts2D o2d )
 {

@@ -193,9 +193,20 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
 {
     selnames.erase(); selids.erase();
 
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
+    for ( int idx=geomids.size()-1; idx>=0; idx-- )
+    {
+	if ( !SeisIOObjInfo::hasData(geomids[idx]) )
+	{
+	    linenames.removeSingle( idx );
+	    geomids.removeSingle( idx );
+	}
+    }
+
+    cursorchgr.restore();
     uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( parent(), setup );
     dlg.setHelpKey(mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
