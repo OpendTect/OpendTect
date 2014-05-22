@@ -41,6 +41,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     , ismultisel_(multisel)
     , selectionChanged(this)
 {
+    txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
     Survey::GM().getList( lnms_, geomids_, true );
 }
