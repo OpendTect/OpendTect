@@ -559,11 +559,20 @@ void Seis2DDisplay::setData( int attrib,
 
 	if ( !seriesidx )
 	{
-	    sz0 = usedarr->info().getSize(0);
-	    sz1 = usedarr->info().getSize(1);
+	    sz0 = 1 + (usedarr->info().getSize(0)-1) * (resolution_+1);
+	    sz1 = 1 + (usedarr->info().getSize(1)-1) * (resolution_+1);
+
+	    //If the size is too big to display, use low resolution only
+	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
+		sz0 = usedarr->info().getSize(0);
+
+	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
+		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor = tmparr ? 0 : usedarr->getStorage();
+	ValueSeries<float>* stor =
+			!resolution_ && !tmparr ? usedarr->getStorage() : 0;
+
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
@@ -586,7 +595,33 @@ void Seis2DDisplay::setData( int attrib,
 	}
 
 	if ( ownsstor )
-	    usedarr->getAll( *stor );
+	{
+	    if ( resolution_==0 )
+		usedarr->getAll( *stor );
+	    else
+	    {
+		// Copy all the data from usedarr to an Array2DImpl and pass
+		// this object to Array2DReSampler. This copy is done because
+		// Array2DReSampler will access the input using the "get"
+		// method. The get method of Array2DImpl is much faster than
+		// that of Seis2DArray.
+		Array2DImpl<float> sourcearr2d( usedarr->info() );
+		if ( !sourcearr2d.isOK() )
+		{
+		    channels_->turnOn( false );
+		    pErrMsg(
+			"Insufficient memory; cannot display the 2D seismics.");
+		    return;
+		}
+
+		sourcearr2d.copyFrom( *usedarr );
+
+		Array2DReSampler<float,float>
+			    resampler( sourcearr2d, *stor, sz0, sz1, true );
+		resampler.setInterpolate( true );
+		TaskRunner::execute( tr, resampler );
+	    }
+	}
 
 	channels_->setSize( 1, sz0, sz1 );
 	channels_->setUnMappedVSData(attrib, seriesidx, stor,
@@ -648,7 +683,7 @@ void Seis2DDisplay::updatePanelStripPath()
     for ( int idx=0; idx<knots.size(); idx++ )
     {
 	path += tdi.alltrcpos_[knots[idx]];
-	mapping += mCast( float, knots[idx]-tdi.rg_.start );
+	mapping += mCast( float, (knots[idx]-tdi.rg_.start)*(resolution_+1) );
 
 	polyline_->addPoint( Coord3(path[idx],SI().zRange(true).start) );
     }
@@ -658,8 +693,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     if ( getUpdateStageNr() )
     {
-	panelstrip_->setPathTextureShift(
-			    updatestageinfo_.oldtrcrgstart_-tdi.rg_.start );
+	const float diff = updatestageinfo_.oldtrcrgstart_ - tdi.rg_.start;
+	panelstrip_->setPathTextureShift( diff*(resolution_+1) );
     }
 
     updateLineNamePos();
@@ -669,16 +704,16 @@ void Seis2DDisplay::updatePanelStripPath()
 void Seis2DDisplay::updatePanelStripZRange()
 {
     panelstrip_->setZRange( trcdisplayinfo_.zrg_ );
-    const Interval<float> mapping(0.0f,
-				  mCast(float,trcdisplayinfo_.zrg_.nrSteps()));
+    const Interval<float> mapping( 0.0f,
+		mCast(float,trcdisplayinfo_.zrg_.nrSteps())*(resolution_+1) );
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )
     {
 	const float diff =
 		    updatestageinfo_.oldzrgstart_ - trcdisplayinfo_.zrg_.start;
-
-	panelstrip_->setZTextureShift( diff/trcdisplayinfo_.zrg_.step );
+	const float factor = (resolution_+1) / trcdisplayinfo_.zrg_.step;
+	panelstrip_->setZTextureShift( diff*factor );
     }
 
     updateLineNamePos();
@@ -722,6 +757,7 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setGeometry( geometry_ );
     s2dd->setZRange( trcdisplayinfo_.zrg_ );
     s2dd->setTraceNrRange( getTraceNrRange() );
+    s2dd->setResolution( getResolution(), tr );
     s2dd->setGeomID( geomid_ );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -810,7 +846,7 @@ bool Seis2DDisplay::isLineNameShown() const
 
 
 int Seis2DDisplay::nrResolutions() const
-{ return 1; }
+{ return 3; }
 
 
 void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
@@ -820,6 +856,8 @@ void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
 
     resolution_ = res;
     updateDataFromCache( tr );
+    updatePanelStripPath();
+    updatePanelStripZRange();
 }
 
 
