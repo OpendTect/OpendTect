@@ -1214,7 +1214,7 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
 			      const Array2D<float>& inp, TaskRunner* tr ) const
 {
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
-    resampler.setInterpolate( textureInterpolationEnabled() );
+    resampler.setInterpolate( true );
     TaskRunner::execute( tr, resampler );
 }
 
