@@ -349,6 +349,11 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
+    //TypeSet<Coord3> polycoords;
+    const bool showline = objs.size() ? true : false;
+    if( polyline_ && showline && markerset_->size() )
+	    polyline_->removeAllPoints();
+
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
 	Coord3 pos = (*set_)[idx].pos_;
@@ -393,10 +398,27 @@ void PickSetDisplay::otherObjectsMoved(
 	}
 
 	markerset_->turnMarkerOn( idx, newstatus );
+	if ( showline && newstatus )
+	{
+	    const Coord3& pos = markerset_->getCoordinates()->getPos( idx );
+	    setPolylinePos( idx, pos );
+	}
+
+	//if ( newstatus )
+	    //polycoords += markerset_->getCoordinates()->getPos( idx );
     }
 
-    if ( polyline_ )
-	polyline_->turnOn( showall_ );
+    //polyline_->turnOn( showall_ );
+ //   if ( polyline_ )
+ //   {
+	//polyline_->removeAllPoints();
+	//int pidx = 0;
+	//for ( pidx=0; pidx<polycoords.size(); pidx++ )
+	//    polyline_->addPoint( polycoords[pidx] );
+
+	//if ( pidx && set_->disp_.connect_ == Pick::Set::Disp::Close )
+	//    polyline_->setPoint( pidx, polyline_->getPoint(0) );
+ //   }
 }
 
 
