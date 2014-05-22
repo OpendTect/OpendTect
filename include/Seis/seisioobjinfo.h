@@ -102,6 +102,7 @@ public:
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
 
+    static bool		hasData(Pos::GeomID);
     static void		getDataSetNamesForLine( const char* nm,
 						BufferStringSet& b,
 						Opts2D o2d=Opts2D() );
