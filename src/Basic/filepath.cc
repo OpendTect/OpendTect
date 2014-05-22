@@ -19,6 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 const char* FilePath::sPrefSep = ":";
 
+static const FilePath::Style cOther = __iswin__ ? FilePath::Unix
+						: FilePath::Windows;
+
 FilePath::FilePath( const char* fnm )
 {
     set( fnm );
@@ -88,6 +91,10 @@ FilePath& FilePath::set( const char* _fnm )
     if ( ptr )
     {
 	const char* dsptr = firstOcc( fnm, *dirSep(Local) );
+	const char* otherdsptr = firstOcc( fnm, *dirSep(cOther) );
+	if ( otherdsptr && ( !dsptr || otherdsptr < dsptr ) )
+	    dsptr = otherdsptr;
+
 	if ( dsptr > ptr )
 	{
 	    prefix_ = fnm;
@@ -405,11 +412,12 @@ void FilePath::addPart( const char* fnm )
     {
 	char cur = *fnm;
 
-	if ( cur != *dirSep(Local) )
+	if ( cur != *dirSep(Local) && cur != *dirSep(cOther) )
 	    remdblsep = true;
 	else
 	{
-	    if ( prev != *dirSep(Local) || !remdblsep )
+	    if ( (prev != *dirSep(Local) && prev != *dirSep(cOther))
+		    || !remdblsep )
 	    {
 		*bufptr = '\0';
 		if ( buf[0] ) lvls_.add( buf );
