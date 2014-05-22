@@ -35,7 +35,7 @@ public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();  
 
-    MultiID		getBodyMid() const { return outputfld_->key(); }			
+    MultiID		getBodyMid() const { return outputfld_->key(); }
 protected:
 
     bool		acceptOK(CallBacker*);
@@ -88,6 +88,9 @@ public:
 protected:
 
     bool		acceptOK(CallBacker*);
+    const IOObj*	getIfMCSurfaceObj() const;
+			/* For bodies made in older version 
+			   Translator group name : MarchingCubesSurface */
 
     uiIOObjSel*		inputfld_;
     uiIOObjSel*		outputfld_;
