@@ -59,7 +59,7 @@ public:
 
     bool			isInlCrl() const { return true; }
 
-    int				nrResolutions() const 	{ return 1; }
+    int				nrResolutions() const	{ return 3; }
     void			setResolution(int,TaskRunner*);
 
     void			showManipulator(bool yn);

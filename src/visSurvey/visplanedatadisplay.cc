@@ -537,7 +537,7 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
-    return 1;
+    return 3;
 }
 
 
@@ -867,8 +867,10 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     const bool usetf = tfpacks.size();
     if ( nrAttribs()>1 )
     {
-	const int oldchannelsz0 = channels_->getSize(1);
-	const int oldchannelsz1 = channels_->getSize(2);
+	const int oldchannelsz0 =
+			(channels_->getSize(1)+resolution_) / (resolution_+1);
+	const int oldchannelsz1 =
+			(channels_->getSize(2)+resolution_) / (resolution_+1);
 
 	//check current attribe sizes
 	int newsz0 = 0, newsz1 = 0;
@@ -1037,13 +1039,20 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	int sz0 = dparr.info().getSize(0);
 	int sz1 = dparr.info().getSize(1);
 
-	if ( !arr )
+	if ( !arr || resolution_>0 )
 	{
+	    sz0 = 1 + (sz0-1) * (resolution_+1);
+	    sz1 = 1 + (sz1-1) * (resolution_+1);
+
 	    const od_int64 totalsz = sz0*sz1;
 	    mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
 	    if ( !tmparr ) continue;
 
-	    dparr.getAll( tmparr );
+	    if ( resolution_<1 )
+		dparr.getAll( tmparr );
+	    else
+		interpolArray( attrib, tmparr, sz0, sz1, dparr, tr );
+
 	    arr = tmparr;
 	    cp = OD::TakeOverPtr;
 	}
@@ -1060,7 +1069,7 @@ void PlaneDataDisplay::interpolArray( int attrib, float* res, int sz0, int sz1,
 			      const Array2D<float>& inp, TaskRunner* tr ) const
 {
     Array2DReSampler<float,float> resampler( inp, res, sz0, sz1, true );
-    resampler.setInterpolate( textureInterpolationEnabled() );
+    resampler.setInterpolate( true );
     TaskRunner::execute( tr, resampler );
 }
 

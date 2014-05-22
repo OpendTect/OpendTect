@@ -429,7 +429,6 @@ bool uiVisSettingsGroup::acceptOK()
 void uiVisSettingsGroup::shadersChange( CallBacker* )
 {
     usevolshadersfld_->setSensitive( usesurfshadersfld_->getBoolValue() );
-    textureresfactorfld_->setSensitive( !usesurfshadersfld_->getBoolValue() );
 }
 
 

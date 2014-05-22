@@ -51,6 +51,7 @@ uiViewer3DMgr::uiViewer3DMgr()
     : selectpsdatamenuitem_( "D&isplay Prestack Data" )
     , positionmenuitem_( "&Show position window ..." )
     , proptymenuitem_( "&Properties ..." )
+    , resolutionmenuitem_( "&Resolution ..." )
     , viewermenuitem_( "View in &2D panel" )
     , amplspectrumitem_( "&Amplitude spectrum ..." )
     , removemenuitem_( "&Remove" )
@@ -119,12 +120,33 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 
 
     mDynamicCastGet( visSurvey::PreStackDisplay*, psv, dataobj.ptr() );
+    resolutionmenuitem_.id = -1;
+    resolutionmenuitem_.removeItems();
+
+    if ( psv && psv->flatViewer() )
+    {
+	const int nrres = psv->flatViewer()->nrResolutions();
+	BufferStringSet resolutions;
+	for ( int idx=0; idx<nrres; idx++ )
+	    resolutions.add( psv->flatViewer()->getResolutionName(idx) );
+
+	resolutionmenuitem_.createItems( resolutions );
+	for ( int idx=0; idx<resolutionmenuitem_.nrItems(); idx++ )
+	    resolutionmenuitem_.getItem(idx)->checkable = true;
+
+	resolutionmenuitem_.getItem(
+		psv->flatViewer()->getResolution() )->checked = true;
+    }
+
+
+
     viewermenuitem_.removeItems();
 
     const int idxof = psv ? viewers3d_.indexOf(psv) : -1;
     if ( idxof < 0  )
     {
 	mResetMenuItem( &proptymenuitem_ );
+	mResetMenuItem( &resolutionmenuitem_ );
 	mResetMenuItem( &viewermenuitem_ );
 	mResetMenuItem( &amplspectrumitem_ );
 	mResetMenuItem( &positionmenuitem_ );
@@ -133,6 +155,7 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
     else
     {
 	mAddMenuItem( menu, &proptymenuitem_, true, false );
+	mAddMenuItem( menu, &resolutionmenuitem_, true, false );
 	mAddMenuItem( menu, &viewermenuitem_, true, false );
 	mAddMenuItem( menu, &amplspectrumitem_, true, false );
 	if ( !posdialogs_[idxof] || posdialogs_[idxof]->isHidden() )
@@ -208,6 +231,16 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 		dlg = mkNewPosDialog( menu, *psv );
 	    if ( dlg )
 		dlg->show();
+	}
+    }
+    else if ( resolutionmenuitem_.id!=-1 &&
+	      resolutionmenuitem_.itemIndex(mnuid)!=-1 )
+    {
+	menu->setIsHandled( true );
+	if ( psv->flatViewer() )
+	{
+	    psv->flatViewer()->setResolution(
+					resolutionmenuitem_.itemIndex(mnuid) );
 	}
     }
     else if ( mnuid == viewermenuitem_.id )
@@ -315,6 +348,10 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->unRef();
 	return false;
     }
+
+    const int res = pdd ? pdd->getResolution() : s2d->getResolution();
+    if ( viewer->flatViewer() )
+	viewer->flatViewer()->setResolution( res );
 
     //set viewer angle.
     const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );

@@ -47,6 +47,11 @@ public:
     Interval<float>	       getDataRange(bool iswva) const;
     const SamplingData<float>  getDefaultGridSampling(bool x1) const;
 
+    int			       nrResolutions() const		{ return 3; }
+    void		       setResolution(int res);
+    int			       getResolution() const	{ return resolution_; }
+    BufferString	       getResolutionName(int) const;
+
     FlatView::AuxData*	       createAuxData(const char* nm) const { return 0;}
 
     int			       nrAuxData() const { return 0; }
@@ -70,6 +75,7 @@ protected:
     PolyLine*		       x2gridlines_;
     Material*		       gridlinematerial_;
 
+    int			       resolution_;
     Coord3		       c00_, c01_, c10_, c11_;
 };
 

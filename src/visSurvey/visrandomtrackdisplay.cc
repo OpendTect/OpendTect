@@ -244,6 +244,9 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
 
 	setData( idx, *cache_[idx] );
     }
+
+    updatePanelStripPath();
+    setPanelStripZRange( panelstrip_->getZRange() );
 }
 
 
@@ -662,9 +665,8 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    }
 	}
 
-	// TODO: Remove multi-resolution code
-	const int sz0 = array->info().getSize(0) * (resolution_+1);
-	const int sz1 = array->info().getSize(1) * (resolution_+1);
+	const int sz0 = 1 + (array->info().getSize(0)-1) * (resolution_+1);
+	const int sz1 = 1 + (array->info().getSize(1)-1) * (resolution_+1);
 	channels_->setSize( 1, sz0, sz1 );
 
 	if ( resolution_==0 )
@@ -703,13 +705,13 @@ void RandomTrackDisplay::updatePanelStripPath()
 	if ( trcbids[trcidx] == knots_[knotidx] )
 	{
 	    pathcrds += Coord( knots_[knotidx].inl(), knots_[knotidx].crl() );
-	    mapping += (float) trcidx;
+	    mapping += mCast( float, trcidx*(resolution_+1) );
 	    knotidx++;
 	}
     }
 
     if ( mapping.size()!=knots_.size() ||
-	 mapping[mapping.size()-1]!=trcbids.size()-1 )
+	 mNINT64(mapping.last())!=(trcbids.size()-1)*(resolution_+1) )
     {
 	pErrMsg( "Unexpected state while texture mapping" );
     }
@@ -728,7 +730,7 @@ void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 {
     const StepInterval<float> zrg( rg.start, rg.stop, appliedZRangeStep() );
     panelstrip_->setZRange( zrg );
-    const Interval<float> mapping( 0, (float) zrg.nrSteps() );
+    const Interval<float> mapping(0,mCast(float,zrg.nrSteps()*(resolution_+1)));
     panelstrip_->setZRange2TextureMapping( mapping );
 
     if ( getUpdateStageNr() )

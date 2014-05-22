@@ -151,6 +151,8 @@ public:
 
 private:
     bool			doWork(od_int64 start,od_int64 stop,int);
+    uiStringCopy		uiNrDoneText() const
+				{ return "Data values mapped"; }
 
     const ColTab::Mapper&	mapper_;
     od_int64			totalsz_;
@@ -171,7 +173,8 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 			   const float* unmapped,
 			   T* mappedvals, int mappedvalsspacing,
 			   T* mappedudfs, int mappedudfspacing	)
-    : mapper_( map )
+    : ParallelTask( "Color table mapping" )
+    , mapper_( map )
     , totalsz_( sz )
     , nrsteps_( nrsteps )
     , unmapped_( unmapped )
@@ -191,7 +194,8 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, T nrsteps,
 			   const ValueSeries<float>& unmapped,
 			   T* mappedvals, int mappedvalsspacing,
 			   T* mappedudfs, int mappedudfspacing	)
-    : mapper_( map )
+    : ParallelTask( "Color table mapping" )
+    , mapper_( map )
     , totalsz_( sz )
     , nrsteps_( nrsteps )
     , unmapped_( unmapped.arr() )

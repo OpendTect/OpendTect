@@ -45,7 +45,33 @@ FlatViewer::FlatViewer()
     , x1gridlines_( PolyLine::create() )
     , x2gridlines_( PolyLine::create() )
     , gridlinematerial_( new Material )
+    , resolution_( 0 )
 {
+    int resolutionfromsettings;
+
+    // try getting default resolution from settings
+    bool success = Settings::common().get(
+	    "dTect.Default texture resolution factor", resolutionfromsettings );
+
+    if ( success )
+    {
+	if ( resolutionfromsettings >= 0 && resolutionfromsettings <= 2 )
+	    resolution_ = resolutionfromsettings;
+	else if ( resolutionfromsettings == -1 )
+	    success = false;
+    }
+
+    if ( !success )
+    {
+	// get default resolution from environment variable
+	const char* envvar = GetEnvVar("OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
+	if ( envvar && isdigit(*envvar) )
+	    resolution_ = toInt( envvar );
+    }
+
+    if ( resolution_ >= nrResolutions() )
+	resolution_ = nrResolutions()-1;
+
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
 
@@ -111,8 +137,11 @@ void FlatViewer::handleChange( unsigned int dt)
 		    int rowsz = dparr.info().getSize(0);
 		    int colsz = dparr.info().getSize(1);
 		    
-		    if ( !arr )
+		    if ( !arr || resolution_!=0 )
 		    {
+			rowsz = 1 + (rowsz-1) * (resolution_+1);
+			colsz = 1 + (colsz-1) * (resolution_+1);
+
 			const od_int64 totalsz = rowsz*colsz;
 			mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
 			
@@ -121,8 +150,17 @@ void FlatViewer::handleChange( unsigned int dt)
 			    channels_->turnOn( false );
 			    return;
 			}
-			
-			dparr.getAll( tmparr );
+			if ( resolution_==0 )
+			    dparr.getAll( tmparr );
+			else
+			{
+			    Array2DReSampler<float,float>
+				resampler( dparr, tmparr, rowsz, colsz, true );
+			    resampler.setInterpolate( true );
+			    resampler.execute();
+			}
+
+
 			arr = tmparr;
 			cp = OD::TakeOverPtr;
 		    }
@@ -310,6 +348,25 @@ Interval<float> FlatViewer::getDataRange( bool wva ) const
 				   res );
 
     return res;
+}
+
+
+void FlatViewer::setResolution( int res )
+{
+    if ( res==resolution_ )
+	return;
+
+    resolution_ = res;
+    handleChange( Viewer::BitmapData );
+}
+
+
+BufferString FlatViewer::getResolutionName( int res ) const
+{
+    if ( res == 0 ) return "Standard";
+    else if ( res == 1 ) return "Higher";
+    else if ( res == 2 ) return "Highest";
+    else return "?";
 }
 
 
