@@ -160,7 +160,9 @@ bool Seis2DGridCreator::init( const IOPar& par )
 	return false;
 
     CubeSampling bbox;
-    bbox.usePar( par );
+    PtrMan<IOPar> subselpar = par.subselect( sKey::Subsel() );
+    if ( subselpar )
+	bbox.usePar( *subselpar );
 
     BufferString seltype;
     par.get( sKeySelType(), seltype );
