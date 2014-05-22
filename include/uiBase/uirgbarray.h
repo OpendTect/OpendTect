@@ -30,6 +30,8 @@ public:
     virtual Color	get(int,int) const;
     virtual bool	set(int,int,const Color&);
 
+    virtual unsigned char*  getData();
+
     virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
     virtual int		getSize(bool xdir) const;
     virtual bool	setSize(int,int);	//!< destroys whatever is there

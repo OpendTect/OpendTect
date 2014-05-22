@@ -173,7 +173,7 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
-    scene_->getTopBotImage(istop)->setImageFilename( fnm );
+    scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
 }
 
 

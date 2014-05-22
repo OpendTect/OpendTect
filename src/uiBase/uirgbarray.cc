@@ -138,6 +138,11 @@ void uiRGBArray::supportedImageFormats( BufferStringSet& list )
 }
 
 
+unsigned char* uiRGBArray::getData()
+{
+    return qimg_ ? qimg_->bits() : 0;
+}
+
 // uiRGBImageLoader
 
 void uiRGBImageLoader::initClass()
