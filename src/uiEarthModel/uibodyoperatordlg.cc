@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "executor.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "marchingcubes.h"
 #include "uitoolbutton.h"
@@ -414,12 +415,16 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 
 bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 {
-    if ( !inputfld_->ioobj() || !outputfld_->ioobj() )
+    const IOObj* inpiobj = inputfld_->ioobj(true);
+    if ( !inpiobj )
+	inpiobj = getIfMCSurfaceObj();
+    
+    if ( !inpiobj || !outputfld_->ioobj() )
 	return false;
 
     uiTaskRunner tr( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( inputfld_->key(), &tr );
+	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &tr );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
 	mRetErr( "Cannot read input body" );
@@ -483,4 +488,21 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	mRetErr("Saving body failed");
 
     return true;
+}
+
+
+const IOObj* uiImplicitBodyValueSwitchDlg::getIfMCSurfaceObj() const
+{
+    const char* inpstr = inputfld_->getInput();
+    const CtxtIOObj workctio = mIOObjContext( EMBody );
+    const IODir iodir( workctio.ctxt.getSelKey() );
+    const IOObj* inpiobj = iodir.get( inpstr );
+    if ( !inpiobj )
+	return 0;
+
+    const int res = workctio.ctxt.trgroup->objSelector( inpiobj->group() );
+    if ( res == mObjSelUnrelated )
+	return 0;
+
+    return inpiobj->clone();
 }
