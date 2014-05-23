@@ -136,7 +136,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	ascistream astream( strm );
 	const int majorversion = astream.majorVersion();
 	const int minorversion = astream.minorVersion();
-	if ( majorversion>=4 && minorversion>2 )
+	if ( majorversion>4 || (majorversion==4 && minorversion>2) )
 	    continue;
     
 	BufferString msg("The geobody '", ioobj->name() );
