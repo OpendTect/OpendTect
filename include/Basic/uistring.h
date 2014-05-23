@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "basicmod.h"
 
 #include "objectset.h"
-#include "keystrs.h"
 
 class uiStringData;
 
@@ -85,7 +84,7 @@ public:
 				~uiString();
 
     bool			isEmpty() const;
-    void			setEmpty() { *this = sKey::EmptyString(); }
+    void			setEmpty();
 
     uiString&			operator=(const uiString&);
 				/*!<\note Does not copy data, will use the same

@@ -8,6 +8,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "helpview.h"
+#include "keystrs.h"
+
 
 mImplFactory( HelpProvider, HelpProvider::factory );
 
