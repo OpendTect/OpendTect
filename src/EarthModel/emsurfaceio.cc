@@ -496,7 +496,8 @@ int dgbSurfaceReader::nrLines() const
 
 
 BufferString dgbSurfaceReader::lineName( int idx ) const
-{ return linenames_.get( idx ); }
+{ return linenames_.validIdx(idx) && linenames_[idx] ? linenames_.get( idx ) 
+						     : BufferString(""); }
 
 
 BufferString dgbSurfaceReader::lineSet( int idx ) const
@@ -885,8 +886,8 @@ int dgbSurfaceReader::nextStep()
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
 
-	PosInfo::GeomID geomid = S2DPOS().getGeomID(linesets_[rowindex_]->buf(),
-	    					 linenames_[rowindex_]->buf() );
+	PosInfo::GeomID geomid = S2DPOS().getGeomID( lineSet(rowindex_),
+						     lineName(rowindex_) );
 	if ( !geomid.isOK() )
 	     return ErrorOccurred();
 
