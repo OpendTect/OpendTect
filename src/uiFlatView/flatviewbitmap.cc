@@ -183,7 +183,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 
     if ( &datapack_->data() != &data_->data() )
     {
-	pErrMsg("Santy check failed");
+	pErrMsg("Sanity check failed");
 	return false;
     }
 
