@@ -288,7 +288,7 @@ void uiGMTMainWin::selChg( CallBacker* )
 	return;
 
     const int selidx = flowfld_->currentItem();
-    if ( selidx < 0 || selidx > pars_.size() )
+    if ( !pars_.validIdx(selidx) )
     {
 	tabstack_->setCurrentPage( basemapgrp_ );
 	return;
