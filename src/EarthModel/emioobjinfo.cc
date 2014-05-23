@@ -261,7 +261,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
     PtrMan<EMSurfaceTranslator> ptrman_tr = str;
     if ( !str )
     {
-	if ( !tr )
+	if ( !trans )
 	    { pErrMsg("No Translator for IOObj" ); }
 	else
 	    { pErrMsg("Created Translator is not a EMSurfaceTranslator"); }
