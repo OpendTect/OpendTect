@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "bufstring.h"
 #include "envvars.h"
+#include "keystrs.h"
 #include "od_iostream.h"
 #include "perthreadrepos.h"
 #include "ptrman.h"
@@ -159,7 +160,6 @@ bool uiStringData::fillQString( QString& res,
 }
 
 
-
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
 {
@@ -220,6 +220,22 @@ bool uiString::isEmpty() const
 {
     return data_->originalstring_.isEmpty();
 }
+
+
+void uiString::setEmpty()
+{
+    *this = sKey::EmptyString();
+}
+
+
+static uiString emptystring;
+
+
+const uiString& uiString::emptyString()
+{
+    return emptystring;
+}
+
 
 
 const char* uiString::getOriginalString() const

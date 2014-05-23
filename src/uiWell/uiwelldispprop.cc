@@ -52,10 +52,9 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
     szfld_->box()->setInterval( StepInterval<int>(0,100,1) );
     szfld_->box()->setValue( props().size_ );
     szfld_->box()->valueChanging.notify(mCB(this,uiWellDispProperties,propChg));
-    uiColorInput::Setup csu( props().color_ ); csu.lbltxt( su.mycoltxt_ );
-    BufferString dlgtxt( "Select " );
-    dlgtxt += su.mycoltxt_; dlgtxt += " for "; dlgtxt += props().subjectName();
-    colfld_ = new uiColorInput( this, csu, su.mycoltxt_ );
+    uiColorInput::Setup csu( props().color_ );
+    csu.lbltxt( su.mycoltxt_ );
+    colfld_ = new uiColorInput( this, csu, su.mycoltxt_.getFullString() );
     colfld_->attach( alignedBelow, szfld_ );
     colfld_->colorChanged.notify( mCB(this,uiWellDispProperties,propChg) );
 

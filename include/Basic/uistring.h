@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "basicmod.h"
+#include "keystrs.h"
 
 #include "objectset.h"
-#include "keystrs.h"
 
 class uiStringData;
 
@@ -82,8 +82,12 @@ public:
 
 				~uiString();
 
+    static const uiString&	emptyString();
+
     bool			isEmpty() const;
-    void			setEmpty() { *this = sKey::EmptyString(); }
+    void			setEmpty();
+    bool			isSet() const		{ return !isEmpty(); }
+    bool			operator!() const	{ return isEmpty(); }
 
     uiString&			operator=(const uiString&);
 				/*!<\note Does not copy data, will use the same

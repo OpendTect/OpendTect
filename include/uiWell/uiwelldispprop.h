@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "uigroup.h"
+#include "uistring.h"
 #include "welldisp.h"
 
 class uiCheckBox;
@@ -44,12 +45,13 @@ public:
     mExpClass(uiWell) Setup
     {
     public:
-			Setup( const char* sztxt=0, const char* coltxt=0 )
-			    : mysztxt_(sztxt ? sztxt : "Line thickness")
-			    , mycoltxt_(coltxt ? coltxt : "Line color")	{}
+	    Setup( const uiString& sztxt=uiString::emptyString(),
+		   const uiString& coltxt=uiString::emptyString() )
+		: mysztxt_(!sztxt.isEmpty() ? sztxt : "Line thickness")
+		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")	{}
 
-	mDefSetupMemb(BufferString,mysztxt)
-	mDefSetupMemb(BufferString,mycoltxt)
+	mDefSetupMemb(uiString,mysztxt)
+	mDefSetupMemb(uiString,mycoltxt)
     };
 
 			uiWellDispProperties(uiParent*,const Setup&,
