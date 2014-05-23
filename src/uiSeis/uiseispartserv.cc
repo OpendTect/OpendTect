@@ -218,12 +218,11 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
 
     if ( dlg.selFld() )
     {
-	TypeSet<int> selidxs;
-	dlg.selFld()->getChosen( selidxs );
-	for ( int idx=0; idx<selidxs.size(); idx++ )
+	dlg.selFld()->getChosen( selnames );
+	for ( int idx=0; idx<selnames.size(); idx++ )
 	{
-	    selnames.add( linenames.get(selidxs[idx]) );
-	    selids += geomids[selidxs[idx]];
+	    const int selidx = linenames.indexOf( selnames.get(idx) );
+	    selids += geomids[selidx];
 	}
     }
 
