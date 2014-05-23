@@ -19,11 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2d.h"
 #include "randomlinegeom.h"
 #include "randomlinetr.h"
-#include "seis2dline.h"
 #include "strmdata.h"
+#include "survgeom2d.h"
 #include "od_ostream.h"
 #include "survinfo.h"
-#include "posinfo2dsurv.h"
 
 
 #include <math.h>
@@ -66,18 +65,12 @@ bool GMT2DLines::fillLegendPar( IOPar& par ) const
 
 bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 {
-    MultiID id;
-    get( sKey::ID(), id );
-    const IOObj* ioobj = IOM().get( id );
-    if ( !ioobj ) mErrStrmRet("Cannot find lineset")
+    FixedString namestr = find( sKey::Name() );
+    strm << "Posting 2D Lines " << namestr << " ...  ";
 
-    BufferString attribnm;
-    get( sKey::Attribute(), attribnm );
-
+    TypeSet<Pos::GeomID> geomids;
+    get( sKey::GeomID(), geomids );
     BufferStringSet linenms;
-    get( ODGMT::sKeyLineNames(), linenms );
-    strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
-
     LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle() );
     ls.fromString( lsstr );
@@ -95,19 +88,17 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     StreamData sd = makeOStream( comm, strm );
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
-    Seis2DLineSet lset( *ioobj );
-    S2DPOS().setCurLineSet( lset.name() );
-    for ( int idx=0; idx<linenms.size(); idx++ )
+    for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	LineKey lk( linenms.get(idx), attribnm );
-	PosInfo::Line2DData geom( lk.lineName() );
-	const int lidx = lset.indexOf( lk );
-	if ( lidx<0  || !S2DPOS().getGeometry(geom)
-		     || geom.isEmpty() )
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomids[idx]) );
+	if ( !geom2d )
 	    continue;
+
+	const PosInfo::Line2DData& geom = geom2d->data();
 	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
-	*sd.ostrm << "> " << linenms.get(idx) << std::endl;
+	*sd.ostrm << "> " << geom2d->getName() << std::endl;
 
 	for ( int tdx=0; tdx<posns.size(); tdx++ )
 	{
@@ -134,16 +125,15 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
 
-    for ( int idx=0; idx<linenms.size(); idx++ )
+    for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	LineKey lk( linenms.get(idx), attribnm );
-	PosInfo::Line2DData geom( lk.lineName() );
-	const int lidx = lset.indexOf( lk );
-	if ( lidx<0  || !S2DPOS().getGeometry(geom)
-		     || geom.isEmpty() )
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomids[idx]) );
+	if ( !geom2d )
 	    continue;
-	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 
+	const PosInfo::Line2DData& geom = geom2d->data();
+	const TypeSet<PosInfo::Line2DPos>& posns = geom.positions();
 	const int nrtrcs = posns.size();
 	Coord pos = posns[0].coord_;
 	Coord cvec = posns[1].coord_ - posns[0].coord_;
@@ -163,7 +153,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    pos -= Coord( distfactor*dx, distfactor*dy );
 	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;
+	    *sd.ostrm << " " << al.buf() << geom2d->getName() << std::endl;
 	}
 
 	bool poststop = false;
@@ -181,7 +171,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
 	    al = fabs(angle) > 90 ? "ML " : "MR ";
 	    *sd.ostrm << pos.x << " " << pos.y << " " << sz << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
-	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;
+	    *sd.ostrm << " " << al.buf() << geom2d->getName() << std::endl;
 	}
 
 	bool postnrs = true;
