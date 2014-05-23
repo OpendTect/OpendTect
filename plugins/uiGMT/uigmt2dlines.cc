@@ -21,9 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uilistbox.h"
 #include "uimsg.h"
-#include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
 
@@ -46,19 +45,13 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"2D Lines")
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(Seis::Line) );
-    inpfld_->selectionDone.notify( mCB(this,uiGMT2DLinesGrp,objSel) );
-
     namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
-    namefld_->attach( alignedBelow, inpfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines",
-						  OD::ChooseAtLeastOne );
-    linelistfld_ = llb->box();
-    llb->attach( alignedBelow, namefld_ );
+    lineselfld_ = new uiSeis2DLineSel( this, true );
+    lineselfld_->attach( alignedBelow, namefld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
-    lsfld_->attach( alignedBelow, llb );
+    lsfld_->attach( alignedBelow, lineselfld_ );
 
     labelfld_ = new uiCheckBox( this, "Post Line names",
 				mCB(this,uiGMT2DLinesGrp,labelSel) );
@@ -91,29 +84,14 @@ uiGMT2DLinesGrp::~uiGMT2DLinesGrp()
 
 void uiGMT2DLinesGrp::reset()
 {
-    inpfld_->clear();
     namefld_->clear();
-    linelistfld_->setEmpty();
+    lineselfld_->clearSelection();
     lsfld_->setStyle( LineStyle() );
     labelfld_->setChecked( false );
     labelfontfld_->setValue( 10 );
     trclabelfld_->setChecked( false );
     trcstepfld_->setValue( 100 );
     labelSel( 0 );
-}
-
-
-void uiGMT2DLinesGrp::objSel( CallBacker* )
-{
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	return;
-
-    namefld_->setText( ctio_.ioobj->name() );
-    SeisIOObjInfo info( *ctio_.ioobj );
-    BufferStringSet linenms;
-    info.getLineNames( linenms );
-    linelistfld_->setEmpty();
-    linelistfld_->addItems( linenms );
 }
 
 
@@ -131,17 +109,13 @@ void uiGMT2DLinesGrp::labelSel( CallBacker* )
 
 bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet("Please select a lineset")
+    TypeSet<Pos::GeomID> geomids;
+    lineselfld_->getSelGeomIDs( geomids );
+    if ( geomids.isEmpty() )
+	mErrRet( "Please select at least one 2D line" );
 
-    if ( !linelistfld_->nrChosen() )
-	return true;
-
-    inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );
-    BufferStringSet linenms;
-    linelistfld_->getChosen( linenms );
-    par.set( ODGMT::sKeyLineNames(), linenms );
+    par.set( sKey::GeomID(), geomids );
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
     par.set( ODGMT::sKeyLineStyle(), lskey );
@@ -165,18 +139,15 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 
 bool uiGMT2DLinesGrp::usePar( const IOPar& par )
 {
-    inpfld_->usePar( par );
-    objSel( 0 );
     FixedString nm = par.find( sKey::Name() );
     if ( nm ) namefld_->setText( nm );
 
-    BufferStringSet linenms;
-    par.get( ODGMT::sKeyLineNames(), linenms );
-    linelistfld_->chooseAll( false );
-    for ( int idx=0; idx<linelistfld_->size(); idx++ )
-	if ( linenms.isPresent(linelistfld_->textOfItem(idx)) )
-	    linelistfld_->setChosen( idx, true );
+    TypeSet<Pos::GeomID> geomids;
+    par.get( sKey::GeomID(), geomids );
+    if ( geomids.isEmpty() )
+	mErrRet( "No 2D lines found " );
 
+    lineselfld_->setSelGeomIDs( geomids );
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );
     if ( lskey )
     {

@@ -17,8 +17,7 @@ ________________________________________________________________________
 class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
-class uiListBox;
-class uiSeisSel;
+class uiSeis2DLineSel;
 class uiSelLineStyle;
 class uiSpinBox;
 
@@ -43,9 +42,8 @@ protected:
 
     CtxtIOObj&		ctio_;
 
-    uiSeisSel*		inpfld_;
+    uiSeis2DLineSel*	lineselfld_;
     uiGenInput*		namefld_;
-    uiListBox*		linelistfld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		labelfld_;
     uiGenInput*		labelposfld_;
@@ -53,7 +51,6 @@ protected:
     uiCheckBox*		trclabelfld_;
     uiGenInput*		trcstepfld_;
 
-    void		objSel(CallBacker*);
     void		labelSel(CallBacker*);
 };
 
