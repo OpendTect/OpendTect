@@ -21,7 +21,7 @@ class uiVarWizardDlg;
 /*!\brief 'Server' for flexible wizards.
 
   This server launches subclasses of uiVarWizardDlg.
- 
+
  */
 
 mExpClass(uiTools) uiVarWizard : public CallBacker
@@ -65,11 +65,11 @@ protected:
 	dlg->setDeleteOnClose( true ); dlg->go()
 
 #define mLaunchVWDialog(dlg,clss,fn) \
-    	mLaunchVWDialogOnly(dlg,clss,fn); \
+	mLaunchVWDialogOnly(dlg,clss,fn); \
 	mSetVWState( cWait4Dialog() )
 
 #define mHandleVWCancel(dlg,backstate) \
-    if ( !dlg) return; \
+    if ( !dlg ) return; \
     if ( !dlg->uiResult() ) \
     { \
 	const bool doleave = mustLeave(dlg); \
@@ -80,4 +80,3 @@ protected:
 
 
 #endif
-
