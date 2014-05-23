@@ -23,23 +23,23 @@ ________________________________________________________________________
 */
 
 mExpClass(General) ZipUtils
-{
+{ mODTextTranslationClass(zipUtils);
 public:
 				ZipUtils(const char* filelistnm=0);
 				~ZipUtils();
    
     bool			Zip(const char* src,const char* dest);
     bool			UnZip(const char* scr, const char* dest);
-    const char*			errorMsg() const{ return errmsg_.buf();}
+    uiString			errorMsg() const{ return errmsg_;}
     void			makeFileList(const char* zipfile);
     const BufferStringSet&	getFileList() const	{ return filelist_; }
 
     static bool			unZipArchive(const char* src,const char* dest,
-	    				     BufferString& errmsg,
+					     uiString& errmsg,
 					     TaskRunner* tr=0);
     static bool			unZipArchives(const BufferStringSet& archvs,
 					      const char* dest,
-	    				      BufferString& errmsg,
+					      uiString& errmsg,
 					      TaskRunner* tr=0);
     static bool			unZipFile(const char* ziparchive,
 					  const char* fnm,const char* path,
@@ -47,19 +47,19 @@ public:
 
     static bool			makeZip(const char* zipfilenm,
 					const BufferStringSet&,
-				        BufferString& errmsg,	
+					uiString& errmsg,
 					TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			makeZip(const char* zipfilenm,
 					const char* tozip,
-					BufferString& errmsg,
+					uiString& errmsg,
 					TaskRunner* tr=0,
 					ZipHandler::CompLevel c=
 					ZipHandler::Normal);
     static bool			appendToArchive(const char* zipfile,
 						const char* toappend,
-						BufferString& errmsg,
+						uiString& errmsg,
 						TaskRunner* tr=0,
 						ZipHandler::CompLevel c=
 						ZipHandler::Normal);
@@ -69,7 +69,7 @@ protected:
     bool			doZip(const char* src,const char* dest);
     bool			doUnZip(const char* src,const char* dest);
    
-    BufferString		errmsg_;
+    uiString			errmsg_;
     BufferStringSet		filelist_;
     BufferString		filelistname_;
     bool			needfilelist_ ;
@@ -91,9 +91,9 @@ public:
                                 Zipper(const char*,const char*, 
                                        ZipHandler::CompLevel);
 
-    const char*			message() const;
+    uiStringCopy			uiMessage() const;
     od_int64			nrDone() const;
-    const char*			nrDoneText() const;
+    uiStringCopy			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        isOk() const { return isok_; }
 
@@ -117,9 +117,9 @@ mExpClass(General) UnZipper : public Executor
 public:
 				UnZipper(const char*,const char*);
 
-    const char*			message() const;
+    uiStringCopy			uiMessage() const;
     od_int64			nrDone() const;
-    const char*			nrDoneText() const;
+    uiStringCopy			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        isOk() const { return isok_; }
 

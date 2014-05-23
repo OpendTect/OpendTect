@@ -96,9 +96,9 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !EM::EMM().getSurfaceData(id,sd,errmsg) )
-	mErrStrmRet( errmsg.buf() )
+	mErrStrmRet( errmsg.getFullString() )
 
     PtrMan<IOPar> subpar = subselect( sKey::Selection() );
     if ( !subpar )

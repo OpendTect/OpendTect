@@ -53,7 +53,7 @@ public:
     virtual int			nextStep();
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
-    virtual const char*		message() const;
+    virtual uiStringCopy		uiMessage() const;
 
     static const char*		sKeyAttrName();
     static const char*		sKeyIntDataChar();
@@ -109,7 +109,7 @@ public:
     virtual int			nextStep();
     virtual od_int64		nrDone() const;
     virtual od_int64		totalNr() const;
-    virtual const char*		message() const;
+    virtual uiStringCopy		uiMessage() const;
 
 protected:
 

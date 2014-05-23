@@ -60,13 +60,13 @@ void HorizonScanner::init()
 }
 
 
-const char* HorizonScanner::message() const
+uiStringCopy HorizonScanner::uiMessage() const
 {
     return curmsg_.buf();
 }
 
 
-const char* HorizonScanner::nrDoneText() const
+uiStringCopy HorizonScanner::uiNrDoneText() const
 {
     return "Positions handled";
 }

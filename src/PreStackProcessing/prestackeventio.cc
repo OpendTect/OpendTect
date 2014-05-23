@@ -836,9 +836,7 @@ int EventDuplicator::nextStep()
     FilePath targetfile( filestocopy_[idx]->buf() );
     targetfile.setPath( tonm.buf() );
 
-    message_ = "Copying ";
-    message_ += targetfile.fileName();
-    message_ += ".";
+    message_ = uiString( "Copying %1.").arg( targetfile.fileName() );
 
     if ( !File::copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf() ) )
     {

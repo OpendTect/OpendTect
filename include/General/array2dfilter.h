@@ -77,9 +77,9 @@ public:
     inline const Stats::RunCalc<float>& calc() const { return *calc_; }
 
     inline int		nextStep();
-    inline const char*	message() const		{ return "Filtering data"; }
+    inline uiStringCopy uiMessage() const	{ return "Filtering data"; }
     inline od_int64	nrDone() const		{ return nrrowsdone_; }
-    inline const char*	nrDoneText() const	{ return "Columns handled";}
+    inline uiStringCopy uiNrDoneText() const	{ return "Columns handled";}
     inline od_int64	totalNr() const		{return outputrowrg_.width()+1;}
 
 protected:
@@ -275,7 +275,8 @@ inline void Array2DFilterer<T>::doPoint( int row, int col )
 	}
     }
 
-    output_.set( row-origin_.row(), col-origin_.col(),(T) calc_->getValue(pars_.type_));
+    output_.set( row-origin_.row(), col-origin_.col(),
+		 (T) calc_->getValue(pars_.type_));
 }
 
 

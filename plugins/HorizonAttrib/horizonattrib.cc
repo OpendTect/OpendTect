@@ -105,7 +105,7 @@ bool Horizon::isOK() const
     if ( outtype_==mOutTypeSurfData )
     {
 	EM::SurfaceIOData sd;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !EM::EMM().getSurfaceData(horid_,sd,errmsg)
 		|| !sd.valnames.isPresent(surfdatanm_) )
 	    return false;
@@ -135,7 +135,7 @@ void Horizon::prepareForComputeData()
 {
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !em.getSurfaceData(horid_,sd,errmsg) ) mRet
 
     const int surfdtidx = sd.valnames.indexOf( surfdatanm_ );

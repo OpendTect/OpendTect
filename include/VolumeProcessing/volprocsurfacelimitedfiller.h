@@ -28,7 +28,7 @@ namespace VolProc
 
     
 mExpClass(VolumeProcessing) SurfaceLimitedFiller : public Step
-{
+{ mODTextTranslationClass(SurfaceLimitedFiller);
 public:
     		mDefaultFactoryCreatorImpl( Step, SurfaceLimitedFiller );
 		mDefaultFactoryInstanciationBase( "SurfaceLimitedFiller",
@@ -94,7 +94,7 @@ public:
     void		releaseData();
     bool		canInputAndOutputBeSame() const { return true; }
     bool		needsFullVolume() const         { return false; }   
-    const char*		errMsg() const 			{return errmsg_.buf();} 
+    uiStringCopy	errMsg() const			{return errmsg_;}
 
 protected:
     
@@ -140,7 +140,7 @@ protected:
     EM::Horizon*	refhorizon_;
     float		refz_;
     bool		userefz_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
   
     			/*The following four have the same size, for any idx,
 			  faults_[idx] or hors_[idx] is 0. */

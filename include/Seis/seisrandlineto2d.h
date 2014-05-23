@@ -35,8 +35,8 @@ public:
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 
-    const char*		message() const;
-    const char*		nrDoneText() const;
+    uiStringCopy		uiMessage() const;
+    uiStringCopy		uiNrDoneText() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
     int			nextStep();

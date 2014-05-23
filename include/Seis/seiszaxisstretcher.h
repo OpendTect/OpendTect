@@ -44,7 +44,7 @@ public:
     bool		isOK() const;
 
     void		setLineKey(const char*);
-    const char*		message() const { return "Stretching data"; }
+    uiStringCopy		uiMessage() const { return "Stretching data"; }
 
     void		setVelTypeIsVint( bool yn )	{ isvint_ = yn; }
     void		setVelTypeIsVrms( bool yn )	{ isvrms_ = yn; }

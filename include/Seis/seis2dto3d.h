@@ -46,7 +46,7 @@ public:
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
     od_int64           	nrDone() const 		{ return nrdone_; }
-    const char*        	nrDoneText() const 	{return "Number of iterations";}
+    uiStringCopy	uiNrDoneText() const	{return "Number of iterations";}
     od_int64		totalNr() const 	{ return nriter_; };
     int			nextStep();
 
@@ -113,9 +113,9 @@ public:
     const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
 						       : errmsg_.buf();  }
 
-    const char*		message() const		{ return "interpolating"; }
+    uiStringCopy	uiMessage() const	{ return "interpolating"; }
     od_int64           	nrDone() const 		{ return nrdone_; }
-    const char*        	nrDoneText() const 	{return "Done";}
+    uiStringCopy	uiNrDoneText() const	{return "Done";}
     od_int64		totalNr() const;
     int			nextStep();
 

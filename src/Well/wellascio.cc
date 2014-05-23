@@ -250,7 +250,7 @@ void D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
 
 static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
 			    TypeSet<double>& rawtvals, const Data& wll,
-			    BufferString& errmsg, BufferString& warnmsg )
+			    uiString& errmsg, uiString& warnmsg )
 {
     const Track& trck = wll.track();
     int inputsz = rawzvals.size();
@@ -327,35 +327,38 @@ static bool getTVDD2TModel( D2TModel& d2t, TypeSet<double>& rawzvals,
     const double timeshift = ts[0] - srdtwtinfile;
     if ( !mIsZero(timeshift,1e-5) )
     {
-	warnmsg = "Error with the replacement velocity"; mNewLn(warnmsg)
+	warnmsg = "Error with the replacement velocity\n";
 	if ( kbabovesrd )
 	{
-	    warnmsg.add( "Your time-depth model does not honour " );
-	    warnmsg.add( "TWT(Z=SRD) = 0" );
+	    warnmsg.append( "Your time-depth model does not honour "
+			    "TWT(Z=SRD) = 0" );
 	}
 	else
 	{
 	    const UnitOfMeasure* uomdepth = UnitOfMeasure::surveyDefDepthUnit();
-	    const BufferString veluomlbl(
-		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false),
-		    "/s" );
+	    const uiString veluomlbl(
+		    UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
 	    const double replvelinfile = 2. * (zwllhead+srd) / srdtwtinfile;
-	    warnmsg.add( "Your time-depth model suggests a replacement " );
-	    warnmsg.add( "velocity of: " );
-	    warnmsg.add( mScaledValue(replvelinfile,uomdepth), 2 );
-	    warnmsg.add( veluomlbl ); mNewLn(warnmsg)
-	    warnmsg.add( "but the replacement velocity of the well is: " );
-	    warnmsg.add( mScaledValue(replvel,uomdepth), 2 );
-	    warnmsg.add( veluomlbl );
+
+	    const BufferString fileval =
+		toString(mScaledValue(replvelinfile,uomdepth), 2 );
+	    warnmsg.append(
+		uiString( "Your time-depth model suggests a replacement "
+		 "velocity of %1%3\nbut the replacement velocity "
+		 "of the well is: %2%3" )
+		    .arg( fileval )
+		    .arg( toString(mScaledValue(replvel,uomdepth), 2) )
+		    .arg( veluomlbl ) );
 	}
 
+
 	const UnitOfMeasure* uomz = UnitOfMeasure::surveyDefZUnit();
-	mNewLn(warnmsg)
-	warnmsg.add( "OpendTect WILL correct for this error by applying a " );
-	warnmsg.add( "time shift of: " ).add( mScaledValue(timeshift,uomz),2 );
-	warnmsg.add( UnitOfMeasure::surveyDefZUnitAnnot(true,false) );
-	mNewLn(warnmsg)
-	warnmsg.add("The resulting travel-times will differ from the file");
+	warnmsg.append(
+	    uiString( "\nOpendTect WILL correct for this error by applying a "
+		      "time shift of: %1%2\n"
+		      "The resulting travel-times will differ from the file")
+		       .arg( toString(mScaledValue(timeshift,uomz),2) )
+		       .arg(UnitOfMeasure::surveyDefZUnitAnnot(true,false) ) );
     }
 
     const double zstop = mCast(double,trck.zRange().stop);

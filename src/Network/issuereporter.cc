@@ -41,23 +41,21 @@ bool System::IssueReporter::readReport( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = filename;
-	errmsg_.add( " does not exist" );
+	errmsg_ = tr( "%1 does not exist" ).arg( filename );
 	return false;
     }
 
 #define mStreamError( op ) \
 { \
-    errmsg_ = "Cannot " #op; \
-    errmsg_.add( filename ).add( ". Reason: "); \
-    errmsg_.add( fstream.errMsg().getFullString() ); \
+    errmsg_ = errmsg.arg( op ).arg( filename ).arg( fstream.errMsg() ); \
     return false; \
 }
 
+    uiString errmsg = tr( "Cannot %1 %2. Reason: %3");
 
     od_istream fstream( filename );
     if ( fstream.isBad() )
-	mStreamError( open );
+	mStreamError( tr("open") );
 
     report_.setEmpty();
 
@@ -66,7 +64,7 @@ bool System::IssueReporter::readReport( const char* filename )
     BufferString unfilteredreport;
 
     if ( !fstream.getAll( unfilteredreport ) )
-	mStreamError( read );
+	mStreamError( tr("read") );
 
     SeparString sep( unfilteredreport.buf(), '\n' );
 
@@ -89,8 +87,7 @@ bool System::IssueReporter::setDumpFileName( const char* filename )
 {
     if ( !File::exists( filename ) )
     {
-	errmsg_ = filename;
-	errmsg_.add( " does not exist" );
+	errmsg_ = tr( "%1 does not exist" ).arg( filename );
 	return false;
     }
 
@@ -138,7 +135,7 @@ bool System::IssueReporter::send()
 
     const char* remotefname = "crash.dmp";
     const char* filetype = "dumpfile";
-    BufferString errmsg;
+    uiString errmsg;
     if ( crashreportpath_.isEmpty() )
     {
 	if ( Network::uploadQuery( url.buf(), postvars, errmsg ) )
@@ -148,8 +145,7 @@ bool System::IssueReporter::send()
 	      remotefname, filetype, postvars, errmsg ) )
 	return true;
 
-    errmsg_ = "Cannot connect to ";
-    errmsg_.add( host_ ).add( "\n" ).add( errmsg );
+    errmsg_ = tr("Cannot connect to %1\n%2").arg( host_ ).arg( errmsg );
     return false;
 }
 
@@ -170,9 +166,9 @@ bool System::IssueReporter::parseCommandLine()
 
     if ( syntaxerror || parser.nrArgs()<1 )
     {
-	errmsg_.add( "Usage: " ).add( parser.getExecutable() )
-	       .add( " <filename> [--host <hostname>] [--binary]" )
-	       .add( " [--path <path>]" );
+	errmsg_ =
+	    uiString( "Usage: %1 <filename> [--host <hostname>] [--binary]"
+		     "[--path <path>]" ).arg( parser.getExecutable() );
 	return false;
     }
 

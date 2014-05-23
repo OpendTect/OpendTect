@@ -526,7 +526,7 @@ int JobRunner::jobsInProgress() const
 }
 
 
-const char* JobRunner::message() const
+uiStringCopy JobRunner::uiMessage() const
 { return "Processing"; }
 
 const char* JobRunner::nrDoneMessage() const

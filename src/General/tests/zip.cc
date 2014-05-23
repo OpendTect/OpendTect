@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 { \
 if ( !command ) \
 { \
-    od_cout() << testname << " failed!\n" << err.buf(); \
+    od_cout() << testname << " failed!\n" << err.getFullString(); \
     File::remove( zipfilename.fullPath() ); \
     File::removeDir( outputdir.fullPath() ); \
     ExitProgram(1); \
@@ -59,7 +59,7 @@ int main( int argc, char** argv )
     clparser.getVal("datadir", basedir );
     FilePath tozip( basedir );
     tozip.add( "F3_Test_Survey" );
-    BufferString err;
+    uiString err;
     FilePath zipfilename( FilePath::getTempName("zip") );
     FilePath outputdir( zipfilename.pathOnly() );
     outputdir.add( "F3_Test_Survey" );

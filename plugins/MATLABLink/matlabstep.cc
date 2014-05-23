@@ -42,17 +42,17 @@ MatlabTask( MatlabStep& step )
 {
 }
 
-    bool	init();
-    od_int64	nrIterations() const	{ return 1; }
-    bool	doWork(od_int64,od_int64,int);
-    const char*	message() const		{ return message_.buf(); }
+    bool		init();
+    od_int64		nrIterations() const	{ return 1; }
+    bool		doWork(od_int64,od_int64,int);
+    uiStringCopy	uiMessage() const	{ return message_; }
 
 protected:
 
-    MatlabStep&			step_;
-    BufferString		message_;
+    MatlabStep&		step_;
+    uiString		message_;
 
-    MatlabLibAccess*		mla_;
+    MatlabLibAccess*	mla_;
 };
 
 
@@ -183,8 +183,9 @@ Task* MatlabStep::createTask()
 	const Attrib::DataCubes* input = getInput( getInputSlotID(idx) );
 	if ( !input || input->nrCubes()<1 )
 	{
-	    getInputSlotName( getInputSlotID(idx), errmsg_ );
-	    errmsg_.add( " not provided." );
+	    BufferString slotname;
+	    getInputSlotName( getInputSlotID(idx), slotname );
+	    errmsg_ = tr( "%1 not provided." ).arg( slotname );
 	    return 0;
 	}
     }
@@ -199,7 +200,7 @@ Task* MatlabStep::createTask()
     MatlabTask* task = new MatlabTask( *this );
     if ( !task->init() )
     {
-	errmsg_ = task->message();
+	errmsg_ = task->uiMessage();
 	delete task;
 	task = 0;
     }

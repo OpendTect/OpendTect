@@ -31,34 +31,34 @@ namespace Network
 /*!< Functions to download/upload one or more files/data using HTTP protocol*/
 
     mGlobal(Network) bool   downloadFile(const char* url,const char* outpath,
-					 BufferString& errmsg,TaskRunner* tr=0);
+					 uiString& errmsg,TaskRunner* tr=0);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  const char* outpath,
-					  BufferString& errmsg,
+					  uiString& errmsg,
 					  TaskRunner* tr=0);
 
     mGlobal(Network) bool   downloadFiles(BufferStringSet& urls,
 					  BufferStringSet& outpaths,
-					  BufferString& errmsg,
+					  uiString& errmsg,
 					  TaskRunner* tr=0);
 
     mGlobal(Network) bool   downloadToBuffer(const char* url,DataBuffer* db,
-					     BufferString& errmsg,
+					     uiString& errmsg,
 					     TaskRunner* tr=0);
 
     mGlobal(Network) bool   uploadFile(const char* url,const char* localfname,
 				       const char* remotefname,
 				       const char* ftype,const IOPar& postvars, 
-				       BufferString& errmsg,TaskRunner* tr=0);
+				       uiString& errmsg,TaskRunner* tr=0);
 
     mGlobal(Network) bool   uploadQuery(const char* url,const IOPar& querypars,
-					BufferString& errmsg,TaskRunner* tr=0);
+					uiString& errmsg,TaskRunner* tr=0);
 
     mGlobal(Network) bool   getRemoteFileSize(const char* url,od_int64& size, 
-					      BufferString& errmsg);
+					      uiString& errmsg);
 
-    mGlobal(Network) bool   ping(const char* url, BufferString& msg );
+    mGlobal(Network) bool   ping(const char* url, uiString& msg );
 
     mGlobal(Network) void   setHttpProxy(const char* hostname,int port,
 					 bool auth=false,
@@ -93,10 +93,10 @@ public:
 
     od_int64		getDownloadSize();
 
-    const char*		message() const;
+    uiStringCopy	uiMessage() const;
     int			nextStep();
     od_int64		nrDone() const;
-    const char*		nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
     od_int64		totalNr() const;
 
 protected:
@@ -132,10 +132,10 @@ public:
 				     BufferString& header);
 			~DataUploader();
 
-    const char*		message() const;
+    uiStringCopy		uiMessage() const;
     int			nextStep();
     od_int64		nrDone() const;
-    const char*		nrDoneText() const;
+    uiStringCopy		uiNrDoneText() const;
     od_int64		totalNr() const;
 
 protected:

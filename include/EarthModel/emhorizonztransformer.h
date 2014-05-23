@@ -34,7 +34,7 @@ public:
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    const char*		nrDoneText() const	{ return "Positions done"; }
+    uiStringCopy	uiNrDoneText() const	{ return "Positions done"; }
 
     void		setOutputHorizon(Horizon&);
     void		setReferenceZ(float z);

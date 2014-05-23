@@ -40,7 +40,7 @@ protected:
 
    int				nextStep();
    od_int64			nrDone() const { return nrdone_/1024; }
-   const char*			nrDoneText() const { return "KBytes read"; }
+   uiStringCopy			uiNrDoneText() const { return "KBytes read"; }
    od_int64			totalNr() const { return nrkbytes_; }
    static void			createDescBody(Table::FormatDesc&);
 

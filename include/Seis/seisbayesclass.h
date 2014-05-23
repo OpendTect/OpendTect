@@ -55,7 +55,7 @@ public:
 
     int				nextStep();
     uiStringCopy		uiMessage() const;
-    const char*			nrDoneText() const;
+    uiStringCopy			uiNrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
 

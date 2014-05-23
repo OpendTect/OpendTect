@@ -53,9 +53,9 @@ public:
     od_int64		nrDone() const	{ return nrdone_; }
     od_int64		totalNr() const	{ return locations_.totalSize(); }
 
-    const char*		message() const	{ return message_; }
+    uiStringCopy	uiMessage() const	{ return message_; }
     int			nextStep();
-    const char*		nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
 
 protected:
 
@@ -68,7 +68,7 @@ protected:
 
     int				nrdone_;
     int				fileidx_;
-    const char*			message_;
+    uiString			message_;
 };
 
 
@@ -117,9 +117,9 @@ public:
     od_int64		nrDone() const;
     od_int64		totalNr() const		{ return totalnr_; }
 
-    const char*		message() const	{ return message_; }
+    uiStringCopy	uiMessage() const	{ return message_; }
     int			nextStep();
-    const char*		nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
 
 protected:
 
@@ -128,7 +128,7 @@ protected:
     Event*			event_;
     EventManager&		evmgr_;
 
-    const char*			message_;
+    uiString			message_;
     od_int64			totalnr_;
     BinID			lastbid_;
     int				lasthorid_;

@@ -121,22 +121,15 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	Well::D2TModelAscIO aio( fd_ );
 	if ( !aio.get(strm,d2t,wd) )
 	{
-	    errmsg_ = "ASCII TD model import failed for well ";
-	    errmsg_.add( wd.name() );
-	    errmsg_.addNewLine();
-	    if ( aio.errMsg() )
-	    {
-		errmsg_.add( aio.errMsg() );
-		errmsg_.addNewLine();
-	    }
-
-	    errmsg_.add( "Change your format definition "
-			 "or edit your data or press cancel." );
+	    errmsg_ = tr("ASCII TD model import failed for well %1\n%2\n"
+			 "Change your format definition "
+			 "or edit your data or press cancel." )
+			.arg( wd.name() )
+			.arg( aio.errMsg() );
 	    return false;
 	}
 
-	if ( aio.warnMsg() )
-	    warnmsg_ = aio.warnMsg();
+	warnmsg_ = aio.warnMsg();
     }
 
     if ( d2t.size() < 2 )

@@ -1205,12 +1205,12 @@ bool acceptOK( CallBacker* )
 {
     if ( !d2tgrp->getD2T(wd_,cksh_) )
     {
-	if ( d2tgrp->errMsg() )
+	if ( !d2tgrp->errMsg().isEmpty() )
 	    uiMSG().error( d2tgrp->errMsg() );
 
 	return false;
     }
-    if ( d2tgrp->warnMsg() )
+    if ( !d2tgrp->warnMsg().isEmpty() )
 	uiMSG().warning( d2tgrp->warnMsg() );
 
     Well::D2TModel* d2t = mD2TModel;

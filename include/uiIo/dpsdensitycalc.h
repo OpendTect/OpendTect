@@ -33,7 +33,7 @@ public:
 
     od_int64			nrIterations() const;
     od_int64			nrDone() const		{ return nrdone_; }
-    const char*			nrDoneText() const;
+    uiStringCopy			uiNrDoneText() const;
 
     bool			getPositions(TypeSet<int>&,int);
     bool			setFreqValue(const int*);

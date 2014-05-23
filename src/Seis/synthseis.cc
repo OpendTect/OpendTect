@@ -774,7 +774,7 @@ od_int64 RaySynthGenerator::nrDone() const
 
 
 
-const char* RaySynthGenerator::nrDoneText() const
+uiStringCopy RaySynthGenerator::uiNrDoneText() const
 {
     return !raytracingdone_ && rtr_ ? "Layers done" : "Models done";
 }

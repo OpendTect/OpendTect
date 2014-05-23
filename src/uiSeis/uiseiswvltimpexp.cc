@@ -67,7 +67,7 @@ uiSeisWvltImp::~uiSeisWvltImp()
     delete &fd_;
 }
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
 
 
 
@@ -75,15 +75,15 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter the input file name" )
+	mErrRet( tr("Please enter the input file name") )
     if ( !wvltfld_->commitInput() )
-	mErrRet( !wvltfld_->isEmpty() ? 0
-		: "Please enter a name for the new wavelet" )
+	mErrRet( !wvltfld_->isEmpty() ? uiString::emptyString()
+		: tr("Please enter a name for the new wavelet") )
     if ( !dataselfld_->commit() )
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open input file" )
+	mErrRet( tr("Cannot open input file") )
 
     WaveletAscIO aio( fd_ );
     PtrMan<Wavelet> wvlt = aio.get( strm );
@@ -120,7 +120,7 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     }
 
     if ( !wvlt->put(ctio_.ioobj) )
-	mErrRet( "Cannot store wavelet on disk" )
+	mErrRet( tr("Cannot store wavelet on disk") )
 
     return true;
 }
@@ -158,16 +158,16 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     if ( !ioobj ) return false;
     const BufferString fnm( outpfld_->fileName() );
     if ( fnm.isEmpty() )
-	mErrRet( "Please enter the output file name" )
+	mErrRet( tr("Please enter the output file name") )
 
     PtrMan<Wavelet> wvlt = Wavelet::get( ioobj );
     if ( !wvlt )
-	mErrRet( "Cannot read wavelet" )
+	mErrRet( tr("Cannot read wavelet") )
     if ( wvlt->size() < 1 )
-	mErrRet( "Empty wavelet" )
+	mErrRet( tr("Empty wavelet") )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( "Cannot open output file" )
+	mErrRet( tr("Cannot open output file") )
 
     const bool addz = addzfld_->getBoolValue();
     const float zfac = mCast( float, SI().zDomain().userFactor() );
@@ -184,7 +184,7 @@ bool uiSeisWvltExp::acceptOK( CallBacker* )
     }
 
     if ( !strm.isOK() )
-	mErrRet( "Possible error during write" );
+	mErrRet( tr("Possible error during write") );
 
     return true;
 }

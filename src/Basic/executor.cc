@@ -27,8 +27,8 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 	    rv = doStep();
 	    if ( rv < 0 )
 	    {
-		const char* msg = message();
-		if ( msg && *msg ) ErrMsg( msg );
+		const uiString msg = uiMessage();
+		if ( !msg.isEmpty() ) ErrMsg( msg.getFullString() );
 		return false;
 	    }
 	    if ( delay )

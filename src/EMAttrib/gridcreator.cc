@@ -144,7 +144,7 @@ Seis2DGridCreator::Seis2DGridCreator( const IOPar& par )
 Seis2DGridCreator::~Seis2DGridCreator()
 {}
 
-const char* Seis2DGridCreator::nrDoneText() const
+uiStringCopy Seis2DGridCreator::uiNrDoneText() const
 { return "Traces done"; }
 
 bool Seis2DGridCreator::init( const IOPar& par )
@@ -365,7 +365,7 @@ od_int64 Horizon2DGridCreator::totalNr() const
 od_int64 Horizon2DGridCreator::nrDone() const
 { return nrdone_; }
 
-const char* Horizon2DGridCreator::nrDoneText() const
+uiStringCopy Horizon2DGridCreator::uiNrDoneText() const
 { return "Positions done"; }
 
 

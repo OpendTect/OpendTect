@@ -19,7 +19,7 @@ namespace VolProc
 {
 
 mExpClass(MATLABLink) MatlabStep : public Step
-{
+{ mODTextTranslationClass(MatlabStep);
 public:
 			mDefaultFactoryInstantiation( Step,
 				MatlabStep,
@@ -34,7 +34,7 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true; }
     bool		areSamplesIndependent() const	{ return false; }
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiStringCopy	errMsg() const			{ return errmsg_; }
 
     Task*		createTask();
 
@@ -52,7 +52,7 @@ protected:
 			MatlabStep();
 			~MatlabStep();
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     BufferString	sharedlibfnm_;
 
     int			nrinputs_;

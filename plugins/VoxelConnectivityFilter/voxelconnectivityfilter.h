@@ -67,7 +67,7 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true; }
     bool		areSamplesIndependent() const	{ return false; }
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiStringCopy	errMsg() const			{ return errmsg_; }
 
     Task*		createTask();
 
@@ -83,7 +83,7 @@ protected:
     static const char*	sKeyAcceptOutput()	{ return "Accepted Output"; }
     static const char*	sKeyAcceptValue()	{ return "Accepted Value"; }
 
-    FixedString		errmsg_;
+    uiString		errmsg_;
     od_int64		minbodysize_;
     Interval<float>	range_;
     float		rejectvalue_;

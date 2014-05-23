@@ -89,7 +89,7 @@ bool uiTutHorTools::checkAttribName() const
     const bool top = selfld_->getBoolValue();
     const MultiID key = top ? inpfld_->key() : inpfld2_->key();
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !EM::EMM().getSurfaceData(key,sd,errmsg) )
 	return false;
 

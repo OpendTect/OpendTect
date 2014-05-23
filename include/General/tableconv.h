@@ -91,11 +91,11 @@ public:
 			    , msg_("Importing")		{}
     // Setup
     TypeSet<int>	selcols_;
-    BufferString	msg_;
+    uiString		msg_;
 
     virtual int		nextStep();
-    const char*		message() const		{ return msg_.buf(); }
-    const char*		nrDoneText() const	{ return "Records read"; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Records read"; }
     od_int64		nrDone() const		{ return rowsdone_; }
 
     struct RowManipulator

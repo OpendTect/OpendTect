@@ -64,7 +64,7 @@ public:
 protected:
 
     od_int64	nrIterations() const { return totalnr_; }
-    const char* message() const
+    uiStringCopy uiMessage() const
     {
 	return updatecoords_ ? "Triangulation: updating coordinates"
 	    : "Triangulation: updating indices";

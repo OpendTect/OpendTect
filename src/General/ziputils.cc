@@ -27,8 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDirCheck( dir ) \
     if ( !File::exists(dir) ) \
 { \
-    errmsg_ = dir; \
-    errmsg_ += " does not exist"; \
+    errmsg_ = uiString("%1 does not exist").arg( dir ); \
     return false; \
 } \
 
@@ -124,8 +123,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
     if ( !res )
     {
-        errmsg_ = "Unzip failed in the command: ";
-        errmsg_ += cmd;
+	errmsg_ = tr( "Unzip failed in the command: %1").arg( cmd );
     }
     else
     {
@@ -137,7 +135,7 @@ bool ZipUtils::doUnZip( const char* src, const char* dest )
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const char* src,
-			BufferString& errmsg, TaskRunner* tr,
+			uiString& errmsg, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
     BufferStringSet src2;
@@ -147,13 +145,13 @@ bool ZipUtils::makeZip( const char* zipfnm, const char* src,
 
 
 bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
-			BufferString& errmsg, TaskRunner* tr,
+			uiString& errmsg, TaskRunner* tr,
 			ZipHandler::CompLevel cl )
 {
     Zipper exec( zipfnm, src, cl );
     if ( !TaskRunner::execute(tr,exec) )
     {
-        errmsg = exec.message();
+	errmsg = exec.uiMessage();
         return false;
     }
 
@@ -162,13 +160,13 @@ bool ZipUtils::makeZip( const char* zipfnm, const BufferStringSet& src,
 
 
 bool ZipUtils::appendToArchive( const char* srcfnm, const char* fnm,
-				BufferString& errmsg, TaskRunner* tr,
+				uiString& errmsg, TaskRunner* tr,
 				ZipHandler::CompLevel cl )
 {
     Zipper exec( srcfnm, fnm, cl );
     if ( !TaskRunner::execute(tr,exec) )
     {
-        errmsg = exec.message();
+	errmsg = exec.uiMessage();
         return false;
     }
 
@@ -217,11 +215,11 @@ od_int64 Zipper::totalNr() const
 { return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
-const char* Zipper::nrDoneText() const
+uiStringCopy Zipper::uiNrDoneText() const
 { return "MBytes processed: "; }
 
 
-const char* Zipper::message() const
+uiStringCopy Zipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
@@ -232,12 +230,12 @@ const char* Zipper::message() const
 
 
 bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
-			     BufferString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* tr )
 {
     UnZipper exec( srcfnm, basepath );
     if ( !TaskRunner::execute(tr,exec) )
     {
-        errmsg = exec.message();
+	errmsg = exec.uiMessage();
         return false;
     }
 
@@ -247,7 +245,7 @@ bool ZipUtils::unZipArchive( const char* srcfnm,const char* basepath,
 
 bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
 			     const char* basepath,
-			     BufferString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* taskrunner )
 {
     ExecutorGroup execgrp( "Archive unpacker" );
     for ( int idx=0; idx<archvs.size(); idx++ )
@@ -257,7 +255,7 @@ bool ZipUtils::unZipArchives( const BufferStringSet& archvs,
 	execgrp.add( exec );
     }
 
-    if ( !(TaskRunner::execute(tr,execgrp)) )
+    if ( !(TaskRunner::execute(taskrunner,execgrp)) )
     {
 	errmsg = execgrp.uiMessage().getFullString();
 	return false;
@@ -305,11 +303,11 @@ od_int64 UnZipper::totalNr() const
 { return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
-const char* UnZipper::nrDoneText() const
+uiStringCopy UnZipper::uiNrDoneText() const
 { return "MBytes Processed: "; }
 
 
-const char* UnZipper::message() const
+uiStringCopy UnZipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )

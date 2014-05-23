@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "ranges.h"
 #include "typeset.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class CubeSampling;
@@ -33,7 +34,7 @@ class SurfaceIOData;
 */
 
 mExpClass(EarthModel) IOObjInfo
-{
+{ mODTextTranslationClass(IOObjInfo);
 public:
 
 			IOObjInfo(const IOObj*);
@@ -63,11 +64,11 @@ public:
     StepInterval<int>	getCrlRange() const;
     IOPar*		getPars() const;
     int			getParsOffsetInFile() const;
-    const char*		getMessage() const;
+    uiString		getMessage() const;
 
     // Surface
     inline bool		isSurface() const	{ return type_ != Body; }
-    bool		getSurfaceData(SurfaceIOData&,BufferString& err) const;
+    bool		getSurfaceData(SurfaceIOData&,uiString& err) const;
 
     // Horizon
     inline bool		isHorizon() const	{ return type_ < FaultStickSet;}

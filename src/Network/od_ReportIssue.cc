@@ -22,13 +22,13 @@ int main( int argc, char** argv )
     System::IssueReporter reporter;
     if ( !reporter.parseCommandLine() )
     {
-	od_cout() << reporter.errMsg() << '\n';
+	od_cout() << reporter.errMsg().getFullString() << '\n';
 	return ExitProgram( 1 );	
     }
     
     if ( !reporter.send() )
     {
-	od_cout() << reporter.errMsg() << '\n';
+	od_cout() << reporter.errMsg().getFullString() << '\n';
 	return ExitProgram( 1 );	
     }
         

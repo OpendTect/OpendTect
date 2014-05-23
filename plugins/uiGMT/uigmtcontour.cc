@@ -169,7 +169,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
 	return;
     }
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( !eminfo.getSurfaceData(sd_,errmsg) )
 	return;
 
@@ -200,7 +200,7 @@ void uiGMTContourGrp::resetCB( CallBacker* )
     }
 
     AxisLayout<float> zaxis( valrg_ );
-    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd_.step/5 );
+    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd_.step/5);
     rgfld_->setValue( zrg );
     nrcontourfld_->setValue( zrg.nrSteps() + 1 );
     resetbut_->setSensitive( false );

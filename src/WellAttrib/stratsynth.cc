@@ -565,7 +565,7 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 }
 
 
-const char* message() const
+uiStringCopy uiMessage() const
 {
     if ( errmsg_.isEmpty() )
 	return "Generating elastic model";
@@ -573,7 +573,7 @@ const char* message() const
 	return errmsg_.buf();
 }
 
-const char* nrDoneText() const	{ return "Models done"; }
+uiStringCopy uiNrDoneText() const	{ return "Models done"; }
 
 protected :
 
@@ -879,12 +879,12 @@ od_int64 nrIterations() const
 { return lm_.size(); }
 
 
-const char* message() const
+uiStringCopy uiMessage() const
 {
     return !isprepared_ ? "Preparing Models" : "Calculating";
 }
 
-const char* nrDoneText() const
+uiStringCopy uiNrDoneText() const
 {
     return "Models done";
 }

@@ -386,7 +386,7 @@ bool EMManager::writePars( const MultiID& mid, const IOPar& inpar ) const
 
 
 bool EMManager::getSurfaceData( const MultiID& mid, SurfaceIOData& sd,
-				BufferString& errmsg ) const
+				uiString& errmsg ) const
 {
     EM::IOObjInfo oi( mid );
     return oi.getSurfaceData( sd, errmsg );

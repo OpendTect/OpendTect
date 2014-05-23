@@ -99,7 +99,7 @@ protected:
 
 /*!Scans a file and creates an index file that can be read by OD. */
 mExpClass(Seis) FileIndexer : public Executor
-{
+{ mODTextTranslationClass(FileIndexer);
 public:
     			FileIndexer(const MultiID& mid,bool isvol,
 				    const FileSpec&,bool is2d,const IOPar&);
@@ -107,10 +107,10 @@ public:
 
     int                 nextStep();
 
-    const char*         message() const;
+    uiStringCopy	uiMessage() const;
     od_int64            nrDone() const;
     od_int64            totalNr() const;
-    const char*         nrDoneText() const;
+    uiStringCopy	uiNrDoneText() const;
 
     const Scanner*	scanner() const { return scanner_; }
 
@@ -120,7 +120,7 @@ protected:
     BufferString	linename_;
 
     Scanner*		scanner_;
-    BufferString	msg_;
+    uiString		msg_;
     DirectDef*		directdef_;
     bool		is2d_;
     bool		isvol_;

@@ -84,7 +84,7 @@ public:
     bool		readPars(const MultiID&,IOPar&) const;
     bool		writePars(const MultiID&,const IOPar&) const;
     bool		getSurfaceData(const MultiID&,SurfaceIOData&,
-	    			       BufferString& errmsg) const;
+				       uiString& errmsg) const;
 
     Notifier<EMManager>	addRemove;
 

@@ -109,9 +109,9 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	for ( int idx=0; idx<horids.size(); idx++ )
 	{
 	    EM::IOObjInfo oi( horids[idx] ); EM::SurfaceIOData sd;
-	    BufferString errmsg;
+	    uiString errmsg;
 	    if ( !oi.getSurfaceData(sd,errmsg)  )
-	    { uiMSG().error(errmsg.buf()); return false; }
+	    { uiMSG().error(errmsg); return false; }
 
 	    if ( !idx )
 		bbox_.hrg = sd.rg;

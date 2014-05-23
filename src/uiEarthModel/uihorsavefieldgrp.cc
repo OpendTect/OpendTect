@@ -132,7 +132,7 @@ EM::Horizon* uiHorSaveFieldGrp::readHorizon( const MultiID& mid )
 }
 
 #undef mErrRet
-#define mErrRet(msg) { if ( msg ) uiMSG().error( msg ); return false; }
+#define mErrRet(msg) { if ( (msg).isSet() ) uiMSG().error( msg ); return false;}
 
 bool uiHorSaveFieldGrp::saveHorizon()
 {
@@ -141,7 +141,7 @@ bool uiHorSaveFieldGrp::saveHorizon()
 	return false;
     PtrMan<Executor> exec = savenew ? newhorizon_->saver() : horizon_->saver();
 
-    if ( !exec ) mErrRet( "Cannot save horizon" );
+    if ( !exec ) mErrRet( tr("Cannot save horizon") );
 
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, *exec );
@@ -153,8 +153,8 @@ bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
     if ( savefld_->getBoolValue() )
     {
 	if ( !outputfld_->commitInput() )
-    	    mErrRet(outputfld_->isEmpty() ? "Please select output horizon" : 
-		    "Cannot continue: write permission problem" )
+	    mErrRet(outputfld_->isEmpty() ? tr("Please select output horizon") :
+		    tr("Cannot continue: write permission problem") )
 
 	if ( !createNewHorizon() )		
 	    return false;
@@ -167,7 +167,7 @@ bool uiHorSaveFieldGrp::acceptOK( CallBacker* )
 bool uiHorSaveFieldGrp::createNewHorizon()
 {
     if ( !horizon_ )
-	mErrRet( "No selected horizon, cannot create a new one." );
+	mErrRet( tr("No selected horizon, cannot create a new one.") );
 
     if ( needsFullSurveyArray() )
 	expandToFullSurveyArray();
@@ -185,23 +185,23 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     
     mDynamicCastGet(EM::Horizon*,horizon,em.getObject(objid));
     if ( !horizon )
-	mErrRet( "Cannot create horizon" );
+	mErrRet( tr("Cannot create horizon") );
     
     newhorizon_ = horizon;      
     newhorizon_->ref();
     newhorizon_->setMultiID( horizon_->multiID() );
 
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !em.getSurfaceData(horizon_->multiID(),sd,errmsg) )
-	mErrRet( errmsg.buf() )
+	mErrRet( errmsg )
 
     EM::SurfaceIODataSelection sdsel( sd );
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     PtrMan<Executor> loader = newhorizon_->geometry().loader( &sdsel );
-    if ( !loader || !TaskRunner::execute( &tr, *loader ) )
-	mErrRet( "New horizon data loading failed" );
+    if ( !loader || !TaskRunner::execute( &taskrunner, *loader ) )
+	mErrRet( tr("New horizon data loading failed") );
 
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );
     File::copy( horizon_->name(), newhorizon_->name() );

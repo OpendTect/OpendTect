@@ -43,7 +43,7 @@ public:
 
 protected:
 				Array1DInterpol();
-    const char*			nrDoneText() const
+    uiStringCopy		uiNrDoneText() const
     				{ return "Points interpolated "; }
     Array1D<float>*	arr_;
     bool		arrstarted_;

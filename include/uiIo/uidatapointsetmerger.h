@@ -95,7 +95,7 @@ public:
     void			addNewCols(const BufferStringSet&);
     od_int64			nrDone() const		{ return rowdone_; }
     od_int64			totalNr() const		{return sdps_->size();}
-    const char*			nrDoneText() const
+    uiStringCopy			uiNrDoneText() const
     				{ return "Postion processed"; }
     DataPointSet*		getNewDPS()		{ return newdps_; }
 protected:

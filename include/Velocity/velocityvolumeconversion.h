@@ -49,7 +49,7 @@ protected:
     bool		doPrepare(int);
     bool		doFinish(bool);
     bool		doWork(od_int64,od_int64,int);
-    const char*		nrDoneText() const { return "Traces written"; }
+    uiStringCopy	uiNrDoneText() const { return "Traces written"; }
 
     char		getNewTrace(SeisTrc&,int threadidx);
 

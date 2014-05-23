@@ -22,7 +22,7 @@ class uiDialog;
 /*! \brief ui for multiple surface read */
 
 mExpClass(uiEarthModel) uiMultiSurfaceRead : public uiIOSurface
-{
+{ mODTextTranslationClass(uiMultiSurfaceRead);
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
 			~uiMultiSurfaceRead();

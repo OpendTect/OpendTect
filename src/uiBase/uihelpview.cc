@@ -110,7 +110,7 @@ BufferString DevDocHelp::getUrl() const
     url.add( toString(mODVersion) );
     url.add( "/doc/Programmer/index.html" );
 
-    BufferString networkmsg;
+    uiString networkmsg;
     mDefineStaticLocalObject( bool, isonline, = Network::ping(url,networkmsg) );
 
     if ( !isonline )

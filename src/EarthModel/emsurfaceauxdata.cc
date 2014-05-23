@@ -209,7 +209,9 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 			(EMSurfaceTranslator*)ioobj->createTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
     {
-	horizon_.setErrMsg( tr ? tr->errMsg() : "Cannot find Translator" );
+	horizon_.setErrMsg( tr
+	    ? tr->errMsg()
+	    : "Cannot find Translator" );
 	return 0;
     }
 

@@ -137,13 +137,13 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
     const int nrsel = ioobjselgrp_->nrChosen();
-    BufferString errormsgstr;
+    uiString errormsgstr;
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	const MultiID mid = ioobjselgrp_->chosenID( idx );
 	const EM::IOObjInfo info( mid );
 	EM::SurfaceIOData sd;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( info.getSurfaceData(sd,errmsg) )
 	    mids += mid;
 	else
@@ -151,10 +151,9 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	    if ( !info.ioObj() )
 		continue;
 
-	    errormsgstr += info.ioObj()->name();
-	    errormsgstr += " :  ";
-	    errormsgstr += errmsg;
-	    errormsgstr += "\n";
+	    errormsgstr = uiString( "%1 :  %2\n")
+			.arg( info.ioObj()->name() )
+			.arg( errmsg );
 	}
 
     }
@@ -164,8 +163,8 @@ void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 	if ( nrsel == 1  )
 	    uiMSG().error( errormsgstr );
 	else
-	    uiMSG().error( "The following selections will not be loaded \n\n",
-			    errormsgstr );
+	    uiMSG().error( tr("The following selections will not be loaded %1")
+			  .arg( errormsgstr ) );
     }
 
 }
@@ -182,7 +181,7 @@ void uiMultiSurfaceRead::getSurfaceSelection(
     const MultiID mid = ioobjselgrp_->chosenID( 0 );
     const EM::IOObjInfo info( mid );
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !info.getSurfaceData(sd,errmsg) || sd.sections.size() < 2
 	    || !info.isHorizon() )
 	return;

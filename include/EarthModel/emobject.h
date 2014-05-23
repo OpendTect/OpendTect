@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "coord.h"
 #include "refcount.h"
+#include "uistring.h"
 
 class CubeSampling;
 class Executor;
@@ -228,8 +229,8 @@ public:
 				{ return insideselremoval_; }
     bool			isSelRemoving() const	{ return selremoving_; }
 
-    const char*			errMsg() const;
-    void			setErrMsg(const char* m) { errmsg_ = m; }
+    uiString			errMsg() const;
+    void			setErrMsg(const uiString& m) { errmsg_ = m; }
 
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;
@@ -253,7 +254,7 @@ protected:
     ObjectID			id_;
     MultiID			storageid_;
     class EMManager&		manager_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     Color&			preferredcolor_;
 

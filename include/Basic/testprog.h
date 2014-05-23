@@ -53,12 +53,13 @@ else \
     if ( quiet ) \
 	od_ostream::logStream() << desc; \
     od_ostream::logStream() << " - FAIL"; \
-    if ( err.str() ) \
-        od_ostream::logStream() << ": " << err.str() << "\n"; \
+    if ( err ) \
+	od_ostream::logStream() << ": " << err << "\n"; \
 \
     return false; \
 }
-#define mRunStandardTest( test, desc ) mRunStandardTestWithError( test, desc, BufferString() )
+#define mRunStandardTest( test, desc ) \
+	mRunStandardTestWithError( test, desc, BufferString().str() )
 
 
 #endif

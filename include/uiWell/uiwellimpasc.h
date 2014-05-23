@@ -32,7 +32,7 @@ namespace Well { class Data; }
 /*! \brief Dialog for well import from Ascii */
 
 mExpClass(uiWell) uiWellImportAsc : public uiDialog
-{
+{ mODTextTranslationClass(uiWellImportAsc);
 public:
 			uiWellImportAsc(uiParent*);
 			~uiWellImportAsc();

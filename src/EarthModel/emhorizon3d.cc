@@ -128,10 +128,10 @@ int nextStep()
 }
 
 
-const char*	message() const		{ return msg_; }
+uiStringCopy	uiMessage() const		{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
 od_int64	nrDone() const		{ return nrdone_; }
-const char*	nrDoneText() const	{ return "Positions handled"; }
+uiStringCopy	uiNrDoneText() const	{ return "Positions handled"; }
 
 protected:
 
@@ -202,10 +202,10 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 }
 
 
-const char*	message() const		{ return msg_; }
+uiStringCopy	uiMessage() const		{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
 od_int64	nrDone() const		{ return nrdone_; }
-const char*	nrDoneText() const	{ return "Positions handled"; }
+uiStringCopy	uiNrDoneText() const	{ return "Positions handled"; }
 
 int nextStep()
 {

@@ -144,8 +144,9 @@ bool SurfaceLimitedFiller::setSurfaces( const TypeSet<MultiID>& hids,
 	PtrMan<IOObj> ioobj = IOM().get( hids[idx] );
 	if ( !ioobj )
 	{
-	    errmsg_ = "Object does not exist, could not find entry for ID: ";
-	    errmsg_ += hids[idx];
+	    errmsg_ = tr("Object does not exist, "
+			 "could not find entry for ID: %1")
+		    .arg( toString( hids[idx] ) );
 	    return false;
 	}
 
@@ -325,8 +326,8 @@ bool SurfaceLimitedFiller::computeBinID( const BinID& bid, int )
 	gradient = valrange_ / depth;
     }
 
-    const int inputinlidx = inputarr ? inputinlrg.nearestIndex( bid.inl() ) : -1;
-    const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex( bid.crl() ) : -1;
+    const int inputinlidx = inputarr ? inputinlrg.nearestIndex(bid.inl()) : -1;
+    const int inputcrlidx = inputarr ? inputcrlrg.nearestIndex(bid.crl()) : -1;
     const int outputinlidx = outputinlrg.nearestIndex( bid.inl() );
     const int outputcrlidx = outputcrlrg.nearestIndex( bid.crl() );
     const int outputmaxidx = output->getZSz()-1;

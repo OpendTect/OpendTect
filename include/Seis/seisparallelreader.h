@@ -64,7 +64,7 @@ protected:
     bool		doPrepare(int nrthreads);
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
-    const char*		nrDoneText() const { return "Traces read"; }
+    uiStringCopy		uiNrDoneText() const { return "Traces read"; }
     uiStringCopy	uiMessage() const { return errmsg_.isEmpty() ?
 					   "Reading" : errmsg_;}
 

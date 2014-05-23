@@ -68,7 +68,7 @@ public:
 			~lmkEMFault3DReader();
     virtual int         nextStep();
 
-    virtual const char* message() const;
+    virtual uiStringCopy uiMessage() const;
     static const char*  streamerrmsg;
 
 protected:
@@ -107,7 +107,7 @@ public:
 			~lmkEMFault3DWriter();
 
     virtual int         nextStep();
-    virtual const char* message() const;
+    virtual uiStringCopy uiMessage() const;
     static const char*  streamerrmsg;
 
 protected:

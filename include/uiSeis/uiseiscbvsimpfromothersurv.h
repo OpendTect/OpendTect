@@ -44,9 +44,9 @@ public:
 			SeisImpCBVSFromOtherSurvey(const IOObj&);
 			~SeisImpCBVSFromOtherSurvey();
 
-    const char* 	message() const		{ return "Importing CBVS"; }
+    uiStringCopy	uiMessage() const	{ return "Importing CBVS"; }
     od_int64 		nrDone() const          { return nrdone_; }
-    const char* 	nrDoneText() const      { return "Traces handled"; }
+    uiStringCopy	uiNrDoneText() const	  { return "Traces handled"; }
     od_int64 		totalNr() const		{ return totnr_; }
     int 		nextStep();
 

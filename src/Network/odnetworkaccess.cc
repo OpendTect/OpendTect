@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 bool Network::downloadFile( const char* url, const char* path,
-			    BufferString& errmsg, TaskRunner* tr )
+			    uiString& errmsg, TaskRunner* tr )
 {
     BufferStringSet urls; urls.add( url );
     BufferStringSet outputpath; outputpath.add( path );
@@ -37,7 +37,7 @@ bool Network::downloadFile( const char* url, const char* path,
 
 
 bool Network::downloadFiles( BufferStringSet& urls, const char* path,
-			     BufferString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* tr )
 {
     BufferStringSet outputpaths;
     for ( int idx=0; idx<urls.size(); idx++ )
@@ -57,7 +57,7 @@ bool Network::downloadFiles( BufferStringSet& urls, const char* path,
 
 
 bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
-			     BufferString& errmsg, TaskRunner* tr )
+			     uiString& errmsg, TaskRunner* tr )
 {
     if ( urls.size() != outputpaths.size() )
 	return false;
@@ -65,31 +65,31 @@ bool Network::downloadFiles( BufferStringSet& urls,BufferStringSet& outputpaths,
     Network::setHttpProxyFromSettings();
     FileDownloader dl( urls, outputpaths );
     const bool res = tr ? tr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.message();
+    if ( !res ) errmsg = dl.uiMessage();
     return res;
 }
 
 
 bool Network::downloadToBuffer( const char* url, DataBuffer* databuffer,
-				BufferString& errmsg, TaskRunner* tr )
+				uiString& errmsg, TaskRunner* tr )
 {
     databuffer->reSize( 0, false );
     databuffer->reByte( 1, false );
     FileDownloader dl( url, databuffer );
     const bool res = tr ? tr->execute( dl ) : dl.execute();
-    if ( !res ) errmsg = dl.message();
+    if ( !res ) errmsg = dl.uiMessage();
     return res;
 }
 
 
 bool Network::getRemoteFileSize( const char* url, od_int64& size,
-				 BufferString& errmsg )
+				 uiString& errmsg )
 {
     FileDownloader dl( url );
     size = dl.getDownloadSize();
     if ( size < 0 )
     {
-	errmsg = dl.message();
+	errmsg = dl.uiMessage();
 	return false;
     }
 
@@ -97,7 +97,7 @@ bool Network::getRemoteFileSize( const char* url, od_int64& size,
 }
 
 
-bool Network::ping( const char* url, BufferString& msg )
+bool Network::ping( const char* url, uiString& msg )
 {
     od_int64 pseudosize;
     return Network::getRemoteFileSize( url, pseudosize, msg );
@@ -280,7 +280,7 @@ int FileDownloader::errorOccured()
 }
 
 
-const char* FileDownloader::message() const
+uiStringCopy FileDownloader::uiMessage() const
 { return msg_; }
 
 
@@ -288,7 +288,7 @@ od_int64 FileDownloader::nrDone() const
 {return nrdone_/1024;}
 
 
-const char* FileDownloader::nrDoneText() const
+uiStringCopy FileDownloader::uiNrDoneText() const
 {return "KBytes downloaded";}
 
 
@@ -316,12 +316,12 @@ void addPars( BufferString& data, const IOPar& postvars )
 
 bool Network::uploadFile( const char* url, const char* localfname,
 			  const char* remotefname, const char* ftype,
-		   const IOPar& postvars, BufferString& errmsg, TaskRunner* tr )
+			  const IOPar& postvars, uiString& errmsg,
+			  TaskRunner* taskrunner )
 {
     if ( !File::isFile(localfname) )
     {
-	errmsg.add(localfname);
-	errmsg.add(" \nFile not found");
+	errmsg = uiString(" %1\nFile not found").arg( localfname );
 	return false;
     }
 
@@ -350,14 +350,14 @@ bool Network::uploadFile( const char* url, const char* localfname,
     BufferString header( "multipart/form-data; boundary=", mBoundary );
     Network::setHttpProxyFromSettings();
     DataUploader up( url, *databuffer, header );
-    const bool res = tr ? tr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.message();
+    const bool res = taskrunner ? taskrunner->execute( up ) : up.execute();
+    if ( !res ) errmsg = up.uiMessage();
     return res;
 }
 
 
 bool Network::uploadQuery( const char* url, const IOPar& querypars,
-			   BufferString& errmsg, TaskRunner* tr)
+			   uiString& errmsg, TaskRunner* tr)
 {
     BufferString data;
     addPars( data, querypars);
@@ -367,7 +367,7 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
     Network::setHttpProxyFromSettings();
     DataUploader up( url, db, header );
     const bool res = tr ? tr->execute( up ) : up.execute();
-    if ( !res ) errmsg = up.message();
+    if ( !res ) errmsg = up.uiMessage();
     return res;
 }
 
@@ -433,7 +433,7 @@ int DataUploader::errorOccured()
 }
 
 
-const char* DataUploader::message() const
+uiStringCopy DataUploader::uiMessage() const
 { return msg_; }
 
 
@@ -441,7 +441,7 @@ od_int64 DataUploader::nrDone() const
 {return nrdone_/1024;}
 
 
-const char* DataUploader::nrDoneText() const
+uiStringCopy DataUploader::uiNrDoneText() const
 {return "KBytes uploaded";}
 
 

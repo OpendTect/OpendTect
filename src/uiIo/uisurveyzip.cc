@@ -78,7 +78,7 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     }
 
     // The uiFileDialog should make sure an actual existing file is selected
-    uiTaskRunner tr( par, false ); BufferString emsg;
+    uiTaskRunner tr( par, false ); uiString emsg;
     if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&tr) )
     {
 	TypeSet<uiString> detailedmsg( 1, emsg );
@@ -125,7 +125,7 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
 	zipfnm = fd.fileName();
     }
 
-    uiTaskRunner tr( par, false ); BufferString emsg;
+    uiTaskRunner tr( par, false ); uiString emsg;
     if ( !ZipUtils::makeZip(zipfnm,inpdir,emsg,&tr) )
     {
 	TypeSet<uiString> detailedmsg( 1, emsg );

@@ -116,7 +116,7 @@ ProgInfoScanner( ODMad::ProgInfo& pi )
     delete dl_;
 }
 
-const char* message() const
+uiStringCopy uiMessage() const
 {
     if ( !dl_ )
 	return pi_.errMsg();
@@ -127,7 +127,7 @@ const char* message() const
     return msg_;
 }
 
-const char*	nrDoneText() const	{ return "Files scanned"; }
+uiStringCopy	uiNrDoneText() const	{ return "Files scanned"; }
 od_int64	nrDone() const		{ return curnr_; }
 od_int64	totalNr() const		{ return totnr_; }
 

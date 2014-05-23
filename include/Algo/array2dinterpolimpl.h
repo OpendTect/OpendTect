@@ -86,7 +86,7 @@ public:
 protected:
     virtual bool	doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    const char*		nrDoneText() const	{ return "Nodes gridded"; }
+    uiStringCopy	uiNrDoneText() const	{ return "Nodes gridded"; }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
@@ -160,10 +160,10 @@ public:
     static const char*	sKeyMaxDistance();
 
 protected:
-    int		minThreadSize() const		{ return 10000; }
-    bool	doWork(od_int64,od_int64,int);
-    od_int64	nrIterations() const		{ return totalnr_; }
-    const char*	nrDoneText() const		{ return "Nodes gridded"; }
+    int			minThreadSize() const	{ return 10000; }
+    bool		doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const	{ return totalnr_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Nodes gridded"; }
 
     bool        doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);

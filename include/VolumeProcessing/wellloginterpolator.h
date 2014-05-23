@@ -76,7 +76,7 @@ public:
     bool			canInputAndOutputBeSame() const { return true; }
     bool			needsFullVolume() const		{ return false;}
 
-    virtual const char*         errMsg() const		{ return errmsg_; }
+    uiStringCopy		errMsg() const	{ return errmsg_; }
 
 protected:
 
@@ -93,7 +93,7 @@ protected:
     ExtensionModel		extension_;
     bool			extlog_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     StepInterval<int>		outputinlrg_;
     StepInterval<int>		outputcrlrg_;
 };

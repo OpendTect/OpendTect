@@ -42,10 +42,10 @@ public:
     int				getNrCrossings(const MultiID&,
 	    				       const MultiID&) const;
 
-    const char*			message() const;
+    uiStringCopy		uiMessage() const;
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    const char*			nrDoneText() const;
+    uiStringCopy		uiNrDoneText() const;
 
 protected:
 
@@ -69,7 +69,7 @@ protected:
     TypeSet<MultiID>		unsortedids_;
     TypeSet<MultiID>		sortedids_;
 
-    BufferString		message_;
+    uiString			message_;
 };
 
 

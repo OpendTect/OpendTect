@@ -79,7 +79,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 
 ~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
 od_int64 nrIterations() const   { return cs_.nrInl()*cs_.nrCrl(); }
-const char* message() const	{ return "Extracting body from horizons"; }
+uiStringCopy uiMessage() const	{ return "Extracting body from horizons"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -228,7 +228,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 }
 
 od_int64 nrIterations() const	{ return cs_.nrZ(); }
-const char* message() const		{ return "Extracting implicit body"; }
+uiStringCopy uiMessage() const		{ return "Extracting implicit body"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {

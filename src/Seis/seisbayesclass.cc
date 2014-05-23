@@ -268,7 +268,7 @@ uiStringCopy SeisBayesClass::uiMessage() const
 }
 
 
-const char* SeisBayesClass::nrDoneText() const
+uiStringCopy SeisBayesClass::uiNrDoneText() const
 {
     return initstep_ ? "Step" : "Positions handled";
 }

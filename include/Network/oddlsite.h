@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "networkmod.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "uistring.h"
 class BufferStringSet;
 class TaskRunner;
 class DataBuffer;
@@ -42,7 +43,7 @@ class DataBuffer;
  */
 
 mExpClass(Network) ODDLSite : public CallBacker
-{
+{ mODTextTranslationClass(ODDLSite);
 public:
 
 			ODDLSite(const char* the_host,float timeout_sec=0);
@@ -55,7 +56,7 @@ public:
     float		timeout() const			{ return timeout_; }
     void		setTimeOut(float,bool storeinsettings);
 
-    const char*		errMsg() const			{ return errmsg_; }
+    uiStringCopy	errMsg() const			{ return errmsg_; }
 
     bool		getFile(const char* fnm,const char* outfnm=0,
 				 TaskRunner* tr=0, const char* nicename=0);
@@ -79,7 +80,7 @@ protected:
     bool		islocal_;
     bool		issecure_;
 
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
     bool		isfailed_;
     DataBuffer*		databuf_;
 

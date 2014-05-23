@@ -199,10 +199,10 @@ int SeisRandLineTo2D::nextStep()
 }
 
 
-const char* SeisRandLineTo2D::message() const
+uiStringCopy SeisRandLineTo2D::uiMessage() const
 { return "Writing traces..."; }
 
-const char* SeisRandLineTo2D::nrDoneText() const
+uiStringCopy SeisRandLineTo2D::uiNrDoneText() const
 { return "Traces written"; }
 
 od_int64 SeisRandLineTo2D::nrDone() const

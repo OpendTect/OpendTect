@@ -577,7 +577,7 @@ bool PickSetAscIO::isXY() const
 }
 
 
-#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
+#define mErrRet(s) { if ( !s.isEmpty() ) errmsg_ = s; return 0; }
 
 bool PickSetAscIO::get( od_istream& strm, Pick::Set& ps,
 			bool iszreq, float constz ) const

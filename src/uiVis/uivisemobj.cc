@@ -70,7 +70,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     {
 	Executor* exec = 0;
 	EM::IOObjInfo oi( mid ); EM::SurfaceIOData sd;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !oi.getSurfaceData(sd,errmsg) )
 	    exec = EM::EMM().objectLoader( mid );
 	else

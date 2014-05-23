@@ -36,8 +36,8 @@ public:
 
      virtual od_int64	nrDone() const		{ return seqnr_; }
      virtual od_int64	totalNr() const		{ return nrseqs_; }
-     virtual const char* nrDoneText() const	{ return "Sequences generated";}
-     virtual const char* message() const	{ return msg_; }
+     virtual uiStringCopy uiNrDoneText() const	{ return "Sequences generated";}
+     virtual uiStringCopy uiMessage() const	{ return msg_; }
      virtual int	nextStep();
 
 protected:

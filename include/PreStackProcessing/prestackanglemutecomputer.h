@@ -50,13 +50,13 @@ public:
     void	fillPar(IOPar&) const;
     bool	usePar(const IOPar&);
 
-    od_int64			nrIterations() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64 start, od_int64 stop,int);
-    bool			doFinish(bool success);
+    od_int64		nrIterations() const;
+    bool		doPrepare(int);
+    bool		doWork(od_int64 start, od_int64 stop,int);
+    bool		doFinish(bool success);
 
-    const char*                 message() const { return "Computing mutes..."; }
-    const char*			errMsg() const;
+    uiStringCopy	uiMessage() const { return "Computing mutes..."; }
+    const char*		errMsg() const;
 
     AngleMuteCompPars&	params();
     const AngleMuteCompPars&	params() const;

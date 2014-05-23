@@ -87,7 +87,7 @@ void add( const BinID& bid, float z )
 
 
 Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
-		     Horizon3D& h3d, TaskRunner* tr )
+		     Horizon3D& h3d, TaskRunner* taskrunner )
     : Executor( "Deriving 3D horizon from 2D" )
     , hor2d_(h2d)
     , hor3d_(h3d)
@@ -99,7 +99,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
     fillSections();
 
     if ( sd_.isEmpty() )
-	msg_ = "No data in selected area";
+	msg_ = tr("No data in selected area");
     else if ( curinterp_ )
     {
 	const float inldist = hrg.step.inl()*SI().inlDistance();
@@ -112,9 +112,9 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 	const bool issingleline = hor2d_.geometry().nrLines()<2;
   	curinterp_->setFillType( issingleline ? Array2DInterpol::Full 
 					      : Array2DInterpol::ConvexHull );
-	curinterp_->setArray( sd_[cursectnr_]->arr_, tr );
+	curinterp_->setArray( sd_[cursectnr_]->arr_, taskrunner );
 
-	msg_ = curinterp_->message();
+	msg_ = curinterp_->uiMessage();
     }
 
     hor3d_.removeAll();

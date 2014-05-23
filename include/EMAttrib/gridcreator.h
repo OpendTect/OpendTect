@@ -32,7 +32,7 @@ public:
     			Seis2DGridCreator(const IOPar&);
 			~Seis2DGridCreator();
 
-    virtual const char*	nrDoneText() const;
+    virtual uiStringCopy	uiNrDoneText() const;
 
     static const char*	sKeyOverWrite();
     static const char*	sKeyInput();
@@ -76,7 +76,7 @@ public:
 
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    virtual const char*	nrDoneText() const;
+    virtual uiStringCopy	uiNrDoneText() const;
 
     bool		init(const IOPar&,TaskRunner* tr=0);
     bool		finish(TaskRunner* tr=0);

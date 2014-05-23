@@ -122,10 +122,10 @@ private:
 
     int			timestamp_;
     int			nrattempts_;
-    int		maxtries_;
-    int		socktimeout_;
+    int			maxtries_;
+    int			socktimeout_;
     int			failtimeout_;
-    int		min_time_between_update_;
+    int			min_time_between_update_;
     int			lastsucces_;
 };
 

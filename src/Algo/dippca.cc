@@ -25,7 +25,7 @@ Dip3DCalculator( Dip3D& fd )
 
 protected:
 od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-const char* message() const	{ return "Dip/Azimuth calculating.."; }
+uiStringCopy uiMessage() const	{ return "Dip/Azimuth calculating.."; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
@@ -154,7 +154,7 @@ Dip2DCalculator( Dip2D& fd )
 
 protected:
 od_int64 nrIterations() const	{ return fd_.input_.info().getTotalSz(); }
-const char* message() const	{ return "Dip calculating.."; }
+uiStringCopy uiMessage() const	{ return "Dip calculating.."; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {

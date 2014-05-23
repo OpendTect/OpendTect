@@ -61,9 +61,9 @@ public:
 		~Extension2DInterpolExecutor()  { deleteStateArr(); }
 
     int		nextStep();
-    const char*	message() const		{ return curmsg_; }
+    uiStringCopy	uiMessage() const		{ return curmsg_; }
     od_int64	nrDone() const		{ return curlvl_ + 1; }
-    const char* nrDoneText() const	{ return "Interpolation level"; }
+    uiStringCopy uiNrDoneText() const	{ return "Interpolation level"; }
     od_int64	totalNr() const		{ return aie_.getNrSteps(); }
 
 protected:

@@ -670,7 +670,7 @@ bool Table::AscIO::getHdrVals( od_istream& strm ) const
 	{
 	    int res = hdrcnvrtr.nextStep();
 	    if ( res < 0 )
-		mErrRet( hdrcnvrtr.message() )
+		mErrRet( hdrcnvrtr.uiMessage() )
 	    else if ( res == 0 || hdrexphndlr.hdrready_ )
 		break;
 	}
@@ -707,7 +707,7 @@ int Table::AscIO::getNextBodyVals( od_istream& strm ) const
 
     int ret = cnvrtr_->nextStep();
     if ( ret < 0 )
-	errmsg_ = cnvrtr_->message();
+	errmsg_ = cnvrtr_->uiMessage();
     return ret;
 }
 

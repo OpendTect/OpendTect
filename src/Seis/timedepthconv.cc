@@ -209,8 +209,8 @@ protected:
     od_int64            totalNr() const
 			{ return readcs_.hrg.nrCrl()*readcs_.hrg.nrInl(); }
     od_int64            nrDone() const { return nrdone_; }
-    const char*         message() const { return "Reading velocity model"; };
-    const char*         nrDoneText() const { return "Position read"; }
+    uiStringCopy	 uiMessage() const { return "Reading velocity model"; };
+    uiStringCopy	 uiNrDoneText() const { return "Position read"; }
 
     int                 nextStep()
     {

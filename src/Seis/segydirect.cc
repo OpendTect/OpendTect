@@ -551,16 +551,27 @@ int SEGY::FileIndexer::nextStep()
 	    {
 		File::createDir(outfile);
 		if ( !File::isDirectory(outfile) )
-		    mErrRet("Cannot create directory for output:\n",outfile)
+		{
+		    msg_ = tr("Cannot create directory for output:\n%1")
+			      .arg(outfile);
+		    return ErrorOccurred();
+		}
 	    }
 	    if ( !File::isWritable(outfile) )
-		mErrRet("Output directory is not writable:\n",outfile)
+	    {
+		msg_ = tr( "Output directory is not writable:\n%1")
+			   .arg(outfile);
+		return ErrorOccurred();
+	    }
 
 	    outfile = SEGY::DirectDef::get2DFileName( outfile, linename_ );
 	}
 
 	if ( File::exists(outfile) && !File::isWritable(outfile) )
-	    mErrRet("Cannot overwrite output file:\n",outfile)
+	{
+	    msg_ = tr("Cannot overwrite output file:\n%1").arg(outfile);
+	    return ErrorOccurred();
+	}
 
 	msg_ = "Setting up output indexing";
 	directdef_ = new SEGY::DirectDef;
@@ -569,16 +580,19 @@ int SEGY::FileIndexer::nextStep()
 	    scanner_->fileDataSet().save2DCoords( true );
 
 	if ( !directdef_->writeHeadersToFile( outfile ) )
-	    mErrRet( "Cannot write to file", outfile )
+	{
+	    msg_ = tr( "Cannot write to file %1" ).arg( outfile );
+	    return ErrorOccurred();
+	}
 
 	scanner_->fileDataSet().setOutputStream(*directdef_->getOutputStream());
 	return MoreToDo();
     }
 
-    msg_ = scanner_->message();
+    msg_ = scanner_->uiMessage();
     const int res = scanner_->nextStep();
     if ( res == ErrorOccurred() )
-	msg_ = scanner_->message();
+	msg_ = scanner_->uiMessage();
     else if ( res==Finished() )
     {
 	const SEGY::FileDataSet& fds = scanner_->fileDataSet();
@@ -613,8 +627,8 @@ int SEGY::FileIndexer::nextStep()
 }
 
 
-const char* SEGY::FileIndexer::message() const
-{ return msg_.buf(); }
+uiStringCopy SEGY::FileIndexer::uiMessage() const
+{ return msg_; }
 
 
 od_int64 SEGY::FileIndexer::nrDone() const
@@ -625,5 +639,5 @@ od_int64 SEGY::FileIndexer::totalNr() const
 { return scanner_ ? scanner_->totalNr() : 0; }
 
 
-const char* SEGY::FileIndexer::nrDoneText() const
+uiStringCopy SEGY::FileIndexer::uiNrDoneText() const
 { return "Traces scanned"; }

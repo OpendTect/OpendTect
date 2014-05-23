@@ -132,11 +132,11 @@ bool WaveletExtractor::getNextLine()
 }
 
 
-const char* WaveletExtractor::nrDoneText() const
+uiStringCopy WaveletExtractor::uiNrDoneText() const
 { return "Traces Processed"; }
 
 
-const char* WaveletExtractor::message() const
+uiStringCopy WaveletExtractor::uiMessage() const
 { return msg_.buf(); }
 
 
@@ -373,7 +373,7 @@ bool WaveletExtractor::rotateWavelet()
     {
 	const float realval = wvlt_.samples()[idx];
 	const float imagval = -rotatewvlt.arr()[idx];
-	wvlt_.samples()[idx] = (float) (realval*cos(angle) - imagval*sin(angle));
+	wvlt_.samples()[idx] = (float) (realval*cos(angle)-imagval*sin(angle));
     }
 
     return true;

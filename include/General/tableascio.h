@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "repos.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 class UnitOfMeasure;
 
 namespace Table
@@ -52,14 +53,14 @@ public:
     virtual			~AscIO();
 
     const FormatDesc&		desc() const	{ return fd_; }
-    const char* 		errMsg() const	{ return errmsg_.str(); }
-    const char* 		warnMsg() const { return warnmsg_.str(); }
+    uiString			errMsg() const	{ return errmsg_; }
+    uiString			warnMsg() const { return warnmsg_; }
 
 protected:
 
     const FormatDesc&		fd_;
-    mutable BufferString	errmsg_;
-    mutable BufferString	warnmsg_;
+    mutable uiString		errmsg_;
+    mutable uiString		warnmsg_;
     BufferStringSet		vals_;
     ObjectSet<const UnitOfMeasure> units_;
     ImportHandler*		imphndlr_;

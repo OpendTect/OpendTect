@@ -32,7 +32,7 @@ class Hor2DTo3DSectionData;
 */
 
 mExpClass(EarthModel) Hor2DTo3D : public Executor
-{
+{ mODTextTranslationClass(Hor2DTo3D);
 public:
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
 					  Horizon3D&,TaskRunner* =0);  
@@ -43,7 +43,7 @@ public:
 				~Hor2DTo3D();
 
     int				nextStep();
-    const char*			message() const		{ return msg_.buf(); }
+    uiStringCopy		uiMessage() const	{ return msg_; }
     uiStringCopy		uiNrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
@@ -52,7 +52,7 @@ protected:
 
     const Horizon2D&		hor2d_;
     Horizon3D&			hor3d_;
-    BufferString		msg_;
+    uiString			msg_;
     int				cursectnr_;
 
     ObjectSet<Hor2DTo3DSectionData>	sd_;

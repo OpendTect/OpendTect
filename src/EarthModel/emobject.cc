@@ -601,9 +601,9 @@ bool EMObject::isEmpty() const
 }
 
 
-const char* EMObject::errMsg() const
+uiString EMObject::errMsg() const
 {
-    return errmsg_.str();
+    return errmsg_;
 }
 
 

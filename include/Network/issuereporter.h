@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 namespace System
 {
@@ -22,7 +23,7 @@ namespace System
 /*Class that can post a crash-report to OpendTect's website */
     
 mExpClass(Network) IssueReporter
-{
+{ mODTextTranslationClass(IssueReporter);
 public:
     				IssueReporter( const char* hostname = 0,
 					       const char* path = 0 );
@@ -33,7 +34,7 @@ public:
     const BufferString&		getReport() const   { return report_; }
     
     bool			send();
-    const char*			errMsg() const	    { return errmsg_.str(); }
+    uiStringCopy		errMsg() const	    { return errmsg_; }
 
     bool			parseCommandLine();
     
@@ -41,7 +42,7 @@ protected:
     
     BufferString		host_;
     BufferString		path_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
     BufferString		report_;
     BufferString                crashreportpath_;
 };

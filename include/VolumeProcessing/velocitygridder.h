@@ -33,13 +33,13 @@ namespace VolProc
 */
 
 mExpClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
-{
+{ mODTextTranslationClass(VelGriddingStep);
 public:
 			VelGriddingStep();
     			~VelGriddingStep();
 
 			mDefaultFactoryInstantiation( VolProc::Step,
-				VelGriddingStep, "Gridding", "Velocity gridder" );
+				VelGriddingStep, "Gridding","Velocity gridder");
 
     const VelocityDesc* getVelDesc() const;
 
@@ -57,7 +57,7 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true;}
     
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiStringCopy	errMsg() const		{ return errmsg_; }
 
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
@@ -74,7 +74,7 @@ protected:
 
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
-    BufferString			errmsg_;
+    uiString				errmsg_;
 };
 
 

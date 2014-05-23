@@ -86,7 +86,7 @@ public:
     visBase::Text2*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
 
-    const char*			nrDoneText() const
+    uiStringCopy			uiNrDoneText() const
                                 { return "Contours created"; }
 
 protected:

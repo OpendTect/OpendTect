@@ -140,7 +140,7 @@ int StratSynthExporter::nextStep()
 }
 
 
-const char* StratSynthExporter::message() const
+uiStringCopy StratSynthExporter::uiMessage() const
 {
     return errmsg_.isEmpty() ? "Exporting syntheic data"
 			     : errmsg_.getOriginalString();

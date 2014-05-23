@@ -82,7 +82,7 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
-    const char*			nrDoneText() const    { return "CDPs gridded"; }
+    uiStringCopy		uiNrDoneText() const  { return "CDPs gridded"; }
 
     VelGriddingStep&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
@@ -261,7 +261,8 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 {
     Attrib::DataCubes* output = task_.getStep().getOutput();
     const int zsz = output->getZSz();
-    const SamplingData<float> zsd((float) output->zstep_*output->z0_,(float) output->zstep_);
+    const SamplingData<float> zsd((float) output->zstep_*output->z0_,
+				  (float) output->zstep_);
 
     Vel::Function* func = velfuncs_[thread];
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
@@ -566,9 +567,9 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	    Vel::FunctionSource::factory().create( sourcetype.buf(), mid );
 	if ( !source )
 	{
-	    errmsg_ = "Cannot create a velocity source of type ";
-	    errmsg_.add( sourcetype.buf() ).add( ". " )
-		   .add( Vel::FunctionSource::factory().errMsg() );
+	    errmsg_ = tr("Cannot create a velocity source of type %1. %2")
+			.arg( sourcetype.buf() )
+			.arg( Vel::FunctionSource::factory().errMsg() );
 	    return false;
 	}
 
@@ -576,9 +577,8 @@ bool VelGriddingStep::usePar( const IOPar& par )
 
 	if ( !source->usePar( *sourcepar ) )
 	{
-	    errmsg_ = "Cannot parse velocity source's paramters (";
-	    errmsg_ += sourcetype.buf();
-	    errmsg_ += " ).";
+	    errmsg_ = tr("Cannot parse velocity source's paramters (%1).")
+			.arg( sourcetype.buf() );
 
 	    source->unRef();
 	    return false;

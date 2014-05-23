@@ -24,7 +24,7 @@ namespace Table { class FormatDesc; }
 
 
 mExpClass(uiSeis) uiSeisWvltImp : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisWvltImp);
 public:
 			uiSeisWvltImp(uiParent*);
 			~uiSeisWvltImp();
@@ -47,7 +47,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltExp : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisWvltExp);
 public:
 			uiSeisWvltExp(uiParent*);
 

@@ -219,9 +219,9 @@ bool uiExportHorizon::writeAscii()
 
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !em.getSurfaceData(ioobj->key(),sd,errmsg) )
-	mErrRet( errmsg.buf() )
+	mErrRet( errmsg )
 
     EM::SurfaceIODataSelection sels( sd );
     infld_->getSelection( sels );

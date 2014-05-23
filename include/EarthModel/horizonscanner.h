@@ -34,10 +34,10 @@ public:
 					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
 
-    virtual const char*	message() const;
+    virtual uiStringCopy	uiMessage() const;
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    virtual const char*	nrDoneText() const;
+    virtual uiStringCopy	uiNrDoneText() const;
 
     bool		reInitAscIO(const char*);
     void		setPosIsXY(bool yn)		{ isxy_ = yn; }

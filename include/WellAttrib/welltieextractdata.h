@@ -35,8 +35,8 @@ public:
     int                 nextStep();
     od_int64            totalNr() const		{ return extrintv_.nrSteps(); }
     od_int64            nrDone() const          { return nrdone_; }
-    const char*         message() const         { return "Computing..."; }
-    const char*         nrDoneText() const      { return "Points done"; }
+    uiStringCopy	 uiMessage() const	   { return "Computing..."; }
+    uiStringCopy	 uiNrDoneText() const	   { return "Points done"; }
     void		setBIDValues(const TypeSet<BinID>&);
     void		setInterval(const StepInterval<float>&);
     //Only 2D

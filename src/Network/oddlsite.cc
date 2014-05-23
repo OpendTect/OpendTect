@@ -71,7 +71,8 @@ void ODDLSite::setTimeOut( float t, bool sett )
 }
 
 
-bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
+bool ODDLSite::getFile( const char* relfnm, const char* outfnm,
+			    TaskRunner* taskrunner,
 			    const char* nicename )
 {
     delete databuf_; databuf_ = 0;
@@ -82,10 +83,11 @@ bool ODDLSite::getFile( const char* relfnm, const char* outfnm, TaskRunner* tr,
     if ( !outfnm )
     {
 	databuf_ = new DataBuffer( 0, 1, true );
-	return Network::downloadToBuffer(fullURL(relfnm),databuf_,errmsg_,tr);
+	return Network::downloadToBuffer(fullURL(relfnm),databuf_,errmsg_,
+					 taskrunner);
     }
 
-    return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_, tr );
+    return Network::downloadFile( fullURL(relfnm), outfnm, errmsg_, taskrunner);
 }
 
 
@@ -98,7 +100,7 @@ bool ODDLSite::getLocalFile( const char* relfnm, const char* outfnm )
 
     StreamData sd( StreamProvider(inpfnm).makeIStream() );
     if ( !sd.usable() )
-	{ errmsg_ = "Cannot open "; errmsg_ += inpfnm; return false; }
+	{ errmsg_ = tr("Cannot open %1").arg( inpfnm ); return false; }
     BufferString bs;
     const bool isok = StrmOper::readFile( *sd.istrm, bs );
     sd.close();
@@ -120,14 +122,14 @@ DataBuffer* ODDLSite::obtainResultBuf()
 
 
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
-			 TaskRunner& tr )
+			 TaskRunner& taskrunner )
 {
     errmsg_.setEmpty();
     BufferStringSet fullurls;
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fullurls.add( fullURL(fnms.get(idx)) );
 
-    return Network::downloadFiles( fullurls, outputdir, errmsg_, &tr );
+    return Network::downloadFiles( fullurls, outputdir, errmsg_, &taskrunner );
 }
 
 

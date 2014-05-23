@@ -109,7 +109,8 @@ public:
 
     virtual void		releaseData();
 
-    virtual const char*		errMsg() const { return 0; }
+    virtual uiStringCopy	errMsg() const
+				{ return uiString::emptyString(); }
 
 protected:
 				Step();
@@ -142,7 +143,7 @@ private:
 */
 
 mExpClass(VolumeProcessing) Chain
-{ mRefCountImpl(Chain);
+{ mRefCountImpl(Chain); mODTextTranslationClass(Chain);
 public:
 				Chain();
 
@@ -246,7 +247,7 @@ private:
     float			zstep_;
     bool			zist_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     Threads::Atomic<int>	freeid_;
 };
 

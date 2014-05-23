@@ -41,8 +41,8 @@ public:
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;		
-    const char*		message() const		{ return "Writing out data!"; }
-    const char*		nrDoneText() const	{ return "Traces written:"; }
+    uiStringCopy	uiMessage() const	{ return "Writing out data!"; }
+    uiStringCopy	uiNrDoneText() const	{ return "Traces written:"; }
     int			nextStep();
 
 private:

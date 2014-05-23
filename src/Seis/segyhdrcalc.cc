@@ -230,8 +230,8 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     totalnr_ /= bptrc_;
 }
 
-const char* message() const		{ return msg_; }
-const char* nrDoneText() const		{ return "Traces handled"; }
+uiStringCopy uiMessage() const		{ return msg_; }
+uiStringCopy uiNrDoneText() const		{ return "Traces handled"; }
 od_int64 nrDone() const			{ return nrdone_; }
 od_int64 totalNr() const		{ return totalnr_; }
 

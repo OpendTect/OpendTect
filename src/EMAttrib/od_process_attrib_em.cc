@@ -363,10 +363,11 @@ bool BatchProgram::go( od_ostream& strm )
 	strm << "Loading: " << mid->buf() << "\n\n";
 
 	SurfaceIOData sd;
-	if ( !EM::EMM().getSurfaceData(*mid,sd,errmsg) )
+	uiString uierr;
+	if ( !EM::EMM().getSurfaceData(*mid,sd,uierr) )
 	{
 	    BufferString errstr( "Cannot load horizon ", mid->buf(), ": " );
-	    errstr += errmsg;
+	    errstr += uierr.getFullString();
 	    mErrRetNoProc( errstr.buf() );
 	}
 

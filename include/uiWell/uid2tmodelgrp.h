@@ -22,7 +22,7 @@ namespace Table { class FormatDesc; }
 namespace Well { class Data; }
 
 mExpClass(uiWell) uiD2TModelGroup : public uiGroup
-{
+{ mODTextTranslationClass(uiD2TModelGroup);
 public:
 
     mExpClass(uiWell) Setup
@@ -44,8 +44,8 @@ public:
 			uiD2TModelGroup(uiParent*,const Setup&);
 
     bool		getD2T(Well::Data&,bool cksh = true) const;
-    const char* 	errMsg() const		{ return errmsg_; }
-    const char* 	warnMsg() const 	{ return warnmsg_; }
+    uiStringCopy	errMsg() const		{ return errmsg_; }
+    uiStringCopy	warnMsg() const		{ return warnmsg_; }
 
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;
@@ -54,8 +54,8 @@ protected:
 
     Setup		setup_;
     Table::FormatDesc&  fd_;
-    mutable BufferString	errmsg_;
-    mutable BufferString	warnmsg_;
+    mutable uiString	errmsg_;
+    mutable uiString	warnmsg_;
 
     uiFileInput*	filefld_;
     uiGenInput*		velfld_;

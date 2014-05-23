@@ -100,7 +100,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
     {
-	strm << indexer.message();
+	strm << indexer.uiMessage().getFullString();
 	IOM().permRemove( mid );
 	return false;
     }

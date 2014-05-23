@@ -29,8 +29,8 @@ public:
 		BinIDWiseTask( Step& ro )
 		    : step_( ro ), totalnr_( -1 )	{}
 
-    const char*	message() const			{ return errmsg_; }
-    const char*	nrDoneText() const		{ return "Positions done"; }
+    uiStringCopy	uiMessage() const	{ return errmsg_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Positions done"; }
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
@@ -93,7 +93,7 @@ protected:
 
     Step&		step_;
     mutable int		totalnr_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 };
 
 
@@ -758,16 +758,17 @@ bool Chain::usePar( const IOPar& par )
 	Step* step = Step::factory().create( type.buf() );
 	if ( !step )
 	{
-	    errmsg_ = "Cannot create Volume processing step ";
-	    errmsg_ += type.buf();
-	    errmsg_ += ". Perhaps all plugins are not loaded?";
+	    errmsg_ = tr( "Cannot create Volume processing step %1. "
+			  "Perhaps all plugins are not loaded?")
+			  .arg( type.buf() );
+
 	    return false;
 	}
 
 	if ( !step->usePar( *steppar ) )
 	{
-	    errmsg_ = "Cannot parse Volume Processing's parameters: ";
-	    errmsg_ += step->errMsg();
+	    errmsg_ = tr("Cannot parse Volume Processing's parameters: %1")
+			.arg( step->errMsg() );
 	    delete step;
 	    return false;
 	}
@@ -793,15 +794,13 @@ bool Chain::usePar( const IOPar& par )
 	    Connection newconn;
 	    if ( !newconn.usePar( par, sKeyConnection(idx,key) ) )
 	    {
-		errmsg_ = "Cannot parse Connection ";
-		errmsg_ += idx;
+		errmsg_ = tr("Cannot parse Connection %1").arg( toString(idx) );
 		return false;
 	    }
 
 	    if ( !addConnection(newconn) )
 	    {
-		errmsg_ = "Cannot add connection ";
-		errmsg_ += idx;
+		errmsg_ = tr( "Cannot add connection ").arg( toString(idx) );
 		return false;
 	    }
 	}

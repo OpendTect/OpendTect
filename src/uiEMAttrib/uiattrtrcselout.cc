@@ -335,16 +335,16 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 	if ( lkexists )
 	{
-	    BufferString msg( "Output attribute already exists. Do you\n"
-		    "want to continue and overwrite existing attribute?" );
+	    uiString msg( tr("Output attribute already exists. Do you\n"
+		    "want to continue and overwrite existing attribute?") );
 	    if ( !uiMSG().askOverwrite(msg) ) return false;
 	}
 
 	EM::SurfaceIOData data;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),data,errmsg) )
 	{
-	    uiMSG().error( errmsg.buf() );
+	    uiMSG().error( errmsg );
 	    return false;
 	}
     }
@@ -459,7 +459,7 @@ bool uiAttrTrcSelOut::fillPar()
 void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 {
     EM::SurfaceIOData sd;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !EM::EMM().getSurfaceData(ctio_.ioobj->key(),sd,errmsg) )
 	return;
 

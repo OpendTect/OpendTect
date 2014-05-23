@@ -21,24 +21,30 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static BufferString gtWinTitle( const ODDLSite& dlsite )
+static uiString gtWinTitle( const ODDLSite& dlsite )
 {
-    const char* errmsg = dlsite.errMsg();
-    const bool iserr = errmsg && *errmsg;
-    BufferString ret( iserr ? "Failure accessing " : "Stopped accessing " );
-    ret.add( dlsite.host() );
+    uiString errmsg = dlsite.errMsg();
+    const bool iserr = !errmsg.isEmpty();
+    uiString ret( iserr ? "Failure accessing %1" : "Stopped accessing %1" );
+    ret.arg( dlsite.host() );
     return ret;
 }
 
 
-static BufferString gtCaption( const ODDLSite& dlsite, bool isfatal )
+static uiString gtCaption( const ODDLSite& dlsite, bool isfatal )
 {
-    const char* errmsg = dlsite.errMsg();
-    const bool iserr = errmsg && *errmsg;
-    BufferString ret;
+    uiString errmsg = dlsite.errMsg();
+    const bool iserr = !errmsg.isEmpty();
+
+    const uiString part2 = uiString( isfatal
+			      ? "This access is mandatory"
+			      : "You can try again" );
+    uiString ret;
     if ( iserr )
-	ret.add( "Error: " ).add( errmsg ).add( "\n" );
-    ret.add( isfatal ? "This access is mandatory" : "You can try again" );
+	ret = uiString( "Error: %1\n%2" ).arg( errmsg ).arg( part2 );
+    else
+	ret = part2;
+
     return ret;
 }
 

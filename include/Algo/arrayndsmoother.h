@@ -31,16 +31,16 @@ mClass(Algo) ArrayNDGentleSmoother : public Executor
 {
 public:
 
-    				ArrayNDGentleSmoother(const ArrayND<T>&,
-						      ArrayND<T>&);
-    virtual			~ArrayNDGentleSmoother()	{}
+			ArrayNDGentleSmoother(const ArrayND<T>&,
+					      ArrayND<T>&);
+    virtual		~ArrayNDGentleSmoother()	{}
 
-    const char*			message() const		{ return "Smoothing"; }
-    od_int64			totalNr() const		{ return totnr_; }
-    od_int64			nrDone() const 		{ return nrdone_; }
-    const char*			nrDoneText() const { return "Points handled"; }
+    uiStringCopy	uiMessage() const	{ return "Smoothing"; }
+    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const		{ return nrdone_; }
+    uiStringCopy	uiNrDoneText() const	{ return "Points handled"; }
 
-    int				nextStep();
+    int			nextStep();
 
 protected:
 

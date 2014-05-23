@@ -184,10 +184,10 @@ IOPar* IOObjInfo::getPars() const
 }
 
 
-const char* IOObjInfo::getMessage() const
+uiString IOObjInfo::getMessage() const
 {
     mGetReader;
-    return reader_ ? reader_->message() : "";
+    return reader_ ? reader_->uiMessage() : uiString::emptyString();
 }
 
 
@@ -242,7 +242,7 @@ int IOObjInfo::getParsOffsetInFile() const
 
 
 #define mErrRet(s) { errmsg = s; return false; }
-bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, BufferString& errmsg ) const
+bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 {
     if ( !ioobj_ )
 	mErrRet( "Cannot find surface in object database" )
@@ -256,8 +256,8 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, BufferString& errmsg ) const
 	mErrRet( "Internal: Trying to get surface data from a non-surface" )
     }
 
-    Translator* tr = ioobj_->createTranslator();
-    mDynamicCastGet(EMSurfaceTranslator*,str,tr)
+    Translator* trans = ioobj_->createTranslator();
+    mDynamicCastGet(EMSurfaceTranslator*,str,trans);
     PtrMan<EMSurfaceTranslator> ptrman_tr = str;
     if ( !str )
     {
@@ -270,10 +270,10 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, BufferString& errmsg ) const
 
     if ( !str->startRead(*ioobj_) )
     {
-	BufferString msg( str->errMsg() );
+	uiString msg( str->errMsg() );
 	if ( msg.isEmpty() )
-	    msg = BufferString( "Cannot read '", ioobj_->name(), "'" );
-	mErrRet( msg.buf() )
+	    msg = tr( "Cannot read '%1'").arg( ioobj_->name() );
+	mErrRet( msg )
     }
 
     const SurfaceIOData& newsd = str->selections().sd;

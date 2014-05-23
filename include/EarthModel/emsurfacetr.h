@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "transl.h"
 #include "emsurfaceiodata.h"
+#include "uistring.h"
 
 class Executor;
 class IOObj;
@@ -138,7 +139,7 @@ public:
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
 
-    const char*			errMsg() const		{ return errmsg_.str(); }
+    uiStringCopy		errMsg() const		{ return errmsg_; }
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
@@ -154,7 +155,7 @@ protected:
 
     IOObj*			ioobj_;
     EM::Surface*		surface;
-    BufferString		errmsg_;
+    uiString			errmsg_;
     EM::SurfaceIOData		sd_;
     EM::SurfaceIODataSelection	sels_;
     BufferString		crfrom_;
@@ -259,7 +260,8 @@ protected:
 \brief dgbEMSurfaceTranslator for EM::FaultStickSet.
 */
 
-mExpClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+mExpClass(EarthModel) dgbEMFaultStickSetTranslator :
+				public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
 				dgbEMFaultStickSetTranslator(const char* unm,

@@ -33,7 +33,7 @@ interval around a surface
 
 
 mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
-{
+{ mODTextTranslationClass(uiAttrTrcSelOut);
 public:
     			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
 				      const NLAModel*,const MultiID&,bool);

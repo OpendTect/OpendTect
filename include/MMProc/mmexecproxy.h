@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "bufstring.h"
+#include "uistring.h"
 
 
 namespace MMProc
@@ -26,7 +27,7 @@ mClass(MMProc) ExecProxy
     enum Status		{ NotStarted, Running, Failed, Ended };
     Status		update();
 
-    const char*		message() const		{ return msg_; }
+    uiStringCopy	uiMessage() const	{ return msg_; }
     int			nrDone() const		{ return nrdone_; }
 
     const char*		progName() const	{ return prognm_; }
@@ -36,7 +37,7 @@ protected:
 
     const BufferString	prognm_;
     const BufferString	hostnm_;
-    BufferString	msg_;
+    uiString		msg_;
     int			nrdone_;
 
 };

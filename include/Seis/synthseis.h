@@ -176,7 +176,7 @@ public:
     void			getResult(ObjectSet<SeisTrc>&);
     void			getSampledReflectivities(TypeSet<float>&) const;
 
-    const char*                 message() const
+    uiStringCopy		 uiMessage() const
 					{ return "Generating synthetics..."; }
 
     od_int64                    totalNr() const	{ return totalnr_; }
@@ -213,7 +213,7 @@ public:
     //available after initialization
     void		getAllRefls(ObjectSet<const ReflectivityModel>&);
 
-    const char*         message() const
+    uiStringCopy	 uiMessage() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
     mStruct(Seis) RayModel
@@ -250,7 +250,7 @@ protected:
     RayTracerRunner*		rtr_;
     od_int64	nrIterations() const;
     od_int64			nrDone() const;
-    const char*			nrDoneText() const;
+    uiStringCopy			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        doPrepare(int);
     bool		doWork(od_int64,od_int64,int);

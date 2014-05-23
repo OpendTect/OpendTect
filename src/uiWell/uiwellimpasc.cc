@@ -288,7 +288,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { if ( (s).isSet() ) uiMSG().error(s); return false; }
 
 bool uiWellImportAsc::doWork()
 {
@@ -303,13 +303,13 @@ bool uiWellImportAsc::doWork()
 	datasrcnms += fnm;
 	od_istream strm( fnm );
 	if ( !strm.isOK() )
-	    mErrRet( "Cannot open track file" )
+	    mErrRet( tr("Cannot open track file") )
 	Well::TrackAscIO wellascio( fd_, strm );
 	if ( !wellascio.getData(wd_,true) )
 	{
-	    BufferString msg( "The track file cannot be loaded:\n" );
-	    msg += wellascio.errMsg();
-	    mErrRet( msg.buf() );
+	    uiString msg = tr( "The track file cannot be loaded:\n%1" )
+				.arg( wellascio.errMsg() );
+	    mErrRet( msg );
 	}
     }
     else
@@ -342,16 +342,17 @@ bool uiWellImportAsc::doWork()
 	const bool validd2t = d2tgrp_->getD2T( wd_, false );
 	if ( !validd2t )
 	{
-	    BufferString errmsg;
-	    if ( d2tgrp_->errMsg() )
-		errmsg = d2tgrp_->errMsg();
+	    TypeSet<uiString> msgs;
 
-	    errmsg.addNewLine();
-	    errmsg.add( "Alternatively, swith off the use of a"
+	    if ( d2tgrp_->errMsg().isSet() )
+		msgs += d2tgrp_->errMsg();
+
+	    msgs += tr( "Alternatively, swith off the use of a"
 			" Depth to Time model file" );
-	    mErrRet( errmsg );
+	    uiMSG().errorWithDetails( msgs );
+	    return false;
 	}
-	else if ( d2tgrp_->warnMsg() )
+	else if ( d2tgrp_->warnMsg().isSet() )
 	{
 	    uiMSG().warning( d2tgrp_->warnMsg() );
 	}
@@ -364,17 +365,17 @@ bool uiWellImportAsc::doWork()
     const IOObj* ioobj = outfld_->ioobj();
     PtrMan<Translator> t = ioobj ? ioobj->createTranslator() : 0;
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-			 "Another type object with this name already exists." );
+    if ( !wtr ) mErrRet( tr("Please choose a different name for the well.\n"
+			 "Another type object with this name already exists."));
 
     if ( !wtr->write(wd_,*ioobj) )
-	mErrRet( "Cannot write well" );
+	mErrRet( tr("Cannot write well") );
 
     ioobj->pars().update( sKey::CrFrom(), datasrcnms );
     ioobj->updateCreationPars();
     IOM().commitChanges( *ioobj );
 
-    uiMSG().message( "Well import successful" );
+    uiMSG().message( tr("Well import successful") );
     if ( saveButtonChecked() )
 	importReady.trigger();
 
@@ -387,7 +388,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( havetrckbox_->isChecked() )
     {
 	if ( !*trckinpfld_->fileName() )
-	    mErrRet("Please specify a well track file")
+	    mErrRet(tr("Please specify a well track file"))
 
 	if ( !dataselfld_->commit() )
 	    return false;
@@ -397,14 +398,16 @@ bool uiWellImportAsc::checkInpFlds()
 	if ( !SI().isReasonable(coordfld_->getCoord()) )
 	{
 	    if ( !uiMSG().askGoOn(
-			"Well coordinate seems to be far outside the survey."
-			"\nIs this correct?") )
+			tr("Well coordinate seems to be far outside the survey."
+			"\nIs this correct?")) )
 		return false;
 	}
     }
 
     if ( !outfld_->commitInput() )
-	mErrRet( outfld_->isEmpty() ? "Please enter a name for the well" : 0 )
+	mErrRet( outfld_->isEmpty()
+		? tr("Please enter a name for the well")
+		: uiString::emptyString() )
 
     return true;
 }
