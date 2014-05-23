@@ -392,7 +392,7 @@ bool LogCubeCreator::makeLogTraces( int iwll )
     }
 
     const BinID bidvar( stepout_, stepout_);
-    const od_int64 sqstep = mCast( float, stepout_* stepout_);
+    const od_int64 sqstep = stepout_* stepout_;
     const TypeSet<BinID>& trackbinids = welldata_[iwll]->binidsalongtrack_;
     for ( int itrckpt=0; itrckpt<trackbinids.size(); itrckpt++ )
     {
