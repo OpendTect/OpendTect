@@ -41,24 +41,23 @@ mExpClass(uiWellAttrib) uiCreateLogCubeOutputSel : public uiGroup
 public:
 
 				uiCreateLogCubeOutputSel(uiParent*,
-							 bool withmerge);
+							 bool withwllnm=false);
 
+    int				getNrRepeatTrcs() const;
     const char*			getPostFix() const;
     bool			withWellName() const;
-    int				getNrRepeatTrcs() const;
 
-    void			setPostFix(const BufferString&);
-    void			useWellNameFld(bool);
     void			displayRepeatFld(bool);
+    void			setPostFix(const BufferString&);
+    void			useWellNameFld(bool yn);
 
     bool			askOverwrite(BufferString errmsg) const;
 
 protected:
 
     uiLabeledSpinBox*		repeatfld_;
-    uiCheckBox*			savewllnmfld_;
     uiGenInput*			savepostfix_;
-    uiCheckBox*			domergefld_;
+    uiCheckBox*			savewllnmfld_;
 
 };
 

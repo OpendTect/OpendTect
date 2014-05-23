@@ -38,7 +38,7 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
     welllogsel_ = mid ? new uiMultiWellLogSel( this, su, *mid )
 		      : new uiMultiWellLogSel( this, su );
 
-    outputgrp_ = new uiCreateLogCubeOutputSel( this, false );
+    outputgrp_ = new uiCreateLogCubeOutputSel( this );
     outputgrp_->attach( alignedBelow, welllogsel_ );
 }
 
@@ -47,22 +47,17 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 {
     const Well::ExtractParams& extractparams = welllogsel_->params();
-    const int nrtrcs = outputgrp_->getNrRepeatTrcs() + 1;
+    const int nrtrcs = outputgrp_->getNrRepeatTrcs();
 
     TypeSet<MultiID> wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
 	mErrRet("No well selected",return false);
 
-    if ( wids.size() > 1 && !outputgrp_->withWellName()  )
-	mErrRet("Multiple wells selected, "
-		"output name must contain the well name",return false);
-
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
-
     LogCubeCreator lcr( lognms, wids, extractparams, nrtrcs );
-    if ( !lcr.setOutputNm(outputgrp_->getPostFix(),outputgrp_->withWellName()) )
+    if ( !lcr.setOutputNm(outputgrp_->getPostFix()) )
     {
 	if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
 	    return false;
@@ -81,12 +76,12 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 
 
 
-uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withmerge)
+uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     : uiGroup(p,"Create LogCube output specification Group")
-    , domergefld_(0)
+    , savewllnmfld_(0)
 {
     repeatfld_ = new uiLabeledSpinBox( this,"Duplicate trace around the track");
-    repeatfld_->box()->setInterval( 0, 40, 1 );
+    repeatfld_->box()->setInterval( 0, 20, 1 );
     repeatfld_->box()->setValue( 1 );
 
     uiSeparator* sep = new uiSeparator( this, "Save Separ" );
@@ -96,30 +91,17 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withmerge)
     outputgrp->attach( ensureBelow, sep );
 
     uiLabel* savelbl = new uiLabel( outputgrp, "Output name" );
-    savewllnmfld_ = new uiCheckBox( outputgrp, "with well name" );
-    savewllnmfld_->setChecked( true );
-    savewllnmfld_->attach( rightOf, savelbl );
+    savepostfix_ = new uiGenInput( outputgrp, "with postfix", "log cube" );
+    savepostfix_->setWithCheck( true );
+    savepostfix_->setChecked( true );
+    savepostfix_->attach( rightOf, savelbl );
 
-    savepostfix_ = new uiGenInput( outputgrp, "Postfix", "log cube" );
-    savepostfix_->attach( rightOf, savewllnmfld_ );
-
-    if ( !withmerge )
+    if ( !withwllnm )
 	return;
 
-    domergefld_ = new uiCheckBox( this, "Keep individual volumes" );
-    domergefld_->attach( alignedBelow, outputgrp );
-}
-
-
-const char* uiCreateLogCubeOutputSel::getPostFix() const
-{
-    return savepostfix_->text();
-}
-
-
-bool uiCreateLogCubeOutputSel::withWellName() const
-{
-    return savewllnmfld_->isChecked();
+    savewllnmfld_ = new uiCheckBox( outputgrp, "with well name" );
+    savewllnmfld_->setChecked( true );
+    savewllnmfld_->attach( rightOf, savepostfix_ );
 }
 
 
@@ -129,22 +111,40 @@ int uiCreateLogCubeOutputSel::getNrRepeatTrcs() const
 }
 
 
-void uiCreateLogCubeOutputSel::setPostFix( const BufferString& nm )
+const char* uiCreateLogCubeOutputSel::getPostFix() const
 {
-    savepostfix_->setText( nm );
+    if ( !savepostfix_->isChecked() )
+	return 0;
+
+    return savepostfix_->text();
 }
 
 
-void uiCreateLogCubeOutputSel::useWellNameFld( bool use )
+bool uiCreateLogCubeOutputSel::withWellName() const
 {
-    savewllnmfld_->display( use );
-    savewllnmfld_->setChecked( use );
+    return savewllnmfld_ && savewllnmfld_->isChecked();
 }
 
 
 void uiCreateLogCubeOutputSel::displayRepeatFld( bool disp )
 {
     repeatfld_->display( disp );
+}
+
+
+void uiCreateLogCubeOutputSel::setPostFix( const BufferString& nm )
+{
+    savepostfix_->setText( nm );
+}
+
+
+void uiCreateLogCubeOutputSel::useWellNameFld( bool disp )
+{
+    if ( !savewllnmfld_ )
+	return;
+
+    savewllnmfld_->display( disp );
+    savewllnmfld_->setChecked( disp );
 }
 
 
