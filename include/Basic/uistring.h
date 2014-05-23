@@ -86,7 +86,7 @@ public:
 
     bool			isSet() const { return !isEmpty(); }
     bool			isEmpty() const;
-    void			setEmpty() { *this = sKey::EmptyString(); }
+    void			setEmpty();
     bool			operator!() const { return isEmpty(); }
 
     uiString&			operator=(const uiString&);
