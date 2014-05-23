@@ -188,7 +188,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
     jrppolselfld_->addItem( "Run" );
     jrppolselfld_->addItem( "Pause" );
-    jrppolselfld_->addItem( "Go - Only between" );
+    jrppolselfld_->addItem( "Schedule" );
     jrppolselfld_->setCurrentItem( ((int)0) );
     jrppolselfld_->selectionChanged.notify(
 				mCB(this,uiMMBatchJobDispatcher,jrpSel) );
