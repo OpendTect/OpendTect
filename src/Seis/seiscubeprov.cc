@@ -584,7 +584,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 
 
 bool SeisFixedCubeProvider::readData( const CubeSampling& cs, TaskRunner* tr )
-{ return readData( cs, 0, tr ); }
+{ return readData( cs, Survey::GM().cUndefGeomID(), tr ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
@@ -599,8 +599,9 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
     seisrdr->prepareWork();
 
     cs_ = cs;
+    bool is2d = geomid != Survey::GM().cUndefGeomID();
     Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
-    if ( geomid != Survey::GM().cUndefGeomID() )
+    if ( is2d )
     {
 	sd->setGeomID( geomid );
 	if ( !calcTrcDist(geomid) )
@@ -616,7 +617,7 @@ bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
 	    data_->set( idx, idy, 0 );
 
     PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, geomid );
+	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, is2d );
     const bool res = TaskRunner::execute( tr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
