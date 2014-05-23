@@ -885,14 +885,13 @@ uiObject* uiMainWin::mainobject()
     { return body_->uiCentralWidg()->mainObject(); }
 
 
-void uiMainWin::toStatusBar( const char* txt, int fldidx, int msecs )
+void uiMainWin::toStatusBar( const uiString& txt, int fldidx, int msecs )
 {
-    if ( !txt ) txt = "";
     uiStatusBar* sb = statusBar();
     if ( sb )
 	sb->message( txt, fldidx, msecs );
-    else if ( *txt )
-	UsrMsg(txt);
+    else if ( txt.isSet() )
+	UsrMsg(txt.getFullString());
 }
 
 

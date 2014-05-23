@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "mouseevent.h"
 #include "settings.h"
+#include "uistring.h"
 
 #include "uibutton.h"
 #include "uicolor.h"
@@ -173,7 +174,7 @@ void uiColorTableMan::doFinalise( CallBacker* )
 {
     refreshColTabList( ctab_.name() );
     sequenceChange( 0 );
-    toStatusBar( "", 1 );
+    toStatusBar( uiString::emptyString(), 1 );
 }
 
 

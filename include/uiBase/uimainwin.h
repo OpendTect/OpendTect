@@ -104,7 +104,7 @@ public:
 
     void		setSensitive(bool yn);
 
-    void		toStatusBar(const char*,int fldidx=0,int msecs=-1);
+    void		toStatusBar(const uiString&,int fldidx=0,int msecs=-1);
 
     virtual void	reDraw(bool deep);
     uiGroup*		topGroup();
