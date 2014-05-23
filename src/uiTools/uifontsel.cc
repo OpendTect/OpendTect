@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uisettings.cc 34266 2014-04-24 09:09:37Z jaap.glas@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uifontsel.h"
 
