@@ -33,11 +33,13 @@ mExpClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
 {
 public:
     			uiBodyOperatorDlg(uiParent*);
- 			~uiBodyOperatorDlg();  
+ 			~uiBodyOperatorDlg();
 
     MultiID		getBodyMid() const { return outputfld_->key(); }
+
 protected:
 
+    void		finaliseCB(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		itemClick(CallBacker*);
     void		bodySel(CallBacker*);
@@ -45,33 +47,33 @@ protected:
     void		typeSel(CallBacker*);
     void		turnOffAll();
     void		deleteAllChildInfo(uiTreeViewItem*);
-    void		setOprator(uiTreeViewItem* lv,EM::BodyOperator& opt);
+    void		setOperator(uiTreeViewItem* lv,EM::BodyOperator& opt);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
     static char		sKeyMinus()	{ return 2; }
     static char		sKeyUdf()	{ return -1; }
 
-    mStruct(uiEarthModel) bodyOprand
+    mStruct(uiEarthModel) BodyOperand
     {
-			bodyOprand();
-	bool		operator==(const bodyOprand&) const;
-	MultiID		mid;
-	char 		act;
-	bool		defined;
+			BodyOperand();
+
+	bool		operator==(const BodyOperand&) const;
+	bool		isOK() const;
+
+	MultiID		mid_;
+	char 		act_;
+	bool		defined_;
     };
 
     uiLabeledComboBox*		oprselfld_;
-    uiToolButton*		unionbut_;
-    uiToolButton*		intersectbut_;
-    uiToolButton*		minusbut_;
 
     uiLabeledComboBox*		typefld_;
     uiGenInput*			bodyselfld_;
     uiPushButton*		bodyselbut_;
 
     uiTreeView*			tree_;
-    TypeSet<bodyOprand>		listinfo_;
+    TypeSet<BodyOperand>	listinfo_;
     ObjectSet<uiTreeViewItem>	listsaved_;
 
     uiIOObjSel*			outputfld_;
@@ -89,7 +91,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     const IOObj*	getIfMCSurfaceObj() const;
-			/* For bodies made in older version 
+			/* For bodies made in older version
 			   Translator group name : MarchingCubesSurface */
 
     uiIOObjSel*		inputfld_;

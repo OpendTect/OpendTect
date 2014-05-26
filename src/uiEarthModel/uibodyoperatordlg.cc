@@ -35,32 +35,32 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup("Apply Body Operations",mNoDlgTitle,
                                  mODHelpKey(mBodyOperatorDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
 
-    tree_ = new uiTreeView( this, "Operation tree", 9 );
-    uiLabel* label0 = new uiLabel( this, "Operation tree" );
+    uiGroup* lgrp = new uiGroup( this, "Left Group" );
+    tree_ = new uiTreeView( lgrp, "Operation tree", 9 );
+    uiLabel* label0 = new uiLabel( lgrp, "Operation tree" );
     label0->attach( centeredAbove, tree_ );
     tree_->setHScrollBarMode( uiTreeView::Auto );
     tree_->setVScrollBarMode( uiTreeView::Auto );
-    tree_->setSelectionBehavior(uiTreeView::SelectRows);
+    tree_->setSelectionBehavior( uiTreeView::SelectRows );
     tree_->leftButtonClicked.notify( mCB(this,uiBodyOperatorDlg,itemClick) );
 
     BufferStringSet labels;
     labels.add( "Implicit body" );
     labels.add( "Action" );
     tree_->addColumns( labels );
-    tree_->setColumnWidth( 0, 160 );
-    tree_->setColumnWidth( 1, 30 );
+    tree_->setColumnWidthMode( 1, uiTreeView::ResizeToContents );
 
     uiTreeViewItem* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
     output->setText( "Output body", 0 );
     output->setText( "Operator", 1 );
     output->setOpen( true );
-    bodyOprand item = bodyOprand();
-    item.defined = true;
+    BodyOperand item = BodyOperand();
+    item.defined_ = true;
     listinfo_ += item;
     listsaved_ += output;
 
@@ -68,50 +68,48 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     c0->setText( "input" );
     uiTreeViewItem* c1 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
     c1->setText( "input" );
-    listinfo_ += bodyOprand();
-    listinfo_ += bodyOprand();
+    listinfo_ += BodyOperand();
+    listinfo_ += BodyOperand();
     listsaved_ += c0;
     listsaved_ += c1;
-   
+
+    uiGroup* rgrp = new uiGroup( this, "Right Group" );
     BufferStringSet btype;
     btype.add( "Stored body" );
-    btype.add( "Operator" ); 
-    typefld_ = new uiLabeledComboBox( this, btype, "Input type" );
-    typefld_->attach( rightOf, tree_ );
+    btype.add( "Operator" );
+    typefld_ = new uiLabeledComboBox( rgrp, btype, "Input type" );
     typefld_->box()->selectionChanged.notify(
-	    mCB(this,uiBodyOperatorDlg,typeSel) ); 
-    uiLabel* label1 = new uiLabel( this, "Operands" );
+	    mCB(this,uiBodyOperatorDlg,typeSel) );
+    uiLabel* label1 = new uiLabel( rgrp, "Operands" );
     label1->attach( centeredAbove, typefld_ );
 
-    bodyselfld_ = new uiGenInput( this, "Input", StringInpSpec() );
+    bodyselfld_ = new uiGenInput( rgrp, "Input", StringInpSpec() );
     bodyselfld_->attach( alignedBelow, typefld_ );
-    bodyselbut_ = new uiPushButton( this, "&Select", false );
+    bodyselbut_ = new uiPushButton( rgrp, "&Select", false );
     bodyselbut_->attach( rightOf, bodyselfld_ );
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
-    
+
     BufferStringSet operators;
-    operators.add( "Union" );
-    operators.add( "Intersection" );
-    operators.add( "Minus" );
-    oprselfld_ = new uiLabeledComboBox( this, operators, "Operator" );
+    operators.add( "Union" ).add( "Intersection" ).add( "Difference" );
+    oprselfld_ = new uiLabeledComboBox( rgrp, operators, "Operator" );
+    oprselfld_->box()->setPixmap( "set_union", 0 );
+    oprselfld_->box()->setPixmap( "set_intersect", 1 );
+    oprselfld_->box()->setPixmap( "set_minus", 2 );
     oprselfld_->attach( alignedBelow, typefld_ );
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    unionbut_ = new uiToolButton( this, "set_union", "Union", CallBack() );
-    unionbut_->attach( rightOf, oprselfld_ );
-    intersectbut_ = new uiToolButton( this, "set_intersect", "Intersect",
-	    				CallBack() );
-    intersectbut_->attach( rightOf, oprselfld_ );
-    minusbut_ = new uiToolButton( this, "set_minus", "Minus", CallBack() );
-    minusbut_->attach( rightOf, oprselfld_ );
-
-    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
+    outputfld_ = new uiIOObjSel( lgrp, mIOObjContext(EMBody), "Output Body" );
     outputfld_->setForRead( false );
-    outputfld_->attach( alignedBelow, tree_ );
+    outputfld_->setHSzPol( uiObject::MedVar );
+    outputfld_->attach( leftAlignedBelow, tree_ );
+
+    rgrp->attach( rightTo, lgrp );
 
     typefld_->display( false );
     turnOffAll();
+
+    postFinalise().notify( mCB(this,uiBodyOperatorDlg,finaliseCB) );
 }
 
 
@@ -119,41 +117,42 @@ uiBodyOperatorDlg::~uiBodyOperatorDlg()
 { listinfo_.erase(); }
 
 
+void uiBodyOperatorDlg::finaliseCB( CallBacker* )
+{
+    tree_->setSelected( tree_->firstItem(), true );
+    tree_->setCurrentItem( tree_->firstItem(), 0 );
+    itemClick(0);
+}
+
+
 void uiBodyOperatorDlg::turnOffAll()
 {
     bodyselfld_->display( false );
     bodyselbut_->display( false );
-
     oprselfld_->display( false );
-    unionbut_->display( false );
-    minusbut_->display( false );
-    intersectbut_->display( false );
 }
 
 
-#define mDisplyAction( item, curidx ) \
+#define mDisplayAction( item, curidx ) \
     oprselfld_->box()->setCurrentItem( item==sKeyUdf() ? 0 : item ); \
     if ( item==sKeyIntSect() ) \
     { \
- 	intersectbut_->display( true ); \
-	listinfo_[curidx].act = sKeyIntSect(); \
+	listinfo_[curidx].act_ = sKeyIntSect(); \
 	tree_->selectedItem()->setText( "Intersection", 1 ); \
 	tree_->selectedItem()->setPixmap( 1, "set_intersect" ); \
     } \
     else if ( item==sKeyMinus() )  \
     { \
-	minusbut_->display( true ); \
-	listinfo_[curidx].act = sKeyMinus(); \
-	tree_->selectedItem()->setText( "Minus", 1 ); \
+	listinfo_[curidx].act_ = sKeyMinus(); \
+	tree_->selectedItem()->setText( "Difference", 1 ); \
 	tree_->selectedItem()->setPixmap( 1, "set_minus" ); \
     } \
     else \
     { \
-	unionbut_->display( true ); \
-	listinfo_[curidx].act = sKeyUnion(); \
+	listinfo_[curidx].act_ = sKeyUnion(); \
 	tree_->selectedItem()->setText( "Union", 1 ); \
 	tree_->selectedItem()->setPixmap( 1, "set_union" ); \
-    } 
+    }
 
 
 void uiBodyOperatorDlg::typeSel( CallBacker* cb )
@@ -163,13 +162,13 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
     const int curidx = listsaved_.indexOf( cur );
     if ( !listinfo_.validIdx(curidx) )
 	return;
-    
+
     if ( !isbodyitem )
     {
 	turnOffAll();
 	oprselfld_->display( true );
-	mDisplyAction( listinfo_[curidx].act, curidx );
-	listinfo_[curidx].defined = true;
+	mDisplayAction( listinfo_[curidx].act_, curidx );
+	listinfo_[curidx].defined_ = true;
 	if ( tree_->selectedItem()->nrChildren() )
 	    return;
 
@@ -180,8 +179,8 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 
 	cur->setOpen( true );
 
-	listinfo_ += bodyOprand();
-	listinfo_ += bodyOprand();
+	listinfo_ += BodyOperand();
+	listinfo_ += BodyOperand();
 	listsaved_ += c0;
 	listsaved_ += c1;
     }
@@ -195,10 +194,10 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 		cur->removeItem( cur->getChild(cid) );
 	    }
 
-	    listinfo_[curidx].act = -1;
-	    listinfo_[curidx].defined = false;
-	
-	    tree_->selectedItem()->setText( "", 1 ); 
+	    listinfo_[curidx].act_ = -1;
+	    listinfo_[curidx].defined_ = false;
+
+	    tree_->selectedItem()->setText( "", 1 );
     	    tree_->selectedItem()->setPixmap( 1, "blank" );
 	}
 
@@ -232,23 +231,23 @@ void uiBodyOperatorDlg::oprSel( CallBacker* )
 {
     turnOffAll();
     oprselfld_->display( true );
-  
+
     const int item = oprselfld_->box()->currentItem();
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
-    listinfo_[curidx].defined = true;
+    listinfo_[curidx].defined_ = true;
 
-    mDisplyAction( item, curidx );
+    mDisplayAction( item, curidx );
 }
 
 
-void uiBodyOperatorDlg::itemClick( CallBacker* cb )
+void uiBodyOperatorDlg::itemClick( CallBacker* )
 {
     typefld_->display( true );
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
     if ( !listinfo_.validIdx(curidx) )
 	return;
 
-    const char item = listinfo_[curidx].act!=sKeyUdf() ? listinfo_[curidx].act 
+    const char item = listinfo_[curidx].act_!=sKeyUdf() ? listinfo_[curidx].act_
 						       : sKeyUnion();
     typefld_->setSensitive( tree_->firstItem()!=tree_->selectedItem() );
     if ( !tree_->selectedItem()->nrChildren() )
@@ -258,14 +257,15 @@ void uiBodyOperatorDlg::itemClick( CallBacker* cb )
     	bodyselfld_->display( true );
     	bodyselbut_->display( true );
 	typefld_->box()->setCurrentItem( 0 );
-	bodyselfld_->setText( listinfo_[curidx].defined ? 
-		tree_->selectedItem()->text() : "" );
+	PtrMan<IOObj> ioobj = IOM().get( listinfo_[curidx].mid_ );
+	const BufferString text = ioobj ? ioobj->name().buf() : "";
+	bodyselfld_->setText( text );
     }
-    else 
+    else
     {
 	turnOffAll();
     	oprselfld_->display( true );
-	mDisplyAction( item, curidx );
+	mDisplayAction( item, curidx );
 	typefld_->box()->setCurrentItem( 1 );
     }
 }
@@ -275,17 +275,17 @@ void uiBodyOperatorDlg::bodySel( CallBacker* )
 {
     CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
-    
+
     uiIOObjSelDlg dlg( parent(), context );
     if ( !dlg.go() || !dlg.ioObj() )
 	return;
-    
+
     tree_->selectedItem()->setText( dlg.ioObj()->name() );
     bodyselfld_->setText( dlg.ioObj()->name() );
 
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
-    listinfo_[curidx].mid = dlg.ioObj()->key();
-    listinfo_[curidx].defined = true;
+    listinfo_[curidx].mid_ = dlg.ioObj()->key();
+    listinfo_[curidx].defined_ = true;
 }
 
 
@@ -296,27 +296,25 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<listinfo_.size(); idx++ )
     {
-	if ( !listinfo_[idx].defined ||
-	    (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf())
-	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()))
+	if ( !listinfo_[idx].isOK() )
 	    mRetErr("Do not forget to pick Action/Body")
     }
 
     if ( outputfld_->isEmpty() )
 	mRetErr("Select an output name")
-    
+
     if ( !outputfld_->commitInput() )
 	return false;
-    
-    RefMan<EM::MarchingCubesSurface> emcs = 
+
+    RefMan<EM::MarchingCubesSurface> emcs =
 	new EM::MarchingCubesSurface(EM::EMM());
     if ( !emcs->getBodyOperator() )
 	emcs->createBodyOperator();
 
-    setOprator( listsaved_[0], *emcs->getBodyOperator() );
+    setOperator( listsaved_[0], *emcs->getBodyOperator() );
     if ( !emcs->getBodyOperator()->isOK() )
 	mRetErr("Your operator is wrong")
-    
+
     MouseCursorChanger bodyopration( MouseCursor::Wait );
     uiTaskRunner taskrunner( this );
     if ( !emcs->regenerateMCBody( &taskrunner ) )
@@ -331,7 +329,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
 	mRetErr("Body saving failed")
-	    
+
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj->pars().find( sKey::Type() ) )
@@ -342,7 +340,7 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     }
 
     TaskRunner::execute( &taskrunner, *exec );
-    
+
     BufferString msg = "The body ";
     msg += outputfld_->getInput();
     msg += " created successfully";
@@ -352,17 +350,17 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 }
 
 
-void uiBodyOperatorDlg::setOprator( uiTreeViewItem* lv, EM::BodyOperator& opt )
+void uiBodyOperatorDlg::setOperator( uiTreeViewItem* lv, EM::BodyOperator& opt )
 {
     if ( !lv || !lv->nrChildren() ) return;
 
     const int lvidx = listsaved_.indexOf( lv );
-    if ( listinfo_[lvidx].act==sKeyUnion() ) 
-	opt.setAction( EM::BodyOperator::Union ); 
-    else if ( listinfo_[lvidx].act==sKeyIntSect() ) 
-	opt.setAction( EM::BodyOperator::IntSect ); 
-    else if ( listinfo_[lvidx].act==sKeyMinus() ) 
-	opt.setAction( EM::BodyOperator::Minus ); 
+    if ( listinfo_[lvidx].act_==sKeyUnion() )
+	opt.setAction( EM::BodyOperator::Union );
+    else if ( listinfo_[lvidx].act_==sKeyIntSect() )
+	opt.setAction( EM::BodyOperator::IntSect );
+    else if ( listinfo_[lvidx].act_==sKeyMinus() )
+	opt.setAction( EM::BodyOperator::Minus );
 
     for ( int idx=0; idx<2; idx++ )
     {
@@ -371,42 +369,51 @@ void uiBodyOperatorDlg::setOprator( uiTreeViewItem* lv, EM::BodyOperator& opt )
 	{
 	    EM::BodyOperator* childoprt = new EM::BodyOperator();
 	    opt.setInput( idx==0, childoprt );
-	    setOprator( child, *childoprt );
+	    setOperator( child, *childoprt );
 	}
-	else 
+	else
 	{
 	    const int chilidx = listsaved_.indexOf( child );
-	    opt.setInput( idx==0, listinfo_[chilidx].mid );
+	    opt.setInput( idx==0, listinfo_[chilidx].mid_ );
 	}
     }
 }
 
 
-uiBodyOperatorDlg::bodyOprand::bodyOprand()
+uiBodyOperatorDlg::BodyOperand::BodyOperand()
 {
-    defined = false;  
-    mid = 0;
-    act = sKeyUdf();
+    defined_ = false;
+    mid_ = 0;
+    act_ = sKeyUdf();
 }
 
 
-bool uiBodyOperatorDlg::bodyOprand::operator==( const bodyOprand& v ) const
-{ return mid==v.mid && act==v.act; }
+bool uiBodyOperatorDlg::BodyOperand::operator==( const BodyOperand& v ) const
+{ return mid_==v.mid_ && act_==v.act_; }
+
+
+bool uiBodyOperatorDlg::BodyOperand::isOK() const
+{
+    if ( !defined_ ) return false;
+
+    return (!mid_.isEmpty() && act_!=sKeyUdf()) ||
+           (mid_.isEmpty() && act_==sKeyUdf());
+}
 
 
 //uiImplicitBodyValueSwitchDlg
-uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p, 
+uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
 	const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Body conversion - inside-out",
 		mNoDlgTitle, mODHelpKey(mImplicitBodyValueSwitchDlgHelpID) ) )
 {
     setCtrlStyle( RunAndClose );
-    
+
     inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Input body" );
     inputfld_->setForRead( true );
     if ( ioobj )
 	inputfld_->setInput( *ioobj );
-    
+
     outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
     outputfld_->setForRead( false );
     outputfld_->attach( alignedBelow, inputfld_ );
@@ -418,7 +425,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     const IOObj* inpiobj = inputfld_->ioobj(true);
     if ( !inpiobj )
 	inpiobj = getIfMCSurfaceObj();
-    
+
     if ( !inpiobj || !outputfld_->ioobj() )
 	return false;
 
@@ -428,7 +435,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
 	mRetErr( "Cannot read input body" );
-    
+
     PtrMan<EM::ImplicitBody> impbd = emb->createImplicitBody( &tr, false );
     if ( !impbd || !impbd->arr_ )
 	mRetErr( "Creating implicit body failed" );
@@ -452,7 +459,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 		for ( int idz=0; idz<zsz; idz++ )
 		{
 		    const float val = impbd->arr_->get( idx, idy, idz );
-		    impbd->arr_->set( idx, idy, idz, -val ); 
+		    impbd->arr_->set( idx, idy, idz, -val );
 		}
 	    }
 	}
@@ -460,17 +467,17 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 
     RefMan<EM::MarchingCubesSurface> emcs =
 	new EM::MarchingCubesSurface( EM::EMM() );
-    
+
     emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &tr );
     emcs->setInlSampling( SamplingData<int>(impbd->cs_.hrg.inlRange()) );
     emcs->setCrlSampling( SamplingData<int>(impbd->cs_.hrg.crlRange()) );
     emcs->setZSampling( SamplingData<float>(impbd->cs_.zrg) );
-    
+
     emcs->setMultiID( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );
     emcs->setFullyLoaded( true );
     emcs->setChangedFlag();
-    
+
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
@@ -483,7 +490,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	if ( !IOM().commitChanges(*ioobj) )
 	    mRetErr( "Writing body to disk failed. Please check permissions." )
     }
-    
+
     if ( !TaskRunner::execute(&tr,*exec) )
 	mRetErr("Saving body failed");
 
