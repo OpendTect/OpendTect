@@ -247,9 +247,9 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
 
 void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 {
-    mCBCapsuleUnpack(int,row,cb);
-    const DataPointSet::Pos pos( dps_.pos(row) );
-
+//    mCBCapsuleUnpack(int,row,cb);
+//    const DataPointSet::Pos pos( dps_.pos(row) );
+//    TODO: Highlight this pick in 3D scene
 }
 
 
