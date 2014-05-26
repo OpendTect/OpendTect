@@ -8,10 +8,13 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seistrcprop.h"
+
+#include "arrayndimpl.h"
+#include "hilberttransform.h"
+#include "ptrman.h"
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "timeser.h"
-#include "ptrman.h"
 #include <math.h>
 #include <float.h>
 
@@ -36,7 +39,17 @@ ValueSeriesEvent<float,float> SeisTrcPropCalc::find( VSEvent::Type typ,
 #define mEndCompLoop }
 
 
-#define mSetStackTrcVal() mtrc().set( idx, val / (wght + 1.f), icomp )
+#define mSetStackTrcVal( a, b )\
+{\
+    float val = a; \
+    const float val2 = b; \
+    if ( !mIsUdf(val2) ) \
+	val = mIsUdf(val) ? 2.f * val2 : val * wght + val2; \
+    else \
+	val *= 2.f; \
+\
+    mtrc().set( idx, val / (wght + 1.f), icomp ); \
+}
 
 void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 {
@@ -48,11 +61,8 @@ void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 	{
 	    mStartCompLoop
 	    for ( int idx=0; idx<sz; idx++ )
-	    {
-		const float val = trc.get( idx, icomp ) * wght
-			        + t2.get( idx, icomp );
-		mSetStackTrcVal();
-	    }
+		mSetStackTrcVal( trc.get( idx, icomp ), t2.get( idx, icomp ) );
+
 	    mEndCompLoop
 	}
 	else
@@ -61,9 +71,8 @@ void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 	    for ( int idx=0; idx<sz; idx++ )
 	    {
 		const float z = trc.samplePos( idx );
-		const float val = trc.get( idx, icomp ) * wght
-			        + t2.getValue( z, icomp );
-		mSetStackTrcVal();
+		mSetStackTrcVal( trc.get( idx, icomp ),
+				 t2.getValue( z, icomp ) );
 	    }
 	    mEndCompLoop
 	}
@@ -78,9 +87,8 @@ void SeisTrcPropChg::stack( const SeisTrc& t2, bool alongpick, float wght )
 	for ( int idx=0; idx<sz; idx++ )
 	{
 	    const float z = trc.samplePos( idx );
-	    const float val = trc.get( idx, icomp ) * wght
-			    + t2.getValue( z - diff, icomp );
-	    mSetStackTrcVal();
+	    mSetStackTrcVal( trc.get( idx, icomp ),
+			     t2.getValue( z - diff, icomp ) );
 	}
 	mEndCompLoop
     }
@@ -93,11 +101,29 @@ void SeisTrcPropChg::removeDC()
 
 mStartCompLoop
     float avg = 0;
+    int count = 0;
     for ( int idx=0; idx<sz; idx++ )
-	avg += trc.get(idx,icomp);
-    avg /= sz;
+    {
+	const float val =  trc.get(idx,icomp);
+	if ( mIsUdf(val) )
+	    continue;
+
+	avg += val;
+	count++;
+    }
+
+    if ( count )
+	avg /= mCast(float,count);
+
     for ( int idx=0; idx<sz; idx++ )
-	mtrc().set( idx, trc.get(idx,icomp) - avg, icomp );
+    {
+	float val = trc.get( idx, icomp );
+	if ( !mIsUdf(val) )
+	    val -= avg;
+
+	mtrc().set( idx, val, icomp );
+    }
+
 mEndCompLoop
 }
 
@@ -109,7 +135,13 @@ void SeisTrcPropChg::scale( float fac, float shft )
 mStartCompLoop
 
     for ( int idx=0; idx<sz; idx++ )
-	mtrc().set( idx, shft + fac * trc.get( idx, icomp ), icomp );
+    {
+	const float val =  trc.get( idx, icomp );
+	if ( mIsUdf(val) )
+	    continue;
+
+	mtrc().set( idx, shft + fac * val, icomp );
+    }
 
 mEndCompLoop
 }
@@ -121,49 +153,42 @@ void SeisTrcPropChg::normalize( bool aroundzero )
 
 mStartCompLoop
 
-    float val = trc.get( 0, icomp );
-    Interval<float> rg( val, val );
-    if ( aroundzero )
-	rg.start = rg.stop = 0;
+    Interval<float> rg( Interval<float>::udf() );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float val = trc.get( idx, icomp );
+	if ( mIsUdf(val) )
+	    continue;
 
-    for ( int idx=1; idx<sz; idx++ )
-    {
-        val = trc.get( idx, icomp );
-	if ( aroundzero )
+	if ( rg.isUdf() )
 	{
-	    if ( val > 0 )
-		{ if ( val > rg.stop ) rg.stop = val; }
-	    else
-		{ if ( val < rg.start ) rg.start = val; }
+	    rg.start = aroundzero ? 0.f : val;
+	    rg.stop = rg.start;
+	    continue;
 	}
-	else
-	{
-	    if ( val < rg.start ) rg.start = val;
-	    if ( val > rg.stop ) rg.stop = val;
-	}
+
+	rg.include( val );
     }
-    const float diff = rg.stop - rg.start;
-    if ( mIsZero(diff,mDefEps) )
+
+    if ( rg.isUdf() )
+	continue;
+
+    const float diff = rg.width();
+    if ( mIsZero(diff,mDefEpsF) )
     {
-	for ( int idx=0; idx<sz; idx++ )
-	    mtrc().set( idx, 0, icomp );
+	mtrc().zero( icomp );
     }
     else
     {
-	if ( aroundzero )
+	const float a = aroundzero ? 1.f / mMAX(-rg.start,rg.stop) : 2.f / diff;
+	const float b = aroundzero ? 0.f : 1.f - rg.stop * a;
+	for ( int idx=0; idx<sz; idx++ )
 	{
-	    float maxval = -rg.start;
-	    if ( rg.stop > maxval ) maxval = rg.stop;
-	    const float sc = 1.0f / maxval;
-	    for ( int idx=0; idx<sz; idx++ )
-		mtrc().set( idx, trc.get(idx,icomp) * sc, icomp );
-	}
-	else
-	{
-	    float a = 2 / diff;
-	    float b = 1 - rg.stop * a;
-	    for ( int idx=0; idx<sz; idx++ )
-		mtrc().set( idx, trc.get( idx, icomp ) * a + b, icomp );
+	    const float val = trc.get( idx, icomp );
+	    if ( mIsUdf(val) )
+		continue;
+
+	    mtrc().set( idx, a * val + b, icomp );
 	}
     }
 
@@ -177,27 +202,35 @@ void SeisTrcPropChg::corrNormalize()
 
 mStartCompLoop
 
-    double val = trc.get( 0, icomp );
-    double autocorr = val * val;
-    for ( int idx=1; idx<sz; idx++ )
+    double autocorr = 0.f;
+    bool hasvaliddata = false;
+    for ( int idx=0; idx<sz; idx++ )
     {
-        val = trc.get( idx, icomp );
-	autocorr += val*val;
-    }
-    double sqrtacorr = Math::Sqrt( autocorr );
+	const double val = trc.get( idx, icomp );
+	if ( mIsUdf(val) )
+	    continue;
 
-    if ( sqrtacorr < 1e-30 )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    mtrc().set( idx, 0, icomp );
+	autocorr += val*val;
+	hasvaliddata = true;
     }
-    else
+
+    if ( !hasvaliddata )
+	continue;
+
+    if ( mIsZero(autocorr,mDefEps) )
     {
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    const float data = mCast(float,trc.get( idx, icomp ) / sqrtacorr );
-	    mtrc().set( idx, data, icomp );
-	}
+	mtrc().zero( icomp );
+	continue;
+    }
+
+    const double sqrtacorr = Math::Sqrt( autocorr );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const double val = mCast(double,trc.get( idx, icomp ) );
+	if ( mIsUdf(val) )
+	    continue;
+
+	mtrc().set( idx, mCast(float,val/sqrtacorr), icomp );
     }
 
 mEndCompLoop
@@ -232,11 +265,15 @@ mStartCompLoop
 	pp = trc.samplePos(endidx);
     while ( pos < pp + mDefEps )
     {
-	int idx = trc.nearestSample( pos );
-	double x = ((pos - mpos) / taperlen) * M_PI;
-	double taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * (float) taper, icomp );
+	const int idx = trc.nearestSample( pos );
+	const double x = ((pos - mpos) / taperlen) * M_PI;
+	const double taper = 0.5 * ( 1. - cos(x) );
 	pos += trc.info().sampling.step;
+	const float val = trc.get( idx, icomp );
+	if ( mIsUdf(val) )
+	    continue;
+
+	mtrc().set( idx, val * mCast(float,taper), icomp );
     }
 
 mEndCompLoop
@@ -273,11 +310,15 @@ mStartCompLoop
     pos = pp;
     while ( pos <= mpos )
     {
-	int idx = trc.nearestSample( pos );
-	double x = ((mpos - pos) / taperlen) * M_PI;
-	double taper = 0.5 * ( 1 - cos(x) );
-	mtrc().set( idx, trc.get( idx, icomp ) * (float) taper, icomp );
+	const int idx = trc.nearestSample( pos );
+	const double x = ((mpos - pos) / taperlen) * M_PI;
+	const double taper = 0.5 * ( 1. - cos(x) );
 	pos += trc.info().sampling.step;
+	const float val = trc.get( idx, icomp );
+	if ( mIsUdf(val) )
+	    continue;
+
+	mtrc().set( idx, val * mCast(float,taper), icomp );
     }
 
 mEndCompLoop
@@ -287,76 +328,68 @@ mEndCompLoop
 #undef mChkSize
 #define mChkSize() const int sz = trc.size(); if ( sz < 1 ) return 0
 
+float SeisTrcPropCalc::getFreq( float z ) const
+{
+    mChkSize();
+
+    const float step = trc.info().sampling.step;
+    const float prevph = getPhase( z - step );
+    const float nextph = getPhase( z + step );
+    if ( mIsUdf(prevph) || mIsUdf(nextph) )
+	return mUdf(float);
+
+    float dphase = nextph - prevph;
+    if ( dphase < 0.f )
+	dphase += M_2PIf;
+
+    return dphase / ( M_2PIf * 2.f * step );
+}
+
 
 float SeisTrcPropCalc::getFreq( int isamp ) const
 {
-    mChkSize();
-
-    float mypos = trc.samplePos( isamp );
-    float endpos = trc.samplePos( sz - 1 );
-    if ( mypos < trc.startPos() || mypos > endpos )
-	return mUdf(float);
-
-    // Find nearest crests
-    Interval<float> tg( mypos-2*trc.info().sampling.step, trc.startPos() );
-    mFlValSerEv ev1 = find( VSEvent::Extr, tg, 1 );
-    tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
-    mFlValSerEv ev2 = find( VSEvent::Extr, tg, 1 );
-    if ( mIsUdf(ev1.pos) || mIsUdf(ev2.pos) )
-	return mUdf(float);
-
-    // If my sample is an extreme, the events are exactly at a wavelength
-    float myval = trc.get( isamp, curcomp );
-    float val0 = trc.get( isamp-1, curcomp );
-    float val1 = trc.get( isamp+1, curcomp );
-    if ( (myval > val0 && myval > val1) || (myval < val0 && myval < val1) )
-    {
-	float wvpos = ev2.pos - ev1.pos;
-	return wvpos > 1e-6 ? 1.0f / wvpos : mUdf(float);
-    }
-
-    // Now find next events ...
-    tg.start = mypos-2*trc.info().sampling.step; tg.stop = trc.startPos();
-    mFlValSerEv ev0 = find( VSEvent::Extr, tg, 2 );
-    tg.start = mypos+2*trc.info().sampling.step; tg.stop = endpos;
-    mFlValSerEv ev3 = find( VSEvent::Extr, tg, 2 );
-
-    // Guess where they would have been when not found
-    float dpos = ev2.pos - ev1.pos;
-    if ( mIsUdf(ev0.pos) )
-	ev0.pos = ev1.pos - dpos;
-    if ( mIsUdf(ev3.pos) )
-	ev3.pos = ev2.pos + dpos;
-
-    // ... and create a weigthed wavelength
-    float d1 = (mypos - ev1.pos) / dpos;
-    float d2 = (ev2.pos - mypos) / dpos;
-    float wvpos = dpos + d1*(ev3.pos-ev2.pos) + d2*(ev1.pos-ev0.pos);
-    return wvpos > 1e-6 ? 1.f / wvpos : mUdf(float);
+    const float zpos = trc.samplePos( isamp );
+    return getFreq( zpos );
 }
 
 
-float SeisTrcPropCalc::getPhase( int isamp ) const
+float SeisTrcPropCalc::getPhase( float z, bool indegrees ) const
 {
     mChkSize();
 
-    const int quadsz = 1 + 2 * mHalfHilbertLength;
-    mAllocLargeVarLenArr( float, trcdata, quadsz );
-    int start = isamp - mHalfHilbertLength;
-    int stop = isamp + mHalfHilbertLength;
-    for ( int idx=start; idx<=stop; idx++ )
+    const float halfsz = mHalfHilbertLength;
+    const int quadsz = 2 * halfsz + 1;
+    Array1DImpl<float> trcdata( quadsz );
+    const float dz = trc.info().sampling.step;
+    z -= halfsz * dz;
+    for ( int idx=0; idx<quadsz; idx++ )
     {
-        int trcidx = idx < 0 ? 0 : (idx>=sz ? sz-1 : idx);
-        trcdata[idx-start] = trc.get( trcidx, curcomp );
+	trcdata.set( idx, trc.getValue( z, curcomp ) );
+	z += dz;
     }
-    mAllocLargeVarLenArr( float, quadtrc, quadsz );
-    Hilbert( quadsz, trcdata, quadtrc );
 
-    const float q = quadtrc[mHalfHilbertLength];
-    const float d = trcdata[mHalfHilbertLength];
-    const float angle = Math::Atan2( q, d );
-    return (q*q+d*d)<mDefEpsF || mIsUdf(angle) ? 0.f : angle;
+    HilbertTransform hilbert;
+    if ( !hilbert.init() )
+	return mUdf(float);
+
+    hilbert.setHalfLen( halfsz );
+    Array1DImpl<float> hilberttrace( quadsz );
+    if ( !hilbert.transform(trcdata,quadsz,hilberttrace,quadsz) )
+	return mUdf(float);
+
+    const float phase = Math::Atan2( hilberttrace.get(halfsz),
+				     trcdata.get(halfsz) );
+
+    return indegrees ? Math::toDegrees( phase ) : phase;
 }
+
+
+float SeisTrcPropCalc::getPhase( int isamp, bool indegrees ) const
+{
+    const float zpos = trc.samplePos( isamp );
+    return getPhase( zpos, indegrees );
+}
+
 
 
 #define mDefSGAndPicks \
@@ -380,6 +413,9 @@ float SeisTrcPropCalc::getPhase( int isamp ) const
 	val2 = alpick ? t2.getValue(p2+idx*t2.info().sampling.step,curcomp) \
 		      : t2.getValue( trc.samplePos(idx), curcomp )
 
+#define mCheckRetUdf(val1,val2) \
+	if ( mIsUdf(val1) || mIsUdf(val2) ) continue;
+
 
 double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 				bool alpick ) const
@@ -388,32 +424,43 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 
     mDefSGAndPicks;
     double acorr1 = 0, acorr2 = 0, ccorr = 0;
+    int count = 0;
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
 	mSetVals;
+	mCheckRetUdf( val1, val2 )
 	acorr1 += val1 * val1;
 	acorr2 += val2 * val2;
 	ccorr += val1 * val2;
+	count++;
     }
+
+    if ( !count || mIsZero(acorr1+acorr2,mDefEpsF) )
+	return mUdf(double);
 
     return ccorr / Math::Sqrt( acorr1 * acorr2 );
 }
 
 
 double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
-				bool alpick ) const
+			      bool alpick ) const
 {
     mChkSize();
 
     mDefSGAndPicks;
     double sqdist = 0, sq1 = 0, sq2 = 0;
+    int count = 0;
     for ( int idx=sg.start; idx<=sg.stop; idx++ )
     {
 	mSetVals;
+	mCheckRetUdf( val1, val2 )
 	sq1 += val1 * val1;
 	sq2 += val2 * val2;
 	sqdist += (val1-val2) * (val1-val2);
     }
-    if ( sq1 + sq2 < 1e-10 ) return 0;
-    return 1 - (Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)));
+
+    if ( !count || mIsZero(sq1+sq2,mDefEpsF) )
+	return mUdf(double);
+
+    return 1.f - (Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)));
 }
