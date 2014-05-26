@@ -26,26 +26,26 @@ mExpClass(Attributes) Instantaneous : public Provider
 {
 public:
     static void			initClass();
-    				Instantaneous(Desc&);
+				Instantaneous(Desc&);
 
     static const char*		attribName()	{ return "Instantaneous"; }
     static const char*		rotateAngle()	{ return "rotationangle"; }
 
 protected:
-    				~Instantaneous() {}
+				~Instantaneous() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
     bool			getInputOutput(int in,TypeSet<int>& res) const;
     bool			getInputData(const BinID&, int);
     bool			computeData(const DataHolder&,const BinID& pos,
-	    				    int t0,int nrsamples,
+					    int t0,int nrsamples,
 					    int threadid) const;
 
     const Interval<int>*	reqZSampMargin(int,int) const;
 
     bool			allowParallelComputation() const
-    				{ return true; }
+				{ return true; }
 
     Interval<int>		sampgate1_;
     Interval<int>		sampgate2_;
@@ -69,6 +69,7 @@ private:
     float			calcQFactor(int,int) const;
     float			calcRMSAmplitude(int,int) const;
     float			calcRotPhase(int,int,float angle) const;
+    float			calcEnvWeighted(int,int,bool isphase) const;
 };
 
 }; // namespace Attrib

@@ -154,22 +154,25 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 #define mCheckRetUdf(val1,val2) \
     if ( mIsUdf(val1) || mIsUdf(val2) ) return mUdf(float);
 
+#define mCheckDenom(val) \
+    if ( mIsZero(val,mDefEpsF) ) return mUdf(float);
+
 float Instantaneous::calcAmplitude( int cursample, int z0 ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
-    mCheckRetUdf( real, imag );
+    mCheckRetUdf( real, imag )
     return Math::Sqrt( real*real + imag*imag );
 }
 
+#define mDT ( 2.f * refstep_ )
 
 float Instantaneous::calcAmplitude1Der( int cursample, int z0 ) const
 {
-    const int step mUnusedVar = 1;
     const float prev = calcAmplitude( cursample-1, z0 );
     const float next = calcAmplitude( cursample+1, z0 );
-    mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep_);
+    mCheckRetUdf( prev, next )
+    return ( next - prev ) / mDT;
 }
 
 
@@ -177,34 +180,31 @@ float Instantaneous::calcAmplitude2Der( int cursample, int z0 ) const
 {
     const float prev = calcAmplitude1Der( cursample-1, z0 );
     const float next = calcAmplitude1Der( cursample+1, z0 );
-    mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep_);
+    mCheckRetUdf( prev, next )
+    return ( next - prev ) / mDT;
 }
 
 
 float Instantaneous::calcPhase( int cursample, int z0 ) const
 {
+    const float real = mGetRVal( cursample );
+    const float imag = mGetIVal( cursample );
+    mCheckRetUdf( real, imag )
     return Math::Atan2( mGetIVal( cursample ), mGetRVal( cursample ) );
 }
 
 
 float Instantaneous::calcFrequency( int cursample, int z0 ) const
 {
-    const float real = mGetRVal( cursample );
-    const float prevreal = mGetRVal( cursample-1 );
-    const float nextreal = mGetRVal( cursample+1 );
-    mCheckRetUdf( prevreal, nextreal );
-    const float dreal_dt = (nextreal - prevreal) / (2*refstep_);
+    const float prev = calcPhase( cursample-1, z0 );
+    const float next = calcPhase( cursample+1, z0 );
+    mCheckRetUdf( prev, next )
 
-    const float imag = mGetIVal( cursample );
-    const float previmag = mGetIVal( cursample-1 );
-    const float nextimag = mGetIVal( cursample+1 );
-    mCheckRetUdf( previmag, nextimag );
-    const float dimag_dt = (nextimag-previmag) / (2*refstep_);
+    float dphase = next - prev;
+    if ( dphase < 0.f )
+	dphase += M_2PIf;
 
-    float denom = (real*real + imag*imag);
-    if ( mIsZero( denom, 1e-6 ) ) denom = 1e-6;
-    return (real*dimag_dt - imag*dreal_dt) / denom;
+    return dphase / ( M_2PIf * mDT );
 }
 
 
@@ -212,8 +212,8 @@ float Instantaneous::calcPhaseAccel( int cursample, int z0 ) const
 {
     const float prev = calcFrequency( cursample-1, z0 );
     const float next = calcFrequency( cursample+1, z0 );
-    mCheckRetUdf( prev, next );
-    return (next-prev) / (2*refstep_);
+    mCheckRetUdf( prev, next )
+    return M_2PIf * ( next - prev ) / mDT;
 }
 
 
@@ -221,8 +221,10 @@ float Instantaneous::calcBandWidth( int cursample, int z0 ) const
 {
     const float denv_dt = calcAmplitude1Der( cursample, z0 );
     const float env = calcAmplitude( cursample, z0 );
-    mCheckRetUdf( denv_dt, env );
-    return (float)fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env )));
+    mCheckRetUdf( denv_dt, env )
+    mCheckDenom( env )
+
+    return fabs( denv_dt / ( M_2PIf * env ) );
 }
 
 
@@ -230,8 +232,10 @@ float Instantaneous::calcQFactor( int cursample, int z0 ) const
 {
     const float ifq = calcFrequency( cursample, z0 );
     const float bandwth = calcBandWidth( cursample, z0 );
-    mCheckRetUdf( ifq, bandwth );
-    return (-0.5f * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6f : bandwth ) );
+    mCheckRetUdf( ifq, bandwth )
+    mCheckDenom( bandwth )
+
+    return -0.5f * ifq / bandwth;
 }
 
 
@@ -239,8 +243,10 @@ float Instantaneous::calcRotPhase( int cursample, int z0, float angle ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
+    mCheckRetUdf( real, imag )
     const float radians = Math::toRadians( angle );
-    return (float) (real*cos( radians ) - imag*sin( radians ));
+
+    return real * cos( radians ) - imag * sin( radians );
 }
 
 
@@ -262,53 +268,53 @@ float Instantaneous::calcRMSAmplitude( int cursample, int z0 ) const
     return Math::Sqrt( sumia2/dt );
 }
 
-
-float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
+float Instantaneous::calcEnvWeighted( int cursample, int z0,
+				      bool isphase ) const
 {
-    const float rmsia = calcRMSAmplitude( cursample, z0 );
-    if ( mIsZero(rmsia,mDefEps) ) return 0;
-    if ( mIsUdf(rmsia) ) return mUdf(float);
-
-    float sumia = 0;
-    float sumiaiph = 0;
+    float sumiampenv = 0.f;
+    float sumienv = 0.f;
+    int nrsamples = 0;
     Interval<int> sg( -1, 1 );
     for ( int ids=sg.start; ids<=sg.stop; ids++ )
     {
-	const float ia = calcAmplitude( cursample+ids, z0 );
-	const float iph = calcPhase( cursample+ids, z0 );
-	if ( mIsUdf(ia) || mIsUdf(iph) ) continue;
+	const float iamp = isphase ? calcPhase( cursample+ids, z0 )
+				   : calcFrequency( cursample+ids, z0 );
+	const float ienv = calcAmplitude( cursample+ids, z0 );
+	if ( mIsUdf(iamp) || mIsUdf(ienv) ) continue;
 
-	sumia += ia/rmsia;
-	sumiaiph += ia*iph/rmsia;
+	sumienv += ienv;
+	sumiampenv += iamp * ienv;
+	nrsamples++;
     }
 
-    return sumiaiph / ( mIsZero(sumia,1e-6) ? 1e-6f : sumia );
+    if ( !nrsamples )
+	return mUdf(float);
+
+    mCheckDenom( sumienv )
+
+    return sumiampenv / sumienv;
+}
+
+
+float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
+{
+    return calcEnvWeighted( cursample, z0, true );
 }
 
 
 float Instantaneous::calcEnvWFreq( int cursample, int z0 ) const
 {
-    const float rmsia = calcRMSAmplitude( cursample, z0 );
-    if ( mIsZero(rmsia,mDefEps) ) return 0;
-
-    float sumia = 0;
-    float sumiaifq = 0;
-    Interval<int> sg( -1, 1 );
-    for ( int ids=sg.start; ids<=sg.stop; ids++ )
-    {
-	const float ia = calcAmplitude( cursample+ids, z0 );
-	const float ifq = calcFrequency( cursample+ids, z0 );
-	sumia += ia/rmsia;
-	sumiaifq += ia*ifq/rmsia;
-    }
-
-    return sumiaifq / ( mIsZero(sumia,1e-6) ? 1e-6f : sumia );
+    return calcEnvWeighted( cursample, z0, false );
 }
 
 
 float Instantaneous::calcThinBed( int cursample, int z0 ) const
 {
-    return calcFrequency( cursample, z0 ) - calcEnvWFreq( cursample, z0 );
+    const float freq = calcFrequency( cursample, z0 );
+    const float envwfreq = calcEnvWFreq( cursample, z0 );
+    mCheckRetUdf( freq, envwfreq )
+
+    return freq - envwfreq;
 }
 
 
