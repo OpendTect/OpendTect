@@ -32,6 +32,7 @@ Darcy: Permeability`D`9.8692327e-13
 mDarcy: Permeability`mD`9.8692327e-16
 API: Gamma Ray`API`1
 Volt: Electrical Potential`V`1
+mVolt: Electrical Potential`mV`0.001
 OhmMeter: Resistivity`ohmm`1
 Pascal.Kg/m3: Pressure-Weight`Pa.Kg/m3`1
 Pascal.g/cm3: Pressure-Weight`Pa.g/cm3`1e3
