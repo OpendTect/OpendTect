@@ -41,15 +41,15 @@ mExpClass(uiWellAttrib) uiCreateLogCubeOutputSel : public uiGroup
 public:
 
 				uiCreateLogCubeOutputSel(uiParent*,
-							 bool withmerge);
+							 bool withwllnm);
 
+    int				getNrRepeatTrcs() const;
     const char*			getPostFix() const;
     bool			withWellName() const;
-    int				getNrRepeatTrcs() const;
 
-    void			setPostFix(const BufferString&);
-    void			useWellNameFld(bool);
     void			displayRepeatFld(bool);
+    void			setPostFix(const BufferString&);
+    void			useWellNameFld(bool yn);
 
     bool			askOverwrite(BufferString errmsg) const;
 

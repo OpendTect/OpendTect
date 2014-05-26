@@ -66,7 +66,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     saveasfld_->valuechanged.notify(
 			mCB(this,uiSaveDataDlg,changeLogUIOutput) );
 
-    outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, false );
+    outputgrp_ = new uiCreateLogCubeOutputSel( loggrp, true );
     outputgrp_->attach( alignedBelow, saveasfld_ );
     changeLogUIOutput(0);
 
@@ -177,7 +177,7 @@ bool uiSaveDataDlg::saveLogs()
 
     if ( !savetolog )
     {
-	const int nrtraces = outputgrp_->getNrRepeatTrcs() + 1;
+	const int nrtraces = outputgrp_->getNrRepeatTrcs();
 	Well::ExtractParams wep;
 	wep.setFixedRange( data.getModelRange(), true );
 	LogCubeCreator lcr( lognms, dataserver_.wellID(), wep, nrtraces );
