@@ -32,8 +32,10 @@ public:
 		find(VSEvent::Type,Interval<float>,int occ=1) const;
     double	corr(const SeisTrc&,const SampleGate&,bool alpick=false) const;
     double	dist(const SeisTrc&,const SampleGate&,bool alpick=false) const;
+    float	getFreq(float z) const;
     float	getFreq(int isamp) const;
-    float	getPhase(int isamp) const;
+    float	getPhase(float zpos,bool indegrees=false) const;
+    float	getPhase(int isamp,bool indegrees=false) const;
 
     const SeisTrc&	trace() const		{ return trc; }
 
@@ -58,7 +60,7 @@ public:
     void	scale(float fac,float shft=0);
     void	normalize(bool aroundzero);
     void	corrNormalize();
-    void	removeDC();
+    void	removeAVG();
     void	mute(float pos,float taperlen)		{topMute(pos,taperlen);}
     void	topMute(float,float);
     void	tailMute(float,float);
