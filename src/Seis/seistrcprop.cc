@@ -357,11 +357,11 @@ float SeisTrcPropCalc::getPhase( float z, bool indegrees ) const
 {
     mChkSize();
 
-    const float halfsz = mHalfHilbertLength;
+    const int halfsz = mNINT32( mHalfHilbertLength );
     const int quadsz = 2 * halfsz + 1;
     Array1DImpl<float> trcdata( quadsz );
     const float dz = trc.info().sampling.step;
-    z -= halfsz * dz;
+    z -= dz * mCast( float, halfsz );
     for ( int idx=0; idx<quadsz; idx++ )
     {
 	trcdata.set( idx, trc.getValue( z, curcomp ) );
