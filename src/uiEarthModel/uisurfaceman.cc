@@ -188,9 +188,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Body )
     {
-	manipgrp->addButton( "set_union", "Merge bodies",
+	manipgrp->addButton( "set_union", "Apply Body operations",
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
-	manipgrp->addButton( "set_implicit", "Create region body",
+	manipgrp->addButton( "set_implicit", "Create region Body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
 	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
 		mCB(this,uiSurfaceMan,switchValCB) );
