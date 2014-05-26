@@ -43,8 +43,8 @@ public:
 			/*!\note totalNr is only used for displaying
 			         progress. */
 
-    virtual uiStringCopy uiMessage() const;
-    virtual uiStringCopy uiNrDoneText() const;
+    virtual uiString	uiMessage() const;
+    virtual uiString	uiNrDoneText() const;
 
     virtual bool	execute()			= 0;
 
@@ -84,8 +84,8 @@ public:
     virtual od_int64	nrDone() const;
     virtual od_int64	totalNr() const;
 
-    uiStringCopy	uiMessage() const;
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const;
 
     virtual bool	execute();
 

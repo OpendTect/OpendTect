@@ -143,8 +143,8 @@ uiHorAttr2GeomExec( EM::Horizon3D& h, const DataPointSet& dps,
     delete it_;
 }
 
-uiStringCopy uiMessage() const	{ return "Setting Z values"; }
-uiStringCopy uiNrDoneText() const	{ return "Nodes done"; }
+uiString uiMessage() const	{ return "Setting Z values"; }
+uiString uiNrDoneText() const	{ return "Nodes done"; }
 od_int64 nrDone() const		{ return stepnr_ * 1000; }
 od_int64 totalNr() const	{ return totnr_; }
 

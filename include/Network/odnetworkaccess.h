@@ -93,10 +93,10 @@ public:
 
     od_int64		getDownloadSize();
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     int			nextStep();
     od_int64		nrDone() const;
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
     od_int64		totalNr() const;
 
 protected:
@@ -132,10 +132,10 @@ public:
 				     BufferString& header);
 			~DataUploader();
 
-    uiStringCopy		uiMessage() const;
+    uiString		uiMessage() const;
     int			nextStep();
     od_int64		nrDone() const;
-    uiStringCopy		uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
     od_int64		totalNr() const;
 
 protected:

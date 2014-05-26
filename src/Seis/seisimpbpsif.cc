@@ -159,7 +159,7 @@ void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 }
 
 
-uiStringCopy SeisImpBPSIF::uiMessage() const
+uiString SeisImpBPSIF::uiMessage() const
 {
     if ( !errmsg_.isEmpty() ) return errmsg_.buf();
     return datamgr_.needWrite() ? "Writing to data store" : "Reading traces";

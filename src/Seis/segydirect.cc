@@ -627,7 +627,7 @@ int SEGY::FileIndexer::nextStep()
 }
 
 
-uiStringCopy SEGY::FileIndexer::uiMessage() const
+uiString SEGY::FileIndexer::uiMessage() const
 { return msg_; }
 
 
@@ -639,5 +639,5 @@ od_int64 SEGY::FileIndexer::totalNr() const
 { return scanner_ ? scanner_->totalNr() : 0; }
 
 
-uiStringCopy SEGY::FileIndexer::uiNrDoneText() const
+uiString SEGY::FileIndexer::uiNrDoneText() const
 { return "Traces scanned"; }

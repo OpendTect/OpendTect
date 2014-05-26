@@ -30,7 +30,7 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 }
 
 
-uiStringCopy DPSDensityCalcND::uiNrDoneText() const
+uiString DPSDensityCalcND::uiNrDoneText() const
 { return "Points done"; }
 
 od_int64 DPSDensityCalcND::nrIterations() const

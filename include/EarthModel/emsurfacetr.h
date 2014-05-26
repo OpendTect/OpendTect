@@ -139,7 +139,7 @@ public:
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
 
-    uiStringCopy		errMsg() const		{ return errmsg_; }
+    uiString			errMsg() const		{ return errmsg_; }
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,

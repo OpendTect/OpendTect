@@ -72,7 +72,7 @@ SeisImporter::~SeisImporter()
 }
 
 
-uiStringCopy SeisImporter::uiMessage() const
+uiString SeisImporter::uiMessage() const
 {
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
@@ -89,7 +89,7 @@ od_int64 SeisImporter::nrDone() const
 }
 
 
-uiStringCopy SeisImporter::uiNrDoneText() const
+uiString SeisImporter::uiNrDoneText() const
 {
     return state_ == ReadBuf ? "Traces read" : "Traces written";
 }

@@ -59,7 +59,7 @@ public:
     static bool		readSamplingData(const IOObj&,SamplingData<int>& inl,
 	    				SamplingData<int>& crl);
 			
-    uiStringCopy	uiMessage() const	{ return "Loading events"; }
+    uiString		uiMessage() const	{ return "Loading events"; }
     const char*		errMsg() const;
 
     static int		encodeEventType(VSEvent::Type);
@@ -113,7 +113,7 @@ public:
 
     int			nextStep();
     const char*		errMsg() const;
-    uiStringCopy	uiMessage() const	{ return "Storing events"; }
+    uiString		uiMessage() const	{ return "Storing events"; }
 
 
 protected:
@@ -140,8 +140,8 @@ public:
 
     od_int64		totalNr() const { return totalnr_; }
     od_int64		nrDone() const { return totalnr_ - filestocopy_.size();}
-    uiStringCopy	uiMessage() const { return message_; }
-    uiStringCopy	uiNrDoneText() const { return "Files copied"; }
+    uiString		uiMessage() const { return message_; }
+    uiString		uiNrDoneText() const { return "Files copied"; }
 
     int			nextStep();
     const char*		errMsg() const { return errmsg_.str(); }

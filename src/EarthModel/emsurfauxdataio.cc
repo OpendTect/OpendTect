@@ -230,7 +230,7 @@ od_int64 dgbSurfDataWriter::totalNr() const
 { return totalnr_; }
 
 
-uiStringCopy dgbSurfDataWriter::uiMessage() const
+uiString dgbSurfDataWriter::uiMessage() const
 { return errmsg_.str(); }
 
 
@@ -420,7 +420,7 @@ od_int64 dgbSurfDataReader::totalNr() const
 { return totalnr_; }
 
 
-uiStringCopy dgbSurfDataReader::uiMessage() const
+uiString dgbSurfDataReader::uiMessage() const
 { return errmsg_.str(); }
 
 }; //nsamespace

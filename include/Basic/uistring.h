@@ -163,29 +163,10 @@ public:
 		//!<Returns true if the translation succeeded
 };
 
-/*!Wrapper class with fewer constructor that ensures that it is completely
-   decoupled from its input. */
 
-mExpClass(Basic) uiStringCopy : public uiString
-{
-public:
-				uiStringCopy(const uiString& in)
-				    : uiString( in )
-				{
-				    makeIndependent();
-				}
-				uiStringCopy(const char* in = 0)
-				    : uiString(in)
-				{}
-				uiStringCopy(const FixedString& in)
-				    : uiString(in)
-				{}
-				uiStringCopy(const BufferString& in)
-				    : uiString(in)
-				{}
-
-
-};
+/*!Legacy. Previously Task::uiMessage and Task::uiNrDoneText returned
+   uiStringCopy, and this will make it compile. */
+typedef uiString uiStringCopy;
 
 #define mTextTranslationClass(clss,application) \
 private: \

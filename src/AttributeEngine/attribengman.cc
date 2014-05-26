@@ -710,9 +710,9 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiStringCopy uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
+uiString uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_
@@ -876,9 +876,9 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 od_int64 totalNr() const	{ return proc_ ? proc_->totalNr() : -1; }
 od_int64 nrDone() const 	{ return proc_ ? proc_->nrDone() : 0; }
-uiStringCopy uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
+uiString uiNrDoneText() const { return proc_ ? proc_->uiNrDoneText() : ""; }
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 {
     return !errmsg_.isEmpty()
 	? errmsg_

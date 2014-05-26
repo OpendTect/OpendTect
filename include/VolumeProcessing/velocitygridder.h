@@ -57,7 +57,7 @@ public:
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true;}
     
-    uiStringCopy	errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }

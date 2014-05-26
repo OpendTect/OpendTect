@@ -262,13 +262,13 @@ bool SeisBayesClass::getWriters()
 }
 
 
-uiStringCopy SeisBayesClass::uiMessage() const
+uiString SeisBayesClass::uiMessage() const
 {
     return msg_;
 }
 
 
-uiStringCopy SeisBayesClass::uiNrDoneText() const
+uiString SeisBayesClass::uiNrDoneText() const
 {
     return initstep_ ? "Step" : "Positions handled";
 }

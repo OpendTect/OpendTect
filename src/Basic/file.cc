@@ -62,8 +62,8 @@ public:
 
     od_int64		nrDone() const		{ return nrdone_ / mMBFactor; }
     od_int64		totalNr() const		{ return totalnr_ / mMBFactor; }
-    uiStringCopy	uiMessage() const	{ return msg_; }
-    uiStringCopy	uiNrDoneText() const	{ return "MBytes copied"; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "MBytes copied"; }
 
 protected:
 

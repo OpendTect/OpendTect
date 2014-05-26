@@ -63,7 +63,7 @@ void Tut::SeisTools::setRange( const CubeSampling& cs )
 { cs_ = cs; }
 
 
-uiStringCopy Tut::SeisTools::uiMessage() const
+uiString Tut::SeisTools::uiMessage() const
 {
     static const char* acts[] = { "Scaling", "Squaring", "Smoothing",
 				  "Changing" };

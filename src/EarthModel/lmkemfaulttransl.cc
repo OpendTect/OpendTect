@@ -254,7 +254,7 @@ int lmkEMFault3DReader::nextStep()
 }
 
 
-uiStringCopy lmkEMFault3DReader::uiMessage() const
+uiString lmkEMFault3DReader::uiMessage() const
 {
     return msg.isEmpty() ? "Reading Fault" : msg.buf();
 }

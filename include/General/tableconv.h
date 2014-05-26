@@ -94,8 +94,8 @@ public:
     uiString		msg_;
 
     virtual int		nextStep();
-    uiStringCopy	uiMessage() const	{ return msg_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Records read"; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Records read"; }
     od_int64		nrDone() const		{ return rowsdone_; }
 
     struct RowManipulator

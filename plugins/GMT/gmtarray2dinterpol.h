@@ -31,7 +31,7 @@ protected:
     od_int64			nrIterations() const;
     od_int64			totalNr() const		{ return nrrows_; }
     od_int64			nrDone() const		{ return nrdone_; }
-    uiStringCopy			uiMessage() const;
+    uiString			uiMessage() const;
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
     bool			doFinish(bool);

@@ -158,7 +158,7 @@ bool ExecutorGroup::goToNextExecutor()
 }
 
 
-uiStringCopy ExecutorGroup::uiMessage() const
+uiString ExecutorGroup::uiMessage() const
 {
     if ( executors_.size() )
 	return executors_[currentexec_]->uiMessage();
@@ -200,7 +200,7 @@ od_int64 ExecutorGroup::nrDone() const
 }
 
 
-uiStringCopy ExecutorGroup::uiNrDoneText() const
+uiString ExecutorGroup::uiNrDoneText() const
 {
     if ( !nrdonetext_.isEmpty() )
     {

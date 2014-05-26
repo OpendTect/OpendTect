@@ -483,7 +483,7 @@ od_int64 totalNr() const
 od_int64 nrDone() const
 { return nrdone_; }
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 { return "Reading Steering traces"; }
 
 int nextStep()

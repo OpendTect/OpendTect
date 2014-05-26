@@ -207,7 +207,7 @@ void od_stream::addErrMsgTo( uiString& msg ) const
     uiString foundmsg = errMsg();
     if ( !foundmsg.isEmpty() )
     {
-	uiStringCopy oldmsg = msg;
+	uiString oldmsg = msg;
 	msg = uiString( "%1:\n%1").arg( oldmsg ).arg( foundmsg );
     }
 }

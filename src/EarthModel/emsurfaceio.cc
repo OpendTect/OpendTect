@@ -609,7 +609,7 @@ od_int64 dgbSurfaceReader::nrDone() const
 }
 
 
-uiStringCopy dgbSurfaceReader::uiNrDoneText() const
+uiString dgbSurfaceReader::uiNrDoneText() const
 {
     return "Gridlines read";
 }
@@ -1320,7 +1320,7 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
 }
 
 
-uiStringCopy dgbSurfaceReader::uiMessage() const
+uiString dgbSurfaceReader::uiMessage() const
 {
     return msg_.buf();
 }
@@ -1654,7 +1654,7 @@ od_int64 dgbSurfaceWriter::nrDone() const
 }
 
 
-uiStringCopy dgbSurfaceWriter::uiNrDoneText() const
+uiString dgbSurfaceWriter::uiNrDoneText() const
 {
     return "Gridlines written";
 }
@@ -1794,7 +1794,7 @@ int dgbSurfaceWriter::nextStep()
 }
 
 
-uiStringCopy dgbSurfaceWriter::uiMessage() const
+uiString dgbSurfaceWriter::uiMessage() const
 {
     return msg_.buf();
 }

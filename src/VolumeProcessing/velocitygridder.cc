@@ -82,7 +82,7 @@ public:
 				//!<Returns false if process should continue
     od_int64			nrDone() const;
     od_int64			totalNr() const       { return totalnr_; }
-    uiStringCopy		uiNrDoneText() const  { return "CDPs gridded"; }
+    uiString			uiNrDoneText() const  { return "CDPs gridded"; }
 
     VelGriddingStep&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }

@@ -44,7 +44,7 @@ void EventExporter::setHRange( const HorSampling& hrg )
 }
 
 
-uiStringCopy EventExporter::uiNrDoneText() const
+uiString EventExporter::uiNrDoneText() const
 { return "CDP's exported"; }
 
 #define mWrite( var ) strm_ << (var) << '\t';
@@ -144,7 +144,7 @@ EventImporter::~EventImporter()
 { evmgr_.unRef(); delete &strm_; delete ascio_; }
 
 
-uiStringCopy EventImporter::uiNrDoneText() const
+uiString EventImporter::uiNrDoneText() const
 { return "Nr bytes read"; }
 
 

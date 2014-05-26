@@ -65,13 +65,13 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 }
 
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 { return "Horizon Import"; }
 
 od_int64 totalNr() const
 { return bvalset_ ? bvalset_->totalSize() : 0; }
 
-uiStringCopy uiNrDoneText() const
+uiString uiNrDoneText() const
 { return "Positions written:"; }
 
 od_int64 nrDone() const

@@ -283,13 +283,13 @@ const char* ODMad::ProcExec::getPlotString() const
 }
 
 
-uiStringCopy ODMad::ProcExec::uiMessage() const
+uiString ODMad::ProcExec::uiMessage() const
 {
     return "Working";
 }
 
 
-uiStringCopy ODMad::ProcExec::uiNrDoneText() const
+uiString ODMad::ProcExec::uiNrDoneText() const
 {
     return "Traces handled";
 }

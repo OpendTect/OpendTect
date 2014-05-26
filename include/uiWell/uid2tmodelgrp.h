@@ -44,8 +44,8 @@ public:
 			uiD2TModelGroup(uiParent*,const Setup&);
 
     bool		getD2T(Well::Data&,bool cksh = true) const;
-    uiStringCopy	errMsg() const		{ return errmsg_; }
-    uiStringCopy	warnMsg() const		{ return warnmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
+    uiString		warnMsg() const		{ return warnmsg_; }
 
     bool		wantAsCSModel() const;
     BufferString	dataSourceName() const;

@@ -38,7 +38,7 @@ public:
 
     void		setComponent(int);
 
-    uiStringCopy	errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
 protected:
 

@@ -69,8 +69,8 @@ public:
 			Importer(const char* fnm,const IOObj&,const LineKey&);
 			~Importer();
 
-    uiStringCopy	uiMessage() const	{ return msg_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Traces handled"; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Traces handled"; }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }
 

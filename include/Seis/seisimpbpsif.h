@@ -70,9 +70,9 @@ public:
     virtual		~SeisImpBPSIF();
     void		setMaxInlOffset(int);
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrshots_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Shots handled"; }
+    uiString		uiNrDoneText() const	{ return "Shots handled"; }
     int			nextStep();
 
     int			nrFiles() const		{ return fnames_.size(); }

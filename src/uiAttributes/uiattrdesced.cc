@@ -304,7 +304,7 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 	errmsg_= tr("Please review your parameters, "
                     "some of them are not correct");
 
-    return uiStringCopy(errmsg_);
+    return errmsg_;
 }
 
 

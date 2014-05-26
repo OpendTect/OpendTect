@@ -59,9 +59,9 @@ public:
 				//!< Reader becomes mine. Has to be non-null.
     virtual		~SeisImporter();
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		nrDone() const;
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
     od_int64		totalNr() const;
     int			nextStep();
 

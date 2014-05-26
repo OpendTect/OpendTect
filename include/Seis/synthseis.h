@@ -176,7 +176,7 @@ public:
     void			getResult(ObjectSet<SeisTrc>&);
     void			getSampledReflectivities(TypeSet<float>&) const;
 
-    uiStringCopy		 uiMessage() const
+    uiString			uiMessage() const
 					{ return "Generating synthetics..."; }
 
     od_int64                    totalNr() const	{ return totalnr_; }
@@ -213,7 +213,7 @@ public:
     //available after initialization
     void		getAllRefls(ObjectSet<const ReflectivityModel>&);
 
-    uiStringCopy	 uiMessage() const
+    uiString		uiMessage() const
 			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
     mStruct(Seis) RayModel
@@ -248,12 +248,12 @@ public:
 
 protected:
     RayTracerRunner*		rtr_;
-    od_int64	nrIterations() const;
+    od_int64			nrIterations() const;
     od_int64			nrDone() const;
-    uiStringCopy			uiNrDoneText() const;
+    uiString			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
+    bool			doWork(od_int64,od_int64,int);
 
     BufferString		message_;
     const TypeSet<ElasticModel>& aimodels_;

@@ -280,7 +280,7 @@ int FileDownloader::errorOccured()
 }
 
 
-uiStringCopy FileDownloader::uiMessage() const
+uiString FileDownloader::uiMessage() const
 { return msg_; }
 
 
@@ -288,7 +288,7 @@ od_int64 FileDownloader::nrDone() const
 {return nrdone_/1024;}
 
 
-uiStringCopy FileDownloader::uiNrDoneText() const
+uiString FileDownloader::uiNrDoneText() const
 {return "KBytes downloaded";}
 
 
@@ -433,7 +433,7 @@ int DataUploader::errorOccured()
 }
 
 
-uiStringCopy DataUploader::uiMessage() const
+uiString DataUploader::uiMessage() const
 { return msg_; }
 
 
@@ -441,7 +441,7 @@ od_int64 DataUploader::nrDone() const
 {return nrdone_/1024;}
 
 
-uiStringCopy DataUploader::uiNrDoneText() const
+uiString DataUploader::uiNrDoneText() const
 {return "KBytes uploaded";}
 
 

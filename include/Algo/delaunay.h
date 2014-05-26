@@ -166,9 +166,9 @@ protected:
     bool		doWork(od_int64,od_int64, int );
     bool		doPrepare(int);
 
-    uiStringCopy		uiNrDoneText() const
+    uiString		uiNrDoneText() const
 			{ return "Points triagulated"; }
-    uiStringCopy		uiMessage() const { return "Triangulating"; }
+    uiString		uiMessage() const { return "Triangulating"; }
 
     od_int64*		permutation_;
     bool		israndom_;

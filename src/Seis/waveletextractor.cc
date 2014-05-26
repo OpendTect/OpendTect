@@ -132,11 +132,11 @@ bool WaveletExtractor::getNextLine()
 }
 
 
-uiStringCopy WaveletExtractor::uiNrDoneText() const
+uiString WaveletExtractor::uiNrDoneText() const
 { return "Traces Processed"; }
 
 
-uiStringCopy WaveletExtractor::uiMessage() const
+uiString WaveletExtractor::uiMessage() const
 { return msg_.buf(); }
 
 

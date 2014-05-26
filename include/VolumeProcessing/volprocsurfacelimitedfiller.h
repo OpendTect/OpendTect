@@ -94,7 +94,7 @@ public:
     void		releaseData();
     bool		canInputAndOutputBeSame() const { return true; }
     bool		needsFullVolume() const         { return false; }   
-    uiStringCopy	errMsg() const			{return errmsg_;}
+    uiString		errMsg() const			{return errmsg_;}
 
 protected:
     

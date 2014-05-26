@@ -30,8 +30,8 @@ public:
 
     int			nextStep();
     int			finishWork();
-    uiStringCopy	uiMessage() const	{ return msg_.buf(); }
-    uiStringCopy	uiNrDoneText() const	{ return "Positions handled"; }
+    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiNrDoneText() const	{ return "Positions handled"; }
     od_int64 		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
 

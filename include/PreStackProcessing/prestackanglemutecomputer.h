@@ -55,7 +55,7 @@ public:
     bool		doWork(od_int64 start, od_int64 stop,int);
     bool		doFinish(bool success);
 
-    uiStringCopy	uiMessage() const { return "Computing mutes..."; }
+    uiString		uiMessage() const { return "Computing mutes..."; }
     const char*		errMsg() const;
 
     AngleMuteCompPars&	params();

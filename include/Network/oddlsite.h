@@ -56,7 +56,7 @@ public:
     float		timeout() const			{ return timeout_; }
     void		setTimeOut(float,bool storeinsettings);
 
-    uiStringCopy	errMsg() const			{ return errmsg_; }
+    uiString		errMsg() const			{ return errmsg_; }
 
     bool		getFile(const char* fnm,const char* outfnm=0,
 				 TaskRunner* tr=0, const char* nicename=0);

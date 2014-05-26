@@ -261,7 +261,7 @@ void SeisIOSimple::startImpRead()
 }
 
 
-uiStringCopy SeisIOSimple::uiMessage() const
+uiString SeisIOSimple::uiMessage() const
 {
     if ( importer_ )
 	return importer_->uiMessage();
@@ -282,7 +282,7 @@ od_int64 SeisIOSimple::totalNr() const
 }
 
 
-uiStringCopy SeisIOSimple::uiNrDoneText() const
+uiString SeisIOSimple::uiNrDoneText() const
 {
     return importer_ ? importer_->uiNrDoneText() : "Traces written";
 }

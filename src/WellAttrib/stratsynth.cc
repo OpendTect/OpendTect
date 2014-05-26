@@ -565,7 +565,7 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 }
 
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 {
     if ( errmsg_.isEmpty() )
 	return "Generating elastic model";
@@ -573,7 +573,7 @@ uiStringCopy uiMessage() const
 	return errmsg_.buf();
 }
 
-uiStringCopy uiNrDoneText() const	{ return "Models done"; }
+uiString uiNrDoneText() const	{ return "Models done"; }
 
 protected :
 
@@ -879,12 +879,12 @@ od_int64 nrIterations() const
 { return lm_.size(); }
 
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 {
     return !isprepared_ ? "Preparing Models" : "Calculating";
 }
 
-uiStringCopy uiNrDoneText() const
+uiString uiNrDoneText() const
 {
     return "Models done";
 }
@@ -1072,7 +1072,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 }
 
 
-uiStringCopy StratSynth::errMsg() const
+uiString StratSynth::errMsg() const
 {
     return errmsg_.isEmpty() ? 0 : errmsg_;
 }

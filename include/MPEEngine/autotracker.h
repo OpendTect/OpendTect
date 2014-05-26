@@ -50,7 +50,7 @@ public:
     od_int64			nrDone() const		{ return nrdone_; }
     od_int64			totalNr() const		{ return totalnr_; }
 
-    virtual uiStringCopy		uiMessage() const;
+    virtual uiString		uiMessage() const;
 
 protected:
     bool			addSeed(const EM::PosID&);

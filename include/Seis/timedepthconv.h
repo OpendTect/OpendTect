@@ -150,10 +150,10 @@ public:
 				const VelocityDesc&);
 			~VelocityModelScanner();
 
-    uiStringCopy	uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_.buf(); }
     od_int64		totalNr() const		{ return subsel_.totalNr(); }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Position scanned";}
+    uiString		uiNrDoneText() const	{ return "Position scanned";}
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }

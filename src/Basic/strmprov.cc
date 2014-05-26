@@ -184,8 +184,8 @@ const BufferString& fileName() const
     return dp_ ? dp_->name() : fnm_;
 }
 
-uiStringCopy uiMessage() const { return msg_.buf(); }
-uiStringCopy uiNrDoneText() const { return "MBs read"; }
+uiString uiMessage() const { return msg_.buf(); }
+uiString uiNrDoneText() const { return "MBs read"; }
 od_int64 nrDone() const { return mBytesToMB( filesz_ ); }
 od_int64 totalNr() const { return dp_ ? mBytesToMB(dp_->size()) : -1; }
 
@@ -297,9 +297,9 @@ bool mkNewPLD()
     return curpld_;
 }
 
-uiStringCopy uiMessage() const
+uiString uiMessage() const
 { return curpld_ ? curpld_->uiMessage() : uiString::emptyString(); }
-uiStringCopy uiNrDoneText() const
+uiString uiNrDoneText() const
 { return curpld_ ? curpld_->uiNrDoneText() : uiString::emptyString(); }
 od_int64 totalNr() const	{ return totnr_ / 1024; }
 od_int64 nrDone() const

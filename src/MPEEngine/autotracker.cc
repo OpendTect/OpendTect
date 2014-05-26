@@ -410,7 +410,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
 }
 
 
-uiStringCopy AutoTracker::uiMessage() const
+uiString AutoTracker::uiMessage() const
 { return execmsg_.buf(); }
 
 

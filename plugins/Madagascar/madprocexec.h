@@ -33,8 +33,8 @@ public:
 
     const IOPar&	pars() const		{ return pars_; }
 
-    uiStringCopy		uiMessage() const;
-    uiStringCopy		uiNrDoneText() const;
+    uiString		uiMessage() const;
+    uiString		uiNrDoneText() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
     int			nextStep();

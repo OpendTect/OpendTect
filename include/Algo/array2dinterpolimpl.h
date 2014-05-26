@@ -86,7 +86,7 @@ public:
 protected:
     virtual bool	doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Nodes gridded"; }
+    uiString		uiNrDoneText() const	{ return "Nodes gridded"; }
 
     bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
@@ -163,11 +163,11 @@ protected:
     int			minThreadSize() const	{ return 10000; }
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return totalnr_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Nodes gridded"; }
+    uiString		uiNrDoneText() const	{ return "Nodes gridded"; }
 
-    bool        doPrepare(int);
+    bool		doPrepare(int);
     virtual bool	initFromArray(TaskRunner*);
-    void	getNextNodes(TypeSet<od_int64>&);
+    void		getNextNodes(TypeSet<od_int64>&);
 
     				//triangulation stuff
     bool			dointerpolation_;

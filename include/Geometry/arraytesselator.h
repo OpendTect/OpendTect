@@ -45,7 +45,7 @@ public:
     			{ return s==2 ? stripcis_ : (s ? linecis_ : pointcis_);}
     
     virtual int		getCoordIndex(int row,int col )	{ return 0; }
-    uiStringCopy	uiMessage() const { return "Tesselating geometry"; }
+    uiString		uiMessage() const { return "Tesselating geometry"; }
 
 protected:
 

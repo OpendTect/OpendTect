@@ -464,7 +464,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += uiStringCopy(errmsg_); \
+    (*errmsgs) += errmsg_; \
     continue; \
 }
 
@@ -741,7 +741,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += uiStringCopy(errmsg_); \
+    (*errmsgs) += errmsg_; \
 }
 
 

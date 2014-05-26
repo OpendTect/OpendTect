@@ -163,9 +163,9 @@ int HorizonSorter::getNrCrossings( const MultiID& mid1,
 }
 
 
-uiStringCopy HorizonSorter::uiMessage() const	{ return message_; }
+uiString HorizonSorter::uiMessage() const	{ return message_; }
 
-uiStringCopy HorizonSorter::uiNrDoneText() const { return "Positions done"; }
+uiString HorizonSorter::uiNrDoneText() const { return "Positions done"; }
 
 od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
 

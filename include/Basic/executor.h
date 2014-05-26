@@ -83,10 +83,10 @@ public:
     virtual void	add( Executor* );
     			/*!< You will become mine if ownsexecs_ is true!! */
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
     
     int			nrExecutors() { return executors_.size(); }
     Executor*		getExecutor(int idx) { return executors_[idx]; }

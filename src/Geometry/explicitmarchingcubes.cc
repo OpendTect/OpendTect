@@ -63,8 +63,8 @@ public:
 
 protected:
 
-    od_int64	nrIterations() const { return totalnr_; }
-    uiStringCopy uiMessage() const
+    od_int64 nrIterations() const { return totalnr_; }
+    uiString uiMessage() const
     {
 	return updatecoords_ ? "Triangulation: updating coordinates"
 	    : "Triangulation: updating indices";

@@ -34,7 +34,7 @@ public:
     const BufferString&		getReport() const   { return report_; }
     
     bool			send();
-    uiStringCopy		errMsg() const	    { return errmsg_; }
+    uiString			errMsg() const	    { return errmsg_; }
 
     bool			parseCommandLine();
     

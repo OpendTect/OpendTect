@@ -45,10 +45,10 @@ public:
     void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
     int			nextStep();
-    uiStringCopy	uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_.buf(); }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    uiStringCopy	uiNrDoneText() const	{ return "Traces scanned"; }
+    uiString		uiNrDoneText() const	{ return "Traces scanned"; }
 
     const FileDataSet&	fileDataSet() const	{ return fds_; }
     FileDataSet&	fileDataSet()		{ return fds_; }

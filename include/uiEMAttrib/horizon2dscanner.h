@@ -31,10 +31,10 @@ public:
 			Horizon2DScanner(const BufferStringSet& fnms,
 					 Table::FormatDesc& fd);
 
-    virtual uiStringCopy	uiMessage() const;
+    virtual uiString	uiMessage() const;
     virtual od_int64	totalNr() const;
     virtual od_int64	nrDone() const;
-    virtual uiStringCopy	uiNrDoneText() const;
+    virtual uiString	uiNrDoneText() const;
 
     bool		getLineNames(BufferStringSet&) const;
     BinIDValueSet*	getVals()			{ return bvalset_; }

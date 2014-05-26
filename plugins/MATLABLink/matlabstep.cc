@@ -45,7 +45,7 @@ MatlabTask( MatlabStep& step )
     bool		init();
     od_int64		nrIterations() const	{ return 1; }
     bool		doWork(od_int64,od_int64,int);
-    uiStringCopy	uiMessage() const	{ return message_; }
+    uiString		uiMessage() const	{ return message_; }
 
 protected:
 

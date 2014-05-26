@@ -43,8 +43,8 @@ public:
 				~Hor2DTo3D();
 
     int				nextStep();
-    uiStringCopy		uiMessage() const	{ return msg_; }
-    uiStringCopy		uiNrDoneText() const;
+    uiString			uiMessage() const	{ return msg_; }
+    uiString			uiNrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
 

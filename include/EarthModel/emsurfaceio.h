@@ -101,12 +101,12 @@ public:
     int			getParsOffset() const;
 
     virtual od_int64	nrDone() const;
-    virtual uiStringCopy	uiNrDoneText() const;
+    virtual uiString	uiNrDoneText() const;
     virtual od_int64	totalNr() const;
 
     virtual int		nextStep();
 
-    virtual uiStringCopy	uiMessage() const;
+    virtual uiString	uiMessage() const;
 
     static const char*	sKeyNrSections();
     static const char*	sKeyNrSectionsV1();
@@ -293,12 +293,12 @@ public:
     IOPar*			pars();
 
     virtual od_int64		nrDone() const;
-    virtual uiStringCopy		uiNrDoneText() const;
+    virtual uiString		uiNrDoneText() const;
     virtual od_int64		totalNr() const;
 
     virtual int			nextStep();
 
-    virtual uiStringCopy		uiMessage() const;
+    virtual uiString		uiMessage() const;
 
 protected:
 

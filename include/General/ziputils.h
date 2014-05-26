@@ -91,9 +91,9 @@ public:
                                 Zipper(const char*,const char*, 
                                        ZipHandler::CompLevel);
 
-    uiStringCopy			uiMessage() const;
+    uiString			uiMessage() const;
     od_int64			nrDone() const;
-    uiStringCopy			uiNrDoneText() const;
+    uiString			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        isOk() const { return isok_; }
 
@@ -117,9 +117,9 @@ mExpClass(General) UnZipper : public Executor
 public:
 				UnZipper(const char*,const char*);
 
-    uiStringCopy			uiMessage() const;
+    uiString			uiMessage() const;
     od_int64			nrDone() const;
-    uiStringCopy			uiNrDoneText() const;
+    uiString			uiNrDoneText() const;
     od_int64			totalNr() const;
     bool                        isOk() const { return isok_; }
 

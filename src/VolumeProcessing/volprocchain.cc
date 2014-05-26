@@ -29,8 +29,8 @@ public:
 		BinIDWiseTask( Step& ro )
 		    : step_( ro ), totalnr_( -1 )	{}
 
-    uiStringCopy	uiMessage() const	{ return errmsg_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Positions done"; }
+    uiString	uiMessage() const	{ return errmsg_; }
+    uiString	uiNrDoneText() const	{ return "Positions done"; }
 
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
@@ -120,7 +120,7 @@ ChainExecutor::~ChainExecutor()
 }
 
 
-uiStringCopy ChainExecutor::errMsg() const
+uiString ChainExecutor::errMsg() const
 { return errmsg_; }
 
 
@@ -480,7 +480,7 @@ od_int64 ChainExecutor::nrDone() const
 }
 
 
-uiStringCopy ChainExecutor::uiNrDoneText() const
+uiString ChainExecutor::uiNrDoneText() const
 { return curepoch_ ? curepoch_->getTask().uiNrDoneText() : "Positions done"; }
 
 
@@ -488,7 +488,7 @@ od_int64 ChainExecutor::totalNr() const
 { return 100; }
 
 
-uiStringCopy ChainExecutor::uiMessage() const
+uiString ChainExecutor::uiMessage() const
 {
     if ( !errmsg_.isEmpty() )
 	return errmsg_;
@@ -854,7 +854,7 @@ bool Chain::setOutputSlot( Step::ID stepid, Step::OutputSlotID slotid )
 }
 
 
-uiStringCopy Chain::errMsg() const
+uiString Chain::errMsg() const
 { return errmsg_; }
 
 

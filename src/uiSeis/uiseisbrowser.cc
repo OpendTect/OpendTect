@@ -687,8 +687,8 @@ bool init()
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const          { return nrdone_; }
-    uiStringCopy	 uiMessage() const	   { return msg_.buf(); }
-    uiStringCopy	 uiNrDoneText() const	   { return "Traces done"; }
+    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiNrDoneText() const	{ return "Traces done"; }
 
 protected:
 

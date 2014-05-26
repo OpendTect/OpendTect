@@ -42,8 +42,8 @@ public:
     void		setOffsetRange( float r0, float r1 )
 			{ offsrg_.start = r0; offsrg_.stop = r1; }
 
-    uiStringCopy	uiMessage() const	{ return msg_.buf(); }
-    uiStringCopy	uiNrDoneText() const	{ return "Gathers written"; }
+    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiNrDoneText() const	{ return "Gathers written"; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totnr_; }
     virtual int		nextStep();

@@ -52,7 +52,7 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
 {}
 
 od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
-uiStringCopy uiMessage() const { return "Calculating implicit body operation"; }
+uiString uiMessage() const { return "Calculating implicit body operation"; }
 
 protected:
 

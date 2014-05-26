@@ -51,10 +51,10 @@ public:
     						{ weaksmooth_ = yn; }
 
 			// Executor compliance functions
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
-    uiStringCopy	uiNrDoneText() const	{ return "Traces handled"; }
+    uiString		uiNrDoneText() const	{ return "Traces handled"; }
 			// This is where it actually happens
     int			nextStep();
 

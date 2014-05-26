@@ -42,8 +42,8 @@ public:
 
     od_int64 nrIterations() const { return nrtiles_; }
     od_int64 totalNr() const { return nrtiles_ * 2; }
-    uiStringCopy uiMessage() const { return "Updating Horizon Display"; }
-    uiStringCopy uiNrDoneText() const { return "Parts completed"; }
+    uiString uiMessage() const { return "Updating Horizon Display"; }
+    uiString uiNrDoneText() const { return "Parts completed"; }
 
     bool doPrepare( int );
     bool doWork( od_int64, od_int64, int );
@@ -82,8 +82,8 @@ public:
     ~HorizonSectionTilePosSetup();
 
     od_int64	nrIterations() const { return hrtiles_.size(); }
-    uiStringCopy	uiMessage() const { return "Creating Horizon Display"; }
-    uiStringCopy	uiNrDoneText() const { return "Parts completed"; }
+    uiString	uiMessage() const { return "Creating Horizon Display"; }
+    uiString	uiNrDoneText() const { return "Parts completed"; }
 
 protected:
 

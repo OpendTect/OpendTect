@@ -42,10 +42,10 @@ public:
     int				getNrCrossings(const MultiID&,
 	    				       const MultiID&) const;
 
-    uiStringCopy		uiMessage() const;
+    uiString			uiMessage() const;
     od_int64			totalNr() const;
     od_int64			nrDone() const;
-    uiStringCopy		uiNrDoneText() const;
+    uiString			uiNrDoneText() const;
 
 protected:
 

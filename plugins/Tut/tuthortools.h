@@ -30,7 +30,7 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(const StepInterval<int>& inlrg,
 		    		   const StepInterval<int>& crlrg);
-    uiStringCopy	uiNrDoneText() const	{ return "Positions done"; }
+    uiString		uiNrDoneText() const	{ return "Positions done"; }
 
 protected:
 			HorTool(const char* title);
@@ -58,7 +58,7 @@ public:
     Executor*		dataSaver();
     void		init(const char*);
 
-    uiStringCopy	uiMessage() const { return "Calculating thickness"; }
+    uiString		uiMessage() const { return "Calculating thickness"; }
 
 protected:
 
@@ -78,7 +78,7 @@ public:
     void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
 
-    uiStringCopy		uiMessage() const	{ return "Smoothing"; }
+    uiString		uiMessage() const	{ return "Smoothing"; }
 
 protected:
 

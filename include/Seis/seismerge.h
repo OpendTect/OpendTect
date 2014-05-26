@@ -35,10 +35,10 @@ public:
 			SeisMerger(const IOPar&);	//For post-processing
     virtual		~SeisMerger();
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrpos_; }
     od_int64		totalNr() const		{ return totnrpos_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Positions handled"; }
+    uiString		uiNrDoneText() const	{ return "Positions handled"; }
     int			nextStep();
     void		setScaler(Scaler*);
 

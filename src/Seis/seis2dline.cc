@@ -926,8 +926,8 @@ Seis2DGeomDumper( const Seis2DLineSet& l, od_ostream& o, bool inr, float z,
     curmsg = "Extracting geometry";
 }
 
-uiStringCopy uiMessage() const	{ return curmsg.buf(); }
-uiStringCopy uiNrDoneText() const	{ return "Lines handled"; }
+uiString uiMessage() const	{ return curmsg.buf(); }
+uiString uiNrDoneText() const	{ return "Lines handled"; }
 od_int64 nrDone() const		{ return lnshandled; }
 od_int64 totalNr() const	{ return totalnr; }
 

@@ -512,7 +512,7 @@ od_int64 totalNr() const
 od_int64 nrDone() const
 { return nrdone_; }
 
-uiStringCopy uiNrDoneText() const
+uiString uiNrDoneText() const
 { return "No. of traces copied"; }
 
 protected:

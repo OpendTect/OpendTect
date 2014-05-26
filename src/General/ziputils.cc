@@ -215,11 +215,11 @@ od_int64 Zipper::totalNr() const
 { return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
-uiStringCopy Zipper::uiNrDoneText() const
+uiString Zipper::uiNrDoneText() const
 { return "MBytes processed: "; }
 
 
-uiStringCopy Zipper::uiMessage() const
+uiString Zipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )
@@ -303,11 +303,11 @@ od_int64 UnZipper::totalNr() const
 { return ziphd_.getTotalSize()/mBytesToMBFactor; }
 
 
-uiStringCopy UnZipper::uiNrDoneText() const
+uiString UnZipper::uiNrDoneText() const
 { return "MBytes Processed: "; }
 
 
-uiStringCopy UnZipper::uiMessage() const
+uiString UnZipper::uiMessage() const
 {
     const FixedString errmsg( ziphd_.errorMsg() );
     if ( errmsg.isEmpty() )

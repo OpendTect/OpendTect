@@ -34,9 +34,9 @@ public:
 
     od_int64				nrDone() const;
     od_int64				totalNr() const;
-    uiStringCopy			uiNrDoneText() const
+    uiString				uiNrDoneText() const
 					{ return "Data Sets Created"; }
-    uiStringCopy			uiMessage() const;
+    uiString				uiMessage() const;
 protected:
 
     int 				nextStep();

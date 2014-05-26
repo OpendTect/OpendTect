@@ -239,7 +239,7 @@ void SeisSingleTraceProc::setResampler( SeisResampler* r )
 }
 
 
-uiStringCopy SeisSingleTraceProc::uiMessage() const
+uiString SeisSingleTraceProc::uiMessage() const
 {
     if ( !curmsg_.isEmpty() )
 	return curmsg_;
@@ -271,7 +271,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 { return nrwr_; }
 
 
-uiStringCopy SeisSingleTraceProc::uiNrDoneText() const
+uiString SeisSingleTraceProc::uiNrDoneText() const
 {
     return "Traces handled";
 }

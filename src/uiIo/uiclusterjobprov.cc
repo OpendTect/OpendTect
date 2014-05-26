@@ -78,7 +78,7 @@ ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
 od_int64 nrDone() const
 { return curidx_; }
 
-uiStringCopy uiNrDoneText() const
+uiString uiNrDoneText() const
 { return "Nr jobs created"; }
 
 od_int64 totalNr() const

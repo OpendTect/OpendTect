@@ -53,9 +53,9 @@ public:
     od_int64		nrDone() const	{ return nrdone_; }
     od_int64		totalNr() const	{ return locations_.totalSize(); }
 
-    uiStringCopy	uiMessage() const	{ return message_; }
+    uiString		uiMessage() const	{ return message_; }
     int			nextStep();
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
 
 protected:
 
@@ -117,9 +117,9 @@ public:
     od_int64		nrDone() const;
     od_int64		totalNr() const		{ return totalnr_; }
 
-    uiStringCopy	uiMessage() const	{ return message_; }
+    uiString		uiMessage() const	{ return message_; }
     int			nextStep();
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
 
 protected:
 

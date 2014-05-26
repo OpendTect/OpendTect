@@ -156,7 +156,7 @@ public:
 			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
 
-    uiStringCopy		uiMessage() const;
+    uiString		uiMessage() const;
 
 protected:
 
