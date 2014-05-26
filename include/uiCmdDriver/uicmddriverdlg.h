@@ -31,7 +31,7 @@ class InteractSpec;
 
 
 mExpClass(uiCmdDriver) uiCmdInteractDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCmdInteractDlg);
 public:
 				uiCmdInteractDlg(uiParent*,const InteractSpec&);
 
