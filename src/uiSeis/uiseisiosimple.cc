@@ -344,9 +344,8 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
     if ( ctio_.ioobj )
     {
 	subselfld_->setInput( *ctio_.ioobj );
-	Pos::GeomID geomid = Survey::GM().getGeomID( ctio_.ioobj->key() );
 	BufferStringSet compnms;
-	SeisIOObjInfo::getCompNames( geomid, compnms );
+	SeisIOObjInfo::getCompNames( ctio_.ioobj->key(), compnms );
 	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
 	multcompfld_->display( compnms.size()>1 );
 	multcompfld_->setSensitive( compnms.size()>1 );
