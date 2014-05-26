@@ -48,11 +48,33 @@ bool testArg()
 }
 
 
+bool testSharedData()
+{
+    uiString a = uiString("Hello %1%2").arg( "World" );
+    uiString b = a;
+
+    b.arg( "s" );
+    mRunStandardTest( b.getFullString()=="Hello Worlds" &&
+		      a.getFullString()!=b.getFullString(), "arg on copy" );
+
+    uiString c = b;
+    c = "Another message";
+    mRunStandardTest( c.getFullString()!=b.getFullString(),
+		      "assignment of copy" );
+
+    uiString d = b;
+    mRunStandardTest( d.getOriginalString()==b.getOriginalString(),
+		      "Use of same buffer on normal operations" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testArg() )
+    if ( !testArg() || !testSharedData() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

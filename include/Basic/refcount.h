@@ -212,7 +212,6 @@ public:
 			//!<Will allow it to go to zero
     
     od_int32		count() const { return count_.get(); }
-    			//!<Don't use in production, for debugging
     inline bool		refIfReffed();
     			//!<Don't use in production, for debugging
     
