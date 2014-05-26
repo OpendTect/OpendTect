@@ -132,8 +132,11 @@ bool System::IssueReporter::send()
     url.add( path_ );
     IOPar postvars;
     postvars.set( "report", report_.buf() );
+    
+    BufferString remotefname ( OD::Platform::local().shortName(), "_" );
+    remotefname.add( ODInst::getPkgVersion ("base") );
+    remotefname.add( "_" ).add( "crash.dmp" );
 
-    const char* remotefname = "crash.dmp";
     const char* filetype = "dumpfile";
     uiString errmsg;
     if ( crashreportpath_.isEmpty() )
