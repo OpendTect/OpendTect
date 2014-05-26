@@ -347,7 +347,7 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
     , isset_(oth.isset_)
 {
     for ( int idx=0; idx<oth.strings_.size(); idx++ )
-	strings_.add( uiString().setFrom( oth.strings_[idx] ) );
+	strings_.add( oth.strings_[idx] );
 }
 
 
@@ -358,7 +358,7 @@ StringListInpSpec::StringListInpSpec( const TypeSet<uiString>& sl )
     , isset_(0)
 {
     for ( int idx=0; idx<sl.size(); idx++ )
-	strings_.add( uiString().setFrom( sl[idx] ) );
+	strings_.add( sl[idx] );
 }
 
 
@@ -388,8 +388,8 @@ const char* StringListInpSpec::text( int ) const
 }
 
 
-void StringListInpSpec::setItemText( int idx, const uiString& s)
-{ strings_[cur_].setFrom( s ); }
+void StringListInpSpec::setItemText( int idx, const uiString& s )
+{ strings_[cur_] = s; }
 
 
 bool StringListInpSpec::setText( const char* s, int nr )

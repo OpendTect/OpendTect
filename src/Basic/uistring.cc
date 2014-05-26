@@ -28,6 +28,7 @@ const uiString uiString::emptystring_( sKey::EmptyString() );
 
 class uiStringData
 { mRefCountImplNoDestructor(uiStringData)
+  friend class uiString;
 public:
     uiStringData( const char* originalstring, const char* context,
 		  const char* application,
@@ -57,15 +58,11 @@ public:
 
     void setFrom( const QString& qstr )
     {
-	originalstring_.setEmpty();
-	translationcontext_ = 0;
-	translationpluralnumber_ = -1;
-	translationdisambiguation_ = 0;
-	application_ = 0;
+	set( 0 );
 	qstring_ = qstr;
     }
 
-    const BufferString& getFullString() const;
+    void getFullString( BufferString& ) const;
 
     void set(const char* orig);
     bool fillQString(QString&,const QTranslator* translator=0) const;
@@ -88,20 +85,27 @@ public:
 void uiStringData::set( const char* orig )
 {
     originalstring_ = orig;
+    arguments_.erase();
+    legacyversions_.erase();
+    translationcontext_ = 0;
+    application_ = 0;
+    translationdisambiguation_ = 0;
+    translationpluralnumber_ = -1;
 }
 
 
-const BufferString& uiStringData::getFullString() const
+void uiStringData::getFullString( BufferString& ret ) const
 {
     if ( !arguments_.size() )
-	return originalstring_;
+    {
+	ret = originalstring_;
+	return;
+    }
 
     QString qres;
     fillQString( qres, 0 );
 
-    mDeclStaticString( ret );
     ret = qres;
-    return ret;
 }
 
 
@@ -183,6 +187,7 @@ uiString::uiString( const char* originaltext, const char* context,
 
 void uiString::addLegacyVersion( const uiString& legacy )
 {
+    makeIndependent();
     data_->addLegacyVersion( legacy );
 }
 
@@ -191,8 +196,6 @@ uiString::uiString( const uiString& str )
     : data_( str.data_ )
 {
     data_->ref();
-
-    *this = str;
 }
 
 
@@ -236,9 +239,11 @@ const char* uiString::getOriginalString() const
 }
 
 
-const BufferString& uiString::getFullString() const
+BufferString uiString::getFullString() const
 {
-    return data_->getFullString();
+    BufferString res;
+    data_->getFullString( res );
+    return res;
 }
 
 
@@ -278,28 +283,16 @@ uiString& uiString::operator=( const uiString& str )
 }
 
 
-uiString& uiString::setFrom( const uiString& str )
-{
-    if ( data_==str.data_ )
-    {
-	data_->unRef();
-	data_ = new uiStringData( 0, 0, 0, 0, -1 );
-	data_->ref();
-    }
-
-    data_->setFrom( *str.data_ );
-    return *this;
-}
-
-
 void uiString::setFrom( const QString& qstr )
 {
+    makeIndependent();
     data_->setFrom( qstr );
 }
 
 
 uiString& uiString::operator=( const FixedString& str )
 {
+    makeIndependent();
     data_->set( str.str() );
     return *this;
 }
@@ -307,6 +300,7 @@ uiString& uiString::operator=( const FixedString& str )
 
 uiString& uiString::operator=( const BufferString& str )
 {
+    makeIndependent();
     data_->set( str.str() );
 
     return *this;
@@ -315,6 +309,7 @@ uiString& uiString::operator=( const BufferString& str )
 
 uiString& uiString::operator=( const char* str )
 {
+    makeIndependent();
     data_->set( str );
     return *this;
 }
@@ -322,8 +317,9 @@ uiString& uiString::operator=( const char* str )
 
 uiString& uiString::arg( const uiString& newarg )
 {
+    makeIndependent();
     data_->arguments_ += newarg;
-    return *this;;
+    return *this;
 }
 
 
@@ -343,9 +339,10 @@ uiString& uiString::arg( const char* newarg )
 
 uiString& uiString::append( const uiString& txt )
 {
-    uiStringCopy self( *this );
+    uiString self( *this );
+    self.makeIndependent();
     *this = uiString("%1%2").arg( self ).arg( txt );
-    return *this;;
+    return *this;
 }
 
 
@@ -369,3 +366,17 @@ bool uiString::translate( const QTranslator& tr , QString& res ) const
 
 }
 
+
+void uiString::makeIndependent()
+{
+    if ( data_->refcount_.count()==1 )
+	return;
+
+    RefMan<uiStringData> olddata = data_;
+    data_->unRef();
+
+    data_ = new uiStringData( 0, 0, 0, 0, -1 );
+    data_->ref();
+
+    data_->setFrom( *olddata );
+}

@@ -263,8 +263,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 			strings[0].getQtString(), QMessageBox::Ok, popParnt() );
     if ( strings.size()>1 )
     {
-	uiString detailed;
-	detailed.setFrom( strings[0] );
+	uiString detailed = strings[0];
 
 	for ( int idx=1; idx<strings.size(); idx++ )
 	{

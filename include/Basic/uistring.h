@@ -93,11 +93,6 @@ public:
 				/*!<\note Does not copy data, will use the same
 				 underlying data structure (reference
 				 counted). */
-    uiString&			setFrom(const uiString& src);
-				/*!<Copies all data over from src. If src and
-				    this use the same data, they will be
-				    separated. */
-    void			setFrom(const mQtclass(QString)&);
     uiString&			operator=(const char*);
     uiString&			operator=(const FixedString&);
 
@@ -125,12 +120,10 @@ public:
 				/*!Appends. In most cases, use arg to allow
 				 translator to change ordering. */
 
-    const BufferString& 	getFullString() const;
+    BufferString		getFullString() const;
 				/*!<Constructs the result from the original
 				    string and the arguments,
-				without translation.
-				\note Returned string will only be valid until
-				 next call. */
+				without translation. */
     const char*			getOriginalString() const;
     const mQtclass(QString&)	getQtString() const;
     wchar_t*			createWCharString() const;
@@ -145,11 +138,16 @@ private:
     static const uiString	emptystring_;
 public:
 		//Only for expert users
+    void	makeIndependent();
+		//!<If data is shared, I'll get an own copy
 		uiString(const char* original,
 			 const char* context,
 			 const char* application,
 			 const char* disambiguation,
 			 int pluralnr);
+    void	setFrom(const mQtclass(QString)&);
+		/*!<Set the translated text no further
+		    translation will be done. */
     void	addLegacyVersion(const uiString&);
 		/*!<If this string was previously known by another origial
 		    string, it can be added here. This is normally done with the
@@ -172,8 +170,10 @@ mExpClass(Basic) uiStringCopy : public uiString
 {
 public:
 				uiStringCopy(const uiString& in)
-				    : uiString( (const char*) 0 )
-				{ setFrom(in); }
+				    : uiString( in )
+				{
+				    makeIndependent();
+				}
 				uiStringCopy(const char* in = 0)
 				    : uiString(in)
 				{}
