@@ -22,7 +22,7 @@ class uiGraphicsItemSet;
 
 
 mExpClass(uiBase) uiVirtualKeyboard : public uiMainWin
-{
+{ mODTextTranslationClass(uiVirtualKeyboard);
 public:
     				uiVirtualKeyboard(uiObject&,int x,int y);
 				~uiVirtualKeyboard();

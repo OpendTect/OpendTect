@@ -30,7 +30,7 @@ bool uiVirtualKeyboard::isVirtualKeyboardActive()
 
 
 uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
-    : uiMainWin( inpobj.parent(), "Virtual Keyboard", 0, false, true )
+    : uiMainWin( inpobj.parent(), tr("Virtual Keyboard"), 0, false, true )
     , inputobj_( inpobj )
     , globalx_( x )
     , globaly_( y )
@@ -113,7 +113,8 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
+    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, 
+        mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
     led->setFillColor( color );

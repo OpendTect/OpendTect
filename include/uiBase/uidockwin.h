@@ -22,7 +22,7 @@ class uiMainWin;
 mFDQtclass(QDockWidget)
 
 mExpClass(uiBase) uiDockWin : public uiParent
-{
+{ mODTextTranslationClass(uiDockWin);
 public:
 			uiDockWin(uiParent* parnt=0, 
 				  const char* nm="uiDockWin");

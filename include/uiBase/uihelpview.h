@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 
 mExpClass(uiBase) FlareHelpProvider : public HelpProvider
-{
+{  mODTextTranslationClass(FlareHelpProvider);
 public:
     static void 		initClass(const char* factorykey,
 					  const char* baseurl);

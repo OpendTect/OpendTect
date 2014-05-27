@@ -27,7 +27,7 @@ class uiTableBody;
 
 
 mExpClass(uiBase) uiTable : public uiObject
-{
+{ mODTextTranslationClass(uiTable);
 friend class		i_tableMessenger;
 friend class		uiTableBody;
 public:

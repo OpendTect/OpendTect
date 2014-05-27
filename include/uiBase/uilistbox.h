@@ -58,7 +58,7 @@ mFDQtclass(QListWidgetItem)
 */
 
 mExpClass(uiBase) uiListBox : public uiObject
-{
+{ mODTextTranslationClass(uiListBox);
 friend class i_listMessenger;
 friend class uiListBoxBody;
 public:

@@ -189,8 +189,8 @@ void uiMsg::odfunc( const uiString& text ) \
 }
 
 
-mImplSimpleMsg( message, "Information", information );
-mImplSimpleMsg( warning, "Warning", warning );
+mImplSimpleMsg( message, tr("Information"), information );
+mImplSimpleMsg( warning, tr("Warning"), warning );
 
 
 void uiMsg::error( const char* p1, const char* p2, const char* p3 )
@@ -268,7 +268,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 	for ( int idx=1; idx<strings.size(); idx++ )
 	{
 	    uiString old = detailed;
-	    detailed = uiString( "%1\n%2").arg( old ).arg( strings[idx] );
+	    detailed = uiString( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
 	msgbox.setDetailedText( detailed.getQtString() );
@@ -283,7 +283,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("&Don't save");
     return question( text, sSave(), dontsavetxt,
-		     wcancel ? sCancel().str() : 0, "Data not saved" );
+		     wcancel ? sCancel().str() : 0, tr("Data not saved") );
 }
 
 
