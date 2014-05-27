@@ -171,8 +171,8 @@ void partSort( T* arr, I istart, I istop,
 {
     I ipivot, ileft, iright;
     T pivotval, tmp;
-    static long int seed = 0L;
-	static Threads::SpinLock seedlock;
+    mDefineStaticLocalObject( long int, seed, = 0L );
+    mDefineStaticLocalObject( Threads::SpinLock, seedlock, );
 
     seedlock.lock();
     long int localseed = seed = (seed * FA + FC) % FM;
@@ -292,8 +292,8 @@ void partSort( T* arr, IT* iarr, int istart, int istop, int* jstart, int* jstop)
     int ipivot, ileft, iright;
     T pivotval, tmp;
     IT itmp;
-    static long int seed = 0L;
-	static Threads::SpinLock seedlock;
+    mDefineStaticLocalObject( long int, seed, = 0L );
+    mDefineStaticLocalObject( Threads::SpinLock, seedlock, );
 
     seedlock.lock();
     long int localseed = seed = (seed * FA + FC) % FM;
