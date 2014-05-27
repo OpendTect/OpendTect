@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "ranges.h"
 #include "stratunitref.h"
+#include "uistring.h"
 
 class ioPixmap;
 class uiParent;
