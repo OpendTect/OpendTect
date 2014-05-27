@@ -27,6 +27,7 @@ public:
     static inline uiString sAbort()		{ return tr("&Abort"); }
     static inline uiString sAdd(bool immediate);
     static inline uiString sAccept()            { return tr("&Accept"); }
+    static inline uiString sAction()		{ return tr("&Action"); }
     static inline uiString sAmplitude()	        { return tr("&Amplitude"); }
     static inline uiString sAnalysis()		{ return tr("&Analysis"); }
     static inline uiString sApply()		{ return tr("&Apply"); }
@@ -37,6 +38,7 @@ public:
     static inline uiString sAttributes3D()	{ return tr("&Attributes3D"); }
     static inline uiString sAutoload()		{ return tr("&Auto-load"); }
     static inline uiString sBack()		{ return tr("&< Back"); }
+    static inline uiString sBase()		{ return tr("&Base"); }
     static inline uiString sBodies()		{ return tr("&Bodies"); }
     static inline uiString sBulk()	        { return tr("&Bulk"); }
     static inline uiString sBulk3D()	        { return tr("&Bulk3D"); }
@@ -72,7 +74,7 @@ public:
     static inline uiString sHistogram()         { return tr("&Histogram"); }
     static inline uiString sHorizons()		{ return tr("&Horizons"); }
     static inline uiString sImport()		{ return tr("&Import"); }
-    static inline uiString sInside()		{ return tr("Inside"); }
+    static inline uiString sInside()		{ return tr("&Inside"); }
     static inline uiString sLayers()		{ return tr("&Layers"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
     static inline uiString sLock()		{ return tr("&Lock"); }
@@ -82,6 +84,7 @@ public:
     static inline uiString sMove()		{ return tr("&Move"); }
     static inline uiString sMultiwell()	        { return tr("&Multi-well"); }
     static inline uiString sMute()		{ return tr("&Mute"); }
+    static inline uiString sName()		{ return tr("&Name"); }
     static inline uiString sNew(bool immediate);
     static inline uiString sNext()		{ return tr("Next &>"); }
     static inline uiString sNo()		{ return tr("&No"); }
@@ -115,6 +118,7 @@ public:
     static inline uiString sSeismics()		{ return tr("&Seismics"); }
     static inline uiString sSelect(bool arg=false,bool plural=false); 
     static inline uiString sSession()		{ return tr("&Session"); }
+    static inline uiString sSettings()		{ return tr("&Settings"); }
     static inline uiString sSetup()		{ return tr("&Setup"); }
     static inline uiString sSettings()		{ return tr("Settings"); }
     static inline uiString sSimple()		{ return tr("&Simple"); }
@@ -129,6 +133,7 @@ public:
     static inline uiString sType()              { return tr("&Type"); }
     static inline uiString sUp()		{ return tr("&Up"); }
     static inline uiString sUtilities()		{ return tr("&Utilities"); }
+    static inline uiString sValue()		{ return tr("&Value"); }
     static inline uiString sVelocity()		{ return tr("&Velocity"); }
     static inline uiString sView()		{ return tr("&View"); }
     static inline uiString sViewMap()		{ return tr("&View Map"); }
