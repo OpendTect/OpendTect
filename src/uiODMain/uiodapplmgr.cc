@@ -123,8 +123,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	tmpprevsurvinfo_.refresh();
     }
 
-    if ( !Convert_OD4_Data_To_OD5() )
-	manageSurvey();
+    appl_.afterPopup.notify( mCB(this,uiODApplMgr,mainWinUpCB) );
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
@@ -161,6 +160,13 @@ MouseCursorExchange& uiODApplMgr::mouseCursorExchange()
 { return mousecursorexchange_; }
 
 
+void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
+{
+    if ( !Convert_OD4_Data_To_OD5() )
+	manageSurvey();
+}
+
+
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv_ ) nlaserv_->reset();
@@ -188,7 +194,7 @@ void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
 
 
 extern int OD_Get_2D_Data_Conversion_Status();
-extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg);
+extern void OD_Convert_2DLineSets_To_2DDataSets(uiString& errmsg,TaskRunner*);
 
 bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 {
@@ -228,7 +234,8 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	return false;
     }
 
-    OD_Convert_2DLineSets_To_2DDataSets( errmsg );
+    uiTaskRunner taskrnr( ODMainWin(), false );
+    OD_Convert_2DLineSets_To_2DDataSets( errmsg, &taskrnr );
     if ( !errmsg.isEmpty() )
     {
 	uiMSG().error( errmsg );

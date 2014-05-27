@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "bufstringset.h"
+#include "executor.h"
 #include "file.h"
 #include "filepath.h"
 #include "iodir.h"
@@ -34,6 +35,57 @@ static const char* getSurvDefAttrName()
     return ret.buf();
 }
 
+
+class OD_FileListCopier : public Executor
+{
+public:
+OD_FileListCopier( const BufferStringSet& fromlist,
+		   const BufferStringSet& tolist, BufferString& errmsg )
+    : Executor( "2D data conversion" )
+    , fromlist_(fromlist), tolist_(tolist)
+    , errmsg_(errmsg),curidx_(0)
+{
+}
+
+od_int64 totalNr() const	{ return mCast(od_int64,fromlist_.size()); }
+od_int64 nrDone() const		{ return mCast(od_int64,curidx_); }
+uiStringCopy uiNrDoneText() const	{ return "Nr files done"; }
+uiStringCopy uiMessage() const	{ return "Converting 2D Seismic data"; }
+
+int nextStep()
+{
+    if ( !fromlist_.validIdx(curidx_) || !tolist_.validIdx(curidx_) )
+	return Finished();
+
+    const BufferString& src = fromlist_.get( curidx_ );
+    const BufferString& dest = tolist_.get( curidx_ );
+    if ( File::exists(src) && !File::exists(dest) )
+    {
+	if ( !File::copy(src,dest,&errmsg_) )
+	    return ErrorOccurred();
+    }
+
+    FilePath srcfp( src );
+    FilePath destfp( dest );
+    srcfp.setExtension( "par" );
+    destfp.setExtension( "par" );
+    if ( File::exists(srcfp.fullPath()) && !File::exists(destfp.fullPath()) )
+    {
+	if ( !File::copy(srcfp.fullPath(),destfp.fullPath(),&errmsg_) )
+	    return ErrorOccurred();
+    }
+
+    curidx_++;
+    return MoreToDo();
+}
+
+    const BufferStringSet&	fromlist_;
+    const BufferStringSet&	tolist_;
+    BufferString&		errmsg_;
+    int				curidx_;
+};
+
+
 class OD_2DLineSetTo2DDataSetConverter
 {mODTextTranslationClass(OD_2DLineSetTo2DDataSetConverter);
 public:
@@ -41,14 +93,14 @@ public:
 			    OD_2DLineSetTo2DDataSetConverter()	    {}
 			    ~OD_2DLineSetTo2DDataSetConverter();
 
-    void		    doConversion(uiString& errmsg);
+    void		    doConversion(uiString& errmsg,TaskRunner*);
 
 protected:
 
     void		    makeListOfLineSets(ObjectSet<IOObj>&);
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
-    bool		    copyData(BufferStringSet&,uiString&);
+    bool		    copyData(BufferStringSet&,uiString&,TaskRunner*);
     void		    update2DSFilesAndAddToDelList(
 						    ObjectSet<IOObj>& ioobjlist,
 						    BufferStringSet&);
@@ -79,25 +131,27 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     return newdel.isEmpty() ? 1 : 2;
 }
 
-mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg )
+mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
+							TaskRunner* taskrnr )
 {
     mDefineStaticLocalObject( OD_2DLineSetTo2DDataSetConverter, converter, );
-    converter.doConversion( errmsg );
+    converter.doConversion( errmsg, taskrnr );
 }
 
 
 OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
 {}
 
-
-void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg )
+#include <iostream>
+void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
+						     TaskRunner* taskrnr )
 {
     ObjectSet<IOObj> all2dsfiles;
     makeListOfLineSets( all2dsfiles );
     fillIOParsFrom2DSFile( all2dsfiles );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
-    copyData( filepathsofold2ddata, errmsg );
+    copyData( filepathsofold2ddata, errmsg, taskrnr );
     update2DSFilesAndAddToDelList( all2dsfiles, filestobedeleted );
     removeDuplicateData( filestobedeleted );
     deepErase( all2dseisiopars_ );
@@ -199,23 +253,12 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
 }
 
 
-#define mCopyFile \
-    if ( File::exists(oldfp.fullPath()) && !File::exists(newfp.fullPath()) ) \
-    { \
-	BufferString errormsg; \
-	if ( !File::copy(oldfp.fullPath(),newfp.fullPath(),&errormsg) ) \
-	{ \
-	    errmsg = tr("Unable to convert Seismic data to OD5.0 format.\n%1").\
-							    arg( errormsg ); \
-	    return false; \
-	} \
-    }
-
-
-bool OD_2DLineSetTo2DDataSetConverter::copyData( 
-			    BufferStringSet& oldfilepaths, uiString& errmsg )
+bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
+						 uiString& errmsg,
+						 TaskRunner* taskrnr )
 {
     int numberoflines = 0;
+    BufferStringSet srclist, destlist;
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
     {
 	for ( int lineidx=0; lineidx<all2dseisiopars_[idx]->size(); lineidx++ )
@@ -239,14 +282,18 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData(
 	    if ( oldfp == newfp )
 		continue;
 
-	    mCopyFile
-	    oldfp.setExtension( "par" );
-	    newfp.setExtension( "par" );
-	    mCopyFile
+	    srclist.add( oldfp.fullPath() );
+	    destlist.add( newfp.fullPath() );
 	}
     }
 
-    return true;
+    BufferString msg;
+    OD_FileListCopier exec( srclist, destlist, msg );
+    const bool res = TaskRunner::execute( taskrnr, exec );
+    if ( !res )
+	errmsg = tr( "Error while converting 2D Seismic data: %1" ).arg( msg );
+
+    return res;
 }
 
 
@@ -274,7 +321,7 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 		    .add( Survey::GM().getGeomID(lineset.name(),
 						 lineset.lineName(lineidx)) ) );
 	    newfnm.setExtension( oldfnm.extension() );
-	    iop->set( sKey::FileName(), newfnm.fullPath() );
+	    iop->set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
 	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(
 									*iop) );
 	    if ( newfullfnm == oldfullfnm )
@@ -286,7 +333,8 @@ void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 		if ( ret )
 		{
 		    delete ret;
-		    filestobedeleted.add( oldfullfnm );
+		    if ( File::exists(oldfullfnm) )
+			filestobedeleted.add( oldfullfnm );
 		}
 	    }
 	}
