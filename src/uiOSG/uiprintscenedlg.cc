@@ -54,8 +54,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     if ( nrfiletypes==0 && !showvrml )
     {
 	uiLabel* label mUnusedVar = new uiLabel( this,
-	    "No output file types found.\n"
-	    "Probably, 'libsimage.so' is not installed or invalid." );
+	    tr("No output file types found.\n"
+	    "Probably, 'libsimage.so' is not installed or invalid.") );
 	setCtrlStyle( RunAndClose );
 	return;
     }
@@ -68,7 +68,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	for ( int idx=0; idx<viewers_.size(); idx++ )
 	    scenenms.add( viewers_[idx]->getScene()->name() );
 
-	scenefld_ = new uiLabeledComboBox( this, scenenms, "Make snapshot of" );
+	scenefld_ = new uiLabeledComboBox( this, scenenms, 
+                    tr("Make snapshot of") );
 	scenefld_->box()->selectionChanged.notify(
 					mCB(this,uiPrintSceneDlg,sceneSel) );
 	mAttachToAbove( scenefld_->attachObj() );
@@ -76,8 +77,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 
     if ( showvrml && nrfiletypes )
     {
-	dovrmlfld_ = new uiGenInput( this, "Type of snapshot",
-				     BoolInpSpec(true,"Scene","Image") );
+	dovrmlfld_ = new uiGenInput( this, tr("Type of snapshot"),
+				     BoolInpSpec(true,tr("Scene"),tr("Image")));
 	dovrmlfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,typeSel) );
 	dovrmlfld_->setValue( false );
 	mAttachToAbove( dovrmlfld_->attachObj() );
@@ -253,7 +254,7 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 {
     if ( !mainimage || !hasImageValidFormat(mainimage) ) 
     {
-	uiMSG().error( " Image creation is failed. " );
+	uiMSG().error( tr(" Image creation is failed. ") );
 	return InvalidImages;
     }
 
@@ -272,7 +273,7 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
     if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
     {
 	uiMSG().warning(
-	    "Cannot include HUD items (color bar and axis) in screen shot." );
+	   tr("Cannot include HUD items (color bar and axis) in screen shot."));
 	return OnlyMainViewImage;
     }
 
@@ -374,7 +375,7 @@ void uiPrintSceneDlg::writeToSettings()
     fillPar( iopar, false );
     settings_.mergeComp( iopar, "3D" );
     if ( !settings_.write() )
-	uiMSG().error( "Cannot write settings" );
+	uiMSG().error( tr("Cannot write settings") );
 }
 
 

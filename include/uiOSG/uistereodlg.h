@@ -22,7 +22,7 @@ class ui3DViewer;
 */
 
 mExpClass(uiOSG) uiStereoDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStereoDlg);
 public:
 			uiStereoDlg(uiParent*,ObjectSet<ui3DViewer>&);
 

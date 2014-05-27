@@ -18,14 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs_ )
-	: uiDialog(p, uiDialog::Setup("Stereo viewing",
-				      "Set stereo offset",
+	: uiDialog(p, uiDialog::Setup(tr("Stereo viewing"),
+				      tr("Set stereo offset"),
                                       mODHelpKey(mStereoDlgHelpID) )
 		      .canceltext(""))
 	, vwrs(vwrs_)
 {
     sliderfld = new uiSlider( this,
-			uiSlider::Setup("Stereo offset").withedit(true),
+			uiSlider::Setup(tr("Stereo offset")).withedit(true),
 			"Offset slider" );
     sliderfld->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
 
@@ -53,7 +53,7 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 	vwrs[idx]->setStereoOffset( slval );
 
     if ( mIsEqual(sliderfld->maxValue(),slval,mDefEps) )
-	uiMSG().message( "Open this dialog again for higher offsets" );
+	uiMSG().message( tr("Open this dialog again for higher offsets") );
 
     return true;
 }

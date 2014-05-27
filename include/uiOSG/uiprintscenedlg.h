@@ -28,7 +28,7 @@ namespace osg
 */
 
 mExpClass(uiOSG) uiPrintSceneDlg : public uiSaveImageDlg
-{
+{ mODTextTranslationClass(uiPrintSceneDlg);
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<ui3DViewer>&);
 protected:
