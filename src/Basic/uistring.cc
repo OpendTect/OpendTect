@@ -383,12 +383,12 @@ uiString& uiString::append( const FixedString& a, bool withnewline )
 
 
 uiString& uiString::append( const BufferString& a, bool withnewline )
-{ return append( a.str(),withnewline ); }
+{ return append( a.str(), withnewline ); }
 
 
 uiString& uiString::append( const char* newarg, bool withnewline )
 {
-    return append( newarg, withnewline );
+    return append( uiString(newarg), withnewline );
 }
 
 
