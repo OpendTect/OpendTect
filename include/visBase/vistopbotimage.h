@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "position.h"
 
-
+namespace OD{ class RGBImage; }
 namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
 
 
@@ -39,6 +39,8 @@ public:
     void			setImageFilename(const char*);
     const char*			getImageFilename() const;
 
+    void			setRGBImageFromFile(const char*);
+
     void			setTransparency(float); // 0-1
     float			getTransparency() const; // returns value 0-1
     void			fillPar(IOPar&) const;
@@ -48,6 +50,8 @@ protected:
     				~TopBotImage();
 
     void			updateCoords();
+    void			setRGBImage(const OD::RGBImage&);
+
 
     const mVisTrans*		trans_;
     Coord3			pos0_;

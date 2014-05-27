@@ -13,7 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+
 #include "color.h"
+#include "ptrman.h"
+#include "uistring.h"
 
 namespace OD
 {
@@ -55,8 +58,8 @@ public:
 				  bool blendequaltransparency = false,
 				  bool with_opacity=false);
 			/*! <Blends image with another image of same size. The
-			     provided images' transparency will be used to blend 
-			     the two images proportionally.
+			     provided images' transparency will be used to  
+			     blend the two images proportionally.
 			     \param blendequaltransparency if false,the color 
 			     will be not blended when sourceimage has same 
 			     transparency as this image has. 
@@ -71,7 +74,34 @@ public:
     virtual unsigned char*		getData() 		{ return 0; }
 };
 
+/*!
+\brief Class To load image files, and return the image data in RGBImage object
+*/
+
+mExpClass(Basic) RGBImageLoader
+{
+public:
+
+    static RGBImage*    loadRGBImage(const char* fnm,uiString& errmsg);
+			//!<Loads an image from file.
+			//!<Should be managed by caller.
+
+private:
+    
+    virtual RGBImage*   loadImage(const char*, uiString&) const = 0;
+    static  PtrMan<RGBImageLoader>   imageloader_;
+
+public:
+
+    static void		 setImageLoader(RGBImageLoader*);
+			 //!<Sets the current imageloader that will load all 
+			 //!<subsequent images.
+    
+    virtual		 ~RGBImageLoader();
+
 };
+
+}; // namespace OD
 
 #endif
 

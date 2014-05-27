@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "odimage.h"
 
 #include <osgGeo/TexturePlane>
 #include <osgGeo/LayeredTexture>
@@ -109,6 +110,37 @@ const char* TopBotImage::getImageFilename() const
 { return filenm_.buf(); }
 
 
+void TopBotImage::setRGBImageFromFile( const char* fnm )
+{
+    filenm_ = fnm;
+    uiString errmsg;
+    PtrMan<OD::RGBImage> rgbimg =
+			    OD::RGBImageLoader::loadRGBImage(filenm_,errmsg);
+    if ( !rgbimg )
+    {
+	pErrMsg( errmsg.getFullString() );
+	return;
+    }
+
+    setRGBImage( *rgbimg );
+}
+
+
+void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
+{
+    const int totsz = rgbimg.getSize(true) * rgbimg.getSize(false) * 4;
+    unsigned char* imgdata = new unsigned char[totsz];
+    OD::memCopy( imgdata, rgbimg.getData(), totsz );
+    osg::Image* image = new osg::Image;
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
+		     osg::Image::NO_DELETE );
+    image->flipVertical();
+    laytex_->setDataLayerImage( layerid_, image );
+    texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
+}
+
+
 void TopBotImage::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKeyTopLeftCoord(), pos0_ );
@@ -126,7 +158,7 @@ bool TopBotImage::usePar( const IOPar& iopar )
     iopar.get( sKeyFileNameStr(), filenm_  );
    
     setPos( ltpos, brpos );  
-    setImageFilename( filenm_ );
+    setRGBImageFromFile( filenm_ );
     return true;
 }
 
