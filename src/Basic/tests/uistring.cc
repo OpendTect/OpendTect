@@ -44,6 +44,10 @@ bool testArg()
     part1.append( ", Part 2" );
     mRunStandardTest(
 	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
+    part1.append( ", Part 2" );
+    mRunStandardTest(
+	    FixedString(part1.getFullString())=="Part 1, Part 2\n, Part 2",
+			"append with newline" );
 
     return true;
 }

@@ -168,6 +168,7 @@ bool uiStringData::fillQString( QString& res,
 
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    , lock_( true )
 {
     data_->ref();
     *this = str;
@@ -179,21 +180,15 @@ uiString::uiString( const char* originaltext, const char* context,
 		    const char* disambiguation, int pluralnr )
     : data_( new uiStringData(originaltext, context, application,
 			      disambiguation, pluralnr ))
+    , lock_( true )
 {
     data_->ref();
 }
 
 
-
-void uiString::addLegacyVersion( const uiString& legacy )
-{
-    makeIndependent();
-    data_->addLegacyVersion( legacy );
-}
-
-
 uiString::uiString( const uiString& str )
     : data_( str.data_ )
+    , lock_( true )
 {
     data_->ref();
 }
@@ -201,6 +196,7 @@ uiString::uiString( const uiString& str )
 
 uiString::uiString( const FixedString& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    , lock_( true )
 {
     data_->ref();
     *this = str;
@@ -209,6 +205,7 @@ uiString::uiString( const FixedString& str )
 
 uiString::uiString( const BufferString& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
+    , lock_( true )
 {
     data_->ref();
     *this = str;
@@ -221,8 +218,17 @@ uiString::~uiString()
 }
 
 
+void uiString::addLegacyVersion( const uiString& legacy )
+{
+    Threads::Locker locker( lock_ );
+    makeIndependent();
+    data_->addLegacyVersion( legacy );
+}
+
+
 bool uiString::isEmpty() const
 {
+    Threads::Locker locker( lock_ );
     return data_->originalstring_.isEmpty();
 }
 
@@ -235,12 +241,14 @@ void uiString::setEmpty()
 
 const char* uiString::getOriginalString() const
 {
+    Threads::Locker locker( lock_ );
     return data_->originalstring_;
 }
 
 
 BufferString uiString::getFullString() const
 {
+    Threads::Locker locker( lock_ );
     BufferString res;
     data_->getFullString( res );
     return res;
@@ -249,6 +257,7 @@ BufferString uiString::getFullString() const
 
 const QString& uiString::getQtString() const
 {
+    Threads::Locker locker( lock_ );
     data_->fillQString( data_->qstring_,
 			TrMgr().getQTranslator(data_->application_) );
     return data_->qstring_;
@@ -257,6 +266,7 @@ const QString& uiString::getQtString() const
 
 wchar_t* uiString::createWCharString() const
 {
+    Threads::Locker locker( lock_ );
     QString qstr;
     data_->fillQString( qstr, TrMgr().getQTranslator(data_->application_) );
     if ( !qstr.size() )
@@ -276,6 +286,7 @@ wchar_t* uiString::createWCharString() const
 
 uiString& uiString::operator=( const uiString& str )
 {
+    Threads::Locker locker( lock_ );
     str.data_->ref();
     data_->unRef();
     data_ = str.data_;
@@ -285,6 +296,7 @@ uiString& uiString::operator=( const uiString& str )
 
 void uiString::setFrom( const QString& qstr )
 {
+    Threads::Locker locker( lock_ );
     makeIndependent();
     data_->setFrom( qstr );
 }
@@ -292,6 +304,7 @@ void uiString::setFrom( const QString& qstr )
 
 uiString& uiString::operator=( const FixedString& str )
 {
+    Threads::Locker locker( lock_ );
     makeIndependent();
     data_->set( str.str() );
     return *this;
@@ -300,6 +313,7 @@ uiString& uiString::operator=( const FixedString& str )
 
 uiString& uiString::operator=( const BufferString& str )
 {
+    Threads::Locker locker( lock_ );
     makeIndependent();
     data_->set( str.str() );
 
@@ -309,6 +323,7 @@ uiString& uiString::operator=( const BufferString& str )
 
 uiString& uiString::operator=( const char* str )
 {
+    Threads::Locker locker( lock_ );
     makeIndependent();
     data_->set( str );
     return *this;
@@ -317,6 +332,7 @@ uiString& uiString::operator=( const char* str )
 
 uiString& uiString::arg( const uiString& newarg )
 {
+    Threads::Locker locker( lock_ );
     makeIndependent();
     data_->arguments_ += newarg;
     return *this;
@@ -333,35 +349,37 @@ uiString& uiString::arg( const BufferString& a )
 
 uiString& uiString::arg( const char* newarg )
 {
-    return arg( uiString(newarg) );
+    return arg( newarg );
 }
 
 
-uiString& uiString::append( const uiString& txt )
+uiString& uiString::append( const uiString& txt, bool withnewline )
 {
+    Threads::Locker locker( lock_ );
     uiString self( *this );
     self.makeIndependent();
-    *this = uiString("%1%2").arg( self ).arg( txt );
+    *this = uiString( withnewline ? "%1\n%2" : "%1%2").arg( self ).arg( txt );
     return *this;
 }
 
 
-uiString& uiString::append( const FixedString& a )
-{ return append( a.str() ); }
+uiString& uiString::append( const FixedString& a, bool withnewline )
+{ return append( a.str(), withnewline ); }
 
 
-uiString& uiString::append( const BufferString& a )
-{ return append( a.str() ); }
+uiString& uiString::append( const BufferString& a, bool withnewline )
+{ return append( a.str(), withnewline ); }
 
 
-uiString& uiString::append( const char* newarg )
+uiString& uiString::append( const char* newarg, bool withnewline )
 {
-    return append( uiString(newarg) );
+    return append( uiString(newarg), withnewline );
 }
 
 
 bool uiString::translate( const QTranslator& tr , QString& res ) const
 {
+    Threads::Locker locker( lock_ );
     return data_->fillQString( res, &tr );
 
 }
@@ -369,6 +387,7 @@ bool uiString::translate( const QTranslator& tr , QString& res ) const
 
 void uiString::makeIndependent()
 {
+    Threads::Locker locker( lock_ );
     if ( data_->refcount_.count()==1 )
 	return;
 
