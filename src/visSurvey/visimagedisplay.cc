@@ -141,7 +141,6 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 
 void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 {
-    const float zscale = scene_ ? scene_->getZScale() : 1;
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
     const Coord3 topleft(-size,0,size);
@@ -181,7 +180,6 @@ void ImageDisplay::removePosition( int idx )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
-    const float zscale = scene_ ? scene_->getZScale() : 1;
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
     const Coord3 topleft(-size,0,size);
