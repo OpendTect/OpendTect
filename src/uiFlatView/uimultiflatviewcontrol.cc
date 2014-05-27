@@ -83,7 +83,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
 
     parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
-	    "Set display parameters", mCB(this,uiMultiFlatViewControl,parsCB) );
+	    tr("Set display parameters"), mCB(this,uiMultiFlatViewControl,parsCB) );
 
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 

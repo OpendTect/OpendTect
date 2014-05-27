@@ -20,7 +20,7 @@ ________________________________________________________________________
 */
 
 mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
-{
+{ mODTextTranslationClass(uiMultiFlatViewControl);
 public:
     			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
     			~uiMultiFlatViewControl();
