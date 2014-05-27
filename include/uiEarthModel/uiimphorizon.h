@@ -38,7 +38,7 @@ namespace EM { class Horizon3D; }
 /*! \brief Dialog for Horizon Import */
 
 mExpClass(uiEarthModel) uiImportHorizon : public uiDialog
-{
+{ mODTextTranslationClass(uiImportHorizon);
 public:
     static void		initClass();
 			uiImportHorizon(uiParent*,bool);

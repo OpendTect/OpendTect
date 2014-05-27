@@ -29,7 +29,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mAddMSFld(txt,att) \
     if ( SI().zIsTime() ) \
     { \
-	msfld_ = new uiGenInput( this, txt, BoolInpSpec(true,"ms","s") ); \
+	msfld_ = new uiGenInput( this, txt, BoolInpSpec(true, \
+                                "ms","s") ); \
 	msfld_->attach( alignedBelow, att ); \
     }
 #define mGetZFac(valifms) \

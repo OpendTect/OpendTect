@@ -35,7 +35,7 @@ namespace EM
 /*! \brief Dialog for horizon export */
 
 mExpClass(uiEarthModel) uiWriteSurfaceDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWriteSurfaceDlg);
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&,
 				          float shift);

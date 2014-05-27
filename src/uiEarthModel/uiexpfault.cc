@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 #define mGetTitle(tp) \
-    mGet( tp, "Export FaultStickSet", "Export Fault" )
+    mGet( tp, tr("Export FaultStickSet"), tr("Export Fault") )
 
 uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),mNoDlgTitle,
@@ -55,17 +55,18 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     inplbl += typ;
     infld_ = new uiIOObjSel( this, ctio_, inplbl );
 
-    coordfld_ = new uiGenInput( this, "Write coordinates as",
-				BoolInpSpec(true,"X/Y","Inl/Crl") );
+    coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
+				BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
     bool setchk = true;
     if ( SI().zIsTime() )
-	zbox_ = new uiGenInput( this, "Z in", BoolInpSpec(true,"msec","s") );
+	zbox_ = new uiGenInput( this, tr("Z in"), 
+                                BoolInpSpec(true,tr("msec"),tr("s")) );
     else
     {
-	zbox_ = new uiGenInput( this, "Z in",
-				BoolInpSpec(true,"feet","meter") );
+	zbox_ = new uiGenInput( this, tr("Z in"),
+				BoolInpSpec(true,tr("feet"),tr("meter")) );
 	setchk = SI().depthsInFeet();
     }
     zbox_->setValue( setchk );
@@ -80,7 +81,8 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
 
     if ( mGet(typ,true,false) )
     {
-	linenmfld_ = new uiCheckBox( this, "Write line name if picked on 2D" );
+	linenmfld_ = new uiCheckBox( this, 
+                                     tr("Write line name if picked on 2D") );
 	linenmfld_->setChecked( true );
 	linenmfld_->attach( alignedBelow, stickidsfld_ );
     }
@@ -137,10 +139,10 @@ static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 bool uiExportFault::writeAscii()
 {
     const IOObj* ioobj = ctio_.ioobj;
-    if ( !ioobj ) mErrRet("Cannot find fault in database");
+    if ( !ioobj ) mErrRet(tr("Cannot find fault in database"));
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet("Cannot add fault to EarthModel")
+    if ( !emobj ) mErrRet(tr("Cannot add fault to EarthModel"))
 
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
@@ -148,7 +150,7 @@ bool uiExportFault::writeAscii()
     if ( !f3d && !fss ) return false;
 
     PtrMan<Executor> loader = emobj->loader();
-    if ( !loader ) mErrRet("Cannot read fault")
+    if ( !loader ) mErrRet(tr("Cannot read fault"))
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
@@ -158,7 +160,7 @@ bool uiExportFault::writeAscii()
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( "Cannot open output file" );
+	mErrRet( tr("Cannot open output file") );
     }
 
     BufferString str;
@@ -228,16 +230,16 @@ bool uiExportFault::writeAscii()
 bool uiExportFault::acceptOK( CallBacker* )
 {
     if ( !infld_->commitInput() )
-	mErrRet( "Please select the input fault" );
+	mErrRet( tr("Please select the input fault") );
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( "Please select output file" );
+	mErrRet( tr("Please select output file") );
 
     if ( File::exists(outfnm)
-      && !uiMSG().askOverwrite("Output file exists. Overwrite?"))
+      && !uiMSG().askOverwrite(tr("Output file exists. Overwrite?")))
 	return false;
 
     const bool res = writeAscii();
-    if ( res ) uiMSG().message( "Fault successfully exported" );
+    if ( res ) uiMSG().message( tr("Fault successfully exported") );
     return false;
 }

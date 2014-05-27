@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 				      float shift )
-    : uiDialog(p,uiDialog::Setup("Output selection",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Output selection"),mNoDlgTitle,
                                  mODHelpKey(mWriteSurfaceDlgHelpID) ))
     , surface_(surf)
 {

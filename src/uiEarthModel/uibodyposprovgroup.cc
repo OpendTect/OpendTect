@@ -29,7 +29,8 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, "", BoolInpSpec(true,"Inside","Outside") );
+    inoutbut_ = new uiGenInput(this, "", BoolInpSpec(true,uiStrings::sInside(),
+                                uiStrings::sOutside()) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
     bodyfld_ = new uiIOObjSel( this, ctio_, mBodyKey );
     bodyfld_->attach( alignedBelow, inoutbut_ );
@@ -90,7 +91,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Body() );
     if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
-	mErrRet("Please select the body");
+	mErrRet(tr("Please select the body"));
 
     iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(), 
 	    inoutbut_->getBoolValue() );

@@ -26,7 +26,7 @@ class uiIOObjSel;
 /*! \brief Dialog for horizon export */
 
 mExpClass(uiEarthModel) uiExportFault : public uiDialog
-{
+{ mODTextTranslationClass(uiExportFault);
 public:
 			uiExportFault(uiParent*,const char* type);
 			~uiExportFault();

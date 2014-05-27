@@ -29,7 +29,7 @@ class uiHor3DInterpolSel;
 
 
 mExpClass(uiEarthModel) uiHorizonInterpolDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiHorizonInterpolDlg);
 public:
     			uiHorizonInterpolDlg(uiParent*,EM::Horizon*,
 					     bool is2d=false);

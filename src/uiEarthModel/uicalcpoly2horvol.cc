@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiCalcHorVol::uiCalcHorVol( uiParent* p, const char* dlgtxt )
-	: uiDialog(p,Setup("Calculate volume",dlgtxt,
+	: uiDialog(p,Setup(tr("Calculate volume"),dlgtxt,
                     mODHelpKey(mCalcPoly2HorVolHelpID) ))
 	, zinft_(SI().depthsInFeet())
 	, velfld_(0)
@@ -70,7 +70,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     sep->attach( stretchedBelow, attobj );
 
     uiPushButton* calcbut = new uiPushButton( grp,
-				"&Estimate volume", calccb, true);
+				tr("&Estimate volume"), calccb, true);
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
 
@@ -81,7 +81,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	const float area = ps->getXYArea();
 	if ( !mIsUdf(area) )
 	{
-	    areafld = new uiGenInput( grp, "==> Area" );
+	    areafld = new uiGenInput( grp, tr("==> Area") );
 	    areafld->attach( alignedBelow, calcbut );
 	    areafld->setReadOnly( true );
 
@@ -89,7 +89,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
 	}
     }
 
-    valfld_ = new uiGenInput( grp, "==> Volume" );
+    valfld_ = new uiGenInput( grp, tr("==> Volume") );
     if ( areafld )
 	valfld_->attach( alignedBelow, areafld );
     else
@@ -120,7 +120,7 @@ void uiCalcHorVol::calcReq( CallBacker* )
     {
 	vel = velfld_->getfValue();
 	if ( mIsUdf(vel) || vel < 0.1 )
-	    mErrRet("Please provide the velocity")
+	    mErrRet(tr("Please provide the velocity"))
 	if ( zinft_ )
 	    vel *= mFromFeetFactorF;
     }

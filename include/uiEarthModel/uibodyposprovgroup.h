@@ -22,7 +22,7 @@ class uiPosSubSel;
 
 /*! \brief UI for BodyPosProvider */
 mExpClass(uiEarthModel) uiBodyPosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiBodyPosProvGroup);
 public:
 				uiBodyPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);

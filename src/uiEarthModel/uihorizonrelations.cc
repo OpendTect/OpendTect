@@ -41,25 +41,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Horizon relations"),mNoDlgTitle,
                        mODHelpKey(mHorizonRelationsDlgHelpID) ))
     , is2d_( is2d )
 {
-    relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",
+    relationfld_ = new uiLabeledListBox( this, tr("Order (top to bottom)"),
 			     OD::ChooseOnlyOne, uiLabeledListBox::AboveLeft );
     relationfld_->box()->setHSzPol( uiObject::Wide );
 
     uiPushButton* orderbut =
-		new uiPushButton( relationfld_, "&Read Horizons", false );
+		new uiPushButton( relationfld_, tr("&Read Horizons"), false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
     orderbut->attach( rightTo, relationfld_->box() );
 
-    crossbut_ = new uiPushButton( relationfld_, "&Check crossings", false );
+    crossbut_ = new uiPushButton( relationfld_, tr("&Check crossings"), false );
     crossbut_->activated.notify(
 		mCB(this,uiHorizonRelationsDlg,checkCrossingsCB) );
     crossbut_->attach( alignedBelow, orderbut );
 
-    waterbut_ = new uiPushButton( relationfld_, "&Make watertight", false );
+    waterbut_ = new uiPushButton( relationfld_, tr("&Make watertight"), false );
     waterbut_->activated.notify(
 		mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
     waterbut_->attach( alignedBelow, crossbut_ );
@@ -282,11 +282,11 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
     }
 
     if ( count > 0 ) return;
-    uiMSG().message( "No crossings found" );
+    uiMSG().message( tr("No crossings found") );
 }
 
 
 void uiHorizonRelationsDlg::makeWatertightCB( CallBacker* )
 {
-    uiMSG().message( "Not implemented yet" );
+    uiMSG().message( tr("Not implemented yet") );
 }

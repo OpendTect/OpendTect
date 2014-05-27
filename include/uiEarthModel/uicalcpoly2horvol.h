@@ -24,7 +24,7 @@ namespace EM	{ class Horizon3D; }
 /*! \brief UI for calculation of volume at horizons */
 
 mExpClass(uiEarthModel) uiCalcHorVol : public uiDialog
-{
+{ mODTextTranslationClass(uiCalcHorVol);
 protected:
 
 			uiCalcHorVol(uiParent*,const char*);

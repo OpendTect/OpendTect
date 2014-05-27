@@ -24,7 +24,7 @@ class uiLabel;
 /*! \brief UI for SurfacePosProvider */
 
 mExpClass(uiEarthModel) uiSurfacePosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiSurfacePosProvGroup);
 public:
 			uiSurfacePosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);

@@ -23,7 +23,7 @@ namespace EM { class Horizon; }
 class uiSurfaceSel;
 
 mExpClass(uiEarthModel) uiHorizonSortDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiHorizonSortDlg);
 public:
 
 				uiHorizonSortDlg(uiParent*,bool is2d,

@@ -40,7 +40,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
 {
     if ( horizon_ ) horizon_->ref();
 
-    savefld_ = new uiGenInput( this, "Save horizon",
+    savefld_ = new uiGenInput( this, tr("Save horizon"),
 	    		       BoolInpSpec(true,"As new","Overwrite") );
     savefld_->valuechanged.notify( mCB(this,uiHorSaveFieldGrp,saveCB) );
 
@@ -50,7 +50,7 @@ uiHorSaveFieldGrp::uiHorSaveFieldGrp( uiParent* p, EM::Horizon* hor, bool is2d )
     outputfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outputfld_->attach( alignedBelow, savefld_ );
     
-    addnewfld_ = new uiCheckBox( this, "Display after create"  );
+    addnewfld_ = new uiCheckBox( this, "Display after create" );
     addnewfld_->attach( alignedBelow, outputfld_ );
 
     setHAlignObj( savefld_ );    

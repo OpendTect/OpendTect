@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d, bool loadneeded )
-    : uiDialog(p,Setup("Horizon sorter","Select horizons",mNoHelpKey))
+    : uiDialog(p,Setup(tr("Horizon sorter"),tr("Select horizons"),mNoHelpKey))
     , is2d_( is2d )
     , loadneeded_(loadneeded)
 {
@@ -80,7 +80,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     getSelectedHorizons( horids );
     if ( horids.size() < 2 )
     {
-	uiMSG().error( "Please select at least two horizons" );
+	uiMSG().error( tr("Please select at least two horizons") );
 	return false;
     }
 

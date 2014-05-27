@@ -181,7 +181,7 @@ bool uiChangeHorizonDlg::acceptOK( CallBacker* cb )
 
     const bool res = savefldgrp_->saveHorizon();
     if ( res )
-	uiMSG().message( "Horizon sucessfully changed" );
+	uiMSG().message( tr("Horizon sucessfully changed") );
 
     return false;
 }

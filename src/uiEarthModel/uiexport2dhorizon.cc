@@ -44,8 +44,7 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
 				      const ObjectSet<SurfaceInfo>& hinfos )
-	: uiDialog(p,uiDialog::Setup("Export 2D Horizon",
-				     mNoDlgTitle,
+	: uiDialog(p,uiDialog::Setup(tr("Export 2D Horizon"), mNoDlgTitle,
                                      mODHelpKey(mExportHorizonHelpID) ))
 	, hinfos_(hinfos)
 {
@@ -59,15 +58,16 @@ uiExport2DHorizon::uiExport2DHorizon( uiParent* p,
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	horselfld_->addItem( hinfos_[idx]->name );
 
-    uiLabeledListBox* llbox = new uiLabeledListBox( this, "Select lines",
+    uiLabeledListBox* llbox = new uiLabeledListBox( this, tr("Select lines"),
 						    OD::ChooseAtLeastOne );
     llbox->attach( alignedBelow, lcbox );
     linenmfld_ = llbox->box();
 
-    headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );
+    headerfld_ = new uiGenInput( this, tr("Header"), 
+                                 StringListInpSpec(hdrtyps) );
     headerfld_->attach( alignedBelow, llbox );
 
-    udffld_ = new uiGenInput( this, "Write undefined parts? Undef value",
+    udffld_ = new uiGenInput( this, tr("Write undefined parts? Undef value"),
 			      FloatInpSpec(sKey::FloatUdf()) );
     udffld_->setChecked( true );
     udffld_->setWithCheck( true );
@@ -100,11 +100,11 @@ bool uiExport2DHorizon::doExport()
     BufferStringSet linenms;
     linenmfld_->getChosen( linenms );
     if ( !linenms.size() )
-	mErrRet("Please select at least one line to proceed")
+	mErrRet(tr("Please select at least one line to proceed"))
 
     const int horidx = horselfld_->currentItem();
     if ( horidx < 0 || horidx > hinfos_.size() )
-	mErrRet("Invalid Horizon")
+	mErrRet(tr("Invalid Horizon"))
 
     MultiID horid = hinfos_[horidx]->multiid;
     EM::EMManager& em = EM::EMM();
@@ -113,7 +113,7 @@ bool uiExport2DHorizon::doExport()
     {
 	PtrMan<Executor> exec = em.objectLoader( horid );
 	if ( !exec || !exec->execute() )
-	    mErrRet("Cannot load horizon")
+	    mErrRet(tr("Cannot load horizon"))
 
 	obj = em.getObject( em.getObjectID(horid) );
 	if ( !obj ) return false;
@@ -123,11 +123,11 @@ bool uiExport2DHorizon::doExport()
 
     mDynamicCastGet(EM::Horizon2D*,hor,obj);
     if ( !hor )
-	mErrRet("Cannot load horizon")
+	mErrRet(tr("Cannot load horizon"))
 
     EM::SectionID sid = hor->sectionID( 0 );
     const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
-    if ( !geom ) mErrRet("Error Reading Horizon")
+    if ( !geom ) mErrRet(tr("Error Reading Horizon"))
 
     const bool wrudfs = udffld_->isChecked();
     BufferString undefstr;
@@ -145,7 +145,7 @@ bool uiExport2DHorizon::doExport()
 
     od_ostream strm( outfld_->fileName() );
     if ( !strm.isOK() )
-	mErrRet("Cannot open output file")
+	mErrRet(tr("Cannot open output file"))
 
     writeHeader( strm );
     for ( int idx=0; idx< linenms.size(); idx++ )
@@ -230,14 +230,16 @@ void uiExport2DHorizon::writeHeader( od_ostream& strm )
 	BufferString str( wrtlnm ? " LineName" : "" );
 	if ( !str.isEmpty() )
 	{
-	    headerstr.add( id ).add( ":" ).add( str ).add( "\n" ).add( "# " );
+	    headerstr.add( id ).add( ":" )
+                     .add( str ).add( "\n" ).add( "# " );
 	    id++;
 	}
 
 	headerstr.add( id ).add( ": " ).add( "X\n" );
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( "Y\n" );
 	if ( wrtlnm )
-	    headerstr.add( "# " ).add( ++id ).add( ": " ).add( "TraceNr\n" );
+	    headerstr.add( "# " ).add( ++id )
+                     .add( ": " ).add( "TraceNr\n" );
 
 	headerstr.add( "# " ).add( ++id ).add( ": " ).add( zstr );
     }
@@ -251,15 +253,15 @@ bool uiExport2DHorizon::acceptOK( CallBacker* )
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( "Please select output file" );
+	mErrRet( tr("Please select output file") );
 
     if ( File::exists(outfnm) &&
-	!uiMSG().askOverwrite("Output file exists. Overwrite?") )
+	!uiMSG().askOverwrite(tr("Output file exists. Overwrite?")) )
 	return false;
 
     const bool res = doExport();
     if ( res )
-	uiMSG().message( "Horizon successfully exported" );
+	uiMSG().message( tr("Horizon successfully exported") );
     return false;
 }
 

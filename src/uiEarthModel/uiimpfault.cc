@@ -42,8 +42,9 @@ static const char* rcsID mUsedVar = "$Id$";
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 
 #define mGetCaption(tp) \
-    mGet( tp, (is2d ? "Import FaultStickSet 2D" : "Import FaultStickSet"), \
-	  "Import Fault" )
+    mGet( tp, (is2d ? tr("Import FaultStickSet 2D") \
+                    : tr("Import FaultStickSet")), \
+	              tr("Import Fault") )
 
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
@@ -66,7 +67,7 @@ uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    enableSaveButton( "Display after import" );
+    enableSaveButton( tr("Display after import") );
 }
 
 
@@ -88,7 +89,7 @@ void uiImportFault::createUI()
     if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ASCII" );
-	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
+	typefld_ = new uiGenInput( this, tr("Type"), StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 
@@ -100,7 +101,7 @@ void uiImportFault::createUI()
 	BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )
 						.add( sKeyInlCrlSep() )
 						.add( sKeySlopeThres() );
-	stickselfld_ = new uiGenInput( this, "Stick selection",
+	stickselfld_ = new uiGenInput( this, tr("Stick selection"),
 				    StringListInpSpec(stickselopt) );
 	stickselfld_->attach( alignedBelow, typefld_ );
 	stickselfld_->valuechanged.notify(mCB(this,uiImportFault,stickSel));
@@ -112,7 +113,7 @@ void uiImportFault::createUI()
 	BufferStringSet sticksortopt; sticksortopt.add( sKeyGeometric() )
 						  .add( sKeyIndexed() )
 						  .add( sKeyFileOrder() );
-	sortsticksfld_ = new uiGenInput( this, "Stick sorting",
+	sortsticksfld_ = new uiGenInput( this, tr("Stick sorting"),
 					 StringListInpSpec(sticksortopt) );
 	sortsticksfld_->attach( alignedBelow, stickselfld_ );
     }
@@ -258,7 +259,7 @@ bool uiImportFault::handleAscii()
     else
 	fault->unRef();
 
-    uiMSG().message( "Import successful" );
+    uiMSG().message( tr("Import successful") );
     return false;
 }
 

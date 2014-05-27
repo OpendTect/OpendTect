@@ -27,7 +27,7 @@ template <class T> class Array2D;
 /*!\brief Base class for surface changers. At the moment only does horizons. */
 
 mExpClass(uiEarthModel) uiChangeHorizonDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiChangeHorizonDlg);
 public:
 				uiChangeHorizonDlg(uiParent*,EM::Horizon*,
 						   bool is2d,const char*);

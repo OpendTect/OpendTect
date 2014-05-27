@@ -87,7 +87,7 @@ bool getData( BufferString& hornm, Coord3& crd )
 
 
 uiBulkHorizonImport::uiBulkHorizonImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Multiple Horizons",
+    : uiDialog(p,uiDialog::Setup(tr("Import Multiple Horizons"),
 				 mNoDlgTitle,
                                  mODHelpKey(mBulkHorizonImportHelpID) ))
     , fd_(BulkHorizonAscIO::getDesc())

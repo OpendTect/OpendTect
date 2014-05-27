@@ -143,13 +143,14 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Horizon Data",
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, 
+                                                      tr("Horizon Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setHSzPol( uiObject::Wide );
 	attribfld_->setToolTip(
-		"Horizon Data (Attributes stored in Horizon format)" );
+		tr("Horizon Data (Attributes stored in Horizon format)") );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
 	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Horizon Data",
@@ -159,11 +160,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =
-	    new uiPushButton( listgrp_, "&Stratigraphy", false );
+	    new uiPushButton( listgrp_, tr("&Stratigraphy"), false );
 	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
 	stratbut->attach( alignedBelow, selgrp_ );
 
-	uiPushButton* relbut = new uiPushButton( listgrp_, "&Relations", false);
+	uiPushButton* relbut = new uiPushButton( listgrp_, 
+                                                 tr("&Relations"), false);
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
 	relbut->attach( ensureBelow, llb );
@@ -172,12 +174,13 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Flt3D )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, "Fault Data",
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, 
+                                                      tr("Fault Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
 	attribfld_->setToolTip(
-		"Fault Data (Attributes stored in Fault format)" );
+		tr("Fault Data (Attributes stored in Fault format)") );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
 	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Fault Data",
@@ -268,7 +271,7 @@ void uiSurfaceMan::calVolCB( CallBacker* )
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
-	uiMSG().error( "Body is empty" );
+	uiMSG().error( tr("Body is empty") );
 	return;
     }
 
@@ -306,7 +309,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->implReadOnly() )
     {
-	uiMSG().error( "Could not remove Surface Data. Surface is read-only" );
+    uiMSG().error(tr("Could not remove Surface Data. Surface is read-only"));
 	return;
     }
 
@@ -342,7 +345,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
     const char* newnm = dlg.text();
     if ( attribfld_->isPresent(newnm) )
-	mErrRet( "Name is already in use" )
+	mErrRet( tr("Name is already in use") )
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {
@@ -356,17 +359,17 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     const BufferString filename =
 		EM::SurfaceAuxData::getFileName( *curioobj_, attribnm );
     if ( File::isEmpty(filename) )
-	mErrRet( "Cannot find Horizon Data file" )
+	mErrRet( tr("Cannot find Horizon Data file") )
     else if ( !File::isWritable(filename) )
-	mErrRet( "The Horizon Data file is not writable" )
+	mErrRet( tr("The Horizon Data file is not writable") )
 
     od_istream instrm( filename );
     if ( !instrm.isOK() )
-	mErrRet( "Cannot open Horizon Data file for read" )
+	mErrRet( tr("Cannot open Horizon Data file for read") )
     const BufferString ofilename( filename, "_new" );
     od_ostream outstrm( ofilename );
     if ( !outstrm.isOK() )
-	mErrRet( "Cannot open new Horizon Data file for write" )
+	mErrRet( tr("Cannot open new Horizon Data file for write") )
 
     ascistream aistrm( instrm );
     ascostream aostrm( outstrm );
@@ -383,7 +386,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     if ( !writeok )
     {
 	File::remove( ofilename );
-	mErrRet( "Error during write. Reverting to old name" )
+	mErrRet( tr("Error during write. Reverting to old name") )
     }
 
     if ( File::rename(filename,tmpfnm) )
@@ -391,7 +394,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     else
     {
 	File::remove( ofilename );
-	mErrRet( "Cannot rename file(s). Reverting to old name" )
+	mErrRet( tr("Cannot rename file(s). Reverting to old name") )
     }
 
     if ( File::exists(tmpfnm) )

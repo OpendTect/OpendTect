@@ -37,14 +37,15 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 {
     if ( su.is2d_ )
     {
-	new uiLabel( this, "Not implemented for 2D" );
+	new uiLabel( this, tr("Not implemented for 2D") );
 	return;
     }
     surf1fld_ = new uiIOObjSel( this, ctio1_, "Horizon" );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
-    issingfld_ = new uiGenInput( this, "Select",
-	    		BoolInpSpec(true,"On Horizon","To a 2nd Horizon") );
+    issingfld_ = new uiGenInput( this, tr("Select"),
+	    		BoolInpSpec(true,tr("On Horizon"),
+                                    tr("To a 2nd Horizon")) );
     issingfld_->attach( alignedBelow, surf1fld_ );
     issingfld_->valuechanged.notify( selcb );
 
@@ -138,7 +139,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     if ( !surf1fld_ ) return false;
 
     if ( !surf1fld_->commitInput() )
-	mErrRet("Please select the surface")
+	mErrRet(tr("Please select the surface"))
     iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
 
     Interval<float> ez( 0, 0 );
@@ -147,9 +148,9 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
     else
     {
 	if ( !surf2fld_->commitInput() )
-	    mErrRet("Please select the bottom horizon")
+	    mErrRet(tr("Please select the bottom horizon"))
 	 if (  ctio2_.ioobj->key() ==  ctio1_.ioobj->key() )
-	     mErrRet("Please select two different horizons")
+	     mErrRet(tr("Please select two different horizons"))
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
     }
 

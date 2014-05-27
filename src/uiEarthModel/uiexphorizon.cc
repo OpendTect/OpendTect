@@ -50,7 +50,7 @@ static const char* hdrtyps[] = { "No", "Single line", "Multi line", 0 };
 
 
 uiExportHorizon::uiExportHorizon( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Horizon",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Export Horizon"),mNoDlgTitle,
                                  mODHelpKey(mExportHorizonHelpID) ))
 {
     setOkCancelText( uiStrings::sExport(), uiStrings::sClose() );
@@ -63,16 +63,17 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     infld_->inpChange.notify( mCB(this,uiExportHorizon,inpSel) );
     infld_->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
-    typfld_ = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
+    typfld_ = new uiGenInput( this, tr("Output type"), 
+                              StringListInpSpec(exptyps) );
     typfld_->attach( alignedBelow, infld_ );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
-    settingsbutt_ = new uiPushButton( this, "Settings",
+    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
 				      mCB(this,uiExportHorizon,settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
 
-    zfld_ = new uiGenInput( this, "Output Z", StringListInpSpec(zmodes) );
+    zfld_ = new uiGenInput( this, tr("Output Z"), StringListInpSpec(zmodes) );
     zfld_->valuechanged.notify( mCB(this,uiExportHorizon,addZChg ) );
     zfld_->attach( alignedBelow, typfld_ );
 
@@ -85,10 +86,11 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     unitsel_ = new uiUnitSel( this, "Z Unit" );
     unitsel_->attach( alignedBelow, transfld_ );
 
-    headerfld_ = new uiGenInput( this, "Header", StringListInpSpec(hdrtyps) );
+    headerfld_ = new uiGenInput( this, tr("Header"), 
+                                 StringListInpSpec(hdrtyps) );
     headerfld_->attach( alignedBelow, unitsel_ );
 
-    udffld_ = new uiGenInput( this, "Undefined value",
+    udffld_ = new uiGenInput( this, tr("Undefined value"),
 			      StringInpSpec(sKey::FloatUdf()) );
     udffld_->attach( alignedBelow, headerfld_ );
 
@@ -204,7 +206,7 @@ bool uiExportHorizon::writeAscii()
 	zatf = transfld_->getSelection();
 	if ( !zatf )
 	{
-	    uiMSG().message("Transform of selected option is not implemented");
+	 uiMSG().message(tr("Transform of selected option is not implemented"));
 	    return false;
 	}
     }
@@ -215,7 +217,7 @@ bool uiExportHorizon::writeAscii()
     BufferString basename = outfld_->fileName();
 
     const IOObj* ioobj = infld_->selIOObj();
-    if ( !ioobj ) mErrRet("Cannot find horizon object");
+    if ( !ioobj ) mErrRet(tr("Cannot find horizon object"));
 
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
@@ -228,20 +230,20 @@ bool uiExportHorizon::writeAscii()
     sels.selvalues.erase();
 
     RefMan<EM::EMObject> emobj = em.createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet("Cannot create horizon")
+    if ( !emobj ) mErrRet(tr("Cannot create horizon"))
 
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
-    if ( !loader ) mErrRet("Cannot read horizon")
+    if ( !loader ) mErrRet(tr("Cannot read horizon"))
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) ) return false;
 
     infld_->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
-	!uiMSG().askContinue("Only the first selected attribute will be used\n"
-			     "Do you wish to continue?") )
+    !uiMSG().askContinue(tr("Only the first selected attribute will be used\n"
+			     "Do you wish to continue?")) )
 	return false;
 
     if ( !sels.selvalues.isEmpty() )
@@ -297,7 +299,7 @@ bool uiExportHorizon::writeAscii()
 	    zatvoi = zatf->addVolumeOfInterest( bbox, false );
 	    if ( !zatf->loadDataIfMissing( zatvoi, &taskrunner ) )
 	    {
-		uiMSG().error( "Cannot load data for z-transform" );
+		uiMSG().error( tr("Cannot load data for z-transform") );
 		return false;
 	    }
 	}
@@ -330,7 +332,7 @@ bool uiExportHorizon::writeAscii()
 
 	if ( stream.isBad() )
 	{
-            mErrRet( "Cannot open output file" );
+            mErrRet( tr("Cannot open output file") );
 	}
 
 	if ( dogf )
@@ -415,7 +417,7 @@ bool uiExportHorizon::writeAscii()
 
         stream.flush();
         if ( stream.isBad() )
-            mErrRet( "Cannot write output file" );
+            mErrRet( tr("Cannot write output file") );
     }
 
     if ( zatf && zatvoi>=0 )
@@ -435,15 +437,15 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( "Please select output file" );
+	mErrRet( tr("Please select output file") );
 
     if ( File::exists(outfnm) &&
-		  !uiMSG().askOverwrite("Output file exists. Overwrite?") )
+		  !uiMSG().askOverwrite(tr("Output file exists. Overwrite?")) )
 	return false;
 
     const bool res = writeAscii();
     if ( res )
-	uiMSG().message( "Horizon successfully exported" );
+	uiMSG().message( tr("Horizon successfully exported") );
     return false;
 }
 
@@ -517,9 +519,10 @@ void uiExportHorizon::settingsCB( CallBacker* )
     if ( typfld_->getIntValue() != 2 )
 	return;
 
-    uiDialog dlg( this, uiDialog::Setup("IESX details",mNoDlgTitle,mNoHelpKey));
-    uiGenInput* namefld = new uiGenInput( &dlg, "Horizon name in file" );
-    uiGenInput* commentfld = new uiGenInput( &dlg, "[Comment]" );
+    uiDialog dlg( this, uiDialog::Setup(tr("IESX details"),
+                                        mNoDlgTitle,mNoHelpKey));
+    uiGenInput* namefld = new uiGenInput( &dlg, tr("Horizon name in file") );
+    uiGenInput* commentfld = new uiGenInput( &dlg, tr("[Comment]") );
     commentfld->attach( alignedBelow, namefld );
     namefld->setText( gfname_.buf() );
     commentfld->setText( gfcomment_.buf() );
@@ -529,7 +532,7 @@ void uiExportHorizon::settingsCB( CallBacker* )
 	FixedString nm = namefld->text();
 	if ( nm.isEmpty() )
 	{
-	    uiMSG().error( "No name selected" );
+	    uiMSG().error( tr("No name selected") );
 	    continue;
 	}
 

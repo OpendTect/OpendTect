@@ -26,7 +26,7 @@ class od_ostream;
 /*! \brief Dialog for 2D horizon export */
 
 mExpClass(uiEarthModel) uiExport2DHorizon : public uiDialog
-{
+{ mODTextTranslationClass(uiExport2DHorizon);
 public:
 			uiExport2DHorizon(uiParent*,
 					  const ObjectSet<SurfaceInfo>&);

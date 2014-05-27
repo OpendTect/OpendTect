@@ -156,8 +156,8 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     , auxidx_( auxidx )
     , nrhorswithdata_( 0 )
 {
-    horfld_ = new uiGenInput( this, "Horizon", StringInpSpec() );
-    selbut_ = new uiPushButton( this, "&Select",
+    horfld_ = new uiGenInput( this, tr("Horizon"), StringInpSpec() );
+    selbut_ = new uiPushButton( this, uiStrings::sSelect(),
 	    mCB(this,uiHorizonAuxDataSel,selCB), false );
     selbut_->attach( rightOf, horfld_ );
  
@@ -175,7 +175,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
 	horfld_->setText( obj->name() );
     }    
     
-    auxfld_ = new uiGenInput( this, "Horizon Data", str ); 
+    auxfld_ = new uiGenInput( this, tr("Horizon Data"), str ); 
     auxfld_->attach( rightOf, selbut_ );
     auxfld_->setPrefWidthInChar( 60 );
     auxfld_->valuechanged.notify(

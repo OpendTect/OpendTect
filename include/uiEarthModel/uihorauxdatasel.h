@@ -21,7 +21,7 @@ class uiGenInput;
 class uiPushButton;
 
 mExpClass(uiEarthModel) uiHorizonAuxDataSel : public uiGroup
-{
+{ mODTextTranslationClass(uiHorizonAuxDataSel);
 public:
 
     mExpClass(uiEarthModel) HorizonAuxDataInfo

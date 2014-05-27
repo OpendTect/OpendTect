@@ -30,12 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Merge 3D Horizons","", 
+    : uiDialog(p,Setup(tr("Merge 3D Horizons"),"", 
                        mODHelpKey(mHorizonMergeDlgHelpID) ))
 {
     horselfld_ = new uiHorizon3DSel( this );
 
-    duplicatefld_ = new uiGenInput( this, "Duplicate positions",
+    duplicatefld_ = new uiGenInput( this, tr("Duplicate positions"),
 	    StringListInpSpec(EM::HorizonMerger::ModeNames()) );
     duplicatefld_->attach( alignedBelow, horselfld_ );
 
@@ -60,7 +60,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     horselfld_->getSelSurfaceIds( mids );
     if ( mids.size() < 2 )
     {
-	uiMSG().error( "Please select at least 2 horizons" );
+	uiMSG().error( tr("Please select at least 2 horizons") );
 	return false;
     }
 
@@ -72,7 +72,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     PtrMan<Executor> loader = EM::EMM().objectLoader( mids );
     if ( loader && !TaskRunner::execute( &uitr, *loader ) )
     {
-	uiMSG().error( "Cannot load selected input horizons" );
+	uiMSG().error( tr("Cannot load selected input horizons") );
 	return false;
     }
 
@@ -88,14 +88,14 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     merger.setMode( (EM::HorizonMerger::Mode)duplicatefld_->getIntValue() );
     if ( !TaskRunner::execute( &uitr, merger ) )
     {
-	uiMSG().error( "Cannot merge horizons" );
+	uiMSG().error( tr("Cannot merge horizons") );
 	return false;
     }
 
     EM::Horizon3D* hor3d = merger.getOutputHorizon();
     if ( !hor3d )
     {
-	uiMSG().error( "No output horizon generated" );
+	uiMSG().error( tr("No output horizon generated") );
 	return false;
     }
 
@@ -105,7 +105,7 @@ bool uiHorizonMergeDlg::acceptOK( CallBacker* )
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !TaskRunner::execute( &uitr, *saver ) )
     {
-	uiMSG().error( "Cannot save output horizon" );
+	uiMSG().error( tr("Cannot save output horizon") );
 	return false;
     }
 

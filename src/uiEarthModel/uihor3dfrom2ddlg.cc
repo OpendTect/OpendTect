@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
-    : uiDialog( p, Setup("Derive 3D Horizon",mNoDlgTitle,
+    : uiDialog( p, Setup(tr("Derive 3D Horizon"),mNoDlgTitle,
 			 mODHelpKey(mHor3DFrom2DDlgHelpID)) )
     , hor2d_( h2d )
     , emserv_( ems )
@@ -42,7 +42,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , displayfld_( 0 )
 {
     interpolsel_ = new uiArray2DInterpolSel( this, false, false, false, 0 );
-    interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+    interpolsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = false;
@@ -51,7 +51,7 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     outfld_->attach( alignedBelow, interpolsel_ );
     if ( emserv_ )
     {
-	displayfld_ = new uiCheckBox( this, "Display after generation" );
+	displayfld_ = new uiCheckBox( this, tr("Display after generation") );
 	displayfld_->attach( alignedBelow, outfld_ );
     }
 }
@@ -98,7 +98,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
     mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
-	mErrRet( "Cannot create 3D horizon" );
+	mErrRet( tr("Cannot create 3D horizon") );
 
     if ( hor3d_ )
 	hor3d_->unRef();
@@ -111,7 +111,7 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     Array2DInterpol* interpolator = interpolsel_->getResult();
     if ( !interpolator )
-	mErrRet( "Cannot create interpolator" );
+	mErrRet( tr("Cannot create interpolator") );
 
     uiTaskRunner tr( this );
     //Takes over interpolator

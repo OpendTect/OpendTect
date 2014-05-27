@@ -20,7 +20,7 @@ ________________________________________________________________________
 /*! \brief Dialog for surface aux data selection. */
 
 mExpClass(uiEarthModel) uiEMAuxDataSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiEMAuxDataSel);
 public:
 			uiEMAuxDataSel(uiParent*,const char* label,
 				       const MultiID* =0,

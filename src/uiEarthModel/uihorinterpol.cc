@@ -40,7 +40,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
 					    bool is2d )
-    : uiDialog( p, uiDialog::Setup("Horizon Gridding","Gridding parameters",
+    : uiDialog( p, uiDialog::Setup(tr("Horizon Gridding"),
+                                   tr("Gridding parameters"),
 				   mODHelpKey(mBulkHorizonImportHelpID) )
                                    .modal(true) )
     , horizon_( hor )
@@ -81,7 +82,8 @@ uiHorizonInterpolDlg::uiHorizonInterpolDlg( uiParent* p, EM::Horizon* hor,
     else
     {
 	interpol1dsel_ = new uiArray1DInterpolSel( this, false, true );
-	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+	interpol1dsel_->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") 
+                                                         : tr("[m]") );
 	if ( inputhorsel_ )
 	    interpol1dsel_->attach( alignedBelow, inputhorsel_ );
     }
@@ -300,7 +302,7 @@ bool uiHorizonInterpolDlg::acceptOK( CallBacker* cb )
     if ( res )
     {
 	finished.trigger();
-	uiMSG().message( "Horizon successfully gridded/interpolated" );
+	uiMSG().message( tr("Horizon successfully gridded/interpolated") );
     }
 
     return !inputhorsel_;

@@ -47,7 +47,7 @@ template <class T> class Array2D;
 */
 
 mExpClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiEMPartServer);
 public:
 			uiEMPartServer(uiApplService&);
 			~uiEMPartServer();

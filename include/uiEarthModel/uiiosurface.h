@@ -40,7 +40,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; };
 /*! \brief Base group for Surface input and output */
 
 mExpClass(uiEarthModel) uiIOSurface : public uiGroup
-{
+{ mODTextTranslationClass(uiIOSurface);
 public:
 			~uiIOSurface();
 

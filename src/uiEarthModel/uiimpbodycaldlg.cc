@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
-    : uiDialog(p,Setup("Calculate volume","Body volume estimation",
+    : uiDialog(p,Setup(tr("Calculate volume"),tr("Body volume estimation"),
                         mODHelpKey(mImplBodyCalDlgHelpID) ))
     , embody_(eb)  
     , velfld_(0)
@@ -40,12 +40,12 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
 			 FloatInpSpec( SI().depthsInFeet()?10000.0f:3000.0f) );
     }
     
-    volfld_ = new uiGenInput( this, "Volume" );
+    volfld_ = new uiGenInput( this, tr("Volume") );
     volfld_->setReadOnly( true );
     if ( velfld_ )
 	volfld_->attach( alignedBelow, velfld_ );
     
-    uiPushButton* calcbut = new uiPushButton( this, "&Estimate", true );
+    uiPushButton* calcbut = new uiPushButton( this, tr("&Estimate"), true );
     calcbut->activated.notify( mCB(this,uiImplBodyCalDlg,calcCB) );
     calcbut->attach( rightTo, volfld_ );
 }
@@ -63,7 +63,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     {
 	getImpBody();
     	if ( !impbody_ || !impbody_->arr_ )
-    	    mErrRet("Checking body failed");
+    	    mErrRet(tr("Checking body failed"));
     }
 
     float vel = 1;
@@ -71,7 +71,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     {
 	vel = velfld_->getfValue();
 	if ( mIsUdf(vel) || vel < 0.1 )
-	    mErrRet("Please provide the velocity")
+	    mErrRet(tr("Please provide the velocity"))
 	if ( SI().depthsInFeet() )
 	    vel *= mFromFeetFactorF;
     }

@@ -74,7 +74,7 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
-    attribfld_ = new uiLabeledListBox( this, "Calculated attributes",
+    attribfld_ = new uiLabeledListBox( this, tr("Calculated attributes"),
 		OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
 						  : uiLabeledListBox::LeftTop );
     attribfld_->setStretch( 2, 2 );
@@ -84,7 +84,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    sectionfld_ = new uiLabeledListBox( this, "Available patches",
+    sectionfld_ = new uiLabeledListBox( this, tr("Available patches"),
 	    OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
 					      : uiLabeledListBox::LeftTop );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
@@ -141,7 +141,7 @@ bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 	else
 	{
 	    if ( showerrmsg )
-		uiMSG().error( "Surface not loaded" );
+		uiMSG().error( tr("Surface not loaded") );
 	    return false;
 	}
     }

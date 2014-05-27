@@ -614,7 +614,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	hor3d->auxdata.removeAll();
 
     ExecutorGroup exgrp( "Horizon Data loader" );
-    exgrp.setNrDoneText( "Nr done" );
+    exgrp.setNrDoneText( tr("Nr done") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
@@ -704,8 +704,8 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const EM::ObjectID& id )
 
     BufferStringSet atrrnms;
     auxdata->getAuxDataList( atrrnms );
-    uiSelectFromList::Setup setup( "Fault Data", atrrnms );
-    setup.dlgtitle( "Select one attribute to be displayed" );
+    uiSelectFromList::Setup setup( tr("Fault Data"), atrrnms );
+    setup.dlgtitle( tr("Select one attribute to be displayed") );
     uiSelectFromList dlg( parent(), setup );
     if ( !dlg.go() || !dlg.selFld() )
 	return false;
@@ -729,12 +729,12 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     EM::IOObjInfo eminfo( mid );
     BufferStringSet atrrnms;
     eminfo.getAttribNames( atrrnms );
-    uiSelectFromList::Setup setup( "Horizon Data", atrrnms );
-    setup.dlgtitle( "Select one or more attributes to be displayed\n"
+    uiSelectFromList::Setup setup( tr("Horizon Data"), atrrnms );
+    setup.dlgtitle( tr("Select one or more attributes to be displayed\n"
 		    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll.\n"
 		    "Make sure the attribute treeitem is selected\n"
-		    "and that the mouse pointer is in the scene." );
+		    "and that the mouse pointer is in the scene.") );
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiChoice( true );
@@ -746,7 +746,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
     hor3d->auxdata.removeAll();
     ExecutorGroup exgrp( "Loading Horizon Data" );
-    exgrp.setNrDoneText( "Nr done" );
+    exgrp.setNrDoneText( tr("Nr done") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
@@ -827,7 +827,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	{
-	    uiMSG().error( "Could not write to database" );
+	    uiMSG().error( tr("Could not write to database") );
 	    return false;
 	}
     }
@@ -865,7 +865,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
     PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
     if ( !saver )
     {
-	uiMSG().error( "Cannot save attribute" );
+	uiMSG().error( tr("Cannot save attribute") );
 	return false;
     }
 
@@ -877,12 +877,12 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id, DataPointSet& data,
 				const char* attribnm, int idx, float shift )
 {
     if ( !data.size() )
-    { uiMSG().error("No data calculated"); return -1; }
+    { uiMSG().error(tr("No data calculated")); return -1; }
 
     EM::EMObject* object = em_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
-    { uiMSG().error("No horizon loaded"); return -1; }
+    { uiMSG().error(tr("No horizon loaded")); return -1; }
 
     BufferString auxnm = attribnm;
     if ( auxnm.isEmpty() )
@@ -1131,8 +1131,8 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( "Interpolate horizon Data",
-				 "Interpolation parameters",
+		uiDialog::Setup( tr("Interpolate horizon Data"),
+				 tr("Interpolation parameters"),
 				  mNoHelpKey ) );
 
 	uiArray2DInterpolSel* settings =
@@ -1300,7 +1300,8 @@ const char* uiEMPartServer::genRandLine( int opt )
 ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 {
     uiDialog dlg( parent(),
-		  uiDialog::Setup("Select horizon",mNoDlgTitle,mTODOHelpKey) );
+		  uiDialog::Setup(tr("Select horizon"),
+                                  mNoDlgTitle,mTODOHelpKey) );
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()
 	: EMHorizon3DTranslatorGroup::ioContext();

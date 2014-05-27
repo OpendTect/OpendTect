@@ -28,7 +28,7 @@ namespace Table { class FormatDesc; }
 /*! \brief Dialog for fault import */
 
 mExpClass(uiEarthModel) uiImportFault : public uiDialog
-{
+{ mODTextTranslationClass(uiImportFault);
 public:
 			~uiImportFault();
     MultiID		getSelID() const;

@@ -38,7 +38,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <limits.h>
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
-    : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
+    : uiDialog( p, Setup(tr("Create Random Lines"),
+                         tr("Specify generation parameters"),
 			 mODHelpKey(mGenRanLinesByContourHelpID) ) )
     , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , polyctio_(*mMkCtxtIOObj(PickSet))
@@ -57,23 +58,23 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     sizrg.scale( mCast(float,SI().zDomain().userFactor()) );
     StepInterval<float> suggestedzrg( sizrg );
     suggestedzrg.step *= 10;
-    contzrgfld_ = new uiGenInput( this, "Contour Z range",
+    contzrgfld_ = new uiGenInput( this, tr("Contour Z range"),
 			FloatInpIntervalSpec(suggestedzrg) );
     contzrgfld_->attach( alignedBelow, polyfld_ );
 
     const CallBack locb( mCB(this,uiGenRanLinesByContour,largestOnlyChg) );
-    largestfld_ = new uiCheckBox( this, "Only use largest", locb );
+    largestfld_ = new uiCheckBox( this, tr("Only use largest"), locb );
     largestfld_->setChecked( false );
     nrlargestfld_ = new uiSpinBox( this, 0, "Number of largest" );
     nrlargestfld_->setInterval( 1, INT_MAX );
     nrlargestfld_->attach( rightOf, largestfld_ );
-    largestendfld_ = new uiLabel( this, "Z-contour(s)" );
+    largestendfld_ = new uiLabel( this, tr("Z-contour(s)") );
     nrlargestfld_->attach( alignedBelow, contzrgfld_ );
     largestfld_->attach( leftOf, nrlargestfld_ );
     largestendfld_->attach( rightOf, nrlargestfld_ );
     largestOnlyChg( 0 );
 
-    vtxthreshfld_ = new uiLabeledSpinBox( this, "Minimum number of points" );
+    vtxthreshfld_ = new uiLabeledSpinBox( this, tr("Minimum number of points"));
     vtxthreshfld_->box()->setInterval( 2, INT_MAX );
     vtxthreshfld_->attach( alignedBelow, nrlargestfld_ );
 
@@ -86,14 +87,14 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     abszrgfld_ = new uiGenInput( this, fldnm, FloatInpIntervalSpec(abszrg) );
     abszrgfld_->attach( alignedBelow, vtxthreshfld_ );
     const CallBack cb( mCB(this,uiGenRanLinesByContour,isrelChg) );
-    isrelfld_ = new uiCheckBox( this, "Relative to horizon", cb );
+    isrelfld_ = new uiCheckBox( this, tr("Relative to horizon"), cb );
     isrelfld_->setChecked( true );
     isrelfld_->attach( rightOf, abszrgfld_ );
 
     outfld_ = new uiIOObjSel( this, rlsctio_, "Random Line set" );
     outfld_->attach( alignedBelow, relzrgfld_ );
     
-    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_ = new uiCheckBox( this, tr("Display Random Line on creation") );
     dispfld_->attach( alignedBelow, outfld_ );
     dispfld_->setChecked( true );
 

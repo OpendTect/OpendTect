@@ -26,7 +26,7 @@ class uiTable;
 
 
 mExpClass(uiEarthModel) uiBodyRegionDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiBodyRegionDlg);
 public: 
     				uiBodyRegionDlg(uiParent*);
 				~uiBodyRegionDlg();

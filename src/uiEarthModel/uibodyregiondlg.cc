@@ -546,7 +546,7 @@ Array2D<unsigned char>*				bidinplg_;
 
 
 uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
-    : uiDialog( p, Setup("Region constructor","Boundary settings",
+    : uiDialog( p, Setup(tr("Region constructor"),tr("Boundary settings"),
                         mODHelpKey(mBodyRegionDlgHelpID) ) )
     , singlehoradded_(false)
 {
@@ -556,8 +556,8 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 		true).choicetype(uiPosSubSel::Setup::RangewithPolygon).
 		seltxt("Geometry boundary").withstep(false) );
 
-    singlehorfld_ = new uiGenInput( this, "Apply", BoolInpSpec(false,
-		"Single horizon wrapping", "Multiple horizon layers") );
+    singlehorfld_ = new uiGenInput(this, uiStrings::sApply(), BoolInpSpec(false,
+		tr("Single horizon wrapping"), tr("Multiple horizon layers")) );
     singlehorfld_->attach( alignedBelow, subvolfld_ );
     singlehorfld_->valuechanged.notify(mCB(this,uiBodyRegionDlg,horModChg));
 
@@ -572,15 +572,15 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
 
-    addhorbutton_ = new uiPushButton( this, "&Add horizon",
+    addhorbutton_ = new uiPushButton( this, tr("&Add horizon"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addhorbutton_->attach( rightOf, table_ );
 
-    addfltbutton_ = new uiPushButton( this, "&Add fault",
+    addfltbutton_ = new uiPushButton( this, tr("&Add fault"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addfltbutton_->attach( alignedBelow, addhorbutton_ );
 
-    removebutton_ = new uiPushButton( this, "&Remove",
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
 	    mCB(this,uiBodyRegionDlg,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
@@ -657,7 +657,7 @@ void uiBodyRegionDlg::addSurfaceCB( CallBacker* cb )
 	{
 	    if ( singlehoradded_ )
 	    {
-		uiMSG().message("You already picked a horizon");
+		uiMSG().message(tr("You already picked a horizon"));
 		return;
 	    }
 
@@ -768,10 +768,10 @@ void uiBodyRegionDlg::removeSurfaceCB( CallBacker* )
 bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 {
     if ( !surfacelist_.size() )
-	mRetErr("Please select at least one boundary");
+	mRetErr(tr("Please select at least one boundary"));
 
     if ( outputfld_->isEmpty() )
-	mRetErr("Please select choose a name for the output");
+	mRetErr(tr("Please select choose a name for the output"));
 
     if ( !outputfld_->commitInput() )
 	return false;
@@ -812,7 +812,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    mDynamicCastGet(uiSpinBox*, shiftdownfld,
 		    table_->getCellObject(RowCol(idx,cHorShiftDownCol)) );
 	    if ( !shiftupfld->getValue() && !shiftdownfld->getValue() )
-		mRetErr("You did not choose any horizon shift");
+		mRetErr(tr("You did not choose any horizon shift"));
 
 	    duplicatehoridx = idx;
 	    sides += mBelow;
@@ -850,7 +850,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     mDeclareAndTryAlloc( Array3DImpl<float>*, arr,
 	    Array3DImpl<float> (cs.nrInl(),cs.nrCrl(),cs.nrZ()) );
     if ( !arr )
-	mRetErrDelHoridx("Can not allocate disk space to create region.")
+	mRetErrDelHoridx(tr("Can not allocate disk space to create region."))
 
     uiTaskRunner taskrunner( this );
     ODPolygon<float> dummy;
@@ -862,14 +862,14 @@ bool uiBodyRegionDlg::createImplicitBody()
 		*arr, plgp ? plgp->polygon() : dummy );
 
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-	    mRetErrDelHoridx("Extracting body region failed.")
+	    mRetErrDelHoridx(tr("Extracting body region failed."))
     }
     else
     {
 	BodyExtractorFromHorizons ext( surfacelist_, sides, horshift, cs, *arr,
 		plgp ? plgp->polygon() : dummy );
 	if ( !TaskRunner::execute( &taskrunner, ext ) )
-	    mRetErrDelHoridx("Extracting body from horizons failed.")
+	    mRetErrDelHoridx(tr("Extracting body from horizons failed."))
     }
 
     RefMan<EM::MarchingCubesSurface> emcs =
@@ -890,7 +890,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErrDelHoridx( "Body saving failed" )
+	mRetErrDelHoridx( tr("Body saving failed") )
 
     MultiID key = emcs->multiID();
     PtrMan<IOObj> ioobj = IOM().get( key );
@@ -898,11 +898,11 @@ bool uiBodyRegionDlg::createImplicitBody()
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
-	    mRetErrDelHoridx( "Writing body to disk failed, no permision?" )
+	    mRetErrDelHoridx( tr("Writing body to disk failed, no permision?") )
     }
 
     if ( !TaskRunner::execute( &taskrunner, *exec ) )
-	mRetErrDelHoridx("Saving body failed");
+	mRetErrDelHoridx(tr("Saving body failed"));
 
     return true;
 }

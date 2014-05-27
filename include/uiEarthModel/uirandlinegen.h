@@ -28,7 +28,7 @@ class uiLabel;
 /*! \brief Generate random lines from contours of a horizon */
 
 mExpClass(uiEarthModel) uiGenRanLinesByContour : public uiDialog
-{
+{ mODTextTranslationClass(uiGenRanLinesByContour);
 public:
 			uiGenRanLinesByContour(uiParent*);
 			~uiGenRanLinesByContour();

@@ -30,7 +30,7 @@ namespace EM { class BodyOperator; }
 
 
 mExpClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
-{
+{  mODTextTranslationClass(uiBodyOperatorDlg);
 public:
     			uiBodyOperatorDlg(uiParent*);
  			~uiBodyOperatorDlg();

@@ -79,7 +79,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , scanner_(0)
     , importReady(this)
 {
-    setCaption( isgeom ? "Import Horizon" : "Import Horizon Data" );
+    setCaption( isgeom ? tr("Import Horizon") : tr("Import Horizon Data") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
     setDeleteOnClose( false );
     ctio_.ctxt.forread = !isgeom_;
@@ -95,20 +95,21 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     OD::ChoiceMode mode =
 	isgeom ? OD::ChooseZeroOrMore : OD::ChooseAtLeastOne;
     uiLabeledListBox* attrllb =
-	new uiLabeledListBox( this, "Attribute(s) to import", mode,
+	new uiLabeledListBox( this, tr("Attribute(s) to import"), mode,
 			      uiLabeledListBox::LeftTop );
     attrllb->attach( alignedBelow, inpfld_ );
     attrlistfld_ = attrllb->box();
     attrlistfld_->setNrLines( 6 );
     attrlistfld_->itemChosen.notify( mCB(this,uiImportHorizon,inputChgd) );
 
-    uiToolButton* addbut = new uiToolButton( this, "addnew", "Add new",
+    uiToolButton* addbut = new uiToolButton( this, "addnew", tr("Add new"),
 				mCB(this,uiImportHorizon,addAttribCB) );
     addbut->attach( rightTo, attrllb );
-    uiToolButton* rmbut = new uiToolButton( this, "stop", "Remove",
+    uiToolButton* rmbut = new uiToolButton( this, "stop", 
+                                            uiStrings::sRemove(true),
 				mCB(this,uiImportHorizon,rmAttribCB) );
     rmbut->attach( alignedBelow, addbut );
-    uiToolButton* clearbut = new uiToolButton( this, "clear", "Clear list",
+    uiToolButton* clearbut = new uiToolButton( this, "clear", tr("Clear list"),
 				mCB(this,uiImportHorizon,clearListCB) );
     clearbut->attach( alignedBelow, rmbut );
 
@@ -121,7 +122,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
-    scanbut_ = new uiPushButton( this, "Scan &Input File",
+    scanbut_ = new uiPushButton( this, tr("Scan &Input File"),
 				 mCB(this,uiImportHorizon,scanPush), true );
     scanbut_->attach( alignedBelow, dataselfld_);
 
@@ -134,7 +135,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     subselfld_->setSensitive( false );
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( isgeom_ ? "Output Horizon" : "Add to Horizon" );
+    outputfld_->setLabelText( isgeom_ ? tr("Output Horizon") 
+                                      : tr("Add to Horizon") );
 
     if ( !isgeom_ )
     {
@@ -144,13 +146,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     else
     {
 	setHelpKey(mODHelpKey(mImportHorizonHelpID) );
-	filludffld_ = new uiGenInput( this, "Fill undefined parts",
+	filludffld_ = new uiGenInput( this, tr("Fill undefined parts"),
 				      BoolInpSpec(true) );
 	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
-	interpolparbut_ = new uiPushButton( this, "Settings",
+	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(),
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
 
@@ -162,10 +164,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	colbut_ = new uiColorInput( this,
 				    uiColorInput::Setup(getRandStdDrawColor())
-				    .lbltxt("Base color") );
+				    .lbltxt(tr("Base color")) );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
 
-	displayfld_ = new uiCheckBox( this, "Display after import" );
+	displayfld_ = new uiCheckBox( this, tr("Display after import") );
 	displayfld_->attach( alignedBelow, colbut_ );
 
 	fillUdfSel(0);
@@ -191,12 +193,12 @@ void uiImportHorizon::descChg( CallBacker* cb )
 
 void uiImportHorizon::interpolSettingsCB( CallBacker* )
 {
-    uiSingleGroupDlg dlg( this, uiDialog::Setup("Interpolation settings",
+    uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation settings"),
 			  (const char*) 0, mNoHelpKey ) );
 
     uiArray2DInterpolSel* arr2dinterpfld =
 	new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
-    arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
+    arr2dinterpfld->setDistanceUnit( SI().xyInFeet() ? tr("[ft]") : tr("[m]") );
     dlg.setGroup( arr2dinterpfld );
 
     if ( dlg.go() )
@@ -281,7 +283,7 @@ void uiImportHorizon::clearListCB( CallBacker* )
 void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !isgeom_ && !attrlistfld_->nrChosen() )
-	{ uiMSG().error("Please select at least one attribute"); return; }
+	{ uiMSG().error(tr("Please select at least one attribute")); return; }
     if ( !dataselfld_->commit() || !doScan() )
 	return;
 
@@ -326,7 +328,7 @@ bool uiImportHorizon::doScan()
     const StepInterval<int> crg = cs.hrg.crlRange();
     if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
 	 irg.stop<nilnrg.start || crg.stop<nclnrg.start )
-	uiMSG().warning( "Your horizon is out of the survey range." );
+	uiMSG().warning( tr("Your horizon is out of the survey range.") );
     else if ( irg.step > 1 )
     {
 	mNotCompatibleRet(i);
@@ -399,7 +401,7 @@ bool uiImportHorizon::doImport()
     if ( isgeom_ )
 	attrnms.insertAt( new BufferString(sZVals), 0 );
     if ( attrnms.isEmpty() )
-	mErrRet( "No Attributes Selected" );
+	mErrRet( tr("No Attributes Selected") );
 
     EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon ) return false;
@@ -419,19 +421,19 @@ bool uiImportHorizon::doImport()
     deepCopy( sections, scanner_->getSections() );
 
     if ( sections.isEmpty() )
-	{ horizon->unRef(); mErrRet( "Nothing to import" ); }
+	{ horizon->unRef(); mErrRet( tr("Nothing to import") ); }
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
     {
 	if ( !interpol_ )
-	    { uiMSG().error("No interpolation selected" ); return false; }
+	    { uiMSG().error(tr("No interpolation selected") ); return false; }
 	fillUdfs( sections );
     }
 
     HorSampling hs = subselfld_->envelope().hrg;
     ExecutorGroup importer( "Importing horizon" );
-    importer.setNrDoneText( "Nr positions done" );
+    importer.setNrDoneText( tr("Nr positions done") );
     int startidx = 0;
     if ( isgeom_ )
     {
@@ -446,7 +448,7 @@ bool uiImportHorizon::doImport()
     uiTaskRunner taskrunner( this );
     const bool success = TaskRunner::execute( &taskrunner, importer );
     if ( !success )
-	mErrRetUnRef("Cannot import horizon")
+	mErrRetUnRef(tr("Cannot import horizon"))
 
     bool rv;
     if ( isgeom_ )
@@ -487,7 +489,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 	}
     }
 
-    uiMSG().message( "Horizon successfully imported" );
+    uiMSG().message( tr("Horizon successfully imported") );
     if ( doDisplay() )
 	importReady.trigger();
 
@@ -498,7 +500,7 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
-	mErrRet( "Please select input file(s)" )
+	mErrRet( tr("Please select input file(s)") )
 
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
@@ -525,7 +527,7 @@ bool uiImportHorizon::checkInpFlds()
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )
-	mErrRet( "Please select output horizon" )
+	mErrRet( tr("Please select output horizon") )
 
     if ( !outputfld_->commitInput() )
 	return false;
@@ -607,7 +609,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
     mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
     if ( !horizon )
-	mErrRet( "Cannot create horizon" );
+	mErrRet( tr("Cannot create horizon") );
 
     horizon->change.disable();
     horizon->setMultiID( mid );
@@ -624,14 +626,14 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
     emobj->setMultiID( ctio_.ioobj->key() );
     Executor* loader = emobj->loader();
-    if ( !loader ) mErrRet( "Cannot load horizon");
+    if ( !loader ) mErrRet( tr("Cannot load horizon"));
 
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, *loader ) )
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
-    if ( !horizon ) mErrRet( "Error loading horizon");
+    if ( !horizon ) mErrRet( tr("Error loading horizon"));
 
     horizon->ref();
     delete loader;
