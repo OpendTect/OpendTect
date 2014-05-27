@@ -120,7 +120,6 @@ public:
     static inline uiString sSession()		{ return tr("&Session"); }
     static inline uiString sSettings()		{ return tr("&Settings"); }
     static inline uiString sSetup()		{ return tr("&Setup"); }
-    static inline uiString sSettings()		{ return tr("Settings"); }
     static inline uiString sSimple()		{ return tr("&Simple"); }
     static inline uiString sStart()		{ return tr("St&art"); }
     static inline uiString sStop()		{ return tr("St&op"); }
