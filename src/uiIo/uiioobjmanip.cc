@@ -155,6 +155,9 @@ void uiIOObjManipGroup::selChg()
 
     TypeSet<MultiID> chosenids; subj_.getChosenIDs( chosenids );
     BufferStringSet chosennames; subj_.getChosenNames( chosennames );
+    if ( chosenids.isEmpty() )
+	return;
+
     IOObj* firstchosenioobj = IOM().get( chosenids[0] );
 
     BufferString tt;
