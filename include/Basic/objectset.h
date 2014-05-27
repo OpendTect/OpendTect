@@ -53,8 +53,13 @@ public:
     inline virtual bool		validIdx(od_int64) const;
     inline virtual bool		isPresent(const T*) const;
     inline virtual size_type	indexOf(const T*) const;
+#ifdef __MAC_LLVM_COMPILER_ERROR__
+    inline T*			operator[](size_type);
+    inline const T*		operator[](size_type) const;
+#else
     inline virtual T*		operator[](size_type);
     inline virtual const T*	operator[](size_type) const;
+#endif
     inline virtual T*		operator[](const T*) const; //!< check & unconst
 
     inline virtual T*		replace(size_type idx,T*);
@@ -65,7 +70,11 @@ public:
     inline virtual void		swap(od_int64,od_int64);
     inline virtual void		reverse(); 
 
+#ifdef __MAC_LLVM_COMPILER_ERROR__
+    inline ObjectSet<T>&	operator +=(T*);
+#else
     inline virtual ObjectSet<T>& operator +=(T*);
+#endif
     inline virtual ObjectSet<T>& operator -=(T*);
     inline virtual void		push(T* ptr);
     inline virtual T*		pop();
