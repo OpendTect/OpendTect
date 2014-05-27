@@ -24,6 +24,7 @@ set(OD_MODULE_SOURCES timeser.c
 	    delaunay3d.cc
 	    extremefinder.cc
 	    dippca.cc
+	    dgbreflectivitysampler.cc
 	    fftfilter.cc
 	    fingervein.cc
 	    fourier.cc

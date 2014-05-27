@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "fourier.h"
 #include "genericnumer.h"
 #include "muter.h"
-#include "reflectivitysampler.h"
+#include "dgbreflectivitysampler.h"
 #include "raytrace1d.h"
 #include "raytracerrunner.h"
 #include "reflectivitymodel.h"
@@ -542,8 +542,8 @@ bool SynthGenerator::computeReflectivities()
     const StepInterval<float> sampling( outputsampling_.start,
 	    outputsampling_.atIndex( convolvesize_-1 ), outputsampling_.step );
 
-    PtrMan<ReflectivitySampler> sampler =
-	new ReflectivitySampler( *refmodel_, sampling, freqreflectivities_ );
+    PtrMan<dGBReflectivitySampler> sampler =
+	new dGBReflectivitySampler(*refmodel_, sampling, freqreflectivities_);
     sampler->doTimeReflectivities();
     bool isok = sampler->execute();
     if ( !isok )
