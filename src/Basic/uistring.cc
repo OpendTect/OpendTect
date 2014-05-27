@@ -349,7 +349,7 @@ uiString& uiString::arg( const BufferString& a )
 
 uiString& uiString::arg( const char* newarg )
 {
-    return arg( newarg );
+    return arg( uiString(newarg) );
 }
 
 

@@ -41,10 +41,10 @@ bool testArg()
     mRunStandardTest( string.getQtString()==cloned.getQtString(), "copyFrom" );
 
     uiString part1( "Part 1" );
-    part1.append( ", Part 2" );
+    part1.append( ", Part 2", false );
     mRunStandardTest(
 	    FixedString(part1.getFullString())=="Part 1, Part 2", "append" );
-    part1.append( ", Part 2" );
+    part1.append( ", Part 2", true );
     mRunStandardTest(
 	    FixedString(part1.getFullString())=="Part 1, Part 2\n, Part 2",
 			"append with newline" );
