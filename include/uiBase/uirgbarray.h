@@ -31,7 +31,7 @@ public:
     virtual bool	set(int,int,const Color&);
 
     virtual unsigned char*	    getData();
-    virtual const unsigned char*    getData() const { return 0; }
+    virtual const unsigned char*    getData() const;
 
     virtual char	nrComponents() const	{ return withalpha_ ? 4 : 3; }
     virtual int		getSize(bool xdir) const;
