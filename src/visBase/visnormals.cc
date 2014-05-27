@@ -250,8 +250,8 @@ void Normals::setDisplayTransformation( const mVisTrans* nt )
     if ( nt==transformation_ ) return;
 
     DoTransformation dotf( this, nrNormals(), transformation_, nt );
-    TaskRunner tr;
-    TaskRunner::execute( &tr,dotf );
+    TaskRunner taskrunner;
+    TaskRunner::execute( &taskrunner,dotf );
 
     if ( transformation_ )
 	transformation_->unRef();

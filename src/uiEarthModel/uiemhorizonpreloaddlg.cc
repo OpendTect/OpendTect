@@ -121,8 +121,8 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     TypeSet<MultiID> selmids;
     hordlg.getChosen( selmids );
 
-    uiTaskRunner tr( this );
-    hpl.load( selmids, &tr );
+    uiTaskRunner taskrunner( this );
+    hpl.load( selmids, &taskrunner );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     listfld_->addItems( hpl.getPreloadedNames() );
@@ -228,9 +228,9 @@ void uiHorizonPreLoadDlg::loadSavedHorizon( const TypeSet<MultiID>& savedmids )
     if ( savedmids.isEmpty() )
 	return;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     EM::HorizonPreLoader& hpl = EM::HPreL();
-    hpl.load( savedmids, &tr );
+    hpl.load( savedmids, &taskrunner );
     uiMSG().message( hpl.errorMsg() );
     listfld_->setEmpty();
     BufferStringSet hornms = hpl.getPreloadedNames();

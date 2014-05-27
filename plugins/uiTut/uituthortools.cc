@@ -123,7 +123,7 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 
 #define mGetHor(varnm,fld) \
     RefMan<EM::EMObject> varnm##_emobj = \
-	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), &tr ); \
+	EM::EMM().loadIfNotFullyLoaded( (fld)->key(), &taskrunner ); \
     mDynamicCastGet(EM::Horizon3D*,varnm,varnm##_emobj.ptr()) \
     if ( !varnm ) return false;
 
@@ -139,7 +139,7 @@ bool uiTutHorTools::doThicknessCalc()
     const bool cont = checkAttribName();
     if ( !cont ) return false;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     Tut::ThicknessCalculator* calc = new Tut::ThicknessCalculator;
     const bool top = selfld_->getBoolValue();
     mGetHor( hor1, top ? inpfld_ : inpfld2_ );
@@ -147,11 +147,11 @@ bool uiTutHorTools::doThicknessCalc()
     calc->setHorizons( hor1, hor2 );
     calc->init( attribnamefld_->text() );
 
-    if ( !tr.execute(*calc) )
+    if ( !taskrunner.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver();
-    return tr.execute( *saver );
+    return taskrunner.execute( *saver );
 }
 
 
@@ -160,15 +160,15 @@ bool uiTutHorTools::doSmoother()
     if ( !outfld_->ioobj() )
 	return false;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     Tut::HorSmoother* calc = new Tut::HorSmoother;
     mGetHor( hor, inpfld_ );
     calc->setHorizons( hor );
     calc->setWeak( strengthfld_->getBoolValue() ); 
 
-    if ( !tr.execute(*calc) )
+    if ( !taskrunner.execute(*calc) )
 	return false;
 
     PtrMan<Executor> saver = calc->dataSaver( outfld_->key() );
-    return tr.execute( *saver );
+    return taskrunner.execute( *saver );
 }

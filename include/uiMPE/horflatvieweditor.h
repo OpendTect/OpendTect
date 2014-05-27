@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "multiid.h"
 #include "position.h"
+#include "uistring.h"
 
 class FlatDataPack;
 class MouseEvent;

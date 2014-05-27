@@ -164,9 +164,9 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
     const IOObj* ioobj = horsel_->ioobj();
     if ( !ioobj ) return;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(),
-							  &tr );
+							  &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( hor )
     {

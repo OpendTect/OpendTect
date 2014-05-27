@@ -339,9 +339,9 @@ bool acceptOK( CallBacker* )
 	    mErrRet( "Please specify a valid snap distance" );
     }
 
-    uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, lmrgr );
-    // return tr.execute( lmrgr );
+    uiTaskRunner taskrunner( this );
+    TaskRunner::execute( &taskrunner, lmrgr );
+    // return taskrunner.execute( lmrgr );
     return false;
 }
 
@@ -446,9 +446,9 @@ bool acceptOK( CallBacker* )
 
     SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
 				     lnms.isEmpty() ? 0 : &lnms );
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
 
-    if ( !TaskRunner::execute( &tr, extr ) )
+    if ( !TaskRunner::execute( &taskrunner, extr ) )
     {
 	uiMSG().error( extr.uiMessage() );
 	return false;

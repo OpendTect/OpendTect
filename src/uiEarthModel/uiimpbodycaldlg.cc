@@ -76,10 +76,10 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
 	    vel *= mFromFeetFactorF;
     }
 
-    uiTaskRunner tr(this);
+    uiTaskRunner taskrunner(this);
     BodyVolumeCalculator bc( impbody_->cs_, *impbody_->arr_, 
 	    impbody_->threshold_, vel );
-    TaskRunner::execute( &tr, bc );
+    TaskRunner::execute( &taskrunner, bc );
 
     BufferString txt;
     txt += bc.getVolume();
@@ -92,6 +92,6 @@ void uiImplBodyCalDlg::getImpBody()
 {
     delete impbody_;
 
-    uiTaskRunner tr(this);
-    impbody_ = embody_.createImplicitBody(&tr,false);
+    uiTaskRunner taskrunner(this);
+    impbody_ = embody_.createImplicitBody(&taskrunner,false);
 }

@@ -152,8 +152,8 @@ bool acceptOK( CallBacker* )
     importer.fh_.cstep_.y = stepposfld_->getfValue(1);
     importer.zfac_ = zfacfld_->getfValue();
 
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, importer );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, importer );
 }
 
     uiFileInput*	inpfld_;

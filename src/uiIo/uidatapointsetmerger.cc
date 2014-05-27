@@ -415,7 +415,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     }
 
     checkForSameColNms( newcolnms );
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     dpsmrfprop.setOverWriteUndef( overwritefld_->getBoolValue() );
     dpsmrfprop.setMaxAllowedHorDist( distfld_->getfValue() );
     dpsmrfprop.setMaxAllowedZDist(
@@ -423,7 +423,7 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     
     DPSMerger merger( dpsmrfprop ); 
     merger.addNewCols( newcolnms );
-    TaskRunner::execute( &tr, merger );
+    TaskRunner::execute( &taskrunner, merger );
 
     BufferString errmsg;
     const bool ret =

@@ -627,8 +627,8 @@ void uiSeisBayesClass::outputDone( CallBacker* )
     mHandleVWCancel(outdlg_,mInpSeis)
 
     SeisBayesClass exec( pars_ );
-    uiTaskRunner tr( outdlg_ );
-    const bool isok = TaskRunner::execute( &tr, exec );
+    uiTaskRunner taskrunner( outdlg_ );
+    const bool isok = TaskRunner::execute( &taskrunner, exec );
 
     mSetState( isok ? cFinished() : mOutput );
 }

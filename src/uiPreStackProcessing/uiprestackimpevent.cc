@@ -67,12 +67,12 @@ bool uiEventImport::acceptOK( CallBacker* )
     RefMan<EventManager> mgr = new EventManager;
     mgr->setStorageID( outputfld_->key(), false );
     EventImporter importer( filefld_->fileName(), fd_, *mgr );
-    uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, importer ) )
+    uiTaskRunner taskrunner( this );
+    if ( !TaskRunner::execute( &taskrunner, importer ) )
 	return false;
 
     EventWriter writer( outputfld_->getIOObj(), *mgr );
-    return TaskRunner::execute( &tr, writer );
+    return TaskRunner::execute( &taskrunner, writer );
 }
 
 }; //namespace

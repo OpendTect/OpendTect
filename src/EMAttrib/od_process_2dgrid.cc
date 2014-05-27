@@ -31,13 +31,13 @@ bool BatchProgram::go( od_ostream& strm )
 	{ strm << "Incomplete parameter file" << od_endl; return false; }
 
     bool res = true;
-    TextTaskRunner tr( strm );
+    TextTaskRunner taskrunner( strm );
     strm.add( "Creating 2D Grid ...\n" ).flush();
     Seis2DGridCreator* seiscr = new Seis2DGridCreator( *seispar );
     BufferString warningmsg;
     if ( seiscr->hasWarning(warningmsg) )
 	 strm << warningmsg.buf() << od_endl;
-    res = tr.execute( *seiscr );
+    res = taskrunner.execute( *seiscr );
     if ( !res )
 	{ strm << "  failed.\nProcess stopped" << od_endl; return false; }
 
@@ -49,11 +49,11 @@ bool BatchProgram::go( od_ostream& strm )
 
     strm << "\n\nCreating 2D Horizon(s) ..." << od_endl;
     Horizon2DGridCreator horcr;
-    horcr.init( *horpar, &tr );
-    res = tr.execute( horcr );
+    horcr.init( *horpar, &taskrunner );
+    res = taskrunner.execute( horcr );
     if ( !res ) 
 	{ strm << "  failed.\nProcess stopped\n" << od_endl; return false; }
 
-    res = horcr.finish( &tr );
+    res = horcr.finish( &taskrunner );
     return res;
 }

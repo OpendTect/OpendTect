@@ -857,8 +857,8 @@ void uiContourTreeItem::startCreateUICContours()
     bool showlabels = labels_  && labels_->turnOn( false );
 
     uiContourTreeItemContourGenerator ctrgtr ( this, field );
-    uiTaskRunner tr( ODMainWin() );
-    if ( tr.execute( ctrgtr ) )
+    uiTaskRunner taskrunner( ODMainWin() );
+    if ( taskrunner.execute( ctrgtr ) )
     {
 	setLabels( ctrgtr.getLabels() );
 	lines_->turnOn( showcontours );

@@ -141,7 +141,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !hor3d )
 	return false;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
 
     bool success = false;
     for ( int idx=0; idx<hor3d->geometry().nrSections(); idx++ )
@@ -187,7 +187,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    }
 	}
 
-	if ( !interpolator->setArray2D(*arr,&tr) )
+	if ( !interpolator->setArray2D(*arr,&taskrunner) )
 	{
 	    BufferString msg( "Cannot setup interpolation on section " );
 	    msg += sid;
@@ -195,7 +195,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	}
 
 	mDynamicCastGet(Task*,task,interpolator);
-	if ( !TaskRunner::execute(&tr,*task) )
+	if ( !TaskRunner::execute(&taskrunner,*task) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;
@@ -229,7 +229,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 
     const EM::Horizon2DGeometry& geom = hor2d->geometry();
 	
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
 
     for ( int isect=0; isect<geom.nrSections(); isect++ )
     {
@@ -245,7 +245,7 @@ bool uiHorizonInterpolDlg::interpolate2D()
 	for ( int idx=0; idx<arr1d.size(); idx++ )
 	    execgrp.add( interpol1dsel_->getResult(idx) );
 
-	if ( !TaskRunner::execute( &tr, execgrp ) )
+	if ( !TaskRunner::execute( &taskrunner, execgrp ) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
 	    msg += sid;

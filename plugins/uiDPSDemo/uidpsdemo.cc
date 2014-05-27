@@ -80,8 +80,9 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 			int nrpts )
 {
-    uiTaskRunner tr( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(), &tr );
+    uiTaskRunner taskrunner( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( horioobj.key(),
+							  &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj)
     if ( !hor ) return false;
 
@@ -99,7 +100,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 	sectionnms.add( hor->sectionName(isect) );
     hor->unRef();
 
-    if ( !isok || !getSeisData(seisioobj,*dps_,tr) )
+    if ( !isok || !getSeisData(seisioobj,*dps_,taskrunner) )
 	return false;
 
     BufferString wintitl( horioobj.name(), " / ", seisioobj.name() );
@@ -184,7 +185,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 
 
 bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
-			     TaskRunner& tr )
+			     TaskRunner& taskrunner )
 {
     SeisTrcReader rdr( &ioobj );
     Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet() );
@@ -194,7 +195,7 @@ bool uiDPSDemo::getSeisData( const IOObj& ioobj, DataPointSet& dps,
 
     SeisTrcBuf tbuf(true);
     SeisBufReader br( rdr, tbuf );
-    if ( !TaskRunner::execute( &tr, br ) )
+    if ( !TaskRunner::execute( &taskrunner, br ) )
 	return false;
 
     const int icomp = 0; // ignore other components for now

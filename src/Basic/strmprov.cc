@@ -213,9 +213,9 @@ int nextStep()
     return ErrorOccurred();
 }
 
-bool go( TaskRunner& tr )
+bool go( TaskRunner& taskrunner )
 {
-    return TaskRunner::execute( &tr, *this );
+    return TaskRunner::execute( &taskrunner, *this );
 }
 
 bool isOK() const
@@ -362,13 +362,14 @@ bool StreamProvider::preLoad( const char* fnm, TaskRunner& tr, const char* id )
 }
 
 
-bool StreamProvider::preLoad( const BufferStringSet& fnms, TaskRunner& tr,
-				const char* id )
+bool StreamProvider::preLoad( const BufferStringSet& fnms,
+			      TaskRunner& taskrunner,
+			      const char* id )
 {
     if ( fnms.isEmpty() ) return true;
 
     StreamProviderDataPreLoader exec( fnms, id );
-    return TaskRunner::execute( &tr, exec );
+    return TaskRunner::execute( &taskrunner, exec );
 }
 
 

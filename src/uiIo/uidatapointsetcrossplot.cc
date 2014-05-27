@@ -1641,8 +1641,8 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
 	densitycalc.setCellSize( (float)cellsize_ );
 
     densitycalc.setAreaType( areatype );
-    uiTaskRunner tr( parent() );
-    TaskRunner::execute( &tr, densitycalc );
+    uiTaskRunner taskrunner( parent() );
+    TaskRunner::execute( &taskrunner, densitycalc );
 
     usedxpixrg_ = densitycalc.usedXPixRg();
     selrowcols_ = densitycalc.selRCs();

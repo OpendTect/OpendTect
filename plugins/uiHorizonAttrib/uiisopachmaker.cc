@@ -225,8 +225,8 @@ bool uiIsopachMakerDlg::doWork()
     MultiID mid1, mid2;
     par.get( IsopachMaker::sKeyHorizonID(), mid1 );
     par.get( IsopachMaker::sKeyCalculateToHorID(), mid2 );
-    uiTaskRunner tr( this );
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &tr );
+    uiTaskRunner taskrunner( this );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
@@ -254,7 +254,7 @@ bool uiIsopachMakerDlg::doWork()
 	ipmaker.setUnits( isinmsec );
     }
 
-    bool rv = TaskRunner::execute( &tr, ipmaker );
+    bool rv = TaskRunner::execute( &taskrunner, ipmaker );
     h1->unRef(); h2->unRef();
     return rv;
 }

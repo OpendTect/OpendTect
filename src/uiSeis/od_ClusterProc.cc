@@ -84,9 +84,10 @@ int main( int argc, char ** argv )
     }
 
     od_cout() << "Merging output ..." << od_endl;
-    TextTaskRunner tr( od_cout() );
+    TextTaskRunner taskrunner( od_cout() );
     BufferString msg;
-    const bool result = uiClusterProc::mergeOutput( iop, &tr, msg, withdelete );
+    const bool result =
+	uiClusterProc::mergeOutput( iop, &taskrunner, msg, withdelete );
     od_cout() << msg << od_endl;
 
     return ExitProgram( result ? 0 : 1 );

@@ -160,7 +160,7 @@ void Data::computeExtractionRange()
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
-				BufferString& errms, TaskRunner& tr )
+				BufferString& errms, TaskRunner& taskrunner )
 {
     horizons_.erase();
     if ( !wd_ ) return;
@@ -183,7 +183,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
-		if ( TaskRunner::execute( &tr, *exec ) )
+		if ( TaskRunner::execute( &taskrunner, *exec ) )
 		    success = true;
 	    }
 	    if ( success )

@@ -429,14 +429,15 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     if ( !inpiobj || !outputfld_->ioobj() )
 	return false;
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     RefMan<EM::EMObject> emo =
-	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &tr );
+	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &taskrunner );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
 	mRetErr( "Cannot read input body" );
     
-    PtrMan<EM::ImplicitBody> impbd = emb->createImplicitBody( &tr, false );
+    PtrMan<EM::ImplicitBody> impbd =
+				emb->createImplicitBody( &taskrunner, false );
     if ( !impbd || !impbd->arr_ )
 	mRetErr( "Creating implicit body failed" );
 
@@ -468,7 +469,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     RefMan<EM::MarchingCubesSurface> emcs =
 	new EM::MarchingCubesSurface( EM::EMM() );
     
-    emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &tr );
+    emcs->surface().setVolumeData( 0, 0, 0, *impbd->arr_, 0, &taskrunner );
     emcs->setInlSampling( SamplingData<int>(impbd->cs_.hrg.inlRange()) );
     emcs->setCrlSampling( SamplingData<int>(impbd->cs_.hrg.crlRange()) );
     emcs->setZSampling( SamplingData<float>(impbd->cs_.zrg) );
@@ -491,7 +492,7 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	    mRetErr( "Writing body to disk failed. Please check permissions." )
     }
     
-    if ( !TaskRunner::execute(&tr,*exec) )
+    if ( !TaskRunner::execute(&taskrunner,*exec) )
 	mRetErr("Saving body failed");
 
     return true;

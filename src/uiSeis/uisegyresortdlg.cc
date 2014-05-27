@@ -193,6 +193,6 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     const Pos::Provider* pprov = subselfld_ ? subselfld_->curProvider() : 0;
     if ( pprov )
 	sr.setFilter( *pprov );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, sr );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, sr );
 }

@@ -454,8 +454,8 @@ void uiSynthToRealScale::updRealStats()
     if ( !getEvent() )
 	return;
 
-    uiTaskRunner tr( this );
-    if ( !getHorData(tr) )
+    uiTaskRunner taskrunner( this );
+    if ( !getHorData(taskrunner) )
 	return;
 
     SeisTrcReader rdr( seisfld_->ioobj() );
@@ -463,7 +463,7 @@ void uiSynthToRealScale::updRealStats()
 	mErrRet( "Error opening input seismic data" );
 
     uiSynthToRealScaleRealStatCollector coll( *this, rdr );
-    if ( !TaskRunner::execute( &tr, coll ) )
+    if ( !TaskRunner::execute( &taskrunner, coll ) )
 	return;
 
     uiHistogramDisplay& histfld = *realstatsfld_->dispfld_;

@@ -122,8 +122,8 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     bool success;
     if ( filesize>2 )
     {
-	uiTaskRunner tr( this );
-	success = TaskRunner::execute( &tr, velascio );
+	uiTaskRunner taskrunner( this );
+	success = TaskRunner::execute( &taskrunner, velascio );
     }
     else
         success = velascio.execute();

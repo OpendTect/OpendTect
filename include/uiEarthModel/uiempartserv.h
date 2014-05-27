@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 
 class BinIDValueSet;

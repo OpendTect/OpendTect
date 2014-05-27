@@ -183,8 +183,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     if ( forsurvsetup_ )
 	scanner_->setRichInfo( true );
 
-    uiTaskRunner tr( parent_ );
-    bool rv = TaskRunner::execute( &tr, *exec );
+    uiTaskRunner taskrunner( parent_ );
+    bool rv = TaskRunner::execute( &taskrunner, *exec );
     if ( !rv )
     {
 	if ( outfld_ )

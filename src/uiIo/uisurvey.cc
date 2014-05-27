@@ -151,10 +151,10 @@ bool copySurv()
         return false;
     }
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     const BufferString fromdir = getTrueDir( inpdirnm_ );
     PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
-    if ( !tr.execute(*copier) )
+    if ( !taskrunner.execute(*copier) )
 	{ uiMSG().error( "Cannot copy the survey data" ); return false; }
 
     File::makeWritable( newdirnm_, true, true );

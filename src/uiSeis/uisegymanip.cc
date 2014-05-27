@@ -700,8 +700,8 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     uiSEGYFileManipDataExtracter de( this, selrows, plotallbox_->isChecked() );
     if ( de.totalnr_ < 0 )
 	return;
-    uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, de );
+    uiTaskRunner taskrunner( this );
+    TaskRunner::execute( &taskrunner, de );
     if ( de.data_[0]->size() < 2 )
 	return;
 
@@ -765,8 +765,8 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
     strm().setPosition( 0 );
     Executor* exec = calcset_.getApplier( strm(), outstrm, bptrc,
 					  &binhdr_, &txthdr_ );
-    uiTaskRunner tr( this );
-    const bool rv = TaskRunner::execute( &tr, *exec );
+    uiTaskRunner taskrunner( this );
+    const bool rv = TaskRunner::execute( &taskrunner, *exec );
     delete exec;
 
     if ( rv )

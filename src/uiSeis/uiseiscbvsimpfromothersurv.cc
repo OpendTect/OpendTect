@@ -137,8 +137,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     CubeSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( *outctio_.ioobj );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, *import_ );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, *import_ );
 }
 
 

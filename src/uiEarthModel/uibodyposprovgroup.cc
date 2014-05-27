@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "embodytr.h"
 #include "emsurfaceposprov.h"
 #include "uipossubsel.h"
+#include "uistrings.h"
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }

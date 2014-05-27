@@ -296,8 +296,8 @@ void uiControlView::loadHorizons( CallBacker* )
     if ( selhordlg_->go() )
 	selhordlg_->getChosen( horselids );
 
-    BufferString errmsg; uiTaskRunner tr( this );
-    server_.horizonMgr().setUpHorizons( horselids, errmsg, tr );
+    BufferString errmsg; uiTaskRunner taskrunner( this );
+    server_.horizonMgr().setUpHorizons( horselids, errmsg, taskrunner );
     if ( !errmsg.isEmpty() )
 	{ mErrRet( errmsg, return ) }
 

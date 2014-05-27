@@ -253,8 +253,8 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 
 void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
-    uiTaskRunner tr( this );
-    vd_->setIsoValue( isosurfacedisplay_, nv, &tr );
+    uiTaskRunner taskrunner( this );
+    vd_->setIsoValue( isosurfacedisplay_, nv, &taskrunner );
     drawHistogram();
 }
 

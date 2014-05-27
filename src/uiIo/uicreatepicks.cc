@@ -136,14 +136,14 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
 
-    uiTaskRunner tr( this );
-    if ( !prov->initialize( &tr ) )
+    uiTaskRunner taskrunner( this );
+    if ( !prov->initialize( &taskrunner ) )
 	return false;
 
     mSetCursor();
     IOPar iop; posfiltfld_->fillPar( iop );
     PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
-    if ( filt && !filt->initialize(&tr) )
+    if ( filt && !filt->initialize(&taskrunner) )
 	{ mRestorCursor(); return false; }
 
     dps_ = new DataPointSet( *prov, ObjectSet<DataColDef>(), filt );

@@ -347,8 +347,8 @@ bool uiStratSynthCrossplot::extractLayerAttribs( DataPointSet& dps,
 {
     Strat::LayModAttribCalc lmac( lm_, seqattrs, dps );
     lmac.setExtrGates( extrgates_, stoplvl );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, lmac );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, lmac );
 }
 
 

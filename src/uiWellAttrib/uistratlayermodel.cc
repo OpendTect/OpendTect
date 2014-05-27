@@ -854,8 +854,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     mcs.restore();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
-    uiTaskRunner tr( this );
-    if ( !tr.execute(ex) || !newmodl->isValid() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(ex) || !newmodl->isValid() )
 	{ delete newmodl; return; }
 
     // transaction succeeded, we move to the new model - period.

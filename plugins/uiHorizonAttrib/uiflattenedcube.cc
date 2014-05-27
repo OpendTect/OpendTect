@@ -50,8 +50,8 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
 	     hormid_ );
     pp_.usePar( iop );
-    uiTaskRunner tr( p );
-    if ( !pp_.initialize(&tr) )
+    uiTaskRunner taskrunner( p );
+    if ( !pp_.initialize(&taskrunner) )
     {
 	new uiLabel( this, "Cannot initialize horizon" );
 	return;
@@ -201,7 +201,7 @@ bool uiWriteFlattenedCube::doWork( float zval )
     rdr.setSelData( tsd );
     SeisTrcWriter wrr( outctio_.ioobj );
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     MouseCursorManager::restoreOverride();
-    return TaskRunner::execute( &tr, cm );
+    return TaskRunner::execute( &taskrunner, cm );
 }

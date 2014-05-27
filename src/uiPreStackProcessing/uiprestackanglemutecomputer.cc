@@ -76,8 +76,8 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     processor_->params().hrg_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
 
-    uiTaskRunner tr(this);
-    if ( !TaskRunner::execute( &tr, *processor_ ) )
+    uiTaskRunner taskrunner(this);
+    if ( !TaskRunner::execute( &taskrunner, *processor_ ) )
     {
 	uiMSG().error( processor_->errMsg() );
 	return false;

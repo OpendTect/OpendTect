@@ -432,8 +432,8 @@ void uiMultiWellLogSel::update()
     deepErase( wellobjs_ );
 
     Well::InfoCollector wic;
-    uiTaskRunner tr( this );
-    if ( !TaskRunner::execute( &tr, wic ) ) return;
+    uiTaskRunner taskrunner( this );
+    if ( !TaskRunner::execute( &taskrunner, wic ) ) return;
 
     BufferStringSet markernms;
     BufferStringSet lognms;

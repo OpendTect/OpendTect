@@ -139,8 +139,8 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     Hor2DFrom3DCreatorGrp creator( *horizon3d, horizon2d );
     creator.init( geomids );
 
-    uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, creator );
+    uiTaskRunner taskrunner( this );
+    TaskRunner::execute( &taskrunner, creator );
 }
 
 

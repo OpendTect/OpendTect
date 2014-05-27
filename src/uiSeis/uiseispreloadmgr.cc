@@ -262,7 +262,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 	spl.unLoad();
     }
 
-    uiTaskRunner tr( this ); spl.setRunner( tr );
+    uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadVol() )
     {
 	const char* emsg = spl.errMsg();
@@ -371,7 +371,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     mCheckIOObjExistance( dlg.ctio_.ioobj );
 
     Seis::PreLoader spl( dlg.ctio_.ioobj->key() );
-    uiTaskRunner tr( this ); spl.setRunner( tr );
+    uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
     {
 	const char* emsg = spl.errMsg();
@@ -398,7 +398,7 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
-    uiTaskRunner tr( this ); spl.setRunner( tr );
+    uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadPS3D(&inlrg) )
     {
 	const char* emsg = spl.errMsg();
@@ -473,7 +473,7 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     mCheckIOObjExistance( dlg.ioObj() );
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
-    uiTaskRunner tr( this ); spl.setRunner( tr );
+    uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
 	const char* emsg = spl.errMsg();
@@ -531,8 +531,8 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     if ( iop.isEmpty() )
 	mErrRet( "No valid objects found" )
 
-    uiTaskRunner tr( this );
-    Seis::PreLoader::load( iop, &tr );
+    uiTaskRunner taskrunner( this );
+    Seis::PreLoader::load( iop, &taskrunner );
     fullUpd( 0 );
 }
 

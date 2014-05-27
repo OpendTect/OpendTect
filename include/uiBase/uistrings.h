@@ -72,6 +72,7 @@ public:
     static inline uiString sHistogram()         { return tr("&Histogram"); }
     static inline uiString sHorizons()		{ return tr("&Horizons"); }
     static inline uiString sImport()		{ return tr("&Import"); }
+    static inline uiString sInside()		{ return tr("Inside"); }
     static inline uiString sLayers()		{ return tr("&Layers"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
     static inline uiString sLock()		{ return tr("&Lock"); }
@@ -88,6 +89,7 @@ public:
     static inline uiString sOpen(bool immediate);
     static inline uiString sOtherSurvey()	{ return tr("&Other Survey"); }
     static inline uiString sOutput()            { return tr("&Output"); }
+    static inline uiString sOutside()		{ return tr("&Outside"); }
     static inline uiString sOverwrite()         { return tr("&Overwrite"); }
     static inline uiString sPause()             { return tr("&Pause"); }
     static inline uiString sPickSets()		{ return tr("&Pick Sets"); }
@@ -114,6 +116,7 @@ public:
     static inline uiString sSelect(bool arg=false,bool plural=false); 
     static inline uiString sSession()		{ return tr("&Session"); }
     static inline uiString sSetup()		{ return tr("&Setup"); }
+    static inline uiString sSettings()		{ return tr("Settings"); }
     static inline uiString sSimple()		{ return tr("&Simple"); }
     static inline uiString sStart()		{ return tr("St&art"); }
     static inline uiString sStop()		{ return tr("St&op"); }
