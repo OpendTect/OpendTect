@@ -44,7 +44,7 @@ public:
 
     int				nextStep();
     const char*			message() const		{ return msg_.buf(); }
-    uiStringCopy		uiNrDoneText() const;
+    uiString			uiNrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;
 

@@ -151,7 +151,7 @@ public:
 
 private:
     bool			doWork(od_int64 start,od_int64 stop,int);
-    uiStringCopy		uiNrDoneText() const
+    uiString			uiNrDoneText() const
 				{ return "Data values mapped"; }
 
     const ColTab::Mapper&	mapper_;

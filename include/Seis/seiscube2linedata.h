@@ -34,8 +34,8 @@ public:
 					   const BufferStringSet* lnms=0);
 			~SeisCube2LineDataExtracter();
 
-    uiStringCopy	uiMessage() const	{ return msg_; }
-    uiStringCopy	uiNrDoneText() const	{ return "Traces written"; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Traces written"; }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const 	{ return totalnr_; }
 

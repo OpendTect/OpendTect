@@ -164,29 +164,10 @@ public:
 		//!<Returns true if the translation succeeded
 };
 
-/*!Wrapper class with fewer constructor that ensures that it is completely
-   decoupled from its input. */
 
-mExpClass(Basic) uiStringCopy : public uiString
-{
-public:
-				uiStringCopy(const uiString& in)
-				    : uiString( in )
-				{
-				    makeIndependent();
-				}
-				uiStringCopy(const char* in = 0)
-				    : uiString(in)
-				{}
-				uiStringCopy(const FixedString& in)
-				    : uiString(in)
-				{}
-				uiStringCopy(const BufferString& in)
-				    : uiString(in)
-				{}
+//!Don't use in new code. Use uiString directly.
+typedef uiString uiStringCopy;
 
-
-};
 
 #define mTextTranslationClass(clss,application) \
 private: \

@@ -62,7 +62,7 @@ public:
 					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
 
-    uiStringCopy	uiMessage() const	{ return msg_; }
+    uiString		uiMessage() const	{ return msg_; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totalnr_; }
     virtual int		nextStep();

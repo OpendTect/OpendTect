@@ -87,10 +87,10 @@ public:
 			~SeisIOSimple();
 
     int			nextStep();
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		nrDone() const;
     od_int64		totalNr() const;
-   uiStringCopy 	uiNrDoneText() const;
+   uiString		uiNrDoneText() const;
 
 protected:
 

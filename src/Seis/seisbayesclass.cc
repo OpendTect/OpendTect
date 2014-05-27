@@ -262,7 +262,7 @@ bool SeisBayesClass::getWriters()
 }
 
 
-uiStringCopy SeisBayesClass::uiMessage() const
+uiString SeisBayesClass::uiMessage() const
 {
     return msg_;
 }

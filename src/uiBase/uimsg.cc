@@ -267,7 +267,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 
 	for ( int idx=1; idx<strings.size(); idx++ )
 	{
-	    uiStringCopy old = detailed;
+	    uiString old = detailed;
 	    detailed = uiString( "%1\n%2").arg( old ).arg( strings[idx] );
 	}
 

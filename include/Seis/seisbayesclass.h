@@ -54,7 +54,7 @@ public:
     static const char*		sKeyPreScale();
 
     int				nextStep();
-    uiStringCopy		uiMessage() const;
+    uiString			uiMessage() const;
     const char*			nrDoneText() const;
     od_int64			nrDone() const;
     od_int64			totalNr() const;

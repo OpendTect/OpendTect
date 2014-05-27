@@ -222,7 +222,7 @@ public:
 
     bool			areSamplesIndependent() const;
     bool			needsFullVolume() const;
-    uiStringCopy		errMsg() const;
+    uiString			errMsg() const;
 
     Step::ID			getNewStepID() { return freeid_++; }
 
@@ -262,8 +262,8 @@ public:
 				ChainExecutor(Chain&);
 				~ChainExecutor();
 
-    uiStringCopy		errMsg() const;
-    uiStringCopy		uiNrDoneText() const;
+    uiString			errMsg() const;
+    uiString			uiNrDoneText() const;
 
     bool			setCalculationScope(const HorSampling&,
 						    const StepInterval<int>&);
@@ -307,7 +307,7 @@ private:
     void			controlWork(Task::Control);
     od_int64			nrDone() const;
     od_int64			totalNr() const;
-    uiStringCopy		uiMessage() const;
+    uiString			uiMessage() const;
 
     void			releaseMemory();
 

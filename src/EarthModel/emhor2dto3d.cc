@@ -198,7 +198,7 @@ Hor2DTo3D::~Hor2DTo3D()
 }
 
 
-uiStringCopy Hor2DTo3D::uiNrDoneText() const
+uiString Hor2DTo3D::uiNrDoneText() const
 {
     return curinterp_ ? curinterp_->uiNrDoneText() : "";
 }

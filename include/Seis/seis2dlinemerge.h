@@ -34,8 +34,8 @@ public:
     			Seis2DLineMerger(const MultiID&);
     			~Seis2DLineMerger();
 
-    uiStringCopy	uiMessage() const	{ return msg_; }
-    uiStringCopy	uiNrDoneText() const	{ return nrdonemsg_; }
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return nrdonemsg_; }
     od_int64		totalNr() const		{ return totnr_; }
     od_int64		nrDone() const		{ return nrdone_; }
     int			nextStep();

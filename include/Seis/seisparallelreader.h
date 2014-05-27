@@ -65,7 +65,7 @@ protected:
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
     const char*		nrDoneText() const { return "Traces read"; }
-    uiStringCopy	uiMessage() const { return errmsg_.isEmpty() ?
+    uiString		uiMessage() const { return errmsg_.isEmpty() ?
 					   "Reading" : errmsg_;}
 
 

@@ -37,7 +37,7 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		= 0;
 
-    uiStringCopy	errMsg() const			{ return errmsg_; }
+    uiString		errMsg() const			{ return errmsg_; }
 
     static const char*	sKeyODType;
 

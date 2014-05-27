@@ -1072,7 +1072,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 }
 
 
-uiStringCopy StratSynth::errMsg() const
+uiString StratSynth::errMsg() const
 {
     return errmsg_.isEmpty() ? 0 : errmsg_;
 }

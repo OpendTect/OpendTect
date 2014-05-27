@@ -36,10 +36,10 @@ public:
 				    int max_nr_trcs=-1);
 			~SeisScanner();
 
-    uiStringCopy	uiMessage() const;
+    uiString		uiMessage() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
-    uiStringCopy	uiNrDoneText() const;
+    uiString		uiNrDoneText() const;
     int			nextStep();
 
     void		report(IOPar&) const;

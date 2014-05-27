@@ -98,7 +98,7 @@ public:
     void		decimateTraces(SeisTrcBuf&,int fac) const;
 
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
-    uiStringCopy	errMsg() const;
+    uiString		errMsg() const;
     const char* 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
 

@@ -55,7 +55,7 @@ PosVecOutputGen::~PosVecOutputGen()
 }
 
 
-uiStringCopy PosVecOutputGen::uiMessage() const
+uiString PosVecOutputGen::uiMessage() const
 {
     if ( outex_ )
 	return outex_->uiMessage();
@@ -64,7 +64,7 @@ uiStringCopy PosVecOutputGen::uiMessage() const
 }
 
 
-uiStringCopy PosVecOutputGen::uiNrDoneText() const
+uiString PosVecOutputGen::uiNrDoneText() const
 { return outex_ ? outex_->uiNrDoneText() : "Positions handled"; }
 
 

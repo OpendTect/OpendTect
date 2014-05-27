@@ -43,7 +43,7 @@ public:
     void			doMerge(bool yn) { domerge_ = yn; }
     const char*			errMsg() const;
 
-    uiStringCopy		uiNrDoneText() const { return "Wells handled"; }
+    uiString			uiNrDoneText() const { return "Wells handled"; }
     od_int64			totalNr() const { return nrIterations(); }
 
 protected:

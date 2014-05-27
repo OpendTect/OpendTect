@@ -483,7 +483,7 @@ od_int64 Processor::nrDone() const
 { return nrdone_; }
 
 
-uiStringCopy Processor::uiMessage() const
+uiString Processor::uiMessage() const
 { return errmsg_.isEmpty() ? "Processing" : errmsg_; }
 
 
