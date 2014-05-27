@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "basicmod.h"
 #include "keystrs.h"
+#include "threadlock.h"
 
 #include "objectset.h"
 
@@ -107,16 +108,18 @@ public:
     uiString&			arg(const BufferString&);
     uiString&			arg(const uiString&);
 
-    uiString&			append(const char*);
+    uiString&			append(const char*,bool withnewline=false);
 				/*!Appends. In most cases, use arg to allow
 				  translator to change ordering. */
-    uiString&			append(const FixedString&);
+    uiString&			append(const FixedString&,
+				       bool withnewline=false);
 				/*!Appends. In most cases, use arg to allow
 				translator to change ordering. */
-    uiString&			append(const BufferString&);
+    uiString&			append(const BufferString&,
+				       bool withnewline=false);
 				/*!Appends. In most cases, use arg to allow
 				 translator to change ordering. */
-    uiString&			append(const uiString&);
+    uiString&			append(const uiString&,bool withnewline=false);
 				/*!Appends. In most cases, use arg to allow
 				 translator to change ordering. */
 
@@ -135,6 +138,7 @@ public:
 private:
     friend class		uiStringData;
     uiStringData*		data_;
+    mutable Threads::Lock	lock_;
 public:
 		//Only for expert users
     void	makeIndependent();
