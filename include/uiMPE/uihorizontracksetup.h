@@ -40,7 +40,7 @@ class SectionTracker;
 /*!\brief Horizon tracking setup dialog. */
 
 mExpClass(uiMPE) uiHorizonSetupGroup : public uiSetupGroup
-{
+{ mODTextTranslationClass(uiHorizonSetupGroup);
 public:
 				uiHorizonSetupGroup(uiParent*,
 						    const Attrib::DescSet*,

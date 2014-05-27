@@ -108,16 +108,16 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
-    tabgrp_->addTab( modegrp, "Mode" );
+    tabgrp_->addTab( modegrp, tr("Mode") );
 
     uiGroup* eventgrp = createEventGroup();
-    tabgrp_->addTab( eventgrp, "Event" );
+    tabgrp_->addTab( eventgrp, tr("Event") );
 
     uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, "Similarity" );
+    tabgrp_->addTab( simigrp, tr("Similarity") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
-    tabgrp_->addTab( propertiesgrp, "Properties" );
+    tabgrp_->addTab( propertiesgrp, tr("Properties") );
 }
 
 
@@ -173,7 +173,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     grp->setHAlignObj( inpfld_ );
     inpfld_->selectionDone.notify( mCB(this,uiHorizonSetupGroup,eventChangeCB));
 
-    evfld_ = new uiGenInput( grp, "Event type",
+    evfld_ = new uiGenInput( grp, tr("Event type"),
 			    StringListInpSpec(sKeyEventNames()) );
     evfld_->attach( alignedBelow, inpfld_ );
     evfld_->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
@@ -186,13 +186,14 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     srchgatefld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
 
-    thresholdtypefld_ = new uiGenInput( grp, "Threshold type",
-		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
+    thresholdtypefld_ = new uiGenInput( grp, tr("Threshold type"),
+		BoolInpSpec(true,tr("Cut-off amplitude"),
+                            tr("Relative difference")) );
     thresholdtypefld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selAmpThresholdType) );
     thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
 
-    ampthresholdfld_ = new uiGenInput ( grp, "Allowed difference (%)",
+    ampthresholdfld_ = new uiGenInput ( grp, tr("Allowed difference (%)"),
 				       StringInpSpec() );
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
     ampthresholdfld_->valuechanged.notify(
@@ -200,13 +201,14 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 
     if ( !is2d_ )
     {
-	addstepbut_ = new uiPushButton( grp, "Steps",
+	addstepbut_ = new uiPushButton( grp, tr("Steps"),
 		mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
-    extriffailfld_ = new uiGenInput( grp, "If tracking fails",
-				    BoolInpSpec(true,"Extrapolate","Stop") );
+    extriffailfld_ = new uiGenInput( grp, tr("If tracking fails"),
+				    BoolInpSpec(true,tr("Extrapolate"),
+                                                tr("Stop")) );
     extriffailfld_->attach( alignedBelow, ampthresholdfld_ );
     extriffailfld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );
@@ -219,7 +221,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Similarity" );
 
-    usesimifld_ = new uiGenInput( grp, "Use similarity", BoolInpSpec(true) );
+    usesimifld_ = new uiGenInput( grp, tr("Use similarity"), BoolInpSpec(true));
     usesimifld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
     usesimifld_->valuechanged.notify(
@@ -232,7 +234,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
     compwinfld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup, similartyChangeCB) );
 
-    simithresholdfld_ = new uiGenInput( grp, "Similarity threshold(0-1)",
+    simithresholdfld_ = new uiGenInput( grp, tr("Similarity threshold(0-1)"),
 				       FloatInpSpec() );
     simithresholdfld_->attach( alignedBelow, compwinfld_ );
     simithresholdfld_->valuechanged.notify(
@@ -248,7 +250,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
     colorfld_ = new uiColorInput( grp,
 				  uiColorInput::Setup(getRandStdDrawColor() ).
-				  lbltxt("Horizon color") );
+				  lbltxt(tr("Horizon color")) );
     colorfld_->colorChanged.notify(
 			mCB(this,uiHorizonSetupGroup,colorChangeCB) );
     grp->setHAlignObj( colorfld_ );
@@ -256,7 +258,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     uiSeparator* sep = new uiSeparator( grp );
     sep->attach( stretchedBelow, colorfld_, -2 );
 
-    seedtypefld_ = new uiGenInput( grp, "Seed Shape",
+    seedtypefld_ = new uiGenInput( grp, tr("Seed Shape"),
 			StringListInpSpec(MarkerStyle3D::TypeNames()) );
     seedtypefld_->valuechanged.notify(
 			mCB(this,uiHorizonSetupGroup,seedTypeSel) );
@@ -264,7 +266,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
     seedtypefld_->attach( ensureBelow, sep );
 
     seedsliderfld_ = new uiSlider( grp,
-				uiSlider::Setup("Seed Size").
+				uiSlider::Setup(tr("Seed Size")).
 				withedit(true),	"Seed Size" );
     seedsliderfld_->setInterval( 1, 15 );
     seedsliderfld_->valueChanged.notify(
@@ -273,7 +275,7 @@ uiGroup* uiHorizonSetupGroup::createPropertyGroup()
 
     seedcolselfld_ = new uiColorInput( grp,
 				       uiColorInput::Setup(Color::White()).
-				       lbltxt("Seed Color") );
+				       lbltxt(tr("Seed Color")) );
     seedcolselfld_->attach( alignedBelow, seedsliderfld_ );
     seedcolselfld_->colorChanged.notify(
 				mCB(this,uiHorizonSetupGroup,seedColSel) );
@@ -298,8 +300,8 @@ void uiHorizonSetupGroup::selUseSimilarity( CallBacker* )
 void uiHorizonSetupGroup::selAmpThresholdType( CallBacker* )
 {
     const bool absthreshold = thresholdtypefld_->getBoolValue();
-    ampthresholdfld_->setTitleText( absthreshold ? "Amplitude value"
-						 : "Allowed difference (%)" );
+    ampthresholdfld_->setTitleText(absthreshold ?tr("Amplitude value")
+						:tr("Allowed difference (%)"));
     if ( absthreshold )
     {
 	if ( is2d_ || horadj_->getAmplitudeThresholds().isEmpty() )
@@ -585,7 +587,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     fieldchange = false;
 
     if ( !horadj_ || horadj_->getNrAttributes()<1 )
-    {   uiMSG().warning( "Unable to apply tracking setup" );
+    {   uiMSG().warning( tr("Unable to apply tracking setup") );
 	return true;
     }
     if ( !inpfld_ ) return true;
@@ -599,7 +601,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
     Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
-	mErrRet( "Search window should be minus to positive, ex. -20, 20");
+	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
     Interval<float> relintv( (float)intv.start/SI().zDomain().userFactor(),
 			     (float)intv.stop/SI().zDomain().userFactor() );
     if ( horadj_->permittedZRange() != relintv )
@@ -619,7 +621,8 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	Interval<float> intval = compwinfld_->getFInterval();
 	if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
-	    mErrRet("Compare window should be minus to positive, ex. -20, 20");
+	    mErrRet(tr("Compare window should be minus"
+                       " to positive, ex. -20, 20"));
 	Interval<float> relintval(
 		(float)intval.start/SI().zDomain().userFactor(),
 	        (float)intval.stop/SI().zDomain().userFactor() );
@@ -631,7 +634,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 
 	float mgate = simithresholdfld_->getfValue();
 	if ( mgate > 1 || mgate <= 0)
-	    mErrRet( "Similarity threshold must be within 0 to 1" );
+	    mErrRet( tr("Similarity threshold must be within 0 to 1") );
 	if ( horadj_->similarityThreshold() != mgate )
 	{
 	    fieldchange = true;
@@ -654,7 +657,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    float vgate = ss.getFValue(0);
 	    if ( Values::isUdf(vgate) )
-		mErrRet( "Value threshold not set" );
+		mErrRet( tr("Value threshold not set") );
 	    if ( horadj_->amplitudeThreshold() != vgate )
 	    {
 		fieldchange = true;
@@ -668,7 +671,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    {
 		float varvalue = ss.getFValue(idx);
 		if ( Values::isUdf(varvalue) )
-		    mErrRet( "Value threshold not set properly" );
+		    mErrRet( tr("Value threshold not set properly") );
 
 		if ( horadj_->getAmplitudeThresholds().size() < idx+1 )
 		{
@@ -710,7 +713,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	{
 	    float var = ss.getFValue(0) / 100;
 	    if ( var<=0.0 || var>=1.0 )
-		mErrRet( "Allowed variance must be between 0-100" );
+		mErrRet( tr("Allowed variance must be between 0-100") );
 	    if ( horadj_->allowedVariance() != var )
 	    {
 		fieldchange = true;
@@ -724,7 +727,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	    {
 		float varvalue = ss.getFValue(idx) / 100;
 		if ( varvalue <=0.0 || varvalue>=1.0 )
-		    mErrRet( "Allowed variance must be between 0-100" );
+		    mErrRet( tr("Allowed variance must be between 0-100") );
 
 		if ( horadj_->getAllowedVariances().size() < idx+1 )
 		{
@@ -769,7 +772,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     Attrib::SelSpec as;
     inpfld_->fillSelSpec( as );
     if ( !as.id().isValid() )
-	mErrRet( "Please select the seismic data to track on" );
+	mErrRet( tr("Please select the seismic data to track on") );
 
     if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
     {

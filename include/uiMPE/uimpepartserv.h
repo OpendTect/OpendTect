@@ -31,7 +31,7 @@ namespace Attrib { class DescSet; class DataCubes; class Data2DArray; }
 /*! \brief Implementation of Tracking part server interface */
 
 mExpClass(uiMPE) uiMPEPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiMPEPartServer);
 public:
 				uiMPEPartServer(uiApplService&);
 				~uiMPEPartServer();

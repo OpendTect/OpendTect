@@ -33,7 +33,7 @@ class EMTracker;
 class EMSeedPicker;
 
 mExpClass(uiMPE) HorizonFlatViewEditor2D : public CallBacker
-{
+{ mODTextTranslationClass(HorizonFlatViewEditor2D);
 public:
     			HorizonFlatViewEditor2D(FlatView::AuxDataEditor*,
 						const EM::ObjectID&);

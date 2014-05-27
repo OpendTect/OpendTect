@@ -103,10 +103,10 @@ uiEMEditor* uiEMHorizonEditor::create( uiParent* p, MPE::ObjectEditor* e )
 
 uiEMHorizonEditor::uiEMHorizonEditor( uiParent* p, MPE::HorizonEditor* he )
     : uiEMObjectEditor( p, he )
-    , editsettingsmnuitem( "Editor settings ..." )
-    , splitsectionmnuitem( "Split" )
-    , makestoplinemnuitem( "Disable Tracking" )
-    , removenodesmnuitem( "Remove nodes inside" )
+    , editsettingsmnuitem( tr("Editor settings ...") )
+    , splitsectionmnuitem( tr("Split") )
+    , makestoplinemnuitem( tr("Disable Tracking") )
+    , removenodesmnuitem( tr("Remove nodes inside") )
 {}
 
 

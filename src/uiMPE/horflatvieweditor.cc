@@ -172,7 +172,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 
     ConstDataPackRef<FlatDataPack> dp =editor_->viewer().obtainPack(!pickinvd);
     if ( !dp )
-	{ uiMSG().error( "No data to choose from" ); return; }
+	{ uiMSG().error( tr("No data to choose from") ); return; }
 
     const MouseEvent& mouseevent = mouseeventhandler_->event();
     const uiRect datarect( editor_->getMouseArea() );
@@ -214,12 +214,12 @@ bool HorizonFlatViewEditor::canTrack( const EMTracker& tracker ) const
 {
     if ( tracker.is2D() && !is2d_ )
     {
-	uiMSG().error( "2D tracking cannot handle picks on 3D lines.");
+	uiMSG().error( tr("2D tracking cannot handle picks on 3D lines."));
 	return false;
     }
     else if ( !tracker.is2D() && is2d_ )
     {
-	uiMSG().error( "3D tracking cannot handle picks on 2D lines.");
+	uiMSG().error( tr("3D tracking cannot handle picks on 2D lines."));
 	return false;
     }
 
@@ -307,8 +307,8 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	const bool wvavisible = editor_->viewer().isVisible(true);
 	if ( vdvisible && wvavisible )
 	{
-	    if ( !uiMSG().question("Which one is your seed data.",
-				   "VD", "Wiggle") )
+	    if ( !uiMSG().question(tr("Which one is your seed data."),
+				   tr("VD"), tr("Wiggle")) )
 		pickinvd = false;
 	}
 	else if ( vdvisible )
@@ -317,7 +317,7 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	    pickinvd = false;
 	else
 	{
-	    uiMSG().error( "No data to choose from" );
+	    uiMSG().error( tr("No data to choose from") );
 	    return false;
 	}
 
@@ -325,9 +325,9 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	if ( !trackersetupactive_ && as && trackedatsel && (newatsel!=*as) &&
 	      (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
 	{
-	    uiMSG().error( "Saved setup has different attribute. \n"
+	    uiMSG().error( tr("Saved setup has different attribute. \n"
 			   "Either change setup attribute or change\n"
-			   "display attribute you want to track on" );
+			   "display attribute you want to track on") );
 	    return false;
 	}
     }

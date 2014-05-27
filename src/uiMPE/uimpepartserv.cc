@@ -161,7 +161,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     const int res = MPE::engine().addTracker( emobj );
     if ( res == -1 )
     {
-	uiMSG().error("Could not create tracker for this object");
+	uiMSG().error(tr("Could not create tracker for this object"));
 	return -1;
     }
 
@@ -260,8 +260,8 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 		seedpicker->getSeedConnectMode()!=seedpicker->DrawBetweenSeeds )
 	{
 	    seedpicker->blockSeedPick( true );
-	    uiMSG().error( "Tracking Setup has different attribute"
-			   " than your seeds" );
+	    uiMSG().error( tr("Tracking Setup has different attribute"
+			   " than your seeds") );
 	    return;
 	}
 
@@ -1122,7 +1122,7 @@ bool uiMPEPartServer::initSetupDlg( EM::EMObject*& emobj,
     if ( !seedpicker ) return false;
 
     uiDialog* setupdlg  = new uiDialog( parent(),
-				uiDialog::Setup("Tracking Setup",0,
+				uiDialog::Setup(tr("Tracking Setup"),0,
                                  mODHelpKey(mTrackingSetupGroupHelpID) )
 				.modal(false) );
     setupdlg->setCtrlStyle( uiDialog::CloseOnly );

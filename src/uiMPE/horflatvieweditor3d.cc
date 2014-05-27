@@ -339,8 +339,8 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	const bool wvavisible = editor_->viewer().isVisible(true);
 	if ( vdvisible && wvavisible )
 	{
-	    if ( !uiMSG().question("Which one is your seed data.",
-				   "VD", "Wiggle") )
+	    if ( !uiMSG().question(tr("Which one is your seed data."),
+				   tr("VD"), tr("Wiggle")) )
 		pickinvd = false;
 	}
 	else if ( vdvisible )
@@ -349,7 +349,7 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	    pickinvd = false;
 	else
 	{
-	    uiMSG().error( "No data to choose from" );
+	    uiMSG().error( tr("No data to choose from") );
 	    return false;
 	}
 
@@ -359,9 +359,9 @@ bool HorizonFlatViewEditor3D::checkSanity( EMTracker& tracker,
 	     (newatsel!=*atsel) &&
 	     (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
 	{
-	    uiMSG().error( "Saved setup has different attribute. \n"
+	    uiMSG().error( tr("Saved setup has different attribute. \n"
 		    	   "Either change setup attribute or change\n"
-			   "display attribute you want to track on" );
+			   "display attribute you want to track on") );
 	    return false;
 	}
     }

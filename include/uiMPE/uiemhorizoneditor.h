@@ -30,7 +30,7 @@ namespace MPE
 class HorizonEditor;
 
 mExpClass(uiMPE) uiEMHorizonEditor : public uiEMObjectEditor
-{
+{ mODTextTranslationClass(uiEMHorizonEditor);
 
 public:
     static void		initClass();
