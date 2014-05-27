@@ -16,11 +16,12 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 #include "visimagerect.h"
 
+namespace OD { class RGBImage; }
 namespace visSurvey
 {
 
 /*!\brief
-  Image
+  Image display, owns the RGBImage and distributes it to the child objects
 */
 
 mExpClass(visSurvey) ImageDisplay : public visSurvey::LocationDisplay
@@ -37,6 +38,9 @@ public:
 
      void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+
+    void			setRGBImage(OD::RGBImage*);
+				//!< Will become mine
 
 protected:
 
@@ -57,7 +61,7 @@ protected:
     
     const mVisTrans*			displaytransform_;
     BufferString			imagefnm_;
-    visBase::ImageRect::ImageData	imagedata_;
+    const OD::RGBImage*			rgbimage_;
     RefMan<visBase::DataObjectGroup>	group_;
 };
 

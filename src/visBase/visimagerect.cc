@@ -11,7 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visimagerect.h"
 
+#include "pickset.h"
+#include "odimage.h"
+
 #include "viscoord.h"
+#include "vismaterial.h"
+#include "vispolygonoffset.h"
 #include "vistransform.h"
 
 #include <osgGeo/TexturePlane>
@@ -30,15 +35,23 @@ ImageRect::ImageRect()
     , trans_(0)
     , laytex_(new osgGeo::LayeredTexture)
     , texplane_(new osgGeo::TexturePlaneNode)
+    , polyoffset_(new visBase::PolygonOffset)
 {
     laytex_->ref();
     texplane_->ref();
     layerid_ = laytex_->addDataLayer();
     laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
     texplane_->setLayeredTexture( laytex_ );
-    addChild( texplane_ );
 
-    //setTransparency( 0.0 );
+    polyoffset_->ref();
+    polyoffset_->setFactor( -1.0f );
+    polyoffset_->setUnits( 1.0f );
+
+    polyoffset_->setMode(
+	visBase::PolygonOffset::Protected | visBase::PolygonOffset::On  );
+    polyoffset_->attachStateSet( texplane_->getOrCreateStateSet() );
+    addChild( texplane_ );
+    getMaterial()->setTransparency( 0.0 );
 }
 
 
@@ -46,7 +59,16 @@ ImageRect::~ImageRect()
 {
     if ( trans_ ) trans_->unRef();
     laytex_->unref();
+    polyoffset_->unRef();
     texplane_->unref();
+}
+
+
+void ImageRect::setPick( const Pick::Location& loc )
+{
+    setCenterPos( loc.pos_ );
+    const osg::Quat rot( loc.dir_.phi, osg::Vec3(0,0,1) );
+    texplane_->setRotation( rot );
 }
 
 
@@ -74,45 +96,23 @@ void ImageRect::setDisplayTransformation( const mVisTrans* trans )
 }
 
 
-void ImageRect::setFileName( const char* fnm )
+void ImageRect::setRGBImage( const OD::RGBImage& rgbimg )
 {
-    fnm_ = fnm;
-    osg::ref_ptr<osg::Image> image = osgDB::readImageFile( fnm );
-    imagedata_.width_ = image->s();
-    imagedata_.height_ = image->t();
-    imagedata_.depth_ = image->r();
-    imagedata_.data_.setEmpty(); imagedata_.data_ = image->data();
-    imagedata_.internalformat_ = image->getInternalTextureFormat();
-    imagedata_.format_ = image->getPixelFormat();
-    imagedata_.datatype_ = image->getDataType();
-    imagedata_.packing_ = image->getPacking();
-    laytex_->setDataLayerImage( layerid_, image );
-    texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
-}
+    if ( !rgbimg.getData() )
+	return;
 
-
-void ImageRect::setImageData( const ImageData& imgd )
-{
+    const int totsz = rgbimg.getSize(true) * rgbimg.getSize(false) * 4;
+    unsigned char* imgdata = new unsigned char[totsz];
+    OD::memCopy( imgdata, rgbimg.getData(), totsz );
+ 
     osg::ref_ptr<osg::Image> image = new osg::Image;
-    image->setImage( imgd.width_, imgd.height_, imgd.depth_, 
-		     imgd.internalformat_, imgd.format_, 
-		     imgd.datatype_, mCast(unsigned char*,imgd.data_.buf()),
-		     osg::Image::NO_DELETE, imgd.packing_ );
-    imagedata_ = imgd;
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
+		     osg::Image::NO_DELETE );
+    image->flipHorizontal();
+    image->flipVertical();
     laytex_->setDataLayerImage( layerid_, image );
     texplane_->setTextureBrickSize( laytex_->maxTextureSize() );
-}
-
-
-ImageRect::ImageData ImageRect::getImageData() const
-{
-    return imagedata_;
-}
-
-
-const char* ImageRect::getFileName() const
-{
-   return fnm_;
 }
 
 

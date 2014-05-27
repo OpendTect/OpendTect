@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visimagedisplay.h"
 
+#include "odimage.h"
 #include "pickset.h"
 
 #include "visevent.h"
@@ -27,6 +28,7 @@ mCreateFactoryEntry( ImageDisplay );
 ImageDisplay::ImageDisplay()
     : group_(new visBase::DataObjectGroup)
     , needFileName(this)
+    , rgbimage_(0)
 {
     group_->ref();
     addChild( group_->osgNode() );
@@ -37,6 +39,8 @@ ImageDisplay::~ImageDisplay()
 {
     removeChild( group_->osgNode() );
     group_->unRef();
+    if ( rgbimage_ )
+	delete rgbimage_;
 }
 
 
@@ -55,26 +59,31 @@ const mVisTrans* ImageDisplay::getDisplayTransformation() const
 bool ImageDisplay::setFileName( const char* fnm )
 {
     imagefnm_ = fnm;
-    setImageDataFromFile( fnm );
+    uiString errmsg;
+    OD::RGBImage* img = OD::RGBImageLoader::loadRGBImage(fnm,errmsg);
+    if ( !img )
+    {
+	pErrMsg( errmsg.getFullString() );
+	return false;
+    }
+
+    setRGBImage( img );
     return true;
 }
 
 
-void ImageDisplay::setImageDataFromFile( const char* fnm )
+void ImageDisplay::setRGBImage( OD::RGBImage* img )
 {
-    visBase::ImageRect* tmpimg = visBase::ImageRect::create();
-    tmpimg->ref();
-    tmpimg->setFileName( fnm );
-    imagedata_ = tmpimg->getImageData();
+    if( !img->getData() )
+	return;
 
+    rgbimage_ = img;
     for ( int idx=0; idx<group_->size(); idx++ )
     {
 	mDynamicCastGet(visBase::ImageRect*,image,group_->getObject(idx));
 	if ( image )
-	    image->setImageData( imagedata_ );
+	    image->setRGBImage( *rgbimage_ );
     }
-    
-    tmpimg->unRef();
 }
 
 
@@ -104,9 +113,9 @@ visBase::VisualObject* ImageDisplay::createLocation() const
     if ( fnm.isEmpty() )
 	const_cast<ImageDisplay*>(this)->needFileName.trigger();
 
-    visBase::ImageRect* image = visBase::ImageRect::create();
-    image->setDisplayTransformation( displaytransform_ );
-    return image;
+    visBase::ImageRect* imagerct = visBase::ImageRect::create();
+    imagerct->setDisplayTransformation( displaytransform_ );
+    return imagerct;
 }
 
 
@@ -121,8 +130,8 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::ImageRect*,image,group_->getObject(idx));
-	if ( image && evi.pickedobjids.isPresent(image->id()) )
+	mDynamicCastGet(visBase::ImageRect*,imagerect,group_->getObject(idx));
+	if ( imagerect && evi.pickedobjids.isPresent(imagerect->id()) )
 	    return idx;
     }
 
@@ -132,26 +141,31 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 
 void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 {
+    const float zscale = scene_ ? scene_->getZScale() : 1;
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
     const Coord3 topleft(-size,0,size);
     const Coord3 bottomright(size,0,-size);
 
-    mDynamicCastGet(visBase::ImageRect*,image,group_->getObject(idx));
-    if ( image )
+    mDynamicCastGet(visBase::ImageRect*,imagerect,group_->getObject(idx));
+    if ( imagerect )
     {
-	image->setCenterPos( pick.pos_ );
-	image->setImageData( imagedata_ );
-	image->setCornerPos( topleft, bottomright );
+	imagerect->setRGBImage( *rgbimage_ );
+	imagerect->setPick( pick );
+	imagerect->setCornerPos( topleft, bottomright );
     }
     else
     {
-	visBase::ImageRect* img =
+	visBase::ImageRect* imgrect =
 	    static_cast<visBase::ImageRect*>( createLocation() );
-	img->setCenterPos( pick.pos_ );
-	img->setImageData( imagedata_ );
-	img->setCornerPos( topleft, bottomright );
-	group_->addObject( img );
+
+	if ( !rgbimage_ )
+	    return;
+
+	imgrect->setRGBImage( *rgbimage_ );
+	imgrect->setPick( pick );
+	imgrect->setCornerPos( topleft, bottomright );
+	group_->addObject( imgrect );
     }
 }
 
@@ -167,7 +181,7 @@ void ImageDisplay::removePosition( int idx )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
-    //const float zscale = scene_ ? scene_->getZScale() : 1; TODO:
+    const float zscale = scene_ ? scene_->getZScale() : 1;
     const int size = set_ ? set_->disp_.pixsize_ : 100;
 
     const Coord3 topleft(-size,0,size);
@@ -175,9 +189,9 @@ void ImageDisplay::updateCoords(CallBacker*)
 
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::ImageRect*,image,group_->getObject(idx));
-	if ( image )
-	    image->setCornerPos( topleft, bottomright );
+	mDynamicCastGet(visBase::ImageRect*,imagerect,group_->getObject(idx));
+	if ( imagerect )
+	    imagerect->setCornerPos( topleft, bottomright );
     }
 }
 

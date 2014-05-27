@@ -16,10 +16,14 @@ ________________________________________________________________________
 #include "visbasemod.h"
 #include "visobject.h"
 
+namespace OD { class RGBImage; }
+namespace Pick { class Location; }
 namespace osgGeo { class LayeredTexture; class TexturePlaneNode; }
 
 namespace visBase
 {
+
+class PolygonOffset;
 
 /*!Displays an image that either is read from disk or in memory. */
 
@@ -29,28 +33,12 @@ public:
     static ImageRect*	create()
 			mCreateDataObj( ImageRect );
     
+    void		setPick(const Pick::Location&);
+
     void		setCenterPos(const Coord3&);
     void		setCornerPos(const Coord3& tl,const Coord3& br);
 
-    void		setFileName(const char*);
-    const char*		getFileName() const;
-
-    struct ImageData
-    {
-	BufferString	    data_;
-	int		    width_;
-	int		    height_;
-	int		    depth_;
-	int		    internalformat_;
-	int		    format_;
-	int		    datatype_;
-	int		    packing_;
-    };
-
-
-    void		setImageData(const ImageData&);
-    ImageData		getImageData() const;
-
+    void		setRGBImage(const OD::RGBImage&);
     void		setDisplayTransformation(const mVisTrans*);
   
 protected:
@@ -60,8 +48,7 @@ protected:
     int				layerid_;
     osgGeo::LayeredTexture*	laytex_;
     osgGeo::TexturePlaneNode*	texplane_;
-    ImageData			imagedata_;
-    BufferString		fnm_;
+    visBase::PolygonOffset*	polyoffset_;
 };
 
 

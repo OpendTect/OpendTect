@@ -57,7 +57,7 @@ protected:
     visBase::VisualObject*	createLocation() const;
     bool			hasDirection() const { return true; }
 
-    void			updateLineShape(visBase::Lines*) const;
+    void			updateLineIndices(visBase::Lines*) const;
 
     Type			arrowtype_;
     visBase::DrawStyle*		linestyle_;

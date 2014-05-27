@@ -77,6 +77,8 @@ bool uiODAnnotParentTreeItem::init()
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
 
+    addChild( new ArrowParentItem(), true );
+    addChild( new ImageParentItem(), true );
     addChild( new ScaleBarParentItem(), true );
     getItem()->setOpen( false );
     return true;
