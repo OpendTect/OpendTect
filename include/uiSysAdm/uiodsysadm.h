@@ -27,7 +27,7 @@ uiODSysAdm& ODSysAdmMainWin();
 */
 
 mExpClass(uiSysAdm) uiODSysAdm : public uiDialog
-{
+{ mODTextTranslationClass(uiODSysAdm);
 public:
 
 			uiODSysAdm(uiParent*);

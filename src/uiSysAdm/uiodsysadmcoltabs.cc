@@ -27,16 +27,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiODSysAdmColorTabs::uiODSysAdmColorTabs( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Manage color bars",0,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Manage color bars"),0,mNoHelpKey))
 {
     listfld = new uiListBox( this, "Color tables" );
     fillList( true );
     
-    uiPushButton* addbut = new uiPushButton( this, "Add", false );
+    uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(true), false );
     addbut->activated.notify( mCB(this,uiODSysAdmColorTabs,addPush) );
     addbut->attach( alignedBelow, listfld );
 
-    uiPushButton* rmbut = new uiPushButton( this, "Remove", true );
+    uiPushButton* rmbut = new uiPushButton( this, uiStrings::sRemove(true), 
+                                            true );
     rmbut->activated.notify( mCB(this,uiODSysAdmColorTabs,rmPush) );
     rmbut->attach( rightOf, addbut );
 }
@@ -93,7 +94,7 @@ bool uiODSysAdmColorTabs::acceptOK( CallBacker* )
 {
     if ( !ColTab::SM().write(true) )
     {
-	uiMSG().error( "Cannot write new color table defs to file" );
+	uiMSG().error( tr("Cannot write new color table defs to file") );
 	return false;
     }
 

@@ -22,7 +22,7 @@ class uiListBox;
 */
 
 mExpClass(uiSysAdm) uiODSysAdmColorTabs : public uiDialog
-{
+{ mODTextTranslationClass(uiODSysAdmColorTabs);
 public:
 
 			uiODSysAdmColorTabs(uiParent*);
