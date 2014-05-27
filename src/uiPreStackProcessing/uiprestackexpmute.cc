@@ -61,13 +61,13 @@ bool uiExportMute::writeAscii()
     if ( !infld_->ioobj() )
 	return false;
 
-    PtrMan<MuteDefTranslator> tr =
+    PtrMan<MuteDefTranslator> trans =
 	(MuteDefTranslator*)ctio_.ioobj->createTranslator();
-    if ( !tr ) return false;
+    if ( !trans ) return false;
 
     MuteDef mutedef;
     BufferString bs;
-    const bool retval = tr->retrieve( mutedef, ctio_.ioobj, bs );
+    const bool retval = trans->retrieve( mutedef, ctio_.ioobj, bs );
     if ( !retval ) mErrRet( bs.buf() );
 
     const BufferString fname = outfld_->fileName();

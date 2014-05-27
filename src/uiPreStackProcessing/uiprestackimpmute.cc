@@ -129,12 +129,12 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() )
 	mErrRet( outfld_->isEmpty() ? "Please select the output" : 0 )
 
-   PtrMan<MuteDefTranslator> tr =
+   PtrMan<MuteDefTranslator> trans =
 	    (MuteDefTranslator*)ctio_.ioobj->createTranslator();
-    if ( !tr ) return false;
+    if ( !trans ) return false;
 
     BufferString bs;
-    const bool retval = tr->store( mutedef, ctio_.ioobj, bs );
+    const bool retval = trans->store( mutedef, ctio_.ioobj, bs );
     if ( !retval )
 	mErrRet( bs.buf() );
 
