@@ -25,7 +25,7 @@ class SemblanceAlgorithm;
 
 /*! Base class for algorithms that computes semblance along a moveout */
 mExpClass(uiPreStackProcessing) uiSemblanceAlgorithm : public uiDialog
-{
+{ mODTextTranslationClass(uiSemblanceAlgorithm);
 public:
     			mDefineFactory1ParamInClass(uiSemblanceAlgorithm,
 						    uiParent*,factory);

@@ -24,7 +24,7 @@ namespace PreStack
 {
 
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Prestack Processing",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Prestack Processing"),mNoDlgTitle,
                         mODHelpKey(mPreStackBatchProcSetupHelpID) ))
     , outputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    false ) )
@@ -81,20 +81,20 @@ bool uiBatchProcSetup::prepareProcessing()
 
     if ( !ioobj )
     {
-	uiMSG().error("Please select a processing setup");
+	uiMSG().error(tr("Please select a processing setup"));
 	return false;
     }
 
     if ( !inputsel_->commitInput() )
     {
-	uiMSG().error("Please select an input volume");
+	uiMSG().error(tr("Please select an input volume"));
 	return false;
     }
 
     if ( !outputsel_->commitInput() )
     {
 	if ( outputsel_->isEmpty() )
-	    uiMSG().error("Please enter an output name");
+	    uiMSG().error(tr("Please enter an output name"));
 	return false;
     }
 

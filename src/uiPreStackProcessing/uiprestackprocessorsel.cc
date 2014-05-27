@@ -70,7 +70,8 @@ void uiProcSel::selDoneCB( CallBacker* cb )
     if ( !editbut_ ) return;
 
     const IOObj* ioobj = selfld_->ioobj( true );
-    editbut_->setText( ioobj ? "Edit ..." : "Create ..." );
+    editbut_->setText( ioobj ? uiStrings::sEdit(true) 
+                             : uiStrings::sCreate(true) );
 }
 
 
@@ -92,7 +93,7 @@ void uiProcSel::editPushCB( CallBacker* )
 
     uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, 
                                         mODHelpKey(mPreStackProcSelHelpID) ) );
-    dlg.enableSaveButton("Save on OK");
+    dlg.enableSaveButton(tr("Save on OK"));
     dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );
     grp->setLastMid( ioobj ? ioobj->key() : MultiID() );
@@ -108,8 +109,8 @@ void uiProcSel::editPushCB( CallBacker* )
 	    }
 	    else
 	    {
-		if ( uiMSG().askSave("Current settings are not saved.\n"
-				"Do you want to discard them?") )
+		if ( uiMSG().askSave(tr("Current settings are not saved.\n"
+				"Do you want to discard them?")) )
 		    break;
 
 		continue;

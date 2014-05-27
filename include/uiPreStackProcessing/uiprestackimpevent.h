@@ -26,7 +26,7 @@ namespace PreStack
 
 
 mExpClass(uiPreStackProcessing) uiEventImport : public uiDialog
-{
+{ mODTextTranslationClass(uiEventImport);
 public:
     			uiEventImport(uiParent*);
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 
 mExpClass(uiPreStackProcessing) uiPreStackMMProc : public uiMMBatchJobDispatcher
-{
+{ mODTextTranslationClass(uiPreStackMMProc);
 public:
 
                         uiPreStackMMProc(uiParent*,const IOPar&);

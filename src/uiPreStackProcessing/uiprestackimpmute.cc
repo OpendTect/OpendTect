@@ -34,7 +34,7 @@ namespace PreStack
 {
 
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Mute Function",mNoDlgTitle,
+    : uiDialog( p,uiDialog::Setup(tr("Import Mute Function"),mNoDlgTitle,
                                   mODHelpKey(mPreStackImportMuteHelpID) ))
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
@@ -45,13 +45,13 @@ uiImportMute::uiImportMute( uiParent* p )
 	                       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
-    inpfilehaveposfld_ = new uiGenInput( this, "File contains position",
+    inpfilehaveposfld_ = new uiGenInput( this, tr("File contains position"),
 					 BoolInpSpec(true) );
     inpfilehaveposfld_->attach( alignedBelow, inpfld_ );
     inpfilehaveposfld_->valuechanged.notify(
 				mCB(this,uiImportMute,changePrefPosInfo) );
 
-    inlcrlfld_ = new uiGenInput( this, "Inl/Crl",
+    inlcrlfld_ = new uiGenInput( this, tr("Inl/Crl"),
 				 PositionInpSpec(PositionInpSpec::Setup()) );
     inlcrlfld_->attach( alignedBelow, inpfilehaveposfld_ );
 

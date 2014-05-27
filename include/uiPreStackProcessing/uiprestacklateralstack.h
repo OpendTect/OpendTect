@@ -24,7 +24,7 @@ class LateralStack;
 class Processor;
 
 mExpClass(uiPreStackProcessing) uiLateralStack : public uiDialog
-{
+{ mODTextTranslationClass(uiLateralStack);
 public:
     static void		initClass();
 			uiLateralStack(uiParent*,LateralStack*);

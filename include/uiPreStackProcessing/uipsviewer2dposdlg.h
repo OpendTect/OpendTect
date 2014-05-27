@@ -51,7 +51,7 @@ bool operator==( const GatherInfo& info ) const
 
 
 mExpClass(uiPreStackProcessing) uiGatherPosSliceSel : public uiSliceSel
-{
+{ mODTextTranslationClass(uiGatherPosSliceSel);
 public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type,
 						    const BufferStringSet&,

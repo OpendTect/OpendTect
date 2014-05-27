@@ -31,7 +31,7 @@ class Processor;
 class uiAngleCompAdvParsDlg;
 
 mExpClass(uiPreStackProcessing) uiAngleCompGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiAngleCompGrp);
 public:
 				uiAngleCompGrp(uiParent*,
 					       PreStack::AngleCompParams&,

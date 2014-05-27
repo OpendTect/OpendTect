@@ -45,11 +45,11 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );
 
-    addprocessorbutton_ = new uiPushButton( this, "Add",
+    addprocessorbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
 	    mCB(this,uiProcessorManager,addProcessorCB), true );
     addprocessorbutton_->attach( rightOf, factorylist_ );
 
-    removeprocessorbutton_ = new uiPushButton( this, "Remove",
+    removeprocessorbutton_ = new uiPushButton( this, uiStrings::sRemove(true),
 	    mCB(this,uiProcessorManager,removeProcessorCB), true);
     removeprocessorbutton_->attach( alignedBelow, addprocessorbutton_ );
 
@@ -61,18 +61,18 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     processorlist_->doubleClicked.notify(
 	    mCB(this,uiProcessorManager,processorDoubleClickCB) );
 
-    label = new uiLabel( this, "Used preprocessing methods" );
+    label = new uiLabel( this, tr("Used preprocessing methods") );
     label->attach( alignedAbove, processorlist_ );
 
-    moveupbutton_ = new uiPushButton( this, "Move Up",
+    moveupbutton_ = new uiPushButton( this, uiStrings::sUp(),
 	    mCB(this,uiProcessorManager,moveUpCB), true );
     moveupbutton_->attach( rightOf, processorlist_ );
 
-    movedownbutton_ = new uiPushButton( this, "Move Down",
+    movedownbutton_ = new uiPushButton( this, uiStrings::sDown(),
 	    mCB(this,uiProcessorManager,moveDownCB), true);
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiPushButton( this, "Properties",
+    propertiesbutton_ = new uiPushButton( this, uiStrings::sProperties(true),
 	    mCB(this,uiProcessorManager,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 

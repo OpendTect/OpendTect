@@ -32,7 +32,7 @@ namespace PreStack
 {
 
 uiEventImport::uiEventImport( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Import Prestack Events",mNoDlgTitle,
+    : uiDialog( p, uiDialog::Setup(tr("Import Prestack Events"),mNoDlgTitle,
 				   mODHelpKey(mPreStackEventImportHelpID) ) )
     , fd_(*EventAscIO::getDesc())
 {
@@ -57,7 +57,7 @@ bool uiEventImport::acceptOK( CallBacker* )
 {
     if ( !filefld_->fileName() )
     {
-	uiMSG().error("No input file selected");
+	uiMSG().error(tr("No input file selected"));
 	return false;
     }
 

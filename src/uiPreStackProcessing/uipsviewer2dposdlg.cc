@@ -106,7 +106,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     {
 	inl0fld_->display( false, true );
 	inl1fld_->display( false, true );
-	crl0fld_->label()->setText( "Model range" );
+	crl0fld_->label()->setText( tr("Model range") );
     }
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
@@ -114,7 +114,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     stepfld_->box()->setValue( 1 );
 
     updbut_ =
-	new uiPushButton( this, "Update Postions",
+	new uiPushButton( this, tr("Update Postions"),
 			  mCB(this,uiGatherPosSliceSel,updatePosTable), true );
     updbut_->attach( alignedBelow, z0fld_ );
 

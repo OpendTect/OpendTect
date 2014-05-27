@@ -24,7 +24,7 @@ class AGC;
 class Processor;
 
 mExpClass(uiPreStackProcessing) uiAGC : public uiDialog
-{
+{ mODTextTranslationClass(uiAGC);
 public:
     static void		initClass();
 			uiAGC(uiParent*,AGC*);

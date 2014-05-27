@@ -33,7 +33,7 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 
 
 uiAGC::uiAGC( uiParent* p, AGC* sgagc )
-    : uiDialog( p, uiDialog::Setup("AGC setup",0,
+    : uiDialog( p, uiDialog::Setup(tr("AGC setup"),0,
                                     mODHelpKey(mPreStackAGCHelpID) ) )
     , processor_( sgagc )
 {
@@ -43,7 +43,7 @@ uiAGC::uiAGC( uiParent* p, AGC* sgagc )
     label += unit;
     windowfld_ = new uiGenInput( this, label.buf(),
 			     FloatInpSpec(processor_->getWindow().width() ));
-    lowenergymute_ = new uiGenInput( this, "Low energy mute (%)",
+    lowenergymute_ = new uiGenInput( this, tr("Low energy mute (%)"),
 	    			     FloatInpSpec() );
     lowenergymute_->attach( alignedBelow, windowfld_ );
     const float lowenergymute = processor_->getLowEnergyMute();
@@ -59,7 +59,7 @@ bool uiAGC::acceptOK( CallBacker* )
     const float width = windowfld_->getfValue();
     if ( mIsUdf(width) )
     {
-	uiMSG().error("Window width is not set");
+	uiMSG().error(tr("Window width is not set"));
 	return false;
     }
 
@@ -70,7 +70,7 @@ bool uiAGC::acceptOK( CallBacker* )
     {
 	if ( lowenergymute<0 || lowenergymute>99 )
 	{
-	    uiMSG().error("Low energy mute must be between 0 and 99");
+	    uiMSG().error(tr("Low energy mute must be between 0 and 99"));
 	    return false;
 	}
 

@@ -27,7 +27,7 @@ namespace PreStack
 {
 
 uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
-    : uiDialog( p, uiDialog::Setup("Export Prestack Events",mNoDlgTitle,
+    : uiDialog( p, uiDialog::Setup(tr("Export Prestack Events"),mNoDlgTitle,
 				   mODHelpKey(mPreStackEventExportHelpID) ) )
 {
     setOkText( uiStrings::sExport() );
@@ -51,7 +51,7 @@ bool uiEventExport::acceptOK( CallBacker* )
 {
     if ( !outputfile_->fileName() )
     {
-	uiMSG().error("No file selected");
+	uiMSG().error(tr("No file selected"));
 	return false;
     }
 
@@ -64,7 +64,7 @@ bool uiEventExport::acceptOK( CallBacker* )
 
     if ( loader && !loader->execute() )
     {
-	uiMSG().error( "Cannot load prestack events" );
+	uiMSG().error( tr("Cannot load prestack events") );
 	return false;
     }
 
@@ -86,7 +86,7 @@ bool uiEventExport::acceptOK( CallBacker* )
     uiTaskRunner runner( this );
     if ( !TaskRunner::execute( &runner, exporter ) )
     {
-	uiMSG().error("Could not export prestack events");
+	uiMSG().error(tr("Could not export prestack events"));
 	return false;
     }
 

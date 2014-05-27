@@ -27,7 +27,7 @@ class uiProcSel;
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
 mExpClass(uiPreStackProcessing) uiBatchProcSetup : public uiDialog
-{
+{ mODTextTranslationClass(uiBatchProcSetup);
 public:
 
 			uiBatchProcSetup(uiParent*,bool is2d);

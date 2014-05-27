@@ -28,7 +28,7 @@ namespace PreStack
 {
 
 uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Angle Mute Computer",
+    : uiDialog( p, uiDialog::Setup(tr("Angle Mute Computer"),
 				    mNoDlgTitle, 
                                     mODHelpKey(mAngleMuteComputerHelpID) ) )
     , outctio_( *mMkCtxtIOObj(MuteDef) )
@@ -66,7 +66,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 
     if ( !mutedeffld_->commitInput() || !outctio_.ioobj )
     {
-	uiMSG().error("Please select a valid output mute function");
+	uiMSG().error(tr("Please select a valid output mute function"));
 	return false;
     }
     HorSampling hrg;

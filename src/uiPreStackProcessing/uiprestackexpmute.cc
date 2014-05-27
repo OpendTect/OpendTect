@@ -30,7 +30,7 @@ namespace PreStack
 {
 
 uiExportMute::uiExportMute( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Mute Function",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Export Mute Function"),mNoDlgTitle,
                                  mODHelpKey(mPreStackExportMuteHelpID) ))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
@@ -38,8 +38,8 @@ uiExportMute::uiExportMute( uiParent* p )
 
     infld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
 
-    coordfld_ = new uiGenInput( this, "Write coordinates as",
-			        BoolInpSpec(true,"X/Y","Inl/Crl") );
+    coordfld_ = new uiGenInput( this, tr("Write coordinates as"),
+			        BoolInpSpec(true,tr("X/Y"),tr("Inl/Crl")) );
     coordfld_->attach( alignedBelow, infld_ );
 
     outfld_ = new uiFileInput( this, "Output ASCII file",
@@ -114,14 +114,14 @@ bool uiExportMute::acceptOK( CallBacker* )
 {
     const BufferString outfnm( outfld_->fileName() );
     if ( outfnm.isEmpty() )
-	mErrRet( "Please select output file" );
+	mErrRet( tr("Please select output file") );
 
     if ( File::exists(outfnm)
-	    && !uiMSG().askContinue("Output file exists. Continue?") )
+	    && !uiMSG().askContinue(tr("Output file exists. Continue?")) )
 	return false;
 
     if ( writeAscii() )
-	uiMSG().message( "Export finished successfully" );
+	uiMSG().message( tr("Export finished successfully") );
 
     return false;
 }

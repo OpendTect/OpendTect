@@ -45,8 +45,8 @@ uiPreStackMMProc::uiPreStackMMProc( uiParent* p, const IOPar& iop )
     : uiMMBatchJobDispatcher(p,iop,mTODOHelpKey)
     , is2d_(Seis::is2DGeom(iop))
 {
-    setTitleText( isMultiHost()  ? "Multi-Machine PreStack Processing"
-				 : "Line-split PreStack processing" );
+    setTitleText( isMultiHost()  ? tr("Multi-Machine PreStack Processing")
+				 : tr("Line-split PreStack processing") );
 }
 
 
@@ -62,20 +62,20 @@ bool uiPreStackMMProc::initWork( bool retry )
     if ( is2d_ )
     {
 	//TODO remove when 2D pre-stack processing implemented
-	mErrRet("No 2D Pre-Stack Processing available" )
+	mErrRet(tr("No 2D Pre-Stack Processing available") )
     }
 
     const char* inpidstr = jobpars_.find(
 	    			PreStack::ProcessManager::sKeyInputData() );
     if ( !inpidstr || !*inpidstr )
-	mErrRet("Key for input data store missing in job specification" )
+	mErrRet(tr("Key for input data store missing in job specification") )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(inpidstr) );
     if ( !ioobj )
 	mErrRet( BufferString("Cannot find data store with ID: ",inpidstr) )
 
     PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
     if ( !rdr )
-	mErrRet("Cannot create reader for input data store" )
+	mErrRet(tr("Cannot create reader for input data store") )
 
     const PosInfo::CubeData& cd = rdr->posData();
     TypeSet<int> inlnrs; int previnl = mUdf(int);
@@ -88,7 +88,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 	    { inlnrs += curbid.inl(); previnl = curbid.inl(); }
     }
     if ( inlnrs.isEmpty() )
-	mErrRet("Selected area not present in data store")
+	mErrRet(tr("Selected area not present in data store"))
 
     InlineSplitJobDescProv* dp = new InlineSplitJobDescProv( jobpars_, inlnrs );
     dp->setNrInlsPerJob( 1 );

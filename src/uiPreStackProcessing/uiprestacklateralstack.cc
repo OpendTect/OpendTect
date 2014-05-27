@@ -38,14 +38,14 @@ uiDialog* uiLateralStack::create( uiParent* p, Processor* sgp )
 
 
 uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
-    : uiDialog( p, uiDialog::Setup("Super Gather setup",0,
+    : uiDialog( p, uiDialog::Setup(tr("Super Gather setup"),0,
                                     mODHelpKey(mPreStackVerticalStackHelpID) ) )
     , processor_( sgvs )
 {
-    stepoutfld_ = new uiGenInput( this, "Stepout (inl/crl)",
+    stepoutfld_ = new uiGenInput( this, tr("Stepout (inl/crl)"),
 		     PositionInpSpec( processor_->getPatternStepout(), false));
-    iscrossfld_ = new uiGenInput( this, "Shape",
-	BoolInpSpec( processor_->isCross(), "Cross", "Rectangle") );
+    iscrossfld_ = new uiGenInput( this, tr("Shape"),
+	BoolInpSpec( processor_->isCross(), tr("Cross"), tr("Rectangle")) );
     iscrossfld_->attach( alignedBelow, stepoutfld_ );
 }
 
@@ -59,13 +59,13 @@ bool uiLateralStack::acceptOK( CallBacker* )
 	 stepout.inl()<0 || stepout.crl()<0 ||
 	 (!stepout.inl() && !stepout.crl()) )
     {
-	uiMSG().error("Stepout is not set to a valid range");
+	uiMSG().error(tr("Stepout is not set to a valid range"));
 	return false;
     }
 
     if ( !processor_->setPattern( stepout, iscrossfld_->getBoolValue() ) )
     {
-	uiMSG().error("Could not set stack pattern");
+	uiMSG().error(tr("Could not set stack pattern"));
 	return false;
     }
 

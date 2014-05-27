@@ -27,7 +27,7 @@ namespace PreStack
     class AngleMuteComputer;
 
 mExpClass(uiPreStackProcessing) uiAngleMuteComputer : public uiDialog
-{
+{ mODTextTranslationClass(uiAngleMuteComputer);
 public:
 			uiAngleMuteComputer(uiParent*);
 			~uiAngleMuteComputer();

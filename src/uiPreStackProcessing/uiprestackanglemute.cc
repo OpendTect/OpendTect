@@ -37,27 +37,27 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
 	    			uiSeisSel::Setup(Seis::Vol), false);
-    velfuncsel_->setLabelText( "Input velocity volume" );
+    velfuncsel_->setLabelText( tr("Input velocity volume") );
     if ( !params_.velvolmid_.isUdf() )
        velfuncsel_->setInput( params_.velvolmid_ );
 
     if ( isformute_ )
     {
-	anglefld_ = new uiGenInput( this, "Mute cutoff angle (degree)",
+	anglefld_ = new uiGenInput( this, tr("Mute cutoff angle (degree)"),
 				     FloatInpSpec(false) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
 	anglefld_->setValue( params_.mutecutoff_ );
     }
     else
     {
-	anglefld_ = new uiGenInput( this, "Angle range",
+	anglefld_ = new uiGenInput( this, tr("Angle range"),
 				    IntInpIntervalSpec(params_.anglerange_) );
 	anglefld_->attach( alignedBelow, velfuncsel_ );
-	anglelbl_ = new uiLabel( this, "degrees" );
+	anglelbl_ = new uiLabel( this, tr("degrees") );
 	anglelbl_->attach( rightOf, anglefld_ );
     }
 
-    advpushbut_ = new uiPushButton( this, "Advanced Parameters", true );
+    advpushbut_ = new uiPushButton( this, tr("Advanced Parameters"), true );
     advpushbut_->activated.notify( mCB(this, uiAngleCompGrp, advPushButCB) );
     advpushbut_->attach( rightAlignedBelow, velfuncsel_ );
 
@@ -89,7 +89,7 @@ bool uiAngleCompGrp::acceptOK()
 	if ( !normalanglevalrange.includes(params_.mutecutoff_,false) )
 	{
 	    uiMSG().error(
-		    "Please select the mute cutoff between 0 and 90 degree" );
+		   tr("Please select the mute cutoff between 0 and 90 degree"));
 	    return false;
 	}
     }
@@ -100,7 +100,8 @@ bool uiAngleCompGrp::acceptOK()
 
 	if ( !normalanglevalrange.includes(anglerange,false) )
 	{
-	    uiMSG().error("Please provide angle range between 0 and 90 degree");
+	    uiMSG().error(tr("Please provide angle range"
+                " between 0 and 90 degree"));
 	    return false;
 	}
 

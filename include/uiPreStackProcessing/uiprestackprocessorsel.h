@@ -23,7 +23,7 @@ namespace PreStack
 {
 
 mExpClass(uiPreStackProcessing) uiProcSel : public uiGroup
-{
+{ mODTextTranslationClass(uiProcSel);
 public:
 			uiProcSel(uiParent*,const char* label,
 				  const MultiID*,bool withedit=true);

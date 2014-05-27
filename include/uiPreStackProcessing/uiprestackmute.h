@@ -26,7 +26,7 @@ class Mute;
 class Processor;
 
 mExpClass(uiPreStackProcessing) uiMute : public uiDialog
-{
+{ mODTextTranslationClass(uiMute);
 public:
 
     static void		initClass();

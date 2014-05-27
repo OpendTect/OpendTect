@@ -31,7 +31,7 @@ class ProcessManager;
 class Processor;
 /*! An editor for a PreStackManager, with save/load possibilities. */
 mExpClass(uiPreStackProcessing) uiProcessorManager : public uiGroup
-{
+{ mODTextTranslationClass(uiProcessorManager);
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);
 

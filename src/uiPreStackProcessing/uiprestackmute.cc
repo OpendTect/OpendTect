@@ -35,16 +35,16 @@ uiDialog* uiMute::create( uiParent* p, Processor* sgp )
 
 
 uiMute::uiMute( uiParent* p, Mute* sgmute )
-    : uiDialog( p, uiDialog::Setup("Mute setup",0,
+    : uiDialog( p, uiDialog::Setup(tr("Mute setup"),0,
                                    mODHelpKey(mPreStackMuteHelpID) ) )
     , processor_( sgmute )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
 {
     mutedeffld_ = new uiIOObjSel( this, ctio_ );
-    topfld_ = new uiGenInput( this, "Mute type",
-	    		      BoolInpSpec(true,"Outer","Inner") );
+    topfld_ = new uiGenInput( this, tr("Mute type"),
+	    		      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
     topfld_->attach( alignedBelow, mutedeffld_ );
-    taperlenfld_ = new uiGenInput( this, "Taper length (in samples)",
+    taperlenfld_ = new uiGenInput( this, tr("Taper length (in samples)"),
 	    			   FloatInpSpec() );
     taperlenfld_->attach( alignedBelow, topfld_ );
 
@@ -62,7 +62,7 @@ bool uiMute::acceptOK(CallBacker*)
 	processor_->setEmptyMute();
     else if ( !mutedeffld_->commitInput() || !ctio_.ioobj )
     {
-	uiMSG().error("Cannot find mute");
+	uiMSG().error(tr("Cannot find mute"));
 	return false;
     }
     else
