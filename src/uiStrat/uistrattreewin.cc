@@ -66,7 +66,7 @@ uiStratTreeWin& StratTreeWin()
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,"Manage Stratigraphy", 0, true)
+    : uiMainWin(p,tr("Manage Stratigraphy"), 0, true)
     , needsave_(false)
     , istreedisp_(false)
     , repos_(*new Strat::RepositoryAccess())
@@ -160,7 +160,7 @@ void uiStratTreeWin::popUp() const
 void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
-    uiMenu* mnu = new uiMenu( this, "&Actions" );
+    uiMenu* mnu = new uiMenu( this, tr("&Actions") );
     expandmnuitem_ = new uiAction( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
@@ -173,7 +173,7 @@ void uiStratTreeWin::createMenu()
     savemnuitem_ = new uiAction( sSave(), mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setIcon( ioPixmap("save") );
-    resetmnuitem_ = new uiAction( "&Reset to last saved",
+    resetmnuitem_ = new uiAction( tr("&Reset to last saved"),
 				    mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
     resetmnuitem_->setIcon( ioPixmap("undo") );
@@ -197,19 +197,19 @@ void uiStratTreeWin::createToolBar()
     mDefBut(colexpbut_,"collapse_tree",setExpCB,mCollapseTxt(false));
     colexpbut_->setSensitive( istreedisp_ );
     tb_->addSeparator();
-    mDefBut(moveunitupbut_,"uparrow",moveUnitCB,"Move unit up");
-    mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,"Move unit down");
+    mDefBut(moveunitupbut_,"uparrow",moveUnitCB,tr("Move unit up"));
+    mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,tr("Move unit down"));
     tb_->addSeparator();
-    mDefBut(newbut_,"newset",newCB,"New");
+    mDefBut(newbut_,"newset",newCB,uiStrings::sNew(true));
     mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;
-    mDefBut(uitb,"save",saveCB,"Save");
-    mDefBut(uitb,"contexthelp",helpCB,"Help on this window");
+    mDefBut(uitb,"save",saveCB,uiStrings::sSave(true));
+    mDefBut(uitb,"contexthelp",helpCB,tr("Help on this window"));
     tb_->addSeparator();
-    mDefBut( switchviewbut_, "strat_tree", switchViewCB, "Switch View" );
-    mDefBut( lithobut_, "lithologies", manLiths, "Manage Lithologies" );
-    mDefBut( contentsbut_, "contents", manConts, "Manage Content Types" );
+    mDefBut( switchviewbut_, "strat_tree", switchViewCB, tr("Switch View") );
+    mDefBut( lithobut_, "lithologies", manLiths, tr("Manage Lithologies") );
+    mDefBut( contentsbut_, "contents", manConts, tr("Manage Content Types") );
 
     for ( int idx=0; idx<tbsetups_.size(); idx++ )
 	tb_->addButton( *tbsetups_[idx] );
@@ -322,7 +322,7 @@ void uiStratTreeWin::saveCB( CallBacker* )
 	needsave_ = false;
     }
     else
-	uiMSG().error( "Can not find tree" );
+	uiMSG().error( tr("Can not find tree") );
 }
 
 
@@ -339,7 +339,7 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 {
     const char* dlgtit = "Save the stratigraphy at:";
 
-    uiDialog savedlg( this, uiDialog::Setup( "Save Stratigraphy",
+    uiDialog savedlg( this, uiDialog::Setup( tr("Save Stratigraphy"),
 		    dlgtit, mNoHelpKey ) );
     BufferStringSet bfset( infolvltrs );
     uiListBox saveloclist( &savedlg, bfset, "Save strat list" );
@@ -389,8 +389,8 @@ bool uiStratTreeWin::closeOK()
 
     if ( needsave )
     {
-	int res = uiMSG().askSave(
-	    "Stratigraphic framework has changed\n Do you want to save it?" );
+	int res = uiMSG().askSave( tr("Stratigraphic framework has changed\n"
+                                      " Do you want to save it?") );
 
 	if ( res == 1 )
 	    saveCB( 0 );

@@ -23,7 +23,7 @@ namespace Strat { class Layer; class LayerSequence; }
 /*!\brief Displays and optionally edits a Strat::Layer instance */
 
 mExpClass(uiStrat) uiStratEditLayer : public uiDialog
-{
+{ mODTextTranslationClass(uiStratEditLayer);
 public:
 			uiStratEditLayer(uiParent*,Strat::Layer&,
 					 const Strat::LayerSequence&,

@@ -23,7 +23,7 @@ namespace Strat { class Level; }
 
 
 mExpClass(uiStrat) uiStratGenDescTools : public uiGroup
-{
+{ mODTextTranslationClass(uiStratGenDescTools);
 public:
 
 		uiStratGenDescTools(uiParent*);

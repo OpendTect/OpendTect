@@ -32,7 +32,7 @@ namespace Strat { class LayerSequenceGenDesc; class LayerModelProvider; }
  */
 
 mExpClass(uiStrat) uiLayerSequenceGenDesc
-{
+{ mODTextTranslationClass(uiLayerSequenceGenDesc);
 public:
 
   			uiLayerSequenceGenDesc(Strat::LayerSequenceGenDesc&);

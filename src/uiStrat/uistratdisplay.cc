@@ -112,14 +112,15 @@ void uiStratDisplay::createDispParamGrp()
 {
     dispparamgrp_ = new uiGroup( parent(), "display Params Group" );
     dispparamgrp_->attach( centeredBelow, this );
-    rangefld_ = new uiGenInput( dispparamgrp_, "Display between Ages (My)",
+    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (My)"),
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
-    viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
+    viewcolbutton_ = new uiPushButton( dispparamgrp_,uiStrings::sView(),
+                                       cbv,true );
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
 
@@ -247,7 +248,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	    const StratDispData::Level* lvl = getLevelFromPos();
 	    if ( !lvl ) return false; 
 	    uiAction* assmnuitm = new uiAction( tr("Assign marker boundary") );
-	    uiMenu menu( parent(), "Action" );
+	    uiMenu menu( parent(), uiStrings::sAction() );
 	    menu.insertItem( assmnuitm, 1 );
 	    const int mnuid = menu.exec();
 	    if ( mnuid<0 ) 
@@ -267,7 +268,7 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	    if ( !addunit )
 	    {
 		uiAction* assmnuitm = new uiAction( tr("Add Unit") );
-		uiMenu menu( parent(), "Action" );
+		uiMenu menu( parent(), uiStrings::sAction() );
 		menu.insertItem( assmnuitm, 0 );
 		const int mnuid = menu.exec();
 		addunit = mnuid == 0;
@@ -526,7 +527,7 @@ void uiStratDrawer::drawEmptyText()
     const int y1 = yax_->getPix( yax_->range().stop );
     const int y2 = yax_->getPix( yax_->range().start );
 
-    uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
+    uiTextItem* ti = scene_.addItem( new uiTextItem( tr("<Click to add>") ) );
     ti->setTextColor( Color::Black() );
     ti->setPos( mCast(float,x), mCast(float,y2 - abs((y2-y1)/2) -10) );
     ti->setZValue( 2 );

@@ -172,7 +172,7 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
     if ( FixedString(lvit->text()) == Strat::RefTree::sKeyNoCode() )
 	{ updateUnitProperties( lvit ); return; }
 
-    uiMenu mnu( lv_->parent(), "Action" );
+    uiMenu mnu( lv_->parent(), uiStrings::sAction() );
 
     bool caninsertsubitem = true;
     const Strat::UnitRef* un = lvit ? tree_->find( getFullCodeFromLVIt(lvit) )
@@ -184,18 +184,18 @@ void uiStratRefTree::handleMenu( uiTreeViewItem* lvit )
 	    caninsertsubitem = false;
     }
     if ( caninsertsubitem )
-	mnu.insertItem( new uiAction("&Create sub-unit..."), 0 );
+	mnu.insertItem( new uiAction(tr("&Create sub-unit...")), 0 );
     if ( isLeaved( lvit ) )
-	mnu.insertItem( new uiAction("&Subdivide unit..."), 1 );
-    mnu.insertItem( new uiAction("&Properties..."), 2 );
+	mnu.insertItem( new uiAction(tr("&Subdivide unit...")), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sProperties(true)), 2 );
     if ( lv_->currentItem() != lv_->firstItem() )
-	mnu.insertItem( new uiAction("&Remove"), 3 );
+	mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
     if ( lv_->currentItem() == lv_->firstItem() )
-	 mnu.insertItem( new uiAction("&Add Unit below"), 4 );
+	 mnu.insertItem( new uiAction(tr("&Add Unit below")), 4 );
     if ( isLeaved( lvit ) )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction("&Assign marker boundary"), 5 );
+	mnu.insertItem( new uiAction(tr("&Assign marker boundary")), 5 );
     }
 
     const int mnuid = mnu.exec();
@@ -270,7 +270,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 	    anychange_ = true;
 	}
 	else
-	    uiMSG().error( "Cannot add unit" );
+	    uiMSG().error( tr("Cannot add unit") );
     }
 }
 
@@ -493,7 +493,8 @@ uiTreeViewItem* uiStratRefTree::getLVItFromFullCode( const char* code ) const
 }
 
 
-BufferString uiStratRefTree::getFullCodeFromLVIt( const uiTreeViewItem* item ) const
+BufferString uiStratRefTree::getFullCodeFromLVIt( const uiTreeViewItem* item )
+    const
 {
     if ( !item )
 	return BufferString();

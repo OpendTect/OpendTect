@@ -243,13 +243,13 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     if ( !isempty && !dbl )
     {
 	uiMenu mnu( parent(), "Action" );
-	mnu.insertItem( new uiAction("&Edit ..."), 0 );
+	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
 	mnu.insertItem( new uiAction("Add &Above ..."), 1 );
 	mnu.insertItem( new uiAction("Add &Below ..."), 2 );
 	if ( desc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
-	    mnu.insertItem( new uiAction("&Remove"), 3 );
+	    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
 	}
 	mnuid = mnu.exec();
     }
@@ -471,7 +471,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     const PropertyRef& pr = prop.ref();
 
     const char* opts[] = { "Value", "Range", 0 };
-    typfld_ = new uiComboBox( this, opts, BufferString(pr.name()," type") );
+    typfld_ = new uiComboBox( this, opts, BufferString(pr.name(), " type") );
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );

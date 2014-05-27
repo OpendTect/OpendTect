@@ -30,7 +30,7 @@ namespace Strat {
 /*!\brief Displays a Strat::RefTree */
 
 mExpClass(uiStrat) uiStratRefTree : public CallBacker 
-{
+{ mODTextTranslationClass(uiStratRefTree);
 public:
 
 			uiStratRefTree(uiParent*);
@@ -84,7 +84,8 @@ protected:
     ioPixmap*		createUnitPixmap(const Color& col) const;
     			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
-    void		addLithologies(Strat::LeavedUnitRef&,const TypeSet<int>&);
+    void		addLithologies(Strat::LeavedUnitRef&,const 
+                        TypeSet<int>&);
 
     void		setNodesDefaultTimes(const Strat::NodeUnitRef&);
     void 		getAvailableTime(const Strat::NodeUnitRef&,

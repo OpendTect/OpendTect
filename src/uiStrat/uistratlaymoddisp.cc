@@ -112,9 +112,10 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 void uiStratLayerModelDisp::displayFRText()
 {
     if ( !frtxtitm_ )
-	frtxtitm_ = scene().addItem( new uiTextItem( "<---empty--->",
+	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
 				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? "Brine filled" : "Hydrocarbon filled");
+    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled") 
+                                      : tr("Hydrocarbon filled"));
     frtxtitm_->setPenColor( Color::Black() );
     const int xpos = mNINT32( scene().width()/2 );
     const int ypos = mNINT32( scene().height()-10 );
@@ -213,7 +214,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 {
     const Strat::LayerModel& lm = layerModel();
     if ( !foradd && lm.isEmpty() )
-	mErrRet( "Please generate at least one layer sequence" )
+	mErrRet( tr("Please generate at least one layer sequence") )
 
     uiStratLayerModelDispIO dlg( this, lm, dumpfnm_, foradd );
     return dlg.go();
@@ -408,7 +409,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	return;
 
     uiMenu mnu( parent(), "Action" );
-    mnu.insertItem( new uiAction("&Properties ..."), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sProperties(false)), 0 );
     mnu.insertItem( new uiAction("&Remove layer ..."), 1 );
     mnu.insertItem( new uiAction("Remove this &Well"), 2 );
     mnu.insertItem( new uiAction("&Dump all wells to file ..."), 3 );
@@ -436,8 +437,10 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
 		                  BufferString("Remove '",lay.name(),"'"),
                                   mODHelpKey(mStratSimpleLayerModDispHelpID)));
-	uiGenInput* gi = new uiGenInput( &dlg, "Remove", BoolInpSpec(true,
-		    "Only this layer","All layers with this ID") );
+	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(true), 
+                                         BoolInpSpec(true, 
+                                         "Only this layer",
+                                         "All layers with this ID") );
 	if ( dlg.go() )
 	    removeLayers( ls, layidx, !gi->getBoolValue() );
     }

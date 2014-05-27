@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sNoLevelTxt      = "--- None ---";
 
 uiStratLvlList::uiStratLvlList( uiParent* p )
-    : uiLabeledListBox(p,"Regional markers",OD::ChooseOnlyOne,
+    : uiLabeledListBox(p,tr("Regional markers"),OD::ChooseOnlyOne,
 			uiLabeledListBox::AboveMid)
     , islocked_(false)
     , anychange_(false)
@@ -36,12 +36,13 @@ uiStratLvlList::uiStratLvlList( uiParent* p )
 
     uiButtonGroup* grp = new uiButtonGroup( this, "Tools", OD::Vertical );
     grp->attach( rightTo, box() );
-    new uiToolButton( grp, "addnew", "Create New",
+    new uiToolButton( grp, "addnew", tr("Create New"),
 		      mCB(this,uiStratLvlList,addCB) );
-    new uiToolButton( grp, "edit", "Edit", mCB(this,uiStratLvlList,editCB) );
-    new uiToolButton( grp, "stop", "Remove",
+    new uiToolButton( grp, "edit", uiStrings::sEdit(true), 
+                      mCB(this,uiStratLvlList,editCB) );
+    new uiToolButton( grp, "stop", uiStrings::sRemove(true),
 		      mCB(this,uiStratLvlList,removeCB) );
-    new uiToolButton( grp, "clear", "Remove all",
+    new uiToolButton( grp, "clear", tr("Remove all"),
 		      mCB(this,uiStratLvlList,removeAllCB) );
 
     setLevels();
@@ -72,7 +73,7 @@ uiStratLvlList::~uiStratLvlList()
 
 #define mCheckLocked \
     if ( islocked_ ) { \
-	uiMSG().error( "Cannot change Stratigraphy because it is locked" ); \
+	uiMSG().error( tr("Cannot change Stratigraphy because it is locked")); \
 	return; }
 
 #define mCheckEmptyList \
@@ -166,7 +167,7 @@ void uiStratLvlList::editLevel( bool create )
     Strat::LevelSet& lvls = Strat::eLVLS();
     BufferString oldnm = create ? "" : box()->getText();
     uiStratLevelDlg newlvldlg( this );
-    newlvldlg.setCaption( create ? "Create level" : "Edit level" );
+    newlvldlg.setCaption( create ? tr("Create level") : tr("Edit level") );
     Strat::Level* lvl = create ? 0 : lvls.get( oldnm );
     if ( lvl ) newlvldlg.setLvlInfo( oldnm, lvl->color() );
     if ( newlvldlg.go() )
@@ -174,7 +175,8 @@ void uiStratLvlList::editLevel( bool create )
 	BufferString nm; Color col;
 	newlvldlg.getLvlInfo( nm, col );
 	if ( !nm.isEmpty() && oldnm!=nm && lvls.isPresent( nm ) )
-	    { uiMSG().error("Level name is empty or already exists"); return; }
+	    { uiMSG().error(tr("Level name is empty or already exists")); 
+              return; }
 	if ( create )
 	    lvl = lvls.add( nm.buf(), col );
 	else if ( lvl )

@@ -43,7 +43,7 @@ mStruct(uiStrat) LMPropSpecificDispPars
 
 
 mExpClass(uiStrat) uiStratLayerModelDisp : public uiGroup
-{
+{ mODTextTranslationClass(uiStratLayerModelDisp);
 public:
 
 			uiStratLayerModelDisp(uiStratLayModEditTools&,

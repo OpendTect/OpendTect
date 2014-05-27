@@ -153,7 +153,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     {
 	od_ostream strm( fnm );
 	if ( !strm.isOK() )
-	    uiMSG().error( "Cannot open output file" );
+	    uiMSG().error( tr("Cannot open output file") );
 	else
 	    rv = attrset_.putTo( strm );
     }
@@ -161,7 +161,7 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
     {
 	od_istream strm( fnm );
 	if ( !strm.isOK() )
-	    uiMSG().error( "Cannot open input file" );
+	    uiMSG().error( tr("Cannot open input file") );
 	else
 	    rv = attrset_.getFrom( strm );
     }

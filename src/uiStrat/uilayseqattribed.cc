@@ -35,7 +35,8 @@ static BufferString gtDlgTitle( const Strat::LaySeqAttrib& lsa, bool isnew )
 uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 				   const Strat::RefTree& rt,
 				   const uiLaySeqAttribEd::Setup& edsu )
-    : uiDialog(p,uiDialog::Setup(edsu.isnew_?"Add attribute":"Edit attribute",
+    : uiDialog(p,uiDialog::Setup(edsu.isnew_ ? tr("Add attribute")
+                                             : tr("Edit attribute"),
 		                 gtDlgTitle(lsa,edsu.isnew_),
                                  mODHelpKey(mLaySeqAttribEdHelpID) ))
     , attr_(lsa)
@@ -48,8 +49,9 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 {
     if ( edsu.allowlocal_ && edsu.allowintegr_ )
     {
-	islocalfld_ = new uiGenInput( this, "Type",
-			    BoolInpSpec( false, "Sliding", "Integrated") );
+	islocalfld_ = new uiGenInput( this, uiStrings::sType(),
+			    BoolInpSpec( false, tr("Sliding"), 
+                                         tr("Integrated")) );
 	islocalfld_->valuechanged.notify( mCB(this,uiLaySeqAttribEd,slSel) );
     }
 
@@ -60,7 +62,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	if ( edsu.allowintegr_ )
 	    lbl = new uiLabel( localgrp_, " " );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
-						    "From depth intervals" );
+						    tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
 	upscaletypfld_-> addItems( Stats::UpscaleTypeNames() );
 	if ( lbl )
@@ -88,7 +90,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	unfld_->setExpanded( 1 );
 
 	stattypfld_ = new uiComboBox( integrgrp_, "Statistics on results" );
-	new uiLabel( integrgrp_, "Statistics on results", stattypfld_ );
+	new uiLabel( integrgrp_, tr("Statistics on results"), stattypfld_ );
 #   define mAddStatItm(enm) \
 	stattypfld_->addItem( Stats::TypeNames()[Stats::enm] );
 	if ( attr_.prop_.hasType(PropertyRef::Dist) )
@@ -109,7 +111,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 
     const CallBack transfcb( mCB(this,uiLaySeqAttribEd,transfSel) );
     uiLabeledComboBox* ltransffld = new uiLabeledComboBox( this,
-						"Transform values" );
+						tr("Transform values") );
     transformfld_ = ltransffld->box();
     static const char* transfs[] = { "No", "Power", "Log", "Exp", 0 };
     transformfld_->addItems( BufferStringSet(transfs) );
@@ -123,11 +125,11 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	ltransffld->attach( ensureBelow, sep );
     }
 
-    valfld_ = new uiGenInput( this, "Value", FloatInpSpec(2) );
+    valfld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec(2) );
     valfld_->setElemSzPol( uiObject::Small );
     valfld_->attach( rightOf, ltransffld );
 
-    namefld_ = new uiGenInput( this, "Name", attr_.name() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), attr_.name() );
     namefld_->attach( alignedBelow, ltransffld );
 
     putToScreen();
@@ -165,9 +167,9 @@ void uiLaySeqAttribEd::transfSel( CallBacker* )
 {
     const int sel = transformfld_->currentItem();
     if ( sel == 1 )
-	valfld_->setTitleText( "Value" );
+	valfld_->setTitleText( uiStrings::sValue() );
     else if ( sel )
-	valfld_->setTitleText( "Base" );
+	valfld_->setTitleText( uiStrings::sBase() );
     valfld_->display( sel );
 }
 
@@ -227,7 +229,8 @@ bool uiLaySeqAttribEd::getFromScreen()
 
 	if ( uns.isEmpty() || (!lithofld_->isEmpty() && liths.isEmpty()) )
 	{
-	    uiMSG().error("Please select at least one unit and one lithology");
+	    uiMSG().error(tr("Please select at least"
+                             " one unit and one lithology"));
 	    return false;
 	}
     }
@@ -266,7 +269,7 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
     const BufferString oldnm( attr_.name() );
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() )
-	{ uiMSG().error( "Please enter a valid name" ); return false; }
+	{ uiMSG().error( tr("Please enter a valid name") ); return false; }
     if ( oldnm != newnm )
     {
 	const Strat::LaySeqAttribSet& lsas = attr_.attrSet();
@@ -275,7 +278,7 @@ bool uiLaySeqAttribEd::acceptOK( CallBacker* )
 	    const Strat::LaySeqAttrib& lsa = lsas.attr( idx );
 	    if ( &lsa != &attr_ && newnm == lsa.name() )
 	    {
-	    uiMSG().error("The name is already used for another attribute");
+	    uiMSG().error(tr("The name is already used for another attribute"));
 		return false;
 	    }
 	}

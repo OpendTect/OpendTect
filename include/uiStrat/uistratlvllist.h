@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 
 mExpClass(uiStrat) uiStratLvlList : public uiLabeledListBox
-{
+{ mODTextTranslationClass(uiStratLvlList);
 public:
 
 		uiStratLvlList(uiParent*);

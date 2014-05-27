@@ -34,7 +34,7 @@ mGlobal(uiStrat) uiStratTreeWin& StratTreeWin();
   and the units description view */
 
 mExpClass(uiStrat) uiStratTreeWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiStratTreeWin);
 public:
 
 			uiStratTreeWin(uiParent*);

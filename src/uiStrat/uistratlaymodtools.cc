@@ -57,14 +57,14 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     uiToolButton* opentb = new uiToolButton( leftgrp, "open",
-				"Open stored generation description",
+				tr("Open stored generation description"),
 				mCB(this,uiStratGenDescTools,openCB) );
     savetb_ = new uiToolButton( leftgrp, "save",
-				"Save generation description",
+				tr("Save generation description"),
 				mCB(this,uiStratGenDescTools,saveCB) );
     savetb_->attach( rightOf, opentb );
     uiToolButton* proptb = new uiToolButton( leftgrp, "defprops",
-				"Select layer properties",
+				tr("Select layer properties"),
 				mCB(this,uiStratGenDescTools,propEdCB) );
     proptb->attach( rightOf, savetb_ );
 
@@ -75,10 +75,10 @@ uiStratGenDescTools::uiStratGenDescTools( uiParent* p )
     nrmodlsfld_->setValue( 25 );
     nrmodlsfld_->setFocusChangeTrigger( false );
     nrmodlsfld_->setStretch( 0, 0 );
-    nrmodlsfld_->setToolTip( "Number of models to generate" );
+    nrmodlsfld_->setToolTip( tr("Number of models to generate") );
     nrmodlsfld_->valueChanged.notify( gocb );
     uiToolButton* gotb = new uiToolButton( rightgrp, "go",
-				"Generate this amount of models", gocb );
+				tr("Generate this amount of models"), gocb );
     nrmodlsfld_->attach( leftOf, gotb );
     rightgrp->attach( ensureRightOf, leftgrp );
     rightgrp->setFrame( true );

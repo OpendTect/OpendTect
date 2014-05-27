@@ -78,7 +78,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiPushButton* sellithbut = new uiPushButton( this, "&Edit",
+	uiPushButton* sellithbut = new uiPushButton( this, 
+                                                     uiStrings::sEdit(true),
 				ioPixmap("edit"), cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 

@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
-    : uiDialog(p,Setup("Layer properties",
+    : uiDialog(p,Setup(tr("Layer properties"),
 		    BufferString("Layer: '",lay.name(),"'"),
                        mODHelpKey(mStratEditLayerHelpID) ))
     , editable_(editable)
@@ -36,7 +36,7 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     if ( !editable )
 	setCtrlStyle( CloseOnly );
 
-    lithfld_ = new uiGenInput( this, "Lithology", lay_.lithology().name() );
+    lithfld_ = new uiGenInput( this, tr("Lithology"), lay_.lithology().name() );
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
