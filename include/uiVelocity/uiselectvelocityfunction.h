@@ -30,7 +30,7 @@ class FunctionSource;
 //!uiGroup to select a velocity function type
 
 mExpClass(uiVelocity) uiFunctionSel : public uiGroup
-{
+{ mODTextTranslationClass(uiFunctionSel);
 public:
 
 				uiFunctionSel(uiParent*,

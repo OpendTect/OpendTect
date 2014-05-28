@@ -41,15 +41,15 @@ uiFunctionSel::uiFunctionSel( uiParent* p,
     list_->selectionChanged.notify(
 	    mCB(this,uiFunctionSel,selChangedCB) );
 
-    addbutton_ = new uiPushButton( this, "Add",
+    addbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
 	    mCB( this, uiFunctionSel, addPushedCB ), false );
     addbutton_->attach( rightOf, list_ );
 
-    removebutton_ = new uiPushButton( this, "Remove",
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
 	    mCB( this, uiFunctionSel, removePushedCB ), true );
     removebutton_->attach( alignedBelow, addbutton_ );
 
-    propbutton_ = new uiPushButton( this, "Properties",
+    propbutton_ = new uiPushButton( this, uiStrings::sProperties(true),
 	    mCB( this, uiFunctionSel, propPushedCB ), false );
     propbutton_->attach( alignedBelow, removebutton_ );
 
@@ -182,7 +182,8 @@ uiAddFunction::uiAddFunction( uiParent* p )
 	uiFunctionSettings::factory().getNames();
     const TypeSet<uiString>& sourceusernames =
 	uiFunctionSettings::factory().getUserNames();
-    typesel_ = new uiGenInput( this, "Type",StringListInpSpec(sourceusernames));
+    typesel_ = new uiGenInput( this, uiStrings::sType(),
+                               StringListInpSpec(sourceusernames));
     typesel_->valuechanged.notify(
 			    mCB(this,uiAddFunction,typeSelChangeCB));
 

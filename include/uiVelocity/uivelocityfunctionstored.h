@@ -24,7 +24,7 @@ namespace Vel
 class StoredFunctionSource;
 
 mExpClass(uiVelocity) uiStoredFunction : public uiFunctionSettings
-{
+{ mODTextTranslationClass(uiStoredFunction);
 public:
     mDefaultFactoryInstanciationBase(
 	    StoredFunctionSource::sFactoryKeyword(),

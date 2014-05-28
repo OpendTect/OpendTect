@@ -27,7 +27,7 @@ namespace Vel
 {
 
 mExpClass(uiVelocity) uiImportVelFunc : public uiDialog
-{
+{ mODTextTranslationClass(uiImportVelFunc);
 public:
     			uiImportVelFunc(uiParent*);
 			~uiImportVelFunc();

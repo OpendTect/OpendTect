@@ -55,7 +55,7 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
     mAttachCB( velfld_->valuechanging, uiLinearVelTransform::velChangedCB );
 
 
-    gradientfld_ = new uiGenInput( this, "Gradient (1/s)", FloatInpSpec(0) );
+    gradientfld_ = new uiGenInput( this, tr("Gradient (1/s)"), FloatInpSpec(0));
     gradientfld_->attach( alignedBelow, velfld_ );
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
     setHAlignObj( gradientfld_ );
@@ -123,14 +123,14 @@ bool uiLinearVelTransform::acceptOK()
     const float vel = velfld_->getfValue();
     if ( mIsUdf(vel) )
     {
-	uiMSG().error("Velocity is not set");
+	uiMSG().error(tr("Velocity is not set"));
 	return false;
     }
 
     const float gradient = gradientfld_->getfValue();
     if ( mIsUdf(gradient) )
     {
-	uiMSG().error("Gradient is not set");
+	uiMSG().error(tr("Gradient is not set"));
 	return false;
     }
 
@@ -139,7 +139,7 @@ bool uiLinearVelTransform::acceptOK()
 	const StepInterval<float> range = rangefld_->getFZRange();
 	if ( range.isUdf() )
 	{
-	    uiMSG().error( "Z-Range is not set" );
+	    uiMSG().error( tr("Z-Range is not set") );
 	    return false;
 	}
     }

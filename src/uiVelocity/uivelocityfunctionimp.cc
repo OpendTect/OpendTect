@@ -36,7 +36,7 @@ namespace Vel
 {
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Velocity Function",
+    : uiDialog( p,uiDialog::Setup(tr("Import Velocity Function"),
 				  mNoDlgTitle, 
                                   mODHelpKey(mImportVelFuncHelpID) ) )
     , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
@@ -140,7 +140,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !functions->store( ctio_.ioobj->key() ) )
 	mErrRet( "Cannot store velocity functions" );
 
-    uiMSG().message( "Import succeeded" );
+    uiMSG().message( tr("Import succeeded") );
     return false;
 }
 

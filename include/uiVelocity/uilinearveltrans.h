@@ -22,7 +22,7 @@ namespace Vel
 {
 
 mExpClass(uiVelocity) uiLinearVelTransform : public uiTime2DepthZTransformBase
-{
+{ mODTextTranslationClass(uiLinearVelTransform);
 public:
     static void		initClass();
     			uiLinearVelTransform(uiParent*,bool t2d);
