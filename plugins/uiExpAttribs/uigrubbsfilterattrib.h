@@ -24,7 +24,7 @@ class uiSteeringSel;
 /*! \brief Semblance Attribute description editor */
 
 mExpClass(uiExpAttribs) uiGrubbsFilterAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiGrubbsFilterAttrib);
 public:
 
 			uiGrubbsFilterAttrib(uiParent*,bool);

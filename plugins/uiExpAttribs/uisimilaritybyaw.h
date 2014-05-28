@@ -24,7 +24,7 @@ class uiStepOutSel;
 
 
 mExpClass(uiExpAttribs) uiSimilaritybyAW : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiSimilaritybyAW);
 
 public:
     			uiSimilaritybyAW(uiParent*,bool);

@@ -33,11 +33,11 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     inputfld_ = createInpFld( is2d, "Input Data" );
 
     reftimegatefld_ =
-	new uiGenInput( this, "Ref time gate (ms)", FloatInpIntervalSpec() );
+	new uiGenInput( this, tr("Ref time gate (ms)"), FloatInpIntervalSpec() );
     reftimegatefld_->attach( alignedBelow, inputfld_ );
 
     searchrangefld_ =
-	new uiGenInput( this, "Search range (ms)", FloatInpIntervalSpec() );
+	new uiGenInput( this, tr("Search range (ms)"), FloatInpIntervalSpec() );
     searchrangefld_->attach( alignedBelow, reftimegatefld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
@@ -53,7 +53,7 @@ uiSimilaritybyAW::uiSimilaritybyAW( uiParent* p, bool is2d )
     const char* attributelist_[] = { "Optimal similarity",
 					    "Optimal time gate", 0 };
     attributefld_ =
-	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );
+	new uiGenInput( this, tr("Output"), StringListInpSpec(attributelist_) );
     attributefld_->valuechanged.notify(
 	    mCB(this, uiSimilaritybyAW, choiceSel) );
     attributefld_->attach(alignedBelow, steerfld_);

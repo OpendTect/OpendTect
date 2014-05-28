@@ -22,7 +22,7 @@ class uiGenInput;
 /*! \brief DeltaResample Attribute description editor */
 
 mClass(uiExpAttribs) uiEventFreqAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiEventFreqAttrib);
 public:
 
 			uiEventFreqAttrib(uiParent*,bool);

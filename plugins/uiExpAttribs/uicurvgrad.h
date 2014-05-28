@@ -26,7 +26,7 @@ class uiStepOutSel;
 
 
 mExpClass(uiExpAttribs) uiCurvGrad : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiCurvGrad);
 
 public:
   			uiCurvGrad(uiParent*,bool);

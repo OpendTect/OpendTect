@@ -36,7 +36,8 @@ uiCurvGrad::uiCurvGrad( uiParent* p, bool is2d )
 
     const char* attributelist_[] = { "Gradient", "Azimuth", 0 };
     attributefld_ =
-	new uiGenInput( this, "Output", StringListInpSpec(attributelist_) );
+	new uiGenInput( this, uiStrings::sOutput(), 
+                        StringListInpSpec(attributelist_) );
     attributefld_->valuechanged.notify( mCB(this,uiCurvGrad,choiceSel) );
     attributefld_->attach( alignedBelow, steerfld_ );
 

@@ -44,7 +44,7 @@ uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    grubbsvalfld_ = new uiGenInput( this, "Cutoff Grubbs Value",
+    grubbsvalfld_ = new uiGenInput( this, tr("Cutoff Grubbs Value"),
 				    FloatInpSpec() );
     grubbsvalfld_->attach( alignedBelow, inpfld_ );
 
@@ -58,7 +58,7 @@ uiGrubbsFilterAttrib::uiGrubbsFilterAttrib( uiParent* p, bool is2d )
     stepoutfld_->setFieldNames( is2d ? "Trace Nr Stepout" : "Inl Stepout",
 			       "Crl Stepout" );
 
-    replacetype_ = new uiGenInput( this, "Replace Type",
+    replacetype_ = new uiGenInput( this, tr("Replace Type"),
 				   StringListInpSpec(replacetypestr) );
     replacetype_->attach( alignedBelow, stepoutfld_ );
     replacetype_->valuechanged.notify(
