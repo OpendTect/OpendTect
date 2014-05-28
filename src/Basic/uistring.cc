@@ -246,10 +246,10 @@ const char* uiString::getOriginalString() const
 }
 
 
-BufferString uiString::getFullString() const
+const BufferString& uiString::getFullString() const
 {
+    mDeclStaticString( res );
     Threads::Locker locker( lock_ );
-    BufferString res;
     data_->getFullString( res );
     return res;
 }

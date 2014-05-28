@@ -60,11 +60,13 @@ bool testSharedData()
 
     b.arg( "s" );
     mRunStandardTest( b.getFullString()=="Hello Worlds" &&
-		      a.getFullString()!=b.getFullString(), "arg on copy" );
+		      BufferString(a.getFullString())!=
+		      BufferString(b.getFullString()), "arg on copy" );
 
     uiString c = b;
     c = "Another message";
-    mRunStandardTest( c.getFullString()!=b.getFullString(),
+    mRunStandardTest( BufferString(c.getFullString())!=
+		      BufferString(b.getFullString()),
 		      "assignment of copy" );
 
     uiString d = b;

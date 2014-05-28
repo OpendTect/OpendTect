@@ -123,10 +123,12 @@ public:
 				/*!Appends. In most cases, use arg to allow
 				 translator to change ordering. */
 
-    BufferString		getFullString() const;
+    const BufferString&		getFullString() const;
 				/*!<Constructs the result from the original
 				    string and the arguments,
-				without translation. */
+				    without translation. \Note that
+				    result is in a thread-safe static buffer, so
+				    copy the result before calling again.*/
     const char*			getOriginalString() const;
     const mQtclass(QString&)	getQtString() const;
     wchar_t*			createWCharString() const;
