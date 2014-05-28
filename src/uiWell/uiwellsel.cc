@@ -58,7 +58,7 @@ void uiWellParSel::getSelected( TypeSet<MultiID>& ids ) const
 void uiWellParSel::doDlg( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
-    uiIOObjSelDlg dlg( this, *ctio, "Select Wells", true );
+    uiIOObjSelDlg dlg( this, *ctio, tr("Select Wells"), true );
     uiIOObjSelGrp* selgrp = dlg.selGrp();
     selgrp->usePar( iopar_ );
     if ( !dlg.go() ) return;

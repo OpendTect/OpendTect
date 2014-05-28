@@ -91,7 +91,7 @@ static BufferString getDlgTitle( const TypeSet<MultiID>& wllids )
 
 uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 			      bool rockphysmode )
-	: uiDialog(p,uiDialog::Setup("Calculate new logs",
+	: uiDialog(p,uiDialog::Setup(tr("Calculate new logs"),
 				     getDlgTitle(wllids),
 				     mODHelpKey(mWellLogCalcHelpID) ))
 	, superwls_(*new Well::LogSet)
@@ -102,7 +102,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 {
     if ( wellids_.isEmpty() )
     {
-	new uiLabel( this, "No wells.\nPlease import or create a well first." );
+	new uiLabel( this, tr("No wells.\nPlease import"
+                              " or create a well first.") );
 	setCtrlStyle( CloseOnly );
 	return;
     }
@@ -111,8 +112,8 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     getAllLogs();
     if ( superwls_.isEmpty() || lognms_.isEmpty() )
     {
-	new uiLabel( this, "Selected wells have no logs.\n"
-			   "Please import at least one." );
+	new uiLabel( this, tr("Selected wells have no logs.\n"
+			   "Please import at least one.") );
 	setCtrlStyle( CloseOnly );
 	return;
     }
@@ -132,7 +133,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->formSet.notify( formsetcb );
     formfld_->formUnitSet.notify( formunitcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
-    uiToolButtonSetup tbsu( "rockphys", "Choose rockphysics formula",
+    uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
 			    rockphyscb, "&Rock Physics");
     formfld_->addButton( tbsu );
 
@@ -142,23 +143,23 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     float defsr = SI().depthsInFeet() ? 0.5f : 0.1524f;
     if ( !superwls_.isEmpty() )
 	defsr = superwls_.getLog(0).dahStep( false );
-    srfld_ = new uiGenInput( this, "Output sample distance",
+    srfld_ = new uiGenInput( this, tr("Output sample distance"),
 			     FloatInpSpec(defsr) );
     srfld_->attach( alignedBelow, formfld_ );
     srfld_->attach( ensureBelow, sep );
-    ftbox_ = new uiCheckBox( this, "Feet" );
+    ftbox_ = new uiCheckBox( this, tr("Feet") );
     ftbox_->setChecked( SI().depthsInFeet() );
     ftbox_->activated.notify( mCB(this,uiWellLogCalc,feetSel) );
     ftbox_->attach( rightOf, srfld_ );
 
     mGetInterpols();
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, pols,
-					    "Interpolate undefined values?");
+					   tr("Interpolate undefined values?"));
     interppolfld_ = lcb->box();
     interppolfld_->setCurrentItem( 2 );
     lcb->attach( alignedBelow, srfld_ );
 
-    nmfld_ = new uiGenInput( this, "Name for new log" );
+    nmfld_ = new uiGenInput( this, tr("Name for new log") );
     nmfld_->attach( alignedBelow, lcb );
 
     uiUnitSel::Setup uussu( PropertyRef::Other, "Output unit of measure" );
@@ -402,14 +403,14 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
     const BufferString newnm = nmfld_->text();
     if ( newnm.isEmpty() )
-	mErrRet("Please provide a name for the new log")
+	mErrRet(tr("Please provide a name for the new log"))
     if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
-	mErrRet("A log with this name already exists."
-		"\nPlease enter a different name for the new log")
+	mErrRet(tr("A log with this name already exists."
+		"\nPlease enter a different name for the new log"))
 
     zsampintv_ = srfld_->getfValue();
     if ( mIsUdf(zsampintv_) )
-	mErrRet("Please provide the Z dample rate for the  output log")
+	mErrRet(tr("Please provide the Z dample rate for the  output log"))
     if ( ftbox_->isChecked() )
 	zsampintv_ *= mFromFeetFactorF;
 
@@ -470,7 +471,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     if ( !successfulonce )
 	return false;
 
-    uiMSG().message( "Successfully added this log" );
+    uiMSG().message( tr("Successfully added this log") );
     havenew_ = true;
     return false;
 }
@@ -502,7 +503,8 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    {
 		inpd.wl_ = getInpLog( wls, iinp, ishft==0 );
 		if ( !inpd.wl_ )
-		    mErrRet(BufferString(form_.inputDef(iinp),": empty log"))
+		    mErrRet(BufferString(form_.inputDef(iinp),
+                    ": empty log"))
 	    }
 
 	    inpd.specidx_ = specidx;

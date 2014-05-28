@@ -30,7 +30,7 @@ namespace Well { class D2TModel; class Log; class LogSet; class Track;}
 /*! \brief Dialog for marker specifications */
 
 mExpClass(uiWell) uiWellLogCalc : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogCalc);
 public:
 				uiWellLogCalc(uiParent*,const TypeSet<MultiID>&,
 					      bool rockphysmode=false);

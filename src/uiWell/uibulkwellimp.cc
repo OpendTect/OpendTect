@@ -45,7 +45,7 @@ using namespace Well;
 
 // uiBulkTrackImport
 uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Well Tracks",
+    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Well Tracks"),
 		                 mNoDlgTitle, 
                                  mODHelpKey(mBulkTrackImportHelpID) ))
     , fd_(BulkTrackAscIO::getDesc())
@@ -211,12 +211,12 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
     if ( errors.isEmpty() )
     {
-	uiMSG().message( "All tracks imported succesfully" );
+	uiMSG().message( tr("All tracks imported succesfully") );
 	return true;
     }
 
     uiMSG().errorWithDetails( errors,
-		"Could not import all wells (see details)" );
+		tr("Could not import all wells (see details)") );
     return false;
 }
 

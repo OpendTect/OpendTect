@@ -78,7 +78,7 @@ void uiWellSelGrp::createFields()
 	selwellstbl_->setColumnLabel( 1, "Start at" );
 	selwellstbl_->setColumnWidth(1,90);
 
-	onlytopfld_ = new uiGenInput( this, "Use only wells' top position",
+	onlytopfld_ = new uiGenInput( this, tr("Use only wells' top position"),
 				      BoolInpSpec(true) );
 	onlytopfld_->valuechanged.notify( mCB(this,uiWellSelGrp,ptsSel) );
 	onlytopfld_->attach( alignedBelow, selwellstbl_ );
@@ -91,14 +91,14 @@ void uiWellSelGrp::createFields()
 
 void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 {
-    uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
+    uiLabel* sellbl = new uiLabel( selbuttons, tr("Select") );
     CallBack cb = mCB(this,uiWellSelGrp,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
-					"Move right", cb );
+					tr("Move right"), cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow,
-					"Move left", cb );
+					tr("Move left"), cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -107,14 +107,14 @@ void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 
 void uiWellSelGrp::createMoveButtons( uiGroup* movebuttons )
 {
-    uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
+    uiLabel* movelbl = new uiLabel( movebuttons, tr("Change \n order") );
     CallBack cb = mCB(this,uiWellSelGrp,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
-				    "Move Up", cb );
+				    tr("Move Up"), cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-					"Move Down", cb );
+					tr("Move Down"), cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );

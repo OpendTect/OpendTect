@@ -44,7 +44,7 @@ static const float defundefval = -999.25;
 
 
 uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup("Import Well Logs",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Well Logs"),mNoDlgTitle,
 				 mODHelpKey(mImportLogsHelpID)))
 {
     setOkText( uiStrings::sImport() );
@@ -54,28 +54,28 @@ uiImportLogsDlg::uiImportLogsDlg( uiParent* p, const IOObj* ioobj )
 			       .filter(lasfileflt).withexamine(true) );
     lasfld_->valuechanged.notify( mCB(this,uiImportLogsDlg,lasSel) );
 
-    intvfld_ = new uiGenInput( this, "Depth interval to load (empty=all)",
+    intvfld_ = new uiGenInput( this, tr("Depth interval to load (empty=all)"),
 			      FloatInpIntervalSpec(false) );
     intvfld_->attach( alignedBelow, lasfld_ );
 
-    BoolInpSpec mft( !SI().depthsInFeet(), "Meter", "Feet" );
+    BoolInpSpec mft( !SI().depthsInFeet(), tr("Meter"), tr("Feet") );
     intvunfld_ = new uiGenInput( this, "", mft );
     intvunfld_->attach( rightOf, intvfld_ );
     intvunfld_->display( false );
 
-    unitlbl_ = new uiLabel( this, "XXXX" );
+    unitlbl_ = new uiLabel( this, tr("XXXX") );
     unitlbl_->attach( rightOf, intvfld_ );
     unitlbl_->display( false );
 
-    istvdfld_ = new uiGenInput( this, "Depth values are",
-				BoolInpSpec(false,"TVDSS","MD") );
+    istvdfld_ = new uiGenInput( this, tr("Depth values are"),
+				BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
     istvdfld_->attach( alignedBelow, intvfld_ );
 
-    udffld_ = new uiGenInput( this, "Undefined value in logs",
+    udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
                     FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Logs to import" );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Logs to import") );
     logsfld_ = llb->box();
     llb->attach( alignedBelow, udffld_ );
     logsfld_->setMultiChoice( true );
@@ -133,7 +133,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     Well::Data wd;
     Well::Reader rdr( wellioobj->fullUserExpr(true), wd );
     if ( !rdr.getLogs() )
-	mErrRet( "Cannot read logs for selected well" )
+	mErrRet( tr("Cannot read logs for selected well") )
 
     Well::LASImporter wdai( wd );
     Well::LASImporter::FileInfo lfi;
@@ -153,11 +153,11 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 
     const char* lasfnm = lasfld_->text();
     if ( !lasfnm || !*lasfnm )
-	mErrRet( "Please enter a valid file name" )
+	mErrRet( tr("Please enter a valid file name") )
 
     BufferStringSet lognms; logsfld_->getChosen( lognms );
     if ( lognms.isEmpty() )
-	mErrRet( "Please select at least one log to import" )
+	mErrRet( tr("Please select at least one log to import") )
 
     BufferStringSet existlogs;
     for ( int idx=lognms.size()-1; idx>=0; idx-- )
@@ -191,7 +191,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
 
     Well::Writer wtr( wellioobj->fullUserExpr(true), wd );
     if ( !wtr.putLogs() )
-	mErrRet( "Cannot write logs to disk" )
+	mErrRet( tr("Cannot write logs to disk") )
 
     return true;
 }

@@ -59,7 +59,7 @@ static const int cLevelCol = 5;
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
-	: uiDialog(p,uiDialog::Setup("Edit Well Markers",mNoDlgTitle,
+	: uiDialog(p,uiDialog::Setup(tr("Edit Well Markers"),mNoDlgTitle,
                                      mODHelpKey(mMarkerDlgHelpID)))
 	, track_(t)
         , oldmrkrs_(0)
@@ -83,29 +83,29 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->setPrefWidth( 650 );
 
-    uiButton* updatebut = new uiPushButton( this, "&Update display",
+    uiButton* updatebut = new uiPushButton( this, tr("&Update display"),
 				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
-    uiButton* rfbut = new uiPushButton( this, "&Import",
+    uiButton* rfbut = new uiPushButton( this, uiStrings::sImport(),
 					mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightOf, updatebut );
 
-    uiButton* expbut = new uiPushButton( this, "&Export",
+    uiButton* expbut = new uiPushButton( this, uiStrings::sExport(),
 					mCB(this,uiMarkerDlg,exportCB), false );
     expbut->attach( rightOf, rfbut );
 
     uiPushButton* setregmrkar =
-	new uiPushButton( this,	"Set as regional markers",
+	new uiPushButton( this,	tr("Set as regional markers"),
 			  mCB(this,uiMarkerDlg,setAsRegMarkersCB), false );
     setregmrkar->attach( alignedBelow, updatebut );
 
     uiToolButton* stratbut = new uiToolButton( this, "man_strat",
-				"Edit Stratigraphy to define Levels",
+				tr("Edit Stratigraphy to define Levels"),
 				mCB(this,uiMarkerDlg,doStrat) );
     stratbut->attach( rightOf, setregmrkar );
 
-    unitfld_ = new uiCheckBox( this, "Z in Feet" );
+    unitfld_ = new uiCheckBox( this, tr("Z in Feet") );
     unitfld_->attach( rightAlignedBelow, table_ );
     unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiMarkerDlg,unitChangedCB) );
@@ -194,7 +194,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
     {
 	if ( mIsUdf(table_->getfValue(rc)) )
 	{
-	    uiMSG().error( "Please enter a valid number" );
+	    uiMSG().error( tr("Please enter a valid number") );
 	    table_->clearCell( rc );
 	    return;
 	}
@@ -206,7 +206,7 @@ void uiMarkerDlg::markerChangedCB( CallBacker* )
 	const char* markernm = table_->text( rc );
 	if ( !markernm || !*markernm )
 	{
-	    uiMSG().error( "Please enter a valid name" );
+	    uiMSG().error( tr("Please enter a valid name") );
 	    table_->clearCell( rc );
 	    return;
 	}
@@ -271,12 +271,12 @@ void uiMarkerDlg::mouseClick( CallBacker* )
     const bool havelvl = levelsel && levelsel->getID() >= 0;
     if ( havelvl )
     {
-	uiMSG().error( "Cannot change color of regional marker" );
+	uiMSG().error( tr("Cannot change color of regional marker") );
 	return;
     }
 
     Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol, this, "Marker color") )
+    if ( selectColor(newcol, this, tr("Marker color")) )
 	table_->setColor( rc, newcol );
 
     table_->setSelected( rc, false );
@@ -448,13 +448,13 @@ void uiMarkerDlg::rdFile( CallBacker* )
 
     od_istream strm( dlg.fnm_ );
     if ( !strm.isOK() )
-	{ uiMSG().error( "Input file exists but cannot be read" ); return; }
+	{ uiMSG().error( tr("Input file exists but cannot be read") ); return; }
 
     Well::MarkerSetAscIO aio( dlg.fd_ );
     Well::MarkerSet mrkrs;
     aio.get( strm, mrkrs, track_ );
     if ( mrkrs.isEmpty() )
-	uiMSG().error( "No valid markers found" );
+	uiMSG().error( tr("No valid markers found") );
     else
 	setMarkerSet( mrkrs, dlg.keep_ );
 }
@@ -556,7 +556,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
 
     if ( !mset.size() )
     {
-	uiMSG().message( "No markers available" );
+	uiMSG().message( tr("No markers available") );
 	return false;
     }
 
@@ -567,7 +567,7 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     dlg.getSelIDs( selitems );
     if ( !selitems.size() )
     {
-	uiMSG().message( "No markers selected." );
+	uiMSG().message( tr("No markers selected.") );
 	return false;
     }
 
@@ -615,11 +615,11 @@ void uiMarkerDlg::exportCB( CallBacker* )
 
     if ( mset.isEmpty() )
     {
-	uiMSG().message( "No data available to export" );
+	uiMSG().message( tr("No data available to export") );
 	return;
     }
 
-    uiFileDialog fdlg( this, false, 0, 0, "File name for export" );
+    uiFileDialog fdlg( this, false, 0, 0, tr("File name for export") );
     fdlg.setDirectory( GetDataDir() );
     if ( !fdlg.go() )
 	return;

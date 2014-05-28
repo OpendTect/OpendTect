@@ -37,7 +37,7 @@ namespace Well
 
 
 mExpClass(uiWell) uiWellLogToolWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiWellLogToolWin);
 public:
 
     mStruct(uiWell) LogData

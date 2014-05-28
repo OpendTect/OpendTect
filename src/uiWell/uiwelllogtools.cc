@@ -167,7 +167,7 @@ int uiWellLogToolWin::LogData::setSelectedLogs( BufferStringSet& lognms )
 
 
 uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
-    : uiMainWin(p,"Log Tools Window")
+    : uiMainWin(p,tr("Log Tools Window"))
     , logdatas_(logs)
     , needsave_(false)
 {
@@ -206,13 +206,14 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 
     CallBack cb( mCB( this, uiWellLogToolWin, applyPushedCB ) );
-    applybut_ = new uiPushButton( actiongrp, "Apply", cb, true );
+    applybut_ = new uiPushButton( actiongrp, uiStrings::sApply(), cb, true );
     applybut_->attach( rightOf, llc );
 
     freqfld_ = new uiFreqFilterSelFreq( actiongrp );
     freqfld_->attach( alignedBelow, llc );
 
-    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, "Window size" );
+    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, 
+                                                    tr("Window size") );
     spbgt->attach( alignedBelow, llc );
     gatefld_ = spbgt->box();
     gatelbl_ = spbgt->label();
@@ -243,15 +244,15 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     okbut_->attach( ensureBelow, horSepar );
     okbut_->setSensitive( false );
 
-    uiLabel* savelbl = new uiLabel( this, "On OK save logs:" );
+    uiLabel* savelbl = new uiLabel( this, tr("On OK save logs:") );
     savelbl->attach( rightOf, okbut_ );
-    savefld_ = new uiGenInput( this, "with extension" );
+    savefld_ = new uiGenInput( this, tr("with extension") );
     savefld_->setElemSzPol( uiObject::Small );
     savefld_->setText( "_edited" );
     savefld_->attach( rightOf, savelbl );
     savefld_->setStretch( 0, 0 );
 
-    overwritefld_ = new uiCheckBox( this, "Overwrite" );
+    overwritefld_ = new uiCheckBox( this, uiStrings::sOverwrite() );
     overwritefld_->attach( rightOf, savefld_ );
     overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
     overwritefld_->setStretch( 0, 0 );
@@ -289,7 +290,8 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     freqfld_->display( act == 1 );
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
-    gatelbl_->setText( act > 2 ? "Clip rate (%)" : "Window size (samples)" );
+    gatelbl_->setText( act > 2 ? tr("Clip rate (%)") 
+                               : tr("Window size (samples)") );
     StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10)
 				   : StepInterval<int>(1,1500,5);
     gatefld_->setInterval( sp );
@@ -329,8 +331,8 @@ bool uiWellLogToolWin::acceptOK( CallBacker* )
 		outplog->setName( newnm );
 		if ( ls.getLog( outplog->name() ) )
 		{
-		    mErrRet( "One or more logs with this name already exists."
-		    "\nPlease select a different extension for the new logs");
+		    mErrRet(tr("One or more logs with this name already exists."
+		    "\nPlease select a different extension for the new logs"));
 		}
 	    }
 	    ls.add( outplog );
@@ -431,7 +433,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg( "Could not resample the logs", wllnm )
+		    mAddErrMsg("Could not resample the logs", wllnm )
 
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
@@ -481,7 +483,8 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
+		    mAddErrMsg( "Could not apply the smoothing window", 
+                    wllnm )
 	    }
 	    else if ( act == 3 )
 	    {

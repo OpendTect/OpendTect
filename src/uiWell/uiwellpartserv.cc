@@ -268,7 +268,7 @@ void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
     uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
-					 "Create multiple simple wells",
+					 tr("Create multiple simple wells"),
 					 mCB(this,uiWellPartServer,simpImp) );
     dlg.addTool( tb );
     dlg.go();
@@ -309,7 +309,7 @@ void uiWellPartServer::launchRockPhysics()
     uiWellRockPhysLauncher dlg( parent() );
     const int sz = dlg.selgrp_->size();
     if ( sz == 0 )
-	uiMSG().error( "Please create one or more wells first" );
+	uiMSG().error( tr("Please create one or more wells first") );
     else if ( sz > 1 )
 	dlg.go();
     else
@@ -394,11 +394,11 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 				  const char* wellname, MultiID& mid )
 {
     if ( coords.isEmpty() )
-	mErrRet("Empty well track")
+	mErrRet(tr("Empty well track"))
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
-	mErrRet("Cannot create an entry in the data store")
+	mErrRet(tr("Cannot create an entry in the data store"))
     PtrMan<Translator> tr = ctio->ioobj->createTranslator();
     mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
@@ -437,10 +437,11 @@ bool uiWellPartServer::showAmplSpectrum( const MultiID& mid, const char* lognm )
 
     const Well::Log* log = wd->logs().getLog( lognm );
     if ( !log )
-	mErrRet( "Cannot find log in well data. Probably it has been deleted" )
+	mErrRet( tr("Cannot find log in well data."
+                    "  Probably it has been deleted") )
 
     if ( !log->size() )
-	mErrRet( "Well log is empty" )
+	mErrRet( tr("Well log is empty") )
 
     StepInterval<float> resamprg( log->dahRange() );
     TypeSet<float> resamplvals;	int resampsz = 0;

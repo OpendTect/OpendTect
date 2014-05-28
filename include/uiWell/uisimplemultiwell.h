@@ -19,7 +19,7 @@ class uiTable;
 
 
 mExpClass(uiWell) uiSimpleMultiWellCreate : public uiDialog
-{
+{ mODTextTranslationClass(uiSimpleMultiWellCreate);
 public:
 			uiSimpleMultiWellCreate(uiParent*);
 

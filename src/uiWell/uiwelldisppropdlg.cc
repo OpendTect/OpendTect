@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
-	: uiDialog(p,uiDialog::Setup("Well display properties",
+	: uiDialog(p,uiDialog::Setup(tr("Well display properties"),
 	   "", mODHelpKey(mWellDispPropDlgHelpID) ).savetext(sSaveAsDefault())
            .savebutton(true)
 					.savechecked(false)
@@ -80,15 +80,17 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log"
-					    : is2d ? "Log 1" : "Left Log" );
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2") 
+                                                   : tr("Right Log")
+					    : is2d ? tr("Log 1") 
+                                                   : tr("Left Log") );
 	    foundlog = true;
 	}
 	else
 	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
     }
 
-    uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
+    uiPushButton* applbut = new uiPushButton( this, tr("&Apply to all wells"),
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 

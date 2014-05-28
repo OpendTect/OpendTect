@@ -55,7 +55,7 @@ static const int cZCol = 2;
 static const int cMDTrackCol = 3;
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
-	: uiDialog(p,uiDialog::Setup("Edit Well Track",mNoDlgTitle,
+	: uiDialog(p,uiDialog::Setup(tr("Edit Well Track"),mNoDlgTitle,
 				     mODHelpKey(mWellTrackDlgHelpID)))
 	, wd_(d)
 	, track_(d.track())
@@ -86,26 +86,26 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
 
-    uiPushButton* updbut = new uiPushButton( actbutgrp, "&Update display",
+    uiPushButton* updbut = new uiPushButton( actbutgrp, tr("&Update display"),
 				   mCB(this,uiWellTrackDlg,updNow), true );
 
-    wellheadxfld_ = new uiGenInput( actbutgrp, "X-Coordinate of well head",
+    wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadxfld_->attach( ensureBelow, updbut );
-    uiPushButton* setbut = new uiPushButton( actbutgrp, "&Set",
+    uiPushButton* setbut = new uiPushButton( actbutgrp, tr("&Set"),
 				    mCB(this,uiWellTrackDlg,updateXpos), true );
     setbut->attach( rightOf, wellheadxfld_ );
 
-    wellheadyfld_ = new uiGenInput( actbutgrp, "Y-Coordinate of well head",
+    wellheadyfld_ = new uiGenInput( actbutgrp, tr("Y-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
-    setbut = new uiPushButton( actbutgrp, "&Set",
+    setbut = new uiPushButton( actbutgrp, tr("&Set"),
 				    mCB(this,uiWellTrackDlg,updateYpos), true );
     setbut->attach( rightOf, wellheadyfld_ );
 
-    kbelevfld_ = new uiGenInput( actbutgrp, "Reference Datum Elevation",
+    kbelevfld_ = new uiGenInput( actbutgrp, tr("Reference Datum Elevation"),
 				 FloatInpSpec(mUdf(float)) );
-    setbut = new uiPushButton( actbutgrp, "&Set",
+    setbut = new uiPushButton( actbutgrp, tr("&Set"),
 			     mCB(this,uiWellTrackDlg,updateKbElev), true );
     setbut->attach( rightOf, kbelevfld_ );
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
@@ -114,10 +114,10 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    uiButton* readbut = new uiPushButton( iobutgrp, "&Import",
+    uiButton* readbut = new uiPushButton( iobutgrp, uiStrings::sImport(),
 					    mCB(this,uiWellTrackDlg,readNew),
 					    false );
-    uiButton* expbut = new uiPushButton( iobutgrp, "&Export",
+    uiButton* expbut = new uiPushButton( iobutgrp, uiStrings::sExport(),
 					 mCB(this,uiWellTrackDlg,exportCB),
 					 false );
     expbut->attach( rightOf, readbut );
@@ -299,11 +299,11 @@ void uiWellTrackDlg::readNew( CallBacker* )
     {
 	od_istream strm( dlg.fnm_ );
 	if ( !strm.isOK() )
-	    { uiMSG().error( "Cannot open input file" ); return; }
+	    { uiMSG().error( tr("Cannot open input file") ); return; }
 
 	Well::TrackAscIO wellascio(fd_, strm );
 	if ( !wellascio.getData( wd_, true ) )
-	    uiMSG().error( "Failed to convert into compatible data" );
+	    uiMSG().error( tr("Failed to convert into compatible data") );
 
 	tbl_->clearTable();
 	if ( !fillTable() )
@@ -312,7 +312,7 @@ void uiWellTrackDlg::readNew( CallBacker* )
 	wd_.trackchanged.trigger();
     }
     else
-	uiMSG().error( "Please select a file" );
+	uiMSG().error( tr("Please select a file") );
 }
 
 
@@ -367,7 +367,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
     }
     else
     {
-	uiMSG().error( "Please define at least two points." );
+	uiMSG().error( tr("Please define at least two points.") );
 	return false;
     }
 
@@ -401,7 +401,7 @@ void uiWellTrackDlg::updatePos( bool isx )
     const double newpos = posfld->getdValue();
     if ( mIsUdf(newpos) )
     {
-	uiMSG().error( "Please enter a valid coordinate" );
+	uiMSG().error( tr("Please enter a valid coordinate") );
 	posfld->setValue( surfacepos );
 	return;
     }
@@ -444,7 +444,7 @@ void uiWellTrackDlg::updateKbElev( CallBacker* )
     float kbelevorig = track_.isEmpty() ? 0.f : track_.getKbElev();
     if ( mIsUdf(newkbelev) )
     {
-	uiMSG().error( "Please enter a valid elevation" );
+	uiMSG().error( tr("Please enter a valid elevation") );
 	kbelevfld_->setValue( kbelevorig );
 	return;
     }
@@ -538,11 +538,11 @@ void uiWellTrackDlg::exportCB( CallBacker* )
 {
     if ( !track_.size() )
     {
-	uiMSG().message( "No data available to export" );
+	uiMSG().message( tr("No data available to export") );
 	return;
     }
 
-    uiFileDialog fdlg( this, false, 0, 0, "File name for export" );
+    uiFileDialog fdlg( this, false, 0, 0, tr("File name for export") );
     fdlg.setDirectory( GetDataDir() );
     if ( !fdlg.go() )
 	return;
@@ -659,10 +659,10 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    new uiPushButton( iobutgrp, "&Import", mCB(this,uiD2TModelDlg,readNew),
-		      false );
-    new uiPushButton( iobutgrp, "&Export", mCB(this,uiD2TModelDlg,expData),
-		      false );
+    new uiPushButton( iobutgrp, uiStrings::sImport(), 
+        mCB(this,uiD2TModelDlg,readNew), false );
+    new uiPushButton( iobutgrp, uiStrings::sExport(), 
+        mCB(this,uiD2TModelDlg,expData), false );
     if ( actbutgrp )
 	iobutgrp->attach( ensureBelow, actbutgrp );
     else

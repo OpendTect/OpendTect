@@ -28,7 +28,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellParSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiWellParSel);
 public:
 			uiWellParSel(uiParent*);
 			~uiWellParSel();

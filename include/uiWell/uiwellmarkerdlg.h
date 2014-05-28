@@ -24,7 +24,7 @@ namespace Well { class Marker; class Track; class MarkerSet; }
 /*! \brief Dialog for marker specifications */
 
 mExpClass(uiWell) uiMarkerDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMarkerDlg);
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);
 				~uiMarkerDlg();

@@ -30,7 +30,7 @@ class uiD2TMLogSelDlg;
 */
 
 mExpClass(uiWell) uiWellPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiWellPartServer);
 public:
 				uiWellPartServer(uiApplService&);
 				~uiWellPartServer();

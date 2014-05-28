@@ -25,7 +25,7 @@ namespace Well { class Data; class Reader; };
 
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiWellMan);
 public:
 				uiWellMan(uiParent*);
 				~uiWellMan();

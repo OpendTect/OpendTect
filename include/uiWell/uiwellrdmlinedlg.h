@@ -30,7 +30,7 @@ class uiWellPartServer;
 
 
 mExpClass(uiWell) uiWellSelGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiWellSelGrp);
 public:
 			uiWellSelGrp(uiParent*,bool withpos=true);
 

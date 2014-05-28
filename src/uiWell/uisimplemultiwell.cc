@@ -54,9 +54,9 @@ public:
 
 
 uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
-    : uiDialog( p, Setup("Import Simple Wells",mNoDlgTitle,
+    : uiDialog( p, Setup(tr("Import Simple Wells"),mNoDlgTitle,
                          mODHelpKey(mSimpleMultiWellCreateHelpID) )
-			.savebutton(true).savetext("Display after import") )
+			.savebutton(true).savetext(tr("Display after import")) )
     , velfld_(0)
     , zinft_(SI().depthsInFeet())
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -82,7 +82,7 @@ uiSimpleMultiWellCreate::uiSimpleMultiWellCreate( uiParent* p )
     tbl_->setColumnLabel( 6, "[UWI]" );
     tbl_->setColumnToolTip( 6, "Unique Well Identifier" );
 
-    uiPushButton* pb = new uiPushButton( this, "Read file",
+    uiPushButton* pb = new uiPushButton( this, tr("Read file"),
 	    mCB(this,uiSimpleMultiWellCreate,rdFilePush), false );
     pb->attach( ensureBelow, tbl_ );
 
@@ -272,7 +272,8 @@ IOObj* uiSimpleMultiWellCreate::getIOObj( const char* wellnm )
     {
 	if ( overwritepol_ == 0 )
 	    overwritepol_ = uiMSG().askGoOn(
-		    "Do you want to overwrite existing wells?",true) ? 1 : -1;
+		    tr("Do you want to overwrite existing wells?"),
+                    true) ? 1 : -1;
 	if ( overwritepol_ == -1 )
 	    { delete ioobj; return 0; }
 	ioobj->implRemove();
@@ -336,7 +337,7 @@ bool uiSimpleMultiWellCreate::acceptOK( CallBacker* )
 	vel_ = zun_->internalValue( vel_ );
 
     if ( vel_ < 1e-5 || mIsUdf(vel_) )
-	{ uiMSG().error("Please enter a valid velocity"); return false; }
+	{ uiMSG().error(tr("Please enter a valid velocity")); return false; }
 
     IOM().to( WellTranslatorGroup::ioContext().getSelKey() );
 

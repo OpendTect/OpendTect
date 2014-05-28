@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uiwellt2dconv.cc 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiwellt2dconv.h"
 
@@ -65,7 +65,7 @@ void uiWellT2DTransform::initClass()
 {
     uiZAxisTransform::factory().addCreator( createInstance,
 				    WellT2DTransform::sFactoryKeyword(),
-				    "Well's Depth model");
+				    tr("Well's Depth model"));
 }
 
 

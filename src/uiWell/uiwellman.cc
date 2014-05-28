@@ -54,7 +54,7 @@ mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 
 uiWellMan::uiWellMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Wells",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wells"),mNoDlgTitle,
 				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
 {
@@ -62,16 +62,16 @@ uiWellMan::uiWellMan( uiParent* p )
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
-    uiLabel* lbl = new uiLabel( logsgrp_, "Logs" );
+    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs() );
     logsfld_ = new uiListBox( logsgrp_, "Available logs",
 				OD::ChooseAtLeastOne );
     logsfld_->attach( alignedBelow, lbl );
 
     uiButtonGroup* logsbgrp = new uiButtonGroup( listgrp_, "Logs buttons",
 						 OD::Horizontal );
-    addlogsbut_ = new uiPushButton( logsbgrp, "&Import", false );
+    addlogsbut_ = new uiPushButton( logsbgrp, uiStrings::sImport(), false );
     addlogsbut_->activated.notify( mCB(this,uiWellMan,importLogs) );
-    calclogsbut_ = new uiPushButton( logsbgrp, "&Create", false );
+    calclogsbut_ = new uiPushButton( logsbgrp, uiStrings::sCreate(true), false);
     calclogsbut_->activated.notify( mCB(this,uiWellMan,calcLogs) );
     calclogsbut_->attach( rightOf, addlogsbut_ );
     logsbgrp->attach( centeredBelow, logsgrp_ );
@@ -97,7 +97,7 @@ uiWellMan::uiWellMan( uiParent* p )
     logsgrp_->attach( rightOf, selgrp_ );
 
     uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
-		"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
+		tr("Edit Well Track"), mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->attach( alignedBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, selgrp_ );
     welltrackbut->attach( ensureBelow, logsgrp_ );
@@ -106,20 +106,21 @@ uiWellMan::uiWellMan( uiParent* p )
     if ( SI().zIsTime() )
     {
 	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot",
-			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
+			                        tr("Edit Checkshot Data"),
+                                                mCB(this,uiWellMan,edChckSh));
 	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
+	d2tbut = new uiToolButton( listgrp_, "z2t", tr("Edit Depth/Time Model"),
 				   mCB(this,uiWellMan, edD2T));
 	d2tbut->attach( rightOf, csbut );
     }
 
     uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
-			"Edit Markers", mCB(this,uiWellMan, edMarkers) );
+			tr("Edit Markers"), mCB(this,uiWellMan, edMarkers) );
     markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     lastexternal_ = markerbut;
 
     uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
-			"Log tools", mCB(this,uiWellMan,logTools) );
+			tr("Log tools"), mCB(this,uiWellMan,logTools) );
     logtoolbut->attach( rightOf, markerbut );
     lastexternal_ = logtoolbut;
 
@@ -259,7 +260,7 @@ void uiWellMan::edMarkers( CallBacker* )
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putMarkers() )
     {
-	uiMSG().error( "Cannot write new markers to disk" );
+	uiMSG().error( tr("Cannot write new markers to disk") );
 	wd->markers() = origmarkers;
     }
 
@@ -287,7 +288,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     Well::Writer wtr( curfnms_[0]->buf(), *wd );
     if ( !wtr.putInfoAndTrack( ) )
     {
-	uiMSG().error( "Cannot write new track to disk" );
+	uiMSG().error( tr("Cannot write new track to disk") );
 	wd->track() = origtrck;
 	wd->info().surfacecoord = origpos;
 	wd->info().groundelev = origgl;
@@ -406,14 +407,14 @@ void uiWellMan::logUOMPush( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
     const int selidx = logsfld_->firstChosen();
     if ( selidx < 0 )
-	mErrRet("No log selected")
+	mErrRet(tr("No log selected"))
 
     currdrs_[0]->getLogs();
     const char* lognm = logsfld_->textOfItem( selidx );
     Well::LogSet& wls = curwds_[0]->logs();
     const int curlogidx = wls.indexOf( lognm );
     if ( curlogidx < 0 )
-	mErrRet( "Cannot read selected log" )
+	mErrRet( tr("Cannot read selected log") )
 
     Well::Log& wl = wls.getLog( curlogidx );
     uiWellLogUOMDlg dlg( this, wl );
@@ -478,7 +479,7 @@ void uiWellMan::wellsChgd()
     if ( logsfld_->isEmpty() ) return; \
     const int nrsel = logsfld_->nrChosen(); \
     if ( nrsel < 1 ) \
-	mErrRet("No log selected")
+	mErrRet(tr("No log selected"))
 
 #define mGetWL() \
     currdrs_[0]->getLogs(); \
@@ -486,7 +487,7 @@ void uiWellMan::wellsChgd()
     const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() ); \
     const Well::Log* wl = wls.getLog( lognm ); \
     if ( !wl ) \
-	mErrRet( "Cannot read selected log" )
+	mErrRet( tr("Cannot read selected log") )
 
 
 void uiWellMan::viewLogPush( CallBacker* )
@@ -522,7 +523,7 @@ void uiWellMan::renameLogPush( CallBacker* )
 
     BufferString newnm = dlg.text();
     if ( logsfld_->isPresent(newnm) )
-	mErrRet("Name already in use")
+	mErrRet(tr("Name already in use"))
 
     for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
     {

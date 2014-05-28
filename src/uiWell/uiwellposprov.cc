@@ -36,7 +36,7 @@ uiWellPosProvGroup::uiWellPosProvGroup( uiParent* p,
 {
     wellfld_ = new uiWellParSel( this );
 
-    stepoutfld_ = new uiStepOutSel( this, false, "Extension" );
+    stepoutfld_ = new uiStepOutSel( this, false, tr("Extension") );
     stepoutfld_->attach( alignedBelow, wellfld_ );
 
     zrgfld_ = new uiSelZRange( this, true, false, 0, su.zdomkey_ );
@@ -72,7 +72,7 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Well() );
     if ( !wellfld_->nrSelected() )
-	mErrRet("Please select at least one well")
+	mErrRet(tr("Please select at least one well"))
 
     wellfld_->fillPar( iop );
     float zext = 0; bool onlysurfacecoords = true;

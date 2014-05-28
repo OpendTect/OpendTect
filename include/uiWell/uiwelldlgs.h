@@ -38,7 +38,7 @@ namespace Well { class Data; class Track; class D2TModel; class Log; }
 /*! \brief Dialog for D2T Model editing. */
 
 mExpClass(uiWell) uiWellTrackDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellTrackDlg);
 public:
 			uiWellTrackDlg(uiParent*,Well::Data&);
 			~uiWellTrackDlg();

@@ -21,7 +21,7 @@ class D2TModelData;
 
 
 mExpClass(uiWell) uiBulkTrackImport : public uiDialog
-{
+{ mODTextTranslationClass(uiBulkTrackImport);
 public:
 			uiBulkTrackImport(uiParent*);
 			~uiBulkTrackImport();

@@ -30,7 +30,7 @@ namespace Well { class Log; class Data; }
 /*!\brief Dialog for loading logs from las file */
 
 mExpClass(uiWell) uiImportLogsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiImportLogsDlg);
 public:
 			uiImportLogsDlg(uiParent*,const IOObj*);
 

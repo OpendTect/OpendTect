@@ -24,7 +24,7 @@ class uiWellParSel;
 /*! \brief UI for WellPosProvider */
 
 mExpClass(uiWell) uiWellPosProvGroup : public uiPosProvGroup
-{
+{ mODTextTranslationClass(uiWellPosProvGroup);
 public:
 			uiWellPosProvGroup(uiParent*,
 					   const uiPosProvGroup::Setup&);

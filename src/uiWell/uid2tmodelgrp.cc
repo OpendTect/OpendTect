@@ -56,7 +56,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 
     if ( setup_.asksetcsmdl_ )
     {
-	csfld_ = new uiGenInput( this, "Is this checkshot data?",
+	csfld_ = new uiGenInput( this, tr("Is this checkshot data?"),
 				 BoolInpSpec(false) );
 	csfld_->attach( alignedBelow, dataselfld_ );
     }

@@ -42,14 +42,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Well Track",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Well Track"),mNoDlgTitle,
 				 mODHelpKey(mWellImportAscHelpID)).modal(false))
     , fd_(*Well::TrackAscIO::getDesc())
     , wd_(*new Well::Data)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
     , importReady(this)
 {
-    enableSaveButton( "Display after import" );
+    enableSaveButton( tr("Display after import") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
     havetrckbox_ = new uiCheckBox( this, "" );
@@ -61,7 +61,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     trckinpfld_->valuechanged.notify( mCB(this,uiWellImportAsc,inputChgd) );
     trckinpfld_->attach( rightOf, havetrckbox_ );
 
-    vertwelllbl_ = new uiLabel( this, "-> Vertical well" );
+    vertwelllbl_ = new uiLabel( this, tr("-> Vertical well") );
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
 
@@ -104,7 +104,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 	sep->attach( stretchedBelow, d2tgrp_ );
     }
 
-    uiButton* but = new uiPushButton( this, "Advanced/Optional",
+    uiButton* but = new uiPushButton( this, tr("Advanced/Optional"),
 					mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
     but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp_
@@ -164,9 +164,9 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
 	}
     }
 
-    uiMSG().error( "The format you defined has neither Z nor MD."
+    uiMSG().error( tr("The format you defined has neither Z nor MD."
 		   "\nYou should define at least one."
-		   "\nAs it is now, the track will not load." );
+		   "\nAs it is now, the track will not load.") );
 }
 
 

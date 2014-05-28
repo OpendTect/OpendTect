@@ -26,7 +26,7 @@ namespace Well { class Data; };
 */
 
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellDispPropDlg);
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
