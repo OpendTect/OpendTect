@@ -288,8 +288,7 @@ void BoolInpSpec::setChecked( bool yesno )
 
 const char* BoolInpSpec::text( int idx ) const
 {
-    return yn_ ? truetext_.getFullString()
-	      : falsetext_.getFullString();
+    return yn_ ? truetext_.getOriginalString() : falsetext_.getOriginalString();
 }
 
 
@@ -384,7 +383,9 @@ void StringListInpSpec::addString( const char* txt )
 
 const char* StringListInpSpec::text( int ) const
 {
-    return isUndef() ? "" : strings_[cur_].getFullString().buf();
+    mDeclStaticString( ret );
+    ret = isUndef() ? "" : strings_[cur_].getFullString();
+    return ret;
 }
 
 
