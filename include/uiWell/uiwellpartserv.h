@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiapplserv.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 namespace Well { class Data; class LogDisplayParSet; }
 
