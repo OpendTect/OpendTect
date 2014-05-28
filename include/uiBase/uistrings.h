@@ -72,7 +72,7 @@ public:
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sHide()		{ return tr("&Hide"); }
     static inline uiString sHistogram()         { return tr("&Histogram"); }
-    static inline uiString sHorizons()		{ return tr("&Horizons"); }
+    static inline uiString sHorizon()		{ return tr("&Horizons"); }
     static inline uiString sImport()		{ return tr("&Import"); }
     static inline uiString sInside()		{ return tr("&Inside"); }
     static inline uiString sLayers()		{ return tr("&Layers"); }
