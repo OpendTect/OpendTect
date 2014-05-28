@@ -40,7 +40,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     extensfld_->setText( ext[hwi.extensionMethod()] );
     extensfld_->attach( alignedBelow, layermodelfld_ );
 
-    logextenfld_ = new uiGenInput( this, "Log extension if needed",
+    logextenfld_ = new uiGenInput( this, tr("Log extension if needed"),
 	    BoolInpSpec(hwi.useLogExtension()) );
     logextenfld_->attach( alignedBelow, extensfld_ );
 
@@ -51,7 +51,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 
     const char* algos[] = { InverseDistanceGridder2D::sFactoryDisplayName(),
 	TriangulatedGridder2D::sFactoryDisplayName(), 0 };
-    algosel_ = new uiGenInput( this, "Algorithm", StringListInpSpec(algos) );
+    algosel_ = new uiGenInput( this, tr("Algorithm"), StringListInpSpec(algos));
     algosel_->attach( alignedBelow, welllogsel_ );
 
     BufferString radiustxt = "Search radius [";
@@ -136,7 +136,7 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 
     if ( wellids.isEmpty() || lognms.isEmpty() )
     {
-	uiMSG().error( "Please select at least one well and one log" );
+	uiMSG().error( tr("Please select at least one well and one log") );
 	return false;
     }
 

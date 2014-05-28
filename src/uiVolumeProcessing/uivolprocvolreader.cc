@@ -75,13 +75,13 @@ bool uiVolumeReader::acceptOK( CallBacker* cb )
 
     if ( !seissel_->commitInput() )
     {
-	uiMSG().error("Please selectthe input velocity volume");
+	uiMSG().error(tr("Please selectthe input velocity volume"));
 	return false;
     }
 
     if ( !volumereader_->setVolumeID( ctio_->ioobj->key() ) )
     {
-	uiMSG().error("Cannot use selected volume" );
+	uiMSG().error(tr("Cannot use selected volume") );
 	return false;
     }
 

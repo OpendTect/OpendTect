@@ -23,7 +23,7 @@ namespace VolProc
 {
 
 mExpClass(uiVolumeProcessing) uiBodyFiller: public uiStepDialog
-{
+{ mODTextTranslationClass(uiBodyFiller);
 public:
 	mDefaultFactoryInstanciationBase(
 		VolProc::BodyFiller::sFactoryKeyword(),

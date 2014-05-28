@@ -31,7 +31,7 @@ namespace VolProc
 class Chain;
 
 mExpClass(uiVolumeProcessing) uiBatchSetup : public uiDialog
-{
+{ mODTextTranslationClass(uiBatchSetup);
 
 public:
                         uiBatchSetup(uiParent*,const IOObj* setupsel=0);

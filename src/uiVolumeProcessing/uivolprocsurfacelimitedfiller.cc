@@ -63,11 +63,11 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setRowResizeMode( uiTable::Interactive );
     table_->setColumnStretchable( cNameCol, true );
-    addbutton_ = new uiPushButton( this, "&Add",
+    addbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
 	    mCB(this,uiSurfaceLimitedFiller,addSurfaceCB), false );
     addbutton_->attach( rightOf, table_ );
 
-    removebutton_ = new uiPushButton( this, "&Remove",
+    removebutton_ = new uiPushButton( this, uiStrings::sRemove(true),
 	    mCB(this,uiSurfaceLimitedFiller,removeSurfaceCB), false );
     removebutton_->attach( alignedBelow, addbutton_ );
     removebutton_->setSensitive( false );
@@ -86,14 +86,14 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     const char* constantstr = "Constant";
     const char* fromhorattribstr = "From Horizon Data";
 
-    usestartvalfld_ = new uiGenInput( this, "Start value",
+    usestartvalfld_ = new uiGenInput( this, tr("Start value"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesStartValue(),
 			 constantstr, fromhorattribstr ) );
     usestartvalfld_->setSensitive( hasauxdata );
     usestartvalfld_->valuechanged.notify(
 	    mCB(this, uiSurfaceLimitedFiller,useStartValCB) );
     usestartvalfld_->attach( ensureBelow, table_ );
-    startvalfld_ = new uiGenInput( this, "Start value constant",
+    startvalfld_ = new uiGenInput( this, tr("Start value constant"),
 	    FloatInpSpec(surfacefiller_->getStartValue()) );
     startvalfld_->attach( alignedBelow, usestartvalfld_ );
 
@@ -103,7 +103,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 	    hp->getStartAuxdataIdx(), &auxdatainfo );
     startgridfld_->attach( alignedBelow, usestartvalfld_ );
 
-    usegradientfld_ = new uiGenInput( this, "Gradient",
+    usegradientfld_ = new uiGenInput( this, tr("Gradient"),
 	    BoolInpSpec( !hasauxdata || surfacefiller_->usesGradientValue(),
 			 constantstr, fromhorattribstr ) );
     usegradientfld_->setSensitive( hasauxdata );
@@ -130,14 +130,15 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
     StringListInpSpec str;
     str.addString( "Vertical" );
     //str.addString( "Normal" ); TODO
-    gradienttypefld_ = new uiGenInput( this, "Type", str );
+    gradienttypefld_ = new uiGenInput( this, uiStrings::sType(), str );
     gradienttypefld_->attach( rightOf, usegradientfld_ );
     gradienttypefld_->display( false ); //!SI().zIsTime() );
 
     BufferString labl = "Reference ";
     labl += SI().zIsTime() ? "time" : "depth";
     userefdepthfld_ = new uiGenInput( this, labl,
-	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,"Horizon"));
+	    BoolInpSpec(surfacefiller_->usesRefZValue(),constantstr,
+            uiStrings::sHorizon()));
     userefdepthfld_->valuechanged.notify(
 	    mCB(this,uiSurfaceLimitedFiller,useRefValCB) );
     userefdepthfld_->attach( alignedBelow, gradientfld_ );
@@ -255,8 +256,8 @@ void uiSurfaceLimitedFiller::useStartValCB( CallBacker* )
     const bool useval = usestartvalfld_->getBoolValue();
     if ( !useval && !startgridfld_->nrHorizonsWithData() )
     {
-	uiMSG().warning( "No Horizon data available for any horizon, \
-			  could only use constant start value." );
+	uiMSG().warning( tr("No Horizon data available for any horizon, \
+			  could only use constant start value.") );
 	usestartvalfld_->setValue( true );
 	return;
     }
@@ -271,8 +272,8 @@ void uiSurfaceLimitedFiller::useGradientCB( CallBacker* )
     const bool useval = usegradientfld_->getBoolValue();
     if ( !useval && !gradgridfld_->nrHorizonsWithData() )
     {
-	uiMSG().warning( "No Horizon data available for any horizon, \
-			  could only use constant gradient." );
+	uiMSG().warning( tr("No Horizon data available for any horizon, \
+			  could only use constant gradient.") );
 	usegradientfld_->setValue( true );
 	return;
     }
@@ -319,17 +320,17 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     if ( usestartval )
     {
 	if ( mIsUdf(startvalfld_->getfValue()) )
-	    mErrRet("Please provide the start value")
+	    mErrRet(tr("Please provide the start value"))
 
 	surfacefiller_->setStartValue( startvalfld_->getfValue() );
     }
     else
     {
 	if (!surfacefiller_->setStartValueHorizon(&startgridfld_->selectedID()))
-	    mErrRet("Cannot set start value horizon")
+	    mErrRet(tr("Cannot set start value horizon"))
 
 	if ( startgridfld_->auxdataidx()<0 )
-	    mErrRet("No Horizon data available")
+	    mErrRet(tr("No Horizon data available"))
 	else
 	    surfacefiller_->setStartAuxdataIdx( startgridfld_->auxdataidx() );
     }
@@ -337,7 +338,7 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     if ( usegradient )
     {
 	if ( mIsUdf(gradientfld_->getfValue()) )
-	    mErrRet("Please provide the gradient")
+	    mErrRet(tr("Please provide the gradient"))
 
 	surfacefiller_->setGradient(
 		gradientfld_->getfValue()*SI().zDomain().userFactor() );
@@ -345,10 +346,10 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     else
     {
 	if ( !surfacefiller_->setGradientHorizon(&gradgridfld_->selectedID()) )
-	    mErrRet("Cannot set gradient horizon")
+	    mErrRet(tr("Cannot set gradient horizon"))
 
 	if ( gradgridfld_->auxdataidx()<0 )
-	    mErrRet("No Horizon data available")
+	    mErrRet(tr("No Horizon data available"))
 	else
 	    surfacefiller_->setGradAuxdataIdx( gradgridfld_->auxdataidx() );
     }
@@ -356,7 +357,7 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     if ( userefval )
     {
 	if ( mIsUdf(refdepthfld_->getfValue()) )
-	    mErrRet("Please provide the reference z value")
+	    mErrRet(tr("Please provide the reference z value"))
 
 	surfacefiller_->setRefZValue(
 		refdepthfld_->getfValue()/SI().zDomain().userFactor());
@@ -365,11 +366,11 @@ bool uiSurfaceLimitedFiller::acceptOK( CallBacker* cb )
     {
 	const IOObj* obj = refhorizonfld_->ioobj();
 	if ( !obj )
-	    mErrRet("Reference horizon does not exit")
+	    mErrRet(tr("Reference horizon does not exit"))
 
 	const MultiID mid = obj->key();
 	if ( !surfacefiller_->setRefHorizon( &mid ) )
-	    mErrRet("Cannot set reference horizon")
+	    mErrRet(tr("Cannot set reference horizon"))
     }
 
     return true;

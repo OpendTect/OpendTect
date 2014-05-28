@@ -33,7 +33,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, "In-line stepout", 0,
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("In-line stepout"), 0,
 	    			  	"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
@@ -41,7 +41,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     if ( pars )
 	inllenfld_->box()->setValue( step.inl()*pars->stepout_.row() );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line stepout", 0,
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line stepout"),0,
 	    			       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, 200*step.crl(), step.crl() );
     if ( pars )
@@ -49,7 +49,7 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     crllenfld_->attach( alignedBelow, inllenfld_ );
 
     replaceudfsfld_ = new uiGenInput( stepoutgroup,
-	    "Overwrite undefined values",
+	    tr("Overwrite undefined values"),
 	    BoolInpSpec( pars && pars->filludf_ ));
     replaceudfsfld_->attach( alignedBelow, crllenfld_ );
 
@@ -62,22 +62,22 @@ uiLateralSmoother::uiLateralSmoother( uiParent* p, LateralSmoother* hf )
     ismedianfld_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
     ismedianfld_->attach( alignedBelow, stepoutgroup );
 
-    weightedfld_ = new uiGenInput( this, "Weighted",
+    weightedfld_ = new uiGenInput( this, tr("Weighted"),
 	    BoolInpSpec( pars && !mIsUdf(pars->rowdist_) ) );
     weightedfld_->attach( alignedBelow, ismedianfld_ );
 
-    mirroredgesfld_ = new uiGenInput( this, "Mirror edges",
+    mirroredgesfld_ = new uiGenInput( this, tr("Mirror edges"),
 	    BoolInpSpec( smoother_ ? smoother_->getMirrorEdges() : true ) );
     mirroredgesfld_->attach( alignedBelow, weightedfld_ );
 
     const char* udfhanlingstrs[] =
 	{ "Average", "Fixed value", "Interpolate", 0 };
-    udfhandling_ = new uiGenInput( this, "Undefined substitution",
+    udfhandling_ = new uiGenInput( this, tr("Undefined substitution"),
 	    StringListInpSpec( udfhanlingstrs ) );
     udfhandling_->attach( alignedBelow, mirroredgesfld_ );
     udfhandling_->valuechanged.notify( mCB(this,uiLateralSmoother,updateFlds) );
 
-    udffixedvalue_ = new uiGenInput( this, "Fixed value",
+    udffixedvalue_ = new uiGenInput( this, tr("Fixed value"),
 	    FloatInpSpec( mUdf(float) ) );
     udffixedvalue_->attach( alignedBelow, udfhandling_ );
 
@@ -133,7 +133,7 @@ bool uiLateralSmoother::acceptOK( CallBacker* cb )
 	const float val = udffixedvalue_->getfValue();
 	if ( mIsUdf(val) )
 	{
-	    uiMSG().error( "Fixed value must be defined" );
+	    uiMSG().error( tr("Fixed value must be defined") );
 	    return false;
 	}
 

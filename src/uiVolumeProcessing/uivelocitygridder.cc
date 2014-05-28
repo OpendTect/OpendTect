@@ -40,7 +40,7 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
 
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
 
-    uiLabel* label = new uiLabel( this, "Velocity sources" );
+    uiLabel* label = new uiLabel( this, tr("Velocity sources") );
     label->attach( alignedBelow, griddersel_ );
 
     velfuncsel_ = new Vel::uiFunctionSel( this, operation_->getSources(), 0 );

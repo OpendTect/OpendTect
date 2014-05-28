@@ -30,7 +30,7 @@ namespace VolProc
 class SurfaceLimitedFiller;   
 
 mClass(uiVMB) uiSurfaceLimitedFiller : public uiStepDialog
-{
+{ mODTextTranslationClass(uiSurfaceLimitedFiller);
 public:
     mDefaultFactoryInstanciationBase(
 	VolProc::SurfaceLimitedFiller::sFactoryKeyword(),

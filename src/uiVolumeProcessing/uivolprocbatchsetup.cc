@@ -31,7 +31,7 @@ namespace VolProc
 {
 
 uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
-    : uiDialog( p, uiDialog::Setup("Volume Builder: Create output",
+    : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Create output"),
 				   mNoDlgTitle, 
                                    mODHelpKey(mVolProcBatchSetupHelpID) ) )
     , chain_( 0 )
@@ -44,7 +44,7 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
-    editsetup_ = new uiPushButton( this, "Create",
+    editsetup_ = new uiPushButton( this, uiStrings::sCreate(true),
 	    ioPixmap(uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
@@ -139,7 +139,8 @@ bool uiBatchSetup::fillPar()
 void uiBatchSetup::setupSelCB( CallBacker* )
 {
     const IOObj* outputioobj = setupsel_->ioobj( true );
-    editsetup_->setText( outputioobj ? "Edit ..." : "Create ..." );
+    editsetup_->setText( outputioobj ? uiStrings::sEdit(false) 
+                                     : uiStrings::sCreate(false) );
     if ( outputioobj )
 	batchfld_->setJobName( outputioobj->name() );
 

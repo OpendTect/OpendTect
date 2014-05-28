@@ -46,8 +46,8 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 	uinputselfld_->setInput( mp->getSurfaceID() );
     
     const bool showinside = !mIsUdf( mp->getInsideValue() ); 
-    useinsidefld_ = new uiGenInput( this, "Inside",
-	    BoolInpSpec( showinside, "Value", "Transparent" ) );
+    useinsidefld_ = new uiGenInput( this, tr("Inside"),
+	    BoolInpSpec( showinside, tr("Value"), tr("Transparent") ) );
     useinsidefld_->attach( alignedBelow, uinputselfld_ );
     useinsidefld_->valuechanged.notify( mCB(this,uiBodyFiller,updateFlds) );
     insidevaluefld_ = new uiGenInput( this, "Inside-Value",
@@ -55,12 +55,12 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     insidevaluefld_->attach( alignedBelow, useinsidefld_ );
     
     const bool showoutside = !mIsUdf( mp->getOutsideValue() ); 
-    useoutsidefld_ = new uiGenInput( this, "Outside",
-	    BoolInpSpec( showoutside, "Value", "Transparent" ) );
+    useoutsidefld_ = new uiGenInput( this, tr("Outside"),
+	    BoolInpSpec( showoutside, tr("Value"), tr("Transparent") ) );
     useoutsidefld_->attach( alignedBelow, insidevaluefld_ );
     useoutsidefld_->valuechanged.notify(
 	    mCB(this,uiBodyFiller, updateFlds) );
-    outsidevaluefld_ = new uiGenInput( this, "Outside-Value",
+    outsidevaluefld_ = new uiGenInput( this, tr("Outside-Value"),
 	    FloatInpSpec( showoutside ? mp->getOutsideValue() : 2000 ) );
     outsidevaluefld_->attach( alignedBelow, useoutsidefld_ );
 
@@ -112,7 +112,7 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     {
 	if ( mIsUdf(insidevaluefld_->getfValue()) ) 
 	{
-	    uiMSG().error("Set the inside value");
+	    uiMSG().error(tr("Set the inside value"));
 	    return false;
 	}
 
@@ -124,7 +124,7 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
     {
 	if ( mIsUdf(outsidevaluefld_->getfValue()) ) 
 	{
-	    uiMSG().error("Set the outside value");
+	    uiMSG().error(tr("Set the outside value"));
 	    return false;
 	}
 
@@ -138,7 +138,7 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
 	if ( mIsUdf(insidevaluefld_->getfValue()) &&
       	     mIsUdf(outsidevaluefld_->getfValue()) ) 
 	{
-	    uiMSG().error("Set at lease one value");
+	    uiMSG().error(tr("Set at lease one value"));
 	    return false;
 	}
 
@@ -148,7 +148,7 @@ bool uiBodyFiller::acceptOK( CallBacker* cb )
 
     if ( !useinsidefld_->getBoolValue() && !useoutsidefld_->getBoolValue() )
     {
-	uiMSG().error("Select either Inside or Outside value to proceed.");
+	uiMSG().error(tr("Select either Inside or Outside value to proceed."));
 	return false;
     }
 

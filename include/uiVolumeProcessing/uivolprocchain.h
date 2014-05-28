@@ -31,7 +31,7 @@ class Step;
 
 
 mExpClass(uiVolumeProcessing) uiChain : public uiDialog
-{
+{ mODTextTranslationClass(uiChain);
 public:
 
 				uiChain(uiParent*,Chain&, bool withprocessnow);

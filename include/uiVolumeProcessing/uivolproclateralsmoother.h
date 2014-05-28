@@ -26,7 +26,7 @@ class LateralSmoother;
 
 
 mExpClass(uiVolumeProcessing) uiLateralSmoother : public uiStepDialog
-{
+{ mODTextTranslationClass(uiLateralSmoother);
 public:
     mDefaultFactoryInstanciationBase(
 	VolProc::LateralSmoother::sFactoryKeyword(),

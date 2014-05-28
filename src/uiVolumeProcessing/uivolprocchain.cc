@@ -189,7 +189,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
 
 // uiChain
 uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
-    : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",
+    : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Setup"),
 				   mNoDlgTitle, mODHelpKey(mChainHelpID) )
 	    .modal(!withprocessnow) )
     , chain_(chn)
@@ -197,14 +197,14 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     chain_.ref();
 
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
-    tb->addButton( "open", "Read stored setup", mCB(this,uiChain,readPush));
-    tb->addButton( "save", "Save setup", mCB(this,uiChain,savePush) );
-    tb->addButton( "saveas", "Save setup as", mCB(this,uiChain,saveAsPush) );
+    tb->addButton( "open", tr("Read stored setup"), mCB(this,uiChain,readPush));
+    tb->addButton( "save", tr("Save setup"), mCB(this,uiChain,savePush) );
+    tb->addButton( "saveas", tr("Save setup as"), mCB(this,uiChain,saveAsPush));
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
-    uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
+    uiLabel* availablelabel = new uiLabel( flowgrp, tr("Available steps") );
     factorylist_ = new uiListBox( flowgrp,
 				  uiStepDialog::factory().getUserNames(),
 				  "Processing methods", OD::ChooseOnlyOne );
@@ -214,7 +214,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     factorylist_->doubleClicked.notify( addcb );
 
     addstepbutton_ = new uiToolButton( flowgrp, uiToolButton::RightArrow,
-					"Add step", addcb );
+					tr("Add step"), addcb );
     addstepbutton_->attach( centeredRightOf, factorylist_ );
 
     steplist_ = new uiListBox( flowgrp );
@@ -224,26 +224,26 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     steplist_->selectionChanged.notify( mCB(this,uiChain,stepClickCB) );
     steplist_->doubleClicked.notify( mCB(this,uiChain,stepDoubleClickCB) );
 
-    uiLabel* label = new uiLabel( flowgrp, "Used steps" );
+    uiLabel* label = new uiLabel( flowgrp, tr("Used steps") );
     label->attach( alignedAbove, steplist_ );
     label->attach( rightTo, availablelabel );
 
     moveupbutton_ = new uiToolButton( flowgrp, uiToolButton::UpArrow,
-				"Move step up", mCB(this,uiChain,moveUpCB) );
+				tr("Move step up"), mCB(this,uiChain,moveUpCB));
     moveupbutton_->attach( rightOf, steplist_ );
 
     movedownbutton_ = new uiToolButton( flowgrp, uiToolButton::DownArrow,
-			    "Move step down", mCB(this,uiChain,moveDownCB) );
+			    tr("Move step down"), mCB(this,uiChain,moveDownCB));
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
     propertiesbutton_ = new uiToolButton( flowgrp, "settings",
-					  "Edit this step",
+					  tr("Edit this step"),
 					  mCB(this,uiChain,propertiesCB) );
     propertiesbutton_->setName( "Settings" );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     removestepbutton_ = new uiToolButton( flowgrp, "trashcan",
-		"Remove step from flow", mCB(this,uiChain,removeStepPush) );
+		tr("Remove step from flow"), mCB(this,uiChain,removeStepPush) );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
 
     flowgrp->setHAlignObj( steplist_ );
@@ -258,7 +258,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     if ( withprocessnow )
     {
-	enableSaveButton( "Process on OK" );
+	enableSaveButton( tr("Process on OK") );
 	bool enabled = false;
 	Settings::common().getYN( sKeySettingKey(), enabled );
 	setSaveButtonChecked( enabled );
@@ -305,8 +305,8 @@ bool uiChain::acceptOK( CallBacker* )
     if ( nrsteps>0 && chain_.getStep(0) &&
 	 chain_.getStep(0)->needsInput() )
     {
-	if ( !uiMSG().askGoOn("The first step in the chain needs an input, "
-                  "and can thus not be first. Proceed anyway?", true ) )
+	if ( !uiMSG().askGoOn(tr("The first step in the chain needs an input, "
+                  "and can thus not be first. Proceed anyway?"), true ) )
 	    return false;
     }
 
@@ -348,7 +348,7 @@ bool uiChain::doSaveAs()
 {
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
     ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, ctxt, "Volume Builder Setup" );
+    uiIOObjSelDlg dlg( this, ctxt, tr("Volume Builder Setup") );
     if ( !dlg.go() || !dlg.nrChosen() )
 	 return false;
 
@@ -422,7 +422,7 @@ bool uiChain::showPropDialog( int idx )
 	    step->factoryKeyword(), this, step );
     if ( !dlg )
     {
-	uiMSG().error( "Internal error. Step cannot be created" );
+	uiMSG().error( tr("Internal error. Step cannot be created") );
 	return false;
     }
 

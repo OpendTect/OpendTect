@@ -24,7 +24,7 @@ namespace VolProc
 
 
 mExpClass(uiVolumeProcessing) uiSmoother : public uiStepDialog
-{
+{ mODTextTranslationClass(uiSmoother);
 public:
 
     mDefaultFactoryInstanciationBase(

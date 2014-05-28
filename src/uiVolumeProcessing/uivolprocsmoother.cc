@@ -37,21 +37,21 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     su.winparam_= smoother_->getOperatorParam();
     operatorselfld_ = new uiWindowFunctionSel( this, su );
 
-    uiLabel* label = new uiLabel( this, "Stepout" );
+    uiLabel* label = new uiLabel( this, tr("Stepout") );
     label->attach( alignedBelow, operatorselfld_ );
 
     uiGroup* stepoutgroup = new uiGroup( this, "Stepout" );
     stepoutgroup->setFrame( true );
     stepoutgroup->attach( alignedBelow, label );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, "In-line", 0,
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("In-line"), 0,
 	    			  	"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
     inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, "Cross-line", 0,
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line"), 0,
 	    			       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
@@ -96,7 +96,7 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 
     if ( !inlsz && !crlsz && !zsz )
     {
-	uiMSG().error("At least one size must be non-zero" );
+	uiMSG().error(tr("At least one size must be non-zero") );
 	return false;
     }
 
@@ -104,7 +104,7 @@ bool uiSmoother::acceptOK( CallBacker* cb )
 				  operatorselfld_->windowParamValue(),
 				  inlsz, crlsz, zsz ) )
     {
-	uiMSG().error( "Cannot set selected operator" );
+	uiMSG().error( tr("Cannot set selected operator") );
 	return false;
     }
 
