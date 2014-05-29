@@ -42,7 +42,8 @@ mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
 { 	
 public:
 
-			uiSynthToRealScale(uiParent*,bool is2d,SeisTrcBuf&,
+			uiSynthToRealScale(uiParent*,bool is2d,
+					   const SeisTrcBuf&,
 					   const MultiID& wvltid,
 					   const char* reflvlnm);
 			~uiSynthToRealScale();
@@ -53,7 +54,7 @@ public:
 protected:
 
     bool		is2d_;
-    SeisTrcBuf&		synth_;
+    const SeisTrcBuf&	synth_;
     MultiID		inpwvltid_;
     MultiID		outwvltid_;
 

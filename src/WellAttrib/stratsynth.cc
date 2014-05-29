@@ -63,8 +63,15 @@ static const char* sKeyAngleRange()		{ return "Angle Range"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
-DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
-{ "Pre Stack", "Zero Offset Stack", "Angle Stack", "AVO Gradient", 0 };
+DefineEnumNames(SynthGenParams,SynthType,3,"Synthetic Type")
+{ "Pre Stack",
+  "Zero Offset Stack",
+  "Strat Property",
+  "Angle Stack",
+  "AVO Gradient",
+  0
+};
+
 
 SynthGenParams::SynthGenParams()
 {

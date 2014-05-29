@@ -131,7 +131,8 @@ void drawMarkerLine( float val )
 };
 
 
-uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d, SeisTrcBuf& tb,
+uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
+					const SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
     : uiDialog(p,Setup("Scale synthetics","Determine scaling for synthetics",
 			mODHelpKey(mSynthToRealScaleHelpID) ))
@@ -322,7 +323,7 @@ void uiSynthToRealScale::updSynthStats()
 	const SeisTrc& trc = *synth_.get( idx );
 	const float reftm = seisev_.snappedTime( trc );
 	if ( !mIsUdf(reftm) )
-	    vals += getTrcValue( *synth_.get(idx), reftm );
+	    vals += getTrcValue( trc, reftm );
     }
 
     uiHistogramDisplay& histfld = *synthstatsfld_->dispfld_;

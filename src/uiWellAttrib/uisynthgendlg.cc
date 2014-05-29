@@ -57,6 +57,9 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 
     uiGroup* toppargrp = new uiGroup( rightgrp, "Parameter Group - top part" );
     BufferStringSet types( SynthGenParams::SynthTypeNames() );
+    const int stratpropidx =
+	types.indexOf( SynthGenParams::toString(SynthGenParams::StratProp) );
+    types.removeSingle( stratpropidx );
     uiLabeledComboBox* lblcbx =
 	new uiLabeledComboBox( toppargrp, types, "Synthethic type" );
     typefld_ = lblcbx->box();
@@ -228,7 +231,7 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 void uiSynthGenDlg::updateFieldSensitivity()
 {
     SynthGenParams::SynthType synthtype =
-	(SynthGenParams::SynthType)typefld_->currentItem();
+	SynthGenParams::parseEnumSynthType( typefld_->text() );
     const bool isps = synthtype==SynthGenParams::PreStack;
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
@@ -245,7 +248,7 @@ void uiSynthGenDlg::typeChg( CallBacker* )
 {
     updateFieldSensitivity();
     stratsynth_.genParams().synthtype_ =
-	(SynthGenParams::SynthType)typefld_->currentItem();
+	SynthGenParams::parseEnumSynthType( typefld_->text() );
     stratsynth_.genParams().raypars_.setEmpty();
     if ( typefld_->currentItem()==1 )
 	rtsel_->setCurrent( 0 );
@@ -264,7 +267,7 @@ void uiSynthGenDlg::putToScreen()
     namefld_->setText( genparams.name_ );
 
     const bool isps = genparams.isPreStack();
-    typefld_->setCurrentItem( (int)genparams.synthtype_ );
+    typefld_->setCurrentItem( SynthGenParams::toString(genparams.synthtype_) );
     if ( genparams.synthtype_ == SynthGenParams::ZeroOffset )
 	rtsel_->setCurrent( 0 );
 
@@ -315,7 +318,7 @@ bool uiSynthGenDlg::getFromScreen()
     stratsynth_.genParams().raypars_.setEmpty();
 
     SynthGenParams& genparams = stratsynth_.genParams();
-    genparams.synthtype_ = (SynthGenParams::SynthType)typefld_->currentItem();
+    genparams.synthtype_ = SynthGenParams::parseEnumSynthType(typefld_->text());
     const bool isps = !typefld_->currentItem();
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
