@@ -180,7 +180,7 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool DipFilter::initKernel()
 {
-    if ( mIsZero( refstep_, 1e-7 ) || mIsUdf(refstep_) )
+    if ( mIsZero(refstep_,1e-7) || mIsUdf(refstep_) )
     {
 	pErrMsg("No reference step" );
 	return false;
@@ -198,7 +198,6 @@ bool DipFilter::initKernel()
 	{
 	    const float kc = kci * crlDist();
 	    const float kc2 = kc*kc;
-
 	    const float spatialdist = Math::Sqrt(ki2+kc2);
 
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
@@ -207,9 +206,9 @@ bool DipFilter::initKernel()
 
                 const float velocity = fabs(spatialdist/kt);
 		const float angle = Math::Atan2( kt, spatialdist );
-		const float dipangle = fabs( Math::toDegrees( angle ) );
+		const float dipangle = fabs( Math::toDegrees(angle) );
 		const float val = zIsTime() ? velocity : dipangle;
-		const float azimuth = Math::toDegrees( Math::Atan2( ki, kc ) );
+		const float azimuth = Math::toDegrees( Math::Atan2(ki,kc) );
 
 		float factor = 1;
 		if ( kii || kci || kti )
@@ -221,7 +220,6 @@ bool DipFilter::initKernel()
 			    float ratio = val / valrange_.stop;
 			    ratio -= (1-taperlen_);
 			    ratio /= taperlen_;
-
 			    factor = taper( 1-ratio );
 			}
 			else
@@ -245,12 +243,11 @@ bool DipFilter::initKernel()
 		    }
 		    else
 		    {
-			if ( valrange_.includes( val, false ) )
+			if ( valrange_.includes(val,false) )
 			{
-			    float htaperlen = taperlen_/2;
-			    float ratio = (val - valrange_.start)
-					  / valrange_.width();
-
+			    const float htaperlen = taperlen_/2;
+			    float ratio =
+				(val-valrange_.start) / valrange_.width();
 			    if ( ratio > (1-htaperlen))
 			    {
 				ratio -=(1-htaperlen);
@@ -272,7 +269,7 @@ bool DipFilter::initKernel()
 		    if ( ( kii || kci ) && filterazi_
 					&& !mIsZero(factor,mDefEps) )
 		    {
-			float htaperlen = taperlen_/2;
+			const float htaperlen = taperlen_/2;
 			float diff = azimuth - azi_;
 			while ( diff > 90 )
 			    diff -= 180;
@@ -283,7 +280,6 @@ bool DipFilter::initKernel()
 			if ( diff<aziaperture_/2 )
 			{
 			    float ratio = diff / (aziaperture_/2);
-
 			    if ( ratio > (1-htaperlen))
 			    {
 				ratio -=(1-htaperlen);
@@ -318,7 +314,7 @@ float DipFilter::taper( float pos ) const
 
 bool DipFilter::getInputData( const BinID& relpos, int index )
 {
-    while ( inputdata_.size()< (1+stepout_.inl()*2) * (1+stepout_.crl()*2) )
+    while ( inputdata_.size() < (1+stepout_.inl()*2)*(1+stepout_.crl()*2) )
 	inputdata_ += 0;
 
     int idx = 0;
@@ -367,19 +363,22 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
 		for ( int idt=0, relt = -hsz; idt<size_; idt++, relt++ )
 		{
 		    const int sample = z0 + idx + relt;
-		    if ( dhinterval.includes(sample, false) )
+		    if ( dhinterval.includes(sample,false) )
 		    {
 			const float weight = kernel_.get( idi, idc, idt );
+			const float val =
+				getInputValue( *dh, dataidx_, idx+relt, z0 );
+			if ( mIsUdf(val) ) continue;
 
-			sum += getInputValue(*dh,dataidx_,idx+relt ,z0)*weight;
+			sum += val*weight;
 			wsum += weight;
 		    }
 		}
 	    }
 	}
 
-	setOutputValue( output, 0, idx, z0, wsum ? sum/wsum
-						     : mUdf(float) );
+	setOutputValue( output, 0, idx, z0,
+		!mIsZero(wsum,mDefEps) ? sum/wsum : mUdf(float) );
     }
 
     return true;
@@ -393,4 +392,4 @@ const BinID* DipFilter::desStepout( int inp, int out ) const
 const Interval<int>* DipFilter::desZSampMargin( int, int ) const
 { return &zmargin_; }
 
-}; // namespace Attrib
+} // namespace Attrib
