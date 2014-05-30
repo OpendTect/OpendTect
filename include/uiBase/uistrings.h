@@ -69,6 +69,7 @@ public:
     static inline uiString sFKSpectrum()	{ return tr("FK &Spectrum"); }
     static inline uiString sGeometry2D()	{ return tr("&Geometry2D"); }
     static inline uiString sGeometry3D()	{ return tr("&Geometry3D"); }
+    static inline uiString sGo()	        { return tr("&Go"); }
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sHide()		{ return tr("&Hide"); }
     static inline uiString sHistogram()         { return tr("&Histogram"); }
