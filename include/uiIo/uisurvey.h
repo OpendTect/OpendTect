@@ -19,6 +19,7 @@ ________________________________________________________________________
 class BufferStringSet;
 class SurveyInfo;
 class uiButton;
+class uiLabel;
 class uiListBox;
 class uiSurveyMap;
 class uiSurvInfoProvider;
@@ -28,7 +29,7 @@ class uiTextEdit;
 /*!\brief The main survey selection dialog */
 
 mExpClass(uiIo) uiSurvey : public uiDialog
-{
+{ mODTextTranslationClass(uiSurvey)
 
 public:
 			uiSurvey(uiParent*);
@@ -71,6 +72,7 @@ protected:
     IOPar*		impiop_;
     uiSurvInfoProvider*	impsip_;
 
+    uiLabel*		datarootlbl_;
     uiListBox*		dirfld_;
     uiButton*		editbut_;
     uiButton*		rmbut_;
@@ -95,7 +97,7 @@ protected:
 
     void		readSurvInfoFromFile();
     void		setCurrentSurvInfo(SurveyInfo*,bool updscreen=true);
-    void		updateWindowTitle();
+    void		updateDataRootLabel();
     void		updateSurvList();
     void		putToScreen();
     bool		writeSettingsSurveyFile();

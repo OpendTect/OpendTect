@@ -390,8 +390,6 @@ uiSurvey::uiSurvey( uiParent* p )
 		"\nor contact support@opendtect.org." );
     }
 
-    updateWindowTitle();
-
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
     mDefineStaticLocalObject( int, sipidx2d, mUnusedVar =
@@ -400,11 +398,24 @@ uiSurvey::uiSurvey( uiParent* p )
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
+    uiPushButton* datarootbut = new uiPushButton( topgrp,
+	tr("Survey Data Root"), false );
+    datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut->attach( leftBorder );
+
+    datarootlbl_ = new uiLabel( topgrp, "" );
+    datarootlbl_->setHSzPol( uiObject::WideMax );
+    datarootlbl_->attach( rightTo, datarootbut );
+
+    uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
+    sep1->attach( stretchedBelow, datarootbut );
+
     uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
 
     fillLeftGroup( leftgrp );
     fillRightGroup( rightgrp );
+    leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
     uiLabel* infolbl = new uiLabel( topgrp, "" );
@@ -433,6 +444,7 @@ uiSurvey::uiSurvey( uiParent* p )
     splitter->addGroup( botgrp );
 
     putToScreen();
+    updateDataRootLabel();
     setOkText( "&Select" );
     postFinalise().notify( selchgcb );
 }
@@ -463,8 +475,6 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     uiButtonGroup* butgrp =
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
-    new uiToolButton( butgrp, "database",
-	"Select Survey Data Root", mCB(this,uiSurvey,dataRootPushed) );
     new uiToolButton( butgrp, "addnew",
 	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
     editbut_ = new uiToolButton( butgrp, "edit", "Edit Survey Parameters",
@@ -531,7 +541,6 @@ bool uiSurvey::rootDirWritable() const
     }
     return true;
 }
-
 
 
 void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
@@ -862,7 +871,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
     SetCurBaseDataDirOverrule( dataroot_ );
 
     updateSurvList();
-    updateWindowTitle();
+    updateDataRootLabel();
     const char* ptr = GetSurveyName();
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
@@ -903,10 +912,9 @@ void uiSurvey::utilButPush( CallBacker* cb )
 }
 
 
-void uiSurvey::updateWindowTitle()
+void uiSurvey::updateDataRootLabel()
 {
-    const BufferString title( "Survey Data Root: ", dataroot_ );
-    setTitleText( title );
+    datarootlbl_->setText( dataroot_.buf() );
 }
 
 
