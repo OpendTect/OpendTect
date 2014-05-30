@@ -107,6 +107,7 @@ public:
     static inline uiString sReplace()		{ return tr("&Replace"); }
     static inline uiString sReset()		{ return tr("Re&set"); }
     static inline uiString sRestore()		{ return tr("Re&store"); }
+    static inline uiString sResume()		{ return tr("Re&sume"); }
     static inline uiString sRokDoc()		{ return tr("&Rok Doc"); }
     static inline uiString sRun()		{ return tr("&Run"); }
     static inline uiString sSave(bool immediate);
