@@ -52,9 +52,9 @@ public:
 
     mStruct(uiIo) Setup : public uiDialog::Setup
     {
-				Setup(const char* wintitl,bool ismodal=false);
+	    Setup(const uiString& wintitl,bool ismodal=false);
 
-	mDefSetupMemb(BufferString,wintitle)	//!< "Extracted data"
+	mDefSetupMemb(uiString,wintitle)	//!< "Extracted data"
 	mDefSetupMemb(bool,isconst)		//!< false
 	mDefSetupMemb(bool,canaddrow)		//!< false
 	mDefSetupMemb(bool,directremove)		//!< false
