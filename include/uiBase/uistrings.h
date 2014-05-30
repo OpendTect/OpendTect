@@ -141,6 +141,7 @@ public:
     static inline uiString sVSP()	        { return tr("&VSP"); }
     static inline uiString sWavelets()		{ return tr("&Wavelets"); }
     static inline uiString sWells()		{ return tr("&Wells"); }
+    static inline uiString sWiggle()		{ return tr("&Wiggle"); }
     static inline uiString sYes()		{ return tr("&Yes"); }
 };
 
