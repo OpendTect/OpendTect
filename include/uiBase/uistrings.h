@@ -46,16 +46,16 @@ public:
     static inline uiString sCBVS()    	        { return tr("&CBVS"); }
     static inline uiString sChange()            { return tr("&Change"); }
     static inline uiString sClose()		{ return tr("&Close"); }
-    static inline uiString sCreateMap()		{ return tr("&Create Map"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
     static inline uiString sColorTable()	{ return tr("&Color Table"); }
     static inline uiString sCopy()		{ return tr("&Copy"); }
     static inline uiString sCreate(bool immediate);
-    static inline uiString sDoesNotExist();
+    static inline uiString sCreateMap()		{ return tr("&Create Map"); }
     static inline uiString sCrossplot()		{ return tr("&Cross-plot"); }
     static inline uiString sDensity()		{ return tr("&Density"); }
     static inline uiString sDepth()	        { return tr("&Depth"); }
     static inline uiString sDisplay()		{ return tr("&Display"); }
+    static inline uiString sDoesNotExist();
     static inline uiString sDuplicate()		{ return tr("&Duplicate"); }
     static inline uiString sDown()		{ return tr("&Down"); }
     static inline uiString sEdit(bool immediate);
@@ -120,6 +120,7 @@ public:
     static inline uiString sSession()		{ return tr("&Session"); }
     static inline uiString sSettings()		{ return tr("&Settings"); }
     static inline uiString sSetup()		{ return tr("&Setup"); }
+    static inline uiString sShow()              { return tr("&Show"); }
     static inline uiString sSimple()		{ return tr("&Simple"); }
     static inline uiString sStart()		{ return tr("St&art"); }
     static inline uiString sStop()		{ return tr("St&op"); }
@@ -130,6 +131,7 @@ public:
     static inline uiString sTrack()	        { return tr("&Track"); }
     static inline uiString sTransparency()      { return tr("&Transparency"); }
     static inline uiString sType()              { return tr("&Type"); }
+    static inline uiString sUnlock()            { return tr("&Unlock"); }
     static inline uiString sUp()		{ return tr("&Up"); }
     static inline uiString sUtilities()		{ return tr("&Utilities"); }
     static inline uiString sValue()		{ return tr("&Value"); }
