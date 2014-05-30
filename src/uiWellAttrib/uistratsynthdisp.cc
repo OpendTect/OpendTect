@@ -495,8 +495,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    FixedString wvasynthnm( wvasd ? wvasd->name() : "" );
-    FixedString vdsynthnm( vdsd ? vdsd->name() : "" );
+    const BufferString wvasynthnm( wvasd ? wvasd->name() : "" );
+    const BufferString vdsynthnm( vdsd ? vdsd->name() : "" );
 
     if ( wvasd )
     {
@@ -546,12 +546,23 @@ void uiStratSynthDisp::scalePush( CallBacker* )
 bool uiStratSynthDisp::haveUserScaleWavelet()
 {
     uiMsgMainWinSetter mws( mainwin() );
-    SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
+
+    if ( !currentwvasynthetic_ )
+    {
+	uiMSG().error( "Please select a synthetic data in wiggle display. "
+		       "The scaling tool compares the amplitudes of the "
+		       "synthetic data at the selected Stratigraphic Level "
+		       "to real amplitudes along a horizon" );
+	return false;
+    }
+
+
+    mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
+    const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
     {
-	uiMSG().error( "Please generate layer models first.\n"
-		"The scaling tool compares the amplitudes at the selected\n"
-		"Stratigraphic Level to real amplitudes along a horizon" );
+	uiMSG().error( "Synthetic seismic has no trace. "
+		       "Please regenerate the synthetic." );
 	return false;
     }
     BufferString levelname;
@@ -575,7 +586,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     }
 
     bool rv = false;
-    uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname );
+    PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
+    curSS().getLevelTimes( *scaletbuf, currentwvasynthetic_->d2tmodels_ );
+    uiSynthToRealScale dlg(this,is2d,*scaletbuf,wvltfld_->getID(),levelname);
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -1075,6 +1088,7 @@ void uiStratSynthDisp::updateFields()
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
     datagrp_->setSensitive( currentwvasynthetic_ );
+    scalebut_->setSensitive( !pssd );
 }
 
 
