@@ -24,6 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QString>
 #include <QTranslator>
 
+#define mDirty (-1)
+
 const uiString uiString::emptystring_( sKey::EmptyString() );
 
 class uiStringData
@@ -38,26 +40,33 @@ public:
 	, translationpluralnumber_( pluralnr )
 	, translationdisambiguation_( disambiguation )
 	, application_( application )
+	, contentlock_( true )
+	, dirtycount_( mDirty )
     {
     }
 
     void setFrom( const uiStringData& d )
     {
+	Threads::Locker contentlocker( contentlock_ );
 	originalstring_ = d.originalstring_;
 	translationcontext_ = d.translationcontext_;
 	translationpluralnumber_ = d.translationpluralnumber_;
 	translationdisambiguation_ = d.translationdisambiguation_;
 	arguments_ = d.arguments_;
 	application_ = d.application_;
+	dirtycount_ = mDirty;
     }
 
     void addLegacyVersion( const uiString& legacy )
     {
+	Threads::Locker contentlocker( contentlock_ );
         legacyversions_.add( legacy );
+	dirtycount_ = mDirty;
     }
 
     void setFrom( const QString& qstr )
     {
+	Threads::Locker contentlocker( contentlock_ );
 	set( 0 );
 	qstring_ = qstr;
     }
@@ -67,23 +76,25 @@ public:
     void set(const char* orig);
     bool fillQString(QString&,const QTranslator* translator=0) const;
 
-    TypeSet<uiString>	arguments_;
+    mutable Threads::Lock	contentlock_;
+    TypeSet<uiString>		arguments_;
 
-    QString		qstring_;
+    QString			qstring_;
 
-    BufferString	originalstring_;
-    TypeSet<uiString>	legacyversions_;
-    const char*		translationcontext_;
-    const char*		application_;
-    const char*		translationdisambiguation_;
-    int			translationpluralnumber_;
+    BufferString		originalstring_;
+    TypeSet<uiString>		legacyversions_;
+    const char*			translationcontext_;
+    const char*			application_;
+    const char*			translationdisambiguation_;
+    int				translationpluralnumber_;
 
-    int			dirtycount_;
+    int				dirtycount_;
 };
 
 
 void uiStringData::set( const char* orig )
 {
+    Threads::Locker contentlocker( contentlock_ );
     originalstring_ = orig;
     arguments_.erase();
     legacyversions_.erase();
@@ -91,11 +102,13 @@ void uiStringData::set( const char* orig )
     application_ = 0;
     translationdisambiguation_ = 0;
     translationpluralnumber_ = -1;
+    dirtycount_ = mDirty;
 }
 
 
 void uiStringData::getFullString( BufferString& ret ) const
 {
+    Threads::Locker contentlocker( contentlock_ );
     if ( !arguments_.size() )
     {
 	ret = originalstring_;
@@ -113,6 +126,7 @@ void uiStringData::getFullString( BufferString& ret ) const
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator ) const
 {
+    Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
 	return false;
 
@@ -168,7 +182,7 @@ bool uiStringData::fillQString( QString& res,
 
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
-    , lock_( true )
+    , datalock_( true )
 {
     data_->ref();
     *this = str;
@@ -180,7 +194,7 @@ uiString::uiString( const char* originaltext, const char* context,
 		    const char* disambiguation, int pluralnr )
     : data_( new uiStringData(originaltext, context, application,
 			      disambiguation, pluralnr ))
-    , lock_( true )
+    , datalock_( true )
 {
     data_->ref();
 }
@@ -188,7 +202,7 @@ uiString::uiString( const char* originaltext, const char* context,
 
 uiString::uiString( const uiString& str )
     : data_( str.data_ )
-    , lock_( true )
+    , datalock_( true )
 {
     data_->ref();
 }
@@ -196,7 +210,7 @@ uiString::uiString( const uiString& str )
 
 uiString::uiString( const FixedString& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
-    , lock_( true )
+    , datalock_( true )
 {
     data_->ref();
     *this = str;
@@ -205,7 +219,7 @@ uiString::uiString( const FixedString& str )
 
 uiString::uiString( const BufferString& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
-    , lock_( true )
+    , datalock_( true )
 {
     data_->ref();
     *this = str;
@@ -220,7 +234,7 @@ uiString::~uiString()
 
 void uiString::addLegacyVersion( const uiString& legacy )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     makeIndependent();
     data_->addLegacyVersion( legacy );
 }
@@ -228,7 +242,8 @@ void uiString::addLegacyVersion( const uiString& legacy )
 
 bool uiString::isEmpty() const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
+    Threads::Locker contentlocker( data_->contentlock_ );
     return data_->originalstring_.isEmpty();
 }
 
@@ -241,7 +256,11 @@ void uiString::setEmpty()
 
 const char* uiString::getOriginalString() const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
+    Threads::Locker contentlocker( data_->contentlock_ );
+    /* This is safe as if anyone else changes originalstring,
+       it should be made independent, and we can live with our
+       own copy. */
     return data_->originalstring_;
 }
 
@@ -249,7 +268,7 @@ const char* uiString::getOriginalString() const
 const BufferString& uiString::getFullString() const
 {
     mDeclStaticString( res );
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     data_->getFullString( res );
     return res;
 }
@@ -257,20 +276,33 @@ const BufferString& uiString::getFullString() const
 
 const QString& uiString::getQtString() const
 {
-    Threads::Locker locker( lock_ );
-    data_->fillQString( data_->qstring_,
+    Threads::Locker datalocker( datalock_ );
+    Threads::Locker contentlocker( data_->contentlock_ );
+    if ( data_->dirtycount_!=TrMgr().dirtyCount() )
+    {
+	data_->fillQString( data_->qstring_,
 			TrMgr().getQTranslator(data_->application_) );
+	data_->dirtycount_ = TrMgr().dirtyCount();
+    }
+
+    /* This is safe as if anyone else changes any of the inputs to qstring,
+       it should be made independent. */
+
     return data_->qstring_;
 }
 
 
 wchar_t* uiString::createWCharString() const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     QString qstr;
+    Threads::Locker contentlocker( data_->contentlock_ );
     data_->fillQString( qstr, TrMgr().getQTranslator(data_->application_) );
     if ( !qstr.size() )
 	return 0;
+
+    contentlocker.unlockNow();
+    datalocker.unlockNow();
 
     mDeclareAndTryAlloc( wchar_t*, res, wchar_t[qstr.size()+1] );
 
@@ -286,7 +318,7 @@ wchar_t* uiString::createWCharString() const
 
 uiString& uiString::operator=( const uiString& str )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     str.data_->ref();
     data_->unRef();
     data_ = str.data_;
@@ -296,35 +328,30 @@ uiString& uiString::operator=( const uiString& str )
 
 void uiString::setFrom( const QString& qstr )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    Threads::Locker contentlocker( data_->contentlock_ );
     data_->setFrom( qstr );
 }
 
 
 uiString& uiString::operator=( const FixedString& str )
 {
-    Threads::Locker locker( lock_ );
-    makeIndependent();
-    data_->set( str.str() );
-    return *this;
+    return operator=( str.str() );
 }
 
 
 uiString& uiString::operator=( const BufferString& str )
 {
-    Threads::Locker locker( lock_ );
-    makeIndependent();
-    data_->set( str.str() );
-
-    return *this;
+    return operator=( str.str() );
 }
 
 
 uiString& uiString::operator=( const char* str )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    Threads::Locker contentlocker( data_->contentlock_ );
     data_->set( str );
     return *this;
 }
@@ -332,9 +359,11 @@ uiString& uiString::operator=( const char* str )
 
 uiString& uiString::arg( const uiString& newarg )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     makeIndependent();
+    Threads::Locker contentlocker( data_->contentlock_ );
     data_->arguments_ += newarg;
+    data_->dirtycount_ = mDirty;
     return *this;
 }
 
@@ -355,10 +384,20 @@ uiString& uiString::arg( const char* newarg )
 
 uiString& uiString::append( const uiString& txt, bool withnewline )
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     uiString self( *this );
     self.makeIndependent();
+
+    //To keep it alive if it is replaced in the operator=
+    RefMan<uiStringData> tmpptr = data_;
+    Threads::Locker contentlocker( tmpptr->contentlock_ );
+
+
+    if ( isEmpty() )
+	withnewline = false;
+
     *this = uiString( withnewline ? "%1\n%2" : "%1%2").arg( self ).arg( txt );
+
     return *this;
 }
 
@@ -379,19 +418,20 @@ uiString& uiString::append( const char* newarg, bool withnewline )
 
 bool uiString::translate( const QTranslator& tr , QString& res ) const
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
+    Threads::Locker contentlocker( data_->contentlock_ );
     return data_->fillQString( res, &tr );
-
 }
 
 
 void uiString::makeIndependent()
 {
-    Threads::Locker locker( lock_ );
+    Threads::Locker datalocker( datalock_ );
     if ( data_->refcount_.count()==1 )
 	return;
 
     RefMan<uiStringData> olddata = data_;
+    Threads::Locker contentlocker( olddata->contentlock_ );
     data_->unRef();
 
     data_ = new uiStringData( 0, 0, 0, 0, -1 );
