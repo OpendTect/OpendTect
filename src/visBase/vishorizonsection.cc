@@ -1227,7 +1227,7 @@ void HorizonSection::updateNewPoints( const TypeSet<GeomPosID>* gpids,
 
 	/*If we already set work area and the position is out of the area,
 	  we will skip the position. */
-	if ( tilerowidx>=nrrowsz || tilecolidx>=nrcolsz )
+	if ( !tiles_.info().validPos(tilerowidx,tilecolidx) )
 	    continue;
 
 	const Coord3 pos = geometry_->getKnot(absrc,false);
@@ -1957,14 +1957,18 @@ void HorizonSectionTile::emptyInvalidNormalsList( int res )
 
 void HorizonSectionTile::setAllNormalsInvalid( int res, bool yn )
 { 
-    allnormalsinvalid_[res] = yn; 
+    if ( res >= 0 && res < mMaxNrResolutions )
+	allnormalsinvalid_[res] = yn;
     
     if ( yn ) emptyInvalidNormalsList( res );
 }
 
 
 bool HorizonSectionTile::allNormalsInvalid( int res ) const
-{ return allnormalsinvalid_[res]; }
+{ 
+    return res >= 0 && res < mMaxNrResolutions ? allnormalsinvalid_[res] 
+					       : true;
+}
 
 
 void HorizonSectionTile::setResolution( int res )
