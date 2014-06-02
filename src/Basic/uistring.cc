@@ -208,16 +208,7 @@ uiString::uiString( const uiString& str )
 }
 
 
-uiString::uiString( const FixedString& str )
-    : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
-    , datalock_( true )
-{
-    data_->ref();
-    *this = str;
-}
-
-
-uiString::uiString( const BufferString& str )
+uiString::uiString( const OD::String& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
@@ -265,7 +256,7 @@ const char* uiString::getOriginalString() const
 }
 
 
-const BufferString& uiString::getFullString() const
+const OD::String& uiString::getFullString() const
 {
     mDeclStaticString( res );
     Threads::Locker datalocker( datalock_ );
@@ -335,13 +326,7 @@ void uiString::setFrom( const QString& qstr )
 }
 
 
-uiString& uiString::operator=( const FixedString& str )
-{
-    return operator=( str.str() );
-}
-
-
-uiString& uiString::operator=( const BufferString& str )
+uiString& uiString::operator=( const OD::String& str )
 {
     return operator=( str.str() );
 }
@@ -368,11 +353,7 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::arg( const FixedString& a )
-{ return arg( a.str() ); }
-
-
-uiString& uiString::arg( const BufferString& a )
+uiString& uiString::arg( const OD::String& a )
 { return arg( a.str() ); }
 
 
@@ -402,11 +383,7 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
 }
 
 
-uiString& uiString::append( const FixedString& a, bool withnewline )
-{ return append( a.str(), withnewline ); }
-
-
-uiString& uiString::append( const BufferString& a, bool withnewline )
+uiString& uiString::append( const OD::String& a, bool withnewline )
 { return append( a.str(), withnewline ); }
 
 

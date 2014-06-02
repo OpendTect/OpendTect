@@ -23,7 +23,7 @@ IODirEntry::IODirEntry( const IOObj* iob )
     : NamedObject("")
     , ioobj_(iob)
 {
-    setName( ioobj_ ? ioobj_->name() : ".." );
+    setName( ioobj_ ? ioobj_->name().str() : ".." );
 }
 
 

@@ -128,7 +128,8 @@ void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 #ifdef __debug__
     if ( lyoutdbg )
     {
-	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name() : "";
+	BufferString blnm = bodyLayouted() ?  bodyLayouted()->name().buf()
+	    				   : "";
 
 	od_cout() << "Init layout on:" << blnm;
 	od_cout() << ": prf hsz: " << pref_h_nr_pics;

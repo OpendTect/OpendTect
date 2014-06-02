@@ -604,7 +604,7 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 	ret = getIOObj( idx );
 	ctio_.setObj( ret ? ret->clone() : 0 );
 	if ( setnmfld && nmfld_ )
-	    nmfld_->setText( ret ? ret->name() : "" );
+	    nmfld_->setText( ret ? ret->name().buf() : "" );
 	info = getLimitedDisplayString( !ret ? "" :
 			 ret->fullUserExpr(ctio_.ctxt.forread), 40, false );
     }

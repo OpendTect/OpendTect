@@ -47,7 +47,7 @@ public:
 			    linkedto_ = l;
 			}
 
-    virtual const BufferString&	name() const
+    virtual const OD::String&	name() const
 			{ return name_ ? *name_ : linkedto_->name(); }
     virtual void	setName(const char*);
     void		setCleanName(const char*);

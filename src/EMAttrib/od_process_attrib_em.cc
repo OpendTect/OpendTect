@@ -200,7 +200,7 @@ static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{
 		    BufferString err = !writer->errMsg().isEmpty()
-			?  writer->errMsg().getFullString()
+			?  writer->errMsg().getFullString().buf()
 			: "ERROR: no trace computed";
 		    mErrRet( err );
 		}

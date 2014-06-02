@@ -281,7 +281,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    {
 		newas = *as;
 		PtrMan<IOObj> lsioobj = IOM().get( seis2ddisp->lineSetID() );
-		BufferString lsnm = lsioobj ? lsioobj->name() : 0;
+		BufferString lsnm = lsioobj ? lsioobj->name().str() : 0;
 		newas.setUserRef( LineKey(lsnm,as->userRef()) );
 	    }
 	    info().setObjDataSelSpec(

@@ -177,7 +177,7 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
     const int id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
     lvlcol = lvls.isPresent( id ) ? lvls.get( id )->color() : Color::Black();
-    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name() : "";
+    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
 
     StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),
 	    						  ur.fullCode() );

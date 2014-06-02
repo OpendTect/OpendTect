@@ -629,7 +629,7 @@ void uiCreate2DGrid::srcSelCB( CallBacker* )
 void uiCreate2DGrid::outSelCB( CallBacker* )
 {
     const IOObj* ioobj = outfld_->ioobj();
-    hornmfld_->setText( ioobj ? ioobj->name() : "Grid2D-" );
+    hornmfld_->setText( ioobj ? ioobj->name().buf() : "Grid2D-" );
     if ( ioobj )
 	batchfld_->setJobName( ioobj->name() );
 }

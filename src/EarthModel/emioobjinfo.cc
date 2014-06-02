@@ -98,7 +98,7 @@ bool IOObjInfo::isOK() const
 
 
 const char* IOObjInfo::name() const
-{ return ioobj_ ? ioobj_->name() : 0; }
+{ return ioobj_ ? ioobj_->name().str() : 0; }
 
 
 

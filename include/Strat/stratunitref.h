@@ -40,7 +40,7 @@ mExpClass(Strat) UnitRef : public CallBacker
 public:
 
     enum Type		{ NodeOnly, Leaved, Leaf };
-    			DeclareEnumUtils(Type)
+			DeclareEnumUtils(Type)
 
 			UnitRef(NodeUnitRef*,const char* d=0);
     virtual		~UnitRef();
@@ -54,7 +54,7 @@ public:
     CompoundKey		fullCode() const;
     CompoundKey		parentCode() const;
 
-    virtual const BufferString&	code() const	= 0;
+    virtual const OD::String& code() const	= 0;
     virtual void	setCode(const char*)	{}
     const BufferString&	description() const	{ return desc_; }
     virtual void	setDescription( const char* d )	{ desc_ = d; }
@@ -65,7 +65,7 @@ public:
 
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
-    			{ return ((UnitRef*)this)->upNode( skip ); }
+			{ return ((UnitRef*)this)->upNode( skip ); }
     NodeUnitRef*	topNode();
     const NodeUnitRef*	topNode() const;
     RefTree&		refTree(); // is the topNode
@@ -82,7 +82,7 @@ protected:
 
     NodeUnitRef*	upnode_;
 
-    BufferString    	desc_;
+    BufferString	desc_;
     Color		color_;
     IOPar		pars_;
 
@@ -96,9 +96,9 @@ public:
 
     int			treeDepth() const;
     bool		isBelow(const UnitRef*) const;
-    			//!< is given ref parent, grandparent, grandgrand... 
+			//!< is given ref parent, grandparent, grandgrand...
     bool		precedes(const UnitRef&) const;
-    			//!< in terms of iterating through tree
+			//!< in terms of iterating through tree
 
     virtual void	fill( BufferString& bs ) const	{ doFill(bs,mUdf(int));}
     virtual void	use( const char* s )		{ doUse(s,0); }
@@ -125,7 +125,7 @@ public:
     virtual bool	hasChildren() const	{ return !refs_.isEmpty(); }
     virtual bool	hasLeaves() const	= 0;
 
-    virtual const BufferString&	code() const	{ return code_; }
+    virtual const OD::String& code() const	{ return code_; }
     virtual void	setCode( const char* c ) { code_ = c; }
 
     virtual Interval<float> timeRange() const	{ return timerg_; }
@@ -149,7 +149,7 @@ protected:
 
     ObjectSet<UnitRef>	refs_;
     Interval<float>	timerg_;
-    BufferString    	code_;
+    BufferString	code_;
 
     UnitRef*		fnd(const char*) const;
     void		takeChildrenFrom(NodeUnitRef*);
@@ -161,10 +161,10 @@ public:
     virtual bool	insert(UnitRef*,int posidx);
     virtual UnitRef*	replace(int uridx,UnitRef*);
     void		swapChildren(int,int);
-    void		remove( int uridx ) 
-    			{ delete refs_.removeSingle(uridx); }
+    void		remove( int uridx )
+			{ delete refs_.removeSingle(uridx); }
     void		remove( const UnitRef* ur )
-    			{ remove( indexOf( ur ) ); }
+			{ remove( indexOf( ur ) ); }
     void		removeAllChildren()
 			{ deepErase( refs_ ); }
 
@@ -239,7 +239,7 @@ public:
 
     virtual Type	type() const		{ return Leaf; }
     virtual bool	hasChildren() const	{ return false; }
-    virtual const BufferString&	code() const;
+    virtual const OD::String& code() const;
     int			lithology() const	{ return lith_; }
     void		setLithology(int);
 

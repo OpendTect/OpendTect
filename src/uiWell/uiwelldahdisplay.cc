@@ -143,10 +143,10 @@ void uiWellDahDisplay::gatherInfo()
     ld2_->xax_.setup().nmcolor_ = ld2_->dahobj_ ? ld2_->col_
 				: ld1_->dahobj_ ? ld1_->col_ : Color::Black();
 
-    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name()
-			 : ld2_->dahobj_ ? ld2_->dahobj_->name() : 0;
-    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name()
-			 : ld1_->dahobj_ ? ld1_->dahobj_->name() : 0;
+    BufferString axis1nm = ld1_->dahobj_ ? ld1_->dahobj_->name().str()
+			 : ld2_->dahobj_ ? ld2_->dahobj_->name().str() : 0;
+    BufferString axis2nm = ld2_->dahobj_ ? ld2_->dahobj_->name().str()
+			 : ld1_->dahobj_ ? ld1_->dahobj_->name().str() : 0;
     ld1_->xax_.setCaption( axis1nm );
     ld2_->xax_.setCaption( axis2nm );
 }
