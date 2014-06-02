@@ -151,9 +151,7 @@ awful big Makefile with a small specification. This is because the CMakeLists.tx
 <p id="text">Anyway, after typing
 <code>make</code> the plugin should be generated. The new plugin can
 be loaded from within OpendTect (Menu Utilities-Plugins; press the
-'Load new' button). At that point in time, the message 'Hello world'
-should appear on stdout (on Windows, stdout messages appear on the
-OpendTect console window). </p>
+'Load new' button). If you have set the OD_I_AM_AN_OPENDTECT_DEVELOPER variable, then the message 'Hello world' should appear on stdout, otherwise it will appear in the log file. </p>
 
 <p id="text"> To make this a UI - based program we'll need to use functionality
 from the <code>uiBase</code> module. In this case, we use the
