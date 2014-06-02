@@ -450,10 +450,10 @@ void uiSelHRange::setLimits( const HorSampling& hs )
 }
 
 
-uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep )
+uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
     : uiGroup(p,"Sub vol selection")
     , hfld_(new uiSelHRange(this,wstep))
-    , zfld_(new uiSelZRange(this,wstep))
+    , zfld_(new uiSelZRange(this,wstep,false,0,zdomkey))
 {
     zfld_->attach( alignedBelow, hfld_ );
     setHAlignObj( hfld_ );
