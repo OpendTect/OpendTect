@@ -30,7 +30,7 @@ uiCheckList::uiCheckList( uiParent* p, uiCheckList::Pol pl,
 }
 
 
-uiCheckList& uiCheckList::addItem( const char* txt, const char* iconfnm )
+uiCheckList& uiCheckList::addItem( const uiString& txt,const char* iconfnm )
 {
     uiCheckBox* cb = new uiCheckBox( grp_, txt );
 
@@ -55,7 +55,7 @@ uiCheckList& uiCheckList::addItems( const BufferStringSet& itms )
 }
 
 
-void uiCheckList::setLabel( const char* txt )
+void uiCheckList::setLabel( const uiString& txt )
 {
     if ( lbl_ )
 	lbl_->setText( txt );
@@ -64,7 +64,16 @@ void uiCheckList::setLabel( const char* txt )
 	lbl_ = new uiLabel( this, txt );
 	lbl_->attach( centeredLeftOf, grp_ );
     }
-    setName( txt );
+    setName( txt.getFullString() );
+    
+}
+
+
+uiCheckList& uiCheckList::addItems( const TypeSet<uiString>& itms )
+{
+    for ( int idx=0; idx<itms.size(); idx++ )
+	addItem( itms[idx], 0 );
+    return *this;
 }
 
 

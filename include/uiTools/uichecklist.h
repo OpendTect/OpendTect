@@ -41,9 +41,11 @@ public:
 			uiCheckList(uiParent*,Pol=Unrel,
 				    OD::Orientation orient=OD::Vertical);
 
-    void		setLabel(const char*);
-    uiCheckList&	addItem(const char* txt,const char* iconfnm=0);
+    void		setLabel(const uiString&);
+    uiCheckList&	addItem(const uiString& txt,const char* iconfnm=0);
     uiCheckList&	addItems(const BufferStringSet&);
+    uiCheckList&	addItems(const TypeSet<uiString>&);
+
     Pol			pol() const		{ return pol_; }
     OD::Orientation	orientation() const	{ return orientation_; }
     inline bool		isHor() const { return orientation_ == OD::Horizontal; }
