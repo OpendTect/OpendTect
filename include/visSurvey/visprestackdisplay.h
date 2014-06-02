@@ -55,7 +55,6 @@ public:
 					      bool oncurrentline=true) const;
 
 				//for 3D only at present
-    bool			setPreProcessor(PreStack::ProcessManager*);
     DataPack::ID		preProcess();
 
     bool			is3DSeis() const;
@@ -63,7 +62,7 @@ public:
 
     visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
     const visBase::FlatViewer*	flatViewer() const { return flatviewer_; }
-    PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
+    PreStack::ProcessManager&	procMgr()	{ return preprocmgr_; }
 
 				//3D case
     bool			setPosition(const BinID&);
@@ -107,6 +106,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    bool			updateDisplay() { return updateData(); }
 
     static const char*		sKeyParent()	{ return "Parent"; }
     static const char*		sKeyFactor()	{ return "Factor"; }
@@ -131,7 +131,7 @@ protected:
     BinID			draggerpos_;
     visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
-    PreStack::ProcessManager*	preprocmgr_;
+    PreStack::ProcessManager&	preprocmgr_;
 
     MultiID			mid_;
     PlaneDataDisplay*		section_;

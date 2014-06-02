@@ -56,7 +56,6 @@ uiViewer3DMgr::uiViewer3DMgr()
     , amplspectrumitem_( "&Amplitude spectrum ..." )
     , removemenuitem_( "&Remove" )
     , visserv_( ODMainWin()->applMgr().visServer() )
-    , preprocmgr_( new PreStack::ProcessManager )
 {
     posdialogs_.allowNull();
     visserv_->removeAllNotifier().notify( mCB(this,uiViewer3DMgr,removeAllCB) );
@@ -88,7 +87,6 @@ uiViewer3DMgr::~uiViewer3DMgr()
 
     delete visserv_;
     removeAllCB( 0 );
-    delete preprocmgr_;
 }
 
 
@@ -215,8 +213,8 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiViewer3DSettingDlg* dlg = new uiViewer3DSettingDlg(
-		menu->getParent(), *psv, *this, *preprocmgr_);
+	uiViewer3DSettingDlg* dlg =
+	    new uiViewer3DSettingDlg( menu->getParent(), *psv, *this );
 	dlg->setDeleteOnClose( true );
 	dlg->go();
     }
@@ -680,11 +678,11 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	viewwin->start();
     }
 
-    if ( preprocmgr_ )
-	preprocmgr_->usePar( *allwindowspar );
-
     for ( int idx=0; idx<viewers3d_.size(); idx++ )
-	viewers3d_[idx]->setPreProcessor( preprocmgr_ );
+    {
+	viewers3d_[idx]->procMgr().usePar( *allwindowspar );
+	viewers3d_[idx]->updateDisplay();
+    }
 }
 
 
@@ -732,8 +730,8 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	allwindowpar.mergeComp( viewerpar, key );
     }
 
-    if ( preprocmgr_ )
-	preprocmgr_->fillPar( allwindowpar );
+    if ( !viewers3d_.isEmpty() )
+	viewers3d_[0]->procMgr().fillPar( allwindowpar );
 
     allwindowpar.set( sKeyNrWindows(), nrsaved );
     ODMainWin()->sessionPars().mergeComp( allwindowpar, sKey2DViewers() );

@@ -33,11 +33,11 @@ mClass(uiPreStackViewer) uiViewer3DSettingDlg : public uiTabStackDlg
 public:
 				uiViewer3DSettingDlg(uiParent*,
 						   visSurvey::PreStackDisplay&,
-						   uiViewer3DMgr&,
-						   PreStack::ProcessManager&);
+						   uiViewer3DMgr&);
 protected:
 
     bool			acceptOK(CallBacker*);
+    void			applyCheckedCB(CallBacker*);
 
     uiViewer3DShapeTab*		shapetab_;
     uiViewer3DScalingTab*	scaletab_;

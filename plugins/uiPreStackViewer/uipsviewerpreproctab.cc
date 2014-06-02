@@ -20,15 +20,13 @@ namespace PreStackView
 
 
 uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p, 
-	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr, 
-	PreStack::ProcessManager& preprocmgr )
+	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
-    , preprocmgr_( &preprocmgr )
     , mgr_( mgr )
     , applyall_( false )
 {
-    uipreprocmgr_ = new PreStack::uiProcessorManager( this, preprocmgr );
+    uipreprocmgr_ = new PreStack::uiProcessorManager( this, vwr.procMgr() );
     applybut_ = new uiPushButton( this, "Apply", true );
     applybut_->attach( centeredBelow, uipreprocmgr_ );
     applybut_->activated.notify(
@@ -57,9 +55,6 @@ void uiViewer3DPreProcTab::processorChangeCB( CallBacker* )
 
 bool uiViewer3DPreProcTab::acceptOK()
 {
-    if ( !applybut_->sensitive() )
-	return true;
-
     return applyButPushedCB( 0 );
 }
 
@@ -71,10 +66,18 @@ bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
 	visSurvey::PreStackDisplay* vwr = mgr_.get3DViewers()[idx];
-	if ( !applyall_ && vwr != &vwr_ )
+	const bool isownvwr = vwr == &vwr_;
+	if ( !applyall_ && !isownvwr )
 	    continue;
 
-	if ( !vwr->setPreProcessor( preprocmgr_ ) )
+	if ( !isownvwr )
+	{
+	    IOPar curpreprocpar;
+	    vwr_.procMgr().fillPar( curpreprocpar );
+	    vwr->procMgr().usePar( curpreprocpar );
+	}
+
+	if ( !vwr->updateDisplay() )
 	{
 	    uiMSG().message( "Preprocessing failed!" );
 	    return false;

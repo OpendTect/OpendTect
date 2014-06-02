@@ -66,7 +66,7 @@ PreStackDisplay::PreStackDisplay()
     , zrg_( SI().zRange(true) )
     , posside_( true )
     , autowidth_( true )
-    , preprocmgr_( 0 )
+    , preprocmgr_( *new PreStack::ProcessManager )
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
@@ -123,6 +123,7 @@ PreStackDisplay::~PreStackDisplay()
 
     delete reader_;
     delete ioobj_;
+    delete &preprocmgr_;
 }
 
 
@@ -160,25 +161,18 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 }
 
 
-bool PreStackDisplay::setPreProcessor( PreStack::ProcessManager* mgr )
-{
-    preprocmgr_ = mgr;
-    return updateData();
-}
-
-
 DataPack::ID PreStackDisplay::preProcess()
 {
     if ( !ioobj_ || !reader_ )
 	return -1;
 
-    if ( !preprocmgr_ || !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
+    if ( !preprocmgr_.nrProcessors() || !preprocmgr_.reset() )
 	return -1;
 
-    if ( !preprocmgr_->prepareWork() )
+    if ( !preprocmgr_.prepareWork() )
 	return -1;
 
-    const BinID stepout = preprocmgr_->getInputStepout();
+    const BinID stepout = preprocmgr_.getInputStepout();
 
     BinID relbid;
     for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
@@ -187,7 +181,7 @@ DataPack::ID PreStackDisplay::preProcess()
 	for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 					   relbid.crl()++ )
 	{
-	    if ( !preprocmgr_->wantsInput(relbid) )
+	    if ( !preprocmgr_.wantsInput(relbid) )
 		continue;
 
 	    const BinID inputbid =
@@ -203,15 +197,15 @@ DataPack::ID PreStackDisplay::preProcess()
 	    }
 
 	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
-	    preprocmgr_->setInput( relbid, gather->id() );
+	    preprocmgr_.setInput( relbid, gather->id() );
 	    DPM( DataPackMgr::FlatID() ).release( gather );
 	}
     }
 
-    if ( !preprocmgr_->process() )
+    if ( !preprocmgr_.process() )
 	return -1;
 
-    return preprocmgr_->getOutput();
+    return preprocmgr_.getOutput();
 }
 
 
@@ -289,7 +283,7 @@ bool PreStackDisplay::updateData()
     PreStack::Gather* gather = new PreStack::Gather;
 
 	DataPack::ID displayid = DataPack::cNoID();
-	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
+	if ( preprocmgr_.nrProcessors() )
 	{
 	    displayid = preProcess();
 	    delete gather;

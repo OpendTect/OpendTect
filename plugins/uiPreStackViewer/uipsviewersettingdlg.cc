@@ -26,8 +26,7 @@ namespace PreStackView
 
 
 uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p, 
-	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr, 
-	PreStack::ProcessManager& prepromgr )
+	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr )
     : uiTabStackDlg( p, uiDialog::Setup("Prestack display properties", 
 			          viewer.getObjectName(), 
                                   mODHelpKey(mPSViewerSettingDlgHelpID) 
@@ -43,14 +42,26 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     scaletab_ = new uiViewer3DScalingTab( tabParent(), viewer, mgr );
     addGroup( scaletab_ );
 
-    preproctab_ = 
-	new uiViewer3DPreProcTab( tabParent(), viewer, mgr, prepromgr );
+    preproctab_ = new uiViewer3DPreProcTab( tabParent(), viewer, mgr );
     addGroup( preproctab_ );
    
-    applytoallfld_ = new uiCheckBox(this,"&Apply to all viewers");
+    applytoallfld_ =
+	new uiCheckBox( this,"&Apply to all viewers",
+			mCB(this,uiViewer3DSettingDlg,applyCheckedCB) );
     applytoallfld_->attach( centeredBelow, tabObject() );
     
     enableSaveButton( sSaveAsDefault() );
+}
+
+
+void uiViewer3DSettingDlg::applyCheckedCB( CallBacker* cb )
+{
+   const bool ischecked = applytoallfld_->isChecked();
+   apptab_->applyToAll( ischecked );
+   scaletab_->applyToAll( ischecked );
+   if ( preproctab_ )
+       preproctab_->applyToAll( ischecked );
+   shapetab_->applyToAll( ischecked );
 }
 
 
@@ -61,15 +72,6 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
        apptab_->saveAsDefault( true );
        scaletab_->saveAsDefault( true );
        shapetab_->saveAsDefault( true );
-   }
-
-   if ( applytoallfld_->isChecked() )
-   {
-       apptab_->applyToAll( true );
-       scaletab_->applyToAll( true );
-       if ( preproctab_ ) 
-	   preproctab_->applyToAll( true );
-       shapetab_->applyToAll( true );
    }
 
    return uiTabStackDlg::acceptOK(cb);
