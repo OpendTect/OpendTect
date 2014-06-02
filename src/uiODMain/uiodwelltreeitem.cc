@@ -143,19 +143,6 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( srv->createAttribLog(wellnms) )
 	    return false;
     }
-
-    else if ( mnuid == cLogDispSize )
-    {
-	bool allconst = false;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mGetWellDisplayFromChild( idx );
-	    const bool isconst = wd->logConstantSize();
-	    if ( isconst )
-	    { allconst = true; break; }
-	}
-	constlogsize_ = !allconst;
-    }
     else if ( ( mnuid>40 && mnuid<46 ) || ( mnuid>50 && mnuid<56 ) )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -178,12 +165,6 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else
 	handleStandardItems( mnuid );
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mGetWellDisplayFromChild( idx );
-	wd->setLogConstantSize( constlogsize_ );
-    }
 
     return true;
 }
