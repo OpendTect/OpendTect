@@ -218,24 +218,10 @@ uiTreeItem*
 
     uiOD2DLineTreeItem* newsubitm =
 	new uiOD2DLineTreeItem( s2d->name(), s2d->getGeomID(), visid );
-    mDynamicCastGet(uiOD2DLineTreeItem*,subitm,treeitem)
-    if ( subitm )
-	return newsubitm;
 
-    /*
-    const MultiID& setid = s2d->lineSetID();
-    BufferString linesetname;
-    ODMainWin()->applMgr().seisServer()->get2DLineSetName( setid, linesetname );
-    uiTreeItem* linesetitm = treeitem->findChild( linesetname );
-    if ( linesetitm )
-    {
-	linesetitm->addChild( newsubitm, true );
-	return 0;
-    }
+    if ( newsubitm )
+       treeitem->addChild( newsubitm,true );
 
-    uiOD2DLineSetTreeItem* newlinesetitm = new uiOD2DLineSetTreeItem( setid );
-    treeitem->addChild( newlinesetitm, true );
-    newlinesetitm->addChild( newsubitm, true ); */
     return 0;
 }
 
