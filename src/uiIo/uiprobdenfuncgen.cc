@@ -97,7 +97,7 @@ public:
 
 
 uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
-    : uiDialog(p,Setup("Generate a PDF",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Generate a PDF"),mNoDlgTitle,
                  mODHelpKey(mProbGenFuncGenHelpID) ))
 {
 
@@ -110,7 +110,7 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
     choicefld_->changed.notify( mCB(this,uiProbDenFuncGen,choiceSel) );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-				"Number of dimensions (variables)" );
+				tr("Number of dimensions (variables)") );
     lsb->attach( ensureBelow, choicefld_ );
     nrdimfld_ = lsb->box();
     nrdimfld_->setInterval( 1, 3, 1 );

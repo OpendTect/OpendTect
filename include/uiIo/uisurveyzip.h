@@ -25,5 +25,6 @@ mGlobal(uiIo) bool uiSurvey_ZipDirectory(uiParent*,const char* survdirnm=0,
 					 const char* zipfnm=0);
 // Returns true if zip file successfully created
 
+
 #endif
 

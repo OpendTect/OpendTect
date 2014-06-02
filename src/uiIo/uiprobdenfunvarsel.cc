@@ -22,16 +22,16 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     , attrSelChanged( this )
 {
     uiLabeledComboBox* cbx =
-	new uiLabeledComboBox( this, colinfos_.colnms_, "Attribute" );
+	new uiLabeledComboBox( this, colinfos_.colnms_, tr("Attribute") );
     attrsel_ = cbx->box();
     attrsel_->selectionChanged.notify(
 	    mCB(this,uiPrDenFunVarSel,attrChanged) );
 
-    rangesel_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
+    rangesel_ = new uiGenInput( this, tr("Range"), FloatInpIntervalSpec() );
     rangesel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,rangeChanged) );
     rangesel_->attach( rightTo, cbx );
     
-    nrbinsel_ = new uiGenInput( this, "Nr of Bins", IntInpSpec() );
+    nrbinsel_ = new uiGenInput( this, tr("Nr of Bins"), IntInpSpec() );
     nrbinsel_->setElemSzPol( uiObject::Small );
     nrbinsel_->setValue( 25 );
     nrbinsel_->valuechanged.notify( mCB(this,uiPrDenFunVarSel,nrBinChanged) );

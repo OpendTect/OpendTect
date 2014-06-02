@@ -70,7 +70,7 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
     const int nrdecimals = cansnap_ ? 0 : 2;
     const StepInterval<int> izrg( mNINT32(limitrg.start),
-	    			  mNINT32(limitrg.stop), mNINT32(limitrg.step) );
+	    			  mNINT32(limitrg.stop), mNINT32(limitrg.step));
 
     startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
     BufferString ltxt( lbltxt );
@@ -95,10 +95,10 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->setInterval(
-		StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
+	    StepInterval<int>(mNINT32(limitrg.step),mNINT32(limitrg.width()),
 		    		  mNINT32(limitrg.step)) );
 	stepfld_->doSnap( cansnap_ );
-	lbl = new uiLabel( this, "step", stepfld_ );
+	lbl = new uiLabel( this, tr("step"), stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
 
@@ -129,7 +129,7 @@ else \
     const double realstartidx = realstartdif / double(limit.step); \
     const double realstepfac = double(rg.step) / double(limit.step); \
     const double eps = 1e-4; \
-    const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) || \
+    const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||\
 			    !mIsZero(realstepfac-mNINT32(realstepfac),eps); \
     const int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
 \
@@ -139,7 +139,7 @@ else \
 \
     const double width = mMIN(rg.stop,limit.stop) - limit.atIndex(startidx); \
     const double realnrsteps = width / (stepfac*limit.step); \
-    const int stopidx = startidx + stepfac * mNINT32( floor(realnrsteps+eps) ); \
+    const int stopidx = startidx + stepfac * mNINT32( floor(realnrsteps+eps) );\
 \
     if ( startidx <= stopidx ) \
     { \

@@ -31,7 +31,7 @@ namespace Math { class Form; }
 
 
 mExpClass(uiIo) uiMathFormula : public uiGroup
-{
+{ mODTextTranslationClass(uiMathFormula);
 public:
 
     mExpClass(uiIo) Setup

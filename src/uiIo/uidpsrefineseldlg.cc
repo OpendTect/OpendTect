@@ -25,26 +25,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathexpression.h"
 
 uiDPSRefineSelDlg::uiDPSRefineSelDlg( uiDataPointSetCrossPlotter& p )
-    : uiDialog(p.parent(),uiDialog::Setup("Refine selection",
-					  "Define mathematical operation",
+    : uiDialog(p.parent(),uiDialog::Setup(tr("Refine selection"),
+					  tr("Define mathematical operation"),
 					  mODHelpKey(mSelectionSettDlgHelpID) )
 			    .savebutton(!p.isADensityPlot())
-			    .savetext("Select on Ok").modal(false) )
+			    .savetext(tr("Select on Ok")).modal(false) )
     , plotter_(p)
     , mathobj_(0)
     , mathexprstring_(plotter_.mathObjStr())
     , dcolids_(plotter_.modifiedColIds())
 {
     uiLabel* label =
-	new uiLabel( this, "Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)" );
+	new uiLabel( this, tr("Ranges (e.g. 0>x0 && x0>1.5 && -6125<x1)") );
 
-    inpfld_ = new uiGenInput( this, "Enter Ranges" );
+    inpfld_ = new uiGenInput( this, tr("Enter Ranges") );
     inpfld_->setElemSzPol( uiObject::WideMax );
     inpfld_->updateRequested.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     inpfld_->valuechanging.notify( mCB(this,uiDPSRefineSelDlg,checkMathExpr) );
     label->attach( leftAlignedAbove, inpfld_ );
 
-    setbut_ = new uiPushButton( this, "Set", true );
+    setbut_ = new uiPushButton( this, tr("Set"), true );
     setbut_->activated.notify( mCB(this,uiDPSRefineSelDlg,parsePush) );
     setbut_->attach( rightTo, inpfld_ );
 
@@ -168,7 +168,7 @@ bool uiDPSRefineSelDlg::acceptOK( CallBacker* )
     if ( !mIsZero(testexpr->getValue(),mDefEps) &&
 	 !mIsZero(testexpr->getValue()-1,mDefEps) )
     {
-	uiMSG().error( "Equation should return true or false" );
+	uiMSG().error( tr("Equation should return true or false") );
 	return false;
     }
 

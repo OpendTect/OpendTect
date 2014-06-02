@@ -47,8 +47,8 @@ static const char* zoptions[] =
 
 
 uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
-    : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset/Polygon"
-			: "Export PickSet/Polygon", mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(imp ? tr("Import Pickset/Polygon")
+			: tr("Export PickSet/Polygon"), mNoDlgTitle,
 				 imp
 					? mODHelpKey(mImpPickSetHelpID)
 					: mODHelpKey(mExpPickSetHelpID) )
@@ -64,7 +64,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 {
     setOkCancelText( import_ ? uiStrings::sImport() : uiStrings::sExport(),
 		     uiStrings::sClose() );
-    if ( import_ ) enableSaveButton( "Display after import" );
+    if ( import_ ) enableSaveButton( tr("Display after import") );
 
     BufferString label( import_ ? "Input " : "Output " );
     label += "ASCII file";
@@ -81,7 +81,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
     if ( import_ )
     {
-	zfld_ = new uiLabeledComboBox( this, "Get Z values from" );
+	zfld_ = new uiLabeledComboBox( this, tr("Get Z values from") );
 	zfld_->box()->addItems( zoptions );
 	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
 				formatSel) );
@@ -93,7 +93,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
 
-	horinpfld_ = new uiLabeledComboBox( this, "Select Horizon" );
+	horinpfld_ = new uiLabeledComboBox( this, tr("Select Horizon") );
 	serv_->fetchHors( false );
 	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )
@@ -117,10 +117,10 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
 	colorfld_ = new uiColorInput( this,
 				   uiColorInput::Setup(getRandStdDrawColor()).
-				   lbltxt("Color") );
+				   lbltxt(tr("Color")) );
 	colorfld_->attach( alignedBelow, objfld_ );
 
-	polyfld_ = new uiCheckBox( this, "Import as Polygon" );
+	polyfld_ = new uiCheckBox( this, tr("Import as Polygon") );
 	polyfld_->attach( rightTo, colorfld_ );
     }
     else
@@ -158,7 +158,7 @@ bool uiImpExpPickSet::doImport()
     const char* fname = filefld_->fileName();
     od_istream strm( fname );
     if ( !strm.isOK() )
-	mErrRet( "Could not open input file" )
+	mErrRet( tr("Could not open input file") )
 
     const char* psnm = objfld_->getInput();
     Pick::Set ps( psnm );
@@ -237,7 +237,7 @@ bool uiImpExpPickSet::doExport()
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( "Could not open output file" )
+	mErrRet( tr("Could not open output file") )
     }
 
     *sdo.ostrm << std::fixed;
@@ -267,7 +267,7 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
     msg.addNewLine().add( "Do you want to " )
         .add(import_ ? "import" : "export")
        .add( " more PickSets?" );
-    return !uiMSG().askGoOn( msg, uiStrings::sYes(), "No, close window" );
+    return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }
 
 
@@ -275,10 +275,10 @@ bool uiImpExpPickSet::checkInpFlds()
 {
     BufferString filenm = filefld_->fileName();
     if ( import_ && !File::exists(filenm) )
-	mErrRet( "Please select input file" );
+	mErrRet( tr("Please select input file") );
 
     if ( !import_ && filenm.isEmpty() )
-	mErrRet( "Please select output file" );
+	mErrRet( tr("Please select output file") );
 
     if ( !objfld_->commitInput() )
 	return false;
@@ -286,7 +286,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( import_ )
     {
 	if ( !dataselfld_->commit() )
-	    mErrRet( "Please specify data format" );
+	    mErrRet( tr("Please specify data format") );
 
 	const int zchoice = zfld_->box()->currentItem();
 	if ( zchoice == 1 )
@@ -295,7 +295,7 @@ bool uiImpExpPickSet::checkInpFlds()
 	    if ( SI().zIsTime() ) constz /= 1000;
 
 	    if ( !SI().zRange(false).includes( constz,false ) )
-		mErrRet( "Please enter a valid Z value" );
+		mErrRet( tr("Please enter a valid Z value") );
 	}
     }
 

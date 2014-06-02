@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
-    : uiDialog(p,Setup("Select survey",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Select survey"),mNoDlgTitle,mTODOHelpKey))
     , ctio_(ctio)
 {
     selfld_ = new uiSurveySelect( this );
@@ -47,7 +47,7 @@ bool uiSelObjFromOtherSurvey::acceptOK( CallBacker* )
     if ( !File::exists( othersurveyrootdir_ ) )
     {
 	othersurveyrootdir_.setEmpty();
-	uiMSG().error( "Survey doesn't seem to exist" );
+	uiMSG().error( tr("Survey doesn't seem to exist") );
 	return false;
     }
 

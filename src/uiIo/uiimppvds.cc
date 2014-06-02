@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
-    : uiDialog(p,uiDialog::Setup("Import Cross-plot Data",
+    : uiDialog(p,uiDialog::Setup(tr("Import Cross-plot Data"),
 				 mNoDlgTitle,
 				 mODHelpKey(mImpPVDSHelpID) ))
     , fd_(*new Table::FormatDesc("Cross-plot data"))
@@ -55,8 +55,8 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
                   mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
-    row1isdatafld_ = new uiGenInput( this, "First row contains",
-				BoolInpSpec(false,"Data","Column names") );
+    row1isdatafld_ = new uiGenInput( this, tr("First row contains"),
+				BoolInpSpec(false,tr("Data","Column names")) );
     row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
@@ -78,7 +78,7 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 {
     const BufferString fnm( inpfld_->fileName() );
     if ( fnm.isEmpty() || File::isEmpty(fnm) )
-	mErrRet("Please select an existing input file")
+	mErrRet(tr("Please select an existing input file"))
     if ( !dataselfld_->commit() )
 	return false;
     const IOObj* ioobj = outfld_->ioobj();
@@ -86,7 +86,7 @@ bool uiImpPVDS::acceptOK( CallBacker* )
 	return false;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet("Cannot open input file")
+	mErrRet(tr("Cannot open input file"))
 
     DataPointSet dps( is2d_ );
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -211,7 +211,7 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
 	mErrRet(aio.errMsg());
 
     if ( !aio.getLine() )
-	mErrRet("No data found in file");
+	mErrRet(tr("No data found in file"));
 
     for ( int idx=0; idx<aio.datacolnms_.size(); idx++ )
 	dps.dataSet().add( new DataColDef(aio.datacolnms_.get(idx)) );
@@ -239,7 +239,7 @@ bool uiImpPVDS::getData( od_istream& strm, Table::FormatDesc& fd,
 bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
 {
     if ( dps.isEmpty() )
-	mErrRet("No data read")
+	mErrRet(tr("No data read"))
 
     BufferString errmsg;
     MouseCursorManager::setOverride( MouseCursor::Wait );

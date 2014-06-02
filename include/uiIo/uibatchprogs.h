@@ -24,7 +24,7 @@ class uiLabeledComboBox;
 
 
 mExpClass(uiIo) uiBatchProgLaunch : public uiDialog
-{
+{ mODTextTranslationClass(uiBatchProgLaunch);
 public:
 
 			uiBatchProgLaunch(uiParent*);

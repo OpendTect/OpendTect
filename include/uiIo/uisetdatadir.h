@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiFileInput;
 
 mExpClass(uiIo) uiSetDataDir : public uiDialog
-{
+{ mODTextTranslationClass(uiSetDataDir);
 public:
 			uiSetDataDir(uiParent*);
 

@@ -153,7 +153,7 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     const int nrinl = (int)(d.x / grdsp + 1.5);
     const int nrcrl = (int)(d.y / grdsp + 1.5);
     if ( nrinl < 2 && nrcrl < 2 )
-	mErrRet("Coordinate ranges are less than one trace distance")
+	mErrRet(tr("Coordinate ranges are less than one trace distance"))
 
     cs.hrg.start.inl() = cs.hrg.start.crl() = 10000;
     cs.hrg.step.inl() = cs.hrg.step.crl() = 1;

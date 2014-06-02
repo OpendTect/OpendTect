@@ -22,7 +22,7 @@ class CtxtIOObj;
 /*!\brief Finds created objects in processing specification files */
 
 mExpClass(uiIo) uiSrchProcFiles : public uiDialog
-{
+{ mODTextTranslationClass(uiSrchProcFiles);
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,
 					const char* iopar_key);

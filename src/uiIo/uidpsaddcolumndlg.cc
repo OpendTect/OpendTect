@@ -23,21 +23,23 @@ static const char* rcsID mUsedVar = "";
 #include "mathexpression.h"
 
 uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
-    : uiDialog(p,uiDialog::Setup("Add Column", sKey::EmptyString(),mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Add Column"), sKey::EmptyString(),
+                                 mNoHelpKey))
     , mathobj_(0)
     , withmathop_(withmathop)
     , inpfld_(0)
     , setbut_(0)
     , vartable_(0)
 {
-    nmfld_ = new uiGenInput( this, "Column Name" );
+    nmfld_ = new uiGenInput( this, tr("Column Name") );
 
     if ( withmathop )
     {
-	uiLabel* label = new uiLabel( this, "Define Mathematical Operation" );
+	uiLabel* label = new uiLabel( this, 
+                                      tr("Define Mathematical Operation") );
 	label->attach( alignedBelow, nmfld_ );
 
-	inpfld_ = new uiGenInput( this, "Define Math Operation" );
+	inpfld_ = new uiGenInput( this, tr("Define Math Operation") );
 	inpfld_->setElemSzPol( uiObject::WideMax );
 	inpfld_->updateRequested.notify(
 		mCB(this,uiDPSAddColumnDlg,parsePush) );
@@ -45,7 +47,7 @@ uiDPSAddColumnDlg::uiDPSAddColumnDlg( uiParent* p, bool withmathop )
 		mCB(this,uiDPSAddColumnDlg,checkMathExpr) );
 	inpfld_->attach( alignedBelow, label );
 
-	setbut_ = new uiPushButton( this, "Set", true );
+	setbut_ = new uiPushButton( this, tr("Set"), true );
 	setbut_->activated.notify( mCB(this,uiDPSAddColumnDlg,parsePush) );
 	setbut_->attach( rightTo, inpfld_ );
 

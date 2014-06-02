@@ -46,7 +46,7 @@ static const char* sKeySRDFeet = "Seismic Reference Datum (ft) ";
 
 uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 					bool isnew )
-	: uiDialog(p,uiDialog::Setup("Edit Survey Parameters",
+	: uiDialog(p,uiDialog::Setup(tr("Edit Survey Parameters"),
 				     mNoDlgTitle,
                                      mODHelpKey(mSurveyInfoEditorHelpID) )
                                      .nrstatusflds(1))
@@ -97,11 +97,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     }
 
     topgrp_ = new uiGroup( this, "Top group" );
-    survnmfld_ = new uiGenInput( topgrp_, "Survey name",
+    survnmfld_ = new uiGenInput( topgrp_, tr("Survey name"),
 				StringInpSpec(si_.name()) );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
-    pathfld_ = new uiGenInput( topgrp_, "Location on disk",
+    pathfld_ = new uiGenInput( topgrp_, tr("Location on disk"),
 				StringInpSpec(orgstorepath_) );
     pathfld_->attach( alignedBelow, survnmfld_ );
     pathfld_->setElemSzPol( uiObject::Wide );
@@ -109,13 +109,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 #ifdef __win__
     pathfld_->setSensitive( false );
 #else
-    uiButton* pathbut = new uiPushButton( topgrp_, "&Select", false );
+    uiButton* pathbut = new uiPushButton( topgrp_, uiStrings::sSelect(), false);
     pathbut->attach( rightOf, pathfld_ );
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
-				SurveyInfo::Pol2DNames(), "Survey type" );
+				SurveyInfo::Pol2DNames(), tr("Survey type") );
     lcb->attach( alignedBelow, pathfld_ ); pol2dfld_ = lcb->box();
 
     mkSIPFld( lcb->attachObj() );
@@ -127,7 +127,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     uiSeparator* horsep1 = new uiSeparator( this, "Hor sep 1" );
     horsep1->attach( stretchedBelow, topgrp_, -2 );
 
-    uiLabel* rglbl = new uiLabel( this, "Survey ranges:" );
+    uiLabel* rglbl = new uiLabel( this, tr("Survey ranges:") );
     rglbl->attach( leftBorder );
     rglbl->attach( ensureBelow, horsep1 );
     mkRangeGrp();
@@ -137,10 +137,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     uiSeparator* horsep2 = new uiSeparator( this, "Hor sep 2" );
     horsep2->attach( stretchedBelow, rangegrp_ );
 
-    uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
+    uiLabel* crdlbl = new uiLabel( this, tr("Coordinate settings:") );
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
-    coordset = new uiGenInput( this, "", BoolInpSpec(true,"Easy","Advanced") );
+    coordset = new uiGenInput( this, "", BoolInpSpec(true,tr("Easy"),
+                                                     tr("Advanced")) );
     coordset->attach( alignedBelow, rangegrp_ );
     coordset->attach( rightTo, crdlbl );
     coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
@@ -153,11 +154,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     trgrp_->attach( alignedBelow, rangegrp_ );
     trgrp_->attach( ensureBelow, coordset );
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply", true );
+    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(), true);
     applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( alignedBelow, crdgrp_ );
 
-    xyinftfld_ = new uiCheckBox( this, "Coordinates are in feet" );
+    xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->attach( rightTo, applybut );
     xyinftfld_->attach( rightBorder );
     xyinftfld_->setChecked( si_.xyInFeet() );
@@ -190,10 +191,10 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     }
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
-					    "Ranges/coordinate settings" );
+					    tr("Ranges/coordinate settings") );
     lcb->attach( alignedBelow, att );
     sipfld_ = lcb->box();
-    sipfld_->addItem( "Enter below" );
+    sipfld_->addItem( tr("Enter below") );
     sipfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,sipCB) );
     for ( int idx=0; idx<nrprovs; idx++ )
     {
@@ -220,17 +221,17 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 void uiSurveyInfoEditor::mkRangeGrp()
 {
     rangegrp_ = new uiGroup( this, "Survey ranges" );
-    inlfld_ = new uiGenInput( rangegrp_, "In-line range",
+    inlfld_ = new uiGenInput( rangegrp_, tr("In-line range"),
 			     IntInpIntervalSpec(true).setName("Inl Start",0)
 						     .setName("Inl Stop",1)
 						     .setName("Inl step",2) );
     inlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
-    crlfld_ = new uiGenInput( rangegrp_, "Cross-line range",
+    crlfld_ = new uiGenInput( rangegrp_, tr("Cross-line range"),
 			     IntInpIntervalSpec(true).setName("Crl Start",0)
 						     .setName("Crl Stop",1)
 						     .setName("Crl step",2) );
     crlfld_->valuechanged.notify( mCB(this,uiSurveyInfoEditor,rangeChg) );
-    zfld_ = new uiGenInput( rangegrp_, "Z range",
+    zfld_ = new uiGenInput( rangegrp_, tr("Z range"),
 			   DoubleInpIntervalSpec(true).setName("Z Start",0)
 						      .setName("Z Stop",1)
 						      .setName("Z step",2) );
@@ -251,8 +252,9 @@ void uiSurveyInfoEditor::mkRangeGrp()
 
     const bool depthinft = si_.depthsInFeet();
 
-    depthdispfld_ = new uiGenInput( rangegrp_, "Display depths in",
-                                   BoolInpSpec(!depthinft,"meter","feet") );
+    depthdispfld_ = new uiGenInput( rangegrp_, tr("Display depths in"),
+                                   BoolInpSpec(!depthinft,tr("meter"),
+                                                tr("feet")) );
     depthdispfld_->valuechanged.notify(
 			mCB(this,uiSurveyInfoEditor,depthDisplayUnitSel) );
     depthdispfld_->attach( alignedBelow, zfld_ );
@@ -274,14 +276,14 @@ void uiSurveyInfoEditor::mkCoordGrp()
 {
     crdgrp_ = new uiGroup( this, "Coordinate settings" );
     PositionInpSpec::Setup psetup;
-    ic0fld_ = new uiGenInput( crdgrp_, "First In-line/Cross-line",
+    ic0fld_ = new uiGenInput( crdgrp_, tr("First In-line/Cross-line"),
 		     PositionInpSpec(psetup).setName("Inl Position1",0)
 					    .setName("Crl Position1",1) );
     ic0fld_->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
-    ic1fld_ = new uiGenInput( crdgrp_, "Another position on above In-line",
+    ic1fld_ = new uiGenInput( crdgrp_, tr("Another position on above In-line"),
 		     PositionInpSpec(psetup).setName("Inl Position2",0)
 					    .setName("Crl Position2",1) );
-    ic2fld_ = new uiGenInput( crdgrp_, "Position not on above In-line",
+    ic2fld_ = new uiGenInput( crdgrp_, tr("Position not on above In-line"),
 		      PositionInpSpec(psetup).setName("Inl Position3",0)
 					     .setName("Crl Position3",1) );
     psetup.wantcoords_ = true;
@@ -310,23 +312,23 @@ void uiSurveyInfoEditor::mkCoordGrp()
 void uiSurveyInfoEditor::mkTransfGrp()
 {
     trgrp_ = new uiGroup( this, "I/C to X/Y transformation" );
-    x0fld_ = new uiGenInput ( trgrp_, "X = ", DoubleInpSpec().setName("X") );
+    x0fld_ = new uiGenInput ( trgrp_, tr("X = "), DoubleInpSpec().setName("X"));
     x0fld_->setElemSzPol( uiObject::Small );
-    xinlfld_ = new uiGenInput ( trgrp_, "+ in-line *",
+    xinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
 				       DoubleInpSpec().setName("Inl") );
     xinlfld_->setElemSzPol( uiObject::Small );
-    xcrlfld_ = new uiGenInput ( trgrp_, "+ cross-line *",
+    xcrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
 				      DoubleInpSpec().setName("Crl") );
     xcrlfld_->setElemSzPol( uiObject::Small );
-    y0fld_ = new uiGenInput ( trgrp_, "Y = ", DoubleInpSpec().setName("Y"));
+    y0fld_ = new uiGenInput ( trgrp_, tr("Y = "), DoubleInpSpec().setName("Y"));
     y0fld_->setElemSzPol( uiObject::Small );
-    yinlfld_ = new uiGenInput ( trgrp_, "+ in-line *",
+    yinlfld_ = new uiGenInput ( trgrp_, tr("+ in-line *"),
 				      DoubleInpSpec() .setName("Inl"));
     yinlfld_->setElemSzPol( uiObject::Small );
-    ycrlfld_ = new uiGenInput ( trgrp_, "+ cross-line *",
+    ycrlfld_ = new uiGenInput ( trgrp_, tr("+ cross-line *"),
 				      DoubleInpSpec() .setName("Crl"));
     ycrlfld_->setElemSzPol( uiObject::Small );
-    overrulefld_ = new uiCheckBox( trgrp_, "Overrule easy settings" );
+    overrulefld_ = new uiCheckBox( trgrp_, tr("Overrule easy settings") );
     overrulefld_->setChecked( false );
     xinlfld_->attach( rightOf, x0fld_ );
     xcrlfld_->attach( rightOf, xinlfld_ );
@@ -547,7 +549,7 @@ bool uiSurveyInfoEditor::setSurvName()
     BufferString newsurvnm( survnmfld_->text() );
     if ( newsurvnm.size() < 2 )
     {
-	uiMSG().error( "Please specify a valid survey name" );
+	uiMSG().error( tr("Please specify a valid survey name") );
 	return false;
     }
     si_.setName( newsurvnm );
@@ -570,19 +572,19 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( (dirnamechanged || storepathchanged) && File::exists(newdir) )
     {
-	uiMSG().error( "The new target directory exists.\n"
-		       "Please enter another survey name or location." );
+	uiMSG().error( tr("The new target directory exists.\n"
+		       "Please enter another survey name or location.") );
 	return false;
     }
 
     if ( storepathchanged )
     {
-	if ( !uiMSG().askGoOn("Copy your survey to another location?") )
+	if ( !uiMSG().askGoOn(tr("Copy your survey to another location?")) )
 	    return false;
 	else if ( !copySurv(orgstorepath_,orgdirname_,
 			    newstorepath,newdirnm) )
 	    return false;
-	else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
+	else if ( !uiMSG().askGoOn(tr("Keep the survey at the old location?")) )
 	    File::remove( olddir );
     }
     else if ( dirnamechanged )
@@ -617,7 +619,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 
     if ( !si_.write(rootdir_) )
     {
-        uiMSG().error( "Failed to write survey info.\nNo changes committed." );
+       uiMSG().error(tr("Failed to write survey info.\nNo changes committed."));
 	return false;
     }
 
@@ -640,8 +642,8 @@ bool uiSurveyInfoEditor::setRanges()
 {
     const StepInterval<int> irg( inlfld_->getIStepInterval() );
     const StepInterval<int> crg( crlfld_->getIStepInterval() );
-    if ( irg.isUdf() ) mErrRet("Please enter a valid range for inlines")
-    if ( crg.isUdf() ) mErrRet("Please enter a valid range for crosslines")
+    if ( irg.isUdf() ) mErrRet(tr("Please enter a valid range for inlines"))
+    if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
     CubeSampling cs( si_.sampling(false) );
     HorSampling& hs = cs.hrg;
     hs.start.inl() = irg.start; hs.start.crl() = crg.start;
@@ -655,7 +657,7 @@ bool uiSurveyInfoEditor::setRanges()
     si_.setZUnit( curzunititem == 0, curzunititem == 2 );
     cs.zrg = zfld_->getFStepInterval();
     if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
-	mErrRet("Please enter the Z Range")
+	mErrRet(tr("Please enter the Z Range"))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
 	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
@@ -663,9 +665,9 @@ bool uiSurveyInfoEditor::setRanges()
 	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
     if ( !hs.totalNr() )
-	mErrRet("Please specify in-line/cross-line ranges")
+	mErrRet(tr("Please specify in-line/cross-line ranges"))
     if ( cs.zrg.nrSteps() == 0 )
-	mErrRet("Please specify a valid Z range")
+	mErrRet(tr("Please specify a valid Z range"))
 
     si_.setRange( cs, false );
     return true;
@@ -699,7 +701,7 @@ bool uiSurveyInfoEditor::setRelation()
     xtr.c = xcrlfld_->getdValue(); ytr.c = ycrlfld_->getdValue();
     if ( !xtr.valid(ytr) )
     {
-        uiMSG().error( "The transformation is not valid." );
+        uiMSG().error( tr("The transformation is not valid.") );
         return false;
     }
 
@@ -776,7 +778,7 @@ void uiSurveyInfoEditor::pathbutPush( CallBacker* )
 	BufferString dirnm( dlg.fileName() );
 	if ( !File::isWritable(dirnm) )
 	{
-	    uiMSG().error( "Directory is not writable" );
+	    uiMSG().error( tr("Directory is not writable") );
 	    return;
 	}
 	updStatusBar( dirnm );

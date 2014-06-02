@@ -30,7 +30,7 @@ class uiSurvInfoProvider;
 */
 
 mExpClass(uiIo) uiSurveyInfoEditor : public uiDialog
-{
+{ mODTextTranslationClass(uiSurveyInfoEditor);
 
 public:
 

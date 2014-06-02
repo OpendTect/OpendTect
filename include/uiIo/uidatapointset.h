@@ -42,7 +42,7 @@ namespace Stats { template <class T> class RunCalc; }
 
 
 mExpClass(uiIo) uiDataPointSet : public uiDialog
-{
+{ mODTextTranslationClass(uiDataPointSet);
 public:
 
     typedef int			TColID;

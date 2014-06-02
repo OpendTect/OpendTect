@@ -167,8 +167,8 @@ void BatchProgInfoList::getEntries( const char* fnm )
 
 
 uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
-        : uiDialog(p,uiDialog::Setup("Run batch program",
-		   "Specify batch program and parameters",
+        : uiDialog(p,uiDialog::Setup(tr("Run batch program"),
+		   tr("Specify batch program and parameters"),
                    mODHelpKey(mBatchProgLaunchHelpID) ) )
 	, pil(*new BatchProgInfoList)
 	, progfld(0)
@@ -178,12 +178,13 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     if ( pil.size() < 1 )
     {
 	setCtrlStyle( CloseOnly );
-	new uiLabel( this, "Not found any BatchPrograms.* file in application");
+        new uiLabel( this, tr("Not found any BatchPrograms.*"
+                              " file in application"));
 	return;
     }
     setCtrlStyle( RunAndClose );
 
-    progfld = new uiLabeledComboBox( this, "Batch program" );
+    progfld = new uiLabeledComboBox( this, tr("Batch program") );
     for ( int idx=0; idx<pil.size(); idx++ )
 	progfld->box()->addItem( pil[idx]->name );
     progfld->box()->setCurrentItem( 0 );
@@ -236,7 +237,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	{
 	    if ( !exbut )
 	    {
-		exbut = new uiPushButton( this, "&Show example input",
+		exbut = new uiPushButton( this, tr("&Show example input"),
 				mCB(this,uiBatchProgLaunch,exButPush), false );
 		if ( inplst->size() )
 		    exbut->attach( alignedBelow, (*inplst)[inplst->size()-1] );

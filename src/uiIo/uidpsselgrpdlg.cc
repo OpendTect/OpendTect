@@ -25,10 +25,10 @@ static const char* rcsID mUsedVar = "";
 
 uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
 				const BufferStringSet& colnames )
-    : uiDialog( p.parent(), uiDialog::Setup("Selection Settings",0, 
+    : uiDialog( p.parent(), uiDialog::Setup(tr("Selection Settings"),0, 
                                      mODHelpKey(mSelectionSettDlgHelpID) )
 				    .savebutton(!p.isADensityPlot())
-				    .savetext("Select on Ok").modal(false) )
+				    .savetext(tr("Select on Ok")).modal(false) )
     , plotter_( p )
     , selgrps_(p.selectionGrps())
 {
@@ -54,24 +54,24 @@ uiDPSSelGrpDlg::uiDPSSelGrpDlg( uiDataPointSetCrossPlotter& p,
     }
 
     curselgrp_ = tbl_->currentRow() < 0 ? 0 : tbl_->currentRow();
-    uiPushButton* addgrpbut = new uiPushButton( this, "Add group", 
+    uiPushButton* addgrpbut = new uiPushButton( this, tr("Add group"), 
 	    mCB(this,uiDPSSelGrpDlg,addSelGrp), true );
     addgrpbut->attach( alignedBelow, tbl_ );
     
-    uiPushButton* remgrpbut = new uiPushButton( this, "Remove group", 
+    uiPushButton* remgrpbut = new uiPushButton( this, tr("Remove group"), 
 	    mCB(this,uiDPSSelGrpDlg,remSelGrp), true );
     remgrpbut->attach( rightTo, addgrpbut );
     
-    uiPushButton* expgrpbut = new uiPushButton( this, "Save groups", 
+    uiPushButton* expgrpbut = new uiPushButton( this, tr("Save groups"), 
 	    mCB(this,uiDPSSelGrpDlg,exportSelectionGrps), true );
     expgrpbut->attach( rightTo, remgrpbut );
     
-    uiPushButton* impgrpbut = new uiPushButton( this, "Open groups", 
+    uiPushButton* impgrpbut = new uiPushButton( this, tr("Open groups"), 
 	    mCB(this,uiDPSSelGrpDlg,importSelectionGrps), true );
     impgrpbut->attach( rightTo, expgrpbut );
     
     uiPushButton* scalesgbut =
-	new uiPushButton( this, "Selectedness...", 
+	new uiPushButton( this, tr("Selectedness..."), 
 			  mCB(this,uiDPSSelGrpDlg,calcSelectedness), true );
     scalesgbut->attach( rightTo, impgrpbut );
     
@@ -181,7 +181,7 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
     if ( !rc.col() ) return;
 
     Color newcol = tbl_->getColor( rc );
-    if ( selectColor(newcol,this,"Marker color") )
+    if ( selectColor(newcol,this,tr("Marker color")) )
     {
 	selgrps_[rc.row()]->col_ = newcol;
 	tbl_->setColor( rc, newcol );
@@ -194,7 +194,8 @@ void uiDPSSelGrpDlg::changeColCB( CallBacker* )
 void uiDPSSelGrpDlg::calcSelectedness( CallBacker* )
 {
     if ( tbl_->currentRow() < 0 )
-       return uiMSG().error("Select a selection group to map its likeliness.");
+       return uiMSG().error(tr("Select a selection group"
+       " to map its likeliness."));
 
     plotter_.uidps().calcSelectedness();
 }

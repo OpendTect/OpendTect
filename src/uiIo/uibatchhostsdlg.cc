@@ -37,7 +37,7 @@ static const int sDataRootCol	= 4;
 
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
-    : uiDialog(p,Setup("Setup Multi Machine Processing",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Setup Multi Machine Processing"),mNoDlgTitle,
 		       mODHelpKey(mBatchHostsDlgHelpID)))
     , hostdatalist_(*new HostDataList(true,false))
 {
@@ -109,7 +109,7 @@ uiBatchHostsDlg::~uiBatchHostsDlg()
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
     uiDialog dlg( this,
-	uiDialog::Setup("Advanced Settings",mNoDlgTitle,mNoHelpKey) );
+	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
 
     uiLabel* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );

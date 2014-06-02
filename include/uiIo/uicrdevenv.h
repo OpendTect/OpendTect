@@ -18,7 +18,7 @@ class uiGenInput;
 class uiFileInput;
 
 mExpClass(uiIo) uiCrDevEnv : public uiDialog
-{
+{ mODTextTranslationClass(uiCrDevEnv);
 public:
 
     static void		crDevEnv(uiParent*);		

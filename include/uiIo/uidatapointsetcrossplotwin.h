@@ -27,7 +27,7 @@ class uiToolBar;
 /*!\brief Data Point Set Cross Plotter Main window */
 
 mExpClass(uiIo) uiDataPointSetCrossPlotWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiDataPointSetCrossPlotWin);
 public:
 
 				uiDataPointSetCrossPlotWin(uiDataPointSet&);

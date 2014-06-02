@@ -29,7 +29,7 @@ namespace Table { class FormatDesc; }
 /*! \brief Dialog for pickset selection */
 
 mExpClass(uiIo) uiImpExpPickSet : public uiDialog
-{
+{ mODTextTranslationClass(uiImpExpPickSet);
 public:
 			uiImpExpPickSet(uiParent*,uiPickPartServer*,bool);
 			~uiImpExpPickSet();

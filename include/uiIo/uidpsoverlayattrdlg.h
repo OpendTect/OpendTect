@@ -23,7 +23,7 @@ class uiDataPointSetCrossPlotter;
 */
 
 mExpClass(uiIo) uiDPSOverlayPropDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDPSOverlayPropDlg);
 public:
 			uiDPSOverlayPropDlg(uiParent*,
 					    uiDataPointSetCrossPlotter&);

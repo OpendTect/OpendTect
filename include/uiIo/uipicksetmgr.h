@@ -23,7 +23,7 @@ namespace Pick { class Set; class SetMgr; }
 /*! \brief base class for management of a Pick::SetMgr */
 
 mExpClass(uiIo) uiPickSetMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiPickSetMgr);
 public:
 			uiPickSetMgr(uiParent*,Pick::SetMgr&);
 

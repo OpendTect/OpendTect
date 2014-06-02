@@ -26,8 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
-    : uiDialog(p,uiDialog::Setup("Find job specification file",
-			       "Select appropriate job specification file",
+    : uiDialog(p,uiDialog::Setup(tr("Find job specification file"),
+			       tr("Select appropriate job specification file"),
 				 mNoHelpKey).nrstatusflds(1))
     , ctio_(c)
     , iopkey_(iopky)
@@ -36,14 +36,15 @@ uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
 
     dirfld = new uiFileInput( this, "Directory to search in",
 	    	 uiFileInput::Setup(GetProcFileName(0)).directories(true) );
-    maskfld = new uiGenInput( this, "Filename subselection", "*.par" );
+    maskfld = new uiGenInput( this, tr("Filename subselection"), "*.par" );
     maskfld->attach( alignedBelow, dirfld );
     objfld = new uiIOObjSel( this, ctio_, "Output data to find" );
     objfld->attach( alignedBelow, maskfld );
     objfld->selectionDone.notify( mCB(this,uiSrchProcFiles,srchDir) );
     uiSeparator* sep = new uiSeparator( this, "sep" );
     sep->attach( stretchedBelow, objfld );
-    fnamefld = new uiGenInput( this, "-> File name found", FileNameInpSpec(""));
+    fnamefld = new uiGenInput( this, tr("-> File name found"), 
+                               FileNameInpSpec(""));
     fnamefld->attach( alignedBelow, objfld );
     fnamefld->attach( ensureBelow, sep );
 }
@@ -95,8 +96,8 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     if ( fnms.size() > 1 )
     {
 	toStatusBar( "Multiple files found; select one ..." );
-	uiSelectFromList::Setup sflsu( "Select the apropriate file", fnms );
-	sflsu.dlgtitle( "Pick one of the matches" );
+	uiSelectFromList::Setup sflsu( tr("Select the apropriate file"), fnms );
+	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
 	    mRet(0)

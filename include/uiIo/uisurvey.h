@@ -29,7 +29,7 @@ class uiTextEdit;
 /*!\brief The main survey selection dialog */
 
 mExpClass(uiIo) uiSurvey : public uiDialog
-{ mODTextTranslationClass(uiSurvey)
+{ mODTextTranslationClass(uiSurvey);
 
 public:
 			uiSurvey(uiParent*);

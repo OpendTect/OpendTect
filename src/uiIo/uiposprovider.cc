@@ -74,7 +74,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     const CallBack selcb( mCB(this,uiPosProvider,selChg) );
     if ( grps_.size() == 0 )
     {
-	new uiLabel( this, "No position providers available" );
+	new uiLabel( this, tr("No position providers available") );
 	return;
     }
 
@@ -87,7 +87,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	if ( !setup_.is2d_ )
 	{
 	    fullsurvbut_ = new uiToolButton( this, "exttofullsurv",
-				"Set ranges to full survey",
+				tr("Set ranges to full survey"),
 				 mCB(this,uiPosProvider,fullSurvPush) );
 	    fullsurvbut_->attach( rightOf, selfld_ );
 	}

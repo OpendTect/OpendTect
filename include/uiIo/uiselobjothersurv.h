@@ -24,7 +24,7 @@ class CtxtIOObj;
 class uiSurveySelect;
 
 mExpClass(uiIo) uiSelObjFromOtherSurvey : public uiDialog
-{
+{ mODTextTranslationClass(uiSelObjFromOtherSurvey);
 public:
     			uiSelObjFromOtherSurvey(uiParent*,CtxtIOObj&);
     			~uiSelObjFromOtherSurvey();

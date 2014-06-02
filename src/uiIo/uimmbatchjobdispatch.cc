@@ -63,7 +63,8 @@ bool uiMMBatchJobDispatcher::initMMProgram( int argc, char** argv,
     jobpars.read( strm, sKey::Pars() );
     if ( jobpars.isEmpty() )
     {
-	od_cout() << argv[0] << ": Invalid parameter file" << parfnm << od_endl;
+	od_cout() << argv[0] << ": Invalid parameter file"
+                  << parfnm << od_endl;
 	return false;
     }
     strm.close();
@@ -122,7 +123,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     uiLabeledListBox* avmachfld = 0;
     if ( multihost )
     {
-	avmachfld = new uiLabeledListBox( machgrp, "Available hosts",
+	avmachfld = new uiLabeledListBox( machgrp, tr("Available hosts"),
 					  OD::ChooseAtLeastOne,
 					  uiLabeledListBox::AboveMid );
 	machgrp->setHAlignObj( avmachfld );
@@ -143,15 +144,17 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiLabeledListBox* usedmachfld = new uiLabeledListBox( usedmachgrp,
-				multihost ? "Used hosts" : "",
+				multihost ? tr("Used hosts") : "",
 				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     usedmachfld_ = usedmachfld->box();
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
     usedmachfld_->setPrefHeightInChar( maxhostdisp );
 
-    uiButton* stopbut = new uiPushButton( usedmachgrp, "St&op", true );
+    uiButton* stopbut = new uiPushButton( usedmachgrp, 
+                                          uiStrings::sStop(), true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
-    uiButton* vwlogbut = new uiPushButton( usedmachgrp, "&View log", false );
+    uiButton* vwlogbut = new uiPushButton( usedmachgrp, 
+                                           uiStrings::sViewLog(), false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
@@ -159,14 +162,14 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
-	addbut = new uiPushButton( machgrp, ">> &Add >>", true );
+	addbut = new uiPushButton( machgrp, tr( ">> &Add >>" ), true );
 	if ( avmachfld )
 	    addbut->attach( centeredRightOf, avmachfld );
 	usedmachgrp->attach( ensureRightOf, addbut );
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, "St&art", true );
+	addbut = new uiPushButton( usedmachgrp, uiStrings::sStart(), true );
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( centeredBelow, usedmachfld );
 	machgrp->setHAlignObj( stopbut );
@@ -186,15 +189,15 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	nicefld_->setPrefWidthInChar( hostnmwdth );
 
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
-    jrppolselfld_->addItem( "Run" );
-    jrppolselfld_->addItem( "Pause" );
-    jrppolselfld_->addItem( "Schedule" );
+    jrppolselfld_->addItem( uiStrings::sRun() );
+    jrppolselfld_->addItem( uiStrings::sPause() );
+    jrppolselfld_->addItem( tr("Schedule") );
     jrppolselfld_->setCurrentItem( ((int)0) );
     jrppolselfld_->selectionChanged.notify(
 				mCB(this,uiMMBatchJobDispatcher,jrpSel) );
     jrppolselfld_->attach( alignedBelow, nicefld_ );
     if ( avmachfld_ ) jrppolselfld_->setPrefWidthInChar( hostnmwdth );
-    jrpworklbl_ = new uiLabel( jrppolgrp, "Processes" );
+    jrpworklbl_ = new uiLabel( jrppolgrp, tr("Processes") );
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
@@ -202,7 +205,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpstartfld_->attach( rightOf, jrppolselfld_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
-    jrpstopfld_ = new uiGenInput( jrppolgrp, "and", envstr ? envstr : "7:30" );
+    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"), envstr ? envstr 
+                                                               : "7:30" );
     jrpstopfld_->attach( rightOf, jrpstartfld_ );
 
     jrppolgrp->setHAlignObj( nicefld_ );
@@ -246,7 +250,7 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     {
 	if ( !errmsg_.isEmpty() )
 	    uiMSG().error( errmsg_ );
-	setCancelText( "Dismiss" );
+	setCancelText( tr("Dismiss") );
 	button(OK)->display( false );
 	return;
     }
@@ -260,8 +264,8 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
     jobrunner_->jobFailed.notify( mCB(this,uiMMBatchJobDispatcher,jobFail) );
     jobrunner_->msgAvail.notify( mCB(this,uiMMBatchJobDispatcher,infoMsgAvail));
 
-    setOkText( "Finish Now" );
-    setCancelText( "Abort" );
+    setOkText( tr("Finish Now") );
+    setCancelText( uiStrings::sAbort() );
 
     timer_ = new Timer("uiMMBatchJobDispatcher timer");
     timer_->tick.notify( mCB(this,uiMMBatchJobDispatcher,doCycle) );
@@ -271,8 +275,8 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 
 #define mRetFullFail \
 { \
-    if ( uiMSG().askGoOn("Do you want to (try to) remove all temporary data?" \
-		 "If you don't, you may be able to re-start the job later") ) \
+    if (uiMSG().askGoOn(tr("Do you want to (try to) remove all temporary data?"\
+		 "If you don't, you may be able to re-start the job later")) ) \
 	removeTempResults(); \
     return; \
 }
@@ -303,7 +307,7 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 		return; // Finished.
 	    else if ( !recoverFailedWrapUp() )
 	    {
-		statusBar()->message( "Post-processing failed", 0 );
+		statusBar()->message( tr("Post-processing failed"), 0 );
 		clearAliveDisp();
 		mRetFullFail
 	    }
@@ -315,7 +319,7 @@ void uiMMBatchJobDispatcher::doCycle( CallBacker* )
 	    {
 		if ( !errmsg_.isEmpty() )
 		    uiMSG().error( errmsg_ );
-		statusBar()->message( "Error recovery failed", 0 );
+		statusBar()->message( tr("Error recovery failed"), 0 );
 		mRetFullFail
 	    }
 	}
@@ -670,7 +674,7 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 
     const int nrsel = avmachfld_ ? avmachfld_->nrChosen() : 1;
     if ( nrsel < 1 )
-	mErrRet("Please select one or more hosts")
+	mErrRet(tr("Please select one or more hosts"))
 
     if ( !jobrunner_ )
     {
@@ -780,7 +784,7 @@ bool uiMMBatchJobDispatcher::acceptOK(CallBacker*)
     if ( needConfirmEarlyStop() )
     {
 	if ( !usedmachfld_->isEmpty() && !uiMSG().askGoOn(
-		    "This will stop further processing and wrap up",false) )
+		    tr("This will stop further processing and wrap up"),false) )
 	    return false;
     }
 

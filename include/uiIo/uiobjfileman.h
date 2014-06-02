@@ -23,7 +23,7 @@ class uiTextEdit;
 
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
-{
+{ mODTextTranslationClass(uiObjFileMan);
 public:
 				~uiObjFileMan();
 

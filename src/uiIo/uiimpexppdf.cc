@@ -41,7 +41,7 @@ static const char* filefilter = "Text (*.txt *.dat)";
 
 
 uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Probability Density Function",
+    : uiDialog(p,uiDialog::Setup(tr("Import Probability Density Function"),
 				 mNoDlgTitle, mODHelpKey(mImpRokDocPDFHelpID) ))
 {
     setOkText( uiStrings::sImport() );
@@ -52,30 +52,32 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
     inpfld_->valuechanged.notify( mCB(this,uiImpRokDocPDF,selChg) );
 
-    varnmsfld_ = new uiGenInput( this, "Output variable names",
+    varnmsfld_ = new uiGenInput( this, tr("Output variable names"),
 				 StringInpSpec(), StringInpSpec() );
     varnmsfld_->attach( alignedBelow, inpfld_ );
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
-    xrgfld_ = new uiGenInput( grp, "Output var1 range", FloatInpIntervalSpec());
-    xnrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec(10,1) );
+    xrgfld_ = new uiGenInput( grp, tr("Output var1 range"), 
+                              FloatInpIntervalSpec());
+    xnrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     xnrbinfld_->setElemSzPol( uiObject::Small );
     xnrbinfld_->attach( rightOf, xrgfld_ );
-    yrgfld_ = new uiGenInput( grp, "Output var2 range", FloatInpIntervalSpec());
-    ynrbinfld_ = new uiGenInput( grp, "Nr of Bins", IntInpSpec(10,1) );
+    yrgfld_ = new uiGenInput( grp, tr("Output var2 range"), 
+                              FloatInpIntervalSpec());
+    ynrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     ynrbinfld_->setElemSzPol( uiObject::Small );
     yrgfld_->attach( alignedBelow, xrgfld_ );
     ynrbinfld_->attach( rightOf, yrgfld_ );
     grp->setHAlignObj( xrgfld_ );
     grp->attach( alignedBelow, varnmsfld_ );
     uiToolButton* extendbut = new uiToolButton( this, "extendpdf",
-	    "Extend one row/col outward", mCB(this,uiImpRokDocPDF,extPDF) );
+	    tr("Extend one row/col outward"), mCB(this,uiImpRokDocPDF,extPDF) );
     extendbut->attach( centeredRightOf, grp );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
-    outputfld_->setLabelText( "Output PDF" );
+    outputfld_->setLabelText( tr("Output PDF") );
     outputfld_->attach( alignedBelow, grp );
 }
 
@@ -272,7 +274,8 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
     pdf = getAdjustedPDF( pdf );
     if ( !pdf )
-	{ uiMSG().error("Invalid output X and/or Y range/size"); return false; }
+	{ uiMSG().error(tr("Invalid output X and/or Y range/size")); 
+          return false; }
 
     BufferString errmsg;
     if ( !ProbDenFuncTranslator::write(*pdf,*pdfioobj,&errmsg) )

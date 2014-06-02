@@ -21,7 +21,7 @@ class uiListBox;
 class uiFileInput;
 
 mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSurveySelectDlg);
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
 					  const char* dataroot=0,

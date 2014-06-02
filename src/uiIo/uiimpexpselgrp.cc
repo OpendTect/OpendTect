@@ -546,9 +546,9 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
     , forread_(forread)
     , selGrpSelected(this)
 {
-    inpfld_ = new uiGenInput( this, "Cross-plot Selections" );
-    selbut_ = new uiPushButton( this, "Select ..", mCB(this,uiSGSel,selectSGCB),
-				false );
+    inpfld_ = new uiGenInput( this, tr("Cross-plot Selections") );
+    selbut_ = new uiPushButton( this, tr("Select .."), 
+                                mCB(this,uiSGSel,selectSGCB), false );
     selbut_->attach( rightTo, inpfld_ );
 }
 

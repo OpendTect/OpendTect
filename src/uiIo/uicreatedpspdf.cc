@@ -38,7 +38,7 @@ static int cMaxNrPDFs = 3;
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 				const uiDataPointSetCrossPlotter* plotter )
-    : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
+    : uiDialog(p,uiDialog::Setup(tr("Create Probability Density Function"),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(plotter)
     , dps_(plotter_->dps())
@@ -53,7 +53,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p,
 
 uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
 				bool restricted )
-    : uiDialog(p,uiDialog::Setup("Create Probability Density Function",
+    : uiDialog(p,uiDialog::Setup(tr("Create Probability Density Function"),
 				 mNoDlgTitle,mODHelpKey(mCreateDPSPDFHelpID)))
     , plotter_(0)
     , dps_(dps)
@@ -62,7 +62,7 @@ uiCreateDPSPDF::uiCreateDPSPDF( uiParent* p, const DataPointSet& dps,
     , pdf_(0)
     , restrictedmode_(restricted)
 {
-    enableSaveButton( "View/Edit after creation" );
+    enableSaveButton( tr("View/Edit after creation") );
     createDefaultUI();
 }
 
@@ -76,7 +76,7 @@ void uiCreateDPSPDF::createDefaultUI()
         seltype.add( "Whole region" );
 	seltype.add( "Selected region" );
 	seltype.add( "Non Selected region" );
-	selcbx = new uiLabeledComboBox( this, seltype, "Create PDF from" );
+	selcbx = new uiLabeledComboBox( this, seltype, tr("Create PDF from") );
 	createfrmfld_ = selcbx->box();
     }
 
@@ -114,7 +114,8 @@ void uiCreateDPSPDF::createDefaultUI()
 	else
 	{
 	    fld->attach( alignedBelow, probflds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, "<- Less", pushcb, true );
+	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"), 
+                                                pushcb, true );
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
@@ -123,7 +124,8 @@ void uiCreateDPSPDF::createDefaultUI()
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, "More ->", pushcb, true);
+	    uiButton* addbut = new uiPushButton( this, tr("More ->"), 
+                                                 pushcb, true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -134,7 +136,7 @@ void uiCreateDPSPDF::createDefaultUI()
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
-    outputfld_->setLabelText( "Output PDF" );
+    outputfld_->setLabelText( tr("Output PDF") );
     outputfld_->attach( alignedBelow, probflds_[probflds_.size()-1] );
 
     butPush( addbuts_[1] );
@@ -302,7 +304,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 	viewPDF();
     if ( !pdf_ )
     {
-	uiMSG().error( "No valid PDF created" );
+	uiMSG().error( tr("No valid PDF created") );
 	return false;
     }
 

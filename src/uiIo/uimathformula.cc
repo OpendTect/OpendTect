@@ -95,13 +95,13 @@ uiMathFormula::uiMathFormula( uiParent* p, Math::Formula& form,
 
     if ( form_.inputsAreSeries() )
 	recbut_ = new uiToolButton( bgrp, "recursion",
-				    "Set start values for recursion",
+				    tr("Set start values for recursion"),
 				    mCB(this,uiMathFormula,recButPush) );
     if ( wantio )
     {
-	new uiToolButton( bgrp, "open", "Open stored formula",
+	new uiToolButton( bgrp, "open", tr("Open stored formula"),
 				    mCB(this,uiMathFormula,readReq) );
-	new uiToolButton( bgrp, "save", "Save this formula",
+	new uiToolButton( bgrp, "save", tr("Save this formula"),
 				    mCB(this,uiMathFormula,writeReq) );
     }
 
@@ -402,7 +402,7 @@ BufferString uiMathFormula::getIOFileName( bool forread )
     fnm = dlg.ioObj()->fullUserExpr( forread );
     const bool doesexist = File::exists( fnm );
     if ( forread && !doesexist )
-	{ uiMSG().error("File does not exist"); fnm.setEmpty(); }
+	{ uiMSG().error(tr("File does not exist")); fnm.setEmpty(); }
 
     ctio_.setObj( dlg.ioObj()->clone() );
     return fnm;
@@ -417,11 +417,12 @@ void uiMathFormula::readReq( CallBacker* )
 
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().error("Cannot open input file"); return; }
+	{ uiMSG().error(tr("Cannot open input file")); return; }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(Math::Formula::sKeyFileType()) )
-	{ uiMSG().error("Input file is not of 'Math Formula' type"); return; }
+	{ uiMSG().error(tr("Input file is not of 'Math Formula' type")); 
+          return; }
     IOPar iop( astrm );
     form_.usePar( iop );
     recvals_ = form_.recStartVals();
@@ -441,10 +442,10 @@ void uiMathFormula::writeReq( CallBacker* )
     FilePath fp( fnm ); fp.setExtension( "formula" );
     od_ostream strm( fp.fullPath() );
     if ( !strm.isOK() )
-	{ uiMSG().error("Cannot open output file"); return; }
+	{ uiMSG().error(tr("Cannot open output file")); return; }
     ascostream astrm( strm );
     if ( !astrm.putHeader(Math::Formula::sKeyFileType()) )
-	{ uiMSG().error("Cannot write file header"); return; }
+	{ uiMSG().error(tr("Cannot write file header")); return; }
 
     IOPar iop; form_.fillPar( iop );
     iop.putTo( astrm );

@@ -16,7 +16,7 @@ ________________________________________________________________________
 class uiListBox;
 
 mExpClass(uiIo) ui2DGeomManageDlg : public uiObjFileMan
-{
+{ mODTextTranslationClass(ui2DGeomManageDlg);
 public:
 
 			ui2DGeomManageDlg(uiParent*);

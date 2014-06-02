@@ -20,7 +20,7 @@ CrossPlot manager
 */
 
 mExpClass(uiIo) uiDataPointSetMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiDataPointSetMan);
 public:
     				uiDataPointSetMan(uiParent*);
 				~uiDataPointSetMan();

@@ -22,7 +22,7 @@ class uiLabel;
 
 
 mExpClass(uiIo) uiClusterJobProv : public uiDialog
-{
+{ mODTextTranslationClass(uiClusterJobProv);
 public:
     			uiClusterJobProv(uiParent* p,const IOPar& iop,
 					 const char* prog,const char* parfnm);

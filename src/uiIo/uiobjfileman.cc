@@ -78,13 +78,14 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     dummytb->display( false );
 
     uiGroup* notesgrp = new uiGroup( this, "Notes Group" );
-    uiLabel* noteslbl = new uiLabel( notesgrp, "Notes:" );
+    uiLabel* noteslbl = new uiLabel( notesgrp, tr("Notes:") );
     notesfld_ = new uiTextEdit( notesgrp, "User info" );
     notesfld_->setPrefHeightInChar( 5 );
     notesfld_->setStretch( 2, 2 );
-    notesfld_->setToolTip( "Notes" );
+    notesfld_->setToolTip( tr("Notes") );
     notesfld_->attach( alignedBelow, noteslbl );
-    uiToolButton* savebut = new uiToolButton( notesgrp, "save", "Save Notes",
+    uiToolButton* savebut = new uiToolButton( notesgrp, "save", 
+                                              tr("Save Notes"),
 	    mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
 

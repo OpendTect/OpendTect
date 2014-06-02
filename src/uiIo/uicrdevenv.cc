@@ -41,8 +41,8 @@ static void showProgrDoc()
 
 uiCrDevEnv::uiCrDevEnv( uiParent* p, const char* basedirnm,
 			const char* workdirnm )
-	: uiDialog(p,uiDialog::Setup("Create Work Enviroment",
-				     "Specify a work directory",
+	: uiDialog(p,uiDialog::Setup(tr("Create Work Enviroment"),
+				     tr("Specify a work directory"),
 				     mODHelpKey(mSetDataDirHelpID) ))
 	, workdirfld(0)
 	, basedirfld(0)
@@ -88,7 +88,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( !isOK(swdir) )
     {
 	uiMSG().error( "No source code found. Please download\n"
-		       "and install development package first" );
+		       "and install development package first");
 	return;
     }
 
@@ -201,7 +201,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     if ( !File::exists(cmakefile) )
 	mErrRet( "Creation seems to have failed" )
     else
-	uiMSG().message( "Creation seems to have succeeded." );
+	uiMSG().message( tr("Creation seems to have succeeded.") );
 }
 
 
@@ -213,13 +213,13 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 {
     BufferString workdir = basedirfld->text();
     if ( workdir.isEmpty() || !File::isDirectory(workdir) )
-	mErrRet( "Please enter a valid (existing) location" )
+	mErrRet( tr("Please enter a valid (existing) location") )
 
     if ( workdirfld )
     {
 	BufferString workdirnm = workdirfld->text();
 	if ( workdirnm.isEmpty() )
-	    mErrRet( "Please enter a (sub-)directory name" )
+	    mErrRet( tr("Please enter a (sub-)directory name") )
 
 	workdir = FilePath( workdir ).add( workdirnm ).fullPath();
     }
@@ -230,8 +230,8 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	if ( workdir.contains( "Program Files" )
 	  || workdir.contains( "program files" )
 	  || workdir.contains( "PROGRAM FILES" ) )
-	    mErrRet( "Please do not use 'Program Files'.\n"
-		     "Instead, a directory like 'My Documents' would be OK." )
+	    mErrRet( tr("Please do not use 'Program Files'.\n"
+		     "Instead, a directory like 'My Documents' would be OK.") )
 #endif
     }
 

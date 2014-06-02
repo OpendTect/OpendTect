@@ -33,7 +33,7 @@ class uiDataPointSetCrossPlotter;
 
 
 mExpClass(uiIo) uiSGSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSGSel);
 public:
     					uiSGSel(uiParent*,bool forread);
 

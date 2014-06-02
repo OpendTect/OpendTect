@@ -23,7 +23,7 @@ class uiGenInput;
 
 
 mExpClass(uiIo) uiDPSSelectednessDlg : public uiDPSAddColumnDlg
-{
+{ mODTextTranslationClass(uiDPSSelectednessDlg);
 public:
 				uiDPSSelectednessDlg(uiParent*,
 					uiDataPointSetCrossPlotter&);

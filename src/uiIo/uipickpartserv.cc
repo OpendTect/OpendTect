@@ -244,7 +244,7 @@ bool uiPickPartServer::createRandom2DSet()
     uiGenRandPicks2D dlg( parent(), hornms, linenames );
     if ( linenames.isEmpty() )
     {
-	uiMSG().warning( "No 2D lines are available in this survey" );
+	uiMSG().warning( tr("No 2D lines are available in this survey") );
 	return false;
     }
 

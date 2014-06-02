@@ -32,7 +32,7 @@ static bool checkIfDataDir( const char* path )
 
 uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
 				      const char* dataroot, bool forread )
-    : uiDialog(p,uiDialog::Setup("Select Data Root and Survey",
+    : uiDialog(p,uiDialog::Setup(tr("Select Data Root and Survey"),
 				 mNoDlgTitle,mTODOHelpKey))
     , forread_(forread)
     , surveyfld_(0)
@@ -52,7 +52,7 @@ uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
 
     if ( !forread_ )
     {
-	surveyfld_ = new uiGenInput( this, "Name" );
+	surveyfld_ = new uiGenInput( this, uiStrings::sName() );
 	surveyfld_->attach( alignedBelow, surveylistfld_ );
     }
 
@@ -93,7 +93,7 @@ void uiSurveySelectDlg::fillSurveyList()
 {
     if ( !checkIfDataDir(getDataRoot()) )
     {
-	uiMSG().error( "Selected directory is not a valid Data Root" );
+	uiMSG().error( tr("Selected directory is not a valid Data Root") );
 	return;
     }
 

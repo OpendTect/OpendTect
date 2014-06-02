@@ -26,42 +26,42 @@ static BufferString lastoutfile;
 
 
 uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
-	: uiDialog(p, uiDialog::Setup("Convert Positions",
+	: uiDialog(p, uiDialog::Setup(tr("Convert Positions"),
 		   mNoDlgTitle, mODHelpKey(mConvertPosHelpID) ).modal(mod))
 	, survinfo(si)
 {
-    ismanfld = new uiGenInput( this, "Conversion",
-	           BoolInpSpec(true,"Manual","File") );
+    ismanfld = new uiGenInput( this, tr("Conversion"),
+	           BoolInpSpec(true,tr("Manual"),tr("File")) );
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
 
     mangrp = new uiGroup( this, "Manual group" );
     uiGroup* inlcrlgrp = new uiGroup( mangrp, "InlCrl group" );
     const Interval<int> intv( -mUdf(int), mUdf(int) );
-    inlfld = new uiGenInput( inlcrlgrp, "In-line",
+    inlfld = new uiGenInput( inlcrlgrp, tr("In-line"),
 		IntInpSpec(0,intv).setName("Inl-field") );
     inlfld->setValue( si.inlRange(false).start );
     inlfld->setElemSzPol( uiObject::Medium );
-    crlfld = new uiGenInput( inlcrlgrp, "Cross-line",
+    crlfld = new uiGenInput( inlcrlgrp, tr("Cross-line"),
 		IntInpSpec(0,intv).setName("Crl-field") );
     crlfld->setValue( si.crlRange(false).start );
     crlfld->setElemSzPol( uiObject::Medium );
     crlfld->attach( alignedBelow, inlfld );
 
     uiGroup* xygrp = new uiGroup( mangrp, "XY group" );
-    xfld = new uiGenInput( xygrp, "X-coordinate",
+    xfld = new uiGenInput( xygrp, tr("X-coordinate"),
 			   DoubleInpSpec().setName("X-field") );
     xfld->setElemSzPol( uiObject::Medium );
-    yfld = new uiGenInput( xygrp, "Y-coordinate",
+    yfld = new uiGenInput( xygrp, tr("Y-coordinate"),
 			   DoubleInpSpec().setName("Y-field") );
     yfld->setElemSzPol( uiObject::Medium );
     yfld->attach( alignedBelow, xfld );
 
     uiGroup* butgrp = new uiGroup( mangrp, "Buttons" );
     uiToolButton* dobinidbut = new uiToolButton( butgrp,
-			uiToolButton::LeftArrow, "Convert (X,Y) to Inl/Crl",
+			uiToolButton::LeftArrow, tr("Convert (X,Y) to Inl/Crl"),
 			mCB(this,uiConvertPos,getBinID) );
     uiToolButton* docoordbut = new uiToolButton( butgrp,
-			uiToolButton::RightArrow, "Convert Inl/Crl to (X,Y)",
+			uiToolButton::RightArrow,tr("Convert Inl/Crl to (X,Y)"),
 			mCB(this,uiConvertPos,getCoord) );
     docoordbut->attach( rightTo, dobinidbut );
     butgrp->attach( centeredRightOf, inlcrlgrp );
@@ -81,9 +81,9 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     outfilefld = new uiFileInput( filegrp, "Output file", fipsetup );
     outfilefld->attach( alignedBelow, inpfilefld );
     isxy2bidfld = new uiGenInput( filegrp, "Type",
-	           BoolInpSpec(true,"X/Y to I/C","I/C to X/Y") );
+	           BoolInpSpec(true,tr("X/Y to I/C"),tr("I/C to X/Y")) );
     isxy2bidfld->attach( alignedBelow, outfilefld );
-    uiPushButton* pb = new uiPushButton( filegrp, "Go",
+    uiPushButton* pb = new uiPushButton( filegrp, uiStrings::sGo(),
 				mCB(this,uiConvertPos,convFile), true );
     pb->attach( alignedBelow, isxy2bidfld );
     filegrp->setHAlignObj( inpfilefld );
@@ -107,7 +107,7 @@ void uiConvertPos::getCoord( CallBacker* )
     BinID binid( inlfld->getIntValue(), crlfld->getIntValue() );
     if ( binid == BinID::udf() )
     {
-	uiMSG().error( "Cannot convert this position" );
+	uiMSG().error( tr("Cannot convert this position") );
 	xfld->setText( "" ); yfld->setText( "" );
 	return;
     }
@@ -125,7 +125,7 @@ void uiConvertPos::getBinID( CallBacker* )
     Coord coord( xfld->getdValue(), yfld->getdValue() );
     if ( coord == Coord::udf() )
     {
-	uiMSG().error( "Cannot convert this position" );
+	uiMSG().error( tr("Cannot convert this position") );
 	inlfld->setText( "" ); crlfld->setText( "" );
 	return;
     }
@@ -146,12 +146,12 @@ void uiConvertPos::convFile( CallBacker* )
 
     od_istream istream( inpfnm );
     if ( !istream.isOK() )
-	mErrRet("Input file is not readable" );
+	mErrRet(tr("Input file is not readable") );
 
     const BufferString outfnm = outfilefld->fileName();
     od_ostream ostream( outfnm );
     if ( !ostream.isOK() )
-    { mErrRet("Cannot open output file" ); }
+    { mErrRet(tr("Cannot open output file") ); }
 
     lastinpfile = inpfnm; lastoutfile = outfnm;
 

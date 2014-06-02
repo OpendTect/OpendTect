@@ -20,7 +20,7 @@ class uiMathFormula;
 
 
 mExpClass(uiIo) uiMathPropEdDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMathPropEdDlg);
 public:
 
 			uiMathPropEdDlg(uiParent*,MathProperty&,

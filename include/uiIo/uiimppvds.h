@@ -25,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 
 mExpClass(uiIo) uiImpPVDS : public uiDialog 
-{
+{ mODTextTranslationClass(uiImpPVDS);
 public:
 			uiImpPVDS(uiParent*,bool is2d=false);
 			~uiImpPVDS();

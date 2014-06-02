@@ -757,7 +757,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      const uiString& seltxt, bool multisel,
 			      bool havesetsurvdefault )
 	: uiIOObjRetDlg(p,
-		Setup(c.ctxt.forread?"Input selection":"Output selection",
+		Setup(c.ctxt.forread ? tr("Input selection")
+                                     : tr("Output selection"),
 			mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) )
 		.nrstatusflds(1))
 	, selgrp_( 0 )
@@ -808,7 +809,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
     setCaption( captn );
 
-    setOkText( "&Ok (Select)" );
+    setOkText( tr("&Ok (Select)") );
     selgrp_->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
 }

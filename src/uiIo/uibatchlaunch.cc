@@ -51,14 +51,14 @@ static bool enabClusterProc()
 
 
 uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,"Processing",setts)
+    : uiSettingsGroup(p,tr("Processing"),setts)
 {
     nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
-    nrinlfld_ = new uiGenInput( this, "Default number of inlines per job",
+    nrinlfld_ = new uiGenInput( this, tr("Default number of inlines per job"),
 				IntInpSpec(nrinl_,1,10000) );
 
     enabclusterproc_ = enabClusterProc();
-    clusterfld_ = new uiGenInput( this, "Enable cluster processing",
+    clusterfld_ = new uiGenInput( this, tr("Enable cluster processing"),
 				  BoolInpSpec(enabclusterproc_) );
     clusterfld_->attach( alignedBelow, nrinlfld_ );
 }

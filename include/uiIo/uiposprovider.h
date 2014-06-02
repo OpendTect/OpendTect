@@ -25,7 +25,7 @@ class CubeSampling;
 /*! \brief lets user choose a way to provide positions */
 
 mExpClass(uiIo) uiPosProvider : public uiGroup
-{
+{ mODTextTranslationClass(uiPosProvider);
 public:
 
     struct Setup : public uiPosProvGroup::Setup

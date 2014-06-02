@@ -21,7 +21,7 @@ PickSet manager
 
 
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiPickSetMan);
 public:
     				uiPickSetMan(uiParent*);
 				~uiPickSetMan();

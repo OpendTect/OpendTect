@@ -50,20 +50,20 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     if ( plotter_.isY2Shown() )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, "Calculate selectedness on",
-		    	    BoolInpSpec(true,"Y Axis","Y2 Axis") );
+	    new uiGenInput( this, tr("Calculate selectedness on"),
+		    	    BoolInpSpec(true,tr("Y Axis"),tr("Y2 Axis")) );
 	selaxisfld_->attach( alignedBelow, nmfld_ );
     }
 
     showoverlayfld_ =
-	new uiCheckBox( this, "Show selectedness as overlay attribute",
+	new uiCheckBox( this, tr("Show selectedness as overlay attribute"),
 			mCB(this,uiDPSSelectednessDlg,showOverlayClicked) );
     showoverlayfld_->attach( alignedBelow, plotter_.isY2Shown() ? selaxisfld_
 	    							: nmfld_ );
 
 
     showin3dscenefld_ = 
-	new uiCheckBox( this, "Show selectedness in 3D scene",
+	new uiCheckBox( this, tr("Show selectedness in 3D scene"),
 		        mCB(this,uiDPSSelectednessDlg,show3DSceneClicked) );
 
     showin3dscenefld_->attach( alignedBelow, showoverlayfld_ );

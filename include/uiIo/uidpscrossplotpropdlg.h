@@ -26,7 +26,7 @@ class uiDPSDensPlotSetTab;
 */
 
 mExpClass(uiIo) uiDataPointSetCrossPlotterPropDlg : public uiTabStackDlg
-{
+{ mODTextTranslationClass(uiDataPointSetCrossPlotterPropDlg);
 public:
 					uiDataPointSetCrossPlotterPropDlg(
 					    uiDataPointSetCrossPlotter*);

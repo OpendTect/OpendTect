@@ -24,7 +24,7 @@ class Sampled2DProbDenFunc;
 */
 
 mExpClass(uiIo) uiImpRokDocPDF : public uiDialog
-{
+{ mODTextTranslationClass(uiImpRokDocPDF);
 public:
 			uiImpRokDocPDF(uiParent*);
 

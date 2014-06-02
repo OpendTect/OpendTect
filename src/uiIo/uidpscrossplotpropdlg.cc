@@ -915,7 +915,7 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,
+	: uiTabStackDlg( p->parent(), uiDialog::Setup(uiStrings::sSettings(),0,
                           mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			  .modal(false) )
 	, plotter_(*p)
@@ -933,7 +933,7 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     densplottab_ = new uiDPSDensPlotSetTab( this );
     addGroup( densplottab_ );
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply",
+    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
 	    mCB(this,uiDataPointSetCrossPlotterPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
 }

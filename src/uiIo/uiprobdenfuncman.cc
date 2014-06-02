@@ -30,7 +30,7 @@ static const int cPrefWidth = 75;
 static const float cMaxProbVal = 100.0f;
 
 uiProbDenFuncMan::uiProbDenFuncMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Probability Density Functions",
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Probability Density Functions"),
 				     mNoDlgTitle,
 				     mODHelpKey(mProbDenFuncManHelpID) )
                                      .nrstatusflds(1),
@@ -82,7 +82,7 @@ void uiProbDenFuncMan::browsePush( CallBacker* )
 	{
 	    CtxtIOObj ctio( ctxt_ );
 	    ctio.ctxt.forread = false;
-	    uiIOObjSelDlg seldlg( this, ctio, "Save As" );
+	    uiIOObjSelDlg seldlg( this, ctio, uiStrings::sSaveAs() );
 	    if ( !seldlg.go() || !seldlg.ioObj() ) return;
 	    saveioobj = seldlg.ioObj()->clone();
 	}

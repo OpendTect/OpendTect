@@ -27,7 +27,7 @@ namespace Math { class Expression; }
 */
 
 mExpClass(uiIo) uiDPSAddColumnDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDPSAddColumnDlg);
 public:
 				uiDPSAddColumnDlg(uiParent*,bool withmathop);
     void			setColInfos(const BufferStringSet& colnms,

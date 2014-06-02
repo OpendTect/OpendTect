@@ -52,8 +52,8 @@ static const char* doSetRootDataDir( const char* inpdatadir )
 
 
 uiSetDataDir::uiSetDataDir( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Set Data Directory",
-				     "Specify a data storage directory",
+	: uiDialog(p,uiDialog::Setup(tr("Set Data Directory"),
+				     tr("Specify a data storage directory"),
 				     mODHelpKey(mSetDataDirHelpID) ))
 	, curdatadir_(GetBaseDataDir())
 {
@@ -114,7 +114,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 {
     seldir_ = basedirfld_->text();
     if ( seldir_.isEmpty() || !File::isDirectory(seldir_) )
-	mErrRet( "Please enter a valid (existing) location" )
+	mErrRet( tr("Please enter a valid (existing) location") )
 
     if ( seldir_ == curdatadir_ && IOMan::isValidDataRoot(seldir_) )
 	return true;
@@ -126,10 +126,10 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 	const BufferString ddatslvl( fpdd.dirUpTo(nrslvls-1) );
 	if ( ddatslvl == fps.fullPath() )
 	{
-	    uiMSG().error( "The directory you have chosen is"
+	    uiMSG().error( tr("The directory you have chosen is"
 		   "\n *INSIDE*\nthe software installation directory."
 		   "\nThis leads to many problems, and we cannot support this."
-		   "\n\nPlease choose another directory" );
+		   "\n\nPlease choose another directory") );
 	    return false;
 	}
     }
@@ -177,18 +177,18 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	  || datadir.contains( "Program Files" )
 	  || datadir.contains( "program files" )
 	  || datadir.contains( "PROGRAM FILES" ) )
-	    mErrRet( "Please do not try to use 'Program Files' for data.\n"
-		     "Instead, a directory like 'My Documents' would be OK." )
+	    mErrRet( tr("Please do not try to use 'Program Files' for data.\n"
+		     "Instead, a directory like 'My Documents' would be OK.") )
 #endif
 	if ( !File::createDir( datadir ) )
-	    mErrRet( "Cannot create the new directory.\n"
-		     "Please check if you have the required write permissions" )
+	    mErrRet( tr("Cannot create the new directory.\n"
+		     "Please check if you have the required write permissions"))
     }
 
     while ( !IOMan::isValidDataRoot(datadir) )
     {
 	if ( !File::isDirectory(datadir) )
-	    mErrRet( "A file (not a directory) with this name already exists" )
+	   mErrRet(tr("A file (not a directory) with this name already exists"))
 
 	if ( File::exists(omffnm) )
 	{
@@ -253,7 +253,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     uiGetChoice uigc( par, opts, "Please select next action" );
     OSRPageShower ps;
     uiPushButton* pb = new uiPushButton( &uigc,
-				 "visit &OSR web site (for free surveys)",
+				 tr("visit &OSR web site (for free surveys)"),
 				 mCB(&ps,OSRPageShower,go), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )
@@ -262,7 +262,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     if ( (havedemosurv && uigc.choice() == 2) ||
          (!havedemosurv && uigc.choice() == 1))
     {
-        uiFileDialog dlg( par, true, "", "*.zip", "Select zip file" );
+        uiFileDialog dlg( par, true, "", "*.zip", tr("Select zip file") );
         dlg.setDirectory( datadir );
         if ( !dlg.go() )
             return;

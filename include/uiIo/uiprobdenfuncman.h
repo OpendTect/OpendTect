@@ -20,7 +20,7 @@ Probability Density Function manager
 */
 
 mExpClass(uiIo) uiProbDenFuncMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiProbDenFuncMan);
 public:
     				uiProbDenFuncMan(uiParent*);
 				~uiProbDenFuncMan();

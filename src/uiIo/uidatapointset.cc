@@ -137,8 +137,8 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
-    : uiDialog::Setup( wintitl.isSet() ? wintitl: "Extracted data", mNoDlgTitle,
-                      mODHelpKey(mDataPointSetHelpID) )
+    : uiDialog::Setup( wintitl.isSet() ? wintitl: tr("Extracted data"), mNoDlgTitle,
+                       mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)
@@ -291,9 +291,9 @@ void uiDataPointSet::mkToolBars()
     {
 	if ( !iotb_ )
 	    iotb_ = new uiToolBar( this, "I/O Tool bar" );
-	mAddButton( "saveset", save, "Save data" );
+	mAddButton( "saveset", save, tr("Save data") );
 	if ( setup_.allowretrieve_ )
-	    mAddButton( "openset", retrieve, "Retrieve stored data" );
+	    mAddButton( "openset", retrieve, tr("Retrieve stored data") );
     }
 #undef mAddButton
 
@@ -301,21 +301,21 @@ void uiDataPointSet::mkToolBars()
 	maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func) )
-    mAddButton( "axis-x", selXCol, "Set data for X" );
-    mAddButton( "axis-add-y", selYCol, "Select as Y data" );
-    mAddButton( "axis-rm-y", unSelYCol, "UnSelect as Y data" );
-    mAddButton( "delselrows", delSelRows, "Remove selected rows" );
-    mAddButton( "axis-prev", colStepL, "Set Y one column left" );
-    mAddButton( "axis-next", colStepR, "Set Y one column right" );
-    mAddButton( "sortcol", setSortCol, "Set sorted column to current" );
-    mAddButton( "plus", addColumn, "Add column.." );
-    mAddButton( "minus", removeColumn, "Remove column" );
+    mAddButton( "axis-x", selXCol, tr("Set data for X") );
+    mAddButton( "axis-add-y", selYCol, tr("Select as Y data") );
+    mAddButton( "axis-rm-y", unSelYCol, tr("UnSelect as Y data") );
+    mAddButton( "delselrows", delSelRows, tr("Remove selected rows") );
+    mAddButton( "axis-prev", colStepL, tr("Set Y one column left") );
+    mAddButton( "axis-next", colStepR, tr("Set Y one column right") );
+    mAddButton( "sortcol", setSortCol, tr("Set sorted column to current") );
+    mAddButton( "plus", addColumn, tr("Add column ...") );
+    mAddButton( "minus", removeColumn, tr("Remove column") );
 #undef mAddButton
 
     if ( !disptb_ )
 	disptb_ = new uiToolBar( this, "Display Tool bar" );
 
-    uiLabel* showlbl = new uiLabel( disptb_,"Show" );
+    uiLabel* showlbl = new uiLabel( disptb_,uiStrings::sShow() );
     disptb_->addObject( showlbl );
     percfld_ = new uiSpinBox( disptb_, 1, "Each" );
     percfld_->setSuffix( "%" );
@@ -328,24 +328,25 @@ void uiDataPointSet::mkToolBars()
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
     dispxytbid_ = mAddButton( "toggxy", toggleXYZ,
-			      "Toggle show X and Y columns", true );
-    dispztbid_ = mAddButton( "toggz", toggleXYZ, "Toggle show Z column", true );
+			      tr("Toggle show X and Y columns"), true );
+    dispztbid_ = mAddButton( "toggz", toggleXYZ, 
+                              tr("Toggle show Z column"), true );
 
     if ( !is2D() )
     {
-	showbidsfld_ = new uiCheckBox( disptb_, "Show Inl/Crl" );
+	showbidsfld_ = new uiCheckBox( disptb_, tr("Show Inl/Crl") );
 	showbidsfld_->activated.notify(mCB(this,uiDataPointSet,chgPosDispType));
 	showbidsfld_->setChecked( showbids_ );
 	disptb_->addObject( showbidsfld_ );
     }
 
     mAddButton( "statsinfo", showStatsWin,
-			     "Show histogram and stats for column", false );
+			     tr("Show histogram and stats for column"), false );
     if ( dps_.group(0) < mUdf(od_uint16) && SI().zIsTime() )
 	mAddButton( "variogram", compVertVariogram,
-		    "Compute variogram for column", false );
+		    tr("Compute variogram for column"), false );
     xplottbid_ = mAddButton( "xplot", showCrossPlot,
-			     "Show Cross-plot", false );
+			     tr("Show Cross-plot"), false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
 }
@@ -398,7 +399,7 @@ void uiDataPointSet::calcIdxs()
     const int dpssz = dps_.size();
     if ( dpssz<0 )
     {
-	uiMSG().message( "DataPointSet too large, choose a subselection" );
+	uiMSG().message( tr("DataPointSet too large, choose a subselection") );
 	return;
     }
 
@@ -1153,7 +1154,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	const char* txt = tbl_->text( cell );
 	if ( !txt || !*txt )
 	{
-	    uiMSG().error( "Positioning values must be filled" );
+	    uiMSG().error( tr("Positioning values must be filled") );
 	    mRetErr;
 	}
 	DataPointSet::Pos& pos( afterchgdr_.pos_ );
@@ -1271,8 +1272,8 @@ bool uiDataPointSet::saveOK()
     if ( !unsavedchgs_ )
 	return true;
 
-    int res = uiMSG().askSave( "There are unsaved changes.\n"
-			       "Do you want to save the data?" );
+    int res = uiMSG().askSave( tr("There are unsaved changes.\n"
+			       "Do you want to save the data?") );
     if ( res == -1 )
 	return false;
     else if ( res == 0 )
@@ -1322,11 +1323,11 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-	{ uiMSG().error("Selected data set is empty"); return; }
+	{ uiMSG().error(tr("Selected data set is empty")); return; }
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
     if ( newdps->isEmpty() )
-	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
+	{ delete newdps; uiMSG().error(tr("Data set is not suitable"));return; }
 
     setCaption( seldlg.ioObj()->name() );
     removeSelPts( 0 );
@@ -1550,22 +1551,23 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	    tbl_->selectedRanges();
 	if ( tablerange.size()>1 )
 	{
-	     if ( !uiMSG().askGoOn( "Only selected rows will be removed"
+	     if ( !uiMSG().askGoOn( tr("Only selected rows will be removed"
 			      "\nThose rows falling in the same range"
 			      "\nbut not displayed as only certain"
 			      "\npercentage of data is displayed will not"
 			      "\nbe removed."
-			      "\nDo you want to go ahead with removal?" ) )
+			      "\nDo you want to go ahead with removal?") ) )
 		 return;
 	}
 	else
 	{
-	    const int rep = uiMSG().askGoOnAfter("Do you want to remove rows"
+	    const int rep = uiMSG().askGoOnAfter(tr("Do you want to remove rows"
 				 "\nwhich fall in the same range but are not"
 				 "\nselected or displayed as only certain"
 				 "\npercentage of data is displayed or only the"
-				 "\nselected & displayed ones ?", "Cancel",
-				 "Delete all", "Delete only selected" );
+				 "\nselected & displayed ones ?"), 
+                                 uiStrings::sCancel(), tr("Delete all"), 
+                                 tr("Delete only selected") );
 	    if ( rep == 0 )
 		removeHiddenRows();
 	    if ( rep != 1 )
@@ -1594,10 +1596,10 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	dps_.dataChanged();
     if ( nrrem < 1 )
     {
-	uiMSG().message( "Please select the row(s) you want to remove."
+	uiMSG().message( tr("Please select the row(s) you want to remove."
 			 "\nby clicking on the row label(s)."
 			 "\nYou can select multiple rows by dragging,"
-			 "\nor by holding down the shift key when clicking." );
+			 "\nor by holding down the shift key when clicking.") );
 	return;
     }
 
@@ -1725,7 +1727,7 @@ void uiDataPointSet::removeColumn( CallBacker* )
     const DColID dcolid = dColID();
     const TColID tcolid = tColID( dcolid );
     if ( dcolid < 0 )
-	return uiMSG().error( "Cannot remove this column" );
+	return uiMSG().error(tr("Cannot remove this column"));
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
 	BufferString msg( "This column is selected as data for " );
@@ -1762,7 +1764,7 @@ void uiDataPointSet::compVertVariogram( CallBacker* )
 {
     const DColID dcid = dColID();
     if ( dcid<1 )
-	return uiMSG().error( "Please select an attribute column" );
+	return uiMSG().error( tr("Please select an attribute column") );
 
     dps_.dataSet().pars().set( sKeyGroups, grpnames_ );
     int nrgroups = 0;

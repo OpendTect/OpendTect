@@ -23,7 +23,7 @@ class uiListBox;
 class Settings;
 
 mExpClass(uiIo) uiProcSettings : public uiSettingsGroup
-{
+{ mODTextTranslationClass(uiProcSettings);
 public:
 			mDefaultFactoryInstantiation2Param(
 				uiSettingsGroup,

@@ -366,7 +366,7 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
 
 
 uiSurvey::uiSurvey( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Survey Setup and Selection",
+    : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
@@ -384,10 +384,10 @@ uiSurvey::uiSurvey( uiParent* p )
     if ( dataroot_.isEmpty() )
     {
 	new uiLabel( this,
-		"Cannot establish a 'Survey Data Root' directory."
+		tr("Cannot establish a 'Survey Data Root' directory."
 		"\nOpendTect needs a place to store its files."
 		"\nPlease consult the documentation at opendtect.org,"
-		"\nor contact support@opendtect.org." );
+		"\nor contact support@opendtect.org.") );
     }
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
@@ -420,7 +420,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     uiLabel* infolbl = new uiLabel( topgrp, "" );
     infolbl->setPixmap( "info" );
-    infolbl->setToolTip( "Survey Information" );
+    infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
     infofld_->setPrefHeightInChar( 8 );
@@ -431,7 +431,7 @@ uiSurvey::uiSurvey( uiParent* p )
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
     uiLabel* notelbl = new uiLabel( botgrp, "" );
     notelbl->setPixmap( ioPixmap("notes") );
-    notelbl->setToolTip( "Notes" );
+    notelbl->setToolTip( tr("Notes") );
     notelbl->setMaximumWidth( 32 );
 
     notesfld_ = new uiTextEdit( botgrp, "Survey Notes" );
@@ -445,7 +445,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     putToScreen();
     updateDataRootLabel();
-    setOkText( "&Select" );
+    setOkText( uiStrings::sSelect() );
     postFinalise().notify( selchgcb );
 }
 
@@ -475,20 +475,24 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     uiButtonGroup* butgrp =
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
+    new uiToolButton( butgrp, "database",
+	tr("Select Survey Data Root"), mCB(this,uiSurvey,dataRootPushed) );
     new uiToolButton( butgrp, "addnew",
 	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
-    editbut_ = new uiToolButton( butgrp, "edit", "Edit Survey Parameters",
+    editbut_ = new uiToolButton( butgrp, "edit", tr("Edit Survey Parameters"),
 				 mCB(this,uiSurvey,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
-	"Copy Survey", mCB(this,uiSurvey,copyButPushed) );
+	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
     new uiToolButton( butgrp, "export",
-	"Compress survey as zip archive", mCB(this,uiSurvey,exportButPushed) );
+	tr("Compress survey as zip archive"), 
+        mCB(this,uiSurvey,exportButPushed) );
     new uiToolButton( butgrp, "import",
-	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed) );
+	tr("Extract survey from zip archive"), 
+        mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
-	"Share surveys through the OpendTect Seismic Repository",
+	tr("Share surveys through the OpendTect Seismic Repository"),
 	 mSCB(osrbuttonCB) );
-    rmbut_ = new uiToolButton( butgrp, "trashcan", "Remove Survey",
+    rmbut_ = new uiToolButton( butgrp, "trashcan", tr("Remove Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
@@ -585,7 +589,8 @@ void uiSurvey::updateDataRootInSettings()
     Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
 	uiMSG().warning(
-		"Could not save the base data location in the settings file" );
+		tr("Could not save the base data"
+                " location in the settings file") );
 }
 
 
@@ -769,11 +774,11 @@ void uiSurvey::rmButPushed( CallBacker* )
     const bool rmisok = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmisok )
-	uiMSG().error( BufferString( truedirnm, "\nnot removed properly" ) );
+	uiMSG().error( BufferString( truedirnm, "\nnot removed properly" ));
 
     if ( seldirnm != truedirnm ) // must have been a link
 	if ( !File::remove(seldirnm) )
-	    uiMSG().error( "Could not remove link to the removed survey" );
+	    uiMSG().error( tr("Could not remove link to the removed survey") );
 
     updateSurvList();
     const char* ptr = GetSurveyName();
@@ -808,7 +813,7 @@ void uiSurvey::copyButPushed( CallBacker* )
     cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
     cursurvinfo_->updateDirName();
     if ( !cursurvinfo_->write() )
-	uiMSG().warning( "Could not write updated survey info" );
+	uiMSG().warning( tr("Could not write updated survey info") );
 
     updateSurvList();
     dirfld_->setCurrentItem( dlg.newdirnm_ );
@@ -819,7 +824,7 @@ void uiSurvey::importButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    uiFileDialog fdlg( this, true, 0, "*.zip", "Select survey zip file" );
+    uiFileDialog fdlg( this, true, 0, "*.zip", tr("Select survey zip file") );
     fdlg.setSelectedFilter( sZipFileMask );
     if ( !fdlg.go() )
 	return;
@@ -843,11 +848,11 @@ void uiSurvey::exportButPushed( CallBacker* )
     fnmfld->setDefaultExtension( "zip" );
     fnmfld->setFilter( sZipFileMask );
     uiLabel* sharfld = new uiLabel( &dlg,
-			   "You can share surveys to Open Seismic Repository."
-			   "To know more " );
+			  tr("You can share surveys to Open Seismic Repository."
+			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );
     uiPushButton* osrbutton = new uiPushButton( &dlg,
-				    "Click here", mSCB(osrbuttonCB), false );
+				   tr("Click here"), mSCB(osrbuttonCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;

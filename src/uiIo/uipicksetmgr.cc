@@ -219,7 +219,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid )
 
     if ( pss.size() < 2 )
     {
-	uiMSG().error( "Not enough valid sets selected for merge" );
+	uiMSG().error( tr("Not enough valid sets selected for merge") );
 	deepErase( pssread ); return;
     }
 

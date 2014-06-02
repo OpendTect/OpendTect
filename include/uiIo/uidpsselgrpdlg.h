@@ -18,7 +18,7 @@ class uiTable;
 class SelectionGrp;
 
 mClass(uiIo) uiDPSSelGrpDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDPSSelGrpDlg);
 public:
 
 			uiDPSSelGrpDlg(uiDataPointSetCrossPlotter&,

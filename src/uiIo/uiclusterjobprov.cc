@@ -163,9 +163,9 @@ protected:
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
 				    const char* prognm, const char* parfnm )
-    : uiDialog(p,uiDialog::Setup("Cluster job generator","",
+    : uiDialog(p,uiDialog::Setup(tr("Cluster job generator"),"",
                                   mODHelpKey(mClusterJobProvHelpID) )
-			   .oktext("Continue"))
+			   .oktext(uiStrings::sContinue()))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
     , iopar_(*new IOPar(iop))
@@ -173,11 +173,11 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     jobprov_ = new InlineSplitJobDescProv( iop );
 
     const int nrinl = InlineSplitJobDescProv::defaultNrInlPerJob();
-    nrinlfld_ = new uiGenInput( this, "Nr of inlines per job",
+    nrinlfld_ = new uiGenInput( this, tr("Nr of inlines per job"),
 				IntInpSpec(nrinl) );
     nrinlfld_->valuechanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
 
-    nrjobsfld_ = new uiLabel( this, "Total no. of jobs: 0000" );
+    nrjobsfld_ = new uiLabel( this, tr("Total no. of jobs: 0000") );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
     parfilefld_ = new uiFileInput( this, "Par file",
@@ -202,7 +202,7 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
-    cmdfld_ = new uiGenInput( this, "Cluster Processing command",
+    cmdfld_ = new uiGenInput( this, tr("Cluster Processing command"),
 			      StringInpSpec("srun") );
     cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
@@ -232,19 +232,19 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     const int nrinlperjob = nrinlfld_->getIntValue();
     if ( mIsUdf(nrinlperjob) || nrinlperjob < 1 )
-	mErrRet( "Please specify number of inlines per job")
+	mErrRet( tr("Please specify number of inlines per job"))
 
     BufferString parfnm = parfilefld_->fileName();
     if ( parfnm.isEmpty() )
-	mErrRet( "Please enter a valid par file name")
+	mErrRet( tr("Please enter a valid par file name"))
 
     BufferString tmpdir = tmpstordirfld_->fileName();
     if ( tmpdir.isEmpty() || !File::isDirectory(tmpdir) )
-	mErrRet( "Please make a valid entry for temporary storage directory")
+	mErrRet(tr("Please make a valid entry for temporary storage directory"))
 
     BufferString scriptdir = scriptdirfld_->fileName();
     if ( scriptdir.isEmpty() || !File::isDirectory(scriptdir) )
-	mErrRet( "Please make a valid entry for script storage directory")
+	mErrRet( tr("Please make a valid entry for script storage directory"))
 
     if ( tempstordir_ != tmpdir )
 	File::remove( tempstordir_.buf() );
@@ -261,14 +261,14 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     iopar_.set( sKey::TmpStor(), tmpdir.buf() );
     const char* cmd = cmdfld_->text();
     if ( !cmd || !*cmd )
-	mErrRet("Please enter a valid command for submitting jobs")
+	mErrRet(tr("Please enter a valid command for submitting jobs"))
 
     iopar_.set( "Command", cmd );
     if ( !iopar_.write(parfnm.buf(),sKey::Pars()) )
-	mErrRet("Failed to write parameter file")
+	mErrRet(tr("Failed to write parameter file"))
 
     if ( !createJobScripts(scriptdir.buf()) )
-	mErrRet("Failed to split jobs")
+	mErrRet(tr("Failed to split jobs"))
 
     BufferString msg = "Job scripts";
     msg += " have been created successfully. Execute now?";
@@ -290,7 +290,7 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
 bool uiClusterJobProv::createJobScripts( const char* scriptdir )
 {
     if ( !jobprov_ || !jobprov_->nrJobs() )
-	mErrRet("No jobs to generate")
+	mErrRet(tr("No jobs to generate"))
 
     ClusterJobCreator exec( *jobprov_, scriptdir, prognm_ );
     uiTaskRunner dlg( this );

@@ -22,7 +22,7 @@ namespace ZDomain { class Def; }
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
 mExpClass(uiIo) uiSelZRange : public uiGroup
-{
+{ mODTextTranslationClass(uiSelZRange);
 public:
                         uiSelZRange(uiParent*,bool wstep,
 				    bool isrel=false,const char* lbltxt=0,

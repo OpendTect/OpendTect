@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 					  uiDataPointSetCrossPlotter& pltr )
-    : uiDialog(p,uiDialog::Setup("Overlay Properties",
-				 "Display Properties within points",
+    : uiDialog(p,uiDialog::Setup(tr("Overlay Properties"),
+				 tr("Display Properties within points"),
 				 mODHelpKey(mDPSOverlayPropDlgHelpID) ))
     , plotter_(pltr)
 {
@@ -40,7 +40,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
     y3coltabfld_->enableManage( false );
     y3coltabfld_->setInterval( plotter_.y3Mapper().range() );
     uiLabeledComboBox* y3lblcbx =
-	new uiLabeledComboBox( this, colnames, "Overlay Y1 Attribute", "" );
+	new uiLabeledComboBox( this, colnames, tr("Overlay Y1 Attribute"), "" );
     y3lblcbx->attach( alignedBelow, y3coltabfld_ );
     y3propselfld_ = y3lblcbx->box();
     if ( !mIsUdf(plotter_.y3Colid()) )
@@ -64,7 +64,8 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	y4coltabfld_->enableManage( false );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
 	y4lblcbx =
-	    new uiLabeledComboBox( this, colnames, "Overlay Y2 Attribute", "");
+	    new uiLabeledComboBox( this, colnames, 
+                                   tr("Overlay Y2 Attribute"), "");
 	y4lblcbx->attach( alignedBelow, y4coltabfld_ );
 	y4propselfld_ = y4lblcbx->box();
 	y4coltabfld_->setInterval( plotter_.y4Mapper().range() );
@@ -83,7 +84,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply",
+    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
     applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
 	    						  : y3lblcbx );

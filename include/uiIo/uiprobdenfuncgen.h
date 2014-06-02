@@ -23,7 +23,7 @@ class uiSpinBox;
 /*!\brief creates probability density functions (Gaussian and Sampled) */
 
 mExpClass(uiIo) uiProbDenFuncGen : public uiDialog
-{
+{ mODTextTranslationClass(uiProbDenFuncGen);
 public:
 			uiProbDenFuncGen(uiParent*);
 

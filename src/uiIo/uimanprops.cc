@@ -334,8 +334,8 @@ void uiBuildPROPS::itemSwitch( const char* nm1, const char* nm2 )
 
 
 uiManPROPS::uiManPROPS( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Layer Properties - Definition",
-				"Define possible layer properties",
+    : uiDialog(p,uiDialog::Setup(tr("Layer Properties - Definition"),
+				 tr("Define possible layer properties"),
                                  mODHelpKey(mManPROPSHelpID) ))
 {
     setCtrlStyle( CloseOnly );
@@ -360,13 +360,13 @@ bool uiManPROPS::rejectOK( CallBacker* )
 						: Repos::User);
 
     if ( !PROPS().save(repsrc) )
-	uiMSG().warning( "Could not store the definitions to file."
-			 "\nPlease check file/directory permissions." );
+	uiMSG().warning( tr("Could not store the definitions to file."
+			 "\nPlease check file/directory permissions.") );
     else if ( repsrc != Repos::Survey )
     {
 	if ( !PROPS().save(Repos::Survey) )
-	    uiMSG().warning( "Could not store the definitions in your survey."
-			 "\nPlease check file/directory permissions there." );
+	    uiMSG().warning(tr("Could not store the definitions in your survey."
+			 "\nPlease check file/directory permissions there.") );
     }
 
     return true;

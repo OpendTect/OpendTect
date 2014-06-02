@@ -19,7 +19,7 @@ class uiComboBox;
 class uiGenInput;
 
 mExpClass(uiIo) uiPrDenFunVarSel : public uiGroup
-{
+{ mODTextTranslationClass(uiPrDenFunVarSel);
 public:
 
 struct DataColInfo

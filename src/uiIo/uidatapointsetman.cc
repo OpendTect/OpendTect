@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$";
 static const int cPrefWidth = 75;
 
 uiDataPointSetMan::uiDataPointSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Cross-plot Data",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Cross-plot Data"),mNoDlgTitle,
 		   mODHelpKey(mDataPointSetManHelpID) ).nrstatusflds(1),
 	           PosVecDataSetTranslatorGroup::ioContext())
 {
@@ -79,7 +79,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
 
     BufferString masternm( dps->name() );
     if ( masternm == seldlg.ioObj()->name() )
-	return uiMSG().error( "Cannot merge same crossplots." );
+	return uiMSG().error( tr("Cannot merge same crossplots.") );
 
     PosVecDataSet spvds;
     BufferString errmsg;
@@ -87,7 +87,7 @@ void uiDataPointSetMan::mergePush( CallBacker* )
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( spvds.data().isEmpty() )
-    { uiMSG().error("Selected data set is empty"); return; }
+    { uiMSG().error(tr("Selected data set is empty")); return; }
 
     DataPointSet* sdps =
 	new DataPointSet( spvds, dps->is2D(), dps->isMinimal() );

@@ -20,7 +20,7 @@ class SurveyInfo;
 
 
 mExpClass(uiIo) uiConvertPos : public uiDialog
-{
+{ mODTextTranslationClass(uiConvertPos);
 
 public:
                         uiConvertPos(uiParent*, const SurveyInfo&,

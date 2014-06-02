@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
-{
+{ mODTextTranslationClass(ui2DSurvInfoProvider);
 public:
     			ui2DSurvInfoProvider()
 			    : xyft_(false)	{}

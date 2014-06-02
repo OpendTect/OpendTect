@@ -29,7 +29,7 @@ mDefineInstanceCreatedNotifierAccess(uiPickSetMan)
 
 
 uiPickSetMan::uiPickSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage PickSets/Polygons",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage PickSets/Polygons"),mNoDlgTitle,
 				     mODHelpKey(mPickSetManHelpID) )
                                      .nrstatusflds(1),
 	           PickSetTranslatorGroup::ioContext())

@@ -22,7 +22,7 @@ class uiListBox;
 /*! \brief lets user choose a way to provide positions */
 
 mExpClass(uiIo) uiPosFilterSet : public uiGroup
-{
+{ mODTextTranslationClass(uiPosFilterSet);
 public:
 
     struct Setup : public uiPosFiltGroup::Setup

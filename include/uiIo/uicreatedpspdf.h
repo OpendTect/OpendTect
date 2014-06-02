@@ -31,7 +31,7 @@ class uiPrDenFunVarSel;
 */
 
 mExpClass(uiIo) uiCreateDPSPDF : public uiDialog
-{
+{ mODTextTranslationClass(uiCreateDPSPDF);
 public:
 			uiCreateDPSPDF(uiParent*,
 				       const uiDataPointSetCrossPlotter*);

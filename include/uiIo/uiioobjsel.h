@@ -32,7 +32,7 @@ class uiToolButton;
 	  successful go(). */
 
 mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiIOObjRetDlg);
 public:
 
 			uiIOObjRetDlg(uiParent* p,const Setup& s)

@@ -79,7 +79,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 
     if ( nms.isEmpty() )
     {
-	new uiLabel( this, "No position filters available" );
+	new uiLabel( this, tr("No position filters available") );
 	return;
     }
 
@@ -89,8 +89,8 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     if ( nms.size() == 1 )
     {
 	uiLabel* nmlbl = new uiLabel( this, nms[0] );
-	new uiLabel( this, "Filter: ", nmlbl );
-	ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
+	new uiLabel( this, tr("Filter: "), nmlbl );
+	ynfld_ = new uiGenInput( this, tr("Use"), BoolInpSpec(false) );
 	ynfld_->attach( alignedBelow, nmlbl );
 	attobj = ynfld_->attachObj();
     }

@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
 				  const PropertyRefSelection& prs )
-    : uiDialog( p, Setup("Math property",
+    : uiDialog( p, Setup(tr("Math property"),
 		BufferString("Value generation by formula for ",pr.name()),
 		mODHelpKey(mMathPropEdDlgHelpID)) )
     , prop_(pr)
@@ -83,8 +83,8 @@ void uiMathPropEdDlg::setPType4Inp( int inpidx )
 
 void uiMathPropEdDlg::rockPhysReq( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Rock Physics",
-		  "Use a rock physics formula",
+    uiDialog dlg( this, uiDialog::Setup(tr("Rock Physics"),
+		  tr("Use a rock physics formula"),
 		  mODHelpKey(mRockPhysFormHelpID)) );
     uiRockPhysForm* rpffld = new uiRockPhysForm( &dlg, prop_.ref().stdType() );
     TypeSet<PropertyRef::StdType> inputtypes;

@@ -26,7 +26,7 @@ class uiListBox;
 /*!\brief Manages the PROPS() */
 
 mExpClass(uiIo) uiManPROPS : public uiDialog
-{
+{ mODTextTranslationClass(uiManPROPS);
 public:
 
 			uiManPROPS(uiParent*);
