@@ -100,17 +100,14 @@ public:
     void			setOneLogDisplayed(bool);
     const Color&		logColor(visBase::Well::Side) const;
     void			setLogColor(const Color&,visBase::Well::Side);
-    float			getLogScreenWidth(visBase::Well::Side) const;
-    void			setLogScreenWidth(float,visBase::Well::Side);
+    float			getLogWidth(visBase::Well::Side) const;
+    void			setLogWidth(float,visBase::Well::Side);
     int				getLogLineWidth() const;
     void			setLogLineWidth(int,visBase::Well::Side);
     bool			logsShown() const;
     void			showLogs(bool);
     bool			logNameShown() const;
     void			showLogName(bool);
-    void                        setLogConstantSize(bool);
-    bool                        logConstantSize() const;
-
 
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);

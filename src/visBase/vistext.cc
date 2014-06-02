@@ -131,6 +131,23 @@ void Text::setJustification( Justification just )
 }
 
 
+void Text::setCharacterSizeMode( CharacterSizeMode mode )
+{
+    osgText::TextBase::CharacterSizeMode osgmode =  
+	( osgText::TextBase::CharacterSizeMode ) mode;
+    osgtext_->setCharacterSizeMode( osgmode );
+}
+
+
+void Text::setAxisAlignment( AxisAlignment axis )
+{
+    osgText::TextBase::AxisAlignment osgaxis =
+	( osgText::TextBase::AxisAlignment ) axis;
+    osgtext_->setAxisAlignment( osgaxis );
+}
+
+
+
 void Text::setColor( const Color& col )
 {
     osgtext_->setColor( Conv::to<osg::Vec4>(col) );
@@ -183,7 +200,6 @@ int Text2::addText()
     newtext->setDisplayTransformation( displaytransform_ );
     texts_ += newtext;
     geode_->addDrawable( &newtext->getDrawable() );
-
     return texts_.size()-1;
 }
 

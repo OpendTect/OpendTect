@@ -110,40 +110,37 @@ public:
     bool			markerNameShown() const;
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
-    void			setLogConstantSize(bool);
-    bool			logConstantSize() const;
-    float			constantLogSizeFactor() const;
 
     //logs
     mStruct(visBase) LogParams : public BasicParams
     {
 				LogParams()
 				{}
-	float	cliprate_;
+	float			cliprate_;
 	bool			isdatarange_;
 	bool			islinedisplayed_;
-	bool	islogarithmic_;
+	bool			islogarithmic_;
 	bool			issinglcol_;
 	bool			isleftfilled_;
 	bool			isrightfilled_;
 	bool			isblock_;
-	int	logwidth_;
-	int	logidx_;
+	int			logwidth_;
+	int			logidx_;
 	Well::Side              side_;
-	Interval<float>	range_;
-	Interval<float>	valrange_;
+	Interval<float>		range_;
+	Interval<float>		valrange_;
 	bool			sclog_;
 	bool			iscoltabflipped_;
 
-	int	filllogidx_;
-	const char*	fillname_;
-	Interval<float>	fillrange_;
-	Interval<float>	valfillrange_;
+	int			filllogidx_;
+	const char*		fillname_;
+	Interval<float>		fillrange_;
+	Interval<float>		valfillrange_;
 	const char*		seqname_;
 
-	int	repeat_;
-	float	ovlap_;
-	Color	seiscolor_;
+	int			repeat_;
+	float			ovlap_;
+	Color			seiscolor_;
 	LogStyle		style_;
     };
 
@@ -161,8 +158,8 @@ public:
 
     void			setLogLineDisplayed(bool,Side);
     bool			logLineDisplayed(Side) const;
-    void			setLogScreenWidth(float,Side);
-    float			getLogScreenWidth(Side) const;
+    void			setLogWidth(float,Side);
+    float			getLogWidth(Side) const;
     void			setLogLineWidth(int,Side);
     int				getLogLineWidth() const;
     void			showLogs(bool);
@@ -218,7 +215,6 @@ protected:
 
     bool			showmarkers_;
     bool			showlogs_;
-    float			constantlogsizefac_;
 
     float			pixeldensity_;
     ZAxisTransform*		zaxistransform_;
@@ -234,6 +230,10 @@ private:
 					    bool isFill = true);
     void			getLinScaleRange( const LinScaler&,
 				    Interval<float>&, float&, float&, bool);
+    void			updateMakerSize(float sizefactor);
+    void			updateMakerNamePosition(Side side,
+							float sizefactor);
+
 
 };
 

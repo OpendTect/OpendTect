@@ -228,13 +228,14 @@ void WellDisplay::fillMarkerParams( visBase::Well::MarkerParams& mp )
     mp.shapeint_	= mGetDispPar( markers_.shapeint_ );
     mp.cylinderheight_	= mGetDispPar( markers_.cylinderheight_ );
     mp.font_		= mGetDispPar( markers_.font_ );
-    mp.namecol_	= mGetDispPar( markers_.nmcol_ );
+    mp.namecol_		= mGetDispPar( markers_.nmcol_ );
     mp.size_		= mGetDispPar( markers_.size_ );
 }
 
 
 #define mGetLogPar(side,par) side==0 ? mGetDispPar(logs_[0]->left_.par)\
 				       : mGetDispPar(logs_[0]->right_.par)
+
 void WellDisplay::fillLogParams(
 		visBase::Well::LogParams& lp, visBase::Well::Side side )
 {
@@ -273,8 +274,6 @@ void WellDisplay::fullRedraw( CallBacker* )
     mGetWD(return);
     if ( !well_ ) return;
 
-    const bool waslogconstsize = well_->logConstantSize();
-
     TypeSet<Coord3> trackpos;
     getTrackPos( wd, trackpos );
     if ( trackpos.isEmpty() ) return;
@@ -289,7 +288,6 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setTrackProperties( tp.col_, tp.size_ );
     well_->setWellName( tp );
     well_->removeLogs();
-    well_->setLogConstantSize( waslogconstsize );
 
     mDispLog( visBase::Well::Left, Left );
     mDispLog( visBase::Well::Right, Right );
@@ -549,14 +547,6 @@ void WellDisplay::setOneLogDisplayed(bool yn)
 { onelogdisplayed_ = yn; }
 
 
-void WellDisplay::setLogConstantSize(bool yn)
-{ well_->setLogConstantSize( yn ); }
-
-
-bool WellDisplay::logConstantSize() const
-{ return well_->logConstantSize(); }
-
-
 void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 {
     const visBase::Well::Side side = lp.side_;
@@ -571,7 +561,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     well_->setLogColor( lp.col_, side );
     well_->setLogLineWidth( lp.size_, side );
-    well_->setLogScreenWidth( mCast(float,lp.logwidth_), side );
+    well_->setLogWidth( mCast(float,lp.logwidth_), side );
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
@@ -604,12 +594,12 @@ void WellDisplay::setLogColor( const Color& col, visBase::Well::Side side )
 { well_->setLogColor( col, side ); }
 
 
-float WellDisplay::getLogScreenWidth( visBase::Well::Side side ) const
-{ return well_->getLogScreenWidth( side ); }
+float WellDisplay::getLogWidth( visBase::Well::Side side ) const
+{ return well_->getLogWidth( side ); }
 
 
-void WellDisplay::setLogScreenWidth( float width, visBase::Well::Side side )
-{ well_->setLogScreenWidth( width, side ); }
+void WellDisplay::setLogWidth( float width, visBase::Well::Side side )
+{ well_->setLogWidth( width, side ); }
 
 
 int WellDisplay::getLogLineWidth() const
