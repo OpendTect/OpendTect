@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
-	: uiDialog(p,uiDialog::Setup(tr("Well display properties"),
+	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "", mODHelpKey(mWellDispPropDlgHelpID) ).savetext(sSaveAsDefault())
            .savebutton(true)
 					.savechecked(false)
@@ -44,8 +44,8 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 
     ts_ = new uiTabStack( this, "Well display properties tab stack" );
     ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(),"Left log properties");
-    tgs += new uiGroup( ts_->tabGroup(),"Right log properties");
+    tgs += new uiGroup( ts_->tabGroup(),"Left log properties" );
+    tgs += new uiGroup( ts_->tabGroup(),"Right log properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Marker properties" );
     if ( !is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
@@ -80,28 +80,44 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2") 
-                                                   : tr("Right Log")
-					    : is2d ? tr("Log 1") 
-                                                   : tr("Left Log") );
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log"
+					    : is2d ? "Log 1" : "Left Log" );
 	    foundlog = true;
 	}
 	else
 	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
     }
 
-    uiPushButton* applbut = new uiPushButton( this, tr("&Apply to all wells"),
+    uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 
+    ts_->selChange().notify( mCB(this,uiWellDispPropDlg,tabSel) );
+
     setWDNotifiers( true );
     mAttachCB( windowClosed, uiWellDispPropDlg::onClose );
+
+    tabSel( 0 );
 }
 
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
     detachAllNotifiers();
+}
+
+
+void uiWellDispPropDlg::tabSel(CallBacker*)
+{
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+    {
+	int curpageid = ts_->currentPageId();
+	mDynamicCastGet(
+	    uiWellLogDispProperties*, curwelllogproperty,propflds_[curpageid]);
+	if ( curwelllogproperty )
+	   propflds_[idx]->curwelllogproperty_ =  curwelllogproperty;
+    }
+
 }
 
 
@@ -190,7 +206,7 @@ uiMultiWellDispPropDlg::uiMultiWellDispPropDlg( uiParent* p,
 	for ( int idx=0; idx< wds_.size(); idx++ )
 	    wellnames.addIfNew( wds_[idx]->name() );
 
-	wellselfld_ = new uiLabeledComboBox( this, "Select Well" );
+	wellselfld_ = new uiLabeledComboBox( this, tr("Select Well") );
 	wellselfld_->box()->addItems( wellnames );
 	mAttachCB( wellselfld_->box()->selectionChanged,
 		   uiMultiWellDispPropDlg::wellSelChg );

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "uigroup.h"
+#include "uistring.h"
 #include "welldisp.h"
 
 class uiCheckBox;
@@ -30,6 +31,8 @@ class uiLabeledSpinBox;
 class uiSpinBox;
 class uiListBox;
 class uiCheckList;
+class uiSlider;
+class uiWellLogDispProperties;
 
 namespace Well { class LogDisplayParSet; class LogSet; }
 
@@ -38,7 +41,7 @@ namespace Well { class LogDisplayParSet; class LogSet; }
 */
 
 mExpClass(uiWell) uiWellDispProperties : public uiGroup
-{
+{ mODTextTranslationClass(uiWellDispProperties)
 public:
 
     mExpClass(uiWell) Setup
@@ -48,14 +51,12 @@ public:
 		   const uiString& coltxt=uiString::emptyString() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : "Line thickness")
 		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")	{}
-
-	mDefSetupMemb(uiString,mysztxt)
-	mDefSetupMemb(uiString,mycoltxt)
+	    mDefSetupMemb(uiString,mysztxt)
+	    mDefSetupMemb(uiString,mycoltxt)
     };
 
 			uiWellDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::BasicProps&);
-
     Well::DisplayProperties::BasicProps& props()	{ return *props_; }
 
     void		putToScreen();
@@ -63,6 +64,7 @@ public:
 
 
     Notifier<uiWellDispProperties>	propChanged;
+    uiWellLogDispProperties*		curwelllogproperty_;
 
 protected:
 
@@ -73,7 +75,6 @@ protected:
 
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
-    //uiSpinBox*		szfld_;
     uiLabeledSpinBox*	szfld_;
 
 };
@@ -84,7 +85,7 @@ protected:
 */
 
 mExpClass(uiWell) uiWellTrackDispProperties : public uiWellDispProperties
-{
+{ mODTextTranslationClass(uiWellTrackDispProperties)
 public:
 			uiWellTrackDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Track&);
@@ -111,7 +112,7 @@ protected:
 */
 
 mExpClass(uiWell) uiWellMarkersDispProperties : public uiWellDispProperties
-{
+{ mODTextTranslationClass(uiWellMarkersDispProperties)
 public:
 			uiWellMarkersDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Markers&,
@@ -149,7 +150,7 @@ protected:
 */
 
 mExpClass(uiWell) uiWellLogDispProperties : public uiWellDispProperties
-{
+{ mODTextTranslationClass(uiWellLogDispProperties)
 public:
 			uiWellLogDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Log&,
@@ -165,8 +166,8 @@ public:
 
 protected:
 
-    void	doPutToScreen();
-    void	doGetFromScreen();
+    void		doPutToScreen();
+    void		doGetFromScreen();
     void                isFilledSel(CallBacker*);
     void		isRepeatSel(CallBacker*);
     void		setSeismicSel();
@@ -196,7 +197,7 @@ protected:
     uiSpinBox*		repeatfld_;
     uiLabeledSpinBox*   lblo_;
     uiLabeledSpinBox*   lblr_;
-    uiLabeledSpinBox*   logwidthfld_;
+    uiSlider*		logwidthslider_;
     uiLabeledSpinBox*   lvlofdetailfld_;
     uiLabeledComboBox*  logsfld_;
     uiLabeledComboBox*  filllogsfld_;
@@ -212,6 +213,7 @@ protected:
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
     const Well::LogSet*  wl_;
+
 };
 
 #endif

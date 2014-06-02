@@ -26,7 +26,7 @@ namespace Well { class Data; };
 */
 
 mExpClass(uiWell) uiWellDispPropDlg : public uiDialog
-{ mODTextTranslationClass(uiWellDispPropDlg);
+{mODTextTranslationClass(uiWellDispPropDlg)
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data*,
 						  bool is2ddisplay=false);
@@ -58,6 +58,7 @@ protected:
     bool			rejectOK(CallBacker*);
     void			wdChg(CallBacker*);
     void			welldataDelNotify(CallBacker*);
+    void			tabSel(CallBacker*);
 };
 
 
@@ -66,7 +67,7 @@ protected:
 */
 
 mExpClass(uiWell) uiMultiWellDispPropDlg : public uiWellDispPropDlg
-{
+{mODTextTranslationClass(uiMultiWellDispPropDlg)
 public:
 				uiMultiWellDispPropDlg(uiParent*,
 						ObjectSet<Well::Data>&,
