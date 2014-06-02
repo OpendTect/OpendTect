@@ -30,14 +30,16 @@ namespace EM { class BodyOperator; }
 
 
 mExpClass(uiEarthModel) uiBodyOperatorDlg : public uiDialog
-{
+{  mODTextTranslationClass(uiBodyOperatorDlg);
 public:
-    			uiBodyOperatorDlg(uiParent*);
- 			~uiBodyOperatorDlg();  
+			uiBodyOperatorDlg(uiParent*);
+			~uiBodyOperatorDlg();
 
     MultiID		getBodyMid() const { return outputfld_->key(); }
+
 protected:
 
+    void		finaliseCB(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		itemClick(CallBacker*);
     void		bodySel(CallBacker*);
@@ -56,8 +58,10 @@ protected:
     {
 			bodyOprand();
 	bool		operator==(const bodyOprand&) const;
+	bool		isOK() const;
+
 	MultiID		mid;
-	char 		act;
+	char		act;
 	bool		defined;
     };
 
@@ -81,7 +85,7 @@ protected:
 mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
 {
 public:
-    			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
+			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
 
     MultiID		getBodyMid() const	{ return outputfld_->key(); }
 
@@ -89,7 +93,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     const IOObj*	getIfMCSurfaceObj() const;
-			/* For bodies made in older version 
+			/* For bodies made in older version
 			   Translator group name : MarchingCubesSurface */
 
     uiIOObjSel*		inputfld_;

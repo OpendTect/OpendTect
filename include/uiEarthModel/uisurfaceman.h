@@ -23,7 +23,7 @@ class uiStratLevelSel;
 class uiToolButton;
 
 mExpClass(uiEarthModel) uiSurfaceMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiSurfaceMan);
 public:
 
     enum Type		{ Hor2D, Hor3D, AnyHor, StickSet, Flt3D, Body };
