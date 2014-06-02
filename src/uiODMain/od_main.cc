@@ -21,15 +21,8 @@ extern int ODMain(int,char**);
 extern Export_Basic int gLogFilesRedirectCode;
 
 
-inline static bool isPromised( const char* claim )
-{
-    return GetEnvVarYN( claim );
-}
-
-
 int main( int argc, char** argv )
 {
-
     SetProgramArgs( argc, argv );
     const FixedString argv1( argv[1] );
     const bool showversiononly = argv1 == "-v" || argv1 == "--version";
@@ -39,9 +32,7 @@ int main( int argc, char** argv )
 	std::cerr << GetFullODVersion() << std::endl;
     else
     {
-	if ( !isPromised("OD_I_COMPLY_WITH_THE_LICENSE")	// Good.
-	  && !isPromised("OD_I_PAID_MAINT_SUPP_FEE")		// Better.
-	  && !isPromised("OD_I_AM_AN_OPENDTECT_DEVELOPER") )	// Yo.
+	if ( !GetEnvVarYN("OD_I_AM_AN_OPENDTECT_DEVELOPER") )
 	{
 	    const char* msg =
 		"OpendTect can be run under one of three licenses:"
