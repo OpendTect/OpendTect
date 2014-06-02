@@ -29,6 +29,14 @@ const char* Well::Info::sKeySRD()	{ return "Seismic Reference Datum"; }
 const char* Well::Info::sKeyreplvel()	{ return "Replacement velocity"; }
 const char* Well::Info::sKeygroundelev(){ return "Ground level elevation"; }
 
+const int Well::Info::legacyLogWidthFactor()
+{
+   const int inlnr = SI().inlRange( true ).nrSteps() + 1;
+   const int crlnr = SI().crlRange( true ).nrSteps() + 1;
+   const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
+   return (int)survfac*43/1000; //hack 43 best factor based on F3_Demo
+}
+
 
 int Well::DahObj::indexOf( float dh ) const
 {

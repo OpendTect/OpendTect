@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "welldisp.h"
+#include "welldata.h"
 #include "settings.h"
 #include "keystrs.h"
 
@@ -40,7 +41,7 @@ static const char* sKeyLeftFillRange = "Left Filled Log Range";
 static const char* sKeyLeftRange = "Left Log Range";
 static const char* sKeyLeftRevertRange = "Left Revert Range Bool";
 static const char* sKeyLeftSeqname = "Left Sequence name";
-static const char* sKeyLeftLogWidth = "Left Log Width";
+static const char* sKeyLegacyLeftLogWidth = "Left Log Width";
 static const char* sKeyLeftColTabFlipped = "Left Log Color Table Flipped";
 static const char* sKeyLeftScale = "Left Log scale";
 static const char* sKeyRightColor = "Right Log Color";
@@ -60,12 +61,16 @@ static const char* sKeyRightFillRange = "Right Filled Log Range";
 static const char* sKeyRightRange = "Right Log Range";
 static const char* sKeyRightRevertRange = "Right Revert Range Bool";
 static const char* sKeyRightSeqname = "Right Sequence name";
-static const char* sKeyRightLogWidth = "Right Log Width";
+static const char* sKeyLegacyRightLogWidth = "Right Log Width";
 static const char* sKeyRightScale = "Right Log scale";
 static const char* sKeyRightColTabFlipped = "Right Log Color Table Flipped";
 static const char* sKey2DDisplayStrat = "Display Stratigraphy";
 static const char* sKeyLeftLogStyle = "Left Log Style";
 static const char* sKeyRightLogStyle = "Right Log Style";
+
+static const char* sKeyLeftLogWidthXY = "Left Log Width XY";
+static const char* sKeyRightLogWidthXY = "Right Log Width XY";
+
 
 
 Well::DisplayProperties::DisplayProperties( const char* subjname )
@@ -235,7 +240,16 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyLeftOverlapp), repeatovlap_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeisColor), seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
-    iop.get( IOPar::compKey(subjectName(),sKeyLeftLogWidth), logwidth_ );
+
+    if (!iop.get( IOPar::compKey(subjectName(),sKeyLeftLogWidthXY),logwidth_ ))
+    {
+	if(iop.get( IOPar::compKey(subjectName(),sKeyLegacyLeftLogWidth),
+		    logwidth_) )
+	    logwidth_ *= Well::Info::legacyLogWidthFactor();
+    }
+
+    if ( SI().xyInFeet() ) logwidth_ = (int)( logwidth_*mToFeetFactorF );
+
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
                iscoltabflipped_ );
@@ -264,7 +278,16 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.get( IOPar::compKey(subjectName(),sKeyRightOverlapp), repeatovlap_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeisColor), seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
-    iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidth), logwidth_ );
+
+    if (!iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidthXY),logwidth_ ))
+    {
+	if(iop.get( IOPar::compKey(subjectName(),sKeyLegacyRightLogWidth),
+	    logwidth_) )
+	    logwidth_ *= Well::Info::legacyLogWidthFactor();
+    }
+
+    if ( SI().xyInFeet() ) logwidth_ = (int)( logwidth_*mToFeetFactorF );
+    
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
                iscoltabflipped_ );
@@ -291,7 +314,15 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyLeftOverlapp), repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeisColor), seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname), seqname_ );
-    iop.set( IOPar::compKey(subjectName(),sKeyLeftLogWidth), logwidth_ );
+    
+    const int logwidth = logwidth_*
+	(int)( SI().xyInFeet() ? mFromFeetFactorF : 1.0f );
+
+    const int legacylogwidth = (int)logwidth/Well::Info::legacyLogWidthFactor();
+
+    iop.set( 
+	IOPar::compKey(subjectName(),sKeyLegacyLeftLogWidth), legacylogwidth );
+    iop.set( IOPar::compKey(subjectName(),sKeyLeftLogWidthXY), logwidth );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftScale), islogarithmic_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftColTabFlipped), 
                iscoltabflipped_ );
@@ -319,7 +350,15 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.set( IOPar::compKey(subjectName(),sKeyRightOverlapp), repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeisColor), seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname), seqname_ );
-    iop.set( IOPar::compKey(subjectName(),sKeyRightLogWidth), logwidth_ );
+    
+    const int logwidth = logwidth_*
+	(int)( SI().xyInFeet() ? mFromFeetFactorF : 1.0f );
+
+    const int legacylogwidth = (int)logwidth/Well::Info::legacyLogWidthFactor();
+
+    iop.set( 
+	IOPar::compKey(subjectName(),sKeyLegacyRightLogWidth), legacylogwidth );
+    iop.set( IOPar::compKey(subjectName(),sKeyRightLogWidthXY), logwidth );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightScale), islogarithmic_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightColTabFlipped), 
                iscoltabflipped_ );

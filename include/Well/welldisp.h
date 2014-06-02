@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "color.h"
 #include "ranges.h"
+#include "survinfo.h"
+
 
 #include "bufstringset.h"
 
@@ -60,6 +62,7 @@ public:
 	void		fillLeftPar(IOPar&) const;
 	void		fillRightPar(IOPar&) const;
 	virtual const char* subjectName() const		= 0;
+
 
     protected:
 
@@ -134,7 +137,8 @@ public:
 			    , issinglecol_(false)
 			    , iswelllog_(true)	
 			    , name_("none")
-		            , logwidth_ (40)	
+		            , logwidth_(250 * 
+				((int)(SI().xyInFeet() ? mToFeetFactorF:1)))	
 			    , range_(mUdf(float),mUdf(float))
 			    , repeat_(5)
 			    , repeatovlap_(50)
