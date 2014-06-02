@@ -33,6 +33,17 @@ public:
 				Text();
 				~Text();
     enum			Justification { Left, Right, Center };
+    enum			CharacterSizeMode { 
+				Object, Screen, ObjectWithScreenMaximum };
+    enum			AxisAlignment {	XY, 	
+						ReversedXY, 	
+						XZ, 	
+						ReversedXZ, 	
+						YZ, 	
+						ReversedYZ, 	
+						OnScreen, 	
+						User
+					        };
 
     void			setPosition(const osg::Vec3f&);
     void			setPosition(const Coord3&,
@@ -56,6 +67,8 @@ public:
     const osg::Drawable&	getDrawable() const;
 
     void			setDisplayTransformation( const mVisTrans*);
+    void			setCharacterSizeMode( CharacterSizeMode );
+    void			setAxisAlignment( AxisAlignment );
 
 protected:
     const mVisTrans*		displaytrans_;
