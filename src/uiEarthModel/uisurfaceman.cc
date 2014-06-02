@@ -143,7 +143,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, 
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
                                                       tr("Horizon Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
@@ -164,7 +164,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
 	stratbut->attach( alignedBelow, selgrp_ );
 
-	uiPushButton* relbut = new uiPushButton( listgrp_, 
+	uiPushButton* relbut = new uiPushButton( listgrp_,
                                                  tr("&Relations"), false);
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
@@ -174,7 +174,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Flt3D )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_, 
+	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
                                                       tr("Fault Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
@@ -227,7 +227,7 @@ bool uiSurfaceMan::isCur2D() const
 
 bool uiSurfaceMan::isCurFault() const
 {
-    const BufferString grp = curioobj_ ? curioobj_->group() : "";
+    const BufferString grp = curioobj_ ? curioobj_->group().buf() : "";
     return grp==EMFaultStickSetTranslatorGroup::keyword() ||
 	   grp==EMFault3DTranslatorGroup::keyword();
 }

@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-const char* uiAttrDescEd::timegatestr() 	{ return "Time gate"; }
+const char* uiAttrDescEd::timegatestr()	{ return "Time gate"; }
 const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
 const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
 const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }
@@ -59,7 +59,7 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
     Attrib::DescID did = inpfld->attribID();
     Attrib::Desc* attrd = desc.descSet()->getDesc(did);
 
-    return attrd ? attrd->attribName() : "";
+    return attrd ? attrd->attribName().buf() : "";
 }
 
 
@@ -205,7 +205,7 @@ uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 }
 
 
-void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad, 
+void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
     if ( dpfids_.size() )
@@ -287,15 +287,15 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
     if ( desc->isSatisfied() == Desc::Error )
     {
 	const BufferString derrmsg( desc->errMsg() );
-	if ( !desc->isStored() || derrmsg 
+	if ( !desc->isStored() || derrmsg
                                != "Parameter 'id' is not correct" )
 	                          errmsg_ = derrmsg;
 	else
-	{                                                                       
+	{
 	    errmsg_ = tr("Cannot find stored data %1.\n"
                          "Data might have been deleted or corrupted.\n"
                          "Please select valid stored data as input.")
-                         .arg( desc->userRef() ); 
+                         .arg( desc->userRef() );
 	}
     }
 
