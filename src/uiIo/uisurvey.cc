@@ -151,10 +151,10 @@ bool copySurv()
         return false;
     }
 
-    uiTaskRunner tr( this );
+    uiTaskRunner taskrunner( this );
     const BufferString fromdir = getTrueDir( inpdirnm_ );
     PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
-    if ( !tr.execute(*copier) )
+    if ( !taskrunner.execute(*copier) )
 	{ uiMSG().error( "Cannot copy the survey data" ); return false; }
 
     File::makeWritable( newdirnm_, true, true );
@@ -366,7 +366,7 @@ void uiStartNewSurveySetup::setSip( bool for2donly )
 
 
 uiSurvey::uiSurvey( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Survey Setup and Selection",
+    : uiDialog(p,uiDialog::Setup(tr("Survey Setup and Selection"),
 				 mNoDlgTitle,mODHelpKey(mSurveyHelpID)))
     , orgdataroot_(GetBaseDataDir())
     , dataroot_(GetBaseDataDir())
@@ -384,13 +384,11 @@ uiSurvey::uiSurvey( uiParent* p )
     if ( dataroot_.isEmpty() )
     {
 	new uiLabel( this,
-		"Cannot establish a 'Survey Data Root' directory."
+		tr("Cannot establish a 'Survey Data Root' directory."
 		"\nOpendTect needs a place to store its files."
 		"\nPlease consult the documentation at opendtect.org,"
-		"\nor contact support@opendtect.org." );
+		"\nor contact support@opendtect.org.") );
     }
-
-    updateWindowTitle();
 
     setCurrentSurvInfo( new SurveyInfo(SI()) );
 
@@ -400,16 +398,29 @@ uiSurvey::uiSurvey( uiParent* p )
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
+    uiPushButton* datarootbut = new uiPushButton( topgrp,
+	tr("Survey Data Root"), false );
+    datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
+    datarootbut->attach( leftBorder );
+
+    datarootlbl_ = new uiLabel( topgrp, "" );
+    datarootlbl_->setHSzPol( uiObject::WideMax );
+    datarootlbl_->attach( rightTo, datarootbut );
+
+    uiSeparator* sep1 = new uiSeparator( topgrp, "Separator 1" );
+    sep1->attach( stretchedBelow, datarootbut );
+
     uiGroup* leftgrp = new uiGroup( topgrp, "Survey selection left" );
     uiGroup* rightgrp = new uiGroup( topgrp, "Survey selection right" );
 
     fillLeftGroup( leftgrp );
     fillRightGroup( rightgrp );
+    leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
     uiLabel* infolbl = new uiLabel( topgrp, "" );
     infolbl->setPixmap( "info" );
-    infolbl->setToolTip( "Survey Information" );
+    infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );
     infofld_ = new uiTextEdit( topgrp, "Info", true );
     infofld_->setPrefHeightInChar( 8 );
@@ -420,7 +431,7 @@ uiSurvey::uiSurvey( uiParent* p )
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
     uiLabel* notelbl = new uiLabel( botgrp, "" );
     notelbl->setPixmap( ioPixmap("notes") );
-    notelbl->setToolTip( "Notes" );
+    notelbl->setToolTip( tr("Notes") );
     notelbl->setMaximumWidth( 32 );
 
     notesfld_ = new uiTextEdit( botgrp, "Survey Notes" );
@@ -433,7 +444,8 @@ uiSurvey::uiSurvey( uiParent* p )
     splitter->addGroup( botgrp );
 
     putToScreen();
-    setOkText( "&Select" );
+    updateDataRootLabel();
+    setOkText( uiStrings::sSelect() );
     postFinalise().notify( selchgcb );
 }
 
@@ -463,22 +475,22 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     uiButtonGroup* butgrp =
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
-    new uiToolButton( butgrp, "database",
-	"Select Survey Data Root", mCB(this,uiSurvey,dataRootPushed) );
     new uiToolButton( butgrp, "addnew",
 	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
-    editbut_ = new uiToolButton( butgrp, "edit", "Edit Survey Parameters",
+    editbut_ = new uiToolButton( butgrp, "edit", tr("Edit Survey Parameters"),
 				 mCB(this,uiSurvey,editButPushed) );
     new uiToolButton( butgrp, "copyobj",
-	"Copy Survey", mCB(this,uiSurvey,copyButPushed) );
+	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
     new uiToolButton( butgrp, "export",
-	"Compress survey as zip archive", mCB(this,uiSurvey,exportButPushed) );
+	tr("Compress survey as zip archive"),
+	mCB(this,uiSurvey,exportButPushed) );
     new uiToolButton( butgrp, "import",
-	"Extract survey from zip archive", mCB(this,uiSurvey,importButPushed) );
+	tr("Extract survey from zip archive"),
+	mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
-	"Share surveys through the OpendTect Seismic Repository",
+	tr("Share surveys through the OpendTect Seismic Repository"),
 	 mSCB(osrbuttonCB) );
-    rmbut_ = new uiToolButton( butgrp, "trashcan", "Remove Survey",
+    rmbut_ = new uiToolButton( butgrp, "trashcan", tr("Remove Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
 
@@ -524,14 +536,14 @@ bool uiSurvey::rootDirWritable() const
 {
     if ( !File::isWritable(dataroot_) )
     {
-	BufferString msg( "Cannot create new survey in\n",dataroot_,
-			  ".\nDirectory is write protected.");
+	uiString msg( tr("Cannot create new survey in\n%1.\n"
+			 "Directory is write protected.") );
+	msg.arg( dataroot_ );
 	uiMSG().error( msg );
 	return false;
     }
     return true;
 }
-
 
 
 void uiSurvey::getSurveyList( BufferStringSet& list, const char* dataroot,
@@ -575,8 +587,8 @@ void uiSurvey::updateDataRootInSettings()
 {
     Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
-	uiMSG().warning(
-		"Could not save the base data location in the settings file" );
+	uiMSG().warning( tr("Could not save Survey Data Root "
+			    "location in the settings file") );
 }
 
 
@@ -760,11 +772,11 @@ void uiSurvey::rmButPushed( CallBacker* )
     const bool rmisok = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmisok )
-	uiMSG().error( BufferString( truedirnm, "\nnot removed properly" ) );
+	uiMSG().error( tr("%1\nnot removed properly").arg(truedirnm) );
 
     if ( seldirnm != truedirnm ) // must have been a link
 	if ( !File::remove(seldirnm) )
-	    uiMSG().error( "Could not remove link to the removed survey" );
+	    uiMSG().error( tr("Could not remove link to the removed survey") );
 
     updateSurvList();
     const char* ptr = GetSurveyName();
@@ -799,7 +811,7 @@ void uiSurvey::copyButPushed( CallBacker* )
     cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
     cursurvinfo_->updateDirName();
     if ( !cursurvinfo_->write() )
-	uiMSG().warning( "Could not write updated survey info" );
+	uiMSG().warning( tr("Could not write updated survey info") );
 
     updateSurvList();
     dirfld_->setCurrentItem( dlg.newdirnm_ );
@@ -810,7 +822,7 @@ void uiSurvey::importButPushed( CallBacker* )
 {
     if ( !rootDirWritable() ) return;
 
-    uiFileDialog fdlg( this, true, 0, "*.zip", "Select survey zip file" );
+    uiFileDialog fdlg( this, true, 0, "*.zip", tr("Select survey zip file") );
     fdlg.setSelectedFilter( sZipFileMask );
     if ( !fdlg.go() )
 	return;
@@ -834,11 +846,11 @@ void uiSurvey::exportButPushed( CallBacker* )
     fnmfld->setDefaultExtension( "zip" );
     fnmfld->setFilter( sZipFileMask );
     uiLabel* sharfld = new uiLabel( &dlg,
-			   "You can share surveys to Open Seismic Repository."
-			   "To know more " );
+			  tr("You can share surveys to Open Seismic Repository."
+			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );
     uiPushButton* osrbutton = new uiPushButton( &dlg,
-				    "Click here", mSCB(osrbuttonCB), false );
+				   tr("Click here"), mSCB(osrbuttonCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
@@ -862,7 +874,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
     SetCurBaseDataDirOverrule( dataroot_ );
 
     updateSurvList();
-    updateWindowTitle();
+    updateDataRootLabel();
     const char* ptr = GetSurveyName();
     if ( ptr && dirfld_->isPresent(ptr) )
 	dirfld_->setCurrentItem( GetSurveyName() );
@@ -903,10 +915,9 @@ void uiSurvey::utilButPush( CallBacker* cb )
 }
 
 
-void uiSurvey::updateWindowTitle()
+void uiSurvey::updateDataRootLabel()
 {
-    const BufferString title( "Survey Data Root: ", dataroot_ );
-    setTitleText( title );
+    datarootlbl_->setText( dataroot_.buf() );
 }
 
 
