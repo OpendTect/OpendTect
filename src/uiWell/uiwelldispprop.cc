@@ -670,6 +670,7 @@ void uiWellLogDispProperties::setWellLogSel()
     filllogsfld_->display( true );
     colorrangefld_->display( true );
     flipcoltabfld_->display( true );
+    revertlogfld_->display( true );
     logwidthslider_->display( true );
     colfld_->display( true );
     szfld_->display( true );
