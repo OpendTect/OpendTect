@@ -78,12 +78,14 @@ Well::Well()
     addChild( track_->osgNode() );
 
     track_->setMaterial( new Material );
+
     welltoptxt_ =  Text2::create();
     wellbottxt_ =  Text2::create();
     welltoptxt_->ref();
     wellbottxt_->ref();
     welltoptxt_->setMaterial( track_->getMaterial() );
     wellbottxt_->setMaterial( track_->getMaterial() );
+
     addChild( welltoptxt_->osgNode() );
     addChild( wellbottxt_->osgNode() );
 
@@ -91,14 +93,10 @@ Well::Well()
     markernames_->ref();
     addChild( markernames_->osgNode() );
 
-    constantlogsizefac_ = constantLogSizeFactor();
-
     leftlogdisplay_->ref();
-    leftlogdisplay_->setLogConstantSizeFactor(constantlogsizefac_);
     addChild( leftlogdisplay_ );
 
     rightlogdisplay_->ref();
-    rightlogdisplay_->setLogConstantSizeFactor(constantlogsizefac_);
     addChild( rightlogdisplay_ );
 
     for ( int idx=0; idx<2; idx++ )
@@ -126,7 +124,6 @@ Well::~Well()
     if ( obj )\
     {\
 	obj->ref();\
-	obj->setLogConstantSizeFactor(constantlogsizefac_);\
 	addChild( obj );\
     }\
 }\
@@ -194,9 +191,6 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 
 void Well::setPixelDensity(float dpi)
 {
-    const float leftscreenwidth = getLogScreenWidth( Left );
-    const float rightscreenwidth = getLogScreenWidth( Right );
-
     DataObject::setPixelDensity( dpi );
     pixeldensity_ = dpi;
 
@@ -206,8 +200,6 @@ void Well::setPixelDensity(float dpi)
     wellbottxt_->setPixelDensity( dpi );
     markernames_->setPixelDensity( dpi );
 
-    setLogScreenWidth( leftscreenwidth, Left );
-    setLogScreenWidth( rightscreenwidth, Right );
 }
 
 
@@ -278,10 +270,13 @@ void Well::setText( Text* tx, const char* chr, Coord3* pos,
 {
     tx->setText( chr );
     tx->setFontData( fnt, getPixelDensity() );
+    
     if ( !SI().zRange(true).includes(pos->z, false) )
 	pos->z = SI().zRange(true).limitValue( pos->z );
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
+    tx->setCharacterSizeMode( Text::Object );
+    tx->setAxisAlignment( Text::XZ );
 }
 
 
@@ -291,15 +286,15 @@ void Well::setWellName( const TrackParams& tp )
     track_->setName( label );
 
     if ( welltoptxt_->nrTexts()<1 )
-	welltoptxt_->addText();
+	 welltoptxt_->addText();
 
     if ( wellbottxt_->nrTexts()<1 )
-	wellbottxt_->addText();
+	 wellbottxt_->addText();
 
     setText(welltoptxt_->text(0),tp.isdispabove_ ? tp.name_ : "",tp.toppos_,
-	    tp.font_);
+    tp.font_);
     setText(wellbottxt_->text(0),tp.isdispbelow_ ? tp.name_ : "",tp.botpos_,
-	    tp.font_);
+    tp.font_);
 
 }
 
@@ -355,8 +350,9 @@ void Well::setMarkerSetParams( const MarkerParams& mp )
     }
 
     markerstyle.size_ = mp.size_;
+    markersize_ = mp.size_;
     markerset_->setMarkerStyle( markerstyle );
-    markerset_->setMinimumScale( 0 );
+    markerset_->setMinimumScale( 1.0f );
     markerset_->setMaximumScale( 25.5f );
 
     markerset_->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
@@ -377,9 +373,33 @@ void Well::addMarker( const MarkerParams& mp )
     const int textidx = markernames_->addText();
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
+ 
     setText(txt,mp.name_,mp.pos_,mp.font_);
 
     return;
+}
+
+
+void Well::updateMakerSize(float sizefactor)
+{
+    float size = markerset_->getScreenSize();
+    markerset_->setScreenSize( size + (markersize_/sizefactor)*markersize_ ); 
+}
+
+
+void Well::updateMakerNamePosition(Side side,float sizefactor)
+{
+    float ratio = displaytube_[side] ? 2 : 1;
+    
+    for ( int idx=0; idx<markernames_->nrTexts(); idx++ )
+    {
+	const Coord3 pos = markernames_->text(idx)->getPosition();
+	const osg::Vec3 delta(0.0f,-sizefactor*ratio,0.0f);
+	const osg::Vec3 osgpos = Conv::to<osg::Vec3>(pos);
+	const osg::Vec3 newpos = osgpos + delta;
+	const Coord3 txtpos = Conv::to<Coord3>( newpos );
+	markernames_->text(idx)->setPosition( txtpos );
+    }
 }
 
 
@@ -496,6 +516,7 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
     float step = 1;
     mGetLoopSize( longsmp, step );
 
+    float maxval( 0 );
     for ( int idx=0; idx<longsmp; idx++ )
     {
 	const int index = mNINT32(idx*step);
@@ -517,7 +538,8 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	    logPath->push_back(
 		osg::Vec3d((float) pos.x,(float) pos.y,(float) pos.z) );
 	    shapeLog->push_back(val);
-
+	    if ( val >maxval )
+		maxval = val;
 	}
 
 	if ( isFilled && nrsampF != 0 && index < nrsampF )
@@ -538,6 +560,13 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 
     }
 
+    if ( maxval )
+    {
+	updateMakerSize( maxval );
+	updateMakerNamePosition( lp.side_, maxval );
+    }
+
+    
     logdisplay->setMaxFillValue( rgStopF );
     logdisplay->setMinFillValue( rgStartF );
     logdisplay->setMaxShapeValue( rgStop );
@@ -633,15 +662,6 @@ void Well::setRepeat( int rpt, Side side )
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
     logdisplay->setRepeatNumber( rpt );
-}
-
-
-float Well::constantLogSizeFactor() const
-{
-   const int inlnr = SI().inlRange( true ).nrSteps();
-   const int crlnr = SI().crlRange( true ).nrSteps();
-   const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
-   return survfac * 43; //hack 43 best factor based on F3_Demo
 }
 
 
@@ -751,24 +771,21 @@ bool Well::logLineDisplayed( Side side ) const
 }
 
 
-void Well::setLogScreenWidth( float width, Side side )
+void Well::setLogWidth( float width, Side side )
 {
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
 
-    const float factor = pixeldensity_/getDefaultPixelDensity();
-
-    logdisplay ->setScreenWidth( width * factor );
+    logdisplay ->setLogWidth( width );
 }
 
 
-float Well::getLogScreenWidth( Side side ) const
+float Well::getLogWidth( Side side ) const
 {
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
 
-    const float factor = pixeldensity_/getDefaultPixelDensity();
-    return logdisplay->getScreenWidth() / factor;
+    return logdisplay->getLogWidth();
 }
 
 
@@ -782,7 +799,7 @@ void Well::setLogLineWidth( int width, Side side )
 
 int Well::getLogLineWidth() const
 {
-    return  mNINT32( leftlogdisplay_->getLineWidth() );
+    return mNINT32( leftlogdisplay_->getLineWidth() );
 }
 
 
@@ -819,19 +836,6 @@ bool Well::logsShown() const
        true : false ;
 }
 
-
-void Well::setLogConstantSize( bool yn )
-{
-    leftlogdisplay_->setLogConstantSize( yn );
-    rightlogdisplay_->setLogConstantSize( yn );
-}
-
-
-bool Well::logConstantSize() const
-{
-   return  leftlogdisplay_->getDisplayStatus() ?
-       leftlogdisplay_->getLogConstantSize() : true;
-}
 
 void Well::showLogName( bool yn )
 {}
