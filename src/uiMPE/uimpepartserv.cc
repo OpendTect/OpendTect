@@ -105,7 +105,7 @@ uiMPEPartServer::~uiMPEPartServer()
     setupbeingupdated_ = false;
 
     sendEvent( uiMPEPartServer::evEndSeedPick() );
-    sendEvent( uiMPEPartServer::evShowToolbar() );
+    sendEvent( uiMPEPartServer::evHideToolBar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
     if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
