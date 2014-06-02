@@ -13,13 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "ioman.h"
 #include "posinfo2d.h"
-#include "posinfo2dsurv.h"
 #include "seisbounds.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
+#include "survgeom2d.h"
 #include "survinfo.h"
 
 
@@ -565,13 +565,13 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
     si.getComponentNames( nms, geomid );
     if ( nms.size() > 1 && nms.get(1)=="Line dip" )
     {
-	PosInfo::Line2DData l2dd( Survey::GM().getName(geomid) );
-	const bool res = S2DPOS().getGeometry( l2dd );
-	if ( !res )
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+			Survey::GM().getGeometry(geomid))
+	if ( !geom2d )
 	{ errmsg_ = "Cannot read 2D geometry"; return false; }
 
 	float max;
-	l2dd.compDistBetwTrcsStats( max, trcdist_ );
+	geom2d->data().compDistBetwTrcsStats( max, trcdist_ );
 	if ( mIsZero(trcdist_,mDefEps) )
 	{
 	    errmsg_ = "Cannot calculate median trace distance";
