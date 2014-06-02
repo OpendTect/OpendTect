@@ -960,13 +960,15 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* bky )
 
 void uiIOObjSel::setInput( const MultiID& mid )
 {
+    workctio_.setObj( IOM().get( mid ) );
     uiIOSelect::setInput( mid.buf() );
 }
 
 
 void uiIOObjSel::setInput( const IOObj& ioob )
 {
-    setInput( ioob.key() );
+    workctio_.setObj( ioob.clone() );
+    uiIOSelect::setInput( ioob.key() );
 }
 
 
