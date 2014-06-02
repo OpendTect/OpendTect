@@ -20,7 +20,6 @@ class uiVisPartServer;
 class uiFlatViewMainWin;
 class uiMenuHandler;
 class uiViewer3DPositionDlg;
-namespace PreStack { class ProcessManager; }
 namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
@@ -90,7 +89,6 @@ protected:
     MenuItem		removemenuitem_;
 
     uiVisPartServer*			visserv_;
-    PreStack::ProcessManager*		preprocmgr_;
     ObjectSet<visSurvey::PreStackDisplay>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
     ObjectSet<uiFlatViewMainWin>	viewers2d_;

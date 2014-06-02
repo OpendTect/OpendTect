@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiPushButton;
 
-namespace PreStack { class ProcessManager; class uiProcessorManager; }
+namespace PreStack { class uiProcessorManager; }
 namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
@@ -30,8 +30,7 @@ mClass(uiPreStackViewer) uiViewer3DPreProcTab :  public uiDlgGroup
 public:
 				uiViewer3DPreProcTab(uiParent*,
 					visSurvey::PreStackDisplay&,
-					uiViewer3DMgr&,
-					PreStack::ProcessManager&);
+					uiViewer3DMgr&);
 				~uiViewer3DPreProcTab();
     bool			acceptOK();
 
@@ -45,7 +44,6 @@ protected:
 
     visSurvey::PreStackDisplay&		vwr_;
     uiViewer3DMgr&			mgr_;
-    PreStack::ProcessManager*		preprocmgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;
 
     uiPushButton*			applybut_;    

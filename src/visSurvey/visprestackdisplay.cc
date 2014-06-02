@@ -66,7 +66,7 @@ PreStackDisplay::PreStackDisplay()
     , zrg_( SI().zRange(true) )
     , posside_( true )
     , autowidth_( true )
-    , preprocmgr_( 0 )
+    , preprocmgr_( new PreStack::ProcessManager )
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
@@ -123,6 +123,7 @@ PreStackDisplay::~PreStackDisplay()
 
     delete reader_;
     delete ioobj_;
+    delete preprocmgr_;
 }
 
 
@@ -162,7 +163,6 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
 
 bool PreStackDisplay::setPreProcessor( PreStack::ProcessManager* mgr )
 {
-    preprocmgr_ = mgr;
     return updateData();
 }
 

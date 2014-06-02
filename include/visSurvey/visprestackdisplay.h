@@ -56,6 +56,7 @@ public:
 
 				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
+				// Legacy do not use
     DataPack::ID		preProcess();
 
     bool			is3DSeis() const;
@@ -107,6 +108,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
+    bool			updateDisplay() { return updateData(); }
 
     static const char*		sKeyParent()	{ return "Parent"; }
     static const char*		sKeyFactor()	{ return "Factor"; }
