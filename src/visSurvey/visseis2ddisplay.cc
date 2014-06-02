@@ -185,7 +185,7 @@ void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 const char* Seis2DDisplay::getLineName() const
 {
     if ( !Survey::GM().getName(geomid_) )
-	return name();
+	return name().buf();
 
     return Survey::GM().getName(geomid_);
 }

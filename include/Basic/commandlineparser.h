@@ -89,11 +89,11 @@ public:
 				/*!<True if not a key, and previous is a key
 				    that has been set using setKeyHasValue. */
 
-    const BufferString&		getArg(int idx) const	{ return *argv_[idx]; }
-    const BufferString&		lastArg() const;
+    const OD::String&		getArg(int idx) const	{ return *argv_[idx]; }
+    const OD::String&		lastArg() const;
 
-    const BufferString&		getExecutable() const;
-    const BufferString&		getExecutableName() const;
+    const OD::String&		getExecutable() const;
+    const OD::String&		getExecutableName() const;
 
     static void			createKey(const char* key,BufferString& res)
 				{ res = "--"; res += key; }

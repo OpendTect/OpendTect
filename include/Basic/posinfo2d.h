@@ -73,11 +73,10 @@ public:
 			, posns_(l2d.positions()){}
 
     const StepInterval<float>& zRange() const		{ return zrg_; }
-    const BufferString&	lineName() const		{ return lnm_; }
+    const OD::String&	lineName() const		{ return lnm_; }
     void		setZRange( const StepInterval<float>& zrg )
 							{ zrg_ = zrg; }
-    void		setLineName(const BufferString& lnm)
-			{ lnm_ = lnm; }
+    void		setLineName( const char* lnm )	{ lnm_ = lnm; }
     const TypeSet<Line2DPos>&  positions() const	{ return posns_; }
     bool		isEmpty() const		{ return posns_.isEmpty(); }
 

@@ -606,7 +606,7 @@ const char* windowTitle( const uiMainWin* applwin, const uiMainWin* uimw,
     if ( applwin && uimw==applwin )
     {
 	if ( aliasnr == 0 )
-	    return uimw->name();
+	    return uimw->name().buf();
 	if ( aliasnr == 1 )
 	    return uimw->caption( true ).getFullString();
     }

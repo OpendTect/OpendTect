@@ -29,7 +29,7 @@ int SeisCBVS2DLineIOProvider::factid_
 	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
 
 
-static const BufferString& gtFileName( const char* fnm, bool newfmt )
+static const OD::String& gtFileName( const char* fnm, bool newfmt )
 {
     mDeclStaticString( ret );
     ret = fnm;
@@ -47,7 +47,7 @@ static const BufferString& gtFileName( const char* fnm, bool newfmt )
 
 	    FilePath relfp;
 	    if ( fp.nrLevels()==1 && cidx && cidx < filenm.size() )
-	    { 
+	    {
 		filenm[cidx] = '\0';
 		relfp.add( filenm );
 	    }
@@ -64,7 +64,7 @@ static const BufferString& gtFileName( const char* fnm, bool newfmt )
     return ret;
 }
 
-static const BufferString& gtFileName( const IOPar& iop, bool newfmt )
+static const OD::String& gtFileName( const IOPar& iop, bool newfmt )
 {
     return gtFileName( iop.find( sKey::FileName() ), newfmt );
 }
@@ -91,7 +91,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return true;
 
-    const BufferString& fnm = gtFileName( iop, true );
+    const OD::String& fnm = gtFileName( iop, true );
     return fnm.isEmpty() || File::isEmpty(fnm);
 }
 
@@ -135,7 +135,7 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOPar& iop,
 void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return;
-    const BufferString& fnm = gtFileName(iop,true);
+    const OD::String& fnm = gtFileName(iop,true);
     FilePath parfp( fnm );
     parfp.setExtension( "par" );
     File::remove( parfp.fullPath() );
@@ -286,7 +286,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 						SeisTrcBuf& tbuf, int ntps,
 						const Seis::SelData* sd )
 {
-    const BufferString& fnm = gtFileName(iop,true);
+    const OD::String& fnm = gtFileName(iop,true);
     if ( !isUsable(iop) )
     {
 	BufferString errmsg = "2D seismic line file '"; errmsg += fnm;

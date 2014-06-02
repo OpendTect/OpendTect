@@ -47,7 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
     msg += " seconds ago.";
 
 
-const BufferString& getTempBaseNm()
+const OD::String& getTempBaseNm()
 {
     mDeclStaticString( tmpfnm_base );
     if ( tmpfnm_base.isEmpty() )

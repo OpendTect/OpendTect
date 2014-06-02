@@ -265,7 +265,7 @@ const char* uiUnitSel::getSelTxt( const UnitOfMeasure* un ) const
     else if ( setup_.mode_ == Setup::SymbolsOnly )
 	return un->symbol();
     else if ( setup_.mode_ == Setup::NamesOnly )
-	return un->name();
+	return un->name().buf();
 
     mDeclStaticString( ret );
     ret.set( un->symbol() ).add( " (" ).add( un->name() ).add( ")" );

@@ -55,16 +55,16 @@ public:
     static Processor*	createProcessor(const DescSet&,const char*,
 					const DescID&,uiString& errmsg);
     static void		getPossibleVolume(DescSet&,CubeSampling&,
-	    				  const char* linename,const DescID&);
+					  const char* linename,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
 
     SeisTrcStorOutput*	createOutput(const IOPar&,const LineKey&,uiString&);
 
-    const DescSet* 	attribSet() const	{ return inpattrset_; }
+    const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const CubeSampling&	cubeSampling() const	{ return cs_; }
-    const BufferString&	lineKey() const		{ return linekey_; }
+    const char*		lineKey() const		{ return linekey_.buf(); }
     float		undefValue() const	{ return udfval_; }
 
     void		setAttribSet(const DescSet*);
@@ -75,34 +75,34 @@ public:
     void		setLineKey( const char* lk )	{ linekey_ = lk; }
     void		setUndefValue( float v )	{ udfval_ = v; }
     DescSet*		createNLAADS(DescID& outid,uiString& errmsg,
-	    			     const DescSet* addtoset=0);
+				     const DescSet* addtoset=0);
     static DescID	createEvaluateADS(DescSet&, const TypeSet<DescID>&,
 					  uiString&);
 
     Processor*		createDataCubesOutput(uiString& errmsg,
-	    			      	      const DataCubes* cached_data = 0);
-    			//!< Give the previous calculated data in cached data
-    			//!< and some parts may not be recalculated.
+				      	      const DataCubes* cached_data = 0);
+			//!< Give the previous calculated data in cached data
+			//!< and some parts may not be recalculated.
     const DataCubes*	getDataCubesOutput(const Processor&);
 
-    Executor* 		createFeatureOutput(const BufferStringSet& inputs,
+    Executor*		createFeatureOutput(const BufferStringSet& inputs,
 					    const ObjectSet<BinIDValueSet>&);
 
     Processor*		createScreenOutput2D(uiString& errmsg,
-	    				     Data2DHolder&);
+					     Data2DHolder&);
     Processor*		createLocationOutput(uiString& errmsg,
 					     ObjectSet<BinIDValueSet>&);
 
     Processor*		createTrcSelOutput(uiString& errmsg,
-	    				   const BinIDValueSet& bidvalset,
-	    				   SeisTrcBuf&, float outval=0,
+					   const BinIDValueSet& bidvalset,
+					   SeisTrcBuf&, float outval=0,
 					   Interval<float>* cubezbounds=0,
 					   TypeSet<BinID>* trueknotspos=0,
 					   TypeSet<BinID>* path=0);
     Processor*		create2DVarZOutput(uiString& errmsg,
-	    				   const IOPar& pars,
-	    				   DataPointSet* bidvalset,
-	    				   float outval=0,
+					   const IOPar& pars,
+					   DataPointSet* bidvalset,
+					   float outval=0,
 					   Interval<float>* cubezbounds = 0);
     Processor*		getTableOutExecutor(DataPointSet& datapointset,
 					    uiString& errmsg,
@@ -111,7 +111,7 @@ public:
 					  uiString& errmsg,int firstcol =0,
 					  bool needprep=true);
     static bool		ensureDPSAndADSPrepared(DataPointSet&,
-	    					const Attrib::DescSet&,
+						const Attrib::DescSet&,
 						uiString& errmsg);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
@@ -120,7 +120,7 @@ public:
 
 protected:
 
-    const DescSet* 	inpattrset_;
+    const DescSet*	inpattrset_;
     const NLAModel*	nlamodel_;
     CubeSampling&	cs_;
     const DataCubes*	cache_;

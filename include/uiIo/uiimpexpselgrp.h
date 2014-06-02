@@ -35,18 +35,18 @@ class uiDataPointSetCrossPlotter;
 mExpClass(uiIo) uiSGSel : public uiGroup
 { mODTextTranslationClass(uiSGSel);
 public:
-    					uiSGSel(uiParent*,bool forread);
+					uiSGSel(uiParent*,bool forread);
 
     bool				isOK() const;
     const char*				selGrpFileNm();
     const char*				selGrpSetNm() const;
     const ObjectSet<SelectionGrp>&	selGrpSet() const
-    					{ return selgrpset_; }
+					{ return selgrpset_; }
 
-    const BufferString&			xName()		{ return xname_; }
-    const BufferString&			yName()		{ return yname_; }
-    const BufferString&			y2Name()	{ return y2name_; }
-    
+    const OD::String&			xName()		{ return xname_; }
+    const OD::String&			yName()		{ return yname_; }
+    const OD::String&			y2Name()	{ return y2name_; }
+
     Notifier<uiSGSel>			selGrpSelected;
 
 protected:
@@ -58,7 +58,7 @@ protected:
     BufferString		xname_;
     BufferString		yname_;
     BufferString		y2name_;
-    
+
     ObjectSet<SelectionGrp>	selgrpset_;
     bool			forread_;
     void			selectSGCB(CallBacker*);
@@ -68,15 +68,15 @@ protected:
 mExpClass(uiIo) uiSGSelGrp : public uiGroup
 {
 public:
-    				uiSGSelGrp(uiParent*,bool forread);
+				uiSGSelGrp(uiParent*,bool forread);
 
     BufferString		getCurFileNm() const;
     const char*			selGrpSetNm() const;
     bool			getCurSelGrpSet(ObjectSet<SelectionGrp>&);
-    
-    const BufferString&		xName()			{ return xname_; }
-    const BufferString&		yName()			{ return yname_; }
-    const BufferString&		y2Name()		{ return y2name_; }
+
+    const OD::String&		xName()			{ return xname_; }
+    const OD::String&		yName()			{ return yname_; }
+    const OD::String&		y2Name()		{ return y2name_; }
 
     Notifier<uiSGSelGrp>	selectionDone;
 
@@ -112,14 +112,14 @@ protected:
 mExpClass(uiIo) SelGrpImporter
 {
 public:
-    				SelGrpImporter(const char*);
+				SelGrpImporter(const char*);
 				~SelGrpImporter();
 
     ObjectSet<SelectionGrp>	getSelections();
-    const BufferString&		errMsg()		{ return errmsg_; }
-    const BufferString&		xName()			{ return xname_; }
-    const BufferString&		yName()			{ return yname_; }
-    const BufferString&		y2Name()		{ return y2name_; }
+    const OD::String&		errMsg()		{ return errmsg_; }
+    const OD::String&		xName()			{ return xname_; }
+    const OD::String&		yName()			{ return yname_; }
+    const OD::String&		y2Name()		{ return y2name_; }
 
 protected:
 
@@ -135,17 +135,19 @@ protected:
 mExpClass(uiIo) SelGrpExporter
 {
 public:
-    				SelGrpExporter(const char* fnm);
+				SelGrpExporter(const char* fnm);
 				~SelGrpExporter();
     bool			putSelections(const ObjectSet<SelectionGrp>&,
-	    				      const char* xnm,
+					      const char* xnm,
 					      const char* ynm,
 					      const char* y2nm);
-    const BufferString&		errMsg() const		{ return errmsg_; }
+    const OD::String&		errMsg() const		{ return errmsg_; }
+
 protected:
+
     BufferString		errmsg_;
     StreamData			sd_;
-    				
+
 };
 
 
@@ -163,7 +165,7 @@ protected:
     uiCheckBox*		ychkfld_;
     uiCheckBox*		y2chkfld_;
     uiDataPointSetCrossPlotter&	plotter_;
-		
+
     ObjectSet<SelectionGrp>& selgrpset_;
     BufferString	xname_;
     BufferString	yname_;
@@ -171,14 +173,14 @@ protected:
 
     bool		adjustSelectionGrps();
     bool		checkSelectionArea(SelectionArea&,
-	    				   const BufferStringSet& selaxisnms,
-	    				   const BufferStringSet& avlblaxnms,
+					   const BufferStringSet& selaxisnms,
+					   const BufferStringSet& avlblaxnms,
 					   bool);
 
     void		fillRectangle(const SelectionArea& selarea,
-	    			      SelectionArea& actselarea);
+				      SelectionArea& actselarea);
     void		fillPolygon(const SelectionArea& selarea,
-	    			    SelectionArea& actselarea);
+				    SelectionArea& actselarea);
 
     BufferStringSet	getAvailableAxisNames() const;
     void		getInfo(const ObjectSet<SelectionGrp>&,BufferString&);
@@ -203,11 +205,11 @@ public:
 	    mDefSetupMemb(const char*,yname)
 	    mDefSetupMemb(const char*,xname)
 	};
-	    
+
 					uiExpSelectionArea(uiParent*,
 						const ObjectSet<SelectionGrp>&,
 						uiExpSelectionArea::Setup);
-	    
+
 
 protected:
 

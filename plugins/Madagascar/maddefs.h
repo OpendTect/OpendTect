@@ -19,7 +19,7 @@ mClass(Madagascar) ProgDef
 {
 public:
 
-    				ProgDef() : group_(0) {}
+				ProgDef() : group_(0) {}
     BufferString		name_;
     BufferString		shortdesc_;
     BufferString		synopsis_;
@@ -34,20 +34,20 @@ public:
 mExpClass(Madagascar) ProgInfo
 {
 public:
-    			//!< When PI() is first used, a Pre-Scan is done
-    			//!< if Pre-Scan check is OK, err msg will be empty
+			//!< When PI() is first used, a Pre-Scan is done
+			//!< if Pre-Scan check is OK, err msg will be empty
 
     bool		scanned() const		{ return scanned_; }
     Executor*		getScanner() const;
-    			//!< If scan fails, err msg will be filled
+			//!< If scan fails, err msg will be filled
 
-    const BufferString&	errMsg() const		{ return errmsg_; }
+    const OD::String&	errMsg() const		{ return errmsg_; }
 
     const ObjectSet<ProgDef>&	defs() const	{ return defs_; }
     const BufferStringSet&	groups() const	{ return groups_; }
     void			search(const char* globexpr,
-	    			       ObjectSet<const ProgDef>&) const;
-    				//!< name_, shortdesc_, comment_
+				       ObjectSet<const ProgDef>&) const;
+				//!< name_, shortdesc_, comment_
 
 			ProgInfo();
 			~ProgInfo()		{ cleanUp(); }
@@ -66,7 +66,7 @@ protected:
     void		addEntry(const char*);
 
     friend class	ProgInfoScanner;
-    mGlobal(Madagascar) friend	ProgInfo& PI();      
+    mGlobal(Madagascar) friend	ProgInfo& PI();
 };
 
 mGlobal(Madagascar) ProgInfo& PI();

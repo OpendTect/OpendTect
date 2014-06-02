@@ -31,10 +31,10 @@ public:
 
     Line2DData&		addLine(const char*);
     int			nrLines() const		{ return data_.size(); }
-    const BufferString&	lineName( int idx ) const
-    			{ return data_[idx]->lnm_; }
+    const char*		lineName( int idx ) const
+			{ return data_[idx]->lnm_.buf(); }
     const Line2DData&	lineData( int idx ) const
-    			{ return data_[idx]->pos_; }
+			{ return data_[idx]->pos_; }
     const Line2DData*	getLineData(const char*) const;
     void		removeLine(const char*);
 

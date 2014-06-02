@@ -59,7 +59,7 @@ void WellObject::updateGeometry()
 int WellObject::nrShapes() const	{ return 1; }
 
 const char* WellObject::getShapeName( int ) const
-{ return name(); }
+{ return name().buf(); }
 
 
 void WellObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const

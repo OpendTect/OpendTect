@@ -39,7 +39,7 @@ public:
 
     bool		isBad() const		{ return state_ != Good; }
     bool		isReady() const;
-    const BufferString&	message() const		{ return msg_; }
+    const OD::String&	message() const		{ return msg_; }
 
 			//! Next functions return a new (unmanaged) IOObj
     IOObj*		get(const MultiID&) const;

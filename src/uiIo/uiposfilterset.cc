@@ -40,7 +40,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 				   : Pos::Filter3D::factory().getUserNames() );
     for ( int idx=0; idx<filtnms.size(); idx++ )
     {
-	const BufferString& nm( filtnms.get(idx) );
+	const OD::String& nm( filtnms.get(idx) );
 	uiPosFiltGroup* grp = uiPosFiltGroup::factory()
 				.create(nm,this,setup_,true);
 	if ( grp )
@@ -63,7 +63,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 			       : Pos::Provider3D::factory().getUserNames() );
 	for ( int idx=0; idx<provnms.size(); idx++ )
 	{
-	    const BufferString& nm( provnms.get(idx) );
+	    const OD::String& nm( provnms.get(idx) );
 	    uiPosProvGroup::Setup ppgsu( setup_.is2d_, true, true );
 	    uiPosProvGroup* grp = uiPosProvGroup::factory()
 				    .create(nm,this,ppgsu,true);

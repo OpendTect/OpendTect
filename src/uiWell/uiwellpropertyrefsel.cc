@@ -74,7 +74,7 @@ bool uiWellSinglePropSel::setAvailableLogs( const Well::LogSet& wls )
     for ( int idx=0; idx<logidxs.size(); idx++ )
     {
 	const Well::Log& wl = wls.getLog( logidxs[idx] );
-	const BufferString& lognm = wl.name();
+	const OD::String& lognm = wl.name();
 	const BufferString& unmeaslbl = wl.unitMeasLabel();
 	if ( arealt[idx] )
 	    { altnms_.add( lognm ); altunmeaslbls_.add( unmeaslbl ); }

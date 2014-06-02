@@ -90,10 +90,10 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     jobsfld_->addItem( "Scanning Proc directory ...." );
 
     vwfilebut_ = new uiToolButton( topgrp, "info", "View/Edit job file",
-	    	      mCB(this,uiStartBatchJobDialog,viewFile) );
+		      mCB(this,uiStartBatchJobDialog,viewFile) );
     vwfilebut_->attach( rightOf, llb );
     rmfilebut_ = new uiToolButton( topgrp, "trashcan", "Remove job file",
-	    	      mCB(this,uiStartBatchJobDialog,rmFile) );
+		      mCB(this,uiStartBatchJobDialog,rmFile) );
     rmfilebut_->attach( centeredRightOf, llb );
 
     topgrp->setFrame( true );
@@ -212,7 +212,7 @@ void uiStartBatchJobDialog::rmFile( CallBacker* )
     if ( selidx < 0 )
 	{ pErrMsg("Huh"); return; }
 
-    const BufferString& fnm( filenames_.get(selidx) );
+    const OD::String& fnm( filenames_.get(selidx) );
     if ( !File::remove(fnm) )
 	{ uiMSG().error( "Could not remove job file" ); return; }
 

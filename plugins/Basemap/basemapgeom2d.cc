@@ -37,7 +37,7 @@ void Geom2DObject::setMultiID( const MultiID& mid )
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !ioobj ) return;
 
-    const BufferString& linename = ioobj->name();
+    const OD::String& linename = ioobj->name();
     setName( linename );
 
     Pos::GeomID geomid = Survey::GM().getGeomID( linename );

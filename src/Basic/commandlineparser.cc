@@ -24,11 +24,11 @@ CommandLineParser::CommandLineParser()
 }
 
 
-const BufferString& CommandLineParser::getExecutable() const
+const OD::String& CommandLineParser::getExecutable() const
 { return executable_; }
 
 
-const BufferString& CommandLineParser::getExecutableName() const
+const OD::String& CommandLineParser::getExecutableName() const
 {
     return progname_;
 }
@@ -59,11 +59,11 @@ bool CommandLineParser::isPresent( const char* arg ) const
 }
 
 
-const BufferString& CommandLineParser::lastArg() const
+const OD::String& CommandLineParser::lastArg() const
 {
     if ( argv_.isEmpty() )
 	return BufferString::empty();
-    
+
     return *argv_.last();
 }
 
@@ -76,11 +76,11 @@ bool CommandLineParser::isKeyValue( int idx ) const
 
     if ( keyidx==idx || keyidx<0 )
 	return false;
-    
+
     const char* keyptr = getArg( keyidx );
     while ( *keyptr=='-' )
 	keyptr++;
-    
+
     if ( !*keyptr )
 	return false;
 
@@ -96,17 +96,17 @@ bool CommandLineParser::isKey( int idx ) const
 {
     if ( !argv_.validIdx( idx ) )
 	return false;
-    
-    const BufferString& arg = getArg( idx );
+
+    const OD::String& arg = getArg( idx );
     if ( arg.size()<2 )
 	return false;
-    
+
     if ( arg.size()>2 && arg.buf()[0]=='-' && arg.buf()[1]=='-' &&
 	 !isspace(arg.buf()[2]) )
     {
 	return true;
     }
-    
+
     if ( arg.buf()[0]=='-' )
     {
 	const char nextchar = arg.buf()[1];
@@ -115,7 +115,7 @@ bool CommandLineParser::isKey( int idx ) const
 	    return true;
 	}
     }
-    
+
     return false;
 }
 
@@ -124,7 +124,7 @@ int CommandLineParser::indexOf( const char* key ) const
 {
     const BufferString searchkey1( "--", key );
     const BufferString searchkey2( "-", key );
-    
+
     for ( int idx=argv_.size()-1; idx>=0; idx-- )
     {
 	if ( searchkey1==(*argv_[idx]) ||
@@ -134,7 +134,7 @@ int CommandLineParser::indexOf( const char* key ) const
 		return idx;
 	}
     }
-    
+
     return -1;
 }
 
@@ -143,7 +143,7 @@ int CommandLineParser::indexOf( const char* key ) const
 void CommandLineParser::init( int argc, char** argv )
 {
     argv_.erase();
-    
+
     if ( argc )
     {
 	executable_ = argv[0];
@@ -154,7 +154,7 @@ void CommandLineParser::init( int argc, char** argv )
 	executable_.setEmpty();
 	progname_.setEmpty();
     }
-    
+
     for ( int idx=1; idx<argc; idx++ )
 	argv_.add( argv[idx] );
 }

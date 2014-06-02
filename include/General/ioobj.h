@@ -69,9 +69,9 @@ public:
     virtual const char*		connType() const		= 0;
     virtual Conn*		getConn(bool forread) const	= 0;
 
-    virtual const BufferString&	translator() const	       {return transl_;}
+    virtual const OD::String&	translator() const	       {return transl_;}
     virtual void		setTranslator( const char* s ) {transl_ = s; }
-    virtual const BufferString&	group() const			{return group_;}
+    virtual const OD::String&	group() const			{return group_;}
     virtual void		setGroup( const char* s )	{group_ = s; }
     virtual const char*		fullUserExpr(bool forread=true) const = 0;
 

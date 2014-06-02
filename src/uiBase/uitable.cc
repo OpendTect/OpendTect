@@ -559,7 +559,7 @@ const char* uiTable::text( const RowCol& rc ) const
 	if ( !cb )
 	{
 	    pErrMsg("TODO: unknown table cell obj: add it!");
-	    return cellobj->name();
+	    return cellobj->name().buf();
 	}
 	return cb->text();
     }

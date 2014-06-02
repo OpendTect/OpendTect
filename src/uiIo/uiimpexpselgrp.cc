@@ -300,7 +300,7 @@ class uiRenameDlg : public uiDialog
 public:
 
 uiRenameDlg( uiParent* p, const char* nm )
-    : uiDialog(p,uiDialog::Setup("Rename Selection Group Set", 
+    : uiDialog(p,uiDialog::Setup("Rename Selection Group Set",
                                  0, mNoHelpKey) )
 {
     namefld_ = new uiGenInput( this, "Selection Group Set Name" );
@@ -490,7 +490,7 @@ class uiSGSelDlg : public uiDialog
 public:
 
 uiSGSelDlg( uiParent* p, bool forread )
-    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups", 
+    : uiDialog(p,uiDialog::Setup("Select Cross-plot Selection Groups",
                                  0, mNoHelpKey))
     , forread_(forread)
 {
@@ -519,7 +519,7 @@ bool acceptOK( CallBacker* )
 const ObjectSet<SelectionGrp>& selGrpSet() const	{ return selgrpset_; }
 
 const char* selGrSetNm() const				{ return selgrpsetnm_; }
-const BufferString& selGrpFileNm() const		{ return filenm_;}
+const OD::String& selGrpFileNm() const			{ return filenm_;}
 
 const char* xName() const				{ return xname_; }
 const char* yName() const				{ return yname_; }
@@ -547,7 +547,7 @@ uiSGSel::uiSGSel( uiParent* p, bool forread )
     , selGrpSelected(this)
 {
     inpfld_ = new uiGenInput( this, tr("Cross-plot Selections") );
-    selbut_ = new uiPushButton( this, tr("Select .."), 
+    selbut_ = new uiPushButton( this, tr("Select .."),
                                 mCB(this,uiSGSel,selectSGCB), false );
     selbut_->attach( rightTo, inpfld_ );
 }
@@ -974,7 +974,7 @@ uiExpSelectionArea::uiExpSelectionArea( uiParent* p,
 					const ObjectSet<SelectionGrp>& selgrps,
 					uiExpSelectionArea::Setup su )
     : uiDialog(p,uiDialog::Setup("Save Selection Area",
-				 "Specify parameters", 
+				 "Specify parameters",
                                  mODHelpKey(mExpSelectionAreaHelpID) ))
     , selgrps_(selgrps)
     , setup_(su)

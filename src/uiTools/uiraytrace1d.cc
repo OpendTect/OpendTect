@@ -15,11 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 
 
-mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&, 
+mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 			uiRayTracer1D::factory );
 
 
-uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s ) 
+uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     : uiGroup( p, "Ray Tracer Selector" )
     , raytracerselfld_(0)
     , offsetChanged(this)
@@ -31,14 +31,14 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     {
 	raytracerselfld_ = new uiLabeledComboBox( this, "Ray-Tracer" );
 	raytracerselfld_->box()->setHSzPol( uiObject::Wide );
-	raytracerselfld_->box()->selectionChanged.notify( 
+	raytracerselfld_->box()->selectionChanged.notify(
 				mCB( this, uiRayTracerSel, selRayTraceCB) );
 
     }
 
     for ( int idx=0; idx<facnms.size(); idx++ )
     {
-	const BufferString& facnm( facnms.get(idx) );
+	const OD::String& facnm( facnms.get(idx) );
 	const uiString usernm( usernms.validIdx(idx) ? usernms[idx] : facnm );
 
 	uiRayTracer1D* grp = uiRayTracer1D::factory().create(facnm,this,s,true);
@@ -46,9 +46,9 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	{
 	    grps_ += grp;
 	    if ( grp->doOffsets() )
-    		grp->offsetChanged().notify(
+		grp->offsetChanged().notify(
 			mCB(this,uiRayTracerSel,offsChangedCB) );
-	    if ( raytracerselfld_ ) 
+	    if ( raytracerselfld_ )
 	    {
 		raytracerselfld_->box()->addItem( usernm );
 		raytracerselfld_->box()->setCurrentItem(usernm.getFullString());
@@ -57,7 +57,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	    }
 	}
     }
-    
+
     if ( !grps_.isEmpty() )
 	setHAlignObj( grps_[0] );
 
@@ -133,7 +133,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , doreflectivity_(s.doreflectivity_)
     , downwavefld_( 0 )
     , upwavefld_( 0 )
-    , offsetfld_( 0 ) 
+    , offsetfld_( 0 )
     , offsetstepfld_( 0 )
     , lastfld_( 0 )
 {
@@ -151,7 +151,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );
-	lastfld_ = offsetfld_; 
+	lastfld_ = offsetfld_;
     }
 
     if ( s.convertedwaves_ )
@@ -163,11 +163,11 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
 	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
 	upwavefld_->attach( alignedBelow, lastfld_ );
-	lastfld_ = upwavefld_; 
+	lastfld_ = upwavefld_;
     }
 
-    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par ); 
-    usePar( par ); 
+    IOPar par; RayTracer1D::Setup defaultsetup; defaultsetup.fillPar( par );
+    usePar( par );
 
     if ( lastfld_ ) setHAlignObj( lastfld_ );
 }
@@ -181,7 +181,7 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 {
     RayTracer1D::Setup tmpsetup;
     tmpsetup.usePar( par );
-    
+
     if ( downwavefld_ )
     {
 	downwavefld_->setValue( tmpsetup.pdown_ );
@@ -229,7 +229,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
 	    offsetrg.scale( mFromFeetFactorF );
 
     }
-    TypeSet<float> offsets; 
+    TypeSet<float> offsets;
     for ( int idx=0; idx<offsetrg.nrSteps()+1; idx++ )
 	offsets += offsetrg.atIndex( idx );
 
@@ -255,13 +255,13 @@ void uiRayTracer1D::displayOffsetFlds( bool yn )
 
 
 uiVrmsRayTracer1D::uiVrmsRayTracer1D(uiParent* p,const uiRayTracer1D::Setup& s)
-    : uiRayTracer1D( p, s ) 
+    : uiRayTracer1D( p, s )
 {}
 
 
 void uiVrmsRayTracer1D::initClass()
 {
-    uiRayTracer1D::factory().addCreator(create, 
+    uiRayTracer1D::factory().addCreator(create,
 				VrmsRayTracer1D::sFactoryKeyword(),
 				VrmsRayTracer1D::sFactoryDisplayName() );
 }

@@ -97,7 +97,7 @@ public:
 				     DescStatusUpdater updater=0,
 				     DescDefaultsUpdater defupdater=0);
 
-    const BufferString&		attribName() const;
+    const OD::String&		attribName() const;
 
     void			setDescSet(DescSet*);
     DescSet*			descSet() const;

@@ -72,7 +72,7 @@ public:
     inline SeparString&	operator +=( T t )	{ return add( t ); }
     template <class T>
     inline SeparString&	operator +=( const OD::String& ods )
-    						{ return add( ods.buf() ); }
+						{ return add( ods.buf() ); }
 
     inline		operator const char*() const
 						{ return buf(); }
@@ -83,7 +83,7 @@ public:
 							//!< Output escaped
     BufferString&	rep()			{ return rep_; }
 							//!< Output escaped
-    const BufferString&	rep() const		{ return rep_; }
+    const OD::String&	rep() const		{ return rep_; }
 							//!< Output escaped
 
     inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
@@ -135,7 +135,7 @@ public:
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
     inline FileMultiString& operator +=( const OD::String& ods )
-    						{ return add( ods.buf() ); }
+						{ return add( ods.buf() ); }
 
     template <class T> inline
     FileMultiString&	add( T t )

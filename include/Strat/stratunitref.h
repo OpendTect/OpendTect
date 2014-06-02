@@ -56,7 +56,7 @@ public:
 
     virtual const OD::String& code() const	= 0;
     virtual void	setCode(const char*)	{}
-    const BufferString&	description() const	{ return desc_; }
+    const OD::String&	description() const	{ return desc_; }
     virtual void	setDescription( const char* d )	{ desc_ = d; }
     Color		color() const		{ return color_; }
     void		setColor(Color);

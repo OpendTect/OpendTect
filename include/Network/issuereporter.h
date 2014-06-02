@@ -18,36 +18,36 @@ ________________________________________________________________________
 
 namespace System
 {
-    
-    
+
+
 /*Class that can post a crash-report to OpendTect's website */
-    
+
 mExpClass(Network) IssueReporter
 { mODTextTranslationClass(IssueReporter);
 public:
-    				IssueReporter( const char* hostname = 0,
+				IssueReporter( const char* hostname = 0,
 					       const char* path = 0 );
 
     bool			readReport(const char* filename);
     bool			setDumpFileName(const char* filename);
     BufferString&		getReport()	    { return report_; }
-    const BufferString&		getReport() const   { return report_; }
-    
+    const OD::String&		getReport() const   { return report_; }
+
     bool			send();
     uiString			errMsg() const	    { return errmsg_; }
 
     bool			parseCommandLine();
-    
+
 protected:
-    
+
     BufferString		host_;
     BufferString		path_;
     uiString			errmsg_;
     BufferString		report_;
     BufferString                crashreportpath_;
 };
-    
-    
+
+
 
 
 } //Namespace

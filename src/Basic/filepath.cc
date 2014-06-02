@@ -276,7 +276,7 @@ const char* FilePath::extension() const
 }
 
 
-const BufferString& FilePath::fileName() const
+const OD::String& FilePath::fileName() const
 { return dir(-1); }
 
 
@@ -295,7 +295,7 @@ BufferString FilePath::pathOnly() const
 { return dirUpTo(lvls_.size()-2); }
 
 
-const BufferString& FilePath::dir( int nr ) const
+const OD::String& FilePath::dir( int nr ) const
 {
     if ( nr < 0 || nr >= lvls_.size() )
 	nr = lvls_.size()-1;
