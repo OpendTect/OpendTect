@@ -220,7 +220,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 
 void uiODWellTreeItem::initMenuItems()
 {
-    propertiesmnuitem_.text = "&Properties ...";
+    propertiesmnuitem_.text = uiStrings::sProperties( false );
     propertiesmnuitem_.iconfnm = "disppars";
     logviewermnuitem_.text = "&2D Log Viewer ...";
     gend2tmmnuitem_.text = "&Tie Well to Seismic ...";

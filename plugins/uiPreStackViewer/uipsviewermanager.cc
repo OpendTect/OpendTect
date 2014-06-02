@@ -50,7 +50,7 @@ namespace PreStackView
 uiViewer3DMgr::uiViewer3DMgr()
     : selectpsdatamenuitem_( "D&isplay Prestack Data" )
     , positionmenuitem_( "&Show position window ..." )
-    , proptymenuitem_( "&Properties ..." )
+    , proptymenuitem_( uiStrings::sProperties( false ) )
     , resolutionmenuitem_( "&Resolution ..." )
     , viewermenuitem_( "View in &2D panel" )
     , amplspectrumitem_( "&Amplitude spectrum ..." )

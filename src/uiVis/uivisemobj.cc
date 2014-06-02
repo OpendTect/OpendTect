@@ -250,7 +250,7 @@ void uiVisEMObject::setUpConnections()
     seedsmenuitem_.text = "S&eeds";
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = "&Show";
-    seedpropmnuitem_.text = "&Properties ...";
+    seedpropmnuitem_.text = uiStrings::sProperties( false );
     lockseedsmnuitem_.text = "&Lock";
     editmnuitem_.text = "&Edit";
     editmnuitem_.checkable = true;

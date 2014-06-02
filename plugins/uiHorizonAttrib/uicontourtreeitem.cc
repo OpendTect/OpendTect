@@ -521,7 +521,7 @@ void uiContourTreeItem::initClass()
 
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , optionsmenuitem_( "Properties ..." )
+    , optionsmenuitem_( uiStrings::sProperties( false ) )
     , areamenuitm_( "Contour areas" )
     , lines_( 0 )
     , drawstyle_( 0 )

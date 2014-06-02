@@ -232,7 +232,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , storeasmnuitem_(sSaveAs())
     , dirmnuitem_("Set &directions ...")
     , onlyatsectmnuitem_("&Only at sections")
-    , propertymnuitem_("&Properties ...")
+    , propertymnuitem_(uiStrings::sProperties( false ))
     , closepolyitem_("&Close Polygon")
     , convertbodymnuitem_( "Convert to body" )
 {

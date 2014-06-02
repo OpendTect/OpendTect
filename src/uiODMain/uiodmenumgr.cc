@@ -586,7 +586,7 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( tileitm, tr("&Horizontal"), mTileHorMnuItm );
     mInsertItem( tileitm, tr("&Vertical"), mTileVerMnuItm );
 
-    mInsertItem( scenemnu_, tr("&Properties ..."), mScenePropMnuItm );
+    mInsertItem( scenemnu_, uiStrings::sProperties( false ), mScenePropMnuItm );
     scenemnu_->insertSeparator();
 
     updateSceneMenu();

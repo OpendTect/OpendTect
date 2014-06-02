@@ -48,14 +48,12 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
 	const int nrdispl = parseerrmsgs.size() > 3 ? 4 : parseerrmsgs.size();
 	for ( int idx = 1; idx<nrdispl; idx++ )
 	{
-	    warningmsg.append( "\n" );
-	    warningmsg.append( parseerrmsgs[idx] );
+	    warningmsg.append( parseerrmsgs[idx], true );
 	}
 
 	if ( parseerrmsgs.size() > 4 )
 	{
-	    warningmsg.append( "\n" );
-	    warningmsg.append( "[More warnings omitted]" );
+	    warningmsg.append( "[More warnings omitted]", true );
 	}
     }
 
