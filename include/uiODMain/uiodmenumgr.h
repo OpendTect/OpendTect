@@ -151,7 +151,7 @@ protected:
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		toggViewMode(CallBacker*);
-    void		create2D3DMnu(uiMenu*,const char*,int,int,
+    void		create2D3DMnu(uiMenu*,const uiString&,int,int,
 				      const char* pm=0);
 
     uiAction*		stereooffitm_;

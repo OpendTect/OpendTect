@@ -1905,11 +1905,8 @@ void uiODApplMgr::startInstMgr()
 { dispatcher_.startInstMgr(); }
 void uiODApplMgr::setAutoUpdatePol()
 { dispatcher_.setAutoUpdatePol(); }
-void uiODApplMgr::create2Dfrom3D()
-{ dispatcher_.process2D3D( true ); }
-void uiODApplMgr::create3Dfrom2D()
-{ dispatcher_.process2D3D( false ); }
-
+void uiODApplMgr::process2D3D( int opt )
+{ dispatcher_.process2D3D( opt ); }
 
 void uiODApplMgr::MiscSurvInfo::refresh()
 {

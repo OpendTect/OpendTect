@@ -106,8 +106,9 @@ public:
     void			bayesClass3D(CallBacker* =0);
     void			resortSEGY(CallBacker* =0);
     void			createCubeFromWells(CallBacker* =0);
-    void			create2Dfrom3D();
-    void			create3Dfrom2D();
+    void			create2DGrid()		{ process2D3D(0); }
+    void			create2DFrom3D()	{ process2D3D(1); }
+    void			create3DFrom2D()	{ process2D3D(2); }
 
     // View menu operations
     void			showBaseMap();
@@ -272,6 +273,8 @@ protected:
 
     void			createAndSetMapDataPack(int visid,int attrib,
 						const DataPointSet&,int colnr);
+    void			process2D3D(int opt); /*!<opt=0: create 2D grid,
+							  1:3D->2D, 2:2D->3D */
 
     friend class		uiODApplService;
 

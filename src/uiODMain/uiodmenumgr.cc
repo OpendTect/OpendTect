@@ -424,7 +424,7 @@ void uiODMenuMgr::fillManMenu()
 }
 
 
-void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const char* title,
+void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const uiString& title,
 				 int id2d, int id3d, const char* pmfnm )
 {
     if ( SI().has2D() && SI().has3D() )
@@ -436,7 +436,8 @@ void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const char* title,
     }
     else
     {
-	const BufferString titledots( title, " ..." );
+	uiString titledots( title );
+	titledots.append( " ..." );
 	if ( SI().has2D() )
 	    mInsertPixmapItem( itm, titledots, id2d, pmfnm )
 	else if ( SI().has3D() )
@@ -450,59 +451,88 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->clear();
 
     uiMenu* csoitm = new uiMenu( &appl_, tr("&Create Seismic Output") );
-    create2D3DMnu( csoitm, "&Attributes", mSeisOut2DMnuItm, 
-        mSeisOut3DMnuItm, "seisout");
+
+// Attributes
+    uiMenu* attritm = new uiMenu( tr("Attributes") );
+    csoitm->insertItem( attritm );
+
+    create2D3DMnu( attritm, tr("&Single Attribute"),
+		   mSeisOut2DMnuItm, mSeisOut3DMnuItm,
+		   "seisout");
     if ( SI().has3D() )
     {
-	csoitm->insertItem(
-	    new uiAction(tr("Multi attribute ..."),
+	attritm->insertItem(
+	    new uiAction( tr("&Multi Attribute ..."),
 			mCB(&applMgr(),uiODApplMgr,createMultiAttribVol)) );
-	csoitm->insertItem(
-	    new uiAction(tr("Volume &Builder ..."),
-			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
-	csoitm->insertItem(
-	    new uiAction(tr("&Time - depth conversion ..."),
-			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
-	csoitm->insertItem(
-	    new uiAction(tr("&Velocity conversion ..."),
-			mCB(&applMgr(),uiODApplMgr,processVelConv)) );
-	csoitm->insertItem(
-	    new uiAction(tr("&Prestack processing ..."),
-			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
-	csoitm->insertItem(
-	    new uiAction(tr("&Create MultiCube DataStore ..."),
+	attritm->insertItem(
+	    new uiAction( tr("MultiCube &DataStore ..."),
 			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
+    }
+
+    create2D3DMnu( attritm, tr("&Along Horizon"), mCompAlongHor2DMnuItm,
+		   mCompAlongHor3DMnuItm, "alonghor" );
+    create2D3DMnu( attritm, tr("&Between Horizons"), mCompBetweenHor2DMnuItm,
+		   mCompBetweenHor3DMnuItm, "betweenhors" );
+
+
+// 2D <-> 3D
+    uiMenu* itm2d3d = new uiMenu( "2D <=> 3D" );
+    csoitm->insertItem( itm2d3d );
+    if ( SI().has3D() )
+    {
+	mInsertItem( itm2d3d, tr("Create 2D Grid ..."), mCreate2DFrom3DMnuItm );
+	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."), m2DFrom3DMnuItm );
+    }
+    if ( SI().has2D() )
+    {
+	mInsertItem( itm2d3d, tr("Create 3D From 2D ..."), m3DFrom2DMnuItm );
+    }
+
+    if ( SI().has3D() )
+    {
+// Velocity
+	uiMenu* velitm = new uiMenu( tr("Velocity") );
+	csoitm->insertItem( velitm );
+	velitm->insertItem(
+	    new uiAction(tr("&Time - Depth Conversion ..."),
+			 mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
+	velitm->insertItem(
+	    new uiAction(tr("&Velocity Conversion ..."),
+			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
+
+// Other 3D items
 	csoitm->insertItem(
-	    new uiAction(tr("Angle mute function ..."),
+	    new uiAction(tr("Angle mute Function ..."),
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
 	    new uiAction(tr("Bayesian &Classification ..."),
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes"));
 	csoitm->insertItem(
-	    new uiAction(tr("Create from &wells ..."),
+	    new uiAction(tr("From &Well logs ..."),
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
-	mInsertItem( csoitm, tr("Create 2D from 3D ..."), m2DFrom3DMnuItem );
-    }
-    if ( SI().has2D() )
-    {
-	mInsertItem( csoitm, tr("Create 3D from 2D ..."), m3DFrom2DMnuItem );
+	csoitm->insertItem(
+	    new uiAction(tr("&Prestack Processing ..."),
+			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
     }
 
-    create2D3DMnu( csoitm, "Between Horizons", mCompBetweenHor2DMnuItm,
-		   mCompBetweenHor3DMnuItm, "betweenhors" );
-    create2D3DMnu( csoitm, "Along Horizons", mCompAlongHor2DMnuItm,
-		   mCompAlongHor3DMnuItm, "alonghor" );
-    csoitm->insertItem( new uiAction(tr("SEG-&Y Scanned Re-sort ..."),
+    csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-&Y ..."),
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
+
+    if ( SI().has3D() )
+    {
+	csoitm->insertItem(
+	    new uiAction(tr("Volume &Builder ..."),
+			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
+    }
 
     procmnu_->insertItem( csoitm );
 
-    uiMenu* grditm = new uiMenu( &appl_, tr("Create &Horizon Output"));
-    create2D3DMnu( grditm, "&Attributes", mCreateSurf2DMnuItm,
+    uiMenu* grditm = new uiMenu( &appl_, tr("Create &Horizon Output") );
+    create2D3DMnu( grditm, tr("&Attributes"), mCreateSurf2DMnuItm,
 		   mCreateSurf3DMnuItm, "ongrid" );
     procmnu_->insertItem( grditm );
 
-    mInsertItem( procmnu_, tr("(Re-)Start Batch &Job ..."), 
+    mInsertItem( procmnu_, tr("(Re-)Start Batch &Job ..."),
                  mStartBatchJobMnuItm );
 }
 
@@ -1176,8 +1206,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
-    case m2DFrom3DMnuItem:	applMgr().create2Dfrom3D(); break;
-    case m3DFrom2DMnuItem:	applMgr().create3Dfrom2D(); break;
+    case mCreate2DFrom3DMnuItm:	applMgr().create2DGrid(); break;
+    case m2DFrom3DMnuItm:	applMgr().create2DFrom3D(); break;
+    case m3DFrom2DMnuItm:	applMgr().create3DFrom2D(); break;
     case mStartBatchJobMnuItm:	applMgr().startBatchJob(); break;
     case mXplotMnuItm:		applMgr().doWellXPlot(); break;
     case mAXplotMnuItm:		applMgr().doAttribXPlot(); break;
