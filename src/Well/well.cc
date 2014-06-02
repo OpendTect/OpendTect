@@ -29,7 +29,7 @@ const char* Well::Info::sKeySRD()	{ return "Seismic Reference Datum"; }
 const char* Well::Info::sKeyreplvel()	{ return "Replacement velocity"; }
 const char* Well::Info::sKeygroundelev(){ return "Ground level elevation"; }
 
-const int Well::Info::legacyLogWidthFactor()
+int Well::Info::legacyLogWidthFactor()
 {
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;
    const int crlnr = SI().crlRange( true ).nrSteps() + 1;

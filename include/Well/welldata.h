@@ -69,7 +69,7 @@ public:
     static const char*	sKeySRD();
     static const char*	sKeyreplvel();
     static const char*	sKeygroundelev();
-    static const int	legacyLogWidthFactor();
+    static int		legacyLogWidthFactor();
 
 };
 
