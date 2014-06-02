@@ -216,6 +216,8 @@ bool doImp( const FilePath& fp )
     const int orglen = fullmaskfnm.size();
     bool nofails = true;
 
+    bool overwrite = false;
+    bool overwritequestionasked = false;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirlistfnm( dl.get(idx) );
@@ -226,6 +228,25 @@ bool doImp( const FilePath& fp )
 	const int lnmlen = (newlen - orglen + 1) / nrtok;
 	BufferString lnm( fullfnm.buf() + lnmoffs );
 	*(lnm.getCStr() + lnmlen) = '\0';
+
+	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	{
+	    if ( !overwritequestionasked )
+	    {
+		overwrite = uiMSG().askGoOn( tr("Do you want to overwrite the "
+						"Geometry of the lines?") );
+		overwritequestionasked = true;
+	    }
+
+	    if ( overwrite )
+	    {
+		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
+		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+	    }
+
+	}
 
 	IOObj* newioobj = getSubstIOObj( fullfnm );
 	if ( !doWork( newioobj, lnm, idx > dl.size()-2, nofails ) )
@@ -276,6 +297,21 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     bool retval;
     if ( !morebut_ || !morebut_->isChecked() )
     {
+	Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
+	{
+	    const bool overwrite =
+		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
+				    " Do you want to overwrite?").arg(lnm) );
+	    if ( overwrite )
+	    {
+		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
+		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+		if ( geom2d ) geom2d->dataAdmin().setEmpty();
+	    }
+
+	}
+
 	retval = impFile( *useinioobj, outioobj, lnm );
 	if ( is2d && retval )
 	    uiMSG().message( tr("Successfully loaded %1").
@@ -324,20 +360,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( is2d )
     {
 	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
-	if ( geomid != Survey::GeometryManager::cUndefGeomID() )
-	{
-	    const bool overwrite =
-		uiMSG().askGoOn( tr("Geometry of Line '%1' is already present."
-				    " Do you want to overwrite?").arg(linenm) );
-	    if ( overwrite )
-	    {
-		Survey::Geometry* geom = Survey::GMAdmin().getGeometry(geomid );
-		mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
-		geom2d->dataAdmin().setEmpty();
-	    }
-
-	}
-	else
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
 	{
 	    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
 	    Survey::Geometry2D* newgeom2d = new Survey::Geometry2D( l2d );
