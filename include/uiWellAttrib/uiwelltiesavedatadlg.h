@@ -31,7 +31,7 @@ namespace WellTie
     class Server;
 
 mExpClass(uiWellAttrib) uiSaveDataDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSaveDataDlg);
 public:
 				uiSaveDataDlg(uiParent*,Server&);
 

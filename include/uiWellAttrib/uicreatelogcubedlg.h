@@ -23,7 +23,7 @@ class uiLabeledSpinBox;
 class uiMultiWellLogSel;
 
 mExpClass(uiWellAttrib) uiCreateLogCubeDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCreateLogCubeDlg);
 public:
 				uiCreateLogCubeDlg(uiParent*,const MultiID*);
 
@@ -37,7 +37,7 @@ protected:
 
 
 mExpClass(uiWellAttrib) uiCreateLogCubeOutputSel : public uiGroup
-{
+{ mODTextTranslationClass(uiCreateLogCubeOutputSel);
 public:
 
 				uiCreateLogCubeOutputSel(uiParent*,
@@ -51,7 +51,7 @@ public:
     void			setPostFix(const BufferString&);
     void			useWellNameFld(bool yn);
 
-    bool			askOverwrite(BufferString errmsg) const;
+    bool			askOverwrite(const uiString& errmsg) const;
 
 protected:
 

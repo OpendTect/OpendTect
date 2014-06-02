@@ -395,7 +395,7 @@ bool Server::computeSynthetics( const Wavelet& wvlt )
 	return false;
 
     if ( !dataplayer_->computeSynthetics(wvlt) )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }
@@ -407,7 +407,7 @@ bool Server::extractSeismics()
 	return false;
 
     if ( !dataplayer_->extractSeismics() )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }
@@ -419,7 +419,7 @@ bool Server::updateSynthetics( const Wavelet& wvlt )
 	return false;
 
     if ( !dataplayer_->doFastSynthetics(wvlt) )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }
@@ -431,7 +431,7 @@ bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 	return false;
 
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }
@@ -443,7 +443,7 @@ bool Server::computeCrossCorrelation()
 	return false;
 
     if ( !dataplayer_->computeCrossCorrelation() )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }
@@ -455,7 +455,7 @@ bool Server::computeEstimatedWavelet( int newsz )
 	return false;
 
     if ( !dataplayer_->computeEstimatedWavelet( newsz ) )
-	{ errmsg_ = dataplayer_->errMSG(); return false; }
+	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
     return true;
 }

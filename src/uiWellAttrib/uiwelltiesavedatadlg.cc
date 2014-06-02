@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 //start at 2, the first 2 are sonic and density.
 #define cLogShift	2
-#define mErrRet(msg,act) { uiMSG().error(msg); act; }
+#define mErrRet( msg ) { uiMSG().error(msg); return false; }
 namespace WellTie
 {
 
@@ -119,15 +119,7 @@ void uiSaveDataDlg::saveWvltSelCB( CallBacker* )
 }
 
 
-#define mCanNotWriteLogs(iscube)\
-{\
-    msg.set( dataserver_.dataWriter().errMsg() );\
-    msg.add( "Cannot write log" );\
-    if ( iscube ) msg.add( " cube" );\
-    msg.add("(s)");\
-    msg.addNewLine().add("Check your permissions");\
-    mErrRet( msg, return false );\
-}
+#define mAppMsg(locmsg,act) { msg.append( locmsg, msg.isSet() ); act; }
 
 
 bool uiSaveDataDlg::saveLogs()
@@ -137,7 +129,7 @@ bool uiSaveDataDlg::saveLogs()
 
     Well::LogSet logset;
     BufferStringSet lognms;
-    BufferString msg;
+    uiString msg;
     for ( int ilog=0; ilog<logsfld_->size(); ilog++ )
     {
 	if ( !logsfld_->isChecked(ilog) )
@@ -150,9 +142,9 @@ bool uiSaveDataDlg::saveLogs()
 
 	if ( data.wd_->logs().getLog(lognm) )
 	{
-	    if ( !msg.isEmpty() ) msg.addNewLine();
-	    msg.add( "Log: '" ).add( lognm ).add( "' already exists " );
-	    continue;
+	    const uiString localmsg = tr( "Log: '%1' already exists" )
+					  .arg( lognm );
+	    mAppMsg( localmsg, continue )
 	}
 
 	Well::Log* newlog = new Well::Log( log );
@@ -161,18 +153,17 @@ bool uiSaveDataDlg::saveLogs()
 	lognms.add( lognm );
     }
 
-    if ( !msg.isEmpty() )
-    {
-	msg.addNewLine().add( "Please choose another postfix" );
-	mErrRet( msg, return false );
-    }
+    uiString endmsg = tr( "Please choose another postfix" );
+    if ( msg.isSet() )
+	mAppMsg( endmsg, mErrRet( msg ) )
 
-    BufferString errmsg( "Can not write " );
     DataWriter& datawtr = dataserver_.dataWriter();
+    endmsg = tr( "Check your permissions" );
     if ( !datawtr.writeLogs(logset,savetolog) )
     {
 	datawtr.removeLogs( logset );
-	mCanNotWriteLogs(false);
+	msg = tr( "Cannot write log(s)" );
+	mAppMsg( endmsg, mErrRet( msg ) )
     }
 
     if ( !savetolog )
@@ -186,17 +177,18 @@ bool uiSaveDataDlg::saveLogs()
 	{
 	    if ( !outputgrp_->askOverwrite(lcr.errMsg()) )
 	    {
-		mCanNotWriteLogs(true);
+		datawtr.removeLogs( logset );
+		return false;
 	    }
 	    else
 		lcr.resetMsg();
 	}
 
-	uiTaskRunner* tr = new uiTaskRunner( this );
-	if ( !TaskRunner::execute(tr,lcr) || lcr.errMsg() )
+	uiTaskRunner* taskrunner = new uiTaskRunner( this );
+	if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
 	{
 	    datawtr.removeLogs( logset );
-	    mErrRet( lcr.errMsg(), return false );
+	    mErrRet( lcr.errMsg() )
 	}
 
 	datawtr.removeLogs( logset );
@@ -216,10 +208,10 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
     const Wavelet& wvlt = isestimated ? data.estimatedwvlt_ : data.initwvlt_;
     if ( !wvlt.size() && isestimated )
     {
-	BufferString msg( "No estimated wavelet yet" );
-	msg.addNewLine();
-	msg.add( "Press 'Display additional information' before saving" );
-	mErrRet( msg, return false );
+	uiString msg = tr( "No estimated wavelet yet" );
+	msg.append(
+	   tr( "Press 'Display additional information' before saving" ), true );
+	mErrRet( msg )
     }
 
     const IOObj* wvltioobj = wvltsel.ioobj();
@@ -227,7 +219,7 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
 	return false;
 
     if ( !wvlt.put(wvltioobj) )
-	mErrRet( "Cannot write output wavelet", return false );
+	mErrRet( tr( "Cannot write output wavelet" ) )
 
     return true;
 }
@@ -236,18 +228,16 @@ bool uiSaveDataDlg::saveWvlt( bool isestimated )
 bool uiSaveDataDlg::acceptOK( CallBacker* )
 {
     bool success = true;
+
     if ( logsfld_->firstChecked() == -1 && !initwvltsel_->isChecked() &&
 	 !estimatedwvltsel_->isChecked() )
-	mErrRet( "Please check at least one item to be saved", return false );
+	mErrRet( tr( "Please check at least one item to be saved" ) )
 
-    if ( !saveLogs() )
-	success = false;
-
-    if ( !saveWvlt(false) || !saveWvlt(true) )
+    if ( !saveLogs() || !saveWvlt(false) || !saveWvlt(true) )
 	success = false;
 
     if ( success )
-	uiMSG().message( "Successfully saved the selected items" );
+	uiMSG().message( tr( "Successfully saved the selected items" ) );
 
     return false;
 }

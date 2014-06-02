@@ -28,7 +28,7 @@ namespace WellTie
     class Data;
 
 mExpClass(WellAttrib) DataPlayer
-{
+{ mODTextTranslationClass(DataPlayer);
 public:
 			DataPlayer(Data&,const MultiID&,
 				   const BufferString& linenm);
@@ -47,7 +47,7 @@ public:
     void		setCrossCorrZrg( const Interval<float>& zrg )
 								{ zrg_ = zrg; }
 
-    uiString		errMSG() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
 protected:
 
@@ -71,7 +71,7 @@ protected:
     float*		syntarr_; //!< waveform for cross-correlation
     float*		seisarr_; //!< waveform for cross-correlation
 
-    mutable uiString	errmsg_;
+    uiString		errmsg_;
 };
 
 };//namespace WellTie

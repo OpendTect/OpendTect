@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseparator.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
+#include "uistring.h"
 
 #include "createlogcube.h"
 #include "multiid.h"
@@ -43,7 +44,9 @@ uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
 }
 
 
-#define mErrRet( msg, act ) { uiMSG().error( msg ); act; }
+#define mErrRet( msg ) { uiMSG().error( msg ); return false; }
+
+
 bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 {
     const Well::ExtractParams& extractparams = welllogsel_->params();
@@ -52,7 +55,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     TypeSet<MultiID> wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
-	mErrRet("No well selected",return false);
+	mErrRet( tr( "No well selected" ) )
 
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
@@ -65,11 +68,11 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
 	    lcr.resetMsg();
     }
 
-    uiTaskRunner* tr = new uiTaskRunner( this );
-    if ( !TaskRunner::execute(tr,lcr) || lcr.errMsg() )
-	mErrRet( lcr.errMsg(), return false );
+    uiTaskRunner* taskrunner = new uiTaskRunner( this );
+    if ( !TaskRunner::execute(taskrunner,lcr) || !lcr.isOK() )
+	mErrRet( lcr.errMsg() )
 
-    uiMSG().message( "Successfully created the log cube(s)" );
+    uiMSG().message( tr( "Successfully created the log cube(s)" ) );
 
     return false;
 }
@@ -148,15 +151,15 @@ void uiCreateLogCubeOutputSel::useWellNameFld( bool disp )
 }
 
 
-bool uiCreateLogCubeOutputSel::askOverwrite( BufferString errmsg ) const
+bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
 {
-    if ( errmsg.find("as another type") )
+    if ( BufferString(errmsg.getFullString()).find("as another type") )
     {
-	errmsg.addNewLine().add( "Please choose another postfix" );
-	mErrRet( errmsg, return false );
+	uiString msg( errmsg );
+	msg.append( tr( "Please choose another postfix" ), true );
+	mErrRet( msg )
     }
 
-    errmsg.addNewLine().add( "Overwrite?" );
     return uiMSG().askOverwrite( errmsg );
 }
 

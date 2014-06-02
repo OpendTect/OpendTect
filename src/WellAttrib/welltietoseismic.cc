@@ -35,10 +35,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace WellTie
 {
-#define mErrRet(msg) { \
-    if ( !errmsg_.isEmpty() ) { errmsg_.append( ". "); errmsg_.append( msg ); }\
-    else errmsg_ = msg;\
-    return false; }
+#define mErrRet(msg) \
+{ \
+    if ( errmsg_.isEmpty() ) \
+	errmsg_ = msg; \
+    else \
+	errmsg_.append( msg, true ); \
+\
+    return false; \
+}
 
 DataPlayer::DataPlayer( Data& data, const MultiID& seisid,
 			const BufferString& lnm )
@@ -71,19 +76,19 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
     errmsg_.setEmpty();
 
     if ( !data_.wd_ )
-	mErrRet( "Cannot read well data" );
+	mErrRet( tr( "Cannot read well data" ) )
 
     if ( !data_.wd_->d2TModel() )
-	mErrRet( "No depth/time model computed" );
+	mErrRet( tr( "No depth/time model computed" ) )
 
     if ( !setAIModel() )
-	mErrRet( "Could not set AI model for raytracing" );
+	mErrRet( tr( "Could not setup for raytracing" ) )
 
     if ( !doFullSynthetics(wvlt) )
-	mErrRet( "Could not compute the synthetic trace" );
+	mErrRet( tr( "Could not compute the synthetic trace" ) )
 
     if ( !copyDataToLogSet() )
-	mErrRet( "Could not copy the AI model to composite logs" );
+	mErrRet( tr( "Could not copy the AI model to composite logs" ) )
 
     return true;
 }
@@ -92,11 +97,12 @@ bool DataPlayer::computeSynthetics( const Wavelet& wvlt )
 bool DataPlayer::extractSeismics()
 {
     errmsg_.setEmpty();
+
     const IOObj& ioobj = *IOM().get( seisid_ );
     IOObj* seisobj = ioobj.clone();
     SeisIOObjInfo oinf( seisid_ );
     if ( !seisobj || !oinf.isOK() )
-	mErrRet( "Cannot read seismic data" );
+	mErrRet( tr( "Cannot read seismic data" ) )
 
     CubeSampling cs;
     oinf.getRanges( cs );
@@ -117,18 +123,12 @@ bool DataPlayer::extractSeismics()
     seisextr.setInterval( seisrg );
 
     if ( !TaskRunner::execute(data_.trunner_,seisextr) )
-    {
-	uiString msg = "Can not extract seismic: %1";
-	msg.arg( seisextr.errMsg() );
-	mErrRet( msg );
-    }
+	mErrRet( tr( "Can not extract seismic: %1" ).arg( seisextr.errMsg() ) )
 
     SeisTrc rawseis = SeisTrc( seisextr.result() );
-
     const int newsz = tracerg.nrSteps()+1;
     data_.seistrc_ = SeisTrc( newsz );
     data_.seistrc_.info().sampling = tracerg;
-
     for ( int idx=0; idx<newsz; idx++ )
     {
 	const float twt = tracerg.atIndex(idx);
@@ -143,6 +143,7 @@ bool DataPlayer::extractSeismics()
 bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
+
     Seis::SynthGenerator gen;
     gen.setModel( refmodel_ );
     gen.setWavelet( &wvlt, OD::UsePtr );
@@ -150,7 +151,7 @@ bool DataPlayer::doFastSynthetics( const Wavelet& wvlt )
     gen.setOutSampling( data_.getTraceRange() );
 
     if ( !gen.doWork() )
-	mErrRet( gen.errMsg() )
+	mErrRet( tr( "Cannot update synthetics: %1" ).arg( gen.errMsg() ) )
 
     data_.synthtrc_ = *new SeisTrc( gen.result() );
 
@@ -174,27 +175,28 @@ bool DataPlayer::computeAdditionalInfo( const Interval<float>& zrg )
 bool DataPlayer::checkCrossCorrInps()
 {
     errmsg_.setEmpty();
+
     if ( zrg_.isUdf() )
-	mErrRet( "Cross-correlation window not set" )
+	mErrRet( tr( "Cross-correlation window not set" ) )
 
     if ( !data_.seistrc_.zRange().isEqual(data_.synthtrc_.zRange(), 1e-2f) )
-	mErrRet( "Synthetic and seismic traces do not have same length" )
+	mErrRet( tr( "Synthetic and seismic traces do not have same length" ) )
 
     if ( !isOKSynthetic() && !isOKSeismic() )
-	mErrRet( "Seismic/Synthetic data too short" )
+	mErrRet( tr( "Seismic/Synthetic data too short" ) )
 
     const int istartseis = data_.seistrc_.nearestSample( zrg_.start );
     const int istopseis = data_.seistrc_.nearestSample( zrg_.stop );
     const int nrsamps = istopseis - istartseis + 1;
     if ( nrsamps < 2 )
-	mErrRet( "Cross-correlation too short" )
+	mErrRet( tr( "Cross-correlation too short" ) )
 
     if ( zrg_.start < data_.seistrc_.startPos() ||
 	 zrg_.stop > data_.seistrc_.endPos() )
     {
-	BufferString errmsg = "The cross-correlation window must be smaller ";
-	errmsg += "than the synthetic/seismic traces";
-	mErrRet( errmsg )
+	const uiString msg = tr( "The cross-correlation window must be smaller "
+				 "than the synthetic/seismic traces" );
+	mErrRet( msg )
     }
 
     // clip to nearest sample
@@ -210,16 +212,16 @@ bool DataPlayer::computeCrossCorrelation()
     errmsg_.setEmpty();
 
     if ( zrg_.isUdf() )
-	mErrRet( "Cross-correlation window not set" )
+	mErrRet( tr( "Cross-correlation window not set" ) )
 
     if ( zrg_.isRev() )
-	mErrRet( "Cross-correlation window is not valid" )
+	mErrRet( tr( "Cross-correlation window is not valid" ) )
 
     if ( !extractWvf(false) )
-	mErrRet( "Cannot extraction seismic for cross-correlation" )
+	mErrRet( tr( "Cannot extraction seismic for cross-correlation" ) )
 
     if ( !extractWvf(true) )
-	mErrRet( "Cannot extraction synthetic for cross-correlation" )
+	mErrRet( tr( "Cannot extraction synthetic for cross-correlation" ) )
 
     Data::CorrelData& cd = data_.correl_;
     cd.vals_.erase();
@@ -238,22 +240,22 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
     errmsg_.setEmpty();
 
     if ( zrg_.isUdf() )
-	mErrRet( "Cross-correlation window not set" )
+	mErrRet( tr( "Wavelet estimation window not set" ) )
 
     if ( zrg_.isRev() )
-	mErrRet( "Cross-correlation window is not valid" )
+	mErrRet( tr( "Wavelet estimation window is not valid" ) )
 
     if ( !extractReflectivity() )
-	mErrRet( "Cannot extraction reflectivity for wavelet estimation" )
+	mErrRet( tr( "Cannot extraction reflectivity for wavelet estimation" ) )
 
     if ( !extractWvf(false) )
-	mErrRet( "Cannot extraction seismic for wavelet estimation" )
+	mErrRet( tr( "Cannot extraction seismic for wavelet estimation" ) )
 
     const float step = data_.seistrc_.info().sampling.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     mDeclareAndTryAlloc( float*, wvltarrfull, float[nrsamps] );
     if ( !wvltarrfull )
-	mErrRet( "Cannot allocate memory for estimated wavelet" )
+	mErrRet( tr( "Cannot allocate memory for estimated wavelet" ) )
 
     GeoCalculator gcwvltest;
     gcwvltest.deconvolve( seisarr_, refarr_, wvltarrfull, nrsamps );
@@ -282,8 +284,9 @@ bool DataPlayer::computeEstimatedWavelet( int wvltsz )
 bool DataPlayer::extractWvf( bool issynt )
 {
     errmsg_.setEmpty();
+
     if ( zrg_.isUdf() )
-	mErrRet( "Cross-correlation extraction window not set" )
+	mErrRet( tr( "Waveform extraction window not set" ) )
 
     const SeisTrc& trace = issynt ? data_.synthtrc_ : data_.seistrc_;
     const int istartseis = trace.nearestSample( zrg_.start );
@@ -291,7 +294,7 @@ bool DataPlayer::extractWvf( bool issynt )
     const int nrsamps = istopseis - istartseis + 1;
     mDeclareAndTryAlloc( float*, valarr, float[nrsamps] );
     if ( !valarr )
-	mErrRet( "Cannot allocate memory" )
+	mErrRet( tr( "Internal: Cannot allocate memory" ) )
 
     int idy = 0;
     Stats::CalcSetup scalercalc;
@@ -330,14 +333,15 @@ bool DataPlayer::extractWvf( bool issynt )
 bool DataPlayer::extractReflectivity()
 {
     errmsg_.setEmpty();
+
     if ( zrg_.isUdf() )
-	mErrRet( "Cross-correlation extraction window not set" )
+	mErrRet( tr( "Extraction window not set for reflectivity computation") )
 
     const float step = data_.seistrc_.info().sampling.step;
     const int nrsamps = mNINT32( zrg_.width(false) / step ) + 1;
     const int totnrspikes = refmodel_.size();
     if ( totnrspikes < nrsamps )
-	mErrRet( "Reflectivity series too short" )
+	mErrRet( tr( "Reflectivity series too short" ) )
 
     int firstspike = 0;
     int lastspike = 0;
@@ -354,34 +358,33 @@ bool DataPlayer::extractReflectivity()
 	lastspike++;
     }
 
+    uiString msg;
     if ( refmodel_[firstspike].correctedtime_ - zrg_.start < -1e-5f )
     {
-	BufferString errmsg = "The wavelet estimation window must start ";
-	errmsg += "above the first spike at ";
-	errmsg += refmodel_[firstspike].correctedtime_;
-	errmsg += "ms";
-	mErrRet( errmsg );
+	msg = tr( "The wavelet estimation window must start "
+		  "above the first spike at %1 ms" )
+			.arg( toString(refmodel_[firstspike].correctedtime_) );
+	mErrRet( msg )
     }
 
     if ( refmodel_[lastspike].correctedtime_ - zrg_.stop > 1e-5f )
     {
-	BufferString errmsg = "The wavelet estimation window must stop ";
-	errmsg += "before the last spike at ";
-	errmsg += refmodel_[lastspike].correctedtime_;
-	errmsg += "ms";
-	mErrRet( errmsg );
+	msg = tr( "The wavelet estimation window must stop "
+		  "before the last spike at %1 ms" )
+			.arg( toString(refmodel_[lastspike].correctedtime_) );
+	mErrRet( msg )
     }
 
     if ( (lastspike-firstspike+1) != nrsamps )
     {
-	BufferString errmsg = "The wavelet estimation window must be";
-	errmsg += " smaller than the reflectivity series";
-	mErrRet( errmsg );
+	msg = tr( "The wavelet estimation window must be"
+		  " smaller than the reflectivity series" );
+	mErrRet( msg )
     }
 
     mDeclareAndTryAlloc( float_complex*, valarr, float_complex[nrsamps] );
     if ( !valarr )
-	mErrRet( "Cannot allocate memory for reflectivity series" )
+	mErrRet( tr( "Cannot allocate memory for reflectivity series" ) )
 
     int nrspikefound = 0;
     for ( int idsp=firstspike; idsp<=lastspike; idsp++ )
@@ -391,7 +394,7 @@ bool DataPlayer::extractReflectivity()
 	if ( !mIsEqual(twtspike,zrg_.atIndex(nrspikefound,step),1e-5f) )
 	{
 	    delete [] valarr;
-	    mErrRet( "Mismatch between spike twt and seismic twt" );
+	    mErrRet( tr( "Mismatch between spike twt and seismic twt" ) )
 	}
 
 	valarr[nrspikefound] = spike.isDefined()
@@ -458,6 +461,8 @@ bool DataPlayer::setAIModel()
 bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 {
     errmsg_.setEmpty();
+    uiString msg;
+
     refmodel_.erase();
     TypeSet<ElasticModel> aimodels;
     aimodels += aimodel_;
@@ -468,15 +473,15 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     IOPar par;
     gen.usePar( par );
-    TaskRunner* tr = data_.trunner_;
-    if ( !TaskRunner::execute( tr, gen ) )
-	mErrRet( gen.errMsg() )
+    TaskRunner* taskrunner = data_.trunner_;
+    if ( !TaskRunner::execute(taskrunner,gen) )
+	mErrRet( tr( "Cannot create synthetic: %1" ).arg (gen.errMsg() ) )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     ObjectSet<const ReflectivityModel> refmodels;
     rm.getRefs( refmodels, true );
     if ( refmodels.isEmpty() )
-	mErrRet( "Could not retrieve the reflectivities after ray-tracing" )
+	mErrRet( tr("Could not retrieve the reflectivities after ray-tracing") )
 
     refmodel_ = *refmodels[0];
     data_.synthtrc_ = *rm.stackedTrc();
@@ -490,8 +495,9 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
 bool DataPlayer::copyDataToLogSet()
 {
     errmsg_.setEmpty();
+
     if ( aimodel_.isEmpty() )
-	mErrRet( "No data found" )
+	mErrRet( tr( "Internal: No data found" ) )
 
     data_.logset_.setEmpty();
     const StepInterval<float> dahrg = data_.getDahRange();
@@ -611,9 +617,10 @@ bool DataPlayer::processLog( const Well::Log* log,
 			     Well::Log& outplog, const char* nm )
 {
     errmsg_.setEmpty();
-    BufferString msg;
+    uiString msg;
+
     if ( !log )
-	{ msg += "Can not find "; msg += nm; mErrRet( msg ); }
+	mErrRet( tr( "Can not find log '%1'" ).arg( nm ) )
 
     outplog.setUnitMeasLabel( log->unitMeasLabel() );
 
@@ -629,11 +636,8 @@ bool DataPlayer::processLog( const Well::Log* log,
 
     sz = outplog.size();
     if ( sz <= 2 )
-    {
-	msg += nm;
-	msg +="log size too small, please check your input log";
-	mErrRet(msg)
-    }
+	mErrRet( tr( "%1: log size too small, please check your input log" )
+		     .arg( nm ) )
 
     GeoCalculator gc;
     gc.removeSpikes( outplog.valArr(), sz, 10, 3 );

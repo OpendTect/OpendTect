@@ -146,11 +146,11 @@ void uiTieWin::doWork( CallBacker* cb )
     const Wavelet& wvlt = infodlg_ ? infodlg_->getWavelet()
 				   : server_.data().initwvlt_;
     if ( !server_.computeSynthetics(wvlt) )
-	{ uiMSG().error( server_.errMSG() ); }
+	{ uiMSG().error( server_.errMsg() ); }
 
     if ( server_.doSeismic() ) //needs to be redone also when new d2t
 	if ( !server_.extractSeismics() )
-	    { uiMSG().error( server_.errMSG() ); }
+	    { uiMSG().error( server_.errMsg() ); }
 
     getDispParams();
     reDrawAll(0);
@@ -766,7 +766,7 @@ void uiInfoDlg::dtmodelChanged( CallBacker* )
     needNewEstimatedWvlt(0);
     if ( !isInitWvltActive() )
 	if ( !server_.updateSynthetics(getWavelet()) )
-	    mErrRet( server_.errMSG() )
+	    mErrRet( server_.errMsg() )
 
     synthChanged(0);
 }
@@ -778,7 +778,7 @@ void uiInfoDlg::wvltChanged( CallBacker* )
 	wvltdraw_->redrawWavelets();
 
     if( !server_.updateSynthetics(getWavelet()) )
-	mErrRet( server_.errMSG() )
+	mErrRet( server_.errMsg() )
 
     synthChanged(0);
 }
@@ -797,7 +797,7 @@ void uiInfoDlg::synthChanged( CallBacker* )
 {
     redrawNeeded.trigger();
     if ( !server_.computeCrossCorrelation() )
-	mErrRet( server_.errMSG() )
+	mErrRet( server_.errMsg() )
 
     crossCorrelationChanged(0);
 }
@@ -815,7 +815,7 @@ void uiInfoDlg::zrgChanged( CallBacker* )
     needNewEstimatedWvlt(0);
 
     if ( !server_.computeCrossCorrelation() )
-	mErrRet( server_.errMSG() )
+	mErrRet( server_.errMsg() )
 
     crossCorrelationChanged(0);
 }
@@ -995,7 +995,7 @@ bool uiInfoDlg::computeNewWavelet()
 				  SI().zDomain().userFactor() ) + 1;
     const int wvltlgth = zrgsz < reqwvltlgthsz ? zrgsz : reqwvltlgthsz;
     if ( !server_.computeEstimatedWavelet(wvltlgth) )
-	mErrRetYN( server_.errMSG() )
+	mErrRetYN( server_.errMsg() )
 
     return true;
 }

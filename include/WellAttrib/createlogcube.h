@@ -21,7 +21,7 @@ class BinID;
 namespace Well { class Data; }
 
 mExpClass(WellAttrib) LogCubeCreator : public ParallelTask
-{
+{ mODTextTranslationClass(LogCubeCreator);
 public:
 				LogCubeCreator(const BufferStringSet& lognms,
 					       const MultiID& wllid,
@@ -37,11 +37,13 @@ public:
     bool			setOutputNm(const char* postfix=0,
 					    bool withwllnm=false);
 
+    const uiString&		errMsg() const { return errmsg_; }
+    bool			isOK() const { return errmsg_.isEmpty(); }
     void			resetMsg() { errmsg_.setEmpty(); }
-    const char*			errMsg() const;
 
     uiString			uiNrDoneText() const { return "Wells handled"; }
     od_int64			totalNr() const { return nrIterations(); }
+    bool			stopAllOnFailure() const { return false; }
 
 protected:
 
@@ -53,7 +55,7 @@ protected:
 				    , seisioobj_(0)
 				{}
 
-	const char*		errMsg() const;
+	const uiString&		errMsg() const { return errmsg_; }
 	bool			doWrite(const SeisTrcBuf&) const;
 
 	bool			makeWriteReady();
@@ -62,7 +64,7 @@ protected:
 	const BufferString&	lognm_;
 	BufferString		fnm_;
 	IOObj*			seisioobj_;
-	mutable BufferString	errmsg_;
+	mutable uiString	errmsg_;
     };
 
     mStruct(WellAttrib) WellData
@@ -70,12 +72,13 @@ protected:
 				WellData(const MultiID& wid);
 				~WellData();
 
-	const char*		errMsg() const;
+	bool			isOK() const { return errmsg_.isEmpty(); }
+	const uiString&		errMsg() const { return errmsg_; }
 
 	const Well::Data*	wd_;
 	TypeSet<BinID>		binidsalongtrack_;
 	ObjectSet<SeisTrcBuf>	trcs_;
-	mutable BufferString	errmsg_;
+	uiString		errmsg_;
     };
 
     ObjectSet<LogCube>		logcubes_;
@@ -83,7 +86,7 @@ protected:
     Well::ExtractParams		extractparams_;
     int				stepout_;
 
-    mutable BufferString	errmsg_;
+    uiString			errmsg_;
 
     od_int64			nrIterations() const { return welldata_.size();}
     od_int64			nrdone_;

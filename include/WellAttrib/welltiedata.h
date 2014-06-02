@@ -198,15 +198,11 @@ public:
     void			setWD(Well::Data* wd)
 				{ wd_ = wd; setWellWriter(); }
 
-    const char*			errMsg() const
-				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
-
 protected:
 
     Well::Writer*		wtr_;
     Well::Data*			wd_;
     const MultiID&		wellid_;
-    BufferString		errmsg_;
 
     void			setWellWriter();
 };
@@ -259,7 +255,8 @@ public :
     DataWriter&			dataWriter()	{ return *datawriter_; }
     const Data&			data() const	{ return *data_; }
 
-    uiString			errMSG() const	{ return errmsg_; }
+    bool			isOK() const { return errmsg_.isEmpty(); }
+    const uiString&		errMsg() const	{ return errmsg_; }
 
     bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
