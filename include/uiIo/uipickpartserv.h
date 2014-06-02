@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 #include "bufstringset.h"
 #include "horsampling.h"

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "callback.h"
+#include "uistring.h"
 
 class IOObj;
 class uiParent;
