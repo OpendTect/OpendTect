@@ -177,9 +177,9 @@ public:
     BufferString&		y2rmserr_;
 
     void			setMathObj(Math::Expression*);
-    void			setMathObjStr(const BufferString& str )
-				{ mathobjstr_ = str; }
-    const BufferString&		mathObjStr() const	{ return mathobjstr_; }
+    void			setMathObjStr( const char* str )
+							{ mathobjstr_ = str; }
+    const OD::String&		mathObjStr() const	{ return mathobjstr_; }
     Math::Expression*		mathObj() const		{ return mathobj_; }
     void			setModifiedColIds(
 				    const TypeSet<uiDataPointSet::DColID>& ids )

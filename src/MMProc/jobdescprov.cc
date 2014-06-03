@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "undefval.h"
 #include "od_ostream.h"
 
-const char* InlineSplitJobDescProv::sKeyMaxInlRg()  
+const char* InlineSplitJobDescProv::sKeyMaxInlRg()
     { return "Maximum Inline Range"; }
 const char* InlineSplitJobDescProv::sKeyMaxCrlRg()
     { return "Maximum Crossline Range"; }
@@ -86,7 +86,7 @@ const char* StringKeyReplaceJobDescProv::gtObjName( int jid ) const
 IDKeyReplaceJobDescProv::IDKeyReplaceJobDescProv( const IOPar& iop,
 				const char* ky, const StepInterval<int>& rg )
 	: KeyReplaceJobDescProv(iop,ky,rg.nrSteps()+1)
-    	, idrg_(rg)
+	, idrg_(rg)
 {
 }
 
@@ -110,8 +110,8 @@ void IDKeyReplaceJobDescProv::dump( od_ostream& strm ) const
 
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
-    	: JobDescProv(iop)
-    	, inls_(0)
+	: JobDescProv(iop)
+	, inls_(0)
 	, ninlperjob_( 1 )
 {
     mSetInlRgDef();
@@ -122,8 +122,8 @@ InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop )
 
 InlineSplitJobDescProv::InlineSplitJobDescProv( const IOPar& iop,
 						const TypeSet<int>& in )
-    	: JobDescProv(iop)
-    	, inls_(new TypeSet<int>(in))
+	: JobDescProv(iop)
+	, inls_(new TypeSet<int>(in))
 	, ninlperjob_( 1 )
 {
     mSetInlRgDef();
@@ -136,9 +136,9 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 }
 
 
-const BufferString& getOutSubSelKey()
+const OD::String& getOutSubSelKey()
 {
-    mDefineStaticLocalObject( const BufferString, outsubselkey, 
+    mDefineStaticLocalObject( const BufferString, outsubselkey,
 		    ( IOPar::compKey(sKey::Output(),sKey::Subsel()) ) );
     return outsubselkey;
 }
@@ -161,7 +161,7 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
     inpiopar_.get( mGetSubselKey(Type), typestr );
     if ( typestr==sKey::None() )
 	rg = SI().inlRange(true);
-				
+
     rg.sort();
 
     Interval<int> maxrg( Interval<int>().setFrom(rg) );
@@ -179,9 +179,9 @@ int InlineSplitJobDescProv::nrJobs() const
 
     int nrinl = inlrg_.nrSteps() + 1;
 
-    int ret = nrinl / ninlperjob_; 
+    int ret = nrinl / ninlperjob_;
     if ( nrinl % ninlperjob_ ) ret += 1;
-    
+
     return ret;
 }
 

@@ -428,7 +428,7 @@ void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 const char* uiStratSynthDisp::levelName()  const
 {
     const StratSynthLevel* lvl = curSS().getLevel();
-    return lvl ? lvl->name() : 0;
+    return lvl ? lvl->name().buf() : 0;
 }
 
 
@@ -495,8 +495,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    const BufferString wvasynthnm( wvasd ? wvasd->name() : "" );
-    const BufferString vdsynthnm( vdsd ? vdsd->name() : "" );
+    const BufferString wvasynthnm( wvasd ? wvasd->name().buf() : "" );
+    const BufferString vdsynthnm( vdsd ? vdsd->name().buf() : "" );
 
     if ( wvasd )
     {

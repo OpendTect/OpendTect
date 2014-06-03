@@ -60,8 +60,7 @@ public:
     od_ostream&		add(float);
     od_ostream&		add(double);
 
-    od_ostream&		add(const BufferString&);
-    od_ostream&		add(const FixedString&);
+    od_ostream&		add(const OD::String&);
     od_ostream&		add(const IOPar&);
     od_ostream&		add(const SeparString&);
     od_ostream&		add(const CompoundKey&);

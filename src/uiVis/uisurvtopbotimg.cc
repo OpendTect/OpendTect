@@ -95,7 +95,7 @@ void finalisedCB( CallBacker* cb )
 void fillCurrent()
 {
     fnmfld_->setChecked( img_->isOn() );
-    const BufferString& imgnm = img_->getImageFilename();
+    const BufferString imgnm = img_->getImageFilename();
     fnmfld_->setFileName( imgnm );
     if( img_->isOn() || !imgnm.isEmpty() )
     {

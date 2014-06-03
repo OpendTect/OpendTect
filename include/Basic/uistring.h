@@ -78,7 +78,6 @@ public:
 			  structure (reference counted). */
 		uiString(const char* original = 0);
 		uiString(const OD::String&);
-
 		~uiString();
 
     bool	isEmpty() const;
@@ -110,21 +109,18 @@ public:
 		   to allow translator to change ordering.
 		   \param withnewline will add a newline character before the
 			  appended string if current string is not empty.*/
-    uiString&	append(const OD::String&,
-				       bool withnewline=false);
+    uiString&	append(const OD::String&,bool withnewline=false);
 		/*!Appends string with provided string. In most cases, use arg
 		   to allow translator to change ordering.
 		   \param withnewline will add a newline character before the
 			  appended string if current string is not empty.*/
-				/*!Appends. In most cases, use arg to allow
-				translator to change ordering. */
     uiString&	append(const uiString&,bool withnewline=false);
 		/*!Appends string with provided string. In most cases, use arg
 		   to allow translator to change ordering.
 		   \param withnewline will add a newline character before the
 			  appended string if current string is not empty.*/
 
-    const BufferString&		getFullString() const;
+    const OD::String&		getFullString() const;
 				/*!<Constructs the result from the original
 				    string and the arguments,
 				    without translation. \Note that
@@ -140,10 +136,13 @@ public:
     static const uiString&	emptyString();
 
 private:
+
     friend class		uiStringData;
     uiStringData*		data_;
     mutable Threads::Lock	datalock_;
+
 public:
+
 		//Only for expert users
     void	makeIndependent();
 		//!<If data is shared, I'll get an own copy
@@ -168,8 +167,9 @@ public:
                 */
 
     bool	translate(const mQtclass(QTranslator)&,
-	    		  mQtclass(QString)&) const;
+			  mQtclass(QString)&) const;
 		//!<Returns true if the translation succeeded
+
 };
 
 
@@ -183,7 +183,7 @@ private: \
  int pluralnr=-1 ) \
  { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
  static inline uiString legacyTr( const char* text, \
-	 			  const char* disambiguation = 0,  \
+				  const char* disambiguation = 0,  \
 				  int pluralnr=-1 ) \
  { return uiString( text, #clss, application, disambiguation, pluralnr ); }
 

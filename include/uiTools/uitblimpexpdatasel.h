@@ -41,7 +41,7 @@ public:
 						  const HelpKey&);
 
     Table::FormatDesc&		desc()		{ return fd_; }
-    const BufferString&		fmtName()	{ return fmtname_; }
+    const OD::String&		fmtName()	{ return fmtname_; }
 				//!< May not be correct: it's the last selected
 
     void			updateSummary();

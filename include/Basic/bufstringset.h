@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 class GlobExpr;
 class uiString;
+class QString;
 
 /*!
 \brief Set of BufferString objects.
@@ -45,11 +46,11 @@ public:
     bool		isSubsetOf(const BufferStringSet&) const;
 
     BufferStringSet&	add(const char*);
-    BufferStringSet&	add(const FixedString&);
-    BufferStringSet&	add(const BufferString&);
+    BufferStringSet&	add(const OD::String&);
+    BufferStringSet&	add(const QString&);
     BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
     bool		addIfNew(const char*);	//!< returns whether added
-    bool		addIfNew(const BufferString&);
+    bool		addIfNew(const OD::String&);
 
     int			maxLength() const;
     void		sort(bool caseinsens=true,bool asc=true);

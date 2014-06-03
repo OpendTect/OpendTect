@@ -369,7 +369,7 @@ uiFVWVAPropTab::~uiFVWVAPropTab()
 BufferString uiFVWVAPropTab::dataName() const
 {
     ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(true);
-    return dp ? dp->name() : sKey::EmptyString();
+    return BufferString( dp ? dp->name().str() : "" );
 }
 
 
@@ -473,7 +473,7 @@ uiFVVDPropTab::~uiFVVDPropTab()
 BufferString uiFVVDPropTab::dataName() const
 {
     ConstDataPackRef<FlatDataPack> dp = vwr_.obtainPack(false);
-    return dp ? dp->name() : sKey::EmptyString();
+    return BufferString( dp ? dp->name().str() : "" );
 }
 
 

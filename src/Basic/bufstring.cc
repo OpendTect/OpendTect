@@ -678,16 +678,16 @@ BufferStringSet& BufferStringSet::add( const char* s )
 }
 
 
-BufferStringSet& BufferStringSet::add( const FixedString& s )
+BufferStringSet& BufferStringSet::add( const OD::String& s )
 {
     return add( s.str() );
 }
 
 
-BufferStringSet& BufferStringSet::add( const BufferString& s )
+BufferStringSet& BufferStringSet::add( const QString& qstr )
 {
-    *this += new BufferString(s);
-    return *this;
+    const QByteArray qba = qstr.toUtf8();
+    return add( qba.constData() );
 }
 
 
@@ -712,7 +712,7 @@ bool BufferStringSet::addIfNew( const char* s )
 }
 
 
-bool BufferStringSet::addIfNew( const BufferString& s )
+bool BufferStringSet::addIfNew( const OD::String& s )
 {
     return addIfNew( s.buf() );
 }

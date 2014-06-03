@@ -23,7 +23,7 @@ ________________________________________________________________________
   directories and possibly a filename (the last part does not have to be a
   file name). That makes it easy to change the file name, or the path only,
   or the extension, add directories, etc.
-  
+
   To get the result after manipulation, use the fullPath().
 
   fileName() returns the last part, pathOnly() returns all but the last part.
@@ -36,8 +36,8 @@ mExpClass(Basic) FilePath
 public:
     enum Style		{ Local, Unix, Windows };
 
-    			FilePath(const char* fullinp=0);
-    			FilePath(const char* p1,const char* p2,const char* p3=0,
+			FilePath(const char* fullinp=0);
+			FilePath(const char* p1,const char* p2,const char* p3=0,
 				 const char* p4=0,const char* p5=0);
 			FilePath( const FilePath& fp )	{ *this = fp; }
 			FilePath(const FilePath&,const char* p2,
@@ -58,7 +58,7 @@ public:
     void		setFileName(const char*); //!< pass null to remove level
     void		setPath(const char*);	//!< including prefix
     void		setExtension(const char*,bool replace=true);
-    						//!< !replace => add
+						//!< !replace => add
 
     bool		isAbsolute() const;
     bool		isSubDirOf(const FilePath&,FilePath* reldir = 0) const;
@@ -72,15 +72,15 @@ public:
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
 
-    const BufferString& fileName() const;
+    const OD::String&	fileName() const;
     BufferString	baseName() const; //!<return name of file w/o path & ext
     BufferString	pathOnly() const;
     BufferString	winDrive() const;
 
-    const BufferString&	dir(int nr=-1) const;
-    			//!< nr < 0 returns last dir name
+    const OD::String&	dir(int nr=-1) const;
+			//!< nr < 0 returns last dir name
     BufferString	dirUpTo(int) const;
-    			//!< nr < 0 returns last dir, including prefix
+			//!< nr < 0 returns last dir, including prefix
 
     static BufferString	getTempDir();
     static BufferString	getTempName(const char* ext=0);

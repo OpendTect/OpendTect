@@ -521,10 +521,8 @@ mImplSimpleAddFn(const char*)
 od_istream& od_istream::get( char* str )
     { pErrMsg("Dangerous: od_istream::get(char*)"); return getC( str, 0 ); }
 
-mImplStrmAddFn(const BufferString&,t.buf())
-
-od_ostream& od_ostream::add( const FixedString& fs )
-    { return fs.str() ? add( fs.str() ) : *this; }
+od_ostream& od_ostream::add( const OD::String& ods )
+    { return ods.str() ? add( ods.str() ) : *this; }
 od_istream& od_istream::get( FixedString& fs )
     { pErrMsg("od_istream::get(FixedString&) called"); return *this; }
 od_istream& od_istream::get( void* ptr )

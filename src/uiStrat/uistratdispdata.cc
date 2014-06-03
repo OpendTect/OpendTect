@@ -26,11 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mAskStratNotif(obj,nm,act)\
     (obj)->nm.act(mCB(this,uiStratTreeToDisp,triggerDataChange));
 
-uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad, 
-					bool witauxs, bool withlvls  ) 
+uiStratTreeToDisp::uiStratTreeToDisp( StratDispData& ad,
+					bool witauxs, bool withlvls  )
     : data_(ad)
-    , withauxs_(witauxs)		  
-    , withlevels_(withlvls)  
+    , withauxs_(witauxs)
+    , withlevels_(withlvls)
     , newtreeRead(this)
 {
     setTree();
@@ -53,7 +53,7 @@ uiStratTreeToDisp::~uiStratTreeToDisp()
 void uiStratTreeToDisp::setTree()
 {
     tree_ = &Strat::eRT();
-    if ( !tree_ ) 
+    if ( !tree_ )
 	return;
 
     tree_->deleteNotif.notify(mCB(this,uiStratTreeToDisp,treeDel));
@@ -81,16 +81,16 @@ void uiStratTreeToDisp::triggerDataChange( CallBacker* )
 void uiStratTreeToDisp::readFromTree()
 {
     data_.eraseData();
-    const char* colnms[] = { "Super Group", "Group", "Formation", 
+    const char* colnms[] = { "Super Group", "Group", "Formation",
 			     "Member", "Type", 0 };
 
     for ( int idcol=0; colnms[idcol]; idcol++ )
     {
-	StratDispData::Column* col = 
+	StratDispData::Column* col =
 			    new StratDispData::Column( colnms[idcol] );
 	data_.addCol( col );
     }
-    if ( withauxs_ ) 
+    if ( withauxs_ )
     {
 	lithocolidx_ = data_.nrCols();
 	data_.addCol( new StratDispData::Column( "Lithologies" ) );
@@ -135,16 +135,17 @@ void uiStratTreeToDisp::readUnits()
 }
 
 
-void uiStratTreeToDisp::addUnit( const Strat::NodeUnitRef& ur ) 
+void uiStratTreeToDisp::addUnit( const Strat::NodeUnitRef& ur )
 {
-    StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(), 							ur.color() );
+    StratDispData::Unit* un = new StratDispData::Unit( ur.code(), ur.fullCode(),
+							ur.color() );
     un->color_.setTransparency( 0 );
     un->zrg_ = ur.timeRange();
     data_.addUnit( ur.treeDepth()-1, un );
 }
 
 
-void uiStratTreeToDisp::addDescs( const Strat::LeavedUnitRef& ur ) 
+void uiStratTreeToDisp::addDescs( const Strat::LeavedUnitRef& ur )
 {
     StratDispData::Unit* un = new StratDispData::Unit( ur.description() );
     un->zrg_ = ur.timeRange();
@@ -157,7 +158,7 @@ void uiStratTreeToDisp::addLithologies( const Strat::LeavedUnitRef& ur )
     if ( !tree_ ) return;
 
     const Strat::LithologySet& lithos = tree_->lithologies();
-    BufferString lithnm; 
+    BufferString lithnm;
     for ( int idx=0; idx<ur.nrRefs(); idx++ )
     {
 	Strat::LeafUnitRef& lref = (Strat::LeafUnitRef&)ur.ref( idx );
@@ -177,19 +178,19 @@ void uiStratTreeToDisp::addLevel( const Strat::LeavedUnitRef& ur )
     const int id = ur.levelID();
     const Strat::LevelSet& lvls = Strat::LVLS();
     lvlcol = lvls.isPresent( id ) ? lvls.get( id )->color() : Color::Black();
-    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name() : "";
+    lvlnm = lvls.isPresent( id ) ? lvls.get( id )->name().buf() : "";
 
     StratDispData::Level* lvl = new StratDispData::Level( lvlnm.buf(),
-	    						  ur.fullCode() );
+							  ur.fullCode() );
     lvl->zpos_ = ur.timeRange().start;
-    lvl->color_ = lvlcol; 
+    lvl->color_ = lvlcol;
     data_.getCol( levelcolidx_ )->levels_ += lvl;
 }
 
 
 
 
-uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree ) 
+uiStratDispToTree::uiStratDispToTree( uiStratRefTree& uitree )
     : uitree_(uitree)
 {}
 

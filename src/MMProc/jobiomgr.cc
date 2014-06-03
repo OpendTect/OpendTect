@@ -78,7 +78,7 @@ public:
 			    addFilePath( fp, stl );
 			}
 
-    const BufferString&	string() { return cmd; }
+    const OD::String&	string() { return cmd; }
 
     inline CommandString& operator=( const char* str )
 			   { cmd = str; return *this; }
@@ -149,7 +149,7 @@ protected:
 
     JobHostRespInfo*		getJHRFor(int desc,const char* hostnm);
     bool			readTag(char& tag,SeparString& sepstr,
-					const BufferString& data);
+					const OD::String& data);
     void			socketCB(CallBacker*);
     char			getRespFor(int desc,const char* hostnm);
 
@@ -315,7 +315,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 
 
 bool JobIOHandler::readTag( char& tag, SeparString& sepstr,
-			    const BufferString& data )
+			    const OD::String& data )
 {
     tag = data[0];
     sepstr.setSepChar( data[1] );
@@ -400,7 +400,7 @@ bool JobIOMgr::startProg( const char* progname,
 
 
 #ifdef __win__
-extern const BufferString& getTempBaseNm();
+extern const OD::String& getTempBaseNm();
 
 extern int& MMJob_getTempFileNr();
 

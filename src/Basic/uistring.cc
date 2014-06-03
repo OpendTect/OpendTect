@@ -259,7 +259,7 @@ const char* uiString::getOriginalString() const
 }
 
 
-const BufferString& uiString::getFullString() const
+const OD::String& uiString::getFullString() const
 {
     mDeclStaticString( res );
     Threads::Locker datalocker( datalock_ );

@@ -179,7 +179,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	DPM(DataPackMgr::BufID()).release( dp_->id() );
 }
 
-const BufferString& fileName() const
+const OD::String& fileName() const
 {
     return dp_ ? dp_->name() : fnm_;
 }

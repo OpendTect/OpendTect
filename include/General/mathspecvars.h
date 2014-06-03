@@ -64,9 +64,9 @@ public:
 			{ return const_cast<SpecVarSet*>(this)->find( nm ); }
     bool		isPresent( const char* nm ) const
 			{ return getIndexOf(nm) >= 0; }
-    const BufferString&	varName( int idx ) const
+    const OD::String&	varName( int idx ) const
 			{ return (*this)[idx].varnm_; }
-    const BufferString&	dispName( int idx ) const
+    const OD::String&	dispName( int idx ) const
 			{ return (*this)[idx].dispnm_; }
     bool		hasUnits( int idx )
 			{ return (*this)[idx].hasunits_; }

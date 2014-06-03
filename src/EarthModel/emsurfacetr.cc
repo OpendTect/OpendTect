@@ -262,7 +262,7 @@ dgbEMSurfaceTranslator::~dgbEMSurfaceTranslator()
 bool dgbEMSurfaceTranslator::prepRead()
 {
     if ( reader_ ) delete reader_;
-    BufferString unm = group() ? group()->userName() : 0;
+    BufferString unm( group() ? group()->userName().buf() : 0 );
     reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
     {
@@ -360,7 +360,7 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 
 Executor* dgbEMSurfaceTranslator::getWriter()
 {
-    BufferString unm = group() ? group()->userName() : 0;
+    BufferString unm( group() ? group()->userName().buf() : 0 );
     EM::dgbSurfaceWriter* res =
 	new EM::dgbSurfaceWriter(ioobj_,unm.buf(), *surface,getBinarySetting());
     res->setWriteOnlyZ( writeOnlyZ() );

@@ -53,7 +53,7 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
     Attrib::DescID did = inpfld->attribID();
     Attrib::Desc* attrd = desc.descSet()->getDesc(did);
 
-    return attrd ? attrd->attribName() : "";
+    return attrd ? attrd->attribName().buf() : "";
 }
 
 
@@ -200,7 +200,7 @@ uiImagAttrSel* uiAttrDescEd::createImagInpFld( bool is2d )
 }
 
 
-void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad, 
+void uiAttrDescEd::putInp( uiAttrSel* inpfld, const Attrib::Desc& ad,
 			   int inpnr )
 {
     if ( dpfids_.size() )

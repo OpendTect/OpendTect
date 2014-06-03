@@ -223,7 +223,7 @@ const char* uiVisPartServer::getObjectName( int id ) const
 {
     visBase::DataObject* obj = visBase::DM().getObject( id );
     if ( !obj ) return 0;
-    return obj->name();
+    return obj->name().buf();
 }
 
 

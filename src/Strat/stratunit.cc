@@ -177,7 +177,8 @@ void Strat::UnitRef::notifChange( bool isrem )
 //class NodeUnitRef
 
 
-Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* uc, const char* d )
+Strat::NodeUnitRef::NodeUnitRef( NodeUnitRef* up, const char* uc,
+				 const char* d )
     : UnitRef(up,d)
     , code_(uc)
     , timerg_(mUdf(float),0)
@@ -418,7 +419,7 @@ const Strat::Lithology& Strat::LeafUnitRef::getLithology() const
 }
 
 
-const BufferString& Strat::LeafUnitRef::code() const
+const OD::String& Strat::LeafUnitRef::code() const
 {
     return getLithology().name();
 }

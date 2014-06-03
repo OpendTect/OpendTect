@@ -30,8 +30,8 @@ public:
     bool			readReport(const char* filename);
     bool			setDumpFileName(const char* filename);
     BufferString&		getReport()	    { return report_; }
-    const BufferString&		getReport() const   { return report_; }
-    
+    const OD::String&		getReport() const   { return report_; }
+
     bool			send();
     const char*			errMsg() const	    { return errmsg_.str(); }
 
@@ -45,8 +45,8 @@ protected:
     BufferString		report_;
     BufferString                crashreportpath_;
 };
-    
-    
+
+
 
 
 } //Namespace

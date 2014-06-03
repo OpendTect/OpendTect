@@ -387,7 +387,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
     else if ( !isstored )
     {
 	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
-	objref = ioobj ? ioobj->name() : "";
+	objref = ioobj ? ioobj->name().buf() : "";
 	attrdata.attribid_.setStored( false );
     }
 
@@ -1245,7 +1245,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( !isstored )
     {
 	PtrMan<IOObj> ioobj = IOM().get( adsman->attrsetid_ );
-	objref = ioobj ? ioobj->name() : "";
+	objref = ioobj ? ioobj->name().buf() : "";
     }
 
     DescID did = isnla ? DescID(outputnr,false) : attribid;

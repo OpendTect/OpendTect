@@ -62,12 +62,17 @@ public:
     SeparString&	add(const BufferStringSet&);	//!< Concatenation
     SeparString&	add(const SeparString&);	//!< Concatenation
     SeparString&	add(const char* unescapedstr);
+    inline SeparString& add( const OD::String& ods )
+			{ return add( ods.buf() ); }
     template <class T>
     inline SeparString&	add( T t )
 			{ return add( toString(t) ); }
 
     template <class T>
     inline SeparString&	operator +=( T t )	{ return add( t ); }
+    template <class T>
+    inline SeparString& operator +=( const OD::String& ods )
+						{ return add( ods.buf() ); }
 
     inline		operator const char*() const
 						{ return buf(); }
@@ -78,7 +83,7 @@ public:
 							//!< Output escaped
     BufferString&	rep()			{ return rep_; }
 							//!< Output escaped
-    const BufferString&	rep() const		{ return rep_; }
+    const OD::String&	rep() const		{ return rep_; }
 							//!< Output escaped
 
     inline const char*	unescapedStr() const	{ return getUnescaped(buf()); }
@@ -129,9 +134,14 @@ public:
 			{ return add( (SeparString&)fms ); }
     template <class T> inline
     FileMultiString&	operator +=( T t )		{ return add( t ); }
+    inline FileMultiString& operator +=( const OD::String& ods )
+						{ return add( ods.buf() ); }
+
     template <class T> inline
     FileMultiString&	add( T t )
 			{ SeparString::add( t ); return *this; }
+    inline FileMultiString& add( const OD::String& ods )
+			{ return add( ods.buf() ); }
 
 };
 

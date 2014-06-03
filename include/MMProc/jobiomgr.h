@@ -39,8 +39,8 @@ mExpClass(MMProc) StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
-				    const BufferString& mg,
-				    const BufferString& hostname, int time )
+				    const char* mg, const char* hostname,
+				    int time )
 			    : tag(tg), descnr(desc), status(stat), msg(mg)
 			    , hostnm(hostname), timestamp(time), procid(pid) {}
 
@@ -96,7 +96,7 @@ protected:
 };
 
 
-mGlobal(MMProc) const BufferString& getTempBaseNm();
+mGlobal(MMProc) const OD::String& getTempBaseNm();
 mGlobal(MMProc) int mkTmpFileNr();
 
 #endif

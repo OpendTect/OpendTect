@@ -726,7 +726,7 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 					     const GatherInfo& ginfo )
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
-    BufferString nm = ioobj ? ioobj->name() : "";
+    BufferString nm = ioobj ? ioobj->name().buf() : "";
     info->setData( ginfo.bid_, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm);
 }
 

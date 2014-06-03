@@ -629,7 +629,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
     uiAttrDescEd* curde = 0;
     if ( set_type )
     {
-	BufferString typenm = desc ? desc->attribName() : "RefTime";
+	BufferString typenm = desc ? desc->attribName().buf() : "RefTime";
 	attrtypefld_->setAttr( uiAF().dispNameOf(typenm) );
 	curde = curDescEd();
     }

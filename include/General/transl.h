@@ -39,7 +39,7 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 
 
 /*!\brief Group of Translators. Has a static factory.
- 
+
   A TranslatorGroup represents a number of IO interpreters for a certain
   object type. For example, Horizons have the HorizonTranslatorGroup singleton
   class which creates HorizonTranslator subclass instances.
@@ -59,8 +59,8 @@ public:
 				TranslatorGroup( const char* clssnm,
 						 const char* usrnm );
 
-    const BufferString&		clssName() const	{ return clssname_; }
-    const BufferString&		userName() const	{ return usrname_; }
+    const OD::String&		clssName() const	{ return clssname_; }
+    const OD::String&		userName() const	{ return usrname_; }
     virtual Translator*		make(const char*,bool usrnm=true) const;
     const Translator*		getTemplate(const char*,bool usrnm) const;
 
@@ -68,7 +68,7 @@ public:
 
     virtual const IOObjContext&	ioCtxt() const		= 0;
     virtual int			objSelector(const char*) const = 0;
-    				//!< Return value mObjSelUnrelated etc.
+				//!< Return value mObjSelUnrelated etc.
 
     bool			hasConnType(const char*) const;
     virtual const char*		defExtension() const	{ return 0; }
@@ -80,15 +80,15 @@ public:
     static bool			hasGroup(const char* nm,bool usr=true);
     static void			clearSelHists();
 
-    				// Called from macros
+				// Called from macros
     bool			add(Translator*);
     static TranslatorGroup&	addGroup(TranslatorGroup*);
 
     int				defTranslIdx() const	{ return deftridx_; }
     void			setDefTranslIdx( int i ) { deftridx_ = i; }
-    
+
     virtual const char*		getSurveyDefaultKey(const IOObj* = 0) const;
-    
+
 protected:
 
     BufferString		clssname_;
@@ -120,11 +120,11 @@ protected:
 mExpClass(General) Translator : public CallBacker
 {
 public:
-    				Translator(const char* nm,const char* usr_nm);
+				Translator(const char* nm,const char* usr_nm);
     virtual			~Translator()		{}
 
-    const BufferString&		typeName() const	{ return typname_; }
-    const BufferString&		userName() const	{ return usrname_; }
+    const OD::String&		typeName() const	{ return typname_; }
+    const OD::String&		userName() const	{ return usrname_; }
     const TranslatorGroup*	group() const		{ return group_; }
 
     virtual Translator*		getNew() const		= 0;
@@ -134,20 +134,20 @@ public:
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implShouldRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
-	    					const CallBack* cb=0) const;
+						const CallBack* cb=0) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
-    
+
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)		{}
     virtual const char*		defExtension() const
-    				{ return group_ ? group_->defExtension() : 0; }
+				{ return group_ ? group_->defExtension() : 0; }
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
 
     virtual bool		isReadDefault() const		{ return true; }
-    				//!< If true, objs are for 'normal' use, not
-    				//!< just import
-    
+				//!< If true, objs are for 'normal' use, not
+				//!< just import
+
 protected:
 
     BufferString		typname_;
@@ -241,38 +241,38 @@ mImplTranslatorInitClass( spec, clss, usrnm )
   //! Defines a simple empty TranslatorGroup class body
 #define mDefEmptyTranslatorGroupConstructor(clss) \
 	clss##TranslatorGroup( const char* nm, const char* unm ) \
-    	: TranslatorGroup(nm,unm)		{}
+	: TranslatorGroup(nm,unm)		{}
 
   //! Convenience when the Translator base class is not interesting 4 u.
   //! Defines a simple empty Translator class body
 #define mDefEmptyTranslatorBaseConstructor(clss) \
 	clss##Translator( const char* nm, const char* unm ) \
-    	: Translator(nm,unm)			{}
+	: Translator(nm,unm)			{}
 
   //! Convenience when the Translator is not interesting 4 u.
   //! Defines a simple empty Translator subclass body
 #define mDefEmptyTranslatorConstructor(spec,clss) \
 	spec##clss##Translator( const char* nm, const char* unm ) \
-    	: clss##Translator(nm,unm)		{}
+	: clss##Translator(nm,unm)		{}
 
   //! Convenient when the entire Translator concept is not interesting 4 u.
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(mod,clss,fmt,defext) \
 mExpClass(mod) clss##TranslatorGroup : public TranslatorGroup \
-{		   	isTranslatorGroup(clss) \
-    			mDefEmptyTranslatorGroupConstructor(clss) \
+{			isTranslatorGroup(clss) \
+			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
 mExpClass(mod) clss##Translator : public Translator \
 { public: \
-    			mDefEmptyTranslatorBaseConstructor(clss) \
+			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
 mExpClass(mod) fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
-    			mDefEmptyTranslatorConstructor(fmt,clss) \
+			mDefEmptyTranslatorConstructor(fmt,clss) \
 };
 
   //! Definitions for .cc file:
@@ -347,7 +347,7 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 	clss##TranslatorGroup::theInst().userName()
 
 #define mTranslKey(clss) \
-    	clss##Translator::translKey()
+	clss##Translator::translKey()
 
 #define mMkCtxtIOObj(clss) \
 	new CtxtIOObj(clss##TranslatorGroup::ioContext())

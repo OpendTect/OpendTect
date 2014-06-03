@@ -45,7 +45,8 @@ void DataColDef::putTo( BufferString& bs ) const
 {
     FileMultiString fms( name_ );
     fms += FileMultiString( ref_ );
-    if ( unit_ ) fms += unit_->name();
+    if ( unit_ )
+	fms += unit_->name();
     bs = fms;
 }
 

@@ -227,7 +227,7 @@ bool uiSurfaceMan::isCur2D() const
 
 bool uiSurfaceMan::isCurFault() const
 {
-    const BufferString grp = curioobj_ ? curioobj_->group() : "";
+    const BufferString grp = curioobj_ ? curioobj_->group().buf() : "";
     return grp==EMFaultStickSetTranslatorGroup::keyword() ||
 	   grp==EMFault3DTranslatorGroup::keyword();
 }

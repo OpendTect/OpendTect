@@ -200,7 +200,7 @@ bool TranslatorGroup::hasConnType( const char* c ) const
 }
 
 
-static const BufferString& gtNm( const Translator* tr, bool user )
+static const OD::String& gtNm( const Translator* tr, bool user )
 {
     return user ? tr->userName() : tr->typeName();
 }
