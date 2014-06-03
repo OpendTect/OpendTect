@@ -162,8 +162,8 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	if ( !inputsOK(wellidx) )
 	    return false;
 
-	PtrMan<uiTaskRunner> tr = new uiTaskRunner( this );
-	datasetup_.tr_ = tr;
+	PtrMan<uiTaskRunner> taskrunner = new uiTaskRunner( this );
+	datasetup_.tr_ = taskrunner;
 	AttribLogCreator attriblog( datasetup_, sellogidx_ );
 	Well::Data* wd = Well::MGR().wells()[ wellidx ];
 	if ( !wd )

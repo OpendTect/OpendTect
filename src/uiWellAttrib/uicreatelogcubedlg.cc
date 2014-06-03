@@ -55,7 +55,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     TypeSet<MultiID> wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
-	mErrRet(tr("No well selected"),return false);
+	mErrRet(tr("No well selected") );
 
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
