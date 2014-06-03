@@ -27,7 +27,7 @@ class uiSeisSel;
 /*! \brief Part Server for Wells */
 
 mExpClass(uiEMAttrib) uiSeisEventSnapper : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisEventSnapper);
 public:
 			uiSeisEventSnapper(uiParent*,const IOObj*,bool is2d);
 			~uiSeisEventSnapper();

@@ -36,7 +36,7 @@ class uiSurveyMap;
 namespace Geometry { class RandomLine; }
 
 mExpClass(uiEMAttrib) ui2DGridLines : public uiGroup
-{ mODTextTranslationClass(ui2DGridLines)
+{ mODTextTranslationClass(ui2DGridLines);
 public:
 				~ui2DGridLines();
 

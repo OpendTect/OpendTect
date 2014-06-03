@@ -191,14 +191,14 @@ protected:
 
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import 2D Horizon",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import 2D Horizon"),mNoDlgTitle,
 		mODHelpKey(mImportHorizon2DHelpID) ).modal(false))
     , scanner_(0)
     , linesetnms_(*new BufferStringSet)
     , fd_(*EM::Horizon2DAscIO::getDesc())
     , readyForDisplay(this)
 {
-    enableSaveButton( "Display after import" );
+    enableSaveButton( tr("Display after import") );
     setCtrlStyle( RunAndClose );
     setOkText( uiStrings::sImport() );
 
@@ -214,12 +214,12 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	hornms.add( horinfos_[idx]->name );
 
     uiLabeledListBox* horbox = new uiLabeledListBox( this, hornms,
-			"Horizon(s) to import", OD::ChooseAtLeastOne );
+			tr("Horizon(s) to import"), OD::ChooseAtLeastOne );
     horbox->attach( alignedBelow, inpfld_ );
     horselfld_ = horbox->box();
     horselfld_->selectionChanged.notify(mCB(this,uiImportHorizon2D,formatSel));
 
-    uiPushButton* addbut = new uiPushButton( this, "Add new",
+    uiPushButton* addbut = new uiPushButton( this, tr("Add new"),
 				mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
@@ -228,7 +228,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
     dataselfld_->attach( alignedBelow, horbox );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 
-    scanbut_ = new uiPushButton( this, "Scan Input Files",
+    scanbut_ = new uiPushButton( this, tr("Scan Input Files"),
 				 mCB(this,uiImportHorizon2D,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_ );
 
@@ -237,7 +237,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 
     BufferStringSet udftreatments;
     udftreatments.add( "Skip" ).add( "Adopt" ).add( "Interpolate" );
-    udftreatfld_ = new uiGenInput( this, "Undefined values",
+    udftreatfld_ = new uiGenInput( this, tr("Undefined values"),
 				   StringListInpSpec(udftreatments) );
     udftreatfld_->attach( alignedBelow, scanbut_ );
     udftreatfld_->attach( ensureBelow, sep );
@@ -386,7 +386,7 @@ bool uiImportHorizon2D::doImport()
 	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
 	if ( !hor )
 	{
-	    uiMSG().error( "Could not load horizon" );
+	    uiMSG().error( tr("Could not load horizon") );
 	    mDeburstRet( false, unRef );
 	}
 
@@ -443,7 +443,7 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
     const bool res = doImport();
     if ( !res ) return false;
 
-    uiMSG().message( "Horizon(s) successfully imported" );
+    uiMSG().message( tr("Horizon(s) successfully imported") );
     if ( saveButtonChecked() )
 	readyForDisplay.trigger();
 
@@ -456,7 +456,7 @@ bool uiImportHorizon2D::acceptOK( CallBacker* )
 bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 {
     if ( !*inpfld_->fileName() )
-	mErrRet( "Please select input file(s)" )
+	mErrRet( tr("Please select input file(s)") )
 
     inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
@@ -481,10 +481,10 @@ bool uiImportHorizon2D::checkInpFlds()
     if ( !getFileNames(filenames) ) return false;
 
     if ( horselfld_->nrChosen() < 1 )
-	mErrRet("No horizons available")
+	mErrRet(tr("No horizons available"))
 
     if ( !dataselfld_->commit() )
-	mErrRet( "Please define data format" );
+	mErrRet( tr("Please define data format") );
 
     return true;
 }

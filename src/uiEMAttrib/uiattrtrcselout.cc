@@ -103,8 +103,8 @@ void uiAttrTrcSelOut::createSingleHorUI()
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
-						    "Select extra options",
+    xparsdlg_ = new uiDialog( this, uiDialog::Setup(tr("Extra options dialog"),
+						    tr("Select extra options"),
 			        mODHelpKey(mAttrTrcSelOutBetweenHelpID) ) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
@@ -139,7 +139,8 @@ void uiAttrTrcSelOut::createTwoHorUI()
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( this, "Extra options", cb, false );
+			new uiPushButton( this, tr("Extra options"), 
+                                          cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
 	batchfld_->attach( alignedBelow, extrabut );
     }
@@ -176,7 +177,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 {
-    extraztopfld_ = new uiGenInput( prnt, "plus", FloatInpSpec(0) );
+    extraztopfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
     uiLabel* toplbl = new uiLabel( prnt, SI().getZUnitString() );
@@ -186,7 +187,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 {
-    extrazbotfld_ = new uiGenInput( prnt, "plus", FloatInpSpec(0) );
+    extrazbotfld_ = new uiGenInput( prnt, tr("plus"), FloatInpSpec(0) );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
     uiLabel* botlbl = new uiLabel( prnt, SI().getZUnitString() );
@@ -255,7 +256,8 @@ void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 {
-    widthfld_ = new uiGenInput( prnt,"Extra interval length", FloatInpSpec() );
+    widthfld_ = new uiGenInput( prnt,tr("Extra interval length"), 
+                                FloatInpSpec() );
     widthfld_->attach( alignedBelow, addwidthfld_ );
     widthfld_->checked.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel) );
 }
@@ -265,7 +267,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
     const char* mainhorlabel = "Main Horizon";
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
-				 BoolInpSpec(true,"Top","Bottom") );
+				 BoolInpSpec(true,tr("Top"),tr("Bottom")) );
     mainhorfld_->attach( alignedBelow, widthfld_ );
 }
 
@@ -282,9 +284,10 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
     setcubeboundsfld_->valuechanged.notify(
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
-    cubeboundsfld_ = new uiGenInput ( prnt, "Z Range", FloatInpIntervalSpec()
-							.setName("Z Start",0)
-							.setName("Z Stop",1) );
+    cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"), 
+                                      FloatInpIntervalSpec()
+				      .setName("Z Start",0)
+				      .setName("Z Stop",1) );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
 }
 
@@ -306,20 +309,20 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
     if ( !objfld_->commitInput() )
     {
-	uiMSG().error( "Please select first Horizon" );
+	uiMSG().error( tr("Please select first Horizon") );
 	return false;
     }
 
     if ( !usesinglehor_ && !obj2fld_->commitInput() )
     {
-	uiMSG().error( "Please select second Horizon" );
+	uiMSG().error( tr("Please select second Horizon") );
 	return false;
     }
 
     bool haveoutput = outpfld_->commitInput();
     if ( !haveoutput || !ctioout_.ioobj )
     {
-	uiMSG().error( "Please select output" );
+	uiMSG().error( tr("Please select output") );
 	return false;
     }
 

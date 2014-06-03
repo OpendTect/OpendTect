@@ -32,7 +32,7 @@ namespace Table { class FormatDesc; }
 /*! \brief Dialog for Horizon Import */
 
 mExpClass(uiEMAttrib) uiImportHorizon2D : public uiDialog
-{
+{ mODTextTranslationClass(uiImportHorizon2D);
 public:
 			uiImportHorizon2D(uiParent*);
 			~uiImportHorizon2D();

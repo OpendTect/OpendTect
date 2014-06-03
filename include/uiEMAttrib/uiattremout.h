@@ -29,7 +29,7 @@ Used for calculating attributes in relation with surfaces
 
 
 mExpClass(uiEMAttrib) uiAttrEMOut : public uiDialog
-{
+{ mODTextTranslationClass(uiAttrEMOut);
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,
 				    const NLAModel*,const MultiID&,const char*);

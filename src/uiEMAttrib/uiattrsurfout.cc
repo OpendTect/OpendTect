@@ -43,16 +43,16 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpKey( mODHelpKey(mAttrSurfaceOutHelpID) );
     setCtrlStyle( RunAndClose );
 
-    attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
+    attrnmfld_ = new uiGenInput( this, tr("Attribute name"), StringInpSpec() );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, attrfld_ );
 
-    filludffld_ = new uiGenInput( this, "Fill undefined parts",
+    filludffld_ = new uiGenInput( this, tr("Fill undefined parts"),
 	    			  BoolInpSpec(false) );
     filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
-    settingsbut_ = new uiPushButton( this, "Settings",
+    settingsbut_ = new uiPushButton( this, uiStrings::sSettings(),
 	    			 mCB(this,uiAttrSurfaceOut,settingsCB), false);
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );
@@ -91,8 +91,8 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
 
 void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
-    uiSingleGroupDlg dlg( this, uiDialog::Setup("Interpolation",
-					     "Interpolation Settings",
+    uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
+					     tr("Interpolation Settings"),
                                                 mNoHelpKey) );
     uiArray2DInterpolSel* interpolsel =
 		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
@@ -131,7 +131,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
 {
     if ( !objfld_->commitInput() )
     {
-	uiMSG().error( "Please select Horizon" );
+	uiMSG().error( tr("Please select Horizon") );
 	return false;
     }
 

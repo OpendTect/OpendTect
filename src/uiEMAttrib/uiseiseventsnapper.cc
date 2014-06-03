@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
-    : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Snap horizon to seismic event"),mNoDlgTitle,
 		       mODHelpKey(mSnapToEventHelpID) ).modal(false))
     , seisctio_(*uiSeisSel::mkCtxtIOObj(is2d ? Seis::Line : Seis::Vol,true))
     , horizon_(0)
@@ -58,7 +58,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.removeSingle(0);
-    eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
+    eventfld_ = new uiGenInput( this, tr("Event"), StringListInpSpec(eventnms));
     eventfld_->attach( alignedBelow, seisfld_ );
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
@@ -94,7 +94,7 @@ bool uiSeisEventSnapper::readHorizon()
     
     const MultiID& mid = horinfld_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
-    if ( !hor ) mErrRet( "Could not load horizon" );
+    if ( !hor ) mErrRet( tr("Could not load horizon") );
     
     if ( horizon_ ) horizon_->unRef();
     horizon_ = hor;
@@ -108,10 +108,10 @@ bool uiSeisEventSnapper::readHorizon()
 bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 {
     if ( !seisfld_->commitInput() )
-	mErrRet( "Please select the seismics" )
+	mErrRet( tr("Please select the seismics") )
 
     if ( !readHorizon() )
-	mErrRet( "Cannot read horizon" );
+	mErrRet( tr("Cannot read horizon") );
 
     if ( !savefldgrp_->acceptOK( cb ) )
 	return false;
