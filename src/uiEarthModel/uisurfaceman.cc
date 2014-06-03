@@ -309,7 +309,8 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     if ( curioobj_->implReadOnly() )
     {
-    uiMSG().error(tr("Could not remove Surface Data. Surface is read-only"));
+	uiMSG().error(
+		tr("Could not remove Surface Data. Surface is read-only"));
 	return;
     }
 
