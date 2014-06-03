@@ -52,7 +52,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const Attrib::DescSet* attrib ,
 					    const NLAModel* mdl,
 					    bool singlewell )
-    : uiDialog(p,uiDialog::Setup("Create Attribute Log",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Create Attribute Log"),mNoDlgTitle,
 				 mODHelpKey(mCreateAttribLogDlgHelpID)))
     , wellnames_(wellnames)
     , singlewell_(singlewell)
@@ -96,7 +96,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     uiSeparator* sep2 = new uiSeparator( this, "Z Sel/Log Sep" );
     sep2->attach( stretchedBelow, zrangeselfld_ );
 
-    lognmfld_ = new uiGenInput( this, "Log name" );
+    lognmfld_ = new uiGenInput( this, tr("Log name") );
     lognmfld_->attach( ensureBelow, sep2 );
     lognmfld_->attach( alignedBelow, zrangeselfld_);
 
@@ -197,16 +197,16 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
 {
     Well::Data* wd = Well::MGR().wells()[ wellno ];
     if ( SI().zIsTime() && !wd->d2TModel() )
-	mErrRet( "No depth to time model defined" );
+	mErrRet( tr("No depth to time model defined") );
 
     const Attrib::DescID seldescid = attribfld_->attribID();
     const int outputnr = attribfld_->outputNr();
     if ( seldescid.asInt() < 0 && (datasetup_.nlamodel_ && outputnr<0) )
-	mErrRet( "No valid attribute selected" );
+	mErrRet( tr("No valid attribute selected") );
 
     datasetup_.lognm_ = lognmfld_->text();
     if ( datasetup_.lognm_.isEmpty() )
-	mErrRet( "Please provide logname" );
+	mErrRet( tr("Please provide logname") );
 
     sellogidx_ = wd->logs().indexOf( datasetup_.lognm_ );
     if ( sellogidx_ >= 0 )

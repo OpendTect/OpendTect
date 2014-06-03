@@ -25,7 +25,7 @@ class uiGenInput;
 class uiWellExtractParams;
 
 mExpClass(uiWellAttrib) uiCreateAttribLogDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCreateAttribLogDlg);
 public:
     				uiCreateAttribLogDlg(uiParent*,
 						     const BufferStringSet&,

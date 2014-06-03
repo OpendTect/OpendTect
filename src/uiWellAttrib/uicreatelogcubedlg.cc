@@ -27,10 +27,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiCreateLogCubeDlg::uiCreateLogCubeDlg( uiParent* p, const MultiID* mid )
-    : uiDialog(p,uiDialog::Setup("Create Log Cube",
-				 "Select logs to create new cubes",
+    : uiDialog(p,uiDialog::Setup(tr("Create Log Cube"),
+				 tr("Select logs to create new cubes"),
 				 mid ? mODHelpKey(mCreateLogCubeDlgHelpID)
-				     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
+	       			     : mODHelpKey(mMultiWellCreateLogCubeDlg) ))
 {
     setCtrlStyle( RunAndClose );
 
@@ -55,7 +55,7 @@ bool uiCreateLogCubeDlg::acceptOK( CallBacker* )
     TypeSet<MultiID> wids;
     welllogsel_->getSelWellIDs( wids );
     if ( wids.isEmpty() )
-	mErrRet( tr( "No well selected" ) )
+	mErrRet(tr("No well selected"),return false);
 
     BufferStringSet lognms;
     welllogsel_->getSelLogNames( lognms );
@@ -154,11 +154,11 @@ void uiCreateLogCubeOutputSel::useWellNameFld( bool disp )
 bool uiCreateLogCubeOutputSel::askOverwrite( const uiString& errmsg ) const
 {
     if ( BufferString(errmsg.getFullString()).find("as another type") )
-    {
+{
 	uiString msg( errmsg );
 	msg.append( tr( "Please choose another postfix" ), true );
 	mErrRet( msg )
-    }
+}
 
     return uiMSG().askOverwrite( errmsg );
 }

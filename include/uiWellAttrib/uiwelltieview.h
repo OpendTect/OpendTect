@@ -39,7 +39,7 @@ namespace WellTie
     class Setup; 
 
 mExpClass(uiWellAttrib) uiTieView : public CallBacker
-{
+{ mODTextTranslationClass(uiTieView);
 public:
 			    	uiTieView(uiParent*,uiFlatViewer*,const Data&);
 			    	~uiTieView();

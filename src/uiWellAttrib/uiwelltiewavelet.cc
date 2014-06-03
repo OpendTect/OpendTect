@@ -64,7 +64,7 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     BufferString estwnm( "Estimated" );
     initwnm += initw->name();
 
-    uiLabel* wvltlbl = new uiLabel( this, "Set active Wavelet : ");
+    uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
     activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(

@@ -152,7 +152,7 @@ void uiTieView::initFlatViewer()
     app.ddpars_.wva_.overlap_ = 1;
     app.ddpars_.wva_.right_= app.ddpars_.wva_.wigg_ = Color::Black();
     app.annot_.x1_.name_ = data_.sKeySeismic();
-    app.annot_.x2_.name_ = "TWT (ms)";
+    app.annot_.x2_.name_ =  "TWT (ms)";
     app.annot_.title_ ="Synthetics<---------------------------------->Seismics";
     vwr_->viewChanged.notify( mCB(this,uiTieView,zoomChg) );
     vwr_->rgbCanvas().scene().getMouseEventHandler().movement.notify(

@@ -31,7 +31,7 @@ namespace WellTie
 class uiWavelet;
 
 mExpClass(uiWellAttrib) uiWaveletView : public uiGroup
-{
+{ mODTextTranslationClass(uiWaveletView);
 public:
 
 	    			uiWaveletView(uiParent*,ObjectSet<Wavelet>&); 
