@@ -169,7 +169,7 @@ BufferString getSummary() const
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y",
+	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),tr("Export to SEG-Y"),
                                      mODHelpKey(mSEGYExpHelpID) ))
 	, geom_(gt)
 	, morebox_(0)
@@ -203,13 +203,13 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
-	morebox_ = new uiCheckBox( this, "Export more from same Line Set" );
+	morebox_ = new uiCheckBox( this, tr("Export more from same Line Set") );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
     {
 	manipbox_ = new uiCheckBox( this,
-			"Manipulate output file after creation" );
+			tr("Manipulate output file after creation") );
 	manipbox_->attach( alignedBelow, fsfld_ );
     }
 
@@ -363,10 +363,11 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
-	{ uiMSG().error( "Please select the data to export" ); return false; }
+	{ uiMSG().error( tr("Please select the data to export") ); 
+    return false; }
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.fname_.isEmpty() )
-	{ uiMSG().error( "Please select the output file" ); return false; }
+	{ uiMSG().error( tr("Please select the output file") ); return false; }
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
@@ -443,7 +444,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
 	    BufferStringSet cnms; oinf.getComponentNames( cnms, geomid );
 	    uiSelectFromList dlg( this,
-		uiSelectFromList::Setup("Please select the component",cnms) );
+	    uiSelectFromList::Setup(tr("Please select the component"),cnms) );
 	    dlg.setHelpKey(mODHelpKey(mSEGYExpdoWorkHelpID) );
 	    if ( !dlg.go() )
 		return false;

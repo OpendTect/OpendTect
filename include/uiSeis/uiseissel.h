@@ -23,7 +23,7 @@ class uiListBox;
 class uiCheckBox;
 
 mExpClass(uiSeis) uiSeisSel : public uiIOObjSel
-{
+{ mODTextTranslationClass(uiSeisSel);
 public:
 
     struct Setup : public uiIOObjSel::Setup

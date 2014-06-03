@@ -30,7 +30,7 @@ class od_istream;
 /*!\brief UI for SEG-Y file manipulation */
 
 mExpClass(uiSeis) uiSEGYFileManip : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYFileManip);
 public:
 
     			uiSEGYFileManip(uiParent*,const char* filenm);

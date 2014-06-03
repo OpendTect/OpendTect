@@ -20,7 +20,7 @@ class uiSeisSingleTraceDisplay;
 
 
 mExpClass(uiSeis) uiSeisWvltMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiSeisWvltMan);
 public:
 			uiSeisWvltMan(uiParent*);
 			~uiSeisWvltMan();

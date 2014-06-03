@@ -25,7 +25,7 @@ class uiBatchJobDispatcherSel;
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
 mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
-{ mODTextTranslationClass(uiSEGYImpDlg)
+{ mODTextTranslationClass(uiSEGYImpDlg);
 public :
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);

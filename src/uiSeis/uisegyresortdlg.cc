@@ -29,8 +29,8 @@ static const char* sKeySEGYDirect = "SEGYDirect";
 
 
 uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Re-sort SEG-Y scanned",
-		"Produce new SEG-Y file from scanned data",
+    : uiDialog( p, uiDialog::Setup(tr("Re-sort SEG-Y scanned"),
+		tr("Produce new SEG-Y file from scanned data"),
                                     mODHelpKey(mResortSEGYDlg) ) )
     , geomfld_(0)
     , volfld_(0)
@@ -52,7 +52,8 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     if ( geomnms.size() > 1 )
     {
 	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
-	geomfld_ = new uiGenInput( this, "Type", StringListInpSpec(geomnms) );
+	geomfld_ = new uiGenInput( this, uiStrings::sType(), 
+                                   StringListInpSpec(geomnms) );
 	geomfld_->valuechanged.notify( geomcb );
 	postFinalise().notify( geomcb );
     }
@@ -81,7 +82,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     if ( SI().has2D() )
     {
 	mDefSeisSelFld(ps2d,LinePS,SeisPS2D);
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Line name" );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
 	linenmfld_ = lcb->box();
 	lcb->attach( alignedBelow, ps2dfld_ );
 	algrp = lcb;
@@ -98,14 +99,15 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
     if ( SI().has3D() )
     {
-	newinleachfld_ = new uiGenInput( this, "Max #inlines per file",
+	newinleachfld_ = new uiGenInput( this, tr("Max #inlines per file"),
 				      IntInpSpec(100) );
 	newinleachfld_->setWithCheck( true );
 	newinleachfld_->setChecked( false );
 	newinleachfld_->attach( alignedBelow, outfld_ );
 	newinleachfld_->checked.notify( mCB(this,uiResortSEGYDlg,nrinlSel) );
-	inlnmsfld_ = new uiGenInput( this, "Name files using",
-			BoolInpSpec(true,"Sequence number","In-line range") );
+	inlnmsfld_ = new uiGenInput( this, tr("Name files using"),
+			BoolInpSpec(true,tr("Sequence number"),
+                                    tr("In-line range")) );
 	inlnmsfld_->attach( alignedBelow, newinleachfld_ );
     }
 }
@@ -178,7 +180,7 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     const char* fnm = outfld_->fileName();
     if ( !fnm || !*fnm )
     {
-	uiMSG().error( "Please enter the output file name" );
+	uiMSG().error( tr("Please enter the output file name") );
 	return false;
     }
 

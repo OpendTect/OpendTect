@@ -49,7 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 
-#define mCapt is2d ? "Manage 2D Seismics" : "Manage 3D Seismics"
+#define mCapt is2d ? tr("Manage 2D Seismics") : tr("Manage 3D Seismics")
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
                        mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
@@ -140,7 +140,8 @@ void uiSeisFileMan::mkFileInfo()
     }
 
 #define mAddRangeTxt(line) \
-    .add(" range: ").add(cs.hrg.start.line).add(" - ").add(cs.hrg.stop.line) \
+    .add(" range: ").add(cs.hrg.start.line).add(" - ") \
+    .add(cs.hrg.stop.line) \
     .add(" [").add(cs.hrg.step.line).add("]")
 #define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 

@@ -21,7 +21,7 @@ class uiComboBox;
 /*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
 
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSeisWaveletSel);
 public:
 
 			uiSeisWaveletSel(uiParent*,

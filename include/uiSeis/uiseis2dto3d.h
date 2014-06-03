@@ -25,7 +25,7 @@ class CtxtIOObj;
 class Seis2DTo3D;
 
 mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
-{
+{ mODTextTranslationClass(uiSeis2DTo3D);
 public:
 
 			uiSeis2DTo3D(uiParent*);

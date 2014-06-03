@@ -25,7 +25,7 @@ class IOObj;
 class CtxtIOObj;
 
 mExpClass(uiSeis) uiSeisMultiCubePS : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisMultiCubePS);
 
 public:
                         uiSeisMultiCubePS(uiParent*,const char* ky=0);

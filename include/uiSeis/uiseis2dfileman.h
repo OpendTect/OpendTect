@@ -23,7 +23,7 @@ class uiSeisIOObjInfo;
 
 
 mExpClass(uiSeis) uiSeis2DFileMan : public uiDialog
-{
+{ mODTextTranslationClass(uiSeis2DFileMan);
 public:
 
 			uiSeis2DFileMan(uiParent*,const IOObj&);

@@ -25,7 +25,7 @@ class uiGenInput;
 class uiToolButton;
 
 mExpClass(uiSeis) uiFKSpectrum : public uiFlatViewMainWin
-{
+{ mODTextTranslationClass(uiFKSpectrum);
 public:
 				uiFKSpectrum(uiParent*,bool setbp=false);
 				~uiFKSpectrum();

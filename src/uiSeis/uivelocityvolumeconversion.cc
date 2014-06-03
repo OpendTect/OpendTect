@@ -23,14 +23,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Velocity conversion",
-			"Velocity conversion", 
+    : uiDialog( p, uiDialog::Setup(tr("Velocity conversion"),
+			tr("Velocity conversion"), 
                         mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
     velctxt.forread = true;
     uiSeisSel::Setup velsetup( Seis::Vol );
-    velsetup.seltxt( "Input velocity model" );
+    velsetup.seltxt( tr("Input velocity model") );
     input_ = new uiVelSel( this, velctxt, velsetup );
     input_->selectionDone.notify(
 	    mCB(this,Vel::uiBatchVolumeConversion,inputChangeCB ) );
@@ -38,7 +38,7 @@ Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     possubsel_->attach( alignedBelow, input_ );
 
-    outputveltype_ = new uiLabeledComboBox( this, "Output velocity type" );
+    outputveltype_ = new uiLabeledComboBox( this, tr("Output velocity type") );
     outputveltype_->attach( alignedBelow, possubsel_ );
 
     IOObjContext outputctxt = SeisTrcTranslatorGroup::ioContext();
@@ -117,7 +117,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     VelocityDesc inputveldesc;
     if ( !inputveldesc.usePar( velioobj->pars() ) )
     {
-	uiMSG().error("Could not read velocity information on input" );
+	uiMSG().error(tr("Could not read velocity information on input") );
 	return false;
     }
 
@@ -125,7 +125,8 @@ bool Vel::uiBatchVolumeConversion::fillPar()
          inputveldesc.type_!=VelocityDesc::Avg &&
 	 inputveldesc.type_!=VelocityDesc::RMS )
     {
-	uiMSG().error("Only RMS, Avg or Interval velcities can be converted");
+	uiMSG().error(tr("Only RMS, Avg or Interval"
+                      " velcities can be converted"));
 	return false;
     }
 

@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSEGYDefDlg::Setup::Setup()
-    : uiDialog::Setup("SEG-Y tool","Specify basic properties",
+    : uiDialog::Setup(tr("SEG-Y tool"),tr("Specify basic properties"),
                       mODHelpKey(mSEGYDefDlgHelpID) )
     , defgeom_(Seis::Vol)
 {
@@ -69,7 +69,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	if ( !setup_.geoms_.isPresent( setup_.defgeom_ ) )
 	    setup_.defgeom_ = setup_.geoms_[0];
 
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "File type" );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("File type") );
 	geomfld_ = lcb->box();
 	for ( int idx=0; idx<su.geoms_.size(); idx++ )
 	    geomfld_->addItem( Seis::nameOf( (Seis::GeomType)su.geoms_[idx] ) );
@@ -83,7 +83,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     sep->attach( stretchedBelow, lastgrp );
 
     int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
-    nrtrcexfld_ = new uiGenInput( this, "Number of traces to examine",
+    nrtrcexfld_ = new uiGenInput( this, tr("Number of traces to examine"),
 			      IntInpSpec(nrex).setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );
     nrtrcexfld_->attach( ensureBelow, sep );

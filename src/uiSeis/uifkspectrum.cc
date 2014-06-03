@@ -55,11 +55,12 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 
     lineitm_ = initAuxData();
 
-    ffld_ = new uiGenInput( this, SI().zIsTime() ? "F" : "Kz" );
+    ffld_ = new uiGenInput( this, SI().zIsTime() ? tr("F") : tr("Kz") );
     ffld_->setReadOnly();
-    kfld_ = new uiGenInput( this, "K" );
+    kfld_ = new uiGenInput( this, tr("K") );
     kfld_->setReadOnly();
-    velfld_ = new uiGenInput( this, SI().zIsTime() ? "Vel (m/s)" : "Dip (deg)");
+    velfld_ = new uiGenInput( this, SI().zIsTime() ? tr("Vel (m/s)") 
+                                                   : tr("Dip (deg)"));
     velfld_->setReadOnly();
     ffld_->attach( leftAlignedBelow, &vwr );
     kfld_->attach( rightTo, ffld_ );
@@ -69,21 +70,21 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
     {
 	uiSeparator* sep = new uiSeparator( this, "HorSep", OD::Horizontal );
 	sep->attach( stretchedBelow, ffld_ );
-	uiString minlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
+	uiString minlbl = SI().zIsTime() ? tr("Min Vel") : tr("Min Dip");
 	minfld_ = new uiGenInput( this, minlbl );
 	minfld_->setReadOnly();
 	minfld_->attach( leftAlignedBelow, ffld_ );
 	minfld_->attach( ensureBelow, sep );
-	minsetbut_ = new uiToolButton( this, "pick", "Set min velocity",
+	minsetbut_ = new uiToolButton( this, "pick", tr("Set min velocity"),
 				       mCB(this,uiFKSpectrum,setVelCB) );
 	minsetbut_->setToggleButton();
 	minsetbut_->attach( rightTo, minfld_ );
 
-	uiString maxlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
+	uiString maxlbl = SI().zIsTime() ? tr("Min Vel") : tr("Min Dip");
 	maxfld_ = new uiGenInput( this, maxlbl );
 	maxfld_->setReadOnly();
 	maxfld_->attach( rightOf, minsetbut_ );
-	maxsetbut_ = new uiToolButton( this, "pick", "Set max velocity",
+	maxsetbut_ = new uiToolButton( this, "pick", tr("Set max velocity"),
 				       mCB(this,uiFKSpectrum,setVelCB) );
 	maxsetbut_->setToggleButton();
 	maxsetbut_->attach( rightTo, maxfld_ );
@@ -185,7 +186,7 @@ void uiFKSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
-    setCaption( !datapack ? "No data"
+    setCaption( !datapack ? tr("No data")
 	    : BufferString("F-K Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::FlatID() )
@@ -206,7 +207,7 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
     initFFT( sz0, sz1 );
     if ( !fft_ )
     {
-	uiMSG().error( "Cannot initialize FFT" );
+	uiMSG().error( tr("Cannot initialize FFT") );
 	return;
     }
 

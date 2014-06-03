@@ -22,7 +22,7 @@ class uiTextEdit;
 /*!\brief Shows loaded plugins and allows adding */
 
 mExpClass(uiSeis) uiSeisPreLoadMgr : public uiDialog
-{ 	
+{  mODTextTranslationClass(uiSeisPreLoadMgr);
 public:
 			uiSeisPreLoadMgr(uiParent*);
 

@@ -48,7 +48,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeis2DFileMan)
 
 
 uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,uiDialog::Setup("Manage 2D Seismic Lines",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Manage 2D Seismic Lines"),mNoDlgTitle,
 				 mODHelpKey(mSeis2DManHelpID) ))
     , issidomain(ZDomain::isSI( ioobj.pars() ))
     , zistm((SI().zIsTime() && issidomain) || (!SI().zIsTime() && !issidomain))
@@ -59,7 +59,7 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
     dataset_ = new Seis2DDataSet( ioobj );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines",
+    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, tr("2D lines"),
 			    OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     linefld_ = lllb->box();
     linefld_->selectionChanged.notify( mCB(this,uiSeis2DFileMan,lineSel) );
@@ -196,8 +196,8 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     BufferStringSet sellines;
     linefld_->getChosen( sellines );
     if ( sellines.isEmpty() ||
-	!uiMSG().askRemove("All selected lines "
-	    "will be removed. Do you want to continue?") )
+	!uiMSG().askRemove(tr("All selected lines "
+	    "will be removed. Do you want to continue?")) )
 	return;
 
     for ( int idx=0; idx<sellines.size(); idx++ )
@@ -231,7 +231,7 @@ void uiSeis2DFileMan::renameLine( CallBacker* )
 
     if ( linefld_->isPresent(newnm) )
     {
-	uiMSG().error( "Linename already in use" );
+	uiMSG().error( tr("Linename already in use") );
 	return;
     }
 
@@ -257,7 +257,8 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 {
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 = new uiLabeledComboBox( this, lnms, "First line" );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, "Add" );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, 
+                                                     uiStrings::sAdd(true) );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );

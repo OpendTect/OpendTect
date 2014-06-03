@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup("Data component selection", 0,
+	: uiDialog(p,uiDialog::Setup(tr("Data component selection"), 0,
                                      mNoHelpKey) )
 	, compfld_(0)
 {

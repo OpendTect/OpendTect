@@ -175,7 +175,7 @@ SeisImpCBVSFromOtherSurvey::~SeisImpCBVSFromOtherSurvey()
 bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 {
     if ( !createTranslators( fulluserexp ) )
-	mErrRet( "Can not read cube" )
+	mErrRet( tr("Can not read cube") )
 
     const CBVSInfo& info = tr_->readMgr()->info();
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
@@ -193,8 +193,8 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 
     if ( !SI().isInside(data_.cs_.hrg.start,true)
 	&& !SI().isInside(data_.cs_.hrg.stop,true) )
-	mErrRet( "The selected cube has no coordinates "
-		 "matching the current survey." )
+	mErrRet( tr("The selected cube has no coordinates "
+		 "matching the current survey.") )
 
     int step = olddata_.cs_.hrg.step.inl();
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;

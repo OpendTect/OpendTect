@@ -21,7 +21,7 @@ class SeisJobExecProv;
 
 
 mExpClass(uiSeis) uiSeisMMProc : public uiMMBatchJobDispatcher
-{
+{ mODTextTranslationClass(uiSeisMMProc);
 public:
 
                         uiSeisMMProc(uiParent*,const IOPar&);

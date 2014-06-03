@@ -31,7 +31,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 
 
 #define mCapt \
-    is2d ? "Manage 2D Prestack Seismics" : "Manage 3D Prestack Seismics"
+    is2d ? tr("Manage 2D Prestack Seismics") : tr("Manage 3D Prestack Seismics")
 #define mHelpID is2d ? mODHelpKey(mSeisPrestackMan2DHelpID) : \
                        mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )

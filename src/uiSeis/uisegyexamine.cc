@@ -44,7 +44,7 @@ const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )
-    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle, 
+    : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle, 
                       mODHelpKey(mSEGYExamineHelpID) )
     , nrtrcs_(nrtraces)
     , fp_(true)
@@ -69,9 +69,9 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     setCtrlStyle( CloseOnly );
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
-    uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
+    uiLabel* lbl = new uiLabel( txtgrp, tr("File header information") );
     uiToolButton* savesettb = new uiToolButton( txtgrp, "saveset",
-					 "Save text header to file",
+					 tr("Save text header to file"),
 				         mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
@@ -81,8 +81,8 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* logrp = new uiGroup( this, "Low group" );
     uiGroup* tblgrp = new uiGroup( logrp, "Table group" );
-    lbl = new uiLabel( tblgrp, "Trace header information" );
-    uiToolButton* seistb = new uiToolButton( tblgrp, "vd", "Display traces",
+    lbl = new uiLabel( tblgrp, tr("Trace header information") );
+    uiToolButton* seistb = new uiToolButton( tblgrp, "vd", tr("Display traces"),
 			     mCB(this,uiSEGYExamine,dispSeis) );
 
     uiTable::Setup tblsu( SEGY::TrcHeader::hdrDef().size(), setup_.nrtrcs_ );
@@ -102,7 +102,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     }
     tbl_->selectionChanged.notify( mCB(this,uiSEGYExamine,rowClck) );
     uiToolButton* histtb = new uiToolButton( tblgrp, "histogram",
-			    "Show histogram of sample values",
+			    tr("Show histogram of sample values"),
 			    mCB(this,uiSEGYExamine,dispHist) );
     histtb->attach( rightAlignedAbove, tbl_ );
     seistb->attach( leftOf, histtb );
@@ -152,7 +152,7 @@ void uiSEGYExamine::saveHdr( CallBacker* )
 
     od_ostream strm( dlg.fileName() );
     if ( !strm.isOK() )
-	{ uiMSG().error("Cannot open file for writing"); return; }
+	{ uiMSG().error(tr("Cannot open file for writing")); return; }
 
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
     const SEGY::TxtHeader& th = *tr->txtHeader();

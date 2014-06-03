@@ -28,7 +28,7 @@ namespace Seis { class SelData; }
 
 
 mExpClass(uiSeis) uiSeisTransfer : public uiGroup
-{
+{ mODTextTranslationClass(uiSeisTransfer);
 public:
 
     mExpClass(uiSeis) Setup : public Seis::SelSetup

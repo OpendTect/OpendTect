@@ -43,7 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
-    : uiDialog( p,Setup("Extract Wavelet",mNoDlgTitle, 
+    : uiDialog( p,Setup(tr("Extract Wavelet"),mNoDlgTitle, 
                         mODHelpKey(mWaveletExtractionHelpID) )
 	             .modal(false) )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
@@ -85,8 +85,9 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
 
 void uiWaveletExtraction::createCommonUIFlds()
 {
-    zextraction_ = new uiGenInput( this, "Vertical Extraction",
-			BoolInpSpec(linesel2dfld_,"Z range","Horizons") );
+    zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
+			BoolInpSpec(linesel2dfld_,tr("Z range"),
+                                    tr("Horizons")) );
     zextraction_->valuechanged.notify(
 				mCB(this,uiWaveletExtraction,choiceSelCB) );
 
@@ -108,7 +109,8 @@ void uiWaveletExtraction::createCommonUIFlds()
     taperfld_ = new uiGenInput( this, taperlbl, IntInpSpec(20) );
     taperfld_->attach( alignedBelow, wtlengthfld_ );
 
-    wvltphasefld_ = new uiGenInput( this, "Phase (Degrees)", IntInpSpec(0) );
+    wvltphasefld_ = new uiGenInput( this, tr("Phase (Degrees)"), 
+                                    IntInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
     wvltctio_.ctxt.forread = false;
@@ -168,8 +170,8 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	    {
 		if ( datastep_ != zrg.step )
 		{
-		    uiMSG().message( "Selected lines having different sample",
-				     " intervals\n Please change selection" );
+		    uiMSG().message( tr("Selected lines having different sample"
+				     " intervals\n Please change selection") );
 		    return;
 		}
 
@@ -179,8 +181,8 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 
 	if ( commonzrg.nrSteps() == 0 )
 	{
-	    uiMSG().message( "No common Z Range in selected lines.\n"
-			     "Please change selection" );
+	    uiMSG().message( tr("No common Z Range in selected lines.\n"
+			     "Please change selection") );
 	    return;
 	}
 
@@ -227,15 +229,15 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     const int wvltlen = wtlengthfld_->getIntValue();
     if ( (2*taperlen > wvltlen) || taperlen < 0 )
     {
-	uiMSG().error( "TaperLength should be in between\n",
-		       "0 and ( Wavelet Length/2)" );
+	uiMSG().error( tr("TaperLength should be in between\n",
+		       "0 and ( Wavelet Length/2)") );
 	taperfld_->setValue( 5 );
 	return false;
     }
 
     if ( wvltphasefld_->getIntValue()<-180 || wvltphasefld_->getIntValue()>180)
     {
-	uiMSG().error( "Please enter Phase between -180 and 180" );
+	uiMSG().error( tr("Please enter Phase between -180 and 180") );
 	wvltphasefld_->setValue( 0 );
 	return false;
     }
@@ -254,7 +256,7 @@ bool uiWaveletExtraction::checkWaveletSize()
 		      (datastep_ * ((float) SI().zDomain().userFactor()))) + 1;
     if ( wvltsize_ < 3 )
     {
-	uiMSG().error( "Minimum 3 samples are required to create Wavelet" );
+	uiMSG().error( tr("Minimum 3 samples are required to create Wavelet") );
 	wtlengthfld_->setValue( 120 );
 	return false;
     }
@@ -265,8 +267,8 @@ bool uiWaveletExtraction::checkWaveletSize()
 	const int range = 1 + mNINT32( (zrg.stop - zrg.start) / datastep_ );
 	if ( range < wvltsize_ )
 	{
-	    uiMSG().message( "Selection window size should be more",
-			     " than Wavelet Size" );
+	    uiMSG().message( tr("Selection window size should be more"
+			     " than Wavelet Size") );
 	    return false;
 	}
     }
@@ -279,14 +281,14 @@ bool uiWaveletExtraction::check2DFlds()
 {
     if ( !linesel2dfld_->nrSelected() )
     {
-	uiMSG().error( "Select at least one line from LineSet" );
+	uiMSG().error( tr("Select at least one line from LineSet") );
 	return false;
     }
 
     if ( linesel2dfld_ && !zextraction_->getBoolValue() )
     {
-	uiMSG().message( "Extraction of wavelet from 2D-horizon(s)",
-			 " is not implemented" );
+	uiMSG().message( tr("Extraction of wavelet from 2D-horizon(s)",
+			 " is not implemented") );
 	return false;
     }
 
@@ -380,8 +382,8 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	const int size = int ( 1+(extz.stop-extz.start)/datastep_ );
 	if ( size < wvltsize_ )
 	{
-	    uiMSG().error( "Selection window size should be"
-		           " more than Wavelet size" );
+	    uiMSG().error( tr("Selection window size should be"
+		           " more than Wavelet size") );
 	    return false;
 	}
     }
@@ -397,7 +399,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
     mDynamicCastGet(EM::Horizon3D*,horizon1,emobjsinglehor)
     if ( !horizon1 )
     {
-	uiMSG().error( "Error loading horizon" );
+	uiMSG().error( tr("Error loading horizon") );
 	return false;
     }
 
@@ -414,7 +416,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	mDynamicCastGet( EM::Horizon3D*, horizon2,emobjdoublehor )
 	if ( !horizon2 )
 	{
-	    uiMSG().error( "Error loading second horizon" );
+	    uiMSG().error( tr("Error loading second horizon") );
 	    return false;
 	}
 

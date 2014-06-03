@@ -24,7 +24,7 @@ class uiSeisSel;
 
 
 mExpClass(uiSeis) uiMergeSeis : public uiDialog
-{
+{ mODTextTranslationClass(uiMergeSeis);
 public:
                         uiMergeSeis(uiParent*);
 			~uiMergeSeis();

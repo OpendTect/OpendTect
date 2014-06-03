@@ -36,7 +36,7 @@ class uiSeisSel;
 class uiSeisSubSel;
 
 mExpClass(uiSeis) SeisImpCBVSFromOtherSurvey : public Executor
-{
+{ mODTextTranslationClass(SeisImpCBVSFromOtherSurvey);
 public:
 
     enum Interpol	{ Sinc, Nearest };

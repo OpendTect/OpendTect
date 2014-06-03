@@ -30,7 +30,7 @@ class uiToolButton;
 */
 
 mExpClass(uiSeis) uiPreStackMergeDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiPreStackMergeDlg);
 public:
 
     			uiPreStackMergeDlg(uiParent*);

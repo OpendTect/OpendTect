@@ -17,7 +17,7 @@ class uiToolButton;
 
 
 mExpClass(uiSeis) uiSeisFileMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiSeisFileMan);
 public:
 			uiSeisFileMan(uiParent*,bool);
 			~uiSeisFileMan();

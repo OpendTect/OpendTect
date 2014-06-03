@@ -23,7 +23,7 @@ class uiPosSubSel;
 /*!Dialog to setup a time->depth conversion for volumes on disk. */
 
 mClass(uiSeis) uiBatchTime2DepthSetup : public uiDialog
-{
+{ mODTextTranslationClass(uiBatchTime2DepthSetup);
 public:
 				uiBatchTime2DepthSetup(uiParent*);
 

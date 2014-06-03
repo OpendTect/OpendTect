@@ -123,7 +123,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 {
     if ( !openData(su) )
     {
-	setTitleText( "Error" );
+	setTitleText( uiStrings::sError() );
 	BufferString lbltxt( "Cannot open input data (" );
 	lbltxt += Seis::nameOf(su.geom_); lbltxt += ")\n";
 	lbltxt += IOM().nameOf( su.id_ );
@@ -207,8 +207,11 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	uiMSG().error( emsg );
 	return false;
     }
-    if ( !tr_->readInfo(ctrc_.info()) || !tr_->read(ctrc_) )
-	{ uiMSG().error( "Input cube is empty" ); return false; }
+    if ( !tr_->readInfo(ctrc_.info()) )
+    {
+	uiMSG().error( tr("Input cube is empty") );
+	return false;
+    }
 
     nrcomps_ = tr_->componentInfo().size();
     nrsamples_ = tr_->outNrSamples();
@@ -223,15 +226,15 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, "Tool Bar" );
-    mAddButton( "gotopos",goToPush,"Goto position",false );
-    mAddButton( "info",infoPush,"Information",false );
+    mAddButton( "gotopos",goToPush,tr("Goto position"),false );
+    mAddButton( "info",infoPush,tr("Information"),false );
     if ( !is2d_ )
 	crlwisebutidx_ = mAddButton( "crlwise",switchViewTypePush,
-				     "Switch to Cross-line",true );
-    mAddButton( "leftarrow",leftArrowPush,"Move left",false );
-    mAddButton( "rightarrow",rightArrowPush,"Move right",false );
+				     tr("Switch to Cross-line"),true );
+    mAddButton( "leftarrow",leftArrowPush,tr("Move left"),false );
+    mAddButton( "rightarrow",rightArrowPush,tr("Move right"),false );
     showwgglbutidx_ = mAddButton( "wva",dispTracesPush,
-				  "Display current traces",false );
+				  tr("Display current traces"),false );
     tr_->getComponentNames( compnms_ );
     if ( compnms_.size()>1 )
     {
@@ -242,7 +245,7 @@ void uiSeisBrowser::createMenuAndToolBar()
 					mCB(this,uiSeisBrowser,chgCompNrCB) );
     }
 
-    uiLabel* lbl = new uiLabel( uitb_, "Nr traces" );
+    uiLabel* lbl = new uiLabel( uitb_, tr("Nr traces") );
     uitb_->addObject( lbl );
     nrtrcsfld_ = new uiSpinBox( uitb_ );
     nrtrcsfld_->setInterval( StepInterval<int>(3,99999,2) );
@@ -331,7 +334,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force, bool veryfirst )
     const bool havetrc = tr_->goTo( binid );
     const bool canread = havetrc && tr_->read( ctrc_ );
     if ( !canread && !veryfirst )
-	uiMSG().error( "Cannot read data at specified location" );
+	uiMSG().error( tr("Cannot read data at specified location") );
     if ( !havetrc || !canread )
 	binid = ctrc_.info().binid;
 
@@ -758,7 +761,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	trcbufvwr_->start(); trcbufvwr_->handleBufChange();
 
 	if ( (tbuf_.isEmpty()) )
-	    uiMSG().error( "No data at the specified position " );
+	    uiMSG().error( tr("No data at the specified position ") );
     }
 
     updateWiggleButtonStatus();

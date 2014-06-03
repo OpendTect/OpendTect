@@ -31,7 +31,7 @@ class uiTabStack;
 
 
 mExpClass(uiSeis) uiElasticPropSelGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiElasticPropSelGrp);
 public:
 				uiElasticPropSelGrp(uiParent*,
 					 const BufferStringSet&,

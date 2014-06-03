@@ -34,8 +34,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMergeSeis::uiMergeSeis( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Seismic file merging",
-				 "Specify input/output seismics",
+    : uiDialog(p,uiDialog::Setup(tr("Seismic file merging"),
+				 tr("Specify input/output seismics"),
 				 mODHelpKey(mMergeSeisHelpID) ))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
@@ -58,15 +58,15 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 					ctio_.ctxt.trgroup->userName() );
         ioobjids_ += new MultiID( ioobj ? (const char*)ioobj->key() : "" );
     }
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Input Cubes",
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Input Cubes"),
 						    OD::ChooseZeroOrMore );
     inpfld_ = llb->box();
     inpfld_->setCurrentItem( 0 );
     inpfld_->addItems( ioobjnms );
     inpfld_->selectionChanged.notify( mCB(this,uiMergeSeis,selChangeCB) );
 
-    stackfld_ = new uiGenInput( this, "Duplicate traces",
-				BoolInpSpec(true,"Stack","Use first") );
+    stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
+				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->attach( alignedBelow, llb );
 
     scfmtfld_ = new uiSeisFmtScale( this, Seis::Vol, false, false );
@@ -120,7 +120,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     if ( !outfld_->commitInput() )
     {
 	if ( outfld_->isEmpty() )
-	    uiMSG().error( "Please enter an output Seismic data set name" );
+	    uiMSG().error( tr("Please enter an output Seismic data set name") );
         return false;
     }
 
@@ -137,7 +137,7 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     const int inpsz = selobjs.size();
     if ( inpsz < 2 )
     {
-	uiMSG().error( "Please select at least 2 inputs" );
+	uiMSG().error( tr("Please select at least 2 inputs") );
 	deepErase( selobjs );
 	return false;
     }

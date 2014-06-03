@@ -35,17 +35,17 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     , propnms_(ppnms)
     , isactive_(false)
 {
-    varnmfld_ = new uiGenInput( this, "For" );
+    varnmfld_ = new uiGenInput( this, tr("For") );
     varnmfld_->setElemSzPol( uiObject::Small );
 
-    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, "use");
+    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, tr("use"));
     lbl->attach( rightOf, varnmfld_ );
 
     inpfld_ = lbl->box();
     inpfld_->selectionChanged.notify(
 		    mCB(this,uiElasticPropSelGrp::uiSelInpGrp,selVarCB ) );
 
-    ctefld_ = new uiGenInput( this, "Value", FloatInpSpec() );
+    ctefld_ = new uiGenInput( this, tr("Value"), FloatInpSpec() );
     ctefld_->attach( rightOf, lbl );
     ctefld_->setElemSzPol( uiObject::Small );
 
@@ -61,7 +61,7 @@ void uiElasticPropSelGrp::uiSelInpGrp::fillList()
     BufferString seltxt = inpfld_->text();
     inpfld_->setEmpty();
     inpfld_->addItems( propnms_ );
-    inpfld_->addItem( "Constant" );
+    inpfld_->addItem( tr("Constant") );
     inpfld_->setCurrentItem( seltxt );
 }
 
@@ -138,16 +138,16 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
 
     const CallBack selformcb( mCB(this,uiElasticPropSelGrp,selFormulaChgCB) );
     const CallBack selcompcb( mCB(this,uiElasticPropSelGrp,selComputeFldChgCB));
-    selmathfld_ = new uiLabeledComboBox( this, "Compute from" );
-    selmathfld_->box()->addItem( "Defined quantity" );
+    selmathfld_ = new uiLabeledComboBox( this, tr("Compute from") );
+    selmathfld_->box()->addItem( tr("Defined quantity") );
     selmathfld_->box()->addItems( predeftitles );
-    selmathfld_->box()->addItem( "Formula" );
+    selmathfld_->box()->addItem( tr("Formula") );
     selmathfld_->box()->selectionChanged.notify(selcompcb);
 
-    formfld_ = new uiGenInput( this, "Formula " );
+    formfld_ = new uiGenInput( this, tr("Formula ") );
     formfld_->attach( alignedBelow, selmathfld_ );
 
-    singleinpfld_ = new uiLabeledComboBox( this, "use" );
+    singleinpfld_ = new uiLabeledComboBox( this, tr("use") );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
     singleinpfld_->box()->addItems( propnms_ );
 
@@ -165,7 +165,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     storenamesep_ = new uiSeparator( this, "sep" );
     storenamesep_->attach( stretchedBelow, inpgrps_[inpgrps_.size()-1]  );
 
-    storenamefld_ = new uiGenInput( this, "Quantity name:" );
+    storenamefld_ = new uiGenInput( this, tr("Quantity name:") );
     storenamefld_->attach( alignedBelow, inpgrps_[inpgrps_.size()-1] );
     storenamefld_->attach( ensureBelow, storenamesep_ );
 

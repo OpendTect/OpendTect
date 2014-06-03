@@ -27,7 +27,7 @@ class uiFuncSelDraw;
 
 
 mExpClass(uiSeis) uiSeisWvltCreate : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisWvltCreate);
 public:
 			uiSeisWvltCreate(uiParent*,uiDialog::Setup);
 			~uiSeisWvltCreate();

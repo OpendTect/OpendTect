@@ -92,14 +92,14 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     }
     else
     {
-	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
+	morebut_ = new uiCheckBox( outgrp, tr("Import more, similar files") );
 	morebut_->attach( alignedBelow, seissel_ );
     }
 
     if ( !optsgrp_ )
     {
 	uiToolButton* tb = new uiToolButton( this, "prescan",
-				"Pre-scan file(s)",
+				tr("Pre-scan file(s)"),
 				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );
     }

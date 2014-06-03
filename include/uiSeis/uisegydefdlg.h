@@ -27,7 +27,7 @@ class IOObj;
 /*!\brief Initial dialog for SEG-Y I/O. */
 
 mExpClass(uiSeis) uiSEGYDefDlg : public uiVarWizardDlg
-{
+{ mODTextTranslationClass(uiSEGYDefDlg);
 public:
 
     mStruct(uiSeis) Setup : public uiDialog::Setup

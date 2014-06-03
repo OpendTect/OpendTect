@@ -32,7 +32,7 @@ static const BufferStringSet emptylnms;
 
 
 uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
-    : uiDialog(p,uiDialog::Setup("Dump 2D line geometry to file",
+    : uiDialog(p,uiDialog::Setup(tr("Dump 2D line geometry to file"),
 				 mNoDlgTitle,
 				 mODHelpKey(mSeisDump2DGeomHelpID)))
     , ctio(*mMkCtxtIOObj(SeisTrc))
@@ -48,7 +48,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     seisfld = new uiSeisSel( this, ctio, ss );
     seisfld->selectionDone.notify( cb );
 
-    lnmsfld = new uiGenInput( this, "One line only",
+    lnmsfld = new uiGenInput( this, tr("One line only"),
 			      StringListInpSpec(emptylnms) );
     lnmsfld->setWithCheck( true );
     lnmsfld->attach( alignedBelow, seisfld );
@@ -87,21 +87,21 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
 {
     if ( !seisfld->commitInput() )
     {
-        uiMSG().error( "Please enter the input line set" );
+        uiMSG().error( tr("Please enter the input line set") );
         return false;
     }
 
     BufferString fnm( outfld->fileName() );
     if ( fnm.isEmpty() )
     {
-        uiMSG().error( "Please enter the output file name" );
+        uiMSG().error( tr("Please enter the output file name") );
         return false;
     }
 
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-        uiMSG().error( "Cannot open the output file" );
+        uiMSG().error( tr("Cannot open the output file") );
         return false;
     }
 

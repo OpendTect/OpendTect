@@ -21,7 +21,7 @@ class uiFileInput;
 
 
 mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisDump2DGeom);
 public:
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
 			~uiSeisDump2DGeom();

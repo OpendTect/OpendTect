@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mExpClass(uiSeis) uiSeisIOObjInfo
-{
+{ mODTextTranslationClass(uiSeisIOObjInfo);
 public:
 
     			uiSeisIOObjInfo(const IOObj&,bool error_feedback=true);

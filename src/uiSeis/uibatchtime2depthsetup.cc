@@ -24,12 +24,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
-    : uiDialog( p,Setup("Time to depth volume conversion",
-			"Time/Depth conversion", 
+    : uiDialog( p,Setup(tr("Time to depth volume conversion"),
+			tr("Time/Depth conversion"), 
                         mODHelpKey(mBatchTime2DepthSetupHelpID) ) )
 {
-    directionsel_ = new uiGenInput( this, "Direction",
-	    BoolInpSpec(true, "Time to Depth", "Depth to Time", true ) );
+    directionsel_ = new uiGenInput( this, tr("Direction"),
+	    BoolInpSpec(true, tr("Time to Depth"), tr("Depth to Time"), true ));
     directionsel_->valuechanged.notify(
 	    mCB(this,uiBatchTime2DepthSetup,dirChangeCB));
 
@@ -58,10 +58,10 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 	inputdepthctxt.toselect.dontallow_.set( ZDomain::sKey(),
 						ZDomain::sKeyTime() );
     }
-    uiSeisSel::Setup sssu(Seis::Vol); sssu.seltxt("Input Time Volume");
+    uiSeisSel::Setup sssu(Seis::Vol); sssu.seltxt(tr("Input Time Volume"));
     inputtimesel_ = new uiSeisSel( this, inputtimectxt, sssu );
     inputtimesel_->attach( alignedBelow, t2dfld_ );
-    sssu.seltxt("Input Depth Volume");
+    sssu.seltxt(tr("Input Depth Volume"));
     inputdepthsel_ = new uiSeisSel( this, inputdepthctxt, sssu );
     inputdepthsel_->attach( alignedBelow, t2dfld_ );
 
@@ -70,7 +70,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext outputtimectxt = inputtimectxt;
     outputtimectxt.forread = false;
-    sssu.seltxt( "Output Time Volume" );
+    sssu.seltxt( tr("Output Time Volume") );
     outputtimesel_ = new uiSeisSel( this, outputtimectxt, sssu );
     outputtimesel_->selectionDone.notify(
 			mCB(this,uiBatchTime2DepthSetup,objSelCB) );
@@ -78,7 +78,7 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 
     IOObjContext outputdepthctxt = inputdepthctxt;
     outputdepthctxt.forread = false;
-    sssu.seltxt( "Output Depth Volume" );
+    sssu.seltxt( tr("Output Depth Volume") );
     outputdepthsel_ = new uiSeisSel( this, outputdepthctxt, sssu );
     outputdepthsel_->selectionDone.notify(
 			mCB(this,uiBatchTime2DepthSetup,objSelCB) );

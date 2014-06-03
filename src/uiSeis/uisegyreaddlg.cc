@@ -22,7 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup("SEG-Y Scan",mNoDlgTitle, mODHelpKey(mSEGYReadDlgHelpID) )
+    : uiDialog::Setup(tr("SEG-Y Scan"),mNoDlgTitle, 
+                      mODHelpKey(mSEGYReadDlgHelpID) )
     , geom_(gt) 
     , rev_(uiSEGYRead::Rev0)
 {
@@ -52,10 +53,10 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 	optsfld_->readParsReq.notify( mCB(this,uiSEGYReadDlg,readParsCB) );
 	optsfld_->preScanReq.notify( mCB(this,uiSEGYReadDlg,preScanCB) );
 
-	savesetupfld_ = new uiGenInput( optsgrp_, "On OK, save setup as" );
+	savesetupfld_ = new uiGenInput( optsgrp_, tr("On OK, save setup as") );
 	savesetupfld_->attach( alignedBelow, optsfld_ );
 	optsgrp_->setHAlignObj( savesetupfld_ );
-	uiLabel* lbl = new uiLabel( optsgrp_, "(optional)" );
+	uiLabel* lbl = new uiLabel( optsgrp_, tr("(optional)") );
 	lbl->attach( rightOf, savesetupfld_ );
     }
 
@@ -142,7 +143,7 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
     PtrMan<IOObj> inioobj = fs.getIOObj();
     if ( !inioobj )
     {
-	uiMSG().error( "Internal: cannot create SEG-Y object" );
+	uiMSG().error( tr("Internal: cannot create SEG-Y object") );
 	return false;
     }
     inioobj->pars() = pars_;

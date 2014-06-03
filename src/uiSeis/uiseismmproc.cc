@@ -81,7 +81,7 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     { \
 	delete outioobjinfo_; outioobjinfo_ = 0; \
 	new uiLabel( this, s ); \
-	setOkText( "Dismiss" ); setCancelText( "" ); return; \
+	setOkText( tr("Dismiss") ); setCancelText( "" ); return; \
     }
 
 
@@ -95,8 +95,8 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , is2d_(false)
 {
     if ( parfnm_.isEmpty() )
-	mRetInvJobSpec( "Invalid job specification file pass."
-		"\nMissing 'File name' key." )
+	mRetInvJobSpec( tr("Invalid job specification file pass."
+		"\nMissing 'File name' key.") )
 
     const char* idres = jobpars_.find( SeisJobExecProv::outputKey(jobpars_) );
     if ( !idres )
@@ -116,10 +116,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    setOkText( "  Dismiss  " );
-    setTitleText( isMultiHost()  ? "Multi-Machine Processing"
-			: (is2d_ ? "Multi-line processing"
-				 : "Line-split processing") );
+    setOkText( tr("  Dismiss  ") );
+    setTitleText( isMultiHost()  ? tr("Multi-Machine Processing")
+			: (is2d_ ? tr("Multi-line processing")
+				 : tr("Line-split processing")) );
     FixedString res = jobpars_.find( sKey::Target() );
     BufferString captn = "Processing";
     if ( !res.isEmpty() )
@@ -159,8 +159,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    inlperjobattach = tmpstordirfld_->mainObject();
 	}
 
-	inlperjobfld_ = new uiGenInput( specparsgroup_, "Nr of inlines per job",
-				   IntInpSpec( defltNrInlPerJob(jobpars_) ) );
+	inlperjobfld_ = new uiGenInput( specparsgroup_, 
+                        tr("Nr of inlines per job"),
+			IntInpSpec( defltNrInlPerJob(jobpars_) ) );
 
 	inlperjobfld_->attach( alignedBelow, inlperjobattach );
     }
@@ -192,7 +193,7 @@ bool uiSeisMMProc::initWork( bool retry )
 	{
 	    tmpstordir = tmpstordirfld_->getInput();
 	    if ( !File::isWritable(tmpstordir) )
-		mErrRet("The temporary storage directory is not writable")
+		mErrRet(tr("The temporary storage directory is not writable"))
 	    tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
 	    jobpars_.set( sKey::TmpStor(), tmpstordir );
 	}
@@ -234,7 +235,7 @@ bool uiSeisMMProc::initWork( bool retry )
 		File::createDir( tmpstordir );
 	    }
 	    if ( !File::isDirectory(tmpstordir) )
-		mErrRet("Cannot create temporary storage directory")
+		mErrRet(tr("Cannot create temporary storage directory"))
 	}
 
 	jobprov_->pars().write( parfnm_, sKey::Pars() );

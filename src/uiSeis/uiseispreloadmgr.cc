@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* cannotloadstr = "Cannot load ";
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
-    : uiDialog(p,Setup("Seismic Data Pre-load Manager",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Seismic Data Pre-load Manager"),mNoDlgTitle,
 			mODHelpKey(mSeisPreLoadMgrHelpID) ))
 {
     setCtrlStyle( CloseOnly );
@@ -58,30 +58,30 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
 #   define mAddBut(s,fn) \
     new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )
     if ( has3d )
-	mAddBut("Add Cube",cubeLoadPush);
+	mAddBut(tr("Add Cube"),cubeLoadPush);
     if ( has2d )
-	mAddBut("Add Lines",linesLoadPush);
+	mAddBut(tr("Add Lines"),linesLoadPush);
     if ( has3d )
     {
 	if ( has2d )
-	    mAddBut("Add 3D Prestack data",ps3DPush);
+	    mAddBut(tr("Add 3D Prestack data"),ps3DPush);
 	else
-	    mAddBut("Add Prestack data",ps3DPush);
+	    mAddBut(tr("Add Prestack data"),ps3DPush);
     }
     if ( has2d )
     {
 	if ( has3d )
-	    mAddBut("Add 2D Prestack lines",ps2DPush);
+	    mAddBut(tr("Add 2D Prestack lines"),ps2DPush);
 	else
-	    mAddBut("Add Prestack data",ps2DPush);
+	    mAddBut(tr("Add Prestack data"),ps2DPush);
     }
-    mAddBut("Unload Selected",unloadPush);
+    mAddBut(tr("Unload Selected"),unloadPush);
 
     uiToolButton* opentb = new uiToolButton( topgrp, "openpreload",
-	    "Retrieve pre-loads", mCB(this,uiSeisPreLoadMgr,openPush) );
+	    tr("Retrieve pre-loads"), mCB(this,uiSeisPreLoadMgr,openPush) );
     opentb->attach( leftAlignedBelow, listfld_ );
     uiToolButton* savetb = new uiToolButton( topgrp, "savepreload",
-	    "Save pre-loads", mCB(this,uiSeisPreLoadMgr,savePush) );
+	    tr("Save pre-loads"), mCB(this,uiSeisPreLoadMgr,savePush) );
     savetb->attach( rightAlignedBelow, listfld_ );
 
     uiGroup* infogrp = new uiGroup( this, "Info Group" );
@@ -256,8 +256,8 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     const char* id = spl.id().buf();
     if ( StreamProvider::isPreLoaded(id,true) )
     {
-	if ( !uiMSG().askGoOn("This cube is already pre-loaded.\n"
-			      "Do you want to re-load?") )
+	if ( !uiMSG().askGoOn(tr("This cube is already pre-loaded.\n"
+			      "Do you want to re-load?")) )
 	    return;
 	spl.unLoad();
     }
@@ -387,8 +387,8 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
     ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-    uiIOObjSelDlg dlg( this, *ctio, "Select data store/part to load" );
-    dlg.setCaption( "Select data store" );
+    uiIOObjSelDlg dlg( this, *ctio, tr("Select data store/part to load") );
+    dlg.setCaption( tr("Select data store") );
     uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
 					uiSelNrRange::Inl, false );
     inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
@@ -517,7 +517,7 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     ctio.fillDefault();
-    uiIOObjSelDlg dlg( this, ctio, "Open pre-load settings" );
+    uiIOObjSelDlg dlg( this, ctio, tr("Open pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
@@ -529,7 +529,7 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     ascistream astrm( strm,true );
     IOPar iop( astrm );
     if ( iop.isEmpty() )
-	mErrRet( "No valid objects found" )
+	mErrRet( tr("No valid objects found") )
 
     uiTaskRunner taskrunner( this );
     Seis::PreLoader::load( iop, &taskrunner );
@@ -543,7 +543,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, ctio, "Save pre-load settings" );
+    uiIOObjSelDlg dlg( this, ctio, tr("Save pre-load settings") );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
     const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );

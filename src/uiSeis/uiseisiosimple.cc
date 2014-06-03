@@ -60,8 +60,8 @@ mDefData(ps,VolPS)
 
 
 uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
-	: uiDialog( p, Setup( imp ? "Import seismics from simple flat file"
-				  : "Export seismics to simple flat file",
+	: uiDialog( p, Setup( imp ? tr("Import seismics from simple flat file")
+				  : tr("Export seismics to simple flat file"),
 			      mNoDlgTitle,
 			      imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
                                   : mODHelpKey(mSeisIOSimpleExpHelpID) ) )
@@ -107,8 +107,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
 
     haveposfld_ = new uiGenInput( this,
-			isimp_ ? "Traces start with a position"
-			       : "Output a position for every trace",
+			isimp_ ? tr("Traces start with a position")
+			       : tr("Output a position for every trace"),
 			BoolInpSpec(true) );
     haveposfld_->setValue( data().havepos_ );
     haveposfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
@@ -137,8 +137,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     else
     {
 	isxyfld_ = new uiGenInput( this, isimp_
-		? "Position in file is" : "Position in file will be",
-		BoolInpSpec(true,"X Y","Inl Crl") );
+		? tr("Position in file is") : tr("Position in file will be"),
+		BoolInpSpec(true,tr("X Y"),tr("Inl Crl")) );
 	isxyfld_->setValue( data().isxy_ );
 	isxyfld_->attach( alignedBelow, attachobj );
 	if ( !isimp_ )
@@ -147,13 +147,13 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 		attachobj = isxyfld_->attachObj();
 	    else
 	    {
-		haveoffsbut_ = new uiCheckBox( this, "Offset" );
+		haveoffsbut_ = new uiCheckBox( this, tr("Offset") );
 		haveoffsbut_->setChecked( data().haveoffs_ );
 		haveoffsbut_->attach( alignedBelow, isxyfld_ );
-		haveazimbut_ = new uiCheckBox( this, "Azimuth" );
+		haveazimbut_ = new uiCheckBox( this, tr("Azimuth") );
 		haveazimbut_->setChecked( data().haveazim_ );
 		haveazimbut_->attach( rightOf, haveoffsbut_ );
-		pspposlbl_ = new uiLabel( this, "Include", haveoffsbut_ );
+		pspposlbl_ = new uiLabel( this, tr("Include"), haveoffsbut_ );
 		attachobj = haveoffsbut_;
 	    }
 	}
@@ -163,14 +163,15 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	if ( !is2d )
 	{
-	    inldeffld_ = new uiGenInput( this, "Inline definition: start, step",
+	    inldeffld_ = new uiGenInput( this, 
+                                         tr("Inline definition: start, step"),
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
 				IntInpSpec(data().inldef_.step)
 						.setName("Inl def step") );
 	    inldeffld_->attach( alignedBelow, attachobj );
 	    crldeffld_ = new uiGenInput( this,
-			"Xline definition: start, step, # per inline",
+			tr("Xline definition: start, step, # per inline"),
 			   IntInpSpec(data().crldef_.start)
 						.setName("Crl def start"),
 			   IntInpSpec(data().crldef_.step)
@@ -183,15 +184,15 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	else
 	{
 	    nrdeffld_ = new uiGenInput( this,
-		    "Trace number definition: start, step",
+		    tr("Trace number definition: start, step"),
 		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
 		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
 	    nrdeffld_->attach( alignedBelow, havenrfld_ );
 	    startposfld_ = new uiGenInput( this,
-					  "Start position (X, Y, Trace number)",
+			    tr("Start position (X, Y, Trace number)"),
 					  PositionInpSpec(data().startpos_) );
 	    startposfld_->attach( alignedBelow, haveposfld_ );
-	    stepposfld_ = new uiGenInput( this, "Step in X/Y/Number",
+	    stepposfld_ = new uiGenInput( this, tr("Step in X/Y/Number"),
 					 PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
 	    startnrfld_ = new uiGenInput( this, "",
@@ -206,18 +207,19 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	}
 	if ( isps )
 	{
-	    haveoffsbut_ = new uiCheckBox( this, "Offset",
+	    haveoffsbut_ = new uiCheckBox( this, tr("Offset"),
 					 mCB(this,uiSeisIOSimple,haveoffsSel) );
 	    haveoffsbut_->attach( alignedBelow, attachobj );
 	    haveoffsbut_->setChecked( data().haveoffs_ );
-	    haveazimbut_ = new uiCheckBox( this, "Azimuth" );
+	    haveazimbut_ = new uiCheckBox( this, tr("Azimuth") );
 	    haveazimbut_->attach( rightOf, haveoffsbut_ );
 	    haveazimbut_->setChecked( data().haveazim_ );
-	    pspposlbl_ = new uiLabel( this, "Position includes", haveoffsbut_ );
+	    pspposlbl_ = new uiLabel( this, tr("Position includes"), 
+                                      haveoffsbut_ );
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld_ = new uiGenInput( this,
-			   "Offset definition: start, stop, step",
+			   tr("Offset definition: start, stop, step"),
 			   FloatInpSpec(data().offsdef_.start).setName("Start"),
 			   FloatInpSpec(stopoffs).setName("Stop"),
 			   FloatInpSpec(data().offsdef_.step).setName("Step") );
@@ -227,8 +229,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     }
 
     havesdfld_ = new uiGenInput( this,
-		isimp_ ? "File start contains sampling info"
-		       : "Put sampling info in file start",
+		isimp_ ? tr("File start contains sampling info")
+		       : tr("Put sampling info in file start"),
 		BoolInpSpec(true)
 			.setName("Info in file start Yes",0)
 			.setName("Info in file start No",1) );
@@ -278,8 +280,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 
 void uiSeisIOSimple::mkIsAscFld()
 {
-    isascfld_ = new uiGenInput( this, "File type",
-				BoolInpSpec(true,"ASCII","Binary") );
+    isascfld_ = new uiGenInput( this, tr("File type"),
+				BoolInpSpec(true,uiStrings::sASCII(),
+                                            tr("Binary")) );
     isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
     isascfld_->setValue( data().isasc_ );
 }
@@ -301,11 +304,11 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
     scalefld_->attach( alignedBelow, isimp_ ? sdfld_->attachObj()
 					   : subselfld_->attachObj() );
     if ( isimp_ ) scalefld_->attach( ensureBelow, sep );
-    remnullfld_ = new uiGenInput( this, "Null traces",
-				  BoolInpSpec(true,"Discard","Pass") );
+    remnullfld_ = new uiGenInput( this, tr("Null traces"),
+				  BoolInpSpec(true,tr("Discard"),tr("Pass")) );
     remnullfld_->attach( alignedBelow, scalefld_ );
 
-    multcompfld_ = new uiGenInput( this, "Component to export",
+    multcompfld_ = new uiGenInput( this, tr("Component to export"),
 				   StringListInpSpec() );
     multcompfld_->display( false );
     multcompfld_->setSensitive( false );
@@ -431,10 +434,10 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File::exists(fnm) )
-	mErrRet("Input file does not exist or is unreadable")
+	mErrRet(tr("Input file does not exist or is unreadable"))
     if ( !seisfld_->commitInput() )
-	mErrRet( isimp_ ? "Please choose a name for the imported data"
-		       : "Please select the input seismics")
+	mErrRet( isimp_ ? tr("Please choose a name for the imported data")
+		        : tr("Please select the input seismics"))
 
     data().subselpars_.setEmpty();
     if ( is2D() )
@@ -445,7 +448,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	else
 	    linenm = lnmfld_->getInput();
 	if ( linenm.isEmpty() )
-	    mErrRet( "Please enter a line name" )
+	    mErrRet( tr("Please enter a line name") )
 	data().linekey_.setLineName( linenm );
     }
 
@@ -507,7 +510,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    int nrcpi = crldeffld_->getIntValue(2);
 	    if ( nrcpi == 0 || crldeffld_->isUndef(2) )
 	    {
-		uiMSG().error( "Please define the number of Xlines per Inline");
+		uiMSG().error( tr("Please define the number"
+                               " of Xlines per Inline"));
 		return false;
 	    }
 	    data().nrcrlperinl_ = nrcpi;

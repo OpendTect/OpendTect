@@ -25,7 +25,7 @@ class uiSeis2DLineNameSel;
 
  
 mExpClass(uiSeis) uiSeisIOSimple : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisIOSimple);
 public:
 
     			uiSeisIOSimple(uiParent*,Seis::GeomType,bool isimp);

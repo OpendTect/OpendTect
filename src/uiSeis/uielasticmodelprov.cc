@@ -38,18 +38,19 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     : uiGroup( p, "ElasticModelProvider setup" )
 {
 
-    inptypefld_ = new uiGenInput( this, "Input type",
-				  BoolInpSpec(true,"Acoustic", "Elastic") );
+    inptypefld_ = new uiGenInput( this, tr("Input type"),
+				  BoolInpSpec(true,tr("Acoustic"), 
+                                  tr("Elastic")) );
     inptypefld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,inpTypeSel) );
 
-    inpsourceacfld_ = new uiGenInput( this, "Input Source",
+    inpsourceacfld_ = new uiGenInput( this, tr("Input Source"),
 				      StringListInpSpec(inpsourceacstrs) );
     inpsourceacfld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,sourceSel) );
     inpsourceacfld_->attach( alignedBelow, inptypefld_ );
 
-    inpsourceelfld_ = new uiGenInput( this, "Input Source",
+    inpsourceelfld_ = new uiGenInput( this, tr("Input Source"),
 				      StringListInpSpec(inpsourceelstrs) );
     inpsourceelfld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,sourceSel) );
@@ -58,14 +59,14 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     IOObjContext pwctxt = uiVelSel::ioContext();
     pwctxt.forread = true;
     uiSeisSel::Setup pwsu( false, false );
-    pwsu.seltxt( "P-wave Velocity cube" );
+    pwsu.seltxt( tr("P-wave Velocity cube") );
     pwavefld_ = new uiVelSel( this, pwctxt, pwsu, false );
     pwavefld_->attach( alignedBelow, inpsourceacfld_ );
 
     IOObjContext swctxt = uiVelSel::ioContext();
     swctxt.forread = true;
     uiSeisSel::Setup swsu( false, false );
-    swsu.seltxt( "S-wave Velocity cube" );
+    swsu.seltxt( tr("S-wave Velocity cube") );
     swavefld_ = new uiVelSel( this, swctxt, swsu, false );
     swavefld_->attach( alignedBelow, pwavefld_ );
 

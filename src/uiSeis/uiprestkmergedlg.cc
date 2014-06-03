@@ -41,8 +41,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Merge Prestack Data",
-				 "Select data stores to merge into one",
+    : uiDialog(p,uiDialog::Setup(tr("Merge Prestack Data"),
+				 tr("Select data stores to merge into one"),
 				 mODHelpKey(mPreStackMergeDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
@@ -74,8 +74,8 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 				OD::ChooseAtLeastOne );
     selvolsbox_ = new uiListBox( topgrp, "Selected Stores" );
     outctio_.ctxt.forread = false;
-    stackfld_ = new uiGenInput( this, "Duplicate traces",
-				BoolInpSpec(true,"Stack","Use first") );
+    stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
+				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
     uiPosSubSel::Setup psssu( false, false );
@@ -87,7 +87,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 
 void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
-    uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
+    uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, "", cb);
     toselect_->attach( centeredBelow, sellbl );
@@ -101,7 +101,7 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 
 void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
-    uiLabel* movelbl = new uiLabel( movebuttons, "Change \n Priority" );
+    uiLabel* movelbl = new uiLabel( movebuttons, tr("Change \n Priority") );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
     moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,"",cb);
     moveupward_->attach( centeredBelow, movelbl );
@@ -195,7 +195,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     const int nrobjs = selvolsbox_->size();
     if ( nrobjs < 2 )
     {
-	uiMSG().error( "Select at least two volumes to merge" );
+	uiMSG().error( tr("Select at least two volumes to merge") );
 	return false;
     }
 
@@ -218,7 +218,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	{
 	    altstormsgdone = true;
 	    if ( !uiMSG().askContinue(
-		    "Not all stores have the same storage type.\nContinue?" ) )
+		   tr("Not all stores have the same storage type.\nContinue?")))
 		return false;
 	}
 
@@ -228,7 +228,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
     if ( !outpfld_->commitInput() )
     {
 	if ( outpfld_->isEmpty() )
-	    uiMSG().error( "Please enter an output data set name" );
+	    uiMSG().error( tr("Please enter an output data set name") );
 	return false;
     }
 

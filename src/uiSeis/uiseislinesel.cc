@@ -192,7 +192,7 @@ bool uiSeis2DLineSel::inputOK( bool doerr ) const
     if ( selidxs_.isEmpty() )
     {
 	if ( doerr )
-	    uiMSG().error( "Please select the line" );
+	    uiMSG().error( tr("Please select the line") );
 	return false;
     }
 
@@ -219,7 +219,7 @@ void uiSeis2DLineSel::clearSelection()
 void uiSeis2DLineSel::selPush( CallBacker* )
 {
     if ( lnms_.isEmpty() )
-	mErrRet( "No 2D lines available" )
+	mErrRet( tr("No 2D lines available") )
 
     uiSelectFromList::Setup su( "Select 2D line", lnms_ );
     su.current_ = ismultisel_ || selidxs_.isEmpty() ? 0 : selidxs_[0];

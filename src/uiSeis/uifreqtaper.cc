@@ -36,8 +36,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
-    : uiDialog( p, uiDialog::Setup("Frequency taper",
-		                "Select taper parameters at cut-off frequency",
+    : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
+		             tr("Select taper parameters at cut-off frequency"),
                                     mODHelpKey(mFreqTaperDlgHelpID) ))
     , cs_(new CubeSampling())
     , posdlg_(0)
@@ -48,7 +48,8 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     setCtrlStyle( CloseOnly );
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-    previewfld_ = new uiPushButton( this, "&Preview spectrum...", cbview,true);
+    previewfld_ = new uiPushButton( this, tr("&Preview spectrum..."), 
+                                    cbview,true);
 
     uiFuncTaperDisp::Setup su;
     su.leftrg_ = s.minfreqrg_;
@@ -123,8 +124,8 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 {
     SeisIOObjInfo objinfo( seisnm_ );
     if ( !objinfo.isOK() )
-	mErrRet( "Cannot read input data, "
-		 "please make sure you selected valid data" );
+	mErrRet( tr("Cannot read input data, "
+		 "please make sure you selected valid data") );
 
     objinfo.getRanges( *cs_ );
 
@@ -161,7 +162,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	sbfr.execute();
 
 	if ( !trcset.size() )
-	    mErrRet( "No data extracted" );
+	    mErrRet( tr("No data extracted") );
 
 	Array2DImpl<float> arr2d( trcset.size(), trcset.get(0)->size() );
 

@@ -47,7 +47,7 @@ protected:
 };
 
 mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
-{                                                                               
+{  mODTextTranslationClass(uiTrcPositionDlg);
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,
 						 const DataPack::FullID&);

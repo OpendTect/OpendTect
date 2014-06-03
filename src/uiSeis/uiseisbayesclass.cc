@@ -406,7 +406,7 @@ public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
-			"[3] Specify Seismic input",
+			tr("[3] Specify Seismic input"),
 			 mODHelpKey(mSeisBayesSeisInpHelpID) ), pars,Middle)
     , lsfld_(0)
     , is2d_(*pars[sKey::Type()] == '2')
@@ -454,7 +454,7 @@ bool acceptOK( CallBacker* )
 
 bool getFromScreen( bool permissive )
 {
-    if ( is2d_ ) { uiMSG().error( "2D not implemented" ); return false; }
+    if ( is2d_ ) { uiMSG().error( tr("2D not implemented") ); return false; }
 
     for ( int idx=0; idx<flds3d_.size(); idx++ )
     {
@@ -496,12 +496,12 @@ public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
-		    "[4] Select and specify output",
+		    tr("[4] Select and specify output"),
                     mODHelpKey(mSeisBayesOutHelpID) ), pars,End)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {
-    if ( is2d_ ) { new uiLabel( this, "2D not implemented" ); return; }
+    if ( is2d_ ) { new uiLabel( this, tr("2D not implemented") ); return; }
 
     BufferString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
@@ -541,7 +541,7 @@ void addOut( const char* nm, bool ispdf )
     if ( !ispdf )
 	su.seltxt_ = nm;
     else
-    { su.seltxt_ = uiString("P: '%1'").arg( nm ); }
+    { su.seltxt_ = uiString(tr("P: '%1'")).arg( nm ); }
 
     const int nrflds = flds3d_.size();
     int curidx = nrflds;
@@ -585,7 +585,7 @@ bool getFromScreen( bool permissive )
 	    if ( permissive )
 		continue;
 	    else
-		mErrRet("Please specify all selected outputs")
+		mErrRet(tr("Please specify all selected outputs"))
 	}
 
 	if ( ioobj )
@@ -600,7 +600,7 @@ bool getFromScreen( bool permissive )
     subselfld_->fillPar( pars_ );
 
     if ( !permissive && nrout < 1 )
-	mErrRet("Please specify at least one output")
+	mErrRet(tr("Please specify at least one output"))
 
     return true;
 }

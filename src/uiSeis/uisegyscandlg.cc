@@ -59,7 +59,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	if ( !optsgrp_ )
 	    attobj = new uiLabel( this,
-				  "Press Go or hit enter to start SEG-Y scan" );
+			tr("Press Go or hit enter to start SEG-Y scan"));
     }
     else
     {
@@ -93,7 +93,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     if ( attobj )
     {
 	uiToolButton* tb = new uiToolButton( this, "prescan",
-					"Limited Pre-scan",
+					tr("Limited Pre-scan"),
 				       mCB(this,uiSEGYScanDlg,preScanCB) );
 	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
     }
@@ -228,7 +228,7 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
     }
 
     if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty()) )
-	uiMSG().warning( "Cannot write report to specified file" );
+	uiMSG().warning( tr("Cannot write report to specified file") );
 
     uiDialog* dlg = new uiDialog( p,
 		    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpKey).modal(false) );

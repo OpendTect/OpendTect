@@ -26,11 +26,12 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
     , newSelection(this)
 {
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-	    					seltxt ? seltxt : "Wavelet" );
+	    					seltxt ? seltxt 
+                                                       : tr("Wavelet") );
     nmfld_ = lcb->box();
 
     uiToolButton* tb = new uiToolButton( this, "man_wvlt",
-	    "Manage wavelets", mCB(this,uiSeisWaveletSel,startMan) );
+	    tr("Manage wavelets"), mCB(this,uiSeisWaveletSel,startMan) );
 
     tb->attach( rightOf, lcb );
     setHAlignObj( lcb );

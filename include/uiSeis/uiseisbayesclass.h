@@ -23,7 +23,7 @@ class uiSeisBayesOut;
 /*!\brief 'Server' for Seismic Bayesian Inversion. */
 
 mExpClass(uiSeis) uiSeisBayesClass : public uiVarWizard
-{
+{ mODTextTranslationClass(uiSeisBayesClass);
 public:
 
 			uiSeisBayesClass(uiParent*,bool is2d);

@@ -24,7 +24,7 @@ class uiTextEdit;
 class ClusterProc;
 
 mExpClass(uiSeis) uiClusterProc : public uiDialog
-{
+{ mODTextTranslationClass(uiClusterProc);
 public:
                         uiClusterProc(uiParent*,const IOPar& iop);
 			~uiClusterProc();

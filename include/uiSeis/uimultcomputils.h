@@ -25,7 +25,7 @@ class uiListBox;
 /*!\brief dialog to select (multiple) component(s) of stored data */
 
 mExpClass(uiSeis) uiMultCompDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMultCompDlg);
 public:
 			uiMultCompDlg(uiParent*,const BufferStringSet&);
 

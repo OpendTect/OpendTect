@@ -33,7 +33,8 @@ class IOObj;
 
 
 mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiSeis2DLineSel);
+
 public:
 
 			uiSeis2DLineSel(uiParent*,bool multisel=false);

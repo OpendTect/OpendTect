@@ -215,7 +215,7 @@ protected:
 
 
 uiClusterProc::uiClusterProc( uiParent* p, const IOPar& iop )
-    : uiDialog(p,uiDialog::Setup("Cluster Processing","Progress window", 
+    : uiDialog(p,uiDialog::Setup(tr("Cluster Processing"),tr("Progress window"),
                                  mNoHelpKey))
     , pars_(iop)
     , scriptdirnm_(iop.find(uiClusterProc::sKeyScriptDir()))
@@ -278,8 +278,9 @@ void uiClusterProc::progressCB( CallBacker* )
 	    BufferString ques; ques += nrjobswitherr;
 	    ques += " job(s) either failed or finished with error, ";
 	    ques += "do you still want to proceed with merging the output?";
-	    const int resp = uiMSG().question( ques.buf(), "Merge anyway",
-				"Re-submit failed jobs", "Abort" );
+	    const int resp = uiMSG().question( ques.buf(), tr("Merge anyway"),
+				tr("Re-submit failed jobs"), 
+                                uiStrings::sAbort() );
 	    if ( resp == -1 )
 		return;
 

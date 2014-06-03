@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
        			const TypeSet<DataPack::FullID>& dpfids,
 			const MultiID& selid )
-    : uiDialog(p,uiDialog::Setup("Select Data",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Select Data"),mNoDlgTitle,mNoHelpKey))
     , dpfids_(dpfids)
     , selid_(selid)
 {

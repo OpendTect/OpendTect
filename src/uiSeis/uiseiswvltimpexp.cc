@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Wavelet",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Wavelet"),mNoDlgTitle,
                                  mODHelpKey(mSeisWvltImpHelpID) ))
     , fd_(*WaveletAscIO::getDesc())
     , ctio_(*mMkCtxtIOObj(Wavelet))
@@ -50,7 +50,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    scalefld_ = new uiGenInput( this, "Scale factor for samples",
+    scalefld_ = new uiGenInput( this, tr("Scale factor for samples"),
 				FloatInpSpec(1) );
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );

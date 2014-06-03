@@ -50,8 +50,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
-	: uiDialog(p,Setup("Import CBVS cube",
-			   "Specify import parameters",
+	: uiDialog(p,Setup(tr("Import CBVS cube"),
+			   tr("Specify import parameters"),
 			   mODHelpKey(mSeisImpCBVSHelpID) ))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
@@ -66,8 +66,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
-	: uiDialog(p,Setup("Copy cube data",
-			   "Specify copy parameters",
+	: uiDialog(p,Setup(tr("Copy cube data"),
+			   tr("Specify copy parameters"),
 			   mODHelpKey(mSeisImpCBVSCopyHelpID) ))
 	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
@@ -87,8 +87,8 @@ void uiSeisImpCBVS::init( bool fromioobj )
     finpfld = 0; modefld = typefld = 0; oinpfld = 0; convertfld = 0;
     compfld_ = 0;
     ismc_ = false;
-    setTitleText( fromioobj ? "Specify transfer parameters"
-			    : "Create CBVS cube definition" );
+    setTitleText( fromioobj ? tr("Specify transfer parameters")
+			    : tr("Create CBVS cube definition") );
     tmpid_ = "100010."; tmpid_ += IOObj::tmpID();
 
     uiSeisTransfer::Setup sts( Seis::Vol );
@@ -102,7 +102,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	sssu.steerpol( uiSeisSel::Setup::InclSteer );
 	oinpfld = new uiSeisSel( this, inctio_, sssu );
 	oinpfld->selectionDone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
-	compfld_ = new uiLabeledComboBox( this, "Component(s)" );
+	compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
 	attobj = compfld_;
 	compfld_->attach( alignedBelow, oinpfld );
 	if ( inctio_.ioobj )
@@ -124,18 +124,19 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	spec.addString( "Input data cube" );
 	spec.addString( "Generated attribute cube" );
 	spec.addString( "Steering cube" );
-	typefld = new uiGenInput( this, "Cube type", spec );
+	typefld = new uiGenInput( this, tr("Cube type"), spec );
 	typefld->attach( alignedBelow, finpfld );
 	typefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
 
-	modefld = new uiGenInput( this, "Import mode",
-			  BoolInpSpec(false,"Copy the data","Use in-place") );
+	modefld = new uiGenInput( this, tr("Import mode"),
+			  BoolInpSpec(false,tr("Copy the data"),
+                                      tr("Use in-place")) );
 	modefld->attach( alignedBelow, typefld );
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
 	attobj = modefld;
 
 	convertfld = new uiCheckBox( this,
-		"Convert underscores to spaces in Output Cube name",
+		tr("Convert underscores to spaces in Output Cube name"),
 		mCB(this,uiSeisImpCBVS,convertSel) );
     }
 
@@ -282,7 +283,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     if ( !outfld->commitInput() )
     {
 	if ( outfld->isEmpty() )
-	    uiMSG().error( "Please choose a name for the output data" );
+	    uiMSG().error( tr("Please choose a name for the output data") );
 	return false;
     }
 
@@ -291,7 +292,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     {
 	if ( !oinpfld->commitInput() )
 	{
-	    uiMSG().error( "Please select an input cube" );
+	    uiMSG().error( tr("Please select an input cube") );
 	    return false;
 	}
 	outctio_.ioobj->pars() = inctio_.ioobj->pars();
@@ -301,7 +302,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	BufferString fname = finpfld->text();
 	if ( !fname.str() )
 	{
-	    uiMSG().error( "Please select the input filename" );
+	    uiMSG().error( tr("Please select the input filename") );
 	    return false;
 	}
 
@@ -341,13 +342,13 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
     if ( !IOM().commitChanges(*outctio_.ioobj) )
     {
-	uiMSG().error( "Cannot write new file\nSee log file for details" );
+	uiMSG().error( tr("Cannot write new file\nSee log file for details") );
 	return false;
     }
 
     if ( dolink )
     {
-	uiMSG().message( "Import successful" );
+	uiMSG().message( tr("Import successful") );
 	return false;
     }
 

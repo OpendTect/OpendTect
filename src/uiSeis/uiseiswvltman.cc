@@ -43,7 +43,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 
 
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wavelets"),mNoDlgTitle,
                                      mODHelpKey(mSeisWvltManHelpID) )
                                      .nrstatusflds(1),
 		   WaveletTranslatorGroup::ioContext() )
@@ -65,18 +65,20 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 			mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
-    uiPushButton* impbut = new uiPushButton( butgrp_, "&Import", false );
+    uiPushButton* impbut = new uiPushButton( butgrp_, uiStrings::sImport(),
+                                             false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
     impbut->setPrefWidthInChar( 12 );
-    uiPushButton* crbut = new uiPushButton( butgrp_, "&Generate", false );
+    uiPushButton* crbut = new uiPushButton( butgrp_, tr("&Generate"), false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
     crbut->setPrefWidthInChar( 12 );
-    uiPushButton* mergebut = new uiPushButton( butgrp_, "&Merge", false );
+    uiPushButton* mergebut = new uiPushButton( butgrp_, tr("&Merge"), false );
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
     mergebut->setPrefWidthInChar( 12 );
-    uiPushButton* extractbut = new uiPushButton( butgrp_, "&Extract", false );
+    uiPushButton* extractbut = new uiPushButton( butgrp_, tr("&Extract"), 
+                                                 false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
     extractbut->setPrefWidthInChar( 12 );
@@ -127,7 +129,7 @@ void uiSeisWvltMan::crPush( CallBacker* )
 void uiSeisWvltMan::mrgPush( CallBacker* )
 {
     if ( selgrp_->getListField()->size()<2 )
-	mErrRet( "At least two wavelets are needed to merge wavelets" );
+	mErrRet( tr("At least two wavelets are needed to merge wavelets") );
 
     uiSeisWvltMerge dlg( this, curioobj_ ? curioobj_->name().str() : 0 );
     if ( dlg.go() )
@@ -140,8 +142,8 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().askGoOnAfter( "Use 2D or 3D data?",
-		0, "&2D", "&3D" );
+	int res = uiMSG().askGoOnAfter( tr("Use 2D or 3D data?"),
+		0, tr("&2D"), tr("&3D") );
 	if ( res == 2 )
 	    return;
 	else
@@ -199,8 +201,10 @@ void uiSeisWvltMan::mkFileInfo()
 	    else
 	    {
 		tmp.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
-		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'");
-		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
+		tmp.add( " scaled to '").add( IOM().nameOf(seisid) )
+                   .add( "'");
+		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) )
+                   .add( "'" );
 		tmp.add( " at '").add( lvlnm ).add( "')" );
 	    }
 	    txt.add( tmp ).add( "\n" );
@@ -245,7 +249,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 
     dlg.setDirToCurrentSurvey();
     if ( !wvlt )
-	mRet((didsel?"Could not read wavelet":0))
+	mRet((didsel ? "Could not read wavelet" : 0))
     IOM().getEntry( ctio );
     if ( !ctio.ioobj )
 	mRet("Cannot create new entry in Object Management")
@@ -267,7 +271,7 @@ void uiSeisWvltMan::reversePolarity( CallBacker* )
 	samps[idx] *= -1;
 
     if ( !wvlt->put(curioobj_) )
-	uiMSG().error("Cannot write new polarity reversed wavelet to disk");
+	uiMSG().error(tr("Cannot write new polarity reversed wavelet to disk"));
     else
 	selgrp_->fullUpdate( curioobj_->key() );
 
@@ -285,7 +289,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     if ( dlg.go() )
     {
 	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error("Cannot write rotated phase wavelet to disk");
+	    uiMSG().error(tr("Cannot write rotated phase wavelet to disk"));
 	else
 	    selgrp_->fullUpdate( curioobj_->key() );
     }
@@ -306,14 +310,14 @@ void uiSeisWvltMan::taper( CallBacker* )
     if ( dlg.go() )
     {
 	if ( !wvlt->put(curioobj_) )
-	    uiMSG().error("Cannot write tapered wavelet to disk");
+	    uiMSG().error(tr("Cannot write tapered wavelet to disk"));
 	else
 	    selgrp_->fullUpdate( curioobj_->key() );
     }
 }
 
 
-#define mErr() mErrRet("Cannot draw wavelet");
+#define mErr() mErrRet(tr("Cannot draw wavelet"));
 
 void uiSeisWvltMan::rotUpdateCB( CallBacker* cb )
 {

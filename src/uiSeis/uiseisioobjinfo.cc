@@ -83,8 +83,8 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	BufferString fsysname = System::getFileSystemName( ioObj()->dirName() );
 	if ( fsysname == "FAT32" )
 	{
-	    uiMSG().error( "Target directory has a FAT32 File System.\n"
-			   "Files larger than 4GB are not supported" );
+	    uiMSG().error( tr("Target directory has a FAT32 File System.\n"
+			   "Files larger than 4GB are not supported") );
 	    return false;
 	}
     }
@@ -93,8 +93,8 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;
-	if ( !uiMSG().askContinue( "The output disk seems to be full.\n"
-				"Do you want to continue?" ) )
+	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n"
+				"Do you want to continue?") ) )
 	    return false;
     }
     else if ( szmb > avszmb )

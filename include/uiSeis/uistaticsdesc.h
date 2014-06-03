@@ -21,7 +21,7 @@ class uiLabeledComboBox;
 /*!Group that allows the user to edit StaticsDesc information. */
 
 mExpClass(uiSeis) uiStaticsDesc : public uiGroup
-{
+{ mODTextTranslationClass(uiStaticsDesc);
 public:
 
     				uiStaticsDesc(uiParent*,const StaticsDesc* s=0);

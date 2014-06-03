@@ -37,10 +37,10 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 
     const char* choices[] = { "Discard", "Pass", "Add", 0 };
     if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )
-	remnullfld = new uiGenInput( this, "Null traces",
+	remnullfld = new uiGenInput( this, tr("Null traces"),
 				     StringListInpSpec(choices) );
     else
-	remnullfld = new uiGenInput( this, "Null traces",
+	remnullfld = new uiGenInput( this, tr("Null traces"),
 				     BoolInpSpec(true,choices[0],choices[1]) );
     remnullfld->attach( alignedBelow, selfld );
 

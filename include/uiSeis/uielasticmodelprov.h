@@ -20,7 +20,7 @@ class uiSeisSel;
 class uiVelSel;
 
 mExpClass(uiSeis) uiElasticModelProvider : public uiGroup
-{
+{ mODTextTranslationClass(uiElasticModelProvider);
 public:
 			uiElasticModelProvider(uiParent*,bool is2d);
 

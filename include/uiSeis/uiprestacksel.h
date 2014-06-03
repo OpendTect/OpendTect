@@ -23,7 +23,7 @@ class uiListBox;
 class uiSeisSel;
 
 mExpClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiPreStackDataPackSelDlg);
 public:
     			uiPreStackDataPackSelDlg(uiParent*,
 				const TypeSet<DataPack::FullID>& dpfids,

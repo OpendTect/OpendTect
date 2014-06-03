@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mExpClass(uiSeis) uiSeisPreStackMan : public uiObjFileMan
-{
+{  mODTextTranslationClass(uiSeisPreStackMan);
 public:
 			uiSeisPreStackMan(uiParent*,bool for2d);
 			~uiSeisPreStackMan();

@@ -70,7 +70,7 @@ mStruct(uiSeis) TaperData
 
 
 mExpClass(uiSeis) uiFuncTaperDisp : public uiFunctionDisplay
-{
+{ mODTextTranslationClass(uiFuncTaperDisp);
 public:
 
     struct Setup : public uiFunctionDisplay::Setup

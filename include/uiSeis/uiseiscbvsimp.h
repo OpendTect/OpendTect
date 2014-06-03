@@ -29,7 +29,7 @@ class uiLabeledComboBox;
 /*!\brief Actually imports or just transfers data through selection */
 
 mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisImpCBVS);
 public:
 
 			uiSeisImpCBVS(uiParent*);		//!< From file

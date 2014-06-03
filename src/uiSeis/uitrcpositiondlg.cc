@@ -91,7 +91,7 @@ void uiFlatDPPosSel::sldrPosChangedCB( CallBacker* )
 
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position",0,
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"),0,
                                     mODHelpKey(mTrcPositionDlgHelpID) )
 			     .modal(false) )
     , linesfld_( 0 )
@@ -154,7 +154,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 
 uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 				    bool is2d, const MultiID& mid )
-    : uiDialog( p, uiDialog::Setup("Attribute trace position", 0,
+    : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 0,
                                    mODHelpKey(mTrcPositionDlgHelpID) )
 			     .modal(false) )
     , linesfld_( 0 )
@@ -176,7 +176,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 
 	linesfld_->box()->selectionChanged.notify(
 					mCB(this,uiTrcPositionDlg,lineSel) );
-	trcnrfld_ = new uiLabeledSpinBox( this, "at trace nr:" );
+	trcnrfld_ = new uiLabeledSpinBox( this, tr("at trace nr:") );
 	trcnrfld_->attach( alignedBelow, linesfld_ );
 	lineSel(0);
     }
@@ -192,7 +192,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
     }
 
-    getposbut_ = new uiToolButton( this, "pick", "Point in 3D scene",
+    getposbut_ = new uiToolButton( this, "pick", tr("Point in 3D scene"),
 				   mCB(this,uiTrcPositionDlg,getPosCB) );
     if ( trcnrfld_ )
 	getposbut_->attach( rightOf, trcnrfld_ );

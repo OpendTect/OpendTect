@@ -48,8 +48,8 @@ public:
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	: uiDialog(p,uiDialog::Setup(
-		   ky && *ky ? "Edit/Create MultiCube Prestack data store"
-			     : "Create MultiCube Prestack data store",
+		   ky && *ky ? tr("Edit/Create MultiCube Prestack data store")
+			     : tr("Create MultiCube Prestack data store"),
 		   mNoDlgTitle, mODHelpKey(mSeisMultiCubePSHelpID) ))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
@@ -65,28 +65,30 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     fillEntries();
     if ( entries_.isEmpty() )
     {
-	new uiLabel( this, "No cubes found.\n\nPlease import 3D seismic data.");
+	new uiLabel( this, tr("No cubes found.\n\n"
+                     "Please import 3D seismic data."));
 	return;
     }
 
-    uiLabeledListBox* cubesllb = new uiLabeledListBox( this, "Available cubes",
+    uiLabeledListBox* cubesllb = new uiLabeledListBox( this, 
+                                                       tr("Available cubes"),
 			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     cubefld_ = cubesllb->box();
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
     cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
-    allcompfld_ = new uiCheckBox( this, "Use all components" );
+    allcompfld_ = new uiCheckBox( this, tr("Use all components") );
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubesllb );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
-    new uiToolButton( bgrp, uiToolButton::RightArrow,"Add",
+    new uiToolButton( bgrp, uiToolButton::RightArrow,uiStrings::sAdd(true),
 				mCB(this,uiSeisMultiCubePS,addCube) );
-    new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
+    new uiToolButton( bgrp, uiToolButton::LeftArrow, tr("Don't use"),
 				mCB(this,uiSeisMultiCubePS,rmCube) );
     bgrp->attach( centeredRightOf, cubesllb );
 
-    uiLabeledListBox* selllb = new uiLabeledListBox( this, "Used cubes",
+    uiLabeledListBox* selllb = new uiLabeledListBox( this, tr("Used cubes"),
 			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     selfld_ = selllb->box();
     selllb->attach( rightTo, cubesllb );

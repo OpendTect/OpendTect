@@ -29,7 +29,7 @@ namespace Vel
 /*!Dialog to setup a velocity conversion for volumes on disk. */
 
 mExpClass(uiSeis) uiBatchVolumeConversion : public uiDialog
-{
+{ mODTextTranslationClass(uiBatchVolumeConversion);
 public:
 			uiBatchVolumeConversion(uiParent*);
 

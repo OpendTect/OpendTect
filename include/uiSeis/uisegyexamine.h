@@ -28,7 +28,7 @@ class SEGYSeisTrcTranslator;
 /* The dialog for examining SEG-Y files */
 
 mExpClass(uiSeis) uiSEGYExamine : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYExamine);
 public:
 
     mStruct(uiSeis) Setup : public uiDialog::Setup

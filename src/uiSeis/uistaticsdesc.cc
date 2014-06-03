@@ -34,7 +34,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     horfld_ = new uiIOObjSel( this, ctxt, "Statics elevation" );
     horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
 
-    useconstantvelfld_ = new uiGenInput( this, "Use constant velocity",
+    useconstantvelfld_ = new uiGenInput( this, tr("Use constant velocity"),
 	    BoolInpSpec(true) );
     useconstantvelfld_->valuechanged.notify(
 	    mCB(this,uiStaticsDesc,updateFlds));
@@ -45,7 +45,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
     constantvelfld_ = new uiGenInput( this, label.buf(), FloatInpSpec());
     constantvelfld_->attach( alignedBelow, useconstantvelfld_ );
 
-    horattribfld_ = new uiLabeledComboBox( this, "Velocity attribute" );
+    horattribfld_ = new uiLabeledComboBox( this, tr("Velocity attribute") );
     horattribfld_->attach( alignedBelow, useconstantvelfld_ );
     setHAlignObj( horattribfld_ );
 
@@ -108,7 +108,7 @@ bool uiStaticsDesc::get( StaticsDesc& res, bool disperr ) const
 	if ( mIsUdf(constantvelfld_->getfValue() ) )
 	{
 	    if ( disperr )
-		uiMSG().error("Statics Velocity not specified");
+		uiMSG().error(tr("Statics Velocity not specified"));
 	    return false;
 	}
 	    
@@ -132,7 +132,7 @@ bool uiStaticsDesc::updateAndCommit( IOObj& ioobj, bool disperr )
 
     if ( !IOM().commitChanges(ioobj) )
     {
-	if ( disperr ) uiMSG().error("Cannot write statics information");
+	if ( disperr ) uiMSG().error(tr("Cannot write statics information"));
 	return false;
     }
 

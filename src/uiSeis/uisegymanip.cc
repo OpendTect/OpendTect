@@ -187,7 +187,7 @@ void doDlg( CallBacker* )
 
 
 uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
-    : uiDialog(p,uiDialog::Setup("Manipulate SEG-Y File",
+    : uiDialog(p,uiDialog::Setup(tr("Manipulate SEG-Y File"),
 				  BufferString("Manipulate '",fnm,"'"),
 				  mODHelpKey(mSEGYFileManipHelpID) ) )
     , fname_(fnm)
@@ -207,7 +207,7 @@ uiSEGYFileManip::uiSEGYFileManip( uiParent* p, const char* fnm )
     txthdrfld_->setPrefHeightInChar( 5 );
     BufferString txt; txthdr_.getText( txt );
     txthdrfld_->setText( txt );
-    uiLabel* lbl = new uiLabel( filehdrgrp, "Text Header" );
+    uiLabel* lbl = new uiLabel( filehdrgrp, tr("Text Header") );
     lbl->attach( centeredLeftOf, txthdrfld_ );
 
     binhdrfld_ = new uiSEGYBinHdrEd( filehdrgrp, binhdr_ );
@@ -248,7 +248,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     const CallBack addcb( mCB(this,uiSEGYFileManip,addReq) );
     const CallBack edcb( mCB(this,uiSEGYFileManip,edReq) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( grp, "Trace headers" );
+    uiLabeledListBox* llb = new uiLabeledListBox( grp, tr("Trace headers") );
     avtrchdrsfld_ = llb->box();
     avtrchdrsfld_->setHSzPol( uiObject::Small );
     const SEGY::HdrDef&	def = calcset_.hdrDef();
@@ -258,7 +258,8 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     fillAvTrcHdrFld( 0 );
 
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
-					    "Add to calculated list", addcb );
+					    tr("Add to calculated list"), 
+                                            addcb );
     addbut->attach( centeredRightOf, llb );
     trchdrfld_ = new uiListBox( grp, "Defined calculations" );
     trchdrfld_->attach( rightTo, llb );
@@ -267,16 +268,16 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     trchdrfld_->doubleClicked.notify( edcb );
     trchdrfld_->setHSzPol( uiObject::Medium );
 
-    edbut_ = new uiToolButton( grp, "edit", "Edit calculation", edcb );
+    edbut_ = new uiToolButton( grp, "edit", tr("Edit calculation"), edcb );
     edbut_->attach( rightOf, trchdrfld_ );
-    rmbut_ = new uiToolButton( grp, "trashcan", "Remove calculation",
+    rmbut_ = new uiToolButton( grp, "trashcan", tr("Remove calculation"),
 		    mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
     uiToolButton* openbut = new uiToolButton( grp, "openset",
-		    "Open stored calculation set",
+		    tr("Open stored calculation set"),
 		    mCB(this,uiSEGYFileManip,openReq) );
     openbut->attach( alignedBelow, rmbut_ );
-    savebut_ = new uiToolButton( grp, "save", "Save calculation set",
+    savebut_ = new uiToolButton( grp, "save", tr("Save calculation set"),
 		    mCB(this,uiSEGYFileManip,saveReq) );
     savebut_->attach( alignedBelow, openbut );
 
@@ -301,16 +302,16 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     thtbl_->selectionChanged.notify( mCB(this,uiSEGYFileManip,rowClck) );
 
     plotbut_ = new uiToolButton( grp, "distmap",
-		    "Plot the values of the selected header entries",
+		    tr("Plot the values of the selected header entries"),
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
     plotbut_->setSensitive( false );
-    plotallbox_ = new uiCheckBox( grp, "All" );
+    plotallbox_ = new uiCheckBox( grp, tr("All") );
     plotallbox_->attach( rightOf, plotbut_ );
     plotallbox_->setHSzPol( uiObject::Small );
     plotallbox_->setChecked( true );
 
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, "Trc" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( grp, tr("Trc") );
     trcnrfld_ = lsb->box();
     lsb->attach( rightAlignedBelow, thtbl_ );
     trcnrfld_->setHSzPol( uiObject::Small );
@@ -546,7 +547,7 @@ void uiSEGYFileManip::openReq( CallBacker* )
 {
     BufferStringSet nms; calcset_.getStoredNames( nms );
     if ( nms.isEmpty() )
-	{ uiMSG().error("No manipulation sets defined yet"); return; }
+	{ uiMSG().error(tr("No manipulation sets defined yet")); return; }
 
     uiSelectFromList::Setup sflsu( "Select header manipulation", nms );
     uiSelectFromList dlg( this, sflsu );
@@ -589,7 +590,7 @@ void uiSEGYFileManip::trcNrChg( CallBacker* )
     {
 	const od_int64 nrtrcsinfile = (filesize_-cFileHeaderSize) / tbyts;
 	if ( nrtrcsinfile < 1 )
-	    uiMSG().error( "File contains no complete traces" );
+	    uiMSG().error( tr("File contains no complete traces") );
 	else
 	{
 	    offs = cFileHeaderSize + (nrtrcsinfile-1) * tbyts;
@@ -743,20 +744,20 @@ bool uiSEGYFileManip::acceptOK( CallBacker* )
 	return true;
 
     if ( binhdr_.nrSamples() < 1 )
-	{ mErrRet("Binary header's number of samples must be > 0" ) }
+	{ mErrRet(tr("Binary header's number of samples must be > 0") ) }
     const BufferString fnm = fnmfld_->fileName();
     FilePath inpfp( fname_ );
     FilePath outfp( fnmfld_->fileName() );
     if ( outfp.isEmpty() )
-	mErrRet("Please enter an output filename" )
+	mErrRet(tr("Please enter an output filename") )
     if ( !outfp.isAbsolute() )
 	outfp.setPath( inpfp.pathOnly() );
     if ( inpfp == outfp )
-	mErrRet("input and output file cannot be the same" )
+	mErrRet(tr("input and output file cannot be the same") )
 
     od_ostream outstrm( outfp.fullPath() );
     if ( !outstrm.isOK() )
-	{ mErrRet("Cannot open output file" ) }
+	{ mErrRet(tr("Cannot open output file") ) }
 
     txthdr_.setText( txthdrfld_->text() );
     calcset_.reSetSeqNr( 1 );

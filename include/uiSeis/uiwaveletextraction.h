@@ -25,7 +25,7 @@ class CtxtIOObj;
 namespace Seis { class SelData; class TableSelData; }
 
 mExpClass(uiSeis) uiWaveletExtraction : public uiDialog
-{
+{ mODTextTranslationClass(uiWaveletExtraction);
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);
 				~uiWaveletExtraction();

@@ -27,7 +27,7 @@ class uiSEGYExpTxtHeader;
 
 
 mExpClass(uiSeis) uiSEGYExp : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYExp);
 public:
 
 			uiSEGYExp(uiParent*,Seis::GeomType);
