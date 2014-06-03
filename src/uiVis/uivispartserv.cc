@@ -1263,11 +1263,11 @@ void uiVisPartServer::setZStretch()
 
 
 void uiVisPartServer::setZAxisTransform( int sceneid, ZAxisTransform* zat,
-					 TaskRunner* tr )
+					 TaskRunner* taskrunner )
 {
     visSurvey::Scene* scene = getScene( sceneid );
     if ( zat && scene )
-	scene->setZAxisTransform( zat, tr );
+	scene->setZAxisTransform( zat, taskrunner );
 }
 
 

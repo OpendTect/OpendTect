@@ -455,9 +455,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
 	{
 	    const SeisTrcWriter* wrr = sstp->writer();
-	    SeisTrcTranslator* tr =
+	    SeisTrcTranslator* trans =
 		    const_cast<SeisTrcTranslator*>(wrr->seisTranslator());
-	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,tr)
+	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,trans)
 	    if ( segytr )
 	    {
 		SEGY::TxtHeader* th = new SEGY::TxtHeader;

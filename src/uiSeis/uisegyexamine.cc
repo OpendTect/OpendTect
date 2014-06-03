@@ -154,8 +154,8 @@ void uiSEGYExamine::saveHdr( CallBacker* )
     if ( !strm.isOK() )
 	{ uiMSG().error(tr("Cannot open file for writing")); return; }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
-    const SEGY::TxtHeader& th = *tr->txtHeader();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
+    const SEGY::TxtHeader& th = *trans->txtHeader();
     BufferString buf; th.getText( buf );
     strm << buf << od_endl;
 }
@@ -232,8 +232,8 @@ SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
     if ( !rdr->errMsg().isEmpty() || !rdr->prepareWork(Seis::PreScan) )
 	{ emsg = rdr->errMsg().getFullString(); delete rdr; return 0; }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr->translator())
-    if ( !tr )
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
+    if ( !trans )
 	{ emsg = "Internal: cannot obtain SEG-Y Translator";
 		delete rdr; return 0; }
 
@@ -256,9 +256,9 @@ int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
 
 int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
 {
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr.translator())
-    if ( !tr ) return -1;
-    return tr->isRev1() ? 1 : 0;
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr.translator());
+    if ( !trans ) return -1;
+    return trans->isRev1() ? 1 : 0;
 }
 
 
@@ -295,8 +295,8 @@ void uiSEGYExamine::updateInp()
 
     const SEGY::HdrDef& hdef = SEGY::TrcHeader::hdrDef();
     const int nrvals = hdef.size();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
-    const SEGY::TrcHeader& trhead = tr->trcHeader();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr_->translator())
+    const SEGY::TrcHeader& trhead = trans->trcHeader();
 
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
@@ -305,7 +305,7 @@ void uiSEGYExamine::updateInp()
 	if ( !rdr_->get(trc) )
 	    stoppedatend = true;
 	if ( nrdone == 0 )
-	    handleFirstTrace( trc, *tr );
+	    handleFirstTrace( trc, *trans );
 	if ( stoppedatend )
 	    break;
 
@@ -343,10 +343,10 @@ void uiSEGYExamine::updateInp()
 
 
 void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
-				      const SEGYSeisTrcTranslator& tr )
+				      const SEGYSeisTrcTranslator& trans )
 {
-    const SEGY::TxtHeader& txthead = *tr.txtHeader();
-    const SEGY::BinHeader& binhead = tr.binHeader();
+    const SEGY::TxtHeader& txthead = *trans.txtHeader();
+    const SEGY::BinHeader& binhead = trans.binHeader();
     od_ostrstream thstrm, bhstrm;
     txthead.dump( thstrm );
     binhead.dump( bhstrm );

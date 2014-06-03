@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uivarwizard.h"
+#include "uistring.h"
+
 class uiSeisBayesPDFInp;
 class uiSeisBayesNorm;
 class uiSeisBayesSeisInp;
