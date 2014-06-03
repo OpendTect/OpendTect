@@ -475,8 +475,6 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     uiButtonGroup* butgrp =
 	new uiButtonGroup( grp, "Buttons", OD::Vertical );
     butgrp->attach( rightTo, dirfld_ );
-    new uiToolButton( butgrp, "database",
-	tr("Select Survey Data Root"), mCB(this,uiSurvey,dataRootPushed) );
     new uiToolButton( butgrp, "addnew",
 	"Create New Survey", mCB(this,uiSurvey,newButPushed) );
     editbut_ = new uiToolButton( butgrp, "edit", tr("Edit Survey Parameters"),
@@ -484,10 +482,10 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
     new uiToolButton( butgrp, "copyobj",
 	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
     new uiToolButton( butgrp, "export",
-	tr("Compress survey as zip archive"), 
+	tr("Compress survey as zip archive"),
         mCB(this,uiSurvey,exportButPushed) );
     new uiToolButton( butgrp, "import",
-	tr("Extract survey from zip archive"), 
+	tr("Extract survey from zip archive"),
         mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
@@ -588,9 +586,8 @@ void uiSurvey::updateDataRootInSettings()
 {
     Settings::common().set( "Default DATA directory", dataroot_ );
     if ( !Settings::common().write() )
-	uiMSG().warning(
-		tr("Could not save the base data"
-                " location in the settings file") );
+	uiMSG().warning( tr("Could not save Survey Data Root "
+			    "location in the settings file") );
 }
 
 
