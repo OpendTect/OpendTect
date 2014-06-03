@@ -67,7 +67,7 @@ float uiPropertyValFld::getValue( bool internal ) const
 
 const char* uiPropertyValFld::getUnitName() const
 {
-    return curuom_->name();
+    return curuom_->name().buf();
 }
 
 

@@ -85,7 +85,7 @@ const char* uiStratLaySeqAttribSetBuild::avFromDef( const char* attrnm ) const
 {
     const Strat::LaySeqAttrib* attr = attrset_.attr( attrnm );
     if ( !attr ) return 0;
-    return attr->prop_.name();
+    return attr->prop_.name().buf();
 }
 
 

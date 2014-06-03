@@ -93,7 +93,7 @@ public:
     void			setMultiID(const MultiID& mid) 
     							{ mid_ = mid; }
 
-    const char*			name() const		{ return info_.name(); }
+    const char*			name() const	{ return info_.name().buf(); }
     const Info&			info() const		{ return info_; }
     Info&			info()			{ return info_; }
     const Track&		track() const		{ return track_; }

@@ -400,7 +400,7 @@ void uiStratSynthDisp::levelSnapChanged( CallBacker* )
 const char* uiStratSynthDisp::levelName()  const
 {
     const StratSynthLevel* lvl = curSS().getLevel();
-    return lvl ? lvl->name() : 0;
+    return lvl ? lvl->name().str() : 0;
 }
 
 
