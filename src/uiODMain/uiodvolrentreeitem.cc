@@ -61,16 +61,16 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 );
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
     {
 	if ( nrChildren()>0 && !visSurvey::VolumeDisplay::canUseVolRenShading())
 	{
-	    uiMSG().message( "Can only display one volume per scene if one "
+	    uiMSG().message( tr("Can only display one volume per scene if one "
 			     "does not enable volume rendering to use OpenGL "
-			     "shading in the 'Look and Feel' settings." );
+			     "shading in the 'Look and Feel' settings.") );
 	}
 	else
 	    addChild( new uiODVolrenTreeItem(-1), false );
@@ -115,8 +115,8 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
-    : addmnuitem_("&Add")
-    , statisticsmnuitem_("&Histogram ...")
+    : addmnuitem_(uiStrings::sAdd(true))
+    , statisticsmnuitem_("&Histogram...")
     , amplspectrummnuitem_( "&Amplitude Spectrum ...")
     , positionmnuitem_("&Position ...")
     , addisosurfacemnuitem_("Iso s&urface")

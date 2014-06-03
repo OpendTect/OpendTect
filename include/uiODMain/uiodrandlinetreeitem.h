@@ -36,7 +36,7 @@ namespace visSurvey { class RandomTrackDisplay; };
 
 
 mExpClass(uiODMain) uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODRandomLineTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const

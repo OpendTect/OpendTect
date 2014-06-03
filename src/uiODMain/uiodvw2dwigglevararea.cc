@@ -39,7 +39,7 @@ uiODVW2DWiggleVarAreaTreeItem::uiODVW2DWiggleVarAreaTreeItem()
     : uiODVw2DTreeItem( "Wiggle" )
     , dummyview_(0)
     , menu_(0)
-    , selattrmnuitem_("Select &Attribute")
+    , selattrmnuitem_(tr("Select &Attribute"))
 {}
 
 

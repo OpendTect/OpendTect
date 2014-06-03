@@ -40,7 +40,7 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 */
 
 mExpClass(uiODMain) uiODMain : public uiMainWin
-{mODTextTranslationClass(uiODMain)
+{mODTextTranslationClass(uiODMain);
 public:
 
 			uiODMain(uiMain&);

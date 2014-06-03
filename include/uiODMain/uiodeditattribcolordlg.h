@@ -20,7 +20,7 @@ class uiColorTableGroup;
 class uiTreeItem;
 
 mExpClass(uiODMain) uiODEditAttribColorDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiODEditAttribColorDlg);
 public:
     				uiODEditAttribColorDlg(uiParent*,
 						       ObjectSet<uiTreeItem>&,

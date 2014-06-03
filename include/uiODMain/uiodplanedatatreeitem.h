@@ -24,7 +24,7 @@ namespace Well { class Data; }
 
 
 mExpClass(uiODMain) uiODPlaneDataTreeItem : public uiODDisplayTreeItem
-{ mODTextTranslationClass(uiODPlaneDataTreeItem)
+{ mODTextTranslationClass(uiODPlaneDataTreeItem);
 public:
 
     enum Type		{ Default, Empty, RGBA };

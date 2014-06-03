@@ -48,7 +48,7 @@ static const int cLogDispSize = 4;
 
 bool uiODWellParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), cAddIdx );
     if ( SI().zIsTime() )
 	mnu.insertItem(
@@ -210,7 +210,7 @@ void uiODWellTreeItem::initMenuItems()
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
     markernamemnuitem_.text = "Marker &names";
-    showlogmnuitem_.text = "&Logs" ;
+    showlogmnuitem_.text = uiStrings::sLogs() ;
     attrmnuitem_.text = "&Create attribute log ...";
     logcubemnuitem_.text = "&Create log cube ...";
     showmnuitem_.text = "&Show" ;

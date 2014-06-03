@@ -23,7 +23,7 @@ class VW2DSeis;
 
 
 mExpClass(uiODMain) uiODVW2DWiggleVarAreaTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVW2DWiggleVarAreaTreeItem);
 public:
     				uiODVW2DWiggleVarAreaTreeItem();
 				~uiODVW2DWiggleVarAreaTreeItem();

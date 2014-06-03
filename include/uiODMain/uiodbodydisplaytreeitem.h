@@ -29,7 +29,7 @@ mDefineItem( BodyDisplayParent, TreeItem, TreeTop,
 
 
 mExpClass(uiODMain) uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODBodyDisplayTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const

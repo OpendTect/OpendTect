@@ -24,7 +24,7 @@ namespace Pick{ class Set; class SetMgr; }
 
 
 mExpClass(uiODMain) uiODVw2DPickSetParentTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DPickSetParentTreeItem);
 public:
     				uiODVw2DPickSetParentTreeItem();
 				~uiODVw2DPickSetParentTreeItem();

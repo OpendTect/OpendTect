@@ -377,7 +377,7 @@ void uiODSceneMgr::setSceneProperties()
     getSoViewers( vwrs );
     if ( vwrs.isEmpty() )
     {
-	uiMSG().error( "No scenes available" );
+	uiMSG().error( tr("No scenes available") );
 	return;
     }
 
@@ -537,7 +537,7 @@ void uiODSceneMgr::setStereoType( int type )
 	ui3DViewer& sovwr_ = *scenes_[ids]->sovwr_;
 	if ( !sovwr_.setStereoType(stereotype) )
 	{
-	    uiMSG().error( "No support for this type of stereo rendering" );
+	    uiMSG().error( tr("No support for this type of stereo rendering") );
 	    return;
 	}
 	if ( type )

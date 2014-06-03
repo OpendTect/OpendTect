@@ -21,7 +21,7 @@ class uiMenu;
 /*!\brief The OpendTect help menu manager */
 
 mExpClass(uiODMain) uiODHelpMenuMgr
-{
+{ mODTextTranslationClass(uiODHelpMenuMgr);
 public:
     				uiODHelpMenuMgr(uiODMenuMgr*);
     				~uiODHelpMenuMgr();

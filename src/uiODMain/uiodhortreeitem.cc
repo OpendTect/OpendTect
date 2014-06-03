@@ -64,7 +64,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     const bool hastransform = scene && scene->getZAxisTransform();
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
     mnu.insertItem( new uiAction(tr("Add &color blended ...")), mAddCBIdx );
 
@@ -75,7 +75,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     {
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
-		new uiMenu( getUiParent(), "&Display all" );
+		new uiMenu( getUiParent(), tr("&Display all") );
 	displaymnu->insertItem( new uiAction(tr("&Only at sections")),
 				mSectIdx );
 	displaymnu->insertItem( new uiAction(tr("&In full")), mFullIdx );
@@ -548,7 +548,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::Scene*,scene,
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction( uiStrings::sAdd(false) ), 0 );
     uiAction* newmenu = new uiAction( tr("&Track new ...") );
     mnu.insertItem( newmenu, 1 );

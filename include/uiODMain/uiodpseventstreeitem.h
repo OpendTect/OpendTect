@@ -20,7 +20,7 @@ namespace PreStack { class EventManager; }
 namespace visSurvey { class PSEventDisplay; }
 
 mExpClass(uiODMain) uiODPSEventsParentTreeItem : public uiODTreeItem
-{
+{ mODTextTranslationClass(uiODPSEventsParentTreeItem);
 public:
 				uiODPSEventsParentTreeItem();
 				~uiODPSEventsParentTreeItem();

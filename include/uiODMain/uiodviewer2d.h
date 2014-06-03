@@ -38,7 +38,7 @@ namespace FlatView { class AuxData; }
 */
 
 mExpClass(uiODMain) uiODViewer2D : public CallBacker
-{
+{ mODTextTranslationClass(uiODViewer2D);
 public:
 				uiODViewer2D(uiODMain&,int visid);
 				~uiODViewer2D();

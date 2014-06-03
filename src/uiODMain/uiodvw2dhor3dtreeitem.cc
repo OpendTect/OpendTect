@@ -54,7 +54,7 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(sNew()), 0 );
     mnu.insertItem( new uiAction(sLoad()), 1 );
     handleSubMenu( mnu.exec() );

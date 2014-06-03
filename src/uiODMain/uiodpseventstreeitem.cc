@@ -46,7 +46,7 @@ uiODPSEventsParentTreeItem::~uiODPSEventsParentTreeItem()
 
 bool uiODPSEventsParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     addStandardItems( mnu );
 
@@ -73,7 +73,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
     context.ctxt.forread = true;
     uiIOObjSelDlg dlg(  getUiParent(), context,
-			"Select prestack events", false );
+			tr("Select prestack events"), false );
     if ( !dlg.go() )
 	return false;
 

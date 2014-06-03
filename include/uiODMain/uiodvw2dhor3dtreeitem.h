@@ -22,7 +22,7 @@ class uiODViewer2D;
 
 
 mExpClass(uiODMain) uiODVw2DHor3DParentTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DHor3DParentTreeItem);
 public:
     				uiODVw2DHor3DParentTreeItem();
 				~uiODVw2DHor3DParentTreeItem();
@@ -39,7 +39,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory : public uiODVw2DTreeItemFactory
+mExpClass(uiODMain) uiODVw2DHor3DTreeItemFactory 
+    : public uiODVw2DTreeItemFactory
 {
 public:
     const char*		name() const		{ return typeid(*this).name(); }

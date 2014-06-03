@@ -30,7 +30,7 @@ mDefineItem( PickSetParent, TreeItem, TreeTop, \
 
 
 mExpClass(uiODMain) uiODPickSetTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODPickSetTreeItemFactory);
 public:
 
     const char*		name() const { return typeid(*this).name(); }

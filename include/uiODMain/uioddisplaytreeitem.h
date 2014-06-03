@@ -22,7 +22,7 @@ namespace Attrib { class SelSpec; }
 
 
 mExpClass(uiODMain) uiODDisplayTreeItem : public uiODTreeItem
-{
+{ mODTextTranslationClass(uiODDisplayTreeItem);
 public:
 
     static bool		create(uiTreeItem*,uiODApplMgr*,int displayid);

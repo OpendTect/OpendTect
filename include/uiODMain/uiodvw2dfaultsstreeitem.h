@@ -22,7 +22,7 @@ class uiODViewer2D;
 
 
 mExpClass(uiODMain) uiODVw2DFaultSSParentTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DFaultSSParentTreeItem);
 public:
     				uiODVw2DFaultSSParentTreeItem();
 				~uiODVw2DFaultSSParentTreeItem();

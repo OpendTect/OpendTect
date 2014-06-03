@@ -30,7 +30,7 @@ mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 mExpClass(uiODMain) uiODFaultTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODFaultTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -83,7 +83,8 @@ protected:
 mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 
-mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
+mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory 
+    : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }

@@ -49,7 +49,7 @@ bool uiODVw2DPickSetParentTreeItem::init()
 
 bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(sNew()), 0 );
     mnu.insertItem( new uiAction(sLoad()), 1 );
     return handleSubMenu( mnu.exec() );
@@ -165,7 +165,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const int setidx = Pick::Mgr().indexOf( pickset_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), tr("Action") );
     mnu.insertItem( new uiAction( uiStrings::sProperties( false )), 0 );
     mnu.insertItem( new uiAction(tr("Set &direction ...")), 1 );
     uiAction* saveitm = new uiAction( sSave(false) );

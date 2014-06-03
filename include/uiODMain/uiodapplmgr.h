@@ -54,7 +54,7 @@ namespace Pick { class Set; }
  */
 
 mExpClass(uiODMain) uiODApplMgr : public CallBacker
-{mODTextTranslationClass(uiODApplMgr)
+{ mODTextTranslationClass(uiODApplMgr);
 public:
 
     uiPickPartServer*		pickServer()		{ return pickserv_; }

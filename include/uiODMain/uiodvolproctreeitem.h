@@ -20,7 +20,7 @@ namespace VolProc
 {
 
 mExpClass(uiODMain) uiDataTreeItem : public uiODDataTreeItem
-{
+{ mODTextTranslationClass(uiDataTreeItem);
 public:
    static void			initClass();
    				~uiDataTreeItem();

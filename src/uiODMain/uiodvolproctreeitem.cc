@@ -34,9 +34,9 @@ void uiDataTreeItem::initClass()
 
 uiDataTreeItem::uiDataTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , selmenuitem_( "Select setup ...", true )
-    , reloadmenuitem_( "Reload", true )
-    , editmenuitem_( "Edit", true )
+    , selmenuitem_( tr("Select setup ..."), true )
+    , reloadmenuitem_( uiStrings::sReload(), true )
+    , editmenuitem_( uiStrings::sEdit(true), true )
 {
     editmenuitem_.iconfnm = VolProc::uiChain::pixmapFileName();
     reloadmenuitem_.iconfnm = "refresh";
@@ -132,9 +132,9 @@ bool uiDataTreeItem::selectSetup()
     {
 	if ( !chain->areSamplesIndependent() )
 	{
-	    if ( !uiMSG().askGoOn("The output of this setup is not "
+	    if ( !uiMSG().askGoOn(tr("The output of this setup is not "
 			"sample-independent, and the output may not be "
-			"the same as when computing the entire volume") )
+			"the same as when computing the entire volume")) )
 		return false;
 	}
     }

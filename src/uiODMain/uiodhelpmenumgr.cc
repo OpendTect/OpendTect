@@ -42,13 +42,13 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	, mnumgr_( mm )
 {
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
+	mInsertItem( helpmnu_, tr("&Programmer ..."), mProgrammerMnuItm, 0 );
 
     BufferString adminurl = getAdminURL();
     if ( File::exists(adminurl) )
-	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
-    mInsertItem( helpmnu_, "&About", mAboutMnuItm, 0)
-    mInsertItem( helpmnu_, "User documentation", mUserDocMnuItm, 0 );
+	mInsertItem( helpmnu_, tr("Ad&min ..."), mAdminMnuItm, 0 );
+    mInsertItem( helpmnu_, tr("&About"), mAboutMnuItm, 0)
+    mInsertItem( helpmnu_, tr("User documentation"), mUserDocMnuItm, 0 );
 }
 
 

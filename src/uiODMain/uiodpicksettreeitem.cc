@@ -117,7 +117,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    	    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(tr("&Add PickSet ...")), mLoadIdx );
     mnu.insertItem( new uiAction(tr("Add &Polygon...")), mLoadPolyIdx );
     uiMenu* newmnu = new uiMenu( getUiParent(), tr("&New PickSet") );
@@ -194,7 +194,8 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     else if ( mnuid==mSaveIdx )
     {
 	if ( !applMgr()->pickServer()->storePickSets() )
-	    uiMSG().error( "Problem saving changes. Check write protection." );
+	    uiMSG().error( tr("Problem saving changes."
+                              " Check write protection.") );
     }
     else if ( mnuid==mDisplayIdx || mnuid==mShowAllIdx )
     {

@@ -71,7 +71,7 @@ uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
 
 
 #define mParentShowSubMenu( treeitm, fromwell ) \
-    uiMenu mnu( getUiParent(), "Action" ); \
+    uiMenu mnu( getUiParent(), uiStrings::sAction() ); \
     mnu.insertItem( new uiAction(uiStrings::sAdd(true)), 0 ); \
     mnu.insertItem( \
 	new uiAction(uiODPlaneDataTreeItem::sAddDefaultData()), 1 ); \
@@ -107,8 +107,8 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     : orient_(o)
     , type_(t)
     , positiondlg_(0)
-    , positionmnuitem_("P&osition ...",cPositionIdx)
-    , gridlinesmnuitem_("&Gridlines ...",cGridLinesIdx)
+    , positionmnuitem_(tr("P&osition ..."),cPositionIdx)
+    , gridlinesmnuitem_(tr("&Gridlines ..."),cGridLinesIdx)
 {
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
@@ -500,7 +500,7 @@ bool uiODInlineParentTreeItem::showSubMenu()
     if ( !SI().crlRange(true).width() ||
 	  SI().zRange(true).width() < SI().zStep() * 0.5 )
     {
-	uiMSG().warning( "Flat survey, disabled inline display" );
+	uiMSG().warning( tr("Flat survey, disabled inline display") );
 	return false;
     }
 
@@ -539,7 +539,7 @@ bool uiODCrosslineParentTreeItem::showSubMenu()
     if ( !SI().inlRange(true).width() ||
 	  SI().zRange(true).width() < SI().zStep() * 0.5 )
     {
-	uiMSG().warning( "Flat survey, disabled cross-line display" );
+	uiMSG().warning( tr("Flat survey, disabled cross-line display") );
 	return false;
     }
 
@@ -578,7 +578,7 @@ bool uiODZsliceParentTreeItem::showSubMenu()
 {
      if ( !SI().inlRange(true).width() || !SI().crlRange(true).width() )
      {
-	 uiMSG().warning( "Flat survey, disabled z display" );
+	 uiMSG().warning( tr("Flat survey, disabled z display") );
 	 return false;
      }
 

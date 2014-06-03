@@ -116,7 +116,7 @@ int ODMain( int argc, char** argv )
 static BufferString cputxt_;
 
 uiODMain::uiODMain( uiMain& a )
-    : uiMainWin(0,"OpendTect Main Window",5,true)
+    : uiMainWin(0,tr("OpendTect Main Window"),5,true)
     , uiapp_(a)
     , failed_(true)
     , applmgr_(0)
@@ -151,7 +151,7 @@ uiODMain::uiODMain( uiMain& a )
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
 
     statusBar()->setToolTip( mMemStatusFld,
-		     "System memory: Free/Available | CPU: Used/Available" );
+		     tr("System memory: Free/Available | CPU: Used/Available"));
     statusBar()->setTxtAlign( mMemStatusFld, Alignment::HCenter );
     memtimer_.tick.notify( mCB(this,uiODMain,memTimerCB) );
     memtimer_.start( 1000 );
@@ -188,8 +188,8 @@ bool uiODMain::ensureGoodDataDir()
 	uiSetDataDir dlg( this );
 	if ( !dlg.go() )
 	{
-	    if ( uiMSG().askGoOn( "Without a valid data root, OpendTect "
-			"cannot start.\nDo you wish to exit?" ) )
+	    if ( uiMSG().askGoOn( tr("Without a valid data root, OpendTect "
+			"cannot start.\nDo you wish to exit?") ) )
 		return false;
 	}
 	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
@@ -213,8 +213,8 @@ bool uiODMain::ensureGoodSurveySetup()
     {
 	while ( !uiODApplMgr::manageSurvey() )
 	{
-	    if ( uiMSG().askGoOn( "Without a valid survey, OpendTect "
-			"cannot start.\nDo you wish to exit?" ) )
+	    if ( uiMSG().askGoOn( tr("Without a valid survey, OpendTect "
+			"cannot start.\nDo you wish to exit?") ) )
 		return false;
 	}
     }
@@ -519,8 +519,8 @@ void uiODMain::doRestoreSession()
     else
     {
 	MouseCursorManager::restoreOverride();
-	uiMSG().error( "An error occurred while reading session file.\n"
-		       "A new scene will be launched" );
+	uiMSG().error( tr("An error occurred while reading session file.\n"
+		       "A new scene will be launched") );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
@@ -600,7 +600,8 @@ bool uiODMain::askStore( bool& askedanything, const char* actiontype )
     if ( doask && hasSessionChanged() )
     {
 	askedanything = true;
-	int res = uiMSG().askSave( "Do you want to save this session?", true );
+	int res = uiMSG().askSave( tr("Do you want to save this session?"), 
+                                   true );
 	if ( res == 1 )
 	    saveSession();
 	else if ( res == -1 )
@@ -623,8 +624,8 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
     if ( doask && !applmgr_->attrServer()->setSaved( is2d ) )
     {
 	askedanything = true;
-	int res = uiMSG().askSave( "Current attribute set has changed.\n"
-				   "Store the changes now?" );
+	int res = uiMSG().askSave( tr("Current attribute set has changed.\n"
+				   "Store the changes now?") );
 	if ( res == 1 )
 	    applmgr_->attrServer()->saveSet( is2d );
 	else if ( res == -1 )
@@ -671,7 +672,7 @@ bool uiODMain::closeOK()
     bool askedanything = false;
     if ( !askStore(askedanything,"Close OpendTect") )
     {
-	uiMSG().message("Closing cancelled");
+	uiMSG().message(tr("Closing cancelled"));
 	return false;
     }
 
@@ -681,7 +682,7 @@ bool uiODMain::closeOK()
     {
 	bool doask = true;
 	Settings::common().getYN( "dTect.Ask close", doask );
-	if ( doask && !uiMSG().askGoOn( "Do you want to close OpendTect?" ) )
+	if ( doask && !uiMSG().askGoOn( tr("Do you want to close OpendTect?") ))
 	    return false;
     }
 

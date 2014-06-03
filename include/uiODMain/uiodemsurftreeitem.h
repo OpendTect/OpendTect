@@ -24,7 +24,7 @@ class uiODDataTreeItem;
 
 
 mExpClass(uiODMain) uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODEarthModelSurfaceTreeItem);
 public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
@@ -71,7 +71,8 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
+mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem 
+    : public uiODAttribTreeItem
 {
 public:
     			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,

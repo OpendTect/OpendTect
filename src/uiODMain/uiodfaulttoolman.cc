@@ -54,8 +54,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 						  const Setup& su )
-    : uiDialog( &appl, uiDialog::Setup("Faultstick transfer",
-			               "Transfer settings",
+    : uiDialog( &appl, uiDialog::Setup(tr("Faultstick transfer"),
+			               tr("Transfer settings"),
                                       mODHelpKey(mFaultStickTransferDlgHelpID))
                                         .modal(false) )
     , displayifnot_( su.displayifnot_ )
@@ -64,7 +64,7 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabel* colormodelbl = new uiLabel( this, "Output color selection:" );
+    uiLabel* colormodelbl = new uiLabel( this, tr("Output color selection:") );
 
     BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
@@ -91,16 +91,16 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, serialcolormodefld_ );
 
-    uiLabel* aftercopymovelbl = new uiLabel( this, "After copy / move:" );
+    uiLabel* aftercopymovelbl = new uiLabel( this, tr("After copy / move:") );
     aftercopymovelbl->setMinimumWidth( 250 );
     aftercopymovelbl->attach( alignedBelow, horsep );
 
-    displayfld_ = new uiCheckBox( this, "Display" );
+    displayfld_ = new uiCheckBox( this, uiStrings::sDisplay() );
     displayfld_->setChecked( displayifnot_ );
     displayfld_->attach( alignedBelow, aftercopymovelbl );
     displayfld_->activated.notify(mCB(this,uiFaultStickTransferDlg,displayCB));
 
-    savefld_ = new uiCheckBox( this, "Save" );
+    savefld_ = new uiCheckBox( this, uiStrings::sSave(true) );
     savefld_->setChecked( saveifdisplayed_ );
     savefld_->attach( rightOf, displayfld_ );
     savefld_->activated.notify( mCB(this,uiFaultStickTransferDlg,saveCB) );

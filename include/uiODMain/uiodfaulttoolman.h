@@ -40,7 +40,7 @@ namespace visSurvey		{ class FaultDisplay;
 
 
 mExpClass(uiODMain) uiFaultStickTransferDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiFaultStickTransferDlg);
 public:
 
     enum ColorMode		{ Inherit=0, Random, SerialUserDef,

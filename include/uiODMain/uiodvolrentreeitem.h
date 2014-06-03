@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uioddisplaytreeitem.h"
 
 mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
-{
+{ mODTextTranslationClass(uiODVolrenParentTreeItem);
     typedef uiTreeItem	inheritedClass;
 public:
 			uiODVolrenParentTreeItem();

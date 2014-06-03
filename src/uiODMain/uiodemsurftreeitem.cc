@@ -58,14 +58,14 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , uivisemobj_(0)
-    , createflatscenemnuitem_("&Create flattened scene")
-    , savemnuitem_("Save",-800)
+    , createflatscenemnuitem_(tr("&Create flattened scene"))
+    , savemnuitem_(uiStrings::sSave(true),-800)
     , saveasmnuitem_(sSaveAs(),-850)
-    , enabletrackingmnuitem_("Enable tracking")
-    , changesetupmnuitem_("Change setup ...")
-    , reloadmnuitem_("Reload",-750)
+    , enabletrackingmnuitem_(tr("Enable tracking"))
+    , changesetupmnuitem_(tr("Change setup ..."))
+    , reloadmnuitem_(uiStrings::sReload(),-750)
     , trackmenuitem_(uiVisEMObject::trackingmenutxt())
-    , starttrackmnuitem_("Start tracking ...")
+    , starttrackmnuitem_(tr("Start tracking ..."))
     , istrackingallowed_(true)
 {
     savemnuitem_.iconfnm = "save";
@@ -392,9 +392,9 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
     {
 	const bool res = uiMSG().askSave(
-		"Geometry has been changed. Saved 'Horizon Data' is\n"
+		tr("Geometry has been changed. Saved 'Horizon Data' is\n"
 		"not valid anymore and will be removed now.\n"
-		"Continue saving?" );
+		"Continue saving?") );
 	if ( !res )
 	    return;
     }
@@ -547,8 +547,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	    uiMSG().error( "This algorithm can only be applied on 'Horizon Data'."
-		    	   "\nPlease save attribute first" );
+	   uiMSG().error("This algorithm can only be applied on 'Horizon Data'."
+		    	 "\nPlease save attribute first" );
 	    return;
 	}
 

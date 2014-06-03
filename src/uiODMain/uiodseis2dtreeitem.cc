@@ -80,7 +80,7 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
     if ( SI().has3D() )
     {

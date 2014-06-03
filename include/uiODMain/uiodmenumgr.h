@@ -35,7 +35,7 @@ class uiAction;
 */
 
 mExpClass(uiODMain) uiODMenuMgr : public CallBacker
-{mODTextTranslationClass(uiODMenuMgr)
+{mODTextTranslationClass(uiODMenuMgr);
 
     friend class	uiODMain;
     friend class	uiODHelpMenuMgr;

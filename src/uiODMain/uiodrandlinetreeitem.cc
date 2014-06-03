@@ -117,7 +117,7 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(tr("Add &Empty")), 0 );
     mnu.insertItem( new uiAction(tr("Add &Stored ...")), 7 );
 
@@ -171,7 +171,7 @@ const IOObj* uiODRandomLineParentTreeItem::selRandomLine()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt.forread = true;
-    uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(), false );
     return dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
 }
 
@@ -197,9 +197,9 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj, int tp )
     else
     {
 	uiSelectFromList seldlg( getUiParent(),
-		uiSelectFromList::Setup("Random lines",linenames) );
+		uiSelectFromList::Setup(tr("Random lines"),linenames) );
 	seldlg.selFld()->setMultiChoice( true );
-	uiCheckBox* cb = new uiCheckBox( &seldlg, "Editable" );
+	uiCheckBox* cb = new uiCheckBox( &seldlg, tr("Editable") );
 	cb->attach( alignedBelow, seldlg.selFld() );
 	if ( !seldlg.go() )
 	    return false;
@@ -258,7 +258,8 @@ void uiODRandomLineParentTreeItem::genRandLineFromWell()
 void uiODRandomLineParentTreeItem::genRandLineFromTable()
 {
     uiDialog dlg( getUiParent(),
-		  uiDialog::Setup("Random lines","Specify node positions",
+		  uiDialog::Setup(tr("Random lines"),
+                                  tr("Specify node positions"),
 				  mODHelpKey(mODRandomLineTreeItemHelpID) ) );
     uiPositionTable* table = new uiPositionTable( &dlg, true, true, true );
     Interval<float> zrg = SI().zRange(true);

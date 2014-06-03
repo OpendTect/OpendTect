@@ -77,11 +77,11 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add Bodies to this scene" );
+	uiMSG().message( tr("Cannot add Bodies to this scene") );
 	return false;
     }
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), tr("Action") );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     mnu.insertItem( new uiAction(tr("&New polygon body...")), 1 );
     addStandardItems( mnu );

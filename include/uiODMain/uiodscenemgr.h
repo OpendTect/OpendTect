@@ -43,7 +43,7 @@ namespace Pick { class Set; }
  */
 
 mExpClass(uiODMain) uiODSceneMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiODSceneMgr);
 public:
 
     void			cleanUp(bool startnew=true);

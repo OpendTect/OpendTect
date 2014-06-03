@@ -368,23 +368,23 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 {
     if ( !tb ) return;
 
-    polyseltbid_ = tb->addButton( "polygonselect", "Polygon Selection mode",
+    polyseltbid_ = tb->addButton( "polygonselect", tr("Polygon Selection mode"),
 				  mCB(this,uiODViewer2D,selectionMode), true );
-    uiMenu* polymnu = new uiMenu( tb, "PoluMenu" );
+    uiMenu* polymnu = new uiMenu( tb, tr("PoluMenu") );
 
-    uiAction* polyitm = new uiAction( "Polygon",
+    uiAction* polyitm = new uiAction( tr("Polygon"),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
     polyitm->setIcon( ioPixmap("polygonselect") );
 
-    uiAction* rectitm = new uiAction( "Rectangle",
+    uiAction* rectitm = new uiAction( tr("Rectangle"),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
     rectitm->setIcon( ioPixmap("rectangleselect") );
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
-    tb->addButton( "trashcan", "Remove PolySelection",
+    tb->addButton( "trashcan", tr("Remove PolySelection"),
 			mCB(this,uiODViewer2D,removeSelected), false );
 }
 
@@ -535,8 +535,9 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
 
     viewstdcontrol_->toolBar()->setIcon( polyseltbid_, ispolyselect_ ?
 				"polygonselect" : "rectangleselect" );
-    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, ispolyselect_ ?
-			"Polygon Selection mode" : "Rectangle Selection mode" );
+    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, 
+                                ispolyselect_ ? tr("Polygon Selection mode") 
+                                              : tr("Rectangle Selection mode"));
 
     if ( auxdataeditors_.isEmpty() )
 	return;

@@ -27,7 +27,7 @@ mDefineItem( Line2DParent, TreeItem, TreeTop,
 	     mShowMenu bool handleSubMenu(int); mMenuOnAnyButton )
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(Line2DTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const

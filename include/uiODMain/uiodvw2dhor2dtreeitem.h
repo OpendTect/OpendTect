@@ -22,7 +22,7 @@ class Vw2DHorizon2D;
 
 
 mExpClass(uiODMain) uiODVw2DHor2DParentTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVw2DHor2DParentTreeItem);
 public:
     				uiODVw2DHor2DParentTreeItem();
 				~uiODVw2DHor2DParentTreeItem();

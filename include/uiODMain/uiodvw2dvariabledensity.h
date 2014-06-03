@@ -24,7 +24,7 @@ namespace ColTab { class Sequence; };
 
 
 mExpClass(uiODMain) uiODVW2DVariableDensityTreeItem : public uiODVw2DTreeItem
-{
+{ mODTextTranslationClass(uiODVW2DVariableDensityTreeItem);
 public:
     				uiODVW2DVariableDensityTreeItem();
 				~uiODVW2DVariableDensityTreeItem();
