@@ -259,6 +259,15 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
+    const float zfac = SI().zDomain().userFactor();
+    gate.scale(1.f/zfac);
+    if ( !cs.zrg.includes(gate) )
+    {
+	Interval<float> zrg = cs.zrg;
+	gate = zrg; zrg.scale( zfac );
+	gatefld_->setValue( zrg );
+    }
+    cs.zrg.limitTo( gate );
 
     MultiID mid;
     getInputMID( mid );
@@ -553,24 +562,20 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    gate.scale(1.f/SI().zDomain().userFactor());
-    if ( cs.zrg.start < gate.start )
-	cs.zrg.start = gate.start;
-    if ( cs.zrg.stop > gate.stop )
-	cs.zrg.stop = gate.stop;
+    const float zfac = SI().zDomain().userFactor();
+    gate.scale(1.f/zfac);
+    if ( !cs.zrg.includes(gate) )
+    {
+	Interval<float> zrg = cs.zrg;
+	gate = zrg; zrg.scale( zfac );
+	gatefld_->setValue( zrg );
+    }
+    cs.zrg.limitTo( gate );
 
     MultiID mid;
     getInputMID(mid);
-    CubeSampling prefcs;
-    bool validprefcs = false;
-    if ( positiondlg_ )
-    {
-	prefcs = positiondlg_->getCubeSampling();
-	validprefcs = true;
-	delete positiondlg_;
-    }
+    if ( positiondlg_ ) delete positiondlg_;
     positiondlg_ = new uiGDPositionDlg( this, cs, ads_->is2D(), mid );
-    if ( validprefcs ) positiondlg_->setPrefCS(&prefcs);
     positiondlg_->go();
     if ( positiondlg_->uiResult() == 1 )
 	positiondlg_->popUpPosDlg();
