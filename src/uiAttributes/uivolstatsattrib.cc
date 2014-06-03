@@ -66,7 +66,8 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    shapefld_ = new uiGenInput( this, "Shape", StringListInpSpec(shapestrs) );
+    shapefld_ = new uiGenInput( this, tr("Shape"), 
+                                StringListInpSpec(shapestrs) );
     shapefld_->valuechanged.notify(
 			    mCB(this,uiVolumeStatisticsAttrib,shapeChg));
     shapefld_->attach( alignedBelow, gatefld_ );
@@ -78,28 +79,29 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld_->attach( alignedBelow, shapefld_ );
 
-    nrtrcsfld_ = new uiLabeledSpinBox( this, "Min nr of valid traces" );
+    nrtrcsfld_ = new uiLabeledSpinBox( this, tr("Min nr of valid traces") );
     nrtrcsfld_->box()->setMinValue( 1 );
     nrtrcsfld_->attach( alignedBelow, stepoutfld_ );
 
-    outpfld_ = new uiGenInput( this, "Output statistic",
+    outpfld_ = new uiGenInput( this, tr("Output statistic"),
 			       StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, nrtrcsfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d );
     steerfld_->attach( alignedBelow, outpfld_ );
 
-    edgeeffectfld_ = new uiCheckBox( this, "Allow edge effects" );
+    edgeeffectfld_ = new uiCheckBox( this, tr("Allow edge effects") );
     edgeeffectfld_->attach( rightOf, gatefld_ );
 
-    optstackstepfld_ = new uiLabeledSpinBox( this, "Stack stepout" );
+    optstackstepfld_ = new uiLabeledSpinBox( this, tr("Stack stepout") );
     optstackstepfld_->box()->setMinValue( 1 );
     optstackstepfld_->box()->valueChanged.notify(
 			mCB(this,uiVolumeStatisticsAttrib,stackstepChg) );
     optstackstepfld_->attach( alignedBelow, shapefld_ );
 
-    stackdirfld_ = new uiGenInput( this, "Direction",
-			       BoolInpSpec(true,"Perpendicular","Line") );
+    stackdirfld_ = new uiGenInput( this, tr("Direction"),
+			       BoolInpSpec(true,tr("Perpendicular"),
+                               tr("Line")) );
     stackdirfld_->attach( rightTo,optstackstepfld_ );
 
     setHAlignObj( inpfld_ );

@@ -37,18 +37,19 @@ using namespace Attrib;
 
 uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     : uiDialog(p,uiDialog::Setup(
-		isads ? "Get Attribute Set" : "Get attributes from job file",
-		isads ? "Select file containing an attribute set"
-		      : "Select job specification file",
-		 mODHelpKey(mGetFileForAttrSetHelpID) ))
+      isads ? tr("Get Attribute Set") : tr("Get attributes from job file"),
+      isads ? tr("Select file containing an attribute set")
+	    : tr("Select job specification file"),
+	      mODHelpKey(mGetFileForAttrSetHelpID) ))
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
-    fileinpfld = new uiFileInput( this, "File name" );
-    fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)"
-				    : "Job specifications (*.par)" );
+    fileinpfld = new uiFileInput( this, "File name" );   
+    fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
+                                      : "Job specifications (*.par)" );
+
     fileinpfld->setDefaultSelectionDir( isattrset_ ? GetBaseDataDir()
-						 : GetProcFileName(0) );
+						   : GetProcFileName(0) );
     fileinpfld->valuechanged.notify( mCB(this,uiGetFileForAttrSet,selChg) );
     if ( !isattrset_ )
     {
@@ -95,9 +96,11 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 
     attrset_.removeAll( false ); attrset_.usePar( iop );
     const int nrgood = attrset_.nrDescs( false, false );
-    BufferString txt( nrgood == 1  ? "Attribute: "
-			: (nrgood ? "Attributes:\n"
-				  : "No valid attributes present") );
+
+    BufferString txt( nrgood == 1 ? "Attribute: " 
+                        : (nrgood ? "Attributes:\n"
+                                  : "No valid attributes present" ) );
+
     int nrdone = 0;
     const int totalnrdescs = attrset_.size();
     for ( int idx=0; idx<totalnrdescs; idx++ )
@@ -121,7 +124,7 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
     fname_ = fileinpfld->fileName();
     if ( fname_.isEmpty() || !File::exists(fname_) )
     {
-	uiMSG().error( "Please enter the filename" );
+	uiMSG().error( tr("Please enter the filename") );
 	return false;
     }
     selChg(0);
@@ -156,7 +159,7 @@ uiAttrSrchProcFiles::~uiAttrSrchProcFiles()
 static BufferString sImportDir;
 
 uiImpAttrSet::uiImpAttrSet( uiParent* p )
-    : uiDialog(p,Setup("Import Attribute Set",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Import Attribute Set"),mNoDlgTitle,mTODOHelpKey))
 {
     setOkCancelText( uiStrings::sImport(), uiStrings::sCancel() );
 
@@ -183,7 +186,7 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
     const char* fnm = fileinpfld_->fileName();
     if ( !File::exists(fnm) )
     {
-	uiMSG().error( "Please select existing file.");
+	uiMSG().error( tr("Please select existing file.") );
 	return false;
     }
 
@@ -209,7 +212,7 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
 	return false;
     }
 
-    res = uiMSG().askGoOn( "Attribute Set successfully imported.\n"
-			   "Do you want to import more Attribute Sets?" );
+    res = uiMSG().askGoOn( tr("Attribute Set successfully imported.\n"
+			   "Do you want to import more Attribute Sets?") );
     return !res;
 }

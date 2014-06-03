@@ -57,7 +57,7 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    szfld_ = new uiLabeledSpinBox( this, "Filter size" );
+    szfld_ = new uiLabeledSpinBox( this, tr("Filter size") );
     szfld_->box()->setMinValue( cMinVal );
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, inpfld_ );
@@ -78,21 +78,23 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     velfld_->setElemSzPol( uiObject::Small );
     velfld_->attach( alignedBelow, fltrtpfld_ );
 
-    uiPushButton* dispbut = new uiPushButton( this, "Display F-K panel", false);
+    uiPushButton* dispbut = new uiPushButton( this,
+                                             tr("Display F-K panel"), false);
     dispbut->activated.notify( mCB(this,uiDipFilterAttrib,panelbutCB) );
     dispbut->attach( rightTo, velfld_ );
 
-    azifld_ = new uiGenInput( this, "Azimuth filter", BoolInpSpec(true) );
+    azifld_ = new uiGenInput( this, tr("Azimuth filter"), BoolInpSpec(true) );
     azifld_->setValue( false );
     azifld_->attach( alignedBelow, velfld_ );
     azifld_->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
 
-    aziintfld_ = new uiGenInput( this, "Azimuth to pass (min/max)",
-				FloatInpIntervalSpec().setName("Min Azimuth",0)
+    aziintfld_ = new uiGenInput( this, tr("Azimuth to pass (min/max)"),
+				FloatInpIntervalSpec()
+                                .setName("Min Azimuth",0)
 				.setName("Max Azimuth",1) );
     aziintfld_->attach( alignedBelow, azifld_ );
 
-    taperfld_ = new uiGenInput( this, "Taper length (%)",
+    taperfld_ = new uiGenInput( this, tr("Taper length (%)"),
 			       FloatInpSpec().setName("Taper length") );
     taperfld_->attach( alignedBelow, aziintfld_ );
 
@@ -107,7 +109,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     PtrMan<uiLinePosSelDlg> dlg = 0;
     if ( is2d_ )
     {
-	uiMSG().message( "No support for 2D yet" );
+	uiMSG().message( tr("No support for 2D yet") );
 	return;
     }
     else

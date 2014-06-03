@@ -26,7 +26,7 @@ mDefineInstanceCreatedNotifierAccess(uiAttrSetMan)
 
 
 uiAttrSetMan::uiAttrSetMan( uiParent* p )
-    : uiObjFileMan(p,uiDialog::Setup("Manage Attribute Sets",mNoDlgTitle,
+    : uiObjFileMan(p,uiDialog::Setup(tr("Manage Attribute Sets"),mNoDlgTitle,
 		    mODHelpKey(mAttrSetManHelpID) ).nrstatusflds(1),
 	           AttribDescSetTranslatorGroup::ioContext())
 {
@@ -79,7 +79,7 @@ void uiAttrSetMan::mkFileInfo()
 	txt = "Type: "; txt += attrset.is2D() ? "2D" : "3D";
 	if ( nrstor > 0 )
 	{
-	    txt += "\nInput"; txt += nrstor == 1 ? ": " : "s: "; 
+	    txt += "\nInput"; txt += nrstor == 1 ? ": " : "s: ";
 	    addAttrNms( attrset, txt, true );
 	}
 	if ( nrattrs < 1 )

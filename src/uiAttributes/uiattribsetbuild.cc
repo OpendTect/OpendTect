@@ -87,7 +87,8 @@ bool uiAttribDescSetBuild::handleUnsaved()
     if ( !anychg_ && !usrchg_ ) return true;
 
     const int res = uiMSG().question( "Seismic Attribute Set not saved.\n"
-	"Do you want to save it now?", "Yes (store)", "No (discard)", "Cancel");
+	"Do you want to save it now?", "Yes (store)",
+        "No (discard)", "Cancel");
     if ( res == 0 ) return true;
     if ( res == -1 ) return false;
 
@@ -282,10 +283,10 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	if ( res && badmatch && !isdescanyd )
 	{
 	    emsg = "Can not load Attribute Set:\n";
-	    emsg += "Attribute Set is";
-	    emsg += isdesc2d ? "2D" : "3D" ;
-	    emsg += ". Current definition is ";
-	    emsg += is2d ? "2D" : "3D"; 
+            emsg += "Attribute Set is";
+            emsg += isdesc2d ? "2D" : "3D" ;
+            emsg += ". Current definition is ";
+            emsg += is2d ? "2D" : "3D";
 	    res = false;
 	}
 	else if ( res ) 

@@ -47,8 +47,8 @@ using namespace Attrib;
 
 uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 			      const DescSet* a, const NLAModel* n, float vel )
-	: uiDialog(p,uiDialog::Setup("Add direction to Pick Set",
-				     "Specify directions for picks",
+	: uiDialog(p,uiDialog::Setup(tr("Add direction to Pick Set"),
+				     tr("Specify directions for picks"),
 				     mODHelpKey(mSetPickDirsHelpID) ))
 	, ps_( s )
 	, ads_( a ? new DescSet(*a) : new DescSet(false) )
@@ -65,15 +65,15 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
     SelInfo attrselinfo( ads_, nlamdl_, is2d );
     if ( attrselinfo.ioobjids_.size() == 0 )
     {
-	new uiLabel( this, "Please import a seismic cube first" );
+	new uiLabel( this, tr("Please import a seismic cube first") );
 	return;
     }
 
     const bool havesteer = true;
     if ( havesteer )
     {
-	dirinpfld_ = new uiGenInput( this, "Direction from",
-			BoolInpSpec(true,"Steering cube","Attributes") );
+	dirinpfld_ = new uiGenInput( this, tr("Direction from"), 
+			BoolInpSpec(true,tr("Steering cube"),tr("Attributes")));
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
 	steerfld_ = new uiSteerAttrSel( this, DSHolder().getDescSet(is2d,true),
 					is2d );
@@ -120,7 +120,8 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
     BufferString coldefnm##fld = usesteering_ ? steerfld_->getInput() \
 					      : fld->getAttrName(); \
     if ( usesteering_ ) \
-    { coldefnm##fld += "_"; coldefnm##fld += dir; coldefnm##fld += "_dip"; } \
+    { coldefnm##fld += "_"; \
+      coldefnm##fld += dir; coldefnm##fld += "_dip"; } \
 \
     dcds += new DataColDef( coldefnm##fld ); \
 }
@@ -128,9 +129,9 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
     if ( usesteering_ && !*steerfld_->getInput() )
-	mErrRet( "Please, select Steering Cube" )
+	mErrRet( tr("Please, select Steering Cube") )
     if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
-	mErrRet( "Please, select input attribute(s) for Phi and Theta" )
+	mErrRet( tr("Please, select input attribute(s) for Phi and Theta") )
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> dcds;
@@ -153,7 +154,7 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 
     bool success = extractDipOrAngl( dps );
     if ( !success )
-	mErrRet( "Cannot calculate attributes at these positions" );
+	mErrRet( tr("Cannot calculate attributes at these positions") );
 
     //remark: removed possibility of variable vector length (radius = 1)
     for ( int idx=0; idx<positions.size(); idx++ )
@@ -225,7 +226,7 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 	    steerfld_->setDescSet( createdset_ );
 
 	const DescID inldipid = steerfld_->inlDipID();
-	if ( !inldipid.isValid() ) mErrRet( "Cannot read Steering Cube" )
+	if ( !inldipid.isValid() ) mErrRet( tr("Cannot read Steering Cube") )
 
 	ids += inldipid;
 	ids += steerfld_->crlDipID();
@@ -234,11 +235,11 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
     {
 	const DescID phiid = getAttribID( phifld_, nlaids );
 	if ( !phiid.isValid() )
-	    mErrRet( "No valid attribute selected for Phi" )
+	    mErrRet( tr("No valid attribute selected for Phi") )
 	ids += phiid;
 	const DescID thetaid = getAttribID( thetafld_, nlaids );
 	if ( !thetaid.isValid() )
-	    mErrRet( "No valid attribute selected for Theta" );
+	    mErrRet( tr("No valid attribute selected for Theta") );
 	ids += thetaid;
     }
 

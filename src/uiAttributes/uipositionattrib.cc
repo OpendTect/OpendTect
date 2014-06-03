@@ -56,7 +56,7 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
 				mCB(this,uiPositionAttrib,steerTypeSel) );
     steerfld->attach( alignedBelow, gatefld );
 
-    operfld = new uiGenInput( this, "Operator", StringListInpSpec(opstrs) );
+    operfld = new uiGenInput( this, tr("Operator"), StringListInpSpec(opstrs) );
     operfld->attach( alignedBelow, steerfld );
 
     outfld = createInpFld( is2d, "Output attribute" );

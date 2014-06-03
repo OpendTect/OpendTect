@@ -34,8 +34,8 @@ public:
 uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 		const BufferStringSet& indirinps,
 		const BufferStringSet& dirinps )
-    : uiDialog(p,uiDialog::Setup("Specify inputs",
-		     "Network without attributes: definitions",
+    : uiDialog(p,uiDialog::Setup(tr("Specify inputs"),
+		     tr("Network without attributes: definitions"),
 		     mNoHelpKey))
     , attrset(ads)
     , nrindir(indirinps.size())
@@ -44,9 +44,9 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     if ( nrindir )
     {
 	indirgrp = new uiGroup( this, "Indirect attribs" );
-	const char* txt = indirinps.size() > 1 ?
-			    "Specify the input for these attributes"
-			  : "Specify the input for this attribute";
+	const char* txt = indirinps.size() > 1
+            ? "Specify the input for these attributes"
+	    : "Specify the input for this attribute";
 	mkGrp( indirgrp, txt, indirinps );
     }
 
@@ -60,9 +60,9 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
     if ( dirinps.size() )
     {
 	uiGroup* dirgrp = new uiGroup( this, "Direct attribs" );
-	const char* txt = dirinps.size() > 1 ?
-		    "Specify the cubes that contain these attributes"
-		  : "Specify the cube that contains this attribute";
+	const char* txt = dirinps.size() > 1
+            ? "Specify the cubes that contain these attributes"
+	    : "Specify the cube that contains this attribute";
 	mkGrp( dirgrp, txt, dirinps );
 	if ( indirgrp )
 	    dirgrp->attach( alignedBelow, indirgrp );
@@ -83,7 +83,7 @@ uiSelExternalAttrInps( uiParent* p, DescSet* ads,
 
 
 void mkGrp( uiGroup* mkgrp, const char* lbltxt,
-		const BufferStringSet& inps )
+	    const BufferStringSet& inps )
 {
     uiLabel* lbl = new uiLabel( mkgrp, lbltxt );
     uiGroup* fldgrp = new uiGroup( mkgrp, "sels" );
@@ -351,14 +351,15 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     RefMan<Desc> desc = PF().createDescCopy( attribname );
     if ( !desc )
     {
-	BufferString err = "Cannot find factory-entry for "; err += attribname;
+        uiString err = tr( "Cannot find factory-entry for %1" )
+            .arg( attribname );
 	uiMSG().error( err );
 	return 0;
     }
 
     if ( !desc->isStored() && !desc->parseDefStr(defstr) )
     {
-	BufferString err = "Cannot parse: "; err += defstr;
+	uiString err = tr("Cannot parse: %1").arg(defstr);
 	uiMSG().error( err );
 	return 0;
     }

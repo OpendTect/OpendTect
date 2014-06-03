@@ -253,10 +253,10 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
-    : uiDialog(p,uiDialog::Setup("Evaluate attribute","Set parameters"
+    : uiDialog(p,uiDialog::Setup(tr("Evaluate attribute"),tr("Set parameters")
 				,mODHelpKey(mEvaluateDlgHelpID) )
 		.modal(false)
-	        .oktext("Accept")
+	        .oktext(uiStrings::sAccept())
 	        .canceltext(""))
     , calccb(this)
     , showslicecb(this)
@@ -281,7 +281,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     for ( int idx=0; idx<params.size(); idx++ )
 	strs.add( params[idx].label_ );
 
-    evalfld = new uiGenInput( this, "Evaluate", StringListInpSpec(strs) );
+    evalfld = new uiGenInput( this, tr("Evaluate"), StringListInpSpec(strs) );
     evalfld->valuechanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 
     uiGroup* pargrp = new uiGroup( this, "" );
@@ -292,11 +292,11 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
 
     pargrp->setHAlignObj( grps_[0] );
 
-    nrstepsfld = new uiLabeledSpinBox( this, "Nr of steps" );
+    nrstepsfld = new uiLabeledSpinBox( this, tr("Nr of steps") );
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, "Calculate", true );
+    calcbut = new uiPushButton( this, tr("Calculate"), true );
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
@@ -306,7 +306,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     sliderfld->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
 
-    storefld = new uiCheckBox( this, "Store slices on 'Accept'" );
+    storefld = new uiCheckBox( this, tr("Store slices on 'Accept'") );
     storefld->attach( alignedBelow, sliderfld );
     storefld->setChecked( false );
     storefld->setSensitive( false );

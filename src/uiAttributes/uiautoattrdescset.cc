@@ -40,8 +40,8 @@ using namespace Attrib;
 
 
 uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
-        : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
-		                     "Set auto-load Attribute-Set",
+        : uiDialog(p,uiDialog::Setup(tr("Auto-load Attribute Set"),
+		                     tr("Set auto-load Attribute-Set"),
 				     mODHelpKey(mAutoAttrSelDlgHelpID) ))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
@@ -51,7 +51,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     id = is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
 	       : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
 
-    usefld_ = new uiGenInput( this, "Enable auto-load Attribute Set",
+    usefld_ = new uiGenInput( this, tr("Enable auto-load Attribute Set"),
                                   BoolInpSpec(true) );
     usefld_->setValue( douse );
     usefld_->valuechanged.notify( mCB(this,uiAutoAttrSelDlg,useChg) );
@@ -59,10 +59,10 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
     ctio_.setObj( id ); ctio_.ctxt.forread = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
     selgrp_->attach( alignedBelow, usefld_ );
-    lbl_ = new uiLabel( this, "Attribute Set to use" );
+    lbl_ = new uiLabel( this, tr("Attribute Set to use") );
     lbl_->attach( centeredLeftOf, selgrp_ );
 
-    loadbutton_ = new uiCheckBox( this, "Load Now" );
+    loadbutton_ = new uiCheckBox( this, tr("Load Now") );
     loadbutton_->attach( alignedBelow, selgrp_ );
 
     postFinalise().notify( mCB(this,uiAutoAttrSelDlg,useChg) );
@@ -109,18 +109,18 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 	return true;
 
     if ( selgrp_->nrChosen() < 1 )
-        mErrRet("No Attribute Sets available")
+        mErrRet(tr("No Attribute Sets available"))
 
     ctio_.setObj( selgrp_->chosenID() );
     Attrib::DescSet attrset( is2d_ );
     BufferString bs;
     if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj,bs) )
-	mErrRet( "Cannot read selected attribute set" )
+	mErrRet(tr("Cannot read selected attribute set"))
 
     if ( attrset.is2D() != is2d_ )
     {
-	bs = "Attribute Set "; bs += ctio_.ioobj->name();
-	bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
+            bs = "Attribute Set "; bs += ctio_.ioobj->name();
+            bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
 	uiMSG().error( bs.buf(), "Please select another attribute set" );
 	return false;
     }

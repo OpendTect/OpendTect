@@ -50,38 +50,39 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 {
     prestackinpfld_ = new uiPreStackSel( this, is2d );
 
-    dopreprocessfld_ = new uiGenInput( this, "Preprocess", BoolInpSpec(false) );
+    dopreprocessfld_ = new uiGenInput( this, tr("Preprocess"), 
+                                       BoolInpSpec(false) );
     dopreprocessfld_->attach( alignedBelow, prestackinpfld_ );
     dopreprocessfld_->valuechanged.notify(
 	    mCB(this,uiPreStackAttrib,doPreProcSel) );
     preprocsel_ = new PreStack::uiProcSel( this, "Preprocessing setup", 0 );
     preprocsel_->attach( alignedBelow, dopreprocessfld_ );
 
-    calctypefld_ = new uiGenInput( this, "Calculation type",
+    calctypefld_ = new uiGenInput( this, tr("Calculation type"),
 		   StringListInpSpec(PreStack::PropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, preprocsel_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
     BufferStringSet stattypenames; getStatTypeNames(stattypenames);
-    stattypefld_ = new uiGenInput( this, "Statistics type",
+    stattypefld_ = new uiGenInput( this, tr("Statistics type"),
 				   StringListInpSpec(stattypenames) );
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
-    lsqtypefld_ = new uiGenInput( this, "AVO output",
+    lsqtypefld_ = new uiGenInput( this, tr("AVO output"),
 		  StringListInpSpec(PreStack::PropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
-    useanglefld_ = new uiCheckBox( this, "Use Angles" );
+    useanglefld_ = new uiCheckBox( this, tr("Use Angles") );
     useanglefld_->attach( rightOf, lsqtypefld_ );
     useanglefld_->activated.notify( mCB(this,uiPreStackAttrib,angleTypSel) );
 
-    gathertypefld_ = new uiGenInput( this, "Gather type",
+    gathertypefld_ = new uiGenInput( this, tr("Gather type"),
 			     StringListInpSpec(PSAttrib::GatherTypeNames()) );
     gathertypefld_->attach( alignedBelow, stattypefld_ );
     gathertypefld_->valuechanged.notify(
 				 mCB(this,uiPreStackAttrib,gatherTypSel) );
 
-    xrgfld_ = new uiGenInput( this, "Offset range (empty=all) ",
+    xrgfld_ = new uiGenInput( this, tr("Offset range (empty=all) "),
 	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
     xrgfld_->attach( alignedBelow, gathertypefld_ );
 
@@ -94,12 +95,12 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xunitfld_->attach( rightOf, gathertypefld_ );
     xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );
 
-    xaxistypefld_ = new uiGenInput( this, "X Axis Transformation:",
+    xaxistypefld_ = new uiGenInput( this, tr("X Axis Transformation:"),
 		    StringListInpSpec(PreStack::PropCalc::AxisTypeNames())
 				      .setName("X") );
     xaxistypefld_->attach( alignedBelow, xrgfld_ );
 
-    valaxtypefld_ = new uiGenInput( this, "Amplitude transformations",
+    valaxtypefld_ = new uiGenInput( this, tr("Amplitude transformations"),
 		     StringListInpSpec(PreStack::PropCalc::AxisTypeNames()) );
     valaxtypefld_->attach( alignedBelow, xaxistypefld_ );
 
@@ -340,7 +341,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     {
 	MultiID mid;
 	if ( !preprocsel_->getSel(mid))
-	    { errmsg_ = "Please select preprocessing setup"; return false; }
+	    { errmsg_ = tr("Please select preprocessing setup"); return false; }
 	mSetString(Attrib::PSAttrib::preProcessStr(), mid );
     }
 

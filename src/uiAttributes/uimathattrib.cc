@@ -87,9 +87,9 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 		{
 		    form_->setInputDef( iinp, toString(param.getdValue()) );
 		    uimathform_->inpFld(iinp)->use( *form_ );
-		}
-	    }
 	}
+    }
+    }
     }
 
     if ( form_->isRecursive()
@@ -101,7 +101,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	{
 	    const double val = recvalsstr.getDValue( idx );
 	    form_->recStartVals()[idx] = mIsUdf(val) ? 0 : val;
-	}
+    }
     }
 
     return true;
@@ -157,7 +157,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 		constidx++;
 		DoubleParam& dparam = (DoubleParam&)(*cstset)[constidx];
 		dparam.setValue( uimathform_->getConstVal(idx) );
-	    }
+    }
 	}
     }
 
@@ -188,7 +188,7 @@ bool uiMathAttrib::getInput( Desc& desc )
 	    Desc* inpdesc = desc.descSet()->getDescFromUIListEntry(
 					uimathform_->inpFld(idx)->getInput() );
 	    desc.setInput( attrinpidx, inpdesc );
-	}
+    }
     }
 
     return true;
@@ -207,7 +207,7 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 	    cstinpidx++;
 	    params += EvalParam( form_->variableName(idx),
 				 Attrib::Mathematics::cstStr(), 0,
-				 idx );
-	}
+			     idx );
     }
+}
 }

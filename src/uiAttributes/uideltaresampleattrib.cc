@@ -30,7 +30,7 @@ uiDeltaResampleAttrib::uiDeltaResampleAttrib( uiParent* p, bool is2d )
     deltacubefld_ = createInpFld( is2d, "Delta Cube" );
     deltacubefld_->attach( alignedBelow, refcubefld_ );
 
-    periodfld_ = new uiGenInput( this, "Input is periodic", FloatInpSpec());
+    periodfld_ = new uiGenInput( this, tr("Input is periodic"), FloatInpSpec());
     periodfld_->setWithCheck(); periodfld_->setChecked( false );
     periodfld_->attach( alignedBelow, deltacubefld_ );
     

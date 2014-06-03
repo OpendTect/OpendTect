@@ -55,12 +55,13 @@ uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
 {
     inpfld = createImagInpFld( is2d );
 
-    outpfld = new uiGenInput( this, "Output", StringListInpSpec(outstrs) );
+    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+        StringListInpSpec(outstrs) );
     outpfld->setElemSzPol( uiObject::MedVar );
     outpfld->attach( alignedBelow, inpfld );
     outpfld->valuechanged.notify( mCB(this,uiInstantaneousAttrib,outputSelCB) );
 
-    phaserotfld = new uiLabeledSpinBox(this,"Specify angle (deg)");
+    phaserotfld = new uiLabeledSpinBox(this,tr("Specify angle (deg)"));
     phaserotfld->box()->setInterval( -180, 180 );
     phaserotfld->attach( alignedBelow, outpfld );
 

@@ -86,17 +86,17 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    extfld_ = new uiGenInput( this, "Extension",
+    extfld_ = new uiGenInput( this, tr("Extension"),
 			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,extSel) );
     extfld_->attach( alignedBelow, gatefld_ );
 
     uiStepOutSel::Setup setup( is2d );
-    setup.seltxt( "Trace positions" ).allowneg( true );
+    setup.seltxt( tr("Trace positions") ).allowneg( true );
     pos0fld_ = new uiStepOutSel( this, setup );
     pos0fld_->setFieldNames( "Trc1 Inl", "Trc1 Crl" );
     pos0fld_->attach( alignedBelow, extfld_ );
-    setup.seltxt( "&" );
+    setup.seltxt( tr("&") );
     pos1fld_ = new uiStepOutSel( this, setup );
     pos1fld_->setFieldNames( "Trc2 Inl", "Trc2 Crl" );
     pos1fld_->attach( rightOf, pos0fld_ );
@@ -119,16 +119,17 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     deltadipfld_ = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld_->attach( alignedBelow, maxdipfld_ );
 
-    dooutpstatsfld_ = new uiGenInput( this, "Output",
-			BoolInpSpec(true,"Statistics","Dip at max similarity"));
+    dooutpstatsfld_ = new uiGenInput( this, uiStrings::sOutput(),
+			BoolInpSpec(true,tr("Statistics"),
+                                    tr("Dip at max similarity")));
     dooutpstatsfld_->valuechanged.notify( mCB(this,uiSimilarityAttrib,outSel) );
     dooutpstatsfld_->attach( alignedBelow, deltadipfld_ );
 
-    outpstatsfld_ = new uiGenInput( this, "Output statistic",
+    outpstatsfld_ = new uiGenInput( this, tr("Output statistic"),
 				   StringListInpSpec(outpstrs) );
     outpstatsfld_->attach( alignedBelow, dooutpstatsfld_ );
 
-    outpdipfld_ = new uiGenInput( this, "Select output",
+    outpdipfld_ = new uiGenInput( this, tr("Select output"),
 				  StringListInpSpec(outpdip3dstrs) );
     outpdipfld_->attach( alignedBelow, dooutpstatsfld_ );
     outpdipfld_->display(false);
@@ -350,7 +351,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     {
 	BufferStringSet steertyps;
 	steertyps.add( "None" );
-	typfld_ = new uiGenInput( this, "Steering",
+	typfld_ = new uiGenInput( this, tr("Steering"),
 				  StringListInpSpec(steertyps) );
 	typfld_->valuechanged.notify(
 		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));

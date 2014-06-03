@@ -56,33 +56,36 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 {
     inpfld = createInpFld( is2d );
 
-    issinglefld = new uiGenInput( this, "Use",
-			BoolInpSpec(true,"Single event","Multiple events") );
+    issinglefld = new uiGenInput( this, tr("Use"),
+			BoolInpSpec(true,tr("Single event"),
+                                    tr("Multiple events")) );
     issinglefld->attach( alignedBelow, inpfld );
     issinglefld->valuechanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
 
-    evtypefld = new uiGenInput( this, "Event type",
+    evtypefld = new uiGenInput( this, tr("Event type"),
 				StringListInpSpec(evtypestrs) );
     evtypefld->attach( alignedBelow, issinglefld );
     evtypefld->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld->display(false);
     
     tonextlblfld = new uiLabel( this,
-	    		"Compute distance between 2 consecutive events" );
+	    		tr("Compute distance between 2 consecutive events") );
     tonextlblfld->attach( leftAlignedBelow, evtypefld );
 
     outampfld = new uiGenInput( this, "",
-	       BoolInpSpec(true,"Compute distance between 2 consecutive events",
-		   		"Output Amplitude") );
+	       BoolInpSpec(true,
+                           tr("Compute distance between 2 consecutive events"),
+		           tr("Output Amplitude")));
     outampfld->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
     outampfld->attach( leftAlignedBelow, evtypefld );
 
-    tonextfld = new uiGenInput( this, "starting from",
-	    			BoolInpSpec(true,"Top","Bottom") );
+    tonextfld = new uiGenInput( this, tr("starting from"),
+	    			BoolInpSpec(true,tr("Top"),tr("Bottom")) );
     tonextfld->attach( centeredBelow, tonextlblfld );
     tonextfld->display(false);
     
-    outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+                              StringListInpSpec(outpstrs) );
     outpfld->attach( alignedBelow, issinglefld);
 
     gatefld = new uiGenInput( this, gateLabel(),

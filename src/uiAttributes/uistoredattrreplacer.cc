@@ -220,7 +220,7 @@ void uiStoredAttribReplacer::setSteerPar( StoredEntry storeentry,
 					  const char* key, const char* userref )
 {
     if ( !key || !userref )
-	return uiMSG().error( "No valid steering input selected" );
+	return uiMSG().error( tr("No valid steering input selected") );
 
     const int output = getOutPut( storeentry.firstid_.asInt() );
     if ( output==0 )
@@ -294,7 +294,7 @@ void uiStoredAttribReplacer::handleSingleInput()
 	    Desc* ad = attrset_->getDesc( storedids_[0].firstid_ );
 	    if ( !ad )
 	    {
-		uiMSG().error( "Cannot replace stored entries" );
+		uiMSG().error( tr("Cannot replace stored entries") );
 		return;
 	    }
 

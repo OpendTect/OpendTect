@@ -69,9 +69,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , datastorefld_(0)
 {
     const bool is2d = ad.is2D();
-    setCaption( is2d ? "Create Data Attribute" :
-	( multioutput ? "Create Multi-attribute Output"
-		      : "Create Volume Attribute") );
+    setCaption( is2d ? tr("Create Data Attribute") :
+       ( multioutput ? tr("Create Multi-attribute Output")
+		     : tr("Create Volume Attribute")) );
 
     uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;
@@ -224,7 +224,7 @@ bool uiAttrVolOut::prepareProcessing()
     if ( !objfld_->commitInput() || !ctio_.ioobj )
     {
 	if ( objfld_->isEmpty() )
-	    uiMSG().error( "Please enter output Seismic data name" );
+	    uiMSG().error( tr("Please enter output Seismic data name") );
 	return false;
     }
 
@@ -253,7 +253,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    if ( outputnm.isEmpty() )
 	    {
 		uiMSG().error(
-		       "No dataset name given. Please provide a valid name. " );
+		tr("No dataset name given. Please provide a valid name. ") );
 		return false;
 	    }
 
@@ -277,7 +277,7 @@ bool uiAttrVolOut::prepareProcessing()
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
 	{
-	    uiMSG().error( "Please select the output quantity" );
+	    uiMSG().error( tr("Please select the output quantity") );
 	    return false;
 	}
 
@@ -349,7 +349,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     {
 	if ( !nlaid_ || !(*nlaid_) )
 	{
-	    uiMSG().message("NN needs to be stored before creating volume");
+	    uiMSG().message(tr("NN needs to be stored before creating volume"));
 	    return 0;
 	}
 	addNLA( nlamodel_id );

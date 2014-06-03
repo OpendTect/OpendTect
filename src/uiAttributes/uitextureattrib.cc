@@ -94,7 +94,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     globalmaxfld_->setElemSzPol(uiObject::Small);
     globalmaxfld_->attach( rightOf, globalminfld_ );
 
-    uiPushButton* analysebut = new uiPushButton( this, "Compute",
+    uiPushButton* analysebut = new uiPushButton( this, tr("Compute"),
 				 mCB(this,uiTextureAttrib,analyseCB), false );
     analysebut->attach( rightOf, globalmaxfld_ );
     setHAlignObj( inpfld_ );
@@ -145,7 +145,7 @@ bool uiTextureAttrib::getParameters( Desc& desc )
     if ( mIsEqual( globalmin, globalmax, 1e-3 ))
     {
 	BufferString errstr =
-	    "Minimum and Maximum values cannot be the same.\n";
+	"Minimum and Maximum values cannot be the same.\n";
 	errstr += "Values represent the clipping range of the input.";
 	uiMSG().error( errstr.buf() );
 	return false;
@@ -267,7 +267,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
     if ( !ioobj )
     {
-	uiMSG().error( "Select a valid input" );
+	uiMSG().error( tr("Select a valid input") );
 	return;
     }
 

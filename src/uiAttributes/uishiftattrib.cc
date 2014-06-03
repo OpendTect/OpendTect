@@ -35,7 +35,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     uiStepOutSel::Setup setup( is2d );
-    setup.seltxt( "Shift" ).allowneg( true );
+    setup.seltxt( tr("Shift") ).allowneg( true );
     stepoutfld_ = new uiStepOutSel( this, setup );
     stepoutfld_->setFieldNames( "Inl shift", "Crl shift" );
     stepoutfld_->attach( alignedBelow, inpfld_ );
@@ -45,7 +45,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     timefld_->setElemSzPol(uiObject::Small);
     timefld_->attach( rightTo, stepoutfld_ );
 
-    dosteerfld_ = new uiGenInput( this, "Use steering", BoolInpSpec(true) );
+    dosteerfld_ = new uiGenInput( this, tr("Use steering"), BoolInpSpec(true) );
     dosteerfld_->attach( alignedBelow, stepoutfld_ );
     dosteerfld_->valuechanged.notify( mCB(this,uiShiftAttrib,steerSel) );
     dosteerfld_->setElemSzPol( uiObject::SmallVar );

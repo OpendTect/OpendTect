@@ -56,8 +56,8 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     inpfld_ = createImagInpFld( is2d );
     inpfld_->selectionDone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
-    typefld_ = new uiGenInput( this, "Transform type",
-	    		      BoolInpSpec(true,"FFT","CWT") );
+    typefld_ = new uiGenInput( this, tr("Transform type"),
+	    		      BoolInpSpec(true,tr("FFT"),tr("CWT")) );
     typefld_->attach( alignedBelow, inpfld_ );
     typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
@@ -78,12 +78,12 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );
 
-    stepfld_ = new uiLabeledSpinBox( this, "step", 1 );
+    stepfld_ = new uiLabeledSpinBox( this, tr("step"), 1 );
     stepfld_->attach( rightTo, outpfld_ );
     stepfld_->box()->valueChanged.notify( 
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
-    waveletfld_ = new uiGenInput( this, "Wavelet", 
+    waveletfld_ = new uiGenInput( this, tr("Wavelet"), 
 	    			 StringListInpSpec(CWT::WaveletTypeNames()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
@@ -253,7 +253,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
 {
     if ( inpfld_->attribID() == DescID::undef() )
     {
-	uiMSG().error( "Please, first, fill in the Input Data field" );
+	uiMSG().error( tr("Please, first, fill in the Input Data field") );
 	return;
     }
 

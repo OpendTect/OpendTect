@@ -507,8 +507,8 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     const int nr2d = ds2d->nrDescs( false, true );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
-    int res = uiMSG().askGoOnAfter( "Which attributes do you want to use?",
-				    0, "&2D", "&3D" );
+    int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
+				    0, tr("&2D"), tr("&3D") );
     if ( res == 2 ) return 0;
     return res == 0 ? ds2d : ds3d;
 }
@@ -525,7 +525,7 @@ void uiAttribPartServer::saveSet( bool is2d )
 	ctio->setObj( dlg.ioObj()->clone() );
 	BufferString bs;
 	if ( !ctio->ioobj )
-	    uiMSG().error("Cannot find attribute set in data base");
+	    uiMSG().error(tr("Cannot find attribute set in data base"));
 	else if (
 	    !AttribDescSetTranslator::store(*DSHolder().getDescSet(is2d,false),
 					      ctio->ioobj,bs) )
@@ -659,7 +659,6 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     Processor* process = aem->createDataCubesOutput( errmsg, cache );
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
-
     bool showinlprogress = true;
     bool showcrlprogress = true;
     Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
@@ -705,8 +704,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
     if ( !success )
     {
-	if ( !uiMSG().askGoOn("Attribute loading/calculation aborted.\n"
-	    "Do you want to use the partially loaded/computed data?", true ) )
+	if ( !uiMSG().askGoOn(tr("Attribute loading/calculation aborted.\n"
+	    "Do you want to use the partially loaded/computed data?"), true ) )
 	{
 	    output->unRef();
 	    output = 0;
@@ -904,8 +903,8 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     {
 	return somesuccess &&
 	     uiMSG().askGoOn(
-	      "Some data extraction failed. Do you want to continue and use"
-	      " the (partially) extracted data?", true);
+	      tr("Some data extraction failed. Do you want to continue and use"
+	      " the (partially) extracted data?"), true);
     }
 
     return true;
@@ -937,7 +936,7 @@ void uiAttribPartServer::importAttrSetFromFile()
 
 void uiAttribPartServer::importAttrSetFromOtherSurvey()
 {
-    uiMSG().message( "Not implemented yet" );
+    uiMSG().message( tr("Not implemented yet") );
 }
 
 
@@ -1004,12 +1003,12 @@ void uiAttribPartServer::fillInStoredAttribMenuItem(
     int nritems = bfset.size();
     if ( nritems <= cMaxMenuSize )
     {
-	const int start = 0; const int stop = nritems;
-	if ( issteer )
-	{ mInsertItems(steernms_,mnu,isstored); }
-	else
-	{ mInsertItems(ioobjnms_,mnu,isstored); }
-    }
+	    const int start = 0; const int stop = nritems;
+	    if ( issteer )
+	    { mInsertItems(steernms_,mnu,isstored); }
+	    else
+	    { mInsertItems(ioobjnms_,mnu,isstored); }
+	}
 
     menu->text = getMenuText( is2d, issteer, nritems>cMaxMenuSize );
 }
@@ -1034,12 +1033,12 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 	if ( stopnm.size() > 3 ) stopnm[3] = '\0';
 	MenuItem* submnu = new MenuItem( BufferString(startnm," - ",stopnm) );
 
-	SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
-			 DescID::undef() );
-	if ( issteer )
-	{ mInsertItems(steernms_,submnu,correcttype); }
-	else
-	{ mInsertItems(ioobjnms_,submnu,correcttype); }
+	    SelInfo attrinf( DSHolder().getDescSet(false,true), 0, false,
+			     DescID::undef() );
+	    if ( issteer )
+	    { mInsertItems(steernms_,submnu,correcttype); }
+	    else
+	    { mInsertItems(ioobjnms_,submnu,correcttype); }
 
 	MenuItem* storedmnuitem = is2d ? issteer ? &steering2dmnuitem_
 						 : &stored2dmnuitem_
@@ -1058,8 +1057,9 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
-    BufferString txt = useext ? ( is2d? "Attributes &2D" : "Attributes &3D" )
-			      : "&Attributes";
+    uiString txt = useext ? ( is2d ? tr("Attributes &2D")
+                                   : tr("Attributes &3D") )
+			           : tr("&Attributes");
     calcmnuitem->text = txt;
     mInsertItems(attrnms_,calcmnuitem,isattrib);
 
@@ -1077,7 +1077,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
     {
 	BufferString ittxt;
 	if ( !useext || is2d )
-	    { ittxt = "&"; ittxt += nlamodel->nlaType(false); }
+        { ittxt = "&"; ittxt += nlamodel->nlaType(false); }
 	else
 	    ittxt = "N&eural Network 3D";
 	if ( useext && is2d ) ittxt += " 2D";
@@ -1177,8 +1177,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     else if ( stored2dmnuitem_.findItem(mnuid) ||
 	      steering2dmnuitem_.findItem(mnuid) )
     {
-	const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
-	if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
+	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
+	    if ( !item ) item = steering2dmnuitem_.findItem(mnuid);
 	if ( !item ) return false;
 
 	const BufferString& itmnm = item->text.getFullString();
@@ -1189,8 +1189,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	const int selout = issteering ? 1 : -1;
 	attribid =
 	    eDSHolder().getDescSet(true,true)->getStoredID( idlkey, selout );
-	isstored = true;
-    }
+	    isstored = true;
+	}
     else if ( calcmnuitem->findItem(mnuid) )
     {
 	const MenuItem* item = calcmnuitem->findItem(mnuid);
@@ -1377,7 +1377,7 @@ bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
 	if ( desc->isStored() && desc->userRef()[0] == '{' )
 	{
 	    LineKey lkey( desc->userRef() );
-	    BufferString newnm = "offset index "; newnm += selectedcomps[idx];
+            BufferString newnm = "offset index "; newnm += selectedcomps[idx];
 	    lkey.setAttrName( newnm );
 	    desc->setUserRef( lkey.buf() );
 	}
@@ -1419,7 +1419,7 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
     if ( !attrsetdlg_ ) return;
     const Desc* curdesc = attrsetdlg_->curDesc();
     if ( !curdesc )
-	mErrRet( "Please add this attribute first" )
+        mErrRet( tr("Please add this attribute first") );
 
     uiAttrDescEd* ade = attrsetdlg_->curDescEd();
     if ( !ade ) return;
@@ -1434,7 +1434,7 @@ void uiAttribPartServer::processEvalDlg( bool iscrossevaluate )
 	    new uiEvaluateDlg( attrsetdlg_, *ade, allowevalstor_ );
 
 	if ( !evaldlg->evaluationPossible() )
-	    mErrRet( "This attribute has no parameters to evaluate" )
+	    mErrRet( tr("This attribute has no parameters to evaluate") );
 
 	evaldlg->calccb.notify( mCB(this,uiAttribPartServer,calcEvalAttrs) );
 	evaldlg->showslicecb.notify( mCB(this,uiAttribPartServer,showSliceCB) );
@@ -1596,7 +1596,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 	{
 	    BufferString basemsg = "Error during restore of ";
 	    basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";
-	    uiMSG().errorWithDetails( errmsgs, basemsg );
+	uiMSG().errorWithDetails( errmsgs, basemsg );
 	}
 
 	set2DEvent( is2d );

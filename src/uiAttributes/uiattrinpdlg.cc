@@ -28,9 +28,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset, 
 			    bool issteer, bool is2d, const char* prevrefnm )
-    : uiDialog(p,uiDialog::Setup("Attribute set definition",
-		       issteer ? "Select Steering input"
-			       : "Select Seismic input",
+    : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
+		       issteer ? tr("Select Steering input")
+			       : tr("Select Seismic input"),
 				 mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(true)
     , is2d_(is2d)
@@ -78,10 +78,11 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
        			    bool is2d )
-    : uiDialog(p,uiDialog::Setup("Attribute set definition",
-	       hassteer ? (hasseis ? "Select Seismic & Steering input"
-			: "Select Steering input") : "Select Seismic input",
-				 mODHelpKey(mAttrInpDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Attribute set definition"),
+	       hassteer ? (hasseis ? tr("Select Seismic & Steering input")
+			: tr("Select Steering input")) 
+                        : tr("Select Seismic input"),
+			  mODHelpKey(mAttrInpDlgHelpID) ))
     , multiinpcube_(false)
     , is2d_(is2d)
     , seisinpfld_(0)
@@ -107,7 +108,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
 
 #define mErrRetSelInp() \
     { \
-	uiMSG().error( "Please select the input for the attributes" ); \
+	uiMSG().error( tr("Please select the input for the attributes") ); \
 	return false; \
     }
 

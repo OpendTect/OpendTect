@@ -69,12 +69,12 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    kernelfld_ = new uiGenInput( this, "Filter type",
+    kernelfld_ = new uiGenInput( this, tr("Filter type"),
                                 StringListInpSpec( kerstrs ) );
     kernelfld_->attach( alignedBelow, inpfld_ );
     kernelfld_->valuechanged.notify( mCB(this,uiConvolveAttrib,kernelSel) );
 
-    szfld_ = new uiLabeledSpinBox( this, "Filter size" );
+    szfld_ = new uiLabeledSpinBox( this, tr("Filter size") );
     szfld_->box()->setMinValue( cMinVal );
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, kernelfld_ );
@@ -85,8 +85,9 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 	    			BoolInpSpec(true, spherestr, cubestr) );
     shapefld_->attach( alignedBelow, szfld_ );
 
-    outpfld_ = new uiGenInput( this, "Output",
-		       StringListInpSpec( is2d_ ? outpstrs2d : outpstrs3d) );
+    outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
+		               StringListInpSpec( is2d_ ? outpstrs2d 
+                                                        : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
     waveletfld_ = new uiIOObjSel( this, mIOObjContext(Wavelet) );

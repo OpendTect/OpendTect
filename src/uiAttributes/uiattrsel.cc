@@ -850,13 +850,13 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 {
     if ( !attrdata_.attribid_.isValid() && attrdata_.outputnr_ < 0 )
     {
-	uiMSG().error( "Please select the input" );
+	uiMSG().error( tr("Please select the input") );
 	return false;
     }
 
     if ( is2D() && !SeisTrcTranslator::is2D(ioobj) )
     {
-	uiMSG().error( "Can only store this in a 2D line set" );
+	uiMSG().error( tr("Can only store this in a 2D line set") );
 	return false;
     }
 

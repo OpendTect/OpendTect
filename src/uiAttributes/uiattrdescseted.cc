@@ -77,8 +77,8 @@ using namespace Attrib;
 
 uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 				      const char* prefgrp, bool attrsneedupdt )
-    : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
-					: "Attribute Set 3D","",
+    : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? tr("Attribute Set 2D")
+					: tr("Attribute Set 3D"),mNoDlgTitle,
                                         mODHelpKey(mAttribDescSetEdHelpID) )
 	.savebutton(true).savetext("Save on Close")
 	.menubar(true).modal(false))
@@ -273,9 +273,9 @@ void uiAttribDescSetEd::init()
 				   : uiAttribDescSetEd::sKeyAuto3DAttrSetID;
     if ( autoset && SI().pars().get(autoidkey,autoid) && autoid != setid_ )
     {
-        BufferString msg = "The Attribute-set selected for Auto-load ";
-        msg += "is no longer valid\n";
-        msg += "Load another now?";
+        uiString msg = tr("The Attribute-set selected for Auto-load"
+                          " is no longer valid.\n Load another now?");
+
         if ( uiMSG().askGoOn( msg ) )
 	{
 	    BufferStringSet attribfiles;
@@ -481,7 +481,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     uiAttrDescEd* curde = curDescEd();
     if ( !curde )
-	mErrRetNull( "Cannot add without a valid attribute type" )
+	mErrRetNull( tr("Cannot add without a valid attribute type") )
 
     BufferString attribname = curde->attribName();
     if ( attribname.isEmpty() )
@@ -489,7 +489,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
-	mErrRetNull( "Cannot create attribdesc" )
+	mErrRetNull( tr("Cannot create attribdesc") )
 
     newdesc->setDescSet( attrset_ );
     newdesc->ref();
@@ -514,8 +514,8 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
 
     if ( attrset_->isAttribUsed( curdesc->id() ) )
     {
-	uiMSG().error( "Cannot remove this attribute. It is used\n"
-		       "as input for another attribute" );
+	uiMSG().error( tr("Cannot remove this attribute. It is used\n"
+		          "as input for another attribute") );
 	return;
     }
 
@@ -681,10 +681,12 @@ bool uiAttribDescSetEd::doAcceptInputs()
 	if ( !errmsg.isEmpty() )
 	{
 	    const char* attribname = desc->userRef();
-	    uiString msg = tr( "Input is not correct for attribute '%1'." )
-			       .arg( attribname );
-	    TypeSet<uiString> msgs( 1, errmsg );
-	    uiMSG().errorWithDetails( msgs, msg );
+
+	    uiString msg = tr("Input is not correct for attribute '%1'.")
+                           .arg(attribname);
+            TypeSet<uiString> messages( 1, errmsg );
+            messages.add( errmsg );
+	    uiMSG().errorWithDetails( messages, msg );
 	    return false;
 	}
     }
@@ -704,12 +706,17 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     bool checkusrref = true;
     if ( oldattr != newattr )
     {
-	BufferString msg = "This will change the type of existing attribute '";
-	msg += usedesc->userRef();
-	msg += "'.\nThis will remove previous definition of the attribute.\n";
-	msg +="If you want to avoid this please use 'Cancel' and 'Add as new'.";
-	msg += "\nAre you sure you want to change the attribute type?";
-	bool res = uiMSG().askGoOn( msg, "Change", "Cancel" );
+       uiString msg = tr("This will change the type of "
+                         " existing attribute '%1'.\n"
+                         "This will remove previous"
+                         " definition of the attribute.\n"
+                         "If you want to avoid this please use"
+                         " 'Cancel' and 'Add as new'."
+                         "\nAre you sure you want"
+                         " to change the attribute type?")
+                        .arg(usedesc->userRef());
+
+        bool res = uiMSG().askGoOn(msg, "Change", "Cancel");
 	if ( res )
 	{
 	    checkusrref = false;
@@ -748,7 +755,8 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     if ( !curdesced )
 	return false;
 
-    const uiString res = curdesced->commit();
+
+    uiString res = curdesced->commit();
     if ( !res.isEmpty() )
 	mErrRetFalse( res )
 
@@ -810,15 +818,15 @@ void uiAttribDescSetEd::updateCurDescEd()
 bool uiAttribDescSetEd::validName( const char* newnm ) const
 {
     if ( !isalnum(newnm[0]) )
-	mErrRetFalse( "Please start attribute name with a letter or number" );
+	mErrRetFalse(tr("Please start attribute name with a letter or number"));
 
     if ( firstOcc(newnm,'!') || firstOcc(newnm,':') || firstOcc(newnm,';') ||
 	 firstOcc(newnm,'#') )
-	mErrRetFalse( "Attribute name may not contain '!', '#', ';' or ':'." );
+       mErrRetFalse(tr("Attribute name may not contain '!', '#', ';' or ':'."));
 
     const FixedString fsnewnm( newnm );
     if ( fsnewnm.size() < 2 )
-	mErrRetFalse( "Please enter a name of at least 2 characters." );
+	mErrRetFalse( tr("Please enter a name of at least 2 characters.") );
 
     TypeSet<DescID> ids;
     attrset_->getIds( ids );
@@ -827,8 +835,8 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	const Desc& ad = *attrset_->getDesc( ids[idx] );
 	if ( fsnewnm == ad.userRef() )
 	{
-	    uiMSG().error( "The name you entered for the attribute already"
-			  " exists.\nPlease choose another name." );
+	    uiMSG().error( tr("The name you entered for the attribute already"
+			  " exists.\nPlease choose another name.") );
 	    return false;
 	}
     }
@@ -873,7 +881,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 
 	setctio_.ioobj = IOM().get( setid_ );
 	if ( !setctio_.ioobj )
-	    mErrRetFalse("Cannot find attribute set in data base")
+	    mErrRetFalse(tr("Cannot find attribute set in data base"))
     }
 
     BufferString bs;
@@ -956,11 +964,13 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 	    if ( !ad ) continue;
 	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
-		BufferString msg = "The attribute: '";
-		msg += ad->userRef();
-		msg += "' will be removed\n";
-		msg += "Storage ID is no longer valid";
-		uiMSG().message( msg );
+                uiString msg = tr("The attribute: '%1'"
+                                  "will be removed\n" 
+                                  "Storage ID is no longer valid")
+                               .arg(ad->userRef());
+                
+
+                uiMSG().message( msg );
 		attrset_->removeDesc( ad->id() );
 		idx--;
 	    }
@@ -1059,7 +1069,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     fp.setExtension( "proc" );
     if ( !File::exists(fp.fullPath()) )
     {
-	uiMSG().error( "No attributeset stored with this dataset" );
+	uiMSG().error( tr("No attributeset stored with this dataset") );
 	mDelCtio;
 	return;
     }
@@ -1069,7 +1079,7 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     PtrMan<IOPar> attrpars = iopar.subselect( sKey::Attributes() );
     if ( !attrpars )
     {
-	uiMSG().error( "Cannot read attributeset from this dataset" );
+	uiMSG().error( tr("Cannot read attributeset from this dataset") );
 	mDelCtio;
 	return;
     }
@@ -1139,7 +1149,7 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
     if ( !dlg.go() ) return;
 
     if ( dlg.attrSet().nrDescs(false,false) < 1 )
-	mErrRet( "No usable attributes in file" )
+	mErrRet( tr("No usable attributes in file") )
 
     *attrset_ = dlg.attrSet();
     adsman_->setSaved( false );
@@ -1160,7 +1170,7 @@ void uiAttribDescSetEd::crossPlot( CallBacker* )
 void uiAttribDescSetEd::directShow( CallBacker* )
 {
     if ( !curDesc() )
-	mErrRet( "Please add this attribute first" )
+	mErrRet( tr("Please add this attribute first") )
 
     if ( doCommit() )
 	dirshowcb.trigger();
@@ -1188,11 +1198,11 @@ bool uiAttribDescSetEd::offerSetSave()
     bool saved = adsman_->isSaved();
     if ( saved ) return true;
 
-    BufferString msg( "Attribute set is not saved.\nSave now?" );
+
+BufferString msg( "Attribute set is not saved.\nSave now?" );
     const int res = uiMSG().askSave( msg );
     if ( res==1 )
-	return doSave(false);
-
+    return doSave(false);
     return res==0;
 }
 

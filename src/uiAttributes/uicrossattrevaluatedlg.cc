@@ -33,9 +33,10 @@ static const StepInterval<int> cSliceIntv(2,30,1);
 
 uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
-    : uiDialog(p,uiDialog::Setup("Cross attribute parameter evaluation",
+    : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
 		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
-                                 .modal(false).oktext("Accept").canceltext(""))
+                                 .modal(false).oktext(tr("Accept"))
+                                 .canceltext(""))
     , calccb(this)
     , showslicecb(this)
     , initpar_(*new IOPar)
@@ -62,14 +63,14 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     haspars_ = true;
 
     uiGroup* grp = new uiGroup( this, "Attr-Params" );
-    uiLabel* paramlabel = new uiLabel( grp, "Parameter to evaluate" );
+    uiLabel* paramlabel = new uiLabel( grp, tr("Parameter to evaluate") );
     paramsfld_ = new uiListBox( grp );
     paramsfld_->attach( ensureBelow, paramlabel );
     paramsfld_->addItems( paramnms );
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
-    uiLabel* attrlabel = new uiLabel( grp, "Attributes" );
+    uiLabel* attrlabel = new uiLabel( grp, tr("Attributes") );
     attrnmsfld_ = new uiListBox( grp, "From attributes", OD::ChooseAtLeastOne );
     attrnmsfld_->attach( rightOf, paramsfld_ );
     attrlabel->attach( alignedAbove, attrnmsfld_ );
@@ -78,11 +79,11 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     pargrp->attach( alignedBelow, grp );
     pargrp->setHAlignObj( grps_[0] );
 
-    nrstepsfld = new uiLabeledSpinBox( this, "Nr of steps" );
+    nrstepsfld = new uiLabeledSpinBox( this, tr("Nr of steps") );
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, "Calculate", true );
+    calcbut = new uiPushButton( this, tr("Calculate"), true );
     calcbut->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
@@ -94,7 +95,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     sliderfld->setTickMarks( uiSlider::Below );
     sliderfld->setSensitive( false );
 
-    storefld = new uiCheckBox( this, "Store slices on 'Accept'" );
+    storefld = new uiCheckBox( this, tr("Store slices on 'Accept'") );
     storefld->attach( alignedBelow, sliderfld );
     storefld->setChecked( false );
     storefld->setSensitive( false );

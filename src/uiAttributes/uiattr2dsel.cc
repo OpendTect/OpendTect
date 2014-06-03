@@ -45,21 +45,21 @@ using namespace Attrib;
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const Pos::GeomID geomid, const NLAModel* nla,
 				const char* curnm )
-    : uiDialog(p,Setup("Select Dataset",mNoDlgTitle,mNoHelpKey))
-    , geomid_(geomid)
-    , nla_(nla)
-    , descid_(-1,true)
-    , curnm_(curnm)
-    , seltype_(0)
-    , selgrp_(0)
-    , steerfld_(0)
-    , nlafld_(0)
-    , storoutfld_(0)
-    , steeroutfld_(0)
-    , attroutfld_(0)
-    , nlaoutfld_(0)
-    , compnr_(-1)
-    , outputnr_(-1)
+    : uiDialog(p,Setup(tr("Select Dataset"),mNoDlgTitle,mNoHelpKey))
+	, geomid_(geomid)
+	, nla_(nla)
+	, descid_(-1,true)
+	, curnm_(curnm)
+	, seltype_(0)
+	, selgrp_(0)
+        , steerfld_(0)
+	, nlafld_(0)
+	, storoutfld_(0)
+        , steeroutfld_(0)
+	, attroutfld_(0)
+	, nlaoutfld_(0)
+        , compnr_(-1)
+        , outputnr_(-1)
 {
     attrinf_ = new SelInfo( ds, nla_, true );
 
@@ -190,7 +190,7 @@ int uiAttr2DSelDlg::selType() const
     if ( steerfld_ && steerfld_->isChecked() )
 	return 1;
     if ( attrfld_->isChecked() )
-	return 2;
+    return 2;
     return 3;
 }
 
@@ -220,8 +220,8 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	BufferString selnm = attrfld->getText();
 	if ( selnm==curnm_ )
 	{
-	    BufferString msg = "Do you want to reload the attribute ";
-	    msg += selnm;
+	    uiString msg = tr("Do you want to reload the attribute %1")
+                           .arg(selnm);
 	    if ( !uiMSG().askGoOn(msg) )
 	    {
 		seltype_ = -1;

@@ -40,8 +40,8 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
-	: uiDialog(p,Setup("Multiple components selection",
-			   "Select the outputs to compute",
+	: uiDialog(p,Setup(tr("Multiple components selection"),
+			   tr("Select the outputs to compute"),
                            mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
 	, outallfld_(0)
@@ -63,7 +63,7 @@ void uiMultOutSel::createMultOutDlg( const BufferStringSet& outnames )
     outlistfld_ = new uiListBox( this, "Outputs", OD::ChooseAtLeastOne );
     outlistfld_->addItems( outnames );
 
-    outallfld_ = new uiCheckBox( this, "Output all");
+    outallfld_ = new uiCheckBox( this, tr("Output all"));
     outallfld_->activated.notify( mCB(this,uiMultOutSel,allSel) );
     outallfld_->attach( alignedBelow, outlistfld_ );
 }

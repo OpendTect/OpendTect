@@ -85,21 +85,23 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 {
     inpfld = createInpFld( is2d );
 
-    typefld = new uiGenInput( this, "Type", StringListInpSpec(scalingtypestr) );
+    typefld = new uiGenInput( this, uiStrings::sType(),
+                              StringListInpSpec(scalingtypestr) );
     typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
     typefld->attach( alignedBelow, inpfld );
 
-    nfld = new uiGenInput( this, "n", FloatInpSpec() );
+    nfld = new uiGenInput( this, tr("n"), FloatInpSpec() );
     nfld->attach( alignedBelow, typefld );
 
-    sqrgfld = new uiGenInput( this, "Value range (empty=unlimited)",
+    sqrgfld = new uiGenInput( this, tr("Value range (empty=unlimited)"),
 	    			FloatInpIntervalSpec() );
     sqrgfld->attach( alignedBelow, typefld );
-    squrgfld = new uiGenInput( this, "Untouched range (empty=all)",
+    squrgfld = new uiGenInput( this, tr("Untouched range (empty=all)"),
 	    			FloatInpIntervalSpec() );
     squrgfld->attach( alignedBelow, sqrgfld );
 
-    statsfld = new uiGenInput( this, "Basis", StringListInpSpec(statstypestr) );
+    statsfld = new uiGenInput( this, tr("Basis"), 
+        StringListInpSpec(statstypestr) );
     statsfld->attach( alignedBelow, typefld );
     statsfld->valuechanged.notify( mCB(this,uiScalingAttrib,statsSel) );
 
@@ -109,7 +111,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .fillcol(true)
 					       .maxrowhgt(1)
 					       .selmode(uiTable::Multi),
-		         "Define Gate limits" );
+		                                "Define Gate limits" );
 
     BufferString lblstart = "Start "; lblstart += SI().getZUnitString();
     BufferString lblstop = "Stop "; lblstop += SI().getZUnitString();
@@ -120,7 +122,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setColumnStretchable( stopcol, true );
     table->attach( alignedBelow, statsfld );
     table->setStretch( 2, 0 );
-    table->setToolTip( "Right-click to add, insert or remove a gate" );
+    table->setToolTip( tr("Right-click to add, insert or remove a gate") );
 
     // for AGC
     BufferString label = "Window width ";
@@ -129,13 +131,13 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     windowfld = new uiGenInput( this, label.buf(), FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );
 
-    lowenergymute = new uiGenInput( this, "Low energy mute (%)",
+    lowenergymute = new uiGenInput( this, tr("Low energy mute (%)"),
 	    			    FloatInpSpec() );
     lowenergymute->setValue( 0 );
     lowenergymute->attach( alignedBelow, windowfld );
 
     // for Gain Correction
-    analysebut_ = new uiPushButton( this, "Analyse",
+    analysebut_ = new uiPushButton( this, tr("Analyse"),
 	    			    mCB(this,uiScalingAttrib,analyseCB), false);
     analysebut_->attach( alignedBelow, typefld );
 
@@ -351,7 +353,7 @@ bool uiScalingAttrib::areUIParsOK()
     {
 	if ( sqrgfld->isUndef(0) && sqrgfld->isUndef(1) )
 	{
-	    errmsg_ = "Please fill in at least one value range limit\n";
+	    errmsg_ = tr("Please fill in at least one value range limit");
 	    return false;
 	}
     }
@@ -529,7 +531,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	LineKey lk( inpdesc->getStoredID(true) );
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 	if ( !ioobj )
-	    return uiMSG().error( "Select a valid input" );
+	    return uiMSG().error( tr("Select a valid input") );
 
 	uiSelectPositionDlg subseldlg( this, ioobj->key(), is2D(),
 				       lk.attrName() );
@@ -589,7 +591,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     }
 
     if ( nrtrcs <= 0 )
-	return uiMSG().error( "Number of traces cannot be zero or negative" );
+	return uiMSG().error(tr("Number of traces cannot be zero or negative"));
 
     cs.hrg.getRandomSet( nrtrcs, bidset );
     aem->setCubeSampling( cs );

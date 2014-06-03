@@ -46,10 +46,12 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
 					      .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
-    gradientfld_ = new uiGenInput( this, "Compute gradient", BoolInpSpec(true));
+    gradientfld_ = new uiGenInput( this, tr("Compute gradient"), 
+                                            BoolInpSpec(true));
     gradientfld_->attach( alignedBelow, gatefld_ );
 
-    outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
+    outpfld_ = new uiGenInput( this, uiStrings::sOutput(), 
+                              StringListInpSpec(outpstrs) );
     outpfld_->attach( alignedBelow, gradientfld_ );
     setHAlignObj( gatefld_ );
 }

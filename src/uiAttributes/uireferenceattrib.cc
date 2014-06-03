@@ -60,13 +60,13 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
 {
     inpfld = createInpFld( is2d );
 
-    outpfld3d = new uiGenInput( this, "Desired Output",
-				   StringListInpSpec(outpstrs3d) );
+    outpfld3d = new uiGenInput( this, tr("Desired Output"), 
+                                StringListInpSpec(outpstrs3d) );
     outpfld3d->attach( alignedBelow, inpfld );
     outpfld3d->display( !is2d_ );
 
-    outpfld2d = new uiGenInput( this, "Desired Output",
-				   StringListInpSpec(outpstrs2d) );
+    outpfld2d = new uiGenInput( this, tr("Desired Output"),
+				StringListInpSpec(outpstrs2d) );
     outpfld2d->attach( alignedBelow, inpfld );
     outpfld2d->display( is2d_ );
 

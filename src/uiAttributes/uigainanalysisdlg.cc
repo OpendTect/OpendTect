@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "";
 
 uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       TypeSet<float>& zvals, TypeSet<float>& scalefac )
-    : uiDialog(p,uiDialog::Setup("Analyse Gain", 0, mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Analyse Gain"), 0, mNoHelpKey))
     , zvals_(zvals)
     , scalefactors_(scalefac)
     , trcbuf_(traces)
@@ -51,19 +51,19 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
       .xrg(zrg).ycol(Color(255,0,0));
 
     funcdisp_ = new uiFunctionDisplay( this, su );
-    funcdisp_->xAxis()->setCaption( "Z" );
-    funcdisp_->yAxis(true)->setCaption( "RMS Amplitude" );
-    funcdisp_->yAxis(false)->setCaption( "Scale Factor" );
+    funcdisp_->xAxis()->setCaption( tr("Z") );
+    funcdisp_->yAxis(true)->setCaption( tr("RMS Amplitude") );
+    funcdisp_->yAxis(false)->setCaption( tr("Scale Factor") );
 
     uiGroup* mandispgrp = new uiGroup( this );
     mandispgrp->attach( alignedBelow, funcdisp_ );
 
-    rangefld_ = new uiGenInput( mandispgrp, "Scale Range",
+    rangefld_ = new uiGenInput( mandispgrp, tr("Scale Range"),
 	    			FloatInpIntervalSpec() );
     rangefld_->valuechanged.notify( mCB(this,uiGainAnalysisDlg,dispRangeChgd ));
     rangefld_->setValue( scalerg );
 
-    stepfld_ = new uiLabeledSpinBox( mandispgrp, "Gridline step");
+    stepfld_ = new uiLabeledSpinBox( mandispgrp, tr("Gridline step"));
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
 	    mCB(this,uiGainAnalysisDlg,dispRangeChgd) );
@@ -71,8 +71,8 @@ uiGainAnalysisDlg::uiGainAnalysisDlg( uiParent* p, const SeisTrcBuf& traces,
 	stepfld_->box()->setNrDecimals( 2 );
     stepfld_->box()->setValue( al.sd_.step );
 
-    ampscaletypefld_ = new uiGenInput( mandispgrp, "Amplitude Scale",
-	    			    BoolInpSpec(true,"Linear","dB") );
+    ampscaletypefld_ = new uiGenInput( mandispgrp, tr("Amplitude Scale"),
+	    			    BoolInpSpec(true,tr("Linear"),tr("dB")) );
     ampscaletypefld_->attach( rightTo, stepfld_ );
     ampscaletypefld_->valuechanged.notify(
 	    mCB(this,uiGainAnalysisDlg,amplScaleTypeChanged) );
@@ -178,7 +178,7 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
     if ( range.width() < stepfld_->box()->getFValue() )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
-	return uiMSG().error( "Range step greater than range itself" );
+	return uiMSG().error( tr("Range step greater than range itself") );
     }
 
     range.step = stepfld_->box()->getFValue();
@@ -191,7 +191,7 @@ void uiGainAnalysisDlg::dispRangeChgd( CallBacker* )
 	 (!mIsUdf(-yvalrange.stop) && !range.includes(yvalrange.stop,true)) )
     {
 	rangefld_->setValue( funcdisp_->yAxis(false)->range() );
-	return uiMSG().error( "Scale Curve does not fit in the range" );
+	return uiMSG().error( tr("Scale Curve does not fit in the range") );
     }
 
     funcdisp_->yAxis(false)->setRange( range );

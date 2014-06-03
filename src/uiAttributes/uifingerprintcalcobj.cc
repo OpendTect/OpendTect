@@ -39,7 +39,8 @@ static const int cNrRandPicks = 100;
 
 #define mErrRet(msg) \
 {\
-    BufferString em = "Cannot create 2D random pickset to compute the ranges:";\
+    BufferString em = "Cannot create 2D random pickset" \
+    " to compute the ranges:";\
     em += "\n"; em += msg;\
     uiMSG().error( em.buf() );\
     return;\

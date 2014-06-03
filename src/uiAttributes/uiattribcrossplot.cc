@@ -46,8 +46,8 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
-	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
-		     "Select attributes and locations for cross-plot"
+	: uiDialog(p,uiDialog::Setup(tr("Attribute cross-plotting"),
+		     tr("Select attributes and locations for cross-plot")
 		     ,mODHelpKey(mAttribCrossPlotHelpID) ).modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
 	, lnmfld_(0)
@@ -57,7 +57,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 {
     uiGroup* attrgrp = new uiGroup( this, "Attribute group" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( attrgrp, "Attributes", OD::ChooseAtLeastOne,
+	new uiLabeledListBox( attrgrp, tr("Attributes"), OD::ChooseAtLeastOne,
 			      uiLabeledListBox::AboveMid );
     llb->attach( leftBorder, 20 );
     attrsfld_ = llb->box();
@@ -69,7 +69,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	attrsfld_->selectionChanged.notify(
 		mCB(this,uiAttribCrossPlot,attrChanged) );
 	uiLabeledListBox* lnmlb =
-	    new uiLabeledListBox( attrgrp, "Line names", OD::ChooseAtLeastOne,
+	    new uiLabeledListBox( attrgrp, tr("Line names"),
+			    	  OD::ChooseAtLeastOne,
 				  uiLabeledListBox::AboveMid );
 	lnmfld_ = lnmlb->box();
 	lnmlb->attach( rightTo, llb );
