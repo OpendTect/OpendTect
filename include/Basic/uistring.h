@@ -77,8 +77,7 @@ public:
 		/*!<\note Does not copy data, will use the same underlying data
 			  structure (reference counted). */
 		uiString(const char* original = 0);
-		uiString(const FixedString&);
-		uiString(const BufferString&);
+		uiString(const OD::String&);
 
 		~uiString();
 
@@ -91,19 +90,15 @@ public:
 		/*!<\note Does not copy data, will use the same underlying data
 			  structure (reference counted). */
     uiString&	operator=(const char*);
-    uiString&	operator=(const FixedString&);
+    uiString&	operator=(const OD::String&);
 
-    uiString&	operator=(const BufferString&);
     bool	operator==(const uiString& b) const { return b.data_==data_; }
     bool	operator!=(const uiString& b) const { return b.data_!=data_; }
 
     uiString&	arg(const char*);
 		/*!<Replaces the %N (e.g. %1) with the lowest N with the
 		    provided string. */
-    uiString&	arg(const FixedString&);
-		/*!<Replaces the %N (e.g. %1) with the lowest N with the
-		    provided string. */
-    uiString&	arg(const BufferString&);
+    uiString&	arg(const OD::String&);
 		/*!<Replaces the %N (e.g. %1) with the lowest N with the
 		    provided string. */
     uiString&	arg(const uiString&);
@@ -115,7 +110,7 @@ public:
 		   to allow translator to change ordering.
 		   \param withnewline will add a newline character before the
 			  appended string if current string is not empty.*/
-    uiString&	append(const FixedString&,
+    uiString&	append(const OD::String&,
 				       bool withnewline=false);
 		/*!Appends string with provided string. In most cases, use arg
 		   to allow translator to change ordering.
@@ -123,12 +118,6 @@ public:
 			  appended string if current string is not empty.*/
 				/*!Appends. In most cases, use arg to allow
 				translator to change ordering. */
-    uiString&	append(const BufferString&,
-		       bool withnewline=false);
-		/*!Appends string with provided string. In most cases, use arg
-		   to allow translator to change ordering.
-		   \param withnewline will add a newline character before the
-			  appended string if current string is not empty.*/
     uiString&	append(const uiString&,bool withnewline=false);
 		/*!Appends string with provided string. In most cases, use arg
 		   to allow translator to change ordering.
