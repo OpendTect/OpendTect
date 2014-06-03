@@ -58,10 +58,20 @@ public:
     inline bool		isZero( int icomp=0 ) const
 			{ return icomp >= nrcomp_ || data_[icomp]->isZero(); }
 
-    inline float	getValue( int idx, int icomp=0 ) const
-			{ return interp_[icomp]->get(data_[icomp]->data(),idx);}
-    inline void	setValue( int idx, float v, int icomp=0 )
-			{ interp_[icomp]->put( data_[icomp]->data(), idx, v ); }
+    inline float	getValue( int isamp, int icomp=0 ) const
+    			{
+			    if ( icomp<0 || icomp>=nrcomp_ )
+			    { pErrMsg("Component does not exist");return 0.f; }
+			    return interp_[icomp]->get(
+				    data_[icomp]->data(), isamp );
+			}
+    inline void		setValue( int isamp, float v, int icomp=0 )
+			{
+			     if ( icomp<0 || icomp>=nrcomp_ )
+			     { pErrMsg("Component does not exist"); return; }
+			     return interp_[icomp]->put(
+				     data_[icomp]->data(), isamp, v );
+			}
 
     inline DataBuffer*			getComponent( int icomp=0)
 					{ return data_[icomp]; }
