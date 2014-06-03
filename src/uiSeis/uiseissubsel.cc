@@ -198,7 +198,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	else
 	    selfld_->attach( alignedBelow, singlelnmsel_ );
     }
-	
+
 }
 
 
@@ -257,7 +257,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 	uiMSG().error( msg );
 	return false;
     }
-    
+
     iopar.set( sKey::LineKey(), sellnms );
     return true;
 }
@@ -286,6 +286,24 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 	multilnmsel_->setSelLine( nm );
     else
 	singlelnmsel_->setInput( nm );
+}
+
+
+void uiSeis2DSubSel::selectedLines( BufferStringSet& lnms ) const
+{
+    if ( multilnmsel_ )
+	multilnmsel_->getSelLineNames( lnms );
+    else
+	lnms.add( singlelnmsel_->getInput() );
+}
+
+
+void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
+{
+    if ( multilnmsel_ )
+	multilnmsel_->setSelLineNames( lnms );
+    else if ( !lnms.isEmpty() )
+	singlelnmsel_->setInput( lnms.get(0) );
 }
 
 
