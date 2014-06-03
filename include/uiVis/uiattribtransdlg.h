@@ -18,7 +18,7 @@ namespace visSurvey { class SurveyObject; }
 class uiSlider;
 
 mExpClass(uiVis) uiAttribTransDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAttribTransDlg);
 public:
 				uiAttribTransDlg(uiParent*,
 						 visSurvey::SurveyObject&,

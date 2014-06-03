@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiZStretchDlg::uiZStretchDlg( uiParent* p )
     : uiDialog(p,
-	       uiDialog::Setup("Z Scaling","Set scaling factor",
+	       uiDialog::Setup(tr("Z Scaling"),tr("Set scaling factor"),
                                 mODHelpKey(mZScaleDlgHelpID) )
 	       .canceltext(""))
     , valchgd_(false)
@@ -41,7 +41,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
     visBase::DM().getIDs( typeid(visSurvey::Scene), sceneids_ );
     if ( sceneids_.size() == 0 )
     {
-	new uiLabel( this, "No scenes available" );
+	new uiLabel( this, tr("No scenes available") );
 	return;
     }
 
@@ -56,7 +56,8 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    scenenms.add( scene->name() );
 	}
 
-	scenefld_ = new uiLabeledComboBox( this, scenenms, "Apply scaling to" );
+	scenefld_ = new uiLabeledComboBox( this, scenenms, 
+                                           tr("Apply scaling to") );
 	scenefld_->box()->setCurrentItem( 1 );
 	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
     }
@@ -83,13 +84,14 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     if ( vwallcb.willCall() )
     {
 	ioPixmap vwallpm( "view_all" );
-	vwallbut_ = new uiPushButton( grp, "&Fit to scene", vwallpm, true );
+	vwallbut_ = new uiPushButton( grp, tr("&Fit to scene"), vwallpm, true );
 	mAttachCB( vwallbut_->activated, uiZStretchDlg::butPush );
     }
     if ( homecb.willCall() )
     {
 	ioPixmap homepm( "home" );
-	uiButton* homebut = new uiPushButton( grp, "To &Home", homepm, true );
+	uiButton* homebut = new uiPushButton( grp, tr("To &Home"), homepm, 
+                                              true );
 	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
 	if ( vwallbut_ )
 	    homebut->attach( rightOf, vwallbut_ );

@@ -139,7 +139,7 @@ if ( sldr ) \
 uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
        bool ambience, bool diffusecolor, bool specularcolor,
        bool emmissivecolor, bool shininess, bool transparency, bool color )
-    : uiDlgGroup(p,"Material")
+    : uiDlgGroup(p,tr("Material"))
     , material_(dynamic_cast<visBase::VisualObject*>(so)->getMaterial())
     , survobj_(so)
     , ambslider_(0)
@@ -154,7 +154,7 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
     if ( so->hasColor() )
     {
 	colinp_ = new uiColorInput( this,
-		uiColorInput::Setup(so->getColor()).lbltxt("Base color") );
+		uiColorInput::Setup(so->getColor()).lbltxt(tr("Base color")) );
 	colinp_->colorChanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
 	colinp_->setSensitive( color );
 	prevobj_ = colinp_;

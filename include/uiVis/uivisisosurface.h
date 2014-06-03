@@ -31,7 +31,7 @@ template <class T> class SamplingData;
 /*!\brief Dialog to set isovalue of an isosurface.  */
 
 mExpClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiVisIsoSurfaceThresholdDlg);
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
 			visBase::MarchingCubesSurface*,

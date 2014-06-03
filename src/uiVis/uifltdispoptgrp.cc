@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
 	visSurvey::FaultDisplay* fd )
-    : uiDlgGroup( p, "Construction algorithms" )
+    : uiDlgGroup( p, tr("Construction algorithms") )
     , fltdisp_( fd )
 {
     if ( !fltdisp_ )
@@ -26,12 +26,12 @@ uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
 
     const char* dispopt[] =
 	{ "None(default)", "In-line", "Cross-line", "Z-slice" ,0 };
-    algfld_ = new uiGenInput( this, "Project along",
+    algfld_ = new uiGenInput( this, tr("Project along"),
 			      StringListInpSpec(dispopt) );
     algfld_->setValue( fltdisp_->triangulateAlg() );
     algfld_->valuechanged.notify( mCB(this,uiFaultDisplayOptGrp,algChg) );
 
-    applybut_ = new uiPushButton( this, "&Update display now", true );
+    applybut_ = new uiPushButton( this, tr("&Update display now"), true );
     applybut_->attach( centeredBelow, algfld_ );
     applybut_->activated.notify( mCB(this,uiFaultDisplayOptGrp,applyCB) );
     applybut_->setSensitive( false );

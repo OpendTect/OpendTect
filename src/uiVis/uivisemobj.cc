@@ -245,23 +245,23 @@ bool uiVisEMObject::isOK() const
 
 void uiVisEMObject::setUpConnections()
 {
-    singlecolmnuitem_.text = "Use single &color";
+    singlecolmnuitem_.text = tr("Use single &color");
     singlecolmnuitem_.checkable = true;
-    seedsmenuitem_.text = "S&eeds";
+    seedsmenuitem_.text = tr("S&eeds");
     seedsmenuitem_.checkable = false;
-    showseedsmnuitem_.text = "&Show";
-    seedpropmnuitem_.text = uiStrings::sProperties( false );
-    lockseedsmnuitem_.text = "&Lock";
-    editmnuitem_.text = "&Edit";
+    showseedsmnuitem_.text = tr("&Show");
+    seedpropmnuitem_.text = uiStrings::sProperties(false);
+    lockseedsmnuitem_.text = uiStrings::sLock();
+    editmnuitem_.text = uiStrings::sEdit(true);
     editmnuitem_.checkable = true;
-    removesectionmnuitem_.text ="Remove &section";
-    makepermnodemnuitem_.text = "Make control &permanent";
-    removecontrolnodemnuitem_.text = "Remove &control";
-    changesectionnamemnuitem_.text = "Change section's &name";
-    showonlyatsectionsmnuitem_.text = "&Only at sections";
-    showfullmnuitem_.text = "&In full";
-    showbothmnuitem_.text = "&At sections and in full";
-    showsurfacegridmnuitem_.text = "&Surface Grid";
+    removesectionmnuitem_.text = tr("Remove &section");
+    makepermnodemnuitem_.text = tr("Make control &permanent");
+    removecontrolnodemnuitem_.text = tr("Remove &control");
+    changesectionnamemnuitem_.text = tr("Change section's &name");
+    showonlyatsectionsmnuitem_.text = tr("&Only at sections");
+    showfullmnuitem_.text = tr("&In full");
+    showbothmnuitem_.text = tr("&At sections and in full");
+    showsurfacegridmnuitem_.text = tr("&Surface Grid");
 
     showonlyatsectionsmnuitem_.checkable = true;
     showfullmnuitem_.checkable = true;
@@ -447,14 +447,15 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	const TypeSet<EM::PosID>* seeds =
 	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
 	showseedsmnuitem_.text =
-	    emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? "&Hide" : "S&how";
+	   emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? uiStrings::sHide()
+                                                           : uiStrings::sShow();
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
 		      !visserv_->isTrackingSetupActive(), false );
 	lockseedsmnuitem_.text =
 	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-	    "Un&lock" : "&Lock" ;
+	    uiStrings::sUnlock() : uiStrings::sLock() ;
 	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );

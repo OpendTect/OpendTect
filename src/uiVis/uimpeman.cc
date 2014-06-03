@@ -102,75 +102,77 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, "Settings", false );
+    mAddButton( "tools", showSettingsCB, tr("Settings"), false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
-    seedconmodefld->setToolTip( "Seed connect mode" );
+    seedconmodefld->setToolTip( tr("Seed connect mode") );
     seedconmodefld->selectionChanged.notify(
 				mCB(this,uiMPEMan,seedConnectModeSel) );
     toolbar->addObject( seedconmodefld );
     toolbar->addSeparator();
 
     seedidx = mAddButton( "seedpickmode", addSeedCB,
-			  "Create seed ( key: 'Tab' )", true );
+			  tr("Create seed ( key: 'Tab' )"), true );
     toolbar->setShortcut( seedidx, "Tab" );
 
     trackinvolidx = mAddButton( "autotrack", trackFromSeedsAndEdges,
-				"Auto-track", false );
+				tr("Auto-track"), false );
 
     trackwithseedonlyidx = mAddButton( "trackfromseeds", trackFromSeedsOnly,
-				       "Track From Seeds Only", false );
+				       tr("Track From Seeds Only"), false );
 
     retrackallinx = mAddButton( "retrackhorizon", retrackAllCB,
-				"Retrack All", false );
+				tr("Retrack All"), false );
     toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube", showCubeCB,
-			      "Show track area", true );
+			      tr("Show track area"), true );
 
     moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
-			       "Display QC plane", true );
-    uiMenu* mnu = new uiMenu( toolbar, "Menu" );
-    mAddMnuItm( mnu, "Inline", handleOrientationClick,
+			       tr("Display QC plane"), true );
+    uiMenu* mnu = new uiMenu( toolbar, tr("Menu") );
+    mAddMnuItm( mnu, tr("Inline"), handleOrientationClick,
 		"QCplane-inline", 0 );
-    mAddMnuItm( mnu, "CrossLine", handleOrientationClick,
+    mAddMnuItm( mnu, tr("CrossLine"), handleOrientationClick,
 		"QCplane-crossline", 1 );
-    mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z", 2 );
+    mAddMnuItm( mnu, tr("Z"), handleOrientationClick, "QCplane-z", 2 );
     toolbar->setButtonMenu( moveplaneidx, mnu );
 
     displayatsectionidx = mAddButton( "sectiononly", displayAtSectionCB,
-				      "Display at section only", true );
+				      tr("Display at section only"), true );
 
     nrstepsbox = new uiSpinBox( toolbar, 0, "QC plane step" );
-    nrstepsbox->setToolTip( "QC plane step" );
+    nrstepsbox->setToolTip( tr("QC plane step") );
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
     trackforwardidx = mAddButton( "prevpos", moveBackward,
-				  "Move QC plane backward (key: '[')", false );
+				  tr("Move QC plane backward (key: '[')"), 
+                                  false );
     toolbar->setShortcut(trackforwardidx,"[");
     trackbackwardidx = mAddButton( "nextpos", moveForward,
-				   "Move QC plane forward (key: ']')", false );
+				   tr("Move QC plane forward (key: ']')"), 
+                                   false );
     toolbar->setShortcut(trackbackwardidx,"]");
     clrtabidx = mAddButton( "colorbar", setColorbarCB,
-			    "Set QC plane colortable", false );
+			    tr("Set QC plane colortable"), false );
     toolbar->addSeparator();
 
     polyselectidx =  mAddButton( "polygonselect", selectionMode,
-				 "Polygon Selection mode", true );
+				 tr("Polygon Selection mode"), true );
     uiMenu* polymnu = new uiMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu,"Polygon", handleToolClick, "polygonselect", 0 );
-    mAddMnuItm( polymnu,"Rectangle",handleToolClick,"rectangleselect", 1 );
+    mAddMnuItm( polymnu,tr("Polygon"), handleToolClick, "polygonselect", 0 );
+    mAddMnuItm( polymnu,tr("Rectangle"),handleToolClick,"rectangleselect", 1 );
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
     removeinpolygon = mAddButton( "trashcan", removeInPolygon,
-				  " Remove PolySelection", false );
+				  tr(" Remove PolySelection"), false );
     toolbar->addSeparator();
 
-    undoidx = mAddButton( "undo", undoPush, "Undo", false );
-    redoidx = mAddButton( "redo", redoPush, "Redo", false );
+    undoidx = mAddButton( "undo", undoPush, tr("Undo"), false );
+    redoidx = mAddButton( "redo", redoPush, tr("Redo"), false );
 
     toolbar->addSeparator();
-    mAddButton( "save", savePush, "Save", false );
+    mAddButton( "save", savePush, uiStrings::sSave(true), false );
 }
 
 
@@ -256,9 +258,9 @@ void uiMPEMan::seedClick( CallBacker* )
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, randomdisp, dataobj );
 
 	if ( tracker->is2D() && !clickcatcher->info().getObjLineName() )
-	    uiMSG().error( "2D tracking cannot handle picks on 3D lines." );
+	    uiMSG().error( tr("2D tracking cannot handle picks on 3D lines.") );
 	else if ( !tracker->is2D() && clickcatcher->info().getObjLineName() )
-	    uiMSG().error( "3D tracking cannot handle picks on 2D lines." );
+	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
 	else if ( randomdisp )
 	    uiMSG().error( emobj->getTypeStr(),
 			   "Tracking cannot handle picks on random lines." );
@@ -306,9 +308,9 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( chanceoferror )
 	    {
-		uiMSG().error( "Saved setup has different attribute. \n"
+		uiMSG().error( tr("Saved setup has different attribute. \n"
 			       "Either change setup attribute or change\n"
-			       "display attribute you want to track on" );
+			       "display attribute you want to track on") );
 		mSeedClickReturn();
 	    }
 	}
@@ -381,8 +383,8 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	if ( !clickedas || !h2dsp || !h2dsp->canAddSeed(*clickedas) )
 	{
-	    uiMSG().error( "2D tracking requires attribute from setup "
-			   "to be displayed" );
+	    uiMSG().error( tr("2D tracking requires attribute from setup "
+			   "to be displayed") );
 	    mSeedClickReturn();
 	}
 	if ( datapackid > DataPack::cNoID() )
@@ -777,8 +779,8 @@ void uiMPEMan::showCubeCB( CallBacker* )
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showBoxDragger( isshown );
 
-    toolbar->setToolTip( showcubeidx, isshown ? "Hide track area"
-					      : "Show track area" );
+    toolbar->setToolTip( showcubeidx, isshown ? tr("Hide track area")
+					      : tr("Show track area") );
     MPE::engine().setActiveVolShown( isshown );
 }
 
@@ -933,7 +935,7 @@ void uiMPEMan::undoPush( CallBacker* )
         }
 
         if ( !emundo->unDo(1,true) )
-	    uiMSG().error( "Could not undo everything." );
+	    uiMSG().error( tr("Could not undo everything.") );
 
 	if ( emobj )
         {
@@ -962,7 +964,7 @@ void uiMPEMan::redoPush( CallBacker* )
         }
 
 	if ( !emundo->reDo(1,true) )
-	    uiMSG().error( "Could not redo everything." );
+	    uiMSG().error( tr("Could not redo everything.") );
 
 	if ( emobj )
         {
@@ -1014,7 +1016,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 		    addItem( typ##SeedPicker::seedConModeText(idx,true) ); \
 	} \
 	if ( typ##SeedPicker::nrSeedConnectModes()<=0 ) \
-	    seedconmodefld->addItem("No seed mode"); \
+	    seedconmodefld->addItem(tr("No seed mode")); \
     }
 
 
@@ -1029,7 +1031,7 @@ void uiMPEMan::updateSeedPickState()
 
     if ( !seedpicker )
     {
-	seedconmodefld->addItem("No seed mode");
+	seedconmodefld->addItem(tr("No seed mode"));
 	if ( isSeedPickingOn() )
 	{
 	    turnSeedPickingOn( false );
@@ -1174,8 +1176,9 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 
     toolbar->setIcon( polyselectidx, sIsPolySelect ?
 			"polygonselect" : "rectangleselect" );
-    toolbar->setToolTip( polyselectidx, sIsPolySelect ?
-			"Polygon Selection mode" : "Rectangle Selection mode" );
+    toolbar->setToolTip( polyselectidx, 
+                         sIsPolySelect ? tr("Polygon Selection mode") 
+                                       : tr("Rectangle Selection mode") );
 
     if ( toolbar->isOn(polyselectidx) )
     {
@@ -1311,11 +1314,11 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     attribfld_->selectionChanged.notify( mCB(mpeman_,uiMPEMan,attribSel) );
     lcb->attach( leftAlignedBelow, coltabgrp );
 
-    transfld_ = new uiSlider( this, uiSlider::Setup("Transparency")
+    transfld_ = new uiSlider( this, uiSlider::Setup(uiStrings::sTransparency())
 				    .nrdec(2), "Slider" );
     transfld_->setOrientation( OD::Horizontal );
     transfld_->setMaxValue( 1 );
-    transfld_->setToolTip( "Transparency" );
+    transfld_->setToolTip( uiStrings::sTransparency() );
     transfld_->setStretch( 0, 0 );
     transfld_->setValue( displays_[0]->getDraggerTransparency() );
     transfld_->valueChanged.notify( mCB(this,uiPropertiesDialog,transpChg) );
@@ -1494,7 +1497,7 @@ void uiMPEMan::movePlaneCB( CallBacker* )
 
     if ( ison )
     {
-	toolbar->setToolTip( moveplaneidx, "Hide QC plane" );
+	toolbar->setToolTip( moveplaneidx, tr("Hide QC plane") );
 	attribSel(0);
     }
 }
@@ -1571,8 +1574,9 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
     if ( surface && (surface->getObjectID()== tracker->objectID()) )
 	surface->setOnlyAtSectionsDisplay( ison );
 
-    toolbar->setToolTip( displayatsectionidx, ison ? "Display full" :
-						   "Display at section only" );
+    toolbar->setToolTip( displayatsectionidx, 
+                         ison ? tr("Display full") 
+                              : tr("Display at section only") );
 }
 
 

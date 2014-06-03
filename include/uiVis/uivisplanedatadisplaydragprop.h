@@ -19,7 +19,7 @@ namespace visSurvey { class PlaneDataDisplay; }
 class uiButtonStateEdit;
 
 mExpClass(uiVis) uiVisPlaneDataDisplayDragProp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiVisPlaneDataDisplayDragProp);
 public:
     			uiVisPlaneDataDisplayDragProp(uiParent*,
 			    visSurvey::PlaneDataDisplay* );

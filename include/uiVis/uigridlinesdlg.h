@@ -22,7 +22,7 @@ class uiSelLineStyle;
 namespace visSurvey { class PlaneDataDisplay; }
 
 mExpClass(uiVis) uiGridLinesDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiGridLinesDlg);
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);
 

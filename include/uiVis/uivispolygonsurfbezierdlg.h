@@ -23,7 +23,7 @@ namespace visSurvey { class PolygonBodyDisplay; };
 
 
 mExpClass(uiVis) uiVisPolygonSurfBezierDlg : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiVisPolygonSurfBezierDlg);
 public:
     					uiVisPolygonSurfBezierDlg(uiParent*,
 						visSurvey::PolygonBodyDisplay*);

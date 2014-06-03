@@ -16,12 +16,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
 				    int attrib )
-    : uiDialog( p, uiDialog::Setup("Attribute transparency",0,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Attribute transparency"),0,mNoHelpKey) )
     , so_( so )
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )
 {
-    uiSlider::Setup ss( "Transparency" ); ss.withedit(true);
+    uiSlider::Setup ss( uiStrings::sTransparency() ); ss.withedit(true);
     slider_ = new uiSlider( this, ss, "Transparency slider" );
     slider_->setMinValue( 0 );
     slider_->setMaxValue( 100 );

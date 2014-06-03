@@ -20,7 +20,7 @@ class uiSpinBox;
 namespace visBase{ class SceneColTab; }
 
 mExpClass(uiVis) uiSceneColorbarMgr : public uiDialog
-{
+{ mODTextTranslationClass(uiSceneColorbarMgr);
 public:
 			uiSceneColorbarMgr(uiParent*,visBase::SceneColTab*);
 			~uiSceneColorbarMgr();

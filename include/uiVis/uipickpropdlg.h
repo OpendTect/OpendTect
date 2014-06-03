@@ -22,7 +22,7 @@ namespace visSurvey { class PickSetDisplay; };
 
 
 mExpClass(uiVis) uiPickPropDlg : public uiMarkerStyleDlg
-{
+{ mODTextTranslationClass(uiPickPropDlg);
 public:
 				uiPickPropDlg(uiParent* p,
 					      Pick::Set& set, 

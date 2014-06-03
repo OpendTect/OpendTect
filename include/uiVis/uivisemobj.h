@@ -27,7 +27,7 @@ class uiVisPartServer;
 
 
 mExpClass(uiVis) uiVisEMObject : public CallBacker
-{
+{ mODTextTranslationClass(uiVisEMObject);
 public:
 			uiVisEMObject(uiParent*,int displayid,
 				      uiVisPartServer* );

@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiVisPlaneDataDisplayDragProp::uiVisPlaneDataDisplayDragProp(uiParent* p,
 	                            visSurvey::PlaneDataDisplay* pdd )
-    : uiDlgGroup( p, "Mouse interaction" )
+    : uiDlgGroup( p, tr("Mouse interaction") )
     , initialscrollstate_( pdd->getTranslationDragKeys(true) )
     , initialpanstate_( pdd->getTranslationDragKeys(false) )
     , pdd_( pdd )
@@ -36,7 +36,7 @@ bool uiVisPlaneDataDisplayDragProp::acceptOK()
 {
     if ( scrollstate_->getState()==panstate_->getState() )
     {
-	uiMSG().error( "Scroll and Pan movement cannot be the same" );
+	uiMSG().error( tr("Scroll and Pan movement cannot be the same") );
 	return false;
     }
 

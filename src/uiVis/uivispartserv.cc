@@ -99,9 +99,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
     , toolbar_(0)
-    , resetmanipmnuitem_("R&eset Manipulation",cResetManipIdx)
-    , changematerialmnuitem_(uiStrings::sProperties( false ),cPropertiesIdx)
-    , resmnuitem_("&Resolution",cResolutionIdx)
+    , resetmanipmnuitem_(tr("R&eset Manipulation"),cResetManipIdx)
+    , changematerialmnuitem_(uiStrings::sProperties(false),cPropertiesIdx)
+    , resmnuitem_(tr("&Resolution"),cResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
     , viewmode_(false)
@@ -2198,7 +2198,7 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
     const DataPackMgr::ID dpmid = getDataPackMgrID( displayid );
     if ( dpmid < 1 )
     {
-	uiMSG().error( "Cannot display histograms for this type of data" );
+	uiMSG().error( tr("Cannot display histograms for this type of data") );
 	return;
     }
 

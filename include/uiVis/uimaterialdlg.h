@@ -27,7 +27,7 @@ namespace visSurvey { class SurveyObject; };
 
 
 mExpClass(uiVis) uiMaterialGrp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiMaterialGrp);
 public:
 				uiMaterialGrp(uiParent*,
 					      visSurvey::SurveyObject*,

@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	visBase::MarchingCubesSurface* isosurface,
 	visSurvey::VolumeDisplay* vd )
-    : uiDlgGroup( p, "Iso surface threshold" )
+    : uiDlgGroup( p, tr("Iso surface threshold") )
     , isosurfacedisplay_( isosurface )
     , initiallineitem_( 0 )
     , thresholdlineitem_( 0 )
@@ -44,8 +44,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     , vd_( vd )
 {
     bool fullmode = vd->isFullMode(isosurface);
-    modefld_ = new uiGenInput( this, "Mode",
-	    BoolInpSpec(true,"Full volume","Seed based") );
+    modefld_ = new uiGenInput( this, tr("Mode"),
+	    BoolInpSpec(true,tr("Full volume"),tr("Seed based")) );
     modefld_->setValue( fullmode );
     modefld_->valuechanged.notify( 
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
@@ -59,8 +59,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     seedselfld_->display( !fullmode );
     seedselfld_->attach( alignedBelow, modefld_ );
 
-    aboveisovaluefld_ = new uiGenInput( this, "Seeds value",
-	    BoolInpSpec(true,"Above iso-value","Below iso-value") );
+    aboveisovaluefld_ = new uiGenInput( this, tr("Seeds value"),
+	    BoolInpSpec(true,tr("Above iso-value"),tr("Below iso-value")) );
     aboveisovaluefld_->display( !fullmode );
     aboveisovaluefld_->setValue( vd->seedAboveIsovalue(isosurface) );
     aboveisovaluefld_->attach( alignedBelow, seedselfld_ );
@@ -83,11 +83,11 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     funcDisp().reSize.notify(
 	    mCB( this,uiVisIsoSurfaceThresholdDlg,reDrawCB) );
 
-    thresholdfld_ = new uiGenInput( this, "Iso value",
+    thresholdfld_ = new uiGenInput( this, tr("Iso value"),
 	    			    FloatInpSpec(initialvalue_) );
     thresholdfld_->setValue( vd->isoValue(isosurface) );
     thresholdfld_->attach( leftAlignedBelow, statsdisplay_ );
-    updatebutton_ = new uiPushButton( this, "Update",
+    updatebutton_ = new uiPushButton( this, tr("Update"),
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,updatePressed), true );
     updatebutton_->attach( rightOf, thresholdfld_ );
 }
@@ -106,7 +106,7 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 {
     if ( mIsUdf(thresholdfld_->getfValue()) )
     {
-	uiMSG().error( "Please define the threshhold." );
+	uiMSG().error( tr("Please define the threshhold.") );
 	return false;
     }
 
@@ -183,7 +183,7 @@ void uiVisIsoSurfaceThresholdDlg::updatePressed(CallBacker*)
     {
 	if ( mid.isEmpty() )
 	{
-	    uiMSG().error("Cannot find input seeds");
+	    uiMSG().error(tr("Cannot find input seeds"));
 	    return;
 	}
 

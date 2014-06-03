@@ -69,8 +69,8 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     mAddCoordchgCB( brfld_->valuechanged );
 
     transpfld_ = new uiSlider( this,
-			    uiSlider::Setup("Transparency").sldrsize(150)
-			    , "Transparency slider" );
+			    uiSlider::Setup(uiStrings::sTransparency())
+                            .sldrsize(150), "Transparency slider" );
     transpfld_->attach( alignedBelow, brfld_ );
     transpfld_->setMinValue( 0 );
     transpfld_->setMaxValue( 100 );
@@ -152,8 +152,8 @@ void transpChg( CallBacker* )
 
 uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 					    visSurvey::Scene* scene )
-    : uiDialog(p, uiDialog::Setup("Top/Bottom Images",
-				  "Set Top and/or Bottom Images",
+    : uiDialog(p, uiDialog::Setup(tr("Top/Bottom Images"),
+				  tr("Set Top and/or Bottom Images"),
 				  mODHelpKey(mSurvTopBotImageDlgHelpID) ) )
     , scene_( scene )
 {

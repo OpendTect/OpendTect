@@ -20,18 +20,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 	visSurvey::PolygonBodyDisplay* plg )
-    : uiDlgGroup( p, "Shape smoothness" )
+    : uiDlgGroup( p, tr("Shape smoothness") )
     , plg_( plg )
     , surf_( 0 )		 
 {
     if ( !plg ) return;
 
-    bezierfld_ = new uiGenInput( this, "Number of inserts" );
+    bezierfld_ = new uiGenInput( this, tr("Number of inserts") );
     if ( plg->getEMPolygonBody() )
 	surf_ = plg->getEMPolygonBody()->geometry().sectionGeometry(0);
     bezierfld_->setValue( surf_ ? surf_->getBezierCurveSmoothness() : 0 );
     
-    applybut_ = new uiPushButton( this, "&Update Now", true );
+    applybut_ = new uiPushButton( this, tr("&Update Now"), true );
     applybut_->attach( centeredBelow, bezierfld_ );
     applybut_->activated.notify( mCB(this,uiVisPolygonSurfBezierDlg,applyCB) );
 }
@@ -47,7 +47,8 @@ bool uiVisPolygonSurfBezierDlg::applyCB( CallBacker* )
 
     if ( bezierfld_->getIntValue()<0 )
     {
-	uiMSG().error("Nr of points between two picks should be at least 0");
+	uiMSG().error(tr("Nr of points between two"
+                         " picks should be at least 0"));
 	return false;
     }
 

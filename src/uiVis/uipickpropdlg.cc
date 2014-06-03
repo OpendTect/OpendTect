@@ -28,15 +28,16 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     , set_( set )
     , psd_( psd )
 {
-    setTitleText( "Specify picks style" );
-    usedrawstylefld_ = new uiCheckBox( this, "Connect picks" );
+    setTitleText( tr("Specify picks style") );
+    usedrawstylefld_ = new uiCheckBox( this, tr("Connect picks") );
     const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
-    drawstylefld_ = new uiGenInput( this, "with", 
-	    			    BoolInpSpec( true, "Line", "Surface" ) );
+    drawstylefld_ = new uiGenInput( this, tr("with"), 
+	    			    BoolInpSpec( true, tr("Line"), 
+                                    tr("Surface") ) );
     drawstylefld_->setValue( !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
     drawstylefld_->attach( rightOf, usedrawstylefld_ );

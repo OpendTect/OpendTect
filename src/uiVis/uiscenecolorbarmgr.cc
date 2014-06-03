@@ -18,19 +18,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
 					visBase::SceneColTab* coltab )
-    : uiDialog(p,uiDialog::Setup("Color Bar Settings",mNoDlgTitle,mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup(tr("Color Bar Settings"),
+                                 mNoDlgTitle,mNoHelpKey))
     , scenecoltab_(coltab)
 {
     setCtrlStyle( CloseOnly );
 
-    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, "Width" );
+    uiLabeledSpinBox* wfld = new uiLabeledSpinBox( this, tr("Width") );
     widthfld_ = wfld->box();
     widthfld_->setMaxValue( 500 );
     widthfld_->setValue( scenecoltab_->getSize().width() );
     widthfld_->valueChanging.notify(
 			mCB(this,uiSceneColorbarMgr,sizeChangedCB) );
 
-    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, "Height" );
+    uiLabeledSpinBox* hfld = new uiLabeledSpinBox( this, tr("Height") );
     heightfld_ = hfld->box();
     heightfld_->setMaxValue( 1000 );
     heightfld_->setValue( scenecoltab_->getSize().height() );
@@ -41,7 +42,7 @@ uiSceneColorbarMgr::uiSceneColorbarMgr( uiParent* p,
     BufferStringSet positms;
     positms.add( "Left" ).add( "Right" )
 	   .add( "Top" ).add( "Bottom" );
-    posfld_ = new uiGenInput( this, "Position", StringListInpSpec(positms) );
+    posfld_ = new uiGenInput( this, tr("Position"), StringListInpSpec(positms));
     posfld_->attach( alignedBelow, wfld );
     posfld_->setValue( scenecoltab_->getPos() );
     posfld_->valuechanged.notify(

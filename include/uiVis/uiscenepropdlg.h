@@ -29,7 +29,7 @@ namespace visSurvey { class Scene; }
 /*! Dialog for scene properties. */
 
 mExpClass(uiVis) uiScenePropertyDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiScenePropertyDlg);
 public:
 			uiScenePropertyDlg(uiParent*,const
 					   ObjectSet<ui3DViewer>&,int);

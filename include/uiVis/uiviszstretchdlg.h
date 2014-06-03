@@ -21,7 +21,7 @@ class uiSlider;
 /*!Dialog to set the z-stretch of a scene. */
 
 mExpClass(uiVis) uiZStretchDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiZStretchDlg);
 public:
 			uiZStretchDlg(uiParent*);
 

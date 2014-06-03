@@ -29,13 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
     label += "grid"; \
     name##fld_ = new uiCheckBox( this, label ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
-    name##spacingfld_ = new uiGenInput( this, "Spacing (Start/Stop)", \
+    name##spacingfld_ = new uiGenInput( this, tr("Spacing (Start/Stop)"), \
 					IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
 
 uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
-    : uiDialog(p,uiDialog::Setup("GridLines","Set gridlines options",
+    : uiDialog(p,uiDialog::Setup(tr("GridLines"),tr("Set gridlines options"),
                                     mODHelpKey(mGridLinesDlgHelpID) ))
     , pdd_( pdd )
     , inlfld_( 0 )
@@ -200,7 +200,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	 (crlfld_ && crlfld_->isChecked() && cs.hrg.step.crl()==0) ||
 	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zrg.step,mDefEps)) )
     {
-	uiMSG().error( "Please make sure all steps are non-zero" );
+	uiMSG().error( tr("Please make sure all steps are non-zero") );
 	return false;
     }
 

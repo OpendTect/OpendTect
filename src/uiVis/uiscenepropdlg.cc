@@ -34,7 +34,7 @@ bool uiScenePropertyDlg::savestatus_ = true;
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
-    : uiDialog(p,uiDialog::Setup("Scene properties","",
+    : uiDialog(p,uiDialog::Setup(tr("Scene properties"),"",
                                     mODHelpKey(mScenePropertyDlgHelpID) ))
     , hadsurveybox_(true)
     , hadannot_(true)
@@ -50,7 +50,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , scene_(0)
     , separationdlg_(0)
 {
-    enableSaveButton( "Apply to all scenes");
+    enableSaveButton( tr("Apply to all scenes"));
     setSaveButtonChecked( savestatus_ );
 
     if ( viewers_[curvwridx_] )
@@ -76,21 +76,21 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	}
     }
 
-    survboxfld_ = new uiCheckBox( this, "Survey box" );
+    survboxfld_ = new uiCheckBox( this, tr("Survey box") );
     survboxfld_->setChecked( hadsurveybox_ );
     survboxfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
-    annotfld_ = new uiCheckBox( this, "Annotation text" );
+    annotfld_ = new uiCheckBox( this, tr("Annotation text") );
     annotfld_->setChecked( hadannot_ );
     annotfld_->attach( alignedBelow, survboxfld_ );
     annotfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotfld_->setSensitive( survboxfld_->isChecked() );
 
-    uiPushButton* annotfontbut = new uiPushButton(this, "Font",
+    uiPushButton* annotfontbut = new uiPushButton(this, tr("Font"),
 			mCB(this,uiScenePropertyDlg,selAnnotFontCB), false);
     annotfontbut->attach( rightOf, annotfld_ );
 
-    annotscalefld_ = new uiCheckBox( this, "Annotation scale" );
+    annotscalefld_ = new uiCheckBox( this, tr("Annotation scale") );
     annotscalefld_->setChecked( hadannotscale_ );
     annotscalefld_->attach( alignedBelow, annotfld_ );
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
@@ -107,13 +107,13 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotgridfld_->setSensitive( survboxfld_->isChecked() );
 
     bgcolfld_ = new uiColorInput( this, uiColorInput::Setup( oldbgcolor_)
-					.lbltxt("Background color") );
+					.lbltxt(tr("Background color")) );
     bgcolfld_->attach( alignedBelow, annotgridfld_ );
     bgcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     markersizefld_ = new uiSlider( this,
-				uiSlider::Setup("Mouse marker size"),
-				"Marker size slider" );
+				   uiSlider::Setup(tr("Mouse marker size")),
+				   "Marker size slider" );
     markersizefld_->setMinValue( 1 );
     markersizefld_->setMaxValue( 10 );
     markersizefld_->setValue( oldmarkersize_ );
@@ -122,20 +122,21 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 					mCB(this,uiScenePropertyDlg,updateCB) );
 
     markercolfld_ = new uiColorInput( this,
-	    uiColorInput::Setup(oldmarkercolor_).lbltxt("Mouse marker color") );
+	uiColorInput::Setup(oldmarkercolor_).lbltxt(tr("Mouse marker color")) );
     markercolfld_->attach( alignedBelow, markersizefld_ );
     markercolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     annotcolfld_ = new uiColorInput( this,
-	    uiColorInput::Setup(annotcolor_).lbltxt("Annotation color") );
+	    uiColorInput::Setup(annotcolor_).lbltxt(tr("Annotation color")) );
     annotcolfld_->attach( alignedBelow, markercolfld_ );
     annotcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
-    uiPushButton* ltbutton = new uiPushButton(this, "Line/Surface separation",
+    uiPushButton* ltbutton = new uiPushButton(this, 
+                                              tr("Line/Surface separation"),
 			mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
     ltbutton->attach( alignedBelow, annotcolfld_ );
 
-    animationfld_ = new uiCheckBox( this, "Allow spin animation" );
+    animationfld_ = new uiCheckBox( this, tr("Allow spin animation") );
     animationfld_->setChecked( hadanimation_ );
     animationfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     animationfld_->attach( alignedBelow, ltbutton );
@@ -296,8 +297,8 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 	    break;
 	}
 
-	uiMSG().error("Both Factor and Units must be defined and "
-		      "more than 1." );
+	uiMSG().error(tr("Both Factor and Units must be defined and "
+		      "more than 1.") );
     }
 }
 

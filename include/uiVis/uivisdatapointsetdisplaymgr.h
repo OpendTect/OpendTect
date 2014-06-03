@@ -28,7 +28,7 @@ datapointsets in 3d visualization scenes.
 */
 
 mExpClass(uiVis) uiVisDataPointSetDisplayMgr : public DataPointSetDisplayMgr
-{
+{ mODTextTranslationClass(uiVisDataPointSetDisplayMgr);
 public:
     		uiVisDataPointSetDisplayMgr(uiVisPartServer&);
 		~uiVisDataPointSetDisplayMgr();

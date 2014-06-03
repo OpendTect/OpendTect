@@ -26,7 +26,7 @@ class uiVisPartServer;
 namespace visBase { class Light; }
 
 mExpClass(uiVis) uiDirLightDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDirLightDlg);
 public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);
 				~uiDirLightDlg();

@@ -32,22 +32,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mInitAmbIntensity	50
 
 uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
-    : uiDialog(p,uiDialog::Setup("Light properties",
-				 "Set light properties",
+    : uiDialog(p,uiDialog::Setup(tr("Light properties"),
+				 tr("Set light properties"),
                                  mODHelpKey(mDirLightDlgHelpID) ).modal(false))
     , visserv_(visserv)
     , pd_(0)
-    , pddlg_(new uiDialog(this, uiDialog::Setup("Polar diagram",
-		    "Set azimuth and dip", mNoHelpKey).modal(false)))
+    , pddlg_(new uiDialog(this, uiDialog::Setup(tr("Polar diagram"),
+		    tr("Set azimuth and dip"), mNoHelpKey).modal(false)))
 {
     pddlg_->setCtrlStyle( CloseOnly );
     pddlg_->postFinalise().notify( mCB(this,uiDirLightDlg,pdDlgDoneCB) );
 
-    scenefld_ = new uiLabeledComboBox( this, "Apply light to" );
+    scenefld_ = new uiLabeledComboBox( this, tr("Apply light to") );
     scenefld_->attach( hCentered );
 
-    switchfld_ = new uiGenInput( this, "Turn light",
-				 BoolInpSpec(false,"On","Off") );
+    switchfld_ = new uiGenInput( this, tr("Turn light"),
+				 BoolInpSpec(false,tr("On"),tr("Off")) );
     switchfld_->attach( alignedBelow, scenefld_ );
     switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
 
@@ -58,23 +58,25 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     lightgrp->attach( ensureBelow, sep1 );
     lightgrp->attach( leftBorder );
 
-    lighttypefld_ = new uiGenInput( lightgrp, "Light type", BoolInpSpec(
-		false,"Positioned at the camera","Relative to the scene") );
+    lighttypefld_ = new uiGenInput( lightgrp, tr("Light type"), BoolInpSpec(
+		false,tr("Positioned at the camera"),
+                tr("Relative to the scene")) );
     lighttypefld_->valuechanged.notify(
 	    mCB(this,uiDirLightDlg,lightSelChangedCB) );
 
     lightgrp->setHAlignObj( lighttypefld_ );
 
     intensityfld_ = new uiSlider( this,
-			uiSlider::Setup("Intensity (%)").withedit(true).
-				nrdec(1).logscale(false), "Intensity slider" );
+			uiSlider::Setup(tr("Intensity (%)")).withedit(true).
+				nrdec(1).logscale(false), 
+                                "Intensity slider" );
     intensityfld_->attach( alignedBelow, lightgrp );
     intensityfld_->setMinValue( 0 );
     intensityfld_->setMaxValue( 100 );
     intensityfld_->setStep( 5 );
 
     headonintensityfld_ = new uiSlider( this,
-			uiSlider::Setup("Camera light intensity (%)").
+			uiSlider::Setup(tr("Camera light intensity (%)")).
 				withedit(true).nrdec(1).logscale(false),
 			"Camera light intensity slider" );
     headonintensityfld_->attach( alignedBelow, lightgrp );
@@ -85,7 +87,7 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     const CallBack chgCB( mCB(this,uiDirLightDlg,fieldChangedCB) );
 
     azimuthfld_ = new uiDialExtra( this,
-	    uiDialExtra::Setup("Azimuth (degrees)").withedit(true),
+	    uiDialExtra::Setup(tr("Azimuth (degrees)")).withedit(true),
 	    "Azimuth slider" );
     azimuthfld_->attach( centeredBelow, intensityfld_ );
     azimuthfld_->dial()->setWrapping( true );
@@ -94,21 +96,21 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     azimuthfld_->dial()->setInterval( StepInterval<int>( 0, 360, 5 ) );
 
     dipfld_ = new uiSlider( this,
-			uiSlider::Setup("Dip (degrees)").withedit(true)
+			uiSlider::Setup(tr("Dip (degrees)")).withedit(true)
 				.nrdec(0).logscale(false), "Dip slider" );
     dipfld_->attach( centeredBelow, azimuthfld_ );
     dipfld_->setMinValue( 0 );
     dipfld_->setMaxValue( 90 );
     dipfld_->setStep( 5 );
 
-    showpdfld_ = new uiPushButton( this, "Show polar diagram", false );
+    showpdfld_ = new uiPushButton( this, tr("Show polar diagram"), false );
     showpdfld_->attach( alignedBelow, dipfld_ );
 
     uiSeparator* sep2 = new uiSeparator( this, "HSep" );
     sep2->attach( stretchedBelow, showpdfld_ );
 
     ambintensityfld_ = new uiSlider( this,
-			uiSlider::Setup("Ambient light intensity (%)").
+			uiSlider::Setup(tr("Ambient light intensity (%)")).
 				withedit(true).nrdec(1).logscale(false),
 			"Ambient light intensity slider" );
     ambintensityfld_->attach( centeredBelow, sep2 );
@@ -240,7 +242,7 @@ bool uiDirLightDlg::updateSceneSelector()
 
     if ( !initinfo_.size() )
     {
-        scenefld_->label()->setText( "No scene!" );
+        scenefld_->label()->setText( tr("No scene!") );
 	return false;
     }
 
@@ -260,7 +262,7 @@ bool uiDirLightDlg::updateSceneSelector()
 	}
     }
 
-    scenefld_->label()->setText( "Apply light to" );
+    scenefld_->label()->setText( tr("Apply light to") );
     scenefld_->box()->addItems( scenenms );
     scenefld_->box()->setCurrentItem( 0 );
     resetWidgets();

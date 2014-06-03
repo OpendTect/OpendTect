@@ -22,7 +22,7 @@ class uiPushButton;
 namespace visSurvey { class FaultDisplay; }
 
 mExpClass(uiVis) uiFaultDisplayOptGrp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiFaultDisplayOptGrp);
 public: 
     		 		uiFaultDisplayOptGrp(uiParent*,
 						     visSurvey::FaultDisplay*);
