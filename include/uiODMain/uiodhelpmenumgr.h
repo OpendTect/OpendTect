@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "sets.h"
+#include "uistring.h"
 
 class uiODMenuMgr;
 class uiMenu;

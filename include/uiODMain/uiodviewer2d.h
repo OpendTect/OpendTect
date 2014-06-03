@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "datapack.h"
 #include "emposid.h"
+#include "uistring.h"
 
 class uiFlatViewAuxDataEditor;
 class uiFlatViewStdControl;

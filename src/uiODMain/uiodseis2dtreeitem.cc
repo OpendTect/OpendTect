@@ -1215,7 +1215,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 						 int component,
-						 uiTaskRunner& tr )
+						 uiTaskRunner& taskrunner )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -1295,7 +1295,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     cs.zrg.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
+	applMgr()->attrServer()->create2DOutput( cs, linekey, taskrunner );
     if ( dpid < 0 )
 	return false;
 
