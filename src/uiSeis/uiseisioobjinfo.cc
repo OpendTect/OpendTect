@@ -46,12 +46,12 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     PtrMan<Translator> t = ioObj()->createTranslator();
     if ( !t )
 	{ pErrMsg("No Translator"); return true; }
-    mDynamicCastGet(CBVSSeisTrcTranslator*,tr,t.ptr());
-    if ( !tr )
+    mDynamicCastGet(CBVSSeisTrcTranslator*,trans,t.ptr());
+    if ( !trans )
 	{ return true; }
 
     Conn* conn = ioObj()->getConn( Conn::Read );
-    if ( !conn || !tr->initRead(conn) )
+    if ( !conn || !trans->initRead(conn) )
     {
 	if ( doerrs )
 	    uiMSG().error( "No output cube produced" );
@@ -60,7 +60,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
 
     od_ostrstream strm;
     strm << "The cube is available for work.\n\n";
-    tr->readMgr()->dumpInfo( strm, false );
+    trans->readMgr()->dumpInfo( strm, false );
     uiMSG().message( strm.result() );
 
     return true;
