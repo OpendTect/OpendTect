@@ -27,6 +27,7 @@ class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
 class uiListBox;
 class uiToolButton;
+class uiListBoxChoiceIO;
 
 /*!\brief Dialog letting the user select an object. It returns an IOObj* after
 	  successful go(). */
@@ -141,7 +142,6 @@ public:
 protected:
 
     CtxtIOObj&		ctio_;
-    CtxtIOObj&		choicectio_;
     Setup		setup_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
@@ -156,6 +156,7 @@ protected:
     uiGroup*		topgrp_;
 
     uiToolButton*	mkdefbut_;
+    uiListBoxChoiceIO*	lbchoiceio_;
 
     void		fullUpdate(int);
     void		fillListBox();
@@ -170,8 +171,8 @@ protected:
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
-    void		readChoice(CallBacker*);
-    void		writeChoice(CallBacker*);
+    void		readChoiceDone(CallBacker*);
+    void		writeChoiceReq(CallBacker*);
 
 private:
 
