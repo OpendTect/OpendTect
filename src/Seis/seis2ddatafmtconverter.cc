@@ -287,6 +287,9 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
 	}
     }
 
+    if ( srclist.isEmpty() )
+	return true;
+
     BufferString msg;
     OD_FileListCopier exec( srclist, destlist, msg );
     const bool res = TaskRunner::execute( taskrnr, exec );
