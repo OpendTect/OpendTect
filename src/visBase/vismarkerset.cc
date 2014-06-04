@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 #define mOSGMarkerScaleFactor 2.5f
+static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
 
 mCreateFactoryEntry( visBase::MarkerSet );
@@ -40,7 +41,7 @@ MarkerSet::MarkerSet()
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
 
-    setAutoRotateMode( ROTATE_TO_SCREEN );
+    setAutoRotateMode( NO_ROTATION );
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
     setMaximumScale( 50.0 );
@@ -98,8 +99,8 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
      }
      else 
      {
-	    markerset_->setColorArray( 0 );
-	    markerset_->useSingleColor( true );
+	 markerset_->setColorArray( 0 );
+	 markerset_->useSingleColor( true );
      }
 
 }
@@ -170,6 +171,12 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 	    break;
 	case MarkerStyle3D::Cross:
 	    markerset_->setShape( osgGeo::MarkerShape::Cross );
+	    break;
+	case MarkerStyle3D::Arrow:
+	    markerset_->setShape( osgGeo::MarkerShape::Arrow );
+	    break;
+	case MarkerStyle3D::Plane:
+	    markerset_->setShape( osgGeo::MarkerShape::Plane );
 	    break;
 	default:
 	    pErrMsg("Shape not implemented");
