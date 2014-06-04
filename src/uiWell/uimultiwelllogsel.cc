@@ -459,7 +459,7 @@ void uiMultiWellLogSel::update()
 
     if ( wellsfld_ )
 	wellsfld_->chooseAll( true );
-    sort( mrkrs ); setMarkers( mrkrs );
+    setMarkers( mrkrs );
 
     for ( int idx=0; idx<lognms.size(); idx++ )
 	logsfld_->addItem( lognms.get(idx) );
