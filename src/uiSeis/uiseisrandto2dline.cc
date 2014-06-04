@@ -161,7 +161,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
     }
 
-    const IOObj* inobj = basegrp_->getOutputIOObj();
+    const IOObj* inobj = basegrp_->getInputIOObj();
     const IOObj* outobj = basegrp_->getOutputIOObj();
     SeisRandLineTo2D exec( *inobj, *outobj, geomid, trcnrstart, *rdl );
     uiTaskRunner dlg( this );
