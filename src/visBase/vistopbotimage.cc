@@ -131,7 +131,7 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
     const int totsz = rgbimg.getSize(true) * rgbimg.getSize(false) * 4;
     unsigned char* imgdata = new unsigned char[totsz];
     OD::memCopy( imgdata, rgbimg.getData(), totsz );
-    osg::Image* image = new osg::Image;
+    osg::ref_ptr<osg::Image> image = new osg::Image;
     image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
 		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
 		     osg::Image::NO_DELETE );

@@ -21,7 +21,7 @@ namespace visSurvey { class Scene; }
 /*! sets the top and/or bottom images. */
 
 mExpClass(uiVis) uiSurvTopBotImageDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSurvTopBotImageDlg);
 public:
 			uiSurvTopBotImageDlg(uiParent*,visSurvey::Scene*);
 

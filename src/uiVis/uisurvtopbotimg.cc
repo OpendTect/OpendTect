@@ -152,8 +152,8 @@ void transpChg( CallBacker* )
 
 uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 					    visSurvey::Scene* scene )
-    : uiDialog(p, uiDialog::Setup("Top/Bottom Images",
-				  "Set Top and/or Bottom Images",
+    : uiDialog(p, uiDialog::Setup(tr("Top/Bottom Images"),
+				  tr("Set Top and/or Bottom Images"),
 				  mODHelpKey(mSurvTopBotImageDlgHelpID) ) )
     , scene_( scene )
 {
@@ -173,7 +173,7 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
-    scene_->getTopBotImage(istop)->setImageFilename( fnm );
+    scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
 }
 
 
