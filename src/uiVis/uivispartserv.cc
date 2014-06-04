@@ -276,7 +276,8 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 	}
     }
     
-    uiMSG().warning( "The scene yet contains no object on which seeds\n"
+    
+    uiMSG().warning("The scene does not yet contain any object on which seeds\n"
 		     "for a '", trackertype, "' can be picked." );
     return false;
 }
