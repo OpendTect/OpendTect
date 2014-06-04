@@ -806,18 +806,15 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return auxdatanr>=0;
     }
 
-    DataPointSet* data = new DataPointSet( false, true );
-    DPM( DataPackMgr::PointID() ).addAndObtain( data );
-
+    DataPackMgr& dpm = DPM(DataPackMgr::PointID());
+    DataPackRef<DataPointSet> data =
+		dpm.addAndObtain( new DataPointSet(false,true) );
     visserv_->getRandomPos( visid, *data );
     const int firstcol = data->nrCols();
     data->dataSet().add( new DataColDef(myas.userRef()) );
     attrserv_->setTargetSelSpec( myas );
     if ( !attrserv_->createOutput(*data,firstcol) )
-    {
-	DPM( DataPackMgr::PointID() ).release( data->id() );
 	return false;
-    }
 
     const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
 						    PosVecDataSet::NameExact );
@@ -827,7 +824,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     {
 	const int id = fd->addDataPack( *data );
 	fd->setDataPackID( attrib, id, 0 );
-	fd->setRandomPosData( attrib, data, 0 );
+	fd->setRandomPosData( attrib, data.ptr(), 0 );
 	if ( visServer()->getSelAttribNr() == attrib )
 	    fd->useTexture( true, true ); // tree only, not at restore session
     }
@@ -836,13 +833,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	createAndSetMapDataPack( visid, attrib, *data, dataidx );
 	if ( hd )
 	{
-	    TypeSet<float> shifts( 1,
-				   (float) visserv_->getTranslation(visid).z );
+	    TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z );
 	    hd->setAttribShift( attrib, shifts );
 	}
     }
 
-    DPM( DataPackMgr::PointID() ).release( data->id() );
     return true;
 }
 
