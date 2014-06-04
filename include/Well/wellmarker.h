@@ -48,6 +48,8 @@ public:
     Marker&		operator =(const Marker&);
     inline bool		operator ==( const Marker& m )
 			{ return m.name() == name(); }
+    bool		operator > ( const Marker& wm ) const
+			{ return dah_ > wm.dah_; }
 
     inline float	dah() const		{ return dah_; }
     inline void		setDah( float v )	{ dah_ = v; }
@@ -59,8 +61,6 @@ public:
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }
-    bool                operator > (const Marker& dm) const
-			{ return dah_ >= dm.dah_; }
 
 protected:
 
@@ -126,7 +126,7 @@ mExpClass(Well) MarkerRange
 public:
 
 			MarkerRange(const MarkerSet&,
-				const Interval<int>& idxrg=Interval<int>(-1,-1));
+			    const Interval<int>& idxrg=Interval<int>(-1,-1));
 			MarkerRange(const MarkerSet&,
 				const char*,const char*);
 
@@ -164,7 +164,7 @@ mExpClass(Well) MarkerChgRange : public MarkerRange
 public:
 
 			MarkerChgRange( MarkerSet& ms,
-				const Interval<int>& idxrg=Interval<int>(-1,-1) )
+			    const Interval<int>& idxrg=Interval<int>(-1,-1) )
 			    : MarkerRange(ms,idxrg)	{}
 			MarkerChgRange( MarkerSet& ms, const char* m1,
 							const char* m2 )
@@ -183,4 +183,3 @@ public:
 } // namespace Well
 
 #endif
-
