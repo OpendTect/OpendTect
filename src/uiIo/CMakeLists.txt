@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES
 	uiioobjmanip.cc
 	uiioobjsel.cc
 	uilatlong.cc
+	uilistboxchoiceio.cc
 	uimanprops.cc
 	uimathformula.cc
 	uimathpropeddlg.cc

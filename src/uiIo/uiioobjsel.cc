@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
+#include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
@@ -112,7 +113,7 @@ void relocStart( const char* msg )
 #define muiIOObjSelGrpConstructorCommons \
       uiGroup(p) \
     , ctio_(*new CtxtIOObj(c)) \
-    , choicectio_(*mMkCtxtIOObj(IOObjSelection)) \
+    , lbchoiceio_(0) \
     , newStatusMsg(this) \
     , selectionChanged(this) \
     , itemChosen(this)
@@ -165,7 +166,6 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     nmfld_ = 0; manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt.forread )
 	setup_.choicemode( OD::ChooseOnlyOne );
-    choicectio_.ctxt.toselect.require_.add( sKey::Type(), mObjTypeName );
 
     IOM().to( ctio_.ctxt.getSelKey() );
 
@@ -190,8 +190,12 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     listfld_->setPrefHeightInChar( 8 );
     listfld_->setHSzPol( uiObject::Wide );
     if ( isMultiChoice() )
-	listfld_->offerReadWriteSelection( mCB(this,uiIOObjSelGrp,readChoice),
-					   mCB(this,uiIOObjSelGrp,writeChoice));
+    {
+	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, mObjTypeName );
+	lbchoiceio_->readDone.notify( mCB(this,uiIOObjSelGrp,readChoiceDone) );
+	lbchoiceio_->storeRequested.notify(
+				mCB(this,uiIOObjSelGrp,writeChoiceReq) );
+    }
 
     fullUpdate( -1 );
 
@@ -245,10 +249,8 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 	delete manipgrpsubj->manipgrp_;
     delete manipgrpsubj;
     delete ctio_.ioobj;
-    delete choicectio_.ioobj;
-
     delete &ctio_;
-    delete &choicectio_;
+    delete lbchoiceio_;
 }
 
 
@@ -692,64 +694,24 @@ void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 }
 
 
-void uiIOObjSelGrp::readChoice(CallBacker*)
+void uiIOObjSelGrp::readChoiceDone( CallBacker* )
 {
-    choicectio_.ctxt.forread = true;
-    uiIOObjSelDlg dlg( this, choicectio_ );
-    if ( !dlg.go() ) return;
-    const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
-
-    const BufferString fnm( ioobj->fullUserExpr(true) );
-    od_istream strm( fnm );
-    if ( !strm.isOK() )
-    {
-	const BufferString msg( "Cannot open : ", fnm, " for read" );
-	uiMSG().error( msg );
-	return;
-    }
-
-    ascistream astrm( strm, true );
-    if ( !astrm.isOfFileType( mCtioObjTypeName(choicectio_) ) )
-    {
-	const BufferString msg( fnm, " has the wrong file type: ",
-				astrm.fileType() );
-	uiMSG().error( msg );
-	return;
-    }
+    if ( !lbchoiceio_ ) return;
 
     TypeSet<MultiID> mids;
-    while ( !atEndOfSection(astrm.next()) )
-	mids += MultiID( astrm.value() );
+    for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
+	mids += MultiID( lbchoiceio_->chosenKeys().get(idx).buf() );
     setChosen( mids );
 }
 
 
-void uiIOObjSelGrp::writeChoice( CallBacker* )
+void uiIOObjSelGrp::writeChoiceReq( CallBacker* )
 {
-    choicectio_.ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, choicectio_ );
-    if ( !dlg.go() ) return;
-    const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) return;
+    if ( !lbchoiceio_ ) return;
 
-    const BufferString fnm( ioobj->fullUserExpr(false) );
-    od_ostream strm( fnm );
-    if ( !strm.isOK() )
-    {
-	BufferString msg( "Cannot open : ", fnm, " for write" );
-	uiMSG().error( msg );
-	return;
-    }
-
-    ascostream astrm( strm );
-    astrm.putHeader( mCtioObjTypeName(choicectio_) );
+    lbchoiceio_->keys().setEmpty();
     for ( int idx=0; idx<ioobjids_.size(); idx++ )
-    {
-	if ( isChosen(idx) )
-	    astrm.put( ioobjnms_.get(idx), ioobjids_[idx]->buf() );
-    }
-    astrm.newParagraph();
+	lbchoiceio_->keys().add( ioobjids_[idx]->buf() );
 }
 
 
