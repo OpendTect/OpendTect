@@ -87,16 +87,26 @@ TileResolutionData::~TileResolutionData()
 void TileResolutionData::setTexture( const unsigned int unit, 
     osg::Array* tcarr, osg::StateSet* stateset )
 {
-    if ( dispgeometrytype_ > geodes_->getNumUserObjects() )
+    setGeometryTexture( unit,tcarr,stateset,Triangle );
+    setGeometryTexture( unit,tcarr,stateset,Line );
+}
+
+
+void TileResolutionData::setGeometryTexture( const unsigned int unit, 
+					     const osg::Array* arr,
+					     osg::StateSet* stateset,
+					     int geometrytype )
+{
+    if ( geometrytype > geodes_->getNumUserObjects() )
 	return;
-    
-    osg::Geode* geode = mGetOsgGeode( geodes_, dispgeometrytype_ );
+
+    osg::Geode* geode = mGetOsgGeode( geodes_, geometrytype );
     if ( !geode ) return;
 
     osg::Geometry* geom = mGetOsgGeometry( geode );
     if ( geom )
     {
-	geom->setTexCoordArray( unit, mGetOsgVec2Arr(tcarr) );
+	geom->setTexCoordArray( unit, mGetOsgVec2Arr(arr) );
 	geode->setStateSet( stateset );
     }
 }

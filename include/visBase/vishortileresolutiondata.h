@@ -139,6 +139,11 @@ private:
     bool			setVerticesFromHighestResolution();
     void			hideFromDisplay();
     bool			detectIsolatedLine(int crdidx,char direction);
+    void			setGeometryTexture(const unsigned int unit, 
+						   const osg::Array* arr,
+						   osg::StateSet*stateset,
+						   int geometrytype);
+
 };
 
 }
