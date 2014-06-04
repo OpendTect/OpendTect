@@ -8,12 +8,14 @@
 SET(OD_MODULE_DEPS visBase EarthModel MPEEngine Well PreStackProcessing )
 SET(OD_MODULE_SOURCES
 		initvissurvey.cc
+		visarrowdisplay.cc
 		visemobjdisplay.cc
 		visfaultdisplay.cc
 		visfaultsticksetdisplay.cc
 		vishingeline.cc
 		vishorizondisplay.cc
 		vishorizon2ddisplay.cc
+		visimagedisplay.cc
 		vislocationdisplay.cc
 		vismarchingcubessurfacedisplay.cc
 		vismpe.cc

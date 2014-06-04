@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicursor.h"
 
 #include "uihelpview.h"
+#include "uirgbarray.h"
 
 mDefModInitFn(uiBase)
 {
@@ -22,7 +23,7 @@ mDefModInitFn(uiBase)
     FlareHelpProvider::initODHelp();
 
     DevDocHelp::initClass();
-
+    uiRGBImageLoader::initClass();
 
 #ifdef mUseCrashDumper
     System::CrashDumper::getInstance().setSendAppl(

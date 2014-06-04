@@ -33,6 +33,7 @@ SET(OD_MODULE_SOURCES
 	   vishorthreadworks.cc
 	   vishortileresolutiondata.cc
 	   vishortilescreatorandupdator.cc
+	   visimagerect.cc
 	   vislight.cc
 	   vislines.cc
 	   vismarkerset.cc

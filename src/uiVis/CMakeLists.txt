@@ -7,6 +7,7 @@
 
 SET(OD_MODULE_DEPS uiOSG uiMPE )
 SET(OD_MODULE_SOURCES
+		uiarrowdlg.cc
 		uiattribtransdlg.cc
 		uifltdispoptgrp.cc
 		uigridlinesdlg.cc
