@@ -349,7 +349,6 @@ void uiVelSel::updateEditButton()
 uiVelModelZAxisTransform::uiVelModelZAxisTransform( uiParent* p, bool t2d )
     : uiTime2DepthZTransformBase( p, t2d )
     , transform_ ( 0 )
-    , rangefld_( 0 )
 {
     IOObjContext ctxt = uiVelSel::ioContext();
     ctxt.forread = true;
