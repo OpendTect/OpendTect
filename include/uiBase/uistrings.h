@@ -23,7 +23,7 @@ mExpClass(uiBase) uiStrings
 public:
     static inline uiString s2D()		{ return tr("&2D"); }
     static inline uiString s3D()		{ return tr("&3D"); }
-    static inline uiString s2dViewer()		{ return tr("2d &Viewer"); }
+    static inline uiString s2DViewer()		{ return tr("2D &Viewer"); }
     static inline uiString sAbort()		{ return tr("&Abort"); }
     static inline uiString sAdd(bool immediate);
     static inline uiString sAccept()            { return tr("&Accept"); }
@@ -43,7 +43,7 @@ public:
     static inline uiString sBulk()	        { return tr("&Bulk"); }
     static inline uiString sBulk3D()	        { return tr("&Bulk3D"); }
     static inline uiString sCancel()		{ return tr("&Cancel"); }
-    static inline uiString sCBVS()    	        { return tr("&CBVS"); }
+    static inline uiString sCBVS()	        { return tr("&CBVS"); }
     static inline uiString sChange()            { return tr("&Change"); }
     static inline uiString sClose()		{ return tr("&Close"); }
     static inline uiString sContinue()		{ return tr("&Continue"); }
@@ -118,7 +118,7 @@ public:
     static inline uiString sScenes()		{ return tr("S&cenes"); }
     static inline uiString sSEGY()		{ return tr("SEG &Y"); }
     static inline uiString sSeismics()		{ return tr("&Seismics"); }
-    static inline uiString sSelect(bool arg=false,bool plural=false); 
+    static inline uiString sSelect(bool arg=false,bool plural=false);
     static inline uiString sSession()		{ return tr("&Session"); }
     static inline uiString sSettings()		{ return tr("&Settings"); }
     static inline uiString sSetup()		{ return tr("&Setup"); }

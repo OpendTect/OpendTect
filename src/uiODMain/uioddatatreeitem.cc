@@ -54,7 +54,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , amplspectrumitem_(tr("Show &Amplitude Spectrum..."))
     , fkspectrumitem_(tr("Show &F-K Spectrum..."))
     , view2dwvaitem_(tr("2D Viewer - &Wiggle"))
-    , view2dvditem_(uiStrings::s2dViewer())
+    , view2dvditem_(uiStrings::s2DViewer())
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "trashcan";
