@@ -165,10 +165,10 @@ void uiAttribCrossPlot::initWin( CallBacker* )
 
 MultiID uiAttribCrossPlot::getSelectedID() const
 {
-    if ( !attrinfo_ )
+    const int curitem = attrsfld_->currentItem();
+    if ( !attrinfo_ || curitem<0 )
 	return MultiID();
 
-    const int curitem = attrsfld_->currentItem();
     const int attrsz = attrinfo_->attrnms_.size();
     const bool isstored = curitem >= attrsz;
     if ( isstored )
@@ -192,7 +192,13 @@ MultiID uiAttribCrossPlot::getSelectedID() const
     }
     else
     {
-	const Attrib::Desc* desc = ads_.getDesc( attrinfo_->attrids_[curitem] );
+	TypeSet<DescID>& descids = attrinfo_->attrids_;
+	Attrib::DescID descid = descids.validIdx(curitem) ? descids[curitem] 
+							  : Attrib::DescID();
+	const Attrib::Desc* desc = ads_.getDesc( descid );
+	if ( !desc )
+	    return MultiID();
+
 	if ( desc->isPS() )
 	{
 	    MultiID psid;
