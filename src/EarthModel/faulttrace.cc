@@ -90,7 +90,7 @@ bool FaultTrace::isDefined( int idx ) const
 { return coords_.validIdx(idx) && coords_[idx].isDefined(); }
 
 
-FaultTrace* FaultTrace::clone()
+FaultTrace* FaultTrace::clone() const
 {
     Threads::Locker locker( lock_ );
     FaultTrace* newobj = new FaultTrace;

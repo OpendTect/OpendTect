@@ -49,7 +49,7 @@ public:
     void		remove(const TypeSet<int>&){};
     bool		isDefined(int) const;
     int			getSize() const	{ return coords_.size(); }
-    FaultTrace*		clone();
+    FaultTrace*		clone() const;
 
     bool		isInl() const			{ return isinl_; }
     bool		isEditedOnCrl() const		{ return editedoncrl_; }
@@ -118,7 +118,7 @@ protected:
     Interval<float>	zrange_;
     TypeSet<Line2>	tracesegs_;
 
-    Threads::Lock	lock_;
+    mutable Threads::Lock	lock_;
 public:
 
 };
