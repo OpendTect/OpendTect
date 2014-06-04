@@ -97,6 +97,8 @@ protected:
     void		pauseJobs();
     int			defltNrInlPerJob(const IOPar&);
     void		mkJobRunner(int);
+
+    BufferString	tmpstordir_;
 };
 
 #endif

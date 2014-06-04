@@ -288,16 +288,15 @@ void uiSeisMMProc::setNiceNess()
 
 void uiSeisMMProc::startWork( CallBacker* )
 {
-    BufferString tmpstordir;
     if ( !tmpstordirfld )
-	iop.get( sKey::TmpStor(), tmpstordir );
+	iop.get( sKey::TmpStor(), tmpstordir_ );
     else
     {
-	tmpstordir = tmpstordirfld->getInput();
-	if ( !File::isWritable(tmpstordir) )
+	tmpstordir_ = tmpstordirfld->getInput();
+	if ( !File::isWritable(tmpstordir_) )
 	    mErrRet("The temporary storage directory is not writable")
-	tmpstordir = SeisJobExecProv::getDefTempStorDir( tmpstordir );
-	const_cast<IOPar&>(iop).set( sKey::TmpStor(), tmpstordir );
+	tmpstordir_ = SeisJobExecProv::getDefTempStorDir( tmpstordir_ );
+	const_cast<IOPar&>(iop).set( sKey::TmpStor(), tmpstordir_ );
 	tmpstordirfld->setSensitive( false );
     }
 
@@ -319,14 +318,14 @@ void uiSeisMMProc::startWork( CallBacker* )
 
     if ( !is2d )
     {
-	iop.get( sKey::TmpStor(), tmpstordir );
-	if ( !File::isDirectory(tmpstordir) )
+	iop.get( sKey::TmpStor(), tmpstordir_ );
+	if ( !File::isDirectory(tmpstordir_) )
 	{
-	    if ( File::exists(tmpstordir) )
-		File::remove( tmpstordir );
-	    File::createDir( tmpstordir );
+	    if ( File::exists(tmpstordir_) )
+		File::remove( tmpstordir_ );
+	    File::createDir( tmpstordir_ );
 	}
-	if ( !File::isDirectory(tmpstordir) )
+	if ( !File::isDirectory(tmpstordir_) )
 	    mErrRet("Cannot create temporary storage directory")
     }
 
@@ -384,7 +383,19 @@ void uiSeisMMProc::mkJobRunner( int nr_inl_job )
     if ( !jobrunner || jobprov->errMsg() )
     {
 	delete jobrunner; jobrunner = 0;
-	mErrRet(jobprov->errMsg())
+	FixedString errmsg = jobprov->errMsg();
+	if ( errmsg == "No lines to process" && File::exists(tmpstordir_) )
+	{
+	    BufferString info( errmsg,
+				". Do you want to merge processed files?" );
+	    if ( uiMSG().askGoOn(info) )
+	    {
+		wrapUp( true );
+		return;
+	    }
+	}
+
+	mErrRet( errmsg );
     }
 
     jobrunner->setFirstPort( hdl.firstPort() );
