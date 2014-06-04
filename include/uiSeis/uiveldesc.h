@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uigeninput.h"
 #include "uiseissel.h"
-#include "uizaxistransform.h"
+#include "uitime2depthzaxistrans.h"
 #include "veldesc.h"
 #include "timedepthconv.h"
 
@@ -116,23 +116,6 @@ protected:
 };
 
 
-mExpClass(uiSeis) uiTime2DepthZTransformBase : public uiZAxisTransform
-{
-public:
-    FixedString 	toDomain() const;
-    FixedString 	fromDomain() const;
-
-    void		enableTargetSampling();
-    bool		getTargetSampling(StepInterval<float>&) const;
-
-protected:
-			uiTime2DepthZTransformBase(uiParent*,bool t2d);
-
-    bool		t2d_;
-    uiZRangeInput*	rangefld_;
-};
-
-
 mExpClass(uiSeis) uiVelModelZAxisTransform : public uiTime2DepthZTransformBase
 { mODTextTranslationClass(uiVelModelZAxisTransform);
 public:
@@ -155,8 +138,6 @@ protected:
     VelocityStretcher*		transform_;
     BufferString		selname_;
     MultiID			selkey_;
-
-    uiZRangeInput*		rangefld_;
 
     uiVelSel*			velsel_;
 };
