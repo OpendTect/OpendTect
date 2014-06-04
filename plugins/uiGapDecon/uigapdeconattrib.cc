@@ -259,7 +259,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
     if ( !cs.zrg.includes(gate) )
     {
@@ -561,7 +561,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     CubeSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
-    const float zfac = SI().zDomain().userFactor();
+    const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
     if ( !cs.zrg.includes(gate) )
     {
