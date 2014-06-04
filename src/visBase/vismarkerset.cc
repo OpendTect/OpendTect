@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 #define mOSGMarkerScaleFactor 2.5f
-static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
+//static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
 
 mCreateFactoryEntry( visBase::MarkerSet );
