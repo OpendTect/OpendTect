@@ -141,10 +141,12 @@ public:
 	    				const float* yvals,int sz);
     void			setVals(const Interval<float>&,
 	    				const float* yvals,int sz);
+				//!< Undef values are filtered out
     void			setY2Vals(const float* xvals,
 	    				  const float* yvals,int sz);
     void			setY2Vals(const Interval<float>&,
 	    				const float* yvals,int sz);
+				//!< Undef values are filtered out
     void			setMarkValue(float,bool is_x);
     void			setMark2Value(float,bool is_x);
     void			setEmpty(); //!< clears all
