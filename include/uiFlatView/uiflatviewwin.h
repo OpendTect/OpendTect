@@ -28,7 +28,7 @@ class uiFlatViewControl;
 */
 
 mExpClass(uiFlatView) uiFlatViewWin
-{
+{ mODTextTranslationClass(uiFlatViewWin);
 public:
 
     virtual		~uiFlatViewWin()	{}

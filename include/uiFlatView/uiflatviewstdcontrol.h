@@ -27,7 +27,7 @@ class uiToolBar;
 */
 
 mExpClass(uiFlatView) uiFlatViewStdControl : public uiFlatViewControl
-{
+{ mODTextTranslationClass(uiFlatViewStdControl);
 public:
 
     struct Setup

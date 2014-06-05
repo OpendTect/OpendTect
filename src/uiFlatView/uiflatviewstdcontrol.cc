@@ -41,7 +41,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     , manip_(false)
     , mousepressed_(false)
     , menu_(*new uiMenuHandler(0,-1))
-    , propertiesmnuitem_("Properties...",100)
+    , propertiesmnuitem_(tr("Properties..."),100)
     , manipdrawbut_(0)
     , editbut_(0)
     , zoominbut_(0)
@@ -55,22 +55,22 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools", tba );
     if ( setup.withstates_ )
     {
-	mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode");
+	mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode"));
     }
 
     vwr_.setRubberBandingOn( !manip_ );
 
     if ( setup.withedit_ )
     {
-	mDefBut(editbut_,"seedpickmode",editCB,"Edit mode");
+	mDefBut(editbut_,"seedpickmode",editCB,tr("Edit mode"));
 	editbut_->setToggleButton( true );
     }
 
-    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
+    mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
     if ( setup.withflip_ )
     {
-	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,"Flip left/right");
+	uiToolButton* mDefBut(fliplrbut,"flip_lr",flipCB,tr("Flip left/right"));
     }
 
     if ( setup.withsnapshot_ )
@@ -80,7 +80,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     tb_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
+    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
 
     if ( setup.withcoltabed_ )
     {
@@ -92,7 +92,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( !setup.helpkey_.isEmpty() )
     {
-	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,"Help");
+	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,tr("Help"));
 	helpkey_ = setup.helpkey_;
     }
 

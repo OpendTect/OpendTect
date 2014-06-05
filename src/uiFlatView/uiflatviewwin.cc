@@ -112,7 +112,7 @@ void uiFlatViewWin::makeInfoMsg( BufferString& mesg, IOPar& pars )
     {
 	mAddSep();
 	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
-	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	mesg += "Val="; mesg += mIsUdf(val) ? tr("undef") : wvavalstr;
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
