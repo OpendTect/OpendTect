@@ -99,7 +99,7 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     , databuf_(0)
     , di_(DataCharacteristics())
     , trc_(*new SeisTrc)
-    , istream_(*new od_istream(fnm) )
+    , istream_(*new od_istream(fnm))
     , zfac_(1)
 {
     if ( !istream_.isOK() )
@@ -123,12 +123,12 @@ DZT::Importer::Importer( const char* fnm, const IOObj& ioobj,
     wrr_ = new SeisTrcWriter( &ioobj );
     Seis::RangeSelData* rsd = new Seis::RangeSelData;
     rsd->setIsAll( true );
-    rsd->setGeomID( Survey::GM().getGeomID(lk.lineName()) );
+    rsd->setGeomID( Survey::GM().getGeomID(lk.lineName()));
     wrr_ = new SeisTrcWriter( &ioobj );
     wrr_->setSelData( rsd );
 
     databuf_ = new char [ fh_.nrBytesPerTrace() ];
-    msg_ = "Handling traces";
+    msg_ = tr("Handling traces");
 }
 
 
@@ -158,7 +158,7 @@ int DZT::Importer::nextStep()
     if ( !fh_.isOK() )
     {
 	if ( !istream_.isOK() )
-	    mErrRet("Cannot open input file")
+	    mErrRet(tr("Cannot open input file"))
 	else
 	    return ErrorOccurred();
     }

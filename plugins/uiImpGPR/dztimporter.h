@@ -63,7 +63,7 @@ struct FileHeader
 
 
 mClass(uiImpGPR) Importer : public ::Executor
-{
+{ mODTextTranslationClass(Importer);
 public:
 
 			Importer(const char* fnm,const IOObj&,const LineKey&);
