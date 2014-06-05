@@ -12,7 +12,9 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewmod.h"
+
 #include "sets.h"
+#include "uistring.h"
 #include <iostream>
 
 class uiParent;

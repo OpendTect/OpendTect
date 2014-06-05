@@ -14,8 +14,10 @@ ________________________________________________________________________
 
 
 #include "uitoolsmod.h"
+
 #include "bufstring.h"
 #include "callback.h"
+#include "uistring.h"
 
 class uiNotSavedDlg;
 class uiParent;
