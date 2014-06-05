@@ -159,9 +159,16 @@ RandomTrackDisplay::~RandomTrackDisplay()
     markerset_->unRef();
 
     deepErase( cache_ );
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpm.release( datapackids_[idx] );
+
+    for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
+    {
+	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
+	for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	    dpm.release( dpids[idy] );
+    }
 
     setZAxisTransform( 0, 0 );
 }
@@ -484,13 +491,27 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
     }
 
-    SeisTrcBuf tmpbuf( dprdm->seisBuf() );
-    setTraceData( attrib, tmpbuf, tr );
-
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
     dpman.release( oldid );
+
+    createDisplayDataPacks( attrib );
+    SeisTrcBuf tmpbuf( dprdm->seisBuf() );
+    setTraceData( attrib, tmpbuf, tr );
     return true;
+}
+
+
+void RandomTrackDisplay::setDisplayDataPackIDs( int attrib,
+				const TypeSet<DataPack::ID>& newdpids )
+{
+    TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
+
+    dpids = newdpids;
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
 }
 
 
@@ -502,7 +523,10 @@ DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 
 DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
 {
-    return getDataPackID( attrib );
+    if ( !dispdatapackids_.validIdx(attrib) ) return DataPack::cNoID();
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    const int curversion = channels_->currentVersion(attrib);
+    return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cNoID();
 }
 
 
@@ -583,31 +607,58 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     const int nrtrcs = trcbuf.size();
     if ( !nrtrcs )
     {
-
 	channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
 	channels_->turnOn( false );
 	return;
     }
 
+    const TypeSet<DataPack::ID> dpids = *dispdatapackids_[attrib];
+    const int nrversions = dpids.size();
+    channels_->setNrVersions( attrib, nrversions );
+
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    for ( int sidx=0; sidx<nrversions; sidx++ )
+    {
+	DataPackRef<Attrib::FlatRdmTrcsDataPack> dprdm =
+		DPM(DataPackMgr::FlatID()).obtain( dpids[sidx] );
+	const Array2D<float>& array = dprdm->data();
+	const int sz0 = 1 + (array.info().getSize(0)-1) * (resolution_+1);
+	const int sz1 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
+	channels_->setSize( 1, sz0, sz1 );
+
+	if ( resolution_==0 )
+	    channels_->setUnMappedData(attrib,sidx,array.getData(),
+					OD::CopyPtr,0);
+	else
+	{
+	    mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
+	    Array2DReSampler<float,float> resampler( array,arr,sz0,sz1,true );
+	    resampler.setInterpolate( true );
+	    resampler.execute();
+	    channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
+	}
+    }
+
+    channels_->turnOn( true );
+}
+
+
+void RandomTrackDisplay::createDisplayDataPacks( int attrib )
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    const DataPack::ID dpid = getDataPackID( attrib );
+    DataPackRef<Attrib::FlatRdmTrcsDataPack> rdmtrcsdp = dpm.obtain( dpid );
+
     StepInterval<float> zrg( datatransform_ ? panelstrip_->getZRange()
 					    : getDataTraceRange() );
     zrg.step = appliedZRangeStep();
-    const int nrsamp = zrg.nrSteps()+1;
 
     TypeSet<BinID> path;
     getDataTraceBids( path );
-
     const int pathsz = path.size();
-    const int nrslices = trcbuf.get(0)->nrComponents();
-    channels_->setNrVersions( attrib, nrslices );
 
-    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
-	    Array2DImpl<float>( pathsz, nrsamp ) );
-    if ( !array->isOK() )
-	return;
-
-    const bool dotransform = datatransform_ && !alreadyTransformed(attrib);
-    if ( dotransform )
+    TypeSet<DataPack::ID> dpids;
+    if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	CubeSampling cs( false );
 	for ( int pi=0; pi<pathsz; pi++ )
@@ -619,70 +670,57 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	else
 	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 	datatransform_->loadDataIfMissing( voiidx_ );
+
+	Attrib::FlatDataPackZAxisTransformer transformer( *datatransform_ );
+	transformer.setInput( rdmtrcsdp.ptr() );
+	transformer.setOutput( dpids );
+	transformer.execute();
     }
-
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    for ( int sidx=0; sidx<nrslices; sidx++ )
+    else
     {
-	array->setAll( mUdf(float) );
-	float* dataptr = array->getData();
+	const int nrsamp = zrg.nrSteps()+1;
+	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
+			     Array2DImpl<float>( pathsz, nrsamp ) );
+	if ( !array->isOK() )
+	    return;
 
-	for ( int posidx=pathsz-1; posidx>=0; posidx-- )
+	const SeisTrcBuf& seisbuf = rdmtrcsdp->seisBuf();
+	const int nrslices = seisbuf.get(0)->nrComponents();
+	for ( int sidx=0; sidx<nrslices; sidx++ )
 	{
-	    const BinID bid = path[posidx];
-	    const int trcidx = trcbuf.find( bid, false );
-	    if ( trcidx<0 )
-		continue;
-
-	    const SeisTrc* trc = trcbuf.get( trcidx );
-
-	    if ( !trc || sidx>trc->nrComponents() )
-		continue;
-
-	    float* arrptr = dataptr + array->info().getOffset( posidx, 0 );
-
-	    if ( !dotransform )
+	    array->setAll( mUdf(float) );
+	    float* dataptr = array->getData();
+	    for ( int posidx=pathsz-1; posidx>=0; posidx-- )
 	    {
+		const BinID bid = path[posidx];
+		const int trcidx = seisbuf.find( bid, false );
+		if ( trcidx<0 )
+		    continue;
+
+		const SeisTrc* trc = seisbuf.get( trcidx );
+		if ( !trc || sidx>trc->nrComponents() )
+		    continue;
+
+		float* arrptr = dataptr + array->info().getOffset(posidx,0);
 		for ( int ids=0; ids<nrsamp; ids++ )
 		{
 		    const float ctime = zrg.start + ids*zrg.step;
-		    if ( !trc->dataPresent(ctime) )
-			continue;
-
-		    arrptr[ids] = trc->getValue(ctime,sidx);
+		    if ( trc->dataPresent(ctime) )
+			arrptr[ids] = trc->getValue( ctime, sidx );
 		}
 	    }
-	    else
-	    {
-		SamplingData<float> sd(zrg.start, zrg.step );
-		mAllocVarLenArr(float,res,nrsamp);
-		datatransform_->transformBack( bid, sd, nrsamp, res );
-		for ( int ids=0; ids<nrsamp; ids++ )
-		{
-		    if ( trc->dataPresent(res[ids]) )
-			arrptr[ids] = trc->getValue(res[ids],sidx);
-		}
-	    }
-	}
 
-	const int sz0 = 1 + (array->info().getSize(0)-1) * (resolution_+1);
-	const int sz1 = 1 + (array->info().getSize(1)-1) * (resolution_+1);
-	channels_->setSize( 1, sz0, sz1 );
-
-	if ( resolution_==0 )
-	    channels_->setUnMappedData(attrib,sidx,dataptr,OD::CopyPtr,0);
-	else
-	{
-	    mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
-	    Array2DReSampler<float,float>
-		resampler( *array, arr, sz0, sz1, true );
-	    resampler.setInterpolate( true );
-	    resampler.execute();
-	    channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
+	    SamplingData<float> sd( zrg.start, zrg.step );
+	    const Attrib::DescID descid = rdmtrcsdp->descID();
+	    Attrib::FlatRdmTrcsDataPack* dprdm =
+		new Attrib::FlatRdmTrcsDataPack( descid, array, sd, &path );
+	    dprdm->setName( rdmtrcsdp->name() );
+	    dpm.add( dprdm );
+	    dpids += dprdm->id();
 	}
     }
 
-    channels_->turnOn( true );
+    setDisplayDataPackIDs( attrib, dpids );
 }
 
 
@@ -1148,6 +1186,7 @@ void RandomTrackDisplay::addCache()
     cache_.allowNull();
     cache_ += 0;
     datapackids_ += -1;
+    dispdatapackids_ += new TypeSet<DataPack::ID>;
 }
 
 
@@ -1157,6 +1196,11 @@ void RandomTrackDisplay::removeCache( int attrib )
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+    delete dispdatapackids_.removeSingle( attrib );
 }
 
 
@@ -1164,6 +1208,7 @@ void RandomTrackDisplay::swapCache( int a0, int a1 )
 {
     cache_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
+    dispdatapackids_.swap( a0, a1 );
 }
 
 
@@ -1174,6 +1219,11 @@ void RandomTrackDisplay::emptyCache( int attrib )
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+    dispdatapackids_[attrib]->setAll( DataPack::cNoID() );
 }
 
 

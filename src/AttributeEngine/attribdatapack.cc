@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "survinfo.h"
+#include "zaxistransform.h"
+#include "zaxistransformutils.h"
 
 #define mStepIntvD( rg ) \
     StepInterval<double>( rg.start, rg.stop, rg.step )
@@ -619,6 +621,22 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 }
 
 
+FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did,
+		const Array2DImpl<float>* arr2d, const SamplingData<float>& sd,
+		TypeSet<BinID>* path )
+    : Flat2DDataPack(did)
+    , samplingdata_(sd)
+    , seisbuf_(0)
+    , path_(0)
+{
+    if ( path )
+	path_ = new TypeSet<BinID>(*path);
+
+    arr2d_ = new Array2DImpl<float>( *arr2d );
+    setPosData( path );
+}
+
+
 FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 {
     delete arr2d_;
@@ -629,7 +647,7 @@ FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 
 void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 {
-    const int nrtrcs = seisbuf_->size();
+    const int nrtrcs = seisbuf_ ? seisbuf_->size() : arr2d_->info().getSize(0);
     if ( nrtrcs<1 || ( path && path->size()<nrtrcs ) ) return;
 
     const int nrpos = path ? path->size() : nrtrcs;
@@ -648,9 +666,11 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 	prevcrd = crd;
     }
 
-    const int nrsamp = seisbuf_->get(0)->size();
-    const StepInterval<float> zrg =
-			seisbuf_->get(0)->info().sampling.interval( nrsamp );
+    const int nrsamp = seisbuf_ ? seisbuf_->get(0)->size()
+				: arr2d_->info().getSize(1);
+    const StepInterval<float> zrg = seisbuf_ ?
+			seisbuf_->get(0)->info().sampling.interval( nrsamp ) :
+			samplingdata_.interval( nrsamp );
     posdata_.setX1Pos( pos, nrpos, 0 );
     posdata_.setRange( false, mStepIntvD(zrg) );
 }
@@ -658,6 +678,7 @@ void FlatRdmTrcsDataPack::setPosData( TypeSet<BinID>* path )
 
 double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
+    if ( !seisbuf_ ) return mUdf(double);
     return i0<0 || i0>=seisbuf_->size() || ikey<0 || ikey>=tiflds_.size()
 	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
 	 : seisbuf_->get(i0)->info().getValue( tiflds_[ikey] );
@@ -666,7 +687,7 @@ double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 
 void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    if ( i0 < 0 || i0 >= seisbuf_->size() )
+    if ( !seisbuf_ || i0 < 0 || i0 >= seisbuf_->size() )
 	return;
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
@@ -676,19 +697,27 @@ void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
 Coord3 FlatRdmTrcsDataPack::getCoord( int i0, int i1 ) const
 {
-    if ( seisbuf_->isEmpty() ) return Coord3();
-
     if ( i0 < 0 ) i0 = 0;
-    if ( i0 >= seisbuf_->size() ) i0 = seisbuf_->size() - 1;
-    const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
-    return Coord3( ti.coord, ti.sampling.atIndex(i1) );
+
+    if ( seisbuf_ || seisbuf_->isEmpty() )
+    {
+	if ( i0 >= seisbuf_->size() ) i0 = seisbuf_->size()-1;
+	const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
+	return Coord3( ti.coord, ti.sampling.atIndex(i1) );
+    }
+    else if ( path_ )
+    {
+	if ( i0 >= path_->size() ) i0 = path_->size()-1;
+	return Coord3( SI().transform((*path_)[i0]),samplingdata_.atIndex(i1) );
+    }
+
+    return Coord3();
 }
 
 
 void FlatRdmTrcsDataPack::fill2DArray( TypeSet<BinID>* path )
 {
-    if ( !seisbuf_ ) return;
-    if ( seisbuf_->isEmpty() || !arr2d_ ) return;
+    if ( !seisbuf_ || seisbuf_->isEmpty() || !arr2d_ ) return;
 
     const int nrtrcs = seisbuf_->size();
     if ( path && path->size()<nrtrcs ) return;
@@ -707,6 +736,127 @@ void FlatRdmTrcsDataPack::fill2DArray( TypeSet<BinID>* path )
     //rem: assuming that interesting data is at component 0;
     //always true if coming from the engine, from where else?
     }
+}
+
+
+FlatDataPackZAxisTransformer::FlatDataPackZAxisTransformer(
+					    ZAxisTransform& zat )
+    : transform_(zat)
+    , dpm_(DPM(DataPackMgr::FlatID()))
+    , inputdp_(0)
+    , dpids_(0)
+{
+    transform_.ref();
+    zrange_.setFrom( transform_.getZInterval(false) );
+    zrange_.step = transform_.getGoodZStep();
+}
+
+
+FlatDataPackZAxisTransformer::~FlatDataPackZAxisTransformer()
+{
+    deepErase( arr2d_ );
+    transform_.unRef();
+}
+
+
+od_int64 FlatDataPackZAxisTransformer::nrIterations() const
+{
+    if ( !inputdp_ ) return -1;
+
+    ConstDataPackRef<FlatDataPack> fdp = dpm_.obtain( inputdp_->id() );
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+    if ( dprdm ) return dprdm->pathBIDs()->size();
+
+    return -1;
+}
+
+
+bool FlatDataPackZAxisTransformer::doPrepare( int nrthreads )
+{
+    ConstDataPackRef<FlatDataPack> fdp = dpm_.obtain( inputdp_->id() );
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+    if ( !dprdm || !dprdm->pathBIDs() ) return false;
+
+    const int pathsz = dprdm->pathBIDs()->size();
+    const int nrsamp = zrange_.nrSteps()+1;
+    const SeisTrc* trc = dprdm->seisBuf().get( 0 );
+    if ( !trc ) return false;
+
+    for ( int idx=0; idx<trc->nrComponents(); idx++ )
+    {
+	mDeclareAndTryAlloc( Array2DImpl<float>*, array,
+			     Array2DImpl<float>(pathsz,nrsamp) );
+	if ( !array->isOK() )
+	    return false;
+
+	array->setAll( mUdf(float) );
+	arr2d_ += array;
+    }
+
+    return true;
+}
+
+
+bool FlatDataPackZAxisTransformer::doWork(
+				od_int64 start, od_int64 stop, int threadid )
+{
+    if ( !inputdp_ || !dpids_ ) return false;
+    ConstDataPackRef<FlatDataPack> fdp = dpm_.obtain( inputdp_->id() );
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+    if ( !dprdm ) return false;
+
+    const SamplingData<float> sd( zrange_.start, zrange_.step );
+    const int nrsamp = zrange_.nrSteps()+1;
+    const TypeSet<BinID> bids = *dprdm->pathBIDs();
+    const SeisTrcBuf& seisbuf = dprdm->seisBuf();
+    for ( int idx=0; idx<arr2d_.size(); idx++ )
+    {
+	float* dataptr = arr2d_[idx]->getData();
+	for ( int posidx=mCast(int,start); posidx<=mCast(int,stop); posidx++ )
+	{
+	    const BinID bid = bids[posidx];
+	    const int trcidx = seisbuf.find( bid, false );
+	    if ( trcidx<0 )
+		continue;
+
+	    const SeisTrc* trc = seisbuf.get( trcidx );
+	    if ( !trc || !trc->nrComponents() )
+		continue;
+
+	    float* arrptr = dataptr + arr2d_[idx]->info().getOffset(posidx,0);
+	    mAllocVarLenArr(float,res,nrsamp);
+	    transform_.transformBack( bid, sd, nrsamp, res );
+	    for ( int ids=0; ids<nrsamp; ids++ )
+	    {
+		if ( trc->dataPresent(res[ids]) )
+		    arrptr[ids] = trc->getValue( res[ids], idx );
+	    }
+	}
+    }
+
+    return true;
+}
+
+
+bool FlatDataPackZAxisTransformer::doFinish( bool success )
+{
+    ConstDataPackRef<FlatDataPack> fdp = dpm_.obtain( inputdp_->id() );
+    mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
+    if ( !dprdm ) return false;
+
+    const SamplingData<float> sd( zrange_.start, zrange_.step );
+    const Attrib::DescID descid = dprdm->descID();
+    TypeSet<BinID>* path = const_cast<TypeSet<BinID>*>( dprdm->pathBIDs() );
+    for ( int idx=0; idx<arr2d_.size(); idx++ )
+    {
+	Attrib::FlatRdmTrcsDataPack* transformed =
+	    new Attrib::FlatRdmTrcsDataPack( descid, arr2d_[idx], sd, path );
+	transformed->setName( dprdm->name() );
+	dpm_.add( transformed );
+	*dpids_ += transformed->id();
+    }
+
+    return true;
 }
 
 

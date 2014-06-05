@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
+#include "zaxistransform.h"
 
 
 uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
@@ -320,14 +321,27 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	if ( dprdm )
 	{
 	    attrserv->setTargetSelSpec( selas );
-	    const Interval<float> zrg(
-		    mCast(float,dprdm->posData().range(false).start),
-		    mCast(float,dprdm->posData().range(false).stop) );
+	    RefMan<ZAxisTransform> zat = viewer2D()->getZAxisTransform();
+	    const Interval<float> zrg = zat ? zat->getZInterval(true) :
+		Interval<float>((float)dprdm->posData().range(false).start,
+				(float)dprdm->posData().range(false).stop);
 
 	    TypeSet<BinID> bids;
 	    if ( dprdm->pathBIDs() )
 		bids = *dprdm->pathBIDs();
 	    newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
+
+	    if ( zat )
+	    {
+		TypeSet<DataPack::ID> dpids;
+		DataPackRef<Attrib::FlatRdmTrcsDataPack> newdprdm =
+				    DPM(DataPackMgr::FlatID()).obtain( newid );
+		Attrib::FlatDataPackZAxisTransformer transformer( *zat );
+		transformer.setInput( newdprdm.ptr() );
+		transformer.setOutput( dpids );
+		transformer.execute();
+		newid = dpids.size() ? dpids[0] : DataPack::cNoID();
+	    }
 	}
 	else
 	{

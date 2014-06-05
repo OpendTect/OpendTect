@@ -16,12 +16,14 @@ ________________________________________________________________________
 #include "datapackbase.h"
 #include "cubesampling.h"
 #include "attribdescid.h"
+#include "paralleltask.h"
 #include "seisinfo.h"
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
+template <class T> class Array2DImpl;
 class SeisTrcBuf;
-
+class ZAxisTransform;
 
 namespace Attrib
 {
@@ -210,6 +212,9 @@ mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
 					    TypeSet<BinID>* path=0);
+			FlatRdmTrcsDataPack(DescID,const Array2DImpl<float>*,
+					    const SamplingData<float>&,
+					    TypeSet<BinID>* path=0);
 			~FlatRdmTrcsDataPack();
     virtual const char*	sourceType() const	{ return "Random Line"; }
 
@@ -230,7 +235,41 @@ protected:
     void		setPosData(TypeSet<BinID>*);
     void		fill2DArray(TypeSet<BinID>*);
 
-    TypeSet<BinID>* path_;
+    const SamplingData<float>	samplingdata_;
+    TypeSet<BinID>*		path_;
+};
+
+
+/*!
+\brief Transforms datapacks using ZAxisTransform. Output datapacks will be of
+same type as inputdp_. At present, this works only for FlatRdmTrcsDataPack.
+*/
+
+mExpClass(AttributeEngine) FlatDataPackZAxisTransformer : public ParallelTask
+{
+public:
+				FlatDataPackZAxisTransformer(ZAxisTransform&);
+				~FlatDataPackZAxisTransformer();
+
+    void			setInput( FlatDataPack* fdp )
+				{ inputdp_ = fdp; }
+    void			setOutput( TypeSet<DataPack::ID>& dpids )
+				{ dpids_ = &dpids; }
+
+protected:
+
+    bool			doPrepare(int nrthreads);
+    bool			doWork(od_int64,od_int64,int threadid);
+    bool			doFinish(bool success);
+    od_int64			nrIterations() const;
+
+    DataPackMgr&		dpm_;
+    ZAxisTransform&		transform_;
+    StepInterval<float>		zrange_;
+    FlatDataPack*		inputdp_;
+
+    TypeSet<DataPack::ID>*		dpids_;
+    ObjectSet<Array2DImpl<float> >	arr2d_;
 };
 
 

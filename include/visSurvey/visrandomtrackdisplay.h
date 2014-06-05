@@ -84,6 +84,8 @@ public:
 
     bool                        setDataPackID(int attrib,DataPack::ID,
 	    				      TaskRunner*);
+    void			setDisplayDataPackIDs(int attrib,
+					const TypeSet<DataPack::ID>&);
     DataPack::ID                getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
@@ -177,6 +179,7 @@ protected:
 	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
     void			setData( int attrib, const SeisTrcBuf& );
+    void			createDisplayDataPacks(int attrib);
 
     void			setKnotPos(int,const BinID&,bool check);
 
@@ -205,7 +208,8 @@ protected:
     visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
 
-    ObjectSet<SeisTrcBuf>	cache_;
+    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
+    ObjectSet<SeisTrcBuf>		cache_;
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;
     TypeSet<BinID>		trcspath_;
