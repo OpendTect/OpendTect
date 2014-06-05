@@ -23,7 +23,7 @@ class uiGenInput;
 /*! \brief Madagascar tutorial plugin interface */
 
 mClass(uiTutMadagascar) uiTutODMad : public uiDialog
-{
+{ mODTextTranslationClass(uiTutODMad);
 public:
 
 			uiTutODMad(uiParent*);

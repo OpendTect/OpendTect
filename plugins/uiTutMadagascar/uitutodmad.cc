@@ -24,8 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 uiTutODMad::uiTutODMad( uiParent* p )
-    : uiDialog( p, Setup("Display Madagascar data dialog",
-			 "Specify data settings", mNoHelpKey) )
+    : uiDialog( p, Setup(tr("Display Madagascar data dialog"),
+			 tr("Specify data settings"), mNoHelpKey) )
     , iop_("Madagascar display parameters")
 {
     uiFileInput::Setup fisu;
@@ -34,8 +34,9 @@ uiTutODMad::uiTutODMad( uiParent* p )
     maddatafld_ = new uiFileInput( this, "Data file", fisu );
     maddatafld_->setFilter( "*.rsf" );
 
-    dowigglesfld_ = new uiGenInput ( this, "Display",
-			     BoolInpSpec(true,"Wiggles","Variable density") );
+    dowigglesfld_ = new uiGenInput ( this, uiStrings::sDisplay(),
+			             BoolInpSpec(true,tr("Wiggles"),
+                                     tr("Variable density")) );
     dowigglesfld_->attach( alignedBelow, maddatafld_ );
 }
 
@@ -48,7 +49,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
     const BufferString fnm = maddatafld_->fileName();
     if ( fnm.isEmpty() || !File::exists(fnm) )
     {
-	uiMSG().error( "Please select an existing input file" );
+	uiMSG().error( tr("Please select an existing input file") );
 	return false;
     }
 
