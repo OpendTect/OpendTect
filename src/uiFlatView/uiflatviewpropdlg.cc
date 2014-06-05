@@ -842,7 +842,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     titlefld_ = new uiGenInput( this, "Title" );
     titlefld_->attach( centeredAbove, tabObject() );
 
-    uiPushButton* applybut = new uiPushButton( this, "&Apply",
+    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
 			     mCB(this,uiFlatViewPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
     enableSaveButton( sSaveAsDefault() );
