@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uinlamod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
