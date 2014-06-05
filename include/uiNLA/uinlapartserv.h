@@ -32,7 +32,7 @@ class NLACreationDesc;
 */
 
 mExpClass(uiNLA) uiNLAPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiNLAPartServer);
 public:
 			uiNLAPartServer(uiApplService&);
     virtual		~uiNLAPartServer();

@@ -489,7 +489,7 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 
 bool uiNLAPartServer::doDPSDlg()
 {
-    uiDataPointSet::Setup su( "Input data", true );
+    uiDataPointSet::Setup su( tr("Input data"), true );
     su.isconst(false).allowretrieve(false).canaddrow(false);
     delete uidps_;
     uidps_ = new uiDataPointSet( appserv().parent(), dps(), su, dpsdispmgr_ );
