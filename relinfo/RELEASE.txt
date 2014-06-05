@@ -11,7 +11,7 @@ v4.6.0l: June 5, 2014
  * Fix for frequency spectrum of merged wavelet
  * Fix for texture while switching between different resolutions and between
    interpolation and classification
- * Fix for Multi-machine precessing when re-run after 100% finished process
+ * Fix for Multi-machine processing when re-run after 100% finished process
    is able to merge individual inlines on the hard-disk
  * Fix for invalid directory message while copying  a survey
  * Fix for displaying of histogram while changing survey
