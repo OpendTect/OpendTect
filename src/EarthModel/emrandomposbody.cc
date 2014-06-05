@@ -371,11 +371,11 @@ const IOObjContext& RandomPosBody::getIOObjContext() const
 }
 
 
-ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr,
+ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* taskrunner,
 						 bool smooth ) const
 {
     BodyOperator bodyopt;
-    return bodyopt.createImplicitBody( locations_, tr ); 
+    return bodyopt.createImplicitBody( locations_, taskrunner ); 
 }
 
 

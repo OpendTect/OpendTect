@@ -376,13 +376,13 @@ void MarchingCubesSurface::createBodyOperator()
 }
 
 
-bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
+bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
 {
     if ( !operator_ || !mcsurface_ )
 	return false;
 
     ImplicitBody* body = 0;
-    if ( !operator_->createImplicitBody(body,tr) || !body )
+    if ( !operator_->createImplicitBody(body,taskrunner) || !body )
 	return false;
 
     setInlSampling( SamplingData<int>(body->cs_.hrg.inlRange()) );
@@ -414,7 +414,7 @@ bool MarchingCubesSurface::getBodyRange( CubeSampling& cs )
 }
 
 
-ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
+ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
 							bool smooth ) const
 {
     if ( !mcsurface_ )
@@ -422,7 +422,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 	if ( operator_ )
 	{
 	    ImplicitBody* body = 0;
-	    if ( operator_->createImplicitBody(body,t) && body )
+	    if ( operator_->createImplicitBody(body,taskrunner) && body )
 		return body;
 	}
 
@@ -451,7 +451,7 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 
     MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 	    inlrg.start, crlrg.start, zrg.start, !smooth );
-    const bool execres = TaskRunner::execute( t, m2i );
+    const bool execres = TaskRunner::execute( taskrunner, m2i );
     if ( !execres )
     {
 	delete res; return 0;
