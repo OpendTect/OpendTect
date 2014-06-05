@@ -189,11 +189,11 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
     uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
-							 "Group" );
+							 tr("Group") );
     groupfld_ = groupfld->box();
-    groupfld_->setToolTip( "Madagascar program group" );
+    groupfld_->setToolTip( tr("Madagascar program group") );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
-    uiLabeledListBox* progfld = new uiLabeledListBox( selgrp, "Program" );
+    uiLabeledListBox* progfld = new uiLabeledListBox( selgrp, tr("Program") );
     progfld->attach( alignedBelow, groupfld );
     progfld_ = progfld->box();
     progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
@@ -204,10 +204,10 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     uiGroup* infogrp = new uiGroup( 0, "Prog info group" );
 
     srchfld_ = new uiLineEdit( infogrp, "Search field" );
-    srchfld_->setToolTip( "Search expression" );
+    srchfld_->setToolTip( tr("Search expression") );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiToolButton* srchbut = new uiToolButton( infogrp, "search", "Search",
+    uiToolButton* srchbut = new uiToolButton( infogrp, "search", tr("Search"),
 				  mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 
@@ -238,17 +238,17 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
 	synopsfld_->setReadOnly( true );
 	synopsfld_->setStretch( 2, 0 );
 	synopsfld_->setHSzPol( uiObject::WideVar );
-	new uiLabel( lowgrp, "Synopsis", synopsfld_ );
+	new uiLabel( lowgrp, tr("Synopsis"), synopsfld_ );
     }
 
     cmdfld_ = new uiLineEdit( lowgrp, "Command edit line" );
     cmdfld_->setStretch( 2, 0 );
     cmdfld_->setHSzPol( uiObject::MedVar );
-    new uiLabel( lowgrp, "Command line", cmdfld_ );
+    new uiLabel( lowgrp, tr("Command line"), cmdfld_ );
     if ( synopsfld_ )
 	cmdfld_->attach( alignedBelow, synopsfld_ );
 
-    useauxfld_ = new uiCheckBox( lowgrp, "Add Plot Command",
+    useauxfld_ = new uiCheckBox( lowgrp, tr("Add Plot Command"),
 				 mCB(this,uiMadagascarBldCmd,auxSel) );
     useauxfld_->attach( alignedBelow, cmdfld_ );
 
@@ -256,13 +256,15 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
     auxcmdfld_->attach( alignedBelow, useauxfld_ );
     auxcmdfld_->setStretch( 2, 0 );
 
-    uiPushButton* addbut = new uiPushButton( lowgrp, "&Add to flow", true );
-    addbut->setToolTip( "Add 'Command line' to process flow" );
+    uiPushButton* addbut = new uiPushButton( lowgrp, tr("&Add to flow"), true );
+    addbut->setToolTip( tr("Add 'Command line' to process flow") );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     addbut->attach( alignedBelow, auxcmdfld_ );
     addbut->setPrefWidthInChar( 16 );
-    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace in flow", true );
-    edbut->setToolTip( "Replace current command in flow with 'Command line'" );
+    uiPushButton* edbut = new uiPushButton( lowgrp, tr("&Replace in flow"), 
+                                            true );
+    edbut->setToolTip( tr("Replace current command in"
+                          " flow with 'Command line'") );
     edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
     edbut->attach( rightOf, addbut );
     edbut->setPrefWidthInChar( 16 );

@@ -19,7 +19,7 @@ namespace ODMad { class ProgDef; class Proc; }
 
 
 mClass(uiMadagascar) uiMadagascarBldCmd : public uiGroup
-{
+{ mODTextTranslationClass(uiMadagascarBldCmd);
 public:
 
 			uiMadagascarBldCmd(uiParent*);

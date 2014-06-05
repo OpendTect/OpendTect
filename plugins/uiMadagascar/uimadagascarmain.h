@@ -23,7 +23,7 @@ class uiMadagascarBldCmd;
 
 
 mClass(uiMadagascar) uiMadagascarMain : public uiDialog
-{
+{ mODTextTranslationClass(uiMadagascarMain);
 public:
 
 			uiMadagascarMain(uiParent*);

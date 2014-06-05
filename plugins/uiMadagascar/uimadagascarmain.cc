@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiDialog(p,Setup("Madagascar processing",mNoDlgTitle,
+	: uiDialog(p,Setup(tr("Madagascar processing"),mNoDlgTitle,
                             mODHelpKey(mMadagascarMainHelpID) )
 			   .modal(false) )
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
@@ -89,10 +89,10 @@ uiMadagascarMain::~uiMadagascarMain()
 void uiMadagascarMain::createToolBar()
 {
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
-    mAddButton( "newflow", newFlow, "Empty this flow" );
-    mAddButton( "openflow", openFlow, "Open saved flow" );
-    mAddButton( "save", saveFlow, "Save flow" );
-    mAddButton( "export", exportFlow, "Export flow" );
+    mAddButton( "newflow", newFlow, tr("Empty this flow") );
+    mAddButton( "openflow", openFlow, tr("Open saved flow") );
+    mAddButton( "save", saveFlow, tr("Save flow") );
+    mAddButton( "export", exportFlow, tr("Export flow") );
 }
 
 
@@ -101,7 +101,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     uiGroup* procgrp = new uiGroup( grp, "Proc group" );
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
-    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "FLOW" );
+    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, tr("FLOW") );
     procsfld_ = pfld->box();
     procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
@@ -109,11 +109,12 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "", OD::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
-				"Move current command up", butpushcb );
+				tr("Move current command up"), butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
-				"Move current command down", butpushcb );
+				tr("Move current command down"), butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
-				"Remove current command from flow", butpushcb );
+				tr("Remove current command from flow"), 
+                                butpushcb );
     bgrp->attach( centeredBelow, pfld );
 
     procgrp->setHAlignObj( pfld );
@@ -331,7 +332,7 @@ void uiMadagascarMain::exportFlow( CallBacker* )
     uiFileDialog dlg( this, false );
     dlg.setDirectory( IOM().curDirName() );
     if ( !dlg.go() ) return;
-    uiMSG().error( "Export needs implementation" );
+    uiMSG().error( tr("Export needs implementation") );
 }
 
 
