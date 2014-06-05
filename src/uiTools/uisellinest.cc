@@ -31,7 +31,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 }
 
 uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
-				const char* ltxt )
+				const uiString& ltxt )
     : uiGroup(p,"Line style selector")
     , linestyle_(*new LineStyle(ls))
     , changed(this)
@@ -44,10 +44,10 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
 {
     stylesel_ = 0; colinp_ = 0; widthbox_ = 0;
 
-    BufferString lbltxt( su.txt_ );
+    uiString lbltxt( su.txt_ );
     if ( lbltxt.isEmpty() )
-	lbltxt = "Line style";
-    else if ( lbltxt == "-" )
+	lbltxt = tr("Line style");
+    else if ( lbltxt.getFullString() == "-" )
 	lbltxt.setEmpty();
 
     uiObject* alobj = 0;
