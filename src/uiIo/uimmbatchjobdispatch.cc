@@ -462,8 +462,8 @@ void uiMMBatchJobDispatcher::updateAliveDisp()
 	= { ">..", ".>.", "..>", "..<", ".<.", "<.." };
     statusBar()->message( dispstrs[ nrcyclesdone_ % nrdispstrs ], 3 );
 
-    const int totsteps = -1;
-    const int nrdone = 0;
+    const int totsteps = mCast( int, jobrunner_->totalNr() );
+    const int nrdone = mCast( int, jobrunner_->nrDone() );
     const bool hastot = totsteps > 0;
     progbar_->display( hastot );
     if ( hastot )
