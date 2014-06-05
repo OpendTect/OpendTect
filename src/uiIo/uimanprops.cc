@@ -162,10 +162,14 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 
     defaultfld_ = new uiGenInput( this, "Default value" );
     defaultfld_->attach( alignedBelow, rgfld_ );
-    if ( !pr_.disp_.defval_ )
-	defaultfld_->setValue( pr_.disp_.commonValue() );
-    else if ( pr_.disp_.defval_->isValue() )
-	defaultfld_->setValue( pr_.disp_.defval_->value() );
+    if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
+    {
+	float val = pr_.disp_.defval_ ? pr_.disp_.defval_->value()
+				      : pr_.disp_.commonValue();
+	if ( curunit_ )
+	    val = curunit_->getUserValueFromSI( val );
+	defaultfld_->setValue( val );
+    }
     else
     {
 	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
@@ -266,7 +270,12 @@ bool uiEditPropRef::acceptOK( CallBacker* )
     else
     {
 	if ( !withform_ || defaultstr.isNumber() )
-	    pr_.disp_.defval_ = new ValueProperty( pr_, defaultstr.toFloat() );
+	{
+	    float val = defaultstr.toFloat();
+	    if ( curunit_ )
+		val = curunit_->getSIValue( val );
+	    pr_.disp_.defval_ = new ValueProperty( pr_, val );
+	}
 	else
 	    pr_.disp_.defval_ = new MathProperty( defaultmathprop_ );
     }

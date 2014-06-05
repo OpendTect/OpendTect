@@ -23,7 +23,7 @@ Porosity: Volumetrics
 Aliases: Phi`Por`Phie`PIGN
 Color: 200`200`0
 Range: 0`30`%
-DefaultValue: Value`10
+DefaultValue: Value`0.1
 !
 Permeability: Permeability
 Aliases: Perm
@@ -60,7 +60,7 @@ Acoustic Impedance: Impedance
 Aliases: AI`Pimpedance
 Color: 255`150`0
 Range: 2e6`2e7
-Definition: Math`Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
+Definition: Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
 !
 Elastic Impedance: Impedance
 Aliases: EI
@@ -71,7 +71,7 @@ Shear Impedance: Impedance
 Aliases: SI
 Color: 100`255`100
 Range: 2e6`2e7
-Definition: Math`Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Swave velocity] ##.
+Definition: Formula: +## [Expression] ## [den * vel] ##.+## [Input.0.Def] ## [Density] ##.+## [Input.1.Def] ## [Swave velocity] ##.
 !
 Water Saturation: Volumetrics
 Aliases: Sat`SW`SWE
@@ -99,13 +99,13 @@ Vp/Vs: Elastic Ratio
 Aliases: vpvs
 Color: 200`150`200
 Range: 0.1`0.5
-Definition: Math`Formula: +## [Expression] ## [Vp / Vs] ##.+## [Input.0.Def] ## [Pwave velocity] ##.+## [Input.1.Def] ## [Swave velocity] ##.
+Definition: Formula: +## [Expression] ## [Vp / Vs] ##.+## [Input.0.Def] ## [Pwave velocity] ##.+## [Input.1.Def] ## [Swave velocity] ##.
 !
 Vs/Vp: Elastic Ratio
 Aliases: vsvp
 Color: 200`150`150
 Range: 2`10
-Definition: Math`Formula: +## [Expression] ## [Vs / Vp] ##.+## [Input.0.Def] ## [Swave velocity] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
+Definition: Formula: +## [Expression] ## [Vs / Vp] ##.+## [Input.0.Def] ## [Swave velocity] ##.+## [Input.1.Def] ## [Pwave velocity] ##.
 !
 LambdaRho: Pressure-Weight
 Color: 100`150`255
