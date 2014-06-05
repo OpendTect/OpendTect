@@ -94,7 +94,7 @@ public:
     mExpClass(uiEarthModel) Setup
     {
     public:
-			Setup( const char* surftyp, const uiString& tpn )
+			Setup( const char* surftyp, const uiString& tpn=0)
 			    : typ_(surftyp)
 			    , typname_( tpn )
 			    , withsubsel_(false)
