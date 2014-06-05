@@ -453,7 +453,7 @@ void uiODMenuMgr::fillProcMenu()
     uiMenu* csoitm = new uiMenu( &appl_, tr("&Create Seismic Output") );
 
 // Attributes
-    uiMenu* attritm = new uiMenu( tr("Attributes") );
+    uiMenu* attritm = new uiMenu( tr("&Attributes") );
     csoitm->insertItem( attritm );
 
     create2D3DMnu( attritm, tr("&Single Attribute"),
@@ -492,7 +492,7 @@ void uiODMenuMgr::fillProcMenu()
     {
 // Other 3D items
 	csoitm->insertItem(
-	    new uiAction(tr("Angle mute Function ..."),
+	    new uiAction(tr("An&gle mute Function ..."),
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
 	    new uiAction(tr("Bayesian &Classification ..."),
