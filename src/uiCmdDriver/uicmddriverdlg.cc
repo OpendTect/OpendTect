@@ -37,8 +37,8 @@ namespace CmdDrive
 
 
 uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
-	: uiDialog( p, Setup(tr("Command interaction"), ispec.dlgtitle_, mNoHelpKey)
-		       .modal(false) )
+	: uiDialog( p, Setup(tr("Command interaction"), ispec.dlgtitle_, 
+                             mNoHelpKey).modal(false) )
 	, unhide_( !ispec.wait_ )
 {
     showAlwaysOnTop();
@@ -103,7 +103,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 	, defaultlogdir_(deflogdir)
 {
     setCtrlStyle( CloseOnly );
-    setCancelText( "&Hide" );
+    setCancelText( uiStrings::sHide() );
 
     cmdoptionfld_ = new uiLabeledComboBox( this, optstrs, "Select script to" );
     cmdoptionfld_->box()->selectionChanged.notify(
@@ -142,23 +142,23 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			.displaylocalpath(true) );
     outfld_->attach( alignedBelow, cmdoptionfld_ );
 
-    gobut_ = new uiPushButton( this, "&Go",
+    gobut_ = new uiPushButton( this, uiStrings::sGo(),
 			mCB(this,uiCmdDriverDlg,selectGoCB), true );
     gobut_->attach( alignedBelow, logfld_ );
 
-    pausebut_ = new uiPushButton( this, "&Pause",
+    pausebut_ = new uiPushButton( this, uiStrings::sPause(),
 			mCB(this,uiCmdDriverDlg,selectPauseCB), true );
     pausebut_->attach( alignedBelow, logfld_ );
 
-    abortbut_ = new uiPushButton( this, "&Abort",
+    abortbut_ = new uiPushButton( this, uiStrings::sAbort(),
 			mCB(this,uiCmdDriverDlg,selectAbortCB), true );
     abortbut_->attach( rightOf, pausebut_ );
 
-    startbut_ = new uiPushButton( this, "S&tart",
+    startbut_ = new uiPushButton( this, uiStrings::sStart(),
 			mCB(this,uiCmdDriverDlg,selectStartRecordCB), true );
     startbut_->attach( alignedBelow, logfld_ );
 
-    stopbut_ = new uiPushButton( this, "S&top",
+    stopbut_ = new uiPushButton( this, uiStrings::sStop(),
 			mCB(this,uiCmdDriverDlg,selectStopRecordCB), true );
     stopbut_->attach( alignedBelow, logfld_ );
 
@@ -219,12 +219,12 @@ void uiCmdDriverDlg::refreshDisplay( bool runmode, bool idle )
     outfld_->displayField( !runmode );
 
     gobut_->display( runmode && idle );
-    abortbut_->setText( "&Abort" );
+    abortbut_->setText( uiStrings::sAbort() );
     abortbut_->display( runmode && !idle );
     startbut_->display( !runmode && idle );
     stopbut_->display( !runmode && !idle );
 
-    pausebut_->setText( "&Pause" );
+    pausebut_->setText( uiStrings::sPause() );
     pausebut_->setSensitive( true );
     pausebut_->display( runmode && !idle );
 
@@ -292,7 +292,7 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     {
 	BufferString msg = fld.titleText().getFullString();
 	msg += "-path is referring to previous survey!";
-	res = uiMSG().question( msg, uiStrings::sContinue(), "Reset",
+	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
 				uiStrings::sCancel(), "Warning" );
 	surveycheck = res<0;
 
@@ -356,7 +356,7 @@ void uiCmdDriverDlg::selectPauseCB( CallBacker* )
     BufferString buttext = pausebut_->text().getFullString();
     if ( buttext == "&Resume" )
     {
-	pausebut_->setText( "&Pause" );
+	pausebut_->setText( uiStrings::sPause() );
 	drv_.pause( false );
     }
     else
@@ -381,7 +381,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     BufferString buttext = pausebut_->text().getFullString();
     if ( buttext=="-Interrupting-" && ispec->dlgtitle_.isEmpty() )
     {
-	pausebut_->setText( "&Resume" );
+	pausebut_->setText( uiStrings::sResume() );
 	return;
     }
 
@@ -392,7 +392,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     interactdlg_ = new uiCmdInteractDlg( this, *ispec );
     if ( ispec->wait_ )
     {
-	pausebut_->setText( "&Pause" );
+	pausebut_->setText( uiStrings::sPause() );
 	pausebut_->setSensitive( false );
 	interactdlg_->windowClosed.notify(
 				mCB(this,uiCmdDriverDlg,interactClosedCB) );
@@ -407,7 +407,7 @@ void uiCmdDriverDlg::selectAbortCB( CallBacker* )
     drv_.abort();
     abortbut_->setText( "-Interrupting-" );
 
-    pausebut_->setText( "&Pause" );
+    pausebut_->setText( uiStrings::sPause() );
     pausebut_->setSensitive( false );
 }
 
