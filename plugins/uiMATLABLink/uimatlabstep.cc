@@ -40,7 +40,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     filefld_ = new uiFileInput( this, "Select shared object file" );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
-    loadbut_ = new uiPushButton( this, "Load",
+    loadbut_ = new uiPushButton( this, uiStrings::sLoad(),
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );
@@ -109,7 +109,7 @@ void uiMatlabStep::loadCB( CallBacker* )
     const int nrinputs = mla->getNrInputs();
     if ( nrinputs < 0 )
     {
-	uiMSG().error( "Cannot read number of inputs from input file" );
+	uiMSG().error( tr("Cannot read number of inputs from input file") );
 	return;
     }
 

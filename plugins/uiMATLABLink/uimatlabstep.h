@@ -24,7 +24,7 @@ namespace VolProc
 {
 
 mExpClass(uiMATLABLink) uiMatlabStep : public uiStepDialog
-{
+{ mODTextTranslationClass(uiMatlabStep);
 public:
         mDefaultFactoryInstanciationBase(
 		VolProc::MatlabStep::sFactoryKeyword(),
