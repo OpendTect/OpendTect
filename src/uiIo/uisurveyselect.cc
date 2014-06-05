@@ -85,12 +85,6 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 
 void uiSurveySelectDlg::fillSurveyList()
 {
-    if( !checkIfDataDir(getDataRoot()) )
-    {
-	uiMSG().error( "Selected directory is not a valid Data Root" );
-	return;
-    }
-    
     BufferStringSet surveylist;
     uiSurvey::getSurveyList( surveylist, getDataRoot() );  
     surveylistfld_->setEmpty();
