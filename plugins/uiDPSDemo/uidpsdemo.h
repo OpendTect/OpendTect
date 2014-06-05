@@ -31,7 +31,7 @@ namespace EM { class Horizon3D; }
  */
 
 mExpClass(uiDPSDemo) uiDPSDemo : public uiDialog
-{ 	
+{  mODTextTranslationClass(uiDPSDemo);
 public:
 
 			uiDPSDemo(uiParent*,DataPointSetDisplayMgr* mgr=0);

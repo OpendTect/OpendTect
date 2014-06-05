@@ -35,7 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
-	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
+	: uiDialog(p,Setup(tr("DataPointSet demo"),
+                           tr("Data extraction parameters"),
 			   mNoHelpKey))
 	, dps_(0)
 	, dpsdispmgr_(dpsdispmgr)
@@ -46,7 +47,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
     seisfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(false,false) );
     seisfld_->attach( alignedBelow, horfld_ );
 
-    nrptsfld_ = new uiGenInput( this, "Number of points to extract",
+    nrptsfld_ = new uiGenInput( this, tr("Number of points to extract"),
 	    			IntInpSpec(10000) );
     nrptsfld_->attach( alignedBelow, seisfld_ );
 }
@@ -70,7 +71,7 @@ bool uiDPSDemo::acceptOK( CallBacker* )
 
     const int nrpts = nrptsfld_->getIntValue();
     if ( nrpts < 2 )
-	mErrRet( "Please enter a valid number of points" )
+	mErrRet( tr("Please enter a valid number of points") )
 
     return doWork( *horioobj, *seisioobj, nrpts );
 }
@@ -133,7 +134,7 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	totnrnodes += nrnodes;
     }
     if ( totnrnodes < 1 )
-	mErrRet( "Horizon is empty" )
+	mErrRet( tr("Horizon is empty") )
 
     Stats::randGen().init();
     bool needrandsel = nrpts < totnrnodes;
