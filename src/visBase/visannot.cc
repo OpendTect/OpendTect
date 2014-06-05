@@ -204,9 +204,6 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
     box_->dirtyDisplayList();
     geode_->dirtyBound();
 
-    if ( scale_.isEmpty() )
-	scale_ = getDefaultScale( cs );
-
     updateTextPos();
     updateGridLines();
 }
@@ -328,7 +325,10 @@ void Annotation::updateGridLines()
 	gridlines_->setLine( dim*2+1, osgGeo::Line3(lstart1, -dir) );
 
 	Interval<float> range( p0[dim], p1[dim] );
-	const SamplingData<float> sd = getAxisSD( scale_, dim );
+
+	const CubeSampling usedscale = 
+	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
+	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 
 	const int* psindexes = psindexarr[dim];
 	const int* cornerarr = coordindexarr[dim];
@@ -430,7 +430,10 @@ void Annotation::updateTextPos()
 	axisnames_->text(dim)->setPosition( tp );
 
 	Interval<float> range( p0[dim], p1[dim] );
-	const SamplingData<float> sd = getAxisSD( scale_, dim );
+
+	const CubeSampling usedscale = 
+	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
+	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 
 	for ( int idx=0; ; idx++ )
 	{
