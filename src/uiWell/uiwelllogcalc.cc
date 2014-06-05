@@ -547,6 +547,9 @@ static bool selectInpVals( const TypeSet<float>& noudfinpvals,
 
     int nrudf = 0;
     const int sz = inpvals.size();
+    if ( sz == 0 )
+	return true;
+
     for ( int idx=0; idx<sz; idx++ )
 	if ( mIsUdf(inpvals[idx]) )
 	    nrudf++;
@@ -576,8 +579,6 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 			     const TypeSet<uiWellLogCalc::InpData>& inpdatas,
 			     Well::Track& track, Well::D2TModel* d2t )
 {
-    if ( inpdatas.isEmpty() )
-	{ pErrMsg("Wrong equation: check syntax"); return false; }
     form_.startNewSeries();
 
     Interval<float> dahrg( mUdf(float), mUdf(float) );
