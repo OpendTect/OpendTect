@@ -578,7 +578,7 @@ void uiODMenuMgr::fillAnalMenu()
 
     analwellmnu_ = new uiMenu( &appl_, uiStrings::sWells(), "well" );
     analwellmnu_->insertItem( new uiAction( tr("Edit logs ..."),
-	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "Wells" ) );
+	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
 	analwellmnu_->insertItem( new uiAction( tr("&Tie Well to Seismic ..."),
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
