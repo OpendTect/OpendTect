@@ -31,7 +31,7 @@ namespace PreStackView
 
 uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
-    : uiDlgGroup( p, "Shape" )
+    : uiDlgGroup( p, tr("Shape") )
     , factorslider_( 0 )
     , widthslider_( 0 )
     , applyall_( false )
@@ -40,8 +40,8 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     , mgr_( mgr )
     , initialside_( vwr.displayOnPositiveSide() )
 {
-    autowidthfld_ = new uiGenInput( this, "Width",
-	    BoolInpSpec( true, "Relative", "Absolute" ) );
+    autowidthfld_ = new uiGenInput( this, tr("Width"),
+	    BoolInpSpec( true, tr("Relative"), tr("Absolute") ) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
     autowidthfld_->valuechanged.notify(
 	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
@@ -65,7 +65,7 @@ uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p,
     widthslider_->valueChanged.notify(
 	    mCB(this,uiViewer3DShapeTab,widthMoveCB) );
 
-    switchsidebutton_ = new uiPushButton( this, "Switch View Side",
+    switchsidebutton_ = new uiPushButton( this, tr("Switch View Side"),
 	    mCB(this,uiViewer3DShapeTab,switchPushCB), true );
     switchsidebutton_->attach( alignedBelow, widthslider_ );
 
@@ -165,7 +165,7 @@ bool uiViewer3DShapeTab::acceptOK( )
 
 	if ( !settings.write() )
 	{
-	    uiMSG().error("Cannot write default settings");
+	    uiMSG().error(tr("Cannot write default settings"));
 	    return false;
 	}
     }

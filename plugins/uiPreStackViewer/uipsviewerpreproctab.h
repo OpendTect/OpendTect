@@ -26,7 +26,7 @@ namespace PreStackView
 class uiViewer3DMgr;
 
 mClass(uiPreStackViewer) uiViewer3DPreProcTab :  public uiDlgGroup
-{
+{ mODTextTranslationClass(uiViewer3DPreProcTab);
 public:
 				uiViewer3DPreProcTab(uiParent*,
 					visSurvey::PreStackDisplay&,

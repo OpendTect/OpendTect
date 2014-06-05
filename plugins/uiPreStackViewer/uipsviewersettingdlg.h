@@ -29,7 +29,7 @@ namespace PreStackView
     class uiViewer3DEventsTab;
 
 mClass(uiPreStackViewer) uiViewer3DSettingDlg : public uiTabStackDlg
-{
+{ mODTextTranslationClass(uiViewer3DSettingDlg);
 public:
 				uiViewer3DSettingDlg(uiParent*,
 						   visSurvey::PreStackDisplay&,

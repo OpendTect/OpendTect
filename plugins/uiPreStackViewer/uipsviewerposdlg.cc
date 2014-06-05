@@ -46,17 +46,17 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     if ( posspos.isUdf() ) posspos = StepInterval<int>( 1, mUdf(int), 1 );
     posfld_->setInterval( posspos );
 
-    stepfld_ = new uiLabeledSpinBox(this,"Step",0,"Step");
+    stepfld_ = new uiLabeledSpinBox(this,tr("Step"),0,"Step");
     stepfld_->attach( rightOf, posfld_ );
     stepfld_->box()->setInterval( StepInterval<int>(posspos.step,
 		posspos.stop-posspos.start,posspos.step) );
     stepfld_->box()->valueChanged.notify(
 			mCB(this,uiViewer3DPositionDlg,stepCB) );
 
-    applybox_ = new uiCheckBox( this, "Immediate update",
+    applybox_ = new uiCheckBox( this, tr("Immediate update"),
 				mCB(this,uiViewer3DPositionDlg,applBoxSel) );
     applybox_->attach( rightOf, stepfld_ );
-    applybut_ = new uiPushButton( this, "&Update Now", true );
+    applybut_ = new uiPushButton( this, tr("&Update Now"), true );
     applybut_->attach( rightBorder );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
@@ -107,7 +107,7 @@ void uiViewer3DPositionDlg::atStart( CallBacker* )
 void uiViewer3DPositionDlg::ooBoxSel( CallBacker* c )
 {
     const bool dodisp = oobox_->isChecked();
-    oobox_->setText( dodisp ? ootxt_ : "Display" );
+    oobox_->setText( dodisp ? ootxt_ : uiStrings::sDisplay() );
     viewer_.turnOn( dodisp );
 
     posfld_->display( dodisp );

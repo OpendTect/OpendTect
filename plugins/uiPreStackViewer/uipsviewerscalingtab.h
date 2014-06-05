@@ -23,7 +23,7 @@ namespace PreStackView
 class uiViewer3DMgr; 
 
 mClass(uiPreStackViewer) uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
-{
+{ mODTextTranslationClass(uiViewer3DScalingTab);
 public:
 				uiViewer3DScalingTab(uiParent*,
 						 visSurvey::PreStackDisplay&,

@@ -27,7 +27,7 @@ namespace PreStackView
 
 uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p, 
 	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr )
-    : uiTabStackDlg( p, uiDialog::Setup("Prestack display properties", 
+    : uiTabStackDlg( p, uiDialog::Setup(tr("Prestack display properties"), 
 			          viewer.getObjectName(), 
                                   mODHelpKey(mPSViewerSettingDlgHelpID) 
                                   ).modal(false) ) 
@@ -46,7 +46,7 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     addGroup( preproctab_ );
    
     applytoallfld_ =
-	new uiCheckBox( this,"&Apply to all viewers",
+	new uiCheckBox( this,tr("&Apply to all viewers"),
 			mCB(this,uiViewer3DSettingDlg,applyCheckedCB) );
     applytoallfld_->attach( centeredBelow, tabObject() );
     

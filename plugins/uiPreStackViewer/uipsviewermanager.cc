@@ -48,13 +48,13 @@ namespace PreStackView
 {
 
 uiViewer3DMgr::uiViewer3DMgr()
-    : selectpsdatamenuitem_( "D&isplay Prestack Data" )
-    , positionmenuitem_( "&Show position window ..." )
-    , proptymenuitem_( uiStrings::sProperties( false ) )
-    , resolutionmenuitem_( "&Resolution ..." )
-    , viewermenuitem_( "View in &2D panel" )
-    , amplspectrumitem_( "&Amplitude spectrum ..." )
-    , removemenuitem_( "&Remove" )
+    : selectpsdatamenuitem_( tr("D&isplay Prestack Data") )
+    , positionmenuitem_( tr("&Show position window ...") )
+    , proptymenuitem_( uiStrings::sProperties(true) )
+    , resolutionmenuitem_( tr("&Resolution ...") )
+    , viewermenuitem_( tr("View in &2D panel") )
+    , amplspectrumitem_( tr("&Amplitude spectrum ...") )
+    , removemenuitem_( uiStrings::sRemove(true) )
     , visserv_( ODMainWin()->applMgr().visServer() )
 {
     posdialogs_.allowNull();
@@ -296,7 +296,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     PtrMan<IOObj> ioobj = IOM().getLocal(
 	    selectpsdatamenuitem_.getItem(mnuidx)->text.getFullString(), 0 );
     if ( !ioobj )
-	mErrReturn( "No object selected" )
+	mErrReturn( tr("No object selected") )
 
     RefMan<visBase::DataObject> dataobj =
 	visserv_->getObject( menu->menuID() );
@@ -304,7 +304,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
     if ( !pdd && !s2d )
-	mErrReturn( "Display panel is not set." )
+	mErrReturn( tr("Display panel is not set.") )
 
     visSurvey::PreStackDisplay* viewer = new visSurvey::PreStackDisplay;
     viewer->ref();
@@ -523,7 +523,7 @@ void uiViewer3DMgr::viewer2DSelDataCB( CallBacker* cb )
 	    }
 	}
 	if ( selids.isEmpty() )
-	    { uiMSG().error("No data found"); return; }
+	    { uiMSG().error(tr("No data found")); return; }
 
 	win->setIDs( selids );
     }

@@ -26,7 +26,7 @@ namespace PreStackView
 { 
 
 mClass(uiPreStackViewer) uiViewer3DPositionDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiViewer3DPositionDlg);
 public:			
 
     			uiViewer3DPositionDlg(uiParent*,

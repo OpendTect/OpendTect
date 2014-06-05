@@ -29,7 +29,7 @@ namespace PreStackView
 {
 uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 		visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
-    : uiDlgGroup( p, "Appearance" )
+    : uiDlgGroup( p, tr("Appearance") )
     , applyall_( false )
     , savedefault_( false )
     , vwr_( psv.flatViewer() )  
@@ -41,24 +41,24 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
             vwr_ ? vwr_->appearance().ddpars_.vd_.ctab_.buf() : 0 );
     mAttachCB( uicoltab_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
     mAttachCB(uicoltab_->scaleChanged, uiViewer3DAppearanceTab::colTabChanged);
-    uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
+    uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(), uicoltab_ );
 
     const SamplingData<float> curzsmp = vwr_->appearance().annot_.x2_.sampling_;
     const bool zudf = mIsUdf( curzsmp.start ) || mIsUdf(curzsmp.step);
 
-    zgridfld_ = new uiGenInput( this, "Z grid lines",
+    zgridfld_ = new uiGenInput( this, tr("Z grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x2_.showgridlines_ ) );
     zgridfld_->attach( alignedBelow, uicoltab_ );
     zgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
     zgridautofld_ = new uiGenInput( this, 0,
-	    BoolInpSpec( zudf, "Automatic sampling", 0, 0 ) );
+	    BoolInpSpec( zudf, tr("Automatic sampling"), 0, 0 ) );
     zgridautofld_->attach( rightOf, zgridfld_ );
     zgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateZFlds) );
 
-    zgridrangefld_ = new uiGenInput( this, "Z grid sampling (start/step)",
+    zgridrangefld_ = new uiGenInput( this, tr("Z grid sampling (start/step)"),
 	    FloatInpSpec(), FloatInpSpec() );
     zgridrangefld_->attach( alignedBelow, zgridfld_ );
 
@@ -68,26 +68,27 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     SamplingData<float> curoffssmp = vwr_->appearance().annot_.x1_.sampling_;
     const bool offsudf = mIsUdf(curoffssmp.start) || mIsUdf(curoffssmp.step);
 
-    offsgridfld_ = new uiGenInput( this, "Offset grid lines",
+    offsgridfld_ = new uiGenInput( this, tr("Offset grid lines"),
 	    BoolInpSpec( vwr_->appearance().annot_.x1_.showgridlines_ ) );
     offsgridfld_->attach( alignedBelow, zgridrangefld_ );
     offsgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
     offsgridautofld_ = new uiGenInput( this, 0, 
-	    BoolInpSpec( offsudf, "Automatic sampling", 0, 0 ) );
+	    BoolInpSpec( offsudf, tr("Automatic sampling"), 0, 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
     offsgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
     offsgridrangefld_ = new uiGenInput( this, 
-	    "Offset grid sampling (start/step)",FloatInpSpec(),FloatInpSpec());
+	    tr("Offset grid sampling (start/step)"),
+            FloatInpSpec(),FloatInpSpec());
     offsgridrangefld_->attach( alignedBelow, offsgridfld_ );
 
     offsgridrangelbl_ = new uiLabel( this, SI().getXYUnitString(true) );
     offsgridrangelbl_->attach( rightOf, offsgridrangefld_ );
 
-    applybut_ = new uiPushButton( this, "Apply", true );
+    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
     applybut_->activated.notify(
 		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB) );
     applybut_->attach( alignedBelow, offsgridrangefld_ );
@@ -186,7 +187,7 @@ bool uiViewer3DAppearanceTab::acceptOK()
 	settings.mergeComp( flatviewpar, uiViewer3DMgr::sKeyFlatviewPars() );
 	if ( !settings.write() )
 	{
-	    uiMSG().error("Cannot write  default settings");
+	    uiMSG().error(tr("Cannot write  default settings"));
 	    return false;
 	}
     }
@@ -218,9 +219,9 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    if ( mIsUdf(zsmp.start) || mIsUdf(zsmp.step) )
 	    {
 		if ( mIsUdf(zsmp.start) )
-    		    uiMSG().error("Z sampling start is not defined.");
+    		    uiMSG().error(tr("Z sampling start is not defined."));
 		else
-		    uiMSG().error("Z sampling step is not defined.");
+		    uiMSG().error(tr("Z sampling step is not defined."));
 		return;
 	    }
 
@@ -246,9 +247,9 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    if ( mIsUdf(offssmp.start) || mIsUdf(offssmp.step) )
 	    {
 		if ( mIsUdf(offssmp.start) )
-    		    uiMSG().error("Offset sampling start is not defined.");
+    		    uiMSG().error(tr("Offset sampling start is not defined."));
 		else
-		    uiMSG().error("Offset sampling step is not defined.");
+		    uiMSG().error(tr("Offset sampling step is not defined."));
 		return;
 	    }
 

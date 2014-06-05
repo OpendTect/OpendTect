@@ -21,13 +21,13 @@ namespace PreStackView
 
 uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p, 
 	visSurvey::PreStackDisplay& vwr, uiViewer3DMgr& mgr )
-    : uiDlgGroup( p, "Preprocessing" )
+    : uiDlgGroup( p, tr("Preprocessing") )
     , vwr_( vwr )
     , mgr_( mgr )
     , applyall_( false )
 {
     uipreprocmgr_ = new PreStack::uiProcessorManager( this, vwr.procMgr() );
-    applybut_ = new uiPushButton( this, "Apply", true );
+    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
     applybut_->attach( centeredBelow, uipreprocmgr_ );
     applybut_->activated.notify(
 	    mCB(this,uiViewer3DPreProcTab,applyButPushedCB));
@@ -79,7 +79,7 @@ bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 
 	if ( !vwr->updateDisplay() )
 	{
-	    uiMSG().message( "Preprocessing failed!" );
+	    uiMSG().message( tr("Preprocessing failed!") );
 	    return false;
 	}
     }

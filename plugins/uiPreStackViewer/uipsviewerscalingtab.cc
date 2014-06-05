@@ -26,21 +26,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace PreStackView
 {
-uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
+uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p, 
 	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
     : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), "Scaling", false)
     , applyall_( false )
     , savedefault_( false )
-    , mgr_( mgr )
+    , mgr_( mgr )					    
 {
-    applybut_ = new uiPushButton( this, "Apply", true );
-    applybut_->activated.notify(
+    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
+    applybut_->activated.notify( 
 	    mCB(this,uiViewer3DScalingTab,applyButPushedCB) );
     applybut_->attach( alignedBelow, symmidvalfld_ );
 
     mDynamicCastGet(visBase::FlatViewer*,vwr,&vwr_);
     if ( vwr )
-	mAttachCB( vwr->dispParsChanged, uiViewer3DScalingTab::dispChgCB );
+    	mAttachCB( vwr->dispParsChanged, uiViewer3DScalingTab::dispChgCB );
     putToScreen();
 }
 
@@ -92,7 +92,7 @@ bool uiViewer3DScalingTab::acceptOK()
 	settings.mergeComp( flatviewpar, uiViewer3DMgr::sKeyFlatviewPars() );
 	if ( !settings.write() )
 	{
-	    uiMSG().error("Cannot write  default settings");
+	    uiMSG().error(tr("Cannot write  default settings"));
 	    return false;
 	}
     }
@@ -117,7 +117,7 @@ bool uiViewer3DScalingTab::applyButPushedCB( CallBacker* cb )
 
     if ( !applyall_ )
 	return true;
-
+    
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
 	visBase::FlatViewer* fvwr = mgr_.get3DViewers()[idx]->flatViewer();
@@ -137,10 +137,10 @@ bool uiViewer3DScalingTab::settingCheck()
     const int clip = useclipfld_->getIntValue();
     if ( !clip )
     {
-	if ( mIsUdf(rgfld_->getFInterval().start) ||
+	if ( mIsUdf(rgfld_->getFInterval().start) || 
 	     mIsUdf(rgfld_->getFInterval().stop) )
 	{
-	    uiMSG().error( "Range is not set" );
+	    uiMSG().error( tr("Range is not set") );
 	    return false;
 	}
     }
@@ -149,45 +149,45 @@ bool uiViewer3DScalingTab::settingCheck()
 	const float symv =symclipratiofld_->getfValue();
 	if ( mIsUdf(symv) )
 	{
-	    uiMSG().error( "Clipping rate is not set" );
+	    uiMSG().error( tr("Clipping rate is not set") );
 	    return false;
 	}
 
 	if ( !mIsUdf(symv) && (symv>100 || symv<0) )
 	{
-	    uiMSG().error( "Clip percentage should between 0 and 100" );
-	    return false;
+	    uiMSG().error( tr("Clip percentage should between 0 and 100") );
+    	    return false;
 	}
 
-	if ( usemidvalfld_->getBoolValue() &&
+	if ( usemidvalfld_->getBoolValue() && 
 	     mIsUdf(symmidvalfld_->getfValue()) )
 	{
-	    uiMSG().error( "Midvalue is not set" );
+	    uiMSG().error( tr("Midvalue is not set") );
 	    return false;
 	}
     }
-    else
+    else 
     {
-	const Interval<float> asymv = assymclipratiofld_->getFInterval();
-	if ( !mIsUdf(asymv.start) && !mIsUdf(asymv.stop) )
+     	const Interval<float> asymv = assymclipratiofld_->getFInterval();
+	if ( !mIsUdf(asymv.start) && !mIsUdf(asymv.stop) ) 
 	{
-	    if ( asymv.start>100 || asymv.start<0 ||
+	    if ( asymv.start>100 || asymv.start<0 || 
 		 asymv.stop>100 || asymv.stop<0 )
 	    {
-		uiMSG().error( "Clip percentage should between 0 and 100" );
-		return false;
+    		uiMSG().error( tr("Clip percentage should between 0 and 100") );
+    		return false;
 	    }
 
 	    if ( asymv.start+asymv.stop>100 )
 	    {
-		uiMSG().error( "Clip percentage sum is between 0 and 100" );
-		return false;
+		uiMSG().error( tr("Clip percentage sum is between 0 and 100") );
+	      	return false;
 	    }
 	}
 
 	if ( mIsUdf(asymv.start) || mIsUdf(asymv.stop) )
 	{
-	    uiMSG().error( "Clipping rate is not set" );
+	    uiMSG().error( tr("Clipping rate is not set") );
 	    return false;
 	}
     }

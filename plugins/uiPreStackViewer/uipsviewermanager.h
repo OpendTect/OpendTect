@@ -32,7 +32,7 @@ class uiViewer3DPositionDlg;
    data itself can be from either lines or volumes. */
 
 mClass(uiPreStackViewer) uiViewer3DMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiViewer3DMgr);
 public:
 				uiViewer3DMgr();
 				~uiViewer3DMgr();
