@@ -21,8 +21,9 @@ ________________________________________________________________________
 namespace VolProc
 {
 
-mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter : public uiStepDialog
-{
+mExpClass(uiVoxelConnectivityFilter) uiVoxelConnectivityFilter : 
+public uiStepDialog
+{ mODTextTranslationClass(uiVoxelConnectivityFilter);
 public:
     mDefaultFactoryInstanciationBase(
 	    VolProc::VoxelConnectivityFilter::sFactoryKeyword(),

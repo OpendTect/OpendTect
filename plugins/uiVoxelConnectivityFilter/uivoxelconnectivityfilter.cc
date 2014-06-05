@@ -47,15 +47,15 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     setHelpKey( mODHelpKey(mVoxelConnectivityFilterHelpID) );
     const char* cutofftypes[] = { "Values larger than", "Values less than",
 				  "Values between", "Values outside", 0 };
-    cutofftypefld_ = new uiGenInput( this, "Keep",
+    cutofftypefld_ = new uiGenInput( this, tr("Keep"),
                               StringListInpSpec( cutofftypes ) );
     const Interval<float>& acceptrange = step->getAcceptRange();
     Interval<float> displayacceptrange = acceptrange;
     displayacceptrange.sort( true );
 
-    cutoffvalfld_ = new uiGenInput( this, "Value", FloatInpSpec() );
+    cutoffvalfld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec() );
     cutoffvalfld_->attach( alignedBelow, cutofftypefld_ );
-    cutoffrangefld_ = new uiGenInput( this, "Range",
+    cutoffrangefld_ = new uiGenInput( this, tr("Range"),
 	    FloatInpIntervalSpec(false) );
     cutoffrangefld_->attach( alignedBelow, cutofftypefld_ );
     cutoffrangefld_->setValue( displayacceptrange );
@@ -84,7 +84,7 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
     uiSeparator* sep = new uiSeparator( this );
     sep->attach( stretchedBelow, cutoffrangefld_ );
 
-    connectivityfld_ = new uiGenInput( this, "Connectivity",
+    connectivityfld_ = new uiGenInput( this, tr("Connectivity"),
 	StringListInpSpec( VoxelConnectivityFilter::ConnectivityNames() ) );
     connectivityfld_->setValue( (int) step->getConnectivity() );
     connectivityfld_->attach( alignedBelow, cutoffrangefld_ );
@@ -92,29 +92,30 @@ uiVoxelConnectivityFilter::uiVoxelConnectivityFilter( uiParent* p,
 
     int minsz = mCast(int,step->getMinimumBodySize());
     if ( mIsUdf(minsz) ) minsz = mMinBodySize;
-    minbodysizefld_ = new uiGenInput( this, "Keep bodies larger than [voxels]", 
+    minbodysizefld_ = new uiGenInput( this, 
+                                      tr("Keep bodies larger than [voxels]"),
 				      IntInpSpec(minsz) );
     minbodysizefld_->attach( alignedBelow, connectivityfld_ );
 
-    acceptoutputfld_ = new uiGenInput( this, "Kept output",
+    acceptoutputfld_ = new uiGenInput( this, tr("Kept output"),
 	StringListInpSpec( VoxelConnectivityFilter::AcceptOutputNames() ) );
     acceptoutputfld_->setValue( (int) step->getAcceptOutput() );
     acceptoutputfld_->valuechanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
     acceptoutputfld_->attach( alignedBelow, minbodysizefld_ );
 
-    acceptvaluefld_ = new uiGenInput( this, "Kept value",
+    acceptvaluefld_ = new uiGenInput( this, tr("Kept value"),
 	    FloatInpSpec( step->getAcceptValue() ) );
     acceptvaluefld_->attach( alignedBelow, acceptoutputfld_ );
 
-    rejectoutputudffld_ = new uiGenInput( this, "Rejected output",
+    rejectoutputudffld_ = new uiGenInput( this, tr("Rejected output"),
 	    BoolInpSpec(mIsUdf(step->getRejectValue() ),
-			"Undefined value", "Value" ) );
+			tr("Undefined value"), uiStrings::sValue() ) );
     rejectoutputudffld_->attach( alignedBelow, acceptvaluefld_ );
     rejectoutputudffld_->valuechanged.notify(
 	    mCB( this, uiVoxelConnectivityFilter, updateFieldsCB) );
 
-    rejectoutputvalfld_ = new uiGenInput( this, "Rejected value",
+    rejectoutputvalfld_ = new uiGenInput( this, tr("Rejected value"),
 	    FloatInpSpec(step->getRejectValue() ) );
     rejectoutputvalfld_->attach( alignedBelow, rejectoutputudffld_ );
 
@@ -151,13 +152,13 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	range = cutoffrangefld_->getFInterval();
 	if ( mIsUdf(range.start) || mIsUdf(range.stop) )
 	{
-	    uiMSG().error("Cut range not set");
+	    uiMSG().error(tr("Cut range not set"));
 	    return false;
 	}
 
 	if ( range.isRev() )
 	{
-	    uiMSG().error("Cut range is reversed");
+	    uiMSG().error(tr("Cut range is reversed"));
 	    return false;
 	}
 
@@ -169,7 +170,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
 	const float cutoffval = cutoffvalfld_->getfValue();
 	if ( mIsUdf(cutoffval) )
 	{
-	    uiMSG().error( "Cut value value not set" );
+	    uiMSG().error( tr("Cut value value not set") );
 	    return false;
 	}
 
@@ -188,7 +189,7 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
     if ( mIsUdf(minbodysizefld_->getIntValue() ) ||
          minbodysizefld_->getIntValue()<1 )
     {
-	uiMSG().error("Minimum size is not set or is less than 1.");
+	uiMSG().error(tr("Minimum size is not set or is less than 1."));
 	return false;
     }
 
@@ -199,13 +200,13 @@ bool uiVoxelConnectivityFilter::acceptOK( CallBacker* cb )
     if ( output==VoxelConnectivityFilter::Value &&
 	 mIsUdf(acceptvaluefld_->getfValue() ) )
     {
-	uiMSG().error("Accept-value not set");
+	uiMSG().error(tr("Accept-value not set"));
     }
 
     if ( !rejectoutputudffld_->getBoolValue() &&
 	    mIsUdf(rejectoutputvalfld_->getfValue() ) )
     {
-	uiMSG().error("Rejection value is not set");
+	uiMSG().error(tr("Rejection value is not set"));
 	return false;
     }
 
