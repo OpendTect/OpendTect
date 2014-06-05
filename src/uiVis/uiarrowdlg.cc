@@ -22,11 +22,11 @@ static const char* arrowtypes[] = { "Top", "Bottom", "Both", 0 };
 
 
 uiArrowDialog::uiArrowDialog( uiParent* p )
-    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,"50.0.14"))
+    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,mTODOHelpKey))
     , propertyChange(this)
 {
     setCancelText(0);
-    typefld_ = new uiLabeledComboBox( this, "Type" );
+    typefld_ = new uiLabeledComboBox( this, tr("Type") );
     typefld_->box()->addItems( arrowtypes );
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
@@ -37,7 +37,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->attach( alignedBelow, typefld_ );
 
     scalefld_ = new uiSlider( this,
-	    		uiSlider::Setup("Scale").nrdec(1).logscale(true),
+	    		uiSlider::Setup(tr("Scale")).nrdec(1).logscale(true),
 	   		"Size" );
     scalefld_->setMinValue( 0.1 );
     scalefld_->setMaxValue( 10 );

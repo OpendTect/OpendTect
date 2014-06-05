@@ -21,7 +21,7 @@ class uiSelLineStyle;
 class uiSlider;
 
 mExpClass(uiVis) uiArrowDialog : public uiDialog
-{
+{mODTextTranslationClass(uiArrowDialog)
 public:
 			uiArrowDialog(uiParent* p);
 
