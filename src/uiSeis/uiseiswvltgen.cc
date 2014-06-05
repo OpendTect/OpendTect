@@ -209,21 +209,39 @@ void uiSeisWvltMerge::makeStackedWvlt()
     stackedwvlt_->reSize( maxwvltsize_ );
     for ( int idx=0; idx<maxwvltsize_; idx++ )
 	stackedwvlt_->samples()[idx] = 0;
+    
+    float stackedwvltsr = wvltset_[selitems[0]]->sampleRate();
+    for ( int selidx=1; selidx<selsize; selidx++ )
+    {
+	float wvltsr = wvltset_[selitems[selidx]]->sampleRate();
+	if ( wvltsr < stackedwvltsr )
+	    stackedwvltsr = wvltsr;
+    }
 
+    stackedwvlt_->setSampleRate( stackedwvltsr );
+    stackedwvlt_->setCenterSample( maxwvltsize_/2 );
     for ( int selidx=0; selidx<selsize; selidx++ )
     {
-	Wavelet* curwvlt = wvltset_[selitems[selidx]];
-	stackedwvlt_->setSampleRate( curwvlt->sampleRate() );
-	stackedwvlt_->setCenterSample( maxwvltsize_/2 );
-	WvltMathFunction* func = wvltfuncset_[selitems[selidx]];
-	for ( int idx=0; idx<maxwvltsize_; idx++ )
+	Wavelet curwvlt( *wvltset_[selitems[selidx]] );
+	if ( curwvlt.sampleRate() != stackedwvltsr ) 
+	    curwvlt.reSample( stackedwvltsr );
+
+	const int centersamp = stackedwvlt_->centerSample();
+	for ( int idx=0; idx<=centersamp; idx++ )
 	{
-	    const int shift = maxwvltsize_%2 ? 1 : 0;
-	    const float coeff = mCast( float, 2*idx-maxwvltsize_ + shift );
-	    const float val = func->getValue( coeff*5*SI().zStep());
-	    stackedwvlt_->samples()[idx] += val/selsize; 
+	    int sampleidx = centersamp - idx;
+	    const float val = curwvlt.samples()[sampleidx];
+	    stackedwvlt_->samples()[sampleidx] += val/selsize;
+	}
+
+	for ( int idx=1; idx<=centersamp; idx++ )
+	{
+	    int sampleidx = centersamp + idx;
+	    const float val = curwvlt.samples()[sampleidx];
+	    stackedwvlt_->samples()[sampleidx] += val/selsize;
 	}
     }
+
     WvltMathFunction* stackedfunc = new WvltMathFunction( stackedwvlt_ );
     wvltfuncset_ += stackedfunc;
     wd->addFunction( wvltname, stackedfunc, false );
@@ -236,15 +254,14 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     float minhght=0; float maxhght=0;
     for ( int wvltidx=0; wvltidx<wvltset_.size(); wvltidx++ )
     {
-	Wavelet* wvlt = new Wavelet( *wvltset_[wvltidx] );
-	if ( isnormalized ) wvlt->normalize();
-	const int wvltsz = wvlt->size();
-	const float minval = wvlt->getExtrValue(false);
-	const float maxval = wvlt->getExtrValue(true);
+	Wavelet wvlt( *wvltset_[wvltidx] );
+	if ( isnormalized ) wvlt.normalize();
+	const int wvltsz = wvlt.size();
+	const float minval = wvlt.getExtrValue(false);
+	const float maxval = wvlt.getExtrValue(true);
 	if ( wvltsz > maxwvltsize_ ) maxwvltsize_ = wvltsz;
 	if ( minval < minhght ) minhght = minval;
 	if ( maxval > maxhght ) maxhght = maxval;
-	delete wvlt;
     }
     const float stopx = SI().zStep()*maxwvltsize_*5; 
     const float startx = -stopx;
