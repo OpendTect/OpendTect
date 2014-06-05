@@ -238,18 +238,24 @@ void uiFlatViewControl::flip( bool hor )
 
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
-    const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
+    uiFlatViewer* vwr = vwrs_[0];
+    const uiRect* selarea = vwr->rgbCanvas().getSelectedArea();
     if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) ||
 	 (selarea->width()<5 && selarea->height()<5) )
 	return;
 
     uiWorld2Ui w2u;
-    vwrs_[0]->getWorld2Ui(w2u);
+    vwr->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
+    uiWorldRect bb = vwr->boundingBox();
 
-    setNewView( centre, newsz );
+    wr = getZoomOrPanRect( centre, newsz, wr, bb );
+    vwr->setView( wr );
+    zoommgr_.add( newsz );
+
+    zoomChanged.trigger();
 }
 
 

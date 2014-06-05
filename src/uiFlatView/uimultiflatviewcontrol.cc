@@ -83,8 +83,8 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     toolbars_ += new uiToolBar(mainwin(),"Flat Viewer Tools",tb_->prefArea());
 
     parsbuts_ += new uiToolButton( toolbars_[ivwr],"2ddisppars",
-	    tr("Set display parameters"), mCB(this,uiMultiFlatViewControl,parsCB) );
-
+				   tr("Set display parameters"),
+				   mCB(this,uiMultiFlatViewControl,parsCB) );
     toolbars_[ivwr]->addButton( parsbuts_[ivwr] );
 
     vwr.setRubberBandingOn( !manip_ );
@@ -119,8 +119,13 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     uiWorldRect wr = w2u.transform(*selarea);
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
+    uiWorldRect bb = activevwr_->boundingBox();
 
-    setNewView( centre, newsz );
+    wr = getZoomOrPanRect( centre, newsz, wr, bb );
+    activevwr_->setView( wr );
+    zoommgr_.add( newsz, vwrs_.indexOf(activevwr_) );
+
+    zoomChanged.trigger();
 }
 
 
