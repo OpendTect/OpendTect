@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
-	: uiDialog(p,Setup("Create flattened seismics",
+	: uiDialog(p,Setup(tr("Create flattened seismics"),
 			    BufferString("Create seismics flattened on '",
 					 getHorNm(horid),"'")
 		    	  , mODHelpKey(mFlattenedCubeHelpID) ))
@@ -97,17 +97,17 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 
     seisselin_->commitInput();
     if ( !inctio_.ioobj )
-	mErrRet("Please provide the input seismic cube")
+	mErrRet(tr("Please provide the input seismic cube"))
 
     float zval = zvalfld_->getfValue();
     if ( mIsUdf(zval) ) zval = defzval_;
     zval /= SI().zDomain().userFactor();
     if ( !SI().zRange(false).includes(zval,false) )
-	mErrRet("Please provide a Z value inside the survey Z Range")
+	mErrRet(tr("Please provide a Z value inside the survey Z Range"))
 
     seisselout_->commitInput();
     if ( !outctio_.ioobj )
-	mErrRet("Please enter a name for the new cube")
+	mErrRet(tr("Please enter a name for the new cube"))
 
     return doWork( zval );
 }

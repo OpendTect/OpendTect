@@ -27,7 +27,7 @@ namespace EM { class EMObject; }
 /*! \brief Create isopach as attribute of horizon */
 
 mClass(uiHorizonAttrib) uiIsopachMakerGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiIsopachMakerGrp);
 public:
 			uiIsopachMakerGrp(uiParent*,EM::ObjectID);
 			~uiIsopachMakerGrp();

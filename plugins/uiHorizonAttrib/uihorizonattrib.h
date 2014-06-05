@@ -26,7 +26,7 @@ class uiCheckBox;
 /*! \brief Horizon attribute description editor */
 
 mClass(uiHorizonAttrib) uiHorizonAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiHorizonAttrib);
 public:
 
 			uiHorizonAttrib(uiParent*,bool);

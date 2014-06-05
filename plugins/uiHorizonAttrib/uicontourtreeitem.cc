@@ -521,8 +521,8 @@ void uiContourTreeItem::initClass()
 
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , optionsmenuitem_( uiStrings::sProperties( false ) )
-    , areamenuitm_( "Contour areas" )
+    , optionsmenuitem_( tr("Properties ...") )
+    , areamenuitm_( tr("Contour areas") )
     , lines_( 0 )
     , drawstyle_( 0 )
     , material_(0)
@@ -698,7 +698,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
         TypeSet<float> zvals, areas;
         getZVSAreaValues( zvals, areas );
 
-        uiDialog dlg( ODMainWin(), uiDialog::Setup("Countour areas", 0,
+        uiDialog dlg( ODMainWin(), uiDialog::Setup(tr("Countour areas"), 0,
 				   mNoHelpKey ) );
         dlg.setCancelText( 0 );
 

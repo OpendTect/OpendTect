@@ -57,14 +57,15 @@ uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
 	horsel_->attach( alignedBelow, basesel_ );
     }
 
-    attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
+    attrnmfld_ = new uiGenInput( this, tr("Attribute name"), StringInpSpec() );
     attrnmfld_->attach( alignedBelow, horsel_ );
     toHorSel(0);
 
     if ( SI().zIsTime() )
     {
-	msecsfld_ = new uiGenInput( this, "Output in",
-				BoolInpSpec(true,"Milliseconds","Seconds") );
+	msecsfld_ = new uiGenInput( this, tr("Output in"),
+				BoolInpSpec(true,tr("Milliseconds"),
+                                tr("Seconds")) );
 	msecsfld_->attach( alignedBelow, attrnmfld_ );
     }
 
@@ -104,7 +105,7 @@ bool uiIsopachMakerGrp::chkInputFlds()
     BufferString attrnm =  attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
-	uiMSG().message( "Please enter attribute name" );
+	uiMSG().message( tr("Please enter attribute name") );
 	attrnm.add( "I: " ).add( horsel_->ioobj()->name() );
 	attrnmfld_->setText( attrnm );
 	return false;

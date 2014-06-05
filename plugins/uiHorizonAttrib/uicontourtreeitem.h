@@ -44,7 +44,7 @@ class uiContourTreeItemContourData;
 /*!\brief Tree item for Contour display on 3D horizons */
 
 mClass(uiHorizonAttrib) uiContourTreeItem : public uiODDataTreeItem
-{
+{ mODTextTranslationClass(uiContourTreeItem);
 public:
 
     static void			initClass();

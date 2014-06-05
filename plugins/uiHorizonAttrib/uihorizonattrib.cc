@@ -44,18 +44,19 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 
     horfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
 	    				 : mIOObjContext(EMHorizon3D),
-			      "Horizon" );
+			                   "Horizon" );
     horfld_->selectionDone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 
-    typefld_ = new uiGenInput( this, "Output", StringListInpSpec(sDefHorOut) );
+    typefld_ = new uiGenInput( this, uiStrings::sOutput(), 
+                               StringListInpSpec(sDefHorOut) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
 
-    isrelbox_ = new uiCheckBox( this, "Relative" );
+    isrelbox_ = new uiCheckBox( this, tr("Relative") );
     isrelbox_->attach( rightOf, typefld_ );
 
-    surfdatafld_ = new uiGenInput( this, "Select Horizon Data",
+    surfdatafld_ = new uiGenInput( this, tr("Select Horizon Data"),
 	    			   StringListInpSpec() );
     surfdatafld_->attach( alignedBelow, typefld_ );
     

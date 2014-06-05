@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup("StratalAmplitude",mNoDlgTitle,
+    : uiDialog( p, Setup(tr("StratalAmplitude"),mNoDlgTitle,
 			 mODHelpKey(mStratAmpCalcHelpID)))
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
@@ -41,9 +41,9 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     inpfld_ = new uiAttrSel( this, *ads, "Quantity to output" );
     inpfld_->selectionDone.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
-    winoption_= new uiGenInput( this, "Window Option",
-	                        BoolInpSpec(true, "Single Horizon",
-				"Double Horizon") );
+    winoption_= new uiGenInput( this, tr("Window Option"),
+	                        BoolInpSpec(true, tr("Single Horizon"),
+				tr("Double Horizon")) );
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
@@ -61,7 +61,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    			      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
-    bothorshiftfld_ = new uiGenInput( this, "Bottom", FloatInpSpec(0) );
+    bothorshiftfld_ = new uiGenInput( this, tr("Bottom"), FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
 
@@ -72,16 +72,17 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    				   "Amplitude Option" );
     ampoptionfld_->attach( alignedBelow, rangefld_ );
 
-    selfld_= new uiGenInput( this, "Add result as an attribute to",
-			     BoolInpSpec(true,"Top Horizon","Bottom Horizon") );
+    selfld_= new uiGenInput( this, tr("Add result as an attribute to"),
+			     BoolInpSpec(true,
+                             tr("Top Horizon"),tr("Bottom Horizon")) );
     selfld_->valuechanged.notify( mCB(this,uiStratAmpCalc,setParFileNameCB) );
     selfld_->attach( alignedBelow, ampoptionfld_ );
 
-    foldfld_ = new uiGenInput( this, "Output fold as an extra attribute",
+    foldfld_ = new uiGenInput( this, tr("Output fold as an extra attribute"),
 	    		       BoolInpSpec(false) ) ;
     foldfld_->attach( alignedBelow, selfld_ );
 
-    attribnamefld_ = new uiGenInput( this, "Attribute name",
+    attribnamefld_ = new uiGenInput( this, tr("Attribute name"),
 			             StringInpSpec("Stratal Amplitude") );
     attribnamefld_->valuechanged.notify(
 	    			mCB(this,uiStratAmpCalc,setParFileNameCB) );
@@ -107,8 +108,8 @@ uiStratAmpCalc::~uiStratAmpCalc()
 void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
-    horfld1_->setLabelText( usesingle_ ? "    Horizon" 
-				       : "Top Horizon" );
+    horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon() 
+				       : tr("Top Horizon") );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );
 }
@@ -171,18 +172,18 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 bool uiStratAmpCalc::checkInpFlds()
 {
     if ( inpfld_->isEmpty() )
-	mErrRet( "Missing Input\nPlease select the input attribute / seismics");
+mErrRet( tr("Missing Input\nPlease select the input attribute / seismics"));
     
     if ( usesingle_ && !horfld1_->commitInput() )
-	mErrRet( "Missing Input\nPlease select the input Horizon" );
+	mErrRet( tr("Missing Input\nPlease select the input Horizon") );
     if ( !usesingle_ )
     {
 	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
-	    mErrRet( "Missing Input\nPlease Check Top / Bottom Horizon" );
+	    mErrRet( tr("Missing Input\nPlease Check Top / Bottom Horizon") );
     }
 
     if ( !usesingle_ && horctio1_.ioobj->key() == horctio2_.ioobj->key() )
-	      mErrRet( "Select Two Different Horizons" );
+	      mErrRet( tr("Select Two Different Horizons") );
 
     return true;
 }

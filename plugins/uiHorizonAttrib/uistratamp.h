@@ -21,7 +21,7 @@ class uiPosSubSel;
 
 
 mClass(uiHorizonAttrib) uiStratAmpCalc : public uiDialog
-{
+{ mODTextTranslationClass(uiStratAmpCalc);
 public:
 			uiStratAmpCalc(uiParent*);
 			~uiStratAmpCalc();
