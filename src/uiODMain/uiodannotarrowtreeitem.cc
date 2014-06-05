@@ -26,13 +26,11 @@ const char* ArrowSubItem::parentType() const
 
 ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
-    , propmnuitem_( uiStrings::sProperties( false ) )
+    , propmnuitem_( uiStrings::sProperties(false) )
     , arrowtype_( 2 )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.reportDispChange( this, *set_ );
-
     propmnuitem_.iconfnm = "disppars";
 }
 

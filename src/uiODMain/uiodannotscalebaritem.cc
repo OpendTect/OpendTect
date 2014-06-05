@@ -161,8 +161,6 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
     , propmnuitem_(uiStrings::sProperties(false))
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.reportDispChange( this, *set_ );
-
     propmnuitem_.iconfnm = "disppars";
 }
 
@@ -261,3 +259,4 @@ void ScaleBarSubItem::propertyChange( CallBacker* cb )
     const int setidx = mgr.indexOf( *set_ );
     mgr.setUnChanged( setidx, false );
 }
+
