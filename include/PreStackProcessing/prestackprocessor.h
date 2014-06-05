@@ -70,6 +70,7 @@ public:
 				    parallel vertically.*/
 
     virtual			~Processor();
+    virtual bool		usesPreStackInput() const	{ return true; }
 
 protected:
 				Processor( const char* nm );
@@ -77,6 +78,7 @@ protected:
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);
     static void			freeArray(ObjectSet<Gather>&);
+    virtual void		retainRelBID( const BinID& ) {};
 
     BinID			outputstepout_;
     ObjectSet<Gather>		outputs_;
@@ -106,9 +108,11 @@ protected:
 
   const BinID stepout = processmanager.getInputStepout();
   BinID relbid;
-  for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl(); relbid.inl()++ )
+  for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
+		relbid.inl()++ )
   {
-      for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl(); relbid.crl()++ )
+      for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
+		relbid.crl()++ )
       {
           if ( !processor.wantsInput(relbid) )
 	      continue;
