@@ -114,26 +114,26 @@ void TopBotImage::setRGBImageFromFile( const char* fnm )
 {
     filenm_ = fnm;
     uiString errmsg;
-    OD::RGBImage* rgbimg = OD::RGBImageLoader::loadRGBImage(filenm_,errmsg);
+    PtrMan<OD::RGBImage> rgbimg =
+			    OD::RGBImageLoader::loadRGBImage(filenm_,errmsg);
     if ( !rgbimg )
     {
 	pErrMsg( errmsg.getFullString() );
 	return;
     }
 
-    setRGBImage( rgbimg );
+    setRGBImage( *rgbimg );
 }
 
 
-void TopBotImage::setRGBImage( OD::RGBImage* rgbimg )
+void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
 {
-    if ( !rgbimg )
-	return;
-
-    rgbimage_ = rgbimg;
-    osg::Image* image = new osg::Image;
-    image->setImage( rgbimage_->getSize(true), rgbimage_->getSize(false), 1, 
-		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, rgbimage_->getData(),
+    const int totsz = rgbimg.getSize(true) * rgbimg.getSize(false) * 4;
+    unsigned char* imgdata = new unsigned char[totsz];
+    OD::memCopy( imgdata, rgbimg.getData(), totsz );
+    osg::ref_ptr<osg::Image> image = new osg::Image;
+    image->setImage( rgbimg.getSize(true), rgbimg.getSize(false), 1, 
+		     GL_RGBA, GL_BGRA, GL_UNSIGNED_BYTE, imgdata,
 		     osg::Image::NO_DELETE );
     image->flipVertical();
     laytex_->setDataLayerImage( layerid_, image );

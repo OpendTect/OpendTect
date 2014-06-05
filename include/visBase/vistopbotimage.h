@@ -50,7 +50,7 @@ protected:
     				~TopBotImage();
 
     void			updateCoords();
-    void			setRGBImage(OD::RGBImage*);
+    void			setRGBImage(const OD::RGBImage&);
 
 
     const mVisTrans*		trans_;
@@ -65,7 +65,6 @@ protected:
     int					layerid_;
     osgGeo::LayeredTexture*		laytex_;
     osgGeo::TexturePlaneNode*		texplane_;
-    OD::RGBImage*			rgbimage_;
 };
 
 } // namespace visBase
