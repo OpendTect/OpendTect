@@ -119,8 +119,13 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     uiWorldRect wr = w2u.transform(*selarea);
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
+    uiWorldRect bb = activevwr_->boundingBox();
 
-    setNewView( centre, newsz );
+    wr = getZoomOrPanRect( centre, newsz, wr, bb );
+    activevwr_->setView( wr );
+    zoommgr_.add( newsz, vwrs_.indexOf(activevwr_) );
+
+    zoomChanged.trigger();
 }
 
 
