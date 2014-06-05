@@ -82,10 +82,14 @@ int EMAnyHorizonTranslatorGroup::selector( const char* s )
 
 
 FixedString EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
+uiString EMFault3DTranslatorGroup::userType()		{ return tr("Fault"); }
 mDefSimpleTranslatorSelector(EMFault3D,keyword())
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
 FixedString EMFaultStickSetTranslatorGroup::keyword(){ return "FaultStickSet"; }
+uiString EMFaultStickSetTranslatorGroup::userType()
+{ return tr( "Fault Stick Set" ); }
+
 mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 

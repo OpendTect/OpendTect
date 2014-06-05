@@ -82,13 +82,14 @@ public:
     mExpClass(uiTools) Setup : public uiDialog::Setup
     {
     public:
-			Setup( const char* wintitl,const BufferStringSet& its )
+			Setup( const uiString& wintitl,
+			       const BufferStringSet& its )
 			: uiDialog::Setup(wintitl,0,mNoHelpKey)
 			, items_(its)
-			, inptxt_("Name")	{}
+			, inptxt_( "Name" )	{}
 
 	mDefSetupMemb(BufferString,deflt);
-	mDefSetupMemb(BufferString,inptxt);
+	mDefSetupMemb(uiString,inptxt);
 
 	const BufferStringSet&	items_;
 

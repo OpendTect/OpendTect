@@ -129,6 +129,9 @@ public:
 
     TrcKey::SurvID		getSurveyID() const;
 
+    uiString			getUserTypeStr() const
+				{ return tr("3D Horizon"); }
+
     SurfaceAuxData&		auxdata;
     EdgeLineManager&		edgelinesets;
 

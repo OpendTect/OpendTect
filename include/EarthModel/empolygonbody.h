@@ -98,6 +98,9 @@ public:
     bool			useBodyPar(const IOPar&);
     void			fillBodyPar(IOPar&) const;
 
+    uiString			getUserTypeStr() const
+				{ return tr("Polygon Body"); }
+
 protected:
     const IOObjContext&		getIOObjContext() const;
 

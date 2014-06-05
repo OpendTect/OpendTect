@@ -45,7 +45,10 @@ uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     linesetinpsel_ = new uiSeis2DMultiLineSel( this );
     linesetinpsel_->attach( alignedBelow, hor3dsel_ );
 
-    out2dfld_ = new uiSurfaceWrite( this, uiSurfaceWrite::Setup("2D Horizon") );
+    out2dfld_ = new uiSurfaceWrite( this,
+			uiSurfaceWrite::Setup(EM::Horizon2D::typeStr(),
+					      EM::Horizon2D::userTypeStr() ) );
+
     out2dfld_->attach( alignedBelow, linesetinpsel_ );
 
     displayfld_ = new uiCheckBox( this, "Display on OK" );

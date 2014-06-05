@@ -82,14 +82,17 @@ public:
     {
     public:
 
-			Setup( const char* winttl=0 )
-			    : uiDialog::Setup(winttl?winttl:"File viewer",
+			Setup( const uiString& winttl=0 )
+			    : uiDialog::Setup(winttl.isSet()
+						  ? winttl
+						  : "File viewer",
 						0,mNoHelpKey)
 			    , scroll2bottom_(false)
 			    , allowopen_(false)
 			    , allowsave_(false)
 			{
-			    oktext("&Dismiss").canceltext("&Reload")
+			    oktext("&Dismiss")
+				.canceltext( "Reload" )
 			    .separator(false).modal(false).menubar(true);
 			}
 

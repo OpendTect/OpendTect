@@ -41,7 +41,8 @@ uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
 
     const char* typestr = is2d ? EM::Horizon2D::typeStr()
 			       : EM::Horizon3D::typeStr();
-    uiSurfaceWrite::Setup ssu( typestr );
+    const uiString typelabel = is2d ? tr("2D Horizon") : tr( "3D Horizon" );
+    uiSurfaceWrite::Setup ssu( typestr, typelabel );
     ssu.withcolorfld(true).withstratfld(true);
     outfld_ = new uiSurfaceWrite( this, ssu );
     outfld_->attach( alignedBelow, duplicatefld_ );

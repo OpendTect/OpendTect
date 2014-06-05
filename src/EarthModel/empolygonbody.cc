@@ -168,7 +168,7 @@ PolygonBody::PolygonBody( EMManager& em )
 PolygonBody::~PolygonBody()
 {}
 
-ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
+ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 					       bool smooth ) const
 {
     const EM::SectionID sid = sectionID( 0 );
@@ -186,7 +186,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr,
 				    mCast(float,SI().zDomain().userFactor()) );
    
      BodyOperator bodyopt;
-     return bodyopt.createImplicitBody( pts, tr ); 
+     return bodyopt.createImplicitBody( pts, taskrunner );
 }
 
 
@@ -279,18 +279,18 @@ Executor* PolygonBody::saver( IOObj* inpioobj )
     }
 
     mDynamicCast( polygonEMBodyTranslator*,
-		  PtrMan<polygonEMBodyTranslator> tr,
+		  PtrMan<polygonEMBodyTranslator> trans,
 		  ioobj->createTranslator() );
-    if ( !tr )
+    if ( !trans )
     {
 	errmsg_ = "No Translator";
 	return 0;
     }
 
-    Executor* exec = tr->writer( *this, *ioobj );
+    Executor* exec = trans->writer( *this, *ioobj );
     if ( !exec )
     {
-	errmsg_ = tr->errMsg();
+	errmsg_ = trans->errMsg();
 	return 0;
     }
 
@@ -304,18 +304,18 @@ Executor* PolygonBody::loader()
     if ( !ioobj ) { errmsg_ = "Cannot find surface"; return 0; }
 
     mDynamicCast( polygonEMBodyTranslator*,
-		 PtrMan<polygonEMBodyTranslator> tr,
+		 PtrMan<polygonEMBodyTranslator> trans,
 		 ioobj->createTranslator() );
-    if ( !tr )
+    if ( !trans )
     {
 	errmsg_ = "No Translator";
 	return 0;
     }
 
-    Executor* exec = tr->reader( *ioobj, *this );
+    Executor* exec = trans->reader( *ioobj, *this );
     if ( !exec )
     {
-	errmsg_ = tr->errMsg();
+	errmsg_ = trans->errMsg();
 	return 0;
     }
 

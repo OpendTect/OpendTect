@@ -29,7 +29,7 @@ public:
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const char* lbl=0 )
+			Setup( const uiString& lbl=0 )
 			    : label_(lbl)
 			    , withsetbut_(false)
 			    , withfns_(true)
@@ -39,7 +39,7 @@ public:
 	mDefSetupMemb(bool,withfns);
 	mDefSetupMemb(bool,fnsbelow);
 	mDefSetupMemb(bool,withsetbut);
-	mDefSetupMemb(BufferString,label);
+	mDefSetupMemb(uiString,label);
 	mDefSetupMemb(const Math::SpecVarSet*,specvars);
 	mDefSetupMemb(CallBack,setcb);
 		// if withsetbut and not set, will do returnpress

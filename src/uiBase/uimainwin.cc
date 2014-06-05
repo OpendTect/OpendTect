@@ -1890,8 +1890,8 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 
 void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 {
-    const char* oktext = sRun();
-    const char* canceltext = sClose();
+    uiString oktext = uiStrings::sRun();
+    uiString canceltext = uiStrings::sClose();
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {
 	oktext = "&Go";
@@ -1901,13 +1901,15 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     switch ( cs )
     {
     case OkAndCancel:
-	setOkCancelText( sOk(), sCancel() );
+	setOkCancelText( uiStrings::sOk(), uiStrings::sCancel() );
     break;
     case RunAndClose:
 	setOkCancelText( oktext, canceltext );
     break;
     case CloseOnly:
-	setOkCancelText( mBody->finalised() ? canceltext : "", canceltext );
+	    setOkCancelText(
+		mBody->finalised() ? canceltext : uiString::emptyString(),
+		canceltext );
     break;
     }
 

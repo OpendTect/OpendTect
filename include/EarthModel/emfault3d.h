@@ -81,6 +81,7 @@ public:
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
     void			apply(const Pos::Filter&);
+    uiString			getUserTypeStr() const;
 
     FaultAuxData*		auxData();
     const FaultAuxData*		auxData() const;

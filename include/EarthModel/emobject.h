@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "bufstring.h"
+#include "uistring.h"
 #include "callback.h"
 #include "cubesampling.h"
 #include "draw.h"
@@ -114,6 +115,7 @@ mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
+    virtual uiString		getUserTypeStr() const	{ return getTypeStr();}
     const MultiID&		multiID() const		{ return storageid_; }
     void			setMultiID(const MultiID&);
 
@@ -281,6 +283,7 @@ protected:
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
+mODTextTranslationClass( clss ); \
 public: \
 				clss(EM::EMManager&); \
     static void			initClass(); \

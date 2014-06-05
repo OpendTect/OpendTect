@@ -376,13 +376,13 @@ void MarchingCubesSurface::createBodyOperator()
 }
 
 
-bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
+bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
 {
     if ( !operator_ || !mcsurface_ )
 	return false;
 
     ImplicitBody* body = 0;
-    if ( !operator_->createImplicitBody(body,tr) || !body )
+    if ( !operator_->createImplicitBody(body,taskrunner) || !body )
 	return false;
 
     setInlSampling( SamplingData<int>(body->cs_.hrg.inlRange()) );

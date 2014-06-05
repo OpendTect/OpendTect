@@ -69,7 +69,7 @@ protected:
     void		mkAttribFld(bool);
     void		mkSectionFld(bool);
     void		mkRangeFld(bool multiss=false);
-    void		mkObjFld(const char*);
+    void		mkObjFld(const uiString&);
 
     void		objSel(CallBacker*);
     void		attrSel(CallBacker*);
@@ -88,14 +88,15 @@ protected:
 
 
 mExpClass(uiEarthModel) uiSurfaceWrite : public uiIOSurface
-{
+{ mODTextTranslationClass(uiSurfaceWrite)
 public:
 
     mExpClass(uiEarthModel) Setup
     {
     public:
-			Setup( const char* surftyp )
+			Setup( const char* surftyp, const uiString& tpn )
 			    : typ_(surftyp)
+			    , typname_( tpn )
 			    , withsubsel_(false)
 			    , withcolorfld_(false)
 			    , withstratfld_(false)
@@ -104,6 +105,7 @@ public:
 			{}
 
 	mDefSetupMemb(BufferString,typ)
+	mDefSetupMemb(uiString,typname)
 	mDefSetupMemb(bool,withsubsel)
 	mDefSetupMemb(bool,withcolorfld)
 	mDefSetupMemb(bool,withstratfld)

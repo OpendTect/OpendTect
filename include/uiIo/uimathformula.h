@@ -37,14 +37,14 @@ public:
     mExpClass(uiIo) Setup
     {
     public:
-			Setup( const char* lbl=0 )
+			Setup( const uiString& lbl=0 )
 			    : label_(lbl)
 			    , maxnrinps_(6)
 			    , withsubinps_(false)
 			    , withunits_(true)
 			    , proptype_(PropertyRef::Other)	{}
 
-	mDefSetupMemb(BufferString,label);
+	mDefSetupMemb(uiString,label);
 	mDefSetupMemb(int,maxnrinps);
 	mDefSetupMemb(BufferString,stortype); // if empty, no I/O
 	mDefSetupMemb(bool,withsubinps);

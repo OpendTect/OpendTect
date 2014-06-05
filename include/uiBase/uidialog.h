@@ -54,7 +54,8 @@ public:
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title)
 			, helpkey_(help_key), savetext_("Save defaults")
-			, oktext_( sOk() ), canceltext_( sCancel() )
+			, oktext_( uiStrings::sOk() )
+			, canceltext_( uiStrings::sCancel() )
 			, modal_(true) // if no parent given, always non-modal
 			, applybutton_(false) , applytext_(sApply())
 			, savebutton_(false), savebutispush_(false)

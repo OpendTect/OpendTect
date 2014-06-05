@@ -87,13 +87,14 @@ public:
 */
 
 mExpClass(EarthModel) EMFault3DTranslatorGroup : public TranslatorGroup
-{			       isTranslatorGroup(EMFault3D)
+{			    isTranslatorGroup(EMFault3D);
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
 
     static FixedString	keyword();
+    static uiString	userType();
 };
 
 
@@ -102,13 +103,14 @@ public:
 */
 
 mExpClass(EarthModel) EMFaultStickSetTranslatorGroup : public TranslatorGroup
-{				       isTranslatorGroup(EMFaultStickSet)
+{			isTranslatorGroup(EMFaultStickSet);
 public:
 			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
     const char*		defExtension() const { return "fss"; }
 
     static FixedString	keyword();
+    static uiString	userType();
 };
 
 
@@ -138,7 +140,7 @@ public:
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */
 
-    const char*			errMsg() const		{ return errmsg_.str(); }
+    const char*			errMsg() const		{ return errmsg_.str();}
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
@@ -259,7 +261,8 @@ protected:
 \brief dgbEMSurfaceTranslator for EM::FaultStickSet.
 */
 
-mExpClass(EarthModel) dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+mExpClass(EarthModel) dgbEMFaultStickSetTranslator :
+			public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
 				dgbEMFaultStickSetTranslator(const char* unm,

@@ -27,7 +27,7 @@ public:
 
     struct Setup
     {
-					Setup( const char* wintitl,
+					Setup( const uiString& wintitl,
 					       bool delonclose=true )
 					    : wintitle_(wintitl)
 					    , nrviewers_(1)
@@ -35,7 +35,7 @@ public:
 					    , deleteonclose_(delonclose)
 					    , withhanddrag_(false)
 					    , menubar_(false)		{}
-	mDefSetupMemb(BufferString,wintitle)
+	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(int,nrviewers)
 	mDefSetupMemb(int,nrstatusfields)
 	mDefSetupMemb(bool,deleteonclose)

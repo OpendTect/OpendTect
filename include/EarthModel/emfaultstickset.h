@@ -103,6 +103,8 @@ public:
     FaultStickSetGeometry&		geometry();
     const FaultStickSetGeometry&	geometry() const;
     void				apply(const Pos::Filter&);
+    uiString				getUserTypeStr() const;
+
 
 protected:
 

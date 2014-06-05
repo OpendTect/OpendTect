@@ -37,6 +37,10 @@ FaultStickSet::~FaultStickSet()
 {}
 
 
+uiString FaultStickSet::getUserTypeStr() const
+{ return EMFaultStickSetTranslatorGroup::userType(); }
+
+
 void FaultStickSet::apply( const Pos::Filter& pf )
 {
     for ( int idx=0; idx<nrSections(); idx++ )

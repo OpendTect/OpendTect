@@ -67,6 +67,10 @@ const IOObjContext& Fault3D::getIOObjContext() const
 { return EMFault3DTranslatorGroup::ioContext(); }
 
 
+uiString Fault3D::getUserTypeStr() const
+{ return EMFault3DTranslatorGroup::userType(); }
+
+
 void Fault3D::apply( const Pos::Filter& pf )
 {
     for ( int idx=0; idx<nrSections(); idx++ )

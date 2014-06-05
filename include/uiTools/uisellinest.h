@@ -26,13 +26,13 @@ Provides selection of linestyle, linecolor and linewidth
 */
 
 mExpClass(uiTools) uiSelLineStyle : public uiGroup
-{ 	
+{ mODTextTranslationClass(uiSelLineStyle);
 public:
 
     mExpClass(uiTools) Setup
     {
     public:
-			Setup( const char* lbltxt=0 )
+			Setup( const uiString& lbltxt=0 )
 			    // lbltxt null or "" => "Line style"
 			    // lbltxt "-" => no label
 			    : txt_(lbltxt)
@@ -41,7 +41,7 @@ public:
 			    , width_(true)
 			    , transparency_(false)	{}
 
-	mDefSetupMemb(BufferString,txt)
+	mDefSetupMemb(uiString,txt)
 	mDefSetupMemb(bool,drawstyle)
 	mDefSetupMemb(bool,color)
 	mDefSetupMemb(bool,width)
@@ -50,7 +50,7 @@ public:
     };
 
 				uiSelLineStyle(uiParent*,const LineStyle&,
-					       const char* lbltxt=0);
+					       const uiString& lbltxt=0);
 				uiSelLineStyle(uiParent*,const LineStyle&,
 					       const Setup&);
 				~uiSelLineStyle();

@@ -48,8 +48,9 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
     const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
 
     iogrp_ = new uiSurfaceWrite( this, surface_,
-				 uiSurfaceWrite::Setup(surface_.getTypeStr())
-				 .withdisplayfld(!hasshift).withsubsel(true) );
+			     uiSurfaceWrite::Setup(surface_.getTypeStr(),
+						   surface_.getUserTypeStr())
+			     .withdisplayfld(!hasshift).withsubsel(true) );
 }
 
 

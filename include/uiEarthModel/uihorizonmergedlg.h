@@ -20,7 +20,7 @@ class uiHorizon3DSel;
 class uiSurfaceWrite;
 
 mExpClass(uiEarthModel) uiHorizonMergeDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiHorizonMergeDlg);
 public:
 			uiHorizonMergeDlg(uiParent*,bool is2d);
 			~uiHorizonMergeDlg();
