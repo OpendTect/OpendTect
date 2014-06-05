@@ -160,7 +160,6 @@ ScaleBarSubItem::ScaleBarSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem(pck,displayid)
     , propmnuitem_(uiStrings::sProperties(false))
 {
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     propmnuitem_.iconfnm = "disppars";
 }
 

@@ -27,7 +27,6 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     , filemnuitem_( "Select image ..." )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 }
 
 
