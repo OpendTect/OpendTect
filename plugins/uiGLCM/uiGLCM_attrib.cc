@@ -104,7 +104,7 @@ uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
 
     limitfld_ = new uiGenInput( this, tr("Min / Max of Input Data"),
 			       FloatInpSpec().setName("Min amplitude"),
-			       FloatInpSpec().setName("Max amplitude") );
+			       FloatInpSpec().setName("Max amplitude"));
     limitfld_->setElemSzPol( uiObject::Small );
     limitfld_->attach( alignedBelow, inpfld_);
 
