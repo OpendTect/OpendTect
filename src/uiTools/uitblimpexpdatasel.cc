@@ -619,17 +619,17 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrtypefld_->valuechanged.notify( typchgcb );
 
     uiToolButton* button = new uiToolButton( this, "openfmt",
-				"Selecting existing format",
+				tr("Selecting existing format"),
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );
     button->attach( rightOf, hdrtypefld_ );
 
     int nrlns = fd_.nrHdrLines(); if ( nrlns < 1 ) nrlns = 1;
-    hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
+    hdrlinesfld_ = new uiGenInput( this, tr("Header size (number of lines)"),
 				   IntInpSpec(nrlns) );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
     hdrlinesfld_->valuechanged.notify( hdrchgcb );
-    hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
+    hdrtokfld_ = new uiGenInput( this, tr("End-of-header 'word'"),
 				 StringInpSpec(fd_.eohtoken_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
     hdrtokfld_->valuechanged.notify( hdrchgcb );
@@ -671,13 +671,13 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     Table::FFR().getFormats( fd_.name(), avfmts );
     if ( avfmts.size() < 1 )
     {
-	uiMSG().error( "No pre- or user-defined formats available" );
+	uiMSG().error( tr("No pre- or user-defined formats available") );
 	return;
     }
     avfmts.sort();
 
     uiSelectFromList::Setup listsetup( "Retrieve data format", avfmts );
-    listsetup.dlgtitle( "Select a format to retrieve" );
+    listsetup.dlgtitle( tr("Select a format to retrieve") );
     uiSelectFromList dlg( this, listsetup );
     if ( !dlg.go() || dlg.selection() < 0 )
 	return;
@@ -714,12 +714,13 @@ bool uiTableImpDataSel::commitHdr( bool witherror )
 	BufferString tok = hdrtokfld_->text();
 	if ( tok.isEmpty() && witherror )
 	{
-	    uiMSG().error( "Please enter the string marking the end-of-header");
+	    uiMSG().error( tr("Please enter the string"
+                              " marking the end-of-header"));
 	    return false;
 	}
 	if ( tok.contains(' ') && witherror )
 	{
-	    uiMSG().error( "The end-of-header 'word' cannot contain spaces");
+	    uiMSG().error(tr("The end-of-header 'word' cannot contain spaces"));
 	    return false;
 	}
 	fd_.eohtoken_ = tok;
@@ -737,7 +738,7 @@ bool uiTableImpDataSel::commit()
 
     if ( !fd_.isGood() )
     {
-	uiMSG().error( "The format definition is incomplete");
+	uiMSG().error( tr("The format definition is incomplete"));
 	return false;
     }
 

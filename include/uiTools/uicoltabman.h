@@ -28,7 +28,7 @@ class uiWorld2Ui;
 namespace ColTab { class Sequence; }
 
 mExpClass(uiTools) uiColorTableMan : public uiDialog
-{
+{ mODTextTranslationClass(uiColorTableMan);
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&,
 						bool enabletrans );

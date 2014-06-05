@@ -147,7 +147,7 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
 	offsetfld_->setElemSzPol( uiObject::Small );
 
-	offsetstepfld_ = new uiGenInput( this, "step" );
+	offsetstepfld_ = new uiGenInput( this, tr("step") );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );
@@ -156,12 +156,12 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 
     if ( s.convertedwaves_ )
     {
-	BoolInpSpec inpspec( true, "P", "S" );
-	downwavefld_ = new uiGenInput( this, "Downward wave-type", inpspec );
+	BoolInpSpec inpspec( true, tr("P"), tr("S") );
+	downwavefld_ = new uiGenInput( this, tr("Downward wave-type"), inpspec);
 	downwavefld_->attach( alignedBelow, lastfld_ );
 	lastfld_ = downwavefld_;
 
-	upwavefld_ = new uiGenInput( this, "Upward wave-type", inpspec );
+	upwavefld_ = new uiGenInput( this, tr("Upward wave-type"), inpspec );
 	upwavefld_->attach( alignedBelow, lastfld_ );
 	lastfld_ = upwavefld_;
     }

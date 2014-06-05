@@ -27,7 +27,7 @@ namespace RockPhysics { class Formula; }
 
 
 mExpClass(uiTools) uiRockPhysForm : public uiGroup
-{
+{ mODTextTranslationClass(uiRockPhysForm);
 public:
 
 			uiRockPhysForm(uiParent*);

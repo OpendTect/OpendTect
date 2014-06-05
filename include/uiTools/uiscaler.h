@@ -20,7 +20,7 @@ class uiCheckBox;
 
 
 mExpClass(uiTools) uiScaler : public uiGroup
-{
+{ mODTextTranslationClass(uiScaler);
 public:
 
 			uiScaler(uiParent*,const char* txt=0, // "Scale values"

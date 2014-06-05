@@ -48,7 +48,7 @@ class uiToolButton;
   */
 
 mExpClass(uiTools) uiBuildListFromList : public uiGroup
-{
+{ mODTextTranslationClass(uiBuildListFromList);
 public:
 
     mExpClass(uiTools) Setup

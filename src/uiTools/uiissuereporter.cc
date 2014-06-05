@@ -23,21 +23,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Problem reporter",mNoDlgTitle,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Problem reporter"),
+    mNoDlgTitle,mNoHelpKey) )
 {
     uiGroup* lblgrp = new uiGroup( this, "Label frame group" );
     lblgrp->setFrame( true );
     uiLabel* plealbl = new uiLabel( lblgrp,
-		"OpendTect has stopped working.\n\n"
+		tr("OpendTect has stopped working.\n\n"
 		"An error report has been created,\n"
 		"which we would like to use for analysis.\n\n"
 		"You would be helping us immensely by giving us\n"
 		"as much detail as you wish on what you were doing\n"
 		"when this problem occurred.\n\n"
 		"For feedback and/or updates on this issue,\n"
-		"do please also leave your e-mail address\n" );
+		"do please also leave your e-mail address\n") );
     plealbl->setAlignment( Alignment::HCenter );
-    uiButton* vrbut = new uiPushButton( this, "View report",
+    uiButton* vrbut = new uiPushButton( this, tr("View report"),
 			mCB(this, uiIssueReporterDlg, viewReportCB), false);
     vrbut->attach( centeredRightOf, lblgrp );
 
@@ -45,16 +46,16 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     commentfld_ = new uiTextEdit( usrinpgrp );
     commentfld_->setPrefWidthInChar( 60 );
     commentfld_->setPrefHeightInChar( 8 );
-    new uiLabel( usrinpgrp, "[Details you wish to share]", commentfld_ );
-    emailfld_ = new uiGenInput( usrinpgrp, "[E-mail address]" );
+    new uiLabel( usrinpgrp, tr("[Details you wish to share]"), commentfld_ );
+    emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
 
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, lblgrp );
 
-    setCancelText( "Do &Not Send" );
-    setOkText( "&Send Report" );
+    setCancelText( tr("Do &Not Send") );
+    setOkText( tr("&Send Report") );
 }
 	       
 
@@ -63,7 +64,7 @@ void uiIssueReporterDlg::viewReportCB( CallBacker* )
     BufferString report;
     getReport( report );
     
-    uiDialog dlg( this, uiDialog::Setup("View report", 0, mNoHelpKey ) );
+    uiDialog dlg( this, uiDialog::Setup(tr("View report"), 0, mNoHelpKey ) );
     uiTextBrowser* browser = new uiTextBrowser(&dlg);
     browser->setText( report.buf() );
     dlg.setCancelText( 0 );
@@ -95,8 +96,8 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
     reporter_.getReport() = report;
 
     if ( reporter_.send() )
-	uiMSG().message( "The report was successfully sent."
-		"\n\nThank you for your contribution to OpendTect!" );
+	uiMSG().message( tr("The report was successfully sent."
+		"\n\nThank you for your contribution to OpendTect!") );
     else
     {
 	SafeFileIO outfile( filename_, false );

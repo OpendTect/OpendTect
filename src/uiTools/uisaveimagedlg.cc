@@ -57,9 +57,9 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 
 
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
-    : uiDialog(p,uiDialog::Setup("Create snapshot",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Create snapshot"),mNoDlgTitle,
                                  mODHelpKey(mPrintSceneDlgHelpID) )
-		 .savebutton(true).savetext("Save settings on OK"))
+		 .savebutton(true).savetext(tr("Save settings on OK")))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
@@ -70,7 +70,8 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
 {
     if ( withclipbrd )
     {
-	cliboardselfld_ = new uiCheckBox( this, "Copy to Clipboard (Ctrl-C)" );
+	cliboardselfld_ = new uiCheckBox( this, 
+                                          tr("Copy to Clipboard (Ctrl-C)") );
 	cliboardselfld_->setChecked( false );
 	cliboardselfld_->activated.notify(
 		mCB(this,uiSaveImageDlg,copyToClipBoardClicked) );
@@ -152,13 +153,14 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
 {
     if ( withuseparsfld_ )
     {
-	useparsfld_ = new uiGenInput( this, "Get size from",
-				      BoolInpSpec(true,"Settings","Screen") );
+	useparsfld_ = new uiGenInput( this, tr("Get size from"),
+				      BoolInpSpec(true,uiStrings::sSettings(),
+                                      tr("Screen")) );
 	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }
 
-    pixwidthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
+    pixwidthfld_ = new uiLabeledSpinBox( this, tr("Width"), 2 );
     pixwidthfld_->box()->setInterval( maximum_pixel_size_range );
     pixwidthfld_->box()->setNrDecimals( 0 );
     pixwidthfld_->box()->valueChanging.notify(mCB(this,uiSaveImageDlg,sizeChg));
@@ -167,23 +169,23 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     else
 	pixwidthfld_->attach( alignedBelow, fldabove );
 
-    pixheightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
+    pixheightfld_ = new uiLabeledSpinBox( this, tr("Height"), 2 );
     pixheightfld_->box()->setInterval( maximum_pixel_size_range );
     pixheightfld_->box()->setNrDecimals( 0 );
     pixheightfld_->box()->valueChanging.notify(
 	    mCB(this,uiSaveImageDlg,sizeChg) );
     pixheightfld_->attach( rightTo, pixwidthfld_ );
 
-    pixlable_ = new uiLabel( this, "pixels" );
+    pixlable_ = new uiLabel( this, tr("pixels") );
     pixlable_->attach( rightTo, pixheightfld_ );
 
-    widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
+    widthfld_ = new uiLabeledSpinBox( this, tr("Width"), 2 );
     widthfld_->box()->setInterval( maximum_size_range );
     widthfld_->box()->setNrDecimals( 2 );
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     widthfld_->attach( alignedBelow, pixwidthfld_ );
 
-    heightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
+    heightfld_ = new uiLabeledSpinBox( this, tr("Height"), 2 );
     heightfld_->box()->setInterval( maximum_size_range );
     heightfld_->box()->setNrDecimals( 2 );
     heightfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
@@ -195,12 +197,13 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     unitfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,unitChg) );
     unitfld_->attach( rightTo, heightfld_ );
 
-    lockfld_ = new uiCheckBox( this, "Lock aspect ratio" );
+    lockfld_ = new uiCheckBox( this, tr("Lock aspect ratio") );
     lockfld_->setChecked( false );
     lockfld_->activated.notify( mCB(this,uiSaveImageDlg,lockChg) );
     lockfld_->attach( alignedBelow, unitfld_ );
 
-    dpifld_ = new uiLabeledSpinBox( this, "Resolution (dpi)", (int)screendpi_ );
+    dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)"), 
+                                    (int)screendpi_ );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     dpifld_->attach( alignedBelow, widthfld_ );
@@ -378,7 +381,7 @@ bool uiSaveImageDlg::filenameOK() const
     BufferString filename = fileinputfld_->fileName();
     if ( filename.isEmpty() )
     {
-	uiMSG().error( "Please select filename" );
+	uiMSG().error( tr("Please select filename") );
 	return false;
     }
 

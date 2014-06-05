@@ -27,7 +27,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 					    bool withclassification,
        					    const Array2DInterpol* oldvals,
 					    bool withstep )
-    : uiDlgGroup( p, "Array2D Interpolation" )
+    : uiDlgGroup( p, tr("Array2D Interpolation") )
     , result_( 0 )
     , filltypefld_( 0 )
     , stepfld_( 0 )
@@ -40,7 +40,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     uiObject* halignobj = 0;
     if ( filltype )
     {
-	filltypefld_ = new uiGenInput( this, "Scope",
+	filltypefld_ = new uiGenInput( this, tr("Scope"),
 		StringListInpSpec( Array2DInterpol::FillTypeNames() ));
 	if ( oldvals ) filltypefld_->setValue( (int) oldvals->getFillType() );
 	prevfld = filltypefld_->attachObj();
@@ -50,7 +50,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     {
 	PositionInpSpec::Setup setup;
 	PositionInpSpec spec( setup );
-	stepfld_ = new uiGenInput( this, "Inl/Crl Step", spec );
+	stepfld_ = new uiGenInput( this, tr("Inl/Crl Step"), spec );
 	stepfld_->setValue( BinID(SI().inlStep(),SI().crlStep()) );
 	if ( filltype )
 	    stepfld_->attach( alignedBelow, prevfld );
@@ -81,7 +81,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     if ( withclassification )
     {
 	isclassificationfld_ = new uiGenInput( this,
-		"Values are classifications", BoolInpSpec( false ) );
+		tr("Values are classifications"), BoolInpSpec( false ) );
 	if ( prevfld )
 	    isclassificationfld_->attach( alignedBelow, prevfld );
 	if ( oldvals )
@@ -93,7 +93,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     int methodidx;
     if ( methods.size()>1 )
     {
-	methodsel_ = new uiGenInput( this, "Algorithm",
+	methodsel_ = new uiGenInput( this, tr("Algorithm"),
 	    StringListInpSpec(Array2DInterpol::factory().getUserNames() ) );
 
 	if ( prevfld )
@@ -315,7 +315,7 @@ uiArray2DInterpol* uiInverseDistanceArray2DInterpol::create( uiParent* p )
 
 
 uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
-    : uiArray2DInterpol( p, "Inverse distance" )
+    : uiArray2DInterpol( p, tr("Inverse distance") )
     , nrsteps_(mUdf(int))
     , cornersfirst_(false)
     , stepsz_(1)
@@ -326,7 +326,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     radiusfld_->checked.notify(
 	    mCB(this,uiInverseDistanceArray2DInterpol,useRadiusCB));
 
-    parbut_ = new uiPushButton( this, "&Parameters", 
+    parbut_ = new uiPushButton( this, tr("&Parameters"), 
 		    mCB(this,uiInverseDistanceArray2DInterpol,doParamDlg),
 		    false );
     parbut_->attach( rightOf, radiusfld_ );
@@ -388,9 +388,9 @@ uiArray2DInterpol* uiTriangulationArray2DInterpol::create( uiParent* p )
 
 
 uiTriangulationArray2DInterpol::uiTriangulationArray2DInterpol(uiParent* p)
-    : uiArray2DInterpol( p, "Inverse distance" )
+    : uiArray2DInterpol( p, tr("Inverse distance") )
 {
-    useneighborfld_ = new uiCheckBox( this, "Use nearest neighbor" );
+    useneighborfld_ = new uiCheckBox( this, tr("Use nearest neighbor") );
     useneighborfld_->setChecked( false );
     useneighborfld_->activated.notify(
 	    mCB(this,uiTriangulationArray2DInterpol,intCB) );
@@ -428,7 +428,7 @@ bool uiTriangulationArray2DInterpol::acceptOK()
     const float maxdist = maxdistfld_->getfValue();
     if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
     {
-	uiMSG().error( "Maximum distance must be > 0. " );
+	uiMSG().error( tr("Maximum distance must be > 0. ") );
 	return false;
     }
 
@@ -560,9 +560,8 @@ bool uiInverseDistanceArray2DInterpol::acceptOK()
 
     if ( hasradius && (mIsUdf(radius) || radius<=0) )
     {
-	uiMSG().error(
-		"Please enter a positive value for the search radius\n"
-		"(or uncheck the field)" );
+	uiMSG().error(tr("Please enter a positive value for the search radius\n"
+		         "(or uncheck the field)") );
 	return false;
     }
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiGraphicsScene;
 
 mExpClass(uiTools) uiGraphicsSaveImageDlg : public uiSaveImageDlg
-{
+{ mODTextTranslationClass(uiGraphicsSaveImageDlg);
 public:
 			uiGraphicsSaveImageDlg(uiParent*,uiGraphicsScene*);
 protected:

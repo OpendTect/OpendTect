@@ -23,7 +23,7 @@ class uiGenInput;
 /*! \brief reports issues to opendtect.org. Usually crash reports. */
 
 mExpClass(uiTools) uiIssueReporterDlg : public uiDialog
-{ 	
+{  mODTextTranslationClass(uiIssueReporterDlg);
 public:
     
 				uiIssueReporterDlg( uiParent* );

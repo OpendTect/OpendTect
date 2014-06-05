@@ -24,7 +24,7 @@ class uiZAxisTransformSel;
 /*! Base class for ZAxisTransform ui's*/
 
 mExpClass(uiTools) uiZAxisTransform : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiZAxisTransform);
 public:
     mDefineFactory3ParamInClass(uiZAxisTransform,uiParent*,
 	    			const char*,const char*,factory);

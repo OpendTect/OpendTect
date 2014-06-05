@@ -24,7 +24,7 @@ class uiMarkerItem;
 class uiTextItem;
 
 mExpClass(uiTools) uiPolarDiagram : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiPolarDiagram);
 public:
 
 				uiPolarDiagram(uiParent*);

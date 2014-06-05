@@ -19,7 +19,7 @@ mImplFactory2Param( uiDlgGroup, uiParent*, Gridder2D*, uiGridder2DFact );
 
 
 uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
-    : uiDlgGroup( p, "Gridding" )
+    : uiDlgGroup( p, tr("Gridding") )
     , original_( g )
 {
     griddingparams_.allowNull();
@@ -42,7 +42,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 	gridders_ += gridder;
     }
 
-    griddingsel_ = new uiGenInput( this, "Algorithm",
+    griddingsel_ = new uiGenInput( this, tr("Algorithm"),
 	    			   StringListInpSpec( gridderusernames ) );
     griddingsel_->valuechanged.notify( mCB(this,uiGridder2DSel,selChangeCB) );
 

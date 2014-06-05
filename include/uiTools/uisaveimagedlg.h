@@ -26,7 +26,7 @@ class uiLabel;
 class uiLabeledSpinBox;
 
 mExpClass(uiTools) uiSaveImageDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSaveImageDlg);
 public:
 			uiSaveImageDlg(uiParent*,bool withclipbrd = true,
 				       bool withuseparsfld = true);

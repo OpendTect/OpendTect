@@ -25,7 +25,7 @@ class uiTable;
 
 
 mExpClass(uiTools) uiSettings : public uiDialog
-{
+{ mODTextTranslationClass(uiSettings);
 public:
 			uiSettings(uiParent*,const char* titl,
 				   const char* settskey=0);

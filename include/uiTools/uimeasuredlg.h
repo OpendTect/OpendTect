@@ -17,7 +17,7 @@ class uiGenInput;
 class uiSelLineStyle;
 
 mExpClass(uiTools) uiMeasureDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMeasureDlg);
 public:
 				uiMeasureDlg(uiParent*);
 				~uiMeasureDlg();

@@ -27,7 +27,7 @@ template <class T> class Array2D;
 namespace ColTab { class MapperSetup; class Sequence; }
 
 mExpClass(uiTools) uiMapperRangeEditor : public uiGroup
-{
+{ 
 public:
 
     				uiMapperRangeEditor(uiParent*,int id,

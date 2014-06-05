@@ -23,7 +23,7 @@ class uiMapperRangeEditor;
 namespace ColTab { class MapperSetup; class Sequence; };
 
 mExpClass(uiTools) uiMultiMapperRangeEditWin : public uiDialog
-{
+{ mODTextTranslationClass(uiMultiMapperRangeEditWin);
 public:
     					uiMultiMapperRangeEditWin(uiParent*,
 						int n,DataPackMgr::ID dmid);

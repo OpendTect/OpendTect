@@ -24,7 +24,7 @@ class uiLabeledListBox;
 
 
 mExpClass(uiTools) uiColTabImport : public uiDialog
-{
+{ mODTextTranslationClass(uiColTabImport);
 public:
 				uiColTabImport(uiParent*);
 				~uiColTabImport();

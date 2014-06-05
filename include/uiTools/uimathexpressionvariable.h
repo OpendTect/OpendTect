@@ -26,7 +26,7 @@ class uiToolButton;
 
 
 mExpClass(uiTools) uiMathExpressionVariable : public uiGroup
-{
+{ mODTextTranslationClass(uiMathExpressionVariable);
 public:
 
 			uiMathExpressionVariable(uiParent*,int varidx,

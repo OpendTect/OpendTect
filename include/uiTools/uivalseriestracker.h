@@ -24,7 +24,7 @@ class uiGenInput;
 
 
 mExpClass(uiTools) uiEventTracker : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiEventTracker);
 public:
     			uiEventTracker(uiParent*,EventTracker&,
 				bool hideeventtype=false,

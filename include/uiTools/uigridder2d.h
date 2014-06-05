@@ -22,7 +22,7 @@ class uiGenInput;
 
 
 mExpClass(uiTools) uiGridder2DSel : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiGridder2DSel);
 public:
     				uiGridder2DSel(uiParent*,const Gridder2D*);
     				~uiGridder2DSel();

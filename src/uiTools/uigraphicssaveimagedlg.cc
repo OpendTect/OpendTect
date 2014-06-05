@@ -129,7 +129,7 @@ void uiGraphicsSaveImageDlg::writeToSettings()
     fillPar( iopar, true );
     settings_.mergeComp( iopar, "2D" );
     if ( !settings_.write() )
-	uiMSG().error( "Cannot write settings" );
+	uiMSG().error( tr("Cannot write settings") );
 }
 
 

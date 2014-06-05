@@ -23,7 +23,7 @@ namespace Math { class SpecVarSet; }
 
 
 mExpClass(uiTools) uiMathExpression : public uiGroup
-{
+{ mODTextTranslationClass(uiMathExpression);
 public:
 
     mExpClass(uiTools) Setup

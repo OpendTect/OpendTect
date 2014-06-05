@@ -41,10 +41,10 @@ static const int noprogbardispnrsymbs = 29;
 
 
 uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr ) 
-    : uiDialog( p, uiDialog::Setup("Executing",mNoDlgTitle,mNoHelpKey)
+    : uiDialog( p, uiDialog::Setup(tr("Executing"),mNoDlgTitle,mNoHelpKey)
 	.nrstatusflds( -1 )
-	.oktext("Pause")
-	.canceltext("Abort") )
+	.oktext(uiStrings::sPause())
+	.canceltext(uiStrings::sAbort()) )
     , task_( 0 )
     , thread_(0)
     , tim_(*new Timer("") )
@@ -67,9 +67,9 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
     preFinalise().notify( mCB( this, uiTaskRunner, onFinalise ) );
 
-    statusBar()->addMsgFld( "Current activity", Alignment::Left, 2 );
-    statusBar()->addMsgFld( "Counted items", Alignment::Right, 2 );
-    statusBar()->addMsgFld( "Number done", Alignment::Left, 1 );
+    statusBar()->addMsgFld( tr("Current activity"), Alignment::Left, 2 );
+    statusBar()->addMsgFld( tr("Counted items"), Alignment::Right, 2 );
+    statusBar()->addMsgFld( tr("Number done"), Alignment::Left, 1 );
 }
 
 
@@ -214,12 +214,12 @@ bool uiTaskRunner::acceptOK( CallBacker* )
     if ( state==Task::Pause )
     {
 	task_->controlWork( Task::Run );
-	setOkText("Pause" );
+	setOkText(uiStrings::sPause() );
     }
     else if ( state==Task::Run )
     {
 	task_->controlWork( Task::Pause );
-	setOkText("Resume" );
+	setOkText(uiStrings::sResume() );
     }
 
     return false;

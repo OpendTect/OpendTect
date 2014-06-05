@@ -38,7 +38,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
     ynfld->activated.notify( mCB(this,uiScaler,typeSel) );
 
     DoubleInpSpec dis;
-    linearfld = new uiGenInput( this, "Shift/Factor",
+    linearfld = new uiGenInput( this, tr("Shift/Factor"),
 				DoubleInpSpec().setName("Shift"),
 				DoubleInpSpec().setName("Factor") );
 
@@ -48,7 +48,7 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
     {
 	ynfld->attach( leftOf, typefld );
 	linearfld->attach( alignedBelow, typefld );
-	basefld = new uiGenInput( this, "Base", BoolInpSpec(true,"10","e") );
+	basefld = new uiGenInput( this, tr("Base"), BoolInpSpec(true,"10","e"));
 	basefld->attach( alignedBelow, typefld );
     }
 

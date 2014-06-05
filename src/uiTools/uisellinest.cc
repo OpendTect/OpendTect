@@ -68,7 +68,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( stylesel_ ? "Color" : "Line color" ).withdesc( !su.width_ );
+	csu.lbltxt( stylesel_ ? tr("Color") 
+                              : tr("Line color") ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel_ )
@@ -80,7 +81,8 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     if ( su.width_ )
     {
 	widthbox_ = new uiLabeledSpinBox( this,
-		    su.color_ || su.drawstyle_ ? "Width" : "Line width" );
+		    su.color_ || su.drawstyle_ ? tr("Width") 
+                                               : tr("Line width") );
 	widthbox_->box()->setMinValue( mMIN(cMinWidth,linestyle_.width_) );
   	widthbox_->box()->setMaxValue( mMAX(cMaxWidth,linestyle_.width_) );
 	widthbox_->box()->setValue( linestyle_.width_ );

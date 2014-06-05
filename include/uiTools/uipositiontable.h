@@ -21,7 +21,7 @@ class uiTable;
 
 
 mExpClass(uiTools) uiPositionTable : public uiGroup
-{
+{ mODTextTranslationClass(uiPositionTable);
 public:
 			uiPositionTable(uiParent*,bool withxy,bool withic,
 					bool withz);

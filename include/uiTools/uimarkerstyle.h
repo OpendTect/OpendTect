@@ -22,7 +22,7 @@ class uiSlider;
 
 
 mExpClass(uiTools) uiMarkerStyle3D : public uiGroup
-{
+{ mODTextTranslationClass(uiMarkerStyle3D);
 public:
 			uiMarkerStyle3D(uiParent*,bool withcolor,
 				const Interval<int>& sizerange,

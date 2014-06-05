@@ -26,7 +26,7 @@ class uiFreqTaperDlg;
 /*!Selects a windowfunction and its eventual parameter. */
 
 mExpClass(uiTools) uiWindowFunctionSel : public uiGroup
-{
+{ mODTextTranslationClass(uiWindowFunctionSel);
 public:
 
     mStruct(uiTools) Setup

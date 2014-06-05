@@ -183,9 +183,9 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     if ( setup_.withio_ )
     {
 	uiToolButton* openbut = new uiToolButton( this, "openset",
-		"Open stored set", mCB(this,uiBuildListFromList,openCB) );
+		tr("Open stored set"), mCB(this,uiBuildListFromList,openCB) );
 	openbut->attach( alignedBelow, rmbut_ );
-	savebut_ = new uiToolButton( this, "save", "Save set",
+	savebut_ = new uiToolButton( this, "save", tr("Save set"),
 		mCB(this,uiBuildListFromList,saveCB) );
 	savebut_->attach( alignedBelow, openbut );
     }
@@ -193,10 +193,10 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
     if ( setup_.movable_ )
     {
 	moveupbut_ = new uiToolButton( this, uiToolButton::UpArrow,
-			"Move up", mCB(this,uiBuildListFromList,moveCB) );
+			tr("Move up"), mCB(this,uiBuildListFromList,moveCB) );
 	moveupbut_->attach( alignedBelow, savebut_ ? savebut_ : rmbut_ );
 	movedownbut_ = new uiToolButton( this, uiToolButton::DownArrow,
-			"Move down", mCB(this,uiBuildListFromList,moveCB) );
+			tr("Move down"), mCB(this,uiBuildListFromList,moveCB) );
 	movedownbut_->attach( alignedBelow, moveupbut_ );
     }
 
@@ -302,7 +302,7 @@ void uiBuildListFromList::addItem( const char* itmnm )
 
 void uiBuildListFromList::openCB( CallBacker* )
 {
-    if ( usrchg_ && !uiMSG().askGoOn("Current work not saved. Continue?") )
+    if ( usrchg_ && !uiMSG().askGoOn(tr("Current work not saved. Continue?")) )
 	return;
 
     if ( ioReq(false) )

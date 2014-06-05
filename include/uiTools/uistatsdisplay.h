@@ -23,7 +23,7 @@ namespace Stats { template <class T> class ParallelCalc; }
 
 
 mExpClass(uiTools) uiStatsDisplay : public uiGroup
-{
+{ mODTextTranslationClass(uiStatsDisplay);
 public:
 
     struct Setup

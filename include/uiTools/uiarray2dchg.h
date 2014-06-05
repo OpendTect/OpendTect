@@ -21,7 +21,7 @@ class uiStepOutSel;
 
 
 mExpClass(uiTools) uiArr2DFilterPars : public uiGroup
-{
+{ mODTextTranslationClass(uiArr2DFilterPars);
 public:
 
 				uiArr2DFilterPars(uiParent*,

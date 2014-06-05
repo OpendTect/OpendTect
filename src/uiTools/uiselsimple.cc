@@ -26,12 +26,12 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
     const int sz = setup_.items_.size();
     if ( sz < 1 )
     {
-	new uiLabel(this,"No items available for selection");
+	new uiLabel(this,tr("No items available for selection"));
 	setCtrlStyle( CloseOnly );
 	return;
     }
 
-    filtfld_ = new uiGenInput( this, "Filter", "*" );
+    filtfld_ = new uiGenInput( this, tr("Filter"), "*" );
     filtfld_->valuechanged.notify( mCB(this,uiSelectFromList,filtChg) );
 
     selfld_ = new uiListBox( this );

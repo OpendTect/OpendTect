@@ -59,7 +59,7 @@ static void getGrps( BufferStringSet& grps )
 
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
-	: uiDialog(p,uiDialog::Setup(nm,"Set User Settings value",
+	: uiDialog(p,uiDialog::Setup(nm,tr("Set User Settings value"),
                                      mODHelpKey(mSettingsHelpID)) )
         , issurvdefs_(FixedString(settskey)==sKeySurveyDefs())
 	, grpfld_(0)
@@ -67,13 +67,13 @@ uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
     setCurSetts();
     if ( issurvdefs_ )
     {
-	setTitleText( "Set Survey default value" );
+	setTitleText( tr("Set Survey default value") );
 	setHelpKey( mODHelpKey(mSurveySettingsHelpID) );
     }
     else
     {
 	BufferStringSet grps; getGrps( grps );
-	grpfld_ = new uiGenInput( this, "Settings group",
+	grpfld_ = new uiGenInput( this, tr("Settings group"),
 				  StringListInpSpec(grps) );
 	grpfld_->valuechanged.notify( mCB(this,uiSettings,grpChg) );
     }

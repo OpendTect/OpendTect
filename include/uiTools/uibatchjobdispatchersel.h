@@ -26,7 +26,7 @@ class uiBatchJobDispatcherLauncher;
 /*!\brief lets user select a batch job dispatcher suited for the job */
 
 mExpClass(uiTools) uiBatchJobDispatcherSel : public uiGroup
-{
+{ mODTextTranslationClass(uiBatchJobDispatcherSel);
 public:
 
 			uiBatchJobDispatcherSel(uiParent*,bool optional,

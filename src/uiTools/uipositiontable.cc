@@ -43,7 +43,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     pmlvl->setPixmap( pm );
     pmlvl->attach( rightTo, lbl );
 
-    uiLabel* collbl =  new uiLabel( this, "Node outside Survey" );
+    uiLabel* collbl =  new uiLabel( this, tr("Node outside Survey") );
     collbl->attach( rightTo, pmlvl );
 
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")

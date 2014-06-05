@@ -23,7 +23,7 @@ class uiFont;
 class FontData;
 
 mExpClass(uiTools) uiFontSettingsGroup : public uiSettingsGroup
-{
+{ mODTextTranslationClass(uiFontSettingsGroup);
 public:
 			mDefaultFactoryInstantiation2Param(
 				uiSettingsGroup,

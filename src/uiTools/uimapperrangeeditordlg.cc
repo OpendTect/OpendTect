@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
-    : uiDialog( p,uiDialog::Setup("Histogram",
+    : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
 				  mNoDlgTitle,
                                   mODHelpKey(mMultiMapperRangeEditWinHelpID) )
                                   .modal(false)
@@ -42,7 +42,7 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
     uiSeparator* sephor = 0;
 
     uiToolBar* tb = new uiToolBar( this, "Stats" );
-    tb->addButton( "info", "Statistics",
+    tb->addButton( "info", tr("Statistics"),
 	    	   mCB(this,uiMultiMapperRangeEditWin,showStatDlg) );
 
     for ( int idx=0; idx<nr; idx++ )

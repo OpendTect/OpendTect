@@ -47,17 +47,17 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
 	types_ += type;
     }
 
-    typefld_ = new uiGenInput( this, "Marker Shape", str );
+    typefld_ = new uiGenInput( this, tr("Marker Shape"), str );
 
     sliderfld_ = new uiSlider( this,
-	uiSlider::Setup("Size").withedit(true), "Slider Size" );
+	uiSlider::Setup(tr("Size")).withedit(true), "Slider Size" );
     sliderfld_->setInterval( rg );
     sliderfld_->attach( alignedBelow, typefld_ );
 
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
-		    uiColorInput::Setup(Color::White()).lbltxt("Color") );
+		    uiColorInput::Setup(Color::White()).lbltxt(tr("Color")) );
 	colselfld_->attach( alignedBelow, sliderfld_ );
     }
 

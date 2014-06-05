@@ -258,6 +258,6 @@ void uiFileInput::examineFile( CallBacker* )
 	File::ViewPars vp( examstyle_ );
 	vp.editable_ = exameditable_;
 	if ( !File::launchViewer(fileName(),vp) )
-	    uiMSG().error( "Cannot launch file browser" );
+	    uiMSG().error( tr("Cannot launch file browser") );
     }
 }

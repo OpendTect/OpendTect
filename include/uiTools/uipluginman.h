@@ -22,7 +22,7 @@ class uiCheckBox;
 /*!\brief Shows loaded plugins and allows adding */
 
 mExpClass(uiTools) uiPluginMan : public uiDialog
-{ 	
+{  mODTextTranslationClass(uiPluginMan);
 public:
 			uiPluginMan(uiParent*);
 

@@ -26,7 +26,7 @@ Provides selection of linestyle, linecolor and linewidth
 */
 
 mExpClass(uiTools) uiSelLineStyle : public uiGroup
-{ 	
+{  mODTextTranslationClass(uiSelLineStyle);
 public:
 
     mExpClass(uiTools) Setup

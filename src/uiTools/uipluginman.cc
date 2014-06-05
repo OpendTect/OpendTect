@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup("Plugins", mNoDlgTitle,
+	: uiDialog(p,Setup(tr("Plugins"), mNoDlgTitle,
                             mODHelpKey(mPluginManHelpID) ) )
 {
     setCtrlStyle( uiDialog::CloseOnly );
@@ -39,10 +39,11 @@ uiPluginMan::uiPluginMan( uiParent* p )
     fillList();
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
-    uiPushButton* loadbut = new uiPushButton( leftgrp, " &Load a plugin ",
+    uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" &Load a plugin "),
 	    			mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
-    selatstartfld = new uiCheckBox( leftgrp, "Select auto-loaded at startup" ); 
+    selatstartfld = new uiCheckBox( leftgrp, 
+                                    tr("Select auto-loaded at startup") ); 
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
 	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
@@ -77,14 +78,14 @@ void uiPluginMan::fillList()
     listfld->addItems( late );
     listfld->addItem( "" );
     listfld->addItem( "" );
-    listfld->addItem( "- Base plugins" );
+    listfld->addItem( tr("- Base plugins") );
     listfld->addItem( "" );
     listfld->addItems( early );
     if ( !notloaded.isEmpty() )
     {
 	listfld->addItem( "" );
 	listfld->addItem( "" );
-	listfld->addItem( "- Not loaded" );
+	listfld->addItem( tr("- Not loaded") );
 	listfld->addItem( "" );
 	listfld->addItems( notloaded );
     }
@@ -176,9 +177,9 @@ void uiPluginMan::loadPush( CallBacker* )
 
     BufferString fnm = dlg.fileName();
     if ( !File::exists(fnm) )
-	uiMSG().error( "File does not exist" );
+	uiMSG().error( tr("File does not exist") );
     else if ( !PIM().load(fnm) )
-	uiMSG().error( "Couldn't load plugin" );
+	uiMSG().error( tr("Couldn't load plugin") );
     else
 	{ loaddir = FilePath(fnm).pathOnly(); fillList(); selChg(0); }
 }

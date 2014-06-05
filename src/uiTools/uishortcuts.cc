@@ -23,8 +23,8 @@ static const char* sSupportedStates[] =
 	{ "----", "Shift", "Control", 0 };
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
-    : uiDialog( p,uiDialog::Setup( "Set up shortcuts",
-				   "Select keys used as shortcuts",
+    : uiDialog( p,uiDialog::Setup( tr("Set up shortcuts"),
+				   tr("Select keys used as shortcuts"),
                                    mODHelpKey(mShortcutsDlgHelpID) ) )
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {

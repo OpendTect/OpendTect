@@ -34,7 +34,7 @@ class uiGraphicsItemGroup;
  */
 
 mExpClass(uiTools) uiFunctionDisplay : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiFunctionDisplay);
 public:
 
     struct Setup

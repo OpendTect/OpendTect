@@ -20,11 +20,11 @@ uiArr2DFilterPars::uiArr2DFilterPars( uiParent* p,
 {
     Array2DFilterPars pars; if ( prs ) pars = *prs;
 
-    medianfld_ = new uiGenInput( this, "Filter type",
-				 BoolInpSpec(true,"Median","Average") );
+    medianfld_ = new uiGenInput( this, tr("Filter type"),
+				 BoolInpSpec(true,tr("Median"),tr("Average")) );
     medianfld_->setValue( pars.type_ == Stats::Median );
 
-    stepoutfld_ = new uiStepOutSel( this, false, "Filter stepout" );
+    stepoutfld_ = new uiStepOutSel( this, false, tr("Filter stepout") );
     stepoutfld_->setVal( true, pars.stepout_.row() );
     stepoutfld_->setVal( false, pars.stepout_.col() );
     stepoutfld_->attach( alignedBelow, medianfld_ );

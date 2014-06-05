@@ -65,7 +65,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
 			.setName(BufferString("range start"),0)
 			.setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiAmplSpectrum,dispRangeChgd ) );
-    stepfld_ = new uiLabeledSpinBox( dispparamgrp_, "Gridline step");
+    stepfld_ = new uiLabeledSpinBox( dispparamgrp_, tr("Gridline step"));
     stepfld_->box()->setNrDecimals( SI().zIsTime() ? 0 : 5 );
     stepfld_->attach( rightOf, rangefld_ );
     stepfld_->box()->valueChanging.notify(
@@ -77,13 +77,15 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
     valfld_->attach( alignedBelow, rangefld_ );
     valfld_->display( false );
 
-    uiPushButton* exportbut = new uiPushButton( this, "Export", false );
+    uiPushButton* exportbut = new uiPushButton( this, uiStrings::sExport(), 
+                                                false );
     exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
     exportbut->attach( rightAlignedBelow, disp_ );
 
     if ( !setup_.iscepstrum_ )
     {
-	uiPushButton* cepbut = new uiPushButton( this,"Display cepstrum",false);
+	uiPushButton* cepbut = new uiPushButton( this,tr("Display cepstrum"),
+                                                 false);
 	cepbut->activated.notify( mCB(this,uiAmplSpectrum,ceptrumCB) );
 	cepbut->attach( rightAlignedBelow, exportbut );
     }
@@ -106,8 +108,9 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( datapack )
-	setCaption( !datapack ? "No data"
-	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
+	setCaption( !datapack ? tr("No data")
+	                      : tr( "Amplitude Spectrum for %1" )
+                                .arg( datapack->name() ) );
 
     if ( dmid == DataPackMgr::CubeID() )
     {
@@ -173,7 +176,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
     initFFT( sz2 );
     if ( !fft_ )
     {
-	uiMSG().error( "Cannot initialize FFT" );
+	uiMSG().error( tr("Cannot initialize FFT") );
 	return;
     }
 
@@ -343,7 +346,7 @@ void uiAmplSpectrum::ceptrumCB( CallBacker* )
     if ( !specvals_ ) return;
 
     uiAmplSpectrum* ampl = new uiAmplSpectrum(
-	    this, uiAmplSpectrum::Setup("Amplitude Cepstrum", true, 1  ) );
+	    this, uiAmplSpectrum::Setup(tr("Amplitude Cepstrum"), true, 1  ) );
     ampl->setDeleteOnClose( true );
     ampl->setData( *specvals_ );
     ampl->show();

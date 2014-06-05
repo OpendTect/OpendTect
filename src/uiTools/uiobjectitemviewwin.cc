@@ -129,7 +129,9 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->setStretch( 0, 0 );
 
     fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
-		    "Fit to screen", mCB(this,uiObjectItemViewWin,fitToScreen));
+		                        tr("Fit to screen"), 
+                                        mCB(this,uiObjectItemViewWin,
+                                        fitToScreen));
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
 
     su.isvertical_ = false;
@@ -141,7 +143,7 @@ void uiObjectItemViewWin::makeSliders()
     horsliderfld_->attach( leftOf, fittoscreenbut_ );
     horsliderfld_->attach( ensureBelow, mainviewer_ );
 
-    zoomratiofld_ = new uiCheckBox( this, "Keep zoom ratio" );
+    zoomratiofld_ = new uiCheckBox( this, tr("Keep zoom ratio") );
     zoomratiofld_->attach( leftOf, horsliderfld_ );
     zoomratiofld_->setChecked( true );
 }

@@ -33,7 +33,7 @@ static const char* sKeyLineStyle = "Measure LineStyle";
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog(p,Setup("Measure Distance",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Measure Distance"),mNoDlgTitle,
                         mODHelpKey(mMeasureDlgHelpID) ).modal(false))
     , ls_(*new LineStyle(LineStyle::Solid,3))
     , appvelfld_(0)
@@ -88,7 +88,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	dist2fld_->attach( alignedBelow, distfld_ );
     }
 
-    inlcrldistfld_ = new uiGenInput( topgrp, "Inl/Crl Distance",
+    inlcrldistfld_ = new uiGenInput( topgrp, tr("Inl/Crl Distance"),
 				     IntInpIntervalSpec(Interval<int>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
@@ -96,9 +96,9 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     inlcrldistfld_->attach( alignedBelow, dist2fld_ ? dist2fld_ : distfld_ );
 
     uiGroup* botgrp = new uiGroup( this, "Button group" );
-    uiPushButton* clearbut = new uiPushButton( botgrp, "&Clear",
+    uiPushButton* clearbut = new uiPushButton( botgrp, tr("&Clear"),
 				mCB(this,uiMeasureDlg,clearCB), true );
-    uiPushButton* stylebut = new uiPushButton( botgrp, "&Line style",
+    uiPushButton* stylebut = new uiPushButton( botgrp, tr("&Line style"),
 				mCB(this,uiMeasureDlg,stylebutCB), false );
     stylebut->attach( rightTo, clearbut );
 
@@ -132,7 +132,8 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpKey) );
+    uiDialog dlg( this, uiDialog::Setup(tr("Line Style"),mNoDlgTitle,
+                                        mNoHelpKey) );
     dlg.setCtrlStyle( uiDialog::CloseOnly );
     uiSelLineStyle* linestylefld = new uiSelLineStyle( &dlg, ls_,
 				uiSelLineStyle::Setup().drawstyle(false) );

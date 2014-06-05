@@ -29,7 +29,7 @@ uiToolButton* uiGraphicsView::getSaveImageButton( uiParent* p )
 {
     if ( !enableimagesave_ ) return 0;
 
-    return new uiToolButton( p, "snapshot", "Save image",
+    return new uiToolButton( p, "snapshot", tr("Save image"),
 			mCB(this,uiGraphicsView,saveImageCB) );
 }
 

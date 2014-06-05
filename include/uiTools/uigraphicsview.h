@@ -19,7 +19,7 @@ class uiToolButton;
 class uiParent;
 
 mExpClass(uiTools) uiGraphicsView : public uiGraphicsViewBase
-{
+{ mODTextTranslationClass(uiGraphicsView);
 public:
 				uiGraphicsView(uiParent*,const char* nm);
 

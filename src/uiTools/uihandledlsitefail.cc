@@ -56,8 +56,8 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
 	, site_(dlsite.host())
 	, dlsitefld_(0)
 {
-    setCancelText( isfatal ? "&Exit Program" : "&Give up" );
-    setOkText( "&Try again" );
+    setCancelText( isfatal ? tr("&Exit Program") : tr("&Give up") );
+    setOkText( tr("&Try again") );
 
     BufferStringSet dlsites;
     dlsites.add( dlsite.host() );
@@ -67,12 +67,12 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
     uiLabeledComboBox* lcb = 0;
     if ( dlsites.size() >= 1 )
     {
-	lcb = new uiLabeledComboBox( this, dlsites, "Download from" );
+	lcb = new uiLabeledComboBox( this, dlsites, tr("Download from") );
 	dlsitefld_ = lcb->box();
 	dlsitefld_->setText( site_ );
     }
 
-    proxybut_ = new uiPushButton( this, "&Proxy settings", false );
+    proxybut_ = new uiPushButton( this, tr("&Proxy settings"), false );
     proxybut_->setPixmap( "proxysettings" );
     proxybut_->setPrefWidthInChar( 21 );
     proxybut_->activated.notify( mCB(this,uiHandleDLSiteFail,proxyButCB) );

@@ -22,7 +22,7 @@ class uiLabeledSpinBox;
 class uiLineEdit;
 
 mExpClass(uiTools) uiProxyDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiProxyDlg);
 public:
 			uiProxyDlg(uiParent*);
 			~uiProxyDlg();

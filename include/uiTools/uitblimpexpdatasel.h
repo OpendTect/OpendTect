@@ -35,7 +35,7 @@ namespace Table { class FormatDesc; }
 */
 
 mExpClass(uiTools) uiTableImpDataSel : public uiGroup
-{
+{ mODTextTranslationClass(uiTableImpDataSel);
 public:
 				uiTableImpDataSel(uiParent*,Table::FormatDesc&,
 						  const HelpKey&);

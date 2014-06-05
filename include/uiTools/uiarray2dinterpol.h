@@ -25,7 +25,7 @@ class uiArray2DInterpol;
 
 
 mExpClass(uiTools) uiArray2DInterpolSel : public uiDlgGroup
-{ mODTextTranslationClass(uiArray2DInterpolSel)
+{ mODTextTranslationClass(uiArray2DInterpolSel);
 public:
     mDefineFactory1ParamInClass(uiArray2DInterpol,uiParent*,factory);
 

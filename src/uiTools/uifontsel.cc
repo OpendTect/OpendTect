@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiFontSettingsGroup::uiFontSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,"Fonts",setts)
+    : uiSettingsGroup(p,tr("Fonts"),setts)
 {
     FontList().initialise();
     const ObjectSet<uiFont>& fonts = FontList().fonts();

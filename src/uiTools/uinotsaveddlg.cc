@@ -55,7 +55,8 @@ public:
 	    uiLabel* label =
 		new uiLabel( this, prompter_.objects_[idx]->string_ );
 
-	    uiPushButton* curbutton = new uiPushButton( this, "Save",
+	    uiPushButton* curbutton = new uiPushButton( this, 
+                                        uiStrings::sSave(true),
 		    mCB(this,uiNotSavedDlg,buttonCB),
 		    prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );

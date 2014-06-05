@@ -25,7 +25,7 @@ namespace Threads { class Thread; }
 
 mExpClass(uiTools) uiTaskRunner : public uiDialog
 		   , public TaskRunner
-{ 	
+{  mODTextTranslationClass(uiTaskRunner);
 public:
 			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();

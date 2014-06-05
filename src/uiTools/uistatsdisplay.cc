@@ -57,25 +57,25 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     if ( setup_.withtext_ )
     {
 	if ( setup_.withname_ )
-	    namefld_ = new uiLabel( this, "Data Name" );
+	    namefld_ = new uiLabel( this, tr("Data Name") );
 
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
 	if ( setup_.withname_ )
 	    valgrp->attach( alignedBelow, namefld_ );
-	minmaxfld_ = new uiGenInput( valgrp, "Value range",
+	minmaxfld_ = new uiGenInput( valgrp, tr("Value range"),
 				     FloatInpSpec(), FloatInpSpec() );
 	minmaxfld_->setReadOnly();
-	avgstdfld_ = new uiGenInput( valgrp, "Mean/Std Deviation",
+	avgstdfld_ = new uiGenInput( valgrp, tr("Mean/Std Deviation"),
 				     DoubleInpSpec(), DoubleInpSpec() );
 	avgstdfld_->attach( alignedBelow, minmaxfld_ );
 	avgstdfld_->setReadOnly();
-	medrmsfld_ = new uiGenInput( valgrp, "Median/RMS",
+	medrmsfld_ = new uiGenInput( valgrp, tr("Median/RMS"),
 				     FloatInpSpec(), DoubleInpSpec() );
 	medrmsfld_->attach( alignedBelow, avgstdfld_ );
 	medrmsfld_->setReadOnly();
 	if ( !putcountinplot )
 	{
-	    countfld_ = new uiGenInput( valgrp, "Number of values" );
+	    countfld_ = new uiGenInput( valgrp, tr("Number of values") );
 	    countfld_->setReadOnly();
 	    countfld_->attach( alignedBelow, medrmsfld_ );
 	}

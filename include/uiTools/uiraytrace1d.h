@@ -22,7 +22,7 @@ class uiLabeledComboBox;
 
 
 mExpClass(uiTools) uiRayTracer1D : public uiGroup
-{
+{ mODTextTranslationClass(uiRayTracer1D);
 public:
 
     mExpClass(uiTools) Setup 		

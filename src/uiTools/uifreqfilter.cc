@@ -21,7 +21,8 @@ uiFreqFilterSelFreq::uiFreqFilterSelFreq( uiParent* p)
     , parchanged(this)  
 {
     const char** typestrs = FFTFilter::TypeNames();
-    typefld_ = new uiGenInput(this, "Filter type", StringListInpSpec(typestrs));
+    typefld_ = new uiGenInput(this, tr("Filter type"), 
+                              StringListInpSpec(typestrs));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,getFromScreen));
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,typeSel) );
     typefld_->valuechanged.notify( mCB(this,uiFreqFilterSelFreq,parChgCB) );

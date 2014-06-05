@@ -85,7 +85,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				mCB(this,uiFunctionDisplay,mouseDClick) );
     }
 
-    setToolTip( "Press Ctrl-P to save as image" );
+    setToolTip( tr("Press Ctrl-P to save as image") );
     reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );

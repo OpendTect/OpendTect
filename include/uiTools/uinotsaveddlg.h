@@ -70,7 +70,7 @@ void MyClass::saveCB( CallBacker* )
 
    
 mExpClass(uiTools) NotSavedPrompter : public CallBacker
-{
+{ mODTextTranslationClass(NotSavedPrompter);
 public:
     static NotSavedPrompter&	NSP(); //gives instance
 

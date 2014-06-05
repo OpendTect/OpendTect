@@ -56,13 +56,13 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
     if ( !isvol_ && !is2d_ )
     {
-	applybut_ = new uiPushButton( this, "&Apply", true );
+	applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
 	applybut_->activated.notify( mCB(this,uiSliceSel,applyPush) );
 	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
 	applybut_->attach( alignedBelow, z0fld_ );
 	applybut_->display( false );
 
-	scrollbut_ = new uiPushButton( this, "&Scroll", false );
+	scrollbut_ = new uiPushButton( this, tr("&Scroll"), false );
 	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut_->attach( rightOf, isinl_ ? inl0fld_
 					    : (iscrl_?crl0fld_:z0fld_));

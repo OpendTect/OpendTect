@@ -35,7 +35,7 @@ class uiBorder;
 */
 
 mExpClass(uiTools) uiObjectItemViewWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiObjectItemViewWin);
 public:
 
     mExpClass(uiTools) Setup

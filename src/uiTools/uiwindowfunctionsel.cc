@@ -38,7 +38,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const Setup& su )
     windowtypefld_->valuechanged.notify(
 			mCB( this, uiWindowFunctionSel, windowChangedCB ) );
 
-    viewbut_ = new uiPushButton( this, "View", true );
+    viewbut_ = new uiPushButton( this, uiStrings::sView(), true );
     viewbut_->activated.notify( mCB(this,uiWindowFunctionSel,winfuncseldlgCB) );
     viewbut_->attach( rightTo, windowtypefld_ );
 

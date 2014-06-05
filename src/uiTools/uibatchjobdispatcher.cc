@@ -76,14 +76,16 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	    optionsbuttxt.set( "Execution &Options" );
 	else
 	{
-	    dobatchbox_ = new uiCheckBox( this,"Execute in &Batch; Job name");
+	    dobatchbox_ = new uiCheckBox( this,
+                                          tr("Execute in &Batch; Job name"));
 	    dobatchbox_->activated.notify( fldchkcb );
 	    attachobj = dobatchbox_;
 	}
     }
     else
     {
-	selfld_ = new uiGenInput( this, "Batch execution", StringListInpSpec());
+	selfld_ = new uiGenInput( this, tr("Batch execution"), 
+                                  StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
 	if ( optional )
 	{
@@ -105,7 +107,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
     else
     {
-	lcb = new uiLabeledComboBox( this, "Job name" );
+	lcb = new uiLabeledComboBox( this, tr("Job name") );
 	jobnmfld_ = lcb->box();
 	if ( onlyonechoice )
 	    setHAlignObj( lcb );

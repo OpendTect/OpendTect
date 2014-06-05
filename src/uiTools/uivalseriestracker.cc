@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
        				bool hideeventtype, bool immediateupdate )
-    : uiDlgGroup( p , "Event tracker")
+    : uiDlgGroup( p , tr("Event tracker"))
     , tracker_( tracker )
     , immediateupdate_( immediateupdate )
 {
@@ -31,7 +31,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
 	evfld_ = 0;
     else
     {
-	evfld_ = new uiGenInput( this, "Event type",
+	evfld_ = new uiGenInput( this, tr("Event type"),
 				StringListInpSpec(EventTracker::sEventNames()));
 	evfld_->setValue( EventTracker::getEventTypeIdx(tracker_.trackEvent()));
 	evfld_->valuechanged.notify( mCB(this,uiEventTracker,selEventType) );
@@ -49,26 +49,30 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     srchgatefld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     if ( evfld_ ) srchgatefld_->attach( alignedBelow, evfld_ );
 
-    thresholdtypefld_ = new uiGenInput( this, "Threshold type",
-		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
+    thresholdtypefld_ = new uiGenInput( this, tr("Threshold type"),
+		                        BoolInpSpec(true,
+                                        tr("Cut-off amplitude"),
+                                        tr("Relative difference")) );
     thresholdtypefld_->setValue( tracker_.useAbsThreshold() );
     thresholdtypefld_->valuechanged.notify(
 			mCB(this,uiEventTracker,selAmpThresholdType) );
     thresholdtypefld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     thresholdtypefld_->attach( alignedBelow, srchgatefld_ );
 
-    ampthresholdfld_ = new uiGenInput ( this, "Amplitude value",FloatInpSpec());
+    ampthresholdfld_ = new uiGenInput ( this, tr("Amplitude value"),
+                                        FloatInpSpec());
     ampthresholdfld_->setValue( tracker_.amplitudeThreshold() );
     ampthresholdfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     ampthresholdfld_->attach( alignedBelow, thresholdtypefld_ );
 
-    alloweddifffld_ = new uiGenInput ( this, "Allowed difference (%)",
+    alloweddifffld_ = new uiGenInput ( this, tr("Allowed difference (%)"),
 	    			       FloatInpSpec());
     alloweddifffld_->setValue( tracker_.allowedVariance()*100 );
     alloweddifffld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     alloweddifffld_->attach( alignedBelow, thresholdtypefld_ );
 
-    usesimifld_ = new uiGenInput( this, "Compare wafeforms",BoolInpSpec(true) );
+    usesimifld_ = new uiGenInput( this, tr("Compare wafeforms"),
+                                  BoolInpSpec(true) );
     usesimifld_->setValue( tracker_.usesSimilarity() );
     usesimifld_->valuechanged.notify(
 	    mCB(this,uiEventTracker,selUseSimilarity) );
@@ -87,7 +91,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     compwinfld_->setValue( simiintv );
 
 
-    simithresholdfld_ = new uiGenInput( this, "Similarity threshold(0-1)",
+    simithresholdfld_ = new uiGenInput( this, tr("Similarity threshold(0-1)"),
 				       FloatInpSpec() );
     simithresholdfld_->attach( alignedBelow, compwinfld_ );
     simithresholdfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
@@ -159,7 +163,7 @@ bool uiEventTracker::updateTracker( bool domsg )
 
     const Interval<float> intv = srchgatefld_->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
-	mErrRet( "Search window should be minus to positive, ex. -20, 20");
+	mErrRet( tr("Search window should be minus to positive, ex. -20, 20"));
     const Interval<float> relintv( intv.start/SI().zDomain().userFactor(),
 			           intv.stop/SI().zDomain().userFactor() );
     tracker_.setPermittedRange( relintv );
@@ -169,14 +173,14 @@ bool uiEventTracker::updateTracker( bool domsg )
 
     const Interval<float> intval = compwinfld_->getFInterval();
     if ( intval.start>0 || intval.stop<0 || intval.start==intval.stop )
-	mErrRet( "Compare window should be minus to positive, ex. -20, 20");
+	mErrRet( tr("Compare window should be minus to positive, ex. -20, 20"));
     const Interval<float> relintval( intval.start/SI().zDomain().userFactor(),
 				     intval.stop/SI().zDomain().userFactor() );
     tracker_.setSimilarityWindow( relintval );
 	
     const float mgate = simithresholdfld_->getfValue();
     if ( mgate > 1 || mgate <= 0)
-	mErrRet( "Similarity threshold must be within 0 to 1" );
+	mErrRet( tr("Similarity threshold must be within 0 to 1") );
     tracker_.setSimilarityThreshold( mgate );
 	    
     const bool useabs = thresholdtypefld_->getBoolValue();
@@ -186,7 +190,7 @@ bool uiEventTracker::updateTracker( bool domsg )
     tracker_.setAmplitudeThreshold( vgate );
     float var = alloweddifffld_->getfValue() / 100;
     if ( var<=0.0 || var>=1.0 )
-	    mErrRet( "Allowed variance must be between 0-100" );
+	    mErrRet( tr("Allowed variance must be between 0-100") );
     tracker_.setAllowedVariance( var );
     return true;
 }

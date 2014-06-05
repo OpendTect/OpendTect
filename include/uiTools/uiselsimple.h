@@ -24,7 +24,7 @@ class BufferStringSet;
 /*!\brief Select entry from list */
 
 mExpClass(uiTools) uiSelectFromList : public uiDialog
-{
+{ mODTextTranslationClass(uiSelectFromList);
 public:
 
     mExpClass(uiTools) Setup : public uiDialog::Setup

@@ -27,7 +27,7 @@ class uiSliceScroll;
 class uiSpinBox;
 
 mExpClass(uiTools) uiSliceSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSliceSel);
 public:
 
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };

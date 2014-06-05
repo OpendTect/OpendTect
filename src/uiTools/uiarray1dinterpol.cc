@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
 					    bool maxgapsz )
-    : uiDlgGroup( p, "Array2D Interpolation" )
+    : uiDlgGroup( p, tr("Array2D Interpolation") )
     , polatefld_( 0 )
     , maxgapszfld_( 0 )
 {
@@ -29,8 +29,8 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
 	BufferStringSet filltypnm; filltypnm.add( "Interpolate" );
 	filltypnm.add( "Interpolate & Extrapolate" );
 	polatefld_ =
-	    new uiGenInput( this, "Scope", BoolInpSpec(true,
-			    "Interpolate","Interpolate & Extrapolate") );
+	    new uiGenInput( this, tr("Scope"), BoolInpSpec(true,
+			    tr("Interpolate"),tr("Interpolate & Extrapolate")));
 	prevfld = polatefld_->attachObj();
     }
 
@@ -47,7 +47,7 @@ uiArray1DInterpolSel::uiArray1DInterpolSel( uiParent* p, bool doextrapolate,
     BufferStringSet algonms; algonms.add( "Linear Interpolation" );
     algonms.add( "Polynomial Interpolation" );
     uiLabeledComboBox* lcbbx =
-	new uiLabeledComboBox( this, algonms, "Algorithm" );
+	new uiLabeledComboBox( this, algonms, tr("Algorithm") );
     methodsel_ = lcbbx->box();
     setHAlignObj( methodsel_ );
 
@@ -97,7 +97,8 @@ bool uiArray1DInterpolSel::acceptOK()
 	 (mIsUdf( maxgapszfld_->getfValue() ) ||
 	  maxgapszfld_->getfValue()<=0 ) )
     {
-	uiMSG().error("Maximum hole size not set or is less or equal to zero");
+	uiMSG().error(tr("Maximum hole size not set"
+                         " or is less or equal to zero"));
 	return false;
     }
 

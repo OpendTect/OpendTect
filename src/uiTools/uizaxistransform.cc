@@ -96,7 +96,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
 
     if ( names.size()>1 )
     {
-	selfld_ = new uiGenInput( this, "Z transform",
+	selfld_ = new uiGenInput( this, tr("Z transform"),
 		StringListInpSpec(names) );
 	selfld_->valuechanged.notify( mCB(this, uiZAxisTransformSel,selCB) );
 
@@ -203,19 +203,19 @@ bool uiZAxisTransformSel::acceptOK()
     
     if ( zrg.isUdf() )
     {
-	uiMSG().error("Sampling is not set");
+	uiMSG().error(tr("Sampling is not set"));
 	return false;
     }
     
     if ( zrg.isRev() )
     {
-	uiMSG().error("Sampling is reversed.");
+	uiMSG().error(tr("Sampling is reversed."));
 	return false;
     }
     
     if ( zrg.step<=0 )
     {
-	uiMSG().error("Sampling step is zero or negative");
+	uiMSG().error(tr("Sampling step is zero or negative"));
 	return false;
     }
     

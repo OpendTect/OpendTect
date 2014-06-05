@@ -48,8 +48,8 @@ static const char* sKeyOwn = "Own";
 
 uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
        				  bool enabletrans )
-    : uiDialog(p,uiDialog::Setup("Manage Color Tables",
-				 "Add, remove, change color tables",
+    : uiDialog(p,uiDialog::Setup(tr("Manage Color Tables"),
+				 tr("Add, remove, change color tables"),
 				 mODHelpKey(mColorTableManHelpID) ))
     , ctab_(ctab)
     , orgctab_(0)
@@ -111,7 +111,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     ctabcanvas_->setStretch( 2, 0 );
 
     const char* segtypes[] = { "None", "Fixed", "Variable", 0 };
-    segmentfld_ = new uiGenInput( rightgrp, "Segmentation",
+    segmentfld_ = new uiGenInput( rightgrp, tr("Segmentation"),
 				  StringListInpSpec(segtypes) );
     segmentfld_->valuechanged.notify( mCB(this,uiColorTableMan,segmentSel) );
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
@@ -123,14 +123,15 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiColorInput::Setup cisetup( ctab_.undefColor(), enabletrans_ ?
 		 uiColorInput::Setup::Separate : uiColorInput::Setup::None );
-    cisetup.lbltxt( "Undefined color" );
+    cisetup.lbltxt( tr("Undefined color") );
     undefcolfld_ = new uiColorInput( rightgrp, cisetup );
     undefcolfld_->colorChanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, segmentfld_ );
 
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
-    markercolfld_ = new uiColorInput( rightgrp, ctsu.lbltxt("Marker color") );
+    markercolfld_ = new uiColorInput( rightgrp, 
+                                      ctsu.lbltxt(tr("Marker color")) );
     markercolfld_->colorChanged.notify(
 			mCB(this,uiColorTableMan,markerColChgd) );
     markercolfld_->attach( alignedBelow, undefcolfld_ );
@@ -139,11 +140,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
 
-    removebut_ = new uiPushButton( this, "&Remove", false );
+    removebut_ = new uiPushButton( this, uiStrings::sRemove(true), false );
     removebut_->activated.notify( mCB(this,uiColorTableMan,removeCB) );
     removebut_->attach( alignedBelow, splitter );
 
-    importbut_ = new uiPushButton( this, "&Import", false );
+    importbut_ = new uiPushButton( this, uiStrings::sImport(), false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ );
 
@@ -248,7 +249,8 @@ void uiColorTableMan::removeCB( CallBacker* )
 {
     if ( selstatus_ == sKeyDefault )
     {
-	uiMSG().error( "This is a default colortable and connot be removed" );
+	uiMSG().error( tr("This is a default colortable"
+                          " and connot be removed") );
 	return;
     }
 
@@ -490,7 +492,7 @@ void uiColorTableMan::rightClick( CallBacker* )
 
     if ( selidx_<0 ) return;
     Color col = ctab_.color( (float) wpt.x );
-    if ( selectColor(col,this,"Color selection",false) )
+    if ( selectColor(col,this,tr("Color selection"),false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
 	ctab_.changeColor( selidx_, col.r(), col.g(), col.b() );

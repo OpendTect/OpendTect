@@ -112,7 +112,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p )
     }
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, typnms,
-						    "Property Type" );
+						    tr("Property Type") );
     typfld_ = lcb->box();
     typfld_->setHSzPol( uiObject::MedMax );
     typfld_->selectionChanged.notify( mCB(this,uiRockPhysForm,typSel) );
@@ -132,7 +132,7 @@ uiRockPhysForm::uiRockPhysForm( uiParent* p, PropertyRef::StdType typ )
 
 void uiRockPhysForm::createFlds( uiGroup* attobj )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Formula" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Formula") );
     lcb->box()->setHSzPol( uiObject::WideMax );
     lcb->label()->setPrefWidthInChar( 35 );
     lcb->label()->setAlignment( Alignment::Right );
@@ -254,7 +254,7 @@ void uiRockPhysForm::nameSel( CallBacker* cb )
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
-	{ uiMSG().error( "Internal: formula not found" ); return;}
+	{ uiMSG().error( tr("Internal: formula not found") ); return;}
 
     const RockPhysics::Formula& rpfm = *fm;
     const int nrconsts = rpfm.constdefs_.size();
@@ -286,11 +286,11 @@ bool uiRockPhysForm::getFormulaInfo( Math::Formula& form,
 
     const char* txt = nmfld_->text();
     if ( !txt || !*txt )
-	{ uiMSG().error( "No formula name selected" ); return false; }
+	{ uiMSG().error( tr("No formula name selected") ); return false; }
 
     const RockPhysics::Formula* fm = ROCKPHYSFORMS().get( txt );
     if ( !fm )
-	{ uiMSG().error( "Internal: formula not found" ); return false; }
+	{ uiMSG().error( tr("Internal: formula not found") ); return false; }
     const RockPhysics::Formula& rpfm = *fm;
 
     form.setText( getFormText(rpfm,false) );

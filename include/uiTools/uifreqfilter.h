@@ -20,7 +20,7 @@ ________________________________________________________________________
 class uiGenInput;
 
 mExpClass(uiTools) uiFreqFilterSelFreq : public uiGroup
-{
+{ mODTextTranslationClass(uiFreqFilterSelFreq);
 public:
     			uiFreqFilterSelFreq(uiParent*);
 

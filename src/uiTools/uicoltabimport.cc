@@ -34,15 +34,15 @@ static BufferString sHomePath;
 static BufferString sFilePath;
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Color Tables",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Color Tables"),mNoDlgTitle,
                                  mODHelpKey(mColTabImportHelpID)))
     , dirfld_(0)
     , dtectusrfld_(0)
 {
     setOkText( uiStrings::sImport() );
 
-    choicefld_ = new uiGenInput( this, "Import from",
-	BoolInpSpec(true,"Other user","File") );
+    choicefld_ = new uiGenInput( this, tr("Import from"),
+	BoolInpSpec(true,tr("Other user"),uiStrings::sFile()) );
     choicefld_->valuechanged.notify( mCB(this,uiColTabImport,choiceSel) );
 
     sHomePath = sFilePath = GetPersonalDir();
@@ -53,11 +53,11 @@ uiColTabImport::uiColTabImport( uiParent* p )
     dirfld_->valuechanged.notify( mCB(this,uiColTabImport,usrSel) );
     dirfld_->attach( alignedBelow, choicefld_ );
 
-    dtectusrfld_ = new uiGenInput( this, "DTECT_USER (if any)" );
+    dtectusrfld_ = new uiGenInput( this, tr("DTECT_USER (if any)") );
     dtectusrfld_->attach( alignedBelow, dirfld_ );
     dtectusrfld_->updateRequested.notify( mCB(this,uiColTabImport,usrSel) );
 
-    listfld_ = new uiLabeledListBox( this, "Color table(s) to add",
+    listfld_ = new uiLabeledListBox( this, tr("Color table(s) to add"),
 				     OD::ChooseAtLeastOne,
 				     uiLabeledListBox::LeftTop );
     listfld_->attach( alignedBelow, dtectusrfld_ );

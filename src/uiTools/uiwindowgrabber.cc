@@ -45,10 +45,10 @@ static const char* filters[] =
 
 
 uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
-    : uiDialog(p,uiDialog::Setup( (desktop ? "Desktop grabber" :
-					     "Window grabber"),
-				  (desktop ? "Specify image file" :
-					     "Specify window and image file"),
+    : uiDialog(p,uiDialog::Setup( (desktop ? tr("Desktop grabber") :
+					     tr("Window grabber")),
+				  (desktop ? tr("Specify image file") :
+					   tr("Specify window and image file")),
 		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) : 
                            mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
     , windowfld_(0) 
@@ -78,14 +78,14 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     updateFilter();
 
     qualityfld_ = new uiSlider( this,
-	    uiSlider::Setup("Image quality").withedit(true),
+	    uiSlider::Setup(tr("Image quality")).withedit(true),
 	    "Quality slider" );
     qualityfld_->attach( alignedBelow, fileinputfld_ );
     qualityfld_->setInterval( StepInterval<float>(0,100,1) );
     qualityfld_->setValue(50);
     qualityfld_->attach( alignedBelow, fileinputfld_ );
 
-    infofld_ = new uiLabel( this, "Arrange your windows before confirming" );
+    infofld_ = new uiLabel( this, tr("Arrange your windows before confirming"));
     infofld_->attach( alignedBelow, qualityfld_ );
 
     IOM().afterSurveyChange.notify( mCB(this,uiWindowGrabDlg,surveyChanged) );
@@ -159,7 +159,7 @@ bool uiWindowGrabDlg::filenameOK() const
     BufferString filename = fileinputfld_->fileName();
     if ( filename.isEmpty() )
     {
-	uiMSG().error( "Please select filename" );
+	uiMSG().error( tr("Please select filename") );
 	return false;
     }
 

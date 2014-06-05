@@ -24,7 +24,7 @@ class uiWorld2Ui;
 
 
 mExpClass(uiTools) uiColTabMarkerDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiColTabMarkerDlg);
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
 

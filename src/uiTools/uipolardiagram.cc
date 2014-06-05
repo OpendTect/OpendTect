@@ -153,11 +153,11 @@ void uiPolarDiagram::drawSegments()
     {
 	// create E and N text items
 #ifdef mShowEast
-        uiTextItem* tiE = scene().addItem( new uiTextItem( "E" ) );
+        uiTextItem* tiE = scene().addItem( new uiTextItem( tr("E") ) );
 	tiE->setTextColor( Color( 0, 0, 255 ) );
         azimuthtextitms_ += tiE;
 #endif
-        uiTextItem* tiN = scene().addItem( new uiTextItem( "N" ) );
+        uiTextItem* tiN = scene().addItem( new uiTextItem( tr("N") ) );
 	tiN->setTextColor( Color( 0, 0, 255 ) );
         azimuthtextitms_ += tiN;
     }
@@ -204,7 +204,8 @@ void uiPolarDiagram::mouseEventCB( CallBacker* )
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
     // Formula: x = r cos(azimuth)
-    float r = (float) Math::Sqrt( (float)(relpos.x*relpos.x + relpos.y*relpos.y) );
+    float r = (float) Math::Sqrt( (float)
+                                  (relpos.x*relpos.x + relpos.y*relpos.y) );
     if ( r > radius_ ) return;
     float azimuthrad = acos( relpos.x/r );
     if ( relpos.y > 0 )
@@ -252,7 +253,7 @@ void uiPolarDiagram::updatePointer()
     int x = (int) (r * cos( azimuthrad ));
     int y = (int) (r * sin( azimuthrad ));
     if ( pointeritm_ )
-      pointeritm_->setPos( mCast(float,center_.x+x), mCast(float,center_.y-y) );  
+      pointeritm_->setPos( mCast(float,center_.x+x), mCast(float,center_.y-y) );
         // y-axis direction on the canvas is the opposite of that in geometry
 }
 

@@ -25,7 +25,7 @@ class uiLabeledSpinBox;
 */
 
 mExpClass(uiTools) uiShortcutsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiShortcutsDlg);
 public:
 		    	uiShortcutsDlg(uiParent*,const char* selkey);
 		    	~uiShortcutsDlg();

@@ -25,33 +25,33 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiProxyDlg::uiProxyDlg( uiParent* p )
-    : uiDialog(p,Setup("Connection Settings",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Connection Settings"),mNoDlgTitle,
     mODHelpKey(mProxyDlgHelpID) ))
 {
-    useproxyfld_ = new uiGenInput( this, "Use proxy", BoolInpSpec(true) );
+    useproxyfld_ = new uiGenInput( this, tr("Use proxy"), BoolInpSpec(true) );
     useproxyfld_->valuechanged.notify( mCB(this,uiProxyDlg,useProxyCB) );
 
-    hostfld_ = new uiGenInput( this, "HTTP Proxy", StringInpSpec() );
+    hostfld_ = new uiGenInput( this, tr("HTTP Proxy"), StringInpSpec() );
     hostfld_->attach( alignedBelow, useproxyfld_ );
 
-    portfld_ = new uiLabeledSpinBox( this, "Port" );
+    portfld_ = new uiLabeledSpinBox( this, tr("Port") );
     portfld_->attach( rightTo, hostfld_ );
     portfld_->box()->setInterval( 1, 65535 );
 
     authenticationfld_ =
-	new uiCheckBox( this, "Use uthentication" );
+	new uiCheckBox( this, tr("Use uthentication") );
     authenticationfld_->activated.notify( 
 				    mCB(this,uiProxyDlg,useProxyCB) );
     authenticationfld_->attach( alignedBelow, hostfld_ );
 
-    usernamefld_ = new uiGenInput( this, "User name", StringInpSpec() );
+    usernamefld_ = new uiGenInput( this, tr("User name"), StringInpSpec() );
     usernamefld_->attach( alignedBelow, authenticationfld_ );
     pwdfld_ = new uiLineEdit( this, "Password" );
-    pwdfld_->setToolTip( "Password is case sensitive" );
+    pwdfld_->setToolTip( tr("Password is case sensitive") );
     pwdfld_->attach( alignedBelow, usernamefld_ );
     pwdfld_->setPrefWidthInChar( 23 );
     pwdfld_->setPasswordMode();
-    pwdlabel_ = new uiLabel( this, "Password" );
+    pwdlabel_ = new uiLabel( this, tr("Password") );
     pwdlabel_->attach( leftOf, pwdfld_ );
 
     initFromSettings();
@@ -135,7 +135,7 @@ bool uiProxyDlg::acceptOK( CallBacker* )
 {
     if ( !saveInSettings() )
     {
-	uiMSG().error( "Cannot write to settings file" );
+	uiMSG().error( tr("Cannot write to settings file") );
 	return false;
     }
 

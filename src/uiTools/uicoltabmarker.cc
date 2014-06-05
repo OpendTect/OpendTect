@@ -36,7 +36,8 @@ static const int cColorCol = 1;
 #define mEps 0.00001
 
 uiColTabMarkerDlg::uiColTabMarkerDlg( uiParent* p, ColTab::Sequence& ctab )
-    : uiDialog(p,uiDialog::Setup("Manage Marker","Add, remove, change Markers",
+    : uiDialog(p,uiDialog::Setup(tr("Manage Marker"),
+                                 tr("Add, remove, change Markers"),
 				 mODHelpKey(mColTabMarkerDlgHelpID) ))
     , ctab_(ctab)
     , markersChanged(this)
@@ -90,7 +91,7 @@ void uiColTabMarkerDlg::mouseClick( CallBacker* )
     if ( rc.col() != cColorCol ) return;
 
     Color newcol = table_->getColor( rc );
-    if ( selectColor(newcol,this,"Marker color") )
+    if ( selectColor(newcol,this,tr("Marker color")) )
     {
 	ColTab::Sequence orgctab = ctab_;
 	table_->setColor( rc, newcol );
@@ -110,7 +111,7 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
     if ( rcvalue.row()-1 < 0 || rcvalue.row() >= ctab_.size() )
     {
 	table_->removeRow( rcvalue );
-	uiMSG().error( "Cannot insert markers at extreme positions" );
+	uiMSG().error( tr("Cannot insert markers at extreme positions") );
 	return;
     }
 
@@ -138,7 +139,7 @@ void uiColTabMarkerDlg::markerDeleted( CallBacker* )
 	table_->setValue( RowCol(rc.row(),0), pos );
 	table_->setColor( RowCol(rc.row(),1), ctab_.color(pos) );
 	table_->setCurrentCell( RowCol(rc.row(),0) );
-	uiMSG().error( "Cannot remove markers at extreme positions" );
+	uiMSG().error( tr("Cannot remove markers at extreme positions") );
 	return;
     }
 
@@ -153,7 +154,7 @@ void uiColTabMarkerDlg::markerPosChgd( CallBacker* )
     const float newpos = table_->getfValue( rc );
     if (ctab_.position(rc.row()-1)>newpos || ctab_.position(rc.row()+1)<newpos)
     {
-	uiMSG().error( "Please enter position between 0 & 1 for Markers " );
+	uiMSG().error( tr("Please enter position between 0 & 1 for Markers ") );
 	table_->setValue( rc, ctab_.position(rc.row()) );
 	return;
     }
