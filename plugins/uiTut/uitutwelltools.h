@@ -19,7 +19,7 @@ namespace Well { class Data; }
 
 
 mExpClass(uiTut) uiTutWellTools : public uiDialog
-{
+{ mODTextTranslationClass(uiTutWellTools);
 public:
 
     			uiTutWellTools(uiParent*,const MultiID& wellid);

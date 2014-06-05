@@ -18,7 +18,7 @@ namespace Tut { class SeisTools; }
 
 
 mExpClass(uiTut) uiTutSeisTools : public uiDialog
-{
+{ mODTextTranslationClass(uiTutSeisTools);
 public:
 
     			uiTutSeisTools(uiParent*,Seis::GeomType);

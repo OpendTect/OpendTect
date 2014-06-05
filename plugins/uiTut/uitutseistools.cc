@@ -27,8 +27,8 @@ static const char* actions[] = { "Scale", "Square", "Smooth",
 // Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
-	: uiDialog( p, Setup( "Tut seismic tools",
-			      "Specify process parameters",
+	: uiDialog( p, Setup( tr("Tut seismic tools"),
+			      tr("Specify process parameters"),
 			      mNoHelpKey ) )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
@@ -46,7 +46,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     
     subselfld_->attachObj()->attach( alignedBelow, inpfld_ );
     // What seismic tool is required?
-    actionfld_ = new uiGenInput( this, "Action",
+    actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 	    			 StringListInpSpec(actions) );
     actionfld_->valuechanged.notify( choicecb );
     actionfld_->attach(centeredBelow, subselfld_ );
@@ -54,16 +54,17 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     // Parameters for scaling
     scalegrp_ = new uiGroup( this, "Scale group" );
     scalegrp_->attach( alignedBelow, actionfld_ );
-    factorfld_ = new uiGenInput( scalegrp_, "Factor",
+    factorfld_ = new uiGenInput( scalegrp_, tr("Factor"),
 				FloatInpSpec(tst_.factor()) );
-    shiftfld_ = new uiGenInput( scalegrp_, "Shift",
+    shiftfld_ = new uiGenInput( scalegrp_, tr("Shift"),
 	    			FloatInpSpec(tst_.shift()) );
     shiftfld_->attach( alignedBelow, factorfld_ );
     scalegrp_->setHAlignObj( factorfld_ );
 
     // Parameters for smoothing
-    smoothszfld_ = new uiGenInput( this, "Filter strength",
-			       BoolInpSpec(tst_.weakSmoothing(),"Low","High") );
+    smoothszfld_ = new uiGenInput( this, tr("Filter strength"),
+			           BoolInpSpec(tst_.weakSmoothing(),tr("Low"),
+                                   tr("High")) );
     smoothszfld_->attach( alignedBelow, actionfld_ );
 
     // Parameters for change sample rate
@@ -108,11 +109,12 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 {
     // Get cubes and check
     if ( !inpfld_->commitInput() )
-	mErrRet("Missing Input\nPlease select the input seismics")
+	mErrRet(tr("Missing Input\nPlease select the input seismics"))
     if ( !outfld_->commitInput() )
-	mErrRet("Missing Output\nPlease enter a name for the output seismics")
+	mErrRet(tr("Missing Output\nPlease enter a "
+                   "name for the output seismics"))
     else if ( outctio_.ioobj->implExists(false)
-	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
+	   && !uiMSG().askGoOn(tr("Output cube exists. Overwrite?")) )
 	return false;
 
     tst_.clear();

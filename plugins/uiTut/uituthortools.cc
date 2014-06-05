@@ -27,13 +27,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
-	: uiDialog( p, Setup( "Tut Horizon tools",
-			      "Specify process parameters",
+	: uiDialog( p, Setup( tr("Tut Horizon tools"),
+			      tr("Specify process parameters"),
 			      mNoHelpKey ) )
 {
-    taskfld_= new uiGenInput( this, "Task",
-	    		BoolInpSpec(true,"Thickness between two horizons",
-			    		 "Smooth a horizon") );
+    taskfld_= new uiGenInput( this, tr("Task"),
+	    		BoolInpSpec(true,tr("Thickness between two horizons"),
+			    		 tr("Smooth a horizon")) );
     taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
@@ -44,11 +44,12 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     inpfld2_ = new uiIOObjSel( this, ctxt, "Bottom Horizon" );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
-    selfld_= new uiGenInput( this, "Add Result as an Attribute to ",
-	                BoolInpSpec(true, "Top Horizon", "Bottom Horizon") ); 
+    selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
+	                BoolInpSpec(true, tr("Top Horizon"), 
+                                    tr("Bottom Horizon")) ); 
     selfld_->attach( alignedBelow, inpfld2_ );
 
-    attribnamefld_ = new uiGenInput( this, "Attribute name",
+    attribnamefld_ = new uiGenInput( this, tr("Attribute name"),
 	    		StringInpSpec( sKey::Thickness() ) );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
@@ -57,8 +58,8 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
     outfld_->attach( alignedBelow, inpfld_ );
 
-    strengthfld_ = new uiGenInput( this, "Filter Strength",
-	    		BoolInpSpec(true, "Low", "High") );
+    strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
+	    		BoolInpSpec(true, tr("Low"), tr("High")) );
     strengthfld_->attach( alignedBelow, outfld_ );
 
     postFinalise().notify( mCB(this,uiTutHorTools,choiceSel) );
@@ -73,7 +74,7 @@ uiTutHorTools::~uiTutHorTools()
 void uiTutHorTools::choiceSel( CallBacker* )
 {
     const bool isthick = taskfld_->getBoolValue();
-    inpfld_->setLabelText( isthick ? "Top Horizon" : "Input Horizon" );
+    inpfld_->setLabelText( isthick ? tr("Top Horizon") : tr("Input Horizon") );
     inpfld2_->display( isthick );
     selfld_->display( isthick );
     attribnamefld_->display( isthick );
@@ -130,7 +131,7 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 bool uiTutHorTools::doThicknessCalc()
 {
     if ( inpfld_->key() == inpfld2_->key()
-	    && !uiMSG().askGoOn("Input horizon same as Output. Continue?") )
+	    && !uiMSG().askGoOn(tr("Input horizon same as Output. Continue?")) )
 	return false;
 
     if ( !inpfld2_->ioobj() )

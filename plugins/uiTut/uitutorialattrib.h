@@ -23,7 +23,7 @@ class uiStepOutSel;
 
 
 mExpClass(uiTut) uiTutorialAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiTutorialAttrib);
 public:
 
 			uiTutorialAttrib(uiParent*,bool);

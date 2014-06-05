@@ -44,18 +44,19 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = createInpFld( is2d );
 
-    actionfld_ = new uiGenInput( this, "Action",
+    actionfld_ = new uiGenInput( this, uiStrings::sAction(),
 				StringListInpSpec(actionstr) );
     actionfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     actionfld_->attach( alignedBelow, inpfld_ );
 
-    smoothdirfld_ = new uiGenInput( this, "Smoothing direction",
-	                        BoolInpSpec(true,"Horizontal","Vertical") );
+    smoothdirfld_ = new uiGenInput( this, tr("Smoothing direction"),
+	                        BoolInpSpec(true,tr("Horizontal"),
+                                            tr("Vertical")) );
     smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
-    smoothstrengthfld_ = new uiGenInput( this, "Filter strength",
-                                BoolInpSpec(true,"Low","High") );
+    smoothstrengthfld_ = new uiGenInput( this, tr("Filter strength"),
+                                BoolInpSpec(true,tr("Low"),tr("High")) );
     smoothstrengthfld_->attach( alignedBelow, smoothdirfld_ );
 
     steerfld_ = new uiSteeringSel( this, 0, is2d, false );
@@ -69,10 +70,10 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     stepoutfld_->setInterval( intv, intv );
     stepoutfld_->attach( alignedBelow, steerfld_ );
 
-    factorfld_ = new uiGenInput( this, "Factor", FloatInpSpec() );
+    factorfld_ = new uiGenInput( this, tr("Factor"), FloatInpSpec() );
     factorfld_->attach( alignedBelow, actionfld_ );
 
-    shiftfld_ = new uiGenInput( this, "Shift", FloatInpSpec() );
+    shiftfld_ = new uiGenInput( this, tr("Shift"), FloatInpSpec() );
     shiftfld_->attach( alignedBelow, factorfld_ );
 
     actionSel(0);

@@ -14,7 +14,7 @@ class uiIOObjSel;
 class uiGenInput;
 
 mExpClass(uiTut) uiTutHorTools : public uiDialog
-{
+{ mODTextTranslationClass(uiTutHorTools);
 public:
 
     			uiTutHorTools(uiParent*);

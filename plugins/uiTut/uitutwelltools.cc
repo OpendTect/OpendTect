@@ -28,26 +28,26 @@ static const char* rcsID mUsedVar = "$Id$";
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
-	: uiDialog( p, Setup( "Log Smoothing",
-			      "Specify parameters for smoothing",
+	: uiDialog( p, Setup( tr("Log Smoothing"),
+			      tr("Specify parameters for smoothing"),
 			      mODHelpKey(mStorePicksHelpID) ) )
 	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid))
 {
     const Well::LogSet& logs = wd_->logs(); 
-    inplogfld_ = new uiLabeledListBox( this, "Select Input Log" );
+    inplogfld_ = new uiLabeledListBox( this, tr("Select Input Log") );
     inplogfld_->box()->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->box()->addItem( logs.getLog(idx).name() );
     inplogfld_->box()->selectionChanged.notify( 
 	    			mCB(this,uiTutWellTools,inpchg) );
 
-    outplogfld_ = new uiGenInput( this, "Specify Output Log name",
+    outplogfld_ = new uiGenInput( this, tr("Specify Output Log name"),
 	    			StringInpSpec( "" ) );
     outplogfld_->setElemSzPol( uiObject::Wide );
     outplogfld_->attach( alignedBelow, inplogfld_ );
 
-    gatefld_ = new uiLabeledSpinBox( this, "Sample Gate" );
+    gatefld_ = new uiLabeledSpinBox( this, tr("Sample Gate") );
     gatefld_->box()->setInterval( sSampleGateRange );
     gatefld_->attach( alignedBelow, outplogfld_ );
 }
@@ -74,15 +74,15 @@ bool uiTutWellTools::acceptOK( CallBacker* )
     Well::LogSet& logset = wd_->logs();
     const int inpidx = logset.indexOf( inplognm );
     if ( inpidx<0 || inpidx>=logset.size() )
-	mErrRet( "Please select a valid Input Log" )
+	mErrRet( tr("Please select a valid Input Log") )
 
     const char* lognm = outplogfld_->text();
     const int outpidx = logset.indexOf( lognm );
     if ( outpidx>=0 && outpidx<logset.size() )
-	mErrRet( "Output Log already exists\n Enter a new name" )
+	mErrRet( tr("Output Log already exists\n Enter a new name") )
 
     if ( !lognm || !*lognm )
-	mErrRet( "Please enter a valid name for Output log" )
+	mErrRet( tr("Please enter a valid name for Output log") )
 
     const int gate = gatefld_->box()->getValue();
     Well::Log* outputlog = new Well::Log( lognm );
@@ -92,7 +92,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	logset.add( outputlog );
 	PtrMan<IOObj> ioobj = IOM().get( wellid_ );
 	if ( !ioobj )
-	    mErrRet( "Cannot find object in I/O Manager" )
+	    mErrRet( tr("Cannot find object in I/O Manager") )
 
 	Well::Writer wtr( ioobj->fullUserExpr(), *wd_ );
 	const int lognr = logset.size();
