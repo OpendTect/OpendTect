@@ -1,6 +1,22 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0l: June 5, 2014
+ * Fix for crash while examining autocorrelation in GapDecon attribute window
+ * Fix for crash while closing OpendTect main window after picking horizon
+ * Fix for crash while sorting in a multi-threaded environment
+ * Fix for crash while loading Horizons
+ * Fix for crash in Windows-linux multi-machine processing
+ * Fix for crash in Attribute-Attribute Crossplot
+ * Fix for frequency spectrum of merged wavelet
+ * Fix for texture while switching between different resolutions and between
+   interpolation and classification
+ * Fix for Multi-machine processing when re-run after 100% finished process
+   is able to merge individual inlines on the hard-disk
+ * Fix for invalid directory message while copying  a survey
+ * Fix for displaying of histogram while changing survey
+ * Changed warning messages while picking horizon on random lines
+
 v4.6.0k: May 8, 2014
  * Made uniform the velocity label to 'Temporary model velocity' 
    across well import modules
