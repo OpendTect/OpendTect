@@ -451,7 +451,6 @@ void uiODApplMgr::addTimeDepthScene()
 	cs.zrg = zsampling;
 	scene->setCubeSampling( cs );
 	scene->setZScale( zscale );
-	sceneMgr().viewAll( 0 );
     }
 }
 
