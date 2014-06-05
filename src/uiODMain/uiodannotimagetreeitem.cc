@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
     : uiODAnnotSubItem( pck, displayid )
-    , filemnuitem_( "Select image ..." )
+    , filemnuitem_( tr("Select image ...") )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
 }

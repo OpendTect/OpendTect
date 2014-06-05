@@ -78,7 +78,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODAnnotSubItem : public uiODDisplayTreeItem
-{
+{mODTextTranslationClass(uiODAnnotSubItem)
 public:
     static bool		doesNameExist(const char*);
     static char		createIOEntry(const char* nm,bool overwrite,

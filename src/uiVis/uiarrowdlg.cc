@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: uiarrowdlg.cc 34626 2014-05-14 05:14:49Z ranojay.sen@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiarrowdlg.h"
@@ -26,7 +26,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     , propertyChange(this)
 {
     setCancelText(0);
-    typefld_ = new uiLabeledComboBox( this, "Type" );
+    typefld_ = new uiLabeledComboBox( this, tr("Type") );
     typefld_->box()->addItems( arrowtypes );
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );
@@ -37,7 +37,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->attach( alignedBelow, typefld_ );
 
     scalefld_ = new uiSlider( this,
-	    		uiSlider::Setup("Scale").nrdec(1).logscale(true),
+	    		uiSlider::Setup(tr("Scale")).nrdec(1).logscale(true),
 	   		"Size" );
     scalefld_->setMinValue( 0.1 );
     scalefld_->setMaxValue( 10 );

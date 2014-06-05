@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uiarrowdlg.h 34626 2014-05-14 05:14:49Z ranojay.sen@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiSelLineStyle;
 class uiSlider;
 
 mExpClass(uiVis) uiArrowDialog : public uiDialog
-{
+{mODTextTranslationClass(uiArrowDialog)
 public:
 			uiArrowDialog(uiParent* p);
 

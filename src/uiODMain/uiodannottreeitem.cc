@@ -385,10 +385,10 @@ void uiODAnnotSubItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size","Size",
+	uiDialog dlg( getUiParent(), uiDialog::Setup(tr("Set size"),tr("Size"),
 						     mNoHelpKey) );
 	uiSlider* sliderfld = new uiSlider( &dlg,
-			uiSlider::Setup("Size").nrdec(1).logscale(true),
+			uiSlider::Setup(tr("Size")).nrdec(1).logscale(true),
 			"Size" );
 	sliderfld->setMinValue( 0.1 );
 	sliderfld->setMaxValue( 10 );
