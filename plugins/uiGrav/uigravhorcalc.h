@@ -17,7 +17,7 @@ class uiT2DConvSel;
 
 
 mClass(uiGrav) uiGravHorCalc : public uiDialog
-{
+{ mODTextTranslationClass(uiGravHorCalc);
 public:
 
 			uiGravHorCalc(uiParent*,EM::ObjectID);

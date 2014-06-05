@@ -23,16 +23,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
-    : uiDialog(p,Setup("Calculate Gravity","", mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Calculate Gravity"),"", mTODOHelpKey))
     , topfld_(0)
     , t2dfld_(0)
 {
     MultiID horid = EM::EMM().getMultiID( enobjid );
     horioobj_ = IOM().get( horid );
     if ( !horioobj_ )
-	{ new uiLabel(this,"Internal: Cannot find horizon"); return; }
-    setTitleText( BufferString("Calculate gravity at '",
-		  horioobj_->name(), "'" ) );
+	{ new uiLabel(this,tr("Internal: Cannot find horizon")); return; }
+    setTitleText( tr("Calculate gravity at '%1'").arg( horioobj_->name() ) );
 
     const IOObjContext ctxt( mIOObjContext(EMHorizon3D) );
     uiIOObjSel::Setup su( "Top Horizon" );
@@ -44,18 +43,20 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
     topfld_->selectionDone.notify( mCB(this,uiGravHorCalc,topSel) );
     topfld_->setChecked( (bool)topfld_->ioobj(true) );
 
-    denvarfld_ = new uiGenInput( inpgrp, "Density (contrast)",
-	    			   BoolInpSpec(false,"Variable","Constant") );
+    denvarfld_ = new uiGenInput( inpgrp, tr("Density (contrast)"),
+	    			   BoolInpSpec(false,tr("Variable"),
+                                   tr("Constant")) );
     denvarfld_->attach( alignedBelow, topfld_ );
     denvarfld_->valuechanged.notify( mCB(this,uiGravHorCalc,denVarSel) );
-    denattrfld_ = new uiGenInput( inpgrp,"Attribute containing Density (kg/m3)",
+    denattrfld_ = new uiGenInput( inpgrp,
+                                  tr("Attribute containing Density (kg/m3)"),
 	    			  StringListInpSpec() );
     denattrfld_->attach( alignedBelow, denvarfld_ );
-    denvaluefld_ = new uiGenInput( inpgrp, "Density (kg/m3)",
+    denvaluefld_ = new uiGenInput( inpgrp, tr("Density (kg/m3)"),
 	    			   FloatInpSpec(1000) );
     denvaluefld_->attach( alignedBelow, denvarfld_ );
 
-    su.seltxt_ = "Bottom Horizon";
+    su.seltxt_ = tr("Bottom Horizon");
     botfld_ = new uiIOObjSel( inpgrp, ctxt, su );
     botfld_->setInput( MultiID("") );
     botfld_->attach( alignedBelow, denattrfld_ );
@@ -68,15 +69,15 @@ uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
 	t2dfld_->attach( alignedBelow, botfld_ );
     }
 
-    cutoffangfld_ = new uiGenInput( this, "Cutoff angle (deg)",
+    cutoffangfld_ = new uiGenInput( this, tr("Cutoff angle (deg)"),
 	    			    IntInpSpec(45) );
     cutoffangfld_->attach( alignedBelow, inpgrp );
 
-    attrnmfld_ = new uiGenInput( this, "Output attribute",
+    attrnmfld_ = new uiGenInput( this, tr("Output attribute"),
 	    			 StringInpSpec("Grav") );
     attrnmfld_->attach( alignedBelow, cutoffangfld_ );
     uiLabel* lbl = new uiLabel( this,
-	    		BufferString("(on '",horioobj_->name(),"')") );
+	    		tr("(on '%1')").arg( horioobj_->name() ) );
     lbl->attach( rightOf, attrnmfld_ );
 
     postFinalise().notify( mCB(this,uiGravHorCalc,initFlds) );
