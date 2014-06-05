@@ -224,7 +224,14 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	if ( !pts[idx].isDefined() )
 	    continue;
 
-	track_->getCoordinates()->setPos( ptidx, pts[idx] );
+	Coord3 crd = pts[idx];
+	if ( zaxistransform_ )
+	    crd.z = zaxistransform_->transform( crd );
+	
+	if ( !crd.isDefined() )
+	    continue;
+
+	track_->getCoordinates()->setPos( ptidx, crd );
 	ptidx++;
     }
 
@@ -265,19 +272,17 @@ const LineStyle& Well::lineStyle() const
 }
 
 
-void Well::setText( Text* tx, const char* chr, Coord3* pos,
-		    const FontData& fnt )
+void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
+		       const FontData& fnt)
 {
     tx->setText( chr );
     tx->setFontData( fnt, getPixelDensity() );
-    
-    if ( !SI().zRange(true).includes(pos->z, false) )
-	pos->z = SI().zRange(true).limitValue( pos->z );
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
     tx->setCharacterSizeMode( Text::Object );
     tx->setAxisAlignment( Text::XZ );
 }
+
 
 
 void Well::setWellName( const TrackParams& tp )
@@ -291,10 +296,22 @@ void Well::setWellName( const TrackParams& tp )
     if ( wellbottxt_->nrTexts()<1 )
 	 wellbottxt_->addText();
 
-    setText(welltoptxt_->text(0),tp.isdispabove_ ? tp.name_ : "",tp.toppos_,
-    tp.font_);
-    setText(wellbottxt_->text(0),tp.isdispbelow_ ? tp.name_ : "",tp.botpos_,
-    tp.font_);
+    Coord3 crdtop = *tp.toppos_;
+    Coord3 crdbot = *tp.botpos_;
+
+    if ( zaxistransform_ )
+    {
+	crdtop.z = zaxistransform_->transform( crdtop );
+	crdbot.z = zaxistransform_->transform( crdbot );
+    }
+
+    updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
+		uiString( tp.name_ ) : uiString::emptyString(), &crdtop,
+		tp.font_ );
+
+    updateText( wellbottxt_->text(0),tp.isdispbelow_ ? 
+	        uiString( tp.name_ ) : uiString::emptyString(), &crdbot,
+		tp.font_ );
 
 }
 
@@ -374,7 +391,7 @@ void Well::addMarker( const MarkerParams& mp )
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
  
-    setText(txt,mp.name_,mp.pos_,mp.font_);
+    updateText( txt,uiString( mp.name_ ),&markerpos,mp.font_ );
 
     return;
 }

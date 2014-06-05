@@ -222,8 +222,10 @@ protected:
     bool			displaytube_[2];
 
 private:
-    void			setText(Text*, const char*, Coord3*,
-					const FontData&);
+
+    void			updateText(Text* tx, const uiString& chr, 
+					   const Coord3* pos,
+					   const FontData& fnt);
 
     void			getLinScale(const LogParams&,
 					    LinScaler&,
