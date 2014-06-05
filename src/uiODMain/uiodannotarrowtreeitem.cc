@@ -30,7 +30,6 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
     , arrowtype_( 2 )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
-    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     propmnuitem_.iconfnm = "disppars";
 }
 
