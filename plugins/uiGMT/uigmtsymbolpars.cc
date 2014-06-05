@@ -31,24 +31,24 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )
 	    usewellsymbols_ = false;
     }
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Symbol shape");
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Symbol shape"));
     shapefld_ = lcb->box();
     shapefld_->setHSzPol( usewellsymbols_ ? uiObject::Wide : uiObject::Small );
     fillShapes();
     setHAlignObj( lcb );
 
-    sizefld_ = new uiGenInput( this, "Size (cm)",
+    sizefld_ = new uiGenInput( this, tr("Size (cm)"),
 			       FloatInpSpec( usewellsymbols_ ? 0.5f : 0.2f ) );
     sizefld_->setElemSzPol( uiObject::Small );
     sizefld_->attach( rightTo, lcb );
 
     outcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
-					 .lbltxt("Outline color") );
+					 .lbltxt(tr("Outline color")) );
     outcolfld_->attach( alignedBelow, lcb );
     if ( !usewellsymbols_ )
     {
 	fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(
-		    Color::White()).lbltxt("Fill Color").withcheck(true) );
+		    Color::White()).lbltxt(tr("Fill Color")).withcheck(true) );
 	fillcolfld_->attach( alignedBelow, outcolfld_ );
     }
 }

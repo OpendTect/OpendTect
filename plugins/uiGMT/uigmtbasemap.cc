@@ -26,44 +26,45 @@ static const int cTitleBoxHeight = 4;
 static const int cTitleBoxWidth = 36;
 
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
-    : uiDlgGroup(p,"Basemap")
+    : uiDlgGroup(p,tr("Basemap"))
 {
-    titlefld_ = new uiGenInput( this, "Map title", StringInpSpec("Basemap") );
+    titlefld_ = new uiGenInput( this, tr("Map title"), 
+                                StringInpSpec("Basemap") );
 
     xrgfld_ = new uiGenInput( this, "X range",
 			      IntInpIntervalSpec(false) );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     xrgfld_->attach( alignedBelow, titlefld_ );
 
-    yrgfld_ = new uiGenInput( this, "Y range",
+    yrgfld_ = new uiGenInput( this, tr("Y range"),
 			      IntInpIntervalSpec(false) );
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
-    resetbut_ = new uiPushButton( this, "&Reset to Survey",
+    resetbut_ = new uiPushButton( this, tr("&Reset to Survey"),
 				  mCB(this,uiGMTBaseMapGrp,resetCB), true );
     resetbut_->attach( rightTo, yrgfld_ );
 
-    xdimfld_ = new uiGenInput( this, "Map Width (cm)", FloatInpSpec() );
+    xdimfld_ = new uiGenInput( this, tr("Map Width (cm)"), FloatInpSpec() );
     xdimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     xdimfld_->setElemSzPol( uiObject::Small );
     xdimfld_->attach( alignedBelow, yrgfld_ );
 
-    ydimfld_ = new uiGenInput( this, "Height (cm)", FloatInpSpec() );
+    ydimfld_ = new uiGenInput( this, tr("Height (cm)"), FloatInpSpec() );
     ydimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     ydimfld_->setElemSzPol( uiObject::Small );
     ydimfld_->attach( rightTo, xdimfld_ );
 
-    scalefld_ = new uiGenInput( this, "Scale  1 :", IntInpSpec() );
+    scalefld_ = new uiGenInput( this, tr("Scale  1 :"), IntInpSpec() );
     scalefld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,scaleChg) );
     scalefld_->setElemSzPol( uiObject::Small );
     scalefld_->attach( rightTo, ydimfld_ );
 
-    lebelintvfld_ = new uiGenInput( this, "Label interval (X/Y)",
+    lebelintvfld_ = new uiGenInput( this, tr("Label interval (X/Y)"),
 				    IntInpIntervalSpec(false) );
     lebelintvfld_->attach( alignedBelow, xdimfld_ );
 
-    gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
+    gridlinesfld_ = new uiCheckBox( this, tr("Draw Gridlines") );
     gridlinesfld_->attach( rightTo, lebelintvfld_ );
 
 
@@ -72,7 +73,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     remarkfld_->setPrefWidthInChar( cTitleBoxWidth );
     remarkfld_->setStretch( 0, 0 );
     remarkfld_->attach( alignedBelow, lebelintvfld_ );
-    new uiLabel( this, "Remarks (4 lines max)", remarkfld_ );
+    new uiLabel( this, tr("Remarks (4 lines max)"), remarkfld_ );
 
     updateFlds( true );
 }
@@ -110,7 +111,7 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
 	    ydim = ydimfld_->getfValue();
 	    xdim = ydim * aspectratio_;
 	    xdimfld_->setValue( xdim );
-	    uiMSG().error( "Map width is beyond permissible limits" );
+	    uiMSG().error( tr("Map width is beyond permissible limits") );
 	    return;
 	}
 
@@ -125,7 +126,7 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
 	    xdim = xdimfld_->getfValue();
 	    ydim = xdim * aspectratio_;
 	    ydimfld_->setValue( ydim );
-	    uiMSG().error( "Map height is beyond permissible limits" );
+	    uiMSG().error( tr("Map height is beyond permissible limits") );
 	    return;
 	}
 
@@ -183,7 +184,7 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	xrgfld_->valuechanged.enable();
 	yrgfld_->valuechanged.enable();
-	uiMSG().error( "Y range is beyond permissible limits" );
+	uiMSG().error( tr("Y range is beyond permissible limits") );
 	return;
     }
 
@@ -218,7 +219,7 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     const Interval<int> yrg = yrgfld_->getIInterval();
     if ( xrg.isRev() || yrg.isRev() )
     {
-	uiMSG().error( "Invalid X or Y range" );
+	uiMSG().error( tr("Invalid X or Y range") );
 	return false;
     }
 

@@ -45,30 +45,29 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"2D Lines")
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
 
-    lineselfld_ = new uiSeis2DLineSel( this, true );
-    lineselfld_->attach( alignedBelow, namefld_ );
+
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, lineselfld_ );
 
-    labelfld_ = new uiCheckBox( this, "Post Line names",
+    labelfld_ = new uiCheckBox( this, tr("Post Line names"),
 				mCB(this,uiGMT2DLinesGrp,labelSel) );
     const char* posoptions [] = { "Start", "End", "Both", 0 };
     labelposfld_ = new uiGenInput( this, "", StringListInpSpec(posoptions) );
     labelposfld_->attach( alignedBelow, lsfld_ );
     labelfld_->attach( leftOf, labelposfld_ );
 
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Font size") );
     labelfontfld_ = lsb->box();
     lsb->attach( rightOf, labelposfld_ );
     labelfontfld_->setInterval( 8, 20 );
     labelfontfld_->setValue( 10 );
 
-    trclabelfld_ = new uiCheckBox( this, "Post Trace numbers",
+    trclabelfld_ = new uiCheckBox( this, tr("Post Trace numbers"),
 				   mCB(this,uiGMT2DLinesGrp,labelSel) );
-    trcstepfld_ = new uiGenInput( this, "Steps", IntInpSpec(100) );
+    trcstepfld_ = new uiGenInput( this, tr("Steps"), IntInpSpec(100) );
     trcstepfld_->attach( alignedBelow, labelposfld_ );
     trclabelfld_->attach( leftOf, trcstepfld_ );
 
@@ -112,7 +111,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     TypeSet<Pos::GeomID> geomids;
     lineselfld_->getSelGeomIDs( geomids );
     if ( geomids.isEmpty() )
-	mErrRet( "Please select at least one 2D line" );
+	mErrRet( tr("Please select at least one 2D line") );
 
     par.set( sKey::Name(), namefld_->text() );
     par.set( sKey::GeomID(), geomids );

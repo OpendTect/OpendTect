@@ -46,7 +46,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ctio_,"Pick Set" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     symbfld_ = new uiGMTSymbolPars( this, false );
@@ -78,7 +78,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet("Please select a pickset")
+	mErrRet(tr("Please select a pickset"))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

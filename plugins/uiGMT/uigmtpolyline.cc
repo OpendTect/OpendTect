@@ -49,14 +49,15 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ctio_,"Polygon" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, namefld_ );
 
     fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
-	   				.lbltxt("Fill Color").withcheck(true) );
+	   				.lbltxt(tr("Fill Color"))
+                                        .withcheck(true) );
     fillcolfld_->attach( alignedBelow, lsfld_ );
 }
 
@@ -87,7 +88,7 @@ void uiGMTPolylineGrp::objSel( CallBacker* )
 bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet("Please select a polygon")
+	mErrRet(tr("Please select a polygon"))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

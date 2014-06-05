@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiLineEdit;
 
 mClass(uiGMT) uiGMTAdvGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTAdvGrp);
 public:
 
     static void		initClass();

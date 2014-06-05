@@ -86,13 +86,13 @@ bool uiGMTSurfaceGrid::acceptOK()
 {
     if ( !tensionfld_ )
     {
-	uiMSG().message( "No GMT installation found" );
+	uiMSG().message( tr("No GMT installation found") );
 	return false;
     }
 
     if ( tensionfld_->getfValue()<=0 || tensionfld_->getfValue()>=1 )
     {
-	uiMSG().message( "Tension value should be in between 0 and 1" );
+	uiMSG().message( tr("Tension value should be in between 0 and 1") );
 	tensionfld_->setValue( 0.25 );
 	return false;
     }

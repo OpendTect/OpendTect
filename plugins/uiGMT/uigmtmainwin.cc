@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,
                                  mODHelpKey(mGMTMainWinHelpID) )
 				.modal(false) )
     , addbut_(0)
@@ -67,17 +67,17 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 	overlaygrps_ += grp;
     }
 
-    addbut_ = new uiPushButton( rightgrp, "&Add",
+    addbut_ = new uiPushButton( rightgrp, uiStrings::sAdd(true),
 				mCB(this,uiGMTMainWin,addCB), true );
-    addbut_->setToolTip( "Add to current flow" );
+    addbut_->setToolTip( tr("Add to current flow") );
     addbut_->attach( alignedBelow, tabstack_ );
-    editbut_ = new uiPushButton( rightgrp, "&Replace",
+    editbut_ = new uiPushButton( rightgrp, uiStrings::sReplace(),
 				mCB(this,uiGMTMainWin,editCB), true );
-    editbut_->setToolTip( "Update current item in flow" );
+    editbut_->setToolTip( tr("Update current item in flow") );
     editbut_->attach( rightOf, addbut_ );
-    resetbut_ = new uiPushButton( rightgrp, "Re&set",
+    resetbut_ = new uiPushButton( rightgrp, uiStrings::sReset(),
 				mCB(this,uiGMTMainWin,resetCB), true );
-    resetbut_->setToolTip( "Reset input fields" );
+    resetbut_->setToolTip( tr("Reset input fields") );
     resetbut_->attach( rightOf, editbut_ );
 
     uiSeparator* sep = new uiSeparator( this, "VSep", OD::Vertical );
@@ -85,7 +85,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     flowgrp_ = new uiGroup( this, "Flow Group" );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( flowgrp_, "Map overlays" );
+    uiLabeledListBox* llb = new uiLabeledListBox( flowgrp_, tr("Map overlays"));
     flowfld_ = llb->box();
     flowfld_->selectionChanged.notify( mCB(this,uiGMTMainWin,selChg) );
 
@@ -93,11 +93,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     uiButtonGroup* bgrp = new uiButtonGroup( flowgrp_, "", OD::Horizontal );
     bgrp->displayFrame( true );
     upbut_ = new uiToolButton( bgrp, uiToolButton::UpArrow,
-				"Move current item up", butpushcb );
+				tr("Move current item up"), butpushcb );
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
-				 "Move current item down", butpushcb );
+				 tr("Move current item down"), butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
-				"Remove current item from flow", butpushcb );
+				tr("Remove current item from flow"), butpushcb);
     bgrp->attach( centeredBelow, llb );
 
 
@@ -109,11 +109,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 
-    createbut_ = new uiPushButton( this, "&Create Map",
+    createbut_ = new uiPushButton( this, uiStrings::sCreateMap(),
 				   mCB(this,uiGMTMainWin,createPush), true );
     createbut_->attach( alignedBelow, filefld_ );
 
-    viewbut_ = new uiPushButton( this, "&View Map",
+    viewbut_ = new uiPushButton( this, uiStrings::sViewMap(),
 				 mCB(this,uiGMTMainWin,viewPush), true );
     viewbut_->attach( rightTo, createbut_ );
 
@@ -126,11 +126,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     batchfld_->display( false );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
-    toolbar->addButton( "newflow", "New flow",
+    toolbar->addButton( "newflow", tr("New flow"),
 			mCB(this,uiGMTMainWin,newFlow) );
-    toolbar->addButton( "openflow", "Open Flow",
+    toolbar->addButton( "openflow", tr("Open Flow"),
 			mCB(this,uiGMTMainWin,openFlow) );
-    toolbar->addButton( "saveflow", "Save Current Flow",
+    toolbar->addButton( "saveflow", tr("Save Current Flow"),
 			mCB(this,uiGMTMainWin,saveFlow) );
 
     tabSel(0);
@@ -162,7 +162,7 @@ void uiGMTMainWin::tabSel( CallBacker* )
 void uiGMTMainWin::newFlow( CallBacker* )
 {
     if ( needsave_ &&
-	 !uiMSG().askContinue("Current flow has not been saved, continue?") )
+	 !uiMSG().askContinue(tr("Current flow has not been saved, continue?")))
 	return;
 
     filefld_->clear();
@@ -179,7 +179,7 @@ void uiGMTMainWin::newFlow( CallBacker* )
 void uiGMTMainWin::openFlow( CallBacker* )
 {
     if ( needsave_ &&
-	 !uiMSG().askContinue("Current flow has not been saved, continue?") )
+	 !uiMSG().askContinue(tr("Current flow has not been saved, continue?")))
 	return;
 
     ctio_.ctxt.forread = true;
@@ -428,17 +428,17 @@ bool uiGMTMainWin::fillPar()
 {
     BufferString fnm = filefld_->fileName();
     if ( fnm.isEmpty() )
-	mErrRet("Please specify an output file name")
+	mErrRet(tr("Please specify an output file name"))
 
     FilePath fp( fnm );
     BufferString dirnm = fp.pathOnly();
     if ( !File::isDirectory(dirnm.buf()) || !File::isWritable(dirnm.buf()) )
-	mErrRet("Output directory is not writable")
+	mErrRet(tr("Output directory is not writable"))
 
     fp.setExtension( "ps" );
     fnm = fp.fullPath();
     if ( File::exists(fnm.buf()) && !File::isWritable(fnm.buf()) )
-	mErrRet("Output file already exists and is read only")
+	mErrRet(tr("Output file already exists and is read only"))
 
     IOPar& par = batchfld_->jobSpec().pars_;
     par.set( sKey::FileName(), fnm );
@@ -468,11 +468,11 @@ bool uiGMTMainWin::fillPar()
 	{
 	    const bool isstart = gmtclip->isStart();
 	    if ( isclippingon && isstart )
-		mErrRet("Start of clipping without terminating the previous \
-			 clipping" );
+		mErrRet(tr("Start of clipping without terminating the previous \
+			 clipping") );
 
 	    if ( !isclippingon && !isstart )
-		mErrRet("Termination of clipping without a start" );
+		mErrRet(tr("Termination of clipping without a start") );
 
 	    isclippingon = isstart;
 	}

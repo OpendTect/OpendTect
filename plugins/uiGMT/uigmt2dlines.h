@@ -22,7 +22,7 @@ class uiSelLineStyle;
 class uiSpinBox;
 
 mClass(uiGMT) uiGMT2DLinesGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMT2DLinesGrp);
 public:
 
     			~uiGMT2DLinesGrp();

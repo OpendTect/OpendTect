@@ -44,7 +44,7 @@ uiGMTOverlayGrp* uiGMTWellsGrp::createInstance( uiParent* p )
 uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Wells")
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Well(s)"),
 						  OD::ChooseAtLeastOne );
     welllistfld_ = llb->box();
     Well::InfoCollector wic( false, false );
@@ -56,18 +56,18 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 	    welllistfld_->addItem( ioobj->name() );
     }
 
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec("Wells") );
+    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec("Wells") );
     namefld_->attach( alignedBelow, llb );
 
     symbfld_ = new uiGMTSymbolPars( this, true );
     symbfld_->attach( alignedBelow, namefld_ );
 
-    lebelfld_ = new uiCheckBox( this, "Post labels",
+    lebelfld_ = new uiCheckBox( this, tr("Post labels"),
 				mCB(this,uiGMTWellsGrp,choiceSel) );
     lebelalignfld_ = new uiComboBox( this, "Alignment" );
     lebelalignfld_->attach( alignedBelow, symbfld_ );
     lebelfld_->attach( leftOf, lebelalignfld_ );
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Font size") );
     labelfontszfld_ = lsb->box();
     lsb->attach( rightTo, lebelalignfld_ );
     labelfontszfld_->setInterval( 8, 20 );
@@ -115,11 +115,11 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
 {
     const int nrsel = welllistfld_->nrChosen();
     if ( !nrsel )
-	mErrRet("Please select at least one well")
+	mErrRet(tr("Please select at least one well"))
 
     const char* namestr = namefld_->text();
     if ( !namestr || !*namestr )
-	mErrRet(" Please enter name")
+	mErrRet(tr(" Please enter name"))
     par.set( sKey::Name(), namefld_->text() );
 
     BufferStringSet selnames;

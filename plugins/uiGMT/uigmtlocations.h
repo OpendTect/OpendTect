@@ -20,7 +20,7 @@ class uiIOObjSel;
 class uiGMTSymbolPars;
 
 mClass(uiGMT) uiGMTLocationsGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTLocationsGrp);
 public:
 
     static void		initClass();

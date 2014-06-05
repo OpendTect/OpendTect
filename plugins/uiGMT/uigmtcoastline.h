@@ -21,7 +21,7 @@ class uiSelLineStyle;
 class uiSpinBox;
 
 mClass(uiGMT) uiGMTCoastlineGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTCoastlineGrp);
 public:
 
     static void		initClass();

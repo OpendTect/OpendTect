@@ -20,7 +20,7 @@ class uiFileInput;
 class uiLabel;
 
 mExpClass(uiGMT) uiGMTInfoDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiGMTInfoDlg);
 public:
 			uiGMTInfoDlg(uiParent*);
 protected:

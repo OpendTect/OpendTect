@@ -20,7 +20,7 @@ class uiColorInput;
 
 
 mClass(uiGMT) uiGMTSymbolPars : public uiGroup
-{
+{ mODTextTranslationClass(uiGMTSymbolPars);
 public:
 			uiGMTSymbolPars(uiParent*,bool);
 

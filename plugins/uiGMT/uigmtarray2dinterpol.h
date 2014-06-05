@@ -19,7 +19,7 @@ class uiGenInput;
 
 
 mExpClass(uiGMT) uiGMTSurfaceGrid	: public uiArray2DInterpol
-{
+{ mODTextTranslationClass(uiGMTSurfaceGrid);
 public:
 				uiGMTSurfaceGrid(uiParent*);
 

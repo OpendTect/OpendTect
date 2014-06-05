@@ -36,7 +36,7 @@ uiGMTOverlayGrp* uiGMTAdvGrp::createInstance( uiParent* p )
 uiGMTAdvGrp::uiGMTAdvGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Advanced")
 {
-    uiLabel* lbl = new uiLabel( this, "Customized GMT command" );
+    uiLabel* lbl = new uiLabel( this, tr("Customized GMT command") );
     inpfld_ = new uiLineEdit( this, "GMT Command" );
     inpfld_->setHSzPol( uiObject::WideMax );
     inpfld_->attach( centeredBelow, lbl );
@@ -55,7 +55,7 @@ bool uiGMTAdvGrp::fillPar( IOPar& par ) const
 {
     const char* comm = inpfld_->getvalue_();
     if ( !comm || !*comm )
-	mErrRet("Please enter a valid GMT command")
+	mErrRet(tr("Please enter a valid GMT command"))
 
     par.set( ODGMT::sKeyCustomComm(), comm );
     return true;

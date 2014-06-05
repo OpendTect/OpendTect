@@ -40,16 +40,16 @@ uiGMTOverlayGrp* uiGMTClipGrp::createInstance( uiParent* p )
 uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Clipping")
 {
-    actionfld_ = new uiGenInput( this, "", BoolInpSpec(true,"Start clipping",
-						       "Stop clipping",true) );
+    actionfld_ = new uiGenInput(this, "",BoolInpSpec(true,tr("Start clipping"),
+						     tr("Stop clipping"),true));
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
     ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
     polygonfld_ = new uiIOObjSel( this, ctxt, "Polygon" );
     polygonfld_->attach( alignedBelow, actionfld_ );
 
-    optionfld_ = new uiGenInput( this, "", BoolInpSpec(true,"Clip Outside",
-						       "Clip Inside",true) );
+    optionfld_ = new uiGenInput(this, "", BoolInpSpec(true,tr("Clip Outside"),
+						      tr("Clip Inside"),true) );
     optionfld_->attach( alignedBelow, polygonfld_ );
     actionfld_->valuechanged.notify( mCB(this,uiGMTClipGrp,actionSel) );
     postFinalise().notify( mCB(this,uiGMTClipGrp,actionSel) );

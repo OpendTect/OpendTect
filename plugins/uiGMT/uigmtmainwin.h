@@ -27,7 +27,7 @@ class uiToolButton;
 class uiTabStack;
 
 mClass(uiGMT) uiGMTMainWin : public uiDialog
-{
+{ mODTextTranslationClass(uiGMTMainWin);
 public:
     			uiGMTMainWin(uiParent*);
 			~uiGMTMainWin();

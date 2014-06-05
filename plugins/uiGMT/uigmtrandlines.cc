@@ -50,15 +50,15 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ctio_, "Line(s)" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, namefld_ );
 
-    labelfld_ = new uiCheckBox( this, "Post label",
+    labelfld_ = new uiCheckBox( this, tr("Post label"),
 				mCB(this,uiGMTRandLinesGrp,labelSel) );
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, tr("Font size") );
     labelfontfld_ = lsb->box();
     lsb->attach( alignedBelow, lsfld_ );
     labelfontfld_->setInterval( 8, 20 );
@@ -103,7 +103,8 @@ void uiGMTRandLinesGrp::objSel( CallBacker* )
 	linenms_.add( inprls.lines()[0]->name() );
     else if ( inprls.size() > 1 )
     {
-	uiDialog dlg( this, uiDialog::Setup("Select lines","Select lines",
+	uiDialog dlg( this, uiDialog::Setup(tr("Select lines"),
+                                            tr("Select lines"),
                                             mNoHelpKey) );
 	uiListBox* lb = new uiListBox( &dlg, "Linelist", OD::ChooseAtLeastOne);
 	for ( int idx=0; idx<inprls.size(); idx++ )
@@ -126,7 +127,7 @@ void uiGMTRandLinesGrp::labelSel( CallBacker* )
 bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet("Please select the Random line(set)")
+	mErrRet(tr("Please select the Random line(set)"))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), namefld_->text() );

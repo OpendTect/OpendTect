@@ -21,7 +21,7 @@ class uiIOObjSel;
 class uiSelLineStyle;
 
 mClass(uiGMT) uiGMTPolylineGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTPolylineGrp);
 public:
 
     static void		initClass();

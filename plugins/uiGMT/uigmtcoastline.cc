@@ -41,22 +41,22 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Coastline")
 {
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-	    			"UTM zone / CM" );
+	    			tr("UTM zone / CM") );
     utmfld_ = lsb->box();
     utmfld_->setInterval( 1, 60 );
-    utmfld_->setPrefix( "Zone " );
+    utmfld_->setPrefix( tr("Zone ") );
     utmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
     cmfld_ = new uiSpinBox( this );
     cmfld_->setInterval( 3, 177 );
     cmfld_->setStep( 6, true );
     cmfld_->attach( rightTo, lsb );
-    cmfld_->setSuffix( " deg" );
+    cmfld_->setSuffix( tr(" deg") );
     cmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
-    ewfld_ = new uiGenInput( this, 0, BoolInpSpec(true,"East","West") );
+    ewfld_ = new uiGenInput( this, 0, BoolInpSpec(true,tr("East"),tr("West")) );
     ewfld_->attach( rightTo, cmfld_ );
     ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Resolution" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Resolution") );
     resolutionfld_ = lcb->box();
     lcb->attach( alignedBelow, lsb );
     for ( int idx=0; idx<5; idx++ )
@@ -66,11 +66,11 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     lsfld_->attach( alignedBelow, lcb );
 
     wetcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
-					.lbltxt("Fill wet regions")
+					.lbltxt(tr("Fill wet regions"))
 					.withcheck(true) );
     wetcolfld_->attach( alignedBelow, lsfld_ );
     drycolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White())
-					.lbltxt("Fill dry regions")
+					.lbltxt(tr("Fill dry regions"))
 					.withcheck(true) );
     drycolfld_->attach( alignedBelow, wetcolfld_ );
 

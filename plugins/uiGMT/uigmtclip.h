@@ -19,7 +19,7 @@ class uiGenInput;
 class uiIOObjSel;
 
 mClass(uiGMT) uiGMTClipGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTClipGrp);
 public:
 
     static void		initClass();

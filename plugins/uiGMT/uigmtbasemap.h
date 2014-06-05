@@ -20,7 +20,7 @@ class uiPushButton;
 class uiTextEdit;
 
 mClass(uiGMT) uiGMTBaseMapGrp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiGMTBaseMapGrp);
 public:
 
     			uiGMTBaseMapGrp(uiParent*);

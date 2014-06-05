@@ -22,7 +22,7 @@ class uiSpinBox;
 class uiGMTSymbolPars;
 
 mClass(uiGMT) uiGMTWellsGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTSymbolPars);
 public:
 
     static void		initClass();
