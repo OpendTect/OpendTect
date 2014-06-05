@@ -124,6 +124,7 @@ if ( par.get( sKeyAnnotFont(), font ) ) \
 void Scene::setup()
 {
     annot_ = visBase::Annotation::create();
+    annot_->setFont( FontData(20) );
 
     const CubeSampling& cs = SI().sampling(true);
 
