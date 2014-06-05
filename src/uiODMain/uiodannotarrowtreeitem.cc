@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uiodannotarrowtreeitem.cc 34949 2014-06-02 09:57:57Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiodannottreeitem.h"
@@ -31,8 +31,6 @@ ArrowSubItem::ArrowSubItem( Pick::Set& pck, int displayid )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.reportDispChange( this, *set_ );
-
     propmnuitem_.iconfnm = "disppars";
 }
 

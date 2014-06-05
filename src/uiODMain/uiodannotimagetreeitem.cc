@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID mUsedVar = "$Id: uiodannotimagetreeitem.cc 34847 2014-05-23 09:39:34Z kristofer.tingdahl@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiodannottreeitem.h"
@@ -28,7 +28,6 @@ ImageSubItem::ImageSubItem( Pick::Set& pck, int displayid )
 {
     defscale_ = mCast(float,set_->disp_.pixsize_);
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
-    mgr.reportDispChange( this, *set_ );
 }
 
 
