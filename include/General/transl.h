@@ -27,6 +27,7 @@ object of that type.
 #include "bufstring.h"
 #include "streamconn.h"
 #include "ctxtioobj.h"
+#include "uistring.h"
 class Translator;
 
 #define mDGBKey "dGB"
@@ -195,6 +196,7 @@ public: \
 
 
 #define isTranslatorGroup( clss ) \
+mODTextTranslationClass( clss##TranslatorGroup ); \
 isTranslatorGroupBody(clss);
 
 #define isTranslatorGroupWithInst( clss, usrnm ) \

@@ -240,7 +240,7 @@ public:
     mExpClass(uiIo) Setup : public uiIOSelect::Setup
     {
     public:
-			Setup( const char* seltext=0 )
+			Setup( const uiString& seltext=0 )
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
 			    , filldef_(true)		{}

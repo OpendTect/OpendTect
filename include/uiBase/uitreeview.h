@@ -192,7 +192,7 @@ public:
     mExpClass(uiBase) Setup
     {
     public:
-				Setup( const char* txt=0,
+				Setup( const uiString& txt=0,
 				       uiTreeViewItem::Type tp=
 						uiTreeViewItem::Standard,
 				       bool setchecked=true )

@@ -73,8 +73,11 @@ public:
 
     bool			useBodyPar(const IOPar&);
     void			fillBodyPar(IOPar&) const;
-   
-    static const char*		sKeySubIDs()	{ return "Position IDs"; } 
+
+    uiString			getUserTypeStr() const
+				{ return tr("Random Position Body"); }
+
+    static const char*		sKeySubIDs()	{ return "Position IDs"; }
 protected:
 
     TypeSet<Coord3>		locations_;

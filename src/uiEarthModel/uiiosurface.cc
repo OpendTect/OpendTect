@@ -108,7 +108,7 @@ void uiIOSurface::mkRangeFld( bool multisubsel )
 }
 
 
-void uiIOSurface::mkObjFld( const char* lbl )
+void uiIOSurface::mkObjFld( const uiString& lbl )
 {
     ctio_->ctxt.forread = forread_;
     objfld_ = new uiIOObjSel( this, *ctio_, lbl );
@@ -351,9 +351,9 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     }
 
     if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
-	mkObjFld( "Output Stickset" );
+	mkObjFld( tr("Output Stickset") );
     else
-	mkObjFld( BufferString("Output ",setup.typ_) );
+	mkObjFld( tr("Output %1").arg( setup.typname_ ) );
 
     if ( rgfld_ )
     {

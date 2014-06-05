@@ -75,7 +75,10 @@ public:
 
     bool			useBodyPar(const IOPar&);
     void			fillBodyPar(IOPar&) const;
-    
+
+    uiString			getUserTypeStr() const
+				{ return tr("Marching Cubes Body"); }
+
 protected:
 
     SamplingData<int>		inlsampling_;

@@ -115,6 +115,7 @@ mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
+    virtual uiString		getUserTypeStr() const			= 0;
     const MultiID&		multiID() const		{ return storageid_; }
     void			setMultiID(const MultiID&);
 
@@ -282,6 +283,7 @@ protected:
 } // namespace EM
 
 #define mDefineEMObjFuncs( clss ) \
+mODTextTranslationClass( clss ); \
 public: \
 				clss(EM::EMManager&); \
     static void			initClass(); \

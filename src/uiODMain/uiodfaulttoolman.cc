@@ -283,12 +283,14 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addObject( outputnamecombo_ );
 
     auxfaultwrite_ = new uiSurfaceWrite( &appl_,
-	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword()));
+	    uiSurfaceWrite::Setup(EMFault3DTranslatorGroup::keyword(),
+				  EMFault3DTranslatorGroup::userType()));
     auxfaultwrite_->getObjSel()->setConfirmOverwrite( false );
     auxfaultwrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
     auxfsswrite_ = new uiSurfaceWrite( &appl_,
-	    uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword()));
+	uiSurfaceWrite::Setup(EMFaultStickSetTranslatorGroup::keyword(),
+			      EMFaultStickSetTranslatorGroup::userType()));
     auxfsswrite_->getObjSel()->setConfirmOverwrite( false );
     auxfsswrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
