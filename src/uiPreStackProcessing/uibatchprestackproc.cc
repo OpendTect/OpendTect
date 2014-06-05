@@ -25,7 +25,7 @@ namespace PreStack
 
 uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     : uiDialog(p,Setup(tr("Prestack Processing"),mNoDlgTitle,
-                        mODHelpKey(mPreStackBatchProcSetupHelpID) ))
+                        mODHelpKey(mPreStackBatchProcSetupHelpID)))
     , outputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
 					    false ) )
     , inputctxt_( *uiSeisSel::mkCtxtIOObj( is2d ? Seis::LinePS : Seis::VolPS,
