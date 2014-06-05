@@ -221,10 +221,14 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
     int ptidx = 0;
     for ( int idx=0; idx<pts.size(); idx++ )
     {
-	if ( !pts[idx].isDefined() )
+	Coord3 crd = pts[idx];
+	if ( zaxistransform_ )
+	    crd.z = zaxistransform_->transform( crd );
+	
+	if ( !crd.isDefined() )
 	    continue;
 
-	track_->getCoordinates()->setPos( ptidx, pts[idx] );
+	track_->getCoordinates()->setPos( ptidx, crd );
 	ptidx++;
     }
 
@@ -270,9 +274,6 @@ void Well::setText( Text* tx, const char* chr, Coord3* pos,
 {
     tx->setText( chr );
     tx->setFontData( fnt, getPixelDensity() );
-    
-    if ( !SI().zRange(true).includes(pos->z, false) )
-	pos->z = SI().zRange(true).limitValue( pos->z );
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
     tx->setCharacterSizeMode( Text::Object );
@@ -291,9 +292,18 @@ void Well::setWellName( const TrackParams& tp )
     if ( wellbottxt_->nrTexts()<1 )
 	 wellbottxt_->addText();
 
-    setText(welltoptxt_->text(0),tp.isdispabove_ ? tp.name_ : "",tp.toppos_,
+    Coord3 crdtop = *tp.toppos_;
+    Coord3 crdbot = *tp.botpos_;
+
+    if ( zaxistransform_ )
+    {
+	crdtop.z = zaxistransform_->transform( crdtop );
+	crdbot.z = zaxistransform_->transform( crdbot );
+    }
+
+    setText(welltoptxt_->text(0),tp.isdispabove_ ? tp.name_ : "",&crdtop,
     tp.font_);
-    setText(wellbottxt_->text(0),tp.isdispbelow_ ? tp.name_ : "",tp.botpos_,
+    setText(wellbottxt_->text(0),tp.isdispbelow_ ? tp.name_ : "",&crdbot,
     tp.font_);
 
 }
@@ -374,7 +384,7 @@ void Well::addMarker( const MarkerParams& mp )
     Text* txt = markernames_->text( textidx );
     txt->setColor( mp.namecol_ );
  
-    setText(txt,mp.name_,mp.pos_,mp.font_);
+    setText(txt,mp.name_,&markerpos,mp.font_);
 
     return;
 }
