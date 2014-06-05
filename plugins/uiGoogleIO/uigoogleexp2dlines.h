@@ -17,7 +17,7 @@ namespace ODGoogle { class XMLWriter; }
 
 
 mClass(uiGoogleIO) uiGoogleExport2DSeis : public uiDialog
-{
+{ mODTextTranslationClass(uiGoogleExport2DSeis);
 public:
 
 			uiGoogleExport2DSeis(uiSeis2DFileMan*);

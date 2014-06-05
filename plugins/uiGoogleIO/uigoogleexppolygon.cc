@@ -23,8 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
-    : uiDialog(p,uiDialog::Setup("Export Polygon to KML",
-				 "Specify output parameters",
+    : uiDialog(p,uiDialog::Setup(tr("Export Polygon to KML"),
+				 tr("Specify output parameters"),
                                  mODHelpKey(mGoogleExportPolygonHelpID) ) )
     , ps_(ps)
 {
@@ -33,7 +33,7 @@ uiGoogleExportPolygon::uiGoogleExportPolygon( uiParent* p, const Pick::Set& ps )
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
 
-    hghtfld_ = new uiGenInput( this, "Height", FloatInpSpec(100) );
+    hghtfld_ = new uiGenInput( this, tr("Height"), FloatInpSpec(100) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
     mImplFileNameFld(ps.name());

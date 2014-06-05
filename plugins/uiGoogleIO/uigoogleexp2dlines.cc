@@ -30,8 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <iostream>
 
 uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
-    : uiDialog(p,uiDialog::Setup("Export selected 2D seismics to KML",
-				 "Specify how to export",
+    : uiDialog(p,uiDialog::Setup(tr("Export selected 2D seismics to KML"),
+				 tr("Specify how to export"),
                                  mODHelpKey (mGoogleExport2DSeisHelpID) ) )
     , s2dfm_(p)
     , putallfld_(0)
@@ -41,8 +41,9 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
     const int nrsel = sellnms_.size();
 
     if ( !allsel_ )
-	putallfld_ = new uiGenInput( this, "Export", BoolInpSpec(true,"All",
-		    nrsel > 1 ? "Selected lines":"Selected line") );
+	putallfld_ = new uiGenInput( this, uiStrings::sExport(), 
+                                     BoolInpSpec(true,tr("All"),
+		    nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
 
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };

@@ -15,7 +15,7 @@ class uiSelLineStyle;
 
 
 mClass(uiGoogleIO) uiGoogleExportSurvey : public uiDialog
-{
+{ mODTextTranslationClass(uiGoogleExportSurvey);
 public:
 
 			uiGoogleExportSurvey(uiSurvey*);

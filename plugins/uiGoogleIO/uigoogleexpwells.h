@@ -13,7 +13,7 @@ class uiListBox;
 
 
 mClass(uiGoogleIO) uiGoogleExportWells : public uiDialog
-{
+{ mODTextTranslationClass(uiGoogleExportWells);
 public:
 
 			uiGoogleExportWells(uiParent*);

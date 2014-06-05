@@ -14,7 +14,7 @@ namespace ODGoogle { class XMLWriter; }
 
 
 mClass(uiGoogleIO) uiGoogleExportRandomLine : public uiDialog
-{
+{ mODTextTranslationClass(uiGoogleExportRandomLine);
 public:
 
 			uiGoogleExportRandomLine(uiParent*,

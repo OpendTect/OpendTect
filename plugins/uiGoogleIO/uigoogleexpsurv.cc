@@ -23,8 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
-    : uiDialog(uisurv,uiDialog::Setup("Export Survey boundaries to KML",
-				      "Specify output parameters",
+    : uiDialog(uisurv,uiDialog::Setup(tr("Export Survey boundaries to KML"),
+				      tr("Specify output parameters"),
                                       mODHelpKey(mGoogleExportSurveyHelpID) ) )
     , si_(uisurv->curSurvInfo())
 {
@@ -32,7 +32,7 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     uiSelLineStyle::Setup lssu; lssu.drawstyle( false ).transparency( true );
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
 
-    hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(500) );
+    hghtfld_ = new uiGenInput( this, tr("Border height"), FloatInpSpec(500) );
     hghtfld_->attach( alignedBelow, lsfld_ );
 
     mImplFileNameFld("survbounds");

@@ -28,11 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGoogleExportWells::uiGoogleExportWells( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Wells to KML",
-				 "Specify wells to output",
+    : uiDialog(p,uiDialog::Setup(tr("Export Wells to KML"),
+				 tr("Specify wells to output"),
                                  mODHelpKey(mGoogleExportWellsHelpID) ) )
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Well(s)",
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Well(s)"),
 					OD::ChooseAtLeastOne );
     selfld_ = llb->box();
     selfld_->chooseAll( true );

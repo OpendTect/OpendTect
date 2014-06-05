@@ -14,7 +14,7 @@ namespace Pick { class Set; }
 
 
 mClass(uiGoogleIO) uiGoogleExportPolygon : public uiDialog
-{
+{ mODTextTranslationClass(uiGoogleExportPolygon);
 public:
 
 			uiGoogleExportPolygon(uiParent*,const Pick::Set&);

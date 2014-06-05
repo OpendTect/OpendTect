@@ -25,20 +25,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiGoogleExportRandomLine::uiGoogleExportRandomLine( uiParent* p,
 		const TypeSet<Coord>& crds, const char* nm )
-    : uiDialog(p,uiDialog::Setup("Export Random Line to KML",
-				 "Specify how to export",
+    : uiDialog(p,uiDialog::Setup(tr("Export Random Line to KML"),
+				 tr("Specify how to export"),
                                  mODHelpKey(mGoogleExportRandomLineHelpID) ) )
     , crds_(crds)
 {
     const char* choices[]
 		= { "No", "At Start/End", "At Start only", "At End only", 0 };
-    putlnmfld_ = new uiGenInput( this, "Annotate line",
+    putlnmfld_ = new uiGenInput( this, tr("Annotate line"),
 	    			 StringListInpSpec(choices) );
     putlnmfld_->setValue( 2 );
     putlnmfld_->valuechanged.notify(
 	    			mCB(this,uiGoogleExportRandomLine,putSel) );
 
-    lnmfld_ = new uiGenInput( this, "Line annotation", StringInpSpec(nm) );
+    lnmfld_ = new uiGenInput( this, tr("Line annotation"), StringInpSpec(nm) );
     lnmfld_->attach( alignedBelow, putlnmfld_ );
 
     LineStyle ls( LineStyle::Solid, 20, Color(200,0,200) );
