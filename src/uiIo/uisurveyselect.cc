@@ -30,11 +30,13 @@ static bool checkIfDataDir( const char* path )
 }
 
 
-uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, const char* survnm,
-				      const char* dataroot, bool forread )
+uiSurveySelectDlg::uiSurveySelectDlg( uiParent* p, 
+				      const char* survnm, const char* dataroot, 
+				      bool forread, bool needvalidrootdir )
     : uiDialog(p,uiDialog::Setup("Select Data Root and Survey",
 				 mNoDlgTitle,mTODOHelpKey))
     , forread_(forread)
+    , needvalidrootdir_(needvalidrootdir)
     , surveyfld_(0)
 
 {
@@ -89,11 +91,30 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 }
 
 
+bool uiSurveySelectDlg::continueAfterErrMsg()
+{
+    if ( needvalidrootdir_ )
+    {
+	uiMSG().error( "Selected directory is not a valid Data Root" );
+	return false;
+    }
+    
+    const bool res = uiMSG().askGoOn( 
+		"Selected directory is not a valid Data Root. Do you still "
+		"want to search for OpendTect Surveys in this location" );
+    return res;
+
+}
+
+
 void uiSurveySelectDlg::fillSurveyList()
 {
+    surveylistfld_->setEmpty();
+    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg()  )
+	return;
+
     BufferStringSet surveylist;
     uiSurvey::getSurveyList( surveylist, getDataRoot() );
-    surveylistfld_->setEmpty();
     surveylistfld_->addItems( surveylist );
 }
 
@@ -118,10 +139,12 @@ bool uiSurveySelectDlg::isNewSurvey() const
 
 
 // uiSurveySelect
-uiSurveySelect::uiSurveySelect( uiParent* p, const char* lbl )
+uiSurveySelect::uiSurveySelect( uiParent* p, const char* lbl, 
+				bool needvalidrootdir )
     : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey" ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
+    , needvalidrootdir_(needvalidrootdir)
     , surveyname_(0)
 {}
 
@@ -132,7 +155,8 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_ );
+    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, true, 
+			   needvalidrootdir_ );
     if( !dlg.go() ) return;
 
     isnewsurvey_ = dlg.isNewSurvey();

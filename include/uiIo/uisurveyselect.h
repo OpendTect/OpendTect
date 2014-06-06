@@ -25,7 +25,8 @@ mExpClass(uiIo) uiSurveySelectDlg : public uiDialog
 public:
 			uiSurveySelectDlg(uiParent*,const char* survnm=0,
 					  const char* dataroot=0,
-					  bool forread=true);
+					  bool forread=true,
+					  bool needvalidrootdir=true);
 			~uiSurveySelectDlg();
 
     void		setDataRoot(const char*);
@@ -41,19 +42,22 @@ protected:
     void		rootSelCB(CallBacker*);
     void		surveySelCB(CallBacker*);
     void		fillSurveyList();
+    bool		continueAfterErrMsg();
 
     uiFileInput*	datarootfld_;
     uiListBox*		surveylistfld_;
     uiGenInput*		surveyfld_;
 
     bool		forread_;
+    bool		needvalidrootdir_;
 };
 
 
 mExpClass(uiIo) uiSurveySelect : public uiIOSelect
 {
 public:
-			uiSurveySelect(uiParent*,const char* label=0);
+			uiSurveySelect(uiParent*,const char* label=0,
+				       bool needvalidrootdir=true);
 			~uiSurveySelect();
 
     bool		isNewSurvey() const	{ return isnewsurvey_; }
@@ -66,6 +70,7 @@ protected:
     bool		isnewsurvey_;
     BufferString	dataroot_;
     BufferString	surveyname_;
+    bool		needvalidrootdir_;
 };
 
 #endif
