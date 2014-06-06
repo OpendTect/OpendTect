@@ -43,7 +43,7 @@ namespace Pick { class Set; }
  */
 
 mExpClass(uiODMain) uiODSceneMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiODSceneMgr);
 public:
 
     void			cleanUp(bool startnew=true);
@@ -133,6 +133,7 @@ public:
     int				addPickSetItem(Pick::Set&,int sceneid=-1);
     int				addRandomLineItem(int,int sceneid=-1);
     int				addWellItem(const MultiID&,int sceneid=-1);
+    int				add2DLineItem(Pos::GeomID,int sceneid=-1);
     int				add2DLineSetItem(const MultiID&,const char*,
 							int,int);
     void			removeTreeItem(int displayid);
