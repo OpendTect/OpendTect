@@ -161,10 +161,10 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 
 struct uiScaleDlg : public uiDialog
 {
-uiScaleDlg( uiParent* p, const CubeSampling& scale )
+uiScaleDlg( uiParent* p, const CubeSampling& scale, const char* zdomkey )
     : uiDialog(p,Setup("Set Annotation Scale",mNoDlgTitle,mNoHelpKey))
 {
-    rangefld_ = new uiSelSubvol( this, true );
+    rangefld_ = new uiSelSubvol( this, true, zdomkey );
     rangefld_->setSampling( scale );
 }
 
@@ -183,7 +183,7 @@ uiSelSubvol*	rangefld_;
 
 void uiScenePropertyDlg::setAnnotScaleCB( CallBacker* )
 {
-    uiScaleDlg dlg( this, scene_->getAnnotScale() );
+    uiScaleDlg dlg( this, scene_->getAnnotScale(), scene_->zDomainKey() );
     if ( !dlg.go() ) return;
 
     scene_->setAnnotScale( dlg.newscale_ );

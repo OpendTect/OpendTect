@@ -22,7 +22,7 @@ namespace ZDomain { class Def; }
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
 mExpClass(uiIo) uiSelZRange : public uiGroup
-{
+{ mODTextTranslationClass(uiSelZRange)
 public:
                         uiSelZRange(uiParent*,bool wstep,
 				    bool isrel=false,const char* lbltxt=0,
@@ -34,7 +34,7 @@ public:
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
     void		setRangeLimits(const StepInterval<float>&);
-    
+
     Notifier<uiSelZRange>	rangeChanged;
 
     const ZDomain::Def&	zDomainDef() const	{ return zddef_; }
@@ -133,7 +133,7 @@ public:
 mExpClass(uiIo) uiSelSubvol : public uiGroup
 {
 public:
-                        uiSelSubvol(uiParent*,bool wstep);
+			uiSelSubvol(uiParent*,bool wstep,const char* zdomkey=0);
 
     CubeSampling	getSampling() const;
     void		setSampling(const CubeSampling&);

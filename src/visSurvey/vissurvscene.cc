@@ -750,6 +750,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	setZScale( zat->toZScale() );
     }
 
+    setAnnotScale( CubeSampling(false) );
     setCubeSampling( cs );
 
     for ( int idx=0; idx<size(); idx++ )
