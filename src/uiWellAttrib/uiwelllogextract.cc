@@ -65,7 +65,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
     llba = new uiLabeledListBox( this, "Attributes" );
     llba->display( setup.withattrib_, true );
     attrsfld_ = llba->box();
-    attrsfld_->setMultiChoice( true );
+    attrsfld_->setChoiceMode( OD::ChooseZeroOrMore );
     welllogselfld_->attach( ensureBelow, llba );
     const float inldist = SI().inlDistance();
     const char* distunit =  SI().getXYUnitString();
