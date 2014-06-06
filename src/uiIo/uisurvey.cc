@@ -128,9 +128,9 @@ uiNewSurveyByCopy( uiParent* p, const char* dataroot, const char* dirnm )
     else
 	curfnm = dataroot_;
 
-    inpsurveyfld_ = new uiSurveySelect( this, "Survey to copy" );
+    inpsurveyfld_ = new uiSurveySelect( this, false, "Survey to copy" );
     inpsurveyfld_->setSurveyPath( curfnm );
-    newsurveyfld_ = new uiSurveySelect( this, "New Survey name" );
+    newsurveyfld_ = new uiSurveySelect( this, false, "New Survey name" );
     newsurveyfld_->attach( alignedBelow,  inpsurveyfld_ );
 }
 
