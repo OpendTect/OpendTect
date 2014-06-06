@@ -19,6 +19,7 @@ class uiGroup;
 class uiListBox;
 class uiGenInput;
 class uiCheckList;
+class uiListBoxFilter;
 class BufferStringSet;
 
 /*!\brief Select entry from list */
@@ -53,7 +54,7 @@ public:
 			//!< -1 = no selection made (cancelled or 0 list items)
 
     uiListBox*		selFld()		{ return selfld_; }
-    uiGenInput*		filtFld()		{ return filtfld_; }
+    uiListBoxFilter*	filtFld()		{ return filtfld_; }
     uiObject*		bottomFld(); //!< is selFld()
 
 protected:
@@ -61,7 +62,7 @@ protected:
     Setup		setup_;
 
     uiListBox*		selfld_;
-    uiGenInput*		filtfld_;
+    uiListBoxFilter*	filtfld_;
 
     void		filtChg(CallBacker*);
     virtual bool	acceptOK(CallBacker*);

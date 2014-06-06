@@ -56,6 +56,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispsman.h"
 #include "uiseisrandto2dline.h"
 #include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uiseiswvltimpexp.h"
 #include "uiseiswvltman.h"
 #include "uiseispreloadmgr.h"
@@ -193,39 +194,18 @@ bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
 {
     selnames.erase(); selids.erase();
 
+    uiDialog::Setup dsu( "Select 2D Lines", mNoDlgTitle,
+			 mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
+    uiDialog dlg( parent(), dsu );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    BufferStringSet linenames;
-    TypeSet<Pos::GeomID> geomids;
-    Survey::GM().getList( linenames, geomids, true );
-    for ( int idx=geomids.size()-1; idx>=0; idx-- )
-    {
-	if ( !SeisIOObjInfo::hasData(geomids[idx]) )
-	{
-	    linenames.removeSingle( idx );
-	    geomids.removeSingle( idx );
-	}
-    }
-
+    uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
+							OD::ChooseAtLeastOne );
     cursorchgr.restore();
-    uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
-    uiSelectFromList dlg( parent(), setup );
-    dlg.setHelpKey(mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
-    if ( dlg.selFld() )
-	dlg.selFld()->setMultiChoice();
-
     if ( !dlg.go() )
 	return false;
 
-    if ( dlg.selFld() )
-    {
-	dlg.selFld()->getChosen( selnames );
-	for ( int idx=0; idx<selnames.size(); idx++ )
-	{
-	    const int selidx = linenames.indexOf( selnames.get(idx) );
-	    selids += geomids[selidx];
-	}
-    }
-
+    lchfld->getChosen( selnames );
+    lchfld->getChosen( selids );
     return selids.size();
 }
 

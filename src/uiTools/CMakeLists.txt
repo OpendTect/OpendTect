@@ -47,7 +47,7 @@ SET( OD_MODULE_SOURCES
 	uiinterpollayermodel.cc
 	uiiosel.cc
 	uiissuereporter.cc
-	uistratlvlsel.cc
+	uilistboxfilter.cc
 	uimapperrangeeditor.cc
 	uimenuhandler.cc
 	uimapperrangeeditordlg.cc
@@ -79,6 +79,7 @@ SET( OD_MODULE_SOURCES
 	uislicesel.cc
 	uistatsdisplay.cc
 	uistepoutsel.cc
+	uistratlvlsel.cc
 	uitblimpexpdatasel.cc
 	uitaskrunner.cc
 	uitextfile.cc
