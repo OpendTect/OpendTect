@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackanglecomputer.h"
 
+#include "ailayer.h"
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
 #include "arrayndalgo.h"
@@ -408,76 +409,6 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 }
 
 
-bool VelocityBasedAngleComputer::checkAndConvertVelocity(
-			    const float* inpvel, const VelocityDesc& veldesc,
-			    const StepInterval<float>& zrange, float* outvel )
-{
-    const int nrzvals = zrange.nrSteps() + 1;
-    if ( veldesc.type_ == VelocityDesc::Avg )
-    {
-	TypeSet<float> zvals( nrzvals, mUdf(float) );
-	for ( int idx=0; idx<nrzvals; idx++ )
-	    zvals[idx] = zrange.atIndex( idx );
-
-	if ( !computeVint(inpvel,zrange.start,zvals.arr(),nrzvals,outvel) )
-	    return false;
-    }
-    else if ( veldesc.type_ == VelocityDesc::RMS &&
-	      !computeDix(inpvel,zrange,nrzvals,outvel) )
-	      return false;
-
-    return true;
-}
-
-
-bool VelocityBasedAngleComputer::createElasticModel(
-					    const StepInterval<float>& zrange,
-					    const float* pvel )
-{
-    elasticmodel_.setEmpty();
-    const bool zit =  SI().zDomain().isTime();
-    const int zsize = zrange.nrSteps();
-    const float svel(mUdf(float)), den(mUdf(float));
-
-    const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
-
-    int firstidx = 0; float firstlayerthickness;
-    if ( zrange.start < srddepth )
-    {
-	firstidx = zrange.getIndex( srddepth );
-	if ( firstidx < 0 )
-	    firstidx = 0;
-
-	firstlayerthickness =
-		zit ? (zrange.atIndex(firstidx+1)-srddepth)*pvel[firstidx]/2.0f
-		    :  zrange.atIndex(firstidx+1)-srddepth;
-    }
-    else
-	firstlayerthickness =
-		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f
-		    :  zrange.start+zrange.step-srddepth;
-
-    ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx], svel, den );
-    elasticmodel_ += firstlayer;
-
-    for ( int idx=firstidx+1; idx<zsize; idx++ )
-    {
-	const float layerthickness = zit ? zrange.step*pvel[idx]/2.0f
-					 : zrange.step;
-
-	ElasticLayer elayer( layerthickness, pvel[idx], svel, den );
-	elasticmodel_ += elayer;
-    }
-
-    if ( elasticmodel_.isEmpty() )
-	return false;
-
-    elasticmodel_.block( thresholdparam_, true );
-    elasticmodel_.setMaxThickness( maxthickness_ );
-    return true;
-}
-
-
 Gather* VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
@@ -517,13 +448,13 @@ Gather* VelocityBasedAngleComputer::computeAngles()
     if ( veldesc.type_ != VelocityDesc::Interval )
     {
 	mAllocVarLenArr( float, velocityvalues, zsize );
-	if (!checkAndConvertVelocity(vel.arr(),veldesc,zrange,velocityvalues))
+	if (!convertToVintIfNeeded(vel.arr(),veldesc,zrange,velocityvalues))
 	    return 0;
 
-	if ( !createElasticModel(zrange,velocityvalues) )
+	if ( !elasticmodel_.createFromVel(zrange, velocityvalues))
 	    return 0;
     }
-    else if ( !createElasticModel(zrange,vel.arr()) )
+    else if ( !elasticmodel_.createFromVel(zrange, vel.arr()) )
 	return 0;
 
     return computeAngleData();

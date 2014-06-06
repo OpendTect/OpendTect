@@ -366,5 +366,10 @@ mGlobal(Algo) bool computeLinearD2T( double v0, double dv, double v0depth,
 		      int sz, float* res );
 
 
+mGlobal(Algo) bool convertToVintIfNeeded(const float* inpvel,
+					const VelocityDesc& veldesc,
+					const StepInterval<float>& zrange,
+					float* outvel);
+
 #endif
 

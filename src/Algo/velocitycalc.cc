@@ -1485,3 +1485,25 @@ bool computeLinearD2T( double v0, double dv, double v0depth,
     return true;
 }
 
+
+bool convertToVintIfNeeded( const float* inpvel, const VelocityDesc& veldesc,
+			    const StepInterval<float>& zrange, float* outvel )
+{
+    const int nrzvals = zrange.nrSteps() + 1;
+    if ( veldesc.type_ == VelocityDesc::Avg )
+    {
+	TypeSet<float> zvals( nrzvals, mUdf(float) );
+	for ( int idx=0; idx<nrzvals; idx++ )
+	    zvals[idx] = zrange.atIndex( idx );
+
+	if ( !computeVint(inpvel,zrange.start,zvals.arr(),nrzvals,outvel) )
+	    return false;
+    }
+    else if ( veldesc.type_ == VelocityDesc::RMS &&
+	      !computeDix(inpvel,zrange,nrzvals,outvel) )
+	      return false;
+
+    return true;
+}
+
+

@@ -109,14 +109,6 @@ public:
 
 protected:
 		
-    bool			checkAndConvertVelocity(const float* inpvel,
-					const VelocityDesc& veldesc,
-					const StepInterval<float>& zrange,
-					float* outvel);
-    bool			createElasticModel(
-					    const StepInterval<float>& zrange,
-					    const float* pvel);
-
     const ElasticModel&		curElasticModel() const	{ return elasticmodel_;}
     const RayTracer1D*		curRayTracer() const	{ return raytracer_; }
 
