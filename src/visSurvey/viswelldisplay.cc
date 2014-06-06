@@ -648,7 +648,13 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeet() && SI().zIsTime() ?
 							mToFeetFactorF : 1;
-    const float dah = track.nearestDah(pos);
+
+    Coord3 mouseworldpos = pos;
+    if ( datatransform_ )
+	mouseworldpos.z = datatransform_->transformBack( mouseworldpos );
+
+    const float dah = track.nearestDah( mouseworldpos );
+
     info += toString( mNINT32(dah*zfac) );
 
     setLogInfo( info, val, dah, true );
