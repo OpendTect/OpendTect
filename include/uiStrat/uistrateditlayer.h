@@ -28,17 +28,24 @@ public:
 			uiStratEditLayer(uiParent*,Strat::Layer&,
 					 const Strat::LayerSequence&,
 					 bool editable=true);
+			~uiStratEditLayer();
+
+    bool		isChanged() const	{ return chgd_; }
 
 protected:
 
-    bool			editable_;
-    Strat::Layer&		lay_;
-    uiGenInput*			lithfld_;
-    uiGenInput*			topfld_;
-    ObjectSet<uiPropertyValFld>	valflds_;
-    uiStratLayerContent*	contfld_;
+    const Strat::Layer& lay_;
+    Strat::Layer&	worklay_;
+    uiGenInput*		lithfld_;
+    uiGenInput*		topfld_;
+    ObjectSet<uiPropertyValFld> valflds_;
+    uiStratLayerContent* contfld_;
+    const bool		editable_;
+    bool		chgd_;
 
-    bool			acceptOK(CallBacker*);
+    bool		getFromScreen(bool);
+    void		valChg(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 

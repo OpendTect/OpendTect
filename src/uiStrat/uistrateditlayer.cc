@@ -32,8 +32,10 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
                        mODHelpKey(mStratEditLayerHelpID) ))
     , editable_(editable)
     , lay_(lay)
+    , worklay_(*new Strat::Layer(lay))
+    , chgd_(false)
 {
-    if ( !editable )
+    if ( !editable_ )
 	setCtrlStyle( CloseOnly );
 
     lithfld_ = new uiGenInput( this, "Lithology", lay_.lithology().name() );
@@ -67,6 +69,10 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 	valfld->attach( alignedBelow, algrp );
 	algrp = valfld;
 	valflds_ += valfld;
+	if ( editable_ && !lay_.isMath(ival) )
+	    valfld->valueChanged.notify( mCB(this,uiStratEditLayer,valChg) );
+	else
+	    valfld->setReadOnly( true );
     }
 
     contfld_ = new uiStratLayerContent( this, true, lay.unitRef().refTree() ); 
@@ -75,11 +81,19 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 }
 
 
-bool uiStratEditLayer::acceptOK( CallBacker* )
+uiStratEditLayer::~uiStratEditLayer()
 {
+    delete &worklay_;
+}
+
+
+bool uiStratEditLayer::getFromScreen( bool emituierrs )
+{
+    chgd_ = false;
     if ( !editable_ )
 	return true;
 
+    TypeSet<float> oldvals, newvals;
     for ( int ival=0; ival<lay_.nrValues(); ival++ )
     {
 	if ( ival >= valflds_.size() )
@@ -92,15 +106,57 @@ bool uiStratEditLayer::acceptOK( CallBacker* )
 	else if ( ival == 0 && val <= 0 )
 	    msg = "Please set the thickness to a positive number";
 	if ( !msg.isEmpty() )
-	    { uiMSG().error( msg ); return false; }
+	    { if ( emituierrs ) uiMSG().error( msg ); return false; }
+
+	oldvals += lay_.value( ival );
+	newvals += val;
     }
 
-    for ( int ival=0; ival<lay_.nrValues(); ival++ )
+    for ( int ival=0; ival<newvals.size(); ival++ )
     {
-	if ( ival < valflds_.size() )
-	    lay_.setValue( ival, valflds_[ival]->getValue() );
+	const float valdiff = oldvals[ival] - newvals[ival];
+	const Strat::LayerValue* lv = lay_.getLayerValue( ival );
+	const bool mustclone = lv && !lv->isSimple();
+	const bool issame = mIsZero(valdiff,1e-8);
+	if ( !issame )
+	    chgd_ = true;
+	if ( mustclone || issame )
+	    worklay_.setValue( ival, lv->clone(&worklay_) );
+	else
+	    worklay_.setValue( ival, newvals[ival] );
     }
-    lay_.setContent( contfld_->get() );
+
+    const Strat::Content& newcontent = contfld_->get();
+    if ( &lay_.content() != &newcontent )
+	chgd_ = true;
+    worklay_.setContent( newcontent );
+
+    return true;
+}
+
+
+void uiStratEditLayer::valChg( CallBacker* )
+{
+    if ( !getFromScreen(false) )
+	return;
+
+    for ( int ival=0; ival<valflds_.size(); ival++ )
+    {
+	if ( worklay_.isMath(ival) )
+	    valflds_[ival]->setValue( worklay_.value(ival), true );
+    }
+}
+
+
+bool uiStratEditLayer::acceptOK( CallBacker* )
+{
+    if ( !editable_ )
+	return true;
+    else if ( !getFromScreen(true) )
+	return false;
+
+    if ( chgd_ )
+	const_cast<Strat::Layer&>(lay_) = worklay_;
 
     return true;
 }
