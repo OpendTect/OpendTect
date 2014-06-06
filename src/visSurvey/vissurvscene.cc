@@ -807,8 +807,7 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 
     markerset_->clearMarkers();
     markerset_->addPos( displaypos );
-    markerset_->turnMarkerOn( 0, true );
-    markerset_->forceRedraw( true );
+    markerset_->turnOn( true );
 }
 
 
