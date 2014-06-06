@@ -23,11 +23,12 @@ class CtxtIOObj;
 
  If you provide keys (one for each item), then these will be stored too.
 
- If you have no keys, then you can simply do setSelected( selNames() ).
+ If you have no keys, then you can simply do setChosen( chosenNames() ).
  Otherwise you need to construct the display names yourself and then use
- setSelected().
+ setChosen().
 
- Note: this object needs to be deleted explicitly.
+ Note: this object needs to be deleted explicitly; it will not be deleted
+ automatically like the uiListBox itself.
 
  */
 
@@ -47,7 +48,7 @@ public:
     void		setChosen(const BufferStringSet& names);
 
     Notifier<uiListBoxChoiceIO> storeRequested; //!< opportunity to set the keys
-    Notifier<uiListBoxChoiceIO> readDone;	//!< you need to use setSelected
+    Notifier<uiListBoxChoiceIO> readDone;	//!< now use setChosen
 
 protected:
 

@@ -23,13 +23,51 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 
 class uiComboBox;
+class uiGenInput;
 class uiListBox;
+class uiListBoxChoiceIO;
+class uiListBoxFilter;
 class uiSeisSel;
 class uiSelNrRange;
 class uiSelZRange;
+class uiSeis2DLineSel;
 
 class CtxtIOObj;
 class IOObj;
+
+
+mExpClass(uiSeis) uiSeis2DLineChoose : public uiGroup
+{
+public:
+
+			uiSeis2DLineChoose(uiParent*,
+					OD::ChoiceMode cm=OD::ChooseOnlyOne);
+			~uiSeis2DLineChoose();
+
+    void		getChosen(TypeSet<Pos::GeomID>&) const;
+    void		getChosen(BufferStringSet&) const;
+    void		setChosen(const TypeSet<Pos::GeomID>&);
+    void		setChosen(const BufferStringSet&);
+    void		chooseAll(bool yn=true);
+
+protected:
+
+    BufferStringSet	lnms_;
+    TypeSet<Pos::GeomID> geomids_;
+
+    uiListBox*		listfld_;
+    uiListBoxFilter*	filtfld_;
+    uiListBoxChoiceIO*	lbchoiceio_;
+
+    void		readChoiceDone(CallBacker*);
+    void		writeChoiceReq(CallBacker*);
+
+    friend class	uiSeis2DLineSel;
+			uiSeis2DLineChoose(uiParent*,OD::ChoiceMode,
+			    const BufferStringSet&,const TypeSet<Pos::GeomID>&);
+
+    void		init(OD::ChoiceMode);
+};
 
 
 mExpClass(uiSeis) uiSeis2DLineSel : public uiCompoundParSel
@@ -59,16 +97,16 @@ public:
     void		setAll(bool yn);
     bool		isAll() const;
     int			nrSelected() const;
-    
+
     Notifier<uiSeis2DLineSel>	selectionChanged;
 
 protected:
 
     BufferStringSet	lnms_;
-    TypeSet<Pos::GeomID>	geomids_;
+    TypeSet<Pos::GeomID> geomids_;
     TypeSet<int>	selidxs_;
     bool		ismultisel_;
-    
+
     BufferString	getSummary() const;
 
     virtual void	selPush(CallBacker*);

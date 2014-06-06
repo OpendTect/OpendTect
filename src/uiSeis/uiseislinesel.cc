@@ -15,6 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uilistboxfilter.h"
+#include "uilistboxchoiceio.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseissel.h"
 #include "uiselsimple.h"
@@ -36,6 +39,136 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
+static void getGMList( BufferStringSet& lnms, TypeSet<Pos::GeomID>& gids )
+{
+    Survey::GM().getList( lnms, gids, true );
+    for ( int idx=gids.size()-1; idx>=0; idx-- )
+    {
+	if ( !SeisIOObjInfo::hasData(gids[idx]) )
+	{
+	    lnms.removeSingle( idx );
+	    gids.removeSingle( idx );
+	}
+    }
+}
+
+
+uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm )
+    : uiGroup(p,"Line chooser")
+    , lbchoiceio_(0)
+{
+    getGMList( lnms_, geomids_ );
+    init( cm );
+}
+
+
+uiSeis2DLineChoose::uiSeis2DLineChoose( uiParent* p, OD::ChoiceMode cm,
+		const BufferStringSet& lnms, const TypeSet<Pos::GeomID>& gids )
+    : uiGroup(p,"Line chooser")
+    , lnms_(lnms)
+    , geomids_(gids)
+    , lbchoiceio_(0)
+{
+    init( cm );
+}
+
+
+void uiSeis2DLineChoose::init( OD::ChoiceMode cm )
+{
+    listfld_ = new uiListBox( this, "Lines", cm );
+    filtfld_ = new uiListBoxFilter( *listfld_ );
+    filtfld_->setItems( lnms_ );
+    if ( isMultiChoice(cm) )
+    {
+	lbchoiceio_ = new uiListBoxChoiceIO( *listfld_, "2D Lines" );
+	lbchoiceio_->readDone.notify(
+				mCB(this,uiSeis2DLineChoose,readChoiceDone) );
+	lbchoiceio_->storeRequested.notify(
+				mCB(this,uiSeis2DLineChoose,writeChoiceReq) );
+    }
+}
+
+
+uiSeis2DLineChoose::~uiSeis2DLineChoose()
+{
+    delete lbchoiceio_;
+}
+
+
+void uiSeis2DLineChoose::getChosen( TypeSet<Pos::GeomID>& chids ) const
+{
+    chids.setEmpty();
+    TypeSet<int> chidxs; filtfld_->getChosen( chidxs );
+    for ( int idx=0; idx<chidxs.size(); idx++ )
+	chids += geomids_[ chidxs[idx] ];
+}
+
+
+void uiSeis2DLineChoose::getChosen( BufferStringSet& nms ) const
+{
+    nms.setEmpty();
+    TypeSet<int> chidxs; filtfld_->getChosen( chidxs );
+    for ( int idx=0; idx<chidxs.size(); idx++ )
+	nms.add( lnms_.get(chidxs[idx]) );
+}
+
+
+void uiSeis2DLineChoose::setChosen( const TypeSet<Pos::GeomID>& gids )
+{
+    filtfld_->setFilter( 0 );
+    listfld_->chooseAll( false );
+    for ( int idx=0; idx<gids.size(); idx++ )
+    {
+	const int idxof = geomids_.indexOf( gids[idx] );
+	if ( idxof >= 0 )
+	    listfld_->setChosen( idxof, true );
+    }
+}
+
+
+void uiSeis2DLineChoose::setChosen( const BufferStringSet& nms )
+{
+    filtfld_->setFilter( 0 );
+    listfld_->chooseAll( false );
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	const int idxof = lnms_.indexOf( nms.get(idx) );
+	if ( idxof >= 0 )
+	    listfld_->setChosen( idxof, true );
+    }
+}
+
+
+void uiSeis2DLineChoose::chooseAll( bool yn )
+{
+    if ( yn )
+	filtfld_->setFilter( 0 );
+    listfld_->chooseAll( yn );
+}
+
+
+void uiSeis2DLineChoose::readChoiceDone( CallBacker* )
+{
+    TypeSet<Pos::GeomID> gids;
+    for ( int idx=0; idx<lbchoiceio_->chosenKeys().size(); idx++ )
+	gids += (Pos::GeomID)toInt( lbchoiceio_->chosenKeys().get(idx).buf() );
+    setChosen( gids );
+}
+
+
+void uiSeis2DLineChoose::writeChoiceReq( CallBacker* )
+{
+    lbchoiceio_->keys().setEmpty();
+    for ( int idx=0; idx<listfld_->size(); idx++ )
+    {
+	const int idxof = lnms_.indexOf( listfld_->textOfItem(idx) );
+	if ( idxof < 0 )
+	    { pErrMsg("Huh"); continue; }
+	lbchoiceio_->keys().add( toString(geomids_[idxof]) );
+    }
+}
+
+
 uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
     : uiCompoundParSel(p,multisel?"Select 2D lines":"Select 2D line")
     , ismultisel_(multisel)
@@ -43,7 +176,7 @@ uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, bool multisel )
 {
     txtfld_->setElemSzPol( uiObject::Wide );
     butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
-    Survey::GM().getList( lnms_, geomids_, true );
+    getGMList( lnms_, geomids_ );
 }
 
 
@@ -221,20 +354,23 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     if ( lnms_.isEmpty() )
 	mErrRet( "No 2D lines available" )
 
-    uiSelectFromList::Setup su( "Select 2D line", lnms_ );
-    su.current_ = ismultisel_ || selidxs_.isEmpty() ? 0 : selidxs_[0];
-    uiSelectFromList dlg( this, su );
-    if ( ismultisel_ && dlg.selFld() )
-    {
-	dlg.selFld()->setMultiChoice();
-	dlg.selFld()->setChosen( selidxs_ );
-    }
+    uiDialog dlg( this,
+		  uiDialog::Setup("Line selection",mNoDlgTitle,mNoHelpKey) );
+    uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
+		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne,
+		    lnms_, geomids_ );
+    TypeSet<Pos::GeomID> chosenids;
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	chosenids += geomids_[ selidxs_[idx] ];
+    lchfld->setChosen( chosenids );
 
-    if ( !dlg.go() || !dlg.selFld() )
+    if ( !dlg.go() )
 	return;
 
-    selidxs_.erase();
-    dlg.selFld()->getChosen( selidxs_ );
+    lchfld->getChosen( chosenids );
+    for ( int idx=0; idx<chosenids.size(); idx++ )
+	selidxs_ += geomids_.indexOf( chosenids[idx] );
+
     selectionChanged.trigger();
 }
 
@@ -288,7 +424,7 @@ void uiSeis2DLineNameSel::fillWithAll()
 {
     BufferStringSet lnms;
     TypeSet<Pos::GeomID> geomids;
-    Survey::GM().getList( lnms, geomids, true );
+    getGMList( lnms, geomids );
     fld_->addItems( lnms );
     if ( fld_->size() )
 	fld_->setCurrentItem( 0 );

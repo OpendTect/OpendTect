@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uigeninput.h"
+#include "uilistboxfilter.h"
 #include "uichecklist.h"
 #include "globexpr.h"
 #include "bufstringset.h"
@@ -31,17 +31,15 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	return;
     }
 
-    filtfld_ = new uiGenInput( this, "Filter", "*" );
-    filtfld_->valuechanged.notify( mCB(this,uiSelectFromList,filtChg) );
-
     selfld_ = new uiListBox( this );
-    selfld_->setName("Select Data from List");
-    selfld_->addItems( setup_.items_ );
+    selfld_->setName("Select from List");
     if ( setup_.current_ < 1 )
 	selfld_->setCurrentItem( 0 );
     else
 	selfld_->setCurrentItem( setup_.current_ );
-    selfld_->attach( centeredBelow, filtfld_ );
+
+    filtfld_ = new uiListBoxFilter( *selfld_ );
+    filtfld_->setItems( setup_.items_ );
 
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
@@ -54,46 +52,12 @@ uiObject* uiSelectFromList::bottomFld()
 }
 
 
-void uiSelectFromList::filtChg( CallBacker* )
-{
-    const char* filt = filtfld_->text();
-    if ( !filt || !*filt ) filt = "*";
-
-    BufferString cursel( selfld_->getText() );
-    selfld_->setEmpty();
-    GlobExpr ge( filt );
-    for ( int idx=0; idx<setup_.items_.size(); idx++ )
-    {
-	const char* itm = setup_.items_[idx].getFullString();
-	if ( ge.matches(itm) )
-	    selfld_->addItem( itm );
-    }
-
-    if ( selfld_->isPresent(cursel) )
-	selfld_->setCurrentItem( cursel );
-    else
-	selfld_->setCurrentItem( 0 );
-}
-
-
 bool uiSelectFromList::acceptOK( CallBacker* )
 {
     if ( !selfld_ ) return false;
 
-    const int selidx = selfld_->currentItem();
-    if ( selidx < 0 ) return false;
-
-    const char* seltxt = selfld_->textOfItem( selidx );
-    for ( int idx=0; idx<setup_.items_.size(); idx++ )
-    {
-	if ( setup_.items_[idx].getFullString() == seltxt )
-	{
-	    setup_.current_ = idx;
-	    return true;
-	}
-    }
-
-    return false;
+    setup_.current_ = filtfld_->getCurrent();
+    return setup_.current_ >= 0;
 }
 
 
