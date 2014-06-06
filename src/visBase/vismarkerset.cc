@@ -102,7 +102,6 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
 	 markerset_->setColorArray( 0 );
 	 markerset_->useSingleColor( true );
      }
-
 }
 
 
@@ -370,4 +369,10 @@ int MarkerSet::size() const
 	return coords_->size();
 
     return 0;
+}
+
+
+void MarkerSet::turnLightingOn( bool yn )
+{
+    markerset_->turnLightingOn( yn );
 }
