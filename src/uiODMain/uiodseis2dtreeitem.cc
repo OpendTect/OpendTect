@@ -59,8 +59,9 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 
 
 #define mAdd		0
-#define mFrom3D		1
-#define mTo3D		2
+#define mGridFrom3D	1
+#define mFrom3D		2
+#define mTo3D		3
 
 #define mDispNames	10
 #define mDispPanels	11
@@ -82,9 +83,13 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
     if ( SI().has3D() )
-	mnu.insertItem( new uiAction(tr("&Create from 3D ...")), mFrom3D );
+    {
+	mnu.insertItem( new uiAction(tr("&Create 2D Grid From 3D ...")),
+			mGridFrom3D );
+	mnu.insertItem( new uiAction(tr("&Extract From 3D ...")), mFrom3D );
+    }
 
-    mnu.insertItem( new uiAction(tr("&Generate 3D cube...")), mTo3D );
+    mnu.insertItem( new uiAction(tr("&Generate 3D cube ...")), mTo3D );
 
     if ( !children_.isEmpty() )
     {
@@ -178,10 +183,12 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	    }
 	}
     }
+    else if ( mnuid == mGridFrom3D )
+	ODMainWin()->applMgr().create2DGrid();
     else if ( mnuid == mFrom3D )
-	ODMainWin()->applMgr().create2Dfrom3D();
+	ODMainWin()->applMgr().create2DFrom3D();
     else if ( mnuid == mTo3D )
-	ODMainWin()->applMgr().create3Dfrom2D();
+	ODMainWin()->applMgr().create3DFrom2D();
     else if ( mnuid >= mDispNames && mnuid <= mHidePolyLines )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -1208,7 +1215,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 						 int component,
-						 uiTaskRunner& tr )
+						 uiTaskRunner& taskrunner )
 {
     uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -1288,7 +1295,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     cs.zrg.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, linekey, tr );
+	applMgr()->attrServer()->create2DOutput( cs, linekey, taskrunner );
     if ( dpid < 0 )
 	return false;
 

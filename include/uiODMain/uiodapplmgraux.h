@@ -62,7 +62,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     int			createMapDataPack(const DataPointSet&,int);
 
     void		processPreStack();
-    void		process2D3D(bool to2d);
+    void		process2D3D(int opt);
     void		genAngleMuteFunction();
     void		bayesClass(bool is2d);
     void		resortSEGY();

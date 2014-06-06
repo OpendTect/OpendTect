@@ -61,6 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestackimpmute.h"
 #include "uiprobdenfuncman.h"
 #include "uiseisbayesclass.h"
+#include "uiseis2dfrom3d.h"
 #include "uiseis2dto3d.h"
 #include "uiselsimple.h"
 #include "uishortcuts.h"
@@ -558,11 +559,13 @@ void uiODApplMgrDispatcher::resortSEGY()
 void uiODApplMgrDispatcher::createCubeFromWells()
 { uiCreateLogCubeDlg dlg( par_, 0 ); dlg.go(); }
 
-void uiODApplMgrDispatcher::process2D3D( bool to2d )
+void uiODApplMgrDispatcher::process2D3D( int opt )
 {
-    if ( to2d )
+    if ( opt==0 )
     { uiCreate2DGrid dlg( par_, 0 ); dlg.go(); }
-    else
+    else if ( opt==1 )
+    { uiSeis2DFrom3D dlg( par_ ); dlg.go(); }
+    else if ( opt==2 )
     { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
 }
 

@@ -404,8 +404,8 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::addTimeDepthScene()
 {
-    uiDialog::Setup setup("Velocity model",
-		"Select velocity model to base scene on",
+    uiDialog::Setup setup(tr("Velocity model"),
+		tr("Select velocity model to base scene on"),
                 mODHelpKey(mODApplMgraddTimeDepthSceneHelpID) );
 
     uiSingleGroupDlg dlg( &appl_, setup );
@@ -418,7 +418,7 @@ void uiODApplMgr::addTimeDepthScene()
 
     if ( !uitrans->isOK() )
     {
-	uiMSG().error("No suitable transforms found");
+	uiMSG().error(tr("No suitable transforms found"));
 	return;
     }
 
@@ -772,7 +772,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as )
     {
-	uiMSG().error( "Cannot calculate attribute on this object" );
+	uiMSG().error( tr("Cannot calculate attribute on this object") );
 	return false;
     }
 
@@ -783,7 +783,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 	const int auxdatanr = emserv_->loadAuxData( emid, myas.userRef() );
         if ( auxdatanr<0 )
-	    uiMSG().error( "Cannot find stored data" );
+	    uiMSG().error( tr("Cannot find stored data") );
 	else
 	{
 	    DataPointSet* data = new DataPointSet( false, true );
@@ -879,7 +879,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     }
     else
     {
-	uiMSG().error( "Cannot evaluate attributes on this object" );
+	uiMSG().error( tr("Cannot evaluate attributes on this object") );
 	return false;
     }
 
@@ -1511,7 +1511,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrserv_->getPossibleOutputs( nlaserv_->is2DEvent(),
 				      nlaserv_->inputNames() );
 	if ( nlaserv_->inputNames().size() == 0 )
-	    { uiMSG().error( "No usable input" ); return false; }
+	    { uiMSG().error( tr("No usable input") ); return false; }
     }
     else if ( evid == uiNLAPartServer::evGetStoredInput() )
     {
@@ -1536,12 +1536,18 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	{
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
-		{ uiMSG().error("No matching well data found"); return false;}
+	    {
+		  uiMSG().error(tr("No matching well data found"));
+		  return false;
+	    }
 	    bool allempty = true;
 	    for ( int idx=0; idx<dpss.size(); idx++ )
 		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
 	    if ( allempty )
-		{ uiMSG().error("No valid data locations found"); return false;}
+	    {
+		    uiMSG().error(tr("No valid data locations found"));
+		    return false;
+	    }
 	    if ( !attrserv_->extractData(dpss) )
 		{ deepErase(dpss); return true; }
 	    IOPar& iop = nlaserv_->storePars();
@@ -1602,7 +1608,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	attrserv_->getDirectShowAttrSpec( as );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( "Please select an attribute element in the tree" );
+	    uiMSG().error( tr("Please select an attribute"
+			      " element in the tree") );
 	    return false;
 	}
 
@@ -1635,12 +1642,13 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( "Please select an attribute element in the tree" );
+	    uiMSG().error( tr("Please select an attribute"
+			      " element in the tree") );
 	    return false;
 	}
 	if ( !calcMultipleAttribs( as ) )
 	{
-	    uiMSG().error( "Could not evaluate this attribute" );
+	    uiMSG().error( tr("Could not evaluate this attribute") );
 	    return false;
 	}
 
@@ -1905,11 +1913,8 @@ void uiODApplMgr::startInstMgr()
 { dispatcher_.startInstMgr(); }
 void uiODApplMgr::setAutoUpdatePol()
 { dispatcher_.setAutoUpdatePol(); }
-void uiODApplMgr::create2Dfrom3D()
-{ dispatcher_.process2D3D( true ); }
-void uiODApplMgr::create3Dfrom2D()
-{ dispatcher_.process2D3D( false ); }
-
+void uiODApplMgr::process2D3D( int opt )
+{ dispatcher_.process2D3D( opt ); }
 
 void uiODApplMgr::MiscSurvInfo::refresh()
 {
