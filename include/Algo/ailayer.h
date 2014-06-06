@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "gendefs.h"
 #include "math.h"
+#include "survinfo.h"
 #include "typeset.h"
 
 /*!
@@ -26,7 +27,13 @@ mExpClass(Algo) AILayer
 {
 public:
 		AILayer( float thkness, float vel, float den )
-		    : thickness_(thkness), vel_(vel), den_(den)	{}
+		    : thickness_(thkness), vel_(vel), den_(den) {};
+
+		//Velocity will be computed using Gardner equation
+		//in case density is undef.
+		AILayer(float thkness,float ai, float den,
+			bool needcompthkness );
+
     bool	operator ==( const AILayer& p ) const
 		{ return thickness_ == p.thickness_; }
     
@@ -52,8 +59,12 @@ mExpClass(Algo) ElasticLayer : public AILayer
 public:
 		ElasticLayer( float thkness, float pvel, float svel, float den )
 		    : AILayer(thkness,pvel,den), svel_(svel) {}
+
+		//To be used only for 0 offsets
 		ElasticLayer(const AILayer& ailayer)
 		    : AILayer(ailayer), svel_(mUdf(float)) {}
+		ElasticLayer(float thkness,float ai,float si,
+			     float den,bool needcompthkness);
 
     bool	operator ==( const ElasticLayer& p ) const
 		{ return thickness_ == p.thickness_; }
@@ -110,6 +121,14 @@ public:
 		   \param theta Incidence angle in radians */
 
     bool	getUpscaledBackus(ElasticLayer& outlay,float theta=0.) const;
+
+    bool	createFromVel(const StepInterval<float>& zrange,
+			      const float* pvel, const float* svel =0,
+			      const float* den =0);
+
+    bool	createFromAI(const StepInterval<float>& zrange,const float* ai,
+			     const float* si =0,const float* den =0);
+
 
 };
 

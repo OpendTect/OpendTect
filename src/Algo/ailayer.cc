@@ -13,9 +13,38 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "ranges.h"
 
+
+AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
+    : den_(den)
+{
+    if ( !mIsUdf(den_) )
+	vel_ = ai / den;
+    else
+    {
+	//compute vel_ using Gardner's equation vel = (den/Co)^(1/C1)
+	//with default values for C0 and C1 respectively 0.31 and 0.25
+	vel_ = Math::PowerOf( ai/0.31, 1/1.25 );
+	den_ = ai/vel_;
+    }
+
+    thickness_ = needcompthkness ? thkness*vel_/2.0f : thkness;
+}
+
+
 float AILayer::getAI() const
 {
     return !mIsUdf(vel_)&&!mIsUdf(den_) ? vel_ * den_ : mUdf(float);
+}
+
+
+ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
+			    bool needcompthkness )
+    : AILayer( thkness, ai, den, needcompthkness )
+{
+    if ( !mIsUdf(den) )
+	svel_ = si / den;
+    else
+	svel_ = si / den_;	//vel_ and den_ computed using Gardner equation
 }
 
 
@@ -504,4 +533,101 @@ void ElasticModel::mergeSameLayers()
     *this += prevlayer;
 }
 
+
+#define mMaxthickness	SI().depthsInFeet() ? 165.0f : 50.0f
+#define mThreshold	0.01
+
+bool ElasticModel::createFromVel( const StepInterval<float>& zrange,
+				  const float* pvel, const float* svel,
+				  const float* den )
+{
+    setEmpty();
+    const bool zit =  SI().zDomain().isTime();
+    const int zsize = zrange.nrSteps();
+
+    const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
+
+    int firstidx = 0; float firstlayerthickness;
+    if ( zrange.start < srddepth )
+    {
+	firstidx = zrange.getIndex( srddepth );
+	if ( firstidx < 0 )
+	    firstidx = 0;
+
+	firstlayerthickness =
+		zit ? (zrange.atIndex(firstidx+1)-srddepth)*pvel[firstidx]/2.0f
+		    :  zrange.atIndex(firstidx+1)-srddepth;
+    }
+    else
+	firstlayerthickness =
+		zit ? (zrange.start+zrange.step-srddepth)*pvel[firstidx]/2.0f
+		    :  zrange.start+zrange.step-srddepth;
+
+    ElasticLayer firstlayer( firstlayerthickness, pvel[firstidx],
+			     svel ? svel[firstidx] : mUdf(float),
+			     den ? den[firstidx] : mUdf(float));
+    *this += firstlayer;
+
+    for ( int idx=firstidx+1; idx<zsize; idx++ )
+    {
+	const float layerthickness = zit ? zrange.step*pvel[idx]/2.0f
+					 : zrange.step;
+
+	ElasticLayer elayer( layerthickness, pvel[idx],
+			     svel ? svel[idx] : mUdf(float),
+			     den ? den[idx] : mUdf(float) );
+	*this += elayer;
+    }
+
+    if ( isEmpty() )
+	return false;
+
+    block( mThreshold, true );
+    setMaxThickness( mMaxthickness );
+    return true;
+}
+
+
+bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
+				 const float* ai, const float* si,
+				 const float* den )
+{
+    setEmpty();
+    const bool zit =  SI().zDomain().isTime();
+    const int zsize = zrange.nrSteps();
+
+    const float srddepth = -1.0f * (float) SI().seismicReferenceDatum();
+
+    int firstidx = 0; float firstlayerthickness;
+    if ( zrange.start < srddepth )
+    {
+	firstidx = zrange.getIndex( srddepth );
+	if ( firstidx < 0 )
+	    firstidx = 0;
+
+	firstlayerthickness = zrange.atIndex(firstidx+1)-srddepth;
+    }
+    else
+	firstlayerthickness = zrange.start+zrange.step-srddepth;
+
+    ElasticLayer firstlayer( firstlayerthickness, ai[firstidx],
+			     si ? si[firstidx] : mUdf(float),
+			     den ? den[firstidx] : mUdf(float), zit );
+    *this += firstlayer;
+
+    for ( int idx=firstidx+1; idx<zsize; idx++ )
+    {
+	ElasticLayer elayer( zrange.step, ai[idx],
+			     si ? si[idx] : mUdf(float),
+			     den ? den[idx] : mUdf(float), zit );
+	*this += elayer;
+    }
+
+    if ( isEmpty() )
+	return false;
+
+    block( mThreshold, true );
+    setMaxThickness( mMaxthickness );
+    return true;
+}
 
