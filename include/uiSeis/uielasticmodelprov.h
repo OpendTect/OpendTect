@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 
 #include "uigroup.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiIOObjSel;
@@ -23,6 +24,11 @@ mExpClass(uiSeis) uiElasticModelProvider : public uiGroup
 { mODTextTranslationClass(uiElasticModelProvider);
 public:
 			uiElasticModelProvider(uiParent*,bool is2d);
+    bool		getInputMIDs(MultiID& pwmid,MultiID& swmid,
+				     MultiID& aimid,MultiID& simid,
+				     MultiID& denmid) const;
+
+    uiString		errMsg() const			{ return errmsg_; }
 
 protected:
 
@@ -39,6 +45,7 @@ protected:
     uiVelSel*		pwavefld_;
     uiVelSel*		swavefld_;
     uiIOObjSel* 	waveletfld_;
+    uiString		errmsg_;
 
 };
 

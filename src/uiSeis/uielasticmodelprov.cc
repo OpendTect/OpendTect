@@ -39,8 +39,8 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 {
 
     inptypefld_ = new uiGenInput( this, tr("Input type"),
-				  BoolInpSpec(true,tr("Acoustic"), 
-                                  tr("Elastic")) );
+				  BoolInpSpec(true, tr("Acoustic"),
+					      tr("Elastic")) );
     inptypefld_->valuechanged.notify(
 			    mCB(this,uiElasticModelProvider,inpTypeSel) );
 
@@ -73,13 +73,17 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     IOObjContext aictxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
     aictxt.forread = true;
-    aifld_ = new uiSeisSel( this, aictxt, uiSeisSel::Setup(is2d, false) );
+    uiSeisSel::Setup aisu( is2d, false );
+    aisu.seltxt( tr("Acoustic Impedance") );
+    aifld_ = new uiSeisSel( this, aictxt, aisu );
     aifld_->attach( alignedBelow, inpsourceacfld_ );
 
     IOObjContext sictxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
     sictxt.forread = true;
-    sifld_ = new uiSeisSel( this, sictxt, uiSeisSel::Setup(is2d, false) );
+    uiSeisSel::Setup sisu( is2d, false );
+    sisu.seltxt( tr("Shear Impedance") );
+    sifld_ = new uiSeisSel( this, sictxt, sisu );
     sifld_->attach( alignedBelow, aifld_ );
 
     IOObjContext denctxt =
@@ -91,8 +95,9 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     IOObjContext optdenctxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
     optdenctxt.forread = true;
-    uiSeisSel::Setup su(is2d,false);
+    uiSeisSel::Setup su( is2d, false );
     su.optional_= true;
+    su.seltxt( tr("Density") );
     optdensityfld_ = new uiSeisSel( this, optdenctxt, su );
     optdensityfld_->attach( alignedBelow, sifld_ );
 
@@ -122,5 +127,53 @@ void uiElasticModelProvider::sourceSel( CallBacker* cb )
     sifld_->display( needai && !isac );
     pwavefld_->display( !needai );
     swavefld_->display( !needai && !isac );
+}
+
+
+bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
+					   MultiID& aimid, MultiID& simid,
+					   MultiID& denmid ) const
+{
+    pwmid = pwavefld_->key();
+    swmid = swavefld_->key();
+    aimid = aifld_->key();
+    simid = sifld_->key();
+
+    const bool isac = inptypefld_->getBoolValue();
+    const bool needsi = !isac && inpsourceelfld_->getIntValue() == 1;
+    const bool needai = isac ? inpsourceacfld_->getIntValue() == 1
+			     : inpsourceelfld_->getIntValue() == 1;
+
+    denmid = needai ? optdensityfld_->isChecked() ? optdensityfld_->key()
+						  : MultiID::udf()
+		    : densityfld_->key();
+
+    uiString basestr  = tr( "Selected inputs are not in adequation with \n"
+			    "chosen model type and source." );
+    uiString reasonstr;
+    if ( needai && aimid.isUdf() )
+	reasonstr.append( tr( "Acoustic Impedance input is missing"), true );
+
+    if ( needsi && simid.isUdf() )
+	reasonstr.append( tr("Shear Impedance input is missing" ), true );
+
+    if ( !needai && denmid.isUdf() )
+	reasonstr.append( tr("Density input is missing" ), true );
+
+    if ( !needai && pwmid.isUdf() )
+	reasonstr.append( tr("P-Wave input is missing" ), true );
+
+    if ( !isac && !needsi && swmid.isUdf() )
+	reasonstr.append( tr("S-Wave input is missing" ), true );
+
+    if ( !reasonstr.isEmpty() )
+    {
+	const_cast<uiElasticModelProvider*>(this)->errmsg_ = basestr;
+	const_cast<uiElasticModelProvider*>(this)->
+					    errmsg_.append( reasonstr, true );
+	return false;
+    }
+
+    return true;
 }
 
