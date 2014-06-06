@@ -96,13 +96,14 @@ void MarkerSet::materialChangeCB( CallBacker* cb)
 
 	 markerset_->setColorArray( osgcolorarr.get() );
 	 markerset_->useSingleColor( false );
+	 markerset_->turnLightingOn( false ); 
      }
      else 
      {
 	 markerset_->setColorArray( 0 );
 	 markerset_->useSingleColor( true );
+	 markerset_->turnLightingOn( true );
      }
-
 }
 
 
@@ -137,6 +138,7 @@ void MarkerSet::setMarkersSingleColor( const Color& singlecolor )
 {
     osg::Vec4f color = Conv::to<osg::Vec4>( singlecolor );
     markerset_->setSingleColor( color );
+    markerset_->turnLightingOn( true );
     setMaterial( 0 );
 }
 
@@ -370,4 +372,10 @@ int MarkerSet::size() const
 	return coords_->size();
 
     return 0;
+}
+
+
+void MarkerSet::trunLightingOn( bool ison )
+{
+    markerset_->turnLightingOn( ison );
 }
