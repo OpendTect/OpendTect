@@ -69,6 +69,7 @@ Well::Well()
     markerset_->ref();
     addChild( markerset_->osgNode() );
     markerset_->setMaterial( new Material );
+    markerset_->turnLightingOn( false );
 
     track_ = PolyLine::create();
     track_->setColorBindType( VertexShape::BIND_OVERALL );
