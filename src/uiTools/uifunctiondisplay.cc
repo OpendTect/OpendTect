@@ -132,7 +132,11 @@ void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
     if ( sz > 0 )
     {
 	for ( int idx=0; idx<sz; idx++ )
-	    { xvals_ += xvals[idx]; yvals_ += yvals[idx]; }
+	{
+	    if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
+		continue;
+	    xvals_ += xvals[idx]; yvals_ += yvals[idx];
+	}
     }
 
     gatherInfo(); draw();
@@ -147,7 +151,11 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
     {
 	const float dx = (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
-	    { xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx]; }
+	{
+	    if ( mIsUdf(yvals[idx]) )
+		continue;
+	    xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx];
+	}
     }
 
     gatherInfo(); draw();
@@ -162,6 +170,8 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
     {
 	for ( int idx=0; idx<sz; idx++ )
 	{
+	    if ( mIsUdf(xvals[idx]) || mIsUdf(yvals[idx]) )
+		continue;
 	    y2xvals_ += xvals[idx];
 	    y2yvals_ += yvals[idx];
 	}
@@ -181,6 +191,8 @@ void uiFunctionDisplay::setY2Vals( const Interval<float>& xrg,
 	const float dx = (xrg.stop-xrg.start) / (sz-1);
 	for ( int idx=0; idx<sz; idx++ )
 	{
+	    if ( mIsUdf(yvals[idx]) )
+		continue;
 	    y2xvals_ += xrg.start + idx * dx;
 	    y2yvals_ += yvals[idx];
 	}
