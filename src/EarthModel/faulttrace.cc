@@ -211,7 +211,7 @@ int FaultTrace::getIntersectionTrace( float zval ) const
 	return mUdf(int);
 
     const float z = zval * SI().zDomain().userFactor();
-    const float eps = SI().zStep() * SI().zDomain().userFactor() * 0.2;
+    const float eps = SI().zStep() * SI().zDomain().userFactor() * 0.2f;
 
     for ( int idx=0; idx<tracesegs_.size(); idx++ )
     {
