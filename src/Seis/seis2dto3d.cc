@@ -99,11 +99,11 @@ void Seis2DTo3D::setOutput( IOObj& obj, const CubeSampling& outcs )
 bool Seis2DTo3D::read()
 {
     if ( ds_->nrLines() < 1 )
-	mErrRet( "Empty LineSet" )
+	mErrRet( tr("Input dataset is empty") )
     BufferStringSet lnms;
     ds_->getLineNames( lnms );
     if ( lnms.isEmpty() )
-	mErrRet( "No lines for this attribute" )
+	mErrRet( tr("Input dataset has no lines") )
 
     SeisTrcBuf tmpbuf(false);
     for ( int idx=0; idx<lnms.size(); idx++)
@@ -117,12 +117,12 @@ bool Seis2DTo3D::read()
 	seisbuf_.add( tmpbuf );
     }
     if ( seisbuf_.isEmpty() )
-	mErrRet("No trace could be read")
+	mErrRet( tr("No trace could be read") )
 
     CubeSampling linecs( false );
     Interval<int> inlrg( cs_.hrg.inlRange().start, cs_.hrg.inlRange().stop );
     Interval<int> crlrg( cs_.hrg.crlRange().start, cs_.hrg.crlRange().stop );
-    for ( int idx=0; idx<seisbuf_.size(); idx++ )
+    for ( int idx=seisbuf_.size()-1; idx>=0; idx-- )
     {
 	const SeisTrc& trc = *seisbuf_.get( idx );
 	const BinID& bid = trc.info().binid; 
@@ -132,6 +132,14 @@ bool Seis2DTo3D::read()
 
 	linecs.hrg.include( bid );
     }
+
+    if ( seisbuf_.isEmpty() )
+    {
+	errmsg_ =tr( "No input trace positions found in the "
+		     "specified subselection" );
+	return false;
+    }
+
     cs_.hrg.limitTo( linecs.hrg );
     hsit_.setSampling( cs_.hrg );
 
@@ -141,10 +149,6 @@ bool Seis2DTo3D::read()
     si.step = trc.info().sampling.step;
     si.stop = trc.size()*trc.info().sampling.step + si.start;
     cs_.zrg = si;
-
-    if ( cs_.totalNr() < 2 )
-	{ errmsg_ = "Not enough positions found in input lineset"; }
-
     delete ds_;
 
     sc_ = new SeisScaler( seisbuf_ );
@@ -175,7 +179,7 @@ int Seis2DTo3D::nextStep()
     if ( curbid.inl() != prevbid_.inl() )
     {
 	if ( !writeTmpTrcs() )
-	    { errmsg_ = "Can not write trace"; return ErrorOccurred(); }
+	    { errmsg_ = tr( "Can not write trace" ); return ErrorOccurred(); }
 	prevbid_ = curbid;
     }
 
@@ -221,7 +225,7 @@ int Seis2DTo3D::nextStep()
 	BinID binid;
 	ObjectSet<const SeisTrc> trcs;
 	SeisTrcReader rdr( outioobj_ );
-	SeisTrcBuf outtrcbuf(false);
+	SeisTrcBuf outtrcbuf( true );
 	SeisBufReader sbrdr( rdr, outtrcbuf );
 	sbrdr.execute();
 	while ( localhsit.next(binid) )
@@ -245,7 +249,7 @@ int Seis2DTo3D::nextStep()
 	interpol_.setInput( trcs );
 	interpol_.setParams( hrg, maxvel_);
 	if ( !trcs.isEmpty() && !interpol_.execute() )
-	    { errmsg_ = interpol_.errMsg(); return ErrorOccurred(); }
+	    { errmsg_ = interpol_.uiMessage(); return ErrorOccurred(); }
 
 	Interval<int> wininlrg( inl-inlstep_/2, inl+inlstep_/2);
 	Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);

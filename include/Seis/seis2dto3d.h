@@ -32,7 +32,7 @@ class SeisTrcBuf;
 
 
 mExpClass(Seis) SeisInterpol : public Executor
-{
+{ mODTextTranslationClass(SeisInterpol)
 public:
 
     			SeisInterpol();
@@ -43,8 +43,9 @@ public:
 
     void		getOutTrcs(ObjectSet<SeisTrc>&,
 					const HorSampling&) const;
-    const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
-						       : errmsg_.buf();  }
+    uiString		uiMessage() const
+			{ return  errmsg_.isEmpty() ? tr( "interpolating" )
+						    : errmsg_; }
     od_int64           	nrDone() const 		{ return nrdone_; }
     uiString		uiNrDoneText() const	{return "Number of iterations";}
     od_int64		totalNr() const 	{ return nriter_; };
@@ -55,7 +56,7 @@ protected:
     const ObjectSet<const SeisTrc>* inptrcs_; 
     int			nriter_;
     float 		maxvel_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
     int			nrdone_;
     mutable int		totnr_;
@@ -98,7 +99,7 @@ protected:
 
 
 mExpClass(Seis) Seis2DTo3D : public Executor
-{
+{ mODTextTranslationClass(Seis2DTo3D)
 public:
 
     			Seis2DTo3D();
@@ -110,10 +111,9 @@ public:
     void		setParams(int inl,int crl,float maxvel,bool reuse);
     void		setIsNearestTrace( bool yn );
 
-    const char*		errMsg() const 		{ return errmsg_.isEmpty() ? 0
-						       : errmsg_.buf();  }
-
-    uiString		uiMessage() const	{ return "interpolating"; }
+    uiString		uiMessage() const
+			{ return errmsg_.isEmpty() ? tr("interpolating")
+						   : errmsg_; }
     od_int64           	nrDone() const 		{ return nrdone_; }
     uiString		uiNrDoneText() const	{return "Done";}
     od_int64		totalNr() const;
@@ -132,7 +132,7 @@ protected:
     int			inlstep_;
     int			crlstep_;
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
     SeisScaler*		sc_;
 

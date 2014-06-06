@@ -78,9 +78,6 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     if ( !inpfld_->commitInput() )
 	mErrRet(tr("Missing Input\nPlease select the input seismics"))
     if ( !outfld_->commitInput() )
-    mErrRet(tr("Missing Output\nPlease enter a name for the output seismics"))
-    else if ( outctio_.ioobj->implExists(false)
-	   && !uiMSG().askGoOn(tr("Output cube exists. Overwrite?")) )
 	return false;
 
     seis2dto3d_.setInput( *inctio_.ioobj );
@@ -98,12 +95,9 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     seis2dto3d_.setOutput( *outctio_.ioobj, cs );
     seis2dto3d_.setIsNearestTrace( interpoltypefld_->getBoolValue() );
 
-    if ( seis2dto3d_.errMsg() )
-	uiMSG().error( seis2dto3d_.errMsg() );
-
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
-	return seis2dto3d_.errMsg();
+	return false;
 
     if ( !SI().has3D() )
 	uiMSG().warning( tr("3D cube created successfully. "
