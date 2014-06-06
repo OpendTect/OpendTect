@@ -408,7 +408,7 @@ void uiODMenuMgr::fillManMenu()
 }
 
 
-void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const char* title,
+void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const uiString& title,
 				 int id2d, int id3d, const char* pmfnm )
 {
     if ( SI().has2D() && SI().has3D() )
@@ -420,7 +420,8 @@ void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const char* title,
     }
     else
     {
-	const BufferString titledots( title, " ..." );
+	uiString titledots( title );
+	titledots.append( " ..." );
 	if ( SI().has2D() )
 	    mInsertPixmapItem( itm, titledots, id2d, pmfnm )
 	else if ( SI().has3D() )

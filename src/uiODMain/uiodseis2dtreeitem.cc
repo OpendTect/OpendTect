@@ -186,9 +186,9 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
     else if ( mnuid == mGridFrom3D )
 	ODMainWin()->applMgr().create2DGrid();
     else if ( mnuid == mFrom3D )
-	ODMainWin()->applMgr().create2DFrom3D();
+	ODMainWin()->applMgr().create2Dfrom3D();
     else if ( mnuid == mTo3D )
-	ODMainWin()->applMgr().create3DFrom2D();
+	ODMainWin()->applMgr().create3Dfrom2D();
     else if ( mnuid >= mDispNames && mnuid <= mHidePolyLines )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
