@@ -83,11 +83,23 @@ const BufferString uiSurveySelectDlg::getSurveyPath() const
 }
 
 
+bool uiSurveySelectDlg::continueAfterErrMsg()
+{
+    const bool res = uiMSG().askGoOn( 
+		"Selected directory is not a valid Data Root. Do you still " 
+		"want to search for OpendTect Surveys in this location" );
+    return res;
+}
+
+
 void uiSurveySelectDlg::fillSurveyList()
 {
-    BufferStringSet surveylist;
-    uiSurvey::getSurveyList( surveylist, getDataRoot() );  
     surveylistfld_->setEmpty();
+    if ( !checkIfDataDir(getDataRoot()) && !continueAfterErrMsg() )
+	return;
+
+    BufferStringSet surveylist;
+    uiSurvey::getSurveyList( surveylist, getDataRoot() );
     surveylistfld_->addItems( surveylist );
 }
 

@@ -40,6 +40,7 @@ protected:
     void		rootSelCB(CallBacker*);
     void		surveySelCB(CallBacker*);
     void		fillSurveyList();
+    bool		continueAfterErrMsg();
  
     uiFileInput*	datarootfld_;
     uiListBox*		surveylistfld_;
