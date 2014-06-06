@@ -119,10 +119,11 @@ Strat::FormulaLayerValue::~FormulaLayerValue()
 }
 
 
-Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone() const
+Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
+					const Layer* lay ) const
 {
-    FormulaLayerValue* ret = new FormulaLayerValue( form_, lay_, xpos_,
-						    myform_ );
+    FormulaLayerValue* ret = new FormulaLayerValue( form_, lay ? *lay : lay_,
+	    					    xpos_, myform_ );
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
@@ -202,7 +203,13 @@ Strat::Layer& Strat::Layer::operator =( const Strat::Layer& oth )
 	for ( int ival=0; ival<oth.vals_.size(); ival++ )
 	{
 	    const LayerValue* lv = oth.vals_[ival];
-	    vals_ += lv ? lv->clone() : 0;
+	    if ( !lv )
+		vals_ += 0;
+	    else
+	    {
+		LayerValue* newlv = lv->clone( this );
+		vals_ += newlv;
+	    }
 	}
     }
     return *this;
@@ -273,7 +280,7 @@ void Strat::Layer::setValue( int ival, float val )
     if ( lv && lv->isSimple() )
 	static_cast<SimpleLayerValue*>(lv)->setValue( val );
     else
-	vals_.replace( ival, new SimpleLayerValue(val) );
+	setLV( ival, new SimpleLayerValue(val) );
 }
 
 
@@ -282,7 +289,7 @@ void Strat::Layer::setValue( int ival, const Math::Formula& form,
 {
     mEnsureEnoughVals();
 
-    delete vals_.replace( ival, new FormulaLayerValue(form,*this,prs,xpos) );
+    setLV( ival, new FormulaLayerValue(form,*this,prs,xpos) );
 }
 
 
@@ -294,7 +301,20 @@ void Strat::Layer::setValue( int ival, const IOPar& iop,
     if ( iop.size() == 1 && iop.getKey(0) == sKey::Value() )
 	setValue( ival, toFloat(iop.getValue(0)) );
     else
-	vals_.replace( ival, new FormulaLayerValue(iop,*this,prs) );
+	setLV( ival, new FormulaLayerValue(iop,*this,prs) );
+}
+
+
+void Strat::Layer::setValue( int ival, LayerValue* lv )
+{
+    mEnsureEnoughVals();
+    setLV( ival, lv );
+}
+
+
+void Strat::Layer::setLV( int ival, LayerValue* lv )
+{
+    delete vals_.replace( ival, lv );
 }
 
 

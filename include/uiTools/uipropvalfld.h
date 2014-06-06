@@ -37,12 +37,18 @@ public:
     void		setReadOnly(bool); //!< will still allow unit selection
     const char*		propName() const;
 
+    Notifier<uiPropertyValFld> valueChanged;
+
 protected:
 
     uiGenInput*		valfld_;
     uiUnitSel*		unfld_;
     const UnitOfMeasure* prevuom_;
+    mutable float	lastsetvalue_;
 
+    void		handleValChg(float,bool) const;
+
+    void		valChg(CallBacker*);
     void		unChg(CallBacker*);
 
 };

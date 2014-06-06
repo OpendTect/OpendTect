@@ -71,22 +71,23 @@ public:
     void		setValue(int,const Math::Formula&,
 				 const PropertyRefSelection&,float xpos=0.5f);
     void		setValue(int,const IOPar&,const PropertyRefSelection&);
+    void		setValue(int,LayerValue*); //!< becomes mine
     void		setContent( const Content& c )	{ content_ = &c; }
     void		setXPos(float); // only affects Math lay vals
 
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
 
-
     static const PropertyRef& thicknessRef();
 
 protected:
 
-    const LeafUnitRef*		ref_;
-    float			ztop_;
-    ObjectSet<LayerValue>	vals_;
-    const Content*		content_;
+    const LeafUnitRef*	ref_;
+    float		ztop_;
+    ObjectSet<LayerValue> vals_;
+    const Content*	content_;
 
+    void		setLV(int,LayerValue*);
 };
 
 
@@ -94,7 +95,7 @@ mExpClass(Strat) LayerValue
 {
 public:
 
-    virtual LayerValue*	clone() const			= 0;
+    virtual LayerValue*	clone(const Layer* l=0) const	= 0;
     virtual		~LayerValue()			{}
     virtual bool	isSimple() const		{ return false; }
     virtual float	value() const			= 0;
@@ -110,7 +111,7 @@ mExpClass(Strat) SimpleLayerValue : public LayerValue
 public:
 			SimpleLayerValue( float val )
 			    : val_ (val)		{}
-    SimpleLayerValue*	clone() const
+    SimpleLayerValue*	clone(const Layer* l=0) const
 			{ return new SimpleLayerValue(val_); }
 
     virtual bool	isSimple() const		{ return true; }
@@ -138,7 +139,7 @@ public:
 			FormulaLayerValue(const IOPar&,const Strat::Layer&,
 					  const PropertyRefSelection&);
 			~FormulaLayerValue();
-    FormulaLayerValue*	clone() const;
+    FormulaLayerValue*	clone(const Layer*) const;
 
     bool		isBad() const		{ return !errmsg_.isEmpty(); }
     const char*		errMsg() const		{ return errmsg_; }

@@ -421,7 +421,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     if ( mnuid == 0 )
     {
 	uiStratEditLayer dlg( this, lay, ls, true );
-	if ( dlg.go() )
+	if ( dlg.go() && dlg.isChanged() )
 	    forceRedispAll( true );
     }
     else if ( mnuid == 3 || mnuid == 4 )

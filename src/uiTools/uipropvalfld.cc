@@ -20,17 +20,28 @@ uiPropertyValFld::uiPropertyValFld( uiParent* p, const PropertyRef& pr,
 			float defval, const UnitOfMeasure* defunit )
     : uiGroup(p,BufferString(pr.name()," input"))
     , prevuom_(0)
+    , lastsetvalue_(defval)
+    , valueChanged(this)
 {
     valfld_ = new uiGenInput( this, pr.name(), FloatInpSpec() );
     unfld_ = new uiUnitSel( this, pr.stdType() );
     if ( defunit )
 	unfld_->setUnit( defunit );
-    unfld_->selChange.notify( mCB(this,uiPropertyValFld,unChg) );
     unfld_->setName( BufferString(pr.name()," unit") );
     valfld_->setValue( unfld_->getUserValue(defval) );
     unfld_->attach( rightOf, valfld_ );
     setHAlignObj( valfld_ );
     prevuom_ = unfld_->getUnit();
+
+    valfld_->valuechanged.notify( mCB(this,uiPropertyValFld,valChg) );
+    unfld_->selChange.notify( mCB(this,uiPropertyValFld,unChg) );
+}
+
+
+void uiPropertyValFld::valChg( CallBacker* )
+{
+    const float newvalue = getValue( true );
+    handleValChg( newvalue, true );
 }
 
 
@@ -49,17 +60,29 @@ void uiPropertyValFld::unChg( CallBacker* )
 }
 
 
+void uiPropertyValFld::handleValChg( float newvalue, bool emitnotif ) const
+{
+    const float diff = lastsetvalue_ - newvalue;
+    lastsetvalue_ = newvalue;
+    if ( emitnotif && !mIsZero(diff,1e-8) )
+	const_cast<uiPropertyValFld*>(this)->valueChanged.trigger();
+}
+
+
 void uiPropertyValFld::setValue( float val, bool isinternal )
 {
+    const float newvalue = isinternal ? val : unfld_->getInternalValue( val );
     if ( isinternal )
 	val = unfld_->getUserValue( val );
+    NotifyStopper ns( valfld_->valuechanged );
     valfld_->setValue( val );
+    handleValChg( newvalue, false );
 }
 
 
 float uiPropertyValFld::getValue( bool internal ) const
 {
-    const float val = valfld_->getfValue();
+    float val = valfld_->getfValue();
     return internal ? unfld_->getInternalValue( val ) : val;
 }
 
