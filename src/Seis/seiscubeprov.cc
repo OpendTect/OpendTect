@@ -483,7 +483,10 @@ od_int64 totalNr() const
 od_int64 nrDone() const
 { return nrdone_; }
 
-const char* message() const
+uiString uiNrDoneText() const
+{ return "Positions done"; }
+
+uiString uiMessage() const
 { return "Reading Steering traces"; }
 
 int nextStep()
