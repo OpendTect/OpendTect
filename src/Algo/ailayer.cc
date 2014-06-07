@@ -14,26 +14,29 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ranges.h"
 
 
-AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
-    : den_(den)
-{
-    if ( !mIsUdf(den_) )
-	vel_ = ai / den;
-    else
-    {
-	//compute vel_ using Gardner's equation vel = (den/Co)^(1/C1)
-	//with default values for C0 and C1 respectively 0.31 and 0.25
-	vel_ = Math::PowerOf( ai/0.31, 1/1.25 );
-	den_ = ai/vel_;
-    }
+#define mDefEpsf 1e-3f
+#define mIsValid(val) ( !mIsUdf(val) && val > mDefEpsF )
 
-    thickness_ = needcompthkness ? thkness*vel_/2.0f : thkness;
+
+AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
+    : thickness_(thkness)
+    , den_(den)
+{
+    const bool hasdensity = mIsValid( den );
+    //compute vel_ using Gardner's equation vel = (den/a)^(1/(1+b))
+    //with default values for C0 and C1 respectively 310 and 0.25
+    vel_ = hasdensity ? ai / den : Math::PowerOf( ai/310.f, 0.8f );
+    if ( !hasdensity )
+	den_ = ai/vel_;
+
+    if ( needcompthkness )
+	thickness_ *= vel_ / 2.0f;
 }
 
 
 float AILayer::getAI() const
 {
-    return !mIsUdf(vel_)&&!mIsUdf(den_) ? vel_ * den_ : mUdf(float);
+    return mIsValid(vel_) && mIsValid(den_) ? vel_ * den_ : mUdf(float);
 }
 
 
@@ -41,10 +44,7 @@ ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 			    bool needcompthkness )
     : AILayer( thkness, ai, den, needcompthkness )
 {
-    if ( !mIsUdf(den) )
-	svel_ = si / den;
-    else
-	svel_ = si / den_;	//vel_ and den_ computed using Gardner equation
+    svel_ = si / den_;
 }
 
 
@@ -60,12 +60,8 @@ float getLayerDepth( const AIModel& mod, int layer )
 
 float ElasticLayer::getSI() const
 {
-    return !mIsUdf(svel_)&&!mIsUdf(den_) ? svel_ * den_ : mUdf(float);
+    return mIsValid(svel_) && mIsValid(den_) ? svel_ * den_ : mUdf(float);
 }
-
-
-#define mDefEpsf 1e-3f
-#define mIsValid(val) ( !mIsUdf(val) && val > mDefEpsF )
 
 
 void ElasticModel::upscale( float maxthickness )
@@ -105,7 +101,7 @@ void ElasticModel::upscale( float maxthickness )
 
 	const bool lastlay = totthickness+thickness > maxthickness-mDefEpsf;
 	const float thicknesstoadd = lastlay ? maxthickness - totthickness
-	    				     : thickness;
+					     : thickness;
 	totthickness += thicknesstoadd;
 	if ( lastlay )
 	{
@@ -204,7 +200,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		break;
 	    }
 	}
-	
+
 	if ( dodensity )
 	{
 	    values.append( denvals );
@@ -251,11 +247,11 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
     TypeSet<Interval<int> > investigationqueue;
     investigationqueue += Interval<int>( 0, modelsize-1 );
     TypeSet<Interval<int> > blocks;
-    
+
     while ( investigationqueue.size() )
     {
 	Interval<int> curblock = investigationqueue.pop();
-	
+
 	while ( true )
 	{
 	    const int width = curblock.width();
@@ -264,7 +260,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		mAddBlock( curblock );
 		break;
 	    }
-	    
+
 	    TypeSet<int> bendpoints;
 	    const int lastblock = curblock.start + width;
 	    TypeSet<float> firstval( nrcomp, mUdf(float) );
@@ -301,7 +297,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		mAddBlock( curblock );
 		break;
 	    }
-	    
+
 	    int bendpoint = curblock.center();
 	    if ( bendpoints.isEmpty() )
 	    {
@@ -316,12 +312,12 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		const int middle = bendpoints.size()/2;
 		bendpoint = bendpoints[middle];
 	    }
-	    
+
 	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
 	    curblock = Interval<int>( bendpoint, curblock.stop );
 	}
     }
-    
+
     for ( int lidx=0; lidx<blocks.size(); lidx++ )
     {
 	ElasticModel blockmdl;
@@ -408,7 +404,7 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 	const float layinvelp = curlayer.vel_;
 	const float layinden = curlayer.den_;
 	const float layinsvel = curlayer.svel_;
-	
+
 	if ( !mIsValid(ldz) || !mIsValid(layinvelp) ||
 	     !mIsValid(layinden) || !mIsValid(layinsvel) )
 	    continue;
@@ -455,7 +451,7 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 
     const float mm = c11 * s2 + c33 * c2 + c44;
     const float mn = Math::Sqrt( ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 ) *
-	    			 ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 )
+				 ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 )
 				 + ( c13 + c44 ) *
 				   ( c13 + c44 ) * s22 );
     const float mp2 = ( mm + mn ) / 2.f;
