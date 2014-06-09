@@ -562,18 +562,19 @@ int nextStep()
 
 
 uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
-    : uiDialog(p,Setup("Copy 2D Seismic Data","", 
+    : uiDialog(p,Setup("Copy 2D Seismic Data","",
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
 
     subselfld_ = new uiSeis2DMultiLineSel( this, "Selet Lines to copy", true );
+    subselfld_->attach( alignedBelow, inpfld_ );
     if ( obj )
 	subselfld_->setInput( obj->key() );
 
     scalefld_ = new uiScaler( this, "Scale values", true );
-    scalefld_->attach( alignedBelow, inpfld_ );
+    scalefld_->attach( alignedBelow, subselfld_ );
 
     ioctxt.forread = false;
     outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
