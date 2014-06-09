@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( "create 3D cube from to 2D LineSet",
+	: uiDialog( p, Setup( tr("create 3D cube from to 2D LineSet"),
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
@@ -35,20 +35,21 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 	, seis2dto3d_(*new Seis2DTo3D)
 {
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
-    interpoltypefld_ = new uiGenInput( this, "Type of interpolation",
-			     BoolInpSpec(true,"Nearest trace","FFT based") );
+    interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
+				       BoolInpSpec(true,tr("Nearest trace"),
+				       tr("FFT based")) );
     interpoltypefld_->attach( alignedBelow, inpfld_ );
     interpoltypefld_->valuechanged.notify(mCB(this,uiSeis2DTo3D,typeChg));
 
-    winfld_ = new uiGenInput( this,"Interpolation window (Inl/Crl)",
+    winfld_ = new uiGenInput( this,tr("Interpolation window (Inl/Crl)"),
 							IntInpIntervalSpec() );
     winfld_->attach( alignedBelow, interpoltypefld_ );
     winfld_->setValue( Interval<float>(150,150) );
 
-    reusetrcsbox_ = new uiCheckBox( this, "Re-use interpolated traces" );
+    reusetrcsbox_ = new uiCheckBox( this, tr("Re-use interpolated traces") );
     reusetrcsbox_->attach( alignedBelow, winfld_ );
 
-    velfiltfld_ = new uiGenInput( this, "Maximum velocity to pass (m/s)" );
+    velfiltfld_ = new uiGenInput( this, tr("Maximum velocity to pass (m/s)") );
     velfiltfld_->setValue( 2000 );
     velfiltfld_->attach( alignedBelow, reusetrcsbox_ );
 
@@ -75,11 +76,8 @@ uiSeis2DTo3D::~uiSeis2DTo3D()
 bool uiSeis2DTo3D::acceptOK( CallBacker* )
 {
     if ( !inpfld_->commitInput() )
-	mErrRet("Missing Input\nPlease select the input seismics")
+	mErrRet(tr("Missing Input\nPlease select the input seismics"))
     if ( !outfld_->commitInput() )
-	mErrRet("Missing Output\nPlease enter a name for the output seismics")
-    else if ( outctio_.ioobj->implExists(false)
-	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
     seis2dto3d_.setInput( *inctio_.ioobj );
@@ -97,17 +95,14 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     seis2dto3d_.setOutput( *outctio_.ioobj, cs );
     seis2dto3d_.setIsNearestTrace( interpoltypefld_->getBoolValue() );
 
-    if ( seis2dto3d_.errMsg() )
-	uiMSG().error( seis2dto3d_.errMsg() );
-
     uiTaskRunner taskrunner( this );
     if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
-	return seis2dto3d_.errMsg();
+	return false;
 
     if ( !SI().has3D() )
-	uiMSG().warning( "3D cube created successfully. "
+	uiMSG().warning( tr("3D cube created successfully. "
 			 "You need to change survey type to 'Both 2D and 3D' "
-			 "in survey setup to display/use the cube" );
+			 "in survey setup to display/use the cube") );
     return true;
 }
 
