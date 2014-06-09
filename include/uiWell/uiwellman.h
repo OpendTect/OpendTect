@@ -57,7 +57,12 @@ protected:
     uiToolButton*		logdownbut_;
     uiPushButton*		addlogsbut_;
     uiPushButton*		calclogsbut_;
+    uiToolButton*		welltrackbut_;
+    uiToolButton*		d2tbut_;
+    uiToolButton*		csbut_;
+    uiToolButton*		markerbut_;
 
+    void			setToolButtonProperties();
     void			checkButtons();
     void			ownSelChg();
     void			getCurrentWells();
