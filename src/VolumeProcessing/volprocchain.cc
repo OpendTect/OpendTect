@@ -604,7 +604,7 @@ int Chain::nrSteps() const
 
 
 Step* Chain::getStep( int idx )
-{ return steps_[idx]; }
+{ return steps_.validIdx(idx) ? steps_[idx] : 0; }
 
 
 Step* Chain::getStepFromID( Step::ID id )
