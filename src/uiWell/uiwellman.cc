@@ -96,31 +96,31 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    uiToolButton* welltrackbut = new uiToolButton( listgrp_, "edwelltrack",
+    welltrackbut_ = new uiToolButton( listgrp_, "edwelltrack",
 		"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
-    welltrackbut->attach( alignedBelow, selgrp_ );
-    welltrackbut->attach( ensureBelow, selgrp_ );
-    welltrackbut->attach( ensureBelow, logsgrp_ );
+    welltrackbut_->attach( alignedBelow, selgrp_ );
+    welltrackbut_->attach( ensureBelow, selgrp_ );
+    welltrackbut_->attach( ensureBelow, logsgrp_ );
 
-    uiToolButton* d2tbut = 0;
+    d2tbut_ = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* csbut = new uiToolButton( listgrp_, "checkshot",
+	csbut_ = new uiToolButton( listgrp_, "checkshot",
 			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
-	csbut->attach( rightOf, welltrackbut );
-	d2tbut = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
-				   mCB(this,uiWellMan, edD2T));
-	d2tbut->attach( rightOf, csbut );
+	csbut_->attach( rightOf, welltrackbut_ );
+	d2tbut_ = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
+				    mCB(this,uiWellMan, edD2T));
+	d2tbut_->attach( rightOf, csbut_ );
     }
 
-    uiToolButton* markerbut = new uiToolButton( listgrp_, "edmarkers",
+    markerbut_ = new uiToolButton( listgrp_, "edmarkers",
 			"Edit Markers", mCB(this,uiWellMan, edMarkers) );
-    markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
-    lastexternal_ = markerbut;
+    markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
+    lastexternal_ = markerbut_;
 
     uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
 			"Log tools", mCB(this,uiWellMan,logTools) );
-    logtoolbut->attach( rightOf, markerbut );
+    logtoolbut->attach( rightOf, markerbut_ );
     lastexternal_ = logtoolbut;
 
     selChg( this );
@@ -146,6 +146,7 @@ void uiWellMan::ownSelChg()
 {
     getCurrentWells();
     fillLogsFld();
+    setToolButtonProperties();
 }
 
 
@@ -211,8 +212,27 @@ void uiWellMan::checkButtons()
 }
 
 
-void uiWellMan::logSel( CallBacker* )
+#define mSetButToolTip(but,front,curwellnm,end) \
+    if ( !but->sensitive() ) \
+	but->setToolTip( "" ); \
+    else \
+    { \
+	tt.setEmpty(); \
+	tt.add( front ).add( " '" ).add( curwellnm ).add( "' " ).add( end ); \
+	but->setToolTip( tt ); \
+    }
+
+void uiWellMan::setToolButtonProperties()
 {
+    if ( !curioobj_ ) return;
+
+    BufferString tt;
+    BufferString curwellnm( curioobj_->name() );
+    mSetButToolTip(welltrackbut_,"Edit Well Track for",curwellnm,"");
+    mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"");
+    mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"");
+    mSetButToolTip(markerbut_,"Edit",curwellnm," markers");
+
     const int nrlogs = logsfld_->size();
     const int curidx = logsfld_->currentItem();
     logdownbut_->setSensitive( curidx >= 0 && curidx < nrlogs-1 );
@@ -227,6 +247,26 @@ void uiWellMan::logSel( CallBacker* )
     logrmbut_->setSensitive( oneormore );
     logexpbut_->setSensitive( oneormore );
     loguombut_->setSensitive( issing );
+
+    mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
+    mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
+    mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
+    if ( curidx < 0 )
+	logvwbut_->setToolTip( "View selected log" );
+    else
+    {
+	BufferStringSet nms;
+	logsfld_->getChosen( nms );
+	mSetButToolTip(logvwbut_,"View",nms.getDispString(2),"");
+	mSetButToolTip(logrmbut_,"Remove",nms.getDispString(3),"");
+	mSetButToolTip(logexpbut_,"Export",nms.getDispString(3),"");
+    }
+}
+
+
+void uiWellMan::logSel( CallBacker* )
+{
+    setToolButtonProperties();
 }
 
 
