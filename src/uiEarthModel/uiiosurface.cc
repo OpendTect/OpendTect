@@ -615,7 +615,8 @@ public:
 	for ( int idx=0; idx<fltpar_.selfaultids_.size(); idx++ )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( fltpar_.selfaultids_[idx] );
-	    addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
+	    if ( ioobj )
+		addObjEntry( idx, *ioobj, fltpar_.optids_[idx] );
 	}
     }
 
