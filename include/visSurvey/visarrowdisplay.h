@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visarrowdisplay.h 34897 2014-05-27 11:47:30Z ranojay.sen@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 

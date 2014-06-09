@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID mUsedVar = "$Id: visarrowdisplay.cc 34897 2014-05-27 11:47:30Z ranojay.sen@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "visarrowdisplay.h"
 
