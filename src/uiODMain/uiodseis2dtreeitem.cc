@@ -824,7 +824,7 @@ void uiOD2DLineTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODDisplayTreeItem::createMenu( menu, istb );
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv_->getObject(displayid_))
-    if ( !menu || menu->menuID() != displayID() || !s2d || istb ) return;
+    if ( !menu || menu->menuID() != displayID() || !s2d ) return;
 
     mAddMenuOrTBItem( istb, 0, &displaymnuitem_, &linenmitm_,
 		      true, s2d->isLineNameShown() );
