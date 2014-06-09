@@ -27,7 +27,7 @@ uiSelObjFromOtherSurvey::uiSelObjFromOtherSurvey( uiParent* p, CtxtIOObj& ctio )
     : uiDialog(p,Setup(tr("Select survey"),mNoDlgTitle,mTODOHelpKey))
     , ctio_(ctio)
 {
-    selfld_ = new uiSurveySelect( this, true );
+    selfld_ = new uiSurveySelect( this, true, true );
     othersurveyrootdir_.setEmpty();
 }
 

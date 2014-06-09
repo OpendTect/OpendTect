@@ -56,7 +56,8 @@ protected:
 mExpClass(uiIo) uiSurveySelect : public uiIOSelect
 {
 public:
-			uiSurveySelect(uiParent*,bool needvalidrootdir,
+			uiSurveySelect(uiParent*,bool forread,
+				       bool needvalidrootdir,
 				       const char* label=0);
 			~uiSurveySelect();
 
@@ -70,6 +71,7 @@ protected:
     bool		isnewsurvey_;
     BufferString	dataroot_;
     BufferString	surveyname_;
+    bool		forread_;
     bool		needvalidrootdir_;
 };
 
