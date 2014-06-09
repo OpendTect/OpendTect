@@ -7,6 +7,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mmbatchjobdispatch.h"
+#include "filepath.h"
+#include "oddirs.h"
 #include "sets.h"
 
 
@@ -116,7 +118,9 @@ bool Batch::MMJobDispatcher::launch()
     if ( !writeParFile() )
 	return false;
 
-    BufferString cmd( progdefs_[pdidx]->mmprognm_, " ", jobspec_.clargs_ );
+    const BufferString mmprog =
+	FilePath(GetBinPlfDir(),progdefs_[pdidx]->mmprognm_).fullPath();
+    BufferString cmd( mmprog, " ", jobspec_.clargs_ );
     BufferString qtdparfnm( parfnm_ ); qtdparfnm.quote( '\"' );
     cmd.add( " " ).add( qtdparfnm );
     OS::MachineCommand mc( cmd );
