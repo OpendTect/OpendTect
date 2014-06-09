@@ -140,10 +140,11 @@ bool uiSurveySelectDlg::isNewSurvey() const
 
 // uiSurveySelect
 uiSurveySelect::uiSurveySelect( uiParent* p, const char* lbl, 
-				bool needvalidrootdir )
+				bool forread, bool needvalidrootdir )
     : uiIOSelect(p,uiIOSelect::Setup( lbl && *lbl ? lbl : "Survey" ),
 		 mCB(this,uiSurveySelect,selectCB))
     , dataroot_(GetBaseDataDir())
+    , forread_(forread)
     , needvalidrootdir_(needvalidrootdir)
     , surveyname_(0)
 {}
@@ -155,7 +156,7 @@ uiSurveySelect::~uiSurveySelect()
 
 void uiSurveySelect::selectCB( CallBacker* )
 {
-    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, true, 
+    uiSurveySelectDlg dlg( this, GetSurveyName(), dataroot_, forread_, 
 			   needvalidrootdir_ );
     if( !dlg.go() ) return;
 
