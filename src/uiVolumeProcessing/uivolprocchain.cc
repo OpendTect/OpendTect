@@ -311,6 +311,9 @@ bool uiChain::acceptOK( CallBacker* )
     }
 
     const Step* laststep = chain_.getStep( nrsteps-1 );
+    if ( !laststep )
+	return false;
+
     chain_.setOutputSlot( laststep->getID(), laststep->getOutputSlotID(0) );
 
     if ( !doSave() )
