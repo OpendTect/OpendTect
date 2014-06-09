@@ -515,6 +515,7 @@ void Seis2DDisplay::setData( int attrib,
 
 	    const int zsz = cs.nrZ();
 	    mTryAlloc( tmparr, Array2DImpl<float>(trcdisplayinfo_.size_,zsz) );
+	    tmparr->setAll( mUdf(float) );
 	    usedarr = tmparr;
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
