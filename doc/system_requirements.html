@@ -41,7 +41,7 @@
 OpendTect needs good hardware with up-to-date drivers - especially for 3D graphics. You can run on:
 
 <ol>
-  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (XP, Vista, 7, 8 - 32 or 64 bits)</li>
+  <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (Vista, 7, 8/8.1 - 32 or 64 bits)<br /> Windows XP is no longer officially supported since April, 2014.</li>
   <li><a href="http://www.apple.com/dotmac">Mac</a>/Intel under OS X (10.5) and up</li>
 </ol>
   <br />
@@ -113,7 +113,7 @@ A modern Linux distribution is required. <b>Minimum</b>:
   <li><a href="http://www.novell.com/linux">SuSE</a> or <a href="http://opensuse.org">OpenSuSE</a> 11.0</li>
   <li><a href="http://www.redhat.com">Red Hat</a> Enterprise 5 (or the free <a href="http://www.centos.org">CentOS</a> counterpart)</li>
 </ul>
-Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>.
+Linux distributions should be LSB compliant. You can check this using the command <code>lsb_release</code>. This is particularly stringent for commercial plugins using the FlexNet system. There is documentation on <a href="http://opendtect.org/lic/doc/flexnet_installation_guide.html">installing license files for commercial plugins</a>, and there is a page with <a href="http://opendtect.org/lic/doc/flexnet_explained.html">background information</a>. 
 <p>
 For both SuSE and Red Hat-based distributions 32 or 64 bits releases are
 available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too. <a href="http://fedoraproject.org">Fedora</a> usage is not recommended - although it may work it's the only distro that regularly fails to work in combination with OpendTect. This is probably because the graphics vendors do not support it well in terms of drivers.
@@ -124,7 +124,8 @@ available. OpendTect is known to work under <a href="http://www.debian.org">Debi
 Minimum is Mac OS X (10.5) - thus Mac/Intel. Mac/PowerPC support is not available. A 3-button mouse is highly recomended.
 
   <a name="win"></a><h3>MS Windows</h3>
-Windows XP, Vista, 7 and 8 are supported and both 32 and 64 bits releases are available.
+  Windows Vista, 7 and 8/8.1 are supported. (XP is no longer officially supported since April, 2014.)<br />
+Releases are available for in both 32 and 64 bits for XP, Vista, 7 and 8/8.1.
 
   <br /><a name="recommendations"></a><h2>Recommendations</h2>
 
@@ -132,37 +133,37 @@ If you have mega-surveys with Tera-bytes of data, and you want to do very advanc
 
 <ol>
   <li><b>Graphics</b><br />
-Use nVidia or maybe ATI-based cards. At least these manufacturers have
-good drivers for all cards. For nVidia, you may want to avoid the
-'professional' series. This can be a waste of money (but may just give
-you that little bit extra you want, too). In doubt, buy the top gaming
+Use nVidia or maybe ATI-based cards. At least these manufacturers have 
+good drivers for all cards. For nVidia, you may want to avoid the 
+'professional' series. This can be a waste of money (but may just give 
+you that little bit extra you want, too). In doubt, buy the top gaming 
     card(s) you can find.</li>
 
   <li><b>CPU</b><br />
-Choose 64 bits. Many processors, high speeds. The more the better.
-OpendTect will automatically use multiple threads in many situations. It
-depends on the type of attribute, display, etc. but we put a lot of
-effort in getting time-consuming tasks multi-threaded. We are well aware
+Choose 64 bits. Many processors, high speeds. The more the better. 
+OpendTect will automatically use multiple threads in many situations. It 
+depends on the type of attribute, display, etc. but we put a lot of 
+effort in getting time-consuming tasks multi-threaded. We are well aware 
     that the number of processors will grow steadily.</li>
 
   <li><b>Memory</b><br />
-Buy as much memory as you can afford (and that will fit in the
-computer). The big clients for example use nothing less than 64 GB.
-OpendTect doesn't have a lot of tricks to minimize memory consumption;
-we figure that memory gets cheaper by the day so we greedily use memory
+Buy as much memory as you can afford (and that will fit in the 
+computer). The big clients for example use nothing less than 64 GB. 
+OpendTect doesn't have a lot of tricks to minimize memory consumption; 
+we figure that memory gets cheaper by the day so we greedily use memory 
     for our purposes (we try to not waste it, though).</li>
 
   <li><b>Disk storage</b><br />
-This is usually under-valued, but it's very often the crucial
-performance component. RAID can speed up disks considerably. If you can,
-work on local disks. I've seen many examples of the total performance
-being miserable just because the data needed to stream through
+This is usually under-valued, but it's very often the crucial 
+performance component. RAID can speed up disks considerably. If you can, 
+work on local disks. I've seen many examples of the total performance 
+being miserable just because the data needed to stream through 
     (relatively) slow networks.</li>
 </ol>
 
 
-It's clear that the number of variables is huge, and that it's simply
-very difficult to predict whether a certain configuration will be good
+It's clear that the number of variables is huge, and that it's simply 
+very difficult to predict whether a certain configuration will be good 
 enough for your specific needs.
 
     <br /><hr /><br />
