@@ -401,7 +401,7 @@ inline void memValueSet( T* arr, T val , od_int64 sz )
     }
     else
     {
-	const T* stopptr = arr + sz + 1;
+	const T* stopptr = arr + sz;
 	for ( T* curptr=arr; curptr!=stopptr; curptr++ )
 	    *curptr = val;
     }
