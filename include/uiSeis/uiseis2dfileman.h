@@ -48,12 +48,11 @@ protected:
     void		renameLine(CallBacker*);
     void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
+    void		browsePush(CallBacker*);
     void		extrFrom3D(CallBacker*);
 
     uiListBox*		linefld_;
     uiTextEdit*		infofld_;
-    uiToolButton*	browsebut_;
-    uiToolButton*	mkdefbut_;
     uiManipButGrp*	linegrp_;
 
     const bool		issidomain;
