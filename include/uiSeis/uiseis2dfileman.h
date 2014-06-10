@@ -48,6 +48,7 @@ protected:
     void		renameLine(CallBacker*);
     void		removeLine(CallBacker*);
     void		mergeLines(CallBacker*);
+    void		browsePush(CallBacker*);
     void		extrFrom3D(CallBacker*);
 
     uiListBox*		linefld_;
