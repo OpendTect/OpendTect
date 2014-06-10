@@ -206,16 +206,16 @@ void HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 					Marker3D& marker, int idx )
 {
     ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+    const double z = zat ? zat->transform(crd) : crd.z;
     if ( path_ )
     {
-	double dist = flatposdata_->position( true, idx );
-	marker.marker_->poly_ += FlatView::Point( dist, crd.z );
+	const double dist = flatposdata_->position( true, idx );
+	marker.marker_->poly_ += FlatView::Point( dist, z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
-	    markerseeds_->marker_->poly_ += FlatView::Point( dist, crd.z );
+	    markerseeds_->marker_->poly_ += FlatView::Point( dist, z );
 	return;
     }
 
-    const double z = zat ? zat->transform(crd) : crd.z;
     if ( cs_.nrInl() == 1 )
     {
 	marker.marker_->poly_ += FlatView::Point( bid.crl(), z );
