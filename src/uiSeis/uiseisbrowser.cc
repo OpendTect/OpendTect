@@ -189,7 +189,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 	FixedString fname = par.find( sKey::FileName() );
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
-	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	    fp.insert( IOObjContext::getDataDirName(IOObjContext::Seis) );
 	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
 					   Seis::is2D(su.geom_), &emsg );
 	if ( seislineset.datatype(index) == sKey::Steering() )
