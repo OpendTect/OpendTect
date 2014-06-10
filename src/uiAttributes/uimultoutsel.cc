@@ -178,7 +178,6 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     attribfld_ = attrllb->box();
     attribfld_->setHSzPol( uiObject::Wide );
     attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
-    fillAttribFld();
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( bgrp, uiToolButton::RightArrow, "Add",
@@ -204,7 +203,8 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     allcompfld_ = new uiCheckBox( this, "Use all possible outputs" );
     allcompfld_->attach( alignedBelow, attrllb );
     allcompfld_->setSensitive( false );
-
+    
+    fillAttribFld();
     setHAlignObj( attrllb );
 }
 
