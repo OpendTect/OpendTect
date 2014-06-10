@@ -24,13 +24,12 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace PreStackView
 {
 
-
-uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p, 
+uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 	visSurvey::PreStackDisplay& viewer, uiViewer3DMgr& mgr )
-    : uiTabStackDlg( p, uiDialog::Setup(tr("Prestack display properties"), 
-			          viewer.getObjectName(), 
-                                  mODHelpKey(mPSViewerSettingDlgHelpID) 
-                                  ).modal(false) ) 
+    : uiTabStackDlg( p, uiDialog::Setup(tr("Prestack display properties"),
+			          viewer.getObjectName(),
+                                  mODHelpKey(mPSViewerSettingDlgHelpID)
+                                  ).modal(false) )
     , preproctab_(0)
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
@@ -44,13 +43,13 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 
     preproctab_ = new uiViewer3DPreProcTab( tabParent(), viewer, mgr );
     addGroup( preproctab_ );
-   
+
     applytoallfld_ =
 	new uiCheckBox( this,tr("&Apply to all viewers"),
 			mCB(this,uiViewer3DSettingDlg,applyCheckedCB) );
     applytoallfld_->attach( centeredBelow, tabObject() );
-    
-    enableSaveButton( sSaveAsDefault() );
+
+    enableSaveButton();
 }
 
 
@@ -77,6 +76,5 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
    return uiTabStackDlg::acceptOK(cb);
 }
 
-
-}; //namespace
+} // namespace PreStackView
 

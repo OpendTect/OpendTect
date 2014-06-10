@@ -27,18 +27,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace PreStackView
 {
+
 uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
 		visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, tr("Appearance") )
     , applyall_( false )
     , savedefault_( false )
-    , vwr_( psv.flatViewer() )  
-    , mgr_( mgr )	
-    , manuzsampl_( vwr_->appearance().annot_.x2_.sampling_ )			
-    , manuoffssampl_( vwr_->appearance().annot_.x1_.sampling_ )			
+    , vwr_( psv.flatViewer() )
+    , mgr_( mgr )
+    , manuzsampl_( vwr_->appearance().annot_.x2_.sampling_ )
+    , manuoffssampl_( vwr_->appearance().annot_.x1_.sampling_ )
 {
-    uicoltab_ = new uiColorTableGroup( this,
-            vwr_ ? vwr_->appearance().ddpars_.vd_.ctab_.buf() : 0 );
+    ColTab::Sequence coltabseq( vwr_->appearance().ddpars_.vd_.ctab_.buf() );
+    uicoltab_ = new uiColorTableGroup( this, coltabseq );
     mAttachCB( uicoltab_->seqChanged, uiViewer3DAppearanceTab::colTabChanged );
     mAttachCB(uicoltab_->scaleChanged, uiViewer3DAppearanceTab::colTabChanged);
     uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(), uicoltab_ );
@@ -74,13 +75,13 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridfld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
-    offsgridautofld_ = new uiGenInput( this, 0, 
+    offsgridautofld_ = new uiGenInput( this, 0,
 	    BoolInpSpec( offsudf, tr("Automatic sampling"), 0, 0 ) );
     offsgridautofld_->attach( rightOf, offsgridfld_ );
     offsgridautofld_->valuechanged.notify(
 	    mCB(this,uiViewer3DAppearanceTab,updateOffsFlds) );
 
-    offsgridrangefld_ = new uiGenInput( this, 
+    offsgridrangefld_ = new uiGenInput( this,
 	    tr("Offset grid sampling (start/step)"),
             FloatInpSpec(),FloatInpSpec());
     offsgridrangefld_->attach( alignedBelow, offsgridfld_ );
@@ -132,21 +133,21 @@ void uiViewer3DAppearanceTab::updateColTab( CallBacker* )
 
 
 void uiViewer3DAppearanceTab::updateOffsFlds( CallBacker* )
-{ 
-    updateFlds( offsgridfld_, offsgridautofld_, offsgridrangefld_, 
-	    	offsgridrangelbl_, true ); 
+{
+    updateFlds( offsgridfld_, offsgridautofld_, offsgridrangefld_,
+		offsgridrangelbl_, true );
 }
 
 
 void uiViewer3DAppearanceTab::updateZFlds( CallBacker* )
-{ 
-    updateFlds( zgridfld_,zgridautofld_,zgridrangefld_,zgridrangelbl_,false ); 
+{
+    updateFlds( zgridfld_,zgridautofld_,zgridrangefld_,zgridrangelbl_,false );
 }
 
 
 void uiViewer3DAppearanceTab::updateFlds( uiGenInput* gridfld,
-       					  uiGenInput* autofld, 
-					  uiGenInput* rgfld, 
+					  uiGenInput* autofld,
+					  uiGenInput* rgfld,
 					  uiLabel* lblfld, bool x1 )
 {
     const bool usegrids = gridfld->getBoolValue();
@@ -208,7 +209,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 
     const bool showzgridlines = zgridfld_->getBoolValue();
     vwr_->appearance().annot_.x2_.showgridlines_ = showzgridlines;
-    
+
     SamplingData<float> zsmp(  mUdf(float),  mUdf(float) );
     if ( showzgridlines )
     {
@@ -219,7 +220,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    if ( mIsUdf(zsmp.start) || mIsUdf(zsmp.step) )
 	    {
 		if ( mIsUdf(zsmp.start) )
-    		    uiMSG().error(tr("Z sampling start is not defined."));
+		    uiMSG().error(tr("Z sampling start is not defined."));
 		else
 		    uiMSG().error(tr("Z sampling step is not defined."));
 		return;
@@ -236,7 +237,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 
     const bool showoffsgridlines = offsgridfld_->getBoolValue();
     vwr_->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;
-    
+
     SamplingData<float> offssmp(  mUdf(float),  mUdf(float) );
     if ( showoffsgridlines )
     {
@@ -247,7 +248,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    if ( mIsUdf(offssmp.start) || mIsUdf(offssmp.step) )
 	    {
 		if ( mIsUdf(offssmp.start) )
-    		    uiMSG().error(tr("Offset sampling start is not defined."));
+		    uiMSG().error(tr("Offset sampling start is not defined."));
 		else
 		    uiMSG().error(tr("Offset sampling step is not defined."));
 		return;
@@ -255,7 +256,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 
 	    manuoffssampl_ = offssmp;
 	}
-	    
+
 	vwr_->appearance().annot_.x1_.sampling_ = offssmp;
     }
 
@@ -263,7 +264,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 
     if ( !applyall_ )
 	return;
-    
+
     for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
 	visBase::FlatViewer* fvwr = mgr_.get3DViewers()[idx]->flatViewer();
@@ -271,7 +272,7 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
 	    continue;
 
 	fvwr->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
-	
+
 	fvwr->appearance().annot_.x2_.showgridlines_ = showzgridlines;
 	fvwr->appearance().annot_.x1_.showgridlines_ = showoffsgridlines;
 	if ( showzgridlines )
@@ -285,6 +286,5 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     }
 }
 
-
-}; //namespace
+} // namespace PreStackView
 
