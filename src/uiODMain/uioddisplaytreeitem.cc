@@ -356,6 +356,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	visserv_->lock( displayid_, !visserv_->isLocked(displayid_) );
 	updateLockPixmap( visserv_->isLocked(displayid_) );
+	select();
 	ODMainWin()->sceneMgr().updateStatusBar();
     }
     else if ( mnuid==duplicatemnuitem_.id )
