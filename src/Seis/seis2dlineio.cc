@@ -18,7 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
+#include "dirlist.h"
 #include "file.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "posinfo2d.h"
@@ -125,7 +127,8 @@ bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
     for ( int iln=0; iln<nrlines; iln++ )
 	ds.remove( geomids[iln] );
 
-    return File::remove( fnm );
+    DirList dl( fnm );
+    return dl.isEmpty() ? File::remove( fnm ) : true;
 }
 
 
@@ -141,7 +144,7 @@ bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
     Seis2DDataSet ds( *ioobj );
-    if ( !ds.renameFiles(ioobj->name()) )
+    if ( !ds.renameFiles(FilePath(newnm).fileName()) )
 	return false;
 
     implSetReadOnly( ioobj, isro );
