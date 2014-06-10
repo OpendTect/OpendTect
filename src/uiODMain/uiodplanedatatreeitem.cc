@@ -241,7 +241,7 @@ bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( tomanage )
     {
-	applMgr()->seisServer()->manageSeismics( false );
+	applMgr()->seisServer()->manageSeismics( 0 );
 	return getDefaultDescID( descid );
     }
 
