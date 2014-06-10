@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "oddirs.h"
 #include "file.h"
+#include "filepath.h"
 #include "od_ostream.h"
 
 
@@ -76,14 +77,19 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 
 static void showReport( const SEGY::Scanner& scanner )
 {
-    const BufferString fnm( GetProcFileName("SEGY_survey_scan.txt" ) );
+    BufferString fnm( GetProcFileName("SEGY_survey_scan.txt" ) );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-    {   mShowErr("Cannot open temporary file in Proc directory"); return; }
+    {
+	fnm.set( FilePath::getTempName() );
+	strm.open( fnm );
+    }
+    if ( !strm.isOK() )
+	{ mShowErr(BufferString("Cannot open temporary file:\n",fnm)); return; }
     IOPar iop;
     scanner.getReport( iop );
     if ( !iop.write(strm,IOPar::sKeyDumpPretty()) )
-    {	mShowErr("Cannot write to temporary file in Proc directory"); return; }
+	{ mShowErr(BufferString("Cannot write to file:\n",fnm)); return; }
 
     File::launchViewer( fnm );
 }
