@@ -367,6 +367,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     if ( !dlg.go() )
 	return;
 
+    selidxs_.erase();
     lchfld->getChosen( chosenids );
     for ( int idx=0; idx<chosenids.size(); idx++ )
 	selidxs_ += geomids_.indexOf( chosenids[idx] );
