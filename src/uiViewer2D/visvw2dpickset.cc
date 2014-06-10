@@ -71,13 +71,13 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 
 VW2DPickSet::~VW2DPickSet()
 {
+    detachAllNotifiers();
     for ( int ivwr=0; ivwr<viewers_.size(); ivwr++ )
     {
 	viewers_[ivwr]->removeAuxData( picks_[ivwr] );
 	editors_[ivwr]->removeAuxData( auxids_[ivwr] );
     }
     deepErase( picks_ );
-    detachAllNotifiers();
 }
 
 
@@ -240,8 +240,8 @@ void VW2DPickSet::drawAll()
     mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
     if ( !dp3d && !dprdm && !zatdp3d ) return;
 
-    const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling()
-				 : zatdp3d->inputCS();
+    const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling() : (zatdp3d ?
+				   zatdp3d->inputCS() : CubeSampling(true));
     const bool oninl = cs.defaultDir() == CubeSampling::Inl;
 
     if ( dp3d || zatdp3d )
@@ -274,6 +274,7 @@ void VW2DPickSet::drawAll()
 	    const int pickidx = picksetidxs_[idx];
 	    const Coord3& pos = (*pickset_)[pickidx].pos_;
 	    const BinID bid = SI().transform(pos);
+	    const double z = zat ? zat->transform(pos) : pos.z;
 	    if ( dp3d || zatdp3d )
 	    {
 		BufferString dipval;
@@ -284,7 +285,6 @@ void VW2DPickSet::drawAll()
 		const float depth = (dip/1000000) * zfac;
 		markerstyle.rotation_ = mIsUdf(dip) ? 0
 			    : Math::toDegrees( Math::Atan2( 2*depth, xfac ) );
-		const double z = zat ? zat->transform(pos) : pos.z;
 		FlatView::Point point( oninl ? bid.crl():bid.inl(), z );
 		picks->poly_ += point;
 	    }
@@ -293,7 +293,7 @@ void VW2DPickSet::drawAll()
 		const FlatPosData& flatposdata = dprdm->posData();
 		const int bidindex = dprdm->pathBIDs()->indexOf(bid);
 		const double bidpos = flatposdata.position( true, bidindex );
-		FlatView::Point point( bidpos, pos.z );
+		FlatView::Point point( bidpos, z );
 		picks->poly_ += point;
 	    }
 	    picks->markerstyles_ += markerstyle;

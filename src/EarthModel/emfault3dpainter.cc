@@ -452,9 +452,11 @@ void Fault3DPainter::genIntersectionAuxData( EM::Fault3D& f3d,
 	{
 	    int bididx = path_->indexOf( posbid );
 	    if ( bididx != -1 )
+	    {
+		const double z = zat ? zat->transform(pos) : pos.z;
 		intsecauxdat->poly_ += FlatView::Point(
-			flatposdata_->position(true,bididx), pos.z );
-
+			flatposdata_->position(true,bididx), z );
+	    }
 	    continue;
 	}
 

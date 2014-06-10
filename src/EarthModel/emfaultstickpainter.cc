@@ -165,9 +165,9 @@ bool FaultStickPainter::addPolyLine()
 
 			if ( !equinormal ) continue;
 
-			stickauxdata->poly_ +=
-			    FlatView::Point( flatposdata_->position(true,idx),
-					     pos.z );
+			const double z = zat ? zat->transform(pos) : pos.z;
+			stickauxdata->poly_ += FlatView::Point(
+					flatposdata_->position(true,idx), z );
 		    }
 		}
 		else
@@ -177,9 +177,9 @@ bool FaultStickPainter::addPolyLine()
 		    {
 			const Coord3 pos = fss->getKnot( rc );
 			float dist;
+			const double z = zat ? zat->transform(pos) : pos.z;
 			if ( getNearestDistance(pos,dist) )
-			    stickauxdata->poly_ +=
-						FlatView::Point( dist , pos.z );
+			    stickauxdata->poly_ += FlatView::Point(dist,z);
 		    }
 		}
 	    }
