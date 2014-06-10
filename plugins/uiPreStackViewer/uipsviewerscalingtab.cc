@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace PreStackView
 {
+
 uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
 	visSurvey::PreStackDisplay& psv, uiViewer3DMgr& mgr )
     : uiFlatViewDataDispPropTab( p, *psv.flatViewer(), "Scaling", false)
@@ -33,10 +34,10 @@ uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
     , savedefault_( false )
     , mgr_( mgr )
 {
-    applybut_ = new uiPushButton( this, "Apply", true );
+    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
     applybut_->activated.notify(
 	    mCB(this,uiViewer3DScalingTab,applyButPushedCB) );
-    applybut_->attach( alignedBelow, symmidvalfld_ );
+    applybut_->attach( alignedBelow, lastcommonfld_ );
 
     mDynamicCastGet(visBase::FlatViewer*,vwr,&vwr_);
     if ( vwr )
@@ -195,7 +196,5 @@ bool uiViewer3DScalingTab::settingCheck()
     return true;
 }
 
-
-
-}; //namespace
+} // namespace PreStackView
 
