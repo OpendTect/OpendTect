@@ -399,8 +399,9 @@ uiSurvey::uiSurvey( uiParent* p )
 	    uiSurveyInfoEditor::addInfoProvider(new uiCopySurveySIP) );
 
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
-    uiPushButton* datarootbut = new uiPushButton( topgrp,
-	tr("Survey Data Root"), false );
+    uiPushButton* datarootbut =
+		new uiPushButton( topgrp, tr("Survey Data Root"), false );
+    datarootbut->setPixmap( "database" );
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
@@ -490,7 +491,7 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
         mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
-	 mSCB(osrbuttonCB) );
+	mSCB(osrbuttonCB) );
     rmbut_ = new uiToolButton( butgrp, "trashcan", tr("Remove Survey"),
 			       mCB(this,uiSurvey,rmButPushed) );
 }
@@ -849,8 +850,8 @@ void uiSurvey::exportButPushed( CallBacker* )
 			  tr("You can share surveys to Open Seismic Repository."
 			   "To know more ") );
     sharfld->attach( leftAlignedBelow,  fnmfld );
-    uiPushButton* osrbutton = new uiPushButton( &dlg,
-				   tr("Click here"), mSCB(osrbuttonCB), false );
+    uiPushButton* osrbutton =
+	new uiPushButton( &dlg, tr("Click here"), mSCB(osrbuttonCB), false );
     osrbutton->attach( rightOf, sharfld );
     if ( !dlg.go() )
 	return;
