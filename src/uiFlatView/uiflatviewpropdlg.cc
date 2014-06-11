@@ -48,7 +48,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     uiLabeledComboBox* lcb = 0;
     if ( showdisplayfield_ )
     {
-	lcb = new uiLabeledComboBox( this, "Display" );
+	lcb = new uiLabeledComboBox( this, uiStrings::sDisplay() );
 	dispfld_ = lcb->box();
 	dispfld_->selectionChanged.notify(
 			    mCB(this,uiFlatViewDataDispPropTab,dispSel) );
@@ -190,7 +190,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
 	return;
 
     dispfld_->setEmpty();
-    dispfld_->addItem( "No" );
+    dispfld_->addItem( uiStrings::sNo() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
 	ConstDataPackRef<DataPack> dp =
@@ -535,7 +535,7 @@ uiFVAnnotPropTab::AxesGroup::AxesGroup( uiParent* p,
     {
 	annotselfld_ = new uiGenInput( this, lbltxt,
 				       StringListInpSpec(*annotnms) );
-	lbl = new uiLabel( this, "Show" );
+	lbl = new uiLabel( this, uiStrings::sShow() );
     }
     showannotfld_ = new uiCheckBox( this, "Annotation" );
     if ( !haveannotchoices )
