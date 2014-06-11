@@ -78,6 +78,7 @@ public:
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sError()		{ return tr("Error"); }
     static uiString sEvaluate()		{ return tr("&Evaluate"); }
+    static uiString sEvent()		{ return tr("&Event"); }
     static uiString sExit()		{ return tr("&Exit"); }
     static uiString sExport()		{ return tr("&Export"); }
     static uiString sFaults()		{ return tr("F&aults"); }
@@ -91,10 +92,12 @@ public:
     static uiString sHelp()		{ return tr("&Help"); }
     static uiString sHide()		{ return tr("&Hide"); }
     static uiString sHistogram()        { return tr("&Histogram"); }
+    static uiString sHorizon()		{ return tr("&Horizon"); }
     static uiString sHorizons()		{ return tr("&Horizons"); }
     static uiString sHorizontal()	{ return tr("&Horizontal"); }
     static uiString sIcons()		{ return tr("&Icons"); }
     static uiString sImport()		{ return tr("&Import"); }
+    static uiString sInfo()		{ return tr("&Info"); }
     static uiString sInline()		{ return tr("&Inline"); }
     static uiString sInput()		{ return tr("&Input"); }
     static uiString sInside()		{ return tr("&Inside"); }
@@ -108,6 +111,7 @@ public:
     static uiString sManage()		{ return tr("&Manage"); }
     static uiString sManual()		{ return tr("&Manual"); }
     static uiString sMenu()		{ return tr("&Menu"); }
+    static uiString sMode()		{ return tr("&Mode"); }
     static uiString sMove()		{ return tr("&Move"); }
     static uiString sMultiwell()	{ return tr("&Multi-well"); }
     static uiString sMute()		{ return tr("&Mute Functions"); }
@@ -133,6 +137,7 @@ public:
     static uiString sPrestack3D()	{ return tr("Pre&stack3D"); }
     static uiString sProperties(bool immediate);
     static uiString sProcessing()	{ return tr("&Processing"); }
+    static uiString sRedo()		{ return tr("&Redo"); }
     static uiString sReload()		{ return tr("&Reload"); }
     static uiString sRemove(bool immediate);
     static uiString sReplace()		{ return tr("&Replace"); }
@@ -155,20 +160,24 @@ public:
     static uiString sSetup()		{ return tr("&Setup"); }
     static uiString sShift()		{ return tr("&Shift"); }
     static uiString sShow()             { return tr("&Show"); }
+    static uiString sSimilarity()	{ return tr("&Similarity"); }
     static uiString sSimple()		{ return tr("&Simple file"); }
     static uiString sSlice()		{ return tr("&Slice"); }
     static uiString sStart()		{ return tr("St&art"); }
     static uiString sSteering()		{ return tr("St&eering"); }
+    static uiString sSteps()		{ return tr("&Steps"); }
     static uiString sStop()		{ return tr("St&op"); }
     static uiString sStored()		{ return tr("St&ored"); }
     static uiString sStratigraphy()	{ return tr("St&ratigraphy"); }
     static uiString sSurvey()		{ return tr("Survey setup"); }
-    static uiString sTile()		{ return tr("&Down"); }
+    static uiString sTile()		{ return tr("&Tile"); }
+    static uiString sTime()		{ return tr("&Time"); }
     static uiString sTools()		{ return tr("&Tools"); }
     static uiString sTop()		{ return tr("&Top"); }
     static uiString sTrack()	        { return tr("&Track"); }
     static uiString sTransparency()     { return tr("&Transparency"); }
     static uiString sType()             { return tr("&Type"); }
+    static uiString sUndo()		{ return tr("&Undo"); }
     static uiString sUnlock()           { return tr("&Unlock"); }
     static uiString sUp()		{ return tr("&Up"); }
     static uiString sUse()		{ return tr("&Cancel"); }
