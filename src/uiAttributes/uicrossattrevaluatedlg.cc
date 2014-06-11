@@ -35,7 +35,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
 	uiAttribDescSetEd& uads, bool store )
     : uiDialog(p,uiDialog::Setup(tr("Cross attribute parameter evaluation"),
 		                 mNoDlgTitle, mODHelpKey(mEvaluateDlgHelpID) )
-                                 .modal(false).oktext(tr("Accept"))
+                                 .modal(false).oktext(uiStrings::sAccept())
                                  .canceltext(""))
     , calccb(this)
     , showslicecb(this)
@@ -70,7 +70,7 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     paramsfld_->selectionChanged.notify(
 	    mCB(this,uiCrossAttrEvaluateDlg,parameterSel));
 
-    uiLabel* attrlabel = new uiLabel( grp, tr("Attributes") );
+    uiLabel* attrlabel = new uiLabel( grp, uiStrings::sAttributes() );
     attrnmsfld_ = new uiListBox( grp, "From attributes", OD::ChooseAtLeastOne );
     attrnmsfld_->attach( rightOf, paramsfld_ );
     attrlabel->attach( alignedAbove, attrnmsfld_ );
@@ -83,11 +83,11 @@ uiCrossAttrEvaluateDlg::uiCrossAttrEvaluateDlg( uiParent* p,
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, tr("Calculate"), true );
+    calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
     calcbut->activated.notify( mCB(this,uiCrossAttrEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSlider( this, uiSlider::Setup(tr("Slice")),
+    sliderfld = new uiSlider( this, uiSlider::Setup(uiStrings::sSlice()),
 			      "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->valueChanged.notify(

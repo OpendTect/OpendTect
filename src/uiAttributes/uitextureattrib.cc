@@ -79,7 +79,7 @@ uiTextureAttrib::uiTextureAttrib( uiParent* p, bool is2d )
     stepoutfld_->setFieldNames( "Stepout Inl", "Stepout Crl" );
     stepoutfld_->attach( alignedBelow, steerfld_ );
 
-    actionfld_ = new uiGenInput( this, "Output",
+    actionfld_ = new uiGenInput( this, uiStrings::sOutput(),
 		    StringListInpSpec(actionstr) );
     actionfld_->attach( alignedBelow, stepoutfld_ );
 

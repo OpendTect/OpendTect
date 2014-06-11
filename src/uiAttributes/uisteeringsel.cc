@@ -74,7 +74,8 @@ void uiSteeringSel::createFields()
     BufferStringSet steertyps;
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir_ ) steertyps.add ( "Constant direction" );
-    typfld_ = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
+    typfld_ = new uiGenInput( this, uiStrings::sSteering(), 
+                              StringListInpSpec(steertyps) );
     typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     inpfld_ = new uiSteerAttrSel( this, descset_, is2d_ );

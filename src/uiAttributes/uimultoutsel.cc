@@ -180,7 +180,7 @@ uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     attribfld_->selectionChanged.notify( mCB(this,uiMultiAttribSel,entrySel) );
 
     uiButtonGroup* bgrp = new uiButtonGroup( this, "", OD::Vertical );
-    new uiToolButton( bgrp, uiToolButton::RightArrow, "Add",
+    new uiToolButton( bgrp, uiToolButton::RightArrow, uiStrings::sAdd(true),
 		      mCB(this,uiMultiAttribSel,doAdd) );
     new uiToolButton( bgrp, uiToolButton::LeftArrow, "Don't use",
 		      mCB(this,uiMultiAttribSel,doRemove) );

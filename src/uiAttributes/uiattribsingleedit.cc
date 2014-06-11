@@ -31,7 +31,7 @@ uiSingleAttribEd::uiSingleAttribEd( uiParent* p, Attrib::Desc& ad, bool isnew )
     desced_ = uiAF().create( this, desc_.attribName(), desc_.is2D(), false );
     desced_->setDesc( &desc_, setman_ );
 
-    namefld_ = new uiGenInput( this, "Name", desc_.userRef() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), desc_.userRef() );
     namefld_->attach( alignedBelow, desced_ );
 }
 

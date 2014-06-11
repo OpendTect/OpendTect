@@ -104,11 +104,12 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcobj_ = new calcFingParsObject( this );
 
     refgrp_ = new uiButtonGroup( this, "", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( refgrp_, tr("Manual") );
+    uiRadioButton* manualbut = new uiRadioButton( refgrp_, 
+                                                  uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     refposbut_ = new uiRadioButton( refgrp_,tr("Reference position"));
     refposbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
-    picksetbut_ = new uiRadioButton( refgrp_, tr("Pickset") );
+    picksetbut_ = new uiRadioButton( refgrp_, uiStrings::sPickSet() );
     picksetbut_->activated.notify( mCB(this,uiFingerPrintAttrib,refSel ) );
     uiLabel* lbl = new uiLabel( this, tr("Get values from") );
     lbl->attach( centeredLeftOf, refgrp_ );
@@ -183,7 +184,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     calcbut->attach( alignedBelow, table_ );
 
     CallBack cbrg = mCB(this,uiFingerPrintAttrib,getAdvancedPush);
-    uiPushButton* advbut = new uiPushButton( this, tr("&Advanced"),
+    uiPushButton* advbut = new uiPushButton( this, uiStrings::sAdvanced(),
                                              cbrg, false );
     advbut->attach( rightAlignedBelow, table_ );
 
@@ -516,7 +517,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
 	uiMSG().error(tr("Please choose the pickset from which\n"
-	"the ranges will be computed"));
+	                 "the ranges will be computed"));
     }
     if ( !errmsg.isEmpty() )
     {
@@ -639,9 +640,10 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", OD::Horizontal );
-    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, "Manual" );
+    uiRadioButton* manualbut = new uiRadioButton( rangesgrp_, 
+                                                  uiStrings::sManual() );
     manualbut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
-    picksetbut_ = new uiRadioButton( rangesgrp_,"Pickset");
+    picksetbut_ = new uiRadioButton( rangesgrp_,uiStrings::sPickSet());
     picksetbut_->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
     uiRadioButton* autobut = new uiRadioButton( rangesgrp_, "Automatic" );
     autobut->activated.notify( mCB(this,uiFPAdvancedDlg,rangeSel ) );
@@ -693,7 +695,7 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 
 	if ( !idx || idx == 18 )
 	{
-	    uiLabel* txt = new uiLabel( attrvalsgrp, "Value" );
+	    uiLabel* txt = new uiLabel( attrvalsgrp, uiStrings::sValue() );
 	    txt->attach( centeredAbove, valflds_[idx] );
 	    txt = new uiLabel( attrvalsgrp, "Weight" );
 	    txt->attach( centeredAbove, wgtflds_[idx] );

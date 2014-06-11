@@ -351,7 +351,7 @@ uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
     {
 	BufferStringSet steertyps;
 	steertyps.add( "None" );
-	typfld_ = new uiGenInput( this, tr("Steering"),
+	typfld_ = new uiGenInput( this, uiStrings::sSteering(),
 				  StringListInpSpec(steertyps) );
 	typfld_->valuechanged.notify(
 		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));

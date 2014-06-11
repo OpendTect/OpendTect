@@ -56,7 +56,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 {
     inpfld = createInpFld( is2d );
 
-    issinglefld = new uiGenInput( this, tr("Use"),
+    issinglefld = new uiGenInput( this, uiStrings::sUse(),
 			BoolInpSpec(true,tr("Single event"),
                                     tr("Multiple events")) );
     issinglefld->attach( alignedBelow, inpfld );
@@ -80,7 +80,8 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     outampfld->attach( leftAlignedBelow, evtypefld );
 
     tonextfld = new uiGenInput( this, tr("starting from"),
-	    			BoolInpSpec(true,tr("Top"),tr("Bottom")) );
+	    			BoolInpSpec(true,uiStrings::sTop(),
+                                            uiStrings::sBottom()) );
     tonextfld->attach( centeredBelow, tonextlblfld );
     tonextfld->display(false);
     

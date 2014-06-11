@@ -107,7 +107,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
     BufferStringSet nms;
     SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
 
-    storfld_ = new uiRadioButton( selgrp_, "Stored" );
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
     storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
     storfld_->setSensitive( nms.size() );
 
@@ -117,12 +117,12 @@ void uiAttr2DSelDlg::createSelectionButtons()
     const bool havesteer = !nms.isEmpty();
     if ( havesteer )
     {
-	steerfld_ = new uiRadioButton( selgrp_, "Steering" );
+	steerfld_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
 	steerfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
     }
 
     const bool haveattribs = attrinf_->attrnms_.size();
-    attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
 

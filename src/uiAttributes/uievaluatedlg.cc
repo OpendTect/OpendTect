@@ -281,7 +281,8 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     for ( int idx=0; idx<params.size(); idx++ )
 	strs.add( params[idx].label_ );
 
-    evalfld = new uiGenInput( this, tr("Evaluate"), StringListInpSpec(strs) );
+    evalfld = new uiGenInput( this, uiStrings::sEvaluate(), 
+                              StringListInpSpec(strs) );
     evalfld->valuechanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 
     uiGroup* pargrp = new uiGroup( this, "" );
@@ -296,11 +297,11 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     nrstepsfld->box()->setInterval( cSliceIntv );
     nrstepsfld->attach( alignedBelow, pargrp );
 
-    calcbut = new uiPushButton( this, tr("Calculate"), true );
+    calcbut = new uiPushButton( this, uiStrings::sCalculate(), true );
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSlider( this, tr("Slice"), "Slice slider" );
+    sliderfld = new uiSlider( this, uiStrings::sSlice(), "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
     sliderfld->setTickMarks( uiSlider::Below );

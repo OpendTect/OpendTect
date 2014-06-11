@@ -267,7 +267,8 @@ bool uiAttrVolOut::prepareProcessing()
 		 (singline && lnms.isPresent(lnm)) )
 	    {
 		const bool rv = uiMSG().askGoOn(
-		    "Output attribute already exists.", "Overwrite", "Cancel" );
+		    "Output attribute already exists.", uiStrings::sOverwrite(),
+                    uiStrings::sCancel() );
 		if ( !rv ) return false;
 	    }
 	}

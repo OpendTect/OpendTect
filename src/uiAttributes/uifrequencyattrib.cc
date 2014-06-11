@@ -60,7 +60,8 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     winfld = new uiWindowFunctionSel( this, su );
     winfld->attach( alignedBelow, normfld ); 
 
-    outpfld = new uiGenInput( this, tr("Output"), StringListInpSpec(outpstrs) );
+    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
+                              StringListInpSpec(outpstrs) );
     outpfld->setElemSzPol( uiObject::WideVar );
     outpfld->attach( alignedBelow, winfld );
 

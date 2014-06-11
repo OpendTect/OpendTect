@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
-const char* uiAttrDescEd::timegatestr()	{ return "Time gate"; }
+const char* uiAttrDescEd::timegatestr()	        { return "Time gate"; }
 const char* uiAttrDescEd::stepoutstr()	        { return "Stepout"; }
 const char* uiAttrDescEd::frequencystr()        { return "Frequency"; }
 const char* uiAttrDescEd::filterszstr()	        { return "Filter size"; }

@@ -130,7 +130,7 @@ void uiAttribDescSetEd::createMenuBar()
     if( !menu )
         { pErrMsg("huh?"); return; }
 
-    uiMenu* filemnu = new uiMenu( this, "&File" );
+    uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
     mInsertItem( "&New set ...", newSet, "newset" );
     mInsertItem( "&Open set ...", openSet, "openset" );
     mInsertItem( "&Save set ...", savePush, "save" );
@@ -139,7 +139,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertItemNoIcon( "&Change attribute input(s) ...", changeInput );
     filemnu->insertSeparator();
     mInsertItem( "Open &Default set ...", defaultSet, "defset" );
-    uiMenu* impmnu = new uiMenu( this, "&Import" );
+    uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
     mInsertMnuItem( impmnu, "From other &Survey ...", importSet, "impset" );
     mInsertMnuItemNoIcon( impmnu, "From &File ...", importFile );
     mInsertItem( "&Reconstruct from job file ...", job2Set, "job2set" );
@@ -185,10 +185,12 @@ void uiAttribDescSetEd::createGroups()
     attrlistfld_->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
     attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
-    moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow, "Up",
+    moveupbut_ = new uiToolButton( leftgrp, uiToolButton::UpArrow, 
+                                   uiStrings::sUp(),
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
-    movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, "Down",
+    movedownbut_ = new uiToolButton( leftgrp, uiToolButton::DownArrow, 
+                                     uiStrings::sDown(),
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
     sortbut_ = new uiToolButton( leftgrp, "sort", "Sort attributes",
@@ -232,7 +234,7 @@ void uiAttribDescSetEd::createGroups()
     attrtypefld_->update();
     degrp->setHAlignObj( attrtypefld_ );
 
-    helpbut_ = new uiToolButton( degrp, "contexthelp", "Help",
+    helpbut_ = new uiToolButton( degrp, "contexthelp", uiStrings::sHelp(),
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
@@ -716,7 +718,8 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
                          " to change the attribute type?")
                         .arg(usedesc->userRef());
 
-        bool res = uiMSG().askGoOn(msg, "Change", "Cancel");
+        bool res = uiMSG().askGoOn(msg, uiStrings::sChange(), 
+                                   uiStrings::sCancel());
 	if ( res )
 	{
 	    checkusrref = false;

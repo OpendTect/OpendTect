@@ -227,18 +227,18 @@ void uiAttrSelDlg::createSelectionButtons()
     const bool havesteered = attrinf_->steernms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-    storfld_ = new uiRadioButton( selgrp_, "Stored" );
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );
 
     if ( showsteerdata_ )
     {
-	steerfld_ = new uiRadioButton( selgrp_, "Steering" );
+	steerfld_ = new uiRadioButton( selgrp_, uiStrings::sSteering() );
 	steerfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 	steerfld_->setSensitive( havesteered );
     }
 
-    attrfld_ = new uiRadioButton( selgrp_, "Attributes" );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 
@@ -279,10 +279,10 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
-    filtfld_ = new uiGenInput( this, "Filter", "*" );
+    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
     filtfld_->attach( alignedBelow, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-    compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
+    compfld_ = new uiLabeledComboBox( this, uiStrings::sComponent(), "Compfld");
     compfld_->attach( rightTo, filtfld_ );
 
     if ( haveattribs )
