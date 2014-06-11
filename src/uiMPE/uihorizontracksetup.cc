@@ -108,16 +108,16 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
-    tabgrp_->addTab( modegrp, tr("Mode") );
+    tabgrp_->addTab( modegrp, uiStrings::sMode() );
 
     uiGroup* eventgrp = createEventGroup();
-    tabgrp_->addTab( eventgrp, tr("Event") );
+    tabgrp_->addTab( eventgrp, uiStrings::sEvent() );
 
     uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, tr("Similarity") );
+    tabgrp_->addTab( simigrp, uiStrings::sSimilarity() );
 
     uiGroup* propertiesgrp = createPropertyGroup();
-    tabgrp_->addTab( propertiesgrp, tr("Properties") );
+    tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
 }
 
 
@@ -201,14 +201,14 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 
     if ( !is2d_ )
     {
-	addstepbut_ = new uiPushButton( grp, tr("Steps"),
+	addstepbut_ = new uiPushButton( grp, uiStrings::sSteps(),
 		mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
 
     extriffailfld_ = new uiGenInput( grp, tr("If tracking fails"),
 				    BoolInpSpec(true,tr("Extrapolate"),
-                                                tr("Stop")) );
+                                                uiStrings::sStop()) );
     extriffailfld_->attach( alignedBelow, ampthresholdfld_ );
     extriffailfld_->valuechanged.notify(
 	    mCB(this,uiHorizonSetupGroup,eventChangeCB) );

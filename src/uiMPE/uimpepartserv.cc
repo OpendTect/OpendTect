@@ -1235,7 +1235,8 @@ void uiMPEPartServer::saveUnsaveEMObject()
 	    msg += " is not saved.\n Click 'Save' to save ";
 	    msg += " to disk or\n click 'Remove' to remove permanently. ";
 
-	    if ( uiMSG().askGoOn(msg, "Save", "Remove") )
+	    if ( uiMSG().askGoOn(msg, uiStrings::sSave(true), 
+                                 uiStrings::sRemove(true)) )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
 	    else
 		sendEvent( uiMPEPartServer::evRemoveUnsavedEMObject() );
