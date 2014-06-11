@@ -59,6 +59,8 @@ const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
 const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
 const char* HorizonDisplay::sKeyIntersectLineMaterialID()
 { return "Intsectline material id"; }
+const char* HorizonDisplay::sKeySectionID()	{ return "Section ID"; }
+const char* HorizonDisplay::sKeyZValues()	{ return "Z values"; }
 
 
 HorizonDisplay::HorizonDisplay()
@@ -93,7 +95,7 @@ HorizonDisplay::HorizonDisplay()
     userrefs_ += attrnms;
     shifts_ += new TypeSet<float>;
     enabled_ += true;
-    datapackids_ += -1;
+    dispdatapackids_ += new TypeSet<DataPack::ID>;
 
     material_->setAmbience( 0.3 );
 
@@ -134,12 +136,16 @@ HorizonDisplay::~HorizonDisplay()
 	zaxistransform_->unRef();
     }
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+    for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
+    {
+	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
+	for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	    dpm.release( dpids[idy] );
+    }
 
+    deepErase( dispdatapackids_ );
     deepErase( shifts_ );
-
 }
 
 
@@ -483,7 +489,7 @@ void HorizonDisplay::selectTexture( int channel, int textureidx )
 	 userrefs_[channel]->isEmpty() )
 	return;
 
-    if ( userrefs_[channel]->get(0)=="Section ID" )
+    if ( userrefs_[channel]->get(0) == sKeySectionID() )
 	textureidx++;
 
     BufferString usrref = userrefs_[channel]->validIdx(textureidx) ?
@@ -550,7 +556,7 @@ bool HorizonDisplay::addAttrib()
     userrefs_ += attrnms;
     enabled_ += true;
     shifts_ += new TypeSet<float>;
-    datapackids_ += -1;
+    dispdatapackids_ += new TypeSet<DataPack::ID>;
     coltabmappersetups_ += ColTab::MapperSetup();
     coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
 
@@ -581,8 +587,12 @@ bool HorizonDisplay::removeAttrib( int channel )
     userrefs_.removeSingle( channel );
     enabled_.removeSingle( channel );
     delete shifts_.removeSingle( channel );
-    DPM( DataPackMgr::FlatID() ).release( datapackids_[channel] );
-    datapackids_.removeSingle( channel );
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
+    for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+    delete dispdatapackids_.removeSingle( channel );
+
     coltabmappersetups_.removeSingle( channel );
     coltabsequences_.removeSingle( channel );
     delete as_.removeSingle( channel );
@@ -610,7 +620,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     shifts_.swap( a0, a1 );
     curshiftidx_.swap( a0, a1 );
     userrefs_.swap( a0, a1 );
-    datapackids_.swap( a0, a1 );
+    dispdatapackids_.swap( a0, a1 );
     return true;
 }
 
@@ -675,14 +685,16 @@ void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
 
 void HorizonDisplay::setDepthAsAttrib( int channel )
 {
-    as_[channel]->set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
+    as_[channel]->set( sKeyZValues(), Attrib::SelSpec::cNoAttrib(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
     ObjectSet<DataColDef> defs;
-    DataColDef depthdef( "Depth" );
-    defs += &depthdef;
     DataPointSet positions( pts, defs, false, true );
     getRandomPos( positions, 0 );
+
+    const DataColDef zvalsdef( sKeyZValues() );
+    if ( positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact)==-1 )
+	positions.dataSet().add( new DataColDef(zvalsdef) );
 
     if ( !positions.size() ) return;
 
@@ -693,10 +705,9 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	return;
     }
 
-    int depthcol =
-	positions.dataSet().findColDef( depthdef, PosVecDataSet::NameExact );
-    if ( depthcol==-1 )
-	depthcol = 1;
+    int zcol= positions.dataSet().findColDef(zvalsdef,PosVecDataSet::NameExact);
+    if ( zcol==-1 )
+	zcol = 2;
 
     BinIDValueSet::SPos pos;
     while ( bivs.next(pos,true) )
@@ -704,11 +715,11 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	float* vals = bivs.getVals(pos);
 	if ( zaxistransform_ )
 	{
-	    vals[depthcol] = zaxistransform_->transform(
+	    vals[zcol] = zaxistransform_->transform(
 		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
 	}
 	else
-	    vals[depthcol] = vals[0];
+	    vals[zcol] = vals[0];
     }
 
     createAndDispDataPack( channel, &positions, 0 );
@@ -733,31 +744,6 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     userrefs_.replace( channel, attrnms );
 
     setRandomPosData( channel, positions, tr );
-    const BinIDValueSet* cache =
-	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
-    const bool isz = attrnms->size()>=1 && attrnms->get(0)=="Depth";
-
-    StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
-    StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
-    BinID step( dispinlrg.step, dispcrlrg.step );
-
-    mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
-			BIDValSetArrAdapter(*cache,isz?0:2,step));
-    const char* catnm = isz ? "Geometry" : "Horizon Data";
-    const char* dpnm = isz ? "Depth"
-			   : (attrnms->size()>1 ? attrnms->get(1).buf() : "");
-    mDeclareAndTryAlloc(MapDataPack*,newpack,MapDataPack(catnm,dpnm,bvsarr));
-
-    StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
-				(double)dispinlrg.step );
-    StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
-				(double)dispcrlrg.step );
-    BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
-    newpack->setProps( inlrg, crlrg, true, &dimnames );
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    dpman.add( newpack );
-    setDataPackID( channel, newpack->id(), tr );
 }
 
 
@@ -814,7 +800,7 @@ void HorizonDisplay::updateSingleColor()
 void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 				       TaskRunner* tr )
 {
-    if ( channel<0 || channel>=nrAttribs() )
+    if ( channel<0 || channel>=nrAttribs() || sections_.isEmpty() )
        return;
 
     if ( !data || !data->size() )
@@ -830,7 +816,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 
     //We should really scale here, and then update sections. This
     //works for single sections though.
-    if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
+    if ( sections_[0]->getColTabMapperSetup(channel) )
     {
 	coltabmappersetups_[channel] =
 	    *sections_[0]->getColTabMapperSetup( channel );
@@ -840,6 +826,52 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     validtexture_ = true;
     usestexture_ = true;
     updateSingleColor();
+
+    createDisplayDataPacks( channel, data );
+}
+
+
+void HorizonDisplay::createDisplayDataPacks(
+			int channel, const DataPointSet* data )
+{
+    if ( !data || !data->size() || sections_.isEmpty() ) return;
+
+    const StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
+    const StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
+    const BinID step( dispinlrg.step, dispcrlrg.step );
+
+    StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
+					    (double)dispinlrg.step );
+    StepInterval<double> crlrg( (double)dispcrlrg.start, (double)dispcrlrg.stop,
+					    (double)dispcrlrg.step );
+
+    const DataColDef sidcoldef( sKeySectionID() );
+    const int sidcol =
+	data->dataSet().findColDef(sidcoldef,PosVecDataSet::NameExact);
+    const int nrfixedcols = data->nrFixedCols();
+    const int shift = sidcol==-1 ?  nrfixedcols : nrfixedcols+1;
+    const BinIDValueSet* cache =
+	sections_.isEmpty() ? 0 : sections_[0]->getCache( channel );
+    const int nrversions = cache->nrVals()-shift;
+
+    TypeSet<DataPack::ID> dpids;
+    const char* catnm = "Horizon Data";
+    const char* dpnm = as_[channel]->userRef();
+    BufferStringSet dimnames;
+    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
+
+    for ( int idx=0; idx<nrversions; idx++ )
+    {
+	mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
+			    BIDValSetArrAdapter(*cache,idx+shift,step));
+	mDeclareAndTryAlloc(MapDataPack*,newpack,
+			    MapDataPack(catnm,dpnm,bvsarr));
+	newpack->setProps( inlrg, crlrg, true, &dimnames );
+	DPM(DataPackMgr::FlatID()).add( newpack );
+	dpids += newpack->id();
+    }
+
+    setDisplayDataPackIDs( channel, dpids );
 }
 
 
@@ -2134,26 +2166,37 @@ HorizonDisplay::getIntersectionLines() const
 bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid,
 				    TaskRunner* tr)
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    const DataPack* datapack = dpman.obtain( dpid );
-    if ( !datapack ) return false;
+    return false;
+}
 
-    DataPack::ID oldid = datapackids_[channel];
-    datapackids_[channel] = dpid;
-    dpman.release( oldid );
-    return true;
+
+void HorizonDisplay::setDisplayDataPackIDs( int attrib,
+				const TypeSet<DataPack::ID>& newdpids )
+{
+    TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
+
+    dpids = newdpids;
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
 }
 
 
 DataPack::ID HorizonDisplay::getDataPackID( int channel ) const
 {
-    return datapackids_[channel];
+    return getDisplayedDataPackID( channel );
 }
 
 
 DataPack::ID HorizonDisplay::getDisplayedDataPackID( int channel ) const
 {
-    return getDataPackID( channel );
+    if ( sections_.isEmpty() || !dispdatapackids_.validIdx(channel) )
+	return DataPack::cNoID();
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[channel];
+    const int curversion = sections_[0]->activeVersion( channel );
+    return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cNoID();
 }
 
 
@@ -2161,6 +2204,7 @@ const visBase::HorizonSection* HorizonDisplay::getSection( int horsecid ) const
 {
     return sections_.validIdx( horsecid ) ? sections_[horsecid] : 0;
 }
+
 
 HorizonDisplay* HorizonDisplay::getHorizonDisplay( const MultiID& mid )
 {

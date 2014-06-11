@@ -149,8 +149,6 @@ void uiODApplMgrAttrVisHandler::createAndSetMapDataPack( int visid, int attrib,
 	am_.useDefColTab( visid, attrib );
 
     am_.visserv_->setRandomPosData( visid, attrib, &data );
-    const int dpid = am_.createMapDataPack( data, colnr );
-    am_.visserv_->setDataPackID( visid, attrib, dpid );
 }
 
 

@@ -100,6 +100,8 @@ public:
 						TaskRunner*);
     bool                        setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
+    void			setDisplayDataPackIDs(int attrib,
+					const TypeSet<DataPack::ID>&);
     DataPack::ID                getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
@@ -187,6 +189,8 @@ public:
 protected:
 				~HorizonDisplay();
     void			removeEMStuff();
+    void			createDisplayDataPacks(
+					int attrib,const DataPointSet*);
 
     EM::PosID			findClosestNode(const Coord3&) const;
 
@@ -252,6 +256,7 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     TypeSet<DataPack::ID>		datapackids_;
+    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
@@ -266,6 +271,8 @@ protected:
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();
     static const char*			sKeySurfaceGrid();
+    static const char*			sKeySectionID();
+    static const char*			sKeyZValues();
 };
 
 
