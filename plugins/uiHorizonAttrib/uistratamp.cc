@@ -61,7 +61,8 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
 	    			      FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
-    bothorshiftfld_ = new uiGenInput( this, tr("Bottom"), FloatInpSpec(0) );
+    bothorshiftfld_ = new uiGenInput( this, uiStrings::sBottom(), 
+                                      FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
     bothorshiftfld_->setElemSzPol( uiObject::Small );
 
@@ -108,7 +109,7 @@ uiStratAmpCalc::~uiStratAmpCalc()
 void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
-    horfld1_->setLabelText( usesingle_ ? uiStrings::sHorizon() 
+    horfld1_->setLabelText( usesingle_ ? tr("Horizon") 
 				       : tr("Top Horizon") );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );

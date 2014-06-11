@@ -432,7 +432,7 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
 
-    uiPushButton* applybut = new uiPushButton( this, "Apply", true );
+    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(), true);
     applybut->attach( rightTo, intvfld_ );
     applybut->activated.notify( mCB(this,uiContourParsDlg,applyCB) );
 
@@ -725,7 +725,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
             table->setText( RowCol(idx,1), toString( areas[idx] ) );
         }
 
-        uiPushButton* button = new uiPushButton( &dlg, sSaveAs(),
+        uiPushButton* button = new uiPushButton( &dlg, uiStrings::sSaveAs(),
                              mCB(this,uiContourTreeItem,saveAreasAsCB), true );
         button->attach( leftAlignedBelow, table );
 
