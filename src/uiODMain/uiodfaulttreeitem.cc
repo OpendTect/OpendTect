@@ -704,11 +704,11 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, false && !islocked,
 	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
+    /*TODO: enable save surface data when it's ready
     const bool enabsave = changed_ ||
 	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
 	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
-
-    mAddMenuItem( menu, &savesurfacedatamnuitem_, false && enabsave, false );
+    mAddMenuItem( menu, &savesurfacedatamnuitem_, false && enabsave, false );*/
     mAddMenuItem( menu, &algomnuitem_, false, false );
 }
 
