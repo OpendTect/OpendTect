@@ -57,7 +57,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 
     uiTreeViewItem* output = new uiTreeViewItem(tree_,uiTreeViewItem::Setup());
     output->setText( tr("Output body"), 0 );
-    output->setText( tr("Operator"), 1 );
+    output->setText( uiStrings::sOperator(), 1 );
     output->setOpen( true );
     BodyOperand item = BodyOperand();
     item.defined_ = true;
@@ -65,9 +65,9 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     listsaved_ += output;
 
     uiTreeViewItem* c0 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
-    c0->setText( tr("input") );
+    c0->setText( uiStrings::sInput() );
     uiTreeViewItem* c1 = new uiTreeViewItem( output, uiTreeViewItem::Setup() );
-    c1->setText( tr("input") );
+    c1->setText( uiStrings::sInput() );
     listinfo_ += BodyOperand();
     listinfo_ += BodyOperand();
     listsaved_ += c0;
@@ -83,15 +83,16 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     uiLabel* label1 = new uiLabel( rgrp, tr("Operands") );
     label1->attach( centeredAbove, typefld_ );
 
-    bodyselfld_ = new uiGenInput( rgrp, tr("Input"), StringInpSpec() );
+    bodyselfld_ = new uiGenInput( rgrp, uiStrings::sInput(), StringInpSpec() );
     bodyselfld_->attach( alignedBelow, typefld_ );
-    bodyselbut_ = new uiPushButton( rgrp, tr("&Select"), false );
+    bodyselbut_ = new uiPushButton( rgrp, uiStrings::sSelect(), false );
     bodyselbut_->attach( rightOf, bodyselfld_ );
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
     
     BufferStringSet operators;
     operators.add( "Union" ).add( "Intersection" ).add( "Difference" );
-    oprselfld_ = new uiLabeledComboBox( rgrp, operators, tr("Operator") );
+    oprselfld_ = new uiLabeledComboBox( rgrp, operators, 
+                                        uiStrings::sOperator() );
     oprselfld_->box()->setPixmap( "set_union", 0 );
     oprselfld_->box()->setPixmap( "set_intersect", 1 );
     oprselfld_->box()->setPixmap( "set_minus", 2 );
@@ -173,9 +174,9 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	    return;
 
 	uiTreeViewItem* c0 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
-	c0->setText( tr("input") );
+	c0->setText( uiStrings::sInput() );
 	uiTreeViewItem* c1 = new uiTreeViewItem(cur,uiTreeViewItem::Setup());
-	c1->setText( tr("input") );
+	c1->setText( uiStrings::sInput() );
 
 	cur->setOpen( true );
 

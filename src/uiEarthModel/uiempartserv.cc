@@ -666,7 +666,7 @@ bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
     BufferStringSet atrrnms;
     auxdata->getAuxDataList( atrrnms );
     uiGetObjectName::Setup setup( "Fault Data", atrrnms );
-    setup.inptxt_ = "Attribute";
+    setup.inptxt_ = uiStrings::sAttributes();
     uiGetObjectName dlg( parent(), setup );
     if ( !dlg.go() )
 	return false;

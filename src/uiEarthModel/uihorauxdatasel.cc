@@ -36,7 +36,8 @@ public:
 		, auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 		{
 		    uiGroup* grp = new uiGroup( this, "Group" );
-		    uiLabel* horlabel = new uiLabel( grp, "Horizons" );
+		    uiLabel* horlabel = new uiLabel( grp, 
+                                                     uiStrings::sHorizons() );
 		    horlistfld_ = new uiListBox( grp );
 		    horlistfld_->addItems( auxinfo_->hornms_ );
 		    horlistfld_->attach( ensureBelow, horlabel );

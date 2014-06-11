@@ -89,7 +89,8 @@ void uiImportFault::createUI()
     if ( !isfss_ )
     {
 	BufferStringSet types; types.add( "Plain ASCII" );
-	typefld_ = new uiGenInput( this, tr("Type"), StringListInpSpec(types) );
+	typefld_ = new uiGenInput( this, uiStrings::sType(), 
+                                   StringListInpSpec(types) );
 	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
 	typefld_->attach( alignedBelow, infld_ );
 

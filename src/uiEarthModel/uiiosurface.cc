@@ -604,11 +604,11 @@ public:
 	table_->setColumnStretchable( 0, true );
 	table_->setColumnStretchable( 1, true );
 
-	uiPushButton* addbut = new uiPushButton( this, "&Add",
+	uiPushButton* addbut = new uiPushButton( this, uiStrings::sAdd(true),
 		mCB(this,uiFaultOptSel,addCB), false );
 	addbut->attach( rightOf, table_ );
 
-	removebut_ = new uiPushButton( this, "&Remove",
+	removebut_ = new uiPushButton( this, uiStrings::sRemove(true),
 		mCB(this,uiFaultOptSel,removeCB), true );
 	removebut_->attach( alignedBelow, addbut );
 
