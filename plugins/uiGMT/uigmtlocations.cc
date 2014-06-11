@@ -46,7 +46,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ctio_,"Pick Set" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     symbfld_ = new uiGMTSymbolPars( this, false );

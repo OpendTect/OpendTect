@@ -50,7 +50,7 @@ uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
     inpfld_ = new uiIOObjSel( this, ctio_, "Line(s)" );
     inpfld_->selectionDone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );

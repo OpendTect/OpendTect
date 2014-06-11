@@ -45,7 +45,7 @@ uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
     ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    polygonfld_ = new uiIOObjSel( this, ctxt, "Polygon" );
+    polygonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sPolygon() );
     polygonfld_->attach( alignedBelow, actionfld_ );
 
     optionfld_ = new uiGenInput(this, "", BoolInpSpec(true,tr("Clip Outside"),

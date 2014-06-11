@@ -45,7 +45,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"2D Lines")
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lineselfld_ = new uiSeis2DLineSel( this, true );
     lineselfld_->attach( alignedBelow, namefld_ );
 

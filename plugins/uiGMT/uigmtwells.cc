@@ -56,7 +56,8 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 	    welllistfld_->addItem( ioobj->name() );
     }
 
-    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec("Wells") );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+                               StringInpSpec("Wells") );
     namefld_->attach( alignedBelow, llb );
 
     symbfld_ = new uiGMTSymbolPars( this, true );

@@ -46,10 +46,10 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
     ctio_.ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    inpfld_ = new uiIOObjSel( this, ctio_,"Polygon" );
+    inpfld_ = new uiIOObjSel( this, ctio_, uiStrings::sPolygon() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
-    namefld_ = new uiGenInput( this, tr("Name"), StringInpSpec() );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     namefld_->attach( alignedBelow, inpfld_ );
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );

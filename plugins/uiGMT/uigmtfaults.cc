@@ -53,9 +53,11 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSelGrp( this, mIOObjContext(EMFault3D),
-		   "Faults", uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+		   uiStrings::sFaults(), 
+                   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec("Faults") );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+                               StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
@@ -76,7 +78,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     linestfld_->attach( alignedBelow, horfld_ );
 
     colorfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black())
-						      .lbltxt("Color") );
+				.lbltxt(uiStrings::sColor()) );
     colorfld_->attach( alignedBelow, linestfld_ );
 
     usecolorbut_ = new uiCheckBox( this, "Use fault color",

@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,mNoHelpKey))
 {
-    setOkText( tr("Continue") );
+    setOkText( uiStrings::sContinue() );
 
     BufferString msg = "You need to install the GMT mapping tool package\n";
     msg += "before you can use this utility\n";
