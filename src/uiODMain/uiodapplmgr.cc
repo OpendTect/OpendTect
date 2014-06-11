@@ -776,6 +776,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     }
 
     Attrib::SelSpec myas( *as );
+    DataPackMgr& dpm = DPM(DataPackMgr::PointID());
     if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
     {
 	const MultiID surfmid = visserv_->getMultiID(visid);
@@ -785,13 +786,11 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	    uiMSG().error( tr("Cannot find stored data") );
 	else
 	{
-	    DataPointSet* data = new DataPointSet( false, true );
-	    DPM( DataPackMgr::PointID() ).addAndObtain( data );
-
+	    DataPackRef<DataPointSet> data =
+		dpm.addAndObtain( new DataPointSet(false,true) );
 	    TypeSet<float> shifts( 1, 0 );
 	    emserv_->getAuxData( emid, auxdatanr, *data, shifts[0] );
-	    createAndSetMapDataPack( visid, attrib, *data, 2 );
-	    DPM( DataPackMgr::PointID() ).release( data->id() );
+	    setRandomPosData( visid, attrib, *data );
 	    mDynamicCastGet(visSurvey::HorizonDisplay*,vishor,
 			    visserv_->getObject(visid) )
 	    vishor->setAttribShift( attrib, shifts );
@@ -805,7 +804,6 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
 	return auxdatanr>=0;
     }
 
-    DataPackMgr& dpm = DPM(DataPackMgr::PointID());
     DataPackRef<DataPointSet> data =
 		dpm.addAndObtain( new DataPointSet(false,true) );
     visserv_->getRandomPos( visid, *data );
@@ -815,8 +813,6 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     if ( !attrserv_->createOutput(*data,firstcol) )
 	return false;
 
-    const int dataidx = data->dataSet().findColDef( DataColDef(myas.userRef()),
-						    PosVecDataSet::NameExact );
     mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv_->getObject(visid))
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,visserv_->getObject(visid))
     if ( fd )
@@ -829,7 +825,7 @@ bool uiODApplMgr::calcRandomPosAttrib( int visid, int attrib )
     }
     else
     {
-	createAndSetMapDataPack( visid, attrib, *data, dataidx );
+	setRandomPosData( visid, attrib, *data );
 	if ( hd )
 	{
 	    TypeSet<float> shifts( 1,(float)visserv_->getTranslation(visid).z );
@@ -1861,9 +1857,9 @@ void uiODApplMgr::setHistogram( int visid, int attrib )
 { attrvishandler_.setHistogram(visid,attrib); }
 void uiODApplMgr::colMapperChg( CallBacker* )
 { attrvishandler_.colMapperChg(); }
-void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
-					   const DataPointSet& data, int colnr )
-{ attrvishandler_.createAndSetMapDataPack(visid,attrib,data,colnr); }
+void uiODApplMgr::setRandomPosData( int visid, int attrib,
+				const DataPointSet& data )
+{ attrvishandler_.setRandomPosData(visid,attrib,data); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
 void uiODApplMgr::updateColorTable( int visid, int attrib )
@@ -1901,8 +1897,6 @@ void uiODApplMgr::posConversion()
 { dispatcher_.posConversion(); }
 void uiODApplMgr::manageShortcuts()
 { dispatcher_.manageShortcuts(); }
-int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
-{ return dispatcher_.createMapDataPack( data, colnr ); }
 void uiODApplMgr::startInstMgr()
 { dispatcher_.startInstMgr(); }
 void uiODApplMgr::setAutoUpdatePol()

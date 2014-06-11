@@ -96,10 +96,9 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
-    void			createAndDispDataPack(int,const DataPointSet*,
-						TaskRunner*);
-    bool                        setDataPackID(int attrib,DataPack::ID,
-					      TaskRunner*);
+    void			setDepthData(int channel,const DataPointSet*);
+    void			setDisplayDataPackIDs(int attrib,
+					const TypeSet<DataPack::ID>&);
     DataPack::ID                getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
@@ -189,6 +188,8 @@ protected:
     void			removeEMStuff();
 
     EM::PosID			findClosestNode(const Coord3&) const;
+    void			createDisplayDataPacks(
+					int attrib,const DataPointSet*);
 
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
@@ -251,7 +252,7 @@ protected:
     bool				displayintersectionlines_;
 
     ObjectSet<Attrib::SelSpec>		as_;
-    TypeSet<DataPack::ID>		datapackids_;
+    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     ObjectSet< TypeSet<float> >		shifts_;
@@ -266,12 +267,12 @@ protected:
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();
     static const char*			sKeySurfaceGrid();
+    static const char*			sKeySectionID();
+    static const char*			sKeyZValues();
 };
 
 
 };
 
 #endif
-
-
 

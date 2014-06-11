@@ -141,16 +141,14 @@ void uiODApplMgrAttrVisHandler::setHistogram( int visid, int attrib )
 }
 
 
-void uiODApplMgrAttrVisHandler::createAndSetMapDataPack( int visid, int attrib,
-					   const DataPointSet& data, int colnr )
+void uiODApplMgrAttrVisHandler::setRandomPosData( int visid, int attrib,
+						 const DataPointSet& data )
 {
     DataPack::ID cacheid = am_.visserv_->getDataPackID( visid, attrib );
     if ( cacheid == -1 )
 	am_.useDefColTab( visid, attrib );
 
     am_.visserv_->setRandomPosData( visid, attrib, &data );
-    const int dpid = am_.createMapDataPack( data, colnr );
-    am_.visserv_->setDataPackID( visid, attrib, dpid );
 }
 
 

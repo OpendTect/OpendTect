@@ -59,7 +59,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		doOperation(int,int,int);
     void		manPreLoad(int);
     void		posConversion();
-    int			createMapDataPack(const DataPointSet&,int);
 
     void		processPreStack();
     void		process2D3D(int opt);
@@ -107,8 +106,8 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     bool		selectAttrib(int,int);
     void		setHistogram(int,int);
     void		colMapperChg();
-    void		createAndSetMapDataPack(int,int,
-						const DataPointSet&,int);
+    void		setRandomPosData(int visid,int attrib,
+					const DataPointSet&);
     void		pageUpDownPressed(bool);
     void		updateColorTable(int,int);
     void		colSeqChg();

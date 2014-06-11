@@ -205,7 +205,6 @@ public:
 				    { return otherformatvisid_; }
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
-    int				createMapDataPack(const DataPointSet&,int col);
     void			useDefColTab(int visid,int attrib);
 
 protected:
@@ -271,8 +270,8 @@ protected:
 
     void			manStrat();
 
-    void			createAndSetMapDataPack(int visid,int attrib,
-						const DataPointSet&,int colnr);
+    void			setRandomPosData(int visid,int attrib,
+						const DataPointSet&);
     void			process2D3D(int opt); /*!<opt=0: create 2D grid,
 							  1:3D->2D, 2:2D->3D */
 
