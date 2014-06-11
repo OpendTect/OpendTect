@@ -301,7 +301,11 @@ void uiListBoxBody::mouseMoveEvent( QMouseEvent* ev )
 
 void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
 {
+    const bool didslide = sliderg_.start>=0 && sliderg_.start != sliderg_.stop;
     sliderg_.start = -1;
+    if ( didslide )
+	handle_.selectionChanged.trigger();
+
     if ( !ev ) return;
 
     if ( ev->button() == Qt::RightButton )
