@@ -363,9 +363,9 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiSeisPreLoadMgrSel2D dlg( this );
     if ( !dlg.go() ) return;
 
-    mCheckIOObjExistance( dlg.ctio_.ioobj );
+    mCheckIOObjExistance( dlg.lssel_->ioobj() );
 
-    Seis::PreLoader spl( dlg.ctio_.ioobj->key() );
+    Seis::PreLoader spl( dlg.lssel_->ioobj()->key() );
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
     {
