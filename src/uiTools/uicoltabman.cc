@@ -130,7 +130,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 
     uiColorInput::Setup ctsu( ctab_.markColor(), uiColorInput::Setup::None );
     ctsu.withdesc( false );
-    markercolfld_ = new uiColorInput( rightgrp, 
+    markercolfld_ = new uiColorInput( rightgrp,
                                       ctsu.lbltxt(tr("Marker color")) );
     markercolfld_->colorChanged.notify(
 			mCB(this,uiColorTableMan,markerColChgd) );
@@ -148,7 +148,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ );
 
-    uiPushButton* savebut = new uiPushButton( this, sSaveAs(), true );
+    uiPushButton* savebut = new uiPushButton( this, uiStrings::sSaveAs(), true);
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
     savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );

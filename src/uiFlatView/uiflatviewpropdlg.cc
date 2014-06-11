@@ -809,7 +809,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const BufferStringSet* annots,
 				      int selannot )
     : uiTabStackDlg(p,uiDialog::Setup("Specify Display Properties",
-				      mNoDlgTitle, 
+				      mNoDlgTitle,
                                       mODHelpKey(mFlatViewPropDlgHelpID) ))
     , vwr_(vwr)
     , applycb_(applcb)
@@ -845,7 +845,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
 			     mCB(this,uiFlatViewPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
-    enableSaveButton( sSaveAsDefault() );
+    enableSaveButton();
 
     putAllToScreen();
 

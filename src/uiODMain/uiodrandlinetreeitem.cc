@@ -335,7 +335,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
     , editnodesmnuitem_("&Edit nodes ...")
     , insertnodemnuitem_("&Insert node")
-    , saveasmnuitem_( sSaveAs() )
+    , saveasmnuitem_(uiStrings::sSaveAs())
     , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
 {

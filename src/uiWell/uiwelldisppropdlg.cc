@@ -28,11 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
-	: uiDialog(p,uiDialog::Setup("Well display properties",
-	   "", mODHelpKey(mWellDispPropDlgHelpID) ).savetext(sSaveAsDefault())
-           .savebutton(true)
-					.savechecked(false)
-					.modal(false))
+	: uiDialog(p,uiDialog::Setup("Well display properties",mNoDlgTitle,
+				     mODHelpKey(mWellDispPropDlgHelpID) )
+		     .savebutton(true)
+		     .savechecked(false)
+		     .modal(false))
 	, wd_(d)
 	, applyAllReq(this)
 	, savedefault_(false)

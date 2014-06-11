@@ -47,8 +47,8 @@ uiODVw2DFaultSS2DParentTreeItem::~uiODVw2DFaultSS2DParentTreeItem()
 bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(sNew()), 0 );
-    mnu.insertItem( new uiAction(sLoad()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad()), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -95,7 +95,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::init()
 void uiODVw2DFaultSS2DParentTreeItem::tempObjAddedCB( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
-    
+
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     mDynamicCastGet(EM::FaultStickSet*,fss,emobj);
     if ( !fss ) return;
@@ -122,7 +122,7 @@ uiODVw2DFaultSS2DTreeItem::uiODVw2DFaultSS2DTreeItem( int id, bool )
     , fssview_(0)
 {
     displayid_ = id;
-}    
+}
 
 
 uiODVw2DFaultSS2DTreeItem::~uiODVw2DFaultSS2DTreeItem()
@@ -152,8 +152,8 @@ bool uiODVw2DFaultSS2DTreeItem::init()
     {
 	mDynamicCastGet(VW2DFaultSS2D*,fd,
 			viewer2D()->dataMgr()->getObject(displayid_))
-	if ( !fd ) 
-	    return false; 
+	if ( !fd )
+	    return false;
 	emid_ = fd->emID();
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
@@ -178,7 +178,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     fssview_->draw();
 
-    if ( displayid_ < 0 ) 
+    if ( displayid_ < 0 )
 	viewer2D()->dataMgr()->addObject( fssview_ );
 
     mAttachCB( viewer2D()->viewControl()->editPushed(),
@@ -242,7 +242,7 @@ bool uiODVw2DFaultSS2DTreeItem::select()
 bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction(sSave(false));
+    uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
@@ -296,8 +296,8 @@ void uiODVw2DFaultSS2DTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODVw2DFaultSS2DTreeItemFactory::createForVis( 
-				const uiODViewer2D& vwr2d, int id ) const 
+uiTreeItem* uiODVw2DFaultSS2DTreeItemFactory::createForVis(
+				const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const VW2DFaultSS2D*,obj,vwr2d.dataMgr()->getObject(id));
     return obj ? new uiODVw2DFaultSS2DTreeItem(id,true) : 0;

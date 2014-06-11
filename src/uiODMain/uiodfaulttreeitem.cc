@@ -168,8 +168,8 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 
 #define mCommonInit \
-    , savemnuitem_("&Save") \
-    , saveasmnuitem_(sSaveAs()) \
+    , savemnuitem_(uiStrings::sSave(true)) \
+    , saveasmnuitem_(uiStrings::sSaveAs()) \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
@@ -701,7 +701,7 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    false && !islocked && nrsurfdata>0, false );
 
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, false && !islocked,
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     /*TODO: save surfacedata

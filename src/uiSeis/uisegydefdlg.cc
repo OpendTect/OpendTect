@@ -87,7 +87,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 			      IntInpSpec(nrex).setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );
     nrtrcexfld_->attach( ensureBelow, sep );
-    savenrtrcsbox_ = new uiCheckBox( this, sSaveAsDefault() );
+    savenrtrcsbox_ = new uiCheckBox( this, uiStrings::sSaveAsDefault() );
     savenrtrcsbox_->attach( rightOf, nrtrcexfld_ );
     fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );

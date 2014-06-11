@@ -162,25 +162,26 @@ void uiStratTreeWin::createMenu()
     uiMenuBar* menubar = menuBar();
     uiMenu* mnu = new uiMenu( this, tr("&Actions") );
     expandmnuitem_ = new uiAction( mExpandTxt(true),
-				     mCB(this,uiStratTreeWin,setExpCB) );
+				   mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
     expandmnuitem_->setIcon( ioPixmap("collapse_tree") );
     mnu->insertSeparator();
     editmnuitem_ = new uiAction( mEditTxt(true),
-				   mCB(this,uiStratTreeWin,editCB) );
+				 mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
     editmnuitem_->setIcon( ioPixmap("unlock") );
-    savemnuitem_ = new uiAction( sSave(), mCB(this,uiStratTreeWin,saveCB) );
+    savemnuitem_ = new uiAction( uiStrings::sSave(true),
+				 mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setIcon( ioPixmap("save") );
     resetmnuitem_ = new uiAction( tr("&Reset to last saved"),
-				    mCB(this,uiStratTreeWin,resetCB));
+				  mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
     resetmnuitem_->setIcon( ioPixmap("undo") );
     mnu->insertSeparator();
 
-    saveasmnuitem_ = new uiAction( sSaveAs(),
-				     mCB(this,uiStratTreeWin,saveAsCB) );
+    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(),
+				   mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setIcon( ioPixmap("saveas") );
     menubar->insertItem( mnu );

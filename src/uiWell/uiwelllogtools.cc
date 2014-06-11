@@ -212,7 +212,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     freqfld_ = new uiFreqFilterSelFreq( actiongrp );
     freqfld_->attach( alignedBelow, llc );
 
-    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp, 
+    uiLabeledSpinBox* spbgt = new uiLabeledSpinBox( actiongrp,
                                                     tr("Window size") );
     spbgt->attach( alignedBelow, llc );
     gatefld_ = spbgt->box();
@@ -238,7 +238,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
 
-    okbut_ = new uiPushButton( this, sOk(),
+    okbut_ = new uiPushButton( this, uiStrings::sOk(),
 				mCB(this,uiWellLogToolWin,acceptOK), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
@@ -257,7 +257,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
     overwritefld_->setStretch( 0, 0 );
 
-    uiPushButton* cancelbut = new uiPushButton( this, sCancel(),
+    uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );
@@ -290,7 +290,7 @@ void  uiWellLogToolWin::actionSelCB( CallBacker* )
     freqfld_->display( act == 1 );
     gatefld_->display( act != 1 );
     gatelbl_->display( act != 1 );
-    gatelbl_->setText( act > 2 ? tr("Clip rate (%)") 
+    gatelbl_->setText( act > 2 ? tr("Clip rate (%)")
                                : tr("Window size (samples)") );
     StepInterval<int> sp = act > 2 ? StepInterval<int>(0,100,10)
 				   : StepInterval<int>(1,1500,5);
@@ -483,7 +483,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( "Could not apply the smoothing window", 
+		    mAddErrMsg( "Could not apply the smoothing window",
                     wllnm )
 	    }
 	    else if ( act == 3 )

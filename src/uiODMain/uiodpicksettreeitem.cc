@@ -229,8 +229,8 @@ uiTreeItem*
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , storemnuitem_(sSave())
-    , storeasmnuitem_(sSaveAs())
+    , storemnuitem_(uiStrings::sSave(true))
+    , storeasmnuitem_(uiStrings::sSaveAs())
     , dirmnuitem_("Set &directions ...")
     , onlyatsectmnuitem_("&Only at sections")
     , propertymnuitem_(uiStrings::sProperties( false ))

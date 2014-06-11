@@ -55,8 +55,8 @@ uiODVw2DHor2DParentTreeItem::~uiODVw2DHor2DParentTreeItem()
 bool uiODVw2DHor2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(sNew()), 0 );
-    mnu.insertItem( new uiAction(sLoad()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad()), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -72,7 +72,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
-	uiODVw2DHor2DTreeItem* hortreeitem = 
+	uiODVw2DHor2DTreeItem* hortreeitem =
 	    new uiODVw2DHor2DTreeItem( mps->getEMObjectID(trackid) );
 	addChld( hortreeitem, false, false );
 	viewer2D()->viewControl()->setEditMode( true );
@@ -203,7 +203,7 @@ bool uiODVw2DHor2DTreeItem::init()
 	    return false;
 	emid_ = hd->emID();
 	emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) 
+	if ( !emobj )
 	    return false;
 
 	horview_ = hd;
@@ -220,7 +220,7 @@ bool uiODVw2DHor2DTreeItem::init()
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh = 
+	MouseEventHandler* meh =
 	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonPressed.notify(
 		mCB(this,uiODVw2DHor2DTreeItem,mousePressInVwrCB) );
@@ -230,7 +230,7 @@ bool uiODVw2DHor2DTreeItem::init()
 
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
-    
+
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	horview_->setGeomID( viewer2D()->geomID() );
 
@@ -285,11 +285,11 @@ void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 bool uiODVw2DHor2DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction(sSave(false));
+    uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction( sSaveAs() ), 1 );
+    mnu.insertItem( new uiAction( uiStrings::sSaveAs() ), 1 );
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
@@ -420,7 +420,7 @@ void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const Vw2DHorizon2D*,obj,vwr2d.dataMgr()->getObject(id));

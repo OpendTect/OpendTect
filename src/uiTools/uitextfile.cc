@@ -277,14 +277,14 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 
     uiMenu* filemnu = new uiMenu( this, "&File" );
     if ( dlgsetup.allowopen_ )
-	filemnu->insertItem( new uiAction(sOpen(false),
+	filemnu->insertItem( new uiAction(uiStrings::sOpen(false),
 			     mCB(this,uiTextFileDlg,open)) );
     if ( dlgsetup.allowsave_ )
     {
 	if ( tsetup.editable_ )
-	    filemnu->insertItem( new uiAction(sSave(false),
+	    filemnu->insertItem( new uiAction(uiStrings::sSave(false),
 				 mCB(this,uiTextFileDlg,save)) );
-	filemnu->insertItem( new uiAction( sSaveAs(),
+	filemnu->insertItem( new uiAction(uiStrings::sSaveAs(),
 			     mCB(this,uiTextFileDlg,saveAs)) );
     }
     filemnu->insertItem( new uiAction("&Quit",

@@ -78,7 +78,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     midvalfld->setElemSzPol( uiObject::Small );
     midvalfld->attach( alignedBelow, symfld );
 
-    storfld = new uiCheckBox( this, sSaveAsDefault() );
+    storfld = new uiCheckBox( this, uiStrings::sSaveAsDefault() );
     storfld->attach( alignedBelow, midvalfld );
 
     updateFields();

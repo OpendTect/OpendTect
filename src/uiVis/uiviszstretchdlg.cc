@@ -56,7 +56,7 @@ uiZStretchDlg::uiZStretchDlg( uiParent* p )
 	    scenenms.add( scene->name() );
 	}
 
-	scenefld_ = new uiLabeledComboBox( this, scenenms, 
+	scenefld_ = new uiLabeledComboBox( this, scenenms,
                                            tr("Apply scaling to") );
 	scenefld_->box()->setCurrentItem( 1 );
 	mAttachCB( scenefld_->box()->selectionChanged, uiZStretchDlg::sceneSel);
@@ -90,7 +90,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     if ( homecb.willCall() )
     {
 	ioPixmap homepm( "home" );
-	uiButton* homebut = new uiPushButton( grp, tr("To &Home"), homepm, 
+	uiButton* homebut = new uiPushButton( grp, tr("To &Home"), homepm,
                                               true );
 	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
 	if ( vwallbut_ )
@@ -98,7 +98,7 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     }
 
     grp->attach( centeredBelow, sliderfld_ );
-    savefld_ = new uiCheckBox( this, sSaveAsDefault() );
+    savefld_ = new uiCheckBox( this, uiStrings::sSaveAsDefault() );
     savefld_->attach( alignedBelow, grp );
 }
 

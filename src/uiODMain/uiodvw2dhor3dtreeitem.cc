@@ -55,8 +55,8 @@ uiODVw2DHor3DParentTreeItem::~uiODVw2DHor3DParentTreeItem()
 bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(sNew()), 0 );
-    mnu.insertItem( new uiAction(sLoad()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad()), 1 );
     handleSubMenu( mnu.exec() );
     return true;
 }
@@ -73,7 +73,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
-	uiODVw2DHor3DTreeItem* hortreeitem = 
+	uiODVw2DHor3DTreeItem* hortreeitem =
 	    new uiODVw2DHor3DTreeItem( mps->getEMObjectID(trackid) );
 	addChld( hortreeitem,false, false );
 	viewer2D()->viewControl()->setEditMode( true );
@@ -115,7 +115,7 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
-    addChld( new uiODVw2DHor3DTreeItem(emid), false, false);    
+    addChld( new uiODVw2DHor3DTreeItem(emid), false, false);
 }
 
 
@@ -303,7 +303,7 @@ bool uiODVw2DHor3DTreeItem::select()
 
     viewer2D()->dataMgr()->setSelected( horview_ );
     horview_->selected( isChecked() );
-    
+
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
@@ -331,11 +331,11 @@ bool uiODVw2DHor3DTreeItem::select()
 bool uiODVw2DHor3DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    uiAction* savemnu = new uiAction(sSave(false));
+    uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction(sSaveAs()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sSaveAs()), 1 );
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
     cngsetup->setEnabled( MPE::engine().getTrackerByObject(emid_) > -1 );
@@ -485,7 +485,7 @@ void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d.dataMgr()->getObject(id));

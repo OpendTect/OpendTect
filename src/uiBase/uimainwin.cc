@@ -1691,7 +1691,8 @@ uiObject* uiDialogBody::createChildren()
 	}
 	else
 	{
-	    helpbut_ = new uiPushButton( centralwidget_, sHelp(), true );
+	    helpbut_ =
+		new uiPushButton( centralwidget_, uiStrings::sHelp(), true );
 	    helpbut_->setToolTip( helptooltip );
 	    helpbut_->activated.notify( mCB(this,uiDialogBody,provideHelp) );
 	}

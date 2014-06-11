@@ -238,7 +238,7 @@ void uiTieWin::drawFields()
     helpbut->setPrefWidthInChar( 5 );
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );
-    uiPushButton* cancelbut = new uiPushButton( this, sCancel(),
+    uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
 			mCB(this,uiTieWin,rejectOK), true );
     cancelbut->attach( rightBorder );
     cancelbut->attach( ensureBelow, horSepar );

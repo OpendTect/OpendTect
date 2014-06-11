@@ -60,7 +60,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , uivisemobj_(0)
     , createflatscenemnuitem_(tr("&Create flattened scene"))
     , savemnuitem_(uiStrings::sSave(true),-800)
-    , saveasmnuitem_(sSaveAs(),-850)
+    , saveasmnuitem_(uiStrings::sSaveAs(),-850)
     , enabletrackingmnuitem_(tr("Enable tracking"))
     , changesetupmnuitem_(tr("Change setup ..."))
     , reloadmnuitem_(uiStrings::sReload(),-750)
