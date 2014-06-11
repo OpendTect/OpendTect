@@ -313,10 +313,10 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
 
 void lsSel( CallBacker* )
 {
-    if ( !ctio_.ioobj ) return;
+    if ( !lssel_->ioobj() ) return;
 
     lnms_.erase(); attrnms_.erase();
-    Seis2DLineSet ls( *ctio_.ioobj );
+    Seis2DLineSet ls( *lssel_->ioobj() );
     for ( int idx=0; idx<ls.nrLines(); idx++ )
     {
 	lnms_.addIfNew( ls.lineName(idx) );
@@ -331,7 +331,7 @@ void lsSel( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    if ( !lssel_->commitInput() || !ctio_.ioobj )
+    if ( !lssel_->commitInput() || !lssel_->ioobj() )
     {
 	uiMSG().error( "Please select a Line Set" );
 	return false;
