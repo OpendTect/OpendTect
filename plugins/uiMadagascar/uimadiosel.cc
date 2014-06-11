@@ -60,7 +60,8 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 
     mAdd( sKey::None(), idxnone_ );
 
-    typfld_ = new uiGenInput( this, isinp ? "Input" : "Output",
+    typfld_ = new uiGenInput( this, isinp ? uiStrings::sInput() 
+                                          : uiStrings::sOutput(),
 	    		      StringListInpSpec(seistypes) );
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
