@@ -45,7 +45,7 @@ const char* Shape::sKeyTexture() 		{ return  "Texture";	}
 const char* Shape::sKeyMaterial() 		{ return  "Material";	}
 
 
-    
+
 Shape::Shape()
     : material_( 0 )
 {
@@ -109,9 +109,9 @@ void Shape::enableRenderLighting(bool yn )
     if ( !stateset )
 	return;
     if ( yn )
-	stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON); 
+	stateset->setMode(GL_LIGHTING, osg::StateAttribute::ON);
     else
-	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF); 
+	stateset->setMode(GL_LIGHTING, osg::StateAttribute::OFF);
 }
 
 
@@ -273,7 +273,7 @@ void VertexShape::NodeCallbackHandler::updateTexture()
 
 //=============================================================================
 
-    
+
 #define mVertexShapeConstructor( geode ) \
      normals_( 0 ) \
     , coords_( 0 ) \
@@ -300,7 +300,7 @@ VertexShape::VertexShape()
     if ( coords_ )
 	 mAttachCB( coords_->change, VertexShape::coordinatesChangedCB );
 }
-    
+
 
 VertexShape::VertexShape( Geometry::IndexedPrimitiveSet::PrimitiveType tp,
 			  bool creategeode )
@@ -425,10 +425,10 @@ VertexShape::~VertexShape()
 	nodecallbackhandler_->unref();
     }
 
+    setCoordinates( 0 );
     if ( geode_ ) geode_->unref();
     if ( node_ ) node_->unref();
     if ( normals_ ) normals_->unRef();
-    if ( coords_ ) coords_->unRef();
     if ( texturecoords_ ) texturecoords_->unRef();
 
     deepUnRef( primitivesets_ );
@@ -516,11 +516,11 @@ void VertexShape::coordinatesChangedCB( CallBacker* )
 
 
 void VertexShape::setDisplayTransformation( const mVisTrans* tr )
-{ 
-    coords_->setDisplayTransformation( tr ); 
+{
+    coords_->setDisplayTransformation( tr );
     if ( osggeom_)
 	osggeom_->dirtyDisplayList();
-    
+
 }
 
 
@@ -575,13 +575,13 @@ void VertexShape::setUpdateVar( bool& variable, bool yn )
 
     variable = yn;
 }
-    
+
 
 class OSGPrimitiveSet
 {
 public:
     virtual osg::PrimitiveSet*	getPrimitiveSet()	= 0;
-    
+
     static GLenum getGLEnum(Geometry::PrimitiveSet::PrimitiveType tp)
     {
 	switch ( tp )
@@ -601,7 +601,7 @@ public:
 	    default:
 		break;
 	}
-	
+
 	return GL_POINTS;
     }
 };
@@ -615,13 +615,13 @@ void VertexShape::addPrimitiveSet( Geometry::PrimitiveSet* p )
 
     p->ref();
     p->setPrimitiveType( primitivetype_ );
-    
+
     mDynamicCastGet(OSGPrimitiveSet*, osgps, p );
     addPrimitiveSetToScene( osgps->getPrimitiveSet() );
 
     primitivesets_ += p;
 }
-    
+
 
 void VertexShape::removePrimitiveSet( const Geometry::PrimitiveSet* p )
 {
@@ -698,7 +698,7 @@ class OSGIndexedPrimitiveSet : public Geometry::IndexedPrimitiveSet,
 public:
 			OSGIndexedPrimitiveSet()
     			    : element_( new T ) {}
-    
+
 			mImplOsgFuncs
     virtual void	setEmpty()
     			{ element_->erase(element_->begin(),element_->end()); }
@@ -727,7 +727,7 @@ public:
 	else
 	    return element_->at( idx );
     }
-    
+
     virtual int	size() const
     {
 	return element_->size();
@@ -744,7 +744,7 @@ public:
     osg::ref_ptr<T>	element_;
 };
 
-    
+
 class OSGRangePrimitiveSet : public Geometry::RangePrimitiveSet,
 			     public OSGPrimitiveSet
 {
@@ -752,9 +752,9 @@ public:
 			OSGRangePrimitiveSet()
 			    : element_( new osg::DrawArrays )
 			{}
-    
+
 			mImplOsgFuncs
-    
+
     int			size() const 	   { return element_->getCount();}
     int			get(int idx) const { return element_->getFirst()+idx;}
 
@@ -763,7 +763,7 @@ public:
 	element_->setFirst( rg.start );
 	element_->setCount( rg.width(false)+1 );
     }
-    
+
     Interval<int>	getRange() const
     {
 	const int first = element_->getFirst();
@@ -777,7 +777,7 @@ public:
 
     osg::ref_ptr<osg::DrawArrays> element_;
 };
-    
+
 
 Geometry::PrimitiveSet*
     PrimitiveSetCreator::doCreate( bool indexed, bool large )
@@ -788,11 +788,8 @@ Geometry::PrimitiveSet*
 		new OSGIndexedPrimitiveSet<osg::DrawElementsUInt>
 	       : (Geometry::IndexedPrimitiveSet*)
 		new OSGIndexedPrimitiveSet<osg::DrawElementsUShort>;
-    
+
     return new OSGRangePrimitiveSet;
 }
-    
 
-
-    
 } // namespace visBase
