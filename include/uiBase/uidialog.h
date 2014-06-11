@@ -53,11 +53,13 @@ public:
 			       const HelpKey& help_key )
 			: wintitle_(window_title)
 			, dlgtitle_(dialog_title)
-			, helpkey_(help_key), savetext_("Save defaults")
-			, oktext_( uiStrings::sOk() )
-			, canceltext_( uiStrings::sCancel() )
+			, helpkey_(help_key)
+			, savetext_(uiStrings::sSaveAsDefault())
+			, oktext_(uiStrings::sOk())
+			, canceltext_(uiStrings::sCancel())
 			, modal_(true) // if no parent given, always non-modal
-			, applybutton_(false) , applytext_(sApply())
+			, applybutton_(false)
+			, applytext_(uiStrings::sApply())
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
@@ -128,7 +130,8 @@ public:
 			//! Cancel button disabled when set to empty
     void		setCancelText(const uiString&);
 			//! Save button enabled when set to non-empty
-    void		enableSaveButton( const uiString& txt="Save defaults" );
+    void		enableSaveButton(
+			    const uiString& txt=uiStrings::sSaveAsDefault());
 			//! 0: cancel; 1: OK
     int			uiResult() const;
 
