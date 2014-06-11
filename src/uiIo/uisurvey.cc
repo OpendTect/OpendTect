@@ -247,7 +247,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( "Available data" );
-    pol2dfld_->addItem( "3D" ).addItem( "2D" );
+    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
@@ -257,7 +257,8 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     sipfld_ = siplcb->box();
 
     zistimefld_ = new uiGenInput( this, "Z Domain",
-				  BoolInpSpec(true,"Time","Depth"));
+				  BoolInpSpec(true,uiStrings::sTime(),
+                                              uiStrings::sDepth()));
     zistimefld_->valuechanged.notify(
 			mCB(this,uiStartNewSurveySetup,zdomainChg) );
     zistimefld_->attach( alignedBelow, siplcb );

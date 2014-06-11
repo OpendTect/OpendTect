@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "od_helpids.h"
 
-FixedString selstr( "Select" );
+uiString selstr( uiStrings::sSelect() );
 
 static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",
@@ -66,7 +66,7 @@ void uiCreatePicks::addStdFields( uiObject* lastobject )
 							: "PickSet") );
     colsel_ = new uiColorInput( this,
 			      uiColorInput::Setup(getRandStdDrawColor()).
-			      lbltxt("Color") );
+			      lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, nmfld_ );
     if ( lastobject )
 	nmfld_->attach( alignedBelow, lastobject );

@@ -31,17 +31,17 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 	, survinfo(si)
 {
     ismanfld = new uiGenInput( this, tr("Conversion"),
-	           BoolInpSpec(true,tr("Manual"),tr("File")) );
+	           BoolInpSpec(true,uiStrings::sManual(),uiStrings::sFile()) );
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
 
     mangrp = new uiGroup( this, "Manual group" );
     uiGroup* inlcrlgrp = new uiGroup( mangrp, "InlCrl group" );
     const Interval<int> intv( -mUdf(int), mUdf(int) );
-    inlfld = new uiGenInput( inlcrlgrp, tr("In-line"),
+    inlfld = new uiGenInput( inlcrlgrp, uiStrings::sInline(),
 		IntInpSpec(0,intv).setName("Inl-field") );
     inlfld->setValue( si.inlRange(false).start );
     inlfld->setElemSzPol( uiObject::Medium );
-    crlfld = new uiGenInput( inlcrlgrp, tr("Cross-line"),
+    crlfld = new uiGenInput( inlcrlgrp, uiStrings::sCrossline(),
 		IntInpSpec(0,intv).setName("Crl-field") );
     crlfld->setValue( si.crlRange(false).start );
     crlfld->setElemSzPol( uiObject::Medium );

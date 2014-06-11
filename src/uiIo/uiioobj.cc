@@ -46,8 +46,8 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	if ( isoutside )
 	{
 	    const int resp = uiMSG().question( mess, "Remove file", 
-						     "Remove link", "Cancel",
-						     "Remove data" );
+					       "Remove link", "Cancel",
+					       "Remove data" );
 	    if ( resp < 0 )
 		return false;
 	    dorm = resp;

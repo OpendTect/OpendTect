@@ -141,7 +141,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     crdlbl->attach( leftBorder );
     crdlbl->attach( ensureBelow, horsep2 );
     coordset = new uiGenInput( this, "", BoolInpSpec(true,tr("Easy"),
-                                                     tr("Advanced")) );
+                                                     uiStrings::sAdvanced()) );
     coordset->attach( alignedBelow, rangegrp_ );
     coordset->attach( rightTo, crdlbl );
     coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));

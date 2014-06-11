@@ -114,7 +114,7 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
 	if ( !editable_ )
 	    nmfld->setReadOnly( true );
     }
-    tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? "Name" : "Names" );
+    tabstack_->addTab( dimnmgrp, nrdims_ < 2 ? uiStrings::sName() : "Names" );
 
     if ( !andpdf || nrdims_ > 3 )
 	return;
@@ -314,7 +314,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	    vwwin1d_ =
 		new uiPDF1DViewWin( this, xvals.arr(), data.getData(), sz );
 	    vwwin1d_->disp_->xAxis()->setCaption( pdf_.dimName(0) );
-	    vwwin1d_->disp_->yAxis(false)->setCaption( "Value" );
+	    vwwin1d_->disp_->yAxis(false)->setCaption( uiStrings::sValue() );
 	    vwwin1d_->setDeleteOnClose( true );
 	    vwwin1d_->windowClosed.notify( clsecb );
 	}
@@ -599,7 +599,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	lbl->attach( centeredAbove, ccfld_ );
 
 	const CallBack cb( mCB(this,uiEditGaussianProbDenFunc,addSetPush) );
-	addsetbut_ = new uiPushButton( ccgrp, "&Add", cb, true );
+	addsetbut_ = new uiPushButton( ccgrp, uiStrings::sAdd(true), cb, true );
 	addsetbut_->attach( centeredBelow, topgrp );
 	ccfld_->updateRequested.notify( cb );
     }
@@ -715,7 +715,7 @@ void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
-	    ? "-" : (icorr < 0 ? "&Add" : "&Set") );
+	    ? "-" : (icorr < 0 ? uiStrings::sAdd(true) : "&Set") );
 }
 
 

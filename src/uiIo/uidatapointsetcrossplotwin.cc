@@ -540,7 +540,8 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	msg += "density plot which would be faster ?";
 	msg += "\nNote: Density plot cannot have Y2 axis";
 	const int res =
-	    uiMSG().askGoOnAfter( msg, "Cancel", "Normal Plot", "Density Plot");
+	    uiMSG().askGoOnAfter( msg, uiStrings::sCancel(), "Normal Plot", 
+                                  "Density Plot");
 	if ( !res )
 	    wantnormalplot_ = true;
 	else if ( res ==1 )

@@ -204,7 +204,7 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 
     if ( !ctio_.ctxt.forread )
     {
-	nmfld_ = new uiGenInput( this, "Name" );
+	nmfld_ = new uiGenInput( this, uiStrings::sName() );
 	nmfld_->attach( alignedBelow, topgrp_ );
 	nmfld_->setElemSzPol( uiObject::SmallMax );
 	nmfld_->setStretch( 2, 0 );

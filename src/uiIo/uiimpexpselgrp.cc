@@ -232,13 +232,13 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 
     if ( !forread )
     {
-	nmfld_ = new uiGenInput( this, "Name" );
+	nmfld_ = new uiGenInput( this, uiStrings::sName() );
 	nmfld_->attach( alignedBelow, listfld_ );
 	nmfld_->setElemSzPol( uiObject::SmallMax );
 	nmfld_->setStretch( 2, 0 );
     }
 
-    infobut_ = new uiToolButton( this, "info", "Info",
+    infobut_ = new uiToolButton( this, "info", uiStrings::sInfo(),
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 

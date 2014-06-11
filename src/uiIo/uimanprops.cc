@@ -130,7 +130,8 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
     , withform_(supportform)
     , curunit_(0)
 {
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec(pr.name()) );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+                               StringInpSpec(pr.name()) );
     SeparString ss;
     for ( int idx=0; idx<pr_.aliases().size(); idx++ )
 	ss += pr_.aliases().get(idx);

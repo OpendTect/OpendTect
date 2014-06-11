@@ -69,7 +69,7 @@ uiDPSDispPropDlg( uiParent* p, const uiDataPointSetCrossPlotter& plotter,
 {
     BoolInpSpec binp( prevdispprop ? prevdispprop->showSelected() : false,
 		      "Selected Points","All points with attribute" );
-    typefld_ = new uiGenInput( this, "Display",binp );
+    typefld_ = new uiGenInput( this, uiStrings::sDisplay(),binp );
     typefld_->valuechanged.notify( mCB(this,uiDPSDispPropDlg,typeChangedCB) );
 
     BufferStringSet colnms;
@@ -137,8 +137,8 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
-    : uiDialog::Setup( wintitl.isSet() ? wintitl: tr("Extracted data"), mNoDlgTitle,
-                       mODHelpKey(mDataPointSetHelpID) )
+    : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"), 
+                       mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
     , directremove_(true)

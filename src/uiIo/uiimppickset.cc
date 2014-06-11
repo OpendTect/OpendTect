@@ -117,7 +117,7 @@ uiImpExpPickSet::uiImpExpPickSet(uiParent* p, uiPickPartServer* pps, bool imp )
 
 	colorfld_ = new uiColorInput( this,
 				   uiColorInput::Setup(getRandStdDrawColor()).
-				   lbltxt(tr("Color")) );
+				   lbltxt(uiStrings::sColor()) );
 	colorfld_->attach( alignedBelow, objfld_ );
 
 	polyfld_ = new uiCheckBox( this, tr("Import as Polygon") );

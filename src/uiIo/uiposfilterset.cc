@@ -90,7 +90,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     {
 	uiLabel* nmlbl = new uiLabel( this, nms[0] );
 	new uiLabel( this, tr("Filter: "), nmlbl );
-	ynfld_ = new uiGenInput( this, tr("Use"), BoolInpSpec(false) );
+	ynfld_ = new uiGenInput( this, uiStrings::sUse(), BoolInpSpec(false) );
 	ynfld_->attach( alignedBelow, nmlbl );
 	attobj = ynfld_->attachObj();
     }
