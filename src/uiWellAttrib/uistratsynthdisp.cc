@@ -702,7 +702,7 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
     d2tmodels.erase();
     StepInterval<float> offsetrg( presd->offsetRange() ); 
     offsetrg.step = presd->offsetRangeStep();
-    int offsidx = offsetrg.getIndex( offset );
+    int offsidx = presd->isNMOCorrected() ? 0 : offsetrg.getIndex( offset );
     if ( offsidx<0 )
 	offsidx = 0;
     const int nroffsets = offsetrg.nrSteps()+1;

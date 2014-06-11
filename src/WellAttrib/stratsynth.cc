@@ -1608,6 +1608,14 @@ SeisTrcBuf* PreStackSyntheticData::getTrcBuf( float offset,
 }
 
 
+bool PreStackSyntheticData::isNMOCorrected() const
+{
+    bool isnmo = true;
+    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
+    return isnmo;
+}
+
+
 PSBasedPostStackSyntheticData::PSBasedPostStackSyntheticData(
 	const SynthGenParams& sgp, SeisTrcBufDataPack& sdp )
     : PostStackSyntheticData(sgp,sdp)

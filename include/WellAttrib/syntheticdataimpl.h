@@ -98,6 +98,7 @@ public:
 				~PreStackSyntheticData();
 
     bool				isPS() const 	  { return true; }
+    bool				isNMOCorrected() const;
     bool				hasOffset() const;
     const Interval<float>		offsetRange() const; 
     float				offsetRangeStep() const; 
