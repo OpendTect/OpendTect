@@ -6,7 +6,7 @@
 # Compresses PNGs using pngquant.
 # Needs 'pngquant' installed
 #
-# Input: One or more PNG files
+# Input: A file containing PNG file names
 #
 # exit value: 0 = all OK, files replaced by compressed variant
 # exit value non-zero: an error occurred
@@ -19,8 +19,8 @@ if ( "$1" == "-q" || "$1" == "--quiet" ) then
     shift
 endif
 
-if ( $#argv < 1 ) then
-    echo "Usage: $0 file.png ..."
+if ( $#argv != 1 ) then
+    echo "Usage: $0 file_with_png_file_names"
     exit 1
 endif
 
@@ -31,10 +31,13 @@ if ( $status != 0 ) then
 endif
 
 
-foreach fil ( $* )
+set inpfile="$1"
 
-    if ( ! -w $fil ) then
-	echo "$fil is not writable. Correct this first"
+foreach fil ( `cat "$inpfile" |sed 's/ /@SP@/g'` )
+
+    set fnm=`echo $fil | sed 's/@SP@/ /g'`
+    if ( ! -w "$fnm" ) then
+	echo "$fnm is not writable. Correct this first"
 	exit 3
     endif
 end
@@ -45,21 +48,23 @@ set after=0
 set totbefore=0
 set totafter=0
 
-foreach fil ( $* )
-    set fnmbase=$fil:r
-    set qfnm=${fnmbase}_quant.png
+foreach fil ( `cat "$inpfile" |sed 's/ /@SP@/g'` )
 
-    if ( $quiet == 0 ) echo -n "$fil "
-    pngquant --ext _quant.png $fil >& /dev/null
+    set fnm=`echo $fil | sed 's/@SP@/ /g'`
+    set fnmbase=`echo "$fnm" | sed 's/.png$//'`
+    set qfnm="${fnmbase}_quant.png"
+
+    if ( $quiet == 0 ) echo -n "$fnm "
+    pngquant --ext _quant.png "$fnm" >& /dev/null
 
     if ( $quiet == 0 ) then
-	set before=`ls -l "$fil" | awk '{print $5}'`
+	set before=`ls -l "$fnm" | awk '{print $5}'`
 	set after=`ls -l "$qfnm" | awk '{print $5}'`
 	@ totbefore += $before
 	@ totafter += $after
     endif
 
-    mv -f "$qfnm" "$fil"
+    mv -f "$qfnm" "$fnm"
 
     if ( $quiet == 0 ) then
 	@ perc = $before - $after
@@ -72,11 +77,11 @@ end
 
 if ( $quiet == 0 && $totbefore > 0 ) then
     @ totred = $totbefore - $totafter
-echo "$totbefore $totafter $totred"
     @ perc = ($totred * 100) / $totbefore
     @ totred /= 1024
+    @ totbefore /= 1024
     echo ""
-    echo "Total reduction: $totred kB (${perc}%)"
+    echo "Total reduction: $totred on $totbefore kB (${perc}%)"
 endif
 
 exit 0

@@ -44,15 +44,18 @@ endif
 
 set nrfiles=0
 
-foreach fil ( `find "$topdir" -name \*.png -print` )
+foreach fil ( `find "$topdir" -name \*.png -print | sed -e 's/ /@SP@/g'` )
 
-    set fnmbase=$fil:r
-    set qfnm=${fnmbase}_quant.png
+    set fnm=`echo $fil | sed 's/@SP@/ /g'`
+    set fnmbase=`echo "$fnm" | sed 's/.png$//'`
+    set qfnm="${fnmbase}_quant.png"
 
-    set before=`ls -l "$fil" | awk '{print $5}'`
-    pngquant --ext _quant.png $fil >& /dev/null
+    set before=`ls -l "$fnm" | awk '{print $5}'`
+    pngquant --ext _quant.png "$fnm" >& /dev/null
+    if ( ! -e "$qfnm" ) continue
+
     set after=`ls -l "$qfnm" | awk '{print $5}'`
-    rm -f $qfnm
+    rm -f "$qfnm"
 
     @ perc = $before - $after
     @ perc *= 100
@@ -60,7 +63,7 @@ foreach fil ( `find "$topdir" -name \*.png -print` )
 
     if ( $perc > $cutoff_perc_gain ) then
 	@ nrfiles++
-	echo $fil
+	echo "$fnm"
     endif
 
 end
