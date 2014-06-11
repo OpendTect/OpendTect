@@ -289,7 +289,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 	uiLabeledComboBox* optlcb = new uiLabeledComboBox( this, opts, txt );
 	uiComboBox* optbox = optlcb->box();
 	BufferString nm( lognm ); nm += " ["; nm += curcode; nm += "]";
-	uiGenInput* nmfld = new uiGenInput( this, "Name", nm );
+	uiGenInput* nmfld = new uiGenInput( this, uiStrings::sName(), nm );
 	uiLabeledComboBox* codelcb = new uiLabeledComboBox( this, "Code" );
 	for ( int ic=0; ic<codes.size(); ic++ )
 	{
