@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo2d.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "seis2ddata.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -118,70 +119,20 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid == mAdd )
     {
-	BufferStringSet linenames;
+	int action = 0;
 	TypeSet<Pos::GeomID> geomids;
-	applMgr()->seisServer()->select2DLines( linenames, geomids );
+	applMgr()->seisServer()->select2DLines( geomids, action );
 	MouseCursorChanger cursorchgr( MouseCursor::Wait );
-	for ( int idx=linenames.size()-1; idx>=0; idx-- )
-	    addChild( new uiOD2DLineTreeItem(linenames.get(idx),geomids[idx]),
-		      false );
+	for ( int idx=geomids.size()-1; idx>=0; idx-- )
+	    addChild( new uiOD2DLineTreeItem(geomids[idx]), false );
 	cursorchgr.restore();
 
-	if ( linenames.isEmpty() ) return true;
+	if ( action==0 || geomids.isEmpty() ) return true;
 
-	const bool res = uiMSG().askGoOn(
-		"Do you want to select an attribute for these lines?" );
-	if ( !res ) return true;
-
-	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet(
-								    true );
-	const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-	Pos::GeomID geomid = Survey::GM().getGeomID( linenames.get(0) );
-	uiAttr2DSelDlg dlg( ODMainWin(), ds, geomid, nla, sKeyRightClick );
-	if ( !dlg.go() ) return false;
-
-	uiTaskRunner uitr( ODMainWin() );
-	ObjectSet<uiTreeItem> set;
-	findChildren( sKeyRightClick, set );
-	const int attrtype = dlg.getSelType();
-	if ( attrtype == 0 || attrtype == 1 )
-	{
-	    const char* newattrnm = dlg.getStoredAttrName();
-	    for ( int idx=0; idx<set.size(); idx++ )
-	    {
-		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		if ( item ) item->displayStoredData(
-				newattrnm, dlg.getComponent(), uitr );
-	    }
-	}
-	else if ( attrtype == 2 || attrtype == 3 )
-	{
-	    Attrib::SelSpec as;
-	    if ( attrtype == 1 )
-	    {
-		const Attrib::Desc* desc =  ds->getDesc(dlg.getSelDescID());
-		if ( !desc )
-		{
-		    uiMSG().error("Selected attribute is not available");
-		    return true;
-		}
-
-		as.set( *desc );
-	    }
-	    else if ( nla )
-	    {
-		as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
-		as.setObjectRef( applMgr()->nlaServer()->modelName() );
-		as.setRefFromID( *nla );
-	    }
-
-	    as.set2DFlag( true );
-	    for ( int idx=0; idx<set.size(); idx++ )
-	    {
-		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-		item->setAttrib( as, uitr );
-	    }
-	}
+	if ( action==1 )
+	    loadDefaultData();
+	else if ( action==2 )
+	    selectLoadAttribute( geomids );
     }
     else if ( mnuid == mGridFrom3D )
 	ODMainWin()->applMgr().create2DGrid();
@@ -216,6 +167,105 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 }
 
 
+bool uiODLine2DParentTreeItem::loadDefaultData()
+{
+    const BufferString key( IOPar::compKey(sKey::Default(),
+			    SeisTrcTranslatorGroup::sKeyDefault2D()) );
+    BufferString midstr = SI().pars().find( key );
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(midstr) );
+    if ( midstr.isEmpty() || !ioobj )
+    {
+	BufferString msg( "No or no valid default 2D data found."
+	    "You can set default 2D data in the 'Manage Seismics' "
+	    "window. Do you want to go there now? "
+	    "On 'No' only the projection line will be shown" );
+	const bool tomanage = uiMSG().askGoOn( msg );
+	if ( tomanage )
+	{
+	    applMgr()->seisServer()->manageSeismics( 1 );
+	    midstr = SI().pars().find( key );
+	}
+	else
+	    return false;
+
+	ioobj = IOM().get( MultiID(midstr) );
+	if ( midstr.isEmpty() || !ioobj )
+	    return false;
+    }
+
+    const char* attrnm = ioobj->name().buf();
+    uiTaskRunner uitr( ODMainWin() );
+    ObjectSet<uiTreeItem> set;
+    findChildren( sKeyRightClick, set );
+    {
+	for ( int idx=0; idx<set.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+	    if ( item ) item->displayStoredData( attrnm, 0, uitr );
+	}
+    }
+
+    return true;
+}
+
+
+bool uiODLine2DParentTreeItem::selectLoadAttribute(
+	const TypeSet<Pos::GeomID>& geomids )
+{
+    const Attrib::DescSet* ds =
+	applMgr()->attrServer()->curDescSet( true );
+    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
+    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, sKeyRightClick );
+    if ( !dlg.go() ) return false;
+
+    uiTaskRunner uitr( ODMainWin() );
+    ObjectSet<uiTreeItem> set;
+    findChildren( sKeyRightClick, set );
+    const int attrtype = dlg.getSelType();
+    if ( attrtype == 0 || attrtype == 1 )
+    {
+	const char* newattrnm = dlg.getStoredAttrName();
+	for ( int idx=0; idx<set.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+	    if ( item ) item->displayStoredData(
+			    newattrnm, dlg.getComponent(), uitr );
+	}
+    }
+    else if ( attrtype == 2 || attrtype == 3 )
+    {
+	Attrib::SelSpec as;
+	if ( attrtype == 1 )
+	{
+	    const Attrib::Desc* desc = ds->getDesc(dlg.getSelDescID());
+	    if ( !desc )
+	    {
+		uiMSG().error("Selected attribute is not available");
+		return true;
+	    }
+
+	    as.set( *desc );
+	}
+	else if ( nla )
+	{
+	    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
+	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
+	    as.setRefFromID( *nla );
+	}
+
+	as.set2DFlag( true );
+	for ( int idx=0; idx<set.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+	    item->setAttrib( as, uitr );
+	}
+    }
+
+    return true;
+}
+
+
+// Line2DTreeItemFactory
 uiTreeItem*
     Line2DTreeItemFactory::createForVis( int visid, uiTreeItem* treeitem ) const
 {
@@ -224,7 +274,7 @@ uiTreeItem*
     if ( !s2d || !treeitem ) return 0;
 
     uiOD2DLineTreeItem* newsubitm =
-	new uiOD2DLineTreeItem( s2d->name(), s2d->getGeomID(), visid );
+	new uiOD2DLineTreeItem( s2d->getGeomID(), visid );
 
     if ( newsubitm )
        treeitem->addChild( newsubitm,true );
@@ -705,15 +755,14 @@ bool uiOD2DLineSetTreeItem::init()
 }
 */
 
-uiOD2DLineTreeItem::uiOD2DLineTreeItem( const char* nm, Pos::GeomID geomid,
-					int displayid )
+uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
     : linenmitm_("Show linename")
     , panelitm_("Show 2D plane")
     , polylineitm_("Show line geometry")
     , positionitm_("Position ...")
     , geomid_(geomid)
 {
-    name_ = nm;
+    name_ = Survey::GM().getName( geomid );
     displayid_ = displayid;
 
     positionitm_.iconfnm = "orientation64";

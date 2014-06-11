@@ -227,6 +227,13 @@ const char* uiVisPartServer::getObjectName( int id ) const
 }
 
 
+Pos::GeomID uiVisPartServer::getGeomID( int id ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getGeomID() : Survey::GM().cUndefGeomID();
+}
+
+
 int uiVisPartServer::addScene( visSurvey::Scene* newscene )
 {
     if ( !newscene ) newscene = visSurvey::Scene::create();

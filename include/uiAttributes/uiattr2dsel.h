@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "bufstring.h"
 
-namespace Attrib { class Desc; class DescSet; class SelInfo; };
+namespace Attrib { class Desc; class DescSet; class SelInfo; }
 
 class uiButtonGroup;
 class uiListBox;
@@ -29,12 +29,12 @@ class NLAModel;
 */
 
 mExpClass(uiAttributes) uiAttr2DSelDlg : public uiDialog
-{ mODTextTranslationClass(uiAttr2DSelDlg);
+{ mODTextTranslationClass(uiAttr2DSelDlg)
 public:
 
 			uiAttr2DSelDlg(uiParent*,const Attrib::DescSet*,
-				       const Pos::GeomID geomid,
-				       const NLAModel* nla,const char* curnm=0);
+				       const TypeSet<Pos::GeomID>&,
+				       const NLAModel*,const char* curnm=0);
 			~uiAttr2DSelDlg();
 
     int			getSelType() const		{ return seltype_; }
@@ -46,7 +46,7 @@ public:
 protected:
 
     Attrib::SelInfo*	attrinf_;
-    Pos::GeomID    	geomid_;
+    TypeSet<Pos::GeomID> geomids_;
     Attrib::DescID	descid_;
     const NLAModel*	nla_;
     int			seltype_;

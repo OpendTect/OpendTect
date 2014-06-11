@@ -61,11 +61,12 @@ public:
     void			doRef();
     void			doUnRef();
 
-    mDefineFactoryInClass( SurveyObject, factory );
+				mDefineFactoryInClass(SurveyObject,factory)
 
     virtual void		set3DSurvGeom(const Survey::Geometry3D*);
-    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_;}
+    const Survey::Geometry3D*	get3DSurvGeom() const { return s3dgeom_; }
     virtual const char*		get3DSurvGeomName() const;
+    virtual Pos::GeomID		getGeomID() const;
 
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
@@ -74,18 +75,18 @@ public:
 				    displayspace. */
     virtual float		calcDist(const Coord3& pos) const
 				{ return mUdf(float); }
-    				/*<\Calculates distance between pick and 
+				/*<\Calculates distance between pick and
 				    object.
 				    \note The distance is in display space.
 				    \param pos Position to be checked in
 				     	   displayspace.
 				 \ */
     virtual float		maxDist() const		{ return sDefMaxDist();}
-    				/*<\Returns maximum allowed distance between 
+				/*<\Returns maximum allowed distance between
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
     virtual bool		allowsPicks() const	{ return false; }
-    				/*<\Returns whether picks can be created 
+				/*<\Returns whether picks can be created
 				    on object. */
     virtual bool		isPicking() const 	{ return false; }
     				/*<\Returns true if object is in a mode
@@ -149,11 +150,11 @@ public:
 
     virtual bool		hasColor() const		{ return false;}
     virtual void		setColor(Color)			{}
-    virtual Color		getColor() const		
+    virtual Color		getColor() const
     				{ return Color::DgbColor(); }
 
     virtual void		setAnnotColor(Color)			{}
-    virtual Color		getAnnotColor() const		
+    virtual Color		getAnnotColor() const
     				{ return Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
@@ -173,12 +174,12 @@ public:
 				   \var None
 				   	This object does not handle attribdata.
 				   \var	Cube
-				   	This object wants attribdata as 
+					This object wants attribdata as
 					DataCubes.
 				   \var	Traces
 				   	This object wants a set of traces.
     				   \var RandomPos
-				        This object wants a table with 
+					This object wants a table with
 					array positions.
     				   \var OtherFormat
 				   	This object wants attribdata of a
@@ -192,7 +193,7 @@ public:
     virtual bool		canRemoveAttrib() const;
     virtual bool		removeAttrib(int attrib)   { return false; }
     virtual bool		swapAttribs(int a0,int a1) { return false; }
-    virtual void		setAttribTransparency(int,unsigned char) {}	
+    virtual void		setAttribTransparency(int,unsigned char) {}
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
 	    						   int version=0) const;
@@ -205,9 +206,9 @@ public:
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
 	    					  TaskRunner*);
     virtual bool		canHandleColTabSeqTrans(int) const;
-    
+
     virtual void		enableTextureInterpolation(bool)	{}
-    virtual bool		textureInterpolationEnabled() const 
+    virtual bool		textureInterpolationEnabled() const
     				{ return true; }
     virtual bool		canEnableTextureInterpolation() const
     				{ return false; }
@@ -217,7 +218,7 @@ public:
     virtual void		enableAttrib(int attrib,bool yn)	{}
     virtual bool		isAttribEnabled(int attrib) const {return true;}
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
-    
+
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
     virtual void		removeSelection(const Selector<Coord3>&,
@@ -245,7 +246,7 @@ public:
     				/*!<Returns a mouse cursor that will
 				    be used if this object under the
 				    mouse in Act mode. */
-				    
+
     virtual void		getObjectInfo(BufferString&) const	{}
 
     				// Data via DataPacks
@@ -258,8 +259,8 @@ public:
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
     virtual void		createAndDispDataPack(int, const DataPointSet*,
 	    					      TaskRunner*){}
-   
-   				//Volume data 
+
+				//Volume data
     virtual CubeSampling	getCubeSampling( int attrib ) const
 				{ CubeSampling cs; return cs; }
     				/*!<\returns the volume in world survey
@@ -324,9 +325,9 @@ public:
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const	    	{ return false;}
-    
+
     static float		sDefMaxDist();
-	
+
 				//Old
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }
 

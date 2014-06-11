@@ -34,7 +34,7 @@ SurveyObject::SurveyObject()
     set3DSurvGeom( SI().get3DGeometry(true) );
 }
 
-    
+
 SurveyObject::~SurveyObject()
 {
     deepErase(userrefs_);
@@ -159,6 +159,9 @@ const char* SurveyObject::get3DSurvGeomName() const
 }
 
 
+Pos::GeomID SurveyObject::getGeomID() const
+{ return s3dgeom_ ? s3dgeom_->getID() : Survey::GM().cUndefGeomID(); }
+
 void SurveyObject::annotateNextUpdateStage( bool yn )
 {
     updatestagenr_ = yn ? updatestagenr_+1 : 0;
@@ -183,7 +186,7 @@ void SurveyObject::fillPar( IOPar& par ) const
 	IOPar attribpar;
 	if( !getSelSpec( attrib ) )
 	    continue;
-	    
+
 	getSelSpec( attrib )->fillPar( attribpar );
 
 	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
@@ -208,7 +211,7 @@ void SurveyObject::fillPar( IOPar& par ) const
 	attribpar.set( sKeyTextTrans(), getAttribTransparency( attrib ) );
 	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
 			 isAttribEnabled( attrib ) );
-									     
+
 	BufferString key = sKeyAttribs();
 	key += attrib;
 	par.mergeComp( attribpar, key );
@@ -227,12 +230,12 @@ bool SurveyObject::usePar( const IOPar& par )
 
     int tc2rgbaid;
     if ( par.get( sKeyTC2RGBA(), tc2rgbaid ) )
-    {   
+    {
 	RefMan<visBase::DataObject> dataobj =
 	    visBase::DM().getObject( tc2rgbaid );
 	if ( !dataobj )
 	    return 0;
-				            
+
 	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
 	if ( tc2rgba )
 	{
@@ -305,23 +308,23 @@ bool SurveyObject::usePar( const IOPar& par )
 
     return true;
 }
-    
-    
+
+
 const visBase::TextureChannel2RGBA*
 	visSurvey::SurveyObject::getChannels2RGBA() const
 {
     return const_cast<visSurvey::SurveyObject*>(this)->getChannels2RGBA();
 }
-    
-    
+
+
 void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
 {
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
     if ( !tc2rgba )
 	return;
-    
+
     tc2rgba->getChannelName( idx,  res );
 }
 
-}; // namespace visSurvey
+} // namespace visSurvey
 

@@ -334,9 +334,12 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 
 
 bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
-				       const ZDomain::Info* zdominfo, bool is2d,
+				       const ZDomain::Info* zdominfo,
+				       Pos::GeomID geomid,
 				       const char* seltxt )
 {
+    const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+    const bool is2d = geom && geom->is2D();
     DescSetMan* adsman = eDSHolder().getDescSetMan( is2d );
     if ( !adsman->descSet() )
 	return false;
@@ -349,8 +352,9 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec,
 
     if ( is2d )
     {
-	uiAttr2DSelDlg dlg( parent(), adsman->descSet(),
-			    Survey::GM().cUndefGeomID(), attrdata.nlamodel_ );
+	TypeSet<Pos::GeomID> geomids; geomids += geomid;
+	uiAttr2DSelDlg dlg( parent(), adsman->descSet(), geomids,
+			    attrdata.nlamodel_ );
 	if ( !dlg.go() )
 	    return false;
 
@@ -1128,7 +1132,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 					      bool& dousemulticomp )
 {
     if ( stored3dmnuitem_.id == mnuid )
-	return selectAttrib( as, 0, false, "Select Attribute" );
+	return selectAttrib( as, 0, Survey::GM().cUndefGeomID(),
+			     "Select Attribute" );
 
     const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
 		      calc3dmnuitem_.findItem(mnuid) ||

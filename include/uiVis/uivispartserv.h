@@ -55,7 +55,7 @@ namespace ZDomain   { class Info; }
 */
 
 mExpClass(uiVis) uiVisPartServer : public uiApplPartServer
-{ mODTextTranslationClass(uiVisPartServer);
+{ mODTextTranslationClass(uiVisPartServer)
     friend class	uiMenuHandler;
     friend class        uiVisModeMgr;
 
@@ -84,6 +84,7 @@ public:
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
+    Pos::GeomID		getGeomID(int) const;
 
     Notifier<uiVisPartServer>	objectaddedremoved;
 
