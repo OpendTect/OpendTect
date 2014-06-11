@@ -24,10 +24,13 @@ ________________________________________________________________________
 class uiTaskRunner;
 
 mDefineItem( Line2DParent, TreeItem, TreeTop,
-	     mShowMenu bool handleSubMenu(int); mMenuOnAnyButton )
+	     mShowMenu bool handleSubMenu(int);
+	     bool loadDefaultData();
+	     bool selectLoadAttribute(const TypeSet<Pos::GeomID>&);
+	     mMenuOnAnyButton )
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(Line2DTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -92,6 +95,7 @@ mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 public:
 			uiOD2DLineTreeItem(const char* nm,Pos::GeomID,
 					   int displayid=-1);
+			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1);
 
     bool		addStoredData(const char*,int component,uiTaskRunner&);
     void		addAttrib(const Attrib::SelSpec&,uiTaskRunner&);

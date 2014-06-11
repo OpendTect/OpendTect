@@ -41,42 +41,63 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
+#define mInit \
+    , nla_(nla) \
+    , descid_(-1,true) \
+    , curnm_(curnm) \
+    , seltype_(0) \
+    , selgrp_(0) \
+    , steerfld_(0) \
+    , nlafld_(0) \
+    , storoutfld_(0) \
+    , steeroutfld_(0) \
+    , attroutfld_(0) \
+    , nlaoutfld_(0) \
+    , compnr_(-1) \
+    , outputnr_(-1)
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const Pos::GeomID geomid, const NLAModel* nla,
 				const char* curnm )
     : uiDialog(p,Setup("Select Dataset",mNoDlgTitle,mNoHelpKey))
-    , geomid_(geomid)
-    , nla_(nla)
-    , descid_(-1,true)
-    , curnm_(curnm)
-    , seltype_(0)
-    , selgrp_(0)
-    , steerfld_(0)
-    , nlafld_(0)
-    , storoutfld_(0)
-    , steeroutfld_(0)
-    , attroutfld_(0)
-    , nlaoutfld_(0)
-    , compnr_(-1)
-    , outputnr_(-1)
+    mInit
 {
+    geomids_ += geomid;
     attrinf_ = new SelInfo( ds, nla_, true );
+    init();
+}
+
+
+uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
+				const TypeSet<Pos::GeomID>& geomids,
+				const NLAModel* nla,
+				const char* curnm )
+    : uiDialog(p,Setup("Select Dataset",mNoDlgTitle,mNoHelpKey))
+    mInit
+{
+    geomids_ = geomids;
+    attrinf_ = new SelInfo( ds, nla_, true );
+    init();
+}
+
+
+void uiAttr2DSelDlg::init()
+{
 
     createSelectionButtons();
     createSelectionFields();
 
-    if ( curnm && *curnm )
+    if ( !curnm_.isEmpty() )
     {
-	if ( storoutfld_ && storoutfld_->isPresent(curnm) )
-	    storoutfld_->setCurrentItem( curnm );
-	if ( steeroutfld_ && steeroutfld_->isPresent(curnm) )
-	    steeroutfld_->setCurrentItem( curnm );
+	if ( storoutfld_ && storoutfld_->isPresent(curnm_) )
+	    storoutfld_->setCurrentItem( curnm_ );
+	if ( steeroutfld_ && steeroutfld_->isPresent(curnm_) )
+	    steeroutfld_->setCurrentItem( curnm_ );
 
-	else if ( attroutfld_ && attroutfld_->isPresent(curnm) )
+	else if ( attroutfld_ && attroutfld_->isPresent(curnm_) )
 	{
 	    seltype_ = 1;
-	    attroutfld_->setCurrentItem( curnm );
+	    attroutfld_->setCurrentItem( curnm_ );
 	}
     }
 
@@ -98,14 +119,31 @@ void uiAttr2DSelDlg::doFinalise( CallBacker* )
 }
 
 
+static void getDataNames( const TypeSet<Pos::GeomID> ids,
+			  SeisIOObjInfo::Opts2D o2d,
+			  BufferStringSet& names )
+{
+    names.erase();
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	BufferStringSet nms;
+	const char* linenm = Survey::GM().getName( ids[idx] );
+	SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+	for ( int nmidx=0; nmidx<nms.size(); nmidx++ )
+	    names.addIfNew( nms.get(nmidx) );
+    }
+
+    names.sort();
+}
+
+
 void uiAttr2DSelDlg::createSelectionButtons()
 {
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
 
-    const char* linenm = Survey::GM().getName( geomid_ );
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
     BufferStringSet nms;
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+    getDataNames( geomids_, o2d, nms );
 
     storfld_ = new uiRadioButton( selgrp_, "Stored" );
     storfld_->activated.notify( mCB(this,uiAttr2DSelDlg,selDone) );
@@ -113,7 +151,7 @@ void uiAttr2DSelDlg::createSelectionButtons()
 
     o2d.steerpol_ = 1;
     nms.erase();
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+    getDataNames( geomids_, o2d, nms );
     const bool havesteer = !nms.isEmpty();
     if ( havesteer )
     {
@@ -136,11 +174,9 @@ void uiAttr2DSelDlg::createSelectionButtons()
 
 void uiAttr2DSelDlg::createSelectionFields()
 {
-    const char* linenm = Survey::GM().getName( geomid_ );
     SeisIOObjInfo::Opts2D o2d; o2d.steerpol_ = 0;
     BufferStringSet nms;
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
-    nms.sort();
+    getDataNames( geomids_, o2d, nms );
 
     storoutfld_ = new uiListBox( this, nms, "Stored cubes" );
     storoutfld_->setHSzPol( uiObject::Wide );
@@ -150,7 +186,7 @@ void uiAttr2DSelDlg::createSelectionFields()
 
     o2d.steerpol_ = 1;
     nms.erase();
-    SeisIOObjInfo::getDataSetNamesForLine( linenm, nms, o2d );
+    getDataNames( geomids_, o2d, nms );
     const bool havesteer = !nms.isEmpty();
     if ( havesteer )
     {
@@ -220,8 +256,8 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	BufferString selnm = attrfld->getText();
 	if ( selnm==curnm_ )
 	{
-	    BufferString msg = "Do you want to reload the attribute ";
-	    msg += selnm;
+	    uiString msg = tr("Do you want to reload the attribute %1")
+			   .arg(selnm);
 	    if ( !uiMSG().askGoOn(msg) )
 	    {
 		seltype_ = -1;

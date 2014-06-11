@@ -1056,7 +1056,7 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( 0, geomid );
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
@@ -1067,7 +1067,8 @@ int uiODSceneMgr::add2DLineSetItem( const MultiID& mid, const char* name,
 {
     mGetOrAskForScene
 
-    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( name, displayid );
+    Pos::GeomID geomid = Survey::GM().getGeomID( name );
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid, displayid );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }

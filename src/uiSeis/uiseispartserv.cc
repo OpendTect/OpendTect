@@ -39,6 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
+#include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
@@ -189,24 +190,45 @@ void uiSeisPartServer::get2DDataSetName( const MultiID& mid,
 }
 
 
-bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
-				      TypeSet<Pos::GeomID>& selids )
+bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
+				      int& action )
 {
-    selnames.erase(); selids.erase();
+    selids.erase();
 
     uiDialog::Setup dsu( "Select 2D Lines", mNoDlgTitle,
 			 mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
     uiDialog dlg( parent(), dsu );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
-							OD::ChooseAtLeastOne );
+    uiSeis2DLineChoose* lchfld =
+		new uiSeis2DLineChoose( &dlg, OD::ChooseAtLeastOne );
+    BufferStringSet options;
+    options.add( "Display projection lines only" )
+	   .add( "Load default data" )
+	   .add( "Select attribute" );
+    uiGenInput* optfld =
+	new uiGenInput( &dlg, "On OK", StringListInpSpec(options) );
+    optfld->attach( alignedBelow, lchfld );
     cursorchgr.restore();
     if ( !dlg.go() )
 	return false;
 
-    lchfld->getChosen( selnames );
+    action = optfld->getIntValue();
     lchfld->getChosen( selids );
     return selids.size();
+}
+
+
+bool uiSeisPartServer::select2DLines( BufferStringSet& selnames,
+				      TypeSet<Pos::GeomID>& selids )
+{
+    int action = 0;
+    const bool res = select2DLines( selids, action );
+    if ( !res ) return false;
+
+    for ( int idx=0; idx<selids.size(); idx++ )
+	selnames.add( Survey::GM().getName(selids[idx]) );
+
+    return true;
 }
 
 
