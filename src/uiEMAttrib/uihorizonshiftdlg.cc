@@ -80,7 +80,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	attrinpfld_->selectionDone.notify(
 		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
 
-	calbut_ = new uiPushButton( this, "Calculate", false );
+	calbut_ = new uiPushButton( this, uiStrings::sCalculate(), false );
 	calbut_->attach( rightTo, attrinpfld_ );
 	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
 
