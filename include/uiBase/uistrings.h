@@ -40,6 +40,7 @@ public:
     static uiString sASCII()		{ return tr("&ASCII"); }
     static uiString sASCII2D()	        { return tr("&ASCII2D"); }
     static uiString sASCII3D()	        { return tr("&ASCII3D"); }
+    static uiString sAttribute()	{ return tr("&Attribute"); }
     static uiString sAttributes()	{ return tr("&Attributes"); }
     static uiString sAttributes2D()	{ return tr("&Attributes 2D"); }
     static uiString sAttributes3D()	{ return tr("&Attributes 3D"); }
@@ -172,6 +173,8 @@ public:
     static uiString sSurvey()		{ return tr("Survey setup"); }
     static uiString sTile()		{ return tr("&Tile"); }
     static uiString sTime()		{ return tr("&Time"); }
+    static uiString sToBottom()		{ return tr("&To bottom"); }
+    static uiString sToTop()		{ return tr("&To top"); }
     static uiString sTools()		{ return tr("&Tools"); }
     static uiString sTop()		{ return tr("&Top"); }
     static uiString sTrack()	        { return tr("&Track"); }
