@@ -218,7 +218,8 @@ public:
 
     mStruct(Seis) RayModel
     {
-			RayModel(const RayTracer1D& rt1d,int nroffsets);
+			RayModel(const RayTracer1D& rt1d,int nroffsets,
+				 bool isnmocorr = true);
 			~RayModel();
 
 	void		getTraces(ObjectSet<SeisTrc>&,bool steal);

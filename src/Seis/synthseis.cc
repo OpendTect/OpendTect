@@ -698,7 +698,7 @@ bool RaySynthGenerator::doPrepare( int )
     for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
     {
 	const RayTracer1D* rt1d = rt1ds[idx];
-	RayModel* rm = new RayModel( *rt1d, offsets_.size() );
+	RayModel* rm = new RayModel( *rt1d, offsets_.size(), applynmo_ );
 	raymodels_.insertAt( rm, 0 );
 
 	if ( forcerefltimes_ )
@@ -780,7 +780,8 @@ const char* RaySynthGenerator::nrDoneText() const
 }
 
 
-RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
+RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
+				       bool isnmocoorected )
 {
     for ( int idx=0; idx<nroffsets; idx++ )
     {
@@ -798,7 +799,8 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets )
 	}
 
 	refmodels_ += refmodel;
-	t2dmodels_ += t2dm;
+	if ( idx==0 || !isnmocoorected )
+	    t2dmodels_ += t2dm;
     }
 }
 
