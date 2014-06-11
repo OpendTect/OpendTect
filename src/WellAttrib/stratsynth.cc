@@ -1589,6 +1589,14 @@ bool PreStackSyntheticData::hasOffset() const
 { return offsetRange().width() > 0; }
 
 
+bool PreStackSyntheticData::isNMOCorrected() const
+{
+    bool isnmo = true;
+    raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), isnmo );
+    return isnmo;
+}
+
+
 const SeisTrc* PreStackSyntheticData::getTrace( int seqnr, int* offset ) const
 { return preStackPack().getTrace( seqnr, offset ? *offset : 0 ); }
 

@@ -736,7 +736,7 @@ void uiStratSynthDisp::getCurD2TModel( const SyntheticData* sd,
 	return;
 
     mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
-    if ( !presd )
+    if ( !presd || presd->isNMOCorrected() )
     {
 	d2tmodels = sd->d2tmodels_;
 	return;
