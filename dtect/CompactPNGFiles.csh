@@ -77,7 +77,8 @@ end
 
 if ( $quiet == 0 && $totbefore > 0 ) then
     @ totred = $totbefore - $totafter
-    @ perc = ($totred * 100) / $totbefore
+    @ perc = $totred / $totbefore
+    @ perc *= 100
     @ totred /= 1024
     @ totbefore /= 1024
     echo ""
