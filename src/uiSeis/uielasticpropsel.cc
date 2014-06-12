@@ -38,14 +38,14 @@ uiElasticPropSelGrp::uiSelInpGrp::uiSelInpGrp( uiParent* p,
     varnmfld_ = new uiGenInput( this, tr("For") );
     varnmfld_->setElemSzPol( uiObject::Small );
 
-    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, tr("use"));
+    uiLabeledComboBox* lbl = new uiLabeledComboBox( this, uiStrings::sUse());
     lbl->attach( rightOf, varnmfld_ );
 
     inpfld_ = lbl->box();
     inpfld_->selectionChanged.notify(
 		    mCB(this,uiElasticPropSelGrp::uiSelInpGrp,selVarCB ) );
 
-    ctefld_ = new uiGenInput( this, tr("Value"), FloatInpSpec() );
+    ctefld_ = new uiGenInput( this, uiStrings::sValue(), FloatInpSpec() );
     ctefld_->attach( rightOf, lbl );
     ctefld_->setElemSzPol( uiObject::Small );
 
@@ -147,7 +147,7 @@ uiElasticPropSelGrp::uiElasticPropSelGrp( uiParent* p,
     formfld_ = new uiGenInput( this, tr("Formula ") );
     formfld_->attach( alignedBelow, selmathfld_ );
 
-    singleinpfld_ = new uiLabeledComboBox( this, tr("use") );
+    singleinpfld_ = new uiLabeledComboBox( this, uiStrings::sUse() );
     singleinpfld_->attach( alignedBelow, selmathfld_ );
     singleinpfld_->box()->addItems( propnms_ );
 

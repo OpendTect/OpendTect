@@ -87,7 +87,7 @@ void uiWaveletExtraction::createCommonUIFlds()
 {
     zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
 			BoolInpSpec(linesel2dfld_,tr("Z range"),
-                                    tr("Horizons")) );
+                                    uiStrings::sHorizons()) );
     zextraction_->valuechanged.notify(
 				mCB(this,uiWaveletExtraction,choiceSelCB) );
 

@@ -143,7 +143,7 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     if ( is2d && SI().has3D() )
     {
 	int res = uiMSG().askGoOnAfter( tr("Use 2D or 3D data?"),
-		0, tr("&2D"), tr("&3D") );
+		0, uiStrings::s2D(), uiStrings::s3D() );
 	if ( res == 2 )
 	    return;
 	else

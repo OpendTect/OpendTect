@@ -293,7 +293,7 @@ void uiSeisSel::mkOthDomBox()
     if ( !inctio_.ctxt.forread && seissetup_.enabotherdomain_ )
     {
 	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? uiStrings::sDepth()
-                                                          : tr("Time") );
+                                                          : uiStrings::sTime());
 	othdombox_->attach( rightOf, selbut_ );
     }
 }

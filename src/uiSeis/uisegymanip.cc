@@ -306,7 +306,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
 		    mCB(this,uiSEGYFileManip,plotReq) );
     plotbut_->attach( alignedBelow, thtbl_ );
     plotbut_->setSensitive( false );
-    plotallbox_ = new uiCheckBox( grp, tr("All") );
+    plotallbox_ = new uiCheckBox( grp, uiStrings::sAll() );
     plotallbox_->attach( rightOf, plotbut_ );
     plotallbox_->setHSzPol( uiObject::Small );
     plotallbox_->setChecked( true );
