@@ -33,6 +33,7 @@ public:
     static uiString sAction()		{ return tr("&Action"); }
     static uiString sAdd(bool immediate);
     static uiString sAdvanced()		{ return tr("&Advanced"); }
+    static uiString sAll()		{ return tr("&All"); }
     static uiString sAmplitude()	{ return tr("Show &Amplitude"
                                                     " Spectrum"); }
     static uiString sAnalysis()		{ return tr("&Analysis"); }
