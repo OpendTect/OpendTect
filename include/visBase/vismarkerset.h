@@ -116,8 +116,6 @@ public:
     void		setPos(int, const Coord3&,bool draw = true);
     void		forceRedraw(bool);
     
-    void		turnLightingOn(bool);
-
 protected:
     void		materialChangeCB(CallBacker*);
 				~MarkerSet();
