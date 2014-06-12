@@ -446,6 +446,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
 		uiSettingsGroup::factory().create( nms.get(idx),
 						   tabstack_->tabGroup(),
 						   setts_ );
+	grp->attach( hCentered );
 	addGroup( grp );
 	grps_ += grp;
     }
