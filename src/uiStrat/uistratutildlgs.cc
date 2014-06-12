@@ -41,13 +41,13 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     , unit_(unit)
     , entrancename_(unit.code())
 {
-    unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    unitnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
     unitdescfld_->attach( alignedBelow, unitnmfld_ );
 
     colfld_ = new uiColorInput( this,
 			           uiColorInput::Setup(getRandStdDrawColor() ).
-				   lbltxt("Color") );
+				   lbltxt(uiStrings::sColor()) );
     colfld_->attach( alignedBelow, unitdescfld_ );
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
@@ -265,7 +265,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
     uiGroup* rightgrp = new uiGroup( this, "right group" );
     uiGroup* toprightgrp = new uiGroup( rightgrp, "top right group" );
-    nmfld_ = new uiGenInput( toprightgrp, "Name", StringInpSpec() );
+    nmfld_ = new uiGenInput( toprightgrp, uiStrings::sName(), StringInpSpec() );
     isporbox_ = new uiCheckBox( toprightgrp, "Porous" );
     isporbox_->activated.notify( selchgcb );
     isporbox_->attach( rightOf, nmfld_ );
@@ -421,7 +421,7 @@ uiStratSingleContentDlg( uiParent* p, Strat::Content& c, bool isadd, bool& chg)
     , cont_(c)
     , anychg_(chg)
 {
-    nmfld_ = new uiGenInput( this, "Name", StringInpSpec(c.name()) );
+    nmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec(c.name()));
 
     fillfld_ = new uiFillPattern( this );
     fillfld_->set( cont_.pattern_ );
@@ -551,10 +551,10 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create/Edit level",mNoDlgTitle,
                                  mODHelpKey(mStratLevelDlgHelpID) ))
 {
-    lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    lvlnmfld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this,
 				uiColorInput::Setup(getRandStdDrawColor() ).
-				lbltxt("Color") );
+				lbltxt(uiStrings::sColor()) );
     lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
 }
 
@@ -819,7 +819,8 @@ bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
 	BufferString movemsg( "Assign to " );
 	movemsg += unit_.code(); movemsg += " only";
 	const int res =
-	    uiMSG().question(msg,"Assign to both", movemsg ,"Cancel");
+	    uiMSG().question(msg,"Assign to both", movemsg ,
+                             uiStrings::sCancel());
 	if ( res == -1 )
 	    return false;
 	if ( res == 0 )

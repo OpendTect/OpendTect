@@ -408,7 +408,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
     if ( lays.isEmpty() || layidx < 0 )
 	return;
 
-    uiMenu mnu( parent(), "Action" );
+    uiMenu mnu( parent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sProperties(false)), 0 );
     mnu.insertItem( new uiAction("&Remove layer ..."), 1 );
     mnu.insertItem( new uiAction("Remove this &Well"), 2 );

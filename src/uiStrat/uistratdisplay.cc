@@ -149,7 +149,7 @@ public :
 	}
 	if ( colnms.size() )
 	{
-	    allboxfld_ = new uiCheckBox( this, "All" );
+	    allboxfld_ = new uiCheckBox( this, uiStrings::sAll() );
 	    allboxfld_->attach( alignedAbove, colboxflds_[0] );
 	    allboxfld_->activated.notify( mCB(this,uiColViewerDlg,selAll) );
 	}

@@ -242,7 +242,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     int mnuid = dbl ? 0 : (isempty ? 1 : -1);
     if ( !isempty && !dbl )
     {
-	uiMenu mnu( parent(), "Action" );
+	uiMenu mnu( parent(), uiStrings::sAction() );
 	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
 	mnu.insertItem( new uiAction("Add &Above ..."), 1 );
 	mnu.insertItem( new uiAction("Add &Below ..."), 2 );
