@@ -41,10 +41,11 @@ MarkerSet::MarkerSet()
     addChild( markerset_ );
     markerset_->setVertexArray( mGetOsgVec3Arr(coords_->osgArray()) );
 
+    setMinimumScale( 1.0f );
+    setMaximumScale( 25.5f );
     setAutoRotateMode( NO_ROTATION );
     setType( MarkerStyle3D::Cube );
     setScreenSize( cDefaultScreenSize() );
-    setMaximumScale( 50.0 );
     setMaterial( 0 ); //Triggers update of markerset's color array
 }
 
@@ -371,8 +372,3 @@ int MarkerSet::size() const
     return 0;
 }
 
-
-void MarkerSet::turnLightingOn( bool yn )
-{
-    markerset_->turnLightingOn( yn );
-}

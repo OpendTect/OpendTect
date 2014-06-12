@@ -301,7 +301,6 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     markerstyle = MarkerStyle3D::Cube;
     markerstyle.size_ = (int)markersize_;
     marker->setMarkerStyle( markerstyle );
-    marker->setMinimumScale( 0 );
     marker->setAutoRotateMode( visBase::MarkerSet::NO_ROTATION );
     marker->addPos( Coord3( 0, 0, 0 ) );
     marker->setMarkerResolution( 0.8f );
