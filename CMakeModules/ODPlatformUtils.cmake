@@ -132,10 +132,10 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
     #set ( CMAKE_CXX_FLAGS "/MP")
     set (EXTRA_LIBS "ws2_32" "shlwapi")
-    set ( CMAKE_CXX_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_CXX_FLAGS}")
-    set ( CMAKE_CXX_FLAGS   "\"-DmUsedVar=\" ${CMAKE_CXX_FLAGS}")
-    set ( CMAKE_C_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_C_FLAGS}")
-    set ( CMAKE_C_FLAGS   "\"-DmUsedVar=\" ${CMAKE_C_FLAGS}")
+    set ( CMAKE_CXX_FLAGS   "-DmUnusedVar= ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
+    set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")
+    set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
     set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
     set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
@@ -181,5 +181,10 @@ if(WIN32)
 
 endif()
 
-add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
+if ( WIN32 )
+    add_definitions( "-D__${OD_PLFSUBDIR}__=1" )
+else()
+    add_definitions( "\"-D__${OD_PLFSUBDIR}__=1\"" )
+endif()
+
 
