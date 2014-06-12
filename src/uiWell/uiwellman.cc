@@ -252,6 +252,8 @@ void uiWellMan::setToolButtonProperties()
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
     mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
+    mSetButToolTip(loguombut_,"View/edit",logsfld_->getText(),
+		   "unit of measure");
     if ( curidx < 0 )
 	logvwbut_->setToolTip( "View selected log" );
     else
