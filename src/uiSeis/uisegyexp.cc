@@ -203,7 +203,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
-	morebox_ = new uiCheckBox( this, "Export more from same Line Set" );
+	morebox_ = new uiCheckBox( this,
+				   "Export more lines from the same dataset" );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
