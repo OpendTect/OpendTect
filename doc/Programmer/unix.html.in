@@ -80,9 +80,9 @@ The only environment variable besides the one you may want to use for your own C
 </p><p id="text">
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:</p>
 <pre id="code"><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
-<p id="text">Another thing may be handy. If you have your own Qt or COIN installation, then try linking the Qt and COIN installations immediately in $WORK. CMake will automatically configure from this. Example:</p>
-<pre id="code"><code>ln -s /apps/qt/inst_453 $WORK/qt
-ln -s /apps/coin/inst_rel $WORK/coin
+<p id="text">Another thing may be handy. If you have your own Qt or OpenSceneGraph installation, then try linking the Qt and OpenSceneGraph installations immediately in $WORK. CMake will automatically configure from this. Example:</p>
+<pre id="code"><code>ln -s /apps/qt/inst_458 $WORK/qt
+ln -s /apps/OpenSceneGraph/inst_rel $WORK/osg
 </code></pre>
 
 
@@ -133,7 +133,7 @@ For distribution to the outside world, you'll need to package your plugins, docu
 
 <h2 id="heading2">Building from source</h2>
 <p id="text">
-If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a COIN source distribution. This is because you'll need the correct header files to go with the libraries.</p>
+If you're really into it, you can build the entire OpendTect from source after you've installed OpendTect and built a plugin. For that, you will have to get hold of a Qt and a OpenSceneGraph source distribution. This is because you'll need the correct header files to go with the libraries.</p>
 
 <h3 id="heading3">Qt</h3>
 <p id="text"><a href="http://qt-project.org">Qt from Digia</a> is used for the GUI. Use the latest Qt release. We configured with:</p>
@@ -141,17 +141,12 @@ If you're really into it, you can build the entire OpendTect from source after y
 ./configure -shared -release -no-gif -enable-opengl -thread -no-g++-exceptions -disable-xml -disable-sql<br> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -qt-libpng -qt-libjpeg -qt-libmng -qt-imgfmt-jpeg -qt-imgfmt-mng -qt-imgfmt-png
 </code></pre>
 
-<h3 id="heading3">COIN</h3>
-<p id="text">You need the main <a href="http://www.coin3d.org">COIN</a> library ('Coin-3') and SoQt. For the volume rendering plugin, find the SIMVoleon download too. In rare cases you also want simage. Our configuration:</p>
-<pre id="code"><code>
-./configure --disable-debug --disable-symbols --enable-shared --disable-static --enable-vrml97 --enable-threadsafe<br> --enable-rtti --disable-warnings --disable-dependency-tracking --enable-html CFLAGS="-O2<br> -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" CPPFLAGS="-O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"<br> LDFLAGS="-s -O2 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -lstdc++"
-</code></pre>
-<p id="text">
-Once this is done, link your Qt and Coin installation directories to $WORK, as in:</p>
+<h3 id="heading3">OpenSceneGraph</h3>
+<p id="text">You need to install a version of the <a href="http://OpenSceneGraph.org">OpenSceneGraph</a> system. Once this is done, link your Qt and OpenSceneGraph installation directories to $WORK, as in:</p>
 <pre id="code"><code>
 cd $WORK
 ln -s /apps/qt/inst_dir ./qt
-ln -s /apps/coin/inst_dir ./coin
+ln -s /usr/local ./osg
 </code></pre>
 <p id="text">Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
 </p>

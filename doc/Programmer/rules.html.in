@@ -242,7 +242,7 @@ lot of those reasons by e-mail. The bottom line is: don't use exceptions.
 External software using exceptions must be isolated with
 <code>try { } catch (...) {}</code>.
 </li>
-<li>We are not using the STL stuff and the std::string class. This is not
+<li>We are not using all the STL stuff and the std::string class. This is not
 because we don't like it, but more because we don't see the need. Using this
 is not a problem but will not work well with the rest of the system so in
 general the classes are not used. For external software try moving to our own
