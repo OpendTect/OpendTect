@@ -1402,13 +1402,12 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	lines->removeAll( false );
 
     Geometry::PrimitiveSet* lknotsps =
-				sticks_[panelidx]->getCoordsPrimitiveSet();
+			sticks_[panelidx]->getCoordsPrimitiveSet();
     Geometry::PrimitiveSet* rknotsps =
-				sticks_[panelidx+1]->getCoordsPrimitiveSet();
-
-    const int lsize = lknotsps->size();
-    const int rsize = rknotsps->size();
-    if ( !lsize || !rsize )
+			sticks_[panelidx+1]->getCoordsPrimitiveSet();
+    const int lsize = lknotsps ? lknotsps->size() : 0;
+    const int rsize = rknotsps ? rknotsps->size() : 0;
+    if ( lsize==0 || rsize==0 )
 	return;
 
     if ( lsize==1 && rsize==1 )
@@ -1630,4 +1629,4 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
     addVersion();
 }
 
-}; // namespace Geometry
+} // namespace Geometry
