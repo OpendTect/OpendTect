@@ -28,6 +28,7 @@ mExpClass(uiAttributes) uiMathAttrib : public uiAttrDescEd
 public:
 
 			uiMathAttrib(uiParent*,bool);
+			~uiMathAttrib();
 
     void                getEvalParams(TypeSet<EvalParam>&) const;
 
@@ -40,9 +41,10 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		formSel(CallBacker*);
+    void		rockPhysReq(CallBacker*);
 
-    Math::Formula*	form_;
-    uiMathFormula*	uimathform_;
+    Math::Formula&	form_;
+    uiMathFormula*	formfld_;
 
 			mDeclReqAttribUIFns
 };

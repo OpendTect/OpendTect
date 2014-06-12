@@ -23,6 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimathexpression.h"
 #include "uimathexpressionvariable.h"
 #include "uimathformula.h"
+#include "uirockphysform.h"
+#include "uitoolbutton.h"
 #include "uimsg.h"
 #include "od_helpids.h"
 
@@ -34,7 +36,7 @@ mInitAttribUI(uiMathAttrib,Attrib::Mathematics,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d, mODHelpKey(mMathAttribHelpID) )
-	, form_(new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
+	, form_(*new Math::Formula(true,Attrib::Mathematics::getSpecVars()))
 {
     uiAttrSelData asd( is2d );
     BufferStringSet inpnms_;
@@ -42,10 +44,20 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     uiMathFormula::Setup mfsu( "Formula (like 'nearstk + c0 * farstk')" );
     mfsu.withunits( false ).maxnrinps( 8 )
 	.stortype( "Attribute calculation" );
-    uimathform_ = new uiMathFormula( this, *form_, mfsu );
-    uimathform_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
-    uimathform_->setNonSpecInputs( inpnms_ );
-    setHAlignObj( uimathform_ );
+    formfld_ = new uiMathFormula( this, form_, mfsu );
+    formfld_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
+    formfld_->setNonSpecInputs( inpnms_ );
+    const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
+    uiToolButtonSetup tbsu( "rockphys", "Use rockphysics formula",
+			    rockphyscb, "&Rock Physics");
+    formfld_->addButton( tbsu );
+    setHAlignObj( formfld_ );
+}
+
+
+uiMathAttrib::~uiMathAttrib()
+{
+    delete &form_;
 }
 
 
@@ -53,13 +65,26 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 { uiMSG().error( "Could not parse this equation" ); return retval; }
 
 
-void uiMathAttrib::formSel( CallBacker* cb )
+void uiMathAttrib::formSel( CallBacker* )
 {
     if ( !ads_ ) return;	//?
 
     BufferStringSet inpnms_;
     ads_->fillInUIInputList( inpnms_ );
-    uimathform_->setNonSpecInputs( inpnms_ );
+    formfld_->setNonSpecInputs( inpnms_ );
+}
+
+
+void uiMathAttrib::rockPhysReq( CallBacker* )
+{
+    uiDialog rpdlg( this, uiDialog::Setup("Rock Physics",
+					  mNoDlgTitle,mTODOHelpKey) );
+    uiRockPhysForm* rpform = new uiRockPhysForm( &rpdlg );
+    if ( !rpdlg.go() )
+	return;
+
+    rpform->getFormulaInfo( form_ );
+    formfld_->useForm();
 }
 
 
@@ -69,7 +94,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetString( Attrib::Mathematics::expressionStr(), expression,
-		  uimathform_->setText(expression) );
+		  formfld_->setText(expression) );
 
     formSel(0);
 
@@ -80,19 +105,19 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    for ( int iinp=0; iinp<form_->nrInputs(); iinp++ )
+	    for ( int iinp=0; iinp<form_.nrInputs(); iinp++ )
 	    {
 		BufferString cststr ( "c", idx );
-		if ( (BufferString) form_->variableName(iinp) == cststr )
+		if ( (BufferString) form_.variableName(iinp) == cststr )
 		{
-		    form_->setInputDef( iinp, toString(param.getdValue()) );
-		    uimathform_->inpFld(iinp)->use( *form_ );
+		    form_.setInputDef( iinp, toString(param.getdValue()) );
+		    formfld_->inpFld(iinp)->use( form_ );
 		}
 	    }
 	}
     }
 
-    if ( form_->isRecursive()
+    if ( form_.isRecursive()
 	    && desc.getValParam(Attrib::Mathematics::recstartvalsStr()) )
     {
 	FileMultiString recvalsstr = desc.getValParam(
@@ -100,8 +125,8 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	for ( int idx=0; idx<recvalsstr.size(); idx++ )
 	{
 	    const double val = recvalsstr.getDValue( idx );
-	    form_->recStartVals()[idx] = mIsUdf(val) ? 0 : val;
-	}
+	    form_.recStartVals()[idx] = mIsUdf(val) ? 0 : val;
+    }
     }
 
     return true;
@@ -119,12 +144,12 @@ bool uiMathAttrib::setInput( const Desc& desc )
 	    BufferString refstr = inpdsc->isStored()
 				? BufferString ( "[",inpdsc->userRef(),"]")
 				: BufferString( inpdsc->userRef() );
-	    for ( int varinpidx = varinplastidx; varinpidx<form_->nrInputs();
+	    for ( int varinpidx = varinplastidx; varinpidx<form_.nrInputs();
 		  varinpidx ++ )
-		if ( !form_->isConst(varinpidx) && !form_->isSpec(varinpidx) )
+		if ( !form_.isConst(varinpidx) && !form_.isSpec(varinpidx) )
 		{
-		    form_->setInputDef( varinpidx, refstr );
-		    uimathform_->inpFld(idx)->selectInput( refstr.buf() );
+		    form_.setInputDef( varinpidx, refstr );
+		    formfld_->inpFld(idx)->selectInput( refstr.buf() );
 		    varinplastidx = varinpidx+1;
 		    break;
 		}
@@ -141,31 +166,31 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetString( Attrib::Mathematics::expressionStr(),
-		uimathform_->exprFld()->text() );
+		formfld_->exprFld()->text() );
 
-    int nrconsts = form_->nrConsts();
+    int nrconsts = form_.nrConsts();
     if ( nrconsts )
     {
 	mDescGetParamGroup(DoubleParam,cstset,desc,
 			   Attrib::Mathematics::cstStr())
 	cstset->setSize( nrconsts );
 	int constidx = -1;
-	for ( int idx=0; idx<form_->nrInputs(); idx++ )
+	for ( int idx=0; idx<form_.nrInputs(); idx++ )
 	{
-	    if ( form_->isConst(idx) )
+	    if ( form_.isConst(idx) )
 	    {
 		constidx++;
 		DoubleParam& dparam = (DoubleParam&)(*cstset)[constidx];
-		dparam.setValue( uimathform_->getConstVal(idx) );
-	    }
+		dparam.setValue( formfld_->getConstVal(idx) );
+    }
 	}
     }
 
-    if ( form_->isRecursive() )
+    if ( form_.isRecursive() )
     {
 	FileMultiString fms;
-	for ( int idx=0; idx<form_->maxRecShift(); idx++ )
-	    fms.add( form_->recStartVals()[idx] );
+	for ( int idx=0; idx<form_.maxRecShift(); idx++ )
+	    fms.add( form_.recStartVals()[idx] );
 
 	mSetString( Attrib::Mathematics::recstartvalsStr(), fms );
     }
@@ -177,18 +202,18 @@ bool uiMathAttrib::getParameters( Desc& desc )
 bool uiMathAttrib::getInput( Desc& desc )
 {
     int attrinpidx = -1;
-    for ( int idx=0; idx<form_->nrInputs(); idx++ )
+    for ( int idx=0; idx<form_.nrInputs(); idx++ )
     {
-	if ( !form_->isConst(idx) && !form_->isSpec(idx) )
+	if ( !form_.isConst(idx) && !form_.isSpec(idx) )
 	{
 	    attrinpidx++;
 	    if ( attrinpidx >= desc.nrInputs() )
 		return false;
 
 	    Desc* inpdesc = desc.descSet()->getDescFromUIListEntry(
-					uimathform_->inpFld(idx)->getInput() );
+					formfld_->inpFld(idx)->getInput() );
 	    desc.setInput( attrinpidx, inpdesc );
-	}
+    }
     }
 
     return true;
@@ -200,14 +225,13 @@ void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     if ( !curDesc() ) return;
 
     int cstinpidx = -1;
-    for ( int idx=0; idx<form_->nrInputs(); idx++ )
+    for ( int idx=0; idx<form_.nrInputs(); idx++ )
     {
-	if ( form_->isConst(idx) )
+	if ( form_.isConst(idx) )
 	{
 	    cstinpidx++;
-	    params += EvalParam( form_->variableName(idx),
-				 Attrib::Mathematics::cstStr(), 0,
-				 idx );
+	    params += EvalParam( form_.variableName(idx),
+				 Attrib::Mathematics::cstStr(), 0, idx );
 	}
     }
 }
