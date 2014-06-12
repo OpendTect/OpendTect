@@ -123,6 +123,7 @@ public:
     static uiString sNo()		{ return tr("&No"); }
     static uiString sOff()		{ return tr("&Off"); }
     static uiString sOk()		{ return tr("&OK"); }
+    static uiString sOn()		{ return tr("&On"); }
     static uiString sOpen(bool immediate);
     static uiString sOperator()		{ return tr("&Operator"); }
     static uiString sOtherSurvey()	{ return tr("&Other Survey"); }
