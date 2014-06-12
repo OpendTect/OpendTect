@@ -122,6 +122,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
+    , renamebut_(0)
+    , removebut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -151,12 +153,15 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	attribfld_->setHSzPol( uiObject::Wide );
 	attribfld_->setToolTip(
 		tr("Horizon Data (Attributes stored in Horizon format)") );
+	attribfld_->selectionChanged.notify( mCB(this,uiSurfaceMan,attribSel) );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Horizon Data",
-			   mCB(this,uiSurfaceMan,removeAttribCB) );
-	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Horizon Data",
-			   mCB(this,uiSurfaceMan,renameAttribCB) );
+	removebut_ = butgrp->addButton( uiManipButGrp::Remove,
+					"Remove selected Horizon Data",
+					mCB(this,uiSurfaceMan,removeAttribCB) );
+	renamebut_ = butgrp->addButton( uiManipButGrp::Rename,
+					"Rename selected Horizon Data",
+					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =
@@ -183,10 +188,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		tr("Fault Data (Attributes stored in Fault format)") );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	butgrp->addButton( uiManipButGrp::Remove,"Remove selected Fault Data",
-			   mCB(this,uiSurfaceMan,removeAttribCB) );
-	butgrp->addButton( uiManipButGrp::Rename,"Rename selected Fault Data",
-			   mCB(this,uiSurfaceMan,renameAttribCB) );
+	removebut_ = butgrp->addButton( uiManipButGrp::Remove,
+					"Remove selected Fault Data",
+					mCB(this,uiSurfaceMan,removeAttribCB) );
+	renamebut_ = butgrp->addButton( uiManipButGrp::Rename,
+					"Rename selected Fault Data",
+					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
     }
     if ( type_ == Body )
@@ -208,6 +215,35 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
 uiSurfaceMan::~uiSurfaceMan()
 {}
+
+
+void uiSurfaceMan::attribSel( CallBacker* )
+{
+    setToolButtonProperties();
+}
+
+
+#define mSetButToolTip(but,str,curattribnms) \
+    if ( but ) \
+    { \
+	tt.setEmpty(); \
+	tt.add( str ).add( "'" ).add( curattribnms ).add( "'" ); \
+	but->setToolTip( tr(tt) ); \
+    }
+
+void uiSurfaceMan::setToolButtonProperties()
+{
+    BufferString tt;
+    if ( renamebut_ )
+	mSetButToolTip(renamebut_,"Rename",attribfld_->getText())
+
+    if ( removebut_ )
+    {
+	BufferStringSet attrnms;
+	attribfld_->getChosen( attrnms );
+	mSetButToolTip(removebut_,"Remove",attrnms.getDispString(2))
+    }
+}
 
 
 void uiSurfaceMan::addTool( uiButton* but )
@@ -310,12 +346,17 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     if ( curioobj_->implReadOnly() )
     {
 	uiMSG().error(
-		tr("Could not remove Surface Data. Surface is read-only") );
+		tr("Cannot remove Surface Data. Surface is read-only"));
 	return;
     }
 
     BufferStringSet attrnms;
     attribfld_->getChosen( attrnms );
+    BufferString msg;
+    msg.add( attrnms.getDispString(2) )
+       .add( "\nwill be removed from disk.\nDo you wish to continue?" );
+    if ( !uiMSG().askRemove(tr(msg)) )
+	return;
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
     {

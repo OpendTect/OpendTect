@@ -45,6 +45,9 @@ protected:
     bool		isCurFault() const;
 
     uiToolButton*	man2dbut_;
+    uiToolButton*	renamebut_;
+    uiToolButton*	removebut_;
+    void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
     void		man2dCB(CallBacker*);
     void		merge3dCB(CallBacker*);
@@ -62,6 +65,7 @@ protected:
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
     double		getFileSize(const char*,int&) const;
+    void		setToolButtonProperties();
 };
 
 
