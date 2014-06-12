@@ -45,7 +45,8 @@ uiLateralStack::uiLateralStack( uiParent* p, LateralStack* sgvs )
     stepoutfld_ = new uiGenInput( this, tr("Stepout (inl/crl)"),
 		     PositionInpSpec( processor_->getPatternStepout(), false));
     iscrossfld_ = new uiGenInput( this, tr("Shape"),
-	BoolInpSpec( processor_->isCross(), tr("Cross"), tr("Rectangle")) );
+	BoolInpSpec( processor_->isCross(), tr("Cross"), 
+                     uiStrings::sRectangle()) );
     iscrossfld_->attach( alignedBelow, stepoutfld_ );
 }
 

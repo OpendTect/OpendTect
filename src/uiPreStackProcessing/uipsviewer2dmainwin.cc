@@ -115,8 +115,8 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
     uiPushButton* applybut =
-	new uiPushButton( this, "Apply",mCB(this,uiPSPreProcessingDlg,applyCB),
-			  true );
+	new uiPushButton( this, uiStrings::sApply(),
+                          mCB(this,uiPSPreProcessingDlg,applyCB), true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }
 
@@ -397,7 +397,8 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
     datasetcb_->selectionChanged.notify(
 	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
     uiPushButton* propbut =
-	new uiPushButton( this, "Properties", ioPixmap("settings"),
+	new uiPushButton( this, uiStrings::sProperties(true), 
+                          ioPixmap("settings"),
 			  mCB(this,uiPSMultiPropDlg,selectPropCB), false );
     propbut->attach( rightTo, lblcb );
 }
@@ -526,7 +527,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 		}
 
 		tb->addObject(
-		    new uiToolButton( tb, "contexthelp", "Help",
+		    new uiToolButton( tb, "contexthelp", uiStrings::sHelp(),
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
 	    }
 	}

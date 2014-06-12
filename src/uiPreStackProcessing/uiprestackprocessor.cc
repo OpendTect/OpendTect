@@ -83,12 +83,12 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     savebutton_ = new uiPushButton( this, uiStrings::sSave(true),
 			ioPixmap(uiIcon::save()),
-			mCB(this, uiProcessorManager,saveCB), true );
+	    mCB(this, uiProcessorManager,saveCB), true );
     savebutton_->attach( rightOf, loadbutton_ );
 
     saveasbutton_ = new uiPushButton( this, uiStrings::sSaveAs(),
-			ioPixmap(uiIcon::saveAs()),
-			mCB(this, uiProcessorManager,saveAsCB), true );
+			    ioPixmap(uiIcon::saveAs()),
+			    mCB(this, uiProcessorManager,saveAsCB), true );
     saveasbutton_->attach( rightOf, savebutton_ );
 
     updateList();

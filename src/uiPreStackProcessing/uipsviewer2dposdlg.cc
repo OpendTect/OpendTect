@@ -57,7 +57,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     else
 	slicecs.hrg.setInlRange( trcrg );
     setCubeSampling( slicecs );
-    setOkText( "&Apply" );
+    setOkText( uiStrings::sApply() );
 }
 
 
@@ -435,7 +435,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );
 
-    uiLabel* sellbl = new uiLabel( this, "Select" );
+    uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
     toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
 				"Move right", cb );
