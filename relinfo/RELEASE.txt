@@ -1,7 +1,7 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0l: June 5, 2014
+v4.6.0l: June 12, 2014
  * Fix for crash while examining autocorrelation in GapDecon attribute window
  * Fix for crash while closing OpendTect main window after picking horizon
  * Fix for crash while sorting in a multi-threaded environment
@@ -15,6 +15,7 @@ v4.6.0l: June 5, 2014
    is able to merge individual inlines on the hard-disk
  * Fix for invalid directory message while copying  a survey
  * Fix for displaying of histogram while changing survey
+ * Fix for depth to time convertion in NMO corrected prestack synthetic data
  * Changed warning messages while picking horizon on random lines
 
 v4.6.0k: May 8, 2014
