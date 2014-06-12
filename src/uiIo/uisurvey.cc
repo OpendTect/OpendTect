@@ -628,7 +628,12 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 4: Do the IOMan changes necessary
     if ( samesurvey )
+    {
+	if ( cursurvinfo_ )
+	    eSI() = *cursurvinfo_;
+
 	IOM().surveyParsChanged();
+    }
     else
     {
 	if ( !samedataroot )
