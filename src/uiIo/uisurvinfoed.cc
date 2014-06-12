@@ -668,6 +668,7 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet("Please specify a valid Z range")
 
     si_.setRange( cs, false );
+    si_.setRange( cs, true );
     return true;
 }
 
