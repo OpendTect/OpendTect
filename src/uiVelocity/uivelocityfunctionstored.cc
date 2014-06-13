@@ -70,7 +70,7 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
 
     context.forread = true;
 
-    funcsel_ = new uiIOObjSel( this, context, "Input" );
+    funcsel_ = new uiIOObjSel( this, context, uiStrings::sInput() );
 
     if ( source_ )
     {
