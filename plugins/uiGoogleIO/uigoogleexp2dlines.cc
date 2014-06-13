@@ -42,7 +42,7 @@ uiGoogleExport2DSeis::uiGoogleExport2DSeis( uiSeis2DFileMan* p )
 
     if ( !allsel_ )
 	putallfld_ = new uiGenInput( this, uiStrings::sExport(), 
-                                     BoolInpSpec(true,tr("All"),
+                                     BoolInpSpec(true,uiStrings::sAll(),
 		    nrsel > 1 ? tr("Selected lines"):tr("Selected line")) );
 
     const char* choices[]
