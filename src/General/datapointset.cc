@@ -399,6 +399,13 @@ DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
 }
 
 
+bool DataPointSet::validColID( ColID cid ) const
+{
+    return cid >= 0 && cid < nrCols();
+}
+
+
+
 BinIDValueSet& DataPointSet::bivSet()
 {
     return data_.data();

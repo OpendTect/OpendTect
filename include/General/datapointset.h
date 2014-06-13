@@ -154,6 +154,7 @@ public:
     const UnitOfMeasure* unit(ColID) const;
     const DataColDef&	colDef( ColID i ) const	{ return gtColDef(i); }
     ColID		indexOf(const char*) const;
+    bool		validColID(ColID) const;
 
     			// size, binID, coord, z and trcNr impl PointDataPack
     int			size() const		{ return bvsidxs_.size(); }
