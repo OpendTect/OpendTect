@@ -57,6 +57,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->scene().addItem( worldgroup_ );
     view_->setScrollBarPolicy( false, uiGraphicsViewBase::ScrollBarAlwaysOff );
     view_->setScrollBarPolicy( true, uiGraphicsViewBase::ScrollBarAlwaysOff );
+    view_->setSceneBorder( 2 );
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 

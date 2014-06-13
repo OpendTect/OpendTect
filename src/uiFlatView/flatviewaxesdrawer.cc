@@ -92,7 +92,10 @@ uiBorder FlatView::AxesDrawer::getAnnotBorder() const
 uiRect FlatView::AxesDrawer::getViewRect() const
 {
     const uiBorder annotborder( getAnnotBorder() );
-    return annotborder.getRect( view_.getSceneRect() );
+    uiRect viewrect = view_.getSceneRect();
+    const int sceneborder = view_.getSceneBorder();
+    viewrect.translate( -uiPoint(sceneborder,sceneborder) );
+    return annotborder.getRect( viewrect );
 }
 
 
@@ -104,11 +107,9 @@ void FlatView::AxesDrawer::setExtraBorder( const uiBorder& border )
 
 void FlatView::AxesDrawer::updateViewRect()
 {
-    uiBorder annotborder = getAnnotBorder();
-    uiRect viewrect = view_.getSceneRect();
-    uiRect rect = annotborder.getRect( viewrect );
-    setBorder( annotborder );
-    uiGraphicsSceneAxisMgr::setViewRect( rect );
+    const uiRect rect = getViewRect();
+    setViewRect( rect );
+    setBorder( getAnnotBorder() );
     const FlatView::Annotation& annot  = vwr_.appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
