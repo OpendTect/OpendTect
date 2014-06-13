@@ -65,7 +65,8 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     subselfld_->attach( alignedBelow, inpfld_ );
     subselfld_->selChange.notify( mCB(this,uiGMTContourGrp,selChg) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Attribute" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+                                                    uiStrings::sAttribute() );
     attribfld_ = lcb->box();
     attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
     lcb->attach( alignedBelow, subselfld_ );
