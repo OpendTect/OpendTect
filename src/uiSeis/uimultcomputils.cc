@@ -120,7 +120,8 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
 				   "",mNoHelpKey) )
 {
     useallfld_ = new uiGenInput( this, "Components to use:",
-				 BoolInpSpec( true, "All", "Subselection" ) );
+				 BoolInpSpec( true, uiStrings::sAll(), 
+                                 "Subselection" ) );
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
     outlistfld_ = new uiLabeledListBox( this, names, "Available components",
