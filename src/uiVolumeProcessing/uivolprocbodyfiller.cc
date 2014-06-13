@@ -46,8 +46,8 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 	uinputselfld_->setInput( mp->getSurfaceID() );
     
     const bool showinside = !mIsUdf( mp->getInsideValue() ); 
-    useinsidefld_ = new uiGenInput( this, tr("Inside"),
-	    BoolInpSpec( showinside, tr("Value"), tr("Transparent") ) );
+    useinsidefld_ = new uiGenInput( this, uiStrings::sInside(),
+	    BoolInpSpec( showinside, uiStrings::sValue(), tr("Transparent") ) );
     useinsidefld_->attach( alignedBelow, uinputselfld_ );
     useinsidefld_->valuechanged.notify( mCB(this,uiBodyFiller,updateFlds) );
     insidevaluefld_ = new uiGenInput( this, "Inside-Value",
@@ -55,8 +55,8 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
     insidevaluefld_->attach( alignedBelow, useinsidefld_ );
     
     const bool showoutside = !mIsUdf( mp->getOutsideValue() ); 
-    useoutsidefld_ = new uiGenInput( this, tr("Outside"),
-	    BoolInpSpec( showoutside, tr("Value"), tr("Transparent") ) );
+    useoutsidefld_ = new uiGenInput( this, uiStrings::sOutside(),
+	    BoolInpSpec( showoutside, uiStrings::sValue(), tr("Transparent") ));
     useoutsidefld_->attach( alignedBelow, insidevaluefld_ );
     useoutsidefld_->valuechanged.notify(
 	    mCB(this,uiBodyFiller, updateFlds) );

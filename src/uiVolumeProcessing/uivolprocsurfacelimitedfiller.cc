@@ -154,7 +154,7 @@ uiSurfaceLimitedFiller::uiSurfaceLimitedFiller( uiParent* p,
 
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
     ctxt.forread = true;
-    refhorizonfld_ = new uiIOObjSel( this, ctxt, "Horizon" );
+    refhorizonfld_ = new uiIOObjSel( this, ctxt, uiStrings::sHorizon() );
     refhorizonfld_->attach( alignedBelow, userefdepthfld_ );
     if ( !surfacefiller_->usesRefZValue() && surfacefiller_->getRefHorizonID() )
 	refhorizonfld_->setInput( *surfacefiller_->getRefHorizonID() );

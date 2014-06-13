@@ -44,14 +44,14 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     stepoutgroup->setFrame( true );
     stepoutgroup->attach( alignedBelow, label );
 
-    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("In-line"), 0,
+    inllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sInline(), 0,
 	    			  	"Inline_spinbox" );
 
     const BinID step( SI().inlStep(), SI().crlStep() );
     inllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.inl(), step.inl() );
     inllenfld_->box()->setValue( step.inl()*(smoother_->inlSz()/2) );
 
-    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, tr("Cross-line"), 0,
+    crllenfld_ = new uiLabeledSpinBox( stepoutgroup, uiStrings::sCrossline(), 0,
 	    			       "Crline_spinbox" );
     crllenfld_->box()->setInterval( 0, (mMaxNrSteps/2)*step.crl(), step.crl() );
     crllenfld_->box()->setValue( step.crl()*(smoother_->crlSz()/2) );
