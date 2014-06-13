@@ -609,12 +609,11 @@ uiString EMObject::errMsg() const
 
 bool EMObject::usePar( const IOPar& par )
 {
-    int col;
+    Color col;
     if ( par.get(prefcolorstr(),col) )
     {
-	Color newcol; newcol.setRgb(col);
-	newcol.setTransparency( 0 );
-	setPreferredColor( newcol );
+	col.setTransparency( 0 );
+	setPreferredColor( col );
     }
 
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
@@ -671,7 +670,7 @@ bool EMObject::usePar( const IOPar& par )
 
 void EMObject::fillPar( IOPar& par ) const
 {
-    par.set( prefcolorstr(), (int)preferredColor().rgb() );
+    par.set( prefcolorstr(), preferredColor() );
 
     int keyid = 0;
     for ( int idx=0; idx<nrPosAttribs(); idx++ )
