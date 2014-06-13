@@ -139,7 +139,8 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     if ( zist )
     {
 	istimefld_ = uigi = new uiGenInput( this, "Data is in ",
-				     BoolInpSpec(true,"Time","Depth") );
+				     BoolInpSpec(true,uiStrings::sTime(),
+                                                 uiStrings::sDepth()) );
 	istimefld_->valuechanged.notify(
 				mCB(this,uiWellImportSEGYVSP,isTimeChg) );
     }

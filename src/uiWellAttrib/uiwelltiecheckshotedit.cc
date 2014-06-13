@@ -128,11 +128,11 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     toolbar_->addButton( editbut_ );
     editbut_->setToggleButton( true );
 
-    undobut_ = new uiToolButton( toolbar_, "undo", "Undo",
+    undobut_ = new uiToolButton( toolbar_, "undo", uiStrings::sUndo(),
 				mCB(this,uiCheckShotEdit,undoCB) );
     toolbar_->addButton( undobut_ ); 
     undobut_->setSensitive( false );
-    redobut_ = new uiToolButton( toolbar_, "redo", "Undo",
+    redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sUndo(),
 				mCB(this,uiCheckShotEdit,redoCB) );
     toolbar_->addButton( redobut_ ); 
     redobut_->setSensitive( false );

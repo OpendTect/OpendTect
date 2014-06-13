@@ -62,7 +62,7 @@ uiWellLogExtractGrp::uiWellLogExtractGrp( uiParent* p,
 					.prefpropnm(setup.prefpropnm_));
 
     uiLabeledListBox* llba = 0;
-    llba = new uiLabeledListBox( this, "Attributes" );
+    llba = new uiLabeledListBox( this, uiStrings::sAttributes() );
     llba->display( setup.withattrib_, true );
     attrsfld_ = llba->box();
     attrsfld_->setChoiceMode( OD::ChooseZeroOrMore );

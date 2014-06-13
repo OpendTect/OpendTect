@@ -60,7 +60,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     logsfld_->addItems( lognms );
     logsfld_->attach( alignedBelow, logchk_ );
 
-    saveasfld_ = new uiGenInput( loggrp, "Save as",
+    saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(),
 				BoolInpSpec( true, "Log", "Seismic cube") );
     saveasfld_->attach( alignedBelow, logsfld_ );
     saveasfld_->valuechanged.notify(

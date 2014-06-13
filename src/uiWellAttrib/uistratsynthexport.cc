@@ -221,7 +221,7 @@ void uiStratSynthExport::fillGeomGroup()
 
     IOObjContext psctxt( mIOObjContext(PickSet) );
     psctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    picksetsel_ = new uiIOObjSel( geomgrp_, psctxt, "Polygon" );
+    picksetsel_ = new uiIOObjSel( geomgrp_, psctxt, uiStrings::sPolygon() );
     picksetsel_->attach( alignedBelow, geomsel_ );
     if ( haverl )
     {

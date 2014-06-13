@@ -579,8 +579,9 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question( "Type of seismic data to use", "2D", "3D",
-					"Cancel", "Specify geometry" );
+	int res = uiMSG().question( "Type of seismic data to use", 
+                                    uiStrings::s2D(), uiStrings::s3D(),
+				    uiStrings::sCancel(), "Specify geometry" );
 	if ( res < 0 ) return false;
 	is2d = res == 1;
     }

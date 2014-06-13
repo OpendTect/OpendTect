@@ -38,7 +38,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthRemoved(this)
     , synthChanged(this)
 {
-    setOkText( "&Apply" );
+    setOkText( uiStrings::sApply() );
     setCancelText( "&Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
@@ -93,7 +93,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     uiGroup* botpargrp = new uiGroup( rightgrp, "Parameter Group - Last Part" );
     botpargrp->attach( centeredBelow, uisynthcorrgrp_ );
 
-    namefld_ = new uiGenInput( botpargrp, "		  Name" );
+    namefld_ = new uiGenInput( botpargrp, uiStrings::sName() );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
     gennewbut_ = new uiPushButton( botpargrp, "&Add as new", true );
@@ -453,7 +453,7 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
     nmofld_->setValue( true );
 
     CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
-    advbut_ = new uiPushButton( this, "&Advanced", cbadv, false );
+    advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
     advbut_->attach( alignedBelow, nmofld_ );
 
     uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );

@@ -229,11 +229,12 @@ void uiTieWin::drawFields()
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
-    uiPushButton* infobut = new uiPushButton( this, "Info",
+    uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    uiToolButton* helpbut = new uiToolButton( this, "contexthelp", "Help",
+    uiToolButton* helpbut = new uiToolButton( this, "contexthelp", 
+                                              uiStrings::sHelp(),
 			mCB(this,uiTieWin,provideWinHelp) );
     helpbut->setPrefWidthInChar( 5 );
     helpbut->attach( rightOf, infobut );
@@ -253,7 +254,7 @@ void uiTieWin::provideWinHelp( CallBacker* )
 
 void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
-    eventtypefld_ = new uiLabeledComboBox( taskgrp, "Track" );
+    eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack() );
     BufferStringSet eventtypes;
     server_.pickMgr().getEventTypes( eventtypes );
     for ( int idx=0; idx<eventtypes.size(); idx++)
@@ -269,7 +270,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     applybut_->setSensitive( false );
     applybut_->attach( rightOf, eventtypefld_ );
 
-    undobut_ = new uiPushButton( taskgrp, "&Undo",
+    undobut_ = new uiPushButton( taskgrp, uiStrings::sUndo(),
 	   mCB(this,uiTieWin,undoPushed), true );
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
@@ -464,9 +465,11 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup("Settings","",mNoHelpKey) );
+    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),"",
+                                             mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same",
-				BoolInpSpec(true,"Name","Regional marker") );
+				BoolInpSpec(true,uiStrings::sName(),
+                                            "Regional marker") );
     matchdlg.go();
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());

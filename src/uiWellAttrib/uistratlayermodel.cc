@@ -357,7 +357,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
 
     uiToolBar* helptb = new uiToolBar( this, "Help toolbar", uiToolBar::Right );
-    uiToolButtonSetup htbsu( "contexthelp", "Help",
+    uiToolButtonSetup htbsu( "contexthelp", uiStrings::sHelp(),
 			     mCB(this,uiStratLayerModel,helpCB) );
     helptb->addButton( htbsu );
 

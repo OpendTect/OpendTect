@@ -117,7 +117,7 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 {
     viewer_ = new uiFlatViewer( this );
 
-    wvltbuts_ += new uiToolButton( this, "info", "Properties",
+    wvltbuts_ += new uiToolButton( this, "info", uiStrings::sProperties(true),
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
