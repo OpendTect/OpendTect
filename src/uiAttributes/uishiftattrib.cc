@@ -35,7 +35,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     uiStepOutSel::Setup setup( is2d );
-    setup.seltxt( tr("Shift") ).allowneg( true );
+    setup.seltxt( uiStrings::sShift() ).allowneg( true );
     stepoutfld_ = new uiStepOutSel( this, setup );
     stepoutfld_->setFieldNames( "Inl shift", "Crl shift" );
     stepoutfld_->attach( alignedBelow, inpfld_ );
