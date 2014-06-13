@@ -13,16 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Geometry
 {
 
-    
 PtrMan<PrimitiveSetCreator> PrimitiveSetCreator::creator_ = 0;
-    
-    
+
 DefineEnumNames(PrimitiveSet, PrimitiveType, 5, "PrimitiveType" )
 { "Points", "Lines", "Triangles", "LineStrips", "TriangleStrips", "Fans",
   "Other", 0 };
-    
-    
-    
+
+
 PrimitiveSet::PrimitiveSet()
     : primitivetype_( Triangles )
 {}
@@ -41,7 +38,7 @@ void PrimitiveSet::getAll( TypeSet<int>& res, bool onlyunique ) const
     }
 }
 
-    
+
 PrimitiveSet::PrimitiveType PrimitiveSet::getPrimitiveType() const
 {
     return primitivetype_;
@@ -53,20 +50,20 @@ void PrimitiveSet::setPrimitiveType(Geometry::PrimitiveSet::PrimitiveType tp)
     primitivetype_ = tp;
 }
 
-    
-    
+
+
 PrimitiveSet* PrimitiveSetCreator::create( bool indexed, bool large )
 {
     return creator_ ? creator_->doCreate( indexed, large ) : 0;
 }
-    
-    
+
+
 IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
 {
     return (IndexedPrimitiveSet*) PrimitiveSetCreator::create( true, large );
 }
-    
-    
+
+
 RangePrimitiveSet* RangePrimitiveSet::create()
 {
     return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
@@ -82,13 +79,13 @@ void RangePrimitiveSet::getAll(TypeSet<int>& res,bool) const
     for ( int idx=range.start; idx<=range.stop; idx++ )
 	res += idx;
 }
-    
-    
+
+
 void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
 {
     creator_ = c;
 }
-    
+
 
 IndexedGeometry::IndexedGeometry( Type type, Coord3List* coords,
 				  Coord3List* normals,
@@ -146,6 +143,7 @@ void IndexedGeometry::appendCoordIndices( const TypeSet<int>& indices,
 	break;
     case Points:
     case Lines:
+	if ( primitiveset_ )
 	    primitiveset_->append( indices.arr(), indices.size() );
 	break;
     default:
@@ -166,6 +164,7 @@ void IndexedGeometry::appendCoordIndicesAsTriangleFan(
 void IndexedGeometry::setCoordIndices( const TypeSet<int>& indices )
 {
     if ( !primitiveset_ ) return;
+
     primitiveset_->setEmpty();
     appendCoordIndices( indices );
 }
@@ -174,7 +173,7 @@ void IndexedGeometry::setCoordIndices( const TypeSet<int>& indices )
 void IndexedGeometry::appendCoordIndicesAsTriangles(
 	const TypeSet<int>& indices, bool reverse )
 {
-    if ( primitivesettype_ == RangeSet ) return;
+    if ( !primitiveset_ || primitivesettype_ == RangeSet ) return;
 
     for ( int idx = 0; idx< indices.size()-2; idx++ )
     {
@@ -193,7 +192,8 @@ void IndexedGeometry::appendCoordIndicesAsTriangles(
 void IndexedGeometry::appendCoordIndicesAsTriangleStrips(
 			const TypeSet<int>& indices )
 {
-    if ( primitivesettype_ == RangeSet ) return;
+    if ( !primitiveset_ || primitivesettype_ == RangeSet ) return;
+
     if ( primitiveset_->size() )
     {
 	primitiveset_->append( primitiveset_->get( primitiveset_->size()-1 ) );
@@ -212,7 +212,7 @@ void IndexedGeometry::removeAll( bool deep )
     TypeSet<int> idxs;
 
     primitiveset_->getAll( idxs, true );
-    
+
     if( coordlist_ )
 	coordlist_->remove( idxs );
     if ( normallist_ )
@@ -229,7 +229,7 @@ void IndexedGeometry::removeAll( bool deep )
 
 bool IndexedGeometry::isEmpty() const
 {
-    return !primitiveset_->size();
+    return !primitiveset_ || !primitiveset_->size();
 }
 
 
@@ -246,7 +246,7 @@ IndexedShape::~IndexedShape()
 
 
 void IndexedShape::setCoordList( Coord3List* cl, Coord3List* nl,
-       				 Coord3List* tcl, bool createnew )
+				 Coord3List* tcl, bool createnew )
 {
     if ( createnew )
     {
@@ -305,12 +305,12 @@ void IndexedShape::addVersion()
 int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
 {
     if ( !ig ) return -1;
-    
+
     mGetIndexedShapeWriteLocker4Geometries();
     int res = geometries_.indexOf( ig );
-    if ( res==-1 ) 
+    if ( res==-1 )
     {
-    	geometries_ += ig;
+	geometries_ += ig;
 	res = geometries_.size()-1;
     }
 
@@ -320,7 +320,7 @@ int ExplicitIndexedShape::addGeometry( IndexedGeometry* ig )
 void ExplicitIndexedShape::removeFromGeometries( const IndexedGeometry* ig )
 {
     if ( !ig ) return;
-    
+
     mGetIndexedShapeWriteLocker4Geometries();
     const int idx = geometries_.indexOf( ig );
     if ( idx!=-1 )
@@ -332,9 +332,9 @@ void ExplicitIndexedShape::removeFromGeometries( int idx )
 {
     if ( idx<0 || idx>=geometries_.size() )
 	return;
- 
+
     removeFromGeometries( geometries_[idx] );
 }
 
+} // namespace Geometry
 
-}; //namespace
