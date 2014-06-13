@@ -145,6 +145,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 
     timer_.tick.notify( mCB(this,uiDataPointSetCrossPlotter,reDrawCB) );
     setStretch( 2, 2 );
+    setSceneBorder( 2 );
     setDragMode( uiGraphicsView::ScrollHandDrag );
 
     yrowidxs_ = new Array1DImpl<char>( dps_.size() );
