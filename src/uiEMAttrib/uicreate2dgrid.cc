@@ -392,7 +392,7 @@ bool ui2DGridLinesFromRandLine::computeGrid()
 	uiString msg = tr( "There are too many lines in the grid" );
 	msg.append( "You may want to increase the grid spacing "
 		    "to get fewer lines." );
-	if ( !uiMSG().askGoOn(msg,tr("Continue anyway"),tr("Cancel")) )
+	if ( !uiMSG().askGoOn(msg,tr("Continue anyway"),uiStrings::sCancel()) )
 	    return false;
     }
 
