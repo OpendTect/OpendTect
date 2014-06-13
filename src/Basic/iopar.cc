@@ -999,6 +999,14 @@ void IOPar::set( const char* keyw, const MultiID& mid )
 bool IOPar::get( const char* keyw, Color& c ) const
 {
     mGetStartNotEmpty(pval);
+    const FileMultiString fms( pval );
+    const int sz = fms.size();
+    if ( sz==1 && isNumberString(pval,true) ) 
+    {
+	c.setRgb( fms.getIValue(0) );
+	return true;
+    }
+
     return c.use( pval );
 }
 
