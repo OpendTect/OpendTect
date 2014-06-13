@@ -135,7 +135,7 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     savefld_->attach( alignedBelow, modefld_ );
 
     ctio_->ctxt.forread = false;
-    objfld_ = new uiIOObjSel( this, *ctio_, "Horizon" );
+    objfld_ = new uiIOObjSel( this, *ctio_, uiStrings::sHorizon() );
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 
