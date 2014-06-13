@@ -112,7 +112,7 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
 				 mODHelpKey(mStoreAuxDataHelpID) ))
     , surface_(surf)
 {
-    attrnmfld_ = new uiGenInput( this, "Attribute" );
+    attrnmfld_ = new uiGenInput( this, uiStrings::sAttribute() );
     attrnmfld_->setText( surface_.auxdata.auxDataName(0) );
 }
 
