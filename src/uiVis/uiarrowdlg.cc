@@ -26,7 +26,7 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     , propertyChange(this)
 {
     setCancelText(0);
-    typefld_ = new uiLabeledComboBox( this, tr("Type") );
+    typefld_ = new uiLabeledComboBox( this, uiStrings::sType() );
     typefld_->box()->addItems( arrowtypes );
     typefld_->box()->selectionChanged.notify(
 				mCB(this,uiArrowDialog,changeCB) );

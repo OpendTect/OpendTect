@@ -249,7 +249,7 @@ void uiVisEMObject::setUpConnections()
     singlecolmnuitem_.checkable = true;
     seedsmenuitem_.text = tr("S&eeds");
     seedsmenuitem_.checkable = false;
-    showseedsmnuitem_.text = tr("&Show");
+    showseedsmnuitem_.text = uiStrings::sShow();
     seedpropmnuitem_.text = uiStrings::sProperties(false);
     lockseedsmnuitem_.text = uiStrings::sLock();
     editmnuitem_.text = uiStrings::sEdit(true);

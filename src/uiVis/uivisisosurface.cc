@@ -44,7 +44,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     , vd_( vd )
 {
     bool fullmode = vd->isFullMode(isosurface);
-    modefld_ = new uiGenInput( this, tr("Mode"),
+    modefld_ = new uiGenInput( this, uiStrings::sMode(),
 	    BoolInpSpec(true,tr("Full volume"),tr("Seed based")) );
     modefld_->setValue( fullmode );
     modefld_->valuechanged.notify( 

@@ -47,7 +47,8 @@ uiDirLightDlg::uiDirLightDlg( uiParent* p, uiVisPartServer* visserv )
     scenefld_->attach( hCentered );
 
     switchfld_ = new uiGenInput( this, tr("Turn light"),
-				 BoolInpSpec(false,tr("On"),tr("Off")) );
+				 BoolInpSpec(false,uiStrings::sOn(),
+                                             uiStrings::sOff()));
     switchfld_->attach( alignedBelow, scenefld_ );
     switchfld_->valuechanged.notify( mCB(this,uiDirLightDlg,onOffChg) );
 

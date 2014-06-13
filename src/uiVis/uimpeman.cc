@@ -102,7 +102,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, tr("Settings"), false );
+    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(), false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( tr("Seed connect mode") );
@@ -130,10 +130,10 @@ void uiMPEMan::addButtons()
 
     moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
 			       tr("Display QC plane"), true );
-    uiMenu* mnu = new uiMenu( toolbar, tr("Menu") );
-    mAddMnuItm( mnu, tr("Inline"), handleOrientationClick,
+    uiMenu* mnu = new uiMenu( toolbar, uiStrings::sMenu() );
+    mAddMnuItm( mnu, uiStrings::sInline(), handleOrientationClick,
 		"QCplane-inline", 0 );
-    mAddMnuItm( mnu, tr("CrossLine"), handleOrientationClick,
+    mAddMnuItm( mnu, uiStrings::sCrossline(), handleOrientationClick,
 		"QCplane-crossline", 1 );
     mAddMnuItm( mnu, tr("Z"), handleOrientationClick, "QCplane-z", 2 );
     toolbar->setButtonMenu( moveplaneidx, mnu );
@@ -160,16 +160,18 @@ void uiMPEMan::addButtons()
     polyselectidx =  mAddButton( "polygonselect", selectionMode,
 				 tr("Polygon Selection mode"), true );
     uiMenu* polymnu = new uiMenu( toolbar, "PolyMenu" );
-    mAddMnuItm( polymnu,tr("Polygon"), handleToolClick, "polygonselect", 0 );
-    mAddMnuItm( polymnu,tr("Rectangle"),handleToolClick,"rectangleselect", 1 );
+    mAddMnuItm( polymnu,uiStrings::sPolygon(), handleToolClick, "polygonselect",
+                0 );
+    mAddMnuItm( polymnu,uiStrings::sRectangle(),handleToolClick,
+                "rectangleselect", 1 );
     toolbar->setButtonMenu( polyselectidx, polymnu );
 
     removeinpolygon = mAddButton( "trashcan", removeInPolygon,
 				  tr(" Remove PolySelection"), false );
     toolbar->addSeparator();
 
-    undoidx = mAddButton( "undo", undoPush, tr("Undo"), false );
-    redoidx = mAddButton( "redo", redoPush, tr("Redo"), false );
+    undoidx = mAddButton( "undo", undoPush, uiStrings::sUndo(), false );
+    redoidx = mAddButton( "redo", redoPush, uiStrings::sRedo(), false );
 
     toolbar->addSeparator();
     mAddButton( "save", savePush, uiStrings::sSave(true), false );
