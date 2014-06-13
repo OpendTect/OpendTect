@@ -58,7 +58,8 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.removeSingle(0);
-    eventfld_ = new uiGenInput( this, tr("Event"), StringListInpSpec(eventnms));
+    eventfld_ = new uiGenInput( this, uiStrings::sEvent(), 
+                                StringListInpSpec(eventnms));
     eventfld_->attach( alignedBelow, seisfld_ );
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
