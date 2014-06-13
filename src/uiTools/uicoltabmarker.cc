@@ -274,7 +274,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     if ( OD::RightButton != ev.buttonState() )
 	return;
 
-    uiMenu mnu( parent_, "Action" );
+    uiMenu mnu( parent_, uiStrings::sAction() );
     if ( selidx_>=0 )
     {
 	if ( selidx_ != 0 && selidx_ != ctab_.size()-1 )

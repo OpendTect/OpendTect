@@ -53,7 +53,7 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     , scaleChanged(nf)
 {
     showAlwaysOnTop();
-    setOkCancelText( "Apply", "Close" );
+    setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 
     doclipfld = new uiGenInput( this, "Auto-set scale ranges",
 				BoolInpSpec(true) );
@@ -414,7 +414,7 @@ void uiColorTable::canvasClick( CallBacker* )
     if ( !hasseq && !hasmapper )
 	return;
 
-    PtrMan<uiMenu> mnu = new uiMenu( parent_, "Action" );
+    PtrMan<uiMenu> mnu = new uiMenu( parent_, uiStrings::sAction() );
     if ( hasmapper )
     {
 	uiAction* itm =

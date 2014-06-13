@@ -68,7 +68,7 @@ void uiSelLineStyle::init( const uiSelLineStyle::Setup& su )
     {
 	uiColorInput::Setup csu( linestyle_.color_, su.transparency_
 		? uiColorInput::Setup::InSelector : uiColorInput::Setup::None );
-	csu.lbltxt( stylesel_ ? tr("Color") 
+	csu.lbltxt( stylesel_ ? uiStrings::sColor() 
                               : tr("Line color") ).withdesc( !su.width_ );
 	colinp_ = new uiColorInput( this, csu );
 	colinp_->colorChanged.notify( mCB(this,uiSelLineStyle,changeCB) );

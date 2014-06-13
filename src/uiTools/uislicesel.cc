@@ -167,8 +167,8 @@ uiSliceScroll( uiSliceSel* ss )
     stepfld_->box()->setValue( !ss->dogeomcheck_ ? 1 : step );
 
     typfld_ = new uiLabeledComboBox( this, "Control" );
-    typfld_->box()->addItem( "Manual" );
-    typfld_->box()->addItem( "Auto" );
+    typfld_->box()->addItem( uiStrings::sManual() );
+    typfld_->box()->addItem( uiStrings::sAuto() );
     typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld_->attach( alignedBelow, stepfld_ );
 
@@ -216,7 +216,7 @@ void butPush( CallBacker* cb )
     else
     {
 	/*new*/paused_ = ctrlbut->text().getOriginalString()[1] == 'P';
-	ctrlbut->setText( paused_ ? "&Go" : sButTxtPause );
+	ctrlbut->setText( paused_ ? uiStrings::sGo() : sButTxtPause );
     }
 }
 

@@ -275,7 +275,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
     editor_ = new uiTextFile( this, fnm, tsetup );
     editor_->fileNmChg.notify( mCB(this,uiTextFileDlg,fileNmChgd) );
 
-    uiMenu* filemnu = new uiMenu( this, "&File" );
+    uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
     if ( dlgsetup.allowopen_ )
 	filemnu->insertItem( new uiAction(uiStrings::sOpen(false),
 			     mCB(this,uiTextFileDlg,open)) );
