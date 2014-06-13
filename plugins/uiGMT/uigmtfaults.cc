@@ -61,7 +61,8 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
-				 BoolInpSpec("true", "Z Slice", "Horizon") );
+				 BoolInpSpec("true", "Z Slice", 
+                                 uiStrings::sHorizon()) );
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
 
@@ -69,7 +70,8 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
-    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), "Horizon" );
+    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), 
+                              uiStrings::sHorizon() );
     horfld_->attach( alignedBelow, optionfld_ );
 
     linestfld_ = new uiSelLineStyle( this, LineStyle(),
