@@ -649,9 +649,20 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 
     IOObj* ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
-	mkdefbut_->setSensitive( ioobj && ioobj->implExists(true) );
-    delete ioobj;
+    {
+	const bool enab = ioobj && ioobj->implExists(true);
+	mkdefbut_->setSensitive( enab );
+	if ( enab )
+	{
+	    BufferString tt( "Set '" );
+	    tt.add( ioobj->name() ).add( "' as default" );
+	    mkdefbut_->setToolTip( tt );
+	}
+	else
+	    mkdefbut_->setToolTip( "" );
+    }
 
+    delete ioobj;
     selectionChanged.trigger();
 }
 
