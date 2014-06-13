@@ -157,7 +157,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     , auxidx_( auxidx )
     , nrhorswithdata_( 0 )
 {
-    horfld_ = new uiGenInput( this, tr("Horizon"), StringInpSpec() );
+    horfld_ = new uiGenInput( this, uiStrings::sHorizon(), StringInpSpec() );
     selbut_ = new uiPushButton( this, uiStrings::sSelect(),
 	    mCB(this,uiHorizonAuxDataSel,selCB), false );
     selbut_->attach( rightOf, horfld_ );
