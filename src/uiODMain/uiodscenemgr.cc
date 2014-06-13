@@ -1056,7 +1056,7 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 {
     mGetOrAskForScene
 
-    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( 0, geomid );
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
     scene->itemmanager_->addChild( itm, false );
     return itm->displayID();
 }
