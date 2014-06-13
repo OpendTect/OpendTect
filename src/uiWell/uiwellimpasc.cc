@@ -215,7 +215,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     idfld = new uiGenInput( this, "Well ID (UWI)", StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
 
-    operfld = new uiGenInput( this, "Operator", StringInpSpec(info.oper) );
+    operfld = new uiGenInput( this, uiStrings::sOperator(), 
+                              StringInpSpec(info.oper) );
     operfld->attach( alignedBelow, idfld );
 
     statefld = new uiGenInput( this, "State", StringInpSpec(info.state) );

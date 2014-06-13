@@ -201,7 +201,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actiongrp->attach( hCentered );
     actiongrp->attach( ensureBelow, displaygrp );
     const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
-    uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, "Action" );
+    uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, 
+                                                    uiStrings::sAction() );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 

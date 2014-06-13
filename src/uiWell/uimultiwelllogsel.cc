@@ -383,7 +383,7 @@ void uiMultiWellLogSel::init()
     const OD::ChoiceMode chmode = singlelog_ ? OD::ChooseOnlyOne
 						    : OD::ChooseAtLeastOne;
     uiLabeledListBox* llbl = new uiLabeledListBox( this,
-	singlelog_ ? "Log" : "Logs", chmode,
+	singlelog_ ? "Log" : uiStrings::sLogs(), chmode,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
     logsfld_->setHSzPol( hpol );
@@ -395,7 +395,8 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, "Wells", OD::ChooseAtLeastOne,
+	llbw = new uiLabeledListBox( this, uiStrings::sWells(), 
+                                     OD::ChooseAtLeastOne,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );

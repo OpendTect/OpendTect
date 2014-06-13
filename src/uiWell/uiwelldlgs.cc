@@ -1447,7 +1447,7 @@ uiNewWellDlg::uiNewWellDlg( uiParent* p )
 {
     setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
-				      .lbltxt("Color") );
+				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, inpFld() );
 }
 

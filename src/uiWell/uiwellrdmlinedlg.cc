@@ -91,7 +91,7 @@ void uiWellSelGrp::createFields()
 
 void uiWellSelGrp::createSelectButtons( uiGroup* selbuttons )
 {
-    uiLabel* sellbl = new uiLabel( selbuttons, tr("Select") );
+    uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiWellSelGrp,selButPush);
     toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow,
 					tr("Move right"), cb );

@@ -92,7 +92,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     dispbelowfld_ = new uiCheckBox( this, tr("Below") );
     dispbelowfld_->attach( rightOf, dispabovefld_ );
     uiLabel* lbl = new uiLabel( this, tr("Display well name") , dispabovefld_ );
-    lbl = new uiLabel( this, tr("track") );
+    lbl = new uiLabel( this, uiStrings::sTrack() );
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );

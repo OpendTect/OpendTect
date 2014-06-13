@@ -40,10 +40,11 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
 					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
-    namefld_ = new uiGenInput( this, "Name", StringInpSpec("Marker") );
+    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+                               StringInpSpec("Marker") );
 
     uiColorInput::Setup csu( mrk.color() );
-    csu.lbltxt( "Color" ).withdesc(false);
+    csu.lbltxt( uiStrings::sColor() ).withdesc(false);
     colorfld_ = new uiColorInput( this, csu, "Color" );
     colorfld_->attach( alignedBelow, namefld_ );
 
@@ -347,7 +348,7 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 
 void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
-    uiMenu mnu( this, "Action" );
+    uiMenu mnu( this, uiStrings::sAction() );
 
     const bool nomrkr = mrklist_->isEmpty();
 
