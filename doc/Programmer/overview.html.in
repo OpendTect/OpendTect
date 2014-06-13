@@ -74,7 +74,7 @@ As OpendTect was developed in a research-minded environment, flexibility is a hi
 <p id="text">You may also want to look at the <a href="rules.html">design/coding rules</a>.</p>
 <a name="isolation"><h3 id="heading3">Isolation of external services</h3></a>
 <p id="text">
-When services from another package (Qt, COIN, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
+When services from another package (Qt, OpenSceneGraph, ...) are used, there is always an isolating layer - either a complete module or a class that uniquely uses those services. For software engineers this is an obvious action were it only to reduce the dependency problems.
 </p><p id="text">
 There is however more to it. External services tend to be designed for much more general purposes than what is needed by OpendTect. Furthermore, some services that will be very important for us won't be available. And, we may not like the form in which the services are presented; moreover, the data structures used in the external package seldomly fit nicely with ours.
 </p><p id="text">
@@ -91,7 +91,7 @@ Isolation like this is present for a variety of subjects, from threads, sockets,
 OpendTect is based on a couple of external packages, which are mostly open source. These include:</p>
 <ul id="bullets">
 <li>Qt from <a href="http://www.digia.com">Digia</a>
-<li>Coin from <a href="http://www.sim.no">SIM</a>
+<li>OpenSceneGraph from <a href="http://openscenegraph.org">OpenSceneGraph.org</a>
 <li>GNU tools (gmake, gcc) from <a href="http://www.fsf.org">FSF</a>
 <li>CMake from <a href="http://cmake.org">CMake.org</a>
 <li>Doxygen from <a href="http://www.doxygen.org">Doxygen</a>
@@ -107,7 +107,7 @@ A group of classes that handle a certain area of our domain is what could be cal
 <a name="separation"><h3 id="heading3">The separation</h3></a>
 <p id="text">The separation of <code>include</code> and <code>src</code> is first of all a visibility issue. The <code>include</code> files can be 'seen' by other modules, the <code>src</code> files not. Conceptually, the separation is roughly interface versus implementation. Roughly, because small functions are often implemented in the header file.
 </p><p id="text">
-Another separation that is very important is between <a href=#uimodules>UI-</a> and <a href=#rwmodules>'Real Work'</a> modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user interface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (COIN/OpenInventor-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
+Another separation that is very important is between <a href=#uimodules>UI-</a> and <a href=#rwmodules>'Real Work'</a> modules. No (direct) user interface work is done in the RW-modules. The amount of Real Work in the UI modules is minimised. Within the user interface part, there is a separation between basic UI (Qt-based in OpendTect) and 3D visualistion (OpenSceneGraph-based). Both types of user interface modules have a prefix: 'ui' and 'vis' respectively.
 </p><p id="text">
 Making all these modules as opposed to just dumping everything in one big directory does have the effect that it becomes necessary to precisely know what's dependent on what. That's exactly what's described in the <code>data/ModDeps.od</code> file. This file is used by OpendTect to automatically load module libraries.
 </p>
@@ -124,15 +124,15 @@ The domain-specific modules like <code>Well</code>, <code>EarthModel</code>, <co
 
 <a name="uimodules"><h3 id="heading3">UI modules</h3></a>
 <p id="text">
-For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules <code>uiBase</code>, <code>uiTools</code> and <code>uiIo</code>, the basic 3D visualisation module visBase and the basic combined stuff in <code>uiCoin</code>. On top of everything is the UI application logic in <code>uiODMain</code>.
+For most of the RW-modules, there is a UI counterpart. This is made possible by the basic UI modules <code>uiBase</code>, <code>uiTools</code> and <code>uiIo</code>, the basic 3D visualisation module visBase and the basic combined stuff in <code>uiOSG</code>. On top of everything is the UI application logic in <code>uiODMain</code>.
 </p><p id="text">
-The <code>uiBase</code> module is one of the two modules that access Qt services. Where <code>uiCoin</code> specifically handles the bridge bewteen Qt and COIN, <code>uiBase</code> is Qt only. These two are therefore <a href=#isolation>isolation layers</a>. <code>uiBase</code>'s main task is to provide access to Qt widgets and implement the dynamic layout concept. In short, the OpendTect user interface was not painted with a paint tool, but rather programmed by attaching elements to each other. See the <a href="Generated/uiBase/index.html">uiBase class documentation</a>.
+The <code>uiBase</code> module is one of the two modules that access Qt services. Where <code>uiOSG</code> specifically handles the bridge bewteen Qt and OpenSceneGraph, <code>uiBase</code> is Qt only. These two are therefore <a href=#isolation>isolation layers</a>. <code>uiBase</code>'s main task is to provide access to Qt widgets and implement the dynamic layout concept. In short, the OpendTect user interface was not painted with a paint tool, but rather programmed by attaching elements to each other. See the <a href="Generated/uiBase/index.html">uiBase class documentation</a>.
 </p><p id="text">
 The <code>uiTools</code> module depends on <code>uiBase</code> only. It provides some general UI elements from the <code>uiBase</code> basic objects. Most notably, the <a href="Generated/uiTools/classuiGenInput.html#_details">uiGenInput</a> class, providing generalised data input.
 </p><p id="text">
 The <code>uiIo</code> module is intended mainly for object selection (in the data store).
 </p><p id="text">
-The COIN-based visualisation services are made available in the <code>visBase</code> layer. Based on that, <code>visSurvey</code> delivers OpendTect-specific functionality.
+The OpenSceneGraph-based visualisation services are made available in the <code>visBase</code> layer. Based on that, <code>visSurvey</code> delivers OpendTect-specific functionality.
 </p><p id="text">
 It all comes together in the <code>uiODMain</code> module. Being the top level module it is dependent on all other modules. To keep the amount of knowledge contained in this module low, much of the functionality is obtained from the 'UI Part servers'. For example, the <code>uiSeisPartServer</code> is the isolation class for all seismic-related user interface work. The <code>uiODApplMgr</code> object is only coordinating the flow of information between the various part servers.
 </p>

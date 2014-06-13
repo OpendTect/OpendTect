@@ -62,7 +62,7 @@ environment, it should be much easier to convince the opendtect.org
 people to take over or even implement those things themselves. </p>
 
 <p id="text"> One thing you <i>cannot</i> do, is use another compiler than
-<b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, COIN, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
+<b>gcc/g++</b> on Linux/Mac or <b>VC++</b> on Windows. OpendTect is built with it, if you want to use another compiler (why?) you'll have to make all libs and supporting libs (Qt, OpenSceneGraph, fftw) yourself. The make itself should be pretty easy to get started, but there will probably be some porting to do, too.</p>
 
 <br><br>
 <a name="concept"><h2 id="heading2">The concept</h2></a>
@@ -362,7 +362,7 @@ the screen and the user clicks OK.</p>
 <ul>
 <li>Create menu items and toolbar icons
 <li>Make right-click tree item menus
-<li>Work in the COIN 'vis' world
+<li>Work in the OpenSceneGraph 'vis' world
 <li>Work with DataPack's and create flat displays
 </ul>
 </p>

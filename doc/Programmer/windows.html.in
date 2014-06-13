@@ -89,14 +89,14 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 
 
 <a name="buildod"><h3 id="heading3">Building OpendTect (only for die hards)</h3></a>
-<p id="text">The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt anc Coin directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
+<p id="text">The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
 <h3 id="heading3">Qt</h3>
 <p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. </p>
 
 
-<h3 id="heading3">Coin and friends</h3>
-<p id="text">A full Coin installation is only necessary when you want to build a plugin which is directly dependend on Coin. Download Windows Coin, SoQt and SIMVoleon packages from the <a href="http://coin3d.org/">Coin website</a>. Or get the source code from <a href="http://tortoisehg.bitbucket.org/">Mercurial</a> repositories and build yourself using Visual Studio. Check <a href="http://www.coin3d.org/doc/mercurial_access/">this link</a> for more details</p>
+<h3 id="heading3">OpenSceneGraph</h3>
+<p id="text">A full OpenSceneGraph installation is only necessary when you want to build a plugin which is directly dependend on OpenSceneGraph. Download an OpenSceneGraph installation, or get the source code from <a href="http://OpenSceneGraph.org/">OpenSceneGraph</a> repositories and build yourself using Visual Studio.</p>
 <br>
 
 
