@@ -69,7 +69,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	grps_ += grp;
     }
     if ( setup_.allownone_ )
-	nms.add( "All" );
+	nms.add( uiStrings::sAll() );
 
     const CallBack selcb( mCB(this,uiPosProvider,selChg) );
     if ( grps_.size() == 0 )
