@@ -56,7 +56,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     scalegrp_->attach( alignedBelow, actionfld_ );
     factorfld_ = new uiGenInput( scalegrp_, tr("Factor"),
 				FloatInpSpec(tst_.factor()) );
-    shiftfld_ = new uiGenInput( scalegrp_, tr("Shift"),
+    shiftfld_ = new uiGenInput( scalegrp_, uiStrings::sShift(),
 	    			FloatInpSpec(tst_.shift()) );
     shiftfld_->attach( alignedBelow, factorfld_ );
     scalegrp_->setHAlignObj( factorfld_ );

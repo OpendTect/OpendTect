@@ -50,8 +50,8 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     actionfld_->attach( alignedBelow, inpfld_ );
 
     smoothdirfld_ = new uiGenInput( this, tr("Smoothing direction"),
-	                        BoolInpSpec(true,tr("Horizontal"),
-                                            tr("Vertical")) );
+	                        BoolInpSpec(true,uiStrings::sHorizontal(),
+                                            uiStrings::sVertical()) );
     smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     smoothdirfld_->attach( alignedBelow, actionfld_ );
 
@@ -73,7 +73,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     factorfld_ = new uiGenInput( this, tr("Factor"), FloatInpSpec() );
     factorfld_->attach( alignedBelow, actionfld_ );
 
-    shiftfld_ = new uiGenInput( this, tr("Shift"), FloatInpSpec() );
+    shiftfld_ = new uiGenInput( this, uiStrings::sShift(), FloatInpSpec() );
     shiftfld_->attach( alignedBelow, factorfld_ );
 
     actionSel(0);
