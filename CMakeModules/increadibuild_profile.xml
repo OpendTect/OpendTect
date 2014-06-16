@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Profile FormatVersion="1">
+    <Tools>
+        <Tool Filename="ninja" AllowIntercept="true" />
+        <Tool Filename="cmcldeps" AllowRemote="true" />
+        <Tool Filename="cmake" AllowRemote="false" />
+        <Tool Filename="cmd" AllowRemote="false" />
+        <Tool Filename="powershell" AllowRemote="false" />
+    </Tools>
+</Profile>
