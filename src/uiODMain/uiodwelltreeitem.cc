@@ -73,17 +73,17 @@ bool uiODWellParentTreeItem::showSubMenu()
 	uiMenu* showmnu = new uiMenu( getUiParent(), tr("&Show all") );
 	showmnu->insertItem( new uiAction(tr("Well names (&Top)")), 41 );
 	showmnu->insertItem( new uiAction(tr("Well names (&Bottom)")), 42 );
-	showmnu->insertItem( new uiAction(tr("&Markers")), 43 );
+	showmnu->insertItem( new uiAction(uiStrings::sMarkers()), 43 );
 	showmnu->insertItem( new uiAction(tr("Marker &Names")), 44 );
-	showmnu->insertItem( new uiAction(tr("&Logs")), 45 );
+	showmnu->insertItem( new uiAction(uiStrings::sLogs()), 45 );
 	mnu.insertItem( showmnu );
 
 	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("&Hide all") );
 	hidemnu->insertItem( new uiAction(tr("Well names (&Top)")), 51 );
 	hidemnu->insertItem( new uiAction(tr("Well names (&Bottom)")), 52 );
-	hidemnu->insertItem( new uiAction(tr("&Markers")), 53 );
+	hidemnu->insertItem( new uiAction(uiStrings::sMarkers()), 53 );
 	hidemnu->insertItem( new uiAction(tr("Marker &Names")), 54 );
-	hidemnu->insertItem( new uiAction(tr("&Logs")), 55 );
+	hidemnu->insertItem( new uiAction(uiStrings::sLogs()), 55 );
 	mnu.insertItem( hidemnu );
     }
     addStandardItems( mnu );
@@ -208,15 +208,15 @@ void uiODWellTreeItem::initMenuItems()
     gend2tmmnuitem_.iconfnm = "well_tie";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
-    markermnuitem_.text = "&Markers";
+    markermnuitem_.text = uiStrings::sMarkers();
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = uiStrings::sLogs() ;
     attrmnuitem_.text = "&Create attribute log ...";
     logcubemnuitem_.text = "&Create log cube ...";
-    showmnuitem_.text = "&Show" ;
+    showmnuitem_.text = uiStrings::sShow() ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = uiStrings::sSave(true);
-    storemnuitem_.iconfnm = "save";
+    storemnuitem_.iconfnm = "save" ;
     amplspectrummnuitem_.text = "Show &Amplitude Spectrum";
 
     nametopmnuitem_.checkable = true;
