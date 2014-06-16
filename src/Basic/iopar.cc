@@ -952,6 +952,14 @@ bool IOPar::get( const char* s, Color& c ) const
     const char* ptr = find( s );
     if ( !ptr || !*ptr ) return false;
 
+    const FileMultiString fms( s );
+    const int sz = fms.size();
+    if ( sz==1 & isNumberString(s,true) )
+    {
+	c.setRgb( fms.getIValue(0) );
+	return true;
+    }
+
     return c.use( ptr );
 }
 
