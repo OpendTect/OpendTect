@@ -213,7 +213,10 @@ CubeSampling Data2DHolder::getCubeSampling() const
 	}
 	else
 	{
-	    const int step = curtrcnr - prevtrcnr;
+	    int step = curtrcnr - prevtrcnr;
+	    if ( step < 0 )
+		step = -step;
+
 	    if ( idx==1 )
 		trcrange.step = step;
 	    else if ( trcrange.step!=step )
