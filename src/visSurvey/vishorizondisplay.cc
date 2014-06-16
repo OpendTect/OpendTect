@@ -1785,7 +1785,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( rtdisplay )
 	{
-	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
+	    cs.zrg.setFrom( rtdisplay->getDepthInterval() );
 	    cs.zrg.step = s3dgeom_->zStep();
 	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
