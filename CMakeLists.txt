@@ -108,6 +108,10 @@ if( NOT DEFINED APPLE )
     OD_ADD_SVNPROP_TEST()
 endif()
 
+if ( UNIX )
+    add_test( "PNGCompression" ${CMAKE_SOURCE_DIR}/dtect/FindCompactablePNGs.csh )
+endif()
+
 set ( OD_TESTS_IGNORE_CONTINUOUS
       "${OD_TESTS_IGNORE_CONTINUOUS} SVNPropertyTest" )
 OD_SETUP_TEST_FILTER()
