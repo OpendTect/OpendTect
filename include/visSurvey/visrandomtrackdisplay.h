@@ -201,9 +201,9 @@ protected:
     float			appliedZRangeStep() const;
 
     visBase::TexturePanelStrip*	panelstrip_;
-/* OSG-TODO: Replace
+
     visBase::RandomTrackDragger* dragger_;
-*/
+
     visBase::PolyLine*		polyline_;
     visBase::MarkerSet*		markerset_;
     visBase::EventCatcher*	eventcatcher_;
@@ -218,6 +218,8 @@ protected:
     ZAxisTransform*		datatransform_;
     Interval<float>		depthrg_;
     int				voiidx_;
+
+    float			oldzrgstart_;
 
     bool			lockgeometry_;
     bool			ismanip_;

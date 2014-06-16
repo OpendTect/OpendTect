@@ -46,9 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 
 
-/* OSG-TODO: replace dragger_ with not yet available OSG RandomTrackDragger */
-
-
 namespace visSurvey
 {
 
@@ -60,7 +57,7 @@ const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
     : panelstrip_( visBase::TexturePanelStrip::create() )
-//    , dragger_( visBase::RandomTrackDragger::create())
+    , dragger_( visBase::RandomTrackDragger::create())
     , polyline_( visBase::PolyLine::create())
     , polylinemode_(false)
     , knotmoving_(this)
@@ -97,10 +94,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setDiffIntensity( 0.2 );
 
 
-//  dragger_->ref();
-//  addChild( dragger_->osgNode() );
+    dragger_->ref();
+    addChild( dragger_->osgNode() );
 
-//  dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
+    dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
 
     panelstrip_->ref();
     addChild( panelstrip_->osgNode() );
@@ -134,15 +131,10 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     setDepthInterval( Interval<float>( survinterval.start,
 				       survinterval.stop ));
-//    dragger_->setLimits(
-//	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
-//	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
-//	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
-
-//    const int baselen = mNINT32((inlrange.width()+crlrange.width())/2);
-
-//  dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
-
+    dragger_->setLimits(
+	    Coord3( inlrange.start, crlrange.start, survinterval.start ),
+	    Coord3( inlrange.stop, crlrange.stop, survinterval.stop ),
+	    Coord3( inlrange.step, crlrange.step, survinterval.step ) );
     init();
 }
 
@@ -151,7 +143,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 {
     setSceneEventCatcher( 0 );
     panelstrip_->unRef();
-//    dragger_->unRef();
+    dragger_->unRef();
     removeChild( polyline_->osgNode() );
     polyline_->unRef();
 
@@ -179,7 +171,7 @@ void RandomTrackDisplay::setDisplayTransformation( const mVisTrans* t )
     panelstrip_->setDisplayTransformation( t );
     polyline_->setDisplayTransformation( t );
     markerset_->setDisplayTransformation( t );
-    // dragger_->setDisplayTransformation( t );
+    dragger_->setDisplayTransformation( t );
 }
 
 
@@ -225,7 +217,7 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 	return;
 
     setPanelStripZRange( intv );
-//    dragger_->setDepthRange( intv );
+    dragger_->setDepthRange( intv );
 
     moving_.trigger();
 }
@@ -271,8 +263,13 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
     if ( checkPosition(sbid) )
     {
 	knots_ += sbid;
-	updatePanelStripPath();
-//	dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
+	dragger_->insertKnot( knots_.size()-1, Coord(sbid.inl(),sbid.crl()) );
+
+	if ( ismanip_ )
+	    dragger_->showAdjacentPanels( knots_.size()-1, true );
+	else
+	    updatePanelStripPath();
+
 	moving_.trigger();
     }
 }
@@ -280,14 +277,23 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
 
 void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 {
-    const BinID sbid = snapPosition(bid);
+    const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
     {
 	knots_.insert( knotidx, sbid );
-	updatePanelStripPath();
-//	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
-	for ( int idx=0; idx<nrAttribs(); idx++ )
-	    if ( cache_[idx] ) setData( idx, *cache_[idx] );
+	dragger_->insertKnot( knotidx, Coord(sbid.inl(),sbid.crl()) );
+
+	if ( ismanip_ )
+	    dragger_->showAdjacentPanels( knotidx, true );
+	else
+	{
+	    for ( int idx=0; idx<nrAttribs(); idx++ )
+	    {
+		if ( cache_[idx] )
+		    setData( idx, *cache_[idx] );
+	    }
+	    updatePanelStripPath();
+	}
 
 	moving_.trigger();
     }
@@ -302,9 +308,8 @@ BinID RandomTrackDisplay::getKnotPos( int knotidx ) const
 
 BinID RandomTrackDisplay::getManipKnotPos( int knotidx ) const
 {
-    return getKnotPos( knotidx ); // temporary dummy
-//    const Coord crd = dragger_->getKnot( knotidx );
-//    return BinID( mNINT32(crd.x), mNINT32(crd.y) );
+    const Coord crd = dragger_->getKnot( knotidx );
+    return BinID( mNINT32(crd.x), mNINT32(crd.y) );
 }
 
 
@@ -326,8 +331,8 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
     if ( !check || checkPosition(sbid) )
     {
 	knots_[knotidx] = sbid;
+	dragger_->setKnot( knotidx, Coord(sbid.inl(),sbid.crl()) );
 	updatePanelStripPath();
-//	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	moving_.trigger();
     }
 }
@@ -378,7 +383,7 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	while ( nrKnots()>0 )
 	{
 	    knots_.removeSingle( 0 );
-//	    dragger_->removeKnot( 0 );
+	    dragger_->removeKnot( 0 );
 	}
 
 	for ( int idx=0; idx<uniquebids.size(); idx++ )
@@ -387,7 +392,8 @@ bool RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 	    if ( checkPosition(sbid) )
 	    {
 		knots_ += sbid;
-//		dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
+		dragger_->insertKnot( knots_.size()-1,
+				      Coord(sbid.inl(), sbid.crl()) );
 	    }
 	}
 
@@ -419,15 +425,15 @@ void RandomTrackDisplay::removeKnot( int knotidx )
     }
 
     knots_.removeSingle(knotidx);
+    dragger_->removeKnot( knotidx );
     updatePanelStripPath();
-//    dragger_->removeKnot( knotidx );
 }
 
 
 void RandomTrackDisplay::removeAllKnots()
 {
-//    for ( int idx=0; idx<knots_.size(); idx++ )
-//	dragger_->removeKnot( idx );
+    for ( int idx=0; idx<knots_.size(); idx++ )
+	dragger_->removeKnot( idx );
 
     knots_.erase();
     updatePanelStripPath();
@@ -595,7 +601,7 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
     {
 	const Interval<float>& depthrg = datatransform_->getZInterval(false);
 	setPanelStripZRange( depthrg );
-//	dragger_->setDepthRange( depthrg );
+	dragger_->setDepthRange( depthrg );
 
 	moving_.trigger();
     }
@@ -726,7 +732,7 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 
 void RandomTrackDisplay::updatePanelStripPath()
 {
-    if ( knots_.size()<2 )
+    if ( knots_.size()<2 || getUpdateStageNr() )
 	return;
 
     TypeSet<BinID> trcbids;
@@ -756,11 +762,6 @@ void RandomTrackDisplay::updatePanelStripPath()
 
     panelstrip_->setPath( pathcrds );
     panelstrip_->setPath2TextureMapping( mapping );
-
-    if ( getUpdateStageNr() )
-    {
-	// TODO: panelstrip_->setPathTextureShift( );
-    }
 }
 
 
@@ -773,14 +774,34 @@ void RandomTrackDisplay::setPanelStripZRange( const Interval<float>& rg )
 
     if ( getUpdateStageNr() )
     {
-	// TODO: panelstrip_->setZTextureShift(  );
+	const float factor = (resolution_+1) / zrg.step;
+	panelstrip_->setZTextureShift( (oldzrgstart_-zrg.start)*factor );
     }
 }
 
 
 void RandomTrackDisplay::annotateNextUpdateStage( bool yn )
 {
-    // TODO: Analog to Seis2DDisplay::annotateNextUpdateStage(yn)
+    if ( !yn )
+    {
+	panelstrip_->setZTextureShift( 0.0 );
+	SurveyObject::annotateNextUpdateStage( false );
+	updatePanelStripPath();
+	panelstrip_->freezeDisplay( false );
+
+	for ( int idx=0; idx<nrKnots(); idx++ )
+	    dragger_->showAdjacentPanels( idx, false );
+    }
+    else
+    {
+	if ( !getUpdateStageNr() )
+	    oldzrgstart_ = getDepthInterval().start;
+	else
+	    panelstrip_->freezeDisplay( false );	// thaw to refreeze
+
+	SurveyObject::annotateNextUpdateStage( true );
+	panelstrip_->freezeDisplay( true );
+    }
 }
 
 
@@ -802,11 +823,12 @@ void RandomTrackDisplay::addKnot( int knotnr )
 
     if ( !canAddKnot(knotnr) ) return;
 
+    ismanip_ = true;
+
     const BinID newpos = proposeNewPos(knotnr);
-    if ( knotnr==nrKnots() )
-	addKnot( newpos );
-    else
-	insertKnot( knotnr, newpos );
+    insertKnot( knotnr, newpos );
+    if ( knotnr!=0 && knotnr!=nrKnots()-1 )
+	dragger_->showAdjacentPanels( knotnr, false );
 }
 
 
@@ -844,42 +866,43 @@ bool RandomTrackDisplay::isManipulated() const
 
 void RandomTrackDisplay::acceptManipulation()
 {
-/*
     if ( !datatransform_ )
 	setDepthInterval( dragger_->getDepthRange() );
     else
     {
-	triangles_->setDepthRange( dragger_->getDepthRange() );
 	setPanelStripZRange( dragger_->getDepthRange() );
 	moving_.trigger();
     }
 
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
-	const Coord crd;
 	const Coord crd = dragger_->getKnot(idx);
 	setKnotPos( idx, BinID( mNINT32(crd.x), mNINT32(crd.y) ));
+	if ( !getUpdateStageNr() )
+	    dragger_->showAdjacentPanels( idx, false );
     }
-*/
 
+    updatePanelStripPath();
+    dragger_->showAllPanels( false );
     ismanip_ = false;
 }
 
 
 void RandomTrackDisplay::resetManipulation()
 {
-/*
     if ( !datatransform_ )
 	dragger_->setDepthRange( getDepthInterval() );
 
     for ( int idx=0; idx<nrKnots(); idx++ )
     {
 	const BinID bid = getKnotPos(idx);
-	dragger_->setKnot(idx, Coord(bid.inl,bid.crl));
+	dragger_->setKnot(idx, Coord(bid.inl(),bid.crl()));
+	dragger_->showAdjacentPanels( idx, false );
     }
-*/
+
+    dragger_->showAllPanels( false );
     ismanip_ = false;
-//    dragger_->turnOn( false );
+    dragger_->turnOn( false );
 }
 
 
@@ -888,13 +911,12 @@ void RandomTrackDisplay::showManipulator( bool yn )
     if ( polylinemode_ ) return;
 
     if ( lockgeometry_ ) yn = false;
-//    if ( !yn ) dragger_->showFeedback( false );
-//    dragger_->turnOn( yn );
+    dragger_->turnOn( yn );
 }
 
 
 bool RandomTrackDisplay::isManipulatorShown() const
-{ return false; /* track->isDraggerShown();*/ }
+{ return dragger_->isOn(); }
 
 
 BufferString RandomTrackDisplay::getManipulationString() const
@@ -903,7 +925,7 @@ BufferString RandomTrackDisplay::getManipulationString() const
     int knotidx = getSelKnotIdx();
     if ( knotidx >= 0 )
     {
-	BinID binid  = getManipKnotPos( knotidx );
+	BinID binid = getManipKnotPos( knotidx );
 	str = "Node "; str += knotidx;
 	str += " Inl/Crl: ";
 	str += binid.inl(); str += "/"; str += binid.crl();
@@ -917,8 +939,13 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
 {
     ismanip_ = true;
     mCBCapsuleUnpack(int,sel,cb);
-
     selknotidx_ = sel;
+
+    const Coord crd = dragger_->getKnot( sel );
+    dragger_->showAdjacentPanels( sel,
+		getKnotPos(sel)!=BinID(mNINT32(crd.x),mNINT32(crd.y)) );
+    dragger_->showAllPanels( getDepthInterval()!=dragger_->getDepthRange());
+
     knotmoving_.trigger();
 }
 
@@ -1224,6 +1251,9 @@ void RandomTrackDisplay::emptyCache( int attrib )
     for ( int idy=dpids.size()-1; idy>=0; idy-- )
 	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
     dispdatapackids_[attrib]->setAll( DataPack::cNoID() );
+
+    channels_->setNrVersions( attrib, 1 );
+    channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, 0 );
 }
 
 
@@ -1307,7 +1337,7 @@ void RandomTrackDisplay::setPolyLineMode( bool mode )
     polyline_->turnOn( polylinemode_ );
     markerset_->turnOn( polylinemode_ );
     panelstrip_->turnOn( !polylinemode_ );
-//    dragger_->turnOn( false );
+    dragger_->turnOn( false );
 }
 
 

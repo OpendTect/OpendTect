@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <osg/Switch>
 #include <osgGeo/Draggers>
+#include <osg/Material>
 #include <osg/MatrixTransform>
 #include <osg/AutoTransform>
 #include <osg/ShapeDrawable>
@@ -41,6 +42,8 @@ public:
 
 protected:
 
+    void		constrain();
+
     DraggerBase&	dragger_;
     osg::Matrix		startmatrix_;
 };
@@ -50,14 +53,13 @@ protected:
 bool DraggerCallbackHandler::receive( const osgManipulator::MotionCommand& cmd )
 {
     if ( cmd.getStage()==osgManipulator::MotionCommand::START )
-	startmatrix_ = dragger_.osgdragger_->getMatrix();
-
-    if ( cmd.getStage()==osgManipulator::MotionCommand::START )
     {
+	startmatrix_ = dragger_.osgdragger_->getMatrix();
 	dragger_.notifyStart();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::MOVE )
     {
+	constrain();
 	dragger_.notifyMove();
     }
     else if ( cmd.getStage()==osgManipulator::MotionCommand::FINISH )
@@ -68,6 +70,33 @@ bool DraggerCallbackHandler::receive( const osgManipulator::MotionCommand& cmd )
     }
 
     return true;
+}
+
+
+void DraggerCallbackHandler::constrain()
+{
+    Coord3 pos;
+    osg::Vec3d osgpos = dragger_.osgdragger_->getMatrix().getTrans();
+    mVisTrans::transformBack( dragger_.displaytrans_, osgpos, pos );
+
+    for ( int dim=0; dim<3; dim++ )
+    {
+	if ( !mIsUdf(dragger_.spaceranges_[dim].start) &&
+	     dragger_.spaceranges_[dim].start>pos[dim] )
+	{
+	    pos[dim] = dragger_.spaceranges_[dim].start;
+	}
+	if ( !mIsUdf(dragger_.spaceranges_[dim].stop) &&
+	     dragger_.spaceranges_[dim].stop<pos[dim] )
+	{
+	    pos[dim] = dragger_.spaceranges_[dim].stop;
+	}
+    }
+
+    mVisTrans::transform( dragger_.displaytrans_, pos, osgpos );
+    osg::Matrix mat = dragger_.osgdragger_->getMatrix();
+    mat.setTrans( osgpos );
+    dragger_.osgdragger_->setMatrix( mat );
 }
 
 
@@ -83,6 +112,9 @@ DraggerBase::DraggerBase()
 {
     setOsgNode( osgroot_ );
     setPickable( true );
+
+    for ( int dim=0; dim<3; dim++ )
+	spaceranges_[dim] = Interval<float>::udf();
 }
 
 
@@ -153,6 +185,14 @@ const mVisTrans* DraggerBase::getDisplayTransformation() const
 }
 
 
+void DraggerBase::setSpaceLimits( const Interval<float>& x,
+				  const Interval<float>& y,
+				  const Interval<float>& z )
+{
+    spaceranges_[0] = x; spaceranges_[1] = y; spaceranges_[2] = z;
+}
+
+
 Dragger::Dragger()
     : rightclicknotifier_(this)
     , rightclickeventinfo_( 0 )
@@ -162,6 +202,7 @@ Dragger::Dragger()
     , defaultdraggergeomsize_( 0.025 )
     , rotation_( 0, 0, 0 )
     , rotangle_( 0.0 )
+    , arrowcolor_( Color(255,255,0) )
 {
     setDefaultRotation();
     turnOn( true );
@@ -215,8 +256,8 @@ void Dragger::notifyStart()
 
 void Dragger::notifyStop()
 {
-    updateDragger( true );
     finished.trigger();
+    updateDragger( true );
 }
 
 
@@ -236,16 +277,14 @@ void Dragger::setOwnShape( DataObject* newshape, bool activeshape )
 
 void Dragger::updateDragger( bool ismarkershape )
 {
-
     ismarkershape_ = ismarkershape;
     osgdragger_->removeChildren( 0 , osgdragger_->getNumChildren() );
 
-    if ( ismarkershape )
+    if ( ismarkershape && inactiveshape_ )
 	osgdragger_->addChild( inactiveshape_->osgNode() );
     else
 	osgdragger_->addChild( createDefaultDraggerGeometry() );
     setScaleAndTranslation();
-
 }
 
 
@@ -293,7 +332,7 @@ void Dragger::setPos( const Coord3& pos )
 }
 
 
-void Dragger::setScaleAndTranslation( bool move)
+void Dragger::setScaleAndTranslation( bool move )
 {
     const float scale = ismarkershape_ ? 1.0f : draggersizescale_;
 
@@ -307,7 +346,6 @@ void Dragger::setScaleAndTranslation( bool move)
 	osg::Matrix::rotate( osg::Quat( rotangle_,
 				Conv::to<osg::Vec3>( rotation_ ) ) )*
 	osg::Matrix::translate( Conv::to<osg::Vec3>( trans ) ) );
-
 }
 
 
@@ -331,8 +369,6 @@ osg::MatrixTransform* Dragger::createDefaultDraggerGeometry()
 
 osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 {
-    const osg::Vec4 arrowcolor ( 1.0f, 1.0f, 0.0f, 1.0f );
-
     // Create a line.
     osg::ref_ptr<osg::Geode> linegeode = new osg::Geode;
     {
@@ -340,14 +376,19 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 	osg::ref_ptr<osg::Vec3Array> vertices = new osg::Vec3Array( 2 );
 	(*vertices)[0] = osg::Vec3( 0.0f,0.0f,-0.5f );
 	(*vertices)[1] = osg::Vec3( 0.0f,0.0f,0.5f );
-
 	geometry->setVertexArray( vertices );
+
+	osg::ref_ptr<osg::Vec4Array> colors = new osg::Vec4Array;
+	colors->push_back( Conv::to<osg::Vec4>(arrowcolor_) );
+	geometry->setColorArray( colors );
+	geometry->setColorBinding( osg::Geometry::BIND_OVERALL );
+
 	geometry->addPrimitiveSet(
 	    new osg::DrawArrays(osg::PrimitiveSet::LINES,0,2) );
 	linegeode->addDrawable( geometry );
     }
 
-    // Turn of lighting for line and set line width.
+    // Turn off lighting for line and set line width.
     osg::LineWidth* linewidth = new osg::LineWidth();
     linewidth->setWidth(4.0f);
     linegeode->getOrCreateStateSet()->setAttributeAndModes(
@@ -356,6 +397,10 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 	GL_LIGHTING,osg::StateAttribute::OFF);
 
     osg::ref_ptr<osg::Geode> geode = new osg::Geode;
+    osg::ref_ptr<osg::Material> material = new osg::Material;
+    material->setDiffuse( osg::Material::FRONT_AND_BACK,
+			  Conv::to<osg::Vec4>(arrowcolor_) );
+    geode->getOrCreateStateSet()->setAttribute( material );
 
     // Create left cone.
     {
@@ -368,7 +413,6 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 	osg::TessellationHints* hint = new osg::TessellationHints;
 	hint->setDetailRatio( 0.8 );
 	conedrawble->setTessellationHints( hint );
-	conedrawble->setColor( arrowcolor );
 	geode->addDrawable( conedrawble ) ;
     }
 
@@ -380,7 +424,6 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 	osg::TessellationHints* hint = new osg::TessellationHints;
 	hint->setDetailRatio( 0.8 );
 	conedrawble->setTessellationHints( hint );
-	conedrawble->setColor( arrowcolor );
 	geode->addDrawable( conedrawble ) ;
     }
 
@@ -408,6 +451,7 @@ osg::MatrixTransform* Dragger::createTranslateDefaultGeometry()
 	osg::Quat rotation; rotation.makeRotate(
 	    osg::Vec3( 1.0f, 0.0f, 0.0f ), osg::Vec3( 0.0f, 0.0f, 1.0f ) );
 	arrow->setMatrix( osg::Matrix( rotation ) );
+
 	xform->addChild( arrow );
     }
 
@@ -443,8 +487,15 @@ void Dragger::setDisplayTransformation( const mVisTrans* nt )
     Coord3 crd = getPos();
     visBase::DraggerBase::setDisplayTransformation( nt );
     setPos( crd );
-
 }
+
+
+void Dragger::setArrowColor( const Color& color )
+{ arrowcolor_ = color; }
+
+
+const Color& Dragger::getArrowColor() const
+{ return arrowcolor_; }
 
 
 }; // namespace visBase
