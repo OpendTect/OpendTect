@@ -114,8 +114,13 @@ if(WIN32)
     set ( OD_SET_TARGET_PROPERTIES 1 )
 
     set ( OD_LIB_LINKER_NEEDS_ALL_LIBS 1)
-    set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE /debug" ) #/debug will enable the generation of pdb-files.
     
+    set ( OD_PLATFORM_LINK_OPTIONS "/LARGEADDRESSAWARE" )
+    if ( CTEST_MODEL STREQUAL "Experimental" )
+        set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
+        #/debug will enable the generation of pdb-files.
+    endif()
+
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
     set ( CMAKE_CXX_FLAGS "/vmg /Zc:wchar_t- /EHsc ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_CXX_FLAGS "/MP ${CMAKE_CXX_FLAGS}" )
