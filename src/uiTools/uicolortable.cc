@@ -626,7 +626,7 @@ uiColorTableToolBar::uiColorTableToolBar( uiParent* p,
 void uiColorTableToolBar::init()
 {
     mDynamicCastGet(uiToolBar*,tb,this)
-    createFields( tb, false, true );
+    createFields( (uiToolBar::parent_ ? uiToolBar::parent_ : tb), false, true );
 
 #define mAddTBObj( fld, sz ) \
     fld->setMaximumWidth( sz*uiObject::iconSize() ); \

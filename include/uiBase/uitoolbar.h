@@ -123,6 +123,8 @@ protected:
 
     uiString			label_;
     int				getButtonID(mQtclass(QAction*));
+
+    uiParent*			parent_;
     
 public:
     			//!CmdDriver functionality, not for casual use
