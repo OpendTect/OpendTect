@@ -87,6 +87,8 @@ public:
 
     void		setAutoRotateMode(AutoRotateMode);
 
+    void		setMarkerRotation(const Coord3&,const float);
+
     void		doFaceCamera(bool yn);
     			/*!<If true, the maker will always be rotated so the
 			    same part of the marker always faces the camera. */
@@ -127,6 +129,9 @@ protected:
     MarkerStyle3D		markerstyle_;
 
     float			pixeldensity_;
+
+    float			rotationangle_;
+    Coord3			rotationvec_;
 
     //void		setArrowDir(const ::Sphere&);
 };

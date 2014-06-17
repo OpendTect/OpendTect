@@ -36,6 +36,8 @@ MarkerSet::MarkerSet()
     , displaytrans_( 0 )
     , coords_( Coordinates::create() )
     , pixeldensity_( getDefaultPixelDensity() )
+    , rotationvec_( 1.0, 0.0, 0.0 )
+    , rotationangle_( mUdf(float) )
 {
     markerset_->ref();
     addChild( markerset_ );
@@ -265,12 +267,22 @@ float MarkerSet::getMinimumScale() const
 void MarkerSet::setAutoRotateMode( AutoRotateMode rotatemode )
 {
     markerset_->setRotateMode( (osg::AutoTransform::AutoRotateMode)rotatemode );
+    setMarkerRotation( rotationvec_, rotationangle_ );
+}
+
+
+void MarkerSet::setMarkerRotation( const Coord3& vec, float angle )
+{
+    rotationvec_ = vec;
+    rotationangle_ = angle;
+
     osg::Quat quat;
-    if ( rotatemode != NO_ROTATION )
+    if ( !mIsUdf(angle) )
+	quat.makeRotate( angle, Conv::to<osg::Vec3>(vec) );
+    else if ( markerset_->getRotateMode() != osg::AutoTransform::NO_ROTATION )
 	quat.makeRotate( M_PI_2, osg::Vec3(-1.0,0.0,0.0) );
 
     markerset_->setMarkerRotation( quat );
-
 }
 
 

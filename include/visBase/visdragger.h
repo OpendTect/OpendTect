@@ -45,6 +45,9 @@ public:
     virtual void		setDisplayTransformation( const mVisTrans* );
     const mVisTrans*		getDisplayTransformation() const;
 
+    void			setSpaceLimits(const Interval<float>& x,
+					       const Interval<float>& y,
+					       const Interval<float>& z);
 protected:
     friend			class DraggerCallbackHandler;
 				DraggerBase();
@@ -59,6 +62,8 @@ protected:
     osg::Group*			osgroot_;
 
     void			initDragger(osgManipulator::Dragger*);
+
+    Interval<float>		spaceranges_[3];
 
 private:
     DraggerCallbackHandler*	cbhandler_;
@@ -83,6 +88,9 @@ public:
     void			setSize(const float);
     float			getSize() const;
 
+    void			setArrowColor(const Color&);
+    const Color&		getArrowColor() const;
+
     void			setRotation(const Coord3&, const float);
     void			setDefaultRotation();
 
@@ -94,7 +102,7 @@ public:
     const TypeSet<int>*		rightClickedPath() const;
     const EventInfo*		rightClickedEventInfo() const;
     void			updateDragger( bool active );
-    void			setDisplayTransformation( const mVisTrans* );
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
     				~Dragger();
@@ -120,6 +128,7 @@ protected:
     Coord3			rotation_;
     float			rotangle_;
 
+    Color			arrowcolor_;
 };
 
 } // namespace visBase
