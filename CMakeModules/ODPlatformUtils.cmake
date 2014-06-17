@@ -119,6 +119,7 @@ if(WIN32)
     if ( CTEST_MODEL STREQUAL "Experimental" )
         set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
         #/debug will enable the generation of pdb-files.
+	set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
     endif()
 
     set (OD_EXTRA_COINFLAGS " /DCOIN_DLL /DSIMVOLEON_DLL /DSOQT_DLL /wd4244" )
@@ -130,7 +131,6 @@ if(WIN32)
     set ( CMAKE_C_FLAGS   "\"-DmUnusedVar=\" ${CMAKE_C_FLAGS}")
     set ( CMAKE_C_FLAGS   "\"-DmUsedVar=\" ${CMAKE_C_FLAGS}")
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
-    set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
 
     set ( CMAKE_CXX_FLAGS  "/wd4389 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed mismatch
     set ( CMAKE_CXX_FLAGS  "/wd4018 ${CMAKE_CXX_FLAGS}" ) # unsigned/signed compare
