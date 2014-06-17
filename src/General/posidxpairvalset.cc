@@ -140,7 +140,7 @@ void Pos::IdxPairValueSet::randomSubselect( od_int64 maxsz )
     const od_int64 orgsz = totalSize();
     if ( orgsz <= maxsz )
 	return;
-    if ( maxsz == 0 )
+    if ( maxsz < 1 )
 	{ setEmpty(); return; }
 
     mGetIdxArr( od_int64, idxs, orgsz );

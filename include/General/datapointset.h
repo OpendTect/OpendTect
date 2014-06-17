@@ -220,8 +220,12 @@ public:
     RowID		getRowID(BinIDValueSet::SPos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
     BinIDValueSet::SPos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
+
+    			// Building from scratch
     			DataPointSet(bool is2d,bool minimal=false);
-			//!< use dataSet() to add columns
+    void		addCol(const char* nm,const char* ref=0,
+	    			const UnitOfMeasure* un=0);
+			//!< or use dataSet() to add columns
 
     // DataPack interface impl
     bool		simpleCoords() const		{ return minimal_; }

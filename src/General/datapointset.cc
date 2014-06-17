@@ -359,6 +359,21 @@ void DataPointSet::clearData()
 }
 
 
+void DataPointSet::addCol( const char* nm, const char* ref,
+				const UnitOfMeasure* un )
+{
+    const int idxof = dataSet().findColDef( nm, PosVecDataSet::NameExact );
+    if ( idxof < 0 )
+	dataSet().add( new DataColDef(nm,ref,un) );
+    else
+    {
+	dataSet().colDef( idxof ).ref_ = ref;
+	dataSet().colDef( idxof ).unit_ = un;
+    }
+
+}
+
+
 #define mChkColID(cid,ret) if ( cid >= nrCols() ) return ret
 #define mChkRowID(rid,ret) if ( rid >= size() ) return ret
 
