@@ -51,6 +51,8 @@ public:
 				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 
+    uiParent*		parent()			{ return parent_; }
+
     int 		addButton(const uiToolButtonSetup&);
     int 		addButton(const char* fnm,const uiString& tooltip,
 	    			  const CallBack& =CallBack(),
