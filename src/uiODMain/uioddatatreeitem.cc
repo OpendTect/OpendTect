@@ -334,6 +334,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	moveItemToTop();
 	select();
 	menu->setIsHandled( true );
+	applMgr()->updateColorTable( displayID(), attribNr() );
     }
     else if ( mnuid==movetobottommnuitem_.id )
     {
@@ -343,6 +344,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	moveItem( parent_->lastChild() );
 	select();
 	menu->setIsHandled( true );
+	applMgr()->updateColorTable( displayID(), attribNr() );
     }
     else if ( mnuid==moveupmnuitem_.id )
     {
@@ -356,6 +358,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	moveItem( siblingAbove() );
 	select();
 	menu->setIsHandled(true);
+	applMgr()->updateColorTable( displayID(), attribNr() );
     }
     else if ( mnuid==movedownmnuitem_.id )
     {
@@ -369,6 +372,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	moveItem( siblingBelow() );
 	select();
 	menu->setIsHandled( true );
+	applMgr()->updateColorTable( displayID(), attribNr() );
     }
     else if ( mnuid==changetransparencyitem_.id )
     {
