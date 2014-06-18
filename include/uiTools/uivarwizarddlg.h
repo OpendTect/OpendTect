@@ -22,14 +22,13 @@ mExpClass(uiTools) uiVarWizardDlg : public uiDialog
 {
 public:
 
-    enum Position	{ Start, Middle, End };
+    enum Position	{ Start, Middle, End, DoWork };
+			// End and DoWork are the same (end-)position, but
+			// one says 'Finish', the other 'Go'.
 
-    			uiVarWizardDlg(uiParent*,const uiDialog::Setup&,IOPar&,
+			uiVarWizardDlg(uiParent*,const uiDialog::Setup&,IOPar&,
 					Position);
 			~uiVarWizardDlg();
-
-    static const char*	sProceedButTxt();
-    static const char*	sBackButTxt();
 
 protected:
 

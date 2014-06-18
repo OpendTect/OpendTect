@@ -225,6 +225,7 @@ void uiSeisBayesClass::getInpPDFs()
 void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 {
     mHandleVWCancel(inppdfdlg_,cCancelled())
+    inppdfdlg_ = 0;
     mSetState( mGetNorm );
 }
 
@@ -396,6 +397,7 @@ void uiSeisBayesClass::getNorm()
 void uiSeisBayesClass::normGot( CallBacker* )
 {
     mHandleVWCancel(normdlg_,mInpPDFs)
+    normdlg_ = 0;
     mSetState( mInpSeis );
 }
 
@@ -486,6 +488,7 @@ void uiSeisBayesClass::getInpSeis()
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
     mHandleVWCancel(inpseisdlg_,mGetNorm)
+    inpseisdlg_ = 0;
     mSetState( mOutput );
 }
 
@@ -497,7 +500,7 @@ public:
 uiSeisBayesOut( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
 		    "[4] Select and specify output",
-                    mODHelpKey(mSeisBayesOutHelpID) ), pars,End)
+		    mODHelpKey(mSeisBayesOutHelpID) ), pars,DoWork)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {
@@ -630,6 +633,7 @@ void uiSeisBayesClass::outputDone( CallBacker* )
     uiTaskRunner tr( outdlg_ );
     const bool isok = TaskRunner::execute( &tr, exec );
 
+    outdlg_ = 0;
     mSetState( isok ? cFinished() : mOutput );
 }
 

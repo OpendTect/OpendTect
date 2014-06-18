@@ -92,7 +92,7 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 <p id="text">The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
 <h3 id="heading3">Qt</h3>
-<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependend on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. </p>
+<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. </p>
 
 
 <h3 id="heading3">OpenSceneGraph</h3>

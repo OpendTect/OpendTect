@@ -359,6 +359,21 @@ void DataPointSet::clearData()
 }
 
 
+void DataPointSet::addCol( const char* nm, const char* ref,
+				const UnitOfMeasure* un )
+{
+    const int idxof = dataSet().findColDef( nm, PosVecDataSet::NameExact );
+    if ( idxof < 0 )
+	dataSet().add( new DataColDef(nm,ref,un) );
+    else
+    {
+	dataSet().colDef( idxof ).ref_ = ref;
+	dataSet().colDef( idxof ).unit_ = un;
+    }
+
+}
+
+
 #define mChkColID(cid,ret) if ( cid >= nrCols() ) return ret
 #define mChkRowID(rid,ret) if ( rid >= size() ) return ret
 
@@ -397,6 +412,13 @@ DataPointSet::ColID DataPointSet::indexOf( const char* nmstr ) const
     }
     return -1;
 }
+
+
+bool DataPointSet::validColID( ColID cid ) const
+{
+    return cid >= 0 && cid < nrCols();
+}
+
 
 
 BinIDValueSet& DataPointSet::bivSet()
@@ -583,7 +605,8 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 float DataPointSet::nrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
-    const float rowsz = sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
+    const float rowsz = sKb2MbFac()
+		* (twointsz + bivSet().nrVals()*sizeof(float));
     const int nrrows = mCast( int, bivSet().totalSize() );
     return nrrows * (rowsz + twointsz);
 }

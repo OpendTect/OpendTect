@@ -31,8 +31,8 @@ uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
 
 uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 			const uiSEGYReadDlg::Setup& su, IOPar& iop,
-       			bool forsurvsetup )
-    : uiVarWizardDlg(p,su,iop,End)
+			bool forsurvsetup )
+    : uiVarWizardDlg(p,su,iop,DoWork)
     , setup_(su)
     , optsgrp_(0)
     , optsfld_(0)

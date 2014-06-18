@@ -34,6 +34,7 @@ public:
     static inline uiString sEmptyString()	{ return uiString(""); }
     static inline uiString sError()		{ return tr("Error"); }
     static inline uiString sExport()		{ return tr("&Export"); }
+    static inline uiString sFinish()		{ return tr("&Finish"); }
     static inline uiString sHelp()		{ return tr("&Help"); }
     static inline uiString sImport()		{ return tr("&Import"); }
     static inline uiString sLoad()		{ return tr("&Load ..."); }
