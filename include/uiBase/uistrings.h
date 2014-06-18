@@ -86,6 +86,7 @@ public:
     static uiString sFaults()		{ return tr("F&aults"); }
     static uiString sFaultSticks()	{ return tr("F&aulStickSets"); }
     static uiString sFile()	        { return tr("&File"); }
+    static uiString sFinish()	        { return tr("&Finish"); }
     static uiString sFilter()	        { return tr("&Filter"); }
     static uiString sFKSpectrum()	{ return tr("FK &Spectrum"); }
     static uiString sGeometry2D()	{ return tr("&Geometry2D"); }

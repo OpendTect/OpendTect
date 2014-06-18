@@ -99,7 +99,8 @@ class uiSeisBayesPDFInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,"[1] Specify PDF input",
+    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- PDFs"),
+				"[1] Specify PDF input",
 				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
                                  pars,Start)
     , nrdisp_(1)
@@ -225,6 +226,7 @@ void uiSeisBayesClass::getInpPDFs()
 void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 {
     mHandleVWCancel(inppdfdlg_,cCancelled())
+    inppdfdlg_ = 0;
     mSetState( mGetNorm );
 }
 
@@ -237,9 +239,9 @@ class uiSeisBayesNorm : public uiVarWizardDlg
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
+    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Scaling"),
 			"[2] Normalization/Scaling",
-			 mODHelpKey(mSeisBayesNormHelpID) ), pars,Middle)
+			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
     , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)
     , nrpdfs_(0)
@@ -396,6 +398,7 @@ void uiSeisBayesClass::getNorm()
 void uiSeisBayesClass::normGot( CallBacker* )
 {
     mHandleVWCancel(normdlg_,mInpPDFs)
+    normdlg_ = 0;
     mSetState( mInpSeis );
 }
 
@@ -405,7 +408,7 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
+    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Seismics"),
 			tr("[3] Specify Seismic input"),
 			 mODHelpKey(mSeisBayesSeisInpHelpID) ), pars,Middle)
     , lsfld_(0)
@@ -486,6 +489,7 @@ void uiSeisBayesClass::getInpSeis()
 void uiSeisBayesClass::inpSeisGot( CallBacker* )
 {
     mHandleVWCancel(inpseisdlg_,mGetNorm)
+    inpseisdlg_ = 0;
     mSetState( mOutput );
 }
 
@@ -495,9 +499,9 @@ class uiSeisBayesOut : public uiVarWizardDlg
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(sKeyBayesClss,
+    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Output"),
 		    tr("[4] Select and specify output"),
-                    mODHelpKey(mSeisBayesOutHelpID) ), pars,End)
+                    mODHelpKey(mSeisBayesOutHelpID) ), pars,DoWork)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {
@@ -630,6 +634,7 @@ void uiSeisBayesClass::outputDone( CallBacker* )
     uiTaskRunner taskrunner( outdlg_ );
     const bool isok = TaskRunner::execute( &taskrunner, exec );
 
+    outdlg_ = 0;
     mSetState( isok ? cFinished() : mOutput );
 }
 

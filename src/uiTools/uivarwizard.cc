@@ -56,9 +56,12 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     : uiDialog(p,uiDialog::Setup(su).modal(false).okcancelrev(true))
     , pars_(pars)
     , pos_(pos)
+    , leave_(false)
 {
     if ( pos_ == End )
-	setOkText( uiStrings::sRun() );
+	setOkText( uiStrings::sFinish() );
+    else if ( pos_ == DoWork )
+	setOkText( uiStrings::sGo() );
     else
 	setOkText( uiStrings::sNext() );
 
