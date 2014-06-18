@@ -509,7 +509,9 @@ void uiColorTable::enableTransparencyEdit( bool yn )
 
 void uiColorTable::doManage( CallBacker* )
 {
-    uiColorTableMan coltabman( parent_, coltabseq_, enabletrans_ );
+    mDynamicCastGet( uiToolBar*, toolbar, parent_ );
+    uiParent* dlgparent = toolbar ? toolbar->parent() : parent_;
+    uiColorTableMan coltabman( dlgparent, coltabseq_, enabletrans_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
     coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
     coltabman.setHistogram( histogram_ );

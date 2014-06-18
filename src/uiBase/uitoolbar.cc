@@ -45,6 +45,7 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
     : uiParent(nm,0)
+    , parent_(parnt)
     , tbarea_(tba)
     , buttonClicked(this)
     , toolbarmenuaction_(0)
