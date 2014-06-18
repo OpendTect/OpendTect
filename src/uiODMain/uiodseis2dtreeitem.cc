@@ -1069,7 +1069,9 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 
     if ( dpid < 0 )
 	return;
+
     s2d->setDataPackID( attribnr, dpid, 0 );
+    s2d->showPanel( true );
 }
 
 
