@@ -377,13 +377,11 @@ bool parseExp( CallBacker* cb )
 
     BufferString& mathexpr = isy1 ? mathexprstring_ : mathexprstring1_;
     mathexpr = isy1 ? inpfld_->text() : inpfld1_->text();
+    if ( mathexpr.isEmpty() ) return false;
     isy1 ? plotter_.y1rmserr_.setEmpty() : plotter_.y2rmserr_.setEmpty();;
     Math::ExpressionParser mep( mathexpr );
     Math::Expression*& mathobj = isy1 ? mathobj_ : mathobj1_;
-    delete mathobj; mathobj = 0;
-    if ( mathexpr.isEmpty() )
-	return false;
-    mathobj = mep.parse();
+    delete mathobj; mathobj = mep.parse();
     uiCheckBox* chkbox = isy1 ? shwy1userdefpolyline_ : shwy2userdefpolyline_;
 
     if ( !mathobj )
