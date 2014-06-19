@@ -639,7 +639,6 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did,
 
 FlatRdmTrcsDataPack::~FlatRdmTrcsDataPack()
 {
-    delete arr2d_;
     if ( seisbuf_ ) seisbuf_->erase();
     delete path_;
 }
