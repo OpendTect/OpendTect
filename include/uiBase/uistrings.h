@@ -173,7 +173,7 @@ public:
     static uiString sStop()		{ return tr("St&op"); }
     static uiString sStored()		{ return tr("St&ored"); }
     static uiString sStratigraphy()	{ return tr("St&ratigraphy"); }
-    static uiString sSurvey()		{ return tr("Survey setup"); }
+    static uiString sSurvey()		{ return tr("Survey"); }
     static uiString sTile()		{ return tr("&Tile"); }
     static uiString sTime()		{ return tr("&Time"); }
     static uiString sToBottom()		{ return tr("&To bottom"); }
