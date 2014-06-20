@@ -141,6 +141,16 @@ void uiMathFormula::setNonSpecInputs( const BufferStringSet& inps, int ivar )
 }
 
 
+void uiMathFormula::setNonSpecSubInputs( const BufferStringSet& inps, int ivar )
+{
+    for ( int idx=0; idx<inpflds_.size(); idx++ )
+    {
+	if ( ivar < 0 || ivar == idx )
+	    inpflds_[idx]->setNonSpecSubInputs( inps );
+    }
+}
+
+
 void uiMathFormula::addInpViewIcon( const char* icnm, const char* tooltip,
 					const CallBack& cb )
 {
