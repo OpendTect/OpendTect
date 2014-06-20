@@ -41,6 +41,7 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		formSel(CallBacker*);
+    void		inpSel(CallBacker*);
     void		rockPhysReq(CallBacker*);
 
     Math::Formula&	form_;

@@ -17,6 +17,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "ioman.h"
+#include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
@@ -42,10 +44,11 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     BufferStringSet inpnms_;
     asd.attrSet().fillInUIInputList( inpnms_ );
     uiMathFormula::Setup mfsu( "Formula (like 'nearstk + c0 * farstk')" );
-    mfsu.withunits( false ).maxnrinps( 8 )
+    mfsu.withunits( false ).maxnrinps( 8 ).withsubinps(true)
 	.stortype( "Attribute calculation" );
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->formSet.notify( mCB(this,uiMathAttrib,formSel) );
+    formfld_->inpSet.notify( mCB(this,uiMathAttrib,inpSel) );
     formfld_->setNonSpecInputs( inpnms_ );
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Use rockphysics formula",
@@ -72,6 +75,35 @@ void uiMathAttrib::formSel( CallBacker* )
     BufferStringSet inpnms_;
     ads_->fillInUIInputList( inpnms_ );
     formfld_->setNonSpecInputs( inpnms_ );
+}
+
+
+void uiMathAttrib::inpSel( CallBacker* cb )
+{
+    if ( !ads_ ) return;	//?
+
+    int inpidx = formfld_->inpSelNotifNr();
+    if ( inpidx<0 || inpidx>=formfld_->nrInpFlds() )
+	return;
+
+    Desc* inpdesc = ads_->getDescFromUIListEntry(
+				    formfld_->inpFld(inpidx)->getInput() );
+    if ( !inpdesc || !inpdesc->isStored() )
+	return;
+
+    MultiID mid = inpdesc->getStoredID( false ).buf();
+    IOObj* inpobj = IOM().get( mid );
+    if ( !inpobj ) return;
+
+    SeisIOObjInfo seisinfo( inpobj );
+    if ( seisinfo.nrComponents() > 1 )
+    {
+	BufferStringSet nms;
+	seisinfo.getComponentNames( nms );
+	nms.insertAt( new BufferString("ALL"), 0 );
+	formfld_->setNonSpecSubInputs( nms, inpidx );
+    }
+
 }
 
 
@@ -126,7 +158,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	{
 	    const double val = recvalsstr.getDValue( idx );
 	    form_.recStartVals()[idx] = mIsUdf(val) ? 0 : val;
-    }
+	}
     }
 
     return true;
