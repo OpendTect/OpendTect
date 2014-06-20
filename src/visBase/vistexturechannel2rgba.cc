@@ -104,12 +104,13 @@ class ColTabSequenceTransparencyCheck : public ParallelTask
 {
 public:
 
-ColTabSequenceTransparencyCheck( const unsigned char* cols,
+ColTabSequenceTransparencyCheck( const unsigned char* cols,const int colsz,
 				 const unsigned char* vals, od_int64 sz,
 				 bool findintermediate )
     : finished_( false )
     , vals_( vals )
     , cols_( cols )
+    , colsz_( colsz )
     , totalnr_( sz )
     , findintermediate_( findintermediate )
     , result_( SoTextureComposerInfo::cHasNoTransparency() )
@@ -131,7 +132,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	unsigned char ucval = vals_[idx];
-	unsigned char opacity = cols_[ucval*4+3];
+	const int colidx = ucval*4+3;
+	unsigned char opacity = colidx < colsz_ ? cols_[colidx] : 255;
 
 	if ( opacity!=255 )
 	{
@@ -203,6 +205,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     od_int64			totalnr_;
     const unsigned char*	vals_;
     const unsigned char*	cols_;
+    const int			colsz_;
 
     Threads::Mutex		resultlock_;
     bool			finished_;
@@ -1008,7 +1011,8 @@ char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
     getColors( channelidx, cols );
 
     // check the entire sequence for transparency type
-    ColTabSequenceTransparencyCheck trspcheck( cols.arr(), vals, nrpixels,true);
+    ColTabSequenceTransparencyCheck trspcheck( cols.arr(),
+					    cols.size(), vals, nrpixels,true);
     trspcheck.execute();
 
     return trspcheck.getTransparency();  // cases e, f, g
