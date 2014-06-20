@@ -476,7 +476,7 @@ void uiWellDahDisplay::wellDataToBeDeleted( CallBacker* cb )
     if ( !welldata || welldata!=zdata_.wd_ ) return;
 
     zdata_.wd_ = Well::MGR().get( welldata->multiID(), false );
-    dataChanged();
+    setData( zdata_ );
 }
 
 
