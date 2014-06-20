@@ -230,7 +230,6 @@ public:
 protected:
 
     SeisTrcBuf* 	seisbuf_;
-    Array2D<float>*	arr2d_;
 
     void		setPosData(TypeSet<BinID>*);
     void		fill2DArray(TypeSet<BinID>*);
