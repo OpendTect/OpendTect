@@ -34,6 +34,8 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     , zfac_(mCast(float,SI().zDomain().userFactor()))
     , zstepfld_(0)
     , extrazfld_(0)
+    , surf1fld_(0)
+    , surf2fld_(0)
 {
     if ( su.is2d_ )
     {
