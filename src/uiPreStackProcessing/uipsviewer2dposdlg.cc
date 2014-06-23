@@ -57,7 +57,7 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     else
 	slicecs.hrg.setInlRange( trcrg );
     setCubeSampling( slicecs );
-    setOkText( "&Apply" );
+    setOkText( uiStrings::sApply() );
 }
 
 
@@ -106,7 +106,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     {
 	inl0fld_->display( false, true );
 	inl1fld_->display( false, true );
-	crl0fld_->label()->setText( "Model range" );
+	crl0fld_->label()->setText( tr("Model range") );
     }
 
     stepfld_ = new uiLabeledSpinBox( this, "step" );
@@ -114,7 +114,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     stepfld_->box()->setValue( 1 );
 
     updbut_ =
-	new uiPushButton( this, "Update Postions",
+	new uiPushButton( this, tr("Update Postions"),
 			  mCB(this,uiGatherPosSliceSel,updatePosTable), true );
     updbut_->attach( alignedBelow, z0fld_ );
 
@@ -122,9 +122,13 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
     uiSeparator* sep2 = new uiSeparator( this, "nr viewer/table sep" );
     sep2->attach( stretchedBelow, updbut_ );
 
+    uiTable::Setup tablesu( 10, gathernms_.size() );
+    tablesu.selmode( uiTable::Multi );
     posseltbl_ =
-	new uiTable( this, uiTable::Setup(10,gathernms_.size()),"Select");
+	new uiTable( this, tablesu, "Select Position");
     posseltbl_->attach( ensureBelow, sep2 );
+    posseltbl_->selectionChanged.notify(
+	    mCB(this,uiGatherPosSliceSel,cellSelectedCB) );
 
     CallBack cb( mCB(this,uiGatherPosSliceSel,posChged) );
     stepfld_->box()->valueChanging.notify( cb );
@@ -213,6 +217,21 @@ void uiGatherPosSliceSel::setCubeSampling( const CubeSampling& cs )
 }
 
 
+void uiGatherPosSliceSel::cellSelectedCB( CallBacker* cb )
+{
+    TypeSet<RowCol> selectedcells;
+    posseltbl_->getSelectedCells( selectedcells );
+    for ( int cellidx=0; cellidx<selectedcells.size(); cellidx++ )
+    {
+	uiGroup* selectedgrp = posseltbl_->getCellGroup(selectedcells[cellidx]);
+	mDynamicCastGet(uiGenInput*,selgi,selectedgrp);
+	if ( !selgi ) continue;
+
+	selgi->setChecked( true );
+    }
+}
+
+
 void uiGatherPosSliceSel::gatherChecked( CallBacker* cb )
 {
     mDynamicCastGet(uiGenInput*,geninp,cb);
@@ -283,7 +302,7 @@ void uiGatherPosSliceSel::setSelGatherInfos(
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), issynthetic_
 	    ? 1 : isinl_ || is2d_ ? cs.hrg.crlRange().step
 				  : cs.hrg.inlRange().step );
-    BufferString gnm = gatherinfos[0].gathernm_;
+    BufferString firstgnm = gatherinfos[0].gathernm_;
     int rgstep = mUdf(int);
     int prevginfoidx = mUdf(int);
     for ( int gidx=0; gidx<gatherinfos.size(); gidx++ )
@@ -292,7 +311,8 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 	const int trcnr = issynthetic_ ? gidx+1
 				       : isinl_ || is2d_ ? ginfo.bid_.crl()
 							 : ginfo.bid_.inl();
-	if ( !issynthetic_ || ginfo.isselected_  )
+	if ( (!issynthetic_ || ginfo.isselected_) &&
+	     ginfo.gathernm_ == firstgnm )
 	{
 	    if ( !mIsUdf(prevginfoidx) )
 	    {
@@ -407,12 +427,16 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 		ginfo.bid_ = bid;
 		ginfo.gathernm_ = gathernm;
 		ginfo.isstored_ = !issynthetic_;
+		ginfo.isselected_ = true;
 
 		gatherinfos_ += ginfo;
 		dispgatheridxs_ += gatherinfos_.size()-1;
 	    }
 	    else if ( gatherinfos_.validIdx(trcnr-1) )
+	    {
 		dispgatheridxs_ += trcnr-1;
+		gatherinfos_[trcnr-1].isselected_ = true;
+	    }
 	}
     }
 }
@@ -435,7 +459,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );
 
-    uiLabel* sellbl = new uiLabel( this, "Select" );
+    uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
     toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
 				"Move right", cb );

@@ -44,7 +44,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackmutedeftransl.h"
 #include "prestackgather.h"
 #include "randcolor.h"
-#include "seisioobjinfo.h"
 #include "survinfo.h"
 #include "windowfunction.h"
 #include "od_helpids.h"
@@ -115,8 +114,8 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
     uiPushButton* applybut =
-	new uiPushButton( this, "Apply",mCB(this,uiPSPreProcessingDlg,applyCB),
-			  true );
+	new uiPushButton( this, uiStrings::sApply(),
+			  mCB(this,uiPSPreProcessingDlg,applyCB), true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }
 
@@ -397,7 +396,8 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
     datasetcb_->selectionChanged.notify(
 	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
     uiPushButton* propbut =
-	new uiPushButton( this, "Properties", ioPixmap("settings"),
+	new uiPushButton( this, uiStrings::sProperties(true),
+			  ioPixmap("settings"),
 			  mCB(this,uiPSMultiPropDlg,selectPropCB), false );
     propbut->attach( rightTo, lblcb );
 }
@@ -526,7 +526,7 @@ void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 		}
 
 		tb->addObject(
-		    new uiToolButton( tb, "contexthelp", "Help",
+		    new uiToolButton( tb, "contexthelp", uiStrings::sHelp(),
 			mCB(this,uiStoredViewer2DMainWin,doHelp) ) );
 	    }
 	}
@@ -560,6 +560,7 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
 	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
 					!isStored() );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
+	posdlg_->windowClosed.notify( mCB(this,uiViewer2DMainWin,posDlgClosed));
 	posdlg_->setSelGatherInfos( gatherinfos_ );
     }
 
@@ -608,13 +609,28 @@ void uiViewer2DMainWin::getStartupPositions( const BinID& bid,
 }
 
 
-uiStoredViewer2DMainWin::uiStoredViewer2DMainWin(uiParent* p,const char* title)
+void uiViewer2DMainWin::posDlgClosed( CallBacker* )
+{
+    if ( posdlg_ && posdlg_->uiResult() == 0 )
+	posdlg_->setSelGatherInfos( gatherinfos_ );
+}
+
+
+uiStoredViewer2DMainWin::uiStoredViewer2DMainWin( uiParent* p,
+						  const char* title, bool is2d )
     : uiViewer2DMainWin(p,title)
     , linename_(0)
     , angleparams_(0)
     , doanglegather_(false)
+    , is2d_(is2d)
 {
     hasangledata_ = false;
+    if ( !is2d_ )
+    {
+	slicepos_ = new uiSlicePos2DView( this );
+	slicepos_->positionChg.notify(
+			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
+    }
 }
 
 
@@ -634,8 +650,6 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 	bool isinl, const StepInterval<int>& trcrg, const char* linename )
 {
     mids_ += mid;
-    SeisIOObjInfo info( mid );
-    is2d_ = info.is2D();
     linename_ = linename;
     cs_.zrg = SI().zRange(true);
 
@@ -656,49 +670,73 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 	    cs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
 	    cs_.hrg.setInlRange( trcrg );
 	}
-	slicepos_ = new uiSlicePos2DView( this );
+
 	slicepos_->setCubeSampling( cs_ );
-	slicepos_->positionChg.notify(
-			    mCB(this,uiStoredViewer2DMainWin,posSlcChgCB));
     }
 
+    setUpNewPositions( isinl, bid, trcrg );
+    setUpNewIDs();
+}
+
+
+void uiStoredViewer2DMainWin::setUpNewSlicePositions()
+{
+    const bool isinl = is2d_ || cs_.defaultDir()==CubeSampling::Inl;
+    const int newpos = isinl ? cs_.hrg.start.inl() : cs_.hrg.start.crl();
+
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+    {
+	int& pos = isinl ? gatherinfos_[idx].bid_.inl()
+			 : gatherinfos_[idx].bid_.crl();
+	pos = newpos;
+    }
+}
+
+
+void uiStoredViewer2DMainWin::setUpNewPositions(bool isinl, const BinID& posbid,
+						const StepInterval<int>& trcrg )
+{
     TypeSet<BinID> bids;
-    getStartupPositions( bid, trcrg, isinl, bids );
+    getStartupPositions( posbid, trcrg, isinl, bids );
     gatherinfos_.erase();
-    BufferStringSet oldgathernms, newgathernms;
     for ( int idx=0; idx<bids.size(); idx++ )
     {
 	GatherInfo ginfo;
 	ginfo.isselected_ = true;
-	ginfo.mid_ = mid;
 	ginfo.bid_ = bids[idx];
 	ginfo.isselected_ = true;
-	ginfo.gathernm_ = info.ioObj()->name();
-	newgathernms.addIfNew( ginfo.gathernm_ );
 	gatherinfos_ += ginfo;
     }
-
-    prepareNewAppearances( oldgathernms, newgathernms );
-    setUpView();
 }
 
 
 void uiStoredViewer2DMainWin::setIDs( const TypeSet<MultiID>& mids  )
 {
+    mids_ = mids;
+    setUpNewIDs();
+}
+
+
+void uiStoredViewer2DMainWin::setUpNewIDs()
+{
     TypeSet<PSViewAppearance> oldapps = appearances_;
     appearances_.erase();
-    mids_.copy( mids );
     TypeSet<GatherInfo> oldginfos = gatherinfos_;
     gatherinfos_.erase();
 
     BufferStringSet newgathernms, oldgathernms;
+    BufferString firstgathernm;
+    if ( !oldginfos.isEmpty() )
+	firstgathernm = oldginfos[0].gathernm_;
     for ( int gidx=0; gidx<oldginfos.size(); gidx++ )
     {
+	GatherInfo ginfo = oldginfos[gidx];
+	if ( !firstgathernm.isEmpty() && firstgathernm != ginfo.gathernm_ )
+	    continue;
 	for ( int midx=0; midx<mids_.size(); midx++ )
 	{
 	    PtrMan<IOObj> gatherioobj = IOM().get( mids_[midx] );
 	    if ( !gatherioobj ) continue;
-	    GatherInfo ginfo = oldginfos[gidx];
 	    ginfo.gathernm_ = gatherioobj->name();
 	    ginfo.mid_ = mids_[midx];
 	    newgathernms.addIfNew( ginfo.gathernm_ );
@@ -1239,10 +1277,11 @@ uiViewer2DControl::uiViewer2DControl( uiObjectItemView& mw, uiFlatViewer& vwr )
     objectitemctrl_ = new uiObjectItemViewControl( mw );
     tb_ = objectitemctrl_->toolBar();
 
-    mDefBut(posbut,"orientation64",gatherPosCB,"Set positions");
-    mDefBut(databut,"gatherdisplaysettings64",gatherDataCB, "Set gather data");
+    mDefBut(posbut,"orientation64",gatherPosCB,tr("Set positions"));
+    mDefBut(databut,"gatherdisplaysettings64",gatherDataCB,
+	    tr("Set gather data"));
     mDefBut(parsbut,"2ddisppars",propertiesDlgCB,
-	    "Set seismic display properties");
+	    tr("Set seismic display properties"));
     ctabsel_ = new uiColorTableSel( tb_, "Select Color Table" );
     ctabsel_->selectionChanged.notify( mCB(this,uiViewer2DControl,coltabChg) );
     vwr_.dispParsChanged.notify( mCB(this,uiViewer2DControl,updateColTabCB) );
@@ -1303,7 +1342,7 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 
     app_ = vwrs_[ actvwridx ]->appearance();
     propChanged.trigger();
-    //const int selannot = pspropdlg_->selectedAnnot();
+    ctabsel_->setCurrent( app_.ddpars_.vd_.ctab_.buf() );
 
     ConstDataPackRef<FlatDataPack> vddatapack =
 		vwrs_[actvwridx]->obtainPack( false );
@@ -1336,7 +1375,6 @@ void uiViewer2DControl::applyProperties( CallBacker* )
 		vwr.usePack( true, id, false );
 	}
 
-	//vwr.setAnnotChoice( selannot );
 	vwr.handleChange( FlatView::Viewer::DisplayPars |
 			  FlatView::Viewer::Annot );
     }
@@ -1371,6 +1409,24 @@ void uiViewer2DControl::doPropertiesDialog( int vieweridx )
 	    break;
     }
     return uiFlatViewControl::doPropertiesDialog( ivwr );
+}
+
+
+void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
+{
+    gatherinfos_ = gis;
+    BufferStringSet gathernms;
+    for ( int idx=0; idx<gatherinfos_.size(); idx++ )
+	gathernms.addIfNew( gatherinfos_[idx].gathernm_ );
+    const bool showcoltab = gathernms.size() <= 1;
+    ctabsel_->setSensitive( showcoltab );
+    uiString tooltipstr;
+    if ( !showcoltab )
+	tooltipstr = tr( "Mutiple datasets selected. "
+			 "Use 'Set seismic display properties' button" );
+    else
+	tooltipstr = tr( "" );
+    ctabsel_->setToolTip( tooltipstr );
 }
 
 

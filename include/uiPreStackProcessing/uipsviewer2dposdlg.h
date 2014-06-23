@@ -51,7 +51,7 @@ bool operator==( const GatherInfo& info ) const
 
 
 mExpClass(uiPreStackProcessing) uiGatherPosSliceSel : public uiSliceSel
-{
+{ mODTextTranslationClass(uiGatherPosSliceSel);
 public:
 				uiGatherPosSliceSel(uiParent*,uiSliceSel::Type,
 						    const BufferStringSet&,
@@ -84,6 +84,7 @@ protected:
     void			gatherChecked(CallBacker*);
     void			gatherPosChanged(CallBacker*);
     void			updatePosTable(CallBacker*);
+    void			cellSelectedCB(CallBacker*);
 };
 
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
