@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiobjectitemviewwin.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewstdcontrol.h"
+#include "uistring.h"
 
 #include "multiid.h"
 #include "cubesampling.h"
@@ -79,7 +80,6 @@ protected:
     ObjectSet<PreStack::MuteDef> mutes_;
     TypeSet<Color>	mutecolors_;
     CubeSampling 	cs_;
-    uiSlicePos2DView*	slicepos_;
     uiViewer2DPosDlg* 	posdlg_;
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;
@@ -110,9 +110,9 @@ protected:
 
     void		displayInfo(CallBacker*);
     void		doHelp(CallBacker*);
-    void		posSlcChgCB(CallBacker*);
     virtual void	posDlgChgCB(CallBacker*)			=0;
     void		posDlgPushed(CallBacker*);		
+    void		posDlgClosed(CallBacker*);
     void 		dataDlgPushed(CallBacker*);
     void		showZAxis(CallBacker*);
     void		loadMuteCB(CallBacker*);
@@ -129,7 +129,8 @@ mExpClass(uiPreStackProcessing) uiStoredViewer2DMainWin
 					: public uiViewer2DMainWin
 {
 public:
-			uiStoredViewer2DMainWin(uiParent*,const char* title);
+			uiStoredViewer2DMainWin(uiParent*,const char* title,
+						bool is2d=false);
 
     void 		init(const MultiID&,const BinID& bid,bool isinl,
 			     const StepInterval<int>&,const char* linename=0);
@@ -149,16 +150,22 @@ protected:
     BufferString	linename_;
     PreStack::AngleCompParams* angleparams_;
     bool		doanglegather_;
+    uiSlicePos2DView*	slicepos_;
 
     void		displayAngle();
     bool		getAngleParams();
     void		setGatherInfo(uiGatherDisplayInfoHeader* info,
 	    			      const GatherInfo&);
     void		setGather(const GatherInfo&); 
+    void		setUpNewPositions(bool isinl,const BinID& posbid,
+				       const StepInterval<int>& trcrg);
+    void		setUpNewSlicePositions();
+    void		setUpNewIDs();
     void		convAngleDataToDegrees(
 	    			PreStack::Gather* angledata) const;
     DataPack::ID	getAngleData(DataPack::ID gatherid);
     void		posDlgChgCB(CallBacker*);
+    void		posSlcChgCB(CallBacker*);
 };
 
 
@@ -184,7 +191,7 @@ protected:
 
 
 mClass(uiPreStackProcessing) uiViewer2DControl : public uiFlatViewStdControl
-{
+{ mODTextTranslationClass(uiViewer2DControl)
 public:
 			uiViewer2DControl(uiObjectItemView&,uiFlatViewer&);
 			~uiViewer2DControl();
@@ -196,8 +203,7 @@ public:
     void 			removeAllViewers();
     const FlatView::DataDispPars& dispPars() const    { return app_.ddpars_; }
     FlatView::DataDispPars&	dispPars()	      { return app_.ddpars_; }
-    void			setGatherInfos( const TypeSet<GatherInfo>& gis )
-				{ gatherinfos_ = gis; }
+    void			setGatherInfos(const TypeSet<GatherInfo>&);
     PSViewAppearance		curViewerApp();
 
 protected:

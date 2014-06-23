@@ -466,7 +466,7 @@ uiStoredViewer2DMainWin* uiViewer3DMgr::createMultiGather2DViewer(
     title += "]";
 
     uiStoredViewer2DMainWin* viewwin =
-	new uiStoredViewer2DMainWin( ODMainWin(), title );
+	new uiStoredViewer2DMainWin( ODMainWin(), title, is2d );
     viewwin->show();
     const StepInterval<int>& trcrg = psv.getTraceRange( psv.getBinID() );
     viewwin->init( mid, is2d ? BinID(0,psv.traceNr()) : psv.getBinID(),

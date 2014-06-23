@@ -84,6 +84,7 @@ protected:
     void			gatherChecked(CallBacker*);
     void			gatherPosChanged(CallBacker*);
     void			updatePosTable(CallBacker*);
+    void			cellSelectedCB(CallBacker*);
 };
 
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
