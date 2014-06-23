@@ -55,8 +55,8 @@ public:
 			, dlgtitle_(dialog_title)
 			, helpkey_(help_key)
 			, savetext_(uiStrings::sSaveAsDefault())
-			, oktext_(uiStrings::sOk())
-			, canceltext_(uiStrings::sCancel())
+			, oktext_( uiStrings::sOk() )
+			, canceltext_( uiStrings::sCancel() )
 			, modal_(true) // if no parent given, always non-modal
 			, applybutton_(false)
 			, applytext_(uiStrings::sApply())

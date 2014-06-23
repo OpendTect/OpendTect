@@ -282,8 +282,9 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("&Don't save");
-    return question( text, sSave(), dontsavetxt,
-		     wcancel ? sCancel().str() : 0, tr("Data not saved") );
+    return question( text, uiStrings::sSave(true), dontsavetxt,
+		     wcancel ? uiStrings::sCancel()
+                             : 0, tr("Data not saved") );
 }
 
 

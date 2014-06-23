@@ -1891,7 +1891,7 @@ void uiDialog::setButtonText( Button but, const uiString& txt )
 
 void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 {
-    uiString oktext = uiStrings::sRun();
+    uiString oktext = "Run";
     uiString canceltext = uiStrings::sClose();
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {
