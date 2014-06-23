@@ -627,21 +627,28 @@ void uiWellMan::exportLogs( CallBacker* )
 
 void uiWellMan::mkFileInfo()
 {
-    if ( curwds_.isEmpty() || curwds_.size() > 1
-	    || currdrs_.isEmpty() || currdrs_.size() > 1 || !curioobj_ )
+    if ( !curioobj_ )
     {
 	setInfo( "" );
 	return;
     }
 
-    BufferString txt;
+    const BufferString fnm( curioobj_->fullUserExpr( true ) );
+    Well::Data curwd( curioobj_->name() ) ;
+    const Well::Reader currdr( fnm, curwd );
+    if( !currdr.getInfo() )
+    {
+	setInfo( "Information not found." );
+	return;
+    }
 
+    const Well::Info& info = curwd.info();
+    const Well::Track& track = curwd.track();
+
+    BufferString txt;
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
     { txt += key; txt += ": "; txt += str; txt += "\n"; }
-
-    const Well::Info& info = curwds_[0]->info();
-    const Well::Track& track = curwds_[0]->track();
 
     const BufferString posstr( info.surfacecoord.toString(), " ",
 		SI().transform(info.surfacecoord).toString() );
