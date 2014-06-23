@@ -108,13 +108,13 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
     uiGroup* modegrp = createModeGroup();
-    tabgrp_->addTab( modegrp, uiStrings::sMode() );
+    tabgrp_->addTab( modegrp, tr("Mode") );
 
     uiGroup* eventgrp = createEventGroup();
-    tabgrp_->addTab( eventgrp, uiStrings::sEvent() );
+    tabgrp_->addTab( eventgrp, tr("Event") );
 
     uiGroup* simigrp = createSimiGroup();
-    tabgrp_->addTab( simigrp, uiStrings::sSimilarity() );
+    tabgrp_->addTab( simigrp, tr("Similarity") );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, uiStrings::sProperties(true) );
@@ -201,7 +201,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 
     if ( !is2d_ )
     {
-	addstepbut_ = new uiPushButton( grp, uiStrings::sSteps(),
+	addstepbut_ = new uiPushButton( grp, tr("Steps"),
 		mCB(this,uiHorizonSetupGroup,addStepPushedCB), false );
 	addstepbut_->attach( rightTo, ampthresholdfld_ );
     }
@@ -402,7 +402,7 @@ class uiStepDialog : public uiDialog
 public:
 
 uiStepDialog( uiParent* p, const char* valstr )
-    : uiDialog(p,Setup("Stepwise tracking","",
+    : uiDialog(p,Setup("Stepwise tracking",uiStrings::sEmptyString(),
                        mODHelpKey(mTrackingWizardHelpID) ))
 {
     steptable_ = new uiTable( this, uiTable::Setup(5,1).rowdesc("Step")

@@ -455,7 +455,7 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     uicoltab_->enableManage( false );
     uicoltab_->enableClippingDlg( false );
     uicoltab_->setStretch( 0, 0 );
-    uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
+    uicoltablbl_ = new uiLabel( this, uiStrings::sColorTable(true), uicoltab_ );
     uicoltab_->attach( alignedBelow, lastcommonfld_ );
 
     mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_);

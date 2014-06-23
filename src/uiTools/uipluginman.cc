@@ -76,17 +76,17 @@ void uiPluginMan::fillList()
     }
     early.sort(); late.sort(); notloaded.sort();
     listfld->addItems( late );
-    listfld->addItem( "" );
-    listfld->addItem( "" );
+    listfld->addItem( uiStrings::sEmptyString() );
+    listfld->addItem( uiStrings::sEmptyString() );
     listfld->addItem( tr("- Base plugins") );
-    listfld->addItem( "" );
+    listfld->addItem( uiStrings::sEmptyString() );
     listfld->addItems( early );
     if ( !notloaded.isEmpty() )
     {
-	listfld->addItem( "" );
-	listfld->addItem( "" );
+	listfld->addItem( uiStrings::sEmptyString() );
+	listfld->addItem( uiStrings::sEmptyString() );
 	listfld->addItem( tr("- Not loaded") );
-	listfld->addItem( "" );
+	listfld->addItem( uiStrings::sEmptyString() );
 	listfld->addItems( notloaded );
     }
     if ( listfld->size() )

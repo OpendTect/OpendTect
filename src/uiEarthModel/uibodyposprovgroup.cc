@@ -30,8 +30,9 @@ uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, "", BoolInpSpec(true,uiStrings::sInside(),
-                                uiStrings::sOutside()) );
+    inoutbut_ = new uiGenInput(this, uiStrings::sEmptyString(), 
+                               BoolInpSpec(true,tr("Inside"),
+                                tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
     bodyfld_ = new uiIOObjSel( this, ctio_, mBodyKey );
     bodyfld_->attach( alignedBelow, inoutbut_ );

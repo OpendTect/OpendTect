@@ -65,7 +65,7 @@ void uiImportHorizon::initClass()
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle,
 				 mODHelpKey(mImportHorAttribHelpID) )
                                  .modal(false))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
@@ -152,7 +152,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setValue(false);
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
-	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(),
+	interpolparbut_ = new uiPushButton( this, uiStrings::sSettings(true),
 	       mCB(this,uiImportHorizon,interpolSettingsCB), false );
 	interpolparbut_->attach( rightOf, filludffld_ );
 

@@ -165,7 +165,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	butgrp->attach( rightTo, attribfld_ );
 
 	uiPushButton* stratbut =
-	    new uiPushButton( listgrp_, uiStrings::sStratigraphy(), false );
+	    new uiPushButton( listgrp_, uiStrings::sStratigraphy(true), false );
 	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
 	stratbut->attach( alignedBelow, selgrp_ );
 
@@ -558,7 +558,7 @@ class uiSurfaceStratDlg : public uiDialog
 {
 public:
 uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
-    : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(),mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(true),mNoDlgTitle,
                                  mNoHelpKey))
     , objids_(ids)
 {

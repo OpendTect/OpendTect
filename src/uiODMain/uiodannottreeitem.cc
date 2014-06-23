@@ -219,10 +219,10 @@ bool uiODAnnotTreeItem::showSubMenu()
 	return false;
     }
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     BufferString addtxt = "&New "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiAction(addtxt), 0 );
-    mnu.insertItem( new uiAction("&Load ..."), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
 
     const int mnusel = mnu.exec();
     if ( mnusel < 0 ) return false;
@@ -305,8 +305,8 @@ uiODAnnotSubItem::uiODAnnotSubItem( Pick::Set& set, int displayid )
     : set_( &set )
     , defscale_(mCast(float,set.disp_.pixsize_))
     , scalemnuitem_("Size ...")
-    , storemnuitem_("Save")
-    , storeasmnuitem_("Save as ...")
+    , storemnuitem_(uiStrings::sSave(true))
+    , storeasmnuitem_(uiStrings::sSaveAs(false))
 {
     name_ = set_->name();
     displayid_ = displayid;

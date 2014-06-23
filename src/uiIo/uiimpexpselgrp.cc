@@ -238,7 +238,7 @@ uiSGSelGrp::uiSGSelGrp( uiParent* p, bool forread )
 	nmfld_->setStretch( 2, 0 );
     }
 
-    infobut_ = new uiToolButton( this, "info", uiStrings::sInfo(),
+    infobut_ = new uiToolButton( this, "info", "Info",
 				 mCB(this,uiSGSelGrp,showInfo) );
     infobut_->attach( rightTo, listfld_ );
 

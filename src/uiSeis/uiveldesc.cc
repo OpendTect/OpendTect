@@ -251,7 +251,7 @@ uiVelSel::uiVelSel( uiParent* p, const IOObjContext& ctxt,
     seissetup_.survdefsubsel_ = "Velocity";
     if ( iseditbutton )
     {
-	editcubebutt_ = new uiPushButton( this, "",
+	editcubebutt_ = new uiPushButton( this, uiStrings::sEmptyString(),
 		mCB(this,uiVelSel,editCB), false );
 	editcubebutt_->attach( rightOf, selbut_ );
 	selectionDoneCB( 0 );

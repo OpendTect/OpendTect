@@ -42,7 +42,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statswin_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
-    , movemnuitem_(uiStrings::sMove())
+    , movemnuitem_(tr("Move"))
     , movetotopmnuitem_(tr("To top"))
     , movetobottommnuitem_(tr("To bottom"))
     , moveupmnuitem_(uiStrings::sUp())
@@ -54,7 +54,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , amplspectrumitem_(tr("Show &Amplitude Spectrum..."))
     , fkspectrumitem_(tr("Show &F-K Spectrum..."))
     , view2dwvaitem_(tr("2D Viewer - &Wiggle"))
-    , view2dvditem_(uiStrings::s2DViewer())
+    , view2dvditem_(tr("2D Viewer"))
 {
     statisticsitem_.iconfnm = "histogram";
     removemnuitem_.iconfnm = "trashcan";

@@ -46,7 +46,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     if ( posspos.isUdf() ) posspos = StepInterval<int>( 1, mUdf(int), 1 );
     posfld_->setInterval( posspos );
 
-    stepfld_ = new uiLabeledSpinBox(this,tr("Step"),0,"Step");
+    stepfld_ = new uiLabeledSpinBox(this,uiStrings::sStep(),0,"Step");
     stepfld_->attach( rightOf, posfld_ );
     stepfld_->box()->setInterval( StepInterval<int>(posspos.step,
 		posspos.stop-posspos.start,posspos.step) );

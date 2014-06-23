@@ -51,7 +51,7 @@ static bool enabClusterProc()
 
 
 uiProcSettings::uiProcSettings( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,uiStrings::sProcessing(),setts)
+    : uiSettingsGroup(p,tr("Processing"),setts)
 {
     nrinl_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     nrinlfld_ = new uiGenInput( this, tr("Default number of inlines per job"),
@@ -109,7 +109,8 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     batchfld_->attach( alignedBelow, topgrp );
 
     resumefld_ = new uiGenInput( this, "Use already processed data",
-			BoolInpSpec(false,"Yes","No (start from scratch)") );
+			BoolInpSpec(false,uiStrings::sYes(),
+                        "No (start from scratch)") );
     resumefld_->attach( alignedBelow, batchfld_ );
 
     afterPopup.notify( mCB(this,uiStartBatchJobDialog,fillList) );

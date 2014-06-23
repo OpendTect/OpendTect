@@ -69,7 +69,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	//return false;
     }
 
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
     mnu.insertItem( new uiAction(uiStrings::sNew(false)), mNewMnuID );
 
@@ -168,8 +168,8 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 
 #define mCommonInit \
-    , savemnuitem_(uiStrings::sSave(true)) \
-    , saveasmnuitem_(uiStrings::sSaveAs()) \
+    , savemnuitem_("save") \
+    , saveasmnuitem_("save as") \
     , displayplanemnuitem_ ( "Fault &planes" ) \
     , displaystickmnuitem_ ( "Fault &sticks" ) \
     , displayintersectionmnuitem_( "&Only at sections" ) \
@@ -419,9 +419,9 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	return false;
     }
 
-    uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(tr("&Add ...")), mAddMnuID );
-    mnu.insertItem( new uiAction(tr("&New ...")), mNewMnuID );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -490,8 +490,8 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 #undef mCommonInit2
 #define mCommonInit \
     , faultsticksetdisplay_(0) \
-    , savemnuitem_("&Save") \
-    , saveasmnuitem_("Save &as ...") \
+    , savemnuitem_(uiStrings::sSave(true)) \
+    , saveasmnuitem_(uiStrings::sSaveAs(false)) \
     , onlyatsectmnuitem_("&Only at sections")
 
 #define mCommonInit2 \

@@ -227,7 +227,7 @@ void uiAttrSelDlg::createSelectionButtons()
     const bool havesteered = attrinf_->steernms_.size();
 
     selgrp_ = new uiButtonGroup( this, "Input selection", OD::Vertical );
-    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored() );
+    storfld_ = new uiRadioButton( selgrp_, uiStrings::sStored(true) );
     storfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     storfld_->setSensitive( havestored );
 
@@ -238,7 +238,7 @@ void uiAttrSelDlg::createSelectionButtons()
 	steerfld_->setSensitive( havesteered );
     }
 
-    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes() );
+    attrfld_ = new uiRadioButton( selgrp_, uiStrings::sAttributes(true) );
     attrfld_->setSensitive( haveattribs );
     attrfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
 
@@ -279,10 +279,10 @@ void uiAttrSelDlg::createSelectionFields()
     steeroutfld_->attach( rightOf, selgrp_ );
     steeroutfld_->attach( heightSameAs, storoutfld_ );
 
-    filtfld_ = new uiGenInput( this, uiStrings::sFilter(), "*" );
+    filtfld_ = new uiGenInput( this, tr("Filter"), "*" );
     filtfld_->attach( alignedBelow, storoutfld_ );
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-    compfld_ = new uiLabeledComboBox( this, uiStrings::sComponent(), "Compfld");
+    compfld_ = new uiLabeledComboBox( this, tr("Component"), "Compfld");
     compfld_->attach( rightTo, filtfld_ );
 
     if ( haveattribs )
@@ -422,7 +422,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
     compfld_->box()->setEmpty();
-    compfld_->box()->addItem( "ALL" );
+    compfld_->box()->addItem( uiStrings::sAll() );
 
     compfld_->box()->addItems( compnms );
     compfld_->display( compnms.size()>2 );

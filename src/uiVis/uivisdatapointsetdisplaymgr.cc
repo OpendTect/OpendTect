@@ -40,7 +40,7 @@ uiVisDataPointSetDisplayMgr::uiVisDataPointSetDisplayMgr(uiVisPartServer& serv )
     , createbodymnuitem_( tr("Create Body") )
     , storepsmnuitem_( tr("Save as Pickset ...") )
     , removemnuitem_( tr("Remove points inside polygon") )
-    , propmenuitem_( tr("Properties...") )
+    , propmenuitem_( uiStrings::sProperties(false) )
     , treeToBeAdded( this )
 {
     vismenu_->ref();

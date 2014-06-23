@@ -88,7 +88,8 @@ void uiGMTSymbolPars::fillShapes()
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.getCStr()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
-	    shapefld_->insertItem( ioPixmap(shapekey), "", idx );
+	    shapefld_->insertItem( ioPixmap(shapekey), 
+                                   uiStrings::sEmptyString(), idx );
 	}
     }
 }

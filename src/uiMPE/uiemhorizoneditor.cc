@@ -44,7 +44,7 @@ protected:
 
 uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 						    HorizonEditor* he )
-    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings",
+    : uiDialog( p, uiDialog::Setup("Horizon Editor",uiStrings::sSettings(true),
                                    mODHelpKey(mEMHorizonEditorSettingHelpID) ))
     , editor( he )
 {

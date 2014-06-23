@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup(tr("Merge 3D Horizons"),"", 
+    : uiDialog(p,Setup(tr("Merge 3D Horizons"),uiStrings::sEmptyString(), 
                        mODHelpKey(mHorizonMergeDlgHelpID) ))
 {
     horselfld_ = new uiHorizon3DSel( this );

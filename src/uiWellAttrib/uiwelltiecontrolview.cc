@@ -200,7 +200,8 @@ class uiMrkDispDlg : public uiDialog
 public :
 
     uiMrkDispDlg( uiParent* p, DispParams& pms )
-	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons","",mNoHelpKey)
+	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons",
+                                     uiStrings::sEmptyString(),mNoHelpKey)
 		.modal(false))
 	, pms_(pms)
 	, redrawneeded_(this)

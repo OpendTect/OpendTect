@@ -188,8 +188,8 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     BufferStringSet grps; grps.add( sKeyAll ); grps.add( sKeySrchRes );
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
-							 tr("Group") );
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps, 
+                                                         tr("Group") );
     groupfld_ = groupfld->box();
     groupfld_->setToolTip( tr("Madagascar program group") );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );

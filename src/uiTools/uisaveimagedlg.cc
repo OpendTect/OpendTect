@@ -154,8 +154,9 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     if ( withuseparsfld_ )
     {
 	useparsfld_ = new uiGenInput( this, tr("Get size from"),
-				      BoolInpSpec(true,uiStrings::sSettings(),
-                                      tr("Screen")) );
+				      BoolInpSpec(true,
+                                                  uiStrings::sSettings(true),
+                                                  tr("Screen")) );
 	useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 	if ( fldabove ) useparsfld_->attach( alignedBelow, fldabove );
     }

@@ -92,7 +92,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     dispbelowfld_ = new uiCheckBox( this, tr("Below") );
     dispbelowfld_->attach( rightOf, dispabovefld_ );
     uiLabel* lbl = new uiLabel( this, tr("Display well name") , dispabovefld_ );
-    lbl = new uiLabel( this, uiStrings::sTrack() );
+    lbl = new uiLabel( this, uiStrings::sTrack(true) );
     lbl->attach( rightOf, dispbelowfld_ );
 
     nmsizefld_ = new uiLabeledSpinBox( this, tr("Name size") );
@@ -372,7 +372,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logsfld_->attach( alignedAbove, cliprangefld_ );
 
     logfilltypefld_ = new uiLabeledComboBox( this, tr("Fill"));
-    logfilltypefld_->box()->addItem( tr("None") );
+    logfilltypefld_->box()->addItem( uiStrings::sNone() );
     logfilltypefld_->box()->addItem( tr("Left of log") );
     logfilltypefld_->box()->addItem( tr("Right of log") );
     logfilltypefld_->box()->addItem( tr("Full panel") );
@@ -729,7 +729,7 @@ void uiWellLogDispProperties::setLogSet( const Well::LogSet* wls )
 	lognames.addIfNew( wl_->getLog(idx).name() );
     lognames.sort();
     logsfld_->box()->setEmpty();
-    logsfld_->box()->addItem("None");
+    logsfld_->box()->addItem(uiStrings::sNone());
     logsfld_->box()->addItems( lognames );
     filllogsfld_->box()->setEmpty();
     filllogsfld_->box()->addItems( lognames );

@@ -36,8 +36,8 @@ public:
 		, auxinfo_( new uiHorizonAuxDataSel::HorizonAuxDataInfo(info) )
 		{
 		    uiGroup* grp = new uiGroup( this, "Group" );
-		    uiLabel* horlabel = new uiLabel( grp, 
-                                                     uiStrings::sHorizons() );
+		    uiLabel* horlabel = new uiLabel(grp, 
+                                                    uiStrings::sHorizons(true));
 		    horlistfld_ = new uiListBox( grp );
 		    horlistfld_->addItems( auxinfo_->hornms_ );
 		    horlistfld_->attach( ensureBelow, horlabel );
@@ -157,7 +157,7 @@ uiHorizonAuxDataSel::uiHorizonAuxDataSel( uiParent* p, const MultiID& mid,
     , auxidx_( auxidx )
     , nrhorswithdata_( 0 )
 {
-    horfld_ = new uiGenInput( this, uiStrings::sHorizon(), StringInpSpec() );
+    horfld_ = new uiGenInput( this, uiStrings::sHorizon(true), StringInpSpec());
     selbut_ = new uiPushButton( this, uiStrings::sSelect(),
 	    mCB(this,uiHorizonAuxDataSel,selCB), false );
     selbut_->attach( rightOf, horfld_ );

@@ -40,8 +40,9 @@ uiGMTOverlayGrp* uiGMTClipGrp::createInstance( uiParent* p )
 uiGMTClipGrp::uiGMTClipGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Clipping")
 {
-    actionfld_ = new uiGenInput(this, "",BoolInpSpec(true,tr("Start clipping"),
-						     tr("Stop clipping"),true));
+    actionfld_ = new uiGenInput(this, uiStrings::sEmptyString(),
+                                BoolInpSpec(true,tr("Start clipping"),
+				tr("Stop clipping"),true));
 
     IOObjContext ctxt( PickSetTranslatorGroup::ioContext() );
     ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );

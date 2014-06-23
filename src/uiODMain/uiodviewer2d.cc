@@ -372,12 +372,12 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
 				  mCB(this,uiODViewer2D,selectionMode), true );
     uiMenu* polymnu = new uiMenu( tb, tr("PoluMenu") );
 
-    uiAction* polyitm = new uiAction( tr("Polygon"),
+    uiAction* polyitm = new uiAction( uiStrings::sPolygon(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
     polyitm->setIcon( ioPixmap("polygonselect") );
 
-    uiAction* rectitm = new uiAction( tr("Rectangle"),
+    uiAction* rectitm = new uiAction( uiStrings::sRectangle(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
     rectitm->setIcon( ioPixmap("rectangleselect") );

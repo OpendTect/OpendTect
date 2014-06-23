@@ -132,7 +132,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 				mCB(this,uiCheckShotEdit,undoCB) );
     toolbar_->addButton( undobut_ ); 
     undobut_->setSensitive( false );
-    redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sUndo(),
+    redobut_ = new uiToolButton( toolbar_, "redo", uiStrings::sRedo(),
 				mCB(this,uiCheckShotEdit,redoCB) );
     toolbar_->addButton( redobut_ ); 
     redobut_->setSensitive( false );
@@ -251,7 +251,7 @@ void uiCheckShotEdit::doInsertRemovePt()
     }
     undobut_->setSensitive( undo_.canUnDo() );
     redobut_->setSensitive( undo_.canReDo() );
-    driftdisplay_->setToolTip("");
+    driftdisplay_->setToolTip(uiStrings::sEmptyString());
 
     applyCB(0); 
 }

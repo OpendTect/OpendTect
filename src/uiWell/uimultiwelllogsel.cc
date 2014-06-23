@@ -109,7 +109,8 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     abovefld_->valuechanged.notify( cb );
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
-    belowfld_ = new uiGenInput( this, "", FloatInpSpec(0).setName("below") );
+    belowfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+                                FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );
     belowfld_->valuechanged.notify( cb );
@@ -383,7 +384,7 @@ void uiMultiWellLogSel::init()
     const OD::ChoiceMode chmode = singlelog_ ? OD::ChooseOnlyOne
 						    : OD::ChooseAtLeastOne;
     uiLabeledListBox* llbl = new uiLabeledListBox( this,
-	singlelog_ ? "Log" : uiStrings::sLogs(), chmode,
+	singlelog_ ? "Log" : uiStrings::sLogs(true), chmode,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
     logsfld_->setHSzPol( hpol );
@@ -395,7 +396,7 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, uiStrings::sWells(), 
+	llbw = new uiLabeledListBox( this, uiStrings::sWells(true), 
                                      OD::ChooseAtLeastOne,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();

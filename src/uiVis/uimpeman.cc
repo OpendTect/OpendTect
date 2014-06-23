@@ -102,7 +102,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, uiStrings::sSettings(), false );
+    mAddButton( "tools", showSettingsCB, "Settings", false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( tr("Seed connect mode") );
@@ -130,7 +130,7 @@ void uiMPEMan::addButtons()
 
     moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
 			       tr("Display QC plane"), true );
-    uiMenu* mnu = new uiMenu( toolbar, uiStrings::sMenu() );
+    uiMenu* mnu = new uiMenu( toolbar, tr("Menu") );
     mAddMnuItm( mnu, uiStrings::sInline(), handleOrientationClick,
 		"QCplane-inline", 0 );
     mAddMnuItm( mnu, uiStrings::sCrossline(), handleOrientationClick,
@@ -1294,7 +1294,8 @@ protected:
 
 uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     : uiDialog( mpeman->getToolBar(),
-	    uiDialog::Setup("QC display properties","",mNoHelpKey).modal(false))
+	    uiDialog::Setup("QC display properties",uiStrings::sEmptyString(),
+                            mNoHelpKey).modal(false))
     , mpeman_(mpeman)
 {
     updateDisplayList();

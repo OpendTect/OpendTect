@@ -46,7 +46,7 @@ bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad(true)), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -229,12 +229,12 @@ bool uiODVw2DFaultSSTreeItem::select()
 
 bool uiODVw2DFaultSSTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
 	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
-    mnu.insertItem( new uiAction(uiStrings::sSaveAs()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
     mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 2 );
 
     const int mnuid = mnu.exec();

@@ -120,7 +120,7 @@ void uiIOSelect::updateFromEntries()
 
     inp_->setEmpty();
     if ( haveempty_ )
-	inp_->addItem( "" );
+	inp_->addItem( uiStrings::sEmptyString() );
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
@@ -435,7 +435,7 @@ uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 
 void uiIOFileSelect::doFileSel( CallBacker* c )
 {
-    uiString caption = tr("Select %1").arg( labelText() );
+    uiString caption = uiStrings::sSelect(false).arg( labelText() );
     uiFileDialog fd( this, forread, getInput(),
 		     filter.isEmpty() ? 0 : (const char*)filter, caption );
     if ( seldir )

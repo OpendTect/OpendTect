@@ -521,7 +521,7 @@ void uiContourTreeItem::initClass()
 
 uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
-    , optionsmenuitem_( tr("Properties ...") )
+    , optionsmenuitem_( uiStrings::sProperties(false) )
     , areamenuitm_( tr("Contour areas") )
     , lines_( 0 )
     , drawstyle_( 0 )
@@ -725,7 +725,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
             table->setText( RowCol(idx,1), toString( areas[idx] ) );
         }
 
-        uiPushButton* button = new uiPushButton( &dlg, uiStrings::sSaveAs(),
+        uiPushButton* button = new uiPushButton( &dlg, uiStrings::sSaveAs(true),
                              mCB(this,uiContourTreeItem,saveAreasAsCB), true );
         button->attach( leftAlignedBelow, table );
 

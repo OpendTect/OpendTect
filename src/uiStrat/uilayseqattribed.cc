@@ -60,7 +60,7 @@ uiLaySeqAttribEd::uiLaySeqAttribEd( uiParent* p, Strat::LaySeqAttrib& lsa,
 	localgrp_ = new uiGroup( this, "Local group" );
 	uiLabel* lbl = 0;
 	if ( edsu.allowintegr_ )
-	    lbl = new uiLabel( localgrp_, " " );
+	    lbl = new uiLabel( localgrp_, uiStrings::sEmptyString() );
 	uiLabeledComboBox* lupscfld = new uiLabeledComboBox( localgrp_,
 						    tr("From depth intervals"));
 	upscaletypfld_ = lupscfld->box();
@@ -169,7 +169,7 @@ void uiLaySeqAttribEd::transfSel( CallBacker* )
     if ( sel == 1 )
 	valfld_->setTitleText( uiStrings::sValue() );
     else if ( sel )
-	valfld_->setTitleText( uiStrings::sBase() );
+	valfld_->setTitleText( tr("Base") );
     valfld_->display( sel );
 }
 

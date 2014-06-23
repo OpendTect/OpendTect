@@ -109,7 +109,7 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
 	crl0fld_->label()->setText( tr("Model range") );
     }
 
-    stepfld_ = new uiLabeledSpinBox( this, "step" );
+    stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep() );
     stepfld_->attach( rightTo, isinl_ || is2d_ ? crl1fld_ : inl1fld_ );
     stepfld_->box()->setValue( 1 );
 

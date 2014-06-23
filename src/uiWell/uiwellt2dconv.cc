@@ -22,7 +22,8 @@ uiWellT2DTransform::uiWellT2DTransform( uiParent* p )
     : uiTime2DepthZTransformBase(p, true )
     , transform_( 0 )
 {
-    fld_ = new uiIOObjSel( this, mIOObjContext(Well), "" );
+    fld_ = new uiIOObjSel( this, mIOObjContext(Well), 
+                           uiStrings::sEmptyString() );
     setHAlignObj( fld_ );
 }
 

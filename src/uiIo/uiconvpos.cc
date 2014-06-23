@@ -80,7 +80,7 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     fipsetup.forread(false).withexamine(false);
     outfilefld = new uiFileInput( filegrp, "Output file", fipsetup );
     outfilefld->attach( alignedBelow, inpfilefld );
-    isxy2bidfld = new uiGenInput( filegrp, "Type",
+    isxy2bidfld = new uiGenInput( filegrp, uiStrings::sType(),
 	           BoolInpSpec(true,tr("X/Y to I/C"),tr("I/C to X/Y")) );
     isxy2bidfld->attach( alignedBelow, outfilefld );
     uiPushButton* pb = new uiPushButton( filegrp, uiStrings::sGo(),

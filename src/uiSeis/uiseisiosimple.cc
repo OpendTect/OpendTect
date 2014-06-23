@@ -195,11 +195,11 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    stepposfld_ = new uiGenInput( this, tr("Step in X/Y/Number"),
 					 PositionInpSpec(data().steppos_) );
 	    stepposfld_->attach( alignedBelow, startposfld_ );
-	    startnrfld_ = new uiGenInput( this, "",
+	    startnrfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 					 IntInpSpec(data().nrdef_.start) );
 	    startnrfld_->setElemSzPol( uiObject::Small );
 	    startnrfld_->attach( rightOf, startposfld_ );
-	    stepnrfld_ = new uiGenInput( this, "",
+	    stepnrfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 					IntInpSpec(data().nrdef_.step) );
 	    stepnrfld_->setElemSzPol( uiObject::Small );
 	    stepnrfld_->attach( rightOf, stepposfld_ );
@@ -281,7 +281,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 void uiSeisIOSimple::mkIsAscFld()
 {
     isascfld_ = new uiGenInput( this, tr("File type"),
-				BoolInpSpec(true,uiStrings::sASCII(),
+				BoolInpSpec(true,uiStrings::sASCII(true),
                                             tr("Binary")) );
     isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
     isascfld_->setValue( data().isasc_ );

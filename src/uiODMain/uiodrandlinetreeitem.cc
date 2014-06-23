@@ -52,8 +52,9 @@ class uiRandomLinePolyLineDlg : public uiDialog
 {
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
-    : uiDialog(p,Setup("Create Random Line from Polyline","",
-                        mODHelpKey(mRandomLinePolyLineDlgHelpID) )
+    : uiDialog(p,Setup("Create Random Line from Polyline",
+                       uiStrings::sEmptyString(),
+                       mODHelpKey(mRandomLinePolyLineDlgHelpID) )
 		 .modal(false))
     , rtd_(rtd)
 {
@@ -61,7 +62,7 @@ uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
 
     label_ = new uiLabel( this, "Pick nodes on Z-Slices or Horizons" );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
-				      .lbltxt("Color") );
+				      .lbltxt(uiStrings::sColor()) );
     colsel_->attach( alignedBelow, label_ );
     colsel_->colorChanged.notify(
 	    mCB(this,uiRandomLinePolyLineDlg,colorChangeCB) );
@@ -124,7 +125,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     uiMenu* rgbmnu =
 	new uiMenu( getUiParent(), tr("Add &Color blended") );
     rgbmnu->insertItem( new uiAction(tr("&Empty")), 8 );
-    rgbmnu->insertItem( new uiAction(tr("&Stored ...")), 9 );
+    rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 9 );
     mnu.insertItem( rgbmnu );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew(true) );
@@ -335,7 +336,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
     , editnodesmnuitem_("&Edit nodes ...")
     , insertnodemnuitem_("&Insert node")
-    , saveasmnuitem_(uiStrings::sSaveAs())
+    , saveasmnuitem_( uiStrings::sSaveAs(true) )
     , saveas2dmnuitem_("Save As &2D ...")
     , create2dgridmnuitem_("Create 2D &Grid ...")
 {
@@ -459,7 +460,8 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
 	    ctio->ctxt.forread = false;
 	    ctio->setName( rtd->name() );
-	    uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+	    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(), 
+                               false );
 	    if ( !dlg.go() ) return;
 
 	    Geometry::RandomLineSet lset; lset.addLine( rln );

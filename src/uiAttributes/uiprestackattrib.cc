@@ -90,7 +90,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xrglbl_ = new uiLabel( this, xlabel );
     xrglbl_->attach( rightOf, xrgfld_ );
 
-    xunitfld_ = new uiGenInput( this, "",
+    xunitfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
 				StringListInpSpec(PSAttrib::XaxisUnitNames()) );
     xunitfld_->attach( rightOf, gathertypefld_ );
     xunitfld_->valuechanged.notify( mCB(this,uiPreStackAttrib,gatherUnitSel) );

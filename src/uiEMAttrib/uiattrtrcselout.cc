@@ -267,7 +267,7 @@ void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
     const char* mainhorlabel = "Main Horizon";
     mainhorfld_ = new uiGenInput( prnt, mainhorlabel,
-				 BoolInpSpec(true,uiStrings::sTop(),
+				 BoolInpSpec(true,tr("Top"),
                                  uiStrings::sBottom()) );
     mainhorfld_->attach( alignedBelow, widthfld_ );
 }

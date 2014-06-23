@@ -23,7 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGravHorCalc::uiGravHorCalc( uiParent* p, EM::ObjectID enobjid )
-    : uiDialog(p,Setup(tr("Calculate Gravity"),"", mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Calculate Gravity"),uiStrings::sEmptyString(), 
+                       mTODOHelpKey))
     , topfld_(0)
     , t2dfld_(0)
 {

@@ -154,7 +154,7 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			mCB(this,uiCmdDriverDlg,selectAbortCB), true );
     abortbut_->attach( rightOf, pausebut_ );
 
-    startbut_ = new uiPushButton( this, uiStrings::sStart(),
+    startbut_ = new uiPushButton( this, "Start",
 			mCB(this,uiCmdDriverDlg,selectStartRecordCB), true );
     startbut_->attach( alignedBelow, logfld_ );
 
@@ -162,7 +162,8 @@ uiCmdDriverDlg::uiCmdDriverDlg( uiParent* p, CmdDriver& d, CmdRecorder& r,
 			mCB(this,uiCmdDriverDlg,selectStopRecordCB), true );
     stopbut_->attach( alignedBelow, logfld_ );
 
-    uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this, "" );
+    uiLabel* cmddriverhackdummy mUnusedVar = new uiLabel( this, 
+                                             uiStrings::sEmptyString() );
 
     drv_.interactRequest.notify( mCB(this,uiCmdDriverDlg,interactCB) );
 
@@ -292,7 +293,7 @@ static bool passSurveyCheck( uiFileInput& fld, bool& surveycheck )
     {
 	BufferString msg = fld.titleText().getFullString();
 	msg += "-path is referring to previous survey!";
-	res = uiMSG().question(msg, uiStrings::sContinue(), uiStrings::sReset(),
+	res = uiMSG().question(msg, uiStrings::sContinue(), "Reset",
 				uiStrings::sCancel(), "Warning" );
 	surveycheck = res<0;
 
@@ -381,7 +382,7 @@ void uiCmdDriverDlg::interactCB( CallBacker* cb )
     BufferString buttext = pausebut_->text().getFullString();
     if ( buttext=="-Interrupting-" && ispec->dlgtitle_.isEmpty() )
     {
-	pausebut_->setText( uiStrings::sResume() );
+	pausebut_->setText( "Resume" );
 	return;
     }
 

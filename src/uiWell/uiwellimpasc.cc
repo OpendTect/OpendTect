@@ -52,7 +52,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     enableSaveButton( tr("Display after import") );
     setOkCancelText( uiStrings::sImport(), uiStrings::sClose() );
 
-    havetrckbox_ = new uiCheckBox( this, "" );
+    havetrckbox_ = new uiCheckBox( this, uiStrings::sEmptyString() );
     havetrckbox_->setChecked( true );
     havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 

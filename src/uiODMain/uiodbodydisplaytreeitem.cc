@@ -81,7 +81,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	return false;
     }
 
-    uiMenu mnu( getUiParent(), tr("Action") );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
     mnu.insertItem( new uiAction(tr("&New polygon body...")), 1 );
     addStandardItems( mnu );
@@ -184,8 +184,8 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 
 
 #define mCommonInit \
-    , savemnuitem_(uiStrings::sSave(true)) \
-    , saveasmnuitem_(uiStrings::sSaveAs()) \
+    , savemnuitem_("save") \
+    , saveasmnuitem_("save as") \
     , volcalmnuitem_("Calculate &volume ...") \
     , displaybodymnuitem_("&Body") \
     , displaypolygonmnuitem_("&Picked polygons") \

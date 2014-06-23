@@ -89,10 +89,12 @@ void uiPreStackMergeDlg::createSelectButtons( uiGroup* selbuttons )
 {
     uiLabel* sellbl = new uiLabel( selbuttons, uiStrings::sSelect() );
     CallBack cb = mCB(this,uiPreStackMergeDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, "", cb);
+    toselect_ = new uiToolButton( selbuttons, uiToolButton::RightArrow, 
+                                  uiStrings::sEmptyString(), cb);
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow, "",cb);
+    fromselect_ = new uiToolButton( selbuttons, uiToolButton::LeftArrow, 
+                                    uiStrings::sEmptyString(),cb);
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -103,11 +105,12 @@ void uiPreStackMergeDlg::createMoveButtons( uiGroup* movebuttons )
 {
     uiLabel* movelbl = new uiLabel( movebuttons, tr("Change \n Priority") );
     CallBack cb = mCB(this,uiPreStackMergeDlg,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,"",cb);
+    moveupward_ = new uiToolButton( movebuttons, uiToolButton::UpArrow,
+                                    uiStrings::sEmptyString(),cb);
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
     movedownward_ = new uiToolButton( movebuttons, uiToolButton::DownArrow,
-						"", cb );
+				      uiStrings::sEmptyString(), cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -285,7 +288,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Prestack Data","",
+    : uiDialog(p,uiDialog::Setup("Copy Prestack Data",uiStrings::sEmptyString(),
                                  mODHelpKey(mPreStackCopyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))

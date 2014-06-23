@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
-    : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(),
+    : uiDialog( p,uiDialog::Setup(uiStrings::sHistogram(true),
 				  mNoDlgTitle,
                                   mODHelpKey(mMultiMapperRangeEditWinHelpID) )
                                   .modal(false)

@@ -86,7 +86,7 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     
     const bool hastransforms = names.size();
 
-    const uiString nonestr = tr("None");
+    const uiString nonestr = uiStrings::sNone();
 
     if ( hastransforms && withnone )
     {

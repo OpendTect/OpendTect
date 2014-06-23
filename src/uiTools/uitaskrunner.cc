@@ -219,7 +219,7 @@ bool uiTaskRunner::acceptOK( CallBacker* )
     else if ( state==Task::Run )
     {
 	task_->controlWork( Task::Pause );
-	setOkText(uiStrings::sResume() );
+	setOkText(tr("Resume") );
     }
 
     return false;

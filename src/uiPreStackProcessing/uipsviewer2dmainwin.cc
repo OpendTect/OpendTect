@@ -96,7 +96,7 @@ class uiPSPreProcessingDlg : public uiDialog
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Preprocessing","",
+    : uiDialog(p,uiDialog::Setup("Preprocessing",uiStrings::sEmptyString(),
                                  mODHelpKey(mPreStackProcSelHelpID) ) )
     , cb_(cb)
 {
@@ -374,7 +374,8 @@ class uiPSMultiPropDlg : public uiDialog
 public:
 uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 		     const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Set properties for data","",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup("Set properties for data",
+                                 uiStrings::sEmptyString(),mNoHelpKey))
     , vwrs_(vwrs)
     , cb_(cb)
 {
@@ -835,7 +836,8 @@ class uiAngleCompParDlg : public uiDialog
 public:
 
 uiAngleCompParDlg( uiParent* p, PreStack::AngleCompParams& acp, bool isag )
-    : uiDialog(p,uiDialog::Setup("","",
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
+                                 uiStrings::sEmptyString(),
                                mODHelpKey(mViewer2DMainWindisplayAngleHelpID)))
 {
     FixedString windowtitle = isag ? "Angle Gather Display"

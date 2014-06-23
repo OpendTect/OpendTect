@@ -57,7 +57,8 @@ uiMarkerStyle3D::uiMarkerStyle3D( uiParent* p, bool withcolor,
     if ( withcolor )
     {
 	colselfld_ = new uiColorInput( this,
-		    uiColorInput::Setup(Color::White()).lbltxt(tr("Color")) );
+		    uiColorInput::Setup(Color::White())
+                    .lbltxt(uiStrings::sColor()) );
 	colselfld_->attach( alignedBelow, sliderfld_ );
     }
 

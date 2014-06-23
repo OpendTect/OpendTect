@@ -86,7 +86,8 @@ protected:
 
 
 uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
-    : uiDialog::Setup("",mNoDlgTitle, mODHelpKey(mSeisBrowserHelpID) )
+    : uiDialog::Setup(uiStrings::sEmptyString(),mNoDlgTitle, 
+                      mODHelpKey(mSeisBrowserHelpID) )
     , id_(ky)
     , geom_(gt)
     , startpos_(mUdf(int),mUdf(int))
@@ -124,7 +125,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& su,
 {
     if ( !openData(su) )
     {
-	setTitleText( uiStrings::sError() );
+	setTitleText( tr("Error") );
 	BufferString lbltxt( "Cannot open input data (" );
 	lbltxt += Seis::nameOf(su.geom_); lbltxt += ")\n";
 	lbltxt += IOM().nameOf( su.id_ );
@@ -672,7 +673,7 @@ bool init()
 {
     if ( !tri_ ||  !tro_ )
     {
-	uiMSG().error( "" );
+	uiMSG().error( uiStrings::sEmptyString() );
 	return false;
     }
     if ( !safeio_->open(false) )
@@ -753,7 +754,7 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
 	trcbufvwr_->start();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( "" );
+	uiSeisTrcBufViewer::Setup stbvsetup( uiStrings::sEmptyString() );
 	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );

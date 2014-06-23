@@ -455,7 +455,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      !visserv_->isTrackingSetupActive(), false );
 	lockseedsmnuitem_.text =
 	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-	    uiStrings::sUnlock() : uiStrings::sLock() ;
+	    tr("Unlock") : uiStrings::sLock() ;
 	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );

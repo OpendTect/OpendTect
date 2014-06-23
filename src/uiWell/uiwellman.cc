@@ -62,7 +62,7 @@ uiWellMan::uiWellMan( uiParent* p )
     setPrefWidth( 50 );
 
     logsgrp_ = new uiGroup( listgrp_, "Logs group" );
-    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs() );
+    uiLabel* lbl = new uiLabel( logsgrp_, uiStrings::sLogs(true) );
     logsfld_ = new uiListBox( logsgrp_, "Available logs",
 				OD::ChooseAtLeastOne );
     logsfld_->attach( alignedBelow, lbl );
@@ -215,7 +215,7 @@ void uiWellMan::checkButtons()
 
 #define mSetButToolTip(but,front,curwellnm,end) \
     if ( !but->sensitive() ) \
-	but->setToolTip( "" ); \
+	but->setToolTip( uiStrings::sEmptyString() ); \
     else \
     { \
 	tt.setEmpty(); \

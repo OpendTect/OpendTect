@@ -132,7 +132,8 @@ void uiVisColTabEd::fillPar( IOPar& par )
 uiColorBarDialog::uiColorBarDialog( uiParent* p, const char* title )
     : uiDialog(p, uiDialog::Setup(title,0, 
                                   mODHelpKey(mColorBarDialog) ).modal(false)
-	       .oktext(uiStrings::sExit()).dlgtitle("").canceltext(""))
+	       .oktext("Exit").dlgtitle(uiStrings::sEmptyString())
+               .canceltext(uiStrings::sEmptyString()))
     , winClosing( this )
 {
     ColTab::Sequence ctseq( "" );

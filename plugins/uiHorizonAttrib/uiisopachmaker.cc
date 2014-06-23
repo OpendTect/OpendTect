@@ -45,7 +45,7 @@ uiIsopachMakerGrp::uiIsopachMakerGrp( uiParent* p, EM::ObjectID horid )
     if ( !baseemobj_ )
     {
 	basectio_.ctxt.forread = true;
-	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon() );
+	basesel_ = new uiIOObjSel( this, basectio_, uiStrings::sHorizon(true) );
     }
 
     ctio_.ctxt.forread = true;

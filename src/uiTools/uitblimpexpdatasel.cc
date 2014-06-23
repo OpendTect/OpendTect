@@ -203,7 +203,7 @@ void addBoxes( int iform, int ifld )
 void addInp( int iform, int ifld )
 {
     ObjectSet<uiGenInput>& colinps = *inps_[iform];
-    uiGenInput* inp = new uiGenInput( this, "",
+    uiGenInput* inp = new uiGenInput( this, uiStrings::sEmptyString(),
 			  *tinf_.form(iform).specs_[ifld] );
     const char* val = tinf_.selection_.getVal(ifld);
     if ( val && *val )

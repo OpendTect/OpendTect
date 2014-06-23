@@ -256,8 +256,8 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     : uiDialog(p,uiDialog::Setup(tr("Evaluate attribute"),tr("Set parameters")
 				,mODHelpKey(mEvaluateDlgHelpID) )
 		.modal(false)
-	        .oktext(uiStrings::sAccept())
-	        .canceltext(""))
+	        .oktext(tr("Accept"))
+	        .canceltext(uiStrings::sEmptyString()))
     , calccb(this)
     , showslicecb(this)
     , desced_(ade)
@@ -281,7 +281,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     for ( int idx=0; idx<params.size(); idx++ )
 	strs.add( params[idx].label_ );
 
-    evalfld = new uiGenInput( this, uiStrings::sEvaluate(), 
+    evalfld = new uiGenInput( this, tr("Evaluate"), 
                               StringListInpSpec(strs) );
     evalfld->valuechanged.notify( mCB(this,uiEvaluateDlg,variableSel) );
 
@@ -301,7 +301,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSlider( this, uiStrings::sSlice(), "Slice slider" );
+    sliderfld = new uiSlider( this, tr("Slice"), "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->valueChanged.notify( mCB(this,uiEvaluateDlg,sliderMove) );
     sliderfld->setTickMarks( uiSlider::Below );
@@ -312,7 +312,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     storefld->setChecked( false );
     storefld->setSensitive( false );
 
-    displaylbl = new uiLabel( this, "" );
+    displaylbl = new uiLabel( this, uiStrings::sEmptyString() );
     displaylbl->attach( widthSameAs, sliderfld );
     displaylbl->attach( alignedBelow, storefld );
 

@@ -55,7 +55,8 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     labelfld_ = new uiCheckBox( this, tr("Post Line names"),
 				mCB(this,uiGMT2DLinesGrp,labelSel) );
     const char* posoptions [] = { "Start", "End", "Both", 0 };
-    labelposfld_ = new uiGenInput( this, "", StringListInpSpec(posoptions) );
+    labelposfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+                                   StringListInpSpec(posoptions) );
     labelposfld_->attach( alignedBelow, lsfld_ );
     labelfld_->attach( leftOf, labelposfld_ );
 

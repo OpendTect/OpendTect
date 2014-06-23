@@ -57,7 +57,8 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup("",mNoDlgTitle, mODHelpKey(mAttrVolOutHelpID) ))
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle, 
+                       mODHelpKey(mAttrVolOutHelpID) ))
     , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)

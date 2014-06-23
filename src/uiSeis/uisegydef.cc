@@ -804,7 +804,7 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 					DoubleInpSpec(), DoubleInpSpec() );
 	    coordsstartfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsstartfld_->setElemSzPol( uiObject::Small );
-	    coordsstepfld_ = new uiGenInput( grp, "Step",
+	    coordsstepfld_ = new uiGenInput( grp, uiStrings::sStep(),
 			DoubleInpSpec(SI().crlDistance()), DoubleInpSpec(0) );
 	    coordsstepfld_->attach( rightOf, coordsstartfld_ );
 	    coordsstepfld_->setElemSzPol( uiObject::Small );

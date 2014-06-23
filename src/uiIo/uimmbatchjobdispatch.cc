@@ -144,7 +144,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiLabeledListBox* usedmachfld = new uiLabeledListBox( usedmachgrp,
-				multihost ? tr("Used hosts") : "",
+				multihost ? tr("Used hosts") 
+                                          : uiStrings::sEmptyString(),
 				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     usedmachfld_ = usedmachfld->box();
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
@@ -154,7 +155,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
                                           uiStrings::sStop(), true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
     uiButton* vwlogbut = new uiPushButton( usedmachgrp, 
-                                           uiStrings::sViewLog(), false );
+                                           tr("View &Log"), false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
@@ -169,7 +170,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, uiStrings::sStart(), true );
+	addbut = new uiPushButton( usedmachgrp, tr("Start"), true );
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( centeredBelow, usedmachfld );
 	machgrp->setHAlignObj( stopbut );
@@ -189,7 +190,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 	nicefld_->setPrefWidthInChar( hostnmwdth );
 
     jrppolselfld_ = new uiComboBox( jrppolgrp, "JobRun policy" );
-    jrppolselfld_->addItem( uiStrings::sRun() );
+    jrppolselfld_->addItem( tr("Run") );
     jrppolselfld_->addItem( uiStrings::sPause() );
     jrppolselfld_->addItem( tr("Schedule") );
     jrppolselfld_->setCurrentItem( ((int)0) );
@@ -201,7 +202,8 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
-    jrpstartfld_ = new uiGenInput( jrppolgrp, "", envstr ? envstr : "18:00" );
+    jrpstartfld_ = new uiGenInput( jrppolgrp, uiStrings::sEmptyString(), 
+                                   envstr ? envstr : "18:00" );
     jrpstartfld_->attach( rightOf, jrppolselfld_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
@@ -486,7 +488,7 @@ void uiMMBatchJobDispatcher::updateAliveDisp()
 
 void uiMMBatchJobDispatcher::clearAliveDisp()
 {
-    statusBar()->message( "", 3 );
+    statusBar()->message( uiStrings::sEmptyString(), 3 );
 }
 
 

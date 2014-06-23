@@ -52,7 +52,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     filludffld_->valuechanged.notify( mCB(this,uiAttrSurfaceOut,fillUdfSelCB) );
     filludffld_->attach( alignedBelow, attrnmfld_ );
 
-    settingsbut_ = new uiPushButton( this, uiStrings::sSettings(),
+    settingsbut_ = new uiPushButton( this, uiStrings::sSettings(true),
 	    			 mCB(this,uiAttrSurfaceOut,settingsCB), false);
     settingsbut_->display( false );
     settingsbut_->attach( rightOf, filludffld_ );

@@ -316,7 +316,8 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, "", BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
+	    new uiGenInput( this, uiStrings::sEmptyString(), 
+                            BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
 		mCB(this,uiDPSUserDefTab,drawAxisChanged) );
@@ -913,9 +914,10 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup(uiStrings::sSettings(),0,
-                          mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
-			  .modal(false) )
+	: uiTabStackDlg( p->parent(), 
+                         uiDialog::Setup(uiStrings::sSettings(true),0,
+                         mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
+			 .modal(false) )
 	, plotter_(*p)
 	, bdroptab_(0)
 {

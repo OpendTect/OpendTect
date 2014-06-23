@@ -72,7 +72,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
 	    		tr("Compute distance between 2 consecutive events") );
     tonextlblfld->attach( leftAlignedBelow, evtypefld );
 
-    outampfld = new uiGenInput( this, "",
+    outampfld = new uiGenInput( this, uiStrings::sEmptyString(),
 	       BoolInpSpec(true,
                            tr("Compute distance between 2 consecutive events"),
 		           tr("Output Amplitude")));
@@ -80,7 +80,7 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     outampfld->attach( leftAlignedBelow, evtypefld );
 
     tonextfld = new uiGenInput( this, tr("starting from"),
-	    			BoolInpSpec(true,uiStrings::sTop(),
+	    			BoolInpSpec(true,tr("Top"),
                                             uiStrings::sBottom()) );
     tonextfld->attach( centeredBelow, tonextlblfld );
     tonextfld->display(false);

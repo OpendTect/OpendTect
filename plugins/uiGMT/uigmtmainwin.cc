@@ -71,11 +71,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 				mCB(this,uiGMTMainWin,addCB), true );
     addbut_->setToolTip( tr("Add to current flow") );
     addbut_->attach( alignedBelow, tabstack_ );
-    editbut_ = new uiPushButton( rightgrp, uiStrings::sReplace(),
+    editbut_ = new uiPushButton( rightgrp, tr("Replace"),
 				mCB(this,uiGMTMainWin,editCB), true );
     editbut_->setToolTip( tr("Update current item in flow") );
     editbut_->attach( rightOf, addbut_ );
-    resetbut_ = new uiPushButton( rightgrp, uiStrings::sReset(),
+    resetbut_ = new uiPushButton( rightgrp, tr("Reset"),
 				mCB(this,uiGMTMainWin,resetCB), true );
     resetbut_->setToolTip( tr("Reset input fields") );
     resetbut_->attach( rightOf, editbut_ );
@@ -109,11 +109,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 
-    createbut_ = new uiPushButton( this, uiStrings::sCreateMap(),
+    createbut_ = new uiPushButton( this, tr("&Create Map"),
 				   mCB(this,uiGMTMainWin,createPush), true );
     createbut_->attach( alignedBelow, filefld_ );
 
-    viewbut_ = new uiPushButton( this, uiStrings::sViewMap(),
+    viewbut_ = new uiPushButton( this, tr("View &Map"),
 				 mCB(this,uiGMTMainWin,viewPush), true );
     viewbut_->attach( rightTo, createbut_ );
 

@@ -68,20 +68,23 @@ uiFaultStickTransferDlg::uiFaultStickTransferDlg( uiODMain& appl,
 
     BufferStringSet serialbss; serialbss.add( "Inherit" );
     serialbss.add( "Random" ); serialbss.add( "User-defined" );
-    serialcolormodefld_ = new uiGenInput(this,"",StringListInpSpec(serialbss));
+    serialcolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+                                         StringListInpSpec(serialbss));
     serialcolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     serialcolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet existsbss;
     existsbss.add( "Current" ); existsbss.add( "User-defined" );
-    existscolormodefld_ = new uiGenInput(this,"",StringListInpSpec(existsbss));
+    existscolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+                                         StringListInpSpec(existsbss));
     existscolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     existscolormodefld_->attach( alignedBelow, colormodelbl );
 
     BufferStringSet singlebss; singlebss.add( "User-defined" );
-    singlecolormodefld_ = new uiGenInput(this,"",StringListInpSpec(singlebss));
+    singlecolormodefld_ = new uiGenInput(this,uiStrings::sEmptyString(),
+                                         StringListInpSpec(singlebss));
     singlecolormodefld_->valuechanged.notify(
 			mCB(this,uiFaultStickTransferDlg,colorModeChg) );
     singlecolormodefld_->attach( alignedBelow, colormodelbl );
@@ -295,7 +298,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     auxfsswrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
 
-    outputselbut_ = new uiPushButton( toolbar_, "Select",
+    outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(),
 				mCB(this,uiODFaultToolMan,selectOutputCB),
 				false );
     outputselbut_->setToolTip( "Select output" );
@@ -323,10 +326,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     toolbar_->addSeparator();
 
 
-    undobutidx_ = toolbar_->addButton( "undo", "Undo",
+    undobutidx_ = toolbar_->addButton( "undo", uiStrings::sUndo(),
 				mCB(this,uiODFaultToolMan,undoCB), false );
 
-    redobutidx_ = toolbar_->addButton( "redo", "Redo",
+    redobutidx_ = toolbar_->addButton( "redo", uiStrings::sRedo(),
 				mCB(this,uiODFaultToolMan,redoCB), false );
 
     toolbar_->addSeparator();
@@ -777,7 +780,7 @@ void uiODFaultToolMan::publishOutputItems()
     outputnamecombo_->editTextChanged.disable();
     BufferString curtext = outputnamecombo_->text();
     outputnamecombo_->setEmpty();
-    outputnamecombo_->addItem( "" );
+    outputnamecombo_->addItem( uiStrings::sEmptyString() );
     outputnamecombo_->addItems( getOutputItems() );
     outputnamecombo_->editTextChanged.enable();
 

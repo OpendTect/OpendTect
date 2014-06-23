@@ -247,7 +247,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
     pol2dfld_->setLabel( "Available data" );
-    pol2dfld_->addItem( uiStrings::s3D() ).addItem( uiStrings::s2D() );
+    pol2dfld_->addItem( uiStrings::s3D(true) ).addItem( uiStrings::s2D(true) );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
@@ -405,7 +405,7 @@ uiSurvey::uiSurvey( uiParent* p )
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
-    datarootlbl_ = new uiLabel( topgrp, "" );
+    datarootlbl_ = new uiLabel( topgrp, uiStrings::sEmptyString() );
     datarootlbl_->setHSzPol( uiObject::WideMax );
     datarootlbl_->attach( rightTo, datarootbut );
 
@@ -420,7 +420,7 @@ uiSurvey::uiSurvey( uiParent* p )
     leftgrp->attach( ensureBelow, sep1 );
     rightgrp->attach( rightOf, leftgrp );
 
-    uiLabel* infolbl = new uiLabel( topgrp, "" );
+    uiLabel* infolbl = new uiLabel( topgrp, uiStrings::sEmptyString() );
     infolbl->setPixmap( "info" );
     infolbl->setToolTip( tr("Survey Information") );
     infolbl->attach( alignedBelow, leftgrp );

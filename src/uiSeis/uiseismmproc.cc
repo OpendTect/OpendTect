@@ -81,7 +81,8 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     { \
 	delete outioobjinfo_; outioobjinfo_ = 0; \
 	new uiLabel( this, s ); \
-	setOkText( tr("Dismiss") ); setCancelText( "" ); return; \
+	setOkText( tr("Dismiss") ); setCancelText( uiStrings::sEmptyString() );\
+        return; \
     }
 
 

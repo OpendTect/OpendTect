@@ -57,7 +57,7 @@ public:
 uiGMTIntro( uiParent* p )
     : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,mNoHelpKey))
 {
-    setOkText( "Continue" );
+    setOkText( uiStrings::sContinue() );
 
     BufferString msg = "You need to install the GMT mapping tool package\n";
     msg += "before you can use this utility\n";

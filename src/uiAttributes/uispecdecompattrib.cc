@@ -78,7 +78,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     outpfld_->attach( alignedBelow, tfpanelbut_ );
     outpfld_->box()->doSnap( true );
 
-    stepfld_ = new uiLabeledSpinBox( this, tr("step"), 1 );
+    stepfld_ = new uiLabeledSpinBox( this, uiStrings::sStep(), 1 );
     stepfld_->attach( rightTo, outpfld_ );
     stepfld_->box()->valueChanged.notify( 
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );

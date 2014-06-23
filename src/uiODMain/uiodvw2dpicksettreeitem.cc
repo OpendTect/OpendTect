@@ -31,14 +31,14 @@ uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DTreeItem( "PickSet" )
     , picksetmgr_(Pick::Mgr())
 {
-    picksetmgr_.setAdded.notify(
+    picksetmgr_.setAdded.notify( 
 	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
 
 uiODVw2DPickSetParentTreeItem::~uiODVw2DPickSetParentTreeItem()
 {
-    picksetmgr_.setAdded.remove(
+    picksetmgr_.setAdded.remove( 
 	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
@@ -51,7 +51,7 @@ bool uiODVw2DPickSetParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad()), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad(true)), 1 );
     return handleSubMenu( mnu.exec() );
 }
 
@@ -80,7 +80,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
-    if ( ps )
+    if ( ps ) 
     {
 	const int picksetidx = picksetmgr_.indexOf(*ps);
 	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
@@ -95,7 +95,7 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     , vw2dpickset_(0)
     , setidx_(-1)
 {
-    picksetmgr_.setToBeRemoved.notify(
+    picksetmgr_.setToBeRemoved.notify( 
 	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
     picksetmgr_.setDispChanged.notify(
 	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
@@ -122,7 +122,7 @@ bool uiODVw2DPickSetTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
     if ( !vw2dpickset_ )
     {
-	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_),
+	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_), 
 			    viewer2D()->viewwin(),viewer2D()->dataEditor() );
 	viewer2D()->dataMgr()->addObject( vw2dpickset_ );
     }
@@ -165,19 +165,19 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const int setidx = Pick::Mgr().indexOf( pickset_ );
     const bool changed = setidx < 0 || Pick::Mgr().isChanged(setidx);
 
-    uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(uiStrings::sProperties(false)), 0 );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
+    mnu.insertItem( new uiAction( uiStrings::sProperties( false )), 0 );
     mnu.insertItem( new uiAction(tr("Set &direction ...")), 1 );
     uiAction* saveitm = new uiAction( uiStrings::sSave(false) );
     mnu.insertItem( saveitm, 2 );
     saveitm->setEnabled( changed );
-    mnu.insertItem( new uiAction(uiStrings::sSaveAs()), 3 );
+    mnu.insertItem( new uiAction( uiStrings::sSaveAs(true) ), 3 );
     mnu.insertItem( new uiAction(uiStrings::sRemove(true) ), 4 );
 
     const int mnuid = mnu.exec();
     switch ( mnuid )
     {
-	case 0:{
+	case 0:{ 
 	    uiPickPropDlg dlg( getUiParent(), pickset_, 0 );
 	    dlg.go();
 	    } break;
@@ -224,7 +224,7 @@ void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis(
+uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis( 
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const VW2DPickSet*,obj,vwr2d.dataMgr()->getObject(id));

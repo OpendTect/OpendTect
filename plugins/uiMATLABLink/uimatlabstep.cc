@@ -40,7 +40,7 @@ uiMatlabStep::uiMatlabStep( uiParent* p, MatlabStep* step )
     filefld_ = new uiFileInput( this, "Select shared object file" );
     filefld_->valuechanged.notify( mCB(this,uiMatlabStep,fileSelCB) );
 
-    loadbut_ = new uiPushButton( this, uiStrings::sLoad(),
+    loadbut_ = new uiPushButton( this, uiStrings::sLoad(true),
 			mCB(this,uiMatlabStep,loadCB), true );
     loadbut_->setSensitive( false );
     loadbut_->attach( rightTo, filefld_ );

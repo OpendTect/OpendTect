@@ -104,7 +104,7 @@ void uiStratTreeWin::setNewRT()
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
-	dlg.setButtonText( uiDialog::CANCEL, "" );
+	dlg.setButtonText( uiDialog::CANCEL, uiStrings::sStratigraphy(true) );
     if ( dlg.go() )
     {
 	const char* nm = opts.get( dlg.selection() );
@@ -180,7 +180,7 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setIcon( ioPixmap("undo") );
     mnu->insertSeparator();
 
-    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(),
+    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(true),
 				     mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setIcon( ioPixmap("saveas") );

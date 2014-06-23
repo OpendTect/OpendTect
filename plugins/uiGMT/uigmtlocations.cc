@@ -43,7 +43,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Locations")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    inpfld_ = new uiIOObjSel( this, ctio_,"Pick Set" );
+    inpfld_ = new uiIOObjSel( this, ctio_,uiStrings::sPickSet() );
     inpfld_->selectionDone.notify( mCB(this,uiGMTLocationsGrp,objSel) );
 
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );

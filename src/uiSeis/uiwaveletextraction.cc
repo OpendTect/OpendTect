@@ -87,7 +87,7 @@ void uiWaveletExtraction::createCommonUIFlds()
 {
     zextraction_ = new uiGenInput( this, tr("Vertical Extraction"),
 			BoolInpSpec(linesel2dfld_,tr("Z range"),
-                                    uiStrings::sHorizons()) );
+                                    uiStrings::sHorizons(true)) );
     zextraction_->valuechanged.notify(
 				mCB(this,uiWaveletExtraction,choiceSelCB) );
 
@@ -383,7 +383,7 @@ bool uiWaveletExtraction::fillHorizonSelData( const IOPar& rangepar,
 	if ( size < wvltsize_ )
 	{
 	    uiMSG().error( tr("Selection window size should be"
-		           " more than Wavelet size") );
+		              " more than Wavelet size") );
 	    return false;
 	}
     }

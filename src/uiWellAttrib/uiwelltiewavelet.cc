@@ -65,7 +65,8 @@ void uiWaveletView::createWaveletFields( uiGroup* grp )
     initwnm += initw->name();
 
     uiLabel* wvltlbl = new uiLabel( this, tr("Set active Wavelet : "));
-    activewvltfld_ = new uiGenInput(this, "", BoolInpSpec(true,initwnm,estwnm));
+    activewvltfld_ = new uiGenInput(this, uiStrings::sEmptyString(), 
+                                    BoolInpSpec(true,initwnm,estwnm));
     wvltlbl->attach( alignedAbove, activewvltfld_ );
     activewvltfld_->valuechanged.notify(
 			 mCB(this, uiWaveletView, activeWvltChanged) );

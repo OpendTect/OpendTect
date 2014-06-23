@@ -168,7 +168,7 @@ uiSliceScroll( uiSliceSel* ss )
 
     typfld_ = new uiLabeledComboBox( this, "Control" );
     typfld_->box()->addItem( uiStrings::sManual() );
-    typfld_->box()->addItem( uiStrings::sAuto() );
+    typfld_->box()->addItem( "Auto" );
     typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld_->attach( alignedBelow, stepfld_ );
 

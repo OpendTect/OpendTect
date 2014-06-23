@@ -60,7 +60,8 @@ const WellTie::Setup& uiTieWin::Setup() const
 }
 
 uiTieWin::uiTieWin( uiParent* p, Server& wts )
-	: uiFlatViewMainWin(p,uiFlatViewMainWin::Setup("")
+	: uiFlatViewMainWin(p,
+                            uiFlatViewMainWin::Setup(uiStrings::sEmptyString())
 			    .withhanddrag(true)
 			    .deleteonclose(false))
 	, server_(wts)
@@ -229,7 +230,7 @@ void uiTieWin::drawFields()
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
-    uiPushButton* infobut = new uiPushButton( this, uiStrings::sInfo(),
+    uiPushButton* infobut = new uiPushButton( this, "Info",
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
@@ -254,7 +255,7 @@ void uiTieWin::provideWinHelp( CallBacker* )
 
 void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
 {
-    eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack() );
+    eventtypefld_ = new uiLabeledComboBox( taskgrp, uiStrings::sTrack(true) );
     BufferStringSet eventtypes;
     server_.pickMgr().getEventTypes( eventtypes );
     for ( int idx=0; idx<eventtypes.size(); idx++)
@@ -465,7 +466,7 @@ bool uiTieWin::matchHorMrks( CallBacker* )
 	controlview_->loadHorizons(0);
     }
     pmgr.clearAllPicks();
-    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(),"",
+    uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(true),"",
                                              mNoHelpKey) );
     uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same",
 				BoolInpSpec(true,uiStrings::sName(),
@@ -536,7 +537,8 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 #define mMinWvltLength	20
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
-	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", "",
+	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", 
+                                     uiStrings::sEmptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
                                      .modal(false))
 	, server_(server)
@@ -606,18 +608,18 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const char* units[] = { "", UnitOfMeasure::zUnitAnnot(true,true,false),
 		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false), 0 };
 
-    zrangeflds_ += new uiGenInput( markergrp, "",
+    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
 				   slis.setName(markernms[0]),
 				   slis.setName(markernms[1]) );
     zrangeflds_[mMarkerFldIdx]->setValue( markernames_.size()-1, 1 );
 
     const int maxtwtval = mNINT32( server_.data().getTraceRange().stop *
 				   SI().zDomain().userFactor() );
-    zrangeflds_ += new uiGenInput( markergrp, "",
+    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
 	    IntInpIntervalSpec().setLimits(StepInterval<int>(0,maxtwtval,1)));
 
     const float maxdah = wd->track().dahRange().stop;
-    zrangeflds_ += new uiGenInput( markergrp, "",
+    zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
 	    FloatInpIntervalSpec().setLimits(Interval<float>(0,maxdah)));
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,0);
     zrangeflds_[mDahFldIdx]->setNrDecimals(2,1);

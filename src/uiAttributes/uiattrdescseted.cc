@@ -96,7 +96,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , updating_fields_(false)
     , attrsneedupdt_(attrsneedupdt)
 {
-    setOkCancelText( uiStrings::sClose(), "" );
+    setOkCancelText( uiStrings::sClose(), uiStrings::sEmptyString() );
     setctio_.ctxt.toselect.dontallow_.set( sKey::Type(),
 					   adsm->is2D() ? "3D" : "2D" );
 
@@ -718,7 +718,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
                          " to change the attribute type?")
                         .arg(usedesc->userRef());
 
-        bool res = uiMSG().askGoOn(msg, uiStrings::sChange(), 
+        bool res = uiMSG().askGoOn(msg, tr("Change"), 
                                    uiStrings::sCancel());
 	if ( res )
 	{

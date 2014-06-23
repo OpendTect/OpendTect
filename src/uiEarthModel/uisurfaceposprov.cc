@@ -42,7 +42,7 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	new uiLabel( this, tr("Not implemented for 2D") );
 	return;
     }
-    surf1fld_ = new uiIOObjSel( this, ctio1_, uiStrings::sHorizon() );
+    surf1fld_ = new uiIOObjSel( this, ctio1_, uiStrings::sHorizon(true) );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     issingfld_ = new uiGenInput( this, uiStrings::sSelect(),

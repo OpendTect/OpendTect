@@ -30,7 +30,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeisWvltSliderDlg::uiSeisWvltSliderDlg( uiParent* p, Wavelet& wvlt )
-    : uiDialog(p,uiDialog::Setup("","", mODHelpKey(mSeisWvltSliderDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(uiStrings::sEmptyString(),
+                                 uiStrings::sEmptyString(), 
+                                 mODHelpKey(mSeisWvltSliderDlgHelpID) ))
     , wvlt_(&wvlt)
     , orgwvlt_(new Wavelet(wvlt))
     , sliderfld_(0)
@@ -142,7 +144,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     typefld_ = new uiGenInput( this, "Taper",
 		    BoolInpSpec(true, istime ? uiStrings::sTime() 
                                              : uiStrings::sDepth(),
-                                             "Frequency"));
+                                               "Frequency"));
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
@@ -249,7 +251,7 @@ void uiSeisWvltTaperDlg::setFreqData()
 
 //Wavelet display property dialog
 uiWaveletDispPropDlg::uiWaveletDispPropDlg( uiParent* p, const Wavelet& w )
-            : uiDialog(p,Setup(w.name(),"", 
+            : uiDialog(p,Setup(w.name(),uiStrings::sEmptyString(), 
                                mODHelpKey(mWaveletDispPropDlgHelpID) )
 			 .modal(false))
 {

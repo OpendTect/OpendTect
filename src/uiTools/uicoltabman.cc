@@ -148,7 +148,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );
     importbut_->attach( centeredRightOf, removebut_ );
 
-    uiPushButton* savebut = new uiPushButton( this, uiStrings::sSaveAs(), true);
+    uiPushButton* savebut = new uiPushButton( this, uiStrings::sSaveAs(true), 
+                                              true);
     savebut->activated.notify( mCB(this,uiColorTableMan,saveCB) );
     savebut->attach( rightTo, importbut_ );
     savebut->attach( rightBorder, 0 );

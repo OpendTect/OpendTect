@@ -110,8 +110,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     , attrsetdlg_(0)
     , is2devsent_(false)
     , attrsetclosetim_("Attrset dialog close")
-    , multcomp3d_(uiStrings::s3D())
-    , multcomp2d_(uiStrings::s2D())
+    , multcomp3d_(uiStrings::s3D(true))
+    , multcomp2d_(uiStrings::s2D(true))
     , dpsdispmgr_( 0 )
     , evalmapperbackup_( 0 )
     , attrsneedupdt_(true)
@@ -512,7 +512,8 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
     int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
-				    0, uiStrings::s2D(), uiStrings::s3D() );
+				    0, uiStrings::s2D(true), 
+                                    uiStrings::s3D(true) );
     if ( res == 2 ) return 0;
     return res == 0 ? ds2d : ds3d;
 }
@@ -1061,9 +1062,9 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
 
     const int start = 0; const int stop = attrinf.attrnms_.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
-    uiString txt = useext ? ( is2d ? uiStrings::sAttributes2D()
-                                   : uiStrings::sAttributes3D() )
-			           : uiStrings::sAttributes();
+    uiString txt = useext ? ( is2d ? tr("Attributes 2D")
+                                   : tr("Attributes 3D") )
+			           : uiStrings::sAttributes(true);
     calcmnuitem->text = txt;
     mInsertItems(attrnms_,calcmnuitem,isattrib);
 

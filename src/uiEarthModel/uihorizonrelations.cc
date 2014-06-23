@@ -104,7 +104,8 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
-    : uiDialog(p,Setup("Horizon relations (Solve crossings)","",
+    : uiDialog(p,Setup("Horizon relations (Solve crossings)",
+                       uiStrings::sEmptyString(),
                         mODHelpKey(HorizonModifyDlgHelpID) ))
     , mid1_(mid1)
     , mid2_(mid2)
@@ -125,17 +126,18 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     horizonfld_->attach( leftAlignedBelow, lbl );
 
     modefld_ = new uiGenInput( this, "Modify action",
-			       BoolInpSpec(true,uiStrings::sShift(),
+			       BoolInpSpec(true,uiStrings::sShift(true),
                                uiStrings::sRemove(true)) );
     modefld_->attach( alignedBelow, horizonfld_ );
 
     savefld_ = new uiGenInput( this, "Save modified horizon",
-			       BoolInpSpec(true,"As new","Overwrite") );
+			       BoolInpSpec(true,"As new",
+                                           uiStrings::sOverwrite()) );
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
 
     ctio_->ctxt.forread = false;
-    objfld_ = new uiIOObjSel( this, *ctio_, uiStrings::sHorizon() );
+    objfld_ = new uiIOObjSel( this, *ctio_, uiStrings::sHorizon(true) );
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 

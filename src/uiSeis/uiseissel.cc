@@ -99,7 +99,8 @@ static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),"",false,sssu.allowsetsurvdefault_)
+    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),uiStrings::sEmptyString(),false,
+                                 sssu.allowsetsurvdefault_)
     , compfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)
@@ -145,7 +146,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     if ( selgrp_->getCtxtIOObj().ctxt.forread && sssu.selectcomp_ )
     {
-	compfld_ = new uiLabeledComboBox( selgrp_, "Component", "Compfld" );
+	compfld_ = new uiLabeledComboBox( selgrp_, tr("Component"), 
+                                          "Compfld" );
 	compfld_->attach( alignedBelow, topgrp );
 
 	entrySel(0);

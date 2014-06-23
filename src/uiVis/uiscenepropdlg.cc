@@ -34,8 +34,9 @@ bool uiScenePropertyDlg::savestatus_ = true;
 
 uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 		const ObjectSet<ui3DViewer>& viewers, int curvwridx )
-    : uiDialog(p,uiDialog::Setup(tr("Scene properties"),"",
-                                    mODHelpKey(mScenePropertyDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Scene properties"),
+                                 uiStrings::sEmptyString(),
+                                 mODHelpKey(mScenePropertyDlgHelpID) ))
     , hadsurveybox_(true)
     , hadannot_(true)
     , hadannotscale_(true)

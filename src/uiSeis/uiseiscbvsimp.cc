@@ -563,7 +563,7 @@ int nextStep()
 
 
 uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
-    : uiDialog(p,Setup("Copy 2D Seismic Data","",
+    : uiDialog(p,Setup("Copy 2D Seismic Data",uiStrings::sEmptyString(),
                        mODHelpKey(mSeisCopyLineSetHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );

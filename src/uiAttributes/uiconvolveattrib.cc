@@ -81,7 +81,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 
     const char* spherestr = is2d ? "Circle" : "Sphere";
     const char* cubestr = is2d ? "Square" : "Cube";
-    shapefld_ = new uiGenInput( this, "Shape",
+    shapefld_ = new uiGenInput( this, tr("Shape"),
 	    			BoolInpSpec(true, spherestr, cubestr) );
     shapefld_->attach( alignedBelow, szfld_ );
 

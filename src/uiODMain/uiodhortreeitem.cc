@@ -240,10 +240,10 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
 void uiODHorizonTreeItem::initMenuItems()
 {
     hordatamnuitem_.text = "&Horizon Data";
-    algomnuitem_.text = "&Tools";
+    algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = "Workflows";
     positionmnuitem_.text = "&Position ...";
-    shiftmnuitem_.text = "&Shift ...";
+    shiftmnuitem_.text = uiStrings::sShift(false);
     fillholesmnuitem_.text = "&Gridding ...";
     filterhormnuitem_.text = "&Filtering ...";
     snapeventmnuitem_.text = "Snapping ...";
@@ -683,7 +683,7 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 
 void uiODHorizon2DTreeItem::initMenuItems()
 {
-    algomnuitem_.text = "&Tools";
+    algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = "Workflows";
     derive3dhormnuitem_.text = "Derive &3D horizon ...";
     snapeventmnuitem_.text = "Snapping ...";

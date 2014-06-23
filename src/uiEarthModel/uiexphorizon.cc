@@ -68,7 +68,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     typfld_->attach( alignedBelow, infld_ );
     typfld_->valuechanged.notify( mCB(this,uiExportHorizon,typChg) );
 
-    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(),
+    settingsbutt_ = new uiPushButton( this, uiStrings::sSettings(true),
 				      mCB(this,uiExportHorizon,settingsCB),
 				      false);
     settingsbutt_->attach( rightOf, typfld_ );
@@ -120,7 +120,8 @@ static void initGF( od_ostream& strm, const char* hornm,
     BufferString hnm( hornm );
     hnm.clean();
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
-		    "", "", SI().xyInFeet() ? "ft" : "m " );
+		    uiStrings::sEmptyString(), uiStrings::sEmptyString(), 
+                    SI().xyInFeet() ? "ft" : "m " );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;
     OD::memCopy( gfbuf+8, hnm.buf(), sz );
     hnm = comment;
@@ -141,7 +142,7 @@ static void writeGF( od_ostream& strm, const BinID& bid, float z,
     const float depth = (float) ( mIsUdf(z) ? mGFUndefValue : z );
     sprintf( buf, "%16.8E%16.8E%3d%3d%9.2f%10.2f%10.2f%5d%14.7E I%7d %52s\n",
 	  crd.x, crd.y, segid, 14, depth, crl, crl, bid.crl(), gfval, bid.inl(),
-	     "" );
+	     uiStrings::sEmptyString() );
     buf[96] = buf[97] = 'X';
     strm << buf;
 }

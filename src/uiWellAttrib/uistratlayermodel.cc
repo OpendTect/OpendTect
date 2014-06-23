@@ -296,7 +296,7 @@ void initEditing()
 
 
 uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
-    : uiMainWin(p,"",1,true)
+    : uiMainWin(p,uiStrings::sEmptyString(),1,true)
     , desc_(*new Strat::LayerSequenceGenDesc(Strat::RT()))
     , elpropsel_(0)
     , descctio_(*mMkCtxtIOObj(StratLayerSequenceGenDesc))

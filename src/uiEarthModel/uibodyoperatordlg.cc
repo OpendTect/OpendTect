@@ -198,7 +198,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	    listinfo_[curidx].act_ = -1;
 	    listinfo_[curidx].defined_ = false;
 	
-	    tree_->selectedItem()->setText( "", 1 ); 
+	    tree_->selectedItem()->setText( uiStrings::sEmptyString(), 1 ); 
     	    tree_->selectedItem()->setPixmap( 1, "blank" );
 	}
 

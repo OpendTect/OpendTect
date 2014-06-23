@@ -449,10 +449,10 @@ void uiODSceneMgr::updateStatusBar()
 {
     if ( visServ().isViewMode() )
     {
-	appl_.statusBar()->message( "", mPosField );
-	appl_.statusBar()->message( "", mValueField );
-	appl_.statusBar()->message( "", mNameField );
-	appl_.statusBar()->message( "", mStatusField );
+	appl_.statusBar()->message( uiStrings::sEmptyString(), mPosField );
+	appl_.statusBar()->message( uiStrings::sEmptyString(), mValueField );
+	appl_.statusBar()->message( uiStrings::sEmptyString(), mNameField );
+	appl_.statusBar()->message( uiStrings::sEmptyString(), mStatusField );
 	appl_.statusBar()->setBGColor( mStatusField,
 				   appl_.statusBar()->getBGColor(mPosField) );
     }
@@ -884,10 +884,10 @@ uiTreeView* uiODSceneMgr::getTree( int sceneid )
 void uiODSceneMgr::setItemInfo( int id )
 {
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
-    appl_.statusBar()->message( "", mPosField );
-    appl_.statusBar()->message( "", mValueField );
+    appl_.statusBar()->message( uiStrings::sEmptyString(), mPosField );
+    appl_.statusBar()->message( uiStrings::sEmptyString(), mValueField );
     appl_.statusBar()->message( visServ().getInteractionMsg(id), mNameField );
-    appl_.statusBar()->message( "", mStatusField );
+    appl_.statusBar()->message( uiStrings::sEmptyString(), mStatusField );
     appl_.statusBar()->setBGColor( mStatusField,
 				   appl_.statusBar()->getBGColor(mPosField) );
 }
