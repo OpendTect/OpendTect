@@ -1346,12 +1346,19 @@ bool uiTable::getSelected()
 
 bool uiTable::getSelectedCells( TypeSet<RowCol>& sel ) const
 {
+    sel.erase();
     for ( int idx=0; idx<selectedRanges().size(); idx++ )
     {
-	const int firstrow = selectedRanges()[idx]->firstrow_;
-	const int lastrow = selectedRanges()[idx]->lastrow_;
+	const SelectionRange* selrg = selectedRanges()[idx];
+	const int firstrow = selrg->firstrow_;
+	const int lastrow = selrg->lastrow_;
+	const int firstcol = selrg->firstcol_;
+	const int lastcol = selrg->lastcol_;
 	for ( int row = firstrow; row<=lastrow; row++ )
-	    sel += RowCol( row, idx );
+	{
+	    for ( int col=firstcol; col<=lastcol; col++ )
+		sel += RowCol( row, col );
+	}
     }
 
     return !sel.isEmpty();
