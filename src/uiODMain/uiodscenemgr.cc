@@ -95,8 +95,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , sceneClosed(this)
     , treeToBeAdded(this)
     , viewModeChanged(this)
-    , scenetimer_(new Timer)
-    , delayedtilingdone_(false)
+    , tiletimer_(new Timer)
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 		       SurveyInfo::No2D );
@@ -125,12 +124,13 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODAnnotTreeItemFactory, 9000,
 		       SurveyInfo::Both2DAnd3D );
+    
+    tiletimer_->tick.notify( mCB(this,uiODSceneMgr,tileTimerCB) );
 
     mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
-    scenetimer_->tick.notify( mCB(this,uiODSceneMgr,sceneTimerCB) );
 }
 
 
@@ -140,6 +140,7 @@ uiODSceneMgr::~uiODSceneMgr()
     delete tifs_;
     delete mdiarea_;
     delete wingrabber_;
+    delete tiletimer_;
 }
 
 
@@ -184,6 +185,9 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( visscene && scn.sovwr_->getSceneColTab() )
 	visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
 
+    if ( visscene )
+	mAttachCB( 
+	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
@@ -218,26 +222,32 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
-
-    scenetimer_->start( 50, true );
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
     return sceneid;
 }
 
 
-void uiODSceneMgr::sceneTimerCB( CallBacker* )
+void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 {
-    if ( !delayedtilingdone_ && scenes_.size()>1 )
-    {
-	tile();
-	delayedtilingdone_ = true;
-	scenetimer_->start( 50, true );
-    }
-    else
+    if ( scenes_.size() >0 && scenes_.last()->sovwr_ )
     {
 	scenes_.last()->sovwr_->viewAll( false );
-	delayedtilingdone_ = false;
+	tiletimer_->start( 10,true );
+
+	visBase::DataObject* obj =
+	    visBase::DM().getObject( scenes_.last()->sovwr_->sceneID() );
+	
+	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
+
+	mDetachCB( 
+	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
     }
+}
+
+
+void uiODSceneMgr::tileTimerCB( CallBacker* )
+{
+    tile();
 }
 
 
@@ -248,6 +258,12 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 
     if ( scene.itemmanager_ )
     {
+	visBase::DataObject* obj =
+	    visBase::DM().getObject( scene.itemmanager_->sceneID() );
+	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
+	mDetachCB( 
+	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
+
 	scene.itemmanager_->askContinueAndSaveIfNeeded( false );
 	scene.itemmanager_->prepareForShutdown();
 	visServ().removeScene( scene.itemmanager_->sceneID() );

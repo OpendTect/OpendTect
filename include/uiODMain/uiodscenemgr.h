@@ -178,7 +178,7 @@ protected:
     inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
     inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
-
+    
     mExpClass(uiODMain) Scene
     {
     public:
@@ -193,15 +193,15 @@ protected:
     };
 
     ObjectSet<Scene>		scenes_;
+    Timer*			tiletimer_;
     Scene&			mkNewScene();
     void			removeScene(Scene& scene);
     void			removeSceneCB(CallBacker*);
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;
-    Timer*			scenetimer_;
-    void			sceneTimerCB(CallBacker*);
-    bool			delayedtilingdone_;
+    void			newSceneUpdated(CallBacker*);
+    void			tileTimerCB(CallBacker*);
 
     friend class		uiODMain;
 };

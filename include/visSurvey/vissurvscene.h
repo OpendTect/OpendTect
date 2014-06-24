@@ -122,6 +122,7 @@ public:
     void			setSceneColTab(visBase::SceneColTab*);
 
     Notifier<Scene>		mouseposchange;
+    Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool xyt) const;
 				/*! If not xyt it is inlcrlt */
     BufferString		getMousePosValue() const;

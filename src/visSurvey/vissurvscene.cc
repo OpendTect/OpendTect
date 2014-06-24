@@ -65,6 +65,7 @@ Scene::Scene()
     , annot_(0)
     , markerset_(0)
     , mouseposchange(this)
+    , sceneboundingboxupdated(this)
     , mouseposval_(0)
     , mouseposstr_("")
     , curzstretch_( 2 )
@@ -415,6 +416,9 @@ void Scene::addObject( visBase::DataObject* obj )
 
     if ( so )
 	objectMoved( obj );
+
+    sceneboundingboxupdated.trigger();
+
 }
 
 
