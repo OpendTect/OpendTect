@@ -160,7 +160,7 @@ void uiStratTreeWin::popUp() const
 void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
-    uiMenu* mnu = new uiMenu( this, uiStrings::sAction() );
+    uiMenu* mnu = new uiMenu( this, uiStrings::sFile() );
     expandmnuitem_ = new uiAction( mExpandTxt(true),
 				     mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
@@ -180,8 +180,8 @@ void uiStratTreeWin::createMenu()
     resetmnuitem_->setIcon( ioPixmap("undo") );
     mnu->insertSeparator();
 
-    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(true),
-				     mCB(this,uiStratTreeWin,saveAsCB) );
+    saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(false),
+				   mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
     saveasmnuitem_->setIcon( ioPixmap("saveas") );
     menubar->insertItem( mnu );
