@@ -184,7 +184,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( visscene && scn.sovwr_->getSceneColTab() )
 	visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
     if ( visscene )
-	mAttachCB( 
+	mAttachCB(
 	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 
     scn.sovwr_->setSceneID( sceneid );
@@ -239,7 +239,7 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
-	mDetachCB( 
+	mDetachCB(
 	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
     }
 }
@@ -247,7 +247,8 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 
 void uiODSceneMgr::tileTimerCB( CallBacker* )
 {
-    tile();
+    if ( scenes_.size() > 1 )
+	tile();
 }
 
 
@@ -261,7 +262,7 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 	visBase::DataObject* obj =
 	    visBase::DM().getObject( scene.itemmanager_->sceneID() );
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
-	mDetachCB( 
+	mDetachCB(
 	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 	scene.itemmanager_->askContinueAndSaveIfNeeded( false );
 	scene.itemmanager_->prepareForShutdown();
