@@ -116,17 +116,10 @@ WellDisplay::WellDisplay()
     , needsave_(false)
     , dispprop_(0)
     , datatransform_(0)
+    , markerset_(0)
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
-    markerset_ = visBase::MarkerSet::create();
-    markerset_->ref();
-    addChild( markerset_->osgNode() );
-    markerset_->setMaterial( new visBase::Material );
-    MarkerStyle3D markerstyle;
-    markerstyle.size_ = mPickSz;
-    markerstyle.type_ = (MarkerStyle3D::Type) mPickSz;
-    markerset_->setMarkerStyle( markerstyle );
 }
 
 
@@ -143,8 +136,10 @@ WellDisplay::~WellDisplay()
     wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
     delete dispprop_;
     delete Well::MGR().release( wellid_ );
-    markerset_->unRef();
+    unRefAndZeroPtr( markerset_ );
     setBaseMap( 0 );
+    if ( pseudotrack_ )
+	delete pseudotrack_;
 }
 
 
@@ -833,6 +828,26 @@ void WellDisplay::addPick( Coord3 pos )
 }
 
 
+void WellDisplay::addKnownPos()
+{
+    TypeSet<Coord3> wcoords;
+    if ( pseudotrack_ )
+    {
+	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	    wcoords += pseudotrack_->pos(idx);
+
+	well_->setTrack( wcoords );
+	needsave_ = true;
+	changed_.trigger();
+    }
+
+    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+    {
+	markerset_->addPos( wcoords[idx] );
+    }
+}
+
+
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
 {
     if ( transformation_==newtr || !markerset_ )
@@ -874,9 +889,13 @@ void WellDisplay::setupPicking( bool yn )
     if ( !markerset_ )
     {
 	markerset_ = visBase::MarkerSet::create();
-	markerset_->ref();
+	refPtr( markerset_ );
 	addChild( markerset_->osgNode() );
 	markerset_->setMaterial( new visBase::Material );
+	MarkerStyle3D markerstyle;
+	markerstyle.size_ = mPickSz;
+	markerstyle.type_ = (MarkerStyle3D::Type) mPickSz;
+	markerset_->setMarkerStyle( markerstyle );
 	mTryAlloc( pseudotrack_, Well::Track() );
     }
 
@@ -888,14 +907,19 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
-
-    TypeSet<Coord3> trackpos;
-    getTrackPos( wd, trackpos );
-    if ( trackpos.isEmpty() )
+    const Well::D2TModel* d2t = wd->d2TModel();
+    setName( wd->name() );
+    if ( !pseudotrack_ )
 	return;
 
-    for ( int idx=0; idx<trackpos.size(); idx++ )
-	addPick( trackpos[idx] );
+    *pseudotrack_ = wd->track();
+    if ( zistime_ )
+	pseudotrack_->toTime( *d2t, wd->track() );
+
+    if ( pseudotrack_->nrPoints() <= 0 )
+	return;
+
+    addKnownPos();
 }
 
 
