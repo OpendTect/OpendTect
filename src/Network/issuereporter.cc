@@ -138,7 +138,7 @@ bool System::IssueReporter::send()
     
     BufferString remotefname ( OD::Platform::local().shortName(), "_" );
     remotefname.add( ODInst::getPkgVersion ("base") );
-    remotefname.add( "_" ).add( "crash.dmp" );
+    remotefname.add( "_" ).add( "crash_report.dmp" );
 
     const char* filetype = "dumpfile";
     BufferString errmsg;
