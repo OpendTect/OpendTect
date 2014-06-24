@@ -34,7 +34,8 @@ uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
 	uiInterpolationLayerModelGrp* grp =
 		uiInterpolationLayerModelGrp::factory().create(
 		names.get(idx), this, true );
-	grp->attach( alignedBelow, layermodelfld_ );
+	if ( grp )
+	    grp->attach( alignedBelow, layermodelfld_ );
 	grps_ += grp;
     }
 
