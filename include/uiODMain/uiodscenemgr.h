@@ -198,9 +198,9 @@ protected:
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;
-    Timer*			scenetimer_;
-    void			sceneTimerCB(CallBacker*);
-    bool			delayedtilingdone_;
+    Timer*			tiletimer_;
+    void			newSceneUpdated(CallBacker*);
+    void			tileTimerCB(CallBacker*);
 
     friend class		uiODMain;
 };
