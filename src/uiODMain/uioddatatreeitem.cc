@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
-		     const char*, uiODDataTreeItem::factory );
+		     const char*, uiODDataTreeItem::factory )
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem("")
@@ -49,11 +49,11 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movedownmnuitem_(uiStrings::sDown())
     , displaymnuitem_(uiStrings::sDisplay())
     , removemnuitem_(uiStrings::sRemove(true),-1000)
-    , changetransparencyitem_(tr("Change &transparency..."))
-    , statisticsitem_(tr("Show &Historgram..."))
-    , amplspectrumitem_(tr("Show &Amplitude Spectrum..."))
-    , fkspectrumitem_(tr("Show &F-K Spectrum..."))
-    , view2dwvaitem_(tr("2D Viewer - &Wiggle"))
+    , changetransparencyitem_(tr("Change transparency..."))
+    , statisticsitem_(tr("Show Historgram..."))
+    , amplspectrumitem_(tr("Show Amplitude Spectrum..."))
+    , fkspectrumitem_(tr("Show F-K Spectrum..."))
+    , view2dwvaitem_(tr("2D Viewer - Wiggle"))
     , view2dvditem_(tr("2D Viewer"))
 {
     statisticsitem_.iconfnm = "histogram";

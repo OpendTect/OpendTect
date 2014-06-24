@@ -21,14 +21,14 @@ class uiMenuHandler;
 class uiStatsDisplayWin;
 class uiAmplSpectrum;
 class uiFKSpectrum;
-namespace Attrib { class SelSpec; };
-namespace ColTab { class Sequence; };
+namespace Attrib { class SelSpec; }
+namespace ColTab { class Sequence; }
 
 
 /*!Base class for a data treeitem. */
 
 mExpClass(uiODMain) uiODDataTreeItem : public uiTreeItem
-{ mODTextTranslationClass(uiODDataTreeItem);
+{ mODTextTranslationClass(uiODDataTreeItem)
 public:
 				uiODDataTreeItem(const char* parenttype);
 				~uiODDataTreeItem();
@@ -42,12 +42,12 @@ public:
 
 				mDefineFactory2ParamInClass(uiODDataTreeItem,
 					const Attrib::SelSpec&,const char*,
-					factory );
+					factory )
 
     				/*!<Adds custom create function for create
 				    function. */
 
-    void			prepareForShutdown();				
+    void			prepareForShutdown();
 
 protected:
 

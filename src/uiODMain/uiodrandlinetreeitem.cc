@@ -334,11 +334,11 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
-    , editnodesmnuitem_("&Edit nodes ...")
-    , insertnodemnuitem_("&Insert node")
-    , saveasmnuitem_( uiStrings::sSaveAs(true) )
-    , saveas2dmnuitem_("Save As &2D ...")
-    , create2dgridmnuitem_("Create 2D &Grid ...")
+    , editnodesmnuitem_("Edit nodes ...")
+    , insertnodemnuitem_("Insert node")
+    , saveasmnuitem_(uiStrings::sSaveAs(false))
+    , saveas2dmnuitem_("Save As 2D ...")
+    , create2dgridmnuitem_("Create 2D Grid ...")
 {
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";
@@ -460,7 +460,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
 	    ctio->ctxt.forread = false;
 	    ctio->setName( rtd->name() );
-	    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(), 
+	    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(),
                                false );
 	    if ( !dlg.go() ) return;
 

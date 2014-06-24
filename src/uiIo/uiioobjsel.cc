@@ -757,7 +757,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	else
 	    titletext = titletext.arg( uiString( c.ctxt.name() ) );
 
-	titletext = titletext.arg( multisel ? "(s)"    
+	titletext = titletext.arg( multisel ? "(s)"
                                             : uiStrings::sEmptyString() );
     }
 
@@ -783,7 +783,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
     setCaption( captn );
 
-    setOkText( tr("&Ok (Select)") );
     selgrp_->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
 }

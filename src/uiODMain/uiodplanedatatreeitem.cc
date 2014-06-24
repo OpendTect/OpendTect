@@ -59,11 +59,11 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 
 
 uiString uiODPlaneDataTreeItem::sAddDefaultData()
-{ return tr("Add &default data"); }
+{ return tr("Add default data"); }
 
 
 uiString uiODPlaneDataTreeItem::sAddColorBlended()
-{ return tr("Add &color blended"); }
+{ return tr("Add color blended"); }
 
 
 uiString uiODPlaneDataTreeItem::sAddAtWellLocation()
@@ -107,8 +107,8 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, OD::SliceType o, Type t )
     : orient_(o)
     , type_(t)
     , positiondlg_(0)
-    , positionmnuitem_(tr("P&osition ..."),cPositionIdx)
-    , gridlinesmnuitem_(tr("&Gridlines ..."),cGridLinesIdx)
+    , positionmnuitem_(tr("Position ..."),cPositionIdx)
+    , gridlinesmnuitem_(tr("Gridlines ..."),cGridLinesIdx)
 {
     displayid_ = did;
     positionmnuitem_.iconfnm = "orientation64";
