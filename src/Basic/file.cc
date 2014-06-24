@@ -504,14 +504,14 @@ bool removeDir( const char* dirnm )
     if ( !exists(dirnm) )
 	return true;
 
+    if ( isLink(dirnm) )
+	return QFile::remove( dirnm );	
+
 #ifdef __win__
     return winRemoveDir( dirnm );
 #else
     BufferString cmd;
     cmd = "/bin/rm -rf";
-    if ( isLink(dirnm) )
-	return QFile::remove( dirnm );	
-
     cmd.add(" \"").add(dirnm).add("\"");
     bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
     if ( res ) res = !exists(dirnm);
