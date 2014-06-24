@@ -190,7 +190,7 @@ void uiFlatViewDataDispPropTab::setDataNames()
 	return;
 
     dispfld_->setEmpty();
-    dispfld_->addItem( uiStrings::sNo() );
+    dispfld_->addItem( uiStrings::sNone() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
 	ConstDataPackRef<DataPack> dp =
