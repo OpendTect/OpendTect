@@ -51,7 +51,6 @@ ________________________________________________________________________
 				//For debugging only Don't use
       bool			A::refIfReffed() const;
 
-				//For debugging only Don't use
       int			A::nrRefs() const;
   private:
     virtual void		A::refNotify() const {}
