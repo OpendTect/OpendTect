@@ -510,9 +510,7 @@ bool removeDir( const char* dirnm )
     BufferString cmd;
     cmd = "/bin/rm -rf";
     if ( isLink(dirnm) )
-    {
-	// TODO
-    }
+	return QFile::remove( dirnm );	
 
     cmd.add(" \"").add(dirnm).add("\"");
     bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;

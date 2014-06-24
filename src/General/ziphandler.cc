@@ -1415,8 +1415,13 @@ bool ZipHandler::openStreamToWrite()
     if ( !File::exists( pathonly.buf() ) )
 	File::createDir( pathonly.buf() );
 
-    if ( File::exists(destfile_) && !File::isWritable(destfile_) )
-	File::makeWritable( destfile_, true, false );
+    if ( File::exists(destfile_) )
+    {
+	if ( !File::isWritable(destfile_) )
+	    File::makeWritable( destfile_, true, false );
+	if ( File::isLink(destfile_) && !File::remove(destfile_) )
+	    return reportWriteError();
+    }
 
     ostrm_ = new od_ostream( destfile_ );
     return ostrm_->isOK() ? true : reportWriteError();
