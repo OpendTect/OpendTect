@@ -14,6 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 bool testArg()
 {
+    uiString composite = uiString( "%1 plus %2 is %3")
+		.arg( 4 )
+		.arg( 5 )
+		.arg( 9 );
+
+    mRunStandardTest( composite.getFullString()=="4 plus 5 is 9",
+		      "Composite test" );
+
     const char* desoutput = "Hello Dear 1";
 
     uiString string = uiString( "Hello %1 %2").arg( "Dear" ).arg( toString(1) );

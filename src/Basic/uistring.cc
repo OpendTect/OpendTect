@@ -353,16 +353,6 @@ uiString& uiString::arg( const uiString& newarg )
 }
 
 
-uiString& uiString::arg( const OD::String& a )
-{ return arg( a.str() ); }
-
-
-uiString& uiString::arg( const char* newarg )
-{
-    return arg( uiString(newarg) );
-}
-
-
 uiString& uiString::append( const uiString& txt, bool withnewline )
 {
     Threads::Locker datalocker( datalock_ );

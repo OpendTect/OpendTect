@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "keystrs.h"
 #include "threadlock.h"
+#include "string2.h"
 
 class uiStringData;
 
@@ -35,9 +36,9 @@ mFDQtclass( QTranslator );
 
  \code
    uiString string = uiString( "%1 plus %2 is %3")
-			.arg( toString(4) )
-			.arg( toString(5) )
-			.arg( toString(4+5) );
+			.arg( 4 )
+			.arg( 5 )
+			.arg( 4+5 );
  \endcode
 
    Will result in the string "4 plus 5 is 9"
@@ -95,10 +96,8 @@ public:
     bool	operator==(const uiString& b) const { return b.data_==data_; }
     bool	operator!=(const uiString& b) const { return b.data_!=data_; }
 
-    uiString&	arg(const char*);
-    		/*!<Replaces the %N (e.g. %1) with the lowest N with the
-		    provided string. */
-    uiString&	arg(const OD::String&);
+    template <class T>
+    uiString&	arg(const T& var);
     		/*!<Replaces the %N (e.g. %1) with the lowest N with the
 		    provided string. */
     uiString&	arg(const uiString&);
@@ -189,6 +188,12 @@ private: \
 mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
 
+template <class T> inline
+uiString& uiString::arg( const T& var )
+{
+    uiString thearg( toString( var ) );
+    return arg( thearg );
+}
 
 #endif
 
