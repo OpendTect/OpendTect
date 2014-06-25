@@ -57,6 +57,8 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wells"),mNoDlgTitle,
 				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
+    , d2tbut_(0)
+    , csbut_(0)
 {
     createDefaultUI( false, true, true );
     setPrefWidth( 50 );
@@ -102,7 +104,6 @@ uiWellMan::uiWellMan( uiParent* p )
     welltrackbut_->attach( ensureBelow, selgrp_ );
     welltrackbut_->attach( ensureBelow, logsgrp_ );
 
-    d2tbut_ = 0;
     if ( SI().zIsTime() )
     {
 	csbut_ = new uiToolButton( listgrp_, "checkshot",
@@ -230,8 +231,16 @@ void uiWellMan::setToolButtonProperties()
     BufferString tt;
     BufferString curwellnm( curioobj_->name() );
     mSetButToolTip(welltrackbut_,"Edit Well Track for",curwellnm,"")
-    mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"")
-    mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"")
+    if ( d2tbut_ )
+    {
+	mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"")
+    }
+
+    if ( csbut_ )
+    {
+	mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"")
+    }
+
     mSetButToolTip(markerbut_,"Edit",curwellnm," markers")
 
     const int nrlogs = logsfld_->size();
@@ -239,31 +248,42 @@ void uiWellMan::setToolButtonProperties()
     logdownbut_->setSensitive( curidx >= 0 && curidx < nrlogs-1 );
     logupbut_->setSensitive( curidx > 0 );
 
-    const int nrchosen = logsfld_->nrChosen();
-    const bool issing = nrchosen == 1;
-    const bool oneormore = nrchosen > 0;
+    const int nrchosenlogs = logsfld_->nrChosen();
+    const bool issinglog = nrchosenlogs == 1;
+    const bool oneormorelog = nrchosenlogs > 0;
 
-    logvwbut_->setSensitive( issing || nrchosen == 2 );
-    logrenamebut_->setSensitive( issing );
-    logrmbut_->setSensitive( oneormore );
-    logexpbut_->setSensitive( oneormore );
-    loguombut_->setSensitive( issing );
+    logrenamebut_->setSensitive( issinglog );
+    logrmbut_->setSensitive( oneormorelog );
+    logexpbut_->setSensitive( oneormorelog );
+    loguombut_->setSensitive( issinglog );
 
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
     mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
     mSetButToolTip(loguombut_,"View/edit",logsfld_->getText(),
 		   "unit of measure");
+    BufferStringSet nms;
     if ( curidx < 0 )
 	logvwbut_->setToolTip( "View selected log" );
     else
     {
-	BufferStringSet nms;
 	logsfld_->getChosen( nms );
-	mSetButToolTip(logvwbut_,"View",nms.getDispString(2),"");
 	mSetButToolTip(logrmbut_,"Remove",nms.getDispString(3),"");
 	mSetButToolTip(logexpbut_,"Export",nms.getDispString(3),"");
     }
+
+    int nrchosenwls = selGroup()->getListField()->nrChosen();
+    logvwbut_->setSensitive( nrchosenwls <= 2 && oneormorelog );
+    BufferString vwlogtt;
+    if ( nrchosenwls <= 2 && oneormorelog )
+    {
+	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
+	nms.setEmpty();
+	selGroup()->getListField()->getChosen( nms );
+	vwlogtt.add( nms.getDispString(2) );
+    }
+
+    mSetButToolTip(logvwbut_,"View",logsfld_->getText(),vwlogtt);
 }
 
 
@@ -534,21 +554,34 @@ void uiWellMan::wellsChgd()
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
-    mEnsureLogSelected();
-    mGetWL();
+    BufferString sellognm( logsfld_->getText() );
+    if ( curwds_.size() > 2 )
+	return;
 
-    BufferString lognm1(lognm), lognm2;
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
+    const Well::Log* wl1=0;
+    const Well::Log* wl2=0;
+    if ( curwds_[0] )
     {
-	if ( !logsfld_->isChosen(idx) )
-	    continue;
-	const char* nm2 = logsfld_->textOfItem( idx );
-	if ( lognm1 != nm2 )
-	    { lognm2 = nm2; break; }
+	currdrs_[0]->getLogs();
+	const Well::LogSet& wls1 = curwds_[0]->logs();
+	wl1 = wls1.getLog( sellognm );
     }
 
-    const Well::Log* wl2 = lognm2.isEmpty() ? 0 : wls.getLog( lognm2 );
-    (void)uiWellLogDispDlg::popupNonModal( this, wl, wl2 );
+    if ( curwds_.size() > 1 && curwds_[1] )
+    {
+	currdrs_[1]->getLogs();
+	const Well::LogSet& wls2 = curwds_[1]->logs();
+	wl2 = wls2.getLog( sellognm );
+    }
+
+    BufferStringSet wnms;
+    selGroup()->getListField()->getChosen( wnms );
+    if ( wnms.size() == 1 )
+	(void)uiWellLogDispDlg::popupNonModal( this, wl1, wl2,
+					       wnms.get(0), 0 );
+    else if ( wnms.size() == 2 )
+	(void)uiWellLogDispDlg::popupNonModal( this, wl1, wl2,
+					       wnms.get(0), wnms.get(1) );
 }
 
 

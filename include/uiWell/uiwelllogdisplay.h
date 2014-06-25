@@ -100,7 +100,8 @@ public:
 					 bool make_copy=true);
 			~uiWellLogDispDlg();
 
-    void		setLog(const Well::Log*,bool first=true);
+    void		setLog(const Well::Log*,bool first=true,
+			       const char* wellnm=0);
     const Well::Log*	getLog(bool first=true) const;
 
     uiWellLogDisplay&	logDisplay()	{ return *dispfld_; }
@@ -109,7 +110,9 @@ public:
     Notifier<uiWellLogDispDlg>	logSet;
 
     static uiWellLogDispDlg* popupNonModal(uiParent*,const Well::Log*,
-	    				   const Well::Log* wl2=0);
+					   const Well::Log* wl2=0,
+					   const char* wellnm1=0,
+					   const char* wellnm2=0);
     			//!< has setDeleteOnClose set
 
 protected:
@@ -117,6 +120,8 @@ protected:
     bool		logsmine_;
     const Well::Log*	log1_;
     const Well::Log*	log2_;
+    BufferString	wellnm1_;
+    BufferString	wellnm2_;
 
     uiWellLogDisplay*	dispfld_;
     void		logSetCB(CallBacker*);
