@@ -37,6 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltrack.h"
 #include "wellwriter.h"
 #include "od_helpids.h"
+#include "od_ostream.h"
 
 #define mMDIdx		0
 #define mTVDIdx		1
@@ -460,7 +461,14 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    newwl->setUnitMeasLabel( outun->name() );
 
 	Well::Writer wtr( fnm, wd );
-	if ( !wtr.putLogs() )
+	const int lognr = wls.size();
+	const BufferString logfnm =
+	    wtr.getFileName( Well::IO::sExtLog(), lognr );
+	od_ostream strm( logfnm );
+	if ( !strm.isOK() )
+	    mErrContinue( strm.errMsg() )
+
+	if ( !wtr.putLog(strm,*newwl) )
 	    mErrContinue( BufferString("Cannot write new log for ",
 			  ioobj->name(),
 			  "\nCheck the permissions of the *.wll files") )
