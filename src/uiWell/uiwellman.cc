@@ -57,6 +57,8 @@ uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wells",mNoDlgTitle,
 				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
 	           WellTranslatorGroup::ioContext() )
+    , d2tbut_(0)
+    , csbut_(0)
 {
     createDefaultUI( false, true, true );
     setPrefWidth( 50 );
@@ -102,7 +104,6 @@ uiWellMan::uiWellMan( uiParent* p )
     welltrackbut_->attach( ensureBelow, selgrp_ );
     welltrackbut_->attach( ensureBelow, logsgrp_ );
 
-    d2tbut_ = 0;
     if ( SI().zIsTime() )
     {
 	csbut_ = new uiToolButton( listgrp_, "checkshot",
@@ -229,8 +230,16 @@ void uiWellMan::setToolButtonProperties()
     BufferString tt;
     BufferString curwellnm( curioobj_->name() );
     mSetButToolTip(welltrackbut_,"Edit Well Track for",curwellnm,"");
-    mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"");
-    mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"");
+    if ( d2tbut_ )
+    {
+	mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"");
+    }
+
+    if ( csbut_ )
+    {
+	mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"");
+    }
+
     mSetButToolTip(markerbut_,"Edit",curwellnm," markers");
 
     const int nrlogs = logsfld_->size();
