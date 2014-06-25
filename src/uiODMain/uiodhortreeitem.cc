@@ -57,6 +57,14 @@ uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
 {}
 
 
+void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
+{
+    uiTreeItem::removeChild( itm );
+    if ( children_.isEmpty() )
+	applMgr()->visServer()->showMPEToolbar( false );
+}
+
+
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -541,6 +549,14 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
     : uiODTreeItem( "2D Horizon" )
 {}
+
+
+void uiODHorizon2DParentTreeItem::removeChild( uiTreeItem* itm )
+{
+    uiTreeItem::removeChild( itm );
+    if ( children_.isEmpty() )
+	applMgr()->visServer()->showMPEToolbar( false );
+}
 
 
 bool uiODHorizon2DParentTreeItem::showSubMenu()

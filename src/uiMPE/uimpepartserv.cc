@@ -713,7 +713,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::SectionTracker* sectiontracker =
-			 tracker ? tracker->getSectionTracker( sid, true ) : 0;
+			 tracker ? tracker->getSectionTracker( sid, false ) : 0;
     const bool setupavailable = sectiontracker &&
 				sectiontracker->hasInitializedSetup();
 
@@ -1006,7 +1006,7 @@ void uiMPEPartServer::loadTrackSetupCB( CallBacker* )
 
     const EM::SectionID sid = emobj->sectionID(0);
     const MPE::SectionTracker* sectracker =
-			       emtracker->getSectionTracker( sid, false );
+			       emtracker->getSectionTracker( sid, true );
 
     if ( sectracker && !sectracker->hasInitializedSetup() )
 	readSetup( emobj->multiID() );

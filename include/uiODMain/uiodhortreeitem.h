@@ -18,7 +18,9 @@ ________________________________________________________________________
 
 class uEMHorizonShiftDialog;
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
+             void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
+             virtual void removeChild(uiTreeItem*) );
+	     
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
@@ -67,7 +69,8 @@ protected:
 
 
 mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
-	     void sort(); virtual bool addChld(uiTreeItem*,bool,bool) );
+             void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
+             virtual void removeChild(uiTreeItem*) );
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
