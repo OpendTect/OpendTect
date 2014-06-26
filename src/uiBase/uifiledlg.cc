@@ -199,8 +199,8 @@ int uiFileDialog::go()
     {
 	if ( qpb->text() == uiStrings::sSave(true).getQtString() ||
 	     qpb->text() == tr("Open").getQtString() ||
-	     qpb->text() == "&Choose" )
-	     qpb->setText( "&OK" );
+	     qpb->text() == "Choose" )
+	     qpb->setText( "OK" );
     }
 
     if ( fd->exec() != QDialog::Accepted )
