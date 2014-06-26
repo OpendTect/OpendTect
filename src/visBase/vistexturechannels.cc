@@ -232,7 +232,7 @@ void ChannelInfo::removeCaches()
 
     removeImages();
 
-    texturechannels_.update( this, true );
+    texturechannels_.update( this );
 
     for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
     {
@@ -371,7 +371,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 
     if ( !unmappeddata_[version] )
     {
-	texturechannels_.update( this, true );
+	texturechannels_.update( this );
 	removeImages();
 	return true;
     }
@@ -416,7 +416,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 		histogram_[idx] = (float) histogram[idx]/max;
 	}
 
-	texturechannels_.update( this, true );
+	texturechannels_.update( this );
 	return true;
     }
 
@@ -462,7 +462,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	ownsmappeddata_[version] = true;
     }
 
-    texturechannels_.update( this, true );
+    texturechannels_.update( this );
     return true;
 }
 
@@ -476,7 +476,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
 	{ pErrMsg("Invalid index"); return; }
 
     currentversion_ = nidx;
-    texturechannels_.update( this, true );
+    texturechannels_.update( this );
 }
 
 
@@ -636,7 +636,7 @@ int TextureChannels::addChannel()
     channelinfo_ += newchannel;
     newchannel->setOsgIDs( osgids );
 
-    update ( res, false );
+    update( res );
 
     if ( tc2rgba_ )
 	tc2rgba_->notifyChannelInsert( res );
@@ -653,8 +653,8 @@ void TextureChannels::swapChannels( int t0, int t1 )
     channelinfo_.swap( t0, t1 );
 
 
-    update( t0, false );
-    update( t1, false );
+    update( t0 );
+    update( t1 );
 
     if ( tc2rgba_ )
 	tc2rgba_->swapChannels( t0, t1 );
@@ -672,7 +672,7 @@ int TextureChannels::insertChannel( int channel )
     ChannelInfo* newchannel = new ChannelInfo( *this );
     channelinfo_.insertAt( newchannel, channel );
     for ( int idy=channel; idy<nrChannels(); idy++ )
-	update( idy, false );
+	update( idy );
 
     if ( tc2rgba_ )
 	tc2rgba_->notifyChannelInsert( channel );
@@ -878,7 +878,7 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 	tc2rgba_->ref();
 
 	for ( int channel=0; channel<nrChannels(); channel++ )
-	    update( channel, false );
+	    update( channel );
     }
 
     return true;
@@ -899,13 +899,13 @@ const SbImagei32* TextureChannels::getChannels() const
 }
 
 
-void TextureChannels::update( ChannelInfo* ti, bool tc2rgba )
+void TextureChannels::update( ChannelInfo* ti )
 {
     const int channel= channelinfo_.indexOf( ti );
     if ( channel==-1 )
 	return;
 
-    update( channel, tc2rgba );
+    update( channel );
 }
 
 
@@ -922,7 +922,7 @@ unsigned char TextureChannels::nrDataBands() const
 }
 
 
-void TextureChannels::update( int channel, bool tc2rgba )
+void TextureChannels::update( int channel, bool freezeifnodata )
 {
     channelinfo_[channel]->updateOsgImages();
     for ( int component=channelinfo_[channel]->nrComponents()-1;
@@ -932,7 +932,7 @@ void TextureChannels::update( int channel, bool tc2rgba )
 
 	osgtexture_->setDataLayerImage( osgid,
 		channelinfo_[channel]->osgimages_[component],
-		true, nrDataBands()-1 );
+		freezeifnodata, nrDataBands()-1 );
 
 	const int udflayerid = nrUdfBands() ? osgid : -1;
 	osgtexture_->setDataLayerUndefLayerID( osgid, udflayerid );
@@ -985,6 +985,13 @@ void TextureChannels::setNonShaderResolution( int resolution )
 int TextureChannels::getNonShaderResolution() const
 {
     return osgtexture_->getCompositeSubsampleSteps()-1;
+}
+
+
+void TextureChannels::unfreezeOldData( int channel )
+{
+    if ( channelinfo_.validIdx(channel) )
+	update( channel, false );
 }
 
 

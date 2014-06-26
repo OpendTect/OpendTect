@@ -41,6 +41,7 @@ namespace visBase
 {
     class Transformation;
     class EventInfo;
+    class TextureChannels;
     class TextureChannel2RGBA;
 };
 
@@ -162,6 +163,7 @@ public:
     virtual int			getResolution() const		{ return 0; }
     virtual void		setResolution(int,TaskRunner*)	{}
 
+    virtual visBase::TextureChannels* getChannels() const	{ return 0; }
     virtual visBase::TextureChannel2RGBA* getChannels2RGBA()	{ return 0; }
     const visBase::TextureChannel2RGBA*   getChannels2RGBA() const;
     virtual bool		setChannels2RGBA(visBase::TextureChannel2RGBA*)
