@@ -43,7 +43,7 @@ public:
     bool		putDispProps() const;	//!< Write display pars only
 
     bool		putInfoAndTrack(od_ostream&) const;
-    bool		putLog(od_ostream&,const Log&) const;
+    bool		putLog(const Log&) const;
     bool		putMarkers(od_ostream&) const;
     bool		putD2T(od_ostream&) const;
     bool		putCSMdl(od_ostream&) const;
@@ -56,6 +56,7 @@ protected:
     const Data&		wd;
     bool		binwrlogs_;
 
+    bool		putLog(od_ostream&,const Log&) const;
     bool		wrHdr(od_ostream&,const char*) const;
     bool		putTrack(od_ostream&) const;
     bool		doPutD2T(bool) const;

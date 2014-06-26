@@ -95,17 +95,13 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	    mErrRet( tr("Cannot find object in I/O Manager") )
 
 	Well::Writer wtr( ioobj->fullUserExpr(), *wd_ );
-	const int lognr = logset.size();
-	const BufferString logfnm =
-	    		wtr.getFileName( Well::IO::sExtLog(), lognr );
-	od_ostream strm( logfnm );
-	if ( !strm.isOK() )
+	const Well::Log& newlog = logset.getLog( logset.size()-1 );
+	if ( !wtr.putLog(newlog) )
 	{
-	    BufferString errmsg( "Cannot open file for write" );
-	    strm.addErrMsgTo( errmsg );
+	    BufferString errmsg( "Could not write log: ", newlog.name(),
+				 "\n Check write permissions." );
 	    mErrRet( errmsg )
 	}
-	wtr.putLog( strm, logset.getLog(lognr-1) );
     }
     else
 	delete outputlog;
