@@ -88,8 +88,8 @@ bool uiColorInput::selectColor( Color& col, uiParent* parnt,
 	bool found = false;
 	foreach(QLabel* qlbl,lbllst)
 	{
-	    if ( qlbl->text() == "A&lpha channel:" )
-		{ qlbl->setText( "&Transparency:" ); found = true; break; }
+	    if ( qlbl->text() == "Alpha channel:" )
+		{ qlbl->setText( "Transparency:" ); found = true; break; }
 	}
 	if ( !found )
 	    { pFreeFnErrMsg("Implement support for label change in this Qt ver",
