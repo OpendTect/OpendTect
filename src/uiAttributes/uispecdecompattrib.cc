@@ -66,7 +66,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, typefld_ );
 
-    BufferString tfstr = "&Display Time/Frequency panel";
+    BufferString tfstr = "Display Time/Frequency panel";
     CallBack cbtfpanel = mCB(this,uiSpecDecompAttrib,panelTFPush);
     tfpanelbut_ = new uiPushButton( this, tfstr, cbtfpanel, true );
     tfpanelbut_->attach( alignedBelow, gatefld_ );
