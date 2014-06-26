@@ -94,9 +94,9 @@ static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
 {
     mDeclStaticString(menutext);
     if ( is2d )
-	menutext = issteering ? "Stee&ring 2D Data" : "&Stored 2D Data";
+	menutext = issteering ? "Steering 2D Data" : "Stored 2D Data";
     else
-	menutext = issteering ? "Steer&ing Cubes" : "Stored &Cubes";
+	menutext = issteering ? "Steering Cubes" : "Stored Cubes";
 
     if ( endmenu ) menutext.add( " ..." );
 
@@ -909,7 +909,7 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 	return somesuccess &&
 	     uiMSG().askGoOn(
 	      tr("Some data extraction failed. Do you want to continue and use"
-	      " the (partially) extracted data?"), true);
+	         " the (partially) extracted data?"), true);
     }
 
     return true;
@@ -1084,7 +1084,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	if ( !useext || is2d )
         { ittxt = "&"; ittxt += nlamodel->nlaType(false); }
 	else
-	    ittxt = "N&eural Network 3D";
+	    ittxt = "Neural Network 3D";
 	if ( useext && is2d ) ittxt += " 2D";
 
 	nlamnuitem->text = ittxt;
