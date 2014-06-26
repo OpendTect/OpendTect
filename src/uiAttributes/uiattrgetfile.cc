@@ -54,7 +54,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
-				"&Find from created cube",
+				"Find from created cube",
 				mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
