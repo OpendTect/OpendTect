@@ -131,19 +131,19 @@ void uiAttribDescSetEd::createMenuBar()
         { pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( "&New set ...", newSet, "newset" );
-    mInsertItem( "&Open set ...", openSet, "openset" );
-    mInsertItem( "&Save set ...", savePush, "save" );
-    mInsertItem( "&Save set as ...", saveAsPush, "saveas" );
-    mInsertItemNoIcon( "&Auto Load Attribute Set ...", autoSet );
-    mInsertItemNoIcon( "&Change attribute input(s) ...", changeInput );
+    mInsertItem( "New set ...", newSet, "newset" );
+    mInsertItem( "Open set ...", openSet, "openset" );
+    mInsertItem( "Save set ...", savePush, "save" );
+    mInsertItem( "Save set as ...", saveAsPush, "saveas" );
+    mInsertItemNoIcon( "Auto Load Attribute Set ...", autoSet );
+    mInsertItemNoIcon( "Change attribute input(s) ...", changeInput );
     filemnu->insertSeparator();
-    mInsertItem( "Open &Default set ...", defaultSet, "defset" );
+    mInsertItem( "Open Default set ...", defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem( impmnu, "From other &Survey ...", importSet, "impset" );
-    mInsertMnuItemNoIcon( impmnu, "From &File ...", importFile );
-    mInsertItem( "&Reconstruct from job file ...", job2Set, "job2set" );
-    mInsertItemNoIcon( "Import set from &Seismics ...", importFromSeis );
+    mInsertMnuItem( impmnu, "From other Survey ...", importSet, "impset" );
+    mInsertMnuItemNoIcon( impmnu, "From File ...", importFile );
+    mInsertItem( "Reconstruct from job file ...", job2Set, "job2set" );
+    mInsertItemNoIcon( "Import set from Seismics ...", importFromSeis );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -839,7 +839,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	if ( fsnewnm == ad.userRef() )
 	{
 	    uiMSG().error( tr("The name you entered for the attribute already"
-			  " exists.\nPlease choose another name.") );
+			      " exists.\nPlease choose another name.") );
 	    return false;
 	}
     }
