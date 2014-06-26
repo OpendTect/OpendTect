@@ -164,10 +164,12 @@ void BinIDSurface::setArray( const BinID& start, const BinID& step,
     origin_ = RowCol(start);
     step_ = RowCol(step);
 
+    TypeSet<GeomPosID>  posids;
+    getPosIDs( posids );
     if ( ismovement )
-	triggerMovement();
+	triggerMovement( posids );
     else
-	triggerNrPosCh();
+	triggerNrPosCh( posids );
 }
 
 
