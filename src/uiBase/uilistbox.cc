@@ -495,19 +495,19 @@ void uiListBox::menuCB( CallBacker* )
 
     const int nrchecked = nrChecked();
     if ( nrchecked < sz )
-	rightclickmnu_.insertItem( new uiAction(tr("&Check all (Ctrl-A)")), 0 );
+	rightclickmnu_.insertItem( new uiAction(tr("Check all (Ctrl-A)")), 0 );
     if ( nrchecked > 0 )
-	rightclickmnu_.insertItem(new uiAction(tr("&Uncheck all (Ctrl-Z)")), 1);
-    rightclickmnu_.insertItem( new uiAction(tr("&Invert selection")), 2 );
+	rightclickmnu_.insertItem(new uiAction(tr("Uncheck all (Ctrl-Z)")), 1);
+    rightclickmnu_.insertItem( new uiAction(tr("Invert selection")), 2 );
     const bool needretrieve = retrievecb_.willCall();
     const bool needsave = savecb_.willCall() && nrchecked > 0;
     if ( needretrieve || needsave )
     {
 	rightclickmnu_.insertSeparator();
 	if ( needretrieve )
-	    rightclickmnu_.insertItem( new uiAction(tr("&Read selection")), 3 );
+	    rightclickmnu_.insertItem( new uiAction(tr("Read selection")), 3 );
 	if ( needsave )
-	    rightclickmnu_.insertItem( new uiAction(tr("&Save selection")), 4 );
+	    rightclickmnu_.insertItem( new uiAction(tr("Save selection")), 4 );
     }
 
     const int res = rightclickmnu_.exec();
