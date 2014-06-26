@@ -78,7 +78,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     gatefld_->attach( alignedBelow, inpfld_ );
 
     CallBack cbexam = mCB(this,uiGapDeconAttrib,examPush);
-    exambut_ = new uiPushButton( this, tr("&Examine ..."), cbexam, true);
+    exambut_ = new uiPushButton( this, tr("Examine ..."), cbexam, true);
     exambut_->attach( rightOf, gatefld_ );
 
     BufferString lagstr = "Lag size ";
@@ -117,7 +117,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     isoutzerophasefld_->attach( alignedBelow, isinpzerophasefld_ );
 
     CallBack cbqc = mCB(this,uiGapDeconAttrib,qCPush);
-    qcbut_ = new uiPushButton( this, tr("Check &parameters ..."), cbqc, true);
+    qcbut_ = new uiPushButton( this, tr("Check parameters ..."), cbqc, true);
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
@@ -251,7 +251,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	 inpfld_->attribID() == DescID::undef() )
     {
 	uiMSG().error(tr("Please, first, fill in the Input Data\n"
-                                 "and the Correlation window fields"));
+                         "and the Correlation window fields"));
 	
 	return;
     }
