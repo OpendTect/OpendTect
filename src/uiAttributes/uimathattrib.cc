@@ -52,7 +52,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     formfld_->setNonSpecInputs( inpnms_ );
     const CallBack rockphyscb( mCB(this,uiMathAttrib,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", "Use rockphysics formula",
-			    rockphyscb, "&Rock Physics");
+			    rockphyscb, "Rock Physics");
     formfld_->addButton( tbsu );
     setHAlignObj( formfld_ );
 }
