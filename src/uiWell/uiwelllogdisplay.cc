@@ -418,16 +418,14 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     if ( l1 && !wellnm1_.isEmpty() )
     {
 	capt = l1->name();
-	capt.add( l1->name() ).add( " of " );
-	capt.add( wellnm1_.buf() );
+	capt.add( " of " ).add( wellnm1_.buf() );
 	dispfld_->dahObjData( true ).xax_.setCaption( capt );
     }
 
     if ( l2 && !wellnm2_.isEmpty() )
     {
 	capt = l2->name();
-	capt.add( l2->name() ).add( " of " );
-	capt.add( wellnm2_.buf() );
+	capt.add( " of " ).add( wellnm2_.buf() );
 	dispfld_->dahObjData( false ).xax_.setCaption( capt );
     }
 

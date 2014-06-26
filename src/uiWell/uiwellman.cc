@@ -575,7 +575,7 @@ void uiWellMan::viewLogPush( CallBacker* )
     }
 
     BufferStringSet wnms;
-    selGroup()->getListField()->getChosen( wnms );
+    selGroup()->getChosen( wnms );
     if ( wnms.size() == 1 )
 	(void)uiWellLogDispDlg::popupNonModal( this, wl1, wl2,
 					       wnms.get(0), 0 );
