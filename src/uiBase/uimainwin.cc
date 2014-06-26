@@ -1895,8 +1895,8 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
     uiString canceltext = uiStrings::sClose();
     if ( GetEnvVarYN("DTECT_OLD_BUTTON_LAYOUT") )
     {
-	oktext = "&Go";
-	canceltext = "&Dismiss";
+	oktext = uiStrings::sGo();
+	canceltext = "Dismiss";
     }
 
     switch ( cs )
