@@ -410,6 +410,7 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &lmp_;
     delete descctio_.ioobj; delete &descctio_;
+    delete elpropsel_;
     StratTreeWin().changeLayerModelNumber( false );
 }
 
@@ -745,8 +746,6 @@ bool uiStratLayerModel::openGenDesc()
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
 
-    delete elpropsel_; elpropsel_ = 0;
-    
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     BufferString profilestr( "Profile" );
