@@ -281,7 +281,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 
 int uiMsg::askSave( const uiString& text, bool wcancel )
 {
-    const uiString dontsavetxt = tr("&Don't save");
+    const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(true), dontsavetxt,
 		     wcancel ? uiStrings::sCancel()
                              : 0, tr("Data not saved") );
@@ -290,7 +290,7 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 
 int uiMsg::askRemove( const uiString& text, bool wcancel )
 {
-    const uiString notxt = wcancel ? tr("&Don't remove") : uiStrings::sCancel();
+    const uiString notxt = wcancel ? tr("Don't remove") : uiStrings::sCancel();
     return question( text, uiStrings::sRemove(true), notxt,
 		     wcancel ? uiStrings::sCancel() : uiString(0),
 		     tr("Remove data") );
@@ -305,7 +305,7 @@ int uiMsg::askContinue( const uiString& text )
 
 int uiMsg::askOverwrite( const uiString& text )
 {
-    const uiString yestxt = tr("&Overwrite");
+    const uiString yestxt = uiStrings::sOverwrite();
     return question( text, yestxt, uiStrings::sCancel(), 0 );
 }
 
@@ -407,7 +407,7 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& ntmsginp )
     mPrepCursor();
     const uiString oktxt = uiStrings::sOk();
     const uiString notmsg = ntmsginp.isEmpty()
-	? tr("&Don't show this message again")
+	? tr("Don't show this message again")
 	: ntmsginp;
 
     mCapt(tr("Information"));
