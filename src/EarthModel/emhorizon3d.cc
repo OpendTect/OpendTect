@@ -268,8 +268,7 @@ protected:
     HorSampling		hs_;
     BufferString	msg_;
     int			nrvals_;
-    ObjectSet<Array2D<float>> horarrays_;	
-
+    ObjectSet< Array2D<float> > horarrays_;	
 
     int			sectionidx_;
     int			totalnr_;
