@@ -518,8 +518,11 @@ void PlaneDataDisplay::acceptManipulation()
     CubeSampling cs = getCubeSampling( true, true );
     setCubeSampling( cs );
 
-    dragger_->showPlane( false );
-    dragger_->showDraggerBorder( true );
+    if ( !getUpdateStageNr() )
+    {
+	dragger_->showPlane( false );
+	dragger_->showDraggerBorder( true );
+    }
 }
 
 
@@ -1284,6 +1287,8 @@ void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
     {
 	texturerect_->setTextureShift( Coord(0.0,0.0) );
 	texturerect_->setTextureGrowth( Coord(0.0,0.0) );
+	dragger_->showPlane( false );
+	dragger_->showDraggerBorder( true );
     }
     else if ( !getUpdateStageNr() )
     {
