@@ -29,13 +29,13 @@ public:
     static uiString sAdvanced()		{ return tr("Advanced"); }
     static uiString sAll()		{ return tr("All"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
-    static uiString sApply()		{ return tr("&Apply"); }
+    static uiString sApply()		{ return tr("Apply"); }
     static uiString sASCII(bool immediate);
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
-    static uiString sCancel()		{ return tr("&Cancel"); }
+    static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sContinue()		{ return tr("Continue"); }
     static uiString sColor()		{ return tr("Color"); }
@@ -51,7 +51,7 @@ public:
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }
     static uiString sGo()	        { return tr("Go"); }
-    static uiString sHelp()		{ return tr("&Help"); }
+    static uiString sHelp()		{ return tr("Help"); }
     static uiString sHide()		{ return tr("Hide"); }
     static uiString sHistogram(bool immediate);
     static uiString sHorizon(bool immediate);
@@ -67,10 +67,10 @@ public:
     static uiString sManual()		{ return tr("Manual"); }
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);
-    static uiString sNext()		{ return tr("Next &>"); }
-    static uiString sNo()		{ return tr("&No"); }
+    static uiString sNext()		{ return tr("Next >"); }
+    static uiString sNo()		{ return tr("No"); }
     static uiString sNone()		{ return tr("None"); }
-    static uiString sOk()		{ return tr("&OK"); }
+    static uiString sOk()		{ return tr("OK"); }
     static uiString sOpen(bool immediate);
     static uiString sOperator()		{ return tr("Operator"); }
     static uiString sOutput()           { return tr("Output"); }
@@ -115,7 +115,7 @@ public:
     static uiString sVertical()		{ return tr("Vertical"); }
     static uiString sView()		{ return tr("View"); }
     static uiString sWells(bool immediate);
-    static uiString sYes()		{ return tr("&Yes"); }
+    static uiString sYes()		{ return tr("Yes"); }
 };
 
 // Implementations
