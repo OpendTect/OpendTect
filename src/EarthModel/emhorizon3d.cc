@@ -180,9 +180,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    { msg_ = "Incompatible sections"; return; }
 
 	totalnr_ += mCast( int, bvs.totalSize() );
-	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
-
-	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
+	
 	HorSampling sectrg;
 	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
 	sectrg.step = step;
@@ -192,14 +190,17 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	if ( arr && !arr->isEmpty() )
 	{
 	    arr->setAll( mUdf(float) );
-	    geom->setArray( sectrg.start, sectrg.step, arr, true );
+	    horarrays_ += arr;
 	}
-
     }
 
     horizon_.enableGeometryChecks( false );
 }
 
+~HorizonImporter()
+{
+    deepErase( horarrays_ );
+}
 
 const char*	message() const		{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
@@ -212,16 +213,12 @@ int nextStep()
 
     if ( sectionidx_ >= bvss_.size() )
     {
+	fillHorizonArray();
 	horizon_.enableGeometryChecks( true );
 	return Finished();
     }
 
     const BinIDValueSet& bvs = *bvss_[sectionidx_];
-    const EM::SectionID sid = horizon_.sectionID( sectionidx_ );
-    Geometry::BinIDSurface* surf = horizon_.geometry().sectionGeometry( sid );
-    if ( !surf )
-	return ErrorOccurred();
-
     BinID bid;
     for ( int idx=0; idx<10000; idx++ )
     {
@@ -237,11 +234,30 @@ int nextStep()
 	if ( !hs_.includes(bid) )
 	    continue;
 
+	const int inlidx = hs_.inlIdx( bid.inl );
+	const int crlidx = hs_.crlIdx( bid.crl );
+	
+	Array2D<float>* horarr = horarrays_[sectionidx_];
+	if ( !horarr->info().validPos(inlidx,crlidx) )
+	    continue;
+
 	const float z = bvs.getVals(pos_)[ 0 ];
-	surf->setKnot( RowCol(bid), Coord3(0,0,z) );
+	horarr->set( inlidx, crlidx, z );
     }
 
     return MoreToDo();
+}
+
+void fillHorizonArray()
+{
+    for ( int sidx=0; sidx<horarrays_.size(); sidx++ )
+    {
+	EM::SectionID sid = horizon_.geometry().addSection( 0, false );
+	Geometry::BinIDSurface* geom = horizon_.geometry().sectionGeometry(sid);
+	geom->setArray( hs_.start, hs_.step, horarrays_[sidx], true );
+    }
+
+    horarrays_.erase();
 }
 
 protected:
@@ -252,6 +268,8 @@ protected:
     HorSampling		hs_;
     BufferString	msg_;
     int			nrvals_;
+    ObjectSet<Array2D<float>> horarrays_;	
+
 
     int			sectionidx_;
     int			totalnr_;
