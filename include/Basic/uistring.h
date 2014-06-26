@@ -93,8 +93,6 @@ public:
     uiString&	operator=(const char*);
     uiString&	operator=(const OD::String&);
 
-    bool	operator==(const uiString& b) const { return b.data_==data_; }
-    bool	operator!=(const uiString& b) const { return b.data_!=data_; }
 
     template <class T>
     uiString&	arg(const T& var);
@@ -135,6 +133,11 @@ public:
     static const char*		sODLocalizationApplication() { return "od"; }
 
     static const uiString&	emptyString()	{ return emptystring_; }
+    
+    bool	operator==(const uiString& b) const { return b.data_==data_; }
+    bool	operator!=(const uiString& b) const { return b.data_!=data_; }
+    bool	operator>(const uiString& b) const;
+    bool	operator<(const uiString& b) const;
 
 private:
     friend class		uiStringData;
