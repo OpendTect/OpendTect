@@ -97,6 +97,7 @@ public:
 						TaskRunner*);
     bool			setMappedData(int channel,int version,
 	    				      unsigned char*, OD::PtrPolicy);
+    void			unfreezeOldData(int channel);
 
     bool			setChannels2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();
@@ -122,8 +123,8 @@ public:
 
 protected:
     friend			class ChannelInfo;
-    void			update(int channel,bool tc2rgba);
-    void			update(ChannelInfo*,bool tc2rgba);
+    void			update(int channel,bool freezeifnodata=true);
+    void			update(ChannelInfo*);
     				~TextureChannels();
 
     TextureCallbackHandler*	texturecallbackhandler_;

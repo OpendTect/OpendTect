@@ -54,6 +54,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visscenecoltab.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
+#include "vistexturechannels.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "zdomain.h"
@@ -1768,8 +1769,14 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
     eventmutex_.lock();
     eventobjid_ = id;
     eventattrib_ = attrib;
-    return sendEvent( evGetNewData() );
 
+    if ( sendEvent(evGetNewData()) )
+	return true;
+
+    if ( so->getChannels() )
+	so->getChannels()->unfreezeOldData( attrib );
+
+    return false;
 }
 
 
