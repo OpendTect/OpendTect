@@ -238,6 +238,8 @@ public:
     void		calculateAllAttribs();
     bool		calculateAttrib(int id,int attrib,bool newsel,
 					bool ignorelocked=false);
+    bool		calcManipulatedAttribs(int id);
+
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;
     void		selectTexture(int id,int attrib,int texture);
