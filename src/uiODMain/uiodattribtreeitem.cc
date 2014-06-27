@@ -178,6 +178,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
 }
 
@@ -207,7 +208,8 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 	else
 	{
 	    visserv->setSelSpec( visid, attrib, myas );
-	    visserv->calculateAttrib( visid, attrib, false );
+	    if ( !visserv->calcManipulatedAttribs(visid) )
+		visserv->calculateAttrib( visid, attrib, false );
 	}
 	return true;
     }

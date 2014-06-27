@@ -475,6 +475,9 @@ protected:
     MouseCursorExchange*	mousecursorexchange_;
 
     uiDirLightDlg*		dirlightdlg_;
+
+public:
+    bool			calcManipulatedAttribs(int id);
 };
 
 
