@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletattrib.h"
 
 #include "uibutton.h"
 #include "uiseissingtrcdisp.h"
@@ -180,30 +181,36 @@ void uiSeisWvltMan::mkFileInfo()
     if ( wvlt )
     {
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	WaveletAttrib wvltattrib( *wvlt );
 
-	BufferString tmp;
-	tmp.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );
-	tmp.add( "Sample interval " ).add( SI().getZUnitString(true) )
-	   .add( ": " ).add( wvlt->sampleRate() * zfac ).add( "\n" );
-	tmp.add( "Min/Max amplitude: " ).add( wvlt->getExtrValue(false) )
-	   .add( "/" ).add( wvlt->getExtrValue() ).add( "\n" );
-	txt.add( tmp );
+	BufferString msg;
+	msg.add( "Number of samples: " ).add( wvlt->size() ).addNewLine();
+	msg.add( "Sample interval " ).add( SI().getZUnitString(true) )
+	   .add( ": " ).add( wvlt->sampleRate() * zfac ).addNewLine();
+	Interval<float> extremevals;
+	wvlt->getExtrValues( extremevals );
+	msg.add( "Min/Max amplitude: " ).add( extremevals.start )
+	   .add( "/" ).add( extremevals.stop ).addNewLine();
+	float avgphase = wvltattrib.getAvgPhase( true );
+	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
+	msg.add( "Average phase (deg): ").add( avgphase, 2 ).addNewLine();
+	txt.add( msg );
 	delete wvlt;
 
 	MultiID orgid; MultiID horid; MultiID seisid; BufferString lvlnm;
 	if ( Wavelet::isScaled(curioobj_->key(),orgid,horid,seisid,lvlnm) )
 	{
-	    tmp = "Scaled: ";
+	    msg = "Scaled: ";
 	    if ( orgid == MultiID("0") )
-		tmp.add( "Outside OpendTect" );
+		msg.add( "Outside OpendTect" );
 	    else
 	    {
-		tmp.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
-		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'");
-		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
-		tmp.add( " at '").add( lvlnm ).add( "')" );
+		msg.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
+		msg.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
+		msg.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
+		msg.add( " at '").add( lvlnm ).add( "')" );
 	    }
-	    txt.add( tmp ).add( "\n" );
+	    txt.add( msg ).addNewLine();
 	}
     }
 

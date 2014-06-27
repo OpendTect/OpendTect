@@ -11,19 +11,22 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseiswvltimpexp.h"
-#include "wavelet.h"
-#include "ioobj.h"
+
+#include "arrayndimpl.h"
 #include "ctxtioobj.h"
+#include "ioobj.h"
 #include "oddirs.h"
-#include "tabledef.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "tabledef.h"
+#include "wavelet.h"
+#include "waveletattrib.h"
 
-#include "uiioobjsel.h"
-#include "uitblimpexpdatasel.h"
 #include "uifileinput.h"
-#include "uiseparator.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiseparator.h"
+#include "uitblimpexpdatasel.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -42,7 +45,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                   mODHelpKey(mSeisWvltImpParsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
     dataselfld_->attach( ensureBelow, sep );
@@ -90,34 +93,30 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !wvlt )
 	mErrRet(aio.errMsg())
 
-    const int nrsamps = wvlt->size();
-    int maxsamp = 0;
-    float maxval = fabs( wvlt->samples()[maxsamp] );
-    for ( int idx=1; idx<nrsamps; idx++ )
-    {
-	const float val = fabs( wvlt->samples()[idx] );
-	if ( val > maxval )
-	    { maxval = val; maxsamp = idx; }
-    }
+    WaveletAttrib wvltattrib( *wvlt );
+    const bool quadraturewvlt = mIsEqual(wvltattrib.getAvgPhase(true),90.f,1.f);
+
+    Interval<float> vals;
+    wvlt->getExtrValues( vals );
+    const float extreme = -1.f*vals.start < vals.stop ? vals.start : vals.stop;
+    const int maxsamp = wvlt->getPos( quadraturewvlt ? extreme : 0.f,
+				      quadraturewvlt );
+    const int nrhdrlines = fd_.nrHdrLines();
+
     if ( maxsamp != wvlt->centerSample() )
     {
-	BufferString msg( "Highest amplitude is at sample: " );
-	msg += maxsamp + 1;
-	msg += "\nThe center sample found is: ";
-	msg += wvlt->centerSample() + 1;
-	msg += "\n\nDo you want to reposition the center sample,"
-	       "\nSo it will be at the highest amplitude position?";
-	if ( uiMSG().askGoOn( msg ) )
+	BufferString msg( "Center of wavelet is predicted at row number: " );
+	msg.add( maxsamp + 1 + nrhdrlines ).addNewLine();
+	msg.add( "The provided center sample row position was: " );
+	msg.add( wvlt->centerSample() + 1 + nrhdrlines ).addNewLine( 2 );
+	msg.add( "Do you want to reposition the center sample?" );
+	if ( uiMSG().askGoOn(msg) )
 	    wvlt->setCenterSample( maxsamp );
     }
 
     const float fac = scalefld_->getfValue();
-    if ( fac != 0 && !mIsUdf(fac) && fac != 1 )
-    {
-	float* samps = wvlt->samples();
-	for ( int idx=0; idx<wvlt->size(); idx++ )
-	    samps[idx] *= fac;
-    }
+    if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
+	wvlt->transform( 0.f, fac );
 
     if ( !wvlt->put(ctio_.ioobj) )
 	mErrRet( "Cannot store wavelet on disk" )

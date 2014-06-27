@@ -64,21 +64,41 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
 }
 
 
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
+void WaveletAttrib::getWaveletArrForPhase( Array1DImpl<float>& cindata ) const
 {
-    Array1DImpl<float> cindata( wvltsz_ );
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
 	int idy = idx;
 	idy += idx < wvltsz_ - centersample_ ? centersample_
 					     : centersample_ - wvltsz_;
-	cindata.set( idx, wvltarr_->get(idy) );
+	cindata.set( idx, wvltarr_->get( idy ) );
     }
+}
 
+
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
+{
+    Array1DImpl<float> cindata( wvltsz_ );
+    getWaveletArrForPhase( cindata );
     Phase phasecomputer( cindata );
     phasecomputer.setUnitDeg( indegrees );
-    if ( phasecomputer.calculate() )
-	phase = phasecomputer.getPhase();
+    if ( !phasecomputer.calculate() )
+	return;
+
+    phase = phasecomputer.getPhase();
+}
+
+
+float WaveletAttrib::getAvgPhase( bool indegrees ) const
+{
+    Array1DImpl<float> cindata( wvltsz_ );
+    getWaveletArrForPhase( cindata );
+    Phase phasecomputer( cindata );
+    phasecomputer.setUnitDeg( indegrees );
+    if ( !phasecomputer.calculate() )
+	return mUdf(float);
+
+    return phasecomputer.getAvgPhase();
 }
 
 

@@ -398,9 +398,43 @@ void Wavelet::normalize()
 
 float Wavelet::getExtrValue( bool ismax ) const
 {
-    Stats::RunCalc<float> rc( Stats::CalcSetup().require(Stats::Max) );
-    rc.addValues( sz_, samps_ );
-    return ismax ? rc.max() : rc.min();
+    Interval<float> vals;
+    Wavelet::getExtrValues( vals );
+    return ismax ? vals.stop : vals.start;
+}
+
+
+void Wavelet::getExtrValues(Interval<float>& vals) const
+{
+    vals.set( mUdf(float), -mUdf(float) );
+    for ( int idx=0; idx<sz_; idx++ )
+	vals.include( samps_[idx], false );
+}
+
+
+int Wavelet::getPos( float val, bool closetocenteronly ) const
+{
+    const int width = mCast( int, mCast(float, sz_ ) / 10.f );
+    int start = closetocenteronly ? cidx_ - width : 0;
+    if ( start < 0 ) start = 0;
+    int stop = closetocenteronly ? cidx_ + width : sz_;
+    if ( stop > sz_ ) stop = sz_;
+    bool startnotreached = true;
+    bool stopnotreached = true;
+    for ( int idx=0; startnotreached || stopnotreached; idx++ )
+    {
+	if ( (cidx_+idx) > stop)
+	    stopnotreached = false;
+	else if ( mIsEqual(samps_[cidx_+idx],val,mDefEpsF) )
+	    return cidx_+idx;
+
+	if ( (cidx_-idx) <= start)
+	    startnotreached = false;
+	else if ( mIsEqual(samps_[cidx_-idx],val,mDefEpsF) )
+	    return cidx_-idx;
+    }
+
+    return mUdf(int);
 }
 
 
@@ -591,7 +625,7 @@ Wavelet* WaveletAscIO::get( od_istream& strm ) const
 
     int centersmp = -1 * getIntValue( 1 );
     if ( !mIsUdf(centersmp) && centersmp < 0 )
-	centersmp = -centersmp + 1; // Users start at 1
+	centersmp = -centersmp - 1 - fd_.nrHdrLines();
 
     TypeSet<float> samps;
     while ( true )

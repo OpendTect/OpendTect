@@ -27,6 +27,7 @@ public:
     void		setNewWavelet(const Wavelet&);
     void		getHilbert(Array1DImpl<float>&) const;
     void		getPhase(Array1DImpl<float>&,bool degree=false) const;
+    float		getAvgPhase(bool degree=false) const;
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
 			//frequency array will be resized to padfac*array size )
     void		applyFreqWindow(const ArrayNDWindow&, int padfac,
@@ -40,6 +41,7 @@ protected:
     Array1DImpl<float>* wvltarr_;
     int			wvltsz_;
     int			centersample_;
+    void		getWaveletArrForPhase(Array1DImpl<float>&) const;
 };
 
 #endif
