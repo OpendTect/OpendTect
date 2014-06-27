@@ -382,7 +382,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const int id = newitem->displayID();
 	const int attrib = newitem->attribNr();
 	const bool selok = applMgr()->selectAttrib( id, attrib );
-	if ( selok )
+	if ( selok && !visserv_->calcManipulatedAttribs(id) )
 	    applMgr()->getNewData( id, attrib );
 
 	newitem->select();
@@ -403,7 +403,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	    new VolProc::uiDataTreeItem( typeid(*this).name() );
 	addChild( newitem, false );
 	const bool selok = newitem->selectSetup();
-	if ( selok )
+	if ( selok && !visserv_->calcManipulatedAttribs(newitem->displayID()) )
 	    applMgr()->getNewData( newitem->displayID(), newitem->attribNr() );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );

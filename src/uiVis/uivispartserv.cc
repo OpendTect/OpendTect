@@ -1780,6 +1780,24 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
 }
 
 
+bool uiVisPartServer::calcManipulatedAttribs( int id )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so || !so->isManipulated() || so->isLocked() )
+	return false;
+
+    so->annotateNextUpdateStage( true );
+    so->acceptManipulation();
+    so->annotateNextUpdateStage( true );
+
+    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+	calculateAttrib( id, attrib, false );
+
+    so->annotateNextUpdateStage( false );
+    return true;
+}
+
+
 bool uiVisPartServer::hasMaterial( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1953,22 +1971,8 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj)
     if ( so )
     {
-	if ( so->isManipulated() )
-	{
-	    if ( isLocked(oldsel) )
-		resetManipulation( oldsel );
-	    else
-	    {
-		so->annotateNextUpdateStage( true );
-		so->acceptManipulation();
-		so->annotateNextUpdateStage( true );
-
-		for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
-		    calculateAttrib( oldsel, attrib, false );
-
-		so->annotateNextUpdateStage( false );
-	    }
-	}
+	if ( so->isManipulated() && !calcManipulatedAttribs(oldsel) )
+	    resetManipulation( oldsel );
 
 	if ( workmode_ == uiVisPartServer::Interactive )
 	    so->showManipulator(false);
