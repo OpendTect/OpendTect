@@ -71,7 +71,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     alloweddifffld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     alloweddifffld_->attach( alignedBelow, thresholdtypefld_ );
 
-    usesimifld_ = new uiGenInput( this, tr("Compare wafeforms"),
+    usesimifld_ = new uiGenInput( this, tr("Compare waveforms"),
                                   BoolInpSpec(true) );
     usesimifld_->setValue( tracker_.usesSimilarity() );
     usesimifld_->valuechanged.notify(
