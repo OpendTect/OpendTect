@@ -67,9 +67,8 @@ void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
 }
 
 
-void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
+void WaveletAttrib::getWaveletArrForPhase( Array1DImpl<float>& cindata ) const
 {
-    Array1DImpl<float> cindata( wvltsz_ );
     const int centeridx = centersample_.getParam( this );
     for ( int idx=0; idx<wvltsz_; idx++ )
     {
@@ -77,11 +76,32 @@ void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
 	idy += idx < wvltsz_ - centeridx ? centeridx : centeridx-wvltsz_;
 	cindata.set( idx, wvltarr_->get( idy ) );
     }
+}
 
+
+void WaveletAttrib::getPhase( Array1DImpl<float>& phase, bool indegrees ) const
+{
+    Array1DImpl<float> cindata( wvltsz_ );
+    getWaveletArrForPhase( cindata );
     Phase phasecomputer( cindata );
     phasecomputer.setUnitDeg( indegrees );
-    if ( phasecomputer.calculate() )
-	phase = phasecomputer.getPhase();
+    if ( !phasecomputer.calculate() )
+	return;
+
+    phase = phasecomputer.getPhase();
+}
+
+
+float WaveletAttrib::getAvgPhase( bool indegrees ) const
+{
+    Array1DImpl<float> cindata( wvltsz_ );
+    getWaveletArrForPhase( cindata );
+    Phase phasecomputer( cindata );
+    phasecomputer.setUnitDeg( indegrees );
+    if ( !phasecomputer.calculate() )
+	return mUdf(float);
+
+    return phasecomputer.getAvgPhase();
 }
 
 

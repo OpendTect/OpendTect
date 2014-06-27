@@ -11,7 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiseiswvltimpexp.h"
+#include "arrayndimpl.h"
 #include "wavelet.h"
+#include "waveletattrib.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "oddirs.h"
@@ -46,7 +48,7 @@ uiSeisWvltImp::uiSeisWvltImp( uiParent* p )
     sep->attach( stretchedBelow, dataselfld_ );
 
     scalefld_ = new uiGenInput( this, "Scale factor for samples",
-	    			FloatInpSpec(1) );
+				FloatInpSpec(1) );
     scalefld_->attach( alignedBelow, dataselfld_ );
     scalefld_->attach( ensureBelow, sep );
 
@@ -90,34 +92,30 @@ bool uiSeisWvltImp::acceptOK( CallBacker* )
     if ( !wvlt )
 	mErrRet(aio.errMsg())
 
-    const int nrsamps = wvlt->size();
-    int maxsamp = 0;
-    float maxval = fabs( wvlt->samples()[maxsamp] );
-    for ( int idx=1; idx<nrsamps; idx++ )
-    {
-	const float val = fabs( wvlt->samples()[idx] );
-	if ( val > maxval )
-	    { maxval = val; maxsamp = idx; }
-    }
+    WaveletAttrib wvltattrib( *wvlt );
+    const bool quadraturewvlt = mIsEqual(wvltattrib.getAvgPhase(true),90.f,1.f);
+
+    Interval<float> vals;
+    wvlt->getExtrValues( vals );
+    const float extreme = -1.f*vals.start < vals.stop ? vals.start : vals.stop;
+    const int maxsamp = wvlt->getPos( quadraturewvlt ? extreme : 0.f,
+				      quadraturewvlt );
+    const int nrhdrlines = fd_.nrHdrLines();
+
     if ( maxsamp != wvlt->centerSample() )
     {
-	BufferString msg( "Highest amplitude is at sample: " );
-	msg += maxsamp + 1;
-	msg += "\nThe center sample found is: ";
-	msg += wvlt->centerSample() + 1;
-	msg += "\n\nDo you want to reposition the center sample,"
-	       "\nSo it will be at the highest amplitude position?";
-	if ( uiMSG().askGoOn( msg ) )
+	BufferString msg( "Center of wavelet is predicted at row number: " );
+	msg += maxsamp + 1 + nrhdrlines;
+	msg += "\nThe provided center sample row position was: ";
+	msg += wvlt->centerSample() + 1 + nrhdrlines;
+	msg += "\n\nDo you want to reposition the center sample?";
+	if ( uiMSG().askGoOn(msg) )
 	    wvlt->setCenterSample( maxsamp );
     }
 
     const float fac = scalefld_->getfValue();
-    if ( fac != 0 && !mIsUdf(fac) && fac != 1 )
-    {
-	float* samps = wvlt->samples();
-	for ( int idx=0; idx<wvlt->size(); idx++ )
-	    samps[idx] *= fac;
-    }
+    if ( !mIsUdf(fac) && !mIsZero(fac,mDefEpsF) && !mIsEqual(fac,1.f,mDefEpsF) )
+	wvlt->transform( 0.f, fac );
 
     if ( !wvlt->put(ctio_.ioobj) )
 	mErrRet( "Cannot store wavelet on disk" )

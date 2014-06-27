@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "survinfo.h"
 #include "wavelet.h"
+#include "waveletattrib.h"
 
 #include "uibutton.h"
 #include "uiseissingtrcdisp.h"
@@ -44,9 +45,9 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Wavelets",mNoDlgTitle,
                                      "103.3.0").nrstatusflds(1),
-	    	   WaveletTranslatorGroup::ioContext() )
+		   WaveletTranslatorGroup::ioContext() )
     , wvltext_(0)
-    , wvltpropdlg_(0)			 
+    , wvltpropdlg_(0)
 {
     createDefaultUI();
 
@@ -178,30 +179,36 @@ void uiSeisWvltMan::mkFileInfo()
     if ( wvlt )
     {
 	const float zfac = mCast( float, SI().zDomain().userFactor() );
+	WaveletAttrib wvltattrib( *wvlt );
 
-	BufferString tmp;
-	tmp.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );
-	tmp.add( "Sample interval " ).add( SI().getZUnitString(true) )
+	BufferString msg;
+	msg.add( "Number of samples: " ).add( wvlt->size() ).add( "\n" );
+	msg.add( "Sample interval " ).add( SI().getZUnitString(true) )
 	   .add( ": " ).add( wvlt->sampleRate() * zfac ).add( "\n" );
-	tmp.add( "Min/Max amplitude: " ).add( wvlt->getExtrValue(false) )
-	   .add( "/" ).add( wvlt->getExtrValue() ).add( "\n" ); 
-	txt.add( tmp );
+	Interval<float> extremevals;
+	wvlt->getExtrValues( extremevals );
+	msg.add( "Min/Max amplitude: " ).add( extremevals.start )
+	   .add( "/" ).add( extremevals.stop ).add( "\n" );
+	float avgphase = wvltattrib.getAvgPhase( true );
+	if ( mIsZero(avgphase,1e-3f) ) avgphase = 0.f;
+	msg.add( "Average phase (deg): ").add( avgphase ).add( "\n" );
+	txt.add( msg );
 	delete wvlt;
 
 	MultiID orgid; MultiID horid; MultiID seisid; BufferString lvlnm;
 	if ( Wavelet::isScaled(curioobj_->key(),orgid,horid,seisid,lvlnm) )
 	{
-	    tmp = "Scaled: ";
+	    msg = "Scaled: ";
 	    if ( orgid == MultiID("0") )
-		tmp.add( "Outside OpendTect" );
+		msg.add( "Outside OpendTect" );
 	    else
 	    {
-		tmp.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
-		tmp.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
-		tmp.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
-		tmp.add( " at '").add( lvlnm ).add( "')" );
+		msg.add( "'").add( IOM().nameOf(orgid) ).add( "'" );
+		msg.add( " scaled to '").add( IOM().nameOf(seisid) ).add( "'" );
+		msg.add( "\n\t(along '").add( IOM().nameOf(horid) ).add( "'" );
+		msg.add( " at '").add( lvlnm ).add( "')" );
 	    }
-	    txt.add( tmp ).add( "\n" );
+	    txt.add( msg ).add( "\n" );
 	}
     }
 
@@ -236,7 +243,7 @@ void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
     dlg.setHelpID("0.3.11");
     Wavelet* wvlt = 0;
     bool didsel = true;
-    if ( dlg.go() ) 
+    if ( dlg.go() )
 	wvlt = Wavelet::get( ctio.ioobj );
     else
 	didsel = false;
@@ -277,11 +284,11 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-    
+
     uiSeisWvltRotDlg dlg( this, *wvlt );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
-    {	
+    {
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write rotated phase wavelet to disk");
 	else
@@ -299,10 +306,10 @@ void uiSeisWvltMan::taper( CallBacker* )
 {
     Wavelet* wvlt = Wavelet::get( curioobj_ );
     if ( !wvlt ) return;
-    
+
     uiSeisWvltTaperDlg dlg( this, *wvlt );
     if ( dlg.go() )
-    {	
+    {
 	if ( !wvlt->put(curioobj_) )
 	    uiMSG().error("Cannot write tapered wavelet to disk");
 	else
