@@ -33,7 +33,7 @@ namespace Time
 
     protected:
 
-	mQtclass(QTime&)	qtime_;
+	mQtclass(QTime*)	qtime_;
 
     };
 

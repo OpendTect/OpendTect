@@ -17,7 +17,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <string.h>
 #include <iostream>
 
-#include <QString>
+#ifndef OD_NO_QT
+# include <QString>
+#endif
 
 #ifdef __win__
 # define sDirSep        "\\"
@@ -225,26 +227,6 @@ static void finalCleanupNumberString( char* str )
 
 
 template <class T>
-static const char* getStringFromFPNumber( T inpval, int nrdec )
-{
-    mDeclStaticString( retstr );
-    char* str = retstr.getCStr();
-
-    if ( !inpval )
-	mSetStrTo0(str,return str)
-
-    const bool isneg = inpval < 0;
-    const T val = isneg ? -inpval : inpval;
-    if ( mIsUdf(val) )
-	return sKey::FloatUdf();
-
-    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
-    retstr = QString::number( inpval, *fmtend, nrdec );
-    return str;
-}
-
-
-template <class T>
 static const char* getStringFromFPNumber( T inpval )
 {
     mDeclStaticString( retstr );
@@ -274,6 +256,30 @@ static const char* getStringFromFPNumber( T inpval )
     finalCleanupNumberString( str );
 
     return str;
+}
+
+
+template <class T>
+static const char* getStringFromFPNumber( T inpval, int nrdec )
+{
+#ifdef OD_NO_QT
+    return getStringFromFPNumber( inpval );
+#else
+    mDeclStaticString( retstr );
+    char* str = retstr.getCStr();
+
+    if ( !inpval )
+	mSetStrTo0(str,return str)
+
+    const bool isneg = inpval < 0;
+    const T val = isneg ? -inpval : inpval;
+    if ( mIsUdf(val) )
+	return sKey::FloatUdf();
+
+    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
+    retstr = QString::number( inpval, *fmtend, nrdec );
+    return str;
+#endif
 }
 
 

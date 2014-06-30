@@ -14,8 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "globexpr.h"
 #include "uistring.h"
+#include "string.h"
 
-#include <QString>
+#ifndef OD_NO_QT
+# include <QString>
+#endif
 
 
 
@@ -129,8 +132,12 @@ BufferString& BufferString::add( const char* s )
 
 BufferString& BufferString::add( const QString& qstr )
 {
+#ifdef OD_NO_QT
+    return *this;
+#else
     const QByteArray qba = qstr.toUtf8();
     return add( qba.constData() );
+#endif
 }
 
 
@@ -686,8 +693,7 @@ BufferStringSet& BufferStringSet::add( const OD::String& s )
 
 BufferStringSet& BufferStringSet::add( const QString& qstr )
 {
-    const QByteArray qba = qstr.toUtf8();
-    return add( qba.constData() );
+    return add( BufferString(qstr) );
 }
 
 

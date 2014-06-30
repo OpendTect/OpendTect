@@ -180,21 +180,24 @@ bool ODInst::runInstMgrForUpdt()
 
 bool ODInst::updatesAvailable()
 {
-
+#ifdef OD_NO_QT
+    return false;
+#else
     mDefCmd(false); cmd.add( " --updcheck_report" );
-#ifndef __win__
+# ifndef __win__
 
     const BufferString curpath = File::getCurrentPath();
     File::changeDir( installerdir.pathOnly() );
     const int res = QProcess::execute( QString(cmd.buf()) );
     File::changeDir( curpath.buf() );
     return res == 1;
-#else
+# else
     FilePath tmp( File::getTempPath(), "od_updt" );
     bool ret = File::exists( tmp.fullPath() );
     if ( ret )
 	File::remove( tmp.fullPath() );
     return ret;
+# endif
 #endif
 }
 

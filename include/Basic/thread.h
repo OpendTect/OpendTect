@@ -16,11 +16,9 @@ ________________________________________________________________________
 #include "commondefs.h"
 #include "plftypes.h"
 
-#ifndef OD_NO_QT
 mFDQtclass(QThread)
 mFDQtclass(QMutex)
 mFDQtclass(QWaitCondition)
-#endif
 
 class CallBack;
 
@@ -65,16 +63,14 @@ public:
 
 protected:
 
-#ifndef OD_NO_QT
     mQtclass(QMutex*)		qmutex_;
-#endif
 
-#ifdef __debug__
     const void*			lockingthread_;
+				//!<Only set in debug-mode
     int				count_;
+				//!<Only set in debug-mode
 public:
     int				getCount() const { return count_; }
-#endif
 };
 
 
@@ -296,9 +292,7 @@ public:
 
 protected:
 
-#ifndef OD_NO_QT
     mQtclass(QThread*)			thread_;
-#endif
 };
 
 /*! Fetches number of processors from operating system, unless:

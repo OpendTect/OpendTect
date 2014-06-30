@@ -10,61 +10,86 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "timer.h"
-#include "qtimercomm.h" 
+
+#ifndef OD_NO_QT
+# include "qtimercomm.h"
+#endif
 
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
     : NamedObject(nm)
     , tick(this)
+#ifndef OD_NO_QT
     , timer_(new QTimer(0))
     , comm_(new QTimerComm(timer_,this))
+#endif
     , scriptpolicy_(DefaultPolicy)
 {}
 
 
 Timer::~Timer()
 { 
+#ifndef OD_NO_QT
     if ( isActive() )
 	stop();
 
     comm_->deactivate();
     delete timer_;
     delete comm_;
+#endif
 }
 
 
 bool Timer::isActive() const
-{ return timer_->isActive(); }
+{
+#ifndef OD_NO_QT
+    return timer_->isActive();
+#else
+    return false;
+#endif
+}
 
 
 bool Timer::isSingleShot() const
-{ return timer_->isSingleShot(); }
+{
+#ifndef OD_NO_QT
+    return timer_->isSingleShot();
+#else
+    return true;
+#endif
+}
 
 
 
 void Timer::start( int msec, bool sshot )
 {
+#ifndef OD_NO_QT
     timer_->setSingleShot( sshot );
     timer_->setInterval( msec );
 
     timerStarts()->trigger( this );
     timer_->start();
+#endif
 }
 
 
 void Timer::stop() 
 {
+#ifndef OD_NO_QT
     timer_->stop();
     timerStopped()->trigger( this );
+#endif
 }
 
 
 void Timer::notifyHandler()
 {
+#ifndef OD_NO_QT
     timerShoots()->trigger( this );
     tick.trigger( this );
     timerShot()->trigger( this );
+#endif
 }
 
 

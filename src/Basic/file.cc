@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "bufstringset.h"
 #include "dirlist.h"
+#include "envvars.h"
 #include "perthreadrepos.h"
 #include "winutils.h"
 #include "executor.h"
@@ -25,18 +26,18 @@ ________________________________________________________________________
 #ifdef __win__
 # include <direct.h>
 #else
-#include "sys/stat.h"
+# include "sys/stat.h"
 # include <unistd.h>
 #endif
 
 #ifndef OD_NO_QT
-#include <QDateTime>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QProcess>
+# include <QDateTime>
+# include <QDir>
+# include <QFile>
+# include <QFileInfo>
+# include <QProcess>
 #else
-#include <fstream>
+# include <fstream>
 #endif
 
 #define mMBFactor (1024*1024)
@@ -84,6 +85,9 @@ protected:
 #define mErrRet(s1,s2) { msg_ = s1; msg_ += s2; return ErrorOccurred(); }
 int RecursiveCopier::nextStep()
 {
+#ifdef OD_NO_QT
+    return ErrorOccurred();
+#else
     if ( fileidx_ >= filelist_.size() )
 	return Finished();
 
@@ -116,6 +120,7 @@ int RecursiveCopier::nextStep()
     fileidx_++;
     nrdone_ += getFileSize( srcfile );
     return MoreToDo();
+#endif
 }
 
 
@@ -501,21 +506,25 @@ bool remove( const char* fnm )
 
 bool removeDir( const char* dirnm )
 {
+#ifdef OD_NO_QT
+    return false;
+#else
     if ( !exists(dirnm) )
 	return true;
 
     if ( isLink(dirnm) )
 	return QFile::remove( dirnm );
 
-#ifdef __win__
+# ifdef __win__
     return winRemoveDir( dirnm );
-#else
+# else
     BufferString cmd;
     cmd = "/bin/rm -rf";
     cmd.add(" \"").add(dirnm).add("\"");
     bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
     if ( res ) res = !exists(dirnm);
     return res;
+# endif
 #endif
 }
 
@@ -532,26 +541,30 @@ bool changeDir( const char* dir )
 
 bool makeWritable( const char* fnm, bool yn, bool recursive )
 {
+#ifdef OD_NO_QT
+    return false;
+#else
     BufferString cmd;
-#ifdef __win__
+# ifdef __win__
     cmd = "attrib"; cmd += yn ? " -R " : " +R ";
     cmd.add("\"").add(fnm).add("\"");
     if ( recursive && isDirectory(fnm) )
 	cmd += "\\*.* /S ";
-#else
+# else
     cmd = "chmod";
     if ( recursive && isDirectory(fnm) )
 	cmd += " -R ";
     cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
-#endif
+# endif
 
     return QProcess::execute( QString(cmd.buf()) ) >= 0;
+#endif
 }
 
 
 bool makeExecutable( const char* fnm, bool yn )
 {
-#ifdef __win__
+#if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
     BufferString cmd( "chmod" );
@@ -563,7 +576,7 @@ bool makeExecutable( const char* fnm, bool yn )
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
-#ifdef __win__
+#if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
     BufferString cmd( "chmod " );
@@ -634,7 +647,7 @@ od_int64 getTimeInSeconds( const char* fnm, bool lastmodif )
     if (status != 0)
 	return 0;
 
-    return lastmodif ? st_buf.st_mtime : st_buf.st_ctim;
+    return lastmodif ? st_buf.st_mtime : st_buf.st_ctime;
 #endif
 }
 
@@ -682,7 +695,7 @@ const char* getCurrentPath()
 # ifdef __win__
     _getcwd( ret.buf(), ret.minBufSize() );
 # else
-    getcwd( ret.buf(), ret.minBufSize() );
+    getcwd( ret.getCStr(), ret.minBufSize() );
 # endif
 #endif
     return ret.buf();

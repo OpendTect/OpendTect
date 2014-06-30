@@ -16,7 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "ptrman.h"
 
-#include <QTranslator>
+#ifndef OD_NO_QT
+# include <QTranslator>
+#endif
 
 class TranslatorLanguageInfo
 {
@@ -25,12 +27,18 @@ public:
 				    : loaded_( false )
 				{ translators_.allowNull( true ); }
 				~TranslatorLanguageInfo()
-				{ deepErase( translators_ ); }
+				{
+#ifndef OD_NO_QT
+				    deepErase( translators_ );
+#endif
+				}
 
     bool			load();
 
     BufferString		name_;
+#ifndef OD_NO_QT
     QString			username_;
+#endif
     bool			loaded_;
 
     ObjectSet<QTranslator>	translators_;
@@ -48,14 +56,19 @@ const QTranslator*
 }
 
 
+#ifndef OD_NO_QT
 static FilePath GetLocalizationDir()
 {
     return FilePath( GetSoftwareDir(false), "data", "localizations" );
 }
+#endif
 
 
 bool TranslatorLanguageInfo::load()
 {
+#ifdef OD_NO_QT
+    return false;
+#else
     BufferString filenamepostfix;
     filenamepostfix.add( TextTranslateMgr::cApplicationEnd() )
 		   .add( name_ ).add( ".qm" );
@@ -81,6 +94,7 @@ bool TranslatorLanguageInfo::load()
     loaded_ = true;
 
     return true;
+#endif
 }
 
 
@@ -111,7 +125,11 @@ uiString TextTranslateMgr::getLanguageUserName(int idx) const
     if ( languages_.validIdx(idx) )
     {
 	uiString ret;
+#ifdef OD_NO_QT
+	ret = languages_[idx]->name_;
+#else
 	ret.setFrom( languages_[idx]->username_ );
+#endif
 	return ret;
     }
 
@@ -218,6 +236,7 @@ void TextTranslateMgr::loadInfo()
 
 	if ( application==uiString::sODLocalizationApplication() )
 	{
+#ifndef OD_NO_QT
 	    QTranslator maintrans;
 	    if ( !maintrans.load(path.fullPath().buf()) )
 	    {
@@ -227,6 +246,7 @@ void TextTranslateMgr::loadInfo()
 	    {
 		tr("Language Name").translate( maintrans, tli->username_ );
 	    }
+#endif
 	}
     }
 }
