@@ -124,13 +124,12 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
 		       SurveyInfo::Both2DAnd3D );
     tifs_->addFactory( new uiODAnnotTreeItemFactory, 9000,
 		       SurveyInfo::Both2DAnd3D );
-    
-    tiletimer_->tick.notify( mCB(this,uiODSceneMgr,tileTimerCB) );
 
     mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
+    tiletimer_->tick.notify( mCB(this,uiODSceneMgr,tileTimerCB) );
 }
 
 
@@ -184,10 +183,10 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	visscene->setPolygonSelector( scn.sovwr_->getPolygonSelector() );
     if ( visscene && scn.sovwr_->getSceneColTab() )
 	visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
-
     if ( visscene )
-	mAttachCB( 
+	mAttachCB(
 	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
+
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
@@ -222,6 +221,7 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     if ( name ) setSceneName( sceneid, name );
 
     visServ().setZAxisTransform( sceneid, zt, 0 );
+
     visServ().turnSelectionModeOn( visServ().isSelectionModeOn() );
     return sceneid;
 }
@@ -236,10 +236,10 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 
 	visBase::DataObject* obj =
 	    visBase::DM().getObject( scenes_.last()->sovwr_->sceneID() );
-	
+
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
-	mDetachCB( 
+	mDetachCB(
 	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
     }
 }
@@ -247,7 +247,8 @@ void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 
 void uiODSceneMgr::tileTimerCB( CallBacker* )
 {
-    tile();
+    if ( scenes_.size() > 1 )
+	tile();
 }
 
 
@@ -261,9 +262,8 @@ void uiODSceneMgr::removeScene( uiODSceneMgr::Scene& scene )
 	visBase::DataObject* obj =
 	    visBase::DM().getObject( scene.itemmanager_->sceneID() );
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
-	mDetachCB( 
+	mDetachCB(
 	    visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
-
 	scene.itemmanager_->askContinueAndSaveIfNeeded( false );
 	scene.itemmanager_->prepareForShutdown();
 	visServ().removeScene( scene.itemmanager_->sceneID() );
@@ -393,7 +393,7 @@ void uiODSceneMgr::setSceneProperties()
     getSoViewers( vwrs );
     if ( vwrs.isEmpty() )
     {
-	uiMSG().error( "No scenes available" );
+	uiMSG().error( tr("No scenes available") );
 	return;
     }
 
@@ -553,7 +553,7 @@ void uiODSceneMgr::setStereoType( int type )
 	ui3DViewer& sovwr_ = *scenes_[ids]->sovwr_;
 	if ( !sovwr_.setStereoType(stereotype) )
 	{
-	    uiMSG().error( "No support for this type of stereo rendering" );
+	    uiMSG().error( tr("No support for this type of stereo rendering") );
 	    return;
 	}
 	if ( type )
