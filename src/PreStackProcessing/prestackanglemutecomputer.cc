@@ -161,17 +161,13 @@ bool AngleMuteComputer::doFinish( bool sucess )
 	return false;
 
     PtrMan<IOObj> obj = IOM().get( params().outputmutemid_ );
-    PtrMan<MuteDefTranslator> tr = obj
+    PtrMan<MuteDefTranslator> mdtrl = obj
     	? (MuteDefTranslator*)obj->createTranslator()
     	: 0;
     
-    BufferString bs;
-    return tr ? tr->store( outputmute_, obj, bs ) : false;
+    uiString msg;
+    return mdtrl ? mdtrl->store( outputmute_, obj, msg ) : false;
 }
-
-
-const char* AngleMuteComputer::errMsg() const
-{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 
 od_int64 AngleMuteComputer::nrIterations() const

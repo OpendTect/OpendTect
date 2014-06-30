@@ -29,7 +29,7 @@ class MuteDef;
 */
 
 mExpClass(PreStackProcessing) Mute : public Processor
-{
+{ mODTextTranslationClass(Mute)
 public:
 			mDefaultFactoryInstantiation( Processor, Mute,
 				"Mute", sFactoryKeyword() );
@@ -41,7 +41,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     static const char*	sTaperLength()		{ return "Taper Length";}
     static const char*	sTailMute()		{ return "Tail Mute";}
@@ -62,7 +62,7 @@ protected:
     MuteDef&			def_;
     Muter*			muter_;
     MultiID			id_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     od_int64			nrIterations() const { return outidx_.size(); }
     bool			doWork(od_int64,od_int64,int);

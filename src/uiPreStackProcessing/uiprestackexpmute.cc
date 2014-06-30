@@ -66,9 +66,9 @@ bool uiExportMute::writeAscii()
     if ( !trans ) return false;
 
     MuteDef mutedef;
-    BufferString bs;
-    const bool retval = trans->retrieve( mutedef, ctio_.ioobj, bs );
-    if ( !retval ) mErrRet( bs.buf() );
+    uiString errstr;
+    const bool retval = trans->retrieve( mutedef, ctio_.ioobj, errstr );
+    if ( !retval ) mErrRet( errstr );
 
     const BufferString fname = outfld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();

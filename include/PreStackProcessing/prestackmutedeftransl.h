@@ -36,7 +36,7 @@ public:
 */
 
 mExpClass(PreStackProcessing) MuteDefTranslator : public Translator
-{
+{ mODTextTranslationClass(MuteDefTranslator)
 public:
     			mDefEmptyTranslatorBaseConstructor(MuteDef)
 
@@ -45,9 +45,9 @@ public:
     virtual const char*	write(const PreStack::MuteDef&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(PreStack::MuteDef&,const IOObj*,BufferString&);
+    static bool		retrieve(PreStack::MuteDef&,const IOObj*,uiString&);
     static bool		store(const PreStack::MuteDef&,const IOObj*,
-	    		      BufferString&);
+			      uiString&);
 };
 
 

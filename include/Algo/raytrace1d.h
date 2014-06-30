@@ -29,11 +29,11 @@ class TimeDepthModel;
 */
 
 mExpClass(Algo) RayTracer1D : public ParallelTask
-{
+{ mODTextTranslationClass(RayTracer1D);
 public:
     mDefineFactoryInClass( RayTracer1D, factory );
 
-    static RayTracer1D*	createInstance(const IOPar&,BufferString&);
+    static RayTracer1D* createInstance(const IOPar&,uiString&);
 
 			~RayTracer1D();
 
@@ -67,7 +67,7 @@ public:
     void		setOffsets(const TypeSet<float>& offsets);
     void		getOffsets(TypeSet<float>& offsets) const;
 
-    const char*		errMsg() const { return errmsg_.str(); }
+    uiString		errMsg() const { return errmsg_; }
 
 			//Available after execution
     float		getSinAngle(int layeridx,int offsetidx) const;
@@ -96,7 +96,7 @@ protected:
 			//Setup variables
     ElasticModel	model_; // model top depth must be TWT = 0ms
     TypeSet<float>	offsets_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
 
 			//Runtime variables
     TypeSet<int>	offsetpermutation_;
@@ -115,7 +115,7 @@ protected:
 */
 
 mExpClass(Algo) VrmsRayTracer1D : public RayTracer1D
-{
+{ mODTextTranslationClass(VrmsRayTracer1D);
 public:
 
     mDefaultFactoryInstantiation( RayTracer1D, VrmsRayTracer1D, "VrmsRayTracer",

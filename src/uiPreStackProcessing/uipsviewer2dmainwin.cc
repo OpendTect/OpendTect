@@ -272,7 +272,7 @@ void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 	    PtrMan<IOObj> muteioobj = IOM().get( muteid );
 		if ( !muteioobj ) continue;
 	    PreStack::MuteDef* mutedef = new PreStack::MuteDef;
-	    BufferString errmsg;
+	    uiString errmsg;
 	    if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj,errmsg) )
 	    {
 		uiMSG().error( errmsg );

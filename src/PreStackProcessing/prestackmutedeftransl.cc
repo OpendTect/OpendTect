@@ -36,40 +36,52 @@ int MuteDefTranslatorGroup::selector( const char* key )
 
 
 bool MuteDefTranslator::retrieve( PreStack::MuteDef& md, const IOObj* ioobj,
-				  BufferString& bs )
+				  uiString& msg )
 {
-    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
+    if ( !ioobj ) { msg = tr("Cannot find object in data base"); return false; }
+    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
 		 ioobj->createTranslator());
-    if ( !tr )
-	{ bs = "Selected object is not a Mute Definition"; return false; }
+    if ( !mdtrl )
+	{ msg = tr("Selected object is not a Mute Definition"); return false; }
 
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( md, *conn );
-    return bs.isEmpty();
+    {
+	msg = tr( "Cannot open %1").arg( ioobj->fullUserExpr(true) );
+	return false;
+    }
+
+    msg = mdtrl->read( md, *conn );
+    return msg.isEmpty();
 }
 
 
 bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
-				BufferString& bs )
+				uiString& msg )
 {
-    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false;}
-
-    bs = "";
-    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
-    else
+    if ( !ioobj )
     {
-	bs = tr->write( md, *conn );
+	msg = tr("No object to store set in data base");
+	return false;
+    }
+    mDynamicCast(MuteDefTranslator*,PtrMan<MuteDefTranslator> mdtrl,
+		 ioobj->createTranslator());
+    if ( !mdtrl )
+    {
+	msg = tr("Selected object is not a Mute Definition");
+	return false;
     }
 
-    return bs.isEmpty();
+    msg.setEmpty();
+    PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
+    if ( !conn )
+	{ msg = tr("Cannot open %1").arg(ioobj->fullUserExpr(false) ); }
+    else
+    {
+	msg = mdtrl->write( md, *conn );
+    }
+
+    return msg.isEmpty();
 }
 
 

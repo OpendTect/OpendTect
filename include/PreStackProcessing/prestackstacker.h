@@ -36,7 +36,7 @@ public:
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
-    const char*			errMsg() const;
+    uiString			errMsg() const		{ return errmsg_; }
 
     void			setOffsetRange(const Interval<float>*);
 				//!<Null pointer means all offsets
@@ -48,7 +48,7 @@ protected:
     od_int64			nrIterations() const;
     bool			doWork(od_int64,od_int64,int);
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     Interval<float>*		offsetrg_;
 };
 

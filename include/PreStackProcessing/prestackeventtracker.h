@@ -31,7 +31,7 @@ class MuteDef;
 */
 
 mExpClass(PreStackProcessing) EventTracker
-{
+{ mODTextTranslationClass(EventTracker)
 public:
 			mDefineFactoryInClass(EventTracker,factory);
     virtual void	reInit();
@@ -46,7 +46,7 @@ public:
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
-    const char*		errMsg() { return errmsg_.str(); }
+    uiString		errMsg() { return errmsg_; }
 
     static const char*	sKeyInnerMute() { return "Inner mute"; }
     static const char*	sKeyOuterMute() { return "Outer mute"; }
@@ -63,7 +63,7 @@ protected:
     MultiID			innermuteid_;
     MultiID			outermuteid_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 

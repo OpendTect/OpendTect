@@ -173,7 +173,7 @@ PSAttrib::PSAttrib( Desc& ds )
     if ( preprociopar )
     {
 	preprocessor_ = new PreStack::ProcessManager;
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
 					       errmsg ) )
 	{

@@ -34,7 +34,7 @@ if ( !mIsEqual(muteval,chkval,1e-5f) ) \
 //check for Top Mute created in different versions
 bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
 {
-    IOObj* muteobj = IOM().get( muteid );
+    PtrMan<IOObj> muteobj = IOM().get( muteid );
     if ( !muteobj )
     {
 	strm<<"Mute object with id "<<muteid.buf()
@@ -43,14 +43,14 @@ bool odTestSameMuteInDiffVersion( od_ostream& strm, const MultiID& muteid )
     }
 
     PreStack::MuteDef mutedef;
-    BufferString errmsg;
+    uiString errmsg;
     if ( !MuteDefTranslator::retrieve(mutedef,muteobj,errmsg) )
     {
 	BufferString msg;
 	msg += "Mute definition ";
 	msg += muteobj->name();
 	msg += " cannot be read. ";
-	msg += errmsg;
+	msg += errmsg.getOriginalString();
 	strm<<msg.buf()<<od_newline;
 	return false;
     }

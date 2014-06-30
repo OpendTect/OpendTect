@@ -28,10 +28,6 @@ Stack::~Stack()
 }
 
 
-const char* Stack::errMsg() const
-{ return errmsg_.str(); }
-
-
 #define mErrRet(s) \
 { delete muter_; muter_ = 0; errmsg_ = s; return false; }
 

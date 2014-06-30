@@ -290,9 +290,9 @@ void uiProcessorManager::loadCB( CallBacker* )
     uiIOObjSelDlg dlg( this, selcontext );
     if ( dlg.go() && dlg.ioObj() )
     {
-	BufferString errmsg;
+	uiString errmsg;
 	if ( !PreStackProcTranslator::retrieve( manager_, dlg.ioObj(), errmsg) )
-	    uiMSG().error( errmsg.buf() );
+	    uiMSG().error( errmsg );
 	else
 	{
 	    updateList();
@@ -356,10 +356,10 @@ void uiProcessorManager::saveCB( CallBacker* )
 
 bool uiProcessorManager::doSave( const IOObj& ioobj )
 {
-    BufferString errmsg;
+    uiString errmsg;
     if ( !PreStackProcTranslator::store( manager_, &ioobj, errmsg) )
     {
-	uiMSG().error( errmsg.buf() );
+	uiMSG().error( errmsg );
 	return false;
     }
 

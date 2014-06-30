@@ -94,10 +94,13 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    BufferString errmsg;
-    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj, errmsg ) )
+    uiString errmsg;
+    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj,
+					    errmsg ) )
     {
-	errorMsg( errmsg.buf() );
+	errorMsg( errmsg.getOriginalString() );
+	//TODO use tr when changing errorMsg type
+	//Should be an independant revision
 	delete procman;
 	return false;
     }

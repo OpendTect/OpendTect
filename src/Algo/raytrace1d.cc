@@ -55,7 +55,7 @@ RayTracer1D::~RayTracer1D()
 { delete sini_; delete twt_; delete reflectivity_; }
 
 
-RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
+RayTracer1D* RayTracer1D::createInstance( const IOPar& par, uiString& errm )
 {
     BufferString type;
     par.get( sKey::Type(), type );
@@ -63,7 +63,7 @@ RayTracer1D* RayTracer1D::createInstance( const IOPar& par, BufferString& errm )
     RayTracer1D* raytracer = factory().create( type );
     if ( !raytracer )
     {
-	errm = "Raytracer not found. Perhaps all plugins are not loaded";
+	errm = tr("Raytracer not found. Perhaps all plugins are not loaded");
 	return 0;
     }
 
@@ -172,8 +172,8 @@ bool RayTracer1D::doPrepare( int nrthreads )
 
     if ( sz < 1 )
     {
-	errmsg_.set( sz ? "Model has only one layer" : "Model is empty" )
-	       .add( ", cannot do raytracing." );
+	errmsg_ = sz ? tr( "Model has only one layer" ) : tr("Model is empty" );
+	errmsg_.append( tr(", cannot do raytracing." ) );
 	return false;
     }
 
@@ -458,8 +458,9 @@ bool VrmsRayTracer1D::doWork( od_int64 start, od_int64 stop, int nrthreads )
 
 	    if ( !compute( layer, osidx, rayparam ) )
 	    {
-		errmsg_.set( "Can not compute layer " ).add( toString(layer) )
-			.add( "\n most probably the velocity is not correct" );
+		errmsg_ = tr( "Can not compute layer %1"
+			      "\n most probably the velocity is not correct" )
+			.arg( layer );
 		return false;
 	    }
 	}

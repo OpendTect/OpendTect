@@ -67,8 +67,7 @@ public:
     virtual void	enableFourierDomain(bool fourier)
 			{ isfourier_ = fourier; }
 
-    const char*		errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    uiString		errMsg() const		{ return errmsg_;}
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
@@ -95,9 +94,9 @@ protected:
     const Wavelet*		wavelet_;
     StepInterval<float>		outputsampling_;
     bool	                dointernalmultiples_;
-    float	        surfreflcoeff_;
+    float			surfreflcoeff_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 

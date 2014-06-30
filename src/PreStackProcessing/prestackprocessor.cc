@@ -381,26 +381,19 @@ bool ProcessManager::usePar( const IOPar& par )
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
 	if ( !steppar || !steppar->get( sKey::Name(), name ) )
 	{
-	    errmsg_ = "Could not find name for processing step ";
-	    errmsg_ += idx;
-	    errmsg_ += ".";
+	    errmsg_ = tr( "Could not find name for processing step %1." )
+			.arg(toString(idx));
 	    return false;
 	}
 
 	Processor* proc = Processor::factory().create( name.buf() );
-	if ( !proc || proc->errMsg() || !proc->usePar( *steppar ) )
+	if ( !proc || proc->errMsg().isSet() || !proc->usePar( *steppar ) )
 	{
-	    const BufferString msg( "Could not parse processing step ",
-		    		    name, "." );
-	    if ( !proc || !proc->errMsg() )
-		errmsg_.set( msg ).add( "\nAre all plugins loaded?" );
+	    errmsg_ = tr("Could not parse processing step %1.").arg(name);
+	    if ( !proc || proc->errMsg().isSet() )
+		errmsg_.append( tr( "\nAre all plugins loaded?" ) );
 	    else
-	    {
-		FileMultiString fms( msg );
-		fms += proc->errMsg();
-		errmsg_ = fms;
-	    }
-
+		errmsg_.append( proc->errMsg() );
 	    delete proc;
 	    return false;
 	}

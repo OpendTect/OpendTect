@@ -71,7 +71,7 @@ bool testSynthGeneration( od_ostream& strm, bool success,
 			  Seis::RaySynthGenerator& synthgen )
 {
     BufferString testname( "test Synthetic generation" );
-    mTest( testname, success, synthgen.errMsg() )
+    mTest( testname, success, synthgen.errMsg().getOriginalString() )
 
     return true;
 }

@@ -35,7 +35,7 @@ class MuteDef;
 
 mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask
 						, public AngleMuteBase
-{
+{ mODTextTranslationClass(PreStackProcessing)
 public:
 				AngleMuteComputer();
 				~AngleMuteComputer();
@@ -56,14 +56,14 @@ public:
     bool		doFinish(bool success);
 
     uiString		uiMessage() const { return "Computing mutes..."; }
-    const char*		errMsg() const;
+    uiString		errMsg() const		{ return errmsg_; }
 
     AngleMuteCompPars&	params();
     const AngleMuteCompPars&	params() const;
 
 protected:
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     MuteDef&			outputmute_;
     Threads::Lock		lock_;
 };

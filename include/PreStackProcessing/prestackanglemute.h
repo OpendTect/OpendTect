@@ -105,8 +105,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
-    const char*         errMsg() const 
-    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     AngleMutePars&	 params();
     const AngleMutePars& params() const;
@@ -116,7 +115,7 @@ protected:
     od_int64 		nrIterations() const	{ return outputs_.size(); }
     virtual bool	doWork(od_int64,od_int64,int);
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     bool		raytraceparallel_;
     ObjectSet<Muter>	muters_;
 };

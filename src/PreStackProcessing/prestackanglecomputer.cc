@@ -61,7 +61,7 @@ void AngleComputer::setOutputSampling( const FlatPosData& os )
 
 void AngleComputer::setRayTracer( const IOPar& raypar )
 {
-    BufferString errormsg;
+    uiString errormsg;
     raytracer_ = RayTracer1D::createInstance( raypar, errormsg );
 }
 
@@ -360,7 +360,7 @@ Gather* AngleComputer::computeAngleData()
 	{
 	    IOPar iopar;
 	    iopar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
-	    BufferString errormsg;
+	    uiString errormsg;
 	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
 	}
 

@@ -92,18 +92,17 @@ bool Mute::setMuteDefID( const MultiID& mid )
 	return true;
 
     if ( mid.isEmpty() )
-	mErrRet("No MuteDef ID provided.")
+	mErrRet( tr("No MuteDef ID provided.") )
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-	mErrRet(BufferString("Cannot find MuteDef ID '", mid,
-			     "' in Object Manager."))
+	mErrRet(tr("Cannot find MuteDef ID '%1' in Object Manager.").arg(mid) );
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
     {
-	FileMultiString fms( BufferString( "Mute definition \"", ioobj->name(),
-					   "\" cannot be read." ) );
-	fms += errmsg_;
-	mErrRet( fms.buf() );
+	uiString errstr( tr( "Mute definition \" %1 \" cannot be read." )
+			.arg(ioobj->name()) );
+	errstr.append( errmsg_ );
+	mErrRet( errstr );
     }
 
     id_ = mid;

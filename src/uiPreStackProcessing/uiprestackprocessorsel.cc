@@ -82,7 +82,7 @@ void uiProcSel::editPushCB( CallBacker* )
     const IOObj* ioobj =  selfld_->ioobj( true );
     if ( ioobj )
     {
-	BufferString errmsg;
+	uiString errmsg;
 	PreStackProcTranslator::retrieve( man, ioobj, errmsg );
 	title = "Edit";
     }

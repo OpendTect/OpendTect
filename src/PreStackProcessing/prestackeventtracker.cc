@@ -78,11 +78,11 @@ bool EventTracker::setMute( bool inner, const MultiID& mid )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
-	    mErrRet("Cannot find MuteDef ID in Object Manager");
+	    mErrRet( tr("Cannot find MuteDef ID in Object Manager") );
 	mutedef = new PreStack::MuteDef;
 
 	if ( !mutedef )
-	    mErrRet("Cannot create new mute definition");
+	    mErrRet( tr("Cannot create new mute definition") );
 				     
 	if ( !MuteDefTranslator::retrieve( *mutedef, ioobj, errmsg_ ) )
 	{

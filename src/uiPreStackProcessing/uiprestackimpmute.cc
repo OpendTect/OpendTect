@@ -133,10 +133,16 @@ bool uiImportMute::acceptOK( CallBacker* )
 	    (MuteDefTranslator*)ctio_.ioobj->createTranslator();
     if ( !trans ) return false;
 
-    BufferString bs;
-    const bool retval = trans->store( mutedef, ctio_.ioobj, bs );
+    uiString str;
+    const bool retval = trans->store( mutedef, ctio_.ioobj, str );
     if ( !retval )
-	mErrRet( bs.buf() );
+    {
+	if ( str.isSet() )
+	    uiMSG().error( str );
+	return false;
+	//TODO: integrate to mErrRet when all messages are uiString
+	//should be part of another revision
+    }
 
     uiMSG().message( "Import finished successfully" );
     return false;

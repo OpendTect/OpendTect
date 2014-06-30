@@ -27,7 +27,7 @@ public:
     				RayTracerRunner(const IOPar& raypar);
     				~RayTracerRunner();
 
-    const char*			errMsg() const 	{ return errmsg_.buf(); }
+    uiString			errMsg() const	{ return errmsg_; }
 
     //before exectution only
     void			setOffsets(TypeSet<float> offsets);
@@ -47,7 +47,7 @@ protected:
     int 			modelIdx(od_int64,bool&) const;
     bool                        prepareRayTracers();
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     TypeSet<ElasticModel> 	aimodels_;
     ObjectSet<RayTracer1D> 	raytracers_;

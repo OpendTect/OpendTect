@@ -59,7 +59,7 @@ bool RayTracerRunner::prepareRayTracers()
     if ( RayTracer1D::factory().getNames().isEmpty() )
 	return false;
 
-    BufferString errmsg;
+    uiString errmsg;
     totalnr_ = 0;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
@@ -77,7 +77,7 @@ bool RayTracerRunner::prepareRayTracers()
     }
 
     if ( raytracers_.isEmpty() && !errmsg.isEmpty() )
-	mErrRet( errmsg.buf() );
+	mErrRet( errmsg );
 
     return true;
 }

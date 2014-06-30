@@ -27,77 +27,101 @@ int PreStackProcTranslatorGroup::selector( const char* key )
 
 
 bool PreStackProcTranslator::retrieve( PreStack::ProcessManager& md,
-	const IOObj* ioobj, BufferString& bs )
+	const IOObj* ioobj, uiString& msg )
 {
-    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> tr,
+    if ( !ioobj )
+    {
+	msg = tr("Cannot find object in data base");
+	return false;
+    }
+    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> ptrl,
 		 ioobj->createTranslator());
-    if ( !tr )
-    	{ bs = "Selected object is not a Mute Definition"; return false; }
+    if ( !ptrl )
+    {
+	msg = tr("Selected object is not a Mute Definition");
+	return false;
+    }
     
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( md, *conn );
-    return bs.isEmpty();
+    {
+	msg = tr( "Cannot open %1" ).arg(ioobj->fullUserExpr(true));
+	return false;
+    }
+
+    msg = ptrl->read( md, *conn );
+    return msg.isEmpty();
 }
 
 
 bool PreStackProcTranslator::store( const PreStack::ProcessManager& md,
-	const IOObj* ioobj, BufferString& bs )
+	const IOObj* ioobj, uiString& msg )
 {
-    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> tr,
-		 ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not a Mute Definition"; return false;}
+    if ( !ioobj )
+    {
+	msg = tr("No object to store set in data base");
+	return false;
+    }
 
-    bs = "";
+    mDynamicCast(PreStackProcTranslator*,PtrMan<PreStackProcTranslator> ptrl,
+		 ioobj->createTranslator());
+    if ( !ptrl )
+    {
+	msg = tr("Selected object is not a Mute Definition");
+	return false;
+    }
+
+    msg.setEmpty();
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-        { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
+    {
+	msg = tr( "Cannot open %1" ).arg( ioobj->fullUserExpr(false) );
+    }
     else
     {
-	bs = tr->write( md, *conn );
+	msg = ptrl->write( md, *conn );
     }
     
-    return bs.isEmpty();
+    return msg.isEmpty();
 }
 
 
-const char* dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
-					     Conn& conn )
+uiString dgbPreStackProcTranslator::read( PreStack::ProcessManager& md,
+					  Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     ascistream astrm( ((StreamConn&)conn).iStream() );
     if ( !astrm.isOK() )
-	return "Cannot read from input file";
+	return tr("Cannot read from input file");
     if ( !astrm.isOfFileType(mTranslGroupName(PreStackProc)) )
-	return "Input file is not a Mute Definition file";
+	return tr("Input file is not a Mute Definition file");
     if ( atEndOfSection(astrm) ) astrm.next();
     const IOPar par( astrm );
 
     if ( md.usePar( par ) ) return 0;
 
-    return md.errMsg() ? md.errMsg() : "Could not read processing info.";
+    return md.errMsg().isSet() ? md.errMsg()
+			       : tr("Could not read processing info.");
 }
 
 
-const char* dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
+uiString dgbPreStackProcTranslator::write(const PreStack::ProcessManager& md,
 					     Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
-	return "Internal error: bad connection";
+	return tr("Internal error: bad connection");
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
     astrm.putHeader( mTranslGroupName(PreStackProc) );
     if ( !astrm.isOK() )
-	return "Cannot write to output Mute Definition file";
+	return tr("Cannot write to output Mute Definition file");
 
     IOPar par;
     md.fillPar( par );
 
     par.putTo( astrm );
-    return astrm.isOK() ? 0 : "Error during write to process definition file";
+    return astrm.isOK() ? uiString::emptyString()
+			: tr("Error during write to process definition file");
 }

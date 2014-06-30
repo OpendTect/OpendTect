@@ -50,7 +50,7 @@ public:
     DataPack::ID		getOutput(const BinID& relbid) const;
 
     virtual bool		prepareWork();
-    virtual const char*		errMsg() const { return 0; }
+    virtual uiString		errMsg() const {return uiString::emptyString();}
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
@@ -135,7 +135,7 @@ protected:
 */
 
 mExpClass(PreStackProcessing) ProcessManager : public CallBacker
-{
+{ mODTextTranslationClass(ProcessManager)
 public:
 				ProcessManager();
 				~ProcessManager();
@@ -173,7 +173,7 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    const char*			errMsg() const	{ return errmsg_.str(); }
+    uiString			errMsg() const	{ return errmsg_; }
 
     //Keys for od_process_prestack
     static const char*		sKeyLineKey()	{ return sKey::LineKey(); }
@@ -188,7 +188,7 @@ protected:
     static const char*	sKeyNrProcessors()	{ return "Nr processors"; }
 
     ObjectSet<Processor>	processors_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 

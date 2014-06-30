@@ -49,7 +49,7 @@ public:
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
 
 protected:
@@ -58,7 +58,7 @@ protected:
     static const char*	sKeyStepout()		{ return "Stepout"; }
     static const char*	sKeyCross()		{ return "Is cross"; }
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     bool		doWork(od_int64,od_int64,int);
     od_int64		nrIterations() const	{ return offsetazi_.size(); }
 
