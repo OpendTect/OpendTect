@@ -126,8 +126,10 @@ void uiFunctionDrawer::draw( CallBacker* )
     for ( int idx=0; idx<selitemsidx_.size(); idx++ )
     {
 	const int selidx = selitemsidx_[idx];
-	DrawFunction* func = functions_[selidx];
+	DrawFunction* func =
+		functions_.validIdx(selidx) ? functions_[selidx] : 0;
 	if ( !func ) return;
+
 	createLine( func );
 	uiPolyLineItem* polyitem = new uiPolyLineItem();
 	polyitem->setPolyLine( func->pointlist_ );
