@@ -43,7 +43,7 @@ namespace Pick { class Set; }
  */
 
 mExpClass(uiODMain) uiODSceneMgr : public CallBacker
-{ mODTextTranslationClass(uiODSceneMgr);
+{ mODTextTranslationClass(uiODSceneMgr)
 public:
 
     void			cleanUp(bool startnew=true);
@@ -65,6 +65,7 @@ public:
     void			viewModeChg(CallBacker* cb=0);
     void			actMode(CallBacker* cb=0);
     void			viewMode(CallBacker* cb=0);
+    bool			inViewMode() const;
     Notifier<uiODSceneMgr>	viewModeChanged;
 
     void			pageUpDownPressed(CallBacker*);
@@ -198,8 +199,9 @@ protected:
     void			initTree(Scene&,int);
     Scene*			getScene(int sceneid);
     const Scene*		getScene(int sceneid) const;
-    Timer*			tiletimer_;
     void			newSceneUpdated(CallBacker*);
+
+    Timer*			tiletimer_;
     void			tileTimerCB(CallBacker*);
 
     friend class		uiODMain;

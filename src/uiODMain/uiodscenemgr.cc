@@ -431,6 +431,10 @@ void uiODSceneMgr::setToViewMode( bool yn )
 }
 
 
+bool uiODSceneMgr::inViewMode() const
+{ return scenes_.isEmpty() ? false : scenes_[0]->sovwr_->isViewMode(); }
+
+
 void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 {
     bool yn = ( wm == uiVisPartServer::View ) ? true : false;
