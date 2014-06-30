@@ -21,8 +21,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "texttranslator.h"
 #include "typeset.h"
 
-#include <QString>
-#include <QTranslator>
+#ifndef OD_NO_QT
+# include <QString>
+# include <QTranslator>
+#endif
 
 #define mDirty (-1)
 
@@ -66,9 +68,11 @@ public:
 
     void setFrom( const QString& qstr )
     {
+#ifndef OD_NO_QT
 	Threads::Locker contentlocker( contentlock_ );
 	set( 0 );
 	qstring_ = qstr;
+#endif
     }
 
     void getFullString( BufferString& ) const;
@@ -79,7 +83,9 @@ public:
     mutable Threads::Lock	contentlock_;
     TypeSet<uiString>		arguments_;
 
+#ifndef OD_NO_QT
     QString			qstring_;
+#endif
 
     BufferString		originalstring_;
     TypeSet<uiString>		legacyversions_;
@@ -115,10 +121,13 @@ void uiStringData::getFullString( BufferString& ret ) const
 	return;
     }
 
+#ifndef OD_NO_QT
     QString qres;
     fillQString( qres, 0 );
-
     ret = qres;
+#else
+    ret = originalstring_;
+#endif
 }
 
 
@@ -126,6 +135,7 @@ void uiStringData::getFullString( BufferString& ret ) const
 bool uiStringData::fillQString( QString& res,
 				const QTranslator* translator ) const
 {
+#ifndef OD_NO_QT
     Threads::Locker contentlocker( contentlock_ );
     if ( !originalstring_ || !*originalstring_ )
 	return false;
@@ -176,6 +186,9 @@ bool uiStringData::fillQString( QString& res,
 	res = res.arg( arguments_[idx].getQtString() );
 
     return translationres;
+#else
+    return true;
+#endif
 }
 
 
@@ -267,6 +280,7 @@ const OD::String& uiString::getFullString() const
 
 const QString& uiString::getQtString() const
 {
+#ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
     if ( data_->dirtycount_!=TrMgr().dirtyCount() )
@@ -280,11 +294,16 @@ const QString& uiString::getQtString() const
        it should be made independent. */
 
     return data_->qstring_;
+#else
+    QString* ptr = 0;
+    return *ptr;
+#endif
 }
 
 
 wchar_t* uiString::createWCharString() const
 {
+#ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     QString qstr;
     Threads::Locker contentlocker( data_->contentlock_ );
@@ -304,6 +323,9 @@ wchar_t* uiString::createWCharString() const
     res[nrchars] = 0;
 
     return res;
+#else
+    return 0;
+#endif
 }
 
 
@@ -344,17 +366,25 @@ uiString& uiString::operator=( const char* str )
 
 bool uiString::operator>(const uiString& b ) const
 {
+#ifndef OD_NO_QT
     const QString& aqstr = getQtString();
     const QString& bqstr = b.getQtString();
     return aqstr > bqstr;
+#else
+    return true;
+#endif
 }
 
 
 bool uiString::operator<(const uiString& b ) const
 {
+#ifndef OD_NO_QT
     const QString& aqstr = getQtString();
     const QString& bqstr = b.getQtString();
     return aqstr < bqstr;
+#else
+    return true;
+#endif
 }
 
 
@@ -401,9 +431,13 @@ uiString& uiString::append( const char* newarg, bool withnewline )
 
 bool uiString::translate( const QTranslator& tr , QString& res ) const
 {
+#ifndef OD_NO_QT
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
     return data_->fillQString( res, &tr );
+#else
+    return true;
+#endif
 }
 
 

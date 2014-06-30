@@ -12,7 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "perthreadrepos.h"
 
-#include <QDir>
+#ifndef OD_NO_QT
+# include <QDir>
+#endif
 
 DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 	: dir_(dirname?dirname:".")
@@ -25,6 +27,7 @@ DirList::DirList( const char* dirname, DirList::Type t, const char* msk )
 
 void DirList::update()
 {
+#ifndef OD_NO_QT
     erase();
     const bool havemask = !mask_.isEmpty();
 
@@ -50,6 +53,7 @@ void DirList::update()
 	add( qlist[idx] );
 
     sort();
+#endif
 }
 
 
