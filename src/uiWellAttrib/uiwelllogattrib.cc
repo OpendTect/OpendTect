@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Attrib;
 
 
-mInitAttribUI(uiWellLogAttrib,WellLog,"WellLog",sKeyBasicGrp())
+mInitAttribUI(uiWellLogAttrib,WellLog,"Log",sKeyBasicGrp())
 
 
 uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
