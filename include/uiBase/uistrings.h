@@ -37,9 +37,9 @@ public:
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
     static uiString sClose()		{ return tr("Close"); }
-    static uiString sContinue()		{ return tr("Continue"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
+    static uiString sContinue()		{ return tr("Continue"); }
     static uiString sCreate(bool immediate);
     static uiString sCrossline()        { return tr("Crossline"); }
     static uiString sDepth()	        { return tr("Depth"); }
@@ -63,8 +63,8 @@ public:
     static uiString sLoad(bool immediate);
     static uiString sLock()		{ return tr("Lock"); }
     static uiString sLogs(bool immediate);
-    static uiString sMarkers(bool immediate);
     static uiString sManual()		{ return tr("Manual"); }
+    static uiString sMarkers(bool immediate);
     static uiString sName()		{ return tr("Name"); }
     static uiString sNew(bool immediate);
     static uiString sNext()		{ return tr("Next >"); }
@@ -80,17 +80,17 @@ public:
     static uiString sPolygon()		{ return tr("Polygon"); }
     static uiString sProcessing()	{ return tr("Processing"); }
     static uiString sProperties(bool immediate);
+    static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sRedo()		{ return tr("Redo"); }
     static uiString sReload()		{ return tr("Reload"); }
     static uiString sRemove(bool immediate);
-    static uiString sRectangle()	{ return tr("Rectangle"); }
     static uiString sSave(bool immediate);
     static uiString sSaveAs(bool immediate);
-    static uiString sSaveAsDefault();
+    static uiString sSaveAsDefault()    { return tr("Save as default"); }
     static uiString sScenes()		{ return tr("Scenes"); }
     static uiString sSEGY()		{ return tr("SEG-Y"); }
     static uiString sSeismics(bool immediate);
-    static uiString sSelect(bool arg=false,bool plural=false);
+    static uiString sSelect(bool immediate);
     static uiString sSettings(bool immediate);
     static uiString sSetup()		{ return tr("Setup"); }
     static uiString sShift(bool immediate);
@@ -118,8 +118,8 @@ public:
     static uiString sYes()		{ return tr("Yes"); }
 };
 
-// Implementations
-//uiStrings
+// Implementations uiStrings
+
 inline uiString uiStrings::s2D( bool immediate )
 { return immediate ? tr("2D") : tr("2D ..."); }
 
@@ -181,29 +181,19 @@ inline uiString uiStrings::sSave( bool immediate )
 { return immediate ? tr("Save") : tr("Save ..."); }
 
 inline uiString uiStrings::sSaveAs( bool immediate )
-{ return immediate ? "Save as" : "Save as ..."; }
-
-inline uiString uiStrings::sSaveAsDefault()
-{ return "Save as default"; }
+{ return immediate ? tr("Save as") : tr("Save as ..."); }
 
 inline uiString uiStrings::sSeismics( bool immediate )
-{ return immediate ? "Seismics" : "Seismics ..."; }
+{ return immediate ? tr("Seismics") : tr("Seismics ..."); }
 
-
-inline uiString uiStrings::sSelect(bool arg,bool plural)
-{
-    if ( !arg )
-	return tr("Select");
-
-    return plural ? tr( "Select %1(s)" ) : tr( "Select %1" );
-}
-
+inline uiString uiStrings::sSelect(bool immediate)
+{ return immediate ? tr( "Select" ) : tr( "Select ..." ); }
 
 inline uiString uiStrings::sSettings( bool immediate )
 { return immediate ? tr("Settings") : tr("Settings ..."); }
 
 inline uiString uiStrings::sShift(bool immediate)
-{ return immediate ? "Shift" : "Shift ..."; }
+{ return immediate ? tr("Shift") : tr("Shift ..."); }
 
 inline uiString uiStrings::sStored( bool immediate )
 { return immediate ? tr("Stored") : tr("Stored ..."); }

@@ -132,7 +132,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
     if ( dpfids_.size() )
 	replaceStoredByInMem();
 
-    setCaption( uiStrings::sSelect() );
+    setCaption( uiStrings::sSelect(true) );
 
     uiString title = uiStrings::sSelect(true).arg( seltxt );
     setTitleText( title );

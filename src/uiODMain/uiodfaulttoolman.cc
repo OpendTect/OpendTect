@@ -298,7 +298,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     auxfsswrite_->getObjSel()->selectionDone.notify(
 				mCB(this,uiODFaultToolMan,outputSelectedCB) );
 
-    outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(),
+    outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(true),
 				mCB(this,uiODFaultToolMan,selectOutputCB),
 				false );
     outputselbut_->setToolTip( "Select output" );

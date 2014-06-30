@@ -172,7 +172,7 @@ const IOObj* uiODRandomLineParentTreeItem::selRandomLine()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt.forread = true;
-    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(), false );
+    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(true), false );
     return dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
 }
 
@@ -460,7 +460,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
 	    ctio->ctxt.forread = false;
 	    ctio->setName( rtd->name() );
-	    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(),
+	    uiIOObjSelDlg dlg( getUiParent(), *ctio, uiStrings::sSelect(true),
                                false );
 	    if ( !dlg.go() ) return;
 

@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "od_helpids.h"
 
-uiString selstr( uiStrings::sSelect() );
+uiString selstr( uiStrings::sSelect(true) );
 
 static int defnrpicks = 500;
 static const char* sGeoms2D[] = { "Z Range", "On Horizon",

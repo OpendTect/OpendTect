@@ -85,7 +85,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 
     bodyselfld_ = new uiGenInput( rgrp, uiStrings::sInput(), StringInpSpec() );
     bodyselfld_->attach( alignedBelow, typefld_ );
-    bodyselbut_ = new uiPushButton( rgrp, uiStrings::sSelect(), false );
+    bodyselbut_ = new uiPushButton( rgrp, uiStrings::sSelect(true), false );
     bodyselbut_->attach( rightOf, bodyselfld_ );
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
     

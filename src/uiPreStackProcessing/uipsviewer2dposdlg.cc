@@ -459,7 +459,7 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     allgatherfld_->addItems( gnms );
     selgatherfld_->addItems( selgnms );
 
-    uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect() );
+    uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect(true) );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
     toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
 				"Move right", cb );

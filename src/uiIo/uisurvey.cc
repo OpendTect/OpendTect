@@ -447,7 +447,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     putToScreen();
     updateDataRootLabel();
-    setOkText( uiStrings::sSelect() );
+    setOkText( uiStrings::sSelect(true) );
     postFinalise().notify( selchgcb );
 }
 
