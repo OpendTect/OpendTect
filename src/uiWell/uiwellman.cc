@@ -249,13 +249,12 @@ void uiWellMan::setToolButtonProperties()
     logupbut_->setSensitive( curidx > 0 );
 
     const int nrchosenlogs = logsfld_->nrChosen();
-    const bool issinglog = nrchosenlogs == 1;
     const bool oneormorelog = nrchosenlogs > 0;
 
-    logrenamebut_->setSensitive( issinglog );
+    logrenamebut_->setSensitive( nrlogs > 0 );
     logrmbut_->setSensitive( oneormorelog );
     logexpbut_->setSensitive( oneormorelog );
-    loguombut_->setSensitive( issinglog );
+    loguombut_->setSensitive( nrlogs > 0 );
 
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
@@ -467,7 +466,7 @@ void uiWellMan::calcLogs( CallBacker* )
 void uiWellMan::logUOMPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-    const int selidx = logsfld_->firstChosen();
+    const int selidx = logsfld_->currentItem();
     if ( selidx < 0 )
 	mErrRet(tr("No log selected"))
 
@@ -491,7 +490,6 @@ void uiWellMan::logUOMPush( CallBacker* )
     }
     writeLogs();
 }
-
 
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
@@ -588,10 +586,8 @@ void uiWellMan::viewLogPush( CallBacker* )
 void uiWellMan::renameLogPush( CallBacker* )
 {
     mEnsureLogSelected();
-    mGetWL();
-
-    BufferString titl( "Rename '" );
-    titl += lognm; titl += "'";
+    BufferString lognm( logsfld_->getText() );
+    const BufferString titl( "Rename '",lognm, "'" );
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
     if ( !dlg.go() )
 	return;
