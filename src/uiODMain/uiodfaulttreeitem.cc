@@ -71,7 +71,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddMnuID );
-    mnu.insertItem( new uiAction(uiStrings::sNew(false)), mNewMnuID );
+    mnu.insertItem( new uiAction(uiStrings::sNew(true)), mNewMnuID );
 
     if ( children_.size() )
     {
@@ -421,7 +421,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(tr("&Add ...")), mAddMnuID );
-    mnu.insertItem( new uiAction(tr("&New ...")), mNewMnuID );
+    mnu.insertItem( new uiAction(tr("&New")), mNewMnuID );
 
     if ( children_.size() )
     {
