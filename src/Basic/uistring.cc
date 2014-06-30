@@ -348,6 +348,22 @@ uiString& uiString::operator=( const char* str )
 }
 
 
+bool uiString::operator>(const uiString& b ) const
+{
+    const QString& aqstr = getQtString();
+    const QString& bqstr = b.getQtString();
+    return aqstr > bqstr;
+}
+
+
+bool uiString::operator<(const uiString& b ) const
+{
+    const QString& aqstr = getQtString();
+    const QString& bqstr = b.getQtString();
+    return aqstr < bqstr;
+}
+
+
 uiString& uiString::arg( const uiString& newarg )
 {
     Threads::Locker datalocker( datalock_ );
