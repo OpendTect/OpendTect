@@ -126,10 +126,8 @@ void PSEventDisplay::setEventManager( PreStack::EventManager* em )
 	eventman_->forceReload.notify(
 		mCB(this,PSEventDisplay,eventForceReloadCB) );
 	getMaterial()->setColor( eventman_->getColor() );
+	updateDisplay();
     }
-
-
-    updateDisplay();
 }
 
 

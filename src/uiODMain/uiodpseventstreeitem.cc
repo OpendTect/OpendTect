@@ -175,7 +175,7 @@ bool uiODPSEventsTreeItem::init()
 void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
     uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !eventdisplay_ || !menu || menu->menuID()!=displayID() )
+    if ( istb || !eventdisplay_ || !menu || menu->menuID()!=displayID() )
 	return;
 
     mAddMenuItem( menu, coloritem_, true, false );
@@ -210,6 +210,7 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
 	coloridx_ = coloritem_->itemIndex( menuid );
+	MouseCursorChanger cursorchanger( MouseCursor::Wait );
 	updateColorMode( coloridx_ );
 	menu->setIsHandled( true );
     }
