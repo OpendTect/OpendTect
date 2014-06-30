@@ -80,7 +80,7 @@ public:
 
 protected:
 
-    ElasticPropSelection elasticprops_;
+    const ElasticPropSelection& elasticprops_;
     const PropertyRefSelection& refprops_;
 
     float		getVal(const ElasticFormula& ef,

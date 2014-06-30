@@ -60,6 +60,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 
 uiStratDisplay::~uiStratDisplay()
 {
+    delete uicontrol_;
     delete uidatagather_;
 }
 

@@ -311,6 +311,8 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
     eraseAll();
+    delete xax_;
+    delete yax_;
     delete &lvlitms_;
     delete &logblcklineitms_;
     delete &logblckrectitms_;
@@ -322,10 +324,11 @@ void uiStratSimpleLayerModelDisp::eraseAll()
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
-    lvldpths_.erase();
     delete selseqitm_; selseqitm_ = 0;
     delete emptyitm_; emptyitm_ = 0;
     delete frtxtitm_; frtxtitm_ = 0;
+    delete zoomboxitm_; zoomboxitm_ = 0;
+    lvldpths_.erase();
 }
 
 
