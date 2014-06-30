@@ -369,7 +369,8 @@ uiWellLogDispDlg::~uiWellLogDispDlg()
 }
 
 
-void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first )
+void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first,
+			       const char* wellnm )
 {
     if ( wl && logsmine_ )
     {
@@ -377,6 +378,10 @@ void uiWellLogDispDlg::setLog( const Well::Log* wl, bool first )
 	delete mywl; mywl = new Well::Log( *wl );
 	wl = mywl;
     }
+
+    if ( wellnm )
+	first ? wellnm1_ = wellnm : wellnm2_ = wellnm;
+
     dispfld_->logData( first ).setLog( wl );
 }
 
@@ -395,28 +400,48 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     if ( l1 || l2 )
 	capt.add( ": " );
     if ( l1 )
+    {
 	capt.add( l1->name() );
+	if ( !wellnm1_.isEmpty() )
+	    capt.add( " of " ).add( wellnm1_.buf() );
+    }
     if ( l2 )
     {
 	if ( l1 )
 	    capt.add( " and " );
-	capt.add( l2->name() );
+	if ( !wellnm2_.isEmpty() )
+	    capt.add( wellnm2_.buf() );
     }
+
     setCaption( capt );
+    if ( l1 && !wellnm1_.isEmpty() )
+    {
+	capt = l1->name();
+	capt.add( " of " ).add( wellnm1_.buf() );
+	dispfld_->dahObjData( true ).xax_.setCaption( capt );
+    }
+
+    if ( l2 && !wellnm2_.isEmpty() )
+    {
+	capt = l2->name();
+	capt.add( " of " ).add( wellnm2_.buf() );
+	dispfld_->dahObjData( false ).xax_.setCaption( capt );
+    }
 
     logSet.trigger();
 }
 
 
 uiWellLogDispDlg* uiWellLogDispDlg::popupNonModal( uiParent* p,
-				const Well::Log* wl1, const Well::Log* wl2 )
+				const Well::Log* wl1, const Well::Log* wl2,
+				const char* wellnm1, const char* wellnm2 )
 {
     uiWellLogDisplay::Setup wldsu;
     wldsu.annotinside( false ).drawcurvenames( false );
     uiWellLogDispDlg* dlg = new uiWellLogDispDlg( p, wldsu, true );
-    dlg->setLog( wl1, true );
+    dlg->setLog( wl1, true, wellnm1 );
     if ( wl2 )
-	dlg->setLog( wl2, false );
+	dlg->setLog( wl2, false, wellnm2 );
 
     dlg->setDeleteOnClose( true );
     dlg->show();
