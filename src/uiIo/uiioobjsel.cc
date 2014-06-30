@@ -593,7 +593,9 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
 {
     BufferString info;
     const int nrchosen = nrChosen();
-    IOObj* ret = 0;
+    const int idx = listfld_->currentItem();
+    IOObj* ret = getIOObj( idx );
+    ctio_.setObj( ret ? ret->clone() : 0 );
 
     if ( isMultiChoice() && nrchosen>1 )
     {
@@ -602,9 +604,6 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
     }
     else
     {
-	const int idx = listfld_->currentItem();
-	ret = getIOObj( idx );
-	ctio_.setObj( ret ? ret->clone() : 0 );
 	if ( setnmfld && nmfld_ )
 	    nmfld_->setText( ret ? ret->name().buf() : "" );
 	info = getLimitedDisplayString( !ret ? "" :
@@ -647,10 +646,20 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     if ( listfld_->doingBurstChoosing() )
 	return;
 
-    IOObj* ioobj = updStatusBarInfo( true );
+    PtrMan<IOObj> ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
-	mkdefbut_->setSensitive( ioobj && ioobj->implExists(true) );
-    delete ioobj;
+    {
+	const bool enab = ioobj && ioobj->implExists(true);
+	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
+	mkdefbut_->setSensitive( enab && !isdef  );
+	if ( enab && !isdef )
+	{
+	    BufferString tt( "Set '", ioobj->name(), "' as default" );
+	    mkdefbut_->setToolTip( tt );
+	}
+	else
+	    mkdefbut_->setToolTip( uiStrings::sEmptyString() );
+    }
 
     selectionChanged.trigger();
 }
@@ -681,16 +690,18 @@ void uiIOObjSelGrp::delPress( CallBacker* )
 
 void uiIOObjSelGrp::makeDefaultCB(CallBacker*)
 {
-    if ( nrChosen()!=1 )
-	return;
-
-    PtrMan<IOObj> ioobj = IOM().get( chosenID() );
+    PtrMan<IOObj> ioobj = IOM().get( currentID() );
     if ( !ioobj )
 	return;
 
     ioobj->setSurveyDefault( surveydefaultsubsel_.str() );
 
+    const int cursel = currentItem();
+    TypeSet<MultiID> chosenmids;
+    getChosen( chosenmids );
     fullUpdate( 0 );
+    setChosen( chosenmids );
+    setCurrent( cursel );
 }
 
 
