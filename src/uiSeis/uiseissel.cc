@@ -127,7 +127,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    uiString titletxt( uiStrings::sSelect(true,false) );
+    uiString titletxt( tr("Select %1") );
     if ( !sssu.seltxt_.isEmpty() )
 	titletxt = titletxt.arg( sssu.seltxt_ );
     else
