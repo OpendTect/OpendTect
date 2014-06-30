@@ -252,14 +252,16 @@ void uiWellMan::setToolButtonProperties()
     const bool oneormore = nrchosen > 0;
 
     logvwbut_->setSensitive( issing || nrchosen == 2 );
-    logrenamebut_->setSensitive( issing );
+    logrenamebut_->setSensitive( nrlogs > 0 );
     logrmbut_->setSensitive( oneormore );
     logexpbut_->setSensitive( oneormore );
-    loguombut_->setSensitive( issing );
+    loguombut_->setSensitive( nrlogs > 0 );
 
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
     mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
+    mSetButToolTip(loguombut_,"View/edit",logsfld_->getText(),
+		   "unit of measure");
     if ( curidx < 0 )
 	logvwbut_->setToolTip( "View selected log" );
     else
@@ -453,7 +455,7 @@ void uiWellMan::calcLogs( CallBacker* )
 void uiWellMan::logUOMPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-    const int selidx = logsfld_->firstChosen();
+    const int selidx = logsfld_->currentItem();
     if ( selidx < 0 )
 	mErrRet("No log selected")
 
@@ -477,7 +479,6 @@ void uiWellMan::logUOMPush( CallBacker* )
     }
     writeLogs();
 }
-
 
 
 void uiWellMan::moveLogsPush( CallBacker* cb )
@@ -561,10 +562,8 @@ void uiWellMan::viewLogPush( CallBacker* )
 void uiWellMan::renameLogPush( CallBacker* )
 {
     mEnsureLogSelected();
-    mGetWL();
-
-    BufferString titl( "Rename '" );
-    titl += lognm; titl += "'";
+    BufferString lognm( logsfld_->getText() );
+    const BufferString titl( "Rename '", lognm, "'" );
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
     if ( !dlg.go() )
 	return;
