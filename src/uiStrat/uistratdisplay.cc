@@ -60,6 +60,7 @@ uiStratDisplay::uiStratDisplay( uiParent* p, uiStratRefTree& uitree )
 
 uiStratDisplay::~uiStratDisplay()
 {
+    delete uicontrol_;
     delete uidatagather_;
 }
 
@@ -112,14 +113,14 @@ void uiStratDisplay::createDispParamGrp()
 {
     dispparamgrp_ = new uiGroup( parent(), "display Params Group" );
     dispparamgrp_->attach( centeredBelow, this );
-    rangefld_ = new uiGenInput( dispparamgrp_, "Display between Ages (My)",
+    rangefld_ = new uiGenInput( dispparamgrp_, tr("Display between Ages (My)"),
 		FloatInpIntervalSpec()
 		    .setName(BufferString("range start"),0)
 		    .setName(BufferString("range stop"),1) );
     rangefld_->valuechanged.notify( mCB(this,uiStratDisplay,dispParamChgd ) );
 
     const CallBack cbv = mCB( this, uiStratDisplay, selCols );
-    viewcolbutton_ = new uiPushButton( dispparamgrp_,"&View ",cbv,true ); 
+    viewcolbutton_ = new uiPushButton( dispparamgrp_,tr("View "),cbv,true );
     viewcolbutton_->attach( rightOf, rangefld_ );
 }
 
@@ -526,7 +527,7 @@ void uiStratDrawer::drawEmptyText()
     const int y1 = yax_->getPix( yax_->range().stop );
     const int y2 = yax_->getPix( yax_->range().start );
 
-    uiTextItem* ti = scene_.addItem( new uiTextItem( "<Click to add>" ) );
+    uiTextItem* ti = scene_.addItem( new uiTextItem( tr("<Click to add>") ) );
     ti->setTextColor( Color::Black() );
     ti->setPos( mCast(float,x), mCast(float,y2 - abs((y2-y1)/2) -10) );
     ti->setZValue( 2 );
@@ -722,8 +723,7 @@ void uiStratViewControl::handDragging( CallBacker* )
     const float shift=(float)(scaler.scale(newpos)-scaler.scale(startdragpos_));
     startdragpos_ = newpos;
 
-    Interval<float> rg( range_ );
-    rg.set( rg.start - shift, rg.stop - shift );
+    Interval<float> rg( range_.start - shift, range_.stop - shift );
     if ( rg.start < boundingrange_.start )
 	rg.set( boundingrange_.start, range_.stop ); 
     if ( rg.stop > boundingrange_.stop )
@@ -748,12 +748,11 @@ void uiStratViewControl::rubBandCB( CallBacker* )
 	    || (selarea->width()<5 && selarea->height()<5) )
 	return;
 
-    Interval<float> rg( range_ );
     const uiRect& allarea = viewer_.getSceneRect();
     LinScaler scaler( allarea.top()+border, range_.start,
 		      allarea.bottom()-border, range_.stop );
-    rg.set( mCast(float,scaler.scale(selarea->top())),
-	    mCast(float,scaler.scale(selarea->bottom())) );
+    const Interval<float> rg( mCast(float,scaler.scale(selarea->top())),
+			      mCast(float,scaler.scale(selarea->bottom())) );
     if ( rg.width()<=0.1 ) return;
 
     range_ = rg;

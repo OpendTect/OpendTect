@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "stratlayseqgendesc.h"
 #include "stratlayermodel.h"
+#include "stratlaygen.h"
 #include "strattransl.h"
 #include "stratlaymodgen.h"
 #include "stratreftree.h"
@@ -414,6 +415,7 @@ uiStratLayerModel::~uiStratLayerModel()
     delete &desc_;
     delete &lmp_;
     delete descctio_.ioobj; delete &descctio_;
+    delete elpropsel_;
     StratTreeWin().changeLayerModelNumber( false );
     UnitOfMeasure::saveCurrentDefaults();
 }
@@ -710,7 +712,7 @@ bool uiStratLayerModel::openGenDesc()
 	{ uiMSG().error( "Cannot open input file" ); return false; }
 
     delete elpropsel_; elpropsel_ = 0;
-    desc_.erase();
+    deepErase( desc_ );
     MouseCursorChanger mcch( MouseCursor::Wait );
     bool rv = desc_.getFrom( strm );
     if ( !rv )
@@ -727,8 +729,6 @@ bool uiStratLayerModel::openGenDesc()
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
     seqdisp_->descHasChanged();
-
-    delete elpropsel_; elpropsel_ = 0;
 
     BufferString edtyp;
     descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
@@ -854,8 +854,8 @@ void uiStratLayerModel::genModels( CallBacker* cb )
     mcs.restore();
 
     Strat::LayerModelGenerator ex( desc_, *newmodl, nrmods );
-    uiTaskRunner tr( this );
-    if ( !tr.execute(ex) || !newmodl->isValid() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(ex) || !newmodl->isValid() )
 	{ delete newmodl; return; }
 
     // transaction succeeded, we move to the new model - period.

@@ -36,7 +36,7 @@ class MouseEvent;
 
 
 mExpClass(uiStrat) uiStratDrawer 
-{
+{ mODTextTranslationClass(uiStratDrawer);
 public:
 				uiStratDrawer(uiGraphicsScene&,
 						const StratDispData&);

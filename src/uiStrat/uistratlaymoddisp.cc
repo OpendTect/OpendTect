@@ -112,9 +112,10 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 void uiStratLayerModelDisp::displayFRText()
 {
     if ( !frtxtitm_ )
-	frtxtitm_ = scene().addItem( new uiTextItem( "<---empty--->",
+	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
 				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? "Brine filled" : "Hydrocarbon filled");
+    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
+				      : tr("Hydrocarbon filled"));
     frtxtitm_->setPenColor( Color::Black() );
     const int xpos = mNINT32( scene().width()/2 );
     const int ypos = mNINT32( scene().height()-10 );
@@ -213,7 +214,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 {
     const Strat::LayerModel& lm = layerModel();
     if ( !foradd && lm.isEmpty() )
-	mErrRet( "Please generate at least one layer sequence" )
+	mErrRet( tr("Please generate at least one layer sequence") )
 
     uiStratLayerModelDispIO dlg( this, lm, dumpfnm_, foradd );
     return dlg.go();
@@ -310,6 +311,8 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 uiStratSimpleLayerModelDisp::~uiStratSimpleLayerModelDisp()
 {
     eraseAll();
+    delete xax_;
+    delete yax_;
     delete &lvlitms_;
     delete &logblcklineitms_;
     delete &logblckrectitms_;
@@ -321,10 +324,11 @@ void uiStratSimpleLayerModelDisp::eraseAll()
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
-    lvldpths_.erase();
     delete selseqitm_; selseqitm_ = 0;
     delete emptyitm_; emptyitm_ = 0;
     delete frtxtitm_; frtxtitm_ = 0;
+    delete zoomboxitm_; zoomboxitm_ = 0;
+    lvldpths_.erase();
 }
 
 

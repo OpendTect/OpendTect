@@ -31,6 +31,9 @@ TimeDepthModel::TimeDepthModel()
 
 
 TimeDepthModel::TimeDepthModel( const TimeDepthModel& td )
+    : errmsg_(0)
+    , times_(0)
+    , depths_(0)
 {
     setModel( td.depths_, td.times_, td.sz_ ); 
 }
@@ -154,6 +157,8 @@ float TimeDepthModel::convertTo( const float* dpths, const float* times,
 
 bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
 {
+    delete [] depths_; depths_ = 0;
+    delete [] times_; times_ = 0;
     mTryAlloc( depths_, float[sz] );
     if ( !depths_ )
 	{ errmsg_ = "Out of memory"; return false; }
