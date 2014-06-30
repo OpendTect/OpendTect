@@ -60,7 +60,7 @@ PSEventDisplay::PSEventDisplay()
 PSEventDisplay::~PSEventDisplay()
 {
     clearAll();
-
+    
     setDisplayTransformation( 0 );
     setEventManager( 0 );
     linestyle_->unRef();
@@ -731,27 +731,39 @@ void PSEventDisplay::retriveParents()
 {
     if ( !scene_ )
 	return;
-    
-    TypeSet<int> visids;
-    for ( int idx=0; idx<scene_->size(); idx++ )
-	visids += scene_->getObject( idx )->id();
 
-    for ( int idx=0; idx<visids.size(); idx++ )
+#define mCreatPao \
+    ParentAttachedObject* pao = new ParentAttachedObject( parentid ); \
+    addChild( pao->separator_->getInventorNode() ); \
+    parentattached_ += pao; \
+    pao->separator_->setDisplayTransformation( displaytransform_ ); \
+    updateDisplay( pao );
+
+    for ( int idx=0; idx<scene_->size(); idx++ )
     {
-	mDynamicCastGet( visSurvey::SurveyObject*, so,
-		scene_->getObject(visids[idx])  );
+	mDynamicCastGet(visSurvey::SurveyObject*,so,scene_->getObject(idx));
 	if ( !so ) continue;
-	
+
 	mDynamicCastGet(const visSurvey::PreStackDisplay*,gather,so);
 	mDynamicCastGet(const visSurvey::PlaneDataDisplay*,pdd,so);
 	if ( gather || (pdd && pdd->isOn() &&
-	     pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Zslice) )
+	     pdd->getOrientation() != visSurvey::PlaneDataDisplay::Zslice) )
 	{
-	    ParentAttachedObject* pao = new ParentAttachedObject( visids[idx] );
-	    addChild( pao->separator_->getInventorNode() );
-	    parentattached_ += pao;
-	    pao->separator_->setDisplayTransformation( displaytransform_ );
-	    updateDisplay( pao );
+	    const int parentid = scene_->getObject(idx)->id();
+	    if ( parentattached_.isEmpty() )
+	    {
+		mCreatPao
+	    }
+	    else
+	    {
+		for ( int idy=0; idy<parentattached_.size(); idy++ )
+		{
+		    if ( parentattached_[idy]->parentid_ == parentid )
+			continue;
+
+		    mCreatPao
+		}
+	    }
 	}
     }
 }

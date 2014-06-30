@@ -174,10 +174,10 @@ bool uiODPSEventsTreeItem::init()
 
 void uiODPSEventsTreeItem::createMenu( MenuHandler* menu, bool istb )
 {
-    uiODDisplayTreeItem::createMenu( menu, istb );
-    if ( !eventdisplay_ || !menu || menu->menuID()!=displayID() )
+    uiODDisplayTreeItem::createMenu( menu, true );
+    if ( istb || !eventdisplay_ || !menu || menu->menuID()!=displayID() )
 	return;
-
+    
     mAddMenuItem( menu, coloritem_, true, false );
     BufferStringSet items;
     mAddPSMenuItems( coloritem_, markerColorNames, coloridx_ )
@@ -202,6 +202,7 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     if ( displaymnuitem_.id != -1 && displaymnuitem_.itemIndex(menuid) != -1 )
     {
 	dispidx_ = displaymnuitem_.itemIndex( menuid );
+	MouseCursorChanger cursorchanger( MouseCursor::Wait );
 	eventdisplay_->setDisplayMode(
 	    (visSurvey::PSEventDisplay::DisplayMode) dispidx_ );
 	menu->setIsHandled( true );
@@ -209,6 +210,7 @@ void uiODPSEventsTreeItem::handleMenuCB( CallBacker* cb )
     else if ( coloritem_->id!=-1 && coloritem_->itemIndex(menuid)!=-1 )
     {
 	coloridx_ = coloritem_->itemIndex( menuid );
+	MouseCursorChanger cursorchanger( MouseCursor::Wait );
 	updateColorMode( coloridx_ );
 	menu->setIsHandled( true );
     }
