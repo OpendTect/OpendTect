@@ -132,6 +132,28 @@ bool Well::Writer::putLogs() const
 }
 
 
+bool Well::Writer::putLog( const Well::Log& wl ) const
+{
+    const int logidx = wd.logs().indexOf( wl.name() );
+    if ( logidx<0 )
+    {
+	pErrMsg( "First add Log to Well::Data" );
+	return false;
+    }
+
+    const BufferString logfnm = getFileName( Well::IO::sExtLog(), logidx+1 );
+    od_ostream strm( logfnm );
+    if ( !putLog(strm,wl) )
+    {
+	BufferString msg( "Could not write log: '", wl.name(), "'" );
+	strm.addErrMsgTo( msg );
+	ErrMsg( msg ); return false;
+    }
+
+    return true;
+}
+
+
 bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog()) ) return false;

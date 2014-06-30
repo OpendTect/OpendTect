@@ -44,6 +44,7 @@ public:
 
     bool		putInfoAndTrack(od_ostream&) const;
     bool		putLog(od_ostream&,const Log&) const;
+    bool		putLog(const Log&) const;
     bool		putMarkers(od_ostream&) const;
     bool		putD2T(od_ostream&) const;
     bool		putCSMdl(od_ostream&) const;

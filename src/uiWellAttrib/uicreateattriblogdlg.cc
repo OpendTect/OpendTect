@@ -14,13 +14,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "od_ostream.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
+#include "welllog.h"
 #include "wellmarker.h"
 #include "wellwriter.h"
 
@@ -177,13 +177,11 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	BufferString fname( ioobj->fullUserExpr(true) );
 	Well::Writer wtr( fname, *wd );
 
-	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(),
-					       sellogidx_ + 1 );
-	od_ostream strm( logfnm );
-	if ( !strm.isOK() || !wtr.putLog(strm,wd->logs().getLog(sellogidx_)) )
+	const Well::Log& newlog = wd->logs().getLog(sellogidx_);
+	if ( !wtr.putLog(newlog) )
 	{
-	    errmsg = "Cannot write log to the file '"; errmsg += logfnm;
-	    errmsg += "'.\n"; strm.addErrMsgTo( errmsg );
+	    errmsg = "Cannot write log '"; errmsg += newlog.name();
+	    errmsg += "'.\nCheck the permissions of the *.wll file";
 	    uiMSG().error( errmsg );
 	    return false;
 	}

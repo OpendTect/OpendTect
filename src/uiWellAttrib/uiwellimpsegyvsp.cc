@@ -379,7 +379,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     wd->logs().add( wl );
 
     Well::Writer wtr( Well::IO::getMainFileName(*ioobj), *wd );
-    wtr.putLogs();
+    wtr.putLog( *wl );
 
     if ( wasloaded )
 	Well::MGR().reload( key );
