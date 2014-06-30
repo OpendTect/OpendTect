@@ -56,9 +56,10 @@ uiLinearVelTransform::uiLinearVelTransform( uiParent* p, bool t2d )
 
 
     gradientfld_ = new uiGenInput( this, tr("Gradient (1/s)"), FloatInpSpec(0));
-    gradientfld_->attach( alignedBelow, velfld_ );
+    gradientfld_->attach( rightTo, velfld_ );
     mAttachCB( gradientfld_->valuechanging, uiLinearVelTransform::velChangedCB);
-    setHAlignObj( gradientfld_ );
+
+    setHAlignObj( velfld_ );
 }
 
 

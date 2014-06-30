@@ -32,7 +32,7 @@ uiT2DConvSel::uiT2DConvSel( uiParent* p, const Setup& su )
     : uiZAxisTransformSel(p, su.optional_,
 	su.ist2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(),
 	!su.ist2d_ ? ZDomain::sKeyTime() : ZDomain::sKeyDepth(),
-	false, true)
+	false, false )
     , setup_(su)
 {
     uiString fldtext;
