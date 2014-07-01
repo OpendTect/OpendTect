@@ -671,8 +671,6 @@ void uiODMenuMgr::updateSceneMenu()
 
 void uiODMenuMgr::fillViewMenu()
 {
-    if ( !viewmnu_ ) return;
-
     viewmnu_->clear();
 #ifdef __debug__
     mInsertItem( viewmnu_, tr("Base Map ..."), mBaseMapMnuItm );
@@ -1430,5 +1428,6 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillSceneMenu();
     fillAnalMenu();
     fillProcMenu();
+    fillViewMenu();
     dTectMnuChanged.trigger();
 }
