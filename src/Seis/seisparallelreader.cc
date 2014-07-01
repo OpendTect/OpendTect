@@ -65,6 +65,14 @@ ParallelReader::~ParallelReader()
 }
 
 
+uiString ParallelReader::uiNrDoneText() const
+{ return "Traces read"; }
+
+
+uiString ParallelReader::uiMessage() const
+{ return errmsg_.isEmpty() ? "Reading" : errmsg_; }
+
+
 bool ParallelReader::doPrepare( int nrthreads )
 {
     const char* allocprob = "Cannot allocate memory";

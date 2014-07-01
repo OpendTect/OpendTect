@@ -59,14 +59,14 @@ public:
 
     const ObjectSet<Array3D<float> >* getArrays() const	{ return arrays_; }
 
+    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const;
+
 protected:
     od_int64		nrIterations() const { return totalnr_; }
     bool		doPrepare(int nrthreads);
     bool		doWork(od_int64,od_int64,int);
     bool		doFinish(bool);
-    uiString		uiNrDoneText() const { return "Traces read"; }
-    uiString		uiMessage() const { return errmsg_.isEmpty() ?
-					   "Reading" : errmsg_;}
 
 
     TypeSet<int>		components_;
