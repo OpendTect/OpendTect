@@ -543,10 +543,12 @@ void uiWellLogToolWin::displayLogs()
 uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     : uiDialog(p,Setup("Edit Well log",mNoDlgTitle,mTODOHelpKey))
     , log_(log)
+    , changed_(false)
     , valueChanged(this)
 {
     uiTable::Setup ts( log_.size(), 2 );
     table_ = new uiTable( this, ts, "Well log table" );
+    table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
 
     BufferStringSet colnms; colnms.add("MD").add(log_.name());
     table_->setColumnLabels( colnms );
@@ -562,6 +564,7 @@ uiWellLogEditor::~uiWellLogEditor()
 
 void uiWellLogEditor::fillTable()
 {
+    NotifyStopper ns( table_->valueChanged );
     const int sz = log_.size();
     for ( int idx=0; idx<sz; idx++ )
     {
@@ -575,6 +578,23 @@ void uiWellLogEditor::selectMD( float md )
 {
     const int mdidx = log_.indexOf( md );
     table_->selectRow( mdidx );
+}
+
+
+void uiWellLogEditor::valChgCB( CallBacker* )
+{
+    const RowCol& rc = table_->notifiedCell();
+    if ( rc.row()<0 || rc.row()>=log_.size() )
+	return;
+
+    const float newval = table_->getfValue( rc );
+    const float oldval = log_.value( rc.row() );
+    if ( mIsEqual(oldval,newval,mDefEpsF) )
+	return;
+
+    log_.setValue( rc.row(), newval );
+    changed_ = true;
+    valueChanged.trigger();
 }
 
 

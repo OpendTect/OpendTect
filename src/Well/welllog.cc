@@ -27,13 +27,13 @@ void Well::LogSet::getNames( BufferStringSet& nms ) const
 }
 
 
-void Well::LogSet::add( Well::Log* l )
+void Well::LogSet::add( Well::Log* wl )
 {
-    if ( !l ) return;
-    if ( getLog(l->name()) ) return;
+    if ( !wl ) return;
+    if ( getLog(wl->name()) ) return;
 
-    logs += l;
-    updateDahIntv( *l );
+    logs += wl;
+    updateDahIntv( *wl );
 }
 
 
@@ -130,16 +130,36 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
 // ---- Well::Log
 
 
-Well::Log& Well::Log::operator =( const Well::Log& l )
+Well::Log& Well::Log::operator =( const Well::Log& wl )
 {
-    if ( &l != this )
+    if ( &wl != this )
     {
-	setName( l.name() );
-	setUnitMeasLabel( l.unitMeasLabel() );
-	dah_ = l.dah_; val_ = l.val_; range_ = l.range_;
-	iscode_ = l.iscode_;
+	setName( wl.name() );
+	setUnitMeasLabel( wl.unitMeasLabel() );
+	dah_ = wl.dah_; vals_ = wl.vals_; range_ = wl.range_;
+	iscode_ = wl.iscode_;
     }
     return *this;
+}
+
+
+static bool valIsCode( float val, float eps )
+{
+    if ( mIsUdf(val) )
+	return true; //No reason for failure
+
+    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
+}
+
+
+void Well::Log::setValue( int idx, float val )
+{
+    if ( !vals_.validIdx(idx) )
+	return;
+
+    vals_[idx] = val;
+    if ( iscode_ && !valIsCode(val,1e-3f) )
+	iscode_ = false;
 }
 
 
@@ -191,29 +211,20 @@ float Well::Log::getValue( float dh, bool noudfs ) const
 float Well::Log::gtVal( float dh, int& idx1 ) const
 {
     if ( IdxAble::findFPPos(dah_,dah_.size(),dh,-1,idx1) )
-	return val_[idx1];
+	return vals_[idx1];
     else if ( idx1 < 0 || idx1 == dah_.size()-1 )
 	return mUdf(float);
 
     const int idx2 = idx1 + 1;
-    const float v1 = val_[idx1];
-    const float v2 = val_[idx2];
+    const float v1 = vals_[idx1];
+    const float v2 = vals_[idx2];
 
     const float d1 = dh - dah_[idx1];
     const float d2 = dah_[idx2] - dh;
     if ( iscode_ || mIsUdf(v1) || mIsUdf(v2) )
 	return d1 > d2 ? v2 : v1;
 
-    return ( d1*val_[idx2] + d2*val_[idx1] ) / (d1 + d2);
-}
-
-
-static bool valIsCode( float val, float eps )
-{
-    if ( mIsUdf(val) )
-	return true; //No reason for failure
-
-    return mIsEqual(val,mCast(float,mNINT32(val)),eps);
+    return ( d1*vals_[idx2] + d2*vals_[idx1] ) / (d1 + d2);
 }
 
 
@@ -226,7 +237,7 @@ void Well::Log::addValue( float dh, float val )
     }
 
     dah_ += dh;
-    val_ += val;
+    vals_ += val;
     if ( isEmpty() )
 	iscode_ = valIsCode( val, 1e-3f );
     else if ( iscode_ && !valIsCode(val,1e-3f) )
@@ -243,12 +254,11 @@ const UnitOfMeasure* Well::Log::unitOfMeasure() const
 void Well::Log::convertTo( const UnitOfMeasure* touom )
 {
     const UnitOfMeasure* curuom = unitOfMeasure();
-    if ( !curuom || !val_.size() )
+    if ( !curuom || !vals_.size() )
 	return;
 
-    for ( int idx=0; idx<val_.size(); idx++ )
-	if ( !mIsUdf(val_[idx]) )
-	    convUserValue( val_[idx], curuom, touom );
+    for ( int idx=0; idx<vals_.size(); idx++ )
+	convUserValue( vals_[idx], curuom, touom );
 
     if ( touom )
 	unitmeaslbl_ = touom->symbol();
@@ -265,7 +275,7 @@ void Well::Log::updateAfterValueChanges()
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( !valIsCode(val_[idx],1e-3f) )
+	if ( !valIsCode(vals_[idx],1e-3f) )
 	{
 	    iscode_ = false;;
 	    return;
@@ -285,7 +295,7 @@ void Well::Log::ensureAscZ()
     for ( int idx=0; idx<hsz; idx++ )
     {
 	Swap( dah_[idx], dah_[sz-idx-1] );
-	Swap( val_[idx], val_[sz-idx-1] );
+	Swap( vals_[idx], vals_[sz-idx-1] );
     }
 }
 
@@ -296,15 +306,15 @@ void Well::Log::removeTopBottomUdfs()
     Interval<int> defrg( 0, sz-1 );
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( !mIsUdf(val_[idx]) )
+	if ( !mIsUdf(vals_[idx]) )
 	    break;
 	defrg.start++;
     }
     for ( int idx=sz-1; idx>=defrg.start; idx-- )
     {
-	if ( !mIsUdf(val_[idx]) )
+	if ( !mIsUdf(vals_[idx]) )
 	    break;
-	dah_.removeSingle( idx ); val_.removeSingle( idx );
+	dah_.removeSingle( idx ); vals_.removeSingle( idx );
     }
 
     if ( defrg.start == 0 )
@@ -312,14 +322,14 @@ void Well::Log::removeTopBottomUdfs()
 
     TypeSet<float> newval, newdah;
     for ( int idx=defrg.start; idx<size(); idx++ )
-	{ newdah += dah_[idx]; newval += val_[idx]; }
-    dah_ = newdah; val_ = newval;
+	{ newdah += dah_[idx]; newval += vals_[idx]; }
+    dah_ = newdah; vals_ = newval;
 }
 
 
 bool Well::Log::insertAtDah( float dh, float val )
 {
-    mWellDahObjInsertAtDah( dh, val, val_, false );
+    mWellDahObjInsertAtDah( dh, val, vals_, false );
     if ( val < range_.start ) range_.start = val;
     if ( val > range_.stop ) range_.stop = val;
     return true;

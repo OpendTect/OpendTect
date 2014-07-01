@@ -52,7 +52,8 @@ public:
 			: DahObj("")			{ *this = t; }
     Log&		operator =(const Log&);
 
-    float		value( int idx ) const		{ return val_[idx]; }
+    float		value( int idx ) const		{ return vals_[idx]; }
+    void		setValue(int idx,float val);
 
     float		getValue(float,bool noudfs=false) const;
     void		addValue(float dh,float val);
@@ -77,27 +78,27 @@ public:
     static const char*	sKeyHdrInfo();
     static const char*	sKeyStorage();
 
-    float*		valArr()			{ return val_.arr(); }
-    const float*	valArr() const			{ return val_.arr(); }
+    float*		valArr()			{ return vals_.arr(); }
+    const float*	valArr() const			{ return vals_.arr(); }
 
     IOPar&		pars()				{ return pars_; }
     const IOPar&	pars() const			{ return pars_; }
 
 protected:
 
-    TypeSet<float>	val_;
+    TypeSet<float>	vals_;
     Interval<float>	range_;
     BufferString	unitmeaslbl_;
     bool		iscode_;
     IOPar		pars_;
 
-    void		removeAux( int idx )	{ val_.removeSingle(idx); }
-    void		eraseAux()		{ val_.erase(); }
+    void		removeAux( int idx )	{ vals_.removeSingle(idx); }
+    void		eraseAux()		{ vals_.erase(); }
     float		gtVal(float,int&) const;
 
 };
 
-}; // namespace Well
+} // namespace Well
 
 #endif
 

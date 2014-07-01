@@ -21,11 +21,11 @@ class uiButton;
 class uiGroup;
 class uiToolButton;
 class uiPushButton;
-namespace Well { class Data; class Reader; };
+namespace Well { class Data; class Reader; }
 
 
 mExpClass(uiWell) uiWellMan : public uiObjFileMan
-{ mODTextTranslationClass(uiWellMan);
+{ mODTextTranslationClass(uiWellMan)
 public:
 				uiWellMan(uiParent*);
 				~uiWellMan();
@@ -53,6 +53,7 @@ protected:
     uiToolButton*		logrmbut_;
     uiToolButton*		logexpbut_;
     uiToolButton*		loguombut_;
+    uiToolButton*		logedbut_;
     uiToolButton*		logupbut_;
     uiToolButton*		logdownbut_;
     uiPushButton*		addlogsbut_;
@@ -73,6 +74,7 @@ protected:
     void			viewLogPush(CallBacker*);
     void			renameLogPush(CallBacker*);
     void			removeLogPush(CallBacker*);
+    void			editLogPush(CallBacker*);
     void			moveLogsPush(CallBacker*);
     void			logSel(CallBacker*);
     void			logUOMPush(CallBacker*);

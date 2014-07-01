@@ -126,15 +126,19 @@ public:
 			~uiWellLogEditor();
 
     void		selectMD(float md);
+    bool		isLogChanged() const	{ return changed_; }
 
     Notifier<uiWellLogEditor>	valueChanged;
 
 protected:
-    bool		acceptOK(CallBacker*);
     void		fillTable();
+    void		valChgCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
     Well::Log&		log_;
     uiTable*		table_;
+
+    bool		changed_;
 };
 
 #endif

@@ -89,6 +89,8 @@ uiWellMan::uiWellMan( uiParent* p )
 			mCB(this,uiWellMan,exportLogs) );
     loguombut_ = butgrp->addButton( "unitsofmeasure",
 		"View/edit unit of measure", mCB(this,uiWellMan,logUOMPush) );
+    logedbut_ = butgrp->addButton( "edit", "Edit",
+			mCB(this,uiWellMan,editLogPush) );
     logupbut_ = butgrp->addButton( "uparrow", "Move up",
 			mCB(this,uiWellMan,moveLogsPush) );
     logdownbut_ = butgrp->addButton( "downarrow", "Move down",
@@ -255,6 +257,7 @@ void uiWellMan::setToolButtonProperties()
     logrmbut_->setSensitive( oneormorelog );
     logexpbut_->setSensitive( oneormorelog );
     loguombut_->setSensitive( nrlogs > 0 );
+    logedbut_->setSensitive( issing );
 
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
@@ -488,6 +491,35 @@ void uiWellMan::logUOMPush( CallBacker* )
 	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
 	if ( log ) log->setUnitMeasLabel( uomlbl );
     }
+    writeLogs();
+}
+
+
+void uiWellMan::editLogPush( CallBacker* )
+{
+    if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
+    const int selidx = logsfld_->firstChosen();
+    if ( selidx < 0 )
+	mErrRet("No log selected")
+
+    currdrs_[0]->getLogs();
+    const char* lognm = logsfld_->textOfItem( selidx );
+    Well::LogSet& wls = curwds_[0]->logs();
+    const int curlogidx = wls.indexOf( lognm );
+    if ( curlogidx < 0 )
+	mErrRet( "Cannot read selected log" )
+
+    Well::Log& wl = wls.getLog( curlogidx );
+    uiWellLogEditor dlg( this, wl );
+    if ( !dlg.go() || !dlg.isLogChanged() )
+	return;
+
+    const bool res = uiMSG().askSave(
+			tr("One or more log values have been changed."
+			   "Do you want to save your changes?"), false );
+    if ( !res ) return;
+
+    wl.updateAfterValueChanges();
     writeLogs();
 }
 
