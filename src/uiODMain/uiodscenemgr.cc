@@ -1024,7 +1024,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     FixedString type = applMgr().EMServer()->getType( emid );
     uiODDisplayTreeItem* itm;
     if ( type=="Horizon" )
-	itm = new uiODHorizonTreeItem(emid,false);
+	itm = new uiODHorizonTreeItem(emid,false,false);
     else if ( type=="2D Horizon" )
 	itm = new uiODHorizon2DTreeItem(emid);
     else if ( type=="Fault" )

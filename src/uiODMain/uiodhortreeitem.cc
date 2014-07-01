@@ -46,11 +46,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mAddIdx		0
-#define mAddCBIdx	1
-#define mNewIdx		2
-#define mSectIdx	3
-#define mFullIdx	4
-#define mSectFullIdx	5
+#define mAddAtSectIdx	1
+#define mAddCBIdx	2
+#define mNewIdx		3
+#define mSectIdx	4
+#define mFullIdx	5
+#define mSectFullIdx	6
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
@@ -74,6 +75,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
+    mnu.insertItem( new uiAction(tr("Add at sections only ...")),mAddAtSectIdx);
     mnu.insertItem( new uiAction(tr("Add &color blended ...")), mAddCBIdx );
 
     uiAction* newmenu = new uiAction( tr("&Track new ...") );
@@ -95,7 +97,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == mAddIdx || mnuid==mAddCBIdx )
+    if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
@@ -107,7 +109,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 		 applMgr()->visServer()->turnSeedPickingOn( true );
 	    }
 	    uiODHorizonTreeItem* itm =
-		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx );
+		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx,
+					 mnuid==mAddAtSectIdx );
 	    addChld( itm, false, false );
 	}
 
@@ -230,15 +233,19 @@ uiTreeItem*
 
 // uiODHorizonTreeItem
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba )
-    : uiODEarthModelSurfaceTreeItem( emid )
-    , rgba_( rgba )
+uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba,
+					  bool atsect )
+    : uiODEarthModelSurfaceTreeItem(emid)
+    , rgba_(rgba)
+    , atsections_(atsect)
 { initMenuItems(); }
 
 
-uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
-    : uiODEarthModelSurfaceTreeItem( 0 )
-    , rgba_( rgba )
+uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
+					  bool dummy )
+    : uiODEarthModelSurfaceTreeItem(0)
+    , rgba_(rgba)
+    , atsections_(atsect)
 {
     initMenuItems();
     displayid_ = visid;
@@ -310,6 +317,8 @@ bool uiODHorizonTreeItem::init()
 	    hd->addAttrib();
 	}
     }
+
+    if ( hd ) hd->setOnlyAtSectionsDisplay( atsections_ );
 
     visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
     const bool geodf = !sect ? false
@@ -781,4 +790,3 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( handled );
 }
-

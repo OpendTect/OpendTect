@@ -17,14 +17,14 @@ ________________________________________________________________________
 #include "uiodemsurftreeitem.h"
 
 class uEMHorizonShiftDialog;
+
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
              void sort(); virtual bool addChld(uiTreeItem*,bool,bool);
              virtual void removeChild(uiTreeItem*) );
-	     
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODHorizonTreeItemFactory);
+{ mODTextTranslationClass(uiODHorizonTreeItemFactory)
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -36,9 +36,10 @@ public:
 mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
-    			uiODHorizonTreeItem( int, bool rgba, bool dummy );
-    			uiODHorizonTreeItem( const EM::ObjectID& emid,
-					     bool rgba );
+			uiODHorizonTreeItem(int visid,bool rgba,
+					    bool atsect,bool dummy);
+			uiODHorizonTreeItem(const EM::ObjectID&,
+					    bool rgba,bool atsect);
 
 protected:
     bool		init();
@@ -65,6 +66,7 @@ protected:
     MenuItem		snapeventmnuitem_;
     MenuItem		shiftmnuitem_;
     bool		rgba_;
+    bool		atsections_;
 };
 
 
@@ -86,8 +88,8 @@ public:
 mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
-    			uiODHorizon2DTreeItem( int, bool dummy );
-    			uiODHorizon2DTreeItem( const EM::ObjectID& emid );
+			uiODHorizon2DTreeItem(int visid,bool dummy);
+			uiODHorizon2DTreeItem(const EM::ObjectID&);
 
 protected:
     void		initMenuItems();
@@ -108,6 +110,4 @@ protected:
     MenuItem		interpolatemnuitem_;
 };
 
-
 #endif
-
