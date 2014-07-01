@@ -101,7 +101,7 @@ protected:
 };
 
 
-}; //namespace
+} // namespace Attrib
 
 #endif
 
