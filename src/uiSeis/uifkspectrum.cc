@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "bufstring.h"
 #include "datapackbase.h"
+#include "envvars.h"
 #include "flatposdata.h"
 #include "fourier.h"
 #include "keystrs.h"
@@ -40,11 +41,16 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 {
     uiFlatViewer& vwr = viewer();
     vwr.setInitialSize( uiSize(600,400) );
-    vwr.appearance().setDarkBG( false );
-    vwr.appearance().setGeoDefaults( false );
-    vwr.appearance().annot_.setAxesAnnot(true);
-    vwr.appearance().ddpars_.wva_.allowuserchange_ = false;
-    vwr.appearance().ddpars_.vd_.show_ = true;
+    FlatView::Appearance& app = vwr.appearance();
+    app.setDarkBG( false );
+    app.setGeoDefaults( false );
+    app.annot_.setAxesAnnot(true);
+    app.annot_.x1_.name_ = SI().xyInFeet() ? "K (/ft)" : "K (/m)";
+    app.annot_.x2_.name_ = SI().zIsTime() ? "F (Hz)" :
+		SI().zInMeter() ? "Kz (/m)" : "Kz (/ft)";
+    app.ddpars_.wva_.allowuserchange_ = false;
+    app.ddpars_.vd_.show_ = true;
+    app.ddpars_.vd_.mappersetup_.cliprate_ = Interval<float>(0.005,0.005);
     addControl( new uiFlatViewStdControl(vwr,
 			uiFlatViewStdControl::Setup(0).withthumbnail(false)) );
 
@@ -217,7 +223,12 @@ void uiFKSpectrum::setData( const Array2D<float>& array )
     {
 	const int kidx = idx<sz0/2 ? idx+sz0/2 : idx-sz0/2;
 	for ( int idy=0; idy<sz1/2; idy++ )
-	    spectrum_->set( kidx, idy, abs(output_->get(idx,idy)) );
+	{
+	    const float power = abs(output_->get(idx,idy));
+	    spectrum_->set( kidx, idy, power );
+	    if ( GetEnvVarYN("OD_FK_INDB") )
+		spectrum_->set( kidx, idy, 20*Math::Log10(power) );
+	}
     }
 
     view( *spectrum_ );
@@ -269,8 +280,8 @@ bool uiFKSpectrum::compute( const Array2D<float>& array )
 
 bool uiFKSpectrum::view( Array2D<float>& array )
 {
-    MapDataPack* datapack = new MapDataPack( sKey::Attribute(), "F-K", &array );
-
+    FlatDataPack* datapack = new FlatDataPack( sKey::Attribute(), &array );
+    datapack->setName( "Power" );
     const int nrk = array.info().getSize( 0 );
     const int nrtrcs = input_->info().getSize( 0 );
     const float dk = fft_->getDf( SI().crlDistance(), nrtrcs );
@@ -283,8 +294,6 @@ bool uiFKSpectrum::view( Array2D<float>& array )
 
     datapack->posData().setRange( true, krg );
     datapack->posData().setRange( false, frg );
-    datapack->setPosCoord( false );
-    datapack->setDimNames( "K", "Freq", true );
     DataPackMgr& dpman = DPM(DataPackMgr::FlatID());
     dpman.add( datapack );
     viewer().setPack( false, datapack->id(), false );
