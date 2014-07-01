@@ -27,28 +27,3 @@ else()
     set ( MY_WC_URL "" )
 endif()
 
-set ( INC_DIR ${CMAKE_BINARY_DIR}/include/Basic )
-set ( INC_FILE ${INC_DIR}/svnversion.h )
-
-if ( NOT EXISTS ${INC_FILE} )
-    set ( OD_CREATE_INC_FILE 1 )
-endif()
-
-if ( OD_FROM_SVN OR OD_CREATE_INC_FILE )
-    set ( TMPFILE ${INC_DIR}/svnversion.h.tmp )
-
-    # write a file with the SVNVERSION define
-    file( WRITE ${TMPFILE} 
-	 "// Generated automatically by CMakeModules/ODSubversion.cmake${OD_LINESEP}"
-	 "//${OD_LINESEP}"
-	 "#ifndef mSVN_VERSION${OD_LINESEP}"
-	 "#define mSVN_VERSION ${MY_WC_REVISION}${OD_LINESEP}"
-	 "#define mSVN_URL \"${MY_WC_URL}\"${OD_LINESEP}"
-	 "#endif${OD_LINESEP}")
-
-    # copy the file to the final header only if the version changes
-    # reduces needless rebuilds
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-			    ${TMPFILE} ${INC_DIR}/svnversion.h )
-    file ( REMOVE ${TMPFILE} )
-endif()

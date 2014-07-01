@@ -12,10 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimsg.h"
 
-#include "mousecursor.h"
-#include "separstr.h"
 #include "bufstringset.h"
+#include "mousecursor.h"
+#include "oddirs.h"
 #include "perthreadrepos.h"
+#include "pixmap.h"
+#include "separstr.h"
 
 #include "uimain.h"
 #include "uimainwin.h"
@@ -29,6 +31,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #undef Ok
 #include <QMessageBox>
 #include <QAbstractButton>
+
+#include "odlogo128x128.xpm"
+static const char** sODLogo = od_logo_128x128;
 
 mUseQtnamespace
 
@@ -189,14 +194,22 @@ void uiMsg::odfunc( const uiString& text ) \
 }
 
 
-mImplSimpleMsg( message, tr("Information"), information );
-mImplSimpleMsg( warning, tr("Warning"), warning );
+mImplSimpleMsg( message, tr("Information"), information )
+mImplSimpleMsg( warning, tr("Warning"), warning )
 
 
 void uiMsg::error( const char* p1, const char* p2, const char* p3 )
 {
     BufferString msg( p1 ); if ( p2 ) msg += p2; if ( p3 ) msg += p3;
     errorWithDetails( FileMultiString(msg.buf()) );
+}
+
+
+static void addStayOnTopFlag( QMessageBox& mb )
+{
+    Qt::WindowFlags flags = mb.windowFlags();
+    flags |= Qt::WindowStaysOnTopHint;
+    mb.setWindowFlags( flags );
 }
 
 
@@ -209,7 +222,7 @@ void uiMsg::error( const uiString& str )
 
     QMessageBox msgbox( QMessageBox::Critical, wintitle.getQtString(),
 			str.getQtString(), QMessageBox::Ok, popParnt() );
-
+    addStayOnTopFlag( msgbox );
     msgbox.exec();
     mEndCmdRecEvent( refnr, msgbox );
 }
@@ -274,6 +287,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 	msgbox.setDetailedText( detailed.getQtString() );
     }
 
+    addStayOnTopFlag( msgbox );
     msgbox.exec();
     mEndCmdRecEvent( refnr, msgbox );
 }
@@ -283,8 +297,8 @@ int uiMsg::askSave( const uiString& text, bool wcancel )
 {
     const uiString dontsavetxt = tr("Don't save");
     return question( text, uiStrings::sSave(true), dontsavetxt,
-		     wcancel ? uiStrings::sCancel()
-                             : 0, tr("Data not saved") );
+		     wcancel ? uiStrings::sCancel() : 0,
+		     tr("Data not saved") );
 }
 
 
@@ -340,9 +354,28 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 void uiMsg::about( const uiString& text )
 {
     mPrepCursor();
-    mCapt(tr("About"));
+    mCapt( tr("About") );
     const int refnr = beginCmdRecEvent( utfwintitle );
     QMessageBox::about( popParnt(), wintitle.getQtString(), text.getQtString());
+    endCmdRecEvent( refnr, 0, uiStrings::sOk().getOriginalString() );
+}
+
+
+void uiMsg::aboutOpendTect( const uiString& text )
+{
+    mPrepCursor();
+    mCapt( tr("About OpendTect") );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+    QMessageBox msgbox( popParnt() );
+    msgbox.addButton( QMessageBox::Close );
+    ioPixmap pm( sODLogo );
+    if ( pm.qpixmap() )
+	msgbox.setIconPixmap( *pm.qpixmap() );
+    msgbox.setWindowTitle( wintitle.getQtString() );
+    msgbox.setText( text.getQtString() );
+    msgbox.setBaseSize( 600, 300 );
+    addStayOnTopFlag( msgbox );
+    msgbox.exec();
     endCmdRecEvent( refnr, 0, uiStrings::sOk().getOriginalString() );
 }
 

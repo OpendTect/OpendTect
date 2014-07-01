@@ -18,11 +18,13 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-extern "C" {
-
+extern "C"
+{
     mGlobal(Basic) const char* GetFullODVersion();
-
 }
+
+mGlobal(Basic) const char* GetGCCVersion();
+mGlobal(Basic) const char* GetQtVersion();
 
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
 /*!< 'typ' can be "doc" or other like vendor name. if null -> platform */

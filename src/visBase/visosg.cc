@@ -7,8 +7,11 @@
 const char* rcsID mUsedVar = "$Id$";
 
 #include "visosg.h"
+#include "osgver.h"
+#include "perthreadrepos.h"
 
 #include <osg/Referenced>
+#include <osg/Version>
 
 
 void visBase::unRefOsgPtr( osg::Referenced* ptr )
@@ -39,3 +42,17 @@ void OneFrameCullDisabler::operator()( osg::Node* node, osg::NodeVisitor* nv )
     node->removeCullCallback( this );
     unref();
 }
+
+
+
+const char* GetOSGVersion()
+{
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
+
+    ret.set( OPENSCENEGRAPH_MAJOR_VERSION ).add( "." )
+       .add( OPENSCENEGRAPH_MINOR_VERSION ).add( "." )
+       .add( OPENSCENEGRAPH_PATCH_VERSION );
+    return ret.buf();
+}
+

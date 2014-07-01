@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "sets.h"
+#include "bufstring.h"
 #include "uistring.h"
 
 class uiODMenuMgr;
@@ -24,15 +24,17 @@ class uiMenu;
 mExpClass(uiODMain) uiODHelpMenuMgr
 { mODTextTranslationClass(uiODHelpMenuMgr);
 public:
-    				uiODHelpMenuMgr(uiODMenuMgr*);
-    				~uiODHelpMenuMgr();
+			uiODHelpMenuMgr(uiODMenuMgr*);
+			~uiODHelpMenuMgr();
 
-    void			handle(int);
+    void		handle(int);
 
 protected:
 
-    uiODMenuMgr*		mnumgr_;
-    uiMenu*			helpmnu_;
+    BufferString	getAboutString();
+
+    uiODMenuMgr*	mnumgr_;
+    uiMenu*		helpmnu_;
 };
 
 #endif

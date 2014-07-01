@@ -221,5 +221,12 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
         -DPSD=${PROJECT_SOURCE_DIR}
         -P ${PROJECT_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
          COMMENT "Preparing doc packages" )
+
+
+# Build information
 include ( ODSubversion )
+
+OD_CURRENT_DATE( DATE )
+configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
+		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )
 

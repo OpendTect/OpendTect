@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "debug.h"
 #include "oddirs.h"
-#include "svnversion.h"
+#include "buildinfo.h"
 #include "bufstring.h"
 #include "ptrman.h"
 #include "filepath.h"

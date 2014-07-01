@@ -594,11 +594,22 @@ macro ( OD_CURRENT_YEAR RESULT)
 endmacro (OD_CURRENT_YEAR )
 
 macro ( OD_CURRENT_MONTH RESULT )
-    if( UNIX )
+    if (WIN32)
+	execute_process(COMMAND "powershell" "(get-date).month" OUTPUT_VARIABLE ${RESULT})
+    elseif( UNIX )
 	execute_process(COMMAND "date" "+%B" OUTPUT_VARIABLE ${RESULT})
 	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
     endif()
 endmacro( OD_CURRENT_MONTH )
+
+macro ( OD_CURRENT_DATE RESULT )
+    if ( WIN32 )
+	execute_process(COMMAND "powershell" "(get-date)" OUTPUT_VARIABLE ${RESULT})
+    elseif( UNIX )
+	execute_process(COMMAND "date" "+%c" OUTPUT_VARIABLE ${RESULT})
+	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
+    endif()
+endmacro ( OD_CURRENT_DATE )
 
 
 #Adds lists of files to global file-list
