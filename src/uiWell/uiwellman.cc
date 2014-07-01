@@ -257,7 +257,7 @@ void uiWellMan::setToolButtonProperties()
     logrmbut_->setSensitive( oneormorelog );
     logexpbut_->setSensitive( oneormorelog );
     loguombut_->setSensitive( nrlogs > 0 );
-    logedbut_->setSensitive( issing );
+    logedbut_->setSensitive( nrlogs > 0 );
 
     mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
     mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
