@@ -1385,5 +1385,6 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillSceneMenu();
     fillAnalMenu();
     fillProcMenu();
+    fillViewMenu();
     dTectMnuChanged.trigger();
 }
