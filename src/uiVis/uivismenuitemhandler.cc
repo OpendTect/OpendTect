@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiVisMenuItemHandler::uiVisMenuItemHandler(const char* classnm,
-	uiVisPartServer& vps, const char* nm, const CallBack& cb,
+	uiVisPartServer& vps, const uiString& nm, const CallBack& cb,
 	const char* parenttext, int placement )
     : MenuItemHandler( *vps.getMenuHandler(), nm, cb, parenttext, placement )
     , visserv_( vps )
