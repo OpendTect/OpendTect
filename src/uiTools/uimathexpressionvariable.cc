@@ -313,3 +313,12 @@ void uiMathExpressionVariable::setPropType( PropertyRef::StdType typ )
     if ( unfld_ )
 	unfld_->setPropType( typ );
 }
+
+
+void uiMathExpressionVariable::selectSubInput( int idx )
+{
+    if ( !subinpfld_ || subinpfld_->isEmpty() )
+	return;
+
+    subinpfld_->setCurrentItem( idx );
+}

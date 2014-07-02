@@ -103,7 +103,6 @@ void uiMathAttrib::inpSel( CallBacker* cb )
 	nms.insertAt( new BufferString("ALL"), 0 );
 	formfld_->setNonSpecSubInputs( nms, inpidx );
     }
-
 }
 
 
@@ -183,6 +182,22 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		    form_.setInputDef( varinpidx, refstr );
 		    formfld_->inpFld(idx)->selectInput( refstr.buf() );
 		    varinplastidx = varinpidx+1;
+
+		    MultiID mid = inpdsc->getStoredID( false ).buf();
+		    IOObj* inpobj = IOM().get( mid );
+		    if ( !inpobj ) continue;
+
+		    SeisIOObjInfo seisinfo( inpobj );
+		    if ( seisinfo.nrComponents() > 1 )
+		    {
+			BufferStringSet nms;
+			seisinfo.getComponentNames( nms );
+			nms.insertAt( new BufferString("ALL"), 0 );
+			formfld_->setNonSpecSubInputs( nms, varinpidx );
+			formfld_->inpFld(idx)->selectSubInput(
+						inpdsc->selectedOutput()+1 );
+		    }
+
 		    break;
 		}
 	}

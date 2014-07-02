@@ -1151,7 +1151,8 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	}
 
 	Attrib::DescID retid = getStoredID( storedidstr.buf(),
-					    compnr, true, true );
+					    compnr, true, true,
+					    inpstr[1] );
 	return getDesc( retid );
     }
     else
