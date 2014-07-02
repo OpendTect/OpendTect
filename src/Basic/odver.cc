@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "perthreadrepos.h"
 #include "qglobal.h"
+#include "keystrs.h"
 #include <string.h>
 
 
@@ -66,6 +67,9 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 
 const char* GetGCCVersion()
 {
+#ifndef __GNUC__
+    return sKey::EmptyString();
+#else
     mDeclStaticString( ret );
     if ( !ret.isEmpty() ) return ret.buf();
 
@@ -73,6 +77,7 @@ const char* GetGCCVersion()
        .add( __GNUC_MINOR__ ).add( "." )
        .add( __GNUC_PATCHLEVEL__ );
     return ret.buf();
+#endif
 }
 
 
