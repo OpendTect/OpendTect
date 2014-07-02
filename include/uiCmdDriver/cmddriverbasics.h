@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "bufstringset.h"
 #include "mousecursor.h"
+#include "uistring.h"
 
 class uiMainWin;
 class CallBacker;
@@ -206,11 +207,11 @@ public:
     bool		wait_;
     const uiMainWin*	launchpad_;
     MouseCursor::Shape	cursorshape_;
-    BufferString	dlgtitle_;
-    BufferString	okbuttext_;
-    BufferString	cancelbuttext_;
-    BufferString	infotext_;
-    BufferString	resumetext_;
+    uiString		dlgtitle_;
+    uiString		okbuttext_;
+    uiString		cancelbuttext_;
+    uiString		infotext_;
+    uiString		resumetext_;
 };
 
 

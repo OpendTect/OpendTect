@@ -45,7 +45,7 @@ uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
     setOkText( ispec.okbuttext_ );
     setCancelText( ispec.cancelbuttext_ );
 
-    const char* ptr = ispec.infotext_;
+    const char* ptr = ispec.infotext_.getFullString();
     int rows = 0;
     int cols = 0;
     while ( ptr && *ptr )
@@ -56,6 +56,7 @@ uiCmdInteractDlg::uiCmdInteractDlg( uiParent* p, const InteractSpec& ispec )
 	    rows++;
 	}
     }
+
     if ( cols )
 	rows++;
 

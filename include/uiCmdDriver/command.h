@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uitreeview.h"
 #include "cmddriver.h"
 #include "timefun.h"
+#include "uistring.h"
 
 class uiActionContainer;
 class uiAction;
@@ -121,7 +122,7 @@ protected:
 #define mStartDeclCmdClassNoActNoEntry(mod,cmdkey,parentclass) \
 \
 mExpClass(mod) cmdkey##Cmd : public parentclass \
-{ \
+{ mODTextTranslationClass(cmdkey##Cmd); \
 public: \
 			cmdkey##Cmd(CmdDriver& cmddrv) \
 			    : parentclass(cmddrv) \

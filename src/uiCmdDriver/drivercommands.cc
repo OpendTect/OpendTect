@@ -359,8 +359,8 @@ bool GuideCmd::act( const char* parstr )
     {
 	if ( winstatetyp==Existent || winstatetyp==Accessible )
 	{
-	    ispec.resumetext_ = "This info bears on window \"";
-	    ispec.resumetext_ += winstr; ispec.resumetext_ += "\"";
+	    ispec.resumetext_ =
+		tr("This info bears on window \"%1\"").arg( winstr );
 	}
     }
     else
