@@ -65,7 +65,14 @@ public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
 				   bool readonly=false);
 
-    void		setText(const char*,bool trigger_notif=false);
+    void		setText(const char* txt) { setText( txt, false ); }
+			//!<Does not trigger notification
+    void		setText(const OD::String& txt);
+			//!<Does not trigger notification
+    void		setText(const uiString&);
+			/*!<Will make object read only, does not trigger
+			    notification. */
+    void		setText(const char*,bool trigger_notif);
     void		append(const char*);
     Notifier<uiTextEdit> textChanged;
 

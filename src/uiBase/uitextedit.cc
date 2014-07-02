@@ -269,6 +269,21 @@ void uiTextEdit::setText( const char* txt, bool trigger_notif )
 }
 
 
+void uiTextEdit::setText( const OD::String& txt )
+{
+    setText( txt.buf() );
+}
+
+
+void uiTextEdit::setText( const uiString& txt )
+{
+    NotifyStopper ns( textChanged );
+    qte().setText( txt.getQtString() );
+    body_->setReadOnly( true );
+    setBackgroundColor( roBackgroundColor() );
+}
+
+
 void uiTextEdit::append( const char* txt )	{ body_->append(txt); }
 
 QTextEdit& uiTextEdit::qte()			{ return *body_; }
