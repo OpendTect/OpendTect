@@ -339,10 +339,10 @@ bool BatchProgram::go( od_ostream& strm )
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
     HorSampling hsamp;
-    BufferString linename;
+    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     if ( iscubeoutp && geompar )
     {
-	geompar->get( sKey::LineKey(), linename );
+	geompar->get( sKey::GeomID(), geomid );
 	hsamp = getHorSamp( *geompar );
     }
 
@@ -353,6 +353,11 @@ bool BatchProgram::go( od_ostream& strm )
 	HorSampling mmrange;
 	if ( mmrange.usePar( *mmprocrange ) )
 	    hsamp.limitTo( mmrange );
+
+	PtrMan<IOPar> linepar =
+		mmprocrange->subselect( IOPar::compKey(sKey::Line(),0) );
+	if ( linepar )
+	    linepar->get( sKey::GeomID(), geomid );
     }
 
     Interval<float> zbounds4mmproc;
@@ -507,7 +512,6 @@ bool BatchProgram::go( od_ostream& strm )
 	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
 	if ( is2d )
 	{
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
 	    hsamp.start.inl() = hsamp.stop.inl() = 0;
 	    if ( mIsUdf(hsamp.stop.crl()) )
 	    {

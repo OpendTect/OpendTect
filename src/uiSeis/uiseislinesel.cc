@@ -265,9 +265,9 @@ void uiSeis2DLineSel::setInput( const BufferStringSet& lnms )
 
 	geomids_ += geomid;
 	lnms_.add( lnms.get(idx) );
-	selidxs_ += selidxs_.size();
     }
 
+    setAll( true );
     updateSummary();
     selectionChanged.trigger();
 }
@@ -284,9 +284,9 @@ void uiSeis2DLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
 
 	geomids_ += geomids[idx];
 	lnms_.add( linenm );
-	selidxs_ += selidxs_.size();
     }
 
+    setAll( true );
     updateSummary();
     selectionChanged.trigger();
 }
@@ -525,6 +525,7 @@ protected:
     void			lineSel(CallBacker*);
     void			trcRgChanged(CallBacker*);
     void			zRgChanged(CallBacker*);
+    void			applyZRgToAllCB(CallBacker*);
 
     virtual bool		acceptOK(CallBacker*);
 };
@@ -574,6 +575,10 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 	zrgfld_->rangeChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
+
+	uiPushButton* allbut = new uiPushButton( this, "Apply to all lines",
+		mCB(this,uiSeis2DMultiLineSelDlg,applyZRgToAllCB), true );
+	allbut->attach( rightOf, zrgfld_ );
     }
 
     postFinalise().notify( mCB(this,uiSeis2DMultiLineSelDlg,finalised) );
@@ -659,20 +664,16 @@ void uiSeis2DMultiLineSelDlg::getZRgs(
 
 void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
 {
-    const bool multisel = lnmsfld_->nrChosen() > 1;
-    trcrgfld_->setSensitive( !multisel );
-    if ( zrgfld_ ) zrgfld_->setSensitive( !multisel );
-    if ( multisel ) return;
-
-    NotifyStopper ns( trcrgfld_->rangeChanged );
     const int curitm = lnmsfld_->currentItem();
     if ( !trcrgs_.validIdx(curitm) )
 	return;
 
+    NotifyStopper ns( trcrgfld_->rangeChanged );
     trcrgfld_->setLimitRange( maxtrcrgs_[curitm] );
     trcrgfld_->setRange( trcrgs_[curitm] );
     if ( !zrgfld_ || !zrgs_.validIdx(curitm) ) return;
 
+    NotifyStopper ns2( zrgfld_->rangeChanged );
     zrgfld_->setRangeLimits( maxzrgs_[curitm] );
     zrgfld_->setRange( zrgs_[curitm] );
 }
@@ -693,6 +694,17 @@ void uiSeis2DMultiLineSelDlg::zRgChanged( CallBacker* )
     if ( curitm<0 ) return;
 
     zrgs_[curitm] = zrgfld_->getRange();
+}
+
+
+void uiSeis2DMultiLineSelDlg::applyZRgToAllCB( CallBacker* )
+{
+    const StepInterval<float> zrg = zrgfld_->getRange();
+    for ( int idx=0; idx<zrgs_.size(); idx++ )
+    {
+	zrgs_[idx] = maxzrgs_[idx];
+	zrgs_[idx].limitTo( zrg );
+    }
 }
 
 
@@ -746,8 +758,9 @@ bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
     {
 	IOPar linepar;
 	linepar.set( sKey::GeomID(), geomids_[selidxs_[idx]] );
-	linepar.set( sKey::TrcRange(), trcrgs_[idx] );
-	if ( withz_ )
+	if ( trcrgs_.validIdx(idx) )
+	    linepar.set( sKey::TrcRange(), trcrgs_[idx] );
+	if ( withz_ && zrgs_.validIdx(idx) )
 	    linepar.set( sKey::ZRange(), zrgs_[idx] );
 
 	mergekey = idx;
@@ -796,7 +809,7 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 
 	selgeomids += geomid;
 	StepInterval<int> trcrg;
-	if ( linepar->get(sKey::TrcRange(),trcrg) )
+	if ( !linepar->get(sKey::TrcRange(),trcrg) )
 	    continue;
 
 	trcrgs_ += trcrg;

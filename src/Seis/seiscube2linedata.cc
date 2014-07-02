@@ -8,170 +8,113 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "seiscube2linedata.h"
 #include "keystrs.h"
+#include "posinfo2d.h"
 #include "seisread.h"
 #include "seiswrite.h"
-#include "seis2dline.h"
-#include "seis2dlineio.h"
-#include "seisbuf.h"
 #include "seistrc.h"
+#include "seistrctr.h"
 #include "seisinfo.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "ioobj.h"
 
-
-class Cube2LineDataLineKeyProvider : public GeomIDProvider
+class Seis2DFrom3DGeomIDProvider : public GeomIDProvider
 {
 public:
-Cube2LineDataLineKeyProvider( SeisCube2LineDataExtracter& lde ) : lde_(lde) {}
+Seis2DFrom3DGeomIDProvider( const Seis2DFrom3DExtractor& extr )
+    : extr_(extr)
+{}
 
 Pos::GeomID geomID() const
-{
-    return lde_.usedlinenames_.isEmpty() ? Survey::GM().cUndefGeomID()
-		    : Survey::GM().getGeomID(lde_.usedlinenames_[0]->str() );
-}
+{ return extr_.curGeomID(); }
 
-    SeisCube2LineDataExtracter&	lde_;
-
+const Seis2DFrom3DExtractor& extr_;
 };
 
 
-SeisCube2LineDataExtracter::SeisCube2LineDataExtracter(
-			const IOObj& cubein, const IOObj& lsout,
-			const char* attrnm, const BufferStringSet* lnms )
+Seis2DFrom3DExtractor::Seis2DFrom3DExtractor(
+			const IOObj& cubein, const IOObj& dsout,
+			const TypeSet<Pos::GeomID>& geomids )
     : Executor("Extract 3D data into 2D lines")
-    , attrnm_(attrnm)
-    , tbuf_(*new SeisTrcBuf(true))
     , rdr_(*new SeisTrcReader(&cubein))
-    , ls_(*new Seis2DLineSet(lsout))
-    , wrr_(*new SeisTrcWriter(&lsout))
+    , wrr_(*new SeisTrcWriter(&dsout))
+    , geomids_(geomids)
     , nrdone_(0)
-    , totalnr_( 0 )
-    , c2ldlkp_(0)
+    , totalnr_(0)
+    , curgeom2d_(0)
+    , curlineidx_(-1)
+    , curtrcidx_(-1)
 {
-    if ( lnms ) lnms_ = *lnms;
-}
-
-
-SeisCube2LineDataExtracter::~SeisCube2LineDataExtracter()
-{
-    closeDown();
-    delete &tbuf_; delete &wrr_; delete &rdr_; delete &ls_;
-}
-
-
-void SeisCube2LineDataExtracter::closeDown()
-{
-    tbuf_.deepErase();
-    rdr_.close(); wrr_.close();
-    deepErase( fetchers_ );
-    usedlinenames_.erase();
-    delete c2ldlkp_; c2ldlkp_ = 0;
-    wrr_.setGeomIDProvider(0);
-}
-
-
-int SeisCube2LineDataExtracter::nextStep()
-{
-    if ( fetchers_.isEmpty() )
+    for ( int idx=0; idx<geomids.size(); idx++ )
     {
-	if ( !rdr_.prepareWork() )
-	    msg_ = rdr_.errMsg();
-	else if ( ls_.nrLines() < 1 )
-	    msg_ = "Empty or invalid Line Set";
-	else
-	{
-	    c2ldlkp_ = new Cube2LineDataLineKeyProvider( *this );
-	    wrr_.setGeomIDProvider( c2ldlkp_ );
-	    msg_ = "Handling traces";
-	}
-
-	return getFetchers()
-	    ? MoreToDo()
-	    : ErrorOccurred();
+	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			 Survey::GM().getGeometry(geomids[idx]) );
+	if ( geom2d )
+	    totalnr_ += geom2d->data().positions().size();
     }
-
-    int res = fetchers_[0]->doStep();
-    if ( res != 1 )
-    {
-	if ( res > 1 )
-	    return res;
-	else if ( res == 0 )
-	{
-	    delete fetchers_.removeSingle( 0 );
-	    usedlinenames_.removeSingle( 0 );
-	    return fetchers_.isEmpty() ? Finished() : MoreToDo();
-	}
-	else
-	{
-	    msg_ = fetchers_[0]->uiMessage();
-	    return ErrorOccurred();
-	}
-    }
-
-    res = handleTrace();
-    msg_ = fetchers_[0]->uiMessage();
-    return res;
 }
 
 
-bool SeisCube2LineDataExtracter::getFetchers()
+Seis2DFrom3DExtractor::~Seis2DFrom3DExtractor()
 {
-    totalnr_ = 0;
-    usedlinenames_.erase();
-    
-    for ( int lidx=0; lidx<ls_.nrLines(); lidx++ )
-    {
-	const BufferString lnm = ls_.lineName( lidx );
-	if ( usedlinenames_.isPresent( lnm ) )
-	    continue;
-	if ( !lnms_.isEmpty() && !lnms_.isPresent(lnm) )
-	    continue;
-
-	int inplidx = -1;
-	const LineKey deflk( lnm );
-	if ( ls_.lineKey(lidx) == deflk )
-	    inplidx = lidx;
-	else
-	{
-	    for ( int iln=0; iln<ls_.nrLines(); iln++ )
-	    {
-		if ( ls_.lineKey(iln) == deflk )
-		    { inplidx = iln; break; }
-	    }
-	}
-	if ( inplidx < 0 )
-	    inplidx = lidx;
-
-	Executor* fetcher = ls_.lineFetcher( inplidx, tbuf_, 1 );
-	if ( fetcher )
-	{
-	    totalnr_ += fetcher->totalNr();
-	    fetchers_ += fetcher;
-	    usedlinenames_.add( lnm );
-	}
-    }
-
-    return !fetchers_.isEmpty();
+    delete &wrr_; delete &rdr_;
 }
 
 
-int SeisCube2LineDataExtracter::handleTrace()
+Pos::GeomID Seis2DFrom3DExtractor::curGeomID() const
 {
-    SeisTrc* trc = tbuf_.remove( 0 );
-    SeisTrcInfo ti( trc->info() );
-    delete trc;
+    return geomids_.validIdx(curlineidx_) ? geomids_[curlineidx_]
+					  : Survey::GM().cUndefGeomID();
+}
 
-    if ( !rdr_.seisTranslator()->goTo( SI().transform(ti.coord) ) )
+#define mErrRet(s) { msg_ = s; return ErrorOccurred(); }
+
+int Seis2DFrom3DExtractor::goToNextLine()
+{
+    curlineidx_++;
+    if ( curlineidx_ >= geomids_.size() )
+	return Finished();
+
+    if ( !curlineidx_ && !rdr_.prepareWork() )
+	mErrRet( rdr_.errMsg() )
+
+    mDynamicCast( const Survey::Geometry2D*, curgeom2d_,
+		  Survey::GM().getGeometry(geomids_[curlineidx_]) );
+    if ( !curgeom2d_ )
+	mErrRet( "Line geometry not available" )
+
+    curtrcidx_ = 0;
+    const GeomIDProvider* gip = wrr_.geomIDProvider();
+    if ( !gip ) gip = new Seis2DFrom3DGeomIDProvider( *this );
+    wrr_.setGeomIDProvider( gip );
+    return MoreToDo();
+}
+
+
+int Seis2DFrom3DExtractor::nextStep()
+{
+    if ( !curgeom2d_ || curtrcidx_ >= curgeom2d_->data().positions().size() )
+	return goToNextLine();
+
+    return handleTrace();
+}
+
+
+int Seis2DFrom3DExtractor::handleTrace()
+{
+    const PosInfo::Line2DPos& curpos =
+		curgeom2d_->data().positions()[curtrcidx_++];
+    if ( !rdr_.seisTranslator()->goTo( SI().transform(curpos.coord_) ) )
 	return MoreToDo();
 
-    SeisTrc trc3d;
-    if ( !rdr_.get(trc3d) )
+    SeisTrc trc;
+    if ( !rdr_.get(trc) )
 	return MoreToDo();
 
-    ti.sampling = trc3d.info().sampling;
-    trc3d.info() = ti;
-    if ( !wrr_.put(trc3d) )
-	{ msg_ = wrr_.errMsg(); return ErrorOccurred(); }
+    trc.info().nr = curpos.nr_;
+    trc.info().coord = curpos.coord_;
+    if ( !wrr_.put(trc) )
+	mErrRet( wrr_.errMsg() )
 
     nrdone_++;
     return MoreToDo();

@@ -160,6 +160,7 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 { \
     objfld_->setInputText( s ); \
     objfld_->processInput(); \
+    outSelCB(0); \
 }
 
 void uiAttrVolOut::attrSel( CallBacker* )
@@ -237,13 +238,12 @@ bool uiAttrVolOut::prepareProcessing()
 	if ( todofld_->is2D() )
 	{
 	    BufferString outputnm = objfld_->getInput();
-	    BufferString attrnm = LineKey( outputnm ).attrName();
 	    const int nroccuer = outputnm.count( '|' );
 	    outputnm.replace( '|', '_' );
 	    if( nroccuer )
 	    {
 		BufferString msg( "Invalid charactor  '|' " );
-		msg.add( " found in attribute name. " )
+		msg.add( " found in output name. " )
 		   .add( "It will be renamed to: '" )
 		   .add( outputnm.buf() ).add("'." )
 		   .add( "\nDo you want to continue?" );
@@ -446,40 +446,7 @@ bool uiAttrVolOut::fillPar()
     transffld_->scfmtfld->updateIOObj( ctio_.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
 	       transffld_->scfmtfld->extendTrcToSI() );
-
-    IOPar tmpiop; CubeSampling cs;
-    transffld_->selfld->fillPar( tmpiop );
-    BufferString typestr;
-    //Subselection type and geometry will have an extra level key: 'Subsel
-    if ( tmpiop.get( sKey::Type(), typestr ) )
-	tmpiop.removeWithKey( sKey::Type() );
-
-    CubeSampling::removeInfo( tmpiop );
-    iop.mergeComp( tmpiop, keybase );
-    tmpiop.setEmpty();
-    if ( !typestr.isEmpty() )
-	tmpiop.set( sKey::Type(), typestr );
-
-    const bool usecs = typestr != "None";
-    if ( usecs )
-    {
-	cs.usePar( subselpar_ );
-	if ( !cs.hrg.isEmpty() )
-	    cs.fillPar( tmpiop );
-	else if ( todofld_ )
-	{
-	    CubeSampling curcs; todofld_->getRanges( curcs );
-	    curcs.fillPar( tmpiop );
-	}
-    }
-
-    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel());
-    iop.mergeComp( tmpiop, subkey );
-
-    CubeSampling::removeInfo( subselpar_ );
-    subselpar_.removeWithKey( sKey::Type() );
-    iop.mergeComp( subselpar_, sKey::Output() );
-
+    iop.mergeComp( subselpar_, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     Scaler* sc = transffld_->scfmtfld->getScaler();
     if ( sc )
     {
@@ -512,17 +479,7 @@ bool uiAttrVolOut::fillPar()
 	}
     }
 
-    if ( usecs )
-    {
-	Attrib::EngineMan::getPossibleVolume( *clonedset, cs, linename,
-						outdescids[0] );
-	iop.set( sKeyMaxInlRg(),
-		 cs.hrg.start.inl(), cs.hrg.stop.inl(), cs.hrg.step.inl() );
-	iop.set( sKeyMaxCrlRg(),
-		 cs.hrg.start.crl(), cs.hrg.stop.crl(), cs.hrg.step.crl() );
-    }
     delete clonedset;
-
     return true;
 }
 

@@ -134,7 +134,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	return false;
     }
 
-    if ( !psioprov_ && ((is2d_ && !lset_) || (!is2d_ && !trl_)) )
+    if ( !psioprov_ && !is2d_ && !trl_ )
     {
 	errmsg_ = uiString("No data storer available for '%1'")
 		      .arg( ioobj_->name() );

@@ -651,59 +651,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     const DescSet& descset = attrid.isStored() ?
 	*eDSHolder().getDescSet( is2D(), true ) : attrdata_.attrSet();
     const Desc* ad = descset.getDesc( attrid );
-    LineKey lk( ad ? ad->userRef() : "" );
-    if ( is2D() && ad && ad->isStored() )
-    {
-	const Attrib::ValParam* param = ad
-	    ? ad->getValParam( Attrib::StorageProvider::keyStr() )
-	    : 0;
-
-	BufferStringSet nms;
-	int attrnr = 0;
-	MultiID mid( MultiID::udf() );
-	if ( param && param->getStringValue( 0 ) )
-	{
-	    const LineKey realkey = param->getStringValue(0);
-	    mid = realkey.lineName().buf();
-	    SelInfo::getAttrNames( mid, nms );
-	    BufferString attrnm = realkey.attrName();
-	    if ( attrnm.isEmpty() )
-		attrnm = LineKey::sKeyDefAttrib();
-	    attrnr = nms.indexOf( attrnm );
-	}
-
-	if ( attrnr >= 0 && attrnr < nms.size() )
-	    lk.setAttrName( nms.get(attrnr) );
-
-	usrnm_ = lk;
-
-	//check for multi-components or prestack data
-	//tricky test: look for "=" or "|ALL"
-	BufferString descattrnm( ad->userRef() );
-	BufferString copyofdanm( descattrnm );
-	const_cast<BufferString*>(&copyofdanm)->remove( '=' );
-	if ( descattrnm != copyofdanm && !mid.isUdf() )
-	{
-	    PtrMan<IOObj> ioobj = IOM().get( mid );
-	    if ( ioobj )
-	    {
-		if ( BufferString(ioobj->name()).isStartOf( descattrnm.buf()) )
-		    usrnm_ = descattrnm;
-		else
-		{
-		    usrnm_ = ioobj->name();
-		    usrnm_ += "|";
-		    usrnm_ += descattrnm;
-		}
-	    }
-	}
-    }
-    else
-	usrnm_ = lk;
-
-    if ( ad && usrnm_ != ad->userRef() )
-	const_cast<Desc*>( ad )->setUserRef( usrnm_.buf() );
-
+    usrnm_ = ad ? ad->userRef() : "";
     return usrnm_.buf();
 }
 
@@ -769,26 +717,7 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attribid_.isValid() && !usedasinput_ )
 	attrdata_.attribid_ = attrdata_.attrSet().getID( inp, true );
     attrdata_.outputnr_ = -1;
-    if ( attrdata_.attribid_.isValid() && is2D() )
-    {
-	const char* attr2d = firstOcc( inp.buf(), '|' );
-	if ( !attr2d )
-	    attr2d = LineKey::sKeyDefAttrib();
-
-	const Desc* ad = descset.getDesc( attrdata_.attribid_ );
-	const Attrib::ValParam* param = ad
-		    ? ad->getValParam( Attrib::StorageProvider::keyStr() )
-		    : 0;
-
-	BufferStringSet nms;
-	if ( param && param->getStringValue( 0 ) )
-	{
-	    const MultiID mid =
-		    LineKey(param->getStringValue(0)).lineName().buf();
-	    SelInfo::getAttrNames( mid, nms );
-	}
-    }
-    else if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
+    if ( !attrdata_.attribid_.isValid() && attrdata_.nlamodel_ )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel_->design().outputs );
 	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
@@ -835,13 +764,6 @@ const char* uiAttrSel::getAttrName() const
     mDeclStaticString( ret );
 
     ret = getInput();
-    if ( is2D() )
-    {
-	const Desc* ad = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-	if ( (ad && ad->isStored()) || ret.contains('|') )
-	    ret = LineKey( ret ).attrName();
-    }
-
     return ret.buf();
 }
 
@@ -856,7 +778,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 
     if ( is2D() && !SeisTrcTranslator::is2D(ioobj) )
     {
-	uiMSG().error( tr("Can only store this in a 2D line set") );
+	uiMSG().error( tr("Can only store this in a 2D Data set") );
 	return false;
     }
 

@@ -143,14 +143,22 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
 	    cs_.hrg.start.inl() = cs_.hrg.stop.inl() = 0;
 	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-	    const Survey::Geometry* geometry = Survey::GM().getGeometry(geomid);
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-	    PosInfo::Line2DData l2dd;
-	    if ( geom2d )
+	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
-		l2dd = geom2d->data();
-		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
-		cs_.zrg = l2dd.zRange();
+		StepInterval<int> trcrg( 0, 0, 1 );
+		outpar->get( sKey::TrcRange(), trcrg );
+		cs_.hrg.setCrlRange( trcrg );
+		outpar->get( sKey::ZRange(), cs_.zrg );
+	    }
+	    else
+	    {
+		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+				 Survey::GM().getGeometry(geomid) );
+		if ( geom2d )
+		{
+		    cs_.hrg.setCrlRange( geom2d->data().trcNrRange() );
+		    cs_.zrg = geom2d->data().zRange();
+		}
 	    }
 	}
     }
@@ -1029,17 +1037,19 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( IOPar::compKey(sKey::Output(),"0") );
-    const char* linekey = output->find(sKey::LineKey());
-    if ( !linekey )
-	linekey = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()));
+    PtrMan<IOPar> subpar = pars.subselect( IOPar::compKey(sKey::Output(),
+							  sKey::Subsel()) );
+    if ( !subpar ) return 0;
 
-    setLineKey( linekey );
+    Pos::GeomID geomid;
+    PtrMan<IOPar> linepar = subpar->subselect( IOPar::compKey(sKey::Line(),0) );
+    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
+	return 0;
 
+    setLineKey( Survey::GM().getName(geomid) );
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    Pos::GeomID geomid = Survey::GM().getGeomID( mLineName );
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid,
 							datapointset, outval );
     attrout->doUsePar( pars );

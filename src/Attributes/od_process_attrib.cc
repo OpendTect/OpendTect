@@ -155,10 +155,30 @@ bool BatchProgram::go( od_ostream& strm )
 	indexoutp++;
     }
 
-    PtrMan<IOPar> subselpar = pars().subselect(
-	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
+    const BufferString subselkey = IOPar::compKey( sKey::Output(),
+						   sKey::Subsel() );
+    PtrMan<IOPar> subselpar = pars().subselect( subselkey );
     if ( alllinenames.isEmpty() && subselpar )
-	subselpar->get( sKey::LineKey(), alllinenames );
+    {
+	if ( !subselpar->get(sKey::LineKey(),alllinenames) )
+	{
+	    int lidx = 0;
+	    Pos::GeomID geomid;
+	    while ( true )
+	    {
+		PtrMan<IOPar> linepar =
+		    subselpar->subselect( IOPar::compKey(sKey::Line(),lidx++) );
+		if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
+		    break;
+
+		const FixedString linename = Survey::GM().getName( geomid );
+		if ( linename.isEmpty() )
+		    break;
+
+		alllinenames.add( linename );
+	    }
+	}
+    }
 
     const char* attrtypstr = pars().find( "Attributes.Type" );
     const bool is2d = attrtypstr && *attrtypstr == '2';
@@ -184,7 +204,24 @@ bool BatchProgram::go( od_ostream& strm )
     for ( int idx=0; idx<alllinenames.size(); idx++ )
     {
 	uiString errmsg;
-	proc = attrengman->usePar( pars(), attribset, alllinenames.get(idx),
+	IOPar procpar( pars() );
+	if ( is2d && subselpar )
+	{
+	    Pos::GeomID geomid;
+	    PtrMan<IOPar> linepar =
+		subselpar->subselect( IOPar::compKey(sKey::Line(),idx) );
+	    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
+		break;
+
+	    const FixedString linename = Survey::GM().getName( geomid );
+	    if ( linename.isEmpty() )
+		break;
+
+	    procpar.removeSubSelection( subselkey );
+	    procpar.mergeComp( *linepar, subselkey );
+	}
+
+	proc = attrengman->usePar( procpar, attribset, alllinenames.get(idx),
 				   errmsg );
 	if ( !proc )
 	    mRetJobErr( errmsg.getFullString() );

@@ -198,7 +198,8 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
     seissubselfld_ = uiSeisSubSel::get( prnt,
-	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true) );
+	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true)
+				       .withoutz(true).withstep(false) );
     seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 						       : (uiGroup*)obj2fld_ );
     mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
@@ -412,7 +413,8 @@ bool uiAttrTrcSelOut::fillPar()
     }
 
     CubeSampling::removeInfo( *subselpar );
-    iopar.mergeComp( *subselpar, sKey::Geometry() );
+    iopar.mergeComp( *subselpar,
+		     IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
     Interval<float> zinterval;
     if ( gatefld_ )
@@ -515,16 +517,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 		if ( ioobj )
-		{
 		    seissubselfld_->setInput( *ioobj );
-		    BufferString inptxt =
-			LineKey( IOM().nameOf( lk.lineName().buf() ),
-				 attrfld_->getInput() );
-		    outpfld_->setInputText( inptxt.buf() );
-		    batchfld_->setJobName( inptxt.buf() );
-
-		    outpfld_->processInput();
-		}
 	    }
 	}
 

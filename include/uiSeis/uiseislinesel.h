@@ -95,9 +95,10 @@ public:
     void		setInput(const TypeSet<Pos::GeomID>& geomid);
 
     void		clearSelection();
-    void		setAll(bool yn);
-    bool		isAll() const;
     int			nrSelected() const;
+
+    virtual void	setAll(bool yn);
+    virtual bool	isAll() const;
 
     Notifier<uiSeis2DLineSel>	selectionChanged;
 

@@ -31,7 +31,7 @@ uiSeis2DFrom3D::uiSeis2DFrom3D( uiParent* p )
     data3dfld_->selectionDone.notify( mCB(this,uiSeis2DFrom3D,cubeSel) );
 
     Seis::SelSetup ss( Seis::Line );
-    ss.multiline(true);
+    ss.withoutz(true).withstep(false).multiline(true);
     subselfld_ = new uiSeis2DSubSel( this, ss );
     subselfld_->attach( alignedBelow, data3dfld_ );
 
@@ -61,12 +61,15 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
     const IOObj* ioobj2d = data2dfld_->ioobj();
     if ( !ioobj3d || !ioobj2d ) return false;
 
-    const char* attrnm = data2dfld_->getInput(); // should go
+    TypeSet<Pos::GeomID> geomids;
+    subselfld_->selectedGeomIDs( geomids );
+    if ( geomids.isEmpty() )
+    {
+	uiMSG().error( "Please select at least one line" );
+	return false;
+    }
 
-    BufferStringSet lnms;
-    subselfld_->selectedLines( lnms );
-    SeisCube2LineDataExtracter extr( *ioobj3d, *ioobj2d, attrnm,
-				     lnms.isEmpty() ? 0 : &lnms );
+    Seis2DFrom3DExtractor extr( *ioobj3d, *ioobj2d, geomids );
     uiTaskRunner uitr( this );
     if ( !TaskRunner::execute(&uitr,extr) )
     {

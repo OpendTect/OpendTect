@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseis2dfrom3d.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisbrowser.h"
 #include "uiseissel.h"
@@ -413,78 +414,9 @@ void uiSeis2DFileMan::mergeLines( CallBacker* )
 }
 
 
-class uiSeis2DExtractFrom3D : public uiDialog
-{
-public:
-
-uiSeis2DExtractFrom3D( uiParent* p, const uiSeisIOObjInfo& objinf,
-			 const BufferStringSet& sellns )
-    : uiDialog(p,Setup("Extract from 3D","Extract 2D attribute from 3D data",
-		       mODHelpKey(mSeis2DExtractFrom3DHelpID) ) )
-    , objinf_(objinf)
-    , sellns_(sellns)
-{
-    alllnsfld_ = new uiGenInput( this, "Extract for",
-			BoolInpSpec(true,"All lines", "Selected line(s)") );
-    IOObjContext ctxt = uiSeisSel::ioContext(Seis::Vol,true);
-    ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
-
-    cubefld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
-    cubefld_->attach( alignedBelow, alllnsfld_ );
-    cubefld_->selectionDone.notify( mCB(this,uiSeis2DExtractFrom3D,cubeSel) );
-    attrnmfld_ = new uiGenInput( this, "Store as attribute" );
-    attrnmfld_->attach( alignedBelow, cubefld_ );
-}
-
-void cubeSel( CallBacker* )
-{
-    const IOObj* ioobj = cubefld_->ioobj( true );
-    const char* attrnm = attrnmfld_->text();
-    if ( ioobj && !*attrnm )
-	attrnmfld_->setText( ioobj->name() );
-}
-
-bool acceptOK( CallBacker* )
-{
-    const IOObj* ioobj = cubefld_->ioobj();
-    if ( !ioobj ) return false;
-    const char* attrnm = attrnmfld_->text();
-    if ( !*attrnm )
-	{ uiMSG().error("Please provide an attribute name"); return false; }
-
-    BufferStringSet lnms;
-    if ( !alllnsfld_->getBoolValue() )
-	lnms = sellns_;
-
-    SeisCube2LineDataExtracter extr( *ioobj, *objinf_.ioObj(), attrnm,
-				     lnms.isEmpty() ? 0 : &lnms );
-    uiTaskRunner taskrunner( this );
-
-    if ( !TaskRunner::execute( &taskrunner, extr ) )
-    {
-	uiMSG().error( extr.uiMessage() );
-	return false;
-    }
-
-    return true;
-}
-
-    const uiSeisIOObjInfo&	objinf_;
-    const BufferStringSet&	sellns_;
-
-    uiSeisSel*		cubefld_;
-    uiGenInput*		alllnsfld_;
-    uiGenInput*		attrnmfld_;
-
-};
-
-
 void uiSeis2DFileMan::extrFrom3D( CallBacker* )
 {
-    if ( linefld_->size() < 1 ) return;
-
-    BufferStringSet sellnms; linefld_->getChosen( sellnms );
-    uiSeis2DExtractFrom3D dlg( this, *objinfo_, sellnms );
+    uiSeis2DFrom3D dlg( this );
     if ( dlg.go() )
 	redoAllLists();
 }

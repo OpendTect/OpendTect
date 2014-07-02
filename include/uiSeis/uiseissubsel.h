@@ -31,7 +31,7 @@ class uiLineSel;
 class uiPosSubSel;
 class uiSeis2DSubSel;
 class uiSelSubline;
-class uiSeis2DLineSel;
+class uiSeis2DMultiLineSel;
 class uiSeis2DLineNameSel;
 
 
@@ -100,12 +100,14 @@ public:
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
+    void		selectedGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 
+
 protected:
 
-    uiSeis2DLineSel*		multilnmsel_;
+    uiSeis2DMultiLineSel*	multilnmsel_;
     uiSeis2DLineNameSel*	singlelnmsel_;
 
     bool		multiln_;

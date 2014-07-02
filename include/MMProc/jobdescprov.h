@@ -156,5 +156,46 @@ protected:
 };
 
 
+/*!\brief IOPar driven implementation of JobDescProv where splitting is based
+on IOPar subselection with a particular key (subselkey). For instance, an IOPar
+with entries:
+  SplitterKey.0.firstparameter: firstvalue0
+  SplitterKey.0.secondparameter: secondvalue0
+  SplitterKey.1.firstparameter: firstvalue1
+  SplitterKey.1.secondparameter: secondvalue1
+
+can be split into two jobs based on subselkey 'SplitterKey'.
+*/
+
+mExpClass(MMProc) ParSubselJobDescProv : public JobDescProv
+{
+public:
+			ParSubselJobDescProv(const IOPar&,
+					     const char* subselkey);
+
+    virtual int		nrJobs() const		{ return subselpars_.size(); }
+    virtual void	getJob(int,IOPar&) const;
+    virtual void	dump(od_ostream&) const;
+
+protected:
+
+    BufferString	subselkey_;
+    ManagedObjectSet<IOPar>	subselpars_;
+
+};
+
+
+/*!\brief Special case of ParSubselJobDescProv where each job refers to a
+2D Line. The subselkey in this case is "Output.Subsel.Line". */
+
+mExpClass(MMProc) Line2DSubselJobDescProv : public ParSubselJobDescProv
+{
+public:
+			Line2DSubselJobDescProv(const IOPar&);
+
+    const char*		objType() const		{ return "Line"; }
+    const char*		objName(int) const;
+};
+
 #endif
 
