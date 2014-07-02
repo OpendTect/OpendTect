@@ -69,7 +69,6 @@ public:
 protected:
 
     int			nextStep();
-    void		makeFileList(const char*);
 
     int			fileidx_;
     od_int64		totalnr_;
