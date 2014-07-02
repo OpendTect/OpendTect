@@ -533,7 +533,7 @@ void CmdDriver::prepareForResume()
 		{
 		    InteractSpec ispec( false );
 		    ispec.dlgtitle_= "Waiting for OpendTect to become inactive";
-		    ispec.cancelbuttext_ = "&Hide";
+		    ispec.cancelbuttext_ = "Hide";
 		    interact( &ispec );
 		}
 	    }
