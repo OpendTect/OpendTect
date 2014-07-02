@@ -355,7 +355,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
 void uiCmdDriverDlg::selectPauseCB( CallBacker* )
 {
     BufferString buttext = pausebut_->text().getFullString();
-    if ( buttext == "&Resume" )
+    if ( buttext == "Resume" )
     {
 	pausebut_->setText( uiStrings::sPause() );
 	drv_.pause( false );
