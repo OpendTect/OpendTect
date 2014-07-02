@@ -109,11 +109,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 
-    createbut_ = new uiPushButton( this, tr("&Create Map"),
+    createbut_ = new uiPushButton( this, tr("Create Map"),
 				   mCB(this,uiGMTMainWin,createPush), true );
     createbut_->attach( alignedBelow, filefld_ );
 
-    viewbut_ = new uiPushButton( this, tr("View &Map"),
+    viewbut_ = new uiPushButton( this, tr("View Map"),
 				 mCB(this,uiGMTMainWin,viewPush), true );
     viewbut_->attach( rightTo, createbut_ );
 

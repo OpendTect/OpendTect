@@ -41,7 +41,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
-    resetbut_ = new uiPushButton( this, tr("&Reset to Survey"),
+    resetbut_ = new uiPushButton( this, tr("Reset to Survey"),
 				  mCB(this,uiGMTBaseMapGrp,resetCB), true );
     resetbut_->attach( rightTo, yrgfld_ );
 
