@@ -6,6 +6,7 @@
 #_______________________________________________________________________________
 
 set( QTDIR "" CACHE PATH "QT Location" )
+option ( OD_NO_QT "Turn off all QT" NO )
 
 macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
     list( FIND ${LISTNAME} "${ITEMNAME}" ITMINDEX )
@@ -15,6 +16,9 @@ macro(ADD_TO_LIST_IF_NEW LISTNAME ITEMNAME)
 endmacro(ADD_TO_LIST_IF_NEW)
 
 macro(OD_SETUP_QT)
+  if ( OD_NO_QT )
+    add_definitions( -DOD_NO_QT )
+  else()
     if ( (NOT DEFINED QTDIR) OR QTDIR STREQUAL "" )
 	MESSAGE( FATAL_ERROR "QTDIR not set")
     endif()
@@ -116,6 +120,7 @@ macro(OD_SETUP_QT)
 	    endforeach()
 	endif()
     endif()
+  endif()
 endmacro( OD_SETUP_QT )
 
 

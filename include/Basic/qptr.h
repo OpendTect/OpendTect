@@ -38,9 +38,11 @@ public:
     
     mQtclass(QObject)*		operator=(mQtclass(QObject)*);
 
+#ifndef OD_NO_QT    
     Threads::Mutex&		mutex();
     
     NotifierAccess&		deleteNotifier();
+#endif
 
 protected:
 

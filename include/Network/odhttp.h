@@ -55,7 +55,9 @@ public:
     			//!<Returns -1 on error
     int			postFile( const char* cmd, const char* filename,
 				  const IOPar& postvars );
+#ifndef OD_NO_QT
     BufferString	readBuffer() const;
+#endif
     wchar_t*		readWCharBuffer() const; //!< Buffer becomes yours
     const char*		readCharBuffer() const;
 

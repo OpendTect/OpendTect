@@ -10,15 +10,22 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "timer.h"
+#ifndef OD_NO_QT
 #include "qtimercomm.h" 
+#endif
 
 mUseQtnamespace
 
 Timer::Timer( const char* nm )
     : NamedObject(nm)
     , tick(this)
+#ifndef OD_NO_QT
     , timer_(new QTimer(0))
     , comm_(new QTimerComm(timer_,this))
+#else
+    , timer_( 0 )
+    , comm_ ( 0 )
+#endif
     , scriptpolicy_(DefaultPolicy)
 {}
 
@@ -28,35 +35,57 @@ Timer::~Timer()
     if ( isActive() )
 	stop();
 
+#ifndef OD_NO_QT
     comm_->deactivate();
     delete timer_;
     delete comm_;
+#endif
 }
 
 
 bool Timer::isActive() const
-{ return timer_->isActive(); }
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    return timer_->isActive();
+#endif
+}
 
 
 bool Timer::isSingleShot() const
-{ return timer_->isSingleShot(); }
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    return timer_->isSingleShot();
+#endif
+}
 
 
 
 void Timer::start( int msec, bool sshot )
 {
+#ifdef OD_NO_QT
+    return;
+#else
     timer_->setSingleShot( sshot );
     timer_->setInterval( msec );
 
     timerStarts()->trigger( this );
     timer_->start();
+#endif
 }
 
 
 void Timer::stop() 
 {
+#ifdef OD_NO_QT
+    return;
+#else
     timer_->stop();
     timerStopped()->trigger( this );
+#endif
 }
 
 

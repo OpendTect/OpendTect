@@ -10,11 +10,14 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "odhttp.h"
+#ifndef OD_NO_QT
 #include "qhttpconn.h"
+#endif
 #include "settings.h"
 #include "odinst.h"
 #include "odplatform.h"
 
+#ifndef OD_NO_QT
 #include <QByteArray>
 #include <QEventLoop>
 #include <QFile>
@@ -205,6 +208,7 @@ const char* MyHttp::sKeyPost()		{ return "POST"; }
 const char* MyHttp::sKeyHost()		{ return "Host"; }
 const char* MyHttp::sKeyContentType()   { return "Content-Type"; }
 const char* MyHttp::sKeyContentLength() { return "Content-Length"; }
+#endif
 
 // ODHttp
 const char* ODHttp::sKeyUseProxy()	{ return "Use Proxy"; }
@@ -216,7 +220,11 @@ const char* ODHttp::sKeyProxyPassword()	{ return "Http Proxy Password"; }
 
 
 ODHttp::ODHttp()
+#ifndef OD_NO_QT
     : qhttp_(new MyHttp)
+#else
+    : qhttp_(0)
+#endif
     , requestStarted(this)
     , requestFinished(this)
     , messageReady(this)
@@ -227,8 +235,12 @@ ODHttp::ODHttp()
     , disconnected(this)
     , forcedabort_(false)
 {
+#ifndef OD_NO_QT
     qhttpconn_ = new QHttpConnector( qhttp_, this );
     qhttp_->init();
+#else
+    qhttpconn_ = 0;
+#endif
 
     error_ = false;
     requestid_ = 0;
@@ -239,18 +251,32 @@ ODHttp::ODHttp()
 
 ODHttp::~ODHttp()
 {
+#ifndef OD_NO_QT
     delete qhttpconn_;
+#endif
 }
 
 
 void ODHttp::setASynchronous( bool yn )
-{ qhttp_->asynchronous_ = yn; }
+{
+#ifndef OD_NO_QT
+    qhttp_->asynchronous_ = yn;
+#else
+    return;
+#endif
+}
 
 
 // ToDo: support username and passwd
 int ODHttp::setProxy( const char* host, int port,
 		      const char* usrnm, const char* pwd )
-{ return qhttp_->setProxy( host, port, usrnm, pwd ); }
+{
+#ifndef OD_NO_QT
+    return qhttp_->setProxy( host, port, usrnm, pwd );
+#else
+    return 0;
+#endif
+}
 
 
 void ODHttp::useProxySettings()
@@ -285,99 +311,167 @@ void ODHttp::useProxySettings()
 
 int ODHttp::setHttpsHost( const char* host, int port )
 {
+#ifndef OD_NO_QT
     useProxySettings();
     return qhttp_->setHost( host, QHttp::ConnectionModeHttps );
+#else
+    return 0;
+#endif
 }
 
 
 int ODHttp::setHost( const char* host, int port )
 {
+#ifndef OD_NO_QT
     useProxySettings();
     return qhttp_->_setHost( host, port );
+#else
+    return 0;
+#endif
 }
 
 
 int ODHttp::close()
-{ return qhttp_->close(); }
+{
+#ifndef OD_NO_QT
+    return qhttp_->close();
+#else
+    return 0;
+#endif
+}
 
 void ODHttp::abort()
-{ qhttp_->abort(); }
+{
+#ifndef OD_NO_QT
+    qhttp_->abort();
+#else
+    return;
+#endif
+}
 
 ODHttp::State ODHttp::state() const
-{ return (ODHttp::State)(int)qhttp_->state(); }
+{
+#ifndef OD_NO_QT
+    return (ODHttp::State)(int)qhttp_->state();
+#else
+    return ODHttp::Unconnected;
+#endif
+}
 
 
 int ODHttp::get( const char* path, const char* dest )
 {
+#ifndef OD_NO_QT
     const int reqid = qhttp_->_get( path, dest, message_ );
     if ( reqid==-1 )
 	error_ = true;
 
     return reqid;
+#else
+    return -1;
+#endif
 }
 
 
 int ODHttp::post( const char* path, const IOPar&postvars )
 {
+#ifndef OD_NO_QT
     int res = qhttp_->_post( path, postvars, message_ );
     if ( res==-1 )
 	error_ = true;
     
     return res;
+#else
+    return -1;
+#endif
 }
 
 
 int ODHttp::postFile( const char* path, const char* filename, 
 		      const IOPar& postvars )
 {
+#ifndef OD_NO_QT
     int res = qhttp_->_postFileAndData( path, filename, postvars );
     if ( res==-1 )
 	error_ = true;
     
     return res;
+#else
+    return -1;
+#endif
 }
 
 
 void ODHttp::forceAbort()
 {
     forcedabort_ = true;
+#ifndef OD_NO_QT
     qhttp_->abort();
+#endif
 }
 
 
 wchar_t* ODHttp::readWCharBuffer() const
 {
+#ifndef OD_NO_QT
     QByteArray qbytearr = qhttp_->readAll();
     QString trl = QString::fromUtf8( qbytearr );
     wchar_t* warr = new wchar_t [qbytearr.size()+1];
     const int res = trl.toWCharArray( warr );
     return res == 0 ? 0 : warr;
+#else
+    return 0;
+#endif
 }
 
 
 const char* ODHttp::readCharBuffer() const
 {
+#ifndef OD_NO_QT
     static QByteArray result;
     result = qhttp_->readAll();
     return result.constData();
+#else
+    return 0;
+#endif
 }
 
 
+#ifndef OD_NO_QT
 BufferString ODHttp::readBuffer() const
 {
     QByteArray result = qhttp_->readAll();
     return result.constData();
 }
+#endif
 
 
 bool ODHttp::hasPendingRequests() const
-{ return qhttp_->hasPendingRequests(); }
+{
+#ifndef OD_NO_QT
+    return qhttp_->hasPendingRequests();
+#else
+    return false;
+#endif
+}
 
 void ODHttp::clearPendingRequests()
-{ return qhttp_->clearPendingRequests(); }
+{
+#ifndef OD_NO_QT
+    return qhttp_->clearPendingRequests();
+#else
+    return;
+#endif
+}
 
 od_int64 ODHttp::bytesAvailable() const
-{ return qhttp_->bytesAvailable(); }
+{
+#ifndef OD_NO_QT
+    return qhttp_->bytesAvailable();
+#else
+    return 0;
+#endif
+}
 
 
 void ODHttp::setMessage( const char* msg )
@@ -389,7 +483,11 @@ void ODHttp::setMessage( const char* msg )
 
 void ODHttp::reqFinishedCB( CallBacker* )
 {
+#ifndef OD_NO_QT
     qhttp_->handleFinishedRequest( requestid_ );
+#else
+    return;
+#endif
 }
 
 

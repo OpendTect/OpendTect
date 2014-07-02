@@ -12,38 +12,77 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "qptr.h"
 
+#ifndef OD_NO_QT
 #include "i_qptr.h"
+#endif
 
 QObjPtr::QObjPtr( QObject* qo )
+#ifndef OD_NO_QT
     : impl_( new i_QPtrImpl( qo ) )
+#else
+    : impl_( 0 )
+#endif
 {}
 
 
 QObjPtr::~QObjPtr()
-{ delete impl_; }
+{
+#ifndef OD_NO_QT
+    delete impl_;
+#endif
+}
 
 
 QObjPtr::operator QObject*()
-{ return impl_->ptr(); }
+{
+#ifndef OD_NO_QT
+    return impl_->ptr();
+#else
+    return 0;
+#endif
+}
 
 
 QObjPtr::operator const QObject*() const
-{ return impl_->ptr(); }
+{
+#ifndef OD_NO_QT
+    return impl_->ptr();
+#else
+    return 0;
+#endif
+}
 
 
 const QObject* QObjPtr::operator->() const
-{ return impl_->ptr(); }
+{
+#ifndef OD_NO_QT
+    return impl_->ptr();
+#else
+    return 0;
+#endif
+}
 
 QObject* QObjPtr::operator->()
-{ return impl_->ptr(); }
+{
+#ifndef OD_NO_QT
+    return impl_->ptr();
+#else
+    return 0;
+#endif
+}
 
 
 QObject* QObjPtr::operator=( QObject* qo )
 {
+#ifndef OD_NO_QT
     impl_->set( qo );
-    return qo; 
+    return qo;
+#else
+    return 0;
+#endif
 }
 
+#ifndef OD_NO_QT
 Threads::Mutex& QObjPtr::mutex()
 {
     return impl_->lock_;
@@ -81,3 +120,4 @@ i_QPtrImpl::~i_QPtrImpl()
     set( 0 );
 }
 
+#endif

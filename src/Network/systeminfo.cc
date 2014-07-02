@@ -22,9 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "staticstring.h"
 
+#ifndef OD_NO_QT
 #include <QHostAddress>
 #include <QHostInfo>
 #include <QNetworkInterface>
+#endif
 
 #ifdef __lux__
 # include <sys/statfs.h>
@@ -43,9 +45,13 @@ namespace System
 
 const char* localHostName()
 {
+#ifndef OD_NO_QT
     mDeclStaticString( str );
     str = QHostInfo::localHostName().toLatin1().constData();
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
@@ -55,16 +61,21 @@ const char* localAddress()
 
 const char* hostName( const char* ip )
 {
+#ifndef OD_NO_QT
     mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName().toLatin1().constData();
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
 const char* hostAddress( const char* hostname )
 {
     mDeclStaticString( str );
+#ifndef OD_NO_QT
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
@@ -73,6 +84,7 @@ const char* hostAddress( const char* hostname )
 	     addresses[idx].toString().contains(':') ) continue;
 	str = addresses[idx].toString().toLatin1().constData();
     }
+#endif
 
     return str.buf();
 }
@@ -80,6 +92,7 @@ const char* hostAddress( const char* hostname )
 
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 {
+#ifndef OD_NO_QT
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
     for ( int idx=0; idx<allif.size(); idx++ )
     {
@@ -91,6 +104,9 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	names.add( qni.name().toLatin1().constData() );
 	addresses.add( qni.hardwareAddress().toLatin1().constData() );
     }
+#else
+    return;
+#endif
 }
 
 

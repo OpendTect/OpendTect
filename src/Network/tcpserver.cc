@@ -11,10 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "tcpserver.h"
 
+#ifndef OD_NO_QT
 #include "qtcpservercomm.h"
+#endif
 #include "tcpsocket.h"
 
+#ifndef OD_NO_QT
 #include <QTcpSocket>
+#endif
 
 static int sockid = 0;
 
@@ -25,8 +29,13 @@ static int getNewID()
 
 
 TcpServer::TcpServer()
+#ifndef OD_NO_QT
     : qtcpserver_(new QTcpServer)
     , comm_(new QTcpServerComm(qtcpserver_,this))
+#else
+    : qtcpserver_(0)
+    , comm_(0)
+#endif
     , newConnection(this)
     , readyRead(this)
 {
@@ -39,40 +48,80 @@ TcpServer::~TcpServer()
     if ( isListening() )
 	close();
 
+#ifndef OD_NO_QT
     delete qtcpserver_;
     delete comm_;
+#endif
     deepErase( sockets2bdeleted_ );
 }
 
 
 bool TcpServer::listen( const char* host, int prt )
 {
+#ifndef OD_NO_QT
     return qtcpserver_->listen(
 	    host ? QHostAddress(host) : QHostAddress(QHostAddress::Any), prt );
+#else
+    return false;
+#endif
 }
 
 
 bool TcpServer::isListening() const
-{ return qtcpserver_->isListening(); }
+{
+#ifndef OD_NO_QT
+    return qtcpserver_->isListening();
+#else
+    return false;
+#endif
+}
 
 int TcpServer::port() const
-{ return qtcpserver_->serverPort(); }
+{
+#ifndef OD_NO_QT
+    return qtcpserver_->serverPort();
+#else
+    return false;
+#endif
+}
 
 void TcpServer::close()
-{ qtcpserver_->close(); }
+{
+#ifndef OD_NO_QT
+    qtcpserver_->close();
+#else
+    return;
+#endif
+}
 
 const char* TcpServer::errorMsg() const
 {
+#ifndef OD_NO_QT
     errmsg_ = qtcpserver_->errorString().toLatin1().constData();
     return errmsg_.buf();
+#else
+    return 0;
+#endif
 }
 
 
 bool TcpServer::hasPendingConnections() const
-{ return qtcpserver_->hasPendingConnections(); }
+{
+#ifndef OD_NO_QT
+    return qtcpserver_->hasPendingConnections();
+#else
+    return false;
+#endif
+}
 
 QTcpSocket* TcpServer::nextPendingConnection()
-{ return qtcpserver_->nextPendingConnection(); }
+{
+#ifndef OD_NO_QT
+    return qtcpserver_->nextPendingConnection();
+#else
+    return 0;
+#endif
+}
 
 
 void TcpServer::newConnectionCB( CallBacker* )

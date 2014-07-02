@@ -25,10 +25,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "ziparchiveinfo.h"
 
+#ifndef OD_NO_QT
 #include "QFileInfo"
 #include "QDateTime"
 #include "QDate"
 #include "QTime"
+#endif
 
 #ifdef HAS_ZLIB
 #include "zlib.h"
@@ -1676,6 +1678,7 @@ const char* ZipHandler::errorMsg()const
 
 od_uint16 ZipHandler::timeInDosFormat( const char* fnm )const
 {
+#ifndef OD_NO_QT
     unsigned char bte[2];
     QFileInfo qfi( fnm );
     QTime ftime = qfi.lastModified().time();
@@ -1697,11 +1700,15 @@ od_uint16 ZipHandler::timeInDosFormat( const char* fnm )const
 
     const od_uint16* dosformat = reinterpret_cast<od_uint16*>(bte);
     return *dosformat;
+#else
+    return 0;
+#endif
 }
 
 
 od_uint16 ZipHandler::dateInDosFormat( const char* fnm )const
 {
+#ifndef OD_NO_QT
     unsigned char bte[2];
     QFileInfo qfi( fnm );
     QDate fdate = qfi.lastModified().date();
@@ -1724,12 +1731,16 @@ od_uint16 ZipHandler::dateInDosFormat( const char* fnm )const
 
     const od_uint16* dosformat = reinterpret_cast<od_uint16*>(bte);
     return *dosformat;
+#else
+    return 0;
+#endif
 }
 
 
 bool ZipHandler::setTimeDateModified( const char* fnm, od_uint16 timeindos, 
 				      od_uint16 dateindos ) const
 {
+#ifndef OD_NO_QT
     if ( timeindos == 0 || dateindos == 0 )
 	return false;
 
@@ -1790,6 +1801,7 @@ bool ZipHandler::setTimeDateModified( const char* fnm, od_uint16 timeindos,
     ut.modtime = timeinsec;
     if ( utime( fnm, &ut) == -1 )
 	return false;
+#endif
 #endif
     return true;
 }

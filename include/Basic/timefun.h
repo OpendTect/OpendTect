@@ -35,7 +35,9 @@ public:
     int		elapsed() const;	//!< Returns elapsed time in ms
 
 protected:
+#ifndef OD_NO_QT
     mQtclass(QTime&)	qtime_;
+#endif
 };
 
 

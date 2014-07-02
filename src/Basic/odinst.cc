@@ -46,7 +46,9 @@ static BufferString getInstDir()
 #define mRelRootDir getInstDir()
 #else
 #include "unistd.h"
+#ifndef OD_NO_QT 
 #include <QProcess>
+#endif
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
@@ -186,7 +188,9 @@ bool ODInst::runInstMgrForUpdt()
 
 bool ODInst::updatesAvailable()
 {
-
+#ifdef OD_NO_QT
+    return false;
+#else
     mDefCmd(false); cmd.add( " --updcheck_report" );
 #ifndef __win__
 
@@ -201,6 +205,7 @@ bool ODInst::updatesAvailable()
     if ( ret )
 	File::remove( tmp.fullPath() );
     return ret;
+#endif
 #endif
 }
 

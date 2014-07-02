@@ -76,6 +76,9 @@ protected:
 
 void RecursiveCopier::makeFileList( const char* dir )
 {
+#ifdef OD_NO_QT
+    return;
+#else
     DirList files( dir, DirList::FilesOnly );
     QDir srcdir( src_.buf() );
     for ( int idx=0; idx<files.size(); idx++ )
@@ -96,12 +99,16 @@ void RecursiveCopier::makeFileList( const char* dir )
 	if ( !File::isLink(curdir) )
 	    makeFileList( curdir );
     }
+#endif
 }
 
 
 #define mErrRet(s1,s2) { msg_ = s1; msg_ += s2; return ErrorOccurred(); }
 int RecursiveCopier::nextStep()
 {
+ #ifdef OD_NO_QT
+    return ErrorOccurred();
+ #else    
     if ( fileidx_ >= filelist_.size() )
 	return Finished();
 
@@ -132,6 +139,7 @@ int RecursiveCopier::nextStep()
 
     fileidx_++;
     return MoreToDo();
+  #endif
 }
 
 
@@ -439,6 +447,9 @@ bool remove( const char* fnm )
 
 bool removeDir( const char* dirnm )
 {
+ #ifdef OD_NO_QT
+    return false;
+ #else
     if ( !exists(dirnm) )
 	return true;
 
@@ -456,6 +467,7 @@ bool removeDir( const char* dirnm )
     bool res = QProcess::execute( QString(cmd.buf()) ) >= 0;
     if ( res ) res = !exists(dirnm);
     return res;
+#endif
 #endif
 }
 
@@ -485,13 +497,17 @@ bool makeWritable( const char* fnm, bool yn, bool recursive )
     cmd.add(yn ? " ug+w \"" : " a-w \"").add(fnm).add("\"");
 #endif
 
+#ifndef OD_NO_QT
     return QProcess::execute( QString(cmd.buf()) ) >= 0;
+#else
+    return !system( cmd.buf() );
+#endif    
 }
 
 
 bool makeExecutable( const char* fnm, bool yn )
 {
-#ifdef __win__
+#if ((defined __win__) || (defined OD_NO_QT) )
     return true;
 #else
     BufferString cmd( "chmod" );
@@ -503,7 +519,7 @@ bool makeExecutable( const char* fnm, bool yn )
 
 bool setPermissions( const char* fnm, const char* perms, bool recursive )
 {
-#ifdef __win__
+#if ((defined __win__) || (defined OD_NO_QT) )
     return false;
 #else
     BufferString cmd( "chmod " );
@@ -659,10 +675,14 @@ const char* getTempPath()
 
 const char* getRootPath( const char* path )
 {
+#ifdef OD_NO_QT
+    return 0;
+#else
     mDeclStaticString( pathstr );
     QDir qdir( path );
     pathstr = qdir.rootPath().toAscii().constData();
     return pathstr.buf();
+#endif
 }
 
 } // namespace File

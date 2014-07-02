@@ -46,7 +46,9 @@ public:
     int			rmdir(const char* dir);
 
     od_int64		bytesAvailable() const;
+#ifndef OD_NO_QT
     BufferString	readBuffer() const;
+#endif
 
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totalnr_; }

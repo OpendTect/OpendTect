@@ -10,7 +10,9 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "filesystemwatcher.h"
+#ifndef OD_NO_QT
 #include "qfilesystemcomm.h"
+#endif
 #include "bufstringset.h"
 
 mUseQtnamespace
@@ -19,20 +21,31 @@ FileSystemWatcher::FileSystemWatcher()
     : directoryChanged(this)
     , fileChanged(this)
 {
+#ifndef OD_NO_QT
     qfswatcher_ = new QFileSystemWatcher;
     qfswatchercomm_ = new QFileSystemWComm( qfswatcher_, this );
+#else
+    qfswatcher_ = 0;
+    qfswatchercomm_ = 0;
+#endif
 }
 
 
 FileSystemWatcher::~FileSystemWatcher()
 {
+#ifndef OD_NO_QT
     delete qfswatchercomm_;
     delete qfswatcher_;
+#endif
 }
 
 
 void FileSystemWatcher::addFile( const BufferString& fnm )
-{ qfswatcher_->addPath( fnm.buf() ); }
+{
+#ifndef OD_NO_QT
+    qfswatcher_->addPath( fnm.buf() );
+#endif
+}
 
 
 void FileSystemWatcher::addFiles( const BufferStringSet& fnms )
@@ -43,7 +56,11 @@ void FileSystemWatcher::addFiles( const BufferStringSet& fnms )
 
 
 void FileSystemWatcher::removeFile( const BufferString& fnm )
-{ qfswatcher_->removePath( fnm.buf() ); }
+{
+#ifndef OD_NO_QT
+    qfswatcher_->removePath( fnm.buf() );
+#endif
+}
 
 
 void FileSystemWatcher::removeFiles( const BufferStringSet& fnms )

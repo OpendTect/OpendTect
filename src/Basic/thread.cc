@@ -209,10 +209,12 @@ bool Threads::lockSimpleSpinLock( volatile int& lock,
 # define mIttNotifyCancel( var )
 #endif
 
+#ifndef OD_NO_QT
 #include "qatomic.h"
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#endif
 
 #ifdef __msvc__
 # include "windows.h"
@@ -224,6 +226,8 @@ Threads::Mutex::Mutex( bool recursive )
 #ifndef OD_NO_QT
     : qmutex_( new QMutex( recursive
 		? QMutex::Recursive : QMutex::NonRecursive) )
+#else
+    :qmutex_(0)
 #endif
 #ifdef __debug__
     , lockingthread_( 0 )
@@ -236,6 +240,8 @@ Threads::Mutex::Mutex( bool recursive )
 Threads::Mutex::Mutex( const Mutex& m )
 #ifndef OD_NO_QT
     : qmutex_( new QMutex )
+#else
+    :qmutex_(0)
 #endif
 {
 #ifdef __debug__
@@ -778,7 +784,11 @@ Threads::Thread::Thread( const CallBack& cb )
 
 const void* Threads::Thread::threadID() const
 {
+#ifndef OD_NO_QT
     return thread_;
+#else
+    return 0;
+#endif
 }
 
 
@@ -801,7 +811,13 @@ void Threads::Thread::waitForFinish()
 
 
 int Threads::getSystemNrProcessors()
-{ return QThread::idealThreadCount(); }
+{
+#ifndef OD_NO_QT
+    return QThread::idealThreadCount();
+#else
+    return 1;
+#endif
+}
 
 int Threads::getNrProcessors()
 {
@@ -834,7 +850,7 @@ int Threads::getNrProcessors()
 	if ( nrproc < 1 || needauto )
 	{
 	    havesett = false;
-	    nrproc = QThread::idealThreadCount();
+	    nrproc = getSystemNrProcessors();
 	}
 
 	float fnrproc = nrproc * perc * 0.01;
@@ -862,4 +878,8 @@ int Threads::getNrProcessors()
 
 
 void Threads::sleep( double tm )
-{ ThreadBody::sleep( tm ); }
+{
+#ifndef OD_NO_QT
+    ThreadBody::sleep( tm );
+#endif
+}

@@ -17,11 +17,9 @@ ________________________________________________________________________
 #include "plftypes.h"
 #include "atomic.h"
 
-#ifndef OD_NO_QT
 mFDQtclass(QThread)
 mFDQtclass(QMutex)
 mFDQtclass(QWaitCondition)
-#endif
 
 class CallBack;
 
@@ -66,9 +64,7 @@ public:
 
 protected:
 
-#ifndef OD_NO_QT
     mQtclass(QMutex*)		qmutex_;
-#endif
 
 #ifdef __debug__
     const void*			lockingthread_;
