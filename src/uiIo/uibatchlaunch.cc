@@ -299,13 +299,19 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 }
 
 
+const char* getSeisMMmBatchProgName()
+{
+    const bool isdebug = GetEnvVarYN( "DTECT_DEBUG" );
+    return __iswin__ && isdebug ? "od_SeisMMBatch_console" : "od_SeisMMBatch";
+}
+
 // uiFullBatchDialog
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
     : uiDialog(p,uiDialog::Setup(s.wintxt_,"",mNoHelpID)
 		 .modal(s.modal_).menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))
     , procprognm_(s.procprognm_.isEmpty() ? "od_process_attrib" : s.procprognm_)
-    , multiprognm_(s.multiprocprognm_.isEmpty() ? "od_SeisMMBatch"
+    , multiprognm_(s.multiprocprognm_.isEmpty() ? getSeisMMmBatchProgName()
 						: s.multiprocprognm_)
     , redo_(false)
     , parfnamefld_(0)

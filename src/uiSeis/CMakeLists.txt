@@ -67,5 +67,7 @@ SET(OD_MODULE_SOURCES
 
 SET( OD_MODULE_PROGS od_ClusterProc.cc  )
 SET( OD_MODULE_GUI_PROGS od_SeisMMBatch.cc od_SEGYExaminer.cc )
-
+IF(WIN32)
+    SET( OD_MODULE_PROGS od_SeisMMBatch_console.cc )
+ENDIF()
 OD_INIT_MODULE()
