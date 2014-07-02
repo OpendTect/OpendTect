@@ -73,10 +73,10 @@ public:
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
     , psmnuitmhandler_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to &Google KML ...",
+	    		*a.applMgr().visServer(),"Export to Google KML ...",
     			mCB(this,uiGoogleIOMgr,exportPolygon),0,cPSMnuIdx)
     , rlmnuitmhandler_(visSurvey::RandomTrackDisplay::sFactoryKeyword(),
-	    		*a.applMgr().visServer(),"Export to G&oogle KML ...",
+	    		*a.applMgr().visServer(),"Export to Google KML ...",
     			mCB(this,uiGoogleIOMgr,exportRandLine),0,cRLMnuIdx)
 {
     psmnuitmhandler_.setIcon( "google" );
