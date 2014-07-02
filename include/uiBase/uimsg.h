@@ -84,6 +84,7 @@ public:
     uiStatusBar* statusBar();
 
     void	about(const uiString&);
+    void	aboutOpendTect(const uiString&);
 
 protected:
 
@@ -97,7 +98,7 @@ private:
 
     int			beginCmdRecEvent( const char* wintitle );
     void		endCmdRecEvent(int refnr,int retval,const char* buttxt0,
-				const char* buttxt1=0,const char* buttxt2=0); 
+				const char* buttxt1=0,const char* buttxt2=0);
 
     uiMainWin*		uimainwin_;
 };

@@ -70,8 +70,6 @@ install( FILES doc/User/base/.mnuinfo
 OD_CURRENT_MONTH( MONTH )
 OD_CURRENT_YEAR( YEAR )
 
-configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/about.html.in
-		${CMAKE_BINARY_DIR}/doc/about.html @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/license.txt.in
 		${CMAKE_BINARY_DIR}/CMakeModules/license.txt @ONLY )
 
@@ -222,5 +220,12 @@ add_custom_target( docpackages ${CMAKE_COMMAND}
 	-DBINARY_DIR=${CMAKE_BINARY_DIR}
 	-P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
          COMMENT "Preparing doc packages" )
+
+
+# Build information
 include ( ODSubversion )
+
+OD_CURRENT_DATE( DATE )
+configure_file( ${CMAKE_SOURCE_DIR}/CMakeModules/templates/buildinfo.h.in
+		${CMAKE_BINARY_DIR}/include/Basic/buildinfo.h @ONLY )
 

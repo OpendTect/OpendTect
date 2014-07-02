@@ -11,15 +11,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodhelpmenumgr.h"
 
+#include "uidesktopservices.h"
 #include "uihelpview.h"
-
+#include "uimenu.h"
+#include "uimsg.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
-#include "uidesktopservices.h"
-#include "uimenu.h"
+
+#include "buildinfo.h"
 #include "filepath.h"
 #include "file.h"
 #include "oddirs.h"
+#include "od_istream.h"
+#include "odver.h"
+#include "osgver.h"
 
 
 #define mInsertItem(mnu,txt,id,sc) \
@@ -41,14 +46,16 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	: helpmnu_( mm->helpMnu() )
 	, mnumgr_( mm )
 {
+    mInsertItem( helpmnu_, tr("User documentation"), mUserDocMnuItm, "F1" );
+
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
+	mInsertItem( helpmnu_, tr("&Programmer ..."), mProgrammerMnuItm, 0 );
 
     BufferString adminurl = getAdminURL();
     if ( File::exists(adminurl) )
-	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
-    mInsertItem( helpmnu_, "&About", mAboutMnuItm, 0)
-    mInsertItem( helpmnu_, "User documentation", mUserDocMnuItm, 0 );
+	mInsertItem( helpmnu_, tr("Ad&min ..."), mAdminMnuItm, 0 );
+
+    mInsertItem( helpmnu_, tr("&About"), mAboutMnuItm, 0)
 }
 
 
@@ -72,12 +79,34 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	case mAboutMnuItm:
 	{
-	    uiDesktopServices::openUrl(
-		FilePath(GetSoftwareDir(false),"doc","about.html").fullPath() );
+	    uiMSG().aboutOpendTect( getAboutString() );
 	} break;
 	default:
 	{
 	    HelpProvider::provideHelp( HelpKey("od", 0) );
 	}
     }
+}
+
+
+BufferString uiODHelpMenuMgr::getAboutString()
+{
+    BufferString str( "<html>" );
+    str.set( "<h2>OpendTect v" ).add( GetFullODVersion() ).add("</h2><br>");
+
+    str.add( "Built on " ).add( mBUILD_DATE ).add( "<br>" )
+       .add( "From SVN repository: " ).add( mSVN_URL ).add( "<br>" )
+       .add( "revision " ).add( mSVN_VERSION ).add( "<br><br>" );
+
+    str.add( "Based on Qt " ).add( GetQtVersion() )
+       .add( ", OSG " ).add( GetOSGVersion() )
+       .add( ", GCC " ).add( GetGCCVersion() ).add( "<br><br>" );
+
+    str.add( mCOPYRIGHT_STRING ).add( "<br>" )
+       .add( "OpendTect is released under a triple licensing scheme. "
+	     "For more information, click "
+	     "<a href=\"http://dgbes.com/index.php/products/licenses\">"
+	     "here</a>.<br>" );
+    str.add( "</html>" );
+    return str;
 }

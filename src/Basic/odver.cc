@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
+#include "qglobal.h"
 #include <string.h>
 
 
@@ -60,6 +61,32 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
     res = ODInst::getPkgVersion( typ ? typ : "basedata" );
     if ( res.matches( "*error*" ) )
 	res.setEmpty();
+}
+
+
+const char* GetGCCVersion()
+{
+#ifndef __GNUC__
+    return sKey::EmptyString();
+#else
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
+
+    ret.set( __GNUC__ ).add( "." )
+       .add( __GNUC_MINOR__ ).add( "." )
+       .add( __GNUC_PATCHLEVEL__ );
+    return ret.buf();
+#endif
+}
+
+
+const char* GetQtVersion()
+{
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
+
+    ret.set( QT_VERSION_STR );
+    return ret.buf();
 }
 
 

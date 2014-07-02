@@ -1,0 +1,24 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Nanne Hemstra
+ Date:		June 2014
+ RCS:		$Id$
+________________________________________________________________________
+
+-*/
+
+
+#ifndef mSVN_VERSION
+# define mSVN_VERSION @MY_WC_REVISION@
+# define mSVN_URL "@MY_WC_URL@"
+#endif
+
+#ifndef mBUILD_DATE
+# define mBUILD_DATE "@DATE@"
+#endif
+
+#ifndef mCOPYRIGHT_STRING
+# define mCOPYRIGHT_STRING "Copyright (C) 1995-@YEAR@ dGB Beheer BV."
+#endif
