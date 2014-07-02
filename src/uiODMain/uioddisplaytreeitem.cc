@@ -386,7 +386,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	    applMgr()->getNewData( id, attrib );
 
 	newitem->select();
-	applMgr()->updateColorTable( id, attrib );
+	applMgr()->useDefColTab( id, attrib );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==addvolprocmnuitem_.id )
@@ -406,6 +408,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( selok && !visserv_->calcManipulatedAttribs(newitem->displayID()) )
 	    applMgr()->getNewData( newitem->displayID(), newitem->attribNr() );
 
+	applMgr()->useDefColTab( newitem->displayID(), newitem->attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
