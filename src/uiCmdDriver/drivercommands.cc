@@ -300,7 +300,7 @@ bool PauseCmd::act( const char* parstr )
     InteractSpec ispec;
     ispec.dlgtitle_ = "Execution of command script has been paused";
     ispec.infotext_ = fms.unescapedStr();
-    ispec.cancelbuttext_ = "&Resume";
+    ispec.cancelbuttext_ = "Resume";
 
     interact( &ispec );
 
@@ -364,7 +364,7 @@ bool GuideCmd::act( const char* parstr )
 	}
     }
     else
-	ispec.cancelbuttext_ = "&Done";
+	ispec.cancelbuttext_ = "Done";
 
     interact( &ispec );
     return true;
@@ -655,8 +655,8 @@ bool DefCmd::act( const char* parstr )
 	const char* endptr = StringProcessor(param).parseIdentifier( ident );
 	if ( !endptr || *endptr )
 	{
-	    mParseErrStrm << (param.isEmpty() ? "Empty formal parameter" :
-						"Invalid formal parameter: ")
+	    mParseErrStrm << (param.isEmpty() ? "Empty formal parameter" 
+					      : "Invalid formal parameter: ")
 			  << param << od_endl;
 	    return false;
 	}
