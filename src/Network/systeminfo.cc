@@ -21,9 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "perthreadrepos.h"
 
+#ifndef OD_NO_QT
 #include <QHostAddress>
 #include <QHostInfo>
 #include <QNetworkInterface>
+#endif
 
 #ifdef __lux__
 # include <sys/statfs.h>
@@ -42,9 +44,13 @@ namespace System
 
 const char* localHostName()
 {
+#ifndef OD_NO_QT
     mDeclStaticString( str );
     str = QHostInfo::localHostName();
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
@@ -54,17 +60,22 @@ const char* localAddress()
 
 const char* hostName( const char* ip )
 {
+#ifndef OD_NO_QT
     mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( ip );
     str = qhi.hostName();
     if ( str == ip )
 	str.setEmpty();
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
 const char* hostAddress( const char* hostname )
 {
+#ifndef OD_NO_QT
     mDeclStaticString( str );
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
@@ -76,11 +87,15 @@ const char* hostAddress( const char* hostname )
     }
 
     return str.buf();
+#else
+    return 0;
+#endif
 }
 
 
 bool lookupHost( const char* host_ip, BufferString& msg )
 {
+#ifndef OD_NO_QT
     msg.set( host_ip ).add( ": " );
     QHostInfo hi = QHostInfo::fromName( host_ip );
     if ( hi.error() != QHostInfo::NoError )
@@ -106,11 +121,15 @@ bool lookupHost( const char* host_ip, BufferString& msg )
 	msg.add( "Found with IP address " ).add( hostAddress(host_ip) );
 
     return true;
+#else
+    return false;
+#endif
 }
 
 
 void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 {
+#ifndef OD_NO_QT
     QList<QNetworkInterface> allif = QNetworkInterface::allInterfaces();
     for ( int idx=0; idx<allif.size(); idx++ )
     {
@@ -122,6 +141,9 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	names.add( qni.name() );
 	addresses.add( qni.hardwareAddress() );
     }
+#else
+    return;
+#endif
 }
 
 

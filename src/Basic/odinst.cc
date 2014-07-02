@@ -45,7 +45,9 @@ static BufferString getInstDir()
 #define mRelRootDir getInstDir()
 #else
 #include "unistd.h"
+#ifndef OD_NO_QT
 #include <QProcess>
+#endif
 #endif
 
 DefineNameSpaceEnumNames(ODInst,AutoInstType,1,"Auto update")
