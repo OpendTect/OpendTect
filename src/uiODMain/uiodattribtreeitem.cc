@@ -180,6 +180,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
 	menu->setIsHandled(true);
+	ODMainWin()->applMgr().useDefColTab( displayID(), attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
