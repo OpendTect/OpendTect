@@ -44,9 +44,8 @@ Well::D2TModel* GeoCalculator::getModelFromVelLog( const Well::Data& wd,
     const Well::Log* log = wd.logs().getLog( sonlog );
     if ( !log ) return 0;
 
-    Well::Log proclog = Well::Log( *log );
-    const UnitOfMeasure* loguom = log->unitOfMeasure();
-    if ( loguom && loguom->propType()==PropertyRef::Son )
+    Well::Log proclog( *log );
+    if ( log->propType() == PropertyRef::Son )
 	son2TWT( proclog, wd );
     else
 	vel2TWT( proclog, wd );
@@ -184,10 +183,7 @@ void GeoCalculator::son2Vel( Well::Log& log ) const
 
 void GeoCalculator::son2TWT( Well::Log& log, const Well::Data& wd ) const
 {
-    const UnitOfMeasure* loguom = log.unitOfMeasure();
-    const bool logissonic = loguom && loguom->propType() == PropertyRef::Son;
-
-    if ( logissonic )
+    if ( log.propType() == PropertyRef::Son )
     {
 	son2Vel( log );
 	vel2TWT( log, wd );

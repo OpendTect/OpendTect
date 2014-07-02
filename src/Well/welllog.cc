@@ -271,6 +271,13 @@ void Well::Log::convertTo( const UnitOfMeasure* touom )
 }
 
 
+PropertyRef::StdType Well::Log::propType() const
+{
+    const UnitOfMeasure* uom = unitOfMeasure();
+    return uom ? uom->propType() : PropertyRef::Other;
+}
+
+
 void Well::Log::updateAfterValueChanges()
 {
     for ( int idx=0; idx<size(); idx++ )

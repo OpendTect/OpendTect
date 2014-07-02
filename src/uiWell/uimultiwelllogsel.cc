@@ -381,8 +381,8 @@ void uiMultiWellLogSel::init()
 {
     const uiObject::SzPolicy hpol = uiObject::MedMax;
     const uiObject::SzPolicy vpol = uiObject::WideMax;
-    const OD::ChoiceMode chmode = singlelog_ ? OD::ChooseOnlyOne
-						    : OD::ChooseAtLeastOne;
+    const OD::ChoiceMode chmode =
+	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseZeroOrMore;
     uiLabeledListBox* llbl = new uiLabeledListBox( this,
 	singlelog_ ? "Log" : uiStrings::sLogs(true), chmode,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
@@ -397,7 +397,7 @@ void uiMultiWellLogSel::init()
     if ( !singlewid_ )
     {
 	llbw = new uiLabeledListBox( this, uiStrings::sWells(true), 
-                                     OD::ChooseAtLeastOne,
+                                     OD::ChooseZeroOrMore,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
@@ -465,9 +465,13 @@ void uiMultiWellLogSel::update()
 
     for ( int idx=0; idx<lognms.size(); idx++ )
 	logsfld_->addItem( lognms.get(idx) );
-    const int prefnmidx = lognms.nearestMatch( prefpropnm_.buf() );
-    if ( lognms.validIdx(prefnmidx) )
-	logsfld_->setChosen( prefnmidx );
+
+    if ( !prefpropnm_.isEmpty() )
+    {
+	const int prefnmidx = lognms.nearestMatch( prefpropnm_.buf() );
+	if ( lognms.validIdx(prefnmidx) )
+	    logsfld_->setChosen( prefnmidx );
+    }
 }
 
 
