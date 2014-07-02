@@ -24,7 +24,8 @@ will be added to all visual objects of a certain type.
 Usage example:
 \code
     uiVisMenuItemHandler( visSurvey::WellDisplay::getStaticClassName(),
-		  vispartserver_, "My menu text, mCB(this,MyClass,myFuncCB) );
+		  vispartserver_, tr("My menu text"),
+		  mCB(this,MyClass,myFuncCB) );
 \endcode
 */
 
@@ -33,8 +34,8 @@ mExpClass(uiVis) uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,
-				     const char* mnutext, const CallBack& cb,
-				     const char* parenttext=0,int placement=-1);
+				 const uiString& mnutext, const CallBack& cb,
+				 const char* parenttext=0,int placement=-1);
 
     int		getDisplayID() const;
     		/*!<Does only give a valid answer if called from cb. */
