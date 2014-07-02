@@ -50,16 +50,16 @@ uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     relationfld_->box()->setHSzPol( uiObject::Wide );
 
     uiPushButton* orderbut =
-		new uiPushButton( relationfld_, tr("&Read Horizons"), false );
+		new uiPushButton( relationfld_, tr("Read Horizons"), false );
     orderbut->activated.notify( mCB(this,uiHorizonRelationsDlg,readHorizonCB) );
     orderbut->attach( rightTo, relationfld_->box() );
 
-    crossbut_ = new uiPushButton( relationfld_, tr("&Check crossings"), false );
+    crossbut_ = new uiPushButton( relationfld_, tr("Check crossings"), false );
     crossbut_->activated.notify(
 		mCB(this,uiHorizonRelationsDlg,checkCrossingsCB) );
     crossbut_->attach( alignedBelow, orderbut );
 
-    waterbut_ = new uiPushButton( relationfld_, tr("&Make watertight"), false );
+    waterbut_ = new uiPushButton( relationfld_, tr("Make watertight"), false );
     waterbut_->activated.notify(
 		mCB(this,uiHorizonRelationsDlg,makeWatertightCB) );
     waterbut_->attach( alignedBelow, crossbut_ );

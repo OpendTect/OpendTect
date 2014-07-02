@@ -52,7 +52,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     uiGroup* grp = new uiGroup( this, "uiCalcHorVol group" );
 
     optsfld_ = new uiCheckList( grp );
-    optsfld_->addItem( "&Ignore negative thicknesses" ).addItem( "&Upward" );
+    optsfld_->addItem( "Ignore negative thicknesses" ).addItem( "Upward" );
     optsfld_->setChecked( 0, true ).setChecked( 1, true );
 
     uiObject* attobj = optsfld_->attachObj();
@@ -70,7 +70,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     sep->attach( stretchedBelow, attobj );
 
     uiPushButton* calcbut = new uiPushButton( grp,
-				tr("&Estimate volume"), calccb, true);
+				tr("Estimate volume"), calccb, true);
     calcbut->attach( alignedBelow, attobj );
     calcbut->attach( ensureBelow, sep );
 

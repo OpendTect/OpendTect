@@ -572,11 +572,11 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     table_->resizeColumnsToContents();
     table_->setTableReadOnly( true );
 
-    addhorbutton_ = new uiPushButton( this, tr("&Add horizon"),
+    addhorbutton_ = new uiPushButton( this, tr("Add horizon"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addhorbutton_->attach( rightOf, table_ );
 
-    addfltbutton_ = new uiPushButton( this, tr("&Add fault"),
+    addfltbutton_ = new uiPushButton( this, tr("Add fault"),
 	    mCB(this,uiBodyRegionDlg,addSurfaceCB), false );
     addfltbutton_->attach( alignedBelow, addhorbutton_ );
 

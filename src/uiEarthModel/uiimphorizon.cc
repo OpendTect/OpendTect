@@ -122,7 +122,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
-    scanbut_ = new uiPushButton( this, tr("Scan &Input File"),
+    scanbut_ = new uiPushButton( this, tr("Scan Input File"),
 				 mCB(this,uiImportHorizon,scanPush), true );
     scanbut_->attach( alignedBelow, dataselfld_);
 

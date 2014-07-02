@@ -45,7 +45,7 @@ uiImplBodyCalDlg::uiImplBodyCalDlg( uiParent* p, const EM::Body& eb )
     if ( velfld_ )
 	volfld_->attach( alignedBelow, velfld_ );
     
-    uiPushButton* calcbut = new uiPushButton( this, tr("&Estimate"), true );
+    uiPushButton* calcbut = new uiPushButton( this, tr("Estimate"), true );
     calcbut->activated.notify( mCB(this,uiImplBodyCalDlg,calcCB) );
     calcbut->attach( rightTo, volfld_ );
 }

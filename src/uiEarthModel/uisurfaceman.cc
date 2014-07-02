@@ -170,7 +170,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	stratbut->attach( alignedBelow, selgrp_ );
 
 	uiPushButton* relbut = new uiPushButton( listgrp_,
-                                                 tr("&Relations"), false);
+                                                 tr("Relations"), false);
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
 	relbut->attach( ensureBelow, llb );

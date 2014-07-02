@@ -443,7 +443,7 @@ uiInvDistHor3DInterpol::uiInvDistHor3DInterpol( uiParent* p )
     radiusfld_->checked.notify( mCB(this,uiInvDistHor3DInterpol,useRadiusCB) );
     radiusfld_->attach( alignedBelow, fltselfld_ );
 
-    parbut_ = new uiPushButton( this, "&Parameters", 
+    parbut_ = new uiPushButton( this, "Parameters", 
 		    	mCB(this,uiInvDistHor3DInterpol,doParamDlg),
 			false );
     parbut_->attach( rightOf, radiusfld_ );
