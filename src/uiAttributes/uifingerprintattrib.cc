@@ -179,7 +179,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
     CallBack cbcalc = mCB(this,uiFingerPrintAttrib,calcPush);
     uiPushButton* calcbut =
-		new uiPushButton( this, tr("Calculate &parameters"),
+		new uiPushButton( this, tr("Calculate parameters"),
                                   cbcalc, true);
     calcbut->attach( alignedBelow, table_ );
 
@@ -659,7 +659,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
     CallBack cbcalc = mCB(this,uiFPAdvancedDlg,calcPush);
     uiPushButton* calcbut =
-	new uiPushButton( this, "Calculate &parameters", cbcalc, true);
+	new uiPushButton( this, "Calculate parameters", cbcalc, true);
     calcbut->attach( alignedBelow, (uiParent*)attrvalsgrp );
 
     postFinalise().notify( mCB(this,uiFPAdvancedDlg,rangeSel) );
