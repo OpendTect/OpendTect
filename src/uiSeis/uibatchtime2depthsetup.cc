@@ -106,11 +106,6 @@ void uiBatchTime2DepthSetup::dirChangeCB( CallBacker* )
 
 void uiBatchTime2DepthSetup::objSelCB( CallBacker* )
 {
-    const bool istime2depth = directionsel_->getBoolValue();
-    const IOObj* ioobj = istime2depth ? outputdepthsel_->ioobj( true )
-				      : outputtimesel_->ioobj( true );
-    if ( ioobj )
-	batchfld_->setJobName( ioobj->name() );
 }
 
 
@@ -198,5 +193,14 @@ bool uiBatchTime2DepthSetup::fillPar()
 
 bool uiBatchTime2DepthSetup::acceptOK( CallBacker* )
 {
-    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    const bool istime2depth = directionsel_->getBoolValue();
+    const IOObj* ioobj = istime2depth ? outputdepthsel_->ioobj( true )
+				      : outputtimesel_->ioobj( true );
+    if ( ioobj )
+	batchfld_->setJobName( ioobj->name() );
+
+    return batchfld_->start();
 }

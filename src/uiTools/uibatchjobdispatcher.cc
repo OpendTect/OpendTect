@@ -44,6 +44,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selfld_(0)
     , dobatchbox_(0)
     , selectionChange(this)
+    , jobname_("batch_processing")
 {
     init( optional );
 }
@@ -64,27 +65,30 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
 
     if ( uidispatchers_.isEmpty() )
-	{ pErrMsg("Huh? No dispatcher launchers at all" ); return; }
+	{ pErrMsg("Huh? No dispatcher launchers at all"); return; }
 
-    BufferString optionsbuttxt( "&Options" );
+    BufferString optionsbuttxt( "Options" );
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
     uiObject* attachobj = 0;
     const bool onlyonechoice = uidispatchers_.size() == 1;
     if ( onlyonechoice )
     {
 	if ( !optional )
-	    optionsbuttxt.set( "Execution &Options" );
+	    optionsbuttxt.set( "Execution Options" );
 	else
 	{
-	    dobatchbox_ = new uiCheckBox( this,"Execute in &Batch; Job name");
+	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );
 	    dobatchbox_->activated.notify( fldchkcb );
+	    setHAlignObj( dobatchbox_ );
 	    attachobj = dobatchbox_;
 	}
     }
     else
     {
-	selfld_ = new uiGenInput( this, "Batch execution", StringListInpSpec());
+	selfld_ = new uiGenInput( this, tr("Batch execution"),
+				  StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
+	setHAlignObj( selfld_ );
 	if ( optional )
 	{
 	    selfld_->setWithCheck( true );
@@ -94,35 +98,12 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	attachobj = selfld_->attachObj();
     }
 
-    uiLabeledComboBox* lcb = 0;
-    if ( onlyonechoice && optional )
-    {
-	jobnmfld_ = new uiComboBox( this, "Job name" );
-	setHAlignObj( jobnmfld_ );
-	if ( attachobj )
-	    jobnmfld_->attach( rightOf, attachobj );
-	attachobj = jobnmfld_;
-    }
-    else
-    {
-	lcb = new uiLabeledComboBox( this, "Job name" );
-	jobnmfld_ = lcb->box();
-	if ( onlyonechoice )
-	    setHAlignObj( lcb );
-	else
-	    setHAlignObj( selfld_ );
-	if ( attachobj )
-	    lcb->attach( rightOf, attachobj );
-	attachobj = lcb->attachObj();
-    }
-    BufferStringSet unms; Batch::JobDispatcher::getJobNames( unms );
-    jobnmfld_->setReadOnly( false );
-    jobnmfld_->addItem( "" );
-    jobnmfld_->addItems( unms );
-
     optsbut_ = new uiPushButton( this, optionsbuttxt,
 		    mCB(this,uiBatchJobDispatcherSel,optsPush), false );
-    optsbut_->attach( rightOf, attachobj );
+    if ( attachobj )
+	optsbut_->attach( rightOf, attachobj );
+    else
+	setHAlignObj( optsbut_ );
 
     postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
 }
@@ -221,17 +202,13 @@ bool uiBatchJobDispatcherSel::start()
     if ( selidx < 0 ) return false;
 
     uiBatchJobDispatcherLauncher* dl = uidispatchers_[selidx];
-    dl->dispatcher().setJobName( jobnmfld_->text() );
+    dl->dispatcher().setJobName( jobname_.buf() );
     return dl->go( this );
 }
 
 
 void uiBatchJobDispatcherSel::setJobName( const char* nm )
-{
-    for ( int idx=0; idx<uidispatchers_.size(); idx++ )
-	uidispatchers_[idx]->dispatcher().setJobName( nm );
-    jobnmfld_->setText( nm );
-}
+{ jobname_ = nm; }
 
 
 void uiBatchJobDispatcherSel::selChg( CallBacker* )
@@ -240,11 +217,8 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
     uiBatchJobDispatcherLauncher* uidisp = selidx < 0 ? 0
 					 : uidispatchers_[selidx];
     optsbut_->display( uidisp ? uidisp->hasOptions() : false );
-    if ( uidisp )
-	jobnmfld_->setText( uidisp->dispatcher().jobName() );
 
     fldChck( 0 );
-
     selectionChange.trigger();
 }
 

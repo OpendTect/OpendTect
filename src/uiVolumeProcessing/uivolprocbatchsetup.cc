@@ -140,8 +140,6 @@ void uiBatchSetup::setupSelCB( CallBacker* )
 {
     const IOObj* outputioobj = setupsel_->ioobj( true );
     editsetup_->setText( outputioobj ? "Edit ..." : "Create ..." );
-    if ( outputioobj )
-	batchfld_->setJobName( outputioobj->name() );
 
     retrieveChain();
     const bool needsfullvol = chain_ ? chain_->needsFullVolume() : true;
@@ -153,7 +151,11 @@ void uiBatchSetup::setupSelCB( CallBacker* )
 
 bool uiBatchSetup::acceptOK( CallBacker* )
 {
-    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    batchfld_->setJobName( outputsel_->ioobj()->name() );
+    return batchfld_->start();
 }
 
 } // namespace VolProc

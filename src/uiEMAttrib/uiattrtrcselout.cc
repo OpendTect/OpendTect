@@ -349,6 +349,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	}
     }
 
+    batchfld_->setJobName( outpfld_->ioobj()->name() );
     return true;
 }
 
@@ -498,7 +499,6 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 
 void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
-    batchfld_->setJobName( attrfld_->getInput() );
     if ( ads_.is2D() )
     {
 	const Desc* desc = ads_.getDesc( attrfld_->attribID() );
@@ -603,5 +603,3 @@ void uiAttrTrcSelOut::lineSel( CallBacker* )
 
     batchfld_->jobSpecUpdated();
 }
-
-

@@ -15,18 +15,17 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "batchjobdispatch.h"
-class uiGenInput;
-class uiButton;
-class uiCheckBox;
-class uiComboBox;
 
 class uiBatchJobDispatcherLauncher;
+class uiButton;
+class uiCheckBox;
+class uiGenInput;
 
 
-/*!\brief lets user select a batch job dispatcher suited for the job */
+/*!\brief Lets user select a batch job dispatcher suited for the job */
 
 mExpClass(uiTools) uiBatchJobDispatcherSel : public uiGroup
-{
+{ mODTextTranslationClass(uiBatchJobDispatcherSel)
 public:
 
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
@@ -54,8 +53,8 @@ protected:
     uiGenInput*		selfld_;
     uiCheckBox*		dobatchbox_;
     uiButton*		optsbut_;
-    uiComboBox*		jobnmfld_;
 
+    BufferString	jobname_;
     Batch::JobSpec	jobspec_;
     ObjectSet<uiBatchJobDispatcherLauncher> uidispatchers_;
 

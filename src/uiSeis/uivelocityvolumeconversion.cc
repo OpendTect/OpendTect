@@ -60,8 +60,6 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     if ( !velioobj )
 	return;
 
-    batchfld_->setJobName( velioobj->name() );
-
     VelocityDesc desc;
     if ( !desc.usePar( velioobj->pars() ) ||
 	    (desc.type_!=VelocityDesc::Interval &&
@@ -160,5 +158,9 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 
 bool Vel::uiBatchVolumeConversion::acceptOK( CallBacker* )
 {
-    return fillPar() ? batchfld_->start() : false;
+    if ( !fillPar() )
+	return false;
+
+    batchfld_->setJobName( outputsel_->ioobj()->name() );
+    return batchfld_->start();
 }

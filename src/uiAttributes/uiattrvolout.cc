@@ -215,7 +215,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 
 void uiAttrVolOut::outSelCB( CallBacker* )
 {
-    batchfld_->setJobName( objfld_->getInput() );
 }
 
 
@@ -544,5 +543,6 @@ bool uiAttrVolOut::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
+    batchfld_->setJobName( objfld_->getInput() );
     return batchfld_->start();
 }

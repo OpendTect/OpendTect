@@ -630,8 +630,6 @@ void uiCreate2DGrid::outSelCB( CallBacker* )
 {
     const IOObj* ioobj = outfld_->ioobj();
     hornmfld_->setText( ioobj ? ioobj->name().buf() : "Grid2D-" );
-    if ( ioobj )
-	batchfld_->setJobName( ioobj->name() );
 }
 
 
@@ -783,5 +781,9 @@ bool uiCreate2DGrid::fillPar()
 
 bool uiCreate2DGrid::acceptOK( CallBacker* )
 {
-    return fillPar() ? batchfld_->start() : false;
+    if ( !fillPar() )
+	return false;
+
+    batchfld_->setJobName( outfld_->ioobj()->name() );
+    return batchfld_->start();
 }
