@@ -470,8 +470,8 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else
     {
 	const bool canuseallcomps = BufferString(compfld_->box()->textOfItem(0))
-					== BufferString("ALL")
-					&& compfld_->mainObject()->visible();
+			== BufferString(uiStrings::sAll().getFullString())
+			&& compfld_->mainObject()->visible();
 	const int curselitmidx = compfld_->box()->currentItem();
 	attrdata_.compnr_ = canuseallcomps ? curselitmidx -1 : curselitmidx;
 	if ( attrdata_.compnr_< 0 && !canuseallcomps )
