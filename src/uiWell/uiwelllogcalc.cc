@@ -134,7 +134,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     formfld_->formUnitSet.notify( formunitcb );
     const CallBack rockphyscb( mCB(this,uiWellLogCalc,rockPhysReq) );
     uiToolButtonSetup tbsu( "rockphys", tr("Choose rockphysics formula"),
-			    rockphyscb, "&Rock Physics");
+			    rockphyscb, "Rock Physics");
     formfld_->addButton( tbsu );
 
     uiSeparator* sep = new uiSeparator( this, "sep" );

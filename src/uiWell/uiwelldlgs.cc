@@ -86,26 +86,26 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
 
-    uiPushButton* updbut = new uiPushButton( actbutgrp, tr("&Update display"),
+    uiPushButton* updbut = new uiPushButton( actbutgrp, tr("Update display"),
 				   mCB(this,uiWellTrackDlg,updNow), true );
 
     wellheadxfld_ = new uiGenInput( actbutgrp, tr("X-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadxfld_->attach( ensureBelow, updbut );
-    uiPushButton* setbut = new uiPushButton( actbutgrp, tr("&Set"),
+    uiPushButton* setbut = new uiPushButton( actbutgrp, tr("Set"),
 				    mCB(this,uiWellTrackDlg,updateXpos), true );
     setbut->attach( rightOf, wellheadxfld_ );
 
     wellheadyfld_ = new uiGenInput( actbutgrp, tr("Y-Coordinate of well head"),
 				    DoubleInpSpec(mUdf(double)) );
     wellheadyfld_->attach( alignedBelow, wellheadxfld_ );
-    setbut = new uiPushButton( actbutgrp, tr("&Set"),
+    setbut = new uiPushButton( actbutgrp, tr("Set"),
 				    mCB(this,uiWellTrackDlg,updateYpos), true );
     setbut->attach( rightOf, wellheadyfld_ );
 
     kbelevfld_ = new uiGenInput( actbutgrp, tr("Reference Datum Elevation"),
 				 FloatInpSpec(mUdf(float)) );
-    setbut = new uiPushButton( actbutgrp, tr("&Set"),
+    setbut = new uiPushButton( actbutgrp, tr("Set"),
 			     mCB(this,uiWellTrackDlg,updateKbElev), true );
     setbut->attach( rightOf, kbelevfld_ );
     kbelevfld_->attach( alignedBelow, wellheadyfld_ );
@@ -641,7 +641,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     if ( !cksh_ )
     {
 	actbutgrp = new uiGroup( this, "Action buttons" );
-	uiButton* updbut = new uiPushButton( actbutgrp, "&Update display",
+	uiButton* updbut = new uiPushButton( actbutgrp, "Update display",
 				       mCB(this,uiD2TModelDlg,updNow), true );
 
 	replvelfld_ = new uiGenInput( actbutgrp, "Replacement velocity",
@@ -649,7 +649,7 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	replvelfld_->attach( ensureBelow, updbut );
 	replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	updbut = new uiPushButton( actbutgrp, "&Set",
+	updbut = new uiPushButton( actbutgrp, "Set",
 			  mCB(this,uiD2TModelDlg,updReplVelNow), true );
 	updbut->attach( rightOf, replvelfld_ );
 

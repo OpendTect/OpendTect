@@ -88,7 +88,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
     }
 
-    uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
+    uiPushButton* applbut = new uiPushButton( this, "Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 

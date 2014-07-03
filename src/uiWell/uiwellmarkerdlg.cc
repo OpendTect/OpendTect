@@ -83,7 +83,7 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     table_->rowInserted.notify( mCB(this,uiMarkerDlg,markerAddedCB) );
     table_->setPrefWidth( 650 );
 
-    uiButton* updatebut = new uiPushButton( this, tr("&Update display"),
+    uiButton* updatebut = new uiPushButton( this, tr("Update display"),
 				mCB(this,uiMarkerDlg,updateDisplayCB), true );
     updatebut->attach( leftAlignedBelow, table_ );
 
