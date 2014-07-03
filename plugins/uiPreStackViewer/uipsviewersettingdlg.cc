@@ -45,7 +45,7 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     addGroup( preproctab_ );
 
     applytoallfld_ =
-	new uiCheckBox( this,tr("&Apply to all viewers"),
+	new uiCheckBox( this,tr("Apply to all viewers"),
 			mCB(this,uiViewer3DSettingDlg,applyCheckedCB) );
     applytoallfld_->attach( centeredBelow, tabObject() );
 
