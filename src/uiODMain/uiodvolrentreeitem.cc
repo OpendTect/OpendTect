@@ -117,9 +117,9 @@ const char* uiODVolrenTreeItemFactory::getName()
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     : addmnuitem_(uiStrings::sAdd(true))
     , statisticsmnuitem_(uiStrings::sHistogram(false))
-    , amplspectrummnuitem_( "&Amplitude Spectrum ...")
-    , positionmnuitem_("&Position ...")
-    , addisosurfacemnuitem_("Iso s&urface")
+    , amplspectrummnuitem_( "Amplitude Spectrum ...")
+    , positionmnuitem_("Position ...")
+    , addisosurfacemnuitem_("Iso surface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 {
@@ -342,7 +342,7 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings(true))
-    , convertisotobodymnuitem_("&Convert to body")
+    , convertisotobodymnuitem_("Convert to body")
 { displayid_ = displayid; }
 
 

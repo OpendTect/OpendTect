@@ -236,9 +236,9 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
     , displayid_(id)
     , menu_(0)
     , propitem_(uiStrings::sProperties( false ))
-    , imageitem_("&Top/Bottom image ...")
-    , coltabitem_("&Scene color bar ...")
-    , dumpivitem_("&Export scene ...")
+    , imageitem_("Top/Bottom image ...")
+    , coltabitem_("Scene color bar ...")
+    , dumpivitem_("Export scene ...")
 {
     propitem_.iconfnm = "disppars";
 }

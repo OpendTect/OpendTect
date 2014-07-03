@@ -76,20 +76,20 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
     mnu.insertItem( new uiAction(tr("Add at sections only ...")),mAddAtSectIdx);
-    mnu.insertItem( new uiAction(tr("Add &color blended ...")), mAddCBIdx );
+    mnu.insertItem( new uiAction(tr("Add color blended ...")), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( tr("&Track new ...") );
+    uiAction* newmenu = new uiAction( tr("Track new ...") );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
-		new uiMenu( getUiParent(), tr("&Display all") );
-	displaymnu->insertItem( new uiAction(tr("&Only at sections")),
+		new uiMenu( getUiParent(), tr("Display all") );
+	displaymnu->insertItem( new uiAction(tr("Only at sections")),
 				mSectIdx );
-	displaymnu->insertItem( new uiAction(tr("&In full")), mFullIdx );
-	displaymnu->insertItem( new uiAction(tr("&At sections and in full")),
+	displaymnu->insertItem( new uiAction(tr("In full")), mFullIdx );
+	displaymnu->insertItem( new uiAction(tr("At sections and in full")),
 				mSectFullIdx );
 	mnu.insertItem( displaymnu );
     }
@@ -254,15 +254,15 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 
 void uiODHorizonTreeItem::initMenuItems()
 {
-    hordatamnuitem_.text = "&Horizon Data";
+    hordatamnuitem_.text = "Horizon Data";
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = "Workflows";
-    positionmnuitem_.text = "&Position ...";
+    positionmnuitem_.text = "Position ...";
     shiftmnuitem_.text = uiStrings::sShift(false);
-    fillholesmnuitem_.text = "&Gridding ...";
-    filterhormnuitem_.text = "&Filtering ...";
+    fillholesmnuitem_.text = "Gridding ...";
+    filterhormnuitem_.text = "Filtering ...";
     snapeventmnuitem_.text = "Snapping ...";
-    geom2attrmnuitem_.text = "Store Z as &Attribute ...";
+    geom2attrmnuitem_.text = "Store Z as Attribute ...";
 }
 
 
@@ -575,15 +575,15 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction( uiStrings::sAdd(false) ), 0 );
-    uiAction* newmenu = new uiAction( tr("&Track new ...") );
+    uiAction* newmenu = new uiAction( tr("Track new ...") );
     mnu.insertItem( newmenu, 1 );
-    mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 2 );
+    mnu.insertItem( new uiAction(tr("Create from 3D ...")), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("&Display all only at sections")), 3 );
-	mnu.insertItem( new uiAction(tr("&Show all in full")), 4 );
+	mnu.insertItem( new uiAction(tr("Display all only at sections")), 3 );
+	mnu.insertItem( new uiAction(tr("Show all in full")), 4 );
     }
     addStandardItems( mnu );
 
@@ -710,9 +710,9 @@ void uiODHorizon2DTreeItem::initMenuItems()
 {
     algomnuitem_.text = uiStrings::sTools();
     workflowsmnuitem_.text = "Workflows";
-    derive3dhormnuitem_.text = "Derive &3D horizon ...";
+    derive3dhormnuitem_.text = "Derive 3D horizon ...";
     snapeventmnuitem_.text = "Snapping ...";
-    interpolatemnuitem_.text = "&Interpolate ...";
+    interpolatemnuitem_.text = "Interpolate ...";
 }
 
 

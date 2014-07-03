@@ -119,22 +119,22 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("Add &Empty")), 0 );
-    mnu.insertItem( new uiAction(tr("Add &Stored ...")), 7 );
+    mnu.insertItem( new uiAction(tr("Add Empty")), 0 );
+    mnu.insertItem( new uiAction(tr("Add Stored ...")), 7 );
 
     uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), tr("Add &Color blended") );
-    rgbmnu->insertItem( new uiAction(tr("&Empty")), 8 );
+	new uiMenu( getUiParent(), tr("Add Color blended") );
+    rgbmnu->insertItem( new uiAction(tr("Empty")), 8 );
     rgbmnu->insertItem( new uiAction(uiStrings::sStored(false)), 9 );
     mnu.insertItem( rgbmnu );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew(true) );
-    newmnu->insertItem( new uiAction(tr("&Interactive  ...")), 6 );
-    newmnu->insertItem( new uiAction(tr("Along &Contours ...")), 2 );
-    newmnu->insertItem( new uiAction(tr("From &Existing ...")), 1 );
-    newmnu->insertItem( new uiAction(tr("From &Polygon ...")), 3 );
-    newmnu->insertItem( new uiAction(tr("From &Table ...")), 5 );
-    newmnu->insertItem( new uiAction(tr("From &Wells ...")), 4 );
+    newmnu->insertItem( new uiAction(tr("Interactive  ...")), 6 );
+    newmnu->insertItem( new uiAction(tr("Along Contours ...")), 2 );
+    newmnu->insertItem( new uiAction(tr("From Existing ...")), 1 );
+    newmnu->insertItem( new uiAction(tr("From Polygon ...")), 3 );
+    newmnu->insertItem( new uiAction(tr("From Table ...")), 5 );
+    newmnu->insertItem( new uiAction(tr("From Wells ...")), 4 );
     mnu.insertItem( newmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();

@@ -220,7 +220,7 @@ bool uiODAnnotTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    BufferString addtxt = "&New "; addtxt += typestr_; addtxt += " group ...";
+    BufferString addtxt = "New "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiAction(addtxt), 0 );
     mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
 

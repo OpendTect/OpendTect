@@ -97,12 +97,12 @@ bool uiODFaultParentTreeItem::showSubMenu()
 		    candispatsect );
 	mInsertItm( dispmnu, tr("Only at horizons"), mDispAtHors,
 		    candispathors );
-	mInsertItm( dispmnu, tr("At sections && horizons"), mDispAtBoth,
+	mInsertItm( dispmnu, tr("At sections & horizons"), mDispAtBoth,
 					    candispatsect && candispathors );
 	dispmnu->insertSeparator();
 	mInsertItm( dispmnu, tr("Fault planes"), mDispPlanes, true );
 	mInsertItm( dispmnu, tr("Fault sticks"), mDispSticks, true );
-	mInsertItm( dispmnu, tr("Fault planes && sticks"), mDispPSBoth, true );
+	mInsertItm( dispmnu, tr("Fault planes & sticks"), mDispPSBoth, true );
 	mnu.insertItem( dispmnu );
     }
 

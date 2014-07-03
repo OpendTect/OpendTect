@@ -118,29 +118,29 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
-    mnu.insertItem( new uiAction(tr("&Add PickSet ...")), mLoadIdx );
-    mnu.insertItem( new uiAction(tr("Add &Polygon...")), mLoadPolyIdx );
-    uiMenu* newmnu = new uiMenu( getUiParent(), tr("&New PickSet") );
-    newmnu->insertItem( new uiAction(tr("&Empty ...")), mEmptyIdx );
-    newmnu->insertItem( new uiAction(tr("Generate &3D...")), mGen3DIdx );
+    mnu.insertItem( new uiAction(tr("Add PickSet ...")), mLoadIdx );
+    mnu.insertItem( new uiAction(tr("Add Polygon...")), mLoadPolyIdx );
+    uiMenu* newmnu = new uiMenu( getUiParent(), tr("New PickSet") );
+    newmnu->insertItem( new uiAction(tr("Empty ...")), mEmptyIdx );
+    newmnu->insertItem( new uiAction(tr("Generate 3D...")), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction(tr("Generate &2D ...")), mRandom2DIdx);
+	newmnu->insertItem( new uiAction(tr("Generate 2D ...")), mRandom2DIdx);
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiAction(tr("Ne&w Polygon ...")), mPolygonIdx );
+    mnu.insertItem( new uiAction(tr("New Polygon ...")), mPolygonIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
-	    new uiAction( tr("&Display picks only at sections") );
+	    new uiAction( tr("Display picks only at sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Show &all picks") );
+	uiAction* shwallitem = new uiAction( tr("Show all picks") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("&Merge Sets ...")), mMergeIdx );
-	mnu.insertItem( new uiAction(tr("&Save changes")), mSaveIdx );
+	mnu.insertItem( new uiAction(tr("Merge Sets ...")), mMergeIdx );
+	mnu.insertItem( new uiAction(tr("Save changes")), mSaveIdx );
     }
 
     addStandardItems( mnu );
@@ -231,10 +231,10 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave(true))
     , storeasmnuitem_(uiStrings::sSaveAs(true))
-    , dirmnuitem_("Set &directions ...")
-    , onlyatsectmnuitem_("&Only at sections")
+    , dirmnuitem_("Set directions ...")
+    , onlyatsectmnuitem_("Only at sections")
     , propertymnuitem_(uiStrings::sProperties( false ))
-    , closepolyitem_("&Close Polygon")
+    , closepolyitem_("Close Polygon")
     , convertbodymnuitem_( "Convert to body" )
 {
     displayid_ = did;

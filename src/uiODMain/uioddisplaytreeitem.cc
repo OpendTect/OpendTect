@@ -261,7 +261,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::getLockMenuText()
 {
-    return visserv_->isLocked(displayid_) ? "Un&lock" : "&Lock";
+    return visserv_->isLocked(displayid_) ? "Unlock" : "Lock";
 }
 
 

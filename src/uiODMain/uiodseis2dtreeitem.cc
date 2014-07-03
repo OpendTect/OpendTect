@@ -102,12 +102,12 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAdd );
     if ( SI().has3D() )
     {
-	mnu.insertItem( new uiAction(tr("&Create 2D Grid From 3D ...")),
+	mnu.insertItem( new uiAction(tr("Create 2D Grid From 3D ...")),
 			mGridFrom3D );
-	mnu.insertItem( new uiAction(tr("&Extract From 3D ...")), mFrom3D );
+	mnu.insertItem( new uiAction(tr("Extract From 3D ...")), mFrom3D );
     }
 
-    mnu.insertItem( new uiAction(tr("&Generate 3D cube ...")), mTo3D );
+    mnu.insertItem( new uiAction(tr("Generate 3D cube ...")), mTo3D );
     BufferStringSet displayedattribs;
     for ( int idx=0; idx<children_.size(); idx++ )
     {
@@ -162,7 +162,7 @@ bool uiODLine2DParentTreeItem::showSubMenu()
 	mInsertItm( dispmnu, tr("Line geometry"), mDispPolyLines, true );
 	mnu.insertItem( dispmnu );
 
-	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("&Hide all") );
+	uiMenu* hidemnu = new uiMenu( getUiParent(), tr("Hide all") );
 	mInsertItm( hidemnu, tr("Line names"), mHideNames, true );
 	mInsertItm( hidemnu, tr("2D planes"), mHidePanels, true );
 	mInsertItm( hidemnu, tr("Line geometry"), mHidePolyLines, true );
@@ -775,9 +775,9 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 
 uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
-    , attrnoneitm_("&None")
-    , storeditm_("Stored &2D data")
-    , steeringitm_("Steer&ing 2D data")
+    , attrnoneitm_("None")
+    , storeditm_("Stored 2D data")
+    , steeringitm_("Steering 2D data")
     , zattritm_("ZDomain Atrrib 2D data")
 {}
 
