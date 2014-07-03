@@ -64,6 +64,36 @@ IndexedPrimitiveSet* IndexedPrimitiveSet::create( bool large )
 }
 
 
+int IndexedPrimitiveSetImpl::size() const
+{ return indexset_.size(); }
+
+int IndexedPrimitiveSetImpl::get( int idx ) const
+{ return indexset_[idx]; }
+
+int IndexedPrimitiveSetImpl::indexOf( const int val )
+{ return indexset_.indexOf( val ); }
+
+void IndexedPrimitiveSetImpl::append( int val )
+{ indexset_ += val; }
+
+void IndexedPrimitiveSetImpl::append( const int* arr, int num )
+{ indexset_.append( arr, num ); }
+
+void IndexedPrimitiveSetImpl::setEmpty()
+{ indexset_.size(); }
+
+void IndexedPrimitiveSetImpl::getAll( TypeSet<int>& valset, bool ) const
+{ valset = indexset_; }
+
+int IndexedPrimitiveSetImpl::pop()
+{ return indexset_.pop(); }
+
+int IndexedPrimitiveSetImpl::set( int, int )
+{ return 0; }
+
+void IndexedPrimitiveSetImpl::set( const int* arr, int num )
+{ indexset_.copy( arr, num ); }
+
 RangePrimitiveSet* RangePrimitiveSet::create()
 {
     return (RangePrimitiveSet*) PrimitiveSetCreator::create( false, false );
@@ -84,6 +114,12 @@ void RangePrimitiveSet::getAll(TypeSet<int>& res,bool) const
 void PrimitiveSetCreator::setCreator( Geometry::PrimitiveSetCreator* c )
 {
     creator_ = c;
+}
+
+
+PrimitiveSet* PrimitiveSetCreatorDefImpl::doCreate( bool indexed, bool large )
+{
+    return (indexed && !large) ? new IndexedPrimitiveSetImpl : 0;
 }
 
 

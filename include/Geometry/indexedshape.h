@@ -63,6 +63,28 @@ public:
 };
 
 
+mExpClass(Geometry) IndexedPrimitiveSetImpl : public IndexedPrimitiveSet
+{
+public:
+
+    virtual int			size() const;
+    virtual int			get(int) const;
+    virtual int			indexOf(const int);
+    virtual void		append( int );
+    virtual void		append(const int*,int num);
+    virtual void		setEmpty();
+    virtual void		getAll(TypeSet<int>&,bool) const;
+
+    virtual int			pop();
+    virtual int			set(int,int);
+    virtual void		set(const int*,int num);
+
+protected:
+
+    TypeSet<int>		indexset_;
+};
+
+
 mExpClass(Geometry) RangePrimitiveSet : public PrimitiveSet
 {
 public:
@@ -89,6 +111,14 @@ protected:
 
     static PtrMan<PrimitiveSetCreator>	creator_;
 };
+
+
+mExpClass(Geometry) PrimitiveSetCreatorDefImpl : public PrimitiveSetCreator
+{
+protected:
+    virtual PrimitiveSet*	doCreate(bool indexed,bool large);
+};
+
 
 /*!A geometry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordinates. */
