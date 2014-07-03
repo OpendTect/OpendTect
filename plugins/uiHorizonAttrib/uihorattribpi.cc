@@ -93,17 +93,17 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
 	, dpspickdlg_(0)
 	, flattenmnuitemhndlr_(
-		mMkPars("Write &Flattened cube ...",doFlattened),"Workflows")
+		mMkPars("Write Flattened cube ...",doFlattened),"Workflows")
 	, isopachmnuitemhndlr_(
-		mMkPars("Calculate &Isopach ...",doIsopach),"Workflows")
+		mMkPars("Calculate Isopach ...",doIsopach),"Workflows")
 	, contourmnuitemhndlr_(
-		mMkPars("&Contour Display",doContours),"Add",995)
+		mMkPars("Contour Display",doContours),"Add",995)
 	, horvolmnuitemhndlr_(
-		mMkPars("Calculate &Volume ...",calcHorVol),"Workflows")
+		mMkPars("Calculate Volume ...",calcHorVol),"Workflows")
 	, pickdatamnuitemhndlr_(
 		mMkPars("Pick Horizon Data ...",pickData),"Workflows")
 	, polyvolmnuitemhndlr_(visSurvey::PickSetDisplay::sFactoryKeyword(),
-		*a->applMgr().visServer(),"Calculate &Volume ...",
+		*a->applMgr().visServer(),"Calculate Volume ...",
 		mCB(this,uiHorAttribPIMgr,calcPolyVol),0,996)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
@@ -115,15 +115,15 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 void uiHorAttribPIMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    uiActionSeparString gridprocstr( "Create &Horizon Output" );
+    uiActionSeparString gridprocstr( "Create Horizon Output" );
     uiAction* itm = mnumgr.procMnu()->findAction( gridprocstr );
     if ( !itm || !itm->getMenu() ) return;
 
     if ( SI().has3D() )
-	itm->getMenu()->insertItem( new uiAction("&Stratal Amplitude ...",
+	itm->getMenu()->insertItem( new uiAction("Stratal Amplitude ...",
 				     mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 
-    itm->getMenu()->insertItem( new uiAction("&Isopach ...",
+    itm->getMenu()->insertItem( new uiAction("Isopach ...",
 			    mCB(this,uiHorAttribPIMgr,doIsopachThruMenu)) );
 }
 
