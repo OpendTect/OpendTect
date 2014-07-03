@@ -102,10 +102,10 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
 {
 
     choicefld_ = new uiCheckList( this, uiCheckList::OneOnly );
-    choicefld_->addItem( "Create an editable PDF &filled with Gaussian values",
+    choicefld_->addItem( "Create an editable PDF filled with Gaussian values",
 			 "createsampledgaussianprdf"  );
-    choicefld_->addItem( "Create a full &Gaussian PDF", "creategaussianprdf"  );
-    choicefld_->addItem( "Create an &empty PDF to edit by hand",
+    choicefld_->addItem( "Create a full Gaussian PDF", "creategaussianprdf"  );
+    choicefld_->addItem( "Create an empty PDF to edit by hand",
 			 "createuniformprdf" );
     choicefld_->changed.notify( mCB(this,uiProbDenFuncGen,choiceSel) );
 

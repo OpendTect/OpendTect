@@ -155,7 +155,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
                                           uiStrings::sStop(), true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
     uiButton* vwlogbut = new uiPushButton( usedmachgrp, 
-                                           tr("View &Log"), false );
+                                           tr("View Log"), false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
@@ -163,7 +163,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
-	addbut = new uiPushButton( machgrp, tr( ">> &Add >>" ), true );
+	addbut = new uiPushButton( machgrp, tr( ">> Add >>" ), true );
 	if ( avmachfld )
 	    addbut->attach( centeredRightOf, avmachfld );
 	usedmachgrp->attach( ensureRightOf, addbut );

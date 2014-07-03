@@ -176,7 +176,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	defaultmathprop_.setDef( pr_.disp_.defval_->def() );
 	defaultfld_->setText( defaultmathprop_.formText(true) );
     }
-    defaultformbut_ = new uiPushButton( this, "&Formula",
+    defaultformbut_ = new uiPushButton( this, "Formula",
 				mCB(this,uiEditPropRef,setDefaultForm), false );
     defaultformbut_->attach( rightOf, defaultfld_ );
 
@@ -189,7 +189,7 @@ uiEditPropRef::uiEditPropRef( uiParent* p, PropertyRef& pr, bool isadd,
 	definitionmathprop_.setDef( pr_.fixedDef().def() );
 	definitionfld_->setText( definitionmathprop_.formText(true) );
     }
-    definitionformbut_ = new uiPushButton( this, "&Formula",
+    definitionformbut_ = new uiPushButton( this, "Formula",
 			    mCB(this,uiEditPropRef,setDefinitionForm), false );
     definitionformbut_->attach( rightOf, definitionfld_ );
 

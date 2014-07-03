@@ -43,7 +43,7 @@ uiMathPropEdDlg::uiMathPropEdDlg( uiParent* p, MathProperty& pr,
     formfld_->setNonSpecInputs( availpropnms );
 
     uiToolButtonSetup tbsu( "rockphys", "Choose RockPhysics Formula",
-		    mCB(this,uiMathPropEdDlg,rockPhysReq), "&Rock Physics");
+		    mCB(this,uiMathPropEdDlg,rockPhysReq), "Rock Physics");
     formfld_->addButton( tbsu );
 }
 

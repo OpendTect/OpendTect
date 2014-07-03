@@ -717,7 +717,7 @@ void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
-	    ? "-" : (icorr < 0 ? uiStrings::sAdd(true) : "&Set") );
+	    ? "-" : (icorr < 0 ? uiStrings::sAdd(true) : "Set") );
 }
 
 

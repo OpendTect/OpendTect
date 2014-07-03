@@ -238,10 +238,10 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     BufferString zipfilenm = getInstalledDemoSurvey();
     const bool havedemosurv = !zipfilenm.isEmpty();
     BufferStringSet opts;
-    opts.add( "&I will set up a new survey myself" );
+    opts.add( "I will set up a new survey myself" );
     if ( havedemosurv )
-	opts.add("Install the F3 &Demo Survey from the OpendTect installation");
-    opts.add( "&Unzip a survey zip file" );
+	opts.add("Install the F3 Demo Survey from the OpendTect installation");
+    opts.add( "Unzip a survey zip file" );
 
     struct OSRPageShower : public CallBacker
     {
@@ -253,7 +253,7 @@ void uiSetDataDir::offerUnzipSurv( uiParent* par, const char* datadir )
     uiGetChoice uigc( par, opts, "Please select next action" );
     OSRPageShower ps;
     uiPushButton* pb = new uiPushButton( &uigc,
-				 tr("visit &OSR web site (for free surveys)"),
+				 tr("visit OSR web site (for free surveys)"),
 				 mCB(&ps,OSRPageShower,go), true );
     pb->attach( rightAlignedBelow, uigc.bottomFld() );
     if ( !uigc.go() || uigc.choice() == 0 )

@@ -237,7 +237,7 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 	{
 	    if ( !exbut )
 	    {
-		exbut = new uiPushButton( this, tr("&Show example input"),
+		exbut = new uiPushButton( this, tr("Show example input"),
 				mCB(this,uiBatchProgLaunch,exButPush), false );
 		if ( inplst->size() )
 		    exbut->attach( alignedBelow, (*inplst)[inplst->size()-1] );
