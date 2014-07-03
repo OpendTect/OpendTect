@@ -24,7 +24,7 @@ set( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
 	     TextureAttrib uiTextureAttrib )
 #Only for windows base package
-set( WINEXECLIST od_start_dtect od_main_console od_runinst )
+set( WINEXECLIST od_start_dtect od_main_console od_runinst od_SeisMMBatch_console )
 
 #No need to include shell scripts in windows base package.
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt LICENSE.txt )
