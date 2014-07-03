@@ -56,6 +56,7 @@ public:
     void		fill(Math::Formula&) const;
 
     void		selectInput(const char*,bool exact=false);
+    void		selectSubInput(int);
     void		setUnit(const UnitOfMeasure*);
     void		setUnit(const char*);
     void		setPropType(PropertyRef::StdType);

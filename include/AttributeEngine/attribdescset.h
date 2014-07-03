@@ -13,10 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
+
+#include "attribdescid.h"
 #include "callback.h"
 #include "sets.h"
 #include "multiid.h"
-#include "attribdescid.h"
+#include "separstr.h"
+#include "sets.h"
 #include "uistring.h"
 
 
@@ -132,6 +135,9 @@ public:
     void		fillInUIInputList(BufferStringSet&) const;
 			//!<Counterpart: will decode the UI string
 			//!<and return the corresponding Desc*
+	Desc*		getDescFromUIListEntryV50(FileMultiString);
+
+			//to be removed, do not use!
     Desc*		getDescFromUIListEntry(BufferString);
 
     			//!<will create an empty DataPointSet

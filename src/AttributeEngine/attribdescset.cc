@@ -1125,22 +1125,45 @@ void DescSet::fillInUIInputList( BufferStringSet& inplist ) const
 
 Attrib::Desc* DescSet::getDescFromUIListEntry( BufferString inpstr )
 {
-    if ( inpstr.startsWith("[") )
+    return getDescFromUIListEntryV50( FileMultiString( inpstr.buf() ) );
+}
+
+
+Attrib::Desc* DescSet::getDescFromUIListEntryV50( FileMultiString inpstr )
+{
+	BufferString stornm = inpstr[0];
+    if ( stornm.startsWith("[") )
     {
-	inpstr.unEmbed( '[', ']' );
+	stornm.unEmbed( '[', ']' );
 	//generate Info with the same parameters as in fillInUIInputList
 	//which is supposed to be the source of the input string.
 	Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), false );
-	int iidx = attrinf.ioobjnms_.indexOf( inpstr.buf() );
+	int iidx = attrinf.ioobjnms_.indexOf( stornm.buf() );
 	if ( iidx < 0 ) return 0;
 
 	BufferString storedidstr = attrinf.ioobjids_.get( iidx );
-	Attrib::DescID retid = getStoredID( storedidstr.buf(), 0, true, true );
+	int compnr = 0;
+	if ( !inpstr[1].isEmpty() )
+	{
+	    MultiID mid( storedidstr.buf() );
+	    IOObj* inpobj = IOM().get( mid );
+	    if ( inpobj )
+	    {
+		SeisIOObjInfo seisinfo( inpobj );
+		BufferStringSet nms;
+		seisinfo.getComponentNames( nms );
+		compnr = nms.indexOf(inpstr[1]); //ALL will be -1 as expected
+	    }
+	}
+
+	Attrib::DescID retid = getStoredID( storedidstr.buf(),
+					    compnr, true, true,
+					    inpstr[1] );
 	return getDesc( retid );
     }
     else
 	for ( int dscidx=0; dscidx<descs_.size(); dscidx++ )
-	    if ( descs_[dscidx] && inpstr.matches(descs_[dscidx]->userRef()) )
+	    if ( descs_[dscidx] && stornm.matches(descs_[dscidx]->userRef()) )
 		return descs_[dscidx];
 
     return 0;
