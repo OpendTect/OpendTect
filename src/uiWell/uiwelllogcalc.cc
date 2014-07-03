@@ -326,20 +326,13 @@ void uiWellLogCalc::setUnits4Log( int inpidx )
 {
     if ( form_.isSpec(inpidx) || form_.isConst(inpidx) )
 	return;
-
     const Well::Log* wl = getLog4InpIdx( superwls_, inpidx );
-    const UnitOfMeasure* uom = 0;
-    PropertyRef::StdType ptyp = PropertyRef::Other;
-    if ( wl )
-    {
-	uom = wl->unitOfMeasure();
-	if ( uom )
-	    ptyp = uom->propType();
-    }
+    if ( !wl )
+	{ pErrMsg("Huh"); return; }
 
     uiMathExpressionVariable* inpfld = formfld_->inpFld( inpidx );
-    inpfld->setPropType( ptyp );
-    inpfld->setUnit( uom );
+    inpfld->setPropType( wl->propType() );
+    inpfld->setUnit( wl->unitOfMeasure() );
 }
 
 

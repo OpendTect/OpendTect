@@ -818,8 +818,7 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
 				   float winsz, Stats::UpscaleType samppol )
 {
-    const bool logisvel = wl.unitOfMeasure() &&
-			  wl.unitOfMeasure()->propType() == PropertyRef::Vel;
+    const bool logisvel = wl.propType() == PropertyRef::Vel;
     Interval<float> rg( dah-winsz, dah+winsz ); rg.sort();
     TypeSet<float> vals;
     int startidx = wl.indexOf( rg.start );

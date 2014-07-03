@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "iopar.h"
 #include "unitofmeasure.h"
+#include "propertyref.h"
 
 namespace Well
 {
@@ -72,6 +73,7 @@ public:
     const UnitOfMeasure* unitOfMeasure() const;
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     void		convertTo(const UnitOfMeasure*);
+    PropertyRef::StdType propType() const;
     bool		isCode() const			{ return iscode_; }
 			//!< log values are all integers stored as floats
     static const char*	sKeyUnitLbl();
