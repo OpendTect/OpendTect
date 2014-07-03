@@ -100,7 +100,7 @@ void uiMadagascarLink::updateToolBar( CallBacker* )
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
-    uiAction* newitem = new uiAction( "&Madagascar ...",
+    uiAction* newitem = new uiAction( "Madagascar ...",
 	    				  mCB(this,uiMadagascarLink,doMain),
 	   				  "madagascar" );
     mnumgr.procMnu()->insertItem( newitem );

@@ -256,12 +256,12 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
     auxcmdfld_->attach( alignedBelow, useauxfld_ );
     auxcmdfld_->setStretch( 2, 0 );
 
-    uiPushButton* addbut = new uiPushButton( lowgrp, tr("&Add to flow"), true );
+    uiPushButton* addbut = new uiPushButton( lowgrp, tr("Add to flow"), true );
     addbut->setToolTip( tr("Add 'Command line' to process flow") );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     addbut->attach( alignedBelow, auxcmdfld_ );
     addbut->setPrefWidthInChar( 16 );
-    uiPushButton* edbut = new uiPushButton( lowgrp, tr("&Replace in flow"), 
+    uiPushButton* edbut = new uiPushButton( lowgrp, tr("Replace in flow"), 
                                             true );
     edbut->setToolTip( tr("Replace current command in"
                           " flow with 'Command line'") );
