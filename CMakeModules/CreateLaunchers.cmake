@@ -278,7 +278,9 @@ function(create_target_launcher _targetname)
 	set(VCPROJNAME "${CMAKE_CURRENT_BINARY_DIR}/${_targetname}")
 	_launcher_produce_vcproj_user()
 
-	_launcher_create_target_launcher()
+	if ( NOT WIN32 )
+		_launcher_create_target_launcher()
+	endif()
 endfunction()
 
 function(create_generic_launcher _launchername)
