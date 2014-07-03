@@ -73,7 +73,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
     if ( forread_ )
     {
-	manipbut_ = new uiPushButton( this, "&Manipulate",
+	manipbut_ = new uiPushButton( this, "Manipulate",
 			  mCB(this,uiSEGYFileSpec,manipFile), false );
 	manipbut_->attach( rightOf, fnmfld_ );
 	manipbut_->setSensitive( false );

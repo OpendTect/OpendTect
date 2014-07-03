@@ -152,7 +152,7 @@ class uiSEGYBinHdrEd : public uiCompoundParSel
 public:
 
 uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
-    : uiCompoundParSel(p,"Binary header","&Change")
+    : uiCompoundParSel(p,"Binary header","Change")
     , hdr_(h)
 {
     txtfld_->setElemSzPol( uiObject::WideVar );

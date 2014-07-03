@@ -48,7 +48,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     setCtrlStyle( CloseOnly );
 
     CallBack cbview = mCB(this,uiFreqTaperDlg,previewPushed);
-    previewfld_ = new uiPushButton( this, tr("&Preview spectrum..."), 
+    previewfld_ = new uiPushButton( this, tr("Preview spectrum..."), 
                                     cbview,true);
 
     uiFuncTaperDisp::Setup su;

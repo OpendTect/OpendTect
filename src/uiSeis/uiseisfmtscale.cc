@@ -123,7 +123,7 @@ class uiSeisFmtScaleComp : public uiCompoundParSel
 public:
 
 uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, bool ffs, bool we )
-    : uiCompoundParSel(p,"Format / Scaling","Sp&ecify")
+    : uiCompoundParSel(p,"Format / Scaling","Specify")
     , gt_(gt)
     , fixfmtscl_(ffs)
     , withext_(we)
