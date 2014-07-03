@@ -45,7 +45,7 @@ public:
 uiGravMgr::uiGravMgr( uiODMain& a )
 	: appl_(a)
 	, mnuitemhndlr_(visSurvey::HorizonDisplay::sFactoryKeyword(),
-		*a.applMgr().visServer(),"Calculate &Gravity",
+		*a.applMgr().visServer(),"Calculate Gravity",
 		mCB(this,uiGravMgr,doDlg))
 {
 }
