@@ -119,21 +119,24 @@ void uiAttrSurfaceOut::attribSel( CallBacker* )
 
 void uiAttrSurfaceOut::objSelCB( CallBacker* )
 {
-    if ( !objfld_->ioobj(true) ) return;
-
-    BufferString parnm( objfld_->ioobj(true)->name() );
-    parnm += " "; parnm += attrnmfld_->text();
-    batchfld_->setJobName( parnm );
 }
 
 
 bool uiAttrSurfaceOut::prepareProcessing()
 {
-    if ( !objfld_->commitInput() )
+    const IOObj* ioobj = objfld_->ioobj();
+    if ( !ioobj ) return false;
+
+    const FixedString attrnm = attrnmfld_->text();
+    if ( attrnm.isEmpty() )
     {
-	uiMSG().error( tr("Please select Horizon") );
+	uiMSG().error( "Please provide output attribute name" );
 	return false;
     }
+
+    BufferString parnm( ioobj->name() );
+    parnm += " "; parnm += attrnm.buf();
+    batchfld_->setJobName( parnm );
 
     return uiAttrEMOut::prepareProcessing();
 }

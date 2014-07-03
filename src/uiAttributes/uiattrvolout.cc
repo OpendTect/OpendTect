@@ -57,7 +57,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle, 
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
                        mODHelpKey(mAttrVolOutHelpID) ))
     , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
@@ -217,7 +217,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
 
 void uiAttrVolOut::outSelCB( CallBacker* )
 {
-    batchfld_->setJobName( objfld_->getInput() );
 }
 
 
@@ -503,5 +502,6 @@ bool uiAttrVolOut::acceptOK( CallBacker* )
     if ( !prepareProcessing() || !fillPar() )
 	return false;
 
+    batchfld_->setJobName( objfld_->getInput() );
     return batchfld_->start();
 }

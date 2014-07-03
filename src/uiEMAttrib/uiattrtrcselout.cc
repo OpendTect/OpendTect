@@ -139,7 +139,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( this, tr("Extra options"), 
+			new uiPushButton( this, tr("Extra options"),
                                           cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
 	batchfld_->attach( alignedBelow, extrabut );
@@ -257,7 +257,7 @@ void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 {
-    widthfld_ = new uiGenInput( prnt,tr("Extra interval length"), 
+    widthfld_ = new uiGenInput( prnt,tr("Extra interval length"),
                                 FloatInpSpec() );
     widthfld_->attach( alignedBelow, addwidthfld_ );
     widthfld_->checked.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel) );
@@ -286,7 +286,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
     setcubeboundsfld_->valuechanged.notify(
 	    mCB(this,uiAttrTrcSelOut,cubeBoundsSel) );
 
-    cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"), 
+    cubeboundsfld_ = new uiGenInput ( prnt, tr("Z Range"),
                                       FloatInpIntervalSpec()
 				      .setName("Z Start",0)
 				      .setName("Z Stop",1) );
@@ -354,6 +354,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	}
     }
 
+    batchfld_->setJobName( outpfld_->ioobj()->name() );
     return true;
 }
 
@@ -504,7 +505,6 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 
 void uiAttrTrcSelOut::attribSel( CallBacker* )
 {
-    batchfld_->setJobName( attrfld_->getInput() );
     if ( ads_.is2D() )
     {
 	const Desc* desc = ads_.getDesc( attrfld_->attribID() );
@@ -600,5 +600,3 @@ void uiAttrTrcSelOut::lineSel( CallBacker* )
 
     batchfld_->jobSpecUpdated();
 }
-
-

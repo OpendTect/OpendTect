@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Vel::uiBatchVolumeConversion::uiBatchVolumeConversion( uiParent* p )
     : uiDialog( p, uiDialog::Setup(tr("Velocity conversion"),
-			tr("Velocity conversion"), 
+			tr("Velocity conversion"),
                         mODHelpKey(mVelBatchVolumeConversionHelpID) ) )
 {
     IOObjContext velctxt = uiVelSel::ioContext();
@@ -59,8 +59,6 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     const IOObj* velioobj = input_->ioobj( true );
     if ( !velioobj )
 	return;
-
-    batchfld_->setJobName( velioobj->name() );
 
     VelocityDesc desc;
     if ( !desc.usePar( velioobj->pars() ) ||
@@ -109,7 +107,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
     const IOObj* outputioobj = outputsel_->ioobj(false);
     if ( !outputioobj )
 	return false;
-    
+
     const IOObj* velioobj = input_->ioobj( false );
     if ( !velioobj )
 	return false;
@@ -161,5 +159,9 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 
 bool Vel::uiBatchVolumeConversion::acceptOK( CallBacker* )
 {
-    return fillPar() ? batchfld_->start() : false;
+    if ( !fillPar() )
+	return false;
+
+    batchfld_->setJobName( outputsel_->ioobj()->name() );
+    return batchfld_->start();
 }

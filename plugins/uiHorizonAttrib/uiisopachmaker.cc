@@ -144,7 +144,6 @@ uiIsopachMakerBatch::uiIsopachMakerBatch( uiParent* p )
 					     Batch::JobSpec::NonODBase );
     batchfld_->attach( alignedBelow, grp_ );
     batchfld_->jobSpec().prognm_ = "od_isopach";
-    batchfld_->setJobName( "isopach" );
 }
 
 
@@ -185,7 +184,11 @@ bool uiIsopachMakerBatch::fillPar()
 
 bool uiIsopachMakerBatch::acceptOK( CallBacker* )
 {
-    return prepareProcessing() && fillPar() && batchfld_->start();
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    batchfld_->setJobName( grp_->attrName() );
+    return batchfld_->start();
 }
 
 
@@ -214,7 +217,7 @@ bool uiIsopachMakerDlg::acceptOK( CallBacker* )
 {
     if ( !grp_->chkInputFlds() )
 	return false;
-    
+
     return doWork();
 }
 
@@ -232,7 +235,7 @@ bool uiIsopachMakerDlg::doWork()
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
     h2->ref();
-    
+
     EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
     EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)

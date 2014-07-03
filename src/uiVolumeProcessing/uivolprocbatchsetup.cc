@@ -32,7 +32,7 @@ namespace VolProc
 
 uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     : uiDialog( p, uiDialog::Setup(tr("Volume Builder: Create output"),
-				   mNoDlgTitle, 
+				   mNoDlgTitle,
                                    mODHelpKey(mVolProcBatchSetupHelpID) ) )
     , chain_( 0 )
 {
@@ -104,7 +104,7 @@ void uiBatchSetup::editPushCB( CallBacker* )
     uiChain dlg( this, *chain_, false );
     if ( dlg.go() )
 	setupsel_->setInput( dlg.storageID() );
-} 
+}
 
 
 bool uiBatchSetup::prepareProcessing()
@@ -121,7 +121,7 @@ bool uiBatchSetup::fillPar()
     const IOObj* setupioobj = setupsel_->ioobj( true );
     PtrMan<IOObj> outputioobj = outputsel_->getIOObj( true );
     if ( !setupioobj || !outputioobj )
-	return false; 
+	return false;
 
     IOPar& par = batchfld_->jobSpec().pars_;
     par.set( VolProcessingTranslatorGroup::sKeyChainID(), setupioobj->key() );
@@ -139,10 +139,8 @@ bool uiBatchSetup::fillPar()
 void uiBatchSetup::setupSelCB( CallBacker* )
 {
     const IOObj* outputioobj = setupsel_->ioobj( true );
-    editsetup_->setText( outputioobj ? uiStrings::sEdit(false) 
+    editsetup_->setText( outputioobj ? uiStrings::sEdit(false)
                                      : uiStrings::sCreate(false) );
-    if ( outputioobj )
-	batchfld_->setJobName( outputioobj->name() );
 
     retrieveChain();
     const bool needsfullvol = chain_ ? chain_->needsFullVolume() : true;
@@ -154,7 +152,11 @@ void uiBatchSetup::setupSelCB( CallBacker* )
 
 bool uiBatchSetup::acceptOK( CallBacker* )
 {
-    return prepareProcessing() && fillPar() ? batchfld_->start() : false;
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    batchfld_->setJobName( outputsel_->ioobj()->name() );
+    return batchfld_->start();
 }
 
 } // namespace VolProc
