@@ -245,23 +245,23 @@ bool uiVisEMObject::isOK() const
 
 void uiVisEMObject::setUpConnections()
 {
-    singlecolmnuitem_.text = tr("Use single &color");
+    singlecolmnuitem_.text = tr("Use single color");
     singlecolmnuitem_.checkable = true;
-    seedsmenuitem_.text = tr("S&eeds");
+    seedsmenuitem_.text = tr("Seeds");
     seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = uiStrings::sShow();
     seedpropmnuitem_.text = uiStrings::sProperties(false);
     lockseedsmnuitem_.text = uiStrings::sLock();
     editmnuitem_.text = uiStrings::sEdit(true);
     editmnuitem_.checkable = true;
-    removesectionmnuitem_.text = tr("Remove &section");
-    makepermnodemnuitem_.text = tr("Make control &permanent");
-    removecontrolnodemnuitem_.text = tr("Remove &control");
-    changesectionnamemnuitem_.text = tr("Change section's &name");
-    showonlyatsectionsmnuitem_.text = tr("&Only at sections");
-    showfullmnuitem_.text = tr("&In full");
-    showbothmnuitem_.text = tr("&At sections and in full");
-    showsurfacegridmnuitem_.text = tr("&Surface Grid");
+    removesectionmnuitem_.text = tr("Remove section");
+    makepermnodemnuitem_.text = tr("Make control permanent");
+    removecontrolnodemnuitem_.text = tr("Remove control");
+    changesectionnamemnuitem_.text = tr("Change section's name");
+    showonlyatsectionsmnuitem_.text = tr("Only at sections");
+    showfullmnuitem_.text = tr("In full");
+    showbothmnuitem_.text = tr("At sections and in full");
+    showsurfacegridmnuitem_.text = tr("Surface Grid");
 
     showonlyatsectionsmnuitem_.checkable = true;
     showfullmnuitem_.checkable = true;
@@ -388,7 +388,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
 
-    MenuItemHolder* displaymnuitem = menu->findItem( "&Display" );
+    MenuItemHolder* displaymnuitem = menu->findItem( "Display" );
     if ( !displaymnuitem ) displaymnuitem = menu;
 
     if ( hor2ddisp )

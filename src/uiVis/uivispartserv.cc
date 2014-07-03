@@ -100,9 +100,9 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_(*new uiMenuHandler(appserv().parent(),-1))
     , toolbar_(0)
-    , resetmanipmnuitem_(tr("R&eset Manipulation"),cResetManipIdx)
+    , resetmanipmnuitem_(tr("Reset Manipulation"),cResetManipIdx)
     , changematerialmnuitem_(uiStrings::sProperties(false),cPropertiesIdx)
-    , resmnuitem_(tr("&Resolution"),cResolutionIdx)
+    , resmnuitem_(tr("Resolution"),cResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , tracksetupactive_(false)
     , viewmode_(false)
@@ -2060,7 +2060,7 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
 		      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
 
-    MenuItemHolder* baseitem = menu->findItem( "&Display" );
+    MenuItemHolder* baseitem = menu->findItem( "Display" );
     if ( !baseitem ) baseitem = menu;
     mAddMenuItemCond( baseitem, &changematerialmnuitem_, true, false,
 		      so->allowMaterialEdit() );

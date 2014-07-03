@@ -31,7 +31,7 @@ uiFaultDisplayOptGrp::uiFaultDisplayOptGrp( uiParent* p,
     algfld_->setValue( fltdisp_->triangulateAlg() );
     algfld_->valuechanged.notify( mCB(this,uiFaultDisplayOptGrp,algChg) );
 
-    applybut_ = new uiPushButton( this, tr("&Update display now"), true );
+    applybut_ = new uiPushButton( this, tr("Update display now"), true );
     applybut_->attach( centeredBelow, algfld_ );
     applybut_->activated.notify( mCB(this,uiFaultDisplayOptGrp,applyCB) );
     applybut_->setSensitive( false );

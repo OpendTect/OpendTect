@@ -31,7 +31,7 @@ uiVisPolygonSurfBezierDlg::uiVisPolygonSurfBezierDlg( uiParent* p,
 	surf_ = plg->getEMPolygonBody()->geometry().sectionGeometry(0);
     bezierfld_->setValue( surf_ ? surf_->getBezierCurveSmoothness() : 0 );
     
-    applybut_ = new uiPushButton( this, tr("&Update Now"), true );
+    applybut_ = new uiPushButton( this, tr("Update Now"), true );
     applybut_->attach( centeredBelow, bezierfld_ );
     applybut_->activated.notify( mCB(this,uiVisPolygonSurfBezierDlg,applyCB) );
 }

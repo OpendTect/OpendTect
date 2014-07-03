@@ -84,13 +84,13 @@ void uiZStretchDlg::doFinalise( CallBacker* )
     if ( vwallcb.willCall() )
     {
 	ioPixmap vwallpm( "view_all" );
-	vwallbut_ = new uiPushButton( grp, tr("&Fit to scene"), vwallpm, true );
+	vwallbut_ = new uiPushButton( grp, tr("Fit to scene"), vwallpm, true );
 	mAttachCB( vwallbut_->activated, uiZStretchDlg::butPush );
     }
     if ( homecb.willCall() )
     {
 	ioPixmap homepm( "home" );
-	uiButton* homebut = new uiPushButton( grp, tr("To &Home"), homepm,
+	uiButton* homebut = new uiPushButton( grp, tr("To Home"), homepm,
                                               true );
 	mAttachCB( homebut->activated, uiZStretchDlg::butPush );
 	if ( vwallbut_ )
