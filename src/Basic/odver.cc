@@ -19,7 +19,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "perthreadrepos.h"
+#ifndef OD_NO_QT
 #include "qglobal.h"
+#endif
 #include "keystrs.h"
 #include <string.h>
 
@@ -84,9 +86,11 @@ const char* GetGCCVersion()
 const char* GetQtVersion()
 {
     mDeclStaticString( ret );
+#ifndef OD_NO_QT
     if ( !ret.isEmpty() ) return ret.buf();
 
     ret.set( QT_VERSION_STR );
+#endif
     return ret.buf();
 }
 

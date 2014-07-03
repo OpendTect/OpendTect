@@ -156,7 +156,9 @@ protected:
 };
 
 
+#ifndef OD_NO_QT
 mGlobal(Network) QNetworkAccessManager&  ODNA();
+#endif
 
 #endif
 

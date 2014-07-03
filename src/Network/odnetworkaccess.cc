@@ -18,13 +18,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odnetworkreply.h"
 #include "od_ostream.h"
 #include "od_istream.h"
+#ifndef OD_NO_QT
 #include "qnetworkaccessconn.h"
+#endif
 #include "settings.h"
 #include "separstr.h"
 
+
+#ifndef OD_NO_QT
 #include <QByteArray>
 #include <QEventLoop>
 #include <QNetworkProxy>
+#endif
 
 
 bool Network::downloadFile( const char* url, const char* path,
@@ -149,14 +154,17 @@ FileDownloader::FileDownloader( const char* url )
 
 FileDownloader::~FileDownloader()
 {
+#ifndef OD_NO_QT
     delete qeventloop_;
     delete odnr_;
+#endif
     delete osd_;
 }
 
 
 int FileDownloader::nextStep()
 {
+#ifndef OD_NO_QT
     if ( totalnr_ < 0 )
 	return errorOccured();
 
@@ -190,11 +198,15 @@ int FileDownloader::nextStep()
     }
 
     return MoreToDo();
+#else
+    return 0;
+#endif
 }
 
 
 od_int64 FileDownloader::getDownloadSize()
 {
+#ifndef OD_NO_QT
     od_int64 totalbytes = 0;
     for ( int idx=0; idx<urls_.size(); idx++ )
     {
@@ -216,11 +228,15 @@ od_int64 FileDownloader::getDownloadSize()
 
     delete odnr_; odnr_ = 0;
     return totalbytes;
+#else
+    return 0;
+#endif
 }
 
 
 bool FileDownloader::writeData()
 {
+#ifndef OD_NO_QT
     od_int64 bytes = odnr_->qNetworkReply()->bytesAvailable();
     PtrMan<char> buffer = new char[bytes];
     odnr_->qNetworkReply()->read( buffer, bytes );
@@ -229,6 +245,9 @@ bool FileDownloader::writeData()
 	return writeDataToBuffer( buffer, bytes );
     else
 	return writeDataToFile( buffer, bytes );
+#else
+    return false;
+#endif
 }
 
 
@@ -271,11 +290,12 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 
 int FileDownloader::errorOccured()
 {
+#ifndef OD_NO_QT
     msg_ = "Oops! Something went wrong.\n";
     if( odnr_ )
 	msg_.add( "Details: " ).add( qPrintable(
 				       odnr_->qNetworkReply()->errorString()) );
-
+#endif
     return ErrorOccurred();
 }
 
@@ -374,8 +394,13 @@ bool Network::uploadQuery( const char* url, const IOPar& querypars,
 
 DataUploader::DataUploader( const char* url, const DataBuffer& data,
 			    BufferString& header )
+#ifndef OD_NO_QT
     : data_(new QByteArray(mCast(const char*,data.data()),data.size()))
     , qeventloop_(new QEventLoop())
+#else
+    : data_(0)
+    , qeventloop_(0)
+#endif
     , nrdone_(0)
     , totalnr_(0)
     , odnr_(0)
@@ -388,14 +413,17 @@ DataUploader::DataUploader( const char* url, const DataBuffer& data,
 
 DataUploader::~DataUploader()
 {
+#ifndef OD_NO_QT
     delete qeventloop_;
-    delete odnr_;
     delete data_;
+#endif
+    delete odnr_;
 }
 
 
 int DataUploader::nextStep()
 {
+#ifndef OD_NO_QT
     if ( init_ )
     {
 	QNetworkRequest qrequest( QUrl(url_.buf()) );
@@ -419,16 +447,20 @@ int DataUploader::nextStep()
     }
 
     return MoreToDo();
+#else
+    return 0;
+#endif
 }
 
 
 int DataUploader::errorOccured()
 {
+#ifndef OD_NO_QT
     msg_ = "Oops! Something went wrong.\n";
     if( odnr_ )
 	msg_.add( "Details: " ).add( qPrintable(
 				       odnr_->qNetworkReply()->errorString()) );
-
+#endif
     return ErrorOccurred();
 }
 
@@ -484,6 +516,7 @@ void Network::setHttpProxyFromSettings()
 void Network::setHttpProxy( const char* hostname, int port, bool auth,
 			    const char* username, const char* password )
 {
+#ifndef OD_NO_QT
     QNetworkProxy proxy;
     proxy.setType( QNetworkProxy::HttpProxy );
     proxy.setHostName( hostname );
@@ -495,9 +528,11 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
     }
 
     QNetworkProxy::setApplicationProxy(proxy);
+#endif
 }
 
 
+#ifndef OD_NO_QT
 QNetworkAccessManager& ODNA()
 {
     mDefineStaticLocalObject( QNetworkAccessManager*, odna, = 0 );
@@ -507,3 +542,4 @@ QNetworkAccessManager& ODNA()
     return *odna;
 }
 
+#endif

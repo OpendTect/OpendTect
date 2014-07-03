@@ -10,11 +10,12 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "tcpsocket.h"
+#ifndef OD_NO_QT
 #include "qtcpsocketcomm.h"
+#endif
 #include "iopar.h"
 
 #define mInit \
-    , comm_(new QTcpSocketComm(qtcpsocket_,this)) \
     , connected(this) \
     , disconnected(this) \
     , hostFound(this) \
@@ -23,7 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
     , stateChanged(this)
 
 TcpSocket::TcpSocket()
+#ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
+    , comm_(new QTcpSocketComm(qtcpsocket_,this))
+#else
+    : qtcpsocket_(0)
+    , comm_(0)
+#endif
     , id_(0)
     , isownsocket_(true)
     mInit
@@ -31,7 +38,13 @@ TcpSocket::TcpSocket()
 
 
 TcpSocket::TcpSocket( QTcpSocket* qsocket, int id )
+#ifndef OD_NO_QT
     : qtcpsocket_(qsocket)
+    , comm_(new QTcpSocketComm(qtcpsocket_,this))
+#else
+    : qtcpsocket_(0)
+    , comm_(0)
+#endif
     , id_(id)
     , isownsocket_(false)
     mInit
@@ -40,43 +53,77 @@ TcpSocket::TcpSocket( QTcpSocket* qsocket, int id )
 
 TcpSocket::~TcpSocket()
 {
+#ifndef OD_NO_QT
     if ( isownsocket_ )
 	delete qtcpsocket_;
     delete comm_;
+#endif
 }
 
 
 const char* TcpSocket::errorMsg() const
 {
+#ifndef OD_NO_QT
     errmsg_ = qtcpsocket_->errorString().toLatin1().constData();
+#endif
     return errmsg_.buf();
 }
 
 
 void TcpSocket::connectToHost( const char* host, int port )
-{ qtcpsocket_->connectToHost( QString(host), port ); }
+{
+#ifndef OD_NO_QT
+    qtcpsocket_->connectToHost( QString(host), port );
+#endif
+}
 
 void TcpSocket::disconnectFromHost()
-{ qtcpsocket_->disconnectFromHost(); }
+{
+#ifndef OD_NO_QT
+    qtcpsocket_->disconnectFromHost();
+#endif
+}
 
 void TcpSocket::abort()
-{ qtcpsocket_->abort(); }
+{
+#ifndef OD_NO_QT
+    qtcpsocket_->abort();
+#endif
+}
 
 bool TcpSocket::waitForConnected( int msec )
-{ return qtcpsocket_->waitForConnected( msec ); }
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->waitForConnected( msec );
+#else
+    return false;
+#endif
+}
 
 bool TcpSocket::waitForReadyRead( int msec )
-{ return qtcpsocket_->waitForReadyRead( msec ); }
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->waitForReadyRead( msec );
+#else
+    return false;
+#endif
+}
 
 void TcpSocket::readdata( char*& data, int len ) const
-{ qtcpsocket_->read( data, len ); }
+{
+#ifndef OD_NO_QT
+    qtcpsocket_->read( data, len );
+#endif
+}
 
 
 void TcpSocket::read( BufferString& str ) const
 {
+#ifndef OD_NO_QT
     QByteArray ba = qtcpsocket_->readAll();
     str = ba.data();
     ba.size();
+#endif
 }
 
 
@@ -106,9 +153,13 @@ void TcpSocket::read( bool& yn ) const
 
 int TcpSocket::write( const char* str )
 {
+#ifndef OD_NO_QT
     int ret = qtcpsocket_->write( str );
     qtcpsocket_->flush();
     return ret;
+#else
+    return 0;
+#endif
 }
 
 
@@ -138,9 +189,13 @@ int TcpSocket::write( bool yn )
 
 int TcpSocket::writedata( const char* data, int nr )
 {
+#ifndef OD_NO_QT
     int ret = qtcpsocket_->write( data, nr );
     qtcpsocket_->flush();
     return ret;
+#else
+    return 0;
+#endif
 }
 
 
