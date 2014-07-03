@@ -65,19 +65,19 @@ public:
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::sFactoryKeyword(),
-		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
+		  	      *a->applMgr().visServer(),"Tut Well Tools ...",
 			      mCB(this,uiTutMgr,doWells),0,cTutIdx)
 {
-    uiMenu* mnu = new uiMenu( appl_, "&Tut Tools" );
+    uiMenu* mnu = new uiMenu( appl_, "Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 
     {
-	mnu->insertItem( new uiAction("&Seismic 2D (Direct) ...",
+	mnu->insertItem( new uiAction("Seismic 2D (Direct) ...",
 					mCB(this,uiTutMgr,do2DSeis)) );
-	mnu->insertItem( new uiAction("&Seismic 3D (Direct) ...",
+	mnu->insertItem( new uiAction("Seismic 3D (Direct) ...",
 					mCB(this,uiTutMgr,do3DSeis)) );
     }	
     else
-	mnu->insertItem( new uiAction("&Seismic (Direct) ...",
+	mnu->insertItem( new uiAction("Seismic (Direct) ...",
 					mCB(this,uiTutMgr,doSeis)) );
 
     mnu->insertItem( new uiAction(uiStrings::sHorizon(false),
