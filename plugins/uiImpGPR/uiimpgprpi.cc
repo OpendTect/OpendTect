@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static const char* menunm = "&GPR: DZT ...";
+static const char* menunm = "GPR: DZT ...";
 
 
 mDefODPluginInfo(uiImpGPR)
