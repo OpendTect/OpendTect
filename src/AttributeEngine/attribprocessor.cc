@@ -210,9 +210,10 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
 	    for ( int idx=0; idx<outputs_.size(); idx++ )
 		outputs_[idx]->collectData( *data, provider_->getRefStep(),
 					    *curtrcinfo );
-	    if ( isset )
-		nrdone_++;
 	}
+	
+	if ( isset )
+	    nrdone_++;
     }
 
     prevbid_ = curbid;
