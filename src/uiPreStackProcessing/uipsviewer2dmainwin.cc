@@ -1426,7 +1426,7 @@ void uiViewer2DControl::setGatherInfos( const TypeSet<GatherInfo>& gis )
 	tooltipstr = tr( "Mutiple datasets selected. "
 			 "Use 'Set seismic display properties' button" );
     else
-	tooltipstr = tr( "" );
+	tooltipstr = uiStrings::sEmptyString();
     ctabsel_->setToolTip( tooltipstr );
 }
 
