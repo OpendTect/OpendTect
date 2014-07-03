@@ -1,6 +1,22 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0m: July 03, 2014
+ * Fix for crash importing same horizon which is displayed
+ * Fix for applying default color settings while adding/changing attribute
+ * Fix for displaying Prestack menu display
+ * Fix for auto-snapping to the wavelet center during import
+ * Fix for changing of attribute after dragger move
+ * Fix for default file location while exporting survey boundaries to Google
+ * Fix for updating color bar after swapping the attribute order in tree
+ * Fix for displaying of Horizon intersection with random line in flattened 
+   scene
+ * Fix for 2D horizon tracking on lines with reverse trace range
+ * Fix for updating survey range after a manual change
+ * Fix for preloading 2D data
+ * Fix for scanning SEG-Y file when there no Proc directory
+ * Fix for browsing 2D seismics
+
 v4.6.0l: June 12, 2014
  * Fix for crash while examining autocorrelation in GapDecon attribute window
  * Fix for crash while closing OpendTect main window after picking horizon
