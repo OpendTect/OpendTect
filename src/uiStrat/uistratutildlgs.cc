@@ -278,7 +278,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     colfld_->colorChanged.notify( selchgcb );
 
     const int butsz = 20;
-    uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
+    uiPushButton* newlithbut = new uiPushButton( rightgrp, "Add as new",
 	    ioPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
     newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
@@ -288,12 +288,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
 
-    uiButton* renamebut = new uiPushButton( rightgrp, "Re&name selected",
+    uiButton* renamebut = new uiPushButton( rightgrp, "Rename selected",
 	    ioPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
     renamebut->setPrefWidthInChar( butsz );
     renamebut->attach( alignedBelow, newlithbut );
 
-    uiButton* rmbut = new uiPushButton( rightgrp, "&Remove Last",
+    uiButton* rmbut = new uiPushButton( rightgrp, "Remove Last",
 	    ioPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );

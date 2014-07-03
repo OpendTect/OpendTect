@@ -413,10 +413,10 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
     uiMenu mnu( parent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sProperties(false)), 0 );
-    mnu.insertItem( new uiAction("&Remove layer ..."), 1 );
-    mnu.insertItem( new uiAction("Remove this &Well"), 2 );
-    mnu.insertItem( new uiAction("&Dump all wells to file ..."), 3 );
-    mnu.insertItem( new uiAction("&Add dumped wells from file ..."), 4 );
+    mnu.insertItem( new uiAction("Remove layer ..."), 1 );
+    mnu.insertItem( new uiAction("Remove this Well"), 2 );
+    mnu.insertItem( new uiAction("Dump all wells to file ..."), 3 );
+    mnu.insertItem( new uiAction("Add dumped wells from file ..."), 4 );
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return;
 

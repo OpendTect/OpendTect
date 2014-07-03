@@ -37,12 +37,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 #include "od_helpids.h"
 
-#define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
-#define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
+#define	mExpandTxt(domenu)	domenu ? "Expand all" : "Expand all"
+#define	mCollapseTxt(domenu)	domenu ? "Collapse all" : "Collapse all"
 
 //tricky: want to show action in menu and status on button
-#define	mEditTxt(domenu)	domenu ? "&Unlock" : "Toggle read only: locked"
-#define	mLockTxt(domenu)	domenu ? "&Lock" : "Toggle read only: editable"
+#define	mEditTxt(domenu)	domenu ? "Unlock" : "Toggle read only: locked"
+#define	mLockTxt(domenu)	domenu ? "Lock" : "Toggle read only: editable"
 
 using namespace Strat;
 
@@ -174,7 +174,7 @@ void uiStratTreeWin::createMenu()
 				 mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
     savemnuitem_->setIcon( ioPixmap("save") );
-    resetmnuitem_ = new uiAction( tr("&Reset to last saved"),
+    resetmnuitem_ = new uiAction( tr("Reset to last saved"),
 				    mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
     resetmnuitem_->setIcon( ioPixmap("undo") );

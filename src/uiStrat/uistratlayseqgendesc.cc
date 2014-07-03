@@ -244,8 +244,8 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     {
 	uiMenu mnu( parent(), uiStrings::sAction() );
 	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
-	mnu.insertItem( new uiAction("Add &Above ..."), 1 );
-	mnu.insertItem( new uiAction("Add &Below ..."), 2 );
+	mnu.insertItem( new uiAction("Add Above ..."), 1 );
+	mnu.insertItem( new uiAction("Add Below ..."), 2 );
 	if ( desc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
