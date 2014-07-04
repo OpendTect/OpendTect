@@ -1554,7 +1554,7 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
     }
 
     angledp_ = new PreStack::GatherSetDataPack( name(), anglegathers );
-    DPM( DataPackMgr::CubeID() ).add( angledp_ );
+    DPM( DataPackMgr::CubeID() ).addAndObtain( angledp_ );
 }
 
 
