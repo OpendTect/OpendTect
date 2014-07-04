@@ -75,7 +75,7 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 {
     BufferString comm = "@psxy ";
     BufferString rgstr; mGetRangeProjString( rgstr, "X" );
-    comm.add( rgstr ).add( " -O -K -M -N" );
+    comm.add( rgstr ).add( " -O -K -N" );
     comm.add( " 1>> " ).add( fileName( fnm ) );
 
     BufferString errmsg;
