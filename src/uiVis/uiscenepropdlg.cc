@@ -51,7 +51,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , scene_(0)
     , separationdlg_(0)
 {
-    enableSaveButton( tr("Apply to all scenes"));
+    enableSaveButton( tr("Apply to all") );
     setSaveButtonChecked( savestatus_ );
 
     if ( viewers_[curvwridx_] )
@@ -333,4 +333,3 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 
     return true;
 }
-

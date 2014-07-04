@@ -59,7 +59,7 @@ static StepInterval<int> maximum_dpi_range(1,9999,1);
 uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
     : uiDialog(p,uiDialog::Setup(tr("Create snapshot"),mNoDlgTitle,
                                  mODHelpKey(mPrintSceneDlgHelpID) )
-		 .savebutton(true).savetext(tr("Save settings on OK")))
+         .savebutton(true))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
