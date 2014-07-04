@@ -24,7 +24,7 @@ mExpClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
 {				    isTranslator(SeisPSCube,SeisTrc)
 public:
 
-    			SeisPSCubeSeisTrcTranslator(const char*,const char*);
+			SeisPSCubeSeisTrcTranslator(const char*,const char*);
 			~SeisPSCubeSeisTrcTranslator();
 
     bool		readInfo(SeisTrcInfo&);
@@ -37,12 +37,12 @@ public:
 
     virtual bool	implRemove(const IOObj*) const	{ return false; }
     virtual bool	implRename(const IOObj*,const char*,
-	    			   const CallBack*) const { return false; }
+				   const CallBack*) const { return false; }
     virtual bool	implSetReadOnly(const IOObj*,bool) const
 							{ return false; }
 
     const char*		connType() const;
-    virtual bool	isReadDefault() const           { return true; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
 
 protected:
 
@@ -54,7 +54,7 @@ protected:
 
     bool		initRead_();
     bool		initWrite_(const SeisTrc&)
-    			{ errmsg = "Cannot write to PS Cube"; return false; }
+			{ errmsg = "Cannot write to PS Cube"; return false; }
     bool		commitSelections_();
 
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);
@@ -66,4 +66,3 @@ protected:
 
 
 #endif
-

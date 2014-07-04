@@ -273,14 +273,13 @@ bool IOObj::isProcTmp() const
 }
 
 
-bool IOObj::isReadDefault() const
+bool IOObj::isUserSelectable( bool forread ) const
 {
-    if ( myKey() < 2 || isSubdir() ) return false;
-    PtrMan<Translator> tr = createTranslator();
-    if ( !tr ) return false;
+    if ( myKey() < 2 || isSubdir() )
+	return false;
 
-    bool isrddef = tr->isReadDefault();
-    return isrddef;
+    PtrMan<Translator> tr = createTranslator();
+    return tr ? tr->isUserSelectable( forread ) : false;
 }
 
 

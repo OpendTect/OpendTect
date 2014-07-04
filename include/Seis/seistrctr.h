@@ -76,8 +76,8 @@ SeisTrcReader and SeisTrcWriter do support it.
 mExpClass(Seis) SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
-    			mDefEmptyTranslatorGroupConstructor(SeisTrc)
-    
+			mDefEmptyTranslatorGroupConstructor(SeisTrc)
+
     static const char*	sKeyDefault3D() { return "Cube"; }
     static const char*	sKeyDefault2D() { return "2D Cube"; }
     static const char*	sKeyDefaultAttrib() { return "Attribute"; }
@@ -199,18 +199,18 @@ public:
     bool		minimalHdrs() const		{ return false; }
 
     virtual void	cleanUp();
-    			//!< Prepare for new initialisation.
+			//!< Prepare for new initialisation.
 
     static bool		getRanges(const MultiID&,CubeSampling&,
-	    			  const char* linekey=0);
+				  const char* linekey=0);
     static bool		getRanges(const IOObj&,CubeSampling&,
-	    			  const char* linekey=0);
+				  const char* linekey=0);
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);
     bool		isPS() const			{ return is_prestack; }
     static bool		isLineSet(const IOObj&);
-			/*!< Should only be used to filter out 
+			/*!< Should only be used to filter out
 			     old LineSet entries in .omf */
 
     static const char*	sKeyIs2D();
@@ -218,22 +218,22 @@ public:
     static const char*	sKeyRegWrite();
     static const char*	sKeySIWrite();
 
-    			// Use the following fns only if you _really_ know
-    			// what you're doing.
+			// Use the following fns only if you _really_ know
+			// what you're doing.
     void		enforceRegularWrite( bool yn )
-    			{ enforce_regular_write = yn; }
+			{ enforce_regular_write = yn; }
     void		enforceSurvinfoWrite( bool yn )
-    			{ enforce_survinfo_write = yn; }
+			{ enforce_survinfo_write = yn; }
 
     const LineKey&	curLineKey() const
 			{ return curlinekey; }
     void		setCurLineKey( const LineKey& lk )
-    			{ curlinekey = lk; }
+			{ curlinekey = lk; }
 
     Pos::GeomID		curGeomID() const		{ return geomid; }
     void		setCurGeomID(Pos::GeomID gid) { geomid = gid; }
 
-    virtual bool	isReadDefault() const		{ return false; }
+    virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
 
     void		setComponentNames(const BufferStringSet&);
@@ -278,7 +278,7 @@ protected:
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
-    							{ return true; }
+							{ return true; }
     virtual bool	dumpBlock(); //!< will call blockDumped()
     virtual void	blockDumped(int nrtrcs)		{}
     void		prepareComponents(SeisTrc&,int actualsz) const;
@@ -287,7 +287,7 @@ protected:
     ComponentData**	inpcds;
     TargetComponentData** outcds;
 
-    			// Buffer written when writeBlock() is called
+			// Buffer written when writeBlock() is called
     SeisTrcBuf&		trcblock_;
     virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
 

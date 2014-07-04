@@ -194,12 +194,12 @@ void SelSpec::fillPar( IOPar& par ) const
 
 bool SelSpec::usePar( const IOPar& par )
 {
-    ref_ = ""; 			par.get( sKeyRef(), ref_ );
+    ref_ = "";			par.get( sKeyRef(), ref_ );
     id_ = cNoAttrib();		par.get( sKeyID(), id_.asInt() );
     bool isstored = false;	par.getYN( sKeyOnlyStoredData(), isstored );
     id_.setStored( isstored );
-    isnla_ = false; 		par.getYN( sKeyIsNLA(), isnla_ );
-    				par.getYN( isnnstr, isnla_ );
+    isnla_ = false;		par.getYN( sKeyIsNLA(), isnla_ );
+				par.getYN( isnnstr, isnla_ );
     objref_ = "";		par.get( sKeyObjRef(), objref_ );
     defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
     zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
@@ -220,7 +220,7 @@ bool SelSpec::isStored() const
 // Attrib::SelInfo
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
 		  bool is2d, const DescID& ignoreid, bool usesteering,
-       		  bool onlysteering, bool onlymulticomp )
+		  bool onlysteering, bool onlymulticomp )
     : is2d_( is2d )
     , usesteering_( usesteering )
     , onlysteering_( onlysteering )
@@ -280,7 +280,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool islineset = SeisTrcTranslator::isLineSet(ioobj);
-	const bool isvalid3d = !is2d  && !islineset && ioobj.isReadDefault();
+	const bool isvalid3d = !is2d  && !islineset && ioobj.isUserSelectable();
 
 	if ( (is2d_ != is2d) || (!is2d && !isvalid3d) )
 	    continue;

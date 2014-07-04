@@ -145,9 +145,8 @@ public:
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
 
-    virtual bool		isReadDefault() const		{ return true; }
-				//!< If true, objs are for 'normal' use, not
-				//!< just import
+    virtual bool		isUserSelectable( bool forread=true ) const
+				{ return true; }
 
 protected:
 

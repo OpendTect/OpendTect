@@ -49,7 +49,7 @@ public:
 
     virtual bool	implRemove(const IOObj*) const;
     virtual bool	implRename(const IOObj*,const char*,
-	    			   const CallBack* cb=0) const;
+				   const CallBack* cb=0) const;
     virtual bool	implSetReadOnly(const IOObj*,bool) const;
     const char*	defExtension() const	{ return sKeyDefExtension(); }
     static const char*	sKeyDefExtension();
@@ -58,12 +58,12 @@ public:
     void		set2D(bool yn=true);
     bool		singleFile() const		{ return single_file_; }
     void		setSingleFile( bool yn=true )	{ single_file_ = yn; }
-    void		setForceUseCBVSInfo(bool yn) 	{ forceusecbvsinfo_=yn; }
+    void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
 
     void		setCoordPol(bool dowrite,bool intrailer);
-    void		setPreselDataType( int dt )	{ preseldatatype_ = dt; }
+    void		setPreselDataType( int dt )	{ preseldatatype_ = dt;}
 
-    bool		isReadDefault() const		{ return true; }
+    bool		isUserSelectable(bool) const	{ return true; }
 
 protected:
 
@@ -109,4 +109,3 @@ private:
 
 
 #endif
-

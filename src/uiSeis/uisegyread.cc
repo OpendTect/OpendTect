@@ -223,7 +223,7 @@ class uiSEGYReadPreScanner : public uiDialog
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0, 
+    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,
                                  mODHelpKey(mSEGYReadPreScannerHelpID) ))
     , pars_(pars)
     , geom_(gt)
@@ -306,7 +306,7 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
     IOObjContext& ctxt = ret->ctxt;
     ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEG-Y";
     ctxt.forread = forread;
-    ctxt.toselect.allownonreaddefault_ = true;
+    ctxt.toselect.allownonuserselectable_ = true;
     IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect.require_
 				  : &ctxt.toselect.dontallow_;
     cnstr->setYN( SeisTrcTranslator::sKeyIs2D(), true );

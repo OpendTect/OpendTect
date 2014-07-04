@@ -24,7 +24,7 @@ mExpClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
 {
 public:
 
-    			MultiCubeSeisPSReader(const char* fnm);
+			MultiCubeSeisPSReader(const char* fnm);
 			// Check errMsg() to see failure
 			~MultiCubeSeisPSReader();
 
@@ -45,10 +45,10 @@ public:
     bool		putTo(const char* fnm) const;
 
     static bool		readData(const char* fnm,ObjectSet<MultiID>&,
-	    			  TypeSet<float>&,TypeSet<int>&,
+				  TypeSet<float>&,TypeSet<int>&,
 				  BufferString& emsg);
     static bool		writeData(const char* fnm,const ObjectSet<MultiID>&,
-	    			  const TypeSet<float>&,const TypeSet<int>&,
+				  const TypeSet<float>&,const TypeSet<int>&,
 				  BufferString& emsg);
 
 protected:
@@ -60,7 +60,7 @@ protected:
     mutable BufferString	errmsg_;
 
     void			getCubeData(const SeisTrcReader&,
-	    				    PosInfo::CubeData&) const;
+					    PosInfo::CubeData&) const;
 
 };
 
@@ -68,10 +68,10 @@ protected:
 mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
-    			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
+			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
 
-    virtual bool	isReadDefault() const	{ return true; }
-    virtual const char*	defExtension() const    { return "mcps"; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual const char* defExtension() const	{ return "mcps"; }
 };
 
 

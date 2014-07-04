@@ -29,7 +29,7 @@ typedef EM::StickSet EMStickSet;
 mExpClass(EarthModel) EMStickSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(EMStickSet)
 public:
-    				mDefEmptyTranslatorGroupConstructor(EMStickSet)
+				mDefEmptyTranslatorGroupConstructor(EMStickSet)
 
     const char*			defExtension() const { return "stickset"; }
 
@@ -47,17 +47,17 @@ public:
 			mDefEmptyTranslatorBaseConstructor(EMStickSet)
 
     virtual Executor*	reader( EM::StickSet&, Conn*,
-	   			const char* formatfilename )	= 0;
-    			/*!< Executor is managed by client. 
-			     Conn becomes mine! */ 
+				const char* formatfilename )	= 0;
+			/*!< Executor is managed by client.
+			     Conn becomes mine! */
     virtual Executor*	writer(const EM::StickSet&,Conn*,
-	   			const char* formatfilename )	= 0;
-    			/*!< Executor is managed by client. 
-			     Conn becomes mine! */ 
+				const char* formatfilename )	= 0;
+			/*!< Executor is managed by client.
+			     Conn becomes mine! */
 
     static Executor*	reader(EM::StickSet&,const IOObj*,BufferString& errmsg);
     static Executor*	writer(const EM::StickSet&,const IOObj*,
-	    			BufferString& errmsg );
+				BufferString& errmsg );
 
 };
 
@@ -69,14 +69,14 @@ public:
 mExpClass(EarthModel) lmkEMStickSetTranslator : public EMStickSetTranslator
 {				isTranslator(lmk,EMStickSet)
 public:
-    			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
+			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
 
     virtual Executor*	reader( EM::StickSet&, Conn*,
-	   			const char* formatfilename );
+				const char* formatfilename );
     virtual Executor*	writer( const EM::StickSet&, Conn*,
-	   			const char* formatfilename );
+				const char* formatfilename );
 
-    bool		isReadDefault() const		{ return false; }
+    virtual bool	isUserSelectable(bool) const	{ return false; }
 
     BufferString	warningmsg;
 

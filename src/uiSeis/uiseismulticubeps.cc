@@ -139,7 +139,8 @@ void uiSeisMultiCubePS::fillEntries()
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IODirEntry& de = *del[idx];
-	if ( !de.ioobj_ || !de.ioobj_->isReadDefault() ) continue;
+	if ( !de.ioobj_ || !de.ioobj_->isUserSelectable() )
+	    continue;
 
 	entries_ += new uiSeisMultiCubePSEntry( de.ioobj_->clone() );
     }

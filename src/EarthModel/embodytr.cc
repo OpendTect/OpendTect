@@ -30,7 +30,6 @@ const IOObjContext& EMBodyTranslatorGroup::ioContext()
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
 	newctxt->stdseltype = IOObjContext::Surf;
-	newctxt->toselect.allownonreaddefault_ = true;
 
 	if ( !ctxt.setIfNull(newctxt) )
 	    delete newctxt;

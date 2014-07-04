@@ -30,7 +30,7 @@ mExpClass(Seis) DirectReader
 {
 public:
 
-    					DirectReader()
+					DirectReader()
 					    : tr_(0), curfilenr_(-1)	{}
     virtual				~DirectReader();
 
@@ -56,7 +56,7 @@ mExpClass(Seis) SEGYDirect3DPSReader : public ::SeisPS3DReader
 {
 public:
 
-    			SEGYDirect3DPSReader(const char* fnm);
+			SEGYDirect3DPSReader(const char* fnm);
 			// Check errMsg() to see failure
 			~SEGYDirect3DPSReader();
 
@@ -87,7 +87,7 @@ mExpClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
 {
 public:
 
-    			SEGYDirect2DPSReader(const char* dirnm,const char* lnm);
+			SEGYDirect2DPSReader(const char* dirnm,const char* lnm);
 			// Check errMsg() to see failure
 			~SEGYDirect2DPSReader();
 
@@ -114,11 +114,11 @@ protected:
 mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(SEGYDirect,SeisPS3D)
 public:
-    			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
+			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
-    virtual bool	isReadDefault() const	{ return true; }
-    virtual const char*	defExtension() const	{ return fileExt(); }
-    static const char*	fileExt()		{ return "sgydef"; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual const char* defExtension() const		{ return fileExt(); }
+    static const char*	fileExt()			{ return "sgydef"; }
 
 };
 
@@ -126,9 +126,9 @@ public:
 mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(SEGYDirect,SeisPS2D)
 public:
-    			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
+			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
-    virtual bool	isReadDefault() const	{ return true; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
 
 };
 
@@ -142,21 +142,21 @@ public:
 			~SEGYDirectSeisTrcTranslator();
     virtual const char*	defExtension() const	{ return "sgydef"; }
 
-    bool		readInfo(SeisTrcInfo&);
-    bool		read(SeisTrc&);
-    bool		skip(int);
-    bool		supportsGoTo() const		{ return true; }
-    bool		isReadDefault() const		{ return true; }
-    BinID		curBinID() const;
+    virtual bool	readInfo(SeisTrcInfo&);
+    virtual bool	read(SeisTrc&);
+    virtual bool	skip(int);
+    virtual bool	supportsGoTo() const		{ return true; }
+    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual BinID	curBinID() const;
 
-    void		usePar(const IOPar&);
+    virtual void	usePar(const IOPar&);
 
-    bool		implShouldRemove(const IOObj*) const { return false; }
-    void		cleanUp();
+    virtual bool	implShouldRemove(const IOObj*) const { return false; }
+    virtual void	cleanUp();
 
     virtual SEGY::DirectDef* getDef()	{ return def_; }
     virtual bool	goTo(const BinID&);
-    const char*		errMsg() const	{ return SeisTrcTranslator::errMsg(); }
+    virtual const char* errMsg() const	{ return SeisTrcTranslator::errMsg(); }
 
 protected:
 
@@ -181,4 +181,3 @@ protected:
 
 
 #endif
-
