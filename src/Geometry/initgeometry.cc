@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
+#include "indexedshape.h"
 #include "polyposprovider.h"
 #include "tableposprovider.h"
 #include "picksettr.h"
@@ -33,4 +34,7 @@ mDefModInitFn(Geometry)
     
     Pos::PolyProvider3D::initClass();
     Pos::TableProvider3D::initClass();
+
+    Geometry::PrimitiveSetCreator::setCreator(
+				new Geometry::PrimitiveSetCreatorDefImpl );
 }
