@@ -159,11 +159,12 @@ protected:
 /*!\brief IOPar driven implementation of JobDescProv where splitting is based
 on IOPar subselection with a particular key (subselkey). For instance, an IOPar
 with entries:
+\code
   SplitterKey.0.firstparameter: firstvalue0
   SplitterKey.0.secondparameter: secondvalue0
   SplitterKey.1.firstparameter: firstvalue1
   SplitterKey.1.secondparameter: secondvalue1
-
+\endcode
 can be split into two jobs based on subselkey 'SplitterKey'.
 */
 
