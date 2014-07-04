@@ -77,7 +77,6 @@ public:
 
     void		setVerticesPositions(TypeSet<Coord3>* positions = 0 );
 
-
 protected:
 
     friend class HorizonSectionTile;
@@ -89,7 +88,7 @@ protected:
 
     visBase::Coordinates*	vertices_;
     osg::Array*			normals_;
-    osg::Array*			txcoords_;
+    std::vector<osg::Array*>	txcoords_;
     osg::Array*			linecolor_;
 
     osg::DrawElementsUShort*	trianglesps_;
@@ -121,6 +120,8 @@ private:
 
     void			buildOsgGeometres();
     void			initVertices();
+    void			initTexCoordLayers();
+    void			setNrTexCoordLayers(int);
     void			setPrimitiveSet(unsigned int, 
 						osg::DrawElementsUShort*);
 
@@ -143,7 +144,6 @@ private:
 						   const osg::Array* arr,
 						   osg::StateSet*stateset,
 						   int geometrytype);
-
 };
 
 }

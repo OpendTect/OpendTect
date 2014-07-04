@@ -485,68 +485,82 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
 void HorizonSectionTile::setTexture( const Coord& origincrd, 
     const Coord& oppositecrd )
 {
-    
     osg::Vec2f origin = Conv::to<osg::Vec2f>( origincrd );  
     osg::Vec2f opposite = Conv::to<osg::Vec2f>( oppositecrd ); 
 
-    if ( (opposite - origin) == osg::Vec2f( 0.0, 0.0 ) )
+    if ( (opposite - origin) == osg::Vec2f(0.0, 0.0) )
 	return;
 
     std::vector<osgGeo::LayeredTexture::TextureCoordData> tcdata;
     const osgGeo::LayeredTexture* texture = hrsection_.getOsgTexture();
 
     unRefOsgPtr( stateset_ );
-	stateset_  = texture->createCutoutStateSet( origin,opposite, tcdata );
+    stateset_ = texture->createCutoutStateSet( origin, opposite, tcdata );
     refOsgPtr( stateset_ );
 
-    const std::vector<osgGeo::LayeredTexture::TextureCoordData>::iterator tcit= 
-	tcdata.begin();
+    const bool eachlayersametexcoords = true;	/* Performance shortcut */
 
-    if ( !tcdata.size() ) return;    
+    int nrtexcoordlayers = tcdata.size();
+    if ( eachlayersametexcoords && nrtexcoordlayers>1 )
+	nrtexcoordlayers = 1;
 
-    const osg::Vec2 texturetilestep = tcit->_tc11 - tcit->_tc00;
+    txunits_.erase();
+    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
+	tileresolutiondata_[res]->setNrTexCoordLayers( nrtexcoordlayers );
 
-    for ( char res=0; res<hrsection_.nrhorsectnrres_; res++)
+    std::vector<osgGeo::LayeredTexture::TextureCoordData>::iterator tcit =
+								tcdata.begin();
+    for ( int layeridx=0; tcit!=tcdata.end(); tcit++, layeridx++ )
     {
-	const int spacing = hrsection_.spacing_[res];
-	const int size = spacing == 1 ? 
-	    (int)hrsection_.nrcoordspertileside_/spacing :
-	    (int)hrsection_.nrcoordspertileside_/spacing +1 ;
+	const int tcidx = mMIN( layeridx, nrtexcoordlayers-1 );
+	const osg::Vec2 texturetilestep = tcit->_tc11 - tcit->_tc00;
 
-	const osg::Vec2f diff = ( opposite-origin )/spacing;
-	osg::Vec2Array* txcoords = 
-	    mGetOsgVec2Arr( tileresolutiondata_[res]->txcoords_ );
-
-	for ( int r=0; r<size; r++ )
+	for ( char res=0; res<hrsection_.nrhorsectnrres_; res++ )
 	{
-	    for ( int c=0; c<size; c++)
+	    osg::Vec2Array* txcoords =
+		mGetOsgVec2Arr( tileresolutiondata_[res]->txcoords_[tcidx] );
+
+	    if ( layeridx == tcidx )
 	    {
-		(*txcoords)[r*size+c][0] = 
-		    tcit->_tc00[0] + ( float(c)/diff.x() )*texturetilestep.x();
-		(*txcoords)[r*size+c][1] = 
-		    tcit->_tc00[1] + ( float(r)/diff.y() )*texturetilestep.y();
+		const int spacing = hrsection_.spacing_[res];
+		const int size = spacing == 1 ?
+			    (int)hrsection_.nrcoordspertileside_/spacing :
+			    (int)hrsection_.nrcoordspertileside_/spacing + 1;
+
+		const osg::Vec2f diff = (opposite-origin) / spacing;
+
+		for ( int r=0; r<size; r++ )
+		{
+		    for ( int c=0; c<size; c++ )
+		    {
+			(*txcoords)[r*size+c][0] = tcit->_tc00[0] +
+				    ( float(c)/diff.x() )*texturetilestep.x();
+			(*txcoords)[r*size+c][1] = tcit->_tc00[1] +
+				    ( float(r)/diff.y() )*texturetilestep.y();
+		    }
+		}
 	    }
+
+	    tileresolutiondata_[res]->setTexture( tcit->_textureUnit,
+						  txcoords, stateset_ );
 	}
 
-	tileresolutiondata_[res]->setTexture( tcit->_textureUnit,
-	    txcoords,stateset_ );
+	txunits_ += tcit->_textureUnit;
     }
-
-    txunit_ = tcit->_textureUnit ;
 }
 
 
- bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
- {
-       if ( tileresolutiondata_[0] )
-	   return tileresolutiondata_[0]->hasDefinedCoordinates( idx );
-       return false;
- }
+bool HorizonSectionTile::hasDefinedCoordinates( int idx ) const
+{
+    if ( tileresolutiondata_[0] )
+	return tileresolutiondata_[0]->hasDefinedCoordinates( idx );
+    return false;
+}
  
 
-  const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
-  {
-      if ( neighbors_ && idx>=0 && idx < 9 )
-	  return neighbors_[idx];
-      return 0;
-  }
+const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
+{
+    if ( neighbors_ && idx>=0 && idx < 9 )
+	return neighbors_[idx];
+    return 0;
+}

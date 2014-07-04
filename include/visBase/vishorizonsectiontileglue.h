@@ -36,18 +36,18 @@ namespace visBase
  
 class HorizonSectionTileGlue
 {
- public:
-	HorizonSectionTileGlue();
-	~HorizonSectionTileGlue();
-	void			buildGlue(HorizonSectionTile*, 
+public:
+    HorizonSectionTileGlue();
+    ~HorizonSectionTileGlue();
+    void			buildGlue(HorizonSectionTile*,
 					  HorizonSectionTile*,bool);
-	osg::Geode*		getGeode() { return gluegeode_; }
-	void			setDisplayTransformation(const mVisTrans*);
+    osg::Geode*			getGeode() { return gluegeode_; }
+    void			setDisplayTransformation(const mVisTrans*);
 
 protected:
     visBase::Coordinates*	gluevtexarr_;
     visBase::Coordinates*	gluenormalarr_;
-    osg::Array*			gluetxcoords_;
+    std::vector<osg::Array*>	gluetxcoords_;
     osg::Geode*			gluegeode_;
     osg::Geometry*		gluegeom_;
     osg::DrawElementsUShort*	glueps_;
@@ -60,9 +60,7 @@ protected:
     void			buildOsgGeometry();
     void			addGlueTrianglePrimitiveSet(TypeSet<int>&);
     void			removeGlue();
-
-
-
+    void			setNrTexCoordLayers(int);
 };
 
 }

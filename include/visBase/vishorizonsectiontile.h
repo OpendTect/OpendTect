@@ -137,7 +137,7 @@ protected:
 				//!<0 - updated, 1 - needs update, 2 - dont disp
 
     osg::StateSet*		stateset_;
-    int				txunit_;
+    TypeSet<int>		txunits_;
 
     ObjectSet<TileResolutionData>tileresolutiondata_;
     osg::Switch*		osgswitchnode_;

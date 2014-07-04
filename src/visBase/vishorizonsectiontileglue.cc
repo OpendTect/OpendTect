@@ -13,8 +13,7 @@
 using namespace visBase;
 
 HorizonSectionTileGlue::HorizonSectionTileGlue()
-    : gluetxcoords_( new osg::Vec2Array )
-    , gluegeode_( new osg::Geode )
+    : gluegeode_( new osg::Geode )
     , gluegeom_( new osg::Geometry )
     , glueps_(new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLE_STRIP, 0))
     , gluevtexarr_( Coordinates::create() )
@@ -37,6 +36,7 @@ HorizonSectionTileGlue::~HorizonSectionTileGlue()
     gluegeode_->unref();
     gluevtexarr_->unRef();
     gluenormalarr_->unRef();
+    setNrTexCoordLayers( 0 );
 }
 
 
@@ -48,10 +48,25 @@ void HorizonSectionTileGlue::removeGlue()
     gluevtexarr_->setEmpty();
     gluenormalarr_->setEmpty();
 
-    if ( mGetOsgVec2Arr( gluetxcoords_ )->size() )
-	 mGetOsgVec2Arr( gluetxcoords_ )->clear();
+    for ( int idx=0; idx<gluetxcoords_.size(); idx++ )
+	mGetOsgVec2Arr( gluetxcoords_[idx] )->clear();
 
     if ( glueps_->size() ) glueps_->clear();
+}
+
+
+void HorizonSectionTileGlue::setNrTexCoordLayers( int nrlayers )
+{
+    while ( nrlayers > gluetxcoords_.size() )
+    {
+	gluetxcoords_.push_back( new osg::Vec2Array );
+	gluetxcoords_.back()->ref();
+    }
+    while ( nrlayers < gluetxcoords_.size() )
+    {
+	gluetxcoords_.back()->unref();
+	gluetxcoords_.pop_back();
+    }
 }
 
 
@@ -69,8 +84,6 @@ void HorizonSectionTileGlue::buildOsgGeometry()
 void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile, 
 		    HorizonSectionTile* neighbortile, bool rightneighbor )
 {
-    osg::Vec2Array* texturesarr = mGetOsgVec2Arr( gluetxcoords_ );
-
     datalock_.lock();
     removeGlue();
     datalock_.unLock();
@@ -83,10 +96,11 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
     const char neighborres = neighbortile->getActualResolution();
 
     const HorizonSectionTile* gluetile = 
-	thisres <= neighborres ? thistile : neighbortile ;
-    if ( gluetile->txunit_< 0 )
+			    thisres <= neighborres ? thistile : neighbortile;
+
+    if ( gluetile->txunits_.isEmpty() )
 	return;
-    
+
     const char highestres = thisres <= neighborres ? thisres : neighborres;
 
     if ( thisres == neighborres ) return;
@@ -97,18 +111,20 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 
     const HorizonSection& hrsection = gluetile->hrsection_;
     const int spacing = hrsection.spacing_[highestres];
-    const int nrblocks = spacing == 1 ? (int)hrsection.nrcoordspertileside_
-	/spacing : (int)hrsection.nrcoordspertileside_/spacing +1 ;
+    const int nrblocks = spacing == 1 ?
+			 (int)hrsection.nrcoordspertileside_/spacing :
+			 (int)hrsection.nrcoordspertileside_/spacing + 1;
 
     const Coordinates* vtxarr = 
 	gluetile->tileresolutiondata_[highestres]->vertices_;
 
     const osg::Vec3Array* normals = mGetOsgVec3Arr(
 	gluetile->tileresolutiondata_[highestres]->normals_ );
-    const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
-	gluetile->tileresolutiondata_[highestres]->txcoords_ );
 
-    if ( vtxarr->size()<=0  || normals->size()<=0  || tcoords->size()<=0 )
+    setNrTexCoordLayers(
+		gluetile->tileresolutiondata_[highestres]->txcoords_.size() );
+
+    if ( vtxarr->size()<=0 || normals->size()<=0 || gluetxcoords_.size()<=0 )
 	return;
 
     int coordidx = 0;
@@ -141,7 +157,16 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	if( vtxarr->isDefined( coordidx ) )
 	{
 	    if ( vtxarr ) gluevtexarr_->addPos( vtxarr->getPos( coordidx ) );
-	    if ( gluetxcoords_  ) texturesarr->push_back((*tcoords)[coordidx]);
+
+	    for ( int tcidx=0; tcidx<gluetxcoords_.size(); tcidx++ )
+	    {
+		const osg::Vec2Array* tcoords = mGetOsgVec2Arr(
+		gluetile->tileresolutiondata_[highestres]->txcoords_[tcidx] );
+
+		mGetOsgVec2Arr( gluetxcoords_[tcidx] )->push_back(
+							(*tcoords)[coordidx] );
+	    }
+
 	    if ( normals  ) 
 	    {
 		const osg::Vec3f osgnmcrd = (*normals)[coordidx];
@@ -167,7 +192,14 @@ void HorizonSectionTileGlue::buildGlue( HorizonSectionTile* thistile,
 	glueosgps_ = new osg::DrawElementsUShort( *glueps_ );
 	glueosgps_->ref();
 	gluegeom_->addPrimitiveSet( glueosgps_ ) ;
-	gluegeom_->setTexCoordArray( gluetile->txunit_, gluetxcoords_ );
+
+	for ( int layeridx=0; layeridx<gluetile->txunits_.size(); layeridx++ )
+	{
+	    const int tcidx = mMIN( layeridx, gluetxcoords_.size()-1 );
+	    gluegeom_->setTexCoordArray( gluetile->txunits_[layeridx],
+					 gluetxcoords_[tcidx] );
+	}
+
 	gluegeode_->setStateSet( stateset );
 	datalock_.unLock();
     }
