@@ -13,7 +13,6 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "earthmodelmod.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "flatview.h"
