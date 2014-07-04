@@ -225,7 +225,7 @@ void uiTieWin::drawFields()
     horSepar->attach( stretchedBelow, disppropgrp );
     horSepar->attach( ensureBelow, vwrtaskgrp );
 
-    uiPushButton* okbut = new uiPushButton( this, "&Ok/Save",
+    uiPushButton* okbut = new uiPushButton( this, "Ok/Save",
 			mCB(this,uiTieWin,acceptOK), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
@@ -266,7 +266,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
 
-    applybut_ = new uiPushButton( taskgrp, "&Apply Changes",
+    applybut_ = new uiPushButton( taskgrp, "Apply Changes",
 	   mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
     applybut_->attach( rightOf, eventtypefld_ );
@@ -276,12 +276,12 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
 
-    clearpicksbut_ = new uiPushButton( taskgrp, "&Clear picks",
+    clearpicksbut_ = new uiPushButton( taskgrp, "Clear picks",
 	   mCB(this,uiTieWin,clearPicks), true );
     clearpicksbut_->setSensitive( false );
     clearpicksbut_->attach( rightOf, undobut_ );
 
-    clearlastpicksbut_ = new uiPushButton( taskgrp, "&Clear last pick",
+    clearlastpicksbut_ = new uiPushButton( taskgrp, "Clear last pick",
 	   mCB(this,uiTieWin,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
     clearlastpicksbut_->attach( rightOf, clearpicksbut_ );

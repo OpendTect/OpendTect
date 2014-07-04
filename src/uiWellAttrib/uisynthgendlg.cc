@@ -39,7 +39,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthChanged(this)
 {
     setOkText( uiStrings::sApply() );
-    setCancelText( "&Dismiss" );
+    setCancelText( "Dismiss" );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
 	new uiLabeledListBox( syntlistgrp, "Synthetics", OD::ChooseOnlyOne,
@@ -96,7 +96,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     namefld_ = new uiGenInput( botpargrp, uiStrings::sName() );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
-    gennewbut_ = new uiPushButton( botpargrp, "&Add as new", true );
+    gennewbut_ = new uiPushButton( botpargrp, "Add as new", true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( alignedBelow, namefld_ );
 

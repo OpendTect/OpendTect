@@ -552,10 +552,10 @@ bool uiStratLayerModel::checkUnscaledWavelet()
 	return true;
 
     BufferStringSet opts;
-    opts.add( "[&Start tool]: Start the wavelet scaling dialog" );
-    opts.add( "[&Mark scaled]: The wavelet amplitude is already compatible "
+    opts.add( "[Start tool]: Start the wavelet scaling dialog" );
+    opts.add( "[Mark scaled]: The wavelet amplitude is already compatible "
 	      "with the seismic data" );
-    opts.add( "[&Ignore]: I will not use scaling-sensitive operations" );
+    opts.add( "[Ignore]: I will not use scaling-sensitive operations" );
     uiGetChoice dlg( this, opts,
 	    "The wavelet seems to be unscaled.\n"
 	    "For most purposes, you will need a scaled wavelet.\n", true );

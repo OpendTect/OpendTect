@@ -178,7 +178,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
-    uiPushButton* gobut = new uiPushButton( this, "&Extract amplitudes",
+    uiPushButton* gobut = new uiPushButton( this, "Extract amplitudes",
 				mCB(this,uiSynthToRealScale,goPush), true );
     gobut->attach( alignedBelow, evfld_ );
 
