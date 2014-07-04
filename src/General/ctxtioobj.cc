@@ -61,7 +61,7 @@ const IOObjContext::StdDirData* IOObjContext::getStdDirData(
 IOObjSelConstraints::IOObjSelConstraints()
     : require_(*new IOPar)
     , dontallow_(*new IOPar)
-    , allownonreaddefault_(false)
+    , allownonuserselectable_(false)
 {
 }
 
@@ -70,7 +70,7 @@ IOObjSelConstraints::IOObjSelConstraints( const IOObjSelConstraints& oth )
     : require_(*new IOPar(oth.require_))
     , dontallow_(*new IOPar(oth.dontallow_))
     , allowtransls_(oth.allowtransls_)
-    , allownonreaddefault_(oth.allownonreaddefault_)
+    , allownonuserselectable_(oth.allownonuserselectable_)
 {
 }
 
@@ -90,7 +90,7 @@ IOObjSelConstraints& IOObjSelConstraints::operator =(
 	require_ = oth.require_;
 	dontallow_ = oth.dontallow_;
 	allowtransls_ = oth.allowtransls_;
-	allownonreaddefault_ = oth.allownonreaddefault_;
+	allownonuserselectable_ = oth.allownonuserselectable_;
     }
     return *this;
 }
@@ -101,13 +101,13 @@ void IOObjSelConstraints::clear()
     require_.setEmpty();
     dontallow_.setEmpty();
     allowtransls_.setEmpty();
-    allownonreaddefault_ = false;
+    allownonuserselectable_ = false;
 }
 
 
-bool IOObjSelConstraints::isGood( const IOObj& ioobj ) const
+bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 {
-    if ( !allownonreaddefault_ && !ioobj.isReadDefault() )
+    if ( !allownonuserselectable_ && !ioobj.isUserSelectable(forread) )
 	return false;
 
     if ( !allowtransls_.isEmpty() )
@@ -313,7 +313,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	}
     }
 
-    return toselect.isGood( ioobj );
+    return toselect.isGood( ioobj, forread );
 }
 
 

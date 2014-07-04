@@ -27,7 +27,7 @@ namespace EM { class Fault3D; };
 mExpClass(EarthModel) lmkEMFault3DTranslator : public EMSurfaceTranslator
 {			isTranslator(lmk,EMFault3D)
 public:
-    			lmkEMFault3DTranslator(const char* nm,
+			lmkEMFault3DTranslator(const char* nm,
 					     const char* unm)
 			    : EMSurfaceTranslator(nm,unm)	{}
     virtual		~lmkEMFault3DTranslator();
@@ -36,7 +36,7 @@ public:
     virtual Executor*	writer(const EM::Fault3D&,Conn*,
 			       const char* formatfilename);
 
-    bool		isReadDefault() const		{ return false; }
+    virtual bool	isUserSelectable(bool) const	{ return false; }
 
     BufferString	warningmsg;
 
@@ -96,7 +96,7 @@ protected:
 
 
 /*!
-\brief Landmark EM::Fault3D writer. 
+\brief Landmark EM::Fault3D writer.
 */
 
 mClass(EarthModel) lmkEMFault3DWriter : public Executor

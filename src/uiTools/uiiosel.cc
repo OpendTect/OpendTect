@@ -33,11 +33,12 @@ uiObject* uiIOSelect::endObj( bool left )
 
     if ( optbox_ )
 	return optbox_;
-    if ( !lbl_ )
-	return inp_;
+    else if ( lbl_ )
+	return lbl_;
+    else if ( !extselbuts_.isEmpty() )
+	return extselbuts_[ extselbuts_.size()-1 ];
 
-    mDynamicCastGet(uiLabeledComboBox*,lcb,lbl_->parent())
-    return lcb ? lcb->attachObj() : (uiObject*)lbl_;
+    return inp_;
 }
 
 
@@ -47,48 +48,36 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	, selectionDone(this)
 	, optionalChecked(this)
 	, keepmytxt_(su.keepmytxt_)
-	, lbl_(0)
 	, optbox_(0)
+	, lbl_(0)
 	, haveempty_(su.withclear_)
 {
-    uiObject* alobj = 0;
-#define mComboName BufferString("Select ",su.seltxt_.getFullString())
-    if ( su.optional_ )
-    {
-	alobj = inp_ = new uiComboBox( this, mComboName );
-	optbox_ = new uiCheckBox( this, su.seltxt_ );
-	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
-	optbox_->attach( leftOf, inp_ );
-	alobj->setHSzPol( uiObject::MedVar );
-    }
-    else
-    {
-	if ( su.seltxt_.isEmpty() )
-	{
-	    inp_ = new uiComboBox( this, mComboName );
-	    alobj = inp_;
-	}
-	else
-	{
-	    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
-							    mComboName );
-	    inp_ = lcb->box(); lbl_ = lcb->label(); alobj = lcb->attachObj();
-	    lbl_->setAlignment( Alignment::Right );
-	}
-    }
+    inp_ = new uiComboBox( this,
+			BufferString("Select ",su.seltxt_.getFullString()) );
     inp_->setReadOnly( false );
     inp_->setHSzPol( uiObject::Wide );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
+    setHAlignObj( inp_ );
+
+    if ( su.optional_ )
+    {
+	optbox_ = new uiCheckBox( this, su.seltxt_ );
+	optbox_->activated.notify( mCB(this,uiIOSelect,optCheck) );
+    }
+    else if ( !su.seltxt_.isEmpty() )
+    {
+	lbl_ = new uiLabel( this, su.seltxt_ );
+	lbl_->setAlignment( Alignment::Right );
+    }
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );
     BufferString butnm( su.buttontxt_.getFullString(), " " );
     butnm += su.seltxt_.getFullString();
     selbut_->setName( butnm.buf() );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
-    selbut_->attach( rightOf, alobj );
 
-    setHAlignObj( alobj );
-    setHCenterObj( alobj );
+    setHAlignObj( inp_ );
+    setHCenterObj( inp_ );
     preFinalise().notify( mCB(this,uiIOSelect,doFinalise) );
     postFinalise().notify( mCB(this,uiIOSelect,optCheck) );
 }
@@ -101,11 +90,37 @@ uiIOSelect::~uiIOSelect()
 
 
 void uiIOSelect::setHSzPol( uiObject::SzPolicy pol )
-{ inp_->setHSzPol( pol ); }
+{
+    inp_->setHSzPol( pol );
+}
+
+
+void uiIOSelect::addExtSelBut( uiButton* but )
+{
+    if ( but )
+	extselbuts_ += but;
+}
 
 
 void uiIOSelect::doFinalise( CallBacker* cb )
-{ updateFromEntries(); }
+{
+    selbut_->attach( rightOf, inp_ );
+    uiObject* leftmost = inp_;
+    for ( int idx=0; idx<extselbuts_.size(); idx++ )
+    {
+	extselbuts_[idx]->attach( leftOf, leftmost );
+	leftmost = extselbuts_[idx];
+    }
+    if ( lbl_ )
+    {
+	lbl_->attach( leftOf, leftmost );
+	leftmost = lbl_;
+    }
+    if ( optbox_ )
+	optbox_->attach( leftOf, leftmost );
+
+    updateFromEntries();
+}
 
 
 void uiIOSelect::updateFromEntries()

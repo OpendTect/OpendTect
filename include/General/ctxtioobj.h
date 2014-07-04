@@ -38,9 +38,9 @@ public:
     IOPar&		dontallow_;
 
     BufferString	allowtransls_;		//!< Glob expression
-    bool		allownonreaddefault_;	//!< allow 'alien' like SEG-Y
+    bool		allownonuserselectable_; //!< allow 'alien' like SEG-Y
 
-    bool		isGood(const IOObj&) const;
+    bool		isGood(const IOObj&,bool forread=true) const;
     void		clear();
 };
 

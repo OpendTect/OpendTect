@@ -44,7 +44,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-	if ( ioobjs[idx]->isReadDefault() &&
+	if ( ioobjs[idx]->isUserSelectable() &&
 		ioobjs[idx]->group() == "Seismic Data" &&
 	        ioobjs[idx]->translator() == CBVSSeisTrcTranslator::translKey())
 	    ioobjnms.add( ioobjs[idx]->name() );

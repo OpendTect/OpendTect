@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uistrings.h"
 class uiLabel;
+class uiButton;
 class uiCheckBox;
 class uiComboBox;
-class uiPushButton;
 
 
 /*!
@@ -50,6 +50,9 @@ public:
 
 			uiIOSelect(uiParent*,const Setup&,const CallBack&);
 			~uiIOSelect();
+
+			// before finalise:
+    void		addExtSelBut(uiButton*);
 
     bool		isEmpty() const;
     const char*		getInput() const;
@@ -100,7 +103,8 @@ protected:
     CallBack		doselcb_;
 
     uiComboBox*		inp_;
-    uiPushButton*	selbut_;
+    uiButton*		selbut_;
+    ObjectSet<uiButton>	extselbuts_;
     uiLabel*		lbl_;
     uiCheckBox*		optbox_;
 

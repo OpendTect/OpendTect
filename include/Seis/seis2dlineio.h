@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "seismod.h"
 #include "seistrctr.h"
 
@@ -35,7 +35,7 @@ public:
     virtual const char* errMsg() const		= 0;
     //!< Only when put or close returns false
     virtual int	nrWritten() const		= 0;
-    
+
 };
 
 
@@ -54,15 +54,15 @@ public:
     virtual bool	getGeometry(const IOPar&,
 				    PosInfo::Line2DData&) const	= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,int,
-	    			   const Seis::SelData* sd=0)	= 0;
+				   const Seis::SelData* sd=0)	= 0;
     virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;
     virtual Seis2DLinePutter* getAdder(IOPar&,const IOPar* prev,
-	    				const char* lgrpnm)	= 0;
+					const char* lgrpnm)	= 0;
 
     virtual bool	getTxtInfo(const IOPar&,BufferString&,
-	    			   BufferString&) const		{ return false;}
+				   BufferString&) const		{ return false;}
     virtual bool	getRanges(const IOPar&,StepInterval<int>&,
-	    			   StepInterval<float>&) const	{ return false;}
+				   StepInterval<float>&) const	{ return false;}
 
     static const char*	sKeyLineNr;
 
@@ -73,7 +73,7 @@ public:
 protected:
 
 			Seis2DLineIOProvider( const char* t )
-    			: type_(t)				{}
+			: type_(t)				{}
 
     const BufferString	type_;
 };
@@ -87,7 +87,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //! Translator mechanism is only used for selection etc.
 
 mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoD,SeisTrc) 
+{			isTranslator(TwoD,SeisTrc)
 public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
@@ -96,16 +96,16 @@ public:
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
-    bool		isReadDefault() const		{ return true; }
+    bool		isUserSelectable(bool) const	{ return true; }
 
     bool		implRename( const IOObj*,const char*,
-	    			    const CallBack* cb=0) const;
+				    const CallBack* cb=0) const;
 
 };
 
 
 mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoDData,SeisTrc) 
+{			isTranslator(TwoDData,SeisTrc)
 public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}
@@ -113,10 +113,10 @@ public:
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
-    bool		isReadDefault() const		{ return true; }
+    bool		isUserSelectable(bool) const	{ return true; }
 
     bool		implRename( const IOObj*,const char*,
-	    			    const CallBack* cb=0) const;
+				    const CallBack* cb=0) const;
 
 };
 

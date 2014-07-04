@@ -111,7 +111,7 @@ public:
     static int			tmpID()		{ return  999999; }
     inline bool			isTmp() const	{return key_.leafID()==tmpID();}
     bool			isProcTmp() const;
-    bool			isReadDefault() const;
+    bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
 protected:
