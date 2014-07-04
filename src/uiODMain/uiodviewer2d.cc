@@ -30,8 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
-#include "attribsel.h"
-#include "arrayndimpl.h"
 #include "mouseevent.h"
 #include "settings.h"
 #include "sorting.h"
