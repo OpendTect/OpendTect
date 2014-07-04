@@ -589,26 +589,28 @@ macro ( OD_CURRENT_YEAR RESULT)
         execute_process(COMMAND "powershell" "(get-date).year" OUTPUT_VARIABLE ${RESULT})
     elseif(UNIX)
         execute_process(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
-	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} ) 
     endif()
+    string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
 endmacro (OD_CURRENT_YEAR )
 
+#Get current month
 macro ( OD_CURRENT_MONTH RESULT )
     if (WIN32)
 	execute_process(COMMAND "powershell" "(get-date).month" OUTPUT_VARIABLE ${RESULT})
     elseif( UNIX )
 	execute_process(COMMAND "date" "+%B" OUTPUT_VARIABLE ${RESULT})
-	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
     endif()
+    string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
 endmacro( OD_CURRENT_MONTH )
 
+#Get current date format-- date month yyyy hh:mm:ss
 macro ( OD_CURRENT_DATE RESULT )
     if ( WIN32 )
 	execute_process(COMMAND "powershell" "(get-date)" OUTPUT_VARIABLE ${RESULT})
     elseif( UNIX )
 	execute_process(COMMAND "date" "+%c" OUTPUT_VARIABLE ${RESULT})
-	string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
     endif()
+    string(REPLACE "\n" "" "${RESULT}" ${${RESULT}} )
 endmacro ( OD_CURRENT_DATE )
 
 
