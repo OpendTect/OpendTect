@@ -23,8 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "timer.h"
 #include "od_helpids.h"
 
-static const char* sButTxtAdvance = "&Advance >>";
-static const char* sButTxtPause = "&Pause";
+static const char* sButTxtAdvance = "Advance >>";
+static const char* sButTxtPause = "Pause";
 
 
 uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
@@ -62,7 +62,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 	applybut_->attach( alignedBelow, z0fld_ );
 	applybut_->display( false );
 
-	scrollbut_ = new uiPushButton( this, tr("&Scroll"), false );
+	scrollbut_ = new uiPushButton( this, tr("Scroll"), false );
 	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut_->attach( rightOf, isinl_ ? inl0fld_
 					    : (iscrl_?crl0fld_:z0fld_));
@@ -175,7 +175,7 @@ uiSliceScroll( uiSliceSel* ss )
     ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld_ );
-    backbut = new uiPushButton( this, "<< Step &Back", true );
+    backbut = new uiPushButton( this, "<< Step Back", true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 

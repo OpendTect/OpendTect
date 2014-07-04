@@ -51,13 +51,13 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 		mCB(this,uiEditObjectList,cb) )
 	//-- Copy the following code exactly to the 'else' branch
 	//  (if you want to be purist, put it in a separate file and include it)
-	mDefBut( add, BufferString("&Add ",itmtyp), "addnew", addCB, false );
-	mDefBut( ed, "&Edit properties", "edit", edCB, false );
-	mDefBut( rm, BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	mDefBut( add, BufferString("Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( ed, "Edit properties", "edit", edCB, false );
+	mDefBut( rm, BufferString("Remove ",itmtyp), "trashcan", rmCB, true );
 	if ( movable )
 	{
-	    mDefBut( up, "Move &Up ", "uparrow", upCB, true );
-	    mDefBut( down, "Move &Down ", "downarrow", downCB, true );
+	    mDefBut( up, "Move Up ", "uparrow", upCB, true );
+	    mDefBut( down, "Move Down ", "downarrow", downCB, true );
 	}
 	//--
     }
@@ -73,13 +73,13 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 	butnm##but_->setPrefWidthInChar( butsz )
 
 	//-- Make sure this code is exactly a copy of above
-	mDefBut( add, BufferString("&Add ",itmtyp), "addnew", addCB, false );
-	mDefBut( ed, "&Edit properties", "edit", edCB, false );
-	mDefBut( rm, BufferString("&Remove ",itmtyp), "trashcan", rmCB, true );
+	mDefBut( add, BufferString("Add ",itmtyp), "addnew", addCB, false );
+	mDefBut( ed, "Edit properties", "edit", edCB, false );
+	mDefBut( rm, BufferString("Remove ",itmtyp), "trashcan", rmCB, true );
 	if ( movable )
 	{
-	    mDefBut( up, "Move &Up ", "uparrow", upCB, true );
-	    mDefBut( down, "Move &Down ", "downarrow", downCB, true );
+	    mDefBut( up, "Move Up ", "uparrow", upCB, true );
+	    mDefBut( down, "Move Down ", "downarrow", downCB, true );
 	}
 	//--
 

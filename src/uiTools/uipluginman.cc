@@ -39,7 +39,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
     fillList();
     listfld->selectionChanged.notify( mCB(this,uiPluginMan,selChg) );
 
-    uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" &Load a plugin "),
+    uiPushButton* loadbut = new uiPushButton( leftgrp, tr(" Load a plugin "),
 	    			mCB(this,uiPluginMan,loadPush), false );
     loadbut->attach( alignedBelow, listfld );
     selatstartfld = new uiCheckBox( leftgrp, 

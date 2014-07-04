@@ -288,7 +288,7 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 					  mCB(this,uiTextFileDlg,saveAs)) );
     }
 
-    filemnu->insertItem( new uiAction("&Quit",mCB(this,uiTextFileDlg,dismiss)));
+    filemnu->insertItem( new uiAction("Quit",mCB(this,uiTextFileDlg,dismiss)));
     menuBar()->insertItem( filemnu );
 }
 

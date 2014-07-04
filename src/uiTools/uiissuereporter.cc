@@ -54,8 +54,8 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, lblgrp );
 
-    setCancelText( tr("Do &Not Send") );
-    setOkText( tr("&Send Report") );
+    setCancelText( tr("Do Not Send") );
+    setOkText( tr("Send Report") );
 }
 	       
 

@@ -40,7 +40,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 
     if ( setup_.withsetbut_ )
     {
-	setbut_ = new uiPushButton( this, tr("&Set"),
+	setbut_ = new uiPushButton( this, tr("Set"),
 			mCB(this,uiMathExpression,setButCB),
 			!setup_.setcb_.willCall() );
 	setbut_->attach( rightOf, txtfld_ );
@@ -69,7 +69,7 @@ uiMathExpression::uiMathExpression( uiParent* p,
 	fnfld_->attach( rightOf, grpfld_ );
 	grpSel( 0 );
 
-	uiPushButton* but = new uiPushButton( insgrp, tr("&Insert"),
+	uiPushButton* but = new uiPushButton( insgrp, tr("Insert"),
 		    mCB(this,uiMathExpression,doIns), true );
 	but->attach( rightOf, fnfld_ );
 	but->setStretch( 0, 0 );
