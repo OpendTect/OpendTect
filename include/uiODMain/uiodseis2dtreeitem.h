@@ -17,16 +17,21 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 
-#include "uimenuhandler.h"
-#include "multiid.h"
-#include "ranges.h"
-
+class uiMenu;
 class uiTaskRunner;
 
 mDefineItem( Line2DParent, TreeItem, TreeTop,
 	     mShowMenu bool handleSubMenu(int);
 	     bool loadDefaultData();
-	     bool selectLoadAttribute(const TypeSet<Pos::GeomID>&);
+	     bool selectLoadAttribute(const TypeSet<Pos::GeomID>&,
+				      const char* attrnm=sKeyRightClick());
+	     static const char* sKeyRightClick();
+	     static const char* sKeyUnselected();
+	     uiMenu* replaceattritm_;
+	     uiMenu* removeattritm_;
+	     uiMenu* dispattritm_;
+	     uiMenu* hideattritm_;
+	     uiMenu* editcoltabitm_;
 	     mMenuOnAnyButton )
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
@@ -38,57 +43,6 @@ public:
     uiTreeItem*		createForVis(int visid,uiTreeItem*) const;
 };
 
-/*
-mExpClass(uiODMain) uiOD2DLineSetTreeItem : public uiODTreeItem
-{
-public:
-			uiOD2DLineSetTreeItem(const MultiID&);
-    void		selectAddLines();
-    bool		showSubMenu();
-
-    const MultiID&	lineSetID() const { return setid_; }
-    int			selectionKey() const;
-
-protected:
-			~uiOD2DLineSetTreeItem();
-    bool		init();
-    int			uiTreeViewItemType() const;
-
-    void		checkCB(CallBacker*);
-    virtual void	createMenuCB(CallBacker*);
-    void		handleMenuCB(CallBacker*);
-
-    void		createAttrMenu(MenuHandler*);
-    void		selectNewAttribute(const char*);
-    bool		isExpandable() const		{ return true; }
-    const char*		parentType() const;
-
-    Interval<float>	curzrg_;
-    MultiID		setid_;
-    RefMan<uiMenuHandler> menuhandler_;
-
-    MenuItem		addlinesitm_;
-    MenuItem		zrgitm_;
-    MenuItem		addattritm_;
-    MenuItem		removeattritm_;
-    MenuItem		editcoltabitm_;
-    MenuItem		editattritm_;
-    MenuItem		showitm_;
-    MenuItem		hideitm_;
-    MenuItem		showlineitm_;
-    MenuItem		hidelineitm_;
-    MenuItem		showlblitm_;
-    MenuItem		hidelblitm_;
-    MenuItem		removeitm_;
-    MenuItem		steeringitm_;
-    MenuItem		storeditm_;
-    MenuItem		coltabselitm_;
-    MenuItem		showattritm_;
-    MenuItem		hideattritm_;
-    MenuItem		expanditm_;
-    MenuItem		collapseitm_;
-};
-*/
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
 {

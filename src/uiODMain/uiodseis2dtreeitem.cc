@@ -49,12 +49,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeom2d.h"
 
 
-static const char* sKeyUnselected = "<Unselected>";
-static const char* sKeyRightClick = "<right-click>";
 static TypeSet<int> selcomps;
+
+const char* uiODLine2DParentTreeItem::sKeyRightClick()
+{ return "<right-click>"; }
+const char* uiODLine2DParentTreeItem::sKeyUnselected()
+{ return "<Unselected>"; }
 
 uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     : uiODTreeItem("2D Line" )
+    , removeattritm_(0)
+    , replaceattritm_(0)
+    , editcoltabitm_(0)
+    , dispattritm_(0)
+    , hideattritm_(0)
 {
 }
 
@@ -71,6 +79,8 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
 #define mHidePanels	14
 #define mHidePolyLines	15
 
+#define mAddAttr	20
+
 
 #define mInsertItm( menu, name, id, enable ) \
 { \
@@ -78,6 +88,13 @@ uiODLine2DParentTreeItem::uiODLine2DParentTreeItem()
     menu->insertItem( itm, id ); \
     itm->setEnabled( enable ); \
 }
+
+#define mInsertAttrBasedItem( attritm, txt ) \
+    attritm = new uiMenu( getUiParent(), tr(txt) ); \
+    mnu.insertItem( attritm ); \
+    for ( int idx=0; idx<displayedattribs.size(); idx++ ) \
+	attritm->insertItem( new uiAction(displayedattribs.get(idx)), \
+			     varmenuid++ );
 
 bool uiODLine2DParentTreeItem::showSubMenu()
 {
@@ -91,9 +108,53 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     }
 
     mnu.insertItem( new uiAction(tr("&Generate 3D cube ...")), mTo3D );
+    BufferStringSet displayedattribs;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	const int id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
+	const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
+	for ( int adx=0; adx<nrattribs; adx++ )
+	{
+	    const Attrib::SelSpec* ds =
+			    applMgr()->visServer()->getSelSpec( id, adx );
+	    BufferString attribname = sKeyUnselected();
+	    if ( ds && ds->userRef() && *ds->userRef() )
+		attribname = ds->userRef();
 
+	    if ( ds && ds->isNLA() )
+	    {
+		attribname = ds->objectRef();
+		const char* nodenm = ds->userRef();
+		if ( IOObj::isKey(ds->userRef()) )
+		    nodenm = IOM().nameOf( ds->userRef() );
+		attribname += " ("; attribname += nodenm; attribname += ")";
+	    }
+
+	    displayedattribs.addIfNew( attribname );
+	}
+    }
+
+    int varmenuid = 1000;
     if ( !children_.isEmpty() )
     {
+	mnu.insertSeparator();
+	mnu.insertItem( new uiAction(tr("Add attribute")), mAddAttr );
+	if ( !displayedattribs.isEmpty() )
+	{
+	    mInsertAttrBasedItem( replaceattritm_, "Replace attribute" );
+	    if ( displayedattribs.size()>1 )
+	    { mInsertAttrBasedItem( removeattritm_, "Remove attribute" ); }
+
+	    const int emptyidx = displayedattribs.indexOf( sKeyUnselected() );
+	    if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
+	    if ( displayedattribs.size() )
+	    {
+		mInsertAttrBasedItem( dispattritm_, "Display attribute" );
+		mInsertAttrBasedItem( hideattritm_, "Hide attribute" );
+		mInsertAttrBasedItem( editcoltabitm_, "Edit Color Settings" );
+	    }
+	}
+
 	mnu.insertSeparator();
 	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("&Display all") );
 	mInsertItm( dispmnu, tr("Line names"), mDispNames, true );
@@ -111,12 +172,26 @@ bool uiODLine2DParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    return mnuid<0 ? false : handleSubMenu( mnuid );
+    const bool ret = mnuid<0 ? false : handleSubMenu( mnuid );
+    replaceattritm_ = removeattritm_ = dispattritm_ = hideattritm_
+		    = editcoltabitm_ = 0;
+    return ret;
 }
 
 
 bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 {
+    TypeSet<Pos::GeomID> displayedgeomids;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
+	mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()))
+	if ( !s2d ) continue;
+
+	displayedgeomids += s2d->getGeomID();
+    }
+
     if ( mnuid == mAdd )
     {
 	int action = 0;
@@ -140,6 +215,58 @@ bool uiODLine2DParentTreeItem::handleSubMenu( int mnuid )
 	ODMainWin()->applMgr().create2Dfrom3D();
     else if ( mnuid == mTo3D )
 	ODMainWin()->applMgr().create3Dfrom2D();
+    else if ( mnuid == mAddAttr )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineTreeItem*,itm,children_[idx]);
+	    itm->addAttribItem();
+	}
+
+	selectLoadAttribute( displayedgeomids );
+    }
+    else if ( replaceattritm_ && replaceattritm_->findAction(mnuid) )
+    {
+	const uiAction* itm = replaceattritm_->findAction( mnuid );
+	FixedString attrnm = itm->text().getOriginalString();
+	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
+	selectLoadAttribute( displayedgeomids, attrnm );
+    }
+    else if ( removeattritm_ && removeattritm_->findAction(mnuid) )
+    {
+	const uiAction* itm = removeattritm_->findAction( mnuid );
+	FixedString attrnm = itm->text().getOriginalString();
+	if ( attrnm == sKeyUnselected() ) attrnm = sKeyRightClick();
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitm,children_[idx]);
+	    if ( lineitm ) lineitm->removeAttrib( attrnm );
+	}
+    }
+    else if ( ( dispattritm_ && dispattritm_->findAction(mnuid) ) ||
+	      ( hideattritm_ && hideattritm_->findAction(mnuid) ) )
+    {
+	const uiAction* itm = dispattritm_->findAction( mnuid );
+	const bool disp = itm;
+	if ( !itm ) itm = hideattritm_->findAction( mnuid );
+	const FixedString attrnm = itm->text().getOriginalString();
+	ObjectSet<uiTreeItem> set;
+	findChildren( attrnm, set );
+	for ( int idx=0; idx<set.size(); idx++ )
+	    set[idx]->setChecked( disp, true );
+    }
+    else if ( editcoltabitm_ && editcoltabitm_->findAction(mnuid) )
+    {
+	const uiAction* itm = editcoltabitm_->findAction( mnuid );
+	const FixedString attrnm = itm->text().getOriginalString();
+	ObjectSet<uiTreeItem> set;
+	findChildren( attrnm, set );
+	if ( set.size() )
+	{
+	    uiODEditAttribColorDlg dlg( ODMainWin(), set, attrnm );
+	    dlg.go();
+	}
+    }
     else if ( mnuid >= mDispNames && mnuid <= mHidePolyLines )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
@@ -196,7 +323,7 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     const char* attrnm = ioobj->name().buf();
     uiTaskRunner uitr( ODMainWin() );
     ObjectSet<uiTreeItem> set;
-    findChildren( sKeyRightClick, set );
+    findChildren( sKeyRightClick(), set );
     {
 	for ( int idx=0; idx<set.size(); idx++ )
 	{
@@ -210,17 +337,17 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
 
 
 bool uiODLine2DParentTreeItem::selectLoadAttribute(
-	const TypeSet<Pos::GeomID>& geomids )
+	const TypeSet<Pos::GeomID>& geomids, const char* curattrnm )
 {
     const Attrib::DescSet* ds =
 	applMgr()->attrServer()->curDescSet( true );
     const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, sKeyRightClick );
+    uiAttr2DSelDlg dlg( ODMainWin(), ds, geomids, nla, curattrnm );
     if ( !dlg.go() ) return false;
 
     uiTaskRunner uitr( ODMainWin() );
     ObjectSet<uiTreeItem> set;
-    findChildren( sKeyRightClick, set );
+    findChildren( curattrnm, set );
     const int attrtype = dlg.getSelType();
     if ( attrtype == 0 || attrtype == 1 )
     {
@@ -282,478 +409,6 @@ uiTreeItem*
     return 0;
 }
 
-/*
-uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
-    : uiODTreeItem("")
-    , setid_( mid )
-    , menuhandler_(0)
-    , addlinesitm_("&Add line(s) ...")
-    , zrgitm_("Set &Z-Range ...")
-    , addattritm_("Add A&ttribute")
-    , removeattritm_("Re&move Attribute")
-    , editattritm_("&Edit Attribute")
-    , editcoltabitm_("Edit &Color Settings")
-    , showattritm_("Sho&w Attribute")
-    , hideattritm_("&Hide Attribute")
-    , showitm_("&Show all")
-    , hideitm_("&Hide all")
-    , showlineitm_("&Lines")
-    , hidelineitm_("&Lines")
-    , showlblitm_("Line&names")
-    , hidelblitm_("Line&names")
-    , removeitm_("&Remove")
-    , storeditm_("Stored &2D data")
-    , steeringitm_("Steer&ing 2D data")
-    , expanditm_("Expand all")
-    , collapseitm_("Collapse all")
-    , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
-{
-    storeditm_.checkable = true;
-    steeringitm_.checkable = true;
-}
-
-
-uiOD2DLineSetTreeItem::~uiOD2DLineSetTreeItem()
-{
-    if ( menuhandler_ )
-    {
-	menuhandler_->createnotifier.remove(
-		mCB(this,uiOD2DLineSetTreeItem,createMenuCB) );
-	menuhandler_->handlenotifier.remove(
-		mCB(this,uiOD2DLineSetTreeItem,handleMenuCB) );
-	menuhandler_->unRef();
-    }
-}
-
-
-int uiOD2DLineSetTreeItem::uiTreeViewItemType() const
-{ return uiTreeViewItem::CheckBox; }
-
-
-void uiOD2DLineSetTreeItem::checkCB( CallBacker* )
-{
-    const bool checked = isChecked();
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	const int id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
-	visserv->turnOn( id, checked ? children_[idx]->isChecked() : false );
-    }
-}
-
-
-bool uiOD2DLineSetTreeItem::showSubMenu()
-{
-    if ( !menuhandler_ )
-    {
-	mDynamicCast(uiMenuHandler*,menuhandler_,
-		     ODMainWin()->applMgr().visServer()->getMenuHandler())
-	menuhandler_->createnotifier.notify(
-		mCB(this,uiOD2DLineSetTreeItem,createMenuCB) );
-	menuhandler_->handlenotifier.notify(
-		mCB(this,uiOD2DLineSetTreeItem,handleMenuCB) );
-	menuhandler_->ref();
-    }
-
-    menuhandler_->setMenuID( selectionKey() );
-    menuhandler_->executeMenu( uiMenuHandler::fromTree() );
-    return true;
-}
-
-
-int uiOD2DLineSetTreeItem::selectionKey() const
-{
-    if ( children_.size() < 1 )
-	return -1;
-
-    mDynamicCastGet(const uiODDisplayTreeItem*,itm,children_[0])
-    return itm ? 100000 + itm->displayID() : -1;
-}
-
-
-void uiOD2DLineSetTreeItem::selectAddLines()
-{
-    BufferStringSet linenames;
-    applMgr()->seisServer()->select2DLines( setid_, linenames );
-
-    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    for ( int idx=linenames.size()-1; idx>=0; idx-- )
-	addChild( new uiOD2DLineTreeItem(linenames.get(idx)), false );
-    cursorchgr.restore();
-
-    if ( !linenames.isEmpty() )
-	selectNewAttribute( sKeyRightClick );
-}
-
-
-void uiOD2DLineSetTreeItem::createAttrMenu( MenuHandler* menu )
-{
-    Attrib::SelSpec as;
-    applMgr()->attrServer()->resetMenuItems();
-    MenuItem* dummy =
-	applMgr()->attrServer()->storedAttribMenuItem( as, true, false );
-    dummy->removeItems();
-
-    BufferStringSet allstored;
-    Attrib::SelInfo::getAttrNames( setid_, allstored );
-    allstored.sort();
-    storeditm_.createItems( allstored );
-    mAddMenuItem( &addattritm_, &storeditm_, storeditm_.nrItems(), false );
-
-    MenuItem* attrmenu = applMgr()->attrServer()->
-			    calcAttribMenuItem( as, true, false );
-    mAddMenuItem( &addattritm_, attrmenu, attrmenu->nrItems(), false );
-
-    MenuItem* nla = applMgr()->attrServer()->
-			    nlaAttribMenuItem( as, true, false );
-    if ( nla && nla->nrItems() )
-	mAddMenuItem( &addattritm_, nla, true, false )
-
-    BufferStringSet allsteering;
-    Attrib::SelInfo::getAttrNames( setid_, allsteering, true );
-    allsteering.sort();
-    steeringitm_.createItems( allsteering );
-    mAddMenuItem( &addattritm_, &steeringitm_, steeringitm_.nrItems(), false );
-
-    mAddMenuItem( menu, &addattritm_, true, false );
-
-    BufferStringSet displayedattribs;
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	const int id = ((uiOD2DLineTreeItem*)children_[idx])->displayID();
-	const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
-	for ( int adx=0; adx<nrattribs; adx++ )
-	{
-	    const Attrib::SelSpec* ds =
-			    applMgr()->visServer()->getSelSpec( id, adx );
-	    BufferString attribname = sKeyUnselected;
-	    if ( ds && ds->userRef() && *ds->userRef() )
-		attribname = ds->userRef();
-
-	    if ( ds && ds->isNLA() )
-	    {
-		attribname = ds->objectRef();
-		const char* nodenm = ds->userRef();
-		if ( IOObj::isKey(ds->userRef()) )
-		    nodenm = IOM().nameOf( ds->userRef() );
-		attribname += " ("; attribname += nodenm; attribname += ")";
-	    }
-
-	    displayedattribs.addIfNew( attribname );
-	}
-    }
-
-    if ( displayedattribs.size() )
-    {
-	editattritm_.createItems( displayedattribs );
-	mAddMenuItem( menu, &editattritm_, true, false );
-	showattritm_.createItems( displayedattribs );
-	mAddMenuItem( menu, &showattritm_, true, false );
-	hideattritm_.createItems( displayedattribs );
-	mAddMenuItem( menu, &hideattritm_, true, false );
-
-	const int emptyidx = displayedattribs.indexOf( sKeyUnselected );
-	if ( emptyidx<0 || displayedattribs.size()>1 )
-	{
-	    removeattritm_.createItems( displayedattribs );
-	    mAddMenuItem( menu, &removeattritm_, true, false );
-	}
-	else
-	    mResetMenuItem( &removeattritm_ )
-
-	if ( emptyidx >= 0 ) displayedattribs.removeSingle( emptyidx );
-
-	if ( displayedattribs.size() )
-	{
-	    editcoltabitm_.createItems( displayedattribs );
-	    mAddMenuItem( menu, &editcoltabitm_, true, false );
-	}
-	else
-	    mResetMenuItem( &editcoltabitm_ )
-    }
-    else
-    {
-	mResetMenuItem( &editattritm_ );
-	mResetMenuItem( &showattritm_ );
-	mResetMenuItem( &hideattritm_ );
-	mResetMenuItem( &removeattritm_ );
-	mResetMenuItem( &editcoltabitm_ );
-    }
-}
-
-
-void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
-{
-    mDynamicCastGet(MenuHandler*,menu,cb);
-    if ( !menu || menu->menuID() != selectionKey() )
-	return;
-
-    mAddMenuItem( menu, &addlinesitm_, true, false );
-    if ( children_.size() > 1 )
-    {
-	mAddMenuItem( menu, &zrgitm_, true, false );
-
-	createAttrMenu( menu );
-	mAddMenuItem( menu, &showitm_, true, false );
-	mAddMenuItem( &showitm_, &showlineitm_, true, false );
-	mAddMenuItem( &showitm_, &showlblitm_, true, false );
-
-	mAddMenuItem( menu, &hideitm_, true, false );
-	mAddMenuItem( &hideitm_, &hidelineitm_, true, false );
-	mAddMenuItem( &hideitm_, &hidelblitm_, true, false );
-
-	mAddMenuItem( menu, &expanditm_, true, false );
-	mAddMenuItem( menu, &collapseitm_, true, false );
-    }
-    else
-    {
-	mResetMenuItem( &zrgitm_ );
-	mResetMenuItem( &addattritm_ );
-	mResetMenuItem( &removeattritm_ );
-	mResetMenuItem( &showattritm_ );
-	mResetMenuItem( &hideattritm_ );
-	mResetMenuItem( &showitm_ );
-	mResetMenuItem( &showlineitm_ );
-	mResetMenuItem( &showlblitm_ );
-	mResetMenuItem( &hideitm_ );
-	mResetMenuItem( &hidelineitm_ );
-	mResetMenuItem( &hidelblitm_ );
-	mResetMenuItem( &expanditm_ );
-	mResetMenuItem( &collapseitm_ );
-    }
-
-    mAddMenuItem( menu, &removeitm_, true, false );
-}
-
-
-#define mForAllKidsWithBurstCtrl( action ) \
-    int lastidx = children_.size()-1; \
-    for ( int idx=0; idx<=lastidx; idx++ ) \
-    { \
-	if ( !idx || idx==lastidx ) \
-	    EM::EMM().burstAlertToAll( !idx ); \
-	((uiOD2DLineTreeItem*) children_[idx])->action; \
-    }
-
-void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
-{
-    mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet(MenuHandler*,menu,caller)
-    if ( mnuid==-1 || menu->isHandled() || menu->menuID() != selectionKey() )
-	return;
-
-    if ( mnuid==addlinesitm_.id )
-    {
-	menu->setIsHandled(true);
-	selectAddLines();
-	return;
-    }
-
-    uiTaskRunner uitr( ODMainWin() );
-    Attrib::SelSpec as;
-    bool usemcomp = false;
-    if ( storeditm_.itemIndex(mnuid)!=-1 )
-    {
-	selcomps.erase();
-	menu->setIsHandled( true );
-	const int itmidx = storeditm_.itemIndex( mnuid );
-	const BufferString attribnm =
-		storeditm_.getItem(itmidx)->text.getFullString();
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitem,children_[idx]);
-	    lineitem->addStoredData( attribnm, -1, uitr );
-	}
-    }
-    else if ( steeringitm_.itemIndex(mnuid)!=-1 )
-    {
-	selcomps.erase();
-	menu->setIsHandled( true );
-	const int itmidx = steeringitm_.itemIndex( mnuid );
-	const BufferString attribnm =
-		steeringitm_.getItem(itmidx)->text.getFullString();
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitem,children_[idx]);
-	    lineitem->addStoredData( attribnm, 1, uitr );
-	}
-    }
-    else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as,usemcomp) )
-    {
-	menu->setIsHandled( true );
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineTreeItem*,lineitem,children_[idx]);
-	    lineitem->addAttrib( as, uitr );
-	}
-    }
-    else if ( editcoltabitm_.itemIndex(mnuid)!=-1 )
-    {
-	menu->setIsHandled( true );
-	const int itmidx = editcoltabitm_.itemIndex( mnuid );
-	BufferString attrnm =
-		editcoltabitm_.getItem(itmidx)->text.getFullString();
-	ObjectSet<uiTreeItem> set;
-	findChildren( attrnm, set );
-	if ( set.size() )
-	{
-	    uiODEditAttribColorDlg dlg( ODMainWin(), set, attrnm );
-	    dlg.go();
-	}
-    }
-    else if ( editattritm_.itemIndex(mnuid)!=-1 )
-    {
-	menu->setIsHandled( true );
-	const int itmidx = editattritm_.itemIndex( mnuid );
-	BufferString curnm = editattritm_.getItem(itmidx)->text.getFullString();
-	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
-						     : curnm.buf();
-	selectNewAttribute( attribnm );
-    }
-    else if ( removeattritm_.itemIndex(mnuid)!=-1 )
-    {
-	menu->setIsHandled( true );
-	const int itmidx = removeattritm_.itemIndex( mnuid );
-	const BufferString attribnm =
-		removeattritm_.getItem(itmidx)->text.getFullString();
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    ((uiOD2DLineTreeItem*)children_[idx])->removeAttrib( attribnm );
-    }
-    else if ( showattritm_.itemIndex(mnuid)!=-1 ||
-	      hideattritm_.itemIndex(mnuid)!=-1 )
-    {
-	menu->setIsHandled( true );
-	const bool show = showattritm_.itemIndex(mnuid)!=-1;
-	MenuItem& attritm = show ? showattritm_ : hideattritm_;
-	const int itmidx = attritm.itemIndex( mnuid );
-	BufferString curnm = attritm.getItem(itmidx)->text.getFullString();
-	const char* attribnm = curnm==sKeyUnselected ? sKeyRightClick
-						     : curnm.buf();
-	ObjectSet<uiTreeItem> itms; findChildren( attribnm, itms );
-	for ( int idx=0; idx<itms.size(); idx++ )
-	    itms[idx]->setChecked( show, true );
-    }
-    else if ( mnuid==removeitm_.id )
-    {
-	menu->setIsHandled( true );
-	if ( children_.size()>0 &&
-	     !uiMSG().askRemove("All lines will be removed from the tree."
-			      "\nDo you want to continue?") )
-	    return;
-
-	prepareForShutdown();
-	while ( children_.size() )
-	{
-	    uiOD2DLineTreeItem* itm = (uiOD2DLineTreeItem*)children_[0];
-	    applMgr()->visServer()->removeObject( itm->displayID(), sceneID() );
-	    removeChild( itm );
-	}
-	parent_->removeChild( this );
-    }
-    else if ( mnuid==showlineitm_.id || mnuid==hidelineitm_.id )
-    {
-	menu->setIsHandled( true );
-	const bool turnon = mnuid==showlineitm_.id;
-	mForAllKidsWithBurstCtrl( setChecked(turnon,true) );
-    }
-    else if ( mnuid==showlblitm_.id || mnuid==hidelblitm_.id )
-    {
-	menu->setIsHandled( true );
-	const bool turnon = mnuid==showlblitm_.id;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    ((uiOD2DLineTreeItem*)children_[idx])->showLineName( turnon );
-    }
-    else if ( mnuid == zrgitm_.id )
-    {
-	menu->setIsHandled( true );
-
-	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
-	Interval<int> intzrg(mNINT32(curzrg_.start*SI().zDomain().userFactor()),
-			    mNINT32(curzrg_.stop*SI().zDomain().userFactor()));
-	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
-			   new IntInpIntervalSpec(intzrg) );
-	if ( !dlg.go() ) return;
-
-	intzrg = dlg.getFld()->getIInterval();
-	curzrg_.start = float(intzrg.start) / SI().zDomain().userFactor();
-	curzrg_.stop = float(intzrg.stop) / SI().zDomain().userFactor();
-	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
-    }
-    else if ( mnuid == expanditm_.id )
-    {
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->expand();
-    }
-    else if ( mnuid == collapseitm_.id )
-    {
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->collapse();
-    }
-}
-
-
-void uiOD2DLineSetTreeItem::selectNewAttribute( const char* attribnm )
-{
-    const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
-    const NLAModel* nla = applMgr()->attrServer()->getNLAModel( true );
-    uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, nla, attribnm );
-    if ( !dlg.go() ) return;
-
-    uiTaskRunner uitr( ODMainWin() );
-    ObjectSet<uiTreeItem> set;
-    findChildren( attribnm, set );
-    const int attrtype = dlg.getSelType();
-    if ( attrtype == 0 )
-    {
-	const char* newattrnm = dlg.getStoredAttrName();
-	for ( int idx=0; idx<set.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-	    if ( item ) item->displayStoredData( newattrnm, -1, uitr );
-	}
-    }
-    else if ( attrtype == 1 || attrtype == 2 )
-    {
-	Attrib::SelSpec as;
-	if ( attrtype == 1 )
-	{
-	    const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
-	    if ( !desc )
-	    {
-		uiMSG().error("Selected attribute is not available");
-		return;
-	    }
-
-	    as.set( *desc );
-	}
-	else if ( nla )
-	{
-	    as.set( 0, dlg.getSelDescID(), attrtype == 2, "" );
-	    as.setObjectRef( applMgr()->nlaServer()->modelName() );
-	    as.setRefFromID( *nla );
-	}
-
-	as.set2DFlag( true );
-	for ( int idx=0; idx<set.size(); idx++ )
-	{
-	    mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
-	    item->setAttrib( as, uitr );
-	}
-    }
-}
-
-
-const char* uiOD2DLineSetTreeItem::parentType() const
-{ return typeid(uiODLine2DParentTreeItem).name(); }
-
-
-bool uiOD2DLineSetTreeItem::init()
-{
-    applMgr()->seisServer()->get2DLineSetName( setid_, name_ );
-    checkStatusChange()->notify( mCB(this,uiOD2DLineSetTreeItem,checkCB) );
-    return true;
-}
-*/
 
 #define mInits \
     : linenmitm_("Show linename") \
@@ -1104,8 +759,8 @@ void uiOD2DLineTreeItem::setZRange( const Interval<float> newzrg )
 void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 {
     BufferString itemnm = attribnm;
-    if ( itemnm == sKeyUnselected )
-	itemnm = sKeyRightClick;
+    if ( itemnm == uiODLine2DParentTreeItem::sKeyUnselected() )
+	itemnm = uiODLine2DParentTreeItem::sKeyRightClick();
 
     int nrattribitms = 0;
     for ( int idx=0; idx<children_.size(); idx++ )
@@ -1121,10 +776,7 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 	if ( !dataitem || itemnm!=dataitem->name() ) continue;
 
 	if ( attribitem && nrattribitms<=1 )
-	{
-	    attribitem->clearAttrib();
 	    return;
-	}
 
 	applMgr()->visServer()->removeAttrib( displayID(),
 					      dataitem->attribNr() );
