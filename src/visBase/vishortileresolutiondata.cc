@@ -48,7 +48,6 @@ TileResolutionData::TileResolutionData( const HorizonSectionTile* sectile,
     , resolution_( resolution )
     , nrdefinedvertices_( 0 )
     , updateprimitiveset_( true )
-    , txcoords_( new osg::Vec2Array )
     , linecolor_( new osg::Vec4Array )
     , geodes_( new osg::DefaultUserDataContainer )
     , trianglesosgps_( 0 )
@@ -81,6 +80,7 @@ TileResolutionData::~TileResolutionData()
     unRefOsgPrimitiveSets();
     geodes_->unref();
     vertices_->unRef();
+    setNrTexCoordLayers( 0 );
 }
 
 
@@ -777,14 +777,40 @@ void TileResolutionData::initVertices()
     osg::Vec3Array* normals = mGetOsgVec3Arr( normals_ );
     normals->resize( coordsize );
     std::fill( normals->begin(), normals->end(), osg::Vec3f( 0, 0, -1 ) );
-    mGetOsgVec2Arr(txcoords_)->resize( coordsize );
+    initTexCoordLayers();
 }
+
+
+void TileResolutionData::setNrTexCoordLayers( int nrlayers )
+{
+    while ( nrlayers > txcoords_.size() )
+    {
+	txcoords_.push_back( new osg::Vec2Array );
+	txcoords_.back()->ref();
+    }
+    while ( nrlayers < txcoords_.size() )
+    {
+	txcoords_.back()->unref();
+	txcoords_.pop_back();
+    }
+
+    initTexCoordLayers();
+}
+
+
+void TileResolutionData::initTexCoordLayers()
+{
+    const int coordsize = nrverticesperside_ * nrverticesperside_;
+
+    for ( int idx=0; idx<txcoords_.size(); idx++ )
+	mGetOsgVec2Arr(txcoords_[idx])->resize( coordsize );
+}
+
 
 void TileResolutionData::setWireframeColor( Color& color)
 {
     mGetOsgVec4Arr( linecolor_ )->clear();
     mGetOsgVec4Arr( linecolor_ )->push_back( Conv::to<osg::Vec4>( color ) );
-
 }
 
 
