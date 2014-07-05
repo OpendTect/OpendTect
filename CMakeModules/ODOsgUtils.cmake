@@ -19,7 +19,8 @@ if ( (EXISTS ${CMAKE_SOURCE_DIR}/external/osgGeo/CMakeLists.txt) AND
 	  "osgGeo location" FORCE )
 
     if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-	 (CMAKE_GENERATOR STREQUAL "Ninja") )
+	 (CMAKE_GENERATOR STREQUAL "Ninja") OR
+	 (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
 	if ( NOT EXISTS ${CMAKE_BINARY_DIR}/external/osgGeo )
 	    execute_process ( COMMAND ${CMAKE_COMMAND} -E make_directory
 			      "${osgGeo_DIR}" )
@@ -53,7 +54,8 @@ endif()
 
 if ( osgGeo_DIR MATCHES "${CMAKE_SOURCE_DIR}/external/osgGeo" )
     if ( (CMAKE_GENERATOR STREQUAL "Unix Makefiles") OR
-	 (CMAKE_GENERATOR STREQUAL "Ninja") )
+	 (CMAKE_GENERATOR STREQUAL "Ninja") OR
+	 (CMAKE_GENERATOR STREQUAL "NMake Makefiles") )
 	add_custom_target( osgGeo ALL COMMAND ${CMAKE_COMMAND}
 		    --build ${CMAKE_SOURCE_DIR}/external/osgGeo
 		    --target osgGeo )
@@ -185,6 +187,4 @@ macro(OD_SETUP_OSG)
     list(APPEND OD_MODULE_EXTERNAL_LIBS ${OD_OSG_LIBS} )
 
 endmacro(OD_SETUP_OSG)
-
-
 
