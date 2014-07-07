@@ -358,6 +358,7 @@ void ui3DViewerBody::setupView()
 
     keybindman_.setTrackballManipulator( manip );
 
+    manip->enableKeyHandling( false );	// No space key to restore home view
     manip->addMovementCallback( manipmessenger_ );
     manip->setBoundTraversalMask( visBase::cBBoxTraversalMask() );
     manip->setIntersectTraversalMask( visBase::cIntersectionTraversalMask() );
