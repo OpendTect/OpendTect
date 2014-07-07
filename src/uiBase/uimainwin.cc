@@ -1770,6 +1770,8 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	savebut->attach( ensureBelow, lowestobj );
 	savebut->attach( bottomBorder, vborderdist );
 	savebut->attach( leftBorder, hborderdist );
+	if ( prevbut )
+	    savebut->attach( ensureLeftOf, prevbut );
     }
 }
 
