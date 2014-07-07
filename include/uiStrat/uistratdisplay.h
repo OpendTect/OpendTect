@@ -191,7 +191,6 @@ protected:
 
     Interval<float>		range_;
     Interval<float>		boundingrange_;
-    float 			zoomfac_;
 
     float			startdragpos_;
     bool 			mousepressed_;

@@ -600,7 +600,6 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     : viewer_(v)
-    , zoomfac_(1)
     , manip_(false)		 
     , rangeChanged(this)
     , tb_(su.tb_)
