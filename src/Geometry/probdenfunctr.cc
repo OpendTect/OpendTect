@@ -52,6 +52,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     }
 
     ProbDenFunc* ret = pdftr->read( *sd.istrm );
+    if ( !ret ) return 0;
     ret->setName( ioobj.name() );
     sd.close();
     if ( !ret && emsg )
@@ -101,6 +102,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( std::istream& strm )
     else if ( type == SampledNDProbDenFunc::typeStr() )
 	pdf = new SampledNDProbDenFunc();
 
+    if ( !pdf ) return 0;
     if ( !pdf->usePar(par) )
 	{ delete pdf; return 0; }
 
