@@ -235,6 +235,7 @@ protected:
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			showPtsInWorkSpace(CallBacker*);
+    void			applClosingCB(CallBacker*);
 
     friend class		uiDataPointSetCrossPlotter;
     uiDataPointSetCrossPlotWin*	xplotwin_;
