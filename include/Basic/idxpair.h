@@ -14,6 +14,9 @@ ________________________________________________________________________
 
 #include "basicmod.h"
 #include "gendefs.h"
+#ifdef __win__
+# include <tuple>
+#endif
 #include <utility>
 
 
