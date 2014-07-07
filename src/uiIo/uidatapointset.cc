@@ -181,6 +181,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, showbidsfld_(0)
 {
     windowClosed.notify( mCB(this,uiDataPointSet,closeNotify) );
+    mAttachCB(IOM().applicationClosing,uiDataPointSet::applClosingCB);
 
     if ( mDPM.haveID(dps_.id()) )
 	mDPM.obtain( dps_.id() );
@@ -253,12 +254,16 @@ int uiDataPointSet::initVars()
 
 uiDataPointSet::~uiDataPointSet()
 {
+    detachAllNotifiers();
     deepErase( variodlgs_ );
     removeSelPts( 0 );
-    if ( dpsdisppropdlg_ )
-	dpsdisppropdlg_->windowClosed.remove(
-		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
     delete xplotwin_;
+}
+
+
+void uiDataPointSet::applClosingCB( CallBacker* )
+{
+    dpsdispmgr_ = 0;
 }
 
 
@@ -1477,8 +1482,8 @@ void uiDataPointSet::showSelPts( CallBacker* )
 	dpsdisppropdlg_ =
 	    new uiDPSDispPropDlg( xplotwin_, xplotwin_->plotter(),
 				  dpsdispmgr_->dispProp() );
-	dpsdisppropdlg_->windowClosed.notify(
-		mCB(this,uiDataPointSet,showPtsInWorkSpace) );
+	mAttachCB(dpsdisppropdlg_->windowClosed,
+		  uiDataPointSet::showPtsInWorkSpace);
     }
 
     dpsdisppropdlg_->go();
