@@ -441,7 +441,9 @@ bool FSStoFault3DConverter::readSectionForImport( const SectionID& sid )
 		}
 	    }
 	}
-	sticks_[nearidx]->crds_ += pos;
+	
+	if ( sticks_.validIdx(nearidx) )
+	    sticks_[nearidx]->crds_ += pos;
     }
 
     return true;
