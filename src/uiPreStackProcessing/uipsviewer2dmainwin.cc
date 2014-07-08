@@ -228,7 +228,7 @@ void uiViewer2DMainWin::displayMutes()
 	    StepInterval<float> offsetrg = gd->getOffsetRange();
 	    offsetrg.step = offsetrg.width()/20.0f;
 	    const int sz = offsetrg.nrSteps()+1;
-	    muteaux->poly_.setCapacity( sz );
+	    muteaux->poly_.setCapacity( sz, false );
 	    for ( int offsidx=0; offsidx<sz; offsidx++ )
 	    {
 		const float offset = offsetrg.atIndex( offsidx );

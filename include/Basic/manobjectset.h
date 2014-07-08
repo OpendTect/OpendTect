@@ -89,7 +89,7 @@ template <class T> inline
 void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 {
     const int sz = os.size();
-    this->vec_.setCapacity( this->size()+sz );
+    this->vec_.setCapacity( this->size()+sz, true );
     if ( !os.isManaged() )
 	ObjectSet<T>::append( os );
     else

@@ -782,8 +782,8 @@ bool MarchingCubes2Implicit::processSeeds( const od_int64* offsets, int nr )
     TypeSet<int> vals;
 
     const int capactity = nr * (nodistance_ ? 6 : 26 );
-    newseeds.setCapacity( capactity );
-    vals.setCapacity( capactity );
+    newseeds.setCapacity( capactity, false );
+    vals.setCapacity( capactity, false );
 
     const int* resptr = result_.getData();
 

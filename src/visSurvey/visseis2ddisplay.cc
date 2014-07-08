@@ -200,8 +200,8 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     const int possz = linepositions.size();
     trcdisplayinfo_.alltrcnrs_.erase();
     trcdisplayinfo_.alltrcpos_.erase();
-    trcdisplayinfo_.alltrcnrs_.setCapacity( possz );
-    trcdisplayinfo_.alltrcpos_.setCapacity( possz );
+    trcdisplayinfo_.alltrcnrs_.setCapacity( possz, false );
+    trcdisplayinfo_.alltrcpos_.setCapacity( possz, false );
 
     maxtrcnrrg_.set( 0, mUdf(int), tracestep );
     for ( int idx=0; idx<possz; idx++ )
@@ -677,8 +677,8 @@ void Seis2DDisplay::updatePanelStripPath()
 
     TypeSet<Coord> path;
     TypeSet<float> mapping;
-    path.setCapacity( knots.size() );
-    mapping.setCapacity( knots.size() );
+    path.setCapacity( knots.size(), false );
+    mapping.setCapacity( knots.size(), false );
 
     polyline_->removeAllPoints();
     for ( int idx=0; idx<knots.size(); idx++ )

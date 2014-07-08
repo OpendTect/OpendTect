@@ -148,9 +148,9 @@ float PropCalc::getVal( float z ) const
     const int nrz = gather_->size( !gather_->zDim() );
 
     TypeSet<float> axisvals, vals;
-    vals.setCapacity( nroffsets );
+    vals.setCapacity( nroffsets, false );
     if ( setup_.calctype_ != Stats )
-	axisvals.setCapacity( nroffsets );
+	axisvals.setCapacity( nroffsets, false );
 
     const StepInterval<double> si = gather_->posData().range(!gather_->zDim());
     for ( int itrc=0; itrc<nroffsets; itrc++ )

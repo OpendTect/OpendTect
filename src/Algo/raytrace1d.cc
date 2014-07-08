@@ -349,7 +349,7 @@ bool RayTracer1D::getReflectivity( int offset, ReflectivityModel& model ) const
     const int nrinterfaces = reflectivity_->info().getSize(0);
 
     model.erase();
-    model.setCapacity( nrinterfaces );
+    model.setCapacity( nrinterfaces, false );
     ReflectivitySpike spike;
 
     for ( int iidx=0; iidx<nrinterfaces; iidx++ )

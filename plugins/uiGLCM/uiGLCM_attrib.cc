@@ -450,7 +450,7 @@ void uiGLCM_attrib::determineMinMax( const SeisTrcBuf& bufs )
 {
     const SeisTrc* seisttrc = bufs.get( 0 );
     TypeSet<float> vals;
-    vals.setCapacity( bufs.size() * bufs.get(0)->size() );
+    vals.setCapacity( bufs.size() * bufs.get(0)->size(), false );
 
     for ( int trcnr=0; trcnr<bufs.size(); trcnr++ )
     {

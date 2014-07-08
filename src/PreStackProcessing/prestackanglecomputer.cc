@@ -436,7 +436,7 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 
     const int zsize = zrange.nrSteps() + 1;
     TypeSet<float> vel;
-    vel.setCapacity( zsize );
+    vel.setCapacity( zsize, false );
 
     float convfactor = 1;
     if ( SI().zDomain().isTime() && SI().depthsInFeet() )

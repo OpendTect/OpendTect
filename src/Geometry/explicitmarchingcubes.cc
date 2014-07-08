@@ -392,8 +392,8 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     TypeSet<int> coordindices;
     TypeSet<Coord3> normals;
 
-    coordindices.setCapacity( nrtableindices*16 );
-    normals.setCapacity( nrtableindices*16 );
+    coordindices.setCapacity( nrtableindices*16, false );
+    normals.setCapacity( nrtableindices*16, false );
 
     int arrpos = 0;
     bool gotonextstrip = false;

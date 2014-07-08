@@ -164,7 +164,8 @@ bool HorizonSectionTilePosSetup::doWork( od_int64 start, od_int64 stop,
     {
 	const RowCol& origin = hrtiles_[idx]->origin_;
 	TypeSet<Coord3> positions;
-	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_) );
+	positions.setCapacity( (nrcrdspertileside_)*(nrcrdspertileside_),
+			       false );
 	for ( int rowidx=0; rowidx<nrcrdspertileside_ ; rowidx++ )
 	{
 	    const int row = origin.row() + rowidx*rrg_.step;

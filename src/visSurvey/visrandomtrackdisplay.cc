@@ -740,8 +740,8 @@ void RandomTrackDisplay::updatePanelStripPath()
 
     TypeSet<Coord> pathcrds;
     TypeSet<float> mapping;
-    pathcrds.setCapacity( knots_.size() );
-    mapping.setCapacity( knots_.size() );
+    pathcrds.setCapacity( knots_.size(), false );
+    mapping.setCapacity( knots_.size(), false );
 
     int knotidx = 0;
     for ( int trcidx=0; trcidx<trcbids.size(); trcidx++ )

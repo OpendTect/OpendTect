@@ -549,7 +549,8 @@ void computePts( bool isy2 )
     const int nrpts = linedrawn ? 70 : 1000;
     const Interval<float> xrge = horz.rg_;
     const float step = fabs( (xrge.stop-xrge.start)/(nrpts-1) );
-    TypeSet<uiWorldPoint> pts; pts.setCapacity( nrpts );
+    TypeSet<uiWorldPoint> pts;
+    pts.setCapacity( nrpts, false );
 
     for ( int idx=0; idx<nrpts; idx++ )
     {

@@ -113,7 +113,7 @@ void FlatPosData::getPositions( bool isx1, TypeSet<float>& res ) const
     res.erase();
 
     const int nrtimes = nrPts( isx1 );
-    res.setCapacity( nrtimes );
+    res.setCapacity( nrtimes, false );
     for ( int idx=0; idx<nrtimes; idx++ )
 	res += ( float )position( isx1, idx );
 }

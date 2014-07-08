@@ -287,7 +287,8 @@ void uiWellDahDisplay::drawCurve( bool first )
     const int sz = ld.dahobj_ ? ld.dahobj_->size() : 0;
     if ( sz < 2 ) return;
 
-    TypeSet<uiPoint> pts; pts.setCapacity( sz );
+    TypeSet<uiPoint> pts;
+    pts.setCapacity( sz, false );
     for ( int idx=0; idx<sz; idx++ )
     {
 	mDefZPosInLoop( ld.dahobj_->dah( idx ) );
@@ -306,7 +307,7 @@ void uiWellDahDisplay::drawCurve( bool first )
 	    ld.dahobj_->name().isEqual( "reflectivity", CaseInsensitive );
 	if ( isreflectivity )
 	{
-	    ptsforspikes.setCapacity( 3 * sz );
+	    ptsforspikes.setCapacity( 3 * sz, false );
 	    for ( int idx=0; idx<pts.size(); idx++ )
 	    {
 		const uiPoint extrapt = uiPoint( ld.xax_.getPix(0),pts[idx].y );

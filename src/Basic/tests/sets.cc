@@ -203,6 +203,22 @@ static int testObjSetEqual()
 }
 
 
+bool testSetCapacity()
+{
+    TypeSet<int> vec;
+    mRunStandardTest( vec.setCapacity( 4, true ) &&
+		      vec.getCapacity()==4, "Set capacity 4" );
+
+    mRunStandardTest( vec.setCapacity( 5, true ) &&
+		      vec.getCapacity()==8, "Set capacity 5" );
+
+    mRunStandardTest( vec.setCapacity( 4, true ) &&
+		      vec.getCapacity()==8, "re-set capacity 4" );
+
+    return true;
+}
+
+
 
 int main( int argc, char** argv )
 {
@@ -212,6 +228,7 @@ int main( int argc, char** argv )
     res += testTypeSetSetFns();
     res += testObjSetFind();
     res += testObjSetEqual();
+    res += testSetCapacity();
 
     return ExitProgram( res );
 }
