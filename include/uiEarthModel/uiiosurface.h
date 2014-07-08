@@ -172,6 +172,28 @@ protected:
 };
 
 
+mExpClass(uiEarthModel) uiHorizonParSel : public uiCompoundParSel
+{
+public:
+				uiHorizonParSel(uiParent*,bool is2d,
+						bool withclear=false);
+				~uiHorizonParSel();
+
+    void			setSelected(const TypeSet<MultiID>&);
+    const TypeSet<MultiID>&	getSelected() const;
+
+    BufferString		getSummary() const;
+
+protected:
+
+    void			clearPush(CallBacker*);
+    void			doDlg(CallBacker*);
+
+    bool			is2d_;
+    TypeSet<MultiID>		selids_;
+};
+
+
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
 {
 public:

@@ -506,6 +506,72 @@ bool uiSurfaceRead::processInput()
 }
 
 
+// uiHorizonParSel
+uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
+    : uiCompoundParSel(p,"Horizons")
+{
+    butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
+
+    if ( wclear )
+    {
+	uiPushButton* clearbut = new uiPushButton( this, "Clear", true );
+	clearbut->activated.notify( mCB(this,uiHorizonParSel,clearPush) );
+	clearbut->attach( rightOf, selbut_ );
+    }
+
+    txtfld_->setElemSzPol( uiObject::Wide );
+}
+
+
+uiHorizonParSel::~uiHorizonParSel()
+{
+}
+
+
+void uiHorizonParSel::setSelected( const TypeSet<MultiID>& ids )
+{ selids_ = ids;
+}
+
+const TypeSet<MultiID>& uiHorizonParSel::getSelected() const
+{ return selids_; }
+
+
+BufferString uiHorizonParSel::getSummary() const
+{
+    SeparString ss;
+    for ( int idx=0; idx<selids_.size(); idx++ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( selids_[idx] );
+	if ( !ioobj ) continue;
+
+	ss.add( ioobj->name() );
+    }
+
+    return ss.buf();
+}
+
+
+void uiHorizonParSel::clearPush(CallBacker *)
+{
+    selids_.erase();
+    updateSummary();
+}
+
+
+void uiHorizonParSel::doDlg(CallBacker *)
+{
+    IOObjContext ctxt =
+	is2d_ ? mIOObjContext(EMHorizon2D) : mIOObjContext(EMHorizon3D);
+    uiIOObjSelDlg dlg( this, ctxt, "Select Horizons", true );
+    dlg.selGrp()->setChosen( selids_ );
+    if ( !dlg.go() ) return;
+
+    selids_.erase();
+    dlg.selGrp()->getChosen( selids_ );
+}
+
+
+
 // uiFaultParSel
 class uiFSS2DLineSelDlg : public uiDialog
 {
