@@ -42,8 +42,9 @@ public:
     inline virtual od_int64	nrItems() const	{ return size(); }
     inline virtual bool		setSize(size_type,T val=T());
 				/*!<\param val value assigned to new items */
-    inline virtual bool		setCapacity( size_type sz );
+    inline virtual bool		setCapacity(size_type sz,bool withmargin=false);
 				/*!<Allocates mem only, no size() change */
+    inline virtual size_type	getCapacity() const {return vec_.getCapacity();}
     inline void			setAll(T);
     inline void			replace(T,T);
 
@@ -208,7 +209,7 @@ template <class T, class I, class J, class S>
 inline bool append( TypeSetBase<T,I>& to, const TypeSetBase<S,J>& from )
 {
     const J sz = from.size();
-    if ( !to.setCapacity( sz + to.size() ) ) return false;
+    if ( !to.setCapacity( sz + to.size(), true ) ) return false;
     for ( J idx=0; idx<sz; idx++ )
 	to += from[idx];
 
@@ -275,8 +276,8 @@ bool TypeSetBase<T,I>::setSize( I sz, T val )
 
 
 template <class T, class I> inline
-bool TypeSetBase<T,I>::setCapacity( I sz )
-{ return vec_.setCapacity( sz ); }
+bool TypeSetBase<T,I>::setCapacity( I sz, bool withmargin )
+{ return vec_.setCapacity( sz, withmargin ); }
 
 
 template <class T, class I> inline
@@ -425,7 +426,7 @@ bool TypeSetBase<T,I>::append( const T* tarr, I sz )
 {
     if ( !sz ) return true;
 
-    if ( !setCapacity( sz+size() ) )
+    if ( !setCapacity( sz+size(), true ) )
 	return false;
 
     for ( I idx=0; idx<sz; idx++ )

@@ -58,7 +58,7 @@ public:
     inline T&		last()				{ return v_.back(); }
     inline const T&	last() const			{ return v_.back(); }
     inline I		size() const			{ return (I)v_.size(); }
-    inline bool		setCapacity(I sz);
+    inline bool		setCapacity(I sz, bool withmargin = false );
     			/*!<Allocates mem for sz, does not change size.*/
     inline I		getCapacity() const		{ return v_.capacity();}
     			/*!<\returns max size without reallocation.*/
@@ -152,8 +152,23 @@ template mExpClass(mod) VectorAccess<tp,itp>;\
 
 
 template<class T,class I> inline
-bool VectorAccess<T,I>::setCapacity( I sz )
+bool VectorAccess<T,I>::setCapacity( I sz, bool withmargin )
 {
+    if ( sz<=v_.capacity() )
+	return true;
+
+    if ( withmargin )
+    {
+	I tmp = sz-1;
+	sz = 1;
+
+	while ( tmp )
+	{
+	    tmp >>= 1;
+	    sz <<= 1;
+	}
+    }
+
     try { v_.reserve(sz); }
     catch ( std::bad_alloc )
     { return false; }
