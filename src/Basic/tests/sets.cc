@@ -225,7 +225,7 @@ int main( int argc, char** argv )
     res += testTypeSetSetFns();
     res += testObjSetFind();
     res += testObjSetEqual();
-    res += testSetCapacity();
+    res += testSetCapacity() ? 0 : 1;
 
     return ExitProgram( res );
 }
