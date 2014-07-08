@@ -53,6 +53,7 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     }
 
     ProbDenFunc* ret = pdftr->read( strm );
+    if ( !ret ) return 0;
     ret->setName( ioobj.name() );
     if ( !ret && emsg )
 	{ *emsg = "Cannot read PDF from '"; *emsg += fnm; *emsg += "'"; }
@@ -107,6 +108,7 @@ ProbDenFunc* odProbDenFuncTranslator::read( od_istream& strm )
     else if ( type == GaussianNDProbDenFunc::typeStr() )
 	pdf = new GaussianNDProbDenFunc();
 
+    if ( !pdf ) return 0;
     if ( !pdf->usePar(par) )
 	{ delete pdf; return 0; }
 
