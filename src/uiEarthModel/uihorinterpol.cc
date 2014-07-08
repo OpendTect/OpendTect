@@ -560,8 +560,8 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
 		 selfaultids[idx] );
 
-    par.set( TriangulationArray2DInterpol::sKeyDoInterpol(),
-	     !useneighborfld_->isChecked() );
+    par.setYN( TriangulationArray2DInterpol::sKeyDoInterpol(),
+	       !useneighborfld_->isChecked() );
     if ( usemax )
 	par.set( TriangulationArray2DInterpol::sKeyMaxDistance(), maxdist );
 
