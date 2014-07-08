@@ -138,7 +138,7 @@ macro( copy_thirdpartylibs )
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
-		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
+		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
