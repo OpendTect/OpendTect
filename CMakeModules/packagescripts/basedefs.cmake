@@ -28,7 +28,7 @@ set( PLUGINS HorizonAttrib VoxelConnectivityFilter uiHorizonAttrib uiPreStackVie
 	     GMT uiGMT uiImpGPR Madagascar uiMadagascar
 	     MadagascarAttribs uiMadagascarAttribs GLCM uiGLCM )
 #Only for windows base package
-set( WINEXECLIST od_start_dtect od_main_console )
+set( WINEXECLIST od_start_dtect od_main_console od_runinst )
 
 #No need to include shell scripts in windows base package.
 set( TXTFILES GNU_GENERAL_PUBLIC_LICENSE.txt INSTALL.txt LICENSE.txt )
