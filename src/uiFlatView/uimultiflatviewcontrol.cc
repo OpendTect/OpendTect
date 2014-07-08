@@ -21,8 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "flatviewzoommgr.h"
 #include "scaler.h"
-#include "mouseevent.h"
-#include "pixmap.h"
 
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
