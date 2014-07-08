@@ -154,7 +154,6 @@ void uiWellMan::ownSelChg()
 }
 
 
-
 void uiWellMan::getCurrentWells()
 {
     curfnms_.erase();
@@ -216,6 +215,7 @@ void uiWellMan::checkButtons()
     logSel(0);
 }
 
+
 #define mSetButToolTip(but,front,curwellnm,end) \
     if ( !but->sensitive() ) \
 	but->setToolTip( uiStrings::sEmptyString() ); \
@@ -223,7 +223,7 @@ void uiWellMan::checkButtons()
     { \
 	tt.setEmpty(); \
 	tt.add( front ).add( " '" ).add( curwellnm ).add( "' " ).add( end ); \
-	but->setToolTip( tr(tt) ); \
+	but->setToolTip( tt ); \
     }
 
 void uiWellMan::setToolButtonProperties()
