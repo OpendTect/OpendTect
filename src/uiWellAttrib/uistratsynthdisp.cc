@@ -1117,8 +1117,7 @@ void uiStratSynthDisp::doModelChange()
 	uiMSG().warning( curSS().infoMsg() );
     }
 
-    StratSynth* ss = useed_ ? stratsynth_ : edstratsynth_;
-    ss->clearInfoMsg();
+    curSS().clearInfoMsg();
     updateSyntheticList( true );
     updateSyntheticList( false );
     wvadatalist_->setCurrentItem( 1 );
