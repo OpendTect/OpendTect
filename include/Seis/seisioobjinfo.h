@@ -66,7 +66,7 @@ public:
     			//!< max bytes per sample, component -1 => add all
 
     void		getDefKeys(BufferStringSet&,bool add=false) const;
-    			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
+			//!< IOObj ID,
     static BufferString	defKey2DispName(const char* defkey,
 	    				const char* ioobjnm=0);
     static BufferString	def3DDispName(const char* defkey,
