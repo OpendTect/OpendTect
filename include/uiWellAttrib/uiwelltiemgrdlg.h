@@ -91,6 +91,7 @@ protected:
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
+	void		wellToBeDeleted(CallBacker*);
     void		set3DSeis() const {}; //will be removed
     void		set2DSeis() const {}; //will be removed
     void		setLine() const {}; //will be removed

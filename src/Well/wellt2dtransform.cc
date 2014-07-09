@@ -40,7 +40,10 @@ WellT2DTransform::WellT2DTransform( const MultiID& wllid )
 
 
 WellT2DTransform::~WellT2DTransform()
-{}
+{
+    if ( data_ )
+	data_->tobedeleted.remove( mCB(this,WellT2DTransform,wellToBeDeleted) );
+}
 
 
 bool WellT2DTransform::isOK() const
@@ -182,6 +185,8 @@ Interval<float> WellT2DTransform::getZInterval( bool time ) const
 
 bool WellT2DTransform::setWellID( const MultiID& mid )
 {
+    if ( data_ )
+	data_->tobedeleted.remove( mCB(this,WellT2DTransform,wellToBeDeleted) );
     deleteAndZeroPtr( data_ );
     tozdomaininfo_.pars_.set( sKey::ID(), mid );
 
@@ -194,6 +199,8 @@ bool WellT2DTransform::setWellID( const MultiID& mid )
 
 	return false;
     }
+
+    data_->tobedeleted.notify( mCB(this,WellT2DTransform,wellToBeDeleted) );
 
     return calcDepths();
 }
@@ -211,4 +218,12 @@ bool WellT2DTransform::usePar( const IOPar& iop )
 	return false;
 
     return true;
+}
+
+
+void WellT2DTransform::wellToBeDeleted( CallBacker* )
+{
+    data_ = Well::MGR().get( data_->multiID() );
+    if ( data_ )
+	data_->tobedeleted.notify( mCB(this,WellT2DTransform,wellToBeDeleted) );
 }

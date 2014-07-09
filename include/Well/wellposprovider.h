@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "multiid.h"
 #include "posprovider.h"
+#include "callback.h"
 
 class HorSampling;
 namespace Well { class Data; }
@@ -29,6 +30,7 @@ namespace Pos
 */
 
 mExpClass(Well) WellProvider3D : public Provider3D
+			       , public CallBacker
 {
 public:
 			WellProvider3D();
@@ -87,6 +89,7 @@ protected:
 
     BinID		curbid_;
     float		curz_;
+    void		wellToBeDeleted(CallBacker*);
 
 public:
 

@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "welllogset.h"
+#include "welldata.h"
 #include "wellman.h"
 
 
@@ -99,6 +100,7 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
     if ( !wd_ )
     { errmsg_.set( "Cannot open well" ); return; }
 
+    wd_->tobedeleted.notify( mCB(this,WellData,wellToBeDeleted) );
     Well::SimpleTrackSampler wtextr( wd_->track(), wd_->d2TModel(), true, true);
     wtextr.setSampling( SI().zRange(true) );
     if ( !wtextr.execute() )
@@ -108,8 +110,21 @@ LogCubeCreator::WellData::WellData( const MultiID& wid )
 }
 
 
+void LogCubeCreator::WellData::wellToBeDeleted( CallBacker* )
+{
+    wd_ = Well::MGR().get( wd_->multiID() );
+    if ( wd_ )
+	wd_->tobedeleted.notify( mCB(this,WellData,wellToBeDeleted) );
+}
+
+
 LogCubeCreator::WellData::~WellData()
 {
+    if ( wd_ )
+    {
+	wd_->tobedeleted.remove( mCB(this,WellData,wellToBeDeleted) );
+	delete Well::MGR().release( wd_->multiID() );
+    }
     deepErase( trcs_ );
 }
 

@@ -36,6 +36,7 @@ protected:
     MultiID		wellid_;
 
     void		inpchg(CallBacker*);
+    void		wellToBeDeleted(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
