@@ -107,7 +107,7 @@ SET( OD_MODULE_GUI_PROGS
 
 if( WIN32 )
     list( APPEND OD_ELEVATED_PERMISSIONS_GUI_PROGS od_runinst.cc )
-    set( OD_od_runinst_RESOURCE od_runinst.rc )
+    set( OD_od_runinst_RESOURCE resources/od_runinst.rc )
 endif( WIN32 )
 
 OD_INIT_MODULE()
