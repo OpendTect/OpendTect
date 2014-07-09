@@ -1337,7 +1337,7 @@ class uiWorkAreaDlg : public uiDialog
 {
 public:
 uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Set work volume",uiStrings::sEmptyString(),
+    : uiDialog(p,uiDialog::Setup("Set work volume",mNoDlgTitle,
                                     mODHelpKey(mWorkAreaDlgHelpID) ) )
 {
     selfld_ = new uiSelSubvol( this, false );
