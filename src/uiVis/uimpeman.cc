@@ -30,10 +30,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolortable.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiselsurvranges.h"
 #include "uislider.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "visemobjdisplay.h"
@@ -127,6 +129,9 @@ void uiMPEMan::addButtons()
 
     showcubeidx = mAddButton( "trackcube", showCubeCB,
 			      tr("Show track area"), true );
+    uiMenu* cubemnu = new uiMenu( toolbar, "CubeMenu" );
+    mAddMnuItm( cubemnu, tr("Position ..."), setCubePosCB, "orientation64", 0 );
+    toolbar->setButtonMenu( showcubeidx, cubemnu );
 
     moveplaneidx = mAddButton( "QCplane-inline", movePlaneCB,
 			       tr("Display QC plane"), true );
@@ -146,11 +151,11 @@ void uiMPEMan::addButtons()
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
     trackforwardidx = mAddButton( "prevpos", moveBackward,
-				  tr("Move QC plane backward (key: '[')"), 
+				  tr("Move QC plane backward (key: '[')"),
                                   false );
     toolbar->setShortcut(trackforwardidx,"[");
     trackbackwardidx = mAddButton( "nextpos", moveForward,
-				   tr("Move QC plane forward (key: ']')"), 
+				   tr("Move QC plane forward (key: ']')"),
                                    false );
     toolbar->setShortcut(trackbackwardidx,"]");
     clrtabidx = mAddButton( "colorbar", setColorbarCB,
@@ -787,6 +792,49 @@ void uiMPEMan::showCubeCB( CallBacker* )
 }
 
 
+
+class uiSetCubePosDlg : public uiDialog
+{
+public:
+uiSetCubePosDlg( uiParent* p, const CubeSampling& cs )
+    : uiDialog(p,uiDialog::Setup("Set Cube Position",mNoDlgTitle,
+                                    mTODOHelpKey))
+{
+    selfld_ = new uiSelSubvol( this, false );
+    selfld_->setSampling( cs );
+    fullbut_ = new uiToolButton( this, "exttofullsurv",
+				"Set ranges to full survey",
+				 mCB(this,uiSetCubePosDlg,fullPush) );
+    fullbut_->attach( rightOf, selfld_ );
+}
+
+void fullPush( CallBacker* )
+{
+    selfld_->setSampling( SI().sampling(false) );
+}
+
+CubeSampling getSampling() const
+{ return selfld_->getSampling(); }
+
+    uiSelSubvol*	selfld_;
+    uiToolButton*	fullbut_;
+};
+
+
+void uiMPEMan::setCubePosCB( CallBacker* )
+{
+    const CubeSampling& cs = MPE::engine().activeVolume();
+    uiSetCubePosDlg dlg( toolbar, cs );
+    if ( !dlg.go() ) return;
+
+    NotifyStopper notifystopper( MPE::engine().activevolumechange );
+    MPE::engine().setActiveVolume( dlg.getSampling() );
+    notifystopper.restore();
+    visserv->postponedLoadingData();
+    MPE::engine().activevolumechange.trigger();
+}
+
+
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar->isOn(seedidx) );
@@ -1178,8 +1226,8 @@ void uiMPEMan::selectionMode( CallBacker* cb )
 
     toolbar->setIcon( polyselectidx, sIsPolySelect ?
 			"polygonselect" : "rectangleselect" );
-    toolbar->setToolTip( polyselectidx, 
-                         sIsPolySelect ? tr("Polygon Selection mode") 
+    toolbar->setToolTip( polyselectidx,
+                         sIsPolySelect ? tr("Polygon Selection mode")
                                        : tr("Rectangle Selection mode") );
 
     if ( toolbar->isOn(polyselectidx) )
@@ -1577,8 +1625,8 @@ void uiMPEMan::displayAtSectionCB( CallBacker* )
     if ( surface && (surface->getObjectID()== tracker->objectID()) )
 	surface->setOnlyAtSectionsDisplay( ison );
 
-    toolbar->setToolTip( displayatsectionidx, 
-                         ison ? tr("Display full") 
+    toolbar->setToolTip( displayatsectionidx,
+                         ison ? tr("Display full")
                               : tr("Display at section only") );
 }
 
