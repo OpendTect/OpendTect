@@ -35,13 +35,12 @@ class uiSeisMultiCubePSEntry
 {
 public:
 	uiSeisMultiCubePSEntry( IOObj* i )
-	    : ioobj_(i), offs_(mUdf(float)), comp_(0)	{}
+	    : ioobj_(i), comp_(0)	{}
 	uiSeisMultiCubePSEntry( const uiSeisMultiCubePSEntry& i )
-	    : ioobj_(i.ioobj_->clone()), offs_(i.offs_), comp_(i.comp_)	{}
+	    : ioobj_(i.ioobj_->clone()), comp_(i.comp_)	{}
 	~uiSeisMultiCubePSEntry()		{ delete ioobj_; }
 
 	IOObj*	ioobj_;
-	float	offs_;
 	int	comp_;
 };
 
@@ -70,9 +69,9 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	return;
     }
 
-    uiLabeledListBox* cubesllb = new uiLabeledListBox( this,
-                                                       tr("Available cubes"),
-			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
+    uiLabeledListBox* cubesllb =
+		new uiLabeledListBox( this, tr("Available cubes"),
+				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     cubefld_ = cubesllb->box();
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
@@ -96,9 +95,10 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
     selfld_->setPrefWidthInChar( 30 );
 
-    BufferString offsetstr( "Offset ", SI().getXYUnitString() );
+    BufferString offsetstr( "Offset (start/step)", SI().getXYUnitString() );
+    const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
-			       FloatInpSpec().setName("Offset") );
+			       FloatInpIntervalSpec(offsets).setName("Offset"));
     offsfld_->attach( alignedBelow, selllb );
     offsfld_->setElemSzPol( uiObject::Small );
     compfld_ = new uiComboBox( this, "Component" );
@@ -110,7 +110,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     sep->attach( stretchedBelow, offsfld_ );
     sep->attach( ensureBelow, allcompfld_ );
 
-    outfld_ = new uiIOObjSel( this, ctio_, "Output data store" );
+    outfld_ = new uiIOObjSel( this, ctio_, tr("Output data store") );
     outfld_->attach( alignedBelow, bgrp );
     outfld_->attach( ensureBelow, sep );
 
@@ -157,8 +157,6 @@ void uiSeisMultiCubePS::recordEntryData()
 	curselidx_ = selentries_.size() - 1;
 
     uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
-    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    se.offs_ = offsfld_->getfValue() * convfactor;
     se.comp_ = compfld_->isEmpty() ? 0 : compfld_->currentItem();
 }
 
@@ -180,7 +178,6 @@ void uiSeisMultiCubePS::setInitial( CallBacker* cb )
 	if ( !ioobj )
 	    continue;
 	uiSeisMultiCubePSEntry* entry = new uiSeisMultiCubePSEntry( ioobj );
-	entry->offs_ = offs[idx];
 	entry->comp_ = comps[idx];
 	selentries_ += entry;
     }
@@ -216,7 +213,6 @@ void uiSeisMultiCubePS::selChg( CallBacker* cb )
 
     const uiSeisMultiCubePSEntry& se = *selentries_[selidx];
     curselidx_ = selidx;
-    offsfld_->setValue( se.offs_ );
     setCompFld( se );
 }
 
@@ -258,7 +254,6 @@ void uiSeisMultiCubePS::addCube( CallBacker* )
 		uiSeisMultiCubePSEntry* selentry =
 					new uiSeisMultiCubePSEntry( *entry );
 		selentry->comp_ = idx;
-		selentry->offs_ = mCast(float,10*idx);
 		selentries_ += selentry;
 	    }
 	}
@@ -310,7 +305,6 @@ void uiSeisMultiCubePS::fullUpdate()
     if ( curselidx_ >= 0 )
     {
 	uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
-	offsfld_->setValue( se.offs_ );
 	setCompFld( se );
     }
     selfld_->setCurrentItem( curselidx_ );
@@ -326,23 +320,24 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() )
 	mErrRet(outfld_->isEmpty() ? "Please enter a name for the output" : 0)
 
-    for ( int idx=0; idx<selentries_.size(); idx++ )
+    float offset0 = offsfld_->getfValue(0);
+    float offsetstep = offsfld_->getfValue(1);
+    if ( mIsUdf(offset0) || mIsUdf(offsetstep) )
     {
-	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
-	if ( mIsUdf(entry.offs_) )
-	{
-	    uiMSG().error("Please provide the offset for '",
-			  entry.ioobj_->name(), "'");
-	    return false;
-	}
+	uiMSG().error( "Please provide values for the offset start/step" );
+	return false;
     }
+
+    const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
+    offset0 *= convfactor;
+    offsetstep *= convfactor;
 
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
 	keys += new MultiID( entry.ioobj_->key() );
-	offs += entry.offs_;
+	offs += offset0 + idx*offsetstep;
 	comps += entry.comp_;
     }
 
