@@ -1103,9 +1103,7 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
     {
 	const char* defkey = attrinf.ioobjids_.get(idx).buf();
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	FileMultiString fms(is2D()
-			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+	FileMultiString fms( BufferString("[",ioobjnm,"]") );
 	fms += defkey;
 	attrdefs.add( fms );
     }
@@ -1140,7 +1138,7 @@ Attrib::Desc* DescSet::getDescFromUIListEntry( FileMultiString inpstr )
 	if ( !inpstr[1].isEmpty() )
 	{
 	    MultiID mid( storedidstr.buf() );
-	    IOObj* inpobj = IOM().get( mid );                                           
+	    IOObj* inpobj = IOM().get( mid );
 	    if ( inpobj )
 	    {
 		SeisIOObjInfo seisinfo( inpobj );

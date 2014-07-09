@@ -38,8 +38,6 @@ public:
 					{ return sii.getRanges( cs ); }
     bool		getBPS( int& b, int icmp=-1 ) const
 					{ return sii.getBPS(b,icmp); }
-    void		getDefKeys( BufferStringSet& b ,bool add=true ) const
-					{ return sii.getDefKeys(b,add); }
 
     static const char*	sKeyEstMBs;
 

@@ -282,29 +282,6 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 }
 
 
-void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
-{
-    if ( !add ) bss.erase();
-    if ( !isOK() ) return;
-
-    BufferString key( ioobj_->key().buf() );
-    if ( !is2D() )
-	{ bss.add( key.buf() ); bss.sort(); return; }
-    else if ( isPS() )
-	{ pErrMsg("2D PS not supported getting def keys"); return; }
-
-    PtrMan<Seis2DDataSet> dataset
-	= new Seis2DDataSet( *ioobj_ );
-    if ( dataset->nrLines() == 0 )
-	return;
-
-    for ( int idx=0; idx<dataset->nrLines(); idx++ )
-	bss.add( dataset->lineName(idx) );
-
-    bss.sort();
-}
-
-
 #define mGetZDomainGE \
     const GlobExpr zdomge( o2d.zdomky_.isEmpty() ? ZDomain::SI().key() \
 						 : o2d.zdomky_.buf() )
@@ -409,33 +386,6 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
     return dataset->getRanges( lidx, trcrg, zrg );
 }
 
-
-BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
-					     const char* ioobjnm )
-{
-    if ( !IOObj::isKey(defkey) )
-	return BufferString( defkey );
-
-    PtrMan<IOObj> ioobj = IOM().get( MultiID(defkey) );
-    if ( !ioobj )
-	return BufferString( "" );
-
-    BufferString ret( "[",
-		      ioobjnm && *ioobjnm ? ioobjnm : ioobj->name().buf(),
-		      "]" );
-    return ret;
-}
-
-
-BufferString SeisIOObjInfo::def3DDispName( const char* defkey,
-					   const char* ioobjnm )
-{
-    if ( !IOObj::isKey(defkey) )
-	return BufferString( defkey );
-
-    BufferString attrnm( "[", ioobjnm, "]" );
-    return attrnm;
-}
 
 static BufferStringSet& getTypes()
 {

@@ -43,12 +43,6 @@ public:
     bool		usePar(const IOPar&,bool linename_is_iopar_name);
 
     static const char*	sKeyDefAttrib()		{ return ""; }
-    static BufferString	defKey2DispName(const char* defkey,
-	    				const char* ioobjnm=0,
-					bool embed=true);
-    			//!< 'defkey' is a LineKey where the line name
-    			//!< may be an IOObj ID
-    			//!< embed: whether '['and ']' around name or not
 };
 
 

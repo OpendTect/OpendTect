@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "linekey.h"
 #include "ptrman.h"
@@ -84,7 +85,7 @@ int PosVecOutputGen::nextStep()
 		BufferString ref = inps_.get( refidx );
 		BufferString nm = ref;
 		if ( IOObj::isKey(ref) )
-		    nm = LineKey::defKey2DispName( ref, 0, false );
+		    nm = IOM().nameOf( ref );
 		pvds->add( new DataColDef(nm,ref) );
 	    }
 

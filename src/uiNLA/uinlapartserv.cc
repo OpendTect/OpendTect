@@ -113,8 +113,9 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	PosVecDataSet& vds = dpss[idx]->dataSet();
 	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
 	{
-	    BufferString psnm = SeisIOObjInfo::defKey2DispName(
-		    			crdesc.design.inputs.get(iinp) );
+	    BufferString psnm = crdesc.design.inputs.get( iinp );
+	    if ( IOObj::isKey(psnm) )
+		psnm = IOM().nameOf( psnm );
 	    vds.add( new DataColDef(psnm) );
 	}
     }

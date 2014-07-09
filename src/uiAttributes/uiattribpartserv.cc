@@ -466,20 +466,8 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 {
     nms.erase();
     SelInfo attrinf( curDescSet( is2d ), 0, is2d );
-    for ( int idx=0; idx<attrinf.attrnms_.size(); idx++ )
-	nms.add( attrinf.attrnms_.get(idx) );
-
-    BufferStringSet storedoutputs;
-    for ( int idx=0; idx<attrinf.ioobjids_.size(); idx++ )
-    {
-	const char* ioobjid = attrinf.ioobjids_.get( idx );
-	uiSeisIOObjInfo* sii = new uiSeisIOObjInfo( MultiID(ioobjid), false );
-	sii->getDefKeys( storedoutputs, true );
-	delete sii;
-    }
-
-    for ( int idx=0; idx<storedoutputs.size(); idx++ )
-	nms.add( storedoutputs.get(idx) );
+    nms.append( attrinf.attrnms_ );
+    nms.append( attrinf.ioobjnms_ );
 }
 
 

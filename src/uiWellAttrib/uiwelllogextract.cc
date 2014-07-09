@@ -144,15 +144,13 @@ void uiWellLogExtractGrp::adsChg()
 	if ( sii.isPS() && sii.is2D() )
 	{
 	    attrinf.ioobjids_.removeSingle( idx );
+	    attrinf.ioobjnms_.removeSingle( idx );
 	    idx--;
 	    continue;
 	}
 
-	const char* defkey = attrinf.ioobjids_.get(idx);
 	const char* ioobjnm = attrinf.ioobjnms_.get(idx).buf();
-	attrsfld_->addItem( attrinf.is2D(defkey)
-			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+	attrsfld_->addItem( BufferString("[",ioobjnm,"]") );
     }
 }
 

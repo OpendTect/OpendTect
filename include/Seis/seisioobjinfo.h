@@ -65,13 +65,6 @@ public:
     bool		getBPS(int&,int icomp) const;
     			//!< max bytes per sample, component -1 => add all
 
-    void		getDefKeys(BufferStringSet&,bool add=false) const;
-    			//!< For 3D: IOObj ID, for 2D: list of ID|attrnm
-    static BufferString	defKey2DispName(const char* defkey,
-	    				const char* ioobjnm=0);
-    static BufferString	def3DDispName(const char* defkey,
-	    			      const char* ioobjnm=0);
-
     int			nrComponents(Pos::GeomID geomid=
 					    Survey::GM().cUndefGeomID()) const;
     void		getComponentNames(BufferStringSet&,

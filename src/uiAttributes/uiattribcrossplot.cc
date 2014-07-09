@@ -129,15 +129,13 @@ void uiAttribCrossPlot::adsChg()
 	if ( sii.isPS() && sii.is2D() )
 	{
 	    attrinfo_->ioobjids_.removeSingle( idx );
+	    attrinfo_->ioobjnms_.removeSingle( idx );
 	    idx--;
 	    continue;
 	}
 
-	const char* defkey = attrinfo_->ioobjids_.get(idx);
 	const char* ioobjnm = attrinfo_->ioobjnms_.get(idx).buf();
-	attrsfld_->addItem( attrinfo_->is2D(defkey)
-			    ? SeisIOObjInfo::defKey2DispName(defkey,ioobjnm)
-			    : SeisIOObjInfo::def3DDispName(defkey,ioobjnm) );
+	attrsfld_->addItem( BufferString("[",ioobjnm,"]") );
     }
 
     if ( !attrsfld_->isEmpty() )
