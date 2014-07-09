@@ -1041,7 +1041,7 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 							  sKey::Subsel()) );
     if ( !subpar ) return 0;
 
-    Pos::GeomID geomid;
+    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     PtrMan<IOPar> linepar = subpar->subselect( IOPar::compKey(sKey::Line(),0) );
     if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 	return 0;
