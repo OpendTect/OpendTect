@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "zaxistransform.h"
+#include "callback.h"
 
 
 namespace Well { class Data; }
@@ -23,6 +24,7 @@ namespace Well { class Data; }
 */
 
 mExpClass(Well) WellT2DTransform : public ZAxisTransform
+				 , public CallBacker
 { mODTextTranslationClass(WellT2DTransform);
 public:
 
@@ -60,6 +62,7 @@ protected:
     bool			calcDepths();
     void			doTransform(const SamplingData<float>&,
 					    int sz,float*,bool) const;
+    void			wellToBeDeleted(CallBacker*);
 };
 
 #endif

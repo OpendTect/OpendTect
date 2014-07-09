@@ -67,7 +67,7 @@ protected:
 	mutable uiString	errmsg_;
     };
 
-    mStruct(WellAttrib) WellData
+    mStruct(WellAttrib) WellData : public CallBacker
     {
 				WellData(const MultiID& wid);
 				~WellData();
@@ -75,10 +75,11 @@ protected:
 	bool			isOK() const { return errmsg_.isEmpty(); }
 	const uiString&		errMsg() const { return errmsg_; }
 
-	const Well::Data*	wd_;
+	Well::Data*		wd_;
 	TypeSet<BinID>		binidsalongtrack_;
 	ObjectSet<SeisTrcBuf>	trcs_;
 	uiString		errmsg_;
+	void			wellToBeDeleted(CallBacker*);
     };
 
     ObjectSet<LogCube>		logcubes_;

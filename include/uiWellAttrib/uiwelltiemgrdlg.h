@@ -85,6 +85,7 @@ protected:
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
+    void		wellToBeDeleted(CallBacker*);
     bool		selIs2D() const;
     bool		seisIDIs3D(MultiID&) const;
 };
