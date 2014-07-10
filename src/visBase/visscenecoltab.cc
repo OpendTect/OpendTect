@@ -199,7 +199,7 @@ void SceneColTab::updateSequence()
     (
 	,
 	Color col = table_.colorForIndex( flipseq_ ? nrcols_-idx-1 : idx );
-	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), col2f(t) )
+	colors_[idx] = osg::Vec4( col2f(r), col2f(g), col2f(b), 1-col2f(t) )
 	,
     )
 
