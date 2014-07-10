@@ -218,9 +218,13 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 
 	    const TypeSet<int>& reqshifts = formula_->getShifts( inpidx );
 	    for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
-		inpvals += mCast( double,getInputValue( *inputdata_[inpidx],
+	    {
+		const Attrib::DataHolder* inpdh = inputdata_[inpidx];
+		inpvals += inpdh ? mCast( double, getInputValue( *inpdh,
 						  inputidxs_[inpidx],
-						  idx+reqshifts[ishft],z0 ) );
+						  idx+reqshifts[ishft],z0 ) ) 
+				 : mUdf(double);
+	    }
 	}
 
 	const float result = mCast( float, mathobj->getValue(inpvals.arr()) );
