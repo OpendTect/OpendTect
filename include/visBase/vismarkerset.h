@@ -85,8 +85,13 @@ public:
     void		setMaximumScale(float);
     float		getMaximumScale() const;
 
-    void		setAutoRotateMode(AutoRotateMode);
+    void		setDip(float,float,int);
+    void		setArrowDirection(const ::Sphere&,int);
 
+    void		setZScale(float zsc);
+    float		getZScale() const { return zscale_; }
+
+    void		setAutoRotateMode(AutoRotateMode);
     void		setMarkerRotation(const Coord3&, const float);
 
     void		doFaceCamera(bool yn);
@@ -129,11 +134,13 @@ protected:
     MarkerStyle3D		markerstyle_;
 
     float			pixeldensity_;
+    float			zscale_;
+    float			inldip_;
+    float			crldip_;
+    ::Sphere			direction;
 
     float			rotationangle_;
     Coord3			rotationvec_;
-
-    //void		setArrowDir(const ::Sphere&);
 };
 
 };
