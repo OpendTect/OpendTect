@@ -438,7 +438,10 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 
     if ( volumeofinterestids_.isEmpty() )
 	volumeofinterestids_.setSize( linenames.size(), -1 );
-    
+   
+    if ( !rcs || !pl )
+	    return;
+
     Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
 				     zaxistransform_, linenames, 
 				     volumeofinterestids_ );
@@ -589,7 +592,8 @@ bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref();
+	zaxistransform_->ref()
+
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify( cb );
     }
