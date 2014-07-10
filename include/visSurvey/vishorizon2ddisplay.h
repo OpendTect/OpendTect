@@ -87,6 +87,7 @@ protected:
 					const ObjectSet<const Seis2DDisplay>&);
 
     void			zAxisTransformChg(CallBacker*);
+    void			removeVolumesOfInterest();
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -94,6 +95,7 @@ protected:
     ObjectSet<visBase::PolyLine3D>		lines_;
     ObjectSet<visBase::PointSet>		points_;
     TypeSet<EM::SectionID>			sids_;
+    TypeSet<int>				volumeofinterestids_;
 };
 
 } // namespace visSurvey
