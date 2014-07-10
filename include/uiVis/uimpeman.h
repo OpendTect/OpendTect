@@ -76,6 +76,7 @@ protected:
     void			showCubeCB(CallBacker*);
 
     void			attribSel(CallBacker*);
+    void			setCubePosCB(CallBacker*);
 
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
