@@ -417,6 +417,10 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 		    emobject_->sectionGeometry(sid));
     visBase::IndexedPolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
     const LineRanges* lrgs = redo ? &linergs : lineranges;
+
+    if ( !rcs || !pl )
+	return;
+
     Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
 				     zaxistransform_, linenames );
     updater.execute();
