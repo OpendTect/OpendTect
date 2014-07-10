@@ -1,7 +1,7 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0m: July 03, 2014
+v4.6.0m: July 10, 2014
  * Fix for crash importing same horizon which is displayed
  * Fix for applying default color settings while adding/changing attribute
  * Fix for displaying Prestack menu display
