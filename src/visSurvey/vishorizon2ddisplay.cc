@@ -592,7 +592,7 @@ bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     zaxistransform_ = zat;
     if ( zaxistransform_ )
     {
-	zaxistransform_->ref()
+	zaxistransform_->ref();
 
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify( cb );
