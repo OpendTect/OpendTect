@@ -483,13 +483,6 @@ void uiWellLogDispProperties::resetProps( Well::DisplayProperties::Log& pp )
         if ( logprops().islogreverted_ )\
 	{ if ( fidx == 2 ) fidx = 1; else if ( fidx == 1 ) fidx =2; }
 
-
-#define mSetRelationBetweenFillTypeAndLineThickness()\
-if ( logfilltypefld_->box()->currentItem() == 0 && props().size_ == 0 )\
-    props().size_ = 1;\
-else if ( logfilltypefld_->box()->currentItem() !=0 )\
-    props().size_ = 0;\
-
 void uiWellLogDispProperties::doPutToScreen()
 {
     NotifyStopper nssfc( singlfillcolfld_->activated );
@@ -535,9 +528,6 @@ void uiWellLogDispProperties::doPutToScreen()
     logsfld_->box()->setText( logprops().name_ );
 
     logSel( 0 );
-
-    mSetRelationBetweenFillTypeAndLineThickness();
-  
 }
 
 
@@ -586,9 +576,6 @@ void uiWellLogDispProperties::doGetFromScreen()
 	    logprops().name_  = "None";
 	}
     }
-
-    mSetRelationBetweenFillTypeAndLineThickness();
-
 }
 
 
@@ -598,12 +585,6 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
 	stylefld_->isChecked( 0 ) || stylefld_->isChecked( 2 ) ? true : false;
     const bool issinglecol = singlfillcolfld_->isChecked();
     const int fillidx = logfilltypefld_->box()->currentItem();
-
-    if ( fillidx != 0 )
-	szfld_->setSensitive( false );
-    else 
-	szfld_->setSensitive( true );
-
     const bool isleftfilled_ = fillidx == 1 || fillidx == 3;
     const bool isrightfilled_ = fillidx == 2 || fillidx == 3;
     const bool isfilled = isrightfilled_ || isleftfilled_;
