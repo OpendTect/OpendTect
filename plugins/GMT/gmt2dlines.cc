@@ -119,6 +119,7 @@ bool GMT2DLines::execute( od_ostream& strm, const char* fnm )
     get( ODGMT::sKeyFontSize(), sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
+    comm += " -F+f12p,Sans,"; comm += colstr;
     comm += " -O -K -N 1>> "; comm += fileName( fnm );
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )
@@ -297,7 +298,7 @@ bool GMTRandLines::execute( od_ostream& strm, const char* fnm )
     get( ODGMT::sKeyFontSize(), sz );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
-    comm += " -G"; comm += colstr;
+    comm += " -F+f12p,Sans,"; comm += colstr;
     comm += " -O -K -N 1>> "; comm += fileName( fnm );
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )
