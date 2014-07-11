@@ -125,16 +125,17 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODAnnotTreeItemFactory, 9000,
 		       SurveyInfo::Both2DAnd3D );
 
-    mdiarea_->windowActivated.notify( mCB(this,uiODSceneMgr,mdiAreaChanged) );
     mdiarea_->setPrefWidth( cWSWidth );
     mdiarea_->setPrefHeight( cWSHeight );
 
-    tiletimer_->tick.notify( mCB(this,uiODSceneMgr,tileTimerCB) );
+    mAttachCB( mdiarea_->windowActivated, uiODSceneMgr::mdiAreaChanged );
+    mAttachCB( tiletimer_->tick, uiODSceneMgr::tileTimerCB );
 }
 
 
 uiODSceneMgr::~uiODSceneMgr()
 {
+    detachAllNotifiers();
     cleanUp( false );
     delete tifs_;
     delete mdiarea_;
