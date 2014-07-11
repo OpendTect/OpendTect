@@ -323,19 +323,6 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
     deltadipfld_->display( wantbdip );
     dooutpstatsfld_->display( wantbdip );
 
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName()
-		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ))
-		steerfld_->clearInpField();
-	}
-    }
-
     outSel(0);
 }
 
