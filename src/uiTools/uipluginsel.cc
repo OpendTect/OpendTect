@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "odver.h"
 #include "od_helpids.h"
+#include "pixmap.h"
+#include "odlogo24x24.xpm"
 
 #include <math.h>
 
@@ -98,7 +100,10 @@ void uiPluginSel::createUI()
     uiLabel* lbl = new uiLabel( this, tr("Please select the plugins to load"));
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
-    grp->attach( centeredBelow, lbl );
+    grp->attach( ensureBelow, lbl );
+    lbl = new uiLabel( this, "OD logo" );
+    lbl->setPixmap( ioPixmap(od_logo_24x24) );
+    lbl->attach( rightBorder );
 
     const int nrproducts = products_.size();
     const int nrrows = nrproducts % 2 == 0 ? (nrproducts/2) : (nrproducts/2)+1;
