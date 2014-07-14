@@ -403,7 +403,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     const uiString lbl = 
        tr("Log display width %1").arg(getDistUnitString(SI().xyInFeet(),true));
-    logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl) );
+    logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true) );
     logwidthslider_->attach( alignedBelow, coltablistfld_ );
     logwidthslider_->attach( ensureBelow, sep2 );
 
