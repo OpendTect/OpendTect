@@ -57,14 +57,14 @@ bool GMTBaseMap::execute( od_ostream& strm, const char* fnm )
     comm += "/a"; comm += lblintv.stop;
     if ( dogrid ) { comm += "g"; comm += lblintv.stop; }
     comm += ":\"."; comm += maptitle; comm += "\":";
-    comm += " --Y_AXIS_TYPE=ver_text";
-    comm += " --HEADER_FONT_SIZE=24";
+    comm += " --MAP_ANNOT_ORTHO=ver_text";
+    comm += " --FONT_TITLE=24";
     get( ODGMT::sKeyMapDim(), mapdim );
     const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
     const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
-    comm += " --X_ORIGIN="; comm += xmargin;
-    comm += "c --Y_ORIGIN="; comm += ymargin;
-    comm += "c --PAPER_MEDIA=Custom_";
+    comm += " --MAP_ORIGIN_X="; comm += xmargin;
+    comm += "c --MAP_ORIGIN_Y="; comm += ymargin;
+    comm += "c --PS_MEDIA=Custom_";
     float pagewidth = mapdim.start + 5 * xmargin;
     const float pageheight = mapdim.stop + 3 * ymargin;
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
@@ -150,8 +150,8 @@ bool GMTLegend::execute( od_ostream& strm, const char* fnm )
 	par->get( ODGMT::sKeyDataRange(), rg );
 	FilePath fp( fnm );
 	fp.setExtension( "cpt" );
-	BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=12 ";
-	colbarcomm += "--ANNOT_FONT_SIZE_PRIMARY=10 -D";
+	BufferString colbarcomm = "psscale --FONT_LABEL=12 ";
+	colbarcomm += "--FONT_ANNOT_PRIMARY=10 -D";
 	colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
 	colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
 	colbarcomm += 2 * ymargin; colbarcomm += "c/";

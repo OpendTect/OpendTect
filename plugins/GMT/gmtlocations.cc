@@ -440,7 +440,8 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 
 	Coord surfcoord = data.info().surfacecoord;
 	surfcoords += surfcoord;
-	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << sz << std::endl;
+	*sd.ostrm << surfcoord.x << " " << surfcoord.y << " " << sz
+		  << std::endl;
     }
 
     sd.close();
@@ -469,7 +470,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     get( ODGMT::sKeyFontSize(), fontsz );
     comm = "@pstext "; comm += rgstr;
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
-    comm += " -G"; comm += outcolstr;
+    comm += " -F+f12p,Sans,"; comm += outcolstr;
     comm += " -O -K 1>> "; comm += fileName( fnm );
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )

@@ -227,7 +227,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
 	comm += " "; comm += mapprojstr;
 	comm += " -O -C"; comm += fileName( cptfnm );
 	BufferString colstr; mGetColorString( ls.color_, colstr );
-	comm += " -A+k"; comm += colstr;
+	comm += " -A+f12p,Sans,"; comm += colstr;
 	comm += " -W"; comm += lsstr;
 	comm += " -K 1>> "; comm += fileName( fnm );
 	if ( !execCmd(comm,strm) )
