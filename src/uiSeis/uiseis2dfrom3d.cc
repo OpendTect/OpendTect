@@ -49,9 +49,10 @@ uiSeis2DFrom3D::~uiSeis2DFrom3D()
 void uiSeis2DFrom3D::cubeSel( CallBacker* )
 {
     const IOObj* ioobj = data3dfld_->ioobj( true );
-    const FixedString attrnm = data2dfld_->getInput();
-    if ( ioobj && attrnm.isEmpty() )
-	data2dfld_->setInputText( attrnm );
+    if ( !ioobj ) return;
+
+    const BufferString attrnm( ioobj->name(), "[2D]" );
+    data2dfld_->setInputText( attrnm.buf() );
 }
 
 
@@ -61,12 +62,9 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
     const IOObj* ioobj2d = data2dfld_->ioobj();
     if ( !ioobj3d || !ioobj2d ) return false;
 
-    const char* attrnm = data2dfld_->getInput(); // should go
-
-    BufferStringSet lnms;
-    subselfld_->selectedLines( lnms );
-    SeisCube2LineDataExtracter extr( *ioobj3d, *ioobj2d, attrnm,
-				     lnms.isEmpty() ? 0 : &lnms );
+    TypeSet<Pos::GeomID> geomids;
+    subselfld_->getSelGeomIDs( geomids );
+    Seis2DFrom3DExtractor extr( *ioobj3d, *ioobj2d, geomids );
     uiTaskRunner uitr( this );
     if ( !TaskRunner::execute(&uitr,extr) )
     {

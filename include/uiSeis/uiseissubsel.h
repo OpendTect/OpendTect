@@ -100,6 +100,7 @@ public:
     const char*		selectedLine() const;
     void		setSelectedLine(const char*);
 
+    void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 

@@ -17,13 +17,53 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class IOObj;
 class SeisTrcBuf;
+class Seis2DDataSet;
 class Seis2DLineSet;
 class SeisTrcReader;
 class SeisTrcWriter;
 class Cube2LineDataLineKeyProvider;
+namespace Survey { class Geometry2D; }
 
 
-/*!\brief Extracts 3D cube data into 2D line attribute */
+/*!\brief Extracts 2D data from 3D Cube */
+
+mExpClass(Seis) Seis2DFrom3DExtractor : public Executor
+{
+public:
+			Seis2DFrom3DExtractor(const IOObj& cubein,
+					      const IOObj& lsout,
+					      const TypeSet<Pos::GeomID>&);
+			~Seis2DFrom3DExtractor();
+
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Traces written"; }
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
+    Pos::GeomID		curGeomID() const;
+
+    int			nextStep();
+
+protected:
+
+    SeisTrcReader&	rdr_;
+    SeisTrcWriter&	wrr_;
+    uiString		msg_;
+
+    od_int64		nrdone_;
+    od_int64		totalnr_;
+
+    int			curlineidx_;
+    int			curtrcidx_;
+
+    const TypeSet<Pos::GeomID>& geomids_;
+    const Survey::Geometry2D*	curgeom2d_;
+
+    int			goToNextLine();
+    int			handleTrace();
+
+};
+
+/*!\brief Obsolete class: Extracted 3D cube data into 2D line attribute */
 
 mExpClass(Seis) SeisCube2LineDataExtracter : public Executor
 {
