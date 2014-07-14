@@ -40,7 +40,7 @@ void uiMultOutSel::fillInAvailOutNames( const Desc& desc,
 
 
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
-	: uiDialog(p,Setup(tr("Multiple components selection"),
+	: uiDialog(p,Setup(tr("Multiple attributes selection"),
 			   tr("Select the outputs to compute"),
                            mODHelpKey(mMultOutSelHelpID) ))
 	, outlistfld_(0)
