@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "posprovider.h"
 #include "callback.h"
+#include "horsampling.h"
 
-class HorSampling;
 namespace Well { class Data; }
 
 
@@ -85,10 +85,13 @@ protected:
     int			crlext_;
     float		zext_;
     HorSampling&	hs_;
+    HorSamplingIterator hsitr_;
     StepInterval<float>	zrg_;
 
     BinID		curbid_;
     float		curz_;
+    int			curwellidx_;
+    bool		toNextWell();
     void		wellToBeDeleted(CallBacker*);
 
 public:
