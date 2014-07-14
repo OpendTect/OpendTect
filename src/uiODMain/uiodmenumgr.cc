@@ -262,8 +262,8 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impvelfn, "&ASCII ...", mImpVelocityAsciiMnuItm );
     mInsertItem( imppdf, "RokDoc &ASCII ...", mImpPDFAsciiMnuItm );
 
-    mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
-    mInsertItem( impseis, "SEG-Y s&canned ...", mImpSeisSEGYDirectMnuItm );
+    mInsertItem( impseis, "SEG-Y ...", mImpSeisSEGYMnuItm );
+    mInsertItem( impseis, "SEG-Y Data Link ...", mImpSeisSEGYDirectMnuItm );
     uiMenu* impseissimple = new uiMenu( &appl_, "&Simple file" );
     mInsertItem( impseissimple, "&3D ...", mImpSeisSimple3DMnuItm );
     mInsertItem( impseissimple, "&2D ...", mImpSeisSimple2DMnuItm );

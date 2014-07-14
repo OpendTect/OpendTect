@@ -192,8 +192,6 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 		extfld_->setText(extstrs3d[extension]) )
     mIfGetFloat( Similarity::maxdipStr(), maxdip, maxdipfld_->setValue(maxdip));
     mIfGetFloat( Similarity::ddipStr(), ddip, deltadipfld_->setValue(ddip) );
-    mIfGetBool( Similarity::browsedipStr(), bdip,
-		steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
 
     extSel(0);
     steerTypeSel(0);
@@ -321,20 +319,6 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
     maxdipfld_->display( wantbdip );
     deltadipfld_->display( wantbdip );
     dooutpstatsfld_->display( wantbdip );
-
-    if ( is2D() && steerfld_->willSteer() && !inpfld_->isEmpty() )
-    {
-	const char* steertxt = steerfld_->text();
-	if ( steertxt )
-	{
-	    LineKey inp( inpfld_->getInput() );
-	    LineKey steer( steertxt );
-	    if ( inp.lineName() != steer.lineName()
-		&& inp.attrName() != BufferString(LineKey::sKeyDefAttrib() ))
-		steerfld_->clearInpField();
-	}
-    }
-
     outSel(0);
 }
 
@@ -342,59 +326,31 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
 uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 						    const Attrib::DescSet* dset,
 						    bool is2d )
-    : uiSteeringSel( p, dset, is2d, true, false )
+    : uiSteeringSel( p, dset, is2d, true, true )
     , typeSelected(this)
 {
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
-    {
-	BufferStringSet steertyps;
-	steertyps.add( "None" );
-	typfld_ = new uiGenInput( this, "Steering",
-				  StringListInpSpec(steertyps) );
-	typfld_->valuechanged.notify(
-		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
-    }
-    else
-	createFields();
-
-    DataInpSpec* inpspec = const_cast<DataInpSpec*>(typfld_->dataInpSpec());
-    mDynamicCastGet(StringListInpSpec*,listspec,inpspec);
-    if ( !listspec ) return;
-
-    listspec->addString("Browse dip");
-//    typfld_->newSpec(listspec,0);
-    setHAlignObj( typfld_ );
 }
 
 
 void uiSimilarityAttrib::uiSimiSteeringSel::typeSel(CallBacker*)
 {
-    typeSelected.trigger();
     uiSteeringSel::typeSel(0);
 }
 
 
 bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
 {
-    if ( !typfld_ ) return false;
-
-    int typ = typfld_->getIntValue();
-    return typ && !wantBrowseDip();
+    return uiSteeringSel::willSteer();
 }
 
 
 bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 {
-    if ( !typfld_ ) return false;
-
-    const int typ = typfld_->getIntValue();
-    return typ == browseDipIdxInList();
+    return false;
 }
 
 
 int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 {
-    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
-    return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
+    return mUdf(int);
 }

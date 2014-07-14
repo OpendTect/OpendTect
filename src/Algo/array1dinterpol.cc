@@ -33,7 +33,7 @@ od_int64 Array1DInterpol::nrIterations() const
 
 
 void Array1DInterpol::setMaxGapSize( float maxgapsize )
-{ maxgapsize_ = (int)maxgapsize; }
+{ maxgapsize_ = mCast(int,maxgapsize); }
 
 
 float Array1DInterpol::getMaxGapSize() const
@@ -135,7 +135,7 @@ int LinearArray1DInterpol::nextStep()
 	break;
     }
 
-    if ( stopidx >= arr_->info().getTotalSz()-1 )
+    if ( stopidx >= arr_->info().getTotalSz() )
     {
 	if ( doextrapol_ )
 	    extrapolate( false );

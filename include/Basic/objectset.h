@@ -438,7 +438,7 @@ template <class T> inline
 void ObjectSet<T>::append( const ObjectSet<T>& os )
 {
     const size_type sz = os.size();
-    vec_.setCapacity( size()+sz );
+    vec_.setCapacity( size()+sz, true );
     for ( size_type idx=0; idx<sz; idx++ )
 	*this += const_cast<T*>( os[idx] );
 }

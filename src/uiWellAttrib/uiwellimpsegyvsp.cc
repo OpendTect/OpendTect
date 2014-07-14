@@ -384,7 +384,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
     if ( wasloaded )
 	Well::MGR().reload( key );
     else
-	Well::MGR().release( key );
+	delete Well::MGR().release( key );
 
     return true;
 }

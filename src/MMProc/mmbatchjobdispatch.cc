@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "mmbatchjobdispatch.h"
+#include "envvars.h"
 #include "filepath.h"
 #include "oddirs.h"
 #include "sets.h"
@@ -126,6 +127,7 @@ bool Batch::MMJobDispatcher::launch()
     OS::MachineCommand mc( cmd );
     OS::CommandLauncher cl( mc );
     OS::CommandExecPars ep( jobspec_.execpars_ );
-    ep.needmonitor( false ).launchtype( OS::RunInBG ).isconsoleuiprog( false );
+    ep.needmonitor( false ).launchtype( OS::RunInBG )
+			   .isconsoleuiprog( GetEnvVarYN("DTECT_DEBUG") );
     return cl.execute( ep );
 }

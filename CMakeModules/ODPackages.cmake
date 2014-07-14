@@ -28,6 +28,5 @@ macro( OD_ADD_PACKAGES_TARGET )
 	    -DOD_ENABLE_BREAKPAD=${OD_ENABLE_BREAKPAD}
 	    -DCODESIGN_COMMAND=${CODESIGN_COMMAND}
 	    -P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackages.cmake 
-	    DEPENDS sources
 	    COMMENT "Creating packages" ) 
 endmacro()

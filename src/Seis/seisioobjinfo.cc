@@ -288,19 +288,10 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
     if ( !isOK() ) return;
 
     BufferString key( ioobj_->key().buf() );
-    if ( !is2D() )
-	{ bss.add( key.buf() ); bss.sort(); return; }
-    else if ( isPS() )
-	{ pErrMsg("2D PS not supported getting def keys"); return; }
+    if ( is2D() && isPS() )
+    { pErrMsg("2D PS not supported getting def keys"); return; }
 
-    PtrMan<Seis2DDataSet> dataset
-	= new Seis2DDataSet( *ioobj_ );
-    if ( dataset->nrLines() == 0 )
-	return;
-
-    for ( int idx=0; idx<dataset->nrLines(); idx++ )
-	bss.add( dataset->lineName(idx) );
-
+    bss.add( key.buf() );
     bss.sort();
 }
 

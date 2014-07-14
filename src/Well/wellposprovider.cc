@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "keystrs.h"
 #include "iopar.h"
-#include "horsampling.h"
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -35,6 +34,7 @@ WellProvider3D::WellProvider3D()
     : hs_(*new HorSampling(true))
     , zrg_(SI().zRange(false))
     , onlysurfacecoords_(true)
+    , curwellidx_(0)
 {
 }
 
@@ -44,6 +44,7 @@ WellProvider3D::WellProvider3D( const WellProvider3D& pp )
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
     , onlysurfacecoords_(pp.onlysurfacecoords_)
+    , curwellidx_(0)
 {
 }
 
@@ -51,7 +52,11 @@ WellProvider3D::WellProvider3D( const WellProvider3D& pp )
 WellProvider3D::~WellProvider3D()
 {
     for ( int idx=0; idx<wellids_.size(); idx++ )
+    {
+	welldata_[idx]->tobedeleted.remove(
+		mCB(this,WellProvider3D,wellToBeDeleted) );
 	delete Well::MGR().release( wellids_[idx] );
+    }
     delete &hs_;
 }
 
@@ -77,14 +82,11 @@ const char* WellProvider3D::type() const
 void WellProvider3D::setHS()
 {
     hs_.init( false );
-    for ( int idx=0; idx<welldata_.size(); idx++ )
+    if ( onlysurfacecoords_ )
     {
-	if ( onlysurfacecoords_ )
-	{
-	    const Well::Info& info = welldata_[idx]->info();
-	    const BinID bid = SI().transform( info.surfacecoord );
-	    hs_.include( bid );
-	}
+	const Well::Info& info = welldata_[curwellidx_]->info();
+	const BinID bid = SI().transform( info.surfacecoord );
+	hs_.include( bid );
     }
 
     if ( !hs_.isDefined() )
@@ -94,46 +96,69 @@ void WellProvider3D::setHS()
     hs_.stop.inl() += inlext_;
     hs_.start.crl() -= crlext_;
     hs_.stop.crl() += crlext_;
+
+    curbid_ = BinID::udf();
+    hsitr_ = HorSamplingIterator( hs_ );
+    hsitr_.next( curbid_ );
 }
 
 
 bool WellProvider3D::initialize( TaskRunner* )
 {
+    for ( int idx=0; idx<welldata_.size(); idx++ )
+    {
+	welldata_[idx]->tobedeleted.remove(
+		mCB(this,WellProvider3D,wellToBeDeleted) );
+	delete Well::MGR().release( welldata_[idx]->multiID() );
+    }
+
     welldata_.erase();
     for ( int idx=0; idx<wellids_.size(); idx++ )
-	welldata_ += Well::MGR().get( wellids_[idx] );
+    {
+	Well::Data* wd = Well::MGR().get( wellids_[idx] );
+	wd->tobedeleted.notify( mCB(this,WellProvider3D,wellToBeDeleted) );
+	welldata_ += wd;
+    }
+
     if ( welldata_.isEmpty() ) return false;
 
     setHS();
-    curbid_ = hs_.start;
-    if ( !toNextPos() )
-	return false;
+    curz_ = zrg_.start-zrg_.step;
+    return true;
+}
 
-    curz_ = zrg_.stop;
+
+void WellProvider3D::wellToBeDeleted( CallBacker* cb )
+{
+    mDynamicCastGet(Well::Data*,wd,cb);
+    if ( !wd ) return;
+    const int wellidx = welldata_.indexOf( wd );
+    Well::Data* newwd = Well::MGR().get( wd->multiID() );
+    if ( newwd )
+	welldata_.replace( wellidx, newwd );
+    else
+	welldata_.removeSingle( wellidx );
+}
+
+
+bool WellProvider3D::toNextWell()
+{
+    curwellidx_++;
+    if ( !welldata_.validIdx(curwellidx_) )
+	return false;
+    setHS();
     return true;
 }
 
 
 bool WellProvider3D::toNextPos()
 {
-    curbid_.crl() += hs_.step.crl();
     curz_ = zrg_.start;
 
-    while ( true )
-    {
-	if ( !hs_.includes(curbid_) )
-	{
-	    curbid_.inl() += hs_.step.inl();
-	    curbid_.crl() = hs_.start.crl();
-	    if ( !hs_.includes(curbid_) )
-		break;
-	}
-	if ( includes(curbid_,mUdf(float)) )
-	    return true;
-	curbid_.crl() += hs_.step.crl();
-    }
+    if ( !hsitr_.next(curbid_) )
+	return toNextWell();
 
-    return false;
+    return true;
 }
 
 
@@ -170,6 +195,8 @@ void WellProvider3D::usePar( const IOPar& iop )
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
     int nrwells = 0;
     iop.get( mGetWellKey(sKey::Size()), nrwells );
+    StepInterval<float> zrg;
+    iop.get( sKey::ZRange(), zrg_ );
     for ( int idx=0; idx<nrwells; idx++ )
     {
 	MultiID mid;
@@ -189,6 +216,7 @@ void WellProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetWellKey(sKeyZExt()), zext_ );
     iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords_ );
     iop.set( mGetWellKey(sKey::Size()), wellids_.size() );
+    iop.set( sKey::ZRange(), zrg_ );
     for ( int idx=0; idx<wellids_.size(); idx++ )
     {
 	BufferString idkey = IOPar::compKey( sKey::ID(), idx );
@@ -220,7 +248,7 @@ void WellProvider3D::getZRange( Interval<float>& zrg ) const
 
 
 od_int64 WellProvider3D::estNrPos() const
-{ return hs_.totalNr(); }
+{ return welldata_.size() * hs_.totalNr(); }
 
 
 const Well::Data* WellProvider3D::wellData( int idx ) const

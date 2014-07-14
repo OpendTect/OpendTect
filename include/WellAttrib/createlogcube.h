@@ -72,7 +72,7 @@ protected:
 	mutable BufferString	errmsg_;
     };
 
-    mStruct(WellAttrib) WellData
+    mStruct(WellAttrib) WellData : public CallBacker
     {
 				WellData(const MultiID& wid);
 				~WellData();
@@ -80,11 +80,12 @@ protected:
 	bool			isOK();
 	const char*		errMsg() const;
 
-	const Well::Data*	wd_;
+	Well::Data*			wd_;
 	TypeSet<BinID>		binids_;
 	HorSampling		hrg_; //Do not use, will be removed
 	mutable BufferString	errmsg_;
 	ObjectSet<SeisTrcBuf>	trcs_;
+	void			wellToBeDeleted(CallBacker*);
     };
 
     ObjectSet<LogCubeData>	logdatas_;

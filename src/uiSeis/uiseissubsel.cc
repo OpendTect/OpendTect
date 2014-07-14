@@ -289,6 +289,15 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 }
 
 
+void uiSeis2DSubSel::getSelGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
+{
+    if ( multilnmsel_ )
+	multilnmsel_->getSelGeomIDs( geomids );
+    else
+	geomids.add( singlelnmsel_->getInputGeomID() );
+}
+
+
 void uiSeis2DSubSel::selectedLines( BufferStringSet& lnms ) const
 {
     if ( multilnmsel_ )

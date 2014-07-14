@@ -93,17 +93,8 @@ BufferString LineKey::defKey2DispName( const char* defkey, const char* ioobjnm,
     const BufferString keynm = IOM().nameOf( defkey );
     const BufferString retnm = ioobjnm && *ioobjnm ? ioobjnm : keynm.buf();
 
-    const bool is2d = S2DPOS().hasLineSet( retnm );
     BufferString ret = embed ? "[" : "";
-    if ( !is2d )
-	ret.add( retnm );
-    else
-    {
-	LineKey lk( defkey );
-	lk.setLineName( retnm );
-	ret.add( lk );
-    }
-
+    ret.add( retnm );
     if ( embed ) ret += "]";
 
     return ret;

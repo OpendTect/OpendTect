@@ -66,7 +66,13 @@ bool GMTFault::fillLegendPar( IOPar& par ) const
     par.set( ODGMT::sKeyShape(), "Line" );
     par.set( sKey::Size(), 1 );
     str = find( ODGMT::sKeyLineStyle() );
-    par.set( ODGMT::sKeyLineStyle(), str );
+    LineStyle ls; ls.fromString( str );
+    Color col;
+    if ( get(ODGMT::sKeyFaultColor(),col) )
+	ls.color_ = col;
+
+    BufferString lsstr; ls.toString( lsstr );
+    par.set( ODGMT::sKeyLineStyle(), lsstr );
     return true;
 }
 
@@ -266,6 +272,9 @@ void GMTFault::getLineStyles( BufferStringSet& styles )
 	    BufferString str;
 	    const Color& fltclr = fault3d->preferredColor();
 	    ls.color_ = fltclr;
+	    if ( !idx )
+		set( ODGMT::sKeyFaultColor(), fltclr );
+
 	    mGetLineStyleString( ls, str );
 	    styles.add( str );
 	}
