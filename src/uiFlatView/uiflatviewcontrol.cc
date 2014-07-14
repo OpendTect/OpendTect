@@ -17,9 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarraycanvas.h"
 #include "uigraphicsscene.h"
 #include "uiworld2ui.h"
-#include "bufstringset.h"
-#include "datapackbase.h"
-#include "uiobjdisposer.h"
 
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p, 

@@ -26,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatviewzoommgr.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
-#include "pixmap.h"
 #include "texttranslator.h"
 
 #define mDefBut(but,fnm,cbnm,tt) \
