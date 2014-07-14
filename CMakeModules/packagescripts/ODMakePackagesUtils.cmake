@@ -347,11 +347,16 @@ macro( create_develpackages )
 
     foreach( DIR CMakeModules include src plugins spec )
 	message( "Copying ${DIR} files" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/${DIR}
-			 ${DESTINATION_DIR}/${DIR} )
-	if( ${DIR} STREQUAL "plugins" )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+	if( "${DIR}" STREQUAL "plugins" )
+	    foreach( ODPLUGIN ${ODPLUGINS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${CMAKE_INSTALL_PREFIX}/plugins/${ODPLUGIN}
+				 ${DESTINATION_DIR}/plugins/${ODPLUGIN} )
+	    endforeach()
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/${DIR}
+			     ${DESTINATION_DIR}/${DIR} )
 	endif()
     endforeach()
 
