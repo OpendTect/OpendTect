@@ -63,6 +63,9 @@ void uiWellPosProvGroup::usePar( const IOPar& iop )
     iop.get( mGetWellKey(sKeyCrlExt()), so.crl() );
     iop.get( mGetWellKey(sKeyZExt()), zext );
     iop.getYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords );
+    StepInterval<float> zrg;
+    if ( iop.get(sKey::ZRange(),zrg) )
+	zrgfld_->setRange( zrg );
 
     stepoutfld_->setBinID( so );
 }
@@ -81,6 +84,9 @@ bool uiWellPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( mGetWellKey(sKeyCrlExt()), so.crl() );
     iop.set( mGetWellKey(sKeyZExt()), zext );
     iop.setYN( mGetWellKey(sKeySurfaceCoords()), onlysurfacecoords );
+    StepInterval<float> zrg;
+    getZRange( zrg );
+    iop.set( sKey::ZRange(), zrg );
 
     return true;
 }
