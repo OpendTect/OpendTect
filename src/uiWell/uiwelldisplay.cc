@@ -79,27 +79,19 @@ uiWellDisplay::uiWellDisplay( uiParent* p, Well::Data& w, const Setup& s )
     setDahData();
     setDisplayProperties();
 
-    CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
-    wd_.d2tchanged.notify( wdcb );
-    wd_.markerschanged.notify( wdcb );
+    mAttachCB( wd_.d2tchanged, uiWellDisplay::applyWDChanges );
+    mAttachCB( wd_.markerschanged, uiWellDisplay::applyWDChanges );
     if ( use3ddisp_ )
-	wd_.disp3dparschanged.notify( wdcb );
+	mAttachCB( wd_.disp3dparschanged, uiWellDisplay::applyWDChanges );
     else
-	wd_.disp2dparschanged.notify( wdcb );
+	mAttachCB( wd_.disp2dparschanged, uiWellDisplay::applyWDChanges );
 }
 
 
 uiWellDisplay::~uiWellDisplay()
 {
-    CallBack wdcb( mCB(this,uiWellDisplay,applyWDChanges) );
-    wd_.d2tchanged.remove( wdcb );
-    wd_.markerschanged.remove( wdcb );
-    if ( use3ddisp_ )
-	wd_.disp3dparschanged.remove( wdcb );
-    else
-	wd_.disp2dparschanged.remove( wdcb );
-    if ( control_ )
-	{ delete control_; control_ = 0; }
+    detachAllNotifiers();
+    delete control_;
 }
 
 
