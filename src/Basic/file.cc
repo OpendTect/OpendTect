@@ -757,7 +757,9 @@ bool launchViewer( const char* fnm, const ViewPars& vp )
     if ( !exists(fnm) )
 	return false;
 
-    BufferString cmd( FilePath(GetBinPlfDir(),"od_FileBrowser").fullPath() );
+    BufferString cmd( "\"",
+		      FilePath(GetBinPlfDir(),"od_FileBrowser").fullPath(),
+		      "\"" );
     if ( vp.style_ != Text )
 	cmd.add( " --style ")
 	   .add( vp.style_ == File::Table	? "table"

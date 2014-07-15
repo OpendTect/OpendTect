@@ -217,8 +217,9 @@ DataPack::ID PreStackDisplay::preProcess()
 
 #define mShowMessage( msg ) \
 { \
-    BufferString cmd = FilePath(GetBinPlfDir(),"od_DispMsg").fullPath(); \
-    cmd.add(" '").add( msg ).add("'"); \
+    BufferString cmd( "\"", \
+	    FilePath(GetBinPlfDir(),"od_DispMsg").fullPath() ); \
+    cmd.add("\" '").add( msg ).add("'"); \
     OS::ExecCommand( cmd ); \
 }
 
