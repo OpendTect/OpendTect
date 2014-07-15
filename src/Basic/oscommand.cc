@@ -384,9 +384,9 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 	if ( !monitorfnm_.isEmpty() )
 	    localcmd.add( " --monitorfnm " ).add( monitorfnm_.buf() );
 
-	BufferString launchercmd(
+	BufferString launchercmd( "\"",
 		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
-	launchercmd.add( " " ).add( localcmd );
+	launchercmd.add( "\" " ).add( localcmd );
 	return doExecute( launchercmd, pars.launchtype_==Wait4Finish );
 #else
 	if ( monitorfnm_.isEmpty() )
@@ -404,8 +404,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 
     if ( !monitorfnm_.isEmpty() )
     {
-	progvwrcmd_.set( odprogressviewer_ )
-	    .add( " --inpfile " ).add( monitorfnm_ )
+	progvwrcmd_.set( "\"" ).add( odprogressviewer_ )
+	    .add( "\" --inpfile " ).add( monitorfnm_ )
 	    .add( " --pid " ).add( processID() );
 
 	redirectoutput_ = false;

@@ -997,8 +997,9 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 
 
 #define uiErrMsg(s) { \
-    BufferString cmd( FilePath(GetBinPlfDir(),"od_DispMsg").fullPath() ); \
-    cmd += " --err "; \
+    BufferString cmd( "\"", \
+	    FilePath(GetBinPlfDir(),"od_DispMsg").fullPath() ); \
+    cmd += "\" --err "; \
     cmd += " Could not write to "; \
     cmd += s; \
     if ( File::isHidden(s) ) \
