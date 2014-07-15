@@ -48,11 +48,9 @@ int main( int argc, char** argv )
 	mErrExit( "Failed to fork process" )
     else if ( pid == 0 )	// Child process
     {
-	BufferString* prog = new BufferString( FilePath(GetBinPlfDir(),argv[1])
-							.fullPath() );
+	chdir( GetBinPlfDir() );
 	char** childargv = new char*[argc];
-	childargv[0] = prog->getCStr();
-	int idx = 1;
+	int idx = 0;
 	for ( ; idx<argc-1; idx++ )
 	{
 	    if ( FixedString(argv[idx+1]) == "--needmonitor" )
@@ -72,17 +70,17 @@ int main( int argc, char** argv )
 	}
 
 	childargv[idx] = 0;
-	execv( prog->buf(), childargv );
+	execv( argv[1], childargv );
 
 	// We should not reach here if all goes well.
 	mErrExit( "Failed to launch process " )
     }
     else if ( needmonitor )	// Parent process
     {
-	BufferString progviewercmd(
+	BufferString progviewercmd( "\"",
 		FilePath(GetBinPlfDir(),sODProgressViewerProgName).fullPath() );
-	progviewercmd.add( " --inpfile " ).add( monitorfnm )
-		     .add( " --pid " ).add( pid ).add( " &" );
+	progviewercmd.add( "\" --inpfile \"" ).add( monitorfnm )
+		     .add( "\" --pid " ).add( pid ).add( " &" );
 	if ( system(progviewercmd.buf()) )
 	    mErrExit( "Failed to launch progress viewer" )
     }
