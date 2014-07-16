@@ -263,29 +263,29 @@ void uiWellMan::setToolButtonProperties()
     mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
     mSetButToolTip(loguombut_,"View/edit",logsfld_->getText(),
 		   "unit of measure");
-    BufferStringSet nms;
-    if ( curidx < 0 )
-	logvwbut_->setToolTip( "View selected log" );
-    else
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+    if ( nrchosenlogs )
     {
-	logsfld_->getChosen( nms );
-	mSetButToolTip(logvwbut_,"View",nms.getDispString(2),"");
-	mSetButToolTip(logrmbut_,"Remove",nms.getDispString(3),"");
-	mSetButToolTip(logexpbut_,"Export",nms.getDispString(3),"");
+	mSetButToolTip(logrmbut_,"Remove",lognms.getDispString(3),"");
+	mSetButToolTip(logexpbut_,"Export",lognms.getDispString(3),"");
     }
 
     int nrchosenwls = selGroup()->getListField()->nrChosen();
-    logvwbut_->setSensitive( nrchosenwls <= 2 && oneormorelog );
-    BufferString vwlogtt;
-    if ( nrchosenwls <= 2 && oneormorelog )
+    const int maxnrchosen = nrchosenwls*nrchosenlogs;
+    logvwbut_->setSensitive( maxnrchosen && maxnrchosen<=2 );
+    if ( maxnrchosen && maxnrchosen<=2 )
     {
+	BufferString vwlogtt;
+	BufferStringSet wellnms;
+	wellnms.setEmpty();
 	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
-	nms.setEmpty();
-	selGroup()->getListField()->getChosen( nms );
-	vwlogtt.add( nms.getDispString(2) );
+	selGroup()->getListField()->getChosen( wellnms );
+	vwlogtt.add( wellnms.getDispString(2) );
+	mSetButToolTip(logvwbut_,"View",lognms.getDispString(2),vwlogtt);
     }
 
-    mSetButToolTip(logvwbut_,"View",logsfld_->getText(),vwlogtt);
+
 }
 
 
@@ -583,8 +583,11 @@ void uiWellMan::wellsChgd()
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
-    BufferString sellognm( logsfld_->getText() );
-    if ( curwds_.size() > 2 )
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+    const int maxnrchosen = curwds_.size()*lognms.size();
+//TODO Work for more than 2 logs
+    if ( !maxnrchosen || maxnrchosen > 2 )
 	return;
 
     const Well::Log* wl1=0;
@@ -593,14 +596,16 @@ void uiWellMan::viewLogPush( CallBacker* )
     {
 	currdrs_[0]->getLogs();
 	const Well::LogSet& wls1 = curwds_[0]->logs();
-	wl1 = wls1.getLog( sellognm );
+	wl1 = wls1.getLog( lognms.get( 0 ) );
+	if ( lognms.size() == 2 )
+	    wl2 = wls1.getLog( lognms.get( 1 ) );
     }
 
     if ( curwds_.size() > 1 && curwds_[1] )
     {
 	currdrs_[1]->getLogs();
 	const Well::LogSet& wls2 = curwds_[1]->logs();
-	wl2 = wls2.getLog( sellognm );
+	wl2 = wls2.getLog( lognms.get( 0 ) );
     }
 
     BufferStringSet wnms;
