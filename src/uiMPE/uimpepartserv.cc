@@ -1072,7 +1072,9 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 		Attrib::Desc::getParamString( as->defString(), "id", idstr );
 		Attrib::DescSet* storedads =
 		    Attrib::eDSHolder().getDescSet( tracker.is2D() , true );
-		storedads->getStoredID( idstr ); // will try to add if fail
+		storedads->getStoredID( MultiID(idstr.buf()) );
+			// will try to add if fail
+
 		Attrib::SelSpec newas( *as );
 		newas.setIDFromRef( *storedads );
 		st->adjuster()->setAttributeSel( asidx, newas );

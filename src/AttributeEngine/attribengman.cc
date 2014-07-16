@@ -30,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "linekey.h"
 #include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"
@@ -44,18 +43,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posinfo2dsurv.h"
 
 
-
 namespace Attrib
 {
-
-#define mLineName LineKey(linekey_).lineName()
-
 
 EngineMan::EngineMan()
     : inpattrset_(0)
     , procattrset_(0)
     , nlamodel_(0)
     , cs_(*new CubeSampling)
+    , geomid_(Survey::GM().cUndefGeomID())
     , cache_(0)
     , udfval_(mUdf(float))
     , curattridx_(0)
@@ -556,9 +552,7 @@ Processor* EngineMan::createScreenOutput2D( uiString& errmsg,
     Interval<int> trcrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
 
-    const Pos::GeomID geomid = Survey::GM().getGeomID( mLineName );
-    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid );
-
+    TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, geomid_ );
     attrout->setOutput( output );
     proc->addOutput( attrout );
 
@@ -990,7 +984,8 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	outid = nlaid;
     }
 
-    Processor* proc = createProcessor(*procattrset_, mLineName, outid, errmsg);
+    Processor* proc = createProcessor(*procattrset_,
+			Survey::GM().getName(geomid_), outid, errmsg);
     setExecutorName( proc );
     if ( !proc )
 	mErrRet( errmsg )
@@ -1020,9 +1015,7 @@ Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
     attrout->setOutput( &output );
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
-
-    if ( !linekey_.isEmpty() )
-	attrout->setGeomID( Survey::GM().getGeomID(mLineName) );
+    attrout->setGeomID( geomid_ );
 
     proc->addOutput( attrout );
     proc->setRdmPaths( trueknotspos, snappedpos );
@@ -1046,7 +1039,7 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
     if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
 	return 0;
 
-    setLineKey( Survey::GM().getName(geomid) );
+    setGeomID( geomid );
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 

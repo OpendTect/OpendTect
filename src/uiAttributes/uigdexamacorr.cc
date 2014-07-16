@@ -38,6 +38,7 @@ using namespace Attrib;
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
+    , geomid_(Survey::GM().cUndefGeomID())
     , dset_( 0 )
     , examwin_(0)
     , qcwin_(0)
@@ -93,7 +94,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
-    aem->setLineKey( lk_ );
+    aem->setGeomID( geomid_ );
 
     CubeSampling cs = cs_;
     if ( !SI().zRange(0).includes( cs_.zrg.start, false ) ||
@@ -111,11 +112,10 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 #define mCreateFD2DDataPack(fddatapack) \
 { \
-    fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh ); \
+    fddatapack = new Attrib::Flat2DDHDataPack(attribid_,*correctd2dh,geomid_); \
     fddatapack->setName( "autocorrelation" ); \
     DPM(DataPackMgr::FlatID()).add( fddatapack ); \
 }
-
 
 void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 {

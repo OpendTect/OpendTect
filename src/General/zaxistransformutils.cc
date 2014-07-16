@@ -116,7 +116,10 @@ bool ZAxisTransformDataPack::transform()
 
     CubeSampling outputcs = outputcs_ ? *outputcs_ : inputcs_;
     if ( !outputcs_ )
+    {
 	outputcs.zrg.setFrom( transform_.getZInterval(false) );
+	outputcs.zrg.step = transform_.getGoodZStep();
+    }
     transformer.setOutputRange( outputcs );
 
     if ( !transformer.execute() )
@@ -167,6 +170,7 @@ DataPack::ID ZAxisTransformDataPack::transformDataPack( DataPack::ID dpid,
 
     mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
 			 ZAxisTransformDataPack( *fdp, inputcs, zat ) );
+    ztransformdp->setInterpolate( true );
     if ( !ztransformdp->transform() )
 	return DataPack::cNoID();
     dpm.add( ztransformdp );

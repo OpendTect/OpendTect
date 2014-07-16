@@ -554,7 +554,7 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 
 
 EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
-					     const char* linekey )
+					     const Pos::GeomID& geomid )
 {
     if ( targetspecs_.isEmpty() ||
 	 targetspecs_[0].id().asInt() == SelSpec::cNoAttrib().asInt())
@@ -592,8 +592,7 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
     aem->setAttribSpecs( targetspecs_ );
     if ( cs )
 	aem->setCubeSampling( *cs );
-    if ( linekey )
-	aem->setLineKey( linekey );
+    aem->setGeomID( geomid );
 
     return aem;
 }
@@ -767,7 +766,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     SeisTrcBuf output( true );
     if ( !createOutput( bidset, output, trueknotspos, path ) )
-	return -1;
+	return DataPack::cNoID();
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     DataPack* newpack = new Attrib::FlatRdmTrcsDataPack( targetID(false),
@@ -802,20 +801,20 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 
 
 DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
-						 const LineKey& linekey,
+						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {
-    PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
-    if ( !aem ) return -1;
+    PtrMan<EngineMan> aem = createEngMan( &cs, geomid );
+    if ( !aem ) return DataPack::cNoID();
 
     uiString errmsg;
     RefMan<Data2DHolder> data2d = new Data2DHolder;
     PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !process )
-	{ uiMSG().error(errmsg); return -1; }
+	{ uiMSG().error(errmsg); return DataPack::cNoID(); }
 
     if ( !TaskRunner::execute( &taskrunner, *process ) )
-	return -1;
+	return DataPack::cNoID();
 
     int component = 0;
     const bool isstored = targetspecs_[0].isStored();
@@ -831,12 +830,11 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     mDeclareAndTryAlloc( Flat2DDHDataPack*, newpack,
-	Attrib::Flat2DDHDataPack( adid, *data2d, false, component ) );
+	    Attrib::Flat2DDHDataPack(adid,*data2d,geomid,false,component) );
     if ( !newpack || !newpack->isOK() )
 	return DataPack::cNoID();
 
-    newpack->setName( linekey.attrName() );
-    newpack->setLineName( linekey.lineName() );
+    newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
 }
@@ -904,11 +902,11 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 }
 
 
-Attrib::DescID uiAttribPartServer::getStoredID( const LineKey& lkey, bool is2d,
-						int selout )
+Attrib::DescID uiAttribPartServer::getStoredID( const MultiID& multiid,
+						bool is2d, int selout )
 {
     DescSet* ds = eDSHolder().getDescSet( is2d, true );
-    return ds ? ds->getStoredID( lkey, selout ) : DescID::undef();
+    return ds ? ds->getStoredID( multiid, selout ) : DescID::undef();
 }
 
 
@@ -1148,24 +1146,22 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     int outputnr = -1;
     bool isnla = false;
     bool isstored = false;
-    LineKey idlkey;
+    MultiID multiid = MultiID::udf();
 
     if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	const int idx = attrinf.ioobjnms_.indexOf(item->text.getFullString());
-	const char* objidstr = attrinf.ioobjids_.get(idx);
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
-	idlkey = LineKey( objidstr );
+	multiid = attrinf.ioobjids_.get(idx);
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
 	isstored = true;
     }
     else if ( steering3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = steering3dmnuitem_.findItem( mnuid );
 	const int idx = attrinf.steernms_.indexOf( item->text.getFullString() );
-	const char* objidstr = attrinf.steerids_.get( idx );
-	attribid = eDSHolder().getDescSet(false,true)->getStoredID( objidstr );
-	idlkey = LineKey( objidstr );
+	multiid = attrinf.steerids_.get( idx );
+	attribid = eDSHolder().getDescSet(false,true)->getStoredID( multiid );
 	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) ||
@@ -1178,11 +1174,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	const BufferString& itmnm = item->text.getFullString();
 	const int idx = issteering ? attrinf.steernms_.indexOf( itmnm )
 				   : attrinf.ioobjnms_.indexOf( itmnm );
-	idlkey = LineKey( issteering ? attrinf.steerids_.get(idx)
-				     : attrinf.ioobjids_.get(idx) );
+	multiid = issteering ? attrinf.steerids_.get(idx)
+			     : attrinf.ioobjids_.get(idx);
 	const int selout = issteering ? 1 : -1;
 	attribid =
-	    eDSHolder().getDescSet(true,true)->getStoredID( idlkey, selout );
+	    eDSHolder().getDescSet(true,true)->getStoredID( multiid, selout );
 	    isstored = true;
 	}
     else if ( calcmnuitem->findItem(mnuid) )
@@ -1205,9 +1201,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text.getFullString(), 0 );
 	if ( ioobj )
 	{
-	    attribid = eDSHolder().getDescSet( false, true )
-					->getStoredID( ioobj->key() );
-	    idlkey = LineKey( ioobj->key() );
+	    multiid = ioobj->key();
+	    attribid = eDSHolder().getDescSet(false,true)->getStoredID(multiid);
 	    isstored = true;
 	}
     }
@@ -1218,11 +1213,11 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as,
     if ( isstored && !nocompsel )
     {
 	BufferStringSet complist;
-	SeisIOObjInfo::getCompNames( idlkey.buf(), complist );
+	SeisIOObjInfo::getCompNames( multiid.buf(), complist );
 	if ( complist.size()>1 )
 	{
 	    TypeSet<int> selcomps;
-	    if ( !handleMultiComp( idlkey, is2d, issteering, complist,
+	    if ( !handleMultiComp( multiid, is2d, issteering, complist,
 				   attribid, selcomps ) )
 		return false;
 
@@ -1297,7 +1292,7 @@ void uiAttribPartServer::info2DAttribSubMenu( int mnuid, BufferString& attbnm,
     desc->setUserRef( lkey.buf() ); \
 }
 
-bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
+bool uiAttribPartServer::handleMultiComp( const MultiID& multiid, bool is2d,
 					  bool issteering,
 					  BufferStringSet& complist,
 					  DescID& attribid,
@@ -1323,7 +1318,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 	{
 	    //Using const_cast for compiler but ads won't be modified anyway
 	    attribid = const_cast<DescSet*>(ads)
-			->getStoredID( idlkey, selectedcomps[0], false );
+			->getStoredID( multiid, selectedcomps[0], false );
 	    //Trick for old steering cubes: fake good component names
 	    if ( !is2d && issteering )
 	    {
@@ -1335,7 +1330,7 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 
 	    return true;
 	}
-	prepMultCompSpecs( selectedcomps, idlkey, is2d, issteering );
+	prepMultCompSpecs( selectedcomps, multiid, is2d, issteering );
     }
     else
 	return false;
@@ -1345,14 +1340,14 @@ bool uiAttribPartServer::handleMultiComp( const LineKey& idlkey, bool is2d,
 
 
 bool uiAttribPartServer::prepMultCompSpecs( TypeSet<int> selectedcomps,
-					    const LineKey& idlkey, bool is2d,
+					    const MultiID& multiid, bool is2d,
 					    bool issteering )
 {
     targetspecs_.erase();
     DescSet* ads = eDSHolder().getDescSet( is2d, true );
     for ( int idx=0; idx<selectedcomps.size(); idx++ )
     {
-	DescID did = ads->getStoredID( idlkey, selectedcomps[idx], true );
+	DescID did = ads->getStoredID( multiid, selectedcomps[idx], true );
 	SelSpec as( 0, did );
 	BufferString bfs;
 	Attrib::Desc* desc = ads->getDesc(did);

@@ -851,10 +851,9 @@ DescID DescSet::getFreeID() const
 }
 
 
-DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
+DescID DescSet::getStoredID( const MultiID& multiid, int selout, bool create,
 			     bool blindcomp, const char* blindcompnm )
 {
-    FixedString lk( lkstr );
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
     for ( int idx=0; idx<descs_.size(); idx++ )
@@ -865,7 +864,7 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 	    continue;
 
 	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
-	if ( lk==keypar.getStringValue() )
+	if ( multiid == keypar.getStringValue() )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -877,15 +876,15 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 	return DescID::undef();
 
     if ( blindcomp )
-	return createStoredDesc( lk, selout, BufferString(
+	return createStoredDesc( multiid, selout, BufferString(
 					    blindcompnm ? blindcompnm :"") );
 
     const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( multiid.buf(), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
 	return out0idx != -1 ? outsreadyids[out0idx]
-			     : createStoredDesc( lk, 0, BufferString("") );
+			     : createStoredDesc( multiid, 0, BufferString("") );
 
     const int startidx = selout<0 ? 0 : selout;
     const int stopidx = selout<0 ? nrcomps : selout;
@@ -893,20 +892,19 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
 				? bss.get(startidx) : BufferString::empty();
     const DescID retid = out0idx != -1
 			? outsreadyids[out0idx]
-			: createStoredDesc( lk, startidx, curstr );
+			: createStoredDesc( multiid, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( !outsreadyforthislk.isPresent(idx) )
-	    createStoredDesc( lk, idx, *bss[idx] );
+	    createStoredDesc( multiid, idx, *bss[idx] );
 
     return retid;
 }
 
 
-DescID DescSet::createStoredDesc( const char* lk, int selout,
+DescID DescSet::createStoredDesc( const MultiID& multiid, int selout,
 				  const BufferString& compnm )
 {
-    BufferString bstring = lk;
-    const char* linenm = bstring.buf();
+    const char* linenm = multiid.buf();
     BufferString objnm;
     if ( linenm && *linenm == '#' )
     {
@@ -918,8 +916,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     }
     else
     {
-	MultiID mid = linenm;
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = IOM().get( multiid );
 	if ( !ioobj ) return DescID::undef();
 
 	objnm = ioobj->name();
@@ -939,7 +936,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     newdesc->setUserRef( userref );
     newdesc->selectOutput( selout );
     ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
-    keypar.setValue( lk );
+    keypar.setValue( multiid );
     newdesc->updateParams();
     return addDesc( newdesc );
 }

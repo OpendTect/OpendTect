@@ -115,7 +115,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
     uiMultCompDlg compdlg( parent, complist );
     if ( compdlg.go() )
     {
-	LineKey lk;
+	MultiID mid;
 	BufferString userrefstr ( inpdesc->userRef() );
 	userrefstr.trimBlanks();
 	if ( stringEndsWith( "|ALL", userrefstr.buf() ))
@@ -123,16 +123,14 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 
 	if ( is2d )
 	{
-	    const MultiID mid( attrinf.ioobjids_.get(0) );
-	    lk = LineKey( mid, userrefstr );
+	    mid = attrinf.ioobjids_.get(0);
 	}
 	else
 	{
 	    const int inpidx = attrinf.ioobjnms_.indexOf( userrefstr.buf() );
 	    if ( inpidx<0 ) return false;
 
-	    const char* objidstr = attrinf.ioobjids_.get(inpidx);
-	    lk = LineKey( objidstr );
+	    mid = attrinf.ioobjids_.get(inpidx);
 	}
 
 	TypeSet<int> selectedcomps;
@@ -144,7 +142,7 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 	for ( int idx=0; idx<selcompssz; idx++ )
 	{
 	    const int compidx = selectedcomps[idx];
-	    const DescID newinpid = curdescset->getStoredID( lk, compidx,
+	    const DescID newinpid = curdescset->getStoredID( mid, compidx,
 					    true, true, complist.get(compidx) );
 	    Desc* newdesc = seldesc->cloneDescAndPropagateInput( newinpid,
 							complist.get(compidx) );

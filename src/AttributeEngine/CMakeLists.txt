@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 		attribdataholder.cc
 		attribdataholderarray.cc
 		attribdatapack.cc
+		attribdatapackzaxistransformer.cc
 		attribdesc.cc
 		attribdescset.cc
 		attribdescsetman.cc

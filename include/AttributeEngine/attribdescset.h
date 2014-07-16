@@ -89,7 +89,7 @@ public:
 			      bool usestorinfo=false) const;
     void		getIds(TypeSet<DescID>&) const;
     void		getStoredIds(TypeSet<DescID>&) const;
-    DescID		getStoredID(const char* lk,int selout=-1,
+    DescID		getStoredID(const MultiID&,int selout=-1,
 	    			    bool create=true,bool blindcomp=false,
 				    const char* blindcompnm=0);
     Desc* 		getFirstStored(bool usesteering=true) const;
@@ -117,7 +117,8 @@ public:
 				   const BufferString&,TypeSet<uiString>*);
     Desc* 		createDesc(const BufferString&, const IOPar&,
 	    			   const BufferString& );
-    DescID		createStoredDesc(const char*,int,const BufferString&);
+    DescID		createStoredDesc(const MultiID&,int selout,
+					 const BufferString& compnm);
     bool		setAllInputDescs(int, const IOPar&,TypeSet<uiString>*);
     void 		handleStorageOldFormat(IOPar&);
     void 		handleOldAttributes(BufferString&,IOPar&,BufferString&,

@@ -12,36 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "visseis2ddisplay.h"
 
-#include "viscoord.h"
-#include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "vistext.h"
 #include "vistexturechannels.h"
-#include "vistexturechannel2rgba.h"
 #include "vistexturepanelstrip.h"
-#include "vistransform.h"
 
 #include "array2dresample.h"
-#include "arrayndimpl.h"
 #include "arrayndslice.h"
 #include "attribdataholder.h"
-#include "attribdatapack.h"
+#include "attribdatapackzaxistransformer.h"
 #include "bendpointfinder.h"
-#include "coltabmapper.h"
-#include "genericnumer.h"
-#include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "keystrs.h"
 #include "mousecursor.h"
-#include "ptrman.h"
-#include "samplfunc.h"
-#include "posinfo.h"
-#include "survinfo.h"
-#include "task.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -118,9 +102,16 @@ Seis2DDisplay::~Seis2DDisplay()
     if ( transformation_ ) transformation_->unRef();
     deepUnRef( cache_ );
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
+    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
+	dpm.release( datapackids_[idx] );
+
+    for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
+    {
+	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
+	for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	    dpm.release( dpids[idy] );
+    }
 
     polyline_->removeNodeState( polylineds_ );
     polylineds_->unRef();
@@ -358,12 +349,26 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	return false;
     }
 
-    setTraceData( attrib, *dp2d->dataarray(), tr );
-
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
     dpman.release( oldid );
+
+    createDisplayDataPacks( attrib );
+    setTraceData( attrib, *dp2d->dataarray(), tr );
     return true;
+}
+
+
+void Seis2DDisplay::setDisplayDataPackIDs( int attrib,
+				const TypeSet<DataPack::ID>& newdpids )
+{
+    TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
+
+    dpids = newdpids;
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
 }
 
 
@@ -375,7 +380,10 @@ DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 
 DataPack::ID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
 {
-    return getDataPackID( attrib );
+    if ( !dispdatapackids_.validIdx(attrib) ) return DataPack::cNoID();
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    const int curversion = channels_->currentVersion(attrib);
+    return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cNoID();
 }
 
 
@@ -406,174 +414,32 @@ void Seis2DDisplay::setData( int attrib,
 	return;
     }
 
-    const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
-    const int nrseries = data2dh.dataset_->info().getSize( 0 );
-
+    const TypeSet<DataPack::ID> dpids = *dispdatapackids_[attrib];
+    const int nrseries = dpids.size();
     channels_->setNrVersions( attrib, nrseries );
 
-    Array2DSlice<float> slice2d( *data2dh.dataset_ );
-    slice2d.setDimMap( 0, 1 );
-    slice2d.setDimMap( 1, 2 );
-
-    int sz0=mUdf(int), sz1=mUdf(int);
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-
+    int sz0=mUdf(int), sz1=mUdf(int);
     for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
     {
-	slice2d.setPos( 0, seriesidx );
-	slice2d.init();
-
-	const bool alreadytransformed = alreadyTransformed( attrib );
-	PtrMan<Array2D<float> > tmparr = 0;
-	Array2D<float>* usedarr = 0;
-	if ( alreadytransformed || !datatransform_ )
-	{
-	    const int nrsamples = slice2d.info().getSize(1);
-	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
-	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
-	    if ( slice2d.info().getSize(0)==nrdisplaytraces &&
-		 nrsamples==nrdisplaysamples &&
-		 data2dh.trcinfoset_[0]->nr==trcdisplayinfo_.alltrcnrs_[0] )
-	    {
-		usedarr = &slice2d;
-	    }
-	    else
-	    {
-		mTryAlloc( tmparr,
-		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
-		usedarr = tmparr;
-		const int startidx = trcdisplayinfo_.rg_.start;
-		float* sampleptr = tmparr->getData();
-		for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
-		{
-		    const int trcnr =
-			      trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
-		    const int trcidx = data2dh.indexOf( trcnr );
-		    const float* trcptr = slice2d.getData();
-		    const ValueSeries<float>* stor = slice2d.getStorage();
-		    od_int64 offset = slice2d.info().getOffset( trcidx, 0 );
-
-		    if ( trcptr ) trcptr += offset;
-		    OffsetValueSeries<float> trcstor( *stor, offset );
-
-		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
-		    {
-			if ( trcidx==-1 )
-			{
-			    if ( sampleptr )
-			    {
-				*sampleptr = mUdf(float);
-				sampleptr++;
-			    }
-			    else
-				tmparr->set( crlidx, zidx, mUdf(float) );
-			    continue;
-			}
-
-			const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
-			const float sample = sd.getfIndex( z );
-			float val = mUdf(float);
-			if ( trcptr )
-			    IdxAble::interpolateReg( trcptr, nrsamples, sample,
-						     val, false );
-			else
-			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
-						     val, false );
-			if ( sampleptr )
-			{
-			    *sampleptr = val;
-			    sampleptr++;
-			}
-			else
-			    tmparr->set( crlidx, zidx, val );
-		    }
-		}
-	    }
-	}
-	else
-	{
-	    CubeSampling cs;
-	    cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
-	    cs.hrg.start.crl() =
-		    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];
-	    cs.hrg.stop.crl() =
-		    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
-	    cs.hrg.step.crl() = 1;
-	    assign( cs.zrg, trcdisplayinfo_.zrg_ );
-	    // use survey step here?
-	    if ( voiidx_ < 0 )
-		voiidx_ = datatransform_->addVolumeOfInterest2D(
-						getLineName(), cs, true );
-	    else
-		datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
-						     cs, true );
-	    datatransform_->loadDataIfMissing( voiidx_ );
-
-	    ZAxisTransformSampler outpsampler( *datatransform_, true,
-		SamplingData<double>(cs.zrg.start,cs.zrg.step), true );
-	    outpsampler.setLineName( getLineName() );
-
-	    const int zsz = cs.nrZ();
-	    mTryAlloc( tmparr, Array2DImpl<float>(trcdisplayinfo_.size_,zsz) );
-	    tmparr->setAll( mUdf(float) );
-	    usedarr = tmparr;
-
-	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
-	    {
-	        Array1DSlice<float> traceslice( slice2d );
-		traceslice.setDimMap( 0, 1 );
-		traceslice.setPos( 0, crlidx );
-		if ( !traceslice.init() )
-		{
-		    pErrMsg( "Error reading array for Z-axis transformation." );
-		    continue;
-		}
-
-		const int startidx = trcdisplayinfo_.rg_.start + crlidx;
-		outpsampler.setTrcNr( trcdisplayinfo_.alltrcnrs_[startidx] );
-		outpsampler.computeCache( Interval<int>(0,zsz-1) );
-
-		SampledFunctionImpl<float,ValueSeries<float> >
-		    inputfunc( traceslice, slice2d.info().getSize(1),
-			    sd.start, sd.step );
-		inputfunc.setHasUdfs( true );
-		inputfunc.setInterpolate( textureInterpolationEnabled() );
-
-		if ( tmparr->getData() )
-		{
-		    float* outputptr = tmparr->getData() +
-			tmparr->info().getOffset( crlidx, 0 );
-		    reSample( inputfunc, outpsampler, outputptr, zsz );
-		}
-		else
-		{
-		    for ( int zidx=0; zidx<zsz; zidx++ )
-		    {
-			const float sampleval = outpsampler[zidx];
-			const float outputval = Values::isUdf(sampleval) ?
-			    mUdf(float) : inputfunc.getValue(sampleval);
-			tmparr->set( crlidx, zidx, outputval );
-		    }
-		}
-	    }
-	}
+	DataPackRef<Flat2DDHDataPack> dp2ddh =
+	    DPM(DataPackMgr::FlatID()).obtain( dpids[seriesidx] );
+	Array2D<float>& data = dp2ddh->data();
 
 	if ( !seriesidx )
 	{
-	    sz0 = 1 + (usedarr->info().getSize(0)-1) * (resolution_+1);
-	    sz1 = 1 + (usedarr->info().getSize(1)-1) * (resolution_+1);
+	    sz0 = 1 + (data.info().getSize(0)-1) * (resolution_+1);
+	    sz1 = 1 + (data.info().getSize(1)-1) * (resolution_+1);
 
 	    //If the size is too big to display, use low resolution only
 	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
-		sz0 = usedarr->info().getSize(0);
+		sz0 = data.info().getSize(0);
 
 	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
-		sz1 = usedarr->info().getSize(1);
+		sz1 = data.info().getSize(1);
 	}
 
-	ValueSeries<float>* stor =
-			!resolution_ && !tmparr ? usedarr->getStorage() : 0;
-
+	ValueSeries<float>* stor = !resolution_ ? data.getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
@@ -589,8 +455,7 @@ void Seis2DDisplay::setData( int attrib,
 	if ( !stor || !stor->isOK() )
 	{
 	    channels_->turnOn( false );
-	    pErrMsg(
-		    "Insufficient memory; cannot display the 2D seismics.");
+	    pErrMsg("Insufficient memory; cannot display the 2D seismics.");
 	    if ( ownsstor ) delete stor;
 	    return;
 	}
@@ -598,15 +463,15 @@ void Seis2DDisplay::setData( int attrib,
 	if ( ownsstor )
 	{
 	    if ( resolution_==0 )
-		usedarr->getAll( *stor );
+		data.getAll( *stor );
 	    else
 	    {
-		// Copy all the data from usedarr to an Array2DImpl and pass
+		// Copy all the data from data to an Array2DImpl and pass
 		// this object to Array2DReSampler. This copy is done because
 		// Array2DReSampler will access the input using the "get"
 		// method. The get method of Array2DImpl is much faster than
 		// that of Seis2DArray.
-		Array2DImpl<float> sourcearr2d( usedarr->info() );
+		Array2DImpl<float> sourcearr2d( data.info() );
 		if ( !sourcearr2d.isOK() )
 		{
 		    channels_->turnOn( false );
@@ -615,10 +480,9 @@ void Seis2DDisplay::setData( int attrib,
 		    return;
 		}
 
-		sourcearr2d.copyFrom( *usedarr );
-
-		Array2DReSampler<float,float>
-			    resampler( sourcearr2d, *stor, sz0, sz1, true );
+		sourcearr2d.copyFrom( data );
+		Array2DReSampler<float,float> resampler(
+				sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
 		TaskRunner::execute( tr, resampler );
 	    }
@@ -630,6 +494,65 @@ void Seis2DDisplay::setData( int attrib,
     }
 
     channels_->turnOn( true );
+}
+
+
+void Seis2DDisplay::createDisplayDataPacks( int attrib )
+{
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    const DataPack::ID dpid = getDataPackID( attrib );
+    ConstDataPackRef<Flat2DDHDataPack> dp2ddh = dpm.obtain( dpid );
+
+    const Attrib::Data2DArray& data2dh = *dp2ddh->dataarray();
+    Array2DSlice<float> slice2d( *data2dh.dataset_ );
+    slice2d.setDimMap( 0, 1 );
+    slice2d.setDimMap( 1, 2 );
+
+    TypeSet<DataPack::ID> dpids;
+    const int nrseries = data2dh.dataset_->info().getSize( 0 );
+    for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
+    {
+	slice2d.setPos( 0, seriesidx );
+	slice2d.init();
+
+	Flat2DDHDataPack* dp2d = new Flat2DDHDataPack( dp2ddh->descID(),
+			&slice2d, data2dh.cubesampling_, dp2ddh->trcKeys() );
+	dp2d->setName( dp2ddh->name() );
+	dpm.add( dp2d );
+	dpids += dp2d->id();
+    }
+
+    if ( datatransform_ && !alreadyTransformed(attrib) )
+    {
+	CubeSampling cs;
+	cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
+	cs.hrg.start.crl() =
+	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];
+	cs.hrg.stop.crl() =
+	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
+	cs.hrg.step.crl() = 1;
+	assign( cs.zrg, trcdisplayinfo_.zrg_ );
+	// use survey step here?
+	if ( voiidx_ < 0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest2D(
+			getLineName(), cs, true );
+	else
+	    datatransform_->setVolumeOfInterest2D( voiidx_, getLineName(),
+		    cs, true );
+	datatransform_->loadDataIfMissing( voiidx_ );
+
+	for ( int idx=0; idx<dpids.size(); idx++ )
+	{
+	    ConstDataPackRef<FlatDataPack> dp2d = dpm.obtain( dpids[idx] );
+	    Attrib::FlatDataPackZAxisTransformer transformer( *datatransform_ );
+	    transformer.setInput( dp2d.ptr() );
+	    transformer.setOutput( dpids[idx] );
+	    transformer.setInterpolate( textureInterpolationEnabled() );
+	    transformer.execute();
+	}
+    }
+
+    setDisplayDataPackIDs( attrib, dpids );
 }
 
 
@@ -870,6 +793,7 @@ void Seis2DDisplay::addCache()
 {
     cache_ += 0;
     datapackids_ += -1;
+    dispdatapackids_ += new TypeSet<DataPack::ID>;
 }
 
 
@@ -880,6 +804,11 @@ void Seis2DDisplay::removeCache( int attrib )
 
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+    delete dispdatapackids_.removeSingle( attrib );
 }
 
 
@@ -887,6 +816,7 @@ void Seis2DDisplay::swapCache( int a0, int a1 )
 {
     cache_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
+    dispdatapackids_.swap( a0, a1 );
 }
 
 
@@ -897,7 +827,13 @@ void Seis2DDisplay::emptyCache( int attrib )
 
     cache_.replace( attrib, 0 );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_[attrib] = -1;
+    datapackids_[attrib] = DataPack::cNoID();
+
+    const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
+    for ( int idy=dpids.size()-1; idy>=0; idy-- )
+	DPM(DataPackMgr::FlatID()).release( dpids[idy] );
+    dispdatapackids_[attrib]->setAll( DataPack::cNoID() );
+
     channels_->setNrVersions( attrib, 1 );
     channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, 0 );
 }

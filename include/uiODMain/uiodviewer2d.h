@@ -85,7 +85,6 @@ public:
 				{ return datatransform_; }
     void			setCubeSampling(const CubeSampling&);
 
-    MultiID			lineSetID()	{ return MultiID(-1); }
     void			setGeomID( Pos::GeomID geomid )
 				{ geomid_ = geomid; }
     Pos::GeomID 		geomID() const

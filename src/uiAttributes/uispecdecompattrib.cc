@@ -300,7 +300,8 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     LineKey lk;
     if ( dset->is2D() )
 	lk = LineKey( positiondlg_->getLineKey() );
-    panelview_->compAndDispAttrib( dset, specdecompid, cs, lk );
+    panelview_->compAndDispAttrib(
+	    dset,specdecompid,cs,Survey::GM().getGeomID(lk.lineName().buf()));
 }
 
 

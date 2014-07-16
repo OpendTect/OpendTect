@@ -35,7 +35,8 @@ public:
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
     void		setCubeSampling( CubeSampling cs )	{ cs_ = cs; }
-    void		setLineKey( LineKey lk )		{ lk_ = lk; }
+    void		setGeomID( const Pos::GeomID& geomid )
+			{ geomid_ = geomid; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
     void                setDescSet(Attrib::DescSet*);
 			//<! descset becomes mine!
@@ -52,7 +53,7 @@ protected:
     uiFlatViewMainWin*		examwin_;
     uiFlatViewMainWin*		qcwin_;
     CubeSampling		cs_;
-    LineKey			lk_;
+    Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*		dset_;
     uiParent*			parent_;

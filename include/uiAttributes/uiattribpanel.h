@@ -32,7 +32,8 @@ public:
     			~uiAttribPanel();
     void                compAndDispAttrib(Attrib::DescSet*,
 	    				  const Attrib::DescID&,
-					  const CubeSampling&,const LineKey&);
+					  const CubeSampling&,
+					  const Pos::GeomID&);
     			//<! descset becomes mine!
 
 protected:
@@ -50,7 +51,7 @@ protected:
 
     uiFlatViewMainWin*		flatvwin_;
     CubeSampling		cs_;
-    LineKey			lk_;
+    Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*    	dset_;
     uiParent*			parent_;

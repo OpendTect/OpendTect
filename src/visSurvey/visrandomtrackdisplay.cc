@@ -14,23 +14,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "array2dresample.h"
 #include "arrayndimpl.h"
-#include "attribdatapack.h"
-#include "attribsel.h"
-#include "coltabmapper.h"
-#include "iopar.h"
+#include "attribdatapackzaxistransformer.h"
 #include "seisbuf.h"
 #include "seistrc.h"
-#include "interpol1d.h"
 #include "randomlinegeom.h"
-#include "scaler.h"
-#include "keystrs.h"
 #include "mousecursor.h"
-#include "simpnumer.h"
-#include "survinfo.h"
-#include "ptrman.h"
 
-#include "viscoord.h"
-#include "visdataman.h"
 #include "visevent.h"
 #include "vishorizondisplay.h"
 #include "vismaterial.h"
@@ -39,10 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdragger.h"
 #include "vistexturechannels.h"
-#include "vistexturechannel2rgba.h"
-#include "vistexturecoords.h"
 #include "vistexturepanelstrip.h"
-#include "vistransform.h"
 #include "zaxistransform.h"
 
 
@@ -653,23 +639,64 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
-    DataPackRef<Attrib::FlatRdmTrcsDataPack> rdmtrcsdp = dpm.obtain( dpid );
-
-    StepInterval<float> zrg( datatransform_ ? panelstrip_->getZRange()
-					    : getDataTraceRange() );
-    zrg.step = appliedZRangeStep();
+    ConstDataPackRef<Attrib::FlatRdmTrcsDataPack>rdmtrcsdp = dpm.obtain( dpid );
 
     TypeSet<BinID> path;
     getDataTraceBids( path );
     const int pathsz = path.size();
+    StepInterval<float> zrg = getDataTraceRange();
+    zrg.step = SI().zStep();
+
+    const int nrsamp = zrg.nrSteps()+1;
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
+			 Array2DImpl<float>( pathsz, nrsamp ) );
+    if ( !array->isOK() )
+	return;
 
     TypeSet<DataPack::ID> dpids;
+    const SeisTrcBuf& seisbuf = rdmtrcsdp->seisBuf();
+    const int nrslices = seisbuf.get(0)->nrComponents();
+    for ( int sidx=0; sidx<nrslices; sidx++ )
+    {
+	array->setAll( mUdf(float) );
+	float* dataptr = array->getData();
+	for ( int posidx=pathsz-1; posidx>=0; posidx-- )
+	{
+	    const BinID bid = path[posidx];
+	    const int trcidx = seisbuf.find( bid, false );
+	    if ( trcidx<0 )
+		continue;
+
+	    const SeisTrc* trc = seisbuf.get( trcidx );
+	    if ( !trc || sidx>trc->nrComponents() )
+		continue;
+
+	    float* arrptr = dataptr + array->info().getOffset( posidx, 0 );
+	    for ( int ids=0; ids<nrsamp; ids++ )
+	    {
+		const float ctime = zrg.start + ids*zrg.step;
+		if ( trc->dataPresent(ctime) )
+		    arrptr[ids] = trc->getValue( ctime, sidx );
+	    }
+	}
+
+	const Attrib::DescID descid = rdmtrcsdp->descID();
+	const SamplingData<float> sd( zrg.start, zrg.step );
+	Attrib::FlatRdmTrcsDataPack* dprdm =
+	    new Attrib::FlatRdmTrcsDataPack( descid, array, sd, &path );
+	dprdm->setName( rdmtrcsdp->name() );
+	dpm.add( dprdm );
+	dpids += dprdm->id();
+    }
+
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
 	CubeSampling cs( false );
 	for ( int pi=0; pi<pathsz; pi++ )
 	    cs.hrg.include( path[pi] );
-	cs.zrg = zrg;
+	cs.zrg = panelstrip_->getZRange();
+	cs.zrg.step = scene_ ? scene_->getCubeSampling().zrg.step
+			     : datatransform_->getGoodZStep();
 
 	if ( voiidx_<0 )
 	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
@@ -677,52 +704,14 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
 	datatransform_->loadDataIfMissing( voiidx_ );
 
-	Attrib::FlatDataPackZAxisTransformer transformer( *datatransform_ );
-	transformer.setInput( rdmtrcsdp.ptr() );
-	transformer.setOutput( dpids );
-	transformer.execute();
-    }
-    else
-    {
-	const int nrsamp = zrg.nrSteps()+1;
-	mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, array,
-			     Array2DImpl<float>( pathsz, nrsamp ) );
-	if ( !array->isOK() )
-	    return;
-
-	const SeisTrcBuf& seisbuf = rdmtrcsdp->seisBuf();
-	const int nrslices = seisbuf.get(0)->nrComponents();
-	for ( int sidx=0; sidx<nrslices; sidx++ )
+	for ( int idx=0; idx<dpids.size(); idx++ )
 	{
-	    array->setAll( mUdf(float) );
-	    float* dataptr = array->getData();
-	    for ( int posidx=pathsz-1; posidx>=0; posidx-- )
-	    {
-		const BinID bid = path[posidx];
-		const int trcidx = seisbuf.find( bid, false );
-		if ( trcidx<0 )
-		    continue;
-
-		const SeisTrc* trc = seisbuf.get( trcidx );
-		if ( !trc || sidx>trc->nrComponents() )
-		    continue;
-
-		float* arrptr = dataptr + array->info().getOffset(posidx,0);
-		for ( int ids=0; ids<nrsamp; ids++ )
-		{
-		    const float ctime = zrg.start + ids*zrg.step;
-		    if ( trc->dataPresent(ctime) )
-			arrptr[ids] = trc->getValue( ctime, sidx );
-		}
-	    }
-
-	    SamplingData<float> sd( zrg.start, zrg.step );
-	    const Attrib::DescID descid = rdmtrcsdp->descID();
-	    Attrib::FlatRdmTrcsDataPack* dprdm =
-		new Attrib::FlatRdmTrcsDataPack( descid, array, sd, &path );
-	    dprdm->setName( rdmtrcsdp->name() );
-	    dpm.add( dprdm );
-	    dpids += dprdm->id();
+	    ConstDataPackRef<FlatDataPack> dprdm = dpm.obtain( dpids[idx] );
+	    Attrib::FlatDataPackZAxisTransformer transformer( *datatransform_ );
+	    transformer.setInput( dprdm.ptr() );
+	    transformer.setOutput( dpids[idx] );
+	    transformer.setInterpolate( textureInterpolationEnabled() );
+	    transformer.execute();
 	}
     }
 

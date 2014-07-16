@@ -890,9 +890,8 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     cs.zrg.setFrom( s2d->getZRange(false) );
 
     uiTaskRunner uitr( &appl_ );
-    LineKey lk( s2d->name() );
-    DataPack::ID dpid = attrserv_->create2DOutput( cs, lk, uitr );
-    if ( dpid < 0 )
+    DataPack::ID dpid = attrserv_->create2DOutput( cs, s2d->getGeomID(), uitr );
+    if ( dpid == DataPack::cNoID() )
 	return false;
 
     s2d->setDataPackID( attrib, dpid, 0 );

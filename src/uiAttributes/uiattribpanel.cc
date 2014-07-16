@@ -34,6 +34,7 @@ using namespace Attrib;
 
 uiAttribPanel::uiAttribPanel( uiParent* p )
     : attribid_( DescID::undef() )
+    , geomid_(Survey::GM().cUndefGeomID())
     , dset_( 0 )
     , flatvwin_( 0 )
     , parent_( p )
@@ -92,7 +93,7 @@ EngineMan* uiAttribPanel::createEngineMan()
 
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
-    aem->setLineKey( lk_ );
+    aem->setGeomID( geomid_ );
     aem->setCubeSampling( cs_ );	//should be only 1 trace
     return aem;
 }
@@ -101,7 +102,7 @@ EngineMan* uiAttribPanel::createEngineMan()
 FlatDataPack* uiAttribPanel::createFDPack( 
 					    const Data2DHolder& d2dh ) const
 {
-    return new Attrib::Flat2DDHDataPack( attribid_, d2dh, true );
+    return new Attrib::Flat2DDHDataPack( attribid_, d2dh, geomid_, true );
 }
 
 
@@ -148,11 +149,11 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 
 void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
 				       const CubeSampling& cs,
-				       const LineKey& lk )
+				       const Pos::GeomID& geomid )
 {
     attribid_ = mpid;
     cs_ = cs;
-    lk_ = lk;
+    geomid_ = geomid;
     
     if ( dset_ ) delete dset_;
     dset_ = dset;

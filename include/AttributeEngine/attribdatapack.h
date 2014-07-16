@@ -18,12 +18,11 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "paralleltask.h"
 #include "seisinfo.h"
+#include "survgeom.h"
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
-template <class T> class Array2DImpl;
 class SeisTrcBuf;
-class ZAxisTransform;
 
 namespace Attrib
 {
@@ -95,8 +94,13 @@ mExpClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
+					 const Pos::GeomID& geomid,
 					 bool usesingtrc=false,int component=0);
+			Flat2DDHDataPack(DescID,const Array2D<float>*,
+					 const CubeSampling&,
+					 const TypeSet<TrcKey>*);
 			~Flat2DDHDataPack();
+
     bool		isOK() const		{ return dataholderarr_; }
 
     const Data2DArray*	dataarray() const	{ return dataholderarr_; }
@@ -106,23 +110,27 @@ public:
 	    				TypeSet<float>& dist) const;
     void		getCoordDataTable(const TypeSet<int>& trcnrs,
 	    				  TypeSet<Coord>& coords) const;
-    Array2D<float>&	data();
+    Array2D<float>&	data()			{ return *arr2d_; }
+    const TypeSet<TrcKey>* trcKeys() const	{ return trckeys_; }
 
-    void		setLineName(const char* nm)	{ linenm_ = nm; }
-    void		getLineName(BufferString&) const;
+    const char*		getLineName() const
+			{ return Survey::GM().getName( geomid_ ); }
+    Pos::GeomID		getGeomID() const		{ return geomid_; }
+
     Coord3		getCoord(int,int) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
 
-    const CubeSampling&	getCubeSampling() const;
+    const CubeSampling& getCubeSampling() const { return cubesampling_; }
 
 protected:
 
-    Array2DSlice<float>*	array2dslice_;
     const Data2DArray*		dataholderarr_;
+    const CubeSampling		cubesampling_;
+    TypeSet<TrcKey>*		trckeys_;
 
     bool			usesingtrc_;
-    BufferString		linenm_;
+    const Pos::GeomID		geomid_;
 
     void			setPosData();
 };
@@ -212,9 +220,9 @@ mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
 					    const TypeSet<BinID>* path=0);
-			FlatRdmTrcsDataPack(DescID,const Array2DImpl<float>*,
+			FlatRdmTrcsDataPack(DescID,const Array2D<float>*,
 					    const SamplingData<float>&,
-					    const TypeSet<BinID>* path=0);
+					    const TypeSet<BinID>* path);
 			~FlatRdmTrcsDataPack();
     virtual const char*	sourceType() const	{ return "Random Line"; }
 
@@ -236,39 +244,6 @@ protected:
 
     const SamplingData<float>	samplingdata_;
     TypeSet<BinID>*		path_;
-};
-
-
-/*!
-\brief Transforms datapacks using ZAxisTransform. Output datapacks will be of
-same type as inputdp_. At present, this works only for FlatRdmTrcsDataPack.
-*/
-
-mExpClass(AttributeEngine) FlatDataPackZAxisTransformer : public ParallelTask
-{
-public:
-				FlatDataPackZAxisTransformer(ZAxisTransform&);
-				~FlatDataPackZAxisTransformer();
-
-    void			setInput( FlatDataPack* fdp )
-				{ inputdp_ = fdp; }
-    void			setOutput( TypeSet<DataPack::ID>& dpids )
-				{ dpids_ = &dpids; }
-
-protected:
-
-    bool			doPrepare(int nrthreads);
-    bool			doWork(od_int64,od_int64,int threadid);
-    bool			doFinish(bool success);
-    od_int64			nrIterations() const;
-
-    DataPackMgr&		dpm_;
-    ZAxisTransform&		transform_;
-    StepInterval<float>		zrange_;
-    FlatDataPack*		inputdp_;
-
-    TypeSet<DataPack::ID>*		dpids_;
-    ObjectSet<Array2DImpl<float> >	arr2d_;
 };
 
 

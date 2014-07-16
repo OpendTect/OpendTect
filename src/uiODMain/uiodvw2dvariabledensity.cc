@@ -12,19 +12,15 @@ ________________________________________________________________________
 #include "uiodvw2dvariabledensity.h"
 
 #include "uiattribpartserv.h"
-#include "uicolortable.h"
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
-#include "uiflatviewstdcontrol.h"
-#include "uiflatviewcoltabed.h"
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
+#include "attribdatapackzaxistransformer.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
@@ -33,9 +29,8 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "keystrs.h"
-#include "linekey.h"
 #include "pixmap.h"
+#include "seisioobjinfo.h"
 #include "visvw2dseismic.h"
 #include "visvw2ddataman.h"
 #include "zaxistransform.h"
@@ -262,21 +257,17 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2ddh,dp.ptr());
 
     DataPack::ID newid = DataPack::cNoID();
+    RefMan<ZAxisTransform> zat = viewer2D()->getZAxisTransform();
     bool dousemulticomp = false;
     if ( dp2ddh )
     {
 	BufferString attrbnm; bool stored = false;
 	bool steering = false;
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
-	if ( attrbnm.isEmpty() )
-	    attrbnm = LineKey::sKeyDefAttrib();
-
-	BufferString ln;
-	dp2ddh->getLineName( ln );
 
 	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
-	const CubeSampling cs = dp2ddh->getCubeSampling();
-	const LineKey lk( ln.buf(), attrbnm );
+	CubeSampling cs = dp2ddh->getCubeSampling();
+	if ( zat ) cs.zrg = zat->getZInterval( true );
 
 	if ( !stored )
 	{
@@ -284,15 +275,16 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 		return false;
 
 	    attrserv->setTargetSelSpec( selas );
-	    newid = attrserv->create2DOutput( cs, lk, uitr );
+	    newid = attrserv->create2DOutput( cs, dp2ddh->getGeomID(), uitr );
 	}
 	else
 	{
-	    LineKey lky( viewer2D()->lineSetID(), attrbnm );
+	    const SeisIOObjInfo objinfo( attrbnm );
+	    if ( !objinfo.ioObj() )
+		return false;
 
-	    Attrib::DescID attribid = attrserv->getStoredID( lky, true,
-		    					     steering ? 1 : 0 );
-
+	    Attrib::DescID attribid = attrserv->getStoredID(
+			    objinfo.ioObj()->key(), true, steering ? 1 : 0 );
 	    selas.set( attrbnm, attribid, false, 0 );
 	    selas.set2DFlag();
 
@@ -312,8 +304,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    targetdesc->getDefStr( defstring );
 	    selas.setDefString( defstring );
 	    attrserv->setTargetSelSpec( selas );
-
-	    newid = attrserv->create2DOutput( cs, lk,uitr );
+	    newid = attrserv->create2DOutput( cs, dp2ddh->getGeomID(), uitr );
 	}
     }
     else if ( attrserv->handleAttribSubMenu(mnuid,selas,dousemulticomp) )
@@ -321,7 +312,6 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	if ( dprdm )
 	{
 	    attrserv->setTargetSelSpec( selas );
-	    RefMan<ZAxisTransform> zat = viewer2D()->getZAxisTransform();
 	    const Interval<float> zrg = zat ? zat->getZInterval(true) :
 		Interval<float>((float)dprdm->posData().range(false).start,
 				(float)dprdm->posData().range(false).stop);
@@ -330,23 +320,21 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    if ( dprdm->pathBIDs() )
 		bids = *dprdm->pathBIDs();
 	    newid = attrserv->createRdmTrcsOutput( zrg, &bids, &bids );
-
-	    if ( zat )
-	    {
-		TypeSet<DataPack::ID> dpids;
-		DataPackRef<Attrib::FlatRdmTrcsDataPack> newdprdm =
-				    DPM(DataPackMgr::FlatID()).obtain( newid );
-		Attrib::FlatDataPackZAxisTransformer transformer( *zat );
-		transformer.setInput( newdprdm.ptr() );
-		transformer.setOutput( dpids );
-		transformer.execute();
-		newid = dpids.size() ? dpids[0] : DataPack::cNoID();
-	    }
 	}
 	else
 	{
 	    newid = viewer2D()->createDataPack( selas );
 	}
+    }
+
+    if ( zat && (dp2ddh || dprdm) )
+    {
+	ConstDataPackRef<FlatDataPack> newdp =
+		DPM(DataPackMgr::FlatID()).obtain( newid );
+	Attrib::FlatDataPackZAxisTransformer transformer( *zat );
+	transformer.setInput( newdp.ptr() );
+	transformer.setOutput( newid );
+	transformer.execute();
     }
 
     if ( newid == DataPack::cNoID() ) return true;

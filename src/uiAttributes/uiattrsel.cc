@@ -461,11 +461,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx), 0 );
 	if ( !ioobj ) return false;
 
-	LineKey linekey( ioobj->key() );
 	descset = usedasinput_
 		? const_cast<DescSet*>( &attrdata_.attrSet() )
 		: eDSHolder().getDescSet( is2D(), true );
-	attrdata_.attribid_ = descset->getStoredID( linekey, 0, true );
+	attrdata_.attribid_ = descset->getStoredID( ioobj->key(), 0, true );
     }
     else
     {

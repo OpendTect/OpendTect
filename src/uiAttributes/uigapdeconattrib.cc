@@ -50,7 +50,7 @@ class uiGDPositionDlg: public uiDialog
 
     void                popUpPosDlg();
     const CubeSampling&	getCubeSampling();
-    LineKey		getLineKey() const;
+    Pos::GeomID		getGeomID() const;
     void		setPrefCS(CubeSampling* prefcs)	{ prefcs_ = prefcs; }
 
     uiGenInput*		inlcrlfld_;
@@ -333,7 +333,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	acorrview_->setAttribID( gapdecid );
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	if ( dset->is2D() )
-	    acorrview_->setLineKey( positiondlg_->getLineKey() );
+	    acorrview_->setGeomID( positiondlg_->getGeomID() );
 
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr(false) )
@@ -591,7 +591,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	acorrview_->setAttribID( autocorrid );
 	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
 	if ( dset->is2D() )
-	    acorrview_->setLineKey( positiondlg_->getLineKey() );
+	    acorrview_->setGeomID( positiondlg_->getGeomID() );
 	acorrview_->setDescSet( dset );
 	if ( acorrview_->computeAutocorr(true) )
 	    acorrview_->createAndDisplay2DViewer(true);
@@ -672,7 +672,8 @@ void uiGDPositionDlg::popUpPosDlg()
     CubeSampling inputcs = cs_;
     if ( is2d )
     {
-	SeisTrcTranslator::getRanges( mid_, inputcs, getLineKey() );
+	SeisTrcTranslator::getRanges(
+		mid_, inputcs, Survey::GM().getName(getGeomID()) );
 	cs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
     }
 
@@ -715,11 +716,10 @@ const CubeSampling& uiGDPositionDlg::getCubeSampling()
 }
 
 
-LineKey uiGDPositionDlg::getLineKey() const
+Pos::GeomID uiGDPositionDlg::getGeomID() const
 {
-    LineKey lk;
-    if ( !linesfld_ ) return lk;
+    if ( !linesfld_ )
+	return Survey::GM().cUndefGeomID();
 
-    lk.setLineName( linesfld_->box()->text() );
-    return lk;
+    return Survey::GM().getGeomID( linesfld_->box()->text() );
 }

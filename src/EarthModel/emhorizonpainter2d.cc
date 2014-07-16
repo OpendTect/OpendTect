@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emobject.h"
+#include "zaxistransform.h"
 
 namespace EM
 {
@@ -154,12 +155,13 @@ bool HorizonPainter2D::addPolyLine()
 	    if ( idx == -1 )
 		continue;
 
-	    marker->marker_->poly_ +=
-				FlatView::Point( distances_[idx], crd.z );
+	    ConstRefMan<ZAxisTransform> zat = viewer_.getZAxisTransform();
+	    const double z = zat ? zat->transform(crd) : crd.z;
+	    marker->marker_->poly_ += FlatView::Point( distances_[idx], z );
 
 	    if ( hor2d->isPosAttrib(posid,EM::EMObject::sSeedNode()) )
 		markerseeds_->marker_->poly_ +=
-		    		FlatView::Point( distances_[idx], crd.z );
+		    FlatView::Point( distances_[idx], z );
 	    
 	    bid.inl() = inlfromcs;
 	}

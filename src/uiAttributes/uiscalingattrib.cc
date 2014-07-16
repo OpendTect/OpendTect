@@ -543,13 +543,13 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    SeisIOObjInfo seisinfo( ioobj );
 	    StepInterval<int> trcrg;
 	    StepInterval<float> zrg;
-	    Pos::GeomID geomid = Survey::GM().getGeomID( 
-					    subseldlg.lineKey().lineName() );
+	    const Pos::GeomID geomid = Survey::GM().getGeomID(
+				    subseldlg.lineKey().lineName().buf() );
 	    seisinfo.getRanges( geomid, trcrg, zrg );
 	    cs.hrg.setCrlRange( trcrg );
 	    cs.hrg.setInlRange( Interval<int>(0,0) );
 	    cs.zrg = zrg;
-	    aem->setLineKey( subseldlg.lineKey() );
+	    aem->setGeomID( geomid );
 	}
 	else
 	    cs = subseldlg.subVol();

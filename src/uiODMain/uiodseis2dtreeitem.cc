@@ -673,7 +673,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     as.set2DFlag();
 
     uiTaskRunner uitr( ODMainWin() );
-    DataPack::ID dpid = -1;
+    DataPack::ID dpid = DataPack::cNoID();
     LineKey lk( s2d->name() );
     if ( as.id().asInt() == Attrib::SelSpec::cOtherAttrib().asInt() )
     {
@@ -702,10 +702,11 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	    lk.setAttrName( as.userRef() );
 
 	applMgr()->attrServer()->setTargetSelSpec( as );
-	dpid = applMgr()->attrServer()->create2DOutput( cs, lk, uitr );
+	dpid = applMgr()->attrServer()->create2DOutput(
+					cs, s2d->getGeomID(), uitr );
     }
 
-    if ( dpid < 0 )
+    if ( dpid == DataPack::cNoID() )
 	return;
 
     s2d->setDataPackID( attribnr, dpid, 0 );
@@ -930,26 +931,26 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
     BufferStringSet lnms;
-    SeisIOObjInfo objinfo( attribnm );
+    const SeisIOObjInfo objinfo( attribnm );
     SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
     objinfo.getLineNames( lnms, opts2d );
     if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    LineKey lk( objinfo.ioObj()->key() );
+    const MultiID& multiid = objinfo.ioObj()->key();
     //First time to ensure all components are available
-    Attrib::DescID attribid = attrserv->getStoredID( lk, true );
+    Attrib::DescID attribid = attrserv->getStoredID( multiid, true );
 
     BufferStringSet complist;
     SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
-	       !attrserv->handleMultiComp( lk, true, false, complist,
+	       !attrserv->handleMultiComp( multiid, true, false, complist,
 					   attribid, selcomps ) )
-	     || ( selcomps.size() &&
-		  !attrserv->prepMultCompSpecs( selcomps, lk, true, false ) ) )
+	     || ( selcomps.size() && !attrserv->prepMultCompSpecs(
+		     selcomps, multiid, true, false ) ) )
 	    return false;
 
 	if ( selcomps.size()>1 )
@@ -970,13 +971,12 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 	}
     }
     else
-	attribid = attrserv->getStoredID( lk, true, component );
+	attribid = attrserv->getStoredID( multiid, true, component );
 
     if ( !attribid.isValid() ) return false;
 
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), 0 );
     Attrib::SelSpec myas( *as );
-    LineKey linekey( s2d->name() );
     myas.set( attribnm, attribid, false, 0 );
     myas.set2DFlag();
     const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
@@ -1001,8 +1001,8 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     cs.zrg.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, linekey, taskrunner );
-    if ( dpid < 0 )
+	applMgr()->attrServer()->create2DOutput(cs,s2d->getGeomID(),taskrunner);
+    if ( dpid == DataPack::cNoID() )
 	return false;
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -1030,12 +1030,10 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );
 
-    LineKey lk( s2d->name() );
     applMgr()->attrServer()->setTargetSelSpec( myas );
-
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput( cs, lk, uitr );
-    if ( dpid < 0 )
+	applMgr()->attrServer()->create2DOutput( cs, s2d->getGeomID(), uitr );
+    if ( dpid == DataPack::cNoID() )
 	return;
 
     s2d->setSelSpec( attribNr(), myas );

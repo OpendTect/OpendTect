@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 #include "multiid.h"
 #include "position.h"
+#include "survgeom.h"
 #include "timer.h"
 
 
@@ -39,7 +40,6 @@ class BufferStringSet;
 class CubeSampling;
 class DataPointSetDisplayMgr;
 class IOObj;
-class LineKey;
 class NLAModel;
 class DataPointSet;
 class SeisTrcBuf;
@@ -123,12 +123,12 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-    DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&,
+    DataPack::ID	create2DOutput(const CubeSampling&,const Pos::GeomID&,
 				       TaskRunner&);
 
     bool		isDataClassified(const Array3D<float>&) const;
 
-    Attrib::DescID	getStoredID(const LineKey&,bool is2d,int selout=-1);
+    Attrib::DescID	getStoredID(const MultiID&,bool is2d,int selout=-1);
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(ObjectSet<DataPointSet>&);
@@ -155,12 +155,12 @@ public:
 						   bool needext=false);
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&,bool&);
-    bool		handleMultiComp(const LineKey&,bool,bool,
+    bool		handleMultiComp(const MultiID&,bool,bool,
 					BufferStringSet&,Attrib::DescID&,
 					TypeSet<int>&);
     void		info2DAttribSubMenu(int mnuid,BufferString& attbnm,
 					    bool& steering,bool& stored);
-    bool		prepMultCompSpecs(TypeSet<int>,const LineKey&,
+    bool		prepMultCompSpecs(TypeSet<int>,const MultiID&,
 					  bool,bool);
 
     void		setEvaluateInfo(bool ae,bool as)
@@ -207,7 +207,7 @@ protected:
     bool		attrsneedupdt_;
 
     Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,
-				     const char* lk=0);
+			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
 
     void		directShowAttr(CallBacker*);
 

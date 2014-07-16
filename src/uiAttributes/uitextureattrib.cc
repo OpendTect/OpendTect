@@ -321,7 +321,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const CubeSampling& cs,
     aem->setAttribSet( descset );
     aem->setAttribSpec( sp );
     if ( inpdesc->is2D() )
-	aem->setLineKey( lk );
+	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
 
     aem->setCubeSampling( cs );
     TypeSet<BinID> bidset;
