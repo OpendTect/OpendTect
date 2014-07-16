@@ -271,16 +271,15 @@ void uiWellMan::setToolButtonProperties()
 	mSetButToolTip(logexpbut_,"Export",lognms.getDispString(3),"");
     }
 
-    int nrchosenwls = selGroup()->getListField()->nrChosen();
+    const int nrchosenwls = selGroup()->getListField()->nrChosen();
     const int maxnrchosen = nrchosenwls*nrchosenlogs;
     logvwbut_->setSensitive( maxnrchosen && maxnrchosen<=2 );
     if ( maxnrchosen && maxnrchosen<=2 )
     {
 	BufferString vwlogtt;
 	BufferStringSet wellnms;
-	wellnms.setEmpty();
-	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
 	selGroup()->getListField()->getChosen( wellnms );
+	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
 	vwlogtt.add( wellnms.getDispString(2) );
 	mSetButToolTip(logvwbut_,"View",lognms.getDispString(2),vwlogtt);
     }
