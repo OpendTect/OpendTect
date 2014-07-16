@@ -399,20 +399,24 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     BufferString capt( "Log viewer" );
     if ( l1 || l2 )
 	capt.add( ": " );
+
     if ( l1 )
-    {
 	capt.add( l1->name() );
-	if ( !wellnm1_.isEmpty() )
-	    capt.add( " of " ).add( wellnm1_.buf() );
-    }
+
     if ( l2 )
     {
-	if ( l1 )
-	    capt.add( " and " );
+	if ( !l1->name().isEqual(l2->name()) )
+	    capt.add( " & ").add( l2->name() );
 
-	if ( !wellnm2_.isEmpty() )
-	    capt.add( wellnm2_.buf() );
     }
+
+    BufferString str;
+    if ( !wellnm1_.isEmpty() )
+	str.add( wellnm1_.buf() );
+    if ( !wellnm2_.isEmpty() )
+	str.add( " and " ).add( wellnm2_.buf() );
+    if ( !str.isEmpty() )
+	capt.add( " of ").add( str );
 
     setCaption( capt );
     if ( l1 && !wellnm1_.isEmpty() )
