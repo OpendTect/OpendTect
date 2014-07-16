@@ -481,9 +481,9 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    if ( !slicepos_ ) return DataPack::cNoID();
+    const CubeSampling& cs = slicepos_ ? slicepos_->getCubeSampling() : cs_;
+    if ( !cs.isFlat() ) return DataPack::cNoID();
 
-    const CubeSampling& cs = slicepos_->getCubeSampling();
     RefMan<ZAxisTransform> zat = getZAxisTransform();
     if ( zat && cs.nrZ()==1 )
 	return createDataPackForTransformedZSlice( selspec );
