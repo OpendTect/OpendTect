@@ -90,6 +90,7 @@ uiGroup* uiCalcHorVol::mkStdGrp()
     }
 
     valfld_ = new uiGenInput( grp, "==> Volume" );
+    valfld_->setElemSzPol( uiObject::WideMax );
     if ( areafld )
 	valfld_->attach( alignedBelow, areafld );
     else
