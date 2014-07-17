@@ -443,13 +443,11 @@ void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
 
 
     mAllocVarLenArr(int,ids,sz);
-    mAllocVarLenArr(int,inls,sz);
     TypeSet< Geom::Point2D<float> > bidpos;
     for ( int idx=0; idx<sz; idx++ )
     {
 	ids[idx] = crdids[idx];
 	BinID bid = SI().transform( crds[idx] );
-	inls[idx] = bid.inl();
 	bidpos += Geom::Point2D<float>( mCast(float,bid.inl()),
 					mCast(float,bid.crl()) );
     }
