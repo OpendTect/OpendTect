@@ -233,9 +233,8 @@ void uiTieWin::drawFields()
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    uiToolButton* helpbut = new uiToolButton( this, "contexthelp", "Help",
-			mCB(this,uiTieWin,provideWinHelp) );
-    helpbut->setPrefWidthInChar( 5 );
+    uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(),
+			mCB(this,uiTieWin,provideWinHelp), true );
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );
     uiPushButton* cancelbut = new uiPushButton( this, sCancel(),
