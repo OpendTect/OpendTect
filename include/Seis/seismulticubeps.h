@@ -70,10 +70,9 @@ mExpClass(Seis) MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
 
-    virtual bool	isUserSelectable(bool) const	{ return true; }
-    virtual const char*	defExtension() const	{ return "mcps"; }
+    virtual bool	isUserSelectable( bool fr ) const { return fr; }
+    virtual const char*	defExtension() const		  { return "mcps"; }
 };
 
 
 #endif
-

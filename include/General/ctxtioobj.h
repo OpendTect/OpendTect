@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 class TranslatorGroup;
+class IOStream;
 
 /*!
 \brief Holds constraints on IOObj selection.
@@ -98,7 +99,9 @@ public:
     const char*		objectTypeName() const;
     inline bool		hasStdSelKey() const	{ return stdseltype != None; }
     MultiID		getSelKey() const;
-    void		fillTrGroup();
+    IOStream*		crDefaultWriteObj(const Translator&,
+					  const MultiID&) const;
+    void		fillTrGroup() const;
 			//!< Uses stdseltype to make a trgroup
 			//!< Should never be necessary
 };
@@ -128,9 +131,9 @@ public:
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
-    int			fillObj(bool mktmpifnew=false);
+    int			fillObj(bool mktmpifnew=false,int translidxfornew=-1);
 			//!< If ioobj not valid, fills using ctxt.name()
-			//!< 0 = fail, 1=existing found, 2=new made
+			//!< return 0=fail, 1=existing found, 2=new made
     void		fillIfOnlyOne();
 				//!< replaces ioobj if there's only one
 				//!< That one must match the preconditions

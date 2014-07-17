@@ -28,6 +28,7 @@ class uiIOObjSelGrpManipSubj;
 class uiListBox;
 class uiToolButton;
 class uiListBoxChoiceIO;
+class uiComboBox;
 
 /*!\brief Dialog letting the user select an object. It returns an IOObj* after
 	  successful go(). */
@@ -280,8 +281,11 @@ public:
 					//!< not an existing IOObj name
 
     virtual MultiID	validKey() const; //!< no side-effects
+    virtual uiObject*	endObj(bool left);
 
 protected:
+
+    uiComboBox*		wrtrselfld_;
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		workctio_;

@@ -671,18 +671,7 @@ bool IOMan::setDir( const char* dirname )
 }
 
 
-static const char* getTranslDirNm( const Translator* tr )
-{
-    if ( !tr ) return 0;
-
-    const IOObjContext& ctxt = tr->group()->ioCtxt();
-    const IOObjContext::StdDirData* sdd
-		    = IOObjContext::getStdDirData( ctxt.stdseltype );
-    return sdd ? sdd->dirnm : 0;
-}
-
-
-void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
+void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 {
     Threads::Locker lock( lock_ );
     ctio.setObj( 0 );
@@ -698,58 +687,58 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 
     if ( !ioobj )
     {
-	// Make new key and generate name
 	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : dirptr_->newKey() );
 	if ( mktmp )
 	    newkey.add( IOObj::tmpID() );
-	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
-	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 
-	// Get default translator with dir
-	const Translator* tr = 0;
-	if ( !ctio.ctxt.trgroup->templates().isEmpty() )
+	ioobj = crWriteIOObj( ctio, newkey, translidx );
+	if ( ioobj )
 	{
-	    const int trnr = ctio.ctxt.trgroup->defTranslIdx();
-	    tr = ctio.ctxt.trgroup->templates()[trnr];
+	    ioobj->pars().merge( ctio.ctxt.toselect.require_ );
+	    dirptr_->addObj( (IOObj*)ioobj );
 	}
-	BufferString trnm( ctio.ctxt.deftransl.isEmpty()
-			 ? (tr ? tr->userName().buf() : "")
-			 : ctio.ctxt.deftransl.buf() );
-	if ( trnm.isEmpty() ) trnm = "od"; // happens for empty bundles
-	iostrm->setTranslator( trnm );
-	const char* dirnm = getTranslDirNm( tr );
-	if ( dirnm )
-	    iostrm->setDirName( dirnm );
-
-	// Now generate the 'right' filename
-	Translator* tmptr = ctio.ctxt.trgroup->make( trnm );
-	if ( tmptr )
-	{
-	    iostrm->setExt( tmptr->defExtension() );
-	    delete tmptr;
-	}
-
-	dirptr_->ensureUniqueName( *iostrm );
-	const BufferString uniqnm( iostrm->name() );
-	int ifnm = 0;
-	while ( true )
-	{
-	    iostrm->genDefaultImpl();
-	    if ( !File::exists(iostrm->fileName()) )
-		break;
-	    ifnm++;
-	    iostrm->setName( BufferString(uniqnm,ifnm) );
-	    dirptr_->ensureUniqueName( *iostrm );
-	}
-
-	iostrm->updateCreationPars();
-	ioobj = iostrm;
-
-	ioobj->pars().merge( ctio.ctxt.toselect.require_ );
-	dirptr_->addObj( (IOObj*)ioobj );
     }
 
-    ctio.setObj( ioobj->clone() );
+    ctio.setObj( ioobj ? ioobj->clone() : 0 );
+}
+
+
+IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
+			    int translidx ) const
+{
+
+    const Translator* templtr = 0;
+    if ( ctio.ctxt.trgroup->templates().isEmpty() )
+    {
+	BufferString msg( "Translator Group '", ctio.ctxt.trgroup->userName(),
+			  "is empty." );
+	msg.add( ".\nCannot create a default write IOObj for " )
+	   .add( ctio.ctxt.name() );
+	pErrMsg( msg );
+	return 0;
+    }
+
+    if ( !ctio.ctxt.trgroup->templates().validIdx(translidx) )
+	translidx = ctio.ctxt.trgroup->defTranslIdx();
+    templtr = ctio.ctxt.trgroup->templates()[translidx];
+    BufferString trnm( ctio.ctxt.deftransl.isEmpty()
+		     ? templtr->userName().buf() : ctio.ctxt.deftransl.buf() );
+    if ( trnm.isEmpty() ) trnm = "od"; // happens for empty bundles
+
+    Translator* transl = ctio.ctxt.trgroup->make( trnm );
+    if ( !transl )
+    {
+	BufferString msg( "Translator '", trnm, "not found for group " );
+	msg.add( ctio.ctxt.trgroup->userName() )
+	    .add( ".\nFailed to create a default write IOObj for " )
+	    .add( ctio.ctxt.name() );
+	pErrMsg( msg );
+	return 0;
+    }
+
+    IOObj* ret = transl->createWriteIOObj( ctio.ctxt, newkey );
+    delete transl;
+    return ret;
 }
 
 

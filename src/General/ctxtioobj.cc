@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ioman.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -259,13 +259,15 @@ MultiID IOObjContext::getSelKey() const
 }
 
 
-void IOObjContext::fillTrGroup()
+void IOObjContext::fillTrGroup() const
 {
     if ( trgroup ) return;
 
+    IOObjContext& self = *const_cast<IOObjContext*>( this );
+
 #define mCase(typ,str) \
     case IOObjContext::typ: \
-	trgroup = &TranslatorGroup::getGroup( str, true ); \
+	self.trgroup = &TranslatorGroup::getGroup( str, true ); \
     break
 
     switch ( stdseltype )
@@ -278,11 +280,13 @@ void IOObjContext::fillTrGroup()
 	mCase(Misc,"Session setup");
 	mCase(Mdl,"EarthModel");
 	case IOObjContext::NLA:
-	    trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis", true );
+	    self.trgroup = &TranslatorGroup::getGroup( "NonLinear Analysis",
+							true );
 	    if ( trgroup->userName().isEmpty() )
-		trgroup = &TranslatorGroup::getGroup( "Neural network", true );
+		self.trgroup = &TranslatorGroup::getGroup( "Neural network",
+							   true );
 	default:
-	    trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
+	    self.trgroup = &TranslatorGroup::getGroup( "Seismic Data", true );
 	break;
     }
 }
@@ -314,6 +318,41 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
     }
 
     return toselect.isGood( ioobj, forread );
+}
+
+
+
+IOStream* IOObjContext::crDefaultWriteObj( const Translator& transl,
+					    const MultiID& ky ) const
+{
+    fillTrGroup();
+
+    IOStream* iostrm = new IOStream( name(), ky, false );
+    iostrm->setGroup( trgroup->userName() );
+    iostrm->setTranslator( transl.userName() );
+
+    const StdDirData* sdd = getStdDirData( stdseltype );
+    const char* dirnm = sdd ? sdd->dirnm : 0;
+    if ( dirnm )
+	iostrm->setDirName( dirnm );
+    iostrm->setExt( transl.defExtension() );
+
+    IODir iodir( ky );
+    iodir.ensureUniqueName( *iostrm );
+    const BufferString uniqnm( iostrm->name() );
+    int ifnm = 0;
+    while ( true )
+    {
+	iostrm->genDefaultImpl();
+	if ( !File::exists(iostrm->fileName()) )
+	    break;
+	ifnm++;
+	iostrm->setName( BufferString(uniqnm,ifnm) );
+	iodir.ensureUniqueName( *iostrm );
+    }
+
+    iostrm->updateCreationPars();
+    return iostrm;
 }
 
 
@@ -395,7 +434,7 @@ void CtxtIOObj::destroyAll()
 }
 
 
-int CtxtIOObj::fillObj( bool mktmp )
+int CtxtIOObj::fillObj( bool mktmp, int translidxfornew )
 {
     const bool emptynm = ctxt.name().isEmpty();
     if ( !ioobj && emptynm )
@@ -404,6 +443,6 @@ int CtxtIOObj::fillObj( bool mktmp )
     if ( ioobj && (ctxt.name() == ioobj->name() || emptynm) )
 	return 1;
 
-    IOM().getEntry( *this, mktmp );
+    IOM().getEntry( *this, mktmp, translidxfornew );
     return ioobj ? 2 : 0;
 }

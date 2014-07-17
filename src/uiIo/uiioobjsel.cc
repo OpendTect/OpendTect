@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
@@ -653,8 +654,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 	mkdefbut_->setSensitive( enab && !isdef );
 	if ( enab && !isdef )
 	{
-	    BufferString tt( "Set '" );
-	    tt.add( ioobj->name() ).add( "' as default" );
+	    BufferString tt( "Set '", ioobj->name(), "' as default" );
 	    mkdefbut_->setToolTip( tt );
 	}
 	else
@@ -855,7 +855,35 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(false)
+    , wrtrselfld_(0)
 {
+    workctio_.ctxt.fillTrGroup();
+    if ( !workctio_.ctxt.forread )
+    {
+	const ObjectSet<const Translator>& alltrs
+			    = workctio_.ctxt.trgroup->templates();
+	ObjectSet<const Translator> wrtrs;
+	for ( int idx=0; idx<alltrs.size(); idx++ )
+	{
+	    const Translator* transl = alltrs[idx];
+	    if ( transl->isUserSelectable( false ) )
+		wrtrs += transl;
+	}
+	if ( wrtrs.size() > 1 )
+	{
+	    wrtrselfld_ = new uiComboBox( this, "Write translator field" );
+	    for ( int idx=0; idx<wrtrs.size(); idx++ )
+	    {
+		const Translator* transl = wrtrs[idx];
+		wrtrselfld_->addItem( transl->userName() );
+		const char* icnm = transl->iconName();
+		if ( icnm && *icnm )
+		    wrtrselfld_->setPixmap( ioPixmap(icnm), idx );
+	    }
+	    wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	}
+    }
+
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
@@ -872,6 +900,14 @@ void uiIOObjSel::preFinaliseCB( CallBacker* )
 {
     fillDefault();
     updateInput();
+}
+
+
+uiObject* uiIOObjSel::endObj( bool left )
+{
+    if ( !left && wrtrselfld_ )
+	return wrtrselfld_;
+    return uiIOSelect::endObj( left );
 }
 
 

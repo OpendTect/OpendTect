@@ -92,7 +92,7 @@ public:
     void		setHSzPol(uiObject::SzPolicy);
 
     uiComboBox*		inpBox()		{ return inp_; }
-    uiObject*		endObj(bool left);
+    virtual uiObject*	endObj(bool left);
 
 protected:
 
