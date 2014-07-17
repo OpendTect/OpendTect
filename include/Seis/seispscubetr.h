@@ -42,7 +42,7 @@ public:
 							{ return false; }
 
     const char*		connType() const;
-    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual bool	isUserSelectable( bool fr ) const { return fr; }
 
 protected:
 

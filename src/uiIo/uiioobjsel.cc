@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uilistboxchoiceio.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
@@ -596,7 +597,6 @@ IOObj* uiIOObjSelGrp::updStatusBarInfo( bool setnmfld )
     const int idx = listfld_->currentItem();
     IOObj* ret = getIOObj( idx );
     ctio_.setObj( ret ? ret->clone() : 0 );
-
     if ( isMultiChoice() && nrchosen>1 )
     {
 	info.set( nrchosen ).add( "/" ).add( listfld_->size() )
@@ -651,7 +651,7 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     {
 	const bool enab = ioobj && ioobj->implExists(true);
 	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
-	mkdefbut_->setSensitive( enab && !isdef  );
+	mkdefbut_->setSensitive( enab && !isdef );
 	if ( enab && !isdef )
 	{
 	    BufferString tt( "Set '", ioobj->name(), "' as default" );
@@ -781,7 +781,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     }
     setCaption( captn );
 
-    setOkText( "&Ok (Select)" );
     selgrp_->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
 }
@@ -854,7 +853,35 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(false)
+    , wrtrselfld_(0)
 {
+    workctio_.ctxt.fillTrGroup();
+    if ( !workctio_.ctxt.forread )
+    {
+	const ObjectSet<const Translator>& alltrs
+			    = workctio_.ctxt.trgroup->templates();
+	ObjectSet<const Translator> wrtrs;
+	for ( int idx=0; idx<alltrs.size(); idx++ )
+	{
+	    const Translator* transl = alltrs[idx];
+	    if ( transl->isUserSelectable( false ) )
+		wrtrs += transl;
+	}
+	if ( wrtrs.size() > 1 )
+	{
+	    wrtrselfld_ = new uiComboBox( this, "Write translator field" );
+	    for ( int idx=0; idx<wrtrs.size(); idx++ )
+	    {
+		const Translator* transl = wrtrs[idx];
+		wrtrselfld_->addItem( transl->userName() );
+		const char* icnm = transl->iconName();
+		if ( icnm && *icnm )
+		    wrtrselfld_->setPixmap( ioPixmap(icnm), idx );
+	    }
+	    wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	}
+    }
+
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
@@ -871,6 +898,14 @@ void uiIOObjSel::preFinaliseCB( CallBacker* )
 {
     fillDefault();
     updateInput();
+}
+
+
+uiObject* uiIOObjSel::endObj( bool left )
+{
+    if ( !left && wrtrselfld_ )
+	return wrtrselfld_;
+    return uiIOSelect::endObj( left );
 }
 
 

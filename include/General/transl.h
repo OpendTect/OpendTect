@@ -42,8 +42,8 @@ mGlobal(General) int defaultSelector(const char*,const char*);
 /*!\brief Group of Translators. Has a static factory.
 
   A TranslatorGroup represents a number of IO interpreters for a certain
-  object type. For example, Horizons have the HorizonTranslatorGroup singleton
-  class which creates HorizonTranslator subclass instances.
+  object type. For example, Wavelets have the WaveletTranslatorGroup singleton
+  class which creates WaveletTranslator subclass instances.
 
   You must define two static methods:
   static int selector(const char*);
@@ -147,6 +147,9 @@ public:
 
     virtual bool		isUserSelectable( bool forread=true ) const
 				{ return true; }
+    virtual IOObj*		createWriteIOObj(const IOObjContext&,
+						 const MultiID&) const;
+    virtual const char*		iconName() const	{ return "od_24x24"; }
 
 protected:
 

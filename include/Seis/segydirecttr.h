@@ -116,7 +116,7 @@ mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
-    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual bool	isUserSelectable( bool fr ) const { return fr; }
     virtual const char* defExtension() const		{ return fileExt(); }
     static const char*	fileExt()			{ return "sgydef"; }
 
@@ -128,7 +128,7 @@ mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
-    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual bool	isUserSelectable( bool fr ) const { return fr; }
 
 };
 
@@ -146,7 +146,7 @@ public:
     virtual bool	read(SeisTrc&);
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	isUserSelectable(bool) const	{ return true; }
+    virtual bool	isUserSelectable( bool fr ) const { return fr; }
     virtual BinID	curBinID() const;
 
     virtual void	usePar(const IOPar&);

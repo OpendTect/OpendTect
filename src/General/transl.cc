@@ -10,7 +10,7 @@
 #include "streamconn.h"
 #include "ctxtioobj.h"
 #include "fixedstring.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "iopar.h"
 #include "debug.h"
 #include "keystrs.h"
@@ -265,6 +265,13 @@ Translator::Translator( const char* nm, const char* unm )
 const char* Translator::connType() const
 {
     return StreamConn::sType();
+}
+
+
+IOObj* Translator::createWriteIOObj( const IOObjContext& ctxt,
+				     const MultiID& ky ) const
+{
+    return ctxt.crDefaultWriteObj( *this, ky );
 }
 
 

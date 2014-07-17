@@ -96,7 +96,6 @@ public:
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
-    bool		isUserSelectable(bool) const	{ return true; }
 
     bool		implRename( const IOObj*,const char*,
 				    const CallBack* cb=0) const;
@@ -113,7 +112,6 @@ public:
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
-    bool		isUserSelectable(bool) const	{ return true; }
 
     bool		implRename( const IOObj*,const char*,
 				    const CallBack* cb=0) const;

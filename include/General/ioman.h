@@ -67,7 +67,8 @@ public:
     bool		toRoot(bool force_reread=false)
 			{ return to(0,force_reread); }
 
-    void		getEntry(CtxtIOObj&,bool newistmp=false);
+    void		getEntry(CtxtIOObj&,bool newistmp=false,
+				 int translidxingroup=-1);
 				//!< will create a new entry if necessary
     bool		commitChanges(const IOObj&);
     bool		permRemove(const MultiID&);
@@ -132,6 +133,7 @@ private:
     int			levelOf(const char* dirnm) const;
     int			curLevel() const	{ return curlvl_; }
     bool		to(const IOSubDir*,bool);
+    IOObj*		crWriteIOObj(const CtxtIOObj&,const MultiID&,int) const;
 
     friend class	SurveyDataTreePreparer;
     friend mGlobal(General)	IOMan&	IOM();
