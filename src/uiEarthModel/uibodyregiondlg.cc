@@ -297,6 +297,13 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	HorSamplingIterator iter( cs_.hrg );
 	BinID bid;
+	ObjectSet<ODPolygon<float> > polygons;
+	for ( int idx=0; idx<fltsz; idx++ )
+	{
+	    polygons += new ODPolygon<float>;
+	    getPolygon( idx, intersects[idx], *polygons[idx] );
+	}
+
 	while( iter.next(bid) )
 	{
 	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
@@ -310,7 +317,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    bool infltrg = true;
 	    for ( int idy=0; idy<fltsz; idy++ )
 	    {
-		infltrg = inFaultRange(bid,idy,intersects[idy]);
+		infltrg = inFaultRange(bid,idy,*polygons[idy]);
 		if ( !infltrg ) break;
 	    }
 	    if ( !infltrg )
@@ -350,46 +357,103 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		( curz > maxz ? curz - maxz : -mMIN(curz-minz, maxz-curz) );
 	    res_.set( inlidx, crlidx, idz, (float) val );
 	}
+
+	deepErase( polygons );
     }
 
     deepErase( intersects );
     return true;
 }
 
-
-bool inFaultRange( const BinID& pos, int curidx,
-		   Geometry::ExplPlaneIntersection* epi )
+void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi, 
+                 ODPolygon<float>& poly )
 {
+   if (  !epi || !epi->getPlaneIntersections().size() )
+	return;
+
     const char side = fsides_[curidx];
-    const int ic = side==mToMinInline || side==mToMaxInline
-	? pos.inl() : pos.crl();
-    if ( outsidergs_[curidx].includes(ic,false) )
-	return false;
-
-    if ( insidergs_[curidx].includes(ic,false) ||
-	 !epi || !epi->getPlaneIntersections().size() )
-	return true;
-
     const TypeSet<Coord3>& crds = epi->getPlaneIntersections()[0].knots_;
+    const TypeSet<int>& conns = epi->getPlaneIntersections()[0].conns_;
     const int sz = crds.size();
     if ( sz<2 )
-	return true;
+	return;
+
+    TypeSet<int> edgeids;
+    for ( int idx=0; idx<conns.size(); idx++ )
+    {
+	const int index = conns[idx];
+	if ( index == -1 )
+	    continue;
+
+	int count = 0;
+	for ( int cidx=0; cidx<conns.size(); cidx++ )
+	{
+	    const int cindex = conns[cidx];
+	    if ( cindex == -1 )
+		continue;
+
+	    if ( index == cindex )
+		count++;
+	}
+	
+	if ( count == 1 )
+	    edgeids += index;
+    }
+
+    if ( edgeids.isEmpty() )
+	return;
+
+    TypeSet<int> crdids;
+    crdids += edgeids[0];
+    edgeids -= edgeids[0];
+
+    while ( !edgeids.isEmpty() && crdids.size() < sz )
+    {
+	bool foundmatch = false;
+	for ( int idx=0; idx<conns.size()-1; idx++ )
+	{
+	    const int index = conns[idx];
+	    const int nextindex = conns[idx+1];
+	    if ( index == -1 || nextindex == -1 )
+		continue;
+
+	    const int lastidx = crdids.last();
+	    if ( index == lastidx && !crdids.isPresent(nextindex) )
+	    {
+		crdids += nextindex;
+		foundmatch = true;
+		break;
+	    }
+	    else if ( nextindex == lastidx && !crdids.isPresent(index) )
+	    {
+		crdids += index;
+		foundmatch = true;
+		break;
+	    }
+	}
+
+	if ( foundmatch == false  )
+	{
+	    if ( !crdids.isPresent(edgeids[0]) )
+		crdids += edgeids[0];
+
+	    edgeids -= edgeids[0];
+	}
+    }
+
 
     mAllocVarLenArr(int,ids,sz);
     mAllocVarLenArr(int,inls,sz);
     TypeSet< Geom::Point2D<float> > bidpos;
     for ( int idx=0; idx<sz; idx++ )
     {
-	ids[idx] = idx;
+	ids[idx] = crdids[idx];
 	BinID bid = SI().transform( crds[idx] );
 	inls[idx] = bid.inl();
 	bidpos += Geom::Point2D<float>( mCast(float,bid.inl()),
 					mCast(float,bid.crl()) );
     }
 
-    sort_coupled( mVarLenArr(inls), mVarLenArr(ids), sz );
-
-    ODPolygon<float> poly;
     poly.setClosed( true );
     for ( int idx=0; idx<sz; idx++ )
 	poly.add( bidpos[ids[idx]] );
@@ -423,6 +487,22 @@ bool inFaultRange( const BinID& pos, int curidx,
 	poly.add( c_[2] );
 	poly.add( c_[3] );
     }
+}
+
+
+bool inFaultRange( const BinID& pos, int curidx, ODPolygon<float>& poly )
+{
+    const char side = fsides_[curidx];
+    const int ic = side==mToMinInline || side==mToMaxInline
+	? pos.inl() : pos.crl();
+    if ( outsidergs_[curidx].includes(ic,false) )
+	return false;
+
+    if ( insidergs_[curidx].includes(ic,false) )
+	return true;
+
+    if ( poly.isEmpty() )
+	return true;
 
     return poly.isInside(
 	Geom::Point2D<float>( mCast(float,pos.inl()),
