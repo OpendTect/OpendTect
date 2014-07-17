@@ -154,7 +154,7 @@ uiArray2DInterpolSel::~uiArray2DInterpolSel()
 const char* uiArray2DInterpolSel::helpID() const
 {
     const int sel = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
-    return params_[sel] ? params_[sel]->helpID() : 0;
+    return params_.validIdx(sel) && params_[sel] ? params_[sel]->helpID() : 0;
 }
 
 
