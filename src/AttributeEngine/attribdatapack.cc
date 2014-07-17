@@ -392,10 +392,16 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     : Flat2DDataPack( did )
     , geomid_(geomid)
     , usesingtrc_( usesingtrc )
-    , cubesampling_(dh.getCubeSampling())
-    , trckeys_(new TypeSet<TrcKey>)
+    , tracerange_(0,0,1)
     , dataholderarr_( 0 )
 {
+    if ( !dh.trcinfoset_.isEmpty() )
+    {
+	tracerange_ = StepInterval<int>( dh.trcinfoset_[0]->nr,
+			dh.trcinfoset_[dh.trcinfoset_.size()-1]->nr, 1 );
+	samplingdata_ = dh.trcinfoset_[0]->sampling;
+    }
+
     ConstRefMan<Data2DHolder> dataref( &dh );
     mTryAlloc( dataholderarr_, Data2DArray( dh ) );
     if ( !dataholderarr_ )
@@ -433,27 +439,21 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     arr2dslice->init();
     arr2d_ = arr2dslice;
 
-    const ObjectSet<SeisTrcInfo>& trcinfoset = dataholderarr_->trcinfoset_;
-    for ( int idx=0; idx<trcinfoset.size(); idx++ )
-	*trckeys_ += Survey::GM().traceKey( geomid_, trcinfoset[idx]->nr );
-
     setPosData();
 }
 
 
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Array2D<float>* arr2d,
-						const CubeSampling& cs,
-						const TypeSet<TrcKey>* trckeys )
+						const Pos::GeomID& geomid,
+						const SamplingData<float>& sd,
+						const StepInterval<int>& trcrg )
     : Flat2DDataPack(did)
-    , geomid_(Survey::GM().getGeomID((*trckeys)[0]))
-    , trckeys_(0)
-    , cubesampling_(cs)
+    , geomid_(geomid)
+    , tracerange_(trcrg)
+    , samplingdata_(sd)
     , usesingtrc_(false)
     , dataholderarr_(0)
 {
-    if ( trckeys )
-	trckeys_ = new TypeSet<TrcKey>( *trckeys );
-
     arr2d_ = new Array2DImpl<float>( *arr2d );
     setPosData();
 }
@@ -463,7 +463,17 @@ Flat2DDHDataPack::~Flat2DDHDataPack()
 {
     if ( dataholderarr_ )
 	dataholderarr_->unRef();
-    delete trckeys_;
+}
+
+
+CubeSampling Flat2DDHDataPack::getCubeSampling() const
+{
+    // TODO: Get rid of this function.
+    CubeSampling cs;
+    cs.hrg.setInlRange( StepInterval<int>(0,0,1) );
+    cs.hrg.setCrlRange( tracerange_ );
+    cs.zrg = samplingdata_.interval( arr2d_->info().getSize(1) );
+    return cs;
 }
 
 
@@ -471,12 +481,12 @@ void Flat2DDHDataPack::getPosDataTable( TypeSet<int>& trcnrs,
 					TypeSet<float>& dist ) const
 {
     trcnrs.erase(); dist.erase();
-    const int nrtrcs = trckeys_->size();
+    const int nrtrcs = tracerange_.nrSteps()+1;
     trcnrs.setSize( nrtrcs, -1 );
     dist.setSize( nrtrcs, -1 );
     for ( int idx=0; idx<nrtrcs; idx++ )
     {
-	trcnrs[idx] = (*trckeys_)[idx].trcNr();
+	trcnrs[idx] = tracerange_.atIndex( idx );
 	if ( posdata_.width(true)/posdata_.range(true).step > idx )
 	    dist[idx] = (float) posdata_.position( true, idx );
 	else
@@ -489,12 +499,13 @@ void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
 					  TypeSet<Coord>& coords ) const
 {
     if ( trcnrs.size() > 0 )
-	coords.setSize( trckeys_->size(), Coord::udf() );
+	coords.setSize( tracerange_.nrSteps()+1, Coord::udf() );
 
+    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
     for ( int idx=0; idx<trcnrs.size(); idx++ )
     {
-	if ( trcnrs[idx] == (*trckeys_)[idx].trcNr() )
-	    coords[idx] = Survey::GM().toCoord( (*trckeys_)[idx] );
+	if ( tracerange_.includes(trcnrs[idx],true) )
+	    coords[idx] = geometry->toCoord( geomid_, trcnrs[idx] );
     }
 }
 
@@ -503,7 +514,7 @@ void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
 
 void Flat2DDHDataPack::setPosData()
 {
-    const int nrpos = !dataholderarr_ ? trckeys_->size() :
+    const int nrpos = !dataholderarr_ ? tracerange_.nrSteps()+1 :
 	    usesingtrc_ ? dataholderarr_->dataset_->info().getSize(0)
 			: dataholderarr_->dataset_->info().getSize(mNrTrcDim);
     if ( nrpos < 1 ) return;
@@ -514,24 +525,25 @@ void Flat2DDHDataPack::setPosData()
     {
 	float* pos = new float[nrpos];
 	pos[0] = 0;
-	Coord prevcrd = Survey::GM().toCoord( (*trckeys_)[0] );
+	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+	Coord prevcrd = geometry->toCoord( geomid_, tracerange_.atIndex(0) );
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
-	    Coord crd = Survey::GM().toCoord( (*trckeys_)[idx] );
-	    pos[idx] = mCast(float,(pos[idx-1]+ Survey::GM().toCoord(
-					(*trckeys_)[idx-1]).distTo(crd)));
+	    Coord crd = geometry->toCoord( geomid_, tracerange_.atIndex(idx) );
+	    pos[idx] = mCast(float,(pos[idx-1] + prevcrd.distTo(crd)));
 	    prevcrd = crd;
 	}
 	posdata_.setX1Pos( pos, nrpos, 0 );
     }
 
-    posdata_.setRange( false, mStepIntvD(cubesampling_.zrg) );
+    posdata_.setRange( false,
+	    mStepIntvD(samplingdata_.interval(arr2d_->info().getSize(1))) );
 }
 
 
 double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
-    const int nrpos = trckeys_ ? trckeys_->size() :
+    const int nrpos = !dataholderarr_ ? tracerange_.nrSteps()+1 :
 	    usesingtrc_ ? dataholderarr_->dataset_->info().getSize(0)
 			: dataholderarr_->dataset_->info().getSize(mNrTrcDim);
     if ( i0<0 || i0>=nrpos || !tiflds_.validIdx(ikey) )
@@ -545,7 +557,7 @@ double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 
     switch ( tiflds_[ikey] )
     {
-	case SeisTrcInfo::TrcNr:	 return (*trckeys_)[i0].trcNr();
+	case SeisTrcInfo::TrcNr:	 return tracerange_.atIndex(i0);
 	case SeisTrcInfo::CoordX:	 return getCoord(i0,0).x;
 	case SeisTrcInfo::CoordY:	 return getCoord(i0,0).y;
 	default:		return FlatDataPack::getAltDim0Value(ikey,i0);
@@ -567,13 +579,11 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 
 Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 {
-    if ( !trckeys_ || trckeys_->isEmpty() ) return Coord3();
-
     if ( i0 < 0 || usesingtrc_ ) i0 = 0;
-    if ( i0 >= trckeys_->size() ) i0 = trckeys_->size()-1;
-    return Coord3( Survey::GM().toCoord( (*trckeys_)[i0]), dataholderarr_ ?
-	    dataholderarr_->trcinfoset_[i0]->sampling.atIndex(i1) :
-	    cubesampling_.zrg.atIndex(i1) );
+    if ( i0 > tracerange_.nrSteps() ) i0 = tracerange_.nrSteps();
+    const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+    return Coord3( geometry->toCoord(geomid_,tracerange_.atIndex(i0)),
+		   samplingdata_.atIndex(i1) );
 }
 
 
@@ -678,10 +688,9 @@ void FlatRdmTrcsDataPack::setPosData( const TypeSet<BinID>* path )
 	prevcrd = crd;
     }
 
-    const int nrsamp = seisbuf_ ? seisbuf_->get(0)->size()
-				: arr2d_->info().getSize(1);
     posdata_.setX1Pos( pos, nrpos, 0 );
-    posdata_.setRange( false, mStepIntvD(samplingdata_.interval(nrsamp)) );
+    posdata_.setRange( false,
+	    mStepIntvD(samplingdata_.interval(arr2d_->info().getSize(1))) );
 }
 
 

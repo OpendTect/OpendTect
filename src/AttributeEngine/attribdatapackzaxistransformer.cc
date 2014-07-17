@@ -97,7 +97,7 @@ bool FlatDataPackZAxisTransformer::doWork(
 	inputfunc.setInterpolate( interpolate_ );
 
 	if ( dp2ddh )
-	    outputsampler.setTrcKey( (*dp2ddh->trcKeys())[posidx] );
+	    outputsampler.setTrcKey( dp2ddh->getTrcKey(posidx) );
 	else if ( dprdm )
 	    outputsampler.setBinID( (*dprdm->pathBIDs())[posidx] );
 
@@ -135,12 +135,9 @@ bool FlatDataPackZAxisTransformer::doFinish( bool success )
     FlatDataPack* outputdp = 0;
     const SamplingData<float> sd( zrange_.start, zrange_.step );
     if ( dp2ddh )
-    {
-	CubeSampling cs = dp2ddh->getCubeSampling();
-	cs.zrg = zrange_;
-	outputdp = new Flat2DDHDataPack( dp2ddh->descID(), arr2d_, cs,
-					 dp2ddh->trcKeys() );
-    }
+	outputdp = new Flat2DDHDataPack( dp2ddh->descID(), arr2d_,
+					 dp2ddh->getGeomID(), sd,
+					 dp2ddh->getTraceRange() );
     else if ( dprdm )
 	outputdp = new FlatRdmTrcsDataPack( dprdm->descID(), arr2d_, sd,
 					    dprdm->pathBIDs() );

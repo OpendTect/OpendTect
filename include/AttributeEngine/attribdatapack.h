@@ -97,8 +97,9 @@ public:
 					 const Pos::GeomID& geomid,
 					 bool usesingtrc=false,int component=0);
 			Flat2DDHDataPack(DescID,const Array2D<float>*,
-					 const CubeSampling&,
-					 const TypeSet<TrcKey>*);
+					 const Pos::GeomID& geomid,
+					 const SamplingData<float>& zsamp,
+					 const StepInterval<int>& trcrg);
 			~Flat2DDHDataPack();
 
     bool		isOK() const		{ return dataholderarr_; }
@@ -111,23 +112,26 @@ public:
     void		getCoordDataTable(const TypeSet<int>& trcnrs,
 	    				  TypeSet<Coord>& coords) const;
     Array2D<float>&	data()			{ return *arr2d_; }
-    const TypeSet<TrcKey>* trcKeys() const	{ return trckeys_; }
 
     const char*		getLineName() const
 			{ return Survey::GM().getName( geomid_ ); }
     Pos::GeomID		getGeomID() const		{ return geomid_; }
+    TrcKey		getTrcKey(int index) const
+			{ return Survey::GM().traceKey(
+				geomid_, tracerange_.atIndex(index) ); }
 
     Coord3		getCoord(int,int) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
 
-    const CubeSampling& getCubeSampling() const { return cubesampling_; }
+    const StepInterval<int>&	getTraceRange() const	{ return tracerange_; }
+    CubeSampling		getCubeSampling() const;
 
 protected:
 
     const Data2DArray*		dataholderarr_;
-    const CubeSampling		cubesampling_;
-    TypeSet<TrcKey>*		trckeys_;
+    StepInterval<int>		tracerange_;
+    SamplingData<float>		samplingdata_;
 
     bool			usesingtrc_;
     const Pos::GeomID		geomid_;
@@ -221,7 +225,7 @@ public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
 					    const TypeSet<BinID>* path=0);
 			FlatRdmTrcsDataPack(DescID,const Array2D<float>*,
-					    const SamplingData<float>&,
+					    const SamplingData<float>& zsamp,
 					    const TypeSet<BinID>* path);
 			~FlatRdmTrcsDataPack();
     virtual const char*	sourceType() const	{ return "Random Line"; }
