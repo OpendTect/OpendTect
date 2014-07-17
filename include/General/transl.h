@@ -149,7 +149,7 @@ public:
 				{ return true; }
     virtual IOObj*		createWriteIOObj(const IOObjContext&,
 						 const MultiID&) const;
-    virtual const char*		iconName() const	{ return "od_24x24"; }
+    virtual const char*		iconName() const	{ return "od"; }
 
 protected:
 

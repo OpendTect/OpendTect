@@ -513,9 +513,13 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 }
 
 
-void SeisTrcStorOutput::writeTrc()
+bool SeisTrcStorOutput::writeTrc()
 {
-    if ( !writer_ || !trc_ ) return;
+    if ( !writer_ || !trc_ )
+    {
+	errmsg_ = "Internal: No writer or no trace";
+	return false;
+    }
 
     SeisTrc* usetrc = trc_;
     PtrMan<SeisTrc> tmptrc = 0;
@@ -538,7 +542,7 @@ void SeisTrcStorOutput::writeTrc()
 	}
 
 	if ( !writer_->prepareWork(*usetrc) )
-	    { errmsg_ = writer_->errMsg(); return; }
+	    { errmsg_ = writer_->errMsg(); return false; }
 
 	if ( writer_->is2D() )
 	{
@@ -568,6 +572,7 @@ void SeisTrcStorOutput::writeTrc()
 
     delete trc_;
     trc_ = 0;
+    return true;
 }
 
 
@@ -595,7 +600,12 @@ void SeisTrcStorOutput::deleteTrc()
 
 bool SeisTrcStorOutput::finishWrite()
 {
-    return writer_->close();
+    if ( !writer_->close() )
+    {
+	errmsg_ = writer_->errMsg();
+	return false;
+    }
+    return true;
 }
 
 

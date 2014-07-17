@@ -175,6 +175,7 @@ public:
     virtual bool	read(SeisTrc&)			{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
     bool		write(const SeisTrc&);
+			// overrule if you don't need sorting/buffering
 
     bool		close();
     const char*		errMsg() const			{ return errmsg; }
@@ -277,19 +278,21 @@ protected:
     virtual bool	initRead_()			{ return true; }
     virtual bool	initWrite_(const SeisTrc&)	{ return true; }
     virtual bool	commitSelections_()		{ return true; }
+
+			// These are called from the default write()
     virtual bool	prepareWriteBlock(StepInterval<int>&,bool&)
 							{ return true; }
     virtual bool	dumpBlock(); //!< will call blockDumped()
     virtual void	blockDumped(int nrtrcs)		{}
+    virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
+			// Buffer to be written when writeBlock() is called
+    SeisTrcBuf&		trcblock_;
+
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
     ComponentData**	inpcds;
     TargetComponentData** outcds;
-
-			// Buffer written when writeBlock() is called
-    SeisTrcBuf&		trcblock_;
-    virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
 
     TypeSet<int>	warnnrs_;
     BufferStringSet&	warnings_;

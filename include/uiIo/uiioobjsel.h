@@ -21,6 +21,7 @@ class CtxtIOObj;
 class IODirEntryList;
 class IOObj;
 class IOObjContext;
+class Translator;
 class uiGenInput;
 class uiIOObjManipGroup;
 class uiIOObjSelGrp;
@@ -292,6 +293,7 @@ protected:
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
+    ObjectSet<const Translator> wrtrs_;
 
     void		preFinaliseCB(CallBacker*);
     void		doObjSel(CallBacker*);

@@ -30,6 +30,57 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+
+static bool getPngFileName( BufferString& fnm )
+{
+    if ( File::exists( fnm ) )
+	return true;
+
+    const BufferString pngfnm( fnm, ".png" );
+    if ( File::exists(pngfnm) )
+    {
+	fnm = pngfnm;
+	return true;
+    }
+
+    return false;
+}
+
+
+static bool getFullFilename( const char* inp, BufferString& fname )
+{
+    fname = inp;
+    if ( fname.isEmpty() )
+	return false;
+
+    FilePath fp( fname );
+    if ( !fp.isAbsolute() )
+    {
+	BufferString icsetnm;
+	Settings::common().get( "Icon set name", icsetnm );
+	if ( icsetnm.isEmpty() )
+	    icsetnm = "Default";
+	const BufferString dirnm( "icons.", icsetnm );
+
+	fp.setPath( GetSettingsFileName(dirnm) );
+	fname = fp.fullPath();
+	if ( getPngFileName(fname) )
+	    return true;
+
+	fp.setPath( mGetSetupFileName(dirnm) );
+	fname = fp.fullPath();
+	if ( getPngFileName(fname) )
+	    return true;
+
+	// Not in selected icon set? Then we take the one in icons.Default
+	fp.setPath( mGetSetupFileName("icons.Default") );
+	fname = fp.fullPath();
+    }
+
+    return getPngFileName( fname );
+}
+
+
 ioPixmap::ioPixmap( const ioPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
     , srcname_(pm.srcname_)
@@ -66,25 +117,9 @@ ioPixmap::ioPixmap( const QPixmap& pm )
 }
 
 
-static bool getPngFileName( BufferString& fnm )
-{
-    if ( File::exists( fnm ) )
-	return true;
-
-    const BufferString pngfnm( fnm, ".png" );
-    if ( File::exists(pngfnm) )
-    {
-	fnm = pngfnm;
-	return true;
-    }
-
-    return false;
-}
-
-
-ioPixmap::ioPixmap( const char* fnm, const char* fmt )
+ioPixmap::ioPixmap( const char* icnm, const char* fmt )
     : qpixmap_(0)
-    , srcname_(fnm)
+    , srcname_(icnm)
 {
     bool isnone = true;
     if ( srcname_.isEmpty() )
@@ -98,41 +133,16 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 
     if ( fmt )
     {
-	FileMultiString fms( fnm );
+	FileMultiString fms( icnm );
 	fms += fmt;
 	srcname_ = fms;
     }
 
-    BufferString fname( srcname_ );
-    FilePath fp( fname );
-    if ( !fp.isAbsolute() )
-    {
-	BufferString icsetnm;
-	Settings::common().get( "Icon set name", icsetnm );
-	if ( icsetnm.isEmpty() )
-	    icsetnm = "Default";
-	const BufferString dirnm( "icons.", icsetnm );
-
-	fp.setPath( GetSettingsFileName(dirnm) );
-	fname = fp.fullPath();
-	if ( !getPngFileName(fname) )
-	{
-	    fp.setPath( mGetSetupFileName(dirnm) );
-	    fname = fp.fullPath();
-	}
-
-	// fallback to Default
-	if ( !getPngFileName(fname) )
-	{
-	    fp.setPath( mGetSetupFileName("icons.Default") );
-	    fname = fp.fullPath();
-	}
-    }
-
-    if ( !getPngFileName(fname) )
+    BufferString fname;
+    if ( !getFullFilename(icnm,fname) )
     {
 	// final fallback (icon simply missing even from release)
-	pErrMsg(BufferString("Icon not found: '",fnm,"'"));
+	pErrMsg(BufferString("Icon not found: '",icnm,"'"));
 	fname = FilePath(mGetSetupFileName("icons.Default"),
 			"iconnotfound.png").fullPath();
     }
@@ -140,7 +150,7 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     qpixmap_ = new QPixmap( fname.buf(), fmt );
 }
 
-    
+
 ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
     : qpixmap_(0)
     , srcname_("[colortable]")
@@ -195,7 +205,7 @@ void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
     if ( !qpixmap_ ) qpixmap_ = new QPixmap;
     *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
                                     Qt::OrderedAlphaDither );
-}    
+}
 
 
 int ioPixmap::width() const
@@ -213,6 +223,13 @@ void ioPixmap::fill( const Color& col )
 
 bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
 { return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
+
+
+bool ioPixmap::isPresent( const char* icnm )
+{
+    BufferString fname;
+    return getFullFilename( icnm, fname );
+}
 
 
 void ioPixmap::supportedImageFormats( BufferStringSet& list )

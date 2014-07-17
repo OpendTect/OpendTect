@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segytr.h"
 #include "seistrc.h"
 #include "seisbuf.h"
-#include "ioobj.h"
+#include "iostrm.h"
 #include "ptrman.h"
 #include "dirlist.h"
 #include "seisselection.h"
@@ -276,14 +276,24 @@ void SEGYDirectSeisTrcTranslator::initVars()
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
     headerread_ = false;
+    writemode_ = false;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()
 {
-    if ( !toNextTrace() )
-	{ errmsg = "No (selected) trace found"; return false; }
-    return true;
+    writemode_ = conn && !conn->forRead();
+
+    if ( !writemode_ )
+    {
+	if ( !toNextTrace() )
+	    { errmsg = "No (selected) trace found"; return false; }
+	return true;
+    }
+
+    //TODO
+    errmsg = "TODO: Writing directly to SEG-Y not yet supported";
+    return false;
 }
 
 
@@ -312,6 +322,15 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     pinfo.cubedata->getCrlRange( pinfo.crlrg );
     addComp( DataCharacteristics(), "Data" );
     return true;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
+{
+    initVars();
+    writemode_ = true;
+    errmsg = "Sorry, writing directly to SEG-Y not implemented yet";
+    return false; //TODO
 }
 
 
@@ -378,6 +397,12 @@ bool SEGYDirectSeisTrcTranslator::skip( int ntrcs )
 	ntrcs--;
     }
     return true;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
+{
+    return false; //TODO
 }
 
 
@@ -448,6 +473,30 @@ bool SEGYDirectSeisTrcTranslator::goTo( const BinID& bid )
 }
 
 
+IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
+					      const MultiID& ioobjkey ) const
+{
+    IOObj* ioobj = ctxt.crDefaultWriteObj( *this, ioobjkey );
+
+    // We don't really need to overrule createWriteIOObj for SEGYDirect
+    // but just for educational purposes I'll do something ...
+
+    if ( ioobj )
+	ioobj->pars().set( "Origin", "OD Internal" );
+
+    return ioobj;
+}
+
+
 void SEGYDirectSeisTrcTranslator::usePar( const IOPar& iop )
 {
+    //TODO pick up write options
+}
+
+
+void SEGYDirectSeisTrcTranslator::toSupported( DataCharacteristics& dc ) const
+{
+    SEGYSeisTrcTranslator* tmptr = SEGYSeisTrcTranslator::getInstance();
+    tmptr->toSupported( dc );
+    delete tmptr;
 }
