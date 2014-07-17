@@ -101,7 +101,8 @@ EngineMan* uiAttribPanel::createEngineMan()
 FlatDataPack* uiAttribPanel::createFDPack( 
 					    const Data2DHolder& d2dh ) const
 {
-    return new Attrib::Flat2DDHDataPack( attribid_, d2dh, true );
+    return new Attrib::Flat2DDHDataPack( attribid_, d2dh, true, 0,
+				Survey::GM().getGeomID(lk_.lineName()) );
 }
 
 

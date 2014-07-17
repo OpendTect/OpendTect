@@ -763,7 +763,7 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 
     SeisTrcBuf output( true );
     if ( !createOutput( bidset, output, trueknotspos, path ) )
-	return -1;
+	return DataPack::cNoID();
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     DataPack* newpack = new Attrib::FlatRdmTrcsDataPack( targetID(false),
@@ -802,16 +802,16 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 						 TaskRunner& taskrunner )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, linekey );
-    if ( !aem ) return -1;
+    if ( !aem ) return DataPack::cNoID();
 
     uiString errmsg;
     RefMan<Data2DHolder> data2d = new Data2DHolder;
     PtrMan<Processor> process = aem->createScreenOutput2D( errmsg, *data2d );
     if ( !process )
-	{ uiMSG().error(errmsg); return -1; }
+	{ uiMSG().error(errmsg); return DataPack::cNoID(); }
 
     if ( !TaskRunner::execute( &taskrunner, *process ) )
-	return -1;
+	return DataPack::cNoID();
 
     int component = 0;
     const bool isstored = targetspecs_[0].isStored();
@@ -827,12 +827,12 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     mDeclareAndTryAlloc( Flat2DDHDataPack*, newpack,
-	Attrib::Flat2DDHDataPack( adid, *data2d, false, component ) );
+	    Attrib::Flat2DDHDataPack( adid, *data2d, false, component,
+		Survey::GM().getGeomID(linekey.lineName()) ) );
     if ( !newpack || !newpack->isOK() )
 	return DataPack::cNoID();
 
-    newpack->setName( linekey.attrName() );
-    newpack->setLineName( linekey.lineName() );
+    newpack->setName( targetspecs_[0].userRef() );
     dpman.add( newpack );
     return newpack->id();
 }

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "paralleltask.h"
 #include "seisinfo.h"
+#include "survgeom.h"
 
 template <class T> class Array2D;
 template <class T> class Array2DSlice;
@@ -95,8 +96,15 @@ mExpClass(AttributeEngine) Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
-					 bool usesingtrc=false,int component=0);
+					 bool usesingtrc=false,int component=0,
+					 const Pos::GeomID& geomid=
+					 Survey::GM().cUndefGeomID());
+			Flat2DDHDataPack(DescID,const Array2D<float>*,
+					 const Pos::GeomID& geomid,
+					 const SamplingData<float>& zsamp,
+					 const StepInterval<int>& trcrg);
 			~Flat2DDHDataPack();
+
     bool		isOK() const		{ return dataholderarr_; }
 
     const Data2DArray*	dataarray() const	{ return dataholderarr_; }
@@ -106,22 +114,33 @@ public:
 	    				TypeSet<float>& dist) const;
     void		getCoordDataTable(const TypeSet<int>& trcnrs,
 	    				  TypeSet<Coord>& coords) const;
-    Array2D<float>&	data();
+    Array2D<float>&	data()			{ return *arr2d_; }
 
-    void		setLineName(const char* nm)	{ linenm_ = nm; }
-    void		getLineName(BufferString&) const;
+    void		setLineName(const char* nm)
+			{ geomid_ = Survey::GM().getGeomID(nm); }
+    void		getLineName( BufferString& nm ) const
+			{ nm = Survey::GM().getName( geomid_ ); }
+    Pos::GeomID		getGeomID() const	{ return geomid_; }
+    TrcKey		getTrcKey(int index) const
+			{ return Survey::GM().traceKey(
+				geomid_, tracerange_.atIndex(index) ); }
+
     Coord3		getCoord(int,int) const;
     double		getAltDim0Value(int,int) const;
     void		getAuxInfo(int,int,IOPar&) const;
 
-    const CubeSampling&	getCubeSampling() const;
+    const StepInterval<int>&	getTraceRange() const	{ return tracerange_; }
+    CubeSampling		getCubeSampling() const;
 
 protected:
 
     Array2DSlice<float>*	array2dslice_;
     const Data2DArray*		dataholderarr_;
+    StepInterval<int>		tracerange_;
+    SamplingData<float>		samplingdata_;
 
     bool			usesingtrc_;
+    Pos::GeomID			geomid_;
     BufferString		linenm_;
 
     void			setPosData();
@@ -213,7 +232,7 @@ public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
 					    TypeSet<BinID>* path=0);
 			FlatRdmTrcsDataPack(DescID,const Array2DImpl<float>*,
-					    const SamplingData<float>&,
+					    const SamplingData<float>& zsamp,
 					    TypeSet<BinID>* path=0);
 			~FlatRdmTrcsDataPack();
     virtual const char*	sourceType() const	{ return "Random Line"; }
@@ -241,7 +260,8 @@ protected:
 
 /*!
 \brief Transforms datapacks using ZAxisTransform. Output datapacks will be of
-same type as inputdp_. At present, this works only for FlatRdmTrcsDataPack.
+same type as inputdp_. At present, this works only for Flat2DDHDataPack and
+FlatRdmTrcsDataPack.
 */
 
 mExpClass(AttributeEngine) FlatDataPackZAxisTransformer : public ParallelTask
@@ -254,6 +274,8 @@ public:
 				{ inputdp_ = fdp; }
     void			setOutput( TypeSet<DataPack::ID>& dpids )
 				{ dpids_ = &dpids; }
+    void			setInterpolate( bool yn )
+				{ interpolate_ = yn; }
 
 protected:
 
@@ -265,6 +287,7 @@ protected:
     DataPackMgr&		dpm_;
     ZAxisTransform&		transform_;
     StepInterval<float>		zrange_;
+    bool			interpolate_;
     FlatDataPack*		inputdp_;
 
     TypeSet<DataPack::ID>*		dpids_;

@@ -38,8 +38,8 @@ namespace PosInfo { class Line2DData; }
 namespace visSurvey
 {
 
-/*!\brief Used for displaying a 2D line
-
+/*!
+\brief Used for displaying a 2D line.
 */
 
 mExpClass(visSurvey) Seis2DDisplay : public MultiTextureSurveyObject
@@ -67,6 +67,8 @@ public:
 
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
+    void			setDisplayDataPackIDs(int attrib,
+					const TypeSet<DataPack::ID>&);
     DataPack::ID		getDataPackID(int attrib) const;
     DataPack::ID		getDisplayedDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
@@ -182,6 +184,7 @@ protected:
     void			updateLineNamePos();
     void			setData(int attrib,const Attrib::Data2DArray&,
 					TaskRunner*);
+    void			createDisplayDataPacks(int attrib);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);
@@ -195,6 +198,7 @@ protected:
 
     ObjectSet<const Attrib::Data2DArray> cache_;
     TypeSet<DataPack::ID>	datapackids_;
+    ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     MultiID			datasetid_;
 
     PosInfo::Line2DData&	geometry_;

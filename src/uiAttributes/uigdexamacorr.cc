@@ -111,7 +111,8 @@ EngineMan* GapDeconACorrView::createEngineMan()
 
 #define mCreateFD2DDataPack(fddatapack) \
 { \
-    fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh ); \
+    fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh, false, \
+				0, Survey::GM().getGeomID(lk_.lineName()) ); \
     fddatapack->setName( "autocorrelation" ); \
     DPM(DataPackMgr::FlatID()).add( fddatapack ); \
 }
