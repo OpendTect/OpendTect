@@ -98,7 +98,7 @@ void WellProvider3D::setHS()
     hs_.stop.crl() += crlext_;
 
     curbid_ = BinID::udf();
-    hsitr_ = HorSamplingIterator( hs_ );
+    hsitr_.setSampling( hs_ );
     hsitr_.next( curbid_ );
 }
 
