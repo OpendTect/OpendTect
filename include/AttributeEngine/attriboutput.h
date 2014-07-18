@@ -44,33 +44,33 @@ class Data2DHolder;
 mExpClass(AttributeEngine) Output
 { mRefCountImpl(Output);
 public:
-    				Output();
+				Output();
 
     virtual bool		getDesiredVolume(CubeSampling&) const
-    				{ return true; }
+				{ return true; }
     virtual bool		useCoords() const		{ return false;}
     virtual bool		wantsOutput(const BinID&) const; // overrule it
     virtual bool		wantsOutput(const Coord&) const; // or this one
-    virtual const DataCubes*	getDataCubes() const 	{ return 0; }
+    virtual const DataCubes*	getDataCubes() const	{ return 0; }
     virtual DataCubes*		getDataCubes(float)	{ return 0; }
 
     virtual void		getDesiredOutputs( TypeSet<int>& outputs ) const
 				{ outputs = desoutputs_; }
     void			setDesiredOutputs( const TypeSet<int>& outputs )
-    				{ desoutputs_ = outputs; }
+				{ desoutputs_ = outputs; }
 
     virtual TypeSet<Interval<int> > getLocalZRanges(const BinID&,float,
-	    					    TypeSet<float>&) const;
+						    TypeSet<float>&) const;
     virtual TypeSet<Interval<int> > getLocalZRanges(const Coord&,float,
-	    					    TypeSet<float>&) const;
+						    TypeSet<float>&) const;
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&)		 = 0;
+					    const SeisTrcInfo&)		 = 0;
     virtual SeisTrc*		getTrc()		{ return 0; }
-    virtual void		writeTrc()		{};
-    virtual void		deleteTrc()		{};
+    virtual bool		writeTrc()		{ return true; }
+    virtual void		deleteTrc()		{}
     const Seis::SelData&	getSelData()		{ return *seldata_; }
     Pos::GeomID			curGeomID() const;
-    virtual void		adjustInlCrlStep(const CubeSampling&)	{};
+    virtual void		adjustInlCrlStep(const CubeSampling&)	{}
     virtual bool		finishWrite()		{ return false; }
 
     static const char*		outputstr();
@@ -79,6 +79,8 @@ public:
     static const char*          surfkey();
     static const char*          scalekey();
     static const char*          varzlinekey();
+
+    virtual const char*		errMsg() const	{ return ""; }
 
 protected:
 
@@ -93,8 +95,8 @@ protected:
     virtual bool		wantsOutput( const typ& t ) const \
 				{ return Output::wantsOutput(t); } \
     virtual TypeSet<Interval<int> > getLocalZRanges( const typ& t,float f, \
-	    					    TypeSet<float>& ts ) const \
-    				{ return Output::getLocalZRanges(t,f,ts); }
+						    TypeSet<float>& ts ) const \
+				{ return Output::getLocalZRanges(t,f,ts); }
 
 /*!
 \brief Attribute DataCubes Output.
@@ -112,21 +114,21 @@ public:
     bool			getDesiredVolume(CubeSampling&) const;
     void			setGeometry( const CubeSampling& cs )
 				{ doSetGeometry(cs); }
-    void                	setUndefValue( float v )	{ udfval_ = v; }
+    void	setUndefValue( float v )	{ udfval_ = v; }
 
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(Coord)
+						TypeSet<float>&) const;
+				mImplDefAttribOutputFns(Coord)
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     virtual void		adjustInlCrlStep(const CubeSampling&);
-    
+
 protected:
     CubeSampling		desiredvolume_;
     CubeSampling		dcsampling_;	//can differ from desiredvolume_
-    				//(special cases with decimated cubes smaller
-    				//than desired display)
+				//(special cases with decimated cubes smaller
+				//than desired display)
     TypeSet< Interval<int> >	sampleinterval_;
     DataCubes*			datacubes_;
     float			udfval_;
@@ -145,7 +147,7 @@ public:
 				SeisTrcStorOutput(const CubeSampling&,
 						  const Pos::GeomID);
 				~SeisTrcStorOutput();
-    
+
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
     virtual bool		useCoords() const		{ return false;}
@@ -153,7 +155,7 @@ public:
     bool			wantsOutput(const BinID&) const;
     virtual TypeSet< Interval<int> > getLocalZRanges(const BinID&,float,
 						     TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(Coord)
+				mImplDefAttribOutputFns(Coord)
     bool			setStorageID(const MultiID&);
     void			setGeometry( const CubeSampling& cs )
 				{ doSetGeometry(cs); }
@@ -161,8 +163,8 @@ public:
     bool			doUsePar(const IOPar&);
     virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
-    void			writeTrc();
+					    const SeisTrcInfo&);
+    virtual bool		writeTrc();
     SeisTrc*			getTrc()		{ return trc_; }
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
@@ -170,7 +172,8 @@ public:
     void			setOutpNames( const BufferStringSet& nms )
 				{ outpnames_ = nms; }
 
-    uiString			errMsg() const { return errmsg_; }
+    virtual const char*		errMsg() const
+				{ return errmsg_.getFullString(); }
 
     static const char*		seisidkey();
     static const char*		attribkey();
@@ -189,7 +192,7 @@ protected:
 
     SeisTrc*			trc_;
     SeisTrcWriter*		writer_;
-    BinID 			prevpos_;
+    BinID			prevpos_;
     bool			storinited_;
     BufferString		attribname_;
     Scaler*                     scaler_;
@@ -200,12 +203,12 @@ protected:
 
 public:
     void			deleteTrc(); //only if you do not use writeTrc
-    
+
 };
 
 
 /*!
-\brief 2D trace Output with variable Z range. 
+\brief 2D trace Output with variable Z range.
 */
 
 mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
@@ -213,20 +216,20 @@ mExpClass(AttributeEngine) Trc2DVarZStorOutput : public SeisTrcStorOutput
 public:
 				Trc2DVarZStorOutput(Pos::GeomID,
 						    DataPointSet*,float);
-    
+
     bool			doInit();
     void			set2D(bool)			{}
     bool			useCoords() const		{ return true; }
 
     virtual bool		wantsOutput(const Coord&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
-	    					TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(BinID)
+						TypeSet<float>&) const;
+				mImplDefAttribOutputFns(BinID)
     void			setTrcsBounds(Interval<float>);
 
     virtual bool		finishWrite();
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
 protected:
@@ -248,29 +251,29 @@ protected:
 mExpClass(AttributeEngine) TwoDOutput : public Output
 {
 public:
-				TwoDOutput(const Interval<int>&, 
+				TwoDOutput(const Interval<int>&,
 					   const Interval<float>&,
 					   Pos::GeomID);
 				~TwoDOutput();
-    
+
     bool			doInit();
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(Coord)
+						TypeSet<float>&) const;
+				mImplDefAttribOutputFns(Coord)
     void			setGeometry(const Interval<int>&,
-	    				    const Interval<float>&);
+					    const Interval<float>&);
     bool			getDesiredVolume(CubeSampling&) const;
     void			setOutput(Data2DHolder&);
 
     void			collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     const char*			errMsg() const	{ return errmsg_.str(); }
 
 protected:
 
     TypeSet< Interval<int> >	sampleinterval_;
-    BufferString 		errmsg_;
+    BufferString		errmsg_;
 
     Data2DHolder*		output_;
 };
@@ -283,19 +286,19 @@ protected:
 mExpClass(AttributeEngine) LocationOutput : public Output
 {
 public:
-    				LocationOutput(BinIDValueSet&);
+				LocationOutput(BinIDValueSet&);
 				~LocationOutput() {};
 
     bool			getDesiredVolume(CubeSampling&) const
-    				{ return true;}
+				{ return true;}
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(Coord)
+						TypeSet<float>&) const;
+				mImplDefAttribOutputFns(Coord)
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
-    
+
     //TODO : check where we want to put this: output?
     static const char*		filenamekey();
     static const char*		locationkey();
@@ -305,10 +308,10 @@ public:
 protected:
     BinIDValueSet&		bidvalset_;
 
-    bool			arebiddupl_;	
+    bool			arebiddupl_;
 
     void			computeAndSetVals(const DataHolder&,
-	    					  float,float*);
+						  float,float*);
     bool			areBIDDuplicated() const;
 };
 
@@ -320,21 +323,21 @@ protected:
 mExpClass(AttributeEngine) TrcSelectionOutput : public Output
 {
 public:
-    				TrcSelectionOutput(const BinIDValueSet&, 
+				TrcSelectionOutput(const BinIDValueSet&,
 						   float outval =0);
 				~TrcSelectionOutput() ;
 
     bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
-    				mImplDefAttribOutputFns(Coord)
+						TypeSet<float>&) const;
+				mImplDefAttribOutputFns(Coord)
     void			setOutput(SeisTrcBuf*);
     void			setTrcsBounds(Interval<float>);
     virtual void		collectData(const DataHolder&,float,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     void			setGeomID(Pos::GeomID);
-    
+
 protected:
     const BinIDValueSet&	bidvalset_;
     SeisTrcBuf*			outpbuf_;
@@ -351,21 +354,21 @@ protected:
 mExpClass(AttributeEngine) TableOutput : public Output
 {
 public:
-    				TableOutput(DataPointSet&,int);
+				TableOutput(DataPointSet&,int);
 				~TableOutput() {};
 
     bool			getDesiredVolume(CubeSampling&) const
-    				{ return true;}
+				{ return true;}
     bool			useCoords() const;
     bool			wantsOutput(const BinID&) const;
     bool			wantsOutput(const Coord&) const;
     virtual void		collectData(const DataHolder&,float step,
-	    				    const SeisTrcInfo&);
+					    const SeisTrcInfo&);
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
+						TypeSet<float>&) const;
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
-	    					TypeSet<float>&) const;
-    
+						TypeSet<float>&) const;
+
     void			setMaxDistBetwTrcs( float maxdist )
 						{ maxdisttrcs_ = maxdist; }
     void                        setPossibleBinIDDuplic() { arebiddupl_ = true; }
@@ -373,16 +376,16 @@ public:
 protected:
     DataPointSet&		datapointset_;
 
-    bool			arebiddupl_;	
+    bool			arebiddupl_;
     int				firstattrcol_;
     float			maxdisttrcs_;
     TypeSet<float>		distpicktrc_;
 
     void			computeAndSetVals(const DataHolder&,float,
-	    					  float,float*);
+						  float,float*);
     bool			areBIDDuplicated() const;
     void			addLocalInterval(TypeSet<Interval<int> >&,
-	    				         TypeSet<float>&,
+						 TypeSet<float>&,
 						 int,float) const;
 };
 

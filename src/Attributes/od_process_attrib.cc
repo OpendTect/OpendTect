@@ -249,14 +249,16 @@ bool BatchProgram::go( od_ostream& strm )
 		{
 		    if ( res == -1 )
 			mRetJobErr( BufferString("Cannot reach next position",
-				    ": ",proc->uiMessage().getFullString()) )
+				    ":\n",proc->uiMessage().getFullString()) )
 		    break;
 		}
 
 		if ( res >= 0 )
 		{
 		    nriter++;
-		    proc->outputs_[0]->writeTrc();
+		    if ( !proc->outputs_[0]->writeTrc() )
+			mRetJobErr( BufferString("Cannot write output trace",
+			    ":\n",proc->outputs_[0]->errMsg()) )
 		}
 	    }
 	}

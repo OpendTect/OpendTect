@@ -41,12 +41,61 @@ static const char* rcsID mUsedVar = "$Id$";
 static const MultiID udfmid( "-1" );
 
 
-static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm )
+static IOObj* mkEntry( const CtxtIOObj& ctio, const char* nm,
+			const Translator* transl )
 {
+    int translidx = -1;
+    if ( transl )
+	translidx = ctio.ctxt.trgroup->templates().indexOf( transl );
+
     CtxtIOObj newctio( ctio );
     newctio.ioobj = 0; newctio.setName( nm );
-    newctio.fillObj();
+    newctio.fillObj( false, translidx );
     return newctio.ioobj;
+}
+
+
+static uiComboBox* getWrTrFld( uiParent* par, const CtxtIOObj& ctio,
+				ObjectSet<const Translator>& wrtrs )
+{
+    uiComboBox* ret = 0;
+    if ( ctio.ctxt.forread )
+	return ret;
+
+    const ObjectSet<const Translator>& alltrs = ctio.ctxt.trgroup->templates();
+    for ( int idx=0; idx<alltrs.size(); idx++ )
+    {
+	const Translator* transl = alltrs[idx];
+	if ( transl->isUserSelectable( false ) )
+	    wrtrs += transl;
+    }
+    if ( false && wrtrs.size() > 1 ) // TODO: remove 'false &&'
+    {
+	ret = new uiComboBox( par, "Write translator field" );
+	int cur = 0;
+	for ( int idx=0; idx<wrtrs.size(); idx++ )
+	{
+	    const Translator* transl = wrtrs[idx];
+	    const BufferString trnm( transl->userName() );
+	    if ( ctio.ioobj && trnm == ctio.ioobj->translator() )
+		cur = idx;
+
+	    ret->addItem( trnm );
+
+	    BufferString icnm( transl->iconName() );
+	    if ( !icnm.isEmpty() )
+	    {
+		const BufferString smllicnm( icnm, "_24x24.png" );
+		if ( ioPixmap::isPresent(smllicnm) )
+		    icnm = smllicnm;
+		if ( ioPixmap::isPresent(icnm) )
+		    ret->setPixmap( ioPixmap(icnm), idx );
+	    }
+	}
+	ret->setCurrentItem( cur );
+    }
+
+    return ret;
 }
 
 
@@ -569,7 +618,7 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
 
 bool uiIOObjSelGrp::createEntry( const char* seltxt )
 {
-    PtrMan<IOObj> ioobj = mkEntry( ctio_, seltxt );
+    PtrMan<IOObj> ioobj = mkEntry( ctio_, seltxt, 0 /*TODO*/ );
     if ( !ioobj )
     {
 	uiMSG().error( "Cannot create ", mObjTypeName, " with this name" );
@@ -856,31 +905,9 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , wrtrselfld_(0)
 {
     workctio_.ctxt.fillTrGroup();
-    if ( !workctio_.ctxt.forread )
-    {
-	const ObjectSet<const Translator>& alltrs
-			    = workctio_.ctxt.trgroup->templates();
-	ObjectSet<const Translator> wrtrs;
-	for ( int idx=0; idx<alltrs.size(); idx++ )
-	{
-	    const Translator* transl = alltrs[idx];
-	    if ( transl->isUserSelectable( false ) )
-		wrtrs += transl;
-	}
-	if ( wrtrs.size() > 1 )
-	{
-	    wrtrselfld_ = new uiComboBox( this, "Write translator field" );
-	    for ( int idx=0; idx<wrtrs.size(); idx++ )
-	    {
-		const Translator* transl = wrtrs[idx];
-		wrtrselfld_->addItem( transl->userName() );
-		const char* icnm = transl->iconName();
-		if ( icnm && *icnm )
-		    wrtrselfld_->setPixmap( ioPixmap(icnm), idx );
-	    }
-	    wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
-	}
-    }
+    wrtrselfld_ = getWrTrFld( this, workctio_, wrtrs_ );
+    if ( wrtrselfld_ )
+	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
 
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
@@ -1190,5 +1217,11 @@ uiIOObjRetDlg* uiIOObjSel::mkDlg()
 
 IOObj* uiIOObjSel::createEntry( const char* nm )
 {
-    return mkEntry( workctio_, nm );
+    const Translator* transl = 0;
+    if ( wrtrselfld_ )
+    {
+	const int selidx = wrtrselfld_->currentItem();
+	transl = wrtrs_.validIdx(selidx) ? wrtrs_[selidx] : 0;
+    }
+    return mkEntry( workctio_, nm, transl );
 }

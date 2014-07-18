@@ -146,13 +146,19 @@ public:
     virtual bool	read(SeisTrc&);
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
-    virtual bool	isUserSelectable( bool fr ) const { return fr; }
+    virtual bool	isUserSelectable( bool fr ) const { return true; }
     virtual BinID	curBinID() const;
+
+    virtual void	toSupported(DataCharacteristics&) const;
+    virtual bool	write(const SeisTrc&); // no buffer/resort needed
 
     virtual void	usePar(const IOPar&);
 
     virtual bool	implShouldRemove(const IOObj*) const { return false; }
     virtual void	cleanUp();
+    virtual IOObj*	createWriteIOObj(const IOObjContext&,
+					 const MultiID&) const;
+    virtual const char* iconName() const		{ return "segy"; }
 
     virtual SEGY::DirectDef* getDef()	{ return def_; }
     virtual bool	goTo(const BinID&);
@@ -162,15 +168,14 @@ protected:
 
     bool		commitSelections_();
     virtual bool	initRead_();
-    virtual bool	initWrite_(const SeisTrc&)
-			{ errmsg = "Writing not supported"; return false; }
-    virtual bool	writeTrc_(const SeisTrc&) { return false; }
+    virtual bool	initWrite_(const SeisTrc&);
 
     SEGY::DirectDef*	def_;
     bool		headerread_;
     int			ild_;
     int			iseg_;
     int			itrc_;
+    bool		writemode_;
 
     void		initVars();
     const PosInfo::CubeData& cubeData() const;

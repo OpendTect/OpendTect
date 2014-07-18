@@ -721,24 +721,8 @@ IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
     if ( !ctio.ctxt.trgroup->templates().validIdx(translidx) )
 	translidx = ctio.ctxt.trgroup->defTranslIdx();
     templtr = ctio.ctxt.trgroup->templates()[translidx];
-    BufferString trnm( ctio.ctxt.deftransl.isEmpty()
-		     ? templtr->userName().buf() : ctio.ctxt.deftransl.buf() );
-    if ( trnm.isEmpty() ) trnm = "od"; // happens for empty bundles
 
-    Translator* transl = ctio.ctxt.trgroup->make( trnm );
-    if ( !transl )
-    {
-	BufferString msg( "Translator '", trnm, "not found for group " );
-	msg.add( ctio.ctxt.trgroup->userName() )
-	    .add( ".\nFailed to create a default write IOObj for " )
-	    .add( ctio.ctxt.name() );
-	pErrMsg( msg );
-	return 0;
-    }
-
-    IOObj* ret = transl->createWriteIOObj( ctio.ctxt, newkey );
-    delete transl;
-    return ret;
+    return templtr->createWriteIOObj( ctio.ctxt, newkey );
 }
 
 

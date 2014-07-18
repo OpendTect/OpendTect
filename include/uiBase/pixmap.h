@@ -52,17 +52,19 @@ public:
     void		fill(const Color&);
 
     int			width() const;
-    int         	height() const;
+    int height() const;
     bool		isEmpty() const;
 
     const char*		source() const		{ return srcname_.buf(); }
 
     bool		save(const char* fnm,const char* fmt=0,
-	    		     int quality=-1) const;
+			     int quality=-1) const;
+
+    static bool		isPresent(const char*);
     static void		supportedImageFormats(BufferStringSet&);
 
 protected:
-    
+
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
 };
@@ -72,20 +74,20 @@ protected:
 /*! \brief pixmap with the depth of 2 (b/w)
 
 If the file does not exist, or is of an unknown format, the pixmap becomes
-a null pixmap. 
+a null pixmap.
 
 If format is specified, attempts to read the pixmap using the specified format.
 If format is not specified (default), the loader reads a few bytes from the
-header to guess the file format. 
+header to guess the file format.
 
 */
 
 mExpClass(uiBase) ioBitmap : public ioPixmap
 {
 public:
-			ioBitmap(const char* filename,const char* fmt=0); 
+			ioBitmap(const char* filename,const char* fmt=0);
     mQtclass(QBitmap*)	Bitmap();
-    const mQtclass(QBitmap*)  	Bitmap() const;
+    const mQtclass(QBitmap*)	Bitmap() const;
 
 };
 
