@@ -470,7 +470,7 @@ void setPolyLines( CallBacker* cb )
     mDynamicCastGet(uiDialog*,dlg,cb);
     if ( dlg && dlg->uiResult() == 1 )
 	return;
-    else if ( !cb || dlg->uiResult() == 0 )
+    else if ( dlg->uiResult() == 0 )
     {
 	if ( line1drawn_ || err1bfrplot_ )
 	{
