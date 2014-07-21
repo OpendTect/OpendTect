@@ -46,6 +46,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     , lastexternal_(0)
     , curimplexists_(false)
 {
+    ctxt_.toselect.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
 }
 

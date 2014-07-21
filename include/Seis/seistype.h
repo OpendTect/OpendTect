@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "gendefs.h"
+class IOObjContext;
 
 
 /*!\brief Seismics*/
@@ -22,8 +23,8 @@ namespace Seis
 {
 
     mGlobal(Seis) enum SelType	{ Range, Table, Polygon };
-    mGlobal(Seis) const char*		nameOf(SelType);
-    mGlobal(Seis) SelType		selTypeOf(const char*);
+    mGlobal(Seis) const char*	nameOf(SelType);
+    mGlobal(Seis) SelType	selTypeOf(const char*);
     mGlobal(Seis) const char**	selTypeNames();
 
     enum ReadMode	{ PreScan, Scan, Prod };
@@ -46,7 +47,7 @@ namespace Seis
     mGlobal(Seis) bool		getFromPar(const IOPar&,GeomType&);
     mGlobal(Seis) bool		is2DGeom(const IOPar&);
     mGlobal(Seis) bool		isPSGeom(const IOPar&);
-
+    mGlobal(Seis) IOObjContext* getIOObjContext(Seis::GeomType,bool forread);
 
     enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient,
 			  Azimuth, Classification, UnknowData };

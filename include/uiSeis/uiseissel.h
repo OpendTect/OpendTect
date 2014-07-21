@@ -80,7 +80,6 @@ public:
     virtual void	updateInput();
 
     static IOObjContext	ioContext(Seis::GeomType,bool forread);
-    static void		fillContext(Seis::GeomType,bool forread,IOObjContext&);
 
 protected:
 

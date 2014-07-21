@@ -58,8 +58,11 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , is2d_(is2d)
     , browsebut_(0)
 {
-    if ( is2d_ )
-	ctxt_.fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
+    IOObjContext* freshctxt = Seis::getIOObjContext(
+					is2d_ ? Seis::Line : Seis::Vol, true );
+    ctxt_ = *freshctxt;
+    delete freshctxt;
+
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(
 				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)
@@ -134,7 +137,8 @@ void uiSeisFileMan::mkFileInfo()
     }
 
 #define mAddRangeTxt(line) \
-    .add(" range: ").add(cs.hrg.start.line).add(" - ").add(cs.hrg.stop.line) \
+    .add(" range: ").add(cs.hrg.start.line).add(" - ") \
+    .add(cs.hrg.stop.line) \
     .add(" [").add(cs.hrg.step.line).add("]")
 #define mAddZValTxt(memb) .add(zistm ? mNINT32(1000*memb) : memb)
 
