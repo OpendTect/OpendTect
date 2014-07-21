@@ -206,7 +206,9 @@ void uiSeis2DFileMan::removeLine( CallBacker* )
     {
 	const char* linenm = sellines.get(idx);
         dataset_->remove( Survey::GM().getGeomID(linenm) );
+	linefld_->removeItem( linenm );
     }
+
 }
 
 
