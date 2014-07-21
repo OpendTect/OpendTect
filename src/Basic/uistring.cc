@@ -456,3 +456,19 @@ void uiString::makeIndependent()
 
     data_->setFrom( *olddata );
 }
+
+
+bool uiString::operator==( const uiString& b ) const
+{
+#ifdef __debug__
+    DBG::forceCrash( false );
+    return true;
+#else
+    Threads::Locker datalocker( datalock_ );
+    if ( data_==b.data_ )
+	return true;
+
+    const BufferString myself = getFullString();
+    return myself == b.getFullString();
+#endif
+}

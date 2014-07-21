@@ -145,12 +145,14 @@ void uiTaskRunner::updateFields()
 	return;
     }
 
-    if ( prevmessage_!=message )
+    if ( BufferString(prevmessage_.getFullString() )
+	    != BufferString(message.getFullString() ) )
     {
 	sb.message( message, 0 );
 	prevmessage_ = message;
     }
-    if ( prevnrdonetext_!=nrdonetext )
+    if ( BufferString(prevnrdonetext_.getFullString() )
+	    != BufferString(nrdonetext.getFullString() ) )
     {
 	sb.message( nrdonetext, 1 );
 	prevnrdonetext_ = nrdonetext;

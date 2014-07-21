@@ -134,8 +134,10 @@ public:
 
     static const uiString&	emptyString()	{ return emptystring_; }
     
-    bool	operator==(const uiString& b) const { return b.data_==data_; }
-    bool	operator!=(const uiString& b) const { return b.data_!=data_; }
+    bool	operator==(const uiString& b) const;
+		//!<Don't use, will force crash. Only here to keep TypeSet happy
+    bool	operator!=(const uiString& b) const { return !(*this==b); }
+		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	operator>(const uiString& b) const;
     bool	operator<(const uiString& b) const;
 
