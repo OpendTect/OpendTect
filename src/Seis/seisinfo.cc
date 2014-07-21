@@ -22,6 +22,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistype.h"
 #include "keystrs.h"
 #include "timeser.h"
+#include "ctxtioobj.h"
+#include "seiscbvs.h"
+#include "seispsioprov.h"
+#include "seis2dlineio.h"
 
 #include <float.h>
 #include <iostream>
@@ -531,4 +535,26 @@ Seis::Bounds2D::Bounds2D()
     nrrg_.step = 1;
     mincoord_ = SI().minCoord( false );
     maxcoord_ = SI().maxCoord( false );
+}
+
+
+IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
+{
+    IOObjContext* ret = new IOObjContext( Seis::isPS(gt) ? (Seis::is2D(gt)
+		     ? mIOObjContext(SeisPS2D) : mIOObjContext(SeisPS3D) )
+		     : mIOObjContext(SeisTrc) );
+    ret->forread = forread;
+    if ( gt == Seis::Line )
+    {
+	ret->fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
+	ret->toselect.allownonuserselectable_ = true;
+    }
+    else if ( gt == Seis::Vol )
+	ret->deftransl = CBVSSeisTrcTranslator::translKey();
+    else if ( gt == Seis::VolPS )
+	ret->deftransl = CBVSSeisPS3DTranslator::translKey();
+    else
+	ret->deftransl = CBVSSeisPS2DTranslator::translKey();
+
+    return ret;
 }

@@ -58,11 +58,11 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , is2d_(is2d)
     , browsebut_(0)
 {
-    if ( is2d_ )
-    {
-	ctxt_.fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
-	ctxt_.toselect.allownonuserselectable_ = true;
-    }
+    IOObjContext* freshctxt = Seis::getIOObjContext(
+					is2d_ ? Seis::Line : Seis::Vol, true );
+    ctxt_ = *freshctxt;
+    delete freshctxt;
+
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(
 				is2d_ ? mCB(this,uiSeisFileMan,man2DPush)

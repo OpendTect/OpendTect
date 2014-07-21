@@ -56,17 +56,10 @@ uiString uiSeisSelDlg::gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 }
 
 
-static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
-			bool chgtol )
+static void adaptCtxt4Steering( const IOObjContext& ct,
+				const uiSeisSel::Setup& su )
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
-
-    if ( su.geom_ == Seis::Line )
-    {
-	ctxt.deftransl = "2D";
-	ctxt.toselect.allownonuserselectable_ = true;
-	ctxt.toselect.allowtransls_ = "2D`TwoD DataSet";
-    }
 
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
@@ -75,18 +68,13 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
 	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
 	ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     }
-
-    if ( ctxt.deftransl.isEmpty() )
-	ctxt.deftransl = su.geom_ == Seis::Line ?
-			TwoDDataSeisTrcTranslator::translKey()
-			: CBVSSeisTrcTranslator::translKey();
 }
 
 
 static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 				    const uiSeisSel::Setup& s )
 {
-    adaptCtxt( c.ctxt, s, true );
+    adaptCtxt4Steering( c.ctxt, s );
     return c;
 }
 
@@ -243,7 +231,7 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 
 static CtxtIOObj& getCtxtIOObj( CtxtIOObj& c, const uiSeisSel::Setup& s )
 {
-    adaptCtxt( c.ctxt, s, true );
+    adaptCtxt4Steering( c.ctxt, s );
     return c;
 }
 
@@ -251,7 +239,7 @@ static CtxtIOObj& getCtxtIOObj( CtxtIOObj& c, const uiSeisSel::Setup& s )
 static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
 					 const uiSeisSel::Setup& s )
 {
-    adaptCtxt( c, s, true );
+    adaptCtxt4Steering( c, s );
     return c;
 }
 
@@ -347,26 +335,10 @@ void uiSeisSel::fillDefault()
 }
 
 
-IOObjContext uiSeisSel::ioContext( Seis::GeomType geom, bool forread )
+IOObjContext uiSeisSel::ioContext( Seis::GeomType gt, bool forread )
 {
-    IOObjContext ctxt( Seis::isPS(geom)
-	    ? (Seis::is2D(geom)
-	        ? mIOObjContext(SeisPS2D)
-		: mIOObjContext(SeisPS3D) )
-	    : mIOObjContext(SeisTrc) );
-    fillContext( geom, forread, ctxt );
-    return ctxt;
-}
-
-
-void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
-			     IOObjContext& ctxt )
-{
-    ctxt.forread = forread;
-    if ( geom == Seis::Line )
-	ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
-    else
-	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
+    PtrMan<IOObjContext> newctxt = Seis::getIOObjContext( gt, forread );
+    return IOObjContext( *newctxt );
 }
 
 
