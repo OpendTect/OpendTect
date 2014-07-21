@@ -77,7 +77,8 @@ public:
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
 				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,
 				TypeSet<Coord>& intersections,
-				bool findfirstonly=true) const;
+				bool findfirstonly=true,
+				bool allowextention=false) const;
     bool		getImage(const BinID& srcbid,float srcz,
 				 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,
