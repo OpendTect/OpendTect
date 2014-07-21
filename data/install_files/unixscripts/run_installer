@@ -3,7 +3,7 @@
 # Description:  Script to launch installer
 # Author:       Nageswara
 # Date:         May 2013
-# RCS:          $Id: run_installer 30761 2013-07-16 11:56:18Z kristofer.tingdahl@dgbes.com $
+# RCS:          $Id$
 
 if [ ! -f /bin/csh ]; then
     echo "You do not have csh installed which is required by OpendTect"
@@ -19,7 +19,7 @@ fi
 PLFNAME=`uname`
 curdir=`dirname "$0"`
 
-if [ "${PLFNAME}" == "Darwin" ]; then
+if [ "${PLFNAME}" = "Darwin" ]; then
     if [ ! $?DYLD_LIBRARY_PATH ]; then
 	export DYLD_LIBRARY_PATH="${curdir}"
     else
