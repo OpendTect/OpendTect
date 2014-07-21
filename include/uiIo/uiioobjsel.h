@@ -302,6 +302,7 @@ protected:
     virtual void	objSel();
     virtual void	commitSucceeded()			{}
 
+    void		crWriteTranslSelFld();
     virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*)		{}
     virtual uiIOObjRetDlg* mkDlg();

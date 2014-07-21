@@ -36,7 +36,6 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
 	newctxt->stdseltype = IOObjContext::Surf;
-	newctxt->toselect.allowtransls_ = mDGBKey;
         newctxt->trgroup = &theInst();
 
         if ( !ctxt.setIfNull( newctxt ) )
@@ -58,7 +57,6 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
 	newctxt->stdseltype = IOObjContext::Surf;
-	newctxt->toselect.allowtransls_ = mDGBKey;
         newctxt->trgroup = &theInst();
 
         if ( !ctxt.setIfNull( newctxt ) )
@@ -70,8 +68,7 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 
 
 FixedString EMAnyHorizonTranslatorGroup::keyword()     { return "Any Horizon"; }
-mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
-				       ctxt->toselect.allowtransls_=mDGBKey)
+mDefSimpleTranslatorioContext(EMAnyHorizon,Surf)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
 {

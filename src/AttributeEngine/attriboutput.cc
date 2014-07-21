@@ -568,7 +568,7 @@ bool SeisTrcStorOutput::writeTrc()
     }
 
     if ( !writer_->put(*usetrc) )
-	{ errmsg_ = writer_->errMsg(); }
+	{ errmsg_ = writer_->errMsg(); return false; }
 
     delete trc_;
     trc_ = 0;

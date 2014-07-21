@@ -267,18 +267,14 @@ StepInterval<float> SEGY::Scanner::zRange() const
     if ( fds_.isEmpty() )
 	return SI().zRange( false );
 
-    StepInterval<float> ret( fds_.getSampling().interval(fds_.getTrcSz()) );
-
-    return ret;
+    return StepInterval<float>( fds_.getSampling().interval(fds_.getTrcSz()) );
 }
 
 
 void SEGY::Scanner::initFileData()
 {
-    if ( !curfidx_ )
-    {
+    if ( curfidx_ == 0 )
 	fds_.setAuxData( geom_, *tr_ );
-    }
     else if ( tr_->inpNrSamples() != fds_.getTrcSz() )
     {
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
@@ -287,12 +283,6 @@ void SEGY::Scanner::initFileData()
 	addFailed( tr_->errMsg() );
 	return;
     }
-/*
-    newfd->trcsz_ = tr_->inpNrSamples();
-    newfd->sampling_ = tr_->inpSD();
-    newfd->segyfmt_ = tr_->filePars().fmt_;
-    newfd->isrev1_ = tr_->isRev1();
-    newfd->nrstanzas_ = tr_->binHeader().nrstzs;
-    */
+
     fds_.addFile( fnms_.get(curfidx_) );
 }

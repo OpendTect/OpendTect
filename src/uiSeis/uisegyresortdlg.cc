@@ -60,7 +60,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
 #define mDefSeisSelFld(fldnm,geom,trtyp) \
     IOObjContext ctxt##fldnm( mIOObjContext(trtyp) ); \
-    ctxt##fldnm.toselect.allowtransls_ = sKeySEGYDirect; \
+    ctxt##fldnm.fixTranslator( sKeySEGYDirect ); \
     uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
@@ -165,7 +165,7 @@ uiIOObjSel* uiResortSEGYDlg::objSel()
     const Seis::GeomType gt = geomType();
     return gt == Seis::LinePS ? ps2dfld_
 	 : gt == Seis::VolPS  ? ps3dfld_
-	 		      : volfld_;
+			      : volfld_;
 }
 
 
@@ -193,6 +193,6 @@ bool uiResortSEGYDlg::acceptOK( CallBacker* )
     const Pos::Provider* pprov = subselfld_ ? subselfld_->curProvider() : 0;
     if ( pprov )
 	sr.setFilter( *pprov );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, sr );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, sr );
 }

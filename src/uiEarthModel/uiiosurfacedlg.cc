@@ -223,12 +223,6 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 }
 
 
-void uiCopySurface::setInputKey( const char* key )
-{
-    inpfld->getObjSel()->ctxtIOObj(true).ctxt.toselect.allowtransls_ = key;
-}
-
-
 #define mErrRet(msg) { if ( msg ) uiMSG().error(msg); return false; }
 
 bool uiCopySurface::acceptOK( CallBacker* )

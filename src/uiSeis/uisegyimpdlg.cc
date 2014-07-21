@@ -77,6 +77,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     }
 
     uiSeisSel::Setup sssu( setup_.geom_ ); sssu.enabotherdomain( true );
+    ctio_.ctxt.fixTranslator( "CBVS" );
     seissel_ = new uiSeisSel( outgrp, ctio_, sssu );
     seissel_->attach( alignedBelow, transffld_ );
 

@@ -105,25 +105,30 @@ void IOObjSelConstraints::clear()
 }
 
 
+bool IOObjSelConstraints::isAllowedTranslator( const char* trnm,
+					       const char* allowtrs )
+{
+    if ( !allowtrs || !*allowtrs )
+	return true;
+
+    FileMultiString fms( allowtrs );
+    const int sz = fms.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	GlobExpr ge( fms[idx] );
+	if ( ge.matches( trnm ) )
+	    return true;
+    }
+    return false;
+}
+
+
 bool IOObjSelConstraints::isGood( const IOObj& ioobj, bool forread ) const
 {
     if ( !allownonuserselectable_ && !ioobj.isUserSelectable(forread) )
 	return false;
-
-    if ( !allowtransls_.isEmpty() )
-    {
-	FileMultiString fms( allowtransls_ );
-	const int sz = fms.size();
-	bool isok = false;
-	for ( int idx=0; idx<sz; idx++ )
-	{
-	    GlobExpr ge( fms[idx] );
-	    if ( ge.matches( ioobj.translator() ) )
-		{ isok = true; break; }
-	}
-	if ( !isok )
-	    return false;
-    }
+    else if ( !isAllowedTranslator(ioobj.translator(),allowtransls_) )
+	return false;
 
     for ( int ireq=0; ireq<require_.size(); ireq++ )
     {

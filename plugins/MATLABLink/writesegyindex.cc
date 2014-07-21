@@ -37,7 +37,7 @@ extern "C" void od_Seis_initStdClasses();
 static MultiID getKey( const char* nm )
 {
     IOObjContext ctxt = mIOObjContext(SeisTrc);
-    ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEGYDirect";
+    ctxt.fixTranslator( "SEGYDirect" );
     CtxtIOObj ctio( ctxt );
     IOM().to( ctio.ctxt.getSelKey() );
     ctio.setName( nm );

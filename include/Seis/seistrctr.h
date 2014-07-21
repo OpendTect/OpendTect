@@ -155,17 +155,17 @@ public:
 			     packet info will be generated according to the
 			     example trace. Some STT's *require* a valid IOObj
 			     in Conn */
-    Conn*		curConn()			{ return conn; }
+    virtual Conn*	curConn()			{ return conn_; }
 
-    SeisPacketInfo&		packetInfo()		{ return pinfo; }
-    const Seis::SelData*	selData() const		{ return seldata; }
-    ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds; }
-    const SamplingData<float>&	inpSD() const		{ return insd; }
-    int				inpNrSamples() const	{ return innrsamples; }
-    const SamplingData<float>&	outSD() const		{ return outsd; }
-    int				outNrSamples() const	{ return outnrsamples; }
+    SeisPacketInfo&		packetInfo()		{ return pinfo_; }
+    const Seis::SelData*	selData() const		{ return seldata_; }
+    ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds_; }
+    const SamplingData<float>&	inpSD() const		{ return insd_; }
+    int				inpNrSamples() const	{ return innrsamples_; }
+    const SamplingData<float>&	outSD() const		{ return outsd_; }
+    int				outNrSamples() const	{ return outnrsamples_;}
 
-    void		setSelData( const Seis::SelData* t ) { seldata = t; }
+    void		setSelData( const Seis::SelData* t ) { seldata_ = t; }
 			/*!< This Seis::SelData is seen as a hint ... */
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
@@ -174,11 +174,11 @@ public:
     virtual bool	readInfo(SeisTrcInfo&)		{ return false; }
     virtual bool	read(SeisTrc&)			{ return false; }
     virtual bool	skip( int nrtrcs=1 )		{ return false; }
-    bool		write(const SeisTrc&);
+    virtual bool	write(const SeisTrc&);
 			// overrule if you don't need sorting/buffering
 
-    bool		close();
-    const char*		errMsg() const			{ return errmsg; }
+    virtual bool	close();
+    const char*		errMsg() const			{ return errmsg_; }
 
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
@@ -226,13 +226,10 @@ public:
     void		enforceSurvinfoWrite( bool yn )
 			{ enforce_survinfo_write = yn; }
 
-    const LineKey&	curLineKey() const
-			{ return curlinekey; }
-    void		setCurLineKey( const LineKey& lk )
-			{ curlinekey = lk; }
-
-    Pos::GeomID		curGeomID() const		{ return geomid; }
-    void		setCurGeomID(Pos::GeomID gid) { geomid = gid; }
+    const LineKey&	curLineKey() const		{ return curlinekey_; }
+    void		setCurLineKey( const LineKey& lk ) { curlinekey_ = lk; }
+    Pos::GeomID		curGeomID() const		{ return geomid_; }
+    void		setCurGeomID( Pos::GeomID gid ) { geomid_ = gid; }
 
     virtual bool	isUserSelectable(bool) const	{ return false; }
     virtual int		estimatedNrTraces() const	{ return -1; }
@@ -245,9 +242,9 @@ public:
 
 protected:
 
-    Conn*		conn;
-    const char*		errmsg;
-    SeisPacketInfo&	pinfo;
+    Conn*		conn_;
+    SeisPacketInfo&	pinfo_;
+    BufferString	errmsg_;
     BufferStringSet*	compnms_;
 
     Seis::ReadMode	read_mode;
@@ -256,23 +253,23 @@ protected:
     bool		enforce_regular_write;
     bool		enforce_survinfo_write;
 
-    SamplingData<float>			insd;
-    int					innrsamples;
-    ObjectSet<ComponentData>		cds;
-    ObjectSet<TargetComponentData>	tarcds;
-    const Seis::SelData*		seldata;
-    SamplingData<float>			outsd;
-    int					outnrsamples;
-    Interval<int>			samps;
-    LineKey				curlinekey;
-    Pos::GeomID				geomid;
+    SamplingData<float>			insd_;
+    int					innrsamples_;
+    ObjectSet<ComponentData>		cds_;
+    ObjectSet<TargetComponentData>	tarcds_;
+    const Seis::SelData*		seldata_;
+    SamplingData<float>			outsd_;
+    int					outnrsamples_;
+    Interval<int>			samprg_;
+    Pos::GeomID				geomid_;
+    LineKey				curlinekey_;
 
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);
 
     bool		initConn(Conn*,bool forread);
     void		setDataType( int icomp, int d )
-			{ cds[icomp]->datatype = tarcds[icomp]->datatype = d; }
+			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
 
 			/* Subclasses will need to implement the following: */
     virtual bool	initRead_()			{ return true; }
@@ -291,8 +288,8 @@ protected:
     void		prepareComponents(SeisTrc&,int actualsz) const;
 
 			// Quick access to selected, like selComp() etc.
-    ComponentData**	inpcds;
-    TargetComponentData** outcds;
+    ComponentData**	inpcds_;
+    TargetComponentData** outcds_;
 
     TypeSet<int>	warnnrs_;
     BufferStringSet&	warnings_;
@@ -303,7 +300,7 @@ private:
     int*		inpfor_;
     int			nrout_;
     int			prevnr_;
-    int			lastinlwritten;
+    int			lastinlwritten_;
 
     void		enforceBounds();
     bool		writeBlock();

@@ -54,7 +54,7 @@ protected:
 
     bool		initRead_();
     bool		initWrite_(const SeisTrc&)
-			{ errmsg = "Cannot write to PS Cube"; return false; }
+			{ errmsg_.set( "No write to PS Cube" ); return false; }
     bool		commitSelections_();
 
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);

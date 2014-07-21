@@ -620,11 +620,8 @@ bool StorageProvider::set2DRangeSelData()
 
 #define mAdd2ErrMsg(varwrong,s,start,stop) \
     if ( varwrong ) \
-    { \
-	errmsg_.append( uiString( "%1 range is: %2-%3\n").arg( s ) \
-			 .arg( toString(start) ) \
-			 .arg( toString(stop) ) ); \
-    }
+	errmsg_.append( uiString( "%1 range is: %2-%3\n") \
+		.arg( s ).arg( start ).arg( stop ) ); \
 
 bool StorageProvider::checkDesiredVolumeOK()
 {

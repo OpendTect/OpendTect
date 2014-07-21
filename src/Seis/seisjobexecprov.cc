@@ -61,7 +61,6 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 	, is2d_(false)
 	, outds_(0)
 {
-    ctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     seisoutkey_ = outputKey( iopar_ );
 
     FixedString res = iopar_.find( seisoutkey_ );

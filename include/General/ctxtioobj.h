@@ -38,11 +38,14 @@ public:
     IOPar&		require_;
     IOPar&		dontallow_;
 
-    BufferString	allowtransls_;		//!< Glob expression
+    BufferString	allowtransls_;	//!< FileMultiString of glob expressions
     bool		allownonuserselectable_; //!< allow 'alien' like SEG-Y
 
     bool		isGood(const IOObj&,bool forread=true) const;
     void		clear();
+
+    static bool		isAllowedTranslator(const char* tnm,const char* allowd);
+
 };
 
 
@@ -104,6 +107,8 @@ public:
     void		fillTrGroup() const;
 			//!< Uses stdseltype to make a trgroup
 			//!< Should never be necessary
+    void		fixTranslator( const char* trusrnm )
+			{ deftransl = toselect.allowtransls_ = trusrnm; }
 };
 
 

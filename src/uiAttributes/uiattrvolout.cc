@@ -108,7 +108,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
-	ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
+	ctxt.fixTranslator( "MultiCube" );
 	datastorefld_ = new uiIOObjSel( this, ctxt,
 					"Output Prestack DataStore" );
 	datastorefld_->attach( alignedBelow, cb );

@@ -38,7 +38,7 @@ static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters", 
+			"Specify import parameters",
                         mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
@@ -74,7 +74,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     sep2->attach( stretchedBelow, cellsizefld_ );
 
     outctio_.ctxt.forread = false;
-    outctio_.ctxt.toselect.allowtransls_ = "CBVS";
+    outctio_.ctxt.fixTranslator( "CBVS" );
     uiSeisSel::Setup sssu( Seis::Vol );
     outfld_ = new uiSeisSel( this, outctio_, sssu );
     outfld_->attach( alignedBelow, cellsizefld_ );
@@ -137,8 +137,8 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     CubeSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( *outctio_.ioobj );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, *import_ );
+    uiTaskRunner taskrunner( this );
+    return TaskRunner::execute( &taskrunner, *import_ );
 }
 
 

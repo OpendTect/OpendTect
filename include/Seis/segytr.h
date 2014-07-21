@@ -85,7 +85,7 @@ protected:
     TargetComponentData* outcd_;
     SamplingData<int>	offsdef_;
 
-    inline StreamConn&	sConn()		{ return *(StreamConn*)conn; }
+    inline StreamConn&	sConn()		{ return *(StreamConn*)conn_; }
 
     bool		commitSelections_();
     virtual bool	initRead_();

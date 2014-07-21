@@ -96,8 +96,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     if ( fromioobj )
     {
 	inctio_.ctxt.forread = true;
-	inctio_.ctxt.toselect.allowtransls_ =
-	    CBVSSeisTrcTranslator::translKey();
+	inctio_.ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
 	uiSeisSel::Setup sssu( Seis::Vol );
 	sssu.steerpol( uiSeisSel::Setup::InclSteer );
 	oinpfld = new uiSeisSel( this, inctio_, sssu );
@@ -147,7 +146,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     outctio_.ctxt.forread = false;
-    outctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
+    outctio_.ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     IOM().to( outctio_.ctxt.getSelKey() );
     if ( !fromioobj )
 	sssu.enabotherdomain( true );

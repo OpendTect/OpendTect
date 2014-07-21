@@ -21,11 +21,9 @@ const IOObjContext& polygonEMBodyTranslator::getIOObjContext()
     mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	IOObjContext* newres = 
+	IOObjContext* newres =
 		    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	newres->deftransl = polygonEMBodyTranslator::sKeyUserName();
-	newres->toselect.allowtransls_ = 
-		    polygonEMBodyTranslator::sKeyUserName();
+	newres->fixTranslator( polygonEMBodyTranslator::sKeyUserName() );
 
 	if ( !res.setIfNull(newres) )
 	    delete newres;

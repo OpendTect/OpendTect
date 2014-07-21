@@ -62,29 +62,20 @@ static void adaptCtxt( const IOObjContext& ct, const uiSeisSel::Setup& su,
     IOObjContext& ctxt = const_cast<IOObjContext&>( ct );
 
     if ( su.geom_ == Seis::Line )
-	ctxt.toselect.allowtransls_ = TwoDDataSeisTrcTranslator::translKey();
+	ctxt.fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
 
     if ( su.steerpol_ == uiSeisSel::Setup::NoSteering )
 	ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
+    {
 	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
+	ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    }
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = su.geom_ == Seis::Line ?
 			TwoDDataSeisTrcTranslator::translKey()
 			: CBVSSeisTrcTranslator::translKey();
-
-    if ( !ctxt.forread )
-	ctxt.toselect.allowtransls_ = ctxt.deftransl;
-    else if ( !ctxt.toselect.allowtransls_.isEmpty() )
-    {
-	FileMultiString fms( ctxt.toselect.allowtransls_ );
-	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
-	{
-	    fms += ctxt.deftransl;
-	    ctxt.toselect.allowtransls_ = fms;
-	}
-    }
 }
 
 
@@ -293,7 +284,7 @@ void uiSeisSel::mkOthDomBox()
     if ( !inctio_.ctxt.forread && seissetup_.enabotherdomain_ )
     {
 	othdombox_ = new uiCheckBox( this, SI().zIsTime() ? "Depth" : "Time" );
-	othdombox_->attach( rightOf, selbut_ );
+	othdombox_->attach( rightOf, endObj(false) );
     }
 }
 
@@ -369,8 +360,6 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 	ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
     else
 	ctxt.deftransl = CBVSSeisTrcTranslator::translKey();
-
-    ctxt.toselect.allowtransls_ = ctxt.deftransl;
 }
 
 
