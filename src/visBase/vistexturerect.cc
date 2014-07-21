@@ -32,6 +32,7 @@ TextureRectangle::TextureRectangle()
 {
     textureplane_->ref();
     addChild( textureplane_ );
+    setWidth( Coord3(0.0,0.0,0.0) );
 }
 
 
