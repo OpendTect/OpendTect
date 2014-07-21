@@ -706,21 +706,28 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 IOObj* IOMan::crWriteIOObj( const CtxtIOObj& ctio, const MultiID& newkey,
 			    int translidx ) const
 {
+    const ObjectSet<const Translator>& templs = ctio.ctxt.trgroup->templates();
 
-    const Translator* templtr = 0;
-    if ( ctio.ctxt.trgroup->templates().isEmpty() )
+    if ( templs.isEmpty() )
     {
 	BufferString msg( "Translator Group '", ctio.ctxt.trgroup->userName(),
 			  "is empty." );
 	msg.add( ".\nCannot create a default write IOObj for " )
 	   .add( ctio.ctxt.name() );
-	pErrMsg( msg );
-	return 0;
+	pErrMsg( msg ); return 0;
     }
 
-    if ( !ctio.ctxt.trgroup->templates().validIdx(translidx) )
+    const Translator* templtr = 0;
+
+    if ( templs.validIdx(translidx) )
+	templtr = ctio.ctxt.trgroup->templates()[translidx];
+    else if ( !ctio.ctxt.deftransl.isEmpty() )
+	templtr = ctio.ctxt.trgroup->getTemplate(ctio.ctxt.deftransl,true);
+    if ( !templtr )
+    {
 	translidx = ctio.ctxt.trgroup->defTranslIdx();
-    templtr = ctio.ctxt.trgroup->templates()[translidx];
+	templtr = templs[translidx];
+    }
 
     return templtr->createWriteIOObj( ctio.ctxt, newkey );
 }

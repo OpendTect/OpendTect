@@ -52,7 +52,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
     if ( geomnms.size() > 1 )
     {
 	const CallBack geomcb( mCB(this,uiResortSEGYDlg,geomSel) );
-	geomfld_ = new uiGenInput( this, uiStrings::sType(), 
+	geomfld_ = new uiGenInput( this, uiStrings::sType(),
                                    StringListInpSpec(geomnms) );
 	geomfld_->valuechanged.notify( geomcb );
 	postFinalise().notify( geomcb );
@@ -61,7 +61,7 @@ uiResortSEGYDlg::uiResortSEGYDlg( uiParent* p )
 
 #define mDefSeisSelFld(fldnm,geom,trtyp) \
     IOObjContext ctxt##fldnm( mIOObjContext(trtyp) ); \
-    ctxt##fldnm.toselect.allowtransls_ = sKeySEGYDirect; \
+    ctxt##fldnm.fixTranslator( sKeySEGYDirect ); \
     uiIOObjSel::Setup ossu##fldnm( "Scanned input" ); \
     ossu##fldnm.filldef( false ); \
     fldnm##fld_ = new uiIOObjSel( this, ctxt##fldnm, ossu##fldnm ); \
@@ -167,7 +167,7 @@ uiIOObjSel* uiResortSEGYDlg::objSel()
     const Seis::GeomType gt = geomType();
     return gt == Seis::LinePS ? ps2dfld_
 	 : gt == Seis::VolPS  ? ps3dfld_
-	 		      : volfld_;
+			      : volfld_;
 }
 
 

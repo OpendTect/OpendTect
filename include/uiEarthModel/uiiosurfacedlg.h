@@ -24,11 +24,11 @@ class uiSurfaceRead;
 class uiSurfaceWrite;
 
 
-namespace EM 
-{ 
-    class Horizon3D; 
-    class Surface; 
-    class SurfaceIODataSelection; 
+namespace EM
+{
+    class Horizon3D;
+    class Surface;
+    class SurfaceIODataSelection;
 }
 
 
@@ -69,7 +69,7 @@ protected:
 mExpClass(uiEarthModel) uiStoreAuxData : public uiDialog
 {
 public:
-    			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
+			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
 
     bool		doOverWrite() const	{ return dooverwrite_; }
     const char*		auxdataName() const;
@@ -87,19 +87,20 @@ protected:
 mExpClass(uiEarthModel) uiCopySurface : public uiDialog
 {
 public:
-    			uiCopySurface(uiParent*,const IOObj&,
+			uiCopySurface(uiParent*,const IOObj&,
 				      const uiSurfaceRead::Setup&);
 			~uiCopySurface();
 
-    void		setInputKey(const char* key);
 protected:
+
     uiSurfaceRead*	inpfld;
     uiIOObjSel*		outfld;
 
     CtxtIOObj&		ctio_;
-    
+
     CtxtIOObj*		mkCtxtIOObj(const IOObj&);
     bool		acceptOK(CallBacker*);
+
 };
 
 

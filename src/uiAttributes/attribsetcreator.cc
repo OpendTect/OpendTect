@@ -100,8 +100,6 @@ void mkGrp( uiGroup* mkgrp, const char* lbltxt,
     {
 	CtxtIOObj* newctio = mMkCtxtIOObj(SeisTrc);
 	newctio->ctxt.forread = true;
-	newctio->ctxt.toselect.allowtransls_ =
-	    CBVSSeisTrcTranslator::translKey();
 	if ( neednewgrp )
 	{
 	    uiGroup* newgrp = new uiGroup( fldgrp, "selsN" );

@@ -304,9 +304,9 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
 {
     CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
     IOObjContext& ctxt = ret->ctxt;
-    ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEG-Y";
     ctxt.forread = forread;
     ctxt.toselect.allownonuserselectable_ = true;
+    ctxt.fixTranslator( "SEG-Y" );
     IOPar* cnstr = Seis::is2D(gt) ? &ctxt.toselect.require_
 				  : &ctxt.toselect.dontallow_;
     cnstr->setYN( SeisTrcTranslator::sKeyIs2D(), true );

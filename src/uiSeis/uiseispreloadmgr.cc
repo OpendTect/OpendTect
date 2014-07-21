@@ -246,7 +246,7 @@ if ( !ioobj->implExists( true ) ) \
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
+    ctio->ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
@@ -283,7 +283,7 @@ uiSeisPreLoadMgrSel2D( uiParent* p )
 				 mODHelpKey(mSeisPreLoadMgrSel2DHelpID) ))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    ctio_.ctxt.toselect.allowtransls_ = "2D";
+    ctio_.ctxt.fixTranslator( "2D" );
     const IODir iodir( ctio_.ctxt.getSelKey() );
     const IODirEntryList del( iodir, ctio_.ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
@@ -386,7 +386,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
-    ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
+    ctio->ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiIOObjSelDlg dlg( this, *ctio, tr("Select data store/part to load") );
     dlg.setCaption( tr("Select data store") );
     uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
@@ -466,7 +466,7 @@ bool acceptOK( CallBacker* )
 void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
-    ctio->ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
+    ctio->ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 

@@ -343,8 +343,7 @@ const IOObjContext& MarchingCubesSurface::getIOObjContext() const
     {
 	IOObjContext* newres =
 		new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	newres->deftransl = mcEMBodyTranslator::sKeyUserName();
-	newres->toselect.allowtransls_ = mcEMBodyTranslator::sKeyUserName();
+	newres->fixTranslator( mcEMBodyTranslator::sKeyUserName() );
 
 	if ( !res.setIfNull(newres) )
 	    delete newres;

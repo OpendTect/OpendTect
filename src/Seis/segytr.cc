@@ -113,7 +113,7 @@ int SEGYSeisTrcTranslator::dataBytes() const
 
 int SEGYSeisTrcTranslator::traceSizeOnDisk() const
 {
-    return cTraceHeaderBytes + mBPS(inpcd_) * innrsamples;
+    return cTraceHeaderBytes + mBPS(inpcd_) * innrsamples_;
 }
 
 
@@ -190,15 +190,15 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
     }
 
-    txthead_->getText( pinfo.usrinfo );
-    pinfo.nr = binhead_.entryVal( SEGY::BinHeader::EntryLino() );
-    pinfo.zrg.step = binhead_.sampleRate( mInDepth );
-    insd.step = pinfo.zrg.step;
-    innrsamples = binhead_.nrSamples();
+    txthead_->getText( pinfo_.usrinfo );
+    pinfo_.nr = binhead_.entryVal( SEGY::BinHeader::EntryLino() );
+    pinfo_.zrg.step = binhead_.sampleRate( mInDepth );
+    insd_.step = pinfo_.zrg.step;
+    innrsamples_ = binhead_.nrSamples();
 
     od_stream::Pos endpos = strm.endPosition();
     estnrtrcs_ = mCast( int, (endpos - cEndTapeHeader)
-			/ (cTraceHeaderBytes + dataBytes()*innrsamples));
+			/ (cTraceHeaderBytes + dataBytes()*innrsamples_));
     return true;
 }
 
@@ -274,33 +274,33 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     if ( othdomain_ )
 	info.sampling.step *= SI().zIsTime() ? 1000 : 0.001f;
 
-    insd.start = info.sampling.start;
-    insd.step = pinfo.zrg.step;
-    if ( mIsZero(insd.step,1e-8) )
+    insd_.start = info.sampling.start;
+    insd_.step = pinfo_.zrg.step;
+    if ( mIsZero(insd_.step,1e-8) )
     {
-	insd.step = info.sampling.step;
-	if ( mIsZero(insd.step,1e-8) )
-	    insd.step = SI().zRange(false).step;
+	insd_.step = info.sampling.step;
+	if ( mIsZero(insd_.step,1e-8) )
+	    insd_.step = SI().zRange(false).step;
     }
     if ( !mIsUdf(fileopts_.timeshift_) )
-	insd.start = fileopts_.timeshift_;
+	insd_.start = fileopts_.timeshift_;
     if ( !mIsUdf(fileopts_.sampleintv_) )
-	insd.step = fileopts_.sampleintv_;
+	insd_.step = fileopts_.sampleintv_;
 
-    innrsamples = filepars_.ns_;
-    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
+    innrsamples_ = filepars_.ns_;
+    if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
     {
-	innrsamples = binhead_.nrSamples();
-	if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
+	innrsamples_ = binhead_.nrSamples();
+	if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
 	{
-	    innrsamples = trchead_.nrSamples();
-	    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
-		innrsamples = SI().zRange(false).nrSteps() + 1;
+	    innrsamples_ = trchead_.nrSamples();
+	    if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
+		innrsamples_ = SI().zRange(false).nrSteps() + 1;
 	}
     }
 
     addComp( getDataChar(filepars_.fmt_)  );
-    DataCharacteristics& dc = tarcds[0]->datachar;
+    DataCharacteristics& dc = tarcds_[0]->datachar;
     dc.fmt_ = DataCharacteristics::Ieee;
     const float scfac = trchead_.postScale(filepars_.fmt_ ? filepars_.fmt_ : 1);
     if ( !mIsEqual(scfac,1,mDefEps)
@@ -356,18 +356,25 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    BufferString coordfnm( fileopts_.coordfnm_ );
 	    if ( coordfnm.startsWith("ext=") )
 	    {
-		FilePath fp( ((StreamConn*)conn)->fileName() );
+		FilePath fp( ((StreamConn*)conn_)->fileName() );
 		fp.setExtension( coordfnm.buf()+4 );
 		coordfnm = fp.fullPath();
 	    }
 
 	    od_istream stream( coordfnm );
 	    if ( !stream.isOK() )
-		{ errmsg = "Cannot open coordinate file"; return; }
+	    {
+		errmsg_.set( "Cannot open coordinate file:\n" ).add( coordfnm );
+		return;
+	    }
 	    bp2c_ = new BendPoints2Coords( stream );
 	    stream.close();
 	    if ( bp2c_->getIDs().size() < 2 )
-		{ errmsg = "Cannot read coordinate file"; return; }
+	    {
+		errmsg_.set( "Coordinate file bad (need at least 2 points):\n" )
+		       .add( coordfnm );
+		return;
+	    }
 	}
 	ti.coord = bp2c_->coordAt( mCast(float,ti.nr) );
     }
@@ -393,30 +400,29 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !txthead_ )
     {
 	txthead_ = new SEGY::TxtHeader( trchead_.isrev1_ );
-	txthead_->setUserInfo( pinfo.usrinfo );
-	fileopts_.thdef_.linename = curlinekey.buf();
-	fileopts_.thdef_.pinfo = &pinfo;
+	txthead_->setUserInfo( pinfo_.usrinfo );
+	fileopts_.thdef_.linename = curlinekey_;
+	fileopts_.thdef_.pinfo = &pinfo_;
 	txthead_->setPosInfo( fileopts_.thdef_ );
-	txthead_->setStartPos( outsd.start );
+	txthead_->setStartPos( outsd_.start );
 	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
 	    txthead_->setEbcdic();
     }
     if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
-    SEGY::BinHeader binhead;
-    binhead.setForWrite();
-    binhead.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
-    filepars_.fmt_ = binhead.format();
-    binhead.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo.nr );
+    binhead_.setForWrite();
+    binhead_.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
+    filepars_.fmt_ = binhead_.format();
+    binhead_.setEntryVal( SEGY::BinHeader::EntryLino(), pinfo_.nr );
     mDefineStaticLocalObject( int, jobid, = 0 );
-    binhead.setEntryVal( SEGY::BinHeader::EntryJobID(), ++jobid );
-    binhead.setNrSamples( outnrsamples );
-    binhead.setSampleRate( outsd.step, mInDepth );
-    binhead.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
+    binhead_.setEntryVal( SEGY::BinHeader::EntryJobID(), ++jobid );
+    binhead_.setNrSamples( outnrsamples_ );
+    binhead_.setSampleRate( outsd_.step, mInDepth );
+    binhead_.setEntryVal( SEGY::BinHeader::EntryTsort(), is_prestack ? 0 : 4 );
 					// To make Strata users happy
-    binhead.setInFeet( SI().xyInFeet() );
-    if ( !sConn().oStream().addBin( binhead.buf(), SegyBinHeaderLength ) )
+    binhead_.setInFeet( SI().xyInFeet() );
+    if ( !sConn().oStream().addBin( binhead_.buf(), SegyBinHeaderLength ) )
 	mErrRet("Cannot write SEG-Y binary header")
 
     return true;
@@ -436,8 +442,8 @@ void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 	trchead_.use( trc.info() );
     }
 
-    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd );
-    const int nstoput = useinpsd_ ? trc.size() : outnrsamples;
+    SamplingData<float> sdtoput( useinpsd_ ? trc.info().sampling : outsd_ );
+    const int nstoput = useinpsd_ ? trc.size() : outnrsamples_;
     if ( othdomain_ )
 	sdtoput.step *= SI().zIsTime() ? 0.001f : 1000;
 
@@ -529,21 +535,21 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 
 bool SEGYSeisTrcTranslator::commitSelections_()
 {
-    const bool forread = conn->forRead();
+    const bool forread = conn_->forRead();
     fileopts_.forread_ = forread;
     fileopts_.setGeomType( Seis::geomTypeOf( is_2d, is_prestack ) );
 
-    inpcd_ = inpcds[0]; outcd_ = outcds[0];
+    inpcd_ = inpcds_[0]; outcd_ = outcds_[0];
     storinterp_ = new TraceDataInterpreter( forread ? inpcd_->datachar
 						   : outcd_->datachar );
-    if ( mIsEqual(outsd.start,insd.start,mDefEps)
-      && mIsEqual(outsd.step,insd.step,mDefEps) )
+    if ( mIsEqual(outsd_.start,insd_.start,mDefEps)
+      && mIsEqual(outsd_.step,insd_.step,mDefEps) )
 	useinpsd_ = true;
 
     if ( blockbuf_ )
 	{ delete [] blockbuf_; blockbuf_ = 0; }
-    int bufsz = innrsamples;
-    if ( outnrsamples > bufsz ) bufsz = outnrsamples;
+    int bufsz = innrsamples_;
+    if ( outnrsamples_ > bufsz ) bufsz = outnrsamples_;
     bufsz += 10;
     int nbts = inpcd_->datachar.nrBytes();
     if ( outcd_->datachar.nrBytes() > nbts ) nbts = outcd_->datachar.nrBytes();
@@ -559,12 +565,12 @@ bool SEGYSeisTrcTranslator::initRead_()
 	return false;
 
     trchead_.initRead();
-    if ( tarcds.isEmpty() )
+    if ( tarcds_.isEmpty() )
 	updateCDFromBuf();
 
-    if ( innrsamples <= 0 || innrsamples > cMaxNrSamples )
+    if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
 	mErrRet(BufferString("Cannot find a reasonable number of samples."
-			     "\nFound: ",innrsamples,
+			     "\nFound: ",innrsamples_,
 			     ".\nPlease 'Overrule' to set something usable"))
 
     sConn().iStream().setPosition( cEndTapeHeader );
@@ -582,8 +588,8 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	addComp( dc );
 	toSupported( dc );
 	selectWriteDataChar( dc );
-	tarcds[idx]->datachar = dc;
-	if ( idx ) tarcds[idx]->destidx = -1;
+	tarcds_[idx]->datachar = dc;
+	if ( idx ) tarcds_[idx]->destidx = -1;
     }
 
     return true;
@@ -593,7 +599,7 @@ bool SEGYSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 bool SEGYSeisTrcTranslator::goToTrace( int nr )
 {
     od_stream::Pos so = nr;
-    so *= (cTraceHeaderBytes + dataBytes() * innrsamples);
+    so *= (cTraceHeaderBytes + dataBytes() * innrsamples_);
     so += cEndTapeHeader;
     od_istream& strm = sConn().iStream();
     strm.setPosition( so );
@@ -639,9 +645,9 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 
 bool SEGYSeisTrcTranslator::tryInterpretBuf( SeisTrcInfo& ti )
 {
-    errmsg = 0;
+    errmsg_.setEmpty();
     interpretBuf( ti );
-    return !errmsg;
+    return errmsg_.isEmpty();
 }
 
 
@@ -656,7 +662,7 @@ bool SEGYSeisTrcTranslator::skipThisTrace( SeisTrcInfo& ti, int& nrbadtrcs )
 	mPosErrRet(str);
     }
 
-    sConn().iStream().setPosition( innrsamples * mBPS(inpcd_), od_stream::Rel );
+    sConn().iStream().setPosition( innrsamples_*mBPS(inpcd_), od_stream::Rel );
     if ( !readTraceHeadBuffer() )
 	return false;
     if ( !tryInterpretBuf(ti) )
@@ -727,7 +733,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( trchead_.isusable )
 	trchead_.isusable = goodpos;
 
-    if ( !useinpsd_ ) ti.sampling = outsd;
+    if ( !useinpsd_ ) ti.sampling = outsd_;
 
     if ( fileopts_.psdef_ == SEGY::FileReadOpts::UsrDef )
     {
@@ -753,7 +759,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     if ( mIsZero(ti.sampling.step,mDefEps) )
     {
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
-	ti.sampling.step = insd.step;
+	ti.sampling.step = insd_.step;
     }
 
     if ( trchead_.nonrectcoords )
@@ -780,10 +786,10 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
     od_istream& strm = sConn().iStream();
     if ( !headerdone_ )
 	strm.setPosition( mSEGYTraceHeaderBytes, od_stream::Rel );
-    strm.setPosition( innrsamples * mBPS(inpcd_), od_stream::Rel );
+    strm.setPosition( innrsamples_ * mBPS(inpcd_), od_stream::Rel );
     if ( ntrcs > 1 )
 	strm.setPosition( (ntrcs-1)
-		* (mSEGYTraceHeaderBytes + innrsamples * mBPS(inpcd_)) );
+		* (mSEGYTraceHeaderBytes + innrsamples_ * mBPS(inpcd_)) );
 
     headerdone_ = false;
 
@@ -807,7 +813,7 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
 
 bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
-    if ( !conn || !conn->isStream() )
+    if ( !conn_ || conn_->isBad() || !conn_->isStream() )
 	return noErrMsg();
     od_istream& strm = sConn().iStream();
     if ( !strm.getBin(headerbuf_,mSEGYTraceHeaderBytes) )
@@ -820,10 +826,10 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 bool SEGYSeisTrcTranslator::readDataToBuf()
 {
     od_istream& strm = sConn().iStream();
-    if ( samps.start > 0 )
-	strm.setPosition( samps.start * mBPS(inpcd_), od_stream::Rel );
+    if ( samprg_.start > 0 )
+	strm.setPosition( samprg_.start * mBPS(inpcd_), od_stream::Rel );
 
-    int rdsz = (samps.width()+1) *  mBPS(inpcd_);
+    int rdsz = (samprg_.width()+1) *  mBPS(inpcd_);
     if ( !sConn().iStream().getBin(blockbuf_,rdsz) )
     {
 	if ( strm.lastNrBytesRead() != rdsz )
@@ -832,8 +838,8 @@ bool SEGYSeisTrcTranslator::readDataToBuf()
 	return noErrMsg();
     }
 
-    if ( samps.stop < innrsamples-1 )
-	strm.setPosition( (innrsamples-samps.stop-1) * mBPS(inpcd_),
+    if ( samprg_.stop < innrsamples_-1 )
+	strm.setPosition( (innrsamples_-samprg_.stop-1) * mBPS(inpcd_),
 				od_stream::Rel );
 
     return !strm.isBad();
@@ -844,13 +850,13 @@ bool SEGYSeisTrcTranslator::readData( SeisTrc& trc )
 {
     noErrMsg();
     const int curcomp = selComp();
-    prepareComponents( trc, outnrsamples );
+    prepareComponents( trc, outnrsamples_ );
     headerdone_ = false;
 
     if ( !readDataToBuf() )
 	return false;
 
-    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
 	trc.set( isamp, storinterp_->get(blockbuf_,isamp), curcomp );
 
     if ( curtrcscale_ )
@@ -873,16 +879,16 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 			      = GetEnvVarYN("OD_SEIS_SEGY_ALLOW_UDF") );
     mDefineStaticLocalObject( float, udfreplaceval,
 		= (float) GetEnvVarDVal( "OD_SEIS_SEGY_UDF_REPLACE", 0 ) );
-    for ( int idx=0; idx<outnrsamples; idx++ )
+    for ( int idx=0; idx<outnrsamples_; idx++ )
     {
-	float val = trc.getValue( outsd.atIndex(idx), curcomp );
+	float val = trc.getValue( outsd_.atIndex(idx), curcomp );
 	if ( !allowudfs && mIsUdf(val) )
 	    val = udfreplaceval;
 	storinterp_->put( blockbuf_, idx, val );
     }
 
     if ( !sConn().oStream().addBin( blockbuf_,
-			 outnrsamples * outcd_->datachar.nrBytes() ) )
+			 outnrsamples_ * outcd_->datachar.nrBytes() ) )
 	mErrRet("Cannot write trace data")
 
     headerdone_ = false;
@@ -892,22 +898,18 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 
 void SEGYSeisTrcTranslator::fillErrMsg( const char* s, bool withpos )
 {
-    mDeclStaticString( msg );
-    msg = "";
-
     const BufferString fnm = sConn().odStream().fileName();
     if ( fnm.isEmpty() )
-	msg = usrname_;
+	errmsg_ = usrname_;
     else
-	{ msg = "In file '"; msg += fnm; msg += "'"; }
+	{ errmsg_ = "In file '"; errmsg_ += fnm; errmsg_ += "'"; }
     if ( withpos )
-	{ msg += " "; msg += getTrcPosStr(); }
-    msg += ":\n"; msg += s;
-    errmsg = msg.buf();
+	{ errmsg_ += " "; errmsg_ += getTrcPosStr(); }
+    errmsg_ += ":\n"; errmsg_ += s;
 }
 
 
 bool SEGYSeisTrcTranslator::noErrMsg()
 {
-    errmsg = ""; return false;
+    errmsg_.setEmpty(); return false;
 }

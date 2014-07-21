@@ -132,6 +132,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop,
     , totalsz_( 0 )
     , indexer_( 0 )
     , coords_( 0 )
+    , nrstanzas_( 0 )
     , nrusable_( 0 )
 {}
 
@@ -142,6 +143,7 @@ SEGY::FileDataSet::FileDataSet( const IOPar& iop )
     , totalsz_( 0 )
     , indexer_( 0 )
     , coords_( 0 )
+    , nrstanzas_( 0 )
     , nrusable_( 0 )
 {}
 

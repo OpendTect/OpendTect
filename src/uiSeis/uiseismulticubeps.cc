@@ -55,7 +55,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
 	, curselidx_(-1)
 {
     ctio_.ctxt.forread = false;
-    ctio_.ctxt.deftransl = ctio_.ctxt.toselect.allowtransls_ = "MultiCube";
+    ctio_.ctxt.fixTranslator( "MultiCube" );
     if ( ky && *ky )
 	ctio_.setObj( MultiID(ky) );
     else

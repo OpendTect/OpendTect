@@ -28,7 +28,7 @@ uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p )
     : uiBasemapGroup(p)
 {
     IOObjContext ctxt( mIOObjContext(Survey::SurvGeom) );
-    ctxt.toselect.allowtransls_= Survey::dgb2DSurvGeomTranslator::translKey();
+    ctxt.fixTranslator( Survey::dgb2DSurvGeomTranslator::translKey() );
     geom2dfld_ = new uiIOObjSelGrp( this, ctxt,
 	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 

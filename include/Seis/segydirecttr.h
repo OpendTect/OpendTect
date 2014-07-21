@@ -19,12 +19,15 @@ ________________________________________________________________________
 namespace SEGY { class DirectDef; }
 namespace PosInfo { class CubeData; }
 class SEGYSeisTrcTranslator;
+class StreamConn;
 
 
 /*!\brief Base class for readers from SEG-Y file sets */
 
 namespace SEGY
 {
+class FileDataSet;
+
 
 mExpClass(Seis) DirectReader
 {
@@ -147,6 +150,7 @@ public:
     virtual bool	skip(int);
     virtual bool	supportsGoTo() const		{ return true; }
     virtual bool	isUserSelectable( bool fr ) const { return true; }
+    virtual Conn*	curConn();
     virtual BinID	curBinID() const;
 
     virtual void	toSupported(DataCharacteristics&) const;
@@ -154,7 +158,8 @@ public:
 
     virtual void	usePar(const IOPar&);
 
-    virtual bool	implShouldRemove(const IOObj*) const { return false; }
+    virtual bool	implRemove(const IOObj*) const;
+    virtual bool	close();
     virtual void	cleanUp();
     virtual IOObj*	createWriteIOObj(const IOObjContext&,
 					 const MultiID&) const;
@@ -171,13 +176,17 @@ protected:
     virtual bool	initWrite_(const SeisTrc&);
 
     SEGY::DirectDef*	def_;
+    SEGY::FileDataSet*	fds_;
     bool		headerread_;
     int			ild_;
     int			iseg_;
     int			itrc_;
-    bool		writemode_;
+    bool		forread_;
+    IOPar		segypars_;
+    BufferString	segyfilename_;
+    BufferString	segydeffilename_;
 
-    void		initVars();
+    void		initVars(bool for_read=true);
     const PosInfo::CubeData& cubeData() const;
     bool		toNextTrace();
     bool		positionTranslator();

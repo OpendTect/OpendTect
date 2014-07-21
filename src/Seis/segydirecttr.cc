@@ -252,6 +252,8 @@ SEGYDirectSeisTrcTranslator::SEGYDirectSeisTrcTranslator( const char* s1,
 							  const char* s2 )
     : SeisTrcTranslator(s1,s2)
     , def_(0)
+    , fds_(0)
+    , forread_(true)
 {
     cleanUp();
 }
@@ -263,63 +265,62 @@ SEGYDirectSeisTrcTranslator::~SEGYDirectSeisTrcTranslator()
 }
 
 
-void SEGYDirectSeisTrcTranslator::cleanUp()
+bool SEGYDirectSeisTrcTranslator::close()
 {
-    delete def_; def_ = 0;
-    delete tr_; tr_ = 0;
-    initVars();
+    bool wrstatus = true;
+    if ( def_ && !forread_ && tr_ )
+    {
+	tr_->close();
+	wrstatus = def_->writeFootersToFile();
+    }
+
+    return SeisTrcTranslator::close() && wrstatus;
 }
 
 
-void SEGYDirectSeisTrcTranslator::initVars()
+void SEGYDirectSeisTrcTranslator::cleanUp()
 {
+    close();
+
+    delete def_; def_ = 0;
+    delete tr_; tr_ = 0;
+    delete fds_; fds_ = 0;
+    initVars( forread_ );
+}
+
+
+void SEGYDirectSeisTrcTranslator::initVars( bool fr )
+{
+    forread_ = fr;
     ild_ = -1; iseg_ = itrc_ = 0;
     curfilenr_ = -1;
     headerread_ = false;
-    writemode_ = false;
-}
-
-
-bool SEGYDirectSeisTrcTranslator::commitSelections_()
-{
-    writemode_ = conn && !conn->forRead();
-
-    if ( !writemode_ )
-    {
-	if ( !toNextTrace() )
-	    { errmsg = "No (selected) trace found"; return false; }
-	return true;
-    }
-
-    //TODO
-    errmsg = "TODO: Writing directly to SEG-Y not yet supported";
-    return false;
 }
 
 
 bool SEGYDirectSeisTrcTranslator::initRead_()
 {
-    initVars();
-    mDynamicCastGet(StreamConn*,strmconn,conn)
+    initVars( true );
+    mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn )
-	{ errmsg = "Cannot open definition file"; return false; }
+	{ errmsg_ = "Cannot open definition file"; return false; }
+    segydeffilename_ = strmconn->fileName();
 
-    const BufferString fnm( strmconn->fileName() );
-    delete strmconn; conn = 0;
-    def_ = new SEGY::DirectDef( fnm );
+    delete strmconn; conn_ = 0;
+    def_ = new SEGY::DirectDef( segydeffilename_ );
     if ( def_->errMsg() && *def_->errMsg() )
-	{ errmsg = def_->errMsg(); return false; }
+	{ errmsg_ = def_->errMsg(); return false; }
     else if ( def_->isEmpty() )
-	{ errmsg = "Empty input file"; return false; }
+	{ errmsg_ = "Empty input file"; return false; }
 
     const SEGY::FileDataSet& fds = def_->fileDataSet();
-    pinfo.cubedata = &def_->cubeData();
-    insd = fds.getSampling();
-    innrsamples = fds.getTrcSz();
-    pinfo.nr = 1;
-    pinfo.fullyrectandreg = pinfo.cubedata->isFullyRectAndReg();
-    pinfo.cubedata->getInlRange( pinfo.inlrg );
-    pinfo.cubedata->getCrlRange( pinfo.crlrg );
+    pinfo_.cubedata = &def_->cubeData();
+    insd_ = fds.getSampling();
+    innrsamples_ = fds.getTrcSz();
+    pinfo_.nr = 1;
+    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
+    pinfo_.cubedata->getInlRange( pinfo_.inlrg );
+    pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
     addComp( DataCharacteristics(), "Data" );
     return true;
 }
@@ -327,10 +328,73 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 
 bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
-    initVars();
-    writemode_ = true;
-    errmsg = "Sorry, writing directly to SEG-Y not implemented yet";
-    return false; //TODO
+    initVars( false );
+    mDynamicCastGet(StreamConn*,strmconn,conn_)
+    if ( !strmconn || strmconn->isBad() )
+	{ errmsg_ = "Could not open new definition file"; return false; }
+    segydeffilename_ = strmconn->fileName();
+
+    delete tr_;
+    tr_ = SEGYSeisTrcTranslator::getInstance();
+
+    FilePath outfp( segydeffilename_ );
+    outfp.setExtension( tr_->defExtension() );
+    segyfilename_ = outfp.fullPath();
+    StreamConn* segyconn = new StreamConn( segyfilename_, false );
+    if ( !segyconn || segyconn->isBad() )
+    {
+	errmsg_.set( "Cannot open new SEG-Y file:\n" ).add( segyfilename_ );
+	return false;
+    }
+
+    if ( !tr_->initWrite( segyconn, trc ) )
+	{ errmsg_ = tr_->errMsg(); return false; }
+
+    for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
+    {
+	cds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+	tarcds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+    }
+
+    return true;
+}
+
+
+bool SEGYDirectSeisTrcTranslator::commitSelections_()
+{
+    if ( !conn_ || conn_->forRead() )
+    {
+	if ( !toNextTrace() )
+	    { errmsg_ = "No (selected) trace found"; return false; }
+	return true;
+    }
+
+    if ( !tr_->commitSelections() )
+	{ errmsg_ = tr_->errMsg(); return false; }
+
+    delete conn_; // was made for the segydeffilename_,
+		  // but def_ will open a new handle
+    conn_ = 0; // now curConn() will return tr_'s conn_
+
+    def_ = new SEGY::DirectDef;
+    fds_ = new SEGY::FileDataSet( segypars_ );
+    fds_->addFile( segyfilename_ );
+    fds_->setAuxData( Seis::Vol, *tr_ );
+    def_->setData( *fds_ );
+    if ( !def_->writeHeadersToFile(segydeffilename_) )
+    {
+	errmsg_.set( "Cannot write header for " ).add( segydeffilename_ );
+	return false;
+    }
+
+    fds_->setOutputStream( *def_->getOutputStream() );
+    return true;
+}
+
+
+Conn* SEGYDirectSeisTrcTranslator::curConn()
+{
+    return conn_ ? conn_ : (tr_ ? tr_->curConn() : 0);
 }
 
 
@@ -367,7 +431,7 @@ bool SEGYDirectSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     if ( !tr_->readInfo(ti) || ti.binid != curBinID() )
-	{ errmsg = tr_->errMsg(); return false; }
+	{ errmsg_ = tr_->errMsg(); return false; }
 
     headerread_ = true;
     return true;
@@ -402,7 +466,17 @@ bool SEGYDirectSeisTrcTranslator::skip( int ntrcs )
 
 bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
 {
-    return false; //TODO
+    if ( !fds_ && !commitSelections() )
+	return false;
+
+    if ( !tr_ || !def_ || !fds_ )
+	{ errmsg_.set( "Internal: tr_, def_ or fds_ null" ); return false; }
+
+    if ( !tr_->write(trc) )
+	{ errmsg_.set( tr_->errMsg() ); return false; }
+
+    fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord, true );
+    return true;
 }
 
 
@@ -444,7 +518,7 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
 	    seg = ld->segments_[iseg_];
 	}
 
-	if ( !seldata || seldata->isOK(curBinID()) )
+	if ( !seldata_ || seldata_->isOK(curBinID()) )
 	    return true;
 
 	itrc_++;
@@ -478,19 +552,27 @@ IOObj* SEGYDirectSeisTrcTranslator::createWriteIOObj( const IOObjContext& ctxt,
 {
     IOObj* ioobj = ctxt.crDefaultWriteObj( *this, ioobjkey );
 
-    // We don't really need to overrule createWriteIOObj for SEGYDirect
-    // but just for educational purposes I'll do something ...
-
-    if ( ioobj )
-	ioobj->pars().set( "Origin", "OD Internal" );
+    if ( ioobj && !segyfilename_.isEmpty() )
+	ioobj->pars().set( "SEG-Y file", segyfilename_ );
 
     return ioobj;
 }
 
 
+bool SEGYDirectSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+{
+    Translator::implRemove( ioobj );
+    if ( !ioobj )
+	return true;
+
+    // Remove SEG-Y file too? Only if we have created it?
+    return true;
+}
+
+
 void SEGYDirectSeisTrcTranslator::usePar( const IOPar& iop )
 {
-    //TODO pick up write options
+    segypars_ = iop;
 }
 
 

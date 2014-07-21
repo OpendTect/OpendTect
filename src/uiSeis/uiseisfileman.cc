@@ -59,12 +59,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     , browsebut_(0)
 {
     if ( is2d_ )
-	ctxt_.toselect.allowtransls_ = TwoDDataSeisTrcTranslator::translKey();
-    else
     {
-	FileMultiString fms( CBVSSeisTrcTranslator::translKey() );
-	fms += SEGYDirectSeisTrcTranslator::translKey();
-	ctxt_.toselect.allowtransls_ = fms;
+	ctxt_.fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
+	ctxt_.toselect.allownonuserselectable_ = true;
     }
     createDefaultUI( true );
     selgrp_->getListField()->doubleClicked.notify(

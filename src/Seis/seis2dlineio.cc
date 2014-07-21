@@ -37,7 +37,7 @@ public:
 
 ObjectSet<Seis2DLineIOProvider>& S2DLIOPs()
 {
-    mDefineStaticLocalObject( PtrMan<Seis2DLineIOProviderSet>, theinst, 
+    mDefineStaticLocalObject( PtrMan<Seis2DLineIOProviderSet>, theinst,
 			      = new Seis2DLineIOProviderSet );
     return *theinst.ptr();
 }
@@ -81,35 +81,39 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     PosInfo::POS2DAdmin().renameLineSet( oldname, ioobj->name() );
     implSetReadOnly( ioobj, isro );
-    
+
     return Translator::implRename( ioobj, newnm, cb );
 }
 
 
 bool TwoDSeisTrcTranslator::initRead_()
 {
-    errmsg = 0;
-    if ( !conn->ioobj )
-	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
-    if ( !File::exists(fnm) ) return false;
+    errmsg_.setEmpty();
+    if ( !conn_->ioobj )
+	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
+    BufferString fnm( conn_->ioobj->fullUserExpr(true) );
+    if ( !File::exists(fnm) )
+	{ errmsg_.set( fnm ).add( "does not exist" ); return false; }
 
     Seis2DLineSet lset( fnm );
     if ( lset.nrLines() < 1 )
-	{ errmsg = "Line set is empty"; return false; }
-    lset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
-    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
+	{ errmsg_ = "Line set is empty"; return false; }
+    lset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
+    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
-    if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
-	{ errmsg = "Cannot find line key in line set"; return false; }
+    if ( !curlinekey_.lineName().isEmpty() && lset.indexOf(curlinekey_) < 0 )
+	{ errmsg_ = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
-    errmsg = lset.getCubeSampling( cs, curlinekey );
+    errmsg_ = lset.getCubeSampling( cs, curlinekey_ );
 
-    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
-    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop =cs.hrg.stop.inl();
-    pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
-    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop =cs.hrg.stop.crl();
+    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
+    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    pinfo_.inlrg.start = cs.hrg.start.inl();
+    pinfo_.inlrg.stop = cs.hrg.stop.inl();
+    pinfo_.inlrg.step = cs.hrg.step.inl();
+    pinfo_.crlrg.step = cs.hrg.step.crl();
+    pinfo_.crlrg.start = cs.hrg.start.crl();
+    pinfo_.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 
@@ -132,7 +136,7 @@ bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj, 
+bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
 				    const char* newnm,const CallBack* cb ) const
 {
     if ( !ioobj )
@@ -148,37 +152,40 @@ bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
 	return false;
 
     implSetReadOnly( ioobj, isro );
-    
+
     return Translator::implRename( ioobj, newnm, cb );
 }
 
 
 bool TwoDDataSeisTrcTranslator::initRead_()
 {
-    errmsg = 0;
-    if ( !conn->ioobj )
-	{ errmsg = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
+    errmsg_.setEmpty();
+    if ( !conn_->ioobj )
+	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
+    BufferString fnm( conn_->ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) ) return false;
 
-    Seis2DDataSet dset( *(conn->ioobj) );
+    Seis2DDataSet dset( *(conn_->ioobj) );
     if ( dset.nrLines() < 1 )
-	{ errmsg = "Data set is empty"; return false; }
-    dset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
-    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
+	{ errmsg_ = "Data set is empty"; return false; }
+    dset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
+    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
-    if ( seldata )
-	geomid = seldata->geomID();
+    if ( seldata_ )
+	geomid_ = seldata_->geomID();
 
-    if ( dset.indexOf(geomid) < 0 )
-	{ errmsg = "Cannot find GeomID in data set"; return false; }
+    if ( dset.indexOf(geomid_) < 0 )
+	{ errmsg_.set( "Cannot find GeomID " ).add( geomid_ ); return false; }
     CubeSampling cs( true );
 
-    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
-    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo.inlrg.start = cs.hrg.start.inl(); pinfo.inlrg.stop =cs.hrg.stop.inl();
-    pinfo.inlrg.step = cs.hrg.step.inl(); pinfo.crlrg.step = cs.hrg.step.crl();
-    pinfo.crlrg.start = cs.hrg.start.crl(); pinfo.crlrg.stop =cs.hrg.stop.crl();
+    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
+    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    pinfo_.inlrg.start = cs.hrg.start.inl();
+    pinfo_.inlrg.stop = cs.hrg.stop.inl();
+    pinfo_.inlrg.step = cs.hrg.step.inl();
+    pinfo_.crlrg.step = cs.hrg.step.crl();
+    pinfo_.crlrg.start = cs.hrg.start.crl();
+    pinfo_.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 
@@ -370,7 +377,7 @@ int Seis2DLineMerger::doWork()
 		    PosInfo::POS2DAdmin().setGeometry( outl2dd_ ); \
 		    return Executor::Finished(); \
 		} \
-	    }	
+	    }
 	    mRetNextAttr;
 	}
 

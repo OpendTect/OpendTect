@@ -64,7 +64,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     else
     {
 	IOObjContext ctxt = uiSeisSel::ioContext( su.geom_, false );
-	ctxt.deftransl = ctxt.toselect.allowtransls_ = "SEGYDirect";
+	ctxt.fixTranslator( "SEGYDirect" );
 	uiSeisSel::Setup sssu( setup_.geom_ );
 	outfld_ = new uiSeisSel( this, ctxt, sssu );
 	if ( optsgrp_ )

@@ -66,9 +66,12 @@ static uiComboBox* getWrTrFld( uiParent* par, const CtxtIOObj& ctio,
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
 	const Translator* transl = alltrs[idx];
-	if ( transl->isUserSelectable( false ) )
+	if ( IOObjSelConstraints::isAllowedTranslator(
+		    transl->userName(),ctio.ctxt.toselect.allowtransls_)
+	  && transl->isUserSelectable( false ) )
 	    wrtrs += transl;
     }
+
     if ( wrtrs.size() > 1 )
     {
 	ret = new uiComboBox( par, "Write translator field" );
@@ -96,6 +99,13 @@ static uiComboBox* getWrTrFld( uiParent* par, const CtxtIOObj& ctio,
     }
 
     return ret;
+}
+
+
+void setWrTrFldToIOobj( uiComboBox* fld, const IOObj& ioobj )
+{
+    if ( fld )
+	fld->setCurrentItem( ioobj.translator() );
 }
 
 
@@ -870,6 +880,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
     , setup_(mSelTxt(txt,c))
     , inctiomine_(true)
 {
+    crWriteTranslSelFld();
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
@@ -882,6 +893,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
     , setup_(su)
     , inctiomine_(true)
 {
+    crWriteTranslSelFld();
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
@@ -894,6 +906,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
     , setup_(mSelTxt(txt,c.ctxt))
     , inctiomine_(false)
 {
+    crWriteTranslSelFld();
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
@@ -904,14 +917,18 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(false)
-    , wrtrselfld_(0)
+{
+    crWriteTranslSelFld();
+    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
+}
+
+
+void uiIOObjSel::crWriteTranslSelFld()
 {
     workctio_.ctxt.fillTrGroup();
     wrtrselfld_ = getWrTrFld( this, workctio_, wrtrs_ );
     if ( wrtrselfld_ )
 	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
-
-    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
@@ -1194,6 +1211,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	workctio_.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
+	setWrTrFldToIOobj( wrtrselfld_, *workctio_.ioobj );
 	selok_ = true;
     }
 

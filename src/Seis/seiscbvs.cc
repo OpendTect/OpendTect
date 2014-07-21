@@ -124,21 +124,21 @@ void CBVSSeisTrcTranslator::set2D( bool yn )
 
 bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
-    if ( !conn || !conn->ioobj )
+    if ( !conn_ || !conn_->ioobj )
     {
-	if ( !conn )
-	    { errmsg = "Cannot reconstruct file name"; return false; }
+	if ( !conn_ )
+	    { errmsg_ = "Cannot reconstruct file name"; return false; }
 
-	mDynamicCastGet(StreamConn*,strmconn,conn)
+	mDynamicCastGet(StreamConn*,strmconn,conn_)
 	if ( !strmconn )
-	    { errmsg = "Wrong connection from Object Manager"; return false; }
+	    { errmsg_ = "Wrong connection from Object Manager"; return false; }
 	fnm = strmconn->fileName();
 	return true;
     }
 
-    mDynamicCastGet(const IOStream*,iostrm,conn->ioobj)
+    mDynamicCastGet(const IOStream*,iostrm,conn_->ioobj)
     if ( !iostrm )
-	{ errmsg = "Object manager provides wrong type"; return false; }
+	{ errmsg_ = "Object manager provides wrong type"; return false; }
 
     // Catch the 'stdin' pretty name (currently "Std-IO")
     StreamProvider sp;
@@ -146,7 +146,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     if ( fnm == sp.fullName() )
 	fnm = StreamProvider::sStdIO();
 
-    conn->close();
+    conn_->close();
     return true;
 }
 
@@ -159,33 +159,33 @@ bool CBVSSeisTrcTranslator::initRead_()
     rdmgr_ = new CBVSReadMgr( fnm, 0, single_file_,
 			read_mode == Seis::PreScan, forceusecbvsinfo_ );
     if ( rdmgr_->failed() )
-	{ errmsg = rdmgr_->errMsg(); return false; }
+	{ errmsg_ = rdmgr_->errMsg(); return false; }
 
     const int nrcomp = rdmgr_->nrComponents();
     const CBVSInfo& info = rdmgr_->info();
-    insd = info.sd_;
-    innrsamples = info.nrsamples_;
+    insd_ = info.sd_;
+    innrsamples_ = info.nrsamples_;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
 	const BasicComponentInfo& cinf = *info.compinfo_[idx];
 	addComp( cinf.datachar, cinf.name(), cinf.datatype );
     }
 
-    pinfo.usrinfo = info.usertext_;
-    pinfo.stdinfo = info.stdtext_;
-    pinfo.nr = info.seqnr_;
-    pinfo.fullyrectandreg = info.geom_.fullyrectandreg;
-    pinfo.inlrg.start = info.geom_.start.inl();
-    pinfo.inlrg.stop = info.geom_.stop.inl();
-    pinfo.inlrg.step = abs(info.geom_.step.inl());
-    pinfo.inlrg.sort();
-    pinfo.crlrg.start = info.geom_.start.crl();
-    pinfo.crlrg.stop = info.geom_.stop.crl();
-    pinfo.crlrg.step = abs(info.geom_.step.crl());
-    if ( !pinfo.fullyrectandreg )
-	pinfo.cubedata = &info.geom_.cubedata;
+    pinfo_.usrinfo = info.usertext_;
+    pinfo_.stdinfo = info.stdtext_;
+    pinfo_.nr = info.seqnr_;
+    pinfo_.fullyrectandreg = info.geom_.fullyrectandreg;
+    pinfo_.inlrg.start = info.geom_.start.inl();
+    pinfo_.inlrg.stop = info.geom_.stop.inl();
+    pinfo_.inlrg.step = abs(info.geom_.step.inl());
+    pinfo_.inlrg.sort();
+    pinfo_.crlrg.start = info.geom_.start.crl();
+    pinfo_.crlrg.stop = info.geom_.stop.crl();
+    pinfo_.crlrg.step = abs(info.geom_.step.crl());
+    if ( !pinfo_.fullyrectandreg )
+	pinfo_.cubedata = &info.geom_.cubedata;
 
-    rdmgr_->getIsRev( pinfo.inlrev, pinfo.crlrev );
+    rdmgr_->getIsRev( pinfo_.inlrev, pinfo_.crlrev );
     return true;
 }
 
@@ -200,7 +200,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
 	addComp( dc, 0 );
 	if ( preseldatatype_ )
-	    tarcds[idx]->datachar = DataCharacteristics(
+	    tarcds_[idx]->datachar = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype_ );
     }
 
@@ -210,49 +210,49 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread_ && !is2d_ && seldata && !seldata->isAll() )
+    if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
     {
 	CubeSampling cs;
-	Interval<int> inlrg = seldata->inlRange();
-	Interval<int> crlrg = seldata->crlRange();
+	Interval<int> inlrg = seldata_->inlRange();
+	Interval<int> crlrg = seldata_->crlRange();
 	cs.hrg.start.inl() = inlrg.start; cs.hrg.start.crl() = crlrg.start;
 	cs.hrg.stop.inl() = inlrg.stop; cs.hrg.stop.crl() = crlrg.stop;
-	cs.zrg.start = outsd.start; cs.zrg.step = outsd.step;
-	cs.zrg.stop = outsd.start + (outnrsamples-1) * outsd.step;
+	cs.zrg.start = outsd_.start; cs.zrg.step = outsd_.step;
+	cs.zrg.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
 	if ( !rdmgr_->pruneReaders( cs ) )
-	    { errmsg = "Input contains no relevant data"; return false; }
+	    { errmsg_ = "Input contains no relevant data"; return false; }
     }
 
     const int nrcomps = nrSelComps();
     storinterps_ = new TraceDataInterpreter* [nrcomps];
     for ( int idx=0; idx<nrcomps; idx++ )
 	storinterps_[idx] = new TraceDataInterpreter(
-                  forread_ ? inpcds[idx]->datachar : outcds[idx]->datachar );
+                  forread_ ? inpcds_[idx]->datachar : outcds_[idx]->datachar );
 
     blockbufs_ = new unsigned char* [nrcomps];
-    int bufsz = innrsamples + 1;
+    int bufsz = innrsamples_ + 1;
     for ( int iselc=0; iselc<nrcomps; iselc++ )
     {
-	int nbts = inpcds[iselc]->datachar.nrBytes();
-	if ( outcds[iselc]->datachar.nrBytes() > nbts )
-	    nbts = outcds[iselc]->datachar.nrBytes();
+	int nbts = inpcds_[iselc]->datachar.nrBytes();
+	if ( outcds_[iselc]->datachar.nrBytes() > nbts )
+	    nbts = outcds_[iselc]->datachar.nrBytes();
 
 	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
-	if ( !blockbufs_[iselc] ) { errmsg = "Out of memory"; return false; }
+	if ( !blockbufs_[iselc] ) { errmsg_ = "Out of memory"; return false; }
     }
 
-    compsel_ = new bool [tarcds.size()];
-    for ( int idx=0; idx<tarcds.size(); idx++ )
-	compsel_[idx] = tarcds[idx]->destidx >= 0;
+    compsel_ = new bool [tarcds_.size()];
+    for ( int idx=0; idx<tarcds_.size(); idx++ )
+	compsel_[idx] = tarcds_[idx]->destidx >= 0;
 
     if ( !forread_ )
 	return startWrite();
 
-    if ( is2d_ && seldata && seldata->type() == Seis::Range )
+    if ( is2d_ && seldata_ && seldata_->type() == Seis::Range )
     {
 	// For 2D, inline is just an index number
-	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata );
+	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata_ );
 	sd.setInlRange(
 		Interval<int>(rdmgr_->binID().inl(),rdmgr_->binID().inl()) );
     }
@@ -266,7 +266,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::inactiveSelData() const
 {
-    return isEmpty( seldata );
+    return isEmpty( seldata_ );
 }
 
 
@@ -276,10 +276,10 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d_ && seldata->type() == Seis::Table )
+    if ( is2d_ && seldata_->type() == Seis::Table )
 	return 0;
 
-    return seldata->selRes(bid);
+    return seldata_->selRes(bid);
 }
 
 
@@ -358,8 +358,8 @@ bool CBVSSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
 
     ti.getFrom( auxinf_ );
-    ti.sampling.start = outsd.start;
-    ti.sampling.step = outsd.step;
+    ti.sampling.start = outsd_.start;
+    ti.sampling.step = outsd_.step;
     ti.nr = ++nrdone_;
 
     if ( ti.binid.inl() == 0 && ti.binid.crl() == 0 )
@@ -374,23 +374,23 @@ bool CBVSSeisTrcTranslator::read( SeisTrc& trc )
     if ( !headerdone_ && !readInfo(trc.info()) )
 	return false;
 
-    prepareComponents( trc, outnrsamples );
-    if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samps ) )
+    prepareComponents( trc, outnrsamples_ );
+    if ( !rdmgr_->fetch( (void**)blockbufs_, compsel_, &samprg_ ) )
     {
-	errmsg = rdmgr_->errMsg();
+	errmsg_ = rdmgr_->errMsg();
 	return false;
     }
 
     const bool matchingdc = *trc.data().getInterpreter(0) == *storinterps_[0];
     for ( int iselc=0; iselc<nrSelComps(); iselc++ )
     {
-	if ( matchingdc && outnrsamples > 1 )
+	if ( matchingdc && outnrsamples_ > 1 )
 	    OD::memCopy( trc.data().getComponent(iselc)->data(),
 		    blockbufs_[iselc],
-		    outnrsamples * storinterps_[iselc]->nrBytes() );
+		    outnrsamples_ * storinterps_[iselc]->nrBytes() );
 	else
 	{
-	    for ( int isamp=0; isamp<outnrsamples; isamp++ )
+	    for ( int isamp=0; isamp<outnrsamples_; isamp++ )
 		trc.set( isamp,
 			 storinterps_[iselc]->get( blockbufs_[iselc], isamp ),
 			 iselc );
@@ -427,17 +427,17 @@ bool CBVSSeisTrcTranslator::startWrite()
     info.auxinfosel_.setAll( true );
     info.geom_.fullyrectandreg = false;
     info.geom_.b2c = SI().binID2Coord();
-    info.stdtext_ = pinfo.stdinfo;
-    info.usertext_ = pinfo.usrinfo;
+    info.stdtext_ = pinfo_.stdinfo;
+    info.usertext_ = pinfo_.usrinfo;
     for ( int idx=0; idx<nrSelComps(); idx++ )
-	info.compinfo_ += new BasicComponentInfo(*outcds[idx]);
-    info.sd_ = insd;
-    info.nrsamples_ = innrsamples;
+	info.compinfo_ += new BasicComponentInfo(*outcds_[idx]);
+    info.sd_ = insd_;
+    info.nrsamples_ = innrsamples_;
 
     wrmgr_ = new CBVSWriteMgr( fnm, info, &auxinf_, &brickspec_, single_file_,
 				(CBVSIO::CoordPol)coordpol_ );
     if ( wrmgr_->failed() )
-	{ errmsg = wrmgr_->errMsg(); return false; }
+	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     if ( is2d_ )
 	wrmgr_->setForceTrailers( true );
@@ -454,14 +454,14 @@ bool CBVSSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     {
 	unsigned char* blockbuf = blockbufs_[iselc];
 	int icomp = selComp(iselc);
-	for ( int isamp=samps.start; isamp<=samps.stop; isamp++ )
-	    storinterps_[iselc]->put( blockbuf, isamp-samps.start,
+	for ( int isamp=samprg_.start; isamp<=samprg_.stop; isamp++ )
+	    storinterps_[iselc]->put( blockbuf, isamp-samprg_.start,
 				     trc.get(isamp,icomp) );
     }
 
     trc.info().putTo( auxinf_ );
     if ( !wrmgr_->put( (void**)blockbufs_ ) )
-	{ errmsg = wrmgr_->errMsg(); return false; }
+	{ errmsg_ = wrmgr_->errMsg(); return false; }
 
     return true;
 }

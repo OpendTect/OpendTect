@@ -38,7 +38,7 @@ static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters", 
+			"Specify import parameters",
                         mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisTrc))
     , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
@@ -49,7 +49,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     finpfld_ = new uiGenInput( this, "CBVS file name" );
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
-    uiPushButton* selbut = new uiPushButton( this, uiStrings::sSelect(false), 
+    uiPushButton* selbut = new uiPushButton( this, uiStrings::sSelect(false),
                                              cb, true );
     selbut->attach( rightOf, finpfld_ );
 
@@ -75,7 +75,7 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     sep2->attach( stretchedBelow, cellsizefld_ );
 
     outctio_.ctxt.forread = false;
-    outctio_.ctxt.toselect.allowtransls_ = "CBVS";
+    outctio_.ctxt.fixTranslator( "CBVS" );
     uiSeisSel::Setup sssu( Seis::Vol );
     outfld_ = new uiSeisSel( this, outctio_, sssu );
     outfld_->attach( alignedBelow, cellsizefld_ );

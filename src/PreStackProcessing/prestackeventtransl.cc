@@ -24,7 +24,6 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
     {
 	IOObjContext* newctxt = new IOObjContext( 0 );
 	newctxt->stdseltype = IOObjContext::Surf;
-	newctxt->toselect.allowtransls_ = mDGBKey;
 
 	if ( !ctxt.setIfNull(newctxt) )
 	    delete newctxt;
@@ -53,17 +52,17 @@ Executor* PSEventTranslator::writer( PreStack::EventManager& pse, IOObj* ioobj )
     mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
 		 ioobj->createTranslator() );
     if ( !trans ) { return 0; }
-    
+
     return trans->createWriter( pse, ioobj );
 }
 
 
-Executor* PSEventTranslator::writeAs( PreStack::EventManager& pse, IOObj* ioobj )
+Executor* PSEventTranslator::writeAs( PreStack::EventManager& pse, IOObj* ioobj)
 {
     mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
 		 ioobj->createTranslator() );
     if ( !trans ) { return 0; }
-    
+
     return trans->createSaveAs( pse, ioobj );
 }
 
@@ -75,7 +74,7 @@ Executor* dgbPSEventTranslator::createReader( PreStack::EventManager& pse,
     mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
 		     ioobj->createTranslator() );
     if ( !trans ) { return 0; }
-    
+
     PreStack::EventReader* res = new PreStack::EventReader(ioobj,&pse,trigger);
     res->setSelection( bvs );
     res->setSelection( hs );
@@ -97,7 +96,7 @@ Executor* dgbPSEventTranslator::createSaveAs( PreStack::EventManager& pse,
 					      IOObj* newstorage )
 {
     if ( !newstorage ) return 0;
-    
+
     PtrMan<IOObj> oldstorage = IOM().get( pse.getStorageID() );
 
     ExecutorGroup* grp = new ExecutorGroup( "Save as", false );
