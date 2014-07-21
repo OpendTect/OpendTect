@@ -810,9 +810,13 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 	addUTMObject( markerset_ );
     }
 
-    markerset_->clearMarkers();
-    markerset_->addPos( displaypos );
-    markerset_->turnOn( true );
+    if ( displaypos.isDefined() )
+    {
+	markerset_->clearMarkers();
+	markerset_->addPos( displaypos );
+	markerset_->turnOn( true );
+    }
+    
 }
 
 

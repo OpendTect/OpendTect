@@ -331,6 +331,8 @@ void sendPositions( TypeSet<Coord3>& positions )
 
     if ( positions.size()==1 )
     {
+	if ( !positions[0].isDefined() )
+	    return;
 	points_->addPoint( positions[0] );
     }
     else
@@ -346,6 +348,8 @@ void sendPositions( TypeSet<Coord3>& positions )
 	    for ( int idy=0; idy<nrbendpoints; idy++ )
 	    {
 		const Coord3& pos = positions[ bendpoints[idy] ];
+		if ( !pos.isDefined() )
+		    continue;
 		lines_->getCoordinates()->setPos( crdidx_, pos );
 		indices += crdidx_++;
 	    }
