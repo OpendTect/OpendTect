@@ -176,7 +176,6 @@ protected:
     void			wheelMoved(CallBacker*,int wh,float&);
 
     inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
-    inline uiODMenuMgr&		menuMgr()     { return appl_.menuMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
 
     mExpClass(uiODMain) Scene

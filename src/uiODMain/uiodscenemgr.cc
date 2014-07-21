@@ -214,9 +214,12 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     else if ( scenes_[0] )
     {
 	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
-	menuMgr().setCameraPixmap( isperspective );
+	if ( appl_.menuMgrAvailable() )
+	{
+	    appl_.menuMgr().setCameraPixmap( isperspective );
+	    appl_.menuMgr().updateAxisMode( true );
+	}
 	scn.sovwr_->showRotAxis( true );
-	menuMgr().updateAxisMode( true );
     }
 
     if ( name ) setSceneName( sceneid, name );
@@ -376,11 +379,11 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 
     ObjectSet<ui3DViewer> vwrs;
     getSoViewers( vwrs );
-    if ( !vwrs.isEmpty() && vwrs[0] )
+    if ( appl_.menuMgrAvailable() && !vwrs.isEmpty() && vwrs[0] )
     {
 	const bool isperspective = vwrs[0]->isCameraPerspective();
-	menuMgr().setCameraPixmap( isperspective );
-	menuMgr().updateAxisMode( true );
+	appl_.menuMgr().setCameraPixmap( isperspective );
+	appl_.menuMgr().updateAxisMode( true );
     }
 
     rebuildTrees();
@@ -426,7 +429,9 @@ void uiODSceneMgr::setToViewMode( bool yn )
 {
     mDoAllScenes(sovwr_,setViewMode,yn);
     visServ().setViewMode( yn , false );
-    menuMgr().updateViewMode( yn );
+    if ( appl_.menuMgrAvailable() )
+	appl_.menuMgr().updateViewMode( yn );
+
     updateStatusBar();
     viewModeChanged.trigger();
 }
@@ -442,7 +447,9 @@ void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 
     mDoAllScenes(sovwr_,setViewMode,yn);
     visServ().setWorkMode( wm , false );
-    menuMgr().updateViewMode( yn );
+    if ( appl_.menuMgrAvailable() ) 
+	appl_.menuMgr().updateViewMode( yn );
+
     updateStatusBar();
 }
 
@@ -682,9 +689,13 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
 
 void uiODSceneMgr::soloMode( CallBacker* )
 {
+    if ( !appl_.menuMgrAvailable() )
+	return;
+
     TypeSet< TypeSet<int> > dispids;
     int selectedid = -1;
-    const bool issolomodeon = menuMgr().isSoloModeOn();
+
+    const bool issolomodeon = appl_.menuMgr().isSoloModeOn();
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	dispids += scenes_[idx]->itemmanager_->getDisplayIds( selectedid,
 							      !issolomodeon );
@@ -701,7 +712,8 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     if ( vwrs.isEmpty() ) return;
     mDoAllScenes(sovwr_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
-    menuMgr().setCameraPixmap( isperspective );
+    if ( appl_.menuMgrAvailable() )
+	appl_.menuMgr().setCameraPixmap( isperspective );
 }
 
 
@@ -797,7 +809,8 @@ int uiODSceneMgr::getActiveSceneID() const
 void uiODSceneMgr::mdiAreaChanged( CallBacker* )
 {
 //    const bool wasparalysed = mdiarea_->paralyse( true );
-    if ( &menuMgr() ) menuMgr().updateSceneMenu();
+    if ( appl_.menuMgrAvailable() )
+	appl_.menuMgr().updateSceneMenu();
 //    mdiarea_->paralyse( wasparalysed );
     activeSceneChanged.trigger();
 }

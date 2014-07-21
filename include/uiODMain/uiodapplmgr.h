@@ -184,7 +184,6 @@ public:
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
 
-    inline uiODMenuMgr&		menuMgr()	{ return appl_.menuMgr(); }
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);
     void			enableSceneManipulation(bool);
