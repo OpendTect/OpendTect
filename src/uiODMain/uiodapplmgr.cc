@@ -355,9 +355,12 @@ void uiODApplMgr::enableMenusAndToolBars( bool yn )
     sceneMgr().disabRightClick( !yn );
     visServer()->disabMenus( !yn );
     visServer()->disabToolBars( !yn );
-    menuMgr().dtectTB()->setSensitive( yn );
-    menuMgr().manTB()->setSensitive( yn );
-    menuMgr().enableMenuBar( yn );
+    if ( appl_.menuMgrAvailable() )
+    {
+	appl_.menuMgr().dtectTB()->setSensitive( yn );
+	appl_.menuMgr().manTB()->setSensitive( yn );
+	appl_.menuMgr().enableMenuBar( yn );
+    }
 }
 
 
@@ -371,7 +374,8 @@ void uiODApplMgr::enableTree( bool yn )
 void uiODApplMgr::enableSceneManipulation( bool yn )
 {
     if ( !yn ) sceneMgr().setToViewMode();
-    menuMgr().enableActButton( yn );
+    if ( appl_.menuMgrAvailable() )
+	appl_.menuMgr().enableActButton( yn );
 }
 
 
