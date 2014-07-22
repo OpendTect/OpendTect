@@ -106,10 +106,13 @@ if(UNIX) #Apple an Linux
 	set ( CMAKE_CXX_FLAGS "-Wno-sign-compare -Wcast-align ${CMAKE_CXX_FLAGS}" )
 
 
-	if( APPLE )
-	    set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
-	else()
-	    set ( CMAKE_CXX_FLAGS_RELEASE "-g -Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
+	set ( CMAKE_CXX_FLAGS_RELEASE "-Wno-inline -Wuninitialized -Winit-self ${CMAKE_CXX_FLAGS_RELEASE}" )
+	if( UNIX )
+	    if( "${OD_ENABLE_BREAKPAD}" STREQUAL "ON" )
+		if ( DEFINED BREAKPAD_DIR AND EXISTS ${BREAKPAD_DIR} )
+		    set ( CMAKE_CXX_FLAGS_RELEASE "-g ${CMAKE_CXX_FLAGS_RELEASE}" )
+		endif()
+	    endif()
 	endif()
 
 	set ( CMAKE_C_FLAGS "-Wmissing-declarations -Wunused -Wimplicit-int ${CMAKE_C_FLAGS}" )
