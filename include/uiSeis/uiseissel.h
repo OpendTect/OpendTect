@@ -102,13 +102,6 @@ protected:
 
     virtual const char* getDefaultKey(Seis::GeomType) const;
 
-public:
-
-/*! The following functions are deprecated and should not be used anymore. */
-
-			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
-
-    static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
 };
 
 

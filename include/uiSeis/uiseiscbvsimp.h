@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 
-class CtxtIOObj;
 class IOObj;
 class SeisSingleTraceProc;
 class uiCheckBox;
@@ -38,17 +37,17 @@ public:
 
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
+    IOObj*		initialinpioobj_;
+    IOObj*		outioobj_;
     BufferString	tmpid_;
 
-    uiGenInput*		typefld;
-    uiGenInput*		modefld;
-    uiCheckBox*		convertfld;
-    uiSeisTransfer*	transffld;
-    uiFileInput*	finpfld;
-    uiSeisSel*		oinpfld;
-    uiSeisSel*		outfld;
+    uiGenInput*		typefld_;
+    uiGenInput*		modefld_;
+    uiCheckBox*		convertfld_;
+    uiSeisTransfer*	transffld_;
+    uiFileInput*	finpfld_;
+    uiSeisSel*		oinpfld_;
+    uiSeisSel*		outfld_;
     uiLabeledComboBox*	compfld_;
 
     void		finpSel(CallBacker*);
@@ -81,7 +80,7 @@ public:
 			uiSeisCopyLineSet(uiParent*,const IOObj*);
 protected:
 
-    uiSeisSel* 		inpfld_;
+    uiSeisSel*		inpfld_;
     uiSeis2DMultiLineSel* subselfld_;
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;

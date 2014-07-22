@@ -45,22 +45,22 @@ public:
 			~SeisImpCBVSFromOtherSurvey();
 
     uiString		uiMessage() const	{ return "Importing CBVS"; }
-    od_int64 		nrDone() const          { return nrdone_; }
+    od_int64		nrDone() const          { return nrdone_; }
     uiString		uiNrDoneText() const	  { return "Traces handled"; }
-    od_int64 		totalNr() const		{ return totnr_; }
-    int 		nextStep();
+    od_int64		totalNr() const		{ return totnr_; }
+    int		nextStep();
 
     bool		prepareRead(const char*);
     void		setPars(Interpol&,int,const CubeSampling&);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
 
-    const CubeSampling& cubeSampling() const 	{ return data_.cs_; }
+    const CubeSampling& cubeSampling() const	{ return data_.cs_; }
 
 protected:
 
-    const IOObj& 	inioobj_;
+    const IOObj&	inioobj_;
     IOObj*		outioobj_;
-    SeisTrcWriter* 	wrr_;
+    SeisTrcWriter*	wrr_;
     CBVSSeisTrcTranslator* tr_;
 
     int                 nrdone_;
@@ -70,14 +70,14 @@ protected:
 
     Interpol		interpol_;
 
-    mStruct(uiSeis) 		PosData
+    mStruct(uiSeis)		PosData
     {
 			PosData()
 			    : hsit_(0)
-			    , cs_(false) {} 
+			    , cs_(false) {}
 
 	BinID		curbid_;
-	CubeSampling 	cs_;
+	CubeSampling	cs_;
 	HorSamplingIterator* hsit_;
     };
     PosData		data_, olddata_;
@@ -98,7 +98,7 @@ protected:
 
     bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;
     void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
-    float 		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
+    float		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };
@@ -110,14 +110,12 @@ mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 public:
 
 			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);
-			~uiSeisImpCBVSFromOtherSurveyDlg();
+
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
     SeisImpCBVSFromOtherSurvey* import_;
-    bool		issinc_;
     SeisImpCBVSFromOtherSurvey::Interpol interpol_;
+    bool		issinc_;
 
     uiGenInput*		finpfld_;
     uiSeisSel*          outfld_;

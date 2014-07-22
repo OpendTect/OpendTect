@@ -30,11 +30,10 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 	: uiDialog( p, Setup( tr("create 3D cube from to 2D LineSet"),
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
-    	, inctio_(*mMkCtxtIOObj(SeisTrc))
-    	, outctio_((*uiSeisSel::mkCtxtIOObj(Seis::Vol,false)))
 	, seis2dto3d_(*new Seis2DTo3D)
 {
-    inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup( Seis::Line ) );
+    const IOObjContext inctxt( uiSeisSel::ioContext( Seis::Line, false ) );
+    inpfld_ = new uiSeisSel( this, inctxt, uiSeisSel::Setup( Seis::Line ) );
     interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
 			               BoolInpSpec(true,tr("Nearest trace"),
                                        tr("FFT based")) );
@@ -53,8 +52,8 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     velfiltfld_->setValue( 2000 );
     velfiltfld_->attach( alignedBelow, reusetrcsbox_ );
 
-    outctio_.ctxt.forread = false;
-    outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
+    const IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
+    outfld_ = new uiSeisSel( this, outctxt, uiSeisSel::Setup(Seis::Vol) );
     outfld_->attach( alignedBelow, velfiltfld_ );
 
     outsubselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
@@ -66,8 +65,6 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
 
 uiSeis2DTo3D::~uiSeis2DTo3D()
 {
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
     delete &seis2dto3d_;
 }
 
@@ -75,12 +72,12 @@ uiSeis2DTo3D::~uiSeis2DTo3D()
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiSeis2DTo3D::acceptOK( CallBacker* )
 {
-    if ( !inpfld_->commitInput() )
-	mErrRet(tr("Missing Input\nPlease select the input seismics"))
-    if ( !outfld_->commitInput() )
+    const IOObj* inioobj = inpfld_->ioobj();
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !inioobj || !outioobj )
 	return false;
 
-    seis2dto3d_.setInput( *inctio_.ioobj );
+    seis2dto3d_.setInput( *inioobj );
 
     CubeSampling cs(false);
     outsubselfld_->getSampling( cs.hrg );
@@ -92,7 +89,7 @@ bool uiSeis2DTo3D::acceptOK( CallBacker* )
     const bool reusetrcs = reusetrcsbox_->isChecked();
 
     seis2dto3d_.setParams( wininlstep, wincrlstep, maxvel, reusetrcs );
-    seis2dto3d_.setOutput( *outctio_.ioobj, cs );
+    seis2dto3d_.setOutput( const_cast<IOObj&>(*outioobj), cs );
     seis2dto3d_.setIsNearestTrace( interpoltypefld_->getBoolValue() );
 
     uiTaskRunner taskrunner( this );

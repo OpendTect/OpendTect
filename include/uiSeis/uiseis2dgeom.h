@@ -23,21 +23,19 @@ class uiFileInput;
 mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
 { mODTextTranslationClass(uiSeisDump2DGeom);
 public:
+
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
-			~uiSeisDump2DGeom();
 
 protected:
 
-    uiSeisSel*		seisfld;
-    uiGenInput*		lnmsfld;
-    uiFileInput*	outfld;
-
-    CtxtIOObj&		ctio;
+    uiSeisSel*		seisfld_;
+    uiGenInput*		lnmsfld_;
+    uiFileInput*	outfld_;
 
     virtual bool	acceptOK(CallBacker*);
 
     void		seisSel(CallBacker*);
 };
 
-#endif
 
+#endif

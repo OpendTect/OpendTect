@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "emposid.h"
 #include "multiid.h"
+class IOObj;
+namespace Pos { class EMSurfaceProvider3D; }
 class uiSeisSel;
 class uiGenInput;
-class CtxtIOObj;
-namespace Pos { class EMSurfaceProvider3D; }
 
 
 /*! \brief Create flattened cube from horizon */
@@ -37,8 +37,6 @@ protected:
     uiGenInput*		zvalfld_;
 
     MultiID		hormid_;
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
     float		defzval_;
     Interval<float>	horzrg_;
     Pos::EMSurfaceProvider3D& pp_;
@@ -46,7 +44,7 @@ protected:
     bool		acceptOK(CallBacker*);
     BufferString	getHorNm(EM::ObjectID);
 
-    bool		doWork(float);
+    bool		doWork(const IOObj&,const IOObj&,float);
 
     friend class	uiWriteFlattenedCubeWriter;
 };

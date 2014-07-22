@@ -598,7 +598,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
 }
 
 
-bool uiTieWinMGRDlg::seisIDIs3D( MultiID& seisid ) const
+bool uiTieWinMGRDlg::seisIDIs3D( MultiID seisid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( seisid );
     const bool is2D = SeisTrcTranslator::is2D(*ioobj,true);

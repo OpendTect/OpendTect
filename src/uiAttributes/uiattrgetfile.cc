@@ -44,7 +44,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     , attrset_(*new DescSet(is2d))
     , isattrset_(isads)
 {
-    fileinpfld = new uiFileInput( this, "File name" );   
+    fileinpfld = new uiFileInput( this, "File name" );
     fileinpfld->setFilter( isattrset_ ? "AttributeSet files (*.attr)" \
                                       : "Job specifications (*.par)" );
 
@@ -97,7 +97,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
     attrset_.removeAll( false ); attrset_.usePar( iop );
     const int nrgood = attrset_.nrDescs( false, false );
 
-    BufferString txt( nrgood == 1 ? "Attribute: " 
+    BufferString txt( nrgood == 1 ? "Attribute: "
                         : (nrgood ? "Attributes:\n"
                                   : "No valid attributes present" ) );
 
@@ -141,7 +141,8 @@ uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p, bool is2d )
 
 CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 {
-    ctioptr_ = uiSeisSel::mkCtxtIOObj(is2d?Seis::Line:Seis::Vol,true);
+    ctioptr_ = new CtxtIOObj(
+		uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
     ctioptr_->ctxt.forread = true;
     ctioptr_->ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
     return *ctioptr_;

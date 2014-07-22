@@ -13,7 +13,6 @@
 class uiSeisSel;
 class uiSeisSubSel;
 class uiGenInput;
-class CtxtIOObj;
 namespace Tut { class SeisTools; }
 
 
@@ -21,13 +20,11 @@ mExpClass(uiTut) uiTutSeisTools : public uiDialog
 { mODTextTranslationClass(uiTutSeisTools);
 public:
 
-    			uiTutSeisTools(uiParent*,Seis::GeomType);
+			uiTutSeisTools(uiParent*,Seis::GeomType);
 			~uiTutSeisTools();
 
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
     Seis::GeomType	geom_;
     Tut::SeisTools&	tst_;
 

@@ -87,7 +87,7 @@ protected:
     void		wellTieDlgClosed(CallBacker*);
     void		wellToBeDeleted(CallBacker*);
     bool		selIs2D() const;
-    bool		seisIDIs3D(MultiID&) const;
+    bool		seisIDIs3D(MultiID) const;
 };
 
 }; //namespace WellTie

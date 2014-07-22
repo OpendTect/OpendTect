@@ -39,12 +39,10 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 	: uiDialog(p,Setup(tr("Create flattened seismics"),
 			    BufferString("Create seismics flattened on '",
 					 getHorNm(horid),"'")
-		    	  , mODHelpKey(mFlattenedCubeHelpID) ))
-	, inctio_(*mMkCtxtIOObj(SeisTrc))
-	, outctio_(*mMkCtxtIOObj(SeisTrc))
+			  , mODHelpKey(mFlattenedCubeHelpID) ))
 	, hormid_(EM::EMM().getMultiID(horid))
-    	, pp_(*new Pos::EMSurfaceProvider3D)
-    	, seisselin_(0)
+	, pp_(*new Pos::EMSurfaceProvider3D)
+	, seisselin_(0)
 {
     IOPar iop;
     iop.set( IOPar::compKey(sKey::Surface(),Pos::EMSurfaceProvider::id1Key()),
@@ -58,7 +56,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     }
 
     uiSeisSel::Setup su( Seis::Vol );
-    seisselin_ = new uiSeisSel( this, inctio_, su );
+    seisselin_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true), su);
 
     BufferString txt( SI().zIsTime() ? "Time" : "Depth", " value of horizon" );
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -69,8 +67,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
 
-    outctio_.ctxt.forread = false;
-    seisselout_ = new uiSeisSel( this, outctio_, su );
+    seisselout_ = new uiSeisSel(this,uiSeisSel::ioContext(Seis::Vol,false),su);
     seisselout_->attach( alignedBelow, zvalfld_ );
 }
 
@@ -84,8 +81,6 @@ BufferString uiWriteFlattenedCube::getHorNm( EM::ObjectID horid )
 
 uiWriteFlattenedCube::~uiWriteFlattenedCube()
 {
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
 }
 
 
@@ -95,9 +90,12 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 {
     if ( !seisselin_ ) return true;
 
-    seisselin_->commitInput();
-    if ( !inctio_.ioobj )
-	mErrRet(tr("Please provide the input seismic cube"))
+    const IOObj* inioobj = seisselout_->ioobj();
+    if ( !inioobj )
+	return false;
+    const IOObj* outioobj = seisselout_->ioobj();
+    if ( !outioobj )
+	return false;
 
     float zval = zvalfld_->getfValue();
     if ( mIsUdf(zval) ) zval = defzval_;
@@ -105,11 +103,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
     if ( !SI().zRange(false).includes(zval,false) )
 	mErrRet(tr("Please provide a Z value inside the survey Z Range"))
 
-    seisselout_->commitInput();
-    if ( !outctio_.ioobj )
-	mErrRet(tr("Please enter a name for the new cube"))
-
-    return doWork( zval );
+    return doWork( *inioobj, *outioobj, zval );
 }
 
 
@@ -190,16 +184,17 @@ int nextStep()
 };
 
 
-bool uiWriteFlattenedCube::doWork( float zval )
+bool uiWriteFlattenedCube::doWork( const IOObj& inioobj, const IOObj& outioobj,
+					float zval )
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet dps( pp_, ObjectSet<DataColDef>(), 0, true );
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
     Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
-    SeisTrcReader rdr( inctio_.ioobj );
+    SeisTrcReader rdr( &inioobj );
     rdr.setSelData( tsd );
-    SeisTrcWriter wrr( outctio_.ioobj );
+    SeisTrcWriter wrr( &outioobj );
     uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
     uiTaskRunner taskrunner( this );
     MouseCursorManager::restoreOverride();

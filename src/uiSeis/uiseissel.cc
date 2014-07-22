@@ -229,13 +229,6 @@ void uiSeisSelDlg::getComponentNames( BufferStringSet& compnms ) const
 }
 
 
-static CtxtIOObj& getCtxtIOObj( CtxtIOObj& c, const uiSeisSel::Setup& s )
-{
-    adaptCtxt4Steering( c.ctxt, s );
-    return c;
-}
-
-
 static const IOObjContext& getIOObjCtxt( const IOObjContext& c,
 					 const uiSeisSel::Setup& s )
 {
@@ -253,20 +246,6 @@ uiSeisSel::uiSeisSel( uiParent* p, const IOObjContext& ctxt,
 {
     workctio_.ctxt = inctio_.ctxt;
     if ( !ctxt.forread && Seis::is2D(seissetup_.geom_) )
-	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
-
-    mkOthDomBox();
-}
-
-
-uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
-	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
-	, seissetup_(mkSetup(su,c.ctxt.forread))
-	, othdombox_(0)
-        , compnr_(0)
-{
-    workctio_.ctxt = inctio_.ctxt;
-    if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
@@ -294,21 +273,6 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = uiSeisSelDlg::gtSelTxt( su, forread );
     ret.filldef( su.allowsetdefault_ );
-    return ret;
-}
-
-
-CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
-{
-    const bool is2d = Seis::is2D( gt );
-
-    CtxtIOObj* ret;
-    if ( Seis::isPS(gt) )
-	ret = is2d ? mMkCtxtIOObj(SeisPS2D) : mMkCtxtIOObj(SeisPS3D);
-    else
-	ret = mMkCtxtIOObj(SeisTrc);
-
-    ret->ctxt.forread = forread;
     return ret;
 }
 

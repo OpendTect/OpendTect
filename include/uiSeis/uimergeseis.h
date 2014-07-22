@@ -15,10 +15,9 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "multiid.h"
 
-class CtxtIOObj;
 class IOObj;
 class uiGenInput;
-class uiListBox;
+class uiIOObjSelGrp;
 class uiSeisFmtScale;
 class uiSeisSel;
 
@@ -27,22 +26,18 @@ mExpClass(uiSeis) uiMergeSeis : public uiDialog
 { mODTextTranslationClass(uiMergeSeis);
 public:
                         uiMergeSeis(uiParent*);
-			~uiMergeSeis();
 
 protected:
 
-    uiListBox*		inpfld_;
+    uiIOObjSelGrp*	inpfld_;
     uiGenInput*		stackfld_;
     uiSeisFmtScale*	scfmtfld_;
     uiSeisSel*		outfld_;
-
-    ObjectSet<MultiID>	ioobjids_;
-    CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK(CallBacker*);
     void		selChangeCB(CallBacker*);
     bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
 
-#endif
 
+#endif

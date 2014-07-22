@@ -180,9 +180,9 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     setCtrlStyle( RunAndClose );
     const CallBack inpselcb( mCB(this,uiSEGYExp,inpSel) );
 
-    PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( geom_, true );
+    IOObjContext ctxt( uiSeisSel::ioContext( geom_, true ) );
     uiSeisSel::Setup sssu( geom_ ); sssu.steerpol(uiSeisSel::Setup::InclSteer);
-    seissel_ = new uiSeisSel( this, ctio->ctxt, sssu );
+    seissel_ = new uiSeisSel( this, ctxt, sssu );
     seissel_->selectionDone.notify( inpselcb );
 
     uiSeisTransfer::Setup tsu( geom_ );
@@ -364,11 +364,10 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
-	{ uiMSG().error( tr("Please select the data to export") ); 
-    return false; }
+	mErrRet( tr("Please select the data to export") )
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.fname_.isEmpty() )
-	{ uiMSG().error( tr("Please select the output file") ); return false; }
+	mErrRet( tr("Please select the output file") )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
@@ -456,9 +455,9 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	if ( !autogentxthead_ && !hdrtxt_.isEmpty() )
 	{
 	    const SeisTrcWriter* wrr = sstp->writer();
-	    SeisTrcTranslator* trans =
+	    SeisTrcTranslator* transl =
 		    const_cast<SeisTrcTranslator*>(wrr->seisTranslator());
-	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,trans)
+	    mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,transl)
 	    if ( segytr )
 	    {
 		SEGY::TxtHeader* th = new SEGY::TxtHeader;
