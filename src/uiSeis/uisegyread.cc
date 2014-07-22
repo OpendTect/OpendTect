@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyimpdlg.h"
 #include "uisegyscandlg.h"
 #include "uisegyexamine.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uibutton.h"
 #include "uichecklist.h"
 #include "uifileinput.h"

@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 
 #include "uilistbox.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 
 #define mCtioObjTypeName() ctio_.ctxt.objectTypeName()

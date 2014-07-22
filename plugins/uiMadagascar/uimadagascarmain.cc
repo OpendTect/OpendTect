@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uitoolbar.h"
 #include "uiseparator.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "cubesampling.h"
@@ -113,7 +113,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     downbut_ = new uiToolButton( bgrp, uiToolButton::DownArrow,
 				tr("Move current command down"), butpushcb );
     rmbut_ = new uiToolButton( bgrp, "trashcan",
-				tr("Remove current command from flow"), 
+				tr("Remove current command from flow"),
                                 butpushcb );
     bgrp->attach( centeredBelow, pfld );
 

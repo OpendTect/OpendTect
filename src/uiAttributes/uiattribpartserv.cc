@@ -61,7 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribcrossplot.h"
 #include "uievaluatedlg.h"
 #include "uigeninputdlg.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
@@ -500,7 +500,7 @@ const Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
     int res = uiMSG().askGoOnAfter( tr("Which attributes do you want to use?"),
-				    0, uiStrings::s2D(true), 
+				    0, uiStrings::s2D(true),
                                     uiStrings::s3D(true) );
     if ( res == 2 ) return 0;
     return res == 0 ? ds2d : ds3d;

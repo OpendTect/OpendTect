@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimenu.h"
@@ -142,8 +142,8 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				"Survey-defined sets", "Default sets") );
     defselfld_->valuechanged.notify( mCB(this,uiAutoAttrSetOpen, setChg) );
 
-    autoloadfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
-                                   BoolInpSpec(false, "Set for Auto-Load\t", 
+    autoloadfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
+                                   BoolInpSpec(false, "Set for Auto-Load\t",
                                 "Disable Auto-load") );
     autoloadfld_->attach( alignedBelow, defselfld_ );
 

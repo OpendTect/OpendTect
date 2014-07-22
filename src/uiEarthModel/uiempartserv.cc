@@ -67,6 +67,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiimphorizon.h"
 #include "uiexport2dhorizon.h"
 #include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"

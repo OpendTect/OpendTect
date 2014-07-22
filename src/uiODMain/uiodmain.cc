@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidockwin.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uistatusbar.h"
 #include "uilabel.h"
 #include "uimpepartserv.h"
@@ -600,7 +601,7 @@ bool uiODMain::askStore( bool& askedanything, const char* actiontype )
     if ( doask && hasSessionChanged() )
     {
 	askedanything = true;
-	int res = uiMSG().askSave( tr("Do you want to save this session?"), 
+	int res = uiMSG().askSave( tr("Do you want to save this session?"),
                                    true );
 	if ( res == 1 )
 	    saveSession();

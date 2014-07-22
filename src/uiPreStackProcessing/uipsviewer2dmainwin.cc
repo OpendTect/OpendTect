@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipsviewer2d.h"
 #include "uipsviewer2dinfo.h"
 #include "uiprestackprocessor.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uigraphicsitemimpl.h"
 #include "uirgbarraycanvas.h"
 #include "uislider.h"
@@ -385,7 +385,7 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
     datasetcb_->selectionChanged.notify(
 	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
     uiPushButton* propbut =
-	new uiPushButton( this, uiStrings::sProperties(true), 
+	new uiPushButton( this, uiStrings::sProperties(true),
                           ioPixmap("settings"),
 			  mCB(this,uiPSMultiPropDlg,selectPropCB), false );
     propbut->attach( rightTo, lblcb );

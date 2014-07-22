@@ -14,7 +14,8 @@ static const char* rcsID mUsedVar = "$";
 #include "uidatapointsetmerger.h"
 #include "uilistbox.h"
 #include "uitextedit.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
+#include "uiioobjseldlg.h"
 #include "uiioobjmanip.h"
 #include "uimsg.h"
 

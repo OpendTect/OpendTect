@@ -12,9 +12,11 @@ ________________________________________________________________________
 -*/
 
 #include "uiseismod.h"
-#include "uiioobjsel.h"
+#include "uidialog.h"
 #include "seistype.h"
 #include "iopar.h"
+#include "uistring.h"
+class IOObj;
 class uiSeisSel;
 class uiCheckBox;
 class uiSeisTransfer;

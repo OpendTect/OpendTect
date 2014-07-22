@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uiioobjmanip.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uiprestkmergedlg.h"
 #include "uiseismulticubeps.h"
 #include "uitextedit.h"
@@ -37,7 +37,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
 		     .nrstatusflds(1),
-	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
+		   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
 {

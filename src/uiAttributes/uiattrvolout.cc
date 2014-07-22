@@ -59,7 +59,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    const NLAModel* n, const MultiID& id )
     : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
                        mODHelpKey(mAttrVolOutHelpID) ))
-    , ctio_(*uiSeisSel::mkCtxtIOObj(Seis::geomTypeOf(ad.is2D(),false),false))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
     , ads_(*new Attrib::DescSet(ad))
@@ -70,6 +69,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     , datastorefld_(0)
 {
     const bool is2d = ad.is2D();
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
+
     setCaption( is2d ? tr("Create Data Attribute") :
        ( multioutput ? tr("Create Multi-attribute Output")
 		     : tr("Create Volume Attribute")) );
@@ -92,10 +93,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     else
 	transffld_->attach( centeredBelow, attrselfld_ );
 
-    ctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
-    uiSeisSel::Setup su( is2d, false );
-
-    objfld_ = new uiSeisSel( this, ctio_, su );
+    objfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,false),
+				uiSeisSel::Setup(is2d,false) );
     objfld_->selectionDone.notify( mCB(this,uiAttrVolOut,outSelCB) );
     objfld_->attach( alignedBelow, transffld_ );
     objfld_->setConfirmOverwrite( !is2d );
@@ -132,8 +131,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 
 uiAttrVolOut::~uiAttrVolOut()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
     delete &sel_;
     delete &subselpar_;
     delete &ads_;
@@ -222,16 +219,13 @@ void uiAttrVolOut::outSelCB( CallBacker* )
 
 bool uiAttrVolOut::prepareProcessing()
 {
-    if ( !objfld_->commitInput() || !ctio_.ioobj )
-    {
-	if ( objfld_->isEmpty() )
-	    uiMSG().error( tr("Please enter output Seismic data name") );
+    const IOObj* outioobj = objfld_->ioobj();
+    if ( !outioobj )
 	return false;
-    }
 
     if ( todofld_ )
     {
-	if ( !todofld_->checkOutput(*ctio_.ioobj) )
+	if ( !todofld_->checkOutput(*outioobj) )
 	    return false;
 
 	if ( todofld_->is2D() )
@@ -257,7 +251,7 @@ bool uiAttrVolOut::prepareProcessing()
 		return false;
 	    }
 
-	    SeisIOObjInfo info( ctio_.ioobj );
+	    SeisIOObjInfo info( outioobj );
 	    BufferStringSet lnms;
 	    info.getLineNames( lnms );
 	    const bool singline = transffld_->selFld2D()->isSingLine();
@@ -273,7 +267,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    }
 	}
 
-	sel_.ioobjkey_ = ctio_.ioobj->key();
+	sel_.ioobjkey_ = outioobj->key();
 	sel_.attrid_ = todofld_->attribID();
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
@@ -284,8 +278,10 @@ bool uiAttrVolOut::prepareProcessing()
 
 	if ( todofld_->is3D() )
 	{
-	    ctio_.ioobj->pars().set( sKey::Type(), sKey::Attribute() );
-	    IOM().commitChanges( *ctio_.ioobj );
+	    IOObj* chioobj = outioobj->clone();
+	    chioobj->pars().set( sKey::Type(), sKey::Attribute() );
+	    IOM().commitChanges( *chioobj );
+	    delete chioobj;
 	}
 
 	Attrib::Desc* seldesc = ads_.getDesc( todofld_->attribID() );
@@ -316,7 +312,7 @@ bool uiAttrVolOut::prepareProcessing()
 	ObjectSet<MultiID> mids; TypeSet<float> offs; TypeSet<int> comps;
 	for ( int idx=0; idx<ids.size(); idx++ )
 	{
-	    mids += new MultiID( ctio_.ioobj->key() );
+	    mids += new MultiID( outioobj->key() );
 	    offs += offsetfld_->getfValue(0) + idx*offsetfld_->getfValue(1);
 	    comps += idx;
 	}
@@ -333,7 +329,7 @@ bool uiAttrVolOut::prepareProcessing()
 	}
     }
 
-    uiSeisIOObjInfo ioobjinfo( *ctio_.ioobj, true );
+    uiSeisIOObjInfo ioobjinfo( *outioobj, true );
     SeisIOObjInfo::SpaceInfo spi( transffld_->spaceInfo() );
     subselpar_.setEmpty();
     transffld_->selfld->fillPar( subselpar_ );
@@ -398,6 +394,10 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
 
 bool uiAttrVolOut::fillPar()
 {
+    const IOObj* outioobj = objfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
     IOPar& iop = jobSpec().pars_;
 
     Attrib::DescSet* clonedset = 0;
@@ -437,12 +437,12 @@ bool uiAttrVolOut::fillPar()
 
     const bool is2d = todofld_ ? todofld_->is2D() : attrselfld_->is2D();
     BufferString outseisid;
-    outseisid += ctio_.ioobj->key();
+    outseisid += outioobj->key();
 
     iop.set( IOPar::compKey(keybase,Attrib::SeisTrcStorOutput::seisidkey()),
 			    outseisid);
 
-    transffld_->scfmtfld->updateIOObj( ctio_.ioobj );
+    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(outioobj) );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
 	       transffld_->scfmtfld->extendTrcToSI() );
     iop.mergeComp( subselpar_, IOPar::compKey(sKey::Output(),sKey::Subsel()) );

@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 
-class CtxtIOObj;
 class IOObj;
 class NLAModel;
 namespace Attrib	{ class CurrentSel; class DescID; class DescSet; };
@@ -50,7 +49,6 @@ public:
 
 protected:
 
-    CtxtIOObj&		ctio_;
     Attrib::CurrentSel&	sel_;
     IOPar&		subselpar_;
     Attrib::DescSet&	ads_;
@@ -78,10 +76,6 @@ protected:
     void		psSelCB(CallBacker*);
     void		outSelCB(CallBacker*);
     void		addNLA(Attrib::DescID&);
-
-private:
-
-    CtxtIOObj&		mkCtxtIOObj(const Attrib::DescSet&);
 
 };
 

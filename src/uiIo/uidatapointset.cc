@@ -41,7 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uispinbox.h"

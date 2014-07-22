@@ -37,7 +37,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "picksettr.h"
 #include "ptrman.h"
 #include "uicolor.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 
 

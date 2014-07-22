@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimultisurfaceread.h"
 
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uipossubsel.h"
 #include "uimsg.h"

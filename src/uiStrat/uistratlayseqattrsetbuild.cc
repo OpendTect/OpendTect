@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 
 #include "stratreftree.h"
 #include "stratlayermodel.h"
@@ -73,8 +73,8 @@ bool uiStratLaySeqAttribSetBuild::handleUnsaved()
     if ( !anychg_ && !usrchg_ ) return true;
 
     const int res = uiMSG().question( "Well Attribute Set not saved.\n"
-	                              "Do you want to save it now?", 
-                                      "Yes (store)", "No (discard)", 
+	                              "Do you want to save it now?",
+                                      "Yes (store)", "No (discard)",
                                       uiStrings::sCancel() );
     if ( res == 0 ) return true;
     if ( res == -1 ) return false;

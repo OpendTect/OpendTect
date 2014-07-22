@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidatapointsetpickdlg.h"
 
 #include "uiarray2dinterpol.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
@@ -164,7 +164,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     Pick::Set* pickset = psd_->getSet();
     pickset->erase();
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
-	    				     dps_.isMinimal() );
+					     dps_.isMinimal() );
     for ( int idx=0; idx<newdps->size(); idx++ )
     {
 	const DataPointSet::Pos pos( newdps->pos(idx) );

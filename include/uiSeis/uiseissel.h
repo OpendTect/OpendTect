@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uicompoundparsel.h"
 #include "seistype.h"
 #include "ctxtioobj.h"

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"

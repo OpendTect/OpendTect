@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
 #include "uiattribsingleedit.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uiprestackattrib.h"
 #include "uitaskrunner.h"
@@ -53,7 +53,7 @@ uiAttribDescSetBuild::uiAttribDescSetBuild( uiParent* p,
     , descset_(*new Attrib::DescSet(su.is2d_))
     , attrsetup_(su)
     , ctio_(*mMkCtxtIOObj(AttribDescSet))
-    , uipsattrdesced_(0)			  
+    , uipsattrdesced_(0)
     , anychg_(false)
 {
     descset_.setCouldBeUsedInAnyDimension( true );
@@ -102,13 +102,13 @@ void uiAttribDescSetBuild::fillAvailable()
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	const uiAttrDescEd::DomainType domtyp
-	    	= (uiAttrDescEd::DomainType)uiAF().domainType(idx);
+		= (uiAttrDescEd::DomainType)uiAF().domainType(idx);
 	if ( !attrsetup_.showdepthonlyattrs_ && domtyp == uiAttrDescEd::Depth )
 	    continue;
 	if ( !attrsetup_.showtimeonlyattrs_ && domtyp == uiAttrDescEd::Time )
 	    continue;
 	const uiAttrDescEd::DimensionType dimtyp
-	    	= (uiAttrDescEd::DimensionType)uiAF().dimensionType(idx);
+		= (uiAttrDescEd::DimensionType)uiAF().dimensionType(idx);
 	if ( attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only3D )
 	    continue;
 	if ( !attrsetup_.is2d_ && dimtyp == uiAttrDescEd::Only2D )
@@ -173,7 +173,7 @@ void uiAttribDescSetBuild::editReq( bool isadd )
 		{
 		    const char* idval;
 		    mGetStringFromDesc( (*tmpdesc), idval,
-			    		Attrib::StorageProvider::keyStr() )
+					Attrib::StorageProvider::keyStr() )
 		    const LineKey lk( idval );
 		    BufferString bstring = lk.lineName();
 		    const char* linenm = bstring.buf();
@@ -289,7 +289,7 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
             emsg += is2d ? "2D" : "3D";
 	    res = false;
 	}
-	else if ( res ) 
+	else if ( res )
 	{
 	    if ( isdescanyd )
 	    {
@@ -311,15 +311,15 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	for ( int iattr=0; iattr<descset_.size(); iattr++ )
 	{
 	    Attrib::Desc& desc = *descset_.desc( iattr );
-		
+
 	    if ( !desc.isStoredInMem() ) continue;
 
 	    Attrib::ValParam* vp = desc.getValParam(
-		    		Attrib::StorageProvider::keyStr() );
+				Attrib::StorageProvider::keyStr() );
 	    const MultiID descid( vp->getStringValue(0) + 1 );
-	    if ( ( !desc.isPS() && !dpfids_.isPresent(descid) 
+	    if ( ( !desc.isPS() && !dpfids_.isPresent(descid)
 			        && !psdpfids_.isEmpty() )
-		|| ( desc.isPS() && !psdpfids_.isPresent( descid ) 
+		|| ( desc.isPS() && !psdpfids_.isPresent( descid )
 				     && !dpfids_.size() ) )
 	    {
 		BufferString fidstr = "#";

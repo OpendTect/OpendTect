@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisellinest.h"
@@ -53,15 +54,15 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
 	      : uiGMTOverlayGrp(p,"Fault")
 {
     faultfld_ = new uiIOObjSelGrp( this, mIOObjContext(EMFault3D),
-		   uiStrings::sFaults(true), 
+		   uiStrings::sFaults(true),
                    uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
 
-    namefld_ = new uiGenInput( this, uiStrings::sName(), 
+    namefld_ = new uiGenInput( this, uiStrings::sName(),
                                StringInpSpec("Faults") );
     namefld_->attach( alignedBelow, faultfld_ );
 
     optionfld_ = new uiGenInput( this, "Intersection with ",
-				 BoolInpSpec("true", "Z Slice", 
+				 BoolInpSpec("true", "Z Slice",
                                  uiStrings::sHorizon(true)) );
     optionfld_->valuechanged.notify( mCB(this,uiGMTFaultsGrp,typeChgCB) );
     optionfld_->attach( alignedBelow, namefld_ );
@@ -70,7 +71,7 @@ uiGMTFaultsGrp::uiGMTFaultsGrp( uiParent* p )
     zvaluefld_ = new uiGenInput( this, lbl, IntInpSpec(0) );
     zvaluefld_->attach( alignedBelow, optionfld_ );
 
-    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D), 
+    horfld_ = new uiIOObjSel( this, mIOObjContext(EMHorizon3D),
                               uiStrings::sHorizon(true) );
     horfld_->attach( alignedBelow, optionfld_ );
 
