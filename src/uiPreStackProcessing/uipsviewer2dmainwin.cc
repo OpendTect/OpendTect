@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipsviewer2d.h"
 #include "uipsviewer2dinfo.h"
 #include "uiprestackprocessor.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uigraphicsitemimpl.h"
 #include "uirgbarraycanvas.h"
 #include "uislider.h"

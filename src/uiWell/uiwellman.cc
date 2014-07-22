@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninputdlg.h"
 #include "uigroup.h"
 #include "uiioobjmanip.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"

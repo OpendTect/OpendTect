@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiunitsel.h"
 #include "uidialog.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 
 #include "mathformula.h"

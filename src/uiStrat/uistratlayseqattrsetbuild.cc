@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "uimsg.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 
 #include "stratreftree.h"
 #include "stratlayermodel.h"

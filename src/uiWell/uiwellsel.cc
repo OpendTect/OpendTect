@@ -20,6 +20,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 
 #include "uilistbox.h"
+#include "uiioobjselgrp.h"
+#include "uiioobjseldlg.h"
 
 #define mSelTxt seltxt && *seltxt ? seltxt \
 				  : ( forread ? "Input Well" : "Output Well" )

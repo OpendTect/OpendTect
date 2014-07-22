@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uispinbox.h"
 #include "uipossubsel.h"
@@ -365,7 +366,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     return true;
 }
 
-void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi, 
+void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
                  ODPolygon<float>& poly )
 {
    if (  !epi || !epi->getPlaneIntersections().size() )
@@ -395,7 +396,7 @@ void getPolygon( int curidx, Geometry::ExplPlaneIntersection* epi,
 	    if ( index == cindex )
 		count++;
 	}
-	
+
 	if ( count == 1 )
 	    edgeids += index;
     }
@@ -671,6 +672,12 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
 
 uiBodyRegionDlg::~uiBodyRegionDlg()
 {}
+
+
+MultiID uiBodyRegionDlg::getBodyMid() const
+{
+    return outputfld_->key();
+}
 
 
 void uiBodyRegionDlg::horModChg( CallBacker* cb )

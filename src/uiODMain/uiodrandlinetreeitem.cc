@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicreate2dgrid.h"
 #include "uidialog.h"
 #include "uiempartserv.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uilistbox.h"
 #include "uilabel.h"
 #include "uimenu.h"

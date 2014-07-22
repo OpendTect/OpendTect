@@ -15,10 +15,10 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "uiioobjsel.h"
-
+#include "multiid.h"
 
 class IOObj;
+class uiIOObjSel;
 class uiGenInput;
 class uiPosSubSel;
 class uiPushButton;
@@ -31,7 +31,7 @@ public:
     				uiBodyRegionDlg(uiParent*);
 				~uiBodyRegionDlg();
 
-    const MultiID		getBodyMid() const { return outputfld_->key(); }
+    MultiID			getBodyMid() const;
 
 protected:
     bool			acceptOK(CallBacker*);
@@ -45,7 +45,7 @@ protected:
     TypeSet<MultiID>		surfacelist_;
 
     uiIOObjSel*			outputfld_;
-    uiPosSubSel*		subvolfld_; 
+    uiPosSubSel*		subvolfld_;
 
     uiTable*			table_;
     uiPushButton*		addhorbutton_;

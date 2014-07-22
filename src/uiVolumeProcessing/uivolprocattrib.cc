@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattribfactory.h"
 #include "uiioobjsel.h"
+#include "uidialog.h" // for mTODOHelpKey ... ugh
 
 
 mInitAttribUI(uiVolProcAttrib,VolProcAttrib,"VolumeProcessing",sKeyBasicGrp())

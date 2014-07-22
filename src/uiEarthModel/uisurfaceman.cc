@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uihorizonrelations.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uiiosurfacedlg.h"
 #include "uimsg.h"
 #include "uisplitter.h"

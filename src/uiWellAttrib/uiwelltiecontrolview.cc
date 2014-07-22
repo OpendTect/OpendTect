@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiesetup.h"
 
 #include "uiflatviewer.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uiseparator.h"

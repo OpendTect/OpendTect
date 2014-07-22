@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackeventio.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"

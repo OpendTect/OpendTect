@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uisellinest.h"

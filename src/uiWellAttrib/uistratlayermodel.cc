@@ -35,7 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uielasticpropsel.h"
 #include "uiobjdisposer.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uigroup.h"

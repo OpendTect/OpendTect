@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackprocessortransl.h"
 #include "uibutton.h"
 #include "uiicons.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uistrings.h"

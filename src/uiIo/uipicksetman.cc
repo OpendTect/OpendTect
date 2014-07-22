@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipicksetmgr.h"
 
 #include "uibutton.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
 #include "uitextedit.h"
 
@@ -104,7 +104,7 @@ void uiPickSetMan::mkFileInfo()
 	txt.add( "\nColor: " ).add( col.largeUserInfoString() );
 	txt.add( "\nMarker size (pixels): " ).add( ps.disp_.pixsize_ );
 	txt.add( "\nMarker type: " ) .add( MarkerStyle3D::getTypeString(
-		    		(MarkerStyle3D::Type)ps.disp_.markertype_) );
+				(MarkerStyle3D::Type)ps.disp_.markertype_) );
     }
 
     txt.add( "\n" ).add( getFileInfo() );

@@ -24,7 +24,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
+#include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uisimplemultiwell.h"

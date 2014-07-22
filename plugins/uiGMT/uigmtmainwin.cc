@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigmtbasemap.h"
 #include "uigmtclip.h"
 #include "uigmtoverlay.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"

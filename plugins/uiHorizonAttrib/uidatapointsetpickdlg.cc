@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidatapointsetpickdlg.h"
 
 #include "uiarray2dinterpol.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimsg.h"
 #include "uitable.h"
 #include "uitaskrunner.h"

@@ -14,214 +14,17 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiiosel.h"
-#include "uidialog.h"
-#include "multiid.h"
+#include "helpview.h"
 
-class CtxtIOObj;
-class IODirEntryList;
+// These two will be gone after 5.0, kept for API compatibility with 5.0-beta:
+#include "uiioobjselgrp.h"
+#include "uiioobjseldlg.h"
+
 class IOObj;
+class CtxtIOObj;
 class IOObjContext;
-class Translator;
-class uiGenInput;
-class uiIOObjManipGroup;
-class uiIOObjSelGrp;
-class uiIOObjSelGrpManipSubj;
-class uiListBox;
-class uiToolButton;
-class uiListBoxChoiceIO;
-class uiComboBox;
-
-/*!\brief Dialog letting the user select an object. It returns an IOObj* after
-	  successful go(). */
-
-mExpClass(uiIo) uiIOObjRetDlg : public uiDialog
-{
-public:
-
-			uiIOObjRetDlg(uiParent* p,const Setup& s)
-			: uiDialog(p,s) {}
-
-    virtual const IOObj*	ioObj() const		= 0;
-
-    virtual uiIOObjSelGrp*	selGrp()		{ return 0; }
-};
-
-
-/*!\brief Basic group for letting the user select an object.
-
-  For write, you always need to call updateCtxtIOObj(). as a new IOObj may need
-  to be created. In any case, if you want to have the CtxtIOObj updated,
-  updateCtxtIOObj() is required. Otherwise, this is not needed.
-
-*/
-
-
-mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
-{
-public:
-
-    mExpClass(uiIo) Setup
-    {
-    public:
-			Setup( OD::ChoiceMode cm=OD::ChooseOnlyOne )
-			    : choicemode_(cm)
-			    , allowreloc_(false)
-			    , allowremove_(true)
-			    , allowsetdefault_(false)
-			    , confirmoverwrite_(true)	{}
-
-	mDefSetupMemb(OD::ChoiceMode,choicemode);
-	mDefSetupMemb(bool,allowreloc);
-	mDefSetupMemb(bool,allowremove);
-	mDefSetupMemb(bool,allowsetdefault);
-	mDefSetupMemb(bool,confirmoverwrite);
-
-	inline bool	isMultiChoice() const
-			{ return ::isMultiChoice( choicemode_ ); }
-
-    };
-
-#   define		mDefuiIOObjSelGrpConstructors(ctxtclss) \
-			uiIOObjSelGrp(uiParent*,const ctxtclss&); \
-			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-					const uiString& seltxt); \
-			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-					const Setup&); \
-			uiIOObjSelGrp(uiParent*,const ctxtclss&, \
-					const uiString& seltxt,const Setup&)
-
-			mDefuiIOObjSelGrpConstructors(IOObjContext);
-			mDefuiIOObjSelGrpConstructors(CtxtIOObj);
-			~uiIOObjSelGrp();
-
-    bool		isEmpty() const;
-    int			size() const;
-    inline bool		isMultiChoice() const { return setup_.isMultiChoice(); }
-
-			// mostly interesting for read
-    int			currentItem() const;
-    MultiID		currentID() const;
-    int			nrChosen() const;
-    bool		isChosen(int) const;
-    const MultiID&	chosenID(int idx=0) const;
-    void		getChosen(TypeSet<MultiID>&) const;
-    void		getChosen(BufferStringSet&) const;
-    void		setCurrent(int);
-    void		setCurrent(const MultiID&);
-    void		setChosen(int,bool yn=true);
-    void		setChosen(const TypeSet<MultiID>&);
-    void		chooseAll(bool yn=true);
-
-    bool		updateCtxtIOObj(); //!< mostly interesting for write
-    const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
-    const IOObjContext&	getContext() const;
-    void		setContext(const IOObjContext&);
-
-    uiGroup*		getTopGroup()			{ return topgrp_; }
-    uiGenInput*		getNameField()			{ return nmfld_; }
-    uiListBox*		getListField()			{ return listfld_; }
-    uiIOObjManipGroup*	getManipGroup();
-    const ObjectSet<MultiID>& getIOObjIds() const	{ return ioobjids_; }
-
-    void		setConfirmOverwrite( bool yn )
-				{ setup_.confirmoverwrite_ = yn; }
-    void		setAskedToOverwrite( bool yn )
-				{ asked2overwrite_ = yn; }
-    bool		askedToOverwrite() const { return asked2overwrite_; }
-    void		setSurveyDefaultSubsel(const char* subsel);
-
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
-
-    Notifier<uiIOObjSelGrp> selectionChanged;
-    Notifier<uiIOObjSelGrp> itemChosen;
-    Notifier<uiIOObjSelGrp> newStatusMsg;
-				/*!< Triggers when there is a new message for
-				     statusbars and similar */
-
-    void		fullUpdate(const MultiID& kpselected);
-
-protected:
-
-    CtxtIOObj&		ctio_;
-    Setup		setup_;
-    ObjectSet<MultiID>	ioobjids_;
-    BufferStringSet	ioobjnms_;
-    BufferStringSet	dispnms_;
-    BufferString	surveydefaultsubsel_;
-    bool		asked2overwrite_;
-
-    uiIOObjSelGrpManipSubj* manipgrpsubj;
-    uiListBox*		listfld_;
-    uiGenInput*		nmfld_;
-    uiGenInput*		filtfld_;
-    uiGroup*		topgrp_;
-
-    uiToolButton*	mkdefbut_;
-    uiListBoxChoiceIO*	lbchoiceio_;
-
-    void		fullUpdate(int);
-    void		fillListBox();
-    IOObj*		getIOObj(int);
-    virtual bool	createEntry(const char*);
-    IOObj*		updStatusBarInfo(bool);
-    void		triggerStatusMsg(const char*);
-
-    void		setInitial(CallBacker*);
-    void		selChg(CallBacker*);
-    void		choiceChg(CallBacker*);
-    void		filtChg(CallBacker*);
-    void		delPress(CallBacker*);
-    void		makeDefaultCB(CallBacker*);
-    void		readChoiceDone(CallBacker*);
-    void		writeChoiceReq(CallBacker*);
-
-private:
-
-    void		init(const uiString& st=0);
-
-    friend class	uiIOObjSelDlg;
-    friend class	uiIOObjSelGrpManipSubj;
-
-};
-
-
-/*!
-\brief Dialog for selection of IOObjs.
-*/
-
-mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
-{ mODTextTranslationClass(uiIOObjSelDlg);
-public:
-			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const uiString& seltxt=0,
-				      bool multisel=false,
-				      bool allowsetsurvdefault=false);
-
-    int			nrChosen() const	{ return selgrp_->nrChosen(); }
-    const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
-    void		getChosen( TypeSet<MultiID>& ids ) const
-						{ selgrp_->getChosen( ids ); }
-    void		getChosen( BufferStringSet& nms ) const
-						{ selgrp_->getChosen( nms ); }
-    void		chooseAll( bool yn=true ) { selgrp_->chooseAll( yn ); }
-
-    const IOObj*	ioObj() const;
-
-    uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
-    bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
-    void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
-
-    void		setSurveyDefaultSubsel(const char*);
-
-protected:
-
-    bool		acceptOK(CallBacker*)
-			{ return selgrp_->updateCtxtIOObj(); }
-    void		statusMsgCB(CallBacker*);
-
-    uiIOObjSelGrp*	selgrp_;
-};
+class uiIOObjRetDlg;
+class uiIOObjSelWriteTranslator;
 
 
 /*!
@@ -286,15 +89,15 @@ public:
 
 protected:
 
-    uiComboBox*		wrtrselfld_;
+    uiIOObjSelWriteTranslator* wrtrselfld_;
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		workctio_;
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
-    ObjectSet<const Translator> wrtrs_;
 
+    void		crWriteTranslSelFld();
     void		preFinaliseCB(CallBacker*);
     void		doObjSel(CallBacker*);
 
@@ -302,7 +105,6 @@ protected:
     virtual void	objSel();
     virtual void	commitSucceeded()			{}
 
-    void		crWriteTranslSelFld();
     virtual void	fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*)		{}
     virtual uiIOObjRetDlg* mkDlg();

@@ -61,7 +61,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribcrossplot.h"
 #include "uievaluatedlg.h"
 #include "uigeninputdlg.h"
-#include "uiioobjsel.h"
+#include "uiioobjseldlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uimultcomputils.h"
