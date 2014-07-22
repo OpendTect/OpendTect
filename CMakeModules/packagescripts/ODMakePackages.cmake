@@ -18,11 +18,6 @@ else()
 endif()
 include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-#Genarate Symbols and then Strip the binaries
-if ( UNIX AND ("${OD_ENABLE_BREAKPAD}" STREQUAL "ON") )
-    OD_GENERATE_BREAKPAD_SYMBOLS()
-endif()
-
 if( APPLE OR WIN32 )
     od_sign_libs()
 endif()
@@ -65,6 +60,12 @@ foreach ( PACKAGE ${PACKAGELIST} )
     if( ${PACK} STREQUAL "devel" )
         create_develpackages()
     else()
+	if ( UNIX AND ("${OD_ENABLE_BREAKPAD}" STREQUAL "ON") )
+	    #Genarate Symbols and then Strip the binaries
+	    set( ALLLIBS ${LIBLIST} ${PLUGINS} )
+	    OD_GENERATE_BREAKPAD_SYMBOLS( "${ALLLIBS}" "${EXECLIST}" )
+	endif()
+
 	create_package( ${PACK} )
     endif()
 endforeach()
