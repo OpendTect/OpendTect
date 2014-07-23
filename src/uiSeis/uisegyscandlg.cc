@@ -57,7 +57,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
     if ( forsurvsetup_ )
     {
-	if ( !optsgrp_ )
+	if ( !optsfld_ )
 	    attobj = new uiLabel( this,
 				  "Press Go or hit enter to start SEG-Y scan" );
     }
@@ -67,8 +67,8 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	ctxt.fixTranslator( "SEGYDirect" );
 	uiSeisSel::Setup sssu( setup_.geom_ );
 	outfld_ = new uiSeisSel( this, ctxt, sssu );
-	if ( optsgrp_ )
-	    outfld_->attach( alignedBelow, optsgrp_ );
+	if ( optsfld_ )
+	    outfld_->attach( alignedBelow, optsfld_ );
 	else
 	    attobj = outfld_->attachObj();
 

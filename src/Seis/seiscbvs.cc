@@ -482,7 +482,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
     if ( res && *res )
 	preseldatatype_ = (DataCharacteristics::UserType)(*res-'0');
 
-    res = iopar.find( "Optimized direction" );
+    res = iopar.find( sKeyOptDir() );
     if ( res && *res )
     {
 	brickspec_.setStd( *res == 'H' );

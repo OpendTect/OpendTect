@@ -156,35 +156,28 @@ void uiSEGYRead::usePar( const IOPar& iop )
 void uiSEGYRead::writeReq( CallBacker* cb )
 {
     mDynamicCastGet(uiSEGYReadDlg*,rddlg,cb)
-    if ( !rddlg ) { pErrMsg("Huh"); return; }
+    mDynamicCastGet(uiSEGYDefDlg*,defdlg,cb)
+    if ( !rddlg && !defdlg )
+	{ pErrMsg("Huh"); return; }
 
-    PtrMan<CtxtIOObj> ctio = getCtio( true );
-    BufferString objnm( rddlg->saveObjName() );
-    ctio->ctxt.setName( objnm );
-    if ( !ctio->fillObj(false) )
-	return;
+    uiParent* parnt = rddlg;
+    if ( !parnt ) parnt = defdlg;
+    PtrMan<CtxtIOObj> ctio = getCtio( false );
+    uiIOObjSelDlg dlg( parnt, *ctio, "New SEG-Y setup" );
+    dlg.setModal( true );
+    PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
+    if ( !ioobj ) return;
 
-    BufferString translnm = ctio->ioobj->translator();
-    if ( translnm != "SEG-Y" )
-    {
-	ctio->setObj( 0 );
-	objnm += " SGY";
-	if ( !ctio->fillObj(false) ) return;
-	translnm = ctio->ioobj->translator();
-	if ( translnm != "SEG-Y" )
-	{
-	    uiMSG().error( "Cannot write setup under this name - sorry" );
-	    return;
-	}
-    }
+    if ( rddlg )
+	rddlg->updatePars();
+    else
+	defdlg->fillPar( pars_ );
 
-    rddlg->updatePars();
-    fillPar( ctio->ioobj->pars() );
-    ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
-    ctio->ioobj->pars().removeWithKey( sKey::Geometry() );
-    SEGY::FileSpec::ensureWellDefined( *ctio->ioobj );
-    IOM().commitChanges( *ctio->ioobj );
-    delete ctio->ioobj;
+    fillPar( ioobj->pars() );
+    ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
+    ioobj->pars().removeWithKey( sKey::Geometry() );
+    SEGY::FileSpec::ensureWellDefined( *ioobj );
+    IOM().commitChanges( *ioobj );
 }
 
 
@@ -384,6 +377,7 @@ void uiSEGYRead::getBasicOpts()
     bsu.defgeom( geom_ ).modal( false );
     defdlg_ = new uiSEGYDefDlg( parent_, bsu, pars_ );
     defdlg_->mSetreadReqCB();
+    defdlg_->mSetwriteReqCB();
     mLaunchDlg(defdlg_,defDlgClose);
 }
 

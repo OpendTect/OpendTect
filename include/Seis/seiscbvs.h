@@ -65,6 +65,8 @@ public:
 
     bool		isUserSelectable(bool) const	{ return true; }
 
+    static const char*	sKeyOptDir()		{ return "Optimized direction";}
+
 protected:
 
     bool		forread_;

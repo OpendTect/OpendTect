@@ -20,6 +20,10 @@ class uiScaler;
 class uiSeisFmtScaleComp;
 
 
+/*! DEPRECATED class. Do not use. Use uiSeisTranfer instead.
+  Format stuff is now handled by the uiIOObjTranslatorWriteOpts classes. */
+
+
 mExpClass(uiSeis) uiSeisFmtScale : public uiGroup
 {
 public:

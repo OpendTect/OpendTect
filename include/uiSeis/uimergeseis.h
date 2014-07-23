@@ -18,7 +18,7 @@ ________________________________________________________________________
 class IOObj;
 class uiGenInput;
 class uiIOObjSelGrp;
-class uiSeisFmtScale;
+class uiSeisTransfer;
 class uiSeisSel;
 
 
@@ -31,11 +31,10 @@ protected:
 
     uiIOObjSelGrp*	inpfld_;
     uiGenInput*		stackfld_;
-    uiSeisFmtScale*	scfmtfld_;
+    uiSeisTransfer*	transffld_;
     uiSeisSel*		outfld_;
 
     virtual bool	acceptOK(CallBacker*);
-    void		selChangeCB(CallBacker*);
     bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
 

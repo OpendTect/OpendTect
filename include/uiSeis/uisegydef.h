@@ -31,7 +31,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 mExpClass(uiSeis) uiSEGYDefGroup : public uiGroup
 {
 public:
-    			uiSEGYDefGroup( uiParent* p, const char* grpnm,
+			uiSEGYDefGroup( uiParent* p, const char* grpnm,
 					bool forread )
 			    : uiGroup(p,grpnm)
 			    , forread_(forread)				{}
@@ -69,7 +69,7 @@ public:
 	mDefSetupMemb(const IOPar*,pars)
     };
 
-    			uiSEGYFileSpec(uiParent*,const Setup&);
+			uiSEGYFileSpec(uiParent*,const Setup&);
 
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
@@ -86,7 +86,7 @@ public:
 
     static const char*	sKeyLineNmToken()	{ return "#L"; }
     static const char*	fileFilter()
-    			{ return  "SEG-Y files (*.sgy *.SGY *.segy)"; }
+			{ return  "SEG-Y files (*.sgy *.SGY *.segy)"; }
 
     Notifier<uiSEGYFileSpec>	fileSelected;
 
@@ -114,7 +114,8 @@ protected:
 mExpClass(uiSeis) uiSEGYFilePars : public uiSEGYDefGroup
 {
 public:
-    			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0);
+			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0,
+					bool withiobuts=true);
 
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
@@ -124,9 +125,10 @@ public:
     void		setPars(const SEGY::FilePars&);
 
     void		setBytesSwapped(bool fullswap,bool dataswap=false);
-    			//!< dataswap only used if fullswap is false
+			//!< dataswap only used if fullswap is false
 
     Notifier<uiSEGYFilePars> readParsReq;
+    Notifier<uiSEGYFilePars> writeParsReq;
 
 protected:
 
@@ -135,6 +137,7 @@ protected:
     uiGenInput*		byteswapfld_;
 
     void		readParsPush(CallBacker*);
+    void		writeParsPush(CallBacker*);
 
 };
 
@@ -143,7 +146,7 @@ protected:
 
   The idea is that you know beforehand whether the file is Rev.1 or not.
   If it's Rev. 1, the positioning part will not be present.
- 
+
  */
 class uiSEGYFOByteSpec;
 
@@ -171,7 +174,7 @@ public:
 
     const Setup&	setup() const		{ return setup_; }
     bool		forScan() const
-    			{ return setup_.purpose_ != uiSEGYRead::Import; }
+			{ return setup_.purpose_ != uiSEGYRead::Import; }
 
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
@@ -179,6 +182,7 @@ public:
     void		use(const IOObj*,bool force);
 
     Notifier<uiSEGYFileOpts> readParsReq;
+    Notifier<uiSEGYFileOpts> writeParsReq;
     Notifier<uiSEGYFileOpts> preScanReq;
 
 protected:
@@ -229,6 +233,7 @@ protected:
     void		initFlds(CallBacker*);
     void		psPosChg(CallBacker*);
     void		readParsPush(CallBacker*);
+    void		writeParsPush(CallBacker*);
     void		preScanPush(CallBacker*);
     void		crdChk(CallBacker*);
 
@@ -236,7 +241,7 @@ protected:
     void		toggledFldFillPar(uiGenInput*,const IOPar&,const char*,
 					  bool isz=false);
     void		setToggled(IOPar&,const char*,uiGenInput*,
-	    			   bool isz=false) const;
+				   bool isz=false) const;
 
 };
 

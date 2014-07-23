@@ -47,6 +47,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , geomfld_(0)
     , geomtype_(Seis::Vol)
     , readParsReq(this)
+    , writeParsReq(this)
 {
     const bool havevol = su.geoms_.isPresent( Seis::Vol );
     const bool havevolps = su.geoms_.isPresent( Seis::VolPS );
@@ -92,6 +93,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
+    fileparsfld_->writeParsReq.notify( mCB(this,uiSEGYDefDlg,writeParsCB) );
 
     postFinalise().notify( mCB(this,uiSEGYDefDlg,initFlds) );
 	// Need this to get zero padding right
@@ -132,6 +134,7 @@ void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
 	    geomfld_->setCurrentItem( Seis::nameOf(oinf.geomType()) );
 	    geomChg( 0 );
 	}
+	fileparsfld_->usePar( ioobj->pars() );
 	useSpecificPars( ioobj->pars() );
     }
 }
@@ -186,6 +189,12 @@ void uiSEGYDefDlg::fileSel( CallBacker* )
 void uiSEGYDefDlg::readParsCB( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYDefDlg::writeParsCB( CallBacker* )
+{
+    writeParsReq.trigger();
 }
 
 

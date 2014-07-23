@@ -17,13 +17,14 @@ ________________________________________________________________________
 #include "seisselection.h"
 
 class IOObj;
+class Scaler;
 class Executor;
+class uiScaler;
 class uiGenInput;
 class uiSeisSubSel;
 class SeisResampler;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
-class uiSeisFmtScale;
 namespace Seis { class SelData; }
 
 
@@ -57,8 +58,9 @@ public:
 				   const char* linenm2d_overrule=0) const;
 
     uiSeisSubSel*	selfld;
-    uiSeisFmtScale*	scfmtfld;
+    uiScaler*		scalefld_;
     uiGenInput*		remnullfld;
+    uiGenInput*		trcgrowfld_;
 
     uiSeis2DSubSel*	selFld2D(); //!< null when not 2D
     uiSeis3DSubSel*	selFld3D(); //!< null when not 3D
@@ -68,10 +70,9 @@ public:
     Seis::SelData*	getSelData() const;
     SeisResampler*	getResampler() const; //!< may return null
 
-    int			maxBytesPerSample() const;
-    SeisIOObjInfo::SpaceInfo spaceInfo() const;
-
+    Scaler*		getScaler() const;
     bool		removeNull() const;
+    bool		extendTrcsToSI() const;
     bool		fillNull() const;
     int			nullTrcPolicy() const
 			{ return removeNull() ? 0 : (fillNull() ? 2 : 1); }
@@ -79,9 +80,17 @@ public:
     void		fillPar(IOPar&) const;
     static const char*	sKeyNullTrcPol()	{ return "Null trace policy"; }
 
+    SeisIOObjInfo::SpaceInfo spaceInfo(int bps=4) const;
+
+    // DEPRECATED. Will be removed after 5.0
+    int			maxBytesPerSample() const	{ return 4; }
+
 protected:
 
     Setup		setup_;
+    bool		issteer_;
+
+    void		updSteer(CallBacker*);
 
 };
 

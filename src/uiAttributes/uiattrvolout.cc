@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uimultoutsel.h"
-#include "uiseisfmtscale.h"
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
@@ -439,9 +438,8 @@ bool uiAttrVolOut::fillPar()
     iop.set( IOPar::compKey(keybase,Attrib::SeisTrcStorOutput::seisidkey()),
 			    outseisid);
 
-    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(outioobj) );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
-	       transffld_->scfmtfld->extendTrcToSI() );
+	       transffld_->extendTrcsToSI() );
 
     IOPar tmpiop; CubeSampling cs;
     transffld_->selfld->fillPar( tmpiop );
@@ -476,7 +474,7 @@ bool uiAttrVolOut::fillPar()
     subselpar_.removeWithKey( sKey::Type() );
     iop.mergeComp( subselpar_, sKey::Output() );
 
-    Scaler* sc = transffld_->scfmtfld->getScaler();
+    Scaler* sc = transffld_->getScaler();
     if ( sc )
     {
 	iop.set( IOPar::compKey(keybase,Attrib::Output::scalekey()),

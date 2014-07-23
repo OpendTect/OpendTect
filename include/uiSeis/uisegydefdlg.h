@@ -49,6 +49,7 @@ public:
     void		fillPar(IOPar&) const;
 
     Notifier<uiSEGYDefDlg> readParsReq;
+    Notifier<uiSEGYDefDlg> writeParsReq;
 
 protected:
 
@@ -63,6 +64,7 @@ protected:
 
     void		initFlds(CallBacker*);
     void		readParsCB(CallBacker*);
+    void		writeParsCB(CallBacker*);
     void		fileSel(CallBacker*);
     void		geomChg(CallBacker*);
     bool		acceptOK(CallBacker*);

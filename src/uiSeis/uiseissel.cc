@@ -268,6 +268,8 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 
     mkOthDomBox();
+
+    pErrMsg( "This constructor is DEPRECATED." );
 }
 
 
@@ -306,6 +308,8 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 	ret = mMkCtxtIOObj(SeisTrc);
 
     ret->ctxt.forread = forread;
+    pFreeFnErrMsg( "This function is DEPRECATED. Use ioContext() instead.",
+		    "uiSeisSel::mkCtxtIOObj" );
     return ret;
 }
 

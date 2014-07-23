@@ -196,7 +196,7 @@ void uiIOObjSel::preFinaliseCB( CallBacker* )
 uiObject* uiIOObjSel::endObj( bool left )
 {
     if ( wrtrselfld_ && !left && !wrtrselfld_->isEmpty() )
-	return wrtrselfld_->endObj( false );
+	return wrtrselfld_->attachObj();
     return uiIOSelect::endObj( left );
 }
 

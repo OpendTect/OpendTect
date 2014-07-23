@@ -175,6 +175,8 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
 
     setHAlignObj( compfld_ ? (uiGroup*)compfld_ : (uiGroup*)scalefld_ );
     postFinalise().notify( mCB(this,uiSeisFmtScale,updSteer) );
+
+    pErrMsg( "uiSeisFmtScale is a DEPRECATED class. See header file." );
 }
 
 

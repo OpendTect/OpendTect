@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegydef.h"
 #include "uiseistransf.h"
-#include "uiseisfmtscale.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
@@ -61,7 +60,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     }
     setTitleText( tr(ttl) );
 
-    uiSeparator* sep = optsgrp_ ? new uiSeparator( this, "Hor sep" ) : 0;
+    uiSeparator* sep = optsfld_ ? new uiSeparator( this, "Hor sep" ) : 0;
 
     uiGroup* outgrp = new uiGroup( this, "Output group" );
     transffld_ = new uiSeisTransfer( outgrp, uiSeisTransfer::Setup(setup_.geom_)
@@ -70,8 +69,8 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     outgrp->setHAlignObj( transffld_ );
     if ( sep )
     {
-	sep->attach( stretchedBelow, optsgrp_ );
-	outgrp->attach( alignedBelow, optsgrp_ );
+	sep->attach( stretchedBelow, optsfld_ );
+	outgrp->attach( alignedBelow, optsfld_ );
 	outgrp->attach( ensureBelow, sep );
     }
 
@@ -97,7 +96,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	morebut_->attach( alignedBelow, seissel_ );
     }
 
-    if ( !optsgrp_ )
+    if ( !optsfld_ )
     {
 	uiToolButton* tb = new uiToolButton( this, "prescan",
 				"Pre-scan file(s)",
@@ -333,7 +332,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	    return false;
     }
-    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
 
     if ( batchfld_ && batchfld_->wantBatch() )
     {
@@ -370,7 +368,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
     rdr->removeNull( transffld_->removeNull() );
     rdr->setResampler( transffld_->getResampler() );
-    rdr->setScaler( transffld_->scfmtfld->getScaler() );
+    rdr->setScaler( transffld_->getScaler() );
     Seis::SelData* sd = transffld_->getSelData();
     if ( !sd ) return false;
     if ( is2d )
