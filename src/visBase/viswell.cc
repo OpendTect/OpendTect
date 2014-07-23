@@ -280,7 +280,7 @@ void Well::updateText( Text* tx, const uiString& chr, const Coord3* pos,
     tx->setPosition( *pos );
     tx->setJustification( Text::Left );
     tx->setCharacterSizeMode( Text::Object );
-    tx->setAxisAlignment( Text::XZ );
+    tx->setAxisAlignment( Text::OnScreen);
 }
 
 
