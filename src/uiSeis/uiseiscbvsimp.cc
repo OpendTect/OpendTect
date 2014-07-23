@@ -53,9 +53,9 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup("Import CBVS cube",
 			   "Specify import parameters",
 			   mODHelpKey(mSeisImpCBVSHelpID) ))
-	, inctio_(*mMkCtxtIOObj(SeisTrc))
-	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
-	, modefld(0)
+	, initialinpioobj_(0)
+	, outioobj_(0)
+	, modefld_(0)
 	, sstp_(0)
 {
     setCtrlStyle( RunAndClose );
@@ -69,14 +69,13 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
 			   "Specify copy parameters",
 			   mODHelpKey(mSeisImpCBVSCopyHelpID) ))
-	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
-	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
-	, modefld(0)
+	, initialinpioobj_(ioobj ? ioobj->clone() : 0)
+	, outioobj_(0)
+	, modefld_(0)
 	, sstp_(0)
 {
     setCtrlStyle( RunAndClose );
 
-    if ( ioobj ) inctio_.ioobj = ioobj->clone();
     init( true );
     oinpSel(0);
 }
@@ -84,7 +83,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 
 void uiSeisImpCBVS::init( bool fromioobj )
 {
-    finpfld = 0; modefld = typefld = 0; oinpfld = 0; convertfld = 0;
+    finpfld_ = 0; modefld_ = typefld_ = 0; oinpfld_ = 0; convertfld_ = 0;
     compfld_ = 0;
     ismc_ = false;
     setTitleText( fromioobj ? "Specify transfer parameters"
@@ -95,84 +94,84 @@ void uiSeisImpCBVS::init( bool fromioobj )
     uiGroup* attobj = 0;
     if ( fromioobj )
     {
-	inctio_.ctxt.forread = true;
-	inctio_.ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+	IOObjContext inctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
+	inctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
 	uiSeisSel::Setup sssu( Seis::Vol );
 	sssu.steerpol( uiSeisSel::Setup::InclSteer );
-	oinpfld = new uiSeisSel( this, inctio_, sssu );
-	oinpfld->selectionDone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
+	oinpfld_ = new uiSeisSel( this, inctxt, sssu );
+	oinpfld_->selectionDone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
 	compfld_ = new uiLabeledComboBox( this, "Component(s)" );
 	attobj = compfld_;
-	compfld_->attach( alignedBelow, oinpfld );
-	if ( inctio_.ioobj )
+	compfld_->attach( alignedBelow, oinpfld_ );
+	if ( initialinpioobj_ )
 	{
-	    SeisIOObjInfo oinf( *inctio_.ioobj );
+	    SeisIOObjInfo oinf( *initialinpioobj_ );
 	    sts.zdomkey_ = oinf.zDomainDef().key();
 	    if ( sts.zdomkey_ != ZDomain::SI().key() )
-		oinpfld->setSensitive( false );
+		oinpfld_->setSensitive( false );
 	}
     }
     else
     {
 	uiFileInput::Setup fisu( uiFileDialog::Gen );
 	fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
-	finpfld = new uiFileInput( this, "(First) CBVS file name", fisu );
-	finpfld->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
+	finpfld_ = new uiFileInput( this, "(First) CBVS file name", fisu );
+	finpfld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,finpSel) );
 
 	StringListInpSpec spec;
 	spec.addString( "Input data cube" );
 	spec.addString( "Generated attribute cube" );
 	spec.addString( "Steering cube" );
-	typefld = new uiGenInput( this, "Cube type", spec );
-	typefld->attach( alignedBelow, finpfld );
-	typefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
+	typefld_ = new uiGenInput( this, "Cube type", spec );
+	typefld_->attach( alignedBelow, finpfld_ );
+	typefld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
 
-	modefld = new uiGenInput( this, "Import mode",
+	modefld_ = new uiGenInput( this, "Import mode",
 			  BoolInpSpec(false,"Copy the data","Use in-place") );
-	modefld->attach( alignedBelow, typefld );
-	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
-	attobj = modefld;
+	modefld_->attach( alignedBelow, typefld_ );
+	modefld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
+	attobj = modefld_;
 
-	convertfld = new uiCheckBox( this,
+	convertfld_ = new uiCheckBox( this,
 		"Convert underscores to spaces in Output Cube name",
 		mCB(this,uiSeisImpCBVS,convertSel) );
     }
 
     sts.withnullfill(fromioobj).withstep(true).onlyrange(false)
 				.fornewentry(true);
-    transffld = new uiSeisTransfer( this, sts );
-    transffld->attach( alignedBelow, attobj );
+    transffld_ = new uiSeisTransfer( this, sts );
+    transffld_->attach( alignedBelow, attobj );
 
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
-    outctio_.ctxt.forread = false;
-    outctio_.ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
-    IOM().to( outctio_.ctxt.getSelKey() );
+    IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
+    outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    IOM().to( outctxt.getSelKey() );
     if ( !fromioobj )
 	sssu.enabotherdomain( true );
-    outfld = new uiSeisSel( this, outctio_, sssu );
+    outfld_ = new uiSeisSel( this, outctxt, sssu );
 
-    if ( convertfld )
+    if ( convertfld_ )
     {
-	convertfld->attach( ensureBelow, transffld );
-	convertfld->attach( leftAlignedAbove, outfld );
+	convertfld_->attach( ensureBelow, transffld_ );
+	convertfld_->attach( leftAlignedAbove, outfld_ );
     }
 
-    outfld->attach( alignedBelow, transffld );
+    outfld_->attach( alignedBelow, transffld_ );
 }
 
 
 uiSeisImpCBVS::~uiSeisImpCBVS()
 {
-    delete outctio_.ioobj; delete &outctio_;
-    delete inctio_.ioobj; delete &inctio_;
+    delete initialinpioobj_;
+    delete outioobj_;
 }
 
 
 IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 {
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
-    iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
+    iostrm->setGroup( mTranslGroupName(SeisTrc) );
     iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm->setDirName( "Seismics" );
     iostrm->setFileName( inp );
@@ -182,35 +181,35 @@ IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 
 void uiSeisImpCBVS::modeSel( CallBacker* )
 {
-    if ( modefld )
-	transffld->display( modefld->getBoolValue() );
+    if ( modefld_ )
+	transffld_->display( modefld_->getBoolValue() );
 }
 
 
 void uiSeisImpCBVS::typeChg( CallBacker* )
 {
-    bool issteer = typefld ? typefld->getIntValue() == 2 : false;
-    if ( oinpfld )
+    bool issteer = typefld_ ? typefld_->getIntValue() == 2 : false;
+    if ( oinpfld_ )
     {
-	oinpfld->commitInput();
-	if ( !inctio_.ioobj ) return;
-	const char* res = inctio_.ioobj->pars().find( "Type" );
+	const IOObj* inioobj = oinpfld_->ioobj( true );
+	if ( !inioobj ) return;
+	const char* res = inioobj->pars().find( "Type" );
 	issteer = res && *res == 'S';
     }
 
-    transffld->setSteering( issteer );
+    transffld_->setSteering( issteer );
 }
 
 
 void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 {
-    if ( !oinpfld ) return;
-    oinpfld->commitInput();
+    if ( !oinpfld_ ) return;
+    const IOObj* inioobj = oinpfld_->ioobj( true );
     ismc_ = false;
-    if ( inctio_.ioobj )
+    if ( inioobj )
     {
-	transffld->updateFrom( *inctio_.ioobj );
-	SeisIOObjInfo oinf( *inctio_.ioobj );
+	transffld_->updateFrom( *inioobj );
+	SeisIOObjInfo oinf( *inioobj );
 	ismc_ = oinf.isOK() && oinf.nrComponents() > 1;
 	compfld_->display( ismc_ );
 	if ( ismc_ )
@@ -227,25 +226,25 @@ void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 
 void uiSeisImpCBVS::finpSel( CallBacker* )
 {
-    BufferString inp = finpfld->text();
+    BufferString inp = finpfld_->text();
     if ( inp.isEmpty() ) return;
 
     if ( !File::isEmpty(inp) )
     {
 	PtrMan<IOObj> ioobj = getfInpIOObj( inp );
-	transffld->updateFrom( *ioobj );
+	transffld_->updateFrom( *ioobj );
     }
 
     getOutputName( inp );
-    outfld->setInputText( inp );
+    outfld_->setInputText( inp );
 }
 
 
 void uiSeisImpCBVS::convertSel( CallBacker* )
 {
-    BufferString inp = finpfld->text();
+    BufferString inp = finpfld_->text();
     getOutputName( inp );
-    outfld->setInputText( inp );
+    outfld_->setInputText( inp );
 }
 
 
@@ -255,7 +254,7 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
     if ( inp.isEmpty() ) return;
 
     char* ptr = inp.getCStr();
-    if ( convertfld->isChecked() )
+    if ( convertfld_->isChecked() )
     {
 	// convert underscores to spaces
 	while ( *ptr )
@@ -278,26 +277,25 @@ void uiSeisImpCBVS::getOutputName( BufferString& inp ) const
 
 bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
-    if ( !outfld->commitInput() )
-    {
-	if ( outfld->isEmpty() )
-	    uiMSG().error( "Please choose a name for the output data" );
+    const IOObj* ioobj = outfld_->ioobj();
+    if ( !ioobj )
 	return false;
-    }
 
-    const bool dolink = modefld && !modefld->getBoolValue();
-    if ( oinpfld )
+    outioobj_ = ioobj->clone();
+    PtrMan<IOObj> inioobj = 0;
+    const bool dolink = modefld_ && !modefld_->getBoolValue();
+
+    if ( oinpfld_ )
     {
-	if ( !oinpfld->commitInput() )
-	{
-	    uiMSG().error( "Please select an input cube" );
+	ioobj = oinpfld_->ioobj();
+	if ( !ioobj )
 	    return false;
-	}
-	outctio_.ioobj->pars() = inctio_.ioobj->pars();
+	inioobj = ioobj->clone();
+	outioobj_->pars() = inioobj->pars();
     }
     else
     {
-	BufferString fname = finpfld->text();
+	BufferString fname = finpfld_->text();
 	if ( !fname.str() )
 	{
 	    uiMSG().error( "Please select the input filename" );
@@ -310,7 +308,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    FilePath inputfile( fname );
 	    inputfile.makeCanonical();
 
-	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj)
+	    mDynamicCastGet(IOStream*,iostrm,outioobj_)
 	    if ( iostrm )
 	    {
 		FilePath seismicsdir( iostrm->fullDirName() );
@@ -321,24 +319,24 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	    }
 	}
 
-	const int seltyp = typefld->getIntValue();
+	const int seltyp = typefld_->getIntValue();
 	if ( !seltyp )
-	    outctio_.ioobj->pars().removeWithKey( "Type" );
+	    outioobj_->pars().removeWithKey( "Type" );
 	else
-	    outctio_.ioobj->pars().set( sKey::Type(), seltyp == 1 ?
+	    outioobj_->pars().set( sKey::Type(), seltyp == 1 ?
 				        sKey::Attribute() : sKey::Steering() );
 
-	outctio_.ioobj->setTranslator( CBVSSeisTrcTranslator::translKey() );
+	outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
 	if ( !dolink )
-	    inctio_.setObj( getfInpIOObj(fname) );
+	    inioobj = getfInpIOObj( fname );
 	else
 	{
-	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj);
+	    mDynamicCastGet(IOStream*,iostrm,outioobj_);
 	    iostrm->setFileName( fname );
 	}
     }
 
-    if ( !IOM().commitChanges(*outctio_.ioobj) )
+    if ( !IOM().commitChanges(*outioobj_) )
     {
 	uiMSG().error( "Cannot write new file\nSee log file for details" );
 	return false;
@@ -350,21 +348,21 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	return false;
     }
 
-    uiSeisIOObjInfo ioobjinfo( *outctio_.ioobj, true );
-    if ( !ioobjinfo.checkSpaceLeft(transffld->spaceInfo()) )
+    uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
+    if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
 	{ rmTmpIOObj(); return false; }
 
-    const char* titl = oinpfld ? "Copying seismic data"
+    const char* titl = oinpfld_ ? "Copying seismic data"
 			       : "Importing CBVS seismic cube";
-    PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
-				*outctio_.ioobj, titl, "Loading data" );
+    PtrMan<Executor> stp = transffld_->getTrcProc( *inioobj,
+				*outioobj_, titl, "Loading data" );
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
 
     mDynamicCastGet(SeisSingleTraceProc*,sstp,stp.ptr())
     sstp_ = sstp;
 
-    if ( inctio_.ioobj->pars().isTrue( VelocityDesc::sKeyIsVelocity() ) )
+    if ( inioobj->pars().isTrue( VelocityDesc::sKeyIsVelocity() ) )
 	sstp_->proctobedone_.notify( mCB(this,uiSeisImpCBVS,procToBeDoneCB) );
 
     if ( ismc_ )
@@ -386,13 +384,12 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
     SeisTrc& trc = sstp_->getTrace();
     const SeisTrc intrc = sstp_->getInputTrace();
     const FixedString typestr =
-	outctio_.ioobj->pars().find( VelocityDesc::sKeyVelocityType() );
+		outioobj_->pars().find( VelocityDesc::sKeyVelocityType() );
     if ( typestr.isEmpty() ) return;
 
     const int compnr = compfld_ && compfld_->box()->visible() ?
 		compfld_->box()->currentItem() - 1 : 0;
-    TypeSet<float> trcvals;
-    TypeSet<float> timevals;
+    TypeSet<float> trcvals, timevals;
     const int sizein = intrc.data().size(compnr);
     const float sampstep = intrc.info().sampling.step;
     for ( int idx=0; idx<sizein; idx++ )

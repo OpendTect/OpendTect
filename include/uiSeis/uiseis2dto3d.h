@@ -32,8 +32,6 @@ public:
 			~uiSeis2DTo3D();
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
     Seis2DTo3D&		seis2dto3d_;
 
     uiSeisSel*		inpfld_;

@@ -70,14 +70,14 @@ protected:
 
     Interpol		interpol_;
 
-    mStruct(uiSeis) 		PosData
+    mStruct(uiSeis)		PosData
     {
 			PosData()
 			    : hsit_(0)
-			    , cs_(false) {} 
+			    , cs_(false) {}
 
 	BinID		curbid_;
-	CubeSampling 	cs_;
+	CubeSampling	cs_;
 	HorSamplingIterator* hsit_;
     };
     PosData		data_, olddata_;
@@ -98,7 +98,7 @@ protected:
 
     bool		findSquareTracesAroundCurbid(ObjectSet<SeisTrc>&) const;
     void		getCubeInfo(TypeSet<Coord>&,TypeSet<BinID>&) const;
-    float 		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
+    float		getInlXlnDist(const Pos::IdxPair2Coord&,bool,int) const;
     SeisTrc*		readTrc(const BinID&) const;
     void		sincInterpol(ObjectSet<SeisTrc>&) const;
 };
@@ -110,14 +110,12 @@ mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
 public:
 
 			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);
-			~uiSeisImpCBVSFromOtherSurveyDlg();
+
 protected:
 
-    CtxtIOObj&		inctio_;
-    CtxtIOObj&		outctio_;
     SeisImpCBVSFromOtherSurvey* import_;
-    bool		issinc_;
     SeisImpCBVSFromOtherSurvey::Interpol interpol_;
+    bool		issinc_;
 
     uiGenInput*		finpfld_;
     uiSeisSel*          outfld_;

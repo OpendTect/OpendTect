@@ -104,7 +104,8 @@ protected:
 
 public:
 
-/*! The following functions are deprecated and should not be used anymore. */
+/*! The following functions are deprecated and should not be used anymore.
+    That means they will be gone after 5.0. */
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
 

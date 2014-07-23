@@ -49,7 +49,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     : uiAttrEMOut( p, ad, n, mid, "Create Horizon delimited cube output" )
     , ctio_( mkCtxtIOObjHor(ad.is2D()) )
     , ctio2_( mkCtxtIOObjHor(ad.is2D()) )
-    , ctioout_(*mMkCtxtIOObj(SeisTrc))
     , usesinglehor_(usesinglehor)
     , extraztopfld_(0)
     , extrazbotfld_(0)
@@ -156,9 +155,6 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 	delete ctio2_.ioobj;
 	delete &ctio2_;
     }
-
-    delete ctioout_.ioobj;
-    delete &ctioout_;
 }
 
 
@@ -291,10 +287,9 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
-    ctioout_.ctxt.forread = false;
-    ctioout_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering() );
-    outpfld_ = new uiSeisSel( prnt, ctioout_,
-			      uiSeisSel::Setup(ads_.is2D(),false) );
+    const Seis::GeomType gt = Seis::geomTypeOf( ads_.is2D(), false );
+    outpfld_ = new uiSeisSel( prnt, uiSeisSel::ioContext( gt, false ),
+			      uiSeisSel::Setup(gt) );
     const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
@@ -316,18 +311,15 @@ bool uiAttrTrcSelOut::prepareProcessing()
 	return false;
     }
 
-    bool haveoutput = outpfld_->commitInput();
-    if ( !haveoutput || !ctioout_.ioobj )
-    {
-	uiMSG().error( "Please select output" );
+    const IOObj* outioobj = outpfld_->ioobj();
+    if ( outioobj )
 	return false;
-    }
 
     mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_);
     if ( ads_.is2D() && seis2dsubsel )
     {
 	bool lkexists = false;
-	Seis2DDataSet dataset( *ctioout_.ioobj );
+	Seis2DDataSet dataset( *outioobj );
 	if ( seis2dsubsel->isSingLine() )
 	    lkexists = dataset.indexOf( seis2dsubsel->selectedLine() ) >= 0;
 	else
@@ -360,10 +352,14 @@ bool uiAttrTrcSelOut::fillPar()
     IOPar& iopar = batchfld_->jobSpec().pars_;
     const bool is2d = ads_.is2D();
 
-    BufferString outseisid;
-    outseisid += ctioout_.ioobj->key();
-    fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
-		outseisid );
+    const IOObj* outioobj = outpfld_->ioobj( true );
+    if ( outioobj )
+    {
+	BufferString outseisid;
+	outseisid += outioobj->key();
+	fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
+		    outseisid );
+    }
 
     BufferString outnm = outpfld_->getInput();
     iopar.set( sKey::Target(), outnm );

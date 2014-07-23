@@ -63,10 +63,6 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 		.savechecked(false)
 		.modal(false))
 	, wtsetup_(wtsetup)
-	, wllctio_(*mMkCtxtIOObj(Well))
-	, wvltctio_(*mMkCtxtIOObj(Wavelet))
-	, seisctio2d_(*uiSeisSel::mkCtxtIOObj(Seis::Line,true))
-	, seisctio3d_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 	, seis2dfld_(0)
 	, seis3dfld_(0)
 	, seislinefld_(0)
@@ -195,10 +191,6 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
 	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
     delete &wtsetup_;
     delete &elpropsel_;
-    delete wllctio_.ioobj; delete &wllctio_;
-    delete wvltctio_.ioobj; delete &wvltctio_;
-    delete seisctio3d_.ioobj; delete &seisctio3d_;
-    delete seisctio2d_.ioobj; delete &seisctio2d_;
 }
 
 
@@ -399,6 +391,7 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 {
     if ( !wtsetup_.vellognm_.isEmpty() )
     {
+	if ( !wd_ ) mErrRet( "No well data." )
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	if ( !vp )
 	{

@@ -26,16 +26,13 @@ namespace VolProc
 uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
     : uiStepDialog( p, VolumeReader::sFactoryDisplayName(), vr )
     , volumereader_( vr )
-    , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {
     setHelpKey( mODHelpKey(mVolumeReaderHelpID) );
 
+    seissel_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
+				uiSeisSel::Setup(Seis::Vol) );
     if ( vr )
-	ctio_->setObj( vr->getVolumeID() );
-    else
-	ctio_->setObj( 0 );
-
-    seissel_ = new uiSeisSel( this, *ctio_, uiSeisSel::Setup(false,false) );
+	seissel_->setInput( vr->getVolumeID() );
     seissel_->selectionDone.notify( mCB(this,uiVolumeReader,volSel) );
 
     addNameFld( seissel_ );
@@ -45,14 +42,12 @@ uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
 
 uiVolumeReader::~uiVolumeReader()
 {
-    delete ctio_->ioobj; delete ctio_;
 }
 
 
 void uiVolumeReader::volSel( CallBacker* )
 {
-    seissel_->processInput();
-    const IOObj* ioobj = seissel_->ctxtIOObj(true).ioobj;
+    const IOObj* ioobj = seissel_->ioobj( true );
     if ( ioobj )
 	namefld_->setText( ioobj->name() );
 }
@@ -73,21 +68,15 @@ bool uiVolumeReader::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    if ( !seissel_->commitInput() )
-    {
-	uiMSG().error("Please selectthe input velocity volume");
+    const IOObj* ioobj = seissel_->ioobj();
+    if ( !ioobj )
 	return false;
-    }
 
-    if ( !volumereader_->setVolumeID( ctio_->ioobj->key() ) )
-    {
-	uiMSG().error("Cannot use selected volume" );
-	return false;
-    }
+    if ( !volumereader_->setVolumeID( ioobj->key() ) )
+	{ uiMSG().error( "Cannot use selected volume" ); return false; }
 
     return true;
 }
 
 
 };//namespace
-

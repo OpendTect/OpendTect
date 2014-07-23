@@ -29,14 +29,11 @@ mExpClass(uiSeis) uiSEGYImpDlg : public uiSEGYReadDlg
 public :
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
-			~uiSEGYImpDlg();
 
     void		use(const IOObj*,bool force);
 
 
 protected:
-
-    CtxtIOObj&		ctio_;
 
     uiSeisTransfer*	transffld_;
     uiSeisSel*		seissel_;

@@ -40,17 +40,12 @@ protected:
     void		outputNameChangeCB(CallBacker*);
 
     uiProcSel*		chainsel_;
-
-    CtxtIOObj&		inputctxt_;
     uiSeisSel*		inputsel_;
-
-    uiPosSubSel*	possubsel_;
-
-    CtxtIOObj&		outputctxt_;
     uiSeisSel*		outputsel_;
-    bool		is2d_;
-
+    uiPosSubSel*	possubsel_;
     uiBatchJobDispatcherSel* batchfld_;
+
+    const bool		is2d_;
 
     bool		acceptOK(CallBacker*);
 

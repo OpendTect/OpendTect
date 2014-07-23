@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "volprocvolreader.h"
 
 class uiSeisSel;
-class CtxtIOObj;
+
 
 namespace VolProc
 {
@@ -31,11 +31,11 @@ public:
 	    VolProc::VolumeReader::sFactoryDisplayName())
     mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
 
-				
+
 
 protected:
 				uiVolumeReader(uiParent*,VolumeReader*);
-   				~uiVolumeReader();
+				~uiVolumeReader();
     static uiStepDialog*	createInstance(uiParent*, Step*);
 
     void			volSel(CallBacker*);
@@ -45,7 +45,6 @@ protected:
     VolumeReader*		volumereader_;
 
     uiSeisSel*			seissel_;
-    CtxtIOObj*			ctio_;
 
 };
 

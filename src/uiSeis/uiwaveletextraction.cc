@@ -46,22 +46,18 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p, bool is2d )
     : uiDialog( p,Setup("Extract Wavelet",mNoDlgTitle, 
                         mODHelpKey(mWaveletExtractionHelpID) )
 	             .modal(false) )
-    , seisctio_(*mMkCtxtIOObj(SeisTrc))
-    , wvltctio_(*mMkCtxtIOObj(Wavelet))
     , wvltsize_(0)
     , zrangefld_(0)
     , extractionDone(this)
-    , sd_(0)
+    , seldata_(0)
     , seisselfld_(0)
     , linesel2dfld_(0)
     , datastep_(SI().zStep())
 {
     setCtrlStyle( RunAndClose );
-    seisctio_.ctxt.forread = true;
-    seisctio_.ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Steering());
-
-    seisselfld_ = new uiSeisSel( this, seisctio_,
-				 uiSeisSel::Setup(is2d,false) );
+    const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
+    seisselfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
+				 uiSeisSel::Setup(gt) );
     seisselfld_->selectionDone.notify(
 			    mCB(this,uiWaveletExtraction,inputSelCB) );
     if ( !is2d )
@@ -111,16 +107,16 @@ void uiWaveletExtraction::createCommonUIFlds()
     wvltphasefld_ = new uiGenInput( this, "Phase (Degrees)", IntInpSpec(0) );
     wvltphasefld_->attach( alignedBelow, taperfld_ );
 
-    wvltctio_.ctxt.forread = false;
-    outputwvltfld_ = new uiIOObjSel( this, wvltctio_, "Output wavelet" );
+    IOObjContext wvltctxt( mIOObjContext(Wavelet) );
+    wvltctxt.forread = false;
+    outputwvltfld_ = new uiIOObjSel( this, wvltctxt );
     outputwvltfld_->attach( alignedBelow, wvltphasefld_ );
 }
 
 
 uiWaveletExtraction::~uiWaveletExtraction()
 {
-    delete sd_;
-    delete &seisctio_; delete &wvltctio_;
+    delete seldata_;
 }
 
 
@@ -203,7 +199,11 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 
 bool uiWaveletExtraction::acceptOK( CallBacker* )
 {
-    if ( !seisselfld_->ioobj() || !outputwvltfld_->ioobj() )
+    const IOObj* seisioobj = seisselfld_->ioobj();
+    if ( !seisioobj )
+	    return false;
+    const IOObj* wvltioobj = outputwvltfld_->ioobj();
+    if ( !wvltioobj )
 	    return false;
 
     if ( linesel2dfld_ && !check2DFlds() )
@@ -243,7 +243,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     if ( outputwvltfld_->existingTyped() )
 	outputwvltfld_->setConfirmOverwrite( true );
 
-    doProcess( inputpars, surfacepars );
+    doProcess( *seisioobj, *wvltioobj, inputpars, surfacepars );
     return false;
 }
 
@@ -294,18 +294,18 @@ bool uiWaveletExtraction::check2DFlds()
 }
 
 
-bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
-				     const IOPar& surfacepar )
+bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
+	const IOObj& wvltioobj, const IOPar& rangepar, const IOPar& surfacepar )
 {
     const int phase = wvltphasefld_->getIntValue();
-    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( *seisctio_.ioobj,
-	    						      wvltsize_ );
+    PtrMan<WaveletExtractor> extractor= new WaveletExtractor( seisioobj,
+							      wvltsize_ );
     if ( !linesel2dfld_ )
     {
-	if ( !getSelData(rangepar,surfacepar) || !sd_ )
+	if ( !getSelData(rangepar,surfacepar) || !seldata_ )
 	    return false;
 
-	extractor->setSelData( *sd_ );
+	extractor->setSelData( *seldata_ );
     }
     else
     {
@@ -321,14 +321,14 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	TypeSet<Pos::GeomID> geomids;
 	linesel2dfld_->getSelGeomIDs( geomids );
 	const TypeSet<StepInterval<int> >&  trcrgs =
-	    				linesel2dfld_->getTrcRanges();
+					linesel2dfld_->getTrcRanges();
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 
 	{
 	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
 	    range.setGeomID( geomids[lidx] );
-	    sd_ = range.clone();
-	    sdset += sd_;
+	    seldata_ = range.clone();
+	    sdset += seldata_;
 	}
 
 	extractor->setSelData( sdset );
@@ -347,7 +347,7 @@ bool uiWaveletExtraction::doProcess( const IOPar& rangepar,
 	return false;
 
     Wavelet storewvlt = extractor->getWavelet();
-    storewvlt.put( wvltctio_.ioobj );
+    storewvlt.put( &wvltioobj );
     extractionDone.trigger();
 
     return true;
@@ -444,11 +444,11 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
     {
 	if ( !linesel2dfld_ )
 	{
-	    sd_ = Seis::SelData::get( rangepar );
-	    if ( !sd_ ) return false;
+	    seldata_ = Seis::SelData::get( rangepar );
+	    if ( !seldata_ ) return false;
 
 	    StepInterval<float> zrg = zrangefld_->getRange();
-	    sd_->setZRange( zrg );
+	    seldata_->setZRange( zrg );
 	}
     }
     else
@@ -457,7 +457,7 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
 	if ( !fillHorizonSelData( rangepar, surfacepar, *tsd ) )
 	    return false;
 
-	sd_ = tsd;
+	seldata_ = tsd;
     }
 
     return true;
@@ -466,5 +466,6 @@ bool uiWaveletExtraction::getSelData( const IOPar& rangepar,
 
 MultiID uiWaveletExtraction::storeKey() const
 {
-    return wvltctio_.ioobj ? wvltctio_.ioobj->key() : MultiID("");
+    const IOObj* wvltioobj = outputwvltfld_->ioobj( true );
+    return wvltioobj ? wvltioobj->key() : MultiID("");
 }

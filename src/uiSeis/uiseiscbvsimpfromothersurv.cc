@@ -40,8 +40,6 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     : uiDialog(p,Setup("Import CBVS cube from other survey",
 			"Specify import parameters",
                         mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
-    , inctio_(*mMkCtxtIOObj(SeisTrc))
-    , outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     , import_(0)
 {
     setCtrlStyle( RunAndClose );
@@ -73,22 +71,12 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     uiSeparator* sep2 = new uiSeparator( this, "sep" );
     sep2->attach( stretchedBelow, cellsizefld_ );
 
-    outctio_.ctxt.forread = false;
-    outctio_.ctxt.fixTranslator( "CBVS" );
-    uiSeisSel::Setup sssu( Seis::Vol );
-    outfld_ = new uiSeisSel( this, outctio_, sssu );
+    outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
+			     uiSeisSel::Setup(Seis::Vol) );
     outfld_->attach( alignedBelow, cellsizefld_ );
     outfld_->attach( ensureBelow, sep2 );
-    IOM().to( outctio_.ctxt.getSelKey() );
 
     interpSelDone(0);
-}
-
-
-uiSeisImpCBVSFromOtherSurveyDlg::~uiSeisImpCBVSFromOtherSurveyDlg()
-{
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
 }
 
 
@@ -103,11 +91,12 @@ void uiSeisImpCBVSFromOtherSurveyDlg::interpSelDone( CallBacker* )
 
 void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 {
-    uiSelObjFromOtherSurvey objdlg( this, inctio_ );
-    if ( objdlg.go() && inctio_.ioobj )
+    CtxtIOObj inctio( uiSeisSel::ioContext( Seis::Vol, true ) );
+    uiSelObjFromOtherSurvey objdlg( this, inctio );
+    if ( objdlg.go() && inctio.ioobj )
     {
 	if ( import_ ) delete import_;
-	import_ = new SeisImpCBVSFromOtherSurvey( *inctio_.ioobj );
+	import_ = new SeisImpCBVSFromOtherSurvey( *inctio.ioobj );
 	BufferString fusrexp; objdlg.getIOObjFullUserExpression( fusrexp );
 	if ( import_->prepareRead( fusrexp ) )
 	{
@@ -126,17 +115,13 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     if ( !import_ )
 	mErrRet( "No valid input, please select a new input file" )
 
-    if ( !outfld_->commitInput() )
-    {
-	if ( outfld_->isEmpty() )
-	    mErrRet( "Please select a name for the output data" )
-	else
-	    mErrRet( "Can not process output" )
-    }
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
     int cellsz = issinc_ ? cellsizefld_->box()->getValue() : 0;
     CubeSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
-    import_->setOutput( *outctio_.ioobj );
+    import_->setOutput( const_cast<IOObj&>(*outioobj) );
     uiTaskRunner taskrunner( this );
     return TaskRunner::execute( &taskrunner, *import_ );
 }

@@ -23,21 +23,21 @@ class uiFileInput;
 mExpClass(uiSeis) uiSeisDump2DGeom : public uiDialog
 {
 public:
+
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);
-			~uiSeisDump2DGeom();
 
 protected:
 
-    uiSeisSel*		seisfld;
-    uiGenInput*		lnmsfld;
-    uiFileInput*	outfld;
+    uiSeisSel*		seisfld_;
+    uiGenInput*		lnmsfld_;
+    uiFileInput*	outfld_;
 
-    CtxtIOObj&		ctio;
+    IOObj*		inpioobj_;
 
     virtual bool	acceptOK(CallBacker*);
 
     void		seisSel(CallBacker*);
 };
 
-#endif
 
+#endif

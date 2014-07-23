@@ -25,13 +25,15 @@ class uiSeisSel;
 mExpClass(uiSeis) uiPreStackDataPackSelDlg : public uiDialog
 {
 public:
-    			uiPreStackDataPackSelDlg(uiParent*,
+
+			uiPreStackDataPackSelDlg(uiParent*,
 				const TypeSet<DataPack::FullID>& dpfids,
 				const MultiID& selid);
 
-    const MultiID&	getMultiID() const 	{ return selid_; }
+    const MultiID&	getMultiID() const	{ return selid_; }
 
 protected:
+
     uiListBox*		datapackinpfld_;
     const TypeSet<DataPack::FullID>& dpfids_;
     MultiID		selid_;
@@ -45,15 +47,14 @@ mExpClass(uiSeis) uiPreStackSel : public uiGroup
 public:
 
 			uiPreStackSel(uiParent*,bool is2d);
-			~uiPreStackSel();
 
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    void 		setInput(const MultiID&);
-    const MultiID	getMultiID() const;
+    void		setInput(const MultiID&);
+    MultiID		getMultiID() const;
 
-    void	 	setDataPackInp(const TypeSet<DataPack::FullID>& ids);
+    void		setDataPackInp(const TypeSet<DataPack::FullID>& ids);
     bool		commitInput();
 
 protected:
@@ -61,12 +62,9 @@ protected:
     uiSeisSel*		seisinpfld_;
     uiIOSelect*		datapackinpfld_;
 
-    BufferString	errmsg_;
-    CtxtIOObj&		ctio_;
-    MultiID		selid_;
-
     void		doSelDataPack(CallBacker*);
 
+    MultiID		selid_;
     TypeSet<DataPack::FullID> dpfids_;
 };
 

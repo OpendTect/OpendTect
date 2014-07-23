@@ -261,7 +261,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
 	: uiIOObjSel(p,getCtxtIOObj(c,su),mkSetup(su,c.ctxt.forread))
 	, seissetup_(mkSetup(su,c.ctxt.forread))
 	, othdombox_(0)
-        , compnr_(0)
+	, compnr_(0)
 {
     workctio_.ctxt = inctio_.ctxt;
     if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )

@@ -35,33 +35,25 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
     : uiDialog(p,uiDialog::Setup("Dump 2D line geometry to file",
 				 mNoDlgTitle,
 				 mODHelpKey(mSeisDump2DGeomHelpID)))
-    , ctio(*mMkCtxtIOObj(SeisTrc))
 {
-    CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
+    const CallBack cb( mCB(this,uiSeisDump2DGeom,seisSel) );
     if ( ioobj )
-    {
-	ctio.setObj( ioobj->clone() );
 	preFinalise().notify( cb );
-    }
 
     uiSeisSel::Setup ss( Seis::Line );
-    seisfld = new uiSeisSel( this, ctio, ss );
-    seisfld->selectionDone.notify( cb );
+    seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true), ss );
+    if ( ioobj )
+	seisfld_->setInput( ioobj->key() );
+    seisfld_->selectionDone.notify( cb );
 
-    lnmsfld = new uiGenInput( this, "One line only",
+    lnmsfld_ = new uiGenInput( this, "One line only",
 			      StringListInpSpec(emptylnms) );
-    lnmsfld->setWithCheck( true );
-    lnmsfld->attach( alignedBelow, seisfld );
+    lnmsfld_->setWithCheck( true );
+    lnmsfld_->attach( alignedBelow, seisfld_ );
 
-    outfld = new uiFileInput( this, "Output file",
-	    			uiFileInput::Setup().forread(false) );
-    outfld->attach( alignedBelow, lnmsfld );
-}
-
-
-uiSeisDump2DGeom::~uiSeisDump2DGeom()
-{
-    delete ctio.ioobj; delete &ctio;
+    outfld_ = new uiFileInput( this, "Output file",
+				uiFileInput::Setup().forread(false) );
+    outfld_->attach( alignedBelow, lnmsfld_ );
 }
 
 
@@ -74,24 +66,23 @@ static void getLineNames( const IOObj& ioobj, BufferStringSet& lnms )
 
 void uiSeisDump2DGeom::seisSel( CallBacker* )
 {
-    seisfld->commitInput();
-    BufferStringSet lnms;
-    if ( ctio.ioobj )
-	getLineNames( *ctio.ioobj, lnms );
+    const IOObj* lsioobj = seisfld_->ioobj();
+    if ( !lsioobj )
+	return;
 
-    lnmsfld->newSpec( StringListInpSpec(lnms), 0 );
+    BufferStringSet lnms;
+    getLineNames( *lsioobj, lnms );
+    lnmsfld_->newSpec( StringListInpSpec(lnms), 0 );
 }
 
 
 bool uiSeisDump2DGeom::acceptOK( CallBacker* )
 {
-    if ( !seisfld->commitInput() )
-    {
-        uiMSG().error( "Please enter the input line set" );
+    const IOObj* lsioobj = seisfld_->ioobj();
+    if ( !lsioobj )
         return false;
-    }
 
-    BufferString fnm( outfld->fileName() );
+    BufferString fnm( outfld_->fileName() );
     if ( fnm.isEmpty() )
     {
         uiMSG().error( "Please enter the output file name" );
@@ -105,14 +96,14 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
         return false;
     }
 
-    BufferString lsnm( ctio.ioobj->name() );
+    BufferString lsnm( lsioobj->name() );
     S2DPOS().setCurLineSet( lsnm );
 
     BufferStringSet lnms;
-    if ( lnmsfld->isChecked() )
-	lnms.add( lnmsfld->text() );
+    if ( lnmsfld_->isChecked() )
+	lnms.add( lnmsfld_->text() );
     else
-	getLineNames( *ctio.ioobj, lnms );
+	getLineNames( *lsioobj, lnms );
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {

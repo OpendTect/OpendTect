@@ -1037,29 +1037,27 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 }
 
 
-#define mDelCtio delete ctio->ioobj; delete ctio
-
 void uiAttribDescSetEd::importFromSeis( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
     // TODO: Only display files with have saved attributes
     const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
-    CtxtIOObj* ctio = uiSeisSel::mkCtxtIOObj( is2d?Seis::Line:Seis::Vol, true );
-    ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
+    IOObjContext ctxt( uiSeisSel::ioContext(is2d?Seis::Line:Seis::Vol,true) );
+    ctxt.toselect.require_.set( sKey::Type(), sKey::Attribute() );
 
-    uiSeisSelDlg dlg( this, *ctio, uiSeisSel::Setup(is2d,false) );
-    if ( !dlg.go() ) { mDelCtio; return; }
-
+    uiSeisSelDlg dlg( this, ctxt, uiSeisSel::Setup(is2d,false) );
+    if ( !dlg.go() )
+	return;
     const IOObj* ioobj = dlg.ioObj();
-    if ( !ioobj ) { mDelCtio; return; }
+    if ( !ioobj )
+	return;
 
     FilePath fp( ioobj->fullUserExpr() );
     fp.setExtension( "proc" );
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error( "No attributeset stored with this dataset" );
-	mDelCtio;
 	return;
     }
 
@@ -1069,7 +1067,6 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     if ( !attrpars )
     {
 	uiMSG().error( "Cannot read attributeset from this dataset" );
-	mDelCtio;
 	return;
     }
 
@@ -1078,7 +1075,6 @@ void uiAttribDescSetEd::importFromSeis( CallBacker* )
     attrsetfld_->setText( sKeyNotSaved );
     setctio_.ioobj = 0;
     applycb.trigger();
-    mDelCtio;
 }
 
 

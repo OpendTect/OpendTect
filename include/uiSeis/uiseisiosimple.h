@@ -12,7 +12,7 @@
 #include "samplingdata.h"
 #include "seisiosimple.h"
 #include "multiid.h"
-class CtxtIOObj;
+class IOObjContext;
 class uiLabel;
 class uiScaler;
 class uiSeisSel;
@@ -59,7 +59,7 @@ protected:
     uiSeisSubSel*	subselfld_;
     uiSeis2DLineNameSel* lnmfld_;
 
-    CtxtIOObj&		ctio_;
+    IOObjContext&	ctxt_;
     Seis::GeomType	geom_;
     bool		isimp_;
 
@@ -79,7 +79,7 @@ protected:
     SeisIOSimple::Data&	data()
 			{ return  geom_ == Seis::Line ? data2d()
 			       : (geom_ == Seis::Vol  ? data3d()
-				       		      : dataps()); }
+						      : dataps()); }
 
     bool		is2D() const	{ return Seis::is2D(geom_); }
     bool		isPS() const	{ return Seis::isPS(geom_); }

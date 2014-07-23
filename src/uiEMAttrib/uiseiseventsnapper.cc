@@ -40,7 +40,6 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 					bool is2d )
     : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,
 		       mODHelpKey(mSnapToEventHelpID) ).modal(false))
-    , seisctio_(*uiSeisSel::mkCtxtIOObj(is2d ? Seis::Line : Seis::Vol,true))
     , horizon_(0)
     , is2d_(is2d)
     , readyForDisplay(this)
@@ -48,12 +47,13 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
     setCtrlStyle( RunAndClose );
 
     horinfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
-	    				   : mIOObjContext(EMHorizon3D),
+					   : mIOObjContext(EMHorizon3D),
 			        "Horizon to snap" );
     if ( inp ) horinfld_->setInput( *inp );
 
-    seisfld_ = new uiSeisSel( this, seisctio_,
-	    		      uiSeisSel::Setup(is2d ? Seis::Line : Seis::Vol ));
+    const Seis::GeomType gt = is2d_ ? Seis::Line : Seis::Vol;
+    seisfld_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
+			      uiSeisSel::Setup(gt));
     seisfld_->attach( alignedBelow, horinfld_ );
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
@@ -79,7 +79,6 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp,
 
 uiSeisEventSnapper::~uiSeisEventSnapper()
 {
-    delete seisctio_.ioobj; delete &seisctio_;
     if ( horizon_ ) horizon_->unRef();
 }
 
@@ -91,7 +90,7 @@ bool uiSeisEventSnapper::readHorizon()
 {
     if ( !horinfld_->ioobj() )
 	return false;
-    
+
     const MultiID& mid = horinfld_->key();
     EM::Horizon* hor = savefldgrp_->readHorizon( mid );
     if ( !hor ) mErrRet( "Could not load horizon" );
@@ -107,8 +106,9 @@ bool uiSeisEventSnapper::readHorizon()
 
 bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 {
-    if ( !seisfld_->commitInput() )
-	mErrRet( "Please select the seismics" )
+    const IOObj* seisioobj = seisfld_->ioobj();
+    if ( !seisioobj )
+	return false;
 
     if ( !readHorizon() )
 	mErrRet( "Cannot read horizon" );
@@ -119,7 +119,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
     usedhor->setBurstAlert( true );
-    
+
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1.f / SI().zDomain().userFactor() );
 
@@ -131,17 +131,17 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
 	    if ( !hor3d )
 		return false;
-	    
+
 	    mDynamicCastGet(EM::Horizon3D*,newhor3d,usedhor)
 	    if ( !newhor3d )
 		return false;
 
 	    BinIDValueSet bivs( 1, false );
 	    hor3d->geometry().fillBinIDValueSet( sid, bivs );
-	    
-	    SeisEventSnapper3D snapper( *seisctio_.ioobj, bivs, rg );
+
+	    SeisEventSnapper3D snapper( *seisioobj, bivs, rg );
 	    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
-	   
+
 	    uiTaskRunner dlg( this );
 	    if ( !TaskRunner::execute(&dlg,snapper) )
 		return false;
@@ -165,7 +165,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_)
 	    if ( !hor2d )
 		return false;
-	    
+
 	    mDynamicCastGet(EM::Horizon2D*,newhor2d,usedhor)
 	    if ( !newhor2d )
 		return false;
@@ -173,7 +173,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    Seis2DLineSetEventSnapper snapper( hor2d, newhor2d,
 		    Seis2DLineSetEventSnapper::Setup(eventfld_->getIntValue()+1,
 						     rg) );
-	   
+
 	    uiTaskRunner dlg( this );
 	    if ( !TaskRunner::execute( &dlg, snapper ) )
 		return false;

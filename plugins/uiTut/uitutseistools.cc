@@ -23,27 +23,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 static const char* actions[] = { "Scale", "Square", "Smooth",
-    				 "Replace sampling", 0 };
+				 "Replace sampling", 0 };
 // Exactly the order of the Tut::SeisTools::Action enum
 
 uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 	: uiDialog( p, Setup( "Tut seismic tools",
 			      "Specify process parameters",
 			      mNoHelpKey ) )
-    	, inctio_(*mMkCtxtIOObj(SeisTrc))
-    	, outctio_(*mMkCtxtIOObj(SeisTrc))
-    	, geom_(gt)
-    	, tst_(*new Tut::SeisTools)
+	, geom_(gt)
+	, tst_(*new Tut::SeisTools)
 {
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
     const CallBack inpcb( mCB(this,uiTutSeisTools,inpSel) );
 
     // The input seismic object
-    inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup(geom_) );
+    inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(geom_,true),
+				uiSeisSel::Setup(geom_) );
     inpfld_->selectionDone.notify( inpcb );
-    
+
     subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_) );
-    
+
     subselfld_->attachObj()->attach( alignedBelow, inpfld_ );
     // What seismic tool is required?
     actionfld_ = new uiGenInput( this, "Action",
@@ -70,14 +69,14 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 
     newsdfld_ = new uiGenInput( this, BufferString("New sampling ",
 				SI().getZUnitString()), FloatInpSpec(),
-	    			FloatInpSpec() );
+				FloatInpSpec() );
     newsdfld_->attach( alignedBelow, actionfld_ );
 
     // The output seismic object
-    outctio_.ctxt.forread = false;
-    outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(geom_) );
+    outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(geom_,false),
+				uiSeisSel::Setup(geom_) );
     outfld_->attach( alignedBelow, scalegrp_ );
-    
+
     // Make sure only relevant stuff is displayed on startup
     postFinalise().notify( choicecb );
 }
@@ -85,8 +84,6 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 
 uiTutSeisTools::~uiTutSeisTools()
 {
-    delete inctio_.ioobj; delete &inctio_;
-    delete outctio_.ioobj; delete &outctio_;
     delete &tst_;
 }
 
@@ -107,17 +104,19 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
     // Get cubes and check
-    if ( !inpfld_->commitInput() )
-	mErrRet("Missing Input\nPlease select the input seismics")
-    if ( !outfld_->commitInput() )
-	mErrRet("Missing Output\nPlease enter a name for the output seismics")
-    else if ( outctio_.ioobj->implExists(false)
+    const IOObj* inioobj = inpfld_->ioobj();
+    if ( !inioobj )
+	return false; // Error messages already handled
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
+    else if ( outioobj->implExists(false)
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 	return false;
 
     tst_.clear();
-    tst_.setInput( *inctio_.ioobj );
-    tst_.setOutput( *outctio_.ioobj );
+    tst_.setInput( *inioobj );
+    tst_.setOutput( *outioobj );
 
     CubeSampling  cs;
     subselfld_->getSampling( cs.hrg );
@@ -160,7 +159,8 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 
 void uiTutSeisTools::inpSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput() || !inctio_.ioobj ) return;
-
-    subselfld_->setInput( *inctio_.ioobj );
+    const IOObj* inioobj = inpfld_->ioobj( true );
+			// 'true' prevents error message if nothing selected
+    if ( inioobj )
+	subselfld_->setInput( *inioobj );
 }

@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
-       			const TypeSet<DataPack::FullID>& dpfids,
+			const TypeSet<DataPack::FullID>& dpfids,
 			const MultiID& selid )
     : uiDialog(p,uiDialog::Setup("Select Data",mNoDlgTitle,mNoHelpKey))
     , dpfids_(dpfids)
@@ -49,22 +49,18 @@ bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
 
 uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     : uiGroup(p, "Prestack data selector")
-    , ctio_(*uiSeisSel::mkCtxtIOObj(is2d?Seis::LinePS:Seis::VolPS,true))
     , selid_(MultiID::udf())
 {
+    const uiSeisSel::Setup sssu( is2d ? Seis::LinePS : Seis::VolPS, true );
+    const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
+    seisinpfld_ = new uiSeisSel( this, ctxt, sssu );
+
     BufferString seltxt( "Select Prestack Data" );
-    seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
     datapackinpfld_ = new uiIOSelect( this, uiIOSelect::Setup(seltxt),
 				mCB(this,uiPreStackSel,doSelDataPack));
 
     datapackinpfld_->display( false );
     setHAlignObj( seisinpfld_ );
-}
-
-
-uiPreStackSel::~uiPreStackSel()
-{
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 
@@ -90,13 +86,12 @@ void uiPreStackSel::setInput( const MultiID& mid )
 }
 
 
-const MultiID uiPreStackSel::getMultiID() const
+MultiID uiPreStackSel::getMultiID() const
 {
     if ( dpfids_.isEmpty() )
 	return selid_;
 
-    BufferString mid = "#";
-    mid += selid_;
+    BufferString mid( "#", selid_ );
     return mid.buf();
 }
 
@@ -115,12 +110,13 @@ bool uiPreStackSel::commitInput()
 {
     if ( dpfids_.isEmpty() )
     {
-	seisinpfld_->commitInput();
-	if ( !ctio_.ioobj )
-	    mErrRet( "Please select the input data store" )
+	const IOObj* ioobj = seisinpfld_->ioobj();
+	if ( !ioobj )
+	    return false;
 
-	selid_ = ctio_.ioobj->key();
+	selid_ = ioobj->key();
     }
+
     if ( selid_.isUdf() )
 	mErrRet( "Please select a valid input" )
 
@@ -147,4 +143,3 @@ void uiPreStackSel::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
     datapackinpfld_->display( true );
     seisinpfld_->display( false );
 }
-

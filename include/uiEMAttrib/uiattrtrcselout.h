@@ -27,7 +27,7 @@ namespace Attrib { class DescSet; }
 
 /*! \brief
 Trace Selection Output Batch dialog.
-Used for calculating attributes between surfaces or withing a user-defined 
+Used for calculating attributes between surfaces or withing a user-defined
 interval around a surface
 */
 
@@ -35,9 +35,10 @@ interval around a surface
 mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
 {
 public:
-    			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
+			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
 				      const NLAModel*,const MultiID&,bool);
 			~uiAttrTrcSelOut();
+
     void		getComputableSurf(HorSampling&);
 
 protected:
@@ -73,7 +74,6 @@ protected:
 
     CtxtIOObj&		ctio_;
     CtxtIOObj&		ctio2_;
-    CtxtIOObj&		ctioout_;
 
     uiIOObjSel*		objfld_;
     uiIOObjSel*		obj2fld_;
@@ -96,6 +96,7 @@ protected:
 private:
 
     CtxtIOObj&          mkCtxtIOObjHor(bool);
+
 };
 
 #endif

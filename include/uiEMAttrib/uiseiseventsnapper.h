@@ -48,7 +48,7 @@ protected:
     bool		readHorizon();
 
     EM::Horizon*	horizon_;
-    CtxtIOObj&		seisctio_;
+
 };
 
 #endif

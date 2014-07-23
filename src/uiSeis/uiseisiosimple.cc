@@ -65,7 +65,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			      mNoDlgTitle,
 			      imp ? mODHelpKey(mSeisIOSimpleImpHelpID)
                                   : mODHelpKey(mSeisIOSimpleExpHelpID) ) )
-	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
+	, ctxt_(*new IOObjContext(uiSeisSel::ioContext(gt,!imp)))
 	, sdfld_(0)
 	, havenrfld_(0)
 	, haverefnrfld_(0)
@@ -101,7 +101,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     else
     {
 	ssu.steerpol(uiSeisSel::Setup::InclSteer);
-	seisfld_ = new uiSeisSel( this, ctio_, ssu );
+	seisfld_ = new uiSeisSel( this, ctxt_, ssu );
 	seisfld_->selectionDone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
     }
@@ -251,7 +251,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
 	if ( !isps ) ssu.enabotherdomain( true );
-	seisfld_ = new uiSeisSel( this, ctio_, ssu );
+	seisfld_ = new uiSeisSel( this, ctxt_, ssu );
 	seisfld_->attach( alignedBelow, remnullfld_ );
 	if ( is2d )
 	{
@@ -340,12 +340,12 @@ void uiSeisIOSimple::havesdSel( CallBacker* )
 
 void uiSeisIOSimple::inpSeisSel( CallBacker* )
 {
-    seisfld_->commitInput();
-    if ( ctio_.ioobj )
+    const IOObj* ioobj = seisfld_->ioobj( true );
+    if ( ioobj )
     {
-	subselfld_->setInput( *ctio_.ioobj );
+	subselfld_->setInput( *ioobj );
 	BufferStringSet compnms;
-	SeisIOObjInfo::getCompNames( ctio_.ioobj->key(), compnms );
+	SeisIOObjInfo::getCompNames( ioobj->key(), compnms );
 	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
 	multcompfld_->display( compnms.size()>1 );
 	multcompfld_->setSensitive( compnms.size()>1 );
@@ -356,9 +356,9 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
 void uiSeisIOSimple::lsSel( CallBacker* )
 {
     if ( !lnmfld_ ) return;
-    seisfld_->commitInput();
-    if ( ctio_.ioobj )
-	lnmfld_->setDataSet( ctio_.ioobj->key() );
+    const IOObj* ioobj = seisfld_->ioobj( true );
+    if ( ioobj )
+	lnmfld_->setDataSet( ioobj->key() );
 }
 
 
@@ -432,9 +432,9 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File::exists(fnm) )
 	mErrRet("Input file does not exist or is unreadable")
-    if ( !seisfld_->commitInput() )
-	mErrRet( isimp_ ? "Please choose a name for the imported data"
-		       : "Please select the input seismics")
+    const IOObj* ioobj = seisfld_->ioobj( true );
+    if ( !ioobj )
+	return false;
 
     data().subselpars_.setEmpty();
     if ( is2D() )
@@ -449,7 +449,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().linekey_.setLineName( linenm );
     }
 
-    data().seiskey_ = ctio_.ioobj->key();
+    data().seiskey_ = ioobj->key();
     data().fname_ = fnm;
 
     data().setScaler( scalefld_->getScaler() );

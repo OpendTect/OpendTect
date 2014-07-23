@@ -50,17 +50,16 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     : uiSEGYReadDlg(p,su,iop)
     , morebut_(0)
     , batchfld_(0)
-    , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
 {
-    ctio_.ctxt.forread = false;
-    if ( setup().dlgtitle_.isEmpty() )
+    BufferString ttl( setup().dlgtitle_.getFullString() );
+    if ( ttl.isEmpty() )
     {
-	BufferString ttl( "Import " );
-	ttl += Seis::nameOf( setup_.geom_ );
+	ttl.set( "Import " ).add( Seis::nameOf(setup_.geom_) );
 	SEGY::FileSpec fs; fs.usePar( iop );
-	ttl += " '"; ttl += getLimitedDisplayString(fs.fname_,40,0); ttl += "'";
-	setTitleText( ttl );
+	ttl.add( " '" ).add( getLimitedDisplayString(fs.fname_,40,0) )
+	   .add( "'" );
     }
+    setTitleText( tr(ttl) );
 
     uiSeparator* sep = optsgrp_ ? new uiSeparator( this, "Hor sep" ) : 0;
 
@@ -77,8 +76,9 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     }
 
     uiSeisSel::Setup sssu( setup_.geom_ ); sssu.enabotherdomain( true );
-    ctio_.ctxt.fixTranslator( "CBVS" );
-    seissel_ = new uiSeisSel( outgrp, ctio_, sssu );
+    IOObjContext ctxt( uiSeisSel::ioContext( su.geom_, false ) );
+    ctxt.fixTranslator( "CBVS" );
+    seissel_ = new uiSeisSel( outgrp, ctxt, sssu );
     seissel_->attach( alignedBelow, transffld_ );
 
     if ( setup_.geom_ != Seis::Line )
@@ -104,12 +104,6 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );
     }
-}
-
-
-uiSEGYImpDlg::~uiSEGYImpDlg()
-{
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 
@@ -269,14 +263,10 @@ bool doImp( const FilePath& fp )
 
 bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 {
-    if ( !seissel_->commitInput() )
-    {
-	if ( seissel_->isEmpty() )
-	    uiMSG().error( tr("Please select the output data") );
+    const IOObj* outioobj = seissel_->ioobj();
+    if ( !outioobj )
 	return false;
-    }
 
-    const IOObj& outioobj = *ctio_.ioobj;
     const bool is2d = Seis::is2D( setup_.geom_ );
     BufferString lnm = is2d && transffld_->selFld2D() ?
 		       transffld_->selFld2D()->selectedLine() : 0;
@@ -287,11 +277,11 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
     }
 
     const IOObj* useinioobj = &inioobj; IOObj* tmpioobj = 0;
-    const bool outissidom = ZDomain::isSI( outioobj.pars() );
+    const bool outissidom = ZDomain::isSI( outioobj->pars() );
     if ( !outissidom )
     {
 	tmpioobj = inioobj.clone();
-	ZDomain::Def::get(outioobj.pars()).set( tmpioobj->pars() );
+	ZDomain::Def::get(outioobj->pars()).set( tmpioobj->pars() );
 	useinioobj = tmpioobj;
     }
 
@@ -313,14 +303,14 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
 	}
 
-	retval = impFile( *useinioobj, outioobj, lnm );
+	retval = impFile( *useinioobj, *outioobj, lnm );
 	if ( is2d && retval )
 	    uiMSG().message( tr("Successfully loaded %1").
 			     arg(useinioobj->fullUserExpr()) );
     }
     else
     {
-	uiSEGYImpSimilarDlg dlg( this, *useinioobj, outioobj );
+	uiSEGYImpSimilarDlg dlg( this, *useinioobj, *outioobj );
 	retval = dlg.go();
     }
 

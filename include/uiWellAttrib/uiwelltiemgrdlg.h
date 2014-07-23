@@ -49,13 +49,8 @@ public:
 protected:
 
     WellTie::Setup&	wtsetup_;
-    CtxtIOObj&		wllctio_; //will be removed
-    CtxtIOObj&		wvltctio_; //will be removed
-    CtxtIOObj&		seisctio2d_; //will be removed
-    CtxtIOObj&		seisctio3d_; //will be removed
     ElasticPropSelection& elpropsel_;
     bool		savedefaut_;
-    bool		is2d_; //will be removed
     ObjectSet<uiTieWin> welltiedlgset_;
     ObjectSet<uiTieWin> welltiedlgsetcpy_;
     uiWellPropSel*	logsfld_;
@@ -91,11 +86,7 @@ protected:
     void		d2TSelChg(CallBacker*);
     void		wellSelChg(CallBacker*);
     void		wellTieDlgClosed(CallBacker*);
-	void		wellToBeDeleted(CallBacker*);
-    void		set3DSeis() const {}; //will be removed
-    void		set2DSeis() const {}; //will be removed
-    void		setLine() const {}; //will be removed
-    void		setTypeFld() {}; //will be removed
+    void		wellToBeDeleted(CallBacker*);
     bool		selIs2D() const;
     bool		seisIDIs3D(MultiID) const;
 };
