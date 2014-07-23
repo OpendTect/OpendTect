@@ -441,7 +441,7 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
 
-    if ( *coltabs_[channel] == seq )
+    if ( !coltabs_.validIdx(channel) || *coltabs_[channel] == seq )
 	return;
     
     *coltabs_[channel] = seq;
@@ -470,7 +470,7 @@ ColTabTextureChannel2RGBA::getSequence( int channel ) const
     if ( channel>=coltabs_.size() )
 	adjustNrChannels();
 
-    return coltabs_[channel];
+    return coltabs_.validIdx(channel) ? coltabs_[channel] : 0;
 }
 
 
