@@ -287,17 +287,9 @@ void HorizonSection::setWireframeColor( Color col )
 void HorizonSection::configSizeParameters()
 {
     mDefineRCRange(,);
-    const int maxsz = mMAX( rrg.nrSteps()+1, crg.nrSteps()+1 );
 
     nrcoordspertileside_ = cNumberNodePerTileSide;
     nrhorsectnrres_ = cMaximumResolution;
-    while ( maxsz > (nrcoordspertileside_ * cMaxNrTiles) &&
-	    nrhorsectnrres_ < cMaxNrResolutions )
-    {
-	nrcoordspertileside_ *= 2;
-	nrhorsectnrres_++;
-    }
-
     tilesidesize_ = nrcoordspertileside_ - 1;
     lowestresidx_ = nrhorsectnrres_-1;
 

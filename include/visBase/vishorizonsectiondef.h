@@ -17,7 +17,6 @@ ________________________________________________________________________
 // horizonsection. don't include it in somewhere else in od.
 
 
-const int   cMaxNrTiles		= 15;
 const int   cMaxNrResolutions	= 10;
 
 const int   cNoTesselationNeeded	= 0;
