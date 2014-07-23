@@ -83,6 +83,9 @@ public:
 
     IOObj*		mkEntry(const char*) const;
     void		use(const IOObj&);
+    void		updatePars(IOObj&) const;
+
+    bool		hasSelectedTranslator(const IOObj&) const;
 
 protected:
 

@@ -166,6 +166,17 @@ const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 }
 
 
+bool uiIOObjSelWriteTranslator::hasSelectedTranslator( const IOObj& ioobj) const
+{
+    const Translator* trl = selectedTranslator();
+    if ( !trl )
+	return ioobj.translator().isEmpty();
+
+    return ioobj.translator() == trl->userName()
+	&& ioobj.group() == trl->group()->userName();
+}
+
+
 uiIOObjTranslatorWriteOpts* uiIOObjSelWriteTranslator::getCurOptFld() const
 {
     if ( !selfld_ )
@@ -200,15 +211,19 @@ IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm ) const
     ctio.ioobj = 0; ctio.setName( nm );
     ctio.fillObj( false, translIdx() );
     if ( ctio.ioobj )
-    {
-	uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
-	if ( fld )
-	{
-	    fld->fill( ctio.ioobj->pars() );
-	    IOM().commitChanges( *ctio.ioobj );
-	}
-    }
+	updatePars( *ctio.ioobj );
     return ctio.ioobj;
+}
+
+
+void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
+{
+    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+    if ( fld )
+    {
+	fld->fill( ioobj.pars() );
+	IOM().commitChanges( ioobj );
+    }
 }
 
 
