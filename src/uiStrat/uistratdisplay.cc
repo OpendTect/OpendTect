@@ -25,9 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uimenuhandler.h"
 
-#include "genericnumer.h"
-#include "draw.h"
-#include "randcolor.h"
 #include "scaler.h"
 #include "survinfo.h"
 
