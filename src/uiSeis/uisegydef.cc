@@ -303,20 +303,25 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 }
 
 
-#define mDefRetrTB(clss,grp) \
+#define mDefSaveRetrTBs(clss,grp) \
     uiSeparator* sep = new uiSeparator( grp->attachObj()->parent(), \
 			"Vert sep", OD::Vertical );\
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
       "openset", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
-    rtb->attach( rightOf, sep )
+    rtb->attach( rightOf, sep ); \
+    uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
+      "saveset", "Save setup", mCB(this,clss,writeParsPush) );\
+    stb->attach( alignedBelow, rtb ); \
 
-uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
+uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
+				bool withio )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
     , nrsamplesfld_(0)
     , byteswapfld_(0)
     , readParsReq(this)
+    , writeParsReq(this)
 {
     if ( enabbyteswapwrite == -1 )
     {
@@ -347,7 +352,8 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 	byteswapfld_->attach( alignedBelow, fmtfld_ );
     }
 
-    mDefRetrTB( uiSEGYFilePars, grp );
+    if ( withio )
+	{ mDefSaveRetrTBs( uiSEGYFilePars, grp ); }
 
     if ( iop ) usePar( *iop );
     grp->setHAlignObj( fmtfld_ );
@@ -358,6 +364,12 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 void uiSEGYFilePars::readParsPush( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYFilePars::writeParsPush( CallBacker* )
+{
+    writeParsReq.trigger();
 }
 
 
@@ -573,12 +585,12 @@ bool getVals()
 
 #define mDefObjs(grp) \
 { \
-    mDefRetrTB(uiSEGYFileOpts,grp); \
+    mDefSaveRetrTBs(uiSEGYFileOpts,grp); \
 \
-    uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
+    uiToolButton* pstb = new uiToolButton( grp->attachObj()->parent(), \
 			     "prescan","Pre-scan the file(s)", \
 				    mCB(this,uiSEGYFileOpts,preScanPush) );\
-    stb->attach( alignedBelow, rtb ); \
+    pstb->attach( alignedBelow, stb ); \
 \
     setHAlignObj( grp ); \
 }
@@ -608,6 +620,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 	, ts_(0)
 	, thdef_(*new SEGY::TrcHeaderDef)
 	, readParsReq(this)
+	, writeParsReq(this)
 	, preScanReq(this)
 {
     thdef_.fromSettings();
@@ -668,6 +681,12 @@ void uiSEGYFileOpts::initFlds( CallBacker* cb )
 void uiSEGYFileOpts::readParsPush( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYFileOpts::writeParsPush( CallBacker* )
+{
+    writeParsReq.trigger();
 }
 
 

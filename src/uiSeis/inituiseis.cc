@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uiveldesc.h"
 #include "uiseismmjobdispatch.h"
+#include "uiseiswriteopts.h"
 
 
 mDefModInitFn(uiSeis)
@@ -22,4 +23,7 @@ mDefModInitFn(uiSeis)
     uiDepth2Time::initClass();
 
     Batch::MMJobDispatcher::addDef( new Batch::SeisMMProgDef );
+
+    uiCBVSVolOpts::initClass();
+    uiSEGYDirectVolOpts::initClass();
 }

@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiscaler.h"
-#include "uiseisfmtscale.h"
 #include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
@@ -95,7 +94,6 @@ void uiSeisImpCBVS::init( bool fromioobj )
     if ( fromioobj )
     {
 	IOObjContext inctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
-	inctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
 	uiSeisSel::Setup sssu( Seis::Vol );
 	sssu.steerpol( uiSeisSel::Setup::InclSteer );
 	oinpfld_ = new uiSeisSel( this, inctxt, sssu );
@@ -105,6 +103,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	compfld_->attach( alignedBelow, oinpfld_ );
 	if ( initialinpioobj_ )
 	{
+	    oinpfld_->setInput( initialinpioobj_->key() );
 	    SeisIOObjInfo oinf( *initialinpioobj_ );
 	    sts.zdomkey_ = oinf.zDomainDef().key();
 	    if ( sts.zdomkey_ != ZDomain::SI().key() )
@@ -146,10 +145,12 @@ void uiSeisImpCBVS::init( bool fromioobj )
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
     IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
-    outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
     IOM().to( outctxt.getSelKey() );
     if ( !fromioobj )
+    {
 	sssu.enabotherdomain( true );
+	outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    }
     outfld_ = new uiSeisSel( this, outctxt, sssu );
 
     if ( convertfld_ )

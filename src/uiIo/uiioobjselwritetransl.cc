@@ -14,10 +14,31 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "transl.h"
+#include "ioman.h"
 #include "pixmap.h"
 #include "uicombobox.h"
 #include "uibutton.h"
 #include "uilabel.h"
+
+mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
+		   uiIOObjTranslatorWriteOpts::factory);
+
+
+uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
+							const Translator& trl )
+    : uiGroup(p,BufferString("Write options group for ",getName4Factory(trl)))
+    , transl_(trl)
+{
+}
+
+
+const char* uiIOObjTranslatorWriteOpts::getName4Factory( const Translator& trl )
+{
+    mDeclStaticString( ret );
+    ret.set( trl.userName() ).add( " [" )
+	.add( trl.group()->userName() ).add( "]" );
+    return ret.str();
+}
 
 
 uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
@@ -25,21 +46,53 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     : uiGroup(p,"Write Translator selector")
     , ctxt_(*new IOObjContext(ctio.ctxt))
     , selfld_(0)
-    , optsbut_(0)
     , lbl_(0)
 {
-    const ObjectSet<const Translator>& alltrs = ctio.ctxt.trgroup->templates();
+    optflds_.allowNull( true );
+    const TranslatorGroup& trgrp = *ctio.ctxt.trgroup;
+    const ObjectSet<const Translator>& alltrs = trgrp.templates();
     for ( int idx=0; idx<alltrs.size(); idx++ )
     {
-	const Translator* transl = alltrs[idx];
+	const Translator* trl = alltrs[idx];
 	if ( IOObjSelConstraints::isAllowedTranslator(
-		    transl->userName(),ctio.ctxt.toselect.allowtransls_)
-	  && transl->isUserSelectable( false ) )
-	    trs_ += transl;
+		    trl->userName(),ctio.ctxt.toselect.allowtransls_)
+	  && trl->isUserSelectable( false ) )
+	    trs_ += trl;
     }
-    if ( trs_.size() < 2 )
+    if ( trs_.size() < 1 )
+    {
+	if ( alltrs.isEmpty() )
+	    pErrMsg(BufferString("No translator for",trgrp.userName()));
 	return;
+    }
 
+    if ( trs_.size() > 1 )
+	mkSelFld( ctio, withopts );
+
+    uiIOObjTranslatorWriteOpts* firstoptfld = 0;
+    if ( withopts )
+    {
+	for ( int idx=0; idx<trs_.size(); idx++ )
+	{
+	    uiIOObjTranslatorWriteOpts* fld =
+		uiIOObjTranslatorWriteOpts::create( this, *trs_[idx] );
+	    optflds_ += fld;
+	    if ( fld && !firstoptfld )
+		firstoptfld = fld;
+	    if ( selfld_ && fld )
+		fld->attach( alignedBelow, selfld_ );
+	}
+    }
+
+    if ( selfld_ )
+	setHAlignObj( selfld_ );
+    else if ( firstoptfld )
+	setHAlignObj( firstoptfld );
+}
+
+
+void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
+{
     selfld_ = new uiComboBox( this, "Write translator field" );
     if ( withopts )
 	lbl_ = new uiLabel( this, "Write to", selfld_ );
@@ -47,14 +100,14 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     int cur = 0;
     for ( int idx=0; idx<trs_.size(); idx++ )
     {
-	const Translator& transl = *trs_[idx];
-	const BufferString trnm( transl.userName() );
+	const Translator& trl = *trs_[idx];
+	const BufferString trnm( trl.userName() );
 	if ( ctio.ioobj && trnm == ctio.ioobj->translator() )
 	    cur = idx;
 
 	selfld_->addItem( trnm );
 
-	BufferString icnm( transl.iconName() );
+	BufferString icnm( trl.iconName() );
 	if ( !icnm.isEmpty() )
 	{
 	    const BufferString smllicnm( icnm, "_24x24.png" );
@@ -66,7 +119,9 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     }
     selfld_->setCurrentItem( cur );
 
-    setHAlignObj( selfld_ );
+    const CallBack selchgcb( mCB(this,uiIOObjSelWriteTranslator,selChg) );
+    selfld_->selectionChanged.notify( selchgcb );
+    postFinalise().notify( selchgcb );
 }
 
 
@@ -76,20 +131,16 @@ uiIOObjSelWriteTranslator::~uiIOObjSelWriteTranslator()
 }
 
 
-uiObject* uiIOObjSelWriteTranslator::endObj( bool left )
+bool uiIOObjSelWriteTranslator::isEmpty() const
 {
-    if ( !selfld_ )
-	return 0;
+    if ( selfld_ )
+	return false;
 
-    if ( left )
-    {
-	if ( lbl_ )
-	    return lbl_;
-    }
-    else if ( optsbut_ )
-	return optsbut_;
+    for ( int idx=0; idx<optflds_.size(); idx++ )
+	if ( optflds_[idx] )
+	    return false;
 
-    return selfld_;
+    return true;
 }
 
 
@@ -115,11 +166,48 @@ const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 }
 
 
+uiIOObjTranslatorWriteOpts* uiIOObjSelWriteTranslator::getCurOptFld() const
+{
+    if ( !selfld_ )
+	return 0;
+
+    const int selidx = selfld_->currentItem();
+    return !optflds_.validIdx(selidx) ? 0
+	 : const_cast<uiIOObjTranslatorWriteOpts*>(optflds_[selidx]);
+}
+
+
+void uiIOObjSelWriteTranslator::selChg( CallBacker* )
+{
+    if ( !selfld_ )
+	return;
+    const int selidx = selfld_->currentItem();
+    if ( selidx < 0 )
+	return;
+
+    for ( int idx=0; idx<optflds_.size(); idx++ )
+    {
+	uiIOObjTranslatorWriteOpts* fld = optflds_[idx];
+	if ( fld )
+	    fld->display( idx == selidx );
+    }
+}
+
+
 IOObj* uiIOObjSelWriteTranslator::mkEntry( const char* nm ) const
 {
     CtxtIOObj ctio( ctxt_ );
     ctio.ioobj = 0; ctio.setName( nm );
     ctio.fillObj( false, translIdx() );
+    if ( ctio.ioobj )
+    {
+	uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+	if ( fld )
+	{
+	    fld->fill( ctio.ioobj->pars() );
+	    IOM().commitChanges( *ctio.ioobj );
+	}
+    }
     return ctio.ioobj;
 }
 
@@ -130,4 +218,9 @@ void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 	return;
 
     selfld_->setCurrentItem( ioobj.translator() );
+    uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
+    if ( fld )
+	fld->use( ioobj.pars() );
+
+    selChg( 0 );
 }

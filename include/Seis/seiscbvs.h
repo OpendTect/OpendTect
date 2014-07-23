@@ -58,12 +58,14 @@ public:
     void		set2D(bool yn=true);
     bool		singleFile() const		{ return single_file_; }
     void		setSingleFile( bool yn=true )	{ single_file_ = yn; }
-    void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn; }
+    void		setForceUseCBVSInfo(bool yn)	{ forceusecbvsinfo_=yn;}
 
     void		setCoordPol(bool dowrite,bool intrailer);
-    void		setPreselDataType( int dt )	{ preseldatatype_ = dt; }
+    void		setPreselDataType( int dt )	{ preseldatatype_ = dt;}
 
     bool		isUserSelectable(bool) const	{ return true; }
+
+    static const char*	sKeyOptDir()		{ return "Optimized direction";}
 
 protected:
 

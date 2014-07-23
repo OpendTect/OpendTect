@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseissel.h"
-#include "uiseisfmtscale.h"
+#include "uiseistransf.h"
 #include "od_helpids.h"
 
 #include <math.h>
@@ -42,18 +42,19 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     sgsu.allowremove( false );
     ctxt.forread = true;
     inpfld_ = new uiIOObjSelGrp( this, ctxt, tr("Input Cubes"), sgsu );
-    inpfld_->selectionChanged.notify( mCB(this,uiMergeSeis,selChangeCB) );
 
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->attach( alignedBelow, inpfld_ );
 
-    scfmtfld_ = new uiSeisFmtScale( this, Seis::Vol, false, false );
-    scfmtfld_->attach( alignedBelow, stackfld_ );
+    uiSeisTransfer::Setup stsu( Seis::Vol );
+    stsu.withnullfill( false ).fornewentry( true ).withstep( false );
+    transffld_ = new uiSeisTransfer( this, stsu );
+    transffld_->attach( alignedBelow, stackfld_ );
 
     ctxt.forread = false;
     outfld_ = new uiSeisSel( this, ctxt, uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, scfmtfld_ );
+    outfld_->attach( alignedBelow, transffld_ );
 }
 
 
@@ -65,22 +66,9 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 
     SeisMerger mrgr( inpars, outpar, false );
     mrgr.stacktrcs_ = stackfld_->getBoolValue();
-    mrgr.setScaler( scfmtfld_->getScaler() );
+    mrgr.setScaler( transffld_->getScaler() );
     uiTaskRunner dlg( this );
     return TaskRunner::execute( &dlg, mrgr );
-}
-
-
-void uiMergeSeis::selChangeCB( CallBacker* cb )
-{
-    const int nrchosen = inpfld_->nrChosen();
-    if ( nrchosen < 1 )
-	return;
-
-    const MultiID& firstid = inpfld_->chosenID( 0 );
-    PtrMan<IOObj> firstobj = IOM().get( firstid );
-    if ( firstobj )
-	scfmtfld_->updateFrom( *firstobj );
 }
 
 
@@ -93,13 +81,13 @@ bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
     if ( inpsz < 2 )
 	{ uiMSG().error( tr("Please select at least 2 inputs") ); return false;}
 
-    scfmtfld_->updateIOObj( const_cast<IOObj*>(outioobj) );
     outpar.set( sKey::ID(), outioobj->key() );
 
     for ( int idx=0; idx<inpsz; idx++ )
     {
 	IOPar* iop = new IOPar;
 	iop->set( sKey::ID(), inpfld_->chosenID(idx) );
+	transffld_->fillPar( *iop );
 	inpars += iop;
     }
 

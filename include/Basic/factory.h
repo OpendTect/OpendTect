@@ -32,16 +32,16 @@ public:
     const BufferStringSet&	getNames() const;
     const TypeSet<uiString>&	getUserNames() const;
     void			setDefaultName(int idx);
-    				//!<idx refers to names in names_,
+				//!<idx refers to names in names_,
 				//!<or -1 for none
     const char*			getDefaultName() const;
     static char			cSeparator()	{ return ','; }
 
     BufferString&		errMsg() const;
-    				//!<Threadsafe, as each thread will have
-    				//!<a different string returned.
+				//!<Threadsafe, as each thread will have
+				//!<a different string returned.
 
-    const char* 		currentName() const;
+    const char*		currentName() const;
 				/*!<Is set only when calling the create-
 				    functions, so they can know what was
 				    requested.
@@ -50,6 +50,7 @@ public:
 				 */
 
 protected:
+
     int				indexOf(const char*) const;
     void			addNames(const char*,const uiString&);
     void			setNames(int,const char*,const uiString&);
@@ -76,7 +77,7 @@ variable is needed in the creation.
   class A
   {
   public:
-  virtual int		myFunc() 	= 0;
+  virtual int		myFunc()	= 0;
   };
 
   class B : public A
@@ -116,7 +117,7 @@ public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
 					   const uiString& username = 0);
-    				/*!<Name may be not be null
+				/*!<Name may be not be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
 				   cSeparator(), allowing multiple names,
@@ -124,7 +125,7 @@ public:
 				   name that is returned in getNames. */
 
     inline T*			create(const char* nm) const;
-    				//!<Name may be not be null
+				//!<Name may be not be null
 protected:
 
     TypeSet<Creator>		creators_;
@@ -141,7 +142,7 @@ variable is needed in the creation.
   class A
   {
   public:
-  virtual int		myFunc() 	= 0;
+  virtual int		myFunc()	= 0;
   };
 
   class B : public A
@@ -186,14 +187,14 @@ public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm=0,
 					   const uiString& usernm = 0);
-    				/*!<Name may be be null
+				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
 				   cSeparator(), allowing multiple names,
 				   where the first name will be the main
 				   name that is returned in getNames. */
     inline T*			create(const char* nm, P, bool chknm=true)const;
-    				//!<Name may be be null, if null name is given
+				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
 protected:
 
@@ -212,15 +213,15 @@ public:
     typedef			T* (*Creator)(P0,P1);
     inline void			addCreator(Creator,const char* nm=0,
 					   const uiString& usernm = 0);
-    				/*!<Name may be be null
+				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
 				   cSeparator(), allowing multiple names,
 				   where the first name will be the main
 				   name that is returned in getNames. */
     inline T*			create(const char* nm, P0, P1,
-	    			       bool chknm=true)const;
-    				//!<Name may be be null, if null name is given
+				       bool chknm=true)const;
+				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
 protected:
 
@@ -239,15 +240,15 @@ public:
     typedef			T* (*Creator)(P0,P1,P2);
     inline void			addCreator(Creator,const char* nm=0,
 					   const uiString& usernm = 0);
-    				/*!<Name may be be null
+				/*!<Name may be be null
 				   If nm is found, old creator is replaced.
 				   nm can be a SeparString, separated by
 				   cSeparator(), allowing multiple names,
 				   where the first name will be the main
 				   name that is returned in getNames. */
     inline T*			create(const char* nm, P0, P1, P2,
-	    			       bool chknm=true)const;
-    				//!<Name may be be null, if null name is given
+				       bool chknm=true)const;
+				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
 protected:
 
@@ -411,10 +412,12 @@ T* Factory3Param<T,P0,P1,P2>::create( const char* name, P0 p0, P1 p1, P2 p2,
 mGlobal(mod) ::Factory<T>& funcname()
 
 
-#define mDefineFactoryInClass( T, funcname ) \
+#define mDefineFactoryInClasswKW( T, funcname, kw ) \
 static ::Factory<T>& funcname(); \
 virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
-virtual const char* factoryKeyword() const { return 0; }
+virtual const char* factoryKeyword() const { return kw; }
+#define mDefineFactoryInClass( T, funcname ) \
+    mDefineFactoryInClasswKW( T, funcname, 0 )
 
 
 #define mImplFactory( T, funcname ) \
@@ -429,10 +432,12 @@ virtual const char* factoryKeyword() const { return 0; }
 mGlobal(mod) ::Factory1Param<T,P>& funcname()
 
 
-#define mDefineFactory1ParamInClass( T, P, funcname ) \
+#define mDefineFactory1ParamInClasswKW( T, P, funcname, kw ) \
 static ::Factory1Param<T,P>& funcname(); \
 virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
-virtual const char* factoryKeyword() const { return 0; }
+virtual const char* factoryKeyword() const { return kw; }
+#define mDefineFactory1ParamInClass( T, P, funcname ) \
+    mDefineFactory1ParamInClasswKW( T, P, funcname, 0 )
 
 #define mImplFactory1Param( T, P, funcname ) \
 ::Factory1Param<T,P>& funcname() \
@@ -450,10 +455,12 @@ virtual const char* factoryKeyword() const { return 0; }
 mGlobal(mod) ::Factory2Param<T,P0,P1>& funcname()
 
 
-#define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
+#define mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, kw ) \
 static ::Factory2Param<T,P0,P1>& funcname(); \
 virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
-virtual const char* factoryKeyword() const { return 0; }
+virtual const char* factoryKeyword() const { return kw; }
+#define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
+    mDefineFactory2ParamInClasswKW( T, P0, P1, funcname, 0 )
 
 
 #define mImplFactory2Param( T, P0, P1, funcname ) \
@@ -472,10 +479,12 @@ virtual const char* factoryKeyword() const { return 0; }
 mGlobal(mod) ::Factory3Param<T,P0,P1,P2>& funcname()
 
 
-#define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
+#define mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, kw ) \
 static ::Factory3Param<T,P0,P1,P2>& funcname(); \
 virtual const char* factoryDisplayName() const { return factoryKeyword(); } \
-virtual const char* factoryKeyword() const { return 0; }
+virtual const char* factoryKeyword() const { return kw; }
+#define mDefineFactory3ParamInClass( T, P0, P1, P2, funcname ) \
+    mDefineFactory3ParamInClasswKW( T, P0, P1, P2, funcname, 0 )
 
 
 #define mImplFactory3Param( T, P0, P1, P2,funcname ) \

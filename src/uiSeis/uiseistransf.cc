@@ -12,12 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseistransf.h"
 #include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
-#include "uiseisfmtscale.h"
 #include "uigeninput.h"
+#include "uiscaler.h"
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
+#include "seistrc.h"
 #include "seisselection.h"
 #include "seisresampler.h"
 #include "seis2dline.h"
@@ -32,6 +33,8 @@ static const char* rcsID mUsedVar = "$Id$";
 uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 	: uiGroup(p,"Seis transfer pars")
 	, setup_(s)
+	, trcgrowfld_(0)
+	, issteer_(false)
 {
     selfld = uiSeisSubSel::get( this, setup_ );
 
@@ -44,11 +47,18 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 				     BoolInpSpec(true,choices[0],choices[1]) );
     remnullfld->attach( alignedBelow, selfld );
 
-    scfmtfld = new uiSeisFmtScale( this, setup_.geomType(),
-				   !setup_.fornewentry_ );
-    scfmtfld->attach( alignedBelow, remnullfld );
+    scalefld_ = new uiScaler( this, 0, true );
+    scalefld_->attach( alignedBelow, remnullfld );
+
+    if ( !setup_.fornewentry_ )
+    {
+	trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
+					BoolInpSpec(false) );
+	trcgrowfld_->attach( alignedBelow, scalefld_ );
+    }
 
     setHAlignObj( remnullfld );
+    postFinalise().notify( mCB(this,uiSeisTransfer,updSteer) );
 }
 
 
@@ -74,28 +84,28 @@ void uiSeisTransfer::updateFrom( const IOObj& ioobj )
 
 void uiSeisTransfer::setInput( const IOObj& ioobj )
 {
-    scfmtfld->updateFrom( ioobj );
     selfld->setInput( ioobj );
+
+    const char* res = ioobj.pars().find( sKey::Type() );
+    setSteering( res && *res == 'S' );
 }
 
 
-int uiSeisTransfer::maxBytesPerSample() const
-{
-    DataCharacteristics dc(
-	    (DataCharacteristics::UserType)scfmtfld->getFormat() );
-    return (int)dc.nrBytes();
-}
-
-
-SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
+SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo( int bps ) const
 {
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
-		selfld->expectedNrTraces(), maxBytesPerSample() );
+		selfld->expectedNrTraces(), bps );
 
     if ( setup_.is2d_ )
 	si.expectednrtrcs = -1;
 
     return si;
+}
+
+
+Scaler* uiSeisTransfer::getScaler() const
+{
+    return scalefld_->getScaler();
 }
 
 
@@ -112,9 +122,23 @@ bool uiSeisTransfer::fillNull() const
 }
 
 
+bool uiSeisTransfer::extendTrcsToSI() const
+{
+    return trcgrowfld_ && trcgrowfld_->getBoolValue();
+}
+
+
 void uiSeisTransfer::setSteering( bool yn )
 {
-    scfmtfld->setSteering( yn );
+    issteer_ = yn;
+    updSteer( 0 );
+}
+
+
+void uiSeisTransfer::updSteer( CallBacker* )
+{
+    if ( issteer_ )
+	scalefld_->setUnscaled();
 }
 
 
@@ -143,8 +167,6 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 				      const char* worktxt,
 				      const char* linenm2d ) const
 {
-    scfmtfld->updateIOObj( const_cast<IOObj*>(&outobj) );
-
     PtrMan<Seis::SelData> seldata = getSelData();
     IOPar iop;
     iop.set( "ID", inobj.key() );
@@ -162,11 +184,11 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,
 					extxt, &iop, worktxt );
-    stp->setScaler( scfmtfld->getScaler() );
+    stp->setScaler( scalefld_->getScaler() );
     stp->skipNullTraces( removeNull() );
     stp->fillNullTraces( fillNull() );
     stp->setResampler( getResampler() );
-    stp->setExtTrcToSI( scfmtfld->extendTrcToSI() );
+    stp->setExtTrcToSI( extendTrcsToSI() );
 
     return stp;
 }
@@ -175,6 +197,11 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 void uiSeisTransfer::fillPar( IOPar& iop ) const
 {
     selfld->fillPar( iop );
-    scfmtfld->fillOtherPars( iop );
+
+    Scaler* sc = scalefld_->getScaler();
+    iop.update( sKey::Scale(), sc ? sc->toString() : "" );
+    delete sc;
+
+    iop.set( SeisTrc::sKeyExtTrcToSI(), extendTrcsToSI() );
     iop.set( sKeyNullTrcPol(), nullTrcPolicy() );
 }

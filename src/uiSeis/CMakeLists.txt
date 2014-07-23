@@ -54,6 +54,7 @@ SET(OD_MODULE_SOURCES
 	uiseissubsel.cc
 	uiseistransf.cc
 	uiseistrcbufviewer.cc
+	uiseiswriteopts.cc
 	uiseiswvltattr.cc
 	uiseiswvltgen.cc
 	uiseiswvltimpexp.cc

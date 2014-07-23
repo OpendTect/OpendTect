@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uivarwizarddlg.h"
 #include "uisegyread.h"
-class IOObj;
-class uiGenInput;
 class uiSEGYFileOpts;
 
 
@@ -30,7 +28,7 @@ public :
     {
     public:
 
-    			Setup(Seis::GeomType);
+			Setup(Seis::GeomType);
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(uiSEGYRead::RevType,rev)	// default Rev0
@@ -41,7 +39,6 @@ public :
 
     void		updatePars()		{ getParsFromScreen(true); }
     virtual void	use(const IOObj*,bool force);
-    const char*		saveObjName() const;
 
     Notifier<uiSEGYReadDlg> readParsReq;
     Notifier<uiSEGYReadDlg> writeParsReq;
@@ -50,13 +47,12 @@ public :
 protected:
 
     const Setup		setup_;
-    uiGroup*		optsgrp_;
 
     uiSEGYFileOpts*	optsfld_;
-    uiGenInput*		savesetupfld_;
 
     void		initWin(CallBacker*);
     void		readParsCB(CallBacker*);
+    void		writeParsCB(CallBacker*);
     void		preScanCB(CallBacker*);
 
     friend class	uiSEGYImpSimilarDlg;
@@ -65,11 +61,10 @@ protected:
 
     bool		getParsFromScreen(bool);
     bool		displayWarnings(const BufferStringSet&,
-	    				bool withstop=false);
+					bool withstop=false);
     virtual bool	doWork(const IOObj&)		= 0;
 
 };
 
 
 #endif
-

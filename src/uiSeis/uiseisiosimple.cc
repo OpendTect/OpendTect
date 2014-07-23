@@ -7,7 +7,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseisiosimple.h"
-#include "uiseisfmtscale.h"
 #include "uiseissubsel.h"
 #include "uiseislinesel.h"
 #include "uiseissel.h"
