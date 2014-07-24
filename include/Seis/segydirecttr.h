@@ -119,9 +119,13 @@ mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
-    virtual bool	isUserSelectable( bool fr ) const { return fr; }
+    virtual bool	isUserSelectable( bool fr ) const { return true; }
+    virtual const char* iconName() const		{ return "segy"; }
     virtual const char* defExtension() const		{ return fileExt(); }
     static const char*	fileExt()			{ return "sgydef"; }
+
+    static const char*	sKeyNrInlPerFile()
+			{ return "Number of inlines per file"; }
 
 };
 

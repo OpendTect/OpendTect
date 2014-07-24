@@ -162,12 +162,16 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     {
 	const char* psstorkey = ioobj_->fullUserExpr(true);
 	const Pos::GeomID geomid = mCurGeomID;
-	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey,
-						  Survey::GM().getName(geomid) )
+	const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
+	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, lnm )
 			  : psioprov_->make3DWriter( psstorkey );
 	if ( !pswriter_ )
 	{
-	    errmsg_ = "Cannot open Prestack Data store for write";
+	    BufferString emsg( "Cannot open Data store for write.\n"
+				"Target:\n", psstorkey );
+	    if ( is2d_ )
+		emsg.add( "\nLine name:\n" ).add( lnm );
+	    errmsg_ = emsg;
 	    return false;
 	}
 	pswriter_->usePar( ioobj_->pars() );
@@ -324,7 +328,8 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	    trc = &worktrc_;
 	}
     }
-    if ( !prepared_ ) prepareWork(*trc);
+    if ( !prepared_ && !prepareWork(*trc) )
+	return false;
 
     nrtrcs_++;
     if ( seldata_ && seldata_->selRes( trc->info().binid ) )

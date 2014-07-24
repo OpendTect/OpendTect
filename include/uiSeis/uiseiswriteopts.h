@@ -48,4 +48,35 @@ protected:
 };
 
 
+mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
+{
+public:
+
+			uiCBVSPS3DOpts(uiParent*);
+
+    mDecluiIOObjTranslatorWriteOptsStdFns(uiCBVSPS3DOpts);
+
+protected:
+
+    uiGenInput*		stortypfld_;
+
+};
+
+
+mExpClass(uiSeis) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
+{
+public:
+
+			uiSEGYDirectPS3DOpts(uiParent*);
+
+    mDecluiIOObjTranslatorWriteOptsStdFns(uiSEGYDirectPS3DOpts);
+
+protected:
+
+    uiSEGYFilePars*	parsfld_;
+    uiGenInput*		nrinlpfilefld_;
+
+};
+
+
 #endif

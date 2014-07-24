@@ -383,27 +383,42 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 
     if ( itmidx != curitm )
 	setCurrent( itmidx );
+
     PtrMan<IOObj> ioobj = getIOObj( itmidx );
-    if ( ioobj && ioobj->implExists(true) )
+    if ( ioobj )
     {
-	bool allok = true;
-	if ( ioobj->implReadOnly() )
+	if ( !wrtrselfld_->hasSelectedTranslator( *ioobj ) )
 	{
-	    uiMSG().error( "Chosen ", mObjTypeName, " is read-only" );
-	    allok = false;
+	    uiMSG().error( "Sorry, can not change the storage type."
+	       "\nIf you are sure, please remove the existing object first" );
+	    return false;
 	}
-	else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
-	    allok = uiMSG().askOverwrite(
-		    BufferString("Overwrite existing ",mObjTypeName,"?") );
 
-	if ( !allok )
-	    { asked2overwrite_ = false; return false; }
+	if ( ioobj->implExists(true) )
+	{
+	    bool allok = true;
+	    if ( ioobj->implReadOnly() )
+	    {
+		uiMSG().error( "Chosen ", mObjTypeName, " is read-only" );
+		allok = false;
+	    }
+	    else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
+		allok = uiMSG().askOverwrite(
+			BufferString("Overwrite existing ",mObjTypeName,"?") );
 
-	asked2overwrite_ = true;
+	    if ( !allok )
+		{ asked2overwrite_ = false; return false; }
+
+	    asked2overwrite_ = true;
+	}
     }
 
     ctio_.setObj( ioobj );
     ioobj.set( 0, false );
+
+    if ( ctio_.ioobj )
+	wrtrselfld_->updatePars( *ctio_.ioobj );
+
     return true;
 }
 
@@ -620,20 +635,36 @@ void uiIOObjSelGrp::triggerStatusMsg( const char* txt )
 
 void uiIOObjSelGrp::setInitial( CallBacker* )
 {
-    const char* presetnm = getNameField() ? getNameField()->text() : "";
-    if ( *presetnm && !listfld_->isPresent(presetnm) )
+    if ( !ctio_.ctxt.forread )
     {
-	if ( !listfld_->isPresent(presetnm) )
-	    return;
+	PtrMan<IOObj> ioobj = 0;
+	const char* presetnm = nmfld_->text();
+	if ( !*presetnm && listfld_->size() == 1 )
+	{
+	    presetnm = listfld_->textOfItem( 0 );
+	    ioobj = IOM().get( *ioobjids_[0] );
+	    if ( ioobj )
+		nmfld_->setText( BufferString(ioobjnms_.get(0)," 2") );
+	}
 
-	listfld_->setCurrentItem( presetnm );
+	if ( *presetnm && listfld_->isPresent(presetnm) )
+	    listfld_->setCurrentItem( presetnm );
+
+	if ( wrtrselfld_ )
+	{
+	    if ( !ioobj )
+		ioobj = IOM().get( currentID() );
+	    if ( ioobj )
+		wrtrselfld_->use( *ioobj );
+	}
     }
 
     listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
     listfld_->itemChosen.notify( mCB(this,uiIOObjSelGrp,choiceChg) );
     listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
 
-    selChg( 0 );
+    if ( ctio_.ctxt.forread )
+	selChg( 0 );
 }
 
 

@@ -34,7 +34,7 @@ public:
 			{}
     SeisPS3DReader*	make3DReader( const char* fnm, int ) const
 			{ return new SEGYDirect3DPSReader(fnm); }
-    SeisPSWriter*	make3DWriter( const char* dirnm ) const
+    SeisPSWriter*	make3DWriter( const char* fnm ) const
 			{ return 0; }
     SeisPS2DReader*	make2DReader( const char* dirnm, const char* lnm ) const
 			{ return new SEGYDirect2DPSReader(dirnm,lnm); }

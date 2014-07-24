@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
-       			    bool dostack, const Seis::SelData* sd )
+			    bool dostack, const Seis::SelData* sd )
 	: Executor("Merging Prestack data")
 	, writer_(0)
 	, dostack_(dostack)
@@ -91,7 +91,7 @@ SeisPSMerger::~SeisPSMerger()
 int SeisPSMerger::nextStep()
 {
     if ( readers_.isEmpty() )
-	return Executor::ErrorOccurred();
+	return ErrorOccurred();
 
     const float offseps = 1e-6;
     SeisTrcBuf* gather = 0;
@@ -99,7 +99,7 @@ int SeisPSMerger::nextStep()
     {
 	BinID curbid;
 	if ( !iter_->next(curbid) )
-	    return Executor::Finished();
+	    return Finished();
 
 	if ( sd_ && !sd_->isOK(curbid) )
 	    continue;
@@ -137,10 +137,13 @@ int SeisPSMerger::nextStep()
 
 	    const SeisTrc* wrtrc = resampler_->get( gathtrc );
 	    if ( wrtrc && !writer_->put(*wrtrc) )
-		return Executor::ErrorOccurred();
+	    {
+		msg_ = writer_->errMsg().getOriginalString();
+		return ErrorOccurred();
+	    }
 	}
 
-	return Executor::MoreToDo();
+	return MoreToDo();
     }
 }
 
