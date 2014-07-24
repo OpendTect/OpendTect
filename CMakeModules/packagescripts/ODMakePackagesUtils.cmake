@@ -138,7 +138,7 @@ macro( copy_thirdpartylibs )
 
     execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 		     ${CMAKE_INSTALL_PREFIX}/imageformats
-		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/imageformats )
+		     ${DESTINATION_DIR}/bin/${OD_PLFSUBDIR}/Release/imageformats )
 endmacro( copy_thirdpartylibs )
 
 macro( PREPARE_WIN_THIRDPARTY_DEBUGLIST DEBUGFILELIST)
@@ -347,11 +347,16 @@ macro( create_develpackages )
 
     foreach( DIR CMakeModules include src plugins spec )
 	message( "Copying ${DIR} files" )
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${CMAKE_INSTALL_PREFIX}/${DIR}
-			 ${DESTINATION_DIR}/${DIR} )
-	if( ${DIR} STREQUAL "plugins" )
-	    file( REMOVE_RECURSE ${DESTINATION_DIR}/plugins/${OD_PLFSUBDIR} )
+	if( "${DIR}" STREQUAL "plugins" )
+	    foreach( ODPLUGIN ${ODPLUGINS} )
+		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+				 ${CMAKE_INSTALL_PREFIX}/plugins/${ODPLUGIN}
+				 ${DESTINATION_DIR}/plugins/${ODPLUGIN} )
+	    endforeach()
+	else()
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
+			     ${CMAKE_INSTALL_PREFIX}/${DIR}
+			     ${DESTINATION_DIR}/${DIR} )
 	endif()
     endforeach()
 
@@ -530,7 +535,7 @@ macro( zippackage PACKAGE_FILENAME REL_DIR PACKAGE_DIR )
 endmacro( zippackage )
 
 #Genarate Symbols and then Strip the binaries
-macro ( OD_GENERATE_BREAKPAD_SYMBOLS )
+macro ( OD_GENERATE_BREAKPAD_SYMBOLS ALLLIBS EXECS)
 if( UNIX )
     if ( NOT DEFINED BREAKPAD_DIR )
 	message ( FATAL_EEROR "BREAKPAD_DIR not defined" )
@@ -538,32 +543,34 @@ if( UNIX )
     if ( NOT EXISTS ${BREAKPAD_DIR} )
 	message ( FATAL_EEROR "BREAKPAD_DIR: ${BREAKPAD_DIR} not found" )
     endif()
-    if( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
-	file( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/*.so )
-	set (PLFSYM linux)
-    else()
-	file( GLOB LIBS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/*.dylib )
-	set (PLFSYM mac)
-    endif()
-    file( GLOB BINS ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/od_* )
-    set( ALLBINS ${LIBS} ${BINS} )
-    if( EXISTS ${CMAKE_INSTALL_PREFIX}/symbols )
-	file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/symbols )
+
+    if( NOT EXISTS ${CMAKE_INSTALL_PREFIX}/symbols )
+	    file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols )
     endif()
 
-    file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols )
-    foreach( BINFILE ${ALLBINS} )
-	get_filename_component( BIN_FILENAME ${BINFILE} NAME )
-    set( SYMGENCMD ${BREAKPAD_DIR}/tools/${PLFSYM}/dump_syms/dump_syms )
-	execute_process( COMMAND "${SYMGENCMD}" ${BINFILE} OUTPUT_FILE ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME}.sym )
-	file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME} )
-	file( STRINGS ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME}.sym STUFF LIMIT_COUNT 1 )
+    set( LIBNAMES "" )
+    foreach( LIB ${ALLLIBS} )
+	set(SOLIB "lib${LIB}.so")
+	set( LIBNAMES ${LIBNAMES} ${SOLIB} )
+    endforeach()
+    set (PLFSYM linux)
+
+    set( ALLLIBSBINS ${LIBNAMES} ${EXECS} )
+    foreach( FILENAME ${ALLLIBSBINS} )
+	if ( EXISTS ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME} )
+	    file( REMOVE_RECURSE ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME} )
+	endif()
+	file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME} )
+
+	set( SYMGENCMD ${BREAKPAD_DIR}/tools/${PLFSYM}/dump_syms/dump_syms )
+	execute_process( COMMAND "${SYMGENCMD}" ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${FILENAME} OUTPUT_FILE ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME}.sym )
+	file( STRINGS ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME}.sym STUFF LIMIT_COUNT 1 )
 	string( REGEX REPLACE " " ";" NEWSTUFF ${STUFF} )
 	set( WORDS ${NEWSTUFF} )
 	list( GET WORDS 3 SYMADDRESS ) #assuming 4th word is symbol address
-	file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME}/${SYMADDRESS} )
-	file( RENAME ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME}.sym ${CMAKE_INSTALL_PREFIX}/symbols/${BIN_FILENAME}/${SYMADDRESS}/${BIN_FILENAME}.sym )
-	execute_process( COMMAND strip ${BINFILE} )
+	file( MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME}/${SYMADDRESS} )
+	file( RENAME ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME}.sym ${CMAKE_INSTALL_PREFIX}/symbols/${FILENAME}/${SYMADDRESS}/${FILENAME}.sym )
+	execute_process( COMMAND strip ${CMAKE_INSTALL_PREFIX}/bin/${OD_PLFSUBDIR}/Release/${FILENAME} )
     endforeach()
 
 endif()
