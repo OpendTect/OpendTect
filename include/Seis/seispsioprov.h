@@ -58,6 +58,9 @@ public:
 
     virtual			~SeisPSIOProvider()	{}
 
+    virtual bool		canHandle( bool forread, bool for2d ) const
+				{ return false; }
+
     virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
 				{ return 0; }
     virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
@@ -69,7 +72,7 @@ public:
 
     FixedString			type() const		{ return type_.buf(); }
     virtual bool		getLineNames(const char*,BufferStringSet&) const
-    				{ return false; }
+				{ return false; }
 
     static const char*		sKeyCubeID;
 
@@ -101,9 +104,9 @@ public:
     SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
 
     bool			getLineNames(const IOObj&,
-	    				     BufferStringSet&) const; // For 2D
+					     BufferStringSet&) const; // For 2D
     void			mk3DPostStackProxy(IOObj&);
-    				//!< Adds entry to omf for post-stack access
+				//!< Adds entry to omf for post-stack access
 
 protected:
 
@@ -120,14 +123,14 @@ mGlobal(Seis) SeisPSIOProviderFactory& SPSIOPF();
 mExpClass(Seis) SeisPS3DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS3D)
 public:
-    			mDefEmptyTranslatorGroupConstructor(SeisPS3D)
+			mDefEmptyTranslatorGroupConstructor(SeisPS3D)
 };
 
 
 mExpClass(Seis) SeisPS3DTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
+			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 
     virtual bool	implRemove(const IOObj*) const;
 };
@@ -136,7 +139,7 @@ public:
 mExpClass(Seis) CBVSSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(CBVS,SeisPS3D)
 public:
-    			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
+			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
 
     bool		implRemove(const IOObj*) const;
 };
@@ -145,21 +148,21 @@ public:
 mExpClass(Seis) SeisPS2DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS2D)
 public:
-    			mDefEmptyTranslatorGroupConstructor(SeisPS2D)
+			mDefEmptyTranslatorGroupConstructor(SeisPS2D)
 };
 
 
 mExpClass(Seis) SeisPS2DTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
+			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
 };
 
 
 mExpClass(Seis) CBVSSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(CBVS,SeisPS2D)
 public:
-    			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)
+			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)
 
     bool		implRemove(const IOObj*) const;
 };

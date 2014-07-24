@@ -26,8 +26,11 @@ class MultiCubeSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			MultiCubeSeisPSIOProvider()
-				: SeisPSIOProvider("MultiCube")
-			{}
+				: SeisPSIOProvider("MultiCube")	{}
+
+    virtual bool	canHandle( bool forread, bool for2d ) const
+			{ return forread && !for2d; }
+
     SeisPS3DReader*	make3DReader( const char* fnm, int ) const
 			{ return new MultiCubeSeisPSReader(fnm); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const
@@ -36,8 +39,10 @@ public:
 			{ return 0; }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return 0; }
+
     bool		getLineNames(const char*,BufferStringSet&) const
 			{ return false; }
+
     static int		factid;
 };
 

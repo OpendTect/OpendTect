@@ -32,6 +32,10 @@ public:
 			SEGYDirectPSIOProvider()
 				: SeisPSIOProvider("SEGYDirect")
 			{}
+
+    virtual bool	canHandle( bool forread, bool for2d ) const
+			{ return forread; }
+
     SeisPS3DReader*	make3DReader( const char* fnm, int ) const
 			{ return new SEGYDirect3DPSReader(fnm); }
     SeisPSWriter*	make3DWriter( const char* fnm ) const
@@ -40,7 +44,9 @@ public:
 			{ return new SEGYDirect2DPSReader(dirnm,lnm); }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return 0; }
+
     bool		getLineNames(const char*,BufferStringSet&) const;
+
     static int		factid;
 };
 

@@ -33,8 +33,12 @@ static const char* cPosDataFnm = "posdata.txt";
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
-	    CBVSSeisPSIOProvider() : SeisPSIOProvider(
-		    CBVSSeisTrcTranslator::translKey() ) {}
+			CBVSSeisPSIOProvider() : SeisPSIOProvider(
+				CBVSSeisTrcTranslator::translKey() ) {}
+
+    virtual bool	canHandle( bool forread, bool for2d ) const
+			{ return true; }
+
     SeisPS3DReader*	make3DReader( const char* dirnm, int inl ) const
 			{ return new SeisCBVSPS3DReader(dirnm,inl); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const
@@ -43,7 +47,9 @@ public:
 			{ return new SeisCBVSPS2DReader(dirnm,lnm); }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return new SeisCBVSPS2DWriter(dirnm,lnm); }
+
     bool		getLineNames(const char*,BufferStringSet&) const;
+
     static int		factid;
 };
 
