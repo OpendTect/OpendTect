@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "vissurveymod.h"
+#include "trigonometry.h"
 #include "vislocationdisplay.h"
 
 namespace visBase { class MarkerSet; class PolyLine;
@@ -81,7 +82,7 @@ protected:
     
     
 
-    ::Sphere			getDirection(int loc) const;
+    ::Quaternion		getDirection(const Pick::Location&) const;
 
     void			dispChg(CallBacker*);
     void			locChg(CallBacker*);

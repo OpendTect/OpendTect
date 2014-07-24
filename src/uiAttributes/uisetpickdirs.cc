@@ -163,22 +163,19 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	float phi = 0;
 	float theta = 0;
 	DataPointSet::RowID rid = dps.find( positions[idx] );
+
+	float inldip = dps.value( 0, rid )/2;
+	float crldip = dps.value( 1, rid )/2;
+	
+	if ( mIsUdf(inldip) || mIsUdf(crldip) )
+	    inldip = crldip = 0;
+	    
+	ps_[idx].setDip( inldip, crldip );
+	
 	if ( usesteering_ )
 	{
-	    float inldip = dps.value( 0, rid )/2;
-	    float crldip = dps.value( 1, rid )/2;
-	    SeparString dipvaluetext;
-
-	    if ( mIsUdf(inldip) || mIsUdf(crldip) )
-		inldip = crldip = 0;
-
-	    dipvaluetext += toString( inldip );
-	    dipvaluetext += toString( crldip );
 	    phi = calcPhi( inldip, crldip );
 	    theta = calcTheta( inldip, crldip );
-
-	    const char* key = "Dip";
-	    ps_[idx].setText( key, dipvaluetext.buf() );
 	}
 	else
 	{

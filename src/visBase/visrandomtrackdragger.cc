@@ -258,7 +258,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	    markerstyle = MarkerStyle3D::Cylinder;
 	    markerstyle.size_ = 4;
 	    marker->setMarkerHeightRatio( 3 );
-	    marker->setMarkerRotation( Coord3(0,1,0), M_PI_2 );
+	    marker->setRotationForAllMarkers( Coord3(0,1,0), M_PI_2 );
 	}
 	else
 	{
@@ -268,7 +268,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	    markerstyle = MarkerStyle3D::Cube;
 	    markerstyle.size_ = 8;
 	    marker->setMarkerHeightRatio( 0.1 );
-	    marker->setMarkerRotation( Coord3(1,0,0), M_PI_2 );
+	    marker->setRotationForAllMarkers( Coord3(1,0,0), M_PI_2 );
 	}
 
 	marker->setMarkerStyle( markerstyle );

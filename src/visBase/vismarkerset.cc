@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 #define mOSGMarkerScaleFactor 2.5f
-//static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
 
 mCreateFactoryEntry( visBase::MarkerSet );
@@ -57,6 +56,12 @@ MarkerSet::~MarkerSet()
     removeChild( markerset_ );
     clearMarkers();
     markerset_->unref();
+}
+
+
+void MarkerSet::applyRotationToAllMarkers( bool yn )
+{
+    markerset_->applyRotationToAllMarkers( yn );
 }
 
 
@@ -189,6 +194,17 @@ void MarkerSet::setType( MarkerStyle3D::Type type )
 }
 
 
+void MarkerSet::setSingleMarkerRotation( const Quaternion& rot, int idx )
+{
+    Coord3 axis(0,0,0);
+    float angle = 0;
+    rot.getRotation( axis, angle );
+    const osg::Quat osgquat( angle,
+			    osg::Vec3(axis.x,axis.y,axis.z) );
+    markerset_->setSingleMarkerRotation( osgquat, idx ); 
+}
+
+
 void MarkerSet::setPixelDensity( float dpi )
 {
     VisualObjectImpl::setPixelDensity( dpi );
@@ -266,12 +282,14 @@ float MarkerSet::getMinimumScale() const
 
 void MarkerSet::setAutoRotateMode( AutoRotateMode rotatemode )
 {
+    markerset_->applyRotationToAllMarkers( true );
     markerset_->setRotateMode( (osg::AutoTransform::AutoRotateMode)rotatemode );
-    setMarkerRotation( rotationvec_, rotationangle_ );
+    if ( rotatemode != NO_ROTATION )
+	setRotationForAllMarkers( rotationvec_, rotationangle_ );
 }
 
 
-void MarkerSet::setMarkerRotation( const Coord3& vec, float angle )
+void MarkerSet::setRotationForAllMarkers( const Coord3& vec, float angle )
 {
     rotationvec_ = vec;
     rotationangle_ = angle;
@@ -282,7 +300,7 @@ void MarkerSet::setMarkerRotation( const Coord3& vec, float angle )
     else if ( markerset_->getRotateMode() != osg::AutoTransform::NO_ROTATION )
 	quat.makeRotate( M_PI_2, osg::Vec3(-1.0,0.0,0.0) );
 
-    markerset_->setMarkerRotation( quat );
+    markerset_->setRotationForAllMarkers( quat );
 }
 
 

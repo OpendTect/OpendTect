@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static char pipechar = '|';
 static char newlinechar = '\n';
+static const char* sKeyDip = "Dip";
 
 
 namespace Pick
@@ -251,6 +252,33 @@ bool Location::getText( const char* idkey, BufferString& val ) const
     }
 
     return false;
+}
+
+
+void Location::setDip( float inldip, float crldip )
+{
+    SeparString dipvaluetext;
+    dipvaluetext += ::toString( inldip );
+    dipvaluetext += ::toString( crldip );
+    setText( sKeyDip, dipvaluetext.buf() );
+}
+
+
+float Location::inlDip() const
+{
+    BufferString dipvaluetext;
+    getText( sKeyDip, dipvaluetext );
+    const SeparString dipstr( dipvaluetext );
+    return dipstr.getFValue( 0 );
+}
+
+
+float Location::crlDip() const
+{
+    BufferString dipvaluetext;
+    getText( sKeyDip, dipvaluetext );
+    const SeparString dipstr( dipvaluetext );
+    return dipstr.getFValue( 1 );
 }
 
 
