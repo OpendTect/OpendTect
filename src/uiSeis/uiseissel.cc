@@ -66,7 +66,9 @@ static void adaptCtxt4Steering( const IOObjContext& ct,
     else if ( su.steerpol_ == uiSeisSel::Setup::OnlySteering )
     {
 	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
-	ctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+	ctxt.fixTranslator(
+		Seis::is2D(su.geom_) ? TwoDDataSeisTrcTranslator::translKey()
+				     : CBVSSeisTrcTranslator::translKey() );
     }
 }
 
