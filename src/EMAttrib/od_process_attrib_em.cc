@@ -236,7 +236,7 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 	    break;
 	}
 
-	if ( !useoutwfunc && tbuf )
+	if ( !useoutwfunc && tbuf && tbuf->get(0) )
 	{
 	    if ( !writer->put(*(tbuf->get(0))) )
 	    { mErrRet( writer->errMsg() ); }
