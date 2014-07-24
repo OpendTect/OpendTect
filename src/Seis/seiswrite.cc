@@ -160,21 +160,20 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
     }
     else if ( psioprov_ )
     {
-	const char* psstorkey = ioobj_->fullUserExpr(true);
-	const Pos::GeomID geomid = mCurGeomID;
-	const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
-	pswriter_ = is2d_ ? psioprov_->make2DWriter( psstorkey, lnm )
-			  : psioprov_->make3DWriter( psstorkey );
+	if ( !is2d_ )
+	    pswriter_ = SPSIOPF().get3DWriter( *ioobj_ );
+	else
+	{
+	    const Pos::GeomID geomid = mCurGeomID;
+	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
+	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
+	}
 	if ( !pswriter_ )
 	{
-	    BufferString emsg( "Cannot open Data store for write.\n"
-				"Target:\n", psstorkey );
-	    if ( is2d_ )
-		emsg.add( "\nLine name:\n" ).add( lnm );
-	    errmsg_ = emsg;
+	    errmsg_ = "Cannot open Data store for write";
 	    return false;
 	}
-	pswriter_->usePar( ioobj_->pars() );
+
 	if ( !is2d_ )
 	    SPSIOPF().mk3DPostStackProxy( *ioobj_ );
     }
