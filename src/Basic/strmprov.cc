@@ -436,6 +436,11 @@ StreamProviderDataPreLoader( const BufferStringSet& nms, const char* id )
     mkNewPLD();
 }
 
+~StreamProviderDataPreLoader()
+{
+    delete curpld_;
+}
+
 bool mkNewPLD()
 {
     if ( curpld_ )
