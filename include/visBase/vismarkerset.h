@@ -87,7 +87,10 @@ public:
 
     void		setAutoRotateMode(AutoRotateMode);
 
-    void		setMarkerRotation(const Coord3&,const float);
+    void		setRotationForAllMarkers(const Coord3&, const float);
+    void		setSingleMarkerRotation(const Quaternion&, int);
+    void		applyRotationToAllMarkers(bool);
+
 
     void		doFaceCamera(bool yn);
     			/*!<If true, the maker will always be rotated so the
@@ -132,8 +135,6 @@ protected:
 
     float			rotationangle_;
     Coord3			rotationvec_;
-
-    //void		setArrowDir(const ::Sphere&);
 };
 
 };

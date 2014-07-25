@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static char pipechar = '|';
 static char newlinechar = '\n';
+static const char* sKeyDip = "Dip";
 
 
 namespace Pick
@@ -254,6 +255,33 @@ bool Location::getText( const char* idkey, BufferString& val ) const
 }
 
 
+void Location::setDip( float inldip, float crldip )
+{
+    SeparString dipvaluetext;
+    dipvaluetext += ::toString( inldip );
+    dipvaluetext += ::toString( crldip );
+    setText( sKeyDip, dipvaluetext.buf() );
+}
+
+
+float Location::inlDip() const
+{
+    BufferString dipvaluetext;
+    getText( sKeyDip, dipvaluetext );
+    const SeparString dipstr( dipvaluetext );
+    return dipstr.getFValue( 0 );
+}
+
+
+float Location::crlDip() const
+{
+    BufferString dipvaluetext;
+    getText( sKeyDip, dipvaluetext );
+    const SeparString dipstr( dipvaluetext );
+    return dipstr.getFValue( 1 );
+}
+
+
 // Pick::SetMgr
 SetMgr& SetMgr::getMgr( const char* nm )
 {
@@ -426,14 +454,25 @@ void SetMgr::removeCBs( CallBacker* cb )
 }
 
 
+void SetMgr::removeAll()
+{
+    for ( int idx=pss_.size()-1; idx>=0; idx-- )
+    {
+	Set* set = pss_.removeSingle( idx );
+	setToBeRemoved.trigger( set );
+	delete set;
+    }
+}
+
+
 void SetMgr::survChg( CallBacker* )
 {
+    removeAll();
     locationChanged.cbs_.erase();
     setToBeRemoved.cbs_.erase();
     setAdded.cbs_.erase();
     setChanged.cbs_.erase();
     setDispChanged.cbs_.erase();
-    deepErase( pss_ );
     ids_.erase();
     changed_.erase();
 }

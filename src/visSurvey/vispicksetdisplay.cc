@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "zaxistransform.h"
 
+static float cDipFactor() { return SI().zIsTime() ? 1e-6f : 1e-3f; }
 
 namespace visSurvey {
 
@@ -35,6 +36,7 @@ PickSetDisplay::PickSetDisplay()
     , needline_(0)
 {
     markerset_->ref();
+    markerset_->applyRotationToAllMarkers( false );
     addChild( markerset_->osgNode() );
 }
 
@@ -103,8 +105,13 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	markerset_->setScreenSize(  mCast(float,set_->disp_.pixsize_) );
     }
 
-    if( markerset_->getType() != set_->disp_.markertype_)
+    if( markerset_->getType() != set_->disp_.markertype_ )
+    {
 	markerset_->setType( (MarkerStyle3D::Type)set_->disp_.markertype_ );
+	if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow 
+		|| set_->disp_.markertype_ == MarkerStyle3D::Plane )
+	    fullRedraw(0);
+    }
 
     LocationDisplay::dispChg( cb );
     markerset_->setMarkersSingleColor( set_->disp_.color_  );
@@ -120,8 +127,11 @@ void PickSetDisplay::setPosition( int idx, const Pick::Location& loc )
 	redrawAll();
 	return;
     }
-
+        
     markerset_->setPos( idx, loc.pos_, false );
+    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow ||
+	 set_->disp_.markertype_ == MarkerStyle3D::Plane )
+    	markerset_->setSingleMarkerRotation( getDirection(loc), idx );
 
     if ( needLine() )
 	setPolylinePos( idx, loc.pos_ );
@@ -278,10 +288,44 @@ bool PickSetDisplay::lineShown() const
 }
 
 
-::Sphere PickSetDisplay::getDirection( int loc ) const 
+static float getSurveyRotation()
 {
-   // return markerset->getDirection();
-    return 0;  // to be implement later
+    const Pos::IdxPair2Coord& b2c = SI().binID2Coord();
+    const float xcrd = (float) b2c.getTransform(true).c;
+    const float ycrd = (float) b2c.getTransform(false).c;
+    const float angle = Math::Atan2( ycrd, xcrd );
+    return angle;
+}
+
+
+::Quaternion PickSetDisplay::getDirection( const Pick::Location& loc ) const
+{
+    const float survngle = getSurveyRotation();
+    if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow )
+    {
+	const float phi = SI().isClockWise() ? survngle + loc.dir_.phi
+					     : survngle - loc.dir_.phi;
+	const Quaternion azimuth( Coord3(0,0,1), phi );
+	const Quaternion dip( Coord3(0,1,0), loc.dir_.theta );
+	const Quaternion rot = azimuth * dip;
+	return rot;
+    }
+
+    const float zscale = !scene_ ? 0 :
+		    scene_->getApparentVelocity(scene_->getFixedZStretch());
+
+    const float inldepth = (loc.inlDip()*cDipFactor()) * zscale;
+    const float crldepth = (loc.crlDip()*cDipFactor()) * zscale;
+        
+    const float inlangle = atan( (SI().isClockWise() ? -inldepth : inldepth) );
+    const float crlangle = atan( crldepth );
+
+    const Quaternion inlrot( Coord3(1,0,0), inlangle );
+    const Quaternion crlrot( Coord3(0,1,0), crlangle );
+    const Quaternion survrot( Coord3(0,0,1),survngle );
+    
+    const Quaternion finalrot = survrot * crlrot * inlrot;
+    return finalrot;
 }
 
 
@@ -349,6 +393,10 @@ bool PickSetDisplay::isMarkerClick( const visBase::EventInfo& evi ) const
 void PickSetDisplay::otherObjectsMoved(
 			const ObjectSet<const SurveyObject>& objs, int )
 {
+
+    if ( showall_ && invalidpicks_.isEmpty() )
+	return;
+    
     TypeSet<Coord3> polycoords;
     for ( int idx=0; idx<markerset_->getCoordinates()->size(); idx++ )
     {
@@ -366,7 +414,6 @@ void PickSetDisplay::otherObjectsMoved(
 	else
 	{
 	    newstatus = false;
-
 	    for ( int idy=0; idy<objs.size(); idy++ )
 	    {
 		const float dist = objs[idy]->calcDist(pos);
@@ -378,24 +425,15 @@ void PickSetDisplay::otherObjectsMoved(
 	    }
 	}
 
-	if ( newstatus && !invalidpicks_.isEmpty()
-		       && invalidpicks_.indexOf(idx)!=-1 )
-	{
-	    Pick::Location loc = (*set_)[idx];
-	    if ( transformPos(loc) )
-	    {
-		invalidpicks_ -= idx;
-		setPosition( idx, loc );
-	    }
-	    else
-	    {
-		newstatus = false;
-	    }
-	}
-
 	markerset_->turnMarkerOn( idx, newstatus );
 	if ( newstatus )
+	{
+	    invalidpicks_ -= idx;
 	    polycoords += markerset_->getCoordinates()->getPos( idx );
+	}
+	else
+	    invalidpicks_ += idx;
+
     }
 
     if ( polyline_ )

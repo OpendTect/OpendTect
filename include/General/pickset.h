@@ -70,6 +70,10 @@ public:
     void		unSetText(const char* key);
     bool		getText(const char* key,BufferString&) const;
 
+    void		setDip(float,float);
+    float		inlDip() const;
+    float		crlDip() const;
+
     inline bool		hasDir() const
     			{ return !mIsZero(dir_.radius,mDefEps)
 			      || !mIsZero(dir_.theta,mDefEps)
@@ -203,6 +207,7 @@ protected:
 
     void		survChg(CallBacker*);
     void		objRm(CallBacker*);
+    void		removeAll();
 };
 
 inline SetMgr& Mgr()
