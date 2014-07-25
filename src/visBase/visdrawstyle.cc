@@ -74,9 +74,16 @@ void DrawStyle::setLineWidth( int width )
 }    
 
 
-
 void DrawStyle::updateLineStyle()
 {
+    if ( linestyle_.width_ == 0 )
+    {
+	if ( linestippleattrib_ ) removeAttribute( linestippleattrib_ );
+	if ( linewidthattrib_ ) removeAttribute( linewidthattrib_ );
+	linestippleattrib_ = 0;
+	linewidthattrib_ = 0;
+	return;
+    }
 
     if ( !linestippleattrib_ )
 	linestippleattrib_ = addAttribute( new osg::LineStipple );

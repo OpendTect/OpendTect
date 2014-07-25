@@ -36,6 +36,7 @@ protected:
 				NodeState();
     
     template <class T> T*	addAttribute(T* a) { doAdd(a); return a; }
+    template <class T> void	removeAttribute(T* a) {doRemove(a);}
     
 private:
     

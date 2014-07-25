@@ -89,6 +89,12 @@ void PolyLine::setLineStyle( const LineStyle& lst )
     drawstyle_->setLineStyle( lst );
     if ( getMaterial() )
 	getMaterial()->setColor( lst.color_ );
+
+    if ( lst.width_ == 0 )
+	turnOn( false );
+    else
+	turnOn( true );
+    
 }
 
 
