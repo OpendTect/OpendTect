@@ -75,7 +75,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
     uiToolButton* dummytb = new uiToolButton( infogrp_, uiIcon::None(),
-					      uiStrings::sEmptyString(), 
+					      uiStrings::sEmptyString(),
                                               CallBack() );
     dummytb->attach( rightTo, infofld_ );
     dummytb->display( false );
@@ -87,7 +87,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     notesfld_->setStretch( 2, 2 );
     notesfld_->setToolTip( tr("Notes") );
     notesfld_->attach( alignedBelow, noteslbl );
-    uiToolButton* savebut = new uiToolButton( notesgrp, "save", 
+    uiToolButton* savebut = new uiToolButton( notesgrp, "save",
                                               tr("Save Notes"),
 	    mCB(this,uiObjFileMan,saveNotes) );
     savebut->attach( rightTo, notesfld_ );
@@ -335,6 +335,7 @@ BufferString uiObjFileMan::getFileInfo()
 	txt.add( "Created from: " ).add( crspec ).add( "\n" );
 
     txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
+    txt.add( "Storage type: " ).add( curioobj_->translator() ).add( "\n" );
     return txt;
 }
 

@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "varlenarray.h"
 #include "wellextractdata.h"
-#include "welltransl.h"
 
 #include "uicombobox.h"
 #include "uihistogramdisplay.h"
@@ -99,13 +98,14 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2d_ );
     else
     {
-	PtrMan<Executor> ex = WellTranslator::createDataPointSets(
-				crdesc.outids, crdesc.pars, is2d_ , dpss,
-	       			SI().zIsTime() );
-	if ( !ex ) return;
+	Well::TrackSampler* ts = new Well::TrackSampler( crdesc.outids, dpss,
+							 SI().zIsTime() );
+	ts->for2d_ = is2d_;
+	ts->usePar( crdesc.pars );
 	uiTaskRunner uiex( appserv().parent() );
-	if ( !TaskRunner::execute( &uiex, *ex ) )
+	if ( !TaskRunner::execute(&uiex,*ts) )
 	    deepErase( dpss );
+	delete ts;
     }
 
     for ( int idx=0; idx<dpss.size(); idx++ )

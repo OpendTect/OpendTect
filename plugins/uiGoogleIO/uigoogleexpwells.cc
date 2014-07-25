@@ -77,7 +77,7 @@ bool uiGoogleExportWells::acceptOK( CallBacker* )
 	    continue;
 
 	Well::Data wd;
-	Well::Reader wllrdr( Well::IO::getMainFileName( *wellids_[idx] ), wd );
+	Well::Reader wllrdr( *wellids_[idx], wd );
 	if ( !wllrdr.getInfo() )
 	    continue;
 

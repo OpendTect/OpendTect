@@ -53,6 +53,7 @@ public:
     BufferString	oper;
     BufferString	state;
     BufferString	county;
+    BufferString	source_; //!< filename for OD storage
 
     Coord		surfacecoord;
     float		srdelev;

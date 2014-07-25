@@ -174,8 +174,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
 	if ( !ioobj ) mErrRet("Cannot find well in object manager")
 
-	BufferString fname( ioobj->fullUserExpr(true) );
-	Well::Writer wtr( fname, *wd );
+	Well::Writer wtr( *ioobj, *wd );
 
 	const Well::Log& newlog = wd->logs().getLog(sellogidx_);
 	if ( !wtr.putLog(newlog) )

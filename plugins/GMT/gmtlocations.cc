@@ -381,7 +381,6 @@ bool GMTWells::fillLegendPar( IOPar& par ) const
 
 bool GMTWells::execute( od_ostream& strm, const char* fnm )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id) );
     BufferStringSet wellnms;
     strm << "Posting Wells " << " ...  ";
     if ( !get(ODGMT::sKeyWellNames(),wellnms) || !wellnms.size() )
@@ -430,11 +429,12 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
     TypeSet<Coord> surfcoords;
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id) );
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const IOObj* ioobj = IOM().getLocal( wellnms.get(idx), "Well" );
 	Well::Data data;
-	Well::Reader rdr( ioobj->fullUserExpr(true), data );
+	Well::Reader rdr( *ioobj, data );
 	if ( !rdr.getInfo() )
 	    mErrStrmRet("Cannot read well info")
 

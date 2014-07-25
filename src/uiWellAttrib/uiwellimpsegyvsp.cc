@@ -209,8 +209,7 @@ void uiWellImportSEGYVSP::wllSel( CallBacker* )
     const IOObj* ioobj = wellfld_->ioobj(true);
     if ( ioobj )
     {
-	const FixedString nm = Well::IO::getMainFileName( *ioobj );
-	Well::Data wd; Well::Reader wr( nm, wd );
+	Well::Data wd; Well::Reader wr( *ioobj, wd );
 	wr.getLogInfo( existinglognms_ );
     }
 
@@ -380,7 +379,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     wd->logs().add( wl );
 
-    Well::Writer wtr( Well::IO::getMainFileName(*ioobj), *wd );
+    Well::Writer wtr( *ioobj, *wd );
     wtr.putLog( *wl );
 
     if ( wasloaded )

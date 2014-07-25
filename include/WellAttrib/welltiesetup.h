@@ -79,11 +79,11 @@ public:
 };
 
 
-mExpClass(WellAttrib) IO : public Well::IO
+mExpClass(WellAttrib) IO : public Well::odIO
 {
 public:
-				IO( const char* f )
-				: Well::IO(f)		{}
+				IO( const char* f, BufferString& errmsg )
+				: Well::odIO(f,errmsg)	{}
 
     static const char*		sKeyWellTieSetup();
 
@@ -94,13 +94,15 @@ mExpClass(WellAttrib) Writer : public IO
 {
 public:
 				Writer( const char* f )
-				    : IO(f) {}
+				    : IO(f,errmsg_) {}
 
     bool			putWellTieSetup(const WellTie::Setup&) const;
 
     bool			putIOPar(const IOPar&,const char*) const;
 
 protected:
+
+    BufferString		errmsg_;
 
     bool			putIOPar(const IOPar&,const char*,
 					 od_ostream&) const;
@@ -113,13 +115,15 @@ mExpClass(WellAttrib) Reader : public IO
 {
 public:
 				Reader( const char* f )
-				    : IO(f) {}
+				    : IO(f,errmsg_) {}
 
     void			getWellTieSetup(WellTie::Setup&) const;
 
     IOPar*			getIOPar(const char*) const;
 
 protected:
+
+    BufferString		errmsg_;
 
     IOPar*			getIOPar(const char*,od_istream&) const;
 

@@ -300,7 +300,7 @@ void DataWriter::setWellWriter()
     IOObj* ioobj = IOM().get( wellid_ );
     if ( ioobj && wd_ )
     {
-	wtr_ = new Well::Writer(ioobj->fullUserExpr(true),*wd_ );
+	wtr_ = new Well::Writer( *ioobj, *wd_ );
 	delete ioobj;
     }
 }
@@ -308,7 +308,7 @@ void DataWriter::setWellWriter()
 
 bool DataWriter::writeD2TM() const
 {
-    return ( wtr_ && wtr_->putD2T() );
+    return wtr_ && wtr_->putD2T();
 }
 
 

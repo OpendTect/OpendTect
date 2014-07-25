@@ -50,7 +50,7 @@ bool init()
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !ioobj ) return false;
 
-    Well::Reader rdr( ioobj->fullUserExpr(true), wd_ );
+    Well::Reader rdr( *ioobj, wd_ );
     if ( !rdr.getTrack() || !rdr.getD2T() || !rdr.getLog(logname_) )
 	return false;
 

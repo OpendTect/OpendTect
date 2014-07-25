@@ -66,10 +66,10 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wid = wellids[idx]->buf();
-	const char* nm = Well::IO::getMainFileName( wid );
-	if ( !nm || !*nm ) continue;
+	Well::Data wd; Well::Reader wr( wid, wd );
+	if ( !wr.get() )
+	    continue;
 
-	Well::Data wd; Well::Reader wr( nm, wd );  wr.get();
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata =
@@ -105,10 +105,8 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );
 	for ( int idx=0; idx<lds.size(); idx++ )
 	{
-	    const char* nm = Well::IO::getMainFileName( lds[idx]->wellid_ );
-	    if ( !nm || !*nm ) continue;
 	    Well::Data wd; lds[idx]->getOutputLogs( wd.logs() );
-	    Well::Writer wrr( nm, wd );
+	    Well::Writer wrr( lds[idx]->wellid_, wd );
 	    wrr.putLogs();
 	    Well::MGR().reload( lds[idx]->wellid_ );
 	}
@@ -201,7 +199,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actiongrp->attach( hCentered );
     actiongrp->attach( ensureBelow, displaygrp );
     const char* acts[] = { "Remove Spikes", "FFT Filter", "Smooth", "Clip", 0 };
-    uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts, 
+    uiLabeledComboBox* llc = new uiLabeledComboBox( actiongrp, acts,
                                                     uiStrings::sAction() );
     actionfld_ = llc->box();
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
@@ -434,7 +432,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		Well::LogSampler ls( ld.d2t_, &track, zrg, false, deftimestep,
 				     SI().zIsTime(), ut, reslogs );
 		if ( !ls.execute() )
-		    mAddErrMsg("Could not resample the logs", wllnm )
+		    mAddErrMsg( "Could not resample the logs", wllnm )
 
 		const int size = ls.nrZSamples();
 		Array1DImpl<float> logvals( size );
@@ -484,8 +482,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		const int winsz = gatefld_->getValue();
 		sm.setWindow( HanningWindow::sName(), 0.95, winsz );
 		if ( !sm.execute() )
-		    mAddErrMsg( "Could not apply the smoothing window",
-                    wllnm )
+		    mAddErrMsg( "Could not apply the smoothing window", wllnm )
 	    }
 	    else if ( act == 3 )
 	    {

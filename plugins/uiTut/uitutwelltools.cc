@@ -37,16 +37,16 @@ uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
     if ( !wd_ )
 	return;
     wd_->tobedeleted.notify( mCB(this,uiTutWellTools,wellToBeDeleted) );
-    const Well::LogSet& logs = wd_->logs(); 
+    const Well::LogSet& logs = wd_->logs();
     inplogfld_ = new uiLabeledListBox( this, tr("Select Input Log") );
     inplogfld_->box()->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->box()->addItem( logs.getLog(idx).name() );
-    inplogfld_->box()->selectionChanged.notify( 
-	    			mCB(this,uiTutWellTools,inpchg) );
+    inplogfld_->box()->selectionChanged.notify(
+				mCB(this,uiTutWellTools,inpchg) );
 
     outplogfld_ = new uiGenInput( this, tr("Specify Output Log name"),
-	    			StringInpSpec( "" ) );
+				StringInpSpec( "" ) );
     outplogfld_->setElemSzPol( uiObject::Wide );
     outplogfld_->attach( alignedBelow, inplogfld_ );
 
@@ -108,7 +108,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	if ( !ioobj )
 	    mErrRet( tr("Cannot find object in I/O Manager") )
 
-	Well::Writer wtr( ioobj->fullUserExpr(), *wd_ );
+	Well::Writer wtr( *ioobj, *wd_ );
 	const Well::Log& newlog = logset.getLog( logset.size()-1 );
 	if ( !wtr.putLog(newlog) )
 	{

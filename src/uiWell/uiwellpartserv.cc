@@ -210,10 +210,9 @@ void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
 
 void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
 {
-    Well::Writer wr( Well::IO::getMainFileName(key), w );
+    Well::Writer wr( key, w );
     if ( !wr.putDispProps() )
-    uiMSG().error( "Could not write display properties for \n",
-    w.name() );
+	uiMSG().error( "Could not write display properties for \n", w.name() );
 }
 
 
@@ -409,10 +408,6 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     ctio->setObj(0); ctio->setName( wellname );
     if ( !ctio->fillObj() )
 	mErrRet(tr("Cannot create an entry in the data store"))
-    PtrMan<Translator> translator = ctio->ioobj->createTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,translator.ptr())
-    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-			 "Another type object with this name already exists." );
 
     PtrMan<Well::Data> well = new Well::Data( wellname );
     Well::D2TModel* d2t = SI().zIsTime() ? new Well::D2TModel : 0;
@@ -431,10 +426,12 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
     }
 
     well->setD2TModel( d2t );
-    if ( !wtr->write(*well,*ctio->ioobj) )
-	mErrRet( "Cannot write well. Please check permissions." )
+    Well::Writer wwr( *ctio->ioobj, *well );
+    if ( !wwr.put() )
+	mErrRet( wwr.errMsg() )
 
     mid = ctio->ioobj->key();
+    delete ctio->ioobj;
     return true;
 }
 

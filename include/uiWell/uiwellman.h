@@ -88,7 +88,6 @@ protected:
     void			exportLogs(CallBacker*);
     void			logTools(CallBacker*);
 
-    double			getFileSize(const char*,int&) const;
     void			defD2T(bool);
 
 };

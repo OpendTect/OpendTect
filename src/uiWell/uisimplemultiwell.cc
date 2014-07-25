@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "welltrack.h"
 #include "welltransl.h"
+#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uifileinput.h"
@@ -248,14 +249,11 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
 	wd.setD2TModel( d2t );
     }
 
-    PtrMan<Translator> t = ioobj.createTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) return true; // Huh?
-    if ( !wtr->write(wd,ioobj) )
+    Well::Writer wr( ioobj, wd );
+    if ( !wr.put() )
     {
 	BufferString msg( "Cannot write data for '" );
-	msg.add( wcd.nm_ ).add( "to file:\n" )
-	    .add( ioobj.fullUserExpr(false) );
+	msg.add( wcd.nm_ ).add( "':\n" ).add( wr.errMsg() );
 	uiMSG().error( msg );
 	return false;
     }

@@ -14,23 +14,25 @@ ________________________________________________________________________
 -*/
 
 #include "wellmod.h"
-#include "wellio.h"
-#include "od_iosfwd.h"
+#include "bufstring.h"
+class IOObj;
 
 namespace Well
 {
 class Data;
 class Log;
+class WriteAccess;
 
-/*!
-\brief Writes Well::Data.
-*/
+/*!\brief Writes Well::Data to any data storage. */
 
-mExpClass(Well) Writer : public IO
+mExpClass(Well) Writer
 {
 public:
 
-			Writer(const char* fnm,const Data&);
+			Writer(const MultiID&,const Data&);
+			Writer(const IOObj&,const Data&);
+			~Writer();
+    bool		isUsable() const	{ return wa_; }
 
     bool		put() const;		//!< Just write all
 
@@ -41,30 +43,22 @@ public:
     bool		putD2T() const;		//!< Write D2T model only
     bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
-
-    bool		putInfoAndTrack(od_ostream&) const;
     bool		putLog(const Log&) const;
-    bool		putMarkers(od_ostream&) const;
-    bool		putD2T(od_ostream&) const;
-    bool		putCSMdl(od_ostream&) const;
-    bool		putDispProps(od_ostream&) const;
 
-    void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
+    const OD::String&	errMsg() const		{ return errmsg_; }
 
 protected:
 
-    const Data&		wd;
-    bool		binwrlogs_;
+    WriteAccess*	wa_;
+    mutable BufferString errmsg_;
 
-    bool		putLog(od_ostream&,const Log&) const;
-    bool		wrHdr(od_ostream&,const char*) const;
-    bool		putTrack(od_ostream&) const;
-    bool		doPutD2T(bool) const;
-    bool		doPutD2T(od_ostream&,bool) const;
+private:
+
+    void		init(const IOObj&,const Data&);
 
 };
+
 
 }; // namespace Well
 
 #endif
-

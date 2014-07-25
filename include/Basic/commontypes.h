@@ -26,6 +26,7 @@ class IdxPair;
 class MultiID;
 class FixedString;
 class BufferString;
+namespace OD { class String; }
 template<class T> class TypeSet;
 template<class T> class Interval;
 template<class T> class ObjectSet;
