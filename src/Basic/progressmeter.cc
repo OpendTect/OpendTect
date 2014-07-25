@@ -114,7 +114,9 @@ void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 
 void TextStreamProgressMeter::setMessage( const uiString& message )
 {
-    if ( message_==message )
+    const BufferString existmsg( message_.getFullString() );
+    const BufferString newmsg( message.getFullString() );
+    if ( existmsg == newmsg )
 	return;
 
     message_ = message;
