@@ -207,6 +207,7 @@ protected:
 
     void		survChg(CallBacker*);
     void		objRm(CallBacker*);
+    void		removeAll();
 };
 
 inline SetMgr& Mgr()

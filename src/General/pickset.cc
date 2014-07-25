@@ -454,14 +454,25 @@ void SetMgr::removeCBs( CallBacker* cb )
 }
 
 
+void SetMgr::removeAll()
+{
+    for ( int idx=pss_.size()-1; idx>=0; idx-- )
+    {
+	Set* set = pss_.removeSingle( idx );
+	setToBeRemoved.trigger( set );
+	delete set;
+    }
+}
+
+
 void SetMgr::survChg( CallBacker* )
 {
+    removeAll();
     locationChanged.cbs_.erase();
     setToBeRemoved.cbs_.erase();
     setAdded.cbs_.erase();
     setChanged.cbs_.erase();
     setDispChanged.cbs_.erase();
-    deepErase( pss_ );
     ids_.erase();
     changed_.erase();
 }
