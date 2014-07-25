@@ -112,20 +112,24 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    MultiID inputmid;
-    if ( !pars().get(PreStack::ProcessManager::sKeyInputData(), inputmid ) )
+    PtrMan<IOObj> inputioobj = 0;
+    if ( procman->needsPreStackInput() )
     {
-	errorMsg("\nCannot read input id");
-	delete procman;
-	return false;
-    }
+	MultiID inputmid;
+	if ( !pars().get(PreStack::ProcessManager::sKeyInputData(), inputmid ) )
+	{
+	    errorMsg("\nCannot read input id");
+	    delete procman;
+	    return false;
+	}
 
-    PtrMan<IOObj> inputioobj = IOM().get( inputmid );
-    if ( !inputioobj )
-    {
-	errorMsg("\nCannot create input object");
-	delete procman;
-	return false;
+	inputioobj = IOM().get( inputmid );
+	if ( !inputioobj )
+	{
+	    errorMsg("\nCannot create input object");
+	    delete procman;
+	    return false;
+	}
     }
 
     MultiID outputmid;
@@ -144,61 +148,63 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
+    SeisPSReader* reader = 0;
     PtrMan<SeisPS3DReader> reader3d = 0;
     PtrMan<SeisPS2DReader> reader2d = 0;
-
     StepInterval<int> cdprange(0,0,1);
-
-    if ( geomtype==Seis::VolPS )
+    if ( procman->needsPreStackInput() )
     {
-	reader3d = SPSIOPF().get3DReader( *inputioobj );
-	if ( reader3d && !hashorsampling )
-	{
-	    const PosInfo::CubeData& posdata = reader3d->posData();
-	    if ( posdata.size() )
-	    {
-		StepInterval<int> inlrg, crlrg;
-		posdata.getInlRange( inlrg );
-		posdata.getCrlRange( crlrg );
 
-		horsampling.init();
-		horsampling.setInlRange( inlrg );
-		horsampling.setCrlRange( crlrg );
-	    }
-        }
-
-	progressmeter.setTotalNr( horsampling.totalNr() );
-    }
-    else
-    {
-	reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
-	if ( reader2d &&
-	    !pars().get( PreStack::ProcessManager::sKeyCDPRange(), cdprange ) )
+	if ( geomtype==Seis::VolPS )
 	{
-	    const PosInfo::Line2DData& posdata = reader2d->posData();
-	    for ( int idx=0; idx<posdata.positions().size(); idx++ )
+	    reader3d = SPSIOPF().get3DReader( *inputioobj );
+	    if ( reader3d && !hashorsampling )
 	    {
-		if ( !idx )
-		    cdprange.start = cdprange.stop
-			= posdata.positions()[idx].nr_;
-		else
-		    cdprange.include( posdata.positions()[idx].nr_ );
+		const PosInfo::CubeData& posdata = reader3d->posData();
+		if ( posdata.size() )
+		{
+		    StepInterval<int> inlrg, crlrg;
+		    posdata.getInlRange( inlrg );
+		    posdata.getCrlRange( crlrg );
+
+		    horsampling.init();
+		    horsampling.setInlRange( inlrg );
+		    horsampling.setCrlRange( crlrg );
+		}
 	    }
+
+	    progressmeter.setTotalNr( horsampling.totalNr() );
+	}
+	else
+	{
+	    reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
+	    if ( reader2d &&
+		!pars().get(PreStack::ProcessManager::sKeyCDPRange(), cdprange))
+	    {
+		const PosInfo::Line2DData& posdata = reader2d->posData();
+		for ( int idx=0; idx<posdata.positions().size(); idx++ )
+		{
+		    if ( !idx )
+			cdprange.start = cdprange.stop
+			    = posdata.positions()[idx].nr_;
+		    else
+			cdprange.include( posdata.positions()[idx].nr_ );
+		}
+	    }
+
+	    progressmeter.setTotalNr( cdprange.nrSteps()+1 );
 	}
 
-	progressmeter.setTotalNr( cdprange.nrSteps()+1 );
-    }
+	if ( !reader3d && !reader2d )
+	{
+	    errorMsg("\nCannot create input reader");
+	    delete procman;
+	    return false;
+	}
 
-    if ( !reader3d && !reader2d )
-    {
-	errorMsg("\nCannot create input reader");
-	delete procman;
-	return false;
+	reader = reader3d ? (SeisPSReader*) reader3d
+	    		  : (SeisPSReader*) reader2d;
     }
-
-    SeisPSReader* reader = reader3d
-	? (SeisPSReader*) reader3d
-	: (SeisPSReader*) reader2d;
 
     PtrMan<SeisPSWriter> writer = geomtype==Seis::VolPS
 	? SPSIOPF().get3DWriter( *outputioobj )
@@ -301,7 +307,8 @@ bool BatchProgram::go( od_ostream& strm )
 			gather = new PreStack::Gather;
 		    }
 
-		    if ( !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+		    if ( procman->needsPreStackInput() &&
+			 !gather->readFrom(*inputioobj,*reader,inputbid,0) )
 		    {
 			sparegather = gather;
 			gather = 0;

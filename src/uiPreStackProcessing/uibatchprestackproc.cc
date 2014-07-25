@@ -11,13 +11,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "seistrctr.h"
-#include "uipossubsel.h"
-#include "uimsg.h"
-#include "uiseissel.h"
-#include "uibatchjobdispatchersel.h"
-#include "uiprestackprocessorsel.h"
 #include "prestackprocessor.h"
+#include "prestackprocessortransl.h"
+#include "seistrctr.h"
+#include "uibatchjobdispatchersel.h"
+#include "uimsg.h"
+#include "uipossubsel.h"
+#include "uiprestackprocessorsel.h"
+#include "uiseissel.h"
+
 #include "od_helpids.h"
 
 namespace PreStack
@@ -29,6 +31,7 @@ uiBatchProcSetup::uiBatchProcSetup( uiParent* p, bool is2d )
     , is2d_( is2d )
 {
     chainsel_ = new uiProcSel( this, "Setup", 0 );
+    chainsel_->selectionDone.notify( mCB(this,uiBatchProcSetup,setupSelCB) );
 
     const Seis::GeomType gt = is2d_ ? Seis::LinePS : Seis::VolPS;
     inputsel_ = new uiSeisSel( this, uiSeisSel::ioContext(gt,true),
@@ -65,6 +68,37 @@ void uiBatchProcSetup::outputNameChangeCB( CallBacker* )
 }
 
 
+void uiBatchProcSetup::setupSelCB( CallBacker* )
+{
+    inputsel_->display( true );
+
+    MultiID chainmid;
+    PtrMan<IOObj> setupioobj = 0;
+    if ( chainsel_->getSel(chainmid) )
+	setupioobj = IOM().get( chainmid );
+
+    if ( !setupioobj )
+	return;
+
+    mDeclareAndTryAlloc( PreStack::ProcessManager*, procman,
+	    		 PreStack::ProcessManager );
+    if ( !procman )
+	return;
+
+    uiString errmsg;
+    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj, errmsg ) )
+    {
+	delete procman;
+	return;
+    }
+
+    if ( !procman->needsPreStackInput() )
+	inputsel_->display( false );
+
+    delete procman;
+}
+
+
 bool uiBatchProcSetup::prepareProcessing()
 {
     MultiID chainmid;
@@ -78,7 +112,7 @@ bool uiBatchProcSetup::prepareProcessing()
 	return false;
     }
 
-    if ( !inputsel_->commitInput() )
+    if ( inputsel_->attachObj()->isDisplayed() && !inputsel_->commitInput() )
     {
 	uiMSG().error(tr("Please select an input volume"));
 	return false;
@@ -100,14 +134,16 @@ bool uiBatchProcSetup::fillPar()
     IOPar& par = batchfld_->jobSpec().pars_;
     const IOObj* inioobj = inputsel_->ioobj( true );
     const IOObj* outioobj = outputsel_->ioobj( true );
-    if ( !inioobj || !outioobj )
+    if ( (inputsel_->attachObj()->isDisplayed() && !inioobj) || !outioobj )
 	return false;
 
     MultiID mid;
     if ( !chainsel_->getSel(mid) )
 	return false;
 
-    par.set( ProcessManager::sKeyInputData(), inioobj->key() );
+    if ( inioobj )
+	par.set( ProcessManager::sKeyInputData(), inioobj->key() );
+
     possubsel_->fillPar( par );
     par.set( ProcessManager::sKeyOutputData(), outioobj->key() );
     //Set depthdomain in output's omf?

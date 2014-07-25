@@ -227,6 +227,12 @@ bool ProcessManager::reset()
 }
 
 
+bool ProcessManager::needsPreStackInput() const
+{
+    return processors_.size() ? processors_[0]->usesPreStackInput() : false;
+}
+
+
 BinID ProcessManager::getInputStepout() const
 {
     if ( processors_.size() ) return processors_[0]->getInputStepout();

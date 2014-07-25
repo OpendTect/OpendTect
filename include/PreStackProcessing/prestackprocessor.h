@@ -144,6 +144,7 @@ public:
     int				nrProcessors() const;
     Processor*			getProcessor(int);
     const Processor*		getProcessor(int) const;
+    bool			needsPreStackInput() const;
 
 
     void			addProcessor(Processor*);

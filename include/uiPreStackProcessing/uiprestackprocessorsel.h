@@ -30,6 +30,8 @@ public:
     void		setSel(const MultiID&);
     bool		getSel(MultiID&) const;
 
+    Notifier<uiProcSel> selectionDone;
+
 protected:
 			~uiProcSel();
 
