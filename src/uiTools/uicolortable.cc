@@ -11,14 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicolortable.h"
 
-#include "bufstringset.h"
-#include "coltab.h"
-#include "color.h"
 #include "coltabsequence.h"
-#include "coltabmapper.h"
-#include "datainpspec.h"
-#include "flatview.h"
-#include "iopar.h"
 #include "pixmap.h"
 #include "mouseevent.h"
 #include "settings.h"
@@ -26,18 +19,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uicoltabman.h"
 #include "uicoltabtools.h"
-#include "uicombobox.h"
-#include "uidialog.h"
 #include "uigeninput.h"
-#include "uigeom.h"
 #include "uilineedit.h"
 #include "uimenu.h"
-#include "uirgbarray.h"
-#include "uirgbarraycanvas.h"
-#include "uitoolbar.h"
 #include "od_helpids.h"
-
-#include <math.h>
 
 
 class uiAutoRangeClipDlg : public uiDialog
