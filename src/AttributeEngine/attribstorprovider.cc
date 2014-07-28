@@ -322,7 +322,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
     {
 	if ( isondisc_ )
 	{
-	    SeisMSCProvider::AdvanceState res = mscprov_->advance();
+	    SeisMSCProvider::AdvanceState res = mscprov_ ? mscprov_->advance()
+						 : SeisMSCProvider::EndReached;
 	    switch ( res )
 	    {
 		case SeisMSCProvider::Error:	{ errmsg_ = mscprov_->errMsg();
