@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uibasemapgeom2ditem.h"
 
 #include "uiaction.h"
-#include "uiioobjsel.h"
+#include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"

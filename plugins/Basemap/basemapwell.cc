@@ -45,7 +45,7 @@ void WellObject::setMultiID( const MultiID& mid )
     if ( !ioobj ) return;
 
     setName( ioobj->name() );
-    Well::Reader rdr( ioobj->fullUserExpr(true), wd_ );
+    Well::Reader rdr( *ioobj, wd_ );
     rdr.getInfo();
 
     updateGeometry();
