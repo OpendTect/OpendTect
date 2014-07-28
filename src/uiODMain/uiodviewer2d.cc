@@ -92,7 +92,6 @@ uiODViewer2D::~uiODViewer2D()
     delete datamgr_;
 
     deepErase( auxdataeditors_ );
-    setMouseCursorExchange( 0 );
     detachAllNotifiers();
 
     if ( datatransform_ )
