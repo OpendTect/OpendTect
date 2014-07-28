@@ -23,7 +23,7 @@ namespace Well
 
 /*!\brief base class for Reader and Writer. */
 
-mExpClass(Well) IO
+mExpClass(Well) odIO
 {
 public:
 
@@ -50,11 +50,14 @@ public:
     static const char*	getMainFileName(const IOObj&);
     static const char*	getMainFileName(const MultiID&);
 
+    const OD::String&	errMsg() const		{ return errmsg_; }
+
 protected:
 
 
-			IO(const char*);
+			odIO(const char*,BufferString&);
 
+    BufferString&	errmsg_;
     const BufferString	basenm_;
 
 public:
@@ -67,4 +70,3 @@ public:
 }; // namespace Well
 
 #endif
-

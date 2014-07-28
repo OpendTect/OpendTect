@@ -179,7 +179,7 @@ void uiWellLogCalc::getAllLogs()
 	IOObj* ioobj = IOM().get( wellids_[idx] );
 	if ( !ioobj ) continue;
 
-	Well::Data wd; Well::Reader wr( ioobj->fullUserExpr(true), wd );
+	Well::Data wd; Well::Reader wr( *ioobj, wd );
 	BufferStringSet nms; wr.getLogInfo( nms );
 	bool havenewlog = false;
 	for ( int inm=0; inm<nms.size(); inm++ )
@@ -415,8 +415,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    mErrContinue( BufferString("Cannot find ",wellids_[iwell]) )
 
 	Well::Data wd;
-	const BufferString fnm( ioobj->fullUserExpr(true) );
-	Well::Reader rdr( fnm, wd );
+	Well::Reader rdr( *ioobj, wd );
 	if ( !rdr.getLogs() )
 	    mErrContinue( BufferString("Cannot read logs for ",ioobj->name()) )
 
@@ -451,11 +450,10 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	if ( outun )
 	    newwl->setUnitMeasLabel( outun->name() );
 
-	Well::Writer wtr( fnm, wd );
+	Well::Writer wtr( *ioobj, wd );
 	if ( !wtr.putLog(*newwl) )
 	    mErrContinue( BufferString("Cannot write new log for ",
-			  ioobj->name(),
-			  "\nCheck the permissions of the *.wll files") )
+			  ioobj->name()) )
 
 	successfulonce = true;
     }

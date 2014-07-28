@@ -81,10 +81,14 @@ bool WellLog::allowParallelComputation() const
 void WellLog::prepareForComputeData()
 {
     PtrMan<IOObj> ioobj = IOM().get( wellid_ );
-    if ( !ioobj ) return;
+    if ( !ioobj )
+	return;
 
     Well::Data wd;
-    Well::Reader rdr( ioobj->fullUserExpr(true), wd );
+    Well::Reader rdr( *ioobj, wd );
+    if ( !rdr.isUsable() )
+	return;
+
     rdr.getD2T();
     rdr.getLog( logname_ );
 

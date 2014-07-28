@@ -103,7 +103,7 @@ int Well::InfoCollector::nextStep()
     if ( dologs_ || domrkrs_ || dotracks_ )
     {
 	Well::Data wd;
-	Well::Reader wr( ioobj->fullUserExpr(true), wd );
+	Well::Reader wr( *ioobj, wd );
 	if ( wr.getInfo() )
 	{
 	    infos_ += new Well::Info( wd.info() );
@@ -253,7 +253,7 @@ Interval<float> Well::ZRangeSelector::calcFrom( const IOObj& ioobj,
     Interval<float> dahrg( mUdf(float), mUdf(float) );
 
     Well::Data wd;
-    Well::Reader wr( ioobj.fullUserExpr(true), wd );
+    Well::Reader wr( ioobj, wd );
     if ( !wr.getInfo() )
 	return dahrg;
 
@@ -482,8 +482,9 @@ int Well::TrackSampler::nextStep()
     IOObj* ioobj = IOM().get( MultiID(ids_.get(curid_)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
-    Well::Reader wr( ioobj->fullUserExpr(true), wd );
-    if ( !wr.getInfo() ) mRetNext()
+    Well::Reader wr( *ioobj, wd );
+    if ( !wr.getInfo() )
+	mRetNext()
     if ( ( params_.extractzintime_ || zistime_ ) && !wr.getD2T() )
 	mRetNext()
 
@@ -663,8 +664,9 @@ int Well::LogDataExtracter::nextStep()
     ioobj = IOM().get( MultiID(ids_.get(curid_)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
-    Well::Reader wr( ioobj->fullUserExpr(true), wd );
-    if ( !wr.getInfo() ) mRetNext()
+    Well::Reader wr( *ioobj, wd );
+    if ( !wr.getInfo() )
+	mRetNext()
 
     PtrMan<Well::Track> timetrack = 0;
     if ( zistime_ )

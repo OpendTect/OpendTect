@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
-#include "welltransl.h"
+#include "wellwriter.h"
 
 #include "uibutton.h"
 #include "uid2tmodelgrp.h"
@@ -65,7 +65,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     vertwelllbl_->attach( rightTo, havetrckbox_ );
     vertwelllbl_->attach( alignedWith, trckinpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                       mODHelpKey(mWellImportAscDataSelHelpID) );
     dataselfld_->attach( alignedBelow, trckinpfld_ );
     dataselfld_->descChanged.notify( mCB(this,uiWellImportAsc,trckFmtChg) );
@@ -294,6 +294,9 @@ bool uiWellImportAsc::doWork()
 {
     wd_.setEmpty();
     wd_.info().setName( outfld_->getInput() );
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
 
     FileMultiString datasrcnms;
 
@@ -361,18 +364,13 @@ bool uiWellImportAsc::doWork()
 	    wd_.setCheckShotModel( new Well::D2TModel( *wd_.d2TModel() ) );
     }
 
-    const IOObj* ioobj = outfld_->ioobj();
-    PtrMan<Translator> t = ioobj ? ioobj->createTranslator() : 0;
-    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-    if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
-			 "Another type object with this name already exists." );
+    Well::Writer wwr( *outioobj, wd_ );
+    if ( !wwr.put() )
+	mErrRet( wwr.errMsg() );
 
-    if ( !wtr->write(wd_,*ioobj) )
-	mErrRet( "Cannot write well" );
-
-    ioobj->pars().update( sKey::CrFrom(), datasrcnms );
-    ioobj->updateCreationPars();
-    IOM().commitChanges( *ioobj );
+    outioobj->pars().update( sKey::CrFrom(), datasrcnms );
+    outioobj->updateCreationPars();
+    IOM().commitChanges( *outioobj );
 
     uiMSG().message( "Well import successful" );
     if ( saveButtonChecked() )

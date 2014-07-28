@@ -458,9 +458,9 @@ void SetMgr::removeAll()
 {
     for ( int idx=pss_.size()-1; idx>=0; idx-- )
     {
-	Set* set = pss_.removeSingle( idx );
-	setToBeRemoved.trigger( set );
-	delete set;
+	Set* torem = pss_.removeSingle( idx );
+	setToBeRemoved.trigger( torem );
+	delete torem;
     }
 }
 

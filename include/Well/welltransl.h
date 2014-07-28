@@ -15,65 +15,67 @@ ________________________________________________________________________
 
 #include "wellmod.h"
 #include "transl.h"
-#include "position.h"
 
 class Executor;
 class DataPointSet;
 class BufferStringSet;
+class WellDataIOProvider;
 
 namespace Well { class Data; };
 
-/*!
-\brief Well TranslatorGroup
-*/
+/*!\brief Well TranslatorGroup */
+
 
 mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
-    			mDefEmptyTranslatorGroupConstructor(Well)
-    const char*		defExtension() const { return "well"; }
+			mDefEmptyTranslatorGroupConstructor(Well)
 };
 
 
-/*!
-\brief Well Translator
-*/
+/*!  \brief Well Translator base class */
 
 mExpClass(Well) WellTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(Well)
+			mDefEmptyTranslatorBaseConstructor(Well)
 
-    virtual bool	read(Well::Data&,const IOObj&)		= 0;
-    virtual bool	write(const Well::Data&,const IOObj&)	= 0;
+    virtual const WellDataIOProvider&	getProv() const			= 0;
+		//!< NEW in 5.0, will be the only one used in higher versions
 
-    virtual bool	implRemove(const IOObj*) const;
-    virtual bool	implRename(const IOObj*,const char*,
-	    			   const CallBack* cb=0) const;
-    virtual bool	implSetReadOnly(const IOObj*,bool) const;
+/* DEPRECATED gone after 5.0 */
+    virtual bool		read(Well::Data&,const IOObj&)		= 0;
+    virtual bool		write(const Well::Data&,const IOObj&)	= 0;
+/* END DEPRECATED */
 
-    			//!< Implemented using TrackSampler
-    static Executor*	createDataPointSets(const BufferStringSet&,
-					    const IOPar&,bool for2d,
-					    ObjectSet<DataPointSet>&,
-					    bool zvalsintime);
 };
 
 
-/*!
-\brief dgb WellTranslator
-*/
+/*!\brief WellTranslator for 'dGB' stored wells, OD's default well format. */
 
-mExpClass(Well) dgbWellTranslator : public WellTranslator
-{			  isTranslator(dgb,Well)
+mExpClass(Well) odWellTranslator : public WellTranslator
+{				isTranslator(od,Well)
 public:
-    			mDefEmptyTranslatorConstructor(dgb,Well)
+				mDefEmptyTranslatorConstructor(od,Well)
 
+    const WellDataIOProvider&	getProv() const;
+
+    virtual bool		implRemove(const IOObj*) const;
+    virtual bool		implRename(const IOObj*,const char*,
+					   const CallBack* cb=0) const;
+    virtual bool		implSetReadOnly(const IOObj*,bool) const;
+
+/* DEPRECATED gone after 5.0 */
     virtual bool	read(Well::Data&,const IOObj&);
     virtual bool	write(const Well::Data&,const IOObj&);
+/* END DEPRECATED */
 
 };
 
+
+/* DEPRECATED gone after 5.0 */
+#define dgbWellTranslator odWellTranslator
+/* END DEPRECATED */
 
 #endif
 

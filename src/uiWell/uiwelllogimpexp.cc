@@ -131,7 +131,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( !wellioobj ) return false;
 
     Well::Data wd;
-    Well::Reader rdr( wellioobj->fullUserExpr(true), wd );
+    Well::Reader rdr( *wellioobj, wd );
     if ( !rdr.getLogs() )
 	mErrRet( "Cannot read logs for selected well" )
 
@@ -189,7 +189,7 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( res )
 	mErrRet( res )
 
-    Well::Writer wtr( wellioobj->fullUserExpr(true), wd );
+    Well::Writer wtr( *wellioobj, wd );
     if ( !wtr.putLogs() )
 	mErrRet( "Cannot write logs to disk" )
 

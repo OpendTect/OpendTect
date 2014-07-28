@@ -20,7 +20,7 @@ mDefModInitFn(Well)
     mIfNotFirstTime( return );
 
     WellTranslatorGroup::initClass();
-    dgbWellTranslator::initClass();
+    odWellTranslator::initClass();
     
     WellT2DTransform::initClass();
     Pos::WellProvider3D::initClass();

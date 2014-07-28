@@ -333,6 +333,7 @@ BufferString uiObjFileMan::getFileInfo()
 	txt.add( "Created from: " ).add( crspec ).add( "\n" );
 
     txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
+    txt.add( "Storage type: " ).add( curioobj_->translator() ).add( "\n" );
     return txt;
 }
 

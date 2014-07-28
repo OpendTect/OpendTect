@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 /* Functions making sure you don't need <string.h>
 
-   (1) First try if BufferString can already do the job
+   (1) Usually OD::String or its subclass BufferString can already do the job
    (2) toString(XX) for all simple types
    (3) toXX from const char* for most used simple types
    (4) Replacement for strchr and strstr: firstOcc()

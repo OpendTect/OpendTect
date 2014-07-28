@@ -29,7 +29,7 @@ namespace WellTie
 mExpClass(WellAttrib) Setup
 {
 public:
-    			enum CorrType { None, Automatic, UserDefined };
+			enum CorrType { None, Automatic, UserDefined };
 			DeclareEnumUtils(CorrType)
 
 			Setup()
@@ -44,7 +44,7 @@ public:
 			    {}
 
 
-				Setup( const Setup& setup ) 
+				Setup( const Setup& setup )
 				    : wellid_(setup.wellid_)
 				    , seisid_(setup.seisid_)
 				    , wvltid_(setup.wvltid_)
@@ -69,27 +69,27 @@ public:
     bool                	is2d_;
     bool 			useexistingd2tm_;
     CorrType			corrtype_;
-    
-    void    	      		usePar(const IOPar&);
-    void          	 	fillPar(IOPar&) const;
+
+    void			usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
 
     static Setup&		defaults();
     static void                 commitDefaults();
 
-    static const char* 	sKeyCSCorrType() 
-    				{ return "CheckShot Corrections"; }
-    static const char* 	sKeyUseExistingD2T() 
-    				{ return "Use Existing Depth/Time model"; }
+    static const char*		sKeyCSCorrType()
+				{ return "CheckShot Corrections"; }
+    static const char*		sKeyUseExistingD2T()
+				{ return "Use Existing Depth/Time model"; }
 };
 
 
-mExpClass(WellAttrib) IO : public Well::IO
+mExpClass(WellAttrib) IO : public Well::odIO
 {
 public:
-    				IO( const char* f )
-				: Well::IO(f)		{}
+				IO( const char* f, BufferString& errmsg )
+				: Well::odIO(f,errmsg)	{}
 
-    static const char*  	sKeyWellTieSetup();
+    static const char*		sKeyWellTieSetup();
 
 };
 
@@ -98,16 +98,19 @@ mExpClass(WellAttrib) Writer : public IO
 {
 public:
 				Writer( const char* f )
-				    : IO(f) {}
+				    : IO(f,errmsg_) {}
 
     bool			putWellTieSetup(const WellTie::Setup&) const;
 
-    bool          	        putIOPar(const IOPar&,const char*) const; 
+    bool			putIOPar(const IOPar&,const char*) const;
+
 protected:
 
-    bool          	        putIOPar(const IOPar&,const char*,
-	    					od_ostream&) const; 
-    bool                	wrHdr(od_ostream&,const char*) const;
+    BufferString		errmsg_;
+
+    bool			putIOPar(const IOPar&,const char*,
+					 od_ostream&) const;
+    bool			wrHdr(od_ostream&,const char*) const;
 
 };
 
@@ -116,15 +119,17 @@ mExpClass(WellAttrib) Reader : public IO
 {
 public:
 				Reader( const char* f )
-				    : IO(f) {}
+				    : IO(f,errmsg_) {}
 
     void			getWellTieSetup(WellTie::Setup&) const;
 
-    IOPar* 			getIOPar(const char*) const;
+    IOPar*			getIOPar(const char*) const;
 
 protected:
 
-    IOPar* 			getIOPar(const char*,od_istream&) const;	
+    BufferString		errmsg_;
+
+    IOPar*			getIOPar(const char*,od_istream&) const;
 
 };
 

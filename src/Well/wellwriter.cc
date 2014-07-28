@@ -7,6 +7,10 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "wellwriter.h"
+#include "wellodwriter.h"
+#include "wellioprov.h"
+#include "welltransl.h"
+
 #include "welldata.h"
 #include "welltrack.h"
 #include "welllog.h"
@@ -19,40 +23,118 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "envvars.h"
 #include "settings.h"
+#include "ioobj.h"
+#include "ioman.h"
 
-#define mGetOutStream(ext,nr,todo) \
-        od_ostream strm( getFileName(ext,nr) ); \
-    if ( !strm.isOK() ) \
-{ \
-    ErrMsg(BufferString("Could not write to file: '",strm.fileName(),"'") ); \
-    todo; \
+
+Well::Writer::Writer( const IOObj& ioobj, const Well::Data& wd )
+    : wa_(0)
+{
+    init( ioobj, wd );
 }
 
-Well::Writer::Writer( const char* f, const Well::Data& w )
-	: Well::IO(f)
-	, wd(w)
-	, binwrlogs_(true)
+
+Well::Writer::Writer( const MultiID& ky, const Well::Data& wd )
+    : wa_(0)
 {
+    IOObj* ioobj = IOM().get( ky );
+    if ( !ioobj )
+	errmsg_.set( "Cannot find well ID " ).add( ky ).add( " in data store" );
+    else
+    {
+	init( *ioobj, wd );
+	delete ioobj;
+    }
+}
+
+
+/* DEPRECATED: will only write to OD internal data store! */
+Well::Writer::Writer( const char* filenm, const Well::Data& wd )
+    : wa_( new Well::odWriter( filenm, wd, errmsg_ ) )
+{
+}
+
+
+void Well::Writer::init( const IOObj& ioobj, const Well::Data& wd )
+{
+    if ( ioobj.group() != mTranslGroupName(Well) )
+	errmsg_.set( ioobj.name() ).add( " is for a " ).add( ioobj.group() )
+	       .add( " - not for a Well" );
+    else
+    {
+	wa_ = WDIOPF().getWriteAccess( ioobj, wd, errmsg_ );
+	if ( !wa_ )
+	    errmsg_.set( "Cannot create writer of type " )
+		   .add( ioobj.translator() );
+    }
+}
+
+
+Well::Writer::~Writer()
+{
+    delete wa_;
+}
+
+#define mImplWWFn(rettyp,fnnm,typ,arg,udf) \
+rettyp Well::Writer::fnnm( typ arg ) const \
+{ return wa_ ? wa_->fnnm(arg) : udf; }
+#define mImplSimpleWWFn(fnnm) \
+bool Well::Writer::fnnm() const { return wa_ ? wa_->fnnm() : false; }
+
+mImplSimpleWWFn(put)
+mImplSimpleWWFn(putInfoAndTrack)
+mImplSimpleWWFn(putTrack)
+mImplSimpleWWFn(putLogs)
+mImplSimpleWWFn(putMarkers)
+mImplSimpleWWFn(putD2T)
+mImplSimpleWWFn(putCSMdl)
+mImplSimpleWWFn(putDispProps)
+
+mImplWWFn(bool,putLog,const Log&,wl,false)
+
+
+#define mErrStrmOper(oper,todo) \
+{ errmsg_.set( "Cannot " ).add( oper ).add( " for " ).add( strm.fileName() ); \
+    strm.addErrMsgTo( errmsg_ ); todo; }
+#define mErrRetStrmOper(oper) mErrStrmOper(oper,return false)
+
+#define mGetOutStream(ext,nr,todo) \
+    errmsg_.setEmpty(); \
+    od_ostream strm( getFileName(ext,nr) ); \
+    if ( !strm.isOK() ) mErrStrmOper("start writing",todo)
+
+
+Well::odWriter::odWriter( const char* f, const Well::Data& w, BufferString& e )
+    : Well::odIO(f,e)
+    , Well::WriteAccess(w)
+{
+    init();
+}
+
+Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
+			  BufferString& e )
+    : Well::odIO(ioobj.fullUserExpr(false),e)
+    , Well::WriteAccess(w)
+{
+    init();
+}
+
+
+void Well::odWriter::init()
+{
+    binwrlogs_ = true;
     mSettUse(getYN,"dTect.Well logs","Binary format",binwrlogs_);
 }
 
 
-bool Well::Writer::wrHdr( od_ostream& strm, const char* fileky ) const
+bool Well::odWriter::wrHdr( od_ostream& strm, const char* fileky ) const
 {
     ascostream astrm( strm );
-    if ( !astrm.putHeader(fileky) )
-    {
-	BufferString msg( "Cannot write to " );
-	msg.add( fileky ).add( " file" );
-	strm.addErrMsgTo( msg );
-	ErrMsg( msg );
-	return false;
-    }
-    return true;
+    return astrm.putHeader( fileky );
 }
 
 
-bool Well::Writer::put() const
+bool Well::odWriter::put() const
 {
     return putInfoAndTrack()
 	&& putLogs()
@@ -63,100 +145,97 @@ bool Well::Writer::put() const
 }
 
 
-bool Well::Writer::putInfoAndTrack() const
+bool Well::odWriter::putInfoAndTrack() const
 {
     mGetOutStream( sExtWell(), 0, return false )
     return putInfoAndTrack( strm );
 }
 
 
-bool Well::Writer::putInfoAndTrack( od_ostream& strm ) const
+bool Well::odWriter::putInfoAndTrack( od_ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyWell()) ) return false;
+    if ( !wrHdr(strm,sKeyWell()) )
+	mErrRetStrmOper("write header (info/track)")
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyuwid(), wd.info().uwid );
-    astrm.put( Well::Info::sKeyoper(), wd.info().oper );
-    astrm.put( Well::Info::sKeystate(), wd.info().state );
-    astrm.put( Well::Info::sKeycounty(), wd.info().county );
-    if ( wd.info().surfacecoord != Coord(0,0) )
-	astrm.put( Well::Info::sKeycoord(), wd.info().surfacecoord.toString());
-    astrm.put( Well::Info::sKeySRD(), wd.info().srdelev );
-    astrm.put( Well::Info::sKeyreplvel(), wd.info().replvel );
-    astrm.put( Well::Info::sKeygroundelev(), wd.info().groundelev );
+    astrm.put( Well::Info::sKeyuwid(), wd_.info().uwid );
+    astrm.put( Well::Info::sKeyoper(), wd_.info().oper );
+    astrm.put( Well::Info::sKeystate(), wd_.info().state );
+    astrm.put( Well::Info::sKeycounty(), wd_.info().county );
+    if ( wd_.info().surfacecoord != Coord(0,0) )
+	astrm.put( Well::Info::sKeycoord(), wd_.info().surfacecoord.toString());
+    astrm.put( Well::Info::sKeySRD(), wd_.info().srdelev );
+    astrm.put( Well::Info::sKeyreplvel(), wd_.info().replvel );
+    astrm.put( Well::Info::sKeygroundelev(), wd_.info().groundelev );
     astrm.newParagraph();
 
     return putTrack( strm );
 }
 
 
-bool Well::Writer::putTrack( od_ostream& strm ) const
+bool Well::odWriter::putTrack( od_ostream& strm ) const
 {
-    for ( int idx=0; idx<wd.track().size(); idx++ )
+    for ( int idx=0; idx<wd_.track().size(); idx++ )
     {
-	const Coord3& c = wd.track().pos(idx);
+	const Coord3& c = wd_.track().pos(idx);
 	    // don't try to do the following in one statement
 	    // (unless for educational purposes)
 	strm << c.x << od_tab;
 	strm << c.y << od_tab;
 	strm << c.z << od_tab;
-	strm << wd.track().dah(idx) << od_newline;
+	strm << wd_.track().dah(idx) << od_newline;
     }
-    return strm.isOK();
+    if ( !strm.isOK() )
+	mErrRetStrmOper("write track data")
+    return true;
 }
 
 
-bool Well::Writer::putTrack() const
+bool Well::odWriter::putTrack() const
 {
     mGetOutStream( sExtTrack(), 0, return false )
     return putTrack( strm );
 }
 
 
-bool Well::Writer::putLogs() const
+bool Well::odWriter::putLogs() const
 {
-    for ( int idx=0; idx<wd.logs().size(); idx++ )
+    removeAll( sExtLog() );
+    for ( int idx=0; idx<wd_.logs().size(); idx++ )
     {
 	mGetOutStream( sExtLog(), idx+1, return false )
 
-	const Well::Log& wl = wd.logs().getLog(idx);
+	const Well::Log& wl = wd_.logs().getLog(idx);
 	if ( !putLog(strm,wl) )
-	{
-	    BufferString msg( "Could not write log: '", wl.name(), "'" );
-	    strm.addErrMsgTo( msg );
-	    ErrMsg( msg ); return false;
-	}
+	    mErrRetStrmOper("write log")
     }
 
     return true;
 }
 
 
-bool Well::Writer::putLog( const Well::Log& wl ) const
+bool Well::odWriter::putLog( const Well::Log& wl ) const
 {
-    const int logidx = wd.logs().indexOf( wl.name() );
+    const int logidx = wd_.logs().indexOf( wl.name() );
     if ( logidx<0 )
     {
 	pErrMsg( "First add Log to Well::Data" );
 	return false;
     }
 
-    const BufferString logfnm = getFileName( Well::IO::sExtLog(), logidx+1 );
+    const BufferString logfnm = getFileName( Well::odIO::sExtLog(), logidx+1 );
     od_ostream strm( logfnm );
     if ( !putLog(strm,wl) )
-    {
-	BufferString msg( "Could not write log: '", wl.name(), "'" );
-	strm.addErrMsgTo( msg );
-	ErrMsg( msg ); return false;
-    }
+	return false;
 
     return true;
 }
 
 
-bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
+bool Well::odWriter::putLog( od_ostream& strm, const Well::Log& wl ) const
 {
-    if ( !wrHdr(strm,sKeyLog()) ) return false;
+    if ( !wrHdr(strm,sKeyLog()) )
+	mErrRetStrmOper("write header (log)")
 
     ascostream astrm( strm );
     astrm.put( sKey::Name(), wl.name() );
@@ -209,26 +288,29 @@ bool Well::Writer::putLog( od_ostream& strm, const Well::Log& wl ) const
 	}
     }
 
-    return strm.isOK();
+    if ( !strm.isOK() )
+	mErrRetStrmOper("write log data")
+    return true;
 }
 
 
-bool Well::Writer::putMarkers() const
+bool Well::odWriter::putMarkers() const
 {
     mGetOutStream( sExtMarkers(), 0, return false )
     return putMarkers( strm );
 }
 
 
-bool Well::Writer::putMarkers( od_ostream& strm ) const
+bool Well::odWriter::putMarkers( od_ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyMarkers()) ) return false;
+    if ( !wrHdr(strm,sKeyMarkers()) )
+	mErrRetStrmOper("write header (markers)")
 
     ascostream astrm( strm );
-    for ( int idx=0; idx<wd.markers().size(); idx++ )
+    for ( int idx=0; idx<wd_.markers().size(); idx++ )
     {
 	BufferString basekey; basekey += idx+1;
-	const Well::Marker& wm = *wd.markers()[idx];
+	const Well::Marker& wm = *wd_.markers()[idx];
 	const float dah = wm.dah();
 	if ( mIsUdf(dah) )
 	    continue;
@@ -240,15 +322,17 @@ bool Well::Writer::putMarkers( od_ostream& strm ) const
 	astrm.put( IOPar::compKey(basekey,sKey::Color()), bs );
     }
 
-    return strm.isOK();
+    if ( !strm.isOK() )
+	mErrRetStrmOper("write markers")
+    return true;
 }
 
 
-bool Well::Writer::putD2T() const	{ return doPutD2T( false ); }
-bool Well::Writer::putCSMdl() const	{ return doPutD2T( true ); }
-bool Well::Writer::doPutD2T( bool csmdl ) const
+bool Well::odWriter::putD2T() const	{ return doPutD2T( false ); }
+bool Well::odWriter::putCSMdl() const	{ return doPutD2T( true ); }
+bool Well::odWriter::doPutD2T( bool csmdl ) const
 {
-    if ( (csmdl && !wd.checkShotModel()) || (!csmdl && !wd.d2TModel()) )
+    if ( (csmdl && !wd_.checkShotModel()) || (!csmdl && !wd_.d2TModel()) )
 	return true;
 
     mGetOutStream( csmdl ? sExtCSMdl() : sExtD2T(), 0, return false )
@@ -256,16 +340,17 @@ bool Well::Writer::doPutD2T( bool csmdl ) const
 }
 
 
-bool Well::Writer::putD2T( od_ostream& strm ) const
+bool Well::odWriter::putD2T( od_ostream& strm ) const
 { return doPutD2T( strm, false ); }
-bool Well::Writer::putCSMdl( od_ostream& strm ) const
+bool Well::odWriter::putCSMdl( od_ostream& strm ) const
 { return doPutD2T( strm, true ); }
-bool Well::Writer::doPutD2T( od_ostream& strm, bool csmdl ) const
+bool Well::odWriter::doPutD2T( od_ostream& strm, bool csmdl ) const
 {
-    if ( !wrHdr(strm,sKeyD2T()) ) return false;
+    if ( !wrHdr(strm,sKeyD2T()) )
+	mErrRetStrmOper("write header (D2T model)")
 
     ascostream astrm( strm );
-    const Well::D2TModel& d2t = *(csmdl ? wd.checkShotModel(): wd.d2TModel());
+    const Well::D2TModel& d2t = *(csmdl ? wd_.checkShotModel(): wd_.d2TModel());
     astrm.put( sKey::Name(), d2t.name() );
     astrm.put( sKey::Desc(), d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
@@ -280,26 +365,31 @@ bool Well::Writer::doPutD2T( od_ostream& strm, bool csmdl ) const
 	strm << dah << od_tab << d2t.t(idx) << od_newline;
     }
 
-    return strm.isOK();
+    if ( !strm.isOK() )
+	mErrRetStrmOper("write Depth/Time data")
+    return true;
 }
 
 
-bool Well::Writer::putDispProps() const
+bool Well::odWriter::putDispProps() const
 {
     mGetOutStream( sExtDispProps(), 0, return false )
     return putDispProps( strm );
 }
 
 
-bool Well::Writer::putDispProps( od_ostream& strm ) const
+bool Well::odWriter::putDispProps( od_ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyDispProps()) ) return false;
+    if ( !wrHdr(strm,sKeyDispProps()) )
+	mErrRetStrmOper("write header (display parameters)")
 
     ascostream astrm( strm );
     IOPar iop;
-    wd.displayProperties(true).fillPar( iop );
-    wd.displayProperties(false).fillPar( iop );
+    wd_.displayProperties(true).fillPar( iop );
+    wd_.displayProperties(false).fillPar( iop );
     iop.putTo( astrm );
-    return strm.isOK();
+    if ( !strm.isOK() )
+	mErrRetStrmOper("write well display parameters")
+    return true;
 }
 

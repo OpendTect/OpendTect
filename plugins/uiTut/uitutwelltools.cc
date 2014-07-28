@@ -108,7 +108,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	if ( !ioobj )
 	    mErrRet( "Cannot find object in I/O Manager" )
 
-	Well::Writer wtr( ioobj->fullUserExpr(), *wd_ );
+	Well::Writer wtr( *ioobj, *wd_ );
 	const Well::Log& newlog = logset.getLog( logset.size()-1 );
 	if ( !wtr.putLog(newlog) )
 	{

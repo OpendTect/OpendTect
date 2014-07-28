@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
-#include "wellreader.h"
+#include "wellodreader.h"
 #include "welld2tmodel.h"
 
 #include "uibutton.h"
@@ -220,7 +220,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 {
     const IOObj* wellobj = wellfld_->ioobj();
     if ( !wellobj ) return;
-    const char* wllfilenm = Well::IO::getMainFileName( *wellobj );
+    const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
@@ -244,6 +244,7 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
 
     getSetup( wllfilenm );
 }
+
 
 void uiTieWinMGRDlg::typeSelChg( CallBacker* )
 {
@@ -439,7 +440,7 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 				      const WellTie::Setup& wts ) const
 {
-    WellTie::Writer wtr( Well::IO::getMainFileName(key) );
+    WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
 	uiMSG().error( "Could not write parameters" );
 }
@@ -590,7 +591,7 @@ void uiTieWinMGRDlg::wellTieDlgClosed( CallBacker* cb )
     const int idx = welltiedlgset_.indexOf( win );
     if ( !win || idx<0 ) return;
 
-    WellTie::Writer wtr( Well::IO::getMainFileName(win->Setup().wellid_) );
+    WellTie::Writer wtr( Well::odIO::getMainFileName(win->Setup().wellid_) );
     IOPar par; win->fillPar( par );
     wtr.putIOPar( par, uiTieWin::sKeyWinPar() );
 

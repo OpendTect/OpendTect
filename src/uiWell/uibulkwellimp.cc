@@ -54,7 +54,7 @@ uiBulkTrackImport::uiBulkTrackImport( uiParent* p )
     inpfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup()
 		      .withexamine(true).examstyle(File::Table) );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 
@@ -173,14 +173,13 @@ void uiBulkTrackImport::write( TypeSet<uiString>& errors )
 	    continue;
 	}
 
-	PtrMan<Translator> t = ioobj->createTranslator();
-	mDynamicCastGet(WellTranslator*,wtr,t.ptr())
-	if ( wtr && wtr->write(*wd,*ioobj) )
-	    continue;
-
-	BufferString msg( wd->name() );
-	msg.add( "to file:\n" ).add( ioobj->fullUserExpr(false) );
-	errors.add( msg );
+	Well::Writer ww( *ioobj, *wd );
+	if ( !ww.put() )
+	{
+	    BufferString msg( "Cannot create ", wd->name(), ": " );
+	    msg.add( ww.errMsg() );
+	    errors.add( msg );
+	}
     }
 }
 
@@ -290,8 +289,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	if ( !errmsg.isEmpty() )
 	    errors.add( BufferString(fnm,": ",errmsg) );
 
-	BufferString wellfnm = ioobj->fullUserExpr( true );
-	Well::Writer wtr( wellfnm, *wd );
+	Well::Writer wtr( *ioobj, *wd );
 	wtr.putLogs();
 	if ( !isloaded )
 	    delete Well::MGR().release( ioobj->key() );
@@ -318,7 +316,7 @@ uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
     inpfld_ = new uiFileInput( this, "Input Marker file", uiFileInput::Setup()
 		.withexamine(true).examstyle(File::Table) );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
                                        mODHelpKey(mTableImpDataSelwellsHelpID));
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
@@ -383,12 +381,10 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	}
 
 	wd->markers() = *markersets[idx];
-	const BufferString wellfnm = ioobj->fullUserExpr();
-	Writer wtr( wellfnm, *wd );
-	if ( !wtr.putMarkers() )
+	Well::Writer ww( *ioobj, *wd );
+	if ( !ww.putMarkers() )
 	{
-	    errors.add( BufferString(wellnm,
-			": Cannot write new markers to disk") );
+	    errors.add( BufferString(wellnm,": ",ww.errMsg()) );
 	    continue;
 	}
 
@@ -454,7 +450,7 @@ uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
     fs.withexamine(true).examstyle(File::Table);
     inpfld_ = new uiFileInput( this, "Input Depth/Time Model file", fs );
 
-    dataselfld_ = new uiTableImpDataSel( this, *fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, *fd_,
         mODHelpKey(mTableImpDataSelwellsHelpID) );
     dataselfld_->attach( alignedBelow, inpfld_ );
 }
@@ -506,11 +502,10 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	// D2TModel* d2t = new D2TModel();
 	// fill d2t
 	const BufferString wellfnm = ioobj->fullUserExpr();
-	Writer wtr( wellfnm, *wd );
-	if ( !wtr.putD2T() )
+	Writer ww( *ioobj, *wd );
+	if ( !ww.putD2T() )
 	{
-	    errors.add( BufferString(wellnm,
-			": Cannot write new model to disk") );
+	    errors.add( BufferString(wellnm,": ",ww.errMsg()) );
 	    continue;
 	}
 

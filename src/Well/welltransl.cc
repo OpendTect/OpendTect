@@ -8,21 +8,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "welltransl.h"
-#include "wellfact.h"
-#include "wellreader.h"
-#include "wellwriter.h"
+#include "wellodreader.h"
+#include "wellodwriter.h"
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "iostrm.h"
 #include "strmprov.h"
 #include "filepath.h"
 
+#define sKeyWellTranslatorGroup "Well"
+defineTranslatorGroup(Well,sKeyWellTranslatorGroup);
+defineTranslator(od,Well,"dGB");
+
 mDefSimpleTranslatorSelector(Well,sKeyWellTranslatorGroup)
 mDefSimpleTranslatorioContext(Well,WllInf)
 
 
 #define mImplStart(fn) \
-    if ( !ioobj || ioobj->translator()!="dGB" ) return false; \
+    if ( !ioobj || ioobj->translator()!="dGB" ) \
+	return false; \
     mDynamicCastGet(const IOStream*,iostrm,ioobj) \
     if ( !iostrm ) return false; \
 \
@@ -35,7 +39,7 @@ mDefSimpleTranslatorioContext(Well,WllInf)
 
 #define mRemove(ext,nr,extra) \
 { \
-    StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
+    StreamProvider sp( Well::odIO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
     const bool exists = sp.exists( true ); \
     if ( exists && !sp.remove(false) ) \
@@ -43,19 +47,19 @@ mDefSimpleTranslatorioContext(Well,WllInf)
     extra; \
 }
 
-bool WellTranslator::implRemove( const IOObj* ioobj ) const
+bool odWellTranslator::implRemove( const IOObj* ioobj ) const
 {
     mImplStart(remove(false));
 
     FilePath fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();
-    mRemove(Well::IO::sExtMarkers(),0,)
-    mRemove(Well::IO::sExtD2T(),0,)
-    mRemove(Well::IO::sExtCSMdl(),0,)
-    mRemove(Well::IO::sExtDispProps(),0,)
-    mRemove(Well::IO::sExtWellTieSetup(),0,)
+    mRemove(Well::odIO::sExtMarkers(),0,)
+    mRemove(Well::odIO::sExtD2T(),0,)
+    mRemove(Well::odIO::sExtCSMdl(),0,)
+    mRemove(Well::odIO::sExtDispProps(),0,)
+    mRemove(Well::odIO::sExtWellTieSetup(),0,)
     for ( int idx=1; ; idx++ )
-	mRemove(Well::IO::sExtLog(),idx,if ( !exists ) break)
+	mRemove(Well::odIO::sExtLog(),idx,if ( !exists ) break)
 
     return true;
 }
@@ -63,9 +67,9 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
 
 #define mRename(ext,nr,extra) \
 { \
-    StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
+    StreamProvider sp( Well::odIO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
-    StreamProvider spnew( Well::IO::mkFileName(newbnm,ext,nr) ); \
+    StreamProvider spnew( Well::odIO::mkFileName(newbnm,ext,nr) ); \
     spnew.addPathIfNecessary( pathnm ); \
     const bool exists = sp.exists( true ); \
     if ( exists && !sp.rename(spnew.fileName(),cb) ) \
@@ -73,7 +77,7 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
     extra; \
 }
 
-bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
+bool odWellTranslator::implRename( const IOObj* ioobj, const char* newnm,
 				 const CallBack* cb ) const
 {
     mImplStart(rename(newnm,cb));
@@ -82,36 +86,26 @@ bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
     const BufferString bnm = fp.fullPath();
     fp.set( newnm ); fp.setExtension( 0, true );
     const BufferString newbnm = fp.fullPath();
-    mRename(Well::IO::sExtMarkers(),0,)
-    mRename(Well::IO::sExtD2T(),0,)
-    mRename(Well::IO::sExtCSMdl(),0,)
-    mRename(Well::IO::sExtDispProps(),0,)
-    mRename(Well::IO::sExtWellTieSetup(),0,)
+    mRename(Well::odIO::sExtMarkers(),0,)
+    mRename(Well::odIO::sExtD2T(),0,)
+    mRename(Well::odIO::sExtCSMdl(),0,)
+    mRename(Well::odIO::sExtDispProps(),0,)
+    mRename(Well::odIO::sExtWellTieSetup(),0,)
     for ( int idx=1; ; idx++ )
-	mRename(Well::IO::sExtLog(),idx,if ( !exists ) break)
-    
+	mRename(Well::odIO::sExtLog(),idx,if ( !exists ) break)
+
     return true;
 }
 
 
-bool WellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
+bool odWellTranslator::implSetReadOnly( const IOObj* ioobj, bool ro ) const
 {
     mImplStart(setReadOnly(ro));
     return true;
 }
 
 
-Executor* WellTranslator::createDataPointSets(	const BufferStringSet& ids,
-						const IOPar& pars, bool for2d,
-						ObjectSet<DataPointSet>& dpss,
-       						bool ztm )
-{
-    Well::TrackSampler* ts = new Well::TrackSampler( ids, dpss, ztm );
-    ts->for2d_ = for2d;
-    ts->usePar( pars );
-    return ts;
-}
-
+/* DEPRECATED */
 
 static const char* getFileName( const IOObj& ioobj )
 {
@@ -121,9 +115,10 @@ static const char* getFileName( const IOObj& ioobj )
 }
 
 
-bool dgbWellTranslator::read( Well::Data& wd, const IOObj& ioobj )
+bool odWellTranslator::read( Well::Data& wd, const IOObj& ioobj )
 {
-    Well::Reader rdr( getFileName(ioobj), wd );
+    BufferString errmsg;
+    Well::odReader rdr( getFileName(ioobj), wd, errmsg );
     bool ret = rdr.get();
     if ( ret )
 	wd.info().setName( ioobj.name() );
@@ -131,8 +126,11 @@ bool dgbWellTranslator::read( Well::Data& wd, const IOObj& ioobj )
 }
 
 
-bool dgbWellTranslator::write( const Well::Data& wd, const IOObj& ioobj )
+bool odWellTranslator::write( const Well::Data& wd, const IOObj& ioobj )
 {
-    Well::Writer wrr( getFileName(ioobj), wd );
+    BufferString errmsg;
+    Well::odWriter wrr( getFileName(ioobj), wd, errmsg );
     return wrr.put();
 }
+
+/* END DEPRECATED */

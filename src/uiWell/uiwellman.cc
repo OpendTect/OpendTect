@@ -171,7 +171,7 @@ void uiWellMan::getCurrentWells()
 	curmultiids_ += obj->key();
 	curfnms_.add( BufferString( obj->fullUserExpr( true ) ) );
 	curwds_ += new Well::Data;
-	currdrs_ += new Well::Reader( curfnms_[idx]->buf(), *curwds_[idx] );
+	currdrs_ += new Well::Reader( *obj, *curwds_[idx] );
 	currdrs_[idx]->getInfo();
     }
 }
@@ -303,13 +303,15 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
-    if ( Well::MGR().isLoaded( curioobj_->key() ) )
-	wd = Well::MGR().get( curioobj_->key() );
+    MultiID curmid( curioobj_->key() );
+    if ( Well::MGR().isLoaded(curmid) )
+	wd = Well::MGR().get( curmid );
     else
     {
 	if ( curwds_[0]->markers().isEmpty() )
 	    currdrs_[0]->getMarkers();
 	wd = curwds_[0];
+	curmid = curmultiids_[0];
     }
 
     const Well::MarkerSet origmarkers = wd->markers();
@@ -320,7 +322,7 @@ void uiWellMan::edMarkers( CallBacker* )
     if ( !dlg.go() ) return;
 
     dlg.getMarkerSet( wd->markers() );
-    Well::Writer wtr( curfnms_[0]->buf(), *wd );
+    Well::Writer wtr( curmid, *wd );
     if ( !wtr.putMarkers() )
     {
 	uiMSG().error( "Cannot write new markers to disk" );
@@ -336,10 +338,14 @@ void uiWellMan::edWellTrack( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
-    if ( Well::MGR().isLoaded( curioobj_->key() ) )
-	wd = Well::MGR().get( curioobj_->key() );
+    MultiID curmid( curioobj_->key() );
+    if ( Well::MGR().isLoaded(curmid) )
+	wd = Well::MGR().get( curmid );
     else
+    {
 	wd = curwds_[0];
+	curmid = curmultiids_[0];
+    }
 
     const Well::Track origtrck = wd->track();
     const Coord origpos = wd->info().surfacecoord;
@@ -348,7 +354,7 @@ void uiWellMan::edWellTrack( CallBacker* )
     uiWellTrackDlg dlg( this, *wd );
     if ( !dlg.go() ) return;
 
-    Well::Writer wtr( curfnms_[0]->buf(), *wd );
+    Well::Writer wtr( curmid, *wd );
     if ( !wtr.putInfoAndTrack( ) )
     {
 	uiMSG().error( "Cannot write new track to disk" );
@@ -379,8 +385,9 @@ void uiWellMan::defD2T( bool chkshot )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
 
     Well::Data* wd;
-    if ( Well::MGR().isLoaded( curioobj_->key() ) )
-	wd = Well::MGR().get( curioobj_->key() );
+    MultiID curmid( curioobj_->key() );
+    if ( Well::MGR().isLoaded(curmid) )
+	wd = Well::MGR().get( curmid );
     else
     {
 	if ( !chkshot && !curwds_[0]->d2TModel() )
@@ -388,6 +395,7 @@ void uiWellMan::defD2T( bool chkshot )
 	else if ( chkshot && !curwds_[0]->checkShotModel() )
 	    currdrs_[0]->getCSMdl();
 	wd = curwds_[0];
+	curmid = curmultiids_[0];
     }
 
     if ( !chkshot && !wd->d2TModel() )
@@ -403,7 +411,7 @@ void uiWellMan::defD2T( bool chkshot )
     if ( !dlg.go() ) return;
 
     BufferString errmsg;
-    Well::Writer wtr( curfnms_[0]->buf(), *wd );
+    Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
 	errmsg.add( "Cannot write new model to disk" );
@@ -548,8 +556,9 @@ void uiWellMan::writeLogs()
 {
     for ( int idwell=0; idwell<curwds_.size(); idwell++ )
     {
-	Well::Writer wtr( curfnms_[idwell]->buf(), *curwds_[idwell] );
-	wtr.putLogs();
+	Well::Writer wwr( curmultiids_[idwell], *curwds_[idwell] );
+	if ( !wwr.putLogs() )
+	    uiMSG().error( wwr.errMsg() );
     }
     wellsChgd();
 }
@@ -664,7 +673,6 @@ void uiWellMan::removeLogPush( CallBacker* )
 	    if ( log )
 		delete wls.remove( wls.indexOf( logname ) );
 	}
-	currdrs_[idwell]->removeAll( Well::IO::sExtLog() );
     }
     writeLogs();
 }
@@ -700,14 +708,10 @@ void uiWellMan::mkFileInfo()
 	return;
     }
 
-    const BufferString fnm( curioobj_->fullUserExpr( true ) );
     Well::Data curwd( curioobj_->name() ) ;
-    const Well::Reader currdr( fnm, curwd );
+    const Well::Reader currdr( *curioobj_, curwd );
     if( !currdr.getInfo() )
-    {
-	setInfo( "Information not found." );
-	return;
-    }
+	{ setInfo( "" ); return; }
 
     const Well::Info& info = curwd.info();
     const Well::Track& track = curwd.track();
@@ -784,43 +788,6 @@ void uiWellMan::mkFileInfo()
 
     txt += getFileInfo();
     setInfo( txt );
-}
-
-
-static bool addSize( const char* basefnm, const char* fnmend,
-		     double& totalsz, int& nrfiles )
-{
-    BufferString fnm( basefnm ); fnm += fnmend;
-    if ( !File::exists(fnm) ) return false;
-
-    totalsz += (double)File::getKbSize( fnm );
-    nrfiles++;
-    return true;
-}
-
-
-double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
-{
-    if ( File::isEmpty(filenm) ) return -1;
-
-    double totalsz = (double)File::getKbSize( filenm );
-    nrfiles = 1;
-
-    FilePath fp( filenm ); fp.setExtension( 0 );
-    const BufferString basefnm( fp.fullPath() );
-
-    addSize( basefnm, Well::IO::sExtMarkers(), totalsz, nrfiles );
-    addSize( basefnm, Well::IO::sExtD2T(), totalsz, nrfiles );
-
-    for ( int idx=1; ; idx++ )
-    {
-	BufferString fnmend( "^" ); fnmend += idx;
-	fnmend += Well::IO::sExtLog();
-	if ( !addSize(basefnm,fnmend,totalsz,nrfiles) )
-	    break;
-    }
-
-    return totalsz;
 }
 
 

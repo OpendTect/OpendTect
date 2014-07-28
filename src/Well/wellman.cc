@@ -12,10 +12,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iodirentry.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "welltransl.h"
 #include "ptrman.h"
 #include "welldata.h"
 #include "wellreader.h"
-#include "welltransl.h"
 
 
 Well::Man* Well::Man::mgr_ = 0;
@@ -56,12 +56,9 @@ Well::Data* Well::Man::release( const MultiID& key )
 }
 
 
-#define mErrRet(s) { delete wd; msg_ = s; return 0; }
-
-
 Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 {
-    msg_ = "";
+    msg_.setEmpty();
     int wllidx = gtByKey( key );
     bool mustreplace = false;
     if ( wllidx >= 0 )
@@ -71,21 +68,23 @@ Well::Data* Well::Man::get( const MultiID& key, bool forcereload )
 	mustreplace = true;
     }
 
-    PtrMan<Translator> tr = 0; Well::Data* wd = 0;
-
+    Well::Data* wd = 0;
     PtrMan<IOObj> ioobj = IOM().get( key );
     if ( !ioobj )
-	mErrRet("Cannot find well key in data store")
-    tr = ioobj->createTranslator();
-    if ( !tr )
-	mErrRet("Well translator not found")
-    mDynamicCastGet(WellTranslator*,wtr,tr.ptr() )
-    if ( !wtr )
-	mErrRet("Translator produced is not a Well Transator")
-
+    {
+	delete wd;
+	msg_.set( "Cannot find well ID " ).add( key ).add( "in data store." );
+	return 0;
+    }
     wd = new Well::Data;
-    if ( !wtr->read(*wd,*ioobj) )
-	mErrRet("Cannot read well from files")
+    Well::Reader wr( *ioobj, *wd );
+    if ( !wr.get() )
+    {
+	delete wd;
+	msg_.set( "Cannot read '" ).add( ioobj->name() )
+	    .add( "':\n" ).add( wr.errMsg() );
+	return 0;
+    }
 
     if ( mustreplace )
 	delete wells_.replace( wllidx, wd );
@@ -139,10 +138,8 @@ IOObj* Well::findIOObj( const char* nm, const char* uwi )
 	    const IOObj* ioobj = del[idx]->ioobj_;
 	    if ( !ioobj ) continue;
 
-	    Well::Reader rdr( ioobj->fullUserExpr(), data );
-	    if ( !rdr.getInfo() ) continue;
-
-	    if ( data.info().uwid == uwi )
+	    Well::Reader wr( *ioobj, data );
+	    if ( wr.getInfo() && data.info().uwid == uwi )
 		return ioobj->clone();
 	}
     }

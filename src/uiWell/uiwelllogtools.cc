@@ -66,10 +66,10 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
     for ( int idx=0; idx<wellids.size(); idx++ )
     {
 	const MultiID& wid = wellids[idx]->buf();
-	const char* nm = Well::IO::getMainFileName( wid );
-	if ( !nm || !*nm ) continue;
+	Well::Data wd; Well::Reader wr( wid, wd );
+	if ( !wr.get() )
+	    continue;
 
-	Well::Data wd; Well::Reader wr( nm, wd );  wr.get();
 	BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
 	Well::LogSet* wls = new Well::LogSet( wd.logs() );
 	uiWellLogToolWin::LogData* ldata =
@@ -105,10 +105,8 @@ void uiWellLogToolWinMgr::winClosed( CallBacker* cb )
 	ObjectSet<uiWellLogToolWin::LogData> lds; win->getLogDatas( lds );
 	for ( int idx=0; idx<lds.size(); idx++ )
 	{
-	    const char* nm = Well::IO::getMainFileName( lds[idx]->wellid_ );
-	    if ( !nm || !*nm ) continue;
 	    Well::Data wd; lds[idx]->getOutputLogs( wd.logs() );
-	    Well::Writer wrr( nm, wd );
+	    Well::Writer wrr( lds[idx]->wellid_, wd );
 	    wrr.putLogs();
 	    Well::MGR().reload( lds[idx]->wellid_ );
 	}
