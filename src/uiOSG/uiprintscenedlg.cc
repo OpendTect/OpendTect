@@ -33,7 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgViewer/View>
 #include <osgGeo/TiledOffScreenRenderer>
 
-
+static bool prevbuttonstate = true;
 #define mAttachToAbove( fld ) \
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
@@ -43,23 +43,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     : uiSaveImageDlg(p,false)
     , viewers_(vwrs)
     , scenefld_(0)
-    , dovrmlfld_(0)
-    , selfld_(0)
 {
     screendpi_ = uiMain::getDPI();
-    const int nrfiletypes = 1; // at least one image type is supported by osg
-
-    bool showvrml = false;
-    Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
-    if ( nrfiletypes==0 && !showvrml )
-    {
-	uiLabel* label mUnusedVar = new uiLabel( this,
-	    tr("No output file types found.\n"
-	    "Probably, 'libsimage.so' is not installed or invalid.") );
-	setCtrlStyle( RunAndClose );
-	return;
-    }
-
 
     uiObject* fldabove = 0;
     if ( viewers_.size() > 1 )
@@ -75,24 +60,12 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	mAttachToAbove( scenefld_->attachObj() );
     }
 
-    if ( showvrml && nrfiletypes )
-    {
-	dovrmlfld_ = new uiGenInput( this, tr("Type of snapshot"),
-				     BoolInpSpec(true,tr("Scene"),tr("Image")));
-	dovrmlfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,typeSel) );
-	dovrmlfld_->setValue( false );
-	mAttachToAbove( dovrmlfld_->attachObj() );
-    }
 
-    if ( nrfiletypes>0 )
-    {
-	if ( showvrml )
-	    createGeomInpFlds( dovrmlfld_->attachObj() );
-	else if ( scenefld_ )
-	    createGeomInpFlds( scenefld_->attachObj() );
-	else
-	    createGeomInpFlds( fldabove );
-    }
+    if ( scenefld_ )
+	createGeomInpFlds( scenefld_->attachObj() );
+    else
+	createGeomInpFlds( fldabove );
+
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     sceneSel(0);
@@ -111,9 +84,8 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     }
 
     updateFilter();
-
-    if ( nrfiletypes>0 )
-	unitChg( 0 );
+    setSaveButtonChecked( prevbuttonstate );
+    unitChg( 0 );
 }
 
 
@@ -164,18 +136,6 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
     }
-}
-
-
-void uiPrintSceneDlg::typeSel( CallBacker* )
-{
-    const bool dovrml = dovrmlfld_->getBoolValue();
-    if ( heightfld_ )	heightfld_->display( !dovrml );
-    if ( widthfld_ )	widthfld_->display( !dovrml );
-    if ( unitfld_ )	unitfld_->display( !dovrml );
-    if ( lockfld_ )	lockfld_->display( !dovrml );
-    if ( dpifld_ )	dpifld_->display( !dovrml );
-    updateFilter();
 }
 
 
@@ -243,6 +203,10 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	flipImageVertical( mainviewimage );
 	ret = saveImages( mainviewimage, hudimage );
     }
+
+    prevbuttonstate = saveButtonChecked();
+    if ( prevbuttonstate )
+	writeToSettings();
 
    return ret;
 

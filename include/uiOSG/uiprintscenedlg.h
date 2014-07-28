@@ -34,8 +34,6 @@ public:
 protected:
 
     uiLabeledComboBox*	scenefld_;
-    uiGenInput*		dovrmlfld_;
-    uiGenInput*		selfld_;
 
     const char*		getExtension();
     void		writeToSettings();
@@ -45,7 +43,6 @@ protected:
 
     enum		{InvalidImages=0, OnlyMainViewImage, MainAndHudImages };
     void		setFldVals(CallBacker*);
-    void		typeSel(CallBacker*);
     void		sceneSel(CallBacker*);
     bool		acceptOK(CallBacker*);
     osg::Image*		offScreenRenderViewToImage(osgViewer::View*);
