@@ -95,7 +95,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
     selfld_->setPrefWidthInChar( 30 );
 
-    BufferString offsetstr( "Offset (start/step)", SI().getXYUnitString() );
+    BufferString offsetstr( "Offset (start/step) ", SI().getXYUnitString() );
     const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpIntervalSpec(offsets).setName("Offset"));

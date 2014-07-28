@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "uiparent.h"
 #include "trackplane.h"
 
-namespace EM { class EMObject; };
-namespace MPE { class EMTracker; };
+namespace EM { class EMObject; }
+namespace MPE { class EMTracker; }
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
 
 class uiPropertiesDialog;
@@ -30,8 +30,8 @@ class uiVisPartServer;
 /*! \brief Dialog for tracking properties
 */
 mExpClass(uiVis) uiMPEMan : public CallBacker
-{ mODTextTranslationClass(uiMPEMan);
-public:		
+{ mODTextTranslationClass(uiMPEMan)
+public:
     friend class uiPropertiesDialog;
 				uiMPEMan(uiParent*,uiVisPartServer*);
 				~uiMPEMan();
@@ -63,7 +63,7 @@ protected:
     bool			showtexture_;
 
     uiToolBar*			toolbar;
-    
+
     uiVisPartServer*		visserv;
 
     visSurvey::MPEClickCatcher*	clickcatcher;
@@ -74,9 +74,9 @@ protected:
 
     void			boxDraggerStatusChangeCB(CallBacker*);
     void			showCubeCB(CallBacker*);
+    void			setCubePosCB(CallBacker*);
 
     void			attribSel(CallBacker*);
-    void			setCubePosCB(CallBacker*);
 
     void			undoPush(CallBacker*);
     void			redoPush(CallBacker*);
@@ -112,8 +112,8 @@ protected:
 
     bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();
-    
-    MPE::EMTracker*		getSelectedTracker(); 
+
+    MPE::EMTracker*		getSelectedTracker();
 
     void 			finishMPEDispIntro(CallBacker*);
     void			loadPostponedData();
