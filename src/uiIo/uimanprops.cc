@@ -209,7 +209,7 @@ void uiEditPropRef::unitSel( CallBacker* )
     convUserValue( vintv.start, curunit_, newun );
     convUserValue( vintv.stop, curunit_, newun );
     rgfld_->setValue( vintv );
-    if ( pr_.disp_.defval_->isValue() )
+    if ( !pr_.disp_.defval_ || pr_.disp_.defval_->isValue() )
     {
 	float val = pr_.disp_.defval_ ? pr_.disp_.defval_->value()
 				      : pr_.disp_.commonValue();
