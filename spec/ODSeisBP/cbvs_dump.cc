@@ -70,7 +70,7 @@ bool BatchProgram::go( std::ostream& logstrm )
     IOStream ioobj( "tmp" );
     ioobj.setFileName( fname );
     ioobj.setGroup( mTranslGroupName(SeisTrc) );
-    ioobj.setTranslator( mTranslKey(CBVSSeisTrc) );
+    ioobj.setTranslator( mTranslKey(SeisTrc,CBVS) );
     CubeSampling datacs;
     SeisTrcTranslator::getRanges( ioobj, datacs );
     const float zstep = datacs.zrg.step;

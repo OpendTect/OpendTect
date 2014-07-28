@@ -456,6 +456,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
     if ( selgrp_ )
 	selgrp_->setConfirmOverwrite( false ); // handle that here
 
+    if ( wrtrselfld_ )
+	selgrp_->setDefTranslator( wrtrselfld_->selectedTranslator() );
     if ( !helpkey_.isEmpty() )
 	dlg->setHelpKey( helpkey_ );
     if ( dlg->go() && dlg->ioObj() )

@@ -17,23 +17,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uisegydef.h"
 
-
-#define mDefTranslInstanceFn(typnm,trgrptyp,trtypnm) \
-static const Translator& get##typnm##TranslatorInstance() \
-{ \
-    return *trgrptyp##TranslatorGroup::theInst().getTemplate( \
-			trtypnm##trgrptyp##Translator::translKey(), true ); \
-}
-
-mDefTranslInstanceFn(CBVSVol,SeisTrc,CBVS)
-mDefTranslInstanceFn(CBVSPS3D,SeisPS3D,CBVS)
-mDefTranslInstanceFn(SEGYDirectVol,SeisTrc,SEGYDirect)
-mDefTranslInstanceFn(SEGYDirectPS3D,SeisPS3D,SEGYDirect)
-
+#define mCBVSVolTranslInstance mTranslTemplInstance(SeisTrc,CBVS)
+#define mCBVSPS3DTranslInstance mTranslTemplInstance(SeisPS3D,CBVS)
+#define mSEGYDirectVolTranslInstance mTranslTemplInstance(SeisTrc,SEGYDirect)
+#define mSEGYDirectPS3DTranslInstance mTranslTemplInstance(SeisPS3D,SEGYDirect)
 
 
 uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,getCBVSVolTranslatorInstance())
+    : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
     stortypfld_ = new uiGenInput( this, "Storage",
 		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
@@ -72,13 +63,12 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
 
 void uiCBVSVolOpts::initClass()
 {
-    factory().addCreator( create,
-			  getName4Factory(getCBVSVolTranslatorInstance()) );
+    factory().addCreator( create, getName4Factory(mCBVSVolTranslInstance) );
 }
 
 
 uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,getCBVSPS3DTranslatorInstance())
+    : uiIOObjTranslatorWriteOpts(p,mCBVSPS3DTranslInstance)
 {
     stortypfld_ = new uiGenInput( this, "Storage",
 		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
@@ -105,14 +95,12 @@ bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
 
 void uiCBVSPS3DOpts::initClass()
 {
-    factory().addCreator( create,
-			  getName4Factory(getCBVSPS3DTranslatorInstance()) );
+    factory().addCreator( create, getName4Factory(mCBVSPS3DTranslInstance) );
 }
 
 
-
 uiSEGYDirectVolOpts::uiSEGYDirectVolOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,getSEGYDirectVolTranslatorInstance())
+    : uiIOObjTranslatorWriteOpts(p,mSEGYDirectVolTranslInstance)
 {
     parsfld_ = new uiSEGYFilePars( this, false, 0, false );
 
@@ -136,14 +124,14 @@ bool uiSEGYDirectVolOpts::fill( IOPar& iop ) const
 void uiSEGYDirectVolOpts::initClass()
 {
     factory().addCreator( create,
-		      getName4Factory(getSEGYDirectVolTranslatorInstance()) );
+			  getName4Factory(mSEGYDirectVolTranslInstance) );
 }
 
 
 #define mNrInlKey SEGYDirectSeisPS3DTranslator::sKeyNrInlPerFile()
 
 uiSEGYDirectPS3DOpts::uiSEGYDirectPS3DOpts( uiParent* p )
-    : uiIOObjTranslatorWriteOpts(p,getSEGYDirectPS3DTranslatorInstance())
+    : uiIOObjTranslatorWriteOpts(p,mSEGYDirectPS3DTranslInstance)
 {
     parsfld_ = new uiSEGYFilePars( this, false, 0, false );
 
@@ -175,5 +163,5 @@ bool uiSEGYDirectPS3DOpts::fill( IOPar& iop ) const
 void uiSEGYDirectPS3DOpts::initClass()
 {
     factory().addCreator( create,
-		      getName4Factory(getSEGYDirectPS3DTranslatorInstance()) );
+			  getName4Factory(mSEGYDirectPS3DTranslInstance) );
 }

@@ -79,6 +79,7 @@ public:
 			~uiIOObjSelWriteTranslator();
 
     bool		isEmpty() const;
+    void		setTranslator(const Translator*);
     const Translator*	selectedTranslator() const;
 
     IOObj*		mkEntry(const char*) const;

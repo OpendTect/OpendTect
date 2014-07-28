@@ -91,7 +91,7 @@ public:
 				~Data();
 
     const MultiID&		multiID() const		{ return mid_; }
-    void			setMultiID(const MultiID& mid)
+    void			setMultiID( const MultiID& mid ) const
 							{ mid_ = mid; }
 
     const char*			name() const		{ return info_.name(); }
@@ -134,7 +134,7 @@ public:
 protected:
 
     Info		info_;
-    MultiID		mid_;
+    mutable MultiID	mid_;
     Track&		track_;
     LogSet&		logs_;
     D2TModel*		d2tmodel_;

@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class IOObj;
 class CtxtIOObj;
+class Translator;
 class IOObjContext;
 class uiGenInput;
 class uiIOObjManipGroup;
@@ -99,6 +100,7 @@ public:
     const CtxtIOObj&	getCtxtIOObj() const		{ return ctio_; }
     const IOObjContext&	getContext() const;
     void		setContext(const IOObjContext&);
+    void		setDefTranslator(const Translator*);
 
     uiGroup*		getTopGroup()			{ return topgrp_; }
     uiGenInput*		getNameField()			{ return nmfld_; }

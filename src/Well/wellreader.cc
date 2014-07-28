@@ -224,6 +224,7 @@ Well::odReader::odReader( const IOObj& ioobj, Well::Data& w, BufferString& e )
     , Well::ReadAccess(w)
 {
     wd_.info().setName( ioobj.name() );
+    wd_.setMultiID( ioobj.key() );
 }
 
 
