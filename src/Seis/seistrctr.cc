@@ -62,14 +62,15 @@ SeisTrcTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 
 SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     : Translator(nm,unm)
-    , conn_(0)
+    , conn(0)
     , inpfor_(0)
     , nrout_(0)
-    , inpcds_(0)
-    , outcds_(0)
-    , seldata_(0)
+    , inpcds(0)
+    , outcds(0)
+    , seldata(0)
+    , errmsg(0)
     , prevnr_(mUdf(int))
-    , pinfo_(*new SeisPacketInfo)
+    , pinfo(*new SeisPacketInfo)
     , trcblock_(*new SeisTrcBuf(false))
     , lastinlwritten_(SI().sampling(false).hrg.start.inl())
     , read_mode(Seis::Prod)
@@ -87,7 +88,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
     delete &trcblock_;
-    delete &pinfo_;
+    delete &pinfo;
     delete &warnings_;
 }
 
@@ -115,22 +116,23 @@ void SeisTrcTranslator::cleanUp()
 {
     close();
 
-    deepErase( cds_ );
-    deepErase( tarcds_ );
+    deepErase( cds );
+    deepErase( tarcds );
     delete [] inpfor_; inpfor_ = 0;
-    delete [] inpcds_; inpcds_ = 0;
-    delete [] outcds_; outcds_ = 0;
+    delete [] inpcds; inpcds = 0;
+    delete [] outcds; outcds = 0;
     nrout_ = 0;
     errmsg_.setEmpty();
+    errmsg = 0;
 }
 
 
 bool SeisTrcTranslator::close()
 {
     bool ret = true;
-    if ( conn_ && !conn_->forRead() )
+    if ( conn && !conn->forRead() )
 	ret = writeBlock();
-    delete conn_; conn_ = 0;
+    delete conn; conn = 0;
     return ret;
 }
 
@@ -142,13 +144,13 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
     if ( !initConn(c,true)
       || !initRead_() )
     {
-	delete conn_; conn_ = 0;
+	delete conn; conn = 0;
 	return false;
     }
 
-    pinfo_.zrg.start = insd_.start;
-    pinfo_.zrg.step = insd_.step;
-    pinfo_.zrg.stop = insd_.start + insd_.step * (innrsamples_-1);
+    pinfo.zrg.start = insd.start;
+    pinfo.zrg.step = insd.step;
+    pinfo.zrg.stop = insd.start + insd.step * (innrsamples-1);
     return true;
 }
 
@@ -157,16 +159,16 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 {
     cleanUp();
 
-    innrsamples_ = outnrsamples_ = trc.size();
-    if ( innrsamples_ < 1 )
+    innrsamples = outnrsamples = trc.size();
+    if ( innrsamples < 1 )
 	{ errmsg_ = "Empty first trace"; return false; }
 
-    insd_ = outsd_ = trc.info().sampling;
+    insd = outsd = trc.info().sampling;
 
     if ( !initConn(c,false)
       || !initWrite_( trc ) )
     {
-	delete conn_; conn_ = 0;
+	delete conn; conn = 0;
 	return false;
     }
 
@@ -177,22 +179,22 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 bool SeisTrcTranslator::commitSelections()
 {
     errmsg_ = "No selected components found";
-    const int sz = tarcds_.size();
+    const int sz = tarcds.size();
     if ( sz < 1 ) return false;
 
-    outsd_ = insd_; outnrsamples_ = innrsamples_;
-    if ( seldata_ && !mIsUdf(seldata_->zRange().start) )
+    outsd = insd; outnrsamples = innrsamples;
+    if ( seldata && !mIsUdf(seldata->zRange().start) )
     {
-	Interval<float> selzrg( seldata_->zRange() );
+	Interval<float> selzrg( seldata->zRange() );
 	const Interval<float> sizrg( SI().sampling(false).zrg );
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
 // Does not work for Z-axis transformed scenes. Is it required?
 //	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
-	    outsd_.start = selzrg.start;
-	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd_.step;
-	    outnrsamples_ = mNINT32(fnrsteps) + 1;
+	    outsd.start = selzrg.start;
+	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd.step;
+	    outnrsamples = mNINT32(fnrsteps) + 1;
 	}
     }
 
@@ -201,7 +203,7 @@ bool SeisTrcTranslator::commitSelections()
     int nrsel = 0;
     for ( int idx=0; idx<sz; idx++ )
     {
-	int destidx = tarcds_[idx]->destidx;
+	int destidx = tarcds[idx]->destidx;
 	if ( destidx >= 0 )
 	{
 	    selnrs[nrsel] = destidx;
@@ -224,22 +226,22 @@ bool SeisTrcTranslator::commitSelections()
 	    inpfor_[idx] = inpnrs[idx];
     }
 
-    inpcds_ = new ComponentData* [nrout_];
-    outcds_ = new TargetComponentData* [nrout_];
+    inpcds = new ComponentData* [nrout_];
+    outcds = new TargetComponentData* [nrout_];
     for ( int idx=0; idx<nrout_; idx++ )
     {
-	inpcds_[idx] = cds_[ selComp(idx) ];
-	outcds_[idx] = tarcds_[ selComp(idx) ];
+	inpcds[idx] = cds[ selComp(idx) ];
+	outcds[idx] = tarcds[ selComp(idx) ];
     }
 
     errmsg_.setEmpty();
     enforceBounds();
 
-    float fsampnr = (outsd_.start - insd_.start) / insd_.step;
-    samprg_.start = mNINT32( fsampnr );
-    samprg_.stop = samprg_.start + outnrsamples_ - 1;
+    float fsampnr = (outsd.start - insd.start) / insd.step;
+    samps.start = mNINT32( fsampnr );
+    samps.stop = samps.start + outnrsamples - 1;
 
-    is_2d = !conn_ || !conn_->ioobj ? false : is2D( *conn_->ioobj, false );
+    is_2d = !conn || !conn->ioobj ? false : is2D( *conn->ioobj, false );
     return commitSelections_();
 }
 
@@ -247,26 +249,26 @@ bool SeisTrcTranslator::commitSelections()
 void SeisTrcTranslator::enforceBounds()
 {
     // Ranges
-    outsd_.step = insd_.step;
-    float outstop = outsd_.start + (outnrsamples_ - 1) * outsd_.step;
-    if ( outsd_.start < insd_.start )
-	outsd_.start = insd_.start;
-    const float instop = insd_.start + (innrsamples_ - 1) * insd_.step;
+    outsd.step = insd.step;
+    float outstop = outsd.start + (outnrsamples - 1) * outsd.step;
+    if ( outsd.start < insd.start )
+	outsd.start = insd.start;
+    const float instop = insd.start + (innrsamples - 1) * insd.step;
     if ( outstop > instop )
 	outstop = instop;
 
     // Snap to samples
-    float sampdist = (outsd_.start - insd_.start) / insd_.step;
+    float sampdist = (outsd.start - insd.start) / insd.step;
     int startsamp = (int)(sampdist + 0.0001);
     if ( startsamp < 0 ) startsamp = 0;
-    if ( startsamp > innrsamples_-1 ) startsamp = innrsamples_-1;
-    sampdist = (outstop - insd_.start) / insd_.step;
+    if ( startsamp > innrsamples-1 ) startsamp = innrsamples-1;
+    sampdist = (outstop - insd.start) / insd.step;
     int endsamp = (int)(sampdist + 0.9999);
     if ( endsamp < startsamp ) endsamp = startsamp;
-    if ( endsamp > innrsamples_-1 ) endsamp = innrsamples_-1;
+    if ( endsamp > innrsamples-1 ) endsamp = innrsamples-1;
 
-    outsd_.start = insd_.start + startsamp * insd_.step;
-    outnrsamples_ = endsamp - startsamp + 1;
+    outsd.start = insd.start + startsamp * insd.step;
+    outnrsamples = endsamp - startsamp + 1;
 }
 
 
@@ -405,10 +407,10 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
     {
         TraceData& td = trc.data();
         if ( td.nrComponents() <= idx )
-	    td.addComponent( actualsz, tarcds_[ inpfor_[idx] ]->datachar );
+	    td.addComponent( actualsz, tarcds[ inpfor_[idx] ]->datachar );
         else
         {
-	    td.setComponent( tarcds_[ inpfor_[idx] ]->datachar, idx );
+	    td.setComponent( tarcds[ inpfor_[idx] ]->datachar, idx );
             td.reSize( actualsz, idx );
         }
     }
@@ -422,11 +424,11 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     BufferString str( "Component " );
     if ( !nm || !*nm )
     {
-	if ( compnms_ && cds_.size() < compnms_->size() )
-	    nm = compnms_->get(cds_.size()).buf();
+	if ( compnms_ && cds.size() < compnms_->size() )
+	    nm = compnms_->get(cds.size()).buf();
 	else
 	{
-	    str += cds_.size() + 1;
+	    str += cds.size() + 1;
 	    nm = str.buf();
 	}
     }
@@ -434,11 +436,18 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
     ComponentData* newcd = new ComponentData( nm );
     newcd->datachar = dc;
     newcd->datatype = dtype;
-    cds_ += newcd;
+    cds += newcd;
     bool isl = newcd->datachar.littleendian_;
     newcd->datachar.littleendian_ = __islittle__;
-    tarcds_ += new TargetComponentData( *newcd, cds_.size()-1 );
+    tarcds += new TargetComponentData( *newcd, cds.size()-1 );
     newcd->datachar.littleendian_ = isl;
+}
+
+
+const char* SeisTrcTranslator::errMsg() const
+{
+    return errmsg_.isEmpty() ? (errmsg && *errmsg ? errmsg : "")
+	 : errmsg_.str();
 }
 
 
@@ -459,7 +468,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 	}
     }
 
-    delete conn_; conn_ = c;
+    delete conn; conn = c;
     return true;
 }
 
@@ -467,10 +476,10 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 SeisTrc* SeisTrcTranslator::getEmpty()
 {
     DataCharacteristics dc;
-    if ( outcds_ )
-	dc = outcds_[0]->datachar;
-    else if ( tarcds_.size() && inpfor_ )
-	dc = tarcds_[selComp()]->datachar;
+    if ( outcds )
+	dc = outcds[0]->datachar;
+    else if ( tarcds.size() && inpfor_ )
+	dc = tarcds[selComp()]->datachar;
     else
 	toSupported( dc );
 
@@ -487,20 +496,20 @@ void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
 void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
 {
     bss.erase();
-    if ( cds_.size() == 1 )	//TODO display comp name only if more than 1
+    if ( cds.size() == 1 )	//TODO display comp name only if more than 1
     {
 	bss.add("");
 	return;
     }
 
-    for ( int idx=0; idx<cds_.size(); idx++ )
-	bss.add( cds_[idx]->name() );
+    for ( int idx=0; idx<cds.size(); idx++ )
+	bss.add( cds[idx]->name() );
 }
 
 
 SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 {
-    if ( !outcds_ )
+    if ( !outcds )
 	return 0;
 
     SeisTrc* newtrc = new SeisTrc;
@@ -510,9 +519,9 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
     newtrc->data().delComponent(0);
     for ( int idx=0; idx<nrout_; idx++ )
     {
-	newtrc->data().addComponent( outnrsamples_,
-				     outcds_[idx]->datachar, true );
-	newtrc->info().sampling = outsd_;
+	newtrc->data().addComponent( outnrsamples,
+				     outcds[idx]->datachar, true );
+	newtrc->info().sampling = outsd;
     }
 
     return newtrc;

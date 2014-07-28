@@ -89,31 +89,31 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    if ( !conn_->ioobj )
+    if ( !conn->ioobj )
 	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn_->ioobj->fullUserExpr(true) );
+    BufferString fnm( conn->ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) )
 	{ errmsg_.set( fnm ).add( "does not exist" ); return false; }
 
     Seis2DLineSet lset( fnm );
     if ( lset.nrLines() < 1 )
 	{ errmsg_ = "Line set is empty"; return false; }
-    lset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
-    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
+    lset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
+    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
 
-    if ( !curlinekey_.lineName().isEmpty() && lset.indexOf(curlinekey_) < 0 )
+    if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
 	{ errmsg_ = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
-    errmsg_ = lset.getCubeSampling( cs, curlinekey_ );
+    errmsg_ = lset.getCubeSampling( cs, curlinekey );
 
-    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
-    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo_.inlrg.start = cs.hrg.start.inl();
-    pinfo_.inlrg.stop = cs.hrg.stop.inl();
-    pinfo_.inlrg.step = cs.hrg.step.inl();
-    pinfo_.crlrg.step = cs.hrg.step.crl();
-    pinfo_.crlrg.start = cs.hrg.start.crl();
-    pinfo_.crlrg.stop = cs.hrg.stop.crl();
+    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
+    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    pinfo.inlrg.start = cs.hrg.start.inl();
+    pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.step = cs.hrg.step.inl();
+    pinfo.crlrg.step = cs.hrg.step.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl();
+    pinfo.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 
@@ -160,32 +160,32 @@ bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
 bool TwoDDataSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    if ( !conn_->ioobj )
+    if ( !conn->ioobj )
 	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn_->ioobj->fullUserExpr(true) );
+    BufferString fnm( conn->ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) ) return false;
 
-    Seis2DDataSet dset( *(conn_->ioobj) );
+    Seis2DDataSet dset( *(conn->ioobj) );
     if ( dset.nrLines() < 1 )
 	{ errmsg_ = "Data set is empty"; return false; }
-    dset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
-    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
+    dset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );
+    addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
 
-    if ( seldata_ )
-	geomid_ = seldata_->geomID();
+    if ( seldata )
+	geomid = seldata->geomID();
 
-    if ( dset.indexOf(geomid_) < 0 )
-	{ errmsg_.set( "Cannot find GeomID " ).add( geomid_ ); return false; }
+    if ( dset.indexOf(geomid) < 0 )
+	{ errmsg_.set( "Cannot find GeomID " ).add( geomid ); return false; }
     CubeSampling cs( true );
 
-    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
-    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
-    pinfo_.inlrg.start = cs.hrg.start.inl();
-    pinfo_.inlrg.stop = cs.hrg.stop.inl();
-    pinfo_.inlrg.step = cs.hrg.step.inl();
-    pinfo_.crlrg.step = cs.hrg.step.crl();
-    pinfo_.crlrg.start = cs.hrg.start.crl();
-    pinfo_.crlrg.stop = cs.hrg.stop.crl();
+    insd.start = cs.zrg.start; insd.step = cs.zrg.step;
+    innrsamples = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    pinfo.inlrg.start = cs.hrg.start.inl();
+    pinfo.inlrg.stop = cs.hrg.stop.inl();
+    pinfo.inlrg.step = cs.hrg.step.inl();
+    pinfo.crlrg.step = cs.hrg.step.crl();
+    pinfo.crlrg.start = cs.hrg.start.crl();
+    pinfo.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 

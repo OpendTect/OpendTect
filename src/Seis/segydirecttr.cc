@@ -307,12 +307,12 @@ void SEGYDirectSeisTrcTranslator::initVars( bool fr )
 bool SEGYDirectSeisTrcTranslator::initRead_()
 {
     initVars( true );
-    mDynamicCastGet(StreamConn*,strmconn,conn_)
+    mDynamicCastGet(StreamConn*,strmconn,conn)
     if ( !strmconn )
 	{ errmsg_ = "Cannot open definition file"; return false; }
     segydeffilename_ = strmconn->fileName();
 
-    delete strmconn; conn_ = 0;
+    delete strmconn; conn = 0;
     def_ = new SEGY::DirectDef( segydeffilename_ );
     if ( def_->errMsg() && *def_->errMsg() )
 	{ errmsg_ = def_->errMsg(); return false; }
@@ -320,13 +320,13 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 	{ errmsg_ = "Empty input file"; return false; }
 
     const SEGY::FileDataSet& fds = def_->fileDataSet();
-    pinfo_.cubedata = &def_->cubeData();
-    insd_ = fds.getSampling();
-    innrsamples_ = fds.getTrcSz();
-    pinfo_.nr = 1;
-    pinfo_.fullyrectandreg = pinfo_.cubedata->isFullyRectAndReg();
-    pinfo_.cubedata->getInlRange( pinfo_.inlrg );
-    pinfo_.cubedata->getCrlRange( pinfo_.crlrg );
+    pinfo.cubedata = &def_->cubeData();
+    insd = fds.getSampling();
+    innrsamples = fds.getTrcSz();
+    pinfo.nr = 1;
+    pinfo.fullyrectandreg = pinfo.cubedata->isFullyRectAndReg();
+    pinfo.cubedata->getInlRange( pinfo.inlrg );
+    pinfo.cubedata->getCrlRange( pinfo.crlrg );
     addComp( DataCharacteristics(), "Data" );
     return true;
 }
@@ -335,7 +335,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 {
     initVars( false );
-    mDynamicCastGet(StreamConn*,strmconn,conn_)
+    mDynamicCastGet(StreamConn*,strmconn,conn)
     if ( !strmconn || strmconn->isBad() )
 	{ errmsg_ = "Could not open new definition file"; return false; }
     segydeffilename_ = strmconn->fileName();
@@ -358,8 +358,8 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
     for ( int idx=0; idx<tr_->componentInfo().size(); idx++ )
     {
-	cds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
-	tarcds_ += new TargetComponentData( *tr_->componentInfo()[idx] );
+	cds += new TargetComponentData( *tr_->componentInfo()[idx] );
+	tarcds += new TargetComponentData( *tr_->componentInfo()[idx] );
     }
 
     return true;
@@ -368,7 +368,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool SEGYDirectSeisTrcTranslator::commitSelections_()
 {
-    if ( !conn_ || conn_->forRead() )
+    if ( !conn || conn->forRead() )
     {
 	if ( !toNextTrace() )
 	    { errmsg_ = "No (selected) trace found"; return false; }
@@ -378,9 +378,9 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
     if ( !tr_->commitSelections() )
 	{ errmsg_ = tr_->errMsg(); return false; }
 
-    delete conn_; // was made for the segydeffilename_,
+    delete conn; // was made for the segydeffilename_,
 		  // but def_ will open a new handle
-    conn_ = 0; // now curConn() will return tr_'s conn_
+    conn = 0; // now curConn() will return tr_'s conn
 
     def_ = new SEGY::DirectDef;
     fds_ = new SEGY::FileDataSet( segypars_ );
@@ -400,7 +400,7 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
 
 Conn* SEGYDirectSeisTrcTranslator::curConn()
 {
-    return conn_ ? conn_ : (tr_ ? tr_->curConn() : 0);
+    return conn ? conn : (tr_ ? tr_->curConn() : 0);
 }
 
 
@@ -524,7 +524,7 @@ bool SEGYDirectSeisTrcTranslator::toNextTrace()
 	    seg = ld->segments_[iseg_];
 	}
 
-	if ( !seldata_ || seldata_->isOK(curBinID()) )
+	if ( !seldata || seldata->isOK(curBinID()) )
 	    return true;
 
 	itrc_++;

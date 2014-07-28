@@ -217,10 +217,10 @@ static const char* sKeyOffsNr = "Default trace nr";
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
-    if ( conn_->ioobj )
+    if ( conn->ioobj )
     {
-	mDynamicCastGet(const IOX*,iox,conn_->ioobj)
-	IOObj* useioobj = iox ? iox->getIOObj() : conn_->ioobj->clone();
+	mDynamicCastGet(const IOX*,iox,conn->ioobj)
+	IOObj* useioobj = iox ? iox->getIOObj() : conn->ioobj->clone();
 	psrdr_ = SPSIOPF().get3DReader( *useioobj );
 	int trcnr = -1;
 	useioobj->pars().get( sKeyOffsNr, trcnr );
@@ -230,34 +230,34 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     }
     else
     {
-	mDynamicCastGet(StreamConn*,sconn,conn_->conn())
+	mDynamicCastGet(StreamConn*,sconn,conn->conn())
 	if ( !sconn )
 	    { errmsg_ = "Wrong connection from Object Manager"; return false; }
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
     }
-    conn_->close();
+    conn->close();
     errmsg_ = psrdr_ ? psrdr_->errMsg() : "Cannot find PS data store type";
     if ( !errmsg_.isEmpty() )
 	return false;
 
     posdata_ = psrdr_->posData();
-    posdata_.getInlRange( pinfo_.inlrg );
-    posdata_.getCrlRange( pinfo_.crlrg );
-    pinfo_.inlrg.sort(); pinfo_.crlrg.sort();
-    curbinid_.inl() = pinfo_.inlrg.start;
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    posdata_.getInlRange( pinfo.inlrg );
+    posdata_.getCrlRange( pinfo.crlrg );
+    pinfo.inlrg.sort(); pinfo.crlrg.sort();
+    curbinid_.inl() = pinfo.inlrg.start;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
 
     TypeSet<float> offss;
     if ( !doRead(trc_,&offss) )
 	return false;
-    insd_ = trc_.info().sampling;
-    innrsamples_ = trc_.size();
+    insd = trc_.info().sampling;
+    innrsamples = trc_.size();
     for ( int icomp=0; icomp<trc_.nrComponents(); icomp++ )
 	addComp( trc_.data().getInterpreter(icomp)->dataChar(),
 		 BufferString("O=",offss[icomp]) );
 
-    curbinid_.inl() = pinfo_.inlrg.start;
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.inl() = pinfo.inlrg.start;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
     return true;
 }
 
@@ -265,29 +265,29 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
 {
     if ( !posdata_.includes(bid.inl(),bid.crl()) ) return false;
-    curbinid_ = bid; curbinid_.crl() -= pinfo_.crlrg.step;
+    curbinid_ = bid; curbinid_.crl() -= pinfo.crlrg.step;
     return true;
 }
 
 
 bool SeisPSCubeSeisTrcTranslator::toNext()
 {
-    for ( int crl=curbinid_.crl()+pinfo_.crlrg.step; crl<=pinfo_.crlrg.stop;
-	    crl+=pinfo_.crlrg.step )
+    for ( int crl=curbinid_.crl()+pinfo.crlrg.step; crl<=pinfo.crlrg.stop;
+	    crl+=pinfo.crlrg.step )
     {
 	if ( posdata_.includes(curbinid_.inl(),crl) )
 	{
 	    BinID bid( curbinid_.inl(), crl );
-	    if ( !seldata_ || seldata_->isOK(BinID(curbinid_.inl(),crl)) )
+	    if ( !seldata || seldata->isOK(BinID(curbinid_.inl(),crl)) )
 		{ curbinid_.crl() = crl; return true; }
 	}
     }
 
-    curbinid_.inl() += pinfo_.inlrg.step;
-    if ( curbinid_.inl() > pinfo_.inlrg.stop )
+    curbinid_.inl() += pinfo.inlrg.step;
+    if ( curbinid_.inl() > pinfo.inlrg.stop )
 	return false;
 
-    curbinid_.crl() = pinfo_.crlrg.start - pinfo_.crlrg.step;
+    curbinid_.crl() = pinfo.crlrg.start - pinfo.crlrg.step;
     return toNext();
 }
 
@@ -296,9 +296,9 @@ bool SeisPSCubeSeisTrcTranslator::commitSelections_()
 {
     if ( !trcnrs_.isEmpty() ) return true;
 
-    for ( int idx=0; idx<tarcds_.size(); idx++ )
+    for ( int idx=0; idx<tarcds.size(); idx++ )
     {
-	if ( tarcds_[idx]->destidx >= 0 )
+	if ( tarcds[idx]->destidx >= 0 )
 	    trcnrs_ += idx;
     }
 
@@ -357,10 +357,10 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
     if ( !newtrc ) return false;
 
     trc = *newtrc;
-    if ( seldata_ && !seldata_->isAll() )
+    if ( seldata && !seldata->isAll() )
     {
 	trc.info() = newtrc->info();
-	const Interval<float> zrg( seldata_->zRange() );
+	const Interval<float> zrg( seldata->zRange() );
 	trc.info().sampling.start = zrg.start;
 	const float sr = trc.info().sampling.step;
 	const int nrsamps = (int)(zrg.width() / sr + 1.5);
@@ -377,7 +377,7 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc, TypeSet<float>* offss )
 
 bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 {
-    if ( !outcds_ ) commitSelections();
+    if ( !outcds ) commitSelections();
     if ( inforead_ ) return true;
     if ( !doRead(trc_) ) return false;
     inforead_ = true;
@@ -388,7 +388,7 @@ bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 
 bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
 {
-    if ( !outcds_ ) commitSelections();
+    if ( !outcds ) commitSelections();
     if ( inforead_ )
 	{ inforead_ = false; trc = trc_; return true; }
     inforead_ = false;
