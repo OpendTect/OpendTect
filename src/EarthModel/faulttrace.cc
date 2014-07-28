@@ -193,17 +193,17 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 			return true;
 		}
 
-		if ( fabs(prevz-curz) < SI().zStep() )
-		    continue;
-
-		intsect = getIntersection(prevbid,curz,curbid,curz);
-		if ( intsect.isDefined() )
+		if ( fabs(prevz-curz) >= SI().zStep() )
 		{
-		    pos2bids += prevbid; pos2zs += curz;
-		    pos1bids += curbid; pos1zs += curz;
-		    intersections += intsect;
-		    if ( firstonly )
-			return true;
+		    intsect = getIntersection(prevbid,curz,curbid,curz);
+		    if ( intsect.isDefined() )
+		    {
+			pos2bids += prevbid; pos2zs += curz;
+			pos1bids += curbid; pos1zs += curz;
+			intersections += intsect;
+			if ( firstonly )
+			    return true;
+		    }
 		}
 	    }
 	}
