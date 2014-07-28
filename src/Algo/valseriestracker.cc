@@ -260,9 +260,10 @@ bool EventTracker::track()
 	: false;
 
     float dnsample=mUdf(float), dnsim=mUdf(float); bool dnflatstart=false;
-    const bool finddn = permsamplerange.stop>=0
-	? findMaxSimilarity( permsamplerange.stop, 1, 1, dnsample,dnsim,dnflatstart)
-	: false;
+    const bool finddn = permsamplerange.stop>=0 
+			    ? findMaxSimilarity( permsamplerange.stop, 1, 1, 
+						 dnsample, dnsim, dnflatstart )
+			    : false;
 
     if ( findup && finddn )
     {
@@ -314,6 +315,9 @@ bool EventTracker::track()
     else
 	return false;
 
+    if ( targetdepth_<0 || mIsUdf(targetdepth_) )
+	return false;
+
     const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
 }
@@ -322,8 +326,10 @@ bool EventTracker::track()
 bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	float& res, float& maxsim, bool& flatstart ) const
 {
-    const Interval<int> similaritysamplewin( mNINT32(similaritywin_.start/rangestep_),
-	    				     mNINT32(similaritywin_.stop/rangestep_) );
+    const Interval<int> similaritysamplewin( 
+		mNINT32(similaritywin_.start/rangestep_),
+		mNINT32(similaritywin_.stop/rangestep_) );
+
     int firstsourcesample = mNINT32(sourcedepth_) + similaritysamplewin.start;
     Interval<int> actualsimilaritywin = similaritysamplewin;
     if ( firstsourcesample<0 )
