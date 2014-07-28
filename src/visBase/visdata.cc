@@ -137,7 +137,7 @@ float DataObject::getPixelDensity() const
 
 NodeState* DataObject::getNodeState( int idx )
 {
-    return idx<=nodestates_.size() ? nodestates_[idx] : 0;
+    return nodestates_.validIdx( idx ) ? nodestates_[idx] : 0;
 }
 
 
