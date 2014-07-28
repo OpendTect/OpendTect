@@ -373,8 +373,8 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
     uiListBox* outfld = issteersel ? steeroutfld_ : storoutfld_;
     BufferStringSet& nms = issteersel ? attrinf_->steernms_
 				      : attrinf_->ioobjnms_;
-    attrinf_->fillStored( issteersel, filtfld_->text() );
     outfld->setEmpty();
+    attrinf_->fillStored( issteersel, filtfld_->text() );
     if ( nms.isEmpty() ) return;
 
     outfld->addItems( nms );
@@ -397,13 +397,15 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferString ioobjkey;
     if ( seltyp==0 )
     {
-	if ( !attrinf_->ioobjids_.isEmpty() )
-    	    ioobjkey = attrinf_->ioobjids_.get( storoutfld_->currentItem() );
+	const int curitem = storoutfld_->currentItem();
+	if ( attrinf_->ioobjids_.validIdx(curitem) )
+    	    ioobjkey = attrinf_->ioobjids_.get( curitem );
     }
     else if ( seltyp==1 )
     {
-	if ( !attrinf_->steerids_.isEmpty() )
-    	    ioobjkey = attrinf_->steerids_.get( steeroutfld_->currentItem() );
+	const int curitem = steeroutfld_->currentItem();
+	if ( attrinf_->steerids_.validIdx(curitem) )
+    	    ioobjkey = attrinf_->steerids_.get( curitem );
     }
     else if ( seltyp==4 )
     {
