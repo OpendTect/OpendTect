@@ -492,7 +492,7 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
     }
 #endif
     const od_int64 arridx = idx/chunksize_;
-    if ( arridx>=ptrs_.size() )
+    if ( !ptrs_.validIdx(arridx) )
 	return RT();
 
     idx -= arridx*chunksize_;

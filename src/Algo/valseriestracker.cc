@@ -313,6 +313,9 @@ bool EventTracker::track()
     else
 	return false;
 
+    if ( targetdepth_<0 || mIsUdf(targetdepth_) )
+	return false;
+
     const int bestidx = mNINT32( targetdepth_ );
     return snap( (*targetvs_)[bestidx] );
 }
