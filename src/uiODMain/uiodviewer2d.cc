@@ -653,14 +653,11 @@ void uiODViewer2D::rebuildTree()
 void uiODViewer2D::setMouseCursorExchange( MouseCursorExchange* mce )
 {
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.remove(
-		mCB(this,uiODViewer2D,mouseCursorCB) );
+	mDetachCB( mousecursorexchange_->notifier,uiODViewer2D::mouseCursorCB );
 
     mousecursorexchange_ = mce;
-
     if ( mousecursorexchange_ )
-	mousecursorexchange_->notifier.notify(
-		mCB(this,uiODViewer2D,mouseCursorCB) );
+	mAttachCB( mousecursorexchange_->notifier,uiODViewer2D::mouseCursorCB );
 }
 
 
