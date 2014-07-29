@@ -212,10 +212,11 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
 	{
 	    nmfld_->setText( nm );
 	    const int listidx = listfld_->indexOf( nm );
-	    if ( listidx < 0 )
-		listfld_->setCurrentItem( 0 );
-	    else
-		listfld_->setChosen( listidx );
+	    if ( !ioobjids_.isEmpty() )
+	    {
+		int curitmidx = listidx < 0 ? 0 : listidx;
+		listfld_->setCurrentItem( curitmidx );
+	    }
 	}
     }
 
@@ -417,9 +418,19 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     ioobj.set( 0, false );
 
     if ( ctio_.ioobj )
+    {
 	wrtrselfld_->updatePars( *ctio_.ioobj );
+	IOM().commitChanges( *ctio_.ioobj );
+    }
 
     return true;
+}
+
+
+void uiIOObjSelGrp::setDefTranslator( const Translator* trl )
+{
+    if ( trl && wrtrselfld_ && *nmfld_->text() )
+	wrtrselfld_->setTranslator( trl );
 }
 
 

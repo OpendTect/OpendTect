@@ -159,6 +159,17 @@ int uiIOObjSelWriteTranslator::translIdx() const
 }
 
 
+void uiIOObjSelWriteTranslator::setTranslator( const Translator* trl )
+{
+    if ( !trl || !selfld_ )
+	return;
+
+    const int tridx = trs_.indexOf( trl );
+    if ( tridx >= 0 )
+	selfld_->setCurrentItem( tridx );
+}
+
+
 const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 {
     int translidx = translIdx();
@@ -181,10 +192,14 @@ bool uiIOObjSelWriteTranslator::hasSelectedTranslator( const IOObj& ioobj) const
 
 uiIOObjTranslatorWriteOpts* uiIOObjSelWriteTranslator::getCurOptFld() const
 {
-    if ( !selfld_ )
-	return 0;
-
-    const int selidx = selfld_->currentItem();
+    int selidx = -1;
+    if ( selfld_ )
+	selidx = selfld_->currentItem();
+    else
+    {
+	if ( !optflds_.isEmpty() )
+	    selidx = 0;
+    }
     return !optflds_.validIdx(selidx) ? 0
 	 : const_cast<uiIOObjTranslatorWriteOpts*>(optflds_[selidx]);
 }
@@ -194,8 +209,9 @@ void uiIOObjSelWriteTranslator::selChg( CallBacker* )
 {
     if ( !selfld_ )
 	return;
+
     const int selidx = selfld_->currentItem();
-    if ( selidx < 0 )
+    if ( !optflds_.validIdx(selidx) )
 	return;
 
     for ( int idx=0; idx<optflds_.size(); idx++ )
@@ -231,10 +247,9 @@ void uiIOObjSelWriteTranslator::updatePars( IOObj& ioobj ) const
 
 void uiIOObjSelWriteTranslator::use( const IOObj& ioobj )
 {
-    if ( !selfld_ )
-	return;
+    if ( selfld_ )
+	selfld_->setCurrentItem( ioobj.translator() );
 
-    selfld_->setCurrentItem( ioobj.translator() );
     uiIOObjTranslatorWriteOpts* fld = getCurOptFld();
     if ( fld )
 	fld->use( ioobj.pars() );

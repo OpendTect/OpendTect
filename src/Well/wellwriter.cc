@@ -116,7 +116,9 @@ Well::odWriter::odWriter( const IOObj& ioobj, const Well::Data& w,
     : Well::odIO(ioobj.fullUserExpr(false),e)
     , Well::WriteAccess(w)
 {
+    wd_.setMultiID( ioobj.key() );
     init();
+    ioobj.pars().getYN( sKeyLogStorage(), binwrlogs_ );
 }
 
 

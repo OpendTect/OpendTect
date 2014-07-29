@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "uiwellposprov.h"
 #include "uiwellt2dconv.h"
+#include "uiwellwriteopts.h"
 
 mDefModInitFn(uiWell)
 {
@@ -20,4 +21,5 @@ mDefModInitFn(uiWell)
     uiWellPosProvGroup::initClass();
     uiWellT2DTransform::initClass();
 
+    uiODWellWriteOpts::initClass();
 }

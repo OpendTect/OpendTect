@@ -34,5 +34,6 @@ SET(OD_MODULE_SOURCES
 		uiwellsel.cc
 		uiwellstratdisplay.cc
 		uiwellt2dconv.cc 
+		uiwellwriteopts.cc
 )
 OD_INIT_MODULE()

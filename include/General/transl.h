@@ -341,23 +341,32 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 // Convenience macros when using Translator(Group)-related classes
 
-#define mSelHist(clss) \
-	clss##TranslatorGroup::theInst().selHist()
+#define mIOObjContext(trgrp) \
+	trgrp##TranslatorGroup::ioContext()
 
-#define mTranslCreate(clss,nm) \
-	(clss##Translator*)clss##TranslatorGroup::theInst().make(nm)
+#define mTranslGroupName(trgrp) \
+	trgrp##TranslatorGroup::theInst().userName()
 
-#define mTranslGroupName(clss) \
-	clss##TranslatorGroup::theInst().userName()
+#define mTranslTemplInstance(trgrp,tr) \
+	(*trgrp##TranslatorGroup::theInst() \
+		.getTemplate(tr##trgrp##Translator::translKey(),true))
 
-#define mTranslKey(clss) \
-	clss##Translator::translKey()
+#define mTranslCreate(trgrp,tr) \
+	(trgrp##Translator*)trgrp##TranslatorGroup::theInst().make(tr)
 
-#define mMkCtxtIOObj(clss) \
-	new CtxtIOObj(clss##TranslatorGroup::ioContext())
+#define mMkCtxtIOObj(trgrp) \
+	new CtxtIOObj(trgrp##TranslatorGroup::ioContext())
 
-#define mIOObjContext(clss) \
-	clss##TranslatorGroup::ioContext()
+#define mSelHist(trgrp) \
+	trgrp##TranslatorGroup::theInst().selHist()
+
+// This will become mTranslKey:
+#define mTranslatorKey(trgrp,tr) \
+	tr##trgrp##Translator::translKey()
+
+// DEPRECATED:
+#define mTranslKey(fulltrnm) \
+	fulltrnm##Translator::translKey()
 
 
 #endif
