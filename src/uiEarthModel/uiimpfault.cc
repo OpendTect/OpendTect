@@ -41,19 +41,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
 
-#define mGetCaption(tp) \
-    mGet( tp, (is2d ? tr("Import FaultStickSet 2D") \
-                    : tr("Import FaultStickSet")), \
-	              tr("Import Fault") )
-
 #define mGetHelpKey(tp) \
     mGet( tp, (is2d ? mODHelpKey(mImportFaultStick2DHelpID) \
                     : mODHelpKey(mImportFaultStick3DHelpID) ), \
     mODHelpKey(mImportFaultHelpID) )
 
 uiImportFault::uiImportFault( uiParent* p, const char* type, bool is2d )
-    : uiDialog(p,uiDialog::Setup(mGetCaption(type),mNoDlgTitle,
-				 mGetHelpKey(type)).modal(false))
+                              : uiDialog(p,uiDialog::Setup(mGet( type, (is2d 
+                              ? tr("Import FaultStickSet 2D")
+                              : tr("Import FaultStickSet")),
+	                        tr("Import Fault") ),mNoDlgTitle,
+				mGetHelpKey(type)).modal(false))
     , ctio_(mGetCtio(type))
     , isfss_(mGet(type,true,false))
     , fd_(0)
