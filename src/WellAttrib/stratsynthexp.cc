@@ -107,19 +107,8 @@ bool StratSynthExporter::prepareWriter()
     delete writer_;
     writer_ = new SeisTrcWriter( ctxt->ioobj );
     Seis::SelData* seldata = Seis::SelData::get( Seis::Range );
-    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( linegeom_ );
-    newgoem2d->ref();
-    uiString errmsg;
     Survey::Geometry::ID newgeomid =
-	Survey::GMAdmin().addNewEntry( newgoem2d, errmsg );
-    newgoem2d->unRef();
-    if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
-    {
-	if ( !errmsg.isEmpty() )
-	    errmsg_ = errmsg;
-	return false;
-    }
-
+	Survey::GM().getGeomID( linegeom_->lineName() );
     seldata->setGeomID( newgeomid );
     writer_->setSelData( seldata );
     writer_->setAttrib( synthnm );

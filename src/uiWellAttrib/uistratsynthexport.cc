@@ -355,7 +355,8 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	    const Survey::Geometry* geom =
 		Survey::GM().getGeometry( linegeom.lineName() );
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
-	    if ( !geom2d ) return false;
+	    if ( !geom2d )
+		mErrRet("Could not find the geometry of specified line", false)
 	    linegeom = geom2d->data();
 	    return true;
 	}
@@ -415,6 +416,15 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
     }
 
     create2DGeometry( ptlist, linegeom );
+    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( &linegeom );
+    newgoem2d->ref();
+    uiString errmsg;
+    Survey::Geometry::ID newgeomid =
+	Survey::GMAdmin().addNewEntry( newgoem2d, errmsg );
+    newgoem2d->unRef();
+    if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
+	mErrRet(errmsg,false)
+
     return true;
 }
 
@@ -544,11 +554,20 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	mErrRet( "No line name specified", false );
     }
 
+    const Survey::Geometry* geom = Survey::GM().getGeometry( linenm );
+    if ( selType() != Existing && geom )
+    {
+	getExpObjs();
+	mErrRet( "Line name already exists. If you want to overwrite \n"
+		 "the geometry of the existing line , you have to remove \n"
+		 "it from 'Survey>>Manage>>Geometry2D'", false )
+    }
+
     PosInfo::Line2DData* linegeom = new PosInfo::Line2DData( linenm );
     if ( !getGeometry(*linegeom) )
     {
 	getExpObjs();
-	mErrRet( "Could not find the geometry of specified line", false );
+	return false;
     }
 
     int synthmodelsz = linegeom->positions().size();
