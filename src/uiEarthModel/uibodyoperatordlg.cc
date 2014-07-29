@@ -135,26 +135,28 @@ void uiBodyOperatorDlg::turnOffAll()
 }
 
 
-#define mDisplayAction( item, curidx ) \
-    oprselfld_->box()->setCurrentItem( item==sKeyUdf() ? 0 : item ); \
-    if ( item==sKeyIntSect() ) \
-    { \
-	listinfo_[curidx].act_ = sKeyIntSect(); \
-	tree_->selectedItem()->setText( tr("Intersection"), 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_intersect" ); \
-    } \
-    else if ( item==sKeyMinus() )  \
-    { \
-	listinfo_[curidx].act_ = sKeyMinus(); \
-	tree_->selectedItem()->setText( tr("Difference"), 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_minus" ); \
-    } \
-    else \
-    { \
-	listinfo_[curidx].act_ = sKeyUnion(); \
-	tree_->selectedItem()->setText( tr("Union"), 1 ); \
-	tree_->selectedItem()->setPixmap( 1, "set_union" ); \
+void uiBodyOperatorDlg::displayAction( char item, int curidx )
+{
+    oprselfld_->box()->setCurrentItem( item==sKeyUdf() ? 0 : item );
+    if ( item==sKeyIntSect() )
+    {
+	listinfo_[curidx].act_ = sKeyIntSect();
+	tree_->selectedItem()->setText( tr("Intersection"), 1 );
+	tree_->selectedItem()->setPixmap( 1, "set_intersect" );
     }
+    else if ( item==sKeyMinus() )
+    {
+	listinfo_[curidx].act_ = sKeyMinus();
+	tree_->selectedItem()->setText( tr("Difference"), 1 );
+	tree_->selectedItem()->setPixmap( 1, "set_minus" );
+    }
+    else
+    {
+	listinfo_[curidx].act_ = sKeyUnion();
+	tree_->selectedItem()->setText( tr("Union"), 1 );
+	tree_->selectedItem()->setPixmap( 1, "set_union" );
+    }
+}
 
 
 void uiBodyOperatorDlg::typeSel( CallBacker* cb )
@@ -169,7 +171,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
     {
 	turnOffAll();
 	oprselfld_->display( true );
-	mDisplayAction( listinfo_[curidx].act_, curidx );
+	displayAction( listinfo_[curidx].act_, curidx );
 	listinfo_[curidx].defined_ = true;
 	if ( tree_->selectedItem()->nrChildren() )
 	    return;
@@ -238,7 +240,7 @@ void uiBodyOperatorDlg::oprSel( CallBacker* )
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
     listinfo_[curidx].defined_ = true;
 
-    mDisplayAction( item, curidx );
+    displayAction( item, curidx );
 }
 
 
@@ -267,7 +269,7 @@ void uiBodyOperatorDlg::itemClick( CallBacker* )
     {
 	turnOffAll();
 	oprselfld_->display( true );
-	mDisplayAction( item, curidx );
+	displayAction( item, curidx );
 	typefld_->box()->setCurrentItem( 1 );
     }
 }
