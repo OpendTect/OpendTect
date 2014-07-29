@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "stratmod.h"
 #include "stratcontent.h"
 #include "compoundkey.h"
+#include "propertyref.h"
 #include "typeset.h"
 class Color;
-class PropertyRef;
 
 namespace Strat
 {
@@ -28,10 +28,10 @@ class Lithology;
 
 /*!\brief data for a layer.
 
-  Layers are atached to a UnitRef. To understand the values, you need access to
+  Layers are attached to a UnitRef. To understand the values, you need access to
   the governing PropertyRefSet, usually attached to the LayerSequence that
   the Layer is part of.
- 
+
  */
 
 mExpClass(Strat) Layer
@@ -40,7 +40,9 @@ public:
 
     typedef CompoundKey	ID;
 
-			Layer(const LeafUnitRef&);
+			Layer(const LeafUnitRef&,
+			      const PropertyRefSelection* prs=0,
+			      const Content* cont=0);
 
     BufferString	name() const;
     const LeafUnitRef&	unitRef() const			{ return *ref_; }
@@ -64,9 +66,12 @@ public:
     ID			id() const;	//!< unitRef().fullCode()
     Color		dispColor(bool lith_else_upnode) const;
 
-    const float*	values() const	{ return vals_.arr(); }
+    const float*	values() const			{ return vals_.arr(); }
 
     static const PropertyRef& thicknessRef();
+
+    void		setNrValues(int);	//!< Fails: no memory
+    bool		validValIdx( int idx )	{ return vals_.validIdx(idx); }
 
 protected:
 

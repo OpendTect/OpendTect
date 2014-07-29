@@ -96,7 +96,7 @@ void Strat::LayerGenerator::fillPar( IOPar& iop ) const
 
 
 bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
-       					      Property::EvalOpts eo ) const
+					      Property::EvalOpts eo ) const
 {
     if ( seq.propertyRefs().isEmpty() )
 	updateUsedProps( seq.propertyRefs() );
@@ -108,7 +108,7 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
     , startdepth_(0)
 {
-    elasticpropselmid_.setEmpty(); 
+    elasticpropselmid_.setEmpty();
 }
 
 
@@ -140,7 +140,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( std::istream& strm )
     while ( !atEndOfSection(astrm.next()) )
     {
 	iop.setEmpty(); iop.getFrom(astrm);
-	if ( iop.isEmpty() ) 
+	if ( iop.isEmpty() )
 	    continue;
 
 	LayerGenerator* lg = LayerGenerator::get( iop, rt_ );
@@ -198,7 +198,7 @@ void Strat::LayerSequenceGenDesc::setElasticPropSel( const MultiID& mid )
 
 const MultiID& Strat::LayerSequenceGenDesc::elasticPropSel() const
 {
-    return elasticpropselmid_; 
+    return elasticpropselmid_;
 }
 
 
@@ -225,7 +225,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
     for ( int idx=0; idx<size(); idx++ )
     {
 	const LayerGenerator& lgen = *((*this)[idx]);
-	
+
 	if ( !lgen.generateMaterial(ls,eo) )
 	{
 	    errmsg_ = lgen.errMsg();
@@ -474,8 +474,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
 
-    Layer* newlay = new Layer( unit() );
-    newlay->setContent( content() );
+    Layer* newlay = new Layer( unit(), &prs, &content() );
 
     TypeSet<int> indexesofprsmath;
     TypeSet<int> correspondingidxinprops;
@@ -509,7 +508,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	const int ipr = indexesofprsmath[mathidx];
 	const PropertyRef* pr = prs[ipr];
 	const Property& prop = props_.get( correspondingidxinprops[mathidx] );
-	if ( pr != &prop.ref() ) continue; 	//huh? should never happen
+	if ( pr != &prop.ref() ) continue;	//huh? should never happen
 	mSetLayVal
     }
 

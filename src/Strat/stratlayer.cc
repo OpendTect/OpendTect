@@ -16,17 +16,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "elasticpropsel.h"
 
-
 const PropertyRef& Strat::Layer::thicknessRef()
 {
     return PropertyRef::thickness();
 }
 
 
-Strat::Layer::Layer( const LeafUnitRef& r )
+Strat::Layer::Layer( const LeafUnitRef& r, const PropertyRefSelection* prs,
+		     const Content* cont )
     : ref_(&r)
-    , content_(0)
+    , content_(cont)
 {
+    setNrValues( prs && prs->size() ? prs->size() : 1 );
     setValue( 0, 0 ); // layers always have a thickness
 }
 
@@ -55,6 +56,12 @@ Strat::Layer::ID Strat::Layer::id() const
 }
 
 
+void Strat::Layer::setNrValues( int nrvals )
+{
+    vals_.setSize( nrvals, mUdf(float) );
+}
+
+
 float Strat::Layer::value( int ival ) const
 {
     return ival < vals_.size() ? vals_[ival] : mUdf(float);
@@ -65,6 +72,7 @@ void Strat::Layer::setValue( int ival, float val )
 {
     while ( vals_.size() <= ival )
 	vals_ += mUdf(float);
+
     vals_[ival] = val;
 }
 
@@ -394,13 +402,13 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
     for ( int ilay=0; ilay<inpls.size(); ilay++ )
     {
 	const Layer& inplay = *inpls.layers()[ilay];
-	Layer* newlay = new Layer( inplay.unitRef() );
+	Layer* newlay = new Layer( inplay.unitRef(), &proprefs_ );
 	newlay->setThickness( inplay.thickness() );
 	for ( int iprop=1; iprop<proprefs_.size(); iprop++ )
 	{
 	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
-	    newlay->setValue( iprop,
-			idxof < 0 ? mUdf(float) : inplay.value(idxof) );
+	    if ( newlay->validValIdx(idxof) )
+		newlay->setValue( iprop, inplay.value(idxof) );
 	}
 	newls->layers() += newlay;
     }
@@ -537,13 +545,11 @@ bool Strat::LayerModel::read( std::istream& strm )
 	    }
 	    FileMultiString fms( laynm );
 	    const UnitRef* ur = rt.find( fms[0] );
+	    const Content* content = fms.size()
+				   ? rt.contents().getByName(fms[1]) : 0;
 	    mDynamicCastGet(const LeafUnitRef*,lur,ur)
-	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf() );
-	    if ( fms.size() > 1 )
-	    {
-		const Content* c = rt.contents().getByName(fms[1]);
-		newlay->setContent( c ? *c : Content::unspecified() );
-	    }
+	    Layer* newlay = new Layer( lur ? *lur : rt.undefLeaf(), &proprefs_,
+				       content );
 	    float val; strm >> val;
 	    newlay->setThickness( val );
 	    for ( int iprop=1; iprop<nrprops; iprop++ )
