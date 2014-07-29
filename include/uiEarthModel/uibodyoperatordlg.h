@@ -48,6 +48,7 @@ protected:
     void		turnOffAll();
     void		deleteAllChildInfo(uiTreeViewItem*);
     void		setOperator(uiTreeViewItem* lv,EM::BodyOperator& opt);
+    void                displayAction(char item,int curidx);
 
     static char		sKeyUnion()	{ return 0; }
     static char		sKeyIntSect()	{ return 1; }
