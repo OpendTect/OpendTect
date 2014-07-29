@@ -161,20 +161,18 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 	fssview_ = fd;
     }
     emobj->ref();
-    emobj->change.notify(mCB(this,uiODVw2DFaultSS2DTreeItem,emobjChangeCB));
+    mAttachCB( emobj->change, uiODVw2DFaultSS2DTreeItem::emobjChangeCB );
 
     name_ = applMgr()->EMServer()->getName( emid_ );
     uitreeviewitem_->setChecked( true );
-    checkStatusChange()->notify( mCB(this,uiODVw2DFaultSS2DTreeItem,checkCB) );
+    mAttachCB( checkStatusChange(), uiODVw2DFaultSS2DTreeItem::checkCB );
 
     displayMiniCtab();
 
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	fssview_->setGeomID( viewer2D()->geomID() );
-
-    NotifierAccess* deselnotify =  fssview_->deSelection();
-    if ( deselnotify )
-	deselnotify->notify( mCB(this,uiODVw2DFaultSS2DTreeItem,deSelCB) );
+    
+    mAttachCB( fssview_->deSelection(), uiODVw2DFaultSS2DTreeItem::deSelCB );
 
     fssview_->draw();
 
