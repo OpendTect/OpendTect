@@ -156,6 +156,8 @@ protected:
 					//should be nil when given
 					//to channels_.
 
+    TypeSet<EM::SectionID>		addsectionids_;
+
     mutable Color			nontexturecol_;
     mutable bool			nontexturecolisset_;
     visBase::DrawStyle*			drawstyle_;

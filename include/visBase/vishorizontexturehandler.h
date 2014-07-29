@@ -72,6 +72,8 @@ public:
 					      const DataPointSet*);
     void			updateTileTextureOrigin();
 
+    void			setHorizonSection(const HorizonSection&);
+
 
 protected:
 

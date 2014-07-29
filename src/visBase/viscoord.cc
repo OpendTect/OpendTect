@@ -227,10 +227,14 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
 
 Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
+    if ( idx >= mArrSize )
+	return Coord3::udf();
+
     const float* scenepos =
 	mGetOsgArrPtr(const osg::Vec3*,osgcoords_)[idx].ptr();
 
-    Coord3 res( scenepos[0], scenepos[1], scenepos[2] );
+    Coord3 res = scenepos ? Coord3( scenepos[0], scenepos[1], scenepos[2] )
+			  : Coord3::udf();
     if ( res.isDefined() )
     {
 	if ( transformation_ && !scenespace )

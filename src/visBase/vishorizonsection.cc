@@ -599,5 +599,22 @@ void HorizonSection::updatePrimitiveSets()
 }
 
 
+void HorizonSection::setTextureHandler( HorizonTextureHandler& hortexhandler )
+{
+    hortexturehandler_->getOsgTexture()->removeCallback(
+						    texturecallbackhandler_ );
+    hortexturehandler_->unRef();
+    hortexturehandler_ = &hortexhandler;
+    hortexturehandler_->ref();
+    hortexturehandler_->getOsgTexture()->addCallback( texturecallbackhandler_ );
+
+    hortexturehandler_->setHorizonSection( *this );
+}
+
+
+HorizonTextureHandler& HorizonSection::getTextureHandler()
+{ return *hortexturehandler_; }
+
+
 }; // namespace visBase
 

@@ -94,9 +94,14 @@ public:
     void			inValidateCache(int channel);
 
     void			setChannels2RGBA(TextureChannel2RGBA*);
+				//!Don't share texture processes among sections
     TextureChannel2RGBA*	getChannels2RGBA();
     const TextureChannel2RGBA*	getChannels2RGBA() const;
-    TextureChannels*		getChannels() const;	//{ return channels_; }
+    TextureChannels*		getChannels() const;
+
+    void			setTextureHandler(HorizonTextureHandler&);
+				//!Don't share texture handlers among sections
+    HorizonTextureHandler&	getTextureHandler();
 
     				//Geometry stuff
     void			setSurface(Geometry::BinIDSurface*,bool conn,

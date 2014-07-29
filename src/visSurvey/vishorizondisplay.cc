@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpe.h"
+#include "vishorizontexturehandler.h"
 #include "vishorizonsection.h"
 #include "vishorizonsectiondef.h"
 #include "visplanedatadisplay.h"
@@ -216,6 +217,7 @@ visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA()
 	? sections_[0]->getChannels2RGBA()
 	: EMObjectDisplay::getChannels2RGBA();
 }
+
 
 const visBase::TextureChannel2RGBA* HorizonDisplay::getChannels2RGBA() const
 { return const_cast<HorizonDisplay*>(this)->getChannels2RGBA(); }
@@ -943,6 +945,27 @@ float HorizonDisplay::getEdgeLineRadius() const
 { return edgelineradius_; }
 
 
+void HorizonDisplay::setSectionDisplayRestore( bool yn )
+{
+    oldsectionids_.erase();
+    olddisplayedrowranges_.erase();
+    olddisplayedcolranges_.erase();
+    deepUnRef( oldhortexhandlers_ );
+
+    if ( yn )
+    {
+	for ( int idx=0; idx<sids_.size(); idx++ )
+	{
+	    oldsectionids_ += sids_[idx];
+	    olddisplayedrowranges_ += sections_[idx]->displayedRowRange();
+	    olddisplayedcolranges_ += sections_[idx]->displayedColRange();
+	    oldhortexhandlers_ += &sections_[idx]->getTextureHandler();
+	    oldhortexhandlers_.last()->ref();
+	}
+    }
+}
+
+
 void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 {
     const int idx = sids_.indexOf( sid );
@@ -962,31 +985,46 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     surf->setZAxisTransform( zaxistransform_, tr );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
 
-    while ( surf->nrChannels()<nrAttribs() )
-	surf->addChannel();
-
-    for ( int idx=0; idx<nrAttribs(); idx++ )
-    {
-	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
-	surf->setColTabSequence( idx, coltabsequences_[idx] );
-	surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
-    }
-
-    if ( !sections_.size() && channel2rgba_ )
-    {
-	surf->setChannels2RGBA( channel2rgba_ );
-	EMObjectDisplay::setChannels2RGBA( 0 );
-    }
-
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
 
-    surf->getChannels2RGBA()->allowShading( allowshading_ );
-    surf->getChannels()->enableTextureInterpolation( enabletextureinterp_ );
     surf->setResolution( resolution_-1, tr );
-
     surf->setMaterial( 0 );
+
+    const int oldsecidx = oldsectionids_.indexOf( sid );
+    if ( oldsecidx>=0 )
+    {
+	if ( surf->displayedRowRange()!=olddisplayedrowranges_[oldsecidx] ||
+	     surf->displayedColRange()!=olddisplayedcolranges_[oldsecidx] )
+	{
+	    surf->setDisplayRange( olddisplayedrowranges_[oldsecidx],
+				   olddisplayedcolranges_[oldsecidx] );
+	}
+
+	surf->setTextureHandler( *oldhortexhandlers_[oldsecidx] );
+    }
+    else // initialize texture handler newly created by horizon section
+    {
+	while ( surf->nrChannels()<nrAttribs() )
+	    surf->addChannel();
+
+	for ( int idx=0; idx<nrAttribs(); idx++ )
+	{
+	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
+	    surf->setColTabSequence( idx, coltabsequences_[idx] );
+	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
+	}
+
+	if ( !sections_.size() && channel2rgba_ )
+	{
+	    surf->setChannels2RGBA( channel2rgba_ );
+	    EMObjectDisplay::setChannels2RGBA( 0 );
+	}
+
+	surf->getChannels2RGBA()->allowShading( allowshading_ );
+	surf->getChannels()->enableTextureInterpolation( enabletextureinterp_ );
+    }
 
     if ( translation_ )
 	translation_->addObject( surf );
@@ -1002,7 +1040,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     displaysSurfaceGrid( displaysurfacegrid_ );
 
     return addEdgeLineDisplay( sid );
-
 }
 
 
