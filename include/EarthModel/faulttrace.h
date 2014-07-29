@@ -46,9 +46,9 @@ public:
     void		set(int,const Coord3&,float);
     void		setIndices(const TypeSet<int>&);
     void		remove(int);
-    void		remove(const TypeSet<int>&){};
+    void		remove(const TypeSet<int>&) {};
     bool		isDefined(int) const;
-    int			getSize() const	{ return coords_.size(); }
+    int			getSize() const		{ return coords_.size(); }
     FaultTrace*		clone() const;
 
     bool		isInl() const			{ return isinl_; }
@@ -77,7 +77,8 @@ public:
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
 				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,
 				TypeSet<Coord>& intersections,
-				bool findfirstonly=true) const;
+				bool findfirstonly=true,
+				bool allowextention=false) const;
     bool		getImage(const BinID& srcbid,float srcz,
 				 const Interval<float>& tophorzvals,
 				 const Interval<float>& bothorzvals,
@@ -119,8 +120,6 @@ protected:
     TypeSet<Line2>	tracesegs_;
 
     mutable Threads::Lock	lock_;
-public:
-
 };
 
 
