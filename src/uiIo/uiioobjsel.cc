@@ -69,22 +69,6 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
 }
 
 
-/* DEPRECATED */
-
-uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
-			      const uiString& ttxt, bool multisel,
-			      bool havesetsurvdefault,
-			      bool withwriteopts )
-    : mConstructorInitListStart
-    , setup_( ttxt )
-{
-    setup_.multisel( multisel )
-	  .allowsetsurvdefault( havesetsurvdefault )
-	  .withwriteopts( withwriteopts );
-    init( ctio );
-}
-
-
 void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
 {
     const IOObjContext& ctxt = ctio.ctxt;

@@ -72,13 +72,6 @@ public:
 
     void		setSurveyDefaultSubsel(const char*);
 
-			/* DEPRECATED */
-			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const uiString& titletext,
-				      bool multisel,
-				      bool allowsetsurvdefault=false,
-				      bool withwriteopts=true);
-
 protected:
 
     bool		acceptOK(CallBacker*)
