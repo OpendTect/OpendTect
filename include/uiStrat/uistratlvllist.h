@@ -34,6 +34,7 @@ protected:
     bool	anychange_;
 
     void	editLevel(bool);
+    bool        checkLocked() const;
 
     void	fill(CallBacker*);
     void	removeLvl(CallBacker*);
