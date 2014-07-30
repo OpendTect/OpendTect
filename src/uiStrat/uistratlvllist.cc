@@ -71,15 +71,24 @@ uiStratLvlList::~uiStratLvlList()
 }
 
 
-#define mCheckLocked \
-    if ( islocked_ ) { \
-	uiMSG().error( tr("Cannot change Stratigraphy because it is locked")); \
-	return; }
+#define mCheckLocked            if ( checkLocked() ) return;
 
 #define mCheckEmptyList \
     if ( box()->isPresent(sNoLevelTxt) ) \
 	return;
 
+
+bool uiStratLvlList::checkLocked() const
+{
+    if ( islocked_ )
+    {
+	uiMSG().error( tr("Cannot change Stratigraphy because it is locked") );
+	return true;
+    }
+
+    return false;
+}
+    
 
 void uiStratLvlList::editCB( CallBacker* )
 { mCheckLocked; mCheckEmptyList; editLevel( false ); }
