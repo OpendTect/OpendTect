@@ -118,7 +118,8 @@ protected:
 mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 {
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
-    oldctxt.toselect.allowtransls_ = "2D";
+    oldctxt.fixTranslator( "2D" );
+    oldctxt.toselect.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     if ( olddel.isEmpty() )
