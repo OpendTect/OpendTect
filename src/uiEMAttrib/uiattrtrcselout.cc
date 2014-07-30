@@ -102,17 +102,20 @@ void uiAttrTrcSelOut::createSingleHorUI()
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
-						    "Select extra options",
-			        mODHelpKey(mAttrTrcSelOutBetweenHelpID) ) );
+    xparsdlg_ = new uiDialog( this, uiDialog::Setup(
+				"Set Extra Options",mNoDlgTitle,
+				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
+    uiIOObjSel::Setup su( "Calculate between top Horizon" );
+    su.filldef(false);
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( this, ctio_,"Calculate between top Horizon:");
+    objfld_ = new uiIOObjSel( this, ctio_, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
+    su.seltxt( "and bottom Horizon" );
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( this, ctio2_, "and bottom Horizon:" );
+    obj2fld_ = new uiIOObjSel( this, ctio2_, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -193,7 +196,8 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
     seissubselfld_ = uiSeisSubSel::get( prnt,
-	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true) );
+	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true)
+				       .withoutz(true).withstep(false) );
     seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 						       : (uiGroup*)obj2fld_ );
     mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
@@ -215,10 +219,9 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 {
     const char* interplbl = "Interpolate Horizons";
-    const char* flbl = "Full interpolation";
-    const char* plbl = "Partial interpolation";
+    const char* flbl = "Full";
+    const char* plbl = "Partial";
     interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
-    interpfld_->setValue( true );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );
     interpfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,interpSel) );
@@ -232,7 +235,7 @@ void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
     const char* nrsamplabel = "Interpolate if hole is smaller than N traces";
     nrsampfld_ = new uiGenInput( prnt, nrsamplabel,
-				 IntInpSpec().setName("Interpolate") );
+				 IntInpSpec(0).setName("Interpolate") );
     nrsampfld_->attach( alignedBelow, interpfld_ );
 }
 
@@ -240,12 +243,9 @@ void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 {
     BufferString zlabel = createAddWidthLabel();
-    addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(true) );
-    addwidthfld_->setValue( false );
-    addwidthfld_->setPrefHeightInChar(2);
+    addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(false) );
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
-    addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
-					  extraWidthSel) );
+    addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel));
 }
 
 
@@ -312,7 +312,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
     }
 
     const IOObj* outioobj = outpfld_->ioobj();
-    if ( outioobj )
+    if ( !outioobj )
 	return false;
 
     mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_);
@@ -484,7 +484,7 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 
 BufferString uiAttrTrcSelOut::createAddWidthLabel()
 {
-    BufferString zlabel = "Add fixed interval length to main Horizon \n";
+    BufferString zlabel = "Add fixed interval length to Main Horizon \n";
     BufferString ifinterp = "in case of interpolation conflict";
     BufferString ifnointerp = "in case of holes in second Horizon";
     BufferString text = zlabel;
@@ -507,16 +507,7 @@ void uiAttrTrcSelOut::attribSel( CallBacker* )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(lk.lineName()) );
 		if ( ioobj )
-		{
 		    seissubselfld_->setInput( *ioobj );
-		    BufferString inptxt =
-			LineKey( IOM().nameOf( lk.lineName().buf() ),
-				 attrfld_->getInput() );
-		    outpfld_->setInputText( inptxt.buf() );
-		    batchfld_->setJobName( inptxt.buf() );
-
-		    outpfld_->processInput();
-		}
 	    }
 	}
 
@@ -550,7 +541,7 @@ void uiAttrTrcSelOut::interpSel( CallBacker* cb )
 	return;
 
     BufferString text = createAddWidthLabel();
-    addwidthfld_->setTitleText(text);
+    addwidthfld_->setTitleText( text );
 }
 
 
@@ -558,6 +549,7 @@ void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
 {
     if ( !addwidthfld_ )
 	return;
+
     widthfld_->display( addwidthfld_->getBoolValue(), false );
     mainhorfld_->display( addwidthfld_->getBoolValue(), false );
 }
