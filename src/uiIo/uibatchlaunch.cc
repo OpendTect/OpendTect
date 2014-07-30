@@ -99,19 +99,21 @@ uiStartBatchJobDialog::uiStartBatchJobDialog( uiParent* p )
     topgrp->setFrame( true );
     topgrp->setHAlignObj( llb );
 
-    invalidsellbl_ = new uiLabel( this, sKeyNoParFiles );
-    invalidsellbl_->attach( alignedBelow, topgrp );
+    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
+    invalidsellbl_ = new uiLabel( botgrp, sKeyNoParFiles );
 
-    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+    batchfld_ = new uiBatchJobDispatcherSel( botgrp, false,
 					     Batch::JobSpec::Attrib );
     batchfld_->selectionChange.notify(
 				mCB(this,uiStartBatchJobDialog,launcherSel) );
-    batchfld_->attach( alignedBelow, topgrp );
 
-    resumefld_ = new uiGenInput( this, "Use already processed data",
-			BoolInpSpec(false,uiStrings::sYes(),
-                        "No (start from scratch)") );
+    resumefld_ = new uiGenInput( botgrp, "Use already processed data",
+	BoolInpSpec(false,uiStrings::sYes(),"No (start from scratch)") );
     resumefld_->attach( alignedBelow, batchfld_ );
+    resumefld_->attach( alignedBelow, invalidsellbl_ );
+
+    botgrp->setHAlignObj( batchfld_ );
+    botgrp->attach( alignedBelow, topgrp );
 
     afterPopup.notify( mCB(this,uiStartBatchJobDialog,fillList) );
 }
