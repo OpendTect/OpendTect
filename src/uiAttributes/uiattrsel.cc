@@ -134,7 +134,7 @@ void uiAttrSelDlg::initAndBuild( const uiString& seltxt,
 
     setCaption( uiStrings::sSelect(true) );
 
-    uiString title = uiStrings::sSelect(true).arg( seltxt );
+    uiString title = uiStrings::sSelect(true).append(" ").append( seltxt );
     setTitleText( title );
     setName( title.getFullString() );
 
