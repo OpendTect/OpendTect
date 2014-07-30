@@ -381,7 +381,7 @@ void uiODMenuMgr::fillManMenu()
     manmnu_->clear();
     mInsertPixmapItem( manmnu_, tr("Geometry 2D ..."), mManGeomItm,
                        "man2dgeom" );
-    mInsertPixmapItem( manmnu_, tr("Attributes Sets ..."), mManAttrMnuItm,
+    mInsertPixmapItem( manmnu_, tr("Attribute Sets ..."), mManAttrMnuItm,
 		        "man_attrs" );
     mInsertPixmapItem( manmnu_, tr("Bodies ..."), mManBodyMnuItm,
                         "man_body" );
