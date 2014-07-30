@@ -26,7 +26,9 @@ class uiIOObjManipGroup;
 class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
 class uiListBox;
+class uiButton;
 class uiToolButton;
+class uiIOObjInserter;
 class uiListBoxChoiceIO;
 class uiIOObjSelWriteTranslator;
 
@@ -52,12 +54,14 @@ public:
 			    , allowreloc_(false)
 			    , allowremove_(true)
 			    , allowsetdefault_(false)
+			    , withwriteopts_(true)
 			    , confirmoverwrite_(true)	{}
 
 	mDefSetupMemb(OD::ChoiceMode,choicemode);
 	mDefSetupMemb(bool,allowreloc);
 	mDefSetupMemb(bool,allowremove);
 	mDefSetupMemb(bool,allowsetdefault);
+	mDefSetupMemb(bool,withwriteopts);
 	mDefSetupMemb(bool,confirmoverwrite);
 
 	inline bool	isMultiChoice() const
@@ -143,6 +147,8 @@ protected:
     uiIOObjSelWriteTranslator* wrtrselfld_;
     uiToolButton*	mkdefbut_;
     uiListBoxChoiceIO*	lbchoiceio_;
+    ObjectSet<uiButton>	insertbuts_;
+    ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
 
     void		fullUpdate(int);
@@ -156,6 +162,7 @@ protected:
     void		selChg(CallBacker*);
     void		choiceChg(CallBacker*);
     void		filtChg(CallBacker*);
+    void		objInserted(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
@@ -164,6 +171,9 @@ protected:
 private:
 
     void		init(const uiString& st=0);
+    void		mkTopFlds(const uiString&);
+    void		mkWriteFlds();
+    void		mkManipulators();
 
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;

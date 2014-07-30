@@ -26,18 +26,9 @@ mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
 
 uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 							const Translator& trl )
-    : uiGroup(p,BufferString("Write options group for ",getName4Factory(trl)))
+    : uiGroup(p,BufferString("Write options group for ",trl.getDisplayName()))
     , transl_(trl)
 {
-}
-
-
-const char* uiIOObjTranslatorWriteOpts::getName4Factory( const Translator& trl )
-{
-    mDeclStaticString( ret );
-    ret.set( trl.userName() ).add( " [" )
-	.add( trl.group()->userName() ).add( "]" );
-    return ret.str();
 }
 
 
@@ -173,8 +164,21 @@ void uiIOObjSelWriteTranslator::setTranslator( const Translator* trl )
 const Translator* uiIOObjSelWriteTranslator::selectedTranslator() const
 {
     int translidx = translIdx();
+    if ( translidx < 0 && !ctxt_.deftransl.isEmpty() )
+    {
+	const Translator* trl = ctxt_.trgroup->getTemplate(
+					    ctxt_.deftransl, true );
+	if ( trl )
+	    return trl;
+    }
+
     if ( translidx < 0 )
+    {
 	translidx = ctxt_.trgroup->defTranslIdx();
+	if ( translidx < 0 )
+	    { pErrMsg( "Huh" ); translidx = 0; }
+    }
+
     return ctxt_.trgroup->templates()[ translidx ];
 }
 

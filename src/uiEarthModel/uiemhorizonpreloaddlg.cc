@@ -113,7 +113,8 @@ bool uiHorizonPreLoadDlg::loadHorizon( bool is2d )
     PtrMan<CtxtIOObj> ctio = is2d ? mMkCtxtIOObj(EMHorizon2D)
 				  : mMkCtxtIOObj(EMHorizon3D);
 
-    uiIOObjSelDlg hordlg( this, *ctio, uiStrings::sEmptyString(), true );
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg hordlg( this, sdsu, *ctio );
     if ( !hordlg.go() || !hordlg.ioObj() || hordlg.nrChosen() < 1 )
 	return false;
 

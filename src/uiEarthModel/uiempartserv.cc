@@ -496,10 +496,11 @@ void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs )
 
 void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 {
-    CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
-    context.ctxt.forread = true;
+    CtxtIOObj ctio( EMBodyTranslatorGroup::ioContext() );
+    ctio.ctxt.forread = true;
 
-    uiIOObjSelDlg dlg( parent(), context, 0, true );
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg dlg( parent(), sdsu, ctio );
     if ( !dlg.go() )
 	return;
 
@@ -795,13 +796,13 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	}
 	else
 	{
-	    CtxtIOObj context( object->getIOObjContext(),
+	    CtxtIOObj ctio( object->getIOObjContext(),
 			       IOM().get(object->multiID()) );
 
-	    context.ctxt.forread = false;
+	    ctio.ctxt.forread = false;
 
-	    uiIOObjSelDlg dlg( parent(), context );
-	    if ( !context.ioobj )
+	    uiIOObjSelDlg dlg( parent(), ctio );
+	    if ( !ctio.ioobj )
 		dlg.selGrp()->getNameField()->setText( object->name() );
 
 	    if ( !dlg.go() )

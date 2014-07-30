@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiveldesc.h"
 #include "uiseismmjobdispatch.h"
 #include "uiseiswriteopts.h"
+#include "uisegydirectinserter.h"
 
 
 mDefModInitFn(uiSeis)
@@ -28,4 +29,6 @@ mDefModInitFn(uiSeis)
     uiCBVSPS3DOpts::initClass();
     uiSEGYDirectVolOpts::initClass();
     uiSEGYDirectPS3DOpts::initClass();
+
+    uiSEGYDirectVolInserter::initClass();
 }

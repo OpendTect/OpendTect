@@ -146,7 +146,8 @@ bool uiWellPartServer::selectWells( TypeSet<MultiID>& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
-    uiIOObjSelDlg dlg( parent(), *ctio, 0, true );
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg dlg( parent(), sdsu, *ctio  );
     if ( !dlg.go() ) return false;
 
     wellids.setEmpty();

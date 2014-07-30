@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uigroup.h"
 #include "factory.h"
+#include "transl.h"
 
 class IOObj;
 class CtxtIOObj;
-class Translator;
 class IOObjContext;
 class uiLabel;
 class uiComboBox;
@@ -33,15 +33,13 @@ public:
 			uiIOObjTranslatorWriteOpts(uiParent*,const Translator&);
 
     mDefineFactory1ParamInClasswKW( uiIOObjTranslatorWriteOpts, uiParent*,
-			factory, getName4Factory(transl_) )
+			factory, transl_.getDisplayName() )
 
-    static const char*	getName4Factory(const Translator&);
-				//! add using this name
+    static bool		isPresent( const Translator& t )
+			{ return factory().hasName(t.getDisplayName()); }
 
-    static bool		availableFor( const Translator& t )
-			{ return factory().hasName(getName4Factory(t)); }
     static uiIOObjTranslatorWriteOpts* create( uiParent* p, const Translator& t)
-			{ return factory().create(getName4Factory(t),p); }
+			{ return factory().create(t.getDisplayName(),p); }
 
     virtual void	use(const IOPar&)	= 0;
     virtual bool	fill(IOPar&) const	= 0;

@@ -292,7 +292,10 @@ void uiControlView::loadHorizons( CallBacker* )
     const IOObjContext horctxt = is2d ? mIOObjContext( EMHorizon2D )
 				      : mIOObjContext( EMHorizon3D );
     if ( !selhordlg_ )
-	selhordlg_ = new uiIOObjSelDlg( this, horctxt, "Select horizon", true );
+    {
+	uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+	selhordlg_ = new uiIOObjSelDlg( this, sdsu, horctxt );
+    }
     TypeSet<MultiID> horselids;
     if ( selhordlg_->go() )
 	selhordlg_->getChosen( horselids );

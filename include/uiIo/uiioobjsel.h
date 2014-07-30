@@ -20,6 +20,7 @@ class IOObj;
 class CtxtIOObj;
 class IOObjContext;
 class uiIOObjRetDlg;
+class uiIOObjInserter;
 class uiIOObjSelWriteTranslator;
 
 
@@ -44,9 +45,11 @@ public:
 			Setup( const uiString& seltext=0 )
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
+			    , withwriteopts_(true)
 			    , filldef_(true)		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
+	mDefSetupMemb(bool,withwriteopts) //!< only if !forread
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
     };
 
@@ -92,10 +95,11 @@ protected:
     Setup		setup_;
     HelpKey		helpkey_;
     bool		inctiomine_;
+    ObjectSet<uiIOObjInserter> inserters_;
 
-    void		crWriteTranslSelFld();
     void		preFinaliseCB(CallBacker*);
     void		doObjSel(CallBacker*);
+    void		objInserted(CallBacker*);
 
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
@@ -108,6 +112,11 @@ protected:
     void		obtainIOObj();
     bool		existingUsrName(const char*) const;
     void		doCommit(bool) const;
+
+private:
+
+    void		init();
+    void		addInserters();
 
 
 public: // old style

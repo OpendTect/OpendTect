@@ -72,8 +72,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
 {
     CtxtIOObj context = PSEventTranslatorGroup::ioContext();
     context.ctxt.forread = true;
-    uiIOObjSelDlg dlg(  getUiParent(), context,
-			tr("Select prestack events"), false );
+    uiIOObjSelDlg dlg( getUiParent(), context );
     if ( !dlg.go() )
 	return false;
 

@@ -20,6 +20,7 @@ SET(OD_MODULE_SOURCES
 	uiprestacksel.cc
 	uisegydef.cc
 	uisegydefdlg.cc
+	uisegydirectinserter.cc
 	uisegyexamine.cc
 	uisegyexp.cc
 	uisegyimpdlg.cc

@@ -63,7 +63,7 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
 
 void uiCBVSVolOpts::initClass()
 {
-    factory().addCreator( create, getName4Factory(mCBVSVolTranslInstance) );
+    factory().addCreator( create, mCBVSVolTranslInstance.getDisplayName() );
 }
 
 
@@ -95,7 +95,7 @@ bool uiCBVSPS3DOpts::fill( IOPar& iop ) const
 
 void uiCBVSPS3DOpts::initClass()
 {
-    factory().addCreator( create, getName4Factory(mCBVSPS3DTranslInstance) );
+    factory().addCreator( create, mCBVSPS3DTranslInstance.getDisplayName() );
 }
 
 
@@ -124,7 +124,7 @@ bool uiSEGYDirectVolOpts::fill( IOPar& iop ) const
 void uiSEGYDirectVolOpts::initClass()
 {
     factory().addCreator( create,
-			  getName4Factory(mSEGYDirectVolTranslInstance) );
+			  mSEGYDirectVolTranslInstance.getDisplayName() );
 }
 
 
@@ -163,5 +163,5 @@ bool uiSEGYDirectPS3DOpts::fill( IOPar& iop ) const
 void uiSEGYDirectPS3DOpts::initClass()
 {
     factory().addCreator( create,
-			  getName4Factory(mSEGYDirectPS3DTranslInstance) );
+			  mSEGYDirectPS3DTranslInstance.getDisplayName() );
 }

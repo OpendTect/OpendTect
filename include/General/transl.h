@@ -150,6 +150,8 @@ public:
     virtual IOObj*		createWriteIOObj(const IOObjContext&,
 						 const MultiID&) const;
     virtual const char*		iconName() const	{ return "od"; }
+    const char*			getDisplayName() const; //!< "username [group]"
+    static const Translator*	getTemplateInstance(const char* displayname);
 
 protected:
 

@@ -2,14 +2,15 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Bert Bril
- Date:          25/05/2000
+ Author:	Bert Bril
+ Date:		25/05/2000
 ________________________________________________________________________
 
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiioobjselgrp.h"
+#include "uiioobjinserter.h"
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
@@ -158,9 +159,21 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
     if ( !ctio_.ctxt.forread )
 	setup_.choicemode( OD::ChooseOnlyOne );
-
     IOM().to( ctio_.ctxt.getSelKey() );
 
+    mkTopFlds( seltxt );
+    if ( !ctio_.ctxt.forread )
+	mkWriteFlds();
+    if ( ctio_.ctxt.maydooper )
+	mkManipulators();
+
+    setHAlignObj( topgrp_ );
+    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
+}
+
+
+void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
+{
     topgrp_ = new uiGroup( this, "Top group" );
     filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
     filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
@@ -192,60 +205,91 @@ void uiIOObjSelGrp::init( const uiString& seltxt )
     fullUpdate( -1 );
 
     if ( ctio_.ioobj )
-        listfld_->setCurrentItem( ctio_.ioobj->name() );
+	listfld_->setCurrentItem( ctio_.ioobj->name() );
+}
 
-    if ( !ctio_.ctxt.forread )
-    {
-	uiGroup* wrgrp = new uiGroup( this, "Write group" );
+
+void uiIOObjSelGrp::mkWriteFlds()
+{
+    uiGroup* wrgrp = new uiGroup( this, "Write group" );
+    wrtrselfld_ = 0;
+    if ( setup_.withwriteopts_ )
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_, true );
-	nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
-	nmfld_->setElemSzPol( uiObject::SmallMax );
-	nmfld_->setStretch( 2, 0 );
-	if ( !wrtrselfld_->isEmpty() )
-	    nmfld_->attach( alignedBelow, wrtrselfld_ );
-	wrgrp->setHAlignObj( nmfld_ );
-	wrgrp->attach( alignedBelow, topgrp_ );
 
-	LineKey lk( ctio_.name() );
-	const BufferString nm( lk.lineName() );
-	if ( !nm.isEmpty() )
-	{
-	    nmfld_->setText( nm );
-	    const int listidx = listfld_->indexOf( nm );
-	    if ( !ioobjids_.isEmpty() )
-	    {
-		int curitmidx = listidx < 0 ? 0 : listidx;
-		listfld_->setCurrentItem( curitmidx );
-	    }
-	}
-    }
+    nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
+    nmfld_->setElemSzPol( uiObject::SmallMax );
+    nmfld_->setStretch( 2, 0 );
+    if ( wrtrselfld_ && !wrtrselfld_->isEmpty() )
+	nmfld_->attach( alignedBelow, wrtrselfld_ );
+    wrgrp->setHAlignObj( nmfld_ );
+    wrgrp->attach( alignedBelow, topgrp_ );
 
-    if ( ctio_.ctxt.maydooper )
+    LineKey lk( ctio_.name() );
+    const BufferString nm( lk.lineName() );
+    if ( !nm.isEmpty() )
     {
-	manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
-	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
-							 setup_.allowreloc_,
-							 setup_.allowremove_ );
-
-	if ( setup_.allowsetdefault_ )
+	nmfld_->setText( nm );
+	const int listidx = listfld_->indexOf( nm );
+	if ( !ioobjids_.isEmpty() )
 	{
-	    mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
-		"makedefault", "Set as default",
-		mCB(this,uiIOObjSelGrp,makeDefaultCB) );
+	    int curitmidx = listidx < 0 ? 0 : listidx;
+	    listfld_->setCurrentItem( curitmidx );
 	}
     }
+}
 
-    setHAlignObj( topgrp_ );
-    postFinalise().notify( mCB(this,uiIOObjSelGrp,setInitial) );
+
+void uiIOObjSelGrp::mkManipulators()
+{
+    manipgrpsubj = new uiIOObjSelGrpManipSubj( this );
+    manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj,
+						     setup_.allowreloc_,
+						     setup_.allowremove_ );
+    if ( setup_.allowsetdefault_ )
+    {
+	mkdefbut_ = manipgrpsubj->manipgrp_->addButton(
+	    "makedefault", "Set as default",
+	    mCB(this,uiIOObjSelGrp,makeDefaultCB) );
+    }
+
+    if ( !ctio_.ctxt.forread
+      || !uiIOObjInserter::isPresent(*ctio_.ctxt.trgroup) )
+	return;
+
+    uiGroup* insbutgrp = new uiGroup( topgrp_, "IOObj insert buttons" );
+    const ObjectSet<const Translator>& tpls = ctio_.ctxt.trgroup->templates();
+    for ( int idx=0; idx<tpls.size(); idx++ )
+    {
+	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
+	if ( !inserter )
+	    continue;
+	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
+	if ( !tbsu )
+	    { delete inserter; continue; }
+
+	uiButton* but = tbsu->getButton( insbutgrp, false );
+	delete tbsu;
+	const int prevnrbuts = insertbuts_.size();
+	insertbuts_ += but;
+	if ( prevnrbuts > 0 )
+	    but->attach( rightAlignedBelow, insertbuts_[prevnrbuts-1] );
+
+	inserter->objectInserted.notify( mCB(this,uiIOObjSelGrp,objInserted) );
+	inserters_ += inserter;
+    }
+    insbutgrp->attach( centeredLeftOf, listfld_ );
 }
 
 
 uiIOObjSelGrp::~uiIOObjSelGrp()
 {
     deepErase( ioobjids_ );
+    deepErase( inserters_ );
     if ( manipgrpsubj )
+    {
 	delete manipgrpsubj->manipgrp_;
-    delete manipgrpsubj;
+	delete manipgrpsubj;
+    }
     delete ctio_.ioobj;
     delete &ctio_;
     delete lbchoiceio_;
@@ -388,7 +432,8 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     PtrMan<IOObj> ioobj = getIOObj( itmidx );
     if ( ioobj )
     {
-	if ( !wrtrselfld_->hasSelectedTranslator( *ioobj ) )
+	if ( wrtrselfld_ && !wrtrselfld_->isEmpty()
+	    && !wrtrselfld_->hasSelectedTranslator(*ioobj) )
 	{
 	    uiMSG().error( "Sorry, can not change the storage type."
 	       "\nIf you are sure, please remove the existing object first" );
@@ -417,7 +462,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
     ctio_.setObj( ioobj );
     ioobj.set( 0, false );
 
-    if ( ctio_.ioobj )
+    if ( ctio_.ioobj && wrtrselfld_ && !wrtrselfld_->isEmpty() )
     {
 	wrtrselfld_->updatePars( *ctio_.ioobj );
 	IOM().commitChanges( *ctio_.ioobj );
@@ -591,7 +636,14 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
 
 bool uiIOObjSelGrp::createEntry( const char* seltxt )
 {
-    PtrMan<IOObj> ioobj = wrtrselfld_->mkEntry( seltxt );
+    PtrMan<IOObj> ioobj = 0;
+    if ( wrtrselfld_ )
+	ioobj = wrtrselfld_->mkEntry( seltxt );
+    else
+    {
+	CtxtIOObj ctio( ctio_.ctxt ); ctio.setName( seltxt );
+	ctio.fillObj( false ); ioobj = ctio.ioobj;
+    }
     if ( !ioobj )
     {
 	uiMSG().error( "Cannot create ", mObjTypeName, " with this name" );
@@ -718,6 +770,14 @@ void uiIOObjSelGrp::choiceChg( CallBacker* cb )
 void uiIOObjSelGrp::filtChg( CallBacker* )
 {
     fullUpdate( 0 );
+}
+
+
+void uiIOObjSelGrp::objInserted( CallBacker* cb )
+{
+    mCBCapsuleUnpack( MultiID, ky, cb );
+    if ( !ky.isEmpty() )
+	fullUpdate( ky );
 }
 
 

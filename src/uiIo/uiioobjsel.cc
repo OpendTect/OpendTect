@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
+#include "uiioobjinserter.h"
 #include "uiioobjselwritetransl.h"
 
 #include "ctxtioobj.h"
@@ -24,28 +25,79 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uilistbox.h"
+#include "uitoolbutton.h"
 #include "od_helpids.h"
 
 
-uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
-			      const uiString& seltxt, bool multisel,
-			      bool havesetsurvdefault )
-	: uiIOObjRetDlg(p,
-		Setup(c.ctxt.forread ? tr("Input selection")
-                                     : tr("Output selection"),
-			mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) )
-		.nrstatusflds(1))
-	, selgrp_( 0 )
+mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
+
+bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 {
-    uiIOObjSelGrp::Setup sgsu( c.ctxt.forread && multisel
+    const ObjectSet<const Translator>& tpls = grp.templates();
+
+    for ( int idx=0; idx<tpls.size(); idx++ )
+	if ( isPresent(*tpls[idx]) )
+	    return true;
+
+    return false;
+}
+
+
+#define mConstructorInitListStart \
+	uiIOObjRetDlg(p, uiDialog::Setup(ctio.ctxt.forread \
+		? tr("Input selection") : tr("Output selection"), \
+		    mNoDlgTitle, mODHelpKey(mIOObjSelDlgHelpID) ) \
+	    .nrstatusflds(1)) \
+    , selgrp_( 0 )
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
+				const uiString& ttxt )
+    : mConstructorInitListStart
+    , setup_( ttxt )
+{
+    init( ctio );
+}
+
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const uiIOObjSelDlg::Setup& su,
+				const CtxtIOObj& ctio )
+    : mConstructorInitListStart
+    , setup_( su )
+{
+    init( ctio );
+}
+
+
+/* DEPRECATED */
+
+uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& ctio,
+			      const uiString& ttxt, bool multisel,
+			      bool havesetsurvdefault,
+			      bool withwriteopts )
+    : mConstructorInitListStart
+    , setup_( ttxt )
+{
+    setup_.multisel( multisel )
+	  .allowsetsurvdefault( havesetsurvdefault )
+	  .withwriteopts( withwriteopts );
+    init( ctio );
+}
+
+
+void uiIOObjSelDlg::init( const CtxtIOObj& ctio )
+{
+    const IOObjContext& ctxt = ctio.ctxt;
+    uiIOObjSelGrp::Setup sgsu( ctxt.forread && setup_.multisel_
 			? OD::ChooseAtLeastOne : OD::ChooseOnlyOne );
-    sgsu.allowsetdefault( havesetsurvdefault );
-    selgrp_ = new uiIOObjSelGrp( this, c, sgsu );
+    sgsu.allowsetdefault( setup_.allowsetsurvdefault_ );
+    sgsu.withwriteopts( setup_.withwriteopts_ );
+    selgrp_ = new uiIOObjSelGrp( this, ctio, sgsu );
     selgrp_->getListField()->setHSzPol( uiObject::WideVar );
     statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
-    uiString titletext( seltxt );
+    uiString titletext( setup_.titletext_ );
     if ( titletext.isEmpty() )
     {
 	if ( selgrp_->getContext().forread )
@@ -54,34 +106,31 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	    titletext = tr("Select output %1%2");
 
 	if ( selgrp_->getContext().name().isEmpty() )
-	    titletext = titletext.arg( uiString(c.ctxt.trgroup->userName()) );
+	    titletext = titletext.arg( uiString(ctxt.trgroup->userName()) );
 	else
-	    titletext = titletext.arg( uiString( c.ctxt.name() ) );
+	    titletext = titletext.arg( uiString( ctxt.name() ) );
 
-	titletext = titletext.arg( multisel ? "(s)"
-                                            : uiStrings::sEmptyString() );
+	titletext = titletext.arg( setup_.multisel_ ? "(s)"
+					: uiStrings::sEmptyString() );
     }
 
     setTitleText( titletext );
 
-    uiString captn( seltxt );
-    if ( captn.isEmpty() )
+    uiString captn;
+    if ( !selgrp_->getContext().forread )
+	captn = tr("Save %1 as" );
+    else
     {
-	if ( selgrp_->getContext().forread )
-	{
-	    if ( multisel )
-		captn = tr( "Load %1(s)");
-	    else
-		captn = tr( "Load %1" );
-	}
+	if ( setup_.multisel_ )
+	    captn = tr( "Load %1(s)");
 	else
-	    captn = tr("Save %1 as" );
-
-	if ( selgrp_->getContext().name().isEmpty() )
-	    captn = captn.arg( uiString( c.ctxt.trgroup->userName() ) );
-	else
-	    captn = captn.arg( uiString( c.ctxt.name() ) );
+	    captn = tr( "Load %1" );
     }
+
+    if ( selgrp_->getContext().name().isEmpty() )
+	captn = captn.arg( uiString( ctxt.trgroup->userName() ) );
+    else
+	captn = captn.arg( uiString( ctxt.name() ) );
     setCaption( captn );
 
     selgrp_->getListField()->doubleClicked.notify(
@@ -121,10 +170,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c))
     , inctiomine_(true)
-{
-    crWriteTranslSelFld();
-    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-}
+{ init(); }
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
@@ -134,10 +180,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(true)
-{
-    crWriteTranslSelFld();
-    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-}
+{ init(); }
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
@@ -147,10 +190,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
     , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt,c.ctxt))
     , inctiomine_(false)
-{
-    crWriteTranslSelFld();
-    preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
-}
+{ init(); }
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
@@ -159,27 +199,49 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
     , inctiomine_(false)
+{ init(); }
+
+
+void uiIOObjSel::init()
 {
-    crWriteTranslSelFld();
+    workctio_.ctxt.fillTrGroup();
+    wrtrselfld_ = 0;
+    if ( workctio_.ctxt.forread )
+	addInserters();
+    else if ( setup_.withwriteopts_ )
+    {
+	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
+	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+    }
     preFinalise().notify( mCB(this,uiIOObjSel,preFinaliseCB) );
 }
 
 
-void uiIOObjSel::crWriteTranslSelFld()
+void uiIOObjSel::addInserters()
 {
-    workctio_.ctxt.fillTrGroup();
-    if ( workctio_.ctxt.forread )
-	wrtrselfld_ = 0;
-    else
+    const ObjectSet<const Translator>& tpls
+			= workctio_.ctxt.trgroup->templates();
+    for ( int idx=0; idx<tpls.size(); idx++ )
     {
-	wrtrselfld_ = new uiIOObjSelWriteTranslator( this, workctio_, false );
-	wrtrselfld_->attach( rightOf, uiIOSelect::endObj(false) );
+	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
+	if ( !inserter )
+	    continue;
+	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
+	if ( !tbsu )
+	    { delete inserter; continue; }
+
+	uiButton* but = tbsu->getButton( this, true );
+	addExtSelBut( but );
+	delete tbsu;
+	inserter->objectInserted.notify( mCB(this,uiIOObjSel,objInserted) );
+	inserters_ += inserter;
     }
 }
 
 
 uiIOObjSel::~uiIOObjSel()
 {
+    deepErase( inserters_ );
     if ( inctiomine_ )
 	{ delete inctio_.ioobj; delete &inctio_; }
     delete workctio_.ioobj; delete &workctio_;
@@ -404,8 +466,9 @@ bool uiIOObjSel::doCommitInput( bool& alreadyerr )
     {
 	if ( workctio_.ioobj )
 	{
-	    if ( wrtrselfld_ && !wrtrselfld_->hasSelectedTranslator(
-							*workctio_.ioobj ) )
+	    if ( !workctio_.ctxt.forread && wrtrselfld_
+		&& !wrtrselfld_->isEmpty()
+		&& !wrtrselfld_->hasSelectedTranslator(*workctio_.ioobj) )
 		mErrRet( "Cannot change the output format "
 			 "for an already existing entry" )
 
@@ -451,15 +514,9 @@ void uiIOObjSel::doObjSel( CallBacker* )
     if ( !workctio_.ctxt.forread )
 	workctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
-    if ( !dlg ) return;
-    uiIOObjSelGrp* selgrp_ = dlg->selGrp();
-    if ( selgrp_ )
-	selgrp_->setConfirmOverwrite( false ); // handle that here
+    if ( !dlg )
+	return;
 
-    if ( wrtrselfld_ )
-	selgrp_->setDefTranslator( wrtrselfld_->selectedTranslator() );
-    if ( !helpkey_.isEmpty() )
-	dlg->setHelpKey( helpkey_ );
     if ( dlg->go() && dlg->ioObj() )
     {
 	workctio_.setObj( dlg->ioObj()->clone() );
@@ -471,6 +528,14 @@ void uiIOObjSel::doObjSel( CallBacker* )
     }
 
     delete dlg;
+}
+
+
+void uiIOObjSel::objInserted( CallBacker* cb )
+{
+    mCBCapsuleUnpack( MultiID, ky, cb );
+    if ( !ky.isEmpty() )
+	setInput( ky );
 }
 
 
@@ -486,11 +551,33 @@ void uiIOObjSel::objSel()
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, workctio_, setup_.seltxt_ );
+    uiIOObjSelDlg::Setup sdsu( setup_.seltxt_ );
+    sdsu.multisel( false ).withwriteopts( setup_.withwriteopts_ );
+    uiIOObjSelDlg* ret = new uiIOObjSelDlg( this, sdsu, workctio_ );
+    uiIOObjSelGrp* selgrp = ret->selGrp();
+    if ( selgrp )
+    {
+	selgrp->setConfirmOverwrite( false );
+	if ( wrtrselfld_ )
+	    selgrp->setDefTranslator( wrtrselfld_->selectedTranslator() );
+    }
+
+    if ( !helpkey_.isEmpty() )
+	ret->setHelpKey( helpkey_ );
+
+    return ret;
 }
 
 
 IOObj* uiIOObjSel::createEntry( const char* nm )
 {
-    return !wrtrselfld_ ? 0 : wrtrselfld_->mkEntry( nm );
+    if ( !nm || !*nm )
+	return 0;
+
+    if ( wrtrselfld_ )
+	return wrtrselfld_->mkEntry( nm );
+
+    workctio_.setName( nm );
+    workctio_.fillObj( false );
+    return workctio_.ioobj ? workctio_.ioobj->clone() : 0;
 }

@@ -73,19 +73,26 @@ static void adaptCtxt4Steering( const IOObjContext& ct,
 }
 
 
-static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
-				    const uiSeisSel::Setup& s )
+static const CtxtIOObj& getSelDlgCtio( const CtxtIOObj& c,
+					const uiSeisSel::Setup& s )
 {
     adaptCtxt4Steering( c.ctxt, s );
     return c;
 }
 
 
+static uiIOObjSelDlg::Setup getSelDlgSU( const uiSeisSel::Setup& sssu )
+{
+    uiIOObjSelDlg::Setup sdsu;
+    sdsu.allowsetsurvdefault( sssu.allowsetsurvdefault_ );
+    sdsu.withwriteopts( sssu.withwriteopts_ );
+    return sdsu;
+}
+
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& sssu )
-    : uiIOObjSelDlg(p,getDlgCtio(c,sssu),uiStrings::sEmptyString(),false,
-                                 sssu.allowsetsurvdefault_)
+    : uiIOObjSelDlg(p,getSelDlgSU(sssu),getSelDlgCtio(c,sssu))
     , compfld_(0)
     , steerpol_(sssu.steerpol_)
     , zdomainkey_(sssu.zdomkey_)

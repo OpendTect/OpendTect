@@ -493,6 +493,7 @@ void uiSEGYRead::scanDlgClose( CallBacker* )
 {
     mHandleVWCancel(scandlg_,BasicOpts)
     scanner_ = scandlg_->getScanner();
+    outid_ = scandlg_->outputID();
     scandlg_ = 0;
     mSetState( cFinished() );
 }
@@ -501,6 +502,7 @@ void uiSEGYRead::scanDlgClose( CallBacker* )
 void uiSEGYRead::impDlgClose( CallBacker* )
 {
     mHandleVWCancel(impdlg_,BasicOpts)
+    outid_ = impdlg_->outputID();
     impdlg_ = 0;
     mSetState( cFinished() );
 }

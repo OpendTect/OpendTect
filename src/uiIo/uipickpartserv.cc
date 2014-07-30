@@ -164,8 +164,10 @@ bool uiPickPartServer::loadSets( TypeSet<MultiID>& psids, bool poly )
     if ( poly )
 	ctio->ctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
 
-    uiIOObjSelDlg dlg( parent(), *ctio, 0, true );
-    if ( !dlg.go() ) return false;
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg dlg( parent(), sdsu, *ctio );
+    if ( !dlg.go() )
+	return false;
 
     bool retval = false;
     const int nrsel = dlg.nrChosen();

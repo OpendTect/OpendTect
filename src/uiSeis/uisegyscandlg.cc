@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segyfiledata.h"
 #include "segyscanner.h"
 #include "segydirectdef.h"
+#include "segydirecttr.h"
 #include "seispsioprov.h"
 #include "file.h"
 #include "od_strstream.h"
@@ -64,8 +65,9 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     else
     {
 	IOObjContext ctxt = uiSeisSel::ioContext( su.geom_, false );
-	ctxt.fixTranslator( "SEGYDirect" );
+	ctxt.fixTranslator( SEGYDirectSeisTrcTranslator::translKey() );
 	uiSeisSel::Setup sssu( setup_.geom_ );
+	sssu.withwriteopts( false );
 	outfld_ = new uiSeisSel( this, ctxt, sssu );
 	if ( optsfld_ )
 	    outfld_->attach( alignedBelow, optsfld_ );
@@ -207,6 +209,12 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	presentReport( parent(), *indexer_->scanner() );
 
     return true;
+}
+
+
+MultiID uiSEGYScanDlg::outputID() const
+{
+    return outfld_ ? outfld_->key(true) : MultiID::udf();
 }
 
 

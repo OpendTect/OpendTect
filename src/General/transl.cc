@@ -14,6 +14,7 @@
 #include "iopar.h"
 #include "debug.h"
 #include "keystrs.h"
+#include "perthreadrepos.h"
 
 
 static const char* rcsID mUsedVar = "$Id$";
@@ -272,6 +273,45 @@ IOObj* Translator::createWriteIOObj( const IOObjContext& ctxt,
 				     const MultiID& ky ) const
 {
     return ctxt.crDefaultWriteObj( *this, ky );
+}
+
+
+const char* Translator::getDisplayName() const
+{
+    mDeclStaticString( ret );
+    ret.set( userName() ).add( " [" ).add( group()->userName() ).add( "]" );
+    return ret.str();
+}
+
+
+const Translator* Translator::getTemplateInstance( const char* displayname )
+{
+    BufferString trnm( displayname );
+    char* grpptr = trnm.find( ' ' );
+    if ( !grpptr || !*(grpptr+1) )
+	return 0;
+
+    *grpptr = '\0';
+    BufferString grpnm( grpptr+1 );
+    grpnm.unEmbed( '[', ']' );
+    trnm.trimBlanks(); grpnm.trimBlanks();
+    if ( trnm.isEmpty() || grpnm.isEmpty() )
+	return 0;
+
+    const ObjectSet<TranslatorGroup>& grps = TranslatorGroup::groups();
+    const TranslatorGroup* trgrp = 0;
+    for ( int idx=0; idx<grps.size(); idx++ )
+	if ( grpnm == grps[idx]->userName() )
+	    { trgrp = grps[idx]; break; }
+    if ( !trgrp )
+	return 0;
+
+    const ObjectSet<const Translator>& tpls = trgrp->templates();
+    for ( int idx=0; idx<tpls.size(); idx++ )
+	if ( trnm == tpls[idx]->userName() )
+	    return tpls[idx];
+
+    return 0;
 }
 
 
