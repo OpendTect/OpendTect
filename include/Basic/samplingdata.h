@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 
-
 /*!
 \brief Holds the fundamental sampling info: start and interval.
 */
@@ -45,10 +44,12 @@ public:
     template <class FT>	inline void	set(const SamplingData<FT>&);
     template <class FT>	inline void	set(const StepInterval<FT>&);
     inline void				scale(T);
+    inline bool				isUdf() const;
 
     T					start;
     T					step;
 };
+
 
 
 template <class T> inline
@@ -72,9 +73,7 @@ SamplingData<T>::SamplingData( const SamplingData<FT>& sd )
 {}
 
 
-
 #include "ranges.h"
-
 
 template <class T>
 template <class FT> inline
@@ -87,6 +86,7 @@ template <class T> inline
 bool SamplingData<T>::operator==( const SamplingData& sd ) const
 { return start == sd.start && step == sd.step; }
 
+
 template <> inline
 bool SamplingData<float>::operator==( const SamplingData<float>& sd ) const
 {
@@ -95,6 +95,7 @@ bool SamplingData<float>::operator==( const SamplingData<float>& sd ) const
     val = 1 - (step / sd.step);
     return val < 1e-6f && val > -1e-6f;
 }
+
 
 template <> inline
 bool SamplingData<double>::operator==( const SamplingData<double>& sd ) const
@@ -116,7 +117,8 @@ template <class IT> inline
 StepInterval<T> SamplingData<T>::interval( IT nrsamp ) const
 {
     return nrsamp ? StepInterval<T>( start, start+(nrsamp-1)*step, step )
-		  : StepInterval<T>( start, start, step ); }
+		  : StepInterval<T>( start, start, step );
+}
 
 
 template <class T>
@@ -156,24 +158,32 @@ template <class IT> inline
 T SamplingData<T>::atIndex( IT idx ) const
 { return start + step * (T)idx; }
 
+
 template <class T>
 template <class FT> inline
 void SamplingData<T>::set( FT sa, FT se )
 { start = (T)sa; step = (T)se; }
+
 
 template <class T>
 template <class FT> inline
 void SamplingData<T>::set( const StepInterval<FT>& intv )
 { start = (T)intv.start; step = (T)intv.step; }
 
+
 template <class T>
 template <class FT> inline
 void SamplingData<T>::set( const SamplingData<FT>& sd )
 { start = (T)sd.start; step = (T)sd.step; }
 
+
 template <class T> inline
 void SamplingData<T>::scale( T scl )
 { start *= scl; step *= scl; }
 
+
+template <class T> inline
+bool SamplingData<T>::isUdf() const
+{ return mIsUdf(start) || mIsUdf(step); }
 
 #endif

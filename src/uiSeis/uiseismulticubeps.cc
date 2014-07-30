@@ -320,30 +320,29 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() )
 	mErrRet(outfld_->isEmpty() ? "Please enter a name for the output" : 0)
 
-    float offset0 = offsfld_->getfValue(0);
-    float offsetstep = offsfld_->getfValue(1);
-    if ( mIsUdf(offset0) || mIsUdf(offsetstep) )
+    SamplingData<float> offset( offsfld_->getfValue(0),
+				offsfld_->getfValue(1) );
+    if ( offset.isUdf() )
     {
 	uiMSG().error( "Please provide values for the offset start/step" );
 	return false;
     }
 
     const float convfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
-    offset0 *= convfactor;
-    offsetstep *= convfactor;
+    offset.scale( convfactor );
 
     ObjectSet<MultiID> keys; TypeSet<float> offs; TypeSet<int> comps;
     for ( int idx=0; idx<selentries_.size(); idx++ )
     {
 	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
 	keys += new MultiID( entry.ioobj_->key() );
-	offs += offset0 + idx*offsetstep;
+	offs += offset.atIndex( idx );
 	comps += entry.comp_;
     }
 
     BufferString emsg;
-    bool ret = MultiCubeSeisPSReader::writeData(
-		    ctio_.ioobj->fullUserExpr(false), keys, offs, comps, emsg );
+    const bool ret = MultiCubeSeisPSReader::writeData(
+		ctio_.ioobj->fullUserExpr(false), keys, offs, comps, emsg );
     deepErase( keys );
     if ( !ret )
 	mErrRet(emsg)
