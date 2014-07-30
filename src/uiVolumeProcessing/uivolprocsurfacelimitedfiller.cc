@@ -273,8 +273,8 @@ void uiSurfaceLimitedFiller::useGradientCB( CallBacker* )
     const bool useval = usegradientfld_->getBoolValue();
     if ( !useval && !gradgridfld_->nrHorizonsWithData() )
     {
-	uiMSG().warning( tr("No Horizon data available for any horizon, \
-			  could only use constant gradient.") );
+	uiMSG().warning( tr("No Horizon data available for any horizon, "
+                               "could only use constant gradient.") );
 	usegradientfld_->setValue( true );
 	return;
     }
