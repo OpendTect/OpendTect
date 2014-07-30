@@ -182,6 +182,9 @@ public:
     void			setSelected(const TypeSet<MultiID>&);
     const TypeSet<MultiID>&	getSelected() const;
 
+    void			fillPar(IOPar&) const;
+    void			usePar(const IOPar&);
+
     BufferString		getSummary() const;
 
 protected:

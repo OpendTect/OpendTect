@@ -511,6 +511,7 @@ bool uiSurfaceRead::processInput()
 // uiHorizonParSel
 uiHorizonParSel::uiHorizonParSel( uiParent* p, bool is2d, bool wclear )
     : uiCompoundParSel(p,"Horizons")
+    , is2d_(is2d)
 {
     butPush.notify( mCB(this,uiHorizonParSel,doDlg) );
 
@@ -531,8 +532,11 @@ uiHorizonParSel::~uiHorizonParSel()
 
 
 void uiHorizonParSel::setSelected( const TypeSet<MultiID>& ids )
-{ selids_ = ids;
+{
+    selids_ = ids;
+    updateSummary();
 }
+
 
 const TypeSet<MultiID>& uiHorizonParSel::getSelected() const
 { return selids_; }
@@ -571,6 +575,30 @@ void uiHorizonParSel::doDlg(CallBacker *)
 
     selids_.erase();
     dlg.selGrp()->getChosen( selids_ );
+}
+
+
+void uiHorizonParSel::fillPar( IOPar& par ) const
+{
+    for ( int idx=0; idx<selids_.size(); idx++ )
+	par.set( IOPar::compKey(sKey::Horizon(),idx), selids_[idx] );
+}
+
+
+void uiHorizonParSel::usePar( const IOPar& par )
+{
+    TypeSet<MultiID> mids;
+    MultiID mid;
+    for ( int idx=0; ; idx++ )
+    {
+	const bool res = par.get( IOPar::compKey(sKey::Horizon(),idx), mid );
+	if ( !res ) break;
+
+	mids += mid;
+    }
+
+    setSelected( mids );
+    updateSummary();
 }
 
 

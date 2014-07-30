@@ -15,48 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpollayermodel.h"
 
 #include "uigeninput.h"
-
-
-uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
-    : uiGroup(p,"Interpolation Layer Model Selection")
-{
-    const TypeSet<uiString>& usrnms =
-	uiInterpolationLayerModelGrp::factory().getUserNames();
-    layermodelfld_ = new uiGenInput( this, "Interpolate along",
-				     StringListInpSpec(usrnms) );
-    layermodelfld_->valuechanged.notify(
-		mCB(this,uiInterpolationLayerModel,selCB) );
-
-    const BufferStringSet& names =
-	uiInterpolationLayerModelGrp::factory().getNames();
-    for ( int idx=0; idx<names.size(); idx++ )
-    {
-	uiInterpolationLayerModelGrp* grp =
-		uiInterpolationLayerModelGrp::factory().create(
-		names.get(idx), this, true );
-	if ( grp )
-	    grp->attach( alignedBelow, layermodelfld_ );
-	grps_ += grp;
-    }
-
-    setHAlignObj( layermodelfld_ );
-    selCB( 0 );
-}
-
-
-void uiInterpolationLayerModel::selCB( CallBacker* )
-{
-    for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->display( layermodelfld_->getIntValue()==idx );
-}
-
-
-bool uiInterpolationLayerModel::fillPar( IOPar& par ) const
-{
-    const int cursel = layermodelfld_->getIntValue();
-    return grps_[cursel]->fillPar( par );
-}
-
+#include "uilabel.h"
 
 
 // uiInterpolationLayerModelGrp
@@ -66,6 +25,7 @@ mImplFactory1Param( uiInterpolationLayerModelGrp, uiParent*,
 uiInterpolationLayerModelGrp::uiInterpolationLayerModelGrp( uiParent* p )
     : uiGroup(p)
 {
+    setStretch( 1, 1 );
 }
 
 
@@ -90,3 +50,48 @@ bool uiZSliceInterpolationModel::fillPar( IOPar& par ) const
 
     return true;
 }
+
+
+// uiInterpolationLayerModel
+uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
+    : uiGroup(p,"Interpolation Layer Model Selection")
+{
+    const TypeSet<uiString>& usrnms =
+	uiInterpolationLayerModelGrp::factory().getUserNames();
+    layermodelfld_ = new uiGenInput( this, "Interpolate along",
+				     StringListInpSpec(usrnms) );
+    layermodelfld_->valuechanged.notify(
+		mCB(this,uiInterpolationLayerModel,selCB) );
+
+    const BufferStringSet& names =
+	uiInterpolationLayerModelGrp::factory().getNames();
+    for ( int idx=0; idx<names.size(); idx++ )
+    {
+	uiInterpolationLayerModelGrp* grp =
+		uiInterpolationLayerModelGrp::factory().create(
+		names.get(idx), this, true );
+	if ( !grp ) continue;
+
+	grps_ += grp;
+	grp->attach( alignedBelow, layermodelfld_ );
+    }
+
+    setHAlignObj( layermodelfld_ );
+    selCB( 0 );
+}
+
+
+void uiInterpolationLayerModel::selCB( CallBacker* )
+{
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	grps_[idx]->display( layermodelfld_->getIntValue()==idx );
+}
+
+
+bool uiInterpolationLayerModel::fillPar( IOPar& par ) const
+{
+    const int cursel = layermodelfld_->getIntValue();
+    return grps_[cursel]->fillPar( par );
+}
+
+

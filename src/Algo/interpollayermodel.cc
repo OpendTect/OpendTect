@@ -22,7 +22,7 @@ InterpolationLayerModel::~InterpolationLayerModel()
 {}
 
 const char* InterpolationLayerModel::sKeyModelType()
-{ return "Interpolation Layer Model"; }
+{ return sKey::Type(); }
 
 void InterpolationLayerModel::fillPar( IOPar& par ) const
 { par.set( sKeyModelType(), factoryKeyword() ); }

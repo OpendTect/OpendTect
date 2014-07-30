@@ -233,6 +233,9 @@ void WellLogInterpolator::getWellIDs( TypeSet<MultiID>& ids ) const
 
 bool WellLogInterpolator::prepareComp( int )
 {
+    if ( !layermodel_->prepare(0) )
+	return false;
+
     Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
     if ( !output || !output->nrCubes() || !gridder_ || is2D() )
 	return false;
@@ -263,6 +266,10 @@ static TypeSet<float> getMDs( const WellLogInfo& info, float layeridx )
     TypeSet<float> mds;
     const float idx0 = floor( layeridx );
     const float idx1 = ceil( layeridx );
+    if ( !info.intersections_.validIdx(idx0) ||
+	 !info.intersections_.validIdx(idx1) )
+	return mds;
+
     const float dah0 = info.intersections_[ mNINT32(idx0) ];
     const float dah1 = info.intersections_[ mNINT32(idx1) ];
     if ( mIsZero(idx1-idx0,mDefEps) )
@@ -303,6 +310,7 @@ bool WellLogInterpolator::computeBinID( const BinID& bid, int )
 	vals[idx] = mUdf(float);
 	const float z = float( (output->z0_+idx) * output->zstep_ );
 	const float layeridx = layermodel_->getLayerIndex( bid, z );
+	if ( mIsUdf(layeridx) ) continue;
 
 	TypeSet<Coord> wellposes;
 	TypeSet<float> logvals;

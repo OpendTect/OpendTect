@@ -41,7 +41,7 @@ public:
 			mDefaultFactoryInstantiation1Param(
 				uiInterpolationLayerModelGrp,
 				uiZSliceInterpolationModel,uiParent*,
-				"Z Slice","Z Slices")
+				"ZSlices","Z Slices")
 
     bool		fillPar(IOPar&) const;
 

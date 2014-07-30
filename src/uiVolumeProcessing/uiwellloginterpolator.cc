@@ -110,11 +110,13 @@ void uiWellLogInterpolator::algoChg( CallBacker* )
 
 bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
 {
-    if ( !uiStepDialog::acceptOK( cb ) )
+    if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
     IOPar laymodpar;
-    layermodelfld_->fillPar( laymodpar );
+    if ( !layermodelfld_->fillPar(laymodpar) )
+	return false;
+
     hwinterpolator_.setLayerModel( laymodpar );
 
     hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );

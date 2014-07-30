@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "factory.h"
 #include "typeset.h"
 
+class TaskRunner;
+
 mExpClass(Algo) InterpolationLayerModel
 {
 public:
@@ -29,6 +31,7 @@ public:
     virtual float	getLayerIndex(const BinID&,float z) const	= 0;
     virtual void	getAllZ(const BinID&,TypeSet<float>&) const	= 0;
     virtual bool	hasPosition(const BinID&) const			= 0;
+    virtual bool	prepare(TaskRunner*)				= 0;
 
     static const char*	sKeyModelType();
 
@@ -44,8 +47,8 @@ public:
 			mDefaultFactoryInstantiation(
 				InterpolationLayerModel,
 				ZSliceInterpolationModel,
-				"Z Slice",
-				sFactoryKeyword())
+				"ZSlices",
+				"Z Slices")
 
     void		setCubeSampling(const CubeSampling&);
 
@@ -54,6 +57,7 @@ public:
     float		getLayerIndex(const BinID&,float z) const;
     void		getAllZ(const BinID&,TypeSet<float>&) const;
     bool		hasPosition(const BinID&) const;
+    bool		prepare(TaskRunner*)	{ return true; }
 
 protected:
 
@@ -61,4 +65,3 @@ protected:
 };
 
 #endif
-
