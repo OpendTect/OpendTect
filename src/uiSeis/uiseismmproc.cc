@@ -82,7 +82,6 @@ static int defltNrInlPerJob( const IOPar& inputpar )
     { \
 	delete outioobjinfo_; outioobjinfo_ = 0; \
 	new uiLabel( this, s ); \
-	setOkText( tr("Dismiss") ); setCancelText( uiStrings::sEmptyString() );\
         return; \
     }
 
@@ -96,6 +95,9 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     , lsfileemitted_(false)
     , is2d_(false)
 {
+    setOkText( tr("Dismiss") );
+    setCancelText( uiStrings::sEmptyString() );
+
     if ( parfnm_.isEmpty() )
 	mRetInvJobSpec( tr("Invalid job specification file pass."
 		"\nMissing 'File name' key.") )
@@ -118,7 +120,6 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     const bool doresume = Batch::JobDispatcher::userWantsResume(iop)
 			&& SeisJobExecProv::isRestart(iop);
 
-    setOkText( tr("  Dismiss  ") );
     setTitleText( isMultiHost()  ? tr("Multi-Machine Processing")
 			: (is2d_ ? tr("Multi-line processing")
 				 : tr("Line-split processing")) );
