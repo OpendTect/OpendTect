@@ -344,10 +344,8 @@ bool GeometryManager::write( Geometry& geom, uiString& errmsg )
 	}
 
 	if ( indexOf(geom.getID()) < 0 )
-	{
 	    addGeometry( geom );
-	    geom.unRef();
-	}
+	geom.unRef();
 
 	return true;
     }
