@@ -58,7 +58,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    break;
     }
 
-    CallBack cb(mCB(this,uiWellZRangeSelector,getFromScreen));
+    CallBack cb( mCB(this,uiWellZRangeSelector,getFromScreen) );
     zchoicefld_ = new uiGenInput( this, s.txtofmainfld_,
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb );
@@ -109,7 +109,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     abovefld_->valuechanged.notify( cb );
     abovefld_->attach( alignedBelow, zselectionflds_[0] );
 
-    belowfld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
+    belowfld_ = new uiGenInput( this, uiStrings::sEmptyString(),
                                 FloatInpSpec(0).setName("below") );
     belowfld_->setElemSzPol( uiObject::Medium );
     belowfld_->attach( rightOf, abovefld_ );
@@ -396,14 +396,13 @@ void uiMultiWellLogSel::init()
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, uiStrings::sWells(true), 
+	llbw = new uiLabeledListBox( this, uiStrings::sWells(true),
                                      OD::ChooseZeroOrMore,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
 	llbl->attach( rightTo, llbw );
-	setHAlignObj( llbw );
     }
 
     zchoicefld_->attach( alignedBelow, llbw ? llbw : llbl );
@@ -434,8 +433,7 @@ void uiMultiWellLogSel::update()
     deepErase( wellobjs_ );
 
     Well::InfoCollector wic;
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, wic ) ) return;
+    if ( !TaskRunner::execute(0,wic) ) return;
 
     BufferStringSet markernms;
     BufferStringSet lognms;
