@@ -16,12 +16,12 @@ ________________________________________________________________________
 #include "uiattremout.h"
 
 class CtxtIOObj;
+class HorSampling;
 class NLAModel;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
 class uiSeisSubSel;
-class HorSampling;
 
 namespace Attrib { class DescSet; }
 
@@ -33,7 +33,7 @@ interval around a surface
 
 
 mExpClass(uiEMAttrib) uiAttrTrcSelOut : public uiAttrEMOut
-{ mODTextTranslationClass(uiAttrTrcSelOut);
+{ mODTextTranslationClass(uiAttrTrcSelOut)
 public:
 			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
 				      const NLAModel*,const MultiID&,bool);
@@ -70,7 +70,7 @@ protected:
     void		createCubeBoundsFlds(uiParent*);
     void		createOutputFld(uiParent*);
 
-    BufferString	createAddWidthLabel();
+    uiString		createAddWidthLabel();
 
     CtxtIOObj&		ctio_;
     CtxtIOObj&		ctio2_;
@@ -100,4 +100,3 @@ private:
 };
 
 #endif
-

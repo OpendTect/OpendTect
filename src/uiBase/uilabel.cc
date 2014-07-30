@@ -70,6 +70,11 @@ void uiLabel::init( const uiString& txt, uiObject* buddy )
     setText( txt );
     setTextSelectable( true );
 
+    const QString& qstr = txt.getQtString();
+    const int nrnewlines = qstr.count( "\n" );
+    if ( nrnewlines>0 )
+	setPrefHeightInChar( nrnewlines+1 );
+
     if ( buddy )
     {
 	body_->setBuddy( buddy->body()->qwidget() );

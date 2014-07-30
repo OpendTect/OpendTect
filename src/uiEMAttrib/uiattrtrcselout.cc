@@ -102,17 +102,20 @@ void uiAttrTrcSelOut::createSingleHorUI()
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    xparsdlg_ = new uiDialog( this, uiDialog::Setup(tr("Extra options dialog"),
-						    tr("Select extra options"),
-			        mODHelpKey(mAttrTrcSelOutBetweenHelpID) ) );
+    xparsdlg_ = new uiDialog( this, uiDialog::Setup(
+				tr("Set Extra Options"),mNoDlgTitle,
+				mODHelpKey(mAttrTrcSelOutBetweenHelpID)) );
     xparsdlg_->postFinalise().notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
 
+    uiIOObjSel::Setup su( tr("Calculate between top Horizon") );
+    su.filldef(false);
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( this, ctio_,"Calculate between top Horizon:");
+    objfld_ = new uiIOObjSel( this, ctio_, su );
     objfld_->attach( alignedBelow, attrfld_ );
 
+    su.seltxt( tr("and bottom Horizon") );
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( this, ctio2_, "and bottom Horizon:" );
+    obj2fld_ = new uiIOObjSel( this, ctio2_, su );
     obj2fld_->setInput( MultiID("") );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectionDone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
@@ -206,7 +209,7 @@ void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 {
-    const char* outsidevallabel = "Value outside computed area";
+    const uiString outsidevallabel = tr("Value outside computed area");
     outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_
 						   : (uiGroup*)seissubselfld_ );
@@ -216,11 +219,10 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 {
-    const char* interplbl = "Interpolate Horizons";
-    const char* flbl = "Full interpolation";
-    const char* plbl = "Partial interpolation";
+    const uiString interplbl = tr("Interpolate Horizons");
+    const uiString flbl = tr("Full");
+    const uiString plbl = tr("Partial");
     interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
-    interpfld_->setValue( true );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );
     interpfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,interpSel) );
@@ -232,28 +234,26 @@ void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
-    const char* nrsamplabel = "Interpolate if hole is smaller than N traces";
+    const uiString nrsamplabel =
+		tr("Interpolate if hole is smaller than N traces");
     nrsampfld_ = new uiGenInput( prnt, nrsamplabel,
-				 IntInpSpec().setName("Interpolate") );
+				 IntInpSpec(0).setName("Interpolate") );
     nrsampfld_->attach( alignedBelow, interpfld_ );
 }
 
 
 void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 {
-    BufferString zlabel = createAddWidthLabel();
-    addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(true) );
-    addwidthfld_->setValue( false );
-    addwidthfld_->setPrefHeightInChar(2);
+    const uiString zlabel = createAddWidthLabel();
+    addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(false) );
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
-    addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
-					  extraWidthSel) );
+    addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel));
 }
 
 
 void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 {
-    widthfld_ = new uiGenInput( prnt,tr("Extra interval length"),
+    widthfld_ = new uiGenInput( prnt, tr("Extra interval length"),
                                 FloatInpSpec() );
     widthfld_->attach( alignedBelow, addwidthfld_ );
     widthfld_->checked.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel) );
@@ -317,7 +317,7 @@ bool uiAttrTrcSelOut::prepareProcessing()
     }
 
     const IOObj* outioobj = outpfld_->ioobj();
-    if ( outioobj )
+    if ( !outioobj )
 	return false;
 
     mDynamicCastGet(uiSeis2DSubSel*,seis2dsubsel,seissubselfld_);
@@ -488,13 +488,12 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 }
 
 
-BufferString uiAttrTrcSelOut::createAddWidthLabel()
+uiString uiAttrTrcSelOut::createAddWidthLabel()
 {
-    BufferString zlabel = "Add fixed interval length to main Horizon \n";
-    BufferString ifinterp = "in case of interpolation conflict";
-    BufferString ifnointerp = "in case of holes in second Horizon";
-    BufferString text = zlabel;
-    text += interpfld_->isChecked()? ifinterp : ifnointerp;
+    uiString text = tr("Add fixed interval length to Main Horizon");
+    uiString ifinterp = tr("in case of interpolation conflict");
+    uiString ifnointerp = tr("in case of holes in second Horizon");
+    text.append( interpfld_->isChecked() ? ifinterp : ifnointerp, true );
     return text;
 }
 
@@ -546,8 +545,8 @@ void uiAttrTrcSelOut::interpSel( CallBacker* cb )
     if ( !addwidthfld_ )
 	return;
 
-    BufferString text = createAddWidthLabel();
-    addwidthfld_->setTitleText(text);
+    const uiString text = createAddWidthLabel();
+    addwidthfld_->setTitleText( text );
 }
 
 
@@ -555,6 +554,7 @@ void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
 {
     if ( !addwidthfld_ )
 	return;
+
     widthfld_->display( addwidthfld_->getBoolValue(), false );
     mainhorfld_->display( addwidthfld_->getBoolValue(), false );
 }
