@@ -118,7 +118,8 @@ protected:
 mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 {
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
-    oldctxt.toselect.allowtransls_ = "2D";
+    oldctxt.fixTranslator( "2D" );
+    oldctxt.toselect.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     if ( olddel.isEmpty() )
@@ -207,9 +208,11 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     ctio.ctxt.deftransl.add( TwoDDataSeisTrcTranslator::translKey() );
     if ( iop.find(sKey::DataType()) )
     {
-	BufferString datatype;
+	BufferString datatype, zdomain;
 	iop.get( sKey::DataType(), datatype );
+	iop.get( ZDomain::sKey(), zdomain );
 	ctio.ctxt.toselect.require_.set( sKey::Type(), datatype );
+	ctio.ctxt.toselect.require_.set( ZDomain::sKey(), zdomain );
     }
 
     FixedString attribnm = iop.find( sKey::Attribute() );
