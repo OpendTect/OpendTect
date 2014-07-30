@@ -149,6 +149,36 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
     StepInterval<int> trcrg = hortrcrg;
     trcrg.limitTo( trcrange_ );
 
+    /*If a horizon has a gap which covers the fault, extend the range to the
+     nearby defined trace on the horizon. */
+    for ( int idx=1; ; idx++ )
+    {
+	const int trcnr = trcrg.start-trcrg.step*idx;
+	if ( trcnr < hortrcrg.start ) break;
+
+	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
+	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z;
+	if ( !mIsUdf(curz) )
+	{
+	    trcrg.start = trcnr;
+	    break;
+	}
+    }
+
+    for ( int idx=1; ; idx++ )
+    {
+	const int trcnr = trcrg.stop+trcrg.step*idx;
+	if ( trcnr > hortrcrg.stop ) break;
+
+	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
+	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z;
+	if ( !mIsUdf(curz) )
+	{
+	    trcrg.stop = trcnr;
+	    break;
+	}
+    }
+
     int prevtrc = -1;
     float firstz, prevz = mUdf(float);
     BinID firstbid, prevbid;
@@ -168,11 +198,10 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 	if ( !mIsUdf(prevz) )
 	{
 	    const int nrsteps = (trcnr-prevtrc)/hortrcrg.step;
-	    if ( nrsteps==1 )
+	    Coord intsect = getIntersection(prevbid,prevz,curbid,curz);
+	    if ( intsect.isDefined() )
 	    {
-		const Coord intsect =
-		    getIntersection(prevbid,prevz,curbid,curz);
-		if ( intsect.isDefined() )
+		if ( nrsteps==1 )
 		{
 		    pos1bids += prevbid; pos1zs += prevz;
 		    pos2bids += curbid; pos2zs += curz;
@@ -180,29 +209,29 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 		    if ( firstonly )
 			return true;
 		}
-	    }
-	    else
-	    {
-		Coord intsect = getIntersection(prevbid,prevz,curbid,prevz);
-		if ( intsect.isDefined() )
+		else
 		{
-		    pos1bids += prevbid; pos1zs += prevz;
-		    pos2bids += curbid; pos2zs += prevz;
-		    intersections += intsect;
-		    if ( firstonly )
-			return true;
-		}
-
-		if ( fabs(prevz-curz) >= SI().zStep() )
-		{
-		    intsect = getIntersection(prevbid,curz,curbid,curz);
+		    intsect = getIntersection(prevbid,prevz,curbid,prevz);
 		    if ( intsect.isDefined() )
 		    {
-			pos2bids += prevbid; pos2zs += curz;
-			pos1bids += curbid; pos1zs += curz;
+			pos1bids += prevbid; pos1zs += prevz;
+			pos2bids += curbid; pos2zs += prevz;
 			intersections += intsect;
 			if ( firstonly )
 			    return true;
+		    }
+
+		    if ( fabs(prevz-curz) >= SI().zStep() )
+		    {
+			intsect = getIntersection(prevbid,curz,curbid,curz);
+			if ( intsect.isDefined() )
+			{
+			    pos2bids += prevbid; pos2zs += curz;
+			    pos1bids += curbid; pos1zs += curz;
+			    intersections += intsect;
+			    if ( firstonly )
+				return true;
+			}
 		    }
 		}
 	    }
@@ -218,36 +247,23 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
     if ( !allowextend )
 	return false;
 
-    const bool extendfromstart = trcrange_.includes(hortrcrg.start, false);
-				// || trcrange_.stop < hortrcrg.start;
-    if ( extendfromstart )
-    {
-	const BinID extbid( isinl_ ? nr_ : trcrange_.start,
-			    isinl_ ? trcrange_.start : nr_ );
-	const Coord intsect = getIntersection(extbid, firstz, firstbid, firstz);
-	if ( intsect.isDefined() )
-	{
-	    pos1bids += extbid; pos1zs += firstz;
-	    pos2bids += firstbid; pos2zs += firstz;
-	    intersections += intsect;
-	    return true;
-	}
-    }
+    const BinID extbid0( isinl_ ? nr_ : trcrange_.start,
+			 isinl_ ? trcrange_.start : nr_ );
+    const BinID extbid1( isinl_ ? nr_:trcrange_.stop,
+			 isinl_ ? trcrange_.stop:nr_ );
+    const Coord intsect0 = getIntersection(extbid0, firstz, firstbid, firstz);
+    const Coord intsect1 = getIntersection(prevbid,prevz,extbid1,prevz);
+    if ( !intsect0.isDefined() && !intsect1.isDefined() )
+	return false;
 
-    const bool extendfromstop = trcrange_.includes(hortrcrg.stop, false);
-				// || trcrange_.start > hortrcrg.stop;
-    if ( extendfromstop )
-    {
-	const BinID extbid( isinl_ ? nr_:trcrange_.stop,
-			    isinl_ ? trcrange_.stop:nr_ );
-	const Coord intsect = getIntersection(prevbid,prevz,extbid,prevz);
-	if ( intsect.isDefined() )
-	{
-	    pos1bids += prevbid; pos1zs += prevz;
-	    pos2bids += extbid; pos2zs += prevz;
-	    intersections += intsect;
-	}
-    }
+    const bool usethefirst = (intsect0.isDefined() && !intsect1.isDefined())
+	|| trcrg.stop <= hortrcrg.start;
+
+    pos1bids += usethefirst ? extbid0 : prevbid;
+    pos1zs += usethefirst ? firstz : prevz;
+    pos2bids += usethefirst ? firstbid : extbid1;
+    pos2zs += usethefirst ? firstz : prevz;
+    intersections += usethefirst ? intsect0 : intsect1;
 
     return intersections.size();
 }
