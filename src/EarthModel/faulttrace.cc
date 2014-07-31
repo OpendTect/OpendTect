@@ -180,7 +180,8 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
     }
 
     int prevtrc = -1;
-    float firstz, prevz = mUdf(float);
+    float firstz, prevz;
+    firstz = prevz = mUdf(float);
     BinID firstbid, prevbid;
 
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
