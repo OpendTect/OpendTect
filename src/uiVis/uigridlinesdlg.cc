@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
     label += "grid"; \
     name##fld_ = new uiCheckBox( this, label ); \
     name##fld_->activated.notify( mCB(this,uiGridLinesDlg,showGridLineCB) ); \
-    name##spacingfld_ = new uiGenInput( this, tr("Spacing (Start/Stop)"), \
+    name##spacingfld_ = new uiGenInput( this, spacingstr, \
 					IntInpIntervalSpec(true) ); \
     name##spacingfld_->attach( leftAlignedBelow, name##fld_ );
 
@@ -45,6 +45,8 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     , crlspacingfld_( 0 )
     , zspacingfld_( 0 )
 {
+    const uiString spacingstr = tr("Spacing (Start/Stop)");
+
     BufferString label;
     CubeSampling cs( pdd->getCubeSampling(true,true) );
     if ( cs.nrInl()>1 )
