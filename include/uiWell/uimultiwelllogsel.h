@@ -22,6 +22,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiLabel;
 class uiListBox;
+class uiListBoxChoiceIO;
 class uiLabeledListBox;
 
 namespace Well { class MarkerSet; }
@@ -157,9 +158,13 @@ protected:
 
     uiListBox*		wellsfld_;
     uiListBox*		logsfld_;
+    uiListBoxChoiceIO*	wellschoiceio_;
 
     void		init();
-    void		onFinalise( CallBacker* );
+    void		onFinalise(CallBacker*);
+
+    void		readWellChoiceDone(CallBacker*);
+    void		writeWellChoiceReq(CallBacker*);
 };
 
 #endif
