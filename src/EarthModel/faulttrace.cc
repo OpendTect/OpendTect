@@ -180,8 +180,7 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
     }
 
     int prevtrc = -1;
-    float firstz, prevz;
-    firstz = prevz = mUdf(float);
+    float firstz=mUdf(float), prevz = mUdf(float);
     BinID firstbid, prevbid;
 
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
@@ -252,13 +251,17 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 			 isinl_ ? trcrange_.start : nr_ );
     const BinID extbid1( isinl_ ? nr_:trcrange_.stop,
 			 isinl_ ? trcrange_.stop:nr_ );
-    const Coord intsect0 = getIntersection(extbid0, firstz, firstbid, firstz);
-    const Coord intsect1 = getIntersection(prevbid,prevz,extbid1,prevz);
-    if ( !intsect0.isDefined() && !intsect1.isDefined() )
+    const Coord intsect0 = mIsUdf(firstz) ? Coord::udf() :
+	getIntersection(extbid0, firstz, firstbid, firstz);
+    const Coord intsect1 = mIsUdf(prevz) ? Coord::udf() :
+	getIntersection(prevbid,prevz,extbid1,prevz);
+    const bool defined0 = intsect0.isDefined();
+    const bool defined1 = intsect1.isDefined();
+    if ( !defined0 && !defined1 )
 	return false;
 
-    const bool usethefirst = (intsect0.isDefined() && !intsect1.isDefined())
-	|| trcrg.stop <= hortrcrg.start;
+    const bool usethefirst = (defined0 && !defined1) ||
+	(defined0 && defined1 && trcrg.stop <= hortrcrg.start);
 
     pos1bids += usethefirst ? extbid0 : prevbid;
     pos1zs += usethefirst ? firstz : prevz;
