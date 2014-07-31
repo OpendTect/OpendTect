@@ -626,7 +626,8 @@ public:
     {
 	PtrMan<CtxtIOObj> objio = fltpar_.is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
 						: mMkCtxtIOObj(EMFault3D);
-	uiIOObjSelDlg dlg( this, *objio, 0, true );
+	uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+	uiIOObjSelDlg dlg( this, sdsu, *objio );
 	if ( !dlg.go() )
 	    return;
 
@@ -778,7 +779,8 @@ void uiFaultParSel::doDlg( CallBacker* )
     {
 	PtrMan<CtxtIOObj> ctio = is2d_ ? mMkCtxtIOObj(EMFaultStickSet)
 				       : mMkCtxtIOObj(EMFault3D);
-	uiIOObjSelDlg dlg( this, *ctio, "Select Faults", true );
+	uiIOObjSelDlg::Setup sdsu( "Select Faults" ); sdsu.multisel( true );
+	uiIOObjSelDlg dlg( this, sdsu, *ctio );
 	dlg.selGrp()->getListField()->setChosen( selfaultnms_ );
 	if ( !dlg.go() ) return;
 

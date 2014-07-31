@@ -44,6 +44,8 @@ public :
     Notifier<uiSEGYReadDlg> writeParsReq;
     Notifier<uiSEGYReadDlg> preScanReq;
 
+    virtual MultiID	outputID() const	= 0;
+
 protected:
 
     const Setup		setup_;

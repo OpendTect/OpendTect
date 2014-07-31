@@ -30,7 +30,8 @@ public :
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
 
-    void		use(const IOObj*,bool force);
+    virtual void	use(const IOObj*,bool force);
+    virtual MultiID	outputID() const;
 
 
 protected:

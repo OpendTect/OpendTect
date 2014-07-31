@@ -174,14 +174,15 @@ uiSurfaceLimitedFiller::~uiSurfaceLimitedFiller()
 void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 {
     PtrMan<CtxtIOObj> allhorio =  mMkCtxtIOObj(EMHorizon3D);
-    PtrMan<uiIOObjSelDlg> dlg = new uiIOObjSelDlg( this, *allhorio, 0, true );
-    if ( !dlg->go() )
+    uiIOObjSelDlg::Setup sdsu; sdsu.multisel( true );
+    uiIOObjSelDlg dlg( this, sdsu, *allhorio );
+    if ( !dlg.go() )
 	return;
 
-    const int nrsel = dlg->nrChosen();
+    const int nrsel = dlg.nrChosen();
     for ( int idx=0; idx<nrsel; idx++ )
     {
-	const MultiID mid( dlg->chosenID(idx) );
+	const MultiID mid( dlg.chosenID(idx) );
 	if ( !surfacelist_.isPresent(mid) )
 	{
 	    IOObj* ioobj = IOM().get( mid );
@@ -189,6 +190,8 @@ void uiSurfaceLimitedFiller::addSurfaceCB( CallBacker* )
 	    delete ioobj;
 	}
     }
+
+    delete allhorio->ioobj;
 }
 
 

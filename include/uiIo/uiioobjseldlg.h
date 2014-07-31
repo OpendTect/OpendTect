@@ -36,10 +36,25 @@ public:
 mExpClass(uiIo) uiIOObjSelDlg : public uiIOObjRetDlg
 { mODTextTranslationClass(uiIOObjSelDlg);
 public:
+
+    mExpClass(uiIo) Setup
+    {
+    public:
+			Setup( const uiString& titletxt=0 )
+			    : titletext_(titletxt)
+			    , multisel_(false)
+			    , allowsetsurvdefault_(true)
+			    , withwriteopts_(true)		{}
+
+	mDefSetupMemb(uiString,titletext)
+	mDefSetupMemb(bool,multisel)
+	mDefSetupMemb(bool,allowsetsurvdefault)
+	mDefSetupMemb(bool,withwriteopts)
+    };
+
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
-				      const uiString& seltxt=0,
-				      bool multisel=false,
-				      bool allowsetsurvdefault=false);
+				      const uiString& titletxt=0);
+			uiIOObjSelDlg(uiParent*,const Setup&,const CtxtIOObj&);
 
     int			nrChosen() const	{ return selgrp_->nrChosen(); }
     const MultiID&	chosenID(int i=0) const { return selgrp_->chosenID(i); }
@@ -57,13 +72,26 @@ public:
 
     void		setSurveyDefaultSubsel(const char*);
 
+			/* DEPRECATED */
+			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
+				      const uiString& titletext,
+				      bool multisel,
+				      bool allowsetsurvdefault=false,
+				      bool withwriteopts=true);
+
 protected:
 
     bool		acceptOK(CallBacker*)
 			{ return selgrp_->updateCtxtIOObj(); }
     void		statusMsgCB(CallBacker*);
 
+    Setup		setup_;
     uiIOObjSelGrp*	selgrp_;
+
+private:
+
+    void		init(const CtxtIOObj&);
+
 };
 
 

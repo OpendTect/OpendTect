@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uivarwizard.h"
 #include "seistype.h"
+#include "multiid.h"
 class IOObj;
 class CtxtIOObj;
 namespace SEGY { class Scanner; }
@@ -66,6 +67,7 @@ public:
     void		fillPar(IOPar&) const;
     SEGY::Scanner*	getScanner()		//!< Becomes yours
 			{ SEGY::Scanner* s = scanner_; scanner_ = 0; return s; }
+    MultiID		outputID() const	{ return outid_; }
 
     static CtxtIOObj*	getCtio(bool,Seis::GeomType);
 
@@ -77,6 +79,7 @@ protected:
     RevType		rev_;
     int			revpolnr_;
     SEGY::Scanner*	scanner_;
+    MultiID		outid_;
 
     uiSEGYDefDlg*	defdlg_;
     uiSEGYImpDlg*	impdlg_;

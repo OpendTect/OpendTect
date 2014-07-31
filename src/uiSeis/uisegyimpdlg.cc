@@ -114,6 +114,12 @@ void uiSEGYImpDlg::use( const IOObj* ioobj, bool force )
 }
 
 
+MultiID uiSEGYImpDlg::outputID() const
+{
+    return seissel_->key( true );
+}
+
+
 class uiSEGYImpSimilarDlg : public uiDialog
 { mODTextTranslationClass(uiSEGYImpSimilarDlg)
 public:

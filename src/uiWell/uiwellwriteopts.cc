@@ -51,5 +51,5 @@ bool uiODWellWriteOpts::fill( IOPar& iop ) const
 
 void uiODWellWriteOpts::initClass()
 {
-    factory().addCreator( create, getName4Factory(mODWellTranslInstance) );
+    factory().addCreator( create, mODWellTranslInstance.getDisplayName() );
 }

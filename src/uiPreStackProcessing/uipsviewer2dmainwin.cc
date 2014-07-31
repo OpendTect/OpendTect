@@ -270,33 +270,34 @@ void uiViewer2DMainWin::clearAuxData()
 
 void uiViewer2DMainWin::loadMuteCB( CallBacker* cb )
 {
-    uiIOObjSelDlg mutesel( this, *mMkCtxtIOObj(MuteDef),
-			   "Select Mute for display", true );
-    if ( mutesel.go() )
+    uiIOObjSelDlg::Setup sdsu( "Select Mute for display" );
+    sdsu.multisel( true );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(MuteDef);
+    uiIOObjSelDlg mutesel( this, sdsu, *ctio );
+    if ( !mutesel.go() )
+	return;
+
+    clearAuxData();
+    deepErase( mutes_ );
+    mutecolors_.erase();
+    const int nrsel = mutesel.nrChosen();
+    for ( int idx=0; idx<nrsel; idx++ )
     {
-	clearAuxData();
-	deepErase( mutes_ );
-	mutecolors_.erase();
-	const int nrsel = mutesel.nrChosen();
-	for ( int idx=0; idx<nrsel; idx++ )
-	{
-	    const MultiID& muteid = mutesel.chosenID( idx );
-	    PtrMan<IOObj> muteioobj = IOM().get( muteid );
-		if ( !muteioobj ) continue;
-	    PreStack::MuteDef* mutedef = new PreStack::MuteDef;
-	    BufferString errmsg;
-	    if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj,errmsg) )
-	    {
-		uiMSG().error( errmsg );
-		continue;
-	    }
+	const MultiID& muteid = mutesel.chosenID( idx );
+	PtrMan<IOObj> muteioobj = IOM().get( muteid );
+	if ( !muteioobj )
+	    continue;
+	PreStack::MuteDef* mutedef = new PreStack::MuteDef;
+	BufferString errmsg;
+	if ( !MuteDefTranslator::retrieve(*mutedef,muteioobj,errmsg) )
+	    { uiMSG().error( errmsg ); continue; }
 
-	    mutes_ += mutedef;
-	    mutecolors_ += getRandStdDrawColor();
-	}
-
-	displayMutes();
+	mutes_ += mutedef;
+	mutecolors_ += getRandStdDrawColor();
     }
+
+    displayMutes();
+    delete ctio->ioobj;
 }
 
 
