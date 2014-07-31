@@ -358,6 +358,8 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 	}
     }
 
+    eventcatcher_.releaseEventsCB( 0 );
+
     Threads::Locker locker( eventcatcher_.eventqueuelock_ );
     eventcatcher_.eventqueue_ += foremostinfo;
     locker.unlockNow();
