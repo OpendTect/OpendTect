@@ -109,10 +109,12 @@ public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}
 
-    bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
 
+    bool		isUserSelectable(bool) const	{ return true; }
+
+    bool		implRemove(const IOObj*) const;
     bool		implRename( const IOObj*,const char*,
 				    const CallBack* cb=0) const;
 
