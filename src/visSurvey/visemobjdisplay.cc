@@ -44,6 +44,11 @@ const char* EMObjectDisplay::sKeySections()	{ return "Displayed Sections"; }
 const char* EMObjectDisplay::sKeyPosAttrShown() { return "Pos Attribs shown"; }
 
 
+static TypeSet<EM::SectionID> addsectionids_;
+static ObjectSet<EMObjectDisplay> addsectionidemobjdisplays_;
+static Threads::Mutex addsectionidlock_;
+
+
 EMObjectDisplay::EMObjectDisplay()
     : VisualObjectImpl(true)
     , em_( EM::EMM() )
@@ -97,6 +102,16 @@ EMObjectDisplay::~EMObjectDisplay()
 	removeEMStuff(); //Lets hope for the best.
     }
 
+    addsectionidlock_.lock();
+    for ( int idx=addsectionids_.size()-1; idx>=0; idx-- )
+    {
+	if ( addsectionidemobjdisplays_[idx]==this )
+	{
+	    addsectionidemobjdisplays_.removeSingle( idx );
+	    addsectionids_.removeSingle( idx );
+	}
+    }
+    addsectionidlock_.unLock();
 }
 
 
@@ -486,7 +501,17 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
 	if ( emobject_->sectionIndex(sectionid)>=0 )
-	    addSection( sectionid, 0 );
+	{
+	    if ( emobject_->hasBurstAlert() )
+	    {
+		addsectionidlock_.lock();
+		addsectionids_ += sectionid;
+		addsectionidemobjdisplays_ += this;
+		addsectionidlock_.unLock();
+	    }
+	    else
+		addSection( sectionid, 0 );
+	}
 	else
 	{
 	    removeSectionDisplay(sectionid);
@@ -500,12 +525,24 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )
 	{
+	    addsectionidlock_.lock();
+	    for ( int idx=0; idx<addsectionids_.size(); idx++ )
+	    {
+		if ( addsectionidemobjdisplays_[idx]==this )
+		{
+		    addSection( addsectionids_[idx], 0 );
+		    addsectionidemobjdisplays_.removeSingle( idx );
+		    addsectionids_.removeSingle( idx );
+		    idx--;
+		}
+	    }
+	    addsectionidlock_.unLock();
+
 	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
 		updatePosAttrib(posattribs_[idx]); 
 
 	    triggermovement = true;
 	}
-
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {

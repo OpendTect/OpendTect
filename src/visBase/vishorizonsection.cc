@@ -542,9 +542,27 @@ void HorizonSection::setRightHandSystem( bool yn )
 }
 
 
+void HorizonSection::setChannels( TextureChannels& tc )
+{
+    removeChild( channels_->getInventorNode() );
+    channels_->unRef();
+    channels_ = &tc;
+    channels_->ref();
+    addChild( channels_->getInventorNode() );
+
+    deepErase( cache_ );
+    while ( cache_.size() < nrChannels() )
+	cache_ += 0;
+
+    resetAllTiles( 0 );
+}
+
+
 void HorizonSection::setChannels2RGBA( TextureChannel2RGBA* t )
 {
-    channels_->setChannels2RGBA( t );
+    if ( channels_->getChannels2RGBA() != t )
+	channels_->setChannels2RGBA( t );
+
     if ( channel2rgba_ )
 	channel2rgba_->unRef();
 

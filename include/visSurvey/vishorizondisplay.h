@@ -180,6 +180,7 @@ public:
     void			doOtherObjectsMoved(
 	    				const ObjectSet<const SurveyObject>&,
 					int whichobj );
+
 protected:
     				~HorizonDisplay();
     void			removeEMStuff();
@@ -262,6 +263,9 @@ protected:
     static const char*			sKeyRowRange();
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();
+
+public:
+    void				setSectionDisplayRestore(bool);
 };
 
 

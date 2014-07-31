@@ -191,6 +191,9 @@ protected:
     osgGeo::Horizon3DNode*	osghorizon_;
     
     static const char*		sKeySectionID()	{ return "Section ID"; }
+
+public:
+    void			setChannels(TextureChannels&);
 };
 
 };

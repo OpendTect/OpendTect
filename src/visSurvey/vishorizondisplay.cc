@@ -62,6 +62,35 @@ const char* HorizonDisplay::sKeyIntersectLineMaterialID()
 { return "Intsectline material id"; }
 
 
+static TypeSet<EM::SectionID> oldsectionids_;
+static TypeSet<StepInterval<int> > olddisplayedrowranges_;
+static TypeSet<StepInterval<int> > olddisplayedcolranges_;
+static ObjectSet<visBase::TextureChannel2RGBA> oldtexchannel2rgbas_;
+static ObjectSet<visBase::TextureChannels> oldtexturechannels_;
+static ObjectSet<HorizonDisplay> oldsettingshordisplays_;
+static Threads::Mutex oldsettingslock_;
+
+static void clearOldSettings( const HorizonDisplay& instance )
+{
+    oldsettingslock_.lock();
+    for ( int idx=oldsectionids_.size()-1; idx>=0; idx-- )
+    {
+	if ( oldsettingshordisplays_[idx]==&instance )
+	{
+	    oldsectionids_.removeSingle( idx );
+	    olddisplayedrowranges_.removeSingle( idx );
+	    olddisplayedcolranges_.removeSingle( idx );
+	    oldtexturechannels_[idx]->unRef();
+	    oldtexturechannels_.removeSingle( idx );
+	    oldtexchannel2rgbas_[idx]->unRef();
+	    oldtexchannel2rgbas_.removeSingle( idx );
+	    oldsettingshordisplays_.removeSingle( idx );
+	}
+    }
+    oldsettingslock_.unLock();
+}
+
+
 HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
@@ -140,6 +169,8 @@ HorizonDisplay::~HorizonDisplay()
 	dpman.release( datapackids_[idx] );
 
     deepErase( shifts_ );
+
+    clearOldSettings( *this );
 }
 
 
@@ -911,6 +942,30 @@ float HorizonDisplay::getEdgeLineRadius() const
 { return edgelineradius_; }
 
 
+void HorizonDisplay::setSectionDisplayRestore( bool yn )
+{
+
+    clearOldSettings( *this );
+
+    if ( yn )
+    {
+	oldsettingslock_.lock();
+	for ( int idx=0; idx<sids_.size(); idx++ )
+	{
+	    oldsectionids_ += sids_[idx];
+	    olddisplayedrowranges_ += sections_[idx]->displayedRowRange();
+	    olddisplayedcolranges_ += sections_[idx]->displayedColRange();
+	    oldtexturechannels_ += sections_[idx]->getChannels();
+	    oldtexturechannels_.last()->ref();
+	    oldtexchannel2rgbas_ += sections_[idx]->getChannels2RGBA();
+	    oldtexchannel2rgbas_.last()->ref();
+	    oldsettingshordisplays_ += this;
+	}
+	oldsettingslock_.unLock();
+    }
+}
+
+
 void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 {
     const int idx = sids_.indexOf( sid );
@@ -932,29 +987,58 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, tr );
-   
-    while ( surf->nrChannels()<nrAttribs() ) 
-	surf->addChannel();
 
-    for ( int idx=0; idx<nrAttribs(); idx++ )
-    {
-	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
-	surf->setColTabSequence( idx, coltabsequences_[idx] );
-	surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
-    }
-
-    if ( !sections_.size() && channel2rgba_ )
-    {
-	surf->setChannels2RGBA( channel2rgba_ );
-	EMObjectDisplay::setChannels2RGBA( 0 );
-    }
-
-    surf->getChannels2RGBA()->allowShading( allowshading_ );
-    surf->getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1, tr );
-
     surf->setMaterial( 0 );
+
+    int oldsecidx = -1;
+    oldsettingslock_.lock();
+    for ( int idx=0; idx<oldsectionids_.size(); idx++ )
+    {
+	if ( oldsectionids_[idx]==sid && oldsettingshordisplays_[idx]==this )
+	    oldsecidx = idx;
+    }
+    oldsettingslock_.unLock();
+
+    if ( oldsecidx>=0 )
+    {
+	oldsettingslock_.lock();
+
+	if ( surf->displayedRowRange()!=olddisplayedrowranges_[oldsecidx] ||
+	     surf->displayedColRange()!=olddisplayedcolranges_[oldsecidx] )
+	{
+	    surf->setDisplayRange( olddisplayedrowranges_[oldsecidx],
+				   olddisplayedcolranges_[oldsecidx] );
+	}
+
+	surf->setChannels( *oldtexturechannels_[oldsecidx] );
+	surf->setChannels2RGBA( oldtexchannel2rgbas_[oldsecidx] );
+
+	oldsettingslock_.unLock();
+    }
+    else // initialize texture handler newly created by horizon section
+    {
+	while ( surf->nrChannels()<nrAttribs() ) 
+	    surf->addChannel();
+
+	for ( int idx=0; idx<nrAttribs(); idx++ )
+	{
+	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
+	    surf->setColTabSequence( idx, coltabsequences_[idx] );
+	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
+	}
+
+	if ( !sections_.size() && channel2rgba_ )
+	{
+	    surf->setChannels2RGBA( channel2rgba_ );
+	    EMObjectDisplay::setChannels2RGBA( 0 );
+	}
+
+	surf->getChannels2RGBA()->allowShading( allowshading_ );
+	surf->getChannels2RGBA()->enableInterpolation( enabletextureinterp_ );
+    }
+
     const int index = childIndex(drawstyle_->getInventorNode());
     insertChild( index, surf->getInventorNode() );
     surf->turnOn( !displayonlyatsections_ );
