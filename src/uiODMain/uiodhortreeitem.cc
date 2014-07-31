@@ -65,6 +65,18 @@ void uiODHorizonParentTreeItem::removeChild( uiTreeItem* itm )
 }
 
 
+static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
+						bool yn )
+{
+    for ( int id=visserv.highestID(); id>=0; id-- )
+    {
+	mDynamicCastGet( visSurvey::HorizonDisplay*,hd,visserv.getObject(id) );
+	if ( hd )
+	    hd->setSectionDisplayRestore( yn );
+    }
+}
+
+
 bool uiODHorizonParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -97,6 +109,8 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == mAddIdx || mnuid==mAddCBIdx )
     {
+	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), true );
+
 	ObjectSet<EM::EMObject> objs;
 	applMgr()->EMServer()->selectHorizons( objs, false );
 	for ( int idx=0; idx<objs.size(); idx++ )
@@ -112,6 +126,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	}
 
 	deepUnRef( objs );
+	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), false );
     }
     else if ( mnuid == mNewIdx )
     {

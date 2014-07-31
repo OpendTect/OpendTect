@@ -23,6 +23,7 @@ namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
 {
     class HorizonSection;
+    class HorizonTextureHandler;
     class TextureChannel2RGBA;
     class VertexShape;
 }
@@ -186,6 +187,8 @@ public:
 					int whichobj );
     virtual void		setPixelDensity(float);
 
+    void			setSectionDisplayRestore(bool);
+
 protected:
 				~HorizonDisplay();
     void			removeEMStuff();
@@ -262,6 +265,12 @@ protected:
     ObjectSet< TypeSet<float> >		shifts_;
     bool				validtexture_;
     bool				displaysurfacegrid_;
+
+    TypeSet<EM::SectionID>		oldsectionids_;
+    TypeSet<StepInterval<int> >		olddisplayedrowranges_;
+    TypeSet<StepInterval<int> >		olddisplayedcolranges_;
+
+    ObjectSet<visBase::HorizonTextureHandler> oldhortexhandlers_;
 
     static const char*			sKeyTexture();
     static const char*			sKeyShift();

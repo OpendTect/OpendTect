@@ -119,6 +119,7 @@ bool EMObjectDisplay::setChannels2RGBA( visBase::TextureChannel2RGBA* t )
 visBase::TextureChannel2RGBA* EMObjectDisplay::getChannels2RGBA()
 { return channel2rgba_; }
 
+
 const mVisTrans* EMObjectDisplay::getDisplayTransformation() const
 { return transformation_; }
 
@@ -487,7 +488,12 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     {
 	const EM::SectionID sectionid = cbdata.pid0.sectionID();
 	if ( emobject_->sectionIndex(sectionid)>=0 )
-	    addSection( sectionid, 0 );
+	{
+	    if ( emobject_->hasBurstAlert() )
+		addsectionids_ += sectionid;
+	    else
+		addSection( sectionid, 0 );
+	}
 	else
 	{
 	    removeSectionDisplay(sectionid);
@@ -501,6 +507,12 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
 	burstalertison_ = !burstalertison_;
 	if ( !burstalertison_ )
 	{
+	    while ( !addsectionids_.isEmpty() )
+	    {
+		addSection( addsectionids_[0], 0 );
+		addsectionids_.removeSingle( 0 );
+	    }
+
 	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
 		updatePosAttrib(posattribs_[idx]); 
 
