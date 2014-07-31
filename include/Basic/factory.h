@@ -28,6 +28,10 @@ mExpClass(Basic) FactoryBase
 {
 public:
     virtual			~FactoryBase();
+
+    int				size() const;
+    bool			isEmpty() const;
+
     bool			hasName(const char* n) {return indexOf(n)>=0;}
     const BufferStringSet&	getNames() const;
     const TypeSet<uiString>&	getUserNames() const;
@@ -41,7 +45,7 @@ public:
 				//!<Threadsafe, as each thread will have
 				//!<a different string returned.
 
-    const char*		currentName() const;
+    const char*			currentName() const;
 				/*!<Is set only when calling the create-
 				    functions, so they can know what was
 				    requested.

@@ -20,9 +20,14 @@ FactoryBase::~FactoryBase()
 {}
 
 
+int FactoryBase::size() const
+{ return names_.size(); }
+
+bool FactoryBase::isEmpty() const
+{ return names_.isEmpty(); }
+
 const char* FactoryBase::currentName() const
 { return currentname_.getObject().str(); }
-
 
 BufferString& FactoryBase::errMsg() const
 { return currentname_.getObject(); }
@@ -48,10 +53,7 @@ void FactoryBase::setNames( int idx, const char* name,
 
 
 const BufferStringSet& FactoryBase::getNames() const
-{
-    return names_;
-}
-
+{ return names_; }
 
 const TypeSet<uiString>& FactoryBase::getUserNames() const
 { return usernames_; }
