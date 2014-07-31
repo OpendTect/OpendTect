@@ -28,17 +28,16 @@ namespace VolProc
 class VelGriddingStep;
 
 mExpClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
-{ mODTextTranslationClass(uiVelocityGridder);
+{ mODTextTranslationClass(uiVelocityGridder)
 public:
-
 		mDefaultFactoryInstanciationBase(
 		    VolProc::VelGriddingStep::sFactoryKeyword(),
 		    VolProc::VelGriddingStep::sFactoryDisplayName())
-		    mDefaultFactoryInitClassImpl(uiStepDialog, createInstance);
+		    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
 protected:
-
 				uiVelocityGridder(uiParent*,VelGriddingStep*);
+
     bool			acceptOK(CallBacker*);
     static uiStepDialog*	createInstance(uiParent*,VolProc::Step*);
 
@@ -54,7 +53,6 @@ protected:
 };
 
 
-}; //namespace
+} // namespace VolProc
 
 #endif
-

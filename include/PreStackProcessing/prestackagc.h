@@ -21,14 +21,15 @@ namespace PreStack
 {
 
 /*!
-\brief %AGC
+\brief Processor for PreStack %AGC
 */
 
 mExpClass(PreStackProcessing) AGC : public Processor
 {
 public:
-    				mDefaultFactoryInstantiation( Processor, AGC,
-					"AGC", sFactoryKeyword() );
+    				mDefaultFactoryInstantiation(
+					Processor, AGC,
+					"AGC", sFactoryKeyword() )
 
 				AGC();
     bool			prepareWork();
@@ -57,8 +58,6 @@ protected:
     int				totalnr_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-

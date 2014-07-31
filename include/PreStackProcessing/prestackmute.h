@@ -31,8 +31,9 @@ class MuteDef;
 mExpClass(PreStackProcessing) Mute : public Processor
 { mODTextTranslationClass(Mute)
 public:
-			mDefaultFactoryInstantiation( Processor, Mute,
-				"Mute", sFactoryKeyword() );
+			mDefaultFactoryInstantiation(
+				Processor, Mute,
+				"Mute", sFactoryKeyword() )
 
  			Mute();
     			~Mute();
@@ -74,8 +75,6 @@ protected:
     TypeSet<int>		offsets_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-
