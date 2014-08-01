@@ -343,8 +343,8 @@ void Dragger::setScaleAndTranslation( bool move )
 	trans = osgdragger_->getMatrix().getTrans();
 
     osgdragger_->setMatrix( osg::Matrix::scale(scale, scale, scale ) *
-	osg::Matrix::rotate( osg::Quat( rotangle_,
-				Conv::to<osg::Vec3>( rotation_ ) ) )*
+	osg::Matrix::rotate( M_PI_2, osg::Vec3(1,0,0) ) *
+	osg::Matrix::rotate( rotangle_, Conv::to<osg::Vec3>(rotation_) ) *
 	osg::Matrix::translate( Conv::to<osg::Vec3>( trans ) ) );
 }
 

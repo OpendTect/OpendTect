@@ -253,7 +253,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	if ( idx%2 )
 	{
 	    dragger->setDraggerType( Dragger::Translate1D );
-	    dragger->setRotation( Coord3(0,1,0), M_PI_2 );
+	    dragger->setRotation( Coord3(0,1,0), M_PI_2 ); // confirms default
 	    marker->setMarkersSingleColor( Color(0,153,0) );
 	    markerstyle = MarkerStyle3D::Cylinder;
 	    markerstyle.size_ = 4;
@@ -263,7 +263,7 @@ void RandomTrackDragger::insertKnot( int knotidx, const Coord& pos )
 	else
 	{
 	    dragger->setDraggerType( Dragger::Translate2D );
-	    dragger->setRotation( Coord3(1,0,0), M_PI_2 );
+	    dragger->setRotation( Coord3(1,0,0), 0 );	  // nullifies default
 	    marker->setMarkersSingleColor( Color(0,204,0) );
 	    markerstyle = MarkerStyle3D::Cube;
 	    markerstyle.size_ = 8;
