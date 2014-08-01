@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "welllog.h"
+#include "welllogset.h"
 #include "welltransl.h"
 #include "wellreader.h"
 #include "welltrack.h"
@@ -1495,27 +1496,96 @@ const Color& uiNewWellDlg::getWellColor()
 }
 
 
-uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, Well::Log& wl )
-    : uiDialog(p,uiDialog::Setup("",mNoDlgTitle,mNoHelpKey))
-    , log_(wl)
-{
-    const char* curruom = log_.unitMeasLabel();
-    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
-    BufferString ttl( uom?"Change":"Set", " unit of measure for ", wl.name() );
-    setCaption( ttl );
+//============================================================================
 
-    PropertyRef::StdType ptyp = PropertyRef::Other;
-    if ( uom ) ptyp = uom->propType();
-    uiUnitSel::Setup ussu( ptyp, "Log values are" );
-    ussu.selproptype( true );
-    unfld_ = new uiUnitSel( this, ussu );
-    unfld_->setUnit( uom );
+static const char* collbls[] = { "Well name","Log name",
+				 "Unit of measure", 0 };
+uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
+				  const BufferStringSet wellnms,
+				  const BufferStringSet lognms )
+    : uiDialog(p,uiDialog::Setup("Set units of measure for logs",
+				 mNoDlgTitle,mNoHelpKey))
+{
+    fillTable( wls, wellnms, lognms );
+}
+
+
+void uiWellLogUOMDlg::fillTable( ObjectSet<Well::LogSet> wls,
+			    const BufferStringSet& wellnms,
+			    const BufferStringSet& lognms )
+{
+    uominfotbl_ = new uiTable( this, uiTable::Setup()
+				    .manualresize(true)
+				    .fillrow(true)
+				    .removeselallowed(false),
+				"Units info" );
+    uominfotbl_->setPrefWidth( 520 );
+    uominfotbl_->setPrefHeight( 400 );
+    uominfotbl_->setTableReadOnly( true );
+    uominfotbl_->setColumnLabels( collbls );
+    uominfotbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    const int nrwls = wls.size();
+    const int nrlogs = lognms.size();
+    const int nrrows = nrwls*nrlogs;
+    uominfotbl_->setNrRows( nrrows );
+    int rowidx = -1;
+    for ( int wlsidx=0; wlsidx<nrwls; wlsidx++ )
+    {
+	for ( int lidx=0; lidx<nrlogs; lidx++ )
+	{
+	    rowidx++;
+	    Well::Log* log = wls[wlsidx]->getLog( lognms.get(lidx ) );
+	    if ( !log )
+	    {
+		uominfotbl_->removeRow( rowidx );
+		rowidx--;
+		continue;
+	    }
+
+	    logs_ += log;
+	    const char* curruom = log->unitMeasLabel();
+	    const UnitOfMeasure* uom = UnitOfMeasure::getGuessed( curruom );
+
+	    PropertyRef::StdType ptyp = PropertyRef::Other;
+	    if ( uom ) ptyp = uom->propType();
+	    uiUnitSel::Setup ussu( ptyp, "" );
+	    ussu.selproptype( true );
+	    uiUnitSel* unfld = new uiUnitSel( 0, ussu );
+	    unfld->setUnit( uom );
+	    unflds_ += unfld;
+	    uominfotbl_->setText( RowCol(rowidx,0), wellnms.get(wlsidx) );
+	    uominfotbl_->setText( RowCol(rowidx,1), lognms.get(lidx ) );
+	    uominfotbl_->setCellGroup( RowCol(rowidx,2), unfld );
+	}
+    }
+}
+
+
+bool uiWellLogUOMDlg::setUoMValues()
+{
+    const int logssz = logs_.size();
+    if ( !logssz || logssz!=uominfotbl_->nrRows() )
+    {
+	uiMSG().message( "No logs found." );
+	return false;
+    }
+
+    const int nrrows = uominfotbl_->nrRows();
+    for ( int lidx=0; lidx<nrrows; lidx++ )
+    {
+	Well::Log* log = logs_[lidx];
+	if ( !log )
+	    continue;
+
+	const UnitOfMeasure* newuom = unflds_[lidx]->getUnit();
+	log->setUnitMeasLabel( newuom ? newuom->name().buf() : 0 );
+    }
+
+    return true;
 }
 
 
 bool uiWellLogUOMDlg::acceptOK( CallBacker* )
 {
-    const UnitOfMeasure* newuom = unfld_->getUnit();
-    log_.setUnitMeasLabel( newuom ? newuom->name().buf() : 0 );
-    return true;
+    return setUoMValues();
 }

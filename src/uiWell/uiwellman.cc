@@ -281,7 +281,7 @@ void uiWellMan::setToolButtonProperties()
 	BufferStringSet wellnms;
 	selGroup()->getListField()->getChosen( wellnms );
 	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
-	vwlogtt.add( lognms.getDispString(2) );
+	vwlogtt.add( wellnms.getDispString(2) );
 	mSetButToolTip(logvwbut_,"View",lognms.getDispString(2),vwlogtt);
     }
 
@@ -476,28 +476,25 @@ void uiWellMan::calcLogs( CallBacker* )
 void uiWellMan::logUOMPush( CallBacker* )
 {
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
-    const int selidx = logsfld_->currentItem();
-    if ( selidx < 0 )
+    BufferStringSet lognms;
+    logsfld_->getChosen( lognms );
+    if ( lognms.isEmpty() )
 	mErrRet(tr("No log selected"))
 
-    currdrs_[0]->getLogs();
-    const char* lognm = logsfld_->textOfItem( selidx );
-    Well::LogSet& wls = curwds_[0]->logs();
-    const int curlogidx = wls.indexOf( lognm );
-    if ( curlogidx < 0 )
-	mErrRet( tr("Cannot read selected log") )
-
-    Well::Log& wl = wls.getLog( curlogidx );
-    uiWellLogUOMDlg dlg( this, wl );
-    if ( !dlg.go() ) return;
-
-    BufferString uomlbl = wl.unitMeasLabel();
-    for ( int idwell=0; idwell<currdrs_.size(); idwell++ )
+    BufferStringSet wellnms;
+    selGroup()->getListField()->getChosen( wellnms );
+    const int nrchosenwls = selGroup()->getListField()->nrChosen();
+    ObjectSet<Well::LogSet> wls;
+    for  ( int widx=0; widx<nrchosenwls; widx++ )
     {
-	currdrs_[idwell]->getLogs();
-	Well::Log* log = curwds_[idwell]->logs().getLog( lognm );
-	if ( log ) log->setUnitMeasLabel( uomlbl );
+	currdrs_[widx]->getLogs();
+	wls += &curwds_[widx]->logs();
     }
+
+    uiWellLogUOMDlg dlg( this, wls, wellnms, lognms );
+    if ( !dlg.go() )
+	return;
+
     writeLogs();
 }
 
