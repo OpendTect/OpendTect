@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uilistboxchoiceio.h"
 #include "uitaskrunner.h"
 #include "uiwellmarkersel.h"
 
@@ -58,7 +59,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 	    break;
     }
 
-    CallBack cb(mCB(this,uiWellZRangeSelector,getFromScreen));
+    CallBack cb( mCB(this,uiWellZRangeSelector,getFromScreen) );
     zchoicefld_ = new uiGenInput( this, s.txtofmainfld_,
 					StringListInpSpec(zchoiceset) );
     zchoicefld_->valuechanged.notify( cb );
@@ -389,19 +390,25 @@ void uiMultiWellLogSel::init()
     logsfld_->setHSzPol( hpol );
     logsfld_->setVSzPol( vpol );
 
-    wellsfld_ = 0;
+    wellsfld_ = 0; wellschoiceio_ = 0;
     zchoicefld_->attach( ensureBelow, llbl );
 
     uiLabeledListBox* llbw = 0;
     if ( !singlewid_ )
     {
-	llbw = new uiLabeledListBox( this, "Wells", OD::ChooseAtLeastOne,
+	llbw = new uiLabeledListBox( this, "Wells",
+				     OD::ChooseZeroOrMore,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
 	llbl->attach( rightTo, llbw );
-	setHAlignObj( llbw );
+
+	wellschoiceio_ = new uiListBoxChoiceIO( *wellsfld_, "Well" );
+	mAttachCB( wellschoiceio_->readDone,
+		   uiMultiWellLogSel::readWellChoiceDone );
+	mAttachCB( wellschoiceio_->storeRequested,
+		   uiMultiWellLogSel::writeWellChoiceReq );
     }
 
     zchoicefld_->attach( alignedBelow, llbw ? llbw : llbl );
@@ -540,3 +547,23 @@ void uiMultiWellLogSel::getSelLogNames( BufferStringSet& nms ) const
 void uiMultiWellLogSel::setSelLogNames( const BufferStringSet& nms )
 { logsfld_->setChosen( nms ); }
 
+
+void uiMultiWellLogSel::readWellChoiceDone( CallBacker* )
+{
+    if ( !wellschoiceio_ ) return;
+
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<wellschoiceio_->chosenKeys().size(); idx++ )
+	mids += MultiID( wellschoiceio_->chosenKeys().get(idx).buf() );
+    setSelWellIDs( mids );
+}
+
+
+void uiMultiWellLogSel::writeWellChoiceReq( CallBacker* )
+{
+    if ( !wellschoiceio_ ) return;
+
+    wellschoiceio_->keys().setEmpty();
+    for ( int idx=0; idx<wellobjs_.size(); idx++ )
+	wellschoiceio_->keys().add( wellobjs_[idx]->key().buf() );
+}
