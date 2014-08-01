@@ -40,6 +40,17 @@ inline const char* className( const T& t )
     OD::programmerErrMsg(msg,::className(*this),__FILE__,__LINE__)
     //!< Usual access point for programmer error messages
 
+#define pErrMsgOnce(msg) \
+{ \
+    mDefineStaticLocalObject( bool, __message_shown__, = false ); \
+    if ( !__message_shown__ ) \
+    { \
+	__message_shown__ = true; \
+	pErrMsg(msg); \
+    } \
+}
+
+
 # define pFreeFnErrMsg(msg,fn) \
     OD::programmerErrMsg( msg, fn, __FILE__, __LINE__ )
     //!< Usual access point for programmer error messages in free functions
