@@ -232,6 +232,12 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 }
 
 
+mExtern(Basic) void UnsetOSEnvVar( const char* env )
+{
+    unsetenv( env );
+}
+
+
 static void loadEntries( const char* fnm, IOPar* iop=0 )
 {
     if ( !fnm || !*fnm )

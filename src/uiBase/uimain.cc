@@ -251,6 +251,7 @@ QtTabletEventFilter* uiMain::tabletfilter_ = 0;
 
 static void initQApplication()
 {
+    uiMain::cleanQtOSEnv();
     QApplication::setDesktopSettingsAware( true );
 
     QCoreApplication::setOrganizationName( "dGB");
@@ -324,6 +325,12 @@ static const char* getStyleFromSettings()
     }
 
     return 0;
+}
+
+
+void uiMain::cleanQtOSEnv()
+{
+    UnsetOSEnvVar( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
 }
 
 
