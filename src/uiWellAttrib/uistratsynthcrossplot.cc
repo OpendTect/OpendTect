@@ -412,9 +412,38 @@ bool uiStratSynthCrossplot::launchCrossPlot( const DataPointSet& dps,
     uiDataPointSet::Setup su( wintitl, false );
     uiDataPointSet* uidps = new uiDataPointSet( this, dps, su, 0 );
     uidps->showXY( false );
+    removeUnusedDescs();
     seisattrfld_->descSet().fillPar( uidps->storePars() );
     uidps->show();
     return false;
+}
+
+
+void uiStratSynthCrossplot::removeUnusedDescs()
+{
+    const Attrib::DescSet& ds = seisattrfld_->descSet();
+    for ( int idx=ds.size()-1; idx>=0; idx-- )
+    {
+	const Attrib::Desc* storeddesc = ds.desc(idx);
+	if ( storeddesc && !storeddesc->isStored() )
+	    continue;
+	bool founduser = false;
+	for ( int atridx=0; atridx<ds.size(); atridx++ )
+	{
+	    const Attrib::Desc* nonstoreddesc = ds.desc( atridx );
+	    if ( nonstoreddesc && nonstoreddesc->isStored() )
+		continue;
+	    const Attrib::Desc* inputdesc = nonstoreddesc->getInput(0);
+	    if ( inputdesc->id() == storeddesc->id() )
+	    {
+		founduser = true;
+		break;
+	    }
+	}
+
+	if ( !founduser )
+	    const_cast<Attrib::DescSet*>(&ds)->removeDesc(storeddesc->id());
+    }
 }
 
 
