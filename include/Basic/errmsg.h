@@ -58,6 +58,7 @@ inline const char* className( const T& t )
 #else
 
 # define pErrMsg(msg)
+# define pErrMsgOnce(msg)
 # define pFreeFnErrMsg(msg,fn)
 
 #endif
