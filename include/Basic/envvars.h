@@ -30,7 +30,7 @@ mGlobal(Basic) bool GetEnvVarYN(const char*,bool defltval=false);
 mGlobal(Basic) int GetEnvVarIVal(const char*,int defltval);
 mGlobal(Basic) double GetEnvVarDVal(const char*,double defltval);
 mGlobal(Basic) float GetEnvVarFVal(const char*,float defltval);
-
+mGlobal(Basic) void UnsetOSEnvVar(const char*);
 mGlobal(Basic) const char* GetOSEnvVar(const char*);
 		/*!< Raw 'getenv' call.
 		    \note Will return a pointer to a threadsafe static buffer.

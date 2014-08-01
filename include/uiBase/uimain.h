@@ -56,6 +56,7 @@ public:
     static uiMain&	theMain();
     static void		setXpmIconData( const char** xpmdata ); 
     static const char**	XpmIconData;
+    static void		cleanQtOSEnv();
 
     static void		flushX();
 
