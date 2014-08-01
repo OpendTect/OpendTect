@@ -450,7 +450,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
 void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
 {
-    if ( doLayerModelIO(foradd) )
+    if ( doLayerModelIO(foradd) && foradd )
 	forceRedispAll( true );
 }
 
