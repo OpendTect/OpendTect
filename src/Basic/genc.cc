@@ -234,7 +234,11 @@ mExtern(Basic) const char* GetOSEnvVar( const char* env )
 
 mExtern(Basic) void UnsetOSEnvVar( const char* env )
 {
+#ifdef __msvc__
+    _putenv_s( env, "" );
+#else
     unsetenv( env );
+#endif
 }
 
 
