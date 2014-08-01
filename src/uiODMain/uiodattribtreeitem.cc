@@ -35,12 +35,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
-{ return "Select Attribute"; }
+uiString uiODAttribTreeItem::sKeySelAttribMenuTxt()
+{ return tr("Select Attribute"); }
 
 
-const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
-{ return "Save Color Settings"; }
+uiString uiODAttribTreeItem::sKeyColSettingsMenuTxt()
+{ return tr("Save Color Settings"); }
 
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )

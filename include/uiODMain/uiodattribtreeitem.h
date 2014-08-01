@@ -20,7 +20,7 @@ ________________________________________________________________________
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
 mExpClass(uiODMain) uiODAttribTreeItem : public uiODDataTreeItem
-{
+{ mODTextTranslationClass(mODTextTranslationClass);
 public:
     			uiODAttribTreeItem( const char* parenttype );
 			~uiODAttribTreeItem();
@@ -28,8 +28,8 @@ public:
     static void		createSelMenu(MenuItem&,int visid,int attrib,
 	    			      int sceneid);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
-    static const char*	sKeySelAttribMenuTxt();
-    static const char*	sKeyColSettingsMenuTxt();
+    static uiString	sKeySelAttribMenuTxt();
+    static uiString	sKeyColSettingsMenuTxt();
 protected:
 
     bool		anyButtonClick(uiTreeViewItem*);
