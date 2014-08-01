@@ -369,7 +369,7 @@ uiString Horizon2DGridCreator::uiNrDoneText() const
 { return "Positions done"; }
 
 
-bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* tr )
+bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
 {
     BufferString prefix;
     par.get( Horizon2DGridCreator::sKeyPrefix(), prefix );
@@ -391,7 +391,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* tr )
     for ( int idx=0; idx<horids.size(); idx++ )
     {
 	MultiID mid( horids.get(idx) );
-	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, tr );
+	RefMan<EM::EMObject> emobj = em.loadIfNotFullyLoaded( mid, taskrunner );
 
 	mDynamicCastGet(EM::Horizon3D*,horizon3d,emobj.ptr());
 	if ( !horizon3d ) continue;
@@ -415,12 +415,12 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* tr )
 }
 
 
-bool Horizon2DGridCreator::finish( TaskRunner* tr )
+bool Horizon2DGridCreator::finish( TaskRunner* taskrunner )
 {
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
 	PtrMan<Executor> saver = horizons_[idx]->saver();
-	TaskRunner::execute( tr, *saver );
+	TaskRunner::execute( taskrunner, *saver );
     }
 
     return true;

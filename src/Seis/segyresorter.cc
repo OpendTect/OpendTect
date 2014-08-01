@@ -86,10 +86,10 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 	{
 	    case Seis::Vol:
 	    {
-		Translator* tr = ioobj->createTranslator();
-		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,tr)
+		Translator* trans = ioobj->createTranslator();
+		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,trans)
 		if ( !str )
-		    { msg_ = "Input must be scanned SEG-Y cube"; delete tr; }
+		    { msg_ = "Input must be scanned SEG-Y cube"; delete trans; }
 		else
 		{
 		    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );

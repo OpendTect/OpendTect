@@ -102,13 +102,29 @@ bool Task::shouldContinue()
 
 uiString Task::uiMessage() const
 {
-    return message();
+    const char* oldmsg = message();
+    if ( oldmsg && *oldmsg )
+    {
+	pErrMsgOnce("Use uiMessage() in your implementation "
+		    "instead of message()");
+	return oldmsg;
+    }
+
+    return tr("Working");
 }
 
 
 uiString Task::uiNrDoneText() const
 {
-    return nrDoneText();
+    const char* oldmsg = nrDoneText();
+    if ( oldmsg && *oldmsg )
+    {
+	pErrMsgOnce("Use uiNrDoneText() in your implementation instead of "
+		"nrDoneText()");
+	return oldmsg;
+    }
+
+    return tr("Nr Done");
 }
 
 
@@ -210,8 +226,8 @@ void TaskGroup::setParallel(bool)
 #define mUpdateProgressMeter \
 	progressmeter_->setNrDone( nrDone() ); \
 	progressmeter_->setTotalNr( totalNr() ); \
-	progressmeter_->setNrDoneText( nrDoneText() ); \
-	progressmeter_->setMessage( message() )
+	progressmeter_->setNrDoneText( uiNrDoneText() ); \
+	progressmeter_->setMessage( uiMessage() )
 
 void SequentialTask::setProgressMeter( ProgressMeter* pm )
 {
@@ -316,7 +332,7 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
     if ( progressmeter_ )
     {
 	progressmeter_->setName( name() );
-	progressmeter_->setMessage( message() );
+	progressmeter_->setMessage( uiMessage() );
     }
 }
 
@@ -330,8 +346,8 @@ void ParallelTask::addToNrDone( int nr )
     if ( progressmeter_ )
     {
 	progressmeter_->setTotalNr( totalnrcache_ );
-	progressmeter_->setNrDoneText( nrDoneText() );
-	progressmeter_->setMessage( message() );
+	progressmeter_->setNrDoneText( uiNrDoneText() );
+	progressmeter_->setMessage( uiMessage() );
 	progressmeter_->setNrDone( nrDone() );
     }
 }
@@ -365,7 +381,7 @@ bool ParallelTask::executeParallel( bool parallel )
     if ( progressmeter_ )
     {
 	progressmeter_->setName( name() );
-	progressmeter_->setMessage( message() );
+	progressmeter_->setMessage( uiMessage() );
 	progressmeter_->setTotalNr( totalnrcache_ );
 	progressmeter_->setStarted();
     }

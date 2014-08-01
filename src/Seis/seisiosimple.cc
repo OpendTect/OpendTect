@@ -169,7 +169,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	sa = wrr_ = new SeisTrcWriter( ioobj );
     else
 	sa = rdr_ = new SeisTrcReader( ioobj );
-    errmsg_ = sa->errMsg().getFullString();
+    errmsg_ = sa->errMsg();
     if ( !errmsg_.isEmpty() )
 	return;
 
@@ -233,7 +233,7 @@ bool fetch( SeisTrc& trc )
 	{ sios_.nrdone_++; return true; }
 
     if ( rv < 0 )
-	errmsg_ = sios_.message();
+	errmsg_ = sios_.uiMessage();
     return false;
 }
 

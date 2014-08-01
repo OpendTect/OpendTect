@@ -41,13 +41,13 @@ void HorizonGridder::setHorSampling( const HorSampling& hs )
     hs_ = hs;
 }
 
-bool HorizonGridder::init( TaskRunner* tr )
+bool HorizonGridder::init( TaskRunner* taskrunner )
 {
     infomsg_ = "";
     if ( !fltdataprov_ && !faultids_.isEmpty() )
 	fltdataprov_ = new FaultTrcDataProvider();
 
-    if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,tr) )
+    if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,taskrunner) )
     {
 	infomsg_ = "Cannot read Faults";
 	return false;
@@ -135,7 +135,7 @@ bool HorizonGridder::setFrom( float* data, od_int64 target,
 }
 
 
-bool HorizonGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+bool HorizonGridder::setArray2D( Array2D<float>& arr, TaskRunner* taskrunner )
 {
     return true;
 }
@@ -180,18 +180,19 @@ void InvDistHor3DGridder::setHorSampling( const HorSampling& hs )
 }
 
 
-bool InvDistHor3DGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+bool InvDistHor3DGridder::setArray2D( Array2D<float>& arr,
+				      TaskRunner* taskrunner )
 {
-    return setArray( arr, tr );
+    return setArray( arr, taskrunner );
 }
 
 
-bool InvDistHor3DGridder::initFromArray( TaskRunner* tr )
+bool InvDistHor3DGridder::initFromArray( TaskRunner* taskrunner )
 {
-    if ( !InverseDistanceArray2DInterpol::initFromArray(tr) )
+    if ( !InverseDistanceArray2DInterpol::initFromArray(taskrunner) )
 	return false;
 
-    return HorizonGridder::init( tr );
+    return HorizonGridder::init( taskrunner );
 }
 
 
@@ -231,18 +232,18 @@ void TriangulationHor3DGridder::setHorSampling( const HorSampling& hs )
 
 
 bool TriangulationHor3DGridder::setArray2D( Array2D<float>& arr,
-					    TaskRunner* tr )
+					    TaskRunner* taskrunner )
 {
-    return setArray( arr, tr );
+    return setArray( arr, taskrunner );
 }
 
 
-bool TriangulationHor3DGridder::initFromArray( TaskRunner* tr )
+bool TriangulationHor3DGridder::initFromArray( TaskRunner* taskrunner )
 {
-    if ( !TriangulationArray2DInterpol::initFromArray(tr) )
+    if ( !TriangulationArray2DInterpol::initFromArray(taskrunner) )
 	return false;
 
-    return HorizonGridder::init( tr );
+    return HorizonGridder::init( taskrunner );
 }
 
 
@@ -281,9 +282,10 @@ void ExtensionHor3DGridder::setHorSampling( const HorSampling& hs )
 }
 
 
-bool ExtensionHor3DGridder::setArray2D( Array2D<float>& arr, TaskRunner* tr )
+bool ExtensionHor3DGridder::setArray2D( Array2D<float>& arr,
+					TaskRunner* taskrunner )
 {
-    return setArray( arr, tr );
+    return setArray( arr, taskrunner );
 }
 
 

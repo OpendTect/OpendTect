@@ -26,7 +26,7 @@ namespace Threads { class ConditionVar; }
 	done in multiple steps.  */
 
 mExpClass(Basic) Task : public NamedObject
-{
+{ mODTextTranslationClass(Task);
 public:
     virtual		~Task();
 
@@ -61,10 +61,11 @@ protected:
     Control			control_;
     Threads::ConditionVar*	workcontrolcondvar_;
 
-    //Use uiMessage instead
-    virtual const char* message() const 		{ return "Working"; }
-    //Use uiNrDoneText instead
-    virtual const char* nrDoneText() const		{ return "Nr Done"; }
+private:
+    //Use uiMessage instead. Kept to make old code working
+    virtual const char* message() const			{ return 0; }
+    //Use uiNrDoneText instead. Kept to make old code working
+    virtual const char* nrDoneText() const		{ return 0; }
 };
 
 

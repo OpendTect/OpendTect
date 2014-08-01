@@ -45,7 +45,7 @@ bool Executor::goImpl( od_ostream* strm, bool isfirst, bool islast, int delay )
 
     bool res = SequentialTask::execute();
     if ( !res )
-	*strm << "Error: " << message() << od_newline;
+	*strm << "Error: " << uiMessage().getFullString() << od_newline;
 
     setProgressMeter( 0 );
 

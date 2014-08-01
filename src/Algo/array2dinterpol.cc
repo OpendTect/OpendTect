@@ -207,7 +207,7 @@ else \
 
 void Array2DInterpol::getNodesToFill( const bool* def,
 				      bool* shouldinterpol,
-				      TaskRunner* tr ) const
+				      TaskRunner* taskrunner ) const
 {
     ArrPtrMan<bool> owndef;
     if ( !def )
@@ -667,26 +667,26 @@ InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 
 
 bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr,
-					       TaskRunner* tr )
+					       TaskRunner* taskrunner )
 {
-    if ( !Array2DInterpol::setArray(arr, tr ) )
+    if ( !Array2DInterpol::setArray(arr, taskrunner ) )
 	return false;
 
-    return initFromArray( tr );
+    return initFromArray( taskrunner );
 }
 
 
 bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr,
-					       TaskRunner* tr )
+					       TaskRunner* taskrunner )
 {
-    if ( !Array2DInterpol::setArray(arr, tr ) )
+    if ( !Array2DInterpol::setArray(arr, taskrunner ) )
 	return false;
 
-    return initFromArray( tr );
+    return initFromArray( taskrunner );
 }
 
 
-bool InverseDistanceArray2DInterpol::initFromArray( TaskRunner* tr )
+bool InverseDistanceArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 {
     if ( !arr_ && !arrsetter_ )
 	return false;
@@ -717,7 +717,7 @@ bool InverseDistanceArray2DInterpol::initFromArray( TaskRunner* tr )
     if ( !nodestofill_ )
 	return false;
 
-    getNodesToFill( curdefined_, nodestofill_, tr );
+    getNodesToFill( curdefined_, nodestofill_, taskrunner );
 
     totalnr_ = 0;
     ptr = curdefined_;
@@ -1217,22 +1217,22 @@ TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
 
 
 bool TriangulationArray2DInterpol::setArray( Array2D<float>& arr,
-					       TaskRunner* tr )
+					       TaskRunner* taskrunner )
 {
-    if ( !Array2DInterpol::setArray(arr, tr ) )
+    if ( !Array2DInterpol::setArray(arr, taskrunner ) )
 	return false;
 
-    return initFromArray( tr );
+    return initFromArray( taskrunner );
 }
 
 
 bool TriangulationArray2DInterpol::setArray( ArrayAccess& arr,
-					       TaskRunner* tr )
+					       TaskRunner* taskrunner )
 {
-    if ( !Array2DInterpol::setArray(arr, tr ) )
+    if ( !Array2DInterpol::setArray(arr, taskrunner ) )
 	return false;
 
-    return initFromArray( tr );
+    return initFromArray( taskrunner );
 }
 
 
@@ -1250,7 +1250,7 @@ else \
 }
 
 
-bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
+bool TriangulationArray2DInterpol::initFromArray( TaskRunner* taskrunner )
 {
     if ( !arr_ && !arrsetter_ )
 	return false;
@@ -1268,7 +1268,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     if ( !nodestofill_ )
 	return false;
 
-    getNodesToFill( curdefined_, nodestofill_, tr );
+    getNodesToFill( curdefined_, nodestofill_, taskrunner );
 
     totalnr_ = 0;
     const bool* ptr = curdefined_;
@@ -1364,7 +1364,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     DelaunayTriangulator triangulator( *triangulation_ );
     triangulator.dataIsRandom( false );
 
-    if ( !TaskRunner::execute( tr, triangulator ) )
+    if ( !TaskRunner::execute( taskrunner, triangulator ) )
 	return false;
 
     if ( triangleinterpolator_ )

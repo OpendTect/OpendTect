@@ -220,7 +220,7 @@ public:
 			~FaultTrcDataProvider();
 
     bool		init(const TypeSet<MultiID>&,const HorSampling&,
-			     TaskRunner* tr=0);
+			     TaskRunner* =0);
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
