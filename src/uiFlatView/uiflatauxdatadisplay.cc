@@ -148,7 +148,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	    }
 	}
 
-	item->setPenStyle( linestyle_ );
+	item->setPenStyle( linestyle_, true );
     }
     else
     {
@@ -193,7 +193,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
 	item->setMarkerStyle( style );
 	item->setRotation( style.rotation_ );
-	item->setPenColor( style.color_ );
+	item->setPenColor( style.color_, true );
 	item->setFillColor( style.color_ );
 	item->setPos( poly_[idx] );
     }
