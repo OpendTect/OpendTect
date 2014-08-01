@@ -48,22 +48,22 @@ void Vw2DHorizon2D::setEditors()
 	const uiFlatViewer& vwr = viewerwin_->viewer( ivwr );
 	ConstDataPackRef<Attrib::Flat2DDHDataPack> dp2ddh =
 				vwr.obtainPack( true, true );
-	if ( !dp2ddh ) 
-	{ 
+	if ( !dp2ddh )
+	{
 	    horeds_ += 0;
-	    continue; 
+	    continue;
 	}
 
-	MPE::HorizonFlatViewEditor2D* hored = 
-	    new MPE::HorizonFlatViewEditor2D( 
+	MPE::HorizonFlatViewEditor2D* hored =
+	    new MPE::HorizonFlatViewEditor2D(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	horeds_ += hored;
-    }	
+    }
 }
 
 
 Vw2DHorizon2D::~Vw2DHorizon2D()
-{ 
+{
     deepErase(horeds_);
 }
 
@@ -114,17 +114,19 @@ void Vw2DHorizon2D::draw()
 				    vwr.obtainPack( true, true );
 	if ( !dp2ddh ) continue;
 
-	 if ( horeds_[ivwr] )
-	     horeds_[ivwr]->setMouseEventHandler(
-	     		&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	 horeds_[ivwr]->setCubeSampling(dp2ddh->dataarray()->cubesampling_);
-	 horeds_[ivwr]->setSelSpec( wvaselspec_, true );
-	 horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	 horeds_[ivwr]->setGeomID( geomid_ );
-	 dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
-		 		  horeds_[ivwr]->getPaintingCanDistances() );
-	 horeds_[ivwr]->paint();
-	 horeds_[ivwr]->enableSeed( trackerenbed );
+	if ( horeds_[ivwr] )
+	    horeds_[ivwr]->setMouseEventHandler(
+		&vwr.rgbCanvas().scene().getMouseEventHandler() );
+	const CubeSampling cs = dp2ddh->dataarray() ?
+		dp2ddh->dataarray()->cubesampling_ : CubeSampling(false);
+	horeds_[ivwr]->setCubeSampling( cs );
+	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
+	horeds_[ivwr]->setSelSpec( vdselspec_, false );
+	horeds_[ivwr]->setGeomID( geomid_ );
+	dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
+			  horeds_[ivwr]->getPaintingCanDistances() );
+	horeds_[ivwr]->paint();
+	horeds_[ivwr]->enableSeed( trackerenbed );
     }
 }
 
@@ -136,7 +138,7 @@ void Vw2DHorizon2D::enablePainting( bool yn )
 	if ( horeds_[idx] )
 	{
 	    horeds_[idx]->enableLine( yn );
-	    horeds_[idx]->enableSeed( yn 
+	    horeds_[idx]->enableSeed( yn
 		    && (MPE::engine().getTrackerByObject(emid_) != -1) );
 	}
     }
@@ -204,7 +206,7 @@ void Vw2DHorizon2D::triggerDeSel()
 }
 
 
-void Vw2DHorizon2D::getHorEditors( 
+void Vw2DHorizon2D::getHorEditors(
 		    ObjectSet<const MPE::HorizonFlatViewEditor2D>& eds ) const
 {
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
