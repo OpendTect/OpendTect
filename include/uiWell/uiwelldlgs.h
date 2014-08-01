@@ -32,7 +32,8 @@ class uiWellSel;
 class BufferStringSet;
 
 namespace Table { class FormatDesc; }
-namespace Well { class Data; class Track; class D2TModel; class Log; }
+namespace Well { class Data; class Track; class D2TModel; class Log;
+		 class LogSet;}
 
 
 /*! \brief Dialog for D2T Model editing. */
@@ -159,14 +160,31 @@ protected:
 mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
 {
 public:
-			uiWellLogUOMDlg(uiParent*,Well::Log&);
+			uiWellLogUOMDlg(uiParent*,ObjectSet<Well::LogSet> wls,
+					const BufferStringSet wellnms,
+					const BufferStringSet lognms);
 
 protected:
 
-    uiUnitSel*		unfld_;
-    Well::Log&		log_;
+    uiUnitSel*			unfld_;
+    Well::Log*			log_;
+    ObjectSet<Well::Log>	logs_;
+    ObjectSet<uiUnitSel>	unflds_;
+    uiTable*			uominfotbl_;
 
     bool		acceptOK(CallBacker*);
+
+protected:
+    void		fillTable(ObjectSet<Well::LogSet> wls,
+				  const BufferStringSet& wellnms,
+				  const BufferStringSet& lognms);
+    bool		setUoMValues();
+
+/*! The following  constructor is deprecated and
+    should not be used after 5.0. */
+public:
+			uiWellLogUOMDlg(uiParent*,Well::Log&,
+					const char* wellnm=0);
 };
 
 
