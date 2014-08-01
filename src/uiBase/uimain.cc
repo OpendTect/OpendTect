@@ -286,6 +286,7 @@ mQtclass(QtTabletEventFilter*) uiMain::tabletfilter_ = 0;
 
 static void initQApplication()
 {
+    unsetenv( "QT_PLUGIN_PATH" ); //!Avoids loading incompatible plugins
     mQtclass(QApplication)::setDesktopSettingsAware( true );
 
     mQtclass(QCoreApplication)::setOrganizationName( "dGB");
