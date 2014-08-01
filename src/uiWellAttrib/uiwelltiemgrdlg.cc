@@ -218,10 +218,10 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     if ( !wellobj ) return;
     const char* wllfilenm = Well::IO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
-    wd_ = Well::MGR().get( wellid, false );
-
     logsfld_->wellid_ = wellid;
-    if ( !logsfld_->setLogs(wd_->logs()) )
+
+    wd_ = Well::MGR().get( wellid, false );
+    if ( !wd_ || !logsfld_->setLogs(wd_->logs()) )
     {
 	BufferString errmsg = "This well has no valid log to use as input";
 	errmsg += "\n";
