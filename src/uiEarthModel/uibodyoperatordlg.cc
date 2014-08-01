@@ -240,7 +240,7 @@ void uiBodyOperatorDlg::oprSel( CallBacker* )
     const int curidx = listsaved_.indexOf( tree_->selectedItem() );
     listinfo_[curidx].defined_ = true;
 
-    displayAction( item, curidx );
+    displayAction( (char) item, curidx );
 }
 
 
