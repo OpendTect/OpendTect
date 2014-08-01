@@ -62,7 +62,7 @@ if ( "${filename}" == "" ) then
     rm -rf ${tmpfile} ${tmperrfile}
 
     if ( ${exitcode} == 1 ) then
-	echo "Fails test."
+	echo "Test failed. Run dtect/SetSVNProps.csh <filename> on the file(s) to correct it."
     endif
 
     exit ${exitcode}
@@ -76,22 +76,22 @@ if ( ${errsize} == 0 ) then
     set localfail = 0
     cat ${tmpfile} | grep -q "svn:eol-style"
     if ( ${status} == 1 ) then
-	echo ${filename}
+	echo "${filename} has no svn:eol-style attribute."
 	set localfail=1
     endif
     cat ${tmpfile} | grep -q "LF"
     if ( ${status} == 1 ) then
-	echo ${filename}
+	echo "${filename} has a svn:eol-style attribute that is not LF."
 	set localfail=1
     endif
     cat ${tmpfile} | grep -q "svn:keyword"
     if ( ${localfail} == 0 && ${status} == 1 ) then
-	echo ${filename}
+	echo "${filename} has no svn:keyword-style attribute."
 	set localfail=1
     endif
     cat ${tmpfile} | grep -q "svn:needs-lock"
     if ( ${localfail} == 0 && ${status} == 0 ) then
-	echo ${filename}
+	echo "${filename} Has svn:needs-lock attribute set."
 	set localfail=1
     endif
 
