@@ -537,7 +537,7 @@ void uiODApplMgrDispatcher::process2D3D( bool to2d )
     if ( to2d )
     { uiCreate2DGrid dlg( par_, 0 ); dlg.go(); }
     else
-    { uiSeis2DTo3D dlg( par_ ); dlg.go(); }
+    { uiSeis2DTo3DFullBatch dlg( par_ ); dlg.go(); }
 }
 
 

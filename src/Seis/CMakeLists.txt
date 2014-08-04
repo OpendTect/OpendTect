@@ -65,6 +65,10 @@ SET(OD_MODULE_SOURCES
 	    waveletattrib.cc
 	    waveletextractor.cc
 	     )
-SET(OD_MODULE_BATCHPROGS od_process_time2depth.cc  od_process_segyio.cc  )
+SET(OD_MODULE_BATCHPROGS
+	    od_process_2dto3d.cc
+	    od_process_time2depth.cc
+	    od_process_segyio.cc
+	     )
 OD_INIT_MODULE()
 

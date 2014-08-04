@@ -52,12 +52,12 @@ const BufferString& getOutSubSelKey()
 
 SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
 	: progname_(prognm)
-    	, iopar_(*new IOPar(iniop))
-    	, outioobjpars_(*new IOPar)
-    	, ctio_(*new CtxtIOObj(SeisTrcTranslatorGroup::ioContext()) )
-    	, nrrunners_(0)
-    	, is2d_(false)
-    	, outls_(0)
+	, iopar_(*new IOPar(iniop))
+	, outioobjpars_(*new IOPar)
+	, ctio_(*new CtxtIOObj(SeisTrcTranslatorGroup::ioContext()) )
+	, nrrunners_(0)
+	, is2d_(false)
+	, outls_(0)
 {
     ctio_.ctxt.toselect.allowtransls_ = CBVSSeisTrcTranslator::translKey();
     seisoutkey_ = outputKey( iopar_ );
@@ -88,8 +88,10 @@ SeisJobExecProv::~SeisJobExecProv()
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     mDeclStaticString( res );
-    res = iopar.find( sKeySeisOutIDKey() ).str();
-    if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
+    if ( iopar.hasKey(sKeySeisOutIDKey()) )
+	res = sKeySeisOutIDKey();
+    else
+	res = mOutKey("Seismic.ID");
     return res.buf();
 }
 
