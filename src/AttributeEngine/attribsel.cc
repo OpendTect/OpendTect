@@ -254,7 +254,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
-	    const BufferString usrref( desc->userRef() );
+	    const BufferString usrref( desc ? desc->userRef() 
+					    : sKey::EmptyString() );
 	    if ( !desc || usrref.isEmpty()
 	      || desc->attribName()==StorageProvider::attribName()
 	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
