@@ -136,7 +136,7 @@ void SelSpec::setIDFromRef( const DescSet& ds )
     BufferString attribname;
     if ( Desc::getAttribName( defstring_.buf(), attribname ) )
     {
-	if ( ds.getDesc(id_) && 
+	if ( ds.getDesc(id_) &&
 	     attribname!=ds.getDesc(id_)->attribName() )
 	    id_ = ds.getID( defstring_, ds.containsStoredDescOnly() );
     }
@@ -205,7 +205,7 @@ bool SelSpec::usePar( const IOPar& par )
     zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
 				    par.get( "Depth Domain", zdomainkey_);
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
-    		
+
     return true;
 }
 
@@ -218,7 +218,7 @@ bool SelSpec::isStored() const
 
 
 // Attrib::SelInfo
-SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
+SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 		  bool is2d, const DescID& ignoreid, bool usesteering,
 		  bool onlysteering, bool onlymulticomp )
     : is2d_( is2d )
@@ -235,8 +235,8 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 	{
 	    const DescID descid = attrset->getID( idx );
 	    const Desc* desc = attrset->getDesc( descid );
-	    const BufferString usrref( desc ? desc->userRef() 
-					    : sKey::EmptyString() );
+	    const BufferString usrref( desc ? desc->userRef()
+					    : sKey::EmptyString().buf() );
 	    if ( !desc || usrref.isEmpty()
 	      || desc->attribName()==StorageProvider::attribName()
 	      || attrset->getID(*desc) == ignoreid || desc->isHidden() )
@@ -318,7 +318,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	ioobjnmscopy.add( ioobjnm );
 	ioobjidscopy.add( (const char*)ioobj.key() );
     }
-	
+
     if ( ioobjnmscopy.size() > 1 )
     {
 	int* sortindexes = ioobjnmscopy.getSortIndexes();
@@ -372,7 +372,7 @@ bool SelInfo::is2D( const char* defstr )
 }
 
 
-void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms, 
+void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
