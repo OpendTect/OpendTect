@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiioobjselwritetransl.h"
+
+class uiCheckBox;
 class uiGenInput;
 class uiSEGYFilePars;
 
@@ -28,7 +30,7 @@ public:
 protected:
 
     uiGenInput*		stortypfld_;
-    uiGenInput*		optimdirfld_;
+    uiCheckBox*		optimdirfld_;
 
 };
 
