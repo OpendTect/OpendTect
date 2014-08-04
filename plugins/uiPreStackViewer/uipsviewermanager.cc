@@ -51,12 +51,18 @@ uiViewer3DMgr::uiViewer3DMgr()
     : selectpsdatamenuitem_( tr("Display Prestack Data") )
     , positionmenuitem_( tr("Show position window ...") )
     , proptymenuitem_( uiStrings::sProperties(false) )
-    , resolutionmenuitem_( tr("Resolution ...") )
-    , viewermenuitem_( tr("View in 2D panel") )
+    , resolutionmenuitem_( tr("Resolution") )
+    , viewermenuitem_( tr("View in 2D panel ...") )
     , amplspectrumitem_( tr("Amplitude spectrum ...") )
     , removemenuitem_( uiStrings::sRemove(true) )
     , visserv_( ODMainWin()->applMgr().visServer() )
 {
+    positionmenuitem_.iconfnm = "orientation64";
+    proptymenuitem_.iconfnm = "tools";
+    amplspectrumitem_.iconfnm = "amplspectrum";
+    viewermenuitem_.iconfnm = "vd";
+    removemenuitem_.iconfnm = "trashcan";
+
     posdialogs_.allowNull();
     visserv_->removeAllNotifier().notify( mCB(this,uiViewer3DMgr,removeAllCB) );
     visserv_->objectaddedremoved.notify( mCB(this,uiViewer3DMgr,sceneChangeCB));
