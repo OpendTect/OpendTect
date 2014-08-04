@@ -185,9 +185,11 @@ void HorSampling::limitTo( const HorSampling& h, bool ignoresteps )
     }
 
 #define mLimitIC( ic ) \
+    const bool ic##invalidstep = step.ic() == 0 || mIsUdf(step.ic()) \
+			    || h.step.ic() == 0 || mIsUdf(h.step.ic()); \
     const bool ic##nostephandling = step.ic() == h.step.ic() && \
     			( ic##OK(hs.start.ic()) || hs.ic##OK(start.ic()) ); \
-    if ( ignoresteps || ic##nostephandling ) \
+    if ( ignoresteps || ic##invalidstep || ic##nostephandling ) \
     { \
 	if ( hs.start.ic() > start.ic() ) start.ic() = hs.start.ic(); \
 	if ( hs.stop.ic() < stop.ic() ) stop.ic() = hs.stop.ic(); \

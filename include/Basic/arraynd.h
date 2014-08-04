@@ -368,6 +368,9 @@ T* ArrayND<T>::get1D( const int* i )
 template <class T> inline
 void ArrayND<T>::setAll( T val )
 {
+    if ( isEmpty() )
+	return;
+
     ValueSeries<T>* stor = getStorage();
     if ( stor )
     {
