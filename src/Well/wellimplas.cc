@@ -100,7 +100,8 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		    if ( closeparptr ) *closeparptr = '\0';
 		}
 		if ( lfi.depthcolnr < 0
-			&& FixedString(wordbuf).startsWith("dept") )
+			&& FixedString(wordbuf).startsWith("dept",
+							   CaseInsensitive) )
 		    lfi.depthcolnr = colnr;
 		else
 		{
@@ -154,7 +155,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
-		if ( lognm.isEmpty() || lognm.startsWith("Run") )
+		if ( lognm.isEmpty() || lognm.startsWith("Run",CaseInsensitive))
 		    lognm = keyw;
 		lfi.lognms += new BufferString( lognm );
 	    }
