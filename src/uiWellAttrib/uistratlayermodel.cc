@@ -239,6 +239,7 @@ class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
 public:
 
 uiStratLayerModelLMProvider()
+    : modled_(0)
 {
     modl_ = new Strat::LayerModel;
     setEmpty();
@@ -247,6 +248,7 @@ uiStratLayerModelLMProvider()
 ~uiStratLayerModelLMProvider()
 {
     delete modl_;
+    delete modled_;
 }
 
 Strat::LayerModel& getCurrent()
@@ -256,18 +258,18 @@ Strat::LayerModel& getCurrent()
 
 Strat::LayerModel& getEdited( bool yn )
 {
-    return yn ? modled_ : *modl_;
+    return yn ? *modled_ : *modl_;
 }
 
 void setUseEdited( bool yn )
 {
-    curmodl_ = yn ? &modled_ : modl_;
+    curmodl_ = yn ? modled_ : modl_;
 }
 
 void setEmpty()
 {
     modl_->setEmpty();
-    modled_.setEmpty();
+    if ( modled_ ) modled_->setEmpty();
     curmodl_ = modl_;
 }
 
@@ -279,19 +281,22 @@ void setBaseModel( Strat::LayerModel* newmdl )
 
 void resetEditing()
 {
-    modled_ = *modl_;
+    delete modled_;
+    modled_ = new Strat::LayerModel;
     curmodl_ = modl_;
 }
 
 void initEditing()
 {
-    modled_ = *modl_;
-    curmodl_ = &modled_;
+    if ( !modled_ )
+	modled_ = new Strat::LayerModel;
+    *modled_ = *modl_;
+    curmodl_ = modled_;
 }
 
     Strat::LayerModel*		curmodl_;
     Strat::LayerModel*		modl_;
-    Strat::LayerModel		modled_;
+    Strat::LayerModel*		modled_;
 
 };
 
