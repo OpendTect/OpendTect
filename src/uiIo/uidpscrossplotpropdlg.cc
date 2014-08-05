@@ -151,7 +151,7 @@ bool acceptOK()
 	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
 	const bool doas = axflds.doclipfld_->getBoolValue();
 	if ( !doas )
-	    axh->setBounds( axflds.rgfld_->getFStepInterval() );
+	    axh->setRange( axflds.rgfld_->getFStepInterval() );
 	else
 	{
 	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
