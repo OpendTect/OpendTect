@@ -51,7 +51,7 @@ void uiSurfaceSel::getFullList()
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
-	if ( !ioobj ) continue;
+	if ( !ioobj || !ioobj->implExists(true) ) continue;
 
 	mids_ += ioobj->key();
 	names_.add( ioobj->name() );
