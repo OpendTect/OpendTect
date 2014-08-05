@@ -1121,7 +1121,7 @@ StepInterval<int> RowColSurfaceGeometry::rowRange( const SectionID& sid ) const
 
 StepInterval<int> RowColSurfaceGeometry::rowRange() const
 {
-    StepInterval<int> res(0,0,0);
+    StepInterval<int> res(0,0,1);
     bool isset = false;
     for ( int idx=0; idx<nrSections(); idx++ )
     {
@@ -1152,7 +1152,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange( const SectionID& sid,
 
 StepInterval<int> RowColSurfaceGeometry::colRange() const
 {
-    StepInterval<int> res(0,0,0);
+    StepInterval<int> res(0,0,1);
     bool isset = false;
     for ( int idx=0; idx<nrSections(); idx++ )
     {
@@ -1173,7 +1173,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange() const
 
 StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
 {
-    StepInterval<int> res(0,0,0);
+    StepInterval<int> res(0,0,1);
     bool isset = false;
     for ( int idx=0; idx<nrSections(); idx++ )
     {
