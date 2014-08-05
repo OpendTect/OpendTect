@@ -267,7 +267,7 @@ void uiIOObjSelGrp::mkManipulators()
 	if ( !tbsu )
 	    { delete inserter; continue; }
 
-	uiButton* but = tbsu->getButton( insbutgrp, false );
+	uiButton* but = tbsu->getButton( insbutgrp, true );
 	delete tbsu;
 	const int prevnrbuts = insertbuts_.size();
 	insertbuts_ += but;
