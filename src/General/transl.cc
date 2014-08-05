@@ -354,10 +354,9 @@ bool Translator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool Translator::implShouldRemove( const IOObj* ioobj ) const
+bool Translator::implManagesObjects( const IOObj* ioobj ) const
 {
-    if ( !ioobj ) return false;
-    return ioobj->implShouldRemove();
+    return ioobj ? ioobj->implManagesObjects() : false;
 }
 
 

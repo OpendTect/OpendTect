@@ -132,10 +132,10 @@ public:
 
     virtual bool		implExists(const IOObj*,bool forread) const;
     virtual bool		implReadOnly(const IOObj*) const;
-    virtual bool		implRemove(const IOObj*) const;
-    virtual bool		implShouldRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
 						const CallBack* cb=0) const;
+    virtual bool		implManagesObjects(const IOObj*) const;
+    virtual bool		implRemove(const IOObj*) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     virtual const char*		connType() const;

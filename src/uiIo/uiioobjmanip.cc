@@ -349,7 +349,8 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
     const bool exists = tr ? tr->implExists(&ioobj,true)
 			   : ioobj.implExists(true);
     const bool readonly = tr ? tr->implReadOnly(&ioobj) : ioobj.implReadOnly();
-    bool shldrm = tr ? tr->implShouldRemove(&ioobj) : ioobj.implShouldRemove();
+    bool shldrm = tr ? !tr->implManagesObjects(&ioobj)
+		     : !ioobj.implManagesObjects();
     if ( exists && readonly && shldrm )
     {
 	BufferString msg( "'", ioobj.name(), "' " );

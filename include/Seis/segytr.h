@@ -34,9 +34,9 @@ public:
 			~SEGYSeisTrcTranslator();
     virtual const char*	defExtension() const	{ return "sgy"; }
 
-    bool		readInfo(SeisTrcInfo&);
-    bool		read(SeisTrc&);
-    bool		skip(int);
+    virtual bool	readInfo(SeisTrcInfo&);
+    virtual bool	read(SeisTrc&);
+    virtual bool	skip(int);
     bool		goToTrace(int);
     int			traceSizeOnDisk() const;
     bool		getFullTrcAsBuf(unsigned char*);
@@ -60,7 +60,8 @@ public:
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
     const unsigned char* blockBuf() const	{ return blockbuf_; }
 
-    bool		implShouldRemove(const IOObj*) const { return false; }
+    virtual bool	implManagesObjects( const IOObj* ) const
+						{ return true; }
     void		cleanUp();
 
 protected:

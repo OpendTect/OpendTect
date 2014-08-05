@@ -111,9 +111,9 @@ bool IOStream::implReadOnly() const
 }
 
 
-bool IOStream::implShouldRemove() const
+bool IOStream::implManagesObjects() const
 {
-    return !iscomm_;
+    return iscomm_;
 }
 
 

@@ -78,11 +78,10 @@ public:
     virtual bool		implExists(bool forread) const	= 0;
     virtual bool		implReadOnly() const		{ return true; }
     virtual bool		implRemove() const		{ return false;}
-    virtual bool		implShouldRemove() const	{ return true; }
+    virtual bool		implManagesObjects() const	{ return false;}
     virtual bool		implRename(const char*,const CallBack* cb=0)
 							{ return false; }
     virtual bool		implSetReadOnly(bool) const	{ return false;}
-    virtual bool		removeQuery() const		{ return false;}
     virtual void		genDefaultImpl()		{}
 
     virtual const char*		dirName() const		{ return dirnm_; }

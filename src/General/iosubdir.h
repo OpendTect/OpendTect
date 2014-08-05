@@ -29,11 +29,10 @@ public:
     bool	implExists(bool) const	{ return !isbad_; }
     bool	implReadOnly() const	{ return false; }
     bool	implRemove() const	{ return false; }
-    bool	implShouldRemove() const { return false; }
+    bool	implManagesObjects() const { return true; }
     bool	implRename(const char*,const CallBack*)
 					{ return false; }
     bool        implSetReadOnly(bool) const { return false; }
-    bool	removeQuery() const	{ return true; }
 
     const char*	connType() const	{ return 0; }
     Conn*	getConn( bool forread ) const { return 0; }

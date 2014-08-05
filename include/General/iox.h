@@ -32,7 +32,7 @@ public:
     void		genDefaultImpl()		{}
 
     bool		implExists(bool) const;
-    bool		implShouldRemove() const	{ return false; }
+    bool		implManagesObjects() const	{ return true; }
 
     const char*		connType() const;
     Conn*		getConn(bool) const;
