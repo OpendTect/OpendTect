@@ -50,9 +50,12 @@
 <a name="tutplugin"><h3 id="heading3">Building the Tutorial plugin</h3></a>
 <p id="text">
 To get the whole process going we will first build the Tutorial plugin. This will set up the Visual studio project we need, and the plugin itself can be very useful for understanding several important OpendTect programming concepts.</p>
+
+<p id=text> The basic idea is like this, first you have your OpendTect installation folder, where you actually download the developers package from the installation manager, then you have to create your own plugin development environment which should be outside the OpendTect installation folder, the reason for this is of course that these two environments should be different, and you do not want to mix up your own plugin development work along with your software installation.</p>
+
 <ul id="bullets">
 <li>Install developers package from the installation manager. 
-<li>start OpendTect and then from Utilities-Tools-Create Devel Environment launch the create work environment tool. There specify a folder (WORK) to copy the plugin building material into. That can be any folder with names like "C:\WORK" or "D:\Tools\ODWork" but <b><i>Do Not Put It In The OpendTect Installation Folder</i></b>. After creation, tis will be where you do your work, so choose a stable, backed-up directory there.
+<li>start OpendTect and then from Utilities-Tools-Create Devel Environment launch the create work environment tool. There specify a folder (WORK) to copy the plugin building material into. That can be any folder with names like "C:\WORK" or "D:\Tools\ODWork" but <b><i>Do Not Put It In The OpendTect Installation Folder</i></b>. After creation, this will be where you do your work, so choose a stable, backed-up directory there.
 <li>Now start CMake (desktop item or its Windows start menu). Select the WORK directory you just created, and put it in both the "source" and "output". Then press the 'Configure' button.
 <li>Configure will probably fail due to missing OpendTect-DIR. This can be specified, choose the OpendTect installation directory there (e.g C:\Program files\OpendTect\4.4.0). Now press configure again.
 <li>Some virus scanners like AVG will ring the alarm bells, and this can make the whole process fail. This is because CMake tries to link a program to test the system setup. To get this right, I had to disable my virus scanner (AVG).
@@ -63,25 +66,26 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 
 
 <h3 id="heading3">Debugging the Tutorial plugin </h3>
-<p id="text">When you load the plugin solution in Visual Studio, you will see a couple of projects. One of them is the "od_main" project. This is the launcher project to launch od_main debug executable that comes with the developers package. Right click on this project and set to "Set as startup project". When you press F5 for debugging this project will be started. Visual studio will show couple of warning messages because this is a debug executable; just ignore all of them and continue. The OpendTect main program, od_main.exe will be launched.</p>
-<p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win32 folder directory. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code.  Please note you can only debug your own code and cannot step in to any OpendTect library functions, as this is being used as an external library.</p>
+<p id="text">Open the plugin solution in Visual Studio, and right-click on the solution item, and open the solution properties window. Here you can specify the debug source file location, so in your case add the location of the OpendTect source files which are installed by the installation manager, i.e. C:\Program Files\OpendTect\@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@.@OpendTect_VERSION_DETAIL@ Now select the "od_main" project which is a launcher project to launch od_main debug executable that comes with the developers package. Right click on this project and set to "Set as startup project". When you press F5 for debugging this project will be started. Ignore if you see any Visual studio warnings. The OpendTect main program, od_main.exe will be launched.</p>
+<p id="text">From Utilities-Plugins OpendTect try to load your plugin by browsing to the WORK(D:\WORK)\bin\win64\debug folder. To debug something, just set a break point in the code. So when the control comes to the break-point it will stop there and you can debug your code. You can also browse into OpendTect source files if you have specified the OpendTect source file location is the solution properties as mentioned above</p>
 
 <a name="ownplugin"><h3 id="heading3">Building your own plugin</h3></a>
-<p id="text">If you want to create your own plugin, we have a starting point called "My_Plugin_Name" which is also one of the projects you see. The idea is, you only have to replace the name of the plugin with the name of your plugin and let CMake do the rest for you. Procedure:</p>
+<p id="text">If you want to create your own plugin, you have to create a folder with the name of your plugin inside your plugin development environment and add the source files and CMakeLists.txt to this folder as done in the tutorial plugins.
+
+Procedure:</p>
 
 <ul>
 <li>Exit Visual Studio.
-<li>Rename 'My_Plugin_Name' folder with a name of your chice e.g 'My_Inversion'.
-<li>Edit the ODWork\CMakeLists.txt, replace - replace 'My_Plugin_Name' with 'My_Inversion'.
-<li>Rename my_plugin_name_pi.cc to a different name like "my_inversion_pi.cc" as shown earlier.
-<li>Edit my_inv_plugin_pi.cc and replace every occurences of 'My_Plugin_Name' with 'My_Inversion'.
-<li>Keep the code as-is, or change something. If you add files, or remove/rename the ones provided in the plugin directory, change the CMakeLists.txt in the plugin directory accordingly.
+<li>Create the folder for your plugin project and rename it with the name of your plugin e.g 'My_Inversion'.
+<li>Add "my_inversion_pi.cc" along with other source files in this folder.
+<li>Create a CMakeLists.txt file inside this folder and add the entries for all your source files to it.
+<li>Edit the ODWork\CMakeLists.txt, add 'My_Inversion' to the list of projects. Currently you will see both Tut and uiTut in this list.
 <li>Now configure CMake just like you configured before. I didn't have to disable my virus scanning anymore, but you may have to do this.
-<li>If you manage to make the the projects and successfully build them, then start the od_main project again and load the new plugin DLL form ODWork\bin\win32/64\<br>Debug in to OpendTect. If you didn't change the example 'My_Class' you will see a 'Hello World!' message appear.
+<li>If you manage to make the projects and successfully build them, then start the od_main project again and load the new plugin DLL from ODWork\bin\(win32/64)\Debug in to OpendTect. If all goes well you will be able to debug your code by putting a break point in your source files.
 </ul>
 
 <h3 id="heading3">Debugging your own plugin </h3>
-<p id="text">The process is exactly similar as described above, 1)start Visual Stidio 2) build the plugin 3) start 'od_main' project 4) load and debug your plugin.</p>
+<p id="text">The process is exactly similar as described above, 1)start Visual Studio 2) build the plugin 3) start 'od_main' project 4) load and debug your plugin.</p>
 
 
 <h3 id="heading3">Distributing your own plugins</h3>
@@ -89,14 +93,14 @@ Then, to build the plugins: simply right-click on 'Tut' and 'uiTut' and do 'Buil
 
 
 <a name="buildod"><h3 id="heading3">Building OpendTect (only for die hards)</h3></a>
-<p id="text">The OpendTect solution can also be built with CMake. In this case launch CMake and browse to your OpendTect installation folder, which becomes the development environment, and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
+<p id="text">To build OpendTect from source you need to check-out the source code from the Subversion repository from this URL  <a href="https://code.google.com/p/opendtect/source/checkout">https://code.google.com/p/opendtect/source/checkout</a>. Once the check-out is complete build the solution with CMake. In this case launch CMake and browse to your OpendTect source folder and start configuring and generating from CMake. CMake will prompt for Qt and OpenSceneGraph directory location, select them from CMake itself and continue. Once the projects and solution are generated you can start building OpendTect.</p>  
 
 <h3 id="heading3">Qt</h3>
-<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt. Download Windows Qt package from the <a href="http://qt.nokia.com/">Qt website</a>. </p>
+<p id="text">A Qt installation is only necessary when you want to build a plugin which is directly dependent on Qt or you want to build OpendTect from scratch. Download Windows Qt package from the <a href="http://qt-project.org/">Qt website</a>. </p>
 
 
 <h3 id="heading3">OpenSceneGraph</h3>
-<p id="text">A full OpenSceneGraph installation is only necessary when you want to build a plugin which is directly dependent on OpenSceneGraph. Download an OpenSceneGraph installation, or get the source code from <a href="http://OpenSceneGraph.org/">OpenSceneGraph</a> repositories and build yourself using Visual Studio.</p>
+<p id="text">A full OpenSceneGraph installation is only necessary when you want to build a plugin which is directly dependent on OpenSceneGraph or if you want to build OpendTect from scratch. Download an OpenSceneGraph installation, or get the source code from <a href="http://OpenSceneGraph.org/">OpenSceneGraph</a> repositories and build yourself using Visual Studio.</p>
 <br>
 
 
