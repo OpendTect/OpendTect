@@ -51,7 +51,7 @@ uiPreStackSel::uiPreStackSel( uiParent* p, bool is2d )
     : uiGroup(p, "Prestack data selector")
     , selid_(MultiID::udf())
 {
-    const uiSeisSel::Setup sssu( is2d ? Seis::LinePS : Seis::VolPS, true );
+    const uiSeisSel::Setup sssu( is2d, true );
     const IOObjContext ctxt( uiSeisSel::ioContext(sssu.geom_, true ) );
     seisinpfld_ = new uiSeisSel( this, ctxt, sssu );
 
