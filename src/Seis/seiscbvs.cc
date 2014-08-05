@@ -182,6 +182,7 @@ bool CBVSSeisTrcTranslator::initRead_()
     pinfo.crlrg.start = info.geom_.start.crl;
     pinfo.crlrg.stop = info.geom_.stop.crl;
     pinfo.crlrg.step = abs(info.geom_.step.crl);
+    pinfo.crlrg.sort();
     if ( !pinfo.fullyrectandreg )
 	pinfo.cubedata = &info.geom_.cubedata;
 

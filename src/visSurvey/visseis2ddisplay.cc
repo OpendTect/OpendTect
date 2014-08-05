@@ -463,20 +463,22 @@ void Seis2DDisplay::setData( int attrib,
 	    const int zsz = cs.nrZ();
 	    mTryAlloc( tmparr, Array2DImpl<float>(trcdisplayinfo_.size,zsz) );
 	    usedarr = tmparr;
+	    const int startidx = trcdisplayinfo_.rg.start;
 
 	    for ( int crlidx=0; crlidx<trcdisplayinfo_.size; crlidx++ )
 	    {
+		const int trcnr = trcdisplayinfo_.alltrcnrs[crlidx+startidx];
+		const int trcidx =  data2dh.indexOf( trcnr );
 	        Array1DSlice<float> traceslice( slice2d );    
 		traceslice.setDimMap( 0, 1 );
-		traceslice.setPos( 0, crlidx );
+		traceslice.setPos( 0, trcidx );
 		if ( !traceslice.init() )
 		{
 		    pErrMsg( "Error reading array for Z-axis transformation." );
 		    continue; 
 		}
 
-		const int startidx = trcdisplayinfo_.rg.start + crlidx;
-		outpsampler.setTrcNr( trcdisplayinfo_.alltrcnrs[startidx] );
+		outpsampler.setTrcNr( trcnr );
 		outpsampler.computeCache( Interval<int>(0,zsz-1) );
 
 		SampledFunctionImpl<float,ValueSeries<float> >
