@@ -18,7 +18,7 @@ set( EXECLIST od_cbvs_browse od_glxinfo od_ivfileviewer lmhostid
 	      od_process_velocityconv od_process_volume od_ProgressViewer od_DispMsg
 	      od_FileBrowser od_SEGYExaminer od_SeisMMBatch od_ClusterProc
 	      od_process_2dgrid od_remexec od_remoteservice od_stratamp od_isopach
-	      od_ReportIssue od_uiReportIssue )
+	      od_ReportIssue od_uiReportIssue od_process_2dto3d )
 set( PLUGINS HorizonAttrib GapDecon VoxelConnectivityFilter
 	     uiHorizonAttrib uiPreStackViewer Annotations uiGapDecon 
 	     uiGoogleIO GoogleTranslate CmdDriver uiVoxelConnectivityFilter
