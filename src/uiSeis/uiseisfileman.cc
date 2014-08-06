@@ -349,6 +349,8 @@ void uiSeisFileMan::manPS( CallBacker* )
 
 void uiSeisFileMan::showAttribSet( CallBacker* )
 {
+    if ( !curioobj_ ) return;
+
     FilePath fp( curioobj_->fullUserExpr() );
     fp.setExtension( "proc" );
     File::launchViewer( fp.fullPath(), File::ViewPars() );
