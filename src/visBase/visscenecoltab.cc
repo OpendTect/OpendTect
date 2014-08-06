@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osgSim/ColorRange>
 #include <osg/Version>
 
-#if OSG_MIN_VERSION_REQUIRED(3,2,2)
+#if OSG_MIN_VERSION_REQUIRED(3,3,1)
 # include <osgSim/ScalarBar>
 # define mScalarBarType osgSim::ScalarBar
 #else
@@ -115,7 +115,7 @@ void SceneColTab::setOrientation( bool horizontal )
 {
     horizontal_ = horizontal;
     mScalarBar->setOrientation( horizontal_ ? mScalarBarType::HORIZONTAL
-					      : mScalarBarType::VERTICAL );
+					    : mScalarBarType::VERTICAL );
 }
 
 
