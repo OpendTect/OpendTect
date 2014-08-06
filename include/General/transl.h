@@ -132,10 +132,10 @@ public:
 
     virtual bool		implExists(const IOObj*,bool forread) const;
     virtual bool		implReadOnly(const IOObj*) const;
-    virtual bool		implRemove(const IOObj*) const;
-    virtual bool		implShouldRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,
 						const CallBack* cb=0) const;
+    virtual bool		implManagesObjects(const IOObj*) const;
+    virtual bool		implRemove(const IOObj*) const;
     virtual bool		implSetReadOnly(const IOObj*,bool) const;
 
     virtual const char*		connType() const;
@@ -152,6 +152,10 @@ public:
     virtual const char*		iconName() const	{ return "od"; }
     const char*			getDisplayName() const; //!< "username [group]"
     static const Translator*	getTemplateInstance(const char* displayname);
+
+    // DEPRECATED in 5.0, where you may want to override implManagesObjects
+    virtual bool		implShouldRemove(const IOObj*) const;
+
 
 protected:
 

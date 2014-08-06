@@ -28,24 +28,24 @@ mExpClass(General) IOStream : public IOObj
 public:
 			IOStream(const char* nm=0,const char* id=0,
 				 bool =false);
-    bool		isBad() const;
+    virtual bool	isBad() const;
     bool		isCommand() const		{ return iscomm_; }
 
-    void		copyFrom(const IOObj*);
-    const char*		fullUserExpr(bool forread=true) const;
+    virtual void	copyFrom(const IOObj*);
+    virtual const char* fullUserExpr(bool forread=true) const;
     const char*		getExpandedName(bool forread,
 					bool fillwildcard=true) const;
-    void		genDefaultImpl()		{ genFileName(); }
+    virtual void	genDefaultImpl()		{ genFileName(); }
 
-    const char*		connType() const;
-    Conn*		getConn(bool) const;
+    virtual const char*		connType() const;
+    virtual Conn*		getConn(bool) const;
 
-    bool		implExists(bool forread) const;
-    bool		implReadOnly() const;
-    bool		implRemove() const;
-    bool		implShouldRemove() const;
-    bool		implSetReadOnly(bool) const;
-    bool		implRename(const char*,const CallBack* cb=0);
+    virtual bool	implExists(bool forread) const;
+    virtual bool	implReadOnly() const;
+    virtual bool	implManagesObjects() const;
+    virtual bool	implRemove() const;
+    virtual bool	implSetReadOnly(bool) const;
+    virtual bool	implRename(const char*,const CallBack* cb=0);
 
     bool		multiConn() const
 			{ return isMulti() && curfnr_ <= fnrs_.stop; }
@@ -84,8 +84,8 @@ public:
 
 protected:
 
-    bool		getFrom(ascistream&);
-    bool		putTo(ascostream&) const;
+    virtual bool	getFrom(ascistream&);
+    virtual bool	putTo(ascostream&) const;
 
     BufferString	fname_;
     BufferString	writecmd_;

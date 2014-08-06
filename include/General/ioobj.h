@@ -78,11 +78,11 @@ public:
     virtual bool		implExists(bool forread) const	= 0;
     virtual bool		implReadOnly() const		{ return true; }
     virtual bool		implRemove() const		{ return false;}
-    virtual bool		implShouldRemove() const	{ return true; }
+    virtual bool		implManagesObjects() const
+						{ return implShouldRemove(); }
     virtual bool		implRename(const char*,const CallBack* cb=0)
 							{ return false; }
     virtual bool		implSetReadOnly(bool) const	{ return false;}
-    virtual bool		removeQuery() const		{ return false;}
     virtual void		genDefaultImpl()		{}
 
     virtual const char*		dirName() const		{ return dirnm_; }
@@ -113,6 +113,11 @@ public:
     bool			isProcTmp() const;
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
+
+    // DEPRECATED in 5.0, where you may want to override implManagesObjects
+    virtual bool		implShouldRemove() const	{ return true; }
+    // DEPRECATED in 5.0, never used
+    virtual bool		removeQuery() const		{ return false;}
 
 protected:
 
