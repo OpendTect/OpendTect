@@ -179,7 +179,7 @@ void uiGraphicsItem::setPenColor( const Color& col, bool withalpha )
     if ( !agsitm ) return;
 
     QColor color = QColor(QRgb(col.rgb()));
-    if ( withalpha ) color.setAlpha( col.t() );
+    if ( withalpha ) color.setAlpha( 255-col.t() );
 
     QPen qpen( color );
     qpen.setCosmetic( true );
@@ -217,7 +217,7 @@ void uiGraphicsItem::setPenStyle( const LineStyle& ls, bool colorwithalpha )
     if ( !agsitm ) return;
 
     QColor color = QColor( QRgb(ls.color_.rgb()) );
-    if ( colorwithalpha ) color.setAlpha( ls.color_.t() );
+    if ( colorwithalpha ) color.setAlpha( 255-ls.color_.t() );
     QBrush qbrush( color );
     QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
     qpen.setCosmetic( true );
