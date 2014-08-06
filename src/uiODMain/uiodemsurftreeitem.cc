@@ -532,6 +532,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uivisemobj_->setDepthAsAttrib( attribnr );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
 	changed_ = false;
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
@@ -547,8 +548,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	    uiMSG().error( "This algorithm can only be applied on 'Horizon Data'."
-		    	   "\nPlease save attribute first" );
+	    uiMSG().error(
+		    "This algorithm can only be applied on 'Horizon Data'."
+		    "\nPlease save attribute first" );
 	    return;
 	}
 
