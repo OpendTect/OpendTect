@@ -177,6 +177,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 				: BufferString( inpdsc->userRef() );
 	    for ( int varinpidx = varinplastidx; varinpidx<form_.nrInputs();
 		  varinpidx ++ )
+
 		if ( !form_.isConst(varinpidx) && !form_.isSpec(varinpidx) )
 		{
 		    form_.setInputDef( varinpidx, refstr );
@@ -185,7 +186,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 
 		    MultiID mid = inpdsc->getStoredID( false ).buf();
 		    IOObj* inpobj = IOM().get( mid );
-		    if ( !inpobj ) continue;
+		    if ( !inpobj ) break;
 
 		    SeisIOObjInfo seisinfo( inpobj );
 		    if ( seisinfo.nrComponents() > 1 )
