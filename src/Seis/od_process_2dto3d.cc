@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
-#include "genc.h"
 #include "hostdata.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -53,6 +52,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     OD::ModDeps().ensureLoaded( "Algo" );
     OD::ModDeps().ensureLoaded( "Seis" );
+
 
     const int process_id = GetPID();
     Seis2DTo3D* proc = 0;
@@ -185,6 +185,8 @@ bool BatchProgram::go( std::ostream& strm )
     mDestroyWorkers
     progressmeter.setFinished();
     mStrmWithProcID( "Threads closed; Writing finish status" );
+
+     if ( !comm_ ) return true;
 
     comm_->setState( JobCommunic::Finished );
     bool ret = comm_->sendState();

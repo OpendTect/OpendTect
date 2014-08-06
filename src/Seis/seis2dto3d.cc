@@ -47,7 +47,7 @@ Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating 3D cube from LineSet")
     , ls_(0)
     , outioobj_(0)
-    , cs_(false)
+    , cs_(true)
     , seisbuf_(*new SeisTrcBuf(false))
     , nrdone_(0)
     , sc_(0)
@@ -83,7 +83,6 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
 	mErrRet("No processing parameters found")
 
     parampars->getYN( sKeyIsNearest(), nearesttrace_ );
-    cs_.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
     if ( !nearesttrace_ )
     {
 	Interval<int> step;
@@ -121,8 +120,10 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
     if ( !subsel ) return false;
 
     PtrMan<IOPar> sampling = subsel->subselect( sKey::Subsel() );
-    if ( !sampling || !cs_.usePar(*sampling) )
+    if ( !sampling )
 	mErrRet("No volume processing area found")
+
+    cs_.usePar( *sampling );
 
     return true;
 }
