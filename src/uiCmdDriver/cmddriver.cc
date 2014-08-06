@@ -411,6 +411,7 @@ bool CmdDriver::addActions( ObjectSet<Action>& actionlist, const char* fnm )
 		return false;
 
 	    errmsg_ = errmsgprefix;
+	    continue;
 	}
 
 	actionlist += new Action( action );
