@@ -710,6 +710,11 @@ void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
 
 void HorizonDisplay::setDepthAsAttrib( int channel )
 {
+    if ( !as_.validIdx(channel) )
+	return;
+
+    const bool attribwasdepth = FixedString(as_[channel]->userRef())=="Depth";
+
     as_[channel]->set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
@@ -748,10 +753,14 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 
     createAndDispDataPack( channel, &positions, 0 );
 
-    BufferString seqnm;
-    Settings::common().get( "dTect.Color table.Horizon", seqnm );
-    ColTab::Sequence seq( seqnm );
-    setColTabSequence( channel, seq, 0 );
+    if ( !attribwasdepth )
+    {
+	BufferString seqnm;
+	Settings::common().get( "dTect.Color table.Horizon", seqnm );
+	ColTab::Sequence seq( seqnm );
+	setColTabSequence( channel, seq, 0 );
+	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
+    }
 }
 
 
