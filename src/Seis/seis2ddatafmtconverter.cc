@@ -208,9 +208,11 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     ctio.ctxt.deftransl.add( TwoDDataSeisTrcTranslator::translKey() );
     if ( iop.find(sKey::DataType()) )
     {
-	BufferString datatype;
+	BufferString datatype, zdomain;
 	iop.get( sKey::DataType(), datatype );
+	iop.get( ZDomain::sKey(), zdomain );
 	ctio.ctxt.toselect.require_.set( sKey::Type(), datatype );
+	ctio.ctxt.toselect.require_.set( ZDomain::sKey(), zdomain );
     }
 
     FixedString attribnm = iop.find( sKey::Attribute() );
