@@ -193,37 +193,42 @@ int StratAmpCalc::nextStep()
     const EM::SubID subid = bid.toInt64();
     float z1 = (float) tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
     float z2 = !bothorizon_ ? z1
-		     : (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
-    z1 += tophorshift_;
-    z2 += bothorshift_;
-    Interval<int> sampintv( trc->info().nearestSample(z1),
-	    		    trc->info().nearestSample(z2) );
-    sampintv.sort();
-
-    if ( sampintv.start < 0 )
-	sampintv.start = 0;
-    if ( sampintv.stop >= trc->size() )
-	sampintv.stop = trc->size()-1;
-
-    Stats::CalcSetup rcsetup;
-    rcsetup.require( stattyp_ );
-    Stats::RunCalc<float> runcalc( rcsetup );
-    for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )
-    {
-	const float val = trc->get( idx, 0 );
-	if ( !mIsUdf(val) )
-	    runcalc.addValue( val );
-    }
-
+	: (float) bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     float outval = mUdf( float );
-    switch ( stattyp_ )
+    int fold = 0;
+    if ( !mIsUdf(z1) && !mIsUdf(z1) )
     {
-	case Stats::Min: outval = runcalc.min(); break;
-	case Stats::Max: outval = runcalc.max(); break;
-	case Stats::Average: outval = (float) runcalc.average(); break;
-	case Stats::RMS: outval = (float) runcalc.rms(); break;  
-	case Stats::Sum: outval = runcalc.sum(); break;  
-	default: break;
+	z1 += tophorshift_;
+	z2 += bothorshift_;
+	Interval<int> sampintv( trc->info().nearestSample(z1),
+				trc->info().nearestSample(z2) );
+	sampintv.sort();
+
+	if ( sampintv.start < 0 )
+	    sampintv.start = 0;
+	if ( sampintv.stop >= trc->size() )
+	    sampintv.stop = trc->size()-1;
+
+	Stats::CalcSetup rcsetup;
+	rcsetup.require( stattyp_ );
+	Stats::RunCalc<float> runcalc( rcsetup );
+	for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )
+	{
+	    const float val = trc->get( idx, 0 );
+	    if ( !mIsUdf(val) )
+		runcalc.addValue( val );
+	}
+
+	fold = runcalc.count();
+	switch ( stattyp_ )
+	{
+	    case Stats::Min: outval = runcalc.min(); break;
+	    case Stats::Max: outval = runcalc.max(); break;
+	    case Stats::Average: outval = (float) runcalc.average(); break;
+	    case Stats::RMS: outval = (float) runcalc.rms(); break;  
+	    case Stats::Sum: outval = runcalc.sum(); break;  
+	    default: break;
+	}
     }
 
     const EM::Horizon3D* addtohor = addtotop_ ? tophorizon_ : bothorizon_;
@@ -233,7 +238,7 @@ int StratAmpCalc::nextStep()
     {
 	posidfold_.setSubID( subid );
 	addtohor->auxdata.setAuxDataVal( dataidxfold_, posidfold_,
-					  mCast(float,runcalc.count()) );
+					 mCast(float,fold) );
     }
 
     nrdone_++;
