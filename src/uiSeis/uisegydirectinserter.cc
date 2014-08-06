@@ -67,6 +67,8 @@ void uiSEGYDirectVolInserter::scanComplete( CallBacker* )
 
 void uiSEGYDirectVolInserter::initClass()
 {
+#ifdef __debug__
     factory().addCreator( create,
 			  mSEGYDirectVolTranslInstance.getDisplayName() );
+#endif
 }
