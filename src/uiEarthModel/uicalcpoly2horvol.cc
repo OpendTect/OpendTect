@@ -113,8 +113,11 @@ void uiCalcHorVol::haveChg( CallBacker* )
 
 void uiCalcHorVol::calcReq( CallBacker* )
 {
-    const Pick::Set* ps = getPickSet(); if ( !ps ) return;
-    const EM::Horizon3D* hor = getHorizon(); if ( !hor ) return;
+    const Pick::Set* ps = getPickSet();
+    if ( !ps ) mErrRet( tr("No %1 selected").arg("PickSet") );
+    
+    const EM::Horizon3D* hor = getHorizon();
+    if ( !hor ) mErrRet( tr("No %1 selected").arg("Horizon") );
 
     float vel = 1;
     if ( velfld_ )
@@ -162,7 +165,7 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
 	{ hor_->unRef(); hor_ = 0; }
 
     horsel_->commitInput();
-    const IOObj* ioobj = horsel_->ioobj();
+    const IOObj* ioobj = horsel_->ioobj( true );
     if ( !ioobj ) return;
 
     uiTaskRunner taskrunner( this );
@@ -181,7 +184,6 @@ void uiCalcPolyHorVol::horSel( CallBacker* cb )
 
 const EM::Horizon3D* uiCalcPolyHorVol::getHorizon()
 {
-
     if ( !hor_ )
 	horSel( 0 );
     return hor_;
@@ -216,7 +218,7 @@ void uiCalcHorPolyVol::psSel( CallBacker* cb )
     if ( ps_ ) delete ps_;
     ps_ = 0;
 
-    const IOObj* ioobj = pssel_->ioobj();
+    const IOObj* ioobj = pssel_->ioobj( true );
     if ( !ioobj ) return;
 
     ps_ = new Pick::Set; BufferString msg;
