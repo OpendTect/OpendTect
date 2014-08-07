@@ -15,13 +15,13 @@ ________________________________________________________________________
 
 
 #include "generalmod.h"
-#include "gendefs.h"
+#include "multiid.h"
 class IOObj;
 class StreamConn;
 
 /*!
 \brief Data connection.
-  
+
   Data can be found in files and data stores. To access these data sources,
   some kind of connection must be set up. This class defines a simple
   interface common to these connections.
@@ -31,31 +31,36 @@ mExpClass(General) Conn
 {
 public:
 
-			Conn() : ioobj(0)	{}
     virtual		~Conn()			{}
-    virtual const char*	connType() const	= 0;
+    virtual void	close()			{}
 
     virtual bool	isBad() const		= 0;
+    virtual const char*	creationMessage() const	{ return 0; }
+
+    virtual const char*	connType() const	= 0;
     virtual bool	forRead() const		= 0;
     virtual bool	forWrite() const	{ return !forRead(); }
-    virtual void	close()			{}
+
     virtual StreamConn*	getStream()		{ return 0; }
     inline bool		isStream() const
-    			{ return const_cast<Conn*>(this)->getStream(); }
+			{ return const_cast<Conn*>(this)->getStream(); }
 
     inline Conn*	conn()			{ return gtConn(); }
     inline const Conn*	conn() const		{ return gtConn(); }
 			//!< Returns the actual connection doing the work
 
-    const IOObj*	ioobj;
-			//!< Some objects require this IOObj
-			//!< It is normally the IOObj that created the Conn
+    const MultiID&	linkedTo() const	{ return ioobjid_; }
+    void		setLinkedTo( const MultiID& id ) { ioobjid_ = id; }
 
-    			// to fill 'forread' variables
+			// to fill 'forread' variables
     static const bool	Read;	// true
     static const bool	Write;	// false
 
 protected:
+
+			Conn()			{}
+
+    MultiID		ioobjid_;
 
     virtual Conn*	gtConn() const	{ return const_cast<Conn*>(this); }
 
@@ -78,12 +83,14 @@ public:
 
     virtual bool	isBad() const
 			{ return conn_ ? conn_->isBad() : true; }
-    virtual bool	forRead() const	
-    			{ return conn_ && conn_->forRead(); }
+    virtual const char*	creationMessage() const
+			{ return conn_ ? conn_->creationMessage() : 0; }
+    virtual bool	forRead() const
+			{ return conn_ && conn_->forRead(); }
     virtual bool	forWrite() const
-    			{ return conn_ && conn_->forWrite(); }
+			{ return conn_ && conn_->forWrite(); }
     virtual void	close()
-    			{ if ( conn_ ) conn_->close(); }
+			{ if ( conn_ ) conn_->close(); }
     virtual StreamConn*	getStream()
 			{ return conn_ ? conn_->getStream() : 0; }
 

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "generalmod.h"
 #include "conn.h"
 #include "od_iosfwd.h"
+#include "bufstring.h"
 
 
 /*!
@@ -34,6 +35,7 @@ public:
     virtual		~StreamConn();
 
     virtual bool	isBad() const;
+    virtual const char* creationMessage() const	{ return creationmsg_; }
     virtual bool	forRead() const;
     virtual bool	forWrite() const;
     virtual StreamConn*	getStream()		{ return this; }
@@ -59,8 +61,11 @@ private:
     od_stream*		strm_;
     bool		mine_;
 
+    BufferString	creationmsg_;
+
+    void		fillCrMsg(od_stream*);
+
 };
 
 
 #endif
-

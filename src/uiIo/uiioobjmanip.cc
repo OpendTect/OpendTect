@@ -298,7 +298,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
     if ( iostrm )
     {
 	if ( !iostrm->implExists(true) )
-	    iostrm->genDefaultImpl();
+	    iostrm->genFileName();
 	else
 	{
 	    IOStream chiostrm;
@@ -310,7 +310,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 	    BufferString cleannm( chiostrm.name() );
 	    cleannm.clean( BufferString::NoFileSeps );
 	    chiostrm.setName( cleannm );
-	    chiostrm.genDefaultImpl();
+	    chiostrm.genFileName();
 	    chiostrm.setName( newnm );
 
 	    FilePath deffp( chiostrm.fileName() );
@@ -324,7 +324,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 		{
 		    newnm.clean( BufferString::AllowDots );
 		    chiostrm.setName( newnm );
-		    chiostrm.genDefaultImpl();
+		    chiostrm.genFileName();
 		    deffp.set( chiostrm.fileName() );
 		    fp.setFileName( deffp.fileName() );
 		    chiostrm.setFileName( fp.fullPath() );

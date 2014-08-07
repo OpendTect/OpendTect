@@ -217,10 +217,11 @@ static const char* sKeyOffsNr = "Default trace nr";
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
-    if ( conn_->ioobj )
+    PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
+    if ( ioobj )
     {
-	mDynamicCastGet(const IOX*,iox,conn_->ioobj)
-	IOObj* useioobj = iox ? iox->getIOObj() : conn_->ioobj->clone();
+	mDynamicCastGet(const IOX*,iox,ioobj.ptr())
+	IOObj* useioobj = iox ? iox->getIOObj() : ioobj->clone();
 	psrdr_ = SPSIOPF().get3DReader( *useioobj );
 	int trcnr = -1;
 	useioobj->pars().get( sKeyOffsNr, trcnr );

@@ -239,7 +239,13 @@ bool SeisTrcTranslator::commitSelections()
     samprg_.start = mNINT32( fsampnr );
     samprg_.stop = samprg_.start + outnrsamples_ - 1;
 
-    is_2d = !conn_ || !conn_->ioobj ? false : is2D( *conn_->ioobj, false );
+    is_2d = false;
+    if ( conn_ )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
+	if ( ioobj )
+	    is_2d = is2D( *ioobj, false );
+    }
     return commitSelections_();
 }
 

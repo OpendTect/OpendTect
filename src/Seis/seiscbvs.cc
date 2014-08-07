@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "cbvswritemgr.h"
 #include "filepath.h"
 #include "iostrm.h"
+#include "ioman.h"
 #include "keystrs.h"
 #include "seispacketinfo.h"
 #include "seisselection.h"
@@ -124,11 +125,13 @@ void CBVSSeisTrcTranslator::set2D( bool yn )
 
 bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
-    if ( !conn_ || !conn_->ioobj )
-    {
-	if ( !conn_ )
-	    { errmsg_ = "Cannot reconstruct file name"; return false; }
+    if ( !conn_ )
+	{ errmsg_ = "Cannot open CBVS file"; return false; }
 
+    PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
+    if ( !ioobj )
+    {
+	// Hmmm. Fall back to this, which won't work if there are wildcards:
 	mDynamicCastGet(StreamConn*,strmconn,conn_)
 	if ( !strmconn )
 	    { errmsg_ = "Wrong connection from Object Manager"; return false; }
@@ -136,7 +139,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	return true;
     }
 
-    mDynamicCastGet(const IOStream*,iostrm,conn_->ioobj)
+    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
     if ( !iostrm )
 	{ errmsg_ = "Object manager provides wrong type"; return false; }
 
