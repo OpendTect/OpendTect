@@ -28,18 +28,18 @@ mExpClass(Network) TcpServer : public CallBacker
 friend class QTcpServerComm;
 
 public:
-    			TcpServer();
+			TcpServer();
 			~TcpServer();
 
     bool		listen(const char* host,int port=0);
-    			//!<If host is 0, server will listen to any host
+			//!<If host is 0, server will listen to any host
     bool		isListening() const;
     int			port() const;
 
     void		close();
     bool		hasPendingConnections() const;
     int			write(int id,const char*);
-    			//!<Writes to next pending socket
+			//!<Writes to next pending socket
     int			write(int id,const IOPar&);
     void		read(int id,BufferString&) const;
     void		read(int id,IOPar&) const;
@@ -49,15 +49,19 @@ public:
     CNotifier<TcpServer,int>	readyRead;
 
     QTcpSocket*		nextPendingConnection();
-    			//!<Use when you want to access Qt object directly
+			//!<Use when you want to access Qt object directly
+
+    bool		waitForNewConnection(int msec);
+			//!<Useful when no event loop available
+			//!<If msec is -1, this function will not time out
 
 protected:
-    
+
     void		newConnectionCB(CallBacker*);
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
     TcpSocket*		getSocket(int id) const;
-    
+
     QTcpServer*		 qtcpserver_;
     QTcpServerComm*	 comm_;
     mutable BufferString errmsg_;

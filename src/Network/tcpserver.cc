@@ -192,3 +192,13 @@ TcpSocket* TcpServer::getSocket( int id ) const
 
     return 0;
 }
+
+
+bool TcpServer::waitForNewConnection( int msec )
+{
+#ifndef OD_NO_QT
+    return qtcpserver_->waitForNewConnection( msec );
+#else
+    return false;
+#endif
+}
