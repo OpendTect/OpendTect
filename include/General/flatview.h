@@ -85,7 +85,6 @@ public:
     FillPattern			fillpattern_;
     int				zvalue_; //!<overlay zvalue ( max=on top )
 
-    bool			displayed_;
     bool			close_;
 
     void			setFillPattern( const FillPattern& fp )

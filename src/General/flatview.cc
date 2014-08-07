@@ -263,7 +263,6 @@ FlatView::AuxData::AuxData( const char* nm )
     , x2rg_( 0 )
     , enabled_( true )
     , editpermissions_( 0 )
-    , displayed_( true )
 {}
 
 
@@ -282,7 +281,6 @@ FlatView::AuxData::AuxData(const FlatView::AuxData& aux)
     , editpermissions_( aux.editpermissions_
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
     , poly_( aux.poly_ )
-    , displayed_( aux.displayed_ )
 {}
 
 

@@ -81,16 +81,11 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
     if ( !getDisplay() ) return;
 
-    if ( !enabled_ || isEmpty() )
-    {
-	display_->setVisible( false );
+    display_->setVisible( enabled_ && !isEmpty() );
+    if ( !display_->isVisible() )
 	return;
-    }
 
     display_->setZValue( zvalue_ );
-    display_->setVisible( displayed_ );
-
-    //Todo Adapt to scales
 
     if ( x1rg_ || x2rg_ )
     {
