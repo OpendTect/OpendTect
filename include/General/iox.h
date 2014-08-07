@@ -29,7 +29,6 @@ public:
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool forread=true) const;
     const char*		dirName() const;
-    void		genDefaultImpl()		{}
 
     bool		implExists(bool) const;
     bool		implManagesObjects() const	{ return true; }

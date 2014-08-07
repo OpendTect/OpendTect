@@ -16,11 +16,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapointset.h"
 #include "ascstream.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "streamconn.h"
-#include "ioman.h"
 #include "polygon.h"
 #include "keystrs.h"
 
@@ -87,7 +87,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
     if ( atEndOfSection(astrm) )
 	return "Input file contains no pick sets";
 
-    ps.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
+    ps.setName( IOM().nameOf(conn.linkedTo()) );
 
     Pick::Location loc;
 
@@ -195,7 +195,7 @@ void PickSetTranslator::createBinIDValueSets(
 
 void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 					     ObjectSet<DataPointSet>& dpss,
-       					     bool is2d, bool mini )
+					     bool is2d, bool mini )
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {

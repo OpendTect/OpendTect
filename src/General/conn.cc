@@ -9,6 +9,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "streamconn.h"
 #include "od_iostream.h"
+#include "ioobj.h"
+#include "ioman.h"
 
 
 const bool Conn::Read = true;
@@ -17,13 +19,32 @@ const char* StreamConn::sType() { return "Stream"; }
 const char* XConn::sType() { return "X-Group"; }
 
 
+static MultiID emptyid_;
+
+Conn::~Conn()
+{
+    delete myioobj_;
+}
+
+const MultiID& Conn::linkedTo() const
+{
+    return ioobj ? ioobj->key() : emptyid_;
+}
+
+
+void Conn::setLinkedTo( const MultiID& id )
+{
+    ioobj = myioobj_ = IOM().get( id );
+}
+
+
 #define mInitList(s,ismine) strm_(s), mine_(ismine)
 
 StreamConn::StreamConn() : mInitList(0,true) {}
-StreamConn::StreamConn( od_istream* s ) : mInitList(s,true) {}
-StreamConn::StreamConn( od_ostream* s ) : mInitList(s,true) {}
-StreamConn::StreamConn( od_istream& s ) : mInitList(&s,false) {}
-StreamConn::StreamConn( od_ostream& s ) : mInitList(&s,false) {}
+StreamConn::StreamConn( od_istream* s ) : mInitList(s,true) { fillCrMsg(s); }
+StreamConn::StreamConn( od_ostream* s ) : mInitList(s,true) { fillCrMsg(s); }
+StreamConn::StreamConn( od_istream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
+StreamConn::StreamConn( od_ostream& s ) : mInitList(&s,false) { fillCrMsg(&s); }
 StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
 { setFileName( fnm, forread ); }
 
@@ -31,6 +52,23 @@ StreamConn::StreamConn( const char* fnm, bool forread ) : mInitList(0,false)
 StreamConn::~StreamConn()
 {
     close();
+}
+
+
+void StreamConn::fillCrMsg( od_stream* strm )
+{
+    if ( !strm )
+	creationmsg_.set( "No stream" );
+    else if ( !strm->isOK() )
+    {
+	creationmsg_.set( "Error for " ).add( strm->fileName() );
+	if ( !strm->isBad() )
+	    creationmsg_.set( ": empty file" );
+	else
+	    strm->addErrMsgTo( creationmsg_ );
+    }
+    else
+	creationmsg_.setEmpty();
 }
 
 
@@ -100,6 +138,8 @@ void StreamConn::setFileName( const char* nm, bool forread )
 	else
 	    strm_ = new od_ostream( nm );
     }
+
+    fillCrMsg( strm_ );
 }
 
 

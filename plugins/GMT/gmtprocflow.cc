@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "gmtprocflow.h"
 #include "gmtprocflowtr.h"
 #include "ascstream.h"
+#include "ioman.h"
 
 defineTranslatorGroup(ODGMTProcFlow,"GMT process flow");
 defineTranslator(dgb,ODGMTProcFlow,mDGBKey);
@@ -43,7 +44,7 @@ bool ODGMTProcFlowTranslator::retrieve( ODGMT::ProcFlow& pf, const IOObj* ioobj,
     mDynamicCast(ODGMTProcFlowTranslator*,PtrMan<ODGMTProcFlowTranslator> tr,
 		 ioobj->createTranslator());
     if ( !tr ) { bs = "Selected object is not a GMT flow"; return false; }
-    
+
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
@@ -87,7 +88,7 @@ const char* dgbODGMTProcFlowTranslator::read( ODGMT::ProcFlow& pf, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return "Input file is empty";
 
-    pf.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
+    pf.setName( IOM().nameOf(conn.linkedTo()) );
     pf.pars().getFrom( astrm );
     return 0;
 }

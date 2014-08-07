@@ -37,7 +37,6 @@ public:
     const char*	connType() const	{ return 0; }
     Conn*	getConn( bool forread ) const { return 0; }
 
-    void	genDefaultImpl()	{}
     const char*	dirName() const		{ return fullUserExpr(true); }
 
 protected:

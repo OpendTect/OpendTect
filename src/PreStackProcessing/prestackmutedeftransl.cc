@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathfunc.h"
 #include "prestackmutedef.h"
 #include "ptrman.h"
+#include "ioman.h"
 #include "odver.h"
 #include "streamconn.h"
 
@@ -102,7 +103,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	return "Input file contains no Mute Definition locations";
 
     while ( md.size() ) md.remove( 0 );
-    md.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
+    md.setName( IOM().nameOf(conn.linkedTo()) );
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
     {

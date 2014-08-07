@@ -35,7 +35,6 @@ public:
     virtual const char* fullUserExpr(bool forread=true) const;
     const char*		getExpandedName(bool forread,
 					bool fillwildcard=true) const;
-    virtual void	genDefaultImpl()		{ genFileName(); }
 
     virtual const char*		connType() const;
     virtual Conn*		getConn(bool) const;

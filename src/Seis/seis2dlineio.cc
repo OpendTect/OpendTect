@@ -89,9 +89,10 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 bool TwoDSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    if ( !conn->ioobj )
+    PtrMan<IOObj> ioobj = IOM().get( conn ? conn->linkedTo() : MultiID() );
+    if ( !ioobj )
 	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) )
 	{ errmsg_.set( fnm ).add( "does not exist" ); return false; }
 
@@ -160,12 +161,13 @@ bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
 bool TwoDDataSeisTrcTranslator::initRead_()
 {
     errmsg_.setEmpty();
-    if ( !conn->ioobj )
+    PtrMan<IOObj> ioobj = IOM().get( conn ? conn->linkedTo() : MultiID() );
+    if ( !ioobj )
 	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
-    BufferString fnm( conn->ioobj->fullUserExpr(true) );
+    BufferString fnm( ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) ) return false;
 
-    Seis2DDataSet dset( *(conn->ioobj) );
+    Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )
 	{ errmsg_ = "Data set is empty"; return false; }
     dset.getTxtInfo( 0, pinfo.usrinfo, pinfo.stdinfo );

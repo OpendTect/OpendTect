@@ -83,7 +83,6 @@ public:
     virtual bool		implRename(const char*,const CallBack* cb=0)
 							{ return false; }
     virtual bool		implSetReadOnly(bool) const	{ return false;}
-    virtual void		genDefaultImpl()		{}
 
     virtual const char*		dirName() const		{ return dirnm_; }
 				//!< The directory ame within the tree
@@ -118,6 +117,7 @@ public:
     virtual bool		implShouldRemove() const	{ return true; }
     // DEPRECATED in 5.0, never used
     virtual bool		removeQuery() const		{ return false;}
+    virtual void		genDefaultImpl()		{}
 
 protected:
 

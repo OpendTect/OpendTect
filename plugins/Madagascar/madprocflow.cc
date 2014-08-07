@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "seistype.h"
 #include "ascstream.h"
+#include "ioman.h"
 
 const char* ODMad::ProcFlow::sKeyInp()		{ return sKey::Input(); }
 const char* ODMad::ProcFlow::sKeyOutp()		{ return sKey::Output(); }
@@ -213,7 +214,7 @@ const char* dgbODMadProcFlowTranslator::read( ODMad::ProcFlow& pf, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return "Input file is empty";
 
-    pf.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
+    pf.setName( IOM().nameOf(conn.linkedTo()) );
     IOPar iop( astrm ); pf.usePar( iop );
     return 0;
 }

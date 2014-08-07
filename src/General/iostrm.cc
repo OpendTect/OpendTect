@@ -170,10 +170,8 @@ Conn* IOStream::getConn( bool forread ) const
 
     const BufferString implnm( getExpandedName(forread) );
     StreamConn*	ret = new StreamConn( implnm, forread );
-    if ( !ret || ret->isBad() )
-	{ delete ret; ret = 0; }
-    else
-	ret->ioobj = this;
+    if ( ret )
+	ret->setLinkedTo( key() );
 
     return ret;
 }

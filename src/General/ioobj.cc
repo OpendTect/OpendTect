@@ -251,13 +251,15 @@ bool IOObj::put( ascostream& astream ) const
 
     if ( !putTo( astream ) )
 	return false;
+
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
 	astream.stream() << '#';
 	astream.put( pars_.getKey(idx), pars_.getValue(idx) );
     }
+
     astream.newParagraph();
-    return true;
+    return astream.isOK();
 }
 
 
@@ -459,8 +461,8 @@ Conn* IOX::getConn( bool forread ) const
 
     XConn* xconn = new XConn;
     xconn->conn_ = ioobj->getConn( forread );
-    if ( xconn->conn_ ) xconn->conn_->ioobj = 0;
-    xconn->ioobj = const_cast<IOX*>( this );
+    if ( xconn->conn_ )
+	xconn->conn_->setLinkedTo( key() );
 
     delete ioobj;
     return xconn;
