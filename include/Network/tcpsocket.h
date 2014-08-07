@@ -26,25 +26,25 @@ mExpClass(Network) TcpSocket : public CallBacker
 friend class QTcpSocketComm;
 
 public:
-    				TcpSocket();
+				TcpSocket();
 				TcpSocket(QTcpSocket*,int id);
 				~TcpSocket();
 
     void			connectToHost(const char* host,int port);
     void			disconnectFromHost();
     void			abort();
-    int				write(const char*);  
+    int				write(const char*);
     int				write(const IOPar&);
     int				write(const int&);
     int				write(bool);
-    int				writedata(const char*, int nr);  
+    int				writedata(const char*, int nr);
 
     void			read(BufferString&) const;
     void			read(IOPar&) const;
     void			read(int&) const;
     void			read(bool&) const;
     void			readdata(char*& data, int sz) const;
-    int 			getID() const { return id_; }
+    int				getID() const { return id_; }
 
     const char*			errorMsg() const;
 
@@ -56,9 +56,13 @@ public:
     Notifier<TcpSocket>		stateChanged;
 
     bool			waitForConnected(int msec);
-    				//!<Useful when no event loop available
+				//!<Useful when no event loop available
     bool			waitForReadyRead(int msec);
-    				//!<Useful when no event loop available
+				//!<Useful when no event loop available
+    bool			waitForReadyWrite(int msec);
+				//!<Useful when no event loop available
+    bool			waitForDisconnected(int msec);
+				//!<Useful when no event loop available
 
 protected:
 

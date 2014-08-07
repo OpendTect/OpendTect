@@ -109,6 +109,27 @@ bool TcpSocket::waitForReadyRead( int msec )
 #endif
 }
 
+
+bool TcpSocket::waitForReadyWrite( int msec )
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->waitForBytesWritten( msec );
+#else
+    return false;
+#endif
+}
+
+
+bool TcpSocket::waitForDisconnected( int msec )
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->waitForDisconnected( msec );
+#else
+    return false;
+#endif
+}
+
+
 void TcpSocket::readdata( char*& data, int len ) const
 {
 #ifndef OD_NO_QT
