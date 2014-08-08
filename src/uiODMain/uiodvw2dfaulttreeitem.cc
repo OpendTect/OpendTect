@@ -209,7 +209,7 @@ void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DFaultTreeItem::enableKnotsCB( CallBacker* )
 {
-    if ( viewer2D()->dataMgr()->selectedId() == faultview_->id() )
+    if ( viewer2D()->dataMgr()->selectedID() == faultview_->id() )
 	faultview_->selected();
 }
 

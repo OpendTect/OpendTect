@@ -211,7 +211,7 @@ void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 
 void uiODVw2DFaultSSTreeItem::enableKnotsCB( CallBacker* )
 {
-    if ( viewer2D()->dataMgr()->selectedId() == fssview_->id() )
+    if ( viewer2D()->dataMgr()->selectedID() == fssview_->id() )
 	fssview_->selected();
 }
 

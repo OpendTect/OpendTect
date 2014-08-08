@@ -37,7 +37,7 @@ public:
     Vw2DDataObject*		getObject(int id);
 
     void			setSelected(Vw2DDataObject*);
-    int				selectedId()	{ return selectedid_; }
+    int				selectedID()	{ return selectedid_; }
 
     void			usePar(const IOPar&,uiFlatViewWin*,
 				    const ObjectSet<uiFlatViewAuxDataEditor>&);
