@@ -23,13 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 # include "od_istream.h"
 # include <windows.h>
 #include <stdlib.h>
-
-# ifdef __msvc__
-#  define popen _popen
-#  define pclose _pclose
-#  define fileno(s) _fileno(s)
-#  include "winstreambuf.h"
-# endif
 #endif
 
 BufferString OS::MachineCommand::defremexec_( "ssh" );
@@ -377,9 +370,20 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
     if ( pars.needmonitor_ )
     {
 	monitorfnm_ = pars.monitorfnm_;
-	monitorfnm_.quote( '\"' );
+
+#ifdef __win__
+	if ( monitorfnm_.isEmpty() )
+	{
+	    monitorfnm_ = FilePath::getTempName("txt");
+	    redirectoutput_ = true;
+	}
+#endif
+	
+	if ( File::exists(monitorfnm_) )
+	    File::remove(monitorfnm_);
 
 #ifndef __win__
+	monitorfnm_.quote( '\"' );
 	localcmd.add( " --needmonitor" );
 	if ( !monitorfnm_.isEmpty() )
 	    localcmd.add( " --monitorfnm " ).add( monitorfnm_.buf() );
@@ -388,14 +392,8 @@ bool OS::CommandLauncher::execute( const OS::CommandExecPars& pars )
 		FilePath(GetBinPlfDir(),"od_batch_launcher").fullPath() );
 	launchercmd.add( "\" " ).add( localcmd );
 	return doExecute( launchercmd, pars.launchtype_==Wait4Finish );
-#else
-	if ( monitorfnm_.isEmpty() )
-	{
-	    monitorfnm_ = FilePath::getTempName("txt");
-	    monitorfnm_.quote( '\"' );
-	    redirectoutput_ = true;
-	}
 #endif
+    
     }
 
     ret = doExecute( localcmd, pars.launchtype_==Wait4Finish );
@@ -446,7 +444,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
     ZeroMemory(&si, sizeof(STARTUPINFO));
     ZeroMemory( &pi, sizeof(pi) );
     si.cb = sizeof(STARTUPINFO);
-
+    HANDLE hlog = 0;
     if ( redirectoutput_ )
     {
 	SECURITY_ATTRIBUTES sa;
@@ -454,13 +452,13 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 	sa.lpSecurityDescriptor = NULL;
 	sa.bInheritHandle = TRUE;
 
-	HANDLE hlog = CreateFile( monitorfnm_,
-				  FILE_APPEND_DATA,
-				  FILE_SHARE_WRITE | FILE_SHARE_READ,
-				  &sa,
-				  OPEN_ALWAYS,
-				  FILE_ATTRIBUTE_NORMAL,
-				  NULL );
+	hlog = CreateFile( monitorfnm_,
+			   FILE_APPEND_DATA,
+			   FILE_SHARE_WRITE | FILE_SHARE_READ,
+			   &sa,
+			   OPEN_ALWAYS,
+			   FILE_ATTRIBUTE_NORMAL,
+			   NULL );
 
 	si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
 	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
@@ -500,6 +498,7 @@ bool OS::CommandLauncher::doExecute( const char* comm, bool wt4finish,
 	LocalFree(errmsg);
     }
 
+    CloseHandle( hlog );
     return res;
 
 # endif
