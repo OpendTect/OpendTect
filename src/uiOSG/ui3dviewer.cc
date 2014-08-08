@@ -260,7 +260,7 @@ void ui3DViewerBody::setupHUD()
 
     hudview_ = new osgViewer::View;
     hudview_->setCamera( hudcamera );
-    offscreenrenderhudswitch_->removeChild( 
+    offscreenrenderhudswitch_->removeChild(
 	0, offscreenrenderhudswitch_->getNumChildren() );
     offscreenrenderhudswitch_->addChild( hudscene_->osgNode() );
     hudview_->setSceneData( offscreenrenderhudswitch_ );
@@ -308,7 +308,7 @@ void ui3DViewerBody::setupHUD()
     {
 	visscenecoltab_ = visBase::SceneColTab::create();
 	hudscene_->addObject( visscenecoltab_ );
-	
+
 	FontData ftdata;
 	ftdata.setPointSize( 18 );
 	visscenecoltab_->setAnnotFont( ftdata );
@@ -587,7 +587,7 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
         osg::ref_ptr<osgGeo::TrackballManipulator> manip =
 	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
-        manip->changeDistance( deltaangle/M_PI );
+	manip->changeDistance( -deltaangle/M_PI );
 
     }
 }
@@ -984,7 +984,7 @@ void ui3DViewerBody::uiRotate( float angle, bool horizontal )
 
 void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 {
-    distancethumbwheel_->setAngle( df * M_PI+distancethumbwheel_->getAngle() );
+    distancethumbwheel_->setAngle( -df * M_PI+distancethumbwheel_->getAngle() );
     horthumbwheel_->setAngle( dh + horthumbwheel_->getAngle() );
     verthumbwheel_->setAngle( dv + verthumbwheel_->getAngle() );
 }
@@ -1457,7 +1457,7 @@ bool ui3DViewer::usePar( const IOPar& par )
 	setBackgroundColor( newcol );
     }
 
-    
+
     StereoType stereotype;
     if ( parseEnum( par, sKeyStereo(), stereotype ) )
 	setStereoType( stereotype );
