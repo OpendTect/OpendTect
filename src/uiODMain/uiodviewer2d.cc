@@ -18,11 +18,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
 #include "uiflatviewstdcontrol.h"
-#include "uiflatviewpropdlg.h"
 #include "uimenu.h"
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -415,9 +415,7 @@ void uiODViewer2D::removeAvailablePacks()
     if ( !viewwin() ) { pErrMsg("No main window"); return; }
 
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
-    {
 	viewwin()->viewer(ivwr).clearAllPacks();
-    }
 }
 
 
