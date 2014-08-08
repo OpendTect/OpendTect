@@ -35,7 +35,7 @@ uiPreStackDataPackSelDlg::uiPreStackDataPackSelDlg( uiParent* p,
     }
     if ( selid.isUdf() && !dpfids_.isEmpty() )
 	datapackinpfld_->setCurrentItem( 0 );
-};
+}
 
 
 bool uiPreStackDataPackSelDlg::acceptOK( CallBacker* )
