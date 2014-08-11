@@ -289,13 +289,13 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    const int selfpickidx = clickedMarkerIndex( eventinfo );
 	    if ( selfpickidx!=-1 )
 	    {
-		setPickable( false );
+		setPickable( false, false );
 		waitsforpositionid_ = selfpickidx;
 	    }
 	    const int selfdirpickidx = isDirMarkerClick(eventinfo.pickedobjids);
 	    if ( selfdirpickidx!=-1 )
 	    {
-		setPickable( false );
+		setPickable( false, false );
 		waitsfordirectionid_ = selfpickidx;
 	    }
 
@@ -345,7 +345,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		    {
 			if ( hasDirection() )
 			{
-			    setPickable( false );
+			    setPickable( false, false );
 			    waitsfordirectionid_ = set_->size()-1;
 			}
 
