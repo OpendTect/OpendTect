@@ -72,6 +72,8 @@ public:
 
     float		getIntersectionZ(int trcnr) const;
     int			getIntersectionTrace(float zval) const;
+    bool		getFaultTraceIntersection(const FaultTrace&,
+						  int& trace,float& zval) const;
 
     bool		getHorizonIntersectionInfo(const EM::Horizon& hor,
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,

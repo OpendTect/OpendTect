@@ -138,6 +138,40 @@ bool FaultTrace::getImage( const BinID& bid, float z,
 }
 
 
+bool FaultTrace::getFaultTraceIntersection( const FaultTrace& flttrc,
+					    int& trace, float& zval ) const
+{
+    if ( trcrange_.stop < flttrc.trcrange_.start ||
+	 trcrange_.start > flttrc.trcrange_.stop ||
+	 zrange_.stop < flttrc.zrange_.start ||
+	 zrange_.start > flttrc.zrange_.stop )
+	return false;
+
+    for ( int idx=0; idx<flttrc.tracesegs_.size(); idx++ )
+    {
+	const int trc0 = mNINT32(flttrc.tracesegs_[idx].start_.x);
+	const BinID bid0( isinl_ ? nr_ : trc0, isinl_ ? trc0 : nr_ );
+	const int trc1 = mNINT32(flttrc.tracesegs_[idx].stop_.x);
+	const BinID bid1( isinl_ ? nr_ : trc1, isinl_ ? trc1 : nr_ );
+
+	const float z0 = mCast(float,flttrc.tracesegs_[idx].start_.y) /
+	    SI().showZ2UserFactor();
+	const float z1 = mCast(float,flttrc.tracesegs_[idx].stop_.y) /
+	    SI().showZ2UserFactor();
+
+	const Coord intsect = getIntersection( bid0, z0, bid1, z1 );
+	if ( intsect.isDefined() )
+	{
+	    trace = mCast(int,intsect.x);
+	    zval = mCast(float,intsect.y);
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 	TypeSet<BinID>& pos1bids, TypeSet<float>& pos1zs,
 	TypeSet<BinID>& pos2bids, TypeSet<float>& pos2zs,
