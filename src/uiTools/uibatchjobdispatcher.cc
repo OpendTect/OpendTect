@@ -31,6 +31,8 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selfld_(0)
     , dobatchbox_(0)
     , selectionChange(this)
+    , checked(this)
+    , jobname_("batch_processing")
 {
     init( optional );
 }
@@ -44,6 +46,7 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selfld_(0)
     , dobatchbox_(0)
     , selectionChange(this)
+    , checked(this)
     , jobname_("batch_processing")
 {
     init( optional );
@@ -85,7 +88,7 @@ void uiBatchJobDispatcherSel::init( bool optional )
     }
     else
     {
-	selfld_ = new uiGenInput( this, tr("Batch execution"), 
+	selfld_ = new uiGenInput( this, tr("Batch execution"),
                                   StringListInpSpec());
 	selfld_->valuechanged.notify( mCB(this,uiBatchJobDispatcherSel,selChg));
 	setHAlignObj( selfld_ );
@@ -226,6 +229,7 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
 void uiBatchJobDispatcherSel::fldChck( CallBacker* )
 {
     optsbut_->setSensitive( wantBatch() );
+    checked.trigger();
 }
 
 

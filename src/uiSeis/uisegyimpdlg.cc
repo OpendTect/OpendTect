@@ -87,7 +87,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	batchfld_->setJobName( "import SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
-	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	batchfld_->attach( alignedBelow, seissel_ );
     }
     else

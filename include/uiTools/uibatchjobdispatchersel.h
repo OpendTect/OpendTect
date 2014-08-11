@@ -47,6 +47,7 @@ public:
     bool		start();
 
     Notifier<uiBatchJobDispatcherSel> selectionChange;
+    Notifier<uiBatchJobDispatcherSel> checked;	//! only when isoptional
 
 protected:
 

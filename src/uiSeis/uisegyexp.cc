@@ -11,38 +11,43 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegyexp.h"
+
+#include "uibatchjobdispatchersel.h"
+#include "uicompoundparsel.h"
+#include "uifileinput.h"
+#include "uifiledlg.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uisegydef.h"
 #include "uisegymanip.h"
+#include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
-#include "uicompoundparsel.h"
 #include "uiseistransf.h"
-#include "uiseisioobjinfo.h"
+#include "uiselsimple.h"
+#include "uitaskrunner.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
+
+#include "ctxtioobj.h"
+#include "executor.h"
+#include "file.h"
+#include "filepath.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "oddirs.h"
+#include "od_helpids.h"
+#include "segybatchio.h"
 #include "segyhdr.h"
 #include "segytr.h"
 #include "seisread.h"
-#include "seiswrite.h"
 #include "seissingtrcproc.h"
-#include "survgeom.h"
-#include "uimsg.h"
-#include "uitoolbutton.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uitaskrunner.h"
-#include "uifileinput.h"
-#include "uifiledlg.h"
-#include "uiselsimple.h"
-#include "uitextedit.h"
-#include "executor.h"
-#include "ctxtioobj.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "oddirs.h"
-#include "filepath.h"
-#include "file.h"
-#include "zdomain.h"
+#include "seiswrite.h"
 #include "strmprov.h"
-#include "od_helpids.h"
+#include "survgeom.h"
+#include "zdomain.h"
+
 
 static const char* txtheadtxt =
 "Define the SEG-Y text header. Note that:"
@@ -168,12 +173,14 @@ BufferString getSummary() const
 };
 
 
+
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),tr("Export to SEG-Y"),
                                      mODHelpKey(mSEGYExpHelpID) ))
 	, geom_(gt)
 	, morebox_(0)
 	, manipbox_(0)
+	, batchfld_(0)
 	, autogentxthead_(true)
 	, selcomp_(-1)
 {
@@ -214,6 +221,19 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	manipbox_->attach( alignedBelow, fsfld_ );
     }
 
+    if ( !Seis::is2D(geom_) )
+    {
+	batchfld_ = new uiBatchJobDispatcherSel( this, true,
+						 Batch::JobSpec::SEGY );
+	batchfld_->checked.notify( mCB(this,uiSEGYExp,batchChg) );
+	batchfld_->setJobName( "Export SEG-Y" );
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(geom_) );
+	batchfld_->attach( alignedBelow,
+		manipbox_ ?  manipbox_ : fsfld_->attachObj() );
+    }
+
     postFinalise().notify( inpselcb );
 }
 
@@ -224,6 +244,17 @@ void uiSEGYExp::inpSel( CallBacker* )
     if ( ioobj )
 	transffld_->updateFrom( *ioobj );
 }
+
+
+void uiSEGYExp::batchChg( CallBacker* )
+{
+    if ( !manipbox_ || !batchfld_ )
+	return;
+
+    manipbox_->setSensitive( !batchfld_->wantBatch() );
+    txtheadfld_->setSensitive( !batchfld_->wantBatch() );
+}
+
 
 
 class uiSEGYExpMore : public uiDialog
@@ -374,6 +405,23 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
+
+    if ( batchfld_ && batchfld_->wantBatch() )
+    {
+	Batch::JobSpec& js = batchfld_->jobSpec();
+	IOPar inpars;
+	seissel_->fillPar( inpars );
+	js.pars_.mergeComp( inpars, sKey::Input() );
+
+	IOPar outpars;
+	transffld_->fillPar( outpars );
+	fpfld_->fillPar( outpars );
+	fsfld_->fillPar( outpars );
+// TODO: Support header text
+	js.pars_.mergeComp( outpars, sKey::Output() );
+	batchfld_->start();
+	return false;
+    }
 
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()

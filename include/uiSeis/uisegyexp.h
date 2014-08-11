@@ -13,16 +13,18 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "seistype.h"
 #include "iopar.h"
+#include "seistype.h"
 #include "uistring.h"
+
 class IOObj;
-class uiSeisSel;
+class uiBatchJobDispatcherSel;
 class uiCheckBox;
-class uiSeisTransfer;
 class uiSEGYFilePars;
 class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
+class uiSeisSel;
+class uiSeisTransfer;
 
 
 /*\brief SEG-Y exporting dialog */
@@ -49,8 +51,10 @@ protected:
     uiSEGYExpTxtHeader*	txtheadfld_;
     uiCheckBox*		morebox_;
     uiCheckBox*		manipbox_;
+    uiBatchJobDispatcherSel* batchfld_;
 
     void		inpSel(CallBacker*);
+    void		batchChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     friend class	uiSEGYExpMore;
