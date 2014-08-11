@@ -701,16 +701,21 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     if ( !ctio_.ctxt.forread )
     {
 	PtrMan<IOObj> ioobj = 0;
-	const char* presetnm = nmfld_->text();
-	if ( !*presetnm && listfld_->size() == 1 )
+	FixedString presetnm = nmfld_->text();
+	if ( presetnm.isEmpty() && !listfld_->isEmpty() )
 	{
 	    presetnm = listfld_->textOfItem( 0 );
 	    ioobj = IOM().get( *ioobjids_[0] );
 	    if ( ioobj )
-		nmfld_->setText( BufferString(ioobjnms_.get(0)," 2") );
+	    {
+		if ( listfld_->size() == 1 )
+		    nmfld_->setText( BufferString(ioobjnms_.get(0)," 2") );
+		else
+		    nmfld_->setText( ioobjnms_.get( 0 ) );
+	    }
 	}
 
-	if ( *presetnm && listfld_->isPresent(presetnm) )
+	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
 	    listfld_->setCurrentItem( presetnm );
 
 	if ( wrtrselfld_ )
