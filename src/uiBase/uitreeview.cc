@@ -731,7 +731,7 @@ void uiTreeViewItem::setBGColor( int column, const Color& color )
 
 const char* uiTreeViewItem::text( int column ) const
 {
-    return texts_[column].getFullString();
+    return texts_.validIdx(column) ? texts_[column].getFullString().buf() : 0;
 }
 
 
