@@ -65,6 +65,7 @@ public:
 
     bool		getFiles(const BufferStringSet& fnms,
 				  const char* outputdir,TaskRunner&);
+    od_int64		getFileSize(const char* relfilenm);
     bool		haveErrMsg() const
     			{ return !errmsg_.isEmpty(); }
     			//!< if haveErrMsg(), then failure - otherwise user stop

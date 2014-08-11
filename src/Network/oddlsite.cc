@@ -120,14 +120,23 @@ DataBuffer* ODDLSite::obtainResultBuf()
 
 
 bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
-			 TaskRunner& tr )
+			 TaskRunner& taskrunner )
 {
     errmsg_.setEmpty();
     BufferStringSet fullurls;
     for ( int idx=0; idx<fnms.size(); idx++ )
 	fullurls.add( fullURL(fnms.get(idx)) );
 
-    return Network::downloadFiles( fullurls, outputdir, errmsg_, &tr );
+    return Network::downloadFiles( fullurls, outputdir, errmsg_, &taskrunner );
+}
+
+
+od_int64 ODDLSite::getFileSize( const char* relfilenm )
+{
+    od_int64 ret = 0;
+    const BufferString fullurl = fullURL( relfilenm );
+    Network::getRemoteFileSize( fullurl.buf(), ret, errmsg_ );
+    return ret;
 }
 
 
