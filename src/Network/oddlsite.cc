@@ -133,6 +133,15 @@ bool ODDLSite::getFiles( const BufferStringSet& fnms, const char* outputdir,
 }
 
 
+od_int64 ODDLSite::getFileSize( const char* relfilenm )
+{
+    od_int64 ret = 0;
+    const BufferString fullurl = fullURL( relfilenm );
+    Network::getRemoteFileSize( fullurl.buf(), ret, errmsg_ );
+    return ret;
+}
+
+
 void ODDLSite::reqFinish( CallBacker* )
 {
     //TODO implement
