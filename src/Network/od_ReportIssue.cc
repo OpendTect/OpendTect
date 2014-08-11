@@ -11,13 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "issuereporter.h"
 #include "prog.h"
-#include "QCoreApplication"
+#include "applicationdata.h"
 
 
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-    QCoreApplication app( argc, argv );
+    ApplicationData app;
     
     System::IssueReporter reporter;
     if ( !reporter.parseCommandLine() )

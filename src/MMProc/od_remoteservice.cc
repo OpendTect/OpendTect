@@ -9,10 +9,9 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include <QCoreApplication>
-
 #include "remcommhandler.h"
 #include "commandlineparser.h"
+#include "applicationdata.h"
 
 #include "prog.h"
 
@@ -20,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
-    QCoreApplication app( argc, argv );
+    ApplicationData app;
 
     const bool dofork = CommandLineParser().hasKey( "bg" );
     if ( dofork )

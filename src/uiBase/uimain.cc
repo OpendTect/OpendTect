@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaction.h"
 #include "uitreeview.h"
 
+#include "applicationdata.h"
 #include "bufstringset.h"
 #include "debug.h"
 #include "envvars.h"
@@ -254,9 +255,9 @@ static void initQApplication()
     uiMain::cleanQtOSEnv();
     QApplication::setDesktopSettingsAware( true );
 
-    QCoreApplication::setOrganizationName( "dGB");
-    QCoreApplication::setOrganizationDomain( "opendtect.org" );
-    QCoreApplication::setApplicationName( "OpendTect" );
+    ApplicationData::setOrganizationName( "dGB");
+    ApplicationData::setOrganizationDomain( "opendtect.org" );
+    ApplicationData::setApplicationName( "OpendTect" );
 #ifdef __mac__
 
     QCoreApplication::setAttribute(

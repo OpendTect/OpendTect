@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "iopar.h"
-#include <QCoreApplication>
+#include "applicationdata.h"
 
 
 FilePath tempfile;
@@ -113,8 +113,8 @@ bool testFileSizes()
 
 int main(int argc, char** argv)
 {
-    QCoreApplication app( argc, argv );
     mInitTestProg();
+    ApplicationData app;
 
     tempfile = FilePath::getTempDir();
     mRunStandardTest( !tempfile.isEmpty(), "Temp-dir generation" );
