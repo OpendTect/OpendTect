@@ -1089,8 +1089,7 @@ bool ZipHandler::readEndOfCentralDirHeader()
 {
     char sig[mSizeFourBytes];
     mEndOfCntrlDirHeaderSig( sig );
-    istrm_->setPosition( 0, od_stream::End );
-    od_stream::Pos filepos = istrm_->position();
+    od_stream::Pos filepos = istrm_->endPosition();
     if ( filepos == 0 )
 	{ mErrRet( "Zip archive is empty", "", "" ) }
 
