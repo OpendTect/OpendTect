@@ -146,7 +146,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) );
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    clearseltbid_ = seltb_.addButton( "clearselection", 
+    clearseltbid_ = seltb_.addButton( "clearselection",
                                        tr("Remove all selections"),
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections) );
 
@@ -357,7 +357,7 @@ public:
 
 uiSelColorDlg( uiParent* p, const BufferStringSet& names,
 	       TypeSet<Color>& y1cols, TypeSet<Color>& y2cols, bool isy2shwn )
-    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","", 
+    : uiDialog( p, uiDialog::Setup("Select Color for Y1 & Y2","",
                                     mODHelpKey(mSelColorDlgHelpID) ) )
     , names_( names )
     , y1cols_( y1cols )
@@ -544,11 +544,11 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 	msg += "density plot which would be faster ?";
 	msg += "\nNote: Density plot cannot have Y2 axis";
 	const int res =
-	    uiMSG().askGoOnAfter( msg, uiStrings::sCancel(), "Normal Plot", 
+	    uiMSG().askGoOnAfter( msg, uiStrings::sCancel(), "Normal Plot",
                                   "Density Plot");
-	if ( !res )
+	if ( res==1 )
 	    wantnormalplot_ = true;
-	else if ( res ==1 )
+	else if ( res==0 )
 	    wantnormalplot_ = false;
 	else
 	{

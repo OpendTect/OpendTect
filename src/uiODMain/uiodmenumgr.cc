@@ -1348,7 +1348,7 @@ int uiODMenuMgr::ask2D3D( const char* txt, int res2d, int res3d, int rescncl )
 	const int msg = uiMSG().askGoOnAfter( txt, uiStrings::sCancel(),
                                               uiStrings::s2D(true),
                                               uiStrings::s3D(true) );
-	res = msg == 2 ? rescncl : ( msg == 0 ? res2d : res3d );
+	res = msg == -1 ? rescncl : ( msg == 1 ? res2d : res3d );
     }
 
     return res;

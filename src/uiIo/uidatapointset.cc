@@ -137,7 +137,7 @@ const ColTab::MapperSetup& ctMapperSetup() const
 
 
 uiDataPointSet::Setup::Setup( const uiString& wintitl, bool ismodal )
-    : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"), 
+    : uiDialog::Setup( wintitl.isSet() ? wintitl : tr("Extracted data"),
                        mNoDlgTitle, mODHelpKey(mDataPointSetHelpID) )
     , isconst_(false)
     , canaddrow_(false)
@@ -334,7 +334,7 @@ void uiDataPointSet::mkToolBars()
     disptb_->addButton( fnm, tip, mCB(this,uiDataPointSet,func), istogg )
     dispxytbid_ = mAddButton( "toggxy", toggleXYZ,
 			      tr("Toggle show X and Y columns"), true );
-    dispztbid_ = mAddButton( "toggz", toggleXYZ, 
+    dispztbid_ = mAddButton( "toggz", toggleXYZ,
                               tr("Toggle show Z column"), true );
 
     if ( !is2D() )
@@ -1570,12 +1570,12 @@ void uiDataPointSet::delSelRows( CallBacker* )
 				 "\nwhich fall in the same range but are not"
 				 "\nselected or displayed as only certain"
 				 "\npercentage of data is displayed or only the"
-				 "\nselected & displayed ones ?"), 
-                                 uiStrings::sCancel(), tr("Delete all"), 
+				 "\nselected & displayed ones ?"),
+				 uiStrings::sCancel(), tr("Delete all"),
                                  tr("Delete only selected") );
-	    if ( rep == 0 )
+	    if ( rep == 1 )
 		removeHiddenRows();
-	    if ( rep != 1 )
+	    if ( rep != 0 )
 		return;
 	}
     }

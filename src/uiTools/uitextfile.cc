@@ -385,9 +385,9 @@ bool uiTextFileDlg::okToExit()
     const BufferString msg( "File:\n", editor_->fileName(),
 			"\nwas modified. Save now?" );
     int opt = doMsg( msg, false );
-    if ( opt == 2 )
+    if ( opt == -1 )
 	return false;
-    else if ( opt == 0 && !editor_->save() )
+    else if ( opt == 1 && !editor_->save() )
 	{ doMsg( "Could not save.\nPlease try 'Save As'" ); return false; }
 
     return true;

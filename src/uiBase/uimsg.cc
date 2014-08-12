@@ -29,8 +29,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistring.h"
 
 #undef Ok
+#include <QCheckBox>
+#include <QLayout>
 #include <QMessageBox>
-#include <QAbstractButton>
+#include <QPushButton>
 
 #include "odlogo128x128.xpm"
 static const char** sODLogo = od_logo_128x128;
@@ -117,7 +119,6 @@ const uiString wintitle = \
 	getCaptn( uiMainWin::uniqueWinTitle((s),0,&addendum ) ); \
 const BufferString utfwintitle( wintitle.getOriginalString(), addendum )
 
-#define mTxt QString( msg.buf() )
 
 uiString getCaptn( const uiString& s )
 {
@@ -172,39 +173,6 @@ void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 }
 
 
-#define mImplSimpleMsg( odfunc, caption, qtfunc ) \
-void uiMsg::odfunc( const char* text, const char* p2, const char* p3 ) \
-{ \
-    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3; \
-    odfunc( msg ); \
-} \
-void uiMsg::odfunc( const uiString& text ) \
-{ \
-    mPrepCursor(); \
-    if ( text.isEmpty() ) \
-	return; \
-\
-    uiString oktxt = uiStrings::sOk(); \
-\
-    mCapt(caption); \
-    const int refnr = beginCmdRecEvent( utfwintitle.buf() ); \
-    QMessageBox::qtfunc( popParnt(), wintitle.getQtString(), \
-			    text.getQtString(), oktxt.getQtString() ); \
-    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() ); \
-}
-
-
-mImplSimpleMsg( message, tr("Information"), information )
-mImplSimpleMsg( warning, tr("Warning"), warning )
-
-
-void uiMsg::error( const char* p1, const char* p2, const char* p3 )
-{
-    BufferString msg( p1 ); if ( p2 ) msg += p2; if ( p3 ) msg += p3;
-    errorWithDetails( FileMultiString(msg.buf()) );
-}
-
-
 static void addStayOnTopFlag( QMessageBox& mb )
 {
     Qt::WindowFlags flags = mb.windowFlags();
@@ -213,18 +181,97 @@ static void addStayOnTopFlag( QMessageBox& mb )
 }
 
 
-void uiMsg::error( const uiString& str )
+static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
+	const uiString& txt, const uiString& yestxt, const uiString& notxt,
+	const uiString& cncltxt, const uiString& title )
 {
-    MouseCursorChanger cc( MouseCursor::Arrow );
 
-    mCapt(tr("Error"));
-    const int refnr = beginCmdRecEvent( utfwintitle.buf() );
+    QMessageBox* mb = new QMessageBox( parent );
+    mb->setIcon( (QMessageBox::Icon)icon );
+    mb->setWindowTitle( title.getQtString() );
+    mb->setText( txt.getQtString() );
+    addStayOnTopFlag( *mb );
 
-    QMessageBox msgbox( QMessageBox::Critical, wintitle.getQtString(),
-			str.getQtString(), QMessageBox::Ok, popParnt() );
-    addStayOnTopFlag( msgbox );
-    msgbox.exec();
-    mEndCmdRecEvent( refnr, msgbox );
+    QIcon qicon; // null icon to avoid icons on the pushbuttons
+    QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
+    yesbut->setText(yestxt.getQtString() );
+    yesbut->setIcon( qicon );
+
+    if ( !notxt.isEmpty() )
+    {
+	QPushButton* nobut = mb->addButton( QMessageBox::No );
+	nobut->setText( notxt.getQtString() );
+	nobut->setIcon( qicon );
+    }
+
+    if ( !cncltxt.isEmpty() )
+    {
+	QPushButton* rejbut = mb->addButton( QMessageBox::Abort );
+	rejbut->setText( cncltxt.getQtString() );
+	rejbut->setIcon( qicon );
+    }
+
+    return mb;
+}
+
+
+int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
+			   const uiString& yestxt, const uiString& notxt,
+			   const uiString& cncltxt, const uiString& title )
+{
+    mPrepCursor();
+    if ( txt.isEmpty() )
+	return -1;
+
+    mCapt( title.isEmpty() ? tr("Please specify") : title );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+
+    PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt, notxt,
+					       cncltxt, wintitle );
+    const int res = mb->exec();
+
+    endCmdRecEvent( refnr, res, yestxt.getOriginalString(),
+		    notxt.getOriginalString(),
+		    cncltxt.getOriginalString() );
+
+    if ( res==QMessageBox::Yes )
+	return 1;
+    if ( res==QMessageBox::No )
+	return 0;
+    return -1;
+}
+
+
+void uiMsg::message( const uiString& part1, const uiString& part2,
+		     const uiString& part3 )
+{
+    uiString msg = part1;
+    if ( !part2.isEmpty() ) msg.append( part2 );
+    if ( !part3.isEmpty() ) msg.append( part3 );
+    showMessageBox( Information, popParnt(), msg, uiStrings::sOk(), 0, 0,
+		    tr("Information") );
+}
+
+
+void uiMsg::warning( const uiString& part1, const uiString& part2,
+		     const uiString& part3 )
+{
+    uiString msg = part1;
+    if ( !part2.isEmpty() ) msg.append( part2 );
+    if ( !part3.isEmpty() ) msg.append( part3 );
+    showMessageBox( Warning, popParnt(), msg, uiStrings::sOk(), 0, 0,
+		    tr("Warning") );
+}
+
+
+void uiMsg::error( const uiString& part1, const uiString& part2,
+		   const uiString& part3 )
+{
+    uiString msg = part1;
+    if ( !part2.isEmpty() ) msg.append( part2 );
+    if ( !part3.isEmpty() ) msg.append( part3 );
+    showMessageBox( Critical, popParnt(), msg, uiStrings::sOk(), 0, 0,
+		    tr("Error") );
 }
 
 
@@ -232,12 +279,10 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& bss,
 			      const uiString& before )
 {
     TypeSet<uiString> strings;
-
     if ( !before.isEmpty() )
 	strings += before;
 
     strings.append( bss );
-
     errorWithDetails( strings );
 }
 
@@ -246,7 +291,6 @@ void uiMsg::errorWithDetails( const BufferStringSet& bss )
 {
     TypeSet<uiString> strings;
     bss.fill( strings );
-
     errorWithDetails( strings );
 }
 
@@ -254,7 +298,6 @@ void uiMsg::errorWithDetails( const BufferStringSet& bss )
 void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
     TypeSet<uiString> strings;
-
     for ( int idx=0; idx<fms.size(); idx++ )
 	strings.add( fms[idx] );
 
@@ -269,7 +312,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 
     MouseCursorChanger cc( MouseCursor::Arrow );
 
-    mCapt(tr("Error"));
+    mCapt( tr("Error") );
     const int refnr = beginCmdRecEvent( utfwintitle.buf() );
 
     QMessageBox msgbox( QMessageBox::Critical, wintitle.getQtString(),
@@ -328,26 +371,10 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 		     const uiString& notxtinp,
 		     const uiString& cncltxtinp, const uiString& title )
 {
-    mPrepCursor();
-
-    mCapt(title.isEmpty() ? tr("Please specify") : title);
-    const int refnr = beginCmdRecEvent( utfwintitle );
-
     const uiString yestxt = yestxtinp.isEmpty() ? uiStrings::sYes() : yestxtinp;
     const uiString notxt = notxtinp.isEmpty() ? uiStrings::sNo() : notxtinp;
-
-    const int res = QMessageBox::question( popParnt(), wintitle.getQtString(),
-				    text.getQtString(), yestxt.getQtString(),
-				    notxt.getQtString(),
-				    !cncltxtinp.isEmpty()
-					? cncltxtinp.getQtString()
-					: QString::null,
-				    0, 2 );
-
-    endCmdRecEvent( refnr, res, yestxt.getOriginalString(),
-		    notxt.getOriginalString(),
-		    cncltxtinp.getOriginalString() );
-    return res == 0 ? 1 : (res == 1 ? 0 : -1);
+    return showMessageBox(
+	Question, popParnt(), text, yestxt, notxt, cncltxtinp, title );
 }
 
 
@@ -384,7 +411,6 @@ bool uiMsg::askGoOn( const uiString& text, bool yn )
 {
     const uiString oktxt = yn ? uiStrings::sYes() : uiStrings::sOk();
     const uiString canceltxt = yn ? uiStrings::sNo() : uiStrings::sCancel();
-
     return askGoOn( text, oktxt, canceltxt );
 }
 
@@ -392,25 +418,13 @@ bool uiMsg::askGoOn( const uiString& text, bool yn )
 bool uiMsg::askGoOn( const uiString& text, const uiString& textyes,
 		     const uiString& textno )
 {
-    mPrepCursor();
-
-    mCapt(tr("Please specify"));
-    const int refnr = beginCmdRecEvent( utfwintitle );
-    const int res = QMessageBox::warning( popParnt(), wintitle.getQtString(),
-				      text.getQtString(), textyes.getQtString(),
-				      textno.getQtString(),
-				      QString::null, 0, 1);
-    endCmdRecEvent( refnr, res, textyes.getOriginalString(),
-		    textno.getOriginalString() );
-    return !res;
+    return question( text, textyes, textno );
 }
 
 
 int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 			 const uiString& textyesinp, const uiString& textnoinp )
 {
-    mPrepCursor();
-
     const uiString yestxt = textyesinp.isEmpty()
 	? uiStrings::sYes()
 	: textyesinp;
@@ -420,18 +434,7 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
     const uiString cncltxt = cnclmsginp.isEmpty()
 	? uiStrings::sCancel()
 	: cnclmsginp;
-
-    mCapt(tr("Please specify"));
-    const int refnr = beginCmdRecEvent( utfwintitle );
-    const int res = QMessageBox::warning( popParnt(), wintitle.getQtString(),
-					  text.getQtString(),
-					  yestxt.getQtString(),
-					  notxt.getQtString(),
-					  cncltxt.getQtString(), 0, 2 );
-
-    endCmdRecEvent( refnr, res, yestxt.getOriginalString(),
-		    notxt.getOriginalString(), cncltxt.getOriginalString() );
-    return res;
+    return showMessageBox( Warning, popParnt(), text, yestxt, notxt, cncltxt );
 }
 
 
@@ -439,19 +442,25 @@ bool uiMsg::showMsgNextTime( const uiString& text, const uiString& ntmsginp )
 {
     mPrepCursor();
     const uiString oktxt = uiStrings::sOk();
+    mCapt( tr("Information") );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+    PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(),
+					       text, oktxt, 0, 0,
+					       wintitle );
     const uiString notmsg = ntmsginp.isEmpty()
 	? tr("Don't show this message again")
 	: ntmsginp;
 
-    mCapt(tr("Information"));
-    const int refnr = beginCmdRecEvent( utfwintitle );
+    QCheckBox* cb = new QCheckBox();
+    cb->setText( notmsg.getQtString() );
+    mDynamicCastGet(QGridLayout*,grid,mb->layout())
+    if ( grid )
+	grid->addWidget( cb, grid->rowCount(), 0, 1, grid->columnCount() );
 
-    const int res = QMessageBox::information( popParnt(),wintitle.getQtString(),
-				      text.getQtString(), oktxt.getQtString(),
-				      notmsg.getQtString(),
-				      QString::null, 0, 1 );
-
+    int res = mb->exec();
+    const bool checked = cb->isChecked(); // || res==1; TODO Jaap
+    res = checked ? 1 : 0;
     endCmdRecEvent( refnr, res, oktxt.getOriginalString(),
 		    notmsg.getOriginalString() );
-    return !res;
+    return !checked;
 }

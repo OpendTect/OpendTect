@@ -145,10 +145,10 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     {
 	int res = uiMSG().askGoOnAfter( tr("Use 2D or 3D data?"),
 		0, uiStrings::s2D(true), uiStrings::s3D(true) );
-	if ( res == 2 )
+	if ( res == -1 )
 	    return;
 	else
-	    is2d = res == 0;
+	    is2d = res == 1;
     }
 
     if ( !wvltext_ || wvltext_->isHidden() )
