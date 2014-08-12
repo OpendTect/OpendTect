@@ -375,24 +375,26 @@ void StrmOper::seek( std::ostream& strm, od_int64 pos )
 
 od_int64 StrmOper::tell( std::istream& strm )
 {
-#ifndef __win32__
+#ifndef __win__
     return strm.tellg();
 #else
-    strm.tellg();
+    const std::streamoff pos32 = strm.tellg();
+    //tellg updates the realpos in winfilebuf
     mDynamicCastGet(const std::winfilebuf*,winbuf,strm.rdbuf())
-    return winbuf ? winbuf->getRealPos() : strm.tellg();
+    return winbuf ? winbuf->getRealPos() : pos32;
 #endif
 }
 
 
 od_int64 StrmOper::tell( std::ostream& strm )
 {
-#ifndef __win32__
+#ifndef __win__
     return strm.tellp();
 #else
-    strm.tellp();
+    const std::streamoff pos32 = strm.tellp();
+    //tellp updates the realpos in winfilebuf
     mDynamicCastGet(const std::winfilebuf*,winbuf,strm.rdbuf())
-    return winbuf ? winbuf->getRealPos() : strm.tellp();
+    return winbuf ? winbuf->getRealPos() : pos32;
 #endif
 }
 
