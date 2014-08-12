@@ -41,8 +41,7 @@ public:
 
     bool		loadVol() const;
     bool		loadLines() const;
-    bool		loadLines(const BufferStringSet& lnms,
-	    			  const BufferStringSet& attrnms) const;
+    bool		loadLines(const BufferStringSet& lnms) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;
@@ -59,6 +58,9 @@ public:
     static const char*	sKeyLines();
     static const char*	sKeyAttrs();
 
+			//! DEPRECATED. To be removed after 5.0.
+    bool		loadLines(const BufferStringSet& lnms,
+				  const BufferStringSet& attrnms) const;
 protected:
 
     MultiID		id_;
