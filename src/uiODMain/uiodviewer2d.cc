@@ -40,8 +40,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
-#include "visvw2ddataman.h"
-#include "visvw2ddata.h"
+#include "view2ddataman.h"
+#include "view2ddata.h"
 #include "od_helpids.h"
 
 static void initSelSpec( Attrib::SelSpec& as )
@@ -530,8 +530,8 @@ void uiODViewer2D::selectionMode( CallBacker* cb )
 
     viewstdcontrol_->toolBar()->setIcon( polyseltbid_, ispolyselect_ ?
 				"polygonselect" : "rectangleselect" );
-    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_, 
-                                ispolyselect_ ? tr("Polygon Selection mode") 
+    viewstdcontrol_->toolBar()->setToolTip( polyseltbid_,
+                                ispolyselect_ ? tr("Polygon Selection mode")
                                               : tr("Rectangle Selection mode"));
 
     if ( auxdataeditors_.isEmpty() )

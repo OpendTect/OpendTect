@@ -1,5 +1,5 @@
-#ifndef visvw2dhorizon2d_h
-#define visvw2dhorizon2d_h
+#ifndef view2dhorizon2d_h
+#define view2dhorizon2d_h
 
 /*+
 ________________________________________________________________________
@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "emposid.h"
 
@@ -46,7 +46,7 @@ public:
 
     void		setSeedPicking(bool ison);
     void		setTrackerSetupActive(bool ison );
-    
+
     void		getHorEditors(
 			  ObjectSet<const MPE::HorizonFlatViewEditor2D>&) const;
 
@@ -56,8 +56,8 @@ protected:
 
     void				triggerDeSel();
     void				setEditors();
-    
-    Pos::GeomID 			geomid_;
+
+    Pos::GeomID			geomid_;
     const Attrib::SelSpec*		vdselspec_;
     const Attrib::SelSpec*		wvaselspec_;
 

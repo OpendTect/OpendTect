@@ -1,5 +1,5 @@
-#ifndef visvw2dfaultss3d_h
-#define visvw2dfaultss3d_h
+#ifndef view2dfaultss3d_h
+#define view2dfaultss3d_h
 
 /*+
 ________________________________________________________________________
@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "emposid.h"
 

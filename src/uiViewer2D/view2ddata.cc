@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "executor.h"
 #include "keystrs.h"
@@ -53,7 +53,7 @@ bool Vw2DDataObject::fillPar( IOPar& par ) const
 }
 
 
-bool Vw2DDataObject::usePar( const IOPar& par ) 
+bool Vw2DDataObject::usePar( const IOPar& par )
 {
     const char* nm = par.find( sKey::Name() );
     if ( nm )
@@ -68,7 +68,7 @@ Vw2DEMDataObject::Vw2DEMDataObject( const EM::ObjectID& oid,uiFlatViewWin* win,
     , viewerwin_(win)
     , emid_(oid)
     , auxdataeditors_(eds)
-{}   
+{}
 
 
 bool Vw2DEMDataObject::fillPar( IOPar& par ) const
@@ -79,7 +79,7 @@ bool Vw2DEMDataObject::fillPar( IOPar& par ) const
 }
 
 
-bool Vw2DEMDataObject::usePar( const IOPar& par ) 
+bool Vw2DEMDataObject::usePar( const IOPar& par )
 {
     if ( !Vw2DDataObject::usePar( par ) )
 	return false;

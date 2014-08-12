@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dseismic.h"
+#include "view2dseismic.h"
 
 
 VW2DSeis::VW2DSeis()

@@ -29,8 +29,8 @@ ________________________________________________________________________
 #include "attribdescsetsholder.h"
 #include "flatposdata.h"
 #include "seisioobjinfo.h"
-#include "visvw2dseismic.h"
-#include "visvw2ddataman.h"
+#include "view2dseismic.h"
+#include "view2ddataman.h"
 #include "zaxistransform.h"
 
 
@@ -75,7 +75,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::init()
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(false) &&
-	    			   viewer2D()->selSpec(true).id().isValid() );
+				   viewer2D()->selSpec(true).id().isValid() );
     uitreeviewitem_->setChecked( ddp.wva_.show_ );
 
     checkStatusChange()->notify(
@@ -251,7 +251,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	    selas.set2DFlag();
 
 	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
-		    						       true );
+								       true );
 	    if ( !ds ) return false;
 	    selas.setRefFromID( *ds );
 	    selas.setUserRef( attrbnm );
@@ -315,7 +315,7 @@ bool uiODVW2DWiggleVarAreaTreeItem::handleSelMenu( int mnuid )
 	    {
 		FlatView::DataDispPars& ddp =
 		    viewer2D()->viewwin()->viewer(ivwr).appearance().ddpars_;
-    		ddp.wva_.mappersetup_ = mapper;
+		ddp.wva_.mappersetup_ = mapper;
 	    }
 	}
     }

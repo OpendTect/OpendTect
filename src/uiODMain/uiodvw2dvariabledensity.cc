@@ -31,8 +31,8 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "pixmap.h"
 #include "seisioobjinfo.h"
-#include "visvw2dseismic.h"
-#include "visvw2ddataman.h"
+#include "view2dseismic.h"
+#include "view2ddataman.h"
 #include "zaxistransform.h"
 
 
@@ -77,7 +77,7 @@ bool uiODVW2DVariableDensityTreeItem::init()
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
-	    			   viewer2D()->selSpec(false).id().isValid() );
+				   viewer2D()->selSpec(false).id().isValid() );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
 
     checkStatusChange()->notify(
@@ -163,7 +163,7 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
     }
 
     PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
-	    				    cPixmapHeight(), true );
+					    cPixmapHeight(), true );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }
 
@@ -289,7 +289,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	    selas.set2DFlag();
 
 	    const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true,
-		    						       true );
+								       true );
 	    if ( !ds )
 		return false;
 

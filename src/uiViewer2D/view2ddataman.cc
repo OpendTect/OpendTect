@@ -9,11 +9,11 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2ddataman.h"
+#include "view2ddataman.h"
 
 #include "iopar.h"
 #include "keystrs.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "uiflatviewwin.h"
 #include "emposid.h"
@@ -42,7 +42,7 @@ void Vw2DDataManager::addObject( Vw2DDataObject* obj )
     objects_ += obj;
     obj->setID(freeid_++);
     obj->ref();
-    
+
     if ( selectedid_ != -1 )
 	deSelect( selectedid_ );
 
@@ -54,9 +54,9 @@ void Vw2DDataManager::addObject( Vw2DDataObject* obj )
 void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 {
     if ( !objects_.isPresent(dobj) ) return;
-    
+
     objects_ -= dobj;
-    
+
     if ( dobj->id() == selectedid_ )
 	selectedid_ = -1;
 
@@ -148,7 +148,7 @@ void Vw2DDataManager::fillPar( IOPar& par ) const
 }
 
 
-void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win, 
+void Vw2DDataManager::usePar( const IOPar& iop, uiFlatViewWin* win,
 			    const ObjectSet<uiFlatViewAuxDataEditor>& eds )
 {
     int curnrobects = objects_.size();

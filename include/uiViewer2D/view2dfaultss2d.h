@@ -1,5 +1,5 @@
-#ifndef visvw2dfaultss2d_h
-#define visvw2dfaultss2d_h
+#ifndef view2dfaultss2d_h
+#define view2dfaultss2d_h
 
 /*+
 ________________________________________________________________________
@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "emposid.h"
 
@@ -28,7 +28,7 @@ mExpClass(uiViewer2D) VW2DFaultSS2D : public Vw2DEMDataObject
 public:
     static VW2DFaultSS2D* create(const EM::ObjectID& id,uiFlatViewWin* win,
 			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-    				mCreateVw2DDataObj(VW2DFaultSS2D,id,win,ed);
+				mCreateVw2DDataObj(VW2DFaultSS2D,id,win,ed);
 			~VW2DFaultSS2D();
 
     void		setGeomID( Pos::GeomID geomid )
@@ -45,7 +45,7 @@ protected:
     void		triggerDeSel();
     void		setEditors();
 
-    Pos::GeomID 	geomid_;
+    Pos::GeomID	geomid_;
 
     MPE::FaultStickSetEditor*	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;

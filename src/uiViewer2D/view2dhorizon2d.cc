@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dhorizon2d.h"
+#include "view2dhorizon2d.h"
 
 #include "attribdataholder.h"
 #include "attribdatapack.h"

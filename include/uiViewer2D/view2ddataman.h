@@ -1,5 +1,5 @@
-#ifndef visvw2ddataman_h
-#define visvw2ddataman_h
+#ifndef view2ddataman_h
+#define view2ddataman_h
 
 /*+
 ________________________________________________________________________
@@ -18,13 +18,13 @@ ________________________________________________________________________
 #include "emposid.h"
 
 class Vw2DDataObject;
-class uiFlatViewWin; 
+class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
 mExpClass(uiViewer2D) Vw2DDataManager : public CallBacker
 {
 public:
-    				Vw2DDataManager();
+				Vw2DDataManager();
 				~Vw2DDataManager();
 
     void			addObject(Vw2DDataObject*);
@@ -57,7 +57,7 @@ protected:
     int				selectedid_;
     int				freeid_;
 
-    static const char* 		sKeyNrObjects() 	{ return "Nr objects"; }
+    static const char*		sKeyNrObjects()	{ return "Nr objects"; }
 };
 
 #endif

@@ -9,13 +9,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "moddepmgr.h"
-#include "visvw2dfault.h"
-#include "visvw2dfaultss2d.h"
-#include "visvw2dfaultss3d.h"
-#include "visvw2dhorizon3d.h"
-#include "visvw2dhorizon2d.h"
-#include "visvw2dpickset.h"
-#include "visvw2dseismic.h"
+#include "view2dfault.h"
+#include "view2dfaultss2d.h"
+#include "view2dfaultss3d.h"
+#include "view2dhorizon3d.h"
+#include "view2dhorizon2d.h"
+#include "view2dpickset.h"
+#include "view2dseismic.h"
 
 
 mDefModInitFn(uiViewer2D)

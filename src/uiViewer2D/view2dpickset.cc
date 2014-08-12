@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dpickset.h"
+#include "view2dpickset.h"
 
 #include "angles.h"
 #include "attribdatacubes.h"

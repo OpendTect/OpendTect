@@ -23,22 +23,22 @@ ________________________________________________________________________
 #include "uisetpickdirs.h"
 #include "uistrings.h"
 #include "uitreeview.h"
-#include "visvw2ddataman.h"
-#include "visvw2dpickset.h"
+#include "view2ddataman.h"
+#include "view2dpickset.h"
 
 
 uiODVw2DPickSetParentTreeItem::uiODVw2DPickSetParentTreeItem()
     : uiODVw2DTreeItem( "PickSet" )
     , picksetmgr_(Pick::Mgr())
 {
-    picksetmgr_.setAdded.notify( 
+    picksetmgr_.setAdded.notify(
 	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
 
 uiODVw2DPickSetParentTreeItem::~uiODVw2DPickSetParentTreeItem()
 {
-    picksetmgr_.setAdded.remove( 
+    picksetmgr_.setAdded.remove(
 	mCB(this,uiODVw2DPickSetParentTreeItem,pickSetAdded) );
 }
 
@@ -80,7 +80,7 @@ bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
-    if ( ps ) 
+    if ( ps )
     {
 	const int picksetidx = picksetmgr_.indexOf(*ps);
 	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
@@ -95,7 +95,7 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     , vw2dpickset_(0)
     , setidx_(-1)
 {
-    picksetmgr_.setToBeRemoved.notify( 
+    picksetmgr_.setToBeRemoved.notify(
 	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
     picksetmgr_.setDispChanged.notify(
 	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
@@ -122,7 +122,7 @@ bool uiODVw2DPickSetTreeItem::init()
     checkStatusChange()->notify( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
     if ( !vw2dpickset_ )
     {
-	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_), 
+	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_),
 			    viewer2D()->viewwin(),viewer2D()->dataEditor() );
 	viewer2D()->dataMgr()->addObject( vw2dpickset_ );
     }
@@ -177,7 +177,7 @@ bool uiODVw2DPickSetTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     switch ( mnuid )
     {
-	case 0:{ 
+	case 0:{
 	    uiPickPropDlg dlg( getUiParent(), pickset_, 0 );
 	    dlg.go();
 	    } break;
@@ -224,7 +224,7 @@ void uiODVw2DPickSetTreeItem::checkCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DPickSetTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const VW2DPickSet*,obj,vwr2d.dataMgr()->getObject(id));

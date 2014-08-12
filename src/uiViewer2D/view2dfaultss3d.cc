@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dfaultss3d.h"
+#include "view2dfaultss3d.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
@@ -40,9 +40,9 @@ VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
 }
 
 
-void VW2DFaultSS3D::setEditors() 
+void VW2DFaultSS3D::setEditors()
 {
-    deepErase( fsseds_ ); 
+    deepErase( fsseds_ );
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     fsseditor_ = fsseditor;
@@ -68,7 +68,7 @@ void VW2DFaultSS3D::setEditors()
 	    continue;
 	}
 
-	MPE::FaultStickSetFlatViewEditor* fssed = 
+	MPE::FaultStickSetFlatViewEditor* fssed =
 	    new MPE::FaultStickSetFlatViewEditor(
 	     const_cast<uiFlatViewAuxDataEditor*>(auxdataeditors_[ivwr]),emid_);
 	fsseds_ += fssed;

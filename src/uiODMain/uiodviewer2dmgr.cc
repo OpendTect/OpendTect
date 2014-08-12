@@ -30,8 +30,8 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "survinfo.h"
 #include "visseis2ddisplay.h"
-#include "visvw2ddata.h"
-#include "visvw2ddataman.h"
+#include "view2ddata.h"
+#include "view2ddataman.h"
 
 
 uiODViewer2DMgr::uiODViewer2DMgr( uiODMain* a )

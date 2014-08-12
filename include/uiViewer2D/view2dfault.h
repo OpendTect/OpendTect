@@ -1,5 +1,5 @@
-#ifndef visvw2dfault_h
-#define visvw2dfault_h
+#ifndef view2dfault_h
+#define view2dfault_h
 
 /*+
 ________________________________________________________________________
@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 #include "emposid.h"
 
@@ -27,13 +27,13 @@ namespace MPE { class Fault3DFlatViewEditor; class FaultEditor; }
 mExpClass(uiViewer2D) VW2DFault : public Vw2DEMDataObject
 {
 public:
-    static VW2DFault* 	create(const EM::ObjectID& id,uiFlatViewWin* win,
-				 const ObjectSet<uiFlatViewAuxDataEditor>& ed)
-			     mCreateVw2DDataObj(VW2DFault,id,win,ed);
+    static VW2DFault*	create( const EM::ObjectID& id, uiFlatViewWin* fvw,
+				const ObjectSet<uiFlatViewAuxDataEditor>& eds )
+			     mCreateVw2DDataObj(VW2DFault,id,fvw,eds);
 			~VW2DFault();
 
-    void		setCubeSampling(const CubeSampling&, bool upd=false );
-    
+    void		setCubeSampling(const CubeSampling&,bool upd=false);
+
     void		draw();
     void		enablePainting(bool yn);
     void		selected();

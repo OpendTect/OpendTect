@@ -1,5 +1,5 @@
-#ifndef visvw2dseismic_h
-#define visvw2dseismic_h
+#ifndef view2dseismic_h
+#define view2dseismic_h
 
 /*+
 ________________________________________________________________________
@@ -13,13 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiviewer2dmod.h"
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 
 mExpClass(uiViewer2D) VW2DSeis : public Vw2DDataObject
 {
 public:
-    			VW2DSeis();
+			VW2DSeis();
 			~VW2DSeis(){}
 
 protected:

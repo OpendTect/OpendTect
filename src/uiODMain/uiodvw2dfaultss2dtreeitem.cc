@@ -30,8 +30,8 @@ ________________________________________________________________________
 #include "randcolor.h"
 
 #include "visseis2ddisplay.h"
-#include "visvw2ddataman.h"
-#include "visvw2dfaultss2d.h"
+#include "view2ddataman.h"
+#include "view2dfaultss2d.h"
 
 
 uiODVw2DFaultSS2DParentTreeItem::uiODVw2DFaultSS2DParentTreeItem()
@@ -58,7 +58,7 @@ bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
     if ( mnuid == 0 )
     {
 	RefMan<EM::EMObject> emo =
-	    	EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
+		EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -171,7 +171,7 @@ bool uiODVw2DFaultSS2DTreeItem::init()
 
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	fssview_->setGeomID( viewer2D()->geomID() );
-    
+
     mAttachCB( fssview_->deSelection(), uiODVw2DFaultSS2DTreeItem::deSelCB );
 
     fssview_->draw();
@@ -202,7 +202,7 @@ void uiODVw2DFaultSS2DTreeItem::displayMiniCtab()
 void uiODVw2DFaultSS2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -243,7 +243,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction( uiStrings::sSaveAs(true)), 1 );
     mnu.insertItem( new uiAction( uiStrings::sRemove(true)), 2 );
 
@@ -251,7 +251,7 @@ bool uiODVw2DFaultSS2DTreeItem::showSubMenu()
     if ( mnuid == 0 || mnuid == 1 )
     {
 	bool savewithname = (mnuid == 1) ||
-	    		    (EM::EMM().getMultiID( emid_ ).isEmpty());
+			    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );

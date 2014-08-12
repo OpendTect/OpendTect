@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dfaultss2d.h"
+#include "view2dfaultss2d.h"
 
 #include "attribdataholder.h"
 #include "attribdatapack.h"
@@ -38,9 +38,9 @@ VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 }
 
 
-void VW2DFaultSS2D::setEditors() 
+void VW2DFaultSS2D::setEditors()
 {
-    deepErase( fsseds_ ); 
+    deepErase( fsseds_ );
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid_, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
     fsseditor_ = fsseditor;
@@ -97,9 +97,9 @@ void VW2DFaultSS2D::draw()
 	if ( fsseds_[ivwr] )
 	{
 	    dp2ddh->getPosDataTable( fsseds_[ivwr]->getTrcNos(),
-		    		     fsseds_[ivwr]->getDistances() );
+				     fsseds_[ivwr]->getDistances() );
 	    dp2ddh->getCoordDataTable( fsseds_[ivwr]->getTrcNos(),
-		    		       fsseds_[ivwr]->getCoords() );
+				       fsseds_[ivwr]->getCoords() );
 	    fsseds_[ivwr]->setGeomID( geomid_ );
 	    fsseds_[ivwr]->set2D( true );
 	    fsseds_[ivwr]->drawFault();

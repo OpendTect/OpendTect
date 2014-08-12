@@ -37,8 +37,8 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "pixmap.h"
 
-#include "visvw2ddataman.h"
-#include "visvw2dhorizon3d.h"
+#include "view2ddataman.h"
+#include "view2dhorizon3d.h"
 
 
 uiODVw2DHor3DParentTreeItem::uiODVw2DHor3DParentTreeItem()
@@ -73,7 +73,7 @@ bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
-	uiODVw2DHor3DTreeItem* hortreeitem = 
+	uiODVw2DHor3DTreeItem* hortreeitem =
 	    new uiODVw2DHor3DTreeItem( mps->getEMObjectID(trackid) );
 	addChld( hortreeitem,false, false );
 	viewer2D()->viewControl()->setEditMode( true );
@@ -115,7 +115,7 @@ void uiODVw2DHor3DParentTreeItem::tempObjAddedCB( CallBacker* cb )
     if ( findChild(applMgr()->EMServer()->getName(emid)) )
 	return;
 
-    addChld( new uiODVw2DHor3DTreeItem(emid), false, false);    
+    addChld( new uiODVw2DHor3DTreeItem(emid), false, false);
 }
 
 
@@ -156,7 +156,7 @@ uiODVw2DHor3DTreeItem::~uiODVw2DHor3DTreeItem()
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonPressed.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
@@ -269,7 +269,7 @@ void uiODVw2DHor3DTreeItem::displayMiniCtab()
 void uiODVw2DHor3DTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -303,12 +303,12 @@ bool uiODVw2DHor3DTreeItem::select()
 
     viewer2D()->dataMgr()->setSelected( horview_ );
     horview_->selected( isChecked() );
-    
+
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonReleased.remove(
 		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
     }
@@ -318,7 +318,7 @@ bool uiODVw2DHor3DTreeItem::select()
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonReleased.notify(
 		mCB(this,uiODVw2DHor3DTreeItem,msRelEvtCompletedInVwrCB) );
     }
@@ -334,7 +334,7 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
@@ -342,9 +342,9 @@ bool uiODVw2DHor3DTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
-	    			applMgr()->attrServer()->curDescSet(false) );
+				applMgr()->attrServer()->curDescSet(false) );
     applMgr()->mpeServer()->setCurrentAttribDescSet(
-	    			applMgr()->attrServer()->curDescSet(true) );
+				applMgr()->attrServer()->curDescSet(true) );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -485,7 +485,7 @@ void uiODVw2DHor3DTreeItem::msRelEvtCompletedInVwrCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DHor3DTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const Vw2DHorizon3D*,obj,vwr2d.dataMgr()->getObject(id));

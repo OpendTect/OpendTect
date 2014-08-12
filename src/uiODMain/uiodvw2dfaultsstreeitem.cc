@@ -28,8 +28,8 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "randcolor.h"
 
-#include "visvw2dfaultss3d.h"
-#include "visvw2ddataman.h"
+#include "view2dfaultss3d.h"
+#include "view2ddataman.h"
 
 uiODVw2DFaultSSParentTreeItem::uiODVw2DFaultSSParentTreeItem()
     : uiODVw2DTreeItem( "FaultStickSet" )
@@ -56,7 +56,7 @@ bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
     if ( mnuid == 0 )
     {
 	RefMan<EM::EMObject> emo =
-	    	EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
+		EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -191,7 +191,7 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
 void uiODVw2DFaultSSTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -233,7 +233,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-	    		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction(uiStrings::sSaveAs(true)), 1 );
     mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 2 );
 
@@ -241,7 +241,7 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
     if ( mnuid == 0 || mnuid == 1 )
     {
 	bool savewithname = (mnuid == 1) ||
-	    		    (EM::EMM().getMultiID( emid_ ).isEmpty());
+			    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );

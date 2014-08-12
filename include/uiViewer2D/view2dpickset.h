@@ -1,5 +1,5 @@
-#ifndef visvw2dpickset_h
-#define visvw2dpickset_h
+#ifndef view2dpickset_h
+#define view2dpickset_h
 
 /*+
 ________________________________________________________________________
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "flatauxdataeditor.h"
 
-#include "visvw2ddata.h"
+#include "view2ddata.h"
 
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
@@ -32,7 +32,7 @@ public:
 			     const ObjectSet<uiFlatViewAuxDataEditor>& ed)
 			    mCreateVw2DDataObj(VW2DPickSet,id,win,ed);
 			~VW2DPickSet();
-     
+
     void		drawAll();
     void		clearPicks();
     void		enablePainting(bool yn);
@@ -60,7 +60,7 @@ protected:
     TypeSet<int>		picksetidxs_;
     TypeSet<int>		auxids_;
 
-    ObjectSet<FlatView::AuxData>  	picks_;
+    ObjectSet<FlatView::AuxData>	picks_;
     ObjectSet<uiFlatViewAuxDataEditor>	editors_;
     ObjectSet<uiFlatViewer>		viewers_;
 };

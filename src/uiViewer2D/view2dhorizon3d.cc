@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dhorizon3d.h"
+#include "view2dhorizon3d.h"
 
 #include "attribdatapack.h"
 #include "zaxistransformutils.h"
@@ -123,7 +123,7 @@ void Vw2DHorizon3D::draw()
 	if ( horeds_[ivwr] )
 	{
 	    horeds_[ivwr]->setMouseEventHandler(
-		    	&vwr.rgbCanvas().scene().getMouseEventHandler() );
+			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    if ( dp3d )
 		horeds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
 

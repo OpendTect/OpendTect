@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "visvw2dfault.h"
+#include "view2dfault.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"

@@ -37,8 +37,8 @@ ________________________________________________________________________
 #include "pixmap.h"
 
 #include "visseis2ddisplay.h"
-#include "visvw2ddataman.h"
-#include "visvw2dhorizon2d.h"
+#include "view2ddataman.h"
+#include "view2dhorizon2d.h"
 
 
 uiODVw2DHor2DParentTreeItem::uiODVw2DHor2DParentTreeItem()
@@ -72,7 +72,7 @@ bool uiODVw2DHor2DParentTreeItem::handleSubMenu( int mnuid )
 	    return true;
 
 	const int trackid = mps->activeTrackerID();
-	uiODVw2DHor2DTreeItem* hortreeitem = 
+	uiODVw2DHor2DTreeItem* hortreeitem =
 	    new uiODVw2DHor2DTreeItem( mps->getEMObjectID(trackid) );
 	addChld( hortreeitem, false, false );
 	viewer2D()->viewControl()->setEditMode( true );
@@ -156,7 +156,7 @@ uiODVw2DHor2DTreeItem::~uiODVw2DHor2DTreeItem()
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
 	MouseEventHandler* meh =
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonPressed.remove(
 		mCB(this,uiODVw2DHor2DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.remove(
@@ -203,7 +203,7 @@ bool uiODVw2DHor2DTreeItem::init()
 	    return false;
 	emid_ = hd->emID();
 	emobj = EM::EMM().getObject( emid_ );
-	if ( !emobj ) 
+	if ( !emobj )
 	    return false;
 
 	horview_ = hd;
@@ -220,8 +220,8 @@ bool uiODVw2DHor2DTreeItem::init()
     for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer( ivwr );
-	MouseEventHandler* meh = 
-	    		&vwr.rgbCanvas().scene().getMouseEventHandler();
+	MouseEventHandler* meh =
+			&vwr.rgbCanvas().scene().getMouseEventHandler();
 	meh->buttonPressed.notify(
 		mCB(this,uiODVw2DHor2DTreeItem,mousePressInVwrCB) );
 	meh->buttonReleased.notify(
@@ -230,7 +230,7 @@ bool uiODVw2DHor2DTreeItem::init()
 
     horview_->setSelSpec( &viewer2D()->selSpec(true), true );
     horview_->setSelSpec( &viewer2D()->selSpec(false), false );
-    
+
     if ( viewer2D()->geomID() != Survey::GeometryManager::cUndefGeomID() )
 	horview_->setGeomID( viewer2D()->geomID() );
 
@@ -263,7 +263,7 @@ void uiODVw2DHor2DTreeItem::displayMiniCtab()
 void uiODVw2DHor2DTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
 
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
@@ -288,7 +288,7 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     uiAction* savemnu = new uiAction(uiStrings::sSave(false));
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) &&
-	   		 applMgr()->EMServer()->isFullyLoaded(emid_) );
+			 applMgr()->EMServer()->isFullyLoaded(emid_) );
     mnu.insertItem( new uiAction( uiStrings::sSaveAs(true) ), 1 );
     uiAction* cngsetup = new uiAction( sChangeSetup() );
     mnu.insertItem( cngsetup, 2 );
@@ -296,9 +296,9 @@ bool uiODVw2DHor2DTreeItem::showSubMenu()
     mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
 
     applMgr()->mpeServer()->setCurrentAttribDescSet(
-	    			applMgr()->attrServer()->curDescSet(false) );
+				applMgr()->attrServer()->curDescSet(false) );
     applMgr()->mpeServer()->setCurrentAttribDescSet(
-	    			applMgr()->attrServer()->curDescSet(true) );
+				applMgr()->attrServer()->curDescSet(true) );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -411,7 +411,7 @@ void uiODVw2DHor2DTreeItem::mousePressInVwrCB( CallBacker* )
 
     horview_->setSeedPicking( applMgr()->visServer()->isPicking() );
     horview_->setTrackerSetupActive(
-	    		applMgr()->visServer()->isTrackingSetupActive() );
+			applMgr()->visServer()->isTrackingSetupActive() );
 }
 
 
@@ -420,7 +420,7 @@ void uiODVw2DHor2DTreeItem::mouseReleaseInVwrCB( CallBacker* )
 }
 
 
-uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DHor2DTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const Vw2DHorizon2D*,obj,vwr2d.dataMgr()->getObject(id));
