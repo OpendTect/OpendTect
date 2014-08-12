@@ -16,8 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "welldata.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
+#include "wellreader.h"
 
 #include "uicombobox.h"
 #include "uibutton.h"
@@ -361,11 +363,19 @@ void uiWellExtractParams::getFromScreen( CallBacker* cb )
 
 
 
-uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s )
+uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
+				      const BufferStringSet* wellnms,
+				      const BufferStringSet* lognms )
     : uiWellExtractParams(p,s)
     , singlewid_(0)
 {
     init();
+    update();
+    if ( wellsfld_ && wellnms && wellnms->size() )
+	wellsfld_->setChosen( *wellnms );
+
+    if ( lognms && lognms->size() )
+	logsfld_->setChosen( *lognms );
 }
 
 uiMultiWellLogSel::uiMultiWellLogSel( uiParent* p, const Setup& s,
@@ -382,7 +392,7 @@ void uiMultiWellLogSel::init()
     const uiObject::SzPolicy hpol = uiObject::MedMax;
     const uiObject::SzPolicy vpol = uiObject::WideMax;
     const OD::ChoiceMode chmode =
-	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseZeroOrMore;
+	singlelog_ ? OD::ChooseOnlyOne : OD::ChooseAtLeastOne;
     uiLabeledListBox* llbl = new uiLabeledListBox( this,
 	singlelog_ ? "Log" : "Logs", chmode,
 	singlewid_ ? uiLabeledListBox::LeftTop : uiLabeledListBox::RightTop );
@@ -397,11 +407,14 @@ void uiMultiWellLogSel::init()
     if ( !singlewid_ )
     {
 	llbw = new uiLabeledListBox( this, "Wells",
-				     OD::ChooseZeroOrMore,
+				     OD::ChooseAtLeastOne,
 				     uiLabeledListBox::LeftTop );
 	wellsfld_ = llbw->box();
 	wellsfld_->setHSzPol( hpol );
 	wellsfld_->setVSzPol( vpol );
+	mAttachCB( wellsfld_->selectionChanged,
+		   uiMultiWellLogSel::updateLogsFldCB );
+	mAttachCB( wellsfld_->itemChosen, uiMultiWellLogSel::updateLogsFldCB );
 	llbl->attach( rightTo, llbw );
 
 	wellschoiceio_ = new uiListBoxChoiceIO( *wellsfld_, "Well" );
@@ -417,7 +430,6 @@ void uiMultiWellLogSel::init()
 
 void uiMultiWellLogSel::onFinalise( CallBacker* )
 {
-    update();
     putToScreen();
 }
 
@@ -425,15 +437,19 @@ void uiMultiWellLogSel::onFinalise( CallBacker* )
 uiMultiWellLogSel::~uiMultiWellLogSel()
 {
     deepErase( wellobjs_ );
+    detachAllNotifiers();
 }
 
 
 void uiMultiWellLogSel::update()
 {
     clear();
-
     if ( wellsfld_ )
+    {
+	NotifyStopper ns( wellsfld_->selectionChanged );
 	wellsfld_->setEmpty();
+    }
+
     logsfld_->setEmpty();
 
     deepErase( wellobjs_ );
@@ -442,9 +458,6 @@ void uiMultiWellLogSel::update()
     uiTaskRunner tr( this );
     if ( !TaskRunner::execute( &tr, wic ) ) return;
 
-    BufferStringSet markernms;
-    BufferStringSet lognms;
-    Well::MarkerSet mrkrs;
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	const MultiID& mid = *wic.ids()[iid];
@@ -453,30 +466,63 @@ void uiMultiWellLogSel::update()
 	    continue;
 
 	wellobjs_ += ioobj;
-
-	const BufferStringSet& logs = *wic.logs()[iid];
-	for ( int ilog=0; ilog<logs.size(); ilog++ )
-	    lognms.addIfNew( logs.get(ilog) );
-
-	mrkrs.append( *wic.markers()[iid] );
-
 	if ( wellsfld_ )
 	    wellsfld_->addItem( ioobj->name() );
     }
 
-    if ( wellsfld_ )
-	wellsfld_->chooseAll( true );
-    setMarkers( mrkrs );
+    updateLogsFldCB( 0 );
+}
 
-    for ( int idx=0; idx<lognms.size(); idx++ )
-	logsfld_->addItem( lognms.get(idx) );
+void uiMultiWellLogSel::updateLogsFldCB( CallBacker* )
+{
+    logsfld_->setEmpty();
+    TypeSet<MultiID> mids;
+    ObjectSet<Well::Reader> currdrs;
+    ObjectSet<Well::Data> curwds;
+    getSelWellIDs( mids );
+    if ( !mids.size() )
+	return;
 
-    if ( !prefpropnm_.isEmpty() )
+    BufferStringSet availablelognms;
+    BufferStringSet availablemrkrs;
+    for ( int midx=0; midx<mids.size(); midx++ )
     {
-	const int prefnmidx = lognms.nearestMatch( prefpropnm_.buf() );
-	if ( lognms.validIdx(prefnmidx) )
-	    logsfld_->setChosen( prefnmidx );
+	IOObj* obj = IOM().get( mids[midx] );
+	Well::Data* wd = new Well::Data;
+	curwds += wd;
+	Well::Reader* wrdr = new Well::Reader( *obj, *wd );
+	currdrs += wrdr;
+	currdrs[midx]->getInfo();
+	currdrs[midx]->getMarkers();
+	if ( midx == 0 )
+	{
+	    currdrs[0]->getLogInfo( availablelognms );
+	    curwds[0]->markers().getNames( availablemrkrs );
+	}
+	else
+	{
+	    BufferStringSet lognms;
+	    currdrs[midx]->getLogInfo( lognms );
+	    for ( int lidx=availablelognms.size()-1; lidx>=0; lidx-- )
+	    {
+		if (!lognms.isPresent(availablelognms.get(lidx)) )
+		    availablelognms.removeSingle( lidx );
+	    }
+
+	    BufferStringSet mrkrnms;
+	    curwds[midx]->markers().getNames( mrkrnms );
+	    for ( int mrkidx=availablemrkrs.size()-1; mrkidx>=0; mrkidx-- )
+	    {
+		if (!mrkrnms.isPresent(availablemrkrs.get(mrkidx)) )
+		    availablemrkrs.removeSingle( mrkidx );
+	    }
+	}
     }
+
+    for ( int idx=0; idx<availablelognms.size(); idx++ )
+	logsfld_->addItem( availablelognms.get(idx) );
+
+    setMarkers( availablemrkrs );
 }
 
 

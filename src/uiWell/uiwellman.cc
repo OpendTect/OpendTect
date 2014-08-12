@@ -442,7 +442,10 @@ void uiWellMan::defD2T( bool chkshot )
 
 void uiWellMan::logTools( CallBacker* )
 {
-    uiWellLogToolWinMgr tooldlg( this );
+    BufferStringSet wellnms, lognms;
+    selGroup()->getListField()->getChosen( wellnms );
+    logsfld_->getChosen( lognms );
+    uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );
     tooldlg.go();
 }
 

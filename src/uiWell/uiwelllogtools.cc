@@ -44,14 +44,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelllogdisplay.h"
 
 
-uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p )
+uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
+					  const BufferStringSet* welllnms,
+					  const BufferStringSet* lognms )
 	: uiDialog(p,Setup("Select Well(s) and Log(s) for Editing",
 		     mNoDlgTitle,mODHelpKey(mWellLogToolWinMgrHelpID)))
 {
     setOkText( uiStrings::sContinue() );
     uiWellExtractParams::Setup su;
     su.withzintime_ = su.withextractintime_ = false;
-    welllogselfld_ = new uiMultiWellLogSel( this, su );
+    welllogselfld_ = new uiMultiWellLogSel( this, su, welllnms, lognms );
 }
 
 

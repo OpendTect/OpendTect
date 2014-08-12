@@ -133,7 +133,9 @@ protected:
 mExpClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
 {
 public:
-			uiMultiWellLogSel(uiParent*,const Setup&);
+			uiMultiWellLogSel(uiParent*,const Setup&,
+					  const BufferStringSet* wellnms=0,
+					  const BufferStringSet* lognms=0);
 			uiMultiWellLogSel(uiParent*,const Setup&,
 					const MultiID& singlewid);
 			~uiMultiWellLogSel();
@@ -165,6 +167,7 @@ protected:
 
     void		readWellChoiceDone(CallBacker*);
     void		writeWellChoiceReq(CallBacker*);
+    void		updateLogsFldCB(CallBacker*);
 };
 
 #endif
