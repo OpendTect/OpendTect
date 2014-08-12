@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID mUsedVar = "$Id: genc.cc 35879 2014-08-01 14:11:49Z nanne.hemstra@dgbes.com $";
+static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 
