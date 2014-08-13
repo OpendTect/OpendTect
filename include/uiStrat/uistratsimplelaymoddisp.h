@@ -17,8 +17,7 @@ ________________________________________________________________________
 class uiLineItem;
 class uiTextItem;
 class uiRectItem;
-class uiAxisHandler;
-class uiGraphicsView;
+class uiFlatViewer;
 class uiGraphicsScene;
 class uiGraphicsItemSet;
 namespace Strat { class LayerSequence; class Content; }
@@ -40,12 +39,11 @@ public:
     Color		levelColor() const		{ return lvlcol_; }
     bool&		fillLayerBoxes()		{ return fillmdls_; }
     bool&		useLithColors()			{ return uselithcols_; }
+    uiBaseObject*	getViewer();
 
 protected:
 
-    uiGraphicsView*	gv_;
-    uiAxisHandler*	xax_;
-    uiAxisHandler*	yax_;
+    uiFlatViewer&	vwr_;
     uiTextItem*		emptyitm_;
     uiRectItem*		zoomboxitm_;
     uiGraphicsItemSet&	logblcklineitms_;
@@ -53,7 +51,11 @@ protected:
     uiGraphicsItemSet&	lvlitms_;
     uiGraphicsItemSet&	contitms_;
     uiLineItem*		selseqitm_;
+    ObjectSet<FlatView::AuxData> layerads_;
+    ObjectSet<FlatView::AuxData> levelads_;
+    FlatView::AuxData*	selseqad_;
 
+    FlatDataPack*	emptydp_;
     uiWorldRect		zoomwr_;
     Color		lvlcol_;
     int			dispprop_;
@@ -73,15 +75,17 @@ protected:
     void		usrClicked(CallBacker*);
     void		mouseMoved(CallBacker*);
     void		doubleClicked(CallBacker*);
-    void		colsToggled(CallBacker*);
-    void		showZoomedToggled(CallBacker*);
+    void		dispZoomedChgCB(CallBacker*);
     int			getClickedModelNr() const;
     void		getBounds();
     void		handleRightClick(int);
-    void		drawModel(TypeSet<uiPoint>&,int);
-    void		drawLevels();
+    void		drawLevels(); // deprecated
     virtual void	drawSelectedSequence();
     void		updZoomBox();
+    void		updateDataPack();
+    void		updateLayerAuxData();
+    void		updateLevelAuxData();
+    void		updateSelSeqAuxData();
     int			getXPix(int,float) const;
     void		doLayModIO(bool);
     bool		isDisplayedModel(int) const;
