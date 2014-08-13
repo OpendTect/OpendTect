@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seiscbvs2d.h"
 #include "seiscbvsps.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "seisioobjinfo.h"
 #include "filepath.h"
 #include "file.h"
@@ -46,7 +46,7 @@ Interval<int> Seis::PreLoader::inlRange() const
 }
 
 
-void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
+void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
 {
     lks.erase(); PtrMan<IOObj> ioobj = getIOObj();
     if ( !ioobj ) return;
@@ -55,22 +55,14 @@ void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
     StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
     if ( fnms.isEmpty() ) return;
     BufferStringSet nms;
-    for ( int idx=0; idx<fnms.size(); idx++ )
-    {
-	FilePath fp( fnms.get(idx) );
-	nms.add( fp.fileName() );
-    }
-
-    Seis2DLineSet ls( *ioobj );
-    const int nrlns = ls.nrLines();
+    Seis2DDataSet ds( *ioobj );
+    const int nrlns = ds.nrLines();
     for ( int iln=0; iln<nrlns; iln++ )
     {
-	const IOPar& iop = ls.getInfo( iln );
-	const char* fnm = iop.find( sKey::FileName() );
-	if ( !fnm ) continue;
-
-	if ( nms.isPresent(fnm) )
-	    lks.add( ls.lineKey(iln).buf() );
+	const char* fnm =
+	    	SeisCBVS2DLineIOProvider::getFileName( ds.getInfo(iln) );
+	if ( fnms.isPresent(fnm) )
+	    lks.add( ds.lineName(iln) );
     }
 }
 
@@ -106,18 +98,17 @@ bool Seis::PreLoader::loadVol() const
 }
 
 
-bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
-				 const BufferStringSet& attrnms ) const
+bool Seis::PreLoader::loadLines( const BufferStringSet& lnms ) const
 {
-    if ( lnms.isEmpty() || attrnms.isEmpty() )
-	{ errmsg_ = "Internal: No line or no attr requested"; return false; }
+    if ( lnms.isEmpty() )
+	{ errmsg_ = "Internal: No lines requested"; return false; }
     mPrepIOObj( true );
 
-    Seis2DLineSet ls( *ioobj );
-    const int nrlns = ls.nrLines();
+    Seis2DDataSet ds( *ioobj );
+    const int nrlns = ds.nrLines();
     if ( nrlns < 1 )
     {
-	errmsg_ = "Line Set '"; errmsg_ += ioobj->name();
+	errmsg_ = "Data set '"; errmsg_ += ioobj->name();
 	errmsg_ += "' contains no data";
 	return false;
     }
@@ -125,12 +116,11 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
     BufferStringSet fnms;
     for ( int iln=0; iln<nrlns; iln++ )
     {
-	const char* lnm = ls.lineName( iln );
-	const char* attrnm = ls.attribute( iln );
-	if ( !lnms.isPresent(lnm) || !attrnms.isPresent(attrnm) )
+	const char* lnm = ds.lineName( iln );
+	if ( !lnms.isPresent(lnm) )
 	    continue;
 
-	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );
+	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ds.getInfo(iln)) );
     }
 
     return fnms.isEmpty() ? true
@@ -141,18 +131,18 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
 bool Seis::PreLoader::loadLines() const
 {
     mPrepIOObj( true );
-    Seis2DLineSet ls( *ioobj );
-    const int nrlns = ls.nrLines();
+    Seis2DDataSet ds( *ioobj );
+    const int nrlns = ds.nrLines();
     if ( nrlns < 1 )
     {
-	errmsg_ = "Line Set '"; errmsg_ += ioobj->name();
+	errmsg_ = "Data Set '"; errmsg_ += ioobj->name();
 	errmsg_ += "' contains no data";
 	return false;
     }
 
     BufferStringSet fnms;
     for ( int iln=0; iln<nrlns; iln++ )
-	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );
+	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ds.getInfo(iln)) );
 
     return fnms.isEmpty() ? true
 	 : StreamProvider::preLoad( fnms, trunnr, id_.buf() );
@@ -241,16 +231,12 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 	    spl.loadVol();
 	break;
 	case Seis::Line: {
-	    BufferStringSet lnms, attrs;
-	    iop.get( sKeyLines(), lnms ); iop.get( sKeyAttrs(), attrs );
-	    if ( lnms.isEmpty() && attrs.isEmpty() )
+	    BufferStringSet lnms;
+	    iop.get( sKeyLines(), lnms );
+	    if ( lnms.isEmpty() )
 		spl.loadLines();
 	    else
-	    {
-		if ( lnms.isEmpty() ) oinf.getLineNames(lnms);
-		if ( attrs.isEmpty() ) oinf.getAttribNames(attrs);
-		spl.loadLines( lnms, attrs );
-	    }
+		spl.loadLines( lnms );
 	} break;
 	case Seis::VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
@@ -281,16 +267,9 @@ void Seis::PreLoader::fillPar( IOPar& iop ) const
 	case Seis::Vol:
 	break;
 	case Seis::Line: {
-	    BufferStringSet lks; getLineKeys( lks );
-	    if ( lks.isEmpty() ) break;
-	    BufferStringSet lnms, attrs;
-	    for ( int idx=0; idx<lks.size(); idx++ )
-	    {
-		const LineKey lk( lks.get(idx) );
-		lnms.addIfNew( lk.lineName() );
-		attrs.addIfNew( lk.attrName() );
-	    }
-	    iop.set( sKeyLines(), lnms ); iop.set( sKeyAttrs(), attrs );
+	    BufferStringSet lnms; getLineNames( lnms );
+	    if ( !lnms.isEmpty() )
+		iop.set( sKeyLines(), lnms );
 	} break;
 	case Seis::VolPS: {
 	    iop.set( sKey::Range(), inlRange() );

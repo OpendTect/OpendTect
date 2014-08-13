@@ -36,13 +36,12 @@ public:
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
     			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
-    void		getLineKeys(BufferStringSet&) const;
+    void		getLineNames(BufferStringSet&) const;
     			//!< Line 2D only.
 
     bool		loadVol() const;
     bool		loadLines() const;
-    bool		loadLines(const BufferStringSet& lnms,
-	    			  const BufferStringSet& attrnms) const;
+    bool		loadLines(const BufferStringSet& lnms) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;

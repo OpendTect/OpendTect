@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscbvs.h"
 #include "seispsioprov.h"
 #include "seispreload.h"
-#include "seis2dline.h"
+#include "seis2ddata.h"
 #include "strmprov.h"
 #include "ctxtioobj.h"
 #include "iodir.h"
@@ -36,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjseldlg.h"
 #include "uigeninput.h"
 #include "uitaskrunner.h"
+#include "uiseissel.h"
 #include "uiselsurvranges.h"
 #include "od_helpids.h"
 
@@ -154,8 +155,8 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 	case Seis::Vol:
 	break;
 	case Seis::Line: {
-	    BufferStringSet lks; spl.getLineKeys( lks );
-	    disptxt += getLinesText( lks );
+	    BufferStringSet lnms; spl.getLineNames( lnms );
+	    disptxt += getLinesText( lnms );
 	} break;
 	case Seis::VolPS: {
 	    Interval<int> rg = spl.inlRange();
@@ -176,27 +177,14 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 }
 
 
-BufferString uiSeisPreLoadMgr::getLinesText( const BufferStringSet& lks ) const
+BufferString uiSeisPreLoadMgr::getLinesText( const BufferStringSet& lnms ) const
 {
-    BufferStringSet lnms, attrnms;
-    for ( int idx=0; idx<lks.size(); idx++ )
-    {
-	const LineKey lk( lks.get(idx) );
-	lnms.addIfNew( lk.lineName() );
-	attrnms.addIfNew( lk.attrName() );
-    }
-
     BufferString txt;
     if ( lnms.isEmpty() )
 	{ txt = "-"; return txt; }
 
     txt += "\nLine"; txt += lnms.size() < 2 ? ":" : "s:";
-    for ( int iln=0; iln<lnms.size(); iln++ )
-	{ txt += iln ? ", " : " "; txt += lnms.get( iln ); }
-    txt += "\nAttribute"; txt += attrnms.size() < 2 ? ":" : "s:";
-    for ( int iattr=0; iattr<attrnms.size(); iattr++ )
-	{ txt += iattr ? ", " : " "; txt += attrnms.get( iattr ); }
-
+    txt += lnms.getDispString( -1, false );
     return txt;
 }
 
@@ -280,87 +268,56 @@ class uiSeisPreLoadMgrSel2D : public uiDialog
 public:
 
 uiSeisPreLoadMgrSel2D( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Preload selection","Select lines/attributes",
+    : uiDialog(p,uiDialog::Setup("Preload selection","Select 2D Dataset",
 				 mODHelpKey(mSeisPreLoadMgrSel2DHelpID) ))
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
-    ctio_.ctxt.fixTranslator( "2D" );
-    const IODir iodir( ctio_.ctxt.getSelKey() );
-    const IODirEntryList del( iodir, ctio_.ctxt );
-    for ( int idx=0; idx<del.size(); idx++ )
-    {
-	if ( del[idx]->ioobj_ )
-	    { ctio_.setObj( del[idx]->ioobj_->clone() ); break; }
-    }
-
-    lssel_ = new uiIOObjSel( this, ctio_ );
-    lssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,lsSel) );
-    uiGroup* boxgrp = new uiGroup( this, "List boxes" );
-    uiLabeledListBox* lllb = new uiLabeledListBox( boxgrp, "Line(s)",
+    IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
+    dssel_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(true,false) );
+    dssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,dsSel) );
+    uiLabeledListBox* lllb = new uiLabeledListBox( this, "Line(s)",
 				 OD::ChooseAtLeastOne,
 				 uiLabeledListBox::AboveMid );
+    lllb->attach( alignedBelow, dssel_ );
     linesel_ = lllb->box();
-    uiLabeledListBox* allb = new uiLabeledListBox( boxgrp, "Attribute(s)",
-				 OD::ChooseAtLeastOne,
-				 uiLabeledListBox::AboveMid );
-    allb->attach( rightOf, lllb );
-    attrsel_ = allb->box();
-    boxgrp->setHAlignObj( allb );
-    boxgrp->attach( alignedBelow, lssel_ );
-
-    if ( ctio_.ioobj )
-	lsSel(0);
+    postFinalise().notify( mCB(this,uiSeisPreLoadMgrSel2D,dsSel) );
 }
 
-~uiSeisPreLoadMgrSel2D()
+
+void dsSel( CallBacker* cb )
 {
-    delete ctio_.ioobj; delete &ctio_;
-}
+    if ( !dssel_->ioobj(true) ) return;
 
-void lsSel( CallBacker* )
-{
-    if ( !lssel_->ioobj() ) return;
+    lnms_.erase();
+    Seis2DDataSet ds( *dssel_->ioobj() );
+    for ( int idx=0; idx<ds.nrLines(); idx++ )
+	lnms_.add( ds.lineName(idx) );
 
-    lnms_.erase(); attrnms_.erase();
-    Seis2DLineSet ls( *lssel_->ioobj() );
-    for ( int idx=0; idx<ls.nrLines(); idx++ )
-    {
-	lnms_.addIfNew( ls.lineName(idx) );
-	attrnms_.addIfNew( ls.attribute(idx) );
-    }
-
-    linesel_->setEmpty(); attrsel_->setEmpty();
-    linesel_->addItems( lnms_ ); attrsel_->addItems( attrnms_ );
-    linesel_->chooseAll(); attrsel_->chooseAll();
+    linesel_->setEmpty();
+    linesel_->addItems( lnms_ );
+    linesel_->chooseAll();
 }
 
 
 bool acceptOK( CallBacker* )
 {
-    if ( !lssel_->commitInput() || !lssel_->ioobj() )
+    if ( !dssel_->ioobj() )
+	return false;
+
+    lnms_.erase();
+    linesel_->getChosen(lnms_);
+    if ( lnms_.isEmpty() )
     {
-	uiMSG().error( "Please select a Line Set" );
+	uiMSG().error( "Please select one or more lines" );
 	return false;
     }
 
-    lnms_.erase(); attrnms_.erase();
-    linesel_->getChosen(lnms_); attrsel_->getChosen(attrnms_);
-    if ( lnms_.isEmpty() || attrnms_.isEmpty() )
-    {
-	uiMSG().error( "Please select one or more lines and attributes" );
-	return false;
-    }
     return true;
 }
 
-    CtxtIOObj&	ctio_;
-    uiIOObjSel*	lssel_;
+    uiSeisSel*	dssel_;
     uiListBox*	linesel_;
-    uiListBox*	attrsel_;
 
     BufferStringSet	lnms_;
-    BufferStringSet	attrnms_;
-
 };
 
 
@@ -369,11 +326,11 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiSeisPreLoadMgrSel2D dlg( this );
     if ( !dlg.go() ) return;
 
-    mCheckIOObjExistance( dlg.lssel_->ioobj() );
+    mCheckIOObjExistance( dlg.dssel_->ioobj() );
 
-    Seis::PreLoader spl( dlg.lssel_->ioobj()->key() );
+    Seis::PreLoader spl( dlg.dssel_->ioobj()->key() );
     uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
-    if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
+    if ( !spl.loadLines(dlg.lnms_) )
     {
 	const char* emsg = spl.errMsg();
 	if ( emsg )
