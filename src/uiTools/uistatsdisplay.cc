@@ -234,6 +234,9 @@ void uiStatsDisplay::setMarkValue( float val, bool forx )
 
 void uiStatsDisplay::putN()
 {
+    if ( !histgramdisp_ )
+	return;
+
     histgramdisp_->putN();
 }
 
@@ -258,8 +261,12 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
 	if ( statnmcb_ )
 	    disp->attach( rightAlignedBelow, lblcb );
 
-	disp->funcDisp()->getMouseEventHandler().movement.notify(
+	if ( disp->funcDisp() )
+	{
+	    disp->funcDisp()->getMouseEventHandler().movement.notify(
 		mCB(this,uiStatsDisplayWin,mouseMoveCB) );
+	}
+
 	disps_ += disp;
 	disp->display( false );
     }
