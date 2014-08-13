@@ -304,6 +304,8 @@ float Math::Formula::getValue( const float* vals, bool internuns ) const
 
 double Math::Formula::getValue( const double* vals, bool internuns ) const
 {
+    if ( !expr_ ) return mUdf(double);
+
     if ( inputsareseries_ && prevvals_.size() < maxRecShift() )
     {
 	startNewSeries();
@@ -332,6 +334,7 @@ double Math::Formula::getValue( const double* vals, bool internuns ) const
 	    }
 	    expr_->setVariableValue( ivar, val );
 	}
+
 	expr_->setVariableValue( ivar, val );
     }
 
