@@ -109,7 +109,9 @@ protected:
 mExpClass(uiWell) uiWellLogToolWinMgr : public uiDialog
 {
 public:
-			uiWellLogToolWinMgr(uiParent*);
+			uiWellLogToolWinMgr(uiParent*,
+					    const BufferStringSet* welllnms=0,
+					    const BufferStringSet* lognms=0);
 protected:
 
     uiMultiWellLogSel*	welllogselfld_;
