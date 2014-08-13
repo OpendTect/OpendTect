@@ -242,7 +242,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	vwrs_[idx]->addAuxData( ad );
 	zoomboxes_ += ad;
 	ad->linestyle_ = LineStyle( LineStyle::Dash, 3, Color::Black() );
-	ad->zvalue_ = 5;
+	ad->zvalue_ = uiFlatViewer::annotZVal();
 
 	if ( vwrs_[idx] == activeVwr() || wr == masterbbox )
 	    continue;

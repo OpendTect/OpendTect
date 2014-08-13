@@ -997,12 +997,9 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
-    if ( parschanged )
-    {
-	mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-	if ( mfvc ) mfvc->reInitZooms();
-	synthdisp_->setZoomView( prevrelzoomwr );
-    }
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
+    synthdisp_->setZoomView( prevrelzoomwr );
     synthdisp_->setForceUpdate( false );
 }
 
