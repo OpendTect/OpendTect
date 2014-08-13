@@ -127,6 +127,7 @@ StepInterval<float> uiEMAttribPartServer::shiftRange() const
 
 
 void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
+					    const int& visid,
 					    const BoolTypeSet& attrenabled,
 					    float initialshift,
 					    bool canaddattrib)
@@ -136,8 +137,9 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
     initialshift_ = initialshift;
     initialattribstatus_ = attrenabled;
     setAttribIdx( mUdf(int) );
-    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, *descset_,
-	    				     initialshift, canaddattrib );
+    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, visid,
+					     *descset_, initialshift,
+					     canaddattrib );
     horshiftdlg_->calcAttribPushed.notify(
 	    mCB(this,uiEMAttribPartServer,calcDPS) );
     horshiftdlg_->horShifted.notify(
@@ -246,3 +248,7 @@ void uiEMAttribPartServer::horShifted( CallBacker* cb )
     sendEvent( uiEMAttribPartServer::evHorizonShift() );
 }
 
+int uiEMAttribPartServer::getShiftedObjectVisID() const
+{
+    return horshiftdlg_ ? horshiftdlg_->visID() : -1;
+}

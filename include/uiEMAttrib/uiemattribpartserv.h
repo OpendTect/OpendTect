@@ -61,8 +61,10 @@ public:
 				{ descset_ = ads; }
 
     void			showHorShiftDlg(const EM::ObjectID&,
-	    			    const BoolTypeSet& attrenabled,
-				    float initialshift,bool canaddattrib);
+	    					const int& visid,
+						const BoolTypeSet& attrenabled,
+						float initialshift,
+						bool canaddattrib);
     void			fillHorShiftDPS(ObjectSet<DataPointSet>&,
 	    				TaskRunner*);
 
@@ -74,6 +76,7 @@ public:
     float			getShift() const;
     void			setAttribID( Attrib::DescID id )
     				{ attribid_ = id; }
+    int				getShiftedObjectVisID() const;
     void			setAttribIdx(int);
     Attrib::DescID		attribID() const	{ return attribid_; }
     int				attribIdx() const	{ return attribidx_; }

@@ -1200,6 +1200,8 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 {
     const int visid = visserv_->getEventObjId();
     const int attribidx = emattrserv_->attribIdx();
+    const int shiftvisid = emattrserv_->getShiftedObjectVisID();
+
     if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
 	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
@@ -1209,11 +1211,12 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
 	const int textureidx = emattrserv_->textureIdx();
-	visserv_->setTranslation( visid, Coord3(0,0,emattrserv_->getShift()) );
+	visserv_->setTranslation( shiftvisid,
+				    Coord3(0,0,emattrserv_->getShift()) );
 	if ( !mIsUdf(attribidx) )
-	    visserv_->selectTexture( visid, attribidx, textureidx );
+	    visserv_->selectTexture( shiftvisid, attribidx, textureidx );
 
-	uiTreeItem* parent = sceneMgr().findItem( visid );
+	uiTreeItem* parent = sceneMgr().findItem( shiftvisid );
 	if ( parent )
 	    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     }
@@ -1271,19 +1274,19 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		}
 
 		parent->removeChild( itm );
-		visserv_->removeAttrib( visid, emattrserv_->attribIdx() );
+		visserv_->removeAttrib( shiftvisid, emattrserv_->attribIdx() );
 	    }
 	}
 
 	if ( !isok )
 	{
-	    visserv_->setTranslation( visid,
+	    visserv_->setTranslation( shiftvisid,
 		    Coord3(0,0,emattrserv_->initialShift() ) );
 
 	    for ( int idx=0; idx<enableattrib.size(); idx++ )
-		visserv_->enableAttrib( visid, idx, enableattrib[idx] );
+		visserv_->enableAttrib( shiftvisid, idx, enableattrib[idx] );
 
-	    uiTreeItem* parent = sceneMgr().findItem( visid );
+	    uiTreeItem* parent = sceneMgr().findItem( shiftvisid );
 	    if ( parent )
 		parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
@@ -1294,7 +1297,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		if ( idx==attribidx )
 		{
 		    DataPointSet data( false, true );
-		    visserv_->getRandomPosCache( visid, attribidx, data );
+		    visserv_->getRandomPosCache( shiftvisid, attribidx, data );
 		    if ( data.isEmpty() )
 			continue;
 
@@ -1312,7 +1315,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 			    data.bivSet().removeVal( idy );
 		    }
 
-		    visserv_->setRandomPosData( visid, attribidx, &data );
+		    visserv_->setRandomPosData( shiftvisid, attribidx, &data );
 		}
 	    }
 	}

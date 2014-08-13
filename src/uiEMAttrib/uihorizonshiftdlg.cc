@@ -33,6 +33,7 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
+					    const int& visid,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
@@ -42,6 +43,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
     , emhor3d_(0)
     , emid_(emid)
+    , visid_(visid)
     , storefld_(0)
     , namefld_(0)
     , calbut_(0)
@@ -71,8 +73,15 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     EM::EMObject* emobj = EM::EMM().getObject( emid_ );
     mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
     emhor3d_ = emhor3d;
-    emhor3d_->ref();
 
+    if ( emhor3d_ )
+    {
+	emhor3d_->ref();
+	BufferString title = setup().wintitle_.getFullString();
+	title.add( " - " ).add( emhor3d_->name() );
+	setCaption( title );
+    }
+    
     if ( cancalcattrib )
     {
 	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
