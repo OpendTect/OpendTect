@@ -119,6 +119,33 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
 }
 
 
+void WaveletAttrib::transform( Array1D<float_complex>& fftwvlt, int sz )
+{
+    const int tarsz = mMAX(wvltsz_,sz);
+
+    fftwvlt.setSize( tarsz );
+    Array1DImpl<float_complex> wvlt( tarsz );
+    wvlt.setAll( 0 );
+
+    const int shift = (tarsz - wvltsz_)/2;
+    for ( int idx=0; idx<wvltsz_; idx++ )
+        wvlt.set( idx+shift, wvltarr_->get(idx) );
+
+    mDoFFT( true, wvlt, fftwvlt, tarsz );
+}
+
+
+void WaveletAttrib::transformBack( const Array1D<float_complex>& fftwvlt,
+                                   Array1D<float>& wvlt )
+{
+    const int arraysz = fftwvlt.info().getSize( 0 );
+    Array1DImpl<float_complex> cwvlt( arraysz );
+    mDoFFT( false, fftwvlt, cwvlt,  arraysz );
+    for ( int idx=0; idx<arraysz; idx++ )
+	wvlt.set( idx, cwvlt.get(idx).real() );
+}
+
+
 void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, int padfac )
 {
     const int zpadsz = padfac*wvltsz_;

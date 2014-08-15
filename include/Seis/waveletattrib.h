@@ -17,6 +17,7 @@ ________________________________________________________________________
 class ArrayNDWindow;
 class Wavelet;
 template <class T> class Array1DImpl;
+template <class T> class Array1D;
 
 mExpClass(Seis) WaveletAttrib
 {
@@ -30,8 +31,11 @@ public:
     float		getAvgPhase(bool degree=false) const;
     void		getFrequency(Array1DImpl<float>&,int padfac=1);
 			//frequency array will be resized to padfac*array size )
-    void		applyFreqWindow(const ArrayNDWindow&, int padfac,
+    void		applyFreqWindow(const ArrayNDWindow&,int padfac,
 					Array1DImpl<float>&);
+    void		transform(Array1D<float_complex>&,int sz=-1);
+    static void		transformBack(const Array1D<float_complex>& fftwvlt,
+				      Array1D<float>& wvlt);
 
     static void		unwrapPhase(int nrsamples,float wrapparam,float* phase);
     static void		muteZeroFrequency(Array1DImpl<float>&);
