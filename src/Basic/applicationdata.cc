@@ -9,21 +9,77 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 
+#include "debug.h"
 #include "genc.h"
-
-#ifndef OD_NO_QT
 
 #include <QCoreApplication>
 
-ApplicationData::ApplicationData()
+class QEventLoopReceiver : public QObject
 {
-    int argc = GetArgC();
-    application_ = new mQtclass(QCoreApplication)(argc, GetArgV() );
+public:
+    QEventLoopReceiver( ApplicationData& ad )
+	: ad_( ad )
+    {}
+
+    bool event( QEvent* )
+    {
+	Threads::MutexLocker locker( ad_.eventloopqueuelock_ );
+	CallBackSet mycopy = ad_.eventloopqueue_;
+	ad_.eventloopqueue_.erase();
+
+	locker.unLock();
+
+	mycopy.doCall( &ad_ );
+	return true;
+    }
+
+    ApplicationData&		ad_;
+};
+
+
+ApplicationData::ApplicationData()
+    : eventloopreceiver_( 0 )
+{
+    if ( !QCoreApplication::instance() )
+    {
+	int argc = GetArgC();
+	application_ = new mQtclass(QCoreApplication)(argc, GetArgV() );
+    }
 }
 
 
-bool ApplicationData::exec()
-{ return application_->exec(); }
+ApplicationData::~ApplicationData()
+{
+    deleteAndZeroPtr( eventloopreceiver_ );
+}
+
+
+int ApplicationData::exec()
+{
+    return QCoreApplication::exec();
+}
+
+
+void ApplicationData::exit( int retcode )
+{
+    QCoreApplication::exit( retcode );
+}
+
+
+void ApplicationData::addToEventLoop( const CallBack& cb )
+{
+    Threads::MutexLocker locker( eventloopqueuelock_ );
+
+    if ( !eventloopqueue_.size() )
+    {
+	if ( !eventloopreceiver_ )
+	    eventloopreceiver_ = new QEventLoopReceiver( *this );
+
+	QCoreApplication::postEvent( eventloopreceiver_,
+				     new QEvent(QEvent::None) );
+    }
+    eventloopqueue_ += cb;
+}
 
 
 void ApplicationData::setOrganizationName( const char* nm )
@@ -37,21 +93,3 @@ void ApplicationData::setOrganizationDomain( const char* domain )
 void ApplicationData::setApplicationName( const char* nm )
 { QCoreApplication::setApplicationName( nm ); }
 
-#else
-
-ApplicationData::ApplicationData()
-{ application_ = 0; }
-
-bool ApplicationData::exec()
-{ return false; }
-
-void ApplicationData::setOrganizationName( const char* nm )
-{}
-
-void ApplicationData::setOrganizationDomain( const char* domain )
-{}
-
-void ApplicationData::setApplicationName( const char* nm )
-{}
-
-#endif // OD_NO_QT

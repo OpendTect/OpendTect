@@ -17,26 +17,51 @@ Wrapper class around QCoreApplication
 #include "basicmod.h"
 
 #include "ptrman.h"
+#include "callback.h"
+#include "thread.h"
 
 mFDQtclass(QCoreApplication);
+class QEventLoopReceiver;
 
 /*!Wrapper class around the QCoreApplicaiton, which provides an event-loop
-   for console applications.
+   for console applications. It can also be used in GUI program as an
+   access-point (adding events and telling it to quit) to QApplication (which
+   has to be created before creating the ApplicationData.
 */
 
-mExpClass(Basic) ApplicationData
+mExpClass(Basic) ApplicationData : public CallBacker
 {
 public:
-    			ApplicationData();
+			ApplicationData();
+			/*!<Will create a QCoreApplication if no
+			    QCoreApplication (or inheriting classes
+			    are instantiated. */
+			~ApplicationData();
 
-    bool		exec();
+    static int		exec();
+			//!<Starts the event loop
+
+    static void		exit(int returncode);
+			//!<Tells the eventloop to quit.
+
+    void		addToEventLoop(const CallBack& cb);
+			/*!<Trigger a callback from inside the event-loop.
+			    Callback will only be called once, and has to
+			    remain in memory untill it is called. */
 
     static void		setOrganizationName(const char*);
     static void		setOrganizationDomain(const char*);
     static void		setApplicationName(const char*);
 
 protected:
+
     PtrMan<mQtclass(QCoreApplication)>	application_;
+
+    CallBackSet				eventloopqueue_;
+    Threads::Mutex			eventloopqueuelock_;
+
+    friend class QEventLoopReceiver;
+    QEventLoopReceiver*			eventloopreceiver_;
 };
 
 
