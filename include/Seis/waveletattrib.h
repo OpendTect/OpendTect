@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "gendefs.h"
+#include "odcomplex.h"
 
 class ArrayNDWindow;
 class Wavelet;
