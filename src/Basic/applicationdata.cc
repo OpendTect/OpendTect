@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "genc.h"
 
+#ifndef OD_NO_QT
+
 #include <QCoreApplication>
 
 ApplicationData::ApplicationData()
@@ -21,9 +23,7 @@ ApplicationData::ApplicationData()
 
 
 bool ApplicationData::exec()
-{
-    return application_->exec();
-}
+{ return application_->exec(); }
 
 
 void ApplicationData::setOrganizationName( const char* nm )
@@ -37,3 +37,21 @@ void ApplicationData::setOrganizationDomain( const char* domain )
 void ApplicationData::setApplicationName( const char* nm )
 { QCoreApplication::setApplicationName( nm ); }
 
+#else
+
+ApplicationData::ApplicationData()
+{ application_ = 0; }
+
+bool ApplicationData::exec()
+{ return false; }
+
+void ApplicationData::setOrganizationName( const char* nm )
+{}
+
+void ApplicationData::setOrganizationDomain( const char* domain )
+{}
+
+void ApplicationData::setApplicationName( const char* nm )
+{}
+
+#endif // OD_NO_QT
