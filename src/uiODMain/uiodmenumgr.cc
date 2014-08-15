@@ -210,7 +210,7 @@ void uiODMenuMgr::fillSurveyMenu()
     fillManMenu();
     surveymnu_->insertItem( manmnu_ );
 
-    preloadmnu_ = new uiMenu( &appl_, tr("Preload") );
+    preloadmnu_ = new uiMenu( &appl_, tr("Pre-load") );
     mInsertItem( preloadmnu_, uiStrings::sSeismics(false), mPreLoadSeisMnuItm );
     mInsertItem( preloadmnu_, uiStrings::sHorizons(false), mPreLoadHorMnuItm );
     surveymnu_->insertItem( preloadmnu_ );
