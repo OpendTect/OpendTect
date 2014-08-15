@@ -66,6 +66,7 @@ SET(OD_MODULE_SOURCES
 	uiveldesc.cc
 	uivelocityvolumeconversion.cc
 	uiwaveletextraction.cc
+	uiwaveletmatchdlg.cc
 )
 
 SET( OD_MODULE_PROGS od_ClusterProc.cc od_SeisMMBatch.cc )

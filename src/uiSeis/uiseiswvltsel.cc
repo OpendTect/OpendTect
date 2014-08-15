@@ -10,41 +10,58 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiswvltsel.h"
-#include "uiseiswvltman.h"
+
 #include "uicombobox.h"
+#include "uiseiswvltman.h"
 #include "uitoolbutton.h"
-#include "wavelet.h"
+#include "uiwaveletextraction.h"
+
+#include "ctxtioobj.h"
 #include "iodir.h"
 #include "iodirentry.h"
-#include "ctxtioobj.h"
-#include "survinfo.h"
 #include "ioman.h"
+#include "survinfo.h"
+#include "wavelet.h"
 
 
-uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt )
+uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
+                                    bool withextract, bool withman )
     : uiGroup(p,"Wavelet selector")
+    , wvltextrdlg_(0)
     , newSelection(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-	    					seltxt ? seltxt 
-                                                       : tr("Wavelet") );
+    uiLabeledComboBox* lcb =
+	new uiLabeledComboBox( this, seltxt ? seltxt : tr("Wavelet") );
     nmfld_ = lcb->box();
+    uiObject* lastfld = nmfld_;
 
-    uiToolButton* tb = new uiToolButton( this, "man_wvlt",
-	    tr("Manage wavelets"), mCB(this,uiSeisWaveletSel,startMan) );
+    if ( withextract )
+    {
+	uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
+				mCB(this,uiSeisWaveletSel,extractCB), false );
+	crwvltbut->attach( rightOf, lastfld );
+	lastfld = crwvltbut;
+    }
 
-    tb->attach( rightOf, lcb );
-    setHAlignObj( lcb );
+    if ( withman )
+    {
+	uiToolButton* tb = new uiToolButton( this, "man_wvlt",
+		tr("Manage wavelets"), mCB(this,uiSeisWaveletSel,startMan) );
+	tb->attach( rightOf, lastfld );
+    }
 
     rebuildList();
     initFlds( this );
     setFrame( true );
+
+    setHAlignObj( lcb );
 }
 
 
 uiSeisWaveletSel::~uiSeisWaveletSel()
 {
     deepErase( ids_ );
+    if ( wvltextrdlg_ ) wvltextrdlg_->close();
 }
 
 
@@ -100,6 +117,26 @@ Wavelet* uiSeisWaveletSel::getWavelet() const
     Wavelet* ret = Wavelet::get( ioobj );
     delete ioobj;
     return ret;
+}
+
+
+void uiSeisWaveletSel::extractCB( CallBacker* )
+{
+    if ( !wvltextrdlg_ )
+    {
+	wvltextrdlg_ = new uiWaveletExtraction( this, false );
+	wvltextrdlg_->extractionDone.notify(
+		mCB(this,uiSeisWaveletSel,extractionDoneCB) );
+    }
+
+    wvltextrdlg_->show();
+}
+
+
+void uiSeisWaveletSel::extractionDoneCB( CallBacker* )
+{
+    rebuildList();
+    setInput( wvltextrdlg_->storeKey() );
 }
 
 

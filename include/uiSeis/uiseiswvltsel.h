@@ -1,5 +1,5 @@
-#ifndef uiwvltseissel_h
-#define uiwvltseissel_h
+#ifndef uiseiswvltsel_h
+#define uiseiswvltsel_h
 /*+
 ________________________________________________________________________
 
@@ -14,18 +14,21 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uigroup.h"
 #include "bufstringset.h"
+
 class Wavelet;
 class uiComboBox;
-
+class uiWaveletExtraction;
 
 /*!\brief 'Immediate' Wavelet selector, with 'Manage' button */
 
 mExpClass(uiSeis) uiSeisWaveletSel : public uiGroup
-{ mODTextTranslationClass(uiSeisWaveletSel);
+{ mODTextTranslationClass(uiSeisWaveletSel)
 public:
 
 			uiSeisWaveletSel(uiParent*,
-					 const char* seltxt="Wavelet");
+					 const char* seltxt="Wavelet",
+					 bool withextract=true,
+					 bool withman=true);
 			~uiSeisWaveletSel();
     void		rebuildList();
 
@@ -43,12 +46,14 @@ protected:
     BufferStringSet	nms_;
     ObjectSet<MultiID>	ids_;
 
+    uiWaveletExtraction* wvltextrdlg_;
+
     void		initFlds(CallBacker*);
+    void		extractCB(CallBacker*);
+    void		extractionDoneCB(CallBacker*);
     void		startMan(CallBacker*);
     void		selChg(CallBacker*);
 
 };
 
-
 #endif
-
