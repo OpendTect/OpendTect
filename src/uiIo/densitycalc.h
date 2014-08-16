@@ -28,7 +28,7 @@ ________________________________________________________________________
 //!\brief calculates densities for teh density display of a crossplot
 
 mClass(uiIo) DensityCalc : public ParallelTask
-{
+{ mODTextTranslationClass(DensityCalc);
 public:
 			DensityCalc(uiDataPointSet&,Array2D<float>* data,
 				    uiDataPointSetCrossPlotter::AxisData& x,
@@ -37,7 +37,7 @@ public:
 				    const char* header);
 
     od_int64		nrDone() const;
-    const char*		nrDoneText() const;
+    uiString		uiNrDoneText() const;
     od_int64		nrIterations() const;
     bool		doWork(od_int64 start,od_int64 stop,int);
 
@@ -135,8 +135,8 @@ DensityCalc::DensityCalc( uiDataPointSet& uidps, Array2D<float>* data,
 inline od_int64 DensityCalc::nrDone() const
 { return nrdone_; }
 
-inline const char* DensityCalc::nrDoneText() const
-{ return "Points done";}
+inline uiString DensityCalc::uiNrDoneText() const
+{ return tr("Points done");}
 
 inline od_int64 DensityCalc::nrIterations() const
 { return dps_.size(); }
