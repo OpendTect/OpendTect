@@ -30,9 +30,9 @@ ________________________________________________________________________
   It is common that Executors are combined to a new Executor object. This is
   the most common reason why totalNr() can change.
   
-  If doStep returns -1 (Failure) the error message should be in message().
+  If doStep returns -1 (Failure) the error message should be in uiMessage().
   
-  The execute() utility executes the process while logging message() etc. to
+  The execute() utility executes the process while logging uiMessage() etc. to
   a stream. Useful in batch situations.  
 */
 
