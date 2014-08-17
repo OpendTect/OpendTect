@@ -309,7 +309,7 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
     const Coord pos1( stoptrc, stopz * SI().zDomain().userFactor() );
 
     int startsegidx = -1, stopsegidx = -1;
-    float minsqrdist0 = -1, minsqrdist1 = -1;
+    double minsqrdist0 = -1, minsqrdist1 = -1;
     for ( int idx=0; idx<tracesegs_.size(); idx++ )
     {
 	const double y0 =
@@ -327,7 +327,7 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
 	    if ( !projpos.isUdf() )
 	    {
 		const Coord diff = projpos - pos0;
-		const float sqrdist = diff.dot(diff);
+		const double sqrdist = diff.dot( diff );
 		if ( minsqrdist0<0 || minsqrdist0>sqrdist )
 		{
 		    minsqrdist0 = sqrdist;
@@ -342,7 +342,7 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
 	    if ( !projpos.isUdf() )
 	    {
 		const Coord diff = projpos - pos1;
-		const float sqrdist = diff.dot(diff);
+		const double sqrdist = diff.dot( diff );
 		if ( minsqrdist1<0 || minsqrdist1>sqrdist )
 		{
 		    minsqrdist1 = sqrdist;
