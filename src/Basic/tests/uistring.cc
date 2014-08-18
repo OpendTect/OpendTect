@@ -85,11 +85,24 @@ bool testSharedData()
 }
 
 
+bool testQStringAssignment()
+{
+    const char* message = "Hello World";
+    uiString string;
+    string.setFrom( QString( message ) );
+
+    BufferString res = string.getFullString();
+    mRunStandardTest( res==message, "QString assignment" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testArg() || !testSharedData() )
+    if ( !testArg() || !testSharedData() || !testQStringAssignment() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );
