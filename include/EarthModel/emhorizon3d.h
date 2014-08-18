@@ -73,7 +73,7 @@ public:
 						 BinIDValueSet&,
 						 Pos::Provider3D* prov=0) const;
 
-    EMObjectIterator*	createIterator(const EM::SectionID&,
+    EMObjectIterator*		createIterator(const EM::SectionID&,
 					       const CubeSampling* =0) const;
 protected:
 
@@ -108,6 +108,7 @@ public:
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
+    static Horizon3D*		createWithConstZ(float z,const HorSampling&);
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
@@ -116,6 +117,10 @@ public:
 				/*!< Returns true on succes.  If histdesc
 				     is set, the event will be saved to
 				     history with the desc. */
+    bool			setArray2D(Array2D<float>*,const BinID& origin,
+					   const BinID& step);
+				/*!< Returns true on succes. Takes over array.
+				     Removes any existing data. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
 					 const HorSampling& hs);
@@ -145,7 +150,6 @@ protected:
     friend class		EMObject;
     Horizon3DGeometry		geometry_;
 };
-
 
 } // namespace EM
 

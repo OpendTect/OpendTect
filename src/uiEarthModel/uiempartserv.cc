@@ -55,6 +55,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiarray2dinterpol.h"
 #include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
+#include "uicreatehorizon.h"
 #include "uiempreloaddlg.h"
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
@@ -104,6 +105,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , expfltdlg_(0)
     , expfltstickdlg_(0)
     , impfltstickdlg_(0)
+    , crhordlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 }
@@ -184,13 +186,22 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
+    MultiID mid = MultiID::udf();
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
-    mDynamicCastGet(uiImportFault*,fltdlg,cb)
-    if ( (!dlg || !dlg->doDisplay()) &&
-	 (!fltdlg || !fltdlg->saveButtonChecked()) )
-	return;
+    if ( dlg && dlg->doDisplay() )
+	mid = dlg->getSelID();
 
-    selemid_ = em_.getObjectID( dlg ? dlg->getSelID() : fltdlg->getSelID() );
+    mDynamicCastGet(uiImportFault*,fltdlg,cb)
+    if ( fltdlg && fltdlg->saveButtonChecked() )
+	mid = fltdlg->getSelID();
+
+    mDynamicCastGet(uiCreateHorizon*,crdlg,cb)
+    if ( crdlg && crdlg->saveButtonChecked() )
+	mid = crdlg->getSelID();
+
+    if ( mid.isUdf() ) return;
+
+    selemid_ = em_.getObjectID( mid );
     sendEvent( evDisplayHorizon() );
 }
 
@@ -285,6 +296,17 @@ bool uiEMPartServer::exportFaultStickSet()
     return expfltstickdlg_->go();
 }
 
+
+void uiEMPartServer::createHorWithConstZ( bool is2d )
+{
+    if ( !crhordlg_ )
+    {
+	crhordlg_ = new uiCreateHorizon( parent(), is2d );
+	crhordlg_->ready.notify( mCB(this,uiEMPartServer,importReadyCB) );
+    }
+
+    crhordlg_->show();
+}
 
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const

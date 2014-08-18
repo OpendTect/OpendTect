@@ -181,7 +181,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	    { msg_ = "Incompatible sections"; return; }
 
 	totalnr_ += mCast( int, bvs.totalSize() );
-	
+
 	HorSampling sectrg;
 	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
 	sectrg.step = step;
@@ -237,7 +237,7 @@ int nextStep()
 
 	const int inlidx = hs_.inlIdx( bid.inl() );
 	const int crlidx = hs_.crlIdx( bid.crl() );
-	
+
 	Array2D<float>* horarr = horarrays_[sectionidx_];
 	if ( !horarr->info().validPos(inlidx,crlidx) )
 	    continue;
@@ -270,7 +270,7 @@ protected:
     BufferString	msg_;
     int			nrvals_;
 
-    ObjectSet<Array2D<float> > horarrays_;	
+    ObjectSet<Array2D<float> > horarrays_;
 
     int			sectionidx_;
     int			totalnr_;
@@ -331,7 +331,27 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() );
+mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() )
+
+
+Horizon3D* Horizon3D::createWithConstZ( float z, const HorSampling& hrg )
+{
+    EMObject* emobj = EMM().createTempObject( typeStr() );
+    mDynamicCastGet(Horizon3D*,hor3d,emobj)
+    if ( !hor3d ) return 0;
+
+    Array2D<float>* array = new Array2DImpl<float>( hrg.nrInl(), hrg.nrCrl() );
+    array->setAll( z );
+    if ( !hor3d->setArray2D(array,hrg.start,hrg.step) )
+    {
+	delete array;
+	hor3d->ref(); hor3d->unRef();
+	return 0;
+    }
+
+    return hor3d;
+}
+
 
 bool Horizon3D::setZ( const BinID& bid, float z, bool addtohist )
 { return setPos( sectionID(0), bid.toInt64(), Coord3(0,0,z), addtohist ); }
@@ -398,6 +418,20 @@ Array2D<float>* Horizon3D::createArray2D(
     }
 
     return arr;
+}
+
+
+bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
+			    const BinID& step )
+{
+    removeAll();
+
+    const SectionID sid = geometry().addSection( 0, false );
+    Geometry::BinIDSurface* geom = geometry().sectionGeometry( sid );
+    if ( !geom ) return false;
+
+    geom->setArray( start, step, array, true );
+    return true;
 }
 
 
@@ -503,7 +537,7 @@ Horizon3DGeometry::Horizon3DGeometry( Surface& surf )
 const Geometry::BinIDSurface*
 Horizon3DGeometry::sectionGeometry( const SectionID& sid ) const
 {
-    return (const Geometry::BinIDSurface*) 
+    return (const Geometry::BinIDSurface*)
 				    SurfaceGeometry::sectionGeometry(sid);
 }
 

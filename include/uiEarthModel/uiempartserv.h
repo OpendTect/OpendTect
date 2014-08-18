@@ -29,6 +29,7 @@ class DataPointSet;
 class HorSampling;
 class SurfaceInfo;
 class ZAxisTransform;
+class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
 class uiImportFault3D;
@@ -65,6 +66,7 @@ public:
     void		import2DFaultStickset();
     bool		exportFault();
     bool		exportFaultStickSet();
+    void		createHorWithConstZ(bool is2d);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -192,6 +194,7 @@ protected:
     uiExportHorizon*	exphordlg_;
     uiExportFault*	expfltdlg_;
     uiExportFault*	expfltstickdlg_;
+    uiCreateHorizon*	crhordlg_;
 
     HorSampling		selectedrg_;
     bool		disponcreation_;

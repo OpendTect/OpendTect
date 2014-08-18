@@ -49,9 +49,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mAddAtSectIdx	1
 #define mAddCBIdx	2
 #define mNewIdx		3
-#define mSectIdx	4
-#define mFullIdx	5
-#define mSectFullIdx	6
+#define mCreateIdx	4
+#define mSectIdx	5
+#define mFullIdx	6
+#define mSectFullIdx	7
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
@@ -93,6 +94,9 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     uiAction* newmenu = new uiAction( tr("Track new ...") );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
+
+    mnu.insertItem( new uiAction(tr("Create with constant Z ...")),
+		    mCreateIdx );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
@@ -163,6 +167,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    hd->setOnlyAtSectionsDisplay( onlyatsection );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
+    }
+    else if ( mnuid == mCreateIdx )
+    {
+	applMgr()->EMServer()->createHorWithConstZ( false );
     }
     else
 	handleStandardItems( mnuid );
