@@ -214,6 +214,11 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     factorylist_->attach( ensureBelow, availablelabel );
     factorylist_->doubleClicked.notify( addcb );
 
+    const int maxvsz = 15;
+    const int nrsteps = uiStepDialog::factory().size();
+    const int vsz = mMIN( nrsteps, maxvsz );
+    factorylist_->setPrefHeightInChar( vsz );
+
     addstepbutton_ = new uiToolButton( flowgrp, uiToolButton::RightArrow,
 					tr("Add step"), addcb );
     addstepbutton_->attach( centeredRightOf, factorylist_ );
