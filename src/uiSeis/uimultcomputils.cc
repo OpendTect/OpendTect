@@ -19,11 +19,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
-	: uiDialog(p,uiDialog::Setup(tr("Data component selection"), 0,
+	: uiDialog(p,uiDialog::Setup(tr("Multi-Attribute selection"), 0,
                                      mNoHelpKey) )
 	, compfld_(0)
 {
-    BufferString instructions = "After loading multiple components,\n";
+    BufferString instructions = "After loading multiple attributes,\n";
     instructions += "use 'Page Up and 'Page Down' buttons to scroll.\n";
     instructions += "Make sure the attribute treeitem is selected\n";
     instructions += "and that the mouse pointer is in the scene.";
@@ -120,7 +120,7 @@ uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
 				   "",mNoHelpKey) )
 {
     useallfld_ = new uiGenInput( this, "Components to use:",
-				 BoolInpSpec( true, uiStrings::sAll(), 
+				 BoolInpSpec( true, uiStrings::sAll(),
                                  "Subselection" ) );
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
