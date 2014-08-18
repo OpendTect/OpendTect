@@ -143,8 +143,10 @@ void uiDPSSelGrpDlg::importSelectionGrps( CallBacker* )
 
 void uiDPSSelGrpDlg::exportSelectionGrps( CallBacker* )
 {
-    uiExpSelectionArea::Setup su( plotter_.axisHandler(0)->name().buf(), 
-				  plotter_.axisHandler(1)->name().buf(),
+    uiExpSelectionArea::Setup su( plotter_.axisHandler(0)
+	    			  ? plotter_.axisHandler(0)->name().buf():0, 
+				  plotter_.axisHandler(1)
+				  ? plotter_.axisHandler(1)->name().buf():0,
 				  plotter_.axisHandler(2)
 				  ? plotter_.axisHandler(2)->name().buf():0);
     uiExpSelectionArea dlg( this, plotter_.selectionGrps(), su );

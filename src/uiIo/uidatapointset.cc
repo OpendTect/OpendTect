@@ -546,6 +546,9 @@ void uiDataPointSet::handleAxisColChg()
 
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
+
+    const bool xplottbstatus = xcol_>-1 && ycol_>-1;
+    disptb_->setSensitive( xplottbid_, xplottbstatus );
     
 }
 
@@ -555,6 +558,8 @@ void uiDataPointSet::initWin( CallBacker* c )
     setSortedCol( nrPosCols() );
     if ( dps_.isEmpty() && setup_.allowretrieve_ )
 	timer_->start( 500, true );
+
+    disptb_->setSensitive( xplottbid_, false );
 }
 
 
@@ -1673,12 +1678,12 @@ void uiDataPointSet::addColumn( CallBacker* )
     dlg.setColInfos( colnames, dcids );
     if ( dlg.go() )
     {
+	MathExpression* mathobj = dlg.mathObject();
+	if ( !mathobj ) return;
 	dps_.dataSet().add(new DataColDef(dlg.newAttribName()));
 	BinIDValueSet& bvs = dps_.bivSet();
 	BinIDValueSet::Pos pos;
 	TypeSet<int> colids = dlg.usedColIDs();
-	MathExpression* mathobj = dlg.mathObject();
-	if ( !mathobj ) return;
 	while ( bvs.next(pos,false) )
 	{
 	    BinID curbid;
