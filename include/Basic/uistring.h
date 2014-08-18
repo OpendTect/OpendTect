@@ -23,6 +23,20 @@ class uiStringData;
 mFDQtclass( QString );
 mFDQtclass( QTranslator );
 
+#define mTextTranslationClass(clss,application) \
+private: \
+ static inline uiString tr( const char* text, const char* disambiguation = 0,  \
+ int pluralnr=-1 ) \
+ { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
+ static inline uiString legacyTr( const char* text, \
+				  const char* disambiguation = 0,  \
+				  int pluralnr=-1 ) \
+ { return uiString( text, #clss, application, disambiguation, pluralnr ); }
+
+#define mODTextTranslationClass(clss) \
+mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
+
+
 
 /*!
    String that is able to hold wide character strings for the user interface.
@@ -70,7 +84,7 @@ mFDQtclass( QTranslator );
 
 
 mExpClass(Basic) uiString
-{
+{ mODTextTranslationClass(uiString);
 public:
 		uiString(const uiString&);
 		/*!<\note Does not copy data, will use the same
@@ -79,7 +93,6 @@ public:
 		uiString(const char* original = 0);
 		uiString(const OD::String&);
 		~uiString();
-
 
     bool	isSet() const { return !isEmpty(); }
     bool	isEmpty() const;
@@ -92,7 +105,6 @@ public:
 				 counted). */
     uiString&	operator=(const char*);
     uiString&	operator=(const OD::String&);
-
 
     template <class T>
     uiString&	arg(const T& var);
@@ -172,25 +184,10 @@ public:
     bool	translate(const mQtclass(QTranslator)&,
 	    		  mQtclass(QString)&) const;
 		//!<Returns true if the translation succeeded
+
+    static uiString	getOrderString(int);
+		//Returns 1st, 2nd, 3rd
 };
-
-
-/*!Legacy. Previously Task::uiMessage and Task::uiNrDoneText returned
-   uiStringCopy, and this will make it compile. */
-typedef uiString uiStringCopy;
-
-#define mTextTranslationClass(clss,application) \
-private: \
- static inline uiString tr( const char* text, const char* disambiguation = 0,  \
- int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); } \
- static inline uiString legacyTr( const char* text, \
-	 			  const char* disambiguation = 0,  \
-				  int pluralnr=-1 ) \
- { return uiString( text, #clss, application, disambiguation, pluralnr ); }
-
-#define mODTextTranslationClass(clss) \
-mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 
 
 template <class T> inline
