@@ -602,24 +602,20 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     , selgrpset_(plotter.selectionGrps())
     , y2selfld_(0)
 {
-    bool hasy2 = plotter.axisHandler(2);
-    BufferStringSet nms;
-    nms.add( plotter.axisHandler(0)->name() );
-    nms.add( plotter.axisHandler(1)->name() );
-    if ( hasy2 )
-	nms.add( plotter.axisHandler(2)->name() );
-
     inpfld_ = new uiSGSel( this, true );
-    inpfld_->selGrpSelected.notify( mCB(this,uiReadSelGrp,selectedCB) );
+    if ( plotter.axisHandler(0) && plotter.axisHandler(1) )
+	inpfld_->selGrpSelected.notify( mCB(this,uiReadSelGrp,selectedCB) );
 
     uiLabeledComboBox* xselfld =
-	new uiLabeledComboBox( this, plotter.axisHandler(0)->name() );
+	new uiLabeledComboBox( this, plotter.axisHandler(0)
+				     ? plotter.axisHandler(0)->name() : 0  );
     xselfld_ = xselfld->box();
     xselfld->attach( centeredBelow, inpfld_ );
     xselfld_->display( false, false );
    
     uiLabeledComboBox* yselfld =
-	new uiLabeledComboBox( this, plotter.axisHandler(1)->name() );
+	new uiLabeledComboBox( this, plotter.axisHandler(1)
+				     ? plotter.axisHandler(1)->name() : 0 );
     yselfld_ = yselfld->box();
     yselfld->attach( alignedBelow, xselfld );
     yselfld_->display( false, false );
@@ -629,6 +625,7 @@ uiReadSelGrp::uiReadSelGrp( uiParent* p, uiDataPointSetCrossPlotter& plotter )
     ychkfld_->attach( rightTo, yselfld );
     ychkfld_->display( false, false );
     
+    bool hasy2 = plotter.axisHandler(2);
     if ( hasy2 )
     {
 	uiLabeledComboBox* y2selfld =
@@ -664,6 +661,12 @@ void uiReadSelGrp::selectedCB( CallBacker* )
     if ( !inpfld_->isOK() )
     {
 	uiMSG().error( "Selected Selection-Group set is corrupted" );
+	return;
+    }
+
+    if ( !plotter_.axisHandler(0) && plotter_.axisHandler(1) )
+    {
+	uiMSG().message( "Please define X and Y columns" );
 	return;
     }
 
