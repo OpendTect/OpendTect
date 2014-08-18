@@ -1371,6 +1371,21 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 }
 
 
+bool uiDataPointSetCrossPlotter::hasAnySelection() const
+{
+    if ( selgrpset_.isEmpty() ) return false;
+
+    for ( int idx=0; idx<selgrpset_.size(); idx++ )
+    {
+	const int selareasz = selgrpset_[idx]->size();
+	if ( selareasz > 0 )
+	    return true;
+    }
+
+    return false;
+}
+
+
 bool uiDataPointSetCrossPlotter::isSelectionValid( uiDataPointSet::DRowID rid )
 {
     if ( modcolidxs_.size() && mathobj_ )
