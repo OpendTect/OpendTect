@@ -361,6 +361,17 @@ bool testSimpleSpinLock()
     return true;
 }
 
+bool testConditionVarTimeout()
+{
+    Threads::ConditionVar condvar;
+
+    Threads::MutexLocker locker( condvar );
+
+    mRunStandardTest( !condvar.wait( 20 ), "Condition variable timeout" );
+
+    return true;
+}
+
 
 #define mRunTestWithType(thetype) \
     if ( !testAtomic<thetype>( " " #thetype " " ) ) \
@@ -388,6 +399,7 @@ int main( int argc, char** argv )
 
     if ( !testAtomicSetIfValueIs()
       || !testSimpleSpinLock()
+      || !testConditionVarTimeout()
       || !testLock<Threads::Mutex>( false, "Mutex" )
       || !testLock<Threads::SpinLock>( true, "SpinLock" ) )
 	ExitProgram( 1 );

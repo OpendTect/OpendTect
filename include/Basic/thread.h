@@ -113,6 +113,10 @@ public:
 				~ConditionVar();
 
     void			wait();
+    bool			wait(unsigned long timeout);
+				/*!<\param timeout is in milliseconds.
+				    \retval false if timeout was hit
+				*/
     void 			signal(bool all);
     				/*!< If all is true, all threads that have
 				     called wait() will be Notified about the
