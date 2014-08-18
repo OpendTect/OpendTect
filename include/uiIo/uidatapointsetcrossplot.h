@@ -230,6 +230,7 @@ public:
     ObjectSet<SelectionGrp>&	selectionGrps()		{ return selgrpset_; }
     const ObjectSet<SelectionGrp>& selectionGrps() const
     				{ return selgrpset_; }
+    bool			hasAnySelection() const;
     int 			selAreaSize() const;
     void			reDrawSelections();
     TypeSet<Color>		selGrpCols() const;

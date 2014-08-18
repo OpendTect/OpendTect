@@ -156,8 +156,16 @@ void uiDPSSelectednessDlg::showIn3DScene()
 }
 
 
-bool uiDPSSelectednessDlg::acceptOK( CallBacker* )
+bool uiDPSSelectednessDlg::acceptOK( CallBacker* cb )
 {
+    if ( !uiDPSAddColumnDlg::acceptOK(cb) )
+	return false;
+    if ( !plotter_.hasAnySelection() )
+    {
+	uiMSG().error( "No selection has been defined. Please define one." );
+	return false;
+    }
+
     addColumn();
     showOverlayAttrib();
     showIn3DScene();

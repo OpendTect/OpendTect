@@ -122,11 +122,23 @@ void uiDPSAddColumnDlg::updateDisplay()
     vartable_->display( true );
 }
 
+#define mErrRet( msg, rettype ) \
+{ \
+    uiMSG().error( msg ); \
+    return rettype; \
+}
 
 bool uiDPSAddColumnDlg::acceptOK( CallBacker* )
 {
-    if ( !withmathop_ || (withmathop_ && !mathobj_) )
-	return true;
+    BufferString newnm = newAttribName();
+    if ( newnm.isEmpty() )
+	mErrRet( "No name specified for new column.", false )
+    if ( !withmathop_ ) return true;
+
+    if ( withmathop_ && !mathobj_ )
+	mErrRet( "Mathemetical operation not defined. "
+		 "Enter the formula and press on 'Set' to "
+		 "assign values to variables.", false )
 
     usedcolids_.erase();
 
