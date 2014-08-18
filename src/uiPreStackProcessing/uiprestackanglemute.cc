@@ -36,8 +36,8 @@ uiAngleCompGrp::uiAngleCompGrp( uiParent* p, PreStack::AngleCompParams& pars,
     , anglelbl_(0)
 {
     velfuncsel_ = new uiVelSel( this, uiVelSel::ioContext(),
-	    			uiSeisSel::Setup(Seis::Vol), false);
-    velfuncsel_->setLabelText( tr("Input velocity volume") );
+				uiSeisSel::Setup(Seis::Vol), false);
+    velfuncsel_->setLabelText( tr("Input Velocity") );
     if ( !params_.velvolmid_.isUdf() )
        velfuncsel_->setInput( params_.velvolmid_ );
 
@@ -123,7 +123,7 @@ uiAngleCompAdvParsDlg::uiAngleCompAdvParsDlg( uiParent* p,
 					      PreStack::AngleCompParams& pars,
 					      bool offset, bool isformute )
     : uiDialog(p, uiDialog::Setup("Advanced Parameter",
-				  "Advanced angle parameters", 
+				  "Advanced angle parameters",
                                   mODHelpKey(mAngleCompAdvParsDlgHelpID) ))
     , params_(pars)
     , isformute_(isformute)
