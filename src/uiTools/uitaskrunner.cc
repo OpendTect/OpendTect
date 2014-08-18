@@ -134,7 +134,7 @@ void uiTaskRunner::updateFields()
     if ( FixedString(nrdonetext.getFullString())=="Nr Done" )
     {
         pErrMsg("Nr Done is not an acceptable name in a UI. "
-                "Make class implement nrDoneText");
+                "Make class implement uiNrDoneText");
     }
 #endif
     const uiString message = task_->uiMessage();

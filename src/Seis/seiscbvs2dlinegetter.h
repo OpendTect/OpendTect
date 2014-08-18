@@ -13,16 +13,17 @@ ________________________________________________________________________
 -*/
 
 #include "executor.h"
-class SeisTrcBuf;
+
 class CBVSSeisTrcTranslator;
+class SeisTrcBuf;
 namespace Seis { class SelData; }
 
 
 class SeisCBVS2DLineGetter : public Executor
 {
 public:
-
-			SeisCBVS2DLineGetter(const char*,SeisTrcBuf&,int,
+			SeisCBVS2DLineGetter(const char* fnm,SeisTrcBuf&,
+					     int trcsperstep,
 					     const Seis::SelData&);
 			~SeisCBVS2DLineGetter();
 
@@ -30,8 +31,8 @@ public:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    const char*		message() const		{ return msg_; }
-    const char*		nrDoneText() const	{ return "Traces read"; }
+    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiNrDoneText() const	{ return "Traces read"; }
     od_int64		nrDone() const		{ return curnr_; }
     od_int64		totalNr() const		{ return totnr_; }
 
@@ -47,6 +48,5 @@ public:
     const int			trcsperstep_;
 
 };
-
 
 #endif
