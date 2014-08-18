@@ -6,7 +6,7 @@ v4.6.0n: August 18, 2014
  * Fix for crash while importing well data '.las' file 
  * Fix for crash while loading attributes
  * Fix for crash while  changing filter in attribute selection
- * Fixed crash in 'Manage selections' on Cross-plot window
+ * Fix for crash in 'Manage selections' on Cross-plot window
  * Fix for erroneous values of Stratal amplitude at undefined horizon
    positions
  * Fix for color table issues of horizon display
