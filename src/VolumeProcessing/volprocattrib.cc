@@ -234,7 +234,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     }
 
     ConstRefMan<Attrib::DataCubes> datacubes = executor.getOutput();
-    if ( !datacubes->nrCubes() )
+    if ( !datacubes || datacubes->nrCubes()==0 )
     {
 	errmsg_ = "No output produced";
 	return DataPack::cNoID();
