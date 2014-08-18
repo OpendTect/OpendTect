@@ -502,10 +502,10 @@ void uiODMenuMgr::fillProcMenu()
 	csoitm->insertItem(
 	    new uiAction(tr("From Well logs ..."),
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
-	csoitm->insertItem(
-	    new uiAction(tr("Prestack Processing ..."),
-			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
     }
+
+    create2D3DMnu( csoitm, "Prestack Processing",
+		   mPSProc2DMnuItm, mPSProc3DMnuItm );
 
     csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-Y ..."),
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
@@ -1207,6 +1207,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSeisOutMnuItm:	applMgr().createVol(SI().has2D(),false); break;
     case mSeisOut2DMnuItm:	applMgr().createVol(true,false); break;
     case mSeisOut3DMnuItm:	applMgr().createVol(false,false); break;
+    case mPSProc2DMnuItm:	applMgr().processPreStack(true); break;
+    case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

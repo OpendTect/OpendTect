@@ -60,7 +60,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		manPreLoad(int);
     void		posConversion();
 
-    void		processPreStack();
+    void		processPreStack(bool is2d);
     void		process2D3D(int opt);
     void		genAngleMuteFunction();
     void		bayesClass(bool is2d);

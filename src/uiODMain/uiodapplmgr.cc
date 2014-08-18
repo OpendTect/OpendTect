@@ -1532,16 +1532,16 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	{
 	    nlaserv_->getDataPointSets( dpss );
 	    if ( dpss.isEmpty() )
-	    { 
-                  uiMSG().error(tr("No matching well data found")); 
+	    {
+                  uiMSG().error(tr("No matching well data found"));
                   return false;
             }
 	    bool allempty = true;
 	    for ( int idx=0; idx<dpss.size(); idx++ )
 		{ if ( !dpss[idx]->isEmpty() ) { allempty = false; break; } }
 	    if ( allempty )
-	    { 
-                    uiMSG().error(tr("No valid data locations found")); 
+	    {
+                    uiMSG().error(tr("No valid data locations found"));
                     return false;
             }
 	    if ( !attrserv_->extractData(dpss) )
@@ -1879,8 +1879,8 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
 void uiODApplMgr::saveDefColTab( int visid, int attrib )
 { attrvishandler_.saveDefColTab(visid,attrib); }
 
-void uiODApplMgr::processPreStack( CallBacker* )
-{ dispatcher_.processPreStack(); }
+void uiODApplMgr::processPreStack( bool is2d )
+{ dispatcher_.processPreStack( is2d ); }
 void uiODApplMgr::genAngleMuteFunction( CallBacker* )
 { dispatcher_.genAngleMuteFunction(); }
 void uiODApplMgr::createCubeFromWells( CallBacker* )

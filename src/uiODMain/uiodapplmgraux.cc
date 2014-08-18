@@ -501,8 +501,8 @@ void uiODApplMgrDispatcher::setAutoUpdatePol()
 }
 
 
-void uiODApplMgrDispatcher::processPreStack()
-{ PreStack::uiBatchProcSetup dlg( par_, false ); dlg.go(); }
+void uiODApplMgrDispatcher::processPreStack( bool is2d )
+{ PreStack::uiBatchProcSetup dlg( par_, is2d ); dlg.go(); }
 void uiODApplMgrDispatcher::genAngleMuteFunction()
 { PreStack::uiAngleMuteComputer dlg( par_ ); dlg.go(); }
 void uiODApplMgrDispatcher::bayesClass( bool is2d )
