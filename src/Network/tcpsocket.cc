@@ -130,10 +130,12 @@ bool TcpSocket::waitForDisconnected( int msec )
 }
 
 
-void TcpSocket::readdata( char*& data, int len ) const
+int TcpSocket::readdata( char* data, int len ) const
 {
 #ifndef OD_NO_QT
-    qtcpsocket_->read( data, len );
+    return qtcpsocket_->read( data, len );
+#else
+    return 0;
 #endif
 }
 

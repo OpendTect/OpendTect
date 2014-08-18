@@ -43,7 +43,7 @@ public:
     void			read(IOPar&) const;
     void			read(int&) const;
     void			read(bool&) const;
-    void			readdata(char*& data, int sz) const;
+    int				readdata(char* data, int sz) const;
     int				getID() const { return id_; }
 
     const char*			errorMsg() const;
