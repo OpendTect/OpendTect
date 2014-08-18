@@ -16,7 +16,6 @@ Wrapper class around QCoreApplication
 
 #include "basicmod.h"
 
-#include "ptrman.h"
 #include "callback.h"
 #include "thread.h"
 
@@ -40,14 +39,15 @@ public:
 
     static int		exec();
 			//!<Starts the event loop
-
-    static void		exit(int returncode);
-			//!<Tells the eventloop to quit.
-
+			
     void		addToEventLoop(const CallBack& cb);
 			/*!<Trigger a callback from inside the event-loop.
 			    Callback will only be called once, and has to
 			    remain in memory untill it is called. */
+
+    static void		exit(int returncode);
+			//!<Tells the eventloop to quit.
+
 
     static void		setOrganizationName(const char*);
     static void		setOrganizationDomain(const char*);
@@ -55,7 +55,7 @@ public:
 
 protected:
 
-    PtrMan<mQtclass(QCoreApplication)>	application_;
+    mQtclass(QCoreApplication)*		application_;
 
     CallBackSet				eventloopqueue_;
     Threads::Mutex			eventloopqueuelock_;
