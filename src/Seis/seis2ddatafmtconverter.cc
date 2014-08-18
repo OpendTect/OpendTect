@@ -49,8 +49,8 @@ OD_FileListCopier( const BufferStringSet& fromlist,
 
 od_int64 totalNr() const	{ return mCast(od_int64,fromlist_.size()); }
 od_int64 nrDone() const		{ return mCast(od_int64,curidx_); }
-uiStringCopy uiNrDoneText() const	{ return "Nr files done"; }
-uiStringCopy uiMessage() const	{ return "Converting 2D Seismic data"; }
+uiString uiNrDoneText() const	{ return "Nr files done"; }
+uiString uiMessage() const	{ return "Converting 2D Seismic data"; }
 
 int nextStep()
 {
