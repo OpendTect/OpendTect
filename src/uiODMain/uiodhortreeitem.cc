@@ -545,8 +545,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( mIsUdf( curshift ) ) curshift = 0;
 
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
-	emattrserv->showHorShiftDlg( emid_, isenabled, curshift,
-				     visserv_->canAddAttrib( visid, 1) );
+	emattrserv->showHorShiftDlg( emid_, visid, isenabled, curshift,
+				     visserv_->canAddAttrib(visid,1) );
     }
     else if ( mnuid==hordatamnuitem_.id )
     {
