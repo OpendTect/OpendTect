@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
 #include "genc.h"
+#include "ptrman.h"
 
 #ifndef OD_NO_QT
 #include <QCoreApplication>
