@@ -10,10 +10,13 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiseiswriteopts.h"
-#include "seiscbvs.h"
-#include "segydirecttr.h"
+
 #include "datachar.h"
 #include "iopar.h"
+#include "segydirecttr.h"
+#include "seiscbvs.h"
+
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uisegydef.h"
 
@@ -27,11 +30,11 @@ uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
     stortypfld_ = new uiGenInput( this, "Storage",
-		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
+		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
 
-    optimdirfld_ = new uiGenInput( this, "Optimize horizontal slice access",
-				   BoolInpSpec(false) );
+    optimdirfld_ =
+		new uiCheckBox( this, "Optimize for horizontal slice access" );
     optimdirfld_->attach( alignedBelow, stortypfld_ );
 
     setHAlignObj( stortypfld_ );
@@ -46,7 +49,7 @@ void uiCBVSVolOpts::use( const IOPar& iop )
 
     res = iop.find( CBVSSeisTrcTranslator::sKeyOptDir() );
     if ( res && *res )
-	optimdirfld_->setValue( *res == 'H' );
+	optimdirfld_->setChecked( *res == 'H' );
 }
 
 
@@ -56,7 +59,7 @@ bool uiCBVSVolOpts::fill( IOPar& iop ) const
     iop.set( sKey::DataStorage(), DataCharacteristics::UserTypeNames()[dctyp] );
 
     iop.update( CBVSSeisTrcTranslator::sKeyOptDir(),
-			optimdirfld_->getBoolValue() ? "Horizontal" : "" );
+			optimdirfld_->isChecked() ? "Horizontal" : "" );
     return true;
 }
 
