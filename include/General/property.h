@@ -33,8 +33,8 @@ mExpClass(General) Property
 {
 public:
 
-    			Property( const PropertyRef& pr )
-			: ref_(pr)			{}
+			Property( const PropertyRef& pr )
+			: ref_(pr), lastval_(mUdf(float)) {}
     virtual Property*	clone() const			= 0;
     static Property*	get(const IOPar&);
     virtual		~Property()			{}
@@ -43,7 +43,7 @@ public:
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
 
-    virtual void	reset()				{}
+    virtual void	reset()			     { lastval_ = mUdf(float); }
     virtual bool	init(const PropertySet&) const	{ return true; }
 			    //!< clears 'memory' and makes property usable
     virtual const char*	errMsg() const			{ return 0; }
@@ -85,7 +85,7 @@ public:
 
     float		value( EvalOpts eo=EvalOpts() ) const
 			{
-			    return eo.isPrev() ? lastval_
+			    return eo.isPrev() || !mIsUdf(lastval_) ? lastval_
 				 : (lastval_ = gtVal(eo));
 			}
 
@@ -103,7 +103,7 @@ mExpClass(General) PropertySet
 {
 public:
 
-    			PropertySet()		{}
+			PropertySet()		{}
 			PropertySet(const PropertyRefSelection&);
 						//!< Creates ValueProperty's
 			PropertySet( const PropertySet& ps )
@@ -115,20 +115,20 @@ public:
     inline bool		isEmpty() const		{ return props_.isEmpty(); }
     int			indexOf(const char*,bool matchaliases=false) const;
     inline bool		isPresent( const char* nm, bool ma=false ) const
-    			{ return indexOf(nm,ma) >= 0; }
+			{ return indexOf(nm,ma) >= 0; }
     Property&		get( int idx )		{ return *props_[idx]; }
     const Property&	get( int idx ) const	{ return *props_[idx]; }
     inline const Property* find( const char* nm, bool ma=false ) const
-    						{ return fnd(nm,ma); }
+						{ return fnd(nm,ma); }
     inline Property*	find( const char* nm, bool ma=false )
-    						{ return fnd(nm,ma); }
+						{ return fnd(nm,ma); }
     int			indexOf( const Property& p ) const
 						{ return props_.indexOf(&p); }
     int			indexOf( const PropertyRef& pr ) const
 						{ return indexOf(pr.name()); }
     int			indexOf(PropertyRef::StdType,int occ=0) const;
     void		getPropertiesOfRefType(PropertyRef::StdType,
-	    				       ObjectSet<Property>&) const;
+					       ObjectSet<Property>&) const;
 
     bool		add(Property*); //!< refuses to add with identical name
     int			set(Property*); //!< add or change into. returns index.
@@ -173,12 +173,12 @@ mExpClass(General) ValueProperty : public Property
 {
 public:
 
-    			ValueProperty( const PropertyRef& pr )
+			ValueProperty( const PropertyRef& pr )
 			: Property(pr)
 			, val_(pr.disp_.range_.center())	{}
-    			ValueProperty( const PropertyRef& pr, float v )
+			ValueProperty( const PropertyRef& pr, float v )
 			: Property(pr)
-			, val_(v)				{}
+			, val_(v)		{}
 
     float		val_;
 
@@ -193,10 +193,10 @@ mExpClass(General) RangeProperty : public Property
 {
 public:
 
-    			RangeProperty( const PropertyRef& pr )
+			RangeProperty( const PropertyRef& pr )
 			: Property(pr)
 			, rg_(pr.disp_.range_)		{}
-    			RangeProperty( const PropertyRef& pr,
+			RangeProperty( const PropertyRef& pr,
 				       Interval<float> rg )
 			: Property(pr)
 			, rg_(rg)			{}
@@ -209,4 +209,3 @@ public:
 
 
 #endif
-

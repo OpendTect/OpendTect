@@ -475,6 +475,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
     const PropertyRefSelection& prs = seq.propertyRefs();
 
     Layer* newlay = new Layer( unit(), &prs, &content() );
+    props_.prepareUsage();
 
     TypeSet<int> indexesofprsmath;
     TypeSet<int> correspondingidxinprops;

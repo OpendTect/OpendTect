@@ -680,6 +680,10 @@ bool PropertySet::prepareUsage() const
     {
 	if ( !props_[idx]->init(*this) )
 	    { errmsg_ = props_[idx]->errMsg(); return false; }
+
+	Property* propedit = const_cast<Property*>(props_[idx]);
+	if ( propedit )
+	    propedit->reset();
     }
     return true;
 }
