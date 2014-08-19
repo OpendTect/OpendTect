@@ -65,6 +65,10 @@ public:
 						const BoolTypeSet& attrenabled,
 						float initialshift,
 						bool canaddattrib);
+    void			showHorShiftDlg(const EM::ObjectID&,
+						const BoolTypeSet& attrenabled,
+						float initialshift,
+						bool canaddattrib);
     void			fillHorShiftDPS(ObjectSet<DataPointSet>&,
 	    				TaskRunner*);
 

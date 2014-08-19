@@ -34,6 +34,10 @@ public:
 					     const Attrib::DescSet&,
 					     float initialshift,
 					     bool cancalcattrib);
+			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
+					     const Attrib::DescSet&,
+					     float initialshift,
+					     bool cancalcattrib);
 			~uiHorizonShiftDialog();
     const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
     StepInterval<float>	shiftRg() const;

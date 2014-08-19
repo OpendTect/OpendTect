@@ -107,6 +107,81 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 }
 
 
+uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
+					    const EM::ObjectID& emid,
+					    const Attrib::DescSet& descset,
+					    float initialshift,
+					    bool cancalcattrib )
+    : uiDialog(p,uiDialog::Setup("Horizon shift",mNoDlgTitle,
+                                 mODHelpKey(mHorizonShiftDialogHelpID) ).
+				  modal(false) )
+    , calcshiftrg_(mUdf(float),mUdf(float),mUdf(float))
+    , emhor3d_(0)
+    , emid_(emid)
+    , visid_(-1)
+    , storefld_(0)
+    , namefld_(0)
+    , calbut_(0)
+    , attrinpfld_(0)
+    , calcAttribPushed(this)
+    , horShifted(this)
+{
+    const float curshift = initialshift*SI().zDomain().userFactor();
+    shiftrg_ = StepInterval<float> (curshift-100,curshift+100,10);
+
+    BufferString lbl( "Shift Range ", SI().getZUnitString() );
+    rangeinpfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(shiftrg_) );
+    rangeinpfld_->valuechanged.notify(
+	    mCB(this,uiHorizonShiftDialog,rangeChangeCB) );
+
+    lbl = BufferString( "Shift ", SI().getZUnitString() );
+    slider_ = new uiSlider(
+	    this, uiSlider::Setup(lbl).withedit(true), "Horizon slider" );
+    slider_->attach( alignedBelow, rangeinpfld_ );
+
+    // TODO: Calculate slider range from horizon's z-range
+    slider_->setScale( shiftrg_.step, shiftrg_.start );
+    slider_->setInterval( shiftrg_ );
+    slider_->setValue( curshift );
+    slider_->valueChanged.notify( mCB(this,uiHorizonShiftDialog,shiftCB) );
+
+    EM::EMObject* emobj = EM::EMM().getObject( emid_ );
+    mDynamicCastGet(EM::Horizon3D*,emhor3d,emobj)
+    emhor3d_ = emhor3d;
+
+    if ( emhor3d_ )
+    {
+	emhor3d_->ref();
+	BufferString title = setup().wintitle_.getFullString();
+	title.add( " - " ).add( emhor3d_->name() );
+	setCaption( title );
+    }
+    
+    if ( cancalcattrib )
+    {
+	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
+	attrinpfld_->attach( alignedBelow, slider_ );
+	attrinpfld_->selectionDone.notify(
+		mCB(this,uiHorizonShiftDialog,attribChangeCB) );
+
+	calbut_ = new uiPushButton( this, "Calculate", false );
+	calbut_->attach( rightTo, attrinpfld_ );
+	calbut_->activated.notify( mCB(this,uiHorizonShiftDialog,calcAttrib) );
+
+	storefld_ = new uiCheckBox( this, "Store Horizons on pressing Ok" );
+	storefld_->attach( alignedBelow, attrinpfld_ );
+	storefld_->setChecked( false );
+	storefld_->activated.notify(
+		mCB(this,uiHorizonShiftDialog,setNameFldSensitive) );
+
+	namefld_ = new uiGenInput( this, "Attribute Basename",
+				   StringInpSpec(sDefaultAttribName()) );
+	namefld_->attach( alignedBelow, storefld_ );
+	attribChangeCB( 0 );
+    }
+}
+
+
 uiHorizonShiftDialog::~uiHorizonShiftDialog()
 {
     emhor3d_->unRef();
