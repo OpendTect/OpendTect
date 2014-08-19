@@ -45,7 +45,10 @@ public:
     void		read(int id,IOPar&) const;
     const char*		errorMsg() const;
 
-    Notifier<TcpServer>	newConnection;
+    TcpSocket*		getSocket(int id);
+    const TcpSocket*	getSocket(int id) const;
+
+    CNotifier<TcpServer,int>	newConnection;
     CNotifier<TcpServer,int>	readyRead;
 
     QTcpSocket*		nextPendingConnection();
@@ -57,10 +60,9 @@ public:
 
 protected:
 
-    void		newConnectionCB(CallBacker*);
+    void		notifyNewConnection();
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
-    TcpSocket*		getSocket(int id) const;
 
     QTcpServer*		 qtcpserver_;
     QTcpServerComm*	 comm_;

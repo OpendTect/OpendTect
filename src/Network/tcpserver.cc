@@ -36,9 +36,7 @@ TcpServer::TcpServer()
 #endif
     , newConnection(this)
     , readyRead(this)
-{
-    newConnection.notify( mCB(this,TcpServer,newConnectionCB) );
-}
+{ }
 
 
 TcpServer::~TcpServer()
@@ -119,7 +117,7 @@ QTcpSocket* TcpServer::nextPendingConnection()
 }
 
 
-void TcpServer::newConnectionCB( CallBacker* )
+void TcpServer::notifyNewConnection()
 {
     if ( !hasPendingConnections() )
 	return;
@@ -128,6 +126,8 @@ void TcpServer::newConnectionCB( CallBacker* )
     tcpsocket->readyRead.notify( mCB(this,TcpServer,readyReadCB));
     tcpsocket->disconnected.notify( mCB(this,TcpServer,disconnectCB) );
     sockets_ += tcpsocket;
+
+    newConnection.trigger( tcpsocket->getID() );
 }
 
 
@@ -154,7 +154,7 @@ void TcpServer::disconnectCB( CallBacker* cb )
 
 void TcpServer::read( int id, BufferString& data ) const
 {
-    TcpSocket* socket = getSocket( id );
+    const TcpSocket* socket = getSocket( id );
     if ( !socket ) return;
 	socket->read( data );
 }
@@ -162,7 +162,7 @@ void TcpServer::read( int id, BufferString& data ) const
 
 void TcpServer::read( int id, IOPar& par ) const
 {
-    TcpSocket* socket = getSocket( id );
+    const TcpSocket* socket = getSocket( id );
     if ( !socket ) return;
 	socket->read( par );
 }
@@ -182,7 +182,7 @@ int TcpServer::write( int id, const char* str )
 }
 
 
-TcpSocket* TcpServer::getSocket( int id ) const
+TcpSocket* TcpServer::getSocket( int id )
 {
     for ( int idx=0; idx<sockets_.size(); idx++ )
     {
@@ -192,6 +192,10 @@ TcpSocket* TcpServer::getSocket( int id ) const
 
     return 0;
 }
+
+
+const TcpSocket* TcpServer::getSocket( int id ) const
+{ return const_cast<TcpServer*>( this )->getSocket( id ); }
 
 
 bool TcpServer::waitForNewConnection( int msec )

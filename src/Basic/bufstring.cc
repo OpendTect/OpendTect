@@ -206,12 +206,12 @@ BufferString& BufferString::addNewLine( int nr )
 }
 
 
-void BufferString::setBufSize( unsigned int newlen )
+bool BufferString::setBufSize( unsigned int newlen )
 {
     if ( newlen < minlen_ )
 	newlen = minlen_;
     else if ( newlen == len_ )
-	return;
+	return true;
 
     if ( minlen_ > 1 )
     {
@@ -220,12 +220,12 @@ void BufferString::setBufSize( unsigned int newlen )
 	newlen = nrminlens * minlen_;
     }
     if ( buf_ && newlen == len_ )
-	return;
+	return true;
 
     char* oldbuf = buf_;
     mTryAlloc( buf_, char [newlen] );
     if ( !buf_ )
-	{ buf_ = oldbuf; return; }
+	{ buf_ = oldbuf; return false; }
     else if ( !oldbuf )
 	*buf_ = '\0';
     else
@@ -241,6 +241,8 @@ void BufferString::setBufSize( unsigned int newlen )
 
     delete [] oldbuf;
     len_ = newlen;
+
+    return true;
 }
 
 
