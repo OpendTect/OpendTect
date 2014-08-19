@@ -248,13 +248,15 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	}
 	else if ( isremove )
 	{
-	    for ( int idx=0; idx<ioobjs.size(); idx++ )
-	    {
-		const bool res = rmEntry( *ioobjs[idx] );
-		if ( !chgd && res )
-		    chgd = res;
-	    }
+	    if ( !ioobjs.size() )
+		return;
+
+	    const bool res = ioobjs.size()>1 ?	rmEntries( ioobjs )
+					     : rmEntry( *ioobjs[0] );
+	    if ( !chgd && res )
+		chgd = res;
 	}
+
 	deepErase( ioobjs );
     }
 
@@ -364,6 +366,29 @@ bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 
     return exists ? uiIOObj(ioobj).removeImpl( true, shldrm )
 		  : IOM().permRemove( ioobj.key() );
+}
+
+
+bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
+{
+    if ( !ioobjs.size() )
+	return false;
+
+    BufferString info( "Do you really want to remove the following objects"
+			" from the database permanently?" );
+    info.addNewLine();
+    BufferStringSet selnms;
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+	selnms.add( ioobjs[idx]->name() );
+
+    info.add( selnms.getDispString( 10 ) );
+    if ( !uiMSG().askRemove( info ) )
+	return false;
+
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+	uiIOObj(*ioobjs[idx], true).removeImpl( true, true, false );
+
+    return true;
 }
 
 
