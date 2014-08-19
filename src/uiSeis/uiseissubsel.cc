@@ -41,13 +41,13 @@ uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )
 
 
 uiSeisSubSel::uiSeisSubSel( uiParent* p, const Seis::SelSetup& ss )
-    	: uiGroup(p,"Seis subsel")
+	: uiGroup(p,"Seis subsel")
 {
     uiPosSubSel::Setup pss( ss.is2d_, !ss.withoutz_ );
     pss.withstep(ss.withstep_)
 	.choicetype(ss.onlyrange_ ? uiPosSubSel::Setup::OnlyRanges
 				  : uiPosSubSel::Setup::OnlySeisTypes)
-    	.zdomkey(ss.zdomkey_);
+	.zdomkey(ss.zdomkey_);
 
     selfld_ = new uiPosSubSel( this, pss );
     setHAlignObj( selfld_ );
@@ -171,7 +171,7 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
-    	, multiln_(ss.multiline_)
+	, multiln_(ss.multiline_)
 	, lineSel(this)
 	, multilnmsel_(0)
 	, singlelnmsel_(0)
@@ -312,6 +312,46 @@ void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
 	multilnmsel_->setSelLineNames( lnms );
     else if ( !lnms.isEmpty() )
 	singlelnmsel_->setInput( lnms.get(0) );
+}
+
+
+StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
+{
+    StepInterval<int> trcrg = StepInterval<int>::udf();
+    if ( multilnmsel_ )
+    {
+	const TypeSet<StepInterval<int> >& trcrgs =
+						multilnmsel_->getTrcRanges();
+	if ( trcrgs.validIdx(lidx) ) trcrg = trcrgs[lidx];
+    }
+    else
+	trcrg = selfld_->envelope().hrg.crlRange();
+
+    return trcrg;
+}
+
+
+StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
+{
+    StepInterval<float> zrg = StepInterval<float>::udf();
+    if ( multilnmsel_ )
+    {
+	const TypeSet<StepInterval<float> >& zrgs = multilnmsel_->getZRanges();
+	if ( zrgs.validIdx(lidx) ) zrg = zrgs[lidx];
+    }
+    else
+	zrg.setFrom( selfld_->envelope().zrg );
+
+    return zrg;
+
+}
+
+
+void uiSeis2DSubSel::getSampling( CubeSampling& cs, int lidx ) const
+{
+    cs.set2DDef();
+    cs.hrg.setCrlRange( getTrcRange(lidx) );
+    cs.zrg.setFrom( getZRange(lidx) );
 }
 
 
