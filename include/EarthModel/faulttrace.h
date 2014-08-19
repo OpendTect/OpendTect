@@ -71,7 +71,7 @@ public:
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
 
     bool		getCoordsBetween(int trc0,float z0,int trc1,float z1,
-					 TypeSet<Coord>& poese) const;
+					 TypeSet<Coord>& coords) const;
     bool		getIntersectionZs(int trcnr,TypeSet<float>& zs) const;
     bool		getIntersectionTraces(float zval,
 					      TypeSet<int>& trcs) const;

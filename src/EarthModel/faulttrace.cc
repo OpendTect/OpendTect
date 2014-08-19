@@ -296,7 +296,7 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
 
 
 bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
-				   float stopz, TypeSet<Coord>& poese ) const
+				   float stopz, TypeSet<Coord>& coords ) const
 {
     if ( trcnrs_.isEmpty() )
     return false;
@@ -362,21 +362,21 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
 	      tracesegs_[segidx].start_.y<=maxz) ||
 	     (tracesegs_[segidx].start_.x>=mintrc &&
 	      tracesegs_[segidx].start_.x<=maxtrc) )
-	    poese += tracesegs_[segidx].start_;
+	    coords += tracesegs_[segidx].start_;
 	else
-	    poese += tracesegs_[segidx].stop_;
+	    coords += tracesegs_[segidx].stop_;
 	return true;
     }
 
     if ( startsegidx < stopsegidx )
     {
 	for ( int idx=startsegidx+1; idx<=stopsegidx; idx++ )
-	    poese += tracesegs_[idx].start_;
+	    coords += tracesegs_[idx].start_;
     }
     else
     {
 	for ( int idx=startsegidx-1; idx>=stopsegidx; idx-- )
-	    poese += tracesegs_[idx].stop_;
+	    coords += tracesegs_[idx].stop_;
     }
 
     return true;
