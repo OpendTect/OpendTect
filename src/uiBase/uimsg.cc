@@ -150,18 +150,12 @@ int uiMsg::beginCmdRecEvent( const char* wintitle )
 }
 
 
-#define mEndCmdRecEvent( refnr, qmsgbox ) \
-\
-    QAbstractButton* abstrbut = qmsgbox.clickedButton(); \
-    BufferString msg; if ( abstrbut ) msg = abstrbut->text(); \
-    endCmdRecEvent( refnr, 0, msg );
-
-void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
+void uiMsg::endCmdRecEvent( int refnr, int buttonnr, const char* buttxt0,
 			    const char* buttxt1, const char* buttxt2 )
 {
     BufferString msg( "QMsgBoxBut " );
 
-    msg += !retval ? buttxt0 : ( retval==1 ? buttxt1 : buttxt2 );
+    msg += buttonnr==0 ? buttxt0 : ( buttonnr==1 ? buttxt1 : buttxt2 );
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( carrier )
@@ -193,9 +187,13 @@ static QMessageBox* createMessageBox( uiMsg::Icon icon, QWidget* parent,
     addStayOnTopFlag( *mb );
 
     QIcon qicon; // null icon to avoid icons on the pushbuttons
-    QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
-    yesbut->setText(yestxt.getQtString() );
-    yesbut->setIcon( qicon );
+
+    if ( !yestxt.isEmpty() )
+    {
+	QPushButton* yesbut = mb->addButton( QMessageBox::Yes );
+	yesbut->setText(yestxt.getQtString() );
+	yesbut->setIcon( qicon );
+    }
 
     if ( !notxt.isEmpty() )
     {
@@ -226,19 +224,17 @@ int uiMsg::showMessageBox( Icon icon, QWidget* parent, const uiString& txt,
     mCapt( title.isEmpty() ? tr("Please specify") : title );
     const int refnr = beginCmdRecEvent( utfwintitle );
 
-    PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt, notxt,
-					       cncltxt, wintitle );
+    PtrMan<QMessageBox> mb = createMessageBox( icon, parent, txt, yestxt,
+					       notxt, cncltxt, wintitle );
     const int res = mb->exec();
 
-    endCmdRecEvent( refnr, res, yestxt.getOriginalString(),
-		    notxt.getOriginalString(),
-		    cncltxt.getOriginalString() );
+    const int retval = res==QMessageBox::Yes ? 1 :
+		       res==QMessageBox::No  ? 0 : -1;
 
-    if ( res==QMessageBox::Yes )
-	return 1;
-    if ( res==QMessageBox::No )
-	return 0;
-    return -1;
+    endCmdRecEvent( refnr, 1-retval, yestxt.getOriginalString(),
+		    notxt.getOriginalString(), cncltxt.getOriginalString() );
+
+    return retval;
 }
 
 
@@ -310,13 +306,15 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
     if ( !strings.size() )
 	return;
 
-    MouseCursorChanger cc( MouseCursor::Arrow );
-
+    mPrepCursor();
+    const uiString oktxt = uiStrings::sOk();
     mCapt( tr("Error") );
-    const int refnr = beginCmdRecEvent( utfwintitle.buf() );
+    const int refnr = beginCmdRecEvent( utfwintitle );
+    // Use of QMessageBox::Abort enables close and escape actions by the user
+    PtrMan<QMessageBox> mb = createMessageBox( Critical, popParnt(), strings[0],
+					       0, 0, oktxt, wintitle );
+    mb->setDefaultButton( QMessageBox::Abort );
 
-    QMessageBox msgbox( QMessageBox::Critical, wintitle.getQtString(),
-			strings[0].getQtString(), QMessageBox::Ok, popParnt() );
     if ( strings.size()>1 )
     {
 	uiString detailed = strings[0];
@@ -327,12 +325,11 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
 	    detailed = uiString( "%1\n%2" ).arg( old ).arg( strings[idx] );
 	}
 
-	msgbox.setDetailedText( detailed.getQtString() );
+	mb->setDetailedText( detailed.getQtString() );
     }
 
-    addStayOnTopFlag( msgbox );
-    msgbox.exec();
-    mEndCmdRecEvent( refnr, msgbox );
+    mb->exec();
+    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
 }
 
 
@@ -381,10 +378,15 @@ int uiMsg::question( const uiString& text, const uiString& yestxtinp,
 void uiMsg::about( const uiString& text )
 {
     mPrepCursor();
+    const uiString oktxt = uiStrings::sOk();
     mCapt( tr("About") );
     const int refnr = beginCmdRecEvent( utfwintitle );
-    QMessageBox::about( popParnt(), wintitle.getQtString(), text.getQtString());
-    endCmdRecEvent( refnr, 0, uiStrings::sOk().getOriginalString() );
+    PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
+					       oktxt, 0, 0, wintitle );
+
+    mb->setIconPixmap( mb->windowIcon().pixmap(32) );
+    mb->exec();
+    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
 }
 
 
@@ -392,18 +394,17 @@ void uiMsg::aboutOpendTect( const uiString& text )
 {
     mPrepCursor();
     mCapt( tr("About OpendTect") );
+    const uiString oktxt = uiStrings::sClose();
     const int refnr = beginCmdRecEvent( utfwintitle );
-    QMessageBox msgbox( popParnt() );
-    msgbox.addButton( QMessageBox::Close );
+    PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
+					       oktxt, 0, 0, wintitle );
     ioPixmap pm( sODLogo );
     if ( pm.qpixmap() )
-	msgbox.setIconPixmap( *pm.qpixmap() );
-    msgbox.setWindowTitle( wintitle.getQtString() );
-    msgbox.setText( text.getQtString() );
-    msgbox.setBaseSize( 600, 300 );
-    addStayOnTopFlag( msgbox );
-    msgbox.exec();
-    endCmdRecEvent( refnr, 0, uiStrings::sOk().getOriginalString() );
+	mb->setIconPixmap( *pm.qpixmap() );
+
+    mb->setBaseSize( 600, 300 );
+    mb->exec();
+    endCmdRecEvent( refnr, 0, oktxt.getOriginalString() );
 }
 
 
@@ -438,29 +439,34 @@ int uiMsg::askGoOnAfter( const uiString& text, const uiString& cnclmsginp ,
 }
 
 
-bool uiMsg::showMsgNextTime( const uiString& text, const uiString& ntmsginp )
+bool uiMsg::showMsgNextTime( const uiString& text, const uiString& notmsginp )
 {
     mPrepCursor();
     const uiString oktxt = uiStrings::sOk();
+    const uiString notxt = notmsginp.isEmpty() ?
+			   tr("Don't show this message again") : notmsginp;
+    const uiString cncltxt = uiStrings::sCancel();
     mCapt( tr("Information") );
     const int refnr = beginCmdRecEvent( utfwintitle );
-    PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(),
-					       text, oktxt, 0, 0,
-					       wintitle );
-    const uiString notmsg = ntmsginp.isEmpty()
-	? tr("Don't show this message again")
-	: ntmsginp;
+
+    PtrMan<QMessageBox> mb = createMessageBox( Information, popParnt(), text,
+					       oktxt, notxt, cncltxt, wintitle);
+    // Only CmdDriver triggers hidden no-button, since it can't access checkbox.
+    mb->button( QMessageBox::No    )->setVisible( false );
+    // Make close/escape map onto hidden abort-button to reject checkbox state.
+    mb->button( QMessageBox::Abort )->setVisible( false );
 
     QCheckBox* cb = new QCheckBox();
-    cb->setText( notmsg.getQtString() );
+    cb->setText( notxt.getQtString() );
     mDynamicCastGet(QGridLayout*,grid,mb->layout())
     if ( grid )
 	grid->addWidget( cb, grid->rowCount(), 0, 1, grid->columnCount() );
 
-    int res = mb->exec();
-    const bool checked = cb->isChecked(); // || res==1; TODO Jaap
-    res = checked ? 1 : 0;
-    endCmdRecEvent( refnr, res, oktxt.getOriginalString(),
-		    notmsg.getOriginalString() );
+    const int res = mb->exec();
+    bool checked = cb->isChecked() && res!=QMessageBox::Abort;
+    checked = checked || res==QMessageBox::No;
+
+    endCmdRecEvent( refnr, checked ? 1 : 0, oktxt.getOriginalString(),
+		    notxt.getOriginalString() );
     return !checked;
 }
