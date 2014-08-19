@@ -26,7 +26,7 @@ class uiSelZRange;
 
 
 mExpClass(uiSeis) uiWaveletExtraction : public uiDialog
-{ mODTextTranslationClass(uiWaveletExtraction);
+{ mODTextTranslationClass(uiWaveletExtraction)
 public:
 				uiWaveletExtraction(uiParent*,bool is2d);
 				~uiWaveletExtraction();
@@ -42,6 +42,7 @@ protected:
     bool			acceptOK(CallBacker*);
     void			choiceSelCB(CallBacker*);
     void			inputSelCB(CallBacker*);
+    void			lineSelCB(CallBacker*);
     bool			doProcess(const IOObj&,const IOObj&,
 					  const IOPar&,const IOPar&);
     bool                        getSelData(const IOPar&,const IOPar&);
