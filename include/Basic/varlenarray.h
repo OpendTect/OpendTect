@@ -12,6 +12,8 @@ ________________________________________________________________________
 
 -*/
 
+#include "ptrman.h"
+
 #ifdef __msvc__
 # define __varlenwithptr__
 #endif
@@ -38,8 +40,8 @@ ArrPtrMan<type> varnm; \
 }
 
 
+
 #ifdef __varlenwithptr__ 
-# include "ptrman.h"
 
 # define mAllocVarLenArr( type, varnm, __size ) \
     mAllocLargeVarLenArr( type, varnm, __size )
