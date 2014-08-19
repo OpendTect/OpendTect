@@ -29,7 +29,8 @@ public:
 				uiIOObj( IOObj& i, bool silent=false )
 				    : ioobj_(i), silent_(silent)	{}
 
-    bool			removeImpl(bool remove_entry,bool mustrmimpl);
+    bool			removeImpl(bool remove_entry,bool mustrmimpl,
+					   bool doconfirm=true);
     //!< Removes the underlying file(s) that an IOObj describes, with warnings
     //!< if !remove_entry, the entry is kept in the omf
 

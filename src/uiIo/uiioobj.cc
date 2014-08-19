@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 
 
-bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
+bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 {
     bool dorm = true;
     const bool isoutside = !ioobj_.isInCurrentSurvey();
@@ -46,13 +46,13 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	if ( isoutside )
 	{
 	    const int resp = uiMSG().question( mess, "Remove file", 
-						     "Remove link", "Cancel",
-						     "Remove data" );
+					       "Remove link", "Cancel",
+					       "Remove data" );
 	    if ( resp < 0 )
 		return false;
 	    dorm = resp;
 	}
-	else if ( !uiMSG().askRemove(mess) )
+	else if ( doconfirm && !uiMSG().askRemove(mess) )
 	{
 	    if ( mustrm )
 		return false;

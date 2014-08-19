@@ -107,6 +107,7 @@ protected:
     void		relocCB(CallBacker*);
 
     bool		rmEntry(IOObj&);
+    bool		rmEntries(ObjectSet<IOObj>&);
     bool		renameEntry(IOObj&,Translator*);
     bool		relocEntry(IOObj&,Translator*);
     bool		readonlyEntry(IOObj&, Translator*,bool set2ro);
