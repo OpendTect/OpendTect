@@ -8,8 +8,8 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "typeset.h"
-#include "objectset.h"
 #include "testprog.h"
+#include "manobjectset.h"
 
 
 class DataElem
@@ -219,6 +219,49 @@ bool testSetCapacity()
 }
 
 
+class TestClass
+{
+    public:
+	TestClass(bool& deletedflag)
+	    : deleted_( deletedflag )
+	{}
+
+    ~TestClass()
+    {
+	deleted_ = true; 
+    }
+
+    bool& deleted_;
+};
+
+
+bool testManagedObjectSet()
+{
+
+    bool delflag = false;
+    {
+	ManagedObjectSet<ManagedObjectSet<TestClass> > set1;
+
+	TestClass* tc = new TestClass( delflag );
+	ManagedObjectSet<TestClass>* set2 = new ManagedObjectSet<TestClass>();
+	set2->push( tc );
+	set1.push( set2 );
+
+	set1.erase();
+	mRunStandardTest( delflag, "Erasing nested managed objectsets" );
+
+	delflag = false;
+	tc = new TestClass( delflag );
+	set2 = new ManagedObjectSet<TestClass>();
+	set2->push( tc );
+	set1.push( set2 );
+    }
+
+    mRunStandardTest( delflag, "Deleting nested managed objectsets" );
+    return true;
+}
+
+
 
 int main( int argc, char** argv )
 {
@@ -229,6 +272,7 @@ int main( int argc, char** argv )
     res += testObjSetFind();
     res += testObjSetEqual();
     res += testSetCapacity() ? 0 : 1;
+    res += testManagedObjectSet() ? 0 : 1;
 
     return ExitProgram( res );
 }
