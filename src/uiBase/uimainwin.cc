@@ -1010,23 +1010,26 @@ const char* uiMainWin::activeModalQDlgTitle()
 }
 
 
-#define mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut ) \
-\
-    int stdbutcount = 0; \
-    QMessageBox::StandardButton stdbut = QMessageBox::NoButton; \
-    for ( unsigned int idx=QMessageBox::Ok; \
-	  qmb && idx<=QMessageBox::RestoreDefaults; idx+=idx ) \
-    { \
-	const QAbstractButton* abstrbut; \
-        abstrbut = qmb->button( (QMessageBox::StandardButton) idx ); \
-	if ( !abstrbut ) \
-	    continue; \
-	if ( stdbutcount == buttonnr ) \
-	    stdbut = (QMessageBox::StandardButton) idx; \
-	stdbutcount++; \
+static QMessageBox::StandardButton getStandardButton( const QMessageBox* qmb,
+						      int buttonnr )
+{
+    int stdbutcount = 0;
+
+    for ( unsigned int idx=QMessageBox::Ok;
+	  qmb && idx<=QMessageBox::RestoreDefaults; idx+=idx )
+    {
+	if ( !qmb->button((QMessageBox::StandardButton) idx) )
+	    continue;
+
+	if ( stdbutcount == buttonnr )
+	    return (QMessageBox::StandardButton) idx;
+
+	stdbutcount++;
     }
 
-// buttons() function to get all buttons only available from Qt4.5 :-(
+    return QMessageBox::NoButton;
+}
+
 
 const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 {
@@ -1036,13 +1039,13 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
     if ( typ == Message )
     {
 	const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
-	mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
-
 	mDeclStaticString( buttext );
+
+	const QMessageBox::StandardButton stdbut =
+					    getStandardButton( qmb, buttonnr );
         if ( stdbut )
+	    // TODO: get original text if button text is translation
 	    buttext = qmb->button(stdbut)->text();
-	else if ( !stdbutcount )
-	    buttext = qmb->buttonText( buttonnr );
 	else
 	    buttext = "";
 
@@ -1064,7 +1067,8 @@ int uiMainWin::activeModalQDlgRetVal( int buttonnr )
 {
     QWidget* amw = qApp->activeModalWidget();
     const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
-    mGetStandardButton( qmb, buttonnr, stdbutcount, stdbut );
+    const QMessageBox::StandardButton stdbut =
+					getStandardButton( qmb, buttonnr );
 
     return stdbut ? ((int) stdbut) : buttonnr;
 }

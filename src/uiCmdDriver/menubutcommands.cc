@@ -351,7 +351,7 @@ bool ButtonCmd::actQDlgButton( const char* parstr )
     mFindQDlgButtons( keys, butsfound, buttexts );
     mTitleBarButtonCheck( butsfound, keys, 0 );
     mParStrPre( "QDialog exit-button",butsfound,0,keys[0],selnr,"key",true );
-    mParOnOffPre( "push-button", onoff, false, false );
+    mParOnOffPre( "QDialog exit-button", onoff, false, false );
     wildcardMan().check( mSearchKey(keys[0]), buttexts.get(butsfound[0]) );
 
     mExitQDlg( curWin()->activeModalQDlgRetVal(butsfound[0]) );
@@ -451,10 +451,12 @@ static int getOkCancelRetVal( bool ok )
     if ( uiMainWin::activeModalType() != uiMainWin::Message )
 	return ok ? 1 : 0;
 
-    if ( ok || !*uiMainWin::activeModalQDlgButTxt(1) )
-	return 0;
+    const FixedString buttxt1( uiMainWin::activeModalQDlgButTxt(1) );
+    const FixedString buttxt2( uiMainWin::activeModalQDlgButTxt(2) );
 
-    return *uiMainWin::activeModalQDlgButTxt(2) ? 2 : 1;
+    const int butnr = ok || buttxt1.isEmpty() ? 0 : buttxt2.isEmpty() ? 1 : 2;
+
+    return uiMainWin::activeModalQDlgRetVal( butnr );
 }
 
 

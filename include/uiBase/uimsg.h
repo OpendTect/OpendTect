@@ -24,20 +24,20 @@ class uiString;
 
 
 mExpClass(uiBase) uiMsg
-{
-    mODTextTranslationClass(uiMsg);
-    friend class uiMain;
-    mGlobal(uiBase) friend uiMsg& uiMSG();
+{ mODTextTranslationClass(uiMsg);
+
+friend class uiMain;
+mGlobal(uiBase) friend uiMsg& uiMSG();
 
 public:
 
     // Messages
-    void	message(const char*,const char* part2,const char* part3=0);
-    void	message(const uiString&);
-    void	warning(const char*,const char* part2,const char* part3=0);
-    void	warning(const uiString&);
-    void	error(const char*,const char* part2,const char* part3=0);
-    void	error(const uiString&);
+    void	message(const uiString&,const uiString& part2=0,
+			const uiString& part3=0);
+    void	warning(const uiString&,const uiString& part2=0,
+			const uiString& part3=0);
+    void	error(const uiString&,const uiString& part2=0,
+		      const uiString& part3=0);
     void	errorWithDetails(const FileMultiString&);
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
@@ -54,12 +54,13 @@ public:
     int		askSave(const uiString&,bool cancelbutt=true);
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		notSaved( const uiString& txt, bool cancelbutt=true )
-		{ return askSave(txt,cancelbutt); } // Remove in v4.0
+		{ return askSave(txt,cancelbutt); } // Has been removed in v5.1
     int		askRemove(const uiString&,bool cancelbutt=false);
     		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const uiString&);
     		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const uiString&);
+		//!<\retval 0=Abort 1=Overwrite
 
     bool	askGoOn(const uiString&,bool withyesno=true);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
@@ -69,6 +70,10 @@ public:
 			     const uiString& textyes=0,
 			     const uiString& textno=0);
     		//!< 0=yes, 1=no, 2=cancel
+
+		// Note: askGoOnAfter(.) has got different return vals in v5.1
+		// 1=yes, 0=no, -1=cancel
+
     bool	showMsgNextTime(const uiString&,const uiString& msg=0);
     		//!< The msg must be negative, like "Don't show msg again"
     		//!< Be sure to store the ret val in the user settings
@@ -85,6 +90,12 @@ public:
 
     void	about(const uiString&);
     void	aboutOpendTect(const uiString&);
+
+    enum Icon	{ NoIcon, Information, Warning, Critical, Question };
+    int		showMessageBox(Icon icon,QWidget* parent,
+			    const uiString& txt,const uiString& yestxtinp,
+			    const uiString& notxtinp,const uiString& cncltxtinp,
+			    const uiString& title=0);
 
 protected:
 
