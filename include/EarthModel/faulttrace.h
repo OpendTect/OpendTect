@@ -70,8 +70,12 @@ public:
 					Interval<float>& botzvals) const;
     bool		getHorIntersection(const EM::Horizon&,BinID&) const;
 
-    float		getIntersectionZ(int trcnr) const;
-    int			getIntersectionTrace(float zval) const;
+    bool		getCoordsBetween(int trc0,float z0,int trc1,float z1,
+					 TypeSet<Coord>& coords) const;
+
+    bool		getIntersectionZs(int trcnr,TypeSet<float>& zs) const;
+    bool		getIntersectionTraces(float zval,
+					      TypeSet<int>& trcs) const;
     bool		getFaultTraceIntersection(const FaultTrace&,
 						  int& trace,float& zval) const;
 
