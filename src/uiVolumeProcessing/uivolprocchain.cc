@@ -204,15 +204,20 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
+    const TypeSet<uiString>& usrnms = uiStepDialog::factory().getUserNames();
     const CallBack addcb( mCB(this,uiChain,addStepPush) );
     uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
-    factorylist_ = new uiListBox( flowgrp,
-				  uiStepDialog::factory().getUserNames(),
+    factorylist_ = new uiListBox( flowgrp, usrnms,
 				  "Processing methods", OD::ChooseOnlyOne );
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify( mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
     factorylist_->doubleClicked.notify( addcb );
+
+    const int maxvsz = 15;
+    const int nrsteps = usrnms.size();
+    const int vsz = mMIN( nrsteps, maxvsz );
+    factorylist_->setPrefHeightInChar( vsz );
 
     addstepbutton_ = new uiToolButton( flowgrp, uiToolButton::RightArrow,
 					"Add step", addcb );
