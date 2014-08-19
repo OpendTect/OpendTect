@@ -111,7 +111,7 @@ bool TestRunner::testTcpConnection()
     //before everything is written.
 
     int doublearrsz = 200000000; //1.6GB
-    ArrPtrMan<double> doublewritearr = new double[doublearrsz];
+    mAllocLargeVarLenArr( double, doublewritearr, doublearrsz );
 
     Stats::RandGen gen;
 
@@ -122,7 +122,7 @@ bool TestRunner::testTcpConnection()
 	    connection.writeDoubleArray( doublewritearr, doublearrsz, false ),
 	    "Write large array" );
 
-    ArrPtrMan<double> doublereadarr = new double[doublearrsz];
+    mAllocLargeVarLenArr( double, doublereadarr, doublearrsz );
     mRunTcpTest( connection.readDoubleArray( doublereadarr, doublearrsz ),
 	    "Read large array" );
 
