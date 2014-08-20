@@ -350,6 +350,7 @@ bool uiMadagascarMain::fillPar()
 	mErrRet( errmsg.buf() )
 
     IOPar& iop =  batchfld_->jobSpec().pars_;
+    iop.setEmpty();
     procflow_.fillPar( iop );
 
     iop.set( sKeySeisOutIDKey, "Output.ID" );
