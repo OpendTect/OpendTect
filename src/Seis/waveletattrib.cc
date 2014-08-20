@@ -41,19 +41,20 @@ void WaveletAttrib::setNewWavelet( const Wavelet& wvlt )
 }
 
 
-#define mDoFFT( isforward, inp, outp, sz )\
-{\
-    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault(); \
-    fft->setInputInfo( Array1DInfoImpl(sz) ); \
-    fft->setDir( isforward ); \
-    fft->setNormalization(!isforward); \
-    fft->setInput( inp.getData() ); \
-    fft->setOutput( outp.getData() ); \
-    fft->run( true ); \
+static bool doFFT( bool isfwd, const Array1D<float_complex>& input,
+		   Array1D<float_complex>& output, int sz )
+{
+    PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
+    fft->setInputInfo( Array1DInfoImpl(sz) );
+    fft->setDir( isfwd );
+    fft->setNormalization( !isfwd );
+    fft->setInput( input.getData() );
+    fft->setOutput( output.getData() );
+    return fft->run( true );
 }
 
 
-void WaveletAttrib::getHilbert(Array1DImpl<float>& hilb ) const
+void WaveletAttrib::getHilbert( Array1DImpl<float>& hilb ) const
 {
     HilbertTransform hilbert;
     hilbert.setCalcRange( 0, 0 );
@@ -110,9 +111,9 @@ void WaveletAttrib::muteZeroFrequency( Array1DImpl<float>& vals )
     for ( int idx=0; idx<arraysz; idx++ )
 	cvals.set( idx, vals.get(idx) );
 
-    mDoFFT( true, cvals, tmparr, arraysz );
+    doFFT( true, cvals, tmparr, arraysz );
     tmparr.set( 0, 0 );
-    mDoFFT( false, tmparr, cvals,  arraysz );
+    doFFT( false, tmparr, cvals,  arraysz );
 
     for ( int idx=0; idx<arraysz; idx++ )
 	vals.set( idx, cvals.get( idx ).real() );
@@ -131,7 +132,7 @@ void WaveletAttrib::transform( Array1D<float_complex>& fftwvlt, int sz )
     for ( int idx=0; idx<wvltsz_; idx++ )
         wvlt.set( idx+shift, wvltarr_->get(idx) );
 
-    mDoFFT( true, wvlt, fftwvlt, tarsz );
+    doFFT( true, wvlt, fftwvlt, tarsz );
 }
 
 
@@ -140,9 +141,14 @@ void WaveletAttrib::transformBack( const Array1D<float_complex>& fftwvlt,
 {
     const int arraysz = fftwvlt.info().getSize( 0 );
     Array1DImpl<float_complex> cwvlt( arraysz );
-    mDoFFT( false, fftwvlt, cwvlt,  arraysz );
-    for ( int idx=0; idx<arraysz; idx++ )
-	wvlt.set( idx, cwvlt.get(idx).real() );
+    doFFT( false, fftwvlt, cwvlt,  arraysz );
+
+    const int sz2 = arraysz / 2;
+    for ( int idx=0; idx<sz2; idx++ )
+	wvlt.set( idx+sz2, cwvlt.get(idx).real() );
+
+    for ( int idx=sz2; idx<arraysz; idx++ )
+	wvlt.set( idx-sz2, cwvlt.get(idx).real() );
 }
 
 
@@ -160,7 +166,7 @@ void WaveletAttrib::getFrequency( Array1DImpl<float>& padfreq, int padfac )
     for ( int idx=0; idx<wvltsz_; idx++ )
 	czeropaddedarr.set( padfac>1 ? idx+padshift : idx, wvltarr_->get(idx));
 
-    mDoFFT( true, czeropaddedarr, cfreqarr, zpadsz );
+    doFFT( true, czeropaddedarr, cfreqarr, zpadsz );
 
     for ( int idx=0; idx<zpadsz; idx++ )
 	padfreq.set( idx, abs( cfreqarr.get(idx) ) );
@@ -180,7 +186,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
     for ( int idx=0; idx<wvltsz_; idx++ )
 	ctimearr.set( idx + padshift, timedata.get(idx) );
 
-    mDoFFT( true, ctimearr, cfreqarr, padsz );
+    doFFT( true, ctimearr, cfreqarr, padsz );
 
     bool isoddpadsz = ( padsz%2 !=0 );
 
@@ -194,7 +200,7 @@ void WaveletAttrib::applyFreqWindow( const ArrayNDWindow& window, int padfac,
 
     if ( isoddpadsz ) cfreqarr.set( (int)(padsz/2)+1, 0 );
 
-    mDoFFT( false, cfreqarr, ctimearr, padsz );
+    doFFT( false, cfreqarr, ctimearr, padsz );
 
     for ( int idx=0; idx<wvltsz_; idx++ )
 	timedata.set( idx, ctimearr.get( idx + padshift ).real() );
