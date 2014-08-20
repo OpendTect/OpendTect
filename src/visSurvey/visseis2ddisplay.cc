@@ -516,7 +516,7 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
 	slice2d.init();
 
 	Flat2DDHDataPack* dp2d = new Flat2DDHDataPack( dp2ddh->descID(),
-					&slice2d, dp2ddh->getGeomID(),
+					slice2d, dp2ddh->getGeomID(),
 					data2dh.trcinfoset_[0]->sampling,
 					dp2ddh->getTraceRange() );
 	dp2d->setName( dp2ddh->name() );
