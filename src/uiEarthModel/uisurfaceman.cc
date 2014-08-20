@@ -535,10 +535,10 @@ void uiSurfaceMan::mkFileInfo()
 }
 
 
-double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
+od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     if ( File::isEmpty(filenm) ) return -1;
-    double totalsz = (double)File::getKbSize( filenm );
+    od_int64 totalsz = File::getKbSize( filenm );
     nrfiles = 1;
 
     const BufferString basefnm( filenm );
@@ -546,7 +546,7 @@ double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
     {
 	BufferString fnm( basefnm ); fnm += "^"; fnm += idx; fnm += ".hov";
 	if ( !File::exists(fnm) ) break;
-	totalsz += (double)File::getKbSize( fnm );
+	totalsz += File::getKbSize( fnm );
 	nrfiles++;
     }
 

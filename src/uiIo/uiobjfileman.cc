@@ -188,14 +188,14 @@ void uiObjFileMan::selChg( CallBacker* cb )
 }
 
 
-double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
+od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
 						     : filenm;
     if ( !File::exists(actualfilenm.buf()) )
 	return 0;
 
-    double ret = (double)File::getKbSize( actualfilenm.buf() );
+    od_int64 ret = File::getKbSize( actualfilenm.buf() );
     if ( !File::isDirectory(actualfilenm) )
     {
 	nrfiles = 1;
@@ -214,30 +214,6 @@ double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 
     nrfiles += filelist.size();
     return ret;
-}
-
-
-BufferString uiObjFileMan::getFileSizeString( double filesz )
-{
-    BufferString szstr;
-    if ( filesz > 1024 )
-    {
-        const bool doGb = filesz > 1048576;
-	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
-	szstr = nr/100;
-	const int rest = nr%100;
-	szstr += rest < 10 ? ".0" : "."; szstr += rest;
-	szstr += doGb ? " GB" : " MB";
-    }
-    else if ( filesz == 0 )
-	szstr = "< 1 kB";
-    else
-    {
-	szstr = filesz;
-	szstr += " kB";
-    }
-
-    return szstr;
 }
 
 
@@ -298,12 +274,12 @@ BufferString uiObjFileMan::getFileInfo()
 				  : conn->fileName() );
 	FilePath fp( fname );
 	int nrfiles = 0;
-	const double totsz = getFileSize( fname, nrfiles );
+	const od_int64 totsz = getFileSize( fname, nrfiles );
 
 	txt += "Location: "; txt += fp.pathOnly();
 	txt += isdir ? "\nDirectory name: " : "\nFile name: ";
 	txt += fp.fileName();
-	txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
+	txt += "\nSize on disk: "; txt += File::getFileSizeString( totsz );
 	if ( nrfiles > 1 )
 	    { txt += "\nNumber of files: "; txt += nrfiles; }
 	BufferString timestr; getTimeStamp( fname, timestr );

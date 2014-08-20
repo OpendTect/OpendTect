@@ -33,7 +33,6 @@ protected:
     uiToolButton*	attribbut_;
 
     void		mergePush(CallBacker*);
-    void		dump2DPush(CallBacker*);
     void		browsePush(CallBacker*);
     void		copyPush(CallBacker*);
     void		man2DPush(CallBacker*);
@@ -42,7 +41,7 @@ protected:
 
     virtual void	mkFileInfo();
     virtual void	ownSelChg();
-    double		getFileSize(const char*,int&) const;
+    od_int64		getFileSize(const char*,int&) const;
 
 };
 

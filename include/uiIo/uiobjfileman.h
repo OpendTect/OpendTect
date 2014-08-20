@@ -27,8 +27,6 @@ mExpClass(uiIo) uiObjFileMan : public uiDialog
 public:
 				~uiObjFileMan();
 
-    static BufferString		getFileSizeString(double);
-
     uiIOObjSelGrp*		selGroup()		{ return selgrp_; }
     const IOObj*		curIOObj() const	{ return curioobj_; }
     const IOObjContext&		ioobjContext() const	{ return ctxt_; }
@@ -63,7 +61,7 @@ protected:
     void			getTimeLastModified(const char*,BufferString&);
     BufferString		getFileInfo();
     virtual void		mkFileInfo()			= 0;
-    virtual double		getFileSize(const char*,int&) const;
+    virtual od_int64		getFileSize(const char*,int&) const;
 
     void			selChg(CallBacker*);
     virtual void		ownSelChg()		{}

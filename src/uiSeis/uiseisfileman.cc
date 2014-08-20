@@ -76,8 +76,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     {
 	manipgrp->addButton( "man2d", "Manage lines",
 				mCB(this,uiSeisFileMan,man2DPush) );
-	manipgrp->addButton( "dumpgeom", "Dump geometry",
-				mCB(this,uiSeisFileMan,dump2DPush) );
     }
     else
     {
@@ -242,11 +240,11 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
+od_int64 uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     if ( !File::isDirectory(filenm) && File::isEmpty(filenm) ) return -1;
 
-    double totalsz = 0;
+    od_int64 totalsz = 0;
     nrfiles = 0;
     if ( File::isDirectory(filenm) )
     {
@@ -258,7 +256,7 @@ double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	    if ( ext != "cbvs" )
 		continue;
 
-	    totalsz += (double)File::getKbSize( filepath.fullPath() );
+	    totalsz += File::getKbSize( filepath.fullPath() );
 	    nrfiles++;
 	}
     }
@@ -269,7 +267,7 @@ double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	    BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
 	    if ( !File::exists(fullnm) ) break;
 
-	    totalsz += (double)File::getKbSize( fullnm );
+	    totalsz += File::getKbSize( fullnm );
 	    nrfiles++;
 	}
     }
@@ -286,15 +284,6 @@ void uiSeisFileMan::mergePush( CallBacker* )
     uiMergeSeis dlg( this );
     dlg.go();
     selgrp_->fullUpdate( key );
-}
-
-
-void uiSeisFileMan::dump2DPush( CallBacker* )
-{
-    if ( !curioobj_ ) return;
-
-    uiSeisDump2DGeom dlg( this, curioobj_ );
-    dlg.go();
 }
 
 

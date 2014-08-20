@@ -185,7 +185,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	txt += "\nLocation: "; txt += fp.pathOnly();
 	txt += "\nFile name: "; txt += fp.fileName();
 	txt += "\nFile size: ";
-	txt += uiObjFileMan::getFileSizeString( File::getKbSize(fname) );
+	txt += File::getFileSizeString( fname );
 	const char* timestr = File::timeLastModified( fname );
 	if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     }
@@ -269,7 +269,7 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 {
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
     uiLabeledComboBox* lcb1 = new uiLabeledComboBox( this, lnms, "First line" );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, 
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms,
                                                      uiStrings::sAdd(true) );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
