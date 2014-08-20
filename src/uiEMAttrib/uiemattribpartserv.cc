@@ -128,6 +128,31 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
 }
 
 
+void uiEMAttribPartServer::showHorShiftDlgWithVisID( const EM::ObjectID& id,
+						     const int& visid,
+						     const BoolTypeSet& attrenabled,
+						     float initialshift,
+						     bool canaddattrib)
+{
+    sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
+
+    initialshift_ = initialshift;
+    initialattribstatus_ = attrenabled;
+    setAttribIdx( mUdf(int) );
+    horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, *descset_,
+	    				     initialshift, canaddattrib );
+    horshiftdlg_->setVisID( visid );
+    horshiftdlg_->calcAttribPushed.notify(
+	    mCB(this,uiEMAttribPartServer,calcDPS) );
+    horshiftdlg_->horShifted.notify(
+	    mCB(this,uiEMAttribPartServer,horShifted) );
+    horshiftdlg_->windowClosed.notify(
+	    mCB(this,uiEMAttribPartServer,shiftDlgClosed));
+
+    horshiftdlg_->go();
+    horshiftdlg_->setDeleteOnClose( true );
+}
+
 void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
 {
     if ( horshiftdlg_->uiResult()==1 )
@@ -230,4 +255,10 @@ void uiEMAttribPartServer::import2DFaultStickset( const char* type )
     uiImportFaultStickSet2D fssdlg( parent(), type );
     fssdlg.setModal( true );
     fssdlg.go();
+}
+
+
+int uiEMAttribPartServer::getShiftedObjectVisID() const
+{
+    return horshiftdlg_ ? horshiftdlg_->getVisID() : -1;
 }

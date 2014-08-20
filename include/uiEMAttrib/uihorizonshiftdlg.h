@@ -45,6 +45,10 @@ public:
     const EM::ObjectID&		emID() const		{ return emid_; }
     const char*			getAttribName() const;
     const char*			getAttribBaseName() const;
+
+    void			setVisID(const int&);
+    const int&			getVisID() const;
+
     
     Notifier<uiHorizonShiftDialog>	calcAttribPushed;
     Notifier<uiHorizonShiftDialog>	horShifted;

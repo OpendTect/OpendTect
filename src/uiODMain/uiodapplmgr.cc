@@ -1112,6 +1112,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 {
     const int visid = visserv_->getEventObjId();
     const int attribidx = emattrserv_->attribIdx();
+    const int shiftvisid = emattrserv_->getShiftedObjectVisID();
     if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
 	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
@@ -1121,25 +1122,26 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
 	const int textureidx = emattrserv_->textureIdx();
-	visserv_->setTranslation( visid, Coord3(0,0,emattrserv_->getShift()) );
+	visserv_->setTranslation( shiftvisid,
+				  Coord3(0,0,emattrserv_->getShift()) );
 	if ( !mIsUdf(attribidx) )
-	    visserv_->selectTexture( visid, attribidx, textureidx );
+	    visserv_->selectTexture( shiftvisid, attribidx, textureidx );
 
-	uiTreeItem* parent = sceneMgr().findItem( visid );
+	uiTreeItem* parent = sceneMgr().findItem( shiftvisid );
 	if ( parent )
 	    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( evid == uiEMAttribPartServer::evStoreShiftHorizons() )
     {
 	const uiVisPartServer::AttribFormat format = 
-				visserv_->getAttributeFormat( visid, -1 );
+				visserv_->getAttributeFormat( shiftvisid, -1 );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
 	DataPointSet data( false, true );
-	visserv_->getRandomPosCache( visid, attribidx, data );
+	visserv_->getRandomPosCache( shiftvisid, attribidx, data );
 	if ( data.isEmpty() ) return false;
 
-	const MultiID mid = visserv_->getMultiID( visid );
+	const MultiID mid = visserv_->getMultiID( shiftvisid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
 	const int nrvals = data.bivSet().nrVals()-2;
 	for ( int idx=0; idx<nrvals; idx++ )
@@ -1175,7 +1177,7 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 
 	if ( !isok || mIsUdf(textureidx) )
 	{
-	    uiTreeItem* parent = sceneMgr().findItem(visid);
+	    uiTreeItem* parent = sceneMgr().findItem(shiftvisid);
 	    if ( !mIsUdf(emattrserv_->attribIdx() ) )
 	    {
 		uiTreeItem* itm = parent->lastChild();
@@ -1187,19 +1189,19 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 		}
 
 		parent->removeChild( itm );
-		visserv_->removeAttrib( visid, emattrserv_->attribIdx() );
+		visserv_->removeAttrib( shiftvisid, emattrserv_->attribIdx() );
 	    }
 	}
 
 	if ( !isok )
 	{
-	    visserv_->setTranslation( visid,
+	    visserv_->setTranslation( shiftvisid,
 		    Coord3(0,0,emattrserv_->initialShift() ) );
 
 	    for ( int idx=0; idx<enableattrib.size(); idx++ )
-		visserv_->enableAttrib( visid, idx, enableattrib[idx] );
+		visserv_->enableAttrib( shiftvisid, idx, enableattrib[idx] );
 
-	    uiTreeItem* parent = sceneMgr().findItem( visid );
+	    uiTreeItem* parent = sceneMgr().findItem( shiftvisid );
 	    if ( parent )
 		parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 	}

@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emobject.h"
 #include "emsurfaceauxdata.h"
 #include "emhorizon3d.h"
+#include "hiddenparam.h"
 #include "ranges.h"
 #include "survinfo.h"
 #include "uiattrsel.h"
@@ -25,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislider.h"
 #include "uimsg.h"
 
+HiddenParam<uiHorizonShiftDialog,int>  visid_(-1);
 
 const char* uiHorizonShiftDialog::sDefaultAttribName()
 { return "Attribute Name"; }
@@ -72,6 +74,13 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
     emhor3d_ = emhor3d;
     emhor3d_->ref();
 
+    if ( emhor3d_ )
+    {
+	emhor3d_->ref();
+	BufferString title = setup().wintitle_;
+	title.add( " - " ).add( emhor3d_->name() );
+	setCaption( title );
+    }
     if ( cancalcattrib )
     {
 	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
@@ -100,6 +109,18 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 uiHorizonShiftDialog::~uiHorizonShiftDialog()
 {
     emhor3d_->unRef();
+}
+
+
+void uiHorizonShiftDialog::setVisID( const int& visid )
+{
+    visid_.setParam( this, visid );
+}
+
+
+const int& uiHorizonShiftDialog::getVisID() const
+{
+    return visid_.getParam( this );
 }
 
 

@@ -64,6 +64,10 @@ public:
     void			showHorShiftDlg(const EM::ObjectID&,
 	    			    const BoolTypeSet& attrenabled,
 				    float initialshift,bool canaddattrib);
+    void			showHorShiftDlgWithVisID(const EM::ObjectID&,
+	    			    const int& visid,
+				    const BoolTypeSet& attrenabled,
+				    float initialshift,bool canaddattrib);
     void			fillHorShiftDPS(ObjectSet<DataPointSet>&,
 	    				TaskRunner*);
 
@@ -80,6 +84,7 @@ public:
 					//Works only in case of Shift Dlg
     int				textureIdx() const;
     					//Works only in case of Shift Dlg
+    int				getShiftedObjectVisID() const;
     StepInterval<float>		shiftRange() const;
     const char*			getAttribBaseNm() const;
     void			import2DHorizon() const;
