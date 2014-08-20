@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uitoolbutton.h"
 
 #include "posinfo2dsurv.h"
 #include "survinfo.h"
@@ -31,6 +32,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 			bool dogeomcheck )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
+    , inl1fld_(0)
     , applycb_(0)
     , scrolldlg_(0)
     , scrollbut_(0)
@@ -66,6 +68,14 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
 	scrollbut_->attach( rightOf, isinl_ ? inl0fld_
 					    : (iscrl_?crl0fld_:z0fld_));
+    }
+
+    if ( isvol_ )
+    {
+	uiToolButton* fullbut = new uiToolButton( this, "exttofullsurv",
+					"Set ranges to full survey",
+					mCB(this,uiSliceSel,fullPush) );
+	fullbut->attach( rightTo, inl1fld_ );
     }
 
     setHAlignObj( crl0fld_ );
@@ -124,7 +134,6 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
     box->setStep( intv.step, true );
     box->setValue( curval );
 }
-
 
 
 class uiSliceScroll : public uiDialog
@@ -370,6 +379,12 @@ void uiSliceSel::applyPush( CallBacker* )
     readInput();
     if ( applycb_ )
 	applycb_->doCall(this);
+}
+
+
+void uiSliceSel::fullPush( CallBacker* )
+{
+    setCubeSampling( maxcs_ );
 }
 
 

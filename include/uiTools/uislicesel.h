@@ -56,6 +56,7 @@ protected:
     void			createCrlFld();
     void			createZFld();
 
+    void			fullPush(CallBacker*);
     void			scrollPush(CallBacker*);
     void			applyPush(CallBacker*);
     void			readInput();
