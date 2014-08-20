@@ -34,7 +34,7 @@ class uiLabeledListBox;
 class uiPosSubSel;
 class uiStratLevelSel;
 
-namespace EM { class Surface; class SurfaceIODataSelection; };
+namespace EM { class Surface; class SurfaceIODataSelection; }
 
 
 /*! \brief Base group for Surface input and output */
@@ -50,7 +50,7 @@ public:
     void		setInput(const MultiID&) const;
     void		setSelAttributes(const BufferStringSet&) const;
 
-    virtual bool	processInput()		{ return true; };
+    virtual bool	processInput()		{ return true; }
 
     Notifier<uiIOSurface> attrSelChange;
     bool		haveAttrSel() const;
@@ -73,7 +73,7 @@ protected:
 
     void		objSel(CallBacker*);
     void		attrSel(CallBacker*);
-    virtual void	ioDataSelChg(CallBacker*)			{};
+    virtual void	ioDataSelChg(CallBacker*)			{}
 
     uiLabeledListBox*	sectionfld_;
     uiLabeledListBox*	attribfld_;

@@ -683,7 +683,7 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 	const Attrib::DescID descid = rdmtrcsdp->descID();
 	const SamplingData<float> sd( zrg.start, zrg.step );
 	Attrib::FlatRdmTrcsDataPack* dprdm =
-	    new Attrib::FlatRdmTrcsDataPack( descid, array, sd, &path );
+	    new Attrib::FlatRdmTrcsDataPack( descid, *array, sd, &path );
 	dprdm->setName( rdmtrcsdp->name() );
 	dpm.add( dprdm );
 	dpids += dprdm->id();
