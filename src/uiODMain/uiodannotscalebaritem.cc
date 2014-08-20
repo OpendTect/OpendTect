@@ -74,6 +74,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     lengthfld_->attach( alignedBelow, horverfld_ );
     lengthfld_->updateRequested.notify( mCB(this,uiScaleBarDialog,changeCB) );
     unitlbl_ = new uiLabel( this, uiStrings::sEmptyString() );
+    unitlbl_->setPrefWidthInChar( 6 );
     unitlbl_->attach( rightTo, lengthfld_ );
 
     LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );

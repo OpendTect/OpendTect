@@ -63,6 +63,7 @@ ScaleBar::ScaleBar()
 ScaleBar::~ScaleBar()
 {
     delete &firstloc_;
+    lines_->removeNodeState( linestyle_ );
     linestyle_->unRef();
     markers_->unRef();
     lines_->unRef();
@@ -172,9 +173,9 @@ Coord3 ScaleBar::getSecondPos( const Pick::Location& loc ) const
 
 
 void ScaleBar::setLineWidth( int width )
-{ 
-    linestyle_->setLineStyle( 
-	LineStyle(LineStyle::Solid,width,getMaterial()->getColor()) ); 
+{
+    linestyle_->setLineStyle( LineStyle(LineStyle::Solid,width) );
+    requestSingleRedraw();
 }
 
 
