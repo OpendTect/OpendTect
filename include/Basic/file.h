@@ -70,7 +70,9 @@ mGlobal(Basic) bool		changeDir(const char* path);
 mGlobal(Basic) bool		getContent(const char*,BufferString&);
 mGlobal(Basic) od_int64		getFileSize(const char* fnm,
 					bool followlink=true); //!< bytes
-mGlobal(Basic) int		getKbSize(const char*);
+mGlobal(Basic) od_int64		getKbSize(const char*);
+mGlobal(Basic) BufferString	getFileSizeString(od_int64 fileszinkb);
+mGlobal(Basic) BufferString	getFileSizeString(const char* fnm);
 
 mGlobal(Basic) const char*	timeCreated(const char* filenm,
 					const char* fmt=Time::defDateTimeFmt());

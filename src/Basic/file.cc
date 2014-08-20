@@ -512,7 +512,7 @@ bool removeDir( const char* dirnm )
 	return true;
 
     if ( isLink(dirnm) )
-	return QFile::remove( dirnm );	
+	return QFile::remove( dirnm );
 
 # ifdef __win__
     return winRemoveDir( dirnm );
@@ -600,11 +600,39 @@ bool getContent( const char* fnm, BufferString& bs )
 }
 
 
-int getKbSize( const char* fnm )
+od_int64 getKbSize( const char* fnm )
 {
     od_int64 kbsz = getFileSize( fnm ) / 1024;
     return kbsz;
 }
+
+
+BufferString getFileSizeString( od_int64 filesz ) // filesz in kB
+{
+    BufferString szstr;
+    if ( filesz > 1024 )
+    {
+	const bool doGb = filesz > 1048576;
+	const int nr = doGb ? mNINT32(filesz/10485.76) : mNINT32(filesz/10.24);
+	szstr = nr/100;
+	const int rest = nr%100;
+	szstr += rest < 10 ? ".0" : "."; szstr += rest;
+	szstr += doGb ? " GB" : " MB";
+    }
+    else if ( filesz == 0 )
+	szstr = "< 1 kB";
+    else
+    {
+	szstr = filesz;
+	szstr += " kB";
+    }
+
+    return szstr;
+}
+
+
+BufferString getFileSizeString( const char* fnm )
+{ return getFileSizeString( getKbSize(fnm) ); }
 
 
 const char* timeCreated( const char* fnm, const char* fmt )
