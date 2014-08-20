@@ -92,7 +92,7 @@ bool FlatDataPackZAxisTransformer::doWork(
 	    continue;
 
 	SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-		arr1dslice, inpzrg.nrSteps()+1, mCast(float,inpzrg.start), 
+		arr1dslice, inpzrg.nrSteps()+1, mCast(float,inpzrg.start),
 		mCast(float,inpzrg.step) );
 	inputfunc.setHasUdfs( true );
 	inputfunc.setInterpolate( interpolate_ );
@@ -128,6 +128,8 @@ bool FlatDataPackZAxisTransformer::doWork(
 
 bool FlatDataPackZAxisTransformer::doFinish( bool success )
 {
+    if ( !arr2d_ ) return false;
+
     ConstDataPackRef<FlatDataPack> fdp = dpm_.obtain( inputdp_->id() );
     mDynamicCastGet(const Flat2DDHDataPack*,dp2ddh,fdp.ptr());
     mDynamicCastGet(const FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
@@ -136,11 +138,11 @@ bool FlatDataPackZAxisTransformer::doFinish( bool success )
     FlatDataPack* outputdp = 0;
     const SamplingData<float> sd( zrange_.start, zrange_.step );
     if ( dp2ddh )
-	outputdp = new Flat2DDHDataPack( dp2ddh->descID(), arr2d_,
+	outputdp = new Flat2DDHDataPack( dp2ddh->descID(), *arr2d_,
 					 dp2ddh->getGeomID(), sd,
 					 dp2ddh->getTraceRange() );
     else if ( dprdm )
-	outputdp = new FlatRdmTrcsDataPack( dprdm->descID(), arr2d_, sd,
+	outputdp = new FlatRdmTrcsDataPack( dprdm->descID(), *arr2d_, sd,
 					    dprdm->pathBIDs() );
 
     outputdp->setName( fdp->name() );

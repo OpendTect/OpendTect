@@ -96,7 +96,7 @@ public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
 					 const Pos::GeomID& geomid,
 					 bool usesingtrc=false,int component=0);
-			Flat2DDHDataPack(DescID,const Array2D<float>*,
+			Flat2DDHDataPack(DescID,const Array2D<float>&,
 					 const Pos::GeomID& geomid,
 					 const SamplingData<float>& zsamp,
 					 const StepInterval<int>& trcrg);
@@ -112,6 +112,7 @@ public:
     void		getCoordDataTable(const TypeSet<int>& trcnrs,
 	    				  TypeSet<Coord>& coords) const;
     Array2D<float>&	data()			{ return *arr2d_; }
+    const Array2D<float>& data() const		{ return *arr2d_; }
 
     const char*		getLineName() const
 			{ return Survey::GM().getName( geomid_ ); }
@@ -142,7 +143,7 @@ protected:
 
 /*!
 \brief Flat data pack from 3D attribute extraction.
-*/ 
+*/
 
 mExpClass(AttributeEngine) Flat3DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
@@ -189,7 +190,7 @@ protected:
 
 /*!
 \brief Volume data pack.
-*/ 
+*/
 
 mExpClass(AttributeEngine) CubeDataPack : public ::CubeDataPack
 		   , public DataPackCommon
@@ -224,7 +225,7 @@ mExpClass(AttributeEngine) FlatRdmTrcsDataPack : public Flat2DDataPack
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,
 					    const TypeSet<BinID>* path=0);
-			FlatRdmTrcsDataPack(DescID,const Array2D<float>*,
+			FlatRdmTrcsDataPack(DescID,const Array2D<float>&,
 					    const SamplingData<float>& zsamp,
 					    const TypeSet<BinID>* path);
 			~FlatRdmTrcsDataPack();

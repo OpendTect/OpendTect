@@ -443,7 +443,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 }
 
 
-Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Array2D<float>* arr2d,
+Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Array2D<float>& arr2d,
 						const Pos::GeomID& geomid,
 						const SamplingData<float>& sd,
 						const StepInterval<int>& trcrg )
@@ -454,7 +454,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Array2D<float>* arr2d,
     , usesingtrc_(false)
     , dataholderarr_(0)
 {
-    arr2d_ = new Array2DImpl<float>( *arr2d );
+    arr2d_ = new Array2DImpl<float>( arr2d );
     setPosData();
 }
 
@@ -645,7 +645,7 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 
 
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did,
-		const Array2D<float>* arr2d, const SamplingData<float>& sd,
+		const Array2D<float>& arr2d, const SamplingData<float>& sd,
 		const TypeSet<BinID>* path )
     : Flat2DDataPack(did)
     , samplingdata_(sd)
@@ -655,7 +655,7 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did,
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
 
-    arr2d_ = new Array2DImpl<float>( *arr2d );
+    arr2d_ = new Array2DImpl<float>( arr2d );
     setPosData( path );
 }
 
