@@ -51,8 +51,6 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     , propertyChange(this)
     , zinf_(zinf)
 {
-    //setCtrlStyle( LeaveOnly );
-
     objectfld_ = new uiGenInput( this, "Picked on",
 		BoolInpSpec(true,"Inl/Crl","Z-slice") );
     objectfld_->setSensitive( false );
@@ -73,6 +71,7 @@ uiScaleBarDialog( uiParent* p, const ZDomain::Info& zinf )
     lengthfld_->attach( alignedBelow, horverfld_ );
     lengthfld_->updateRequested.notify( mCB(this,uiScaleBarDialog,changeCB) );
     unitlbl_ = new uiLabel( this, "" );
+    unitlbl_->setPrefWidthInChar( 6 );
     unitlbl_->attach( rightTo, lengthfld_ );
 
     LineStyle ls; uiSelLineStyle::Setup lssu; lssu.drawstyle( false );
