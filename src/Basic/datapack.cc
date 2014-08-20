@@ -7,12 +7,14 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "datapack.h"
+
 #include "ascstream.h"
+#include "atomic.h"
+#include "debug.h"
+#include "file.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "od_ostream.h"
-#include "atomic.h"
-#include "debug.h"
 
 DataPackMgr::ID DataPackMgr::BufID()		{ return 1; }
 DataPackMgr::ID DataPackMgr::PointID()		{ return 2; }
@@ -168,7 +170,8 @@ float DataPackMgr::nrKBytes() const
 void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
     strm << "Manager.ID: " << id() << od_newline;
-    strm << "Total memory (kB): " << nrKBytes() << od_newline;
+    strm << "Total memory: " << File::getFileSizeString(nrKBytes())
+			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
     for ( int idx=0; idx<packs_.size(); idx++ )
@@ -331,5 +334,5 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrusers_ );
-    iop.set( "Memory consumption (KB)", nrKBytes() );
+    iop.set( "Memory consumption", File::getFileSizeString(nrKBytes()) );
 }
