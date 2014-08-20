@@ -33,7 +33,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
     uiLabeledComboBox* lcb =
 	new uiLabeledComboBox( this, seltxt ? seltxt : tr("Wavelet") );
     nmfld_ = lcb->box();
-    uiObject* lastfld = nmfld_;
+    uiObject* lastfld = lcb->attachObj();
 
     if ( withextract )
     {
@@ -52,8 +52,6 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 
     rebuildList();
     initFlds( this );
-    setFrame( true );
-
     setHAlignObj( lcb );
 }
 
