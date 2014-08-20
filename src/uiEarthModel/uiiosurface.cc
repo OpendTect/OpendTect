@@ -365,7 +365,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
     if ( setup.withdisplayfld_ )
     {
-       displayfld_ = new uiCheckBox( this, "Replace in tree" );
+       displayfld_ = new uiCheckBox( this, setup.displaytext_ );
        displayfld_->attach( alignedBelow, objfld_ );
        displayfld_->setChecked( true );
     }
