@@ -41,10 +41,13 @@ template <class T>
 mClass(Basic) MemSetter : public ParallelTask
 {
 public:
+
 		MemSetter();
 		MemSetter(T*,T val,od_int64 sz);
 		MemSetter(ValueSeries<T>&,T val,od_int64 sz);
 
+    typedef T	(*ValueFunc)();
+    void	setValueFunc(ValueFunc valfunc)	{ valfunc_ = valfunc; }
     void	setValue( const T& val )	{ val_ = val; }
     void	setTarget( T* ptr )		{ ptr_ = ptr; vs_ = 0; }
     void	setTarget( ValueSeries<T>& vs )	{ ptr_ = vs.arr(); vs_ = &vs; }
@@ -63,6 +66,7 @@ protected:
     T*			ptr_;
     od_int64		sz_;
     T			val_;
+    ValueFunc		valfunc_;
 };
 
 
@@ -153,6 +157,7 @@ MemSetter<T>::MemSetter()
     : ptr_( 0 )
     , vs_( 0 )
     , sz_( -1 )
+    , valfunc_( 0 )
 {}
 
 
@@ -162,6 +167,7 @@ MemSetter<T>::MemSetter( T* ptr, T val, od_int64 sz )
     , vs_( 0 )
     , val_( val )
     , sz_( sz )
+    , valfunc_( 0 )
 {}
 
 
@@ -171,6 +177,7 @@ MemSetter<T>::MemSetter( ValueSeries<T>& vs, T val, od_int64 sz )
     , vs_( &vs )
     , val_( val )
     , sz_( sz )
+    , valfunc_( 0 )
 {}
 
 
@@ -183,10 +190,36 @@ template <class T> inline
 bool MemSetter<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( ptr_ )
-	return setPtr( start, stop-start+1 );
+    {
+	if ( valfunc_ )
+	{
+	    T* ptr = ptr_+start;
+	    T* stopptr = ptr_+stop;
 
-    for ( od_int64 idx=start; idx<=stop; idx++ )
-	vs_->setValue( idx, val_ );
+	    while ( ptr<=stopptr )
+	    {
+		*ptr = valfunc_();
+		ptr++;
+	    }
+
+	    return true;
+	}
+	else
+	{
+	    return setPtr( start, stop-start+1 );
+	}
+    }
+
+    if ( valfunc_ )
+    {
+	for ( od_int64 idx=start; idx<=stop; idx++ )
+	    vs_->setValue( idx, valfunc_() );
+    }
+    else
+    {
+	for ( od_int64 idx=start; idx<=stop; idx++ )
+	    vs_->setValue( idx, val_ );
+    }
 
     return true;
 }
