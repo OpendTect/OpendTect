@@ -54,14 +54,6 @@ void TcpConnection::setNoEventLoop( bool yn )
 { noeventloop_ = yn; }
 
 
-uiString TcpConnection::errorMsg() const
-{
-#ifndef OD_NO_QT
-#endif
-    return errmsg_;
-}
-
-
 bool TcpConnection::connectToHost( const char* host, int port, bool wait )
 {
 #ifndef OD_NO_QT

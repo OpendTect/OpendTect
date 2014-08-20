@@ -90,7 +90,7 @@ public:
     bool	readFloatArray(float*,od_int64);
     bool	readDoubleArray(double*,od_int64);
 
-    uiString	errorMsg() const;
+    uiString	errMsg() const	{ return errmsg_; }
 
 private:
     bool			waitForConnected();

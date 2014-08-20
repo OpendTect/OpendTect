@@ -10,15 +10,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "applicationdata.h"
 #include "oscommand.h"
+#include "odmemory.h"
 #include "statrand.h"
 #include "varlenarray.h"
 #include "limits.h"
+#include "odsysmem.h"
 #include "tcpserver.h"
 #include "testprog.h"
 #include "thread.h"
 
+
+
+Stats::RandGen gen;
+
+double randVal() { return gen.get(); }
+
+od_int64 nrdoubles;
+ArrPtrMan<double> doublewritearr, doublereadarr;
+
 #define mRunTcpTest( test, msg ) \
-    mRunStandardTest( test, BufferString( prefix_, msg ) )
+    mRunStandardTestWithError( test, BufferString( prefix_, msg ), \
+			       connection.errMsg().getFullString()  )
 
 class TestRunner : public CallBacker
 {
@@ -43,7 +55,7 @@ public:
 bool TestRunner::testTcpConnection()
 {
     TcpConnection connection;
-    connection.setTimeout( 1000 );
+    connection.setTimeout( 10000 );
     connection.setNoEventLoop( noeventloop_ );
 
     if ( !connection.connectToHost( "localhost", port_, true ) )
@@ -110,28 +122,20 @@ bool TestRunner::testTcpConnection()
     //because the buffers will overflow as we will not start reading
     //before everything is written.
 
-    int doublearrsz = 200000000; //1.6GB
-    mAllocLargeVarLenArr( double, doublewritearr, doublearrsz );
-
-    Stats::RandGen gen;
-
-    for ( int idx=0; idx<doublearrsz; idx++ )
-	doublewritearr[idx] = gen.get();
-
     mRunTcpTest(
-	    connection.writeDoubleArray( doublewritearr, doublearrsz, false ),
+	    connection.writeDoubleArray( doublewritearr, nrdoubles, false ),
 	    "Write large array" );
 
-    mAllocLargeVarLenArr( double, doublereadarr, doublearrsz );
-    mRunTcpTest( connection.readDoubleArray( doublereadarr, doublearrsz ),
+    mRunTcpTest( connection.readDoubleArray( doublereadarr, nrdoubles ),
 	    "Read large array" );
 
     bool readerror = false;
-    for ( int idx=0; idx<doublearrsz; idx++ )
+    for ( int idx=0; idx<nrdoubles; idx++ )
     {
 	if ( doublewritearr[idx] != doublereadarr[idx] )
 	{
 	    readerror = true;
+	    break;
 	}
     }
 
@@ -163,6 +167,21 @@ int main(int argc, char** argv)
     clparser.getVal( "serverapp", runner.serverapp_, true );
     clparser.getVal( "serverarg", runner.serverarg_, true );
     clparser.getVal( "port", runner.port_, true );
+
+    od_int64 totalmem, freemem;
+    OD::getSystemMemory( totalmem, freemem );
+
+    nrdoubles = freemem/sizeof(double);
+    nrdoubles /= 4;
+    nrdoubles = mMIN(nrdoubles,200000000); //1.6GB
+    nrdoubles = mMAX(nrdoubles,2000); //Gotta send something
+
+    doublewritearr = new double[nrdoubles];
+    doublereadarr = new double[nrdoubles];
+
+    MemSetter<double> memsetter( doublewritearr, 0, nrdoubles );
+    memsetter.setValueFunc( &randVal );
+    memsetter.execute();
 
     if ( !runner.testTcpConnection() )
 	ExitProgram( 1 );
