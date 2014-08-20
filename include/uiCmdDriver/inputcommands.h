@@ -84,7 +84,7 @@ mStartDeclCmdClass( uiCmdDriver, GetSpin, UiObjQuestionCmd )	mEndDeclCmdClass
 mStartDeclCmdClass( uiCmdDriver, GetSlider, UiObjQuestionCmd )	mEndDeclCmdClass
 
 
-mStartDeclComposerClass( uiCmdDriver, Slider, CmdComposer, uiSlider )
+mStartDeclComposerClass( uiCmdDriver, Slider, CmdComposer, uiSliderObj )
     mEndDeclComposerClass
 
 mStartDeclComposerClassWithInit( uiCmdDriver, Input, CmdComposer, uiLineEdit )

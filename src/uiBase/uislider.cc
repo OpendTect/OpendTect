@@ -44,21 +44,6 @@ private:
 };
 
 
-class uiSliderObj : public uiObject
-{
-public:
-			uiSliderObj(uiParent*,const char* nm);
-			~uiSliderObj();
-
-    uiSliderBody&	body()		{ return *body_; }
-
-private:
-    uiSliderBody*	body_;
-    uiSliderBody&	mkbody(uiParent*,const char*);
-};
-
-
-
 uiSliderBody::uiSliderBody( uiSliderObj& hndl, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiSliderObj,QSlider>(hndl,p,nm)
     , messenger_( *new i_SliderMessenger(this,(uiSlider*)p) )

@@ -257,9 +257,10 @@ bool SliderCmd::act( const char* parstr )
     mParSteps( parnexxt, partail, nrsteps, 1, 1 );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiSlider, keys, nrgrey );
+    mFindObjects( objsfound, uiSliderObj, keys, nrgrey );
     mParKeyStrPre( "slider", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiSlider*, uislider, objsfound[0] );
+    mDynamicCastGet( const uiSliderObj*, uisliderobj, objsfound[0] );
+    mDynamicCastGet( const uiSlider*, uislider, uisliderobj->parent() );
 
     const uiMainWin* prevwin = curWin();
     float frac = uislider->getLinearFraction();
@@ -301,9 +302,10 @@ bool GetSliderCmd::act( const char* parstr )
 					  "Value`Minimum`Maximum`Percentage" );
     mParTail( partail );
 
-    mFindObjects( objsfound, uiSlider, keys, nrgrey );
+    mFindObjects( objsfound, uiSliderObj, keys, nrgrey );
     mParKeyStrPre( "slider", objsfound, nrgrey, keys, selnr );
-    mDynamicCastGet( const uiSlider*, uislider, objsfound[0] );
+    mDynamicCastGet( const uiSliderObj*, uisliderobj, objsfound[0] );
+    mDynamicCastGet( const uiSlider*, uislider, uisliderobj->parent() );
 
     BufferString text = uislider && uislider->label()
 	? uislider->label()->text().getFullString().buf()
@@ -438,7 +440,8 @@ bool SliderCmdComposer::accept( const CmdRecEvent& ev )
 
     if ( mMatchCI(ev.msg_, "sliderReleased") )
     {
-	mDynamicCastGet( const uiSlider*, uislider, ev.object_ );
+	mDynamicCastGet( const uiSliderObj*, uisliderobj, ev.object_ );
+	mDynamicCastGet( const uiSlider*, uislider, uisliderobj->parent() );
 	const float perc = 100 * uislider->getLinearFraction();
 	insertWindowCaseExec( ev );
 	mRecOutStrm << "Slider \"" << ev.keystr_ << "\" " << perc << od_endl;
