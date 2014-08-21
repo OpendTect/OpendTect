@@ -32,7 +32,7 @@ public:
     void		addTrc(SeisTrc*);
     int			nextStep();
 
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Traces read"; }
 
     od_int64		nrDone() const		{ return curnr_; }
