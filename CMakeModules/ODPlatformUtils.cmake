@@ -139,7 +139,7 @@ if(WIN32)
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
-	set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
+	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
     endif()
 
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
@@ -172,6 +172,8 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS  "/wd4127 ${CMAKE_CXX_FLAGS}" ) # conditional expression is constant, e.g. while ( true )
     set ( CMAKE_CXX_FLAGS  "/wd4189 ${CMAKE_CXX_FLAGS}" ) # local variable is initialized but not referenced
     set ( CMAKE_CXX_FLAGS  "/wd4305 ${CMAKE_CXX_FLAGS}" ) # truncation from dowble to float
+
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
 
     set (OD_STATIC_EXTENSION ".lib")
     set (OD_EXECUTABLE_EXTENSION ".exe" )
