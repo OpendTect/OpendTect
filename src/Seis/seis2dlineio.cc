@@ -91,19 +91,19 @@ bool TwoDSeisTrcTranslator::initRead_()
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
     if ( !ioobj )
-	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
+	{ errmsg_ = tr( "Cannot reconstruct 2D filename" ); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) )
-	{ errmsg_.set( fnm ).add( "does not exist" ); return false; }
+	{ errmsg_ = tr( "%1 does not exist" ).arg( fnm ); return false; }
 
     Seis2DLineSet lset( fnm );
     if ( lset.nrLines() < 1 )
-	{ errmsg_ = "Line set is empty"; return false; }
+	{ errmsg_ = tr( "Line set is empty" ); return false; }
     lset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
     if ( !curlinekey_.lineName().isEmpty() && lset.indexOf(curlinekey_) < 0 )
-	{ errmsg_ = "Cannot find line key in line set"; return false; }
+	{ errmsg_ = tr("Cannot find line key in line set"); return false; }
     CubeSampling cs( true );
     errmsg_ = lset.getCubeSampling( cs, curlinekey_ );
 
@@ -163,13 +163,13 @@ bool TwoDDataSeisTrcTranslator::initRead_()
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
     if ( !ioobj )
-	{ errmsg_ = "Cannot reconstruct 2D filename"; return false; }
+	{ errmsg_ = tr("Cannot reconstruct 2D filename"); return false; }
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( !File::exists(fnm) ) return false;
 
     Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )
-	{ errmsg_ = "Data set is empty"; return false; }
+	{ errmsg_ = tr("Data set is empty"); return false; }
     dset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
@@ -177,7 +177,7 @@ bool TwoDDataSeisTrcTranslator::initRead_()
 	geomid_ = seldata_->geomID();
 
     if ( dset.indexOf(geomid_) < 0 )
-	{ errmsg_.set( "Cannot find GeomID " ).add( geomid_ ); return false; }
+	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
     CubeSampling cs( true );
 
     insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
@@ -314,12 +314,13 @@ bool Seis2DLineMerger::nextFetcher()
 
 
 #undef mErrRet
-#define mErrRet(s) { if ( s ) msg_ = s; return Executor::ErrorOccurred(); }
+#define mErrRet(s) \
+{ if ( s.isSet() ) msg_ = s; return Executor::ErrorOccurred(); }
 
 int Seis2DLineMerger::nextStep()
 {
     if ( !oinf_.isOK() )
-	mErrRet("Cannot find the Line Set")
+	mErrRet(tr("Cannot find the Line Set") )
     else if ( ls_ )
 	return doWork();
 
@@ -330,19 +331,19 @@ int Seis2DLineMerger::nextStep()
 	oinf_.getAttribNamesForLine( lnm2_, attrnms2 );
 	attrnms_.add( attrnms2, false );
 	if ( attrnms_.isEmpty() )
-	    mErrRet("Cannot find any attributes for these lines");
+	    mErrRet(tr("Cannot find any attributes for these lines"));
     }
     ls_ = new Seis2DLineSet( *oinf_.ioObj() );
     if ( ls_->nrLines() < 2 )
-	mErrRet("Cannot find 2 lines in Line Set");
+	mErrRet(tr("Cannot find 2 lines in Line Set"));
 
     curattridx_ = -1;
     msg_.setEmpty();
     if ( !nextAttr() )
     {
 	if ( msg_.isEmpty() )
-	    msg_ = "Cannot find any common attribute";
-	mErrRet(0)
+	    msg_ = tr("Cannot find any common attribute");
+	return ErrorOccurred();
     }
 
     return Executor::MoreToDo();
@@ -408,7 +409,7 @@ int Seis2DLineMerger::doWork()
     lk.fillPar( *lineiopar, true );
     putter_ = ls_->linePutter( lineiopar );
     if ( !putter_ )
-	mErrRet("Cannot create writer for output line");
+	mErrRet(tr("Cannot create writer for output line"));
 
     nrdonemsg_ = "Traces written";
     return Executor::MoreToDo();

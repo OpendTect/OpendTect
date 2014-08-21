@@ -45,7 +45,7 @@ public:
     			{ return false; }
 
     virtual bool	put(const SeisTrc&)		= 0;
-    virtual const char*	errMsg() const			= 0;
+    virtual uiString	errMsg() const			= 0;
 
     virtual void	close()				{}
 

@@ -86,7 +86,7 @@ public:
 
 
 mExpClass(Seis) SeisTrcTranslator : public Translator
-{
+{ mODTextTranslationClass(SeisTrcTranslator);
 public:
 
     /*!\brief Information for one component
@@ -178,7 +178,7 @@ public:
 			// overrule if you don't need sorting/buffering
 
     virtual bool	close();
-    const char*		errMsg() const			{ return errmsg_; }
+    uiString		errMsg() const			{ return errmsg_; }
 
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
@@ -244,7 +244,7 @@ protected:
 
     Conn*		conn_;
     SeisPacketInfo&	pinfo_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     BufferStringSet*	compnms_;
 
     Seis::ReadMode	read_mode;

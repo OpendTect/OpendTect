@@ -364,15 +364,17 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 	    od_istream stream( coordfnm );
 	    if ( !stream.isOK() )
 	    {
-		errmsg_.set( "Cannot open coordinate file:\n" ).add( coordfnm );
+		errmsg_ = tr( "Cannot open coordinate file:\n%1" )
+				.arg( coordfnm );
 		return;
 	    }
 	    bp2c_ = new BendPoints2Coords( stream );
 	    stream.close();
 	    if ( bp2c_->getIDs().size() < 2 )
 	    {
-		errmsg_.set( "Coordinate file bad (need at least 2 points):\n" )
-		       .add( coordfnm );
+		errmsg_ =
+		    tr( "Coordinate file bad (need at least 2 points):\n%1" )
+			.arg( coordfnm );
 		return;
 	    }
 	}
@@ -899,13 +901,13 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 void SEGYSeisTrcTranslator::fillErrMsg( const char* s, bool withpos )
 {
     const BufferString fnm = sConn().odStream().fileName();
-    if ( fnm.isEmpty() )
-	errmsg_ = usrname_;
-    else
-	{ errmsg_ = "In file '"; errmsg_ += fnm; errmsg_ += "'"; }
-    if ( withpos )
-	{ errmsg_ += " "; errmsg_ += getTrcPosStr(); }
-    errmsg_ += ":\n"; errmsg_ += s;
+
+    errmsg_ = uiString("%1%2:\n%3")
+	.arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
+	.arg( withpos
+		? uiString(" %1").arg( getTrcPosStr() )
+		: uiString::emptyString() )
+	.arg( s );
 }
 
 

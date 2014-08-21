@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "bufstring.h"
 #include "binid.h"
+#include "uistring.h"
+
+
 class SeisTrc;
 class SeisTrcBuf;
 class BufferStringSet;
@@ -37,7 +40,7 @@ public:
 
     virtual void	usePar(const IOPar&)				{}
 
-    virtual const char*	errMsg() const					= 0;
+    virtual uiString	errMsg() const					= 0;
     virtual SeisTrc*	getTrace(const BinID&,int nr=0) const;
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
 

@@ -309,7 +309,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     initVars( true );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn )
-	{ errmsg_ = "Cannot open definition file"; return false; }
+	{ errmsg_ = tr("Cannot open definition file"); return false; }
     segydeffilename_ = strmconn->fileName();
 
     delete strmconn; conn_ = 0;
@@ -317,7 +317,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
     if ( def_->errMsg() && *def_->errMsg() )
 	{ errmsg_ = def_->errMsg(); return false; }
     else if ( def_->isEmpty() )
-	{ errmsg_ = "Empty input file"; return false; }
+	{ errmsg_ = tr("Empty input file"); return false; }
 
     const SEGY::FileDataSet& fds = def_->fileDataSet();
     pinfo_.cubedata = &def_->cubeData();
@@ -337,7 +337,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     initVars( false );
     mDynamicCastGet(StreamConn*,strmconn,conn_)
     if ( !strmconn || strmconn->isBad() )
-	{ errmsg_ = "Could not open new definition file"; return false; }
+	{ errmsg_ = tr("Could not open new definition file"); return false; }
     segydeffilename_ = strmconn->fileName();
 
     delete tr_;
@@ -349,7 +349,7 @@ bool SEGYDirectSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     StreamConn* segyconn = new StreamConn( segyfilename_, false );
     if ( !segyconn || segyconn->isBad() )
     {
-	errmsg_.set( "Cannot open new SEG-Y file:\n" ).add( segyfilename_ );
+	errmsg_  = tr( "Cannot open new SEG-Y file:\n%1" ).arg( segyfilename_ );
 	return false;
     }
 
@@ -371,7 +371,7 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
     if ( !conn_ || conn_->forRead() )
     {
 	if ( !toNextTrace() )
-	    { errmsg_ = "No (selected) trace found"; return false; }
+	    { errmsg_ = tr("No (selected) trace found"); return false; }
 	return true;
     }
 
@@ -389,7 +389,7 @@ bool SEGYDirectSeisTrcTranslator::commitSelections_()
     def_->setData( *fds_ );
     if ( !def_->writeHeadersToFile(segydeffilename_) )
     {
-	errmsg_.set( "Cannot write header for " ).add( segydeffilename_ );
+	errmsg_ = tr( "Cannot write header for %1" ).arg( segydeffilename_ );
 	return false;
     }
 
@@ -476,10 +476,10 @@ bool SEGYDirectSeisTrcTranslator::write( const SeisTrc& trc )
 	return false;
 
     if ( !tr_ || !def_ || !fds_ )
-	{ errmsg_.set( "Internal: tr_, def_ or fds_ null" ); return false; }
+	{ errmsg_ = "Internal: tr_, def_ or fds_ null"; return false; }
 
     if ( !tr_->write(trc) )
-	{ errmsg_.set( tr_->errMsg() ); return false; }
+	{ errmsg_ = tr_->errMsg(); return false; }
 
     fds_->addTrace( 0, trc.info().posKey(Seis::Vol), trc.info().coord, true );
     return true;

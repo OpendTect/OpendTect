@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seispsread.h"
 #include "seispswrite.h"
+#include "uistring.h"
+
 class SeisTrcTranslator;
 class CBVSSeisTrcTranslator;
 
@@ -34,12 +36,12 @@ class CBVSSeisTrcTranslator;
  */
 
 mExpClass(Seis) SeisCBVSPSIO
-{
+{ mODTextTranslationClass(SeisCBVSPSIO);
 public:
 			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,
@@ -57,7 +59,7 @@ public:
 
 protected:
 
-    mutable BufferString		errmsg_;
+    mutable uiString			errmsg_;
     const BufferString			dirnm_;
     const BufferString			selmask_;
     int					nringather_;
@@ -78,12 +80,12 @@ protected:
 
 mExpClass(Seis) SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
-{
+{ mODTextTranslationClass(SeisCBVSPS3DReader);
 public:
 
 			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
 			~SeisCBVSPS3DReader();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
@@ -110,14 +112,14 @@ protected:
 
 /*!\brief reads from a CBVS prestack seismic data store. */
 
-mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
-		         , public SeisCBVSPSIO
-{
+mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader,
+				     public SeisCBVSPSIO
+{ mODTextTranslationClass(SeisCBVSPS2DReader);
 public:
 
 			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
 			~SeisCBVSPS2DReader();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
@@ -149,7 +151,7 @@ public:
 
 			SeisCBVSPS3DWriter(const char* dirnm);
 			~SeisCBVSPS3DWriter();
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     bool		put(const SeisTrc&);
     void		close();
@@ -180,7 +182,7 @@ mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
 public:
 
 			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
-    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
+    uiString		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
     bool		put(const SeisTrc&);
     void		close();

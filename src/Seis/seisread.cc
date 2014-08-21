@@ -284,8 +284,8 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( !sttrl.readInfo(ti) )
     {
-	const char* emsg = sttrl.errMsg();
-	if ( emsg && *emsg )
+	const uiString emsg = sttrl.errMsg();
+	if ( emsg.isSet() )
 	    { errmsg_ = emsg; return -1; }
 	return nextConn( ti );
     }

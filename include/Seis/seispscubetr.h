@@ -21,7 +21,8 @@ namespace PosInfo { class CubeData; }
 
 
 mExpClass(Seis) SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
-{				    isTranslator(SeisPSCube,SeisTrc)
+{ mODTextTranslationClass(SeisPSCubeSeisTrcTranslator);
+  isTranslator(SeisPSCube,SeisTrc)
 public:
 
 			SeisPSCubeSeisTrcTranslator(const char*,const char*);
@@ -54,7 +55,7 @@ protected:
 
     bool		initRead_();
     bool		initWrite_(const SeisTrc&)
-			{ errmsg_.set( "No write to PS Cube" ); return false; }
+			{ errmsg_ = tr( "No write to PS Cube" ); return false; }
     bool		commitSelections_();
 
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);

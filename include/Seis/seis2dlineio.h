@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistrctr.h"
+#include "uistring.h"
 
 class SeisTrc;
 class Executor;
@@ -24,7 +25,7 @@ namespace Seis		{ class SelData; }
 /*!\brief interface for object that writes 2D seismic data */
 
 mExpClass(Seis) Seis2DLinePutter
-{
+{ mODTextTranslationClass(Seis2DLinePutter);
 public:
     virtual		~Seis2DLinePutter()	{}
 
@@ -32,9 +33,9 @@ public:
     //!< Return fase on success, err msg on failure
     virtual bool	close()			= 0;
     //!< Return null on success, err msg on failure
-    virtual const char* errMsg() const		= 0;
+    virtual uiString	errMsg() const		= 0;
     //!< Only when put or close returns false
-    virtual int	nrWritten() const		= 0;
+    virtual int		nrWritten() const	= 0;
 
 };
 
@@ -87,7 +88,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //! Translator mechanism is only used for selection etc.
 
 mExpClass(Seis) TwoDSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoD,SeisTrc)
+{ mODTextTranslationClass(TwoDSeisTrcTranslator); isTranslator(TwoD,SeisTrc)
 public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}
@@ -104,7 +105,8 @@ public:
 
 
 mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(TwoDData,SeisTrc)
+{ mODTextTranslationClass(TwoDDataSeisTrcTranslator);
+  isTranslator(TwoDData,SeisTrc)
 public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}

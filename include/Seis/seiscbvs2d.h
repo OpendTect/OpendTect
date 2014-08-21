@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seis2dlineio.h"
+#include "uistring.h"
+
 class SeisTrc;
 class CBVSSeisTrcTranslator;
 
@@ -54,20 +56,20 @@ public:
 
 
 mExpClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
-{
+{ mODTextTranslationClass(SeisCBVS2DLinePutter);
 public:
 
 			SeisCBVS2DLinePutter(const char*,const IOPar&);
 			~SeisCBVS2DLinePutter();
 
-    const char*		errMsg() const      		{ return errmsg_.str();}
+    uiString		errMsg() const			{ return errmsg_;}
     int			nrWritten() const		{ return nrwr_; }
     bool		put(const SeisTrc&);
     bool		close();
 
     int                 		nrwr_;
     BufferString        		fname_;
-    BufferString        		errmsg_;
+    uiString				errmsg_;
     CBVSSeisTrcTranslator*		tr_;
     BinID               		bid_;
     DataCharacteristics::UserType	preseldt_;

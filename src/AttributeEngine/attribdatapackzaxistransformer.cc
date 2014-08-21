@@ -76,7 +76,8 @@ bool FlatDataPackZAxisTransformer::doWork(
     mDynamicCastGet(const FlatRdmTrcsDataPack*,dprdm,fdp.ptr());
     if ( !(dp2ddh || dprdm) ) return false;
 
-    const StepInterval<double> inpzrg = fdp->posData().range( false );
+    StepInterval<float> inpzrg;
+    inpzrg.setFrom( fdp->posData().range( false ) );
     const int nroutsamp = zrange_.nrSteps()+1;
 
     ZAxisTransformSampler outputsampler( transform_, true,

@@ -28,7 +28,7 @@ IOObj* Seis::PreLoader::getIOObj() const
 {
     IOObj* ret = IOM().get( id_ );
     if ( !ret )
-	errmsg_ = "Cannot find ID in object manager";
+	errmsg_ = tr("Cannot find ID in object manager");
     return ret;
 }
 
@@ -108,8 +108,7 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms ) const
     const int nrlns = ds.nrLines();
     if ( nrlns < 1 )
     {
-	errmsg_ = "Data set '"; errmsg_ += ioobj->name();
-	errmsg_ += "' contains no data";
+	errmsg_ = tr("Data set '%1' contains no data").arg( ioobj->name() );
 	return false;
     }
 
@@ -135,8 +134,7 @@ bool Seis::PreLoader::loadLines() const
     const int nrlns = ds.nrLines();
     if ( nrlns < 1 )
     {
-	errmsg_ = "Data Set '"; errmsg_ += ioobj->name();
-	errmsg_ += "' contains no data";
+	errmsg_ = tr( "Data Set '%1' contains no data").arg( ioobj->name() );
 	return false;
     }
 

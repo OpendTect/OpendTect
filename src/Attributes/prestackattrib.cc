@@ -493,8 +493,8 @@ void PSAttrib::prepPriorToBoundsCalc()
 	if ( !psrdr_ )
 	    mErrRet("Cannot create reader for ",psid_," prestack data store")
 
-	const char* emsg = psrdr_->errMsg();
-	if ( emsg ) mErrRet("PS Reader: ",emsg,"");
+	const uiString emsg = psrdr_->errMsg();
+	if ( emsg.isSet() ) mErrRet("PS Reader: ",emsg.getFullString(),"");
     }
 
     mTryAlloc( propcalc_, PreStack::PropCalc( setup_ ) );

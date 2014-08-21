@@ -34,24 +34,24 @@ namespace PreStack
 */
 
 mExpClass(PreStackProcessing) Gather : public FlatDataPack
-{
+{ mODTextTranslationClass(Gather);
 public:
 				Gather();
 				Gather(const Gather&);
 				Gather(const FlatPosData&);
     				~Gather();
 
-    bool			is3D() const { return linename_.isEmpty(); }				
+    bool			is3D() const { return linename_.isEmpty(); }
 
     bool			readFrom(const MultiID&, const BinID&,
 	    				 int component=0,
-					 BufferString* errmsg=0);
+					 uiString* errmsg=0);
     bool			readFrom(const IOObj&, const BinID&,
 	    				 int component=0,
-					 BufferString* errmsg=0);
+					 uiString* errmsg=0);
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
 	    				 const BinID&,int component=0,
-					 BufferString* errmsg=0);
+					 uiString* errmsg=0);
 
     const Coord&		getCoord() const	{ return coord_; }
     virtual Coord3		getCoord(int,int) const
@@ -78,11 +78,11 @@ public:
 				//for 2D only.
     bool			readFrom(const MultiID&, const int tracenr, 
 	    				 const char* linename,int comp,
-    					 BufferString* errmsg=0);
+					 uiString* errmsg=0);
     bool			readFrom(const IOObj&, const int tracenr, 
 	    				 const char* linename,int comp,
-    					 BufferString* errmsg=0);
-    int				getSeis2DTraceNr() const { return binid_.crl(); }
+					 uiString* errmsg=0);
+    int				getSeis2DTraceNr() const { return binid_.crl();}
     const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }

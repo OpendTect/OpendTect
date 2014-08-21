@@ -19,6 +19,7 @@ Translators for SEGY files traces.
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "strmdata.h"
+
 class LinScaler;
 class BendPoints2Coords;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
@@ -27,7 +28,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
 
 mExpClass(Seis) SEGYSeisTrcTranslator : public SeisTrcTranslator
-{			      isTranslator(SEGY,SeisTrc)
+{ mODTextTranslationClass(SEGYSeisTrcTranslator); isTranslator(SEGY,SeisTrc)
 public:
 
 			SEGYSeisTrcTranslator(const char*,const char*);

@@ -30,7 +30,7 @@ class FileDataSet;
 /*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
 mExpClass(Seis) Scanner : public Executor
-{
+{ mODTextTranslationClass(Scanner);
 public:
 
     			Scanner(const IOPar&,Seis::GeomType);
@@ -55,9 +55,9 @@ public:
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read
-    BufferStringSet	failerrmsgs_;	//!< Err Msgs for failed
+    TypeSet<uiString>	failerrmsgs_;	//!< Err Msgs for failed
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
-    BufferStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
+    TypeSet<uiString>	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
     void			getReport(IOPar&) const;
     StepInterval<float>		zRange() const;
@@ -92,11 +92,9 @@ protected:
 
     void		init(const FileSpec&);
     int			finish(bool);
-    void		addFailed(const char*);
+    void		addFailed(const uiString&);
     void		initFileData();
     void		addErrReport(IOPar&) const;
-
-
 };
 
 } // namespace

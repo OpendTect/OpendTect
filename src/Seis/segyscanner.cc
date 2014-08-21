@@ -132,7 +132,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 	{
 	    BufferString keyw( "Error during read of " );
 	    keyw += fnm;
-	    iop.add( keyw, scanerrmsgs_.get(idx) );
+	    iop.add( keyw, scanerrmsgs_[idx].getFullString() );
 	}
     }
 
@@ -140,7 +140,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
     {
 	BufferString keyw( "Failed to read " );
 	keyw += failedfnms_.get( idx );
-	iop.add( keyw, failerrmsgs_.get(idx) );
+	iop.add( keyw, failerrmsgs_[idx].getFullString() );
     }
 
 }
@@ -173,8 +173,8 @@ int SEGY::Scanner::readNext()
 
     if ( !tr_->read(trc_) )
     {
-	const char* emsg = tr_->errMsg();
-	if ( emsg && *emsg )
+	const uiString emsg = tr_->errMsg();
+	if ( emsg.isSet() )
 	{
 	    scanerrfnms_.add( fnms_.get(curfidx_) );
 	    scanerrmsgs_.add( emsg );
@@ -224,7 +224,7 @@ int SEGY::Scanner::openNext()
 
     od_istream* strm = new od_istream( abspath );
     if ( !strm || !strm->isOK() )
-	{ delete strm; addFailed( "Cannot open this file" );
+	{ delete strm; addFailed( tr("Cannot open this file") );
 		return Executor::MoreToDo(); }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
@@ -251,7 +251,7 @@ int SEGY::Scanner::finish( bool allok )
 }
 
 
-void SEGY::Scanner::addFailed( const char* errmsg )
+void SEGY::Scanner::addFailed( const uiString& errmsg )
 {
     failerrmsgs_.add( errmsg );
     BufferString* bs = fnms_[curfidx_];

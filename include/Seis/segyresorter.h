@@ -36,7 +36,7 @@ class DirectReader;
  */
 
 mExpClass(Seis) ReSorter : public Executor
-{
+{ mODTextTranslationClass(ReSorter);
 public:
 
     mExpClass(Seis) Setup
@@ -78,7 +78,7 @@ protected:
     const Setup		setup_;
 
     SEGY::DirectReader*	drdr_;
-    BufferString	msg_;
+    uiString		msg_;
     od_int64		nrdone_;
     od_int64		totnr_;
     StreamData		sdout_;

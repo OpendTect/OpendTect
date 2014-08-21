@@ -71,7 +71,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
     , posfilt_(0)
     , cdp_(*new PosInfo::CubeDataPos)
     , setup_(su)
-    , msg_("Reading scan data")
+    , msg_(tr("Reading scan data"))
     , nrdone_(0)
     , drdr_(0)
     , trcbuf_(0)
@@ -79,7 +79,7 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 {
     IOObj* ioobj = IOM().get( setup_.inpkey_ );
     if ( !ioobj )
-	msg_ = "Cannot find provided input in data manager";
+	msg_ = tr( "Cannot find provided input in data manager" );
     else
     {
 	switch ( setup_.geom_ )
@@ -89,14 +89,23 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 		Translator* trans = ioobj->createTranslator();
 		mDynamicCastGet(SEGYDirectSeisTrcTranslator*,str,trans)
 		if ( !str )
-		    { msg_ = "Input must be scanned SEG-Y cube"; delete trans; }
+		{
+		    msg_ = tr("Input must be scanned SEG-Y cube");
+		    delete trans;
+		}
 		else
 		{
 		    PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
 		    if ( !conn )
-			{ msg_ = "Cannot open SEG-Y scan file"; delete str; }
+		    {
+			msg_ = tr("Cannot open SEG-Y scan file");
+			delete str;
+		    }
 		    else if ( !str->initRead(conn) )
-			{ msg_ = str->errMsg(); delete str; }
+		    {
+			msg_ = str->errMsg();
+			delete str;
+		    }
 		    else
 			drdr_ = str;
 		}
@@ -112,17 +121,23 @@ SEGY::ReSorter::ReSorter( const SEGY::ReSorter::Setup& su, const char* lnm )
 						  lnm );
 	    break;
 	    case Seis::Line:
-		msg_ = "2D seismics not supported";
+		msg_ = tr("2D seismics not supported");
 	    break;
 	}
     }
     delete ioobj;
 
-    if ( drdr_ && drdr_->errMsg() && *drdr_->errMsg() )
-	{ msg_ = drdr_->errMsg(); delete drdr_; drdr_ = 0; }
+    if ( drdr_ && drdr_->errMsg().isSet() )
+    {
+	msg_ = drdr_->errMsg();
+	deleteAndZeroPtr( drdr_ );
+    }
 
     if ( dDef().isEmpty() )
-	{ msg_ = "Empty input scan"; delete drdr_; drdr_ = 0; }
+    {
+	msg_ = tr("Empty input scan");
+	deleteAndZeroPtr( drdr_ );
+    }
 
     if ( !drdr_ )
 	return;
@@ -212,11 +227,11 @@ int SEGY::ReSorter::fillBinIDs()
 
     if ( binids_.isEmpty() )
     {
-	msg_ = "No positions in input";
+	msg_ = tr("No positions in input");
 	return ErrorOccurred();
     }
 
-    msg_ = "Handling traces";
+    msg_ = tr("Handling traces");
     return MoreToDo();
 }
 
@@ -310,7 +325,7 @@ bool SEGY::ReSorter::openOutputFile()
     sdout_ = StreamProvider(fnm).makeOStream();
     if ( !sdout_.usable() )
     {
-	msg_ = "Cannot open output file:\n"; msg_.add( fnm );
+	msg_ = tr( "Cannot open output file:\n%1").arg( fnm );
 	return false;
     }
 
@@ -358,7 +373,7 @@ int SEGY::ReSorter::ensureFileOpen( int inpfidx )
 	StreamData* sd = new StreamData( StreamProvider(fnm).makeIStream() );
 	if ( !sd->usable() )
 	{
-	    msg_ = "Cannot open input file:\n"; msg_.add( fnm );
+	    msg_ = tr( "Cannot open input file:\n%1").arg( fnm );
 	    delete sd; return -1;
 	}
 
@@ -380,8 +395,8 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	odstrm.setPosition( 0 );
 	if ( !odstrm.getBin(hdrbuf_,3600) )
 	{
-	    msg_ = "Cannot read SEG-Y file header. Empty file? -\n";
-	    msg_.add( inpfnms_.get(fidx) );
+	    msg_ = tr( "Cannot read SEG-Y file header. Empty file? -\n%1" )
+			.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
 	odstrm.setPosition( 0 );
@@ -390,8 +405,8 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
 	StreamConn* sc = new StreamConn( odstrm );
 	if ( !trctr.initRead(sc) || !trctr.commitSelections() )
 	{
-	    msg_ = "Cannot read SEG-Y file details. Corrupt file? -\n";
-	    msg_.add( inpfnms_.get(fidx) );
+	    msg_ = tr("Cannot read SEG-Y file details. Corrupt file? -\n%1")
+		.arg( inpfnms_.get(fidx) );
 	    return false;
 	}
 	trcbytes_ = trctr.traceSizeOnDisk();
@@ -403,8 +418,9 @@ bool SEGY::ReSorter::readData( int fidx, int trcidx )
     odstrm.setPosition( pos );
     if ( !odstrm.getBin(trcbuf_,trcbytes_) )
     {
-	msg_ = "Cannot read trace.\nFile: ";
-	msg_.add( inpfnms_.get(fidx) ).add( "\nTrace: " ).add( trcidx );
+	msg_ = tr( "Cannot read trace.\nFile: %1\nTrace: %2" )
+		.arg( inpfnms_.get(fidx) )
+		.arg( trcidx );
 	return false;
     }
 
@@ -418,8 +434,8 @@ bool SEGY::ReSorter::writeData()
     {
 	if ( !StrmOper::writeBlock(*sdout_.ostrm,hdrbuf_,3600) )
 	{
-	    msg_ = "Cannot write file header to: ";
-	    msg_.add( sdout_.fileName() );
+	    msg_ = tr( "Cannot write file header to: %1" )
+		      .arg( sdout_.fileName() );
 	    return false;
 	}
 	needwritefilehdrs_ = false;
@@ -427,8 +443,7 @@ bool SEGY::ReSorter::writeData()
 
     if ( !StrmOper::writeBlock(*sdout_.ostrm,trcbuf_,trcbytes_) )
     {
-	msg_ = "Cannot write trace to:\n";
-	msg_.add( sdout_.fileName() );
+	msg_ = tr( "Cannot write trace to:\n%1" ).arg( sdout_.fileName() );
 	return false;
     }
 

@@ -254,8 +254,8 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadVol() )
     {
-	const char* emsg = spl.errMsg();
-	if ( emsg )
+	const uiString emsg = spl.errMsg();
+	if ( emsg.isSet() )
 	    uiMSG().error( emsg );
     }
 
@@ -332,8 +332,8 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadLines(dlg.lnms_) )
     {
-	const char* emsg = spl.errMsg();
-	if ( emsg )
+	const uiString emsg = spl.errMsg();
+	if ( emsg.isSet() )
 	    uiMSG().error( emsg );
     }
 
@@ -359,8 +359,8 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadPS3D(&inlrg) )
     {
-	const char* emsg = spl.errMsg();
-	if ( emsg )
+	const uiString emsg = spl.errMsg();
+	if ( emsg.isSet() )
 	    uiMSG().error( emsg );
     }
 
@@ -434,8 +434,8 @@ void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
     uiTaskRunner taskrunner( this ); spl.setRunner( taskrunner );
     if ( !spl.loadPS2D(dlg.lnms_) )
     {
-	const char* emsg = spl.errMsg();
-	if ( emsg )
+	const uiString emsg = spl.errMsg();
+	if ( emsg.isSet() )
 	    uiMSG().error( emsg );
     }
 

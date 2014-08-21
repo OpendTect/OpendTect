@@ -97,7 +97,7 @@ bool SeisCBVS2DLineIOProvider::isEmpty( const IOPar& iop ) const
 
 
 static CBVSSeisTrcTranslator* gtTransl( const char* fnm, bool infoonly,
-					BufferString* msg=0 )
+					uiString* msg=0 )
 {
     return CBVSSeisTrcTranslator::make( fnm, infoonly, true, msg );
 }
@@ -219,8 +219,8 @@ int SeisCBVS2DLineGetter::nextStep()
 	if ( !tr_->read(*trc) )
 	{
 	    delete trc;
-	    const char* emsg = tr_->errMsg();
-	    if ( emsg && *emsg )
+	    const uiString emsg = tr_->errMsg();
+	    if ( emsg.isSet() )
 		mErrRet(emsg)
 	    return 0;
 	}
@@ -254,11 +254,11 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 	return false;
     }
 
-    BufferString errmsg;
+    uiString errmsg;
     PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, false, &errmsg );
     if ( !tr )
     {
-	ErrMsg( errmsg );
+	ErrMsg( errmsg.getFullString() );
 	return false;
     }
 
@@ -392,8 +392,7 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	if ( !res )
 	{
 	    info.binid = oldbid;
-	    errmsg_ = "Cannot open 2D line file:\n";
-	    errmsg_ += tr_->errMsg();
+	    errmsg_ = tr("Cannot open 2D line file:\n%1").arg(tr_->errMsg());
 	    return false;
 	}
 	if ( preseldt_ != DataCharacteristics::Auto )
@@ -416,10 +415,9 @@ bool SeisCBVS2DLinePutter::put( const SeisTrc& trc )
 	nrwr_++;
     else
     {
-	errmsg_ = "Cannot write "; errmsg_ += nrwr_ + 1;
-	errmsg_ += getRankPostFix( nrwr_ + 1 );
-	errmsg_ += " trace to 2D line file:\n";
-	errmsg_ += tr_->errMsg();
+	errmsg_ = tr( "Cannot write %1 trace to 2D line file:\n%2")
+	    .arg( uiString::getOrderString( nrwr_+1 ) )
+	    .arg( tr_->errMsg() );
 	return false;
     }
     return true;

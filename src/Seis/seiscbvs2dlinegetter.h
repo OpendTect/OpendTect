@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "executor.h"
+#include "uistring.h"
 
 class CBVSSeisTrcTranslator;
 class SeisTrcBuf;
@@ -33,6 +34,7 @@ public:
 
     uiString		uiMessage() const	{ return msg_.buf(); }
     uiString		uiNrDoneText() const	{ return "Traces read"; }
+
     od_int64		nrDone() const		{ return curnr_; }
     od_int64		totalNr() const		{ return totnr_; }
 
@@ -40,7 +42,7 @@ public:
     int				totnr_;
     SeisTrcBuf&			tbuf_;
     BufferString		fname_;
-    BufferString		msg_;
+    uiString			msg_;
     CBVSSeisTrcTranslator*	tr_;
     Seis::SelData*		seldata_;
     int				trcstep_;

@@ -223,16 +223,14 @@ bool SeisCBVSPSIO::dirNmOK( bool forread ) const
 
     if ( forread )
     {
-	errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	errmsg_ += "' does not exist";
+	errmsg_ = tr( "Directory '%1' does not exist").arg( dirnm_ );
 	return false;
     }
 
     File::createDir( dirnm_ );
     if ( !File::isDirectory(dirnm_) )
     {
-	errmsg_ = "Cannot create directory '";
-	errmsg_ += dirnm_; errmsg_ += "'";
+	errmsg_ = tr( "Cannot create directory '%1'").arg( dirnm_ );
 	return false;
     }
 
@@ -285,9 +283,8 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 {
     if ( !tr_->initWrite(new StreamConn(fnm,Conn::Write),trc) )
     {
-	errmsg_ = "Trying to start writing to '";
-	errmsg_ += fnm; errmsg_ += "':\n";
-	errmsg_ += tr_->errMsg();
+	errmsg_ = tr("Trying to start writing to '%1':\n%2")
+			.arg( fnm ).arg( tr_->errMsg() );
 	return false;
     }
 
@@ -346,8 +343,9 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 
     if ( posdata_.size() < 1 )
     {
-	errmsg_.set( "Directory '" ).add( dirnm_ )
-	       .add( "' contains no usable prestack data files" );
+	errmsg_ =
+	    tr( "Directory '%1' contains no usable prestack data files" )
+	       .arg( dirnm_ );
 	return;
     }
 
@@ -413,20 +411,20 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     else if ( mIsUdf(inl) )
 	return false;
 
-    CBVSSeisTrcTranslator*& tr = const_cast<CBVSSeisTrcTranslator*&>(tr_);
-    delete tr; tr = 0;
+    CBVSSeisTrcTranslator*& trans = const_cast<CBVSSeisTrcTranslator*&>(tr_);
+    delete trans; trans = 0;
     curinl_ = inl;
 
     const FilePath fp( dirnm_, BufferString("",inl,ext()) );
     const BufferString filenm = fp.fullPath();
     if( !File::exists(filenm) )
     {
-	errmsg_ = "No Prestack data available for inline "; errmsg_ += inl;
+	errmsg_ = tr("No Prestack data available for inline %1").arg( inl );
 	return false;
     }
 
     errmsg_ = "";
-    tr = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
+    trans = CBVSSeisTrcTranslator::make( filenm, false, false, &errmsg_ );
     return tr_;
 }
 
@@ -553,14 +551,14 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     BufferString fnm( get2DFileName(lnm) );
     if ( !File::exists(fnm) )
     {
-	errmsg_ = BufferString( "Line ", lnm, " does not exist" );
+	errmsg_ = tr("Line %1 does not exist").arg(lnm);
 	const BufferString lnm2( lnm, "_Seis" );
 	fnm = get2DFileName( lnm2 );
 	if ( !File::exists(fnm) )
 	    return;
     }
 
-    errmsg_ = "";
+    errmsg_ = uiString::emptyString();
     tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
     if ( !tr_ ) return;
 

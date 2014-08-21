@@ -27,7 +27,7 @@ class SeisTrcWriter;
 /*!\brief Merges 2D and 3D post-stack data */
 
 mExpClass(Seis) SeisMerger : public Executor
-{
+{ mODTextTranslationClass(SeisMerger);
 public:
 
     			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,

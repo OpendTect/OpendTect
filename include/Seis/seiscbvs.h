@@ -24,12 +24,12 @@ class VBrickSpec;
 
 
 mExpClass(Seis) CBVSSeisTrcTranslator : public SeisTrcTranslator
-{			isTranslator(CBVS,SeisTrc)
+{ mODTextTranslationClass(CBVSSeisTrcTranslator); isTranslator(CBVS,SeisTrc)
 public:
 
 			CBVSSeisTrcTranslator(const char*,const char*);
     static CBVSSeisTrcTranslator* make(const char* fnm,bool forinfoonly,
-					bool is2d, BufferString* errmsg=0,
+					bool is2d, uiString* errmsg=0,
 					bool forceusecbvsinfo=false);
 			~CBVSSeisTrcTranslator();
 

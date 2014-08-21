@@ -53,15 +53,15 @@ CBVSSeisTrcTranslator::~CBVSSeisTrcTranslator()
 
 
 CBVSSeisTrcTranslator* CBVSSeisTrcTranslator::make( const char* fnm,
-	bool infoonly, bool is2d, BufferString* msg, bool forceusecbvsinf )
+	bool infoonly, bool is2d, uiString* msg, bool forceusecbvsinf )
 {
     if ( !fnm || !*fnm )
-	{ if ( msg ) *msg = "Empty file name"; return 0; }
+	{ if ( msg ) *msg = tr("Empty file name"); return 0; }
 
     CBVSSeisTrcTranslator* tr = CBVSSeisTrcTranslator::getInstance();
     tr->set2D( is2d );
     tr->setForceUseCBVSInfo( forceusecbvsinf );
-    if ( msg ) *msg = "";
+    if ( msg ) *msg = uiString::emptyString();
     if ( !tr->initRead(new StreamConn(fnm,Conn::Read),
 			infoonly ? Seis::PreScan : Seis::Prod) )
     {

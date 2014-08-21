@@ -30,7 +30,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
     bool		getSampleNames(BufferStringSet&) const

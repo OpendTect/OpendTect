@@ -24,11 +24,11 @@ namespace Seis
 {
 
 mExpClass(Seis) PreLoader
-{
+{ mODTextTranslationClass(PreLoader);
 public:
 
-    			PreLoader( const MultiID& ky, TaskRunner* tr=0 )
-			    : id_(ky), tr_(tr)		{}
+			PreLoader( const MultiID& ky, TaskRunner* trans=0 )
+			    : id_(ky), tr_(trans)		{}
     void		setID( const MultiID& ky )	{ id_ = ky; }
     const MultiID&	id() const			{ return id_; }
     void		setRunner( TaskRunner& t )	{ tr_ = &t; }
@@ -47,7 +47,7 @@ public:
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
-    const char*		errMsg() const			{ return errmsg_.str();}
+    uiString		errMsg() const			{ return errmsg_;}
 
     static void		load(const IOPar&,TaskRunner* tr=0);
     			//!< Seis.N.[loadObj_fmt]
@@ -63,7 +63,7 @@ protected:
     MultiID		id_;
     TaskRunner*		tr_;
     TaskRunner		deftr_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     TaskRunner&		getTr() const
     			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }

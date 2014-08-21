@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seispsioprov.h"
 #include "seistrctr.h"
+#include "uistring.h"
+
 namespace SEGY { class DirectDef; }
 namespace PosInfo { class CubeData; }
 class SEGYSeisTrcTranslator;
@@ -38,7 +40,7 @@ public:
     virtual				~DirectReader();
 
     virtual DirectDef*			getDef()		= 0;
-    virtual const char*			errMsg() const		= 0;
+    virtual uiString			errMsg() const		= 0;
     virtual SEGYSeisTrcTranslator*	getTranslator()		{ return tr_; }
     virtual bool			goTo(const BinID&)	= 0;
 
@@ -65,7 +67,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     const PosInfo::CubeData& posData() const;
 
@@ -75,7 +77,7 @@ public:
 protected:
 
     SEGY::DirectDef&	def_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     SeisTrc*		getTrace(int,int,const BinID&) const;
     bool		goTo(int,int) const;
@@ -96,7 +98,7 @@ public:
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     const PosInfo::Line2DData& posData() const;
 
@@ -106,7 +108,7 @@ public:
 protected:
 
     SEGY::DirectDef&		def_;
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
 
     SeisTrc*			getTrace(int,int,int) const;
     bool			goTo(int,int) const;
@@ -115,7 +117,8 @@ protected:
 
 
 mExpClass(Seis) SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
-{			       isTranslator(SEGYDirect,SeisPS3D)
+{ mODTextTranslationClass(SEGYDirectSeisPS3DTranslator);
+  isTranslator(SEGYDirect,SeisPS3D)
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
@@ -131,7 +134,8 @@ public:
 
 
 mExpClass(Seis) SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
-{			       isTranslator(SEGYDirect,SeisPS2D)
+{ mODTextTranslationClass(SEGYDirectSeisPS2DTranslator);
+  isTranslator(SEGYDirect,SeisPS2D)
 public:
 			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
@@ -142,7 +146,8 @@ public:
 
 mExpClass(Seis) SEGYDirectSeisTrcTranslator : public SeisTrcTranslator
 				   , public SEGY::DirectReader
-{			isTranslator(SEGYDirect,SeisTrc)
+{ mODTextTranslationClass(SEGYDirectSeisTrcTranslator);
+  isTranslator(SEGYDirect,SeisTrc)
 public:
 
 			SEGYDirectSeisTrcTranslator(const char*,const char*);
@@ -171,7 +176,7 @@ public:
 
     virtual SEGY::DirectDef* getDef()	{ return def_; }
     virtual bool	goTo(const BinID&);
-    virtual const char* errMsg() const	{ return SeisTrcTranslator::errMsg(); }
+    virtual uiString	errMsg() const	{ return SeisTrcTranslator::errMsg(); }
 
 protected:
 

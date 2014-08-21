@@ -160,7 +160,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     innrsamples_ = outnrsamples_ = trc.size();
     if ( innrsamples_ < 1 )
-	{ errmsg_ = "Empty first trace"; return false; }
+	{ errmsg_ = tr("Empty first trace"); return false; }
 
     insd_ = outsd_ = trc.info().sampling;
 
@@ -177,7 +177,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
 bool SeisTrcTranslator::commitSelections()
 {
-    errmsg_ = "No selected components found";
+    errmsg_ = tr("No selected components found");
     const int sz = tarcds_.size();
     if ( sz < 1 ) return false;
 
@@ -304,7 +304,7 @@ bool SeisTrcTranslator::write( const SeisTrc& trc )
 
     SeisTrc* newtrc; mTryAlloc( newtrc, SeisTrc(trc) );
     if ( !newtrc )
-	{ errmsg_ = "Out of memory"; trcblock_.deepErase(); return false; }
+	{ errmsg_ = tr("Out of memory"); trcblock_.deepErase(); return false; }
     trcblock_.add( newtrc );
 
     return true;
@@ -453,7 +453,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 {
     close(); errmsg_.setEmpty();
     if ( !c )
-	{ errmsg_ = "Translator: No connection established"; return false; }
+	{ errmsg_ = tr("Translator: No connection established"); return false; }
 
     mDynamicCastGet(StreamConn*,strmconn,c)
     if ( strmconn )
@@ -461,7 +461,7 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 	const char* fnm = strmconn->odStream().fileName();
 	if ( c->isBad() && !File::isDirectory(fnm) )
 	{
-	    errmsg_.set( "Cannot open file: " ).add( fnm );
+	    errmsg_ = tr( "Cannot open file: %1" ).arg( fnm );
 	    return false;
 	}
     }

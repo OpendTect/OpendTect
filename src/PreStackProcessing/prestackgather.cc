@@ -81,12 +81,12 @@ Gather::~Gather()
 
 
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
-		       BufferString* errmsg )
+		       uiString* errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
-	if ( errmsg ) (*errmsg) = "No valid gather selected.";
+	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -96,13 +96,13 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
 
 
 bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
-		       BufferString* errmsg )
+		       uiString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl() );
     if ( !rdr )
     {
 	if ( errmsg )
-	    (*errmsg) = "This Prestack data store cannot be handled.";
+	    (*errmsg) = tr("This Prestack data store cannot be handled.");
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -113,12 +113,12 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
 
 
 bool Gather::readFrom( const MultiID& mid, const int trcnr,
-		       const char* linename, int comp, BufferString* errmsg )
+		       const char* linename, int comp, uiString* errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
-	if ( errmsg ) (*errmsg) = "No valid gather selected.";
+	if ( errmsg ) (*errmsg) = tr("No valid gather selected.");
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -128,13 +128,13 @@ bool Gather::readFrom( const MultiID& mid, const int trcnr,
 
 
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
-		       const char* linename, int comp, BufferString* errmsg )
+		       const char* linename, int comp, uiString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
     if ( !rdr )
     {
 	if ( errmsg )
-	    (*errmsg) = "This Prestack data store cannot be handled.";
+	    (*errmsg) = tr("This Prestack data store cannot be handled.");
 	delete arr2d_; arr2d_ = 0;
 	return false;
     }
@@ -146,7 +146,7 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 
 
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
-		       int comp, BufferString* errmsg )
+		       int comp, uiString* errmsg )
 {
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
     if ( !rdr.getGather(bid,*tbuf) )

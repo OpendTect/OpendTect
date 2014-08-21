@@ -178,7 +178,7 @@ void uiSeisBrowser::setZ( float z )
 
 bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 {
-    BufferString emsg;
+    uiString emsg;
     PtrMan<IOObj> ioobj = IOM().get( su.id_ );
     if ( !ioobj ) return false;
 
@@ -650,7 +650,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     tro_ = CBVSSeisTrcTranslator::getInstance();
     tro_->set2D( Seis::is2D(setup.geom_) );
 
-    BufferString errmsg;
+    uiString errmsg;
     tri_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
 			        Seis::is2D(setup.geom_), &errmsg );
 
@@ -695,7 +695,7 @@ bool init()
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const          { return nrdone_; }
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Traces done"; }
 
 protected:
@@ -734,7 +734,7 @@ int nextStep()
     const SeisTrcBuf&	tbufchgdtrcs_;
     SeisTrc&		trc_;
     bool                is2d_;
-    BufferString	msg_;
+    uiString		msg_;
 
 };
 
