@@ -250,7 +250,7 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
     closept.x = ( first ) ? isfillrev ? pixstart : pixstop
 			  : isfillrev ? pixstop  : pixstart;
     closept.y = ld.yax_.getPix( zfirst );
-    int prevcolidx = 0;
+    int prevcolidx = mUdf(int);
     TypeSet<uiPoint>* curpts = new TypeSet<uiPoint>;
     *curpts += closept;
 
@@ -274,6 +274,8 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 	int colindex = (int)( valdiff/colstep );
 	if ( colindex > 255 ) colindex = 255;
 	if ( colindex < 0 )   colindex = 0;
+	if ( mIsUdf(prevcolidx) )
+	    prevcolidx = colindex;
 	if ( fullpanelfill )
 	    val = first ? rgstart : rgstop;
 
@@ -290,20 +292,18 @@ void uiWellLogDisplay::drawFilledCurve( bool first )
 
 	pt.x = ld.xax_.getPix(val);
 	pt.y = ld.yax_.getPix(zpos);
-
-	*curpts += prevpt;
 	*curpts += pt;
 
-	prevpt = pt;
-
-	if ( colindex != prevcolidx )
+	if ( colindex!=prevcolidx || idx==sz-1 )
 	{
 	    *curpts += uiPoint( closept.x, pt.y );
-	    colorintset += colindex;
+	    colorintset += prevcolidx;
 	    prevcolidx = colindex;
+	    prevpt = pt;
 	    pts += curpts;
 	    curpts = new TypeSet<uiPoint>;
 	    *curpts += uiPoint( closept.x, pt.y );
+	    *curpts += prevpt;
 	}
     }
     if ( pts.isEmpty() ) return;
