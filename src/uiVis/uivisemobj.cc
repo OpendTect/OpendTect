@@ -21,8 +21,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "mousecursor.h"
+#include "od_helpids.h"
+#include "settings.h"
 #include "survinfo.h"
 
+#include "uicolortable.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
 #include "uimpe.h"
@@ -35,12 +39,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
+#include "vishorizonsectiondef.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
-const char* uiVisEMObject::trackingmenutxt()	    { return "Tracking"; }
 
+const char* uiVisEMObject::trackingmenutxt()	    { return "Tracking"; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     : displayid_(newid)
@@ -771,3 +776,50 @@ void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
 {
 }
 
+
+static const char* sKeyHorizonRes = "dTect.Horizon.Resolution";
+static const char* sKeyHorizonColTab = "dTect.Horizon.Color table";
+static BufferStringSet sResolutionNames;
+
+static void fillResolutionNames( BufferStringSet& nms )
+{
+    visSurvey::HorizonDisplay* hd = new visSurvey::HorizonDisplay;
+    hd->ref();
+    const int nrres = cMaximumResolution+1; //hd->nrResolutions();
+    for ( int idx=0; idx<nrres; idx++ )
+	nms.add( hd->getResolutionName(idx) );
+
+    hd->unRef();
+}
+
+
+// uiHorizonSettings
+uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,tr("Horizons"),setts)
+{
+    if ( sResolutionNames.isEmpty() )
+	fillResolutionNames( sResolutionNames );
+
+    resolution_ = 0;
+    Settings::common().get( sKeyHorizonRes, resolution_ );
+    resolutionfld_ = new uiGenInput( this, "Default Resolution",
+				     StringListInpSpec(sResolutionNames) );
+    resolutionfld_->setValue( resolution_ );
+
+    coltabnm_ = ColTab::defSeqName();
+    Settings::common().get( sKeyHorizonColTab, coltabnm_ );
+    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
+    coltabfld_->attach( alignedBelow, resolutionfld_ );
+}
+
+
+HelpKey uiHorizonSettings::helpKey() const
+{ return mODHelpKey(mHorizonSettingsHelpID); }
+
+
+bool uiHorizonSettings::acceptOK()
+{
+    Settings::common().set( sKeyHorizonRes, resolutionfld_->getIntValue() );
+    Settings::common().set( sKeyHorizonColTab, coltabfld_->colTabSeq().name() );
+    return true;
+}

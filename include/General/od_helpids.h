@@ -18,34 +18,34 @@ ________________________________________________________________________
 #define		mBatchHostsDlgHelpID				0x00001006
 // General Setup 02
 #define		mSettingsHelpID				        0x00002001
-#define		mSetFontsHelpID				0x00002002
+#define		mSetFontsHelpID					0x00002002
 #define		mLooknFeelSettingsHelpID			0x00002003
 #define		mShortcutsDlgHelpID				0x00002004
 #define		mPluginManHelpID				0x00002005
 #define		mPluginSelHelpID				0x00002006
-#define		mODSceneMgrsetKeyBindingsHelpID		0x00002007
+#define		mODSceneMgrsetKeyBindingsHelpID			0x00002007
 #define		mSurveySettingsHelpID				0x00002008
 
 // General Survey 03
 #define         mSurveyHelpID				        0x00003001
-#define		mSurveyInfoEditorHelpID	                0x00003002
+#define		mSurveyInfoEditorHelpID				0x00003002
 #define		mWorkAreaDlgHelpID				0x00003004
-#define		mAttribDescSetEdimportSetHelpID		0x00003005
+#define		mAttribDescSetEdimportSetHelpID			0x00003005
 #define		mCopySurveySIPHelpID			        0x00003006
 #define		mConvertPosHelpID				0x00003007
-#define		m2DDefSurvInfoDlgHelpID			0x00003008
-#define		mLatLong2CoordDlgHelpID			0x00003009
+#define		m2DDefSurvInfoDlgHelpID				0x00003008
+#define		mLatLong2CoordDlgHelpID				0x00003009
 #define		mGoogleExportSurveyHelpID			0x00003010
 #define		mSeisWvltMangetFromOtherSurveyHelpID	        0x00003011
 #define         mSurveyexportButPushedHelpID                    0x00003012
 // General Other 04
-#define		mSliceSelHelpID				0x00004001
+#define		mSliceSelHelpID					0x00004001
 #define		mSliceScrollHelpID				0x00004002
 #define		mmcmddriverimpsHelpID			        0x00004003
 #define		mODApplMgraddTimeDepthSceneHelpID		0x00004004
 #define		mODApplMgrDispatchersetAutoUpdatePolHelpID	0x00004005
-#define		mHandleDLSiteFailHelpID			0x00004006
-#define		mProxyDlgHelpID				0x00004007
+#define		mHandleDLSiteFailHelpID				0x00004006
+#define		mProxyDlgHelpID					0x00004007
 // General Installation 05
 #define	        mODInstMgrHelpID				0x00005001
 #define	        mODInstPkgMgrHelpID				0x00005002
@@ -62,8 +62,8 @@ ________________________________________________________________________
 #define		mStereoDlgHelpID				0x05000002
 #define		mGridLinesDlgHelpID				0x05000003
 #define		mPropertiesDlgHelpID			        0x05000004
-#define		mScenePropertyDlgHelpID			0x05000005
-#define	        mColorBarDialog			        0x05000006
+#define		mScenePropertyDlgHelpID				0x05000005
+#define	        mColorBarDialog					0x05000006
 #define		mZScaleDlgHelpID				0x05000007
 #define		mPSViewerSettingDlgHelpID			0x05000008
 #define		mPrintSceneDlgHelpID			        0x05000009
@@ -81,7 +81,7 @@ ________________________________________________________________________
 // Visualization Colors 01
 #define		mColTabMarkerDlgHelpID				0x05001001
 #define	        mColorTableManHelpID			        0x05001002
-#define		mAutoRangeClipDlgHelpID			0x05001003
+#define		mAutoRangeClipDlgHelpID				0x05001003
 #define		mColTabImportHelpID				0x05001004
 #define		mODEditAttribColorDlgHelpID			0x05001005
 // Visualization Sessions 03
@@ -105,20 +105,20 @@ ________________________________________________________________________
 #define		mEventAttribHelpID				0x10100004
 #define		mFingerPrintAttribHelpID			0x10100005
 #define		mFrequencyAttribHelpID			        0x10100006
-#define		mFreqFilterAttribHelpID			0x10100007
+#define		mFreqFilterAttribHelpID				0x10100007
 #define		mInstantaneousAttribHelpID			0x10100008
 #define		mMathAttribHelpID				0x10100009
 #define		mPositionAttribHelpID			        0x10100010
 #define		mReferenceAttribHelpID			        0x10100011
 #define		mScalingAttribHelpID			        0x10100012
 #define		mShiftAttribHelpID				0x10100013
-#define		mSimilarityAttribHelpID			0x10100014
-#define		mSpecDecompAttribHelpID			0x10100015
+#define		mSimilarityAttribHelpID				0x10100014
+#define		mSpecDecompAttribHelpID				0x10100015
 #define		mVolumeStatisticsAttribHelpID		        0x10100016
 #define		mPreStackAttribHelpID			        0x10100017
 #define		mWellLogAttribHelpID				0x10100018
 #define		mHorizonAttribHelpID			        0x10100100
-#define		mGapDeconHelpID				0x10100101
+#define		mGapDeconHelpID					0x10100101
 #define		mMatchDeltaHelpID				0x10100102
 #define		mDeltaResampleHelpID			        0x10100103
 #define		mTextureAttribHelpID			        0x10100104
@@ -203,10 +203,10 @@ ________________________________________________________________________
 #define		mVolProcBatchSetupHelpID			0x10302011
 #define		mBatchTime2DepthSetupHelpID			0x10302012
 #define		mPreStackProcSelHelpID			        0x10302013
-#define		mVelBatchVolumeConversionHelpID		0x10302014
+#define		mVelBatchVolumeConversionHelpID			0x10302014
 #define		mSeisBayesPDFInpHelpID			        0x10302015
 #define		mSeisBayesNormHelpID			        0x10302016
-#define		mSeisBayesSeisInpHelpID			0x10302017
+#define		mSeisBayesSeisInpHelpID				0x10302017
 #define		mSeisBayesOutHelpID				0x10302018
 #define		mAngleMuteComputerHelpID			0x10302019
 #define		mAngleMuteHelpID				0x10302020
@@ -214,7 +214,7 @@ ________________________________________________________________________
 #define	        mMultiWellCreateLogCubeDlg		        0x10302022
 #define		mCreate2DGridHelpID				0x10302023
 #define		mSeis2DTo3DHelpID				0x10302024
-#define		mCreateLogCubeDlgHelpID			0x10302025
+#define		mCreateLogCubeDlgHelpID				0x10302025
 #define		mAngleCompAdvParsDlgHelpID			0x10302026
 #define		mProcSettingsHelpID				0x10302027
 #define		mSurfaceLimitedFillerHelpID			0x10302028
@@ -225,14 +225,14 @@ ________________________________________________________________________
 #define		mSeisWvltImpParsHelpID			        0x10303003
 #define		mWaveletExtractionHelpID			0x10303004
 #define		mSeisWvltSliderDlgHelpID			0x10303005
-#define		mSeisWvltTaperDlgHelpID			0x10303006
+#define		mSeisWvltTaperDlgHelpID				0x10303006
 #define		mSeisWvltMergeHelpID			        0x10303007
 #define		mWaveletDispPropDlgHelpID			0x10303008
 // Seismics Prestack 04
 #define		mSeisPrestackMan3DHelpID			0x10304000
 #define		mSeisPrestackMan2DHelpID			0x10304001
 #define		mPreStackCopyDlgHelpID			        0x10304002
-#define		mPreStackMergeDlgHelpID			0x10304003
+#define		mPreStackMergeDlgHelpID				0x10304003
 #define		mRayTrcParamsDlgHelpID			        0x10304004
 // Seismics LINKS 05
 #define		mMadagascarMainHelpID			        0x10305000
@@ -254,7 +254,7 @@ ________________________________________________________________________
 #define		mImportHorizonHelpID			        0x10400000
 #define		mExportHorizonHelpID			        0x10400001
 #define		mImportHorAttribHelpID			        0x10400002
-#define		mChangeSurfaceDlgHelpID			0x10400003
+#define		mChangeSurfaceDlgHelpID				0x10400003
 #define		mEMHorizonEditorSettingHelpID		        0x10400004
 #define		mHor3DFrom2DDlgHelpID			        0x10400005
 #define		mArr2DFilterParsDlgHelpID			0x10400007
@@ -267,13 +267,14 @@ ________________________________________________________________________
 #define		mImportHorizon2DHelpID			        0x10400014
 #define		mHorizonShiftDialogHelpID			0x10400015
 #define		mBulkHorizonImportHelpID			0x10400016
+#define		mHorizonSettingsHelpID				0x10400017
 // Surfaces Faults 01
 #define		mImportFaultHelpID				0x10401000
 #define		mExportFaultHelpID				0x10401001
 #define		mTableImpDataSelFaultsHelpID		        0x10401002
 #define		mImportFaultStick3DHelpID			0x10401003
 #define		mImportFaultStick2DHelpID			0x10401004
-#define	        mExportFaultStickHelpID		        0x10401005
+#define	        mExportFaultStickHelpID			        0x10401005
 #define		mTableImpDataSelFaultStickSet3DHelpID	        0x10401006
 #define		mTableImpDataSelFaultStickSet2DHelpID	        0x10401007
 #define		mFaultStickTransferDlgHelpID		        0x10401008
@@ -332,7 +333,7 @@ ________________________________________________________________________
 #define		mTableImpDataSelwellsHelpID		        0x10700009
 #define		mBulkTrackImportHelpID			        0x10700010
 #define		mBulkLogImportHelpID			        0x10700011
-#define		mBulkMarkerImportHelpID			0x10700012
+#define		mBulkMarkerImportHelpID				0x10700012
 // Wells Manage 01
 #define		mWellManHelpID				        0x10701000
 #define		mMarkerDlgHelpID				0x10701001
@@ -342,7 +343,7 @@ ________________________________________________________________________
 #define		mD2TModelDlgHelpID				0x10701005
 #define		mD2TModelReadDlgHelpID			        0x10701006
 #define		mWellTrackDlgHelpID				0x10701007
-#define		mWellTrackReadDlgHelpID			0x10701008
+#define		mWellTrackReadDlgHelpID				0x10701008
 #define		mTableImpDataSelmarkersHelpID		        0x10701009
 #define		mWellLogCalcHelpID				0x10701010
 #define		mGoogleExportWellsHelpID			0x10701011
@@ -381,20 +382,20 @@ ________________________________________________________________________
 #define		mStratLevelDlgHelpID			        0x11000002
 #define		mStratLinkLvlUnitDlgHelpID			0x11000003
 #define		mStratLithoDlgHelpID			        0x11000004
-#define		mStratContentsDlgHelpID			0x11000005
-#define		mStratSynthExportHelpID			0x11000008
-#define		mStartSynthOutSelHelpID			0x11000009
+#define		mStratContentsDlgHelpID				0x11000005
+#define		mStratSynthExportHelpID				0x11000008
+#define		mStartSynthOutSelHelpID				0x11000009
 #define		mStratSynthLayerModFRPPropSelectorHelpID	0x11000010
 #define		mStratEditLayerHelpID			        0x11000011
 #define		mStratSimpleLayerModDispHelpID		        0x11000012
 // Stratigraphy Properties 01
-#define		mManPROPSHelpID				0x11001000
+#define		mManPROPSHelpID					0x11001000
 #define		mEditPropRefHelpID				0x11001001
 #define		mSelectPropRefsHelpID			        0x11001002
 #define		mElasticPropSelDlgHelpID			0x11001003
 // Stratigraphy BasicModelling 02
 #define		mSingleLayerGeneratorEdHelpID		        0x11002000
-#define		mSynthToRealScaleHelpID			0x11002001
+#define		mSynthToRealScaleHelpID				0x11002001
 #define		mStratLayerModelcheckUnscaledWaveletHelpID	0x11002002
 // Stratigraphy Crossplotting 03
 #define		mStratSynthCrossplotHelpID			0x11003000
@@ -403,19 +404,19 @@ ________________________________________________________________________
 //Crossplots 111
 // Crossplots General 00
 #define		mDataPointSetHelpID				0x11100000
-#define		mdataPointSetSaveHelpID			0x11100001
+#define		mdataPointSetSaveHelpID				0x11100001
 #define		mDataPointSetCrossPlotterPropDlgHelpID	        0x11100002
 #define		mCreateDPSPDFHelpID				0x11100003
-#define		mSelectionSettDlgHelpID			0x11100004
+#define		mSelectionSettDlgHelpID				0x11100004
 #define		mDPSOverlayPropDlgHelpID			0x11100005
 #define		mSelColorDlgHelpID				0x11100006
 #define		mImpPVDSHelpID				        0x11100007
 #define		mTableImpDataSelpvdsHelpID		        0x11100008
-#define		mExpSelectionAreaHelpID			0x11100009
+#define		mExpSelectionAreaHelpID				0x11100009
 #define		mReadSelGrpHelpID				0x11100010
 #define		mDPSSelectednessDlgHelpID			0x11100011
 #define		mVariogramDlgHelpID				0x11100012
-#define		mVariogramDisplayHelpID			0x11100013
+#define		mVariogramDisplayHelpID				0x11100013
 // Crossplots Extraction 01
 #define		mAttribCrossPlotHelpID			        0x11101000
 #define		mWellAttribCrossPlotHelpID			0x11101001

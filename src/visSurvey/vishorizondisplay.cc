@@ -104,6 +104,10 @@ HorizonDisplay::HorizonDisplay()
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
     setIntersectLineMaterial( linemat );
+
+    int res = (int)resolution_;
+    Settings::common().get( "dTect.Horizon.Resolution", res );
+    resolution_ = (char)res;
 }
 
 
@@ -733,7 +737,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( !attribwasdepth )
     {
 	BufferString seqnm;
-	Settings::common().get( "dTect.Color table.Horizon", seqnm );
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
 	setColTabSequence( channel, seq, 0 );
 	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
@@ -984,7 +988,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
     sids_.removeSingle( idx );
-};
+}
 
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
