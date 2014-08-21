@@ -1335,7 +1335,10 @@ ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
     const MultiID hormid = horfld->key();
     EM::ObjectID emid = getObjectID( hormid );
     if ( emid<0 || !isFullyLoaded(emid) )
-	loadSurface( hormid );
+    {
+	if ( !loadSurface( hormid ) )
+	    return 0;
+    }
 
     emid = getObjectID( hormid );
     if ( emid<0 ) return 0;
