@@ -50,9 +50,9 @@ private:
     QSlider*	sender_;
 
 #define mTrigger( notifier ) \
-    const int refnr = receiver_->beginCmdRecEvent( #notifier ); \
+    const int refnr = receiver_->slider()->beginCmdRecEvent( #notifier ); \
     receiver_->notifier.trigger(*receiver_); \
-    receiver_->endCmdRecEvent( refnr, #notifier );
+    receiver_->slider()->endCmdRecEvent( refnr, #notifier );
 
 private slots:
 

@@ -21,7 +21,21 @@ class LinScaler;
 
 class uiLabel;
 class uiLineEdit;
-class uiSliderObj;
+class uiSliderBody;
+
+
+mExpClass(uiBase) uiSliderObj : public uiObject
+{
+public:
+			uiSliderObj(uiParent*,const char* nm);
+			~uiSliderObj();
+
+    uiSliderBody&	body()		{ return *body_; }
+
+private:
+    uiSliderBody*	body_;
+    uiSliderBody&	mkbody(uiParent*,const char*);
+};
 
 
 mExpClass(uiBase) uiSlider : public uiGroup
@@ -105,6 +119,8 @@ public:
 
     const uiLabel*	label() const			{ return lbl_; }
     uiLabel*		label()				{ return lbl_; }
+
+     uiSliderObj*	slider()			{ return slider_; }
 
 private:
 
