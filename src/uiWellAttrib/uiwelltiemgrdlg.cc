@@ -214,11 +214,11 @@ bool uiTieWinMGRDlg::selIs2D() const
     return SI().has2D();
 }
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return; }
+#define mErrRet(s) { if ( s && cb ) uiMSG().error(s); return; }
 
-void uiTieWinMGRDlg::wellSelChg( CallBacker* )
+void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 {
-    const IOObj* wellobj = wellfld_->ioobj();
+    const IOObj* wellobj = wellfld_->ioobj(true);
     if ( !wellobj ) return;
     const char* wllfilenm = Well::odIO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
@@ -231,10 +231,14 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     logsfld_->wellid_ = wellid;
     if ( !logsfld_->setAvailableLogs(wd_->logs()) )
     {
-	BufferString errmsg = "This well has no valid log to use as input";
-	errmsg += "\n";
-	errmsg += "Use well manager to either import or create your logs";
-	uiMSG().error( errmsg );
+	if ( cb )
+	{
+	    BufferString errmsg = "This well has no valid log to use as input";
+	    errmsg += "\n";
+	    errmsg += "Use well manager to either import or create your logs";
+	    uiMSG().error( errmsg );
+	}
+
 	return;
     }
 
@@ -260,7 +264,7 @@ void uiTieWinMGRDlg::typeSelChg( CallBacker* )
 }
 
 
-void uiTieWinMGRDlg::seisSelChg( CallBacker* )
+void uiTieWinMGRDlg::seisSelChg( CallBacker* cb )
 {
     const bool is2d = selIs2D();
     mDynamicCastGet( uiSeisSel*, seisfld, is2d ? seis2dfld_ : seis3dfld_ );
@@ -453,10 +457,10 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 
 bool uiTieWinMGRDlg::initSetup()
 {
-    if ( !wellfld_->commitInput() )
-	mErrRet("Please select a valid well")
+    if ( !wellfld_->ioobj() )
+	return false;
 
-    const MultiID& wellid = wellfld_->ctxtIOObj().ioobj->key();
+    const MultiID& wellid = wellfld_->key(true);
     if ( wd_ )
 	wd_->tobedeleted.remove( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
     wd_ = Well::MGR().get( wellid, false );
