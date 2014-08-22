@@ -85,7 +85,7 @@ uiFKSpectrum::uiFKSpectrum( uiParent* p, bool setbp )
 	minsetbut_->setToggleButton();
 	minsetbut_->attach( rightTo, minfld_ );
 
-	uiString maxlbl = SI().zIsTime() ? "Min Vel" : "Min Dip";
+	uiString maxlbl = SI().zIsTime() ? "Max Vel" : "Max Dip";
 	maxfld_ = new uiGenInput( this, maxlbl );
 	maxfld_->setReadOnly();
 	maxfld_->attach( rightOf, minsetbut_ );
