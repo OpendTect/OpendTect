@@ -22,13 +22,11 @@ class BufferStringSet;
 class Timer;
 class uiDockWin;
 class uiFlatViewWin;
-class uiLabel;
 class uiTreeView;
 class uiMdiArea;
 class uiMdiAreaWindow;
 class uiODTreeTop;
 class ui3DViewer;
-class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
 class uiWindowGrabber;
@@ -157,23 +155,14 @@ protected:
     void			initMenuMgrDepObjs();
 
     void			afterFinalise(CallBacker*);
-    uiThumbWheel*		dollywheel;
-    uiThumbWheel*		hwheel;
-    uiThumbWheel*		vwheel;
-    uiLabel*			dollylbl;
-    uiLabel*			dummylbl;
-    uiLabel*			rotlbl;
 
     uiODMain&			appl_;
     uiMdiArea*			mdiarea_;
     void			mdiAreaChanged(CallBacker*);
 
     int				vwridx_;
-    float			lasthrot_, lastvrot_, lastdval_;
     uiTreeFactorySet*		tifs_;
     uiWindowGrabber*		wingrabber_;
-
-    void			wheelMoved(CallBacker*,int wh,float&);
 
     inline uiODApplMgr&		applMgr()     { return appl_.applMgr(); }
     inline uiVisPartServer&	visServ()     { return *applMgr().visServer(); }
