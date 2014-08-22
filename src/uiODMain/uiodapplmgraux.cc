@@ -332,7 +332,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     break;
     mCase(Body):
 	if ( at == uiODApplMgr::Man )
-	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::sKeyword() );
+	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::keyword() );
     break;
     mCase(Props):
 	if ( at == uiODApplMgr::Man )

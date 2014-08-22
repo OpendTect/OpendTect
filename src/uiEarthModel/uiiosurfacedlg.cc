@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
+#include "empolygonbody.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
@@ -46,11 +47,13 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
     const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
+    mDynamicCastGet(const EM::PolygonBody*,plgbody,&surface_);
+    const bool usesubsel = !plgbody;
 
     iogrp_ = new uiSurfaceWrite( this, surface_,
 			     uiSurfaceWrite::Setup(surface_.getTypeStr(),
 						   surface_.getUserTypeStr())
-			     .withdisplayfld(!hasshift).withsubsel(true) );
+			     .withdisplayfld(!hasshift).withsubsel(usesubsel) );
 }
 
 

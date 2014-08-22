@@ -23,14 +23,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-#define mBodyKey EMBodyTranslatorGroup::sKeyword()
+#define mBodyKey EMBodyTranslatorGroup::keyword()
 
 uiBodyPosProvGroup::uiBodyPosProvGroup( uiParent* p,
 					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(EMBody))
 {
-    inoutbut_ = new uiGenInput(this, uiStrings::sEmptyString(), 
+    inoutbut_ = new uiGenInput(this, uiStrings::sEmptyString(),
                                BoolInpSpec(true,tr("Inside"),
                                 tr("Outside")) );
     inoutbut_->valuechanged.notify( mCB(this,uiBodyPosProvGroup,ioChg) );
@@ -53,12 +53,12 @@ uiBodyPosProvGroup::~uiBodyPosProvGroup()
 
 
 void uiBodyPosProvGroup::ioChg( CallBacker* )
-{ 
-    outsidergfld_->display( !inoutbut_->getBoolValue() ); 
+{
+    outsidergfld_->display( !inoutbut_->getBoolValue() );
 }
 
 
-uiPosProvGroup* uiBodyPosProvGroup::create( uiParent* p, 
+uiPosProvGroup* uiBodyPosProvGroup::create( uiParent* p,
 					    const uiPosProvGroup::Setup& su )
 { return new uiBodyPosProvGroup(p,su); }
 
@@ -66,7 +66,7 @@ uiPosProvGroup* uiBodyPosProvGroup::create( uiParent* p,
 void uiBodyPosProvGroup::usePar( const IOPar& iop )
 {
     bodyfld_->usePar( iop, sKey::Body() );
-    
+
     bool useinside;
     iop.getYN( Pos::EMImplicitBodyProvider::sKeyUseInside(), useinside );
     inoutbut_->setValue( useinside );
@@ -78,7 +78,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 	iop.get( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), crlrg );
 	Interval<float> zrg;
 	iop.get( Pos::EMImplicitBodyProvider::sKeyBBZrg(), zrg );
-	
+
 	CubeSampling cs(true);
 	cs.hrg.set( inlrg, crlrg );
 	cs.zrg.setFrom( zrg );
@@ -95,7 +95,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
     if ( !bodyfld_->commitInput() || !bodyfld_->fillPar(iop,sKey::Body()) )
 	mErrRet(tr("Please select the body"));
 
-    iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(), 
+    iop.setYN( Pos::EMImplicitBodyProvider::sKeyUseInside(),
 	    inoutbut_->getBoolValue() );
     if ( !inoutbut_->getBoolValue() )
     {

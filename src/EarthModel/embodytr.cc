@@ -11,10 +11,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "embodytr.h"
 #include "embody.h"
+#include "emobject.h"
+#include "emmanager.h"
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
+#include "ioman.h"
+
 
 int EMBodyTranslatorGroup::selector( const char* s )
 {
-    int res = defaultSelector( EMBodyTranslatorGroup::sKeyword(), s );
+    int res = defaultSelector( EMBodyTranslatorGroup::keyword(), s );
     if ( res==mObjSelUnrelated )
 	res = defaultSelector( "MarchingCubesSurface", s );
 
@@ -38,3 +45,46 @@ const IOObjContext& EMBodyTranslatorGroup::ioContext()
     ctxt->trgroup = &theInst();
     return *ctxt;
 }
+
+
+odEMBodyTranslator::odEMBodyTranslator( const char* nm, const char* unm )
+    : EMBodyTranslator(nm,unm)
+    , readbody_(0)
+{}
+
+
+odEMBodyTranslator::~odEMBodyTranslator()
+{}
+
+
+Executor* odEMBodyTranslator::reader( const IOObj& ioobj )
+{
+    const IOPar& iopar = ioobj.pars();
+    BufferString objtype;
+    iopar.get( sKey::Type(), objtype );
+
+    EM::EMObject* emobj = EM::EMM().createTempObject(objtype);
+    mDynamicCastGet(EM::Body*,bdy,emobj);
+    readbody_ = bdy;
+    return emobj ? emobj->loader() : 0;
+}
+
+
+Executor* odEMBodyTranslator::writer( const EM::Body& body, IOObj& ioobj )
+{
+    IOPar& iopar = ioobj.pars();
+    iopar.set( sKey::Type(), body.type() );
+    ioobj.updateCreationPars();
+    IOM().commitChanges( ioobj );
+
+    mDynamicCastGet(EM::PolygonBody*,plgbdy,const_cast<EM::Body*>(&body));
+    if ( plgbdy ) return plgbdy->saver(&ioobj);
+
+    mDynamicCastGet(EM::MarchingCubesSurface*,mcbdy,
+	    const_cast<EM::Body*>(&body));
+    if ( mcbdy ) return mcbdy->saver(&ioobj);;
+
+    mDynamicCastGet(EM::RandomPosBody*,rdpbdy,const_cast<EM::Body*>(&body));
+    return rdpbdy ? rdpbdy->saver(&ioobj) : 0;
+}
+

@@ -30,33 +30,34 @@ namespace EM
 mExpClass(EarthModel) RandomPosBody : public Body, public EMObject
 { mDefineEMObjFuncs( RandomPosBody );
 public:
-    
+
+    const char*			type() const { return typeStr(); }
     virtual int			nrSections() const		{ return 1; }
     virtual SectionID		sectionID(int) const		{ return 0; }
-    virtual bool		canSetSectionName() const 	{ return 0; }
+    virtual bool		canSetSectionName() const	{ return 0; }
 
     Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
-    const Geometry::Element*	sectionGeometry(const SectionID&) const 
-    				{ return 0; }
+    const Geometry::Element*	sectionGeometry(const SectionID&) const
+				{ return 0; }
 
     void			copyFrom(const Pick::Set&);//get my own picks.
     void			copyFrom(const DataPointSet&,int selgrp);
-    				//copy all for selgrp < 0.
+				//copy all for selgrp < 0.
     void			copyFrom(const DataPointSet&,int dpscolid,
-	    				 const Interval<float>& valrg);
+					 const Interval<float>& valrg);
     void			setPositions(const TypeSet<Coord3>&);
     const TypeSet<Coord3>&	getPositions() const	{ return locations_; }
     bool			addPos(const Coord3&);
 
-    const TypeSet<EM::SubID>&	posIDs() const 		{ return ids_; }
+    const TypeSet<EM::SubID>&	posIDs() const		{ return ids_; }
 
     Coord3			getPos(const EM::PosID&) const;
     Coord3			getPos(const EM::SectionID&,
-	    				const EM::SubID&) const;
+					const EM::SubID&) const;
     bool			setPos(const EM::PosID&,const Coord3&,
-	    				bool addtohistory);
+					bool addtohistory);
     bool			setPos(const EM::SectionID&,const EM::SubID&,
-	    				const Coord3&,bool addtohistory);
+					const Coord3&,bool addtohistory);
     const IOObjContext&		getIOObjContext() const;
     virtual Executor*		saver();
     virtual Executor*		saver(IOObj*);

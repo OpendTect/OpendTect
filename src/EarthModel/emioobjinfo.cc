@@ -23,14 +23,14 @@ namespace EM
 {
 
 DefineEnumNames( IOObjInfo, ObjectType, 0, "Object Type" )
-{ 
+{
   "Unknown",
   EMHorizon3DTranslatorGroup::keyword(),
   EMHorizon2DTranslatorGroup::keyword(),
   EMFaultStickSetTranslatorGroup::keyword(),
   EMFault3DTranslatorGroup::keyword(),
-  EMBodyTranslatorGroup::sKeyword(),
-  0 
+  EMBodyTranslatorGroup::keyword(),
+  0
 };
 
 
@@ -85,7 +85,7 @@ IOObjInfo& IOObjInfo::operator =( const IOObjInfo& sii )
     {
 	delete ioobj_;
 	ioobj_ = sii.ioobj_ ? sii.ioobj_->clone() : 0;
-    	type_ = sii.type_;
+	type_ = sii.type_;
     }
     return *this;
 }
@@ -134,7 +134,7 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
 {
     if ( type_==Fault )
     {
-	if ( !ioobj_ ) 
+	if ( !ioobj_ )
 	    return false;
 
 	FaultAuxData fad( ioobj_->key() );
@@ -143,9 +143,9 @@ bool IOObjInfo::getAttribNames( BufferStringSet& attrnames ) const
     }
     else
     {
-     	mGetReaderRet;
-    	for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
-    	    attrnames.add( reader_->auxDataName(idx) );
+	mGetReaderRet;
+	for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
+	    attrnames.add( reader_->auxDataName(idx) );
     }
 
     return true;

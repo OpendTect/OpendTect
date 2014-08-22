@@ -49,7 +49,7 @@ public:
     bool			isAtEdge(const EM::PosID&) const;
     bool			isLoaded() const;
     virtual Executor*		saver();
-    virtual Executor*		saver(IOObj*) { return 0;}
+    virtual Executor*		saver(IOObj*)		{ return 0;}
     virtual Executor*		loader();
 
     const char*			dbInfo() const		 { return dbinfo.buf();}

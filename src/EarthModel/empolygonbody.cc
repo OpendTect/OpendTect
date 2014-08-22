@@ -15,13 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "embodytr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
+#include "emsurfaceio.h"
 #include "ioman.h"
 #include "survinfo.h"
 #include "undo.h"
 
 namespace EM {
 
-mImplementEMObjFuncs( PolygonBody, polygonEMBodyTranslator::sKeyUserName() );
 
 class PolygonBodyUndoEvent : public UndoEvent
 {
@@ -93,7 +93,7 @@ protected:
     bool	remove_;
 };
 
-    
+
 class PolygonBodyKnotUndoEvent : public UndoEvent
 {
 public:
@@ -157,6 +157,8 @@ protected:
 };
 
 
+mImplementEMObjFuncs( PolygonBody, "Polygon" );
+
 PolygonBody::PolygonBody( EMManager& em )
     : Surface( em )
     , geometry_( *this )
@@ -182,19 +184,19 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	 surf->getCubicBezierCurve( plg, pts, 
+	 surf->getCubicBezierCurve( plg, pts,
 				    mCast(float,SI().zDomain().userFactor()) );
-   
+
      BodyOperator bodyopt;
-     return bodyopt.createImplicitBody( pts, taskrunner ); 
+     return bodyopt.createImplicitBody( pts, taskrunner );
 }
 
 
 bool PolygonBody::getBodyRange( CubeSampling& cs )
 {
-    const Geometry::PolygonSurface* surf = 
+    const Geometry::PolygonSurface* surf =
 	geometry().sectionGeometry( sectionID(0) );
-    if ( !surf ) 
+    if ( !surf )
 	return false;
 
      TypeSet<Coord3> pts;
@@ -221,7 +223,20 @@ const PolygonBodyGeometry& PolygonBody::geometry() const
 
 
 const IOObjContext& PolygonBody::getIOObjContext() const
-{ return EMBodyTranslatorGroup::ioContext(); }
+{
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
+    if ( !res )
+    {
+	IOObjContext* newres =
+	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->fixTranslator( typeStr() );
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
+    }
+
+    return *res;
+}
 
 
 MultiID PolygonBody::storageID() const
@@ -241,60 +256,31 @@ void EM::PolygonBody::unRefBody()
 
 
 bool PolygonBody::useBodyPar( const IOPar& par )
-{ 
+{
     if ( !EM::EMObject::usePar( par ) )
 	return false;
 
-    return geometry().usePar(par); 
+    return geometry().usePar(par);
 }
 
 
 void PolygonBody::fillBodyPar( IOPar& par ) const
 {
-    EM::EMObject::fillPar( par ); 
-    geometry().fillPar( par ); 
+    EM::EMObject::fillPar( par );
+    geometry().fillPar( par );
 }
-    
+
 
 Executor* PolygonBody::saver()
-{ return saver( 0 ); }
+{ return saver(0); }
 
 
 Executor* PolygonBody::saver( IOObj* inpioobj )
 {
-    PtrMan<IOObj> myioobj = 0;
-    IOObj* ioobj = 0;
-    if ( inpioobj )
-	ioobj = inpioobj;
-    else
-    {
-	myioobj = IOM().get( multiID() );
-	ioobj = myioobj;
-    }
-
-    if ( !ioobj )
-    { 
-	errmsg_ = "Cannot find surface"; 
-	return 0; 
-    }
-
-    mDynamicCast( polygonEMBodyTranslator*,
-		  PtrMan<polygonEMBodyTranslator> trans,
-		  ioobj->createTranslator() );
-    if ( !trans )
-    {
-	errmsg_ = "No Translator";
-	return 0;
-    }
-
-    Executor* exec = trans->writer( *this, *ioobj );
-    if ( !exec )
-    {
-	errmsg_ = trans->errMsg();
-	return 0;
-    }
-
-    return exec;
+    EM::dgbSurfaceWriter* res =
+	new EM::dgbSurfaceWriter( inpioobj, typeStr(), *this, false );
+    res->setWriteOnlyZ( false );
+    return res;
 }
 
 
@@ -303,23 +289,16 @@ Executor* PolygonBody::loader()
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj ) { errmsg_ = "Cannot find surface"; return 0; }
 
-    mDynamicCast( polygonEMBodyTranslator*,
-		 PtrMan<polygonEMBodyTranslator> trans,
-		 ioobj->createTranslator() );
-    if ( !trans )
+    EM::dgbSurfaceReader* rd = new EM::dgbSurfaceReader( *ioobj, typeStr() );
+    if ( !rd->isOK() )
     {
-	errmsg_ = "No Translator";
+	delete rd;
 	return 0;
     }
 
-    Executor* exec = trans->reader( *ioobj, *this );
-    if ( !exec )
-    {
-	errmsg_ = trans->errMsg();
-	return 0;
-    }
-
-    return exec;
+    rd->setOutput( *this );
+    rd->setReadOnlyZ( false );
+    return rd;
 }
 
 
@@ -333,7 +312,7 @@ PolygonBodyGeometry::~PolygonBodyGeometry()
 
 
 Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
-       				      const MultiID* key )
+				      const MultiID* key )
 {
     const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -344,11 +323,9 @@ Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
 
 
 Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
-{
-    return surface_.loader();
-}
+{ return surface_.loader(); }
 
-Geometry::PolygonSurface* 
+Geometry::PolygonSurface*
 PolygonBodyGeometry::sectionGeometry( const SectionID& sid )
 {
     Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
@@ -356,7 +333,7 @@ PolygonBodyGeometry::sectionGeometry( const SectionID& sid )
 }
 
 
-const Geometry::PolygonSurface* PolygonBodyGeometry::sectionGeometry( 
+const Geometry::PolygonSurface* PolygonBodyGeometry::sectionGeometry(
 	const SectionID& sid ) const
 {
     const Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
@@ -369,7 +346,7 @@ Geometry::PolygonSurface* PolygonBodyGeometry::createSectionGeometry() const
 
 
 EMObjectIterator* PolygonBodyGeometry::createIterator( const SectionID& sid,
-       	const CubeSampling* cs) const
+	const CubeSampling* cs) const
 { return new RowColIterator( surface_, sid, cs ); }
 
 
@@ -387,8 +364,8 @@ int PolygonBodyGeometry::nrKnots( const SectionID& sid, int polygonnr ) const
 }
 
 
-bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr, 
-				int firstknot, const Coord3& pos, 
+bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
+				int firstknot, const Coord3& pos,
 				const Coord3& normal, bool addtohistory )
 {
     Geometry::PolygonSurface* pol = sectionGeometry( sid );
@@ -397,7 +374,7 @@ bool PolygonBodyGeometry::insertPolygon( const SectionID& sid, int polygonnr,
 
     if ( addtohistory )
     {
-	const PosID posid( surface_.id(), sid, 
+	const PosID posid( surface_.id(), sid,
 		RowCol(polygonnr,0).toInt64() );
 	UndoEvent* undo = new PolygonBodyUndoEvent( posid );
 	EMM().undo().addEvent( undo, 0 );
@@ -427,7 +404,7 @@ bool PolygonBodyGeometry::removePolygon( const SectionID& sid, int polygonnr,
     const Coord3 normal = getPolygonNormal( sid, polygonnr );
     if ( !normal.isDefined() || !pos.isDefined() )
 	return false;
-    
+
     if ( !pol->removePolygon(polygonnr) )
 	return false;
 
@@ -509,7 +486,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 
 #define mDefEditNormalStr( editnormstr, sid, polygonnr ) \
     BufferString editnormstr("Edit normal of section "); \
-    editnormstr += sid; editnormstr += " polygonnr "; editnormstr += polygonnr; 
+    editnormstr += sid; editnormstr += " polygonnr "; editnormstr += polygonnr;
 
 
 #define mDefKnotsStr( knotstr, sid, polygonnr, knotidx ) \
@@ -518,7 +495,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     knotstr += " knot "; knotstr += knotidx;
 
 #define mDefPlgBezierNr( bez, sid ) \
-    BufferString bez("BezierCurve nr of section "); bez += sid; 
+    BufferString bez("BezierCurve nr of section "); bez += sid;
 
 
 void PolygonBodyGeometry::fillPar( IOPar& par ) const
@@ -533,7 +510,7 @@ void PolygonBodyGeometry::fillPar( IOPar& par ) const
 	par.set( bez.buf(), pol->getBezierCurveSmoothness() );
 
 	StepInterval<int> polygonrg = pol->rowRange();
-	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop; 
+	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
 		polygonnr++ )
 	{
 	    mDefEditNormalStr( editnormstr, sid, polygonnr );
@@ -555,14 +532,14 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
 	mDefPlgBezierNr( bez, sid );
 	par.get( bez.buf(), beziernr );
 	pol->setBezierCurveSmoothness( beziernr );
-	
+
 	StepInterval<int> polygonrg = pol->rowRange();
-	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop; 
+	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop;
 		polygonnr++ )
 	{
 	    mDefEditNormalStr( editnormstr, sid, polygonnr );
-	    Coord3 editnormal( Coord3::udf() ); 
-	    par.get( editnormstr.buf(), editnormal ); 
+	    Coord3 editnormal( Coord3::udf() );
+	    par.get( editnormstr.buf(), editnormal );
 	    pol->addEditPlaneNormal( editnormal );
 	}
     }

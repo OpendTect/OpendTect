@@ -33,13 +33,13 @@ namespace EM
 mExpClass(EarthModel) ImplicitBody
 {
 public:
-    				ImplicitBody();
-    				ImplicitBody(const ImplicitBody& nb);
+				ImplicitBody();
+				ImplicitBody(const ImplicitBody& nb);
     virtual			~ImplicitBody();
     ImplicitBody		operator =(const ImplicitBody&);
 
     Array3D<float>*		arr_;
-    float 			threshold_;//Any value below threshold is inside
+    float			threshold_;//Any value below threshold is inside
     CubeSampling		cs_; //has same size as arr_
 };
 
@@ -49,11 +49,13 @@ public:
 */
 
 mExpClass(EarthModel) Body
-{ 
+{
 public:
 
     virtual ImplicitBody*	createImplicitBody(TaskRunner*,
-	    					   bool smooth) const;
+						   bool smooth) const;
+    virtual const char*		type() const = 0;
+
     const IOObjContext&		getBodyContext() const;
     virtual bool		getBodyRange(CubeSampling&) = 0;
 
@@ -61,15 +63,19 @@ public:
     virtual BufferString	storageName()const	= 0;
 
     virtual void		refBody()	= 0;
-    				//!<Should be mapped to EMObject::ref()
+				//!<Should be mapped to EMObject::ref()
     virtual void		unRefBody()	= 0;
-    				//!<Should be mapped to EMObject::unRef()
+				//!<Should be mapped to EMObject::unRef()
     virtual bool		useBodyPar(const IOPar&)	{ return true; }
-    				//!<Should be mapped to EMObject::usePar;
+				//!<Should be mapped to EMObject::usePar;
     virtual void                fillBodyPar(IOPar&) const	= 0;
-    				//!<Should be mapped to EMObject::fillPar;
+				//!<Should be mapped to EMObject::fillPar;
+
+    static bool			convertOldBodyFormatToCurrent(
+					BufferString& errmsg);
+
 protected:
-    				~Body()		{}
+				~Body()		{}
 };
 
 

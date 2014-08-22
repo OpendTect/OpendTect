@@ -9,17 +9,29 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "arrayndimpl.h"
+#include "ascstream.h"
 #include "embody.h"
 #include "embodytr.h"
-#include "arrayndimpl.h"
+#include "emmanager.h"
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
+#include "emsurface.h"
+#include "filepath.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "strmprov.h"
+
 
 namespace EM
 {
 
-ImplicitBody::ImplicitBody() 
+ImplicitBody::ImplicitBody()
     : arr_( 0 )
-    , threshold_( mUdf(float) )	
-    , cs_( false )				
+    , threshold_( mUdf(float) )
+    , cs_( false )
 {}
 
 #define mCopyArr( ib ) \
@@ -37,9 +49,9 @@ ImplicitBody::ImplicitBody()
 
 ImplicitBody::ImplicitBody( const ImplicitBody& ib )
    : threshold_( ib.threshold_ )
-   , cs_( ib.cs_ )  
+   , cs_( ib.cs_ )
    , arr_( 0 )
-{ 
+{
     mCopyArr(ib)
 }
 
@@ -67,6 +79,71 @@ ImplicitBody* Body::createImplicitBody( TaskRunner*, bool ) const
 const IOObjContext& Body::getBodyContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
+
+bool Body::convertOldBodyFormatToCurrent( BufferString& errmsg )
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	IOObj& ioobj = const_cast<IOObj&>(*ioobjs[idx]);
+	const FixedString translt( ioobj.translator() );
+	IOPar& iopar = ioobj.pars();
+	BufferString objtype;
+	iopar.get( sKey::Type(), objtype );
+
+	const bool oldrandomposbdy =
+	    objtype=="RandomPosBody" || translt=="RandomPosBody";
+	const bool oldpolygonbdy =
+	    objtype=="PolygonBody" || translt=="PolygonBody";
+	const bool oldmcbdy =  objtype=="MCBody" || translt=="MCBody" ||
+	    ioobj.group()=="MarchingCubesSurface";
+	if ( !oldrandomposbdy && !oldpolygonbdy && !oldmcbdy )
+	    continue;
+
+	BufferString bdytype, oldextension;
+	if ( oldrandomposbdy )
+	{
+	    bdytype = EM::RandomPosBody::typeStr();
+	    oldextension = "rdpos";
+	}
+	else if ( oldpolygonbdy )
+	{
+	    bdytype = EM::PolygonBody::typeStr();
+	    oldextension = "plg";
+	}
+	else
+	{
+	    bdytype = EM::MarchingCubesSurface::typeStr();
+	    oldextension = "mc";
+	}
+
+	FilePath fp( EM::Surface::getSetupFileName(ioobj).buf() );
+	fp.setExtension( oldextension );
+	StreamProvider oldsp( fp.fullPath().buf() );
+	FilePath newfp( fp );
+	newfp.setExtension( EMBodyTranslatorGroup::sKeyExtension() );
+	if ( oldsp.exists(true) )
+	    oldsp.rename( newfp.fullPath().buf(), 0 );
+
+	iopar.set( sKey::Type(), bdytype );
+	ioobj.setGroup( EMBodyTranslatorGroup::keyword() );
+	ioobj.setTranslator( EMBodyTranslatorGroup::sKeyUserWord() );
+	ioobj.updateCreationPars();
+
+	mDynamicCastGet(IOStream*,iostrm,&ioobj);
+	if ( iostrm )
+	    iostrm->setFileName( newfp.fileName() );
+	if ( !IOM().commitChanges( ioobj ) )
+	{
+	    errmsg = "No permission to write, conversion failed!";
+	    return false;
+	}
+    }
+
+    return true;
+}
 
 
 }; //end namespace

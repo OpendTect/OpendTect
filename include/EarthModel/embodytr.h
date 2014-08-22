@@ -15,89 +15,76 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "transl.h"
-#include "emsurfaceiodata.h"
 
 class Executor;
 class IOObj;
+namespace EM { class Body; }
 
-namespace EM { class Body; class PolygonBody; } 
+typedef EM::Body	EMBody;
 
-typedef EM::Body 	EMBody;
-
-/*!
-\brief TranslatorGroup for EM::Body.
-*/
+/*!\brief TranslatorGroup for EM::Body.*/
 
 mExpClass(EarthModel) EMBodyTranslatorGroup : public TranslatorGroup
-{			       isTranslatorGroup(EMBody)
+{			isTranslatorGroup(EMBody)
 public:
-		    	mDefEmptyTranslatorGroupConstructor(EMBody)
-    const char*		defExtension() const    { return "bdy"; }
-    static const char*	sKeyword()		{ return "Body"; }
+			mDefEmptyTranslatorGroupConstructor(EMBody)
+
+    const char*		defExtension() const    { return "body"; }
+    static FixedString	sKeyExtension()		{ return "body"; }
+    static FixedString	keyword()		{ return "Body"; }
+    static FixedString	sKeyUserWord()		{ return "od"; }
 };
 
 
-/*!
-\brief Marching cubes EM::Body Translator.
-*/
+/*!\brief Base class for all EM::Body Translators */
 
-mExpClass(EarthModel) mcEMBodyTranslator : public Translator
-{			    isTranslator(mc,EMBody)
+mExpClass(EarthModel) EMBodyTranslator : public Translator
+{
 public:
-    			mDefEmptyTranslatorBaseConstructor( mcEMBody );
-    const char*		defExtension() const	{ return "mc"; }
-    static FixedString  sKeyUserName()		{ return "MCBody"; }
+			mDefEmptyTranslatorBaseConstructor(EMBody)
+
+    virtual Executor*	writer(const EM::Body&,IOObj&)		= 0;
+    virtual Executor*	reader(const IOObj&)			= 0;
+    virtual EMBody*	getReadBody()				= 0;
+    virtual uiString	errMsg() const				= 0;
 };
 
 
-/*!
-\brief EM::PolygonBody Translator.
-*/
 
-mExpClass(EarthModel) polygonEMBodyTranslator : public Translator
-{				 isTranslator(polygon,EMBody)
+/*!\brief OpendTect format EM::Body Translator. */
+
+mExpClass(EarthModel) odEMBodyTranslator : public EMBodyTranslator
+{					   isTranslator(od,EMBody)
 public:
-			polygonEMBodyTranslator(const char* unm,const char* nm);
-			~polygonEMBodyTranslator();
+			odEMBodyTranslator(const char* nm,const char* unm);
+			~odEMBodyTranslator();
 
-    const char*		defExtension() const	{ return "plg"; }
-    static FixedString  sKeyUserName()		{ return "PolygonBody"; }
-    static const IOObjContext&	getIOObjContext();
+    Executor*		writer(const EM::Body&,IOObj&);
+    Executor*		reader(const IOObj&);
 
-    Executor*		reader(const IOObj&,EM::PolygonBody&);
-    Executor*		writer(const EM::PolygonBody&,IOObj&);
-
-    const char*		errMsg() const;
+    EMBody*		getReadBody()			{ return readbody_; }
+    uiString		errMsg() const			{ return errmsg_; };
 
 protected:
 
-    BufferString	errmsg_;
+    EMBody*		readbody_;
+    uiString		errmsg_;
 };
 
 
-/*!
-\brief Random position EM::Body Translator.
-*/
-
-mExpClass(EarthModel) randposEMBodyTranslator : public Translator
-{                                isTranslator(randpos,EMBody)
-public:
-    			mDefEmptyTranslatorBaseConstructor( randposEMBody );
-    const char*		defExtension() const	{ return "rdpos"; }
-    static FixedString	sKeyUserName()		{ return "RandomPosBody"; }
+#define mDefineIndividualBodyTranslator(spec) \
+mExpClass(EarthModel) spec##EMBodyTranslator : public odEMBodyTranslator \
+{					       isTranslator(spec,EMBody) \
+public: \
+		spec##EMBodyTranslator( const char* nm,const char* unm ) \
+		    : odEMBodyTranslator(nm,unm)	{} \
+		~spec##EMBodyTranslator()		{} \
 };
 
+mDefineIndividualBodyTranslator(mc)
+mDefineIndividualBodyTranslator(polygon)
+mDefineIndividualBodyTranslator(randpos)
 
-/*!
-\brief For selection of old (3.2) marchingcube (mc) bodies.
-*/
-
-mExpClass(EarthModel) dGBEMBodyTranslator : public Translator
-{			    isTranslator(dGB,EMBody)
-public:
- 			mDefEmptyTranslatorBaseConstructor( dGBEMBody );
-   static const char*	sKeyUserName()		{ return "dGB"; }
-};
 
 
 #endif
