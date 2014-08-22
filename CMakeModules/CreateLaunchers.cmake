@@ -39,6 +39,10 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+if(POLICY CMP0026)
+    cmake_policy(SET CMP0026 OLD)
+endif()
+
 if(__create_launchers)
 	return()
 endif()
