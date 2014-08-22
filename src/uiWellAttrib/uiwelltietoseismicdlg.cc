@@ -284,14 +284,14 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     clearlastpicksbut_->setSensitive( false );
     clearlastpicksbut_->attach( rightOf, clearpicksbut_ );
 
+    matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
+		       mCB(this,uiTieWin,matchHorMrks), true );
+    matchhormrksbut_->attach( rightBorder );
+
     infobut_ = new uiPushButton( taskgrp, "Display additional information",
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
-    infobut_->attach( hCentered );
-
-    matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
-	               mCB(this,uiTieWin,matchHorMrks), true );
-    matchhormrksbut_->attach( rightOf, infobut_ );
+    infobut_->attach( leftOf, matchhormrksbut_ );
 }
 
 
