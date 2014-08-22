@@ -331,8 +331,15 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	return false;
 
     nrtrcs_++;
-    if ( seldata_ && seldata_->selRes( trc->info().binid ) )
-	return true;
+    if ( seldata_ )
+    {
+	BinID selbid = trc->info().binid;
+	if ( is2d_ )
+	    selbid = BinID( seldata_->inlRange().start, trc->info().nr );
+
+	if ( seldata_->selRes(selbid) )
+	    return true;
+    }
 
     if ( psioprov_ )
     {
