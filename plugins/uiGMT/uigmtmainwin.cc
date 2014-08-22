@@ -166,7 +166,7 @@ void uiGMTMainWin::newFlow( CallBacker* )
 	return;
 
     filefld_->clear();
-    pars_.erase();
+    deepErase( pars_ );
     flowfld_->setEmpty();
     basemapgrp_->reset();
     for ( int idx=0; idx<overlaygrps_.size(); idx++ )
@@ -441,6 +441,7 @@ bool uiGMTMainWin::fillPar()
 	mErrRet("Output file already exists and is read only")
 
     IOPar& par = batchfld_->jobSpec().pars_;
+    par.setEmpty();
     par.set( sKey::FileName(), fnm );
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
@@ -503,7 +504,7 @@ bool uiGMTMainWin::usePar( const IOPar& par )
 	basemapgrp_->usePar( *basemappar );
 
     flowfld_->setEmpty();
-    pars_.erase();
+    deepErase( pars_ );
     while ( true )
     {
 	PtrMan<IOPar> subpar = par.subselect( idx++ );
