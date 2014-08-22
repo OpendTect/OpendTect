@@ -280,14 +280,22 @@ uiSettingsGroup::~uiSettingsGroup()
 const char* uiSettingsGroup::errMsg() const
 { return errmsg_.buf(); }
 
-void uiSettingsGroup::updateSettings( bool oldval, bool newval, const char* key)
-{
-    if ( oldval != newval )
-    {
-	changed_ = true;
-	setts_.setYN( key, newval );
-    }
+
+#define mUpdateSettings( type, setfunc ) \
+void uiSettingsGroup::updateSettings( type oldval, type newval, \
+				      const char* key ) \
+{ \
+    if ( oldval != newval ) \
+    { \
+	changed_ = true; \
+	setts_.setfunc( key, newval ); \
+    } \
 }
+
+mUpdateSettings( bool, setYN )
+mUpdateSettings( int, set )
+mUpdateSettings( const OD::String&, set )
+
 
 
 // uiGeneralSettingsGroup
@@ -336,17 +344,17 @@ bool uiGeneralSettingsGroup::acceptOK()
 	iopar->set( "size", newiconsz );
 	setts_.mergeComp( *iopar, mIconsKey );
 	changed_ = true;
+	needsrestart_ = true;
 	delete iopar;
 	theiconsz = newiconsz;
     }
 
-    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(),
-		    mCBarKey );
-    updateSettings( showinlprogress_,
-		    showinlprogressfld_->getBoolValue(),
+    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(), mCBarKey );
+    if ( changed_ ) needsrestart_ = true;
+
+    updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
 		    mShowInlProgress );
-    updateSettings( showcrlprogress_,
-		    showcrlprogressfld_->getBoolValue(),
+    updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
 		    mShowCrlProgress );
 
     return true;
@@ -372,8 +380,8 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
 
     setts_.get( mTextureResFactor, textureresfactor_ );
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
-					"Default texture resolution factor" );
+    uiLabeledComboBox* lcb =
+	new uiLabeledComboBox( this, "Default texture resolution" );
     lcb->attach( alignedBelow, usevolshadersfld_ );
     textureresfactorfld_ = lcb->box();
     textureresfactorfld_->addItem( "Standard" );
@@ -438,6 +446,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
 				      mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
     , changed_(false)
+    , needsrestart_(false)
 {
     const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
@@ -472,6 +481,10 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 	uiMSG().error( "Cannot write settings" );
 	return false;
     }
+
+    needsrestart_ = false;
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	needsrestart_ = needsrestart_ || grps_[idx]->needsRestart();
 
     return true;
 }
