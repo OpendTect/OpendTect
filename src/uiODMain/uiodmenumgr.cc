@@ -1250,7 +1250,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mSettLkNFlMnuItm: {
 	uiSettingsDlg dlg( &appl_ );
-	if ( dlg.go() && dlg.isChanged() )
+	if ( !dlg.go() ) return;
+
+	if ( dlg.needsRestart() )
 	    uiMSG().message(tr("Your new settings will become active\nthe next "
 			       "time OpendTect is started."));
     } break;
