@@ -170,7 +170,8 @@ float DataPackMgr::nrKBytes() const
 void DataPackMgr::dumpInfo( od_ostream& strm ) const
 {
     strm << "Manager.ID: " << id() << od_newline;
-    strm << "Total memory: " << File::getFileSizeString(nrKBytes())
+    const od_int64 nrkb = mCast(od_int64,nrKBytes());
+    strm << "Total memory: " << File::getFileSizeString(nrkb)
 			     << od_newline;
     ascostream astrm( strm );
     astrm.newParagraph();
@@ -334,5 +335,6 @@ void DataPack::dumpInfo( IOPar& iop ) const
     iop.set( sKey::Name(), name() );
     iop.set( "Pack.ID", id_ );
     iop.set( "Nr users", nrusers_ );
-    iop.set( "Memory consumption", File::getFileSizeString(nrKBytes()) );
+    const od_int64 nrkb = mCast(od_int64,nrKBytes());
+    iop.set( "Memory consumption", File::getFileSizeString(nrkb) );
 }
