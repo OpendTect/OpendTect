@@ -35,6 +35,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselobjothersurv.h"
 #include "uitextedit.h"
 #include "uiwaveletextraction.h"
+#include "uiwaveletmatchdlg.h"
 #include "od_helpids.h"
 
 
@@ -66,23 +67,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 			mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
-    uiPushButton* impbut = new uiPushButton( butgrp_, uiStrings::sImport(),
-                                             false );
-    impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
-    impbut->setPrefWidthInChar( 12 );
-    uiPushButton* crbut = new uiPushButton( butgrp_, tr("Generate"), false );
-    crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
-    crbut->attach( rightOf, impbut );
-    crbut->setPrefWidthInChar( 12 );
-    uiPushButton* mergebut = new uiPushButton( butgrp_, tr("Merge"), false );
-    mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
-    mergebut->attach( rightOf, crbut );
-    mergebut->setPrefWidthInChar( 12 );
-    uiPushButton* extractbut = new uiPushButton( butgrp_, tr("Extract"),
-                                                 false );
-    extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
-    extractbut->attach( rightOf, mergebut );
-    extractbut->setPrefWidthInChar( 12 );
+    addButtons();
     butgrp_->attach( centeredBelow, selgrp_ );
 
     trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_ );
@@ -108,6 +93,37 @@ uiSeisWvltMan::~uiSeisWvltMan()
 
     if ( wvltpropdlg_ )
 	delete wvltpropdlg_;
+}
+
+
+void uiSeisWvltMan::addButtons()
+{
+    uiPushButton* impbut = new uiPushButton( butgrp_, uiStrings::sImport(),
+					     false );
+    impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
+    impbut->setPrefWidthInChar( 12 );
+
+    uiPushButton* crbut = new uiPushButton( butgrp_, tr("Generate"), false );
+    crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
+    crbut->attach( rightOf, impbut );
+    crbut->setPrefWidthInChar( 12 );
+
+    uiPushButton* mergebut = new uiPushButton( butgrp_, tr("Merge"), false );
+    mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
+    mergebut->attach( rightOf, crbut );
+    mergebut->setPrefWidthInChar( 12 );
+
+    uiPushButton* extractbut =
+		new uiPushButton( butgrp_, tr("Extract"), false );
+    extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
+    extractbut->attach( rightOf, mergebut );
+    extractbut->setPrefWidthInChar( 12 );
+
+    uiPushButton* matchbut =
+		new uiPushButton( butgrp_, tr("Match"), false );
+    matchbut->activated.notify( mCB(this,uiSeisWvltMan,matchPush) );
+    matchbut->attach( rightOf, extractbut );
+    matchbut->setPrefWidthInChar( 12 );
 }
 
 
@@ -158,6 +174,14 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
     }
 
     wvltext_->show();
+}
+
+
+void uiSeisWvltMan::matchPush( CallBacker* )
+{
+    uiWaveletMatchDlg dlg( this );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( dlg.getMultiID() );
 }
 
 

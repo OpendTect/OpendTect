@@ -34,14 +34,18 @@ protected:
     uiWaveletExtraction*  	wvltext_;
     uiWaveletDispPropDlg*	wvltpropdlg_;
 
+    void			addButtons();
     void			mkFileInfo();
-    
+
     void                	closeDlg(CallBacker*);
     void			crPush(CallBacker*);
     void			dispProperties(CallBacker*);
+
     void			impPush(CallBacker*);
     void			mrgPush(CallBacker*);
     void			extractPush(CallBacker*);
+    void			matchPush(CallBacker*);
+
     void			getFromOtherSurvey(CallBacker*);
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
