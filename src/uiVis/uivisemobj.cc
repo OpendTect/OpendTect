@@ -801,13 +801,13 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
 	fillResolutionNames( sResolutionNames );
 
     resolution_ = 0;
-    Settings::common().get( sKeyHorizonRes, resolution_ );
+    setts.get( sKeyHorizonRes, resolution_ );
     resolutionfld_ = new uiGenInput( this, "Default Resolution",
 				     StringListInpSpec(sResolutionNames) );
     resolutionfld_->setValue( resolution_ );
 
     coltabnm_ = ColTab::defSeqName();
-    Settings::common().get( sKeyHorizonColTab, coltabnm_ );
+    setts.get( sKeyHorizonColTab, coltabnm_ );
     coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
     coltabfld_->attach( alignedBelow, resolutionfld_ );
 }
@@ -819,7 +819,9 @@ HelpKey uiHorizonSettings::helpKey() const
 
 bool uiHorizonSettings::acceptOK()
 {
-    Settings::common().set( sKeyHorizonRes, resolutionfld_->getIntValue() );
-    Settings::common().set( sKeyHorizonColTab, coltabfld_->colTabSeq().name() );
+    updateSettings( resolution_, resolutionfld_->getIntValue(),
+		    sKeyHorizonRes );
+    updateSettings( coltabnm_, coltabfld_->colTabSeq().name(),
+		    sKeyHorizonColTab );
     return true;
 }
