@@ -26,12 +26,12 @@ namespace VolProc
 {
 
 mExpClass(uiVolumeProcessing) uiWellLogInterpolator : public uiStepDialog
-{ mODTextTranslationClass(uiWellLogInterpolator);
+{ mODTextTranslationClass(uiWellLogInterpolator)
 public:
     mDefaultFactoryInstanciationBase(
 	WellLogInterpolator::sFactoryKeyword(),
 	WellLogInterpolator::sFactoryDisplayName())
-	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
+	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
 
 protected:
 				uiWellLogInterpolator(uiParent*,

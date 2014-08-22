@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiGenInput;
+class InterpolationLayerModel;
+
 
 mExpClass(uiTools) uiInterpolationLayerModelGrp : public uiGroup
 {
@@ -54,7 +56,8 @@ mExpClass(uiTools) uiInterpolationLayerModel : public uiGroup
 {
 public:
 			uiInterpolationLayerModel(uiParent*);
-    bool		fillPar(IOPar&) const;
+
+    InterpolationLayerModel* getModel();
 
 protected:
     void		selCB(CallBacker*);

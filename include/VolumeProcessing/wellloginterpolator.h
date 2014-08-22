@@ -57,8 +57,8 @@ public:
     const char*			getGridderName() const;
     float			getSearchRadius() const;
 
-    bool			setLayerModel(const IOPar&);
-    bool			getLayerModel(IOPar&) const;
+    void			setLayerModel(InterpolationLayerModel*);
+    const InterpolationLayerModel* getLayerModel() const;
 
     enum ExtensionModel		{ None, EdgeValueOnly, ExtrapolateEdgeValue };
 				DeclareEnumUtils(ExtensionModel)

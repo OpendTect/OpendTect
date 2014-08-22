@@ -137,28 +137,15 @@ void WellLogInterpolator::releaseData()
 }
 
 
-bool WellLogInterpolator::setLayerModel( const IOPar& par )
+void WellLogInterpolator::setLayerModel( InterpolationLayerModel* mdl )
 {
-    if ( layermodel_ )
-    {
-	delete layermodel_;
-	layermodel_ = 0;
-    }
-
-    BufferString nm;
-    par.get( InterpolationLayerModel::sKeyModelType(), nm );
-    layermodel_ = InterpolationLayerModel::factory().create( nm );
-    return layermodel_ ? layermodel_->usePar( par ) : false;
+    delete layermodel_;
+    layermodel_ = mdl;
 }
 
 
-bool WellLogInterpolator::getLayerModel( IOPar& par ) const
-{
-    if ( !layermodel_ ) return false;
-
-    layermodel_->fillPar( par );
-    return true;
-}
+const InterpolationLayerModel* WellLogInterpolator::getLayerModel() const
+{ return layermodel_; }
 
 
 void WellLogInterpolator::setGridder( const char* nm, float radius )
@@ -400,9 +387,12 @@ void WellLogInterpolator::fillPar( IOPar& pars ) const
 	pars.set( key, wellmids_[idx] );
     }
 
-    IOPar lmpar;
-    if ( getLayerModel(lmpar) )
+    if ( layermodel_ )
+    {
+	IOPar lmpar;
+	layermodel_->fillPar( lmpar );
 	pars.mergeComp( lmpar, sKeyLayerModel() );
+    }
 }
 
 
@@ -437,8 +427,16 @@ bool WellLogInterpolator::usePar( const IOPar& pars )
 
     delete layermodel_; layermodel_ = 0;
     PtrMan<IOPar> lmpar = pars.subselect( sKeyLayerModel() );
-    const bool res = lmpar ? setLayerModel( *lmpar ) : false;
-    return res;
+    if ( lmpar )
+    {
+	nm.setEmpty();
+	lmpar->get( sKey::Name(), nm );
+	layermodel_ = InterpolationLayerModel::factory().create( nm );
+	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
+	{ delete layermodel_; layermodel_ = 0; }
+    }
+
+    return true;
 }
 
 } // namespace VolProc

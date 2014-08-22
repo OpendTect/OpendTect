@@ -249,6 +249,7 @@ ________________________________________________________________________
 #define		mVolumeReaderHelpID				0x10306008
 #define		mEditFunctionHelpID				0x10306009
 #define		mVoxelConnectivityFilterHelpID		        0x10306010
+#define		mWellLogInterpolHelpID				0x10306011
 //Surfaces 104
 // Surfaces Horizons 00
 #define		mImportHorizonHelpID			        0x10400000

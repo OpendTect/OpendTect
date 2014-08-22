@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimultiwelllogsel.h"
 #include "uivolprocchain.h"
 
+#include "od_helpids.h"
 
 namespace VolProc
 {
@@ -29,7 +30,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     : uiStepDialog( p, WellLogInterpolator::sFactoryDisplayName(), &hwi )
     , hwinterpolator_( hwi )
 {
-    setHelpKey( mTODOHelpKey );
+    setHelpKey( mODHelpKey(mWellLogInterpolHelpID) );
 
     layermodelfld_ = new uiInterpolationLayerModel( this );
 
@@ -97,8 +98,8 @@ void uiWellLogInterpolator::finaliseCB( CallBacker* )
 
 uiStepDialog* uiWellLogInterpolator::createInstance( uiParent* p, Step* vs )
 {
-    mDynamicCastGet( WellLogInterpolator*, hw, vs );
-    return hw ? new uiWellLogInterpolator( p, *hw ) : 0;
+    mDynamicCastGet( WellLogInterpolator*, wli, vs );
+    return wli ? new uiWellLogInterpolator( p, *wli ) : 0;
 }
 
 
@@ -113,11 +114,8 @@ bool uiWellLogInterpolator::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK(cb) )
 	return false;
 
-    IOPar laymodpar;
-    if ( !layermodelfld_->fillPar(laymodpar) )
-	return false;
-
-    hwinterpolator_.setLayerModel( laymodpar );
+    InterpolationLayerModel* mdl = layermodelfld_->getModel();
+    hwinterpolator_.setLayerModel( mdl );
 
     hwinterpolator_.useLogExtension( logextenfld_->getBoolValue() );
     hwinterpolator_.extensionMethod(

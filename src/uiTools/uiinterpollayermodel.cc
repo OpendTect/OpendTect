@@ -88,10 +88,18 @@ void uiInterpolationLayerModel::selCB( CallBacker* )
 }
 
 
-bool uiInterpolationLayerModel::fillPar( IOPar& par ) const
+InterpolationLayerModel* uiInterpolationLayerModel::getModel()
 {
+    IOPar par;
     const int cursel = layermodelfld_->getIntValue();
-    return grps_[cursel]->fillPar( par );
+    const bool res = grps_[cursel]->fillPar( par );
+    if ( !res ) return 0;
+
+    BufferString nm;
+    par.get( InterpolationLayerModel::sKeyModelType(), nm );
+    InterpolationLayerModel* mdl =
+			InterpolationLayerModel::factory().create( nm );
+    if ( !mdl || !mdl->usePar(par) ) { delete mdl; return 0; }
+
+    return mdl;
 }
-
-
