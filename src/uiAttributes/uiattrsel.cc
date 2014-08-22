@@ -773,11 +773,7 @@ bool uiAttrSel::getRanges( CubeSampling& cs ) const
 	return false;
 
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid_ );
-    if ( !desc->isStored() ) return false;
-
-    const ValParam* keypar = 
-		(ValParam*)desc->getParam( StorageProvider::keyStr() );
-    const MultiID mid( keypar->getStringValue() );
+    const MultiID mid( desc->getStoredID(true) );
     return SeisTrcTranslator::getRanges( mid, cs,
 					 desc->is2D() ? getInput() : 0 );
 }
