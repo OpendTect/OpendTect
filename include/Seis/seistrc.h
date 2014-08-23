@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "mathfunc.h"
 #include "valseriesinterpol.h"
 
-class TcpSocket;
 template <class T> class ValueSeriesInterpolator;
 template <class T> class Array1D;
 

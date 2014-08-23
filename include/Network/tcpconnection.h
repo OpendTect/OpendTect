@@ -19,6 +19,11 @@ ________________________________________________________________________
 
 #include "thread.h"
 
+namespace Network
+{
+    class RequestPacket;
+}
+
 template <class T> class DataInterpreter;
 class QTcpSocket;
 class BufferString;
@@ -59,6 +64,7 @@ public:
     bool	writeInt64(od_int64);
     bool	writeFloat(float);
     bool	writeDouble(double);
+    bool	write(const Network::RequestPacket&);
     bool	write(const OD::String&);
 		/*!<Writes short with size followed by buffer
 		    (without 0 at the end). */
@@ -67,7 +73,7 @@ public:
 		    (without 0 at the end). */
     int		write(const IOPar&);
 
-    bool	writeArray(const char*,od_int64,bool wait=false);
+    bool	writeArray(const void*,od_int64,bool wait=false);
     bool	writeShortArray(const short*,od_int64,bool wait=false);
     bool	writeInt32Array(const od_int32*,od_int64,bool wait=false);
     bool	writeInt64Array(const od_int64*,od_int64,bool wait=false);
@@ -82,8 +88,9 @@ public:
     bool	readDouble(double&);
     bool	read(BufferString&); //Until NULL arrives
     void	read(IOPar&) const;
+    bool	read(Network::RequestPacket&);
 
-    bool	readArray(char*,od_int64);
+    bool	readArray(void*,od_int64);
     bool	readShortArray(short*,od_int64);
     bool	readInt32Array(od_int32*,od_int64);
     bool	readInt64Array(od_int64*,od_int64);

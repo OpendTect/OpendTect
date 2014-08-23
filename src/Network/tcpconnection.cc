@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "applicationdata.h"
 #include "iopar.h"
 #include "datainterp.h"
+#include "netreqpacket.h"
 
 #include <limits.h>
 
@@ -107,9 +108,10 @@ void TcpConnection::abort()
 static const od_int64 maxbuffersize = INT_MAX/2;
 
 
-bool TcpConnection::writeArray( const char* buf, od_int64 sz, bool wait )
+bool TcpConnection::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
 #ifndef OD_NO_QT
+    const char* buf = (const char*) voidbuf;
     if ( noeventloop_ ) wait = true;
 
     if ( !waitForConnected() )
@@ -218,9 +220,11 @@ bool TcpConnection::writeArray( const DataInterpreter<T>* interpreter,
     return writeArray( usedarr, nrbytes, wait );
 }
 
-bool TcpConnection::readArray( char* buf, od_int64 sz )
+bool TcpConnection::readArray( void* voidbuf, od_int64 sz )
 {
 #ifndef OD_NO_QT
+    char* buf = (char*) voidbuf;
+
     if ( !waitForConnected() )
 	return false;
 
@@ -317,6 +321,39 @@ bool TcpConnection::read( BufferString& res )
     res.getCStr()[nrchars] = 0;
     return true;
 }
+
+
+bool TcpConnection::read( Network::RequestPacket& packet )
+{
+    if ( !readArray( packet.getRawHeader(), packet.getHeaderSize() ) )
+	return false;
+
+    if ( packet.isOK() )
+    {
+	errmsg_ = tr("Received packet is not OK");
+	return false;
+    }
+
+    const od_int32 payloadsize = packet.getPayloadSize();
+
+    mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
+    packet.setPayload( payload );
+
+    if ( !payload )
+    {
+	errmsg_ = tr("Out of memory");
+	return false;
+    }
+
+    if ( !readArray( payload, payloadsize ) )
+    {
+	delete [] payload;
+	return false;
+    }
+
+    return true;
+}
+
 
 
 bool TcpConnection::waitForConnected()
