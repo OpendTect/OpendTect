@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqpacket.h"
 
 #include "ptrman.h"
+#include "string.h"
 
 
 using namespace Network;
