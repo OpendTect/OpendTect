@@ -39,10 +39,14 @@ public:
     od_int32		getPayloadSize() const;
     void		setStringPayload(const char*);
     void		setPayload(void*);
-			//!<Size should be identical to getPayloadSize
+			/*!<Size should be identical to getPayloadSize. Array
+			    should be allocated by new char[] */
     void		setPayload(void*,od_int32 size);
 			//!<Becomes mine
     void*		getPayload(bool takeover=false);
+                        /*!<If you take over, you must cast to char* and delete
+                            with []. */
+
 
     void*		getRawHeader()	{ return header_.int32s_; }
 
