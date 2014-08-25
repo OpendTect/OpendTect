@@ -92,7 +92,7 @@ void uiSeis2DTo3D::mkParamsGrp()
     winfld_ = new uiGenInput( this,tr("Interpolation window (Inl/Crl)"),
 							IntInpIntervalSpec() );
     winfld_->attach( alignedBelow, interpoltypefld_ );
-    winfld_->setValue( Interval<float>(150,150) );
+    winfld_->setValue( Interval<float>(100,100) );
 
     reusetrcsbox_ = new uiCheckBox( this, tr("Re-use interpolated traces") );
     reusetrcsbox_->attach( alignedBelow, winfld_ );
