@@ -16,13 +16,19 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 
+namespace Batch		{ class JobSpec; }
 
+class uiBatchJobDispatcherSel;
 class uiCheckBox;
 class uiSeisSel;
 class uiSeisSubSel;
 class uiGenInput;
 class CtxtIOObj;
 class Seis2DTo3D;
+class uiPosSubSel;
+
+
+/*! \brief Dialog for 2D to 3D interpolation */
 
 mExpClass(uiSeis) uiSeis2DTo3D : public uiDialog
 { mODTextTranslationClass(uiSeis2DTo3D);
@@ -43,6 +49,15 @@ protected:
     uiCheckBox*		reusetrcsbox_;
     uiGenInput*		velfiltfld_;
 
+    uiPosSubSel*	possubsel_;
+    uiBatchJobDispatcherSel*	batchfld_;
+
+    void		mkParamsGrp();
+    Batch::JobSpec&	jobSpec();
+    bool		prepareProcessing();
+    bool		fillSeisPar();
+    void		fillParamsPar(IOPar&);
+    bool		fillPar();
     bool		acceptOK(CallBacker*);
     void		typeChg( CallBacker* );
 };

@@ -10,16 +10,24 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
+
+#include "uiseis2dto3d.h"
+
+
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "seis2dto3d.h"
+#include "seisjobexecprov.h"
 #include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 
+#include "uibatchjobdispatchersel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uipossubsel.h"
+#include "uiseisioobjinfo.h"
 #include "uiseis2dto3d.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
@@ -27,13 +35,61 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
-	: uiDialog( p, Setup( tr("create 3D cube from to 2D LineSet"),
+	: uiDialog( p, Setup( tr("Create 3D cube from to 2DDataSet"),
 			      mNoDlgTitle,
 			      mODHelpKey(mSeis2DTo3DHelpID) ) )
 	, seis2dto3d_(*new Seis2DTo3D)
 {
-    const IOObjContext inctxt( uiSeisSel::ioContext( Seis::Line, false ) );
-    inpfld_ = new uiSeisSel( this, inctxt, uiSeisSel::Setup( Seis::Line ) );
+    inpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,true),
+			     uiSeisSel::Setup(Seis::Line) );
+
+    mkParamsGrp();
+
+    outfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,false),
+			     uiSeisSel::Setup(Seis::Vol) );
+    outfld_->attach( alignedBelow, velfiltfld_ );
+
+    possubsel_ =  new uiPosSubSel( this, uiPosSubSel::Setup(false,true) );
+    possubsel_->attach( alignedBelow, outfld_ );
+
+    batchfld_ = new uiBatchJobDispatcherSel( this, false,
+					     Batch::JobSpec::TwoDto3D );
+    IOPar& iop = jobSpec().pars_;
+    iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
+    batchfld_->attach( alignedBelow, possubsel_ );
+
+    typeChg( 0 );
+}
+
+
+Batch::JobSpec& uiSeis2DTo3D::jobSpec()
+{
+    return batchfld_->jobSpec();
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+bool uiSeis2DTo3D::prepareProcessing()
+{
+    const IOObj* inioobj = inpfld_->ioobj();
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !inioobj || !outioobj )
+	return false;
+
+    inpfld_->processInput();
+    if ( !inpfld_->existingTyped() )
+	mErrRet( tr("Missing Input\nPlease select the input seismics") )
+
+    outfld_->processInput();
+    if ( !outfld_->existingTyped() )
+	mErrRet( tr("Missing Output\nPlease enter an output name") )
+
+    return true;
+}
+
+
+void uiSeis2DTo3D::mkParamsGrp()
+{
     interpoltypefld_ = new uiGenInput( this, tr("Type of interpolation"),
 				       BoolInpSpec(true,tr("Nearest trace"),
 				       tr("FFT based")) );
@@ -43,7 +99,7 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     winfld_ = new uiGenInput( this,tr("Interpolation window (Inl/Crl)"),
 							IntInpIntervalSpec() );
     winfld_->attach( alignedBelow, interpoltypefld_ );
-    winfld_->setValue( Interval<float>(150,150) );
+    winfld_->setValue( Interval<float>(100,100) );
 
     reusetrcsbox_ = new uiCheckBox( this, tr("Re-use interpolated traces") );
     reusetrcsbox_->attach( alignedBelow, winfld_ );
@@ -51,15 +107,6 @@ uiSeis2DTo3D::uiSeis2DTo3D( uiParent* p )
     velfiltfld_ = new uiGenInput( this, tr("Maximum velocity to pass (m/s)") );
     velfiltfld_->setValue( 2000 );
     velfiltfld_->attach( alignedBelow, reusetrcsbox_ );
-
-    const IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
-    outfld_ = new uiSeisSel( this, outctxt, uiSeisSel::Setup(Seis::Vol) );
-    outfld_->attach( alignedBelow, velfiltfld_ );
-
-    outsubselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
-    outsubselfld_->attachObj()->attach( alignedBelow, outfld_ );
-
-    typeChg( 0 );
 }
 
 
@@ -69,40 +116,68 @@ uiSeis2DTo3D::~uiSeis2DTo3D()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-bool uiSeis2DTo3D::acceptOK( CallBacker* )
+bool uiSeis2DTo3D::fillSeisPar()
 {
-    const IOObj* inioobj = inpfld_->ioobj();
-    const IOObj* outioobj = outfld_->ioobj();
-    if ( !inioobj || !outioobj )
+    IOPar& iop = jobSpec().pars_;
+    iop.set( Seis2DTo3D::sKeyInput(), inpfld_->key() );
+    iop.set( SeisJobExecProv::sKeySeisOutIDKey(), outfld_->key() );
+
+    IOPar sampling;
+    possubsel_->fillPar( sampling );
+
+    IOPar subsel;
+    subsel.mergeComp( sampling, sKey::Subsel() );
+    uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
+    CubeSampling cs = possubsel_->envelope();
+    SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hrg.totalNr() );
+    subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
+    if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
 
-    seis2dto3d_.setInput( *inioobj );
-
-    CubeSampling cs(false);
-    outsubselfld_->getSampling( cs.hrg );
-    outsubselfld_->getZRange( cs.zrg );
-
-    const int wininlstep = winfld_->getIInterval().start;
-    const int wincrlstep = winfld_->getIInterval().stop;
-    const float maxvel = velfiltfld_->getfValue();
-    const bool reusetrcs = reusetrcsbox_->isChecked();
-
-    seis2dto3d_.setParams( wininlstep, wincrlstep, maxvel, reusetrcs );
-    seis2dto3d_.setOutput( const_cast<IOObj&>(*outioobj), cs );
-    seis2dto3d_.setIsNearestTrace( interpoltypefld_->getBoolValue() );
-
-    uiTaskRunner taskrunner( this );
-    if ( !TaskRunner::execute( &taskrunner, seis2dto3d_ ) )
-	return false;
-
-    if ( !SI().has3D() )
-	uiMSG().warning( tr("3D cube created successfully. "
-			 "You need to change survey type to 'Both 2D and 3D' "
-			 "in survey setup to display/use the cube") );
+    iop.mergeComp( subsel, sKey::Output() );
     return true;
 }
 
+
+void uiSeis2DTo3D::fillParamsPar( IOPar& par )
+{
+    const bool isnearest = interpoltypefld_->getBoolValue();
+    par.setYN( Seis2DTo3D::sKeyIsNearest(), isnearest );
+    if ( !isnearest )
+    {
+	par.set( Seis2DTo3D::sKeyStepout(), winfld_->getIInterval() );
+	par.setYN( Seis2DTo3D::sKeyReUse(), reusetrcsbox_->isChecked() );
+	par.set( Seis2DTo3D::sKeyMaxVel(), velfiltfld_->getfValue() );
+    }
+}
+
+
+bool uiSeis2DTo3D::fillPar()
+{
+    if ( !fillSeisPar() )
+	return false;
+
+    IOPar par;
+    fillParamsPar( par );
+    jobSpec().pars_.mergeComp( par, sKey::Pars() );
+
+    return true;
+}
+
+
+bool uiSeis2DTo3D::acceptOK( CallBacker* )
+{
+    if ( !prepareProcessing() || !fillPar() )
+	return false;
+
+    if ( !SI().has3D() )
+	uiMSG().warning( tr( "After processing you will need to change\n"
+			     "the survey type to 'Both 2D and 3D'\n"
+			     "in survey setup to display/use the cube" ) );
+
+    batchfld_->setJobName( outfld_->getInput() );
+    return batchfld_->start();
+}
 
 
 void uiSeis2DTo3D::typeChg( CallBacker* )

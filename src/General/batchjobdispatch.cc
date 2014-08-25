@@ -77,6 +77,7 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
 	mHandlePTCase(T2D,time2depth);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
+	mHandlePTCase(TwoDto3D,2dto3d);
 	case NonODBase:
 	    return "";
 	default:
@@ -104,6 +105,7 @@ Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
     mRetForName(T2D,time2depth);
     mRetForName(VelConv,velocityconv);
     mRetForName(Vol,volume);
+    mRetForName(TwoDto3D,2dto3d);
 
     return NonODBase;
 }

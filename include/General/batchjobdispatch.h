@@ -28,7 +28,7 @@ mExpClass(General) JobSpec
 public:
 
     enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D, PreStack, SEGY,
-			  T2D, VelConv, Vol };
+			  T2D, VelConv, Vol, TwoDto3D };
 
 			JobSpec(ProcType);
 			JobSpec( const char* pnm=0 )

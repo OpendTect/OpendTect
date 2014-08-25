@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 
 #include "seismod.h"
-#include "seismod.h"
 #include "executor.h"
 #include "cubesampling.h"
 #include "arrayndimpl.h"
@@ -35,7 +34,7 @@ mExpClass(Seis) SeisInterpol : public Executor
 { mODTextTranslationClass(SeisInterpol)
 public:
 
-    			SeisInterpol();
+			SeisInterpol();
 			~SeisInterpol();
 
     void		setInput(const ObjectSet<const SeisTrc>&);
@@ -46,45 +45,45 @@ public:
     uiString		uiMessage() const
 			{ return  errmsg_.isEmpty() ? tr( "interpolating" )
 						    : errmsg_; }
-    od_int64           	nrDone() const 		{ return nrdone_; }
+    od_int64		nrDone() const		{ return nrdone_; }
     uiString		uiNrDoneText() const	{return "Number of iterations";}
-    od_int64		totalNr() const 	{ return nriter_; };
+    od_int64		totalNr() const		{ return nriter_; };
     int			nextStep();
 
 protected:
 
-    const ObjectSet<const SeisTrc>* inptrcs_; 
+    const ObjectSet<const SeisTrc>* inptrcs_;
     int			nriter_;
-    float 		maxvel_;
+    float		maxvel_;
     uiString		errmsg_;
 
     int			nrdone_;
     mutable int		totnr_;
 
-    Fourier::CC*        fft_;
-    int 		szx_;
-    int 		szy_;
-    int 		szz_;
-    float 		max_;
+    Fourier::CC*	fft_;
+    int			szx_;
+    int			szy_;
+    int			szz_;
+    float		max_;
 
     mStruct(Seis) TrcPosTrl
     {
 		    TrcPosTrl(int x,int y, int trc)
 			: idx_(x)
 			, idy_(y)
-			, trcpos_(trc)   
-			{}     
-	int idx_;
-	int idy_;
-	int trcpos_;
+			, trcpos_(trc)
+			{}
+	int		idx_;
+	int		idy_;
+	int		trcpos_;
 
 	bool operator	== ( const TrcPosTrl& tr ) const
 			    { return tr.trcpos_ == trcpos_; }
     };
-    TypeSet<TrcPosTrl> 		posidxs_;
+    TypeSet<TrcPosTrl>			posidxs_;
 
-    Array3DImpl<float_complex>*  trcarr_;
-    HorSampling		hs_;
+    Array3DImpl<float_complex>*		trcarr_;
+    HorSampling				hs_;
 
     void		clear();
     void		doPrepare();
@@ -102,32 +101,54 @@ mExpClass(Seis) Seis2DTo3D : public Executor
 { mODTextTranslationClass(Seis2DTo3D)
 public:
 
-    			Seis2DTo3D();
+			Seis2DTo3D();
 			~Seis2DTo3D();
 
-    void		setInput(const IOObj& lineset);
-    void		setOutput(IOObj& cube,const CubeSampling& outcs);
+			// DEPRECATED, will be gone after 5.0 use init() instead
+    void		setInput(const IOObj& lineset) {};
+			// DEPRECATED, will be gone after 5.0 use init() instead
+    void		setOutput(IOObj& cube,const CubeSampling& outcs) {};
 
-    void		setParams(int inl,int crl,float maxvel,bool reuse);
-    void		setIsNearestTrace( bool yn );
+			// DEPRECATED, will be gone after 5.0 use init() instead
+    void		setParams(int inl,int crl,float maxvel,bool reuse) {};
+			// DEPRECATED, will be gone after 5.0 use init() instead
+    void		setIsNearestTrace( bool yn ) {};
 
     uiString		uiMessage() const
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
-    od_int64           	nrDone() const 		{ return nrdone_; }
+    od_int64		nrDone() const		{ return nrdone_; }
     uiString		uiNrDoneText() const	{return "Done";}
     od_int64		totalNr() const;
     int			nextStep();
 
+    bool		init(const IOPar&);
+    bool		useNearestOnly() const	{ return nearesttrace_; }
+
+    bool		finishWrite()		{ return writeTmpTrcs(); }
+
+    static const char*	sKeyInput();
+    static const char*	sKeyIsNearest();
+    static const char*	sKeyStepout();
+    static const char*	sKeyReUse();
+    static const char*	sKeyMaxVel();
+
 protected:
+    bool		usePar(const IOPar&);
+    bool		setIO(const IOPar&);
+    bool		checkParameters();
+    void		doWorkNearest();
+    bool		doWorkFFT();
 
     const Seis2DDataSet* ds_;
     IOObj*		outioobj_;
     CubeSampling	cs_;
+
+    BinID		curbid_;
     BinID		prevbid_;
     int			nriter_;
 
-    float 		maxvel_;
+    float		maxvel_;
     bool		reusetrcs_;
     int			inlstep_;
     int			crlstep_;
@@ -143,12 +164,14 @@ protected:
     SeisInterpol	interpol_;
     HorSamplingIterator hsit_;
 
-    bool		read_;	
+    bool		read_;
     int			nrdone_;
     mutable int		totnr_;
     bool		nearesttrace_;
 
-    void		clear();
+			// DEPRECATED, will be gone after 5.0
+    void		clear() {};
+
     bool		writeTmpTrcs();
     bool		read();
 };
@@ -160,6 +183,7 @@ public:
 			SeisScaler(const SeisTrcBuf&);
 
     void                scaleTrace(SeisTrc&);
+
 protected:
 
     float               avgmaxval_;
