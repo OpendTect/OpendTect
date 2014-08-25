@@ -116,7 +116,7 @@ bool uiSeis2DTo3D::fillSeisPar()
     subsel.mergeComp( sampling, sKey::Subsel() );
     uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
     CubeSampling cs = possubsel_->envelope();
-    SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), cs.hrg.totalNr() );
+    SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hrg.totalNr() );
     subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     if ( !ioobjinfo.checkSpaceLeft(spi) )
 	return false;
