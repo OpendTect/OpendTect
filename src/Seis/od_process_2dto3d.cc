@@ -169,7 +169,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    else
 	    {
 		if ( res == -1 )
-		    mRetJobErr( BufferString("Cannot reach next inline",
+		    mRetJobErr( BufferString("Cannot reach next position",
 				": ",proc->message()) )
 		break;
 	    }
@@ -179,6 +179,13 @@ bool BatchProgram::go( std::ostream& strm )
 	}
     }
 
+    bool closeok = true;
+    if ( nriter )
+	closeok = proc->finishWrite();
+
+    if ( !closeok )
+    { mStrmWithProcID( "Could not close output data." ); }
+    else
     { mStrmWithProcID( "Processing done; Closing down" ); }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!

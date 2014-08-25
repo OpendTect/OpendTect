@@ -120,6 +120,8 @@ public:
 
     bool		init(const IOPar&);
 
+    bool		finishWrite()		{ return writeTmpTrcs(); }
+
     static const char*	sKeyInput();
     static const char*	sKeyIsNearest();
     static const char*	sKeyStepout();
