@@ -159,7 +159,7 @@ bool BatchProgram::go( od_ostream& strm )
 
 	    if ( res > 0 )
 	    {
-		if ( comm_ && !comm_->updateProgress( nriter + 1 ) )
+		if ( comm_ && !comm_->updateProgress(nriter+1) )
 		    mRetHostErr( comm_->errMsg() )
 
 		if ( proc->nrDone()>nrdone )
@@ -180,6 +180,13 @@ bool BatchProgram::go( od_ostream& strm )
 		nriter++;
 	}
     }
+
+    bool closeok = true;
+    if ( nriter )
+	closeok = proc->finishWrite();
+
+    if ( !closeok )
+    { mMessage( "Could not close output data." ); }
 
     mDestroyWorkers
 
