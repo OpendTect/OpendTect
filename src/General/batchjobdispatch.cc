@@ -69,13 +69,13 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
     {
 #	define mHandlePTCase(typ,pnm) \
 	case typ: return "od_process_" # pnm
-	mHandlePTCase(TwoDto3D,2dto3d);
 	mHandlePTCase(Attrib,attrib);
 	mHandlePTCase(AttribEM,attrib_em);
 	mHandlePTCase(Grid2D,2dgrid);
 	mHandlePTCase(PreStack,prestack);
 	mHandlePTCase(SEGY,segyio);
 	mHandlePTCase(T2D,time2depth);
+	mHandlePTCase(TwoDto3D,2dto3d);
 	mHandlePTCase(VelConv,velocityconv);
 	mHandlePTCase(Vol,volume);
 	case NonODBase:
