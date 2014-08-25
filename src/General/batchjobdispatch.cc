@@ -69,6 +69,7 @@ const char* Batch::JobSpec::progNameFor( ProcType pt )
     {
 #	define mHandlePTCase(typ,pnm) \
 	case typ: return "od_process_" # pnm
+	mHandlePTCase(TwoDto3D,2dto3d);
 	mHandlePTCase(Attrib,attrib);
 	mHandlePTCase(AttribEM,attrib_em);
 	mHandlePTCase(Grid2D,2dgrid);
@@ -102,6 +103,7 @@ Batch::JobSpec::ProcType Batch::JobSpec::procTypeFor( const char* odpnm )
     mRetForName(PreStack,prestack);
     mRetForName(SEGY,segyio);
     mRetForName(T2D,time2depth);
+    mRetForName(TwoDto3D,2dto3d);
     mRetForName(VelConv,velocityconv);
     mRetForName(Vol,volume);
 

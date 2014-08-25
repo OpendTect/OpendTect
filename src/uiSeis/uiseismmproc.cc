@@ -33,7 +33,8 @@ bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {
     FixedString prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
-	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM );
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM )
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::TwoDto3D );
 }
 
 bool Batch::SeisMMProgDef::canHandle( const Batch::JobSpec& js ) const
@@ -162,7 +163,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
 	    inlperjobattach = tmpstordirfld_->mainObject();
 	}
 
-	inlperjobfld_ = new uiGenInput( specparsgroup_, 
+	inlperjobfld_ = new uiGenInput( specparsgroup_,
                         tr("Nr of inlines per job"),
 			IntInpSpec( defltNrInlPerJob(jobpars_) ) );
 
