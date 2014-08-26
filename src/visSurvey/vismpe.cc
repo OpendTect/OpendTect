@@ -62,7 +62,7 @@ MPEDisplay::MPEDisplay()
     channels_->setChannels2RGBA( visBase::ColTabTextureChannel2RGBA::create() );
 
     addSlice( cInLine(), false );
-    
+
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
 
     updateBoxPosition( 0 );
@@ -118,9 +118,9 @@ void MPEDisplay::setColTabSequence( int attrib, const ColTab::Sequence& seq,
 }
 
 
-const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib, 
+const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
 	int version ) const
-{ 
+{
     if ( attrib<0 || attrib>=nrAttribs() )
 	return 0;
 
@@ -133,15 +133,15 @@ const ColTab::MapperSetup* MPEDisplay::getColTabMapperSetup( int attrib,
 
 
 const ColTab::Sequence* MPEDisplay::getColTabSequence( int attrib ) const
-{ 
+{
     return ( attrib>=0 && attrib<nrAttribs() && channels_->getChannels2RGBA() )
 	? channels_->getChannels2RGBA()->getSequence( attrib ) : 0;
 }
 
 
 bool MPEDisplay::canSetColTabSequence() const
-{ 
-    return ( channels_->getChannels2RGBA() ) ? 
+{
+    return ( channels_->getChannels2RGBA() ) ?
 	channels_->getChannels2RGBA()->canSetSequence() : false;
 }
 
@@ -208,7 +208,7 @@ bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
 	planebox.zrg.start = SI().zRange(true).snap( sz.start );
 	planebox.zrg.stop = SI().zRange(true).snap( sz.stop );
     }
-    else 
+    else
     {
 	planebox.hrg.start.inl() = SI().inlRange(true).snap( sx.start );
 	planebox.hrg.stop.inl() =  SI().inlRange(true).snap( sx.stop );
@@ -242,7 +242,7 @@ void MPEDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     }
 
     channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
-    
+
     const char* usrref = as.userRef();
     BufferStringSet* attrnms = new BufferStringSet();
     attrnms->add( usrref );
@@ -273,13 +273,13 @@ const char* MPEDisplay::getSelSpecUserRef() const
 }
 
 
-NotifierAccess* MPEDisplay::getMovementNotifier() 
+NotifierAccess* MPEDisplay::getMovementNotifier()
 {
-    return &movement; 
+    return &movement;
 }
 
 
-NotifierAccess* MPEDisplay::getManipulationNotifier() 
+NotifierAccess* MPEDisplay::getManipulationNotifier()
 {
     return &movement;
 }
@@ -289,7 +289,7 @@ void MPEDisplay::moveMPEPlane( int nr )
 {
     if ( slices_.isEmpty() )
 	return;
-    
+
     visBase::DepthTabPlaneDragger* drg = slices_[0]->getDragger();
     if ( !drg || !nr ) return;
     const int dim = dim_;
@@ -310,12 +310,12 @@ void MPEDisplay::moveMPEPlane( int nr )
     const int nrsteps = abs(nr);
     const float sign = nr > 0 ? 1.001f : -1.001f;
     // sign is slightly to big to avoid that it does not trigger a track
-    
+
     sx.widen( 0.5f*SI().inlStep(), true ); sx.sort();
     sy.widen( 0.5f*SI().crlStep(), true ); sy.sort();
     sz.widen( 0.5f*SI().zStep(), true ); sz.sort();
     // assure that border lines of survey are reachable in spite of foregoing
-    
+
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	if ( !dim )
@@ -325,10 +325,10 @@ void MPEDisplay::moveMPEPlane( int nr )
 	else
 	    center.z += sign * SI().zStep();
 
-	if ( !sx.includes(center.x,false) || !sy.includes(center.y,false) || 
+	if ( !sx.includes(center.x,false) || !sy.includes(center.y,false) ||
 	     !sz.includes(center.z,false) )
 	    return;
-	
+
 	slices_[0]->setCenter( center, false );
     }
 
@@ -427,14 +427,14 @@ void MPEDisplay::showDragger( bool yn )
 {
     if ( yn==isDraggerShown() )
 	return;
-    
+
     issliceshown_ = yn;
 
     if ( yn )
 	updateSlice();
     else
 	turnOnSlice( false );
-    
+
     movement.trigger();
     planeOrientationChange.trigger();
 }
@@ -462,7 +462,7 @@ void MPEDisplay::setPlaneOrientation( int orient )
 
 
 int MPEDisplay::getPlaneOrientation() const
-{ 
+{
     return dim_;
 }
 
@@ -504,7 +504,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
     {
 	if ( eventinfo.pressed )
 	{
-	    const MPE::TrackPlane::TrackMode tm = 
+	    const MPE::TrackPlane::TrackMode tm =
 					engine_.trackPlane().getTrackMode();
 	    if ( tm==MPE::TrackPlane::Move )
 		engine_.setTrackMode( MPE::TrackPlane::Extend );
@@ -512,19 +512,9 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 		engine_.setTrackMode( MPE::TrackPlane::ReTrack );
 	    else if ( tm==MPE::TrackPlane::ReTrack )
 		engine_.setTrackMode( MPE::TrackPlane::Erase );
-	    else 
+	    else
 		engine_.setTrackMode( MPE::TrackPlane::Move );
 	}
-	sceneeventcatcher_->setHandled();
-    }
-    else if ( OD::leftMouseButton(eventinfo.buttonstate_) &&
-	      !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
-	      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	      !OD::altKeyboardButton(eventinfo.buttonstate_) &&
-	      isBoxDraggerShown() &&
-	      !eventinfo.pickedobjids.isPresent(boxdragger_->id()) )
-    {
-	showBoxDragger( false );
 	sceneeventcatcher_->setHandled();
     }
 }
@@ -534,12 +524,12 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 {
     if ( yn )
     {
-    	engine_.activevolumechange.remove( 
+	engine_.activevolumechange.remove(
 				   mCB(this,MPEDisplay,updateBoxPosition) );
     }
     else
     {
-    	engine_.activevolumechange.notifyIfNotNotified( 
+	engine_.activevolumechange.notifyIfNotNotified(
 				   mCB(this,MPEDisplay,updateBoxPosition) );
     }
 }
@@ -558,7 +548,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 	newwidth.x = 0.1 * cube.hrg.step.inl();
     if ( cube.hrg.nrCrl()==1 )
 	newwidth.y = 0.1 * cube.hrg.step.crl();
-	if ( cube.zrg.nrSteps()==0 ) 
+	if ( cube.zrg.nrSteps()==0 )
 	newwidth.z = 0.1 * cube.zrg.step;
 
     boxdragger_->setWidth( newwidth );
@@ -580,9 +570,9 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 void MPEDisplay::updateBoxSpace()
 {
     const HorSampling& hs = SI().sampling(true).hrg;
-    const Interval<float> survinlrg( mCast(float,hs.start.inl()), 
+    const Interval<float> survinlrg( mCast(float,hs.start.inl()),
 					mCast(float,hs.stop.inl()) );
-    const Interval<float> survcrlrg( mCast(float,hs.start.crl()), 
+    const Interval<float> survcrlrg( mCast(float,hs.start.crl()),
 					mCast(float,hs.stop.crl()) );
     const Interval<float> survzrg( SI().zRange(true).start,
 	    			   SI().zRange(true).stop );
@@ -598,7 +588,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    CubeSampling cs; 
+    CubeSampling cs;
     if ( !getPlanePosition(cs) )
 	return mUdf(float);
 
@@ -629,12 +619,12 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     return Math::Sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
 }
 
-    
+
 float MPEDisplay::maxDist() const
 {
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     float maxzdist = zfactor * scene_->getFixedZStretch() * SI().zStep() / 2;
-    return engine_.trackPlane().boundingBox().nrZ()==1 
+    return engine_.trackPlane().boundingBox().nrZ()==1
 				? maxzdist : SurveyObject::sDefMaxDist();
 }
 
@@ -679,7 +669,7 @@ bool MPEDisplay::usePar( const IOPar& par )
 
     turnOn( true );
     showBoxDragger( dispboxdragger );
-    
+
     return true;
 }
 
@@ -707,9 +697,9 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 
 void MPEDisplay::setCubeSampling( const CubeSampling& cs )
 {
-    const Interval<float> xintv( mCast(float,cs.hrg.start.inl()), 
+    const Interval<float> xintv( mCast(float,cs.hrg.start.inl()),
 				    mCast(float,cs.hrg.stop.inl()) );
-    const Interval<float> yintv( mCast(float,cs.hrg.start.crl()), 
+    const Interval<float> yintv( mCast(float,cs.hrg.start.crl()),
 				    mCast(float,cs.hrg.stop.crl()) );
     const Interval<float> zintv( cs.zrg.start, cs.zrg.stop );
 
@@ -747,7 +737,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 	dpman.release( dpid );
 	return false;
     }
-    
+
     if ( volumecache_ != cdp )
     {
 	if (volumecache_ )
@@ -759,7 +749,7 @@ bool MPEDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 }
 
 
-bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp, 
+bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 				   TaskRunner* tr )
 {
     if ( !cdp )
@@ -771,7 +761,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
     //transform data if necessary.
     const char* zdomain = getSelSpec( attrib )->zDomainKey();
     const bool alreadytransformed = zdomain && *zdomain;
-	
+
     if ( !alreadytransformed && datatransform_ )
     {
 	// to do: check this stuff
@@ -780,17 +770,17 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	datatransformer->setInterpolate( textureInterpolationEnabled() );
 	//datatransformer->setInterpolate( true );
 	//datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
-	datatransformer->setInput( cdp->cube().getCube(0), 
+	datatransformer->setInput( cdp->cube().getCube(0),
 		cdp->cube().cubeSampling() );
 	datatransformer->setOutputRange( getCubeSampling(true,true,0) );
-		
+
 	if ( TaskRunner::execute( tr, *datatransformer ) )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;
 	}
 
-	CubeDataPack cdpnew( cdp->categoryStr( false ), 
+	CubeDataPack cdpnew( cdp->categoryStr( false ),
 			// check false for categoryStr
 		datatransformer->getOutput( true ) );
 	DPM( DataPackMgr::CubeID() ).addAndObtain( &cdpnew );
@@ -801,14 +791,14 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
     DPM(DataPackMgr::CubeID()).release( cacheid_ );
     cacheid_ = attrib_dpid;
 
-    bool retval = updateFromCacheID( attrib, tr );	
+    bool retval = updateFromCacheID( attrib, tr );
     if ( !retval )
 	channels_->turnOn( false );
-	    
+
     DPM( DataPackMgr::CubeID() ).release( attrib_dpid );
 
     setCubeSampling( getCubeSampling(true,true,0) );
-   
+
     return retval;
 }
 
@@ -816,12 +806,12 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 {
     channels_->setNrVersions( attrib, 1 );
-    
+
     ConstRefMan<Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ ) ?
 	engine_.getAttribCache( as_ )->get3DData() : 0;
     if ( !attrdata )
 	return false;
-	
+
     const Array3D<float>& data( attrdata->getCube(0) );
     const float* arr = data.getData();
 
@@ -852,13 +842,13 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 	const int sz2 = dispzrg.width()+1;
 
 	const Array3DSubSelection<float> arrsubsel(
-		dispinlrg.start, dispcrlrg.start, dispzrg.start, 
+		dispinlrg.start, dispcrlrg.start, dispzrg.start,
 		sz0, sz1, sz2,
 		const_cast< Array3D<float>& >(data) );
 
 	if ( !arrsubsel.isOK() )
 	    return false;
-	
+
 	arr = arrsubsel.getData();
 
 	if ( !arr )
@@ -913,18 +903,18 @@ void MPEDisplay::updateSlice()
     curtextureas_ = as_;
     curtexturecs_ = displaycs;
 
-    turnOnSlice( true );	
+    turnOnSlice( true );
 }
 
 
 const Attrib::DataCubes* MPEDisplay::getCacheVolume( int attrib ) const
-{ 
+{
     return ( volumecache_ && !attrib ) ? &volumecache_->cube() : 0;
 }
 
 
 DataPack::ID MPEDisplay::getDataPackID( int attrib ) const
-{ 
+{
     return ( !attrib ) ? cacheid_ : DataPack::cNoID();
 }
 
@@ -1077,7 +1067,7 @@ void MPEDisplay::getChildren( TypeSet<int>&res ) const
 
 bool MPEDisplay::isSelected() const
 {
-    return visBase::DM().selMan().selected().isPresent( id());	
+    return visBase::DM().selMan().selected().isPresent( id());
 }
 
 
@@ -1104,7 +1094,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     sliceposition_ = slicePosition( slice );
 
     if ( isSelected() ) return;
-	
+
     while ( true )
     {
 	MPE::TrackPlane newplane = engine_.trackPlane();
@@ -1115,7 +1105,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	// nothing to do if dragger is in sync with engine
 	if ( planebox==engine_.trackPlane().boundingBox() )
 	    return;
-	
+
 	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
 	const int dim = slice->getDragger()->getDim();
 	if ( dim==cInLine() &&
@@ -1155,7 +1145,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	    float& start = planebox.zrg.start;
 	    float& stop =  planebox.zrg.stop;
 	    const double step = SI().zStep();
-	    start = stop = (float) ( engineplane.zrg.start + 
+	    start = stop = (float) ( engineplane.zrg.start +
 						( inc ? step : -step ) );
 	    newplane.setMotion( 0, 0, (float) ( inc ? step : -step ) );
 	}
@@ -1172,7 +1162,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 
 void MPEDisplay::showManipulator( bool yn )
 {
-    showBoxDragger( yn ); 
+    showBoxDragger( yn );
 }
 
 
@@ -1235,15 +1225,15 @@ bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 
 
 const ZAxisTransform* MPEDisplay::getZAxisTransform() const
-{ 
-    return datatransform_; 
+{
+    return datatransform_;
 }
 
 
 void MPEDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
-    if ( volumecache_) 
+    if ( volumecache_)
 	setDataVolume( 0, volumecache_, 0 );
 }
 
@@ -1256,7 +1246,7 @@ void MPEDisplay::triggerSel()
 
 void MPEDisplay::triggerDeSel()
 {
-    mouseClickCB( 0 ); 
+    mouseClickCB( 0 );
     visBase::VisualObject::triggerDeSel();
 }
 
@@ -1264,7 +1254,7 @@ void MPEDisplay::triggerDeSel()
 void MPEDisplay::updateRanges( bool updateic, bool updatez )
 {
     if ( !datatransform_ ) return;
-    
+
     if ( csfromsession_ != SI().sampling(true) )
 	setCubeSampling( csfromsession_ );
     else
