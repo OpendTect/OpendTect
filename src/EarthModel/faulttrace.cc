@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
@@ -172,14 +173,22 @@ bool FaultTrace::getFaultTraceIntersection( const FaultTrace& flttrc,
 }
 
 
-bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
+bool FaultTrace::getHorizonIntersectionInfo(
+	const EM::Horizon& hor, Pos::GeomID geomid,
 	TypeSet<BinID>& pos1bids, TypeSet<float>& pos1zs,
 	TypeSet<BinID>& pos2bids, TypeSet<float>& pos2zs,
 	TypeSet<Coord>& intersections, bool firstonly, bool allowextend ) const
 {
+    mDynamicCastGet(const EM::Horizon2D*, hor2d, &hor);
+    const bool use2d = hor2d && geomid!=Survey::GM().cUndefGeomID();
+
     const EM::SectionID sid = hor.sectionID( 0 );
-    const StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
-					      : hor.geometry().rowRange( sid );
+    StepInterval<int> hortrcrg = isinl_ ? hor.geometry().colRange()
+					: hor.geometry().rowRange( sid );
+    if ( use2d )
+	hortrcrg = isinl_ ? hor2d->geometry().colRange( sid, geomid )
+			  : hor2d->geometry().rowRange( sid );
+
     StepInterval<int> trcrg = hortrcrg;
     trcrg.limitTo( trcrange_ );
 
@@ -191,7 +200,9 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 	if ( trcnr < hortrcrg.start ) break;
 
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z;
+	const float curz = use2d ?
+	    (float) hor2d->getPos( sid, geomid, trcnr ).z :
+	    (float) hor.getPos( sid, curbid.toInt64() ).z;
 	if ( !mIsUdf(curz) )
 	{
 	    trcrg.start = trcnr;
@@ -205,7 +216,9 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 	if ( trcnr > hortrcrg.stop ) break;
 
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z;
+	const float curz = use2d ?
+	    (float) hor2d->getPos( sid, geomid, trcnr ).z :
+	    (float) hor.getPos( sid, curbid.toInt64() ).z;
 	if ( !mIsUdf(curz) )
 	{
 	    trcrg.stop = trcnr;
@@ -220,7 +233,9 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
     for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+=trcrg.step )
     {
 	const BinID curbid( isinl_ ? nr_ : trcnr, isinl_ ? trcnr : nr_ );
-	const float curz = (float) hor.getPos( sid, curbid.toInt64() ).z;
+	const float curz = use2d ?
+	    (float) hor2d->getPos( sid, geomid, trcnr ).z :
+	    (float) hor.getPos( sid, curbid.toInt64() ).z;
 	if ( mIsUdf(curz) ) continue;
 
 	if ( prevtrc==-1 )
@@ -288,8 +303,8 @@ bool FaultTrace::getHorizonIntersectionInfo( const EM::Horizon& hor,
 
     const BinID extbid0( isinl_ ? nr_ : trcrange_.start,
 			 isinl_ ? trcrange_.start : nr_ );
-    const BinID extbid1( isinl_ ? nr_:trcrange_.stop,
-			 isinl_ ? trcrange_.stop:nr_ );
+    const BinID extbid1( isinl_ ? nr_ : trcrange_.stop,
+			 isinl_ ? trcrange_.stop : nr_ );
     const Coord intsect0 = mIsUdf(firstz) ? Coord::udf() :
 	getIntersection( extbid0, firstz, firstbid, firstz );
     const Coord intsect1 = mIsUdf(prevz) ? Coord::udf() :
@@ -317,8 +332,8 @@ bool FaultTrace::getHorIntersection( const EM::Horizon& hor, BinID& bid ) const
     TypeSet<BinID> pos1bids, pos2bids;
     TypeSet<float> pos1zs, pos2zs;
     TypeSet<Coord> intersects;
-    if ( !getHorizonIntersectionInfo( hor, pos1bids, pos1zs, pos2bids,
-		pos2zs, intersects, true ) )
+    if ( !getHorizonIntersectionInfo( hor, Survey::GM().cUndefGeomID(),
+		pos1bids, pos1zs, pos2bids, pos2zs, intersects, true ) )
 	return false;
 
     const EM::SectionID sid = hor.sectionID( 0 );

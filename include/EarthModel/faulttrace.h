@@ -80,6 +80,7 @@ public:
 						  int& trace,float& zval) const;
 
     bool		getHorizonIntersectionInfo(const EM::Horizon& hor,
+				Pos::GeomID geomid,
 				TypeSet<BinID>& pos1bids,TypeSet<float>& pos1zs,
 				TypeSet<BinID>& pos2bids,TypeSet<float>& pos2zs,
 				TypeSet<Coord>& intersections,
