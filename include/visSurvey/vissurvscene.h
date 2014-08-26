@@ -247,6 +247,7 @@ protected:
     static const char*		sKeyShowGrid();
     static const char*		sKeyAnnotFont();
     static const char*		sKeyAnnotColor();
+    static const char*		sKeyMarkerColor();
     static const char*		sKeyShowCube();
     static const char*		sKeyZAxisTransform();
     static const char*		sKeyAppAllowShading();

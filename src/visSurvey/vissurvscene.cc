@@ -46,6 +46,7 @@ const char* Scene::sKeyShowScale()	{ return "Show scale"; }
 const char* Scene::sKeyShowGrid()	{ return "Show grid"; }
 const char* Scene::sKeyAnnotFont()	{ return "Annotation font"; }
 const char* Scene::sKeyAnnotColor()	{ return "Annotation color"; }
+const char* Scene::sKeyMarkerColor()	{ return "Marker color"; }
 const char* Scene::sKeyShowCube()	{ return "Show cube"; }
 const char* Scene::sKeyZStretch()	{ return "Z Stretch"; }
 const char* Scene::sKeyZAxisTransform()	{ return "ZTransform"; }
@@ -115,7 +116,7 @@ void Scene::updateAnnotationText()
 
 #define mGetFontFromPar( par ) \
 BufferString font; \
-if ( par.get( sKeyAnnotFont(), font ) ) \
+if ( par.get( BufferString(sKeydTectScene(),sKeyAnnotFont()), font ) ) \
 { \
     FontData fd; \
     if ( fd.getFrom( font.buf() ) ) \
@@ -148,21 +149,21 @@ void Scene::setup()
     addUTMObject( botimg_ );
     botimg_->turnOn( false );
 
-    bool doshow = true;
-#define mShowAnnot(str,func) \
-    doshow = true; \
-    Settings::common().getYN( BufferString(sKeydTectScene(),str), doshow ); \
-    func( doshow );
+#define mGetProp(type,var,defval,get,str,func) \
+    type var = defval; \
+    Settings::common().get( BufferString(sKeydTectScene(),str), var ); \
+    func( var );
 
-    mShowAnnot( sKeyShowAnnot(), showAnnotText );
-    mShowAnnot( sKeyShowScale(), showAnnotScale );
-    mShowAnnot( sKeyShowGrid(), showAnnotGrid );
+    mGetProp( bool, showan, true, getYN, sKeyShowAnnot(), showAnnotText );
+    mGetProp( bool, showsc, true, getYN, sKeyShowScale(), showAnnotScale );
+    mGetProp( bool, showgr, true, getYN, sKeyShowGrid(), showAnnotGrid );
+
+    mGetProp( Color, mcol, getMarkerColor(), get,
+	      sKeyMarkerColor(), setMarkerColor );
+    mGetProp( Color, acol, getAnnotColor(), get,
+	      sKeyAnnotColor(), setAnnotColor );
 
     mGetFontFromPar( Settings::common() );
-
-    Color anncol;
-    if ( Settings::common().get(sKeyAnnotColor(),anncol) )
-	setAnnotColor( anncol );
 }
 
 
@@ -905,8 +906,8 @@ const Color& Scene::getMarkerColor() const
     if ( !markerset_ )
 	return cDefaultMarkerColor();
 
-    mDefineStaticLocalObject( const Color, singlecolor,
-			      = markerset_->getMarkersSingleColor() );
+    mDefineStaticLocalObject( Color, singlecolor, );
+    singlecolor = markerset_->getMarkersSingleColor();
     return singlecolor;
 }
 
@@ -926,6 +927,7 @@ void Scene::fillPar( IOPar& par ) const
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZStretch(), curzstretch_ );
     par.setYN( sKeyShowColTab(), scenecoltab_->isOn() );
+    par.set( sKeyMarkerColor(), getMarkerColor() );
 
     BufferString font;
     getAnnotFont().putTo( font );
@@ -983,6 +985,7 @@ void Scene::removeAll()
 	visBase::DataObjectGroup::removeObject( idx );
 
     tempzstretchtrans_ = 0; inlcrlrotation_ = 0; annot_ = 0;
+    markerset_ = 0;
 
     mRemoveSelector;
 
@@ -1086,6 +1089,10 @@ bool Scene::usePar( const IOPar& par )
 
     par.getYN( sKeyShowColTab(), ctshownusepar_ );
 
+    Color markercol = getMarkerColor();
+    par.get( sKeyMarkerColor(), markercol );
+    setMarkerColor( markercol );
+
     bool txtshown = true;
     par.getYN( sKeyShowAnnot(), txtshown );
     showAnnotText( txtshown );
@@ -1173,19 +1180,25 @@ void Scene::setSceneColTab( visBase::SceneColTab* sct )
 
 void Scene::savePropertySettings()
 {
-#define mSaveProp(str,func) \
-    Settings::common().setYN( BufferString(sKeydTectScene(),str), func() );
+    Settings& setts = Settings::common();
 
-    mSaveProp( sKeyShowAnnot(), isAnnotTextShown );
-    mSaveProp( sKeyShowScale(), isAnnotScaleShown );
-    mSaveProp( sKeyShowGrid(), isAnnotGridShown );
+#define mSaveProp(set,str,val) \
+    setts.set( BufferString(sKeydTectScene(),str), val );
+
+    mSaveProp( setYN, sKeyShowAnnot(), isAnnotTextShown() );
+    mSaveProp( setYN, sKeyShowScale(), isAnnotScaleShown() );
+    mSaveProp( setYN, sKeyShowGrid(), isAnnotGridShown() );
+    mSaveProp( set, sKeyMarkerColor(), getMarkerColor() );
 
     BufferString font;
     getAnnotFont().putTo( font );
-    Settings::common().set( sKeyAnnotFont(), font );
-    Settings::common().set( sKeyAnnotColor(), getAnnotColor() );
-    Settings::common().write();
+
+    setts.removeWithKey( sKeyAnnotFont() );
+    setts.removeWithKey( sKeyAnnotColor() );
+
+    mSaveProp( set, sKeyAnnotFont(), font );
+    mSaveProp( set, sKeyAnnotColor(), getAnnotColor() );
+    setts.write( false );
 }
 
 } // namespace visSurvey
-
