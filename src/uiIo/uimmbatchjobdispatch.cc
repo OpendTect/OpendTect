@@ -540,7 +540,9 @@ bool uiMMBatchJobDispatcher::wrapUp()
 
     progrfld_->append( "Processing completed" );
     setCtrlStyle( CloseOnly );
-    button(uiDialog::CANCEL)->display(false);
+    uiButton* cancbuttn = button( uiDialog::CANCEL );
+    if ( cancbuttn )
+	cancbuttn->display(false);
     clearAliveDisp();
 
     removeTempResults();
