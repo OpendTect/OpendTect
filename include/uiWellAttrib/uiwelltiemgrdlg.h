@@ -97,6 +97,7 @@ protected:
     void		setTypeFld() {}; //will be removed
     bool		selIs2D() const;
     bool		seisIDIs3D(MultiID) const;
+    void		onFinalise(CallBacker*);
 };
 
 }; //namespace WellTie

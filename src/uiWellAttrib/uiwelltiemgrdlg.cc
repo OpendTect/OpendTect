@@ -79,8 +79,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     if ( !wtsetup_.wellid_.isEmpty() )
 	wellfld_->setInput( wtsetup_.wellid_ );
 
-    const CallBack wllselcb( mCB(this,uiTieWinMGRDlg,wellSelChg) );
-    wellfld_->selectionDone.notify( wllselcb );
+    wellfld_->selectionDone.notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
 
     uiSeparator* sep = new uiSeparator( this, "Well2Seismic Sep" );
     sep->attach( stretchedBelow, wellfld_ );
@@ -179,7 +178,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
-    postFinalise().notify( mCB(this,uiTieWinMGRDlg,wellSelChg) );
+    postFinalise().notify( mCB(this,uiTieWinMGRDlg,onFinalise) );
 }
 
 
@@ -194,6 +193,12 @@ uiTieWinMGRDlg::~uiTieWinMGRDlg()
     delete wvltctio_.ioobj; delete &wvltctio_;
     delete seisctio3d_.ioobj; delete &seisctio3d_;
     delete seisctio2d_.ioobj; delete &seisctio2d_;
+}
+
+
+void uiTieWinMGRDlg::onFinalise( CallBacker* )
+{
+    wellSelChg( 0 );
 }
 
 
@@ -212,10 +217,11 @@ bool uiTieWinMGRDlg::selIs2D() const
 }
 
 
-void uiTieWinMGRDlg::wellSelChg( CallBacker* )
+void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 {
-    const IOObj* wellobj = wellfld_->ioobj();
+    const IOObj* wellobj = wellfld_->ioobj( true );
     if ( !wellobj ) return;
+
     const char* wllfilenm = Well::IO::getMainFileName( *wellobj );
     const MultiID& wellid = wellobj->key();
     logsfld_->wellid_ = wellid;
@@ -223,10 +229,16 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* )
     wd_ = Well::MGR().get( wellid, false );
     if ( !wd_ || !logsfld_->setLogs(wd_->logs()) )
     {
-	BufferString errmsg = "This well has no valid log to use as input";
-	errmsg += "\n";
-	errmsg += "Use well manager to either import or create your logs";
-	uiMSG().error( errmsg );
+	if ( !cb ) // Probably the default well at startup.
+	    wellfld_->setEmpty();
+	else
+	{
+	    BufferString errmsg = "This well has no valid log to use as input";
+	    errmsg += "\n";
+	    errmsg += "Use well manager to either import or create your logs";
+	    uiMSG().error( errmsg );
+	}
+
 	return;
     }
 
