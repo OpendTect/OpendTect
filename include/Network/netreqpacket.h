@@ -14,11 +14,21 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "gendefs.h"
+class BufferString;
 
 #define mRequestPacketHeaderSize		10
 
+
 namespace Network
 {
+
+/*\brief Standardized packet that can be sent over a Tcp connection
+
+  The request header contains a unique (int) request ID and a (short) sub-ID.
+  The sub-ID is a flag that can be used to implement your protocol. Negative
+  sub-IDs are special and cannot be freely used.
+
+  */
 
 mExpClass(Network) RequestPacket
 {
@@ -26,27 +36,34 @@ public:
 			RequestPacket(od_int32 payloadsize=-1);
 			~RequestPacket();
 
-    static od_int32	getHeaderSize() { return sizeof(Header); }
     bool		isOK() const;
-			//!<Reads the header and checks that it is reasonable
+			//!< checks whether the header is reasonable
 
-    od_int32		getRequestID() const;
+    static od_int32	headerSize() { return sizeof(Header); }
+    static od_int32	getPayloadSize(const void*);
+
+    void		obtainNewRequestID();
+
+    od_int32		requestID() const;
     void		setRequestID(od_int32);
-
-    od_int16		getSubID() const;
+    od_int16		subID() const;
     void		setSubID(od_int16);
 
-    od_int32		getPayloadSize() const;
-    void		setStringPayload(const char*);
-    void		setPayload(void*);
-			/*!<Size should be identical to getPayloadSize. Array
-			    should be allocated by new char[] */
-    void		setPayload(void*,od_int32 size);
-			//!<Becomes mine
-    void*		getPayload(bool takeover=false);
-                        /*!<If you take over, you must cast to char* and delete
-                            with []. */
+    od_int32		payloadSize() const;
+    const void*		payload() const;
+    void*		payload(bool takeover=false);
+			/*!< if takeover, cast to char*, and delete with []. */
+    void		getStringPayload(BufferString&) const;
 
+    void		setPayload(void*);
+			/*!< should be allocated as new char[payloadSize()] */
+    void		setPayload(void*,od_int32 size);
+			//!< becomes mine
+    void		setStringPayload(const char*);
+
+    static od_int16	cBeginSubID()		{ return -2; }
+    static od_int16	cEndSubID()		{ return -1; }
+    static od_int16	cNormalSubID()	{ return 0; }
 
     void*		getRawHeader()	{ return header_.int32s_; }
 
@@ -61,10 +78,11 @@ protected:
 
     Header		header_;
     char*		payload_;
+
 };
 
 
 }; //Namespace
 
-#endif
 
+#endif

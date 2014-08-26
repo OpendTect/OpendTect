@@ -29,34 +29,34 @@ class QTcpSocket;
 class BufferString;
 
 /*!Enables the connection and sending of binary and text data through
-   a socket both with and without event-loops. */
+   a socket both with and without event-loops.
+
+   After construction, you need to connect to a host on a port. If you choose
+   not to wait then (dis-)connecting only fails if it is already in progress.
+
+   Strings are transferred without trailing '\0', but with a leading integer
+   for the size.
+
+ */
 
 mExpClass(Network) TcpConnection : public CallBacker
 { mODTextTranslationClass(TcpConnection);
 
 public:
-		TcpConnection();
+
+		TcpConnection(bool haveeventloop=true);
 		~TcpConnection();
 
     void	setTimeout(int ms) { timeout_ = ms; }
 
-    void	setNoEventLoop(bool yn);
-		/*!<If program does not have an event-loop, set to true.
-		    Default is false. */
-
     bool	connectToHost(const char* host,int port,
 			      bool wait=false);
-		/*!<If wait is false, it only returns false if already
-		    connected. Otherwise, errors will come when
-		    attempting to read/write. */
-
     bool	disconnectFromHost(bool wait=false);
-		/*!<If wait is false, it only returns false if already
-		    dis-connecting. Otherwise, errors will come when
-		    attempting to do other things. */
 
-    void	abort();
-		//!<Just stops all pending operations.
+    bool	isConnected() const;
+    bool	anythingToRead() const;
+    uiString	errMsg() const	{ return errmsg_; }
+    void	abort();	//!<Just stops all pending operations.
 
     bool	writeChar(char);
     bool	writeShort(short);
@@ -66,11 +66,7 @@ public:
     bool	writeDouble(double);
     bool	write(const Network::RequestPacket&);
     bool	write(const OD::String&);
-		/*!<Writes short with size followed by buffer
-		    (without 0 at the end). */
     bool	write(const uiString&);
-		/*!<Writes short with size followed by wchar buffer
-		    (without 0 at the end). */
     int		write(const IOPar&);
 
     bool	writeArray(const void*,od_int64,bool wait=false);
@@ -86,7 +82,7 @@ public:
     bool	readInt64(od_int64&);
     bool	readFloat(float&);
     bool	readDouble(double&);
-    bool	read(BufferString&); //Until NULL arrives
+    bool	read(BufferString&);
     void	read(IOPar&) const;
     bool	read(Network::RequestPacket&);
 
@@ -97,15 +93,14 @@ public:
     bool	readFloatArray(float*,od_int64);
     bool	readDoubleArray(double*,od_int64);
 
-    uiString	errMsg() const	{ return errmsg_; }
+    Notifier<TcpConnection>	Closed; //!< usually remote host terminates.
 
 private:
+
     bool			waitForConnected();
 				//!<\note Lock should be unlocked when calling
-
     bool			waitForNewData();
 				//!<\note Lock should be locked when calling
-
     bool			waitForWrite(bool all);
 				//!<\note Lock should be locked when calling
 
@@ -115,11 +110,8 @@ private:
 					  od_int64);
 
     mutable uiString		errmsg_;
-
     Threads::Mutex		lock_;
-
     QTcpSocket*			qtcpsocket_;
-
     int				timeout_;
     bool			noeventloop_;
 
@@ -128,6 +120,7 @@ private:
     DataInterpreter<od_int64>*	od_int64interpreter_;
     DataInterpreter<float>*	floatinterpreter_;
     DataInterpreter<double>*	doubleinterpreter_;
+
 };
 
 

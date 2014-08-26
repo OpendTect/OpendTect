@@ -54,9 +54,8 @@ public:
 
 bool TestRunner::testTcpConnection()
 {
-    TcpConnection connection;
+    TcpConnection connection( !noeventloop_ );
     connection.setTimeout( 10000 );
-    connection.setNoEventLoop( noeventloop_ );
 
     if ( !connection.connectToHost( "localhost", port_, true ) )
     {

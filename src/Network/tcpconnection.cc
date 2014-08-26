@@ -2,8 +2,8 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	Nanne Hemstra
- Date:		March 2009
+ Author:	Kristofer
+ Date:		Aug 2014
 ________________________________________________________________________
 
 -*/
@@ -22,20 +22,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTcpSocket>
 #endif
 
-TcpConnection::TcpConnection()
+TcpConnection::TcpConnection( bool haveevloop )
 #ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
 #else
     : qtcpsocket_(0)
 #endif
     , timeout_( 30000 )
-    , noeventloop_( false )
+    , noeventloop_( !haveevloop )
     , shortinterpreter_( 0 )
     , od_int32interpreter_( 0 )
     , od_int64interpreter_( 0 )
     , floatinterpreter_( 0 )
     , doubleinterpreter_( 0 )
-{}
+    , Closed(this)
+{
+}
 
 
 TcpConnection::~TcpConnection()
@@ -51,18 +53,17 @@ TcpConnection::~TcpConnection()
 }
 
 
-void TcpConnection::setNoEventLoop( bool yn )
-{ noeventloop_ = yn; }
-
-
 bool TcpConnection::connectToHost( const char* host, int port, bool wait )
 {
-#ifndef OD_NO_QT
-    if ( noeventloop_ ) wait = true;
+#ifdef OD_NO_QT
+    return false;
+#else
+    if ( noeventloop_ )
+	wait = true;
 
     if ( qtcpsocket_->state()!=QAbstractSocket::UnconnectedState )
     {
-	errmsg_ = tr("Trying to connect used connection.");
+	errmsg_ = tr("Trying to connect already used connection.");
 	return false;
     }
 
@@ -70,30 +71,55 @@ bool TcpConnection::connectToHost( const char* host, int port, bool wait )
 
     if ( wait )
 	return waitForConnected();
-#endif
 
     return true;
+#endif
 }
 
 
 bool TcpConnection::disconnectFromHost( bool wait )
 {
+    if ( noeventloop_ )
+	wait = true;
+
+    bool res = true;
+
 #ifndef OD_NO_QT
-    if ( noeventloop_ ) wait = true;
 
     qtcpsocket_->disconnectFromHost();
 
     if ( wait )
     {
-	const bool res = qtcpsocket_->waitForDisconnected( timeout_ );
+	res = qtcpsocket_->waitForDisconnected( timeout_ );
 	if ( !res )
 	    errmsg_.setFrom( qtcpsocket_->errorString() );
-
-	return res;
     }
+
 #endif
 
-    return true;
+    if ( res )
+	Closed.trigger();
+
+    return res;
+}
+
+
+bool TcpConnection::isConnected() const
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    return qtcpsocket_->state()==QAbstractSocket::ConnectedState;
+#endif
+}
+
+bool TcpConnection::anythingToRead() const
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    return isConnected() && qtcpsocket_->bytesAvailable();
+#endif
 }
 
 
@@ -112,7 +138,8 @@ bool TcpConnection::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
 #ifndef OD_NO_QT
     const char* buf = (const char*) voidbuf;
-    if ( noeventloop_ ) wait = true;
+    if ( noeventloop_ )
+	wait = true;
 
     if ( !waitForConnected() )
 	return false;
@@ -189,7 +216,7 @@ bool TcpConnection::waitForWrite( bool forall )
 
 bool TcpConnection::write( const OD::String& str )
 {
-    return writeShort( str.size() ) &&
+    return writeInt32( str.size() ) &&
 	   writeArray( str.buf(), str.size(), false );
 }
 
@@ -302,8 +329,8 @@ mReadWriteArrayImpl( Double, double );
 
 bool TcpConnection::read( BufferString& res )
 {
-    short nrchars;
-    if ( !readShort( nrchars ) )
+    int nrchars;
+    if ( !readInt32( nrchars ) )
 	return false;
 
     if ( nrchars<0 )
@@ -325,17 +352,17 @@ bool TcpConnection::read( BufferString& res )
 
 bool TcpConnection::read( Network::RequestPacket& packet )
 {
-    if ( !readArray( packet.getRawHeader(), packet.getHeaderSize() ) )
+    if ( !readArray( packet.getRawHeader(),
+		     Network::RequestPacket::headerSize() ) )
 	return false;
 
-    if ( packet.isOK() )
+    if ( !packet.isOK() )
     {
 	errmsg_ = tr("Received packet is not OK");
 	return false;
     }
 
-    const od_int32 payloadsize = packet.getPayloadSize();
-
+    const od_int32 payloadsize = packet.payloadSize();
     mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
     packet.setPayload( payload );
 
@@ -358,9 +385,10 @@ bool TcpConnection::read( Network::RequestPacket& packet )
 
 bool TcpConnection::waitForConnected()
 {
-#ifndef OD_NO_QT
-    if ( qtcpsocket_->state()==QAbstractSocket::ConnectedState )
+    if ( isConnected() )
 	return true;
+
+#ifndef OD_NO_QT
 
     //Have we started at something?
     if ( qtcpsocket_->state()>QAbstractSocket::UnconnectedState )
