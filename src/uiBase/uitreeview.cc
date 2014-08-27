@@ -502,6 +502,29 @@ uiTreeViewItem* uiTreeView::selectedItem() const
 { return mItemFor( body_->currentItem() ); }
 
 
+int uiTreeView::nrSelected() const
+{ return body_->selectedItems().size(); }
+
+
+void uiTreeView::getSelectedItems( ObjectSet<uiTreeViewItem>& items ) const
+{
+    QList<QTreeWidgetItem*> qitms = body_->selectedItems();
+    for ( int idx=0; idx<qitms.size(); idx++ )
+	items += uiTreeViewItem::itemFor( qitms[idx] );
+}
+
+
+void uiTreeView::removeSelectedItems()
+{
+    ObjectSet<uiTreeViewItem> items;
+    getSelectedItems( items );
+    for ( int idx=0; idx<items.size(); idx++ )
+	takeItem( items[idx] );
+
+    deepErase( items );
+}
+
+
 void uiTreeView::setCurrentItem( uiTreeViewItem* itm, int column )
 {
     mBlockCmdRec;

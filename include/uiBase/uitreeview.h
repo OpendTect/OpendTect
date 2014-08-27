@@ -89,6 +89,9 @@ public:
     void		setSelected(uiTreeViewItem*,bool);
     bool		isSelected(const uiTreeViewItem*) const;
     uiTreeViewItem*	selectedItem() const;
+    int			nrSelected() const;
+    void		getSelectedItems(ObjectSet<uiTreeViewItem>&) const;
+    void		removeSelectedItems();
 
     void		setCurrentItem(uiTreeViewItem*,int column=0);
 
@@ -218,7 +221,7 @@ public:
 
 			uiTreeViewItem(uiTreeViewItem* parent,const Setup&);
 			uiTreeViewItem(uiTreeView* parent,const Setup&);
-			~uiTreeViewItem();
+    virtual		~uiTreeViewItem();
 
     mQtclass(QTreeWidgetItem*)	qItem()			{ return qtreeitem_; }
     const mQtclass(QTreeWidgetItem*) qItem() const	{ return qtreeitem_; }
