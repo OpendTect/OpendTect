@@ -26,7 +26,7 @@ namespace OD
 
 // 1M operations min per thread
 #define mODMemMinThreadSize 131072
- 
+
 namespace OD
 {
     template <class T> mGlobal(Basic) void memValueSet(T*,T,od_int64);
@@ -421,7 +421,7 @@ bool MemValReplacer<T>::setPtr( od_int64 start, od_int64 size )
 namespace OD
 {
 
-template <class T> 
+template <class T>
 inline void memValueSet( T* arr, T val , od_int64 sz )
 {
     if ( !arr || sz<=0 )

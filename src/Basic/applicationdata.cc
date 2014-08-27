@@ -113,7 +113,7 @@ int ApplicationData::exec()
 
 
 void ApplicationData::exit( int retcode )
-{ } 
+{ }
 
 void ApplicationData::addToEventLoop( const CallBack& cb )
 { }

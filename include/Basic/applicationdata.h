@@ -39,7 +39,7 @@ public:
 
     static int		exec();
 			//!<Starts the event loop
-			
+
     void		addToEventLoop(const CallBack& cb);
 			/*!<Trigger a callback from inside the event-loop.
 			    Callback will only be called once, and has to

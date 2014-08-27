@@ -133,7 +133,7 @@ void* Network::RequestPacket::payload( bool takeover )
 {
     void* res = payload_;
     if ( takeover )
-        payload_ = 0;
+	payload_ = 0;
     return res;
 }
 
