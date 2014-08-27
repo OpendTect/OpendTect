@@ -129,7 +129,11 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	{ errmsg_ = "Cannot open CBVS file"; return false; }
 
     PtrMan<IOObj> ioobj = IOM().get( conn->linkedTo() );
-    if ( !ioobj )
+    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
+    if ( ioobj && !iostrm )
+	{ errmsg_ = "Object manager provides wrong type"; return false; }
+    
+    if ( !ioobj || iostrm->multiConn() )
     {
 	// Hmmm. Fall back to this, which won't work if there are wildcards:
 	mDynamicCastGet(StreamConn*,strmconn,conn)
@@ -138,10 +142,6 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 	fnm = strmconn->fileName();
 	return true;
     }
-
-    mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    if ( !iostrm )
-	{ errmsg_ = "Object manager provides wrong type"; return false; }
 
     // Catch the 'stdin' pretty name (currently "Std-IO")
     StreamProvider sp;

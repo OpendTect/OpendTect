@@ -572,13 +572,14 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
     {
 	IOStream& iostrm = *const_cast<IOStream*>( iostrmptr );
 	iostrm.resetConnNr();
+	cs.setEmpty();
 	do
 	{
 	    PtrMan<Translator> translator = ioobj.createTranslator();
 	    mDynamicCastGet(SeisTrcTranslator*,seistr,translator.ptr());
 	    Conn* conn = iostrm.getConn( Conn::Read );
 	    if ( !seistr || !conn || !seistr->initRead(conn,Seis::PreScan) )
-		return false;
+		return !cs.isEmpty();
 
 	    const SeisPacketInfo& pinf = seistr->packetInfo();
 	    CubeSampling newcs( false );
