@@ -84,6 +84,21 @@ void uiSurfaceSel::getSelSurfaceIds( TypeSet<MultiID>& mids ) const
 }
 
 
+void uiSurfaceSel::setSelSurfaceIds( const TypeSet<MultiID>& mids ) const
+{
+    TypeSet<int> selidxs;
+    for ( int idx=0; idx<mids.size(); idx++ )
+    {
+	const int surfidx = mids_.indexOf( mids[idx] );
+	if ( surfidx < 0 )
+	    continue;
+
+	selidxs += surfidx;
+    }
+
+    listfld_->setChosen( selidxs );
+}
+
 int uiSurfaceSel::getSelItems() const
 { return listfld_->nrChosen(); }
 

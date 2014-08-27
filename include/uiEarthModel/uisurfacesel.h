@@ -27,6 +27,7 @@ public:
 			~uiSurfaceSel();
 
     virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
+    void		setSelSurfaceIds(const TypeSet<MultiID>&) const;
     int 		getSelItems() const;
 
     void		removeFromList(const TypeSet<MultiID>&);
