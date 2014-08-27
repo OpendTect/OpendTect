@@ -535,9 +535,9 @@ uiTextItem::~uiTextItem()
 }
 
 
-ODViewerTextItem* uiTextItem::mkODObj()
+ODGraphicsTextItem* uiTextItem::mkODObj()
 {
-    qtextitem_ = new ODViewerTextItem( false );
+    qtextitem_ = new ODGraphicsTextItem();
     return qtextitem_;
 }
 

@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+// ODGraphicsPointItem
 ODGraphicsPointItem::ODGraphicsPointItem()
     : QAbstractGraphicsShapeItem()
     , highlight_(false)
@@ -83,7 +84,7 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 }
 
 
-
+// ODGraphicsMarkerItem
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
     , mstyle_( new MarkerStyle2D() )
@@ -203,6 +204,8 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter,
 }
 
 
+
+// ODGraphicsArrowItem
 ODGraphicsArrowItem::ODGraphicsArrowItem()
     : QAbstractGraphicsShapeItem()
 {
@@ -338,14 +341,34 @@ QPoint ODGraphicsArrowItem::getEndPoint( const QPoint& pt,
 }
 
 
-void ODViewerTextItem::setText( const QString& t )
+// ODGraphicsTextItem
+ODGraphicsTextItem::ODGraphicsTextItem()
+    : hal_( Qt::AlignLeft )
+    , val_( Qt::AlignTop )
+{}
+
+
+void ODGraphicsTextItem::setText( const QString& t )
 {
     prepareGeometryChange();
     text_ = t;
 }
 
 
-QPointF ODViewerTextItem::getAlignment() const
+void ODGraphicsTextItem::setFont( const QFont& ft )
+{ font_ = ft; }
+
+QFont ODGraphicsTextItem::getFont() const
+{ return font_; }
+
+void ODGraphicsTextItem::setVAlignment( const Qt::Alignment& al )
+{ val_ = al; }
+
+void ODGraphicsTextItem::setHAlignment( const Qt::Alignment& al )
+{ hal_ = al; }
+
+
+QPointF ODGraphicsTextItem::getAlignment() const
 {
     float movex = 0, movey = 0;
 
@@ -375,7 +398,7 @@ QPointF ODViewerTextItem::getAlignment() const
 
 static int border = 5;
 
-QRectF ODViewerTextItem::boundingRect() const
+QRectF ODGraphicsTextItem::boundingRect() const
 {
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( QString(text_) );
@@ -399,7 +422,7 @@ QRectF ODViewerTextItem::boundingRect() const
 }
 
 
-void ODViewerTextItem::paint( QPainter* painter,
+void ODGraphicsTextItem::paint( QPainter* painter,
 			      const QStyleOptionGraphicsItem *option,
 			      QWidget *widget )
 {
@@ -440,6 +463,8 @@ void ODViewerTextItem::paint( QPainter* painter,
 }
 
 
+
+// ODGraphicsPixmapItem
 ODGraphicsPixmapItem::ODGraphicsPixmapItem()
     : QGraphicsPixmapItem()
 {}
@@ -460,6 +485,7 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
 
 
 
+// ODGraphicsPolyLineItem
 ODGraphicsPolyLineItem::ODGraphicsPolyLineItem()
     : QAbstractGraphicsShapeItem()
     , closed_( false )
@@ -502,6 +528,26 @@ void ODGraphicsPolyLineItem::paint( QPainter* painter,
 }
 
 
+void ODGraphicsPolyLineItem::setPolyLine( const QPolygonF& polygon, bool closed)
+{
+    prepareGeometryChange();
+    qpolygon_ = polygon;
+    closed_ = closed;
+}
+
+
+void ODGraphicsPolyLineItem::setFillRule( Qt::FillRule fr )
+{ fillrule_ = fr; }
+
+bool ODGraphicsPolyLineItem::isEmpty() const
+{ return qpolygon_.isEmpty(); }
+
+void ODGraphicsPolyLineItem::setEmpty()
+{ qpolygon_.clear(); }
+
+
+
+// ODGraphicsDynamicImageItem
 ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     : wantsData( this )
     , bbox_( 0, 0, 1, 1 )
@@ -511,9 +557,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
 
 
 ODGraphicsDynamicImageItem::~ODGraphicsDynamicImageItem()
-{
-
-}
+{}
 
 #if QT_VERSION>=0x040700
 # define mImage2PixmapImpl( image, pixmap ) pixmap->convertFromImage( image )
@@ -713,3 +757,10 @@ bool ODGraphicsDynamicImageItem::updateResolution( const QPainter* painter )
     wantedscreensz_ = wantedscreensz;
     return true;
 }
+
+
+const QRectF& ODGraphicsDynamicImageItem::wantedWorldRect() const
+{ return wantedwr_; }
+
+const QSize& ODGraphicsDynamicImageItem::wantedScreenSize() const
+{ return wantedscreensz_; }

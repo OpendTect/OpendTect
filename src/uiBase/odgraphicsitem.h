@@ -24,6 +24,8 @@ ________________________________________________________________________
 
 class ioPixmap;
 
+static int ODGraphicsType = 100000;
+
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
@@ -32,11 +34,14 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
+
     void 			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
     void			setColor( const Color& col )
 				{ pencolor_ = col ; }
+
+    virtual int			type() const	{ return ODGraphicsType+1; }
 
 protected:
     bool			highlight_;
@@ -57,11 +62,14 @@ public:
 	    		              QWidget*);
     static void 		drawMarker(QPainter&,MarkerStyle2D::Type,
 					   float,float);
+
     void			setMarkerStyle(const MarkerStyle2D&);
     void			setFill( bool fill )	  { fill_ = fill; }
     void			setFillColor( const Color& col )
     				{ fillcolor_ = col; }
     void			setSideLength( int side ) { side_ = side; }
+
+    virtual int			type() const	{ return ODGraphicsType+2; }
 
 protected:
     QRectF			boundingrect_;
@@ -77,8 +85,12 @@ class ODGraphicsPixmapItem : public QGraphicsPixmapItem
 public:
     				ODGraphicsPixmapItem();
     				ODGraphicsPixmapItem(const ioPixmap&);
+
     void                        paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);
+
+    virtual int			type() const	{ return ODGraphicsType+3; }
+
 };
 
 
@@ -90,6 +102,7 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
+
     void 			drawArrow(QPainter&);
     double 			getAddedAngle(double,float);
     QPoint 			getEndPoint(const QPoint&,double,double);
@@ -101,43 +114,40 @@ public:
     				{ arrowsz_ = arrowsz ; }
     void			setLineStyle(QPainter&,const LineStyle&);
 
+    virtual int			type() const	{ return ODGraphicsType+4; }
+
 protected:
     ArrowStyle			arrowstyle_;
     int				arrowsz_;
 };
 
 
-class ODViewerTextItem : public QAbstractGraphicsShapeItem
+class ODGraphicsTextItem : public QAbstractGraphicsShapeItem
 {
 public:
-			ODViewerTextItem(bool paintinwc = false)
-			    : paintinwc_( paintinwc )
-			    , hal_( Qt::AlignLeft )
-			    , val_( Qt::AlignTop )
-			{}
+				ODGraphicsTextItem();
 
-    void		setText(const QString&);
+    QRectF			boundingRect() const;
+    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 
-    QRectF		boundingRect() const;
+    void			setText(const QString&);
+    void			setFont(const QFont&);
+    QFont			getFont() const;
 
-    void		setFont( const QFont& f ) { font_ = f; }
-    QFont		getFont() const { return font_; }
+    void			setVAlignment(const Qt::Alignment&);
+    void			setHAlignment(const Qt::Alignment&);
 
-    void 		paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		      QWidget*);
-
-    void		setVAlignment(const Qt::Alignment& a) { val_=a; }
-    void		setHAlignment(const Qt::Alignment& a) { hal_ = a; }
+    virtual int			type() const	{ return ODGraphicsType+5; }
 
 protected:
-    void		updateRect();
-    QPointF		getAlignment() const;
+    void			updateRect();
+    QPointF			getAlignment() const;
 
-    QFont		font_;
-    QString		text_;
-    Qt::Alignment	hal_;
-    Qt::Alignment	val_;
-    bool		paintinwc_;
+    QFont			font_;
+    QString			text_;
+    Qt::Alignment		hal_;
+    Qt::Alignment		val_;
 };
 
 
@@ -149,17 +159,13 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    void			setPolyLine( const QPolygonF& polygon,
-					     bool closed )
-    				{
-				    prepareGeometryChange();
-				    qpolygon_ = polygon;
-				    closed_ = closed;
-				}
 
-    void			setFillRule(Qt::FillRule f) { fillrule_=f; }
-    bool			isEmpty() const { return qpolygon_.isEmpty(); }
-    void			setEmpty() 	{ qpolygon_.clear(); }
+    void			setPolyLine(const QPolygonF&,bool closed);
+    void			setFillRule(Qt::FillRule);
+    bool			isEmpty() const;
+    void			setEmpty();
+
+    virtual int			type() const	{ return ODGraphicsType+6; }
 
 protected:
 
@@ -172,22 +178,23 @@ protected:
 class ODGraphicsDynamicImageItem : public QGraphicsItem, public CallBacker
 {
 public:
-			ODGraphicsDynamicImageItem();
-			~ODGraphicsDynamicImageItem();
+				ODGraphicsDynamicImageItem();
+				~ODGraphicsDynamicImageItem();
 
-    void		setImage( bool isdynamic, const QImage& image,
-	    			  const QRectF& rect );
-    const		QRectF& wantedWorldRect() const { return wantedwr_; }
-    const QSize&	wantedScreenSize() const { return wantedscreensz_; }
+    QRectF			boundingRect() const { return bbox_; }
+    void			paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 
-    QRectF		boundingRect() const { return bbox_; }
+    void			setImage(bool isdynamic,const QImage&,
+					 const QRectF&);
+    bool			updateResolution(const QPainter*);
+    const QRectF&		wantedWorldRect() const;
+    const QSize&		wantedScreenSize() const;
 
-    void		paint(QPainter*,const QStyleOptionGraphicsItem*,
-	    		      QWidget*);
-
-    bool		updateResolution(const QPainter*);
+    virtual int			type() const	{ return ODGraphicsType+7; }
 
     Notifier<ODGraphicsDynamicImageItem>	wantsData;
+
 protected:
 
     QRectF			wantedwr_;
@@ -209,6 +216,5 @@ protected:
     QRectF			dynamicpixmapbbox_; //Only access in paint
 
 };
-
 
 #endif

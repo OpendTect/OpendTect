@@ -54,6 +54,8 @@ public:
     int				nrItems() const;
     uiGraphicsItem*		getItem(int id);
     const uiGraphicsItem*	getItem(int id) const;
+    uiGraphicsItem*		itemAt(const Geom::Point2D<int>&);
+    const uiGraphicsItem*	itemAt(const Geom::Point2D<int>&) const;
 
     uiRectItem*			addRect(float x,float y,float w,float h);
 
@@ -68,7 +70,7 @@ public:
     uiRect			getSelectedArea() const;
     void			setSelectionArea(const uiRect&);
 
-    MouseEventHandler&		getMouseEventHandler()	
+    MouseEventHandler&		getMouseEventHandler()
     				{ return mousehandler_; }
 
     Notifier<uiGraphicsScene>	ctrlPPressed;
@@ -84,7 +86,7 @@ public:
     void			setSceneRect(float x,float y,float w,float h);
     uiRect			sceneRect();
 
-    bool			isMouseEventActive() const	
+    bool			isMouseEventActive() const
     				{ return ismouseeventactive_; }
     void			setMouseEventActive( bool yn )
     				{ ismouseeventactive_ = yn; }
@@ -131,17 +133,17 @@ mExpClass(uiBase) uiGraphicsObjectScene : public uiGraphicsScene
 {
 public:
 				uiGraphicsObjectScene(const char*);
-    
+
     void                        addObjectItem(uiObjectItem*);
     void                        insertObjectItem(int,uiObjectItem*);
     void                        removeObjectItem(uiObjectItem*);
     void			setItemStretch(uiObjectItem*,int stretch);
     int 			stretchFactor(uiObjectItem*) const;
-    
+
     void			setLayoutPos(const uiPoint&);
     const uiPoint		layoutPos() const;
     const uiSize		layoutSize() const;
-     
+
 protected:
 
     void 			resizeLayoutToContent();

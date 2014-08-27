@@ -43,7 +43,7 @@ class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
 class ODGraphicsPolyLineItem;
 class ODGraphicsDynamicImageItem;
-class ODViewerTextItem;
+class ODGraphicsTextItem;
 template <class T> class ODPolygon;
 
 
@@ -59,7 +59,7 @@ public:
 
     uiGroup*			getGroup();
     void			setGroup(uiGroup*);
-    
+
     virtual void		setObjectSize(int,int);
     const uiSize		objectSize() const;
 
@@ -142,7 +142,7 @@ mExpClass(uiBase) uiDynamicImageItem : public uiGraphicsItem
 public:
     				uiDynamicImageItem();
 				~uiDynamicImageItem();
-    
+
     void			setImage(bool dynamic,const uiRGBArray&,
 					 const uiWorldRect&);
     				/*!<If dynamic==false, worldrect will define
@@ -226,7 +226,7 @@ public:
 			~uiRectItem();
 
     QGraphicsRectItem*  qRectItem()	{ return qrectitem_; }
-    void		setRect(int x,int y,int width,int height); 
+    void		setRect(int x,int y,int width,int height);
 
 protected:
 
@@ -256,8 +256,8 @@ protected:
 			uiTextItem(QGraphicsItem*);
     void		translateText();
 
-    ODViewerTextItem* 	mkODObj();
-    ODViewerTextItem*	qtextitem_;
+    ODGraphicsTextItem*	mkODObj();
+    ODGraphicsTextItem*	qtextitem_;
     uiString		text_;
 
     virtual void	stPos(float,float);

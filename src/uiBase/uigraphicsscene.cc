@@ -124,6 +124,7 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
+
     QGraphicsScene::mouseReleaseEvent( qev );
 }
 
@@ -543,7 +544,28 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 { return const_cast<uiGraphicsScene*>(this)->getItem(id); }
 
 
+uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
+{
+    QGraphicsItem* itm = odgraphicsscene_->itemAt( pos.x, pos.y );
+    if ( !itm ) return 0;
 
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	if ( items_[idx]->qGraphicsItem() == itm )
+	    return items_[idx];
+    }
+
+    return 0;
+}
+
+
+const uiGraphicsItem*
+	uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos ) const
+{ return const_cast<uiGraphicsScene*>(this)->itemAt( pos ); }
+
+
+
+// uiGraphicsObjectScene
 uiGraphicsObjectScene::uiGraphicsObjectScene( const char* nm )
     : uiGraphicsScene(nm)
     , layout_(new QGraphicsLinearLayout)
