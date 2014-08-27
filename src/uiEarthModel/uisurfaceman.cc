@@ -346,8 +346,8 @@ void uiSurfaceMan::converOldBodyFormatCB( CallBacker* )
     if ( EM::Body::convertOldBodyFormatToCurrent(mids,errmsg) )
     {
 	bodyformatconvertbut_->setSensitive( false );
-	for ( int idx=0; idx<mids.size(); idx++ )
-	    selgrp_->fullUpdate( mids[idx] );
+	if ( !mids.isEmpty() )
+	    selgrp_->fullUpdate( mids[0] );
 
 	uiMSG().message( tr("Converted") );
     }
