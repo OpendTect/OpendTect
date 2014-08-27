@@ -47,8 +47,8 @@ protected:
 				uiAuxDataDisplay(const char* nm);
 				uiAuxDataDisplay(const uiAuxDataDisplay&);
 
+    void			removeItems();
     void			updateTransformCB(CallBacker*);
-
     void			updateCB(CallBacker*);
 
     uiGraphicsItemGroup*	display_;

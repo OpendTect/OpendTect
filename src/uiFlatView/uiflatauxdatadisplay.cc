@@ -66,7 +66,14 @@ uiGraphicsItemGroup* uiAuxDataDisplay::getDisplay()
 
 void uiAuxDataDisplay::removeDisplay()
 {
-    display_ = 0; polygonitem_ = 0; polylineitem_ = 0; nameitem_ = 0;
+    display_ = 0;
+    removeItems();
+}
+
+
+void uiAuxDataDisplay::removeItems()
+{
+    polygonitem_ = 0; polylineitem_ = 0; nameitem_ = 0;
     markeritems_.erase();
 }
 
@@ -81,9 +88,10 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 
     if ( !getDisplay() ) return;
 
-    if ( !enabled_ || isEmpty() )
+    if ( !enabled_ )
     {
-	display_->setVisible( false );
+	display_->removeAll( true );
+	removeItems();
 	return;
     }
 
