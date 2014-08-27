@@ -130,10 +130,10 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 
     PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
-    if ( !iostrm )
+    if ( ioobj && !iostrm )
 	{ errmsg_ = "Object manager provides wrong type"; return false; }
 
-    if ( iostrm->multiConn() )
+    if ( !ioobj || iostrm->multiConn() )
     {
 	mDynamicCastGet(StreamConn*,strmconn,conn_)
 	if ( !strmconn )
