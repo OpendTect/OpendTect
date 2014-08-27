@@ -20,9 +20,11 @@ ________________________________________________________________________
 
 class uiBaseMap;
 class uiGenInput;
+class uiIOObjSelGrp;
 class uiODApplMgr;
 class BaseMapMarkers;
 class BaseMapObject;
+class IOObjContext;
 class IOPar;
 
 
@@ -52,12 +54,37 @@ public:
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyNrObjs();
+    static const char*	sKeyNrItems();
+    static const char*	sKeyItem();
 
 protected:
 			uiBasemapGroup(uiParent*);
 
-    void		addNameField(uiObject* attachobj);
+    void		addNameField();
+    virtual uiObject*	lastObject()		{ return 0; }
+
     uiGenInput*		namefld_;
+};
+
+
+mExpClass(uiBasemap) uiBasemapIOObjGroup : public uiBasemapGroup
+{
+public:
+    virtual		~uiBasemapIOObjGroup();
+
+    virtual bool	acceptOK();
+    virtual bool	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
+protected:
+			uiBasemapIOObjGroup(uiParent*,const IOObjContext&);
+
+    virtual uiObject*	lastObject();
+    void		selChg(CallBacker*);
+    void		typeChg(CallBacker*);
+
+    uiIOObjSelGrp*	ioobjfld_;
+    uiGenInput*		typefld_;
 };
 
 
@@ -124,7 +151,7 @@ public:
 			uiBasemapManager();
 			~uiBasemapManager();
 
-    void		add(int itemid);
+    void		add(int itmid);
     void		edit(int itmid,int treeitmid);
 
     void		setBasemap(uiBaseMap&);

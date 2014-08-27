@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibasemap.h"
 #include "uidialog.h"
 #include "uigeninput.h"
+#include "uiioobjselgrp.h"
+#include "uilistbox.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -24,7 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitreeview.h"
 
 #include "basemapimpl.h"
+#include "ctxtioobj.h"
+#include "filepath.h"
+#include "ioman.h"
 #include "pixmap.h"
+#include "transl.h"
 
 
 // uiBasemapTreeTop
@@ -38,6 +44,8 @@ uiBasemapTreeTop::~uiBasemapTreeTop()
 
 // uiBasemapGroup
 const char* uiBasemapGroup::sKeyNrObjs()	{ return "Nr Objects"; }
+const char* uiBasemapGroup::sKeyNrItems()	{ return "Nr Items"; }
+const char* uiBasemapGroup::sKeyItem()		{ return "Item"; }
 
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
     : uiGroup(p)
@@ -50,10 +58,12 @@ uiBasemapGroup::~uiBasemapGroup()
 {}
 
 
-void uiBasemapGroup::addNameField( uiObject* attachobj )
+void uiBasemapGroup::addNameField()
 {
     namefld_ = new uiGenInput( this, "Name" );
-    namefld_->attach( alignedBelow, attachobj );
+    namefld_->setElemSzPol( uiObject::Wide );
+    if ( lastObject() )
+	namefld_->attach( alignedBelow, lastObject() );
 }
 
 
@@ -99,6 +109,110 @@ bool uiBasemapGroup::acceptOK()
 }
 
 
+
+// uiBasemapIOObjGroup
+uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt)
+    : uiBasemapGroup(p)
+{
+    ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
+				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
+    ioobjfld_->selectionChanged.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
+
+    typefld_ = new uiGenInput( this, "Add items",
+	BoolInpSpec(true,"as group","individually") );
+    typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
+    typefld_->attach( alignedBelow, ioobjfld_ );
+}
+
+
+uiBasemapIOObjGroup::~uiBasemapIOObjGroup()
+{
+}
+
+
+uiObject* uiBasemapIOObjGroup::lastObject()
+{ return typefld_->attachObj(); }
+
+
+void uiBasemapIOObjGroup::selChg( CallBacker* )
+{
+    const int nrsel = ioobjfld_->nrChosen();
+    if ( nrsel==1 )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( ioobjfld_->currentID() );
+	setItemName( ioobj ? ioobj->name().buf() : "" );
+    }
+    else
+    {
+	BufferString typestr = ioobjfld_->getContext().trgroup->userName();
+	typestr.add( "s" );
+	setItemName( typestr );
+    }
+}
+
+
+void uiBasemapIOObjGroup::typeChg( CallBacker* )
+{ if ( namefld_ ) namefld_->setSensitive( typefld_->getBoolValue() ); }
+
+
+bool uiBasemapIOObjGroup::acceptOK()
+{
+    const bool res = uiBasemapGroup::acceptOK();
+    return res;
+}
+
+
+bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
+{
+    bool res = uiBasemapGroup::fillPar( par );
+
+    TypeSet<MultiID> mids;
+    ioobjfld_->getChosen( mids );
+    const int nrsel = mids.size();
+    const bool addasgroup = typefld_->getBoolValue() || nrsel==1;
+
+    const int nritems = addasgroup ? 1 : nrsel;
+    const int nrobjsperitem = addasgroup ? nrsel : 1;
+    par.set( sKeyNrItems(), nritems );
+    for ( int idx=0; idx<nritems; idx++ )
+    {
+	IOPar ipar;
+	ipar.set( sKeyNrObjs(), nrobjsperitem );
+	if ( addasgroup )
+	    ipar.set( sKey::Name(), itemName() );
+	else
+	    ipar.set( sKey::Name(), IOM().nameOf(mids[idx]) );
+
+	for ( int objidx=0; objidx<nrobjsperitem; objidx++ )
+	{
+	    ipar.set( IOPar::compKey(sKey::ID(),objidx), mids[idx+objidx] );
+	    const BufferString key = IOPar::compKey( sKeyItem(), idx );
+	    par.mergeComp( ipar, key );
+	}
+    }
+
+    BufferString tmpfnm = FilePath::getTempName( "par" );
+    par.write( tmpfnm, 0 );
+    return res;
+}
+
+
+bool uiBasemapIOObjGroup::usePar( const IOPar& par )
+{
+    bool res = uiBasemapGroup::usePar( par );
+
+    int nrobjs = 0;
+    par.get( sKeyNrObjs(), nrobjs );
+    TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
+    for ( int idx=0; idx<nrobjs; idx++ )
+	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
+
+    ioobjfld_->setChosen( mids );
+    return res;
+}
+
+
+// uiBasemapGroupDlg
 class uiBasemapGroupDlg : public uiDialog
 {
 public:
@@ -146,6 +260,10 @@ uiBasemapTreeItem::uiBasemapTreeItem( const char* nm )
 
 uiBasemapTreeItem::~uiBasemapTreeItem()
 {
+    for ( int idx=0; idx<basemapobjs_.size(); idx++ )
+	BMM().getBasemap().removeObject( basemapobjs_[idx] );
+
+    deepErase( basemapobjs_ );
     checkStatusChange()->remove( mCB(this,uiBasemapTreeItem,checkCB) );
     delete &pars_;
 }
@@ -265,16 +383,27 @@ void uiBasemapManager::add( int itemid )
     IOPar pars;
     dlg.fillPar( pars );
 
-    uiBasemapTreeItem* treeitm = itm->createTreeItem( dlg.grp_->itemName() );
-    treeitm->setFamilyID( itm->ID() );
-    if ( !treeitm->usePar(pars) )
+    int nritems = 1;
+    pars.get( uiBasemapGroup::sKeyNrItems(), nritems );
+    for ( int idx=0; idx<nritems; idx++ )
     {
-	delete treeitm;
-	return;
-    }
+	const BufferString key = IOPar::compKey(uiBasemapGroup::sKeyItem(),idx);
+	PtrMan<IOPar> itmpars = pars.subselect( key );
+	if ( !itmpars ) continue;
 
-    treeitems_ += treeitm;
-    treetop_->addChild( treeitm, true );
+	BufferString itmnm;
+	itmpars->get( sKey::Name(), itmnm );
+	uiBasemapTreeItem* treeitm = itm->createTreeItem( itmnm );
+	treeitm->setFamilyID( itm->ID() );
+	if ( !treeitm->usePar(*itmpars) )
+	{
+	    delete treeitm;
+	    continue;
+	}
+
+	treeitems_ += treeitm;
+	treetop_->addChild( treeitm, true );
+    }
 }
 
 

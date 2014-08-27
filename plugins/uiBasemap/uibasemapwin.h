@@ -20,11 +20,12 @@ class uiBasemapTreeTop;
 class uiDockWin;
 class uiSurveyMap;
 class uiToolBar;
+class uiToolButton;
 class uiTreeView;
 class MouseCursorExchange;
 
 mClass(uiBasemap) uiBasemapWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiBasemapWin)
 public:
     			uiBasemapWin(uiParent*);
 			~uiBasemapWin();
@@ -32,13 +33,17 @@ public:
     void		setMouseCursorExchange(MouseCursorExchange*);
 
 private:
+
     void		initWin(CallBacker*);
     void		initView();
     void		initTree();
     void		initToolBars();
+    void		viewCB(CallBacker*);
+    void		removeCB(CallBacker*);
     void		iconClickCB(CallBacker*);
     void		mouseCursorExchangeCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
+    void		updateViewMode();
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
@@ -49,7 +54,11 @@ private:
     uiBasemapTreeTop*	topitem_;
     MouseCursorExchange* mousecursorexchange_;
 
-    TypeSet<int>		ids_;
+    bool		pickmode_;
+    uiToolButton*	viewbut_;
+    uiToolButton*	removebut_;
+
+    TypeSet<int>	ids_;
 };
 
 #endif

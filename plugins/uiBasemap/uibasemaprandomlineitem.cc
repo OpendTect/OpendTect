@@ -25,12 +25,9 @@ ________________________________________________________________________
 
 // uiBasemapRandomLineGroup
 uiBasemapRandomLineGroup::uiBasemapRandomLineGroup( uiParent* p )
-    : uiBasemapGroup(p)
+    : uiBasemapIOObjGroup(p,mIOObjContext(RandomLineSet))
 {
-    rdlsfld_ = new uiIOObjSelGrp( this, mIOObjContext(RandomLineSet),
-	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
-
-    addNameField( rdlsfld_->attachObj() );
+    addNameField();
 }
 
 
@@ -41,42 +38,21 @@ uiBasemapRandomLineGroup::~uiBasemapRandomLineGroup()
 
 bool uiBasemapRandomLineGroup::acceptOK()
 {
-    const int nrobjs = rdlsfld_->nrChosen();
-    if ( nrobjs == 0 )
-    {
-	uiMSG().error( "Select at least one random line" );
-	return false;
-    }
-
-    const bool res = uiBasemapGroup::acceptOK();
+    const bool res = uiBasemapIOObjGroup::acceptOK();
     return res;
 }
 
 
 bool uiBasemapRandomLineGroup::fillPar( IOPar& par ) const
 {
-    const bool res = uiBasemapGroup::fillPar( par );
-    TypeSet<MultiID> mids;
-    rdlsfld_->getChosen( mids );
-    const int nrobjs = mids.size();
-    par.set( sKeyNrObjs(), nrobjs );
-    for ( int idx=0; idx<nrobjs; idx++ )
-	par.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
-
+    const bool res = uiBasemapIOObjGroup::fillPar( par );
     return res;
 }
 
 
 bool uiBasemapRandomLineGroup::usePar( const IOPar& par )
 {
-    const bool res = uiBasemapGroup::usePar( par );
-    int nrobjs = 0;
-    par.get( sKeyNrObjs(), nrobjs );
-    TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
-    for ( int idx=0; idx<nrobjs; idx++ )
-	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
-
-    rdlsfld_->setChosen( mids );
+    const bool res = uiBasemapIOObjGroup::usePar( par );
     return res;
 }
 

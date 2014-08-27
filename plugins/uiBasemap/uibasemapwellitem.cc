@@ -25,12 +25,9 @@ ________________________________________________________________________
 
 // uiBasemapWellGroup
 uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p )
-    : uiBasemapGroup(p)
+    : uiBasemapIOObjGroup(p,mIOObjContext(Well))
 {
-    wellsfld_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
-	uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
-
-    addNameField( wellsfld_->attachObj() );
+    addNameField();
 }
 
 
@@ -41,42 +38,21 @@ uiBasemapWellGroup::~uiBasemapWellGroup()
 
 bool uiBasemapWellGroup::acceptOK()
 {
-    const int nrwells = wellsfld_->nrChosen();
-    if ( nrwells == 0 )
-    {
-	uiMSG().error( "Select at least one well" );
-	return false;
-    }
-
-    const bool res = uiBasemapGroup::acceptOK();
+    const bool res = uiBasemapIOObjGroup::acceptOK();
     return res;
 }
 
 
 bool uiBasemapWellGroup::fillPar( IOPar& par ) const
 {
-    const bool res = uiBasemapGroup::fillPar( par );
-    TypeSet<MultiID> mids;
-    wellsfld_->getChosen( mids );
-    const int nrwells = mids.size();
-    par.set( sKeyNrObjs(), nrwells );
-    for ( int idx=0; idx<nrwells; idx++ )
-	par.set( IOPar::compKey(sKey::ID(),idx), mids[idx] );
-
+    const bool res = uiBasemapIOObjGroup::fillPar( par );
     return res;
 }
 
 
 bool uiBasemapWellGroup::usePar( const IOPar& par )
 {
-    const bool res = uiBasemapGroup::usePar( par );
-    int nrwells = 0;
-    par.get( sKeyNrObjs(), nrwells );
-    TypeSet<MultiID> mids( nrwells, MultiID::udf() );
-    for ( int idx=0; idx<nrwells; idx++ )
-	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
-
-    wellsfld_->setChosen( mids );
+    const bool res = uiBasemapIOObjGroup::usePar( par );
     return res;
 }
 

@@ -13,7 +13,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapitem.h"
 #include "uidockwin.h"
+#include "uiflatviewstdcontrol.h"
+#include "uigraphicsscene.h"
 #include "uigraphicsview.h"
+#include "uimsg.h"
 #include "uisurvmap.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
@@ -29,10 +32,13 @@ uiBasemapWin::uiBasemapWin( uiParent* p )
 				  .deleteonclose(false))
     , topitem_(0)
     , mousecursorexchange_(0)
+    , pickmode_(false)
 {
     initView();
     initTree();
     initToolBars();
+
+    updateViewMode();
 
     BMM().setBasemap( *basemapview_ );
     BMM().setTreeTop( *topitem_ );
@@ -62,6 +68,7 @@ void uiBasemapWin::initView()
 
     basemapview_->view().getMouseEventHandler().movement.notify(
 	mCB(this,uiBasemapWin,mouseMoveCB) );
+    basemapview_->view().scene().setMouseEventActive( true );
 }
 
 
@@ -79,9 +86,16 @@ void uiBasemapWin::initTree()
 }
 
 
+#define mDefBut(tb,but,fnm,cbnm,tt) \
+    but = new uiToolButton(tb,fnm,tt,mCB(this,uiBasemapWin,cbnm) ); \
+    vwtoolbar_->addButton( but );
+
 void uiBasemapWin::initToolBars()
 {
     vwtoolbar_ = new uiToolBar( this, "Viewer Tools", uiToolBar::Left );
+
+    mDefBut( vwtoolbar_, viewbut_, "altview", viewCB, tr("") )
+
     vwtoolbar_->addObject(
 	basemapview_->view().getSaveImageButton(vwtoolbar_) );
 
@@ -96,6 +110,42 @@ void uiBasemapWin::initToolBars()
 	uiAction* action = new uiAction( str, cb, itm->iconName() );
 	itemtoolbar_->insertAction( action, itm->ID() );
     }
+
+    mDefBut( itemtoolbar_, removebut_, "trashcan", removeCB,
+	     tr("Remove selected items") );
+}
+
+
+void uiBasemapWin::viewCB( CallBacker* )
+{
+    if ( !viewbut_ ) return;
+    pickmode_ = !pickmode_;
+
+    updateViewMode();
+}
+
+
+void uiBasemapWin::updateViewMode()
+{
+    viewbut_->setPixmap( pickmode_ ? "altpick" : "altview" );
+    viewbut_->setToolTip( pickmode_ ? "Switch to view mode"
+				    : "Switch to pick mode" );
+    basemapview_->view().setDragMode(
+	pickmode_ ? uiGraphicsViewBase::NoDrag
+		  : uiGraphicsViewBase::ScrollHandDrag);
+}
+
+
+void uiBasemapWin::removeCB( CallBacker* )
+{
+    const int nrsel = tree_->nrSelected();
+    if ( nrsel==0 ) return;
+
+    if ( !uiMSG().askContinue(
+		tr("All selected items will be removed from the basemap")) )
+	return;
+
+    tree_->removeSelectedItems();
 }
 
 
@@ -147,6 +197,9 @@ void uiBasemapWin::mouseMoveCB( CallBacker* )
 	.add( toString(crd.x,0) ).add( " , " )
 	.add( toString(crd.y,0) ).add( ")" );
     toStatusBar( istr, 0 );
+
+    const FixedString itmnm = basemapview_->nameOfItemAt( ev.pos() );
+    toStatusBar( itmnm.buf(), 2 );
 
     MouseCursorExchange::Info info( Coord3(crd,0) );
     if ( mousecursorexchange_ )

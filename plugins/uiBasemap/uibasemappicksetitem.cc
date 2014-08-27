@@ -9,7 +9,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemapgeom2ditem.h"
+#include "uibasemappicksetitem.h"
 
 #include "uiaction.h"
 #include "uiioobjselgrp.h"
@@ -18,86 +18,86 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uistrings.h"
 
-#include "basemapgeom2d.h"
+#include "basemappickset.h"
 #include "oduicommon.h"
-#include "survgeometrytransl.h"
+#include "picksettr.h"
 
 
 static IOObjContext getIOObjContext()
 {
-    IOObjContext ctxt( mIOObjContext(Survey::SurvGeom) );
-    ctxt.fixTranslator( Survey::dgb2DSurvGeomTranslator::translKey() );
+    IOObjContext ctxt = mIOObjContext( PickSet );
+    ctxt.toselect.dontallow_.set( sKey::Type(), sKey::Polygon() );
     return ctxt;
 }
 
 
-// uiBasemapGeom2DGroup
-uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p )
+// uiBasemapPickSetGroup
+uiBasemapPickSetGroup::uiBasemapPickSetGroup( uiParent* p )
     : uiBasemapIOObjGroup(p,getIOObjContext())
 {
     addNameField();
 }
 
 
-uiBasemapGeom2DGroup::~uiBasemapGeom2DGroup()
+uiBasemapPickSetGroup::~uiBasemapPickSetGroup()
 {
 }
 
 
-bool uiBasemapGeom2DGroup::acceptOK()
+bool uiBasemapPickSetGroup::acceptOK()
 {
     const bool res = uiBasemapIOObjGroup::acceptOK();
     return res;
 }
 
 
-bool uiBasemapGeom2DGroup::fillPar( IOPar& par ) const
+bool uiBasemapPickSetGroup::fillPar( IOPar& par ) const
 {
     const bool res = uiBasemapIOObjGroup::fillPar( par );
     return res;
 }
 
 
-bool uiBasemapGeom2DGroup::usePar( const IOPar& par )
+bool uiBasemapPickSetGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapIOObjGroup::usePar( par );
     return res;
 }
 
 
-// uiBasemapGeom2DItem
-const char* uiBasemapGeom2DItem::iconName() const
-{ return "geom2d"; }
+// uiBasemapPickSetItem
+const char* uiBasemapPickSetItem::iconName() const
+{ return "picks"; }
 
-uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p )
-{ return new uiBasemapGeom2DGroup( p ); }
+uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p )
+{ return new uiBasemapPickSetGroup( p ); }
 
-uiBasemapTreeItem* uiBasemapGeom2DItem::createTreeItem( const char* nm )
-{ return new uiBasemapGeom2DTreeItem( nm ); }
+uiBasemapTreeItem* uiBasemapPickSetItem::createTreeItem( const char* nm )
+{ return new uiBasemapPickSetTreeItem( nm ); }
 
 
 
-// uiBasemapGeom2DTreeItem
-uiBasemapGeom2DTreeItem::uiBasemapGeom2DTreeItem( const char* nm )
+// uiBasemapPickSetTreeItem
+uiBasemapPickSetTreeItem::uiBasemapPickSetTreeItem( const char* nm )
     : uiBasemapTreeItem(nm)
 {}
 
 
-uiBasemapGeom2DTreeItem::~uiBasemapGeom2DTreeItem()
+uiBasemapPickSetTreeItem::~uiBasemapPickSetTreeItem()
 {}
 
 
-bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
+bool uiBasemapPickSetTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-    int nrobjs = 0;
-    par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
+    int nrpicksets = 0;
+    par.get( uiBasemapGroup::sKeyNrObjs(), nrpicksets );
 
-    while ( nrobjs < basemapobjs_.size() )
+    while ( nrpicksets < basemapobjs_.size() )
 	delete removeBasemapObject( *basemapobjs_[0] );
 
-    for ( int idx=0; idx<nrobjs; idx++ )
+    for ( int idx=0; idx<nrpicksets; idx++ )
     {
 	MultiID mid;
 	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
@@ -105,13 +105,12 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 
 	if ( basemapobjs_.validIdx(idx) )
 	{
-	    mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
+	    mDynamicCastGet(Basemap::PickSetObject*,obj,basemapobjs_[idx])
 	    if ( obj ) obj->setMultiID( mid );
 	}
 	else
 	{
-	    Basemap::Geom2DObject* obj =
-		new Basemap::Geom2DObject( mid );
+	    Basemap::PickSetObject* obj = new Basemap::PickSetObject( mid );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
 	}
@@ -121,7 +120,7 @@ bool uiBasemapGeom2DTreeItem::usePar( const IOPar& par )
 }
 
 
-bool uiBasemapGeom2DTreeItem::showSubMenu()
+bool uiBasemapPickSetTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
@@ -130,7 +129,7 @@ bool uiBasemapGeom2DTreeItem::showSubMenu()
 }
 
 
-bool uiBasemapGeom2DTreeItem::handleSubMenu( int mnuid )
+bool uiBasemapPickSetTreeItem::handleSubMenu( int mnuid )
 {
     if ( mnuid==0 )
     {

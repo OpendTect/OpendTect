@@ -30,7 +30,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
     {
         uiMarkerItem* markeritem = new uiMarkerItem( MarkerStyle2D::Square );
 	markeritem->setZValue( 1 );
-	itemgrp_->add( markeritem );
+	itemgrp_.add( markeritem );
 	vertices_ += markeritem;
     }
 
@@ -41,7 +41,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
 	uiLineItem* lineitem = new uiLineItem();
 	lineitem->setPenColor( red );
 	lineitem->setPenStyle( ls );
-	itemgrp_->add( lineitem );
+	itemgrp_.add( lineitem );
 	edges_ += lineitem;
     }
 
@@ -57,7 +57,7 @@ uiSurveyBoxObject::uiSurveyBoxObject( BaseMapObject* bmo, bool withlabels )
 	textitem->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
 	textitem->setZValue( 1 );
-	itemgrp_->add( textitem );
+	itemgrp_.add( textitem );
 	labels_ += textitem;
     }
 }
@@ -71,7 +71,7 @@ void uiSurveyBoxObject::setSurveyInfo( const SurveyInfo* si )
 
 void uiSurveyBoxObject::setVisibility( bool yn )
 {
-    itemGrp()->setVisible( yn );
+    itemGrp().setVisible( yn );
 }
 
 
@@ -124,19 +124,19 @@ uiNorthArrowObject::uiNorthArrowObject( BaseMapObject* bmo, bool withangle )
     arrowstyle.linestyle_.width_ = 3;
     arrow_ = new uiArrowItem;
     arrow_->setArrowStyle( arrowstyle );
-    itemgrp_->add( arrow_ );
+    itemgrp_.add( arrow_ );
 
     if ( !withangle )
 	return;
 
     angleline_ = new uiLineItem;
     angleline_->setPenStyle( LineStyle(LineStyle::Dot,2,Color(255,0,0)) );
-    itemgrp_->add( angleline_ );
+    itemgrp_.add( angleline_ );
 
     mDeclAlignment( txtalign, Right, Bottom );
     anglelabel_ = new uiTextItem();
     anglelabel_->setAlignment( txtalign );
-    itemgrp_->add( anglelabel_ );
+    itemgrp_.add( anglelabel_ );
 }
 
 
@@ -148,7 +148,7 @@ void uiNorthArrowObject::setSurveyInfo( const SurveyInfo* si )
 
 void uiNorthArrowObject::setVisibility( bool yn )
 {
-    itemGrp()->setVisible( yn );
+    itemGrp().setVisible( yn );
 }
 
 

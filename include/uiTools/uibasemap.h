@@ -28,10 +28,12 @@ public:
     				uiBaseMapObject(BaseMapObject*);
     virtual			~uiBaseMapObject();
 
+    const char*			name() const;
     void			setTransform(const uiWorld2Ui*);
     virtual void		show(bool yn);
 
-    uiGraphicsItemGroup*	itemGrp()		{ return itemgrp_; }
+    uiGraphicsItemGroup&	itemGrp()		{ return itemgrp_; }
+    const uiGraphicsItemGroup&	itemGrp() const		{ return itemgrp_; }
     virtual void		update();
 
 protected:
@@ -39,7 +41,7 @@ protected:
 
     void			changedCB(CallBacker*);
 
-    uiGraphicsItemGroup*	itemgrp_;
+    uiGraphicsItemGroup&	itemgrp_;
     const uiWorld2Ui*		transform_;
 
     BaseMapObject*		bmobject_;
@@ -59,6 +61,8 @@ public:
 
     void			addObject(uiBaseMapObject*);
     				//! object becomes mine, obviously.
+
+    const char*			nameOfItemAt(const Geom::Point2D<int>&) const;
 
     uiGraphicsView&		view()			{ return view_; }
     const uiWorld2Ui&		transform() const	{ return w2ui_; }

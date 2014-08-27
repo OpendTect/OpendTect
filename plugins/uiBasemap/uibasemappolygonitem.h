@@ -1,5 +1,5 @@
-#ifndef uibasemapgeom2ditem_h
-#define uibasemapgeom2ditem_h
+#ifndef uibasemappolygonitem_h
+#define uibasemappolygonitem_h
 
 /*+
 ________________________________________________________________________
@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapPolygonGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapGeom2DGroup(uiParent*);
-			~uiBasemapGeom2DGroup();
+			uiBasemapPolygonGroup(uiParent*);
+			~uiBasemapPolygonGroup();
 
     bool		acceptOK();
     bool		fillPar(IOPar&) const;
@@ -31,11 +31,11 @@ protected:
 
 
 
-mExpClass(uiBasemap) uiBasemapGeom2DTreeItem : public uiBasemapTreeItem
+mExpClass(uiBasemap) uiBasemapPolygonTreeItem : public uiBasemapTreeItem
 {
 public:
-			uiBasemapGeom2DTreeItem(const char*);
-			~uiBasemapGeom2DTreeItem();
+			uiBasemapPolygonTreeItem(const char*);
+			~uiBasemapPolygonTreeItem();
 
     bool		usePar(const IOPar&);
 
@@ -49,13 +49,13 @@ protected:
 
 
 
-mExpClass(uiBasemap) uiBasemapGeom2DItem : public uiBasemapItem
+mExpClass(uiBasemap) uiBasemapPolygonItem : public uiBasemapItem
 {
 public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
-				uiBasemapGeom2DItem,
-				"Geom2Ds",
+				uiBasemapPolygonItem,
+				"Polygons",
 				sFactoryKeyword())
 
     const char*		iconName() const;

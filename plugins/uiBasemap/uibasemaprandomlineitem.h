@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-class uiIOObjSelGrp;
-
-mExpClass(uiBasemap) uiBasemapRandomLineGroup : public uiBasemapGroup
+mExpClass(uiBasemap) uiBasemapRandomLineGroup : public uiBasemapIOObjGroup
 {
 public:
 			uiBasemapRandomLineGroup(uiParent*);
@@ -29,7 +27,6 @@ public:
 
 protected:
 
-    uiIOObjSelGrp*	rdlsfld_;
 };
 
 

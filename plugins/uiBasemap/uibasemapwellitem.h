@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-class uiIOObjSelGrp;
-
-mExpClass(uiBasemap) uiBasemapWellGroup : public uiBasemapGroup
+mExpClass(uiBasemap) uiBasemapWellGroup : public uiBasemapIOObjGroup
 {
 public:
 			uiBasemapWellGroup(uiParent*);
@@ -29,7 +27,6 @@ public:
 
 protected:
 
-    uiIOObjSelGrp*	wellsfld_;
 };
 
 

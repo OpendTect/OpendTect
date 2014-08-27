@@ -24,6 +24,7 @@ Geom2DObject::Geom2DObject( const MultiID& mid )
     , mid_(mid)
 {
     setMultiID( mid );
+    ls_.width_ = 3;
 }
 
 

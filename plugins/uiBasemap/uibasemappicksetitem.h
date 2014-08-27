@@ -1,5 +1,5 @@
-#ifndef uibasemapgeom2ditem_h
-#define uibasemapgeom2ditem_h
+#ifndef uibasemappicksetitem_h
+#define uibasemappicksetitem_h
 
 /*+
 ________________________________________________________________________
@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "uibasemapitem.h"
 
-mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
+mExpClass(uiBasemap) uiBasemapPickSetGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapGeom2DGroup(uiParent*);
-			~uiBasemapGeom2DGroup();
+			uiBasemapPickSetGroup(uiParent*);
+			~uiBasemapPickSetGroup();
 
     bool		acceptOK();
     bool		fillPar(IOPar&) const;
@@ -31,11 +31,11 @@ protected:
 
 
 
-mExpClass(uiBasemap) uiBasemapGeom2DTreeItem : public uiBasemapTreeItem
+mExpClass(uiBasemap) uiBasemapPickSetTreeItem : public uiBasemapTreeItem
 {
 public:
-			uiBasemapGeom2DTreeItem(const char*);
-			~uiBasemapGeom2DTreeItem();
+			uiBasemapPickSetTreeItem(const char*);
+			~uiBasemapPickSetTreeItem();
 
     bool		usePar(const IOPar&);
 
@@ -49,13 +49,13 @@ protected:
 
 
 
-mExpClass(uiBasemap) uiBasemapGeom2DItem : public uiBasemapItem
+mExpClass(uiBasemap) uiBasemapPickSetItem : public uiBasemapItem
 {
 public:
 			mDefaultFactoryInstantiation(
 				uiBasemapItem,
-				uiBasemapGeom2DItem,
-				"Geom2Ds",
+				uiBasemapPickSetItem,
+				"PickSets",
 				sFactoryKeyword())
 
     const char*		iconName() const;
