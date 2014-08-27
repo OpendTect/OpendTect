@@ -100,7 +100,7 @@ Procedure:</p>
 
 
 <h3 id="heading3">OpenSceneGraph</h3>
-<p id="text">A full OpenSceneGraph installation is only necessary when you want to build a plugin which is directly dependent on OpenSceneGraph or if you want to build OpendTect from scratch. Download an OpenSceneGraph installation, or get the source code from <a href="http://OpenSceneGraph.org/">OpenSceneGraph</a> repositories and build yourself using Visual Studio. </p>
+<p id="text">A full OpenSceneGraph installation is only necessary when you want to build a plugin which is directly dependent on OpenSceneGraph or if you want to build OpendTect from scratch. Download an OpenSceneGraph installation, or get the source code from <a href="http://OpenSceneGraph.org/">OpenSceneGraph</a> repositories and build yourself using Visual Studio.</p>
 <br>
 
 
