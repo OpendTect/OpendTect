@@ -42,7 +42,10 @@ public:
     static od_int32	headerSize() { return sizeof(Header); }
     static od_int32	getPayloadSize(const void*);
 
-    void		obtainNewRequestID();
+    int			setIsNewRequest(); //!< conveniently returns reqID()
+    bool		isNewRequest() const { return subID()==cBeginSubID(); }
+    void		setIsRequestEnd(int reqid);
+    bool		isRequestEnd() const { return subID()==cEndSubID(); }
 
     od_int32		requestID() const;
     void		setRequestID(od_int32);

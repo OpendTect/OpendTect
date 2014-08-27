@@ -27,52 +27,63 @@ namespace Network
 class RequestPacket;
 
 
-mExpClass(Network) RequestCommunicator : CallBacker
+/*\brief
+  Manages RequestPackets by sending/receiveing them using a Tcp Connection.
+
+  To send a packet, make the RequestPacket and use sendPacket().
+
+  To receive, you want only packets for your request ID. If you set a timeout
+  the communicator will wait for a packet with your ID if there wasn't already
+  one present. On success, the returned packet is yours.
+
+  If the other side can also send requests to us, then you need to periodically
+  fetch your packets until getNextExternalPacket() returns null.
+
+ */
+
+
+mExpClass(Network) RequestCommunicator : public CallBacker
 {
 public:
 			RequestCommunicator(const char* servername,
-					    short serverport);
+					    int serverport);
 			~RequestCommunicator();
 
-    bool		isOK();
-
-    od_int32		getNewRequestID();
+    bool		isOK() const;
 
     bool		sendPacket(const RequestPacket&);
 
-    RequestPacket*	pickupPacket(od_int32 reqid,
-				     int* errorcode=0,
-				     int timeout=0 /* in ms */ );
-			/*!<If packet is returned, it's your's.
-			    If timeout is more than 0, process will block
-			    until packet has arrived, or timeout is reached.
-			    If no packet has arrived, errorcode is filled with:
-			    0 - no error,
-			    1-timeout,
-			    2-Request encountered an error. */
-    static int		cCancelled()		{ return 2; }
-    static int		cTimeout()		{ return 1; }
+    RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
+					int* errorcode=0);
+    RequestPacket*	getNextExternalPacket();
 
-    void		reportFinished(od_int32);
-			/*!<Let me know when you have received everything.*/
-    void		cancelRequest(od_int32);
+    static int		cInvalidRequest()	{ return 1; }
+    static int		cTimeout()		{ return 2; }
+
+    TcpConnection*	tcpConnection()		{ return tcpconn_; }
+
+    Notifier<RequestCommunicator> connectionClosed;
 
 private:
 
-    void			cancelRequestInternal(od_int32);
-
-    TypeSet<od_int32>		activerequestids_;
+    TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
-    Threads::ConditionVar	lock_;
-    TcpConnection*		tcpsocket_;
+    Threads::Lock		lock_;
+    TcpConnection*		tcpconn_;
 
     BufferString		servername_;
     short			serverport_;
+
+    void			connCloseCB(CallBacker*);
+    Network::RequestPacket*	readConnection(int);
+    Network::RequestPacket*	getNextAlreadyRead(int);
+    void			requestEnded(od_int32);
+
 };
 
 
 }; //Namespace
 
-#endif
 
+#endif

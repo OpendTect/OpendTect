@@ -13,165 +13,171 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqpacket.h"
 #include "tcpconnection.h"
-#include "ptrman.h"
+#include "timefun.h"
 
 using namespace Network;
 
 
-static Threads::Atomic<od_int32> freeid;
-
-
-RequestCommunicator::RequestCommunicator( const char* servername,
-					  short port )
-    : tcpsocket_( new TcpConnection )
+RequestCommunicator::RequestCommunicator( const char* servername, int port )
+    : tcpconn_( new TcpConnection )
     , servername_( servername )
     , serverport_( port )
+    , connectionClosed( this )
 {
-    tcpsocket_->connectToHost( servername, port );
+    tcpconn_->connectToHost( servername, port );
+    mAttachCB(tcpconn_->Closed,RequestCommunicator::connCloseCB);
 }
 
 
 RequestCommunicator::~RequestCommunicator()
 {
     deepErase( receivedpackets_ );
-    delete tcpsocket_;
+    delete tcpconn_;
 }
 
 
-od_int32 RequestCommunicator::getNewRequestID()
+bool RequestCommunicator::isOK() const
 {
-    od_int32 res = freeid++;
-
-    Threads::MutexLocker locker( lock_ );
-    activerequestids_ += res;
-
-    return res;
+    return tcpconn_ && tcpconn_->isConnected();
 }
 
 
+void RequestCommunicator::connCloseCB( CallBacker* )
+{
+    connectionClosed.trigger();
+}
 
-bool RequestCommunicator::sendPacket( const Network::RequestPacket& req )
+
+bool RequestCommunicator::sendPacket( const RequestPacket& req )
 {
     if ( !req.isOK() )
 	return false;
 
     const od_int32 reqid = req.requestID();
-    Threads::MutexLocker locker( lock_ );
+    const od_int16 subid = req.subID();
 
-    if ( !activerequestids_.isPresent( reqid ) )
-	return false;
-
-    if ( !tcpsocket_->write( req ) )
+    Threads::Locker locker( lock_ );
+    if ( !ourrequestids_.isPresent( reqid ) )
     {
-	cancelRequestInternal( reqid );
-	return false;
+	if ( subid == RequestPacket::cBeginSubID() )
+	    ourrequestids_ += reqid;
+	else
+	    return false;
     }
+    locker.unlockNow();
 
-    return true;
+    bool ret = tcpconn_->write(req);
+    if ( !ret || subid == RequestPacket::cEndSubID() )
+	requestEnded( reqid );
+
+    return ret;
 }
 
 
-Network::RequestPacket*
-Network::RequestCommunicator::pickupPacket(od_int32 reqid, int* errorcode,
-					   int timeout )
+RequestPacket* RequestCommunicator::pickupPacket( od_int32 reqid, int timeout,
+						  int* errorcode )
 {
-    Threads::MutexLocker locker( lock_ );
-    if ( !activerequestids_.isPresent( reqid ) )
+    Threads::Locker locker( lock_ );
+    const int idxof = ourrequestids_.indexOf( reqid );
+    if ( idxof < 0 )
     {
-	if ( errorcode ) *errorcode = cCancelled();
+	if ( errorcode ) *errorcode = cInvalidRequest();
 	return 0;
     }
 
-    bool signalled = false;
-
-    while ( tcpsocket_->anythingToRead() )
+    RequestPacket* pkt = getNextAlreadyRead( reqid );
+    if ( !pkt )
     {
-	Network::RequestPacket* packet = new Network::RequestPacket;
-	if ( tcpsocket_->read( *packet ) )
+	const int starttm = Time::getMilliSeconds();
+	while ( Time::getMilliSeconds()-starttm < timeout )
+	{
+	    pkt = readConnection(reqid);
+	    if ( pkt )
+		break;
+	    Threads::sleep( 0.01 );
+	}
+
+	if ( !pkt && errorcode )
+	    *errorcode = cTimeout();
+    }
+
+    if ( pkt && pkt->subID() == RequestPacket::cEndSubID() )
+	requestEnded( reqid );
+
+    return pkt;
+}
+
+
+RequestPacket* RequestCommunicator::readConnection( int targetreqid )
+{
+    Threads::Locker locker( lock_ );
+
+    while ( tcpconn_->anythingToRead() )
+    {
+	RequestPacket* packet = new RequestPacket;
+	if ( tcpconn_->read( *packet ) )
 	{
 	    const od_int32 receivedid = packet->requestID();
-	    if ( receivedid==reqid )
+	    if ( receivedid==targetreqid )
 		return packet;
 
-	    if ( !activerequestids_.isPresent( receivedid ))
+	    if ( targetreqid > 0 && !ourrequestids_.isPresent( receivedid ))
 	    {
 		delete packet;
 		continue;
 	    }
-	    
-	    receivedpackets_ += packet;
 
-	    if ( !signalled )
-	    {
-		lock_.signal( true );
-		signalled = true;
-	    }
+	    receivedpackets_ += packet;
 	}
 	else
 	{
-	    tcpsocket_->disconnectFromHost();
+	    tcpconn_->disconnectFromHost();
 
 	    delete packet;
 
-	    activerequestids_.erase();
+	    ourrequestids_.erase();
 	    deepErase( receivedpackets_ );
 
-	    tcpsocket_->connectToHost( servername_, serverport_ );
+	    tcpconn_->connectToHost( servername_, serverport_ );
 	}
-    }
-
-    while ( true )
-    {
-	for ( int idx=0; idx<receivedpackets_.size(); idx++ )
-	{
-	    if ( receivedpackets_[idx]->requestID()==reqid )
-	    {
-		return receivedpackets_.removeSingle( idx );
-	    }
-	}
-
-	if ( timeout )
-	{
-	    lock_.wait( timeout );
-
-	    //We may have had a cancel when we were waiting. Check.
-	    if ( !activerequestids_.isPresent( reqid ))
-	    {
-		if ( !errorcode ) *errorcode = cCancelled();
-		return 0;
-	    }
-
-	    timeout = 0;
-	    if ( errorcode ) *errorcode = cTimeout();
-	    continue;
-	}
-
-	break;
     }
 
     return 0;
 }
 
 
-void RequestCommunicator::reportFinished( od_int32 reqid )
-{
-    Threads::MutexLocker locker( lock_ );
-    activerequestids_ -= reqid;
 
+RequestPacket* RequestCommunicator::getNextAlreadyRead( int reqid )
+{
+    Threads::Locker locker( lock_ );
+    for ( int idx=0; idx<receivedpackets_.size(); idx++ )
+    {
+	if ( reqid < 0 || receivedpackets_[idx]->requestID()==reqid )
+	    return receivedpackets_.removeSingle( idx );
+    }
+
+    return 0;
 }
 
 
-void RequestCommunicator::cancelRequest( od_int32 reqid )
+RequestPacket* RequestCommunicator::getNextExternalPacket()
 {
-    Threads::MutexLocker locker( lock_ );
-
-    cancelRequestInternal( reqid );
+    Threads::Locker locker( lock_ );
+    readConnection( -1 );
+    for ( int idx=0; idx<receivedpackets_.size(); idx++ )
+    {
+	RequestPacket* pkt = receivedpackets_[idx];
+	if ( !ourrequestids_.isPresent(pkt->requestID()) )
+	    return receivedpackets_.removeSingle(idx);
+    }
+    return 0;
 }
 
 
-void RequestCommunicator::cancelRequestInternal( od_int32 reqid )
+void RequestCommunicator::requestEnded( od_int32 reqid )
 {
-    activerequestids_ -= reqid;
+    Threads::Locker locker( lock_ );
+    ourrequestids_ -= reqid;
 
     for ( int idx=receivedpackets_.size()-1; idx>=0; idx-- )
     {
@@ -179,5 +185,3 @@ void RequestCommunicator::cancelRequestInternal( od_int32 reqid )
 	    delete receivedpackets_.removeSingle( idx );
     }
 }
-
-

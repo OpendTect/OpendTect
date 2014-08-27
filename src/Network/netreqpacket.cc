@@ -47,9 +47,19 @@ od_int32 Network::RequestPacket::getPayloadSize( const void* buf )
 }
 
 
-void Network::RequestPacket::obtainNewRequestID()
+int Network::RequestPacket::setIsNewRequest()
 {
-    setRequestID( ++curreqid_ );
+    const int reqid = ++curreqid_;
+    setRequestID( reqid );
+    setSubID( cBeginSubID() );
+    return reqid;
+}
+
+
+void Network::RequestPacket::setIsRequestEnd( int reqid )
+{
+    setRequestID( reqid );
+    setSubID( cEndSubID() );
 }
 
 
@@ -97,12 +107,15 @@ void Network::RequestPacket::setStringPayload( const char* str )
 	setPayload( 0, 0 );
     else
     {
-	int newplsz = sz+1;
+	int newplsz = sz + sizeof(int);
 	mDeclareAndTryAlloc( char*, newpl, char[newplsz] );
 	if ( !newpl )
 	    newplsz = 0;
 	else
-	    OD::memCopy( newpl, str, newplsz );
+	{
+	    *((int*)newpl) = sz;
+	    OD::memCopy( newpl+sizeof(int), str, sz );
+	}
 
 	setPayload( newpl, newplsz );
     }
