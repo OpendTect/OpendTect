@@ -27,11 +27,7 @@ class ioPixmap;
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
-    				ODGraphicsPointItem()
-				    : QAbstractGraphicsShapeItem()
-				    , highlight_(false)
-				    , penwidth_(2)
-				    , pencolor_(Color::Black())	{}
+    				ODGraphicsPointItem();
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -69,10 +65,10 @@ public:
 
 protected:
     QRectF			boundingrect_;
-    MarkerStyle2D*		mstyle_;	
-    Color			fillcolor_;	
-    bool			fill_;	
-    int 			side_;	
+    MarkerStyle2D*		mstyle_;
+    Color			fillcolor_;
+    bool			fill_;
+    int 			side_;
 };
 
 
@@ -119,24 +115,24 @@ public:
 			    , hal_( Qt::AlignLeft )
 			    , val_( Qt::AlignTop )
 			{}
-    
+
     void		setText(const QString&);
 
     QRectF		boundingRect() const;
-    
+
     void		setFont( const QFont& f ) { font_ = f; }
     QFont		getFont() const { return font_; }
-    
+
     void 		paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		      QWidget*);
-    
+
     void		setVAlignment(const Qt::Alignment& a) { val_=a; }
     void		setHAlignment(const Qt::Alignment& a) { hal_ = a; }
-    
+
 protected:
     void		updateRect();
     QPointF		getAlignment() const;
-    
+
     QFont		font_;
     QString		text_;
     Qt::Alignment	hal_;
@@ -148,7 +144,7 @@ protected:
 class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
 {
 public:
-    ODGraphicsPolyLineItem();
+				ODGraphicsPolyLineItem();
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -160,13 +156,13 @@ public:
 				    qpolygon_ = polygon;
 				    closed_ = closed;
 				}
-    
+
     void			setFillRule(Qt::FillRule f) { fillrule_=f; }
     bool			isEmpty() const { return qpolygon_.isEmpty(); }
     void			setEmpty() 	{ qpolygon_.clear(); }
 
 protected:
-    
+
     bool			closed_;
     QPolygonF			qpolygon_;
     Qt::FillRule 		fillrule_;

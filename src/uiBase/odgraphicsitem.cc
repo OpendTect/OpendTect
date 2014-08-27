@@ -30,6 +30,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+ODGraphicsPointItem::ODGraphicsPointItem()
+    : QAbstractGraphicsShapeItem()
+    , highlight_(false)
+    , penwidth_(2)
+    , pencolor_(Color::Black())
+{}
+
+
 QRectF ODGraphicsPointItem::boundingRect() const
 {
     return highlight_ ? QRectF( -2, -2, 4, 4 )
@@ -589,7 +597,7 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 		nrretries--;
 	    }
 	}
-								    
+
 	imagelock_.unlock();
     }
 
