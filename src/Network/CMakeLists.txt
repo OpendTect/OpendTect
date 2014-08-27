@@ -16,6 +16,7 @@ set ( OD_MODULE_SOURCES
 		cvsaccess.cc
 		issuereporter.cc
 		jobcommunic.cc
+		netreqcommunic.cc
 		netreqpacket.cc
 		oddlsite.cc
 		odnetworkaccess.cc

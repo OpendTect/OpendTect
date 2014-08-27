@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uistring.h"
 
-#include "thread.h"
+#include "threadlock.h"
 
 namespace Network
 {
@@ -110,7 +110,7 @@ private:
 					  od_int64);
 
     mutable uiString		errmsg_;
-    Threads::Mutex		lock_;
+    Threads::Lock		lock_;
     QTcpSocket*			qtcpsocket_;
     int				timeout_;
     bool			noeventloop_;

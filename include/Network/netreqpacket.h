@@ -65,7 +65,8 @@ public:
     static od_int16	cEndSubID()		{ return -1; }
     static od_int16	cNormalSubID()	{ return 0; }
 
-    void*		getRawHeader()	{ return header_.int32s_; }
+    void*		getRawHeader()		{ return header_.int32s_; }
+    const void*		getRawHeader() const	{ return header_.int32s_; }
 
 protected:
 

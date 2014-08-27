@@ -144,7 +144,7 @@ bool TcpConnection::writeArray( const void* voidbuf, od_int64 sz, bool wait )
     if ( !waitForConnected() )
 	return false;
 
-    Threads::MutexLocker locker( lock_ );
+    Threads::Locker locker( lock_ );
     od_int64 bytestowrite = sz;
 
     while ( bytestowrite )
@@ -195,9 +195,7 @@ bool TcpConnection::waitForWrite( bool forall )
     {
 	od_int64 oldpayload = qtcpsocket_->bytesToWrite();
 
-	lock_.unLock();
 	qtcpsocket_->waitForBytesWritten( timeout_ );
-	lock_.lock();
 
 	if ( oldpayload==qtcpsocket_->bytesToWrite() )
 	{
@@ -216,8 +214,22 @@ bool TcpConnection::waitForWrite( bool forall )
 
 bool TcpConnection::write( const OD::String& str )
 {
+    Threads::Locker locker( lock_ );
+
     return writeInt32( str.size() ) &&
 	   writeArray( str.buf(), str.size(), false );
+}
+
+
+bool TcpConnection::write( const Network::RequestPacket& packet )
+{
+    if ( !packet.isOK() )
+	return false;
+
+    Threads::Locker locker( lock_ );
+    return writeArray( packet.getRawHeader(), packet.headerSize() ) &&
+	   writeArray( packet.payload(), packet.payloadSize() );
+
 }
 
 
@@ -255,7 +267,7 @@ bool TcpConnection::readArray( void* voidbuf, od_int64 sz )
     if ( !waitForConnected() )
 	return false;
 
-    Threads::MutexLocker locker( lock_ );
+    Threads::Locker locker( lock_ );
 
     od_int64 bytestoread = sz;
 
@@ -352,6 +364,8 @@ bool TcpConnection::read( BufferString& res )
 
 bool TcpConnection::read( Network::RequestPacket& packet )
 {
+    Threads::Locker locker( lock_ );
+
     if ( !readArray( packet.getRawHeader(),
 		     Network::RequestPacket::headerSize() ) )
 	return false;
@@ -413,9 +427,7 @@ bool TcpConnection::waitForNewData()
 #ifndef OD_NO_QT
     while ( !qtcpsocket_->bytesAvailable() )
     {
-	lock_.unLock();
 	qtcpsocket_->waitForReadyRead( timeout_ );
-	lock_.lock();
 
 	if ( !qtcpsocket_->bytesAvailable() )
 	{
