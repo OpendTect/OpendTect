@@ -68,6 +68,7 @@ public:
 
     virtual void	setScene(uiGraphicsScene*);
     void		setParent(uiGraphicsItem*);
+    virtual uiGraphicsItem*	findItem(QGraphicsItem*);
 
     int			id() const			{ return id_; }
     int			getZValue() const;
@@ -139,6 +140,8 @@ public:
     int			size() const		{ return items_.size(); }
     uiGraphicsItem* 	getUiItem( int idx )	{ return gtItm(idx); }
     const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
+    bool		isPresent(const uiGraphicsItem&) const;
+    virtual uiGraphicsItem*	findItem(QGraphicsItem*);
 
     virtual bool	isVisible() const;
     virtual void	setVisible(bool);

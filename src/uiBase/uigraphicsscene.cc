@@ -546,13 +546,13 @@ const uiGraphicsItem* uiGraphicsScene::getItem( int id ) const
 
 uiGraphicsItem* uiGraphicsScene::itemAt( const Geom::Point2D<int>& pos )
 {
-    QGraphicsItem* itm = odgraphicsscene_->itemAt( pos.x, pos.y );
-    if ( !itm ) return 0;
+    QGraphicsItem* qitm = odgraphicsscene_->itemAt( pos.x, pos.y );
+    if ( !qitm ) return 0;
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	if ( items_[idx]->qGraphicsItem() == itm )
-	    return items_[idx];
+	uiGraphicsItem* oditm = items_[idx]->findItem( qitm );
+	if ( oditm ) return oditm;
     }
 
     return 0;

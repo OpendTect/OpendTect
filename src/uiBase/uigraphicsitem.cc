@@ -307,6 +307,10 @@ void uiGraphicsItem::translateText()
 }
 
 
+uiGraphicsItem* uiGraphicsItem::findItem( QGraphicsItem* qitm )
+{ return qitm == qgraphicsitem_ ? this : 0; }
+
+
 
 // +++++ uiGraphicsItemGroup +++++
 
@@ -427,4 +431,23 @@ void uiGraphicsItemGroup::translateText()
     uiGraphicsItem::translateText();
     for ( int idx=0; idx<items_.size(); idx++ )
 	items_[idx]->translateText();
+}
+
+
+bool uiGraphicsItemGroup::isPresent( const uiGraphicsItem& itm ) const
+{ return items_.isPresent( &itm ); }
+
+
+uiGraphicsItem* uiGraphicsItemGroup::findItem( QGraphicsItem* qitm )
+{
+    if ( qitm == qgraphicsitemgrp_ )
+	return this;
+
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	if ( qitm == items_[idx]->qGraphicsItem() )
+	    return items_[idx];
+    }
+
+    return 0;
 }
