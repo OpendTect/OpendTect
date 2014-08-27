@@ -74,8 +74,6 @@ void TcpSocket::connectToHost( const char* host, int port )
 {
 #ifndef OD_NO_QT
     qtcpsocket_->connectToHost( QString(host), port );
-#else
-    return;
 #endif
 }
 
@@ -83,8 +81,6 @@ void TcpSocket::disconnectFromHost()
 {
 #ifndef OD_NO_QT
     qtcpsocket_->disconnectFromHost();
-#else
-    return;
 #endif
 }
 
@@ -92,8 +88,6 @@ void TcpSocket::abort()
 {
 #ifndef OD_NO_QT
     qtcpsocket_->abort();
-#else
-    return;
 #endif
 }
 
@@ -115,12 +109,33 @@ bool TcpSocket::waitForReadyRead( int msec )
 #endif
 }
 
-void TcpSocket::readdata( char*& data, int len ) const
+
+bool TcpSocket::waitForReadyWrite( int msec )
 {
 #ifndef OD_NO_QT
-    qtcpsocket_->read( data, len );
+    return qtcpsocket_->waitForBytesWritten( msec );
 #else
-    return;
+    return false;
+#endif
+}
+
+
+bool TcpSocket::waitForDisconnected( int msec )
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->waitForDisconnected( msec );
+#else
+    return false;
+#endif
+}
+
+
+int TcpSocket::readdata( char* data, int len ) const
+{
+#ifndef OD_NO_QT
+    return qtcpsocket_->read( data, len );
+#else
+    return 0;
 #endif
 }
 
@@ -131,8 +146,6 @@ void TcpSocket::read( BufferString& str ) const
     QByteArray ba = qtcpsocket_->readAll();
     str = ba.data();
     ba.size();
-#else
-    return;
 #endif
 }
 

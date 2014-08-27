@@ -33,6 +33,7 @@ set( OD_TEST_PROGS
 )
 
 set( OD_MODULE_SOURCES
+	applicationdata.cc
 	arrayndinfo.cc
 	arrayndslice.cc
 	ascstream.cc

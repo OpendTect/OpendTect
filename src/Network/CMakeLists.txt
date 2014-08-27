@@ -5,24 +5,28 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_USEQT Network)
-SET(OD_MODULE_DEPS General)
+set ( OD_USEQT Network)
+set ( OD_MODULE_DEPS General)
 
-SET(QT_MOC_HEADERS
+set ( QT_MOC_HEADERS
 	qnetworkaccessconn.h
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
-SET(OD_MODULE_SOURCES
+set ( OD_MODULE_SOURCES
 		cvsaccess.cc
 		issuereporter.cc
 		jobcommunic.cc
+		netreqcommunic.cc
+		netreqpacket.cc
 		oddlsite.cc
 		odnetworkaccess.cc
 		odnetworkreply.cc
 		svnaccess.cc
 		systeminfo.cc
+		tcpconnection.cc
 		tcpserver.cc
 		tcpsocket.cc)
-SET ( OD_TEST_PROGS networkaccess.cc )
-SET ( OD_MODULE_PROGS od_ReportIssue.cc )
+set ( OD_TEST_PROGS networkaccess.cc )
+set ( OD_NIGHTLY_TEST_PROGS tcpconnection.cc )
+set ( OD_MODULE_PROGS od_ReportIssue.cc echoserver.cc )
 OD_INIT_MODULE()

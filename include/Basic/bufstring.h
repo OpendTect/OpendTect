@@ -113,7 +113,7 @@ public:
     BufferString&	addNewLine(int nrnewlines=1);
 
     inline unsigned int	bufSize() const		{ return len_; }
-    void		setBufSize(unsigned int);
+    bool		setBufSize(unsigned int);
     inline unsigned int	minBufSize() const	{ return minlen_; }
     void		setMinBufSize(unsigned int);
 

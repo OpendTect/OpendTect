@@ -40,7 +40,7 @@ private slots:
 
 void newConnection()
 { 
-    tcpserver_->newConnection.trigger( *tcpserver_ );
+    tcpserver_->notifyNewConnection();
 }
 
 private:
