@@ -47,6 +47,7 @@ protected:
     uiToolButton*	man2dbut_;
     uiToolButton*	renamebut_;
     uiToolButton*	removebut_;
+    uiToolButton*	bodyformatconvertbut_;
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
     void		man2dCB(CallBacker*);

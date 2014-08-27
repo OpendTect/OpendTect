@@ -80,7 +80,36 @@ const IOObjContext& Body::getBodyContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
 
-bool Body::convertOldBodyFormatToCurrent( BufferString& errmsg )
+bool Body::hasOldFormats()
+{
+    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
+    const IODir iodir( mid );
+    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	IOObj& ioobj = const_cast<IOObj&>(*ioobjs[idx]);
+	if ( ioobj.group()=="MarchingCubesSurface" )
+	    return true;
+
+	const FixedString translt( ioobj.translator() );
+	if ( translt=="MCBody" || translt=="PolygonBody" ||
+	     translt=="RandomPosBody" )
+	    return true;
+
+	BufferString objtype;
+	ioobj.pars().get( sKey::Type(), objtype );
+
+	if ( objtype=="RandomPosBody" || objtype=="PolygonBody" ||
+	     objtype=="MCBody" )
+	    return true;
+    }
+
+    return false;
+}
+
+
+bool Body::convertOldBodyFormatToCurrent( TypeSet<MultiID>& mids,
+					  BufferString& errmsg )
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
     const IODir iodir( mid );
@@ -140,6 +169,8 @@ bool Body::convertOldBodyFormatToCurrent( BufferString& errmsg )
 	    errmsg = "No permission to write, conversion failed!";
 	    return false;
 	}
+
+	mids += ioobj.key();
     }
 
     return true;
