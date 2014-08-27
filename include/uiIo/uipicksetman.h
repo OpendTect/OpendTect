@@ -19,6 +19,7 @@ ________________________________________________________________________
 PickSet manager
 */
 
+class uiToolButton;
 
 mExpClass(uiIo) uiPickSetMan : public uiObjFileMan
 {
@@ -29,7 +30,9 @@ public:
     mDeclInstanceCreatedNotifierAccess(uiPickSetMan);
 
 protected:
+    uiToolButton*		mergebut_;
 
+    void			ownSelChg();
     void			mkFileInfo();
     void			mergeSets(CallBacker*);
 

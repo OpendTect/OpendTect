@@ -15,7 +15,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
+#include "uilistbox.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 
 #include "ctxtioobj.h"
 #include "draw.h"
@@ -35,8 +37,8 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 	           PickSetTranslatorGroup::ioContext())
 {
     createDefaultUI();
-    selgrp_->getManipGroup()->addButton( "mergepicksets", "Merge pick sets",
-					 mCB(this,uiPickSetMan,mergeSets) );
+    mergebut_ = selgrp_->getManipGroup()->addButton( "mergepicksets",
+			  "Merge pick sets", mCB(this,uiPickSetMan,mergeSets) );
     mTriggerInstanceCreatedNotifier();
     selChg( this );
 }
@@ -44,6 +46,19 @@ uiPickSetMan::uiPickSetMan( uiParent* p )
 
 uiPickSetMan::~uiPickSetMan()
 {
+}
+
+
+void uiPickSetMan::ownSelChg()
+{
+    BufferStringSet chsnnms;
+    selgrp_->getChosen( chsnnms );
+    mergebut_->setSensitive( chsnnms.size() > 1 );
+    BufferString tt;
+    if ( mergebut_->sensitive() )
+	tt.add( "Merge " ).add( chsnnms.getDispString(2) );
+
+    mergebut_->setToolTip( tt );
 }
 
 
@@ -116,7 +131,9 @@ void uiPickSetMan::mergeSets( CallBacker* )
 {
     uiPickSetMgr mgr( this, Pick::Mgr() );
     MultiID curkey; if ( curioobj_ ) curkey = curioobj_->key();
-    mgr.mergeSets( curkey );
+    BufferStringSet chsnnms;
+    selgrp_->getChosen( chsnnms );
+    mgr.mergeSets( curkey, &chsnnms );
 
     if ( !curkey.isEmpty() )
 	selgrp_->fullUpdate( curkey );
