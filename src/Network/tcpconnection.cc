@@ -109,7 +109,9 @@ bool TcpConnection::isConnected() const
 #ifdef OD_NO_QT
     return false;
 #else
-    return qtcpsocket_->state()==QAbstractSocket::ConnectedState;
+    QAbstractSocket::SocketState state = qtcpsocket_->state();
+    return state > QAbstractSocket::UnconnectedState
+	&& state < QAbstractSocket::ClosingState;
 #endif
 }
 
