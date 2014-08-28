@@ -75,6 +75,7 @@ private:
     BufferString		servername_;
     short			serverport_;
 
+    void			connectToHost();
     void			connCloseCB(CallBacker*);
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
