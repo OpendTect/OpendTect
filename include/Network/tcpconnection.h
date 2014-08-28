@@ -53,6 +53,7 @@ public:
 			      bool wait=false);
     bool	disconnectFromHost(bool wait=false);
 
+    bool	isBad() const;
     bool	isConnected() const;
     bool	anythingToRead() const;
     uiString	errMsg() const	{ return errmsg_; }

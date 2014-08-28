@@ -38,7 +38,7 @@ RequestCommunicator::~RequestCommunicator()
 
 bool RequestCommunicator::isOK() const
 {
-    return tcpconn_ && tcpconn_->isConnected();
+    return tcpconn_ && !tcpconn_->isBad();
 }
 
 

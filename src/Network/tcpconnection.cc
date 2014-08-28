@@ -104,14 +104,25 @@ bool TcpConnection::disconnectFromHost( bool wait )
 }
 
 
+bool TcpConnection::isBad() const
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    QAbstractSocket::SocketState state = qtcpsocket_->state();
+    return state == QAbstractSocket::UnconnectedState
+	&& state == QAbstractSocket::ClosingState;
+#endif
+}
+
+
 bool TcpConnection::isConnected() const
 {
 #ifdef OD_NO_QT
     return false;
 #else
     QAbstractSocket::SocketState state = qtcpsocket_->state();
-    return state > QAbstractSocket::UnconnectedState
-	&& state < QAbstractSocket::ClosingState;
+    return state == QAbstractSocket::ConnectedState;
 #endif
 }
 
@@ -120,7 +131,7 @@ bool TcpConnection::anythingToRead() const
 #ifdef OD_NO_QT
     return false;
 #else
-    return isConnected() && qtcpsocket_->bytesAvailable();
+    return qtcpsocket_->bytesAvailable();
 #endif
 }
 
