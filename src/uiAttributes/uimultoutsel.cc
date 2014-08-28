@@ -165,7 +165,6 @@ bool uiMultOutSel::handleMultiCompChain( Attrib::DescID& attribid,
 
 
 // uiMultiAttribSel
-
 uiMultiAttribSel::uiMultiAttribSel( uiParent* p, const Attrib::DescSet& ds )
     : uiGroup(p,"MultiAttrib group")
     , descset_(ds)
