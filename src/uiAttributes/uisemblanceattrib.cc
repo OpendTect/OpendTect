@@ -31,6 +31,9 @@ static const char* extstrs3d[] =
 	"Mirror 90 degrees",
 	"Mirror 180 degrees",
 	"Full block",
+	"Cross",
+	"All Directions",
+	"Diagonal",
 	0
 };
 
@@ -39,6 +42,7 @@ static const char* extstrs2d[] =
 	"None",
 	"Mirror 180 degrees",
 	"Full block",
+	"All Directions",
 	0
 };
 
@@ -87,10 +91,11 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 
 void uiSemblanceAttrib::extSel( CallBacker* )
 {
-    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
-    pos0fld->display( !isfullblock );
-    pos1fld->display( !isfullblock );
-    stepoutfld->display( isfullblock );
+    const bool needstepoutfld = is2D() ? extfld->getIntValue()>=2
+				     : extfld->getIntValue()>=3;
+    pos0fld->display( !needstepoutfld );
+    pos1fld->display( !needstepoutfld );
+    stepoutfld->display( needstepoutfld );
 }
 
 
@@ -125,8 +130,9 @@ bool uiSemblanceAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != Semblance::attribName() )
 	return false;
 
-    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
-    if ( isfullblock )
+    const bool needstepoutfld = is2D() ? extfld->getIntValue()>=2
+				     : extfld->getIntValue()>=3;
+    if ( needstepoutfld )
     {	mSetBinID( Semblance::stepoutStr(), stepoutfld->getBinID() ); }
     else
     {
@@ -156,8 +162,9 @@ void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), Semblance::gateStr() );
 
-    const bool isfullblock = FixedString(extfld->text()) == extstrs3d[3];
-    if ( isfullblock )
+    const bool needstepoutfld = is2D() ? extfld->getIntValue()>=2
+				     : extfld->getIntValue()>=3;
+    if ( needstepoutfld )
 	params += EvalParam( stepoutstr(), Semblance::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Semblance::pos0Str(),
