@@ -557,6 +557,10 @@ void uiODSceneMgr::setStereoType( int type )
 {
     if ( scenes_.isEmpty() ) return;
 
+    if ( type )
+	uiMSG().warning( tr("Stereo viewing is experimental and not"
+			    " officially supported. Use at own risk") );
+
     ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
     const float stereooffset = scenes_[0]->sovwr_->getStereoOffset();
     for ( int ids=0; ids<scenes_.size(); ids++ )

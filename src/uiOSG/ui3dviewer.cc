@@ -143,7 +143,6 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     , mousebutdown_(false)
     , zoomfactor_( 1 )
 {
-    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
     osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
 
     eventfilter_.attachToQObj( glw );
@@ -195,6 +194,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , visscenecoltab_( 0 )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
     , keybindman_( *new KeyBindMan )
+    , stereooffset_( 0 )
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -1144,6 +1144,51 @@ void ui3DViewerBody::setScenesPixelDensity( float dpi )
 }
 
 
+bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
+{
+    stereotype_ = st;
+    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
+    switch( st )
+    {
+    case ui3DViewerBody::None:
+	ds->setStereo( false );
+	break;
+    case ui3DViewerBody::RedCyan:
+	ds->setStereo( true );
+	ds->setStereoMode( osg::DisplaySettings::ANAGLYPHIC );
+	break;
+    case ui3DViewerBody::QuadBuffer:
+	ds->setStereo( true );
+	ds->setStereoMode( osg::DisplaySettings::QUAD_BUFFER );
+	break;
+    default:
+	ds->setStereo( false );
+    }
+
+    return true;
+}
+
+
+ui3DViewerBody::StereoType ui3DViewerBody::getStereoType() const
+{
+    return stereotype_;
+}
+
+
+void ui3DViewerBody::setStereoOffset( float offset )
+{
+    osg::ref_ptr<osg::DisplaySettings> ds = osg::DisplaySettings::instance();
+    stereooffset_ = offset;
+    ds->setEyeSeparation( stereooffset_/100 );
+    requestRedraw();
+}
+
+
+float ui3DViewerBody::getStereoOffset() const
+{
+    return stereooffset_;
+}
+
 //------------------------------------------------------------------------------
 
 
@@ -1281,27 +1326,25 @@ bool ui3DViewer::isCameraPerspective() const
 
 bool ui3DViewer::setStereoType( StereoType type )
 {
-    pErrMsg( "Not impl yet" );
-    return false;
+    return osgbody_->setStereoType( (ui3DViewerBody::StereoType)type );
 }
 
 
 ui3DViewer::StereoType ui3DViewer::getStereoType() const
 {
-    return None;
+    return (ui3DViewer::StereoType) osgbody_->getStereoType();
 }
 
 
 void ui3DViewer::setStereoOffset( float offset )
 {
-    pErrMsg( "Not impl yet" );
+    osgbody_->setStereoOffset( offset );
 }
 
 
 float ui3DViewer::getStereoOffset() const
 {
-    pErrMsg( "Not impl yet" );
-    return 0;
+    return osgbody_->getStereoOffset();
 }
 
 
