@@ -19,6 +19,7 @@ set( OD_TEST_PROGS
 	datapack.cc
 	file.cc
 	geometry.cc
+	globexpr.cc
 	math2.cc
 	memcopying.cc
 	od_iostream.cc
