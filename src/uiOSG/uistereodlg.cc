@@ -17,42 +17,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs_ )
+uiStereoDlg::uiStereoDlg( uiParent* p, ObjectSet<ui3DViewer>& vwrs )
 	: uiDialog(p, uiDialog::Setup("Stereo viewing",
 				      "Set stereo offset",
                                       mODHelpKey(mStereoDlgHelpID) )
 		      .canceltext(""))
-	, vwrs(vwrs_)
+	, vwrs_(vwrs)
 {
-    sliderfld = new uiSlider( this,
+    sliderfld_ = new uiSlider( this,
 			uiSlider::Setup("Stereo offset").withedit(true),
 			"Offset slider" );
-    sliderfld->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
-
+    sliderfld_->valueChanged.notify( mCB(this,uiStereoDlg,sliderMove) );
+    sliderfld_->setScale( 0.1f, 0.0f );
+    sliderfld_->setInterval( StepInterval<float>(0.0f,10.f,0.1f) );
     preFinalise().notify( mCB(this,uiStereoDlg,doFinalise) );
 }
 
 
 void uiStereoDlg::doFinalise( CallBacker* )
 {
-    float offset = vwrs[0]->getStereoOffset();
-    int minval = (int)(offset - 1000); minval /= 100; minval *= 100;
-    int maxval = (int)(offset + 1000); maxval /= 100; maxval *= 100;
-    if ( minval < 10 ) minval = 10;
-
-    sliderfld->setMinValue( (float) minval );
-    sliderfld->setMaxValue( (float) maxval );
-    sliderfld->setValue( offset );
+    const float offset = vwrs_[0]->getStereoOffset();
+    sliderfld_->setValue( offset );
 }
-
 
 bool uiStereoDlg::acceptOK( CallBacker* )
 {
-    float slval = sliderfld->getValue();
-    for ( int idx=0; idx<vwrs.size(); idx++ )
-	vwrs[idx]->setStereoOffset( slval );
+    const float slval = sliderfld_->getValue();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setStereoOffset( slval );
 
-    if ( mIsEqual(sliderfld->maxValue(),slval,mDefEps) )
+    if ( mIsEqual(sliderfld_->maxValue(),slval,mDefEps) )
 	uiMSG().message( "Open this dialog again for higher offsets" );
 
     return true;
@@ -61,7 +55,7 @@ bool uiStereoDlg::acceptOK( CallBacker* )
 
 void uiStereoDlg::sliderMove( CallBacker* )
 {
-    float slval = sliderfld->getValue();
-    for ( int idx=0; idx<vwrs.size(); idx++ )
-        vwrs[idx]->setStereoOffset( slval );
+    const float slval = sliderfld_->getValue();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+        vwrs_[idx]->setStereoOffset( slval );
 }

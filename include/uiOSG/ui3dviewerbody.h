@@ -123,6 +123,13 @@ public:
     const osgViewer::View*	getOsgViewerHudView() const { return hudview_; }
     void			setScenesPixelDensity(float dpi);
 
+    enum StereoType		{ None, RedCyan, QuadBuffer };
+
+    bool			setStereoType(StereoType);
+    StereoType			getStereoType() const;
+    void			setStereoOffset(float);
+    float			getStereoOffset() const;
+
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
 protected:
@@ -161,6 +168,8 @@ protected:
     osgViewer::CompositeViewer*		compositeviewer_;
     osgViewer::View*			view_;
     osg::Viewport*			viewport_;
+    StereoType				stereotype_;
+    float				stereooffset_;
 
     osgViewer::View*			hudview_;
     osg::Switch*			offscreenrenderhudswitch_;

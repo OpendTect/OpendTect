@@ -28,13 +28,12 @@ public:
 
 protected:
 
-    uiSlider*		sliderfld;
-    ObjectSet<ui3DViewer> vwrs;
+    uiSlider*		sliderfld_;
+    ObjectSet<ui3DViewer> vwrs_;
 
-    void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		sliderMove(CallBacker*);
-
+    void		doFinalise(CallBacker*);
 };
 
 #endif
