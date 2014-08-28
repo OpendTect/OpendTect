@@ -73,7 +73,7 @@ private:
     TcpConnection*		tcpconn_;
 
     BufferString		servername_;
-    short			serverport_;
+    int				serverport_;
 
     void			connectToHost();
     void			connCloseCB(CallBacker*);
