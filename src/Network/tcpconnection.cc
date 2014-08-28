@@ -134,7 +134,7 @@ bool TcpConnection::isBad() const
 #else
     const QAbstractSocket::SocketState state = qtcpsocket_->state();
     return state == QAbstractSocket::UnconnectedState
-	&& state == QAbstractSocket::ClosingState;
+	|| state == QAbstractSocket::ClosingState;
 #endif
 }
 
