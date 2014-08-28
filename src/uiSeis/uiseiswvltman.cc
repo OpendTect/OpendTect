@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "waveletattrib.h"
 
 #include "uibutton.h"
+#include "uitoolbutton.h"
 #include "uiseissingtrcdisp.h"
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
@@ -57,14 +58,14 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     manipgrp->addButton( "impfromothsurv", "Get from other survey",
 			mCB(this,uiSeisWvltMan,getFromOtherSurvey) );
-    manipgrp->addButton( "info", "Display properties",
-			mCB(this,uiSeisWvltMan,dispProperties) );
-    manipgrp->addButton( "revpol", "Reverse polarity",
-			mCB(this,uiSeisWvltMan,reversePolarity) );
-    manipgrp->addButton( "phase", "Rotate phase",
-			mCB(this,uiSeisWvltMan,rotatePhase) );
-    manipgrp->addButton( "wavelet_taper", "Taper",
-			mCB(this,uiSeisWvltMan,taper) );
+    disppropbut_ = manipgrp->addButton( "info", "Display properties",
+				mCB(this,uiSeisWvltMan,dispProperties) );
+    revpolbut_ = manipgrp->addButton( "revpol", "Reverse polarity",
+				mCB(this,uiSeisWvltMan,reversePolarity) );
+    rotatephbut_  = manipgrp->addButton( "phase", "Rotate phase",
+				mCB(this,uiSeisWvltMan,rotatePhase) );
+    taperbut_ = manipgrp->addButton( "wavelet_taper", "Taper",
+				     mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
     addButtons();
@@ -198,6 +199,29 @@ void uiSeisWvltMan::closeDlg( CallBacker* )
 }
 
 
+#define mSetButToolTip(but,str1,curwvltnm,str2) \
+    if ( !but->sensitive() ) \
+	but->setToolTip( "" ); \
+    else \
+    { \
+	tt.setEmpty(); \
+	tt.add( str1 ).add( " '" ).add( curwvltnm ).add( "' " ).add( str2 ); \
+	but->setToolTip( tr(tt) ); \
+    }
+
+void uiSeisWvltMan::ownSelChg()
+{
+    if ( !curioobj_ ) return;
+
+    BufferString tt;
+    BufferString curwvlt( curioobj_->name() );
+    mSetButToolTip(revpolbut_,"Reverse", curwvlt, "polarity");
+    mSetButToolTip(rotatephbut_,"Rotate", curwvlt, "phase");
+    mSetButToolTip(taperbut_,"Taper", curwvlt,"" );
+    mSetButToolTip(disppropbut_,"Display", curwvlt, "properties");
+}
+
+
 void uiSeisWvltMan::mkFileInfo()
 {
     BufferString txt;
@@ -314,6 +338,7 @@ void uiSeisWvltMan::rotatePhase( CallBacker* )
     if ( !wvlt ) return;
 
     uiSeisWvltRotDlg dlg( this, *wvlt );
+    dlg.setCaption( curioobj_->name() );
     dlg.acting.notify( mCB(this,uiSeisWvltMan,rotUpdateCB) );
     if ( dlg.go() )
     {
@@ -336,6 +361,8 @@ void uiSeisWvltMan::taper( CallBacker* )
     if ( !wvlt ) return;
 
     uiSeisWvltTaperDlg dlg( this, *wvlt );
+    BufferString title( "Taper '", curioobj_->name(), "'" );
+    dlg.setCaption( title.buf() );
     if ( dlg.go() )
     {
 	if ( !wvlt->put(curioobj_) )
