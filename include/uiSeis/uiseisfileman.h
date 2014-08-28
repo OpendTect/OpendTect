@@ -17,7 +17,7 @@ class uiToolButton;
 
 
 mExpClass(uiSeis) uiSeisFileMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(uiSurfaceMan);
 public:
 			uiSeisFileMan(uiParent*,bool);
 			~uiSeisFileMan();
@@ -31,6 +31,10 @@ protected:
     bool		is2d_;
     uiToolButton*	browsebut_;
     uiToolButton*	attribbut_;
+    uiToolButton*	copybut_;
+    uiToolButton*	mergecubesbut_;
+    uiToolButton*	man2dlines_;
+    uiToolButton*	dumpgeombut_;
 
     void		mergePush(CallBacker*);
     void		dump2DPush(CallBacker*);
@@ -43,6 +47,7 @@ protected:
     virtual void	mkFileInfo();
     virtual void	ownSelChg();
     double		getFileSize(const char*,int&) const;
+    void		setToolButtonProperties();
 
 };
 

@@ -72,6 +72,12 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 }
 
 
+void uiMergeSeis::setInputIds( const TypeSet<MultiID>& mids )
+{
+    inpfld_->setChosen( mids );
+}
+
+
 bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 {
     const IOObj* outioobj = outfld_->ioobj();

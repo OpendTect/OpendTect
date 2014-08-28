@@ -57,6 +57,9 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 		   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
+    , man2dlines_(0)
+    , dumpgeombut_(0)
+    , mergecubesbut_(0)
 {
     IOObjContext* freshctxt = Seis::getIOObjContext(
 					is2d_ ? Seis::Line : Seis::Vol, true );
@@ -70,19 +73,21 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    manipgrp->addButton( "copyobj", is2d ? "Copy dataset" : "Copy cube",
-			 mCB(this,uiSeisFileMan,copyPush) );
+    copybut_ = manipgrp->addButton( "copyobj", is2d ? "Copy dataset"
+						    : "Copy cube",
+				    mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
     {
-	manipgrp->addButton( "man2d", "Manage lines",
-				mCB(this,uiSeisFileMan,man2DPush) );
-	manipgrp->addButton( "dumpgeom", "Dump geometry",
-				mCB(this,uiSeisFileMan,dump2DPush) );
+	man2dlines_ = manipgrp->addButton( "man2d", "Manage lines",
+					   mCB(this,uiSeisFileMan,man2DPush) );
+	dumpgeombut_ = manipgrp->addButton( "dumpgeom", "Dump geometry",
+					   mCB(this,uiSeisFileMan,dump2DPush) );
     }
     else
     {
-	manipgrp->addButton( "mergeseis", "Merge cube parts into one cube",
-				mCB(this,uiSeisFileMan,mergePush) );
+	mergecubesbut_ = manipgrp->addButton( "mergeseis",
+					"Merge cube parts into one cube",
+					mCB(this,uiSeisFileMan,mergePush) );
 	browsebut_ = manipgrp->addButton( "browseseis",
 				"Browse/edit this cube",
 				mCB(this,uiSeisFileMan,browsePush) );
@@ -106,17 +111,75 @@ uiSeisFileMan::~uiSeisFileMan()
 
 void uiSeisFileMan::ownSelChg()
 {
-    if ( !curioobj_ ) return;
 
+    setToolButtonProperties();
+}
+
+
+#define mSetButToolTip(but,str1,curattribnms,str2) \
+    if ( but ) \
+    { \
+	if ( but->sensitive() ) \
+	{ \
+	    tt.setEmpty(); \
+	    tt.add( str1 ) \
+	      .add( " '" ).add( curattribnms ).add( "' " ) \
+	      .add( str2 ); \
+	    but->setToolTip( tr(tt) ); \
+	} \
+	else \
+	{ \
+	    but->setToolTip( "" ); \
+	} \
+    }
+
+void uiSeisFileMan::setToolButtonProperties()
+{
+    BufferString cursel;
+    if ( curioobj_ )
+	cursel.add( curioobj_->name() );
+
+    BufferString tt;
+    copybut_->setSensitive( !cursel.isEmpty() );
+    mSetButToolTip(copybut_,"Make a Copy of",cursel,"");
     if ( browsebut_ )
-	browsebut_->setSensitive( curimplexists_ &&
-				  !mIsOfTranslType(SEGYDirect) );
+    {
+	const bool enabbrowse = curimplexists_ && !mIsOfTranslType(SEGYDirect);
+	browsebut_->setSensitive( enabbrowse );
+	mSetButToolTip(browsebut_,"Browse/edit",cursel,"");
+    }
+
+    if ( mergecubesbut_ )
+    {
+	mergecubesbut_->setSensitive( selgrp_->nrChosen() >= 2 );
+	BufferStringSet selcubenms;
+	selgrp_->getChosen( selcubenms );
+	mSetButToolTip(mergecubesbut_,"Merge",selcubenms.getDispString(2),"");
+    }
+
+    if ( man2dlines_ )
+    {
+	man2dlines_->setSensitive( !cursel.isEmpty() );
+	mSetButToolTip(man2dlines_,"Manage 2D lines in",cursel,"");
+    }
+
+    if ( dumpgeombut_ )
+    {
+	dumpgeombut_->setSensitive( !cursel.isEmpty() );
+	mSetButToolTip(dumpgeombut_,"Dump",cursel,"line geometries");
+    }
 
     if ( attribbut_ )
     {
-	FilePath fp( curioobj_->fullUserExpr() );
-	fp.setExtension( "proc" );
-	attribbut_->setSensitive( File::exists(fp.fullPath()) );
+	if ( curioobj_ )
+	{
+	    FilePath fp( curioobj_->fullUserExpr() );
+	    fp.setExtension( "proc" );
+	    attribbut_->setSensitive( File::exists(fp.fullPath()) );
+	    mSetButToolTip(attribbut_,"Show AttributeSet for",cursel,"");
+	}
+	else
+	    attribbut_->setSensitive( false );
     }
 }
 
@@ -283,7 +346,10 @@ void uiSeisFileMan::mergePush( CallBacker* )
     if ( !curioobj_ ) return;
 
     const MultiID key( curioobj_->key() );
+    TypeSet<MultiID> chsnmids;
+    selgrp_->getChosen( chsnmids );
     uiMergeSeis dlg( this );
+    dlg.setInputIds( chsnmids );
     dlg.go();
     selgrp_->fullUpdate( key );
 }
