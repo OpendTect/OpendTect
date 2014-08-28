@@ -202,6 +202,19 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
     if ( !status )
 	return true;
 
+    if ( status == 3 ) // Pre 4.2 surveys
+    {
+	uiString msg( tr( "The survey %1 appears to be too old. "
+		"Please open this survey first in OpendTect 4.6 to update "
+		"its database before using it in OpendTect 5.0." )
+		.arg(IOM().surveyName()) );
+	if ( uiMSG().askGoOn(msg,tr("Select another survey"),
+			     tr("Exit OpendTect") ) )
+	    return false;
+
+	ExitProgram( 0 );
+    }
+
     if ( status == 1 )
     {
 	uiString msg( tr( "OpendTect v5.0 has a new and improved 2D database. "

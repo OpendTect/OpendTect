@@ -125,6 +125,10 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
     if ( olddel.isEmpty() )
 	return 0;
 
+    FilePath geom2dfp( IOM().rootDir(), "2DGeom", "idx.txt" );
+    if ( !File::exists(geom2dfp.fullPath()) )
+	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
+
     IOObjContext newctxt( mIOObjContext(SeisTrc) );
     newctxt.toselect.allowtransls_ = "TwoD DataSet";
     const IODir newiodir( newctxt.getSelKey() );
@@ -143,7 +147,6 @@ mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
 OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
 {}
 
-#include <iostream>
 void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
 						     TaskRunner* taskrnr )
 {
