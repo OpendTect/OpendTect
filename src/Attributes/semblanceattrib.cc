@@ -24,12 +24,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mExtensionRot90		1
 #define mExtensionRot180	2
 #define mExtensionCube		3
+#define mExtensionCross		4
+#define mExtensionAllDir	5
+#define mExtensionDiagonal	6
 
 namespace Attrib
 {
 
-mAttrDefCreateInstance(Semblance)    
-    
+mAttrDefCreateInstance(Semblance)
+
 void Semblance::initClass()
 {
     mAttrStartInitClassWithUpdate
@@ -40,11 +43,11 @@ void Semblance::initClass()
     desc->addParam( gate );
 
     BinIDParam* pos0 = new BinIDParam( pos0Str() );
-    pos0->setDefaultValue( BinID(0,1) );    
+    pos0->setDefaultValue( BinID(0,1) );
     desc->addParam( pos0 );
-    
+
     BinIDParam* pos1 = new BinIDParam( pos1Str() );
-    pos1->setDefaultValue( BinID(0,-1) );    
+    pos1->setDefaultValue( BinID(0,-1) );
     desc->addParam( pos1 );
 
     BinIDParam* stepout = new BinIDParam( stepoutStr() );
@@ -57,7 +60,10 @@ void Semblance::initClass()
     extension->addEnum( extensionTypeStr(mExtensionRot90) );
     extension->addEnum( extensionTypeStr(mExtensionRot180) );
     extension->addEnum( extensionTypeStr(mExtensionCube) );
-    extension->setDefaultValue( mExtensionRot90 );
+    extension->addEnum( extensionTypeStr(mExtensionCross) );
+    extension->addEnum( extensionTypeStr(mExtensionAllDir) );
+    extension->addEnum( extensionTypeStr(mExtensionDiagonal) );
+    extension->setDefaultValue( mExtensionCross );
     desc->addParam( extension );
 
     BoolParam* steering = new BoolParam( steeringStr() );
@@ -78,10 +84,13 @@ void Semblance::initClass()
 void Semblance::updateDesc( Desc& desc )
 {
     BufferString extstr = desc.getValParam(extensionStr())->getStringValue();
-    const bool iscube = extstr == extensionTypeStr( mExtensionCube );
-    desc.setParamEnabled( pos0Str(), !iscube );
-    desc.setParamEnabled( pos1Str(), !iscube );
-    desc.setParamEnabled( stepoutStr(), iscube );
+    const bool usestep = extstr == extensionTypeStr( mExtensionCube )
+			|| extstr == extensionTypeStr( mExtensionCross )
+			|| extstr == extensionTypeStr( mExtensionAllDir )
+			|| extstr == extensionTypeStr( mExtensionDiagonal );
+    desc.setParamEnabled( pos0Str(), !usestep );
+    desc.setParamEnabled( pos1Str(), !usestep );
+    desc.setParamEnabled( stepoutStr(), usestep );
 
     desc.inputSpec(1).enabled_ =
 	desc.getValParam( steeringStr() )->getBoolValue();
@@ -93,7 +102,10 @@ const char* Semblance::extensionTypeStr( int type )
     if ( type==mExtensionNone ) return "None";
     if ( type==mExtensionRot90 ) return "90";
     if ( type==mExtensionRot180 ) return "180";
-    return "Cube";
+    if ( type==mExtensionCube ) return "Cube";
+    if ( type==mExtensionCross ) return "Cross";
+    if ( type==mExtensionAllDir ) return "AllDir";
+    return "Diagonal";
 }
 
 
@@ -109,7 +121,7 @@ Semblance::Semblance( Desc& desc )
 
     mGetBool( dosteer_, steeringStr() );
     mGetEnum( extension_, extensionStr() );
-    if ( extension_==mExtensionCube )
+    if ( extension_>=mExtensionCube )
 	mGetBinID( stepout_, stepoutStr() )
     else
     {
@@ -118,24 +130,24 @@ Semblance::Semblance( Desc& desc )
 
 	if ( extension_==mExtensionRot90 )
 	{
-	    int maxstepout = mMAX( mMAX( abs(pos0_.inl()), abs(pos1_.inl()) ), 
-		    		   mMAX( abs(pos0_.crl()), abs(pos1_.crl()) ) );
+	    int maxstepout = mMAX( mMAX( abs(pos0_.inl()), abs(pos1_.inl()) ),
+				   mMAX( abs(pos0_.crl()), abs(pos1_.crl()) ) );
 	    stepout_ = BinID( maxstepout, maxstepout );
 	}
 	else
 	    stepout_ = BinID(mMAX(abs(pos0_.inl()),abs(pos1_.inl())),
 			     mMAX(abs(pos0_.crl()),abs(pos1_.crl())) );
 
-	    
+
     }
     getTrcPos();
 
-    const float maxdist = dosteer_ ? 
+    const float maxdist = dosteer_ ?
 	mMAX( stepout_.inl()*inlDist(), stepout_.crl()*crlDist() ) : 0;
-    
+
     const float maxsecdip = maxSecureDip();
-    desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip, 
-	    			gate_.stop+maxdist*maxsecdip );
+    desgate_ = Interval<float>( gate_.start-maxdist*maxsecdip,
+				gate_.stop+maxdist*maxsecdip );
 }
 
 
@@ -147,9 +159,44 @@ bool Semblance::getTrcPos()
 	BinID bid;
 	for ( bid.inl()=-stepout_.inl(); bid.inl()<=stepout_.inl();
 					 bid.inl()++ )
-	    for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl();
-					     bid.crl()++ )
-		trcpos_ += bid;
+	for ( bid.crl()=-stepout_.crl(); bid.crl()<=stepout_.crl();
+					 bid.crl()++ )
+	trcpos_ += bid;
+    }
+    else if ( extension_==mExtensionCross || extension_==mExtensionAllDir
+	      || extension_==mExtensionDiagonal )
+    {
+	trcpos_ += BinID(0,0);
+
+	const bool is2d = desc_.is2D();
+	if ( extension_==mExtensionCross )
+	{
+	    trcpos_ += BinID(0,stepout_.crl());
+	    if ( !is2d )
+		trcpos_ += BinID(stepout_.inl(),0);
+
+	    trcpos_ += BinID(0,-stepout_.crl());
+	    if ( !is2d )
+		trcpos_ += BinID(-stepout_.inl(),0);
+	}
+	else if ( extension_==mExtensionAllDir )
+	{
+	    trcpos_ += BinID(-stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(0,stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),0);
+	    trcpos_ += BinID(stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(0,-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),0);
+	}
+	else
+	{
+	    trcpos_ += BinID(-stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),stepout_.crl());
+	    trcpos_ += BinID(stepout_.inl(),-stepout_.crl());
+	    trcpos_ += BinID(-stepout_.inl(),-stepout_.crl());
+	}
     }
     else
     {
@@ -198,12 +245,12 @@ bool Semblance::getInputData( const BinID& relpos, int zintv )
     const BinID bidstep = inputs_[0]->getStepoutStep();
     for ( int idx=0; idx<trcpos_.size(); idx++ )
     {
-	const DataHolder* data = 
+	const DataHolder* data =
 		    inputs_[0]->getData( relpos+trcpos_[idx]*bidstep, zintv );
 	if ( !data ) return false;
 	inputdata_.replace( idx, data );
     }
-    
+
     dataidx_ = getDataIndex( 0 );
 
     steeringdata_ = dosteer_ ? inputs_[1]->getData( relpos, zintv ) : 0;
@@ -214,7 +261,7 @@ bool Semblance::getInputData( const BinID& relpos, int zintv )
 }
 
 
-bool Semblance::computeData( const DataHolder& output, const BinID& relpos, 
+bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 			      int z0, int nrsamples, int threadid ) const
 {
     if ( inputdata_.isEmpty() ) return false;
@@ -237,7 +284,7 @@ bool Semblance::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    semblanceinput += cache+offset;
 
-	    ValueSeries<float>* serie = dosteer_ 
+	    ValueSeries<float>* serie = dosteer_
 		? steeringdata_->series( steerindexes_[trcidx] )
 		: 0;
 
@@ -289,9 +336,9 @@ void Semblance::prepPriorToBoundsCalc()
 {
      const int truestep = mNINT32( refstep_*zFactor() );
      if ( truestep == 0 )
-       	 return Provider::prepPriorToBoundsCalc();
+	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ; 
+    bool chgstartr = mNINT32(gate_.start*zFactor()) % truestep ;
     bool chgstopr = mNINT32(gate_.stop*zFactor()) % truestep;
     bool chgstartd = mNINT32(desgate_.start*zFactor()) % truestep;
     bool chgstopd = mNINT32(desgate_.stop*zFactor()) % truestep;

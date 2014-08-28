@@ -17,8 +17,8 @@ ________________________________________________________________________
 
 /*!\brief Semblance Attribute
 
-Semblance gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube]
-	 [steering=Yes|No]
+Semblance gate= pos0= pos1= stepout=1,1
+extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
 
 
 If steering is enabled, it is up to the user to make sure that the steering
@@ -28,11 +28,16 @@ Input:
 0	Data
 1	Steering
 
-Extension:      0       90/180          Cube
-1               pos0    pos0
-2               pos1    pos1
-3                       pos0rot
-4                       pos1rot
+Extension:	0	90/180	 Cube	Cross	   AllDir	Diagonal
+1		pos0	pos0		0,0	   0,0		0,0
+2		pos1	pos1		0,step	   -step,step	-step,step
+3			pos0rot		step,0	   0,step	step,step
+4			pos1rot		0,-step    step,step	step,-step
+5					-step,0    step,0	-step,-step
+6						   step,-step
+7						   0,-step
+8						   -step,-step
+9						   -step,0
 
 Output:
 0       Semblance
