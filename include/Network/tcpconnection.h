@@ -50,7 +50,7 @@ public:
     void	setTimeout(int ms) { timeout_ = ms; }
 
     bool	connectToHost(const char* host,int port,
-			      bool wait=false);
+			      bool wait=true);
     bool	disconnectFromHost(bool wait=false);
 
     bool	isBad() const;
