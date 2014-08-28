@@ -38,7 +38,8 @@ public:
     void			setAnnotationColor(const Color&);
 
     float			getAngle() const;
-    void			setAngle(float);
+    void			setAngle(float angle,float rotationtime=0.0);
+				//!<angle in rad, rotation time in seconds
     CNotifier<ThumbWheel,float>	rotation;
 				//!<passes rotation since last notification
 

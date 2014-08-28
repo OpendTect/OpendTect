@@ -93,9 +93,9 @@ float ThumbWheel::getAngle() const
 }
 
 
-void ThumbWheel::setAngle( float a )
+void ThumbWheel::setAngle( float angle, float rotationtime )
 {
-    thumbwheel_->setAngle( a );
+    thumbwheel_->setAngle( angle, rotationtime );
 }
 
 

@@ -984,7 +984,14 @@ void ui3DViewerBody::uiRotate( float angle, bool horizontal )
 
 void ui3DViewerBody::notifyManipulatorMovement( float dh, float dv, float df )
 {
-    distancethumbwheel_->setAngle( -df * M_PI+distancethumbwheel_->getAngle() );
+    osgGeo::TrackballManipulator* manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+					    view_->getCameraManipulator() );
+
+    const float rotationtime = manip && manip->isDiscreteZooming() ? 0.2 : 0.0;
+    distancethumbwheel_->setAngle( df*M_PI + distancethumbwheel_->getAngle(),
+				   rotationtime );
+
     horthumbwheel_->setAngle( dh + horthumbwheel_->getAngle() );
     verthumbwheel_->setAngle( dv + verthumbwheel_->getAngle() );
 }
