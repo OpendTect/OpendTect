@@ -245,8 +245,8 @@ uiTreeItem*
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
 			 hd->getChannels2RGBA() );
-
-	return new uiODHorizonTreeItem(visid, rgba, true);
+	const bool atsection = hd->getOnlyAtSectionsDisplay();
+	return new uiODHorizonTreeItem( visid, rgba, atsection, true );
     }
 
 
