@@ -1153,7 +1153,7 @@ bool dgbSurfaceReader::prepareRowRead( std::istream& strm )
 	return true;
 
     StrmOper::seek( strm, rowoffsets_[rowindex_], std::ios_base::beg );
-    return strm;
+    return strm.good();
 }
 
 
@@ -1801,7 +1801,7 @@ bool dgbSurfaceWriter::writeInt16( std::ostream& strm, unsigned short val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -1813,7 +1813,7 @@ bool dgbSurfaceWriter::writeInt32( std::ostream& strm, od_int32 val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -1832,7 +1832,7 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
 	strm << valstr << post;
     }
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -2077,7 +2077,7 @@ bool dgbSurfaceWriter::writeDouble( std::ostream& strm, double val,
 	strm << str << post;
     }
 
-    return strm;
+    return strm.good();
 }
 
 }; //namespace

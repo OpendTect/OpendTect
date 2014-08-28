@@ -335,7 +335,7 @@ bool MarchingCubesModel::writeTo( std::ostream& strm,bool binary ) const
 	strm << (int) model_ << '\t' << (int) submodel_ << '\t' <<
 	        (int) axispos_[mX] << '\t' << (int) axispos_[mY]<< '\t' <<
 		(int) axispos_[mZ] <<'\n';
-    return strm;
+    return strm.good();
 }
 
 
@@ -353,7 +353,7 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
 	strm >> res; axispos_[mZ] = mCast( unsigned char, res );
     }
 
-    return strm;
+    return strm.good();
 }
 
 

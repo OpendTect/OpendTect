@@ -1594,7 +1594,7 @@ bool EventPatchWriter::writeInt16( std::ostream& strm, int val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -1606,7 +1606,7 @@ bool EventPatchWriter::writeInt32( std::ostream& strm, int val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -1618,7 +1618,7 @@ bool EventPatchWriter::writeUInt8( std::ostream& strm, int val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
@@ -1630,7 +1630,7 @@ bool EventPatchWriter::writeFloat( std::ostream& strm, float val,
     else
 	strm << val << post;
 
-    return strm;
+    return strm.good();
 }
 
 
