@@ -550,7 +550,10 @@ IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
 	ret->toselect.allownonuserselectable_ = true;
     }
     else if ( gt == Seis::Vol )
+    {
 	ret->deftransl = CBVSSeisTrcTranslator::translKey();
+	ret->toselect.allowtransls_ =  "[^T][^w][^o]*";
+    }
     else if ( gt == Seis::VolPS )
 	ret->deftransl = CBVSSeisPS3DTranslator::translKey();
     else
