@@ -62,7 +62,7 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* tp )
     else if ( typ == EMFault3DTranslatorGroup::keyword() )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
-	ctio_ = new CtxtIOObj( polygonEMBodyTranslator::getIOObjContext() );
+	ctio_ = new CtxtIOObj( EMBodyTranslatorGroup::ioContext() );
 
     postFinalise().notify( mCB(this,uiIOSurface,objSel) );
 }
@@ -335,7 +335,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
     if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword() &&
 	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword() &&
 	 setup.typ_!=EMFault3DTranslatorGroup::keyword() &&
-	 setup.typ_!=polygonEMBodyTranslator::sKeyUserName() )
+	 setup.typ_!=EMBodyTranslatorGroup::keyword() )
     {
 	if ( surf.nrSections() > 1 )
 	    mkSectionFld( false );

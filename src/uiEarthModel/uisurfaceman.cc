@@ -60,7 +60,7 @@ DefineEnumNames(uiSurfaceMan,Type,0,"Surface type")
     EMAnyHorizonTranslatorGroup::keyword(),
     EMFaultStickSetTranslatorGroup::keyword(),
     EMFault3DTranslatorGroup::keyword(),
-    EMBodyTranslatorGroup::sKeyword(),
+    EMBodyTranslatorGroup::keyword(),
     0
 };
 
@@ -126,6 +126,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , surfdataremovebut_(0)
     , copybut_(0)
     , mergehorbut_(0)
+    , bodyformatconvertbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -204,10 +205,16 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		mCB(this,uiSurfaceMan,mergeBodyCB) );
 	manipgrp->addButton( "set_implicit", "Create region Body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
-		mCB(this,uiSurfaceMan,switchValCB) );
 	manipgrp->addButton( "bodyvolume", "Volume estimate",
 		mCB(this,uiSurfaceMan,calVolCB) );
+	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
+		mCB(this,uiSurfaceMan,switchValCB) );
+	if ( EM::Body::hasOldFormats() )
+	{
+	    bodyformatconvertbut_ = manipgrp->addButton( "convertformat",
+		    "Convert format of od5.0 or older to current",
+		    mCB(this,uiSurfaceMan,converOldBodyFormatCB) );
+	}
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -369,6 +376,23 @@ void uiSurfaceMan::switchValCB( CallBacker* )
     uiImplicitBodyValueSwitchDlg dlg( this, curioobj_ );
     if ( dlg.go() )
 	selgrp_->fullUpdate( dlg.getBodyMid() );
+}
+
+
+void uiSurfaceMan::converOldBodyFormatCB( CallBacker* )
+{
+    TypeSet<MultiID> mids;
+    BufferString errmsg;
+    if ( EM::Body::convertOldBodyFormatToCurrent(mids,errmsg) )
+    {
+	bodyformatconvertbut_->setSensitive( false );
+	if ( !mids.isEmpty() )
+	    selgrp_->fullUpdate( mids[0] );
+
+	uiMSG().message( tr("Converted") );
+    }
+    else
+	uiMSG().error( tr("Conversion failed: %1").arg(errmsg));
 }
 
 

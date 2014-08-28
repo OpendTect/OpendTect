@@ -49,7 +49,8 @@ public:
 
 	if ( !astream.isOK() )
 	    mRetErr( "Cannot read from input file" );
-	if ( !astream.isOfFileType( sKeyRandomPosBodyFileType() ) )
+	if ( !astream.isOfFileType( sFileType() ) ||
+	     !astream.isOfFileType( sOldFileType()) )
 	    mRetErr( sInvalidFile() );
 
 	astream.next();
@@ -102,10 +103,10 @@ public:
 	return MoreToDo();
     }
 
-    od_int64	totalNr() const { return totalnr_; }
-    od_int64	nrDone() const	{ return nrdone_; }
-    static const char*	sKeyRandomPosBodyFileType()
-			{ return RandomPosBody::typeStr(); }
+    od_int64	totalNr() const		{ return totalnr_; }
+    od_int64	nrDone() const		{ return nrdone_; }
+    static const char*	sFileType()	{ return RandomPosBody::typeStr(); }
+    static const char*	sOldFileType()	{ return "RandomPosBody"; }
     static const char*	sKeyNrPositions() { return "Nr positions"; }
 
 protected:
@@ -176,7 +177,7 @@ protected:
 };
 
 
-mImplementEMObjFuncs( RandomPosBody, randposEMBodyTranslator::sKeyUserName() );
+mImplementEMObjFuncs( RandomPosBody, "RandomPos" );
 
 
 RandomPosBody::RandomPosBody( EMManager& man )
@@ -325,45 +326,34 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
 	ioobj = myioobj;
     }
 
-    if ( !ioobj )
-    {
-	errmsg_ = "Cannot find surface";
-	return 0;
-    }
-
-    Conn* conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-	return 0;
-
-    return new RandomPosBodyWriter( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    return conn ? new RandomPosBodyWriter( *this, conn ) : 0;
 }
 
 
 Executor* RandomPosBody::saver()
-{ return saver( 0 ); }
+{ return saver(0); }
 
 
 Executor* RandomPosBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj )
-	return 0;
-
-    Conn* conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-	return 0;
-
-    return new RandomPosBodyReader( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+    return conn ? new RandomPosBodyReader( *this, conn ) : 0;
 }
 
 
 const IOObjContext& RandomPosBody::getIOObjContext() const
 {
-    static IOObjContext* res = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	res->fixTranslator( randposEMBodyTranslator::sKeyUserName() );
+	IOObjContext* newres =
+	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->fixTranslator( typeStr() );
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
     }
 
     return *res;

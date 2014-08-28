@@ -59,7 +59,8 @@ public:
 	od_istream& strm = ((StreamConn*)conn_)->iStream();
 	ascistream astream( strm );
 	if ( !astream.isOfFileType( sFileType() ) &&
-	     !astream.isOfFileType( sOldFileType() ) )
+	     !astream.isOfFileType( sOldFileType() ) &&
+	     !astream.isOfFileType( sOldFileType2() ) )
 	{
 	    errmsg_ = "Invalid filetype";
 	    return;
@@ -99,7 +100,8 @@ public:
     static const char* sFileType()
     { return MarchingCubesSurface::typeStr(); }
 
-    static const char* sOldFileType() { return "MarchingCubesSurface"; }
+    static const char* sOldFileType()	{ return "MarchingCubesSurface"; }
+    static const char* sOldFileType2()	{ return "MCBody"; }
 
     int	nextStep()
     {
@@ -236,7 +238,7 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 
 
 FixedString MarchingCubesSurface::typeStr()
-{ return mcEMBodyTranslator::sKeyUserName(); }
+{ return "MC"; }
 
 
 const char* MarchingCubesSurface::getTypeStr() const
@@ -292,21 +294,13 @@ BufferString MarchingCubesSurface::storageName() const
 Executor* MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj )
-	return 0;
-
-    Conn* conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-	return 0;
-
-    return new MarchingCubesSurfaceReader( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+    return conn ? new MarchingCubesSurfaceReader( *this, conn ) : 0;
 }
 
 
 Executor* MarchingCubesSurface::saver()
-{
-    return saver( 0 );
-}
+{ return saver(0); }
 
 
 Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
@@ -321,14 +315,8 @@ Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 	ioobj = myioobj;
     }
 
-    if ( !ioobj )
-	return 0;
-
-    Conn* conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-	return 0;
-
-    return new MarchingCubesSurfaceWriter( *this, conn, true );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    return conn ? new MarchingCubesSurfaceWriter( *this, conn, true ) : 0;
 }
 
 
@@ -343,7 +331,7 @@ const IOObjContext& MarchingCubesSurface::getIOObjContext() const
     {
 	IOObjContext* newres =
 		new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	newres->fixTranslator( mcEMBodyTranslator::sKeyUserName() );
+	newres->fixTranslator( typeStr() );
 
 	if ( !res.setIfNull(newres) )
 	    delete newres;

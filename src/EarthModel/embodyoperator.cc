@@ -582,19 +582,7 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     {
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
 	const BufferString translt = IOM().get( mid )->translator();
-	EM::EMObject* obj = 0;
-	if ( translt==polygonEMBodyTranslator::sKeyUserName() )
-	{
-	    obj = EMM().createTempObject(EM::PolygonBody::typeStr());
-	}
-	else if ( translt==randposEMBodyTranslator::sKeyUserName() )
-	{
-	    obj = EMM().createTempObject(EM::RandomPosBody::typeStr());
-	}
-	else if ( translt==mcEMBodyTranslator::sKeyUserName() )
-	{
-	    obj = EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
-	}
+	EM::EMObject* obj = EMM().createTempObject( translt );
 
 	if ( !obj ) return 0;
 	obj->ref();

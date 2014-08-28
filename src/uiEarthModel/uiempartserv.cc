@@ -513,19 +513,15 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
     for ( int idx=0; idx<mids.size(); idx++ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mids[idx] );
-	const BufferString& translator = ioobj->translator();
-
-	BufferString typestr;
-	if ( translator==polygonEMBodyTranslator::sKeyUserName() )
-	    typestr = EM::PolygonBody::typeStr();
-	else if ( translator==randposEMBodyTranslator::sKeyUserName() )
-	    typestr = EM::RandomPosBody::typeStr();
-	else if ( translator==mcEMBodyTranslator::sKeyUserName() ||
-		  translator==dGBEMBodyTranslator::sKeyUserName() )
-	    typestr = EM::MarchingCubesSurface::typeStr();
-	else
+	if ( !ioobj )
 	    continue;
 
+	const BufferString& translator = ioobj->translator();
+	if ( translator!=EMBodyTranslatorGroup::sKeyUserWord() )
+	    continue;
+
+	BufferString typestr;
+	ioobj->pars().get( sKey::Type(), typestr );
 	EM::EMObject* object = EM::EMM().createTempObject( typestr );
 	if ( !object ) continue;
 

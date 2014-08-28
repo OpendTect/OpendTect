@@ -37,7 +37,6 @@ SET(OD_MODULE_SOURCES
 		emobjectselremoval.cc
 		emrandomposbody.cc
 		empolygonbody.cc
-		empolygonbodytr.cc
 		emposid.cc
 		emrandlinegen.cc
 		emrowcoliterator.cc

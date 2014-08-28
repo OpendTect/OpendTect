@@ -35,21 +35,21 @@ class PolygonBody;
 mExpClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
 {
 public:
-    			PolygonBodyGeometry(PolygonBody&);
+			PolygonBodyGeometry(PolygonBody&);
 			~PolygonBodyGeometry();
 
     int			nrPolygons(const SectionID&) const;
     int			nrKnots(const SectionID&,int polygonnr) const;
     bool		insertPolygon(const SectionID&,int polygonnr,
-	    			      int firstknot,const Coord3& pos,
+				      int firstknot,const Coord3& pos,
 				      const Coord3& editnormal,
 				      bool addtohistory);
     bool		removePolygon(const SectionID&,int polygonnr,
-	    			      bool addtohistory);
+				      bool addtohistory);
     bool		insertKnot(const SectionID&,const SubID&,
-	    			   const Coord3& pos,bool addtohistory);
+				   const Coord3& pos,bool addtohistory);
     bool		removeKnot(const SectionID&,const SubID&,
-	    			   bool addtohistory);
+				   bool addtohistory);
     const Coord3&	getPolygonNormal(const SectionID&,int polygon) const;
 
     Geometry::PolygonSurface*
@@ -58,11 +58,11 @@ public:
 			sectionGeometry(const SectionID&) const;
 
     EMObjectIterator*	createIterator(const SectionID&,
-	    			       const CubeSampling* =0) const;
+				       const CubeSampling* =0) const;
 
     Executor*		loader(const SurfaceIODataSelection* s=0);
     Executor*		saver(const SurfaceIODataSelection* s=0,
-	    		       const MultiID* key=0);
+			       const MultiID* key=0);
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -82,9 +82,10 @@ public:
     PolygonBodyGeometry&	geometry();
     const PolygonBodyGeometry&	geometry() const;
 
-    Executor*			saver();
-    Executor*			loader();
-    Executor*                   saver(IOObj*);
+    const char*			type() const	{ return typeStr(); }
+    virtual Executor*		loader();
+    virtual Executor*		saver();
+    virtual Executor*		saver(IOObj*);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
     bool			getBodyRange(CubeSampling&);
