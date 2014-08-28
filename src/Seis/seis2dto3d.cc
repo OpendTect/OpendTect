@@ -273,6 +273,9 @@ void Seis2DTo3D::doWorkNearest()
 	}
     }
 
+    if ( !nearesttrc )
+	return;
+
     SeisTrc* newtrc = new SeisTrc( *nearesttrc );
     newtrc->info().binid = curbid_;
     tmpseisbuf_.add( newtrc );
