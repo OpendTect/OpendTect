@@ -30,11 +30,12 @@ mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
 {
 public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
-					     const int& visid,
+					     int visid,
 					     const Attrib::DescSet&,
 					     float initialshift,
 					     bool cancalcattrib);
 			~uiHorizonShiftDialog();
+
     const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
     StepInterval<float>	shiftRg() const;
     int				nrSteps() const;
@@ -44,7 +45,7 @@ public:
     bool			doStore() const;
     const EM::ObjectID&		emID() const		{ return emid_; }
     const int&			visID() const		{ return visid_; }
-    
+
     const char*			getAttribName() const;
     const char*			getAttribBaseName() const;
 

@@ -33,7 +33,7 @@ const char* uiHorizonShiftDialog::sDefaultAttribName()
 
 uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 					    const EM::ObjectID& emid,
-					    const int& visid,
+					    int visid,
 					    const Attrib::DescSet& descset,
 					    float initialshift,
 					    bool cancalcattrib )
@@ -81,7 +81,7 @@ uiHorizonShiftDialog::uiHorizonShiftDialog( uiParent* p,
 	title.add( " - " ).add( emhor3d_->name() );
 	setCaption( title );
     }
-    
+
     if ( cancalcattrib )
     {
 	attrinpfld_ = new uiAttrSel( this, descset, "Select Attribute" );
