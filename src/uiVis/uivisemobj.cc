@@ -21,9 +21,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceiodata.h"
 #include "executor.h"
 #include "mousecursor.h"
+#include "od_helpids.h"
+#include "settings.h"
 #include "survinfo.h"
 
+#include "uicolortable.h"
+#include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimsg.h"
@@ -35,12 +40,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
+#include "vishorizonsectiondef.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "vismpeeditor.h"
 #include "vissurvobj.h"
 
-const char* uiVisEMObject::trackingmenutxt()	    { return "Tracking"; }
 
+const char* uiVisEMObject::trackingmenutxt()	    { return "Tracking"; }
 
 uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     : displayid_(newid)
@@ -245,23 +251,23 @@ bool uiVisEMObject::isOK() const
 
 void uiVisEMObject::setUpConnections()
 {
-    singlecolmnuitem_.text = "Use single &color";
+    singlecolmnuitem_.text = tr("Use single color");
     singlecolmnuitem_.checkable = true;
-    seedsmenuitem_.text = "S&eeds";
+    seedsmenuitem_.text = tr("Seeds");
     seedsmenuitem_.checkable = false;
-    showseedsmnuitem_.text = "&Show";
-    seedpropmnuitem_.text = "&Properties ...";
-    lockseedsmnuitem_.text = "&Lock";
-    editmnuitem_.text = "&Edit";
+    showseedsmnuitem_.text = "Show";
+    seedpropmnuitem_.text = "Properties ...";
+    lockseedsmnuitem_.text = "Lock";
+    editmnuitem_.text = "Edit";
     editmnuitem_.checkable = true;
-    removesectionmnuitem_.text ="Remove &section";
-    makepermnodemnuitem_.text = "Make control &permanent";
-    removecontrolnodemnuitem_.text = "Remove &control";
-    changesectionnamemnuitem_.text = "Change section's &name";
-    showonlyatsectionsmnuitem_.text = "&Only at sections";
-    showfullmnuitem_.text = "&In full";
-    showbothmnuitem_.text = "&At sections and in full";
-    showsurfacegridmnuitem_.text = "&Surface Grid";
+    removesectionmnuitem_.text = tr("Remove section");
+    makepermnodemnuitem_.text = tr("Make control permanent");
+    removecontrolnodemnuitem_.text = tr("Remove control");
+    changesectionnamemnuitem_.text = tr("Change section's name");
+    showonlyatsectionsmnuitem_.text = tr("Only at sections");
+    showfullmnuitem_.text = tr("In full");
+    showbothmnuitem_.text = tr("At sections and in full");
+    showsurfacegridmnuitem_.text = tr("Surface Grid");
 
     showonlyatsectionsmnuitem_.checkable = true;
     showfullmnuitem_.checkable = true;
@@ -388,7 +394,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
 
-    MenuItemHolder* displaymnuitem = menu->findItem( "&Display" );
+    MenuItemHolder* displaymnuitem = menu->findItem( "Display" );
     if ( !displaymnuitem ) displaymnuitem = menu;
 
     if ( hor2ddisp )
@@ -447,14 +453,14 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	const TypeSet<EM::PosID>* seeds =
 	    emobj->getPosAttribList(EM::EMObject::sSeedNode());
 	showseedsmnuitem_.text =
-	    emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? "&Hide" : "S&how";
+	    emod->showsPosAttrib(EM::EMObject::sSeedNode()) ? "Hide" : "Show";
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
 	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
 		      !visserv_->isTrackingSetupActive(), false );
 	lockseedsmnuitem_.text =
 	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-	    "Un&lock" : "&Lock" ;
+	    "Unlock" : "Lock" ;
 	mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
 	mAddMenuItem( trackmnu, &seedsmenuitem_,
 		      seedsmenuitem_.nrItems(), false );
@@ -770,3 +776,55 @@ void uiVisEMObject::handleEdgeLineMenuCB( CallBacker* cb )
 {
 }
 
+
+static const char* sKeyHorizonRes = "dTect.Horizon.Resolution";
+static const char* sKeyHorizonColTab = "dTect.Horizon.Color table";
+static BufferStringSet sResolutionNames;
+
+static void fillResolutionNames( BufferStringSet& nms )
+{
+    visSurvey::HorizonDisplay* hd = new visSurvey::HorizonDisplay;
+    hd->ref();
+    const int nrres = cMaximumResolution+1; //hd->nrResolutions();
+    for ( int idx=0; idx<nrres; idx++ )
+	nms.add( hd->getResolutionName(idx) );
+
+    hd->unRef();
+}
+
+
+// uiHorizonSettings
+uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
+    : uiSettingsGroup(p,tr("Horizons"),setts)
+{
+    if ( sResolutionNames.isEmpty() )
+	fillResolutionNames( sResolutionNames );
+
+    resolution_ = 0;
+    setts.get( sKeyHorizonRes, resolution_ );
+    resolutionfld_ = new uiGenInput( this, "Default Resolution",
+				     StringListInpSpec(sResolutionNames) );
+    resolutionfld_->setValue( resolution_ );
+
+    coltabnm_ = ColTab::defSeqName();
+    setts.get( sKeyHorizonColTab, coltabnm_ );
+    coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
+    coltabfld_->attach( alignedBelow, resolutionfld_ );
+
+    uiLabel* lbl = new uiLabel( this, "Default Colortable" );
+    lbl->attach( leftOf, coltabfld_ );
+}
+
+
+HelpKey uiHorizonSettings::helpKey() const
+{ return mODHelpKey(mHorizonSettingsHelpID); }
+
+
+bool uiHorizonSettings::acceptOK()
+{
+    updateSettings( resolution_, resolutionfld_->getIntValue(),
+		    sKeyHorizonRes );
+    updateSettings( coltabnm_, coltabfld_->colTabSeq().name(),
+		    sKeyHorizonColTab );
+    return true;
+}

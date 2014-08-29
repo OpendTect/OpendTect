@@ -25,7 +25,7 @@ class uiTable;
 
 
 mExpClass(uiTools) uiSettings : public uiDialog
-{
+{ mODTextTranslationClass(uiSettings)
 public:
 			uiSettings(uiParent*,const char* titl,
 				   const char* settskey=0);
@@ -65,6 +65,8 @@ public:
     virtual		~uiSettingsGroup();
 
     bool		isChanged() const	{ return changed_; }
+    void		setNeedsRestart(bool);
+    bool		needsRestart() const;
     const char*		errMsg() const;
 
 protected:
@@ -72,6 +74,10 @@ protected:
 					Settings&);
 
     void		updateSettings(bool oldval,bool newval,const char* key);
+    void		updateSettings(int oldval,int newval,const char* key);
+    void		updateSettings(const OD::String& oldval,
+				       const OD::String& newval,
+				       const char* key);
 
     BufferString	errmsg_;
     Settings&		setts_;
@@ -86,6 +92,7 @@ public:
 			~uiSettingsDlg();
 
     bool		isChanged() const	{ return changed_; }
+    bool		needsRestart() const;
 
 protected:
 

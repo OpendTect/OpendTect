@@ -14,20 +14,22 @@ ________________________________________________________________________
 -*/
 
 #include "uivismod.h"
+
 #include "callback.h"
 #include "emposid.h"
 #include "menuhandler.h"
+#include "uisettings.h"
 
 namespace EM { class EdgeLineSet; class EdgeLineSegment; }
 namespace visSurvey { class EMObjectDisplay; }
 
-class uiParent;
+class uiColorTableGroup;
 class uiMenuHandler;
 class uiVisPartServer;
 
 
 mExpClass(uiVis) uiVisEMObject : public CallBacker
-{
+{ mODTextTranslationClass(uiVisEMObject)
 public:
 			uiVisEMObject(uiParent*,int displayid,
 				      uiVisPartServer* );
@@ -108,5 +110,29 @@ protected:
     MenuItem		removecontrolnodemnuitem_;
 };
 
-#endif
 
+
+mExpClass(uiVis) uiHorizonSettings : public uiSettingsGroup
+{ mODTextTranslationClass(uiHorizonSettings)
+public:
+			mDefaultFactoryInstantiation2Param(
+				uiSettingsGroup,
+				uiHorizonSettings,
+				uiParent*,Settings&,
+				"Horizons",
+				sFactoryKeyword())
+
+			uiHorizonSettings(uiParent*,Settings&);
+    bool		acceptOK();
+    HelpKey		helpKey() const;
+
+protected:
+
+    uiGenInput*		resolutionfld_;
+    uiColorTableGroup*	coltabfld_;
+
+    int			resolution_;
+    BufferString	coltabnm_;
+};
+
+#endif

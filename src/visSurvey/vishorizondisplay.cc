@@ -27,8 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posvecdataset.h"
 #include "callback.h"
 
-#include "viscoord.h"
-#include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
 #include "vismarkerset.h"
@@ -106,6 +104,10 @@ HorizonDisplay::HorizonDisplay()
     linemat->setDiffIntensity( 1 );
     linemat->setAmbience( 1 );
     setIntersectLineMaterial( linemat );
+
+    int res = (int)resolution_;
+    Settings::common().get( "dTect.Horizon.Resolution", res );
+    resolution_ = (char)res;
 }
 
 
@@ -137,7 +139,7 @@ HorizonDisplay::~HorizonDisplay()
 	zaxistransform_->unRef();
     }
 
-    DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     for ( int idx=0; idx<dispdatapackids_.size(); idx++ )
     {
 	const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[idx];
@@ -735,7 +737,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     if ( !attribwasdepth )
     {
 	BufferString seqnm;
-	Settings::common().get( "dTect.Color table.Horizon", seqnm );
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
 	ColTab::Sequence seq( seqnm );
 	setColTabSequence( channel, seq, 0 );
 	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
@@ -989,7 +991,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
     removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
     sids_.removeSingle( idx );
-};
+}
 
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
