@@ -11,20 +11,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisettings.h"
 
+#include "dirlist.h"
+#include "envvars.h"
+#include "oddirs.h"
+#include "od_helpids.h"
+#include "posimpexppars.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
-#include "posimpexppars.h"
-#include "envvars.h"
-#include "oddirs.h"
-#include "dirlist.h"
-#include "od_helpids.h"
 
-#include "uigeninput.h"
-#include "uitable.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uimsg.h"
-#include "od_helpids.h"
+#include "uitable.h"
+
 
 static const char* sKeyCommon = "<general>";
 
@@ -269,6 +269,7 @@ uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
     : uiDlgGroup(p,caption)
     , setts_(setts)
     , changed_(false)
+    , needsrestart_(false)
 {
 }
 
