@@ -72,9 +72,9 @@ static void setSectionDisplayRestoreForAllHors( const uiVisPartServer& visserv,
 {
     for ( int id=visserv.highestID(); id>=0; id-- )
     {
-	 mDynamicCastGet( visSurvey::HorizonDisplay*,hd,visserv.getObject(id) );
-	 if ( hd )
-	     hd->setSectionDisplayRestore( yn );
+	mDynamicCastGet( visSurvey::HorizonDisplay*,hd,visserv.getObject(id) );
+	if ( hd )
+	    hd->setSectionDisplayRestore( yn );
     }
 }
 
