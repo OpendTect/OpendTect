@@ -95,7 +95,7 @@ static const char* directionstr[]=
 };
 
 
-mInitAttribUI( uiGLCM_attrib, GLCM_attrib, "GLCM", sKeyBasicGrp() )
+mInitAttribUI( uiGLCM_attrib, GLCM_attrib, "Texture Plus", sKeyBasicGrp() )
 
 uiGLCM_attrib::uiGLCM_attrib( uiParent* p, bool is2d )
     : uiAttrDescEd( p, is2d, mNoHelpKey )
