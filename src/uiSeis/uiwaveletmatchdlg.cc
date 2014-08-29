@@ -37,16 +37,20 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
 
 bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 {
-    const Wavelet* srcwvlt = wvlt0fld_->getWavelet();
+    Wavelet* srcwvlt = wvlt0fld_->getWavelet();
     if ( !srcwvlt ) return false;
 
-    const Wavelet* tarwvlt = wvlt1fld_->getWavelet();
+    Wavelet* tarwvlt = wvlt1fld_->getWavelet();
     if ( !tarwvlt ) return false;
 
     const IOObj* outioobj = outwvltfld_->ioobj();
     if ( !outioobj ) return false;
 
     const int sz = mMAX(srcwvlt->size(),tarwvlt->size());
+    if ( sz != srcwvlt->size() )
+	srcwvlt->reSample( sz );
+    else
+	tarwvlt->reSample( sz );
 
 // TODO: Apply window before FFT?
     Array1DImpl<float_complex> fftsrcwvlt( sz );
@@ -60,7 +64,7 @@ bool uiWaveletMatchDlg::acceptOK( CallBacker* )
     Array1DImpl<float_complex> fftnewwvlt( sz );
     for ( int idx=0; idx<sz; idx++ )
     {
-	float_complex val = ffttarwvlt.get(idx) - fftsrcwvlt.get(idx);
+	float_complex val = ffttarwvlt.get(idx) / fftsrcwvlt.get(idx);
 	fftnewwvlt.set( idx, val );
     }
 
@@ -68,6 +72,8 @@ bool uiWaveletMatchDlg::acceptOK( CallBacker* )
     WaveletAttrib::transformBack( fftnewwvlt, newwvlt );
 
     Wavelet wvlt;
+    wvlt.reSize( sz );
+    wvlt.setCenterSample( sz/2 );
     for ( int idx=0; idx<sz; idx++ )
 	wvlt.set( idx, newwvlt.get(idx) );
 
