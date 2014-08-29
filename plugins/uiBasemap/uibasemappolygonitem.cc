@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiioobjselgrp.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uistrings.h"
 
 #include "basemappolygon.h"
@@ -124,6 +124,7 @@ bool uiBasemapPolygonTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction("Show in 3D"), 1 );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -134,6 +135,17 @@ bool uiBasemapPolygonTreeItem::handleSubMenu( int mnuid )
     if ( mnuid==0 )
     {
 	BMM().edit( getFamilyID(), ID() );
+    }
+    else if ( mnuid==1 )
+    {
+	const int nrobjs = basemapobjs_.size();
+	for ( int idx=0; idx<nrobjs; idx++ )
+	{
+	    mDynamicCastGet(Basemap::PolygonObject*,obj,basemapobjs_[idx])
+	    if ( !obj ) continue;
+
+	    ODMainWin()->sceneMgr().addPickSetItem( obj->getMultiID() );
+	}
     }
     else
 	return false;

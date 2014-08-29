@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uistrings.h"
 
 #include "basemapgeom2d.h"
@@ -125,6 +126,7 @@ bool uiBasemapGeom2DTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
+    mnu.insertItem( new uiAction("Show in 3D"), 1 );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );
 }
@@ -136,9 +138,19 @@ bool uiBasemapGeom2DTreeItem::handleSubMenu( int mnuid )
     {
 	BMM().edit( getFamilyID(), ID() );
     }
+    else if ( mnuid==1 )
+    {
+	const int nrobjs = basemapobjs_.size();
+	for ( int idx=0; idx<nrobjs; idx++ )
+	{
+	    mDynamicCastGet(Basemap::Geom2DObject*,obj,basemapobjs_[idx])
+	    if ( !obj ) continue;
+
+	    ODMainWin()->sceneMgr().add2DLineItem( obj->getMultiID() );
+	}
+    }
     else
 	return false;
 
     return true;
 }
-

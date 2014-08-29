@@ -199,15 +199,18 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
 
 bool uiBasemapIOObjGroup::usePar( const IOPar& par )
 {
-    bool res = uiBasemapGroup::usePar( par );
-
     int nrobjs = 0;
     par.get( sKeyNrObjs(), nrobjs );
+
+    typefld_->display( nrobjs==0 );
+
     TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
     for ( int idx=0; idx<nrobjs; idx++ )
 	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
 
     ioobjfld_->setChosen( mids );
+
+    bool res = uiBasemapGroup::usePar( par );
     return res;
 }
 
@@ -422,7 +425,11 @@ void uiBasemapManager::edit( int itemid, int treeitemid )
 
     IOPar pars;
     dlg.fillPar( pars );
-    treeitm->usePar( pars );
+    const BufferString key = IOPar::compKey(uiBasemapGroup::sKeyItem(),0);
+    PtrMan<IOPar> itmpars = pars.subselect( key );
+    if ( !itmpars ) return;
+
+    treeitm->usePar( *itmpars );
 }
 
 
