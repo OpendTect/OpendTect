@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolortable.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimsg.h"
@@ -810,6 +811,9 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
     setts.get( sKeyHorizonColTab, coltabnm_ );
     coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
     coltabfld_->attach( alignedBelow, resolutionfld_ );
+
+    uiLabel* lbl = new uiLabel( this, "Default Colortable" );
+    lbl->attach( leftOf, coltabfld_ );
 }
 
 
