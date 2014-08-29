@@ -48,9 +48,9 @@ bool uiWaveletMatchDlg::acceptOK( CallBacker* )
 
     const int sz = mMAX(srcwvlt->size(),tarwvlt->size());
     if ( sz != srcwvlt->size() )
-	srcwvlt->reSample( sz );
+	srcwvlt->reSample( mCast(float,sz) );
     else
-	tarwvlt->reSample( sz );
+	tarwvlt->reSample( mCast(float,sz) );
 
 // TODO: Apply window before FFT?
     Array1DImpl<float_complex> fftsrcwvlt( sz );
