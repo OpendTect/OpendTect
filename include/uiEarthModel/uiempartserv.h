@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "position.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 
 class BinIDValueSet;
@@ -28,6 +29,7 @@ class DataPointSet;
 class HorSampling;
 class SurfaceInfo;
 class ZAxisTransform;
+class uiCreateHorizon;
 class uiExportFault;
 class uiExportHorizon;
 class uiImportFault3D;
@@ -47,7 +49,7 @@ template <class T> class Array2D;
 */
 
 mExpClass(uiEarthModel) uiEMPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiEMPartServer);
 public:
 			uiEMPartServer(uiApplService&);
 			~uiEMPartServer();
@@ -64,6 +66,7 @@ public:
     void		import2DFaultStickset();
     bool		exportFault();
     bool		exportFaultStickSet();
+    void		createHorWithConstZ(bool is2d);
 
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
@@ -169,6 +172,8 @@ public:
     void		removeTreeObject(const EM::ObjectID&);
 
     void		managePreLoad();
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 

@@ -16,27 +16,29 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datacoldef.h"
 #include "datainpspec.h"
 #include "datapointset.h"
-#include "datacoldef.h"
+#include "embodytr.h"
+#include "emfaultauxdata.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
-#include "emfaultauxdata.h"
+#include "emhorizonpreload.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
-#include "embodytr.h"
-#include "emrandomposbody.h"
-#include "emposid.h"
 #include "empolygonbody.h"
+#include "emposid.h"
+#include "emrandomposbody.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceiodata.h"
 #include "emsurfaceio.h"
+#include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
+#include "hiddenparam.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -48,24 +50,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "undo.h"
-#include "varlenarray.h"
 #include "variogramcomputers.h"
+#include "varlenarray.h"
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
 #include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
+#include "uicreatehorizon.h"
+#include "uidlggroup.h"
 #include "uiempreloaddlg.h"
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
-#include "uigeninputdlg.h"
+#include "uiexport2dhorizon.h"
 #include "uigeninput.h"
-#include "uihor3dfrom2ddlg.h"
+#include "uigeninputdlg.h"
 #include "uihorgeom2attr.h"
 #include "uihorinterpol.h"
+#include "uihorsavefieldgrp.h"
+#include "uihor3dfrom2ddlg.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
-#include "uiexport2dhorizon.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
 #include "uiiosurfacedlg.h"
@@ -77,14 +82,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
 #include "uivariogram.h"
-#include "uidlggroup.h"
-#include "uihorsavefieldgrp.h"
 
 #include <math.h>
 
+HiddenParam<uiEMPartServer,uiCreateHorizon*> crhordlgs(0);
 
-int uiEMPartServer::evDisplayHorizon()	    { return 0; }
-int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
+static const char* sKeyPreLoad()		{ return "PreLoad"; }
+
+int uiEMPartServer::evDisplayHorizon()		{ return 0; }
+int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
 			uiMSG().error( msg ); return false; }
@@ -106,6 +112,8 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , impfltstickdlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
+
+    crhordlgs.setParam( this, 0 );
 }
 
 
@@ -113,6 +121,10 @@ uiEMPartServer::~uiEMPartServer()
 {
     em_.setEmpty();
     deepErase( variodlgs_ );
+
+    uiCreateHorizon* crhordlg = crhordlgs.getParam( this );
+    crhordlgs.removeParam( this );
+    delete crhordlg;
 }
 
 
@@ -184,13 +196,22 @@ bool uiEMPartServer::import3DHorGeom( bool bulk )
 
 void uiEMPartServer::importReadyCB( CallBacker* cb )
 {
+    MultiID mid = MultiID::udf();
     mDynamicCastGet(uiImportHorizon*,dlg,cb)
-    mDynamicCastGet(uiImportFault*,fltdlg,cb)
-    if ( (!dlg || !dlg->doDisplay()) &&
-	 (!fltdlg || !fltdlg->saveButtonChecked()) )
-	return;
+    if ( dlg && dlg->doDisplay() )
+	mid = dlg->getSelID();
 
-    selemid_ = em_.getObjectID( dlg ? dlg->getSelID() : fltdlg->getSelID() );
+    mDynamicCastGet(uiImportFault*,fltdlg,cb)
+    if ( fltdlg && fltdlg->saveButtonChecked() )
+	mid = fltdlg->getSelID();
+
+    mDynamicCastGet(uiCreateHorizon*,crdlg,cb)
+    if ( crdlg && crdlg->saveButtonChecked() )
+	mid = crdlg->getSelID();
+
+    if ( mid.isUdf() ) return;
+
+    selemid_ = em_.getObjectID( mid );
     sendEvent( evDisplayHorizon() );
 }
 
@@ -285,6 +306,20 @@ bool uiEMPartServer::exportFaultStickSet()
     return expfltstickdlg_->go();
 }
 
+
+void uiEMPartServer::createHorWithConstZ( bool is2d )
+{
+    uiCreateHorizon* curdlg = crhordlgs.getParam( this );
+    if ( !curdlg )
+    {
+	uiCreateHorizon* crhordlg = new uiCreateHorizon( parent(), is2d );
+	crhordlg->ready.notify( mCB(this,uiEMPartServer,importReadyCB) );
+	crhordlgs.setParam( this, crhordlg );
+	curdlg = crhordlg;
+    }
+
+    curdlg->show();
+}
 
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& emid ) const
@@ -612,7 +647,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
 	hor3d->auxdata.removeAll();
 
     ExecutorGroup exgrp( "Horizon Data loader" );
-    exgrp.setNrDoneText( "Nr done" );
+    exgrp.setNrDoneText( tr("Nr done") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
@@ -702,8 +737,8 @@ bool uiEMPartServer::showLoadFaultAuxDataDlg( const EM::ObjectID& id )
 
     BufferStringSet atrrnms;
     auxdata->getAuxDataList( atrrnms );
-    uiSelectFromList::Setup setup( "Fault Data", atrrnms );
-    setup.dlgtitle( "Select one attribute to be displayed" );
+    uiSelectFromList::Setup setup( tr("Fault Data"), atrrnms );
+    setup.dlgtitle( tr("Select one attribute to be displayed") );
     uiSelectFromList dlg( parent(), setup );
     if ( !dlg.go() || !dlg.selFld() )
 	return false;
@@ -727,12 +762,12 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     EM::IOObjInfo eminfo( mid );
     BufferStringSet atrrnms;
     eminfo.getAttribNames( atrrnms );
-    uiSelectFromList::Setup setup( "Horizon Data", atrrnms );
-    setup.dlgtitle( "Select one or more attributes to be displayed\n"
+    uiSelectFromList::Setup setup( tr("Horizon Data"), atrrnms );
+    setup.dlgtitle( tr("Select one or more attributes to be displayed\n"
 		    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll.\n"
 		    "Make sure the attribute treeitem is selected\n"
-		    "and that the mouse pointer is in the scene." );
+		    "and that the mouse pointer is in the scene.") );
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiChoice( true );
@@ -744,7 +779,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
     hor3d->auxdata.removeAll();
     ExecutorGroup exgrp( "Loading Horizon Data" );
-    exgrp.setNrDoneText( "Nr done" );
+    exgrp.setNrDoneText( tr("Nr done") );
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
@@ -825,7 +860,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 	ioobj->pars().set( sKey::Type(), object->getTypeStr() );
 	if ( !IOM().commitChanges( *ioobj ) )
 	{
-	    uiMSG().error( "Could not write to database" );
+	    uiMSG().error( tr("Could not write to database") );
 	    return false;
 	}
     }
@@ -863,7 +898,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
     PtrMan<Executor> saver = hor3d->auxdata.auxDataSaver(dataidx,overwrite);
     if ( !saver )
     {
-	uiMSG().error( "Cannot save attribute" );
+	uiMSG().error( tr("Cannot save attribute") );
 	return false;
     }
 
@@ -875,12 +910,12 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id, DataPointSet& data,
 				const char* attribnm, int idx, float shift )
 {
     if ( !data.size() )
-    { uiMSG().error("No data calculated"); return -1; }
+    { uiMSG().error(tr("No data calculated")); return -1; }
 
     EM::EMObject* object = em_.getObject( id );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
     if ( !hor3d )
-    { uiMSG().error("No horizon loaded"); return -1; }
+    { uiMSG().error(tr("No horizon loaded")); return -1; }
 
     BufferString auxnm = attribnm;
     if ( auxnm.isEmpty() )
@@ -1129,8 +1164,8 @@ bool uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
-		uiDialog::Setup( "Interpolate horizon Data",
-				 "Interpolation parameters",
+		uiDialog::Setup( tr("Interpolate horizon Data"),
+				 tr("Interpolation parameters"),
 				  mNoHelpKey ) );
 
 	uiArray2DInterpolSel* settings =
@@ -1298,7 +1333,8 @@ const char* uiEMPartServer::genRandLine( int opt )
 ZAxisTransform* uiEMPartServer::getHorizonZAxisTransform( bool is2d )
 {
     uiDialog dlg( parent(),
-		  uiDialog::Setup("Select horizon",mNoDlgTitle,mTODOHelpKey) );
+		  uiDialog::Setup(tr("Select horizon"),
+				  mNoDlgTitle,mTODOHelpKey) );
     const IOObjContext ctxt = is2d
 	? EMHorizon2DTranslatorGroup::ioContext()
 	: EMHorizon3DTranslatorGroup::ioContext();
@@ -1542,4 +1578,32 @@ void uiEMPartServer::managePreLoad()
 {
     uiHorizonPreLoadDlg dlg( appserv().parent() );
     dlg.go();
+}
+
+
+void uiEMPartServer::fillPar( IOPar& par ) const
+{
+    const TypeSet<MultiID>& mids = EM::HPreL().getPreloadedIDs();
+    for ( int idx=0; idx<mids.size(); idx++ )
+	par.set( IOPar::compKey(sKeyPreLoad(),idx), mids[idx] );
+}
+
+
+bool uiEMPartServer::usePar( const IOPar& par )
+{
+    const int maxnr2pl = 1000;
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<maxnr2pl; idx++ )
+    {
+	MultiID mid = MultiID::udf();
+	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
+	if ( mid.isUdf() )
+	    break;
+
+	mids += mid;
+    }
+
+    uiTaskRunner uitr( parent() );
+    EM::HPreL().load( mids, &uitr );
+    return true;
 }

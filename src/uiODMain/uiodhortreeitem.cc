@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emioobjinfo.h"
 #include "emsurfaceauxdata.h"
+#include "hiddenparam.h"
 #include "mpeengine.h"
 #include "survinfo.h"
 
@@ -46,11 +47,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mAddIdx		0
-#define mAddCBIdx	1
-#define mNewIdx		2
-#define mSectIdx	3
-#define mFullIdx	4
-#define mSectFullIdx	5
+#define mAddAtSectIdx	1
+#define mAddCBIdx	2
+#define mNewIdx		3
+#define mCreateIdx	4
+#define mSectIdx	5
+#define mFullIdx	6
+#define mSectFullIdx	7
 
 uiODHorizonParentTreeItem::uiODHorizonParentTreeItem()
     : uiODTreeItem( "Horizon" )
@@ -86,20 +89,24 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), mAddIdx );
-    mnu.insertItem( new uiAction(tr("Add &color blended ...")), mAddCBIdx );
+    mnu.insertItem( new uiAction(tr("Add at sections only ...")),mAddAtSectIdx);
+    mnu.insertItem( new uiAction(tr("Add color blended ...")), mAddCBIdx );
 
-    uiAction* newmenu = new uiAction( tr("&Track new ...") );
+    uiAction* newmenu = new uiAction( tr("Track new ...") );
     mnu.insertItem( newmenu, mNewIdx );
     newmenu->setEnabled( !hastransform );
+
+    mnu.insertItem( new uiAction(tr("Create with constant Z ...")),
+		    mCreateIdx );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
 	uiMenu* displaymnu =
-		new uiMenu( getUiParent(), "&Display all" );
-	displaymnu->insertItem( new uiAction(tr("&Only at sections")),
+		new uiMenu( getUiParent(), tr("Display all") );
+	displaymnu->insertItem( new uiAction(tr("Only at sections")),
 				mSectIdx );
-	displaymnu->insertItem( new uiAction(tr("&In full")), mFullIdx );
-	displaymnu->insertItem( new uiAction(tr("&At sections and in full")),
+	displaymnu->insertItem( new uiAction(tr("In full")), mFullIdx );
+	displaymnu->insertItem( new uiAction(tr("At sections and in full")),
 				mSectFullIdx );
 	mnu.insertItem( displaymnu );
     }
@@ -107,7 +114,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
-    if ( mnuid == mAddIdx || mnuid==mAddCBIdx )
+    if ( mnuid == mAddIdx || mnuid==mAddAtSectIdx || mnuid==mAddCBIdx )
     {
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), true );
 
@@ -122,10 +129,11 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    }
 	    uiODHorizonTreeItem* itm =
 		new uiODHorizonTreeItem( objs[idx]->id(), mnuid==mAddCBIdx );
+	    itm->initAtSections( mnuid==mAddAtSectIdx );
 	    addChld( itm, false, false );
 	}
-
 	deepUnRef( objs );
+
 	setSectionDisplayRestoreForAllHors( *applMgr()->visServer(), false );
     }
     else if ( mnuid == mNewIdx )
@@ -160,6 +168,10 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    hd->setOnlyAtSectionsDisplay( onlyatsection );
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
+    }
+    else if ( mnuid == mCreateIdx )
+    {
+	applMgr()->EMServer()->createHorWithConstZ( false );
     }
     else
 	handleStandardItems( mnuid );
@@ -234,43 +246,56 @@ uiTreeItem*
     {
 	mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
 			 hd->getChannels2RGBA() );
-
-	return new uiODHorizonTreeItem(visid, rgba, true);
+	uiODHorizonTreeItem* itm = new uiODHorizonTreeItem( visid, rgba, true );
+	itm->initAtSections( hd->getOnlyAtSectionsDisplay() );
+	return itm;
     }
-
 
     return 0;
 }
 
 
+
+HiddenParam<uiODHorizonTreeItem,char> atsections( false );
+
 // uiODHorizonTreeItem
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( const EM::ObjectID& emid, bool rgba )
-    : uiODEarthModelSurfaceTreeItem( emid )
-    , rgba_( rgba )
-{ initMenuItems(); }
+    : uiODEarthModelSurfaceTreeItem(emid)
+    , rgba_(rgba)
+{
+    atsections.setParam( this, false );
+    initMenuItems();
+}
 
 
 uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool )
-    : uiODEarthModelSurfaceTreeItem( 0 )
-    , rgba_( rgba )
+    : uiODEarthModelSurfaceTreeItem(0)
+    , rgba_(rgba)
 {
+    atsections.setParam( this, false );
     initMenuItems();
     displayid_ = visid;
 }
 
 
+void uiODHorizonTreeItem::initAtSections( bool yn )
+{
+    atsections.setParam( this, yn );
+}
+
+
 void uiODHorizonTreeItem::initMenuItems()
 {
-    hordatamnuitem_.text = "&Horizon Data";
-    algomnuitem_.text = "&Tools";
+    hordatamnuitem_.text = "Horizon Data";
+    algomnuitem_.text = "Tools";
     workflowsmnuitem_.text = "Workflows";
-    positionmnuitem_.text = "&Position ...";
-    shiftmnuitem_.text = "&Shift ...";
-    fillholesmnuitem_.text = "&Gridding ...";
-    filterhormnuitem_.text = "&Filtering ...";
+    positionmnuitem_.text = "Position ...";
+    shiftmnuitem_.text = "Shift ...";
+    fillholesmnuitem_.text = "Gridding ...";
+    filterhormnuitem_.text = "Filtering ...";
     snapeventmnuitem_.text = "Snapping ...";
-    geom2attrmnuitem_.text = "Store Z as &Attribute ...";
+    geom2attrmnuitem_.text = "Store Z as Attribute ...";
 }
 
 
@@ -325,6 +350,8 @@ bool uiODHorizonTreeItem::init()
 	    hd->addAttrib();
 	}
     }
+
+    if ( hd ) hd->setOnlyAtSectionsDisplay( atsections.getParam(this) );
 
     visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
     const bool geodf = !sect ? false
@@ -581,15 +608,15 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getZAxisTransform();
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction( uiStrings::sAdd(false) ), 0 );
-    uiAction* newmenu = new uiAction( tr("&Track new ...") );
+    uiAction* newmenu = new uiAction( tr("Track new ...") );
     mnu.insertItem( newmenu, 1 );
-    mnu.insertItem( new uiAction(tr("&Create from 3D ...")), 2 );
+    mnu.insertItem( new uiAction(tr("Create from 3D ...")), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("&Display all only at sections")), 3 );
-	mnu.insertItem( new uiAction(tr("&Show all in full")), 4 );
+	mnu.insertItem( new uiAction(tr("Display all only at sections")), 3 );
+	mnu.insertItem( new uiAction(tr("Show all in full")), 4 );
     }
     addStandardItems( mnu );
 
@@ -714,11 +741,11 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 
 void uiODHorizon2DTreeItem::initMenuItems()
 {
-    algomnuitem_.text = "&Tools";
+    algomnuitem_.text = "Tools";
     workflowsmnuitem_.text = "Workflows";
-    derive3dhormnuitem_.text = "Derive &3D horizon ...";
+    derive3dhormnuitem_.text = "Derive 3D horizon ...";
     snapeventmnuitem_.text = "Snapping ...";
-    interpolatemnuitem_.text = "&Interpolate ...";
+    interpolatemnuitem_.text = "Interpolate ...";
 }
 
 
@@ -796,4 +823,3 @@ void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 
     menu->setIsHandled( handled );
 }
-

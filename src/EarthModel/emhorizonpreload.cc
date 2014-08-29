@@ -112,6 +112,13 @@ bool HorizonPreLoader::load( const TypeSet<MultiID>& newmids, TaskRunner* tr )
 }
 
 
+const TypeSet<MultiID>& HorizonPreLoader::getPreloadedIDs() const
+{ return loadedmids_; }
+
+const BufferStringSet& HorizonPreLoader::getPreloadedNames() const
+{ return loadednms_; }
+
+
 const MultiID& HorizonPreLoader::getMultiID( const char* horname ) const
 {
     const int mididx = loadednms_.indexOf( horname );

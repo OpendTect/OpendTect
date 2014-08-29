@@ -24,8 +24,9 @@ mExpClass(uiODMain) ODSession
 {
 public:
 			ODSession();
-    virtual		~ODSession()		{}
+    virtual		~ODSession();
 
+    IOPar&		empars();
     IOPar&		seispars()		{ return seispars_; }
     IOPar&		vispars()		{ return vispars_; }
     IOPar&		attrpars(bool,bool);
