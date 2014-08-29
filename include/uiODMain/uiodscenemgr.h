@@ -133,6 +133,7 @@ public:
     int				addRandomLineItem(int,int sceneid=-1);
     int				addWellItem(const MultiID&,int sceneid=-1);
     int				add2DLineItem(Pos::GeomID,int sceneid=-1);
+    int				add2DLineItem(const MultiID&,int sceneid=-1);
 
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);

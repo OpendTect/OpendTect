@@ -1099,6 +1099,19 @@ int uiODSceneMgr::add2DLineItem( Pos::GeomID geomid, int sceneid )
 }
 
 
+int uiODSceneMgr::add2DLineItem( const MultiID& mid , int sceneid )
+{
+    mGetOrAskForScene
+    const Survey::Geometry* geom = Survey::GM().getGeometry( mid );
+    if ( !geom ) return -1;
+
+    const Pos::GeomID geomid = geom->getID();
+    uiOD2DLineTreeItem* itm = new uiOD2DLineTreeItem( geomid );
+    scene->itemmanager_->addChild( itm, false );
+    return itm->displayID();
+}
+
+
 void uiODSceneMgr::removeTreeItem( int displayid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
