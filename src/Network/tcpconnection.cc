@@ -22,6 +22,28 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QTcpSocket>
 #endif
 
+/*
+
+   From the manual:
+
+   QAbstractSocket::UnconnectedState
+	0	The socket is not connected.
+   QAbstractSocket::HostLookupState
+	1	The socket is performing a host name lookup.
+   QAbstractSocket::ConnectingState
+	2	The socket has started establishing a connection.
+   QAbstractSocket::ConnectedState
+	3	A connection is established.
+   QAbstractSocket::BoundState
+	4	The socket is bound to an address and port.
+   QAbstractSocket::ClosingState
+	6	The socket is about to close (data may still be waiting to
+		be written).
+   QAbstractSocket::ListeningState
+	5	For internal use only.
+
+   */
+
 TcpConnection::TcpConnection( bool haveevloop )
 #ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
@@ -61,7 +83,8 @@ bool TcpConnection::connectToHost( const char* host, int port, bool wait )
     if ( noeventloop_ )
 	wait = true;
 
-    if ( qtcpsocket_->state()!=QAbstractSocket::UnconnectedState )
+    const QAbstractSocket::SocketState state = qtcpsocket_->state();
+    if ( state != QAbstractSocket::UnconnectedState )
     {
 	errmsg_ = tr("Trying to connect already used connection.");
 	return false;
@@ -104,12 +127,25 @@ bool TcpConnection::disconnectFromHost( bool wait )
 }
 
 
+bool TcpConnection::isBad() const
+{
+#ifdef OD_NO_QT
+    return false;
+#else
+    const QAbstractSocket::SocketState state = qtcpsocket_->state();
+    return state == QAbstractSocket::UnconnectedState
+	|| state == QAbstractSocket::ClosingState;
+#endif
+}
+
+
 bool TcpConnection::isConnected() const
 {
 #ifdef OD_NO_QT
     return false;
 #else
-    return qtcpsocket_->state()==QAbstractSocket::ConnectedState;
+    const QAbstractSocket::SocketState state = qtcpsocket_->state();
+    return state == QAbstractSocket::ConnectedState;
 #endif
 }
 
@@ -118,7 +154,7 @@ bool TcpConnection::anythingToRead() const
 #ifdef OD_NO_QT
     return false;
 #else
-    return isConnected() && qtcpsocket_->bytesAvailable();
+    return qtcpsocket_->bytesAvailable();
 #endif
 }
 
@@ -217,7 +253,7 @@ bool TcpConnection::write( const OD::String& str )
     Threads::Locker locker( lock_ );
 
     return writeInt32( str.size() ) &&
-	   writeArray( str.buf(), str.size(), false );
+	   writeArray( str.buf(), str.size(), true );
 }
 
 
@@ -227,8 +263,8 @@ bool TcpConnection::write( const Network::RequestPacket& packet )
 	return false;
 
     Threads::Locker locker( lock_ );
-    return writeArray( packet.getRawHeader(), packet.headerSize() ) &&
-	   writeArray( packet.payload(), packet.payloadSize() );
+    return writeArray( packet.getRawHeader(), packet.headerSize(), true ) &&
+	   writeArray( packet.payload(), packet.payloadSize(), true );
 
 }
 
@@ -405,10 +441,12 @@ bool TcpConnection::waitForConnected()
 #ifndef OD_NO_QT
 
     //Have we started at something?
-    if ( qtcpsocket_->state()>QAbstractSocket::UnconnectedState )
+    QAbstractSocket::SocketState state = qtcpsocket_->state();
+    if ( state > QAbstractSocket::UnconnectedState )
     {
 	qtcpsocket_->waitForConnected( timeout_ );
-	if ( qtcpsocket_->state()==QAbstractSocket::ConnectedState )
+	state = qtcpsocket_->state();
+	if ( state == QAbstractSocket::ConnectedState )
 	    return true;
 
 	errmsg_.setFrom( qtcpsocket_->errorString() );

@@ -24,8 +24,7 @@ RequestCommunicator::RequestCommunicator( const char* servername, int port )
     , serverport_( port )
     , connectionClosed( this )
 {
-    tcpconn_->connectToHost( servername, port );
-    mAttachCB(tcpconn_->Closed,RequestCommunicator::connCloseCB);
+    connectToHost();
 }
 
 
@@ -36,9 +35,16 @@ RequestCommunicator::~RequestCommunicator()
 }
 
 
+void RequestCommunicator::connectToHost()
+{
+    if ( tcpconn_->connectToHost(servername_,serverport_) )
+	mAttachCB(tcpconn_->Closed,RequestCommunicator::connCloseCB);
+}
+
+
 bool RequestCommunicator::isOK() const
 {
-    return tcpconn_ && tcpconn_->isConnected();
+    return tcpconn_ && !tcpconn_->isBad();
 }
 
 
@@ -138,7 +144,7 @@ RequestPacket* RequestCommunicator::readConnection( int targetreqid )
 	    ourrequestids_.erase();
 	    deepErase( receivedpackets_ );
 
-	    tcpconn_->connectToHost( servername_, serverport_ );
+	    connectToHost();
 	}
     }
 

@@ -39,7 +39,7 @@ public:
     bool		isOK() const;
 			//!< checks whether the header is reasonable
 
-    static od_int32	headerSize() { return sizeof(Header); }
+    static od_int32	headerSize() { return mRequestPacketHeaderSize; }
     static od_int32	getPayloadSize(const void*);
 
     int			setIsNewRequest(); //!< conveniently returns reqID()
