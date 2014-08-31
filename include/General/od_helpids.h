@@ -267,6 +267,7 @@ ________________________________________________________________________
 #define		mImportHorizon2DHelpID			        0x10400014
 #define		mHorizonShiftDialogHelpID			0x10400015
 #define		mBulkHorizonImportHelpID			0x10400016
+#define		mHorizonSettingsHelpID				0x10400017
 // Surfaces Faults 01
 #define		mImportFaultHelpID				0x10401000
 #define		mExportFaultHelpID				0x10401001
