@@ -85,11 +85,12 @@ DataObject::DataObject()
 DataObject::~DataObject()
 {
     DM().removeObject( this );
+    while ( nodestates_.size() )
+	removeNodeState( nodestates_[0] );
+
     delete name_;
     if ( osgnode_ ) osgnode_->unref();
     if ( osgoffswitch_ ) osgoffswitch_->unref();
-    while ( nodestates_.size() )
-	removeNodeState( nodestates_[0] );
 }
 
 
