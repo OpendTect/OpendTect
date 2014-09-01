@@ -239,6 +239,7 @@ void uiAttribDescSetEd::createGroups()
     helpbut_->attach( rightTo, attrtypefld_ );
 
     attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );
+    attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, degrp );
     attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
@@ -973,7 +974,7 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
                                .arg(ad->userRef());
 
 
-                uiMSG().message( msg );
+		uiMSG().message( msg );
 		attrset_->removeDesc( ad->id() );
 		idx--;
 	    }
@@ -1197,11 +1198,11 @@ bool uiAttribDescSetEd::offerSetSave()
     bool saved = adsman_->isSaved();
     if ( saved ) return true;
 
-
-BufferString msg( "Attribute set is not saved.\nSave now?" );
+    BufferString msg( "Attribute set is not saved.\nSave now?" );
     const int res = uiMSG().askSave( msg );
     if ( res==1 )
-    return doSave(false);
+	return doSave(false);
+
     return res==0;
 }
 
