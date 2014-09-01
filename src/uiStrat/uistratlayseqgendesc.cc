@@ -140,6 +140,7 @@ uiExtLayerSequenceGenDesc::uiExtLayerSequenceGenDesc( uiParent* p,
     , border_(10)
     , outeritm_(0)
     , emptyitm_(0)
+    , editdesc_(*new Strat::LayerSequenceGenDesc(dsc))
     , zinft_(SI().depthsInFeet())
 {
     border_.setTop( border_.top() + 25 );
@@ -164,6 +165,18 @@ uiStratLayerModelDisp* uiExtLayerSequenceGenDesc::getLayModDisp(
 	    uiStratLayModEditTools& lmt, Strat::LayerModelProvider& lmp, int )
 {
     return new uiStratSimpleLayerModelDisp( lmt, lmp );
+}
+
+
+void uiExtLayerSequenceGenDesc::setEditDesc()
+{
+    editdesc_ = desc_;
+}
+
+
+void uiExtLayerSequenceGenDesc::setFromEditDesc()
+{
+    desc_ = editdesc_;
 }
 
 
@@ -321,8 +334,8 @@ uiBasicLayerSequenceGenDesc::uiBasicLayerSequenceGenDesc( uiParent* p,
 void uiBasicLayerSequenceGenDesc::rebuildDispUnits()
 {
     deepErase( disps_ );
-    for ( int idx=0; idx<desc_.size(); idx++ )
-	insertDispUnit( *desc_[idx], idx );
+    for ( int idx=0; idx<editdesc_.size(); idx++ )
+	insertDispUnit( *editdesc_[idx], idx );
 }
 
 
@@ -730,18 +743,18 @@ bool acceptOK( CallBacker* )
 bool uiBasicLayerSequenceGenDesc::newLayGenReq( bool above )
 {
     const int curunidx = curUnitIdx();
-    uiSingleLayerGeneratorEd dlg( parent(), 0, desc_.refTree(),
-				  desc_.propSelection(),
+    uiSingleLayerGeneratorEd dlg( parent(), 0, editdesc_.refTree(),
+				  editdesc_.propSelection(),
 				  curunidx < 0 ? 0 : disps_[curunidx]->gen_ );
     if ( !dlg.go() )
 	return false;
 
     const int curidx = curUnitIdx();
     const int newidx = above ? curidx : curidx + 1;
-    if ( desc_.isEmpty() || newidx >= desc_.size() )
-	desc_ += dlg.edun_;
+    if ( editdesc_.isEmpty() || newidx >= editdesc_.size() )
+	editdesc_ += dlg.edun_;
     else
-	desc_.insertAt( dlg.edun_, newidx );
+	editdesc_.insertAt( dlg.edun_, newidx );
     insertDispUnit( *dlg.edun_, newidx );
 
     return true;
@@ -753,8 +766,9 @@ bool uiBasicLayerSequenceGenDesc::laygenEditReq()
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
 
-    uiSingleLayerGeneratorEd dlg( parent(), desc_[curidx], desc_.refTree(),
-				  desc_.propSelection() );
+    uiSingleLayerGeneratorEd dlg( parent(), editdesc_[curidx],
+	    			  editdesc_.refTree(),
+				  editdesc_.propSelection() );
     if ( !dlg.go() )
 	return false;
 
@@ -769,7 +783,7 @@ bool uiBasicLayerSequenceGenDesc::laygenRemoveReq()
     const int curidx = curUnitIdx();
     if ( curidx < 0 ) return false;
 
-    delete desc_.removeSingle( curidx );
+    delete editdesc_.removeSingle( curidx );
     delete disps_.removeSingle( curidx );
     return true;
 }

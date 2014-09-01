@@ -37,9 +37,12 @@ public:
     virtual uiStratLayerModelDisp*	getLayModDisp(uiStratLayModEditTools&,
 					    Strat::LayerModelProvider&,int);
     virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
+    virtual void	setEditDesc();
+    virtual void	setFromEditDesc();
 
 protected:
 
+    Strat::LayerSequenceGenDesc&	editdesc_;
     uiGenInput*		topdepthfld_;
     uiRectItem*		outeritm_;
     uiTextItem*		emptyitm_;

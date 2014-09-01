@@ -634,12 +634,13 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
 void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 {
-    vwr_.removeAuxDatas( levelads_ );
-    deepErase( levelads_ );
+    //vwr_.removeAuxDatas( levelads_ );
+    //deepErase( levelads_ );
     if ( layerModel().isEmpty() )
 	return;
 
     lvlcol_ = tools_.selLevelColor();
+    int auxdataidx = 0;
     for ( int iseq=0; iseq<lvldpths_.size(); iseq++ )
     {
 	if ( !isDisplayedModel(iseq) )
@@ -652,15 +653,26 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	const double ypos = mCast( double, flattened_ ? 0. : zlvl );
 	const double xpos1 = mCast( double, iseq+1 );
 	const double xpos2 = mCast( double, iseq +1+dispeach_ );
-	FlatView::AuxData* levelad = vwr_.createAuxData( 0 );
-	levelad->close_ = false;
-	levelad->enabled_ = true;
+	FlatView::AuxData* levelad = 0;
+	if ( levelads_.validIdx(auxdataidx) )
+	{
+	    levelad = levelads_[auxdataidx];
+	    levelad->poly_.erase();
+	}
+	else
+	{
+	    levelad = vwr_.createAuxData( 0 );
+	    levelad->close_ = false;
+	    levelad->enabled_ = true;
+	    levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
+	    vwr_.addAuxData( levelad );
+	}
+
 	levelad->linestyle_ = LineStyle(LineStyle::Solid,2,lvlcol_);
-	levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
 	levelad->poly_ += FlatView::Point( xpos1, ypos );
 	levelad->poly_ += FlatView::Point( xpos2, ypos );
-	vwr_.addAuxData( levelad );
 	levelads_ += levelad;
+	auxdataidx++;
     }
 }
 
@@ -674,11 +686,12 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     selectedcontent_ = layerModel().refTree().contents()
 				.getByName(tools_.selContent());
     allcontents_ = FixedString(tools_.selContent()) == sKey::All();
-    vwr_.removeAuxDatas( layerads_ );
-    deepErase( layerads_ );
+    //vwr_.removeAuxDatas( layerads_ );
+    //deepErase( layerads_ );
     if ( vrg_.width() == 0 )
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
+    int auxdataidx = 0;
     mStartLayLoop( false, )
 
 	if ( !isDisplayedModel(iseq) )
@@ -689,10 +702,23 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    mustannotcont = allcontents_
 		|| (selectedcontent_ && lay.content() == *selectedcontent_);
 	const Color pencol = mustannotcont ? lay.content().color_ : laycol;
-	FlatView::AuxData* layad = vwr_.createAuxData( lay.name().buf() );
+	FlatView::AuxData* layad = 0;
+	if ( layerads_.validIdx(auxdataidx) )
+	{
+	    layad = layerads_[auxdataidx];
+	    layad->poly_.erase();
+	}
+	else
+	{
+	    layad = vwr_.createAuxData( lay.name().buf() );
+	    layad->fillcolor_ = laycol;
+	    layad->enabled_ = true;
+	    layad->zvalue_ = uiFlatViewer::auxDataZVal()-1;
+	    layad->close_ = true;
+	    vwr_.addAuxData( layad );
+	}
+
 	layad->linestyle_ = LineStyle( LineStyle::Solid, 2, pencol );
-	layad->fillcolor_ = laycol;
-	layad->enabled_ = true;
 	if ( mustannotcont )
 	    layad->fillpattern_ = lay.content().pattern_;
 	else
@@ -700,8 +726,6 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    FillPattern fp; fp.setFullFill();
 	    layad->fillpattern_ = fp;
 	}
-	layad->zvalue_ = uiFlatViewer::auxDataZVal()-1;
-	layad->close_ = true;
 	const double x0 = mCast( double, iseq + 1 );
 	double relx = mCast( double, (val-vrg_.start)/vwdth );
 	relx *= dispeach_;
@@ -712,8 +736,8 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	layad->poly_ += FlatView::Point( x1, (double)z0 );
 	layad->poly_ += FlatView::Point( x1, (double)z1 );
 	layad->poly_ += FlatView::Point( x0, (double)z1 );
-	vwr_.addAuxData( layad );
 	layerads_ += layad;
+	auxdataidx++;
 
     mEndLayLoop()
 
@@ -749,6 +773,7 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 void uiStratSimpleLayerModelDisp::getBounds()
 {
     lvldpths_.erase();
+    dispprop_ = tools_.selPropIdx();
     const Strat::Level* lvl = tools_.selStratLevel();
     for ( int iseq=0; iseq<layerModel().size(); iseq++ )
     {

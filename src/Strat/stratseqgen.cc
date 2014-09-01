@@ -104,6 +104,14 @@ bool Strat::LayerGenerator::generateMaterial( Strat::LayerSequence& seq,
 }
 
 
+Strat::LayerSequenceGenDesc::LayerSequenceGenDesc(
+	const LayerSequenceGenDesc& seq )
+    : rt_(seq.rt_)
+{
+    *this = seq;
+}
+
+
 Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
     : rt_(rt)
     , startdepth_(0)
@@ -115,6 +123,22 @@ Strat::LayerSequenceGenDesc::LayerSequenceGenDesc( const RefTree& rt )
 Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 {
     deepErase( *this );
+}
+
+
+Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
+					const Strat::LayerSequenceGenDesc& from)
+{
+    if ( this == &from ) return *this;
+    deepErase( *this );
+
+    for ( int idx=0; idx<from.size(); idx++ )
+	*this += from[idx]->clone();
+    workbenchparams_ = from.workbenchparams_;
+    propsel_ = from.propsel_;
+    elasticpropselmid_ = from.elasticpropselmid_;
+    startdepth_ = from.startdepth_;
+    return *this;
 }
 
 
@@ -316,6 +340,15 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     , content_(&Strat::Content::unspecified())
 {
     props_.add( new ValueProperty(PropertyRef::thickness()) );
+}
+
+
+Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const
+{
+    Strat::SingleLayerGenerator* lg = new Strat::SingleLayerGenerator( unit_ );
+    lg->content_ = content_;
+    lg->props_ = props_;
+    return lg;
 }
 
 

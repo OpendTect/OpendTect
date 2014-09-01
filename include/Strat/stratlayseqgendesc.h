@@ -39,6 +39,7 @@ mExpClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
 {
 public:
 			LayerSequenceGenDesc(const RefTree&);
+			LayerSequenceGenDesc(const LayerSequenceGenDesc&);
 			~LayerSequenceGenDesc();
 
     const RefTree&	refTree() const		{ return rt_; }
@@ -61,6 +62,7 @@ public:
 
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
+    LayerSequenceGenDesc& operator=(const LayerSequenceGenDesc&);
 
 protected:
 
