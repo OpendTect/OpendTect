@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "limits.h"
 #include "odsysmem.h"
+#include "ptrman.h"
 #include "tcpserver.h"
 #include "testprog.h"
 #include "thread.h"
