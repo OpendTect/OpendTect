@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uicolortable.h"
 #include "uidockwin.h"
+#include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
@@ -23,9 +24,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
+#include "uinotsaveddlg.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
-#include "uinotsaveddlg.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uipluginsel.h"
@@ -44,22 +45,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "moddepmgr.h"
 #include "mousecursor.h"
 #include "nrbytes2string.h"
 #include "oddirs.h"
 #include "odinst.h"
+#include "odplatform.h"
 #include "odsessionfact.h"
+#include "odsysmem.h"
 #include "odver.h"
-#include "moddepmgr.h"
 #include "pixmap.h"
 #include "plugins.h"
 #include "ptrman.h"
-#include "odplatform.h"
 #include "settings.h"
-#include "survinfo.h"
 #include "survgeom.h"
+#include "survinfo.h"
 #include "timer.h"
-#include "odsysmem.h"
 #include "visdata.h"
 #include "od_helpids.h"
 
@@ -462,6 +463,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
 bool uiODMain::updateSession()
 {
     cursession_->clear();
+    applMgr().EMServer()->fillPar( cursession_->empars() );
     applMgr().seisServer()->fillPar( cursession_->seispars() );
     applMgr().visServer()->fillPar( cursession_->vispars() );
     applMgr().attrServer()->fillPar( cursession_->attrpars(true,false),
@@ -492,6 +494,7 @@ void uiODMain::doRestoreSession()
     restoringsess_ = true;
 
     sessionRestoreEarly.trigger();
+    applMgr().EMServer()->usePar( cursession_->empars() );
     applMgr().seisServer()->usePar( cursession_->seispars() );
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );

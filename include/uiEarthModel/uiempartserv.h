@@ -172,6 +172,8 @@ public:
     void		removeTreeObject(const EM::ObjectID&);
 
     void		managePreLoad();
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 

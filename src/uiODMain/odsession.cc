@@ -21,6 +21,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
+const char* ODSession::emprefix()	{ return "EM"; }
+const char* ODSession::seisprefix()	{ return "Seis"; }
 const char* ODSession::visprefix()	{ return "Vis"; }
 const char* ODSession::sceneprefix()	{ return "Scene"; }
 const char* ODSession::attrprefix()	{ return "Attribs"; }//backward comp 2.4
@@ -29,7 +31,6 @@ const char* ODSession::attr3dprefix()	{ return "3D.Attribs"; }
 const char* ODSession::attr2dstoredprefix()  { return "2D.Stored.Attribs"; }
 const char* ODSession::attr3dstoredprefix()  { return "3D.Stored.Attribs"; }
 const char* ODSession::nlaprefix()	{ return "NLA"; }
-const char* ODSession::seisprefix()	{ return "Seis"; }
 const char* ODSession::trackprefix()	{ return "Tracking"; }
 const char* ODSession::pluginprefix()	{ return "Plugins"; }
 const char* ODSession::vwr2dprefix()	{ return "2D.Viewer"; }
@@ -44,6 +45,7 @@ ODSession::ODSession()
 
 void ODSession::clear()
 {
+    empars_.setEmpty();
     seispars_.setEmpty();
     vispars_.setEmpty();
     scenepars_.setEmpty();
@@ -63,6 +65,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 {
     if ( &sess != this )
     {
+	empars_ = sess.empars_;
 	seispars_ = sess.seispars_;
 	vispars_ = sess.vispars_;
 	scenepars_ = sess.scenepars_;
@@ -83,6 +86,7 @@ ODSession& ODSession::operator=( const ODSession& sess )
 bool ODSession::operator==( const ODSession& sess ) const
 {
     return vispars_ == sess.vispars_
+	&& empars_ == sess.empars_
 	&& seispars_ == sess.seispars_
 	&& attrpars_ == sess.attrpars_		//backward comp 2.4
 	&& attrpars2d_ == sess.attrpars2d_
@@ -98,6 +102,10 @@ bool ODSession::operator==( const ODSession& sess ) const
 
 bool ODSession::usePar( const IOPar& par )
 {
+    PtrMan<IOPar> emsubpars = par.subselect( emprefix() );
+    if ( emsubpars )
+	empars_ = *emsubpars;
+
     PtrMan<IOPar> seissubpars = par.subselect( seisprefix() );
     if ( seissubpars )
 	seispars_ = *seissubpars;
@@ -152,6 +160,7 @@ bool ODSession::usePar( const IOPar& par )
 
 void ODSession::fillPar( IOPar& par ) const
 {
+    par.mergeComp( empars_, emprefix() );
     par.mergeComp( seispars_, seisprefix() );
     par.mergeComp( vispars_, visprefix() );
     par.mergeComp( scenepars_, sceneprefix() );
@@ -292,7 +301,7 @@ mDefineInstanceCreatedNotifierAccess(uiSessionMan)
 
 uiSessionMan::uiSessionMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Manage Sessions",
-				     mNoDlgTitle, mODHelpKey(mAttrSetManHelpID) 
+				     mNoDlgTitle, mODHelpKey(mAttrSetManHelpID)
                                      ).nrstatusflds(1),
 		   ODSessionTranslatorGroup::ioContext())
 {

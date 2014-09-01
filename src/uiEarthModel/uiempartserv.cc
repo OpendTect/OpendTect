@@ -16,25 +16,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datacoldef.h"
 #include "datainpspec.h"
 #include "datapointset.h"
-#include "datacoldef.h"
+#include "embodytr.h"
+#include "emfaultauxdata.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
-#include "emfaultauxdata.h"
+#include "emhorizonpreload.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonztransform.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
-#include "embodytr.h"
-#include "emrandomposbody.h"
-#include "emposid.h"
 #include "empolygonbody.h"
+#include "emposid.h"
+#include "emrandomposbody.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceiodata.h"
 #include "emsurfaceio.h"
+#include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "iodir.h"
@@ -48,25 +49,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "undo.h"
-#include "varlenarray.h"
 #include "variogramcomputers.h"
+#include "varlenarray.h"
 
 #include "uiarray2dchg.h"
 #include "uiarray2dinterpol.h"
 #include "uibulkhorizonimp.h"
 #include "uichangesurfacedlg.h"
 #include "uicreatehorizon.h"
+#include "uidlggroup.h"
 #include "uiempreloaddlg.h"
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
-#include "uigeninputdlg.h"
+#include "uiexport2dhorizon.h"
 #include "uigeninput.h"
-#include "uihor3dfrom2ddlg.h"
+#include "uigeninputdlg.h"
 #include "uihorgeom2attr.h"
 #include "uihorinterpol.h"
+#include "uihorsavefieldgrp.h"
+#include "uihor3dfrom2ddlg.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
-#include "uiexport2dhorizon.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
 #include "uiiosurfacedlg.h"
@@ -78,14 +81,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
 #include "uivariogram.h"
-#include "uidlggroup.h"
-#include "uihorsavefieldgrp.h"
 
 #include <math.h>
 
+static const char* sKeyPreLoad()		{ return "PreLoad"; }
 
-int uiEMPartServer::evDisplayHorizon()	    { return 0; }
-int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
+int uiEMPartServer::evDisplayHorizon()		{ return 0; }
+int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
 			uiMSG().error( msg ); return false; }
@@ -1565,4 +1567,32 @@ void uiEMPartServer::managePreLoad()
 {
     uiHorizonPreLoadDlg dlg( appserv().parent() );
     dlg.go();
+}
+
+
+void uiEMPartServer::fillPar( IOPar& par ) const
+{
+    const TypeSet<MultiID>& mids = EM::HPreL().getPreloadedIDs();
+    for ( int idx=0; idx<mids.size(); idx++ )
+	par.set( IOPar::compKey(sKeyPreLoad(),idx), mids[idx] );
+}
+
+
+bool uiEMPartServer::usePar( const IOPar& par )
+{
+    const int maxnr2pl = 1000;
+    TypeSet<MultiID> mids;
+    for ( int idx=0; idx<maxnr2pl; idx++ )
+    {
+	MultiID mid = MultiID::udf();
+	par.get( IOPar::compKey(sKeyPreLoad(),idx), mid );
+	if ( mid.isUdf() )
+	    break;
+
+	mids += mid;
+    }
+
+    uiTaskRunner uitr( parent() );
+    EM::HPreL().load( mids, &uitr );
+    return true;
 }

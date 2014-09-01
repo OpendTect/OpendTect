@@ -35,8 +35,8 @@ public:
 
     bool			load(const TypeSet<MultiID>&,TaskRunner* tr=0);
     const MultiID&		getMultiID(const char* name) const;
-    const BufferStringSet&	getPreloadedNames() const
-    				{ return loadednms_; }
+    const TypeSet<MultiID>&	getPreloadedIDs() const;
+    const BufferStringSet&	getPreloadedNames() const;
     const char*			errorMsg() const	    { return errmsg_; }
     void			unload(const BufferStringSet& hornms);
 
