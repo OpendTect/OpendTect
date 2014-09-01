@@ -747,6 +747,7 @@ void uiStratSimpleLayerModelDisp::modelChanged()
 void uiStratSimpleLayerModelDisp::getBounds()
 {
     lvldpths_.erase();
+    dispprop_ = tools_.selPropIdx();
     const Strat::Level* lvl = tools_.selStratLevel();
     for ( int iseq=0; iseq<layerModel().size(); iseq++ )
     {

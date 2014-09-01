@@ -37,6 +37,9 @@ public:
 
     virtual		~LayerGenerator()			{}
 
+    virtual LayerGenerator* clone() const
+			{ return canBeCloned() ? createClone() : 0; }
+    virtual bool	canBeCloned() const			= 0;
     virtual const char*	name() const				= 0;
     virtual float	dispThickness(bool max=false) const	= 0;
 
@@ -58,6 +61,7 @@ public:
 
 protected:
 
+    virtual LayerGenerator*	createClone() const		{ return 0; }
     virtual bool	genMaterial(LayerSequence&,Property::EvalOpts) const
 							= 0;
     virtual bool	postProcess(LayerSequence&,float pos) const

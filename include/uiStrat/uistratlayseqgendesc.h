@@ -47,6 +47,8 @@ public:
 			    Strat::LayerModelProvider&,int opt=0) = 0;
 
     virtual void	prepareDesc()			{}
+    virtual void	setEditDesc()			{}
+    virtual void	setFromEditDesc()		{}
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }

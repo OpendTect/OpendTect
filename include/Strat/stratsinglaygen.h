@@ -30,6 +30,7 @@ public:
     			SingleLayerGenerator(const LeafUnitRef* ur=0);
     			~SingleLayerGenerator()	{}
 
+    virtual bool	canBeCloned() const		{ return true; }
     const LeafUnitRef&	unit() const;
     void		setUnit( const LeafUnitRef* ur ) { unit_ = ur; }
     const Content&	content() const			{ return *content_; }
@@ -46,6 +47,7 @@ public:
 
 protected:
 
+    virtual LayerGenerator* createClone() const;
     const LeafUnitRef*	unit_;
     PropertySet		props_;
     const Content*	content_;

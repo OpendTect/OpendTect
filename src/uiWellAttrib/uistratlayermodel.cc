@@ -629,13 +629,14 @@ void uiStratLayerModel::selElasticPropsCB( CallBacker* )
 
 bool uiStratLayerModel::selElasticProps( ElasticPropSelection& elsel )
 {
-    uiElasticPropSelDlg dlg( this, desc_.propSelection(), elsel );
+    uiElasticPropSelDlg dlg( this, desc_.propSelection(), elsel);
     if ( dlg.go() )
     {
 	if ( dlg.propSaved() )
 	{
 	    desc_.setElasticPropSel( dlg.storedKey() );
 	    seqdisp_->setNeedSave( true );
+	    seqdisp_->setEditDesc();
 	}
 
 	elsel.fillPar( desc_.getWorkBenchParams() );
@@ -733,13 +734,15 @@ bool uiStratLayerModel::openGenDesc()
 
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
+
+    seqdisp_->setEditDesc();
     seqdisp_->descHasChanged();
 
-    BufferString edtyp;
-    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
-    BufferString profilestr( "Profile" );
     synthdisp_->resetRelativeViewRect();
     synthdisp_->setForceUpdate( true );
+    BufferString edtyp;
+    BufferString profilestr( "Profile" );
+    descctio_.ctxt.toselect.require_.get( sKey::Type(), edtyp );
     if ( !profilestr.isStartOf(edtyp) )
     {
 	needtoretrievefrpars_ = true;
@@ -851,10 +854,10 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 
     MouseCursorChanger mcs( MouseCursor::Wait );
 
+    seqdisp_->setFromEditDesc();
     Strat::LayerModel* newmodl = new Strat::LayerModel;
-    newmodl->propertyRefs() = seqdisp_->desc().propSelection();
+    newmodl->propertyRefs() = desc_.propSelection();
     newmodl->setElasticPropSel( lmp_.getCurrent().elasticPropSel() );
-
     seqdisp_->prepareDesc();
     mcs.restore();
 
