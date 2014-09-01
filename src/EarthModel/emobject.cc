@@ -220,11 +220,14 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
 	EMM().undo().addEvent( undo );
     }
 
-    changed_ = true;
     preferredcolor_ = col;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
     change.trigger( cbdata );
+
+    IOPar colpar;
+    colpar.set( sKey::Color(), col );
+    EMM().writePars( storageid_, colpar );
 }
 
 
