@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tcpserver.h"
 #include "testprog.h"
 #include "thread.h"
+#include "ptrman.h"
 
 
 
