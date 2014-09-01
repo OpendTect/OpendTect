@@ -43,6 +43,13 @@ uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
 {}
 
 
+uiEMAttribPartServer::~uiEMAttribPartServer()
+{
+    if ( horshiftdlg_ )
+	horshiftdlg_->close();
+}
+
+
 void uiEMAttribPartServer::createHorizonOutput( HorOutType type )
 {
     if ( !descset_ ) return;
@@ -109,11 +116,13 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
 					    float initialshift,
 					    bool canaddattrib)
 {
-    sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
-
     initialshift_ = initialshift;
     initialattribstatus_ = attrenabled;
     setAttribIdx( mUdf(int) );
+
+    if ( horshiftdlg_ )
+	horshiftdlg_->close();
+
     horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, *descset_,
 	    				     initialshift, canaddattrib );
     horshiftdlg_->calcAttribPushed.notify(
@@ -121,10 +130,9 @@ void uiEMAttribPartServer::showHorShiftDlg( const EM::ObjectID& id,
     horshiftdlg_->horShifted.notify(
 	    mCB(this,uiEMAttribPartServer,horShifted) );
     horshiftdlg_->windowClosed.notify(
-	    mCB(this,uiEMAttribPartServer,shiftDlgClosed));
-
-    horshiftdlg_->go();
+	    mCB(this,uiEMAttribPartServer,shiftDlgClosed) );
     horshiftdlg_->setDeleteOnClose( true );
+    horshiftdlg_->show();
 }
 
 
@@ -134,11 +142,13 @@ void uiEMAttribPartServer::showHorShiftDlgWithVisID( const EM::ObjectID& id,
 						     float initialshift,
 						     bool canaddattrib)
 {
-    sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
-
     initialshift_ = initialshift;
     initialattribstatus_ = attrenabled;
     setAttribIdx( mUdf(int) );
+
+    if ( horshiftdlg_ )
+	horshiftdlg_->close();
+
     horshiftdlg_ = new uiHorizonShiftDialog( appserv().parent(), id, *descset_,
 	    				     initialshift, canaddattrib );
     horshiftdlg_->setVisID( visid );
@@ -147,13 +157,12 @@ void uiEMAttribPartServer::showHorShiftDlgWithVisID( const EM::ObjectID& id,
     horshiftdlg_->horShifted.notify(
 	    mCB(this,uiEMAttribPartServer,horShifted) );
     horshiftdlg_->windowClosed.notify(
-	    mCB(this,uiEMAttribPartServer,shiftDlgClosed));
-
-    horshiftdlg_->go();
+	    mCB(this,uiEMAttribPartServer,shiftDlgClosed) );
     horshiftdlg_->setDeleteOnClose( true );
+    horshiftdlg_->show();
 }
 
-void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
+void uiEMAttribPartServer::shiftDlgClosed( CallBacker* )
 {
     if ( horshiftdlg_->uiResult()==1 )
     {
@@ -164,6 +173,14 @@ void uiEMAttribPartServer::shiftDlgClosed( CallBacker* cb )
     }
     else
 	sendEvent( uiEMAttribPartServer::evShiftDlgClosedCancel() );
+
+    horshiftdlg_->calcAttribPushed.remove(
+	    mCB(this,uiEMAttribPartServer,calcDPS) );
+    horshiftdlg_->horShifted.remove(
+	    mCB(this,uiEMAttribPartServer,horShifted) );
+    horshiftdlg_->windowClosed.remove(
+	    mCB(this,uiEMAttribPartServer,shiftDlgClosed) );
+    horshiftdlg_ = 0;
 }
 
 

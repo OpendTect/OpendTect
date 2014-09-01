@@ -37,7 +37,7 @@ mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);
-				~uiEMAttribPartServer()	{}
+				~uiEMAttribPartServer();
 
     const char*			name() const		{ return "EMAttribs"; }
 
