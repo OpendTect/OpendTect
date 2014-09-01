@@ -38,7 +38,7 @@ mExpClass(uiEMAttrib) uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);
-				~uiEMAttribPartServer()	{}
+				~uiEMAttribPartServer();
 
     const char*			name() const		{ return "EMAttribs"; }
 
@@ -61,7 +61,7 @@ public:
 				{ descset_ = ads; }
 
     void			showHorShiftDlg(const EM::ObjectID&,
-	    					const int& visid,
+						int visid,
 						const BoolTypeSet& attrenabled,
 						float initialshift,
 						bool canaddattrib);
