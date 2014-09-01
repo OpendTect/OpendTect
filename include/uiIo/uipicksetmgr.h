@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uistring.h"
 
+class BufferStringSet;
 class IOObj;
 class uiParent;
 namespace Pick { class Set; class SetMgr; }
@@ -31,7 +32,7 @@ public:
     bool		storeSets();	//!< Stores all changed sets
     bool		storeSet(const Pick::Set&);
     bool		storeSetAs(const Pick::Set&);
-    void		mergeSets(MultiID&);
+    void		mergeSets(MultiID&, const BufferStringSet* nms=0);
     bool		pickSetsStored() const;
 
     virtual bool	storeNewSet(Pick::Set*&) const;

@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobj.h"
 #include "uiioobjsel.h"
 #include "uiioobjseldlg.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 
 #include "ctxtioobj.h"
@@ -168,6 +169,12 @@ uiMergePickSets( uiParent* p, MultiID& mid )
 }
 
 
+void setInputSets( const BufferStringSet& nms )
+{
+    selfld->getListField()->setChosen( nms );
+}
+
+
 bool acceptOK( CallBacker* )
 {
     nrsel = selfld->nrChosen();
@@ -192,9 +199,12 @@ bool acceptOK( CallBacker* )
 };
 
 
-void uiPickSetMgr::mergeSets( MultiID& mid )
+void uiPickSetMgr::mergeSets( MultiID& mid, const BufferStringSet* nms )
 {
     uiMergePickSets dlg( parent_, mid );
+    if ( nms )
+	dlg.setInputSets( *nms );
+
     if ( !dlg.go() ) return;
 
     ObjectSet<const Pick::Set> pss;
