@@ -60,8 +60,8 @@ protected:
     void		mergeBodyCB(CallBacker*);
     void		createBodyRegionCB(CallBacker*);
     void		switchValCB(CallBacker*);
-    void		converOldBodyFormatCB(CallBacker*);
-    void		calVolCB(CallBacker*);
+    void		convertOldBodyFormatCB(CallBacker*);
+    void		calcVolCB(CallBacker*);
 
     void		removeAttribCB(CallBacker*);
     void		renameAttribCB(CallBacker*);

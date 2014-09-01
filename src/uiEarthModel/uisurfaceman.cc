@@ -124,8 +124,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , man2dbut_(0)
     , surfdatarenamebut_(0)
     , surfdataremovebut_(0)
-    , bodyformatconvertbut_(0)
+    , copybut_(0)
     , mergehorbut_(0)
+    , bodyformatconvertbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -205,14 +206,14 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	manipgrp->addButton( "set_implicit", "Create region Body",
 		mCB(this,uiSurfaceMan,createBodyRegionCB) );
 	manipgrp->addButton( "bodyvolume", "Volume estimate",
-		mCB(this,uiSurfaceMan,calVolCB) );
+		mCB(this,uiSurfaceMan,calcVolCB) );
 	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
 		mCB(this,uiSurfaceMan,switchValCB) );
 	if ( EM::Body::hasOldFormats() )
 	{
 	    bodyformatconvertbut_ = manipgrp->addButton( "convertformat",
 		    "Convert format of od5.0 or older to current",
-		    mCB(this,uiSurfaceMan,converOldBodyFormatCB) );
+		    mCB(this,uiSurfaceMan,convertOldBodyFormatCB) );
 	}
     }
 
@@ -238,7 +239,7 @@ void uiSurfaceMan::attribSel( CallBacker* )
 	{ \
 	    tt.setEmpty(); \
 	    tt.add( str1 ) \
-	      .add( "'" ).add( curattribnms ).add( "' " ) \
+	      .add( " '" ).add( curattribnms ).add( "' " ) \
 	      .add( str2 ); \
 	    but->setToolTip( tr(tt) ); \
 	} \
@@ -252,6 +253,7 @@ void uiSurfaceMan::setToolButtonProperties()
 {
     const int hasobj = !selgrp_->isEmpty();
     const bool hasattribs = attribfld_ && !attribfld_->isEmpty();
+
     BufferString tt;
     if ( surfdatarenamebut_ )
     {
@@ -342,7 +344,7 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 }
 
 
-void uiSurfaceMan::calVolCB( CallBacker* )
+void uiSurfaceMan::calcVolCB( CallBacker* )
 {
     if ( !curioobj_ )
 	return;
@@ -377,7 +379,7 @@ void uiSurfaceMan::switchValCB( CallBacker* )
 }
 
 
-void uiSurfaceMan::converOldBodyFormatCB( CallBacker* )
+void uiSurfaceMan::convertOldBodyFormatCB( CallBacker* )
 {
     TypeSet<MultiID> mids;
     BufferString errmsg;
@@ -392,6 +394,7 @@ void uiSurfaceMan::converOldBodyFormatCB( CallBacker* )
     else
 	uiMSG().error( tr("Conversion failed: %1").arg(errmsg));
 }
+
 
 void uiSurfaceMan::setRelations( CallBacker* )
 {
