@@ -111,7 +111,15 @@ bool GetMenuItemCmd::act( const char* parstr )
 
 
 void MenuActivator::actCB( CallBacker* cb )
-{ actmnuitm_.triggered.trigger(); }
+{
+    if ( actmnuitm_.isCheckable() )
+    {
+	actmnuitm_.setChecked( !actmnuitm_.isChecked() );
+	actmnuitm_.toggled.trigger();
+    }
+
+    actmnuitm_.triggered.trigger();
+}
 
 
 #define mGetButtonMenu( entity, butmenu ) \
