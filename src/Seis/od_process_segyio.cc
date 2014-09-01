@@ -11,8 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "multiid.h"
 #include "oddirs.h"
+#include "ptrman.h"
 #include "segybatchio.h"
 #include "segydirectdef.h"
 #include "segyscanner.h"
@@ -25,9 +27,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "prog.h"
 
+static void initProcessor( SeisSingleTraceProc& proc, const IOPar& iop,
+			   bool is2d )
+{
+    Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
+    const int nulltrcpol = toInt( iop.find("Null trace policy") );
+    const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
+    CubeSampling cs; cs.usePar( iop );
+    SeisResampler* resmplr = new SeisResampler( cs, is2d );
+
+    proc.setScaler( sclr );
+    proc.skipNullTraces( nulltrcpol < 1 );
+    proc.fillNullTraces( nulltrcpol == 2 );
+    proc.setExtTrcToSI( exttrcs );
+    proc.setResampler( resmplr );
+}
+
+
 static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
 {
-    IOPar* outpar = iop.subselect( sKey::Output() );
+    PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
     if ( !outpar || outpar->isEmpty() )
 	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
 
@@ -35,26 +54,44 @@ static bool doImport( od_ostream& strm, IOPar& iop, bool is2d )
     IOObj* inioobj = fs.getIOObj( true );
     if ( !inioobj )
 	{ strm << "Input file spec is not OK" << od_endl; return false; }
-    IOObj* outioobj = IOM().get( outpar->find(sKey::ID()) );
+    PtrMan<IOObj> outioobj = IOM().get( outpar->find(sKey::ID()) );
     if ( !outioobj )
 	{ strm << "Output object spec is not OK" << od_endl; return false; }
 
     outpar->removeWithKey( sKey::ID() );
 	// important! otherwise reader will try to read output ID ...
 
-    Scaler* sclr = Scaler::get( outpar->find(sKey::Scale()) );
-    const int nulltrcpol = toInt( outpar->find("Null trace policy") );
-    const bool exttrcs = outpar->isTrue( "Extend Traces To Survey Z Range" );
-    CubeSampling cs; cs.usePar( *outpar );
-    SeisResampler* resmplr = new SeisResampler( cs, is2d );
-
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
 				"SEG-Y importer", outpar, "Importing traces" );
-    stp->setScaler( sclr );
-    stp->skipNullTraces( nulltrcpol < 1 );
-    stp->fillNullTraces( nulltrcpol == 2 );
-    stp->setExtTrcToSI( exttrcs );
-    stp->setResampler( resmplr );
+    initProcessor( *stp, *outpar, is2d );
+    return stp->go( strm );
+}
+
+
+static bool doExport( od_ostream& strm, IOPar& iop, bool is2d )
+{
+    PtrMan<IOPar> inppar = iop.subselect( sKey::Input() );
+    if ( !inppar || inppar->isEmpty() )
+	{ strm << "Batch parameters 'Input' empty" << od_endl; return false; }
+
+    PtrMan<IOPar> outpar = iop.subselect( sKey::Output() );
+    if ( !outpar || outpar->isEmpty() )
+	{ strm << "Batch parameters 'Ouput' empty" << od_endl; return false; }
+
+    PtrMan<IOObj> inioobj = IOM().get( inppar->find(sKey::ID()) );
+    if ( !inioobj )
+	{ strm << "Input seismics is not OK" << od_endl; return false; }
+
+    SEGY::FileSpec fs; fs.usePar( *outpar );
+    IOObj* outioobj = fs.getIOObj( true );
+    if ( !outioobj )
+	{ strm << "Output SEG-Y file is not OK" << od_endl; return false; }
+
+    SEGY::FilePars fp; fp.usePar( *outpar );
+    fp.fillPar( outioobj->pars() );
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( inioobj, outioobj,
+				"SEG-Y exporter", outpar, "Exporting traces" );
+    initProcessor( *stp, *outpar, is2d );
     return stp->go( strm );
 }
 
@@ -100,7 +137,7 @@ static bool doScan( od_ostream& strm, IOPar& iop, bool isps, bool is2d )
     SEGY::FileIndexer indexer( mid, !isps, filespec, is2d, iop );
     if ( !indexer.go(strm) )
     {
-	strm << indexer.message();
+	strm << indexer.uiMessage().getFullString();
 	IOM().permRemove( mid );
 	return false;
     }
@@ -132,10 +169,13 @@ bool BatchProgram::go( od_ostream& strm )
 
     const FixedString task = pars().find( SEGY::IO::sKeyTask() );
     const bool isimport = task == SEGY::IO::sKeyImport();
+    const bool isexport = task == SEGY::IO::sKeyExport();
     bool is2d = false; pars().getYN( SEGY::IO::sKeyIs2D(), is2d );
 
     if ( isimport )
 	return doImport( strm, pars(), is2d );
+    if ( isexport )
+	return doExport( strm, pars(), is2d );
 
     const bool ispsindex = task == SEGY::IO::sKeyIndexPS();
     const bool isvolindex = task == SEGY::IO::sKeyIndex3DVol();

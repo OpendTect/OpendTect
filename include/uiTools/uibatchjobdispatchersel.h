@@ -33,6 +33,7 @@ public:
 						=Batch::JobSpec::NonODBase);
 			uiBatchJobDispatcherSel(uiParent*,bool optional,
 						const Batch::JobSpec&);
+			~uiBatchJobDispatcherSel();
 
     void		jobSpecUpdated();
     void		setJobSpec(const Batch::JobSpec&);
@@ -47,6 +48,7 @@ public:
     bool		start();
 
     Notifier<uiBatchJobDispatcherSel> selectionChange;
+    Notifier<uiBatchJobDispatcherSel>& checked();
 
 protected:
 

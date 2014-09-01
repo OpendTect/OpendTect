@@ -76,6 +76,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     uiSeisSel::Setup sssu( setup_.geom_ ); sssu.enabotherdomain( true );
     IOObjContext ctxt( uiSeisSel::ioContext( su.geom_, false ) );
+    ctxt.fixTranslator( "CBVS" );
     seissel_ = new uiSeisSel( outgrp, ctxt, sssu );
     seissel_->attach( alignedBelow, transffld_ );
 
@@ -86,19 +87,19 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	batchfld_->setJobName( "import SEG-Y" );
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyImport() );
-	js.pars_.set( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(setup_.geom_) );
 	batchfld_->attach( alignedBelow, seissel_ );
     }
     else
     {
-	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
+	morebut_ = new uiCheckBox( outgrp, tr("Import more, similar files") );
 	morebut_->attach( alignedBelow, seissel_ );
     }
 
     if ( !optsfld_ )
     {
 	uiToolButton* tb = new uiToolButton( this, "prescan",
-				"Pre-scan file(s)",
+				tr("Pre-scan file(s)"),
 				mCB(this,uiSEGYImpDlg,preScanCB) );
 	tb->attach( rightOf, outgrp->attachObj() );
     }

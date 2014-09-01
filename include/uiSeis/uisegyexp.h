@@ -13,26 +13,28 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
-#include "seistype.h"
 #include "iopar.h"
+#include "seistype.h"
 #include "uistring.h"
+
 class IOObj;
-class uiSeisSel;
 class uiCheckBox;
-class uiSeisTransfer;
 class uiSEGYFilePars;
 class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
+class uiSeisSel;
+class uiSeisTransfer;
 
 
 /*\brief SEG-Y exporting dialog */
 
 
 mExpClass(uiSeis) uiSEGYExp : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYExp);
 public:
 
 			uiSEGYExp(uiParent*,Seis::GeomType);
+			~uiSEGYExp();
 
 protected:
 
@@ -51,6 +53,7 @@ protected:
     uiCheckBox*		manipbox_;
 
     void		inpSel(CallBacker*);
+    void		batchChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     friend class	uiSEGYExpMore;

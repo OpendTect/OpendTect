@@ -13,15 +13,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibatchjobdispatcherlauncher.h"
 
 #include "batchjobdispatch.h"
+#include "hiddenparam.h"
 #include "hostdata.h"
 
-#include "uigeninput.h"
-#include "uidialog.h"
 #include "uibutton.h"
-#include "uislider.h"
 #include "uicombobox.h"
+#include "uidialog.h"
+#include "uigeninput.h"
 #include "uimsg.h"
+#include "uislider.h"
 
+static HiddenParam<uiBatchJobDispatcherSel,
+		   Notifier<uiBatchJobDispatcherSel>*> checknotifs( 0 );
 
 uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
 						  const Batch::JobSpec& js )
@@ -31,7 +34,9 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selfld_(0)
     , dobatchbox_(0)
     , selectionChange(this)
+    , jobname_("batch_processing")
 {
+    checknotifs.setParam( this, new Notifier<uiBatchJobDispatcherSel>(this) );
     init( optional );
 }
 
@@ -46,7 +51,16 @@ uiBatchJobDispatcherSel::uiBatchJobDispatcherSel( uiParent* p, bool optional,
     , selectionChange(this)
     , jobname_("batch_processing")
 {
+    checknotifs.setParam( this, new Notifier<uiBatchJobDispatcherSel>(this) );
     init( optional );
+}
+
+
+uiBatchJobDispatcherSel::~uiBatchJobDispatcherSel()
+{
+    Notifier<uiBatchJobDispatcherSel>* notif = checknotifs.getParam( this );
+    checknotifs.removeParam( this );
+    delete notif;
 }
 
 
@@ -223,9 +237,14 @@ void uiBatchJobDispatcherSel::selChg( CallBacker* )
 }
 
 
+Notifier<uiBatchJobDispatcherSel>& uiBatchJobDispatcherSel::checked()
+{ return *checknotifs.getParam( this ); }
+
+
 void uiBatchJobDispatcherSel::fldChck( CallBacker* )
 {
     optsbut_->setSensitive( wantBatch() );
+    checked().trigger();
 }
 
 

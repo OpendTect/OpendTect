@@ -11,38 +11,44 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegyexp.h"
+
+#include "uibatchjobdispatchersel.h"
+#include "uicompoundparsel.h"
+#include "uifileinput.h"
+#include "uifiledlg.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uisegydef.h"
 #include "uisegymanip.h"
+#include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
-#include "uicompoundparsel.h"
 #include "uiseistransf.h"
-#include "uiseisioobjinfo.h"
+#include "uiselsimple.h"
+#include "uitaskrunner.h"
+#include "uitextedit.h"
+#include "uitoolbutton.h"
+
+#include "ctxtioobj.h"
+#include "executor.h"
+#include "file.h"
+#include "filepath.h"
+#include "hiddenparam.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "oddirs.h"
+#include "od_helpids.h"
+#include "segybatchio.h"
 #include "segyhdr.h"
 #include "segytr.h"
 #include "seisread.h"
-#include "seiswrite.h"
 #include "seissingtrcproc.h"
-#include "survgeom.h"
-#include "uimsg.h"
-#include "uitoolbutton.h"
-#include "uilabel.h"
-#include "uilistbox.h"
-#include "uitaskrunner.h"
-#include "uifileinput.h"
-#include "uifiledlg.h"
-#include "uiselsimple.h"
-#include "uitextedit.h"
-#include "executor.h"
-#include "ctxtioobj.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "oddirs.h"
-#include "filepath.h"
-#include "file.h"
-#include "zdomain.h"
+#include "seiswrite.h"
 #include "strmprov.h"
-#include "od_helpids.h"
+#include "survgeom.h"
+#include "zdomain.h"
+
 
 static const char* txtheadtxt =
 "Define the SEG-Y text header. Note that:"
@@ -168,8 +174,11 @@ BufferString getSummary() const
 };
 
 
+
+static HiddenParam<uiSEGYExp,uiBatchJobDispatcherSel*> batchflds( 0 );
+
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
-	: uiDialog(p,uiDialog::Setup("SEG-Y I/O","Export to SEG-Y",
+	: uiDialog(p,uiDialog::Setup(tr("SEG-Y I/O"),tr("Export to SEG-Y"),
                                      mODHelpKey(mSEGYExpHelpID) ))
 	, geom_(gt)
 	, morebox_(0)
@@ -204,17 +213,38 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     if ( Seis::is2D(geom_) && !Seis::isPS(geom_) )
     {
 	morebox_ = new uiCheckBox( this,
-				   "Export more lines from the same dataset" );
+			tr("Export more lines from the same dataset") );
 	morebox_->attach( alignedBelow, fsfld_ );
     }
     else
     {
 	manipbox_ = new uiCheckBox( this,
-			"Manipulate output file after creation" );
+			tr("Manipulate output file after creation") );
 	manipbox_->attach( alignedBelow, fsfld_ );
     }
 
+    uiBatchJobDispatcherSel* batchfld = 0;
+    if ( !Seis::is2D(geom_) )
+    {
+	batchfld = new uiBatchJobDispatcherSel( this, true,
+						Batch::JobSpec::SEGY );
+	batchfld->checked().notify( mCB(this,uiSEGYExp,batchChg) );
+	batchfld->setJobName( "Export SEG-Y" );
+	Batch::JobSpec& js = batchfld->jobSpec();
+	js.pars_.set( SEGY::IO::sKeyTask(), SEGY::IO::sKeyExport() );
+	js.pars_.setYN( SEGY::IO::sKeyIs2D(), Seis::is2D(geom_) );
+	batchfld->attach( alignedBelow,
+		manipbox_ ?  manipbox_ : fsfld_->attachObj() );
+    }
+    batchflds.setParam( this, batchfld );
+
     postFinalise().notify( inpselcb );
+}
+
+
+uiSEGYExp::~uiSEGYExp()
+{
+    batchflds.removeParam( this );
 }
 
 
@@ -224,6 +254,18 @@ void uiSEGYExp::inpSel( CallBacker* )
     if ( ioobj )
 	transffld_->updateFrom( *ioobj );
 }
+
+
+void uiSEGYExp::batchChg( CallBacker* )
+{
+    uiBatchJobDispatcherSel* batchfld = batchflds.getParam( this );
+    if ( !manipbox_ || !batchfld )
+	return;
+
+    manipbox_->setSensitive( !batchfld->wantBatch() );
+    txtheadfld_->setSensitive( !batchfld->wantBatch() );
+}
+
 
 
 class uiSEGYExpMore : public uiDialog
@@ -364,16 +406,34 @@ bool uiSEGYExp::acceptOK( CallBacker* )
 {
     const IOObj* inioobj = seissel_->ioobj(true);
     if ( !inioobj )
-	mErrRet( "Please select the data to export" )
+	mErrRet( tr("Please select the data to export") )
     const SEGY::FileSpec sfs( fsfld_->getSpec() );
     if ( sfs.fname_.isEmpty() )
-	mErrRet( "Please select the output file" )
+	mErrRet( tr("Please select the output file") )
 
     PtrMan<IOObj> outioobj = sfs.getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
     outioobj->pars().setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(geom_) );
+
+    uiBatchJobDispatcherSel* batchfld = batchflds.getParam( this );
+    if ( batchfld && batchfld->wantBatch() )
+    {
+	Batch::JobSpec& js = batchfld->jobSpec();
+	IOPar inpars;
+	seissel_->fillPar( inpars );
+	js.pars_.mergeComp( inpars, sKey::Input() );
+
+	IOPar outpars;
+	transffld_->fillPar( outpars );
+	fpfld_->fillPar( outpars );
+	fsfld_->fillPar( outpars );
+// TODO: Support header text
+	js.pars_.mergeComp( outpars, sKey::Output() );
+	batchfld->start();
+	return false;
+    }
 
     const char* lnm = is2d && transffld_->selFld2D()
 			   && transffld_->selFld2D()->isSingLine()
@@ -444,7 +504,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	    const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
 	    BufferStringSet cnms; oinf.getComponentNames( cnms, geomid );
 	    uiSelectFromList dlg( this,
-		uiSelectFromList::Setup("Please select the component",cnms) );
+	    uiSelectFromList::Setup(tr("Please select the component"),cnms) );
 	    dlg.setHelpKey(mODHelpKey(mSEGYExpdoWorkHelpID) );
 	    if ( !dlg.go() )
 		return false;
