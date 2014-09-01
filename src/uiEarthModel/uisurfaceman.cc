@@ -122,16 +122,17 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , type_(typ)
     , attribfld_(0)
     , man2dbut_(0)
-    , renamebut_(0)
-    , removebut_(0)
+    , surfdatarenamebut_(0)
+    , surfdataremovebut_(0)
     , bodyformatconvertbut_(0)
+    , mergehorbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
     if ( type_ != Body )
-	manipgrp->addButton( "copyobj", "Copy to new object",
-			     mCB(this,uiSurfaceMan,copyCB) );
+	copybut_ = manipgrp->addButton( "copyobj", "Copy to new object",
+					mCB(this,uiSurfaceMan,copyCB) );
 
     if ( type_ == Hor2D || type_ == AnyHor )
     {
@@ -141,8 +142,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D )
     {
-	manipgrp->addButton( "mergehorizons", "Merge 3D Horizons",
-		mCB(this,uiSurfaceMan,merge3dCB) );
+	mergehorbut_ = manipgrp->addButton( "mergehorizons","Merge 3D Horizons",
+					    mCB(this,uiSurfaceMan,merge3dCB) );
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
@@ -157,10 +158,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 	attribfld_->selectionChanged.notify( mCB(this,uiSurfaceMan,attribSel) );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	removebut_ = butgrp->addButton( uiManipButGrp::Remove,
+	surfdataremovebut_ = butgrp->addButton( uiManipButGrp::Remove,
 					"Remove selected Horizon Data",
 					mCB(this,uiSurfaceMan,removeAttribCB) );
-	renamebut_ = butgrp->addButton( uiManipButGrp::Rename,
+	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 					"Rename selected Horizon Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
@@ -189,10 +190,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		tr("Fault Data (Attributes stored in Fault format)") );
 
 	uiManipButGrp* butgrp = new uiManipButGrp( llb );
-	removebut_ = butgrp->addButton( uiManipButGrp::Remove,
+	surfdataremovebut_ = butgrp->addButton( uiManipButGrp::Remove,
 					"Remove selected Fault Data",
 					mCB(this,uiSurfaceMan,removeAttribCB) );
-	renamebut_ = butgrp->addButton( uiManipButGrp::Rename,
+	surfdatarenamebut_ = butgrp->addButton( uiManipButGrp::Rename,
 					"Rename selected Fault Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
@@ -230,25 +231,58 @@ void uiSurfaceMan::attribSel( CallBacker* )
 }
 
 
-#define mSetButToolTip(but,str,curattribnms) \
+#define mSetButToolTip(but,str1,curattribnms,str2) \
     if ( but ) \
     { \
-	tt.setEmpty(); \
-	tt.add( str ).add( "'" ).add( curattribnms ).add( "'" ); \
-	but->setToolTip( tr(tt) ); \
+	if ( but->sensitive() ) \
+	{ \
+	    tt.setEmpty(); \
+	    tt.add( str1 ) \
+	      .add( "'" ).add( curattribnms ).add( "' " ) \
+	      .add( str2 ); \
+	    but->setToolTip( tr(tt) ); \
+	} \
+	else \
+	{ \
+	    but->setToolTip( "" ); \
+	} \
     }
 
 void uiSurfaceMan::setToolButtonProperties()
 {
+    const int hasobj = !selgrp_->isEmpty();
+    const bool hasattribs = attribfld_ && !attribfld_->isEmpty();
     BufferString tt;
-    if ( renamebut_ )
-	mSetButToolTip(renamebut_,"Rename",attribfld_->getText())
-
-    if ( removebut_ )
+    if ( surfdatarenamebut_ )
     {
+	surfdatarenamebut_->setSensitive( hasattribs );
+	mSetButToolTip(surfdatarenamebut_,"Rename",attribfld_->getText(),"")
+    }
+
+    if ( surfdataremovebut_ )
+    {
+	surfdataremovebut_->setSensitive( hasattribs );
 	BufferStringSet attrnms;
 	attribfld_->getChosen( attrnms );
-	mSetButToolTip(removebut_,"Remove",attrnms.getDispString(2))
+	mSetButToolTip(surfdataremovebut_,"Remove",attrnms.getDispString(2),"")
+    }
+
+    if ( copybut_ )
+    {
+	copybut_->setSensitive( hasobj );
+	if ( curioobj_ )
+	{
+	    BufferString cursel( curioobj_->name() );
+	    mSetButToolTip(copybut_,"Copy",cursel," to new object")
+	}
+    }
+
+    if ( mergehorbut_ )
+    {
+	mergehorbut_->setSensitive( selgrp_->nrChosen() >= 2 );
+	BufferStringSet selhornms;
+	selgrp_->getChosen( selhornms );
+	mSetButToolTip(mergehorbut_,"Merge",selhornms.getDispString(2),"")
     }
 }
 
@@ -292,7 +326,11 @@ void uiSurfaceMan::copyCB( CallBacker* )
 void uiSurfaceMan::merge3dCB( CallBacker* )
 {
     uiHorizonMergeDlg dlg( this, false );
-    dlg.go();
+    TypeSet<MultiID> chsnmids;
+    selgrp_->getChosen( chsnmids );
+    dlg.setInputHors( chsnmids );
+    if ( dlg.go() )
+	selgrp_->fullUpdate( dlg.getNewHorMid() );
 }
 
 
@@ -555,6 +593,7 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     setInfo( txt );
+    setToolButtonProperties();
 }
 
 

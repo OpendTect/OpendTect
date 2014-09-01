@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uihorizonmergedlg.h"
 
 #include "uigeninput.h"
+#include "uiioobjsel.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
 #include "uisurfacesel.h"
@@ -52,6 +53,18 @@ uiHorizonMergeDlg::uiHorizonMergeDlg( uiParent* p, bool is2d )
 
 uiHorizonMergeDlg::~uiHorizonMergeDlg()
 {}
+
+
+void uiHorizonMergeDlg::setInputHors( const TypeSet<MultiID>& mids )
+{
+     horselfld_->setSelSurfaceIds( mids );
+}
+
+
+MultiID uiHorizonMergeDlg::getNewHorMid() const
+{
+    return outfld_->getObjSel()->key();
+}
 
 
 bool uiHorizonMergeDlg::acceptOK( CallBacker* )

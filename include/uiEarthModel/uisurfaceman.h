@@ -45,8 +45,10 @@ protected:
     bool		isCurFault() const;
 
     uiToolButton*	man2dbut_;
-    uiToolButton*	renamebut_;
-    uiToolButton*	removebut_;
+    uiToolButton*	surfdatarenamebut_;
+    uiToolButton*	surfdataremovebut_;
+    uiToolButton*	copybut_;
+    uiToolButton*	mergehorbut_;
     uiToolButton*	bodyformatconvertbut_;
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
