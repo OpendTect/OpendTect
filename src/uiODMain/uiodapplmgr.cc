@@ -170,6 +170,7 @@ void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv_ ) nlaserv_->reset();
+
     delete attrserv_;
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
@@ -179,6 +180,9 @@ void uiODApplMgr::resetServers()
 
     delete mpeserv_;
     mpeserv_ = new uiMPEPartServer( applservice_ );
+
+    delete emattrserv_;
+    emattrserv_ = new uiEMAttribPartServer( applservice_ );
 
     visserv_->deleteAllObjects();
     emserv_->removeUndo();
@@ -309,6 +313,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; attrserv_ = 0;
+    delete emattrserv_; emattrserv_ = 0;
     delete volprocserv_; volprocserv_ = 0;
     delete mpeserv_; mpeserv_ = 0;
     delete wellserv_; wellserv_ = 0;
@@ -340,6 +345,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     MPE::engine().init();
 
     wellserv_ = new uiWellPartServer( applservice_ );
+    emattrserv_ = new uiEMAttribPartServer( applservice_ );
 }
 
 
