@@ -274,7 +274,7 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impcbvsseis = new uiMenu( &appl_, tr("CBVS") );
     mInsertItem( impcbvsseis, tr("From file ..."), mImpSeisCBVSMnuItm );
     mInsertItem( impcbvsseis, tr("From other survey ..."),
-		mImpSeisCBVSOtherSurvMnuItm );
+		 mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
     uiMenu* imphorasc = new uiMenu( &appl_, uiStrings::sASCII(true) );
@@ -310,13 +310,23 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellbulk, tr("Depth/Time Model ..."), mImpBulkWellD2TItm );
     impwell->insertItem( impwellbulk );
 
+// Fill impmenus_
     impmnus_.erase();
     impmnus_.allowNull();
-    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault;
-    impmnus_ += impwell; impmnus_ += 0; impmnus_ += 0;
-    impmnus_ += imppick; impmnus_ += 0; impmnus_ += 0;
-    impmnus_ += impwvlt; impmnus_ += impmute; impmnus_ += impvelfn;
-    impmnus_ += imppdf;
+    for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
+	impmnus_ += 0;
+
+#define mAddImpMnu(tp,mnu) impmnus_.replace( (int)uiODApplMgr::tp, mnu )
+    mAddImpMnu( Seis, impseis );
+    mAddImpMnu( Hor, imphor );
+    mAddImpMnu( Flt, impfault );
+    mAddImpMnu( Wll, impwell );
+    mAddImpMnu( Attr, impattr );
+    mAddImpMnu( Pick, imppick );
+    mAddImpMnu( Wvlt, impwvlt );
+    mAddImpMnu( MDef, impmute );
+    mAddImpMnu( Vel, impvelfn );
+    mAddImpMnu( PDF, imppdf );
 }
 
 
@@ -327,6 +337,7 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizons(true) );
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFaults(true) );
     uiMenu* expfltss = new uiMenu( &appl_, tr("FaulStickSets") );
+    uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
     uiMenu* exppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
     uiMenu* expmute = new uiMenu( &appl_, tr("Mute Functions") );
@@ -335,6 +346,7 @@ void uiODMenuMgr::fillExportMenu()
 
     expmnu_->insertItem( expflt );
     expmnu_->insertItem( expfltss );
+    expmnu_->insertItem( expgeom2d );
     expmnu_->insertItem( exphor );
     expmnu_->insertItem( expmute );
     expmnu_->insertItem( exppick );
@@ -362,25 +374,33 @@ void uiODMenuMgr::fillExportMenu()
     mInsertItem( exphor, tr("ASCII 3D ..."), mExpHorAscii3DMnuItm );
     mInsertItem( expflt, ascii, mExpFltAsciiMnuItm );
     mInsertItem( expfltss, ascii, mExpFltSSAsciiMnuItm );
+    mInsertItem( expgeom2d, ascii, mExpGeom2DMnuItm );
     mInsertItem( exppick, ascii, mExpPickAsciiMnuItm );
     mInsertItem( expwvlt, ascii, mExpWvltAsciiMnuItm );
     mInsertItem( expmute, ascii, mExpMuteDefAsciiMnuItm );
     mInsertItem( exppdf, tr("RokDoc ASCII..."), mExpPDFAsciiMnuItm );
 
+// Fill expmenus_
     expmnus_.erase();
     expmnus_.allowNull();
-    expmnus_ += expseis; expmnus_ += exphor; expmnus_+= expflt;
-    expmnus_+=0; expmnus_+= 0; expmnus_+= 0;
-    expmnus_+=exppick; expmnus_+= 0; expmnus_+= 0;
-    expmnus_+=expwvlt; expmnus_+= expmute; expmnus_+= 0; expmnus_ += exppdf;
+    for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
+	expmnus_ += 0;
+
+#define mAddExpMnu(tp,mnu) expmnus_.replace( (int)uiODApplMgr::tp, mnu )
+    mAddExpMnu( Seis, expseis );
+    mAddExpMnu( Hor, exphor );
+    mAddExpMnu( Flt, expflt );
+    mAddExpMnu( Pick, exppick );
+    mAddExpMnu( Wvlt, expwvlt );
+    mAddExpMnu( MDef, expmute );
+    mAddExpMnu( PDF, exppdf );
+    mAddExpMnu( Geom, expgeom2d );
 }
 
 
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertPixmapItem( manmnu_, tr("Geometry 2D ..."), mManGeomItm,
-                       "man2dgeom" );
     mInsertPixmapItem( manmnu_, tr("Attribute Sets ..."), mManAttrMnuItm,
 		        "man_attrs" );
     mInsertPixmapItem( manmnu_, tr("Bodies ..."), mManBodyMnuItm,
@@ -393,6 +413,8 @@ void uiODMenuMgr::fillManMenu()
                         "man_flt" )
     mInsertPixmapItem( manmnu_, tr("FaultStickSets ..."), mManFaultStickMnuItm,
 			"man_fltss" );
+    mInsertPixmapItem( manmnu_, tr("Geometry 2D ..."), mManGeomItm,
+		       "man2dgeom" );
     if ( SI().survDataType() == SurveyInfo::No2D )
 	mInsertPixmapItem( manmnu_, uiStrings::sHorizons(false),
                            mManHor3DMnuItm, "man_hor" )
@@ -406,7 +428,7 @@ void uiODMenuMgr::fillManMenu()
 
     mInsertPixmapItem( manmnu_, tr("Layer properties ..."), mManPropsMnuItm,
 			"man_props" );
-    mInsertPixmapItem( manmnu_, tr("Picksets/Polygons ..."), mManPickMnuItm,
+    mInsertPixmapItem( manmnu_, tr("PickSets/Polygons ..."), mManPickMnuItm,
 			"man_picks" );
     mInsertPixmapItem( manmnu_, tr("Probability Density Functions ..."),
 		 mManPDFMnuItm, "man_prdfs" );
@@ -572,9 +594,9 @@ void uiODMenuMgr::fillAnalMenu()
 
     uiMenu* xplotmnu = new uiMenu( &appl_, tr("Cross-plot data"),
                                    "xplot");
-    mInsertPixmapItem( xplotmnu, uiStrings::sLogs(false),
+    mInsertPixmapItem( xplotmnu, tr("Well logs vs Attributes ..."),
 		       mXplotMnuItm, "xplot_wells" );
-    mInsertPixmapItem( xplotmnu, tr("Attributes <=> Attributes ..."),
+    mInsertPixmapItem( xplotmnu, tr("Attributes vs Attributes ..."),
 		       mAXplotMnuItm, "xplot_attribs" );
     mInsertItem( xplotmnu, tr("Open Cross-plot ..."), mOpenXplotMnuItm );
     analmnu_->insertItem( xplotmnu );
@@ -1176,6 +1198,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
+    case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,0); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;

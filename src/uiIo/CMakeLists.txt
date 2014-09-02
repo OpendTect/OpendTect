@@ -34,6 +34,7 @@ SET(OD_MODULE_SOURCES
 	uiimppickset.cc
 	uiimpexpselgrp.cc
 	uiimpexppdf.cc
+	uiimpexp2dgeom.cc
 	uiimppvds.cc
 	uiioobj.cc
 	uiioobjmanip.cc
@@ -68,5 +69,8 @@ SET(OD_MODULE_SOURCES
 	uisurvmap.cc
 	uit2dconvsel.cc
 	inituiio.cc
+)
+SET( OD_MODULE_GUI_PROGS
+	od_BatchHosts.cc
 )
 OD_INIT_MODULE()

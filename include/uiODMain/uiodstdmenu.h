@@ -108,6 +108,7 @@ ________________________________________________________________________
 #define mExpMuteDefAsciiMnuItm	(mFileExpMnu + 81)
 #define mExpPDFMnuItm		(mFileExpMnu + 90)
 #define mExpPDFAsciiMnuItm	(mFileExpMnu + 91)
+#define mExpGeom2DMnuItm	(mFileExpMnu + 95)
 
 #define mManColTabMnuItm	(mFileManMnu + 5)
 #define mManSeis3DMnuItm	(mFileManMnu + 10)
