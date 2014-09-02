@@ -108,6 +108,7 @@ ________________________________________________________________________
 #define mExpMuteDefAsciiMnuItm	(mFileExpMnu + 81)
 #define mExpPDFMnuItm		(mFileExpMnu + 90)
 #define mExpPDFAsciiMnuItm	(mFileExpMnu + 91)
+#define mExpGeom2DMnuItm	(mFileExpMnu + 95)
 
 #define mManColTabMnuItm	(mFileManMnu + 5)
 #define mManSeis3DMnuItm	(mFileManMnu + 10)
@@ -155,6 +156,8 @@ ________________________________________________________________________
 #define mCreate2DFrom3DMnuItm	(mProcMnu + 23)
 #define m2DFrom3DMnuItm		(mProcMnu + 24)
 #define m3DFrom2DMnuItm		(mProcMnu + 25)
+#define mPSProc2DMnuItm		(mProcMnu + 26)
+#define mPSProc3DMnuItm		(mProcMnu + 27)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
 #define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
 #define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)

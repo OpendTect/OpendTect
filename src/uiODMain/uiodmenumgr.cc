@@ -59,13 +59,13 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , inviewmode_(false)
     , langmnu_(0)
 {
-    surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Survey")) );
-    analmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Analysis")) );
-    procmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Processing")) );
-    scenemnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("S&cenes")) );
-    viewmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&View")) );
-    utilmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Utilities")) );
-    helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("&Help")) );
+    surveymnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Survey")) );
+    analmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Analysis")) );
+    procmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Processing")) );
+    scenemnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Scenes")) );
+    viewmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("View")) );
+    utilmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Utilities")) );
+    helpmnu_ = appl_.menuBar()->addMenu( new uiMenu(tr("Help")) );
 
     dtecttb_ = new uiToolBar( &appl_, "OpendTect tools", uiToolBar::Top );
     cointb_ = new uiToolBar( &appl_, "Graphical tools", uiToolBar::Left );
@@ -187,35 +187,35 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-    mInsertPixmapItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm,
+    mInsertPixmapItem( surveymnu_, "Select/Setup ...", mManSurveyMnuItm,
 		       "survey" )
 
-    uiMenu* sessionitm = new uiMenu( &appl_, "S&ession" );
+    uiMenu* sessionitm = new uiMenu( &appl_, "Session" );
     mInsertItem( sessionitm, sSave(false), mSessSaveMnuItm );
-    mInsertItem( sessionitm, "&Restore ...", mSessRestMnuItm );
-    mInsertItem( sessionitm, "&Auto-load ...", mSessAutoMnuItm );
+    mInsertItem( sessionitm, "Restore ...", mSessRestMnuItm );
+    mInsertItem( sessionitm, "Auto-load ...", mSessAutoMnuItm );
     surveymnu_->insertItem( sessionitm );
     surveymnu_->insertSeparator();
 
-    impmnu_ = new uiMenu( &appl_, "&Import" );
+    impmnu_ = new uiMenu( &appl_, "Import" );
     fillImportMenu();
     surveymnu_->insertItem( impmnu_ );
 
-    expmnu_ = new uiMenu( &appl_, "Ex&port" );
+    expmnu_ = new uiMenu( &appl_, "Export" );
     fillExportMenu();
     surveymnu_->insertItem( expmnu_ );
 
-    manmnu_ = new uiMenu( &appl_, "&Manage");
+    manmnu_ = new uiMenu( &appl_, "Manage");
     fillManMenu();
     surveymnu_->insertItem( manmnu_ );
 
-    preloadmnu_ = new uiMenu( &appl_, "&Pre-load");
-    mInsertItem( preloadmnu_, "&Seismics ...", mPreLoadSeisMnuItm );
-    mInsertItem( preloadmnu_, "&Horizons ...", mPreLoadHorMnuItm );
+    preloadmnu_ = new uiMenu( &appl_, "Pre-load");
+    mInsertItem( preloadmnu_, "Seismics ...", mPreLoadSeisMnuItm );
+    mInsertItem( preloadmnu_, "Horizons ...", mPreLoadHorMnuItm );
     surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
-    mInsertItem( surveymnu_, "E&xit", mExitMnuItm );
+    mInsertItem( surveymnu_, "Exit", mExitMnuItm );
 }
 
 
@@ -224,22 +224,22 @@ void uiODMenuMgr::fillImportMenu()
 {
     impmnu_->clear();
 
-    uiMenu* impattr = new uiMenu( &appl_, "&Attributes" );
-    uiMenu* impseis = new uiMenu( &appl_, "&Seismics" );
-    uiMenu* imphor = new uiMenu( &appl_, "&Horizons" );
-    uiMenu* impfault = new uiMenu( &appl_, "&Faults" );
-    uiMenu* impfaultstick = new uiMenu( &appl_, "F&aultStickSets" );
-    uiMenu* impwell = new uiMenu( &appl_, "&Wells" );
-    uiMenu* imppick = new uiMenu( &appl_, "&PickSets/Polygons" );
-    uiMenu* impwvlt = new uiMenu( &appl_, "&Wavelets" );
-    uiMenu* impmute = new uiMenu( &appl_, "&Mute Functions" );
-    uiMenu* impcpd = new uiMenu( &appl_, "&Cross-plot data" );
-    uiMenu* impvelfn = new uiMenu( &appl_, "&Velocity Functions" );
+    uiMenu* impattr = new uiMenu( &appl_, "Attributes" );
+    uiMenu* impseis = new uiMenu( &appl_, "Seismics" );
+    uiMenu* imphor = new uiMenu( &appl_, "Horizons" );
+    uiMenu* impfault = new uiMenu( &appl_, "Faults" );
+    uiMenu* impfaultstick = new uiMenu( &appl_, "FaultStickSets" );
+    uiMenu* impwell = new uiMenu( &appl_, "Wells" );
+    uiMenu* imppick = new uiMenu( &appl_, "PickSets/Polygons" );
+    uiMenu* impwvlt = new uiMenu( &appl_, "Wavelets" );
+    uiMenu* impmute = new uiMenu( &appl_, "Mute Functions" );
+    uiMenu* impcpd = new uiMenu( &appl_, "Cross-plot data" );
+    uiMenu* impvelfn = new uiMenu( &appl_, "Velocity Functions" );
     uiMenu* imppdf =
-	new uiMenu( &appl_, "Probability &Density Functions" );
+	new uiMenu( &appl_, "Probability Density Functions" );
 
     impmnu_->insertItem( impattr );
-    mInsertItem( impmnu_, "&Color Table ...", mImpColTabMnuItm );
+    mInsertItem( impmnu_, "Color Table ...", mImpColTabMnuItm );
     impmnu_->insertItem( impcpd );
     impmnu_->insertItem( impfault );
     impmnu_->insertItem( impfaultstick );
@@ -253,80 +253,91 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwell );
     impmnu_->insertSeparator();
 
-    mInsertItem( impattr, "&ASCII ...", mImpAttrMnuItm );
-//    mInsertItem( impattr, "&From other survey ...", mImpAttrOthSurvMnuItm );
-    mInsertItem( imppick, "&ASCII ...", mImpPickAsciiMnuItm );
-    mInsertItem( impwvlt, "&ASCII ...", mImpWvltAsciiMnuItm );
-    mInsertItem( impmute, "&ASCII ...", mImpMuteDefAsciiMnuItm );
-    mInsertItem( impcpd, "&ASCII ...", mImpPVDSAsciiMnuItm );
-    mInsertItem( impvelfn, "&ASCII ...", mImpVelocityAsciiMnuItm );
-    mInsertItem( imppdf, "RokDoc &ASCII ...", mImpPDFAsciiMnuItm );
+    mInsertItem( impattr, "ASCII ...", mImpAttrMnuItm );
+    mInsertItem( imppick, "ASCII ...", mImpPickAsciiMnuItm );
+    mInsertItem( impwvlt, "ASCII ...", mImpWvltAsciiMnuItm );
+    mInsertItem( impmute, "ASCII ...", mImpMuteDefAsciiMnuItm );
+    mInsertItem( impcpd, "ASCII ...", mImpPVDSAsciiMnuItm );
+    mInsertItem( impvelfn, "ASCII ...", mImpVelocityAsciiMnuItm );
+    mInsertItem( imppdf, "RokDoc ASCII ...", mImpPDFAsciiMnuItm );
 
     mInsertItem( impseis, "SEG-Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y Data Link ...", mImpSeisSEGYDirectMnuItm );
-    uiMenu* impseissimple = new uiMenu( &appl_, "&Simple file" );
-    mInsertItem( impseissimple, "&3D ...", mImpSeisSimple3DMnuItm );
-    mInsertItem( impseissimple, "&2D ...", mImpSeisSimple2DMnuItm );
-    mInsertItem( impseissimple, "&Prestack 3D ...", mImpSeisSimplePS3DMnuItm );
-    mInsertItem( impseissimple, "Pre&stack 2D ...", mImpSeisSimplePS2DMnuItm );
+    uiMenu* impseissimple = new uiMenu( &appl_, "Simple file" );
+    mInsertItem( impseissimple, "2D ...", mImpSeisSimple2DMnuItm );
+    mInsertItem( impseissimple, "3D ...", mImpSeisSimple3DMnuItm );
+    mInsertItem( impseissimple, "Prestack 2D ...", mImpSeisSimplePS2DMnuItm );
+    mInsertItem( impseissimple, "Prestack 3D ...", mImpSeisSimplePS3DMnuItm );
     impseis->insertItem( impseissimple );
-    uiMenu* impcbvsseis = new uiMenu( &appl_, "&CBVS" );
-    mInsertItem( impcbvsseis, "&From file ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impcbvsseis, "From other &survey ...",
-					   mImpSeisCBVSOtherSurvMnuItm );
+    uiMenu* impcbvsseis = new uiMenu( &appl_, "CBVS" );
+    mInsertItem( impcbvsseis, "From file ...", mImpSeisCBVSMnuItm );
+    mInsertItem( impcbvsseis, "From other survey ...",
+		 mImpSeisCBVSOtherSurvMnuItm );
     impseis->insertItem( impcbvsseis );
 
-    uiMenu* imphorasc = new uiMenu( &appl_, "&ASCII" );
-    mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
-    mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
-    mInsertItem( imphorasc, "&Geometry 2D ...", mImpHor2DAsciiMnuItm );
-    mInsertItem( imphorasc, "&Bulk 3D ...", mImpBulkHorAsciiMnuIm );
+    uiMenu* imphorasc = new uiMenu( &appl_, "ASCII" );
+    mInsertItem( imphorasc, "Geometry 2D ...", mImpHor2DAsciiMnuItm );
+    mInsertItem( imphorasc, "Geometry 3D ...", mImpHorAsciiMnuItm );
+    mInsertItem( imphorasc, "Attributes 3D ...", mImpHorAsciiAttribMnuItm );
+    mInsertItem( imphorasc, "Bulk 3D ...", mImpBulkHorAsciiMnuIm );
     imphor->insertItem( imphorasc );
 
-    mInsertItem( impfault, "&ASCII ...", mImpFaultMnuItm );
-    mInsertItem( impfaultstick, "&ASCII 3D ...", mImpFaultSSAscii3DMnuItm );
-    mInsertItem( impfaultstick, "&ASCII 2D ...", mImpFaultSSAscii2DMnuItm );
+    mInsertItem( impfault, "ASCII ...", mImpFaultMnuItm );
+    mInsertItem( impfaultstick, "ASCII 3D ...", mImpFaultSSAscii3DMnuItm );
+    mInsertItem( impfaultstick, "ASCII 2D ...", mImpFaultSSAscii2DMnuItm );
 
-    uiMenu* impwellasc = new uiMenu( &appl_, "&ASCII" );
-    mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
-    mInsertItem( impwellasc, "&Logs ...", mImpWellAsciiLogsMnuItm );
-    mInsertItem( impwellasc, "&Markers ...", mImpWellAsciiMarkersMnuItm );
+    uiMenu* impwellasc = new uiMenu( &appl_, "ASCII" );
+    mInsertItem( impwellasc, "Track ...", mImpWellAsciiTrackMnuItm );
+    mInsertItem( impwellasc, "Logs ...", mImpWellAsciiLogsMnuItm );
+    mInsertItem( impwellasc, "Markers ...", mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
-    mInsertItem( impwell, "&VSP (SEG-Y) ...", mImpWellSEGYVSPMnuItm );
-    mInsertItem( impwell, "Simple &Multi-Well ...", mImpWellSimpleMnuItm );
+    mInsertItem( impwell, "VSP (SEG-Y) ...", mImpWellSEGYVSPMnuItm );
+    mInsertItem( impwell, "Simple Multi-Well ...", mImpWellSimpleMnuItm );
 
-    uiMenu* impwellbulk = new uiMenu( &appl_, "&Bulk" );
+    uiMenu* impwellbulk = new uiMenu( &appl_, "Bulk" );
     mInsertItem( impwellbulk, "Track ... ", mImpBulkWellTrackItm );
     mInsertItem( impwellbulk, "Logs ...", mImpBulkWellLogsItm );
     mInsertItem( impwellbulk, "Markers ...", mImpBulkWellMarkersItm );
     mInsertItem( impwellbulk, "Depth/Time Model ...", mImpBulkWellD2TItm );
     impwell->insertItem( impwellbulk );
 
+// Fill impmenus_
     impmnus_.erase();
     impmnus_.allowNull();
-    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault;
-    impmnus_ += impwell; impmnus_ += 0; impmnus_ += 0;
-    impmnus_ += imppick; impmnus_ += 0; impmnus_ += 0;
-    impmnus_ += impwvlt; impmnus_ += impmute; impmnus_ += impvelfn;
-    impmnus_ += imppdf;
+    for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
+	impmnus_ += 0;
+
+#define mAddImpMnu(tp,mnu) impmnus_.replace( (int)uiODApplMgr::tp, mnu )
+    mAddImpMnu( Seis, impseis );
+    mAddImpMnu( Hor, imphor );
+    mAddImpMnu( Flt, impfault );
+    mAddImpMnu( Wll, impwell );
+    mAddImpMnu( Attr, impattr );
+    mAddImpMnu( Pick, imppick );
+    mAddImpMnu( Wvlt, impwvlt );
+    mAddImpMnu( MDef, impmute );
+    mAddImpMnu( Vel, impvelfn );
+    mAddImpMnu( PDF, imppdf );
 }
 
 
 void uiODMenuMgr::fillExportMenu()
 {
     expmnu_->clear();
-    uiMenu* expseis = new uiMenu( &appl_, "&Seismics" );
-    uiMenu* exphor = new uiMenu( &appl_, "&Horizons" );
-    uiMenu* expflt = new uiMenu( &appl_, "&Faults" );
-    uiMenu* expfltss = new uiMenu( &appl_, "F&aultStickSets" );
-    uiMenu* exppick = new uiMenu( &appl_, "&PickSets/Polygons" );
-    uiMenu* expwvlt = new uiMenu( &appl_, "&Wavelets" );
-    uiMenu* expmute = new uiMenu( &appl_, "&Mute Functions" );
+    uiMenu* expseis = new uiMenu( &appl_, "Seismics" );
+    uiMenu* exphor = new uiMenu( &appl_, "Horizons" );
+    uiMenu* expflt = new uiMenu( &appl_, "Faults" );
+    uiMenu* expfltss = new uiMenu( &appl_, "FaultStickSets" );
+    uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
+    uiMenu* exppick = new uiMenu( &appl_, "PickSets/Polygons" );
+    uiMenu* expwvlt = new uiMenu( &appl_, "Wavelets" );
+    uiMenu* expmute = new uiMenu( &appl_, "Mute Functions" );
     uiMenu* exppdf =
-	new uiMenu( &appl_, "Probability &Density Functions" );
+	new uiMenu( &appl_, tr("Probability Density Functions") );
 
     expmnu_->insertItem( expflt );
     expmnu_->insertItem( expfltss );
+    expmnu_->insertItem( expgeom2d );
     expmnu_->insertItem( exphor );
     expmnu_->insertItem( expmute );
     expmnu_->insertItem( exppick );
@@ -335,75 +346,88 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expwvlt );
     expmnu_->insertSeparator();
 
-    uiMenu* expseissgy = new uiMenu( &appl_, "&SEG-Y" );
-    mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
-    mInsertItem( expseissgy, "&2D ...", mExpSeisSEGY2DMnuItm );
-    mInsertItem( expseissgy, "&Prestack 3D ...", mExpSeisSEGYPS3DMnuItm );
+    uiMenu* expseissgy = new uiMenu( &appl_, "SEG-Y" );
+    mInsertItem( expseissgy, "3D ...", mExpSeisSEGY3DMnuItm );
+    mInsertItem( expseissgy, "2D ...", mExpSeisSEGY2DMnuItm );
+    mInsertItem( expseissgy, "Prestack 3D ...", mExpSeisSEGYPS3DMnuItm );
     expseis->insertItem( expseissgy );
-    uiMenu* expseissimple = new uiMenu( &appl_, "S&imple file" );
-    mInsertItem( expseissimple, "&3D ...", mExpSeisSimple3DMnuItm );
-    mInsertItem( expseissimple, "&2D ...", mExpSeisSimple2DMnuItm );
-    mInsertItem( expseissimple, "&Prestack 3D ...", mExpSeisSimplePS3DMnuItm );
+    uiMenu* expseissimple = new uiMenu( &appl_, "Simple file" );
+    mInsertItem( expseissimple, "3D ...", mExpSeisSimple3DMnuItm );
+    mInsertItem( expseissimple, "2D ...", mExpSeisSimple2DMnuItm );
+    mInsertItem( expseissimple, "Prestack 3D ...", mExpSeisSimplePS3DMnuItm );
     expseis->insertItem( expseissimple );
 
-    mInsertItem( exphor, "ASCII &3D...", mExpHorAscii3DMnuItm );
-    mInsertItem( exphor, "ASCII &2D...", mExpHorAscii2DMnuItm );
-    mInsertItem( expflt, "&ASCII ...", mExpFltAsciiMnuItm );
-    mInsertItem( expfltss, "&ASCII ...", mExpFltSSAsciiMnuItm );
-    mInsertItem( exppick, "&ASCII ...", mExpPickAsciiMnuItm );
-    mInsertItem( expwvlt, "&ASCII ...", mExpWvltAsciiMnuItm );
-    mInsertItem( expmute, "&ASCII ...", mExpMuteDefAsciiMnuItm );
-    mInsertItem( exppdf, "RokDoc &ASCII ...", mExpPDFAsciiMnuItm );
+    const uiString ascii = tr("ASCII ...");
 
+    mInsertItem( exphor, tr("ASCII 2D ..."), mExpHorAscii2DMnuItm );
+    mInsertItem( exphor, tr("ASCII 3D ..."), mExpHorAscii3DMnuItm );
+    mInsertItem( expflt, ascii, mExpFltAsciiMnuItm );
+    mInsertItem( expfltss, ascii, mExpFltSSAsciiMnuItm );
+    mInsertItem( expgeom2d, ascii, mExpGeom2DMnuItm );
+    mInsertItem( exppick, ascii, mExpPickAsciiMnuItm );
+    mInsertItem( expwvlt, ascii, mExpWvltAsciiMnuItm );
+    mInsertItem( expmute, ascii, mExpMuteDefAsciiMnuItm );
+    mInsertItem( exppdf, tr("RokDoc ASCII..."), mExpPDFAsciiMnuItm );
+
+// Fill expmenus_
     expmnus_.erase();
     expmnus_.allowNull();
-    expmnus_ += expseis; expmnus_ += exphor; expmnus_+= expflt;
-    expmnus_+=0; expmnus_+= 0; expmnus_+= 0;
-    expmnus_+=exppick; expmnus_+= 0; expmnus_+= 0;
-    expmnus_+=expwvlt; expmnus_+= expmute; expmnus_+= 0; expmnus_ += exppdf;
+    for ( int idx=0; idx<uiODApplMgr::NrObjTypes; idx++ )
+	expmnus_ += 0;
+
+#define mAddExpMnu(tp,mnu) expmnus_.replace( (int)uiODApplMgr::tp, mnu )
+    mAddExpMnu( Seis, expseis );
+    mAddExpMnu( Hor, exphor );
+    mAddExpMnu( Flt, expflt );
+    mAddExpMnu( Pick, exppick );
+    mAddExpMnu( Wvlt, expwvlt );
+    mAddExpMnu( MDef, expmute );
+    mAddExpMnu( PDF, exppdf );
+    mAddExpMnu( Geom, expgeom2d );
 }
 
 
 void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
-    mInsertPixmapItem( manmnu_, "2D &Geometry ...", mManGeomItm, "man2dgeom" );
-    mInsertPixmapItem( manmnu_, "&Attribute Sets ...", mManAttrMnuItm,
+    mInsertPixmapItem( manmnu_, "Attribute Sets ...", mManAttrMnuItm,
 			"man_attrs" );
-    mInsertPixmapItem( manmnu_, "&Bodies ...", mManBodyMnuItm, "man_body" );
+    mInsertPixmapItem( manmnu_, "Bodies ...", mManBodyMnuItm, "man_body" );
     mInsertPixmapItem( manmnu_, "Color Tables ...", mManColTabMnuItm,
 		       uiIcon::None() );
-    mInsertPixmapItem( manmnu_, "&Cross-plot data ...", mManCrossPlotItm,
+    mInsertPixmapItem( manmnu_, "Cross-plot data ...", mManCrossPlotItm,
 			"manxplot" );
-    mInsertPixmapItem( manmnu_, "&Faults ...", mManFaultMnuItm, "man_flt" )
-    mInsertPixmapItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm,
+    mInsertPixmapItem( manmnu_, "Faults ...", mManFaultMnuItm, "man_flt" )
+    mInsertPixmapItem( manmnu_, "FaultStickSets ...", mManFaultStickMnuItm,
 			"man_fltss" );
+    mInsertPixmapItem( manmnu_, "Geometry 2D ...", mManGeomItm,
+		       "man2dgeom" );
     if ( SI().survDataType() == SurveyInfo::No2D )
-	mInsertPixmapItem( manmnu_, "&Horizons ...", mManHor3DMnuItm,
+	mInsertPixmapItem( manmnu_, "Horizons ...", mManHor3DMnuItm,
 			"man_hor" )
     else
     {
-	uiMenu* mnu = new uiMenu( &appl_, "&Horizons", "man_hor");
-	mInsertItem( mnu, "&2D ...", mManHor2DMnuItm );
-	mInsertItem( mnu, "&3D ...", mManHor3DMnuItm );
+	uiMenu* mnu = new uiMenu( &appl_, "Horizons", "man_hor");
+	mInsertItem( mnu, "2D ...", mManHor2DMnuItm );
+	mInsertItem( mnu, "3D ...", mManHor3DMnuItm );
 	manmnu_->insertItem( mnu );
     }
 
-    mInsertPixmapItem( manmnu_, "&Layer properties ...", mManPropsMnuItm,
+    mInsertPixmapItem( manmnu_, "Layer properties ...", mManPropsMnuItm,
 			"man_props" );
-    mInsertPixmapItem( manmnu_, "&PickSets/Polygons ...", mManPickMnuItm,
+    mInsertPixmapItem( manmnu_, "PickSets/Polygons ...", mManPickMnuItm,
 			"man_picks" );
-    mInsertPixmapItem( manmnu_, "Probability &Density Functions ...",
+    mInsertPixmapItem( manmnu_, "Probability Density Functions ...",
 		 mManPDFMnuItm, "man_prdfs" );
-    create2D3DMnu( manmnu_, "&Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
+    create2D3DMnu( manmnu_, "Seismics", mManSeis2DMnuItm, mManSeis3DMnuItm,
 			"man_seis" );
     create2D3DMnu( manmnu_, "Seismics Prestack", mManSeisPS2DMnuItm,
 		   mManSeisPS3DMnuItm, "man_ps" );
-    mInsertPixmapItem( manmnu_, "S&essions ...", mManSessMnuItm, uiIcon::None())
-    mInsertPixmapItem( manmnu_, "Strati&graphy ...", mManStratMnuItm,
+    mInsertPixmapItem( manmnu_, "Sessions ...", mManSessMnuItm, uiIcon::None())
+    mInsertPixmapItem( manmnu_, "Stratigraphy ...", mManStratMnuItm,
 			"man_strat" )
-    mInsertPixmapItem( manmnu_, "Wa&velets ...", mManWvltMnuItm, "man_wvlt" )
-    mInsertPixmapItem( manmnu_, "&Wells ...", mManWellMnuItm, "man_wll"  )
+    mInsertPixmapItem( manmnu_, "Wavelets ...", mManWvltMnuItm, "man_wvlt" )
+    mInsertPixmapItem( manmnu_, "Wells ...", mManWellMnuItm, "man_wll"	)
     manmnu_->insertSeparator();
 }
 
@@ -414,8 +438,8 @@ void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const uiString& title,
     if ( SI().has2D() && SI().has3D() )
     {
 	uiMenu* mnu = new uiMenu( &appl_, title, pmfnm );
-	mInsertItem( mnu, "&2D ...", id2d );
-	mInsertItem( mnu, "&3D ...", id3d );
+	mInsertItem( mnu, "2D ...", id2d );
+	mInsertItem( mnu, "3D ...", id3d );
 	itm->insertItem( mnu );
     }
     else
@@ -434,28 +458,28 @@ void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
-    uiMenu* csoitm = new uiMenu( &appl_, tr("&Create Seismic Output") );
+    uiMenu* csoitm = new uiMenu( &appl_, tr("Create Seismic Output") );
 
 // Attributes
-    uiMenu* attritm = new uiMenu( tr("&Attributes") );
+    uiMenu* attritm = new uiMenu( tr("Attributes") );
     csoitm->insertItem( attritm );
 
-    create2D3DMnu( attritm, tr("&Single Attribute"),
+    create2D3DMnu( attritm, tr("Single Attribute"),
 		   mSeisOut2DMnuItm, mSeisOut3DMnuItm,
 		   "seisout");
     if ( SI().has3D() )
     {
 	attritm->insertItem(
-	    new uiAction( tr("&Multi Attribute ..."),
+	    new uiAction( tr("Multi Attribute ..."),
 			mCB(&applMgr(),uiODApplMgr,createMultiAttribVol)) );
 	attritm->insertItem(
-	    new uiAction( tr("MultiCube &DataStore ..."),
+	    new uiAction( tr("MultiCube DataStore ..."),
 			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
     }
 
-    create2D3DMnu( attritm, tr("&Along Horizon"), mCompAlongHor2DMnuItm,
+    create2D3DMnu( attritm, tr("Along Horizon"), mCompAlongHor2DMnuItm,
 		   mCompAlongHor3DMnuItm, "alonghor" );
-    create2D3DMnu( attritm, tr("&Between Horizons"), mCompBetweenHor2DMnuItm,
+    create2D3DMnu( attritm, tr("Between Horizons"), mCompBetweenHor2DMnuItm,
 		   mCompBetweenHor3DMnuItm, "betweenhors" );
 
 
@@ -476,20 +500,20 @@ void uiODMenuMgr::fillProcMenu()
     {
 // Other 3D items
 	csoitm->insertItem(
-	    new uiAction(tr("An&gle mute Function ..."),
+	    new uiAction(tr("Angle mute Function ..."),
 			mCB(&applMgr(),uiODApplMgr,genAngleMuteFunction) ));
 	csoitm->insertItem(
-	    new uiAction(tr("Bayesian &Classification ..."),
+	    new uiAction(tr("Bayesian Classification ..."),
 			mCB(&applMgr(),uiODApplMgr,bayesClass3D), "bayes"));
 	csoitm->insertItem(
-	    new uiAction(tr("From &Well logs ..."),
+	    new uiAction(tr("From Well logs ..."),
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
 	csoitm->insertItem(
-	    new uiAction(tr("&Prestack Processing ..."),
+	    new uiAction(tr("Prestack Processing ..."),
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
     }
 
-    csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-&Y ..."),
+    csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-Y ..."),
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
 
     if ( SI().has3D() )
@@ -498,25 +522,25 @@ void uiODMenuMgr::fillProcMenu()
 	uiMenu* velitm = new uiMenu( tr("Velocity") );
 	csoitm->insertItem( velitm );
 	velitm->insertItem(
-	    new uiAction(tr("&Time - Depth Conversion ..."),
+	    new uiAction(tr("Time - Depth Conversion ..."),
 			 mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	velitm->insertItem(
-	    new uiAction(tr("&Velocity Conversion ..."),
+	    new uiAction(tr("Velocity Conversion ..."),
 			 mCB(&applMgr(),uiODApplMgr,processVelConv)) );
 
 	csoitm->insertItem(
-	    new uiAction(tr("Volume &Builder ..."),
+	    new uiAction(tr("Volume Builder ..."),
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
     }
 
     procmnu_->insertItem( csoitm );
 
-    uiMenu* grditm = new uiMenu( &appl_, tr("Create &Horizon Output") );
-    create2D3DMnu( grditm, tr("&Attributes"), mCreateSurf2DMnuItm,
+    uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
+    create2D3DMnu( grditm, tr("Attributes"), mCreateSurf2DMnuItm,
 		   mCreateSurf3DMnuItm, "ongrid" );
     procmnu_->insertItem( grditm );
 
-    mInsertItem( procmnu_, tr("(Re-)Start Batch &Job ..."),
+    mInsertItem( procmnu_, tr("(Re-)Start Batch Job ..."),
 		 mStartBatchJobMnuItm );
 }
 
@@ -528,16 +552,16 @@ void uiODMenuMgr::fillAnalMenu()
     const char* attrpm = "attributes";
     if ( survtype == SurveyInfo::Both2DAnd3D )
     {
-	uiMenu* aitm = new uiMenu( &appl_, "&Attributes", attrpm );
-	mInsertPixmapItem( aitm, "&2D ...", mEdit2DAttrMnuItm, "attributes_2d");
-	mInsertPixmapItem( aitm, "&3D ...", mEdit3DAttrMnuItm, "attributes_3d");
+	uiMenu* aitm = new uiMenu( &appl_, "Attributes", attrpm );
+	mInsertPixmapItem( aitm, "2D ...", mEdit2DAttrMnuItm, "attributes_2d");
+	mInsertPixmapItem( aitm, "3D ...", mEdit3DAttrMnuItm, "attributes_3d");
 
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
     }
     else
     {
-	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm, attrpm)
+	mInsertPixmapItem( analmnu_, "Attributes ...", mEditAttrMnuItm, attrpm)
 	analmnu_->insertSeparator();
     }
 
@@ -548,27 +572,27 @@ void uiODMenuMgr::fillAnalMenu()
 				VolProc::uiChain::pixmapFileName() ) );
     }
 
-    uiMenu* xplotmnu = new uiMenu( &appl_, "&Cross-plot", "xplot");
-    mInsertPixmapItem( xplotmnu, "&Well logs <--> Attributes ...",
+    uiMenu* xplotmnu = new uiMenu( &appl_, "Cross-plot", "xplot");
+    mInsertPixmapItem( xplotmnu, "Well logs vs Attributes ...",
 		       mXplotMnuItm, "xplot_wells" );
-    mInsertPixmapItem( xplotmnu, "&Attributes <--> Attributes ...",
+    mInsertPixmapItem( xplotmnu, "Attributes vs Attributes ...",
 		       mAXplotMnuItm, "xplot_attribs" );
-    mInsertItem( xplotmnu, "&Open Cross-plot ...", mOpenXplotMnuItm );
+    mInsertItem( xplotmnu, "Open Cross-plot ...", mOpenXplotMnuItm );
     analmnu_->insertItem( xplotmnu );
 
-    analwellmnu_ = new uiMenu( &appl_, "&Wells", "well" );
-    analwellmnu_->insertItem( new uiAction( "&Edit logs ...",
+    analwellmnu_ = new uiMenu( &appl_, "Wells", "well" );
+    analwellmnu_->insertItem( new uiAction( "Edit logs ...",
 	mCB(&applMgr(),uiODApplMgr,doWellLogTools), "well_props" ) );
     if (  SI().zIsTime() )
-	analwellmnu_->insertItem( new uiAction( "&Tie Well to Seismic ...",
+	analwellmnu_->insertItem( new uiAction( "Tie Well to Seismic ...",
 	mCB(&applMgr(),uiODApplMgr,tieWellToSeismic), "well_tie" ) );
-    analwellmnu_->insertItem( new uiAction( "&Rock Physics ...",
+    analwellmnu_->insertItem( new uiAction( "Rock Physics ...",
 		mCB(&applMgr(),uiODApplMgr,launchRockPhysics), "rockphys" ) );
     analmnu_->insertItem( analwellmnu_ );
 
     layermodelmnu_ = new uiMenu(
-			&appl_, "&Layer Modeling", "stratlayermodeling" );
-    layermodelmnu_->insertItem( new uiAction( "&Basic ...",
+			&appl_, "Layer Modeling", "stratlayermodeling" );
+    layermodelmnu_->insertItem( new uiAction( "Basic ...",
 	mCB(&applMgr(),uiODApplMgr,doLayerModeling), uiIcon::None() ) );
     analmnu_->insertItem( layermodelmnu_ );
     analmnu_->insertSeparator();
@@ -578,7 +602,7 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
-    mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
+    mInsertItem( scenemnu_, "New", mAddSceneMnuItm );
 
     addtimedepthsceneitm_ = new uiAction( "Dummy",
 					  mCB(this,uiODMenuMgr,handleClick) );
@@ -588,15 +612,15 @@ void uiODMenuMgr::fillSceneMenu()
 		   mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm, 0 );
     lastsceneitm_ = scenemnu_->insertSeparator();
 
-    mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
-    uiMenu* tileitm = new uiMenu( &appl_, "&Tile" );
+    mInsertItem( scenemnu_, "Cascade", mCascadeMnuItm );
+    uiMenu* tileitm = new uiMenu( &appl_, "Tile" );
     scenemnu_->insertItem( tileitm );
 
-    mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
-    mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
-    mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
+    mInsertItem( tileitm, "Auto", mTileAutoMnuItm );
+    mInsertItem( tileitm, "Horizontal", mTileHorMnuItm );
+    mInsertItem( tileitm, "Vertical", mTileVerMnuItm );
 
-    mInsertItem( scenemnu_, "&Properties ...", mScenePropMnuItm );
+    mInsertItem( scenemnu_, "Properties ...", mScenePropMnuItm );
     scenemnu_->insertSeparator();
 
     updateSceneMenu();
@@ -640,7 +664,7 @@ void uiODMenuMgr::updateSceneMenu()
     }
 
     BufferString itmtxt( "New [" );
-    itmtxt += SI().zIsTime() ? "&Depth]" : "T&ime]";
+    itmtxt += SI().zIsTime() ? "Depth]" : "Time]";
     addtimedepthsceneitm_->setText( itmtxt );
 }
 
@@ -651,11 +675,11 @@ void uiODMenuMgr::fillViewMenu()
 
     viewmnu_->clear();
 #ifdef __debug__
-    mInsertItem( viewmnu_, "&Base Map ...", mBaseMapMnuItm );
+    mInsertItem( viewmnu_, "Base Map ...", mBaseMapMnuItm );
 #endif
-    mInsertItem( viewmnu_, "&Work area ...", mWorkAreaMnuItm );
-    mInsertItem( viewmnu_, "&Z-scale ...", mZScaleMnuItm );
-    uiMenu* stereoitm = new uiMenu( &appl_, "&Stereo viewing" );
+    mInsertItem( viewmnu_, "Work area ...", mWorkAreaMnuItm );
+    mInsertItem( viewmnu_, "Z-scale ...", mZScaleMnuItm );
+    uiMenu* stereoitm = new uiMenu( &appl_, "Stereo viewing" );
     viewmnu_->insertItem( stereoitm );
 
 #define mInsertStereoItem(itm,txt,docheck,id) \
@@ -664,13 +688,13 @@ void uiODMenuMgr::fillViewMenu()
     itm->setCheckable( true ); \
     itm->setChecked( docheck );
 
-    mInsertStereoItem( stereooffitm_, "&Off", true, mStereoOffMnuItm )
-    mInsertStereoItem( stereoredcyanitm_, "&Red/Cyan", false,
+    mInsertStereoItem( stereooffitm_, "Off", true, mStereoOffMnuItm )
+    mInsertStereoItem( stereoredcyanitm_, "Red/Cyan", false,
 			mStereoRCMnuItm )
-    mInsertStereoItem( stereoquadbufitm_, "&Quad buffer", false,
+    mInsertStereoItem( stereoquadbufitm_, "Quad buffer", false,
 			mStereoQuadMnuItm )
 
-    stereooffsetitm_ = new uiAction( "&Stereo offset ...",
+    stereooffsetitm_ = new uiAction( "Stereo offset ...",
 				mCB(this,uiODMenuMgr,handleClick) );
     stereoitm->insertItem( stereooffsetitm_, mStereoOffsetMnuItm );
     stereooffsetitm_->setEnabled( false );
@@ -679,7 +703,7 @@ void uiODMenuMgr::fillViewMenu()
     viewmnu_->insertSeparator();
 
     uiMenu& toolbarsmnu = appl_.getToolbarsMenu();
-    toolbarsmnu.setName("&Toolbars");
+    toolbarsmnu.setName("Toolbars");
     viewmnu_->insertItem( &toolbarsmnu );
 }
 
@@ -693,8 +717,7 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiMenu* iconsmnu,
 	if ( nm.isEmpty() || nms.isPresent(nm) )
 	    continue;
 
-	BufferString mnunm( "&" ); mnunm += nm;
-	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nms.size() );
+	mInsertItem( iconsmnu, nm, mViewIconsMnuItm+nms.size() );
 	nms.add( nm );
     }
 }
@@ -708,9 +731,9 @@ void uiODMenuMgr::mkViewIconsMnu()
     if ( dlsett.size() + dlsite.size() + dlrel.size() < 2 )
 	return;
 
-    uiMenu* iconsmnu = new uiMenu( &appl_, "&Icons" );
+    uiMenu* iconsmnu = new uiMenu( &appl_, "Icons" );
     viewmnu_->insertItem( iconsmnu );
-    mInsertItem( iconsmnu, "&Default", mViewIconsMnuItm+0 );
+    mInsertItem( iconsmnu, "Default", mViewIconsMnuItm+0 );
     BufferStringSet nms; nms.add( "Default" );
     addIconMnuItems( dlsett, iconsmnu, nms );
     addIconMnuItems( dlsite, iconsmnu, nms );
@@ -730,7 +753,7 @@ static void updateTranslateMenu( uiMenu& mnu )
 
 void uiODMenuMgr::fillUtilMenu()
 {
-    settmnu_ = new uiMenu( &appl_, "&Settings" );
+    settmnu_ = new uiMenu( &appl_, "Settings" );
     utilmnu_->insertItem( settmnu_ );
     if ( TrMgr().nrSupportedLanguages() > 1 )
     {
@@ -747,22 +770,22 @@ void uiODMenuMgr::fillUtilMenu()
 	updateTranslateMenu( *langmnu_ );
     }
 
-    mInsertItem( settmnu_, "&Look and feel ...", mSettLkNFlMnuItm );
-    mInsertItem( settmnu_, "&Mouse controls ...", mSettMouseMnuItm );
-    mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
-    uiMenu* advmnu = new uiMenu( &appl_, "&Advanced" );
-    mInsertItem( advmnu, "&Personal settings ...", mSettGeneral );
-    mInsertItem( advmnu, "&Survey defaults ...", mSettSurvey );
+    mInsertItem( settmnu_, "Look and feel ...", mSettLkNFlMnuItm );
+    mInsertItem( settmnu_, "Mouse controls ...", mSettMouseMnuItm );
+    mInsertItem( settmnu_, "Keyboard shortcuts ...", mSettShortcutsMnuItm );
+    uiMenu* advmnu = new uiMenu( &appl_, "Advanced" );
+    mInsertItem( advmnu, "Personal settings ...", mSettGeneral );
+    mInsertItem( advmnu, "Survey defaults ...", mSettSurvey );
     settmnu_->insertItem( advmnu );
 
-    toolsmnu_ = new uiMenu( &appl_, "&Tools" );
+    toolsmnu_ = new uiMenu( &appl_, "Tools" );
     utilmnu_->insertItem( toolsmnu_ );
 
-    mInsertItem( toolsmnu_, "&Batch programs ...", mBatchProgMnuItm );
-    mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
-    mInsertItem( toolsmnu_, "&Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
+    mInsertItem( toolsmnu_, "Batch programs ...", mBatchProgMnuItm );
+    mInsertItem( toolsmnu_, "Position conversion ...", mPosconvMnuItm );
+    mInsertItem( toolsmnu_, "Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
 
-    installmnu_ = new uiMenu( &appl_, "&Installation" );
+    installmnu_ = new uiMenu( &appl_, "Installation" );
     utilmnu_->insertItem( installmnu_ );
     FilePath installerdir( ODInst::GetInstallerDir() );
     const bool hasinstaller = File::isDirectory( installerdir.fullPath() );
@@ -771,22 +794,22 @@ void uiODMenuMgr::fillUtilMenu()
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    mInsertItem( installmnu_, "OpendTect Installation &Manager ...",
+	    mInsertItem( installmnu_, "OpendTect Installation Manager ...",
 			 mInstMgrMnuItem );
 	if ( !aitfixed )
-	    mInsertItem( installmnu_, "&Auto-update policy ...",
+	    mInsertItem( installmnu_, "Auto-update policy ...",
 			 mInstAutoUpdPolMnuItm );
-	mInsertItem( installmnu_, "&Connection Settings ...",
+	mInsertItem( installmnu_, "Connection Settings ...",
 		     mInstConnSettsMnuItm );
 	installmnu_->insertSeparator();
     }
 
-    mInsertItem( installmnu_, "&Plugins ...", mPluginsMnuItm );
-    mInsertItem( installmnu_, "&Setup Batch Processing ...", mSetupBatchItm );
+    mInsertItem( installmnu_, "Plugins ...", mPluginsMnuItm );
+    mInsertItem( installmnu_, "Setup Batch Processing ...", mSetupBatchItm );
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
-	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
+	mInsertItem( utilmnu_, "Show log file ...", mShwLogFileMnuItm );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -1136,6 +1159,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpVelocityAsciiMnuItm:	mDoOp(Imp,Vel,0); break;
     case mImpPDFAsciiMnuItm:		mDoOp(Imp,PDF,0); break;
     case mExpPDFAsciiMnuItm:		mDoOp(Exp,PDF,0); break;
+    case mExpGeom2DMnuItm:		mDoOp(Exp,Geom,0); break;
     case mManColTabMnuItm:		mDoOp(Man,ColTab,0); break;
     case mManSeis3DMnuItm:		mDoOp(Man,Seis,0); break;
     case mManSeis2DMnuItm:		mDoOp(Man,Seis,1); break;
@@ -1208,9 +1232,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     case mSettLkNFlMnuItm: {
 	uiSettingsDlg dlg( &appl_ );
-	if ( dlg.go() && dlg.isChanged() )
-	    uiMSG().message("Your new settings will become active\nthe next "
-			    "time OpendTect is started.");
+	if ( !dlg.go() ) return;
+
+	if ( dlg.needsRestart() )
+	    uiMSG().message(tr("Your new settings will become active\nthe next "
+			       "time OpendTect is started."));
     } break;
 
     case mDumpDataPacksMnuItm: {
@@ -1365,8 +1391,9 @@ void uiODMenuMgr::toggViewMode( CallBacker* cb )
 {
     inviewmode_ = !inviewmode_;
     cointb_->setIcon( actviewid_, inviewmode_ ? "altview" : "altpick" );
-    cointb_->setToolTip( actviewid_, inviewmode_
-	    ? "Switch to interact mode" : "Switch to view mode" );
+    cointb_->setToolTip( actviewid_,
+			 inviewmode_ ? tr("Switch to interact mode")
+				     : tr("Switch to view mode") );
     if ( inviewmode_ )
 	sceneMgr().viewMode( cb );
     else
