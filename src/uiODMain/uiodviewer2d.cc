@@ -309,9 +309,11 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     viewstdcontrol_ = new uiFlatViewStdControl( mainvwr,
 	    uiFlatViewStdControl::Setup(controlparent).helpkey(
                                         mODHelpKey(mFlatViewStdControlHelpID) )
-						      .withedit(true) );
+						   .withedit(tifs_)
+						   .managescoltab(!tifs_) );
     mAttachCB( viewstdcontrol_->infoChanged, uiODViewer2D::mouseMoveCB );
-    createPolygonSelBut( viewstdcontrol_->toolBar() );
+    if ( tifs_ )
+	createPolygonSelBut( viewstdcontrol_->toolBar() );
     viewwin_->addControl( viewstdcontrol_ );
     createViewWinEditors();
 

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewcoltabed.h"
 
-#include "callback.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "flatview.h"
@@ -40,6 +39,13 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 }
 
 
+void uiFlatViewColTabEd::setSensitive( bool yn )
+{
+    mDynamicCastGet(uiColorTableToolBar*,ctab,&uicoltab_);
+    if ( ctab ) ctab->setSensitive( yn );
+}
+
+
 void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr )
 {
     uicoltab_.setDispPars( vwr.appearance().ddpars_.vd_ );
@@ -48,9 +54,19 @@ void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr )
 }
 
 
+void uiFlatViewColTabEd::setColTab( const FlatView::DataDispPars::VD& vdpars )
+{
+    vdpars_ = vdpars;
+    uicoltab_.setDispPars( vdpars );
+    uicoltab_.setSequence( vdpars.ctab_ );
+    uicoltab_.setInterval( vdpars.mappersetup_.range_ );
+    setSensitive( true );
+}
+
+
 void uiFlatViewColTabEd::colTabChanged( CallBacker* )
 {
-    ddpars_.vd_.ctab_ = uicoltab_.colTabSeq().name();
-    uicoltab_.getDispPars( ddpars_.vd_ );
+    vdpars_.ctab_ = uicoltab_.colTabSeq().name();
+    uicoltab_.getDispPars( vdpars_ );
     colTabChgd.trigger();
 }

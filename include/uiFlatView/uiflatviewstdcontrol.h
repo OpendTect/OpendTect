@@ -42,6 +42,7 @@ public:
 			    , withsnapshot_(true)
 			    , withflip_(true)
 			    , withrubber_(true)
+			    , managescoltab_(true)
                             , tba_(-1)	{}	      	
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
@@ -55,6 +56,7 @@ public:
 	mDefSetupMemb(bool,withflip)
 	mDefSetupMemb(bool,withsnapshot)
 	mDefSetupMemb(bool,withrubber)
+	mDefSetupMemb(bool,managescoltab)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);

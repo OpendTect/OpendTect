@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiflatviewwin.h"
 #include "uiflatviewer.h"
 #include "uiflatviewcoltabed.h"
+#include "uiflatviewstdcontrol.h"
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
@@ -44,27 +45,16 @@ uiODVW2DVariableDensityTreeItem::uiODVW2DVariableDensityTreeItem()
     : uiODVw2DTreeItem( "VD" )
     , dummyview_(0)
     , menu_(0)
+    , coltabinitialized_(false)
     , selattrmnuitem_("Select &Attribute")
 {}
 
 
 uiODVW2DVariableDensityTreeItem::~uiODVW2DVariableDensityTreeItem()
 {
-    if ( viewer2D()->viewwin()->nrViewers() )
-    {
-	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-	vwr.dataChanged.remove(
-		mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
-    }
-
+    detachAllNotifiers();
     if ( menu_ )
-    {
-	menu_->createnotifier.remove(
-		mCB(this,uiODVW2DVariableDensityTreeItem,createMenuCB) );
-	menu_->handlenotifier.remove(
-		mCB(this,uiODVW2DVariableDensityTreeItem,handleMenuCB) );
 	menu_->unRef();
-    }
 
     viewer2D()->dataMgr()->removeObject( dummyview_ );
 }
@@ -76,19 +66,19 @@ bool uiODVW2DVariableDensityTreeItem::init()
 	return false;
 
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    vwr.dataChanged.notify(
-	    mCB(this,uiODVW2DVariableDensityTreeItem,dataChangedCB) );
+    mAttachCB( vwr.dataChanged,uiODVW2DVariableDensityTreeItem::dataChangedCB );
 
     const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
 	    			   viewer2D()->selSpec(false).id().isValid() );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
 
-    checkStatusChange()->notify(
-	    mCB(this,uiODVW2DVariableDensityTreeItem,checkCB) );
+    mAttachCB( checkStatusChange(), uiODVW2DVariableDensityTreeItem::checkCB );
 
     dummyview_ = new VW2DSeis();
     viewer2D()->dataMgr()->addObject( dummyview_ );
+    mAttachCB( dummyview_->deSelection(),
+	       uiODVW2DVariableDensityTreeItem::deSelectCB );
 
     if ( vwr.hasPack(false) )
     {
@@ -103,14 +93,32 @@ bool uiODVW2DVariableDensityTreeItem::init()
 }
 
 
+void uiODVW2DVariableDensityTreeItem::initColTab()
+{
+    if ( coltabinitialized_ ) return;
+    mAttachCB( viewer2D()->viewControl()->colTabEd()->colTabChgd,
+	       uiODVW2DVariableDensityTreeItem::colTabChgCB );
+    uitreeviewitem_->setSelected( true );
+    select(); coltabinitialized_ = true;
+}
+
+
 bool uiODVW2DVariableDensityTreeItem::select()
 {
     if ( !uitreeviewitem_->isSelected() )
 	return false;
 
     viewer2D()->dataMgr()->setSelected( dummyview_ );
-
+    uiFlatViewColTabEd* coltabed = viewer2D()->viewControl()->colTabEd();
+    const uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
+    coltabed->setColTab( vwr.appearance().ddpars_.vd_ );
     return true;
+}
+
+
+void uiODVW2DVariableDensityTreeItem::deSelectCB( CallBacker* )
+{
+    viewer2D()->viewControl()->colTabEd()->setSensitive( false );
 }
 
 
@@ -130,30 +138,48 @@ void uiODVW2DVariableDensityTreeItem::checkCB( CallBacker* )
 }
 
 
+void uiODVW2DVariableDensityTreeItem::colTabChgCB( CallBacker* cb )
+{
+    if ( viewer2D()->dataMgr()->selectedId() != dummyview_->id() )
+	return;
+
+    mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
+    if ( !coltabed ) return;
+
+    const FlatView::DataDispPars::VD& vdpars = coltabed->getDisplayPars();
+    for ( int ivwr=0; ivwr<viewer2D()->viewwin()->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(ivwr);
+	vwr.appearance().ddpars_.vd_ = vdpars;
+	vwr.handleChange( FlatView::Viewer::DisplayPars );
+    }
+}
+
+
 void uiODVW2DVariableDensityTreeItem::dataChangedCB( CallBacker* )
 {
     if ( !viewer2D()->viewwin()->nrViewers() )
 	return;
 
-    displayMiniCtab(0);
-
     uiFlatViewer& vwr = viewer2D()->viewwin()->viewer(0);
-    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
+    if ( !vwr.hasPack(false) || !vwr.control() )
+    {
+	displayMiniCtab( 0 );
+	return;
+    }
 
+    const FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
     uitreeviewitem_->setCheckable( vwr.isVisible(true) &&
 				   viewer2D()->selSpec(false).id().isValid() );
     uitreeviewitem_->setChecked( ddp.vd_.show_ );
 
-    if ( !vwr.hasPack(false) )
-	displayMiniCtab(0);
-    else
-    {
-	if ( !vwr.control() )
-	    displayMiniCtab(0);
+    if ( !coltabinitialized_ ) initColTab();
 
-	ColTab::Sequence seq( ddp.vd_.ctab_ );
-	displayMiniCtab( &seq );
-    }
+    if ( viewer2D()->dataMgr()->selectedId() == dummyview_->id() )
+	viewer2D()->viewControl()->colTabEd()->setColTab( ddp.vd_ );
+
+    ColTab::Sequence seq( ddp.vd_.ctab_ );
+    displayMiniCtab( &seq );
 }
 
 
@@ -178,10 +204,10 @@ bool uiODVW2DVariableDensityTreeItem::showSubMenu()
     {
 	menu_ = new uiMenuHandler( getUiParent(), -1 );
 	menu_->ref();
-	menu_->createnotifier.notify(
-		mCB(this,uiODVW2DVariableDensityTreeItem,createMenuCB) );
-	menu_->handlenotifier.notify(
-		mCB(this,uiODVW2DVariableDensityTreeItem,handleMenuCB) );
+	mAttachCB( menu_->createnotifier,
+		   uiODVW2DVariableDensityTreeItem::createMenuCB );
+	mAttachCB( menu_->handlenotifier,
+		   uiODVW2DVariableDensityTreeItem::handleMenuCB );
     }
     return menu_->executeMenu(uiMenuHandler::fromTree());
 }
