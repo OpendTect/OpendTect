@@ -72,9 +72,15 @@ Marker::~Marker()
 
 void Marker::setCenterPos( const Coord3& pos_ )
 {
+    if ( !pos_.isDefined() )
+	return;
+    
     Coord3 pos( pos_ );
 
     if ( transformation ) pos = transformation->transform( pos );
+
+    if ( !pos.isDefined() )
+	return;
 
     if ( !xytranslation && (fabs(pos.x)>1e5 || fabs(pos.y)>1e5) )
     {
