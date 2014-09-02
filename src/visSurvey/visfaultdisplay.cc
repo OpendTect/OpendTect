@@ -120,13 +120,7 @@ FaultDisplay::FaultDisplay()
 
 FaultDisplay::~FaultDisplay()
 {
-    if ( scene_ && scene_->getPolySelection() &&
-	 scene_->getPolySelection()->polygonFinished() )
-    {
-	const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
-	scene_->getPolySelection()->polygonFinished()->remove( cb );
-    }
-
+    detachAllNotifiers();
     setSceneEventCatcher( 0 );
     showManipulator( false );
 
@@ -156,12 +150,8 @@ FaultDisplay::~FaultDisplay()
     delete explicitsticks_;
     delete explicitintersections_;
 
-    if ( emfault_ )
-    {
-	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
-	emfault_->unRef();
-	emfault_ = 0;
-    }
+    emfault_->unRef();
+    emfault_ = 0;
 
     if ( displaytransform_ ) displaytransform_->unRef();
 
@@ -188,7 +178,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 {
     if ( eventcatcher_ )
     {
-	eventcatcher_->eventhappened.remove( mCB(this,FaultDisplay,mouseCB) );
+	mDetachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
 	eventcatcher_->unRef();
     }
 
@@ -197,7 +187,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
     if ( eventcatcher_ )
     {
 	eventcatcher_->ref();
-	eventcatcher_->eventhappened.notify( mCB(this,FaultDisplay,mouseCB) );
+	mAttachCB( eventcatcher_->eventhappened,FaultDisplay::mouseCB );
     }
 
     if ( viseditor_ ) viseditor_->setSceneEventCatcher( eventcatcher_ );
@@ -217,7 +207,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 {
     if ( emfault_ )
     {
-	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
+	mDetachCB( emfault_->change,FaultDisplay::emChangeCB );
 	emfault_->unRef();
     }
 
@@ -240,7 +230,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     emfault_ = emfault;
-    emfault_->change.notify( mCB(this,FaultDisplay,emChangeCB) );
+    mAttachCB( emfault_->change,FaultDisplay::emChangeCB );
     emfault_->ref();
 
 
@@ -1445,17 +1435,16 @@ void FaultDisplay::setStickSelectMode( bool yn )
     updateManipulator();
     updateKnotMarkers();
 
-    if ( scene_ && scene_->getPolySelection() &&
-	 scene_->getPolySelection()->polygonFinished() )
+    if ( scene_ && scene_->getPolySelection() )
     {
-	const CallBack cb = mCB( this, FaultDisplay, polygonFinishedCB );
 	if ( yn )
-	{
-	    scene_->getPolySelection()->polygonFinished()->
-						    notifyIfNotNotified(cb);
-	}
+	    mAttachCBIfNotAttached( 
+	    scene_->getPolySelection()->polygonFinished(),
+	    FaultDisplay::polygonFinishedCB );
 	else
-	    scene_->getPolySelection()->polygonFinished()->remove( cb );
+	    mDetachCB( 
+	    scene_->getPolySelection()->polygonFinished(),
+	    FaultDisplay::polygonFinishedCB );
     }
 }
 
@@ -1464,36 +1453,8 @@ bool FaultDisplay::isSelectableMarkerInPolySel(
 					const Coord3& markerworldpos ) const
 {
     visBase::PolygonSelection* polysel = scene_->getPolySelection();
-    if ( !polysel->isInside(markerworldpos) )
-	return false;
-
-    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
-    const double epsz = 0.01f * get3DSurvGeom()->zStep();
-    const Coord3 eps( epsxy,epsxy,epsz );
-
-    TypeSet<int> pickedobjids;
-    for ( int depthidx=0; true; depthidx++ )
-    {
-	if ( !polysel->rayPickThrough(markerworldpos, pickedobjids, depthidx) )
-	    break;
-
-	for ( int idx=0; true; idx++ )
-	{
-	    if ( idx == pickedobjids.size() )
-		return false;
-
-	    const int visid = pickedobjids[idx];
-	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	    mDynamicCastGet( visBase::MarkerSet*, markerset, dataobj );
-	    if ( markerset )
-	    {
-		const int markeridx = markerset->findMarker(markerworldpos,eps);
-		if( markeridx >=0 )
-		    return true;
-		break;
-	    }
-	}
-    }
+    if ( polysel )
+	return polysel->isInside( markerworldpos );
     return false;
 }
 
@@ -1571,6 +1532,11 @@ void FaultDisplay::updateEditorMarkers()
 }
 
 
+#define mForceDrawMarkerSet( knotersets )\
+    for ( int idx = 0; idx < knotersets.size(); idx++ )\
+	knotersets[ idx ]->forceRedraw( true );\
+
+
 void FaultDisplay::updateKnotMarkers()
 {
     if ( !emfault_ || (viseditor_ && viseditor_->sower().moreToSow()) )
@@ -1583,7 +1549,6 @@ void FaultDisplay::updateKnotMarkers()
 	markerset->setMarkerStyle( MarkerStyle3D::Sphere );
 	markerset->setMaterial(0);
 	markerset->setDisplayTransformation( displaytransform_ );
-	markerset->setMarkersSingleColor( emfault_->preferredColor() );
 	markerset->setScreenSize(3);
     }
 
@@ -1601,14 +1566,13 @@ void FaultDisplay::updateKnotMarkers()
 			    emfault_->geometry().sectionGeometry( sip->sid_ );
 	if ( !fss ) continue;
 
-	if ( fss->isStickSelected(sip->sticknr_) )
+	if ( fss->isStickSelected( sip->sticknr_ ) )
 	    groupidx = 1;
 
 	knotmarkersets_[groupidx]->addPos( sip->pos_, false );
     }
 
-    knotmarkersets_[groupidx]->turnOn( true );
-    knotmarkersets_[groupidx]->forceRedraw( true );
+    mForceDrawMarkerSet( knotmarkersets_ );
 
     if ( !showmanipulator_ || !stickselectmode_ )
 	return;
@@ -1624,16 +1588,15 @@ void FaultDisplay::updateKnotMarkers()
 	const EM::SectionID sid = pid.sectionID();
 	const int sticknr = pid.getRowCol().row();
 	Geometry::FaultStickSet* fs = emfault_->geometry().sectionGeometry(sid);
-	if ( !fs || fs->isStickHidden(sticknr) )
+	if ( !fs || fs->isStickHidden( sticknr ) )
 	    continue;
 
-	groupidx = fs->isStickSelected(sticknr) ? 1 : 0;
+	groupidx = fs->isStickSelected( sticknr ) ? 1 : 0;
 	const MarkerStyle3D& style = emfault_->getPosAttrMarkerStyle(0);
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->addPos( emfault_->getPos(pid), false );
+	knotmarkersets_[groupidx]->addPos( emfault_->getPos( pid ),false );
     }
-    knotmarkersets_[groupidx]->turnOn( true );
-    knotmarkersets_[groupidx]->forceRedraw( true );
+    mForceDrawMarkerSet( knotmarkersets_ );
 }
 
 
@@ -1697,7 +1660,7 @@ bool FaultDisplay::coincidesWithPlane(
 	const Coord3 planenormal = plane->getNormal( Coord3::udf() );
 	const float onestepdist =
 	    mCast( float, Coord3(1,1,mZScale()).dot(
-		    s3dgeom_->oneStepTranslation(planenormal) ) );
+		    s3dgeom_->oneStepTranslation( planenormal ) ) );
 
 	float prevdist=-1;
 	Coord3 prevpos;
