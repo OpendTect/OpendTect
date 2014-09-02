@@ -38,6 +38,7 @@ public:
 protected:
 
     bool			init();
+    void			initColTab();
     void			displayMiniCtab(const ColTab::Sequence*);
     const char*			parentType() const
 				{ return typeid(uiODVw2DTreeTop).name(); }
@@ -46,12 +47,15 @@ protected:
     VW2DSeis*			dummyview_;
     uiMenuHandler*		menu_;
     MenuItem			selattrmnuitem_;
+    bool			coltabinitialized_;
    
     void			createSelMenu(MenuItem&);
     bool    			handleSelMenu(int mnuid);
 
     void			checkCB(CallBacker*);
+    void			colTabChgCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
+    void			deSelectCB(CallBacker*);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
 };

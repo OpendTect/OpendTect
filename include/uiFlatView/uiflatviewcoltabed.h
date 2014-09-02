@@ -17,9 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "flatview.h"
 
-namespace ColTab { class Sequence; }
-class uiColorTable;
-
+class uiColorTableToolBar;
 
 /*!
 \brief FlatView color table editor.
@@ -28,19 +26,20 @@ class uiColorTable;
 mExpClass(uiFlatView) uiFlatViewColTabEd : public CallBacker
 {
 public:
-			uiFlatViewColTabEd(uiColorTable&,FlatView::Viewer&);
+			uiFlatViewColTabEd(uiColorTableToolBar&);
 			~uiFlatViewColTabEd();
 
-    void		setColTab( const FlatView::Viewer& );
+    void		setColTab(const FlatView::DataDispPars::VD&);
+    void		setSensitive(bool yn);
 
-    Notifier<uiFlatViewColTabEd> colTabChgd;
+    FlatView::DataDispPars::VD&		getDisplayPars()
+					{ return vdpars_; }
+    Notifier<uiFlatViewColTabEd>	colTabChgd;
 
 protected:
 
-    FlatView::DataDispPars&	ddpars_;
-    ColTab::Sequence&		colseq_;
-    uiColorTable&		uicoltab_;
-    FlatView::Viewer*		vwr_;
+    uiColorTableToolBar&	uicoltab_;
+    FlatView::DataDispPars::VD	vdpars_;
 
     void			colTabChanged(CallBacker*);
 };

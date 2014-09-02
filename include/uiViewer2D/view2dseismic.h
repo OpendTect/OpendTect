@@ -22,6 +22,8 @@ public:
 			VW2DSeis();
 			~VW2DSeis(){}
 
+    NotifierAccess*	deSelection()	{ return &deselted_; }
+
 protected:
 
     void		triggerDeSel();

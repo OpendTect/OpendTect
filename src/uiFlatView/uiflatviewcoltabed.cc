@@ -11,46 +11,46 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatviewcoltabed.h"
 
-#include "callback.h"
-#include "coltab.h"
 #include "coltabsequence.h"
-#include "flatview.h"
-
 #include "uicolortable.h"
 
 
-uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTable& ct, FlatView::Viewer& vwr)
-    : ddpars_(vwr.appearance().ddpars_)
-    , vwr_( &vwr )
-    , colseq_(*new ColTab::Sequence())
-    , colTabChgd(this)
-    , uicoltab_(ct)
+uiFlatViewColTabEd::uiFlatViewColTabEd( uiColorTableToolBar& ctab )
+    : colTabChgd(this)
+    , uicoltab_(ctab)
 {
-    ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
     uicoltab_.enableManage( false );
-    uicoltab_.seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
-    uicoltab_.scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
-    setColTab( vwr );
+    mAttachCB( uicoltab_.seqChanged, uiFlatViewColTabEd::colTabChanged );
+    mAttachCB( uicoltab_.scaleChanged, uiFlatViewColTabEd::colTabChanged );
 }
 
 
 uiFlatViewColTabEd::~uiFlatViewColTabEd()
 {
-    delete &colseq_;
+    detachAllNotifiers();
 }
 
 
-void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr )
+void uiFlatViewColTabEd::setSensitive( bool yn )
 {
-    uicoltab_.setDispPars( vwr.appearance().ddpars_.vd_ );
-    uicoltab_.setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
-    uicoltab_.setInterval( vwr.getDataRange(false) );
+    uicoltab_.setSensitive( yn );
+}
+
+
+void uiFlatViewColTabEd::setColTab( const FlatView::DataDispPars::VD& vdpars )
+{
+    vdpars_ = vdpars;
+    uicoltab_.setDispPars( vdpars );
+    uicoltab_.setSequence( vdpars.ctab_ );
+    uicoltab_.setInterval( vdpars.mappersetup_.range_ );
+    setSensitive( true );
 }
 
 
 void uiFlatViewColTabEd::colTabChanged( CallBacker* )
 {
-    ddpars_.vd_.ctab_ = uicoltab_.colTabSeq().name();
-    uicoltab_.getDispPars( ddpars_.vd_ );
+    vdpars_.ctab_ = uicoltab_.colTabSeq().name();
+    uicoltab_.getDispPars( vdpars_ );
     colTabChgd.trigger();
 }
+

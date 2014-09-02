@@ -84,9 +84,13 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     if ( setup.withcoltabed_ )
     {
 	uiColorTableToolBar* coltabtb = new uiColorTableToolBar( mainwin() );
-	ctabed_ = new uiFlatViewColTabEd( *coltabtb, vwr );
-	mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
+	ctabed_ = new uiFlatViewColTabEd( *coltabtb );
 	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>=400 );
+	if ( setup.managescoltab_ )
+	{
+	    mAttachCB( ctabed_->colTabChgd, uiFlatViewStdControl::coltabChg );
+	    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
+	}
     }
 
     if ( !setup.helpkey_.isEmpty() )
@@ -95,12 +99,10 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	helpkey_ = setup.helpkey_;
     }
 
-    mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
-    mAttachCB( vwr.dispParsChanged, uiFlatViewStdControl::dispChgCB );
-
     menu_.ref();
     mAttachCB( menu_.createnotifier, uiFlatViewStdControl::createMenuCB );
     mAttachCB( menu_.handlenotifier, uiFlatViewStdControl::handleMenuCB );
+    mAttachCB( zoomChanged, uiFlatViewStdControl::zoomChgCB );
 
     if ( setup.withthumbnail_ )
 	thumbnail_ = new uiFlatViewThumbnail( this, vwr );
@@ -153,7 +155,7 @@ void uiFlatViewStdControl::updatePosButtonStates()
 
 void uiFlatViewStdControl::dispChgCB( CallBacker* )
 {
-    if ( ctabed_ ) ctabed_->setColTab( vwr_ );
+    if ( ctabed_ ) ctabed_->setColTab( vwr_.appearance().ddpars_.vd_ );
 }
 
 
@@ -370,8 +372,12 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiFlatViewStdControl::coltabChg( CallBacker* )
+void uiFlatViewStdControl::coltabChg( CallBacker* cb )
 {
+    mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
+    if ( !coltabed ) return;
+
+    vwr_.appearance().ddpars_.vd_ = coltabed->getDisplayPars();
     vwr_.handleChange( FlatView::Viewer::DisplayPars );
 }
 
