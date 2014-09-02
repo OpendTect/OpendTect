@@ -148,7 +148,8 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
     NotifyStopper posstop( posbox->valueChanging );
-    NotifyStopper stepstop( stepbox->valueChanged );
+    NotifyStopper stepstop1( stepbox->valueChanged );
+    NotifyStopper stepstop2( stepbox->valueChanging );
 
     if ( orientation == OD::InlineSlice )
     {
