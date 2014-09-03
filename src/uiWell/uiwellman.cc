@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 #include "wellwriter.h"
 
-#include "uitoolbutton.h"
+#include "uifont.h"
 #include "uigeninputdlg.h"
 #include "uigroup.h"
 #include "uiioobjmanip.h"
@@ -42,6 +42,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "uitoolbutton.h"
 #include "uiwelldlgs.h"
 #include "uiwelllogimpexp.h"
 #include "uiwelllogcalc.h"
@@ -100,30 +101,34 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    welltrackbut_ = new uiToolButton( listgrp_, "edwelltrack",
+    uiGroup* extrabutgrp = new uiGroup( listgrp_, "Extra Buttons" );
+    const uiFont& ft =
+		uiFontList::getInst().get( FontData::key(FontData::Control) );
+    extrabutgrp->setPrefHeight( ft.height()*2 );
+
+    welltrackbut_ = new uiToolButton( extrabutgrp, "edwelltrack",
 		"Edit Well Track", mCB(this,uiWellMan, edWellTrack) );
-    welltrackbut_->attach( alignedBelow, selgrp_ );
-    welltrackbut_->attach( ensureBelow, selgrp_ );
-    welltrackbut_->attach( ensureBelow, logsgrp_ );
+    extrabutgrp->attach( alignedBelow, selgrp_ );
+    extrabutgrp->attach( ensureBelow, selgrp_ );
+    extrabutgrp->attach( ensureBelow, logsgrp_ );
 
     if ( SI().zIsTime() )
     {
-	csbut_ = new uiToolButton( listgrp_, "checkshot",
+	csbut_ = new uiToolButton( extrabutgrp, "checkshot",
 			"Edit Checkshot Data", mCB(this,uiWellMan,edChckSh));
 	csbut_->attach( rightOf, welltrackbut_ );
-	d2tbut_ = new uiToolButton( listgrp_, "z2t", "Edit Depth/Time Model",
+	d2tbut_ = new uiToolButton( extrabutgrp, "z2t", "Edit Depth/Time Model",
 				    mCB(this,uiWellMan, edD2T));
 	d2tbut_->attach( rightOf, csbut_ );
     }
 
-    markerbut_ = new uiToolButton( listgrp_, "edmarkers",
+    markerbut_ = new uiToolButton( extrabutgrp, "edmarkers",
 			"Edit Markers", mCB(this,uiWellMan, edMarkers) );
     markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
-    lastexternal_ = markerbut_;
 
     uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
 			"Log tools", mCB(this,uiWellMan,logTools) );
-    logtoolbut->attach( rightOf, markerbut_ );
+    logtoolbut->attach( rightOf, extrabutgrp );
     lastexternal_ = logtoolbut;
 
     selChg( this );
