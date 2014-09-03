@@ -39,6 +39,11 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     detachAllNotifiers();
+    
+    for ( int idx=0; idx<zoomboxes_.size(); idx++ )
+	vwrs_[idx]->removeAuxData( zoomboxes_[idx] );
+    
+    deepErase( zoomboxes_ );
 }
 
 
@@ -122,7 +127,6 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     wr = getZoomOrPanRect( centre, newsz, wr, bb );
     activevwr_->setView( wr );
     zoommgr_.add( newsz, vwrs_.indexOf(activevwr_) );
-
     zoomChanged.trigger();
 }
 
@@ -240,7 +244,7 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	vwrs_[idx]->addAuxData( ad );
 	zoomboxes_ += ad;
 	ad->linestyle_ = LineStyle( LineStyle::Dash, 3, Color::Black() );
-	ad->zvalue_ = uiFlatViewer::annotZVal();
+	ad->zvalue_ = uiFlatViewer::auxDataZVal();
 
 	if ( vwrs_[idx] == activeVwr() || wr == masterbbox )
 	    continue;
