@@ -139,7 +139,7 @@ void Processor::useFullProcess( int& res )
 	
 	if ( res < 0 )
 	{
-	    errmsg_ = "Error during data read";
+	    errmsg_ = tr("Error during data read");
 	    return;
 	}
     }
@@ -148,15 +148,15 @@ void Processor::useFullProcess( int& res )
     const SeisTrcInfo* curtrcinfo = provider_->getCurrentTrcInfo();
     if ( !curtrcinfo && provider_->needStoredInput() )
     {
-	errmsg_ = "No trace info available";
+	errmsg_ = tr("No trace info available");
 	return;
     }
 
     if ( res == 0 && !nrdone_ )
     {
-	errmsg_ = "No positions processed.\n"
+	errmsg_ = tr("No positions processed.\n"
 	"Most probably, your input volume(s) are not available in the \n"
-	"selected region or the required stepout traces are not available";
+	"selected region or the required stepout traces are not available");
 	return;
     }
     else if ( res != 0 )
@@ -224,12 +224,12 @@ void Processor::useSCProcess( int& res )
 {
     if ( res < 0 )
     {
-	errmsg_ = "Error during data read";
+	errmsg_ = tr("Error during data read");
 	return;
     }
     if ( res == 0 && !nrdone_ )
     {
-	errmsg_ = "This stored cube contains no data in selected area.\n";
+	errmsg_ = tr("This stored cube contains no data in selected area.\n");
 	return;
     }
 
@@ -417,8 +417,9 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 	provider_->setDesiredVolume( possvol );
 	if ( !provider_->getPossibleVolume( -1, possvol ) )
 	{
-	    errmsg_="Not possible to output required attribute in this area.\n"
-		    "Please confront stepouts/timegates with available data";
+	    errmsg_ = tr("Not possible to output required attribute"
+                         " in this area.\nPlease confront stepouts/timegates"
+		         " with available data");
 	    return;
 	}
 
@@ -485,7 +486,7 @@ od_int64 Processor::nrDone() const
 
 
 uiString Processor::uiMessage() const
-{ return errmsg_.isEmpty() ? "Processing" : errmsg_; }
+{ return errmsg_.isEmpty() ? tr("Processing") : errmsg_; }
 
 
 void Processor::addOutputInterest( int sel )

@@ -479,7 +479,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
     }
     else if ( trc_->info().binid != info.binid )
     {
-	errmsg_ = "merge components of two different traces!";
+	errmsg_ = tr("merge components of two different traces!");
 	return;
     }
     else
@@ -517,7 +517,7 @@ bool SeisTrcStorOutput::writeTrc()
 {
     if ( !writer_ || !trc_ )
     {
-	errmsg_ = "Internal: No writer or no trace";
+	errmsg_ = tr("Internal: No writer or no trace");
 	return false;
     }
 
@@ -1074,7 +1074,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
     }
     else if ( trc_->info().binid != info.binid )
     {
-	errmsg_ = "merge components of two different traces!";
+	errmsg_ = tr("merge components of two different traces!");
 	return;
     }
     else

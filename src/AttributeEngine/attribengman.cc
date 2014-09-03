@@ -954,7 +954,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	{ delete procattrset_; procattrset_ = 0; }
 
     if ( !inpattrset_ || !attrspecs_.size() )
-	mErrRet( "No attribute set or input specs" )
+	mErrRet( tr("No attribute set or input specs") )
 
     TypeSet<DescID> outattribs;
     for ( int idx=0; idx<attrspecs_.size(); idx++ )
@@ -967,7 +967,7 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
     if ( !attrspecs_[0].isNLA() )
     {
 	procattrset_ = inpattrset_->optimizeClone( outattribs );
-	if ( !procattrset_ ) mErrRet("Attribute set not valid");
+	if ( !procattrset_ ) mErrRet(tr("Attribute set not valid"));
 
 	if ( outattribs.size() > 1 )
 	{
@@ -1094,8 +1094,8 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 				    getStoredID( fms[1], 0, true );
 	    }
 	    if ( descid == DescID::undef() )
-		mErrRet( BufferString("Cannot find specified '",
-			 nmstr,"' in object management") );
+		mErrRet( tr("Cannot find specified '%1'",
+			    " in object management").arg(nmstr));
 
 	    // Put the new DescID in coldef and in the refs
 	    BufferString tmpstr;

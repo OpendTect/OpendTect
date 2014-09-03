@@ -31,7 +31,7 @@ class DescSet;
 */
 
 mExpClass(AttributeEngine) PosVecOutputGen : public Executor
-{
+{ mODTextTranslationClass(PosVecOutputGen)
 public:
 
 		PosVecOutputGen(const DescSet&,
@@ -56,7 +56,7 @@ protected:
     ObjectSet<PosVecDataSet>&	vdss_;
     EngineMan*			aem_;
     Executor*			outex_;
-    mutable BufferString	msg_;
+    mutable uiString	        msg_;
 
     int				nextStep();
 };

@@ -99,8 +99,8 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
     {
 	if ( !rdr.dataSet() )
 	{
-	    BufferString errmsg = "No dataset available for '";
-	    errmsg += ioobj->name(); errmsg += "'";
+	    uiString errmsg = tr("No dataset available for '%1'")
+	                    .arg(ioobj->name());
 //	    desc.setErrMsg( errmsg );
 	    return;
 	}
@@ -138,8 +138,8 @@ void StorageProvider::updateDescAndGetCompNms( Desc& desc,
 	SeisTrcTranslator* transl = rdr.seisTranslator();
 	if ( !transl )
 	{
-	    BufferString errmsg = "No data interpreter available for '";
-	    errmsg += ioobj->name(); errmsg += "'";
+	    uiString errmsg = tr("No data interpreter available for '%1'")
+	                    .arg(ioobj->name());
 //	    desc.setErrMsg ( errmsg );
 	    return;
 	}
@@ -229,7 +229,7 @@ bool StorageProvider::checkInpAndParsAtStart()
     {
 	Seis2DDataSet* dset = mscprov_->reader().dataSet();
 	if ( !dset )
-	    mErrRet( "2D seismic data/No data set found" );
+	    mErrRet( tr("2D seismic data/No data set found") );
 
 	int lineidx = dset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
@@ -273,7 +273,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
 	    if ( !dset->getRanges( lineidx, trcrg, zrg ) )
-		mErrRet("Cannot get needed trace range from 2D line set")
+		mErrRet(tr("Cannot get needed trace range from 2D line set"))
 	    else
 	    {
 		storedvolume_.hrg.start.crl() = trcrg.start;
@@ -616,13 +616,13 @@ bool StorageProvider::set2DRangeSelData()
 
 
 #define mInitErrMsg() \
-    errmsg_ = uiString("'%1' contains no data in selected area:\n") \
-		  .arg( desc_.userRef() ); \
+    errmsg_ = tr("'%1' contains no data in selected area:\n") \
+	    .arg( desc_.userRef() ); \
 
 #define mAdd2ErrMsg(varwrong,s,start,stop) \
     if ( varwrong ) \
-	errmsg_.append( uiString( "%1 range is: %2-%3\n") \
-		.arg( s ).arg( start ).arg( stop ) ); \
+	errmsg_.append( tr( "%1 range is: %2-%3\n") \
+		      .arg( s ).arg( start ).arg( stop ) ); \
 
 bool StorageProvider::checkDesiredVolumeOK()
 {
@@ -651,9 +651,9 @@ bool StorageProvider::checkDesiredVolumeOK()
 		storedvolume_.hrg.start.crl(),storedvolume_.hrg.stop.crl())
     mAdd2ErrMsg(zwrong,"Z",storedvolume_.zrg.start,storedvolume_.zrg.stop)
     if ( zstepwrong )
-	errmsg_ = "Z-Step is not correct. The maximum resampling allowed is a"
-		  " factor 100. Probably the data belongs to a different"
-		  " Z-Domain";
+	errmsg_ = tr("Z-Step is not correct. The maximum resampling allowed"
+                     " is a factor 100. Probably the data belongs to a"
+                     " different Z-Domain");
     return false;
 }
 
@@ -663,8 +663,8 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = uiString("internal error, '%1' "" has no desired volume\n")
-		      .arg( desc_.userRef() );
+	errmsg_ = tr("internal error, '%1' "" has no desired volume\n")
+		.arg( desc_.userRef() );
 	return false;
     }
 

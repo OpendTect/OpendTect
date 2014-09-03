@@ -1037,8 +1037,8 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
 	    if ( !valptr )
 	    {
-		errmsg_ = "Failed to allocate memory. "
-			  "Probably the data you are loading is too big.";
+		errmsg_ = tr("Failed to allocate memory. "
+			  "Probably the data you are loading is too big.");
 		return 0;
 	    }
 

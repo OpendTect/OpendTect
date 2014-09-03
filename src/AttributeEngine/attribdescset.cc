@@ -445,7 +445,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 	if ( varxidx >= oldinputs.size() )
 	{
 	    const_cast<DescSet*>(this)->errmsg_ =
-					"Cannot use old Math expression";
+					tr("Cannot use old Math expression");
 	    return;
 	}
 	correctinputs += oldinputs[varxidx];

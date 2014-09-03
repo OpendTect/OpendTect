@@ -33,7 +33,7 @@ class DataHolder;
 */
 
 mExpClass(AttributeEngine) StorageProvider : public Provider
-{
+{ mODTextTranslationClass(StorageProvider)
 public:
 
     static void		initClass();

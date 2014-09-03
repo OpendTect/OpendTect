@@ -32,7 +32,7 @@ class Provider;
 */
 
 mExpClass(AttributeEngine) Processor : public Executor
-{
+{ mODTextTranslationClass(Processor)
 public:
 				Processor(Desc&,const char* linenm,
 					  uiString& errmsg);

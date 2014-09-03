@@ -38,7 +38,7 @@ PosVecOutputGen::PosVecOutputGen( const DescSet& as,
     , vdss_(v)
     , aem_(0)
     , outex_(0)
-    , msg_("Done")
+    , msg_(tr("Done"))
 {
     aem_ = new EngineMan;
     aem_->setAttribSet( &ads_ );
@@ -61,12 +61,12 @@ uiString PosVecOutputGen::uiMessage() const
     if ( outex_ )
 	return outex_->uiMessage();
 
-    return msg_.buf();
+    return msg_;
 }
 
 
 uiString PosVecOutputGen::uiNrDoneText() const
-{ return outex_ ? outex_->uiNrDoneText() : "Positions handled"; }
+{ return outex_ ? outex_->uiNrDoneText() : tr("Positions handled"); }
 
 
 int PosVecOutputGen::nextStep()
