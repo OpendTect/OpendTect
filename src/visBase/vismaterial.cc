@@ -259,9 +259,9 @@ void Material::setAllTransparencies( float n )
 void Material::setTransparencies( float n, const Interval<int>& range )
 {
     mGetWriteLock( lckr );
-    setMinNrOfMaterials(range.stop-1, false );
+    setMinNrOfMaterials( range.stop, false );
 
-    for ( int idx = range.start; idx<range.stop; idx++ )
+    for ( int idx=range.start; idx<=range.stop; idx++ )
 	transparency_[idx] = n;
 
     synchronizingOsgColorArray();
