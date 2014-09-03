@@ -512,6 +512,18 @@ void uiChain::addStepPush(CallBacker*)
     Step* step = Step::factory().create( steptype );
     if ( !step ) return;
 
+    if ( chain_.nrSteps()==0 && step->getNrInputs()>0 && step->needsInput() )
+    {
+	uiMSG().error(
+	    tr("The %1 cannot be used as an initial volume. "
+		"please select one of the following as initial step:\n%2.")
+		.arg( step->userName() )
+		.arg( getPossibleInitialStepNames() ) );
+
+	delete step;
+	return;
+    }
+
     chain_.addStep( step );
     updateList();
     steplist_->chooseAll( false );
@@ -580,6 +592,32 @@ void uiChain::propertiesCB(CallBacker*)
     if ( idx<0 ) return;
 
     showPropDialog( idx );
+}
+
+
+uiString uiChain::getPossibleInitialStepNames()
+{
+    mDefineStaticLocalObject( uiString, names, (uiString::emptyString()) );
+
+    if ( names.isEmpty() )
+    {
+	uiStringSet possiblenames;
+	for ( int idx=0; idx<uiStepDialog::factory().getNames().size(); idx++ )
+	{
+	    const char* steptype =
+		uiStepDialog::factory().getNames()[idx]->buf();
+
+	    PtrMan<Step> step = Step::factory().create( steptype );
+	    if ( step->getNrInputs()>0 && step->needsInput() )
+		continue;
+
+	    possiblenames += uiStepDialog::factory().getUserNames()[idx];
+	}
+
+	names = possiblenames.createOptionString( false, '\n' );
+    }
+
+    return names;
 }
 
 } // namespace VolProc

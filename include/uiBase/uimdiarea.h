@@ -77,7 +77,7 @@ public:
     void		setActiveWin(const char*);
     void		setActiveWin(uiMdiAreaWindow*);
     const char*		getActiveWin() const;
-    void		getWindowNames(TypeSet<uiString>&) const;
+    void		getWindowNames(uiStringSet&) const;
 
     Notifier<uiMdiArea> windowActivated;
 

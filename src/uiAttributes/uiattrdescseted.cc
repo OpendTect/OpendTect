@@ -687,8 +687,7 @@ bool uiAttribDescSetEd::doAcceptInputs()
 
 	    uiString msg = tr("Input is not correct for attribute '%1'.")
                            .arg(attribname);
-            TypeSet<uiString> messages( 1, errmsg );
-            messages.add( errmsg );
+	    uiStringSet messages( errmsg );
 	    uiMSG().errorWithDetails( messages, msg );
 	    return false;
 	}

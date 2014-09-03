@@ -86,7 +86,7 @@ uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
 }
 
 
-uiComboBox::uiComboBox( uiParent* parnt, const TypeSet<uiString>& strings,
+uiComboBox::uiComboBox( uiParent* parnt, const uiStringSet& strings,
 		       const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this )
@@ -303,7 +303,7 @@ void uiComboBox::addItems( const BufferStringSet& bss )
 }
 
 
-void uiComboBox::addItems( const TypeSet<uiString>& items )
+void uiComboBox::addItems( const uiStringSet& items )
 {
     for ( int idx=0; idx<items.size(); idx++ )
 	addItem( items[idx] );

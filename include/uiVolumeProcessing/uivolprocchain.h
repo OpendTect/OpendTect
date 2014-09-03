@@ -67,6 +67,8 @@ protected:
     void			moveDownCB(CallBacker*);
     void			propertiesCB(CallBacker*);
 
+    static uiString		getPossibleInitialStepNames();
+
     IOPar			restorepar_;
     Chain&			chain_;
 

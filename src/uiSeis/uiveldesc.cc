@@ -458,8 +458,7 @@ bool uiVelModelZAxisTransform::acceptOK()
     transform_->ref();
     if ( !transform_->setVelData( ioobj->key()  ) || !transform_->isOK() )
     {
-	TypeSet<uiString> msgs(1,
-			tr("Internal: Could not initialize transform") );
+	uiStringSet msgs( tr("Internal: Could not initialize transform") );
 	if ( !transform_->errMsg().isEmpty() )
 	    msgs += transform_->errMsg();
 	uiMSG().errorWithDetails( msgs );

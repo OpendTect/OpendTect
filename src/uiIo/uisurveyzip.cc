@@ -81,8 +81,9 @@ bool uiSurvey_UnzipFile( uiParent* par, const char* inpfnm,
     uiTaskRunner taskrunner( par, false ); uiString emsg;
     if ( !ZipUtils::unZipArchive(zipfnm,destdir,emsg,&taskrunner) )
     {
-	TypeSet<uiString> detailedmsg( 1, emsg );
-	uiMSG().errorWithDetails( detailedmsg, "Failed to unzip the survey" );
+	uiStringSet detailedmsg( "Failed to unzip the survey" );
+	detailedmsg += emsg;
+	uiMSG().errorWithDetails( detailedmsg );
 	return false;
     }
 
@@ -128,8 +129,9 @@ bool uiSurvey_ZipDirectory( uiParent* par, const char* sdn, const char* outfnm )
     uiTaskRunner taskrunner( par, false ); uiString emsg;
     if ( !ZipUtils::makeZip(zipfnm,inpdir,emsg,&taskrunner) )
     {
-	TypeSet<uiString> detailedmsg( 1, emsg );
-	uiMSG().errorWithDetails( detailedmsg, "Failed to zip the survey" );
+	uiStringSet detailedmsg( "Failed to zip the survey" );
+	detailedmsg += emsg;
+	uiMSG().errorWithDetails( detailedmsg );
 	return false;
     }
 

@@ -107,19 +107,19 @@ public:
     void		cleanUpDescsMissingInputs();
 
     void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&,TypeSet<uiString>* errmsgs=0);
+    bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
     bool 		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
-					  TypeSet<uiString>*);
+					  uiStringSet*);
     bool		createSteeringDesc(const IOPar&,BufferString,
 					   ObjectSet<Desc>&, int& id,
-					   TypeSet<uiString>* errmsgs=0);
+					   uiStringSet* errmsgs=0);
     static Desc*	createDesc(const BufferString&, const IOPar&,
-				   const BufferString&,TypeSet<uiString>*);
+				   const BufferString&,uiStringSet*);
     Desc* 		createDesc(const BufferString&, const IOPar&,
 	    			   const BufferString& );
     DescID		createStoredDesc(const MultiID&,int selout,
 					 const BufferString& compnm);
-    bool		setAllInputDescs(int, const IOPar&,TypeSet<uiString>*);
+    bool		setAllInputDescs(int, const IOPar&,uiStringSet*);
     void 		handleStorageOldFormat(IOPar&);
     void 		handleOldAttributes(BufferString&,IOPar&,BufferString&,
 	    				    int) const;

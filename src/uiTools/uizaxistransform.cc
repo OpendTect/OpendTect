@@ -56,12 +56,12 @@ uiZAxisTransformSel::uiZAxisTransformSel( uiParent* p, bool withnone,
     }
 
     transflds_.allowNull( true );
-    TypeSet<uiString> names;
+    uiStringSet names;
 
     const BufferStringSet& factorynames =
 	uiZAxisTransform::factory().getNames();
 
-    const TypeSet<uiString>& usernames =
+    const uiStringSet& usernames =
 	uiZAxisTransform::factory().getUserNames();
 
     for ( int idx=0; idx<factorynames.size(); idx++ )

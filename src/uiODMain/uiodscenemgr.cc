@@ -775,7 +775,7 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiTreeView* lv ) const
 
 void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active ) const
 {
-    TypeSet<uiString> windownames;
+    uiStringSet windownames;
     mdiarea_->getWindowNames( windownames );
 
     nms.setEmpty();

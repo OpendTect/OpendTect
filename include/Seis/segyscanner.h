@@ -55,9 +55,9 @@ public:
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read
-    TypeSet<uiString>	failerrmsgs_;	//!< Err Msgs for failed
+    uiStringSet	failerrmsgs_;	//!< Err Msgs for failed
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
-    TypeSet<uiString>	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
+    uiStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
     void			getReport(IOPar&) const;
     StepInterval<float>		zRange() const;

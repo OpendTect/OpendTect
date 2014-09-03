@@ -246,7 +246,7 @@ const char* uiMdiArea::getActiveWin() const
 }
 
 
-void uiMdiArea::getWindowNames( TypeSet<uiString>& nms ) const
+void uiMdiArea::getWindowNames( uiStringSet& nms ) const
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
 	nms += grps_[idx]->getTitle();

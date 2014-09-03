@@ -155,7 +155,7 @@ void uiBulkTrackImport::addD2T( BufferString& errmsg )
 }
 
 
-void uiBulkTrackImport::write( TypeSet<uiString>& errors )
+void uiBulkTrackImport::write( uiStringSet& errors )
 {
     // TODO: Check if name exists, ask user to overwrite or give new name
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( Well );
@@ -205,7 +205,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg );
 
-    TypeSet<uiString> errors;
+    uiStringSet errors;
     write( errors );
 
     if ( errors.isEmpty() )
@@ -254,7 +254,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     }
 
     const bool zistvd = istvdfld_->getBoolValue();
-    TypeSet<uiString> errors;
+    uiStringSet errors;
     for ( int idx=0; idx<filenms.size(); idx++ )
     {
 	const BufferString& fnm = filenms.get( idx );
@@ -348,7 +348,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
     const ObjectSet<Table::TargetInfo>& tis = fd_->bodyinfos_;
     const bool doconv = tis.validIdx(1) && tis[1]->selection_.form_==1;
 
-    TypeSet<uiString> errors;
+    uiStringSet errors;
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	const BufferString& wellnm = wellnms.get(idx);
@@ -478,7 +478,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
     if ( d2tdata.isEmpty() )
 	mErrRet( "No information read from file" );
 
-    TypeSet<uiString> errors;
+    uiStringSet errors;
     for ( int idx=0; idx<d2tdata.size(); idx++ )
     {
 	const BufferString& wellnm = d2tdata[idx]->wellnm_;

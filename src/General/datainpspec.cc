@@ -351,7 +351,7 @@ StringListInpSpec::StringListInpSpec( const StringListInpSpec& oth )
 }
 
 
-StringListInpSpec::StringListInpSpec( const TypeSet<uiString>& sl )
+StringListInpSpec::StringListInpSpec( const uiStringSet& sl )
     : DataInpSpec( DataTypeImpl<const char*> (DataType::list) )
     , cur_(0)
     , defaultval_(0)
@@ -374,7 +374,7 @@ DataInpSpec* StringListInpSpec::clone() const
 { return new StringListInpSpec( *this ); }
 
 
-const TypeSet<uiString>& StringListInpSpec::strings() const
+const uiStringSet& StringListInpSpec::strings() const
 { return strings_; }
 
 

@@ -170,7 +170,7 @@ protected:
     uiTextItem*		nameitm_;
     void		reCalc();
     int			calcwdth_;
-    TypeSet<uiString>	strs_;
+    uiStringSet	strs_;
     TypeSet<float>	pos_;
     float		endpos_;
     int			devsz_;

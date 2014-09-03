@@ -101,7 +101,7 @@ void startCB( CallBacker* cb )
 {
     if ( haveExistingDlg() )
 	return;
-    const TypeSet<uiString>& usrnms =
+    const uiStringSet& usrnms =
 			uiLayerSequenceGenDesc::factory().getUserNames();
     const BufferStringSet& nms = uiLayerSequenceGenDesc::factory().getNames();
     mDynamicCastGet(uiToolButton*,tb,cb)

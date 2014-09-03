@@ -271,10 +271,10 @@ void uiMsg::error( const uiString& part1, const uiString& part2,
 }
 
 
-void uiMsg::errorWithDetails( const TypeSet<uiString>& bss,
+void uiMsg::errorWithDetails( const uiStringSet& bss,
 			      const uiString& before )
 {
-    TypeSet<uiString> strings;
+    uiStringSet strings;
     if ( !before.isEmpty() )
 	strings += before;
 
@@ -285,7 +285,7 @@ void uiMsg::errorWithDetails( const TypeSet<uiString>& bss,
 
 void uiMsg::errorWithDetails( const BufferStringSet& bss )
 {
-    TypeSet<uiString> strings;
+    uiStringSet strings;
     bss.fill( strings );
     errorWithDetails( strings );
 }
@@ -293,7 +293,7 @@ void uiMsg::errorWithDetails( const BufferStringSet& bss )
 
 void uiMsg::errorWithDetails( const FileMultiString& fms )
 {
-    TypeSet<uiString> strings;
+    uiStringSet strings;
     for ( int idx=0; idx<fms.size(); idx++ )
 	strings.add( fms[idx] );
 
@@ -301,7 +301,7 @@ void uiMsg::errorWithDetails( const FileMultiString& fms )
 }
 
 
-void uiMsg::errorWithDetails( const TypeSet<uiString>& strings )
+void uiMsg::errorWithDetails( const uiStringSet& strings )
 {
     if ( !strings.size() )
 	return;

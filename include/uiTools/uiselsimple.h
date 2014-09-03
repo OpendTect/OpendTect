@@ -32,7 +32,7 @@ public:
     {
     public:
 			Setup( const uiString& wintitl,
-			       const TypeSet<uiString>& its )
+			       const uiStringSet& its )
 			    : uiDialog::Setup(wintitl,0,mNoHelpKey)
 			    , items_(its)
 			    , current_(0)		{}
@@ -43,7 +43,7 @@ public:
 
 	mDefSetupMemb(int,current);
 
-	TypeSet<uiString>	items_;
+	uiStringSet	items_;
 
     };
 

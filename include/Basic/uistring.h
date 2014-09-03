@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "threadlock.h"
 #include "string2.h"
+#include "typeset.h"
 
 class uiStringData;
 
@@ -187,6 +188,20 @@ public:
 
     static uiString	getOrderString(int);
 		//Returns 1st, 2nd, 3rd
+};
+
+
+mExpClass(Basic) uiStringSet : public TypeSet<uiString>
+{
+public:
+		uiStringSet()				{}
+		uiStringSet(const uiStringSet& sl) : TypeSet<uiString>(sl)  {}
+		uiStringSet(const uiString& s)
+		{ add( s ); }
+
+    uiString	createOptionString(bool use_and=true,char space = ' ') const;
+		//!<Returns a string with "option1, option2, and/or option 3"
+
 };
 
 

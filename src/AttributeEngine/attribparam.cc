@@ -184,7 +184,7 @@ void EnumParam::addEnum( const char* ne )
 BufferString EnumParam::getDefaultValue() const
 {
     int strindex = getDefaultIntValue();
-    const TypeSet<uiString>& strings =
+    const uiStringSet& strings =
 	reinterpret_cast<StringListInpSpec*>(spec_)->strings();
     if ( strindex < 0 || strindex >= strings.size() )
 	strindex = 0;

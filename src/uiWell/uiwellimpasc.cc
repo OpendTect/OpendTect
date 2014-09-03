@@ -346,7 +346,7 @@ bool uiWellImportAsc::doWork()
 	const bool validd2t = d2tgrp_->getD2T( wd_, false );
 	if ( !validd2t )
 	{
-	    TypeSet<uiString> msgs;
+	    uiStringSet msgs;
 
 	    if ( d2tgrp_->errMsg().isSet() )
 		msgs += d2tgrp_->errMsg();

@@ -119,7 +119,7 @@ protected:
 private:
 
     i_listMessenger&	messenger_;
-    TypeSet<uiString>	itemstrings_;
+    uiStringSet	itemstrings_;
     Interval<int>	sliderg_;
 
 };
@@ -400,7 +400,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items, const char* nm,
 }
 
 
-uiListBox::uiListBox( uiParent* p, const TypeSet<uiString>& items,
+uiListBox::uiListBox( uiParent* p, const uiStringSet& items,
 		     const char* nm, OD::ChoiceMode cm, int nl, int pfw )
     : uiObject( p, nm?nm:"List Box", mkbody(p,nm,cm,nl,pfw))
     mStdInit(cm)
@@ -662,7 +662,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 }
 
 
-void uiListBox::addItems( const TypeSet<uiString>& strs )
+void uiListBox::addItems( const uiStringSet& strs )
 {
     const int curidx = currentItem();
     scrollingblocked_ = true;

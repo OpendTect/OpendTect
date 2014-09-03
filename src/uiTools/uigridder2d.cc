@@ -24,7 +24,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
 {
     griddingparams_.allowNull();
     BufferStringSet griddernames = Gridder2D::factory().getNames();
-    TypeSet<uiString> gridderusernames = Gridder2D::factory().getUserNames();
+    uiStringSet gridderusernames = Gridder2D::factory().getUserNames();
 
     for ( int idx=0; idx<griddernames.size(); idx++ )
     {

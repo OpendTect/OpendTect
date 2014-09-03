@@ -42,9 +42,9 @@ public:
     		/*!<If input has multiple parts, the first will be displayed
 		    directly, while the complete message is available under a
 		    'Details ...' button, separated by new lines. */
-    void	errorWithDetails(const TypeSet<uiString>&,
+    void	errorWithDetails(const uiStringSet&,
 				 const uiString& firstmsg);
-    void	errorWithDetails(const TypeSet<uiString>&);
+    void	errorWithDetails(const uiStringSet&);
     void	errorWithDetails(const BufferStringSet&);
 
     // Interaction

@@ -24,7 +24,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
     , raytracerselfld_(0)
     , offsetChanged(this)
 {
-    const TypeSet<uiString>& usernms = uiRayTracer1D::factory().getUserNames();
+    const uiStringSet& usernms = uiRayTracer1D::factory().getUserNames();
     const BufferStringSet& facnms = uiRayTracer1D::factory().getNames();
 
     if ( facnms.size() > 1 )

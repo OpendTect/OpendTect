@@ -34,7 +34,7 @@ public:
 
     bool			hasName(const char* n) {return indexOf(n)>=0;}
     const BufferStringSet&	getNames() const;
-    const TypeSet<uiString>&	getUserNames() const;
+    const uiStringSet& getUserNames() const;
     void			setDefaultName(int idx);
 				//!<idx refers to names in names_,
 				//!<or -1 for none
@@ -65,7 +65,7 @@ protected:
 private:
 
     BufferStringSet		names_;
-    TypeSet<uiString>		usernames_;
+    uiStringSet		usernames_;
     BufferStringSet		aliases_;
     BufferString		defaultname_;
 };

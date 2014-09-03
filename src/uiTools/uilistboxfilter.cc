@@ -24,7 +24,7 @@ uiListBoxFilter::uiListBoxFilter( uiListBox& lb, bool above )
 }
 
 
-void uiListBoxFilter::setItems( const TypeSet<uiString>& itms )
+void uiListBoxFilter::setItems( const uiStringSet& itms )
 {
     BufferStringSet nms;
     for ( int idx=0; idx<itms.size(); idx++ )

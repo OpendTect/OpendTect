@@ -555,7 +555,7 @@ bool CloseCmd::actCloseCurWin( const char* parstr )
 
 #define mFindMdiAreaSubWin( subwinnames, mdiobj, winstr, selnr ) \
 \
-    TypeSet<uiString> subwinnames; \
+    uiStringSet subwinnames; \
     mdiobj->getWindowNames( subwinnames ); \
     for ( int idx=subwinnames.size()-1; idx>=0; idx-- ) \
     { \
@@ -1026,7 +1026,7 @@ bool MdiAreaCmdComposer::accept( const CmdRecEvent& ev )
     char* msgnexxt;
     const int curwinidx = strtol( msgnext, &msgnexxt, 0 );
 
-    TypeSet<uiString> subwinnames;
+    uiStringSet subwinnames;
     mDynamicCastGet(const uiMdiArea*,mdiarea,ev.object_);
     mdiarea->getWindowNames( subwinnames );
 

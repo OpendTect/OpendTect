@@ -29,13 +29,13 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     , selfld_(0)
     , ynfld_(0)
 {
-    TypeSet<uiString> nms;
+    uiStringSet nms;
 
     const BufferStringSet& filtnms( setup_.is2d_
 			? Pos::Filter2D::factory().getNames()
 			: Pos::Filter3D::factory().getNames() );
 
-    const TypeSet<uiString>& usrfiltnms( setup_.is2d_
+    const uiStringSet& usrfiltnms( setup_.is2d_
 				   ? Pos::Filter2D::factory().getUserNames()
 				   : Pos::Filter3D::factory().getUserNames() );
     for ( int idx=0; idx<filtnms.size(); idx++ )
@@ -58,7 +58,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 			    ? Pos::Provider2D::factory().getNames()
 			    : Pos::Provider3D::factory().getNames() );
 
-	const TypeSet<uiString>& usrprovnms( setup_.is2d_
+	const uiStringSet& usrprovnms( setup_.is2d_
 			       ? Pos::Provider2D::factory().getUserNames()
 			       : Pos::Provider3D::factory().getUserNames() );
 	for ( int idx=0; idx<provnms.size(); idx++ )

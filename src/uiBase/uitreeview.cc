@@ -343,7 +343,7 @@ void uiTreeView::takeItem( uiTreeViewItem* itm )
 
 void uiTreeView::addColumns( const BufferStringSet& lbls )
 {
-    TypeSet<uiString> strings;
+    uiStringSet strings;
     for ( int idx=0; idx<lbls.size(); idx++ )
     {
 	strings += uiString( lbls[idx]->buf() );
@@ -353,7 +353,7 @@ void uiTreeView::addColumns( const BufferStringSet& lbls )
 }
 
 
-void uiTreeView::addColumns( const TypeSet<uiString>& lbls )
+void uiTreeView::addColumns( const uiStringSet& lbls )
 {
     mBlockCmdRec;
     const int nrcol = nrColumns();

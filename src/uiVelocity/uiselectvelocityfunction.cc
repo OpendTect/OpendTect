@@ -180,7 +180,7 @@ uiAddFunction::uiAddFunction( uiParent* p )
 {
     const BufferStringSet& sourceclasses =
 	uiFunctionSettings::factory().getNames();
-    const TypeSet<uiString>& sourceusernames =
+    const uiStringSet& sourceusernames =
 	uiFunctionSettings::factory().getUserNames();
     typesel_ = new uiGenInput( this, uiStrings::sType(),
                                StringListInpSpec(sourceusernames));

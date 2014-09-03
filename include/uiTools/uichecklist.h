@@ -44,7 +44,7 @@ public:
     void		setLabel(const uiString&);
     uiCheckList&	addItem(const uiString& txt,const char* iconfnm=0);
     uiCheckList&	addItems(const BufferStringSet&);
-    uiCheckList&	addItems(const TypeSet<uiString>&);
+    uiCheckList&	addItems(const uiStringSet&);
 
     Pol			pol() const		{ return pol_; }
     OD::Orientation	orientation() const	{ return orientation_; }

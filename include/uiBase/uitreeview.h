@@ -55,7 +55,7 @@ public:
     void		takeItem(uiTreeViewItem*);
     void		insertItem(int,uiTreeViewItem*);
 
-    void		addColumns(const TypeSet<uiString>&);
+    void		addColumns(const uiStringSet&);
     void		addColumns(const BufferStringSet&);
     int			nrColumns() const;
 
@@ -174,7 +174,7 @@ private:
 
     uiTreeViewBody*		body_;
 
-    TypeSet<uiString>		labels_;
+    uiStringSet		labels_;
 
 public:
     const char* 		columnText(int column) const;
@@ -209,7 +209,7 @@ public:
 	mDefSetupMemb(uiTreeViewItem*,after)
 	mDefSetupMemb(const ioPixmap*,pixmap)
 	mDefSetupMemb(bool,setcheck)
-	TypeSet<uiString>		labels_;
+	uiStringSet		labels_;
 
 	Setup&			label( const uiString& txt )
 				{
@@ -318,8 +318,8 @@ protected:
     mQtclass(QTreeWidgetItem*)	qtreeitem_;
 
     void			init(const Setup&);
-    TypeSet<uiString>		texts_;
-    TypeSet<uiString>		tooltips_;
+    uiStringSet		texts_;
+    uiStringSet		tooltips_;
 
     bool			isselectable_;
     bool			iseditable_;

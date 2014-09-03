@@ -482,7 +482,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 
 Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 			   const BufferString& defstring,
-			   TypeSet<uiString>* errmsgs )
+			   uiStringSet* errmsgs )
 {
     Desc* dsc = PF().createDescCopy( attrname );
     if ( !dsc )
@@ -541,7 +541,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 			   const BufferString& defstring )
 {
     errmsg_.setEmpty();
-    PtrMan<TypeSet<uiString> > errmsgs = new TypeSet<uiString>;
+    PtrMan<uiStringSet > errmsgs = new uiStringSet;
     Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
     if ( errmsgs && !errmsgs->isEmpty() )
 	errmsg_ = (*errmsgs)[0];
@@ -563,7 +563,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 
 
 bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
-				TypeSet<uiString>* errmsgs )
+				uiStringSet* errmsgs )
 {
     TypeSet<int> toberemoved;
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
@@ -622,7 +622,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
-bool DescSet::usePar( const IOPar& par, TypeSet<uiString>* errmsgs )
+bool DescSet::usePar( const IOPar& par, uiStringSet* errmsgs )
 {
     const char* typestr = par.find( sKey::Type() );
     if ( typestr )
@@ -699,7 +699,7 @@ bool DescSet::usePar( const IOPar& par, TypeSet<uiString>* errmsgs )
 
 
 bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
-				 TypeSet<uiString>* errmsgs )
+				 uiStringSet* errmsgs )
 {
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
@@ -749,7 +749,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  BufferString defstring,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
-				  TypeSet<uiString>* errmsgs )
+				  uiStringSet* errmsgs )
 {
     FixedString steeringtype = steeringpar.find( sKey::Type() );
     BufferString steeringdef = steeringtype.str();

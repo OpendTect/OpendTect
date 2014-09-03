@@ -55,7 +55,7 @@ void FactoryBase::setNames( int idx, const char* name,
 const BufferStringSet& FactoryBase::getNames() const
 { return names_; }
 
-const TypeSet<uiString>& FactoryBase::getUserNames() const
+const uiStringSet& FactoryBase::getUserNames() const
 { return usernames_; }
 
 

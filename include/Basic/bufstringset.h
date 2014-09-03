@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 class GlobExpr;
 class uiString;
+class uiStringSet;
 class QString;
 
 /*!
@@ -63,8 +64,8 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    void		fill(TypeSet<uiString>&) const;
-    void		use(const TypeSet<uiString>&);
+    void		fill(uiStringSet&) const;
+    void		use(const uiStringSet&);
 
     BufferString	cat(const char* sepstr="\n") const;
     void		unCat(const char*,const char* sepstr="\n");

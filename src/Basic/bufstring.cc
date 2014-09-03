@@ -829,7 +829,7 @@ void BufferStringSet::usePar( const IOPar& iopar )
 }
 
 
-void BufferStringSet::fill( TypeSet<uiString>& res ) const
+void BufferStringSet::fill( uiStringSet& res ) const
 {
     res.erase();
 
@@ -839,7 +839,7 @@ void BufferStringSet::fill( TypeSet<uiString>& res ) const
 
 
 
-void BufferStringSet::use( const TypeSet<uiString>& from )
+void BufferStringSet::use( const uiStringSet& from )
 {
     erase();
 

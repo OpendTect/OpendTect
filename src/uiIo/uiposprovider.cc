@@ -34,11 +34,11 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	    ? Pos::Provider2D::factory().getNames()
 	    : Pos::Provider3D::factory().getNames() );
 
-    const TypeSet<uiString>& factusrnms( setup_.is2d_
+    const uiStringSet& factusrnms( setup_.is2d_
 	   ? Pos::Provider2D::factory().getUserNames()
 	   : Pos::Provider3D::factory().getUserNames() );
 
-    TypeSet<uiString> nms;
+    uiStringSet nms;
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
     {

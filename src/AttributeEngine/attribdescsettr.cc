@@ -34,7 +34,7 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
     IOPar iopar( astream );
     IOPar bupar; ads.fillPar( bupar );
     ads.removeAll( false );
-    TypeSet<uiString> parseerrmsgs;
+    uiStringSet parseerrmsgs;
     ads.usePar( iopar, &parseerrmsgs );
     if ( ads.isEmpty() )
     {

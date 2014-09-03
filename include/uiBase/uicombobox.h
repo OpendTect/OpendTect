@@ -35,7 +35,7 @@ public:
 			uiComboBox(uiParent*,const char* nm);
 			uiComboBox(uiParent*,const BufferStringSet&,
 				   const char* nm);
-			uiComboBox(uiParent*,const TypeSet<uiString>&,
+			uiComboBox(uiParent*,const uiStringSet&,
 				   const char* nm);
 			uiComboBox(uiParent*,const char**,const char* nm);
     virtual		~uiComboBox();
@@ -59,7 +59,7 @@ public:
     virtual void	addItem(const uiString&);
     void		addItem(const uiString&,int id);
     void		addItems(const BufferStringSet&);
-    void		addItems(const TypeSet<uiString>&);
+    void		addItems(const uiStringSet&);
     void		addSeparator();
     void		insertItem(const uiString&,int index=-1,int id=-1);
     void		insertItem(const ioPixmap&,const uiString&,
@@ -94,7 +94,7 @@ private:
     int			oldnritems_;
     int			oldcuritem_;
     TypeSet<int>	itemids_;
-    TypeSet<uiString>	itemstrings_;
+    uiStringSet	itemstrings_;
 
     mutable BufferString rettxt_;
 

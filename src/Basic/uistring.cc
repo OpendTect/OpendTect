@@ -81,14 +81,14 @@ public:
     bool fillQString(QString&,const QTranslator* translator=0) const;
 
     mutable Threads::Lock	contentlock_;
-    TypeSet<uiString>		arguments_;
+    uiStringSet		arguments_;
 
 #ifndef OD_NO_QT
     QString			qstring_;
 #endif
 
     BufferString		originalstring_;
-    TypeSet<uiString>		legacyversions_;
+    uiStringSet		legacyversions_;
     const char*			translationcontext_;
     const char*			application_;
     const char*			translationdisambiguation_;
@@ -511,4 +511,59 @@ bool uiString::operator==( const uiString& b ) const
     const BufferString myself = getFullString();
     return myself == b.getFullString();
 #endif
+}
+
+
+uiString uiStringSet::createOptionString( bool use_and, char space ) const
+{
+
+    BufferString glue;
+
+
+    const char* percentage = "%";
+    uiStringSet arguments;
+    const char spacestring[] = { space, 0 };
+
+    arguments += spacestring;
+    bool first = true;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx].isEmpty() )
+	    continue;
+
+	if ( !first )
+	{
+            arguments += (*this)[idx];
+	    glue.add( percentage );
+	    glue.add( arguments.size() );
+
+            first = false;
+
+	    continue;
+	}
+
+	if ( idx==size()-1 )
+	{
+	    if ( size()==2 )
+		glue.add( use_and ? " and%1%" : " or%1%" );
+	    else
+		glue.add( use_and ? ", and%1%" : ", or%1%");
+	}
+	else
+	    glue.add(",%1%");
+
+        arguments += (*this)[idx];
+	glue.add( arguments.size() );
+    }
+
+    if ( glue.isEmpty() )
+	return uiString();
+
+    uiString res = glue;
+
+    for ( int idx=0; idx<arguments.size(); idx++ )
+	res.arg( arguments[idx] );
+
+    return res;
 }

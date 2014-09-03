@@ -26,7 +26,7 @@ public:
 			uiListBoxFilter(uiListBox&,bool above=true);
 
     void		setItems(const BufferStringSet&);
-    void		setItems(const TypeSet<uiString>&);
+    void		setItems(const uiStringSet&);
     void		setFilter(const char*);
 
     int			getCurrent() const;

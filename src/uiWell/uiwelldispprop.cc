@@ -99,7 +99,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmsizefld_->box()->setInterval(5,72,2);
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
-    TypeSet<uiString> fontstyles;
+    uiStringSet fontstyles;
     fontstyles.add(tr("Normal")); fontstyles.add(tr("Bold")); 
     fontstyles.add(tr("Italic")); fontstyles.add(tr("Bold Italic")); 
 
@@ -160,8 +160,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     : uiWellDispProperties(p,su,mp)
     , is2d_(is2d)
 {
-    TypeSet<uiString> shapes3d;
-    TypeSet<uiString> shapes2d;
+    uiStringSet shapes3d;
+    uiStringSet shapes2d;
     shapes3d.add(tr("Cylinder")); shapes3d.add(tr("Square")); 
     shapes3d.add(tr("Sphere")); 
     shapes2d.add(tr("Dot"));shapes2d.add(tr("Solid"));shapes2d.add(tr("Dash"));
@@ -185,7 +185,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_->box()->setInterval(5,72,2);
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
-    TypeSet<uiString> styles;
+    uiStringSet styles;
     styles.add(tr("Normal")); styles.add(tr("Bold")); 
     styles.add(tr("Italic")); styles.add(tr("Bold Italic")); 
 
@@ -346,7 +346,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     rangefld_->attach( alignedAbove, stylefld_ );
     sep1->attach( stretchedBelow, rangefld_ );
 
-    TypeSet<uiString> choice;
+    uiStringSet choice;
     choice.add( tr( "clip rate" ) );  choice.add( tr( "data range" ) );
 
     cliprangefld_ = new uiGenInput( this, tr("Specify"), 

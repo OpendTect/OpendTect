@@ -69,7 +69,7 @@ void uiCheckList::setLabel( const uiString& txt )
 }
 
 
-uiCheckList& uiCheckList::addItems( const TypeSet<uiString>& itms )
+uiCheckList& uiCheckList::addItems( const uiStringSet& itms )
 {
     for ( int idx=0; idx<itms.size(); idx++ )
 	addItem( itms[idx], 0 );

@@ -180,7 +180,7 @@ void uiAttribPartServer::useAutoSet( bool is2d )
 bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 {
     DescSet* ads = new DescSet(is2d);
-    TypeSet<uiString> errmsgs;
+    uiStringSet errmsgs;
     if ( !ads->usePar(iopar,&errmsgs) )
     {
 	delete ads;
@@ -1564,7 +1564,7 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
     DescSet* ads = eDSHolder().getDescSet( is2d, isstored );
     if ( ads )
     {
-	TypeSet<uiString> errmsgs;
+	uiStringSet errmsgs;
 	const int odversion = iopar.odVersion();
 	if ( isstored && odversion<411 )	//backward compatibility v<4.1.1
 	{

@@ -56,7 +56,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
     getTopLevelWindows( windowlist_ );
     if ( !desktop && !windowlist_.isEmpty() )
     {
-	TypeSet<uiString> windownms;
+	uiStringSet windownms;
 	for ( int idx=0; idx<windowlist_.size(); idx++ )
 	    windownms.add( windowlist_[idx]->caption(true) );
 

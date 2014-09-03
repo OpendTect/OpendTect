@@ -56,7 +56,7 @@ bool uiZSliceInterpolationModel::fillPar( IOPar& par ) const
 uiInterpolationLayerModel::uiInterpolationLayerModel( uiParent* p )
     : uiGroup(p,"Interpolation Layer Model Selection")
 {
-    const TypeSet<uiString>& usrnms =
+    const uiStringSet& usrnms =
 	uiInterpolationLayerModelGrp::factory().getUserNames();
     layermodelfld_ = new uiGenInput( this, "Interpolate along",
 				     StringListInpSpec(usrnms) );
