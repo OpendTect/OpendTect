@@ -129,6 +129,9 @@ bool BatchProgram::go( od_ostream& strm )
     else
     {
 	PtrMan<IOPar> attribs = pars().subselect("Attributes");
+	if ( !attribs )
+	    mRetJobErr("No Attribute Definition found")
+
 	if ( !attribset.usePar(*attribs) )
 	    mRetJobErr( attribset.errMsg().getFullString() )
     }
