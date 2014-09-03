@@ -372,12 +372,9 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 }
 
 
-void uiFlatViewStdControl::coltabChg( CallBacker* cb )
+void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
-    mDynamicCastGet(uiFlatViewColTabEd*,coltabed,cb);
-    if ( !coltabed ) return;
-
-    vwr_.appearance().ddpars_.vd_ = coltabed->getDisplayPars();
+    vwr_.appearance().ddpars_.vd_ = ctabed_->getDisplayPars();
     vwr_.handleChange( FlatView::Viewer::DisplayPars );
 }
 
