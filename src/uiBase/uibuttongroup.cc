@@ -37,7 +37,6 @@ int uiButtonGroup::addButton( uiButton* button )
     const bool vertical = orientation_ == OD::Vertical;
     const int id = qbuttongrp_->buttons().size();
     qbuttongrp_->addButton( button->qButton(), id );
-    button->setStretch( grpobj_->width(), grpobj_->height() );
     if ( !uibuts_.isEmpty() )
 	button->attach( vertical ? leftAlignedBelow : rightTo,
 			uibuts_[uibuts_.size()-1] );

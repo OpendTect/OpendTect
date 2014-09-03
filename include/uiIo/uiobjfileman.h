@@ -17,13 +17,14 @@ ________________________________________________________________________
 class IOObj;
 class IOObjContext;
 class uiButton;
+class uiButtonGroup;
 class uiGroup;
 class uiIOObjSelGrp;
 class uiTextEdit;
 
 
 mExpClass(uiIo) uiObjFileMan : public uiDialog
-{ mODTextTranslationClass(uiObjFileMan);
+{ mODTextTranslationClass(uiObjFileMan)
 public:
 				~uiObjFileMan();
 
@@ -31,9 +32,9 @@ public:
     const IOObj*		curIOObj() const	{ return curioobj_; }
     const IOObjContext&		ioobjContext() const	{ return ctxt_; }
 
-    virtual void		addTool(uiButton*);
     uiGroup*			listGroup()		{ return listgrp_; }
     uiGroup*			infoGroup()		{ return infogrp_; }
+    uiButtonGroup*		extraButtonGroup()	{ return extrabutgrp_; }
 
 protected:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
@@ -44,12 +45,13 @@ protected:
     uiIOObjSelGrp*		selgrp_;
     uiGroup*			listgrp_;
     uiGroup*			infogrp_;
-    uiButton*			lastexternal_;
+    uiButtonGroup*		extrabutgrp_;
 
     IOObj*			curioobj_;
     IOObjContext&		ctxt_;
     bool			curimplexists_;
 
+    void			finaliseStartCB(CallBacker*);
     void			saveNotes(CallBacker*);
     void			readNotes();
     void			setInfo(const char* txt);

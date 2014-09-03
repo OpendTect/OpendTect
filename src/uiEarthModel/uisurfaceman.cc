@@ -148,8 +148,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-                                                      tr("Horizon Data"),
+	uiLabeledListBox* llb =
+		new uiLabeledListBox( listgrp_, tr("Horizon Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
@@ -167,23 +167,20 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
-	uiPushButton* stratbut =
-	    new uiPushButton( listgrp_, uiStrings::sStratigraphy(true), false );
-	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
-	stratbut->attach( alignedBelow, selgrp_ );
+	new uiPushButton( extrabutgrp_, uiStrings::sStratigraphy(true),
+		mCB(this,uiSurfaceMan,stratSel), false );
 
-	uiPushButton* relbut = new uiPushButton( listgrp_,
-                                                 tr("Relations"), false);
-	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
-	relbut->attach( rightTo, stratbut );
-	relbut->attach( ensureBelow, llb );
+	new uiPushButton( extrabutgrp_, tr("Relations"),
+		mCB(this,uiSurfaceMan,setRelations), false );
+	extrabutgrp_->attach( ensureBelow, llb );
 
 	setPrefWidth( 50 );
     }
     if ( type_ == Flt3D )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-                                                      tr("Fault Data"),
+#ifdef __debug__
+	uiLabeledListBox* llb =
+		new uiLabeledListBox( listgrp_, tr("Fault Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
@@ -198,6 +195,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					"Rename selected Fault Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
+#endif
     }
     if ( type_ == Body )
     {
@@ -289,14 +287,6 @@ void uiSurfaceMan::setToolButtonProperties()
 }
 
 
-void uiSurfaceMan::addTool( uiButton* but )
-{
-    uiObjFileMan::addTool( but );
-    if ( !lastexternal_ && attribfld_ )
-	but->attach( alignedBelow, attribfld_ );
-}
-
-
 bool uiSurfaceMan::isCur2D() const
 {
     return curioobj_ &&
@@ -316,9 +306,12 @@ void uiSurfaceMan::copyCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
+    const bool canhaveattribs = type_ == uiSurfaceMan::Hor3D;
     PtrMan<IOObj> ioobj = curioobj_->clone();
     uiSurfaceRead::Setup su( ioobj->group() );
-    su.withattribfld(true).withsubsel(!isCurFault()).multisubsel(true);
+    su.withattribfld(canhaveattribs).withsubsel(!isCurFault())
+      .multisubsel(true).withsectionfld(false);
+
     uiCopySurface dlg( this, *ioobj, su );
     if ( dlg.go() )
 	selgrp_->fullUpdate( ioobj->key() );

@@ -33,7 +33,6 @@ public:
 			~uiSurfaceMan();
 
     mDeclInstanceCreatedNotifierAccess(uiSurfaceMan);
-    void		addTool(uiButton*);
 
 protected:
 

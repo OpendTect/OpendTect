@@ -8,28 +8,31 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigoogleiomod.h"
+#include "uigoogleexppolygon.h"
+#include "uigoogleexprandline.h"
 #include "uigoogleexpsurv.h"
 #include "uigoogleexpwells.h"
 #include "uigoogleexp2dlines.h"
-#include "uigoogleexppolygon.h"
-#include "uigoogleexprandline.h"
-#include "uiodmain.h"
-#include "uiodapplmgr.h"
-#include "uisurvey.h"
-#include "uimsg.h"
-#include "uitoolbutton.h"
-#include "uiwellman.h"
+
+#include "uibuttongroup.h"
 #include "uiioobjmanip.h"
 #include "uilatlong2coord.h"
+#include "uimsg.h"
+#include "uiodapplmgr.h"
+#include "uiodmain.h"
 #include "uiseis2dfileman.h"
+#include "uisurvey.h"
+#include "uitoolbutton.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
+#include "uiwellman.h"
 #include "vispicksetdisplay.h"
 #include "visrandomtrackdisplay.h"
-#include "pickset.h"
-#include "survinfo.h"
+
 #include "latlong.h"
 #include "odplugin.h"
+#include "pickset.h"
+#include "survinfo.h"
 
 static const int cPSMnuIdx = -999;
 static const int cRLMnuIdx = -999;
@@ -108,10 +111,9 @@ void uiGoogleIOMgr::mkExportWellsIcon( CallBacker* cb )
     mDynamicCastGet(uiWellMan*,wm,cb)
     if ( !wm ) return;
 
-    uiToolButton* tb = new uiToolButton( wm->listGroup(), "google",
-	    			"Export to Google KML",
+    new uiToolButton( wm->extraButtonGroup(), "google",
+				"Export to Google KML",
 				mCB(this,uiGoogleIOMgr,exportWells) );
-    wm->addTool( tb );
 }
 
 

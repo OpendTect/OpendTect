@@ -100,32 +100,26 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->attach( rightOf, logsfld_ );
     logsgrp_->attach( rightOf, selgrp_ );
 
-    welltrackbut_ = new uiToolButton( listgrp_, "edwelltrack",
+    welltrackbut_ = new uiToolButton( extrabutgrp_, "edwelltrack",
 		tr("Edit Well Track"), mCB(this,uiWellMan, edWellTrack) );
-    welltrackbut_->attach( alignedBelow, selgrp_ );
-    welltrackbut_->attach( ensureBelow, selgrp_ );
-    welltrackbut_->attach( ensureBelow, logsgrp_ );
 
     if ( SI().zIsTime() )
     {
-	csbut_ = new uiToolButton( listgrp_, "checkshot",
-					      tr("Edit Checkshot Data"),
-                                                mCB(this,uiWellMan,edChckSh));
-	csbut_->attach( rightOf, welltrackbut_ );
-	d2tbut_ = new uiToolButton( listgrp_, "z2t",tr("Edit Depth/Time Model"),
-				   mCB(this,uiWellMan, edD2T));
-	d2tbut_->attach( rightOf, csbut_ );
+	csbut_ = new uiToolButton( extrabutgrp_, "checkshot",
+				tr("Edit Checkshot Data"),
+				mCB(this,uiWellMan,edChckSh) );
+	d2tbut_ = new uiToolButton( extrabutgrp_,
+				"z2t",tr("Edit Depth/Time Model"),
+				mCB(this,uiWellMan, edD2T) );
     }
 
-    markerbut_ = new uiToolButton( listgrp_, "edmarkers",
+    markerbut_ = new uiToolButton( extrabutgrp_, "edmarkers",
 			tr("Edit Markers"), mCB(this,uiWellMan, edMarkers) );
     markerbut_->attach( rightOf, d2tbut_ ? d2tbut_ : welltrackbut_ );
-    lastexternal_ = markerbut_;
 
-    uiToolButton* logtoolbut = new uiToolButton( listgrp_, "tools",
-			tr("Log tools"), mCB(this,uiWellMan,logTools) );
-    logtoolbut->attach( rightOf, markerbut_ );
-    lastexternal_ = logtoolbut;
+    new uiToolButton( extrabutgrp_, "tools",
+		      tr("Log tools"), mCB(this,uiWellMan,logTools) );
+    extrabutgrp_->attach( ensureBelow, logsgrp_ );
 
     selChg( this );
     mTriggerInstanceCreatedNotifier();
@@ -136,13 +130,6 @@ uiWellMan::~uiWellMan()
 {
     deepErase( currdrs_ );
     deepErase( curwds_ );
-}
-
-
-void uiWellMan::addTool( uiButton* but )
-{
-    but->attach( rightOf, lastexternal_ );
-    lastexternal_ = but;
 }
 
 

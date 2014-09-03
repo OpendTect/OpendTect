@@ -31,7 +31,6 @@ public:
 				~uiWellMan();
 
     mDeclInstanceCreatedNotifierAccess(uiWellMan);
-    void			addTool(uiButton*);
 
     const TypeSet<MultiID>&	getSelWells() const	{ return curmultiids_; }
     void			getSelLogs(BufferStringSet&) const;

@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiamplspectrum.h"
 #include "uibulkwellimp.h"
+#include "uibuttongroup.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -268,10 +269,9 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 void uiWellPartServer::manageWells()
 {
     uiWellMan dlg( parent() );
-    uiToolButton* tb = new uiToolButton( dlg.listGroup(), "multisimplewell",
-					 tr("Create multiple simple wells"),
-					 mCB(this,uiWellPartServer,simpImp) );
-    dlg.addTool( tb );
+    new uiToolButton( dlg.extraButtonGroup(), "multisimplewell",
+				tr("Create multiple simple wells"),
+				mCB(this,uiWellPartServer,simpImp) );
     dlg.go();
 }
 

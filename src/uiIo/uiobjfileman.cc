@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiobjfileman.h"
 
+#include "uifont.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
 #include "uilabel.h"
@@ -43,11 +44,11 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
     : uiDialog(p,s)
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
-    , lastexternal_(0)
     , curimplexists_(false)
 {
     ctxt_.toselect.allownonuserselectable_ = true;
     setCtrlStyle( CloseOnly );
+    preFinalise().notify( mCB(this,uiObjFileMan,finaliseStartCB) );
 }
 
 
@@ -69,6 +70,14 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     selgrp_->selectionChanged.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->itemChosen.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp_->getListField()->setHSzPol( uiObject::Medium );
+
+    extrabutgrp_ = new uiButtonGroup( listgrp_, "Extra Buttons",
+				      OD::Horizontal );
+    extrabutgrp_->attach( alignedBelow, selgrp_ );
+    extrabutgrp_->attach( ensureBelow, selgrp_ );
+    const uiFont& ft =
+	uiFontList::getInst().get( FontData::key(FontData::Control) );
+    extrabutgrp_->setPrefHeight( ft.height()*2 );
 
     infogrp_ = new uiGroup( this, "Info Group" );
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
@@ -101,17 +110,10 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
 }
 
 
-void uiObjFileMan::addTool( uiButton* but )
+void uiObjFileMan::finaliseStartCB( CallBacker* )
 {
-    if ( lastexternal_ )
-	but->attach( rightOf, lastexternal_ );
-    else
-    {
-	but->attach( ensureBelow, selgrp_ );
-	infofld_->attach( ensureBelow, but );
-    }
-
-    lastexternal_ = but;
+    const bool hasbuttons = extrabutgrp_->nrButtons() > 0;
+    extrabutgrp_->display( hasbuttons, !hasbuttons );
 }
 
 
