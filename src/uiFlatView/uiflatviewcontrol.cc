@@ -355,6 +355,7 @@ void uiFlatViewControl::mouseMoveCB( CallBacker* cb )
     const int idx = getViewerIdx( meh, true );
     if ( idx<0 ) return;
     uiWorld2Ui w2u;
+    if ( !vwrs_[idx]->needStatusBarUpdate() ) return;
     vwrs_[idx]->getWorld2Ui(w2u);
     const uiWorldPoint wp = w2u.transform( meh->event().pos() );
     vwrs_[idx]->getAuxInfo( wp, infopars_ );

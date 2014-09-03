@@ -401,6 +401,12 @@ public:
     virtual void		setAnnotChoice(int selannot)		{}
     virtual int			getAnnotChoice(BufferStringSet&) const
 				{ return -1; }
+    void			enableStatusBarUpdate()
+				{ needstatusbarupd_ = true; }
+    void			disableStatusBarUpdate()
+				{ needstatusbarupd_ = false; }
+    bool			needStatusBarUpdate() const
+				{ return needstatusbarupd_; }
 
 protected:
 
@@ -410,6 +416,7 @@ protected:
     ZAxisTransform*		datatransform_;
     FlatView_CB_Rcvr*		cbrcvr_;
     mutable Threads::Lock	lock_;
+    bool			needstatusbarupd_;
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 
