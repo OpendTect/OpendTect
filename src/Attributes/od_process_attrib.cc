@@ -144,6 +144,9 @@ bool BatchProgram::go( std::ostream& strm )
     else
     {
 	PtrMan<IOPar> attribs = pars().subselect("Attributes");
+	if ( !attribs )
+	    mRetJobErr("No Attribute Definition found")
+
 	if ( !attribset.usePar( *attribs, vsn ) )
 	    mRetJobErr( attribset.errMsg() )
     }
