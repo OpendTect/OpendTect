@@ -267,8 +267,8 @@ void uiFlatViewer::updateCB( CallBacker* )
 void uiFlatViewer::updateBitmapCB( CallBacker* )
 {
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
-    dataChanged.trigger();
     bitmapdisp_->update();
+    dataChanged.trigger();
     dispParsChanged.trigger();
 }
 
