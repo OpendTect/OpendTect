@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "propertyref.h"
 #include "iopar.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 namespace Strat
 {
@@ -36,7 +37,7 @@ class LayerGenerator;
  */
 
 mExpClass(Strat) LayerSequenceGenDesc : public ObjectSet<LayerGenerator>
-{
+{ mODTextTranslationClass(LayerSequenceGenDesc);
 public:
 			LayerSequenceGenDesc(const RefTree&);
 			LayerSequenceGenDesc(const LayerSequenceGenDesc&);
@@ -58,7 +59,7 @@ public:
     bool		prepareGenerate() const;
     bool		generate(LayerSequence&,float modpos) const;
 
-    const char*		errMsg() const			{ return errmsg_; }
+    uiString		errMsg() const			{ return errmsg_; }
 
     const char*		userIdentification(int) const;
     int			indexFromUserIdentification(const char*) const;
@@ -74,7 +75,7 @@ protected:
     float		startdepth_;
 
     static const char*	sKeyWorkBenchParams();
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
 };
 

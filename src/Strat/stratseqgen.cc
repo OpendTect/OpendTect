@@ -254,7 +254,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
-		errmsg_.add( "Error generating " ).add( lgen.name() );
+		errmsg_ = tr("Error generating %1" ).arg( lgen.name() );
 	    return false;
 	}
     }
@@ -266,7 +266,7 @@ bool Strat::LayerSequenceGenDesc::generate( Strat::LayerSequence& ls,
 	{
 	    errmsg_ = lgen.errMsg();
 	    if ( errmsg_.isEmpty() )
-		errmsg_.add( "Error post-processing " ).add( lgen.name() );
+		errmsg_ = tr( "Error post-processing %1" ).arg( lgen.name() );
 	    return false;
 	}
     }
@@ -506,7 +506,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	    {
 		const float val = prop.value( eo );
 		if ( mIsUdf(val) && prop.errMsg() && *prop.errMsg() )
-		    { errmsg_.set( prop.errMsg() ); return false; }
+		    { errmsg_ = prop.errMsg(); return false; }
 		else if ( ipr == 0 && val < 1e-8 )
 		    { delete newlay; return true; }
 

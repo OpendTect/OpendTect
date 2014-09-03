@@ -52,8 +52,8 @@ public:
     bool		generateMaterial(LayerSequence&,
 			    Property::EvalOpts eo=Property::EvalOpts()) const;
 
-    virtual bool	reset() const				{ return true; }
-    virtual const char*	errMsg() const				{ return 0; }
+    virtual bool	reset() const	{ return true; }
+    virtual uiString	errMsg() const	{ return uiString::emptyString(); }
     virtual void	syncProps(const PropertyRefSelection&)		= 0;
     virtual void	updateUsedProps(PropertyRefSelection&) const	= 0;
 

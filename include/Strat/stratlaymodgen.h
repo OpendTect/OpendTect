@@ -45,7 +45,7 @@ protected:
     const LayerSequenceGenDesc&	desc_;
     LayerModel&			lm_;
 
-    BufferString		msg_;
+    uiString			msg_;
     od_int64			nrseqs_;
     od_int64			seqnr_;
 

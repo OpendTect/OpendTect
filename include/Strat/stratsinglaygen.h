@@ -41,7 +41,7 @@ public:
     const PropertySet&	properties() const	{ return props_; }
 
     virtual bool	reset() const;
-    virtual const char*	errMsg() const		{ return errmsg_.buf(); }
+    virtual uiString	errMsg() const		{ return errmsg_; }
 
     mDefLayerGeneratorFns(SingleLayerGenerator,"Single layer");
 
@@ -51,7 +51,7 @@ protected:
     const LeafUnitRef*	unit_;
     PropertySet		props_;
     const Content*	content_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
 };
 
