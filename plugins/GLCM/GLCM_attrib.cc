@@ -188,19 +188,19 @@ const char* GLCM_attrib::attribTypeStr( int attrType )
 
 const char* GLCM_attrib::directTypeStr( int dirType )
 {
-	if ( dirType==mDirection1 ) return "Azimuth 0°, Dip 0°";
-	if ( dirType==mDirection2 ) return "Azimuth 0°, Dip 45°";
-	if ( dirType==mDirection3 ) return "Azimuth 0°, Dip 90°";
-	if ( dirType==mDirection4 ) return "Azimuth 0°, Dip 135°";
-	if ( dirType==mDirection5 ) return "Azimuth 45°, Dip 0°";
-	if ( dirType==mDirection6 ) return "Azimuth 45°, Dip 45°";
-	if ( dirType==mDirection7 ) return "Azimuth 45°, Dip 135°";
-	if ( dirType==mDirection8 ) return "Azimuth 90°, Dip 0°";
-	if ( dirType==mDirection9 ) return "Azimuth 90°, Dip 45°";
-	if ( dirType==mDirection10 ) return "Azimuth 90°, Dip 135°";
-	if ( dirType==mDirection11 ) return "Azimuth 135°, Dip 0°";
-	if ( dirType==mDirection12 ) return "Azimuth 135°, Dip 45°";
-	if ( dirType==mDirection13 ) return "Azimuth 135°, Dip 135";
+	if ( dirType==mDirection1 ) return "Azimuth 0, Dip 0";
+	if ( dirType==mDirection2 ) return "Azimuth 0, Dip 45";
+	if ( dirType==mDirection3 ) return "Azimuth 0, Dip 90";
+	if ( dirType==mDirection4 ) return "Azimuth 0, Dip 135";
+	if ( dirType==mDirection5 ) return "Azimuth 45, Dip 0";
+	if ( dirType==mDirection6 ) return "Azimuth 45, Dip 45";
+	if ( dirType==mDirection7 ) return "Azimuth 45, Dip 135";
+	if ( dirType==mDirection8 ) return "Azimuth 90, Dip 0";
+	if ( dirType==mDirection9 ) return "Azimuth 90, Dip 45";
+	if ( dirType==mDirection10 ) return "Azimuth 90, Dip 135";
+	if ( dirType==mDirection11 ) return "Azimuth 135, Dip 0";
+	if ( dirType==mDirection12 ) return "Azimuth 135, Dip 45";
+	if ( dirType==mDirection13 ) return "Azimuth 135, Dip 135";
 	if ( dirType==mDirectionIL ) return "Inline Direction";
 	if ( dirType==mDirectionXL ) return "Crossline Direction";
 	if ( dirType==mDirectionTime ) return "Timeslice/Depthslice Direction";
@@ -350,7 +350,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			int findVal = 0;
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 1 - Azimuth 0° / Dip 0°
+			//			Direction 1 - Azimuth 0 / Dip 0
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 0 || direction_ == 13 || direction_ == 15 || direction_ == 16 )
@@ -424,7 +424,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 02 - Azimuth 0° / Dip 45°
+			//			Direction 02 - Azimuth 0 / Dip 45
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 1 || direction_ == 13 || direction_ == 16 )
@@ -493,7 +493,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 03 - Azimuth 0° / Dip 90°
+			//			Direction 03 - Azimuth 0 / Dip 90
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 2 || direction_ == 13 || direction_ == 14 || direction_ == 16 )
@@ -553,7 +553,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 04 - Azimuth 0° / Dip 135°
+			//			Direction 04 - Azimuth 0 / Dip 135
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 3 || direction_ == 13 || direction_ == 16 )
@@ -622,7 +622,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 05 - Azimuth 45° / Dip 0°
+			//			Direction 05 - Azimuth 45 / Dip 0
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 4 || direction_ == 15 || direction_ == 16 )
@@ -691,7 +691,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 06 - Azimuth 45° / Dip 45°
+			//			Direction 06 - Azimuth 45 / Dip 45
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 5 || direction_ == 16 )
@@ -760,7 +760,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 07 - Azimuth 45° / Dip 135°
+			//			Direction 07 - Azimuth 45 / Dip 135
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 6 || direction_ == 16 )
@@ -829,7 +829,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 08 - Azimuth 90° / Dip 0°
+			//			Direction 08 - Azimuth 90 / Dip 0
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 7 || direction_ == 14 || direction_ == 15 || direction_ == 16 )
@@ -895,7 +895,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 09 - Azimuth 90° / Dip 45°
+			//			Direction 09 - Azimuth 90 / Dip 45
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 8 || direction_ == 14 || direction_ == 16 )
@@ -961,7 +961,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 10 - Azimuth 90° / Dip 135°
+			//			Direction 10 - Azimuth 90 / Dip 135
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 9 || direction_ == 14 || direction_ == 16 )
@@ -1027,7 +1027,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 11 - Azimuth 135° / Dip 0°
+			//			Direction 11 - Azimuth 135 / Dip 0
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 10 || direction_ == 15 || direction_ == 16 )
@@ -1096,7 +1096,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 12 - Azimuth 135° / Dip 45°
+			//			Direction 12 - Azimuth 135 / Dip 45
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 11 || direction_ == 16 )
@@ -1165,7 +1165,7 @@ bool GLCM_attrib::computeData( const DataHolder& output, const BinID& relpos,
 			}
 
 			//----------------------------------------------------------------------------------------------------------------------------
-			//			Direction 13 - Azimuth 135° / Dip 135°
+			//			Direction 13 - Azimuth 135 / Dip 135
 			//----------------------------------------------------------------------------------------------------------------------------
 
 			if ( direction_ == 12 || direction_ == 16 )
