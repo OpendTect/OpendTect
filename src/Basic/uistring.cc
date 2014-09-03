@@ -516,7 +516,6 @@ bool uiString::operator==( const uiString& b ) const
 
 uiString uiStringSet::createOptionString( bool use_and, char space ) const
 {
-
     BufferString glue;
 
 
@@ -525,20 +524,20 @@ uiString uiStringSet::createOptionString( bool use_and, char space ) const
     const char spacestring[] = { space, 0 };
 
     arguments += spacestring;
-    bool first = true;
+    bool firsttime = true;
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( (*this)[idx].isEmpty() )
 	    continue;
 
-	if ( !first )
+	if ( !firsttime )
 	{
             arguments += (*this)[idx];
 	    glue.add( percentage );
 	    glue.add( arguments.size() );
 
-            first = false;
+            firsttime = false;
 
 	    continue;
 	}
