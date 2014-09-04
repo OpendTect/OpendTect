@@ -73,10 +73,10 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     setWithSelect( true );
     if ( setup.withexamine_ )
     {
-	const char* buttxt = exameditable_ ? "&Edit" : "&Examine";
+	const char* buttxt = exameditable_ ? "Edit" : "Examine";
 	examinebut_ = new uiPushButton( this, buttxt,
 			    mCB(this,uiFileInput,examineFile), false );
-	examinebut_->setName( BufferString(buttxt+1," ",txt) );
+	examinebut_->setName( BufferString(buttxt," ",txt) );
     }
     if ( setup.directories_ )
     {
