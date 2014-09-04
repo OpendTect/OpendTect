@@ -28,6 +28,7 @@ mExpClass(Strat) SingleLayerGenerator : public LayerGenerator
 public:
 
     			SingleLayerGenerator(const LeafUnitRef* ur=0);
+    			SingleLayerGenerator(const SingleLayerGenerator&);
     			~SingleLayerGenerator()	{}
 
     virtual bool	canBeCloned() const		{ return true; }

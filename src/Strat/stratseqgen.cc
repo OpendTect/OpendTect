@@ -127,17 +127,16 @@ Strat::LayerSequenceGenDesc::~LayerSequenceGenDesc()
 
 
 Strat::LayerSequenceGenDesc& Strat::LayerSequenceGenDesc::operator=(
-					const Strat::LayerSequenceGenDesc& from)
+	const Strat::LayerSequenceGenDesc& other )
 {
-    if ( this == &from ) return *this;
+    if ( this == &other ) return *this;
     deepErase( *this );
-
-    for ( int idx=0; idx<from.size(); idx++ )
-	*this += from[idx]->clone();
-    workbenchparams_ = from.workbenchparams_;
-    propsel_ = from.propsel_;
-    elasticpropselmid_ = from.elasticpropselmid_;
-    startdepth_ = from.startdepth_;
+    for ( int idx=0; idx<other.size(); idx++ )
+	*this += other[idx]->clone();
+    setPropSelection( other.propsel_ );
+    workbenchparams_ = other.workbenchparams_;
+    elasticpropselmid_ = other.elasticpropselmid_;
+    startdepth_ = other.startdepth_;
     return *this;
 }
 
@@ -335,6 +334,15 @@ int Strat::LayerSequenceGenDesc::indexFromUserIdentification(
 }
 
 
+Strat::SingleLayerGenerator::SingleLayerGenerator(
+	const SingleLayerGenerator& laygen )
+    : unit_(laygen.unit_ )
+    , content_( laygen.content_ )
+    , props_( laygen.props_ )
+{
+}
+
+
 Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
     : unit_(ur)
     , content_(&Strat::Content::unspecified())
@@ -345,12 +353,10 @@ Strat::SingleLayerGenerator::SingleLayerGenerator( const LeafUnitRef* ur )
 
 Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const
 {
-    Strat::SingleLayerGenerator* lg = new Strat::SingleLayerGenerator( unit_ );
-    lg->content_ = content_;
-    lg->props_ = props_;
-    return lg;
+    Strat::SingleLayerGenerator* newlaygen =
+	new Strat::SingleLayerGenerator( *this );
+    return newlaygen;
 }
-
 
 const char* Strat::SingleLayerGenerator::name() const
 {
@@ -401,6 +407,19 @@ void Strat::SingleLayerGenerator::syncProps( const PropertyRefSelection& prsel )
 	    else
 		props_.add( new ValueProperty(pr) );
 	}
+    }
+
+    //put everything in same order
+    PropertySet copypropset( props_ );
+    props_.erase();
+    for ( int idx=0; idx<prsel.size(); idx++ )
+    {
+	const PropertyRef& pr = *prsel[idx];
+	const int copyidx = copypropset.indexOf( pr );
+	if ( copyidx<0 )
+	    props_.add( new ValueProperty(pr) );
+	else
+	    props_.add( copypropset.get(copyidx).clone() );
     }
 }
 
