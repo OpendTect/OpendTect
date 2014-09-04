@@ -517,7 +517,7 @@ void uiChain::addStepPush(CallBacker*)
 	uiMSG().error(
 	    tr("The %1 cannot be used as an initial volume. "
 		"please select one of the following as initial step:\n%2.")
-		.arg( step->userName() )
+		.arg( step->factoryDisplayName() )
 		.arg( getPossibleInitialStepNames() ) );
 
 	delete step;

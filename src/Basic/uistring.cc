@@ -531,7 +531,7 @@ uiString uiStringSet::createOptionString( bool use_and, char space ) const
 	if ( (*this)[idx].isEmpty() )
 	    continue;
 
-	if ( !firsttime )
+	if ( firsttime )
 	{
             arguments += (*this)[idx];
 	    glue.add( percentage );
