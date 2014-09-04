@@ -393,8 +393,6 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 uiMain::~uiMain()
 {
     delete app_;
-    delete font_;
-
     delete keyhandler_;
     delete keyfilter_;
     delete tabletfilter_;
