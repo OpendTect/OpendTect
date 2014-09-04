@@ -453,3 +453,59 @@ void uiString::makeIndependent()
 
     data_->setFrom( *olddata );
 }
+
+
+uiString uiStringSet::createOptionString( bool use_and, char space ) const
+{
+    BufferString glue;
+
+
+    const char* percentage = "%";
+    uiStringSet arguments;
+    const char spacestring[] = { space, 0 };
+
+    arguments += spacestring;
+    bool firsttime = true;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( (*this)[idx].isEmpty() )
+	    continue;
+
+	if ( firsttime )
+	{
+	    arguments += (*this)[idx];
+	    glue.add( percentage );
+	    glue.add( arguments.size() );
+
+	    firsttime = false;
+
+	    continue;
+	}
+
+	if ( idx==size()-1 )
+	{
+	    if ( size()==2 )
+		glue.add( use_and ? " and%1%" : " or%1%" );
+	    else
+		glue.add( use_and ? ", and%1%" : ", or%1%");
+	}
+	else
+	    glue.add(",%1%");
+
+	arguments += (*this)[idx];
+	glue.add( arguments.size() );
+    }
+
+    if ( glue.isEmpty() )
+	return uiString();
+
+    uiString res = glue;
+
+    for ( int idx=0; idx<arguments.size(); idx++ )
+	res.arg( arguments[idx] );
+
+    return res;
+}
+
+
