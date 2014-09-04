@@ -33,7 +33,7 @@ mGlobal(General) UnitOfMeasureRepository& UoMR();
  */
 
 mExpClass(General) UnitOfMeasure : public NamedObject
-{
+{ mODTextTranslationClass(UnitOfMeasure);
 public:
 
 			UnitOfMeasure()
@@ -77,10 +77,10 @@ public:
     void		setSource( Repos::Source s )	{ source_ = s; }
 
     static const UnitOfMeasure* surveyDefZUnit();
-    static const char*	surveyDefZUnitAnnot(bool symbol,bool withparens);
+    static uiString	surveyDefZUnitAnnot(bool symbol,bool withparens);
     static const UnitOfMeasure* surveyDefDepthUnit();
-    static const char*	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
-    static const char*	zUnitAnnot(bool time,bool symbol,bool withparens);
+    static uiString	surveyDefDepthUnitAnnot(bool symbol,bool withparens);
+    static uiString	zUnitAnnot(bool time,bool symbol,bool withparens);
 
     static IOPar&	currentDefaults();
 			//!< just a list of key -> unit of measure

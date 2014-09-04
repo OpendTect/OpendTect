@@ -30,7 +30,7 @@ namespace Well { class MarkerSet; }
 /*! brief: UI facilities to extract well data with zrg and extraction methods!*/
 
 mExpClass(uiWell) uiWellZRangeSelector : public uiGroup
-{
+{ mODTextTranslationClass(uiWellZRangeSelector);
 public:
     mExpClass(uiWell) Setup
     {

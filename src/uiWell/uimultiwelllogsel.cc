@@ -67,14 +67,14 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     zchoicefld_->valuechanged.notify( cb );
     setHAlignObj( zchoicefld_ );
 
-    BufferString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
-    const char* units[] = { "",dptlbl.buf(),"(ms)",0 };
+    uiString dptlbl = UnitOfMeasure::zUnitAnnot( false, true, true );
+    const uiString units[] = { uiString::emptyString(),dptlbl,"(ms)",0 };
 
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
     {
-	BufferString msg( "Start / stop " );
-	msg += units[idx];
+	uiString msg( "Start / stop %1" );
+	msg.arg( units[idx] );
 	uiGenInput* newgeninp = 0; uiWellMarkerSel* newmarksel = 0;
 	if ( idx == 0 )
 	{
@@ -104,8 +104,8 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
 
     }
 
-    BufferString txt = "Distance above/below ";
-    txt += UnitOfMeasure::zUnitAnnot(false,true,true);
+    uiString txt = tr("Distance above/below %1")
+		.arg( UnitOfMeasure::zUnitAnnot(false,true,true) );
 
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0).setName("above") );
     abovefld_->setElemSzPol( uiObject::Medium );

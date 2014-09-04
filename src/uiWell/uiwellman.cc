@@ -755,7 +755,8 @@ void uiWellMan::mkFileInfo()
 	{
 	     txt += "Replacement velocity (from KB to SRD): ";
 	     txt += zun ? zun->userValue(replvel) : replvel;
-	     txt += UnitOfMeasure::zUnitAnnot( false, true, false );
+	     txt += UnitOfMeasure::zUnitAnnot( false, true, false )
+			.getFullString();
 	     txt += "/s\n";
 	}
 

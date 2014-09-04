@@ -603,8 +603,9 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const char* markernms[] = { "Top Marker", "Bottom Marker", 0 };
 
     zrginft_ = SI().depthsInFeet();
-    const char* units[] = { "", UnitOfMeasure::zUnitAnnot(true,true,false),
-		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false), 0 };
+    const uiString units[] = { uiString::emptyString(),
+		UnitOfMeasure::zUnitAnnot(true,true,false),
+		UnitOfMeasure::surveyDefDepthUnitAnnot(false,false) };
 
     zrangeflds_ += new uiGenInput( markergrp, uiStrings::sEmptyString(),
 				   slis.setName(markernms[0]),

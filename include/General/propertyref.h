@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "repos.h"
 
+
 class ascistream;
 class ascostream;
 class Property;

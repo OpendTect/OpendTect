@@ -244,8 +244,9 @@ void uiWellLogExtractGrp::getSelLogNames( BufferStringSet& lognms )
 bool uiWellLogExtractGrp::extractDPS()
 {
     ObjectSet<DataColDef> dcds;
+
     BufferString unit( "MD" );
-    unit.add( UnitOfMeasure::zUnitAnnot(false,true,true) );
+    unit.add( UnitOfMeasure::zUnitAnnot(false,true,true).getFullString() );
     dcds += new DataColDef( unit );
     BufferStringSet lognms; welllogselfld_->getSelLogNames( lognms );
     for ( int idx=0; idx<lognms.size(); idx++ )

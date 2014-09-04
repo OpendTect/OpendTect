@@ -29,7 +29,7 @@ static const char* dlgtitle =
 
 
 class ui2DDefSurvInfoDlg : public uiDialog
-{
+{ mODTextTranslationClass(ui2DDefSurvInfoDlg);
 public:
 
 ui2DDefSurvInfoDlg( uiParent* p )
@@ -60,11 +60,11 @@ ui2DDefSurvInfoDlg( uiParent* p )
 
     uiGroup* optgrp = new uiGroup( this, "Optional parameters" );
 
-    const BufferString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
+    const uiString zunitlbl(UnitOfMeasure::surveyDefZUnitAnnot(true,true));
     zmaxfld_ = new uiGenInput( optgrp,
-	       BufferString( "[Z-max ", zunitlbl, "]" ), fis );
+	       tr( "[Z-max %1]").arg( zunitlbl), fis );
     srfld_ = new uiGenInput( optgrp,
-	     BufferString( "[Default sampling rate ", zunitlbl, "]" ), fis);
+	     tr( "[Default sampling rate %1]").arg(zunitlbl), fis);
     srfld_->attach( alignedBelow, zmaxfld_ );
 
     optgrp->attach( alignedBelow, maingrp );

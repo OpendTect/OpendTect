@@ -75,7 +75,8 @@ PropRef_ThickRef_Man()
 
 void setZUnit( CallBacker* cb=0 )
 {
-    ref_->disp_.unit_ = UnitOfMeasure::zUnitAnnot(false, true, false );
+    ref_->disp_.unit_ =
+	UnitOfMeasure::zUnitAnnot( false, true, false ).getFullString();
 }
 
     PropertyRef*	ref_;

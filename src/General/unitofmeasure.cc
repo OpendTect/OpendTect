@@ -118,7 +118,7 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefZUnit()
 }
 
 
-const char* UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefZUnitAnnot( bool symb, bool withparens )
 {
     return zUnitAnnot( SI().zIsTime(), symb, withparens );
 }
@@ -130,34 +130,34 @@ const UnitOfMeasure* UnitOfMeasure::surveyDefDepthUnit()
 }
 
 
-const char* UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
+uiString UnitOfMeasure::surveyDefDepthUnitAnnot( bool symb, bool withparens )
 {
     return zUnitAnnot( false, symb, withparens );
 }
 
 
-const char* UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
-				       bool withparens )
+uiString UnitOfMeasure::zUnitAnnot( bool time, bool symbol,
+				    bool withparens )
 {
     if ( time )
     {
 	if ( !symbol )
-	    return "Milliseconds";
+	    return tr("Milliseconds");
 	else
-	    return withparens ? "(ms)" : "ms";
+	    return withparens ? tr("(ms)") : tr("ms");
     }
 
     if ( SI().depthsInFeet() )
     {
 	if ( !symbol )
-	    return "Feet";
-	return withparens ? "(ft)" : "ft";
+	    return tr("Feet");
+	return withparens ? tr("(ft)") : tr("ft");
     }
 
     if ( !symbol )
-	return "Meter";
+	return tr("Meter");
 
-    return withparens ? "(m)" : "m";
+    return withparens ? tr("(m)") : tr("m");
 }
 
 

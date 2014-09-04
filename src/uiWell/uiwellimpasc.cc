@@ -76,13 +76,12 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 			PositionInpSpec(PositionInpSpec::Setup(true)) );
     coordfld_->attach( alignedBelow, trckinpfld_ );
 
-    BufferString zlbl = " ";
-    zlbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) ).add(" ");
-    BufferString kblbl( "KB Elevation" ); kblbl += zlbl;
+    const uiString zunit = UnitOfMeasure::zUnitAnnot(false,true,true);
+    uiString kblbl = tr( "KB Elevation %1" ).arg( zunit );
     kbelevfld_ = new uiGenInput( this, kblbl, FloatInpSpec(0) );
     kbelevfld_->attach( alignedBelow, coordfld_ );
 
-    BufferString tdlbl( "TD" ); tdlbl += zlbl;
+    uiString tdlbl = tr( "TD %1" ).arg( zunit );
     tdfld_ = new uiGenInput( this, tdlbl, FloatInpSpec() );
     tdfld_->attach( alignedBelow, kbelevfld_ );
 
@@ -172,7 +171,7 @@ void uiWellImportAsc::trckFmtChg( CallBacker* )
 
 
 class uiWellImportAscOptDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellImportAscOptDlg);
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
@@ -197,15 +196,16 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( zinfeet && zun_ )
 	dispval = zun_->userValue( info.replvel );
 
-    BufferString lbl = "Replacement velocity ";
-    lbl.add("(").add( UnitOfMeasure::zUnitAnnot(false,true,false) ).add("/s)");
+    uiString lbl = tr("Replacement velocity %/s")
+		.arg( UnitOfMeasure::zUnitAnnot(false,true,false) );
+
     replvelfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     replvelfld->attach( alignedBelow, coordfld );
 
     dispval = info.groundelev;
     if ( zinfeet && zun_ ) dispval = zun_->userValue( info.groundelev );
-    lbl = "Ground level elevation ";
-    lbl.add( UnitOfMeasure::zUnitAnnot(false,true,true) );
+    lbl = tr("Ground level elevation %1")
+		.arg( UnitOfMeasure::zUnitAnnot(false,true,true) );
     gdelevfld = new uiGenInput( this, lbl, FloatInpSpec(dispval) );
     gdelevfld->attach( alignedBelow, replvelfld );
 

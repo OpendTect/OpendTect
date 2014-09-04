@@ -53,7 +53,7 @@ public:
 				    , withnone_(false)	{}
 
 	mDefSetupMemb(PropertyRef::StdType,ptype)
-	mDefSetupMemb(BufferString,lbltxt)
+	mDefSetupMemb(uiString,lbltxt)
 	mDefSetupMemb(Mode,mode)
 	mDefSetupMemb(bool,selproptype)
 	mDefSetupMemb(bool,withnone)
