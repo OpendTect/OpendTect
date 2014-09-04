@@ -166,7 +166,10 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
-    setNewView( centre, newsz );
+    wr = getZoomOrPanRect( centre, newsz, wr, bbox );
+    vwr_.setView( wr );
+    zoommgr_.add( newsz );
+    zoomChanged.trigger();
 }
 
 
