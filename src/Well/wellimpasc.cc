@@ -609,6 +609,7 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
 				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
     fd->bodyinfos_ += ti;
 }
 
@@ -935,6 +936,7 @@ Table::FormatDesc* BulkD2TModelAscIO::getDesc()
 				PropertyRef::Time );
     ti->form(0).setName( "TWT" );
     ti->add( new Table::TargetInfo::Form( "One-way TT", FloatInpSpec() ) );
+    ti->selection_.unit_ = UoMR().get( "Milliseconds" );
     fd->bodyinfos_ += ti;
     return fd;
 }
