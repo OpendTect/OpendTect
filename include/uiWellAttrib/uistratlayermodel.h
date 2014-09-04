@@ -64,7 +64,6 @@ public:
     MultiID				genDescID() const;
 
     Notifier<uiStratLayerModel>	newModels;
-    Notifier<uiStratLayerModel>	levelChanged;
     Notifier<uiStratLayerModel>	waveletChanged;
     Notifier<uiStratLayerModel> saveRequired;   // CallBacker: CBCapsule<IOPar>
     Notifier<uiStratLayerModel> retrieveRequired;// CallBacker: CBCapsule<IOPar>
@@ -107,6 +106,7 @@ protected:
     void			dispEachChg(CallBacker*);
     void			mkSynthChg(CallBacker*);
     void			levelChg(CallBacker*);
+    void			flattenChg(CallBacker*);
     void			seqSel(CallBacker*);
     void			modEd(CallBacker*);
     void			modDispRangeChanged(CallBacker*);

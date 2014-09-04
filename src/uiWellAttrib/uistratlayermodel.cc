@@ -312,7 +312,6 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
     , automksynth_(true)
     , nrmodels_(0)
     , newModels(this)
-    , levelChanged(this)
     , waveletChanged(this)
     , saveRequired(this)
     , retrieveRequired(this)
@@ -384,7 +383,7 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     modtools_->dispEachChg.notify( mCB(this,uiStratLayerModel,dispEachChg) );
     modtools_->selLevelChg.notify( mCB(this,uiStratLayerModel,levelChg) );
-    modtools_->flattenChg.notify( mCB(this,uiStratLayerModel,levelChg) );
+    modtools_->flattenChg.notify( mCB(this,uiStratLayerModel,flattenChg) );
     modtools_->mkSynthChg.notify( mCB(this,uiStratLayerModel,mkSynthChg) );
     gentools_->openReq.notify( mCB(this,uiStratLayerModel,openGenDescCB) );
     gentools_->saveReq.notify( mCB(this,uiStratLayerModel,saveGenDescCB) );
@@ -496,7 +495,6 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
     synthdisp_->setDispEach( modtools_->dispEach() );
-    levelChg( 0 );
 }
 
 
@@ -518,16 +516,17 @@ void uiStratLayerModel::mkSynthChg( CallBacker* cb )
 }
 
 
-void uiStratLayerModel::levelChg( CallBacker* cb )
+void uiStratLayerModel::flattenChg( CallBacker* cb )
 {
     moddisp_->setFlattened( modtools_->showFlattened() );
+    synthdisp_->setFlattened( modtools_->showFlattened() );
+}
 
-    const bool canshowflattened = canShowFlattened();
+
+void uiStratLayerModel::levelChg( CallBacker* cb )
+{
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor(), modtools_->showFlattened() );
-    synthdisp_->setSnapLevelSensitive( canshowflattened );
-    if ( cb )
-	levelChanged.trigger();
+		    modtools_->selLevelColor() );
 }
 
 
@@ -599,7 +598,6 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
 void uiStratLayerModel::wvltChg( CallBacker* cb )
 {
     viewChgedCB( cb );
-    levelChg( 0 );
     waveletChanged.trigger();
 }
 
@@ -757,11 +755,6 @@ bool uiStratLayerModel::openGenDesc()
     }
 
 
-    if ( !useDisplayPars( desc_.getWorkBenchParams() ))
-	return false;
-
-    //Before calculation
-    gentools_->usePar( desc_.getWorkBenchParams() );
     setWinTitle();
     return true;
 }
@@ -891,8 +884,15 @@ void uiStratLayerModel::handleNewModel()
     setModelProps();
     setElasticProps();
     useSyntheticsPars( desc_.getWorkBenchParams() );
+    useDisplayPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
+    synthdisp_->setFlattened( modtools_->showFlattened(), false );
+    moddisp_->setFlattened( modtools_->showFlattened(), false );
     moddisp_->modelChanged();
+    synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
+		    modtools_->selLevelColor() );
+    const bool canshowflattened = canShowFlattened();
+    synthdisp_->setSnapLevelSensitive( canshowflattened );
 
     if ( needtoretrievefrpars_ )
     {
@@ -901,8 +901,6 @@ void uiStratLayerModel::handleNewModel()
 	const_cast<uiStratLayerModel*>(this)->retrieveRequired.trigger( &caps );
 	needtoretrievefrpars_ = false;
     }
-    else
-	levelChg( 0 );
 
     nrmodels_ = layerModel().size();
     newModels.trigger();
@@ -996,7 +994,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     }
     synthdisp_->showFRResults();
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    modtools_->selLevelColor(), modtools_->showFlattened() );
+		    	      modtools_->selLevelColor() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
@@ -1055,10 +1053,7 @@ Strat::LayerModel& uiStratLayerModel::layerModel()
 
 bool uiStratLayerModel::useDisplayPars( const IOPar& par )
 {
-    if ( !modtools_->usePar( par ) )
-	return false;
-
-    return true;
+    return modtools_->usePar( par );
 }
 
 

@@ -62,7 +62,7 @@ public:
 
     virtual uiBaseObject* getViewer() { return 0; }
     bool		isFlattened() const		{ return flattened_; }
-    void		setFlattened(bool yn);
+    void		setFlattened(bool yn,bool trigger=true);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
     bool		isBrineFilled() const		{return isbrinefilled_;}

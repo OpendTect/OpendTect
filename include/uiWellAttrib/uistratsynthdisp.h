@@ -65,8 +65,9 @@ public:
 
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
+    void		setFlattened(bool flattened,bool trigger=true);
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
-				     Color,bool);
+				     Color);
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
@@ -152,6 +153,7 @@ protected:
     PtrMan<TaskRunner>	taskrunner_;
     PreStackView::uiSyntheticViewer2DMainWin*	prestackwin_;
 
+    void		handleFlattenChange();
     void		setCurrentWavelet();
     void		fillPar(IOPar&,const StratSynth*) const;
     void		doModelChange();

@@ -314,24 +314,33 @@ void uiStratSynthDisp::setSelectedTrace( int st )
 }
 
 
+
+void uiStratSynthDisp::handleFlattenChange()
+{
+    resetRelativeViewRect();
+    doModelChange();
+    control_->zoomMgr().toStart();
+}
+
+
+void uiStratSynthDisp::setFlattened( bool flattened, bool trigger )
+{
+    dispflattened_ = flattened;
+    if ( trigger )
+	handleFlattenChange();
+}
+
+
 void uiStratSynthDisp::setDispMrkrs( const char* lnm,
-				     const TypeSet<float>& zvals, Color col,
-				     bool dispflattened )
+				     const TypeSet<float>& zvals, Color col )
 {
     StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
     curSS().setLevel( lvl );
 
-    const bool domodelchg = dispflattened_ || dispflattened;
-    dispflattened_ = dispflattened;
-    if ( domodelchg )
-    {
-	relzoomwr_ = uiWorldRect( 0, 0, 1, 1 );
-	doModelChange();
-	control_->zoomMgr().toStart();
-	return;
-    }
-
-    levelSnapChanged(0);
+    if ( dispflattened_ )
+	handleFlattenChange();
+    else
+	levelSnapChanged(0);
 }
 
 
@@ -877,6 +886,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.type_ = ColTab::MapperSetup::Fixed;
 	dispparsmapper = mapper;
     }
+
     displayFRText();
     levelSnapChanged( 0 );
 }
