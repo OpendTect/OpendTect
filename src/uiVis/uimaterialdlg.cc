@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visplanedatadisplay.h"
 #include "vispolygonbodydisplay.h"
 #include "visemobjdisplay.h"
-#include "vismarchingcubessurfacedisplay.h"
 #include "od_helpids.h"
 
 
@@ -43,7 +42,7 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     {
 	addGroup(  new uiMaterialGrp( tabstack_->tabGroup(),
 			survobj_, true, true, false, false, false, true,
-			survobj_->hasColor() )) ;
+			survobj_->usesColor() )) ;
     }
 
     if ( so && so->canEnableTextureInterpolation() )
@@ -159,10 +158,6 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
 	colinp_->setSensitive( color );
 	prevobj_ = colinp_;
     }
-
-    mDynamicCastGet( visSurvey::MarchingCubesDisplay*,mcube,so );
-    if ( mcube )
-	colinp_->setSensitive( !mcube->usesTexture() );
 
     createSlider( ambience, ambslider_, "Ambient reflectivity" );
     createSlider( diffusecolor, diffslider_, "Diffuse reflectivity" );

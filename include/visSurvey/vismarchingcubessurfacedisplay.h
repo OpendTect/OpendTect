@@ -43,6 +43,7 @@ public:
     bool			isInlCrl() const	{ return true; }
 
     bool			hasColor() const	{ return true; }
+    bool			usesColor() const;
     Color			getColor() const;
     void			setColor(Color);
     bool			allowMaterialEdit() const { return true; }
@@ -50,6 +51,8 @@ public:
 
     void			useTexture(bool yn);
     bool			usesTexture() const;
+    bool			showsTexture() const;
+    bool			canShowTexture() const;
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
@@ -78,6 +81,9 @@ public:
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
     void			setDepthAsAttrib(int);
     void			setIsoPatch(int);
+    void			enableAttrib(int attrib,bool yn);
+    bool			isAttribEnabled(int attrib) const;
+    bool			hasSingleColorFallback() const	{ return true; }
 
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,
@@ -93,7 +99,6 @@ public:
 
 protected:
 
-protected:
     virtual			~MarchingCubesDisplay();
     bool			updateVisFromEM(bool onlyshape,TaskRunner*);
     virtual void		fillPar(IOPar&) const;
@@ -109,16 +114,22 @@ protected:
 	    				const ObjectSet<const SurveyObject>&,
 					int whichobj);
     void			updateIntersectionDisplay();
+    void			updateSingleColor();
     
     static const char*	sKeyEarthModelID()	{ return "EM ID"; }
     static const char*	sKeyAttribSelSpec()	{ return "Attrib SelSpec"; }
     static const char*	sKeyColTabMapper()	{ return "Coltab mapper"; }
     static const char*	sKeyColTabSequence()	{ return "Coltab sequence"; }   
+    static const char*	sKeyUseTexture()	{ return "Use texture"; }
 
     visBase::MarchingCubesSurface*		displaysurface_;
     EM::MarchingCubesSurface*			emsurface_;
     Attrib::SelSpec				selspec_;
     ObjectSet<DataPointSet>			cache_;
+
+    bool					usestexture_;
+    bool					validtexture_;
+    bool					isattribenabled_;
 
     EM::ImplicitBody*				impbody_;
     bool					displayintersections_;
@@ -140,7 +151,6 @@ protected:
     ObjectSet<PlaneIntersectInfo>		intsinfo_;
     visBase::Transformation*			model2displayspacetransform_;
     const mVisTrans*				intersectiontransform_;
-
 };
 
 };

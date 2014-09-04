@@ -135,21 +135,10 @@ visBase::TextureChannel2RGBA* MultiTextureSurveyObject::getChannels2RGBA()
 
 void MultiTextureSurveyObject::updateMainSwitch()
 {
-    bool newstatus = onoffstatus_;
-    if ( newstatus )
-    {
-	newstatus = false;
-	for ( int idx=nrAttribs()-1; idx>=0; idx-- )
-	{
-	    if ( isAttribEnabled(idx) )
-	    {
-		newstatus = true;
-		break;
-	    }
-	}
-    }
-
-    VisualObjectImpl::turnOn( newstatus );
+    if ( onoffstatus_ && !hasSingleColorFallback() )
+	VisualObjectImpl::turnOn( isAnyAttribEnabled() );
+    else
+	VisualObjectImpl::turnOn( onoffstatus_ );
 }
 
 

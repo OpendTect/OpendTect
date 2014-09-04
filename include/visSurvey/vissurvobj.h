@@ -149,8 +149,9 @@ public:
     				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */
 
-    virtual bool		hasColor() const		{ return false;}
-    virtual void		setColor(Color)			{}
+    virtual bool		hasColor() const	{ return false;}
+    virtual bool		usesColor() const	{ return hasColor(); }
+    virtual void		setColor(Color)		{}
     virtual Color		getColor() const
     				{ return Color::DgbColor(); }
 
@@ -219,6 +220,7 @@ public:
     virtual void		setAngleFlag(int attrib,bool yn)	{}
     virtual void		enableAttrib(int attrib,bool yn)	{}
     virtual bool		isAttribEnabled(int attrib) const {return true;}
+    virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
 
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
@@ -354,6 +356,8 @@ public:
 protected:
     				SurveyObject();
 				~SurveyObject();
+
+    bool			isAnyAttribEnabled() const;
 
     static int			cValNameOffset()	{ return 12; }
 

@@ -430,8 +430,8 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 		!intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		intersectdisplay );
-	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_, true,
-		!mcd_->usesTexture() );
+	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_,
+		      mcd_->canShowTexture(), !mcd_->showsTexture() );
     }
 
     if ( plg_ )
@@ -536,7 +536,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==singlecolormnuitem_.id )
     {
-	mcd_->useTexture( !mcd_->usesTexture() );
+	mcd_->useTexture( !mcd_->showsTexture() );
     }
     else
 	return;

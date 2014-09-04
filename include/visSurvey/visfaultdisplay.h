@@ -74,6 +74,7 @@ public:
 	    					 TaskRunner*); 
 
     bool			hasColor() const		{ return true; }
+    bool			usesColor() const;
     Color			getColor() const;
     void			setColor(Color);
     bool			allowMaterialEdit() const	{ return true; }
@@ -81,8 +82,12 @@ public:
 
     void			useTexture( bool yn, bool trigger );
     bool			usesTexture() const;
-    bool			showingTexture() const;
+    bool			showsTexture() const;
+    bool			canShowTexture() const;
+
     void			setDepthAsAttrib(int);
+    void			enableAttrib(int attrib,bool yn);
+    bool			hasSingleColorFallback() const	{ return true; }
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;

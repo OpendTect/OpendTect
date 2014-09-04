@@ -66,7 +66,8 @@ public:
 
     void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
-    bool			showingTexture() const;
+    bool			showsTexture() const;
+    bool			canShowTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			getOnlyAtSectionsDisplay() const;
@@ -92,6 +93,7 @@ public:
     unsigned char		getAttribTransparency(int) const;
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
+    bool			hasSingleColorFallback() const	{ return true; }
 
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int) const;
@@ -107,6 +109,7 @@ public:
 
     bool			allowMaterialEdit() const	{ return true; }
     bool			hasColor() const		{ return true; }
+    bool			usesColor() const;
 
     EM::SectionID		getSectionID(int visid) const;
 
@@ -165,7 +168,6 @@ public:
     bool                        canBDispOn2DViewer() const      { return true; }
     bool                        isVerticalPlane() const		{ return false;}
 
-    bool			shouldUseTexture() const;
     void			setAttribShift(int channel,
 					       const TypeSet<float>& shifts);
 				/*!<Gives the shifts for all versions of an

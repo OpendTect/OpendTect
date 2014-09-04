@@ -43,7 +43,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , displayintersections_( false )
     , model2displayspacetransform_( 0 )
     , intersectiontransform_( 0 )
-
+    , validtexture_( false )
+    , usestexture_( true )
+    , isattribenabled_( true )
 {
     cache_.allowNull( true );
     setColor( getRandomColor( false ) );
@@ -84,17 +86,40 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
 void MarchingCubesDisplay::useTexture( bool yn )
 {
+    usestexture_ = displaysurface_ && yn;
+    updateSingleColor();
+}
+
+
+bool MarchingCubesDisplay::usesColor() const
+{
+    return !showsTexture() || areIntersectionsDisplayed();
+}
+
+
+void MarchingCubesDisplay::updateSingleColor()
+{
     if ( displaysurface_ )
-    {
-	displaysurface_->getShape()->enableColTab( yn );
-    }
+	displaysurface_->getShape()->enableColTab( showsTexture() );
 }
 
 
 bool MarchingCubesDisplay::usesTexture() const
 {
-    return displaysurface_ ? displaysurface_->getShape()->isColTabEnabled()
-			   : false;
+    return usestexture_;
+}
+
+
+bool MarchingCubesDisplay::showsTexture() const
+{
+    return canShowTexture() && usesTexture();
+}
+
+
+bool MarchingCubesDisplay::canShowTexture() const
+{
+    return validtexture_ && isAnyAttribEnabled() &&
+	   !areIntersectionsDisplayed();
 }
 
 
@@ -368,7 +393,6 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
     if ( !attrib && dps && displaysurface_ )
     {
 	displaysurface_->getShape()->setAttribData( *ndps, tr );
-	useTexture( true );
 	materialChangeCB( 0 );
     }
 
@@ -391,6 +415,9 @@ void MarchingCubesDisplay::setRandomPosData( int attrib,
 
     if ( cache_[attrib] )
 	DPM( DataPackMgr::PointID() ).obtain( cache_[attrib]->id() );
+
+    validtexture_ = true;
+    updateSingleColor();
 }
 
 
@@ -545,6 +572,7 @@ void MarchingCubesDisplay::fillPar( IOPar& par ) const
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
     par.set( sKeyEarthModelID(), getMultiID() );
+    par.setYN( sKeyUseTexture(), usestexture_ );
 
     IOPar attribpar;
     selspec_.fillPar( attribpar ); //Right now only one attribute for the body
@@ -593,6 +621,9 @@ bool MarchingCubesDisplay::usePar( const IOPar& par )
 
 	if ( emobject ) setEMID( emobject->id(), 0 );
     }
+
+    par.getYN( sKeyUseTexture(), usestexture_ );
+    updateSingleColor();
 
     const IOPar* attribpar = par.subselect( sKeyAttribSelSpec() );
     if ( attribpar ) //Right now only one attribute for the body
@@ -859,6 +890,22 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 
     if ( displaysurface_ )
 	displaysurface_->turnOn( !displayintersections_ );
+}
+
+
+void MarchingCubesDisplay::enableAttrib( int attrib, bool yn )
+{
+    if ( attrib != 0 )
+	return;
+
+    isattribenabled_ = yn;
+    updateSingleColor();
+}
+
+
+bool MarchingCubesDisplay::isAttribEnabled( int attrib ) const
+{
+    return attrib==0 ? isattribenabled_ : false;
 }
 
 

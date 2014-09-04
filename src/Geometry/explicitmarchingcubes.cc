@@ -69,6 +69,7 @@ protected:
 	return updatecoords_ ? "Triangulation: updating coordinates"
 	    : "Triangulation: updating indices";
     }
+    uiString uiNrDoneText() const	{ return "Positions updated"; }
 
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {
