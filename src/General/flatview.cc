@@ -427,6 +427,7 @@ FlatView::Viewer::Viewer()
     , datatransform_(0)
     , wvapack_(0)
     , vdpack_(0)
+    , needstatusbarupd_(true)
 {
     dpm_.packToBeRemoved.notifyIfNotNotified(
 			    mCB(cbrcvr_,FlatView_CB_Rcvr,theCB) );
@@ -675,4 +676,3 @@ Interval<float> FlatView::Viewer::getDataRange( bool iswva ) const
     Interval<float> mapperrange = mapper.range_;
     return mapperrange;
 }
-
