@@ -1,17 +1,20 @@
 OpendTect V4.6.x : Release info
 
 ----
-v4.6.0n: August 07, 2014
+v4.6.0n: August 18, 2014
  * Implemented 2D to 3D volume interpolation in batch mode
  * Fix for crash while importing well data '.las' file 
  * Fix for crash while loading attributes
  * Fix for crash while  changing filter in attribute selection
+ * Fix for crash in 'Manage selections' on Cross-plot window
  * Fix for erroneous values of Stratal amplitude at undefined horizon
    positions
  * Fix for color table issues of horizon display
  * Fix for 2D display with reverse trace numbers in transformed scenes
  * Fix for updating horizon selection list after deleting horizon
  * Fix for memory not being released while aborting volume pre-load
+ * Prevented adding of empty column with better error message handling in
+   corss-polt window
 
 v4.6.0m: July 10, 2014
  * Fix for crash importing same horizon which is displayed
