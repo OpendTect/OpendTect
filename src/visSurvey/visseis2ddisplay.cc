@@ -502,6 +502,7 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
     ConstDataPackRef<Flat2DDHDataPack> dp2ddh = dpm.obtain( dpid );
+    if ( !dp2ddh ) return;
 
     const Attrib::Data2DArray& data2dh = *dp2ddh->dataarray();
     Array2DSlice<float> slice2d( *data2dh.dataset_ );
@@ -1120,6 +1121,9 @@ const ZAxisTransform* Seis2DDisplay::getZAxisTransform() const
 void Seis2DDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	createDisplayDataPacks( idx );
+
     updateDataFromCache( 0 );
 }
 
