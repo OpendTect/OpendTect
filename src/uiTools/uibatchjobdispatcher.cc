@@ -251,8 +251,8 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
 {
     if ( !dispatcher().go(jobspec_) )
     {
-	const char* errmsg = dispatcher().errMsg();
-	uiMSG().error( errmsg ? errmsg : "Cannot start required program" );
+	uiString errmsg = dispatcher().errMsg();
+	uiMSG().error( errmsg.isSet() ? errmsg : tr("Cannot start required program" ) );
 	return false;
     }
     return true;

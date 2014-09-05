@@ -23,7 +23,7 @@ class uiParent;
 /*!\brief launches the UI of a Batch::JobDispatcher */
 
 mExpClass(uiTools) uiBatchJobDispatcherLauncher
-{
+{ mODTextTranslationClass(uiBatchJobDispatcherLauncher);
 public:
 
 				uiBatchJobDispatcherLauncher(Batch::JobSpec& js)
