@@ -792,7 +792,7 @@ void uiODFaultSurfaceDataTreeItem::setDataPointSet( const DataPointSet& vals )
     FixedString attrnm = vals.nrCols()>1 ? vals.colName(1) : "";
     visserv->setSelSpec( visid, attribnr,
 	    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-    visserv->createAndDispDataPack( visid, attribnr, &vals );
+    visserv->setRandomPosData( visid, attribnr, &vals );
     visserv->selectTexture( visid, attribnr, 0 );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }

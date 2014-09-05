@@ -164,8 +164,6 @@ public:
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPack::ID	getDisplayedDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
-    void		createAndDispDataPack(int id,int attrib,
-					      const DataPointSet* );
 
 			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;

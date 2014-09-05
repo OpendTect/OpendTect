@@ -723,7 +723,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	    vals[zcol] = vals[0];
     }
 
-    setDepthData( channel, &positions );
+    setRandomPosData( channel, &positions, 0 );
 
     if ( !attribwasdepth )
     {
@@ -733,20 +733,6 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	setColTabSequence( channel, seq, 0 );
 	setColTabMapperSetup( channel, ColTab::MapperSetup(), 0 );
     }
-}
-
-
-void HorizonDisplay::setDepthData( int channel, const DataPointSet* positions )
-{
-    if ( !positions || sections_.isEmpty() )
-	return;
-
-    BufferStringSet* attrnms = new BufferStringSet();
-    for ( int idx=0; idx<positions->nrCols(); idx++ )
-	attrnms->add( positions->colDef(idx).name_ );
-    userrefs_.replace( channel, attrnms );
-
-    setRandomPosData( channel, positions, 0 );
 }
 
 
@@ -833,6 +819,11 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 
     validtexture_ = true;
     updateSingleColor();
+
+    BufferStringSet* attrnms = new BufferStringSet();
+    for ( int idx=0; idx<data->nrCols(); idx++ )
+	attrnms->add( data->colDef(idx).name_ );
+    userrefs_.replace( channel, attrnms );
 
     createDisplayDataPacks( channel, data );
 }

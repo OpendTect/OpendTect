@@ -829,15 +829,6 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 }
 
 
-void uiVisPartServer::createAndDispDataPack( int id, int attrib,
-					     const DataPointSet* dtps )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->createAndDispDataPack( attrib, dtps, 0 );
-}
-
-
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );

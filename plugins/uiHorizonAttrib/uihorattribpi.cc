@@ -170,7 +170,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
 			     false, 0 );
     visserv->setSelSpec( displayid, attrid, selspec );
-    visserv->createAndDispDataPack( displayid, attrid, &dlg.getDPS() );
+    visserv->setRandomPosData( displayid, attrid, &dlg.getDPS() );
     uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
 		hd->getObjectID(), 0, typeid(*parent).name() );
     parent->addChild( itm, false );

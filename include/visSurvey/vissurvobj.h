@@ -261,8 +261,6 @@ public:
     virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
 				{ return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
-    virtual void		createAndDispDataPack(int, const DataPointSet*,
-	    					      TaskRunner*){}
 
 				//Volume data
     virtual CubeSampling	getCubeSampling( int attrib ) const

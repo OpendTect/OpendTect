@@ -99,7 +99,6 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
-    void			setDepthData(int channel,const DataPointSet*);
     void			setDisplayDataPackIDs(int attrib,
 					const TypeSet<DataPack::ID>&);
     DataPack::ID                getDataPackID(int attrib) const;
