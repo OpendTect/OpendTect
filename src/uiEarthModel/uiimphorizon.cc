@@ -255,7 +255,7 @@ void uiImportHorizon::addAttribCB( CallBacker* )
 
 void uiImportHorizon::rmAttribCB( CallBacker* )
 {
-    if ( !attrlistfld_->isEmpty() )
+    if ( attrlistfld_->isEmpty() )
 	return;
 
     int selidx = attrlistfld_->currentItem();
