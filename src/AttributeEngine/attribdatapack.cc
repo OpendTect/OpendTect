@@ -849,7 +849,8 @@ bool FlatDataPackZAxisTransformer::doWork(
 	    continue;
 
 	SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-		arr1dslice, inpzrg.nrSteps()+1, inpzrg.start, inpzrg.step );
+		arr1dslice, inpzrg.nrSteps()+1, (float) inpzrg.start,
+		(float) inpzrg.step );
 	inputfunc.setHasUdfs( true );
 	inputfunc.setInterpolate( interpolate_ );
 
