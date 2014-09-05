@@ -89,7 +89,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
 
     bodyselfld_ = new uiGenInput( rgrp, tr("Input"), StringInpSpec() );
     bodyselfld_->attach( alignedBelow, typefld_ );
-    bodyselbut_ = new uiPushButton( rgrp, tr("&Select"), false );
+    bodyselbut_ = new uiPushButton( rgrp, tr("Select"), false );
     bodyselbut_->attach( rightOf, bodyselfld_ );
     bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
 

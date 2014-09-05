@@ -57,7 +57,7 @@ bool uiODVw2DFaultParentTreeItem::handleSubMenu( int mnuid )
     if ( mnuid == 0 )
     {
 	RefMan<EM::EMObject> emo =
-	    		EM::EMM().createTempObject( EM::Fault3D::typeStr() );
+			EM::EMM().createTempObject( EM::Fault3D::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -128,7 +128,7 @@ uiODVw2DFaultTreeItem::~uiODVw2DFaultTreeItem()
 bool uiODVw2DFaultTreeItem::init()
 {
     EM::EMObject* emobj = 0;
-    if ( displayid_ < 0 ) 
+    if ( displayid_ < 0 )
     {
 	emobj = EM::EMM().getObject( emid_ );
 	if ( !emobj ) return false;
@@ -189,7 +189,7 @@ void uiODVw2DFaultTreeItem::displayMiniCtab()
 void uiODVw2DFaultTreeItem::emobjChangeCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( const EM::EMObjectCallbackData&,
-	    			cbdata, caller, cb );
+				cbdata, caller, cb );
     mDynamicCastGet(EM::EMObject*,emobject,caller);
     if ( !emobject ) return;
 
@@ -232,13 +232,13 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
     mnu.insertItem( savemnu, 0 );
     savemnu->setEnabled( applMgr()->EMServer()->isChanged(emid_) );
     mnu.insertItem( new uiAction( sSaveAs() ), 1 );
-    mnu.insertItem( new uiAction("&Remove"), 2 );
+    mnu.insertItem( new uiAction("Remove"), 2 );
 
     const int mnuid = mnu.exec();
     if ( mnuid == 0 || mnuid == 1 )
     {
 	bool savewithname = (mnuid == 1) ||
-	    		    (EM::EMM().getMultiID( emid_ ).isEmpty());
+			    (EM::EMM().getMultiID( emid_ ).isEmpty());
 	if ( !savewithname )
 	{
 	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
@@ -288,7 +288,7 @@ void uiODVw2DFaultTreeItem::emobjAbtToDelCB( CallBacker* cb )
 }
 
 
-uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis( 
+uiTreeItem* uiODVw2DFaultTreeItemFactory::createForVis(
 				    const uiODViewer2D& vwr2d, int id ) const
 {
     mDynamicCastGet(const VW2DFault*,obj,vwr2d.dataMgr()->getObject(id));

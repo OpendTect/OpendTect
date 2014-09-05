@@ -90,19 +90,19 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	}
 
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), "Display all" );
 
-	mInsertItm( dispmnu, tr("&In full"), mDispInFull, true );
-	mInsertItm( dispmnu, tr("&Only at sections"), mDispAtSect,
+	mInsertItm( dispmnu, tr("In full"), mDispInFull, true );
+	mInsertItm( dispmnu, tr("Only at sections"), mDispAtSect,
 		    candispatsect );
-	mInsertItm( dispmnu, tr("Only at &horizons"), mDispAtHors,
+	mInsertItm( dispmnu, tr("Only at horizons"), mDispAtHors,
 		    candispathors );
-	mInsertItm( dispmnu, tr("&At sections && horizons"), mDispAtBoth,
+	mInsertItm( dispmnu, tr("At sections and horizons"), mDispAtBoth,
 					    candispatsect && candispathors );
 	dispmnu->insertSeparator();
-	mInsertItm( dispmnu, tr("Fault &planes"), mDispPlanes, true );
-	mInsertItm( dispmnu, tr("Fault &sticks"), mDispSticks, true );
-	mInsertItm( dispmnu, tr("&Fault planes && sticks"), mDispPSBoth, true );
+	mInsertItm( dispmnu, tr("Fault planes"), mDispPlanes, true );
+	mInsertItm( dispmnu, tr("Fault sticks"), mDispSticks, true );
+	mInsertItm( dispmnu, tr("Fault planes and sticks"), mDispPSBoth, true );
 	mnu.insertItem( dispmnu );
     }
 
@@ -168,13 +168,13 @@ uiTreeItem* uiODFaultTreeItemFactory::createForVis(int visid, uiTreeItem*) const
 
 
 #define mCommonInit \
-    , savemnuitem_("&Save") \
+    , savemnuitem_("Save") \
     , saveasmnuitem_(sSaveAs()) \
-    , displayplanemnuitem_ ( "Fault &planes" ) \
-    , displaystickmnuitem_ ( "Fault &sticks" ) \
-    , displayintersectionmnuitem_( "&Only at sections" ) \
-    , displayintersecthorizonmnuitem_( "Only at &horizons" ) \
-    , singlecolmnuitem_( "Use single &color" ) \
+    , displayplanemnuitem_ ( "Fault planes" ) \
+    , displaystickmnuitem_ ( "Fault sticks" ) \
+    , displayintersectionmnuitem_( "Only at sections" ) \
+    , displayintersecthorizonmnuitem_( "Only at horizons" ) \
+    , singlecolmnuitem_( "Use single color" ) \
 
 #define mCommonInit2 \
     displayplanemnuitem_.checkable = true; \
@@ -420,15 +420,15 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     }
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(tr("&Add ...")), mAddMnuID );
-    mnu.insertItem( new uiAction(tr("&New")), mNewMnuID );
+    mnu.insertItem( new uiAction(tr("Add ...")), mAddMnuID );
+    mnu.insertItem( new uiAction(tr("New")), mNewMnuID );
 
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), "&Display all" );
-	dispmnu->insertItem( new uiAction(tr("&In full")), mDispInFull );
-	dispmnu->insertItem( new uiAction(tr("&Only at sections")),
+	uiMenu* dispmnu = new uiMenu( getUiParent(), "Display all" );
+	dispmnu->insertItem( new uiAction(tr("In full")), mDispInFull );
+	dispmnu->insertItem( new uiAction(tr("Only at sections")),
 			     mDispAtSect );
 	mnu.insertItem( dispmnu );
     }
@@ -490,9 +490,9 @@ uiODFaultStickSetTreeItemFactory::createForVis( int visid, uiTreeItem* ) const
 #undef mCommonInit2
 #define mCommonInit \
     , faultsticksetdisplay_(0) \
-    , savemnuitem_("&Save") \
-    , saveasmnuitem_("Save &as ...") \
-    , onlyatsectmnuitem_("&Only at sections")
+    , savemnuitem_("Save") \
+    , saveasmnuitem_("Save as ...") \
+    , onlyatsectmnuitem_("Only at sections")
 
 #define mCommonInit2 \
     onlyatsectmnuitem_.checkable = true; \
@@ -672,7 +672,7 @@ uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save as Fault Data ...")
     , loadsurfacedatamnuitem_("Fault Data ...")
-    , algomnuitem_("&Smooth")
+    , algomnuitem_("Smooth")
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)

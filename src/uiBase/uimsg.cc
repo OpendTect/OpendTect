@@ -359,7 +359,7 @@ int uiMsg::askContinue( const uiString& text )
 
 int uiMsg::askOverwrite( const uiString& text )
 {
-    const uiString yestxt = tr("&Overwrite");
+    const uiString yestxt = tr("Overwrite");
     return question( text, yestxt, uiStrings::sCancel(), 0 );
 }
 

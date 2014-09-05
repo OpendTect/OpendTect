@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(uiStrings::sAdd(false)), 0 );
-    mnu.insertItem( new uiAction(tr("&New polygon body...")), 1 );
+    mnu.insertItem( new uiAction(tr("New polygon body...")), 1 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -100,7 +100,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	plg->setNewName();
 	plg->setFullyLoaded( true );
 	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
-	
+
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
 	visserv->turnSeedPickingOn( false );
@@ -138,7 +138,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	const int minorversion = astream.minorVersion();
 	if ( majorversion>4 || (majorversion==4 && minorversion>2) )
 	    continue;
-    
+
 	BufferString msg("The geobody '", ioobj->name() );
 	msg.add( "' is made in OpendTect V" ).add( astream.version() )
 	    .add( ", do you want to convert it to current version?" );
@@ -149,7 +149,7 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	if ( !dlg.go() )
 	    continue;
 
-	EM::EMObject* emobj = 
+	EM::EMObject* emobj =
 	    EM::EMM().loadIfNotFullyLoaded( dlg.getBodyMid() );
 	if ( emobj )
 	{
@@ -173,11 +173,11 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( plg )
 	return new uiODBodyDisplayTreeItem( visid, true );
-    
+
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( mcd )
-    	return new uiODBodyDisplayTreeItem( visid, true );
+	return new uiODBodyDisplayTreeItem( visid, true );
 
     return 0;
 }
@@ -186,11 +186,11 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::createForVis( int visid,
 #define mCommonInit \
     , savemnuitem_(sSave()) \
     , saveasmnuitem_(sSaveAs()) \
-    , volcalmnuitem_("Calculate &volume ...") \
-    , displaybodymnuitem_("&Body") \
-    , displaypolygonmnuitem_("&Picked polygons") \
-    , displayintersectionmnuitem_("&Only at sections") \
-    , singlecolormnuitem_("Use single &color") \
+    , volcalmnuitem_("Calculate volume ...") \
+    , displaybodymnuitem_("Body") \
+    , displaypolygonmnuitem_("Picked polygons") \
+    , displayintersectionmnuitem_("Only at sections") \
+    , singlecolormnuitem_("Use single color") \
     , mcd_(0) \
     , plg_(0) \
     , rpb_(0)
@@ -239,7 +239,7 @@ uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 	plg_->unRef();
     }
 
-    if ( rpb_ ) 
+    if ( rpb_ )
     {
 	rpb_->materialChange()->remove(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
@@ -254,7 +254,7 @@ uiODDataTreeItem* uiODBodyDisplayTreeItem::createAttribItem(
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
 	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
-    if ( !res ) 
+    if ( !res )
 	res = new uiODBodyDisplayDataTreeItem( parenttype );
 
     return res;
@@ -285,7 +285,7 @@ bool uiODBodyDisplayTreeItem::init()
 	    displayid_ = plg->id();
 	    visserv_->addObject( plg, sceneID(), true );
 	}
-	else if ( emmcs ) 
+	else if ( emmcs )
 	{
 	    visSurvey::MarchingCubesDisplay* mcd =
 		new visSurvey::MarchingCubesDisplay;
@@ -304,7 +304,7 @@ bool uiODBodyDisplayTreeItem::init()
 	}
 	else if ( emrpb )
 	{
-	    visSurvey::RandomPosBodyDisplay* rpb = 
+	    visSurvey::RandomPosBodyDisplay* rpb =
 		new visSurvey::RandomPosBodyDisplay;
 	    rpb_ = rpb;
 	    rpb_->ref();
@@ -325,7 +325,7 @@ bool uiODBodyDisplayTreeItem::init()
 			 visserv_->getObject(displayid_) );
 	mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcd,
 			 visserv_->getObject(displayid_) );
-	mDynamicCastGet( visSurvey::RandomPosBodyDisplay*, rpb, 
+	mDynamicCastGet( visSurvey::RandomPosBodyDisplay*, rpb,
 			 visserv_->getObject(displayid_) );
 	if ( plg )
 	{
@@ -344,7 +344,7 @@ bool uiODBodyDisplayTreeItem::init()
 	    rpb_ = rpb;
 	    rpb_->ref();
 	    emid_ = rpb->getEMID();
-	}	
+	}
     }
 
     if ( plg_ )
@@ -352,7 +352,7 @@ bool uiODBodyDisplayTreeItem::init()
 	plg_->materialChange()->notify(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
     }
-    
+
     if ( mcd_ )
     {
 	mcd_->materialChange()->notify(
@@ -364,7 +364,7 @@ bool uiODBodyDisplayTreeItem::init()
 	rpb_->materialChange()->notify(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
     }
- 
+
     return uiODDisplayTreeItem::init();
 }
 
@@ -399,9 +399,9 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
     }
     plg_ = 0;
 
-    if ( rpb_ ) 
+    if ( rpb_ )
     {
-	rpb_->materialChange()->remove( 
+	rpb_->materialChange()->remove(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	rpb_->unRef();
     }
@@ -419,16 +419,16 @@ void uiODBodyDisplayTreeItem::createMenu( MenuHandler* menu, bool istb )
 
     if ( !mcd_ && !plg_ && !rpb_ )
 	return;
-	
+
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd_ )
     {
 	const bool intersectdisplay = mcd_->areIntersectionsDisplayed();
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true, 
+	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		!intersectdisplay );
-	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true, 
+	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		intersectdisplay );
 	mAddMenuItem( &displaymnuitem_, &singlecolormnuitem_,
 		      mcd_->canShowTexture(), !mcd_->showsTexture() );
@@ -469,7 +469,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 		IOM().get( applMgr()->EMServer()->getStorageID(emid_) );
 	    saveas = !ioobj;
 	}
-	
+
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 	const bool notempty = !applMgr()->EMServer()->getName(emid_).isEmpty();
 	if ( saveas && notempty )
@@ -491,17 +491,17 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( mcd_ && mcd_->getMCSurface() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*mcd_->getMCSurface());
-    	    dlg.go();
+	    dlg.go();
 	}
 	else if ( plg_ && plg_->getEMPolygonBody() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*plg_->getEMPolygonBody());
-    	    dlg.go();
+	    dlg.go();
 	}
 	else if ( rpb_ && rpb_->getEMBody() )
 	{
 	    uiImplBodyCalDlg dlg(ODMainWin(),*rpb_->getEMBody());
-    	    dlg.go();
+	    dlg.go();
 	}
     }
     else if ( mnuid==displaybodymnuitem_.id )
@@ -509,8 +509,8 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const bool bodydisplay = !displaybodymnuitem_.checked;
 	if ( plg_ )
 	{
-    	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
-    	    plg_->display( polygondisplayed, bodydisplay );
+	    const bool polygondisplayed = displaypolygonmnuitem_.checked;
+	    plg_->display( polygondisplayed, bodydisplay );
 	    plg_->displayIntersections( !polygondisplayed && !bodydisplay );
 	}
 	else if ( mcd_ )
@@ -528,8 +528,8 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	const bool intersectdisplay = !displayintersectionmnuitem_.checked;
 	if ( plg_ )
 	{
-    	    plg_->display( false, !intersectdisplay );
-    	    plg_->displayIntersections( intersectdisplay );
+	    plg_->display( false, !intersectdisplay );
+	    plg_->displayIntersections( intersectdisplay );
 	}
 	else if ( mcd_ )
 	    mcd_->displayIntersections( intersectdisplay );
@@ -548,7 +548,7 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 uiODBodyDisplayDataTreeItem::uiODBodyDisplayDataTreeItem( const char* ptype )
     : uiODAttribTreeItem( ptype )
     , depthattribmnuitem_("Z values")
-    , isopachmnuitem_("Z isopach")  
+    , isopachmnuitem_("Z isopach")
 {}
 
 
@@ -575,7 +575,7 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(MenuHandler*,menu,caller);
     if ( mnuid==-1 || menu->isHandled() )
 	return;
-    
+
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     if ( !mcd )
@@ -591,7 +591,7 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	mcd->setIsoPatch( attribNr() );
     }
-	
+
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
@@ -600,10 +600,10 @@ BufferString uiODBodyDisplayDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    
+
     if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return as->userRef();
-    
+
     return uiODAttribTreeItem::createDisplayName();
 }
 
