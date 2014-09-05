@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratreftree.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "property.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -383,7 +384,8 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
-    statusbarmsg.set( "Model Number", getClickedModelNr() );
+    const int selseq = getClickedModelNr();
+    statusbarmsg.set( "Model Number", selseq );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     uiWorld2Ui w2ui;
     vwr_.getWorld2Ui( w2ui );
@@ -395,7 +397,27 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
 	depth = 0;
     }
+
     statusbarmsg.set( "Depth", depth );
+
+    if ( selseq >0 && selseq<=layerModel().size() )
+    {
+	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
+	const float lvldpth = lvldpths_[selseq-1];
+	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	{
+	    const Strat::Layer& lay = *seq.layers()[ilay];
+	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
+	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
+	    if ( depth >= z0 && depth<= z1 )
+	    {
+		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
+		const float val = getLayerPropValue(lay,pr,dispprop_);
+		statusbarmsg.set( pr->name(), val );
+		break;
+	    }
+	}
+    }
     infoChanged.trigger( statusbarmsg, this );
 }
 

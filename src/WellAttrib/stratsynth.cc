@@ -1026,7 +1026,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 		    if ( mIsUdf(val) || ( propisvel && val < 1e-5f ) )
 			continue;
 
-		    propval.addValue( propisvel ? 1.f / val : val,
+		    const PropertyRef* pr = props[iprop];
+		    const UnitOfMeasure* uom =
+			UoMR().getDefault( pr->name(), pr->stdType() );
+		    const float userval =
+			!uom ? mUdf(float) : uom->getUserValueFromSI( val );
+		    propval.addValue( propisvel ? 1.f / userval : userval,
 				      lay->thickness() );
 		}
 		const float val = mCast( float, propval.average() );
