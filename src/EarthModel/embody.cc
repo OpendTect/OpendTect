@@ -80,7 +80,11 @@ const IOObjContext& Body::getBodyContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
 
-bool Body::hasOldFormats()
+}; //end namespace
+
+
+/*False: already converted; True: need conversion. */
+mGlobal(EarthModel) bool OD_Get_Body_Conversion_Status()
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
     const IODir iodir( mid );
@@ -108,8 +112,7 @@ bool Body::hasOldFormats()
 }
 
 
-bool Body::convertOldBodyFormatToCurrent( TypeSet<MultiID>& mids,
-					  BufferString& errmsg )
+mGlobal(EarthModel) bool OD_Convert_Body_To_OD5( uiString& errmsg )
 {
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Surf)->id );
     const IODir iodir( mid );
@@ -169,13 +172,10 @@ bool Body::convertOldBodyFormatToCurrent( TypeSet<MultiID>& mids,
 	    errmsg = "No permission to write, conversion failed!";
 	    return false;
 	}
-
-	mids += ioobj.key();
     }
 
     return true;
 }
 
 
-}; //end namespace
 

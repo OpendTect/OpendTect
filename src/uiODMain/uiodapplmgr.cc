@@ -164,6 +164,8 @@ void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
 {
     if ( !Convert_OD4_Data_To_OD5() )
 	manageSurvey();
+
+    Convert_OD4_Body_To_OD5();
 }
 
 
@@ -259,6 +261,46 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	return false;
     }
 
+    return true;
+}
+
+
+extern bool OD_Get_Body_Conversion_Status();
+extern bool OD_Convert_Body_To_OD5( uiString& errmsg );
+
+bool uiODApplMgr::Convert_OD4_Body_To_OD5()
+{
+    const bool status = OD_Get_Body_Conversion_Status();
+    if ( !status )
+	return true;
+
+    uiString msg( tr( "OpendTect v5.0 has a new geo-body format. "
+		"All the old geo-bodies of survey '%1' will now be converted. "
+		"Note that after the conversion, you will still be able to use "
+		"those geo-bodies in OpendTect v4.6, but not older than v4.6. ")
+		.arg(IOM().surveyName()) );
+
+    const int res = uiMSG().question( msg, tr("Convert now"),
+					   tr("Do it later"),
+					   tr("Exit OpendTect") );
+    if ( res < 0 )
+	ExitProgram( 0 );
+
+    if ( !res )
+    {
+	uiMSG().message( tr("Please note that you will not be able to use "
+			    "any of the old geo-bodies in this survey.") );
+	return false;
+    }
+
+    uiString errmsg;
+    if ( !OD_Convert_Body_To_OD5(errmsg) )
+    {
+	uiMSG().error( tr("%1").arg(errmsg) );
+	return false;
+    }
+    else
+	uiMSG().message( tr("All the geo-bodies have been converted!") );
     return true;
 }
 
