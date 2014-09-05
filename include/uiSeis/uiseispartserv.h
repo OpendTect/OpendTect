@@ -34,27 +34,28 @@ mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);
-			//~uiSeisPartServer();
+			~uiSeisPartServer();
+
     const char*		name() const			{ return "Seismics"; }
 
     bool		importSeis(int opt);
-    			//!< opt == (int)uiSeisSEGYEntry::DataType or 3 == CBVS
+			//!< opt == (int)uiSeisSEGYEntry::DataType or 3 == CBVS
     bool		exportSeis(int opt);
-    			//!< opt == (int)uiSeisSEGYEntry::DataType
+			//!< opt == (int)uiSeisSEGYEntry::DataType
 
     bool		select2DSeis(MultiID&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
     static void		get2DDataSetName(const MultiID&,BufferString&);
     static void		get2DLineInfo(TypeSet<Pos::GeomID>&,
-	    			      BufferStringSet&);
+				      BufferStringSet&);
     static void		get2DStoredAttribs(const char* linenm,
 				       BufferStringSet& attribs,int steerpol=2);
     void		get2DZdomainAttribs(const char* linenm,
-	    				    const char* zdomainstr,
+					    const char* zdomainstr,
 					    BufferStringSet& attribs);
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
-    void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
+    void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
     void		processTime2Depth() const;
@@ -62,6 +63,7 @@ public:
     void		processVelConv() const;
     void		createMultiCubeDataStore() const;
 
+    void		manageSeismics();
     void		manageSeismics(int opt);
     void		managePreLoad();
     void		importWavelets();

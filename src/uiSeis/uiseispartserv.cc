@@ -80,6 +80,10 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 }
 
 
+uiSeisPartServer::~uiSeisPartServer()
+{}
+
+
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
@@ -118,6 +122,77 @@ bool uiSeisPartServer::importSeis( int opt )
 { return ioSeis( opt, true ); }
 bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
+
+
+class ManageSeisSubSel : public uiDialog
+{
+public:
+ManageSeisSubSel( uiParent* p, bool has2d, bool has2dgathers,
+		  bool has3d, bool has3dgathers )
+    : uiDialog(p,Setup("Please specify",mNoDlgTitle,mNoHelpKey))
+    , has2dgathers_(has2dgathers)
+    , has3dgathers_(has3dgathers)
+    , typefld_(0)
+    , datafld_(0)
+{
+    if ( has2d && has3d )
+    {
+	typefld_ = new uiGenInput( this, "Type", BoolInpSpec(false,"2D","3D") );
+	typefld_->valuechanged.notify( mCB(this,ManageSeisSubSel,typeCB) );
+    }
+
+    datafld_ = new uiGenInput( this, "Data",
+			       BoolInpSpec(true,"Poststack","Prestack") );
+    if ( typefld_ )
+	datafld_->attach( alignedBelow, typefld_ );
+}
+
+
+int getSelOption() const
+{
+    const bool is2d = (typefld_ && typefld_->getBoolValue()) || !has3d_;
+    if ( is2d )
+	return has2dgathers_ && !datafld_->getBoolValue() ? 3 : 1;
+
+    return has3dgathers_ && !datafld_->getBoolValue() ? 2 : 0;
+}
+
+
+protected:
+
+void typeCB( CallBacker* )
+{
+    const bool sel2d = typefld_->getBoolValue();
+    datafld_->display( (sel2d&&has2dgathers_) || (!sel2d&&has3dgathers_) );
+}
+
+    bool	has2d_;
+    bool	has3d_;
+    bool	has2dgathers_;
+    bool	has3dgathers_;
+
+    uiGenInput*	typefld_;
+    uiGenInput*	datafld_;
+};
+
+
+void uiSeisPartServer::manageSeismics()
+{
+    const bool has2d3d = SI().has2D() && SI().has3D();
+    BufferStringSet gnms; getStoredGathersList( false, gnms );
+    const bool has2dgathers = !gnms.isEmpty();
+    gnms.setEmpty(); getStoredGathersList( true, gnms );
+    const bool has3dgathers = !gnms.isEmpty();
+
+    if ( !has2d3d && !has2dgathers && !has3dgathers )
+	return manageSeismics( SI().has2D() ? 1 : 0 );
+
+    ManageSeisSubSel dlg( parent(), SI().has2D(), has2dgathers,
+			  SI().has3D(), has3dgathers );
+    if ( !dlg.go() ) return;
+
+    manageSeismics( dlg.getSelOption() );
+}
 
 
 void uiSeisPartServer::manageSeismics( int opt )
