@@ -411,5 +411,7 @@ const UnitOfMeasure* UnitOfMeasureRepository::getDefault( const char* ky,
 					PropertyRef::StdType st ) const
 {
     const UnitOfMeasure* ret = getCurDefaultFor( ky );
+    if ( !ret )
+	ret = getCurDefaultFor( PropertyRef::toString(st) );
     return ret ? ret : getInternalFor( st );
 }
