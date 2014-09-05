@@ -323,5 +323,18 @@ void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
     tc2rgba->getChannelName( idx,  res );
 }
 
+
+bool visSurvey::SurveyObject::isAnyAttribEnabled() const
+{
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	if ( isAttribEnabled(idx) )
+	    return true;
+    }
+
+    return false;
+}
+
+
 }; // namespace visSurvey
 

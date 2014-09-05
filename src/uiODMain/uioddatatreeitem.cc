@@ -91,8 +91,11 @@ uiODDataTreeItem::~uiODDataTreeItem()
 int uiODDataTreeItem::uiTreeViewItemType() const
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs( displayID() ) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) ||
+	 visserv->hasSingleColorFallback(displayID()) )
+    {
 	return uiTreeViewItem::CheckBox;
+    }
     else
 	return uiTreeItem::uiTreeViewItemType();
 }
@@ -109,7 +112,8 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 bool uiODDataTreeItem::init()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs(displayID()) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) ||
+	 visserv->hasSingleColorFallback(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
 	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),

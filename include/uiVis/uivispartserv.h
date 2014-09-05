@@ -150,6 +150,7 @@ public:
 			/*!<Specify that the data is angles, i.e. -PI==PI. */
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
+    bool		hasSingleColorFallback(int id) const;
     void		setTranslation(int visid,const Coord3& shift);
     Coord3		getTranslation(int visid) const;
 

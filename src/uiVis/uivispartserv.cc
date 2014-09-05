@@ -1039,6 +1039,13 @@ void uiVisPartServer::enableAttrib( int id, int attrib, bool yn )
 }
 
 
+bool uiVisPartServer::hasSingleColorFallback( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->hasSingleColorFallback() : false;
+}
+
+
 bool uiVisPartServer::deleteAllObjects()
 {
     mpetools_->deleteVisObjects();

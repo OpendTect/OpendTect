@@ -104,7 +104,6 @@ protected:
     MenuItem		showbothmnuitem_;
     MenuItem		showsurfacegridmnuitem_;
     MenuItem		changesectionnamemnuitem_;
-    bool		showedtexture_;
 
     MenuItem		makepermnodemnuitem_;
     MenuItem		removecontrolnodemnuitem_;

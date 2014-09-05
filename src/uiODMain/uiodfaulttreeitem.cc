@@ -328,8 +328,8 @@ void uiODFaultTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
     mAddMenuItem( &displaymnuitem_, &singlecolmnuitem_,
-		  faultdisplay_->arePanelsDisplayedInFull(),
-		  !faultdisplay_->showingTexture() );
+		  faultdisplay_->canShowTexture(),
+		  !faultdisplay_->showsTexture() );
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -397,7 +397,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==singlecolmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->useTexture( !faultdisplay_->showingTexture(), true );
+	faultdisplay_->useTexture( !faultdisplay_->showsTexture(), true );
 	visserv_->triggerTreeUpdate();
     }
 }

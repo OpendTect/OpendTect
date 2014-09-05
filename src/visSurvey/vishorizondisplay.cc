@@ -66,7 +66,7 @@ HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
     , curtextureidx_( 0 )
-    , usestexture_( false )
+    , usestexture_( true )
     , translation_( 0 )
     , edgelineradius_( 3.5 )
     , validtexture_( false )
@@ -445,24 +445,15 @@ bool HorizonDisplay::usesTexture() const
 { return usestexture_; }
 
 
-bool HorizonDisplay::showingTexture() const
+bool HorizonDisplay::canShowTexture() const
 {
-    return validtexture_ && usesTexture();
+    return validtexture_ && isAnyAttribEnabled() && !getOnlyAtSectionsDisplay();
 }
 
 
-bool HorizonDisplay::shouldUseTexture() const
+bool HorizonDisplay::showsTexture() const
 {
-    if ( !validtexture_ || !usestexture_ )
-	 return false;
-
-    for ( int idx=nrAttribs()-1; idx>=0; idx-- )
-    {
-	if ( isAttribEnabled( idx ) )
-	    return true;
-    }
-
-    return false;
+    return canShowTexture() && usesTexture();
 }
 
 
@@ -797,8 +788,8 @@ void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 
 void HorizonDisplay::updateSingleColor()
 {
-    const bool usesinglecol = !shouldUseTexture();
-    const Color col = usesinglecol  ? nontexturecol_ : Color::White();
+    const bool usesinglecol = !showsTexture();
+    const Color col = usesinglecol ? nontexturecol_ : Color::White();
     material_->setColor( col );
     if ( intersectionlinematerial_ )
 	intersectionlinematerial_->setColor( nontexturecol_ );
@@ -811,6 +802,12 @@ void HorizonDisplay::updateSingleColor()
 }
 
 
+bool HorizonDisplay::usesColor() const
+{
+    return !showsTexture() || displaysIntersectionLines();
+}
+
+
 void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
 				       TaskRunner* tr )
 {
@@ -820,7 +817,6 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     if ( !data || !data->size() )
     {
 	validtexture_ = false;
-	usestexture_ = false;
 	updateSingleColor();
 	return;
     }
@@ -838,7 +834,6 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     }
 
     validtexture_ = true;
-    usestexture_ = true;
     updateSingleColor();
 
     createDisplayDataPacks( channel, data );
@@ -1369,7 +1364,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 				       BufferString& info ) const
 {
     EMObjectDisplay::getMousePosInfo( eventinfo, pos, val, info );
-    if ( !emobject_ || !usesTexture() ) return;
+    if ( !emobject_ || !showsTexture() ) return;
 
     const EM::SectionID sid =
 	EMObjectDisplay::getSectionID(&eventinfo.pickedobjids);
