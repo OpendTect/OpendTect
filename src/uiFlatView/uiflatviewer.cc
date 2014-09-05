@@ -61,7 +61,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     view_->reSize.notify( mCB(this,uiFlatViewer,reSizeCB) );
     setStretch( 2, 2 ); view_->setStretch( 2, 2 );
 
-    reportedchanges_ += All;
     bitmapdisp_->getDisplay()->setZValue( bitMapZVal() );
     worldgroup_->add( bitmapdisp_->getDisplay() );
     axesdrawer_.setZValue( annotZVal() );

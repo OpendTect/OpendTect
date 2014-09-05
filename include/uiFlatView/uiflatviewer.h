@@ -102,8 +102,6 @@ protected:
     uiWorldRect			wr_;
 				/*!<May be reversed if display is reversed. */
     uiGraphicsItemGroup*	worldgroup_;
-
-    TypeSet<DataChangeType>	reportedchanges_;
     uiRect			extraborders_;
 
     FlatView::uiBitMapDisplay*	bitmapdisp_;
