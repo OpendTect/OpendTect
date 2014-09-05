@@ -53,7 +53,7 @@ const char* Seis2DGridCreator::sKeyInlPrefix()	{ return "Inl Prefix"; }
 const char* Seis2DGridCreator::sKeyCrlPrefix()	{ return "Crl Prefix"; }
 
 class Seis2DLineCreator : public Executor
-{
+{ mODTextTranslationClass(Seis2DLineCreator);
 public:
 			Seis2DLineCreator(const IOObj& input,
 					  const CubeSampling&,
@@ -116,14 +116,14 @@ int Seis2DLineCreator::nextStep()
 
     if ( !rdr_->get(trc) )
     {
-	msg_ = "Error reading input trace\n";
+	msg_ = tr("Error reading input trace\n");
 	msg_.append( rdr_->errMsg() );
 	return ErrorOccurred();
     }
 
     if ( !wrr_->put(trc) )
     {
-	msg_ = "Error writing output trace\n";
+	msg_ = tr("Error writing output trace\n");
 	msg_.append( wrr_->errMsg() );
 	return ErrorOccurred();
     }
@@ -145,7 +145,7 @@ Seis2DGridCreator::~Seis2DGridCreator()
 {}
 
 uiString Seis2DGridCreator::uiNrDoneText() const
-{ return "Traces done"; }
+{ return tr("Traces done"); }
 
 bool Seis2DGridCreator::init( const IOPar& par )
 {
@@ -366,7 +366,7 @@ od_int64 Horizon2DGridCreator::nrDone() const
 { return nrdone_; }
 
 uiString Horizon2DGridCreator::uiNrDoneText() const
-{ return "Positions done"; }
+{ return tr("Positions done"); }
 
 
 bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )

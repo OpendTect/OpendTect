@@ -27,7 +27,7 @@ namespace EM { class Horizon2D; }
 */
 
 mExpClass(EMAttrib) Seis2DGridCreator : public ExecutorGroup
-{
+{ mODTextTranslationClass(Seis2DGridCreator);
 public:
     			Seis2DGridCreator(const IOPar&);
 			~Seis2DGridCreator();
@@ -69,7 +69,7 @@ protected:
 */
 
 mExpClass(EMAttrib) Horizon2DGridCreator : public ExecutorGroup
-{
+{ mODTextTranslationClass(Horizon2DGridCreator);
 public:
     			Horizon2DGridCreator();
 			~Horizon2DGridCreator();
