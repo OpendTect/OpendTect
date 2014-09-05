@@ -303,7 +303,7 @@ void SurfaceAuxData::removeSection( const SectionID& sectionid )
 
 
 bool SurfaceAuxData::hasAttribute( const IOObj& ioobj, const char* attrnm )
-{ return getFileName(ioobj,attrnm).isEmpty(); }
+{ return !getFileName(ioobj,attrnm).isEmpty(); }
 
 BufferString
     SurfaceAuxData::getFileName( const IOObj& ioobj, const char* attrnm )
