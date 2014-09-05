@@ -101,7 +101,7 @@ bool Batch::MMJobDispatcher::init()
     const int pdidx = defIdx();
     if ( pdidx < 0 || !progdefs_[pdidx]->canHandle(jobspec_) )
     {
-	errmsg_.set( "The job cannot be handled Multi-Machine."
+	errmsg_ = tr( "The job cannot be handled Multi-Machine."
 			"\nTry single-machine execution." );
 	return false;
     }
@@ -114,7 +114,7 @@ bool Batch::MMJobDispatcher::launch()
 {
     const int pdidx = defIdx();
     if ( pdidx < 0 )
-	{ errmsg_.set("Internal: init() not used"); return false; }
+	{ errmsg_ ="Internal: init() not used"; return false; }
 
     if ( !writeParFile() )
 	return false;

@@ -39,7 +39,7 @@ public:
 /*!\brief kicks off MM batch job dispatcher. */
 
 mExpClass(MMProc) MMJobDispatcher : public JobDispatcher
-{
+{ mODTextTranslationClass(MMJobDispatcher);
 public:
 
 			MMJobDispatcher();
