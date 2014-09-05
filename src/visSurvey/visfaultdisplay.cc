@@ -43,6 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "vistexturechannels.h"
+#include "zaxistransform.h"
 
 
 namespace visSurvey
@@ -74,6 +75,8 @@ FaultDisplay::FaultDisplay()
     , explicitsticks_( 0 )
     , explicitintersections_( 0 )
     , displaytransform_( 0 )
+    , zaxistransform_( 0 )
+    , voiid_( -1 )
     , activestick_( mUdf(int) )
     , showmanipulator_( false )
     , colorchange( this )
@@ -688,6 +691,46 @@ void FaultDisplay::setDisplayTransformation( const mVisTrans* nt )
 
 const mVisTrans* FaultDisplay::getDisplayTransformation() const
 { return displaytransform_; }
+
+
+bool FaultDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
+{
+    if ( zaxistransform_ )
+    {
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->remove(
+		mCB(this,FaultDisplay,dataTransformCB) );
+	if ( voiid_>0 )
+	{
+	    zaxistransform_->removeVolumeOfInterest( voiid_ );
+	    voiid_ = -1;
+	}
+
+	zaxistransform_->unRef();
+	zaxistransform_ = 0;
+    }
+
+    zaxistransform_ = zat;
+    if ( zaxistransform_ )
+    {
+	zaxistransform_->ref();
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->notify(
+		    mCB(this,FaultDisplay,dataTransformCB) );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* FaultDisplay::getZAxisTransform() const
+{ return zaxistransform_; }
+
+
+void FaultDisplay::dataTransformCB( CallBacker* )
+{
+    // TODO: implement
+}
 
 
 Coord3 FaultDisplay::disp2world( const Coord3& displaypos ) const
@@ -1448,11 +1491,11 @@ void FaultDisplay::setStickSelectMode( bool yn )
     if ( scene_ && scene_->getPolySelection() )
     {
 	if ( yn )
-	    mAttachCBIfNotAttached( 
+	    mAttachCBIfNotAttached(
 	    scene_->getPolySelection()->polygonFinished(),
 	    FaultDisplay::polygonFinishedCB );
 	else
-	    mDetachCB( 
+	    mDetachCB(
 	    scene_->getPolySelection()->polygonFinished(),
 	    FaultDisplay::polygonFinishedCB );
     }
@@ -1870,4 +1913,5 @@ void FaultDisplay::enableAttrib( int attrib, bool yn )
 }
 
 
-}; // namespace visSurvey
+} // namespace visSurvey
+

@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class DataPointSet;
+class ZAxisTransform;
 
 namespace visBase
 {
@@ -28,14 +29,14 @@ namespace visBase
     class Transformation;
     class PolyLine3D;
     class DrawStyle;
-};
+}
 
 namespace EM { class Fault3D; }
 namespace MPE { class FaultEditor; }
-namespace Geometry 
-{ 
+namespace Geometry
+{
     class ExplPlaneIntersection;
-    class FaultStickSurface; 
+    class FaultStickSurface;
 }
 
 template <class T > class Array2D;
@@ -45,7 +46,7 @@ namespace visSurvey
 class MPEEditor;
 class HorizonDisplay;
 
-/*!\brief 
+/*!\brief
 
 
 */
@@ -55,7 +56,7 @@ mExpClass(visSurvey) FaultDisplay : public MultiTextureSurveyObject
 public:
 				FaultDisplay();
 
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				visSurvey::SurveyObject,FaultDisplay,
 				"FaultDisplay", sFactoryKeyword() );
 
@@ -71,7 +72,7 @@ public:
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*,
-	    					 TaskRunner*); 
+						 TaskRunner*);
 
     bool			hasColor() const		{ return true; }
     bool			usesColor() const;
@@ -118,8 +119,8 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
     bool			canDisplayIntersections() const;
-    
-    void			displayHorizonIntersections(bool yn); 
+
+    void			displayHorizonIntersections(bool yn);
     bool			areHorizonIntersectionsDisplayed() const;
     bool			canDisplayHorizonIntersections() const;
 
@@ -152,7 +153,7 @@ public:
     DataPackMgr::ID		getDataPackMgrID() const
 				{ return DataPackMgr::SurfID(); }
 
-    void			doOtherObjectsMoved( 
+    void			doOtherObjectsMoved(
 				    const ObjectSet<const SurveyObject>& objs,
 				    int whichobj)
 				{ otherObjectsMoved( objs, whichobj ); }
@@ -164,6 +165,8 @@ public:
     void			matChangeCB(CallBacker*);
     virtual void		setPixelDensity(float dpi);
 
+    bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
+    const ZAxisTransform*	getZAxisTransform() const;
 
 protected:
 
@@ -174,7 +177,7 @@ protected:
     void			setRandomPosDataInternal(int attrib,
 	    						 const DataPointSet*,
 							 int column,
-							 TaskRunner*); 
+							 TaskRunner*);
     void			updatePanelDisplay();
     void			updateStickDisplay();
     void			updateIntersectionDisplay();
@@ -195,6 +198,7 @@ protected:
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
     void			stickSelectCB(CallBacker*);
+    void			dataTransformCB(CallBacker*);
     void			polygonFinishedCB(CallBacker*);
     bool			isSelectableMarkerInPolySel(
 					const Coord3& markerworldpos ) const;
@@ -219,6 +223,8 @@ protected:
 
     visBase::EventCatcher*		eventcatcher_;
     const mVisTrans*			displaytransform_;
+    ZAxisTransform*			zaxistransform_;
+    int					voiid_;
 
     visBase::GeomIndexedShape*		paneldisplay_;
     Geometry::ExplFaultStickSurface*	explicitpanels_;
@@ -236,7 +242,7 @@ protected:
     TypeSet<int>			horintersectids_;
     bool				displayintersections_;
     bool				displayhorintersections_;
-    
+
     visBase::PolyLine3D*		activestickmarker_;
     int					activestick_;
 
