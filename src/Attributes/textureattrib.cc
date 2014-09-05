@@ -89,8 +89,8 @@ Texture::Texture( Desc& desc )
     mGetFloat( globalmax_, globalmaxStr() );
     if ( mIsEqual(globalmin_,globalmax_,1e-3) )
     {
-	errmsg_ = "Minimum and Maximum values cannot be the same.\n";
-	errmsg_ = "Values represent the clipping range of the input.";
+	errmsg_ = tr("Minimum and Maximum values cannot be the same.\n");
+	errmsg_ = tr("Values represent the clipping range of the input.");
 	return;
     }
 

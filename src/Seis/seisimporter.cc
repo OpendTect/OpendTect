@@ -78,7 +78,7 @@ uiString SeisImporter::uiMessage() const
 	return errmsg_;
 
     if ( hndlmsg_.isEmpty() )
-	{ hndlmsg_ = "Importing from "; hndlmsg_ += rdr_->name(); }
+	{ hndlmsg_ = tr("Importing from %1").arg(hndlmsg_).arg(rdr_->name()); }
     return hndlmsg_;
 }
 
@@ -321,16 +321,17 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	{
 	    if ( is2d )
 	    {
-		errmsg_ = uiString("Importing stopped at trace number: %1"
-			    "\nbecause before this trace, the rule was:\n%2")
-		.arg( toString(trc.info().nr) ).arg( sorting_->description() );
+		errmsg_ = tr("Importing stopped at trace number: %1"
+			     "\nbecause before this trace, the rule was:\n%2")
+		        .arg( toString(trc.info().nr) )
+                        .arg( sorting_->description() );
 	    }
 	    else
 	    {
-		errmsg_ = uiString( "Importing stopped because trace position "
-				    "found: %1 \nviolates previous trace "
-				    "sorting:\n%2")
-		    .arg( bid.toString() ).arg( sorting_->description() );
+		errmsg_ = tr( "Importing stopped because trace position "
+			      "found: %1 \nviolates previous trace "
+			      "sorting:\n%2")
+		        .arg( bid.toString() ).arg( sorting_->description() );
 	    }
 
 	    rv = false;
@@ -345,17 +346,16 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 	    if ( !is2d && !sorting_->inlSorted() )
 	    {
 		errmsg_ =
-		"The input data is cross-line sorted.\n"
-		"This is not supported.\n"
-		"\n"
-		"Did you switch the inline and crossline bytes?\n"
-		"\n"
-		"If not, then for SEG-Y use the 'SEGY-scanned' import method.\n"
-		"For Simple File consider re-sorting with a text tool.\n";
+		tr("The input data is cross-line sorted.\n"
+		   "This is not supported.\n\n"
+		   "Did you switch the inline and crossline bytes?\n\n"
+		   "If not, then for SEG-Y use the 'SEGY-scanned' import "
+                   "method.\nFor Simple File consider re-sorting "
+                   "with a text tool.\n");
 		rv = false;
 	    }
 	}
-	else if ( sortanal_->errMsg() )
+	else if ( sortanal_ )
 	{
 	    errmsg_ = sortanal_->errMsg();
 	    rv = false;

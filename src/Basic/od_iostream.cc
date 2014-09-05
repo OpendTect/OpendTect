@@ -365,7 +365,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 
 	ret = new od_istream( fnm );
 	if ( !ret )
-	    errmsg = "Out of memory";
+	    errmsg = tr("Out of memory");
 	else if ( !ret->isOK() )
 	{
 	    errmsg = tr( "Cannot open %1 for read" ).arg( fnm );
@@ -380,7 +380,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
 
 	ret = new od_ostream( fnm );
 	if ( !ret )
-	    errmsg = "Out of memory";
+	    errmsg = tr("Out of memory");
 	else if ( !ret->isOK() )
 	{
 	    errmsg = tr( "Cannot open %1 for write" ).arg( fnm );

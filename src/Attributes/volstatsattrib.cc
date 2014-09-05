@@ -354,9 +354,9 @@ void VolStats::prepPriorToBoundsCalc()
 {
     if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
     {
-	errmsg_ = "Optical Stack only works on elements\n"
-		  "which define an horizontal direction:\n"
-		  "inlines, crosslines and random lines.";
+	errmsg_ = tr("Optical Stack only works on elements\n"
+		     "which define an horizontal direction:\n"
+		     "inlines, crosslines and random lines.");
 	return;
     }
 

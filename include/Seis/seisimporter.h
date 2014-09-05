@@ -30,7 +30,7 @@ namespace Seis { class SelData; }
 /*!\brief Helps import or export of seismic data. */
 
 mExpClass(Seis) SeisImporter : public Executor
-{
+{ mODTextTranslationClass(SeisImporter);
 public:
 
     /*!<\brief provides traces from the import storage
@@ -96,12 +96,12 @@ protected:
     void			reportWrite(const uiString&);
 
     mutable uiString		errmsg_;
-    mutable BufferString	hndlmsg_;
+    mutable uiString	        hndlmsg_;
 };
 
 
 mExpClass(Seis) SeisStdImporterReader : public SeisImporter::Reader
-{
+{ mODTextTranslationClass(SeisStdImporterReader);
 public:
 			SeisStdImporterReader(const IOObj&,const char* nm);
 			~SeisStdImporterReader();

@@ -436,11 +436,11 @@ bool uiVelModelZAxisTransform::acceptOK()
     if ( zdomain.isEmpty() )
 	zdomain = ZDomain::SI().key();
 
-    FixedString err;
+    uiString err;
     if ( !TimeDepthConverter::isVelocityDescUseable( desc,
 	    zdomain==ZDomain::sKeyTime(), &err ) )
     {
-	mErrRet( err.str() )
+	mErrRet( err )
     }
 
     if ( t2d_ )

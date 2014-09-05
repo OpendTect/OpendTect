@@ -478,7 +478,8 @@ void uiFileDialog::endCmdRecEvent( int refnr, bool ok )
 
 void uiFileDialog::setDefaultCaption()
 {
-    caption_ = (mode_==Directory || mode_==DirectoryOnly) ? \
-	tr("Directory selection") : tr("File selection"); \
+    caption_ = (mode_==Directory || mode_==DirectoryOnly)
+        ? tr("Directory selection")
+        : tr("File selection");
 }
 

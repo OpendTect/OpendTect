@@ -39,8 +39,8 @@ namespace Attrib
 </pre>
 */
 
-mExpClass(Attributes) FreqFilter: public Provider
-{
+mExpClass(Attributes) FreqFilter : public Provider
+{ mODTextTranslationClass(FreqFilter);
 public:
     static void		initClass();
 			FreqFilter(Desc&);

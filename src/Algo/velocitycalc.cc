@@ -161,11 +161,11 @@ bool TimeDepthModel::setModel( const float* dpths, const float* times, int sz )
     delete [] times_; times_ = 0;
     mTryAlloc( depths_, float[sz] );
     if ( !depths_ )
-	{ errmsg_ = "Out of memory"; return false; }
+	{ errmsg_ = tr("Out of memory"); return false; }
 
     mTryAlloc( times_, float[sz] );
     if ( !times_ )
-	{ errmsg_ = "Out of memory"; return false; }
+	{ errmsg_ = tr("Out of memory"); return false; }
 
     for ( int idx=0; idx<sz; idx++ )
 	times_[idx] = times[idx];
@@ -193,7 +193,7 @@ bool TimeDepthConverter::isOK() const
 
 bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
  					       bool velintime,
-					       FixedString* errmsg )
+					       uiString* errmsg )
 {
     if ( vd.type_==VelocityDesc::Avg || vd.type_==VelocityDesc::Interval )
 	return true;
@@ -204,14 +204,14 @@ bool TimeDepthConverter::isVelocityDescUseable(const VelocityDesc& vd,
 	    return true;
 
 	if ( errmsg )
-	    *errmsg = "Only RMS, Avg and Interval allowed for time based "
-		      "models";
+	    *errmsg = tr("Only RMS, Avg and Interval allowed for time based "
+		         "models");
 	return false;
     }
 
     if ( errmsg )
-	*errmsg = "Only Avg and Interval allowed for depth based "
-		  "models";
+	*errmsg = tr("Only Avg and Interval allowed for depth based "
+		     "models");
 
     return false;
 } 
@@ -236,21 +236,21 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	{
 	    if ( !istime )
 	    {
-		errmsg_ = "Cannot use RMS velocities in depth";
+		errmsg_ = tr("Cannot use RMS velocities in depth");
 		break;
 	    }
 	    
 	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
 	    if ( !ptr )
 	    {
-		errmsg_ = "Out of memory";
+		errmsg_ = tr("Out of memory");
 		break;
 	    }
 
 	    ownvint = new ArrayValueSeries<float,float>( ptr, true, sz );
 	    if ( !ownvint || !ownvint->isOK() )
 	    {
-		errmsg_ = "Out of memory";
+		errmsg_ = tr("Out of memory");
 		break;
 	    }
 
@@ -270,7 +270,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
 	    if ( !vrms ) 
 	    {
-		errmsg_ = "Out of memory";
+		errmsg_ = tr("Out of memory");
 		break;
 	    }
 

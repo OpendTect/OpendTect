@@ -23,7 +23,7 @@ namespace Attrib
 */
 
 mExpClass(Attributes) VolStatsBase : public Provider
-{
+{ mODTextTranslationClass(VolStatsBase);
 public:
     static void			initDesc(Desc&);
 
@@ -111,7 +111,7 @@ protected:
 */
 
 mExpClass(Attributes) VolStats : public VolStatsBase
-{
+{ mODTextTranslationClass(VolStats);
 public:
     static void			initClass();
 				VolStats(Desc&);

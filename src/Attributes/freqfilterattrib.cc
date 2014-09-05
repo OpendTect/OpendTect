@@ -162,7 +162,7 @@ FreqFilter::FreqFilter( Desc& ds )
 	 filtertype_ != FFTFilter::LowPass &&
 	 mIsEqual( minfreq_, maxfreq_, 1e-3) )
     {
-	errmsg_ = "Minimum and maximum frequencies are the same.";
+	errmsg_ = tr("Minimum and maximum frequencies are the same.");
 	return;
     }
 

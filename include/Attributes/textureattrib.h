@@ -34,7 +34,7 @@ namespace Attrib
 {
 
 mClass(TextureAttrib) Texture : public Provider
-{
+{ mODTextTranslationClass(Texture);
 public:
     static void		initClass();
 			Texture(Desc&);

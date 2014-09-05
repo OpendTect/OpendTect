@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "binid.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 
 /*!
@@ -24,7 +25,7 @@ ________________________________________________________________________
 */
 
 mExpClass(Algo) BinIDSorting
-{
+{ mODTextTranslationClass(BinIDSorting);
 public:
     			BinIDSorting( bool is2d )
 			    : is2d_(is2d), state_(0)	{}
@@ -65,7 +66,7 @@ protected:
 */
 
 mExpClass(Algo) BinIDSortingAnalyser
-{
+{ mODTextTranslationClass(BinIDSortingAnalyser);
 public:
     			BinIDSortingAnalyser(bool is2d);
 
@@ -74,14 +75,14 @@ public:
     			//!< Check errMsg() to see whether a valid sorting found
     BinIDSorting	getSorting() const;
     			//!< Can be used after add() returns true
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg()		{ return errmsg_; }
 
 protected:
 
     BinID		prev_;
     bool		is2d_;
     bool		st_[8];
-    BufferString	errmsg_;
+    uiString	        errmsg_;
 
 };
 

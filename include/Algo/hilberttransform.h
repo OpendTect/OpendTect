@@ -55,7 +55,7 @@ public:
     bool		transform(const ArrayND<float>&,
 				  ArrayND<float_complex>&) const;
 
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
 protected:
 
@@ -71,7 +71,7 @@ protected:
     int			startidx_;
     int			convstartidx_;
 
-    mutable BufferString errmsg_;
+    mutable uiString    errmsg_;
 };
 
 

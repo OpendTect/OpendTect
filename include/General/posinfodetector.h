@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "coord.h"
 #include "bufstring.h"
+#include "uistring.h"
 class HorSampling;
 class BinIDSorting;
 class BinIDSortingAnalyser;
@@ -26,7 +27,7 @@ namespace PosInfo
 /*!\brief Just hold inl, crl, x, y and offs. For 2D, crl=nr. */
 
 mExpClass(General) CrdBidOffs
-{
+{ mODTextTranslationClass(CrdBidOffs);
 public:
 		CrdBidOffs()
 		    : coord_(0,0), binid_(1,0), offset_(0)	{}
@@ -49,7 +50,7 @@ public:
 
 
 mExpClass(General) Detector
-{
+{ mODTextTranslationClass(Detector);
 public:
 
     struct Setup
@@ -77,8 +78,8 @@ public:
     bool		add(const CrdBidOffs&);
 
     bool		finish();
-    bool		usable() const		{ return !*errMsg(); }
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    bool		usable() const		{ return !errMsg(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     int			nrPositions( bool uniq=true ) const
 			{ return uniq ? nruniquepos_ : nrpos_; }
@@ -143,7 +144,7 @@ protected:
     CrdBidOffs		prevusrcbo_;
     CrdBidOffs		curlnstart_;
     int			nroffsthispos_;
-    BufferString	errmsg_;
+    uiString	        errmsg_;
 
     bool		applySortAnal();
     void		addFirst(const PosInfo::CrdBidOffs&);
@@ -153,7 +154,7 @@ protected:
     void		setCur(const PosInfo::CrdBidOffs&);
     void		getBinIDRanges();
     int			getStep(bool inl) const; //!< smallest
-    void		addToErrMsg(const CrdBidOffs&);
+    uiString		createPositionString(const CrdBidOffs&) const;
 
     CrdBidOffs		workCBO(const CrdBidOffs&) const;
     CrdBidOffs		userCBO(const CrdBidOffs&) const;

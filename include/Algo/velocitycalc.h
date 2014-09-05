@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "veldesc.h"
 #include "keystrs.h"
 #include "factory.h"
+#include "uistring.h"
 
 template <class T> class ValueSeries;
 
@@ -28,7 +29,7 @@ depth or time.
 */
 
 mExpClass(Algo) TimeDepthModel
-{
+{ mODTextTranslationClass(TimeDepthModel)
 public:
     			TimeDepthModel();
     			TimeDepthModel(const TimeDepthModel&);
@@ -67,7 +68,7 @@ protected:
     float*		times_;
     float*		depths_;
 
-    const char*		errmsg_;
+    uiString		errmsg_;
 };
 
 
@@ -76,14 +77,14 @@ protected:
 */
 
 mExpClass(Algo) TimeDepthConverter : public TimeDepthModel
-{
+{ mODTextTranslationClass(TimeDepthConverter)
 public:
     			TimeDepthConverter();
 
     bool		isOK() const;
     static bool		isVelocityDescUseable(const VelocityDesc&,
 	    				      bool velintime,
-					      FixedString* errmsg = 0);
+					      uiString* errmsg = 0);
 
     bool		setVelocityModel(const ValueSeries<float>& vels, int sz,
 					 const SamplingData<double>& sd,
@@ -130,7 +131,7 @@ protected:
 */
 
 mExpClass(Algo) MoveoutComputer
-{
+{ mODTextTranslationClass(MoveoutComputer)
 public:
     virtual 		~MoveoutComputer()		{}
 
@@ -155,7 +156,7 @@ public:
 */
 
 mExpClass(Algo) RMOComputer : public MoveoutComputer
-{
+{ mODTextTranslationClass(RMOComputer)
 public:
     int 	nrVariables() const	{ return 3; }
     const char*	variableName(int idx) const
@@ -181,7 +182,7 @@ by Alkhalifah and Tsvankin 1995.
 */
 
 mExpClass(Algo) NormalMoveout : public MoveoutComputer
-{
+{ mODTextTranslationClass(NormalMoveout)
 public:
     int 	nrVariables() const	{ return 3; }
     const char*	variableName( int idx ) const
@@ -212,7 +213,7 @@ mGlobal(Algo) bool computeDix(const float* Vrms, float t0, float v0,
 */
 
 mExpClass(Algo) Vrms2Vint
-{
+{ mODTextTranslationClass(Vrms2Vint)
 public:
 			mDefineFactoryInClass( Vrms2Vint, factory );
     virtual		~Vrms2Vint()	{}
@@ -227,7 +228,7 @@ public:
 */
 
 mExpClass(Algo) DixConversion : public Vrms2Vint
-{
+{ mODTextTranslationClass(DixConversion)
 public:
 		mDefaultFactoryInstantiation( Vrms2Vint, DixConversion, "Dix",
 					      sFactoryKeyword() );

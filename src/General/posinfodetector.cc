@@ -205,10 +205,10 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
     if ( !sortanal_->add(cbo.binid_) )
 	return true;
 
-    if ( setup_.reqsorting_ && sortanal_->errMsg() )
+    if ( setup_.reqsorting_ && sortanal_->errMsg().isSet() )
     {
-	errmsg_ = sortanal_->errMsg();
-	return false;
+        sortanal_->errMsg().isSet();
+        return false;
     }
 
     return applySortAnal();
@@ -259,12 +259,15 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 }
 
 
-void PosInfo::Detector::addToErrMsg( const PosInfo::CrdBidOffs& cbo )
+uiString PosInfo::Detector::createPositionString(
+                        const PosInfo::CrdBidOffs& cbo ) const
 {
-    errmsg_.add( setup_.is2d_ ? "trace number " : "position " )
-	    .add( cbo.binid_.toString(setup_.is2d_) );
-    if ( setup_.isps_ )
-	{ errmsg_.add( " (offset " ).add( cbo.offset_ ).add( ")" ); }
+    uiString ret = uiString( "%1 %2%3" )
+        .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
+        .arg( cbo.binid_.toString(setup_.is2d_) )
+        .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ ) 
+                           : uiString::emptyString() );
+    return ret;
 }
 
 
@@ -275,12 +278,11 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     if ( setup_.reqsorting_
       && !sorting_.isValid(prevusrcbo_.binid_,cbo.binid_) )
     {
-	errmsg_ = "Sorting inconsistency at ";
-	addToErrMsg( cbo );
-	errmsg_ += ".\nLast valid sorting '";
-	errmsg_ += sorting_.description();
-	errmsg_ += "'\nThe previous position was ";
-	addToErrMsg( prevusrcbo_ );
+	errmsg_ = tr("Sorting inconsistency at %1.\nLast valid sorting '%2'"
+                     "\nThe previous position was %3")
+	        .arg( createPositionString( cbo ) )
+                .arg( sorting_.description())
+                .arg( createPositionString( prevusrcbo_ ));
 	rv = false;
     }
 
@@ -549,10 +551,10 @@ void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
     {
-	BufferString sortdesc( errmsg_ );
+	uiString sortdesc( errmsg_ );
 	if ( sortdesc.isEmpty() )
 	    sortdesc = sorting_.description();
-	iop.add( "Sorting", sortdesc );
+	( "Sorting", sortdesc );
     }
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );

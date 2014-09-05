@@ -127,7 +127,7 @@ bool BinIDSortingAnalyser::add( const BinID& cur )
 
 	if ( nrvalid < 1 )
 	{
-	    errmsg_ = "Input data is not sorted on inline or crossline";
+	    errmsg_ = tr("Input data is not sorted on inline or crossline");
 	    if ( firststillvalid >= 0 )
 		st_[firststillvalid] = true;
 	    return false;

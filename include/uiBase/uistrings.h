@@ -19,7 +19,7 @@ ________________________________________________________________________
 //Common strings. Use these and extend when needed
 
 mExpClass(uiBase) uiStrings
-{ mODTextTranslationClass(uiStrings)
+{ mODTextTranslationClass(uiStrings);
 public:
     static uiString s2D(bool immediate);
     static uiString s3D(bool immediate);
