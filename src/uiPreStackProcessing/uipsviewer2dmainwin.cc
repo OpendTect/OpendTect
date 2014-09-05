@@ -960,13 +960,13 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 
     Interval<float> zrg( mUdf(float), 0 );
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    PreStack::Gather* gather = new PreStack::Gather;
+    DataPackRef<PreStack::Gather> gather =
+	DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
     MultiID mid = gatherinfo.mid_;
     BinID bid = gatherinfo.bid_;
     if ( (is2d_ && gather->readFrom(mid,bid.crl(),linename_,0))
 	|| (!is2d_ && gather->readFrom(mid,bid)) )
     {
-	DPM(DataPackMgr::FlatID()).addAndObtain( gather );
 	DataPack::ID ppgatherid = -1;
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	    ppgatherid = getPreProcessedID( gatherinfo );
@@ -978,14 +978,10 @@ void uiStoredViewer2DMainWin::setGather( const GatherInfo& gatherinfo )
 	if ( mIsUdf( zrg.start ) )
 	   zrg = gd->getZDataRange();
 	zrg.include( gd->getZDataRange() );
-	DPM(DataPackMgr::FlatID()).release( gather );
 	DPM(DataPackMgr::FlatID()).release( anglegatherid );
     }
     else
-    {
 	gd->setVDGather( -1 );
-	delete gather;
-    }
 
     uiGatherDisplayInfoHeader* gdi = new uiGatherDisplayInfoHeader( 0 );
     setGatherInfo( gdi, gatherinfo );
@@ -1197,11 +1193,9 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     if ( !ginfo.isselected_ ) return;
 
     uiGatherDisplay* gd = new uiGatherDisplay( 0 );
-    DataPack* vddp = DPM(DataPackMgr::FlatID()).obtain( ginfo.vddpid_ );
-    DataPack* wvadp = DPM(DataPackMgr::FlatID()).obtain( ginfo.wvadpid_ );
-
-    mDynamicCastGet(PreStack::Gather*,vdgather,vddp);
-    mDynamicCastGet(PreStack::Gather*,wvagather,wvadp);
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    ConstDataPackRef<PreStack::Gather> vdgather = dpm.obtain( ginfo.vddpid_ );
+    ConstDataPackRef<PreStack::Gather> wvagather = dpm.obtain( ginfo.wvadpid_ );
 
     if ( !vdgather && !wvagather  )
     {
@@ -1227,9 +1221,6 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     setGatherInfo( gdi, ginfo );
     gdi->setOffsetRange( gd->getOffsetRange() );
     setGatherView( gd, gdi );
-
-    DPM(DataPackMgr::FlatID()).release( ginfo.vddpid_ );
-    DPM(DataPackMgr::FlatID()).release( ginfo.wvadpid_ );
 
     gd_ += gd;
     gdi_ += gdi;
@@ -1481,9 +1472,10 @@ DataPack::ID uiViewer2DMainWin::getPreProcessedID( const GatherInfo& ginfo )
 void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 					     const GatherInfo& ginfo )
 {
-    PreStack::Gather* gather = new PreStack::Gather;
     if ( ginfo.isstored_ )
     {
+	DataPackRef<PreStack::Gather> gather =
+	    DPM(DataPackMgr::FlatID()).addAndObtain( new PreStack::Gather );
 	mDynamicCastGet(const uiStoredViewer2DMainWin*,storedpsmw,this);
 	if ( !storedpsmw ) return;
 	BufferString linename = storedpsmw->lineName();
@@ -1491,9 +1483,7 @@ void uiViewer2DMainWin::setGatherforPreProc( const BinID& relbid,
 	   (is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_.crl(),linename,0))
 	    || (!is2D() && gather->readFrom(ginfo.mid_,ginfo.bid_)) )
 	{
-	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 	    preprocmgr_->setInput( relbid, gather->id() );
-	    DPM( DataPackMgr::FlatID() ).release( gather );
 	}
     }
     else
