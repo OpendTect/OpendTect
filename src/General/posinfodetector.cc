@@ -16,9 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 PosInfo::Detector::Detector( const Setup& su )
-    	: sorting_(*new BinIDSorting(su.is2d_))
+	: sorting_(*new BinIDSorting(su.is2d_))
 	, sortanal_(0)
-    	, setup_(su)
+	, setup_(su)
 	, errmsg_("No positions found")
 {
     reInit();
@@ -265,7 +265,7 @@ uiString PosInfo::Detector::createPositionString(
     uiString ret = uiString( "%1 %2%3" )
         .arg( setup_.is2d_ ? tr("trace number") : tr("position") )
         .arg( cbo.binid_.toString(setup_.is2d_) )
-        .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ ) 
+        .arg( setup_.isps_ ? tr( " (offset %1)" ).arg( cbo.offset_ )
                            : uiString::emptyString() );
     return ret;
 }
@@ -554,7 +554,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	uiString sortdesc( errmsg_ );
 	if ( sortdesc.isEmpty() )
 	    sortdesc = sorting_.description();
-	( "Sorting", sortdesc );
+	iop.add( "Sorting", sortdesc.getFullString() );
     }
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
