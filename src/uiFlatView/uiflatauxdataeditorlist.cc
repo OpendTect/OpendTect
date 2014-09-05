@@ -21,8 +21,8 @@ uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     , ptselchange_( this )
     , isrectangleselection_( true )
 {
-    listbox_ = new uiListBox( this, "Aux data editors", OD::ChooseZeroOrMore );
-    listbox_->itemChosen.notify(
+    listbox_ = new uiListBox( this, "Aux data editors", OD::ChooseOnlyOne );
+    listbox_->selectionChanged.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
     listbox_->rightButtonClicked.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, rightClickedCB) );
