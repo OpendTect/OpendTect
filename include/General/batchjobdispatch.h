@@ -24,7 +24,7 @@ namespace Batch
 /*!\brief the data we need to specify an OD batch job. */
 
 mExpClass(General) JobSpec
-{
+{ mODTextTranslationClass(JobSpec);
 public:
 
     enum ProcType	{ NonODBase, Attrib, AttribEM, Grid2D,
@@ -68,7 +68,7 @@ public:
  */
 
 mExpClass(General) JobDispatcher
-{
+{ mODTextTranslationClass(JobDispatcher);
 public:
 
 			JobDispatcher()			{}
@@ -81,7 +81,7 @@ public:
     virtual bool	canResume(const JobSpec&) const { return false; }
 
     bool		go(const JobSpec&);
-    const char*		errMsg() const			{ return errmsg_; }
+    uiString		errMsg() const			{ return errmsg_; }
 
     mDefineFactoryInClass(JobDispatcher,factory);
 
@@ -105,7 +105,7 @@ protected:
     virtual bool	init()				{ return true; }
     virtual bool	launch()			= 0;
 
-    mutable BufferString errmsg_;
+    mutable uiString    errmsg_;
 
     bool		writeParFile() const;
 
@@ -115,7 +115,7 @@ protected:
 /*!\brief kicks off OD batch jobs in a single process. */
 
 mExpClass(General) SingleJobDispatcher : public JobDispatcher
-{
+{ mODTextTranslationClass(SingleJobDispatcher);
 public:
 
 			SingleJobDispatcher();

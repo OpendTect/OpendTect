@@ -207,7 +207,7 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
 
     if ( setup_.reqsorting_ && sortanal_->errMsg().isSet() )
     {
-        sortanal_->errMsg().isSet();
+        sortanal_->errMsg();
         return false;
     }
 
@@ -551,11 +551,15 @@ void PosInfo::Detector::report( IOPar& iop ) const
 {
     if ( setup_.reqsorting_ )
     {
-	uiString sortdesc( errmsg_ );
+	BufferString sortdesc( errmsg_.getFullString() );
+ 
 	if ( sortdesc.isEmpty() )
-	    sortdesc = sorting_.description();
-	iop.add( "Sorting", sortdesc.getFullString() );
+	     sortdesc = sorting_.description();
+
+
+	 iop.add( "Sorting", sortdesc );
     }
+
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
     iop.set( "X-Coordinate range", getRangeStr(mincoord_.x,maxcoord_.x) );

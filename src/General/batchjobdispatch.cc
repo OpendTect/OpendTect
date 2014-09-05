@@ -121,8 +121,8 @@ bool Batch::JobDispatcher::go( const Batch::JobSpec& js )
 {
     if ( !canHandle(js) )
     {
-	errmsg_.set( "Batch job is not suited for " )
-		.add( factoryDisplayName() ).add( " execution" );
+	errmsg_ = tr( "Batch job is not suited for %1 executions" )
+		.arg( factoryDisplayName() );
 	return false;
     }
 
@@ -193,7 +193,7 @@ bool Batch::JobDispatcher::writeParFile() const
     parstrm.close();
     if ( !ret )
     {
-	errmsg_.set( "Cannot write parameter file:\n" ).add( parfnm_ );
+	errmsg_ = tr( "Cannot write parameter file:\n %1" ).arg( parfnm_ );
 	parstrm.addErrMsgTo( errmsg_ );
     }
     return ret;
@@ -222,7 +222,7 @@ Batch::SingleJobDispatcher::SingleJobDispatcher()
 
 uiString Batch::SingleJobDispatcher::description() const
 {
-    return "The job will be executed on one computer, in a single process.";
+    return tr("The job will be executed on one computer, in a single process.");
 }
 
 
