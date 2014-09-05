@@ -36,11 +36,12 @@ class Desc; class DescSetup; class SelSpec;
 */
 
 mExpClass(AttributeEngine) DescSet : public CallBacker
-{ mODTextTranslationClass( Attrib::DescSet );
+{ mODTextTranslationClass( Attrib::DescSet )
 public:
     			DescSet(bool is2d);
     			DescSet(const DescSet&);
     			~DescSet() 		{ removeAll( false ); }
+
     DescSet&		operator =(const DescSet&);
     bool		isEmpty() const	{ return descs_.isEmpty(); }
     inline int		size() const	{ return nrDescs(true,true); }
@@ -106,10 +107,6 @@ public:
     bool 		isAttribUsed(const DescID&) const;
     void		cleanUpDescsMissingInputs();
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
-    bool 		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
-					  uiStringSet*);
     bool		createSteeringDesc(const IOPar&,BufferString,
 					   ObjectSet<Desc>&, int& id,
 					   uiStringSet* errmsgs=0);
@@ -152,6 +149,8 @@ public:
     			{ return couldbeanydim_; }
     bool		hasStoredInMem() const;
 
+    bool		exportToDot(const char* nm,const char* fnm) const;
+
     inline bool		is2D() const		{ return is2d_; }
     uiString		errMsg() const;
     static const char*	highestIDStr()		{ return "MaxNrKeys"; }
@@ -163,6 +162,10 @@ public:
 
     CNotifier<DescSet,DescID>	descToBeRemoved;
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&,uiStringSet* errmsgs=0);
+    bool 		useOldSteeringPar(IOPar&,ObjectSet<Desc>&,
+					  uiStringSet*);
 protected:
 
     DescID		getFreeID() const;

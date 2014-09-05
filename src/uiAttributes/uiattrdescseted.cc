@@ -144,6 +144,7 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertMnuItemNoIcon( impmnu, "From File ...", importFile );
     mInsertItem( "Reconstruct from job file ...", job2Set, "job2set" );
     mInsertItemNoIcon( "Import set from Seismics ...", importFromSeis );
+    mInsertItemNoIcon( "Export to DOT ...", exportToDotCB );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -1245,6 +1246,16 @@ bool uiAttribDescSetEd::is2D() const
 	return attrset_->is2D();
     else
 	return false;
+}
+
+
+void uiAttribDescSetEd::exportToDotCB( CallBacker* )
+{
+    if ( !attrset_ ) return;
+
+    const BufferString fnm = FilePath::getTempName( "dot" );
+    const char* attrnm = IOM().nameOf( setid_ );
+    attrset_->exportToDot( attrnm, fnm );
 }
 
 

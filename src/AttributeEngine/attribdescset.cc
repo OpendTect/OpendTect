@@ -7,26 +7,28 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdescset.h"
-#include "attribstorprovider.h"
-#include "attribparam.h"
+
 #include "attribdesc.h"
 #include "attribfactory.h"
+#include "attribparam.h"
 #include "attribsel.h"
+#include "attribstorprovider.h"
 #include "bufstringset.h"
 #include "datacoldef.h"
 #include "datapack.h"
 #include "datapointset.h"
 #include "gendefs.h"
-#include "keystrs.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "mathexpression.h"
-#include "separstr.h"
-#include "seisioobjinfo.h"
-#include "survinfo.h"
-#include "seistrctr.h"
 #include "odver.h"
+#include "od_ostream.h"
+#include "seisioobjinfo.h"
+#include "seistrctr.h"
+#include "separstr.h"
+#include "survinfo.h"
 
 namespace Attrib
 {
@@ -1261,4 +1263,30 @@ void DescSet::cleanUpDescsMissingInputs()
 }
 
 
-}; // namespace Attrib
+bool DescSet::exportToDot( const char* nm, const char* fnm ) const
+{
+    od_ostream strm( fnm );
+    if ( !strm.isOK() )
+	return false;
+
+    strm << "digraph " << "DescSet" << " {" << '\n';
+    for ( int idx=0; idx<nrDescs(true,true); idx++ )
+    {
+	const Desc* curdesc = desc( idx );
+	if ( !curdesc ) continue;
+
+	const int nrinputs = curdesc->nrInputs();
+	for ( int inpidx=0; inpidx<nrinputs; inpidx++ )
+	{
+	    const Desc* inpdesc = curdesc->getInput( inpidx );
+	    if ( !inpdesc ) continue;
+
+	    strm << "\"" << inpdesc->userRef() << "\" -> \""
+		 << curdesc->userRef() << "\";\n";
+	}
+    }
+
+    return true;
+}
+
+} // namespace Attrib

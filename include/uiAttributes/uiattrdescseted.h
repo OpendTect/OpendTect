@@ -140,6 +140,7 @@ protected:
     void			evalAttribute(CallBacker*);
     void			crossEvalAttrs(CallBacker*);
     void			importFromFile(const char*);
+    void			exportToDotCB(CallBacker*);
 
     void			setButStates();
     bool			offerSetSave();
