@@ -64,6 +64,33 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+
+static Threads::Mutex		winlistmutex_;
+static ObjectSet<uiMainWin>	orderedwinlist_;
+static uiMainWin*		programmedactivewin_ = 0;
+
+
+static void addToOrderedWinList( uiMainWin* uimw )
+{
+    winlistmutex_.lock();
+    orderedwinlist_ -= uimw;
+    orderedwinlist_ += uimw;
+    winlistmutex_.unLock();
+}
+
+
+static bool isInOrderedWinList( const uiMainWin* uimw )
+{
+    winlistmutex_.lock();
+    const bool res = orderedwinlist_.isPresent( uimw );
+    winlistmutex_.unLock();
+    return res;
+}
+
+
+//=============================================================================
+
+
 class uiMainWinBody : public uiParentBody , public QMainWindow
 {
 friend class		uiMainWin;
@@ -427,7 +454,7 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
 	handle_.windowClosed.trigger( handle_ );
 	ce->accept();
 
-	if ( modal_ )
+	if ( isInOrderedWinList(&handle_) && modal_ )
 	    eventloop_.exit();
     }
     else
@@ -442,6 +469,9 @@ void uiMainWinBody::close()
     if ( !handle_.closeOK() ) return;
 
     handle_.windowClosed.trigger( handle_ );
+
+    if ( !isInOrderedWinList(&handle_) )
+	return;
 
     if ( testAttribute(Qt::WA_DeleteOnClose) )
     {
@@ -679,7 +709,7 @@ void uiMainWinBody::managePopupPos()
 }
 
 
-// ----- uiMainWin -----
+//===== uiMainWin ============================================================
 
 
 uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
@@ -751,10 +781,6 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 }
 
 
-static Threads::Mutex		winlistmutex_;
-static ObjectSet<uiMainWin>	orderedwinlist_;
-static uiMainWin*		programmedactivewin_ = 0;
-
 uiMainWin::~uiMainWin()
 {
     detachAllNotifiers();
@@ -784,15 +810,9 @@ uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
 
-#define mAddToOrderedWinList( uimw ) \
-    winlistmutex_.lock(); \
-    orderedwinlist_ -= uimw; \
-    orderedwinlist_ += uimw; \
-    winlistmutex_.unLock();
-
 void uiMainWin::show()
 {
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     body_->go();
 }
 
@@ -1298,6 +1318,8 @@ void uiMainWin::saveImage( const char* fnm, int width, int height, int res )
     imagesaver.setImageProp( wid, fnm, width, height, res );
 }
 
+
+//============================================================================
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
 'Save defaults' button.
@@ -1861,8 +1883,9 @@ void uiDialogBody::applyCB( CallBacker* cb )
 }
 
 
+//====== uiDialog =============================================================
 
-// uiDialog
+
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
@@ -1942,14 +1965,14 @@ void uiDialog::showAlwaysOnTop()
 
 int uiDialog::go()
 {
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     return mBody->exec( false );
 }
 
 
 int uiDialog::goMinimized()
 {
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     return mBody->exec( true );
 }
 
