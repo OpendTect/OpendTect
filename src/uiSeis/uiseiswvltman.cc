@@ -23,18 +23,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "waveletattrib.h"
 
 #include "uibutton.h"
-#include "uitoolbutton.h"
-#include "uiseissingtrcdisp.h"
+#include "uifont.h"
 #include "uigeninput.h"
 #include "uiioobjselgrp.h"
 #include "uiioobjmanip.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uiseissingtrcdisp.h"
 #include "uiseiswvltattr.h"
 #include "uiseiswvltgen.h"
 #include "uiseiswvltimpexp.h"
 #include "uiselobjothersurv.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 #include "uiwaveletextraction.h"
 #include "od_helpids.h"
 
@@ -67,22 +68,25 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 			mCB(this,uiSeisWvltMan,taper) );
 
     butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
+    const uiFont& ft =
+	uiFontList::getInst().get( FontData::key(FontData::Control) );
+    butgrp_->setPrefHeight( ft.height()*2 );
+    butgrp_->attach( centeredBelow, selgrp_ );
+
     uiPushButton* impbut = new uiPushButton( butgrp_, "&Import", false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
-    impbut->setPrefWidthInChar( 12 );
+
     uiPushButton* crbut = new uiPushButton( butgrp_, "&Generate", false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
-    crbut->setPrefWidthInChar( 12 );
+
     uiPushButton* mergebut = new uiPushButton( butgrp_, "&Merge", false );
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
-    mergebut->setPrefWidthInChar( 12 );
+
     uiPushButton* extractbut = new uiPushButton( butgrp_, "&Extract", false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
-    extractbut->setPrefWidthInChar( 12 );
-    butgrp_->attach( centeredBelow, selgrp_ );
 
     trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_ );
     trcdisp_->setPrefWidth( 100 );
