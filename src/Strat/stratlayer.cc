@@ -123,7 +123,7 @@ Strat::FormulaLayerValue* Strat::FormulaLayerValue::clone(
 					const Layer* lay ) const
 {
     FormulaLayerValue* ret = new FormulaLayerValue( form_, lay ? *lay : lay_,
-	    					    xpos_, myform_ );
+						    xpos_, myform_ );
     ret->inpidxs_ = inpidxs_;
     ret->inpvals_ = inpvals_;
     ret->errmsg_ = errmsg_;
@@ -660,6 +660,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	const Layer& inplay = *inpls.layers()[ilay];
 	Layer* newlay = new Layer( inplay.unitRef() );
 	newlay->setThickness( inplay.thickness() );
+	newlay->setContent( inplay.content() );
 	for ( int iprop=1; iprop<proprefs_.size(); iprop++ )
 	{
 	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
