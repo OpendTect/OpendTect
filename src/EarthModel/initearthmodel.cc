@@ -2,7 +2,7 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Satyaki	
+ Author:        Satyaki
  Date:          December 2007
 ________________________________________________________________________
 
@@ -30,25 +30,25 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefModInitFn(EarthModel)
 {
     mIfNotFirstTime( return );
-    
+
     EMFault3DTranslatorGroup::initClass();
     EMFaultStickSetTranslatorGroup::initClass();
     EMBodyTranslatorGroup::initClass();
     EMHorizon3DTranslatorGroup::initClass();
     EMHorizon2DTranslatorGroup::initClass();
     EMAnyHorizonTranslatorGroup::initClass();
-    
+
     dgbEMHorizon3DTranslator::initClass();
     dgbEMHorizon2DTranslator::initClass();
     dgbEMFault3DTranslator::initClass();
     lmkEMFault3DTranslator::initClass();
     dgbEMFaultStickSetTranslator::initClass();
-    
+
+    odEMBodyTranslator::initClass();
     mcEMBodyTranslator::initClass();
     polygonEMBodyTranslator::initClass();
     randposEMBodyTranslator::initClass();
-    dGBEMBodyTranslator::initClass();
-    
+
     EM::FaultStickSet::initClass();
     EM::Fault3D::initClass();
     EM::Horizon2D::initClass();

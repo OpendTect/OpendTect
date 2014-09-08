@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emmanager.h"
 
-namespace EM 
+namespace EM
 {
 
 class MarchingCubesSurfaceReader : public Executor
@@ -58,6 +58,7 @@ public:
 	std::istream& strm = ((StreamConn*)conn_)->iStream();
 	ascistream astream( strm );
 	if ( !astream.isOfFileType( sFileType() ) &&
+	     !astream.isOfFileType( sOldFileType() ) &&
 	     !astream.isOfFileType( sOldFileType() ) )
 	{
 	    errmsg_ = "Invalid filetype";
@@ -98,7 +99,8 @@ public:
     static const char* sFileType()
     { return MarchingCubesSurface::typeStr(); }
 
-    static const char* sOldFileType() { return "MarchingCubesSurface"; }
+    static const char* sOldFileType()	{ return "MarchingCubesSurface"; }
+    static const char* sOldFileType2()	{ return "MCBody"; }
 
     int	nextStep()
     {
@@ -234,7 +236,7 @@ EMObject* MarchingCubesSurface::create( EMManager& emm ) \
 
 
 FixedString MarchingCubesSurface::typeStr()
-{ return mcEMBodyTranslator::sKeyUserName(); }
+{ return "MC"; }
 
 
 const char* MarchingCubesSurface::getTypeStr() const
@@ -253,7 +255,7 @@ void MarchingCubesSurface::setNewName()
 MarchingCubesSurface::MarchingCubesSurface( EMManager& emm )
     : EMObject( emm )
     , mcsurface_( new ::MarchingCubesSurface )
-    , operator_( 0 )					      
+    , operator_( 0 )
 {
     mcsurface_->ref();
     setPreferredColor( getRandomColor( false ) );
@@ -290,21 +292,13 @@ BufferString MarchingCubesSurface::storageName() const
 Executor* MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj )
-	return 0;
-
-    Conn* conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-	return 0;
-
-    return new MarchingCubesSurfaceReader( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+    return conn ? new MarchingCubesSurfaceReader( *this, conn ) : 0;
 }
 
 
 Executor* MarchingCubesSurface::saver()
-{
-    return saver( 0 );
-}
+{ return saver( 0 ); }
 
 
 Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
@@ -319,14 +313,8 @@ Executor* MarchingCubesSurface::saver( IOObj* inpioobj )
 	ioobj = myioobj;
     }
 
-    if ( !ioobj )
-	return 0;
-    
-    Conn* conn = ioobj->getConn( Conn::Write );
-    if ( !conn )
-	return 0;
-
-    return new MarchingCubesSurfaceWriter( *this, conn, true );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    return conn ? new MarchingCubesSurfaceWriter( *this, conn, true ) : 0;
 }
 
 
@@ -336,15 +324,18 @@ bool MarchingCubesSurface::isEmpty() const
 
 const IOObjContext& MarchingCubesSurface::getIOObjContext() const
 {
-    static IOObjContext* res = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	res->deftransl = mcEMBodyTranslator::sKeyUserName();
-	res->toselect.allowtransls_ = mcEMBodyTranslator::sKeyUserName();
+	IOObjContext* newres =
+	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->deftransl = typeStr();
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
     }
 
-    return *res; 
+    return *res;
 }
 
 
@@ -372,7 +363,7 @@ void MarchingCubesSurface::createBodyOperator()
 
 bool MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
 {
-    if ( !operator_ || !mcsurface_ ) 
+    if ( !operator_ || !mcsurface_ )
 	return false;
 
     ImplicitBody* body = 0;
@@ -395,10 +386,10 @@ bool MarchingCubesSurface::getBodyRange( CubeSampling& cs )
 	 !mcsurface_->models_.getRange( 2, zrg ) )
 	return false;
 
-    cs.hrg.start = BinID( inlsampling_.atIndex(inlrg.start), 
-	    	           crlsampling_.atIndex(crlrg.start) );
+    cs.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
+		           crlsampling_.atIndex(crlrg.start) );
     cs.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
-	    		 crlsampling_.atIndex(crlrg.stop) );
+			 crlsampling_.atIndex(crlrg.stop) );
     cs.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
     cs.zrg.start = zsampling_.atIndex( zrg.start );
     cs.zrg.step = zsampling_.step;
@@ -414,11 +405,11 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
     if ( !mcsurface_ )
     {
 	if ( operator_ )
-    	{
-    	    ImplicitBody* body = 0;
-    	    if ( operator_->createImplicitBody(body,t) && body )
-    		return body;
-    	}
+	{
+	    ImplicitBody* body = 0;
+	    if ( operator_->createImplicitBody(body,t) && body )
+		return body;
+	}
 
 	return 0;
     }
@@ -464,23 +455,23 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 
     const Array3D<float>* vd = mcsurface_->impvoldata_;
     if ( !vd )
-    { 
-    	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
+    {
+	MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
 		inlrg.start, crlrg.start, zrg.start, !smooth );
 	const bool execres = TaskRunner::execute( t, m2i );
-    	if ( !execres )
-    	{
-    	    delete res;
-    	    mcsurface_->modelslock_.readUnLock();
-    	    return 0;
-    	}
-    
+	if ( !execres )
+	{
+	    delete res;
+	    mcsurface_->modelslock_.readUnLock();
+	    return 0;
+	}
+
 	res->arr_ = arr;
 	res->threshold_ = m2i.threshold();
     }
     else
     {
-	delete arr; 
+	delete arr;
 	Array3DImpl<float>* arrimpl = new Array3DImpl<float>( vd->info() );
 	arrimpl->copyFrom( *vd );
 	res->arr_ = arrimpl;
@@ -489,10 +480,10 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* t,
 
 
     res->cs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
-	    			crlsampling_.atIndex(crlrg.start) );
+				crlsampling_.atIndex(crlrg.start) );
     res->cs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
     res->cs_.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
-	    			crlsampling_.atIndex(crlrg.stop) );
+				crlsampling_.atIndex(crlrg.stop) );
     res->cs_.zrg.start = zsampling_.atIndex( zrg.start );
     res->cs_.zrg.stop = zsampling_.atIndex( zrg.stop );
     res->cs_.zrg.step = zsampling_.step;

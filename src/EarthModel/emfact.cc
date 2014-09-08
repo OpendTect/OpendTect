@@ -11,7 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 defineTranslatorGroup(EMHorizon2D,EMHorizon2DTranslatorGroup::keyword());
 defineTranslatorGroup(EMHorizon3D,EMHorizon3DTranslatorGroup::keyword());
 defineTranslatorGroup(EMAnyHorizon,EMAnyHorizonTranslatorGroup::keyword());
-defineTranslatorGroup(EMFaultStickSet,EMFaultStickSetTranslatorGroup::keyword());
+defineTranslatorGroup(EMFaultStickSet,
+	EMFaultStickSetTranslatorGroup::keyword());
 defineTranslatorGroup(EMFault3D,EMFault3DTranslatorGroup::keyword());
 
 defineTranslator(dgb,EMHorizon2D,mDGBKey);
@@ -23,8 +24,11 @@ defineTranslator(dgb,EMFault3D,mDGBKey);
 defineTranslator(lmk,EMFault3D,"Landmark");
 
 #include "embodytr.h"
-defineTranslatorGroup(EMBody,EMBodyTranslatorGroup::sKeyword());
-defineTranslator(mc,EMBody,mcEMBodyTranslator::sKeyUserName());
-defineTranslator(randpos,EMBody,randposEMBodyTranslator::sKeyUserName());
-defineTranslator(polygon,EMBody,polygonEMBodyTranslator::sKeyUserName());
-defineTranslator(dGB,EMBody,dGBEMBodyTranslator::sKeyUserName() );
+#include "emmarchingcubessurface.h"
+#include "empolygonbody.h"
+#include "emrandomposbody.h"
+defineTranslatorGroup(EMBody,EMBodyTranslatorGroup::keyword());
+defineTranslator(od,EMBody,EMBodyTranslatorGroup::sKeyUserWord());
+defineTranslator(mc,EMBody,EMBodyTranslatorGroup::sKeyUserWord());
+defineTranslator(randpos,EMBody,EMBodyTranslatorGroup::sKeyUserWord());
+defineTranslator(polygon,EMBody,EMBodyTranslatorGroup::sKeyUserWord());

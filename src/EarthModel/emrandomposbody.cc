@@ -26,11 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "streamconn.h"
 #include "survinfo.h"
 
-namespace EM 
+namespace EM
 {
 
-#define mRetErr( msg ) { errmsg_ = msg; return; }    
-    
+#define mRetErr( msg ) { errmsg_ = msg; return; }
+
 class RandomPosBodyReader : public Executor
 {
 public:
@@ -39,7 +39,7 @@ public:
 	: Executor( "RandomPos Loader" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
-	, nrdone_( 0 )		       
+	, nrdone_( 0 )
 	, totalnr_( -1 )
     {
 	if ( !conn_ || !conn_->forRead() || !conn_->isStream() )
@@ -49,7 +49,8 @@ public:
 
 	if ( !astream.stream().good() )
 	    mRetErr( "Cannot read from input file" );
-	if ( !astream.isOfFileType( sKeyRandomPosBodyFileType() ) )
+	if ( !astream.isOfFileType( sFileType() ) ||
+	     !astream.isOfFileType( sOldFileType()) )
 	    mRetErr( sInvalidFile() );
 
 	astream.next();
@@ -65,7 +66,7 @@ public:
     }
 
     int nextStep()
-    { 
+    {
 	if ( !errmsg_.isEmpty() )
 	    return ErrorOccurred();
 
@@ -73,14 +74,14 @@ public:
 	if ( !strm.good() )
 	{
 	    rdposbody_.resetChangedFlag();
-    	    return Finished();
+	    return Finished();
 	}
 
 	Coord3 pos;
 
 	const char* err = "Cannot interprete file";
 
-	strm >> pos.x; 
+	strm >> pos.x;
 	if ( strm.fail() )
 	{
 	    if ( !strm.good() )
@@ -103,10 +104,10 @@ public:
 	return MoreToDo();
     }
 
-    od_int64    	totalNr() const { return totalnr_; }
-    od_int64    	nrDone() const	{ return nrdone_; }
-    static const char*	sKeyRandomPosBodyFileType() 
-    			{ return RandomPosBody::typeStr(); }
+    od_int64	totalNr() const { return totalnr_; }
+    od_int64	nrDone() const	{ return nrdone_; }
+    static const char* sFileType()	{ return RandomPosBody::typeStr(); }
+    static const char* sOldFileType()	{ return "RandomPosBody"; }
     static const char*	sKeyNrPositions() { return "Nr positions"; }
 
 protected:
@@ -118,7 +119,7 @@ protected:
     int				nrdone_;
     int				totalnr_;
     BufferString		errmsg_;
-};    
+};
 
 
 class RandomPosBodyWriter : public Executor
@@ -129,11 +130,11 @@ public:
 	: Executor( "RandomPos Writer" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
-	, nrdone_( 0 )		       
+	, nrdone_( 0 )
     {
 	if ( !conn_->forWrite() || !conn_->isStream() )
 	    mRetErr( "Internal error: bad connection" );
-	
+
 	ascostream astream( ((StreamConn*)conn_)->oStream() );
 	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.stream().good() )
@@ -158,13 +159,13 @@ public:
 	rdposbody_.getPositions()[nrdone_].fill( str.buf(),""," ","" );
 	str += " ";
 	const int idx = mCast( int, rdposbody_.posIDs()[nrdone_] );
-	if ( !idx ) 
+	if ( !idx )
 	    str += "0";
 	else
-    	    str += idx;
+	    str += idx;
 	((StreamConn*)conn_)->oStream() << str.buf() << '\n';
-	nrdone_++;	
-	
+	nrdone_++;
+
 	return MoreToDo();
     }
 
@@ -177,10 +178,10 @@ protected:
     Conn*			conn_;
     int				nrdone_;
     BufferString		errmsg_;
-};    
+};
 
 
-mImplementEMObjFuncs( RandomPosBody, randposEMBodyTranslator::sKeyUserName() ); 
+mImplementEMObjFuncs( RandomPosBody, "RandomPos" );
 
 
 RandomPosBody::RandomPosBody( EMManager& man )
@@ -264,7 +265,7 @@ void RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 
     ids_.erase();
     for ( int idx=0; idx<pts.size(); idx++ )
-       ids_ += idx;	
+       ids_ += idx;
 }
 
 
@@ -294,7 +295,7 @@ Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
 }
 
 
-bool RandomPosBody::setPos( const PosID& posid, const Coord3& pos, 
+bool RandomPosBody::setPos( const PosID& posid, const Coord3& pos,
 			    bool addtohistory )
 { return setPos( posid.sectionID(), posid.subID(), pos, addtohistory ); }
 
@@ -328,49 +329,43 @@ Executor* RandomPosBody::saver( IOObj* inpioobj )
 	myioobj = IOM().get( multiID() );
 	ioobj = myioobj;
     }
-    
+
     if ( !ioobj )
     {
 	errmsg_ = "Cannot find surface";
 	return 0;
     }
 
-    Conn* conn = ioobj->getConn( Conn::Write );
-    if ( !conn )    
-     	return 0;
-
-    return new RandomPosBodyWriter( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Write ) : 0;
+    return conn ? new RandomPosBodyWriter( *this, conn ) : 0;
 }
 
 
 Executor* RandomPosBody::saver()
-{ return saver( 0 ); }
+{ return saver(0); }
 
 
 Executor* RandomPosBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
-    if ( !ioobj )
-	return 0;
-
-    Conn* conn = ioobj->getConn( Conn::Read );
-    if ( !conn )
-	return 0;
-    
-    return new RandomPosBodyReader( *this, conn );
+    Conn* conn = ioobj ? ioobj->getConn( Conn::Read ) : 0;
+    return conn ? new RandomPosBodyReader( *this, conn ) : 0;
 }
 
 
 const IOObjContext& RandomPosBody::getIOObjContext() const
 {
-    static IOObjContext* res = 0;
+    mDefineStaticLocalObject( PtrMan<IOObjContext>, res, = 0 );
     if ( !res )
     {
-	res = new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	res->deftransl = randposEMBodyTranslator::sKeyUserName();
-	res->toselect.allowtransls_ = randposEMBodyTranslator::sKeyUserName();
+	IOObjContext* newres =
+	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
+	newres->deftransl = typeStr();
+
+	if ( !res.setIfNull(newres) )
+	    delete newres;
     }
-    
+
     return *res;
 }
 
@@ -379,7 +374,7 @@ ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr,
 						 bool smooth ) const
 {
     BodyOperator bodyopt;
-    return bodyopt.createImplicitBody( locations_, tr ); 
+    return bodyopt.createImplicitBody( locations_, tr );
 }
 
 
@@ -390,11 +385,11 @@ bool RandomPosBody::getBodyRange( CubeSampling& cs )
 	cs.hrg.include( SI().transform(locations_[idx]) );
 
 	if ( idx )
-    	    cs.zrg.include( (float) locations_[idx].z );
+	    cs.zrg.include( (float) locations_[idx].z );
 	else
 	    cs.zrg.start = cs.zrg.stop = (float) locations_[idx].z;
     }
-    
+
     return locations_.size();
 }
 
@@ -413,7 +408,7 @@ bool RandomPosBody::useBodyPar( const IOPar& par )
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
 	Coord3 pos( Coord3::udf() );
-       	BufferString skeypos("Location pos"); skeypos += ids_[idx]; 
+	BufferString skeypos("Location pos"); skeypos += ids_[idx];
 	if (!par.get( skeypos.buf(), pos ) )
 	    return false;
 
@@ -430,7 +425,7 @@ void RandomPosBody::fillBodyPar( IOPar& par ) const
     par.set( sKeySubIDs(), ids_ );
     for ( int idx=0; idx<locations_.size(); idx++ )
     {
-       	BufferString skeypos("Location pos"); skeypos += ids_[idx]; 
+	BufferString skeypos("Location pos"); skeypos += ids_[idx];
 	par.set( skeypos.buf(), locations_[idx] );
     }
 }

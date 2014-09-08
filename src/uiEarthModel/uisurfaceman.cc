@@ -52,7 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d,  body ) \
-    !strcmp(typ,EMBodyTranslatorGroup::sKeyword()) ? body : \
+    !strcmp(typ,EMBodyTranslatorGroup::keyword()) ? body : \
     (!strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
     (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
     (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword()) ? anyhor : \
@@ -92,8 +92,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
 
-    if ( strcmp(typ,EMBodyTranslatorGroup::sKeyword()) )
-    	manipgrp->addButton( "copyobj", mGetCopyStr(typ),
+    if ( strcmp(typ,EMBodyTranslatorGroup::keyword()) )
+	manipgrp->addButton( "copyobj", mGetCopyStr(typ),
 		mCB(this,uiSurfaceMan,copyCB) );
 
     if ( mGet(typ,true,false,true,false,false,false) )
@@ -149,7 +149,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     }
 
     mTriggerInstanceCreatedNotifier();
-    selChg( this ); 
+    selChg( this );
 }
 
 
@@ -167,7 +167,7 @@ void uiSurfaceMan::addTool( uiButton* but )
 
 bool uiSurfaceMan::isCur2D() const
 {
-    return curioobj_ && 
+    return curioobj_ &&
 	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword());
 }
 
@@ -212,7 +212,7 @@ void uiSurfaceMan::mergeBodyCB( CallBacker* )
 {
     uiBodyOperatorDlg dlg( this );
     if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
+	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -221,10 +221,10 @@ void uiSurfaceMan::calVolCB( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    RefMan<EM::EMObject> emo = 
+    RefMan<EM::EMObject> emo =
 	EM::EMM().loadIfNotFullyLoaded( curioobj_->key(), 0 );
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
-    if ( !emb ) 
+    if ( !emb )
     {
 	uiMSG().error( "Body is empty" );
 	return;
@@ -239,7 +239,7 @@ void uiSurfaceMan::createBodyRegionCB( CallBacker* )
 {
     uiBodyRegionDlg dlg( this );
     if ( dlg.go() )
-    	selgrp_->fullUpdate( dlg.getBodyMid() );
+	selgrp_->fullUpdate( dlg.getBodyMid() );
 }
 
 
@@ -270,7 +270,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     BufferStringSet attrnms;
     attribfld_->getSelectedItems( attrnms );
-    if ( attrnms.isEmpty() || 
+    if ( attrnms.isEmpty() ||
 	    !uiMSG().askRemove("All selected Horizon Data will be removed.\n"
 			       "Do you want to continue?") )
 	return;
@@ -390,7 +390,7 @@ void uiSurfaceMan::mkFileInfo()
 
     if ( isCur2D() || isCurFault() )
     {
-	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
+	txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: ";
 	if ( isCurFault() )
 	    txt += eminfo.nrSticks();
 	else
@@ -429,7 +429,7 @@ void uiSurfaceMan::mkFileInfo()
 	txt += "Nr of sections: "; txt += sectionnms.size(); txt += "\n";
 	for ( int idx=0; idx<sectionnms.size(); idx++ )
 	{
-	    txt += "\tPatch "; txt += idx+1; txt += ": "; 
+	    txt += "\tPatch "; txt += idx+1; txt += ": ";
 	    txt += sectionnms[idx]->buf(); txt += "\n";
 	}
     }
@@ -464,7 +464,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     : uiDialog(p,uiDialog::Setup("Stratigraphy",mNoDlgTitle,""))
     , objids_(ids)
 {
-    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), 
+    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3),
 			"Stratigraphy Table" );
     BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Marker" );
     tbl_->setColumnLabels( lbls );
@@ -476,7 +476,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->doubleClicked.notify( mCB(this,uiSurfaceStratDlg,doCol) );
 
     uiToolButton* sb = new uiToolButton( this, "man_strat",
-	    				"Edit Stratigraphy to define Markers",
+					"Edit Stratigraphy to define Markers",
 					mCB(this,uiSurfaceStratDlg,doStrat) );
     sb->attach( rightOf, tbl_ );
 
@@ -530,7 +530,7 @@ void doCol( CallBacker* )
 
 void lvlChg( CallBacker* cb )
 {
-    mDynamicCastGet(uiStratLevelSel*,levelsel,cb) 
+    mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
     if ( !levelsel ) return;
 
     const Color col = levelsel->getColor();

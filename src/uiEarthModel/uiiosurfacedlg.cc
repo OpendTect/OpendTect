@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon3d.h"
 #include "emioobjinfo.h"
 #include "emmanager.h"
+#include "empolygonbody.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
@@ -45,10 +46,13 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf,
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_);
     const bool hasshift = hor && !mIsZero(shift,SI().zRange(true).step*1e-3);
+    mDynamicCastGet(const EM::PolygonBody*,plgbody,&surface_);
+    const bool usesubsel = !plgbody;
 
     iogrp_ = new uiSurfaceWrite( this, surface_,
 				 uiSurfaceWrite::Setup(surface_.getTypeStr())
-				 .withdisplayfld(!hasshift).withsubsel(true) );
+				 .withdisplayfld(!hasshift)
+				 .withsubsel(usesubsel) );
 }
 
 
@@ -168,7 +172,7 @@ uiStoreFaultData::uiStoreFaultData( uiParent* p, const EM::Fault3D& surf )
 {
     attrnmfld_ = new uiGenInput( this, "Surface data" );
     if ( surface_.auxdata.auxDataList().size() )
-    	attrnmfld_->setText( surface_.auxdata.auxDataList().get(0) );
+	attrnmfld_->setText( surface_.auxdata.auxDataList().get(0) );
 
     selbut_ = new uiPushButton( this, "Select", false );
     selbut_->attach( rightTo, attrnmfld_ );
@@ -220,7 +224,7 @@ bool uiStoreFaultData::acceptOK( CallBacker* )
     if ( dooverwrite_ )
 	surface_.auxdata.setDataName( sdidx, attrnm );
     else
-       surface_.auxdata.addData( attrnm );	
+       surface_.auxdata.addData( attrnm );
 
     return true;
 }
@@ -320,12 +324,12 @@ bool uiCopySurface::acceptOK( CallBacker* )
     mDynamicCastGet(Pos::Provider3D*,p3d,pf);
     if ( p3d )
 	surface->apply( *pf );
- 
+
     EM::SurfaceIOData outsd;
     outsd.use( *surface );
     EM::SurfaceIODataSelection outsdsel( outsd );
     outsdsel.setDefault();
- 
+
     mDynamicCastGet(Pos::RangeProvider3D*,rp3d,pf);
     if ( rp3d )
 	outsdsel.rg = rp3d->sampling().hrg;
@@ -340,7 +344,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
-    if ( File::exists(oldsetupname) ) 
+    if ( File::exists(oldsetupname) )
 	File::copy( oldsetupname, newsetupname );
 
     return true;

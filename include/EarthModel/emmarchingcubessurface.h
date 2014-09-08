@@ -23,7 +23,7 @@ class MarchingCubesSurface;
 namespace EM
 {
 
-class BodyOperator;    
+class BodyOperator;
 
 /*!
 \brief Marching cubes surface
@@ -33,7 +33,8 @@ mExpClass(EarthModel) MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
 public:
 
-    virtual int			nrSections() const 		{ return 1; }
+    const char*			type() const	{ return typeStr(); }
+    virtual int			nrSections() const		{ return 1; }
     virtual SectionID		sectionID(int) const		{ return 0; }
     virtual bool		canSetSectionName() const	{ return false;}
 
@@ -69,13 +70,13 @@ public:
     EM::BodyOperator*		getBodyOperator() const	{ return operator_; }
     void			createBodyOperator();
     void			setBodyOperator(EM::BodyOperator*);
-    				/*<Set operator only, to use it, call 
+				/*<Set operator only, to use it, call
 				   regenerateMCBody() to update the surface.*/
     bool			regenerateMCBody(TaskRunner* tr=0);
 
     bool			useBodyPar(const IOPar&);
     void			fillBodyPar(IOPar&) const;
-    
+
 protected:
 
     SamplingData<int>		inlsampling_;
