@@ -66,10 +66,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 				mCB(this,uiSeisWvltMan,rotatePhase) );
     taperbut_ = manipgrp->addButton( "wavelet_taper", "Taper",
 				     mCB(this,uiSeisWvltMan,taper) );
-
-    butgrp_ = new uiGroup( listgrp_, "Imp/Create buttons" );
     addButtons();
-    butgrp_->attach( centeredBelow, selgrp_ );
 
     trcdisp_ = new uiSeisSingleTraceDisplay( listgrp_ );
     trcdisp_->setPrefWidth( 100 );
@@ -99,32 +96,25 @@ uiSeisWvltMan::~uiSeisWvltMan()
 
 void uiSeisWvltMan::addButtons()
 {
-    uiPushButton* impbut = new uiPushButton( butgrp_, uiStrings::sImport(),
-					     false );
+    uiButtonGroup* grp = extraButtonGroup();
+    uiPushButton* impbut = new uiPushButton( grp, uiStrings::sImport(), false );
     impbut->activated.notify( mCB(this,uiSeisWvltMan,impPush) );
-    impbut->setPrefWidthInChar( 12 );
 
-    uiPushButton* crbut = new uiPushButton( butgrp_, tr("Generate"), false );
+    uiPushButton* crbut = new uiPushButton( grp, tr("Generate"), false );
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
-    crbut->setPrefWidthInChar( 12 );
 
-    uiPushButton* mergebut = new uiPushButton( butgrp_, tr("Merge"), false );
+    uiPushButton* mergebut = new uiPushButton( grp, tr("Merge"), false );
     mergebut->activated.notify( mCB(this,uiSeisWvltMan,mrgPush) );
     mergebut->attach( rightOf, crbut );
-    mergebut->setPrefWidthInChar( 12 );
 
-    uiPushButton* extractbut =
-		new uiPushButton( butgrp_, tr("Extract"), false );
+    uiPushButton* extractbut = new uiPushButton( grp, tr("Extract"), false );
     extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
     extractbut->attach( rightOf, mergebut );
-    extractbut->setPrefWidthInChar( 12 );
 
-    uiPushButton* matchbut =
-		new uiPushButton( butgrp_, tr("Match"), false );
+    uiPushButton* matchbut = new uiPushButton( grp, tr("Match"), false );
     matchbut->activated.notify( mCB(this,uiSeisWvltMan,matchPush) );
     matchbut->attach( rightOf, extractbut );
-    matchbut->setPrefWidthInChar( 12 );
 }
 
 

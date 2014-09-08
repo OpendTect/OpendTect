@@ -30,9 +30,8 @@ public:
 
 protected:
 
-    uiGroup*			butgrp_;
     uiSeisSingleTraceDisplay*	trcdisp_;
-    uiWaveletExtraction*  	wvltext_;
+    uiWaveletExtraction*	wvltext_;
     uiWaveletDispPropDlg*	wvltpropdlg_;
     uiToolButton*		disppropbut_;
     uiToolButton*		revpolbut_;
@@ -43,7 +42,7 @@ protected:
     void			mkFileInfo();
     void			ownSelChg();
 
-    void                	closeDlg(CallBacker*);
+    void			closeDlg(CallBacker*);
     void			crPush(CallBacker*);
     void			dispProperties(CallBacker*);
 
@@ -56,10 +55,9 @@ protected:
     void			reversePolarity(CallBacker*);
     void			rotatePhase(CallBacker*);
     void			taper(CallBacker*);
-    void                	updateCB(CallBacker*);
-    void 			rotUpdateCB(CallBacker*);
+    void			updateCB(CallBacker*);
+    void			rotUpdateCB(CallBacker*);
 };
-
 
 #endif
 
