@@ -1269,7 +1269,8 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
     if ( !strm.isOK() )
 	return false;
 
-    strm << "digraph " << "DescSet" << " {" << '\n';
+    strm << "digraph {" << '\n';
+    strm << "graph [label=\"" << nm << "\", labelloc=t, fontsize=30];\n";
     for ( int idx=0; idx<nrDescs(true,true); idx++ )
     {
 	const Desc* curdesc = desc( idx );
@@ -1285,6 +1286,7 @@ bool DescSet::exportToDot( const char* nm, const char* fnm ) const
 		 << curdesc->userRef() << "\";\n";
 	}
     }
+    strm << "}\n";
 
     return true;
 }

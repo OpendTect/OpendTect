@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "oscommand.h"
 #include "ptrman.h"
 #include "pickset.h"
 #include "seistype.h"
@@ -45,6 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrtypesel.h"
 #include "uiautoattrdescset.h"
 #include "uicombobox.h"
+#include "uidesktopservices.h"
 #include "uievaluatedlg.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -144,7 +146,6 @@ void uiAttribDescSetEd::createMenuBar()
     mInsertMnuItemNoIcon( impmnu, "From File ...", importFile );
     mInsertItem( "Reconstruct from job file ...", job2Set, "job2set" );
     mInsertItemNoIcon( "Import set from Seismics ...", importFromSeis );
-    mInsertItemNoIcon( "Export to DOT ...", exportToDotCB );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -171,6 +172,7 @@ void uiAttribDescSetEd::createToolBar()
     mAddButton( "evalattr", evalAttribute, "Evaluate attribute" );
     mAddButton( "evalcrossattr",crossEvalAttrs,"Cross attributes evaluate");
     mAddButton( "xplot", crossPlot, "Cross-Plot attributes" );
+    mAddButton( "dot", exportToDotCB, "View as graph" );
 }
 
 
@@ -1256,6 +1258,19 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
     const BufferString fnm = FilePath::getTempName( "dot" );
     const char* attrnm = IOM().nameOf( setid_ );
     attrset_->exportToDot( attrnm, fnm );
+
+    FilePath outputfp( fnm );
+    outputfp.setExtension( "png" );
+    BufferString cmd;
+    cmd.add( "dot -Tpng " ).add( fnm ).add( " -o " ).add( outputfp.fullPath() );
+    const bool res = OS::ExecCommand( cmd.buf() );
+    if ( !res )
+    {
+	uiMSG().error( "Could not execute ", cmd );
+	return;
+    }
+
+    uiDesktopServices::openUrl( outputfp.fullPath() );
 }
 
 
