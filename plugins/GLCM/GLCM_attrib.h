@@ -17,7 +17,7 @@ namespace Attrib
 {
 	
 mExpClass(GLCM) GLCM_attrib : public Provider
-{
+{ mODTextTranslationClass(GLCM_attrib);
 public:
 	static void			initClass();
 						explicit GLCM_attrib(Desc&);
