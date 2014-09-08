@@ -1,6 +1,7 @@
 /*+
  * (C) JOANNEUM RESEARCH; http://www.joanneum.at
- * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
+ * AUTHOR   : Christoph Eichkitz; http://www.joanneum.at/resources/gph/
+ mitarbeiterinnen/mitarbeiter-detailansicht/person/0/3144/eichkitz.html
  * DATE     : November 2013
 -*/
 
