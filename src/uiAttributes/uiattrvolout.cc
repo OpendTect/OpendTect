@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrvolout.h"
 
 #include "uiattrsel.h"
+#include "uibatchjobdispatchersel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -21,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
-#include "uibatchjobdispatchersel.h"
+#include "uiseparator.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -99,11 +100,16 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     objfld_->setConfirmOverwrite( !is2d );
 
     uiGroup* botgrp = objfld_;
+    uiSeparator* sep2 = 0;
     if ( multioutput && !is2d )
     {
+	uiSeparator* sep1 = new uiSeparator( this, "PS Start Separator" );
+	sep1->attach( stretchedBelow, objfld_ );
+
 	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
+	cb->attach( ensureBelow, sep1 );
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
@@ -113,9 +119,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
-	offsetfld_ = new uiGenInput( this, "Offset (start/step)",
+	const uiString lbl = tr( "Offset (start/step) %1" )
+					.arg( SI().getXYUnitString() );
+	offsetfld_ = new uiGenInput( this, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
+
+	sep2 = new uiSeparator( this, "PS End Separator" );
+	sep2->attach( stretchedBelow, offsetfld_ );
+
 	psSelCB( cb );
 	botgrp = offsetfld_;
     }
@@ -125,6 +137,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     IOPar& iop = jobSpec().pars_;
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, botgrp );
+    if ( sep2 ) batchfld_->attach( ensureBelow, sep2 );
 }
 
 
