@@ -274,11 +274,11 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
     if ( !status )
 	return true;
 
-    uiString msg( tr( "OpendTect v5.0 has a new geo-body format. "
+    uiString msg( tr("OpendTect has a new geo-body format. "
 		"All the old geo-bodies of survey '%1' will now be converted. "
 		"Note that after the conversion, you will still be able to use "
-		"those geo-bodies in OpendTect v4.6, but not older than v4.6. ")
-		.arg(IOM().surveyName()) );
+		"those geo-bodies in OpendTect 4.6.0, but only in patch p or "
+		"later.").arg(IOM().surveyName()) );
 
     const int res = uiMSG().question( msg, tr("Convert now"),
 					   tr("Do it later"),
@@ -296,7 +296,7 @@ bool uiODApplMgr::Convert_OD4_Body_To_OD5()
     uiString errmsg;
     if ( !OD_Convert_Body_To_OD5(errmsg) )
     {
-	uiMSG().error( tr("%1").arg(errmsg) );
+	uiMSG().error( errmsg );
 	return false;
     }
     else
