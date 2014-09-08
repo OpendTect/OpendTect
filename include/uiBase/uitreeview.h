@@ -34,29 +34,17 @@ public:
 				   const char* nm="uiTreeView",
 				   int preferredNrLines=0,
 				   bool rootdecorated=true);
-
     virtual		~uiTreeView();
 
-                        // 0: use nr itms in tree
-    uiTreeViewBody& 	mkbody(uiParent*,const char*,int);
     void		setNrLines(int);
-
-    enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
-    void		setHScrollBarMode(ScrollMode);
-    void		setVScrollBarMode(ScrollMode);
-
-    void		setTreeStepSize(int);
 
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
     void		showHeader(bool yn); // default is true
 
-    // take & insert are meant to MOVE an item to another point in the tree
-    void		takeItem(uiTreeViewItem*);
-    void		insertItem(int,uiTreeViewItem*);
-
     void		addColumns(const uiStringSet&);
     void		addColumns(const BufferStringSet&);
+    void		setNrColumns(int); // when columns have no name
     int			nrColumns() const;
 
     void		removeColumn(int index);
@@ -68,16 +56,20 @@ public:
 
     enum		WidthMode { Manual, Fixed, Stretch, ResizeToContents,
 				    Custom };
+    void		setColumnWidthMode(WidthMode);
     void		setColumnWidthMode(int column,WidthMode);
     WidthMode		columnWidthMode(int column) const;
 
+    void		setColumnAlignment(Alignment::HPos);
     void		setColumnAlignment(int,Alignment::HPos);
     Alignment::HPos	columnAlignment(int) const;
 
-    void		ensureItemVisible(const uiTreeViewItem*);
+    enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
+    void		setHScrollBarMode(ScrollMode);
+    void		setVScrollBarMode(ScrollMode);
 
     enum		SelectionMode
-    			{ NoSelection=0, Single, Multi, Extended, Contiguous };
+			{ NoSelection=0, Single, Multi, Extended, Contiguous };
     enum		SelectionBehavior
 			{ SelectItems, SelectRows, SelectColumns };
     void		setSelectionMode(SelectionMode);
@@ -93,15 +85,15 @@ public:
     void		getSelectedItems(ObjectSet<uiTreeViewItem>&) const;
     void		removeSelectedItems();
 
+    int			nrItems() const;
     void		setCurrentItem(uiTreeViewItem*,int column=0);
-
     uiTreeViewItem*	currentItem() const;
     int			currentColumn() const;
+    int			indexOfItem(uiTreeViewItem*) const;
     uiTreeViewItem*	getItem(int) const;
     uiTreeViewItem*	firstItem() const;
     uiTreeViewItem*	lastItem() const;
-
-    int			nrItems() const;
+    uiTreeViewItem*	findItem(const char*,int,bool) const;
 
     void		setItemMargin(int);
     int			itemMargin() const;
@@ -109,17 +101,20 @@ public:
     void		setShowToolTips(bool);
     bool		showToolTips() const;
 
-    int			indexOfItem(uiTreeViewItem*) const;
-    uiTreeViewItem*	findItem(const char*,int,bool) const;
-    uiParent*		parent()		{ return parent_; }
-
     void		clear();
     void		invertSelection();
     void		selectAll();
+
     void		expandAll();
     void		collapseAll();
     void		expandTo(int treedepth);
+    void		ensureItemVisible(const uiTreeViewItem*);
 
+			// For MOVING an item to another point in the tree
+    void		takeItem(uiTreeViewItem*);
+    void		insertItem(int,uiTreeViewItem*);
+
+    uiParent*		parent()		{ return parent_; }
     void		translateText();
     bool		handleLongTabletPress();
 
@@ -159,8 +154,8 @@ protected:
     int			column_;
     OD::ButtonState     buttonstate_;
 
-    void 		cursorSelectionChanged(CallBacker*);
-    void 		itemChangedCB(CallBacker*);
+    void		cursorSelectionChanged(CallBacker*);
+    void		itemChangedCB(CallBacker*);
     void		updateCheckStatus(uiTreeViewItem*);
 
     uiTreeViewBody*		lvbody()	{ return body_; }
@@ -176,9 +171,14 @@ private:
 
     uiStringSet		labels_;
 
+			// 0: use nr itms in tree
+    uiTreeViewBody&	mkbody(uiParent*,const char*,int);
+
 public:
-    const char* 		columnText(int column) const;
+
+    const char*		columnText(int column) const;
 				//Commandline driver usage only
+
 };
 
 
@@ -233,7 +233,7 @@ public:
     void		setCheckable(bool);
     bool		isCheckable() const;
     void		setChecked(bool,bool trigger=false);
-    			//!< does nothing if not checkable
+			//!< does nothing if not checkable
     bool		isChecked(bool qtstatus=true) const;
 			//!< returns false if not checkable
 
@@ -248,7 +248,7 @@ public:
     void		removeItem(uiTreeViewItem*);
     void		moveItem(uiTreeViewItem* after);
     int			siblingIndex() const;
-    			/*!<\returns this items index of it's siblings. */
+			/*!<\returns this items index of it's siblings. */
 
     void		setText( const uiString&, int column=0 );
     void		setText( int i, int column=0 )
@@ -304,13 +304,13 @@ public:
 
     Notifier<uiTreeViewItem> stateChanged; //!< only works for CheckBox type
     Notifier<uiTreeViewItem> keyPressed;
-    			//!< passes CBCapsule<const char*>* cb
-    			//!< If you handle it, set cb->data = 0;
+			//!< passes CBCapsule<const char*>* cb
+			//!< If you handle it, set cb->data = 0;
 
     static mQtclass(QTreeWidgetItem*)	 qitemFor(uiTreeViewItem*);
     static const mQtclass(QTreeWidgetItem*)  qitemFor(const uiTreeViewItem*);
 
-    static uiTreeViewItem* 	 itemFor(mQtclass(QTreeWidgetItem*));
+    static uiTreeViewItem*	 itemFor(mQtclass(QTreeWidgetItem*));
     static const uiTreeViewItem* itemFor(const mQtclass(QTreeWidgetItem*));
 
 protected:

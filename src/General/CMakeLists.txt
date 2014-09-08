@@ -54,6 +54,7 @@ set ( OD_MODULE_SOURCES array2dbitmap.cc
 	    menuhandler.cc
 	    mousecursor.cc
 	    mouseevent.cc
+	    odiconfile.cc
 	    pickretriever.cc
 	    pickset.cc
 	    posimpexppars.cc

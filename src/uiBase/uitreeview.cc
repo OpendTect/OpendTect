@@ -341,6 +341,16 @@ void uiTreeView::takeItem( uiTreeViewItem* itm )
 }
 
 
+void uiTreeView::setNrColumns( int nrcols )
+{
+    uiStringSet strings;
+    for ( int idx=0; idx<nrcols; idx++ )
+	strings += uiString::emptyString();
+
+    addColumns( strings );
+}
+
+
 void uiTreeView::addColumns( const BufferStringSet& lbls )
 {
     uiStringSet strings;
@@ -422,6 +432,14 @@ int uiTreeView::nrColumns() const
 { return body_->columnCount(); }
 
 
+void uiTreeView::setColumnWidthMode( WidthMode widthmode )
+{
+    const int nrcols = nrColumns();
+    for ( int icol=0; icol<nrcols; icol++ )
+	setColumnWidthMode( icol, widthmode );
+}
+
+
 void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 {
 #if QT_VERSION < 0x050000
@@ -442,6 +460,14 @@ uiTreeView::WidthMode uiTreeView::columnWidthMode( int column ) const
     return (uiTreeView::WidthMode)
 	int(body_->header()->sectionResizeMode(column));
 #endif
+}
+
+
+void uiTreeView::setColumnAlignment( Alignment::HPos hal )
+{
+    const int nrcols = nrColumns();
+    for ( int icol=0; icol<nrcols; icol++ )
+	setColumnAlignment( icol, hal );
 }
 
 

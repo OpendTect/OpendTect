@@ -256,16 +256,10 @@ void uiAction::trigger(bool checked)
 
 void uiAction::reloadIcon()
 {
-    if ( iconfile_.isEmpty() )
+    if ( iconfile_.isEmpty() || iconfile_[0] == '[' )
 	return;
 
-    if ( iconfile_[0] == '[' )
-	return;
-
-    FileMultiString fms( iconfile_ );
-    const int len = fms.size();
-    const BufferString fnm( fms[0] );
-    const ioPixmap pm( fnm.buf(), len > 1 ? fms[1].str() : 0 );
+    const ioPixmap pm( iconfile_ );
     if ( pm.isEmpty() )
 	return;
 

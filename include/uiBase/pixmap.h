@@ -26,8 +26,8 @@ class uiRGBArray;
 
 /*!\brief Off-screen pixel-based paint device
 
-  Recommended: put your icons in the data/icons.Default directory, and
-  specify .png files without any path.
+  Icons pixmaps can be created from the identifier, see OD::IconFile: the file
+  name without extension.
 
 */
 
@@ -40,19 +40,19 @@ public:
 			ioPixmap(int w,int h);
 			ioPixmap(const mQtclass(QPixmap&));
 			ioPixmap(const ioPixmap&);
-			ioPixmap(const char* filename,const char* fmt=0);
+			ioPixmap(const char* icon_identifier);
 			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
     virtual		~ioPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);
 
     mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
-    const mQtclass(QPixmap*)	qpixmap() const		{ return qpixmap_; }
+    const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
     void		fill(const Color&);
 
     int			width() const;
-    int	height() const;
+    int			height() const;
     bool		isEmpty() const;
 
     const char*		source() const		{ return srcname_.buf(); }
@@ -67,30 +67,11 @@ protected:
 
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
-};
-
-
-
-/*! \brief pixmap with the depth of 2 (b/w)
-
-If the file does not exist, or is of an unknown format, the pixmap becomes
-a null pixmap.
-
-If format is specified, attempts to read the pixmap using the specified format.
-If format is not specified (default), the loader reads a few bytes from the
-header to guess the file format.
-
-*/
-
-mExpClass(uiBase) ioBitmap : public ioPixmap
-{
-public:
-			ioBitmap(const char* filename,const char* fmt=0);
-    mQtclass(QBitmap*)	Bitmap();
-    const mQtclass(QBitmap*)	Bitmap() const;
 
 };
+
 
 mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
+
 
 #endif
