@@ -286,6 +286,7 @@ protected:
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_;
 
     static bool			Convert_OD4_Data_To_OD5();
+    static bool			Convert_OD4_Body_To_OD5();
     void			mainWinUpCB(CallBacker*) const;
 
     friend class		uiODMain;

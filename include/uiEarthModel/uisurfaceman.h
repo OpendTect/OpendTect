@@ -49,7 +49,6 @@ protected:
     uiToolButton*	surfdataremovebut_;
     uiToolButton*	copybut_;
     uiToolButton*	mergehorbut_;
-    uiToolButton*	bodyformatconvertbut_;
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
     void		man2dCB(CallBacker*);
@@ -60,7 +59,6 @@ protected:
     void		mergeBodyCB(CallBacker*);
     void		createBodyRegionCB(CallBacker*);
     void		switchValCB(CallBacker*);
-    void		converOldBodyFormatCB(CallBacker*);
     void		calVolCB(CallBacker*);
 
     void		removeAttribCB(CallBacker*);

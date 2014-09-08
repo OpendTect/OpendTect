@@ -71,11 +71,6 @@ public:
     virtual void                fillBodyPar(IOPar&) const	= 0;
 				//!<Should be mapped to EMObject::fillPar;
 
-    static bool			hasOldFormats();
-    static bool			convertOldBodyFormatToCurrent(
-					TypeSet<MultiID>& mids,
-					BufferString& errmsg);
-
 protected:
 				~Body()		{}
 };
