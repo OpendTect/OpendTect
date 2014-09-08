@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattrvolout.h"
 
 #include "uiattrsel.h"
+#include "uibatchjobdispatchersel.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -21,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseistransf.h"
-#include "uibatchjobdispatchersel.h"
+#include "uiseparator.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
@@ -69,9 +70,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     const bool is2d = ad.is2D();
     const Seis::GeomType gt = Seis::geomTypeOf( is2d, false );
 
-    setCaption( is2d ? "Create Data Attribute" :
-	( multioutput ? "Create Multi-attribute Output"
-		      : "Create Volume Attribute") );
+    setCaption( is2d ? tr("Create Data Attribute") :
+       ( multioutput ? tr("Create Multi-attribute Output")
+		     : tr("Create Volume Attribute")) );
 
     uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;
@@ -98,11 +99,16 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     objfld_->setConfirmOverwrite( !is2d );
 
     uiGroup* botgrp = objfld_;
+    uiSeparator* sep2 = 0;
     if ( multioutput && !is2d )
     {
+	uiSeparator* sep1 = new uiSeparator( this, "PS Start Separator" );
+	sep1->attach( stretchedBelow, objfld_ );
+
 	uiCheckBox* cb = new uiCheckBox( this, "Enable Prestack Analysis" );
 	cb->activated.notify( mCB(this,uiAttrVolOut,psSelCB) );
 	cb->attach( alignedBelow, objfld_ );
+	cb->attach( ensureBelow, sep1 );
 
 	IOObjContext ctxt( mIOObjContext(SeisPS3D) );
 	ctxt.forread = false;
@@ -112,9 +118,15 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 	datastorefld_->attach( alignedBelow, cb );
 
 	const Interval<float> offsets( 0, 100 );
-	offsetfld_ = new uiGenInput( this, "Offset (start/step)",
+	const uiString lbl = tr( "Offset (start/step) %1" )
+					.arg( SI().getXYUnitString() );
+	offsetfld_ = new uiGenInput( this, lbl,
 				     FloatInpIntervalSpec(offsets) );
 	offsetfld_->attach( alignedBelow, datastorefld_ );
+
+	sep2 = new uiSeparator( this, "PS End Separator" );
+	sep2->attach( stretchedBelow, offsetfld_ );
+
 	psSelCB( cb );
 	botgrp = offsetfld_;
     }
@@ -124,6 +136,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     IOPar& iop = jobSpec().pars_;
     iop.set( IOPar::compKey(sKey::Output(),sKey::Type()), "Cube" );
     batchfld_->attach( alignedBelow, botgrp );
+    if ( sep2 ) batchfld_->attach( ensureBelow, sep2 );
 }
 
 
@@ -155,6 +168,7 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 { \
     objfld_->setInputText( s ); \
     objfld_->processInput(); \
+    outSelCB(0); \
 }
 
 void uiAttrVolOut::attrSel( CallBacker* )
@@ -244,7 +258,7 @@ bool uiAttrVolOut::prepareProcessing()
 	    if ( outputnm.isEmpty() )
 	    {
 		uiMSG().error(
-		       "No dataset name given. Please provide a valid name. " );
+		tr("No dataset name given. Please provide a valid name. ") );
 		return false;
 	    }
 
@@ -268,7 +282,7 @@ bool uiAttrVolOut::prepareProcessing()
 	sel_.outputnr_ = todofld_->outputNr();
 	if ( sel_.outputnr_ < 0 && !sel_.attrid_.isValid() )
 	{
-	    uiMSG().error( "Please select the output quantity" );
+	    uiMSG().error( tr("Please select the output quantity") );
 	    return false;
 	}
 
@@ -342,7 +356,7 @@ Attrib::DescSet* uiAttrVolOut::getFromToDoFld(
     {
 	if ( !nlaid_ || !(*nlaid_) )
 	{
-	    uiMSG().message("NN needs to be stored before creating volume");
+	    uiMSG().message(tr("NN needs to be stored before creating volume"));
 	    return 0;
 	}
 	addNLA( nlamodel_id );
