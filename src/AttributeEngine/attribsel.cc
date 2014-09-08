@@ -167,7 +167,12 @@ void SelSpec::setRefFromID( const DescSet& ds )
 	    if ( ioobj )
 	    {
 		Desc* ncdesc = const_cast<Desc*>( desc );
-		ncdesc->setUserRef( ioobj->name() );
+		const LineKey lk( desc->userRef() );
+		const BufferString component = lk.attrName();
+		if ( component.isEmpty() )
+		    ncdesc->setUserRef( ioobj->name() );
+		else
+		    ncdesc->setUserRef( LineKey(ioobj->name(),component) );
 	    }
 	}
 
@@ -293,7 +298,7 @@ void SelInfo::fillStored( bool steerdata, const char* filter )
 	if ( res && ( (!steerdata && res==sKey::Steering() )
 	         || ( steerdata && res!=sKey::Steering() ) ) )
 	    continue;
-	else if ( !res &&  steerdata )
+	else if ( !res && steerdata )
 	    continue;
 
 	const char* ioobjnm = ioobj.name().buf();
