@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uitoolbar.h"
 #include "pixmap.h"
+#include "odiconfile.h"
 #include "settings.h"
 #include "perthreadrepos.h"
 
@@ -166,7 +167,11 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 
 void uiButton::setPixmap( const char* pmnm )
 {
-    setPM( ioPixmap(pmnm) );
+    BufferString icnm = pmnm;
+    BufferString smllicnm( pmnm, "_24x24" );
+    if ( OD::IconFile::isPresent(smllicnm) )
+	icnm = pmnm;
+    setPM( ioPixmap(smllicnm) );
 }
 
 

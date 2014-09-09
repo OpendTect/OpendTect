@@ -21,21 +21,22 @@ class uiCheckBox;
 
 
 /*!\brief Single-line element allowing multi-parameter to be set via a dialog.
-  
+
   Most useful for options that are not often actually changed by user.
   After the button push trigger, the summary is displayed in the text field.
- 
+
  */
 
 mExpClass(uiTools) uiCompoundParSel : public uiGroup
 {
 public:
 
-    			uiCompoundParSel(uiParent*,const char* seltxt,
+			uiCompoundParSel(uiParent*,const char* seltxt,
 					 const char* buttxt=0);
 
 
     void		setSelText(const char*);
+    void		setSelIcon(const char*);
     void		updateSummary()			{ updSummary(0); }
 
     Notifier<uiCompoundParSel>	butPush;
@@ -53,15 +54,15 @@ protected:
 
 
 /*!\brief CompoundParSel providing something that is optional
-  
-  Basically, a CompoundParSel with a check box. 
+
+  Basically, a CompoundParSel with a check box.
  */
 
 mExpClass(uiTools) uiCheckedCompoundParSel : public uiCompoundParSel
 {
 public:
 
-    			uiCheckedCompoundParSel(uiParent*,const char* seltxt,
+			uiCheckedCompoundParSel(uiParent*,const char* seltxt,
 				 bool mkinvisible, // if not, makes insensitive
 				 const char* buttxt=0);
 

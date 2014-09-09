@@ -54,6 +54,12 @@ void uiCompoundParSel::setSelText( const char* txt )
 }
 
 
+void uiCompoundParSel::setSelIcon( const char* ident )
+{
+    selbut_->setPixmap( ident );
+}
+
+
 uiCheckedCompoundParSel::uiCheckedCompoundParSel( uiParent* p,
 			    const char* seltxt, bool invis, const char* btxt )
     : uiCompoundParSel(p,"",btxt)
