@@ -16,7 +16,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistrings.h"
 #include "keystrs.h"
 
-#include "hiddenparam.h"
 #include "texttranslator.h"
 #include "odqtobjset.h"
 #include "pixmap.h"
@@ -315,6 +314,10 @@ bool uiTreeView::rootDecorated() const
 void uiTreeView::setRootDecorated( bool yn )
 { body_->setRootIsDecorated(yn); }
 
+void uiTreeView::showHeader( bool yn )
+{ body_->setHeaderHidden( !yn ); }
+
+
 /*! \brief insert an already existing item in this object's tree of children
 
     If you need to move an item from one place in the hierarchy to
@@ -338,9 +341,19 @@ void uiTreeView::takeItem( uiTreeViewItem* itm )
 }
 
 
+void uiTreeView::setNrColumns( int nrcols )
+{
+    uiStringSet strings;
+    for ( int idx=0; idx<nrcols; idx++ )
+	strings += uiString::emptyString();
+
+    addColumns( strings );
+}
+
+
 void uiTreeView::addColumns( const BufferStringSet& lbls )
 {
-    TypeSet<uiString> strings;
+    uiStringSet strings;
     for ( int idx=0; idx<lbls.size(); idx++ )
     {
 	strings += uiString( lbls[idx]->buf() );
@@ -350,7 +363,7 @@ void uiTreeView::addColumns( const BufferStringSet& lbls )
 }
 
 
-void uiTreeView::addColumns( const TypeSet<uiString>& lbls )
+void uiTreeView::addColumns( const uiStringSet& lbls )
 {
     mBlockCmdRec;
     const int nrcol = nrColumns();
@@ -419,6 +432,14 @@ int uiTreeView::nrColumns() const
 { return body_->columnCount(); }
 
 
+void uiTreeView::setColumnWidthMode( WidthMode widthmode )
+{
+    const int nrcols = nrColumns();
+    for ( int icol=0; icol<nrcols; icol++ )
+	setColumnWidthMode( icol, widthmode );
+}
+
+
 void uiTreeView::setColumnWidthMode( int column, WidthMode widthmode )
 {
 #if QT_VERSION < 0x050000
@@ -439,6 +460,14 @@ uiTreeView::WidthMode uiTreeView::columnWidthMode( int column ) const
     return (uiTreeView::WidthMode)
 	int(body_->header()->sectionResizeMode(column));
 #endif
+}
+
+
+void uiTreeView::setColumnAlignment( Alignment::HPos hal )
+{
+    const int nrcols = nrColumns();
+    for ( int icol=0; icol<nrcols; icol++ )
+	setColumnAlignment( icol, hal );
 }
 
 
@@ -497,6 +526,29 @@ bool uiTreeView::isSelected( const uiTreeViewItem* itm ) const
 
 uiTreeViewItem* uiTreeView::selectedItem() const
 { return mItemFor( body_->currentItem() ); }
+
+
+int uiTreeView::nrSelected() const
+{ return body_->selectedItems().size(); }
+
+
+void uiTreeView::getSelectedItems( ObjectSet<uiTreeViewItem>& items ) const
+{
+    QList<QTreeWidgetItem*> qitms = body_->selectedItems();
+    for ( int idx=0; idx<qitms.size(); idx++ )
+	items += uiTreeViewItem::itemFor( qitms[idx] );
+}
+
+
+void uiTreeView::removeSelectedItems()
+{
+    ObjectSet<uiTreeViewItem> items;
+    getSelectedItems( items );
+    for ( int idx=0; idx<items.size(); idx++ )
+	takeItem( items[idx] );
+
+    deepErase( items );
+}
 
 
 void uiTreeView::setCurrentItem( uiTreeViewItem* itm, int column )

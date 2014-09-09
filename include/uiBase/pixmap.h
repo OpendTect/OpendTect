@@ -26,8 +26,8 @@ class uiRGBArray;
 
 /*!\brief Off-screen pixel-based paint device
 
-  Recommended: put your icons in the data/icons.Default directory, and
-  specify .png files without any path.
+  Icons pixmaps can be created from the identifier, see OD::IconFile: the file
+  name without extension.
 
 */
 
@@ -40,19 +40,19 @@ public:
 			ioPixmap(int w,int h);
 			ioPixmap(const mQtclass(QPixmap&));
 			ioPixmap(const ioPixmap&);
-			ioPixmap(const char* filename,const char* fmt=0);
+			ioPixmap(const char* icon_identifier);
 			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
     virtual		~ioPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);
 
     mQtclass(QPixmap*)	qpixmap()		{ return qpixmap_; }
-    const mQtclass(QPixmap*)	qpixmap() const		{ return qpixmap_; }
+    const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
     void		fill(const Color&);
 
     int			width() const;
-    int height() const;
+    int			height() const;
     bool		isEmpty() const;
 
     const char*		source() const		{ return srcname_.buf(); }
@@ -63,6 +63,9 @@ public:
     static bool		isPresent(const char*);
     static void		supportedImageFormats(BufferStringSet&);
 
+    // DEPRECATED: will be gone after 5.0. Use only PNG icons.
+			ioPixmap(const char* filename,const char* fmt);
+
 protected:
 
     mQtclass(QPixmap*)	qpixmap_;
@@ -71,6 +74,7 @@ protected:
 
 
 
+// DEPRECATED: will be gone after 5.0. Was never used.
 /*! \brief pixmap with the depth of 2 (b/w)
 
 If the file does not exist, or is of an unknown format, the pixmap becomes

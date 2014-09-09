@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabsequence.h"
 #include "file.h"
 #include "filepath.h"
+#include "odiconfile.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "settings.h"
@@ -114,6 +115,25 @@ ioPixmap::ioPixmap( int w, int h )
 ioPixmap::ioPixmap( const QPixmap& pm )
     : qpixmap_(new QPixmap(pm))
 {
+}
+
+
+ioPixmap::ioPixmap( const char* icnm )
+    : qpixmap_(0)
+    , srcname_(icnm)
+{
+    bool isnone = true;
+    if ( srcname_.isEmpty() )
+	{ pErrMsg("Empty icon name specified. "
+		    " (if this is intentional, use uiIcon::None())"); }
+
+    if ( srcname_ != uiIcon::None() )
+	isnone = false;
+    if ( isnone )
+	{ qpixmap_ = new QPixmap; return; }
+
+    OD::IconFile icfile( icnm );
+    qpixmap_ = new QPixmap( icfile.fullFileName(), 0 );
 }
 
 
@@ -227,8 +247,7 @@ bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
 
 bool ioPixmap::isPresent( const char* icnm )
 {
-    BufferString fname;
-    return getFullFilename( icnm, fname );
+    return OD::IconFile::isPresent( icnm );
 }
 
 
