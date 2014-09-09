@@ -17,36 +17,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "systeminfo.h"
 
 
-static BufferString createCmdLine( int argc, char** argv )
-{
-    BufferString cmdline;
-    for ( int idx=2; idx<argc-1; idx++ )
-	cmdline.add( argv[idx] ).add( " " );
-
-    cmdline += " \"";
-    cmdline += argv[argc-1];
-    cmdline += "\"";
-    return cmdline;
-}
-
-static int executeLocal( int argc, char** argv )
-{
-    const BufferString cmdline = createCmdLine( argc, argv );
-    return OS::ExecCommand( cmdline, OS::RunInBG );
-}
-
-
 int main( int argc, char** argv )
 {
     if ( argc < 4 )
 	return 1;
+
     SetProgramArgs( argc, argv );
-
-    const char* remhost = argv[1];
-    BufferString remhostaddress = System::hostAddress( remhost );
-    if ( remhostaddress == System::localAddress() )
-	return executeLocal( argc, argv );
-
+    
     IOPar par;
     par.set( "Proc Name", argv[2] );
     if ( argc <= 4  )
@@ -58,7 +35,8 @@ int main( int argc, char** argv )
 	par.set( "Job ID", argv[8] );
 	par.set( "Par File", argv[9] );
     }
-
+    	
+    BufferString remhostaddress = System::hostAddress( argv[1] );
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();
