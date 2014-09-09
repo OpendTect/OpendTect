@@ -76,7 +76,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     fillBox( cubefld_ );
     cubefld_->setPrefWidthInChar( 30 );
     cubefld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,inputChg) );
-    allcompfld_ = new uiCheckBox( this, tr("Use all components") );
+    allcompfld_ = new uiCheckBox( this, tr("Use all attribute components") );
     allcompfld_->setSensitive( false );
     allcompfld_->attach( alignedBelow, cubesllb );
 
@@ -95,24 +95,25 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     selfld_->selectionChanged.notify( mCB(this,uiSeisMultiCubePS,selChg) );
     selfld_->setPrefWidthInChar( 30 );
 
+    compfld_ = new uiComboBox( this, "Component" );
+    compfld_->setHSzPol( uiObject::WideMax );
+    compfld_->attach( alignedBelow, selllb );
+    compfld_->display( false );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
+    sep->attach( stretchedBelow, compfld_ );
+    sep->attach( ensureBelow, allcompfld_ );
+
     BufferString offsetstr( "Offset (start/step) ", SI().getXYUnitString() );
     const Interval<float> offsets( 0, 100 );
     offsfld_ = new uiGenInput( this, offsetstr,
 			       FloatInpIntervalSpec(offsets).setName("Offset"));
-    offsfld_->attach( alignedBelow, selllb );
     offsfld_->setElemSzPol( uiObject::Small );
-    compfld_ = new uiComboBox( this, "Component" );
-    compfld_->setHSzPol( uiObject::Medium );
-    compfld_->attach( rightOf, offsfld_ );
-    compfld_->display( false );
-
-    uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
-    sep->attach( stretchedBelow, offsfld_ );
-    sep->attach( ensureBelow, allcompfld_ );
+    offsfld_->attach( alignedBelow, bgrp );
+    offsfld_->attach( ensureBelow, sep );
 
     outfld_ = new uiIOObjSel( this, ctio_, tr("Output data store") );
-    outfld_->attach( alignedBelow, bgrp );
-    outfld_->attach( ensureBelow, sep );
+    outfld_->attach( alignedBelow, offsfld_ );
 
     if ( ctio_.ioobj )
 	afterPopup.notify( mCB(this,uiSeisMultiCubePS,setInitial) );
@@ -209,7 +210,6 @@ void uiSeisMultiCubePS::selChg( CallBacker* cb )
     const int selidx = selfld_->currentItem();
     if ( selidx < 0 || selidx >= selentries_.size() )
 	return;
-    if ( cb ) recordEntryData();
 
     const uiSeisMultiCubePSEntry& se = *selentries_[selidx];
     curselidx_ = selidx;
