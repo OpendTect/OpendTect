@@ -398,6 +398,15 @@ void uiStratLayModEditTools::fillPar( IOPar& par ) const
 
 bool uiStratLayModEditTools::usePar( const IOPar& par )
 {
+    NotifyStopper stopselprop( selPropChg );
+    NotifyStopper stoplvlchg( selLevelChg );
+    NotifyStopper stopcontchg( selContentChg );
+    NotifyStopper stopeachchg( dispEachChg );
+    NotifyStopper stopzoomchg( dispZoomedChg );
+    NotifyStopper stoplithchg( dispLithChg );
+    NotifyStopper stopflatchg( flattenChg );
+    NotifyStopper stopsynthchg( mkSynthChg );
+
     mSetProp( propfld_, sKeyDisplayedProp );
     mSetProp( lvlfld_, sKeySelectedLevel );
     mSetProp( contfld_, sKeySelectedContent );

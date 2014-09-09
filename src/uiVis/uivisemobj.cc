@@ -55,7 +55,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     , nodemenu_( *new uiMenuHandler(uip,-1) )
     , interactionlinemenu_( *new uiMenuHandler(uip,-1) )
     , edgelinemenu_( *new uiMenuHandler(uip,-1) )
-    , showedtexture_(true)
 {
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
@@ -165,7 +164,6 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     , nodemenu_( *new uiMenuHandler(uip,-1) )
     , interactionlinemenu_( *new uiMenuHandler(uip,-1) )
     , edgelinemenu_( *new uiMenuHandler(uip,-1) )
-    , showedtexture_(true)
 {
     nodemenu_.ref();
     interactionlinemenu_.ref();
@@ -400,9 +398,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     if ( hor2ddisp )
 	mResetMenuItem( &singlecolmnuitem_ )
     else if ( displaymnuitem )
+    {
 	mAddMenuItem( displaymnuitem, &singlecolmnuitem_,
-		      !emod->getOnlyAtSectionsDisplay(),
-		      !hordisp || (hordisp&&!hordisp->shouldUseTexture()) );
+		      !emod->getOnlyAtSectionsDisplay() ||
+				    (!hordisp || hordisp->canShowTexture()),
+		      !hordisp || !hordisp->showsTexture() );
+    }
 
     const bool atsect = emod->getOnlyAtSectionsDisplay();
     bool infull, both = false, showgrid = false;
@@ -506,7 +507,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==singlecolmnuitem_.id )
     {
-	if ( hordisp ) hordisp->useTexture( !hordisp->shouldUseTexture(),true );
+	if ( hordisp ) hordisp->useTexture( !hordisp->showsTexture(), true );
 	visserv_->triggerTreeUpdate();
 	menu->setIsHandled( true );
     }
@@ -595,19 +596,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
 {
     visSurvey::EMObjectDisplay* emod = getDisplay();
-    mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, emod );
-    if ( hordisp && hordisp->getOnlyAtSectionsDisplay()!=yn )
-    {
-	bool usetexture = false;
-	if ( yn )
-	    showedtexture_ = hordisp->shouldUseTexture();
-	else
-	    usetexture = showedtexture_;
-
-	hordisp->useTexture( usetexture );
-    }
-
-    emod->setOnlyAtSectionsDisplay( yn );
+    if ( emod )
+	emod->setOnlyAtSectionsDisplay( yn );
 }
 
 

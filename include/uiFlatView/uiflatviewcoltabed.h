@@ -32,12 +32,17 @@ public:
 			~uiFlatViewColTabEd();
 
     void		setColTab( const FlatView::Viewer& );
+    void		setColTab(const FlatView::DataDispPars::VD&);
+    void		setSensitive(bool yn);
 
+    FlatView::DataDispPars::VD& getDisplayPars()
+				{ return vdpars_; }
     Notifier<uiFlatViewColTabEd> colTabChgd;
 
 protected:
 
     FlatView::DataDispPars&	ddpars_;
+    FlatView::DataDispPars::VD	vdpars_;
     ColTab::Sequence&		colseq_;
     uiColorTable&		uicoltab_;
     FlatView::Viewer*		vwr_;

@@ -164,12 +164,15 @@ void uiODApplMgr::mainWinUpCB( CallBacker* cb ) const
 {
     if ( !Convert_OD4_Data_To_OD5() )
 	manageSurvey();
+
+    Convert_OD4_Body_To_OD5();
 }
 
 
 void uiODApplMgr::resetServers()
 {
     if ( nlaserv_ ) nlaserv_->reset();
+
     delete attrserv_;
     attrserv_ = new uiAttribPartServer( applservice_ );
     attrserv_->setDPSDispMgr( visdpsdispmgr_ );
@@ -179,6 +182,9 @@ void uiODApplMgr::resetServers()
 
     delete mpeserv_;
     mpeserv_ = new uiMPEPartServer( applservice_ );
+
+    delete emattrserv_;
+    emattrserv_ = new uiEMAttribPartServer( applservice_ );
 
     visserv_->deleteAllObjects();
     emserv_->removeUndo();
@@ -259,6 +265,46 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 }
 
 
+extern bool OD_Get_Body_Conversion_Status();
+extern bool OD_Convert_Body_To_OD5( uiString& errmsg );
+
+bool uiODApplMgr::Convert_OD4_Body_To_OD5()
+{
+    const bool status = OD_Get_Body_Conversion_Status();
+    if ( !status )
+	return true;
+
+    uiString msg( tr("OpendTect has a new geo-body format. "
+	    "All the old geo-bodies of survey '%1' will now be converted. "
+	    "Note that after the conversion, you will still be able to use "
+	    "those geo-bodies in OpendTect 4.6.0, but only in patch p or "
+	    "later.").arg(IOM().surveyName()) );
+
+    const int res = uiMSG().question( msg, tr("Convert now"),
+				      tr("Do it later"),
+				      tr("Exit OpendTect") );
+    if ( res < 0 )
+	ExitProgram( 0 );
+
+    if ( !res )
+    {
+	uiMSG().message( tr("Please note that you will not be able to use "
+		    "any of the old geo-bodies in this survey.") );
+	return false;
+    }
+
+    uiString errmsg;
+    if ( !OD_Convert_Body_To_OD5(errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return false;
+    }
+    else
+	uiMSG().message( tr("All the geo-bodies have been converted!") );
+    return true;
+}
+
+
 int uiODApplMgr::manageSurvey( uiParent* p )
 {
     BufferString prevnm = GetDataDir();
@@ -309,6 +355,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
     if ( nlaserv_ ) nlaserv_->reset();
     delete attrserv_; attrserv_ = 0;
+    delete emattrserv_; emattrserv_ = 0;
     delete volprocserv_; volprocserv_ = 0;
     delete mpeserv_; mpeserv_ = 0;
     delete wellserv_; wellserv_ = 0;
@@ -340,6 +387,7 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     MPE::engine().init();
 
     wellserv_ = new uiWellPartServer( applservice_ );
+    emattrserv_ = new uiEMAttribPartServer( applservice_ );
 }
 
 
@@ -469,7 +517,6 @@ void uiODApplMgr::addTimeDepthScene()
 	scene->setCubeSampling( cs );
 	scene->setZScale( zscale );
     }
-    
 }
 
 

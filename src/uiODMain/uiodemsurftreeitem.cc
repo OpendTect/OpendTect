@@ -48,7 +48,7 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
     uiODDataTreeItem* res = as
 	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
     if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
-	    						     parenttype );
+							     parenttype );
     return res;
 }
 
@@ -58,7 +58,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , uivisemobj_(0)
-    , createflatscenemnuitem_("&Create flattened scene")
+    , createflatscenemnuitem_("Create flattened scene")
     , savemnuitem_("Save",-800)
     , saveasmnuitem_(sSaveAs(),-850)
     , enabletrackingmnuitem_("Enable tracking")
@@ -118,7 +118,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
 
     if ( displayid_!=-1 )
     {
-	uivisemobj_ = new uiVisEMObject( getUiParent(), displayid_, visserv_ );
+	uivisemobj_ = new uiVisEMObject( ODMainWin(), displayid_, visserv_ );
 	if ( !uivisemobj_->isOK() )
 	    mDelRet;
 
@@ -126,7 +126,7 @@ bool uiODEarthModelSurfaceTreeItem::createUiVisObj()
     }
     else
     {
-	uivisemobj_ = new uiVisEMObject( getUiParent(), emid_, sceneID(),
+	uivisemobj_ = new uiVisEMObject( ODMainWin(), emid_, sceneID(),
 					visserv_ );
 	displayid_ = uivisemobj_->id();
 	if ( !uivisemobj_->isOK() )
@@ -193,7 +193,7 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 	return;
 
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMPEPartServer* mps = applMgr()->mpeServer();
@@ -327,7 +327,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	emid_ = applMgr()->EMServer()->getObjectID(mid);
 
-	uivisemobj_ = new uiVisEMObject(getUiParent(),emid_,sceneID(),visserv_);
+	uivisemobj_ = new uiVisEMObject(ODMainWin(),emid_,sceneID(),visserv_);
 	displayid_ = uivisemobj_->id();
     }
     else if ( mnuid==enabletrackingmnuitem_.id )
@@ -338,7 +338,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==createflatscenemnuitem_.id )
     {
-    	mDynamicCastGet(visSurvey::EMObjectDisplay*,
+	mDynamicCastGet(visSurvey::EMObjectDisplay*,
 			emd,visserv_->getObject(displayid_));
 	const EM::ObjectID objectid = emd->getObjectID();
 	mDynamicCastGet(const EM::Horizon*,horizon,
@@ -421,16 +421,16 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
 uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							EM::ObjectID objid,
 							uiVisEMObject* uv,
-       							const char* parenttype )
+							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save as Horizon Data ...")
     , loadsurfacedatamnuitem_("Horizon Data ...")
-    , algomnuitem_("&Tools")
-    , filtermnuitem_("&Filtering ...")
-    , fillholesmnuitem_("&Gridding ...")
-    , horvariogrammnuitem_("&Variogram ...")
-    , attr2geommnuitm_("Set &Z values ...")
+    , algomnuitem_("Tools")
+    , filtermnuitem_("Filtering ...")
+    , fillholesmnuitem_("Gridding ...")
+    , horvariogrammnuitem_("Variogram ...")
+    , attr2geommnuitm_("Set Z values ...")
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
@@ -447,7 +447,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenu( MenuHandler* menu,
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-	    					     attribNr() );
+						     attribNr() );
 
     const bool islocked = visserv->isLocked( displayID() );
     const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
@@ -548,9 +548,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	    uiMSG().error(
-		    "This algorithm can only be applied on 'Horizon Data'."
-		    "\nPlease save attribute first" );
+	   uiMSG().error("This algorithm can only be applied on 'Horizon Data'."
+			 "\nPlease save attribute first" );
 	    return;
 	}
 

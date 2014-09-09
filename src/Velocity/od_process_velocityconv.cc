@@ -63,7 +63,12 @@ bool BatchProgram::go( od_ostream& strm )
     conv.setProgressMeter( &progressmeter );
 
     if ( !conv.execute() )
-	mErrRet( conv.errMsg() )
+    {
+	if ( conv.errMsg() )
+	    strm << conv.errMsg();
+
+	return false;
+    }
 
     if ( veldesc.type_ != VelocityDesc::Unknown )
 	veldesc.fillPar( outputioobj->pars() );

@@ -96,7 +96,6 @@ void uiSlicePos3DDisp::setBoxRanges()
 				    curpdd_->getScene()->getCubeSampling()
 				  : curvol_ ? curvol_->getCubeSampling( 0 )
 				  : SI().sampling( true );
-    laststeps_[2] = (int)survey.zrg.step;
     setBoxRg( getOrientation(), survey );
 }
 

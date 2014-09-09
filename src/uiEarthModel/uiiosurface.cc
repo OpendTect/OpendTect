@@ -76,9 +76,9 @@ uiIOSurface::~uiIOSurface()
 
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
-    attribfld_ = new uiLabeledListBox( this, "Calculated attributes",
-		OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
-						  : uiLabeledListBox::LeftTop );
+    attribfld_ = new uiLabeledListBox( this, tr("Calculated attributes"),
+		OD::ChooseZeroOrMore, labelabove ? uiLabeledListBox::AboveMid
+						 : uiLabeledListBox::LeftTop );
     attribfld_->setStretch( 2, 2 );
     attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
@@ -86,7 +86,7 @@ void uiIOSurface::mkAttribFld( bool labelabove )
 
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    sectionfld_ = new uiLabeledListBox( this, "Available patches",
+    sectionfld_ = new uiLabeledListBox( this, tr("Available patches"),
 	    OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
 					      : uiLabeledListBox::LeftTop );
     sectionfld_->setPrefHeightInChar( mCast(float,cListHeight) );
@@ -365,7 +365,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 
     if ( setup.withdisplayfld_ )
     {
-       displayfld_ = new uiCheckBox( this, "Replace in tree" );
+       displayfld_ = new uiCheckBox( this, setup.displaytext_ );
        displayfld_->attach( alignedBelow, objfld_ );
        displayfld_->setChecked( true );
     }

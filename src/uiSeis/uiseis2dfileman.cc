@@ -70,8 +70,8 @@ uiSeis2DFileMan::uiSeis2DFileMan( uiParent* p, const IOObj& ioobj )
 			mCB(this,uiSeis2DFileMan,renameLine) );
     linegrp_->addButton( uiManipButGrp::Remove, "Remove line",
 			mCB(this,uiSeis2DFileMan,removeLine) );
-//    linegrp_->addButton( "mergelines", "Merge lines",
-//			mCB(this,uiSeis2DFileMan,mergeLines) );
+    linegrp_->addButton( "mergelines", "Merge lines",
+			mCB(this,uiSeis2DFileMan,mergeLines) );
     linegrp_->addButton( "browseseis", "Browse/edit this line",
 	    	        mCB(this,uiSeis2DFileMan,browsePush) );
     if ( SI().has3D() )

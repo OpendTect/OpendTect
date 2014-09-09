@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -36,11 +36,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
-{ return "Select &Attribute"; }
+{ return "Select Attribute"; }
 
 
 const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
-{ return "Save &Color Settings"; }
+{ return "Save Color Settings"; }
 
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
@@ -205,7 +205,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 	if ( dousemulticomp )
 	{
 	    Attrib::SelSpec mtas( "Multi-Textures",
-		    		Attrib::SelSpec::cOtherAttrib() );
+				Attrib::SelSpec::cOtherAttrib() );
 	    if ( !ODMainWin()->applMgr().calcMultipleAttribs( mtas ) )
 		return false;
 	}

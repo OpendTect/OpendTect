@@ -77,7 +77,7 @@ public:
     static int			manageSurvey(uiParent* p=0);
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
 				  Strat, Wvlt, MDef, Vel, PDF, PVDS, Geom,
-				  Body, Props, ColTab };
+				  Body, Props, ColTab, NrObjTypes };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
 				//!< Not all combinations are available ...!
@@ -286,6 +286,7 @@ protected:
     uiVisDataPointSetDisplayMgr* visdpsdispmgr_;
 
     static bool			Convert_OD4_Data_To_OD5();
+    static bool			Convert_OD4_Body_To_OD5();
     void			mainWinUpCB(CallBacker*) const;
 
     friend class		uiODMain;

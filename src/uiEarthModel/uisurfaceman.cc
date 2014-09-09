@@ -34,10 +34,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
 #include "uicolor.h"
-#include "uiimpbodycaldlg.h"
+#include "uifont.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
+#include "uiimpbodycaldlg.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
@@ -126,7 +127,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , surfdataremovebut_(0)
     , copybut_(0)
     , mergehorbut_(0)
-    , bodyformatconvertbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -148,8 +148,8 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Hor3D || type_ == AnyHor )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-						      tr("Horizon Data"),
+	uiLabeledListBox* llb =
+		new uiLabeledListBox( listgrp_, tr("Horizon Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
@@ -167,23 +167,30 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
 
-	uiPushButton* stratbut =
-	    new uiPushButton( listgrp_, tr("&Stratigraphy"), false );
-	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
-	stratbut->attach( alignedBelow, selgrp_ );
+	uiGroup* extrabutgrp = new uiGroup( listgrp_, "Extra Buttons" );
+	const uiFont& ft =
+		uiFontList::getInst().get( FontData::key(FontData::Control) );
+	extrabutgrp->setPrefHeight( ft.height()*2 );
 
-	uiPushButton* relbut = new uiPushButton( listgrp_,
-						 tr("&Relations"), false);
+	uiPushButton* stratbut =
+	    new uiPushButton( extrabutgrp, tr("Stratigraphy"), false );
+	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
+
+	uiPushButton* relbut =
+		new uiPushButton( extrabutgrp, tr("Relations"), false);
 	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
 	relbut->attach( rightTo, stratbut );
-	relbut->attach( ensureBelow, llb );
+
+	extrabutgrp->attach( alignedBelow, selgrp_ );
+	extrabutgrp->attach( ensureBelow, llb );
 
 	setPrefWidth( 50 );
     }
     if ( type_ == Flt3D )
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( listgrp_,
-						      tr("Fault Data"),
+#ifdef __debug__
+	uiLabeledListBox* llb =
+		new uiLabeledListBox( listgrp_, tr("Fault Data"),
 			OD::ChooseAtLeastOne, uiLabeledListBox::AboveLeft );
 	llb->attach( rightOf, selgrp_ );
 	attribfld_ = llb->box();
@@ -198,6 +205,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 					"Rename selected Fault Data",
 					mCB(this,uiSurfaceMan,renameAttribCB) );
 	butgrp->attach( rightTo, attribfld_ );
+#endif
     }
     if ( type_ == Body )
     {
@@ -209,12 +217,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 		mCB(this,uiSurfaceMan,calVolCB) );
 	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
 		mCB(this,uiSurfaceMan,switchValCB) );
-	if ( EM::Body::hasOldFormats() )
-	{
-	    bodyformatconvertbut_ = manipgrp->addButton( "convertformat",
-		    "Convert format of od5.0 or older to current",
-		    mCB(this,uiSurfaceMan,converOldBodyFormatCB) );
-	}
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -316,9 +318,12 @@ void uiSurfaceMan::copyCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
 
+    const bool canhaveattribs = type_ == uiSurfaceMan::Hor3D;
     PtrMan<IOObj> ioobj = curioobj_->clone();
     uiSurfaceRead::Setup su( ioobj->group() );
-    su.withattribfld(true).withsubsel(!isCurFault()).multisubsel(true);
+    su.withattribfld(canhaveattribs).withsubsel(!isCurFault())
+      .multisubsel(true).withsectionfld(false);
+
     uiCopySurface dlg( this, *ioobj, su );
     if ( dlg.go() )
 	selgrp_->fullUpdate( ioobj->key() );
@@ -376,23 +381,6 @@ void uiSurfaceMan::switchValCB( CallBacker* )
     uiImplicitBodyValueSwitchDlg dlg( this, curioobj_ );
     if ( dlg.go() )
 	selgrp_->fullUpdate( dlg.getBodyMid() );
-}
-
-
-void uiSurfaceMan::converOldBodyFormatCB( CallBacker* )
-{
-    TypeSet<MultiID> mids;
-    BufferString errmsg;
-    if ( EM::Body::convertOldBodyFormatToCurrent(mids,errmsg) )
-    {
-	bodyformatconvertbut_->setSensitive( false );
-	if ( !mids.isEmpty() )
-	    selgrp_->fullUpdate( mids[0] );
-
-	uiMSG().message( tr("Converted") );
-    }
-    else
-	uiMSG().error( tr("Conversion failed: %1").arg(errmsg));
 }
 
 

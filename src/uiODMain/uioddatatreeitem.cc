@@ -42,18 +42,18 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , statswin_(0)
     , ampspectrumwin_(0)
     , fkspectrumwin_(0)
-    , movemnuitem_("&Move")
-    , movetotopmnuitem_("to &top")
-    , movetobottommnuitem_("to &bottom")
-    , moveupmnuitem_("&up")
-    , movedownmnuitem_("&down")
-    , displaymnuitem_("&Display")
-    , removemnuitem_("&Remove",-1000)
-    , changetransparencyitem_("Change &transparency ...")
-    , statisticsitem_("Show &Histogram ...")
-    , amplspectrumitem_("Show &Amplitude Spectrum ...")
-    , fkspectrumitem_("Show &F-K Spectrum ...")
-    , view2dwvaitem_("2D Viewer - &Wiggle")
+    , movemnuitem_("Move")
+    , movetotopmnuitem_("to top")
+    , movetobottommnuitem_("to bottom")
+    , moveupmnuitem_("up")
+    , movedownmnuitem_("down")
+    , displaymnuitem_("Display")
+    , removemnuitem_("Remove",-1000)
+    , changetransparencyitem_("Change transparency ...")
+    , statisticsitem_("Show Histogram ...")
+    , amplspectrumitem_("Show Amplitude Spectrum ...")
+    , fkspectrumitem_("Show F-K Spectrum ...")
+    , view2dwvaitem_("2D Viewer - Wiggle")
     , view2dvditem_("2D Viewer")
 {
     statisticsitem_.iconfnm = "histogram";
@@ -91,8 +91,11 @@ uiODDataTreeItem::~uiODDataTreeItem()
 int uiODDataTreeItem::uiTreeViewItemType() const
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs( displayID() ) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) ||
+	 visserv->hasSingleColorFallback(displayID()) )
+    {
 	return uiTreeViewItem::CheckBox;
+    }
     else
 	return uiTreeItem::uiTreeViewItemType();
 }
@@ -109,7 +112,8 @@ uiODApplMgr* uiODDataTreeItem::applMgr() const
 bool uiODDataTreeItem::init()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->canHaveMultipleAttribs(displayID()) )
+    if ( visserv->canHaveMultipleAttribs(displayID()) ||
+	 visserv->hasSingleColorFallback(displayID()) )
     {
 	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
 	uitreeviewitem_->setChecked( visserv->isAttribEnabled(displayID(),

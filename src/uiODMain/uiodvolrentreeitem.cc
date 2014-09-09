@@ -115,11 +115,11 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
-    : addmnuitem_("&Add")
-    , statisticsmnuitem_("&Histogram ...")
-    , amplspectrummnuitem_( "&Amplitude Spectrum ...")
-    , positionmnuitem_("&Position ...")
-    , addisosurfacemnuitem_("Iso s&urface")
+    : addmnuitem_("Add")
+    , statisticsmnuitem_("Histogram ...")
+    , amplspectrummnuitem_( "Amplitude Spectrum ...")
+    , positionmnuitem_("Position ...")
+    , addisosurfacemnuitem_("Iso surface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 {
@@ -297,7 +297,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0, 
+		uiDialog::Setup( "Iso value selection", 0,
                                 mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
@@ -341,8 +341,8 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
-    : resetisosurfacemnuitem_("&Settings")
-    , convertisotobodymnuitem_("&Convert to body")
+    : resetisosurfacemnuitem_("Settings")
+    , convertisotobodymnuitem_("Convert to body")
 { displayid_ = displayid; }
 
 

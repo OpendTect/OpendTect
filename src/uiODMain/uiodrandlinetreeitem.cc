@@ -118,22 +118,22 @@ uiODRandomLineParentTreeItem::uiODRandomLineParentTreeItem()
 bool uiODRandomLineParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(tr("Add &Empty")), 0 );
-    mnu.insertItem( new uiAction(tr("Add &Stored ...")), 7 );
+    mnu.insertItem( new uiAction(tr("Add Empty")), 0 );
+    mnu.insertItem( new uiAction(tr("Add Stored ...")), 7 );
 
     uiMenu* rgbmnu =
-	new uiMenu( getUiParent(), tr("Add &Color blended") );
-    rgbmnu->insertItem( new uiAction(tr("&Empty")), 8 );
-    rgbmnu->insertItem( new uiAction(tr("&Stored ...")), 9 );
+	new uiMenu( getUiParent(), tr("Add Color blended") );
+    rgbmnu->insertItem( new uiAction(tr("Empty")), 8 );
+    rgbmnu->insertItem( new uiAction(tr("Stored ...")), 9 );
     mnu.insertItem( rgbmnu );
 
     uiMenu* newmnu = new uiMenu( getUiParent(), uiStrings::sNew(true) );
-    newmnu->insertItem( new uiAction(tr("&Interactive  ...")), 6 );
-    newmnu->insertItem( new uiAction(tr("Along &Contours ...")), 2 );
-    newmnu->insertItem( new uiAction(tr("From &Existing ...")), 1 );
-    newmnu->insertItem( new uiAction(tr("From &Polygon ...")), 3 );
-    newmnu->insertItem( new uiAction(tr("From &Table ...")), 5 );
-    newmnu->insertItem( new uiAction(tr("From &Wells ...")), 4 );
+    newmnu->insertItem( new uiAction(tr("Interactive  ...")), 6 );
+    newmnu->insertItem( new uiAction(tr("Along Contours ...")), 2 );
+    newmnu->insertItem( new uiAction(tr("From Existing ...")), 1 );
+    newmnu->insertItem( new uiAction(tr("From Polygon ...")), 3 );
+    newmnu->insertItem( new uiAction(tr("From Table ...")), 5 );
+    newmnu->insertItem( new uiAction(tr("From Wells ...")), 4 );
     mnu.insertItem( newmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
@@ -332,11 +332,11 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
-    , editnodesmnuitem_("&Edit nodes ...")
-    , insertnodemnuitem_("&Insert node")
+    , editnodesmnuitem_("Edit nodes ...")
+    , insertnodemnuitem_("Insert node")
     , saveasmnuitem_( sSaveAs() )
-    , saveas2dmnuitem_("Save As &2D ...")
-    , create2dgridmnuitem_("Create 2D &Grid ...")
+    , saveas2dmnuitem_("Save As 2D ...")
+    , create2dgridmnuitem_("Create 2D Grid ...")
 {
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";

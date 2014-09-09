@@ -78,7 +78,7 @@ FaultDisplay::FaultDisplay()
     , showmanipulator_( false )
     , colorchange( this )
     , displaymodechange( this )
-    , usestexture_( false )
+    , usestexture_( true )
     , displaysticks_( false )
     , displaypanels_( true )
     , stickselectmode_( false )
@@ -387,7 +387,7 @@ void FaultDisplay::setColor( Color nc )
 
 void FaultDisplay::updateSingleColor()
 {
-    const bool usesinglecolor = !showingTexture();
+    const bool usesinglecolor = !showsTexture();
 
     activestickmarker_->getMaterial()->setColor( nontexturecol_ );
 
@@ -409,6 +409,13 @@ void FaultDisplay::updateSingleColor()
     }
     else if ( !usesinglecolor )			// To update color column in
 	getMaterial()->change.trigger();	// tree if texture is shown
+}
+
+
+bool FaultDisplay::usesColor() const
+{
+    return !showsTexture() || areSticksDisplayed() ||
+	   areIntersectionsDisplayed() || areHorizonIntersectionsDisplayed();
 }
 
 
@@ -457,8 +464,12 @@ bool FaultDisplay::usesTexture() const
 { return usestexture_; }
 
 
-bool FaultDisplay::showingTexture() const
-{ return validtexture_ && usestexture_; }
+bool FaultDisplay::showsTexture() const
+{ return canShowTexture() && usesTexture(); }
+
+
+bool FaultDisplay::canShowTexture() const
+{ return validtexture_ && isAnyAttribEnabled() && arePanelsDisplayedInFull(); }
 
 
 NotifierAccess* FaultDisplay::materialChange()
@@ -1146,7 +1157,6 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
 				OD::UsePtr, tr );
     validtexture_ = true;
-    usestexture_ = true;
     updateSingleColor();
 }
 
@@ -1887,6 +1897,13 @@ void FaultDisplay::setPixelDensity( float dpi )
 
     for ( int idx=0; idx<knotmarkersets_.size(); idx++ )
 	knotmarkersets_[idx]->setPixelDensity( dpi );
+}
+
+
+void FaultDisplay::enableAttrib( int attrib, bool yn )
+{
+    MultiTextureSurveyObject::enableAttrib( attrib, yn );
+    updateSingleColor();
 }
 
 

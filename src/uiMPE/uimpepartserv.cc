@@ -347,7 +347,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
     sendEvent( uiMPEPartServer::evEndSeedPick() );
     sendEvent( uiMPEPartServer::evShowToolbar() );
     sendEvent( ::uiMPEPartServer::evSetupClosed() );
-    if ( setupgrp_ )
+    if ( setupgrp_ && setupgrp_->mainwin() )
 	setupgrp_->mainwin()->close();
 }
 
@@ -995,7 +995,14 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     iopar.mergeComp( attrpar, "Attribs" );
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
-    iopar.write( setupfilenm, "Tracking Setup" );
+    if ( !iopar.write(setupfilenm,"Tracking Setup") )
+    {
+	BufferString errmsg( "Unable to save tracking setup file \n",
+	                     setupfilenm,
+			     ".\nPlease check whether the file is writable" );
+	uiMSG().error( errmsg );
+	return false;
+    }
 
     return true;
 }

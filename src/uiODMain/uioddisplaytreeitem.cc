@@ -66,15 +66,15 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
-    , addmnuitem_("&Add",cAddIdx)
-    , addattribmnuitem_("&Attribute",cAttribIdx)
-    , addvolprocmnuitem_("&Volume Processing attribute",cAttribIdx)
-    , displaymnuitem_("&Display",cDisplayIdx)
-    , duplicatemnuitem_("&Duplicate",cDuplicateIdx)
-    , histogrammnuitem_("&Histogram ...",cHistogramIdx)
-    , lockmnuitem_("&Lock",cLockIdx)
-    , hidemnuitem_("&Hide",cHideIdx )
-    , removemnuitem_("&Remove",cRemoveIdx)
+    , addmnuitem_("Add",cAddIdx)
+    , addattribmnuitem_("Attribute",cAttribIdx)
+    , addvolprocmnuitem_("Volume Processing attribute",cAttribIdx)
+    , displaymnuitem_("Display",cDisplayIdx)
+    , duplicatemnuitem_("Duplicate",cDuplicateIdx)
+    , histogrammnuitem_("Histogram ...",cHistogramIdx)
+    , lockmnuitem_("Lock",cLockIdx)
+    , hidemnuitem_("Hide",cHideIdx )
+    , removemnuitem_("Remove",cRemoveIdx)
 {
     removemnuitem_.iconfnm = "trashcan";
     histogrammnuitem_.iconfnm = "histogram";
@@ -261,7 +261,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::getLockMenuText()
 {
-    return visserv_->isLocked(displayid_) ? "Un&lock" : "&Lock";
+    return visserv_->isLocked(displayid_) ? "Unlock" : "Lock";
 }
 
 

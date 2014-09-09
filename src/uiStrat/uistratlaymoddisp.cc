@@ -29,6 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratreftree.h"
 #include "od_iostream.h"
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "property.h"
 #include "keystrs.h"
 #include "oddirs.h"
@@ -85,14 +86,12 @@ void uiStratLayerModelDisp::selectSequence( int selidx )
 }
 
 
-void uiStratLayerModelDisp::setFlattened( bool yn )
+void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
 {
-    const bool domodelchg = flattened_ || yn;
     flattened_ = yn;
-    if ( domodelchg )
-	modelChanged();
-    else
-	doLevelChg();
+    if ( !trigger ) return;
+
+    modelChanged();
 }
 
 
@@ -109,7 +108,10 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 						const PropertyRef* pr,
 						int propidx ) const
 {
-    return propidx < lay.nrValues() ? lay.value( propidx ) : mUdf(float);
+    const UnitOfMeasure* uom = UoMR().getDefault( pr->name(), pr->stdType());
+    const float sival = propidx < lay.nrValues() ? lay.value( propidx )
+						 : mUdf(float);
+    return mIsUdf(sival) ? mUdf(float) : uom->getUserValueFromSI( sival );
 }
 
 
@@ -283,6 +285,7 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 {
     vwr_.setInitialSize( uiSize(600,250) );
     vwr_.setStretch( 2, 2 );
+    vwr_.disableStatusBarUpdate();
     FlatView::Appearance& app = vwr_.appearance();
     app.setGeoDefaults( true );
     app.setDarkBG( false );
@@ -314,11 +317,15 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
 			mCB(this,uiStratSimpleLayerModelDisp,mouseMoved) );
 
     const CallBack redrawcb( mCB(this,uiStratSimpleLayerModelDisp,reDrawCB) );
-    tools_.selPropChg.notify( redrawcb );
-    tools_.selLevelChg.notify( redrawcb );
-    tools_.selContentChg.notify( redrawcb );
+    const CallBack redrawseqcb(
+	    mCB(this,uiStratSimpleLayerModelDisp,reDrawSeqCB) );
+    const CallBack redrawlvlcb(
+	    mCB(this,uiStratSimpleLayerModelDisp,reDrawLevelsCB) );
+    tools_.selPropChg.notify( redrawseqcb );
+    tools_.dispLithChg.notify( redrawseqcb );
+    tools_.selContentChg.notify( redrawseqcb );
+    tools_.selLevelChg.notify( redrawlvlcb );
     tools_.dispEachChg.notify( redrawcb );
-    tools_.dispLithChg.notify( redrawcb );
     tools_.dispZoomedChg.notify(
 	    mCB(this,uiStratSimpleLayerModelDisp,dispZoomedChgCB) );
 }
@@ -339,10 +346,8 @@ void uiStratSimpleLayerModelDisp::eraseAll()
     logblcklineitms_.erase();
     logblckrectitms_.erase();
     lvlitms_.erase();
-    delete selseqitm_; selseqitm_ = 0;
     delete emptyitm_; emptyitm_ = 0;
     delete frtxtitm_; frtxtitm_ = 0;
-    delete zoomboxitm_; zoomboxitm_ = 0;
     lvldpths_.erase();
     vwr_.removeAuxDatas( layerads_ );
     deepErase( layerads_ );
@@ -382,7 +387,8 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
-    statusbarmsg.set( "Model Number", getClickedModelNr() );
+    const int selseq = getClickedModelNr();
+    statusbarmsg.set( "Model Number", selseq );
     const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
     uiWorld2Ui w2ui;
     vwr_.getWorld2Ui( w2ui );
@@ -394,7 +400,27 @@ void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
 	depth = 0;
     }
+
     statusbarmsg.set( "Depth", depth );
+
+    if ( selseq >0 && selseq<=layerModel().size() )
+    {
+	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
+	const float lvldpth = lvldpths_[selseq-1];
+	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	{
+	    const Strat::Layer& lay = *seq.layers()[ilay];
+	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
+	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
+	    if ( depth >= z0 && depth<= z1 )
+	    {
+		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
+		const float val = getLayerPropValue(lay,pr,dispprop_);
+		statusbarmsg.set( pr->name(), val );
+		break;
+	    }
+	}
+    }
     infoChanged.trigger( statusbarmsg, this );
 }
 
@@ -549,6 +575,28 @@ void uiStratSimpleLayerModelDisp::dispZoomedChgCB( CallBacker* )
 }
 
 
+void uiStratSimpleLayerModelDisp::reDrawLevelsCB( CallBacker* )
+{
+    if ( flattened_ )
+    {
+	updateDataPack();
+	updateLayerAuxData();
+    }
+    else
+	getBounds();
+    updateLevelAuxData();
+    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+}
+
+
+void uiStratSimpleLayerModelDisp::reDrawSeqCB( CallBacker* )
+{
+    getBounds();
+    updateLayerAuxData();
+    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
+}
+
+
 void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
 {
     layerModel().prepareUse();
@@ -632,12 +680,11 @@ void uiStratSimpleLayerModelDisp::updateSelSeqAuxData()
 
 void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 {
-    vwr_.removeAuxDatas( levelads_ );
-    deepErase( levelads_ );
     if ( layerModel().isEmpty() )
 	return;
 
     lvlcol_ = tools_.selLevelColor();
+    int auxdataidx = 0;
     for ( int iseq=0; iseq<lvldpths_.size(); iseq++ )
     {
 	if ( !isDisplayedModel(iseq) )
@@ -650,16 +697,27 @@ void uiStratSimpleLayerModelDisp::updateLevelAuxData()
 	const double ypos = mCast( double, flattened_ ? 0. : zlvl );
 	const double xpos1 = mCast( double, iseq+1 );
 	const double xpos2 = mCast( double, iseq +1+dispeach_ );
-	FlatView::AuxData* levelad = vwr_.createAuxData( 0 );
+	FlatView::AuxData* levelad = 0;
+	if ( !levelads_.validIdx(auxdataidx) )
+	{
+	    levelad = vwr_.createAuxData( 0 );
+	    levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
+	    vwr_.addAuxData( levelad );
+	    levelads_ += levelad;
+	}
+	else
+	    levelad = levelads_[auxdataidx];
+
+	levelad->poly_.erase();
 	levelad->close_ = false;
 	levelad->enabled_ = true;
 	levelad->linestyle_ = LineStyle(LineStyle::Solid,2,lvlcol_);
-	levelad->zvalue_ = uiFlatViewer::auxDataZVal() + 1;
 	levelad->poly_ += FlatView::Point( xpos1, ypos );
 	levelad->poly_ += FlatView::Point( xpos2, ypos );
-	vwr_.addAuxData( levelad );
-	levelads_ += levelad;
+	auxdataidx++;
     }
+    while ( auxdataidx < levelads_.size() )
+	levelads_[auxdataidx++]->enabled_ = false;
 }
 
 void uiStratSimpleLayerModelDisp::updateLayerAuxData()
@@ -672,11 +730,10 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     selectedcontent_ = layerModel().refTree().contents()
 				.getByName(tools_.selContent());
     allcontents_ = FixedString(tools_.selContent()) == sKey::All();
-    vwr_.removeAuxDatas( layerads_ );
-    deepErase( layerads_ );
     if ( vrg_.width() == 0 )
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
+    int auxdataidx = 0;
     mStartLayLoop( false, )
 	
 	if ( !isDisplayedModel(iseq) )
@@ -687,10 +744,36 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    mustannotcont = allcontents_
 		|| (selectedcontent_ && lay.content() == *selectedcontent_);
 	const Color pencol = mustannotcont ? lay.content().color_ : laycol;
-	FlatView::AuxData* layad = vwr_.createAuxData( lay.name().buf() );
-	layad->linestyle_ = LineStyle( LineStyle::Solid, 2, pencol );
+	bool canjoinlayers = ilay > 0;
+	if ( canjoinlayers )
+	{
+	    const Strat::Layer& prevlay = *seq.layers()[ilay-1];
+	    const Color prevlaycol = prevlay.dispColor( uselithcols_ );
+	    canjoinlayers = prevlaycol==laycol;
+	}
+
+	if ( canjoinlayers )
+	    auxdataidx--;
+	FlatView::AuxData* layad = 0;
+	if ( !layerads_.validIdx(auxdataidx) )
+	{
+	    layad = vwr_.createAuxData( lay.name().buf() );
+	    layad->zvalue_ = uiFlatViewer::auxDataZVal()-1;
+	    layad->close_ = true;
+	    vwr_.addAuxData( layad );
+	    layerads_ += layad;
+	}
+	else
+	    layad = layerads_[auxdataidx];
+
+	if ( !canjoinlayers )
+	    layad->poly_.erase();
+	else
+	    layad->poly_.pop();
+
 	layad->fillcolor_ = laycol;
 	layad->enabled_ = true;
+	layad->linestyle_ = LineStyle( LineStyle::Solid, 2, pencol );
 	if ( mustannotcont )
 	    layad->fillpattern_ = lay.content().pattern_;
 	else
@@ -698,22 +781,23 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	    FillPattern fp; fp.setFullFill();
 	    layad->fillpattern_ = fp;
 	}
-	layad->zvalue_ = uiFlatViewer::auxDataZVal()-1;
-	layad->close_ = true;
 	const double x0 = mCast( double, iseq + 1 );
 	double relx = mCast( double, (val-vrg_.start)/vwdth );
 	relx *= dispeach_;
 	const double x1 = mCast( double, iseq+1+relx );
 	mGetDispZ( z0 ); // TODO check if needed
 	mGetDispZ( z1 );
-	layad->poly_ += FlatView::Point( x0, (double)z0 );
+	if ( !canjoinlayers )
+	    layad->poly_ += FlatView::Point( x0, (double)z0 );
 	layad->poly_ += FlatView::Point( x1, (double)z0 );
 	layad->poly_ += FlatView::Point( x1, (double)z1 );
 	layad->poly_ += FlatView::Point( x0, (double)z1 );
-	vwr_.addAuxData( layad );
-	layerads_ += layad;
+	auxdataidx++;
 
     mEndLayLoop()
+
+    while ( auxdataidx < layerads_.size() )
+	layerads_[auxdataidx++]->enabled_ = false;
 
 }
 
@@ -841,8 +925,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
     updateLevelAuxData();
     updateSelSeqAuxData();
     displayFRText();
-    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::BitmapData |
-					  FlatView::Viewer::Auxdata) );
+    vwr_.handleChange( mCast(unsigned int,FlatView::Viewer::Auxdata) );
 }
 
 

@@ -34,6 +34,7 @@ SET(OD_MODULE_SOURCES
 	uiimppickset.cc
 	uiimpexpselgrp.cc
 	uiimpexppdf.cc
+	uiimpexp2dgeom.cc
 	uiimppvds.cc
 	uiioobj.cc
 	uiioobjmanip.cc

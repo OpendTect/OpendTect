@@ -52,6 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uidatapointsetman.h"
 #include "uifontsel.h"
 #include "uiimpexppdf.h"
+#include "uiimpexp2dgeom.h"
 #include "uiimppvds.h"
 #include "uimanprops.h"
 #include "uimsg.h"
@@ -142,6 +143,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 
     switch ( ot )
     {
+    mCase(NrObjTypes): break;
     mCase(Seis):
 	switch ( at )
 	{
@@ -315,6 +317,11 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	if ( at == uiODApplMgr::Man )
 	{
 	    ui2DGeomManageDlg dlg( par_ );
+	    dlg.go();
+	}
+	else if ( at == uiODApplMgr::Exp )
+	{
+	    uiExp2DGeom dlg( par_ );
 	    dlg.go();
 	}
     break;

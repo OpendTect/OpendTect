@@ -107,6 +107,7 @@ protected:
     void			dispEachChg(CallBacker*);
     void			mkSynthChg(CallBacker*);
     void			levelChg(CallBacker*);
+    void			flattenChg(CallBacker*);
     void			seqSel(CallBacker*);
     void			modEd(CallBacker*);
     void			modDispRangeChanged(CallBacker*);

@@ -47,8 +47,10 @@ public:
 		idx_[2] = -1;
 	    }
 
-    od_int64    totalNr() const { return totalnr_; }
-    od_int64	nrDone() const { return nrdone_; }
+    od_int64	totalNr() const		{ return totalnr_; }
+    od_int64	nrDone() const		{ return nrdone_; }
+    uiString	uiNrDoneText() const	{ return "Positions written"; }
+
     int	nextStep()
 		{
 		    if ( !nrdone_ )
@@ -110,8 +112,10 @@ MarchingCubesSurfaceReader( od_istream& strm, MarchingCubesSurface& s,
     , totalnr_( -1 )
 {}
 
-od_int64 totalNr() const { return totalnr_; }
-od_int64 nrDone() const { return nrdone_; }
+od_int64 totalNr() const	{ return totalnr_; }
+od_int64 nrDone() const		{ return nrdone_; }
+uiString uiNrDoneText() const	{ return "Positions read"; }
+
 int nextStep()
 {
     if ( !nrdone_ )

@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
     , picksetmgr_(Pick::Mgr())
 {
     Pick::Mgr().setToBeRemoved.notify(
-	    			mCB(this,uiODPickSetParentTreeItem,setRm) );
+				mCB(this,uiODPickSetParentTreeItem,setRm) );
 }
 
 
@@ -114,33 +114,33 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    applMgr()->visServer()->getObject(sceneID()));
+		    applMgr()->visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getZAxisTransform();
 
     uiMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiAction(tr("&Add PickSet ...")), mLoadIdx );
-    mnu.insertItem( new uiAction(tr("Add &Polygon...")), mLoadPolyIdx );
-    uiMenu* newmnu = new uiMenu( getUiParent(), tr("&New PickSet") );
-    newmnu->insertItem( new uiAction(tr("&Empty ...")), mEmptyIdx );
-    newmnu->insertItem( new uiAction(tr("Generate &3D...")), mGen3DIdx );
+    mnu.insertItem( new uiAction(tr("Add PickSet ...")), mLoadIdx );
+    mnu.insertItem( new uiAction(tr("Add Polygon...")), mLoadPolyIdx );
+    uiMenu* newmnu = new uiMenu( getUiParent(), tr("New PickSet") );
+    newmnu->insertItem( new uiAction(tr("Empty ...")), mEmptyIdx );
+    newmnu->insertItem( new uiAction(tr("Generate 3D...")), mGen3DIdx );
     if ( SI().has2D() )
-	newmnu->insertItem( new uiAction(tr("Generate &2D ...")), mRandom2DIdx);
+	newmnu->insertItem( new uiAction(tr("Generate 2D ...")), mRandom2DIdx);
     mnu.insertItem( newmnu );
-    mnu.insertItem( new uiAction(tr("Ne&w Polygon ...")), mPolygonIdx );
+    mnu.insertItem( new uiAction(tr("New Polygon ...")), mPolygonIdx );
 
     if ( children_.size() > 0 )
     {
 	mnu.insertSeparator();
 	uiAction* filteritem =
-	    new uiAction( tr("&Display picks only at sections") );
+	    new uiAction( tr("Display picks only at sections") );
 	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
-	uiAction* shwallitem = new uiAction( tr("Show &all picks") );
+	uiAction* shwallitem = new uiAction( tr("Show all picks") );
 	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiAction(tr("&Merge Sets ...")), mMergeIdx );
-	mnu.insertItem( new uiAction(tr("&Save changes")), mSaveIdx );
+	mnu.insertItem( new uiAction(tr("Merge Sets ...")), mMergeIdx );
+	mnu.insertItem( new uiAction(tr("Save changes")), mSaveIdx );
     }
 
     addStandardItems( mnu );
@@ -230,10 +230,10 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(sSave())
     , storeasmnuitem_(sSaveAs())
-    , dirmnuitem_("Set &directions ...")
-    , onlyatsectmnuitem_("&Only at sections")
-    , propertymnuitem_("&Properties ...")
-    , closepolyitem_("&Close Polygon")
+    , dirmnuitem_("Set directions ...")
+    , onlyatsectmnuitem_("Only at sections")
+    , propertymnuitem_("Properties ...")
+    , closepolyitem_("Close Polygon")
     , convertbodymnuitem_( "Convert to body" )
 {
     displayid_ = did;
@@ -261,7 +261,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
     if ( !ps || &set_!=ps ) return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv_->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }

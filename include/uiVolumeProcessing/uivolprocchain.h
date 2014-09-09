@@ -45,6 +45,7 @@ public:
 protected:
 
     static const char*		sKeySettingKey();
+    static uiString		getPossibleInitialStepNames();
 
     bool			acceptOK(CallBacker*);
     bool			doSave();

@@ -378,7 +378,7 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
 	    if ( !projpos.isUdf() )
 	    {
 		const Coord diff = projpos - pos0;
-		const float sqrdist = diff.dot(diff);
+		const float sqrdist = (float) diff.dot(diff);
 		if ( minsqrdist0<0 || minsqrdist0>sqrdist )
 		{
 		    minsqrdist0 = sqrdist;
@@ -393,7 +393,7 @@ bool FaultTrace::getCoordsBetween( int starttrc, float startz, int stoptrc,
 	    if ( !projpos.isUdf() )
 	    {
 		const Coord diff = projpos - pos1;
-		const float sqrdist = diff.dot(diff);
+		const float sqrdist = (float) diff.dot(diff);
 		if ( minsqrdist1<0 || minsqrdist1>sqrdist )
 		{
 		    minsqrdist1 = sqrdist;

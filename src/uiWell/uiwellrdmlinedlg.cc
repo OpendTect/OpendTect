@@ -65,7 +65,7 @@ uiWellSelGrp::uiWellSelGrp( uiParent* p, bool withpos )
 
 void uiWellSelGrp::createFields()
 {
-    wellsbox_ = new uiListBox( this, "Available Wells", OD::ChooseAtLeastOne );
+    wellsbox_ = new uiListBox( this, "Available Wells", OD::ChooseZeroOrMore );
     selwellstbl_ = new uiTable( this, uiTable::Setup()
 				        .selmode(uiTable::SelectionMode(3) ),
 				"Wells Table" );
@@ -388,7 +388,7 @@ void uiWell2RandomLineDlg::createFields()
     if ( wellserv_ )
     {
 	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-	previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
+	previewbutton_ = new uiPushButton( this, "Preview", cb, true );
 	previewbutton_->attach( ensureBelow, sep );
 	dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
 	dispfld_->setChecked( true );

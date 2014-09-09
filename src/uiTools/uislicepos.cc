@@ -37,15 +37,15 @@ uiSlicePos::uiSlicePos( uiParent* p )
     sliceposbox_ = new uiSpinBox( toolbar_, 0, "Slice position" );
     sliceposbox_->valueChanging.notify( mCB(this,uiSlicePos,slicePosChg) );
 
-    uiLabel* steplabel = new uiLabel( toolbar_, "Step" );
+    uiLabel* steplabel = new uiLabel( toolbar_, tr("Step") );
 
     slicestepbox_ = new uiSpinBox( toolbar_, 0, "Slice step" );
     slicestepbox_->valueChanged.notify( mCB(this,uiSlicePos,sliceStepChg) );
     slicestepbox_->valueChanging.notify( mCB(this,uiSlicePos,sliceStepChg) );
 
-    prevbut_ = new uiToolButton( toolbar_, "prevpos", "Previous position",
+    prevbut_ = new uiToolButton( toolbar_, "prevpos", tr("Previous position"),
 				mCB(this,uiSlicePos,prevCB) );
-    nextbut_ = new uiToolButton( toolbar_, "nextpos", "Next position",
+    nextbut_ = new uiToolButton( toolbar_, "nextpos", tr("Next position"),
 				mCB(this,uiSlicePos,nextCB) );
 
     toolbar_->addObject( label_ );
@@ -148,7 +148,8 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
     NotifyStopper posstop( posbox->valueChanging );
-    NotifyStopper stepstop( stepbox->valueChanged );
+    NotifyStopper stepstop1( stepbox->valueChanged );
+    NotifyStopper stepstop2( stepbox->valueChanging );
 
     if ( orientation == OD::InlineSlice )
     {

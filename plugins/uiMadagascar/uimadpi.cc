@@ -30,7 +30,7 @@ mDefODPluginInfo(uiMadagascar)
 	"OpendTect",
 	"dGB (Bert, Raman)",
 	"3.2",
-    	"A link to the Madagascar system."
+	"A link to the Madagascar system."
 	    "\nSee http://opendtect.org/links/madagascar.html"
 	    " for info on Madagascar."));
     return &retpi;
@@ -45,7 +45,7 @@ static bool checkEnvVars( BufferString& msg )
 	msg = "RSFROOT is either not set or invalid";
 	return false;
     }
-    
+
     return true;
 }
 
@@ -93,16 +93,16 @@ uiMadagascarLink::~uiMadagascarLink()
 void uiMadagascarLink::updateToolBar( CallBacker* )
 {
     mnumgr.dtectTB()->addButton( "madagascar", "Madagascar link",
-	    			 mCB(this,uiMadagascarLink,doMain) );
+				 mCB(this,uiMadagascarLink,doMain) );
 }
 
 
 void uiMadagascarLink::updateMenu( CallBacker* )
 {
     delete madwin_; madwin_ = 0; ishidden_ = false;
-    uiAction* newitem = new uiAction( "&Madagascar ...",
-	    				  mCB(this,uiMadagascarLink,doMain),
-	   				  "madagascar" );
+    uiAction* newitem = new uiAction( "Madagascar ...",
+					  mCB(this,uiMadagascarLink,doMain),
+					  "madagascar" );
     mnumgr.procMnu()->insertItem( newitem );
 }
 
@@ -148,7 +148,7 @@ mDefODInitPlugin(uiMadagascar)
     if ( lnk ) return 0;
 
     IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
-	    		      "Madagascar data" );
+			      "Madagascar data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
     if ( id != ODMad::sKeyMadSelKey() )
 	return "Cannot create 'Madagascar' directory in survey";

@@ -11,9 +11,10 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "netreqpacket.h"
 #include "atomic.h"
-#include "ptrman.h"
-#include "fixedstring.h"
 #include "bufstring.h"
+#include "fixedstring.h"
+#include "ptrman.h"
+
 
 static Threads::Atomic<int> curreqid_;
 

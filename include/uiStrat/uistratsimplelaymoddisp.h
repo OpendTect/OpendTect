@@ -77,6 +77,8 @@ protected:
     void		doDraw();
     void		eraseAll();
     void		reDrawCB(CallBacker*);
+    void		reDrawSeqCB(CallBacker*);
+    void		reDrawLevelsCB(CallBacker*);
     void		usrClicked(CallBacker*);
     void		mouseMoved(CallBacker*);
     void		doubleClicked(CallBacker*);
