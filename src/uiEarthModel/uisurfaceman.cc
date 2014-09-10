@@ -223,33 +223,31 @@ void uiSurfaceMan::attribSel( CallBacker* )
 }
 
 
-#define mSetButToolTip(but,str1,curattribnms,str2) \
+#define mSetButToolTip(but,str1,curattribnms,str2,deftt) \
     if ( but ) \
     { \
 	if ( but->sensitive() ) \
 	{ \
 	    tt.setEmpty(); \
-	    tt.add( str1 ) \
-	      .add( " '" ).add( curattribnms ).add( "' " ) \
-	      .add( str2 ); \
+	    tt.add( str1 ).add( curattribnms ).add( str2 ); \
 	    but->setToolTip( tr(tt) ); \
 	} \
 	else \
 	{ \
-	    but->setToolTip( "" ); \
+	    but->setToolTip( deftt ); \
 	} \
     }
 
 void uiSurfaceMan::setToolButtonProperties()
 {
-    const int hasobj = !selgrp_->isEmpty();
     const bool hasattribs = attribfld_ && !attribfld_->isEmpty();
 
     BufferString tt;
     if ( surfdatarenamebut_ )
     {
 	surfdatarenamebut_->setSensitive( hasattribs );
-	mSetButToolTip(surfdatarenamebut_,"Rename",attribfld_->getText(),"")
+	mSetButToolTip(surfdatarenamebut_,"Rename '",attribfld_->getText(),"'",
+		       "Rename selected Data")
     }
 
     if ( surfdataremovebut_ )
@@ -257,25 +255,33 @@ void uiSurfaceMan::setToolButtonProperties()
 	surfdataremovebut_->setSensitive( hasattribs );
 	BufferStringSet attrnms;
 	attribfld_->getChosen( attrnms );
-	mSetButToolTip(surfdataremovebut_,"Remove",attrnms.getDispString(2),"")
+	mSetButToolTip(surfdataremovebut_,"Remove ",attrnms.getDispString(2),
+		       "", "Remove selected data")
     }
 
     if ( copybut_ )
     {
-	copybut_->setSensitive( hasobj );
+	copybut_->setSensitive( curioobj_ );
+	BufferString cursel;
 	if ( curioobj_ )
-	{
-	    BufferString cursel( curioobj_->name() );
-	    mSetButToolTip(copybut_,"Copy",cursel," to new object")
-	}
+	    cursel.add( curioobj_->name() );
+
+	mSetButToolTip(copybut_,"Copy '",cursel,"' to new object",
+		       "Copy to new object")
     }
 
     if ( mergehorbut_ )
     {
-	mergehorbut_->setSensitive( selgrp_->nrChosen() >= 2 );
+	mergehorbut_->setSensitive( curioobj_ );
 	BufferStringSet selhornms;
 	selgrp_->getChosen( selhornms );
-	mSetButToolTip(mergehorbut_,"Merge",selhornms.getDispString(2),"")
+	if ( selhornms.size() > 1 )
+	{
+	    mSetButToolTip(mergehorbut_,"Merge ",selhornms.getDispString(2),"",
+			   "Merge 3D horizons")
+	}
+	else
+	    mergehorbut_->setToolTip( "Merge 3D horizons" );
     }
 }
 

@@ -203,34 +203,37 @@ void uiWellMan::checkButtons()
 }
 
 
-#define mSetButToolTip(but,front,curwellnm,end) \
+#define mSetButToolTip(but,front,curwellnm,end,deftt) \
     if ( !but->sensitive() ) \
-	but->setToolTip( uiStrings::sEmptyString() ); \
+	but->setToolTip( deftt ); \
     else \
     { \
 	tt.setEmpty(); \
-	tt.add( front ).add( " '" ).add( curwellnm ).add( "' " ).add( end ); \
+	tt.add( front ).add( curwellnm ).add( end ); \
 	but->setToolTip( tt ); \
     }
 
 void uiWellMan::setToolButtonProperties()
 {
-    if ( !curioobj_ ) return;
+    BufferString tt, curwellnm;
+    if ( curioobj_ )
+	curwellnm.add( curioobj_->name() );
 
-    BufferString tt;
-    BufferString curwellnm( curioobj_->name() );
-    mSetButToolTip(welltrackbut_,"Edit Well Track for",curwellnm,"")
+    mSetButToolTip(welltrackbut_,"Edit Well Track for '",curwellnm,"'",
+		   "Edit Well Track")
     if ( d2tbut_ )
     {
-	mSetButToolTip(d2tbut_,"Edit Depth/Time model for",curwellnm,"")
+	mSetButToolTip(d2tbut_,"Edit Depth/Time model for '",curwellnm,"'",
+		       "Edit Depth/Time Model")
     }
 
     if ( csbut_ )
     {
-	mSetButToolTip(csbut_,"Edit Checkshot Data for",curwellnm,"")
+	mSetButToolTip(csbut_,"Edit Checkshot Data for '",curwellnm,"'",
+		       "Edit Checkshot Data")
     }
 
-    mSetButToolTip(markerbut_,"Edit",curwellnm," markers")
+    mSetButToolTip(markerbut_,"Edit '",curwellnm,"' markers","Edit markers")
 
     const int nrlogs = logsfld_->size();
     const int curidx = logsfld_->currentItem();
@@ -246,32 +249,39 @@ void uiWellMan::setToolButtonProperties()
     loguombut_->setSensitive( nrlogs > 0 );
     logedbut_->setSensitive( nrlogs > 0 );
 
-    mSetButToolTip(logupbut_,"Move",logsfld_->getText(),"up");
-    mSetButToolTip(logdownbut_,"Move",logsfld_->getText(),"down");
-    mSetButToolTip(logrenamebut_,"Rename",logsfld_->getText(),"");
-    mSetButToolTip(loguombut_,"View/edit",logsfld_->getText(),
-		   "unit of measure");
+    mSetButToolTip(logupbut_,"Move '",logsfld_->getText(),"' up","Move up");
+    mSetButToolTip(logdownbut_,"Move '",logsfld_->getText(),"' down",
+		   "Move down");
+    mSetButToolTip(logrenamebut_,"Rename '",logsfld_->getText(),"'",
+		   "Rename selected log");
+    mSetButToolTip(loguombut_,"View/edit '",logsfld_->getText(),
+		   "' unit of measure","View/edit unit of measure");
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
-    if ( nrchosenlogs )
-    {
-	mSetButToolTip(logrmbut_,"Remove",lognms.getDispString(3),"");
-	mSetButToolTip(logexpbut_,"Export",lognms.getDispString(3),"");
-    }
+    mSetButToolTip(logrmbut_,"Remove ",lognms.getDispString(3),"",
+		   "Remove selected log(s)");
+    mSetButToolTip(logexpbut_,"Export ",lognms.getDispString(3),"",
+		   "Export log(s)");
 
     const int nrchosenwls = selGroup()->getListField()->nrChosen();
     const int maxnrchosen = nrchosenwls*nrchosenlogs;
     logvwbut_->setSensitive( maxnrchosen && maxnrchosen<=2 );
-    if ( maxnrchosen && maxnrchosen<=2 )
+
+    TypeSet<MultiID> chsnmids;
+    selGroup()->getChosen( chsnmids );
+    BufferStringSet wellnms;
+    for ( int midx=0; midx<chsnmids.size(); midx++ )
     {
-	BufferString vwlogtt;
-	BufferStringSet wellnms;
-	selGroup()->getListField()->getChosen( wellnms );
-	vwlogtt.add( nrchosenwls > 1 ? " of wells '" : " of well '" );
-	vwlogtt.add( wellnms.getDispString(2) );
-	mSetButToolTip(logvwbut_,"View",lognms.getDispString(2),vwlogtt);
+	IOObj* obj = IOM().get( chsnmids[midx] );
+	if ( !obj ) continue;
+	wellnms.add( obj->name() );
     }
 
+    BufferString vwlogtt;
+    vwlogtt.add( nrchosenwls > 1 ? " of wells " : " of well " );
+    vwlogtt.add( wellnms.getDispString(2) );
+    mSetButToolTip(logvwbut_,"View ",lognms.getDispString(2),vwlogtt,
+		   "View selected log(s)");
 }
 
 
