@@ -77,8 +77,8 @@ uiIOSurface::~uiIOSurface()
 void uiIOSurface::mkAttribFld( bool labelabove )
 {
     attribfld_ = new uiLabeledListBox( this, tr("Calculated attributes"),
-		OD::ChooseAtLeastOne, labelabove ? uiLabeledListBox::AboveMid
-						  : uiLabeledListBox::LeftTop );
+		OD::ChooseZeroOrMore, labelabove ? uiLabeledListBox::AboveMid
+						 : uiLabeledListBox::LeftTop );
     attribfld_->setStretch( 2, 2 );
     attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
