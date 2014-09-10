@@ -77,6 +77,7 @@ const char* hostAddress( const char* hostname )
 {
 #ifndef OD_NO_QT
     mDeclStaticString( str );
+    str = hostname; //if conversion fails return the name atleast;
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
