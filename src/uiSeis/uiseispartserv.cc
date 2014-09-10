@@ -36,10 +36,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 
 #include "uibatchtime2depthsetup.h"
+#include "uichecklist.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uilistbox.h"
 #include "uimenu.h"
 #include "uimergeseis.h"
@@ -125,54 +127,50 @@ bool uiSeisPartServer::exportSeis( int opt )
 
 
 class ManageSeisSubSel : public uiDialog
-{
+{ mODTextTranslationClass(ManageSeisSubSel)
 public:
 ManageSeisSubSel( uiParent* p, bool has2d, bool has2dgathers,
 		  bool has3d, bool has3dgathers )
     : uiDialog(p,Setup("Please specify",mNoDlgTitle,mNoHelpKey))
-    , has2dgathers_(has2dgathers)
-    , has3dgathers_(has3dgathers)
-    , typefld_(0)
-    , datafld_(0)
 {
-    if ( has2d && has3d )
-    {
-	typefld_ = new uiGenInput( this, "Type", BoolInpSpec(false,"2D","3D") );
-	typefld_->valuechanged.notify( mCB(this,ManageSeisSubSel,typeCB) );
-    }
+    uiLabel* lbl = new uiLabel( this, "Manage" );
+    choicefld_ = new uiCheckList( this, uiCheckList::OneOnly, OD::Vertical );
+    choicefld_->attach( rightOf, lbl );
 
-    datafld_ = new uiGenInput( this, "Data",
-			       BoolInpSpec(true,"Poststack","Prestack") );
-    if ( typefld_ )
-	datafld_->attach( alignedBelow, typefld_ );
+    if ( has2d )
+    {
+	choicefld_->addItem( tr("2D Seismics") );
+	optionidxs_ += 1;
+    }
+    if ( has2dgathers )
+    {
+	choicefld_->addItem( tr("2D Prestack") );
+	optionidxs_ += 3;
+    }
+    if ( has3d )
+    {
+	choicefld_->addItem( tr("3D Seismics") );
+	optionidxs_ += 0;
+    }
+    if ( has3dgathers )
+    {
+	choicefld_->addItem( tr("3D Prestack") );
+	optionidxs_ += 2;
+    }
 }
 
 
 int getSelOption() const
 {
-    const bool is2d = (typefld_ && typefld_->getBoolValue()) || !has3d_;
-    if ( is2d )
-	return has2dgathers_ && !datafld_->getBoolValue() ? 3 : 1;
-
-    return has3dgathers_ && !datafld_->getBoolValue() ? 2 : 0;
+    const int selidx = choicefld_->firstChecked();
+    return optionidxs_.validIdx( selidx ) ? optionidxs_[selidx] : 0;
 }
 
 
 protected:
 
-void typeCB( CallBacker* )
-{
-    const bool sel2d = typefld_->getBoolValue();
-    datafld_->display( (sel2d&&has2dgathers_) || (!sel2d&&has3dgathers_) );
-}
-
-    bool	has2d_;
-    bool	has3d_;
-    bool	has2dgathers_;
-    bool	has3dgathers_;
-
-    uiGenInput*	typefld_;
-    uiGenInput*	datafld_;
+    uiCheckList*	choicefld_;
+    TypeSet<int>	optionidxs_;
 };
 
 

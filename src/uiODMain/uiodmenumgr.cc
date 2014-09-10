@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uiproxydlg.h"
+#include "uiseispartserv.h"
 #include "uisettings.h"
 #include "uitextfile.h"
 #include "uitextedit.h"
@@ -1393,10 +1394,7 @@ void uiODMenuMgr::manHor( CallBacker* )
 
 void uiODMenuMgr::manSeis( CallBacker* )
 {
-    const int opt = ask2D3D( "Manage 2D or 3D Seismics", 1, 0, -1 );
-    if ( opt == -1 ) return;
-
-    mDoOp(Man,Seis,opt);
+    appl_.applMgr().seisServer()->manageSeismics();
 }
 
 #define mDefManCBFn(typ) \
