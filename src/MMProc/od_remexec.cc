@@ -35,8 +35,11 @@ int main( int argc, char** argv )
 	par.set( "Job ID", argv[8] );
 	par.set( "Par File", argv[9] );
     }
-    	
-    BufferString remhostaddress = System::hostAddress( argv[1] );
+    
+    const char* hostnmarg = argv[1];
+    BufferString remhostaddress = System::hostAddress( hostnmarg );
+    if ( remhostaddress.isEmpty() )
+	remhostaddress = hostnmarg;
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();
