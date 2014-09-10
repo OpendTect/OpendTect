@@ -1,6 +1,21 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0o: September 04, 2014
+ * Fix for crash while creating 3D Cube from 2D
+ * Fix for crash while creating seismic attribute
+ * Fix for crash while doing velocity conversion
+ * Fix for horizon shift dialog shifting the other horizon when
+   selected from the tree
+ * Fix for subselection of traces while importing 2D SEG-Y data
+ * Fix for displaying of unnecessary error messages and some 
+   improvements in Well-Tie user interface
+ * Fix for improper mapping of filled colors for well logs
+   with discrete values
+ * Fix for re-evaluation of random-based properties
+ * Fix for updating the subselection field according to input attribute in
+   'Create Seismic Output' window
+
 v4.6.0n: August 18, 2014
  * Implemented 2D to 3D volume interpolation in batch mode
  * Fix for crash while importing well data '.las' file 
