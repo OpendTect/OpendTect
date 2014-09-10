@@ -422,7 +422,7 @@ Array2D<float>* Horizon3D::createArray2D(
 
 
 bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
-			    const BinID& step )
+			    const BinID& step, bool takeover )
 {
     removeAll();
 
@@ -430,7 +430,7 @@ bool Horizon3D::setArray2D( Array2D<float>* array, const BinID& start,
     Geometry::BinIDSurface* geom = geometry().sectionGeometry( sid );
     if ( !geom ) return false;
 
-    geom->setArray( start, step, array, true );
+    geom->setArray( start, step, array, takeover );
     return true;
 }
 

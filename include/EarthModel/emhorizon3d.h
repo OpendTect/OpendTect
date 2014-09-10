@@ -118,8 +118,10 @@ public:
 				     is set, the event will be saved to
 				     history with the desc. */
     bool			setArray2D(Array2D<float>*,const BinID& origin,
-					   const BinID& step);
-				/*!< Returns true on succes. Takes over array.
+					   const BinID& step,
+					   bool takeoverarr=true);
+				/*!< Returns true on succes. Takes over array
+				     when takeoverarr=true.
 				     Removes any existing data. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
