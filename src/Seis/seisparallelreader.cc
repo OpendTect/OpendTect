@@ -9,13 +9,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisparallelreader.h"
 
 #include "arrayndimpl.h"
-#include "cubesampling.h"
 #include "binidvalset.h"
+#include "cbvsreadmgr.h"
+#include "cubesampling.h"
 #include "ioobj.h"
+#include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrctr.h"
+#include "seis2ddata.h"
 
 namespace Seis
 {
@@ -113,7 +118,7 @@ bool ParallelReader::doPrepare( int nrthreads )
             }
 	    else
 	    {
-		if ( (*arrays_)[idx]->info()!=sizes ) 
+		if ( (*arrays_)[idx]->info()!=sizes )
 		{
 		    if ( !(*arrays_)[idx]->setInfo( sizes ) )
 		    {
@@ -129,7 +134,7 @@ bool ParallelReader::doPrepare( int nrthreads )
 		(*arrays_)[idx]->setAll( mUdf(float) );
         }
     }
-    
+
     return true;
 }
 
@@ -168,7 +173,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
         bidvalpos = bidvals_->getPos( start );
         if ( !bidvalpos.isValid() )
             return false;
-        
+
         curbid = bidvals_->getBinID( bidvalpos );
     }
     else
@@ -197,12 +202,12 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
             trc.info().binid==curbid )
         {
 	    const StepInterval<float> trczrg = trc.zRange();
-	    
+
             if ( bidvals_ )
             {
 		float* vals = bidvals_->getVals(bidvalpos);
 		const float z = vals[0];
-		
+
 		if ( !mIsUdf(z) && trczrg.includes( z, false ) )
 		{
 		    for ( int idc=components_.size()-1; idc>=0; idc-- )
@@ -253,12 +258,143 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     }
 
     addToNrDone( nrdone );
-    
+
     return true;
 }
 
 
 bool ParallelReader::doFinish( bool success )
 { return success; }
-	    
+
+
+
+// ParallelReader2D
+ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
+				    const CubeSampling& cs )
+    : arrays_(new ObjectSet<Array2D<float> >)
+    , geomid_(geomid)
+    , cs_(cs)
+    , ioobj_(ioobj.clone())
+    , totalnr_(cs.hrg.nrCrl())
+{
+    SeisIOObjInfo seisinfo( ioobj );
+    const int nrcomponents = seisinfo.nrComponents();
+    for ( int idx=0; idx<nrcomponents; idx++ )
+	components_ += idx;
+}
+
+
+ParallelReader2D::~ParallelReader2D()
+{
+    delete arrays_;
+    delete ioobj_;
+}
+
+
+uiString ParallelReader2D::uiNrDoneText() const
+{ return "Traces read"; }
+
+uiString ParallelReader2D::uiMessage() const
+{ return errmsg_.isEmpty() ? "Reading" : errmsg_; }
+
+od_int64 ParallelReader2D::nrIterations() const
+{ return totalnr_; }
+
+
+bool ParallelReader2D::doPrepare( int nrthreads )
+{
+    const uiString allocprob = tr("Cannot allocate memory");
+
+    for ( int idx=0; idx<components_.size(); idx++ )
+    {
+	const Array2DInfoImpl sizes( cs_.nrCrl(), cs_.nrZ() );
+	bool setbg = false;
+	if ( idx>=arrays_->size() )
+	{
+	    mDeclareAndTryAlloc( Array2D<float>*, arr,
+				 Array2DImpl<float>( sizes ) );
+	    if ( !arr || !arr->isOK() )
+	    {
+		errmsg_ = allocprob;
+		return false;
+	    }
+
+	    (*arrays_) +=  arr;
+	    setbg = true;
+	}
+	else
+	{
+	    if ( (*arrays_)[idx]->info()!=sizes )
+	    {
+		if ( !(*arrays_)[idx]->setInfo(sizes) )
+		{
+		    errmsg_ = allocprob;
+		    return false;
+		}
+
+		setbg = true;
+	    }
+	}
+
+	if ( setbg )
+	    (*arrays_)[idx]->setAll( mUdf(float) );
+    }
+
+    return true;
+}
+
+
+bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    PtrMan<IOObj> ioobj = ioobj_->clone();
+    const Seis2DDataSet dataset( *ioobj );
+    const int lidx = dataset.indexOf( geomid_ );
+    if ( lidx<0 ) return false;
+
+    const IOPar& iopar = dataset.getInfo( lidx );
+    const char* fnm = SeisCBVS2DLineIOProvider::getFileName( iopar );
+    PtrMan<CBVSSeisTrcTranslator> trl =
+	CBVSSeisTrcTranslator::make( fnm, false, true );
+    if ( !trl ) return false;
+
+    SeisTrc trc;
+    BinID curbid;
+    StepInterval<int> trcrg = cs_.hrg.crlRange();
+    trl->toStart();
+    curbid = trl->readMgr()->binID();
+
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	curbid.crl() = trcrg.atIndex( idx );
+	if ( trl->goTo(curbid) && trl->read(trc) )
+	{
+	    const StepInterval<float> trczrg = trc.zRange();
+	    for ( int idz=(*arrays_)[0]->info().getSize(1)-1; idz>=0; idz--)
+	    {
+		float val;
+		const float z = cs_.zrg.atIndex( idz );
+		if ( trczrg.includes(z,false) )
+		{
+		    for ( int idc=arrays_->size()-1; idc>=0; idc-- )
+		    {
+			val = trc.getValue( z, components_[idc] );
+			if ( !mIsUdf(val) )
+			{
+			    (*arrays_)[idc]->set( idx, idz, val );
+			}
+		    }
+		}
+	    }
+	}
+
+	addToNrDone( 1 );
+    }
+
+    return true;
+}
+
+
+bool ParallelReader2D::doFinish( bool success )
+{ return success; }
+
 } // namespace Seis

@@ -21,18 +21,18 @@ class BinIDValueSet;
 class CubeSampling;
 class IOObj;
 
+template <class T> class Array2D;
 template <class T> class Array3D;
 
 
 namespace Seis
 {
 
-
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
    into a BinIDValueSet */
 
 mExpClass(Seis) ParallelReader : public ParallelTask
-{
+{ mODTextTranslationClass(ParallelReader)
 public:
 			ParallelReader(const IOObj&,
 			    const TypeSet<int>& components,
@@ -79,6 +79,39 @@ protected:
     IOObj*			ioobj_;
     od_int64			totalnr_;
 
+    uiString			errmsg_;
+};
+
+
+/*!Reads a 2D Seismic volume in parallel into an Array2D<float> */
+
+mExpClass(Seis) ParallelReader2D : public ParallelTask
+{ mODTextTranslationClass(ParallelReader2D)
+public:
+			ParallelReader2D(const IOObj&,Pos::GeomID,
+					 const CubeSampling&);
+			/*!<Calculates nr of comps and allocates arrays to
+			    fit the cs. */
+
+			~ParallelReader2D();
+
+    const ObjectSet<Array2D<float> >* getArrays() const { return arrays_; }
+
+    uiString		uiNrDoneText() const;
+    uiString		uiMessage() const;
+
+protected:
+    od_int64		nrIterations() const;
+    bool		doPrepare(int nrthreads);
+    bool		doWork(od_int64,od_int64,int);
+    bool		doFinish(bool);
+
+    TypeSet<int>		components_;
+    ObjectSet<Array2D<float> >* arrays_;
+    CubeSampling		cs_;
+    Pos::GeomID			geomid_;
+    IOObj*			ioobj_;
+    od_int64			totalnr_;
     uiString			errmsg_;
 };
 
