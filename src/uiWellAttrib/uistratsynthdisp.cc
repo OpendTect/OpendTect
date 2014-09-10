@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
+#include "envvars.h"
 #include "stratsynth.h"
 #include "stratsynthlevel.h"
 #include "syntheticdataimpl.h"
@@ -345,11 +346,7 @@ void uiStratSynthDisp::setDispMrkrs( const char* lnm,
 {
     StratSynthLevel* lvl = new StratSynthLevel( lnm, col, &zvals );
     curSS().setLevel( lvl );
-
-    if ( dispflattened_ )
-	handleFlattenChange();
-    else
-	levelSnapChanged(0);
+    levelSnapChanged(0);
 }
 
 
@@ -835,16 +832,15 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     curSS().decimateTraces( *disptbuf, dispeach_ );
+    reSampleTraces( sd, *disptbuf );
     if ( dispflattened_ )
     {
 	curSS().getLevelTimes( *disptbuf, curd2tmodels );
 	curSS().flattenTraces( *disptbuf );
     }
     else
-    {
-        reSampleTraces( sd, *disptbuf );
 	curSS().trimTraces( *disptbuf, curd2tmodels, dispskipz_);
-    }
+
 
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
@@ -881,12 +877,6 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
 	 mIsEqual(relzoomwr_.height(),1.0,1e-3) )
 	vwr_->setViewToBoundingBox();
-    else
-    {
-	uiWorldRect abswr;
-	getAbsoluteViewRect( abswr );
-	vwr_->setView( abswr );
-    }
 
     if ( rgnotsaved )
     {
@@ -1116,7 +1106,6 @@ void uiStratSynthDisp::showFRResults()
     setCurrentSynthetic( false );
     displaySynthetic( currentwvasynthetic_ );
     displayPostStackSynthetic( currentvdsynthetic_, false );
-    levelSnapChanged( 0 );
 }
 
 
@@ -1451,6 +1440,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     }
 
     curSS().generateOtherQuantities();
+    if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
+	setDiffData();
+
     synthsChanged.trigger();
 
     if ( stratsynthpar )
@@ -1461,6 +1453,60 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
     }
 
     return true;
+}
+
+
+void uiStratSynthDisp::setDiffData()
+{
+    for ( int idx=0; idx<curSS().nrSynthetics(); idx++ )
+    {
+	SyntheticData* frsd = curSS().getSyntheticByIdx( idx );
+	const SyntheticData* sd = altSS().getSyntheticByIdx( idx );
+	if ( !frsd || !sd ) continue;
+	if ( !sd->isPS() )
+	{
+	    mDynamicCastGet(PostStackSyntheticData*,frpostsd,frsd)
+	    mDynamicCastGet(const PostStackSyntheticData*,postsd,sd)
+	    SeisTrcBuf& frsdbuf = frpostsd->postStackPack().trcBuf();
+	    const SeisTrcBuf& sdbuf = postsd->postStackPack().trcBuf();
+	    for ( int itrc=0; itrc<frsdbuf.size(); itrc++ )
+	    {
+		SeisTrc* frtrc = frsdbuf.get( itrc );
+		const SeisTrc* trc = sdbuf.get( itrc );
+		for ( int isamp=0; isamp<frtrc->size(); isamp++ )
+		{
+		    const float z = trc->samplePos( isamp );
+		    const float trcval = trc->getValue( z, 0 );
+		    const float frtrcval = frtrc->getValue( z, 0 );
+		    frtrc->set( isamp, frtrcval - trcval , 0 );
+		}
+	    }
+	}
+	else
+	{
+	    mDynamicCastGet(PreStackSyntheticData*,frpresd,frsd)
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,sd)
+	    PreStack::GatherSetDataPack& frgdp =frpresd->preStackPack();
+	    ObjectSet<PreStack::Gather>& frgathers = frgdp.getGathers();
+	    StepInterval<float> offrg( frpresd->offsetRange() );
+	    offrg.step = frpresd->offsetRangeStep();
+	    const PreStack::GatherSetDataPack& gdp = presd->preStackPack();
+	    for ( int igather=0; igather<frgathers.size(); igather++ )
+	    {
+		for ( int offsidx=0; offsidx<offrg.nrSteps(); offsidx++ )
+		{
+		    SeisTrc* frtrc = frgdp.getTrace( igather, offsidx );
+		    const SeisTrc* trc = gdp.getTrace( igather, offsidx );
+		    for ( int isamp=0; isamp<frtrc->size(); isamp++ )
+		    {
+			const float trcval = trc->get( isamp, 0 );
+			const float frtrcval = frtrc->get( isamp, 0 );
+			frtrc->set( isamp, frtrcval-trcval, 0 );
+		    }
+		}
+	    }
+	}
+    }
 }
 
 

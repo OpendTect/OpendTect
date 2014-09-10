@@ -92,6 +92,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
     if ( !trigger ) return;
 
     modelChanged();
+    reSetView();
 }
 
 
@@ -822,10 +823,14 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
     zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
-    updateDataPack();
     forceRedispAll();
 }
 
+
+void uiStratSimpleLayerModelDisp::reSetView()
+{
+    updateDataPack();
+}
 
 
 void uiStratSimpleLayerModelDisp::getBounds()

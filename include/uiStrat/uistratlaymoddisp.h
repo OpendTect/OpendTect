@@ -51,6 +51,7 @@ public:
 			~uiStratLayerModelDisp();
 
     virtual void	modelChanged()			= 0;
+    virtual void	reSetView()			= 0;
     virtual uiWorldRect	zoomBox() const			= 0;
     virtual void	setZoomBox(const uiWorldRect&)	= 0;
     virtual float	getDisplayZSkip() const		= 0;
