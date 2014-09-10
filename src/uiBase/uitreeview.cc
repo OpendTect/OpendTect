@@ -258,6 +258,12 @@ uiTreeView::~uiTreeView()
 }
 
 
+void uiTreeView::setEmpty()
+{
+    body_->QTreeWidget::clear();
+}
+
+
 void uiTreeView::itemChangedCB( CallBacker* )
 {
     updateCheckStatus( lastitemnotified_ );
