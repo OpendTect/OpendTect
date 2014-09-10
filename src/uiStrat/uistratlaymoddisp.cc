@@ -92,6 +92,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
     if ( !trigger ) return;
     
     modelChanged();
+    reSetView();
 }
 
 
@@ -108,7 +109,10 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
 						const PropertyRef* pr,
 						int propidx ) const
 {
-    return propidx < lay.nrValues() ? lay.value( propidx ) : mUdf(float);
+    const UnitOfMeasure* uom = UoMR().getDefault( pr->name(), pr->stdType());
+    const float sival = propidx < lay.nrValues() ? lay.value( propidx )
+						 : mUdf(float);
+    return mIsUdf(sival) ? mUdf(float) : uom->getUserValueFromSI( sival );
 }
 
 
@@ -821,10 +825,14 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
 void uiStratSimpleLayerModelDisp::modelChanged()
 {
     zoomwr_ = uiWorldRect(mUdf(double),0,0,0);
-    updateDataPack();
     forceRedispAll();
 }
 
+
+void uiStratSimpleLayerModelDisp::reSetView()
+{
+    updateDataPack();
+}
 
 
 void uiStratSimpleLayerModelDisp::getBounds()

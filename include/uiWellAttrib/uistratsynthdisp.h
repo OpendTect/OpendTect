@@ -109,6 +109,7 @@ public:
     void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
     bool		doForceUpdate() const	  { return forceupdate_; }
     void		setUseEdited( bool yn )	  { useed_ = yn; }
+    void		setDiffData();
     void		resetRelativeViewRect();
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }

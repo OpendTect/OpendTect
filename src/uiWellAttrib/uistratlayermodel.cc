@@ -527,6 +527,8 @@ void uiStratLayerModel::levelChg( CallBacker* cb )
 {
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor() );
+    if ( modtools_->showFlattened() )
+	synthdisp_->setFlattened( modtools_->showFlattened(), true );
 }
 
 
@@ -755,6 +757,8 @@ bool uiStratLayerModel::openGenDesc()
     }
 
 
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
     setWinTitle();
     return true;
 }
@@ -867,7 +871,11 @@ void uiStratLayerModel::genModels( CallBacker* cb )
 	synthdisp_->setForceUpdate( true );
 
     lmp_.setBaseModel( newmodl );
+    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
     handleNewModel();
+    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
+    if ( mfvc ) mfvc->reInitZooms();
+    synthdisp_->setZoomView( prevrelzoomwr );
 
     if ( wasgo && !wasforced )
 	modtools_->setMkSynthetics( false );
@@ -886,9 +894,8 @@ void uiStratLayerModel::handleNewModel()
     useSyntheticsPars( desc_.getWorkBenchParams() );
     useDisplayPars( desc_.getWorkBenchParams() );
     synthdisp_->setDisplayZSkip( moddisp_->getDisplayZSkip(), true );
-    synthdisp_->setFlattened( modtools_->showFlattened(), false );
-    moddisp_->setFlattened( modtools_->showFlattened(), false );
-    moddisp_->modelChanged();
+    synthdisp_->setFlattened( modtools_->showFlattened(), true );
+    moddisp_->setFlattened( modtools_->showFlattened(), true );
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
 		    modtools_->selLevelColor() );
     const bool canshowflattened = canShowFlattened();
@@ -905,10 +912,6 @@ void uiStratLayerModel::handleNewModel()
     nrmodels_ = layerModel().size();
     newModels.trigger();
 
-    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-    synthdisp_->setZoomView( prevrelzoomwr );
     synthdisp_->setForceUpdate( false );
 }
 
@@ -985,7 +988,6 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     if ( !usefr )
 	mostlyfilledwithbrine_ = !mostlyfilledwithbrine_;
 
-    uiWorldRect prevrelzoomwr = synthdisp_->getRelativeViewRect();
     synthdisp_->setUseEdited( usefr );
     if ( parschanged )
     {
@@ -998,9 +1000,6 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
-    mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
-    if ( mfvc ) mfvc->reInitZooms();
-    synthdisp_->setZoomView( prevrelzoomwr );
     synthdisp_->setForceUpdate( false );
 }
 
