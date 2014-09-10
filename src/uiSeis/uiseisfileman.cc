@@ -111,25 +111,22 @@ uiSeisFileMan::~uiSeisFileMan()
 
 void uiSeisFileMan::ownSelChg()
 {
-
     setToolButtonProperties();
 }
 
 
-#define mSetButToolTip(but,str1,curattribnms,str2) \
+#define mSetButToolTip(but,str1,curattribnms,str2,deftt) \
     if ( but ) \
     { \
 	if ( but->sensitive() ) \
 	{ \
 	    tt.setEmpty(); \
-	    tt.add( str1 ) \
-	      .add( " '" ).add( curattribnms ).add( "' " ) \
-	      .add( str2 ); \
+	    tt.add( str1 ).add( curattribnms ).add( str2 ); \
 	    but->setToolTip( tr(tt) ); \
 	} \
 	else \
 	{ \
-	    but->setToolTip( "" ); \
+	    but->setToolTip( deftt ); \
 	} \
     }
 
@@ -141,45 +138,51 @@ void uiSeisFileMan::setToolButtonProperties()
 
     BufferString tt;
     copybut_->setSensitive( !cursel.isEmpty() );
-    mSetButToolTip(copybut_,"Make a Copy of",cursel,"");
+    mSetButToolTip(copybut_,"Make a Copy of '",cursel,"'",
+		   is2d_ ? "Copy dataset" : "Copy cube");
     if ( browsebut_ )
     {
 	const bool enabbrowse = curimplexists_ && !mIsOfTranslType(SEGYDirect);
 	browsebut_->setSensitive( enabbrowse );
-	mSetButToolTip(browsebut_,"Browse/edit",cursel,"");
+	mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
+		       "Browse/edit selected cube");
     }
 
     if ( mergecubesbut_ )
     {
-	mergecubesbut_->setSensitive( selgrp_->nrChosen() >= 2 );
 	BufferStringSet selcubenms;
 	selgrp_->getChosen( selcubenms );
-	mSetButToolTip(mergecubesbut_,"Merge",selcubenms.getDispString(2),"");
+	mSetButToolTip(mergecubesbut_,"Merge ",selcubenms.getDispString(2),"",
+		       "Merge cubes");
     }
 
     if ( man2dlines_ )
     {
 	man2dlines_->setSensitive( !cursel.isEmpty() );
-	mSetButToolTip(man2dlines_,"Manage 2D lines in",cursel,"");
+	mSetButToolTip(man2dlines_,"Manage 2D lines in '",cursel,"'",
+		       "Manage lines");
     }
 
     if ( dumpgeombut_ )
     {
 	dumpgeombut_->setSensitive( !cursel.isEmpty() );
-	mSetButToolTip(dumpgeombut_,"Dump",cursel,"line geometries");
+	mSetButToolTip(dumpgeombut_,"Dump '",cursel,"' line geometries",
+		       "Dump geometry");
     }
 
     if ( attribbut_ )
     {
+	attribbut_->setSensitive( curioobj_ );
 	if ( curioobj_ )
 	{
 	    FilePath fp( curioobj_->fullUserExpr() );
 	    fp.setExtension( "proc" );
 	    attribbut_->setSensitive( File::exists(fp.fullPath()) );
-	    mSetButToolTip(attribbut_,"Show AttributeSet for",cursel,"");
+	    mSetButToolTip(attribbut_,"Show AttributeSet for",cursel,"",
+			   "Show AttributeSet");
 	}
 	else
-	    attribbut_->setSensitive( false );
+	    attribbut_->setToolTip( "Show AttributeSet" );
     }
 }
 

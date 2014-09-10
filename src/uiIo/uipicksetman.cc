@@ -53,10 +53,11 @@ void uiPickSetMan::ownSelChg()
 {
     BufferStringSet chsnnms;
     selgrp_->getChosen( chsnnms );
-    mergebut_->setSensitive( chsnnms.size() > 1 );
     BufferString tt;
-    if ( mergebut_->sensitive() )
+    if ( chsnnms.size() > 1 )
 	tt.add( "Merge " ).add( chsnnms.getDispString(2) );
+    else
+	tt.add( "Merge pick sets" );
 
     mergebut_->setToolTip( tt );
 }

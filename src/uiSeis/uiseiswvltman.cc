@@ -176,9 +176,9 @@ void uiSeisWvltMan::closeDlg( CallBacker* )
    wvltext_->close();
 }
 
-#define mSetButToolTip(but,front,curwvltnm,end) \
+#define mSetButToolTip(but,front,curwvltnm,end,deftt) \
     if ( !but->sensitive() ) \
-	but->setToolTip( "" ); \
+	but->setToolTip( deftt ); \
     else \
     { \
 	tt.setEmpty(); \
@@ -188,13 +188,20 @@ void uiSeisWvltMan::closeDlg( CallBacker* )
 
 void uiSeisWvltMan::ownSelChg()
 {
-    if ( !curioobj_ ) return;
-    BufferString tt;
-    BufferString curwvlt( curioobj_->name() );
-    mSetButToolTip(revpolbut_,"Reverse", curwvlt, "polarity");
-    mSetButToolTip(rotatephbut_,"Rotate", curwvlt, "phase");
-    mSetButToolTip(taperbut_,"Taper", curwvlt,"" );
-    mSetButToolTip(disppropbut_,"Display", curwvlt, "properties");
+    BufferString tt,curwvlt;
+    if ( curioobj_ )
+	curwvlt.add( curioobj_->name() );
+    revpolbut_->setSensitive( curioobj_ );
+    rotatephbut_->setSensitive( curioobj_ );
+    taperbut_->setSensitive( curioobj_ );
+    disppropbut_->setSensitive( curioobj_ );
+
+    mSetButToolTip(revpolbut_,"Reverse", curwvlt, "polarity",
+		   "Reverse polarity");
+    mSetButToolTip(rotatephbut_,"Rotate", curwvlt, "phase","Rotate phase");
+    mSetButToolTip(taperbut_,"Taper", curwvlt,"","Taper" );
+    mSetButToolTip(disppropbut_,"Display", curwvlt, "properties",
+		   "Display properties");
 }
 
 
