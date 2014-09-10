@@ -25,7 +25,7 @@ class BufferStringSet;
 class TaskRunner;
 
 /*!\brief DataPack for point data. */
-    
+
 mExpClass(General) PointDataPack : public DataPack
 {
 public:
@@ -53,7 +53,7 @@ protected:
   FlatPosData is initialised to ranges of 0 to sz-1 step 1.
 
   */
-    
+
 mExpClass(General) FlatDataPack : public DataPack
 {
 public:
@@ -115,7 +115,7 @@ private:
 mExpClass(General) MapDataPack : public FlatDataPack
 {
 public:
-    				MapDataPack(const char* categry,const char* nm,
+    				MapDataPack(const char* cat,
 					    Array2D<float>*);
 				~MapDataPack();
 
@@ -143,7 +143,7 @@ protected:
 
     float			getValAtIdx(int,int) const;
     friend class 		MapDataPackXYRotater;
-    
+
     Array2D<float>*		xyrotarr2d_;
     FlatPosData&		xyrotposdata_;
     bool			isposcoord_;
@@ -153,14 +153,14 @@ protected:
 
 
 
-/*!\brief DataPack for volume data, where the dims correspond to 
+/*!\brief DataPack for volume data, where the dims correspond to
           inl/crl/z . */
-    
+
 mExpClass(General) VolumeDataPack : public DataPack
 {
 public:
 
-    virtual Array3D<float>&	data();	
+    virtual Array3D<float>&	data();
     const Array3D<float>&	data() const;
 
     virtual const char*		dimName(char dim) const;
@@ -183,10 +183,10 @@ protected:
     Array3D<float>*		arr3d_;
 };
 
-/*!\brief DataPack for volume data, where the dims correspond to 
+/*!\brief DataPack for volume data, where the dims correspond to
           inl/crl/z .
 */
-    
+
 mExpClass(General) CubeDataPack : public VolumeDataPack
 {
 public:

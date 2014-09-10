@@ -35,10 +35,10 @@ public:
 	const float truewidth = inlsz*sin(anglenorth) + crlsz*cos(anglenorth);
 	const int length = mNINT32( truelength );
 	const int width = mNINT32( truewidth );
-	
+
 	delete mdp_.xyrotarr2d_;
 	mdp_.xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
-	
+
 	StepInterval<double> tmpirg( mdp_.posdata_.range(true) );
 	StepInterval<double> tmpcrg( mdp_.posdata_.range(false) );
 	hsamp_.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
@@ -56,29 +56,29 @@ public:
 	xstep_ = ( float ) (stoppt_.x - startpt_.x)/length;
 	ystep_ = ( float ) (stoppt_.y - startpt_.y)/width;
     }
-    
+
     od_int64 nrIterations() const
     { return mdp_.xyrotarr2d_->info().getTotalSz(); }
-    
+
     bool doFinish( bool success )
     {
 	mdp_.xyrotposdata_.setRange( true,
 		StepInterval<double>(startpt_.x,stoppt_.x,xstep_) );
 	mdp_.xyrotposdata_.setRange( false,
 		StepInterval<double>(startpt_.y,stoppt_.y,ystep_) );
-	
+
 	return success;
     }
-    
+
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	int startpos[2];
 	if ( !mdp_.xyrotarr2d_->info().getArrayPos( start, startpos ) )
 	    return false;
-	
+
 	ArrayNDIter iter( mdp_.xyrotarr2d_->info() );
 	iter.setPos( startpos );
-	
+
 	BinID toreach00;
 	const int nriters = mCast( int, stop-start+1 );
 	for ( od_int64 idx=0; idx<nriters && shouldContinue();
@@ -123,9 +123,9 @@ protected:
     Coord		stoppt_;
     HorSampling		hsamp_;
     float		xstep_;
-    float		ystep_;    
+    float		ystep_;
 };
-			    
+
 
 Coord PointDataPack::coord( int idx ) const
 {
@@ -209,9 +209,9 @@ void FlatDataPack::dumpInfo( IOPar& iop ) const
     }
 
     const FlatPosData& pd = posData();
-    iop.set( "Positions.Dim0", pd.range(true).start, pd.range(true).stop, 
+    iop.set( "Positions.Dim0", pd.range(true).start, pd.range(true).stop,
 	    		       pd.range(true).step );
-    iop.set( "Positions.Dim1", pd.range(false).start, pd.range(false).stop, 
+    iop.set( "Positions.Dim1", pd.range(false).start, pd.range(false).stop,
 	    		       pd.range(false).step );
     iop.setYN( "Positions.Irregular", pd.isIrregular() );
     if ( sz0 < 1 || sz1 < 1 ) return;
@@ -229,14 +229,13 @@ int FlatDataPack::size( bool dim0 ) const
 }
 
 
-MapDataPack::MapDataPack( const char* cat, const char* nm, Array2D<float>* arr )
+MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
     , isposcoord_(false)
     , xyrotarr2d_(0)
     , xyrotposdata_(*new FlatPosData)
     , axeslbls_(4,"")
 {
-    setName( nm );
 }
 
 
@@ -280,7 +279,7 @@ void MapDataPack::setPosCoord( bool isposcoord )
 }
 
 
-void MapDataPack::setProps( StepInterval<double> inlrg, 
+void MapDataPack::setProps( StepInterval<double> inlrg,
 			    StepInterval<double> crlrg,
 			    bool isposcoord, BufferStringSet* dimnames )
 {
@@ -318,7 +317,7 @@ Array2D<float>& MapDataPack::data()
     Threads::Locker lck( initlock_ );
     if ( isposcoord_ && !xyrotarr2d_ )
 	initXYRotArray( 0 );
-    
+
     return isposcoord_ ? *xyrotarr2d_ : *arr2d_;
 }
 
@@ -344,7 +343,7 @@ void MapDataPack::setDimNames( const char* xlbl, const char* ylbl, bool forxy )
     {
 	axeslbls_[2] = xlbl;
 	axeslbls_[3] = ylbl;
-    }    
+    }
 }
 
 
