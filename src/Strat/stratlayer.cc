@@ -404,6 +404,7 @@ Strat::LayerSequence& Strat::LayerModel::addSequence(
 	const Layer& inplay = *inpls.layers()[ilay];
 	Layer* newlay = new Layer( inplay.unitRef(), &proprefs_ );
 	newlay->setThickness( inplay.thickness() );
+	newlay->setContent( inplay.content() );
 	for ( int iprop=1; iprop<proprefs_.size(); iprop++ )
 	{
 	    const int idxof = inpprops.indexOf( proprefs_[iprop] );
