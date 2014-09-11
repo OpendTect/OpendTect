@@ -127,7 +127,7 @@ DescID DescSet::ensureDefStoredPresent() const
 	    const_cast<DescSet*>(this)->removeAll( false );
 
 	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf(), 0, true,
-	       						 true );
+							 true );
     }
 
     defidstr_ = idstr;
@@ -190,8 +190,10 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 
 Desc* DescSet::gtDesc( const DescID& id ) const
 {
-    const int idx = ids_.indexOf(id);
-    if ( idx < 0 ) return 0;
+    const int idx = ids_.indexOf( id );
+    if ( !descs_.validIdx(idx) )
+	return 0;
+
     return const_cast<Desc*>( descs_[idx] );
 }
 
@@ -243,7 +245,7 @@ void DescSet::getStoredIds( TypeSet<DescID>& attribids ) const
 
 
 DescID DescSet::getID( const char* str, bool isusrref, bool isdescstored,
-       		       bool usestorinfo	) const
+		       bool usestorinfo	) const
 {
     if ( !str || !*str ) return DescID::undef();
 
@@ -306,8 +308,8 @@ void DescSet::sortDescSet()
     const int nrdescs = descs_.size();
     BufferStringSet userrefs;
     for ( int idx=0; idx<nrdescs; idx++ )
-    	userrefs.add( descs_[idx]->userRef() );
- 
+	userrefs.add( descs_[idx]->userRef() );
+
     int* sortindexes = userrefs.getSortIndexes();
     ObjectSet<Desc> descscopy( descs_ );
     TypeSet<DescID> idscopy( ids_ );
@@ -328,14 +330,14 @@ void DescSet::sortDescSet()
 void DescSet::removeAll( bool kpdef )
 {
     while ( ids_.size() )
-	removeDesc( ids_[0] ); 
+	removeDesc( ids_[0] );
     if ( kpdef )
 	ensureDefStoredPresent();
 }
 
 
 //As we do not store DescSets with storedattronly_=true it is useless to check
-//for this in usePar and fillPar 
+//for this in usePar and fillPar
 void DescSet::fillPar( IOPar& par ) const
 {
     int maxid = 0;
@@ -576,7 +578,7 @@ void DescSet::handleReferenceInput( Desc* dsc )
 }
 
 
-bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar, 
+bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 				BufferStringSet* errmsgs )
 {
     TypeSet<int> toberemoved;
@@ -603,22 +605,22 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 
 	if ( dsc.attribName()=="Reference" )
 	    handleReferenceInput( &dsc );
-	
+
 	if ( dsc.isSatisfied() == Desc::Error )
 	{
 	    BufferString err;
 	    FixedString dscerr = dsc.errMsg();
 	    if ( dscerr=="Parameter 'id' is not correct" &&
-		 dsc.isStored() )                                              
-	    {                                                                   
-		err = "Impossible to find stored data '";             
-		err += dsc.userRef();                                          
+		 dsc.isStored() )
+	    {
+		err = "Impossible to find stored data '";
+		err += dsc.userRef();
 		err += "' \nused as input for other attribute(s). \n";
 		err += "Data might have been deleted or corrupted.\n";
 		err += "Please check your attribute set \n";
-		err += "and select valid stored data as input.";                      
-	    }                                                                   
-	    else                                                                
+		err += "and select valid stored data as input.";
+	    }
+	    else
 	    {
 		err = dsc.errMsg(); err += " for ";
 		err += dsc.userRef(); err += " attribute ";
@@ -675,20 +677,20 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	handleOldAttributes( attribname, *descpar, defstring, versionnr );
 	if ( errmsgs && !errmsg_.isEmpty() )
 	    errmsgs->add( errmsg_ );
-	
+
 	RefMan<Desc> dsc;
 	dsc = errmsgs ? createDesc( attribname, *descpar, defstring, errmsgs )
-	    	      : createDesc( attribname, *descpar, defstring );
+		      : createDesc( attribname, *descpar, defstring );
 	if ( !dsc )
 	    { res = false; continue; }
 
 	const char* emsg = Provider::prepare( *dsc );
 	if ( emsg )
-	 { 
+	 {
 	     if ( errmsgs )
 		 errmsgs->add( emsg );
-	     
-	     res = false; 
+
+	     res = false;
 	     continue;
 	 }
 
@@ -700,7 +702,7 @@ bool DescSet::usePar( const IOPar& par, float versionnr,
 	addDesc( dsc, DescID(id,storedattronly_) );
 	copypar.mergeComp( *descpar, toString(id) );
     }
- 
+
     // sort_coupled();
     ObjectSet<Desc> newsteeringdescs;
     useOldSteeringPar(copypar, newsteeringdescs, errmsgs);
@@ -725,7 +727,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
     {
 	PtrMan<IOPar> descpar = par.subselect( BufferString("",id) );
 	if ( !descpar ) continue;
-					
+
 	int steeringdescid = -1;
 	const IOPar* steeringpar = descpar->subselect( "Steering" );
 	if ( steeringpar )
@@ -736,7 +738,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 	    if ( !createSteeringDesc(*steeringpar,defstring,newsteeringdescs,
 				     steeringdescid) )
 	        mHandleParseErr( "Cannot create steering desc" );
-	    
+
 	    Desc* dsc = getDesc( DescID(id,false) );
 	    for ( int idx=0; idx<dsc->nrInputs(); idx++ )
 	    {
@@ -764,7 +766,7 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 }
 
 
-bool DescSet::createSteeringDesc( const IOPar& steeringpar, 
+bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 				  BufferString defstring,
 				  ObjectSet<Desc>& newsteeringdescs, int& id,
 				  BufferStringSet* errmsgs )
@@ -781,7 +783,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 	steeringdef += steeringpar.find("Azimuth");
     }
     else
-    {   
+    {
 	steeringdef += " phlock=";
 	bool phaselock = false;
 	steeringpar.getYN( "PhaseLock", phaselock );
@@ -818,7 +820,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     stdesc->setUserRef( usrrefstr );
     stdesc->setSteering(true);
     stdesc->setHidden(true);
-    
+
     const char* inldipstr = steeringpar.find("InlDipID");
     if ( inldipstr )
     {
@@ -831,9 +833,9 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     {
 	DescID crldipid( toInt(crldipstr), false );
 	stdesc->setInput( 1, getDesc(crldipid) );
-    }	
+    }
 
-//TODO see what's going on for the phase input	
+//TODO see what's going on for the phase input
     for ( int idx=0; idx<newsteeringdescs.size(); idx++ )
     {
 	if ( stdesc->isIdenticalTo(*newsteeringdescs[idx]) )
@@ -845,7 +847,7 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
     stdesc->ref();
     newsteeringdescs += stdesc;
     id = newsteeringdescs.size()-1;
-    
+
     return true;
 }
 
@@ -903,15 +905,15 @@ DescID DescSet::getStoredID( const char* lkstr, int selout, bool create,
     BufferStringSet bss; SeisIOObjInfo::getCompNames( lk.str(), bss );
     const int nrcomps = bss.size();
     if ( nrcomps < 2 )
-	return out0idx != -1 ? outsreadyids[out0idx] 
+	return out0idx != -1 ? outsreadyids[out0idx]
 			     : createStoredDesc( lk, 0, BufferString("") );
 
-    const int startidx = selout<0 ? 0 : selout; 
+    const int startidx = selout<0 ? 0 : selout;
     const int stopidx = selout<0 ? nrcomps : selout;
     const BufferString& curstr = bss.validIdx(startidx)
 				? bss.get(startidx) : BufferString::empty();
     const DescID retid = out0idx != -1
-			? outsreadyids[out0idx] 
+			? outsreadyids[out0idx]
 			: createStoredDesc( lk, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( !outsreadyforthislk.isPresent(idx) )
@@ -948,7 +950,7 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
     if ( !newdesc ) return DescID::undef(); // "Cannot create desc"
     if ( compnm.isEmpty() && selout>0 )
-	return DescID::undef(); 	// "Missing component name"
+	return DescID::undef();	// "Missing component name"
 
     BufferString userref = LineKey( objnm, is2d_ ? newlk.attrName() : "" );
     if ( !compnm.isEmpty() )
@@ -1019,7 +1021,7 @@ DescSet* DescSet::optimizeClone( const BufferStringSet& targetsstr ) const
 	id = getID( targetsstr.get( idx ), true);
 	needednodes += id;
     }
-    
+
     return optimizeClone( needednodes );
 }
 
@@ -1058,8 +1060,8 @@ int DescSet::removeUnused( bool remstored, bool kpdefault )
 	    bool iscandidate = false;
 	    if ( dsc.isStored() )
 	    {
-		const ValParam* keypar = 
-		    	dsc.getValParam( StorageProvider::keyStr() );
+		const ValParam* keypar =
+			dsc.getValParam( StorageProvider::keyStr() );
 		PtrMan<IOObj> ioobj = IOM().get( keypar->getStringValue() );
 		if ( remstored || !ioobj || !ioobj->implExists(true) )
 		    iscandidate = true;
@@ -1201,9 +1203,9 @@ void DescSet::fillInSelSpecs( Attrib::DescSetup dsu,
 			      TypeSet<Attrib::SelSpec>& specs ) const
 {
     //TODO check all dsu cases
-    for ( int idx=0; idx<descs_.size(); idx++ )                                 
-    {                                                                           
-	const Attrib::Desc* tmpdsc = desc(idx);                                 
+    for ( int idx=0; idx<descs_.size(); idx++ )
+    {
+	const Attrib::Desc* tmpdsc = desc(idx);
 	if ( !tmpdsc || (tmpdsc->isHidden() && !dsu.hidden_) ||
 	     (dsu.stored_ != tmpdsc->isStored())  )
 	    continue;
