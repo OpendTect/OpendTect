@@ -13,12 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uigroup.h"
 #include "uilabel.h"
+#include "uipixmap.h"
+
 #include "plugins.h"
 #include "settings.h"
 #include "separstr.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "pixmap.h"
 #include "odlogo24x24.xpm"
 
 #include <math.h>

@@ -11,12 +11,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiobjbody.h"
+
+#include "uipixmap.h"
+
+#include "color.h"
+#include "timer.h"
+
 #include "i_layout.h"
 #include "i_layoutitem.h"
-#include "timer.h"
-#include "pixmap.h"
-#include "color.h"
-
 #include <QPixmap>
 
 mUseQtnamespace

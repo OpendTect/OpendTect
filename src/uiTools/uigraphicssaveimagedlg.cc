@@ -11,16 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigraphicssaveimagedlg.h"
 
-#include "uigraphicsscene.h"
+#include "uibutton.h"
 #include "uifileinput.h"
+#include "uigraphicsscene.h"
 #include "uimain.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uispinbox.h"
-#include "uibutton.h"
 
 #include "iopar.h"
 #include "filepath.h"
-#include "pixmap.h"
 #include "settings.h"
 
 

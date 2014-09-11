@@ -18,13 +18,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigmtinfodlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 
 #include "commondefs.h"
 #include "envvars.h"
 #include "gmtarray2dinterpol.h"
 #include "iopar.h"
-#include "pixmap.h"
 #include "survinfo.h"
+
 
 static bool hasGMTInst()
 { return GetEnvVar("GMT_SHAREDIR"); }
@@ -135,7 +136,7 @@ uiArray2DInterpol* uiGMTNearNeighborGrid::create( uiParent* p )
 
 uiGMTNearNeighborGrid::uiGMTNearNeighborGrid( uiParent* p )
     : uiArray2DInterpol( p, "GMT grid" )
-    , radiusfld_(0) 
+    , radiusfld_(0)
 {
     if ( hasGMTInst() )
     {

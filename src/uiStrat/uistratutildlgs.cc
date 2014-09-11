@@ -12,24 +12,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratutildlgs.h"
 
 #include "iopar.h"
+#include "od_helpids.h"
 #include "randcolor.h"
-#include "stratlith.h"
 #include "stratlevel.h"
-#include "stratunitrefiter.h"
+#include "stratlith.h"
 #include "stratreftree.h"
+#include "stratunitrefiter.h"
+
 #include "uibutton.h"
-#include "uicombobox.h"
 #include "uicolor.h"
+#include "uicombobox.h"
+#include "uieditobjectlist.h"
 #include "uifillpattern.h"
-#include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
-#include "uispinbox.h"
 #include "uilistbox.h"
-#include "uieditobjectlist.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uiseparator.h"
-#include "od_helpids.h"
+#include "uispinbox.h"
+
 
 static const char* sNoLevelTxt      = "--Undefined--";
 
@@ -58,7 +60,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
     agestartfld_->setInterval( limitrg );
     lblbox1->attach( alignedBelow, colfld_ );
 
-    uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox(this, 
+    uiLabeledSpinBox* lblbox2 = new uiLabeledSpinBox(this,
                                                      uiStrings::sEmptyString());
     agestopfld_ = lblbox2->box();
     agestopfld_->setNrDecimals( 3 );
@@ -79,7 +81,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiPushButton* sellithbut = new uiPushButton( this, 
+	uiPushButton* sellithbut = new uiPushButton( this,
                                                      uiStrings::sEdit(true),
 				uiPixmap("edit"), cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );

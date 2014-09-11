@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uipixmap.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 
@@ -31,7 +32,6 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "flatposdata.h"
 #include "ioobj.h"
-#include "pixmap.h"
 #include "seisioobjinfo.h"
 #include "view2dseismic.h"
 #include "view2ddataman.h"

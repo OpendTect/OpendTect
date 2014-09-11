@@ -14,14 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mathformula.h"
 #include "mathproperty.h"
 #include "unitofmeasure.h"
-#include "pixmap.h"
 
-#include "uitoolbutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 #include "uiofferinfo.h"
 
 #define mMaxNrCsts	5

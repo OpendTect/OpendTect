@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
@@ -35,7 +36,6 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "mouseevent.h"
 #include "mpeengine.h"
-#include "pixmap.h"
 
 #include "view2ddataman.h"
 #include "view2dhorizon3d.h"

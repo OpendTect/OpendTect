@@ -12,18 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistratreftree.h"
 
 #include "iopar.h"
-#include "pixmap.h"
 #include "randcolor.h"
 #include "stratreftree.h"
 #include "stratunitref.h"
 #include "stratunitrefiter.h"
 #include "sorting.h"
+
 #include "uigeninput.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uirgbarray.h"
 #include "uistratutildlgs.h"
 #include "uitreeview.h"
+
 
 #define mAddCol(wdth,nr) \
     lv_->setColumnWidth( nr, wdth )

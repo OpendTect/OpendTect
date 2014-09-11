@@ -12,13 +12,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "uiaction.h"
-#include "uitoolbutton.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
+#include "uipixmap.h"
+#include "uitoolbutton.h"
 
 #include "bufstringset.h"
 #include "menuhandler.h"
-#include "pixmap.h"
 #include "separstr.h"
 
 #include <QToolBar>

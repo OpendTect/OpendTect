@@ -12,11 +12,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uilabel.h"
 #include "uiobjbody.h"
-#include "pixmap.h"
-#include "perthreadrepos.h"
+#include "uipixmap.h"
 #include "uistring.h"
 
-#include <qlabel.h>
+#include "perthreadrepos.h"
+
+#include <QLabel>
 
 mUseQtnamespace
 
@@ -24,22 +25,20 @@ class uiLabelBody : public uiObjBodyImpl<uiLabel,QLabel>
 {
 public:
 
-		uiLabelBody( uiLabel& hndle, uiParent* parnt,
-			     const uiString& txt )
-		    : uiObjBodyImpl<uiLabel, QLabel>(hndle,parnt,
-						     txt.getOriginalString())
-		{}
+uiLabelBody( uiLabel& hndle, uiParent* parnt, const uiString& txt )
+    : uiObjBodyImpl<uiLabel,QLabel>(hndle,parnt,txt.getOriginalString())
+{}
 
-    virtual int	nrTxtLines() const
-		{
-		    int nrl = 1;
-		    BufferString str = text();
-		    const char* txt = str.buf();
-		    while ( txt && *txt )
-			{ if ( *txt == '\n' ) nrl++; txt++; }
+virtual int nrTxtLines() const
+{
+    int nrl = 1;
+    BufferString str = text();
+    const char* txt = str.buf();
+    while ( txt && *txt )
+	{ if ( *txt == '\n' ) nrl++; txt++; }
 
-		    return nrl;
-		}
+    return nrl;
+}
 
 };
 

@@ -13,10 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "gmtdef.h"
 #include "iopar.h"
-#include "pixmap.h"
+
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uipixmap.h"
 
 
 uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p, bool usewellsymbols )

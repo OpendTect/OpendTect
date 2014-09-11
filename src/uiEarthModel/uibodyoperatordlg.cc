@@ -14,15 +14,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "embodyoperator.h"
 #include "embodytr.h"
-#include "emmarchingcubessurface.h"
 #include "emmanager.h"
+#include "emmarchingcubessurface.h"
 #include "empolygonbody.h"
 #include "emrandomposbody.h"
 #include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "marchingcubes.h"
-#include "uitoolbutton.h"
+#include "od_helpids.h"
+
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -30,9 +31,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uitaskrunner.h"
+#include "uitoolbutton.h"
 #include "uitreeview.h"
-#include "od_helpids.h"
 
 
 uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )

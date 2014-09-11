@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
 
@@ -25,8 +26,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "oddirs.h"
-#include "settings.h"
 #include "od_helpids.h"
+#include "settings.h"
 
 #include <math.h>
 #include <string.h>
@@ -70,7 +71,7 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, bool withclipbrd, bool withparsfld)
 {
     if ( withclipbrd )
     {
-	cliboardselfld_ = new uiCheckBox( this, 
+	cliboardselfld_ = new uiCheckBox( this,
                                           tr("Copy to Clipboard (Ctrl-C)") );
 	cliboardselfld_->setChecked( false );
 	cliboardselfld_->activated.notify(
@@ -203,7 +204,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiObject* fldabove )
     lockfld_->activated.notify( mCB(this,uiSaveImageDlg,lockChg) );
     lockfld_->attach( alignedBelow, unitfld_ );
 
-    dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)"), 
+    dpifld_ = new uiLabeledSpinBox( this, tr("Resolution (dpi)"),
                                     (int)screendpi_ );
     dpifld_->box()->setNrDecimals( 0 );
     dpifld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );

@@ -22,11 +22,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvw2dtreeitem.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "pixmap.h"
 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"

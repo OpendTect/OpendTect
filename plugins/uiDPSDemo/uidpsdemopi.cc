@@ -9,20 +9,19 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uidpsdemo.h"
 
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
+#include "uipixmap.h"
 #include "uitoolbar.h"
-
-#include "odver.h"
-#include "datapointset.h"
 #include "uivisdatapointsetdisplaymgr.h"
-#include "pixmap.h"
+
+#include "datapointset.h"
+#include "odplugin.h"
+#include "odver.h"
 #include "randcolor.h"
 #include "survinfo.h"
-
-#include "odplugin.h"
 
 
 mDefODPluginInfo(uiDPSDemo)

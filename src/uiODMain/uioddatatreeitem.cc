@@ -19,13 +19,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
+#include "uipixmap.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
 
 #include "attribsel.h"
-#include "pixmap.h"
 
 //TODO:remove when Flattened scene ok for 2D Viewer
 #include "emhorizonztransform.h"

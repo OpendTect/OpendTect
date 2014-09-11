@@ -20,15 +20,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "iostrm.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "ptrman.h"
 #include "transl.h"
 
 #include "uibuttongroup.h"
 #include "uifiledlg.h"
-#include "uiioobj.h"
 #include "uigeninputdlg.h"
+#include "uiioobj.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uitoolbutton.h"
 
 

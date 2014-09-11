@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "geometry.h"
-#include "pixmap.h"
 #include "ptrman.h"
 
 class Settings;
@@ -59,7 +58,7 @@ protected:
     uiGenInput*		useparsfld_;
     uiFileInput*	fileinputfld_;
     uiCheckBox*		cliboardselfld_;
-    
+
     BufferString	filters_;
     BufferString	selfilter_;
     Settings&		settings_;

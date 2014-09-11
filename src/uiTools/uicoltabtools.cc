@@ -10,17 +10,17 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicoltabtools.h"
-#include "uirgbarray.h"
 #include "uigeom.h"
 #include "uigraphicsscene.h"
+#include "uipixmap.h"
+#include "uirgbarray.h"
 #include "uiworld2ui.h"
 
 #include "bufstringset.h"
 #include "coltab.h"
-#include "coltabsequence.h"
-#include "coltabmapper.h"
 #include "coltabindex.h"
-#include "pixmap.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 
 
 uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,

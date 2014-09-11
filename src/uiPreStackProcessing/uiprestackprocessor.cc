@@ -13,13 +13,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
+
 #include "uibutton.h"
 #include "uiicons.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uistrings.h"
+#include "uipixmap.h"
 #include "uimsg.h"
+#include "uistrings.h"
 
 
 namespace PreStack

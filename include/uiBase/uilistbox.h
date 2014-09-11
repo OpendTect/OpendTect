@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uigroup.h"
-#include "pixmap.h"
 #include "keyenum.h"
 #include "draw.h"
 
@@ -116,7 +115,6 @@ public:
 				   int idx=-1,int id=-1);
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const uiPixmap&);
-    uiPixmap		pixmap(int) const;
     void		setColor(int,const Color&);
     Color		getColor(int) const;
 

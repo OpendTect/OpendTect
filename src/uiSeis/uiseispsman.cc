@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispsman.h"
 
 #include "keystrs.h"
-#include "pixmap.h"
 #include "posinfo.h"
 #include "zdomain.h"
 #include "seispsioprov.h"
@@ -22,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
+#include "uipixmap.h"
 #include "uiprestkmergedlg.h"
 #include "uiseismulticubeps.h"
 #include "uitextedit.h"

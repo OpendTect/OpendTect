@@ -12,26 +12,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodpseventstreeitem.h"
 
-#include "ctxtioobj.h"
-#include "enums.h"
-#include "menuhandler.h"
-#include "pixmap.h"
-#include "prestackevents.h"
-#include "prestackeventtransl.h"
-#include "prestackeventio.h"
-#include "ptrman.h"
-#include "survinfo.h"
 #include "uiioobjseldlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uipixmap.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vispseventdisplay.h"
+
+#include "ctxtioobj.h"
+#include "enums.h"
+#include "menuhandler.h"
+#include "prestackevents.h"
+#include "prestackeventtransl.h"
+#include "prestackeventio.h"
+#include "ptrman.h"
+#include "survinfo.h"
 
 
 uiODPSEventsParentTreeItem::uiODPSEventsParentTreeItem()

@@ -13,23 +13,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "mousecursor.h"
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiobj.h"
-#include "ui3dviewer.h"
+#include "uipixmap.h"
+#include "uirgbarray.h"
 #include "uispinbox.h"
+#include "ui3dviewer.h"
 
 #include "filepath.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "settings.h"
-#include "visscene.h"
-#include "uimain.h"
 #include "visscene.h"
 #include "viscamera.h"
 
-#include "uirgbarray.h"
 #include <osgViewer/View>
 #include <osgGeo/TiledOffScreenRenderer>
 
@@ -53,7 +53,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	for ( int idx=0; idx<viewers_.size(); idx++ )
 	    scenenms.add( viewers_[idx]->getScene()->name() );
 
-	scenefld_ = new uiLabeledComboBox( this, scenenms, 
+	scenefld_ = new uiLabeledComboBox( this, scenenms,
                     tr("Make snapshot of") );
 	scenefld_->box()->selectionChanged.notify(
 					mCB(this,uiPrintSceneDlg,sceneSel) );
@@ -155,7 +155,7 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
-    if ( !filenameOK() ) 
+    if ( !filenameOK() )
 	return false;
 
     bool ret = false;
@@ -166,23 +166,23 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     const float scenesDPI =  vwr->getScenesPixelDensity();
     const float renderDPI =  dpifld_->box()->getValue();
-    
+
     const bool changedpi = scenesDPI != renderDPI;
 
     if ( changedpi )
         vwr->setScenesPixelDensity( renderDPI );
 
-    osgViewer::View* mainview = 
+    osgViewer::View* mainview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerMainView() );
 
-    osgViewer::View* hudview = 
+    osgViewer::View* hudview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerHudView() );
 
     vwr->showThumbWheels( false );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
     vwr->showThumbWheels( true );
 
-    osg::ref_ptr<osg::Image> mainviewimage = 
+    osg::ref_ptr<osg::Image> mainviewimage =
 					offScreenRenderViewToImage( mainview );
 
     if ( changedpi )
@@ -197,7 +197,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	flipImageVertical( mainviewimage );
 	ret = saveImages( mainviewimage, 0 );
     }
-    else 
+    else
     {
 	flipImageVertical( hudimage );
 	flipImageVertical( mainviewimage );
@@ -213,10 +213,10 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 }
 
 
-int uiPrintSceneDlg::validateImages(const osg::Image* mainimage, 
+int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 				    const osg::Image* hudimage)
 {
-    if ( !mainimage || !hasImageValidFormat(mainimage) ) 
+    if ( !mainimage || !hasImageValidFormat(mainimage) )
     {
 	uiMSG().error( tr(" Image creation is failed. ") );
 	return InvalidImages;
@@ -225,15 +225,15 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
     bool validsize (false);
     if ( hudimage && mainimage )
     {
-	validsize = mainimage->s() == hudimage->s() && 
-		    mainimage->t() == hudimage->t(); 
+	validsize = mainimage->s() == hudimage->s() &&
+		    mainimage->t() == hudimage->t();
 	if ( !validsize )
 	{
 	    pErrMsg("The size of main view image is different from hud image.");
 	    return OnlyMainViewImage;
 	}
     }
-    
+
     if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
     {
 	uiMSG().warning(
@@ -246,9 +246,9 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 
 
 bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
-				  const osg::Image* hudimg ) 
+				  const osg::Image* hudimg )
 {
-    if ( !filenameOK() || !widthfld_ || !mainimg ) 
+    if ( !filenameOK() || !widthfld_ || !mainimg )
 	return false;
 
     FilePath filepath( fileinputfld_->fileName() );
@@ -283,12 +283,12 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 			     osgViewer::View* view )
 {
     osg::Image* outputimage = 0;
-    
+
     osgGeo::TiledOffScreenRenderer tileoffrenderer( view,
 	visBase::DataObject::getCommonViewer() );
-    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ), 
+    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ),
 	mNINT32( sizepix_.height() ) );
-  
+
     tileoffrenderer.setOutputBackgroundTransparency( 0 );
 
     if ( tileoffrenderer.createOutput() )
@@ -296,7 +296,7 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 	const osg::Image* outimg = tileoffrenderer.getOutput();
 
 	if ( outimg )
-	    outputimage = (osg::Image*)outimg->clone( 
+	    outputimage = (osg::Image*)outimg->clone(
 	    osg::CopyOp::DEEP_COPY_ALL );
 
     }
@@ -309,8 +309,8 @@ bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image)
 {
     bool ret = true;
 
-    if ( ( image->getPixelFormat() != GL_RGBA && 
-	 image->getPixelFormat() !=GL_RGB ) || 
+    if ( ( image->getPixelFormat() != GL_RGBA &&
+	 image->getPixelFormat() !=GL_RGB ) ||
 	 !image->isDataContiguous() )
     {
 	pErrMsg( "Image is in the wrong format." ) ;
@@ -324,12 +324,12 @@ bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image)
 void uiPrintSceneDlg::flipImageVertical(osg::Image* image)
 {
     if ( !image ) return;
-    
+
     if ( image->getOrigin()==osg::Image::BOTTOM_LEFT )
     {
 	image->flipVertical();
     }
-    
+
 }
 
 

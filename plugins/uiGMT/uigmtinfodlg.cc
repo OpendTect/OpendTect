@@ -18,10 +18,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 
 #include "envvars.h"
 #include "file.h"
-#include "pixmap.h"
 
 uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("GMT Mapping Tool"),mNoDlgTitle,mNoHelpKey))
@@ -87,7 +87,7 @@ bool uiGMTInfoDlg::acceptOK( CallBacker* )
     const int envwrite = WriteEnvVar( "GMT_SHAREDIR", path );
     if ( !envwrite )
 	return false;
-    
+
     uiMSG().message( tr("This option will work after restart OpendTect") );
 
     return true;

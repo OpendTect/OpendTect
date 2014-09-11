@@ -11,6 +11,18 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigmtcontour.h"
 
+#include "uibutton.h"
+#include "uicolor.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uipixmap.h"
+#include "uipossubsel.h"
+#include "uisellinest.h"
+#include "uitaskrunner.h"
+
+#include "axislayout.h"
 #include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
@@ -21,18 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "gmtpar.h"
 #include "ioobj.h"
-#include "axislayout.h"
-#include "pixmap.h"
 #include "survinfo.h"
-#include "uibutton.h"
-#include "uicolor.h"
-#include "uicombobox.h"
-#include "uigeninput.h"
-#include "uiioobjsel.h"
-#include "uimsg.h"
-#include "uipossubsel.h"
-#include "uisellinest.h"
-#include "uitaskrunner.h" 
 
 
 int uiGMTContourGrp::factoryid_ = -1;
@@ -65,7 +66,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     subselfld_->attach( alignedBelow, inpfld_ );
     subselfld_->selChange.notify( mCB(this,uiGMTContourGrp,selChg) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this,
                                                     uiStrings::sAttribute() );
     attribfld_ = lcb->box();
     attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
@@ -185,7 +186,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     else
     {
 	attribfld_->addItems( sd_.valnames );
-	attribfld_->setSensitive( true );	
+	attribfld_->setSensitive( true );
     }
 
     readCB(0);

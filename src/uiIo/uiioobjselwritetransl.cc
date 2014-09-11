@@ -12,13 +12,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjselwritetransl.h"
 #include "uiioobjsel.h"
 
-#include "ctxtioobj.h"
-#include "transl.h"
-#include "ioman.h"
-#include "pixmap.h"
-#include "uicombobox.h"
 #include "uibutton.h"
+#include "uicombobox.h"
 #include "uilabel.h"
+#include "uipixmap.h"
+
+#include "ctxtioobj.h"
+#include "ioman.h"
+#include "transl.h"
+
 
 mImplFactory1Param(uiIOObjTranslatorWriteOpts,uiParent*,
 		   uiIOObjTranslatorWriteOpts::factory);

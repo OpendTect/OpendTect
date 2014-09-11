@@ -18,11 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
+#include "uipixmap.h"
 #include "uitoolbar.h"
-#include "pixmap.h"
+
 #include "odiconfile.h"
-#include "settings.h"
 #include "perthreadrepos.h"
+#include "settings.h"
 
 
 #include <QCheckBox>

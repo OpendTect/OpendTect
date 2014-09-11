@@ -13,9 +13,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "enums.h"
 #include "geometry.h"
-#include "pixmap.h"
 #include "uifont.h"
 #include "uimain.h"
+#include "uipixmap.h"
 
 #include <QColor>
 #include <QPainter>

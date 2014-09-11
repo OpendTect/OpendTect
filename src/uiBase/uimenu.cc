@@ -11,16 +11,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimenu.h"
 
-#include "keystrs.h"
-
 #include "uiaction.h"
 #include "uibody.h"
 #include "uimain.h"
 #include "uiobjbody.h"
 #include "uiparentbody.h"
-#include "pixmap.h"
-#include "texttranslator.h"
+#include "uipixmap.h"
 #include "uistring.h"
+
+#include "keystrs.h"
+#include "texttranslator.h"
 
 #include <climits>
 

@@ -11,10 +11,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uimenuhandler.h"
-#include "mousecursor.h"
-#include "pixmap.h"
+
 #include "uimenu.h"
+#include "uipixmap.h"
 #include "uitoolbar.h"
+
+#include "mousecursor.h"
 
 int uiMenuHandler::fromTree()	{ return 1; }
 int uiMenuHandler::fromScene()	{ return 0; }

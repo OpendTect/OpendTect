@@ -10,26 +10,26 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiattr2dsel.h"
-#include "attribdescset.h"
+
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
+#include "ctxtioobj.h"
+#include "cubesampling.h"
+#include "datainpspec.h"
 #include "hilbertattrib.h"
-#include "ioman.h"
 #include "iodir.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
-#include "ctxtioobj.h"
-#include "datainpspec.h"
-#include "nlamodel.h"
-#include "pixmap.h"
-#include "ptrman.h"
-#include "seistrctr.h"
 #include "linekey.h"
-#include "cubesampling.h"
+#include "nlamodel.h"
+#include "ptrman.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "survinfo.h"
 
 #include "uibutton.h"
@@ -38,6 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 
 using namespace Attrib;
 

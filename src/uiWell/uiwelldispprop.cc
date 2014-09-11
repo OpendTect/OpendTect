@@ -12,21 +12,21 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelldispprop.h"
 
 #include "uibutton.h"
+#include "uichecklist.h"
 #include "uicolor.h"
 #include "uicolortable.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uipixmap.h"
 #include "uispinbox.h"
 #include "uiseparator.h"
-#include "uichecklist.h"
 #include "uislider.h"
 
 #include "bufstringset.h"
 #include "coltabsequence.h"
 #include "multiid.h"
-#include "pixmap.h"
 #include "welldata.h"
 #include "wellman.h"
 #include "welllog.h"
@@ -100,8 +100,8 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     nmsizefld_->attach( alignedBelow, dispabovefld_  );
 
     uiStringSet fontstyles;
-    fontstyles.add(tr("Normal")); fontstyles.add(tr("Bold")); 
-    fontstyles.add(tr("Italic")); fontstyles.add(tr("Bold Italic")); 
+    fontstyles.add(tr("Normal")); fontstyles.add(tr("Bold"));
+    fontstyles.add(tr("Italic")); fontstyles.add(tr("Bold Italic"));
 
     nmstylefld_ = new uiComboBox( this, fontstyles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
@@ -162,8 +162,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 {
     uiStringSet shapes3d;
     uiStringSet shapes2d;
-    shapes3d.add(tr("Cylinder")); shapes3d.add(tr("Square")); 
-    shapes3d.add(tr("Sphere")); 
+    shapes3d.add(tr("Cylinder")); shapes3d.add(tr("Square"));
+    shapes3d.add(tr("Sphere"));
     shapes2d.add(tr("Dot"));shapes2d.add(tr("Solid"));shapes2d.add(tr("Dash"));
 
 
@@ -186,8 +186,8 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     nmsizefld_->attach( alignedBelow, shapefld_ );
 
     uiStringSet styles;
-    styles.add(tr("Normal")); styles.add(tr("Bold")); 
-    styles.add(tr("Italic")); styles.add(tr("Bold Italic")); 
+    styles.add(tr("Normal")); styles.add(tr("Bold"));
+    styles.add(tr("Italic")); styles.add(tr("Bold Italic"));
 
     nmstylefld_ = new uiComboBox( this, styles, "Fontstyle" );
     nmstylefld_->attach( rightOf, nmsizefld_ );
@@ -349,7 +349,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     uiStringSet choice;
     choice.add( tr( "clip rate" ) );  choice.add( tr( "data range" ) );
 
-    cliprangefld_ = new uiGenInput( this, tr("Specify"), 
+    cliprangefld_ = new uiGenInput( this, tr("Specify"),
 	StringListInpSpec(choice));
     cliprangefld_->attach( alignedAbove, rangefld_ );
 
@@ -402,7 +402,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     uiSeparator* sep2 = new uiSeparator( this, "Sep" );
     sep2->attach( stretchedBelow, coltablistfld_ );
 
-    const uiString lbl = 
+    const uiString lbl =
        tr("Log display width %1").arg(getDistUnitString(SI().xyInFeet(),true));
     logwidthslider_ = new uiSlider( this, uiSlider::Setup(lbl).withedit(true) );
     logwidthslider_->attach( alignedBelow, coltablistfld_ );
@@ -520,7 +520,7 @@ void uiWellLogDispProperties::doPutToScreen()
 	clipratefld_->setValue( 0.0 );
     }
     logwidthslider_->setValue( logprops().logwidth_ );
-  
+
     if (logprops().style_ != 1 )
 	fillcolorfld_->setColor( logprops().seiscolor_ );
     else
@@ -570,9 +570,9 @@ void uiWellLogDispProperties::doGetFromScreen()
 
     if ( curwelllogproperty_ && curwelllogproperty_ != this )
     {
-	if ( curwelllogproperty_->logprops().style_ == 2 || 
-	     ( curwelllogproperty_->logprops().style_ != 2 && 
-	       logprops().style_ == 2 ) ) 
+	if ( curwelllogproperty_->logprops().style_ == 2 ||
+	     ( curwelllogproperty_->logprops().style_ != 2 &&
+	       logprops().style_ == 2 ) )
 	{
 	    logprops().name_  = "None";
 	}

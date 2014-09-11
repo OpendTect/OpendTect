@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uipixmap.h"
 #include "uitreeview.h"
 #include "uistrings.h"
 
@@ -25,7 +26,6 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "pixmap.h"
 #include "randcolor.h"
 
 #include "view2dfault.h"

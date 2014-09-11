@@ -11,18 +11,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiviszstretchdlg.h"
 
-#include "iopar.h"
-#include "pixmap.h"
-#include "survinfo.h"
 #include "uibutton.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "uipixmap.h"
 #include "uislider.h"
+
+#include "iopar.h"
+#include "od_helpids.h"
+#include "survinfo.h"
+#include "veldesc.h"
+
 #include "visdataman.h"
 #include "vistransmgr.h"
 #include "vissurvscene.h"
-#include "veldesc.h"
-#include "od_helpids.h"
 
 #include <typeinfo>
 

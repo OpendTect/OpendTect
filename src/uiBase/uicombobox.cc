@@ -12,8 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
+#include "uipixmap.h"
 #include "uivirtualkeyboard.h"
-#include "pixmap.h"
+
 #include "datainpspec.h"
 #include "mouseevent.h"
 

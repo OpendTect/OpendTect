@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uiodvw2dpicksettreeitem.h"
 
 #include "pickset.h"
-#include "pixmap.h"
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uiodpicksettreeitem.h"
@@ -20,6 +19,7 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
+#include "uipixmap.h"
 #include "uisetpickdirs.h"
 #include "uistrings.h"
 #include "uitreeview.h"

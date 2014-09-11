@@ -13,12 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "angles.h"
 #include "odgraphicsitem.h"
-#include "pixmap.h"
 #include "polygon.h"
+
 #include "uifont.h"
 #include "uigeom.h"
 #include "uigroup.h"
 #include "uiobj.h"
+#include "uipixmap.h"
 #include "uirgbarray.h"
 
 #include <QMutex>

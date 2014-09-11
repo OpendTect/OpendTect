@@ -13,14 +13,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "gmtpar.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "picksettr.h"
-#include "pixmap.h"
+
 #include "uigeninput.h"
 #include "uigmtsymbolpars.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 
 
 int uiGMTLocationsGrp::factoryid_ = -1;
@@ -68,7 +69,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 	return;
 
     IOObj* ioobj = ctio_.ioobj;
-    if ( ioobj ) 
+    if ( ioobj )
 	namefld_->setText( ioobj->name() );
 }
 

@@ -12,8 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
-#include "attribsel.h"
-#include "pixmap.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -21,11 +19,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
+#include "uipixmap.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
 #include "vismultiattribsurvobj.h"
 #include "vissurvobj.h"
+
+#include "attribsel.h"
 #include "threadwork.h"
 
 

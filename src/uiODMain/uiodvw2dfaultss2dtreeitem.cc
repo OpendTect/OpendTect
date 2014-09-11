@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 #include "uivispartserv.h"
-#include "pixmap.h"
 
 #include "emfaultstickset.h"
 #include "emmanager.h"

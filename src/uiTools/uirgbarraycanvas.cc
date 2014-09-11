@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarray.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
-#include "pixmap.h"
+#include "uipixmap.h"
 
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
     	: uiGraphicsView(p,"RGB Array view")

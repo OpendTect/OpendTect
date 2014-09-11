@@ -12,15 +12,16 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivirtualkeyboard.h"
 
-#include "pixmap.h"
-#include "oddirs.h"
 #include "uicombobox.h"
+#include "uigraphicsitemimpl.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsviewbase.h"
-#include "uigraphicsitemimpl.h"
 #include "uilineedit.h"
+#include "uipixmap.h"
 #include "uispinbox.h"
 #include "uitable.h"
+
+#include "oddirs.h"
 
 
 static int nractivevirtualkeyboards_ = 0;
@@ -113,7 +114,7 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, 
+    MarkerStyle2D markerstyle( MarkerStyle2D::Circle,
         mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
     uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
@@ -124,7 +125,7 @@ void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 }
 
 
-void uiVirtualKeyboard::updateLeds() 
+void uiVirtualKeyboard::updateLeds()
 {
     const int sz = leds_->size();
 
@@ -226,14 +227,14 @@ static char mousePress2Key( int x, int y, bool caps, bool shift )
 void uiVirtualKeyboard::clickCB( CallBacker* )
 {
     const MouseEvent& ev = viewbase_->scene().getMouseEventHandler().event();
-    
+
 
     const bool shiftstatus = (shiftlock_!=shift_) != ev.rightButton();
 
     char str[2]; str[1] = '\0';
-    str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ), 
+    str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ),
 	    		     mNINT32( ev.y()/keyboardscale_ ),
-			     capslock_, shiftstatus ); 
+			     capslock_, shiftstatus );
     restoreSelection();
 
     if ( str[0] == CapsLock )

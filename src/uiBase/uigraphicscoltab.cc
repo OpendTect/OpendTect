@@ -11,12 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uigraphicscoltab.h"
+
 #include "uigraphicsitemimpl.h"
+#include "uipixmap.h"
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "draw.h"
-#include "pixmap.h"
 
 uiColTabItem::uiColTabItem( const uiColTabItem::Setup& su )
     : uiGraphicsItemGroup()

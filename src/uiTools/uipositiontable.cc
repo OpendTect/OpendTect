@@ -14,9 +14,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uiseparator.h"
 #include "uitable.h"
-#include "pixmap.h"
+
 #include "ranges.h"
 #include "survinfo.h"
 

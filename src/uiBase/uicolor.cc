@@ -9,18 +9,18 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "pixmap.h"
-#include "coltabsequence.h"
-
-#include "uicolor.h"
-#include "uibutton.h"
-#include "uicombobox.h"
-#include "uispinbox.h"
 #include "uibody.h"
+#include "uibutton.h"
+#include "uicolor.h"
+#include "uicombobox.h"
 #include "uilabel.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
+#include "uipixmap.h"
+#include "uispinbox.h"
+
+#include "coltabsequence.h"
 
 #include <QColorDialog>
 #include <QLabel>
@@ -145,7 +145,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     if ( dodrawbox_ )
 	colbut_->attach( rightOf, dodrawbox_ );
-    
+
     if ( !dodrawbox_ && !s.lbltxt_.isEmpty() )
 	lbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
 
@@ -183,7 +183,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	descfld_->setHSzPol( uiObject::MedMax );
     }
 
-    setColor( color_ ); 
+    setColor( color_ );
     if ( lbl_ )
 	setHAlignObj( colbut_ );
     else if ( transpfld_ )

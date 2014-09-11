@@ -11,11 +11,13 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibuildlistfromlist.h"
 #include "uieditobjectlist.h"
-#include "uilistbox.h"
-#include "uitoolbutton.h"
+
 #include "uibuttongroup.h"
 #include "uilabel.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uipixmap.h"
+#include "uitoolbutton.h"
 
 
 static void chckYPlural( BufferString& str )

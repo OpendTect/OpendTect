@@ -11,16 +11,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiflatbitmapdisplay.h"
 
+#include "uigraphicsitemimpl.h"
+#include "uipixmap.h"
+#include "uirgbarray.h"
+
 #include "datapackbase.h"
 #include "flatposdata.h"
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
-#include "pixmap.h"
 #include "threadwork.h"
 #include "threadlock.h"
 #include "thread.h"
-#include "uigraphicsitemimpl.h"
-#include "uirgbarray.h"
 
 namespace FlatView
 {
@@ -28,7 +29,7 @@ namespace FlatView
 class uiBitMapDisplayTask : public Task
 {
 public:
-    uiBitMapDisplayTask( uiFlatViewer& viewer, 
+    uiBitMapDisplayTask( uiFlatViewer& viewer,
 			 uiDynamicImageItem* display, bool isdynamic )
 	: image_( new uiRGBArray( false ) )
 	, bitmap2image_( new BitMap2RGB( viewer.appearance(), *image_) )
@@ -78,14 +79,14 @@ public:
 	tasks += Threads::Work( wvatask, false );
 	tasks += Threads::Work( vdtask, false );
 
-	if ( !Threads::WorkManager::twm().addWork( tasks, 
+	if ( !Threads::WorkManager::twm().addWork( tasks,
 		   Threads::WorkManager::cDefaultQueueID() ) )
 	{
 	     return false;
 	}
 
 	bitmap2image_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(),
-			     uiPoint(0,0), true ); 
+			     uiPoint(0,0), true );
 
 	display_->setImage( isdynamic_, *image_, wr_ );
 	return true;
@@ -139,7 +140,7 @@ uiBitMapDisplay::uiBitMapDisplay( uiFlatViewer& viewer )
 	overlap_ = 0.1f;
 
     display_->wantsData().notify( mCB( this, uiBitMapDisplay, reGenerateCB) );
-    workqueueid_ = Threads::WorkManager::twm().addQueue( 
+    workqueueid_ = Threads::WorkManager::twm().addQueue(
 	    			Threads::WorkManager::SingleThread,
 				"BitmapDisplay");
 }
@@ -219,7 +220,7 @@ void uiBitMapDisplay::reGenerateCB(CallBacker*)
 	return;
 
     Threads::WorkManager::twm().emptyQueue( workqueueid_, false );
-    Threads::WorkManager::twm().addWork( 
+    Threads::WorkManager::twm().addWork(
 	Threads::Work(*dynamictask,true), &finishedcb_, workqueueid_, true);
 }
 
@@ -248,7 +249,7 @@ Task* uiBitMapDisplay::createDynamicTask()
     const uiSize computesz(
 	    mNINT32(sz.width()/wr.width()*computewr.width()),
 	    mNINT32(sz.height()/wr.height()*computewr.height()) );
-			
+
 
     dynamictask->setScope( computewr, computesz );
 

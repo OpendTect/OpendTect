@@ -16,17 +16,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "oddirs.h"
 #include "perthreadrepos.h"
-#include "pixmap.h"
 #include "separstr.h"
 
+#include "uibody.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uistatusbar.h"
 #include "uiobj.h"
-#include "uibody.h"
 #include "uiparentbody.h"
-#include "uistrings.h"
+#include "uipixmap.h"
+#include "uistatusbar.h"
 #include "uistring.h"
+#include "uistrings.h"
 
 #undef Ok
 #include <QCheckBox>

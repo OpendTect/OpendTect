@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolortable.h"
 
 #include "coltabsequence.h"
-#include "pixmap.h"
 #include "mouseevent.h"
 #include "settings.h"
 
@@ -22,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilineedit.h"
 #include "uimenu.h"
+#include "uipixmap.h"
 #include "od_helpids.h"
 
 

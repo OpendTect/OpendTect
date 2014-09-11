@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_qsystemtrayicon.h"
 #include "uistring.h"
 
-#include "pixmap.h"
+#include "uipixmap.h"
 
 mUseQtnamespace
 

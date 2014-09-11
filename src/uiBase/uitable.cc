@@ -12,24 +12,25 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitable.h"
 
-#include "uifont.h"
-#include "uimenu.h"
-#include "pixmap.h"
-#include "uilabel.h"
-#include "uiobjbody.h"
 #include "uicombobox.h"
+#include "uifont.h"
+#include "uilabel.h"
+#include "uimenu.h"
+#include "uiobjbody.h"
+#include "uipixmap.h"
 #include "uivirtualkeyboard.h"
-#include "convert.h"
+
 #include "bufstringset.h"
+#include "convert.h"
 #include "perthreadrepos.h"
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
+#include <QApplication>
+#include <QClipboard>
+#include <QCursor>
 #include <QHeaderView>
 #include <QMouseEvent>
-#include <QCursor>
-#include <QClipboard>
-#include <QApplication>
 
 mUseQtnamespace
 

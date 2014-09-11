@@ -12,15 +12,15 @@ ________________________________________________________________________
 #include "uimapperrangeeditor.h"
 
 #include "uiaxishandler.h"
-#include "uihistogramdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uihistogramdisplay.h"
+#include "uipixmap.h"
 
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
 #include "mousecursor.h"
-#include "pixmap.h"
 #include <math.h>
 
 
@@ -118,7 +118,7 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
 
 void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
-{ 
+{
     *ctseq_ = cseq;
     drawAgain();
 }
@@ -325,9 +325,9 @@ void uiMapperRangeEditor::mouseReleased( CallBacker* )
 void uiMapperRangeEditor::histDRChanged( CallBacker* cb )
 {
     const Interval<float>& drg = histogramdisp_->getDrawRange();
-    if ( cliprg_.start<drg.start ) 
+    if ( cliprg_.start<drg.start )
 	cliprg_.start = drg.start;
-    if ( cliprg_.stop>drg.stop ) 
+    if ( cliprg_.stop>drg.stop )
 	cliprg_.stop = drg.stop;
 
     startpix_ = xax_->getPix( cliprg_.start );

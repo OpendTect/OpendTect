@@ -11,24 +11,23 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiodwelltreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
-#include "draw.h"
-
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uipixmap.h"
+#include "uivispartserv.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
+
+#include "draw.h"
 #include "mousecursor.h"
 #include "survinfo.h"
-#include "wellman.h"
 #include "welldata.h"
-#include "pixmap.h"
+#include "wellman.h"
 
 #include "viswelldisplay.h"
 

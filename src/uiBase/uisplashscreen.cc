@@ -11,8 +11,9 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uisplashscreen.h"
+
 #include "uimainwin.h"
-#include "pixmap.h"
+#include "uipixmap.h"
 
 #include <QApplication>
 #include <QDesktopWidget>

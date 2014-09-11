@@ -15,13 +15,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uipixmap.h"
 #include "uislider.h"
 
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "oddirs.h"
-#include "pixmap.h"
 #include "settings.h"
 #include "timer.h"
 #include "od_helpids.h"
@@ -49,9 +49,9 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 					     tr("Window grabber")),
 				  (desktop ? tr("Specify image file") :
 					   tr("Specify window and image file")),
-		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) : 
+		 desktop ? mODHelpKey(mWindowGrabDlgDesktopHelpID) :
                            mODHelpKey(mWindowGrabDlgWindowHelpID) ) )
-    , windowfld_(0) 
+    , windowfld_(0)
 {
     getTopLevelWindows( windowlist_ );
     if ( !desktop && !windowlist_.isEmpty() )

@@ -10,7 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicursor.h"
-#include "pixmap.h"
+#include "uipixmap.h"
 #include "uirgbarray.h"
 
 #include <QCursor>

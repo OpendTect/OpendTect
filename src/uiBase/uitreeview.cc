@@ -10,16 +10,17 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitreeview.h"
-#include "uiobjbody.h"
-#include "uishortcutsmgr.h"
-#include "uimain.h"
-#include "uistrings.h"
-#include "keystrs.h"
 
-#include "texttranslator.h"
+#include "uimain.h"
+#include "uiobjbody.h"
+#include "uipixmap.h"
+#include "uishortcutsmgr.h"
+#include "uistrings.h"
+
+#include "keystrs.h"
 #include "odqtobjset.h"
-#include "pixmap.h"
 #include "perthreadrepos.h"
+#include "texttranslator.h"
 
 #include <QHeaderView>
 #include <QKeyEvent>

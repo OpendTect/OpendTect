@@ -15,9 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
+#include "uipixmap.h"
+
 #include "bufstringset.h"
 #include "color.h"
-#include "pixmap.h"
 
 #include "i_qlistbox.h"
 #include <QKeyEvent>
@@ -727,15 +728,6 @@ void uiListBox::setPixmap( int index, const uiPixmap& pm )
 	 !body_->item(index) || !pm.qpixmap() ) return;
 
     body_->item(index)->setIcon( *pm.qpixmap() );
-}
-
-
-uiPixmap uiListBox::pixmap( int index ) const
-{
-    if ( index<0 || index>=size() || !body_->item(index) )
-	return uiPixmap();
-    QIcon qicon = body_->item(index)->icon();
-    return uiPixmap( qicon.pixmap(body_->iconSize()) );
 }
 
 
