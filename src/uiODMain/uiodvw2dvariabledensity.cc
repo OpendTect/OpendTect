@@ -189,7 +189,7 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 	return;
     }
 
-    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
+    PtrMan<uiPixmap> pixmap = new uiPixmap( *seq, cPixmapWidth(),
 					    cPixmapHeight(), true );
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
 }

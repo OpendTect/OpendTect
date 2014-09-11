@@ -387,7 +387,7 @@ uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
     uiPushButton* propbut =
 	new uiPushButton( this, uiStrings::sProperties(true),
-			  ioPixmap("settings"),
+			  uiPixmap("settings"),
 			  mCB(this,uiPSMultiPropDlg,selectPropCB), false );
     propbut->attach( rightTo, lblcb );
 }

@@ -625,7 +625,7 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 }
 
 
-void uiListBox::addItem( const uiString& text, const ioPixmap& pm, int id )
+void uiListBox::addItem( const uiString& text, const uiPixmap& pm, int id )
 {
     addItem( text, false, id );
     setPixmap( size()-1, pm );
@@ -634,7 +634,7 @@ void uiListBox::addItem( const uiString& text, const ioPixmap& pm, int id )
 
 void uiListBox::addItem( const uiString& text, const Color& col, int id )
 {
-    ioPixmap pm( 64, 64); pm.fill( col );
+    uiPixmap pm( 64, 64); pm.fill( col );
     addItem( text, pm, id );
 }
 
@@ -689,7 +689,7 @@ void uiListBox::insertItem( const uiString& text, int index, bool mark, int id )
 }
 
 
-void uiListBox::insertItem( const uiString& text, const ioPixmap& pm,
+void uiListBox::insertItem( const uiString& text, const uiPixmap& pm,
 			    int index, int id )
 {
     if ( index < 0 )
@@ -705,7 +705,7 @@ void uiListBox::insertItem( const uiString& text, const ioPixmap& pm,
 void uiListBox::insertItem( const uiString& text, const Color& col,
 			    int index, int id )
 {
-    ioPixmap pm( 64, 64 ); pm.fill( col );
+    uiPixmap pm( 64, 64 ); pm.fill( col );
     insertItem( text, pm, index, id );
 }
 
@@ -716,12 +716,12 @@ void uiListBox::setPixmap( int index, const Color& col )
 	return;
 
     QSize sz = body_->iconSize();
-    ioPixmap pm( sz.width(), sz.height() ); pm.fill( col );
+    uiPixmap pm( sz.width(), sz.height() ); pm.fill( col );
     setPixmap( index, pm );
 }
 
 
-void uiListBox::setPixmap( int index, const ioPixmap& pm )
+void uiListBox::setPixmap( int index, const uiPixmap& pm )
 {
     if ( index<0 || index>=size() ||
 	 !body_->item(index) || !pm.qpixmap() ) return;
@@ -730,12 +730,12 @@ void uiListBox::setPixmap( int index, const ioPixmap& pm )
 }
 
 
-ioPixmap uiListBox::pixmap( int index ) const
+uiPixmap uiListBox::pixmap( int index ) const
 {
     if ( index<0 || index>=size() || !body_->item(index) )
-	return ioPixmap();
+	return uiPixmap();
     QIcon qicon = body_->item(index)->icon();
-    return ioPixmap( qicon.pixmap(body_->iconSize()) );
+    return uiPixmap( qicon.pixmap(body_->iconSize()) );
 }
 
 

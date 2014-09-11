@@ -125,7 +125,7 @@ uiMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );
 	    if ( !subitm.iconfnm.isEmpty() )
-		mnuitem->setIcon( ioPixmap(subitm.iconfnm) );
+		mnuitem->setIcon( uiPixmap(subitm.iconfnm) );
 	}
 
 	handled[lowestitem] = true;

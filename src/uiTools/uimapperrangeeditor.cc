@@ -181,17 +181,17 @@ void uiMapperRangeEditor::drawPixmaps()
     if ( ctmapper_->flipseq_ || ctmapper_->range_.width() < 0 )
 	ctseq.flipColor();
 
-    ioPixmap leftpixmap( startpix_-datastartpix, pmh );
+    uiPixmap leftpixmap( startpix_-datastartpix, pmh );
     leftpixmap.fill( ctseq.color(
 			    mCast(float,ctmapper_->range_.width()>0 ? 0:1)) );
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
-    ioPixmap centerpixmap( ctseq, stoppix_-startpix_, pmh, true );
+    uiPixmap centerpixmap( ctseq, stoppix_-startpix_, pmh, true );
     centercoltab_->setPixmap( centerpixmap );
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 
-    ioPixmap rightpixmap( datastoppix-stoppix_, pmh );
+    uiPixmap rightpixmap( datastoppix-stoppix_, pmh );
     rightpixmap.fill( ctseq.color(
 			     mCast(float,ctmapper_->range_.width()>0 ? 1:0)) );
     rightcoltab_->setPixmap( rightpixmap );

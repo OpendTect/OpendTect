@@ -425,7 +425,7 @@ void uiObject::setBackgroundColor(const Color& col)
     { mBody()->uisetBackgroundColor(col); }
 
 
-void uiObject::setBackgroundPixmap( const ioPixmap& pm )
+void uiObject::setBackgroundPixmap( const uiPixmap& pm )
     { mBody()->uisetBackgroundPixmap( pm ); }
 
 

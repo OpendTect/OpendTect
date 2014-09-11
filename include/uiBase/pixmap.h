@@ -31,18 +31,18 @@ class uiRGBArray;
 
 */
 
-mExpClass(uiBase) ioPixmap : public NamedObject
+mExpClass(uiBase) uiPixmap : public NamedObject
 {
 public:
-			ioPixmap() : qpixmap_(0)		{}
-			ioPixmap(const uiRGBArray&);
-			ioPixmap(const char* xpm[]);
-			ioPixmap(int w,int h);
-			ioPixmap(const mQtclass(QPixmap&));
-			ioPixmap(const ioPixmap&);
-			ioPixmap(const char* icon_identifier);
-			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
-    virtual		~ioPixmap();
+			uiPixmap() : qpixmap_(0)		{}
+			uiPixmap(const uiRGBArray&);
+			uiPixmap(const char* xpm[]);
+			uiPixmap(int w,int h);
+			uiPixmap(const mQtclass(QPixmap&));
+			uiPixmap(const uiPixmap&);
+			uiPixmap(const char* icon_identififier);
+			uiPixmap(const ColTab::Sequence&,int w,int h,bool hor);
+    virtual		~uiPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);
 
@@ -67,11 +67,10 @@ protected:
 
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
-
 };
 
 
-mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
 
+mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
 
 #endif

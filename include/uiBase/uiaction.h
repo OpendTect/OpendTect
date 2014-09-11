@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 
 
-class ioPixmap;
+class uiPixmap;
 class MenuItem;
 class uiMenu;
 class uiActionContainer;
@@ -37,7 +37,7 @@ public:
 			uiAction(const uiString&);
 			uiAction(const uiString&,const CallBack&);
 			uiAction(const uiString&,const CallBack&,
-				 const ioPixmap&);
+				 const uiPixmap&);
 			uiAction(const uiString&,const CallBack&,
 				 const char* pmfln);
 			uiAction(const uiString&,const char* pmfln);
@@ -64,7 +64,7 @@ public:
 
     void		setShortcut(const char*);
 
-    void		setIcon(const ioPixmap&);
+    void		setIcon(const uiPixmap&);
     void		setIcon(const char*);
 
     void		setCheckable(bool);

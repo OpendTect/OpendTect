@@ -803,7 +803,7 @@ void uiTreeViewItem::translateText()
 }
 
 
-void uiTreeViewItem::setPixmap( int column, const ioPixmap& pm )
+void uiTreeViewItem::setPixmap( int column, const uiPixmap& pm )
 {
     mTreeViewBlockCmdRec;
     qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );

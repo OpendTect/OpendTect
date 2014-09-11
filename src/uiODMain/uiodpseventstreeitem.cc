@@ -278,7 +278,7 @@ void uiODPSEventsTreeItem::displayMiniColTab()
     const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
     if ( !seq )
 	return;
-    ioPixmap pixmap( *seq, mPixmapWidth, mPixmapHeight, true );
+    uiPixmap pixmap( *seq, mPixmapWidth, mPixmapHeight, true );
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
 }
 

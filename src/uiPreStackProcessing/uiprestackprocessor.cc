@@ -77,17 +77,17 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     loadbutton_ = new uiPushButton( this, uiStrings::sLoad(true),
-			ioPixmap(uiIcon::openObject()),
+			uiPixmap(uiIcon::openObject()),
 			mCB(this, uiProcessorManager,loadCB), true );
     loadbutton_->attach( alignedBelow, factorylist_ );
 
     savebutton_ = new uiPushButton( this, uiStrings::sSave(true),
-			ioPixmap(uiIcon::save()),
+			uiPixmap(uiIcon::save()),
 	    mCB(this, uiProcessorManager,saveCB), true );
     savebutton_->attach( rightOf, loadbutton_ );
 
     saveasbutton_ = new uiPushButton( this, uiStrings::sSaveAs(true),
-			    ioPixmap(uiIcon::saveAs()),
+			    uiPixmap(uiIcon::saveAs()),
 			    mCB(this, uiProcessorManager,saveAsCB), true );
     saveasbutton_->attach( rightOf, savebutton_ );
 

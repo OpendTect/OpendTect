@@ -136,7 +136,7 @@ void uiGMTContourGrp::fillColSeqs()
     {
 	const ColTab::Sequence& seq = *ColTab::SM().get( idx );
 	colseqfld_->addItem( seq.name() );
-	colseqfld_->setPixmap( ioPixmap(seq,16,10,true), idx );
+	colseqfld_->setPixmap( uiPixmap(seq,16,10,true), idx );
     }
 }
 

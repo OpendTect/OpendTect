@@ -278,7 +278,7 @@ bool uiBasemapTreeItem::init()
 
     const uiBasemapItem* itm = BMM().getBasemapItem( familyid_ );
     const char* iconnm = itm ? itm->iconName() : 0;
-    uitreeviewitem_->setPixmap( 0, ioPixmap(iconnm) );
+    uitreeviewitem_->setPixmap( 0, uiPixmap(iconnm) );
     return true;
 }
 

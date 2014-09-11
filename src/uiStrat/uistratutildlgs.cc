@@ -81,7 +81,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
 	uiPushButton* sellithbut = new uiPushButton( this, 
                                                      uiStrings::sEdit(true),
-				ioPixmap("edit"), cb, false );
+				uiPixmap("edit"), cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 
 	lithids_.erase();
@@ -279,7 +279,7 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
 
     const int butsz = 20;
     uiPushButton* newlithbut = new uiPushButton( rightgrp, "Add as new",
-	    ioPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
+	    uiPixmap("addnew"), mCB(this,uiStratLithoDlg,newLith), true );
     newlithbut->setPrefWidthInChar( butsz );
     newlithbut->attach( alignedBelow, toprightgrp );
 
@@ -289,12 +289,12 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p )
     rightgrp->attach( rightTo, sep );
 
     uiButton* renamebut = new uiPushButton( rightgrp, "Rename selected",
-	    ioPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
+	    uiPixmap("renameobj"), mCB(this,uiStratLithoDlg,renameCB), true );
     renamebut->setPrefWidthInChar( butsz );
     renamebut->attach( alignedBelow, newlithbut );
 
     uiButton* rmbut = new uiPushButton( rightgrp, "Remove Last",
-	    ioPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
+	    uiPixmap("trashcan"), mCB(this,uiStratLithoDlg,rmLast), true );
     rmbut->setPrefWidthInChar( butsz );
     rmbut->attach( alignedBelow, renamebut );
 

@@ -432,7 +432,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
     uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
     uiLabel* notelbl = new uiLabel( botgrp, "" );
-    notelbl->setPixmap( ioPixmap("notes") );
+    notelbl->setPixmap( uiPixmap("notes") );
     notelbl->setToolTip( tr("Notes") );
     notelbl->setMaximumWidth( 32 );
 

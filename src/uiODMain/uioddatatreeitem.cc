@@ -458,7 +458,7 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 	return;
     }
 
-    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq, cPixmapWidth(),
+    PtrMan<uiPixmap> pixmap = new uiPixmap( *seq, cPixmapWidth(),
 					    cPixmapHeight(), true );
     uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

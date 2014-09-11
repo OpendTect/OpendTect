@@ -224,7 +224,7 @@ void uiObjectBody::uisetBackgroundColor( const Color& col )
 }
 
 
-void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
+void uiObjectBody::uisetBackgroundPixmap( const uiPixmap& pm )
 {
     QPalette qpal;
     qpal.setBrush( qwidget()->backgroundRole(), QBrush(*pm.qpixmap()) );

@@ -181,7 +181,7 @@ void uiODVw2DFaultSSTreeItem::displayMiniCtab()
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
 
-    PtrMan<ioPixmap> pixmap = new ioPixmap( cPixmapWidth(), cPixmapHeight() );
+    PtrMan<uiPixmap> pixmap = new uiPixmap( cPixmapWidth(), cPixmapHeight() );
     pixmap->fill( emobj->preferredColor() );
 
     uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );

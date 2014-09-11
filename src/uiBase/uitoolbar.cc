@@ -200,11 +200,11 @@ void uiToolBar::setToggle( int id, bool yn )
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    setIcon( id, ioPixmap(fnm) );
+    setIcon( id, uiPixmap(fnm) );
 }
 
 
-void uiToolBar::setIcon( int id, const ioPixmap& pm )
+void uiToolBar::setIcon( int id, const uiPixmap& pm )
 {
     mGetAction( , return );
     action->setIcon( pm );

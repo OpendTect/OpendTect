@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "separstr.h"
 
 class uiParent;
-class ioPixmap;
+class uiPixmap;
 
 mFDQtclass(QAction)
 mFDQtclass(QMenu)

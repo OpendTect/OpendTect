@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "draw.h"
 
-class ioPixmap;
+class uiPixmap;
 class uiFont;
 class uiGroup;
 class uiObject;
@@ -161,13 +161,13 @@ mExpClass(uiBase) uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
-    				uiPixmapItem(const ioPixmap&);
-    				uiPixmapItem(const uiPoint&,const ioPixmap&);
+				uiPixmapItem(const uiPixmap&);
+				uiPixmapItem(const uiPoint&,const uiPixmap&);
 				~uiPixmapItem();
 
     ODGraphicsPixmapItem*	qPixmapItem()	{ return qpixmapitem_; }
     void			setOffset(int left,int top);
-    void			setPixmap(const ioPixmap&);
+    void			setPixmap(const uiPixmap&);
 
 protected:
 

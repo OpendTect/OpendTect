@@ -172,7 +172,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	    Color col = colors[idx];
 	    ctseq.setColor( 0, col.r(), col.g(), col.b() );
 	    ctseq.setColor( 1, col.r(), col.g(), col.b() );
-	    descfld_->setPixmap( ioPixmap(ctseq,15,10,true), idx );
+	    descfld_->setPixmap( uiPixmap(ctseq,15,10,true), idx );
 	}
 
 	if ( lsb )
@@ -266,7 +266,7 @@ void uiColorInput::setColor( const Color& col )
 {
     color_ = col;
 
-    ioPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
+    uiPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
     pm.fill( color_ );
     colbut_->setPixmap( pm );
     if ( transpfld_ )

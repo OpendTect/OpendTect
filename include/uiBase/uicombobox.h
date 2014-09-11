@@ -62,14 +62,14 @@ public:
     void		addItems(const uiStringSet&);
     void		addSeparator();
     void		insertItem(const uiString&,int index=-1,int id=-1);
-    void		insertItem(const ioPixmap&,const uiString&,
+    void		insertItem(const uiPixmap&,const uiString&,
 				   int index=-1,int id=-1);
 
     const char*		textOfItem(int) const;
     void		getItems(BufferStringSet&) const;
 
     void		setItemText(int,const uiString&);
-    void		setPixmap(const ioPixmap&,int index);
+    void		setPixmap(const uiPixmap&,int index);
 
     void		setItemID(int index,int id);
     int			currentItemID() const;

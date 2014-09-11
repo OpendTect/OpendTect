@@ -57,7 +57,7 @@ public:
 private:
 
     uiToolButtonBody*		tbbody_;
-    uiToolButtonBody&		mkbody(uiParent*,const ioPixmap&,
+    uiToolButtonBody&		mkbody(uiParent*,const uiPixmap&,
 				       const uiString&);
 
     int				id_; // Used by toolbar

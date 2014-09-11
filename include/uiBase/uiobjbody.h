@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 class i_LayoutItem;
 class i_LayoutMngr;
-class ioPixmap;
+class uiPixmap;
 class Timer;
 
 mFDQtclass(QCloseEvent)
@@ -34,7 +34,7 @@ mFDQtclass(QWidget)
 
 mExpClass(uiBase) uiObjectBody : public uiBody, public NamedObject
 {
-friend class 		i_uiLayoutItem; 
+friend class		i_uiLayoutItem;
 
 protected:
 			uiObjectBody(uiParent*,const char* nm);
@@ -53,34 +53,34 @@ public:
 
     Color		uibackgroundColor() const;
     void              	uisetBackgroundColor(const Color&);
-    void		uisetBackgroundPixmap(const ioPixmap&);
+    void		uisetBackgroundPixmap(const uiPixmap&);
     void              	uisetTextColor(const Color&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
     bool		uivisible() const;
 
     int			prefHNrPics() const;
-    void		setPrefWidth(int);      
+    void		setPrefWidth(int);
     float		prefWidthInCharSet() const  { return pref_char_width; }
     void		setPrefWidthInChar(float);
-    void		setMinimumWidth(int);      
-    void		setMaximumWidth(int);      
+    void		setMinimumWidth(int);
+    void		setMaximumWidth(int);
 
     int			prefVNrPics() const;
-    void		setPrefHeight(int);     
+    void		setPrefHeight(int);
     float		prefHeightInCharSet() const { return pref_char_height; }
     void		setPrefHeightInChar(float);
-    void		setMinimumHeight(int);      
-    void		setMaximumHeight(int);      
+    void		setMinimumHeight(int);
+    void		setMaximumHeight(int);
 
     void               	setStretch(int,int);
     virtual int		stretch(bool,bool retUndef=false) const;
 
     virtual int		nrTxtLines() const	{ return -1; }
 
-    void		attach(constraintType,uiObject* other=0, 
+    void		attach(constraintType,uiObject* other=0,
 			       int margin=-1,bool reciprocal=true);
-    void		attach(constraintType t,uiParent* other=0, 
+    void		attach(constraintType t,uiParent* other=0,
 			       int m=-1,bool r=true)
 			    { attach(t,other->mainObject(),m,r ); }
 
@@ -187,12 +187,12 @@ private:
 /*!\brief Default (Template) implementation of uiObjectBody.
 
 
-    Any uiObjectBody must implement thiswidget_() and uiObjHandle() 
+    Any uiObjectBody must implement thiswidget_() and uiObjHandle()
     and must also implement some QWidget methods.
     These are implemented using the pre-processor, because it is difficult
-    to templatize for all cases since some Qt objects need a specific 
+    to templatize for all cases since some Qt objects need a specific
     constructor.
-    However, most QWidgets just need a parent and a name 
+    However, most QWidgets just need a parent and a name
     and then this template implementation can be used.
 
     \code
@@ -204,7 +204,7 @@ private:
 
     \endcode
 
-    The macro's mQWIDGET_BODY and mQWIDGET_BASE are undef'ed 
+    The macro's mQWIDGET_BODY and mQWIDGET_BASE are undef'ed
     in "i_uiobjqtbody.h"
 
     The "i_uiobjqtbody.h" header file uses no multiple-inclusion protection
@@ -223,7 +223,7 @@ private:
 
     \endcode
 
-    It also declares a protected member handle_, of type mHANDLE_OBJ&, which 
+    It also declares a protected member handle_, of type mHANDLE_OBJ&, which
     must be initialised in any constructor of objects using "i_uiobjqtbody.h"
 
 */
@@ -233,10 +233,10 @@ mClass(uiBase) uiObjBodyImpl : public uiObjectBody, public T
 {
 public:
 
-                        uiObjBodyImpl( C& hndle, uiParent* parnt, 
+			uiObjBodyImpl( C& hndle, uiParent* parnt,
 				       const char* nm )
 			    : uiObjectBody( parnt, nm )
-			    , T( parnt && parnt->pbody() ? 
+			    , T( parnt && parnt->pbody() ?
 				     parnt->pbody()->managewidg() : 0 )
 			    , handle_( hndle )
 			    {

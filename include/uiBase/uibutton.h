@@ -23,7 +23,7 @@ class uiRadioButtonBody;
 mFDQtclass(QAbstractButton)
 
 class uiMenu;
-class ioPixmap;
+class uiPixmap;
 mFDQtclass(QEvent)
 mFDQtclass(QMenu)
 
@@ -40,7 +40,7 @@ public:
     virtual void	setText(const uiString&);
     const uiString&	text() const			{ return text_; }
     void		setPixmap(const char*);
-    void		setPixmap( const ioPixmap& pm ) { setPM(pm); }
+    void		setPixmap( const uiPixmap& pm ) { setPM(pm); }
     void		setIconScale(float val); /*!< val between [0-1] */
     virtual void	updateIconSize()	{}
 
@@ -57,7 +57,7 @@ protected:
     float		iconscale_;
 
     virtual void	translateText();
-    virtual void	setPM(const ioPixmap&);
+    virtual void	setPM(const uiPixmap&);
 
 };
 
@@ -75,9 +75,9 @@ public:
 			uiPushButton(uiParent*,const uiString& txt,
 				     const CallBack&,bool immediate);
 			uiPushButton(uiParent*,const uiString& txt,
-				     const ioPixmap&,bool immediate);
+				     const uiPixmap&,bool immediate);
 			uiPushButton(uiParent*,const uiString& txt,
-				     const ioPixmap&,const CallBack&,
+				     const uiPixmap&,const CallBack&,
 				     bool immediate);
 
     void		setDefault(bool yn=true);

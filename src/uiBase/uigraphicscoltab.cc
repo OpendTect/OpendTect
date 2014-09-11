@@ -46,7 +46,7 @@ void uiColTabItem::setColTabSequence( const ColTab::Sequence& ctseq )
 
 void uiColTabItem::setPixmap()
 {
-    ioPixmap pm( ctseq_, setup_.sz_.hNrPics(), setup_.sz_.vNrPics(),
+    uiPixmap pm( ctseq_, setup_.sz_.hNrPics(), setup_.sz_.vNrPics(),
 		 setup_.hor_ );
     ctseqitm_->setPixmap( pm );
 }

@@ -27,7 +27,7 @@ class uiObjectBody;
 class uiParent;
 class uiMainWin;
 class i_LayoutItem;
-class ioPixmap;
+class uiPixmap;
 class uiObjEventFilter;
 
 
@@ -86,7 +86,7 @@ public:
     virtual Color	backgroundColor() const;
     Color		roBackgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
-    virtual void	setBackgroundPixmap(const ioPixmap&);
+    virtual void	setBackgroundPixmap(const uiPixmap&);
     virtual void	setTextColor(const Color&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;

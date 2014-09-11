@@ -39,7 +39,7 @@ uiPositionTable::uiPositionTable( uiParent* p, bool withxy, bool withic,
     uiLabel* lbl = new uiLabel( this, infotxt );
 
     uiLabel* pmlvl =  new uiLabel( this, "" );
-    ioPixmap pm( 20, 20 ); pm.fill( Color(200,0,0) );
+    uiPixmap pm( 20, 20 ); pm.fill( Color(200,0,0) );
     pmlvl->setPixmap( pm );
     pmlvl->attach( rightTo, lbl );
 

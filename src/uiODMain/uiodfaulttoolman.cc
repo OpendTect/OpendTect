@@ -844,7 +844,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 	}
     }
 
-    ioPixmap colorpm( 20, 20 );
+    uiPixmap colorpm( 20, 20 );
     colorpm.fill( colorbutcolor_ );
     colorbut_->setPixmap( colorpm );
 }

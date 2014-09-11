@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "stratunitref.h"
 #include "uistring.h"
 
-class ioPixmap;
+class uiPixmap;
 class uiParent;
 class uiTreeView;
 class uiTreeViewItem;
@@ -82,7 +82,7 @@ protected:
 				    const Strat::UnitRef&) const; 
 
     void		addNode(uiTreeViewItem*,const Strat::NodeUnitRef&,bool);
-    ioPixmap*		createUnitPixmap(const Color& col) const;
+    uiPixmap*		createUnitPixmap(const Color& col) const;
     			//becomes yours!
     Strat::NodeUnitRef* replaceUnit(Strat::NodeUnitRef&,bool byleaved);
     void		addLithologies(Strat::LeavedUnitRef&,const 

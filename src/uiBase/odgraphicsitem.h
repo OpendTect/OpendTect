@@ -22,7 +22,7 @@ ________________________________________________________________________
 
 #include "draw.h"
 
-class ioPixmap;
+class uiPixmap;
 
 static int ODGraphicsType = 100000;
 
@@ -84,7 +84,7 @@ class ODGraphicsPixmapItem : public QGraphicsPixmapItem
 {
 public:
     				ODGraphicsPixmapItem();
-    				ODGraphicsPixmapItem(const ioPixmap&);
+				ODGraphicsPixmapItem(const uiPixmap&);
 
     void                        paint(QPainter*,const QStyleOptionGraphicsItem*,
 				      QWidget*);

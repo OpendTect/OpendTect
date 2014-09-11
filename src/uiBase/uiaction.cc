@@ -60,7 +60,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
 
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb,
-		    const ioPixmap& icon )
+		    const uiPixmap& icon )
     : mInit
 {
     init( txt );
@@ -76,7 +76,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
     FixedString pixmapfile( iconfile );
     init( txt );
     if ( pixmapfile )
-	setIcon( ioPixmap(pixmapfile) );
+	setIcon( uiPixmap(pixmapfile) );
 
     triggered.notify( cb );
 }
@@ -88,7 +88,7 @@ uiAction::uiAction( const uiString& txt, const char* iconfile )
     FixedString pixmapfile( iconfile );
     init( txt );
     if ( pixmapfile )
-	setIcon( ioPixmap(pixmapfile) );
+	setIcon( uiPixmap(pixmapfile) );
 }
 
 
@@ -102,7 +102,7 @@ uiAction::uiAction( const MenuItem& itm )
     setChecked( itm.checked );
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
-	setIcon( ioPixmap(itm.iconfnm) );
+	setIcon( uiPixmap(itm.iconfnm) );
 }
 
 uiAction::~uiAction()
@@ -259,7 +259,7 @@ void uiAction::reloadIcon()
     if ( iconfile_.isEmpty() || iconfile_[0] == '[' )
 	return;
 
-    const ioPixmap pm( iconfile_ );
+    const uiPixmap pm( iconfile_ );
     if ( pm.isEmpty() )
 	return;
 
@@ -275,7 +275,7 @@ void uiAction::translateCB( CallBacker* cb )
 }
 
 
-void uiAction::setIcon( const ioPixmap& pm )
+void uiAction::setIcon( const uiPixmap& pm )
 {
     iconfile_ = pm.source();
     qaction_->setIcon( *pm.qpixmap() );
@@ -284,7 +284,7 @@ void uiAction::setIcon( const ioPixmap& pm )
 
 void uiAction::setIcon( const char* file )
 {
-    setIcon( ioPixmap(file) );
+    setIcon( uiPixmap(file) );
 }
 
 

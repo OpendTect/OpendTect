@@ -45,7 +45,7 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );
 
     editsetup_ = new uiPushButton( this, uiStrings::sCreate(true),
-	    ioPixmap(uiChain::pixmapFileName()),
+	    uiPixmap(uiChain::pixmapFileName()),
 	    mCB(this, uiBatchSetup, editPushCB), false );
     editsetup_->attach( rightOf, setupsel_ );
 

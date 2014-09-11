@@ -1289,8 +1289,8 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 
 	if ( !x_.axis_ || !y_.axis_ )
 	{
-	    PtrMan<ioPixmap> pixmap =
-		new ioPixmap( arrarea_.width(),arrarea_.height());
+	    PtrMan<uiPixmap> pixmap =
+		new uiPixmap( arrarea_.width(),arrarea_.height());
 	    pixmap->fill( Color::White() );
 	    setPixmap( *pixmap );
 	    updatePixmap();
@@ -1722,8 +1722,8 @@ void uiDataPointSetCrossPlotter::drawDensityPlot( bool withremovesel )
 	}
     }
 
-    PtrMan<ioPixmap> pixmap =
-	new ioPixmap( arrarea_.width(), arrarea_.height() );
+    PtrMan<uiPixmap> pixmap =
+	new uiPixmap( arrarea_.width(), arrarea_.height() );
     pixmap->convertFromRGBArray( rgbarr_ );
     setPixmap( *pixmap );
     updatePixmap();
@@ -1774,7 +1774,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     isdensityplot_ = false;
     drawTypeChanged.trigger( false );
-    PtrMan<ioPixmap> pixmap = new ioPixmap( arrarea_.width(),arrarea_.height());
+    PtrMan<uiPixmap> pixmap = new uiPixmap( arrarea_.width(),arrarea_.height());
     pixmap->fill( Color::White() );
     setPixmap( *pixmap );
     updatePixmap();

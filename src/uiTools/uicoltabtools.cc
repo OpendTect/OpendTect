@@ -78,7 +78,7 @@ void uiColorTableCanvas::setRGB()
 	}
     }
 
-    ioPixmap pixmap( sz0, sz1 );
+    uiPixmap pixmap( sz0, sz1 );
     pixmap.convertFromRGBArray( *rgbarr_ );
     setPixmap( pixmap );
     updatePixmap();

@@ -953,7 +953,7 @@ uiRect uiMainWin::geometry( bool frame ) const
 }
 
 
-void uiMainWin::setIcon( const ioPixmap& pm )
+void uiMainWin::setIcon( const uiPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
 void uiMainWin::setIconText( const char* txt)

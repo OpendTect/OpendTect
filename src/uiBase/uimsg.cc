@@ -398,7 +398,7 @@ void uiMsg::aboutOpendTect( const uiString& text )
     const int refnr = beginCmdRecEvent( utfwintitle );
     PtrMan<QMessageBox> mb = createMessageBox( NoIcon, popParnt(), text,
 					       oktxt, 0, 0, wintitle );
-    ioPixmap pm( sODLogo );
+    uiPixmap pm( sODLogo );
     if ( pm.qpixmap() )
 	mb->setIconPixmap( *pm.qpixmap() );
 

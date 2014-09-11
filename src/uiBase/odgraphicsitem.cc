@@ -470,7 +470,7 @@ ODGraphicsPixmapItem::ODGraphicsPixmapItem()
 {}
 
 
-ODGraphicsPixmapItem::ODGraphicsPixmapItem( const ioPixmap& pm )
+ODGraphicsPixmapItem::ODGraphicsPixmapItem( const uiPixmap& pm )
     : QGraphicsPixmapItem(*pm.qpixmap())
 {}
 

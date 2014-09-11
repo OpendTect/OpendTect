@@ -181,7 +181,7 @@ void uiColTabImport::usrSel( CallBacker* )
 	ColTab::Sequence* seq = new ColTab::Sequence;
 	seq->usePar( *subpar );
 	seqs_ += seq;
-	ioPixmap coltabpix( *seq, 16, 10, true );
+	uiPixmap coltabpix( *seq, 16, 10, true );
 	listfld_->box()->addItem( nm, coltabpix );
     }
 

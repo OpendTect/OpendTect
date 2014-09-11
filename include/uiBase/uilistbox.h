@@ -103,20 +103,20 @@ public:
 						{ removeItem( fs.str() ); }
     void		setAllowDuplicates(bool yn);
     void		addItem(const uiString&,bool marked=false,int id=-1);
-    void		addItem(const uiString&,const ioPixmap&,int id=-1);
+    void		addItem(const uiString&,const uiPixmap&,int id=-1);
     void		addItem(const uiString&,const Color&,int id=-1);
     void		addItems(const char**);
     void		addItems(const BufferStringSet&);
     void		addItems(const uiStringSet&);
     void		insertItem(const uiString&,int idx=-1,
 				   bool marked=false,int id=-1);
-    void		insertItem(const uiString&,const ioPixmap&,
+    void		insertItem(const uiString&,const uiPixmap&,
 				   int idx=-1,int id=-1);
     void		insertItem(const uiString&,const Color&,
 				   int idx=-1,int id=-1);
     void		setPixmap(int,const Color&);
-    void		setPixmap(int,const ioPixmap&);
-    ioPixmap		pixmap(int) const;
+    void		setPixmap(int,const uiPixmap&);
+    uiPixmap		pixmap(int) const;
     void		setColor(int,const Color&);
     Color		getColor(int) const;
 

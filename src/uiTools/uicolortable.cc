@@ -189,7 +189,7 @@ void uiColorTableSel::update()
 
 	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
 	addItem( seq.name() );
-	setPixmap( ioPixmap(seq,16,10,true), idx );
+	setPixmap( uiPixmap(seq,16,10,true), idx );
     }
 
     if ( !curitm.isEmpty() )

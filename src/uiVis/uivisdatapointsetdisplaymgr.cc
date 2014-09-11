@@ -147,7 +147,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
 	    selfld_->addItem( selgrpnms[0]->buf() );
-	    ioPixmap pixmap( 20, 20 );
+	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
 	    selfld_->setPixmap( pixmap, idx );
@@ -193,7 +193,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	for ( int idx=0; idx<selgrpnms.size(); idx++ )
 	{
 	    selfld_->addItem( selgrpnms[0]->buf() );
-	    ioPixmap pixmap( 20, 20 );
+	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
 	    selfld_->setPixmap( pixmap, idx );

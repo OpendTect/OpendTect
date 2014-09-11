@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class uiGroup;
 class uiLabelBody;
-class ioPixmap;
+class uiPixmap;
 
 mExpClass(uiBase) uiLabel : public uiObject
 {
@@ -39,9 +39,9 @@ public:
     virtual void	setText(const uiString&);
     const uiString&	text() const;
     void		setTextSelectable(bool yn=true);
-    void		setPixmap(const ioPixmap&);
+    void		setPixmap(const uiPixmap&);
 
-/*! 
+/*!
     setting an alignment only makes sense if you reserve space using
     setPrefWidthInChar();
 */

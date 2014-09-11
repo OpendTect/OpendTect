@@ -120,7 +120,7 @@ void uiLabel::setTextSelectable( bool yn )
 }
 
 
-void uiLabel::setPixmap( const ioPixmap& pixmap )
+void uiLabel::setPixmap( const uiPixmap& pixmap )
 {
     if ( !pixmap.qpixmap() ) return;
 

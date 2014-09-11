@@ -83,7 +83,7 @@ void uiStratRefTree::setTree( Strat::RefTree& rt, bool force )
 
 
 #define mCreateAndSetUnitPixmap(ur,lvit)\
-    ioPixmap* pm = createUnitPixmap( ur.color() );\
+    uiPixmap* pm = createUnitPixmap( ur.color() );\
     lvit->setPixmap( 0, *pm );\
     delete pm;
 
@@ -451,7 +451,7 @@ void uiStratRefTree::updateUnitProperties( uiTreeViewItem* lvit )
 }
 
 
-ioPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
+uiPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
 {
     uiRGBArray rgbarr( false );
     rgbarr.setSize( PMWIDTH, PMHEIGHT );
@@ -466,7 +466,7 @@ ioPixmap* uiStratRefTree::createUnitPixmap( const Color& col ) const
 	    rgbarr.set( idw, idh, col );
 	}
     }
-    return new ioPixmap( rgbarr );
+    return new uiPixmap( rgbarr );
 }
 
 

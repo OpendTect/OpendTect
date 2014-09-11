@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-uiSystemTrayIcon::uiSystemTrayIcon( const ioPixmap& pm )
+uiSystemTrayIcon::uiSystemTrayIcon( const uiPixmap& pm )
     : action_(-1)
     , messageClicked(this)
     , clicked(this)
@@ -40,7 +40,7 @@ uiSystemTrayIcon::~uiSystemTrayIcon()
 }
 
 
-void uiSystemTrayIcon::setPixmap( const ioPixmap& pm )
+void uiSystemTrayIcon::setPixmap( const uiPixmap& pm )
 {
     QIcon qicon; 
     if ( pm.qpixmap() ) qicon = QIcon( *pm.qpixmap() );

@@ -77,7 +77,7 @@ void uiGMTSymbolPars::fillShapes()
 	{
 	    BufferString iconfilenm = GMTWSR().get( idx )->iconfilenm_;
 	    BufferString nm = GMTWSR().get( idx )->name();
-	    shapefld_->insertItem( ioPixmap(iconfilenm), nm.buf(), idx );
+	    shapefld_->insertItem( uiPixmap(iconfilenm), nm.buf(), idx );
 	}
     }
     else
@@ -88,7 +88,7 @@ void uiGMTSymbolPars::fillShapes()
 	    if ( shapekey.isEmpty() ) break;
 
 	    shapekey.getCStr()[0] = mCast( char, tolower( shapekey.buf()[0] ) );
-	    shapefld_->insertItem( ioPixmap(shapekey), 
+	    shapefld_->insertItem( uiPixmap(shapekey),
                                    uiStrings::sEmptyString(), idx );
 	}
     }

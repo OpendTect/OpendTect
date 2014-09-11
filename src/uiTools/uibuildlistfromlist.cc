@@ -68,7 +68,7 @@ uiEditObjectList::uiEditObjectList( uiParent* p, const char* itmtyp,
 
 #undef mDefBut
 #define mDefBut(butnm,txt,pm,cb,imm) \
-	butnm##but_ = new uiPushButton( bgrp_, txt, ioPixmap(pm), \
+	butnm##but_ = new uiPushButton( bgrp_, txt, uiPixmap(pm), \
 			    mCB(this,uiEditObjectList,cb), imm ); \
 	butnm##but_->setPrefWidthInChar( butsz )
 

@@ -56,7 +56,7 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     wintitle += inputobj_.name(); wintitle += "]";
     setCaption( wintitle );
 
-    ioPixmap pixmap( mGetSetupFileName("virtualkeyboard") );
+    uiPixmap pixmap( mGetSetupFileName("virtualkeyboard") );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "commondefs.h"
 
-class ioPixmap;
+class uiPixmap;
 
 namespace uiIcon
 {

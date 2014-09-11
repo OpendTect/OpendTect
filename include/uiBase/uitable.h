@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "draw.h"
 
 class BufferStringSet;
-class ioPixmap;
+class uiPixmap;
 class uiGroup;
 class uiTableBody;
 
@@ -278,7 +278,7 @@ public:
     CNotifier<uiTable,int> rowClicked;
     CNotifier<uiTable,int> columnClicked;
 
-    void		setPixmap(const RowCol&,const ioPixmap&);
+    void		setPixmap(const RowCol&,const uiPixmap&);
     void		setColor(const RowCol&,const Color&);
     Color		getColor(const RowCol&) const;
     void		setHeaderBackground(int,const Color&,bool isrow);

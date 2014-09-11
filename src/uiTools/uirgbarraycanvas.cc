@@ -76,7 +76,7 @@ void uiRGBArrayCanvas::beforeDraw( int w, int h )
     if ( xsz < 1 || ysz < 1 )
     {
 	rgbarr_.setSize( 1, 1 );
-	pixmap_ = new ioPixmap( 1, 1 );
+	pixmap_ = new uiPixmap( 1, 1 );
 	return;
     }
 
@@ -88,11 +88,11 @@ void uiRGBArrayCanvas::beforeDraw( int w, int h )
 }
 
 
-void uiRGBArrayCanvas::setPixmap( const ioPixmap& pixmap )
+void uiRGBArrayCanvas::setPixmap( const uiPixmap& pixmap )
 {
     if ( pixmap_ )
 	delete pixmap_;
-    pixmap_ = new ioPixmap( pixmap );
+    pixmap_ = new uiPixmap( pixmap );
 }
 
 
@@ -142,6 +142,6 @@ bool uiRGBArrayCanvas::createPixmap()
     if ( xsz < 1 || ysz < 1 )
 	return false;
 
-    pixmap_ = new ioPixmap( rgbarr_ );
+    pixmap_ = new uiPixmap( rgbarr_ );
     return true;
 }

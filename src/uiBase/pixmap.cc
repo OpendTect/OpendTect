@@ -30,14 +30,14 @@ static const char* rcsID mUsedVar = "$Id$";
 mUseQtnamespace
 
 
-ioPixmap::ioPixmap( const ioPixmap& pm )
+uiPixmap::uiPixmap( const uiPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
     , srcname_(pm.srcname_)
 {
 }
 
 
-ioPixmap::ioPixmap( const uiRGBArray& rgbarr )
+uiPixmap::uiPixmap( const uiRGBArray& rgbarr )
     : qpixmap_(new QPixmap)
     , srcname_("[uiRGBArray]")
 {
@@ -45,14 +45,14 @@ ioPixmap::ioPixmap( const uiRGBArray& rgbarr )
 }
 
 
-ioPixmap::ioPixmap( const char* xpm[] )
+uiPixmap::uiPixmap( const char* xpm[] )
     : qpixmap_(new QPixmap(xpm))
     , srcname_("[xpm]")
 {
 }
 
 
-ioPixmap::ioPixmap( int w, int h )
+uiPixmap::uiPixmap( int w, int h )
     : qpixmap_(new QPixmap( w<2 ? 1 : w, h<2 ? 2 : h ))
     , srcname_("[created]")
 {
@@ -60,13 +60,13 @@ ioPixmap::ioPixmap( int w, int h )
 }
 
 
-ioPixmap::ioPixmap( const QPixmap& pm )
+uiPixmap::uiPixmap( const QPixmap& pm )
     : qpixmap_(new QPixmap(pm))
 {
 }
 
 
-ioPixmap::ioPixmap( const char* icnm )
+uiPixmap::uiPixmap( const char* icnm )
     : qpixmap_(0)
     , srcname_(icnm)
 {
@@ -85,7 +85,7 @@ ioPixmap::ioPixmap( const char* icnm )
 }
 
 
-ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
+uiPixmap::uiPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
@@ -128,13 +128,13 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
 }
 
 
-ioPixmap::~ioPixmap()
+uiPixmap::~uiPixmap()
 {
     delete qpixmap_;
 }
 
 
-void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
+void uiPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
     if ( !qpixmap_ ) qpixmap_ = new QPixmap;
     *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(),
@@ -142,30 +142,30 @@ void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 }
 
 
-int ioPixmap::width() const
+int uiPixmap::width() const
 { return qpixmap_->width(); }
 
-int ioPixmap::height() const
+int uiPixmap::height() const
 { return qpixmap_->height(); }
 
-bool ioPixmap::isEmpty() const
+bool uiPixmap::isEmpty() const
 { return !qpixmap_ || qpixmap_->isNull(); }
 
-void ioPixmap::fill( const Color& col )
+void uiPixmap::fill( const Color& col )
 { qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
 
 
-bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
+bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
 { return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
 
 
-bool ioPixmap::isPresent( const char* icnm )
+bool uiPixmap::isPresent( const char* icnm )
 {
     return OD::IconFile::isPresent( icnm );
 }
 
 
-void ioPixmap::supportedImageFormats( BufferStringSet& list )
+void uiPixmap::supportedImageFormats( BufferStringSet& list )
 {
     return uiRGBArray::supportedImageFormats( list );
 }

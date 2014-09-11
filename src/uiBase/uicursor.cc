@@ -44,12 +44,12 @@ void uiCursorManager::fillQCursor( const MouseCursor& mc,
     {
 	if ( !mc.filename_.isEmpty() )
 	{
-	    ioPixmap pixmap( mc.filename_ );
+	    uiPixmap pixmap( mc.filename_ );
 	    qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
 	}
 	else
 	{
-	    ioPixmap pixmap( uiRGBArray(*mc.image_)) ;
+	    uiPixmap pixmap( uiRGBArray(*mc.image_)) ;
 	    qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
 	}
     }
@@ -124,7 +124,7 @@ void uiCursorManager::setOverrideShape( MouseCursor::Shape sh, bool replace )
 void uiCursorManager::setOverrideFile( const char* fn, int hotx, int hoty,
 				       bool replace )
 {
-    ioPixmap pixmap( fn );
+    uiPixmap pixmap( fn );
     QCursor qcursor( *pixmap.qpixmap(), hotx, hoty );
     setOverrideQCursor( qcursor, replace );
 }

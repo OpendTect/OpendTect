@@ -104,10 +104,10 @@ void uiIOObjSelWriteTranslator::mkSelFld( const CtxtIOObj& ctio, bool withopts )
 	if ( !icnm.isEmpty() )
 	{
 	    const BufferString smllicnm( icnm, "_24x24.png" );
-	    if ( ioPixmap::isPresent(smllicnm) )
+	    if ( uiPixmap::isPresent(smllicnm) )
 		icnm = smllicnm;
-	    if ( ioPixmap::isPresent(icnm) )
-		selfld_->setPixmap( ioPixmap(icnm), idx );
+	    if ( uiPixmap::isPresent(icnm) )
+		selfld_->setPixmap( uiPixmap(icnm), idx );
 	}
     }
     selfld_->setCurrentItem( cur );

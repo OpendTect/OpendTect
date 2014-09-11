@@ -185,11 +185,11 @@ void uiODDisplayTreeItem::updateCheckStatus()
 
 void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
-    PtrMan<ioPixmap> pixmap = 0;
+    PtrMan<uiPixmap> pixmap = 0;
     if ( islocked )
-	pixmap = new ioPixmap( "lock_small" );
+	pixmap = new uiPixmap( "lock_small" );
     else
-	pixmap = new ioPixmap();
+	pixmap = new uiPixmap();
 
     uitreeviewitem_->setPixmap( 0, *pixmap );
 
@@ -216,10 +216,10 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    return;
 	}
 
-	PtrMan<ioPixmap> pixmap = 0;
+	PtrMan<uiPixmap> pixmap = 0;
 	if ( so->hasColor() )
 	{
-	    pixmap = new ioPixmap( uiODDataTreeItem::cPixmapWidth(),
+	    pixmap = new uiPixmap( uiODDataTreeItem::cPixmapWidth(),
 				   uiODDataTreeItem::cPixmapHeight() );
 	    pixmap->fill( so->getColor() );
 	}

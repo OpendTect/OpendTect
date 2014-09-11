@@ -122,7 +122,7 @@ ui##nm##Body( uiButton& uibut, uiParent* parnt, const uiString& txt ) \
     constr_code; \
 } \
  \
-ui##nm##Body( uiButton& uibut, const ioPixmap& pm, \
+ui##nm##Body( uiButton& uibut, const uiPixmap& pm, \
 	      uiParent* parnt, const uiString& txt ) \
     : uiButtonTemplBody<Q##nm>(uibut,parnt,txt) \
 { \
@@ -171,11 +171,11 @@ void uiButton::setPixmap( const char* pmnm )
     BufferString smllicnm( pmnm, "_24x24" );
     if ( OD::IconFile::isPresent(smllicnm) )
 	icnm = pmnm;
-    setPM( ioPixmap(icnm) );
+    setPM( uiPixmap(icnm) );
 }
 
 
-void uiButton::setPM( const ioPixmap& pm )
+void uiButton::setPM( const uiPixmap& pm )
 {
     if ( !isMainThreadCurrent() )
 	return;
@@ -236,7 +236,7 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
-			    const ioPixmap& pm, bool ia )
+			    const uiPixmap& pm, bool ia )
     : uiButton( parnt, nm, 0, mkbody(parnt,nm) )
     , immediate_(ia)
 {
@@ -246,7 +246,7 @@ uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const uiString& nm,
-			    const ioPixmap& pm, const CallBack& cb, bool ia )
+			    const uiPixmap& pm, const CallBack& cb, bool ia )
     : uiButton( parnt, nm, &cb, mkbody(parnt,nm) )
     , immediate_(ia)
 {
@@ -400,7 +400,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
     if ( forcetb || istoggle_ || name_ == tooltip_.getFullString() )
 	return new uiToolButton( p, *this );
 
-    uiPushButton* pb = new uiPushButton( p, name_, ioPixmap(filename_),
+    uiPushButton* pb = new uiPushButton( p, name_, uiPixmap(filename_),
 					 cb_, isimmediate_ );
     pb->setToolTip( tooltip_ );
     return pb;
@@ -419,7 +419,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
     : uiButton( parnt, su.name_, &su.cb_,
-	        mkbody(parnt,ioPixmap(su.filename_),su.name_) )
+		mkbody(parnt,uiPixmap(su.filename_),su.name_) )
     , mInitTBList
 {
     setToolTip( su.tooltip_ );
@@ -440,7 +440,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
 uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-	        mkbody(parnt,ioPixmap(fnm),tt) )
+		mkbody(parnt,uiPixmap(fnm),tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -451,7 +451,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-	        mkbody(parnt,ioPixmap(uiIcon::None()),tt) )
+		mkbody(parnt,uiPixmap(uiIcon::None()),tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -467,7 +467,7 @@ uiToolButton::~uiToolButton()
 }
 
 
-uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
+uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const uiPixmap& pm,
 					const uiString& txt)
 {
     tbbody_ = new uiToolButtonBody(*this,parnt,txt);

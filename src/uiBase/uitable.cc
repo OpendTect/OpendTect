@@ -785,7 +785,7 @@ bool uiTable::isRowStretchable( int row ) const
 {  pErrMsg( "Not impl yet" ); return false; }
 
 
-void uiTable::setPixmap( const RowCol& rc, const ioPixmap& pm )
+void uiTable::setPixmap( const RowCol& rc, const uiPixmap& pm )
 {
     mBlockCmdRec;
     QTableWidgetItem* itm = body_->getItem( rc );

@@ -102,7 +102,7 @@ void uiPluginSel::createUI()
     grp->setFrame( true );
     grp->attach( ensureBelow, lbl );
     lbl = new uiLabel( this, "OD logo" );
-    lbl->setPixmap( ioPixmap(od_logo_24x24) );
+    lbl->setPixmap( uiPixmap(od_logo_24x24) );
     lbl->attach( rightBorder );
 
     const int nrproducts = products_.size();

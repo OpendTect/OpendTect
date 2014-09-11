@@ -20,7 +20,7 @@ ________________________________________________________________________
 mFDQtclass(QAction)
 mFDQtclass(QToolBar)
 
-class ioPixmap;
+class uiPixmap;
 class MenuItem;
 class uiObject;
 class uiToolButton;
@@ -64,7 +64,7 @@ public:
 
     void		setToggle(int id, bool);
     void		setIcon(int id,const char*);
-    void		setIcon(int id,const ioPixmap&);
+    void		setIcon(int id,const uiPixmap&);
     void		setToolTip(int id,const uiString&);
     void		setShortcut(int id,const char*);
     void		turnOn(int id,bool yn);

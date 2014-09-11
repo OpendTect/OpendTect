@@ -148,7 +148,7 @@ int uiComboBox::indexOf( const char* str ) const
 }
 
 
-void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
+void uiComboBox::setPixmap( const uiPixmap& pixmap, int index )
 {
     if ( index >= 0 && index < body_->count() )
     {
@@ -324,7 +324,7 @@ void uiComboBox::insertItem( const uiString& txt, int index, int id )
 }
 
 
-void uiComboBox::insertItem( const ioPixmap& pm, const uiString& txt,
+void uiComboBox::insertItem( const uiPixmap& pm, const uiString& txt,
 			     int index, int id )
 {
     mBlockCmdRec;

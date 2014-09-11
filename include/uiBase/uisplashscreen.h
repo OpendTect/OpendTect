@@ -15,14 +15,14 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "gendefs.h"
 
-class ioPixmap;
+class uiPixmap;
 class uiMainWin;
 mFDQtclass(QSplashScreen)
 
 mExpClass(uiBase) uiSplashScreen
 {
 public:
-    				uiSplashScreen(const ioPixmap&);
+				uiSplashScreen(const uiPixmap&);
 				~uiSplashScreen();
 
     void			show();

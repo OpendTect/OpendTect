@@ -53,7 +53,7 @@ using namespace MPE;
 
 #define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
     uiAction* itm = new uiAction( txt, mCB(this,uiMPEMan,fn) ); \
-    mnu->insertItem( itm, idx ); itm->setIcon( ioPixmap(fnm) ); }
+    mnu->insertItem( itm, idx ); itm->setIcon( uiPixmap(fnm) ); }
 
 
 #define mGetDisplays(create) \

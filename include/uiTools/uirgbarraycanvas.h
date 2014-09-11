@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiPixmapItem;
 class uiRGBArray;
-class ioPixmap;
+class uiPixmap;
 class MouseEventHandler;
 
 
@@ -42,7 +42,7 @@ public:
     void		setBorder(const uiBorder&);
     void		setBGColor(const Color&); //!< everything
     void		setDrawArr(bool);	//!< Draw the arr or not?
-    void		setPixmap(const ioPixmap&);
+    void		setPixmap(const uiPixmap&);
     void		removePixmap();
 
     uiRect		arrArea() const		{ return arrarea_; }
@@ -72,7 +72,7 @@ protected:
 
     uiRect		arrarea_;
     uiRect		updarea_;
-    ioPixmap*		pixmap_;
+    uiPixmap*		pixmap_;
 
     virtual void	mkNewFill()		{}
     void		rubberBandHandler(uiRect);

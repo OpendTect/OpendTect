@@ -25,7 +25,7 @@ mFDQtclass(QString)
 mFDQtclass(QStringList)
 class uiTreeViewBody;
 class uiTreeViewItem;
-class ioPixmap;
+class uiPixmap;
 
 mExpClass(uiBase) uiTreeView : public uiObject
 {
@@ -208,7 +208,7 @@ public:
 
 	mDefSetupMemb(uiTreeViewItem::Type,type)
 	mDefSetupMemb(uiTreeViewItem*,after)
-	mDefSetupMemb(const ioPixmap*,pixmap)
+	mDefSetupMemb(const uiPixmap*,pixmap)
 	mDefSetupMemb(bool,setcheck)
 	uiStringSet		labels_;
 
@@ -261,7 +261,7 @@ public:
 
     const char*		text( int column=0 ) const;
 
-    void		setPixmap(int column,const ioPixmap&);
+    void		setPixmap(int column,const uiPixmap&);
 
     virtual const char* key(int,bool) const		{ return 0; }
     virtual int		compare( uiTreeViewItem*,int column,bool) const

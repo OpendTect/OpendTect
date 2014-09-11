@@ -313,14 +313,14 @@ uiPixmapItem::uiPixmapItem()
 {}
 
 
-uiPixmapItem::uiPixmapItem( const ioPixmap& pm )
+uiPixmapItem::uiPixmapItem( const uiPixmap& pm )
     : uiGraphicsItem(mkQtObj())
 {
     setPixmap( pm );
 }
 
 
-uiPixmapItem::uiPixmapItem( const uiPoint& pos, const ioPixmap& pm )
+uiPixmapItem::uiPixmapItem( const uiPoint& pos, const uiPixmap& pm )
     : uiGraphicsItem(mkQtObj())
 {
     setPos( pos );
@@ -346,7 +346,7 @@ void uiPixmapItem::setOffset( int left, int top )
 }
 
 
-void uiPixmapItem::setPixmap( const ioPixmap& pixmap )
+void uiPixmapItem::setPixmap( const uiPixmap& pixmap )
 {
     qpixmapitem_->setPixmap( *pixmap.qpixmap());
 }

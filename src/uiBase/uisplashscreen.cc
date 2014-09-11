@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-uiSplashScreen::uiSplashScreen( const ioPixmap& pm )
+uiSplashScreen::uiSplashScreen( const uiPixmap& pm )
 {
     QDesktopWidget* qdw = QApplication::desktop();
     QWidget* parent = qdw->screen( qdw->primaryScreen() );

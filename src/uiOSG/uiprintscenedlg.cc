@@ -94,7 +94,7 @@ void uiPrintSceneDlg::getSupportedFormats( const char** imagefrmt,
 					   BufferString& filters )
 {
     BufferStringSet supportedimageformats;
-    ioPixmap::supportedImageFormats( supportedimageformats );
+    uiPixmap::supportedImageFormats( supportedimageformats );
 
     int idx = 0;
     while ( imagefrmt[idx] )
