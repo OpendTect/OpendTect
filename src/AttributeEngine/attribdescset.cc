@@ -175,8 +175,10 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 
 Desc* DescSet::gtDesc( const DescID& id ) const
 {
-    const int idx = ids_.indexOf(id);
-    if ( idx < 0 ) return 0;
+    const int idx = ids_.indexOf( id );
+    if ( !descs_.validIdx(idx) )
+	return 0;
+
     return const_cast<Desc*>( descs_[idx] );
 }
 
