@@ -701,7 +701,8 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     if ( !ctio_.ctxt.forread )
     {
 	PtrMan<IOObj> ioobj = 0;
-	FixedString presetnm = nmfld_->text();
+	FixedString presetnm = ctio_.ioobj ? ctio_.ioobj->name()
+					   : nmfld_->text();
 	if ( presetnm.isEmpty() && !listfld_->isEmpty() )
 	{
 	    presetnm = listfld_->textOfItem( 0 );
@@ -716,7 +717,11 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 	}
 
 	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
+	{
 	    listfld_->setCurrentItem( presetnm );
+	    if ( ctio_.ioobj )
+		nmfld_->setText( presetnm );
+	}
 
 	if ( wrtrselfld_ )
 	{
