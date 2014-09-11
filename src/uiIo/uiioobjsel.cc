@@ -312,8 +312,6 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
     IODir iodir( ctio_.ctxt.getSelKey() );
     IODirEntryList del( &iodir, ctio_.ctxt );
-
-    //IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
     BufferString nmflt = filtfld_->text();
     if ( !nmflt.isEmpty() && nmflt != "*" )
 	del.fill( IOM().dirPtr(), nmflt );

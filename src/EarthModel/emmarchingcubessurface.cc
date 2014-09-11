@@ -59,7 +59,7 @@ public:
 	ascistream astream( strm );
 	if ( !astream.isOfFileType( sFileType() ) &&
 	     !astream.isOfFileType( sOldFileType() ) &&
-	     !astream.isOfFileType( sOldFileType() ) )
+	     !astream.isOfFileType( sOldFileType2() ) )
 	{
 	    errmsg_ = "Invalid filetype";
 	    return;
@@ -219,7 +219,6 @@ void MarchingCubesSurface::initClass()
 {
     SeparString sep( 0, FactoryBase::cSeparator() );
     sep += typeStr();
-    sep += MarchingCubesSurfaceReader::sOldFileType();
     EMOF().addCreator( create, sep.buf() );
 }
 
@@ -329,7 +328,8 @@ const IOObjContext& MarchingCubesSurface::getIOObjContext() const
     {
 	IOObjContext* newres =
 	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	newres->deftransl = typeStr();
+	newres->deftransl = EMBodyTranslatorGroup::sKeyUserWord();
+	newres->toselect.allowtransls_ = typeStr();
 
 	if ( !res.setIfNull(newres) )
 	    delete newres;

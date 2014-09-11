@@ -360,7 +360,8 @@ const IOObjContext& RandomPosBody::getIOObjContext() const
     {
 	IOObjContext* newres =
 	    new IOObjContext(EMBodyTranslatorGroup::ioContext() );
-	newres->deftransl = typeStr();
+	newres->deftransl = EMBodyTranslatorGroup::sKeyUserWord();
+	newres->toselect.allowtransls_ = typeStr();
 
 	if ( !res.setIfNull(newres) )
 	    delete newres;
