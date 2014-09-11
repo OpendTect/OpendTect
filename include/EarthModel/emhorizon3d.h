@@ -121,6 +121,12 @@ public:
 					   const BinID& step);
 				/*!< Returns true on succes. Takes over array.
 				     Removes any existing data. */
+    bool			setArray2D(Array2D<float>*,const BinID& origin,
+					   const BinID& step,
+					   bool takeoverarr);
+				/*!< Returns true on succes. Takes over array
+				     when takeoverarr=true.
+				     Removes any existing data. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
 					 const HorSampling& hs);
