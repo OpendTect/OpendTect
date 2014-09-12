@@ -136,7 +136,7 @@ int IsopachMaker::finishWork()
 	dps_->dataChanged();
 	if ( dps_->isEmpty() )
 	{
-	    msg_ = "No thickness values collected";
+	    msg_ = tr("No thickness values collected");
 	    return ErrorOccurred();
 	}
     }

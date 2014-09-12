@@ -25,7 +25,7 @@ namespace Attrib
 class DataHolder;
 
 mClass(HorizonAttrib) Horizon : public Provider
-{
+{ mODTextTranslationClass(Horizon);
 public:
     static void		initClass();
 			Horizon(Desc&);

@@ -21,7 +21,7 @@ class DataPointSet;
 namespace EM{ class Horizon3D; class EMObjectIterator; }
 
 mExpClass(HorizonAttrib) IsopachMaker : public Executor
-{
+{ mODTextTranslationClass(IsopachMaker);
 public:
 			IsopachMaker(const EM::Horizon3D&,const EM::Horizon3D&,
 			     	     const char* attrnm,int dataidx,
@@ -30,7 +30,7 @@ public:
 
     int			nextStep();
     int			finishWork();
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Positions handled"; }
     od_int64 		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const		{ return totnr_; }
@@ -47,7 +47,7 @@ public:
 protected:
     int				totnr_;
     od_int64			nrdone_;
-    BufferString		msg_;
+    uiString		        msg_;
 
     int				sidcolidx_;
     int				dataidx_;

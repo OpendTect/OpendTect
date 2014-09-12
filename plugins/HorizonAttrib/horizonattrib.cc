@@ -88,7 +88,7 @@ Horizon::Horizon( Desc& dsc )
 
     if ( !isOK() )
     {
-	errmsg_ = "Selected Horizon Data name does not exist";
+	errmsg_ = tr("Selected Horizon Data name does not exist");
 	return;
     }
 }
@@ -174,9 +174,8 @@ void Horizon::prepareForComputeData()
     PtrMan<Executor> adl = hor3d ? hor3d->auxdata.auxDataLoader(surfdtidx) : 0;
     if ( !adl || !adl->execute() )
     {
-	BufferString msg = "Loading Horizon Data ";
-	msg += surfdatanm_;
-	msg += " failed.";
+	uiString msg = tr("Loading Horizon Data %1 failed.")
+	             .arg(surfdatanm_);
 	errmsg_ =  msg;
 	horizon_->unRef();
 	mRet
