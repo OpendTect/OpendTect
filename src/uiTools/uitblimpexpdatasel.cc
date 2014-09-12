@@ -617,7 +617,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 				  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
 
-    uiToolButton* button = new uiToolButton( this, "openfmt",
+    uiToolButton* button = new uiToolButton( this, "open",
 				tr("Selecting existing format"),
 				mCB(this,uiTableImpDataSel,openFmt) );
     button->setPrefWidthInChar( 6 );
