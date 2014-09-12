@@ -191,8 +191,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     aspectratio_ = (float) (xrg.width() / yrg.width());
     if ( aspectratio_ < 0.01 || aspectratio_ > 100 )
     {
-	uiMSG().error( "Unreasonable aspect ratio",
-		       "Please check the X and Y ranges" );
+	uiMSG().error( tr("Unreasonable aspect ratio",
+		          "Please check the X and Y ranges") );
 	xrgfld_->valuechanged.enable();
 	yrgfld_->valuechanged.enable();
 	return;

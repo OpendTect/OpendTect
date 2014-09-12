@@ -28,10 +28,10 @@ uiGMTInfoDlg::uiGMTInfoDlg( uiParent* p )
 {
     setOkText( uiStrings::sContinue() );
 
-    BufferString msg = "You need to install the GMT mapping tool package\n";
-    msg += "before you can use this utility\n";
-    msg += "Also make sure that the environment";
-    msg += " variable GMT_SHAREDIR is to set ";
+    uiString msg = tr("You need to install the GMT mapping tool package\n"
+                      "before you can use this utility\n"
+                      "Also make sure that the environment"
+                      " variable GMT_SHAREDIR is to set ");
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );

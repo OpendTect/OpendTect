@@ -23,7 +23,7 @@ class uiCheckBox;
 class uiColorInput;
 
 mExpClass(uiGMT) uiGMTFaultsGrp : public uiGMTOverlayGrp
-{
+{ mODTextTranslationClass(uiGMTFaultsGrp);
 public:
     static void         initClass();
     bool		fillPar(IOPar&) const;

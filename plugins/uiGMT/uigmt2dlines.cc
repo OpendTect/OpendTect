@@ -145,7 +145,7 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     TypeSet<Pos::GeomID> geomids;
     par.get( sKey::GeomID(), geomids );
     if ( geomids.isEmpty() )
-	mErrRet( "No 2D lines found " );
+	mErrRet( tr("No 2D lines found ") );
 
     lineselfld_->setSelGeomIDs( geomids );
     FixedString lskey = par.find( ODGMT::sKeyLineStyle() );

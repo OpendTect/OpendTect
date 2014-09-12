@@ -50,8 +50,8 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
 
 #define mCreateUI( classname, function ) \
 { \
-    BufferString msg( "To use this GMT algorithm you need to install GMT.", \
-	    	      "\nClick on GMT-button for more information" ); \
+    uiString msg = tr( "To use this GMT algorithm you need to install GMT." \
+	    	       "\nClick on GMT-button for more information" ); \
     uiLabel* lbl = new uiLabel( this, msg ); \
     uiPushButton* gmtbut = new uiPushButton( this, "", "gmt_logo", \
 	    				mCB(this,classname,function), true ); \
@@ -170,13 +170,13 @@ bool uiGMTNearNeighborGrid::acceptOK()
 {
     if ( !radiusfld_ )
     {
-	uiMSG().message( "No GMT installation found" );
+	uiMSG().message( tr("No GMT installation found") );
 	return false;
     }
 
     if ( radiusfld_->getfValue() <= 0 )
     {
-	uiMSG().message( "Search radius should be greater than 0" );
+	uiMSG().message( tr("Search radius should be greater than 0") );
 	radiusfld_->setValue(mMAX(SI().inlDistance(), SI().crlDistance()) );
 	return false;
     }

@@ -38,7 +38,7 @@ protected:
 
 
 mExpClass(uiGMT) uiGMTNearNeighborGrid : public uiArray2DInterpol
-{
+{ mODTextTranslationClass(uiGMTNearNeighborGrid);
 public:
 				uiGMTNearNeighborGrid(uiParent*);
 

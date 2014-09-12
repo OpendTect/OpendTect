@@ -51,7 +51,7 @@ mDefODPluginInfo(uiGMT)
 
 
 class uiGMTIntro : public uiDialog
-{
+{ mODTextTranslationClass(uiGMTIntro);
 public:
 
 uiGMTIntro( uiParent* p )
@@ -59,11 +59,11 @@ uiGMTIntro( uiParent* p )
 {
     setOkText( uiStrings::sContinue() );
 
-    BufferString msg = "You need to install the GMT mapping tool package\n";
-    msg += "before you can use this utility\n";
-    msg += "Also make sure that the environment variable GMTROOT is set ";
-    msg += "to the GMT installation directory\n and your PATH variable ";
-    msg += "includes the GMT bin directory";
+    uiString msg = tr("You need to install the GMT mapping tool package\n"
+                      "before you can use this utility\nAlso make sure that "
+                      "the environment variable GMTROOT is set "
+                      "to the GMT installation directory\n and your PATH "
+                      "variable includes the GMT bin directory");
 
     uiLabel* lbl = new uiLabel( this, msg );
     lbl->setAlignment( Alignment::HCenter );

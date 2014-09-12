@@ -109,7 +109,7 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 {
     const int nrsel = faultfld_->nrChosen();
     if ( nrsel < 1 )
-	{ uiMSG().message( "No faults available" ); return false; }
+	{ uiMSG().message( tr("No faults available") ); return false; }
     for ( int idx=0; idx<nrsel; idx++ )
     {
 	iop.set( iop.compKey(ODGMT::sKeyFaultID(), idx),
@@ -126,11 +126,11 @@ bool uiGMTFaultsGrp::fillPar( IOPar& iop ) const
 	const bool isbetween = zrg.start<=zvalue && zvalue<=zrg.stop;
 	if ( !isbetween )
 	{
-	    BufferString msg( "Z value is out of survey range(" );
-	    msg.add( mNINT32(zrg.start*SI().zDomain().userFactor()) ).add(" , ")
-	       .add( mNINT32(zrg.stop*SI().zDomain().userFactor()) ).add( ")" );
+	    uiString msg = tr("Z value is out of survey range(%1, %2)")
+	                 .arg( mNINT32(zrg.start*SI().zDomain().userFactor()) )
+	                 .arg( mNINT32(zrg.stop*SI().zDomain().userFactor()) );
 	    uiMSG().message( msg );
-	    return false;
+	    return false; 
 	}
 
 	iop.set( ODGMT::sKeyZVals(), zvalue );

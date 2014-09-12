@@ -166,7 +166,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	BufferString msg( "Cannot read '", ioobj->name().buf(), "'" );
+	uiString msg = tr("Cannot read '%1'").arg(ioobj->name().buf());
 	uiMSG().error( msg );
 	return;
     }
@@ -232,7 +232,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	int nrcontours = datarg.nrSteps() + 1;
 	if ( nrcontours < 2 || nrcontours > 100 )
 	{
-	    uiMSG().warning( "Step is either too small or too large" );
+	    uiMSG().warning( tr("Step is either too small or too large") );
 	    nrcontours = nrcontourfld_->getIntValue();
 	    if ( nrcontours == 1 )
 		nrcontours = 2;
@@ -250,7 +250,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	int nrcontours = nrcontourfld_->getIntValue();
 	if ( nrcontours < 2 || nrcontours > 100 )
 	{
-	    uiMSG().warning( "Too many or too few contours" );
+	    uiMSG().warning( tr("Too many or too few contours") );
 	    if ( mIsZero(datarg.step,mDefEps) )
 		datarg.step = datarg.width();
 
@@ -365,7 +365,7 @@ bool uiGMTContourGrp::loadHor()
 bool uiGMTContourGrp::fillPar( IOPar& par ) const
 {
     if ( !inpfld_->commitInput() || !ctio_.ioobj )
-	mErrRet("Please select a Horizon")
+	mErrRet(tr("Please select a Horizon"))
 
     inpfld_->fillPar( par );
     par.set( sKey::Name(), ctio_.ioobj->name() );
@@ -376,13 +376,13 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     par.mergeComp( subpar, sKey::Selection() );
     StepInterval<float> rg = rgfld_->getFStepInterval();
     if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
-	mErrRet("Invalid data range")
+	mErrRet(tr("Invalid data range"))
 
     par.set( ODGMT::sKeyDataRange(), rg );
     const bool drawcontour = linefld_->isChecked();
     const bool dofill = fillfld_->isChecked();
     if ( !drawcontour && !dofill )
-	mErrRet("Check at least one of the drawing options")
+	mErrRet(tr("Check at least one of the drawing options"))
 
     par.setYN( ODGMT::sKeyDrawContour(), drawcontour );
     if ( drawcontour )

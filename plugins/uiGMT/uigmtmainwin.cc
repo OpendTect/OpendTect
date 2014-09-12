@@ -420,7 +420,7 @@ void uiGMTMainWin::viewPush( CallBacker* )
     psfilenm = psfp.fullPath();
 
     if ( !uiDesktopServices::openUrl(psfilenm) )
-	uiMSG().error("Cannot open PostScript file ",psfilenm);
+	uiMSG().error(tr("Cannot open PostScript file %1").arg(psfilenm));
 }
 
 
@@ -470,7 +470,7 @@ bool uiGMTMainWin::fillPar()
 	    const bool isstart = gmtclip->isStart();
 	    if ( isclippingon && isstart )
 		mErrRet(tr("Start of clipping without terminating the previous \
-			 clipping") );
+			    clipping") );
 
 	    if ( !isclippingon && !isstart )
 		mErrRet(tr("Termination of clipping without a start") );
