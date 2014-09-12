@@ -12,10 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-
 #include "uipixmap.h"
 
-typedef uiPixmap ioPixmap
+typedef uiPixmap ioPixmap;
 
 #endif
-
