@@ -10,9 +10,6 @@ ________________________________________________________________________
  RCS:           $Id$
 ________________________________________________________________________
 
- Displays a polar diagram which can be used to set the azimuth and the dip 
- by gyrating the pointer. Azimuth is set by circular motion while dip is set
- by linear motion towards or away from the center.
 -*/
 
 #include "uitoolsmod.h"
@@ -22,6 +19,12 @@ class uiCircleItem;
 class uiLineItem;
 class uiMarkerItem;
 class uiTextItem;
+
+/*!
+\brief Displays a polar diagram which can be used to set the azimuth and the dip
+by gyrating the pointer. Azimuth is set by circular motion while dip is set
+by linear motion towards or away from the center.
+*/
 
 mExpClass(uiTools) uiPolarDiagram : public uiGraphicsView
 { mODTextTranslationClass(uiPolarDiagram);
