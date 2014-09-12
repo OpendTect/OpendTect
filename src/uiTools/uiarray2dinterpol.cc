@@ -233,7 +233,7 @@ bool uiArray2DInterpolSel::acceptOK()
     if ( !params_[methodidx] )
     {
 	result_ = Array2DInterpol::factory().create(methods[methodidx]->buf());
-	BufferString msg( result_->infoMsg() );
+	uiString msg( result_->infoMsg() );
 	if ( !msg.isEmpty() )
 	{
 	    uiMSG().message( msg );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "gmtmod.h"
 
+#include "uistring.h"
 #include "manobjectset.h"
 #include "iopar.h"
 #include "gmtdef.h"
