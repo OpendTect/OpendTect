@@ -42,18 +42,18 @@ mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
 {
 public:
 
-    			uiStratSynthDisp(uiParent*,
+			uiStratSynthDisp(uiParent*,
 					 const Strat::LayerModelProvider&);
-    			~uiStratSynthDisp();
+			~uiStratSynthDisp();
 
-    const Strat::LayerModel& layerModel() const;	
+    const Strat::LayerModel& layerModel() const;
     const char*		levelName() const;
     const MultiID&	waveletID() const;
     const Wavelet*	getWavelet() const;
     inline const StratSynth& curSS() const
-    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
+			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline const StratSynth& altSS() const
-    			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
+			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
@@ -65,7 +65,7 @@ public:
     const ObjectSet<const TimeDepthModel>* d2TModels() const;
 
     void		setDispMrkrs(const char* lvlnm,const TypeSet<float>&,
-	    			     Color,bool);
+				     Color,bool);
     void		setSelectedTrace(int);
     void		setDispEach(int);
     void		setZDataRange(const Interval<double>&,bool indpt);
@@ -96,7 +96,7 @@ public:
     void		setSnapLevelSensitive(bool);
     bool		prepareElasticModel();
 
-    uiMultiFlatViewControl* control() 	{ return control_; }
+    uiMultiFlatViewControl* control()	{ return control_; }
 
     void		fillPar(IOPar&) const;
     void		fillPar(IOPar&,bool) const;
@@ -106,6 +106,7 @@ public:
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }
     void		setAutoUpdate( bool yn ) { autoupdate_ = yn; }
     void		setUseEdited( bool yn )	  { useed_ = yn; }
+    void		setDiffData();
 
 protected:
 
@@ -122,8 +123,8 @@ protected:
     bool		useed_;
 
     const ObjectSet<const TimeDepthModel>* d2tmodels_;
-    SyntheticData* 	currentwvasynthetic_;
-    SyntheticData* 	currentvdsynthetic_;
+    SyntheticData*	currentwvasynthetic_;
+    SyntheticData*	currentvdsynthetic_;
 
     uiMultiFlatViewControl* control_;
     FlatView::AuxData*	selectedtraceaux_;
@@ -150,7 +151,7 @@ protected:
     void		doModelChange();
     const SeisTrcBuf&	curTrcBuf() const;
     void		getCurD2TModel(const SyntheticData*,
-	    			    ObjectSet<const TimeDepthModel>&,
+				    ObjectSet<const TimeDepthModel>&,
 				    float offset = 0.0f) const;
     void		reSampleTraces(SeisTrcBuf&) const;// uses curwvasynth
     void		reSampleTraces(const SyntheticData*,SeisTrcBuf&) const;
@@ -158,15 +159,15 @@ protected:
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
     inline StratSynth&	curSS()
-    			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
+			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline StratSynth&	altSS()
-    			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
+			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 
     void		drawLevel();
     void		displayFRText();
     void		displayPreStackSynthetic(const SyntheticData*);
     void		displayPostStackSynthetic(const SyntheticData*,
-	    					  bool wva=true);
+						  bool wva=true);
     void		setPreStackMapper();
 
     void		addEditSynth(CallBacker*);
@@ -177,7 +178,7 @@ protected:
     void		layerPropsPush(CallBacker*);
     void		offsetChged(CallBacker*);
     void		scalePush(CallBacker*);
-    void 		genNewSynthetic(CallBacker*);
+    void		genNewSynthetic(CallBacker*);
     void		viewPreStackPush(CallBacker*);
     void		wvltChg(CallBacker*);
     void		zoomChg(CallBacker*);
@@ -193,7 +194,7 @@ protected:
 mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
 {
 public:
-    			uiSynthSlicePos(uiParent*,const char* lbltxt);
+			uiSynthSlicePos(uiParent*,const char* lbltxt);
 
     Notifier<uiSynthSlicePos>	positionChg;
     void		setLimitSampling(StepInterval<float>);
@@ -201,7 +202,7 @@ public:
     void		setValue(int) const;
 
 protected:
-    uiLabel* 		label_;
+    uiLabel*		label_;
     uiSpinBox*		sliceposbox_;
     uiSpinBox*		slicestepbox_;
     uiToolButton*	prevbut_;

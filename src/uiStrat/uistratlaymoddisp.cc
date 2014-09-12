@@ -17,9 +17,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsview.h"
 #include "uigeninput.h"
 #include "uifiledlg.h"
+#include "uifileinput.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiaxishandler.h"
+#include "file.h"
 #include "stratlevel.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
@@ -181,6 +183,109 @@ void uiStratLayerModelDisp::displayFRText()
 }
 
 
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+class uiStratLayerModelDispIO : public uiDialog
+{
+public:
+
+uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
+    : uiDialog( p, Setup(doread ? "Read dumped models" : "Dump models",
+		mNoDlgTitle,mTODOHelpID) )
+    , doreplacefld_(0)
+    , eachfld_(0)
+    , doread_(doread)
+    , lm_(lm)
+{
+    static BufferString fixeddumpfnm = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" );
+    if ( !fixeddumpfnm.isEmpty() )
+	fnm_ = BufferString( fixeddumpfnm );
+
+    uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
+    filefld_ = new uiFileInput( this, "File name", su );
+
+    if ( doread )
+    {
+	IntInpSpec val(1);
+	val.setLimits( Interval<int>(1,99999) );
+	eachfld_ = new uiGenInput( this, "Use each", val );
+	eachfld_->attach( alignedBelow, filefld_ );
+	doreplacefld_ = new uiGenInput( this, "Clear existing model before add",
+					BoolInpSpec(true) );
+	doreplacefld_->attach( alignedBelow, eachfld_ );
+    }
+
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( fnm_.isEmpty() )
+    {
+	if ( !filefld_->fileName() )
+	    mErrRet( "Please provide a file name" )
+
+	fnm_ = filefld_->fileName();
+    }
+
+    if ( doread_ && !File::exists(fnm_) )
+	mErrRet( "Input file does not exist" )
+
+    StreamProvider sp( fnm_ );
+    StreamData sd( doread_ ? sp.makeIStream() : sp.makeOStream() );
+    if ( !sd.usable() )
+    {
+	BufferString msg( "Cannot open:\n", fnm_, "for " );
+	msg.add( doread_ ? "read" : "write" );
+	mErrRet(msg)
+    }
+
+    if ( doread_ )
+    {
+	Strat::LayerModel newlm;
+	if ( !newlm.read(*sd.istrm) )
+	{
+	    sd.close();
+	    mErrRet( "Cannot read layer model from file."
+		"\nDetails may be in the log file ('Utilities-Show log file')" )
+	}
+
+	const int each = eachfld_->getIntValue();
+	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
+	if ( doreplace_ )
+	    lm.setEmpty();
+
+	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
+	    lm.addSequence( newlm.sequence(iseq) );
+    }
+    else
+    {
+	if ( !lm_.write(*sd.ostrm) )
+	{
+	    sd.close();
+	    mErrRet( "Unknown error during write ..." )
+	}
+    }
+
+    sd.close();
+    return true;
+}
+
+    uiFileInput*		filefld_;
+    uiGenInput*			doreplacefld_;
+    uiGenInput*			eachfld_;
+
+    const Strat::LayerModel&	lm_;
+    BufferString		fnm_;
+    bool			doread_;
+    bool			doreplace_;
+
+};
+
+
+#undef mErrRet
 #define mErrRet(s) \
 { \
     uiMainWin* mw = uiMSG().setMainWin( parent()->mainwin() ); \
@@ -189,50 +294,14 @@ void uiStratLayerModelDisp::displayFRText()
     return false; \
 }
 
-
 bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 {
     const Strat::LayerModel& lm = layerModel();
     if ( !foradd && lm.isEmpty() )
-	mErrRet( "Please generate some layer sequences" )
+	mErrRet( "Please generate at least one layer sequence" )
 
-    static BufferString fixeddumpfnm = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" );
-    BufferString dumpfnm( fixeddumpfnm );
-    if ( dumpfnm.isEmpty() )
-    {
-	uiFileDialog dlg( this, foradd, 0, 0, "Select layer model dump file" );
-	dlg.setDirectory( GetDataDir() );
-	if ( !dlg.go() ) return false;
-	dumpfnm = dlg.fileName();
-    }
-
-    StreamProvider sp( dumpfnm );
-    StreamData sd( foradd ? sp.makeIStream() : sp.makeOStream() );
-    if ( !sd.usable() )
-	mErrRet( BufferString("Cannot open:\n",dumpfnm) )
-
-    if ( !foradd )
-    {
-	if ( !lm.write(*sd.ostrm) )
-	    { sd.close(); mErrRet( "Unknown error during write ..." ) }
-	sd.close();
-	return false;
-    }
-
-    Strat::LayerModel newlm;
-    if ( !newlm.read(*sd.istrm) )
-    {
-	sd.close();
-	mErrRet( "Cannot read layer model from file."
-	     "\nDetails may be in the log file ('Utilities-Show log file')" )
-    }
-
-    for ( int ils=0; ils<newlm.size(); ils++ )
-	const_cast<Strat::LayerModel&>(lm)
-			    .addSequence( newlm.sequence( ils ) );
-
-    sd.close();
-    return true;
+    uiStratLayerModelDispIO dlg( this, lm, foradd );
+    return dlg.go();
 }
 
 
@@ -368,10 +437,30 @@ int uiStratSimpleLayerModelDisp::getClickedModelNr() const
 void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
 {
     IOPar statusbarmsg;
-    statusbarmsg.set( "Model Number", getClickedModelNr() );
+    const int selseq = getClickedModelNr() - 1;
+    statusbarmsg.set( "Model Number", selseq + 1 );
     const MouseEvent& mev = gv_->getMouseEventHandler().event();
     const float depth = yax_->getVal( mev.pos().y );
     statusbarmsg.set( "Depth", depth );
+
+    if ( selseq >= 0 && selseq < layerModel().size() )
+    {
+	const Strat::LayerSequence& seq = layerModel().sequence( selseq );
+	const float lvldpth = lvldpths_[selseq];
+	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	{
+	    const Strat::Layer& lay = *seq.layers()[ilay];
+	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
+	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
+	    if ( depth >= z0 && depth<= z1 )
+	    {
+		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
+		const float val = getLayerPropValue(lay,pr,dispprop_);
+		statusbarmsg.set( pr->name(), val );
+		break;
+	    }
+	}
+    }
     infoChanged.trigger( statusbarmsg, this );
 }
 
@@ -455,7 +544,7 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 
 void uiStratSimpleLayerModelDisp::doLayModIO( bool foradd )
 {
-    if ( doLayerModelIO(foradd) )
+    if ( doLayerModelIO(foradd) && foradd )
 	forceRedispAll( true );
 }
 
@@ -514,7 +603,6 @@ void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
 
 void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
 {
-    layerModel().prepareUse();
     if ( layerModel().isEmpty() )
     {
 	if ( !emptyitm_ )
@@ -526,6 +614,7 @@ void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
     }
 
     delete emptyitm_; emptyitm_ = 0;
+    layerModel().prepareUse();
     doDraw();
 }
 
