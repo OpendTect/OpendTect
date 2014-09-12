@@ -202,7 +202,7 @@ void uiStratTreeWin::createToolBar()
     mDefBut(moveunitupbut_,"uparrow",moveUnitCB,tr("Move unit up"));
     mDefBut(moveunitdownbut_,"downarrow",moveUnitCB,tr("Move unit down"));
     tb_->addSeparator();
-    mDefBut(newbut_,"newset",newCB,uiStrings::sNew(true));
+    mDefBut(newbut_,"new",newCB,uiStrings::sNew(true));
     mDefBut(lockbut_,"unlock",editCB,mEditTxt(false));
     lockbut_->setToggleButton( true );
     uiToolButton* uitb;

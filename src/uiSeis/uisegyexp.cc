@@ -68,10 +68,10 @@ uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
     autogenfld_ = new uiGenInput( this, "Automatically generate",
 				  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "saveset", "Write to file",
+    uiToolButton* wtb = new uiToolButton( this, "save", "Write to file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "openset", "Read file",
+    uiToolButton* rtb = new uiToolButton( this, "open", "Read file",
 			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 

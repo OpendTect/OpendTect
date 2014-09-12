@@ -133,8 +133,8 @@ void uiAttribDescSetEd::createMenuBar()
         { pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( "New set ...", newSet, "newset" );
-    mInsertItem( "Open set ...", openSet, "openset" );
+    mInsertItem( "New set ...", newSet, "new" );
+    mInsertItem( "Open set ...", openSet, "open" );
     mInsertItem( "Save set ...", savePush, "save" );
     mInsertItem( "Save set as ...", saveAsPush, "saveas" );
     mInsertItemNoIcon( "Auto Load Attribute Set ...", autoSet );
@@ -158,8 +158,8 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, "AttributeSet tools" );
-    mAddButton( "newset", newSet, "New attribute set" );
-    mAddButton( "openset", openSet, "Open attribute set" );
+    mAddButton( "new", newSet, "New attribute set" );
+    mAddButton( "open", openSet, "Open attribute set" );
     mAddButton( "defset", defaultSet, "Open default attribute set" );
     mAddButton( "impset", importSet,
 		"Import attribute set from other survey" );

@@ -44,7 +44,7 @@ const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )
-    : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle, 
+    : uiDialog::Setup(tr("SEG-Y Examiner"),mNoDlgTitle,
                       mODHelpKey(mSEGYExamineHelpID) )
     , nrtrcs_(nrtraces)
     , fp_(true)
@@ -70,7 +70,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( this, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, tr("File header information") );
-    uiToolButton* savesettb = new uiToolButton( txtgrp, "saveset",
+    uiToolButton* savesettb = new uiToolButton( txtgrp, "save",
 					 tr("Save text header to file"),
 				         mCB(this,uiSEGYExamine,saveHdr) );
     savesettb->attach( rightBorder );

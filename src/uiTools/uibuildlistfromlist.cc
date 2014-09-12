@@ -184,7 +184,7 @@ uiBuildListFromList::uiBuildListFromList( uiParent* p,
 
     if ( setup_.withio_ )
     {
-	uiToolButton* openbut = new uiToolButton( this, "openset",
+	uiToolButton* openbut = new uiToolButton( this, "open",
 		tr("Open stored set"), mCB(this,uiBuildListFromList,openCB) );
 	openbut->attach( alignedBelow, rmbut_ );
 	savebut_ = new uiToolButton( this, "save", tr("Save set"),

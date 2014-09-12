@@ -55,11 +55,11 @@ uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );
     listfld_->selectionChanged.notify(mCB(this,uiHorizonPreLoadDlg,selCB) );
 
-    uiToolButton* opentb = new uiToolButton( this, "openpreload",
+    uiToolButton* opentb = new uiToolButton( this, "open",
 	    "Retrieve pre-loads", mCB(this,uiHorizonPreLoadDlg,openPushCB) );
     opentb->attach( leftAlignedBelow, listfld_ );
 
-    savebut_ = new uiToolButton( this, "savepreload", "Save pre-loads",
+    savebut_ = new uiToolButton( this, "save", "Save pre-loads",
 		     mCB(this,uiHorizonPreLoadDlg,savePushCB) );
     savebut_->attach( rightAlignedBelow, listfld_ );
 

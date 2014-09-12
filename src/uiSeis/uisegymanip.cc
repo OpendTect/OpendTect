@@ -258,7 +258,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     fillAvTrcHdrFld( 0 );
 
     uiToolButton* addbut = new uiToolButton( grp, uiToolButton::RightArrow,
-					    tr("Add to calculated list"), 
+					    tr("Add to calculated list"),
                                             addcb );
     addbut->attach( centeredRightOf, llb );
     trchdrfld_ = new uiListBox( grp, "Defined calculations" );
@@ -273,7 +273,7 @@ uiGroup* uiSEGYFileManip::mkTrcGroup()
     rmbut_ = new uiToolButton( grp, "trashcan", tr("Remove calculation"),
 		    mCB(this,uiSEGYFileManip,rmReq) );
     rmbut_->attach( alignedBelow, edbut_ );
-    uiToolButton* openbut = new uiToolButton( grp, "openset",
+    uiToolButton* openbut = new uiToolButton( grp, "open",
 		    tr("Open stored calculation set"),
 		    mCB(this,uiSEGYFileManip,openReq) );
     openbut->attach( alignedBelow, rmbut_ );

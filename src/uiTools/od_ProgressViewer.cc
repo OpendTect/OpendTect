@@ -94,7 +94,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     tb_ = new uiToolBar( this, "ToolBar" );
     quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit : sQuitOnly,
 			    quitFn );
-    mAddButton( "saveflow", "Save text to a file", saveFn );
+    mAddButton( "save", "Save text to a file", saveFn );
     mAddButton( "contexthelp", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );

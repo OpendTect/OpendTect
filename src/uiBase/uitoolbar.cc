@@ -29,8 +29,8 @@ mUseQtnamespace
 
 const char* uiIcon::save()		{ return "save"; }
 const char* uiIcon::saveAs()		{ return "saveas"; }
-const char* uiIcon::openObject()	{ return "openstorage"; }
-const char* uiIcon::newObject()		{ return "newstorage"; }
+const char* uiIcon::openObject()	{ return "open"; }
+const char* uiIcon::newObject()		{ return "new"; }
 const char* uiIcon::removeObject()	{ return "trashcan"; }
 const char* uiIcon::None()		{ return "-"; }
 
