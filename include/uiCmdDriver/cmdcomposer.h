@@ -50,7 +50,7 @@ public: \
 
 
 mExpClass(uiCmdDriver) CmdComposer : public CallBacker
-{
+{ mODTextTranslationClass(CmdComposer);
 public:
 
     mDefineFactory1ParamInClass( CmdComposer, CmdRecorder&, factory );

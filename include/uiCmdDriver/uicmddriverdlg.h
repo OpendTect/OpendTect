@@ -46,7 +46,7 @@ protected:
 
 
 mExpClass(uiCmdDriver) uiCmdDriverDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCmdDriverDlg);
 public:
 				uiCmdDriverDlg(uiParent*,
 					       CmdDriver&,CmdRecorder&,

@@ -339,7 +339,7 @@ bool CmdComposer::tryToFinish()
 
 
 void CmdComposer::testCB(CallBacker*)
-{ uiMSG().about("CmdComposer test-callback handler"); }
+{ uiMSG().about(tr("CmdComposer test-callback handler")); }
 
 
 }; // namespace CmdDrive

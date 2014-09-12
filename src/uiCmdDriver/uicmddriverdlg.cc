@@ -321,7 +321,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
     BufferString fnm = inpfld_->fileName();
     if ( File::isDirectory(fnm) || File::isEmpty(fnm) )
     {
-	uiMSG().error( "Invalid command file selected" );
+	uiMSG().error( tr("Invalid command file selected") );
 	return false;
     }
 
@@ -329,7 +329,7 @@ bool uiCmdDriverDlg::selectGoCB( CallBacker* )
     if ( !File::isWritable(fp.pathOnly()) ||
 	 (File::exists(fp.fullPath()) && !File::isWritable(fp.fullPath())) )
     {
-	uiMSG().error( "Log file cannot be written" );
+	uiMSG().error( tr("Log file cannot be written") );
 	return false;
     }
 
@@ -442,13 +442,13 @@ bool uiCmdDriverDlg::selectStartRecordCB( CallBacker* )
     if ( !File::isWritable(fp.pathOnly()) ||
 	 (File::exists(fp.fullPath()) && !File::isWritable(fp.fullPath())) )
     {
-	uiMSG().error( "Command file cannot be written" );
+	uiMSG().error( tr("Command file cannot be written") );
 	return false;
     }
 
     if ( File::exists(fp.fullPath()) )
     {
-	if ( !uiMSG().askOverwrite("Overwrite existing command file?") )
+	if ( !uiMSG().askOverwrite(tr("Overwrite existing command file?")) )
 	    return false;
     }
 
