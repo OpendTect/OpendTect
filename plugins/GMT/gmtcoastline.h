@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mClass(GMT) GMTCoastline : public GMTPar
-{
+{ mODTextTranslationClass(GMTCoastline);
 public:
 
     static void		initClass();

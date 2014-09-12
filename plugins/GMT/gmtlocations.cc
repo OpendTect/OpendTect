@@ -171,7 +171,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find pickset")
+    if ( !setobj ) mErrStrmRet(tr("Cannot find pickset"))
 
     strm << "Posting Locations " << setobj->name() << " ...  ";
     Pick::Set ps;
@@ -206,7 +206,7 @@ bool GMTLocations::execute( od_ostream& strm, const char* fnm )
 
     comm += " 1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
+    if ( !sd.usable() ) mErrStrmRet(tr("Failed to overlay locations"))
 
     for ( int idx=0; idx<ps.size(); idx++ )
 	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
@@ -264,7 +264,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
     MultiID id;
     get( sKey::ID(), id );
     const IOObj* setobj = IOM().get( id );
-    if ( !setobj ) mErrStrmRet("Cannot find pickset")
+    if ( !setobj ) mErrStrmRet(tr("Cannot find pickset"))
 
     strm << "Posting Polyline " << setobj->name() << " ...  ";
     Pick::Set ps;
@@ -306,7 +306,7 @@ bool GMTPolyline::execute( od_ostream& strm, const char* fnm )
 
     comm += " 1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
+    if ( !sd.usable() ) mErrStrmRet(tr("Failed to overlay polylines"))
 
     for ( int idx=0; idx<ps.size(); idx++ )
 	*sd.ostrm << ps[idx].pos_.x << " " << ps[idx].pos_.y << std::endl;
@@ -384,7 +384,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     BufferStringSet wellnms;
     strm << "Posting Wells " << " ...  ";
     if ( !get(ODGMT::sKeyWellNames(),wellnms) || !wellnms.size() )
-	mErrStrmRet("No wells to post")
+	mErrStrmRet(tr("No wells to post"))
 
     Color outcol; get( sKey::Color(), outcol );
     BufferString outcolstr;
@@ -426,7 +426,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 
     comm += " 1>> "; comm += fileName( fnm );
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrStrmRet("Failed")
+    if ( !sd.usable() ) mErrStrmRet(tr("Failed"))
 
     TypeSet<Coord> surfcoords;
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::WllInf)->id) );
@@ -436,7 +436,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
 	Well::Data data;
 	Well::Reader rdr( *ioobj, data );
 	if ( !rdr.getInfo() )
-	    mErrStrmRet("Cannot read well info")
+	    mErrStrmRet(tr("Cannot read well info"))
 
 	Coord surfcoord = data.info().surfacecoord;
 	surfcoords += surfcoord;
@@ -474,7 +474,7 @@ bool GMTWells::execute( od_ostream& strm, const char* fnm )
     comm += " -O -K 1>> "; comm += fileName( fnm );
     sd = makeOStream( comm, strm );
     if ( !sd.usable() )
-	mErrStrmRet("Failed to post labels")
+	mErrStrmRet(tr("Failed to post labels"))
 
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {

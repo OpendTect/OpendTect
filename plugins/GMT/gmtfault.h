@@ -21,7 +21,7 @@ namespace Geometry { class ExplFaultStickSurface; }
 namespace EM { class Fault3D; }
 
 mExpClass(GMT) GMTFault : public GMTPar
-{
+{ mODTextTranslationClass(GMTFault);
 public:
     static void		initClass();
 
@@ -42,7 +42,7 @@ protected:
 
     static int		factoryid_;
     void		getLineStyles(BufferStringSet&);
-    bool		loadFaults(BufferString&);
+    bool		loadFaults(uiString&);
     ObjectSet<EM::Fault3D>	flts_;
 };
 

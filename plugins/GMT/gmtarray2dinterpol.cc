@@ -49,7 +49,7 @@ od_int64 GMTArray2DInterpol::nrIterations() const
 
 uiString GMTArray2DInterpol::uiMessage() const
 {
-    return msg_.buf();
+    return msg_;
 }
 
 
@@ -170,7 +170,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
     sd_.close();
     if ( nrdone_ == 0 )
     {
-	msg_ = "Invalid positions found";
+	msg_ = tr("Invalid positions found");
 	return false;
     }
 
@@ -184,7 +184,7 @@ bool GMTArray2DInterpol::doFinish( bool success )
 GMTSurfaceGrid::GMTSurfaceGrid()
     : tension_( -1 )
 {
-    msg_ = "Continuous curvature";
+    msg_ = tr("Continuous curvature");
 }
 
 
@@ -210,9 +210,9 @@ void GMTSurfaceGrid::setTension( float tension )
 }
 
 
-const char* GMTSurfaceGrid::infoMsg() const
+uiString GMTSurfaceGrid::infoMsg() const
 {
-    return "The selected algorithm will work only after loading GMT plugin";
+    return tr("The selected algorithm will work only after loading GMT plugin");
 }
 
 
@@ -236,7 +236,7 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 {
     if ( tension_ < 0 )
     {
-	msg_ = "Tension parameter missing";
+	msg_ = tr("Tension parameter missing");
 	return false;
     }
 
@@ -254,7 +254,7 @@ bool GMTSurfaceGrid::mkCommand( BufferString& cmd )
 GMTNearNeighborGrid::GMTNearNeighborGrid()
     : radius_( -1 )
 {
-    msg_ = "Nearest neighbor";
+    msg_ = tr("Nearest neighbor");
 }
 
 
@@ -280,9 +280,9 @@ void GMTNearNeighborGrid::setRadius( float radius )
 }
 
 
-const char* GMTNearNeighborGrid::infoMsg() const
+uiString GMTNearNeighborGrid::infoMsg() const
 {
-    return "The selected algorithm will work only after loading GMT plugin";
+    return tr("The selected algorithm will work only after loading GMT plugin");
 }
 
 
@@ -306,7 +306,7 @@ bool GMTNearNeighborGrid::mkCommand( BufferString& cmd )
 {
     if ( radius_ < 0 )
     {
-	msg_ = "Search radius parameter missing";
+	msg_ = tr("Search radius parameter missing");
 	return false;
     }
 

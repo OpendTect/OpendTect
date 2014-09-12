@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mClass(GMT) GMTLocations : public GMTPar
-{
+{ mODTextTranslationClass(GMTLocations);
 public:
 
     static void		initClass();
@@ -38,7 +38,7 @@ protected:
 
 
 mClass(GMT) GMTPolyline : public GMTPar
-{
+{ mODTextTranslationClass(GMTPolyline);
 public:
 
     static void		initClass();
@@ -60,7 +60,7 @@ protected:
 
 
 mClass(GMT) GMTWells : public GMTPar
-{
+{ mODTextTranslationClass(GMTWells);
 public:
 
     static void		initClass();

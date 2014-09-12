@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 
 mClass(GMT) GMTContour : public GMTPar
-{
+{ mODTextTranslationClass(GMTContour);
 public:
 
     static void		initClass();

@@ -29,7 +29,7 @@ namespace Stats { class CalcSetup; }
 */
 
 mExpClass(Algo) Array2DInterpol : public ParallelTask
-{
+{ mODTextTranslationClass(Array2DInterpol);
 public:
     virtual			~Array2DInterpol();
 				mDefineFactoryInClass(Array2DInterpol,factory);
@@ -61,10 +61,10 @@ public:
 				    AND the mask. If no mask is given, the
 				    filltype will be used alone. */
 
-    virtual const char*		infoMsg() const		{ return 0; }
+    virtual uiString		infoMsg() const		{ return 0; }
 
     mExpClass(Algo) ArrayAccess
-    {
+    { mODTextTranslationClass(ArrayAccess);
     public:
 	virtual			~ArrayAccess()				{}
 	virtual void		set(od_int64 target, const od_int64* sources,

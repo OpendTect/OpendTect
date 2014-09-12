@@ -69,12 +69,12 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     FilePath fp( fnm );
     fp.setExtension( "llr" );
     if ( !makeLLRangeFile(fp.fullPath(),strm) )
-	mErrStrmRet("Cannot create Lat/Long range file")
+	mErrStrmRet(tr("Cannot create Lat/Long range file"))
 
     StreamProvider sp( fp.fullPath() );
     StreamData sd = sp.makeIStream();
     if ( !sd.usable() )
-	mErrStrmRet("Cannot read Lat/Long range file")
+	mErrStrmRet(tr("Cannot read Lat/Long range file"))
 
     char buf[80];
     sd.istrm->getline( buf, 40, ' ' );
@@ -110,7 +110,7 @@ bool GMTCoastline::execute( od_ostream& strm, const char* fnm )
     }
     comm += " -O -K 1>> "; comm += fileName( fnm );
     if ( !execCmd(comm,strm) )
-	mErrStrmRet("Failed")
+	mErrStrmRet(tr("Failed"))
 
     strm << "Done" << od_endl;
     return true;

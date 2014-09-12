@@ -84,20 +84,20 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
     comm.add( rgstr ).add( " -O -K -N" );
     comm.add( " 1>> " ).add( fileName( fnm ) );
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( !loadFaults(errmsg) )
-	mErrRet( errmsg.buf() )
+	mErrRet( errmsg )
 
     BufferStringSet styles;
     getLineStyles( styles );
     if ( styles.size() != flts_.size() )
-	mErrRet("Failed to fetch LineStyles")
+	mErrRet(tr("Failed to fetch LineStyles"))
 
     bool usecoloryn = false;
     getYN( ODGMT::sKeyUseFaultColorYN(), usecoloryn );
 
     StreamData sd = makeOStream( comm, strm );
-    if ( !sd.usable() ) mErrRet("Failed to execute GMT command");
+    if ( !sd.usable() ) mErrRet(tr("Failed to execute GMT command"));
 
     bool onzslice = false;
     getYN( ODGMT::sKeyZIntersectionYN(), onzslice );
@@ -153,9 +153,9 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 	    const int sz = coordps->size();
 	    if ( sz == 0 )
 	    {
-		BufferString msg( "Selected ZSlice and ", fault3d->name() );
-		msg.add( " are not intersected" );
-		strm << '\t' << msg.buf() << '\n';
+		uiString msg = tr("Selected ZSlice and %1 are not intersected")
+                             .arg(fault3d->name());
+		strm << '\t' << msg << '\n';
 		continue;
 	    }
 
@@ -179,9 +179,9 @@ bool GMTFault::execute( od_ostream& strm, const char* fnm )
 
 	    if ( clist.getSize() == 0 )
 	    {
-		BufferString msg( "Selected Horizon and ", fault3d->name() );
-		msg.add( " are not intersected" );
-		strm << '\t' << msg.buf() << '\n';
+		uiString msg = tr("Selected Horizon and %1 are"
+                                  " not intersected").arg(fault3d->name());
+		strm << '\t' << msg << '\n';
 		continue;
 	    }
 
@@ -282,12 +282,12 @@ void GMTFault::getLineStyles( BufferStringSet& styles )
 }
 
 
-bool GMTFault::loadFaults( BufferString& errmsg )
+bool GMTFault::loadFaults( uiString& errmsg )
 {
     IOPar* fltpar = subselect( ODGMT::sKeyFaultID() );
     if ( !fltpar )
     {
-	errmsg = "No faults selected";
+	errmsg = tr("No faults selected");
 	return false;
     }
 
@@ -301,7 +301,7 @@ bool GMTFault::loadFaults( BufferString& errmsg )
 	mDynamicCastGet(EM::Fault3D*,fault3d,emobj)
 	if ( !fault3d )
 	{
-	    errmsg = "Failed to load faults";
+	    errmsg = tr("Failed to load faults");
 	    return false;
 	}
 

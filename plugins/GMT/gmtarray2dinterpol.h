@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 
 mExpClass(GMT) GMTArray2DInterpol : public Array2DInterpol
-{
+{ mODTextTranslationClass(GMTArray2DInterpol);
 public:
     				GMTArray2DInterpol();
     				~GMTArray2DInterpol();
@@ -38,7 +38,7 @@ protected:
     int				maxNrThreads() const	{ return 1; }
 
     int				nrdone_;
-    BufferString		msg_;
+    uiString		        msg_;
     StreamData			sd_;
     StreamData			sdmask_;
     BufferString		path_;
@@ -48,7 +48,7 @@ protected:
 
 
 mExpClass(GMT) GMTSurfaceGrid : public GMTArray2DInterpol
-{
+{ mODTextTranslationClass(GMTSurfaceGrid);
 public:
     				GMTSurfaceGrid();
 
@@ -58,7 +58,7 @@ public:
     static Array2DInterpol*	create();
 
     bool			mkCommand(BufferString&);
-    const char*			infoMsg() const;
+    uiString			infoMsg() const;
 
     void			setTension(float);
     bool			usePar(const IOPar&);
@@ -70,7 +70,7 @@ protected:
 
 
 mExpClass(GMT) GMTNearNeighborGrid : public GMTArray2DInterpol
-{
+{ mODTextTranslationClass(GMTNearNeighborGrid);
 public:
     				GMTNearNeighborGrid();
 
@@ -81,7 +81,7 @@ public:
 
     void			setRadius(float);
     bool			mkCommand(BufferString&);
-    const char*			infoMsg() const;
+    uiString			infoMsg() const;
     
     bool			usePar(const IOPar&);
     bool			fillPar(IOPar&) const;
