@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
+#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 
@@ -29,7 +30,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ctxtioobj.h"
 #include "filepath.h"
 #include "ioman.h"
-#include "pixmap.h"
 #include "transl.h"
 
 
