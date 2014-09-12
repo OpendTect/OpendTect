@@ -1,5 +1,5 @@
-#ifndef drawaxis2d_h
-#define drawaxis2d_h
+#ifndef uigraphicssceneaxismgr_h
+#define uigraphicssceneaxismgr_h
 
 /*+
 ________________________________________________________________________
