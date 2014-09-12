@@ -895,7 +895,7 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 
     if ( (wvatab_ && !wvatab_->doDisp()) && (vdtab_ && !vdtab_->doDisp()) )
     {
-	uiMSG().error( "No data selected for Wiggle or VD display." );
+	uiMSG().error( tr("No data selected for Wiggle or VD display.") );
 	return false;
     }
 

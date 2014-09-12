@@ -27,7 +27,7 @@ class uiGenInput;
 */
 
 mExpClass(uiFlatView) uiFlatViewPropDlg : public uiTabStackDlg
-{
+{ mODTextTranslationClass(uiFlatViewPropDlg);
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
