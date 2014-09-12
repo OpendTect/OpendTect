@@ -89,8 +89,8 @@ uiMadagascarMain::~uiMadagascarMain()
 void uiMadagascarMain::createToolBar()
 {
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
-    mAddButton( "newflow", newFlow, tr("Empty this flow") );
-    mAddButton( "openflow", openFlow, tr("Open saved flow") );
+    mAddButton( "new", newFlow, tr("Empty this flow") );
+    mAddButton( "open", openFlow, tr("Open saved flow") );
     mAddButton( "save", saveFlow, tr("Save flow") );
     mAddButton( "export", exportFlow, tr("Export flow") );
 }

@@ -126,11 +126,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     batchfld_->display( false );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
-    toolbar->addButton( "newflow", tr("New flow"),
+    toolbar->addButton( "new", tr("New flow"),
 			mCB(this,uiGMTMainWin,newFlow) );
-    toolbar->addButton( "openflow", tr("Open Flow"),
+    toolbar->addButton( "open", tr("Open Flow"),
 			mCB(this,uiGMTMainWin,openFlow) );
-    toolbar->addButton( "saveflow", tr("Save Current Flow"),
+    toolbar->addButton( "save", tr("Save Current Flow"),
 			mCB(this,uiGMTMainWin,saveFlow) );
 
     tabSel(0);
