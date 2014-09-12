@@ -263,10 +263,13 @@ void Normals::setDisplayTransformation( const mVisTrans* nt )
 }
 
 
-void NormalListAdapter::remove(const TypeSet<int>& idxs)
+void NormalListAdapter::remove( const TypeSet<int>& idxs )
 {
-    for ( int idx =idxs.size()-1; idx>=0; idx-- )
-	normals_.removeNormal( idxs[idx] );
+    for ( int idx=idxs.size()-1; idx>=0; idx-- )
+    {
+	if ( idxs[idx]<normals_.nrNormals() )
+    	    normals_.removeNormal( idxs[idx] );
+    }
 }
 
 
