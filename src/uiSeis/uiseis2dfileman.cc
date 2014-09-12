@@ -107,7 +107,8 @@ void uiSeis2DFileMan::fillLineBox()
     uiListBox* lb = linefld_;
     const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
-    objinfo_->ioObjInfo().getLineNames( linenames );
+    SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
+    objinfo_->ioObjInfo().getLineNames( linenames, opts2d );
     lb->setEmpty();
     lb->addItems( linenames );
     lb->setCurrentItem( curitm );

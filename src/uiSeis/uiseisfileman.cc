@@ -198,7 +198,8 @@ void uiSeisFileMan::mkFileInfo()
     if ( is2d_ )
     {
 	BufferStringSet nms;
-	oinf.getLineNames( nms );
+	SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
+	oinf.getLineNames( nms, opts2d );
 	txt += "Number of lines: "; txt += nms.size();
     }
 

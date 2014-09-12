@@ -311,7 +311,8 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 	    continue; \
     } \
     BufferString zdomainkey; \
-    if ( !ioobj_->pars().get(ZDomain::sKey(),zdomainkey) ) \
+    if ( !ioobj_->pars().get(ZDomain::sKey(),zdomainkey) || \
+	 zdomainkey.isEmpty() ) \
 	zdomainkey = ZDomain::SI().key(); \
     if ( !zdomge.matches(zdomainkey.buf()) ) \
 	continue
