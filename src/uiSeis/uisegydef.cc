@@ -309,10 +309,10 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
     sep->attach( rightOf, grp ); \
     sep->attach( heightSameAs, grp ); \
     uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
-      "openset", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
+      "open", "Retrieve saved setup", mCB(this,clss,readParsPush) );\
     rtb->attach( rightOf, sep ); \
     uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
-      "saveset", "Save setup", mCB(this,clss,writeParsPush) );\
+      "save", "Save setup", mCB(this,clss,writeParsPush) );\
     stb->attach( alignedBelow, rtb ); \
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
