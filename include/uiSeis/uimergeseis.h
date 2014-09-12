@@ -27,6 +27,8 @@ mExpClass(uiSeis) uiMergeSeis : public uiDialog
 public:
                         uiMergeSeis(uiParent*);
 
+    void		setInputIds(const TypeSet<MultiID>& mids);
+
 protected:
 
     uiIOObjSelGrp*	inpfld_;

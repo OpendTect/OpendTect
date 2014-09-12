@@ -31,6 +31,9 @@ protected:
     bool		is2d_;
     uiToolButton*	browsebut_;
     uiToolButton*	attribbut_;
+    uiToolButton*	copybut_;
+    uiToolButton*	man2dlinesbut_;
+    uiToolButton*	mergecubesbut_;
 
     void		mergePush(CallBacker*);
     void		browsePush(CallBacker*);
@@ -42,6 +45,7 @@ protected:
     virtual void	mkFileInfo();
     virtual void	ownSelChg();
     od_int64		getFileSize(const char*,int&) const;
+    void		setToolButtonProperties();
 
 };
 
