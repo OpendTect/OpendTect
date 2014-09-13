@@ -40,10 +40,10 @@ public:
 mExpClass(uiTools) uiGenInputGrp : public uiGroup
 {
 public:
-			uiGenInputGrp(uiParent*,const char* dlgtitle,
+			uiGenInputGrp(uiParent*,const char* grpname,
 					const char* fldtxt,DataInpSpec* s=0);
 			    //!< DataInpSpec becomes mine
-			uiGenInputGrp(uiParent*,const char* dlgtitle,
+			uiGenInputGrp(uiParent*,const char* grpname,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
 			~uiGenInputGrp()	{ deepErase(*entries); }
@@ -82,10 +82,10 @@ private:
 mExpClass(uiTools) uiGenInputDlg : public uiDialog
 { 	
 public:
-			uiGenInputDlg(uiParent*,const char* dlgtitle,
+			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 					const char* fldtxt,DataInpSpec* s=0);
 			    //!< DataInpSpec becomes mine
-			uiGenInputDlg(uiParent*,const char* dlgtitle,
+			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);
 			    //!< the ObjectSet becomes mine.
 			~uiGenInputDlg()	{ delete group; }

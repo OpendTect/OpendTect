@@ -16,9 +16,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 
 
-uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
+uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
 			      const char* fldtxt, DataInpSpec* spec )
-	: uiGroup(p,dlgtitle)
+	: uiGroup(p,grpname)
 	, entries(new ObjectSet<uiGenInputDlgEntry>)
 {
     *entries += new uiGenInputDlgEntry( fldtxt, spec );
@@ -26,9 +26,9 @@ uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
 }
 
 
-uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* dlgtitle,
+uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiGroup(p,dlgtitle)
+	: uiGroup(p,grpname)
 	, entries(e?e : new ObjectSet<uiGenInputDlgEntry>)
 {
     build();
@@ -101,20 +101,20 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 
 
 
-uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 			      const char* fldtxt, DataInpSpec* spec )
 	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
 {
-    group = new uiGenInputGrp( this, dlgtitle, fldtxt, spec );
+    group = new uiGenInputGrp( this, dlgtitle.getFullString(), fldtxt, spec );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
 
-uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
+uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
 	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
 {
-    group = new uiGenInputGrp( this, dlgtitle, e );
+    group = new uiGenInputGrp( this, dlgtitle.getFullString(), e );
     postFinalise().notify( mCB( this, uiGenInputDlg, setEnterClose ) );
 }
 
