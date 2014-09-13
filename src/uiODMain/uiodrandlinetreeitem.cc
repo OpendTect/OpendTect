@@ -463,8 +463,9 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    uiIOObjSelDlg dlg( getUiParent(), *ctio );
 	    if ( !dlg.go() ) return;
 
-	    Geometry::RandomLineSet lset; lset.addLine( rln );
-	    rln.set( 0, false ); //rln belongs to lset now.
+	    Geometry::RandomLineSet lset;
+	    lset.addLine( rln.release() );
+
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
 		uiMSG().error( bs );

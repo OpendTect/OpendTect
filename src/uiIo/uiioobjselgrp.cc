@@ -459,8 +459,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	}
     }
 
-    ctio_.setObj( ioobj );
-    ioobj.set( 0, false );
+    ctio_.setObj( ioobj.release() );
 
     if ( ctio_.ioobj && wrtrselfld_ && !wrtrselfld_->isEmpty() )
     {
