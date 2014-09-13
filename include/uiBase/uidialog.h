@@ -13,10 +13,13 @@ ________________________________________________________________________
 -*/
 
 #include "uibasemod.h"
+
 #include "uimainwin.h"
-#include "bufstring.h"
 #include "uistrings.h"
+
+#include "bufstring.h"
 #include "helpview.h"
+#include "od_helpids.h"
 
 class uiButton;
 
@@ -28,10 +31,10 @@ allows specification of several properties, like window title and the title
 text on the dialog itself. The help ID is linked to a WindowLinkTable.txt.
 If you don't want to use the help system, simply pass null ('0').
 
-
 */
 
-#define mNoDlgTitle	""
+
+#define mNoDlgTitle	uiStrings::sEmptyString()
 #define mTODOHelpKey	HelpKey( 0, toString(-1) )
 #define mNoHelpKey	HelpKey::emptyHelpKey()
 
