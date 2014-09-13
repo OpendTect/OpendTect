@@ -17,71 +17,129 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "settings.h"
 
+static const char* sLargeFileEnd = ".png";
+static const char* sSmallFileEnd = "_small.png";
+#define mIconDirStart "icons."
+#define mIconDirDefault "Default"
 
-static bool getPngFileName( BufferString& fnm )
+
+OD::IconFile::IconFile( const char* identifier )
 {
-    if ( File::exists( fnm ) )
-	return true;
-
-    const BufferString pngfnm( fnm, ".png" );
-    if ( File::exists(pngfnm) )
+    BufferString icsetnm( mIconDirDefault );
+    Settings::common().get( "Icon set name", icsetnm );
+    BufferString dirnm( mIconDirStart, icsetnm );
+    icdirnm_ = mGetSetupFileName(dirnm);
+    if ( icsetnm == "Default" )
+	usedeficons_ = false;
+    else
     {
-	fnm = pngfnm;
+	usedeficons_ = true;
+	deficdirnm_ = mGetSetupFileName( mIconDirStart mIconDirDefault );
+    }
+
+    set( identifier );
+}
+
+
+void OD::IconFile::set( const char* inpstr )
+{
+    setName( inpstr );
+    state_ = Empty;
+    fromdefault_ = false;
+
+    fullpath_ = inpstr;
+    if ( fullpath_.isEmpty() )
+	return;
+
+    FilePath fp( fullpath_ );
+    if ( fp.isAbsolute() )
+    {
+	state_ = File::exists( fullpath_ ) ? Explicit : NotFound;
+	return;
+    }
+
+    BufferString identifier( inpstr );
+    if ( fullpath_.endsWith(sLargeFileEnd) )
+    {
+	char* pngptr = lastOcc( fullpath_.getCStr(), sLargeFileEnd );
+	if ( pngptr ) *pngptr = '\0';
+	setName( fullpath_ );
+    }
+
+    if ( !tryFind(identifier,false,Exists)
+      && !tryFind(identifier,true,SmallOnly) )
+    {
+	pErrMsg(BufferString("Icon not found: '",identifier,"'"));
+	state_ = NotFound;
+    }
+}
+
+
+bool OD::IconFile::tryFind( const char* id, bool small,
+				OD::IconFile::State state )
+{
+    BufferString fnm = getIconFileName( id, false, small );
+
+    if ( File::exists(fnm) )
+    {
+	fullpath_ = fnm; state_ = state;
 	return true;
+    }
+
+    if ( !usedeficons_ )
+    {
+	fnm = getIconFileName( id, true, small );
+	if ( File::exists(fnm) )
+	{
+	    fromdefault_ = true; fullpath_ = fnm; state_ = state;
+	    return true;
+	}
     }
 
     return false;
 }
 
 
-static bool getFullFilename( const char* inp, BufferString& fname )
+BufferString OD::IconFile::getIconFileName( const char* id, bool fromdefault,
+				bool small ) const
 {
-    fname = inp;
-    if ( fname.isEmpty() )
-	return false;
-
-    FilePath fp( fname );
-    if ( !fp.isAbsolute() )
-    {
-	BufferString icsetnm;
-	Settings::common().get( "Icon set name", icsetnm );
-	if ( icsetnm.isEmpty() )
-	    icsetnm = "Default";
-	const BufferString dirnm( "icons.", icsetnm );
-
-	fp.setPath( GetSettingsFileName(dirnm) );
-	fname = fp.fullPath();
-	if ( getPngFileName(fname) )
-	    return true;
-
-	fp.setPath( mGetSetupFileName(dirnm) );
-	fname = fp.fullPath();
-	if ( getPngFileName(fname) )
-	    return true;
-
-	// Not in selected icon set? Then we take the one in icons.Default
-	fp.setPath( mGetSetupFileName("icons.Default") );
-	fname = fp.fullPath();
-    }
-
-    return getPngFileName( fname );
-}
-
-
-OD::IconFile::IconFile( const char* identifier )
-{
-    if ( !getFullFilename(identifier,fullpath_) )
-    {
-	// final fallback (icon simply missing even from release)
-	pErrMsg(BufferString("Icon not found: '",identifier,"'"));
-	fullpath_ = FilePath(mGetSetupFileName("icons.Default"),
-			"iconnotfound.png").fullPath();
-    }
+    const BufferString fnm( id, small ? sSmallFileEnd : sLargeFileEnd );
+    FilePath fp( fromdefault ? deficdirnm_ : icdirnm_, fnm );
+    return BufferString( fp.fullPath() );
 }
 
 
 bool OD::IconFile::isPresent( const char* identifier )
 {
-    BufferString fname;
-    return getFullFilename( identifier, fname );
+    OD::IconFile icf( identifier );
+    return icf.state_ != NotFound;
+}
+
+
+BufferString OD::IconFile::fullFileName( bool small ) const
+{
+    switch ( state_ )
+    {
+	case Exists:
+	{
+	    if ( small )
+	    {
+		FilePath fp( fullpath_ );
+		fp.setExtension( 0 );
+		BufferString fnm( fp.fullPath(), sSmallFileEnd );
+		if ( File::exists(fnm) )
+		    return fnm;
+	    }
+	    // fallthrough: small wanted but not available
+	}
+	case SmallOnly:
+	case Explicit:
+	    return fullpath_;
+	case Empty:
+	    return getIconFileName( "empty", true, false );
+	default:
+	    break;
+    }
+
+    return getIconFileName( "iconnotfound", true, false );
 }

@@ -168,11 +168,7 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 
 void uiButton::setPixmap( const char* pmnm )
 {
-    BufferString icnm = pmnm;
-    BufferString smllicnm( pmnm, "_24x24" );
-    if ( OD::IconFile::isPresent(smllicnm) )
-	icnm = pmnm;
-    setPM( uiPixmap(icnm) );
+    setPM( uiPixmap(pmnm,true) );
 }
 
 

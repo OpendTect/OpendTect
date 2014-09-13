@@ -26,22 +26,26 @@ class uiRGBArray;
 
 /*!\brief Off-screen pixel-based paint device
 
-  Icons pixmaps can be created from the identifier, see OD::IconFile: the file
-  name without extension.
+  Icons pixmaps can be created from the identifier, see odiconfile.h. It is,
+  basically, the file name without extension.
 
 */
 
 mExpClass(uiBase) uiPixmap : public NamedObject
 {
 public:
+
 			uiPixmap() : qpixmap_(0)		{}
+			uiPixmap(int w,int h);
+
+			uiPixmap(const char* icon_identifier,bool small=false);
+
 			uiPixmap(const uiRGBArray&);
 			uiPixmap(const char* xpm[]);
-			uiPixmap(int w,int h);
 			uiPixmap(const mQtclass(QPixmap&));
-			uiPixmap(const uiPixmap&);
-			uiPixmap(const char* icon_identififier);
 			uiPixmap(const ColTab::Sequence&,int w,int h,bool hor);
+			uiPixmap(const uiPixmap&);
+
     virtual		~uiPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);

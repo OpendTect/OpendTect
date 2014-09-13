@@ -66,7 +66,7 @@ uiPixmap::uiPixmap( const QPixmap& pm )
 }
 
 
-uiPixmap::uiPixmap( const char* icnm )
+uiPixmap::uiPixmap( const char* icnm, bool small )
     : qpixmap_(0)
     , srcname_(icnm)
 {
@@ -81,7 +81,7 @@ uiPixmap::uiPixmap( const char* icnm )
 	{ qpixmap_ = new QPixmap; return; }
 
     OD::IconFile icfile( icnm );
-    qpixmap_ = new QPixmap( icfile.fullFileName(), 0 );
+    qpixmap_ = new QPixmap( icfile.fullFileName(small).str(), 0 );
 }
 
 
