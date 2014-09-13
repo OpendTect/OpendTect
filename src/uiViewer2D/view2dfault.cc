@@ -88,7 +88,7 @@ VW2DFault::~VW2DFault()
 }
 
 
-void VW2DFault::setCubeSampling( const CubeSampling& cs, bool upd )
+void VW2DFault::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
@@ -111,7 +111,7 @@ void VW2DFault::draw()
 	if ( faulteds_[ivwr] )
 	{
 	    if ( dp3d )
-		faulteds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+		faulteds_[ivwr]->setTrcKeyZSampling( dp3d->cube().cubeSampling() );
 
 	    if ( dprdm )
 	    {
@@ -120,7 +120,7 @@ void VW2DFault::draw()
 	    }
 
 	    if ( zatdp3d )
-		faulteds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
+		faulteds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    faulteds_[ivwr]->drawFault();
 	}

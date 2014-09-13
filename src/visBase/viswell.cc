@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 
 #include "coltabsequence.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "iopar.h"
 #include "indexedshape.h"
 #include "ranges.h"
@@ -205,7 +205,7 @@ void Well::setPixelDensity(float dpi)
 
 void Well::setTrack( const TypeSet<Coord3>& pts )
 {
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     for ( int idx=0; idx<pts.size(); idx++ )
 	cs.include( SI().transform(pts[idx]), (float) pts[idx].z );
 

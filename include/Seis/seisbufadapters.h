@@ -77,7 +77,7 @@ public:
     void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
 	    			  int icomp=0,bool manage_buf=true);
 
-    bool		getCubeSampling(CubeSampling&) const;
+    bool		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     const char*		dimName(bool) const;
     Coord3		getCoord(int,int) const;

@@ -14,9 +14,9 @@ ________________________________________________________________________
 
 #include "earthmodelmod.h"
 #include "callback.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 
 namespace FlatView { class AuxDataEditor; }
 
@@ -33,11 +33,11 @@ public:
     			FaultStickSetFlatViewEditor(FlatView::AuxDataEditor*);
 			~FaultStickSetFlatViewEditor() {}
 
-    virtual void	setCubeSampling(const CubeSampling&);
+    virtual void	setTrcKeyZSampling(const TrcKeyZSampling&);
     virtual void	drawFault() =0;    
 
 protected:
-    CubeSampling	cs_;			
+    TrcKeyZSampling	cs_;
 };
 } //namespace EM
 

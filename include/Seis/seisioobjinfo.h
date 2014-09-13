@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 class IOObj;
-class CubeSampling;
+class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
 namespace ZDomain { class Def; }
@@ -61,7 +61,7 @@ public:
 
     bool		getDefSpaceInfo(SpaceInfo&) const;
     int			expectedMBs(const SpaceInfo&) const;
-    bool		getRanges(CubeSampling&) const;
+    bool		getRanges(TrcKeyZSampling&) const;
     bool		getBPS(int&,int icomp) const;
     			//!< max bytes per sample, component -1 => add all
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class IOObj;
 class TaskRunner;
 namespace EM { class Horizon2D; }
@@ -58,9 +58,9 @@ protected:
     BufferStringSet	failedlines_;
     bool		init(const IOPar&);
     bool		initFromInlCrl(const IOPar&,const IOObj&,const IOObj&,
-	    			       const CubeSampling&);
+				       const TrcKeyZSampling&);
     bool		initFromRandomLine(const IOPar&,const IOObj&,
-	    				   const IOObj&,const CubeSampling&);
+					   const IOObj&,const TrcKeyZSampling&);
 };
 
 

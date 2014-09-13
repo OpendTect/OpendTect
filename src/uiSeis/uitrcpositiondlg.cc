@@ -136,7 +136,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	    return;
 	}
 
-	CubeSampling cs = cdp->sampling();
+	TrcKeyZSampling cs = cdp->sampling();
 	BufferString str = "Compute attribute at position:";
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
@@ -153,7 +153,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 }
 
 
-uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const CubeSampling& cs,
+uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				    bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup(tr("Attribute trace position"), 0,
                                    mODHelpKey(mTrcPositionDlgHelpID) )
@@ -278,9 +278,9 @@ LineKey uiTrcPositionDlg::getLineKey() const
 }
 
 
-CubeSampling uiTrcPositionDlg::getCubeSampling() const
+TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( trcnrfld_ || fdpposfld_ )
     {
 	int trcnr = fdpposfld_ ? mCast(int,fdpposfld_->getPos() )

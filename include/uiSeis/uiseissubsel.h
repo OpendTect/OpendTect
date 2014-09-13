@@ -22,8 +22,8 @@ ________________________________________________________________________
 #include "sets.h"
 
 class IOObj;
-class HorSampling;
-class CubeSampling;
+class TrcKeySampling;
+class TrcKeyZSampling;
 
 class uiCompoundParSel;
 class uiCheckBox;
@@ -43,8 +43,8 @@ public:
     virtual		~uiSeisSubSel()					{}
 
     bool		isAll() const;
-    void		getSampling(CubeSampling&) const;
-    void		getSampling(HorSampling&) const;
+    void		getSampling(TrcKeyZSampling&) const;
+    void		getSampling(TrcKeySampling&) const;
     void		getZRange(StepInterval<float>&) const;
 
     virtual bool	fillPar(IOPar&) const;
@@ -52,10 +52,10 @@ public:
 
     virtual void	clear();
     virtual void	setInput(const IOObj&)				= 0;
-    void		setInput(const HorSampling&);
+    void		setInput(const TrcKeySampling&);
     void		setInput(const MultiID&);
     void		setInput(const StepInterval<float>& zrg);
-    void		setInput(const CubeSampling&);
+    void		setInput(const TrcKeyZSampling&);
 
     int			expectedNrSamples() const;
     int			expectedNrTraces() const;
@@ -104,7 +104,7 @@ public:
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
 
-    void		getSampling(CubeSampling&,int lidx=-1) const;
+    void		getSampling(TrcKeyZSampling&,int lidx=-1) const;
     StepInterval<int>	getTrcRange(int lidx=-1) const;
     StepInterval<float> getZRange(int lidx=-1) const;
 

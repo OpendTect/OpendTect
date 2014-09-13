@@ -33,7 +33,7 @@ static void initProcessor( SeisSingleTraceProc& proc, const IOPar& iop,
     Scaler* sclr = Scaler::get( iop.find(sKey::Scale()) );
     const int nulltrcpol = toInt( iop.find("Null trace policy") );
     const bool exttrcs = iop.isTrue( "Extend Traces To Survey Z Range" );
-    CubeSampling cs; cs.usePar( iop );
+    TrcKeyZSampling cs; cs.usePar( iop );
     SeisResampler* resmplr = new SeisResampler( cs, is2d );
 
     proc.setScaler( sclr );

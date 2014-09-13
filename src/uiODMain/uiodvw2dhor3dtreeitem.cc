@@ -413,10 +413,10 @@ void uiODVw2DHor3DTreeItem::updateSelSpec( const Attrib::SelSpec* selspec,
 }
 
 
-void uiODVw2DHor3DTreeItem::updateCS( const CubeSampling& cs, bool upd )
+void uiODVw2DHor3DTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
-	horview_->setCubeSampling( cs, upd );
+	horview_->setTrcKeyZSampling( cs, upd );
 }
 
 

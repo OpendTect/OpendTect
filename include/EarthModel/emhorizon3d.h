@@ -20,7 +20,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class DataPointSet;
 class BufferStringSet;
-class HorSampling;
+class TrcKeySampling;
 class Scaler;
 class ZAxisTransform;
 namespace Table { class FormatDesc; }
@@ -74,7 +74,7 @@ public:
 						 Pos::Provider3D* prov=0) const;
 
     EMObjectIterator*		createIterator(const EM::SectionID&,
-					       const CubeSampling* =0) const;
+					       const TrcKeyZSampling* =0) const;
 protected:
 
     Geometry::BinIDSurface*	createSectionGeometry() const;
@@ -102,13 +102,13 @@ public:
     virtual float		getZValue(const Coord&,bool allow_udf=true,
 					  int nr=0) const;
 				//!< Slow: if you need the choices
-    HorSampling			range(SectionID sid=-1) const;
+    TrcKeySampling			range(SectionID sid=-1) const;
 
     void			removeAll();
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
-    static Horizon3D*		createWithConstZ(float z,const HorSampling&);
+    static Horizon3D*		createWithConstZ(float z,const TrcKeySampling&);
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
@@ -125,13 +125,13 @@ public:
 				     Removes any existing data. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
-					 const HorSampling& hs);
+					 const TrcKeySampling& hs);
 					/*!< Removes all data and creates
 					  a section for every BinIDValueSet
 					*/
     Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
 					const BufferStringSet& attribnms,int,
-					const HorSampling& hs);
+					const TrcKeySampling& hs);
 
 
     TrcKey::SurvID		getSurveyID() const;

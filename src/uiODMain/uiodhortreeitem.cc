@@ -350,7 +350,7 @@ bool uiODHorizonTreeItem::init()
     {
 	const StepInterval<int> rrg = hd->geometryRowRange();
 	const StepInterval<int> crg = hd->geometryColRange();
-	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
+	const TrcKeySampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
 	bool userchanged = rg.inlRange()!=rrg || rg.crlRange()!=crg;
 	if ( rg.inlRange().start<rrg.start || rg.inlRange().stop>rrg.stop ||
 	     rg.crlRange().start<crg.start || rg.crlRange().stop>crg.stop )
@@ -498,7 +498,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !section )
 	    return;
 
-	CubeSampling maxcs = SI().sampling(true);;
+	TrcKeyZSampling maxcs = SI().sampling(true);;
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
 	{
@@ -508,7 +508,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    maxcs.zrg.stop = zintv.stop;
 	}
 
-	CubeSampling curcs;
+	TrcKeyZSampling curcs;
 	curcs.zrg.setFrom( SI().zRange(true) );
 	curcs.hrg.set( section->displayedRowRange(),
 		       section->displayedColRange() );
@@ -534,7 +534,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	pp.fillPar( displaypar );
 
-	CubeSampling newcs;
+	TrcKeyZSampling newcs;
 	if ( pp.isAll() )
 	    newcs = maxcs;
 	else

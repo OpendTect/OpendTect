@@ -23,7 +23,7 @@ namespace Attrib
 mImplFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, DataPack::ID,
+DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, DataPack::ID,
 					  TaskRunner* )
 { return DataPack::cNoID(); }
 
@@ -37,7 +37,7 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf,
 { return false; }
 
 
-DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, const LineKey&,
+DataPack::ID ExtAttribCalc::createAttrib( const TrcKeyZSampling&, const LineKey&,
 					  TaskRunner* )
 { return DataPack::cNoID(); }
 

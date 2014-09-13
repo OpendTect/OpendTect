@@ -11,7 +11,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 #include "survgeom2d.h"
 #include "posinfo2d.h"
 #include "iopar.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "keystrs.h"
 
 
@@ -21,14 +21,14 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 
 Pos::RangeProvider3D::RangeProvider3D()
-    : cs_(*new CubeSampling(true))
+    : cs_(*new TrcKeyZSampling(true))
 {
     reset();
 }
 
 
 Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )          
-    : cs_(*new CubeSampling(false))
+    : cs_(*new TrcKeyZSampling(false))
 {
     *this = p;
 }
@@ -434,7 +434,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
     PtrMan<IOPar> subpartrcrg = iop.subselect( sKey::TrcRange() );
     if ( !subpartrcrg )
     {
-	CubeSampling cs(false); cs.set2DDef();
+	TrcKeyZSampling cs(false); cs.set2DDef();
 	if ( cs.usePar(iop) )
 	{
 	    trcrgs_[0] = cs.hrg.crlRange();

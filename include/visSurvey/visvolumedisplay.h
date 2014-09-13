@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class MarchingCubesSurface;
 class ZAxisTransform;
 class TaskRunner;
@@ -121,16 +121,16 @@ public:
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
     void			setSlicePosition(visBase::OrthogonalSlice*,
-						    const CubeSampling&);
-    CubeSampling 		sliceSampling(visBase::OrthogonalSlice*) const;
+						    const TrcKeyZSampling&);
+    TrcKeyZSampling 		sliceSampling(visBase::OrthogonalSlice*) const;
     visBase::OrthogonalSlice* 	getSelectedSlice() const;
 
     float			getValue(const Coord3&) const;
 
-    CubeSampling		getCubeSampling(int attrib) const;
-    CubeSampling		getCubeSampling(bool manippos,bool displayspace,
+    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
+    TrcKeyZSampling		getTrcKeyZSampling(bool manippos,bool displayspace,
 	    					int attrib) const;
-    void			setCubeSampling(const CubeSampling&,
+    void			setTrcKeyZSampling(const TrcKeyZSampling&,
 	    					bool dragmode=false);
     bool			setDataVolume(int attrib,
 	    				      const Attrib::DataCubes*,
@@ -233,8 +233,8 @@ protected:
     void			draggerFinishCB(CallBacker*);
     void			updateDraggerLimits(bool dragmode=false);
     bool			keepdraggerinsidetexture_;
-    CubeSampling		draggerstartcs_;
-    CubeSampling		texturecs_;
+    TrcKeyZSampling		draggerstartcs_;
+    TrcKeyZSampling		texturecs_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
@@ -258,7 +258,7 @@ protected:
     Attrib::SelSpec&		as_;
     BufferString		sliceposition_;
     BufferString		slicename_;
-    CubeSampling		csfromsession_;
+    TrcKeyZSampling		csfromsession_;
 
     MouseCursor			mousecursor_;
     visBase::EventCatcher*	eventcatcher_;

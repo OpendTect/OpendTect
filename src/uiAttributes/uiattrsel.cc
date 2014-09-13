@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seistrctr.h"
 #include "linekey.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "zdomain.h"
@@ -664,7 +664,7 @@ void uiAttrSel::getHistory( const IOPar& iopar )
 }
 
 
-bool uiAttrSel::getRanges( CubeSampling& cs ) const
+bool uiAttrSel::getRanges( TrcKeyZSampling& cs ) const
 {
     if ( !attrdata_.attribid_.isValid() )
 	return false;

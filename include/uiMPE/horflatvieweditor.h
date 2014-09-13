@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uimpemod.h"
 #include "callback.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "multiid.h"
 #include "position.h"
 #include "uistring.h"
@@ -39,7 +39,7 @@ public:
     				HorizonFlatViewEditor(FlatView::AuxDataEditor*);
 				~HorizonFlatViewEditor();
 
-    void			setCubeSampling(const CubeSampling&);
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
     void			setSelSpec(const Attrib::SelSpec*,bool wva);
     void			swapSelSpec();
     void			set2D(bool is2d)	{ is2d_ = is2d; }
@@ -81,7 +81,7 @@ protected:
     FlatView::AuxDataEditor*	editor_;
     MouseEventHandler*		mouseeventhandler_;
 
-    CubeSampling		curcs_;
+    TrcKeyZSampling		curcs_;
     const Attrib::SelSpec* 	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 

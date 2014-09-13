@@ -222,9 +222,9 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     const char* nm = "Number";
     if ( typ != Gen )
     {
-	const HorSampling& hs( SI().sampling(false).hrg );
+	const TrcKeySampling& hs( SI().sampling(false).hrg );
 	rg = typ == Inl ? hs.inlRange() : hs.crlRange();
-	const HorSampling& whs( SI().sampling(true).hrg );
+	const TrcKeySampling& whs( SI().sampling(true).hrg );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? sKey::Inline() : sKey::Crossline();
 	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
@@ -418,7 +418,7 @@ uiSelHRange::uiSelHRange( uiParent* p, bool wstep )
 }
 
 
-uiSelHRange::uiSelHRange( uiParent* p, const HorSampling& hslimit, bool wstep )
+uiSelHRange::uiSelHRange( uiParent* p, const TrcKeySampling& hslimit, bool wstep )
     : uiGroup(p,"Hor range selection")
     , inlfld_(new uiSelNrRange(this,hslimit.inlRange(),wstep,sKey::Inline()))
     , crlfld_(new uiSelNrRange(this,hslimit.crlRange(),wstep,sKey::Crossline()))
@@ -428,22 +428,22 @@ uiSelHRange::uiSelHRange( uiParent* p, const HorSampling& hslimit, bool wstep )
 }
 
 
-HorSampling uiSelHRange::getSampling() const
+TrcKeySampling uiSelHRange::getSampling() const
 {
-    HorSampling hs( false );
+    TrcKeySampling hs( false );
     hs.set( inlfld_->getRange(), crlfld_->getRange() );
     return hs;
 }
 
 
-void uiSelHRange::setSampling( const HorSampling& hs )
+void uiSelHRange::setSampling( const TrcKeySampling& hs )
 {
     inlfld_->setRange( hs.inlRange() );
     crlfld_->setRange( hs.crlRange() );
 }
 
 
-void uiSelHRange::setLimits( const HorSampling& hs )
+void uiSelHRange::setLimits( const TrcKeySampling& hs )
 {
     inlfld_->setLimitRange( hs.inlRange() );
     crlfld_->setLimitRange( hs.crlRange() );
@@ -460,16 +460,16 @@ uiSelSubvol::uiSelSubvol( uiParent* p, bool wstep, const char* zdomkey )
 }
 
 
-CubeSampling uiSelSubvol::getSampling() const
+TrcKeyZSampling uiSelSubvol::getSampling() const
 {
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     cs.hrg = hfld_->getSampling();
     cs.zrg = zfld_->getRange();
     return cs;
 }
 
 
-void uiSelSubvol::setSampling( const CubeSampling& cs )
+void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
 {
     hfld_->setSampling( cs.hrg );
     zfld_->setRange( cs.zrg );

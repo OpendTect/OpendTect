@@ -82,7 +82,7 @@ void Horizon2DExtender::addNeighbor( bool upwards, const EM::SubID& srcsubid )
     EM::SubID neighborsubid;
     Coord3 neighborpos;
     BinID neighbrbid = srcbid;
-    const CubeSampling& boundary = getExtBoundary();
+    const TrcKeyZSampling& boundary = getExtBoundary();
 
     do 
     {

@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "callback.h"
 #include "color.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "survgeom.h"
@@ -28,7 +28,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class Executor;
-class CubeSampling;
+class TrcKeyZSampling;
 class TaskRunner;
 
 namespace Attrib { class SelSpec; }
@@ -65,9 +65,9 @@ public:
 				DataHolder();
 	    
     bool			is2D() const		{ return is2d_; }
-    void			setCubeSampling(const CubeSampling cs)
+    void			setTrcKeyZSampling(const TrcKeyZSampling cs)
 							{ cs_ = cs; }
-    CubeSampling		getCubeSampling() const	{ return cs_; }
+    TrcKeyZSampling		getTrcKeyZSampling() const	{ return cs_; }
     void			set3DData(const Attrib::DataCubes* dc);
     const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
     void			set2DData(const Attrib::Data2DArray* d2h);
@@ -75,7 +75,7 @@ public:
     int				nrCubes() const;
 
 protected:
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
     const Attrib::DataCubes*	dcdata_;
     const Attrib::Data2DArray*	d2dhdata_;
     bool			is2d_;
@@ -100,9 +100,9 @@ public:
 
     void		init();
 
-    const CubeSampling&	activeVolume() const;
-    void		setActiveVolume(const CubeSampling&);
-    static CubeSampling	getDefaultActiveVolume();
+    const TrcKeyZSampling&	activeVolume() const;
+    void		setActiveVolume(const TrcKeyZSampling&);
+    static TrcKeyZSampling	getDefaultActiveVolume();
     void		setActiveVolShown(bool bn)	
     			{ isactivevolshown_ = bn; }
     bool		isActiveVolShown()	{ return isactivevolshown_; }
@@ -149,7 +149,7 @@ public:
     void 		unsetOneActiveTracker();
     void		getNeededAttribs(
 			    ObjectSet<const Attrib::SelSpec>&) const;
-    CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     			/*!< Returns the cube that is needed for
 			     this attrib, given that the activearea
 			     should be tracked. */
@@ -162,16 +162,16 @@ public:
     bool		setAttribData( const Attrib::SelSpec&,
 				       const DataHolder*);
     bool		cacheIncludes(const Attrib::SelSpec&,
-				      const CubeSampling&);
+				      const TrcKeyZSampling&);
     void		swapCacheAndItsBackup();
 
     bool		isSelSpecSame(const Attrib::SelSpec& setupss,
 	    			      const Attrib::SelSpec& clickedss) const;
 
-    void		updateFlatCubesContainer(const CubeSampling& cs,
+    void		updateFlatCubesContainer(const TrcKeyZSampling& cs,
 	    					 const int idx,bool);
 			/*!< add = true, remove = false. */
-    ObjectSet<CubeSampling>* getTrackedFlatCubes(const int idx) const;
+    ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;
 
     			/*Editors */
     ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
@@ -205,7 +205,7 @@ protected:
     int				getFreeID();
 
     BufferString		errmsg_;
-    CubeSampling		activevolume_;
+    TrcKeyZSampling		activevolume_;
     TrackPlane			trackplane_;
     bool			isactivevolshown_;
 
@@ -244,7 +244,7 @@ protected:
 				{
 				    flatcs_.setEmpty();
 				}
-	CubeSampling		flatcs_;
+	TrcKeyZSampling		flatcs_;
 	int			nrseeds_;	
     };
 

@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselection.h"
 #include "seisresampler.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "survinfo.h"
@@ -531,7 +531,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	subselfld_->fillPar( data().subselpars_ );
 	if ( !subselfld_->isAll() )
 	{
-	    CubeSampling cs;
+	    TrcKeyZSampling cs;
 	    subselfld_->getSampling( cs.hrg ); subselfld_->getZRange( cs.zrg );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}

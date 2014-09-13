@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiodmainmod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "uistring.h"
@@ -74,7 +74,7 @@ public:
 				Else, returns uiODViewer2D::createDataPack.*/
     DataPack::ID		createDataPack(const Attrib::SelSpec&) const;
 				/*!< Creates DataPack for inlines, crosslines
-				and z-slices by getting CubeSampling from
+				and z-slices by getting TrcKeyZSampling from
 				slicepos_. Also transforms data if the 2D Viewer
 				hasZAxisTransform(). */
 
@@ -83,7 +83,7 @@ public:
     bool			setZAxisTransform(ZAxisTransform*);
     bool			hasZAxisTransform() const
 				{ return datatransform_; }
-    void			setCubeSampling(const CubeSampling&);
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
     void			setGeomID( Pos::GeomID geomid )
 				{ geomid_ = geomid; }
@@ -102,7 +102,7 @@ public:
     virtual void		usePar(const IOPar&);
     virtual void		fillPar(IOPar&) const;
     virtual void                setWinTitle(bool fromcs=false);
-				/*!<\param fromcs if true, CubeSampling is used
+				/*!<\param fromcs if true, TrcKeyZSampling is used
 				  to set window title.*/
 
     static const char*		sKeyVDSelSpec()  { return "VD SelSpec"; }
@@ -131,7 +131,7 @@ protected:
     ZAxisTransform*		datatransform_;
 
     Pos::GeomID 		geomid_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
 
     int				polyseltbid_;
     bool			ispolyselect_;
@@ -144,7 +144,7 @@ protected:
     virtual void		createPolygonSelBut(uiToolBar*);
     void			createViewWinEditors();
     void			setDataPack(DataPack::ID,bool wva,bool isnew);
-    virtual void		setPos(const CubeSampling&);
+    virtual void		setPos(const TrcKeyZSampling&);
     void			adjustOthrDisp(bool wva,bool isnew);
     void                        removeAvailablePacks();
     void			rebuildTree();

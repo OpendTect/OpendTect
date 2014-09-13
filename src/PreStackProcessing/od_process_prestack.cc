@@ -8,7 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
 
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "envvars.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
@@ -52,8 +52,8 @@ bool BatchProgram::go( od_ostream& strm )
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
     TextStreamProgressMeter progressmeter(strm);
 
-    HorSampling horsampling( true );
-    const bool hashorsampling = horsampling.usePar( pars() );
+    TrcKeySampling trcsampling( true );
+    const bool hastrcsampling = trcsampling.usePar( pars() );
 
     BufferString linekey;
     pars().get( PreStack::ProcessManager::sKeyLineKey(), linekey );
@@ -158,7 +158,7 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( geomtype==Seis::VolPS )
 	{
 	    reader3d = SPSIOPF().get3DReader( *inputioobj );
-	    if ( reader3d && !hashorsampling )
+	    if ( reader3d && !hastrcsampling )
 	    {
 		const PosInfo::CubeData& posdata = reader3d->posData();
 		if ( posdata.size() )
@@ -167,13 +167,13 @@ bool BatchProgram::go( od_ostream& strm )
 		    posdata.getInlRange( inlrg );
 		    posdata.getCrlRange( crlrg );
 
-		    horsampling.init();
-		    horsampling.setInlRange( inlrg );
-		    horsampling.setCrlRange( crlrg );
+		    trcsampling.init();
+		    trcsampling.setInlRange( inlrg );
+		    trcsampling.setCrlRange( crlrg );
 		}
 	    }
 
-	    progressmeter.setTotalNr( horsampling.totalNr() );
+	    progressmeter.setTotalNr( trcsampling.totalNr() );
 	}
 	else
 	{
@@ -219,7 +219,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     BinID curbid; //inl not used if 2D
     BinID step;   //inl not used if 2D
-    HorSamplingIterator hiter( horsampling );
+    TrcKeySamplingIterator hiter( trcsampling );
 
     if ( geomtype==Seis::LinePS )
     {

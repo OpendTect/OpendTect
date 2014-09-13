@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "uiapplserv.h"
 #include "multiid.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "emtracker.h"
@@ -77,7 +77,7 @@ public:
 				    selspec is returned, calculate the attrib.
 				    If no selspec is present, use getLineSet,
 				    getLineName & getAttribName. */
-    CubeSampling		getAttribVolume(const Attrib::SelSpec&) const;
+    TrcKeyZSampling		getAttribVolume(const Attrib::SelSpec&) const;
     				/*!<\returns the volume needed of an
 				 	     attrib if tracking should
 					     be possible in the activeVolume. */
@@ -137,7 +137,7 @@ public:
 
 protected:
     bool			activeVolumeIsDefault() const;
-    void			expandActiveVolume(const CubeSampling&);
+    void			expandActiveVolume(const TrcKeyZSampling&);
     void			activeVolumeChange(CallBacker*);
     void			loadAttribData();
     void			loadEMObjectCB(CallBacker*);
@@ -153,7 +153,7 @@ protected:
     bool			blockdataloading_;
     				/*!<Is checked when cb is issued from the
 				    MPE::Engine about changed active volume */
-    CubeSampling		postponedcs_;
+    TrcKeyZSampling		postponedcs_;
 
 				//Interaction variables
     const Attrib::SelSpec*	eventattrselspec_;
@@ -169,7 +169,7 @@ protected:
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
 
-    CubeSampling		trackerseedbox_;
+    TrcKeyZSampling		trackerseedbox_;
     int				initialundoid_;
     bool			seedhasbeenpicked_;
     bool			setupbeingupdated_;

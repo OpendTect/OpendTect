@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arraynd.h"
 #include "arrayndslice.h"
 #include "attribdatacubes.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "genericnumer.h"
 #include "interpol1d.h"
 #include "seisinfo.h"
@@ -187,9 +187,9 @@ Data2DHolder::~Data2DHolder()
 }
 
 
-CubeSampling Data2DHolder::getCubeSampling() const
+TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
 {
-    CubeSampling res;
+    TrcKeyZSampling res;
     if ( trcinfoset_.isEmpty() )
 	return res;
 
@@ -248,10 +248,10 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
     if ( dataset_.isEmpty() )
 	return false;
 
-    const CubeSampling cs = getCubeSampling();
+    const TrcKeyZSampling cs = getTrcKeyZSampling();
     const StepInterval<int> trcrange( cs.hrg.start.crl(), cs.hrg.stop.crl(),
 				      cs.hrg.step.crl() );
-    res.setSizeAndPos( getCubeSampling() );
+    res.setSizeAndPos( getTrcKeyZSampling() );
     if ( res.nrCubes() == 0 )
 	res.addCube( mUdf(float) );
     else
@@ -336,7 +336,7 @@ Data2DArray::Data2DArray( const Data2DHolder& dh )
 	trcinfoset_ += ni;
     }
 
-    cubesampling_ = dh.getCubeSampling();
+    cubesampling_ = dh.getTrcKeyZSampling();
 
     dh.unRef();
 }

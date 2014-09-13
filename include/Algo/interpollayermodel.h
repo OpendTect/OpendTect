@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 #include "algomod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "factory.h"
 #include "typeset.h"
 
@@ -50,7 +50,7 @@ public:
 				"ZSlices",
 				"Z Slices")
 
-    void		setCubeSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
 
     int			nrLayers() const;
     float		getZ(const BinID&,int layer) const;
@@ -61,7 +61,7 @@ public:
 
 protected:
 
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
 };
 
 #endif

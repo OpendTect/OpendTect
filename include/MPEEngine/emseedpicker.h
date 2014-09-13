@@ -77,9 +77,9 @@ public:
 			DrawBetweenSeeds   };
 
     virtual void	setSowerMode(bool)			{};
-    virtual void	setSeedPickArea(const HorSampling& hs)	{};
+    virtual void	setSeedPickArea(const TrcKeySampling& hs)	{};
 
-    virtual const HorSampling* getSeedPickArea() const		{ return 0; }
+    virtual const TrcKeySampling* getSeedPickArea() const		{ return 0; }
 };
 
 

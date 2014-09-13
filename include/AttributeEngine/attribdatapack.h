@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "datapackbase.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "attribdescid.h"
 #include "paralleltask.h"
 #include "seisinfo.h"
@@ -126,7 +126,7 @@ public:
     void		getAuxInfo(int,int,IOPar&) const;
 
     const StepInterval<int>&	getTraceRange() const	{ return tracerange_; }
-    CubeSampling		getCubeSampling() const;
+    TrcKeyZSampling		getTrcKeyZSampling() const;
 
 protected:
 
@@ -154,13 +154,13 @@ public:
     virtual		~Flat3DDataPack();
     virtual const char*	sourceType() const	{ return "3D"; }
     virtual bool	isVertical() const
-    			{ return dir_ != CubeSampling::Z; }
+			{ return dir_ != TrcKeyZSampling::Z; }
 
     int			getCubeIdx() const	{ return cubeidx_; }
     const DataCubes&	cube() const		{ return cube_; }
     Array2D<float>&	data();
-    bool		setDataDir(CubeSampling::Dir);
-    CubeSampling::Dir	dataDir() const		{ return dir_; }
+    bool		setDataDir(TrcKeyZSampling::Dir);
+    TrcKeyZSampling::Dir	dataDir() const		{ return dir_; }
     int			nrSlices() const;
     bool		setDataSlice(int);
     int			getDataSlice() const;
@@ -178,7 +178,7 @@ protected:
     const DataCubes&	cube_;
     Array2DSlice<float>* arr2dsl_;
     Array2D<float>*	arr2dsource_;
-    CubeSampling::Dir	dir_;
+    TrcKeyZSampling::Dir	dir_;
     bool		usemultcubes_;
     int			cubeidx_;
 

@@ -26,7 +26,7 @@ namespace Attrib { class DataCubes; }
 
 class VelocityDesc;
 class Executor;
-class HorSampling;
+class TrcKeySampling;
 template <class T> class ValueSeries;
 
 namespace VolProc
@@ -73,17 +73,17 @@ public:
     bool			validInputSlotID(InputSlotID) const;
     bool			validOutputSlotID(OutputSlotID) const;
 
-    virtual HorSampling		getInputHRg(const HorSampling&) const;
-				/*!<When computing HorSampling, how
+    virtual TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+				/*!<When computing TrcKeySampling, how
 				 big input is needed? */
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
-				/*!<When computing HorSampling, how
+				/*!<When computing TrcKeySampling, how
 				 big input is needed?*/
 
     virtual void		setInput(InputSlotID,const Attrib::DataCubes*);
     const Attrib::DataCubes*	getInput(InputSlotID) const;
     virtual void		setOutput(OutputSlotID,Attrib::DataCubes*,
-				      const HorSampling&,
+				      const TrcKeySampling&,
 				      const StepInterval<int>&);
     const Attrib::DataCubes*	getOutput(OutputSlotID) const;
     Attrib::DataCubes*		getOutput(OutputSlotID);
@@ -128,7 +128,7 @@ protected:
     BufferString			username_;
     ID					id_;
 
-    HorSampling				hrg_;
+    TrcKeySampling				hrg_;
     StepInterval<int>			zrg_;
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 
@@ -266,7 +266,7 @@ public:
     uiString			errMsg() const;
     uiString			uiNrDoneText() const;
 
-    bool			setCalculationScope(const HorSampling&,
+    bool			setCalculationScope(const TrcKeySampling&,
 						    const StepInterval<int>&);
 
     const Attrib::DataCubes*	getOutput() const;
@@ -302,7 +302,7 @@ private:
     bool			scheduleWork();
     int				computeLatestEpoch(Step::ID) const;
     void			computeComputationScope(Step::ID stepid,
-				    HorSampling& stepoutputhrg,
+				    TrcKeySampling& stepoutputhrg,
 				    StepInterval<int>& stepoutputzrg ) const;
 
     void			controlWork(Task::Control);
@@ -317,7 +317,7 @@ private:
     bool			isok_;
     Chain&			chain_;
 
-    HorSampling			outputhrg_;
+    TrcKeySampling			outputhrg_;
     StepInterval<int>		outputzrg_;
 
     mutable uiString		errmsg_;

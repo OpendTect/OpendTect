@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
 #include "od_helpids.h"
@@ -136,7 +136,7 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 }
 
 
-bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
+bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
 				      Coord crd[3] )
 {
     xyft_ = false;

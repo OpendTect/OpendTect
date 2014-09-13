@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifont.h"
 #include "uiworld2ui.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "draw.h"
 #include "survinfo.h"
 #include "angles.h"
@@ -81,7 +81,7 @@ void uiSurveyBoxObject::update()
 	{ setVisibility( false ); return; }
 
     const SurveyInfo& si = *survinfo_;
-    const CubeSampling& cs = si.sampling( false );
+    const TrcKeyZSampling& cs = si.sampling( false );
     Coord mapcnr[4];
     mapcnr[0] = si.transform( cs.hrg.start );
     mapcnr[1] = si.transform( BinID(cs.hrg.start.inl(),cs.hrg.stop.crl()) );

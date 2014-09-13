@@ -66,7 +66,7 @@ public:
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
-    const CubeSampling&	sampling( bool work ) const
+    const TrcKeyZSampling&	sampling( bool work ) const
 			{ return work ? wcs_ : cs_; }
 
     Coord		transform( const BinID& b ) const;
@@ -153,8 +153,8 @@ protected:
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
-    CubeSampling&	cs_;
-    CubeSampling&	wcs_;
+    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	wcs_;
     IOPar&		pars_;
 
     double		seisrefdatum_;
@@ -198,7 +198,7 @@ public:
 
 	// These fns are rarely used by non-specialist classes.
 
-    void		setWorkRange(const CubeSampling&);
+    void		setWorkRange(const TrcKeyZSampling&);
     Notifier<SurveyInfo> workRangeChg;
 
     const Pos::IdxPair2Coord&	binID2Coord() const	{ return b2c_; }
@@ -266,7 +266,7 @@ public:
     void		savePars(const char* basedir=0) const;
 			//!< Write to .defs file
     static SurveyInfo*	read(const char*);
-    void		setRange(const CubeSampling&,bool);
+    void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
     void		setComment( const char* s )	{ comment_ = s; }

@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndslice.h"
 #include "arrayndwrapper.h"
 #include "flatposdata.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "binidvalue.h"
 #include "datapointset.h"
 #include "iopar.h"
@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
-						const CubeSampling& cs,
+						const TrcKeyZSampling& cs,
 						ZAxisTransform& zat )
     : FlatDataPack( fdp.category() )
     , inputdp_(fdp)
@@ -56,9 +56,9 @@ ZAxisTransformDataPack::~ZAxisTransformDataPack()
 }
 
 
-void ZAxisTransformDataPack::setOutputCS( const CubeSampling& cs )
+void ZAxisTransformDataPack::setOutputCS( const TrcKeyZSampling& cs )
 {
-    if ( !outputcs_ ) outputcs_ = new CubeSampling( cs );
+    if ( !outputcs_ ) outputcs_ = new TrcKeyZSampling( cs );
     else *outputcs_ = cs;
 }
 
@@ -76,7 +76,7 @@ void ZAxisTransformDataPack::dumpInfo( IOPar& iop ) const
 #define mZ   2
 
 static void getDimensions( int& dim0, int& dim1, int& unuseddim,
-			   const CubeSampling& cs )
+			   const TrcKeyZSampling& cs )
 {
     if ( cs.nrInl() < 2 )
     {
@@ -114,7 +114,7 @@ bool ZAxisTransformDataPack::transform()
     inputarr3d.init();
     transformer.setInput( inputarr3d, inputcs_ );
 
-    CubeSampling outputcs = outputcs_ ? *outputcs_ : inputcs_;
+    TrcKeyZSampling outputcs = outputcs_ ? *outputcs_ : inputcs_;
     if ( !outputcs_ )
     {
 	outputcs.zrg.setFrom( transform_.getZInterval(false) );
@@ -161,7 +161,7 @@ const char* ZAxisTransformDataPack::dimName( bool x1 ) const
 
 
 DataPack::ID ZAxisTransformDataPack::transformDataPack( DataPack::ID dpid,
-						const CubeSampling& inputcs,
+						const TrcKeyZSampling& inputcs,
 						ZAxisTransform& zat )
 {
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
@@ -195,7 +195,7 @@ ZAxisTransformPointGenerator::~ZAxisTransformPointGenerator()
 }
 
 
-void ZAxisTransformPointGenerator::setInput( const CubeSampling& cs )
+void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs )
 {
     cs_ = cs;
     iter_.setSampling( cs.hrg );
@@ -260,7 +260,7 @@ bool ZAxisTransformPointGenerator::doFinish( bool success )
 
 
 TypeSet<DataPack::ID> createDataPacksFromBIVSet( const BinIDValueSet* bivset,
-			const CubeSampling& cs, const BufferStringSet& names )
+			const TrcKeyZSampling& cs, const BufferStringSet& names )
 {
     TypeSet<DataPack::ID> dpids;
     if ( !bivset || cs.nrZ()!=1 ) return dpids;

@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "vissurveymod.h"
 #include "color.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "gendefs.h"
 #include "multiid.h"
@@ -263,8 +263,8 @@ public:
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
 
 				//Volume data
-    virtual CubeSampling	getCubeSampling( int attrib ) const
-				{ CubeSampling cs; return cs; }
+    virtual TrcKeyZSampling	getTrcKeyZSampling( int attrib ) const
+				{ TrcKeyZSampling cs; return cs; }
     				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,

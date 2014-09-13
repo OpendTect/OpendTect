@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "gendefs.h"
 class SeisTrc;
-class CubeSampling;
+class TrcKeyZSampling;
 
 
 /*!\brief will sub-sample in inl and crl, and re-sample in Z
@@ -30,7 +30,7 @@ mExpClass(Seis) SeisResampler
 {
 public:
 
-    			SeisResampler(const CubeSampling&,bool is2d=false,
+			SeisResampler(const TrcKeyZSampling&,bool is2d=false,
 				      const Interval<float>* valrange=0);
     			//!< valrange will be copied. null == no checks
 			SeisResampler(const SeisResampler&);
@@ -52,7 +52,7 @@ protected:
     bool		dozsubsel;
     SeisTrc&		worktrc;
     Interval<float>*	valrg;
-    CubeSampling&	cs;
+    TrcKeyZSampling&	cs;
     bool		is3d;
 
 };

@@ -150,7 +150,7 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
 	 MPE::engine().getTrackerByObject(emobject.id())==-1 )
 	return false;
 
-    const CubeSampling& trackvolume = MPE::engine().activeVolume();
+    const TrcKeyZSampling& trackvolume = MPE::engine().activeVolume();
 
     TypeSet<EM::PosID> nodes;
     getAlongMovingNodes( pid, nodes, 0 );

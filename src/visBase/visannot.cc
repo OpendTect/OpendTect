@@ -122,7 +122,7 @@ void Annotation::setDisplayTransformation(const visBase::Transformation* tr)
     displaytrans_ = tr;
     if ( displaytrans_ ) displaytrans_->ref();
 
-    setCubeSampling( cs_ );
+    setTrcKeyZSampling( cs_ );
 }
 
 
@@ -165,9 +165,9 @@ void Annotation::setFont( const FontData& fd )
 }
 
 
-static CubeSampling getDefaultScale( const CubeSampling& cs )
+static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 {
-    CubeSampling scale = cs;
+    TrcKeyZSampling scale = cs;
 
     const AxisLayout<int> inlal( (Interval<int>)cs.hrg.inlRange() );
     scale.hrg.start.inl() = inlal.sd_.start;
@@ -184,7 +184,7 @@ static CubeSampling getDefaultScale( const CubeSampling& cs )
 }
 
 
-void Annotation::setCubeSampling( const CubeSampling& cs )
+void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     cs_ = cs;
     const Interval<int> inlrg = cs.hrg.inlRange();
@@ -209,11 +209,11 @@ void Annotation::setCubeSampling( const CubeSampling& cs )
 }
 
 
-const CubeSampling& Annotation::getCubeSampling() const
+const TrcKeyZSampling& Annotation::getTrcKeyZSampling() const
 { return cs_; }
 
 
-void Annotation::setScale( const CubeSampling& cs )
+void Annotation::setScale( const TrcKeyZSampling& cs )
 {
     scale_ = cs;
     updateTextPos();
@@ -221,7 +221,7 @@ void Annotation::setScale( const CubeSampling& cs )
 }
 
 
-const CubeSampling& Annotation::getScale() const
+const TrcKeyZSampling& Annotation::getScale() const
 { return scale_; }
 
 
@@ -249,7 +249,7 @@ void Annotation::setText( int dim, const uiString& string )
 }
 
 
-static SamplingData<float> getAxisSD( const CubeSampling& cs, int dim )
+static SamplingData<float> getAxisSD( const TrcKeyZSampling& cs, int dim )
 {
     SamplingData<float> sd;
     if ( dim==0 )
@@ -326,7 +326,7 @@ void Annotation::updateGridLines()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const CubeSampling usedscale = 
+	const TrcKeyZSampling usedscale =
 	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
 	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 
@@ -431,7 +431,7 @@ void Annotation::updateTextPos()
 
 	Interval<float> range( p0[dim], p1[dim] );
 
-	const CubeSampling usedscale = 
+	const TrcKeyZSampling usedscale =
 	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
 	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 

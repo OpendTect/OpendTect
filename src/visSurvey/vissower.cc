@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vissower.h"
 
 #include "bendpointfinder.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "mousecursor.h"
 #include "mouseevent.h"
 #include "settings.h"
@@ -120,7 +120,7 @@ void Sower::setEventCatcher( visBase::EventCatcher* eventcatcher )
 
 
 bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
-		      int underlyingobjid, const HorSampling* workrg )
+		      int underlyingobjid, const TrcKeySampling* workrg )
 {
     if ( mode_ != Idle )
 	mReturnHandled( false );
@@ -146,14 +146,14 @@ bool Sower::activate( const Color& color, const visBase::EventInfo& eventinfo,
     visBase::DataObject* dataobj = visBase::DM().getObject( underlyingobjid_ );
     mDynamicCastGet( PlaneDataDisplay*, pdd, dataobj );
     if ( pdd )
-	workrange_ = new HorSampling( pdd->getCubeSampling().hrg );
+	workrange_ = new TrcKeySampling( pdd->getTrcKeyZSampling().hrg );
 
     if ( workrg && workrg->isDefined() && !workrg->isEmpty() )
     {
 	if ( workrange_ )
 	    workrange_->limitTo( *workrg );
 	else
-	    workrange_ = new HorSampling( *workrg );
+	    workrange_ = new TrcKeySampling( *workrg );
     }
 
     if ( !accept(eventinfo) )
@@ -198,7 +198,7 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
     if ( !pdd || !scene )
 	return;
 
-    CubeSampling cs = pdd->getCubeSampling( false, false );
+    TrcKeyZSampling cs = pdd->getTrcKeyZSampling( false, false );
     Coord3 p0( SI().transform(cs.hrg.start), cs.zrg.start );
     transformation_->transform( p0 );
     scene->getTempZStretchTransform()->transform( p0 );

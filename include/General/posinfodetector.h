@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "bufstring.h"
 #include "uistring.h"
-class HorSampling;
+class TrcKeySampling;
 class BinIDSorting;
 class BinIDSortingAnalyser;
 
@@ -90,7 +90,7 @@ public:
     BinID		start() const		{ return start_; }
     BinID		stop() const		{ return stop_; }
     BinID		step() const		{ return step_; }
-    void		getHorSampling(HorSampling&) const;
+    void		getTrcKeySampling(TrcKeySampling&) const;
     Interval<float>	offsRg() const		{ return offsrg_; }
     float		avgDist() const		{ return avgdist_; }
     CrdBidOffs		firstPosition() const	{ return userCBO(firstcbo_); }
@@ -105,7 +105,7 @@ public:
     bool		crlSorted() const;
     void		getCubeData(CubeData&) const;
 			//!< if crlSorted(), inl and crl are swapped
-    const char*		getSurvInfo(HorSampling&,Coord crd[3]) const;
+    const char*		getSurvInfo(TrcKeySampling&,Coord crd[3]) const;
 
     StepInterval<int>	getRange(bool inldir=false) const;
 

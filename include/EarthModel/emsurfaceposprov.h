@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "posprovider.h"
 
 #include "emposid.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "multiid.h"
 #include "embody.h"
 #include "keystrs.h"
@@ -89,7 +89,7 @@ protected:
     EM::Surface*	surf2_;
     float		zstep_;
     Interval<float>	extraz_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     Interval<float>	zrg1_;
     Interval<float>	zrg2_;
     od_int64		estnrpos_;
@@ -141,8 +141,8 @@ public:
 			{ return Provider3D::includes(c,z); }
     virtual void	getExtent(BinID&,BinID&) const;
     virtual Coord	curCoord() const { return Provider3D::curCoord(); }
-    virtual void	getCubeSampling( CubeSampling& cs ) const 
-			{ return Provider3D::getCubeSampling(cs); } 
+    virtual void	getTrcKeyZSampling( TrcKeyZSampling& cs ) const	
+			{ return Provider3D::getTrcKeyZSampling(cs); }
     virtual void	getZRange(Interval<float>& rg ) const 
 			{ return EMSurfaceProvider::getZRange(rg); } 
 
@@ -279,8 +279,8 @@ public:
     virtual void		fillPar(IOPar&) const;
     virtual void		getSummary(BufferString&) const;
 
-    virtual void		getCubeSampling(CubeSampling& cs) const;
-    const CubeSampling&		getImpBodyRange() const	{ return cs_; }
+    virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
+    const TrcKeyZSampling&		getImpBodyRange() const { return cs_; }
     Array3D<float>*		getImpBodyData() const	{ return imparr_; }
     float                       getThreshold() const	{ return threshold_; }
 
@@ -293,11 +293,11 @@ protected:
 
     bool			isOK() const;
 
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
     Array3D<float>*		imparr_;
     float			threshold_;
     bool			useinside_;
-    CubeSampling		bbox_;
+    TrcKeyZSampling		bbox_;
 
     EM::Body*			embody_;
     BinID			curbid_;

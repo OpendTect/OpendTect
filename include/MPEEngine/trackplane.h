@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "mpeenginemod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "mathfunc.h"
 #include "enums.h"
 #include "binidvalue.h"
@@ -46,8 +46,8 @@ public:
 			TrackPlane() : trackmode(None) {}
 
     bool		isVertical() const;
-    const CubeSampling&	boundingBox() const { return cubesampling; }
-    CubeSampling&	boundingBox() { return cubesampling; }
+    const TrcKeyZSampling&	boundingBox() const { return cubesampling; }
+    TrcKeyZSampling&	boundingBox() { return cubesampling; }
 
     Coord3		normal(const FloatMathFunction* t2d=0) const;
     float		distance(const Coord3&,
@@ -68,7 +68,7 @@ protected:
 
     static const char*	sKeyTrackMode()	{ return "Track Mode"; }
 
-    CubeSampling	cubesampling;
+    TrcKeyZSampling	cubesampling;
     BinIDValue		motion_;
 
     TrackMode		trackmode;

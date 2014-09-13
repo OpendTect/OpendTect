@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "scaler.h"
 #include "survinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include <iostream>
 
 
@@ -280,7 +280,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 
 bool SeisMerger::toNextPos()
 {
-    HorSampling hs = SI().sampling(false).hrg;
+    TrcKeySampling hs = SI().sampling(false).hrg;
     curbid_.crl() += hs.step.crl();
     if ( curbid_.crl() > hs.stop.crl() )
     {

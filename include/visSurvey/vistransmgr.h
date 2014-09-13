@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "vistransform.h"
 
-class HorSampling;
+class TrcKeySampling;
 namespace Survey { class Geometry3D; }
 
 namespace visSurvey

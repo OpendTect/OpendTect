@@ -14,7 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "velocitymod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "thread.h"
 #include "paralleltask.h"
 #include "veldesc.h"
@@ -36,7 +36,7 @@ mExpClass(Velocity) VolumeConverter : public ParallelTask
 public:
 			VolumeConverter( const IOObj& input,
 					 const IOObj& output,
-					 const HorSampling& ranges,
+					 const TrcKeySampling& ranges,
 					 const VelocityDesc& outdesc );
 			~VolumeConverter();
     const char*		errMsg() const { return errmsg_.str(); }
@@ -58,7 +58,7 @@ protected:
     IOObj*			output_;
     VelocityDesc		velinpdesc_;
     VelocityDesc		veloutpdesc_;
-    HorSampling			hrg_;
+    TrcKeySampling			hrg_;
     FixedString			errmsg_;
 
     SeisTrcReader*		reader_;

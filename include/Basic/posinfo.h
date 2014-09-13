@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "manobjectset.h"
 #include "typeset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "indexinfo.h"
 #include "binid.h"
 #include "od_iosfwd.h"
@@ -105,7 +105,7 @@ public:
 			{ copyContents(cd); return *this; }
 
     int			totalSize() const;
-    int			totalSizeInside(const HorSampling& hrg) const;
+    int			totalSizeInside(const TrcKeySampling& hrg) const;
     			/*!<Only take positions that are inside hrg. */
 
     virtual int		indexOf(int inl,int* newidx=0) const;
@@ -126,7 +126,7 @@ public:
     bool		isFullyRectAndReg() const;
     bool		isCrlReversed() const;
 
-    void		limitTo(const HorSampling&);
+    void		limitTo(const TrcKeySampling&);
     void		merge(const CubeData&,bool incl);
     				//!< incl=union, !incl=intersection
     void		generate(BinID start,BinID stop,BinID step,

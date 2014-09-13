@@ -255,9 +255,9 @@ static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
 }
 
 
-static HorSampling getHorSamp( IOPar& geompar )
+static TrcKeySampling getHorSamp( IOPar& geompar )
 {
-    HorSampling hsamp;
+    TrcKeySampling hsamp;
     if ( !geompar.get( SurveyInfo::sKeyInlRange(),
 			hsamp.start.inl(), hsamp.stop.inl() )
 	 || !geompar.get( SurveyInfo::sKeyCrlRange(),
@@ -338,7 +338,7 @@ bool BatchProgram::go( od_ostream& strm )
 	mErrRetNoProc(errmsg);
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
-    HorSampling hsamp;
+    TrcKeySampling hsamp;
     Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
     if ( iscubeoutp && geompar )
     {
@@ -350,7 +350,7 @@ bool BatchProgram::go( od_ostream& strm )
 	pars().subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     if ( iscubeoutp && mmprocrange )
     {
-	HorSampling mmrange;
+	TrcKeySampling mmrange;
 	if ( mmrange.usePar( *mmprocrange ) )
 	    hsamp.limitTo( mmrange );
 

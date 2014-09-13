@@ -21,7 +21,7 @@ namespace PosInfo { class Line2DData; }
 namespace Pos
 {
 
-/*!\brief 3D provider based on CubeSampling */
+/*!\brief 3D provider based on TrcKeyZSampling */
 
 mExpClass(General) RangeProvider3D : public Provider3D
 {
@@ -52,15 +52,15 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
-    CubeSampling&	sampling()		{ return cs_; }
-    const CubeSampling&	sampling() const	{ return cs_; }
+    TrcKeyZSampling&	sampling()		{ return cs_; }
+    const TrcKeyZSampling&	sampling() const	{ return cs_; }
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }
 
 protected:
 
-    CubeSampling&	cs_;
+    TrcKeyZSampling&	cs_;
     BinID		curbid_;
     int			curzidx_;
 

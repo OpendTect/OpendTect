@@ -78,7 +78,7 @@ bool uiEventExport::acceptOK( CallBacker* )
 	return false;
     }
 
-    HorSampling hrg;
+    TrcKeySampling hrg;
     subsel_->getSampling( hrg );
 
     EventExporter exporter( strm, *events );

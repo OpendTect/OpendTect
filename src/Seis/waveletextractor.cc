@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "arrayndalgo.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "fourier.h"
 #include "genericnumer.h"
 #include "seisioobjinfo.h"
@@ -59,7 +59,7 @@ WaveletExtractor::~WaveletExtractor()
 
 void WaveletExtractor::initWavelet( const IOObj& ioobj )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
     wvlt_.reSize( wvltsize_ );

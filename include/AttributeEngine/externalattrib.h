@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BinIDValueSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class LineKey;
 class SeisTrcBuf;
 class TaskRunner;
@@ -42,13 +42,13 @@ public:
     				/*!<\returns if this object can 
 				     compute it or not. */
 
-    virtual DataPack::ID	createAttrib(const CubeSampling&,
+    virtual DataPack::ID	createAttrib(const TrcKeyZSampling&,
 					     DataPack::ID, TaskRunner*);
     virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
 	    				     TaskRunner*);
     virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
 					     TaskRunner*);
-    virtual DataPack::ID	createAttrib(const CubeSampling&,
+    virtual DataPack::ID	createAttrib(const TrcKeyZSampling&,
 	    				     const LineKey&,TaskRunner*);
 
     virtual bool		isIndexes() const	{ return false; }

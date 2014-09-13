@@ -30,7 +30,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	, totnr_(-1)
 	, nrdone_(0)
 {
-    CubeSampling cs; bool havecs = false;
+    TrcKeyZSampling cs; bool havecs = false;
     if ( sd_ )
     {
 	mDynamicCastGet(Seis::RangeSelData*,rsd,sd_)
@@ -69,7 +69,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	{ msg_ = "No valid inputs specified"; return; }
 
     totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr() );
-    iter_ = new HorSamplingIterator( cs.hrg );
+    iter_ = new TrcKeySamplingIterator( cs.hrg );
     resampler_ = new SeisResampler( cs );
 
     writer_ = new SeisTrcWriter( &out );

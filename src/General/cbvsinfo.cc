@@ -8,7 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "cbvsinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include <iostream>
 
 
@@ -176,7 +176,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 {
     if ( fullyrectandreg ) return;
 
-    HorSampling hs(false);
+    TrcKeySampling hs(false);
     hs.start = start; hs.stop = stop;
     bool firstpos = true;
     for ( int icd=0; icd<cubedata.size(); icd++ )
@@ -209,7 +209,7 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 }
 
 
-bool CBVSInfo::contributesTo( const CubeSampling& cs ) const
+bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 {
     if ( cs.hrg.start.inl() > geom_.stop.inl() || cs.hrg.stop.inl() < geom_.start.inl()
       || cs.hrg.start.crl() > geom_.stop.crl() || cs.hrg.stop.crl() < geom_.start.crl() )

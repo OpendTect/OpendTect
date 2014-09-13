@@ -175,15 +175,15 @@ float RandomTrackDisplay::appliedZRangeStep() const
 {
     float step = datatransform_ ? datatransform_->getGoodZStep() : SI().zStep();
     if ( scene_ )
-	step = scene_->getCubeSampling().zrg.step;
+	step = scene_->getTrcKeyZSampling().zrg.step;
 
     return step;
 }
 
 
-CubeSampling RandomTrackDisplay::getCubeSampling( int attrib ) const
+TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
 {
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     TypeSet<BinID> knots;
     getAllKnotPos( knots );
     for ( int idx=0; idx<knots.size(); idx++ )
@@ -691,11 +691,11 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	CubeSampling cs( false );
+	TrcKeyZSampling cs( false );
 	for ( int pi=0; pi<pathsz; pi++ )
 	    cs.hrg.include( path[pi] );
 	cs.zrg = panelstrip_->getZRange();
-	cs.zrg.step = scene_ ? scene_->getCubeSampling().zrg.step
+	cs.zrg.step = scene_ ? scene_->getTrcKeyZSampling().zrg.step
 			     : datatransform_->getGoodZStep();
 
 	if ( voiidx_<0 )
@@ -954,7 +954,7 @@ void RandomTrackDisplay::knotNrChanged( CallBacker* )
 
 bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 {
-    const HorSampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hrg;
     if ( !hs.includes(binid) )
 	return false;
 
@@ -976,7 +976,7 @@ bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 {
     BinID binid( binid_ );
-    const HorSampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hrg;
     if ( binid.inl() < hs.start.inl() ) binid.inl() = hs.start.inl();
     if ( binid.inl() > hs.stop.inl() ) binid.inl() = hs.stop.inl();
     if ( binid.crl() < hs.start.crl() ) binid.crl() = hs.start.crl();

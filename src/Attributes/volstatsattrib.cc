@@ -523,9 +523,9 @@ void VolStats::getIdealStackPos(
     bool iscrossline = false;
     if ( desiredvolume_->isFlat() )
     {
-	if ( desiredvolume_->defaultDir() == CubeSampling::Inl )
+	if ( desiredvolume_->defaultDir() == TrcKeyZSampling::Inl )
 	    isinline = true;
-	else if ( desiredvolume_->defaultDir() == CubeSampling::Crl )
+	else if ( desiredvolume_->defaultDir() == TrcKeyZSampling::Crl )
 	    iscrossline = true;
     }
 

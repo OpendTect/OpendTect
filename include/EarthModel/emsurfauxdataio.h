@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "executor.h"
 #include "od_iosfwd.h"
-class HorSampling;
+class TrcKeySampling;
 template <class T> class DataInterpreter;
 
 
@@ -35,7 +35,7 @@ mExpClass(EarthModel) dgbSurfDataWriter : public Executor
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
-						  const HorSampling*,
+						  const TrcKeySampling*,
 						  bool binary,
 						  const char* filename);
 			/*!<\param surf		The surface with the values
@@ -73,7 +73,7 @@ protected:
     bool			writeFloat(float);
     int				dataidx_;
     const EM::Horizon3D&	surf_;
-    const HorSampling*		sel_;
+    const TrcKeySampling*		sel_;
   
     TypeSet<EM::SubID>		subids_;
     TypeSet<float>		values_;
@@ -121,7 +121,7 @@ protected:
     int				dataidx_;
     float			shift_;
     EM::Horizon3D*		surf_;
-    const HorSampling*		sel_;
+    const TrcKeySampling*		sel_;
   
     int				sectionindex_;
     int				nrsections_;

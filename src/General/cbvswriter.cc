@@ -8,7 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "cbvswriter.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datainterp.h"
 #include "genc.h"
 #include "survinfo.h"

@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "posinfo.h"
 #include "scaler.h"
-class CubeSampling;
+class TrcKeyZSampling;
 
 
 /*!\brief Data available in CBVS format header and trailer.
@@ -85,7 +85,7 @@ protected:
     BufferString		stdtext_;
     BufferString		usertext_;
 
-    bool			contributesTo(const CubeSampling&) const;
+    bool			contributesTo(const TrcKeyZSampling&) const;
     void			clean()
 				{ deepErase(compinfo_); geom_.clean();
 				  usertext_ = ""; }

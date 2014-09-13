@@ -53,22 +53,22 @@ SliceSet::~SliceSet()
 void SliceSet::getIdxs( int inl, int crl, float z,
 			 int& i0, int& i1, int& i2 ) const
 {
-    if ( direction_ == CubeSampling::Z )
+    if ( direction_ == TrcKeyZSampling::Z )
 	{ i0 = mZIdx; i1 = mInlIdx; i2 = mCrlIdx; }
-    else if ( direction_ == CubeSampling::Inl )
+    else if ( direction_ == TrcKeyZSampling::Inl )
 	{ i0 = mInlIdx; i1 = mCrlIdx; i2 = mZIdx; }
-    else if ( direction_ == CubeSampling::Crl )
+    else if ( direction_ == TrcKeyZSampling::Crl )
 	{ i0 = mCrlIdx; i1 = mInlIdx; i2 = mZIdx; }
 }
 
 
 void SliceSet::getIdx( int nr, int inl, int crl, float z, int& iout ) const
 {
-    if ( direction_ == CubeSampling::Z )
+    if ( direction_ == TrcKeyZSampling::Z )
 	iout = nr ? (nr == 1 ? mInlIdx : mCrlIdx) : mZIdx;
-    else if ( direction_ == CubeSampling::Inl )
+    else if ( direction_ == TrcKeyZSampling::Inl )
 	iout = nr ? (nr == 1 ? mCrlIdx : mZIdx) : mInlIdx;
-    else if ( direction_ == CubeSampling::Crl )
+    else if ( direction_ == TrcKeyZSampling::Crl )
 	iout = nr ? (nr == 1 ? mInlIdx : mZIdx) : mCrlIdx;
 }
 
@@ -92,7 +92,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 
     if ( size0==-1 ) return 0;
 
-    if ( direction_== CubeSampling::Z )
+    if ( direction_== TrcKeyZSampling::Z )
     {
 	const int inlsz = size0;
 	const int crlsz = size1;
@@ -121,7 +121,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 	return res;
     }
 
-    if ( direction_ == CubeSampling::Crl )
+    if ( direction_ == TrcKeyZSampling::Crl )
     {
 	const int inlsz = size0;
 	const int crlsz = size();

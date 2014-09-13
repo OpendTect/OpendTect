@@ -90,7 +90,7 @@ protected:
     bool			retrackFromSeedList();
     int				nrLineNeighbors(int colnr) const;
     bool			interpolateSeeds();
-    CubeSampling		getTrackBox() const;
+    TrcKeyZSampling		getTrackBox() const;
 
     TypeSet<EM::PosID>		seedlist_;
     TypeSet<EM::PosID>		trackbounds_;

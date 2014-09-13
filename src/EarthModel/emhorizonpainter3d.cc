@@ -56,7 +56,7 @@ HorizonPainter3D::~HorizonPainter3D()
 }
 
 
-void HorizonPainter3D::setCubeSampling( const CubeSampling& cs, bool update )
+void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
 {
     cs_ = cs;
 }
@@ -145,7 +145,7 @@ bool HorizonPainter3D::addPolyLine()
 	    continue;
 	}
 
-	HorSamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( cs_.hrg );
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl();

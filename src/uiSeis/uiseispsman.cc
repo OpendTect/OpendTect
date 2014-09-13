@@ -94,7 +94,7 @@ void uiSeisPreStackMan::mkFileInfo()
 		{ txt.add( " step " ).add( rg.step ); }
 	}
 	txt.add("\n");
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	if ( objinf.getRanges(cs) )
 	{
 	    const bool zistm = objinf.isTime();

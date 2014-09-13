@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndalgo.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapackbase.h"
 #include "flatposdata.h"
 #include "fourier.h"

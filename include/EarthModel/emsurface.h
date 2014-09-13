@@ -59,7 +59,7 @@ public:
     virtual void		fillPar(IOPar&) const;
 
     virtual EMObjectIterator*	createIterator(const SectionID&,
-					       const CubeSampling* =0) const;
+					       const TrcKeyZSampling* =0) const;
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;

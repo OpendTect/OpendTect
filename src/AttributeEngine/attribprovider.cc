@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidvalset.h"
 #include "convmemvalseries.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "ptrman.h"
@@ -350,10 +350,10 @@ void Provider::setReqBufStepout( const BinID& ns, bool wait )
 }
 
 
-void Provider::setDesiredVolume( const CubeSampling& ndv )
+void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 {
     if ( !desiredvolume_ )
-	desiredvolume_ = new CubeSampling(ndv);
+	desiredvolume_ = new TrcKeyZSampling(ndv);
     else
     {
 	if ( !isUsedMultTimes() )
@@ -380,7 +380,7 @@ void Provider::setDesiredVolume( const CubeSampling& ndv )
 	}
     }
 
-    CubeSampling inputcs;
+    TrcKeyZSampling inputcs;
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
 	if ( !inputs_[idx] ) continue;
@@ -408,17 +408,17 @@ type var(0,0); \
 mGetMargin( type, var, des##var, des##funcPost ); \
 mGetMargin( type, var, req##var, req##funcPost )
 
-bool Provider::getPossibleVolume( int output, CubeSampling& res )
+bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 {
     if ( !getDesc().descSet() )
 	return false;
 
-    CubeSampling tmpres = res;
+    TrcKeyZSampling tmpres = res;
     if ( inputs_.size()==0 )
     {
 	if ( !is2D() ) res.init(true);
 	if ( !possiblevolume_ )
-	    possiblevolume_ = new CubeSampling;
+	    possiblevolume_ = new TrcKeyZSampling;
 
 	if ( is2D() ) *possiblevolume_ = res;
 	return true;
@@ -447,7 +447,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
 	    if ( !inputs_[inp] )
 		continue;
 
-	    CubeSampling inputcs = tmpres;
+	    TrcKeyZSampling inputcs = tmpres;
 	    TypeSet<int> inputoutput;
 	    if ( !getInputOutput( inp, inputoutput ) )
 		continue;
@@ -490,7 +490,7 @@ bool Provider::getPossibleVolume( int output, CubeSampling& res )
     }
 
     if ( !possiblevolume_ )
-	possiblevolume_ = new CubeSampling;
+	possiblevolume_ = new TrcKeyZSampling;
     
     possiblevolume_->hrg = res.hrg;
     possiblevolume_->zrg = res.zrg;
@@ -1236,7 +1236,7 @@ void Provider::updateStorageReqs( bool all )
 }
 
 
-bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res, 
+bool Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
 					bool usestepout ) const
 {
     //Be careful if usestepout=true with des and req stepouts
@@ -1309,7 +1309,7 @@ void Provider::updateInputReqs( int inp )
 	return;
     }
 
-    CubeSampling inputcs;
+    TrcKeyZSampling inputcs;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
 	if ( !outputinterest_[out] ) continue;
@@ -1356,7 +1356,7 @@ int Provider::getTotalNrPos( bool is2d )
     if ( !possiblevolume_ || !desiredvolume_ )
 	return false;
 
-    CubeSampling cs = *desiredvolume_;
+    TrcKeyZSampling cs = *desiredvolume_;
     if ( getDesc().isStored() )
     {
 	cs.hrg.start.inl() =
@@ -1460,12 +1460,12 @@ void Provider::setExtraZ( const Interval<float>& extraz )
 }
 
 
-void Provider::setPossibleVolume( const CubeSampling& cs )
+void Provider::setPossibleVolume( const TrcKeyZSampling& cs )
 {
     if ( possiblevolume_ )
 	delete possiblevolume_;
 
-    possiblevolume_ = new CubeSampling(cs);
+    possiblevolume_ = new TrcKeyZSampling(cs);
 }
 
 

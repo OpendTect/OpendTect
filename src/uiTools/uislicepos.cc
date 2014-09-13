@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioman.h"
 #include "survinfo.h"
 
@@ -116,7 +116,7 @@ void uiSlicePos::updatePos( CallBacker* )
 
 
 void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
-				  const CubeSampling& oldcs )
+				  const TrcKeyZSampling& oldcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     curcs_ = oldcs;
@@ -143,7 +143,7 @@ void uiSlicePos::sliceStepChanged( uiSlicePos::SliceDir orientation )
 
 
 void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
-				const CubeSampling& survcs )
+				const TrcKeyZSampling& survcs )
 {
     uiSpinBox* posbox = sliceposbox_;
     uiSpinBox* stepbox = slicestepbox_;
@@ -177,7 +177,7 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
 
 
 void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
-				const CubeSampling& cs )
+				const TrcKeyZSampling& cs )
 {
     uiSpinBox* posbox = sliceposbox_;
     NotifyStopper posstop( posbox->valueChanging );

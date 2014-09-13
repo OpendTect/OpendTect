@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "position.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class IOObj;
 class SeisTrcReader;
 class SeisTrcBuf;
@@ -51,7 +51,7 @@ protected:
     const char*		attrnm_;
     int                 nrdone_;
     int			radius_;
-    CubeSampling*	cs_;
+    TrcKeyZSampling*	cs_;
     TypeSet<BinID>	bidset_;
     SeisTrc*		outtrc_;
     SeisTrcBuf*		trcbuf_;

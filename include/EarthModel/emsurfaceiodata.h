@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "typeset.h"
 
@@ -39,7 +39,7 @@ public:
     void		use(const Surface&);
 
     BufferString	dbinfo;
-    HorSampling		rg;			// 3D only
+    TrcKeySampling		rg;			// 3D only
     Interval<float>	zrg;
     BufferStringSet	valnames;
     TypeSet<float>	valshifts_;
@@ -66,7 +66,7 @@ public:
 
     const SurfaceIOData&	sd;
 
-    HorSampling			rg;
+    TrcKeySampling			rg;
     TypeSet<int>		selvalues; // Indexes in sd.valnames
     TypeSet<int>		selsections; // Indexes in sd.sections
 

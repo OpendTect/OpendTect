@@ -250,18 +250,18 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	CubeSampling maxcs = SI().sampling( true );
+	TrcKeyZSampling maxcs = SI().sampling( true );
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 	if ( scene && scene->getZAxisTransform() )
-	    maxcs = scene->getCubeSampling();
+	    maxcs = scene->getTrcKeyZSampling();
 
 	CallBack dummycb;
-	uiSliceSelDlg dlg( getUiParent(), vd->getCubeSampling(true,true,-1),
+	uiSliceSelDlg dlg( getUiParent(), vd->getTrcKeyZSampling(true,true,-1),
 			   maxcs, dummycb, uiSliceSel::Vol,
 			   scene->zDomainInfo() );
 	if ( !dlg.go() ) return;
-	CubeSampling cs = dlg.getCubeSampling();
-	vd->setCubeSampling( cs );
+	TrcKeyZSampling cs = dlg.getTrcKeyZSampling();
+	vd->setTrcKeyZSampling( cs );
 	visserv_->calculateAttrib( displayid_, 0, false );
 	updateColumnText(0);
     }
@@ -553,7 +553,7 @@ void uiODVolrenSubTreeItem::posChangeCB( CallBacker* cb )
 	    vd->getSelectedSlice()->id() != displayid_ )
 	return;
 
-    vd->setSlicePosition( slice, slicepos->getCubeSampling() );
+    vd->setSlicePosition( slice, slicepos->getTrcKeyZSampling() );
 }
 
 

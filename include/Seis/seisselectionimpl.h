@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "binid.h"
 #include "objectset.h"
 
-class HorSampling;
-class CubeSampling;
+class TrcKeySampling;
+class TrcKeyZSampling;
 class BinIDValueSet;
 template <class T> class ODPolygon;
 
@@ -35,15 +35,15 @@ public:
     Type		type() const		{ return Range; }
 
 			RangeSelData(bool settosurvinfo=false);
-			RangeSelData(const HorSampling&);
-			RangeSelData(const CubeSampling&);
+			RangeSelData(const TrcKeySampling&);
+			RangeSelData(const TrcKeyZSampling&);
 			RangeSelData(const RangeSelData&);
 			~RangeSelData();
     RangeSelData&	operator =( const RangeSelData& rsd )
     						{ copyFrom(rsd); return *this; }
 
-    CubeSampling&	cubeSampling() 		{ return cs_; }
-    const CubeSampling&	cubeSampling() const	{ return cs_; }
+    TrcKeyZSampling&	cubeSampling()		{ return cs_; }
+    const TrcKeyZSampling&	cubeSampling() const	{ return cs_; }
 
     SelData*		clone() const	{ return new RangeSelData(*this); }
     virtual void	copyFrom(const SelData&);
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    CubeSampling&	cs_;
+    TrcKeyZSampling&	cs_;
 
     void		doExtendH(BinID,BinID);
 };

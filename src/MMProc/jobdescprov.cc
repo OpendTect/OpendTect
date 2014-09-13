@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "jobdescprov.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "settings.h"

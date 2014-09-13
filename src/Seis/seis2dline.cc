@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "posinfo2dsurv.h"
 #include "linesetposinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "safefileio.h"
 #include "ascstream.h"
 #include "bufstringset.h"
@@ -731,7 +731,7 @@ void Seis2DLineSet::getLineNamesWithAttrib( BufferStringSet& nms,
 }
 
 
-const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
+const char* Seis2DLineSet::getTrcKeyZSampling( TrcKeyZSampling& cs,
 					    const LineKey& lk ) const
 {
     const BufferString lnm( lk.lineName() );
@@ -756,7 +756,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 	}
 
 	if ( errmsg )
-	    errmsg = getCubeSampling( cs, iln );
+	    errmsg = getTrcKeyZSampling( cs, iln );
 	else
 	{
 	    StepInterval<int> trg; StepInterval<float> zrg;
@@ -782,7 +782,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 }
 
 
-const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs, int lnr ) const
+const char* Seis2DLineSet::getTrcKeyZSampling( TrcKeyZSampling& cs, int lnr ) const
 {
     cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
     cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = nrLines()-1;

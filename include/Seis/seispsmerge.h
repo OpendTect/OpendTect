@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "executor.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
@@ -54,7 +54,7 @@ protected:
     SeisResampler*	resampler_;
     Interval<float>	offsrg_;
 
-    HorSamplingIterator*	iter_;
+    TrcKeySamplingIterator*	iter_;
     ObjectSet<SeisPSReader>	readers_;
     SeisTrcWriter*		writer_;
 
@@ -63,7 +63,7 @@ protected:
     int			totnr_;
     int			nrdone_;
 
-    void		init(const HorSampling&);
+    void		init(const TrcKeySampling&);
     void		stackGathers(SeisTrcBuf&,const ObjectSet<SeisTrcBuf>&);
 };
 

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 #include "array2dinterpolimpl.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "multiid.h"
 #include "earthmodelmod.h"
 
@@ -34,7 +34,7 @@ public:
 
     void		setFaultIds(const TypeSet<MultiID>&);
 
-    virtual void	setHorSampling(const HorSampling&);
+    virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     static const char*	sKeyMethod();
@@ -52,7 +52,7 @@ protected:
     FaultTrcDataProvider* fltdataprov_;
 
     BufferString	infomsg_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     TypeSet<MultiID>	faultids_;
 
     bool		init(TaskRunner*);
@@ -72,7 +72,7 @@ public:
 				InvDistHor3DGridder,
 				"Inverse Distance", sFactoryKeyword() )
 
-    virtual void	setHorSampling(const HorSampling&);
+    virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     bool		fillPar(IOPar&) const;
@@ -95,7 +95,7 @@ public:
 				TriangulationHor3DGridder,
 				"Triangulation", sFactoryKeyword() )
 
-    virtual void	setHorSampling(const HorSampling&);
+    virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     bool		fillPar(IOPar&) const;
@@ -118,7 +118,7 @@ public:
 				ExtensionHor3DGridder,
 				"Extension", sFactoryKeyword() )
 
-    virtual void	setHorSampling(const HorSampling&);
+    virtual void	setTrcKeySampling(const TrcKeySampling&);
     virtual bool	setArray2D(Array2D<float>&,TaskRunner* =0);
 
     bool		fillPar(IOPar&) const;

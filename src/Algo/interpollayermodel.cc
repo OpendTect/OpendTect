@@ -29,7 +29,7 @@ void InterpolationLayerModel::fillPar( IOPar& par ) const
 
 
 // ZSliceInterpolationModel
-void ZSliceInterpolationModel::setCubeSampling( const CubeSampling& cs )
+void ZSliceInterpolationModel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 { cs_ = cs; }
 
 int ZSliceInterpolationModel::nrLayers() const

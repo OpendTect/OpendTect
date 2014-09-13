@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "idxable.h"
 #include "file.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "keystrs.h"
 #include "offsetazimuth.h"
 #include "oddirs.h"
@@ -524,7 +524,7 @@ void SEGY::FileDataSet::getReport( IOPar& iop ) const
     if ( isrev1_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
 
-    HorSampling hs( false );
+    TrcKeySampling hs( false );
     Interval<int> nrrg;
     Interval<float> offsrg;
 

@@ -262,7 +262,7 @@ bool uiExportHorizon::writeAscii()
     int zatvoi = -1;
     if ( zatf && zatf->needsVolumeOfInterest() ) //Get BBox
     {
-	CubeSampling bbox;
+	TrcKeyZSampling bbox;
 	bool first = true;
 	for ( int sidx=0; sidx<sections.size(); sidx++ )
 	{

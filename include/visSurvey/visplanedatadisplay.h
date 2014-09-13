@@ -86,15 +86,15 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
-    CubeSampling		getCubeSampling(int attrib=-1) const;
-    CubeSampling		getCubeSampling(bool manippos,
+    TrcKeyZSampling		getTrcKeyZSampling(int attrib=-1) const;
+    TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
 						bool displayspace,
 						int attrib=-1) const;
     void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData(int attrib,
 						 const DataPointSet*,
 						 TaskRunner*);
-    void			setCubeSampling(const CubeSampling&);
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
 
     bool			setDataPackID(int attrib,DataPack::ID,
 					      TaskRunner*);
@@ -182,7 +182,7 @@ protected:
     void			draggerMotion(CallBacker*);
     void			draggerFinish(CallBacker*);
     void			draggerRightClick(CallBacker*);
-    void			setDraggerPos(const CubeSampling&);
+    void			setDraggerPos(const TrcKeyZSampling&);
     void			dataTransformCB(CallBacker*);
     void			updateMouseCursorCB(CallBacker*);
 
@@ -196,7 +196,7 @@ protected:
     void			triggerSel();
     void			triggerDeSel();
 
-    CubeSampling		snapPosition(const CubeSampling&) const;
+    TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
     void			setUpdateStageTextureTransform();
 
     visBase::EventCatcher*		eventcatcher_;
@@ -210,7 +210,7 @@ protected:
     ObjectSet<BinIDValueSet>		rposcache_;
     ObjectSet<const Attrib::Flat3DDataPack> volumecache_;
 
-    CubeSampling			csfromsession_;
+    TrcKeyZSampling			csfromsession_;
     BinID				curicstep_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
@@ -226,7 +226,7 @@ protected:
     struct UpdateStageInfo
     {
 	bool		refreeze_;
-	CubeSampling	oldcs_;
+	TrcKeyZSampling oldcs_;
 	SliceType	oldorientation_;
 	Coord		oldimagesize_;
     };

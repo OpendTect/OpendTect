@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "horizonmodifier.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -79,7 +79,7 @@ bool HorizonModifier::getNextNode3D( BinID& bid )
 {   
     if ( !iter_ )
     {
-	HorSampling hrg;
+	TrcKeySampling hrg;
 	StepInterval<int> rrg = tophor_->geometry().rowRange();
 	StepInterval<int> crg = tophor_->geometry().colRange();
 	hrg.set( rrg, crg );
@@ -89,7 +89,7 @@ bool HorizonModifier::getNextNode3D( BinID& bid )
 	hrg.include( BinID(rrg.start,crg.start) );
 	hrg.include( BinID(rrg.stop,crg.stop) );
 
-	iter_ = new HorSamplingIterator( hrg );
+	iter_ = new TrcKeySamplingIterator( hrg );
     }
 
     return iter_ ? iter_->next(bid) : false;

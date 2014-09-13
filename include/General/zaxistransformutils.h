@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "datapackbase.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "paralleltask.h"
 #include "datapackbase.h"
 #include "bufstringset.h"
@@ -35,11 +35,11 @@ mExpClass(General) ZAxisTransformDataPack : public FlatDataPack
 {
 public:
 				ZAxisTransformDataPack(const FlatDataPack&,
-					       const CubeSampling& inputcs,
+					       const TrcKeyZSampling& inputcs,
 					       ZAxisTransform&);
 				~ZAxisTransformDataPack();
 
-    void			setOutputCS(const CubeSampling&);
+    void			setOutputCS(const TrcKeyZSampling&);
 
     bool			transform();
 
@@ -47,7 +47,7 @@ public:
     bool			getInterpolate() const	 { return interpolate_;}
 
     const ZAxisTransform&	getTransform() const	{ return transform_; }
-    const CubeSampling& 	inputCS() const 	{ return inputcs_; }
+    const TrcKeyZSampling& 	inputCS() const 	{ return inputcs_; }
 
     Array2D<float>&		data();
     const Array2D<float>&	data() const;
@@ -56,13 +56,13 @@ public:
     virtual const char* 	dimName(bool) const;
 
     static DataPack::ID 	transformDataPack(DataPack::ID,
-					const CubeSampling&,ZAxisTransform&);
+					const TrcKeyZSampling&,ZAxisTransform&);
 
 protected:
 
     const FlatDataPack& 	inputdp_;
-    CubeSampling		inputcs_;
-    CubeSampling*		outputcs_;
+    TrcKeyZSampling		inputcs_;
+    TrcKeyZSampling*		outputcs_;
 
     ZAxisTransform&		transform_;
     bool			interpolate_;
@@ -75,7 +75,7 @@ protected:
 
 /*!
 \brief Generates a DataPointSet with untransformed z-values corresponding to
-each BinID and z-value of a specified CubeSampling.
+each BinID and z-value of a specified TrcKeyZSampling.
 */
 
 mExpClass(General) ZAxisTransformPointGenerator : public ParallelTask
@@ -84,7 +84,7 @@ public:
 				ZAxisTransformPointGenerator(ZAxisTransform&);
 				~ZAxisTransformPointGenerator();
 
-    void			setInput( const CubeSampling& cs );
+    void			setInput( const TrcKeyZSampling& cs );
     void			setOutputDPS( DataPointSet& dps )
 				{ dps_ = &dps; }
 
@@ -98,8 +98,8 @@ protected:
 
     int 			voiid_;
     ObjectSet<BinIDValueSet>	bidvalsets_;
-    HorSamplingIterator 	iter_;
-    CubeSampling		cs_;
+    TrcKeySamplingIterator 	iter_;
+    TrcKeyZSampling		cs_;
     ZAxisTransform&		transform_;
     DataPointSet*		dps_;
 };
@@ -112,7 +112,7 @@ is one less than BinIDValueSet::nrVals(), as the z-component is not used.
 */
 
 mGlobal(General) TypeSet<DataPack::ID> createDataPacksFromBIVSet(
-	const BinIDValueSet*,const CubeSampling&,const BufferStringSet& nms=0);
+	const BinIDValueSet*,const TrcKeyZSampling&,const BufferStringSet& nms=0);
 
 
 #endif

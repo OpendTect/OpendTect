@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "tutseistools.h"
 #include "seisread.h"
 #include "seiswrite.h"
@@ -59,7 +59,7 @@ void Tut::SeisTools::setInput( const IOObj& ioobj )
 void Tut::SeisTools::setOutput( const IOObj& ioobj )
 { delete outioobj_; outioobj_ = ioobj.clone(); }
 
-void Tut::SeisTools::setRange( const CubeSampling& cs )
+void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
 { cs_ = cs; }
 
 

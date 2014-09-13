@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackevents.h"
 
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "ioman.h"
@@ -382,7 +382,7 @@ const MultiID& EventManager::getStorageID() const
 { return storageid_; }
 
 
-bool EventManager::getHorRanges( HorSampling& hrg ) const
+bool EventManager::getHorRanges( TrcKeySampling& hrg ) const
 {
     bool first = true;
     RowCol arraypos( -1, -1 );

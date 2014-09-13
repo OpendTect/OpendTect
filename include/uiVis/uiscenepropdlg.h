@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 #include "color.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "fontdata.h"
 
 class uiCheckBox;
@@ -59,7 +59,7 @@ protected:
     float			oldfactor_;
     float			oldunits_;
     FontData			oldfont_;
-    CubeSampling		oldscale_;
+    TrcKeyZSampling		oldscale_;
     static bool			savestatus_;
 
     uiCheckBox*			annotfld_;

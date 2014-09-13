@@ -501,7 +501,7 @@ void PSAttrib::prepPriorToBoundsCalc()
 }
 
 
-void PSAttrib::updateCSIfNeeded( CubeSampling& cs ) const
+void PSAttrib::updateCSIfNeeded( TrcKeyZSampling& cs ) const
 {
     if ( !psrdr_ )
 	return;

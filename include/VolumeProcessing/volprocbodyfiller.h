@@ -81,7 +81,7 @@ protected:
     float			outsideval_;
 
 				//For flat body_ only, no implicitbody_.
-    CubeSampling		flatpolygon_;
+    TrcKeyZSampling		flatpolygon_;
     TypeSet<Coord3>		plgknots_;
     TypeSet<Coord3>		plgbids_;
     char			plgdir_;

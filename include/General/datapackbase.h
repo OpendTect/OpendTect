@@ -20,7 +20,7 @@ template <class T> class Array2D;
 template <class T> class Array3D;
 
 class FlatPosData;
-class CubeSampling;
+class TrcKeyZSampling;
 class BufferStringSet;
 class TaskRunner;
 
@@ -195,8 +195,8 @@ public:
 				//!< Array2D become mine (of course)
 				~CubeDataPack();
 
-    CubeSampling&		sampling()		{ return cs_; }
-    const CubeSampling&		sampling() const	{ return cs_; }
+    TrcKeyZSampling&		sampling()		{ return cs_; }
+    const TrcKeyZSampling&		sampling() const	{ return cs_; }
     virtual void		getAuxInfo(int,int,int,IOPar&) const {}
     				//!< int,int,int = Array3D position
     Coord3			getCoord(int,int,int) const;
@@ -209,7 +209,7 @@ protected:
 				//!< For this you have to overload data()
 				//!< and the destructor
 
-    CubeSampling&		cs_;
+    TrcKeyZSampling&		cs_;
 
 private:
 

@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 
 

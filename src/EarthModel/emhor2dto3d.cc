@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emrowcoliterator.h"
 #include "arrayndimpl.h"
 #include "array2dinterpol.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 
 namespace EM
@@ -79,7 +79,7 @@ void add( const BinID& bid, float z )
 
     Array2DImpl<int>	count_;
     Array2DImpl<float>	arr_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     EM::SectionID	sid_;
     int			inlsz_;
     int			crlsz_;
@@ -94,7 +94,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
     , cursectnr_(0)
     , curinterp_( interp )
 {
-    const HorSampling hrg = SI().sampling(true).hrg;
+    const TrcKeySampling hrg = SI().sampling(true).hrg;
     addSections( hrg );
     fillSections();
 
@@ -121,7 +121,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 }
 
 
-void Hor2DTo3D::addSections( const HorSampling& hs )
+void Hor2DTo3D::addSections( const TrcKeySampling& hs )
 {
     for ( int isect=0; isect<hor2d_.nrSections(); isect++ )
     {

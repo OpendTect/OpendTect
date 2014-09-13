@@ -10,10 +10,10 @@
 #include "tutmod.h"
 #include "executor.h"
 #include "emposid.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "ranges.h"
 
-class HorSamplingIterator;
+class TrcKeySamplingIterator;
 
 namespace EM { class Horizon3D; }
 
@@ -35,10 +35,10 @@ public:
 protected:
 			HorTool(const char* title);
 
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     int			nrdone_;
 
-    HorSamplingIterator* iter_;
+    TrcKeySamplingIterator* iter_;
 
     EM::Horizon3D*	horizon1_;
     EM::Horizon3D*	horizon2_;

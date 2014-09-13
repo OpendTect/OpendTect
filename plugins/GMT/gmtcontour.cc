@@ -167,7 +167,7 @@ bool GMTContour::execute( od_ostream& strm, const char* fnm )
     StreamData sdata = makeOStream( comm, strm );
     if ( !sdata.usable() ) mErrStrmRet(tr("Failed"))
 
-    HorSamplingIterator iter( sd.rg );
+    TrcKeySamplingIterator iter( sd.rg );
     BinID bid;
     EM::SectionID sid = hor->sectionID( 0 );
     const float fac = mCast( float, SI().zDomain().userFactor() );

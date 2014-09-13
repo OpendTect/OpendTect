@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "volstatsattrib.h"
 #include "hilbertattrib.h"
 #include "uimsg.h"
@@ -44,19 +44,19 @@ mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp())
 class uiGDPositionDlg: public uiDialog
 {
     public:
-			uiGDPositionDlg(uiParent*,const CubeSampling&,bool,
+			uiGDPositionDlg(uiParent*,const TrcKeyZSampling&,bool,
 					const MultiID&);
 			~uiGDPositionDlg();
 
     void                popUpPosDlg();
-    const CubeSampling&	getCubeSampling();
+    const TrcKeyZSampling&	getTrcKeyZSampling();
     Pos::GeomID		getGeomID() const;
-    void		setPrefCS(CubeSampling* prefcs)	{ prefcs_ = prefcs; }
+    void		setPrefCS(TrcKeyZSampling* prefcs)	{ prefcs_ = prefcs; }
 
     uiGenInput*		inlcrlfld_;
     uiLabeledComboBox*	linesfld_;
-    CubeSampling	cs_;
-    CubeSampling*	prefcs_;
+    TrcKeyZSampling	cs_;
+    TrcKeyZSampling*	prefcs_;
     uiSliceSelDlg*	posdlg_;
     bool		is2d_;
     MultiID		mid_;
@@ -256,7 +256,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	return;
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
     const float zfac = mCast(float,SI().zDomain().userFactor());
@@ -331,7 +331,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 	DescID inpid = inpfld_->attribID();
 	DescID gapdecid = createGapDeconDesc( inpid, inpid, dset, true );
 	acorrview_->setAttribID( gapdecid );
-	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	acorrview_->setTrcKeyZSampling( positiondlg_->getTrcKeyZSampling() );
 	if ( dset->is2D() )
 	    acorrview_->setGeomID( positiondlg_->getGeomID() );
 
@@ -559,7 +559,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	return;
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     inpfld_->getRanges(cs);
     Interval<float> gate = gatefld_->getFInterval();
     const float zfac = mCast(float,SI().zDomain().userFactor());
@@ -589,7 +589,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
 	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );
 	DescID autocorrid = createGapDeconDesc( gapdecid, inp1id, dset, true );
 	acorrview_->setAttribID( autocorrid );
-	acorrview_->setCubeSampling( positiondlg_->getCubeSampling() );
+	acorrview_->setTrcKeyZSampling( positiondlg_->getTrcKeyZSampling() );
 	if ( dset->is2D() )
 	    acorrview_->setGeomID( positiondlg_->getGeomID() );
 	acorrview_->setDescSet( dset );
@@ -628,7 +628,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
 
 //-----------------------------------------------------------------------------
 
-uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const CubeSampling& cs,
+uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				  bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",
                                    0,mNoHelpKey) )
@@ -669,7 +669,7 @@ void uiGDPositionDlg::popUpPosDlg()
     CallBack dummycb;
     bool is2d = inlcrlfld_ == 0;
     bool isinl = is2d ? false : inlcrlfld_->getBoolValue();
-    CubeSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = cs_;
     if ( is2d )
     {
 	SeisTrcTranslator::getRanges(
@@ -710,9 +710,9 @@ void uiGDPositionDlg::popUpPosDlg()
 }
 
 
-const CubeSampling& uiGDPositionDlg::getCubeSampling()
+const TrcKeyZSampling& uiGDPositionDlg::getTrcKeyZSampling()
 {
-    return posdlg_ ? posdlg_->getCubeSampling() : cs_;
+    return posdlg_ ? posdlg_->getTrcKeyZSampling() : cs_;
 }
 
 

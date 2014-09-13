@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "uigroup.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ranges.h"
 #include "threadlock.h"
 #include "zdomain.h"
@@ -38,9 +38,9 @@ public:
 
     void			setApplyCB(const CallBack&);
 
-    const CubeSampling&		getCubeSampling() const	{ return cs_; }
-    virtual void		setCubeSampling(const CubeSampling&);
-    void			setMaxCubeSampling(const CubeSampling&);
+    const TrcKeyZSampling&		getTrcKeyZSampling() const	{ return cs_; }
+    virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
+    void			setMaxTrcKeyZSampling(const TrcKeyZSampling&);
     void			enableApplyButton(bool);
     void			enableScrollButton(bool);
     void			fillPar(IOPar&);
@@ -75,8 +75,8 @@ protected:
 
     uiSliceScroll*		scrolldlg_;
 
-    CubeSampling		maxcs_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		maxcs_;
+    TrcKeyZSampling		cs_;
     CallBack*			applycb_;
     bool			isinl_, iscrl_, istsl_, isvol_, is2d_,
 				dogeomcheck_;
@@ -90,16 +90,16 @@ mExpClass(uiTools) uiSliceSelDlg : public uiDialog
 {
 public:
 				uiSliceSelDlg(uiParent*,
-					      const CubeSampling& csin,
-					      const CubeSampling& maxcs,
+					      const TrcKeyZSampling& csin,
+					      const TrcKeyZSampling& maxcs,
 					      const CallBack& applycb,
 					      uiSliceSel::Type,
 					      const ZDomain::Info&);
 
-    const CubeSampling&		getCubeSampling() const
-				{ return slicesel_->getCubeSampling(); }
-    void			setCubeSampling( const CubeSampling& cs )
-				{ slicesel_->setCubeSampling( cs ); }
+    const TrcKeyZSampling&		getTrcKeyZSampling() const
+				{ return slicesel_->getTrcKeyZSampling(); }
+    void			setTrcKeyZSampling( const TrcKeyZSampling& cs )
+				{ slicesel_->setTrcKeyZSampling( cs ); }
 
     uiSliceSel*			grp()	{ return slicesel_; }
 
@@ -115,12 +115,12 @@ mExpClass(uiTools) uiLinePosSelDlg: public uiDialog
 {
 public:
 			uiLinePosSelDlg(uiParent*);
-			uiLinePosSelDlg(uiParent*,const CubeSampling&);
+			uiLinePosSelDlg(uiParent*,const TrcKeyZSampling&);
 			~uiLinePosSelDlg();
 
-    const CubeSampling&	getCubeSampling() const;
+    const TrcKeyZSampling&	getTrcKeyZSampling() const;
     const char*		getLineName() const;
-    void		setPrefCS(CubeSampling* prefcs)	{ prefcs_ = prefcs; }
+    void		setPrefCS(TrcKeyZSampling* prefcs)	{ prefcs_ = prefcs; }
 
 protected:
     bool		acceptOK(CallBacker*);
@@ -129,8 +129,8 @@ protected:
 
     uiGenInput*		inlcrlfld_;
     uiGenInput*		linesfld_;
-    CubeSampling	cs_;
-    CubeSampling*	prefcs_;
+    TrcKeyZSampling	cs_;
+    TrcKeyZSampling*	prefcs_;
     uiSliceSelDlg*	posdlg_;
     bool		is2d_;
     IOPar		prevpar_;

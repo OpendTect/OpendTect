@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "madstream.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "envvars.h"
 #include "file.h"
 #include "filepath.h"
@@ -450,7 +450,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	cubedata_ = new PosInfo::CubeData( rdr->posData() );
 	if ( seldata )
 	{
-	    HorSampling hs;
+	    TrcKeySampling hs;
 	    hs.set( seldata->inlRange(), seldata->crlRange() );
 	    cubedata_->limitTo( hs );
 	}

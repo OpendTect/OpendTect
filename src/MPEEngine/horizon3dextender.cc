@@ -77,7 +77,7 @@ int BaseHorizon3DExtender::maxNrPosInExtArea() const
 
 void BaseHorizon3DExtender::preallocExtArea()
 {
-    const HorSampling hrg = getExtBoundary().hrg;
+    const TrcKeySampling hrg = getExtBoundary().hrg;
     surface.geometry().sectionGeometry(sid_)->expandWithUdf(hrg.start,hrg.stop);
 }
 
@@ -192,7 +192,7 @@ float BaseHorizon3DExtender::getDepth( const BinID& srcbid,
 }
 
 
-const CubeSampling& BaseHorizon3DExtender::getExtBoundary() const
+const TrcKeyZSampling& BaseHorizon3DExtender::getExtBoundary() const
 { return extboundary_.isEmpty() ? engine().activeVolume() : extboundary_; }
 
 

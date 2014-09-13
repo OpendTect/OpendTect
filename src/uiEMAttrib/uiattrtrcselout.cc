@@ -383,7 +383,7 @@ bool uiAttrTrcSelOut::fillPar()
     PtrMan<IOPar> subselpar = new IOPar;
     seissubselfld_->fillPar( *subselpar );
 
-    HorSampling horsamp; horsamp.usePar( *subselpar );
+    TrcKeySampling horsamp; horsamp.usePar( *subselpar );
     if ( horsamp.isEmpty() )
 	getComputableSurf( horsamp );
 
@@ -409,7 +409,7 @@ bool uiAttrTrcSelOut::fillPar()
 	}
     }
 
-    CubeSampling::removeInfo( *subselpar );
+    TrcKeyZSampling::removeInfo( *subselpar );
     iopar.mergeComp( *subselpar,
 		     IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
@@ -459,7 +459,7 @@ bool uiAttrTrcSelOut::fillPar()
 }
 
 
-void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
+void uiAttrTrcSelOut::getComputableSurf( TrcKeySampling& trcsampling )
 {
     EM::SurfaceIOData sd;
     uiString errmsg;
@@ -484,7 +484,7 @@ void uiAttrTrcSelOut::getComputableSurf( HorSampling& horsampling )
 	crlrg.stop = mMIN( crlrg.stop, crlrg2.stop);
     }
 
-    horsampling.set( inlrg, crlrg );
+    trcsampling.set( inlrg, crlrg );
 }
 
 
@@ -527,13 +527,13 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
 	return;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     attrfld_->getRanges( cs );
 
-    HorSampling horsampling;
-    getComputableSurf( horsampling );
+    TrcKeySampling trcsampling;
+    getComputableSurf( trcsampling );
 
-    cs.hrg.limitTo( horsampling );
+    cs.hrg.limitTo( trcsampling );
     seissubselfld_->setInput( cs );
 }
 

@@ -29,7 +29,7 @@ class uiSlider;
 class uiFreqTaperGrp;
 
 class ArrayNDWindow;
-class CubeSampling;
+class TrcKeyZSampling;
 
 
 mStruct(uiSeis) FreqTaperSetup
@@ -204,7 +204,7 @@ protected:
     const char*		attrnm_;
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
-    CubeSampling*	cs_;
+    TrcKeyZSampling*	cs_;
 
     void		previewPushed(CallBacker*);
 };

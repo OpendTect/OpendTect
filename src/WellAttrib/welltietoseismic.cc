@@ -104,7 +104,7 @@ bool DataPlayer::extractSeismics()
     if ( !seisobj || !oinf.isOK() )
 	mErrRet( tr( "Cannot read seismic data" ) )
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     oinf.getRanges( cs );
     const StepInterval<float> tracerg = data_.getTraceRange();
     StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zrg.step );

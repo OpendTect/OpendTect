@@ -14,14 +14,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survgeometry.h"
 #include "survinfo.h"
 #include "trigonometry.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 Coord SurveyGeometry::getEdgePoint( const Coord& from, const Coord& to )
 {
     Line2 line( from, to );
     line.start_ = Coord::udf();
     line.stop_ = Coord::udf();		// making the line infinite
-    const HorSampling hs( SI().sampling(false).hrg );
+    const TrcKeySampling hs( SI().sampling(false).hrg );
     Coord svert[4];
     svert[0] = SI().transform( hs.start );
     svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );

@@ -48,7 +48,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     const uiString spacingstr = tr("Spacing (Start/Stop)");
 
     BufferString label;
-    CubeSampling cs( pdd->getCubeSampling(true,true) );
+    TrcKeyZSampling cs( pdd->getTrcKeyZSampling(true,true) );
     if ( cs.nrInl()>1 )
 	{ mCreateGridFld( inl, "in-line" ) }
     if ( cs.nrCrl()>1 )
@@ -117,7 +117,7 @@ static float getDefaultStep( float width )
 }
 
 
-static void getDefaultHorSampling( int& start, int& stop, int& step )
+static void getDefaultTrcKeySampling( int& start, int& stop, int& step )
 {
     const float width = mCast( float, stop - start );
     step = mNINT32( getDefaultStep(width) );
@@ -140,18 +140,18 @@ static void getDefaultZSampling( StepInterval<float>& zrg )
 
 void uiGridLinesDlg::setParameters()
 {
-    const bool hasgl = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
-    CubeSampling cs = pdd_->getCubeSampling( true, true );
+    const bool hasgl = !pdd_->gridlines()->getGridTrcKeyZSampling().isEmpty();
+    TrcKeyZSampling cs = pdd_->getTrcKeyZSampling( true, true );
     if ( hasgl )
     {
-	cs = pdd_->gridlines()->getGridCubeSampling();
+	cs = pdd_->gridlines()->getGridTrcKeyZSampling();
 	cs.zrg.scale( mCast(float,SI().zDomain().userFactor()) );
     }
     else
     {
-	getDefaultHorSampling( cs.hrg.start.inl(), cs.hrg.stop.inl(),
+	getDefaultTrcKeySampling( cs.hrg.start.inl(), cs.hrg.stop.inl(),
 			       cs.hrg.step.inl() );
-	getDefaultHorSampling( cs.hrg.start.crl(), cs.hrg.stop.crl(),
+	getDefaultTrcKeySampling( cs.hrg.start.crl(), cs.hrg.stop.crl(),
 			       cs.hrg.step.crl() );
 	getDefaultZSampling( cs.zrg );
     }
@@ -189,7 +189,7 @@ void uiGridLinesDlg::setParameters()
 
 bool uiGridLinesDlg::acceptOK( CallBacker* )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( inlfld_ ) { mGetHrgSampling(inl) };
     if ( crlfld_ ) { mGetHrgSampling(crl) };
     if ( zfld_ )
@@ -220,8 +220,8 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	    continue;
 
 	visBase::GridLines& gl = *pdd->gridlines();
-	gl.setPlaneCubeSampling( pdd->getCubeSampling(true,true) );
-	gl.setGridCubeSampling( cs );
+	gl.setPlaneTrcKeyZSampling( pdd->getTrcKeyZSampling(true,true) );
+	gl.setGridTrcKeyZSampling( cs );
 	gl.showInlines( inlfld_ ? inlfld_->isChecked() : false );
 	gl.showCrosslines( crlfld_ ? crlfld_->isChecked(): false );
 	gl.showZlines( zfld_ ? zfld_->isChecked(): false );

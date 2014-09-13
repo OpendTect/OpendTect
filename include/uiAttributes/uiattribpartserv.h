@@ -37,7 +37,7 @@ namespace Attrib
 
 class BinIDValueSet;
 class BufferStringSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class DataPointSetDisplayMgr;
 class IOObj;
 class NLAModel;
@@ -112,8 +112,8 @@ public:
     const TypeSet<Attrib::SelSpec>& getTargetSelSpecs() const
 			    { return targetspecs_; }
 
-    DataPack::ID	createOutput(const CubeSampling&,DataPack::ID);
-    const Attrib::DataCubes* createOutput(const CubeSampling&,
+    DataPack::ID	createOutput(const TrcKeyZSampling&,DataPack::ID);
+    const Attrib::DataCubes* createOutput(const TrcKeyZSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(DataPointSet&,int firstcol =0);
     bool		createOutput(ObjectSet<DataPointSet>&,
@@ -123,7 +123,7 @@ public:
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 					    TypeSet<BinID>* path,
 					    TypeSet<BinID>* trueknotspos);
-    DataPack::ID	create2DOutput(const CubeSampling&,const Pos::GeomID&,
+    DataPack::ID	create2DOutput(const TrcKeyZSampling&,const Pos::GeomID&,
 				       TaskRunner&);
 
     bool		isDataClassified(const Array3D<float>&) const;
@@ -206,7 +206,7 @@ protected:
     bool                is2devsent_;
     bool		attrsneedupdt_;
 
-    Attrib::EngineMan*	createEngMan(const CubeSampling* cs=0,
+    Attrib::EngineMan*	createEngMan(const TrcKeyZSampling* cs=0,
 			const Pos::GeomID& geomid=Survey::GM().cUndefGeomID());
 
     void		directShowAttr(CallBacker*);

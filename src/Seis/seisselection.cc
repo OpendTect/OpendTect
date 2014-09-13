@@ -8,7 +8,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisselectionimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "binidvalset.h"
@@ -93,13 +93,13 @@ Seis::SelData* Seis::SelData::get( const Pos::Provider& prov )
 
 Interval<int> Seis::SelData::inlRange() const
 {
-    return HorSampling(true).inlRange();
+    return TrcKeySampling(true).inlRange();
 }
 
 
 Interval<int> Seis::SelData::crlRange() const
 {
-    return HorSampling(true).crlRange();
+    return TrcKeySampling(true).crlRange();
 }
 
 
@@ -135,7 +135,7 @@ void Seis::SelData::usePar( const IOPar& iop )
 
 int Seis::SelData::tracesInSI() const
 {
-    return mCast( int, HorSampling(true).totalNr() );
+    return mCast( int, TrcKeySampling(true).totalNr() );
 }
 
 
@@ -143,29 +143,29 @@ int Seis::SelData::tracesInSI() const
 
 
 Seis::RangeSelData::RangeSelData( bool initsi )
-    : cs_(*new CubeSampling(initsi))
+    : cs_(*new TrcKeyZSampling(initsi))
 {
     if ( initsi )
 	setIsAll();
 }
 
 
-Seis::RangeSelData::RangeSelData( const HorSampling& hs )
-    : cs_(*new CubeSampling(false))
+Seis::RangeSelData::RangeSelData( const TrcKeySampling& hs )
+    : cs_(*new TrcKeyZSampling(false))
 {
     cs_.hrg = hs;
     cs_.zrg = SI().zRange(false);
 }
 
 
-Seis::RangeSelData::RangeSelData( const CubeSampling& cs )
-    : cs_(*new CubeSampling(cs))
+Seis::RangeSelData::RangeSelData( const TrcKeyZSampling& cs )
+    : cs_(*new TrcKeyZSampling(cs))
 {
 }
 
 
 Seis::RangeSelData::RangeSelData( const Seis::RangeSelData& sd )
-    : cs_(*new CubeSampling(false))
+    : cs_(*new TrcKeyZSampling(false))
 {
     copyFrom(sd);
 }
@@ -322,7 +322,7 @@ int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
     if ( isall_ ) return tracesInSI();
 
-    HorSampling hs( cs_.hrg );
+    TrcKeySampling hs( cs_.hrg );
     if ( step ) hs.step = *step;
     const int nrinl = for2d ? 1 : hs.nrInl();
     const int nrcrl = hs.nrCrl();
@@ -577,7 +577,7 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	if ( !rsd )
 	    { pErrMsg( "Huh" ); }
 	ODPolygon<float>* poly = new ODPolygon<float>;
-	const CubeSampling& cs = rsd->cubeSampling();
+	const TrcKeyZSampling& cs = rsd->cubeSampling();
 	poly->add( Geom::Point2D<float>(
 		      (float) cs.hrg.start.inl(), (float) cs.hrg.start.crl()) );
 	poly->add( Geom::Point2D<float>(
@@ -798,7 +798,7 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 	Interval<int> crlrg( mNINT32(polycrlrg.start), mNINT32(polycrlrg.stop));
 	crlrg.widen( stepoutreach_.crl() );
 	
-	HorSampling hs; 
+	TrcKeySampling hs;
 	hs.set( inlrg, crlrg );
 	if ( step ) hs.step = *step;
 	hs.snapToSurvey();

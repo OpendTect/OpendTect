@@ -22,18 +22,18 @@ uiSlicePos2DView::uiSlicePos2DView( uiParent* p )
 }
 
 
-static OD::SliceType getOrientation( const CubeSampling& cs )
+static OD::SliceType getOrientation( const TrcKeyZSampling& cs )
 {
-    if ( cs.defaultDir() == CubeSampling::Crl )
+    if ( cs.defaultDir() == TrcKeyZSampling::Crl )
 	return OD::CrosslineSlice;
-    if ( cs.defaultDir() == CubeSampling::Z )
+    if ( cs.defaultDir() == TrcKeyZSampling::Z )
 	return OD::ZSlice;
 
     return OD::InlineSlice;
 }
 
 
-void uiSlicePos2DView::setCubeSampling( const CubeSampling& cs )
+void uiSlicePos2DView::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     curorientation_ = getOrientation( cs );
     curcs_ = cs;
@@ -45,10 +45,10 @@ void uiSlicePos2DView::setCubeSampling( const CubeSampling& cs )
 }
 
 
-void uiSlicePos2DView::setLimitSampling( const CubeSampling& cs )
+void uiSlicePos2DView::setLimitSampling( const TrcKeyZSampling& cs )
 {
     limitscs_ = cs;
-    setCubeSampling( curcs_ );
+    setTrcKeyZSampling( curcs_ );
 }
 
 
@@ -73,7 +73,7 @@ void uiSlicePos2DView::setStepBoxValue()
 
 void uiSlicePos2DView::slicePosChg( CallBacker* )
 {
-    CubeSampling oldcs = curcs_;
+    TrcKeyZSampling oldcs = curcs_;
     slicePosChanged( curorientation_, oldcs );
 }
 

@@ -16,9 +16,9 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "executor.h"
 #include "bufstring.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 
-class HorSampling;
+class TrcKeySampling;
 class Array2DInterpol;
 
 namespace EM
@@ -58,7 +58,7 @@ protected:
     ObjectSet<Hor2DTo3DSectionData>	sd_;
     Array2DInterpol*			curinterp_;
 
-    void			addSections(const HorSampling&);
+    void			addSections(const TrcKeySampling&);
     void			fillSections();
 
 };

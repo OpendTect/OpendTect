@@ -79,7 +79,7 @@ void GridLines::getLineStyle( LineStyle& ls ) const
 }
 
 
-void GridLines::setGridCubeSampling( const CubeSampling& cs )
+void GridLines::setGridTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     if ( cs==gridcs_ )
 	return;
@@ -109,8 +109,8 @@ void GridLines::adjustGridCS()
     if ( !planecs_.isDefined() || !gridcs_.isDefined() )
 	return;
 
-    const HorSampling& phs = planecs_.hrg;
-    HorSampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& phs = planecs_.hrg;
+    TrcKeySampling& ghs = gridcs_.hrg;
 
     if ( csinlchanged_ )
     {
@@ -162,7 +162,7 @@ void GridLines::adjustGridCS()
 }
 
 
-void GridLines::setPlaneCubeSampling( const CubeSampling& cs )
+void GridLines::setPlaneTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     if ( cs.hrg.inlRange() != planecs_.hrg.inlRange() )
 	csinlchanged_ = true;
@@ -223,7 +223,7 @@ void GridLines::drawInlines()
 	emptyLineSet( inlines_ );
 
     
-    const HorSampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& ghs = gridcs_.hrg;
     for ( int inl=ghs.start.inl(); inl<=ghs.stop.inl(); inl+=ghs.step.inl() )
     {
 	addLine( *inlines_, 
@@ -241,7 +241,7 @@ void GridLines::drawCrosslines()
     else
 	emptyLineSet( crosslines_ );
     
-    const HorSampling& ghs = gridcs_.hrg;
+    const TrcKeySampling& ghs = gridcs_.hrg;
     for ( int crl=ghs.start.crl(); crl<=ghs.stop.crl(); crl+=ghs.step.crl() )
     {
 	addLine( *crosslines_, 
@@ -262,7 +262,7 @@ void GridLines::drawZlines()
     else
 	emptyLineSet( zlines_ );
     
-    const HorSampling& phs = planecs_.hrg;
+    const TrcKeySampling& phs = planecs_.hrg;
     for ( int zidx=0; zidx<gridcs_.zrg.nrSteps()+1; zidx++ )
     {
 	const float zval = gridcs_.zrg.atIndex( zidx );

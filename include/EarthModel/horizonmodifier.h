@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "posinfo2dsurv.h"
 
 namespace EM { class Horizon; }
-class HorSamplingIterator;
+class TrcKeySamplingIterator;
 
 /*!
 \brief Modifies horizons.
@@ -56,7 +56,7 @@ protected:
     bool			is2d_;
     TypeSet<Pos::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
-    HorSamplingIterator*	iter_;
+    TrcKeySamplingIterator*	iter_;
 
     ModifyMode			modifymode_;
     bool			topisstatic_;

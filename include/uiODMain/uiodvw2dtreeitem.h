@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 #include "uistring.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class uiTreeView;
 class uiODApplMgr;
 class uiODViewer2D;
@@ -30,7 +30,7 @@ public:
     			uiODVw2DTreeItem(const char*);
 			~uiODVw2DTreeItem(){}
 
-    void		updCubeSamling(const CubeSampling&,bool);
+    void		updCubeSamling(const TrcKeyZSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
 
     void		fillPar(IOPar&) const;
@@ -47,7 +47,7 @@ protected:
 
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
-    virtual void		updateCS(const CubeSampling&,bool)	{}
+    virtual void		updateCS(const TrcKeyZSampling&,bool)	{}
     virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
 				{}
 };
@@ -72,7 +72,7 @@ public:
     static const char*  	viewer2dptr();
     static const char*  	applmgrstr();
 
-    void			updCubeSamling(const CubeSampling&,bool);
+    void			updCubeSamling(const TrcKeyZSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
 
 protected:

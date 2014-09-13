@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 template <class T> class Array3D;
 class Coord3List;
-class CubeSampling;
+class TrcKeyZSampling;
 
 namespace Geometry
 {
@@ -28,7 +28,7 @@ mExpClass(Geometry) ImplicitBodyPlaneIntersector
 public:
 				ImplicitBodyPlaneIntersector(
 					const Array3D<float>& bodyarray,
-					const CubeSampling& bodyrg,
+					const TrcKeyZSampling& bodyrg,
 					float bodythreshold,
 					char dim,float icz,IndexedShape&);
 				//Make sure bodyarray has the same size as rg.
@@ -44,7 +44,7 @@ protected:
     IndexedShape&		output_;
 
     const Array3D<float>&	arr_;
-    const CubeSampling&		cs_;
+    const TrcKeyZSampling&		cs_;
     float			threshold_;
     char			dim_;
     float			inlcrlz_;

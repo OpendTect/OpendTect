@@ -147,11 +147,11 @@ Engine::~Engine()
 }
 
 
-const CubeSampling& Engine::activeVolume() const
+const TrcKeyZSampling& Engine::activeVolume() const
 { return activevolume_; }
 
 
-void Engine::setActiveVolume( const CubeSampling& nav )
+void Engine::setActiveVolume( const TrcKeyZSampling& nav )
 {
     activevolume_ = nav;
 
@@ -163,7 +163,7 @@ void Engine::setActiveVolume( const CubeSampling& nav )
 	dim = 2;
 
     TrackPlane ntp;
-    CubeSampling& ncs = ntp.boundingBox();
+    TrcKeyZSampling& ncs = ntp.boundingBox();
     ncs = nav;
 
     if ( !dim )
@@ -300,7 +300,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 		dim = 2;
 
 	    TrackPlane ntp;
-	    CubeSampling& ncs = ntp.boundingBox();
+	    TrcKeyZSampling& ncs = ntp.boundingBox();
 	    ncs = emobj->getRemovedPolySelectedPosBox();
 
 	    if ( !dim )
@@ -483,13 +483,13 @@ void Engine::getNeededAttribs( ObjectSet<const Attrib::SelSpec>& res ) const
 }
 
 
-CubeSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
+TrcKeyZSampling Engine::getAttribCube( const Attrib::SelSpec& as ) const
 {
-    CubeSampling res( engine().activeVolume() );
+    TrcKeyZSampling res( engine().activeVolume() );
     for ( int idx=0; idx<trackers_.size(); idx++ )
     {
 	if ( !trackers_[idx] ) continue;
-	const CubeSampling cs = trackers_[idx]->getAttribCube( as );
+	const TrcKeyZSampling cs = trackers_[idx]->getAttribCube( as );
 	res.include(cs);
     }
 
@@ -551,24 +551,24 @@ const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
     if ( cdp )
     {
-	dh->setCubeSampling( cdp->cube().cubeSampling() );
+	dh->setTrcKeyZSampling( cdp->cube().cubeSampling() );
 	dh->set3DData( &cdp->cube() );
     }
     mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
     if ( fdp )
     {
-	dh->setCubeSampling( fdp->cube().cubeSampling() );
+	dh->setTrcKeyZSampling( fdp->cube().cubeSampling() );
 	dh->set3DData( &fdp->cube() );
     }
 
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
-	dh->setCubeSampling( dp2d->dataarray()->cubesampling_ );
+	dh->setTrcKeyZSampling( dp2d->dataarray()->cubesampling_ );
 	dh->set2DData( dp2d->dataarray() );
     }
 
-    if ( !dh->getCubeSampling().isEmpty() )
+    if ( !dh->getTrcKeyZSampling().isEmpty() )
     {
 	DataHolder* res = dh.set( 0, false );
 	res->unRefNoDelete();
@@ -665,13 +665,13 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 
 bool Engine::cacheIncludes( const Attrib::SelSpec& as,
-			    const CubeSampling& cs )
+			    const TrcKeyZSampling& cs )
 {
     ConstRefMan<DataHolder> cache = getAttribCache( as );
     if ( !cache )
 	return false;
 
-    CubeSampling cachedcs = cache->getCubeSampling();
+    TrcKeyZSampling cachedcs = cache->getTrcKeyZSampling();
     const float zrgeps = 0.01f * SI().zStep();
     cachedcs.zrg.widen( zrgeps );
 
@@ -693,7 +693,7 @@ void Engine::swapCacheAndItsBackup()
 }
 
 
-void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
+void Engine::updateFlatCubesContainer( const TrcKeyZSampling& cs, const int idx,
 					bool addremove )
 {
     if ( !(cs.nrInl()==1) && !(cs.nrCrl()==1) )
@@ -750,7 +750,7 @@ void Engine::updateFlatCubesContainer( const CubeSampling& cs, const int idx,
 }
 
 
-ObjectSet<CubeSampling>* Engine::getTrackedFlatCubes( const int idx ) const
+ObjectSet<TrcKeyZSampling>* Engine::getTrackedFlatCubes( const int idx ) const
 {
     if ( (flatcubescontainer_.size()==0) || !flatcubescontainer_[idx] )
 	return 0;
@@ -759,10 +759,10 @@ ObjectSet<CubeSampling>* Engine::getTrackedFlatCubes( const int idx ) const
     if ( flatcubes.size()==0 )
 	return 0;
 
-    ObjectSet<CubeSampling>* flatcbs = new ObjectSet<CubeSampling>;
+    ObjectSet<TrcKeyZSampling>* flatcbs = new ObjectSet<TrcKeyZSampling>;
     for ( int flatcsidx = 0; flatcsidx<flatcubes.size(); flatcsidx++ )
     {
-	CubeSampling* cs = new CubeSampling();
+	TrcKeyZSampling* cs = new TrcKeyZSampling();
 	cs->setEmpty();
 	cs->include( flatcubes[flatcsidx]->flatcs_ );
 	flatcbs->push( cs );
@@ -817,9 +817,9 @@ const char* Engine::errMsg() const
 { return errmsg_.str(); }
 
 
-CubeSampling Engine::getDefaultActiveVolume()
+TrcKeyZSampling Engine::getDefaultActiveVolume()
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl()=(5*SI().inlRange(true).start+
 			3*SI().inlRange(true).stop)/8;
     cs.hrg.start.crl()=(5*SI().crlRange(true).start+
@@ -883,7 +883,7 @@ bool Engine::usePar( const IOPar& iopar )
 {
     init();
 
-    CubeSampling newvolume;
+    TrcKeyZSampling newvolume;
     if ( newvolume.usePar(iopar) )
     {
 	setActiveVolume( newvolume );

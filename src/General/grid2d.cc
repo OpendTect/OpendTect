@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "grid2d.h"
 
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "trigonometry.h"
@@ -47,7 +47,7 @@ bool Grid2D::Line::isReasonable() const
 }
 
 
-void Grid2D::Line::limitTo( const HorSampling& hs )
+void Grid2D::Line::limitTo( const TrcKeySampling& hs )
 {
     const bool startin = hs.includes( start_ );
     const bool stopin = hs.includes( stop_ );
@@ -84,7 +84,7 @@ void Grid2D::Line::limitTo( const HorSampling& hs )
 
 // Grid2D
 void Grid2D::set( const TypeSet<int>& inls, const TypeSet<int>& crls,
-		      const HorSampling& hs )
+		      const TrcKeySampling& hs )
 {
     empty();
     for ( int idx=0; idx<inls.size(); idx++ )
@@ -104,7 +104,7 @@ void Grid2D::set( const TypeSet<int>& inls, const TypeSet<int>& crls,
 
 
 void Grid2D::set( const Grid2D::Line& baseln, double pardist, double perpdist,
-		      const HorSampling& hs )
+		      const TrcKeySampling& hs )
 {
     empty();
     const Coord startpt = SI().transform( baseln.start_ );
@@ -153,7 +153,7 @@ const Grid2D::Line* Grid2D::getLine( int idx, bool dim ) const
 
 
 void Grid2D::createParallelLines( const Line2& baseline, double dist,
-				      const HorSampling& hs,
+				      const TrcKeySampling& hs,
 				      ObjectSet<Grid2D::Line>& lines )
 {
     if ( hs.nrInl() == 1 || hs.nrCrl() == 1 )
@@ -230,7 +230,7 @@ void Grid2D::createParallelLines( const Line2& baseline, double dist,
 	    delete dimstr##lines_.removeSingle( idx-- ); \
     }
 
-void Grid2D::limitTo( const HorSampling& cs )
+void Grid2D::limitTo( const TrcKeySampling& cs )
 {
     mLimitLines(dim0)
     mLimitLines(dim1)

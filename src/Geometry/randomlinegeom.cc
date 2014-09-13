@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinegeom.h"
 
 #include "interpol1d.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "trigonometry.h"
@@ -65,12 +65,12 @@ void RandomLine::allNodePositions( TypeSet<BinID>& bids ) const
 { bids = nodes_; }
 
 
-void RandomLine::limitTo( const CubeSampling& cs )
+void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
     if ( nrNodes() != 2 ) return;
 
     zrange_.limitTo( cs.zrg );
-    const HorSampling& hs = cs.hrg;
+    const TrcKeySampling& hs = cs.hrg;
     const bool startin = hs.includes( nodes_[0] );
     const bool stopin = hs.includes( nodes_[1] );
     if ( startin && stopin )
@@ -195,7 +195,7 @@ RandomLineSet::~RandomLineSet()
 
 void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
 {
-    const HorSampling hs( SI().sampling(false).hrg );
+    const TrcKeySampling hs( SI().sampling(false).hrg );
     Coord svert[4];
     svert[0] = SI().transform( hs.start );
     svert[1] = SI().transform( BinID(hs.start.inl(),hs.stop.crl()) );
@@ -267,7 +267,7 @@ void RandomLineSet::createParallelLines( const Line2& baseline, double dist )
     }
 }
 
-void RandomLineSet::limitTo( const CubeSampling& cs )
+void RandomLineSet::limitTo( const TrcKeyZSampling& cs )
 {
     for ( int idx=0; idx<lines_.size(); idx++ )
     {

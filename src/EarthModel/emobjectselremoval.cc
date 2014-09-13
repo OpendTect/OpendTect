@@ -253,9 +253,9 @@ void EMObjectRowColSelRemoval::makeListGrow( const RowCol& start,
 
     TypeSet<EM::SubID> ids;
 
-    HorSampling horsampling( true );
-    horsampling.set( rowrg, colrg );
-    HorSamplingIterator iter( horsampling );
+    TrcKeySampling trcsampling( true );
+    trcsampling.set( rowrg, colrg );
+    TrcKeySamplingIterator iter( trcsampling );
 
     BinID bid;
     

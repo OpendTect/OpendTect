@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uiparent.h"
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 class uiLabel;
 class uiSpinBox;
@@ -34,7 +34,7 @@ public:
 			DeclareEnumUtils(SliceDir);
 
     uiToolBar*		getToolBar() const		{ return toolbar_; }
-    CubeSampling	getCubeSampling() const		{ return curcs_; }
+    TrcKeyZSampling	getTrcKeyZSampling() const		{ return curcs_; }
 
     void		setLabels(const char* inl,const char* crl,const char*z);
 
@@ -50,7 +50,7 @@ protected:
     uiToolButton*	nextbut_;
     int			laststeps_[3];
     int			zfactor_;
-    CubeSampling	curcs_;
+    TrcKeyZSampling	curcs_;
     BufferStringSet	boxlabels_;
 
     void		setBoxLabel(SliceDir);
@@ -62,10 +62,10 @@ protected:
     void		shortcutsChg(CallBacker*);
     void		updatePos(CallBacker*);
     void		initSteps(CallBacker* cb=0);
-    void		slicePosChanged(SliceDir,const CubeSampling&);
+    void		slicePosChanged(SliceDir,const TrcKeyZSampling&);
     void		sliceStepChanged(SliceDir);
-    void		setBoxRg(SliceDir,const CubeSampling&);
-    void		setPosBoxVal(SliceDir,const CubeSampling&);
+    void		setBoxRg(SliceDir,const TrcKeyZSampling&);
+    void		setPosBoxVal(SliceDir,const TrcKeyZSampling&);
 
     void		prevCB(CallBacker*);
     void		nextCB(CallBacker*);

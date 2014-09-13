@@ -57,8 +57,8 @@ public:
 						    const BufferStringSet&,
 						    bool issynthetic=false);
 
-    const CubeSampling&		cubeSampling(); 
-    void			setCubeSampling(const CubeSampling&); 
+    const TrcKeyZSampling&		cubeSampling();	
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
     void 			setStep(int);	
     int 			step() const;	
 
@@ -91,12 +91,12 @@ mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
 {
 public:
 				uiViewer2DPosDlg(uiParent*,bool is2d,
-						const CubeSampling&,
+						const TrcKeyZSampling&,
 						const BufferStringSet&,
 						bool issynthetic);
 
-    void 			setCubeSampling(const CubeSampling&);
-    void 			getCubeSampling(CubeSampling&);
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    void			getTrcKeyZSampling(TrcKeyZSampling&);
 
     void                        enableZDisplay(bool yn)
 				    { sliceselfld_->enableZDisplay(yn); }

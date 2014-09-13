@@ -72,7 +72,7 @@ public:
 
     bool		setTargetSelSpec(const Attrib::SelSpec&);
 
-    virtual DataPack::ID createAttrib(const CubeSampling&,DataPack::ID,
+    virtual DataPack::ID createAttrib(const TrcKeyZSampling&,DataPack::ID,
 				     TaskRunner*);
     virtual bool	createAttrib( ObjectSet<BinIDValueSet>& o,
 				      TaskRunner* tr )
@@ -80,7 +80,7 @@ public:
     virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
 				      TaskRunner* tr )
 			{ return Attrib::ExtAttribCalc::createAttrib(b,tb,tr); }
-    virtual DataPack::ID createAttrib( const CubeSampling& cs, const LineKey& l,
+    virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, const LineKey& l,
 					TaskRunner* tr )
 			{ return Attrib::ExtAttribCalc::createAttrib(cs,l,tr); }
 

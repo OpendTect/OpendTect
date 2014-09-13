@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "file.h"
 #include "iopar.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "enums.h"
 #include "envvars.h"
 #include "seistype.h"
@@ -476,13 +476,13 @@ int Seis::Bounds::expectedNrTraces() const
 
 
 Seis::Bounds3D::Bounds3D()
-    : cs_(*new CubeSampling)
+    : cs_(*new TrcKeyZSampling)
 {
 }
 
 
 Seis::Bounds3D::Bounds3D( const Bounds3D& b )
-    : cs_(*new CubeSampling(b.cs_))
+    : cs_(*new TrcKeyZSampling(b.cs_))
 {
 }
 

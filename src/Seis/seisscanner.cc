@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seistrc.h"
 #include "seistrctr.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "posinfodetector.h"
 #include "sorting.h"
 #include "oddirs.h"
@@ -81,7 +81,7 @@ od_int64 SeisScanner::totalNr() const
 	    self.totalnr_ = maxnrtrcs_;
 	else if ( rdr_.ioObj() )
 	{
-	    CubeSampling cs;
+	    TrcKeyZSampling cs;
 	    if ( SeisTrcTranslator::getRanges(*rdr_.ioObj(),cs) )
 		self.totalnr_ = cs.hrg.nrInl() * cs.hrg.nrCrl();
 	}
@@ -90,7 +90,7 @@ od_int64 SeisScanner::totalNr() const
 }
 
 
-bool SeisScanner::getSurvInfo( CubeSampling& cs, Coord crd[3] ) const
+bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
 {
     const char* msg = dtctor_.getSurvInfo( cs.hrg, crd );
     if ( msg )
@@ -133,7 +133,7 @@ void SeisScanner::report( IOPar& iopar ) const
     dtctor_.report( iopar );
     if ( !dtctor_.is2D() )
     {
-	CubeSampling cs; Coord crd[3];
+	TrcKeyZSampling cs; Coord crd[3];
 	getSurvInfo(cs,crd);
 	iopar.set( "Z.start", cs.zrg.start );
 	iopar.set( "Z.stop", cs.zrg.stop );

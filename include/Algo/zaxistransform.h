@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "survgeom.h"
 
 class BinIDValue;
-class CubeSampling;
+class TrcKeyZSampling;
 class TaskRunner;
 
 namespace ZDomain { class Def; class Info; }
@@ -47,18 +47,18 @@ public:
     virtual uiString		errMsg() const		{ return errmsg_; }
 
     virtual bool		needsVolumeOfInterest() const	{ return true; }
-    virtual int			addVolumeOfInterest(const CubeSampling&,
+    virtual int			addVolumeOfInterest(const TrcKeyZSampling&,
 	    					    bool zistrans=false);
 				/*!<\returns id of new Volume of Interest.*/
     virtual void		setVolumeOfInterest(int volid,
-						    const CubeSampling&,
+						    const TrcKeyZSampling&,
 	    					    bool zistrans=false);
     virtual int			addVolumeOfInterest2D(const char* linenm,
-						    const CubeSampling&,
+						    const TrcKeyZSampling&,
 						    bool zistrans=false);
 				/*!<\returns id of new Volume of Interest.*/
     virtual void		setVolumeOfInterest2D(int,const char* linenm,
-						    const CubeSampling&,
+						    const TrcKeyZSampling&,
 						    bool zistrans=false);
     virtual void		removeVolumeOfInterest(int volid);
 

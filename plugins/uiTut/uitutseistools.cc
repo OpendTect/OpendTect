@@ -5,7 +5,7 @@
 -*/
 
 static const char* rcsID mUsedVar = "$Id$";
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
 #include "uiseissel.h"
@@ -119,7 +119,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     tst_.setInput( *inioobj );
     tst_.setOutput( *outioobj );
 
-    CubeSampling  cs;
+    TrcKeyZSampling  cs;
     subselfld_->getSampling( cs.hrg );
     subselfld_->getZRange( cs.zrg );
     tst_.setRange( cs );

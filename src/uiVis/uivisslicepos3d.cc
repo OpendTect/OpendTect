@@ -92,9 +92,9 @@ void uiSlicePos3DDisp::setBoxRanges()
 {
     if ( !curpdd_ && !curvol_ ) return;
 
-    const CubeSampling& survey = curpdd_ && curpdd_->getScene() ?
-				    curpdd_->getScene()->getCubeSampling()
-				  : curvol_ ? curvol_->getCubeSampling( 0 )
+    const TrcKeyZSampling& survey = curpdd_ && curpdd_->getScene() ?
+				    curpdd_->getScene()->getTrcKeyZSampling()
+				  : curvol_ ? curvol_->getTrcKeyZSampling( 0 )
 				  : SI().sampling( true );
     setBoxRg( getOrientation(), survey );
 }
@@ -152,8 +152,8 @@ OD::SliceType uiSlicePos3DDisp::getOrientation() const
 }
 
 
-CubeSampling uiSlicePos3DDisp::getSampling() const
+TrcKeyZSampling uiSlicePos3DDisp::getSampling() const
 {
-    return curpdd_ ? curpdd_->getCubeSampling( true, true )
+    return curpdd_ ? curpdd_->getTrcKeyZSampling( true, true )
 		   : curvol_->sliceSampling( curvol_->getSelectedSlice() );
 }

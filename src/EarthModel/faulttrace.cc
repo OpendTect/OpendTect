@@ -1030,7 +1030,7 @@ bool FaultTraceExtractor3D::extractFaultTrace( int idx )
     if ( !cfault )
 	return false;
 
-    const HorSampling& hs = holder_.hs_;
+    const TrcKeySampling& hs = holder_.hs_;
     const bool isinl = hs.nrCrl() > 1 && idx < hs.nrInl();
     const int linenr = isinl
 	? hs.start.inl() + idx * hs.step.inl()
@@ -1241,10 +1241,10 @@ int FaultTrcDataProvider::nrFaults() const
 bool FaultTrcDataProvider::isEmpty() const
 { return holders_.isEmpty(); }
 
-HorSampling FaultTrcDataProvider::range( int idx ) const
+TrcKeySampling FaultTrcDataProvider::range( int idx ) const
 {
     return holders_.validIdx(idx) && holders_[idx] ? holders_[idx]->hs_
-						   : HorSampling(false);
+						   : TrcKeySampling(false);
 }
 
 
@@ -1283,7 +1283,7 @@ const FaultTrace* FaultTrcDataProvider::getFaultTrace2D( int fltidx,
 
 
 bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
-					  HorSampling& hs ) const
+					  TrcKeySampling& hs ) const
 {
     for ( int sidx=0; sidx<flt.nrSections(); sidx++ )
     {
@@ -1313,7 +1313,7 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 { errmsg_.setEmpty(); errmsg_ = str; return false; }
 
 bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
-				 const HorSampling& hrg, TaskRunner* tr )
+				 const TrcKeySampling& hrg, TaskRunner* tr )
 {
     clear();
     EM::SurfaceIOData sd;
@@ -1343,7 +1343,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	    continue;
 	}
 
-	HorSampling hs( false );
+	TrcKeySampling hs( false );
 	calcFaultBBox( *flt, hs );
 	hs.limitTo( hrg );
 	FaultTrcHolder* holder = new FaultTrcHolder();

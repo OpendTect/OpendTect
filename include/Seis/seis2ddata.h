@@ -20,7 +20,7 @@ ________________________________________________________________________
 class IOObj;
 class Executor;
 class SeisTrcBuf;
-class CubeSampling;
+class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
 class SeisTrcWriter;

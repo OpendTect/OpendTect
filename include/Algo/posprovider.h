@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "posfilter.h"
 #include "ranges.h"
-class CubeSampling;
+class TrcKeyZSampling;
 
 
 namespace Pos
@@ -45,7 +45,7 @@ public:
     virtual int		estNrZPerPos() const			{ return 1; }
 
     virtual float	estRatio(const Provider&) const;
-    virtual void	getCubeSampling(CubeSampling&) const;
+    virtual void	getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     static Provider*	make(const IOPar&,bool is2d);
 };

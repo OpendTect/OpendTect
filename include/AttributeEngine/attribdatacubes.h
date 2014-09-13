@@ -12,7 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
 #include "bindatadesc.h"
@@ -43,7 +43,7 @@ public:
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
-    bool			setSizeAndPos(const CubeSampling&);
+    bool			setSizeAndPos(const TrcKeyZSampling&);
     				/*!<\note that all data will be lost. */
     bool			setSize(int nrinl,int nrcrl,int nrz);
     				/*!<\note that all data will be lost. */
@@ -54,7 +54,7 @@ public:
 	    				 float* res,bool interpolate) const;
     bool			includes(const BinIDValue&) const;
     bool			includes(const BinID&) const;
-    bool			includes(const CubeSampling&) const;
+    bool			includes(const TrcKeyZSampling&) const;
 
 
     const Array3D<float>&	getCube(int idx) const;
@@ -84,7 +84,7 @@ public:
     SamplingData<int>		crlsampling_;
     int				z0_;
     double			zstep_;
-    CubeSampling		cubeSampling() const;
+    TrcKeyZSampling		cubeSampling() const;
     				/*!<For convenience. The samling is changed
 				    by setting inlsampling, crlsampling, z0 and
 				    zstep. */

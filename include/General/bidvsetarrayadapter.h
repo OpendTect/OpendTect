@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndinfo.h"
 #include "binidvalset.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 
 
 //!\brief an adapter between Array2D and a BinIDValueSet
@@ -31,7 +31,7 @@ public:
     float			get(int inlidx,int crlidx) const;
 
     const Array2DInfo&		info() const		{ return arrinfo_; }
-    HorSampling			hrg_;
+    TrcKeySampling			hrg_;
 
 protected:
 

@@ -33,7 +33,7 @@ const char* VolumeConverter::sKeyInput() { return sKey::Input(); }
 const char* VolumeConverter::sKeyOutput() { return sKey::Output(); }
 
 VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
-				  const HorSampling& ranges,
+				  const TrcKeySampling& ranges,
 				  const VelocityDesc& desc )
     : hrg_( ranges )
     , veloutpdesc_( desc )

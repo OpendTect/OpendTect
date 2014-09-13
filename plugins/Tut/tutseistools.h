@@ -9,7 +9,7 @@
 
 #include "tutmod.h"
 #include "executor.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "samplingdata.h"
 
 class IOObj;
@@ -41,7 +41,7 @@ public:
 
     void		setInput(const IOObj&);
     void		setOutput(const IOObj&);
-    void		setRange(const CubeSampling&);
+    void		setRange(const TrcKeyZSampling&);
     inline void		setAction( Action a )	{ action_ = a; }
     inline void		setScale( float f, float s )
 						{ factor_ = f; shift_ = s; }
@@ -62,7 +62,7 @@ protected:
 
     IOObj*		inioobj_;
     IOObj*		outioobj_;
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
     Action		action_;
     float		factor_;
     float		shift_;

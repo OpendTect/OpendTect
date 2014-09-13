@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uidialog.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "multiid.h"
 
 namespace EM { class Horizon; }
@@ -37,7 +37,7 @@ public:
 					ObjectSet<EM::Horizon>&) const;
     void			getSortedHorizonIDs(TypeSet<MultiID>&) const;
     void			setConstSelected(const TypeSet<MultiID>&);
-    CubeSampling		getBoundingBox() const	{ return bbox_; }
+    TrcKeyZSampling		getBoundingBox() const	{ return bbox_; }
 
 protected:
 
@@ -50,7 +50,7 @@ protected:
 
     bool			is2d_;
     bool			loadneeded_;
-    CubeSampling		bbox_;
+    TrcKeyZSampling		bbox_;
     TypeSet<MultiID>		constselids_;
     ObjectSet<EM::Horizon>	horizons_;
     TypeSet<MultiID>		horids_;

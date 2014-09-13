@@ -54,19 +54,19 @@ ZAxisTransform::~ZAxisTransform()
 }
 
 
-int ZAxisTransform::addVolumeOfInterest( const CubeSampling&, bool )
+int ZAxisTransform::addVolumeOfInterest( const TrcKeyZSampling&, bool )
 { return -1; }
 
 
-void ZAxisTransform::setVolumeOfInterest( int, const CubeSampling&, bool )
+void ZAxisTransform::setVolumeOfInterest( int, const TrcKeyZSampling&, bool )
 {}
 
-int ZAxisTransform::addVolumeOfInterest2D( const char*, const CubeSampling&,
+int ZAxisTransform::addVolumeOfInterest2D( const char*, const TrcKeyZSampling&,
 					   bool )
 { return -1; }
 
 void ZAxisTransform::setVolumeOfInterest2D( int, const char*,
-					    const CubeSampling&, bool )
+					    const TrcKeyZSampling&, bool )
 {}
 
 

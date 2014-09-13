@@ -27,7 +27,7 @@ class SeisTrc;
 class LinScaler;
 class SeisTrcBuf;
 class SeisTrcInfo;
-class CubeSampling;
+class TrcKeyZSampling;
 class SeisPacketInfo;
 class BufferStringSet;
 namespace Seis		{ class SelData; }
@@ -202,9 +202,9 @@ public:
     virtual void	cleanUp();
 			//!< Prepare for new initialisation.
 
-    static bool		getRanges(const MultiID&,CubeSampling&,
+    static bool		getRanges(const MultiID&,TrcKeyZSampling&,
 				  const char* linekey=0);
-    static bool		getRanges(const IOObj&,CubeSampling&,
+    static bool		getRanges(const IOObj&,TrcKeyZSampling&,
 				  const char* linekey=0);
 
     static bool		is2D(const IOObj&,bool only_internal=false);

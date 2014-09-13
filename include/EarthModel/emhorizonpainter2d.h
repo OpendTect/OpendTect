@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
 
@@ -30,7 +30,7 @@ public:
     			HorizonPainter2D(FlatView::Viewer&,const EM::ObjectID&);
 			~HorizonPainter2D();
 
-    void		setCubeSampling(const CubeSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
     void		setGeomID(Pos::GeomID);
 
     void		enableLine(bool);
@@ -68,7 +68,7 @@ protected:
     void		changePolyLineColor();
 
     EM::ObjectID	id_;
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
 
     LineStyle           markerlinestyle_;
     MarkerStyle2D       markerstyle_;

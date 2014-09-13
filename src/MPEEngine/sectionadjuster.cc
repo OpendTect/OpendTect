@@ -51,7 +51,7 @@ int SectionAdjuster::nextStep() { return 0; }
 const char* SectionAdjuster::errMsg() const { return errmsg_.str(); }
 
 
-CubeSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling SectionAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
 { return engine().activeVolume(); }
 
 

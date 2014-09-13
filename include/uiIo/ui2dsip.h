@@ -23,7 +23,7 @@ public:
 
     const char*		usrText() const		{ return "Set for 2D only"; }
     uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
 
     bool		xyInFeet() const	{ return xyft_; }
 

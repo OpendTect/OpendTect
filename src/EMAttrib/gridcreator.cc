@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "gridcreator.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
@@ -56,7 +56,7 @@ class Seis2DLineCreator : public Executor
 { mODTextTranslationClass(Seis2DLineCreator);
 public:
 			Seis2DLineCreator(const IOObj& input,
-					  const CubeSampling&,
+					  const TrcKeyZSampling&,
 					  const IOObj& output,
 					  Pos::GeomID gepmid);
 			~Seis2DLineCreator();
@@ -77,7 +77,7 @@ protected:
 
 
 Seis2DLineCreator::Seis2DLineCreator( const IOObj& input,
-    const CubeSampling& cs, const IOObj& output, Pos::GeomID geomid )
+    const TrcKeyZSampling& cs, const IOObj& output, Pos::GeomID geomid )
     : Executor("Creating 2D line")
     , nrdone_(0)
     , totalnr_(cs.hrg.totalNr())
@@ -158,7 +158,7 @@ bool Seis2DGridCreator::init( const IOPar& par )
     if ( !input || !output )
 	return false;
 
-    CubeSampling bbox;
+    TrcKeyZSampling bbox;
     PtrMan<IOPar> subselpar = par.subselect( sKey::Subsel() );
     if ( subselpar )
 	bbox.usePar( *subselpar );
@@ -195,7 +195,7 @@ else if ( islinepresent && dooverwrite ) \
 
 bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 					const IOObj& input, const IOObj& output,
-					const CubeSampling& bbox )
+					const TrcKeyZSampling& bbox )
 {
     BufferString attribname;
     par.get( sKey::Attribute(), attribname );
@@ -225,7 +225,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     deepErase( failedlines_ );
     for ( int idx=0; idx<inlines.size(); idx++ )
     {
-	CubeSampling cs = bbox;
+	TrcKeyZSampling cs = bbox;
 	cs.hrg.start.inl() = cs.hrg.stop.inl() = inlines[idx];
 	BufferString linenm( inlstr.str() );
 	linenm.add( inlines[idx] );
@@ -253,7 +253,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
     FixedString crlstr = par.find( sKeyCrlPrefix() );
     for ( int idx=0; idx<crosslines.size(); idx++ )
     {
-	CubeSampling cs = bbox;
+	TrcKeyZSampling cs = bbox;
 	cs.hrg.start.crl() = cs.hrg.stop.crl() = crosslines[idx];
 	BufferString linenm( crlstr.str() );
 	linenm.add( crosslines[idx] );
@@ -267,7 +267,7 @@ bool Seis2DGridCreator::initFromInlCrl( const IOPar& par,
 
 bool Seis2DGridCreator::initFromRandomLine( const IOPar& par,
 					const IOObj& input, const IOObj& output,
-					const CubeSampling& bbox )
+					const TrcKeyZSampling& bbox )
 {
     PtrMan<IOPar> baselinepar = par.subselect( sKeyBaseLine() );
     if ( !baselinepar )

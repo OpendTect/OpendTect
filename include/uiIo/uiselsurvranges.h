@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uigroup.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 class uiSpinBox;
 class uiLineEdit;
 namespace ZDomain { class Def; }
@@ -115,12 +115,12 @@ mExpClass(uiIo) uiSelHRange : public uiGroup
 {
 public:
                         uiSelHRange(uiParent*,bool wstep);
-                        uiSelHRange(uiParent*,const HorSampling& limiths,
+			uiSelHRange(uiParent*,const TrcKeySampling& limiths,
 				    bool wstep);
 
-    HorSampling		getSampling() const;
-    void		setSampling(const HorSampling&);
-    void		setLimits(const HorSampling&);
+    TrcKeySampling		getSampling() const;
+    void		setSampling(const TrcKeySampling&);
+    void		setLimits(const TrcKeySampling&);
 
     uiSelNrRange*	inlfld_;
     uiSelNrRange*	crlfld_;
@@ -135,8 +135,8 @@ mExpClass(uiIo) uiSelSubvol : public uiGroup
 public:
                         uiSelSubvol(uiParent*,bool wstep,const char* zdomkey=0);
 
-    CubeSampling	getSampling() const;
-    void		setSampling(const CubeSampling&);
+    TrcKeyZSampling	getSampling() const;
+    void		setSampling(const TrcKeyZSampling&);
 
     uiSelHRange*	hfld_;
     uiSelZRange*	zfld_;

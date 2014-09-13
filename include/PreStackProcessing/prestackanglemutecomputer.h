@@ -16,11 +16,11 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "paralleltask.h"
 #include "ranges.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "prestackanglemute.h"
 #include "threadlock.h"
 
-class HorSampling;
+class TrcKeySampling;
 
 namespace Vel { class VolumeFunctionSource; }
 
@@ -43,7 +43,7 @@ public:
     mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
     {
 	MultiID			outputmutemid_;
-	HorSampling		hrg_;
+	TrcKeySampling		hrg_;
     };
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 

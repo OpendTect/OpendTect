@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "binid.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class SeisTrcInfo;
 namespace Seis { class SelData; }
 
@@ -74,9 +74,9 @@ protected:
     void		useSCProcess(int&);
     void		fullProcess(const SeisTrcInfo*);
 
-    void		defineGlobalOutputSpecs(TypeSet<int>&,CubeSampling&);
+    void		defineGlobalOutputSpecs(TypeSet<int>&,TrcKeyZSampling&);
     void		prepareForTableOutput();
-    void		computeAndSetPosAndDesVol(CubeSampling&);
+    void		computeAndSetPosAndDesVol(TrcKeyZSampling&);
 
     Desc&		desc_;
     Provider*		provider_;

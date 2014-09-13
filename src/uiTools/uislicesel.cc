@@ -153,8 +153,8 @@ uiSliceScroll( uiSliceSel* ss )
     timer = new Timer( "uiSliceScroll timer" );
     timer->tick.notify( mCB(this,uiSliceScroll,timerTick) );
 
-    const CubeSampling& cs = SI().sampling( false );
-    const HorSampling& hs = cs.hrg;
+    const TrcKeyZSampling& cs = SI().sampling( false );
+    const TrcKeySampling& hs = cs.hrg;
     int step = hs.step.inl();
     int maxstep = hs.start.inl() - hs.stop.inl();
     if  ( ss->iscrl_ )
@@ -384,13 +384,13 @@ void uiSliceSel::applyPush( CallBacker* )
 
 void uiSliceSel::fullPush( CallBacker* )
 {
-    setCubeSampling( maxcs_ );
+    setTrcKeyZSampling( maxcs_ );
 }
 
 
 void uiSliceSel::readInput()
 {
-    const HorSampling& hs = maxcs_.hrg;
+    const TrcKeySampling& hs = maxcs_.hrg;
     Interval<int> inlrg, crlrg;
     hs.get( inlrg, crlrg );
     if ( inl0fld_ )
@@ -491,14 +491,14 @@ void uiSliceSel::updateUI()
 }
 
 
-void uiSliceSel::setCubeSampling( const CubeSampling& cs )
+void uiSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     cs_ = cs;
     updateUI();
 }
 
 
-void uiSliceSel::setMaxCubeSampling( const CubeSampling& maxcs )
+void uiSliceSel::setMaxTrcKeyZSampling( const TrcKeyZSampling& maxcs )
 {
     maxcs_ = maxcs;
     updateUI();
@@ -531,7 +531,7 @@ void uiSliceSel::enableScrollButton( bool yn )
 
 void uiSliceSel::fillPar( IOPar& iop )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl() = is2d_ ? 0 : inl0fld_->box()->getValue();
 
     if ( isinl_ )
@@ -575,8 +575,8 @@ void uiSliceSel::usePar( const IOPar& par )
 
 
 //uiSliceSelDlg
-uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
-			const CubeSampling& maxcs,
+uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
+			const TrcKeyZSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
 			const ZDomain::Info& zdominfo )
     : uiDialog(p,uiDialog::Setup("Positioning",
@@ -585,8 +585,8 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
     slicesel_ = new uiSliceSel( this, type, zdominfo );
-    slicesel_->setMaxCubeSampling( maxcs );
-    slicesel_->setCubeSampling( curcs );
+    slicesel_->setMaxTrcKeyZSampling( maxcs );
+    slicesel_->setTrcKeyZSampling( curcs );
     slicesel_->setApplyCB( acb );
     slicesel_->enableScrollButton( true );
 }
@@ -616,7 +616,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
 }
 
 
-uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const CubeSampling& cs )
+uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     : uiDialog( p, uiDialog::Setup("Select line position",
 				   mNoDlgTitle,mNoHelpKey) )
     , cs_( cs )
@@ -650,7 +650,7 @@ bool uiLinePosSelDlg::selectPos2D()
 	    	     Survey::GM().getGeometry(linesfld_->text()) );
     if ( !geom2d ) return false;
 
-    CubeSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = cs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
@@ -677,7 +677,7 @@ bool uiLinePosSelDlg::selectPos3D()
     CallBack dummycb;
     const bool isinl = inlcrlfld_->getBoolValue();
 
-    CubeSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = cs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
@@ -705,8 +705,8 @@ bool uiLinePosSelDlg::selectPos3D()
 }
 
 
-const CubeSampling& uiLinePosSelDlg::getCubeSampling() const
-{ return posdlg_ ? posdlg_->getCubeSampling() : cs_; }
+const TrcKeyZSampling& uiLinePosSelDlg::getTrcKeyZSampling() const
+{ return posdlg_ ? posdlg_->getTrcKeyZSampling() : cs_; }
 
 
 const char* uiLinePosSelDlg::getLineName() const

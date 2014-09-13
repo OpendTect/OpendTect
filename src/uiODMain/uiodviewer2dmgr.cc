@@ -104,7 +104,7 @@ void uiODViewer2DMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pd,visServ().getObject(visid));
     if ( zat && pd && !pd->isVerticalPlane() )
-	curvwr->setCubeSampling( pd->getCubeSampling(false,true) );
+	curvwr->setTrcKeyZSampling( pd->getTrcKeyZSampling(false,true) );
 
     FlatView::DataDispPars& ddp =
 	curvwr->viewwin()->viewer().appearance().ddpars_;

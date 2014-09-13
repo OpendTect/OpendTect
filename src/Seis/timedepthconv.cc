@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "arrayndimpl.h"
 #include "binidvalue.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapackbase.h"
 #include "genericnumer.h"
 #include "indexinfo.h"
@@ -139,7 +139,7 @@ bool Time2DepthStretcher::usePar( const IOPar& par )
 }
 
 
-int Time2DepthStretcher::addVolumeOfInterest(const CubeSampling& cs,
+int Time2DepthStretcher::addVolumeOfInterest(const TrcKeyZSampling& cs,
 					     bool depth )
 {
     int id = 0;
@@ -154,7 +154,7 @@ int Time2DepthStretcher::addVolumeOfInterest(const CubeSampling& cs,
 }
 
 
-void Time2DepthStretcher::setVolumeOfInterest( int id, const CubeSampling& cs,
+void Time2DepthStretcher::setVolumeOfInterest( int id, const TrcKeyZSampling& cs,
 					        bool depth )
 {
     const int idx = voiids_.indexOf( id );
@@ -189,7 +189,7 @@ class TimeDepthDataLoader : public SequentialTask
 public:
 		TimeDepthDataLoader( Array3D<float>& arr,
 				    SeisTrcReader& reader,
-				    const CubeSampling& readcs,
+				    const TrcKeyZSampling& readcs,
 				    const VelocityDesc& vd,
 				    const SamplingData<double>& voisd,
 				    bool velintime,
@@ -264,7 +264,7 @@ protected:
 	return MoreToDo();
     }
 
-    CubeSampling        	readcs_;
+    TrcKeyZSampling        	readcs_;
     SeisTrcReader&      	reader_;
     Array3D<float>&     	arr_;
     TimeDepthConverter  	tdc_;
@@ -276,7 +276,7 @@ protected:
 
     SamplingData<double>	voisd_;
 
-    HorSamplingIterator		hiter_;
+    TrcKeySamplingIterator		hiter_;
 };
 
 
@@ -295,8 +295,8 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
     if ( idx<0 )
 	return false;
 
-    const CubeSampling& voi( voivols_[idx] );
-    CubeSampling readcs( voi );
+    const TrcKeyZSampling& voi( voivols_[idx] );
+    TrcKeyZSampling readcs( voi );
 
     const StepInterval<float> filezrg = veltranslator->packetInfo().zrg;
     const int nrsamplesinfile = filezrg.nrSteps()+1;
@@ -427,7 +427,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     }
 
     const Array3D<float>& arr = *voidata_[bestidx];
-    const HorSampling& hrg = voivols_[bestidx].hrg;
+    const TrcKeySampling& hrg = voivols_[bestidx].hrg;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
@@ -502,7 +502,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     }
 
     const Array3D<float>& arr = *voidata_[bestidx];
-    const HorSampling& hrg = voivols_[bestidx].hrg;
+    const TrcKeySampling& hrg = voivols_[bestidx].hrg;
     const od_int64 offset = arr.info().getOffset(hrg.inlIdx(bid.inl()),
 						 hrg.crlIdx(bid.crl()), 0 );
     const OffsetValueSeries<float> vs( *arr.getStorage(), offset );
@@ -653,11 +653,11 @@ bool Depth2TimeStretcher::usePar( const IOPar& par )
 { return stretcher_->usePar( par ); }
 
 
-int Depth2TimeStretcher::addVolumeOfInterest(const CubeSampling& cs, bool time )
+int Depth2TimeStretcher::addVolumeOfInterest(const TrcKeyZSampling& cs, bool time )
 { return stretcher_->addVolumeOfInterest( cs, !time ); }
 
 
-void Depth2TimeStretcher::setVolumeOfInterest( int id, const CubeSampling& cs,
+void Depth2TimeStretcher::setVolumeOfInterest( int id, const TrcKeyZSampling& cs,
 					       bool time )
 { stretcher_->setVolumeOfInterest( id, cs, !time ); }
 

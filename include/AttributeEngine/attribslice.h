@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "attributeenginemod.h"
 #include "sets.h"
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "refcount.h"
 
 namespace Attrib
@@ -46,7 +46,7 @@ protected:
 /*!
 \brief Set of attrib slices.
   
-  The two array2d directions shall be filled following the CubeSampling
+  The two array2d directions shall be filled following the TrcKeyZSampling
   convention. The slices will be in order of increasing inl, crl or Z.
   
   Slices can be null!
@@ -58,8 +58,8 @@ public:
 
 			SliceSet();
 
-    CubeSampling::Dir	direction_;
-    CubeSampling	sampling_;
+    TrcKeyZSampling::Dir	direction_;
+    TrcKeyZSampling	sampling_;
 
     void		getIdx(int dimnr,int inl,int crl,float z,int&) const;
     void		getIdxs(int inl,int crl,float z,int&,int&,int&) const;

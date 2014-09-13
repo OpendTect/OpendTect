@@ -190,13 +190,13 @@ void uiODPlaneDataTreeItem::setAtWellLocation( const Well::Data& wd )
 
     const Coord surfacecoord = wd.info().surfacecoord;
     const BinID bid = SI().transform( surfacecoord );
-    CubeSampling cs = pdd->getCubeSampling();
+    TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     if ( orient_ == OD::InlineSlice )
 	cs.hrg.setInlRange( Interval<int>(bid.inl(),bid.inl()) );
     else
 	cs.hrg.setCrlRange( Interval<int>(bid.crl(),bid.crl()) );
 
-    pdd->setCubeSampling( cs );
+    pdd->setTrcKeyZSampling( cs );
     select();
 }
 
@@ -273,7 +273,7 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
-    movePlaneAndCalcAttribs( slicepos->getCubeSampling() );
+    movePlaneAndCalcAttribs( slicepos->getTrcKeyZSampling() );
 }
 
 
@@ -292,7 +292,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     BufferString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    const CubeSampling cs = pdd->getCubeSampling(true,true);
+    const TrcKeyZSampling cs = pdd->getTrcKeyZSampling(true,true);
     const OD::SliceType orientation = pdd->getOrientation();
 
     if ( orientation==OD::InlineSlice )
@@ -347,13 +347,13 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( !pdd ) return;
 	delete positiondlg_;
-	CubeSampling maxcs = SI().sampling(true);
+	TrcKeyZSampling maxcs = SI().sampling(true);
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getZAxisTransform() )
-	    maxcs = scene->getCubeSampling();
+	    maxcs = scene->getTrcKeyZSampling();
 
 	positiondlg_ = new uiSliceSelDlg( getUiParent(),
-				pdd->getCubeSampling(true,true), maxcs,
+				pdd->getTrcKeyZSampling(true,true), maxcs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos),
 				(uiSliceSel::Type)orient_,scene->zDomainInfo());
 	positiondlg_->windowClosed.notify(
@@ -379,8 +379,8 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    const CubeSampling newcs = pdd->getCubeSampling( true, true );
-    positiondlg_->setCubeSampling( newcs );
+    const TrcKeyZSampling newcs = pdd->getTrcKeyZSampling( true, true );
+    positiondlg_->setTrcKeyZSampling( newcs );
 }
 
 
@@ -388,8 +388,8 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
-    CubeSampling newcs = positiondlg_->getCubeSampling();
-    bool samepos = newcs == pdd->getCubeSampling();
+    TrcKeyZSampling newcs = positiondlg_->getTrcKeyZSampling();
+    bool samepos = newcs == pdd->getTrcKeyZSampling();
     if ( positiondlg_->uiResult() && !samepos )
 	movePlaneAndCalcAttribs( newcs );
 
@@ -405,17 +405,17 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
     mDynamicCastGet(uiSliceSel*,slicesel,cb)
     if ( !slicesel ) return;
 
-    movePlaneAndCalcAttribs( slicesel->getCubeSampling() );
+    movePlaneAndCalcAttribs( slicesel->getTrcKeyZSampling() );
 }
 
 
-void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
+void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const TrcKeyZSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
 
     pdd->annotateNextUpdateStage( true );
-    pdd->setCubeSampling( cs );
+    pdd->setTrcKeyZSampling( cs );
     pdd->resetManipulation();
     pdd->annotateNextUpdateStage( true );
     for ( int attrib=visserv_->getNrAttribs(displayid_)-1; attrib>=0; attrib--)
@@ -448,7 +448,7 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 		    visserv_->getObject(displayid_))
 
-    CubeSampling cs = pdd->getCubeSampling();
+    TrcKeyZSampling cs = pdd->getTrcKeyZSampling();
     const int dir = forward ? step : -step;
 
     if ( pdd->getOrientation() == OD::InlineSlice )

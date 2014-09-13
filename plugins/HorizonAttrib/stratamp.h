@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 
 #include "emposid.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "stattype.h"
 
 class od_ostream;
@@ -29,7 +29,7 @@ mExpClass(HorizonAttrib) StratAmpCalc  : public Executor
 public:
 
     			StratAmpCalc(const EM::Horizon3D*,const EM::Horizon3D*, 
-				     Stats::Type,const HorSampling&,bool);
+				     Stats::Type,const TrcKeySampling&,bool);
     			~StratAmpCalc();
 
     int                 nextStep();
@@ -68,7 +68,7 @@ protected:
     int				dataidxfold_;
     bool			addtotop_;
     bool			outfold_;
-    HorSampling			hs_;
+    TrcKeySampling			hs_;
     Attrib::DescSet*		descset_;
     Attrib::Processor*		proc_;
 };

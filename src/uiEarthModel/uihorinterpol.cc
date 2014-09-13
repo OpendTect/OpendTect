@@ -154,9 +154,9 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	StepInterval<int> colrg = hor3d->geometry().colRange();
 	colrg.step = steps.crl();
 	
-	HorSampling hs( false );
+	TrcKeySampling hs( false );
 	hs.set( rowrg, colrg );
-	interpolator->setHorSampling( hs );
+	interpolator->setTrcKeySampling( hs );
 
 	Array2DImpl<float>* arr =
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );

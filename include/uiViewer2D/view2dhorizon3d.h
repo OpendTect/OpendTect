@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiviewer2dmod.h"
 #include "view2ddata.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 
 namespace Attrib { class SelSpec; }
 namespace MPE { class HorizonFlatViewEditor3D; }
@@ -31,7 +31,7 @@ public:
 			~Vw2DHorizon3D();
 
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
-    void		setCubeSampling(const CubeSampling&, bool upd=false );
+    void		setTrcKeyZSampling(const TrcKeyZSampling&, bool upd=false );
 
     void		draw();
     void		enablePainting(bool yn);

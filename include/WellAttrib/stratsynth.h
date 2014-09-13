@@ -21,7 +21,7 @@ ________________________________________________________________________
 class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
-class CubeSampling;
+class TrcKeyZSampling;
 class StratSynthLevel;
 class PostStackSyntheticData;
 
@@ -129,10 +129,10 @@ protected:
     SyntheticData* 	generateSD();
     SyntheticData* 	generateSD( const SynthGenParams&);
     SyntheticData*	createAngleStack(SyntheticData* sd,
-	    				 const CubeSampling&,
+					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     SyntheticData*	createAVOGradient(SyntheticData* sd,
-	    				 const CubeSampling&,
+					 const TrcKeyZSampling&,
 					 const SynthGenParams&,
 					 const Seis::RaySynthGenerator&);
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;

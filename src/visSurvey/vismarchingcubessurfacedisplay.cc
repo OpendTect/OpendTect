@@ -824,7 +824,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	pi->visshape_->turnOn( displayintersections_ );
 	addChild( pi->visshape_->osgNode() );
 
-	CubeSampling cs = activeplanes[idx]->getCubeSampling(true,true,-1);
+	TrcKeyZSampling cs = activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==OD::ZSlice ? cs.zrg.start
 	    : (ori==OD::InlineSlice ? cs.hrg.start.inl() : cs.hrg.start.crl());

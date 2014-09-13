@@ -106,7 +106,7 @@ void computeLayerModelIntersection(
 
 
 Well::Data&	wd_;
-CubeSampling	bbox_;
+TrcKeyZSampling bbox_;
 MultiID		mid_;
 BufferString	logname_;
 TypeSet<Coord3>	trackpos_;

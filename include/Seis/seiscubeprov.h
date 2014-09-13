@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "arraynd.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "rowcol.h"
 #include "objectset.h"
 
@@ -143,8 +143,8 @@ public:
 
     void		clear();
     bool		isEmpty() const;
-    bool		readData(const CubeSampling&,TaskRunner* tr=0);
-    bool		readData(const CubeSampling&,const Pos::GeomID geomid,
+    bool		readData(const TrcKeyZSampling&,TaskRunner* tr=0);
+    bool		readData(const TrcKeyZSampling&,const Pos::GeomID geomid,
 				 TaskRunner* tr=0);
 
     const SeisTrc*	getTrace(const BinID&) const;
@@ -156,7 +156,7 @@ protected:
 
     Array2D<SeisTrc*>*	data_;
 
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
     IOObj*		ioobj_;
     BufferString	errmsg_;
     float		trcdist_;

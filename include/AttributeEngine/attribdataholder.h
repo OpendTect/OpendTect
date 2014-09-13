@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "refcount.h"
 #include "samplingdata.h"
 #include "sets.h"
@@ -89,7 +89,7 @@ public:
 
     inline int			size() const	{ return dataset_.size(); }
     bool			fillDataCube(DataCubes&) const;
-    CubeSampling		getCubeSampling() const;
+    TrcKeyZSampling		getTrcKeyZSampling() const;
     int				getDataHolderIndex(int) const;
     ObjectSet<DataHolder>	dataset_;
     				/*!<\note that z0 on the dataholder refers
@@ -121,7 +121,7 @@ public:
 
     Array3DImpl<float>*		dataset_;
     ObjectSet<SeisTrcInfo>	trcinfoset_;
-    CubeSampling		cubesampling_;
+    TrcKeyZSampling		cubesampling_;
 };
 
 

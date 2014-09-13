@@ -973,7 +973,7 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 }
 
 
-void Pos::IdxPairValueSet::remove( const HorSampling& hrg, bool removeinside )
+void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg, bool removeinside )
 {
     const StepInterval<IdxType> frstrg = hrg.inlRange();
     const StepInterval<IdxType> scndrg = hrg.crlRange();

@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "attributeenginemod.h"
 #include "attribprovider.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datachar.h"
 #include "datapack.h"
 class BufferStringSet;
@@ -42,7 +42,7 @@ public:
 
     int			moveToNextTrace(BinID startpos=BinID(-1,-1),
 	    				bool firstcheck=false);
-    bool		getPossibleVolume(int outp,CubeSampling&);
+    bool		getPossibleVolume(int outp,TrcKeyZSampling&);
     BinID		getStepoutStep() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
@@ -101,7 +101,7 @@ protected:
     TypeSet<BinDataDesc> datachar_;
     SeisMSCProvider*	mscprov_;
     BinID		stepoutstep_;
-    CubeSampling	storedvolume_;
+    TrcKeyZSampling	storedvolume_;
     bool		isondisc_;
     bool		useintertrcdist_;
     PosInfo::LineSet2DData*  ls2ddata_;

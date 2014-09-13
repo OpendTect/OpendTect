@@ -39,7 +39,7 @@ public:
     void		setMouseEventHandler(MouseEventHandler*);
     void		updateActStkContainer();
 
-    void		setCubeSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void                setPath(const TypeSet<BinID>*);
     void                setFlatPosData(const FlatPosData*);
     void		drawFault();

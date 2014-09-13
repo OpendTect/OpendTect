@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "iopar.h"
 #include "polygon.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 Pos::PolyProvider3D::PolyProvider3D()
     : poly_(*new ODPolygon<float>)
-    , hs_(*new HorSampling(true))
+    , hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
     , mid_(MultiID::udf())
 {
@@ -63,7 +63,7 @@ const char* Pos::PolyProvider3D::type() const
 }
 
 
-static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
+static void setHS( const ODPolygon<float>& poly, TrcKeySampling& hs )
 {
     if ( poly.size() < 2 )
 	{ hs = SI().sampling(true).hrg; return; }

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "vissurveymod.h"
 #include "visscene.h"
 #include "bufstring.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "position.h"
 
 class BaseMap;
@@ -98,8 +98,8 @@ public:
     void			addInlCrlZObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
 
-    void			setCubeSampling(const CubeSampling&);
-    const CubeSampling&		getCubeSampling() const		{ return cs_; }
+    void			setTrcKeyZSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling&		getTrcKeyZSampling() const		{ return cs_; }
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -111,8 +111,8 @@ public:
     void			setAnnotText(int dim,const char*);
     void			setAnnotFont(const FontData&);
     const FontData&		getAnnotFont() const;
-    void			setAnnotScale(const CubeSampling&);
-    const CubeSampling&		getAnnotScale() const;
+    void			setAnnotScale(const TrcKeyZSampling&);
+    const TrcKeyZSampling&		getAnnotScale() const;
     void			savePropertySettings();
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
@@ -196,7 +196,7 @@ protected:
 
     void			setup();
     void			updateAnnotationText();
-    void			updateTransforms(const CubeSampling&);
+    void			updateTransforms(const TrcKeyZSampling&);
     void			mouseMoveCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			updateBaseMapCursor(const Coord&);
@@ -236,8 +236,8 @@ protected:
     float			zscale_;
 
     bool			userwantsshading_; //from settings
-    CubeSampling		cs_;
-    CubeSampling		annotscale_;
+    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		annotscale_;
 
     bool			ctshownusepar_;
     bool			usepar_;

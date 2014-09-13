@@ -175,13 +175,13 @@ bool EMTracker::snapPositions( const TypeSet<EM::PosID>& pids )
 }
 
 
-CubeSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling EMTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
-    CubeSampling res( engine().activeVolume() );
+    TrcKeyZSampling res( engine().activeVolume() );
 
     for ( int sectidx=0; sectidx<sectiontrackers_.size(); sectidx++ )
     {
-	CubeSampling cs = sectiontrackers_[sectidx]->getAttribCube( spec );
+	TrcKeyZSampling cs = sectiontrackers_[sectidx]->getAttribCube( spec );
 	res.include( cs );
     }
 

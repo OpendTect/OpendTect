@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "sets.h"
 #include "sortedtable.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 namespace EM { class EMObject; };
 namespace Geometry { class Element; }
@@ -45,7 +45,7 @@ public:
 				~AutoTracker();
     void			setNewSeeds(const TypeSet<EM::PosID>&);
     int				nextStep();
-    void			setTrackBoundary(const CubeSampling&);
+    void			setTrackBoundary(const TrcKeyZSampling&);
     void			unsetTrackBoundary();
     od_int64			nrDone() const		{ return nrdone_; }
     od_int64			totalNr() const		{ return totalnr_; }

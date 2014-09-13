@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seisresampler.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "multiid.h"
 #include "survinfo.h"
 #include "ioobj.h"
@@ -178,7 +178,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	}
 	if ( is3d && !wrr_->isPS() && !szdone )
 	{
-	    CubeSampling cs( false );
+	    TrcKeyZSampling cs( false );
 	    mDynamicCastGet(IOStream*,iostrm,ioobjs[idx])
 	    if ( iostrm )
 		iostrm->setConnNr( iostrm->fileNumbers().start );

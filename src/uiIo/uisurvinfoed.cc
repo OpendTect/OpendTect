@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisip.h"
 
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "file.h"
 #include "filepath.h"
 #include "mousecursor.h"
@@ -356,8 +356,8 @@ static void setZValFld( uiGenInput* zfld, int nr, float val, float fac )
 
 void uiSurveyInfoEditor::setValues()
 {
-    const CubeSampling& cs = si_.sampling( false );
-    const HorSampling& hs = cs.hrg;
+    const TrcKeyZSampling& cs = si_.sampling( false );
+    const TrcKeySampling& hs = cs.hrg;
     StepInterval<int> inlrg( hs.start.inl(), hs.stop.inl(), hs.step.inl() );
     StepInterval<int> crlrg( hs.start.crl(), hs.stop.crl(), hs.step.crl() );
     inlfld_->setValue( inlrg );
@@ -645,8 +645,8 @@ bool uiSurveyInfoEditor::setRanges()
     const StepInterval<int> crg( crlfld_->getIStepInterval() );
     if ( irg.isUdf() ) mErrRet(tr("Please enter a valid range for inlines"))
     if ( crg.isUdf() ) mErrRet(tr("Please enter a valid range for crosslines"))
-    CubeSampling cs( si_.sampling(false) );
-    HorSampling& hs = cs.hrg;
+    TrcKeyZSampling cs( si_.sampling(false) );
+    TrcKeySampling& hs = cs.hrg;
     hs.start.inl() = irg.start; hs.start.crl() = crg.start;
     hs.stop.inl() = irg.atIndex( irg.getIndex(irg.stop) );
     hs.stop.crl() = crg.atIndex( crg.getIndex(crg.stop) );
@@ -739,7 +739,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     PtrMan<uiDialog> dlg = sip->dialog( this );
     if ( !dlg || !dlg->go() ) return;
 
-    CubeSampling cs; Coord crd[3];
+    TrcKeyZSampling cs; Coord crd[3];
     if ( !sip->getInfo(dlg,cs,crd) )
 	return;
 
@@ -885,7 +885,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 }
 
 
-bool uiCopySurveySIP::getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
+bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3] )
 {
     tdinf_ = Uknown;
     inft_ = false;

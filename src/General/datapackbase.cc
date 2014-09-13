@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datapackbase.h"
 #include "arrayndimpl.h"
 #include "flatposdata.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -121,7 +121,7 @@ protected:
     MapDataPack&	mdp_;
     Coord		startpt_;
     Coord		stoppt_;
-    HorSampling		hsamp_;
+    TrcKeySampling		hsamp_;
     float		xstep_;
     float		ystep_;
 };
@@ -416,7 +416,7 @@ int VolumeDataPack::size( char dim ) const
 
 CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
     : VolumeDataPack(cat)
-    , cs_(*new CubeSampling(true))
+    , cs_(*new TrcKeyZSampling(true))
 {
     init();
 }
@@ -424,7 +424,7 @@ CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
 
 CubeDataPack::CubeDataPack( const char* cat )
     : VolumeDataPack(cat)
-    , cs_(*new CubeSampling(true))
+    , cs_(*new TrcKeyZSampling(true))
 {
     // We cannot call init() here: size() does not dispatch virtual here
     // Subclasses with no arr3d_ will have to do a position init 'by hand'
@@ -458,7 +458,7 @@ void CubeDataPack::dumpInfo( IOPar& iop ) const
 {
     VolumeDataPack::dumpInfo( iop );
 
-    const CubeSampling& cs = sampling();
+    const TrcKeyZSampling& cs = sampling();
     iop.set( "Positions.inl()", cs.hrg.start.inl(), cs.hrg.stop.inl(),
 	    		      cs.hrg.step.inl() );
     iop.set( "Positions.crl()", cs.hrg.start.crl(), cs.hrg.stop.crl(),

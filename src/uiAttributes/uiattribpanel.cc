@@ -94,7 +94,7 @@ EngineMan* uiAttribPanel::createEngineMan()
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setGeomID( geomid_ );
-    aem->setCubeSampling( cs_ );	//should be only 1 trace
+    aem->setTrcKeyZSampling( cs_ );	//should be only 1 trace
     return aem;
 }
 
@@ -148,7 +148,7 @@ void uiAttribPanel::createAndDisplay2DViewer( FlatDataPack* fdpack )
 
 
 void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
-				       const CubeSampling& cs,
+				       const TrcKeyZSampling& cs,
 				       const Pos::GeomID& geomid )
 {
     attribid_ = mpid;

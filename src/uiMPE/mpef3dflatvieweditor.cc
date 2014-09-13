@@ -116,10 +116,10 @@ void Fault3DFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 }
 
 
-void Fault3DFlatViewEditor::setCubeSampling( const CubeSampling& cs )
+void Fault3DFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    EM::FaultStickSetFlatViewEditor::setCubeSampling( cs );
-    f3dpainter_->setCubeSampling( cs, true );
+    EM::FaultStickSetFlatViewEditor::setTrcKeyZSampling( cs );
+    f3dpainter_->setTrcKeyZSampling( cs, true );
 }
 
 

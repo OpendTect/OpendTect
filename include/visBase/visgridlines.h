@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "visobject.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 class LineStyle;
 
@@ -42,10 +42,10 @@ public:
     void			getLineStyle(LineStyle&) const;
 
     void			adjustGridCS();
-    void			setGridCubeSampling(const CubeSampling&);
-    void			setPlaneCubeSampling(const CubeSampling&);
-    const CubeSampling&		getGridCubeSampling() 	{ return gridcs_; }
-    const CubeSampling&		getPlaneCubeSampling() 	{ return planecs_; }
+    void			setGridTrcKeyZSampling(const TrcKeyZSampling&);
+    void			setPlaneTrcKeyZSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling&		getGridTrcKeyZSampling() 	{ return gridcs_; }
+    const TrcKeyZSampling&		getPlaneTrcKeyZSampling() 	{ return planecs_; }
 
     void			showInlines(bool);
     bool			areInlinesShown() const;
@@ -57,8 +57,8 @@ public:
 
 protected:
 
-    CubeSampling		gridcs_;
-    CubeSampling		planecs_;
+    TrcKeyZSampling		gridcs_;
+    TrcKeyZSampling		planecs_;
     bool			csinlchanged_;
     bool			cscrlchanged_;
     bool			cszchanged_;

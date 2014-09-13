@@ -31,7 +31,7 @@ const char* WellProvider3D::sKeySurfaceCoords() { return "Only surface coords";}
 
 
 WellProvider3D::WellProvider3D()
-    : hs_(*new HorSampling(true))
+    : hs_(*new TrcKeySampling(true))
     , zrg_(SI().zRange(false))
     , onlysurfacecoords_(true)
     , curwellidx_(0)

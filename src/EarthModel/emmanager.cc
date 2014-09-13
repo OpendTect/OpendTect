@@ -282,7 +282,7 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	mDynamicCastGet(RowColSurfaceGeometry*,geom,&surface->geometry())
 	if ( geom && iosel )
 	{
-	    HorSampling hs;
+	    TrcKeySampling hs;
 	    hs.setInlRange( geom->rowRange() );
 	    hs.setCrlRange( geom->colRange() );
 	    if ( hs.isEmpty() )

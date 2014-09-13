@@ -58,7 +58,7 @@ public:
 			sectionGeometry(const SectionID&) const;
 
     EMObjectIterator*	createIterator(const SectionID&,
-				       const CubeSampling* =0) const;
+				       const TrcKeyZSampling* =0) const;
 
     Executor*		loader(const SurfaceIODataSelection* s=0);
     Executor*		saver(const SurfaceIODataSelection* s=0,
@@ -88,7 +88,7 @@ public:
     virtual Executor*		saver(IOObj*);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(CubeSampling&);
+    bool			getBodyRange(TrcKeyZSampling&);
 
     MultiID			storageID() const;
     BufferString		storageName() const;

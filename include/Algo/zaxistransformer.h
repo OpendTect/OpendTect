@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "algomod.h"
 #include "paralleltask.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 class TaskRunner;
 class ZAxisTransform;
@@ -33,9 +33,9 @@ public:
 			~ZAxisTransformer();
     void		setInterpolate(bool yn);
     bool		getInterpolate() const;
-    bool		setInput(const Array3D<float>&,const CubeSampling&);
-    void		setOutputRange(const CubeSampling&);
-    const CubeSampling&	getOutputRange() const	{ return outputcs_; }
+    bool		setInput(const Array3D<float>&,const TrcKeyZSampling&);
+    void		setOutputRange(const TrcKeyZSampling&);
+    const TrcKeyZSampling&	getOutputRange() const	{ return outputcs_; }
     Array3D<float>*	getOutput(bool transfer);
 			/*!<\param transfer specifies whether the caller will
 			                    take over the array.  */
@@ -56,10 +56,10 @@ protected:
     bool			rmvoi_;
 
     const Array3D<float>*	input_;
-    CubeSampling		inputcs_;
+    TrcKeyZSampling		inputcs_;
 
     Array3D<float>*		output_;
-    CubeSampling		outputcs_;
+    TrcKeyZSampling		outputcs_;
 };
 
 

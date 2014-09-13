@@ -79,7 +79,7 @@ void VolProcAttrib::prepareForComputeData()
     chain_->setStorageID( setupmid_ );
 
     executor_ = new VolProc::ChainExecutor( *chain_ );
-    const CubeSampling cs = *getDesiredVolume();
+    const TrcKeyZSampling cs = *getDesiredVolume();
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
     const StepInterval<float> geometryzrg = geometry.zRange();
     StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
@@ -202,7 +202,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
+DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 						     DataPack::ID dpid,
 						     TaskRunner* taskrunner )
 {
@@ -245,22 +245,22 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 	new Attrib::Flat3DDataPack( did, *datacubes, 0 );
 
 
-    CubeSampling::Dir dir;
+    TrcKeyZSampling::Dir dir;
     int slice;
 
     if ( cs.nrInl()<2 )
     {
-	dir = CubeSampling::Inl;
+	dir = TrcKeyZSampling::Inl;
 	slice = datacubes->inlsampling_.nearestIndex( cs.hrg.start.inl() );
     }
     else if ( cs.nrCrl()<2 )
     {
-	dir = CubeSampling::Crl;
+	dir = TrcKeyZSampling::Crl;
 	slice = datacubes->crlsampling_.nearestIndex( cs.hrg.start.crl() );
     }
     else
     {
-	dir = CubeSampling::Z;
+	dir = TrcKeyZSampling::Z;
 	slice = mNINT32( cs.zrg.start/datacubes->zstep_ )-datacubes->z0_;
     }
 

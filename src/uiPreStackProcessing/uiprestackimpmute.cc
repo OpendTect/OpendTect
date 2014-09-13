@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "oddirs.h"
 #include "od_istream.h"
 #include "prestackmuteasciio.h"
@@ -114,7 +114,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     }
     else
     {
-	HorSampling hs;
+	TrcKeySampling hs;
 
 	if ( inlcrlfld_->getBinID() == BinID(mUdf(int),mUdf(int)) )
 	    mErrRet( "Please enter Inl/Crl" )

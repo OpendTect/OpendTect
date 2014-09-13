@@ -33,7 +33,7 @@ ________________________________________________________________________
 
 
 #include "axislayout.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emsurfacetr.h"
 #include "emhorizon2d.h"
 #include "gridcreator.h"
@@ -122,7 +122,7 @@ protected:
 
 
 
-ui2DGridLines::ui2DGridLines( uiParent* p, const HorSampling& hs )
+ui2DGridLines::ui2DGridLines( uiParent* p, const TrcKeySampling& hs )
     : uiGroup(p,"2D Grid Parameters")
     , hs_(hs), grid_(new Grid2D)
     , gridChanged(this)
@@ -155,7 +155,7 @@ bool ui2DGridLines::fillPar( IOPar& par ) const
 
 
 ui2DGridLinesFromInlCrl::ui2DGridLinesFromInlCrl( uiParent* p,
-						  const HorSampling& hs )
+						  const TrcKeySampling& hs )
     : ui2DGridLines(p,hs)
 {
     inlmodefld_ = new uiGenInput( this, sKey::Inline(),
@@ -326,7 +326,7 @@ bool ui2DGridLinesFromInlCrl::fillPar( IOPar& par ) const
 
 
 ui2DGridLinesFromRandLine::ui2DGridLinesFromRandLine( uiParent* p,
-			const HorSampling& hs, const Geometry::RandomLine* rdl )
+			const TrcKeySampling& hs, const Geometry::RandomLine* rdl )
     : ui2DGridLines(p,hs)
     , rdlfld_(0)
 {
@@ -469,7 +469,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     : uiDialog(p,uiDialog::Setup("Create 2D Seismic grid",mNoDlgTitle,
 				 mODHelpKey(mCreate2DGridHelpID) ) )
     , sourceselfld_(0),inlcrlgridgrp_(0)
-    , cs_(*new CubeSampling(true))
+    , cs_(*new TrcKeyZSampling(true))
 {
     uiGroup* seisgrp = createSeisGroup( rdl );
 
@@ -663,7 +663,7 @@ void uiCreate2DGrid::fillSeisPar( IOPar& par )
     else
 	randlinegrdgrp_->fillPar( par );
 
-    const CubeSampling& bbox = bboxfld_->envelope();
+    const TrcKeyZSampling& bbox = bboxfld_->envelope();
     IOPar subselpar;
     bbox.fillPar( subselpar );
     par.mergeComp( subselpar, sKey::Subsel() );

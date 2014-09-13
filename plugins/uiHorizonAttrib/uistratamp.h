@@ -11,7 +11,7 @@
 #include "uidialog.h"
 
 class CtxtIOObj;
-class HorSampling;
+class TrcKeySampling;
 class uiAttrSel;
 class uiBatchJobDispatcherSel;
 class uiGenInput;
@@ -31,7 +31,7 @@ protected:
     void		horSel(CallBacker*);
     void		choiceSel(CallBacker*);
     void		setParFileNameCB(CallBacker*);
-    void		getAvailableRange(HorSampling&);
+    void		getAvailableRange(TrcKeySampling&);
     bool		prepareProcessing();
     bool		checkInpFlds();
     bool		fillPar();

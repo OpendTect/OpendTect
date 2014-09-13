@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "seisinfo.h"
 #include "seispacketinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "msgh.h"
 #include "math2.h"
 #include "envvars.h"

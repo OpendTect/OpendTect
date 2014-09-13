@@ -192,7 +192,7 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* taskrunner,
 }
 
 
-bool PolygonBody::getBodyRange( CubeSampling& cs )
+bool PolygonBody::getBodyRange( TrcKeyZSampling& cs )
 {
     const Geometry::PolygonSurface* surf =
 	geometry().sectionGeometry( sectionID(0) );
@@ -346,7 +346,7 @@ Geometry::PolygonSurface* PolygonBodyGeometry::createSectionGeometry() const
 
 
 EMObjectIterator* PolygonBodyGeometry::createIterator( const SectionID& sid,
-	const CubeSampling* cs) const
+	const TrcKeyZSampling* cs) const
 { return new RowColIterator( surface_, sid, cs ); }
 
 

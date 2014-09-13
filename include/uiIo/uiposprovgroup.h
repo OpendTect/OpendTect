@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uiposfiltgroup.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "factory.h"
 
 
@@ -37,7 +37,7 @@ public:
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(CubeSampling,cs)
+	mDefSetupMemb(TrcKeyZSampling,cs)
 	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
 	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
     };

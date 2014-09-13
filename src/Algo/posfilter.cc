@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "executor.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -346,7 +346,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
     {
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
-	CubeSampling provcs( true ); prov3d->getCubeSampling( provcs );
+	TrcKeyZSampling provcs( true ); prov3d->getTrcKeyZSampling( provcs );
 	float provnr = (float) provcs.hrg.totalNr(); 
 	provnr *= provcs.zrg.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
@@ -354,7 +354,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 }
 
 
-void Pos::Provider::getCubeSampling( CubeSampling& cs ) const
+void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     if ( is2D() )
     {
@@ -367,7 +367,7 @@ void Pos::Provider::getCubeSampling( CubeSampling& cs ) const
     }
     else
     {
-	cs = CubeSampling(true);
+	cs = TrcKeyZSampling(true);
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,this)
 	prov3d->getExtent( cs.hrg.start, cs.hrg.stop );
 	prov3d->getZRange( cs.zrg );

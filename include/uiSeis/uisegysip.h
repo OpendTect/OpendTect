@@ -27,7 +27,7 @@ public:
 
     const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
     uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     bool		xyInFeet() const	{ return xyinft_; }
 
     IOPar*		getImportPars() const

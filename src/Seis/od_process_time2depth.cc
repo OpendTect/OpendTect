@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "batchprog.h"
 #include "process_time2depth.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "ioobj.h"
@@ -26,7 +26,7 @@ bool BatchProgram::go( od_ostream& strm )
 {
     OD::ModDeps().ensureLoaded("Seis");
     
-    CubeSampling outputcs;
+    TrcKeyZSampling outputcs;
     if ( !outputcs.hrg.usePar( pars() ) )
     { outputcs.hrg.init( true ); }
 

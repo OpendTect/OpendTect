@@ -69,7 +69,7 @@ protected:
 
 
     void		updateSelSpec(const Attrib::SelSpec*,bool wva);
-    void		updateCS(const CubeSampling&,bool upd);
+    void		updateCS(const TrcKeyZSampling&,bool upd);
     void                checkCB(CallBacker*);
     void		deSelCB(CallBacker*);
     void		mousePressInVwrCB(CallBacker*);

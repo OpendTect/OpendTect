@@ -444,7 +444,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     }
 
     clearDisplay( pao );
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     bool fullevent;
     Coord dir;
     if ( displaymode_==FullOnGathers )
@@ -484,7 +484,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	if ( !pdd )
 	    return;
 
-	cs = pdd->getCubeSampling();
+	cs = pdd->getTrcKeyZSampling();
 	const bool isinl =
 	    pdd->getOrientation()==OD::InlineSlice;
 
@@ -494,7 +494,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
 	dir.y = (isinl ? 0 : offsetscale_ ) / SI().crlDistance();
     }
 
-    HorSamplingIterator iter( cs.hrg );
+    TrcKeySamplingIterator iter( cs.hrg );
 
 
     int cii = 0;
@@ -707,7 +707,7 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
     {
 	ParentAttachedObject* pao = parentattached_[idx];
 	deepUnRef( pao->eventsets_ );
-	HorSamplingIterator iter( pao->hrg_ );
+	TrcKeySamplingIterator iter( pao->hrg_ );
 
 	BinID bid;
 	while( iter.next( bid ))

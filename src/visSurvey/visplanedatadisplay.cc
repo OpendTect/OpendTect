@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "basemap.h"
 #include "binidvalue.h"
 #include "coltabsequence.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapointset.h"
 #include "flatposdata.h"
 #include "iopar.h"
@@ -90,7 +90,7 @@ const char* PlaneDataDisplayBaseMapObject::getShapeName(int) const
 
 void PlaneDataDisplayBaseMapObject::getPoints(int,TypeSet<Coord>& res) const
 {
-    const HorSampling hrg = pdd_->getCubeSampling(true,false).hrg;
+    const TrcKeySampling hrg = pdd_->getTrcKeyZSampling(true,false).hrg;
     const Survey::Geometry3D& survgeom = *pdd_->get3DSurvGeom();
     if ( pdd_->getOrientation()==OD::ZSlice )
     {
@@ -222,7 +222,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     if ( !scene_ )
 	return;
 
-    CubeSampling survey = scene_->getCubeSampling();
+    TrcKeyZSampling survey = scene_->getTrcKeyZSampling();
     const Interval<float> inlrg( mCast(float,survey.hrg.start.inl()),
 				    mCast(float,survey.hrg.stop.inl()) );
     const Interval<float> crlrg( mCast(float,survey.hrg.start.crl()),
@@ -234,7 +234,7 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	  Interval<float>( mCast(float,4*survey.hrg.step.crl()), mUdf(float) ),
 	  Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
 
-    CubeSampling newpos = getCubeSampling(false,true);
+    TrcKeyZSampling newpos = getTrcKeyZSampling(false,true);
     if ( !newpos.isEmpty() )
     {
 	if ( !survey.includes( newpos ) )
@@ -257,14 +257,14 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 
     newpos = snapPosition( newpos );
 
-    if ( newpos!=getCubeSampling(false,true) )
-	setCubeSampling( newpos );
+    if ( newpos!=getTrcKeyZSampling(false,true) )
+	setTrcKeyZSampling( newpos );
 }
 
 
-CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
+TrcKeyZSampling PlaneDataDisplay::snapPosition( const TrcKeyZSampling& cs ) const
 {
-    CubeSampling res( cs );
+    TrcKeyZSampling res( cs );
     const Interval<float> inlrg( mCast(float,res.hrg.start.inl()),
 				    mCast(float,res.hrg.stop.inl()) );
     const Interval<float> crlrg( mCast(float,res.hrg.start.crl()),
@@ -274,7 +274,7 @@ CubeSampling PlaneDataDisplay::snapPosition( const CubeSampling& cs ) const
     res.hrg.snapToSurvey();
     if ( scene_ )
     {
-	const StepInterval<float>& scenezrg = scene_->getCubeSampling().zrg;
+	const StepInterval<float>& scenezrg = scene_->getTrcKeyZSampling().zrg;
 	res.zrg.limitTo( scenezrg );
 	res.zrg.start = scenezrg.snap( res.zrg.start );
 	res.zrg.stop = scenezrg.snap( res.zrg.stop );
@@ -312,7 +312,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     const BinID binid = s3dgeom_->transform( Coord(xytpos.x,xytpos.y) );
 
-    const CubeSampling cs = getCubeSampling(false,true);
+    const TrcKeyZSampling cs = getTrcKeyZSampling(false,true);
 
     BinID inlcrldist( 0, 0 );
     float zdiff = 0;
@@ -420,9 +420,9 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 {
     moving_.trigger();
 
-    const CubeSampling dragcs = getCubeSampling(true,true);
-    const CubeSampling snappedcs = snapPosition( dragcs );
-    const CubeSampling oldcs = getCubeSampling(false,true);
+    const TrcKeyZSampling dragcs = getTrcKeyZSampling(true,true);
+    const TrcKeyZSampling snappedcs = snapPosition( dragcs );
+    const TrcKeyZSampling oldcs = getTrcKeyZSampling(false,true);
 
     bool showplane = false;
     if ( orientation_==OD::InlineSlice
@@ -441,8 +441,8 @@ void PlaneDataDisplay::draggerMotion( CallBacker* )
 
 void PlaneDataDisplay::draggerFinish( CallBacker* )
 {
-    const CubeSampling cs = getCubeSampling(true,true);
-    const CubeSampling snappedcs = snapPosition( cs );
+    const TrcKeyZSampling cs = getTrcKeyZSampling(true,true);
+    const TrcKeyZSampling snappedcs = snapPosition( cs );
 
     if ( cs!=snappedcs )
 	setDraggerPos( snappedcs );
@@ -468,7 +468,7 @@ void PlaneDataDisplay::draggerRightClick( CallBacker* cb )
     const Coord3 oldwidth = dragger_->size(); \
     width[(int)orientation_] = oldwidth[(int)orientation_]
 
-void PlaneDataDisplay::setDraggerPos( const CubeSampling& cs )
+void PlaneDataDisplay::setDraggerPos( const TrcKeyZSampling& cs )
 {
     mDefineCenterAndWidth( cs );
     dragger_->setCenter( center );
@@ -500,12 +500,12 @@ bool PlaneDataDisplay::isManipulatorShown() const
 
 
 bool PlaneDataDisplay::isManipulated() const
-{ return getCubeSampling(true,true)!=getCubeSampling(false,true); }
+{ return getTrcKeyZSampling(true,true)!=getTrcKeyZSampling(false,true); }
 
 
 void PlaneDataDisplay::resetManipulation()
 {
-    CubeSampling cs = getCubeSampling( false, true );
+    TrcKeyZSampling cs = getTrcKeyZSampling( false, true );
     setDraggerPos( cs );
 
     dragger_->showPlane( false );
@@ -515,8 +515,8 @@ void PlaneDataDisplay::resetManipulation()
 
 void PlaneDataDisplay::acceptManipulation()
 {
-    CubeSampling cs = getCubeSampling( true, true );
-    setCubeSampling( cs );
+    TrcKeyZSampling cs = getTrcKeyZSampling( true, true );
+    setTrcKeyZSampling( cs );
 
     if ( !getUpdateStageNr() )
     {
@@ -644,9 +644,9 @@ void PlaneDataDisplay::triggerDeSel()
 }
 
 
-CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
+TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( int attrib ) const
 {
-    return getCubeSampling( true, false, attrib );
+    return getTrcKeyZSampling( true, false, attrib );
 }
 
 
@@ -654,7 +654,7 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
 {
     if ( !datatransform_ ) return;
 
-    const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
+    const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 ); //attrib?
     ZAxisTransformPointGenerator generator( *datatransform_ );
     generator.setInput( cs );
     generator.setOutputDPS( pos );
@@ -677,9 +677,9 @@ void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
 }
 
 
-void PlaneDataDisplay::setCubeSampling( const CubeSampling& wantedcs )
+void PlaneDataDisplay::setTrcKeyZSampling( const TrcKeyZSampling& wantedcs )
 {
-    CubeSampling cs = snapPosition( wantedcs );
+    TrcKeyZSampling cs = snapPosition( wantedcs );
 
     mDefineCenterAndWidth( cs );
     width[(int)orientation_] = 0;
@@ -688,7 +688,7 @@ void PlaneDataDisplay::setCubeSampling( const CubeSampling& wantedcs )
     texturerect_->swapTextureAxes();
 
     setDraggerPos( cs );
-    if ( gridlines_ ) gridlines_->setPlaneCubeSampling( cs );
+    if ( gridlines_ ) gridlines_->setPlaneTrcKeyZSampling( cs );
 
     curicstep_ = cs.hrg.step;
 
@@ -701,11 +701,11 @@ void PlaneDataDisplay::setCubeSampling( const CubeSampling& wantedcs )
 }
 
 
-CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
+TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 						bool displayspace,
 						int attrib ) const
 {
-    CubeSampling res(false);
+    TrcKeyZSampling res(false);
     Coord3 c0, c1;
 
     if ( manippos )
@@ -738,7 +738,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     if ( alreadytf )
     {
 	if ( scene_ )
-	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	    res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
 	else if ( datatransform_ )
 	    res.zrg.step = datatransform_->getGoodZStep();
 	return res;
@@ -754,7 +754,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	else
 	{
 	    if ( scene_ )
-		res.zrg.step = scene_->getCubeSampling().zrg.step;
+		res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
 	    else
 		res.zrg.step = datatransform_->getGoodZStep();
 	}
@@ -831,7 +831,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	if ( alreadytransformed || getOrientation()==OD::ZSlice )
 	    minx1step_ = (float) f3ddp->posData().range(false).step;
 	else if ( scene_ )
-	    minx1step_ = scene_->getCubeSampling().zrg.step;
+	    minx1step_ = scene_->getTrcKeyZSampling().zrg.step;
     }
 
     TypeSet<DataPack::ID> attridpids;
@@ -851,10 +851,10 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 
 	    ztransformdp->setInterpolate( textureInterpolationEnabled() );
 
-	    CubeSampling outputcs = getCubeSampling( true, true );
+	    TrcKeyZSampling outputcs = getTrcKeyZSampling( true, true );
 	    outputcs.hrg.step = f3ddp->cube().cubeSampling().hrg.step;
 	    if ( scene_ )
-		outputcs.zrg.step = scene_->getCubeSampling().zrg.step;
+		outputcs.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
 
 	    ztransformdp->setOutputCS( outputcs );
 	    if ( !ztransformdp->transform() )
@@ -987,7 +987,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 			const BinIDValueSet* bivset, TaskRunner* )
 {
     if ( !bivset ) return;
-    const CubeSampling cs = getCubeSampling( true, true, 0 );
+    const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     BufferStringSet userrefs;
     for ( int idx=0; idx<userrefs_[attrib]->size(); idx++ )
 	userrefs.add( userrefs_[attrib]->get(idx) );
@@ -1101,16 +1101,16 @@ void PlaneDataDisplay::getObjectInfo( BufferString& info ) const
     if ( orientation_==OD::InlineSlice )
     {
 	info = "In-line: ";
-	info += getCubeSampling(true,true).hrg.start.inl();
+	info += getTrcKeyZSampling(true,true).hrg.start.inl();
     }
     else if ( orientation_==OD::CrosslineSlice )
     {
 	info = "Cross-line: ";
-	info += getCubeSampling(true,true).hrg.start.crl();
+	info += getTrcKeyZSampling(true,true).hrg.start.crl();
     }
     else
     {
-	float val = getCubeSampling(true,true).zrg.start;
+	float val = getTrcKeyZSampling(true,true).zrg.start;
 	if ( !scene_ ) { info = val; return; }
 
 	const ZDomain::Info& zdinf = scene_->zDomainInfo();
@@ -1219,7 +1219,7 @@ SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
     PlaneDataDisplay* pdd = new PlaneDataDisplay();
 
     pdd->setOrientation( orientation_ );
-    pdd->setCubeSampling( getCubeSampling(false,true,0) );
+    pdd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
 
     while ( nrAttribs() > pdd->nrAttribs() )
 	pdd->addAttrib();
@@ -1245,7 +1245,7 @@ void PlaneDataDisplay::fillPar( IOPar& par ) const
     MultiTextureSurveyObject::fillPar( par );
 
     par.set( sKeyOrientation(), getSliceTypeString( orientation_) );
-    getCubeSampling( false, true ).fillPar( par );
+    getTrcKeyZSampling( false, true ).fillPar( par );
 }
 
 
@@ -1260,11 +1260,11 @@ bool PlaneDataDisplay::usePar( const IOPar& par )
 	orientation = OD::ZSlice;	// Backward compatibilty with 4.0
 
     setOrientation( orientation );
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( cs.usePar( par ) )
     {
 	csfromsession_ = cs;
-	setCubeSampling( cs );
+	setTrcKeyZSampling( cs );
     }
 
     return true;
@@ -1292,7 +1292,7 @@ void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
     }
     else if ( !getUpdateStageNr() )
     {
-	updatestageinfo_.oldcs_ = getCubeSampling( false, true );
+	updatestageinfo_.oldcs_ = getTrcKeyZSampling( false, true );
 	updatestageinfo_.oldorientation_ = orientation_;
 	updatestageinfo_.oldimagesize_.x = channels_->getSize(2);
 	updatestageinfo_.oldimagesize_.y = channels_->getSize(1);
@@ -1311,8 +1311,8 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     if ( !getUpdateStageNr() )
 	return;
 
-    const CubeSampling& oldcs = updatestageinfo_.oldcs_;
-    const CubeSampling  newcs = getCubeSampling( false, true );
+    const TrcKeyZSampling& oldcs = updatestageinfo_.oldcs_;
+    const TrcKeyZSampling  newcs = getTrcKeyZSampling( false, true );
 
     Coord samplingratio( updatestageinfo_.oldimagesize_.x/oldcs.nrZ(),
 			 updatestageinfo_.oldimagesize_.y/oldcs.nrInl() );

@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include <iostream>
 
 
-static bool getHorsampling( const IOPar& par, HorSampling& hs )
+static bool getHorsampling( const IOPar& par, TrcKeySampling& hs )
 {
     BufferString compkey = IOPar::compKey( sKey::Output(), sKey::Subsel() );
     const IOPar* hspar = par.subselect( compkey );
@@ -38,7 +38,7 @@ static bool getHorsampling( const IOPar& par, HorSampling& hs )
 }
 
 
-static EM::Horizon3D* loadHorizon( const MultiID& mid, const HorSampling& hs,
+static EM::Horizon3D* loadHorizon( const MultiID& mid, const TrcKeySampling& hs,
 				   od_ostream& strm )
 {
     EM::EMManager& em = EM::EMM();
@@ -75,7 +75,7 @@ bool BatchProgram::go( od_ostream& strm )
     OD::ModDeps().ensureLoaded( "PreStackProcessing" );
     OD::ModDeps().ensureLoaded( "Attributes" );
 
-    HorSampling hs;
+    TrcKeySampling hs;
     if ( !getHorsampling( pars(), hs ) )
 	return false;
 

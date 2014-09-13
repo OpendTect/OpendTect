@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribsel.h"
 #include "attribdataholder.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "emposid.h"
 #include "geomelement.h"
@@ -54,7 +54,7 @@ public:
     const EM::PosID&		getNode() const;
     const Coord3&		getPos() const;
     int				getObjID() const;
-    const CubeSampling&		getObjCS() const;
+    const TrcKeyZSampling&		getObjCS() const;
     DataPack::ID		getObjDataPackID() const;
     const Attrib::DataCubes*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
@@ -75,7 +75,7 @@ protected:
     void			setNode(const EM::PosID&);
     void			setPos(const Coord3&);
     void			setObjID(int);
-    void			setObjCS(const CubeSampling&);
+    void			setObjCS(const TrcKeyZSampling&);
     void			setObjDataPackID(DataPack::ID);
     void			setObjData(const Attrib::DataCubes*);
     void			setObjDataSelSpec(const Attrib::SelSpec&);
@@ -92,7 +92,7 @@ protected:
     EM::PosID				clickednode_;
     Coord3				clickedpos_;
     int					clickedobjid_;
-    CubeSampling			clickedcs_;
+    TrcKeyZSampling			clickedcs_;
     ConstRefMan<Attrib::DataCubes>	attrdata_;
     Attrib::SelSpec			attrsel_;
 
@@ -125,7 +125,7 @@ public:
 
     void			setEditor(MPEEditor*);
     bool			activateSower(const Color&,
-					      const HorSampling* =0);
+					      const TrcKeySampling* =0);
     bool			sequentSowing() const;
     bool			moreToSow() const;
     void			stopSowing();

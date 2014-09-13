@@ -30,7 +30,7 @@ mExpClass(EarthModel) RowColIterator : public EMObjectIterator
 {
 public:
     			RowColIterator(const Surface&,const SectionID&,
-				       const CubeSampling* =0);
+				       const TrcKeyZSampling* =0);
     			RowColIterator(const Surface&,const SectionID&,
 				       const StepInterval<int> rowbnd,
 				       const StepInterval<int> colbnd);
@@ -50,7 +50,7 @@ protected:
     bool				allsids_;
     const Surface&			surf_;
     
-    const CubeSampling*			csbound_;
+    const TrcKeyZSampling*			csbound_;
     const StepInterval<int>		rowbound_;
     const StepInterval<int>		colbound_;
     const bool				rowcolbounded_;

@@ -218,7 +218,7 @@ int PosInfo::CubeData::totalSize() const
 }
 
 
-int PosInfo::CubeData::totalSizeInside( const HorSampling& hrg ) const
+int PosInfo::CubeData::totalSizeInside( const TrcKeySampling& hrg ) const
 {
     int totalsize = 0;
     for ( int idx=0; idx<size(); idx++ )
@@ -297,9 +297,9 @@ int PosInfo::SortedCubeData::indexOf( int reqlnr, int* newidx ) const
 }
 
 
-void PosInfo::CubeData::limitTo( const HorSampling& hsin )
+void PosInfo::CubeData::limitTo( const TrcKeySampling& hsin )
 {
-    HorSampling hs ( hsin );
+    TrcKeySampling hs ( hsin );
     hs.normalise();
     for ( int iidx=size()-1; iidx>=0; iidx-- )
     {

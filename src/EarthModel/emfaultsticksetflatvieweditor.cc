@@ -24,7 +24,7 @@ FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 }
 
 
-void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
+void FaultStickSetFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 { cs_ = cs; }
 
 } //namespace EM

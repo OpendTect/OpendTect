@@ -18,7 +18,7 @@ class uiSteeringSel;
 class uiLabel;
 class uiPushButton;
 class SeisTrcBuf;
-class CubeSampling;
+class TrcKeyZSampling;
 class LineKey;
 
 
@@ -45,7 +45,7 @@ protected:
     void		GLCMdirectionSel(CallBacker*);
 
     void		analyseData(CallBacker*);
-    bool		readInputCube(SeisTrcBuf&, const CubeSampling&,
+    bool		readInputCube(SeisTrcBuf&, const TrcKeyZSampling&,
 				      int, const LineKey&) const;
     void		determineMinMax( const SeisTrcBuf&);
 

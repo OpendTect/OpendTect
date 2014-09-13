@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
@@ -38,7 +38,7 @@ public:
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
     void		setGeomID(Pos::GeomID);
 
-    void		setCubeSampling(const CubeSampling&, bool upd=false );
+    void		setTrcKeyZSampling(const TrcKeyZSampling&, bool upd=false );
 
     void		draw();
     void		enablePainting(bool yn);

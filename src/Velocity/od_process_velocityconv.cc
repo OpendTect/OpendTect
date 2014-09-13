@@ -37,11 +37,11 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !inputioobj )
 	mErrRet( "Cannot read input volume object" )
 	
-    HorSampling hrg;
+    TrcKeySampling hrg;
     if ( !hrg.usePar(pars()) )
     {
 	SeisIOObjInfo seisinfo( inputioobj );
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	seisinfo.getRanges( cs );
 	hrg = cs.hrg;
     }

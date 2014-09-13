@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiattremout.h"
 
 class CtxtIOObj;
-class HorSampling;
+class TrcKeySampling;
 class NLAModel;
 class uiGenInput;
 class uiIOObjSel;
@@ -39,7 +39,7 @@ public:
 				      const NLAModel*,const MultiID&,bool);
 			~uiAttrTrcSelOut();
 
-    void		getComputableSurf(HorSampling&);
+    void		getComputableSurf(TrcKeySampling&);
 
 protected:
 

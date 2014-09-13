@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 #include "multiid.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "flatview.h"
 
 
@@ -79,7 +79,7 @@ protected:
     TypeSet<int> 	dpids_;
     ObjectSet<PreStack::MuteDef> mutes_;
     TypeSet<Color>	mutecolors_;
-    CubeSampling 	cs_;
+    TrcKeyZSampling	cs_;
     uiViewer2DPosDlg* 	posdlg_;
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;

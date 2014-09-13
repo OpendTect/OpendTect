@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiattributesmod.h"
 
 #include "attribdescid.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linekey.h"
 
 namespace Attrib { class EngineMan; class DescSet;
@@ -34,7 +34,7 @@ public:
 
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
-    void		setCubeSampling( CubeSampling cs )	{ cs_ = cs; }
+    void		setTrcKeyZSampling( TrcKeyZSampling cs )	{ cs_ = cs; }
     void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
@@ -52,7 +52,7 @@ protected:
 
     uiFlatViewMainWin*		examwin_;
     uiFlatViewMainWin*		qcwin_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*		dset_;

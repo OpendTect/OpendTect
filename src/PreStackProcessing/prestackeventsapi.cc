@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackeventsapi.h"
 
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -224,7 +224,7 @@ int PreStack::EventsAPIMgr::getRanges( int handle,
 {
     const int idx = ids_.indexOf( handle );
 
-    HorSampling hrg;
+    TrcKeySampling hrg;
     if ( events_[idx] )
     {
 	if ( !events_[idx]->getHorRanges( hrg ) )

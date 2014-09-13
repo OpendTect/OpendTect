@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "faulttrace.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "posinfo2dsurv.h"
 
 class CtxtIOObj;
@@ -64,7 +64,7 @@ protected:
     bool		fillFields(const MultiID&,bool showerrmsg=true);
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
-    void		fillRangeFld(const HorSampling&);
+    void		fillRangeFld(const TrcKeySampling&);
 
     void		mkAttribFld(bool);
     void		mkSectionFld(bool);
@@ -131,7 +131,7 @@ protected:
     uiCheckBox*		displayfld_;
     uiColorInput*       colbut_;
     uiStratLevelSel*    stratlvlfld_;
-    HorSampling		surfrange_;
+    TrcKeySampling		surfrange_;
 };
 
 

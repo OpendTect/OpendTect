@@ -38,7 +38,7 @@ EventExporter::~EventExporter()
 { events_.unRef(); }
 
 
-void EventExporter::setHRange( const HorSampling& hrg )
+void EventExporter::setHRange( const TrcKeySampling& hrg )
 {
     hrg_ = hrg;
 }

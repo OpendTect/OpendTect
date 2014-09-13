@@ -146,18 +146,18 @@ bool MPEDisplay::canSetColTabSequence() const
 }
 
 
-CubeSampling MPEDisplay::getCubeSampling( int attrib ) const
+TrcKeyZSampling MPEDisplay::getTrcKeyZSampling( int attrib ) const
 {
-    return getCubeSampling( true, false, attrib );
+    return getTrcKeyZSampling( true, false, attrib );
 }
 
 
-CubeSampling MPEDisplay::getBoxPosition() const
+TrcKeyZSampling MPEDisplay::getBoxPosition() const
 {
     Coord3 center = boxdragger_->center();
     Coord3 width = boxdragger_->width();
 
-    CubeSampling cube;
+    TrcKeyZSampling cube;
     cube.hrg.start = BinID( mNINT32(center.x-width.x/2),
 			    mNINT32(center.y-width.y/2) );
     cube.hrg.stop = BinID( mNINT32(center.x+width.x/2),
@@ -173,7 +173,7 @@ CubeSampling MPEDisplay::getBoxPosition() const
 }
 
 
-bool MPEDisplay::getPlanePosition( CubeSampling& planebox ) const
+bool MPEDisplay::getPlanePosition( TrcKeyZSampling& planebox ) const
 {
     if ( slices_.isEmpty() )
 	return false;
@@ -382,7 +382,7 @@ void MPEDisplay::updateMPEActiveVolume()
 {
     if ( manipulated_ )
     {
-	const CubeSampling newcube = getBoxPosition();
+	const TrcKeyZSampling newcube = getBoxPosition();
 	engine_.setActiveVolume( newcube );
 	manipulated_ = false;
     }
@@ -537,7 +537,7 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 
 void MPEDisplay::updateBoxPosition( CallBacker* )
 {
-    CubeSampling cube = engine_.activeVolume();
+    TrcKeyZSampling cube = engine_.activeVolume();
     Coord3 newwidth( cube.hrg.stop.inl()-cube.hrg.start.inl(),
 		     cube.hrg.stop.crl()-cube.hrg.start.crl(),
 		     cube.zrg.stop-cube.zrg.start );
@@ -569,7 +569,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 
 void MPEDisplay::updateBoxSpace()
 {
-    const HorSampling& hs = SI().sampling(true).hrg;
+    const TrcKeySampling& hs = SI().sampling(true).hrg;
     const Interval<float> survinlrg( mCast(float,hs.start.inl()),
 					mCast(float,hs.stop.inl()) );
     const Interval<float> survcrlrg( mCast(float,hs.start.crl()),
@@ -588,7 +588,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     utm2display->transformBack( pos, xytpos );
     const BinID binid = SI().transform( Coord(xytpos.x,xytpos.y) );
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( !getPlanePosition(cs) )
 	return mUdf(float);
 
@@ -695,7 +695,7 @@ void MPEDisplay::alignSliceToSurvey( visBase::OrthogonalSlice& slice )
 }
 
 
-void MPEDisplay::setCubeSampling( const CubeSampling& cs )
+void MPEDisplay::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     const Interval<float> xintv( mCast(float,cs.hrg.start.inl()),
 				    mCast(float,cs.hrg.stop.inl()) );
@@ -772,7 +772,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 	//datatransformer->setInput( cdp->cube().getCube(0), cdp->sampling() );
 	datatransformer->setInput( cdp->cube().getCube(0),
 		cdp->cube().cubeSampling() );
-	datatransformer->setOutputRange( getCubeSampling(true,true,0) );
+	datatransformer->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
 	if ( TaskRunner::execute( tr, *datatransformer ) )
 	{
@@ -797,7 +797,7 @@ bool MPEDisplay::setDataVolume( int attrib, const Attrib::CubeDataPack* cdp,
 
     DPM( DataPackMgr::CubeID() ).release( attrib_dpid );
 
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
     return retval;
 }
@@ -818,10 +818,10 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     OD::PtrPolicy cp = OD::UsePtr;
 
     // get the dimensions from the engine and then get a subsample of the array
-    const CubeSampling displaycs = engine_.activeVolume();
+    const TrcKeyZSampling displaycs = engine_.activeVolume();
     if ( displaycs != attrdata->cubeSampling() )
     {
-	const CubeSampling attrcs = attrdata->cubeSampling();
+	const TrcKeyZSampling attrcs = attrdata->cubeSampling();
 
 	if ( !attrcs.includes( displaycs ) )
 	    return false;
@@ -872,7 +872,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
     channels_->setUnMappedData( attrib, 0, arr, cp, tr );
     channels_->reMapData( 0, false, 0 );
 
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
     channels_->turnOn( true );
     if ( !slices_.isEmpty() )
@@ -884,7 +884,7 @@ bool MPEDisplay::updateFromCacheID( int attrib, TaskRunner* tr )
 
 void MPEDisplay::updateSlice()
 {
-    const CubeSampling displaycs = engine_.activeVolume();
+    const TrcKeyZSampling displaycs = engine_.activeVolume();
 
     if ( curtextureas_==as_ && curtexturecs_==displaycs )
     {
@@ -919,10 +919,10 @@ DataPack::ID MPEDisplay::getDataPackID( int attrib ) const
 }
 
 
-CubeSampling MPEDisplay::getCubeSampling( bool manippos, bool displayspace,
+TrcKeyZSampling MPEDisplay::getTrcKeyZSampling( bool manippos, bool displayspace,
 	  			          int attrib ) const
 {
-    CubeSampling res;
+    TrcKeyZSampling res;
     if ( manippos )
     {
 	Coord3 center = boxdragger_->center();
@@ -990,7 +990,7 @@ int MPEDisplay::addSlice( int dim, bool show )
     setSliceDimension( slices_.size()-1, dim );
 
     addChild( slice->osgNode() );
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
     alignSliceToSurvey( *slice );
 
     if ( volumecache_ )
@@ -1098,7 +1098,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
     while ( true )
     {
 	MPE::TrackPlane newplane = engine_.trackPlane();
-	CubeSampling& planebox = newplane.boundingBox();
+	TrcKeyZSampling& planebox = newplane.boundingBox();
 	// get the position of the plane from the dragger
 	getPlanePosition( planebox );
 
@@ -1106,7 +1106,7 @@ void MPEDisplay::sliceMoving( CallBacker* cb )
 	if ( planebox==engine_.trackPlane().boundingBox() )
 	    return;
 
-	const CubeSampling& engineplane = engine_.trackPlane().boundingBox();
+	const TrcKeyZSampling& engineplane = engine_.trackPlane().boundingBox();
 	const int dim = slice->getDragger()->getDim();
 	if ( dim==cInLine() &&
 	     planebox.hrg.start.inl()==engineplane.hrg.start.inl() )
@@ -1168,7 +1168,7 @@ void MPEDisplay::showManipulator( bool yn )
 
 bool MPEDisplay::isManipulated() const
 {
-    return getCubeSampling(true,true,0) != getCubeSampling(false,true,0);
+    return getTrcKeyZSampling(true,true,0) != getTrcKeyZSampling(false,true,0);
 }
 
 
@@ -1180,7 +1180,7 @@ bool MPEDisplay::canResetManipulation() const
 
 void MPEDisplay::acceptManipulation()
 {
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 }
 
 
@@ -1256,13 +1256,13 @@ void MPEDisplay::updateRanges( bool updateic, bool updatez )
     if ( !datatransform_ ) return;
 
     if ( csfromsession_ != SI().sampling(true) )
-	setCubeSampling( csfromsession_ );
+	setTrcKeyZSampling( csfromsession_ );
     else
     {
 	Interval<float> zrg = datatransform_->getZInterval( false );
-	CubeSampling cs = getCubeSampling( 0 );
+	TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
 	assign( cs.zrg, zrg );
-	setCubeSampling( cs );
+	setTrcKeyZSampling( cs );
     }
 }
 

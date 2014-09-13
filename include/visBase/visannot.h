@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visosg.h"
 #include "visobject.h"
 #include "color.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "position.h"
 #include "sets.h"
 
@@ -69,10 +69,10 @@ public:
     const FontData&	getFont() const;
     void		setFont(const FontData&);
 
-    void		setCubeSampling(const CubeSampling&);
-    const CubeSampling& getCubeSampling() const;
-    void		setScale(const CubeSampling&);
-    const CubeSampling& getScale() const;
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling& getTrcKeyZSampling() const;
+    void		setScale(const TrcKeyZSampling&);
+    const TrcKeyZSampling& getScale() const;
 
     void		setScaleFactor(int dim,int scale);
 
@@ -94,8 +94,8 @@ protected:
 
     int				scalefactor_[3];
 
-    CubeSampling		cs_;
-    CubeSampling		scale_;
+    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		scale_;
     osg::Geometry*		box_;
     osg::Array*			gridlinecoords_;
     osg::Geode*			geode_;

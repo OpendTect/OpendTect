@@ -326,7 +326,7 @@ bool uiImportHorizon::doScan()
 
     const StepInterval<int> nilnrg = scanner_->inlRg();
     const StepInterval<int> nclnrg = scanner_->crlRg();
-    CubeSampling cs( true );
+    TrcKeyZSampling cs( true );
     const StepInterval<int> irg = cs.hrg.inlRange();
     const StepInterval<int> crg = cs.hrg.crlRange();
     if ( irg.start>nilnrg.stop || crg.start>nclnrg.stop ||
@@ -434,7 +434,7 @@ bool uiImportHorizon::doImport()
 	fillUdfs( sections );
     }
 
-    HorSampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hrg;
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( tr("Nr positions done") );
     int startidx = 0;
@@ -543,7 +543,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     if ( !interpol_ )
 	return false;
-    HorSampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hrg;
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();

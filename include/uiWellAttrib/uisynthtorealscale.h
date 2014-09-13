@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "multiid.h"
 
 class SeisTrc;
@@ -59,7 +59,7 @@ protected:
     MultiID		outwvltid_;
 
     ODPolygon<float>*	polygon_;
-    HorSampling		polyhs_;
+    TrcKeySampling		polyhs_;
     EM::Horizon3D*	horizon_;
     EM::EMObjectIterator* horiter_;
     Strat::SeisEvent&	seisev_;

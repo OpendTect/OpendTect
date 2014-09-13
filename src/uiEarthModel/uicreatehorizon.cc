@@ -84,7 +84,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     }
 
     uiPosSubSel* subsel = outfld_->getPosSubSel();
-    HorSampling hrg( true );
+    TrcKeySampling hrg( true );
     if ( subsel && !subsel->isAll() )
 	hrg = subsel->envelope().hrg;
 

@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "survinfo.h"
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "envvars.h"
 #include "file.h"
 #include "od_stream.h"
@@ -526,7 +526,7 @@ SeisTrc* SeisTrcTranslator::getFilled( const BinID& binid )
 }
 
 
-bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
+bool SeisTrcTranslator::getRanges( const MultiID& ky, TrcKeyZSampling& cs,
 				   const char* lk )
 {
     PtrMan<IOObj> ioobj = IOM().get( ky );
@@ -534,7 +534,7 @@ bool SeisTrcTranslator::getRanges( const MultiID& ky, CubeSampling& cs,
 }
 
 
-bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
+bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
 				   const char* lnm )
 {
     PtrMan<Translator> transl = ioobj.createTranslator();
@@ -573,7 +573,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 		return !cs.isEmpty();
 
 	    const SeisPacketInfo& pinf = seistr->packetInfo();
-	    CubeSampling newcs( false );
+	    TrcKeyZSampling newcs( false );
 	    newcs.hrg.set( pinf.inlrg, pinf.crlrg );
 	    newcs.zrg = pinf.zrg;
 	    cs.include( newcs );

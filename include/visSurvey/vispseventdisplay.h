@@ -100,7 +100,7 @@ protected:
     void			eventForceReloadCB(CallBacker*);
 
 
-    //TypeSet<HorSampling>	sectionranges_;
+    //TypeSet<TrcKeySampling>	sectionranges_;
     struct ParentAttachedObject
     {
 					ParentAttachedObject(int);
@@ -110,7 +110,7 @@ protected:
 
 	visBase::MarkerSet*		markerset_;
 	ObjectSet<PreStack::EventSet>	eventsets_;
-	HorSampling			hrg_;
+	TrcKeySampling			hrg_;
 
 	const int			parentid_;
     };

@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribparam.h"
 #include "attribprocessor.h"
 #include "attribstorprovider.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "ioman.h"
@@ -45,7 +45,7 @@ const char* StratAmpCalc::sKeyIsOverwriteYN()	{ return "Overwrite"; }
 
 StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
 			    const EM::Horizon3D* bothor,
-			    Stats::Type stattyp, const HorSampling& hs,
+			    Stats::Type stattyp, const TrcKeySampling& hs,
 			    bool outputfold )
     : Executor("Computing Stratal amplitude...")
     , rdr_(0)
@@ -61,7 +61,7 @@ StratAmpCalc::StratAmpCalc( const EM::Horizon3D* tophor,
     , tophorshift_(mUdf(float))
     , bothorshift_(mUdf(float))
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg = hs;
     totnr_ = hs.nrInl() * hs.nrCrl();
 
@@ -122,7 +122,7 @@ int StratAmpCalc::init( const IOPar& pars )
 	const BufferString attrnm = lk.attrName();
 	PtrMan<IOObj> seisobj = IOM().get( key );
 	rdr_ = new SeisTrcReader( seisobj );
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	cs.hrg = hs_;
 	rdr_->setSelData( new Seis::RangeSelData(cs) );
 	rdr_->prepareWork();

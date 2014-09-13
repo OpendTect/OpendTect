@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "vishorizonsection.h"
 #include "zaxistransform.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "binidvalue.h"
 #include "binidsurface.h"
 #include "datacoldef.h"
@@ -48,13 +48,13 @@ void HorizonSectionDataHandler::updateZAxisVOI()
     if ( !zaxistransform_ || !zaxistransform_->needsVolumeOfInterest() )
 	return;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( horsection_->userchangedisplayrg_ )
 	cs.hrg.set( horsection_->displayrrg_, horsection_->displaycrg_ );
     else
 	cs.hrg.set( geometry->rowRange(), geometry->colRange() );
 
-    HorSamplingIterator iter( cs.hrg );
+    TrcKeySamplingIterator iter( cs.hrg );
 
     bool first = true;
     BinID curpos;

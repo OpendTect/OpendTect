@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscubeprov.h"
 
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "posinfo2d.h"
@@ -469,7 +469,7 @@ class TrcDataLoader : public Executor
 {
 public:
 TrcDataLoader( SeisTrcReader& rdr, Array2D<SeisTrc*>& arr,
-	       const HorSampling& hs, bool is2d )
+	       const TrcKeySampling& hs, bool is2d )
     : Executor("Data Loader")
     , rdr_(rdr), arr_(arr), hs_(hs)
     , nrdone_(0)
@@ -512,7 +512,7 @@ int nextStep()
 
     SeisTrcReader&		rdr_;
     Array2D<SeisTrc*>&		arr_;
-    const HorSampling&		hs_;
+    const TrcKeySampling&		hs_;
     od_int64			nrdone_;
     bool			is2d_;
 
@@ -586,13 +586,13 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData( const CubeSampling& cs, TaskRunner* tr )
+bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs, TaskRunner* tr )
 { return readData( cs, Survey::GM().cUndefGeomID(), tr ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool SeisFixedCubeProvider::readData( const CubeSampling& cs,
+bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid, TaskRunner* tr )
 {
     if ( !ioobj_ )

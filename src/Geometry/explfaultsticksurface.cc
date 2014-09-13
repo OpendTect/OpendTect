@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "explfaultsticksurface.h"
 
 #include "arrayndinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "delaunay.h"

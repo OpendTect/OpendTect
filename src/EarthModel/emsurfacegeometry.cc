@@ -519,7 +519,7 @@ bool SurfaceGeometry::computeMeshNormal( Coord3& res, const PosID& pid,
 }
 
 
-bool SurfaceGeometry::computeNormal( Coord3& res, const CubeSampling* cs,
+bool SurfaceGeometry::computeNormal( Coord3& res, const TrcKeyZSampling* cs,
 		 const FloatMathFunction* t2dfunc, bool normalize ) const
 {
     TypeSet<PosID> nodes;
@@ -896,7 +896,7 @@ int SurfaceGeometry::findPos( const Interval<float>& x,
 }
 
 
-int SurfaceGeometry::findPos( const CubeSampling& cs,
+int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
 			  TypeSet<PosID>* res ) const
 {
     Coord xypos = SI().transform(cs.hrg.start);
@@ -1042,7 +1042,7 @@ void SurfaceGeometry::fillPar( IOPar& par ) const
 
 
 EMObjectIterator* SurfaceGeometry::createIterator( const SectionID&,
-						   const CubeSampling* ) const
+						   const TrcKeyZSampling* ) const
 { return 0; }
 
 
@@ -1192,7 +1192,7 @@ StepInterval<int> RowColSurfaceGeometry::colRange( int row ) const
 
 
 EMObjectIterator* RowColSurfaceGeometry::createIterator(
-			const SectionID& sid, const CubeSampling* cs ) const
+			const SectionID& sid, const TrcKeyZSampling* cs ) const
 {
     return new RowColIterator( surface_, sid, cs );
 }

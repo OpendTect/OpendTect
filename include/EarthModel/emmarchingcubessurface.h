@@ -60,7 +60,7 @@ public:
     void			setZSampling(const SamplingData<float>&);
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(CubeSampling& cs);
+    bool			getBodyRange(TrcKeyZSampling& cs);
 
     void			refBody();
     void			unRefBody();

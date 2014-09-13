@@ -58,7 +58,7 @@ class BodyExtractorFromHorizons : public ParallelTask
 public:
 BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
+	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
     , cs_(cs)
     , plg_(p)
@@ -139,7 +139,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 Array3D<float>&					res_;
-const CubeSampling&				cs_;
+const TrcKeyZSampling&				cs_;
 ObjectSet<EM::Horizon3D>			hors_;
 TypeSet<char>					hsides_;
 TypeSet<float>					horshift_;
@@ -152,7 +152,7 @@ class ImplicitBodyRegionExtractor : public ParallelTask
 public:
 ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
-	const CubeSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
+	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
     , cs_(cs)
     , plg_(p)
@@ -206,7 +206,7 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     {
 	bidinplg_ = new Array2DImpl<unsigned char>(cs_.nrInl(),cs_.nrCrl());
 
-	HorSamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( cs_.hrg );
 	BinID bid;
 	while( iter.next(bid) )
 	{
@@ -296,7 +296,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	HorSamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( cs_.hrg );
 	BinID bid;
 	ObjectSet<ODPolygon<float> > polygons;
 	for ( int idx=0; idx<fltsz; idx++ )
@@ -566,7 +566,7 @@ void computeHorOuterRange()
 
 void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 {
-    HorSampling hrg(false);
+    TrcKeySampling hrg(false);
     for ( int idx=0; idx<flt.nrSticks(); idx++ )
     {
 	const TypeSet<Coord3>* stick = flt.getStick(idx);
@@ -605,7 +605,7 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 }
 
 Array3D<float>&					res_;
-const CubeSampling&				cs_;
+const TrcKeyZSampling&				cs_;
 Geom::Point2D<float>				c_[4];
 
 ObjectSet<EM::Horizon3D>			hors_;
@@ -926,7 +926,7 @@ bool uiBodyRegionDlg::createImplicitBody()
     if ( duplicatehoridx>=0 )
 	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
 
-    CubeSampling cs = subvolfld_->envelope();
+    TrcKeyZSampling cs = subvolfld_->envelope();
     cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
     cs.hrg.start.inl() -= cs.hrg.step.inl();
     cs.hrg.stop.inl() += cs.hrg.step.inl();

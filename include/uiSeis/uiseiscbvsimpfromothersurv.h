@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiseismod.h"
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "uidialog.h"
 #include "executor.h"
 #include "fourier.h"
@@ -51,10 +51,10 @@ public:
     int		nextStep();
 
     bool		prepareRead(const char*);
-    void		setPars(Interpol&,int,const CubeSampling&);
+    void		setPars(Interpol&,int,const TrcKeyZSampling&);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
 
-    const CubeSampling& cubeSampling() const	{ return data_.cs_; }
+    const TrcKeyZSampling& cubeSampling() const { return data_.cs_; }
 
 protected:
 
@@ -77,8 +77,8 @@ protected:
 			    , cs_(false) {}
 
 	BinID		curbid_;
-	CubeSampling	cs_;
-	HorSamplingIterator* hsit_;
+	TrcKeyZSampling cs_;
+	TrcKeySamplingIterator* hsit_;
     };
     PosData		data_, olddata_;
 

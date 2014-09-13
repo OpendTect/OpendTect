@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceposprov.h"
 
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapointset.h"
 #include "emioobjinfo.h"
 #include "embody.h"
@@ -89,7 +89,7 @@ const char* EMSurfaceProvider::type() const
 { return sKey::Surface(); }
 
 
-static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
+static void getSurfRanges( const EM::Surface& surf, TrcKeySampling& hs,
 			   Interval<float>& zrg, od_int64& estnrpos )
 {
     bool veryfirst = true;
@@ -142,7 +142,7 @@ bool EMSurfaceProvider::initialize( TaskRunner* tr )
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
-	HorSampling hs( hs_ );
+	TrcKeySampling hs( hs_ );
 	od_int64 estnrpos2 = -1;
 	getSurfRanges( *surf2_, hs, zrg2_, estnrpos2 );
 	if ( estnrpos2 < estnrpos_ )
@@ -244,7 +244,7 @@ void EMSurfaceProvider::usePar( const IOPar& iop )
     EM::IOObjInfo eminfo( id1_ );
     if ( !eminfo.isOK() ) return;
 
-    HorSampling hs;
+    TrcKeySampling hs;
     hs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
     hs_ = hs;
 
@@ -625,7 +625,7 @@ EMImplicitBodyProvider& EMImplicitBodyProvider::operator = (
 }
 
 
-void EMImplicitBodyProvider::getCubeSampling( CubeSampling& cs ) const
+void EMImplicitBodyProvider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 { cs = useinside_ ? cs_ : bbox_; }
 
 
@@ -751,7 +751,7 @@ void EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
 	return;
     }
 
-    const CubeSampling& cs = useinside_ ? cs_ : bbox_;
+    const TrcKeyZSampling& cs = useinside_ ? cs_ : bbox_;
     start = cs.hrg.start;
     stop = cs.hrg.stop;
 }
@@ -767,7 +767,7 @@ bool EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 
 bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
-    const CubeSampling& bb = useinside_ ? cs_ : bbox_;
+    const TrcKeyZSampling& bb = useinside_ ? cs_ : bbox_;
     if ( mIsUdf(z) ) return bb.hrg.includes(bid);
 
     if ( !isOK() || !bb.hrg.includes(bid) || !bb.zrg.includes(z,false) ) 

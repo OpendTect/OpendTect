@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrcprop.h"
 #include "posinfo2dsurv.h"
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -104,8 +104,8 @@ bool TwoDSeisTrcTranslator::initRead_()
 
     if ( !curlinekey_.lineName().isEmpty() && lset.indexOf(curlinekey_) < 0 )
 	{ errmsg_ = tr("Cannot find line key in line set"); return false; }
-    CubeSampling cs( true );
-    errmsg_ = lset.getCubeSampling( cs, curlinekey_ );
+    TrcKeyZSampling cs( true );
+    errmsg_ = lset.getTrcKeyZSampling( cs, curlinekey_ );
 
     insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
     innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
@@ -178,7 +178,7 @@ bool TwoDDataSeisTrcTranslator::initRead_()
 
     if ( dset.indexOf(geomid_) < 0 )
 	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
-    CubeSampling cs( true );
+    TrcKeyZSampling cs( true );
 
     insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
     innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);

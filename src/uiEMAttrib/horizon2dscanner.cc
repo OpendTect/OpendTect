@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "survinfo.h"
 #include "oddirs.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
 #include "survgeom2d.h"

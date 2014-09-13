@@ -36,7 +36,7 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
 
 
 Executor* PSEventTranslator::reader( PreStack::EventManager& pse,
-       const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
+       const BinIDValueSet* bvs, const TrcKeySampling* hs, IOObj* ioobj,
        bool trigger )
 {
     mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,
@@ -68,7 +68,7 @@ Executor* PSEventTranslator::writeAs( PreStack::EventManager& pse, IOObj* ioobj)
 
 
 Executor* dgbPSEventTranslator::createReader( PreStack::EventManager& pse,
-	const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
+	const BinIDValueSet* bvs, const TrcKeySampling* hs, IOObj* ioobj,
         bool trigger )
 {
     mDynamicCast( PSEventTranslator*, PtrMan<PSEventTranslator> trans,

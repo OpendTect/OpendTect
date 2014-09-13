@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiearthmodelmod.h"
 
 #include "emposid.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "multiid.h"
 #include "position.h"
 #include "uiapplserv.h"
@@ -24,9 +24,9 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class DataPointSet;
-class HorSampling;
+class TrcKeySampling;
 class SurfaceInfo;
 class ZAxisTransform;
 class uiCreateHorizon;
@@ -93,8 +93,8 @@ public:
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
 
-    HorSampling		horizon3DDisplayRange() const	{ return selectedrg_; }
-    void		setHorizon3DDisplayRange(const HorSampling&);
+    TrcKeySampling		horizon3DDisplayRange() const	{ return selectedrg_; }
+    void		setHorizon3DDisplayRange(const TrcKeySampling&);
 			/*!<Users can change the display range, hor 3D only. */
 
     void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d);
@@ -122,7 +122,7 @@ public:
     static void         getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 				        BinIDValueSet&,
-				        const HorSampling&) const;
+				        const TrcKeySampling&) const;
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
 					const BufferStringSet& sellines,
 					TypeSet<Coord>&,
@@ -143,7 +143,7 @@ public:
 				   DataPointSet&, float& shift) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
 				      TypeSet<float>* shfs=0,
-				      const CubeSampling* cs=0) const;
+				      const TrcKeyZSampling* cs=0) const;
     bool		interpolateAuxData(const EM::ObjectID&,const char* nm,
 					   DataPointSet& res);
     bool		filterAuxData(const EM::ObjectID&,const char* nm,
@@ -198,7 +198,7 @@ protected:
     uiExportFault*	expfltstickdlg_;
     uiCreateHorizon*	crhordlg_;
 
-    HorSampling		selectedrg_;
+    TrcKeySampling		selectedrg_;
     bool		disponcreation_;
 
     ObjectSet<uiVariogramDisplay>	variodlgs_;

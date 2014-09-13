@@ -572,12 +572,12 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 
-	CubeSampling maxcs;
+	TrcKeyZSampling maxcs;
 	assign( maxcs.zrg, s2d->getMaxZRange(true)  );
 	maxcs.hrg.start.crl() = s2d->getMaxTraceNrRange().start;
 	maxcs.hrg.stop.crl() = s2d->getMaxTraceNrRange().stop;
 
-	CubeSampling curcs;
+	TrcKeyZSampling curcs;
 	curcs.zrg.setFrom( s2d->getZRange(true) );
 	curcs.hrg.start.crl() = s2d->getTraceNrRange().start;
 	curcs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
@@ -588,7 +588,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 				   maxcs, dummy, uiSliceSel::TwoD,
 				   scene->zDomainInfo() );
 	if ( !positiondlg.go() ) return;
-	const CubeSampling newcs = positiondlg.getCubeSampling();
+	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
 
 	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
@@ -661,7 +661,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
     cs.hrg.step.inl() = 1;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
@@ -991,7 +991,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     myas.setDefString( defstring );
     attrserv->setTargetSelSpec( myas );
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
 
@@ -1025,7 +1025,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayID()))
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.zrg.setFrom( s2d->getZRange(false) );

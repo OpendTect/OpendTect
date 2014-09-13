@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribdataholder.h"
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "interpol1d.h"
 #include "ioman.h"
 #include "ioobj.h"

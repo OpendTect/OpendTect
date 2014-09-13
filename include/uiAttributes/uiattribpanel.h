@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiattributesmod.h"
 #include "uiattrdesced.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linekey.h"
 #include "attribdescid.h"
 
@@ -32,7 +32,7 @@ public:
     			~uiAttribPanel();
     void                compAndDispAttrib(Attrib::DescSet*,
 	    				  const Attrib::DescID&,
-					  const CubeSampling&,
+					  const TrcKeyZSampling&,
 					  const Pos::GeomID&);
     			//<! descset becomes mine!
 
@@ -50,7 +50,7 @@ protected:
     virtual const char*		getPanelName()	{ return "Attribute preview"; }
 
     uiFlatViewMainWin*		flatvwin_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*    	dset_;

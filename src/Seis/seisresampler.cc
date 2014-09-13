@@ -8,16 +8,16 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisresampler.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "seistrc.h"
 #include "math2.h"
 
-SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
+SeisResampler::SeisResampler( const TrcKeyZSampling& c, bool is2d,
 				const Interval<float>* v )
 	: nrtrcs(0)
 	, worktrc(*new SeisTrc)
 	, valrg(v? new Interval<float>(*v) : 0)
-	, cs(*new CubeSampling(c))
+	, cs(*new TrcKeyZSampling(c))
 	, is3d(!is2d)
 	, dozsubsel(false)
 	, replval(0)
@@ -33,7 +33,7 @@ SeisResampler::SeisResampler( const CubeSampling& c, bool is2d,
 
 SeisResampler::SeisResampler( const SeisResampler& r )
 	: worktrc(*new SeisTrc)
-	, cs(*new CubeSampling(r.cs))
+	, cs(*new TrcKeyZSampling(r.cs))
 	, valrg(0)
 {
     *this = r;

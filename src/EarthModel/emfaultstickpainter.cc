@@ -66,7 +66,7 @@ FaultStickPainter::~FaultStickPainter()
 const char* FaultStickPainter::getLineName() const
 { return Survey::GM().getName( geomid_ ); }
 
-void FaultStickPainter::setCubeSampling( const CubeSampling& cs, bool update )
+void FaultStickPainter::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
 { cs_ = cs; }
 
 void FaultStickPainter::setPath( const TypeSet<BinID>* path )
@@ -188,9 +188,9 @@ bool FaultStickPainter::addPolyLine()
 		Coord3 editnormal( 0, 0, 1 );
 		// Let's assume cs default dir. is 'Z'
 
-		if ( cs_.defaultDir() == CubeSampling::Inl )
+		if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
 		    editnormal = Coord3( SI().binID2Coord().inlDir(), 0 );
-		else if ( cs_.defaultDir() == CubeSampling::Crl )
+		else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 		    editnormal = Coord3( SI().binID2Coord().crlDir(), 0 );
 
 		const Coord3 nzednor = editnormal.normalize();
@@ -205,17 +205,17 @@ bool FaultStickPainter::addPolyLine()
 		if ( !equinormal ) continue;
 
 		// we need to deal in different way if cs direction is Z
-		if ( cs_.defaultDir() != CubeSampling::Z )
+		if ( cs_.defaultDir() != TrcKeyZSampling::Z )
 		{
 		    BinID extrbid1, extrbid2;
-		    if ( cs_.defaultDir() == CubeSampling::Inl )
+		    if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
 		    {
 			extrbid1.inl() = extrbid2.inl() =
 					cs_.hrg.inlRange().start;
 			extrbid1.crl() = cs_.hrg.crlRange().start;
 			extrbid2.crl() = cs_.hrg.crlRange().stop;
 		    }
-		    else if ( cs_.defaultDir() == CubeSampling::Crl )
+		    else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 		    {
 			extrbid1.inl() = cs_.hrg.inlRange().start;
 			extrbid2.inl() = cs_.hrg.inlRange().stop;
@@ -233,17 +233,17 @@ bool FaultStickPainter::addPolyLine()
 			const Coord3& pos = fss->getKnot( rc );
 			BinID knotbinid = SI().transform( pos );
 			if (pointOnEdge2D(pos.coord(),extrcoord1,extrcoord2,.5)
-			    || (cs_.defaultDir()==CubeSampling::Inl
+			    || (cs_.defaultDir()==TrcKeyZSampling::Inl
 				&& knotbinid.inl()==extrbid1.inl())
-			    || (cs_.defaultDir()==CubeSampling::Crl
+			    || (cs_.defaultDir()==TrcKeyZSampling::Crl
 				&& knotbinid.crl()==extrbid1.crl()) )
 			{
 			    const BinID bid = SI().transform( pos.coord() );
 			    const double z = zat ? zat->transform(pos) : pos.z;
-			    if ( cs_.defaultDir() == CubeSampling::Inl )
+			    if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
 				stickauxdata->poly_ += FlatView::Point(
 								bid.crl(), z );
-			    else if ( cs_.defaultDir() == CubeSampling::Crl )
+			    else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 				stickauxdata->poly_ += FlatView::Point(
 								bid.inl(), z );
 			}

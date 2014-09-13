@@ -37,9 +37,9 @@ void Smoother::releaseData()
 }
 
 
-HorSampling Smoother::getInputHRg( const HorSampling& hrg ) const
+TrcKeySampling Smoother::getInputHRg( const TrcKeySampling& hrg ) const
 {
-    HorSampling res = hrg;
+    TrcKeySampling res = hrg;
     const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
     const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
 

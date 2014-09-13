@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "binidvalset.h"
 #include "binidvalue.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapointset.h"
 
 #include "emmanager.h"
@@ -161,7 +161,7 @@ void HorizonUtils::getPositions( od_ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
-				   Pos::GeomID geomid, const HorSampling& hsamp,
+				   Pos::GeomID geomid, const TrcKeySampling& hsamp,
 				   ObjectSet<DataPointSet>& data )
 {
     Surface* surface = getSurface(id);
@@ -227,7 +227,7 @@ void HorizonUtils::getExactCoords( od_ostream& strm, const MultiID& id,
 void HorizonUtils::getWantedPositions( od_ostream& strm,
 				       ObjectSet<MultiID>& midset,
 				       BinIDValueSet& wantedposbivs,
-				       const HorSampling& hs,
+				       const TrcKeySampling& hs,
 				       const Interval<float>& extraz,
 				       int nrinterpsamp, int mainhoridx,
 				       float extrawidth,
@@ -391,7 +391,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 void HorizonUtils::getWantedPos2D( od_ostream& strm,
 				   ObjectSet<MultiID>& midset,
 				   DataPointSet* dtps,
-				   const HorSampling& horsamp,
+				   const TrcKeySampling& horsamp,
 				   const Interval<float>& extraz,
 				   Pos::GeomID geomid )
 {

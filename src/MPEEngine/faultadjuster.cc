@@ -97,7 +97,7 @@ void FaultAdjuster::getNeededAttribs(
 }
 
 
-CubeSampling FaultAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling FaultAdjuster::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     if ( spec!=attribsel )
 	return SectionAdjuster::getAttribCube( spec );

@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "paralleltask.h"
 #include "emposid.h"
 #include "enums.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 
 template <class T> class Array2D;
 
@@ -68,7 +68,7 @@ private:
     Horizon3D*		outputhor_;
     ObjectSet<Horizon3D> inputhors_;
 
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     bool		ownsarray_;
 };
 

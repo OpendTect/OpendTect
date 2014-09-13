@@ -86,7 +86,7 @@ public:
     const MultiID&			velocityID() const
 					{ return velocityid_; }
 
-    void                updateCSIfNeeded(CubeSampling&) const;
+    void		updateCSIfNeeded(TrcKeyZSampling&) const;
     void		setAngleComp(PreStack::AngleComputer*);
 
 protected:

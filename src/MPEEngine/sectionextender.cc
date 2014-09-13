@@ -102,11 +102,11 @@ const TypeSet<EM::SubID>& SectionExtender::getAddedPositionsSource() const
 { return addedpossrc_; }
 
 
-const CubeSampling& SectionExtender::getExtBoundary() const
+const TrcKeyZSampling& SectionExtender::getExtBoundary() const
 { return extboundary_; }
 
 
-void SectionExtender::setExtBoundary( const CubeSampling& cs )
+void SectionExtender::setExtBoundary( const TrcKeyZSampling& cs )
 { extboundary_ = cs; }
 
 

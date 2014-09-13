@@ -34,7 +34,7 @@ public:
 
     int			expectedMBs( const SeisIOObjInfo::SpaceInfo& s ) const
 					{ return sii.expectedMBs(s); }
-    bool		getRanges( CubeSampling& cs ) const
+    bool		getRanges( TrcKeyZSampling& cs ) const
 					{ return sii.getRanges( cs ); }
     bool		getBPS( int& b, int icmp=-1 ) const
 					{ return sii.getBPS(b,icmp); }

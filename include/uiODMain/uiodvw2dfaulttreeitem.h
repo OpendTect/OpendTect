@@ -67,7 +67,7 @@ protected:
 			{ return typeid(uiODVw2DFaultParentTreeItem).name(); }
     bool		isSelectable() const			{ return true; }
 
-    void		updateCS(const CubeSampling&,bool upd);
+    void		updateCS(const TrcKeyZSampling&,bool upd);
     void		deSelCB(CallBacker*);
     void		checkCB(CallBacker*);
     void		emobjAbtToDelCB(CallBacker*);

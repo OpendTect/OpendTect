@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribprocessor.h"
 #include "attribfactory.h"
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapackbase.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -288,7 +288,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	}
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( typefld->getIntValue() == 4 )
     {
 	tgs.erase();
@@ -403,9 +403,9 @@ int nrTrcs()
 LineKey lineKey() const
 { return LineKey( linesfld_->box()->text(), attribnm_ ); }
 
-CubeSampling subVol() const
+TrcKeyZSampling subVol() const
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( subvolfld_ )
 	cs = subvolfld_->getSampling();
     return cs;
@@ -444,7 +444,7 @@ void createSelFields( DataType type )
     {
 	subvolfld_ = new uiSelSubvol( this, false );
 	subvolfld_->attach( alignedBelow, nrtrcfld_ );
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	if ( type==uiSelectPositionDlg::DataPack3D )
 	{
 	    DataPack* dp = DPM( dpfid_.ID(0)).obtain( dpfid_.ID(1) );
@@ -522,7 +522,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     aem->setAttribSet( descset );
     aem->setAttribSpecs( attribspecs );
     
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     const bool isinpindp = dpfids_.size();
     TypeSet<BinID> bidset;
     int nrtrcs = 0;
@@ -594,7 +594,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	return uiMSG().error(tr("Number of traces cannot be zero or negative"));
 
     cs.hrg.getRandomSet( nrtrcs, bidset );
-    aem->setCubeSampling( cs );
+    aem->setTrcKeyZSampling( cs );
 
     BinIDValueSet bidvals( 0, false );
     for ( int idx=0; idx<bidset.size(); idx++ )

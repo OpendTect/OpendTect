@@ -613,9 +613,9 @@ void PreStackDisplay::sectionMovedCB( CallBacker* )
     else
     {
 	if ( section_->getOrientation() == OD::InlineSlice )
-	    newpos.inl() = section_->getCubeSampling( -1 ).hrg.start.inl();
+	    newpos.inl() = section_->getTrcKeyZSampling( -1 ).hrg.start.inl();
 	else if ( section_->getOrientation() == OD::CrosslineSlice )
-	    newpos.crl() = section_->getCubeSampling( -1 ).hrg.start.crl();
+	    newpos.crl() = section_->getTrcKeyZSampling( -1 ).hrg.start.crl();
 	else
 	    return;
     }
@@ -821,13 +821,13 @@ void PreStackDisplay::finishedCB( CallBacker* )
     BinID newpos;
     if ( section_->getOrientation() == OD::InlineSlice )
     {
-	newpos.inl() = section_->getCubeSampling( -1 ).hrg.start.inl();
+	newpos.inl() = section_->getTrcKeyZSampling( -1 ).hrg.start.inl();
 	newpos.crl() = SI().crlRange(true).snap( planedragger_->center().y );
     }
     else if ( section_->getOrientation() == OD::CrosslineSlice )
     {
 	newpos.inl() = SI().inlRange(true).snap( planedragger_->center().x );
-	newpos.crl() = section_->getCubeSampling( -1 ).hrg.start.crl();
+	newpos.crl() = section_->getTrcKeyZSampling( -1 ).hrg.start.crl();
     }
     else
 	return;

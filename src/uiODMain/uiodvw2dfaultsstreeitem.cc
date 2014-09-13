@@ -259,10 +259,10 @@ bool uiODVw2DFaultSSTreeItem::showSubMenu()
 }
 
 
-void uiODVw2DFaultSSTreeItem::updateCS( const CubeSampling& cs, bool upd )
+void uiODVw2DFaultSSTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
-	fssview_->setCubeSampling( cs, upd );
+	fssview_->setTrcKeyZSampling( cs, upd );
 }
 
 

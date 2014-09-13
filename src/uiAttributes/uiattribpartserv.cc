@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "coltabmapper.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapointset.h"
 #include "executor.h"
 #include "iodir.h"
@@ -553,7 +553,7 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 }
 
 
-EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
+EngineMan* uiAttribPartServer::createEngMan( const TrcKeyZSampling* cs,
 					     const Pos::GeomID& geomid )
 {
     if ( targetspecs_.isEmpty() ||
@@ -591,14 +591,14 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
     aem->setNLAModel( getNLAModel(is2d) );
     aem->setAttribSpecs( targetspecs_ );
     if ( cs )
-	aem->setCubeSampling( *cs );
+	aem->setTrcKeyZSampling( *cs );
     aem->setGeomID( geomid );
 
     return aem;
 }
 
 
-DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
+DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& cs,
 					       DataPack::ID cacheid )
 {
     DataPackRef<DataPack> datapack =
@@ -630,7 +630,7 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 
 
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
-				const CubeSampling& cs, const DataCubes* cache )
+				const TrcKeyZSampling& cs, const DataCubes* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, 0 );
     if ( !aem ) return 0;
@@ -658,8 +658,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
     const bool isstored =
 	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();
-    const bool isinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl;
-    const bool iscrl = cs.isFlat() && cs.defaultDir() == CubeSampling::Crl;
+    const bool isinl = cs.isFlat() && cs.defaultDir() == TrcKeyZSampling::Inl;
+    const bool iscrl = cs.isFlat() && cs.defaultDir() == TrcKeyZSampling::Crl;
     const bool hideprogress = isstored &&
 	( (isinl&&!showinlprogress) || (iscrl&&!showcrlprogress) );
 
@@ -800,7 +800,7 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
 }
 
 
-DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
+DataPack::ID uiAttribPartServer::create2DOutput( const TrcKeyZSampling& cs,
 						 const Pos::GeomID& geomid,
 						 TaskRunner& taskrunner )
 {

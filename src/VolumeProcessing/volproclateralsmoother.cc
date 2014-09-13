@@ -334,9 +334,9 @@ LateralSmoother::~LateralSmoother()
 {}
 
 
-HorSampling LateralSmoother::getInputHRg( const HorSampling& hrg ) const
+TrcKeySampling LateralSmoother::getInputHRg( const TrcKeySampling& hrg ) const
 {
-    HorSampling res = hrg;
+    TrcKeySampling res = hrg;
     res.start.inl() = hrg.start.inl() - res.step.inl() * pars_.stepout_.row();
     res.start.crl() = hrg.start.crl() - res.step.crl() * pars_.stepout_.col();
     res.stop.inl() = hrg.stop.inl() + res.step.inl() * pars_.stepout_.row();

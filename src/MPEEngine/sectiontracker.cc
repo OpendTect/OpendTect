@@ -288,7 +288,7 @@ const char* SectionTracker::errMsg() const
 { return errmsg.str(); }
 
 
-CubeSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
+TrcKeyZSampling SectionTracker::getAttribCube( const Attrib::SelSpec& spec ) const
 {
     return adjuster_ ? adjuster_->getAttribCube(spec) : engine().activeVolume();
 }

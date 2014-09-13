@@ -7,7 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "posinfodetector.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "posidxpair2coord.h"
 #include "binidsorting.h"
 #include "keystrs.h"
@@ -104,7 +104,7 @@ bool PosInfo::Detector::inlSorted() const
 { return setup_.is2d_ ? true : sorting_.inlSorted(); }
 
 
-void PosInfo::Detector::getHorSampling( HorSampling& hs ) const
+void PosInfo::Detector::getTrcKeySampling( TrcKeySampling& hs ) const
 { hs.start = start_; hs.stop = stop_; hs.step = step_; }
 
 void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
@@ -150,7 +150,7 @@ void PosInfo::Detector::getCubeData( PosInfo::CubeData& cd ) const
 #define mErrRet(s) { errmsg = s; return errmsg.buf(); }
 #define mErrRet2(x,y) { errmsg = x; errmsg += y; return errmsg.buf(); }
 
-const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
+const char* PosInfo::Detector::getSurvInfo( TrcKeySampling& hs,
 					    Coord crd[3] ) const
 {
     mDeclStaticString( errmsg );

@@ -88,10 +88,10 @@ public:
     virtual int		findPos(const Interval<float>& x,
 				const Interval<float>& y,
 				const Interval<float>& z,TypeSet<PosID>*) const;
-    virtual int		findPos(const CubeSampling&,TypeSet<PosID>*) const;
+    virtual int		findPos(const TrcKeyZSampling&,TypeSet<PosID>*) const;
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const CubeSampling* =0) const;
+					       const TrcKeyZSampling* =0) const;
 
 
     virtual bool	usePar(const IOPar&);
@@ -138,7 +138,7 @@ public:
     StepInterval<int>		colRange(int row) const;
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
-					       const CubeSampling* =0) const;
+					       const TrcKeyZSampling* =0) const;
 
 };
 

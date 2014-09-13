@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 class uiFlatViewer;
 class uiFlatViewAuxDataEditor;
-class CubeSampling;
+class TrcKeyZSampling;
 namespace Pick { class Set; }
 
 
@@ -50,7 +50,7 @@ protected:
     void		dataChangedCB(CallBacker*);
     MarkerStyle2D	get2DMarkers(const Pick::Set& ps) const;
     void		triggerDeSel();
-    void		updateSetIdx(const CubeSampling&);
+    void		updateSetIdx(const TrcKeyZSampling&);
     void		updateSetIdx(const TypeSet<BinID>& bids);
 
     Pick::Set*			pickset_;

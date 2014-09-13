@@ -36,7 +36,7 @@ public:
 
     void			getNeededAttribs(
 				    ObjectSet<const Attrib::SelSpec>&) const;
-    CubeSampling		getAttribCube(const Attrib::SelSpec&) const;
+    TrcKeyZSampling		getAttribCube(const Attrib::SelSpec&) const;
 
     int				getNrAttributes() const;
     const Attrib::SelSpec*	getAttributeSel( int idx ) const;

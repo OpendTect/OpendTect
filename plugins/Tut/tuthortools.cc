@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "tuthortools.h"
 #include "emhorizon3d.h"
 #include "emsurface.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "emsurfaceauxdata.h"
 #include "statruncalc.h"
@@ -60,7 +60,7 @@ void Tut::HorTool::setHorSamp( const StepInterval<int>& inlrg,
 				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
-    iter_ = new HorSamplingIterator( hs_ );
+    iter_ = new TrcKeySamplingIterator( hs_ );
 }
 
 

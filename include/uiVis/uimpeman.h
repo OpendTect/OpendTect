@@ -146,7 +146,7 @@ protected:
     bool			mpeintropending;
 
     MPE::TrackPlane		oldtrackplane;
-    CubeSampling		oldactivevol;
+    TrcKeyZSampling		oldactivevol;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
 };

@@ -131,7 +131,7 @@ public:
 
     const char*		usrText() const	{ return "Copy from other survey"; }
     uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
 
     TDInfo		tdInfo() const { return tdinf_; }
     bool		xyInFeet() const { return inft_; }

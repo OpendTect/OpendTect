@@ -52,7 +52,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     PtrMan<IOPar> subselpar = pars().subselect(
 	    IOPar::compKey(sKey::Output(),sKey::Subsel()) );
-    CubeSampling cs( true );
+    TrcKeyZSampling cs( true );
     if ( !subselpar || !cs.usePar(*subselpar) )
 	strm << "Could not read ranges - Will process full survey\n";
 
@@ -67,7 +67,7 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
 
     const float zstep = chain->getZStep();
-    HorSampling inputhrg = cs.hrg;
+    TrcKeySampling inputhrg = cs.hrg;
     const StepInterval<int> outputzrg( mNINT32(cs.zrg.start/zstep),
 				 mNINT32(cs.zrg.stop/zstep),
 				 mMIN(mNINT32(cs.zrg.step/zstep),1) );
@@ -76,7 +76,7 @@ bool BatchProgram::go( od_ostream& strm )
     od_uint64 nrbytes = 0;
     const char itemsize = sizeof(float);
 
-    const HorSampling survhrg = SI().sampling(false).hrg;
+    const TrcKeySampling survhrg = SI().sampling(false).hrg;
     const Interval<int> survzrg( mNINT32(SI().zRange(false).start/zstep),
 				 mNINT32(SI().zRange(false).stop/zstep) );
 

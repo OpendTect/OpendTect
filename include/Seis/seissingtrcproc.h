@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "executor.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 class IOObj;
 class Scaler;
 class SeisTrc;
@@ -103,7 +103,7 @@ protected:
     bool		is3d_;
     bool		fillnull_;
     BinID		fillbid_;
-    HorSampling		fillhs_;
+    TrcKeySampling		fillhs_;
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
 

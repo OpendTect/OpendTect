@@ -20,7 +20,7 @@ class uiGenInput;
 class uiSteeringSel;
 class uiStepOutSel;
 class SeisTrcBuf;
-class CubeSampling;
+class TrcKeyZSampling;
 class LineKey;
 
 mClass(uiTextureAttrib) uiTextureAttrib : public uiAttrDescEd
@@ -41,7 +41,7 @@ protected:
     uiGenInput*		globalmaxfld_;
 
     void		analyseCB(CallBacker*); 
-    bool		readInpAttrib(SeisTrcBuf&,const CubeSampling&,int,
+    bool		readInpAttrib(SeisTrcBuf&,const TrcKeyZSampling&,int,
 				      const LineKey&) const;
     void		calcAndSetMinMaxVal(const SeisTrcBuf&);
 

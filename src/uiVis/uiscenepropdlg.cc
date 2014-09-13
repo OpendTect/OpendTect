@@ -163,7 +163,7 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
 
 struct uiScaleDlg : public uiDialog
 {
-uiScaleDlg( uiParent* p, const CubeSampling& scale, const char* zdomkey )
+uiScaleDlg( uiParent* p, const TrcKeyZSampling& scale, const char* zdomkey )
     : uiDialog(p,Setup("Set Annotation Scale",mNoDlgTitle,mNoHelpKey))
 {
     rangefld_ = new uiSelSubvol( this, true, zdomkey );
@@ -177,7 +177,7 @@ bool acceptOK(CallBacker *)
     return true;
 }
 
-CubeSampling	newscale_;
+TrcKeyZSampling newscale_;
 uiSelSubvol*	rangefld_;
 
 };

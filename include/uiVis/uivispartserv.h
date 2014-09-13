@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uiapplserv.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "menuhandler.h"
 #include "ranges.h"
@@ -156,7 +156,7 @@ public:
     Coord3		getTranslation(int visid) const;
 
 			//Volume data stuff
-    CubeSampling	getCubeSampling(int id,int attrib=-1) const;
+    TrcKeyZSampling	getTrcKeyZSampling(int id,int attrib=-1) const;
     const Attrib::DataCubes* getCachedData(int id,int attrib) const;
     bool		setCubeData(int id,int attrib,const Attrib::DataCubes*);
 			/*!< data becomes mine */

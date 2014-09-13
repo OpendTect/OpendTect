@@ -688,11 +688,11 @@ void uiVisPartServer::setAttribTransparency( int id, int attrib,
 }
 
 
-CubeSampling uiVisPartServer::getCubeSampling( int id, int attribid ) const
+TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id, int attribid ) const
 {
-    CubeSampling res;
+    TrcKeyZSampling res;
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) res = so->getCubeSampling( attribid );
+    if ( so ) res = so->getTrcKeyZSampling( attribid );
     return res;
 }
 
@@ -1352,7 +1352,7 @@ void fullPush( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    CubeSampling cs = selfld_->getSampling();
+    TrcKeyZSampling cs = selfld_->getSampling();
     const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
     return true;
 }
@@ -1376,7 +1376,7 @@ bool uiVisPartServer::setWorkingArea()
 	visBase::DataObject* obj = visBase::DM().getObject( sceneid );
 	mDynamicCastGet(visSurvey::Scene*,scene,obj)
 	if ( scene && scene->zDomainInfo().def_==ZDomain::SI() )
-	    scene->setCubeSampling( SI().sampling(true) );
+	    scene->setTrcKeyZSampling( SI().sampling(true) );
     }
 
     return true;
@@ -1392,8 +1392,8 @@ bool uiVisPartServer::usePar( const IOPar& par )
     if ( par.get( sKeyWorkArea(), res ) )
     {
 	FileMultiString fms(res);
-	CubeSampling cs;
-	HorSampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
+	TrcKeyZSampling cs;
+	TrcKeySampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
 	hs.start.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
 	hs.start.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
 	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
@@ -1467,7 +1467,7 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     visBase::DM().fillPar( par );
 
     par.set( sKeyNumberScenes(), scenes_.size() );
-    const CubeSampling& cs = SI().sampling( true );
+    const TrcKeyZSampling& cs = SI().sampling( true );
     FileMultiString fms;
     fms += cs.hrg.start.inl();
     fms += cs.hrg.stop.inl();

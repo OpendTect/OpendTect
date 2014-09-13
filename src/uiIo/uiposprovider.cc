@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uidialog.h"
 #include "uitoolbutton.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "survinfo.h"
 #include "od_helpids.h"
@@ -190,7 +190,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     : uiCompoundParSel(p,su.seltxt_)
     , setup_(su)
     , prov_(0)
-    , cs_(*new CubeSampling(false))
+    , cs_(*new TrcKeyZSampling(false))
 {
     txtfld_->setElemSzPol( uiObject::WideVar );
     iop_.set( sKey::Type(), sKey::None() );
@@ -225,7 +225,7 @@ void uiPosProvSel::setCSToAll() const
     if ( setup_.is2d_ )
 	cs_.set2DDef();
     else
-	cs_ = CubeSampling(true);
+	cs_ = TrcKeyZSampling(true);
 }
 
 
@@ -251,7 +251,7 @@ void uiPosProvSel::setProvFromCS()
 }
 
 
-const CubeSampling& uiPosProvSel::envelope() const
+const TrcKeyZSampling& uiPosProvSel::envelope() const
 {
     return cs_;
 }
@@ -267,10 +267,10 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 
     if ( prov_ )
     {
-	prov_->getCubeSampling( cs_ );
+	prov_->getTrcKeyZSampling( cs_ );
 	if ( !setup_.is2d_ ) //set step for 3D cs
 	{
-	    CubeSampling tmpcs;
+	    TrcKeyZSampling tmpcs;
 	    tmpcs.usePar( iop_ );
 	    cs_.hrg.step = tmpcs.hrg.step;
 	}
@@ -287,7 +287,7 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 }
 
 
-void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
+void uiPosProvSel::setInput( const TrcKeyZSampling& cs, bool chgtyp )
 {
     if ( chgtyp || (prov_ && sKey::Range()==prov_->type()) )
     {
@@ -297,15 +297,15 @@ void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
 }
 
 
-void uiPosProvSel::setInput( const CubeSampling& initcs,
-			     const CubeSampling& ioparcs )
+void uiPosProvSel::setInput( const TrcKeyZSampling& initcs,
+			     const TrcKeyZSampling& ioparcs )
 {
     setInput( initcs );
     ioparcs.fillPar( iop_ );
 }
 
 
-void uiPosProvSel::setInputLimit( const CubeSampling& cs )
+void uiPosProvSel::setInputLimit( const TrcKeyZSampling& cs )
 {
     setup_.cs_ = cs;
 }
@@ -316,7 +316,7 @@ bool uiPosProvSel::isAll() const
     if ( setup_.allownone_ )
 	return !prov_;
 
-    CubeSampling cskp = cs_;
+    TrcKeyZSampling cskp = cs_;
     setCSToAll();
     const bool ret = cs_ == cskp;
     cs_ = cskp;
@@ -403,10 +403,10 @@ mDefFn(void,usePar,const IOPar&,iop,,)
 mDefFn(void,fillPar,IOPar&,iop,const,)
 mDefFn(Pos::Provider*,curProvider,,,,return)
 mDefFn(const Pos::Provider*,curProvider,,,const,return)
-mDefFn(const CubeSampling&,envelope,,,const,return)
-mDefFn(const CubeSampling&,inputLimit,,,const,return)
+mDefFn(const TrcKeyZSampling&,envelope,,,const,return)
+mDefFn(const TrcKeyZSampling&,inputLimit,,,const,return)
 mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
-mDefFn(void,setInputLimit,const CubeSampling&,cs,,)
-mDefFn2(void,setInput,const CubeSampling&,cs,bool,ct,)
-mDefFn2(void,setInput,const CubeSampling&,initcs,const CubeSampling&,ioparcs,)
+mDefFn(void,setInputLimit,const TrcKeyZSampling&,cs,,)
+mDefFn2(void,setInput,const TrcKeyZSampling&,cs,bool,ct,)
+mDefFn2(void,setInput,const TrcKeyZSampling&,initcs,const TrcKeyZSampling&,ioparcs,)

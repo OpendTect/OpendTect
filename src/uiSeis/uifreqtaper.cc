@@ -39,7 +39,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
 		             tr("Select taper parameters at cut-off frequency"),
                                     mODHelpKey(mFreqTaperDlgHelpID) ))
-    , cs_(new CubeSampling())
+    , cs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
     , seisnm_(s.seisnm_)
@@ -149,7 +149,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 
     if ( posdlg_ &&  posdlg_->go() )
     {
-	const CubeSampling cs = posdlg_->getCubeSampling();
+	const TrcKeyZSampling cs = posdlg_->getTrcKeyZSampling();
 	SeisTrcReader rdr( objinfo.ioObj() );
 
 	Seis::RangeSelData* sd = new Seis::RangeSelData( cs );

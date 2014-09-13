@@ -293,7 +293,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 	attrserv->info2DAttribSubMenu( mnuid, attrbnm, steering, stored );
 
 	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
-	CubeSampling cs = dp2ddh->getCubeSampling();
+	TrcKeyZSampling cs = dp2ddh->getTrcKeyZSampling();
 	if ( zat ) cs.zrg = zat->getZInterval( true );
 
 	if ( !stored )

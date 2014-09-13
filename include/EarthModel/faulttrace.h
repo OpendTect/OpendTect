@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "executor.h"
 #include "paralleltask.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "multiid.h"
 #include "positionlist.h"
 #include "sets.h"
@@ -149,7 +149,7 @@ public:
 				      one for each crossline.
 			      For 2D: One for each stick.*/
 
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
 };
 
 
@@ -225,12 +225,12 @@ public:
 			FaultTrcDataProvider(Pos::GeomID);
 			~FaultTrcDataProvider();
 
-    bool		init(const TypeSet<MultiID>&,const HorSampling&,
+    bool		init(const TypeSet<MultiID>&,const TrcKeySampling&,
 			     TaskRunner* =0);
 
     bool		is2D() const		{ return is2d_; }
     int			nrFaults() const;
-    HorSampling		range(int) const;
+    TrcKeySampling		range(int) const;
     int			nrSticks(int fltidx) const;
     bool		isEditedOnCrl(int fltidx) const;
 
@@ -248,7 +248,7 @@ public:
 
 protected:
 
-    bool		calcFaultBBox(const EM::Fault&,HorSampling&) const;
+    bool		calcFaultBBox(const EM::Fault&,TrcKeySampling&) const;
     bool		get2DTraces(const TypeSet<MultiID>&,TaskRunner*);
 
     ObjectSet<FaultTrcHolder>	holders_;

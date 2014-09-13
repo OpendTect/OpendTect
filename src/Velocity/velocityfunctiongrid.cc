@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocityfunctiongrid.h"
 
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "gridder2d.h"
 #include "iopar.h"
 #include "keystrs.h"

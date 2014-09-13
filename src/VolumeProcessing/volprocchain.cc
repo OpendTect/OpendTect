@@ -35,7 +35,7 @@ public:
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
-		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
+		    const TrcKeySampling hrg( step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
@@ -76,7 +76,7 @@ protected:
 		{
 		    if ( totalnr_==-1 )
 		    {
-			const HorSampling hrg(
+			const TrcKeySampling hrg(
 				step_.output_->cubeSampling().hrg );
 			totalnr_ = hrg.nrInl() * hrg.nrCrl();
 		    }
@@ -219,7 +219,7 @@ int ChainExecutor::computeLatestEpoch( Step::ID stepid ) const
 
 
 void ChainExecutor::computeComputationScope( Step::ID stepid,
-				HorSampling& stepoutputhrg,
+				TrcKeySampling& stepoutputhrg,
 				StepInterval<int>& stepoutputzrg ) const
 {
     if ( stepid==chain_.outputstepid_ )
@@ -240,11 +240,11 @@ void ChainExecutor::computeComputationScope( Step::ID stepid,
 	const Step* nextstep = chain_.getStepFromID(
 			    outputconnections[idx].inputstepid_ );
 
-	HorSampling nextstephrg;
+	TrcKeySampling nextstephrg;
 	StepInterval<int> nextstepzrg;
 	computeComputationScope( nextstep->getID(), nextstephrg, nextstepzrg );
 
-	const HorSampling requiredhrg = nextstep->getInputHRg( nextstephrg );
+	const TrcKeySampling requiredhrg = nextstep->getInputHRg( nextstephrg );
 	if ( stepoutputhrg.isDefined() )
 	    stepoutputhrg.include( requiredhrg );
 	else
@@ -261,7 +261,7 @@ void ChainExecutor::computeComputationScope( Step::ID stepid,
 }
 
 
-bool ChainExecutor::setCalculationScope( const HorSampling& hrg,
+bool ChainExecutor::setCalculationScope( const TrcKeySampling& hrg,
 					 const StepInterval<int>& zrg )
 {
     outputhrg_ = hrg;
@@ -323,13 +323,13 @@ bool ChainExecutor::Epoch::doPrepare()
 	    currentstep->setInput( inputconnections[idy].inputslotid_, input );
 	}
 
-	HorSampling stepoutputhrg;
+	TrcKeySampling stepoutputhrg;
 	StepInterval<int> stepoutputzrg;
 
 	chainexec_.computeComputationScope( currentstep->getID(), stepoutputhrg,
 					    stepoutputzrg );
 
-	CubeSampling csamp;
+	TrcKeyZSampling csamp;
 	csamp.hrg = stepoutputhrg;
 	Attrib::DataCubes* outcube = new Attrib::DataCubes;
 	outcube->ref();
@@ -986,7 +986,7 @@ bool Step::validOutputSlotID( OutputSlotID slotid ) const
 }
 
 
-HorSampling Step::getInputHRg( const HorSampling& hr ) const
+TrcKeySampling Step::getInputHRg( const TrcKeySampling& hr ) const
 { return hr; }
 
 
@@ -1018,7 +1018,7 @@ const Attrib::DataCubes* Step::getInput( InputSlotID slotid ) const
 
 
 void Step::setOutput( OutputSlotID slotid, Attrib::DataCubes* dc,
-		      const HorSampling& hrg,
+		      const TrcKeySampling& hrg,
 		      const StepInterval<int>& zrg )
 {
     if ( output_ ) output_->unRef();

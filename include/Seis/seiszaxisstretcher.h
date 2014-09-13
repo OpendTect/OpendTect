@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 
 #include "seismod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "paralleltask.h"
 #include "thread.h"
 
@@ -35,7 +35,7 @@ mExpClass(Seis) SeisZAxisStretcher : public ParallelTask
 public:
 			SeisZAxisStretcher( const IOObj& in,
 					     const IOObj& out,
-					     const CubeSampling& outcs,
+					     const TrcKeyZSampling& outcs,
 					     ZAxisTransform&,
 					     bool forward,
 					     bool stretchz);
@@ -73,8 +73,8 @@ protected:
     int					nrwaiting_;
     int					nrthreads_;
 
-    CubeSampling			outcs_;
-    HorSampling				curhrg_;
+    TrcKeyZSampling			outcs_;
+    TrcKeySampling				curhrg_;
     ZAxisTransform*			ztransform_;
     int				voiid_;
     bool				ist2d_;

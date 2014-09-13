@@ -1494,7 +1494,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 }
 
 
-void HorizonDisplay::traverseLine( bool oninline, const CubeSampling& cs,
+void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
 	EM::SectionID sid, visBase::VertexShape* line, int& cii,
 	visBase::DataObjectGroup* points ) const
 {
@@ -1683,7 +1683,7 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 }
 
 
-static void drawHorizonOnZSlice( const CubeSampling& cs, float zshift,
+static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid,
 			const ZAxisTransform* zaxistransform,
 			visBase::VertexShape* line, int& cii )
@@ -1805,11 +1805,11 @@ void HorizonDisplay::updateIntersectionLines(
 
     for ( int idx=0; idx<linestoupdate.size(); idx++ )
     {
-	CubeSampling cs(false);
+	TrcKeyZSampling cs(false);
 	mDynamicCastGet( PlaneDataDisplay*, plane,
 	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( plane )
-	    cs = plane->getCubeSampling(true,true,-1);
+	    cs = plane->getTrcKeyZSampling(true,true,-1);
 
 	mDynamicCastGet( const MPEDisplay*, mped,
 	    visBase::DM().getObject(linestoupdate[idx]) );
@@ -2033,7 +2033,7 @@ void HorizonDisplay::updateSectionSeeds(
 	mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
 	if ( mped && mped->isDraggerShown() )
 	{
-	    CubeSampling cs;
+	    TrcKeyZSampling cs;
 	    if ( mped->getPlanePosition(cs) && cs.nrZ()!=1 )
 	    {
 		planelist += idx;

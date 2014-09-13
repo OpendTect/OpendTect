@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BinDataDesc;
-class CubeSampling;
+class TrcKeyZSampling;
 class SeisMSCProvider;
 class SeisTrcInfo;
 namespace Seis { class SelData; }
@@ -82,18 +82,18 @@ public:
     				{ return reqbufferstepout_; }
     const BinID&		getDesBufStepout() const
     				{ return desbufferstepout_; }
-    void			setDesiredVolume(const CubeSampling&);
+    void			setDesiredVolume(const TrcKeyZSampling&);
     				/*!< The desired volume is the ideal volume
 				  required by the user*/
-    const CubeSampling*		getDesiredVolume() const
+    const TrcKeyZSampling*		getDesiredVolume() const
 				{ return desiredvolume_; }
     void			resetDesiredVolume();
-    void                        setPossibleVolume(const CubeSampling&);
+    void                        setPossibleVolume(const TrcKeyZSampling&);
     				/*!< The possible volume is the volume that can
 				  really be computed taking care of all margins
 				  and stepouts*/
-    virtual bool		getPossibleVolume(int outp,CubeSampling&);
-    const CubeSampling*		getPossibleVolume() const
+    virtual bool		getPossibleVolume(int outp,TrcKeyZSampling&);
+    const TrcKeyZSampling*		getPossibleVolume() const
     				{ return possiblevolume_; }
     int				getTotalNrPos(bool);
     void			setCurLineName(const char*);
@@ -168,7 +168,7 @@ public:
    				//!<which inputs are not treated as normal
     				//!<input cubes and thus not delivering
     				//!<adequate cs automaticly
-    virtual void		updateCSIfNeeded(CubeSampling&) const	{}
+    virtual void		updateCSIfNeeded(TrcKeyZSampling&) const	{}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
@@ -239,7 +239,7 @@ protected:
     virtual bool		doNotReUseDH() const		{ return false;}
 
     bool			computeDesInputCube(int inp,int out,
-						    CubeSampling&,
+						    TrcKeyZSampling&,
 						    bool usestepout=true) const;
     				/*!<The system uses the margin and stepout
 				requirements to compute the ideal desired
@@ -354,8 +354,8 @@ protected:
     TypeSet<int>		outputinterest_;
     BinID			desbufferstepout_;
     BinID			reqbufferstepout_;
-    CubeSampling*		desiredvolume_;
-    CubeSampling*               possiblevolume_;
+    TrcKeyZSampling*		desiredvolume_;
+    TrcKeyZSampling*               possiblevolume_;
     TypeSet< Interval<int> >	localcomputezintervals_;
     ObjectSet<Provider>		allexistingprov_;
     TypeSet<float>      	exactz_;//only used for outputs which require

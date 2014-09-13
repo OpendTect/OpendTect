@@ -96,7 +96,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setAttribSpecs( attribspecs );
     aem->setGeomID( geomid_ );
 
-    CubeSampling cs = cs_;
+    TrcKeyZSampling cs = cs_;
     if ( !SI().zRange(0).includes( cs_.zrg.start, false ) ||
 	 !SI().zRange(0).includes( cs_.zrg.stop, false ) )
     {
@@ -104,7 +104,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 	cs.zrg.start = SI().sampling(0).zrg.start;
 	cs.zrg.stop = cs.zrg.start + cs_.zrg.width();
     }
-    aem->setCubeSampling( cs );
+    aem->setTrcKeyZSampling( cs );
 
     return aem;
 }
@@ -165,7 +165,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 			&& SI().zRange(0).includes(cs_.zrg.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
-    CubeSampling cs = csmatchessurv ? output->cubeSampling() : cs_;
+    TrcKeyZSampling cs = csmatchessurv ? output->cubeSampling() : cs_;
     Attrib::DataCubes* correctoutput = new Attrib::DataCubes();
     correctoutput->ref();
     correctoutput->setSizeAndPos( cs );

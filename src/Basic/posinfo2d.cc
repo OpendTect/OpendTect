@@ -10,7 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "math2.h"
 #include "posinfo2dsurv.h"
 #include "survinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "od_iostream.h"
 
 

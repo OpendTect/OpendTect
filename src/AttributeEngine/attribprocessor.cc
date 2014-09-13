@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attriboutput.h"
 #include "attribprovider.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linekey.h"
 #include "seisinfo.h"
 #include "seisselectionimpl.h"
@@ -246,7 +246,7 @@ void Processor::useSCProcess( int& res )
 void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
-    CubeSampling globalcs;
+    TrcKeyZSampling globalcs;
     defineGlobalOutputSpecs( globaloutputinterest, globalcs );
     if ( is2d_ )
     {
@@ -289,7 +289,7 @@ void Processor::init()
 
 
 void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
-				      	 CubeSampling& globalcs )
+					 TrcKeyZSampling& globalcs )
 {
     bool ovruleoutp = provider_->prepPriorToOutputSetup();
     if ( ovruleoutp )
@@ -301,7 +301,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
     
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	cs.zrg.start = 0;    //cover up for synthetics
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
@@ -394,7 +394,7 @@ void Processor::prepareForTableOutput()
 }
 
 
-void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
+void Processor::computeAndSetPosAndDesVol( TrcKeyZSampling& globalcs )
 {
     if ( provider_->getInputs().isEmpty() && !provider_->getDesc().isStored() )
     {
@@ -403,7 +403,7 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
     }
     else
     {
-	CubeSampling possvol;
+	TrcKeyZSampling possvol;
 	if ( !possvol.includes(globalcs) )
 	    possvol = globalcs;
 	else if ( is2d_ && possvol == globalcs )

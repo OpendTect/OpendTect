@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uimpemod.h"
 #include "uimpemod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
 
@@ -39,7 +39,7 @@ public:
 						const EM::ObjectID&);
 			~HorizonFlatViewEditor3D();
     
-    void		setCubeSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setPath(const TypeSet<BinID>*);
     void		setFlatPosData(const FlatPosData*);
     void		setSelSpec(const Attrib::SelSpec*,bool wva);
@@ -95,7 +95,7 @@ protected:
     FlatView::AuxDataEditor*	editor_;
     ObjectSet<Hor3DMarkerIdInfo> markeridinfos_;
     MouseEventHandler*		mehandler_;
-    CubeSampling		curcs_;
+    TrcKeyZSampling		curcs_;
     const Attrib::SelSpec*	vdselspec_;
     const Attrib::SelSpec*	wvaselspec_;
 

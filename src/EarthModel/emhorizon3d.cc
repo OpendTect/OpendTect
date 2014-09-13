@@ -45,7 +45,7 @@ public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
-		 HorSampling hs	)
+		 TrcKeySampling hs	)
     : Executor("Data Import")
     , horizon_(hor)
     , bvss_(sects)
@@ -137,7 +137,7 @@ protected:
 
     const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&			horizon_;
-    const HorSampling		hs_;
+    const TrcKeySampling		hs_;
     BufferString		msg_;
     int				nrattribs_;
     int				startidx_;
@@ -158,7 +158,7 @@ class HorizonImporter : public Executor
 public:
 
 HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
-		 const HorSampling& hs )
+		 const TrcKeySampling& hs )
     : Executor("Horizon Import")
     , horizon_(hor)
     , bvss_(sects)
@@ -182,7 +182,7 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 	totalnr_ += mCast( int, bvs.totalSize() );
 
-	HorSampling sectrg;
+	TrcKeySampling sectrg;
 	sectrg.set( bvs.inlRange(), bvs.crlRange(-1) );
 	sectrg.step = step;
 	sectrg.limitTo( hs_ );
@@ -266,7 +266,7 @@ protected:
     const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&		horizon_;
     BinIDValueSet::SPos	pos_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     BufferString	msg_;
     int			nrvals_;
 
@@ -334,7 +334,7 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword() )
 
 
-Horizon3D* Horizon3D::createWithConstZ( float z, const HorSampling& hrg )
+Horizon3D* Horizon3D::createWithConstZ( float z, const TrcKeySampling& hrg )
 {
     EMObject* emobj = EMM().createTempObject( typeStr() );
     mDynamicCastGet(Horizon3D*,hor3d,emobj)
@@ -373,9 +373,9 @@ TrcKey::SurvID Horizon3D::getSurveyID() const
 }
 
 
-HorSampling Horizon3D::range( SectionID sid ) const
+TrcKeySampling Horizon3D::range( SectionID sid ) const
 {
-    HorSampling hs( false );
+    TrcKeySampling hs( false );
     hs.set( geometry().rowRange(sid), geometry().colRange(sid,-1) );
     return hs;
 }
@@ -510,7 +510,7 @@ const IOObjContext& Horizon3D::getIOObjContext() const
 
 
 Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
-			   const HorSampling& hs )
+			   const TrcKeySampling& hs )
 {
     removeAll();
     return new HorizonImporter( *this, sections, hs );
@@ -519,7 +519,7 @@ Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 
 Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 				      const BufferStringSet& attribnms,
-				      const int start, const HorSampling& hs )
+				      const int start, const TrcKeySampling& hs )
 {
     return new AuxDataImporter( *this, sections, attribnms, start, hs );
 }
@@ -849,7 +849,7 @@ void Horizon3DGeometry::fillBinIDValueSet( const SectionID& sid,
 
 
 EMObjectIterator* Horizon3DGeometry::createIterator(
-			const SectionID& sid, const CubeSampling* cs) const
+			const SectionID& sid, const TrcKeyZSampling* cs) const
 {
     if ( !cs )
         return new RowColIterator( surface_, sid, cs );

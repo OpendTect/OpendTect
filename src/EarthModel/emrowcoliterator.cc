@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emrowcoliterator.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emsurface.h"
 #include "rowcolsurface.h"
 #include "survinfo.h"
@@ -20,7 +20,7 @@ namespace EM
 {
 
 RowColIterator::RowColIterator( const Surface& surf, const SectionID& sectionid,
-				const CubeSampling* cs	)
+				const TrcKeyZSampling* cs	)
     : surf_( surf )
     , sid_( sectionid )
     , cursection_( 0 )

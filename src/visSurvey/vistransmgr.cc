@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "survinfo.h"
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linsolv.h"
 
 
@@ -52,7 +52,7 @@ void SceneTransformManager::computeICRotationTransform(
 		visBase::Transformation* rotation,
 		visBase::Transformation* disptrans )
 {
-    const HorSampling hs = sg.sampling().hrg;
+    const TrcKeySampling hs = sg.sampling().hrg;
 
     const BinID startbid = hs.start;
     const BinID stopbid = hs.stop;

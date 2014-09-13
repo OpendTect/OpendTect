@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class BufferStringSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class IOObj;
 
 namespace EM
@@ -85,7 +85,7 @@ public:
     bool		hasGeomIDs() const;
 
     // Body
-    bool		getBodyRange(CubeSampling&) const;
+    bool		getBodyRange(TrcKeyZSampling&) const;
 
     // FaultStickSet
     int 		nrSticks() const;

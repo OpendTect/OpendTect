@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "bufstringset.h"
 
 class uiComboBox;
@@ -40,7 +40,7 @@ public:
 
     int			nr_;
     bool		needhor_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     Interval<float>	zrg_;
     int			horidx_;
     int			horidx2_;

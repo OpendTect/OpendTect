@@ -175,7 +175,7 @@ void uiGMTContourGrp::objSel( CallBacker* )
     if ( !eminfo.getSurfaceData(sd_,errmsg) )
 	return;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg = sd_.rg;
     subselfld_->setInput( cs );
     attribfld_->setEmpty();
@@ -211,7 +211,7 @@ void uiGMTContourGrp::resetCB( CallBacker* )
 
 void uiGMTContourGrp::selChg( CallBacker* cb )
 {
-    HorSampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hrg;
     if ( hs == sd_.rg )
 	return;
 
@@ -278,7 +278,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     IOObj* ioobj = ctio_.ioobj;
     if ( !ioobj ) return;
 
-    HorSampling hs = subselfld_->envelope().hrg;
+    TrcKeySampling hs = subselfld_->envelope().hrg;
     if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
 	return;
 
@@ -296,7 +296,7 @@ void uiGMTContourGrp::readCB( CallBacker* )
     }
 
     Interval<float> rg( mUdf(float), -mUdf(float) );
-    HorSamplingIterator iter( hs );
+    TrcKeySamplingIterator iter( hs );
     BinID bid;
     EM::SectionID sid = hor_->sectionID( 0 );
     while ( iter.next(bid) )

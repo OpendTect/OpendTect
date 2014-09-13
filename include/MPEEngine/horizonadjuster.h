@@ -43,7 +43,7 @@ public:
 
     void		getNeededAttribs(
 	    			ObjectSet<const Attrib::SelSpec>&) const;
-    CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     bool		is2D() const;
 
     void		setPermittedZRange(const Interval<float>& rg);

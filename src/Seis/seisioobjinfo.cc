@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "conn.h"
 #include "linekey.h"
 #include "survinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "linekey.h"
 #include "keystrs.h"
@@ -150,7 +150,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 	return true;
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( !getRanges(cs) )
 	return false;
 
@@ -213,7 +213,7 @@ int SeisIOObjInfo::expectedMBs( const SpaceInfo& si ) const
 }
 
 
-bool SeisIOObjInfo::getRanges( CubeSampling& cs ) const
+bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
 {
     mChk(false);
     mDynamicCastGet(IOStream*,iostrm,ioobj_)

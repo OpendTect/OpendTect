@@ -69,7 +69,7 @@ HorizonFlatViewEditor::~HorizonFlatViewEditor()
 }
 
 
-void HorizonFlatViewEditor::setCubeSampling( const CubeSampling& cs )
+void HorizonFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 { curcs_ = cs; }
 
 
@@ -156,7 +156,7 @@ void HorizonFlatViewEditor::mouseReleaseCB( CallBacker* )
 	 !seedpicker->setSectionID(emobj->sectionID(0)) )
 	return;
 
-    CubeSampling newactivevol;
+    TrcKeyZSampling newactivevol;
     if ( is2d_ )
 	newactivevol.setEmpty();
     else

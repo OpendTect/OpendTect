@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "sets.h"
 #include "emposid.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "refcount.h"
 
 class Executor;
@@ -58,7 +58,7 @@ public:
     virtual Executor*		trackInVolume();
     virtual bool		snapPositions( const TypeSet<EM::PosID>& );
 
-    virtual CubeSampling	getAttribCube( const Attrib::SelSpec& ) const;
+    virtual TrcKeyZSampling	getAttribCube( const Attrib::SelSpec& ) const;
     void			getNeededAttribs(
 				    ObjectSet<const Attrib::SelSpec>&) const;
 

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiegeocalculator.h"
 
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "interpol1d.h"
 #include "ioman.h"
 #include "datapointset.h"
@@ -33,7 +33,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, trcbuf_(new SeisTrcBuf(false))
 	, nrdone_(0)
 	, outtrc_(0)
-	, cs_(new CubeSampling(false))
+	, cs_(new TrcKeyZSampling(false))
 	, extrintv_(SI().zRange(false))
 	, linenm_(*new BufferString)
 	, radius_(1)

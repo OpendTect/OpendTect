@@ -169,7 +169,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 
     if ( pickedpos.isDefined() )
     {
-	CubeSampling poscs(false);
+	TrcKeyZSampling poscs(false);
 	const BinID bid = SI().transform(pickedpos);
 	poscs.hrg.start = poscs.hrg.stop = bid;
 	poscs.zrg.start = poscs.zrg.stop = (float) pickedpos.z;
@@ -561,9 +561,9 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
 
-    CubeSampling oldactivevol = MPE::engine().activeVolume();
+    TrcKeyZSampling oldactivevol = MPE::engine().activeVolume();
 
-    ObjectSet<CubeSampling>* trackedcubes =
+    ObjectSet<TrcKeyZSampling>* trackedcubes =
 				MPE::engine().getTrackedFlatCubes( trackerid );
     if ( trackedcubes )
     {
@@ -573,7 +573,7 @@ void uiMPEPartServer::retrack( const EM::ObjectID& oid )
 	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
 	    notifystopper.restore();
 
-	    const CubeSampling curvol =  MPE::engine().activeVolume();
+	    const TrcKeyZSampling curvol =  MPE::engine().activeVolume();
 	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
 		loadAttribData();
 
@@ -739,7 +739,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 				     const Attrib::DataCubes* slcset )
 {
     RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
-    dh->setCubeSampling( slcset->cubeSampling() );
+    dh->setTrcKeyZSampling( slcset->cubeSampling() );
     dh->set3DData( slcset );
     MPE::engine().setAttribData( spec, dh );
 }
@@ -757,7 +757,7 @@ void uiMPEPartServer::setAttribData( const Attrib::SelSpec& as,
     }
 
     RefMan<MPE::DataHolder> dh = new MPE::DataHolder;
-    dh->setCubeSampling( newdata->cubesampling_ );
+    dh->setTrcKeyZSampling( newdata->cubesampling_ );
     dh->set2DData( newdata );
 
     MPE::engine().setAttribData( as, dh );
@@ -832,9 +832,9 @@ void uiMPEPartServer::loadAttribData()
 	}
 
 	eventattrselspec_ = attribselspecs[idx];
-	const CubeSampling desiredcs = getAttribVolume( *eventattrselspec_ );
+	const TrcKeyZSampling desiredcs = getAttribVolume( *eventattrselspec_ );
 
-	CubeSampling possiblecs;
+	TrcKeyZSampling possiblecs;
 	if ( !desiredcs.getIntersection(SI().sampling(false),possiblecs) )
 	    continue;
 
@@ -842,7 +842,7 @@ void uiMPEPartServer::loadAttribData()
 	    continue;
 
 	const float marginfraction = 0.9;
-	const CubeSampling mincs = MPE::engine().activeVolume();
+	const TrcKeyZSampling mincs = MPE::engine().activeVolume();
 	if ( MPE::engine().cacheIncludes(*eventattrselspec_,mincs) &&
 	     marginfraction*desiredcs.nrZ() < mincs.nrZ() )
 	    continue;
@@ -862,13 +862,13 @@ const MPE::DataHolder*
 { return MPE::engine().getAttribCache( spec ); }
 
 
-CubeSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as )const
+TrcKeyZSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as )const
 { return MPE::engine().getAttribCube(as); }
 
 
 bool uiMPEPartServer::activeVolumeIsDefault() const
 {
-    const CubeSampling activecs = MPE::engine().activeVolume();
+    const TrcKeyZSampling activecs = MPE::engine().activeVolume();
     if ( activecs==MPE::engine().getDefaultActiveVolume() )
 	return true;
 
@@ -876,15 +876,15 @@ bool uiMPEPartServer::activeVolumeIsDefault() const
 }
 
 
-void uiMPEPartServer::expandActiveVolume(const CubeSampling& seedcs)
+void uiMPEPartServer::expandActiveVolume(const TrcKeyZSampling& seedcs)
 {
     if ( MPE::engine().isActiveVolShown() )
 	return;
 
-    const CubeSampling activecs = MPE::engine().activeVolume();
+    const TrcKeyZSampling activecs = MPE::engine().activeVolume();
     const bool isdefault = activeVolumeIsDefault();
 
-    CubeSampling newcube = isdefault || activecs.isFlat() ? seedcs : activecs;
+    TrcKeyZSampling newcube = isdefault || activecs.isFlat() ? seedcs : activecs;
     newcube.zrg.step = SI().zStep();
     if ( !isdefault )
     {

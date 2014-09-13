@@ -663,7 +663,7 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 	    cs_.hrg.setInlRange( trcrg );
 	}
 
-	slicepos_->setCubeSampling( cs_ );
+	slicepos_->setTrcKeyZSampling( cs_ );
     }
 
     setUpNewPositions( isinl, bid, trcrg );
@@ -673,7 +673,7 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
-    const bool isinl = is2d_ || cs_.defaultDir()==CubeSampling::Inl;
+    const bool isinl = is2d_ || cs_.defaultDir()==TrcKeyZSampling::Inl;
     const int newpos = isinl ? cs_.hrg.start.inl() : cs_.hrg.start.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
@@ -757,7 +757,7 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, cs_.defaultDir()==CubeSampling::Inl, is2d_, nm);
+    info->setData( ginfo.bid_, cs_.defaultDir()==TrcKeyZSampling::Inl, is2d_, nm);
 }
 
 
@@ -765,7 +765,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 {
     if ( posdlg_ )
     {
-	posdlg_->getCubeSampling( cs_ );
+	posdlg_->getTrcKeyZSampling( cs_ );
 	posdlg_->getSelGatherInfos( gatherinfos_ );
 	BufferStringSet gathernms;
 
@@ -783,7 +783,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
     }
 
     if ( slicepos_ )
-	slicepos_->setCubeSampling( cs_ );
+	slicepos_->setTrcKeyZSampling( cs_ );
 
     setUpView();
 }
@@ -792,9 +792,9 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
     if ( slicepos_ )
-	cs_ = slicepos_->getCubeSampling();
+	cs_ = slicepos_->getTrcKeyZSampling();
     if ( posdlg_ )
-	posdlg_->setCubeSampling( cs_ );
+	posdlg_->setTrcKeyZSampling( cs_ );
 
     setUpNewSlicePositions();
     setUpNewIDs();
@@ -1118,7 +1118,7 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
     if ( posdlg_ )
     {
 	TypeSet<GatherInfo> gatherinfos;
-	posdlg_->getCubeSampling( cs_ );
+	posdlg_->getTrcKeyZSampling( cs_ );
 	posdlg_->getSelGatherInfos( gatherinfos );
 	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	    gatherinfos_[idx].isselected_ = false;
@@ -1238,7 +1238,7 @@ void uiSyntheticViewer2DMainWin::removeGathers()
 void uiSyntheticViewer2DMainWin::setGatherInfo(uiGatherDisplayInfoHeader* info,
 					       const GatherInfo& ginfo )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     const int modelnr = (ginfo.bid_.crl() - cs.hrg.stop.crl())
 			/ cs.hrg.step.crl();
     info->setData( modelnr, ginfo.gathernm_ );

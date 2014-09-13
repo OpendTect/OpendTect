@@ -15,11 +15,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bodyvolumecalc.h"
 
 #include "arraynd.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 
 
-BodyVolumeCalculator::BodyVolumeCalculator( const CubeSampling& cs, 
+BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
 	const Array3D<float>& arr, float threshold, float velocityinmeter )
     : arr_(arr)
     , threshold_(threshold)

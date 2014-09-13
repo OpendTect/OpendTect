@@ -22,7 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselection.h"
 #include "seisresampler.h"
 #include "seis2dline.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "ptrman.h"
 #include "iopar.h"
@@ -154,7 +154,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
 {
     if ( selfld->isAll() ) return 0;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     selfld->getSampling( cs.hrg );
     selfld->getZRange( cs.zrg );
     return new SeisResampler( cs, Seis::is2D(setup_.geomType()) );

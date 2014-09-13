@@ -283,9 +283,9 @@ bool Seis2DTo3D::doWorkFFT()
     Interval<int> crlrg( crl-crlstep_, crl+crlstep_ );
     inlrg.limitTo( SI().inlRange(true) );
     crlrg.limitTo( SI().crlRange(true) );
-    HorSampling hrg; hrg.set( inlrg, crlrg );
+    TrcKeySampling hrg; hrg.set( inlrg, crlrg );
     hrg.step = BinID( SI().inlRange(true).step, SI().crlRange(true).step );
-    HorSamplingIterator localhsit( hrg );
+    TrcKeySamplingIterator localhsit( hrg );
     BinID binid;
     ObjectSet<const SeisTrc> trcs;
     if ( !outioobj_ )
@@ -322,7 +322,7 @@ bool Seis2DTo3D::doWorkFFT()
     Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
-    HorSampling winhrg; winhrg.set( cs_.hrg.inlRange(), cs_.hrg.crlRange() );
+    TrcKeySampling winhrg; winhrg.set( cs_.hrg.inlRange(), cs_.hrg.crlRange() );
     winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
@@ -330,7 +330,7 @@ bool Seis2DTo3D::doWorkFFT()
     if ( outtrcs.isEmpty() )
     {
 	BinID bid;
-	HorSamplingIterator hsit( winhrg );
+	TrcKeySamplingIterator hsit( winhrg );
 	while ( hsit.next( bid ) )
 	{
 	    SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
@@ -435,7 +435,7 @@ void SeisInterpol::setInput( const ObjectSet<const SeisTrc>& trcs )
 }
 
 
-void SeisInterpol::setParams( const HorSampling& hs, float maxvel )
+void SeisInterpol::setParams( const TrcKeySampling& hs, float maxvel )
 {
     hs_ = hs;
     maxvel_ = maxvel;
@@ -589,12 +589,12 @@ int SeisInterpol::getTrcInSet( const BinID& bin ) const
 
 
 void SeisInterpol::getOutTrcs( ObjectSet<SeisTrc>& trcs,
-				const HorSampling& hs) const
+				const TrcKeySampling& hs) const
 {
     if ( inptrcs_->isEmpty() )
 	return;
 
-    HorSamplingIterator hsit( hs_ );
+    TrcKeySamplingIterator hsit( hs_ );
     BinID bid;
     while ( hsit.next( bid ) )
     {

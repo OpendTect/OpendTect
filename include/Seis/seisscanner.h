@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "dataclipper.h"
 class IOObj;
 class SeisTrc;
-class CubeSampling;
+class TrcKeyZSampling;
 class SeisTrcReader;
 class PosGeomDetector;
 namespace PosInfo { class Detector; }
@@ -43,7 +43,7 @@ public:
     int			nextStep();
 
     void		report(IOPar&) const;
-    bool		getSurvInfo(CubeSampling&,Coord crd[3]) const;
+    bool		getSurvInfo(TrcKeyZSampling&,Coord crd[3]) const;
     			//!< Z range will be exclusive start/end null samples
 
     Interval<float>	zRange() const		{ return Interval<float>

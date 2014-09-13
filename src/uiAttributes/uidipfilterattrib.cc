@@ -114,7 +114,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     }
     else
     {
-	CubeSampling cs; inpfld_->getRanges( cs );
+	TrcKeyZSampling cs; inpfld_->getRanges( cs );
 	dlg = new uiLinePosSelDlg( this, cs );
     }
 
@@ -129,7 +129,7 @@ void uiDipFilterAttrib::panelbutCB( CallBacker* )
     if ( !ioobj ) return;
 
     SeisTrcReader rdr( ioobj );
-    rdr.setSelData( new Seis::RangeSelData(dlg->getCubeSampling()) );
+    rdr.setSelData( new Seis::RangeSelData(dlg->getTrcKeyZSampling()) );
     rdr.prepareWork();
     SeisTrcBuf tbuf( true );
     SeisBufReader bufrdr( rdr, tbuf );

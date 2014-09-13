@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linekey.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -317,9 +317,9 @@ bool acceptOK(CallBacker*)
     return true;
 }
 
-CubeSampling subVol() const
+TrcKeyZSampling subVol() const
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( subvolfld_ )
 	cs = subvolfld_->getSampling();
     return cs;
@@ -356,7 +356,7 @@ void uiGLCM_attrib::analyseData( CallBacker* )
 	return;
 
     SeisIOObjInfo seisinfo( ioobj );
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( inpdesc->is2D() )
     {
 	StepInterval<int> trcrg;
@@ -382,7 +382,7 @@ void uiGLCM_attrib::analyseData( CallBacker* )
 }
 
 
-bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const CubeSampling& cs,
+bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 				      int nrtrcs, const LineKey& lk) const
 {
     const Attrib::Desc* inpdesc = ads_->getDesc( inpfld_->attribID() );
@@ -402,7 +402,7 @@ bool uiGLCM_attrib::readInputCube( SeisTrcBuf& buf, const CubeSampling& cs,
     if ( inpdesc->is2D() )
 	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
 
-    aem->setCubeSampling( cs );
+    aem->setTrcKeyZSampling( cs );
     TypeSet<BinID> bidset;
     cs.hrg.getRandomSet( nrtrcs, bidset );
     BinIDValueSet bidvals( 0, false );

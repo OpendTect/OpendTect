@@ -99,7 +99,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
     if ( nrsel > 1 )
     {
 	EM::SurfaceIOData sd;
-	HorSampling hs( false );
+	TrcKeySampling hs( false );
 	if ( !processInput() ) return;
 	for ( int idx=0; idx<nrsel; idx++ )
 	{
@@ -107,7 +107,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 
 	    EM::IOObjInfo eminfo( mid );
 	    if ( !eminfo.isOK() ) continue;
-	    HorSampling emhs;
+	    TrcKeySampling emhs;
 	    emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 
 	    if ( hs.isEmpty() )

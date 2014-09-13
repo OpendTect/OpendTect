@@ -214,7 +214,7 @@ protected:
     void			updateSingleColor();
 
     void			traverseLine(bool oninline,
-				    const CubeSampling& cs,
+				    const TrcKeyZSampling& cs,
 				    EM::SectionID sid,
 				    visBase::VertexShape*,
 				    int& cii,

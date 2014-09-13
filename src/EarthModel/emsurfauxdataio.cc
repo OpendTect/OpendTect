@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfauxdataio.h"
 
 #include "ascstream.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datachar.h"
 #include "datainterp.h"
 #include "emhorizon3d.h"
@@ -37,7 +37,7 @@ const char* dgbSurfDataWriter::sKeyShift()	    { return "Shift"; }
 
 
 dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
-				    const HorSampling* sel, bool binary,
+				    const TrcKeySampling* sel, bool binary,
 				    const char* filename )
     : Executor("Aux data writer")
     , stream_(0)

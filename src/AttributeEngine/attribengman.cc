@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribstorprovider.h"
 
 #include "binidvalset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "ioman.h"
@@ -50,7 +50,7 @@ EngineMan::EngineMan()
     : inpattrset_(0)
     , procattrset_(0)
     , nlamodel_(0)
-    , cs_(*new CubeSampling)
+    , cs_(*new TrcKeyZSampling)
     , geomid_(Survey::GM().cUndefGeomID())
     , cache_(0)
     , udfval_(mUdf(float))
@@ -69,7 +69,7 @@ EngineMan::~EngineMan()
 }
 
 
-void EngineMan::getPossibleVolume( DescSet& attribset, CubeSampling& cs,
+void EngineMan::getPossibleVolume( DescSet& attribset, TrcKeyZSampling& cs,
 				   const char* linename, const DescID& outid )
 {
     TypeSet<DescID> desiredids(1,outid);
@@ -326,7 +326,7 @@ const DataCubes* EngineMan::getDataCubesOutput( const Processor& proc )
     output->ref();
     if ( cache_ && cache_->cubeSampling().zrg.step != cs_.zrg.step )
     {
-	CubeSampling cswithcachestep = cs_;
+	TrcKeyZSampling cswithcachestep = cs_;
 	cswithcachestep.zrg.step = cache_->cubeSampling().zrg.step;
 	output->setSizeAndPos(cswithcachestep);
     }
@@ -393,7 +393,7 @@ void EngineMan::setAttribSpec( const SelSpec& spec )
 }
 
 
-void EngineMan::setCubeSampling( const CubeSampling& newcs )
+void EngineMan::setTrcKeyZSampling( const TrcKeyZSampling& newcs )
 {
     cs_ = newcs;
     cs_.normalise();
@@ -577,7 +577,7 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
     {
 	cache_ = prev;
 	cache_->ref();
-	const CubeSampling cachecs = cache_->cubeSampling();
+	const TrcKeyZSampling cachecs = cache_->cubeSampling();
 	if ( mRg(h).step != cs_.hrg.step
 	  || (mRg(h).start.inl() - cs_.hrg.start.inl()) % cs_.hrg.step.inl()
 	  || (mRg(h).start.crl() - cs_.hrg.start.crl()) % cs_.hrg.step.crl()
@@ -610,8 +610,8 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 	mAddAttrOut( cs_ )
     else
     {
-	const CubeSampling cachecs = cache_->cubeSampling();
-	CubeSampling todocs( cs_ );
+	const TrcKeyZSampling cachecs = cache_->cubeSampling();
+	TrcKeyZSampling todocs( cs_ );
 	if ( mRg(h).start.inl() > cs_.hrg.start.inl() )
 	{
 	    todocs.hrg.stop.inl() = mRg(h).start.inl() - cs_.hrg.step.inl();
@@ -663,15 +663,15 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 	}
     }
 
-    if ( cs_.isFlat() && cs_.defaultDir() != CubeSampling::Z )
+    if ( cs_.isFlat() && cs_.defaultDir() != TrcKeyZSampling::Z )
     {
 	TypeSet<BinID> positions;
-	if ( cs_.defaultDir() == CubeSampling::Inl )
+	if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
 	    for ( int idx=0; idx<cs_.nrCrl(); idx++ )
 		positions += BinID( cs_.hrg.start.inl(),
 				    cs_.hrg.start.crl() +
 					cs_.hrg.step.crl()*idx );
-	if ( cs_.defaultDir() == CubeSampling::Crl )
+	if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 	    for ( int idx=0; idx<cs_.nrInl(); idx++ )
 		positions += BinID( cs_.hrg.start.inl()+ cs_.hrg.step.inl()*idx,
 				    cs_.hrg.start.crl() );

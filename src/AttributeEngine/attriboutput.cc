@@ -107,7 +107,7 @@ void Output::ensureSelType( Seis::SelType st )
 }
 
 
-void Output::doSetGeometry( const CubeSampling& cs )
+void Output::doSetGeometry( const TrcKeyZSampling& cs )
 {
     if ( cs.isEmpty() ) return;
 
@@ -120,7 +120,7 @@ Pos::GeomID Output::curGeomID() const
 { return seldata_->geomID(); }
 
 
-DataCubesOutput::DataCubesOutput( const CubeSampling& cs )
+DataCubesOutput::DataCubesOutput( const TrcKeyZSampling& cs )
     : desiredvolume_(cs)
     , dcsampling_(cs)
     , datacubes_(0)
@@ -133,7 +133,7 @@ DataCubesOutput::~DataCubesOutput()
 { if ( datacubes_ ) datacubes_->unRef(); }
 
 
-bool DataCubesOutput::getDesiredVolume( CubeSampling& cs ) const
+bool DataCubesOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 { cs=desiredvolume_; return true; }
 
 
@@ -155,7 +155,7 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 }
 
 
-void DataCubesOutput::adjustInlCrlStep( const CubeSampling& cs )
+void DataCubesOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
 {
     if ( cs.hrg.step.inl() > desiredvolume_.hrg.step.inl() )
     {
@@ -295,7 +295,7 @@ void DataCubesOutput::init( float refstep )
 }
 
 
-SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
+SeisTrcStorOutput::SeisTrcStorOutput( const TrcKeyZSampling& cs,
 				      const Pos::GeomID geomid )
     : desiredvolume_(cs)
     , auxpars_(0)
@@ -312,7 +312,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
 }
 
 
-bool SeisTrcStorOutput::getDesiredVolume( CubeSampling& cs ) const
+bool SeisTrcStorOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 {
     cs = desiredvolume_;
     return true;
@@ -434,7 +434,7 @@ bool SeisTrcStorOutput::doInit()
     desiredvolume_.normalise();
     if ( !is2d_ )
     {
-	CubeSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
+	TrcKeyZSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
 	desiredvolume_.limitTo( cs );
     }
 
@@ -642,7 +642,7 @@ void TwoDOutput::setGeometry( const Interval<int>& trg,
 }
 
 
-bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
+bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 {
     const Interval<int> rg( seldata_->crlRange() );
     cs.hrg.start.crl() = rg.start; cs.hrg.stop.crl() = rg.stop;
@@ -960,13 +960,13 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 }
 
 
-bool TrcSelectionOutput::getDesiredVolume( CubeSampling& cs ) const
+bool TrcSelectionOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
 {
     Interval<int> inlrg = bidvalset_.inlRange();
     Interval<int> crlrg = bidvalset_.crlRange();
     Interval<float> zrg =
 	Interval<float>( stdstarttime_, stdstarttime_ + stdtrcsz_ );
-    CubeSampling trcselsampling( false );
+    TrcKeyZSampling trcselsampling( false );
     trcselsampling.include ( BinID( inlrg.start, crlrg.start), zrg.start);
     trcselsampling.include ( BinID( inlrg.stop, crlrg.stop), zrg.stop);
     if ( !cs.includes( trcselsampling ) )
@@ -975,9 +975,9 @@ bool TrcSelectionOutput::getDesiredVolume( CubeSampling& cs ) const
 }
 
 
-const CubeSampling Trc2DVarZStorOutput::getCS()
+const TrcKeyZSampling Trc2DVarZStorOutput::getCS()
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = mUdf(int);
     cs.hrg.start.crl() = 1; cs.hrg.stop.crl() = mUdf(int);
     return cs;

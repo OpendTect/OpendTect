@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "task.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 
 namespace Attrib { class SelSpec; }
@@ -46,7 +46,7 @@ public:
     int				nextStep();
     const char*			errMsg() const;
 
-    virtual CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
     				/*!<\returns the cube in which I need the
 				     given attrib to track in activevolum. */
     virtual void		getNeededAttribs(

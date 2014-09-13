@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "geometrymod.h"
 #include "posprovider.h"
 #include "multiid.h"
-class HorSampling;
+class TrcKeySampling;
 template <class T> class ODPolygon;
 
 namespace Pos
@@ -61,8 +61,8 @@ public:
     const ODPolygon<float>& polygon() const	{ return poly_; }
     StepInterval<float>& zRange()		{ return zrg_; }
     const StepInterval<float>& zRange() const	{ return zrg_; }
-    HorSampling&	horSampling()		{ return hs_; }
-    const HorSampling&	horSampling() const	{ return hs_; }
+    TrcKeySampling&	horSampling()		{ return hs_; }
+    const TrcKeySampling&	horSampling() const	{ return hs_; }
 
     static ODPolygon<float>* polyFromPar(const IOPar&,int nr=0);
 
@@ -73,7 +73,7 @@ protected:
 
     ODPolygon<float>&	poly_;
     StepInterval<float>	zrg_;
-    HorSampling&	hs_;
+    TrcKeySampling&	hs_;
     MultiID		mid_;
 
     BinID		curbid_;

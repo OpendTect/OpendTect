@@ -595,7 +595,7 @@ void uiODEarthModelSurfaceDataTreeItem::selectAndLoadAuxData()
 					: grrg;
     StepInterval<int> loadcrg = horsect ? horsect->displayedColRange()
 					: gcrg;
-    CubeSampling cs( true );
+    TrcKeyZSampling cs( true );
     cs.hrg.set( loadrrg, loadcrg );
 
     TypeSet<float> shifts;

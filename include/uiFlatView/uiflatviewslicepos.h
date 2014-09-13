@@ -24,10 +24,10 @@ mExpClass(uiFlatView) uiSlicePos2DView : public uiSlicePos
 public:
 			uiSlicePos2DView(uiParent*);
 
-    void		setCubeSampling(const CubeSampling&);
-    void		setLimitSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
+    void		setLimitSampling(const TrcKeyZSampling&);
 
-    const CubeSampling& getLimitSampling() const { return limitscs_; };
+    const TrcKeyZSampling& getLimitSampling() const { return limitscs_; };
 
 protected:
     void		setBoxRanges();
@@ -36,7 +36,7 @@ protected:
     void		slicePosChg(CallBacker*);
     void		sliceStepChg(CallBacker*);
 
-    CubeSampling	limitscs_;
+    TrcKeyZSampling	limitscs_;
     SliceDir		curorientation_;
 
 };

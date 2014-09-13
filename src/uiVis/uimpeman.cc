@@ -279,7 +279,7 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     const EM::PosID pid = clickcatcher->info().getNode();
-    CubeSampling newvolume;
+    TrcKeyZSampling newvolume;
     if ( pid.objectID()!=emobj->id() && pid.objectID()!=-1 )
 	mSeedClickReturn();
 
@@ -407,7 +407,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    mSeedClickReturn();
 
 	newvolume = clickcatcher->info().getObjCS();
-	const CubeSampling trkplanecs = engine.trackPlane().boundingBox();
+	const TrcKeyZSampling trkplanecs = engine.trackPlane().boundingBox();
 
 	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z,true) &&
 	     trkplanecs.hrg.includes( SI().transform(seedpos) ) &&
@@ -741,7 +741,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
     if ( isshown )
     {
 	bool isvolflat = false;
-	CubeSampling cube = MPE::engine().activeVolume();
+	TrcKeyZSampling cube = MPE::engine().activeVolume();
 	if ( cube.isFlat() )
 	{
 	    cube = MPE::engine().getDefaultActiveVolume();
@@ -796,7 +796,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 class uiSetCubePosDlg : public uiDialog
 {
 public:
-uiSetCubePosDlg( uiParent* p, const CubeSampling& cs )
+uiSetCubePosDlg( uiParent* p, const TrcKeyZSampling& cs )
     : uiDialog(p,uiDialog::Setup("Set Cube Position",mNoDlgTitle,
                                     mTODOHelpKey))
 {
@@ -813,7 +813,7 @@ void fullPush( CallBacker* )
     selfld_->setSampling( SI().sampling(false) );
 }
 
-CubeSampling getSampling() const
+TrcKeyZSampling getSampling() const
 { return selfld_->getSampling(); }
 
     uiSelSubvol*	selfld_;
@@ -823,7 +823,7 @@ CubeSampling getSampling() const
 
 void uiMPEMan::setCubePosCB( CallBacker* )
 {
-    const CubeSampling& cs = MPE::engine().activeVolume();
+    const TrcKeyZSampling& cs = MPE::engine().activeVolume();
     uiSetCubePosDlg dlg( toolbar, cs );
     if ( !dlg.go() ) return;
 
@@ -1648,8 +1648,8 @@ void uiMPEMan::retrackAllCB( CallBacker* )
     emobj->setBurstAlert( true );
     emobj->removeAllUnSeedPos();
 
-    CubeSampling realactivevol = MPE::engine().activeVolume();
-    ObjectSet<CubeSampling>* trackedcubes =
+    TrcKeyZSampling realactivevol = MPE::engine().activeVolume();
+    ObjectSet<TrcKeyZSampling>* trackedcubes =
 	MPE::engine().getTrackedFlatCubes(
 	    MPE::engine().getTrackerByObject(tracker->objectID()) );
     if ( trackedcubes )
@@ -1660,7 +1660,7 @@ void uiMPEMan::retrackAllCB( CallBacker* )
 	    MPE::engine().setActiveVolume( *(*trackedcubes)[idx] );
 	    notifystopper.restore();
 
-	    const CubeSampling curvol =  MPE::engine().activeVolume();
+	    const TrcKeyZSampling curvol =  MPE::engine().activeVolume();
 	    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
 		visserv->fireLoadAttribDataInMPEServ();
 

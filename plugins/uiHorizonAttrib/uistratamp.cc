@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribdescsetsholder.h"
 #include "attriboutput.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emioobjinfo.h"
 #include "emsurfacetr.h"
 #include "stratamp.h"
@@ -118,9 +118,9 @@ void uiStratAmpCalc::choiceSel( CallBacker* )
 
 void uiStratAmpCalc::inpSel( CallBacker* )
 {
-    HorSampling hs;
+    TrcKeySampling hs;
     getAvailableRange( hs );
-    CubeSampling incs( rangefld_->envelope() );
+    TrcKeyZSampling incs( rangefld_->envelope() );
     incs.hrg = hs;
     rangefld_->setInput( incs );
     setParFileName();
@@ -144,16 +144,16 @@ void uiStratAmpCalc::setParFileNameCB( CallBacker* )
 }
 
 
-void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
+void uiStratAmpCalc::getAvailableRange( TrcKeySampling& hs )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( inpfld_->getRanges(cs) )
 	hs.limitTo( cs.hrg );
 
     if ( horfld1_->commitInput() )
     {
 	EM::IOObjInfo eminfo( horctio1_.ioobj->key() );
-	HorSampling emhs;
+	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
     }
@@ -161,7 +161,7 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
     if ( horfld2_->commitInput() )
     {
 	EM::IOObjInfo eminfo( horctio2_.ioobj->key() );
-	HorSampling emhs;
+	TrcKeySampling emhs;
 	emhs.set( eminfo.getInlRange(), eminfo.getCrlRange() );
 	hs.limitTo( emhs );
     }
@@ -234,9 +234,9 @@ bool uiStratAmpCalc::fillPar()
     iop.set( StratAmpCalc::sKeyAttribName(), attribnamefld_->text() );
     iop.setYN( StratAmpCalc::sKeyIsOverwriteYN(), isoverwrite_ );
 
-    HorSampling hs;
+    TrcKeySampling hs;
     getAvailableRange( hs );
-    HorSampling inhs = rangefld_->envelope().hrg;
+    TrcKeySampling inhs = rangefld_->envelope().hrg;
     hs.limitTo( inhs );
     IOPar subselpar;
     hs.fillPar( subselpar );

@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisfileman.h"
 
 #include "cbvsreadmgr.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "file.h"
 #include "filepath.h"
@@ -204,7 +204,7 @@ void uiSeisFileMan::mkFileInfo()
 
     const bool zistm = oinf.isTime();
     const ZDomain::Def& zddef = oinf.zDomainDef();
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( !is2d_ )
     {
 	if ( oinf.getRanges(cs) )

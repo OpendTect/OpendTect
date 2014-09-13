@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribsel.h"
 #include "attribstorprovider.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -174,7 +174,7 @@ void uiAttrVolOut::psSelCB( CallBacker* cb )
 
 void uiAttrVolOut::attrSel( CallBacker* )
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     const bool is2d = todofld_->is2D();
     if ( todofld_->getRanges(cs) )
 	transffld_->selfld->setInput( cs );

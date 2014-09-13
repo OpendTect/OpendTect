@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "zdomain.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "iodirentry.h"
 #include "iostrm.h"
 #include "ioman.h"

@@ -74,9 +74,9 @@ public:
 
     void		setSowerMode(bool yn)		{ sowermode_ = yn; }
 
-    void		setSeedPickArea(const HorSampling& hs)
+    void		setSeedPickArea(const TrcKeySampling& hs)
     							{ seedpickarea_ = hs; }
-    const HorSampling*	getSeedPickArea() const 	{return &seedpickarea_;}
+    const TrcKeySampling*	getSeedPickArea() const 	{return &seedpickarea_;}
     void		setFaultData( const FaultTrcDataProvider* data )
 			{ fltdataprov_ = data; }
 
@@ -93,7 +93,7 @@ protected:
 	    				bool perptotrackdir=false) const;
 
     bool		interpolateSeeds();
-    CubeSampling	getTrackBox() const;
+    TrcKeyZSampling	getTrackBox() const;
 
     TypeSet<EM::PosID>	propagatelist_;
     TypeSet<EM::PosID>	seedlist_;
@@ -106,7 +106,7 @@ protected:
     EM::PosID		lastsowseedpid_;
     Coord3		lastseedkey_;
     bool		sowermode_;
-    HorSampling		seedpickarea_;
+    TrcKeySampling		seedpickarea_;
 
     bool		didchecksupport_;
     EM::SectionID	sectionid_;

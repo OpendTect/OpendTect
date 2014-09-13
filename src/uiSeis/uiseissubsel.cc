@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "ioobj.h"
 #include "ioman.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "keystrs.h"
 #include "posprovider.h"
 #include "zdomain.h"
@@ -60,13 +60,13 @@ bool uiSeisSubSel::isAll() const
 }
 
 
-void uiSeisSubSel::getSampling( CubeSampling& cs ) const
+void uiSeisSubSel::getSampling( TrcKeyZSampling& cs ) const
 {
     cs = selfld_->envelope();
 }
 
 
-void uiSeisSubSel::getSampling( HorSampling& hs ) const
+void uiSeisSubSel::getSampling( TrcKeySampling& hs ) const
 {
     hs = selfld_->envelope().hrg;
 }
@@ -105,21 +105,21 @@ void uiSeisSubSel::setInput( const MultiID& id )
 }
 
 
-void uiSeisSubSel::setInput( const HorSampling& hs )
+void uiSeisSubSel::setInput( const TrcKeySampling& hs )
 {
-    CubeSampling cs = selfld_->envelope(); cs.hrg = hs;
+    TrcKeyZSampling cs = selfld_->envelope(); cs.hrg = hs;
     selfld_->setInput( cs );
 }
 
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
-    CubeSampling cs = selfld_->envelope(); cs.zrg = zrg;
+    TrcKeyZSampling cs = selfld_->envelope(); cs.zrg = zrg;
     selfld_->setInput( cs );
 }
 
 
-void uiSeisSubSel::setInput( const CubeSampling& cs )
+void uiSeisSubSel::setInput( const TrcKeyZSampling& cs )
 {
     selfld_->setInput( cs );
 }
@@ -152,7 +152,7 @@ uiCompoundParSel* uiSeisSubSel::compoundParSel()
 
 void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 {
-    uiSeisIOObjInfo oinf(ioobj,false); CubeSampling cs;
+    uiSeisIOObjInfo oinf(ioobj,false); TrcKeyZSampling cs;
     if ( !oinf.getRanges(cs) )
 	clear();
     else
@@ -160,7 +160,7 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 	selfld_->setInput( cs );
 	if ( &oinf.zDomainDef() != &ZDomain::SI() )
 	{
-	    CubeSampling limcs( selfld_->inputLimit() );
+	    TrcKeyZSampling limcs( selfld_->inputLimit() );
 	    limcs.zrg.start = -1e9; limcs.zrg.stop = 1e9;
 	    limcs.zrg.step = 0.001;
 	    selfld_->setInputLimit( limcs );
@@ -347,7 +347,7 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
 }
 
 
-void uiSeis2DSubSel::getSampling( CubeSampling& cs, int lidx ) const
+void uiSeis2DSubSel::getSampling( TrcKeyZSampling& cs, int lidx ) const
 {
     cs.set2DDef();
     cs.hrg.setCrlRange( getTrcRange(lidx) );
@@ -365,7 +365,7 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	StepInterval<int> trcrg;
 	if ( oif.getRanges(selid,trcrg,zrg) )
 	{
-	    CubeSampling cs;
+	    TrcKeyZSampling cs;
 	    StepInterval<int> inlrg( 0, 0, 1 );
 	    cs.hrg.set( inlrg, trcrg );
 	    cs.zrg = zrg;

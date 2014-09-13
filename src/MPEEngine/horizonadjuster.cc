@@ -187,7 +187,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 			     float& targetz) const 
 {
     //const Array3D<float>& cube = attrdata_->getCube(0);
-    CubeSampling cs = attrdata_->getCubeSampling();
+    TrcKeyZSampling cs = attrdata_->getTrcKeyZSampling();
     const int toinlidx = cs.hrg.inlRange().nearestIndex( attrDataBinId(to).inl());
     if ( toinlidx<0 || toinlidx>=cs.nrInl() )
 	return false;
@@ -312,12 +312,12 @@ void HorizonAdjuster::getNeededAttribs(
 }
 
 
-CubeSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
+TrcKeyZSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
 {
     if ( !attribsel_ || sp != *attribsel_ )
 	return SectionAdjuster::getAttribCube( sp );
 
-    CubeSampling res = engine().activeVolume();
+    TrcKeyZSampling res = engine().activeVolume();
 
     res.zrg.start += tracker_->permittedRange().start;
     res.zrg.stop += tracker_->permittedRange().stop;
@@ -341,8 +341,8 @@ bool HorizonAdjuster::is2D() const
 
 const BinID HorizonAdjuster::attrDataBinId( const BinID& bid ) const 
 {
-    return is2D() && attrdata_->getCubeSampling().nrInl()==1 
-	? BinID( attrdata_->getCubeSampling().hrg.inlRange().start, bid.crl() )
+    return is2D() && attrdata_->getTrcKeyZSampling().nrInl()==1
+	? BinID( attrdata_->getTrcKeyZSampling().hrg.inlRange().start, bid.crl() )
 	: bid;
 }
 

@@ -12,13 +12,13 @@ ________________________________________________________________________
 */
 
 #include "seismod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "fixedstring.h"
 #include "sets.h"
 #include "paralleltask.h"
 
 class BinIDValueSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class IOObj;
 
 template <class T> class Array2D;
@@ -37,13 +37,13 @@ public:
 			ParallelReader(const IOObj&,
 			    const TypeSet<int>& components,
 			    const ObjectSet<Array3D<float> >&,
-			    const CubeSampling&);
+			    const TrcKeyZSampling&);
 			/*!<Allocates & resizes the cubes to fit the cs and the
 			    nr of comps. If data is missing in the storage, the
 			    cube will not be overwritten in those locations. */
 
 			ParallelReader(const IOObj&,
-				const CubeSampling&);
+				const TrcKeyZSampling&);
 			/*!<Calculates nr of comps and allocates cubes to
 			    fit the cs. */
 
@@ -74,7 +74,7 @@ protected:
     BinIDValueSet*		bidvals_;
 
     ObjectSet<Array3D<float> >*	arrays_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
 
     IOObj*			ioobj_;
     od_int64			totalnr_;
@@ -89,7 +89,7 @@ mExpClass(Seis) ParallelReader2D : public ParallelTask
 { mODTextTranslationClass(ParallelReader2D)
 public:
 			ParallelReader2D(const IOObj&,Pos::GeomID,
-					 const CubeSampling&);
+					 const TrcKeyZSampling&);
 			/*!<Calculates nr of comps and allocates arrays to
 			    fit the cs. */
 
@@ -108,7 +108,7 @@ protected:
 
     TypeSet<int>		components_;
     ObjectSet<Array2D<float> >* arrays_;
-    CubeSampling		cs_;
+    TrcKeyZSampling		cs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
     od_int64			totalnr_;

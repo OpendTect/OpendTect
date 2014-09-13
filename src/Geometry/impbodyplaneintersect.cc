@@ -13,14 +13,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "indexedshape.h"
 #include "positionlist.h"
 #include "trigonometry.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 
 namespace Geometry
 {
 
 ImplicitBodyPlaneIntersector::ImplicitBodyPlaneIntersector( 
-	const Array3D<float>& arr, const CubeSampling& cs, float threshold,
+	const Array3D<float>& arr, const TrcKeyZSampling& cs, float threshold,
 	char dim, float icz, IndexedShape& ns )
     : output_( ns )
     , arr_( arr )

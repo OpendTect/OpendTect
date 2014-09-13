@@ -178,8 +178,8 @@ bool uiBulkHorizonImport::acceptOK( CallBacker* )
 	}
 	detector.finish();
 
-	HorSampling hs;
-	detector.getHorSampling( hs );
+	TrcKeySampling hs;
+	detector.getTrcKeySampling( hs );
 	ObjectSet<BinIDValueSet> curdata; curdata += bidvs;
 	PtrMan<Executor> importer = hor3d->importer( curdata, hs );
 	if ( !importer || !TaskRunner::execute( &dlg, *importer ) )

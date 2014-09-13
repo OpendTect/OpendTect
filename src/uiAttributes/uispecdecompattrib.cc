@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "hilbertattrib.h"
 #include "position.h"
 #include "survinfo.h"
@@ -98,7 +98,7 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
 {
     if ( !*inpfld_->getInput() ) return;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
 
@@ -268,7 +268,7 @@ void uiSpecDecompAttrib::panelTFPush( CallBacker* cb )
     {
 	MultiID mid;
 	getInputMID( mid );
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	inpfld_->getRanges( cs );
 	positiondlg_ = new uiTrcPositionDlg( this, cs, is2D(), mid );
     }
@@ -295,7 +295,7 @@ void uiSpecDecompAttrib::viewPanalCB( CallBacker* )
     getPrevSel();
     DescSet* dset = ads_ ? new DescSet( *ads_ ) : new DescSet( is2D() );
     DescID specdecompid = createSpecDecompDesc( dset ); 
-    const CubeSampling cs( positiondlg_->getCubeSampling() );
+    const TrcKeyZSampling cs( positiondlg_->getTrcKeyZSampling() );
 
     LineKey lk;
     if ( dset->is2D() )

@@ -106,7 +106,7 @@ const mVisTrans* MPEClickCatcher::getDisplayTransformation() const
 
 #define mCheckMPEDisplay( typ, dataobj, mped, cs, legalclick ) \
     mDynamicCastGet( MPEDisplay*, mped, dataobj ); \
-    CubeSampling cs; \
+    TrcKeyZSampling cs; \
     if ( !mped || !mped->isDraggerShown() || !mped->getPlanePosition(cs) ) \
 	mped = 0; \
     bool legalclick = !mped; \
@@ -222,7 +222,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( plane )
 	{
 	    info().setLegalClick( legalclick1 );
-	    info().setObjCS( plane->getCubeSampling() );
+	    info().setObjCS( plane->getTrcKeyZSampling() );
 
 	    DataPack::ID datapackid = DataPack::cNoID();
 	    int attrib = plane->nrAttribs();
@@ -421,7 +421,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     TypeSet<int> mpedisplays;
     visBase::DM().getIDs( typeid(visSurvey::MPEDisplay), mpedisplays );
 
-    CubeSampling trkplanecs(false);
+    TrcKeyZSampling trkplanecs(false);
     for ( int idx=0; idx<mpedisplays.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
@@ -457,7 +457,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	if ( !plane )
 	    continue;
 
-	const CubeSampling cs = plane->getCubeSampling();
+	const TrcKeyZSampling cs = plane->getTrcKeyZSampling();
 	if ( !trkplanecs.isEmpty() && trkplanecs.defaultDir()==cs.defaultDir() )
 	    continue;
 
@@ -502,7 +502,7 @@ void MPEClickCatcher::setEditor( MPEEditor* mpeeditor )
 
 
 bool MPEClickCatcher::activateSower( const Color& color,
-				     const HorSampling* workrange )
+				     const TrcKeySampling* workrange )
 {
     if ( editor_ && cureventinfo_ )
     {
@@ -568,7 +568,7 @@ int MPEClickInfo::getObjID() const
 { return clickedobjid_; }
 
 
-const CubeSampling& MPEClickInfo::getObjCS() const
+const TrcKeyZSampling& MPEClickInfo::getObjCS() const
 { return clickedcs_; }
 
 
@@ -650,7 +650,7 @@ void MPEClickInfo::setObjID( int visid )
 { clickedobjid_ = visid; }
 
 
-void MPEClickInfo::setObjCS( const CubeSampling& cs )
+void MPEClickInfo::setObjCS( const TrcKeyZSampling& cs )
 { clickedcs_ = cs; }
 
 

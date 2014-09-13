@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uimpemod.h"
 #include "uiwizard.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 
 class IOObj;
@@ -106,7 +106,7 @@ protected:
     void		aboutToAddRemoveSeed(CallBacker*);
     void		updateFinishButton(CallBacker*);
 
-    CubeSampling	seedbox;
+    TrcKeyZSampling	seedbox;
 
     EM::ObjectID	currentobject;
     EM::SectionID	sid;

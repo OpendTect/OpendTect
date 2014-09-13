@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "earthmodelmod.h"
 #include "callback.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "draw.h"
 #include "emposid.h"
 #include "flatview.h"
@@ -41,8 +41,8 @@ public:
     			Fault3DPainter(FlatView::Viewer&,const EM::ObjectID&);
 			~Fault3DPainter();
 
-    void		setCubeSampling(const CubeSampling&,bool);
-    const CubeSampling&	getCubeSampling() const			{ return cs_; }
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
+    const TrcKeyZSampling&	getTrcKeyZSampling() const			{ return cs_; }
     void		setPath(const TypeSet<BinID>*);
     void		setFlatPosData(const FlatPosData*);
 
@@ -107,7 +107,7 @@ protected:
 
     virtual void	fault3DChangedCB(CallBacker*);
      
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
     const TypeSet<BinID>* path_;
     const FlatPosData*  flatposdata_;
     TypeSet<int>	bendpts_;

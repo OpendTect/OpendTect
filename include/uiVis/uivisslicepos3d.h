@@ -40,7 +40,7 @@ protected:
     uiVisPartServer*		vispartserv_;
 
     uiSlicePos::SliceDir	getOrientation() const;
-    CubeSampling		getSampling() const;
+    TrcKeyZSampling		getSampling() const;
 
     void			slicePosChg(CallBacker*);
     void			sliceStepChg(CallBacker*);

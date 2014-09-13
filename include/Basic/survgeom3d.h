@@ -14,7 +14,7 @@ ________________________________________________________________________
  
 #include "basicmod.h"
 #include "survgeom.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "posidxpair2coord.h"
 
 
@@ -59,12 +59,12 @@ public:
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
 
-    const CubeSampling&	sampling() const	{ return cs_; }
+    const TrcKeyZSampling&	sampling() const	{ return cs_; }
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
     void		setGeomData(const Pos::IdxPair2Coord&,
-	    				const CubeSampling&,float zscl);
+					const TrcKeyZSampling&,float zscl);
     float		averageTrcDist() const;
 
 protected:
@@ -72,7 +72,7 @@ protected:
     BufferString	name_;
     const ZDomain::Def	zdomain_;
     Pos::IdxPair2Coord	b2c_;
-    CubeSampling	cs_; 
+    TrcKeyZSampling	cs_;
     float		zscale_;
 
 };

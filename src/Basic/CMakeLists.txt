@@ -15,7 +15,6 @@ set( OD_TEST_PROGS
 	basic.cc
 	callback.cc
 	commandlineparser.cc
-	cubesampling.cc
 	datapack.cc
 	file.cc
 	geometry.cc
@@ -28,6 +27,7 @@ set( OD_TEST_PROGS
 	sets.cc
 	string.cc
 	svnversion.cc
+	trckeyzsampling.cc
 	threads.cc
 	threadwork.cc
 	uistring.cc
@@ -45,7 +45,6 @@ set( OD_MODULE_SOURCES
 	color.cc
 	compoundkey.cc
 	commandlineparser.cc
-	cubesampling.cc
 	dateinfo.cc
 	datapack.cc
 	debug.cc
@@ -95,6 +94,7 @@ set( OD_MODULE_SOURCES
 	texttranslator.cc
 	timefun.cc
 	timer.cc
+	trckeyzsampling.cc
 	uistring.cc
 	winutils.cc
 	zdomain.cc

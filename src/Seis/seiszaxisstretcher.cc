@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
-					const CubeSampling& outcs,
+					const TrcKeyZSampling& outcs,
 					ZAxisTransform& ztf,
        					bool forward,
 					bool stretchz )
@@ -73,11 +73,11 @@ void SeisZAxisStretcher::init( const IOObj& in, const IOObj& out )
     if ( !is2d_ )
     {
 	const SeisPacketInfo& spi = seisreader_->seisTranslator()->packetInfo();
-	HorSampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
+	TrcKeySampling storhrg; storhrg.set( spi.inlrg, spi.crlrg );
 	outcs_.hrg.limitTo( storhrg );
     }
     
-    CubeSampling cs( true );
+    TrcKeyZSampling cs( true );
     cs.hrg = outcs_.hrg;
     seisreader_->setSelData( new Seis::RangeSelData(cs) );
     if ( seisreadertdmodel_ )
@@ -575,7 +575,7 @@ bool SeisZAxisStretcher::loadTransformChunk( int inl )
     if ( curhrg_.stop.inl()>outcs_.hrg.stop.inl() )
 	curhrg_.stop.inl() = outcs_.hrg.stop.inl();
 
-    CubeSampling cs( outcs_ );
+    TrcKeyZSampling cs( outcs_ );
     cs.hrg = curhrg_;
 
     bool res = true;

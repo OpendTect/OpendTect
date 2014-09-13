@@ -20,7 +20,7 @@ class uiButton;
 class uiGenInput;
 namespace Pos { class Provider; }
 class uiPosProvGroup;
-class CubeSampling;
+class TrcKeyZSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
@@ -85,12 +85,12 @@ public:
     Pos::Provider*	curProvider()			{ return prov_; }
     const Pos::Provider* curProvider() const		{ return prov_; }
 
-    const CubeSampling&	envelope() const;
-    void		setInput(const CubeSampling&,bool chgtype=true);
-    void		setInput(const CubeSampling& initcs,
-				 const CubeSampling& ioparcs);
-    void		setInputLimit(const CubeSampling&);
-    const CubeSampling&	inputLimit() const		{ return setup_.cs_; }
+    const TrcKeyZSampling&	envelope() const;
+    void		setInput(const TrcKeyZSampling&,bool chgtype=true);
+    void		setInput(const TrcKeyZSampling& initcs,
+				 const TrcKeyZSampling& ioparcs);
+    void		setInputLimit(const TrcKeyZSampling&);
+    const TrcKeyZSampling&	inputLimit() const		{ return setup_.cs_; }
 
     bool		isAll() const;
     void		setToAll();
@@ -100,7 +100,7 @@ protected:
     Setup		setup_;
     IOPar		iop_;
     Pos::Provider*	prov_;
-    CubeSampling&	cs_;
+    TrcKeyZSampling&	cs_;
 
     void		doDlg(CallBacker*);
     BufferString	getSummary() const;

@@ -30,7 +30,7 @@ ________________________________________________________________________
 class Executor;
 class BinIDValueSet;
 class OffsetAzimuth;
-class HorSampling;
+class TrcKeySampling;
 class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
@@ -148,7 +148,7 @@ public:
 				    the translator. */
     const MultiID&		getStorageID() const;
 
-    bool			getHorRanges(HorSampling&) const;
+    bool			getHorRanges(TrcKeySampling&) const;
     bool			getLocations(BinIDValueSet&) const;
 
     Undo&			undo()		{ return undo_; }

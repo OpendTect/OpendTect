@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "attribdatapack.h"
 #include "zaxistransform.h"
 #include "zaxistransformutils.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "binidvalue.h"
 #include "flatposdata.h"
 #include "indexinfo.h"
@@ -174,15 +174,15 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
     ConstRefMan<ZAxisTransform> zat = viewers_[0]->getZAxisTransform();
     if ( dp3d || zatdp3d )
     {
-	const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling()
+	const TrcKeyZSampling cs = dp3d ? dp3d->cube().cubeSampling()
 				     : zatdp3d->inputCS();
 	BinID bid; float z;
-	if ( cs.defaultDir() == CubeSampling::Inl )
+	if ( cs.defaultDir() == TrcKeyZSampling::Inl )
 	{
 	    bid = BinID( cs.hrg.start.inl(), (int)pt.x );
 	    z = (float) pt.y;
 	}
-	else if ( cs.defaultDir() == CubeSampling::Crl )
+	else if ( cs.defaultDir() == TrcKeyZSampling::Crl )
 	{
 	    bid = BinID( (int)pt.x, cs.hrg.start.crl() );
 	    z = (float) pt.y;
@@ -202,7 +202,7 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 }
 
 
-void VW2DPickSet::updateSetIdx( const CubeSampling& cs )
+void VW2DPickSet::updateSetIdx( const TrcKeyZSampling& cs )
 {
     if ( !pickset_ ) return;
     picksetidxs_.erase();
@@ -240,9 +240,9 @@ void VW2DPickSet::drawAll()
     mDynamicCastGet(const ZAxisTransformDataPack*,zatdp3d,fdp.ptr());
     if ( !dp3d && !dprdm && !zatdp3d ) return;
 
-    const CubeSampling cs = dp3d ? dp3d->cube().cubeSampling() : (zatdp3d ?
-				   zatdp3d->inputCS() : CubeSampling(true));
-    const bool oninl = cs.defaultDir() == CubeSampling::Inl;
+    const TrcKeyZSampling cs = dp3d ? dp3d->cube().cubeSampling() : (zatdp3d ?
+				   zatdp3d->inputCS() : TrcKeyZSampling(true));
+    const bool oninl = cs.defaultDir() == TrcKeyZSampling::Inl;
 
     if ( dp3d || zatdp3d )
 	updateSetIdx( cs );

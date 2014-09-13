@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datainpspec.h"
 #include "iodir.h"
 #include "ioman.h"

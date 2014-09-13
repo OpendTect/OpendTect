@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "cbvsreadmgr.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datainpspec.h"
 #include "datapack.h"
 #include "executor.h"
@@ -655,7 +655,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
 			        Seis::is2D(setup.geom_), &errmsg );
 
     SeisIOObjInfo seisinfo( ioobj.ptr() );
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     seisinfo.getRanges( cs );
     totalnr_ = cs.nrInl() * cs.nrCrl();
 }

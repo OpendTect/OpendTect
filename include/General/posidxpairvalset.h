@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "od_iosfwd.h"
 namespace PosInfo { class CubeData; }
-class HorSampling;
+class TrcKeySampling;
 
 
 namespace Pos
@@ -171,7 +171,7 @@ public:
 				    bool inside=true);
 			    //!< Removes vectors with value for column valnr
 			    //!< in- or outside interval
-    void		remove(const HorSampling& hrg,bool inside);
+    void		remove(const TrcKeySampling& hrg,bool inside);
 
     			// Convenience stuff
     SPos		add(const PairVal&);

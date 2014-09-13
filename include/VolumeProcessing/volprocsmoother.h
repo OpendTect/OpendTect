@@ -36,7 +36,7 @@ public:
 			Smoother();
 
     bool		needsInput() const { return true; }
-    HorSampling		getInputHRg(const HorSampling&) const;
+    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
     StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 
     bool		setOperator(const char*,float param,

@@ -37,7 +37,7 @@ public:
 			~LateralSmoother();
 
     bool		needsInput() const;
-    HorSampling		getInputHRg(const HorSampling&) const;
+    TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
 
     void		setPars(const Array2DFilterPars&);
     void		setMirrorEdges(bool yn) { mirroredges_=yn; }

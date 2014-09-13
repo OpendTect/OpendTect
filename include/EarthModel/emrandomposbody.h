@@ -64,7 +64,7 @@ public:
     virtual Executor*		loader();
 
     ImplicitBody*		createImplicitBody(TaskRunner*,bool) const;
-    bool			getBodyRange(CubeSampling&);
+    bool			getBodyRange(TrcKeyZSampling&);
 
     MultiID			storageID() const;
     BufferString		storageName() const;

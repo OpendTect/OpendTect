@@ -20,7 +20,7 @@ class RowCol;
 class od_ostream;
 class BinIDValueSet;
 class DataPointSet;
-class HorSampling;
+class TrcKeySampling;
 class BufferStringSet;
 namespace Pos { class Provider; }
 
@@ -45,16 +45,16 @@ public:
     static void 	getPositions(od_ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getExactCoords(od_ostream&,const MultiID&,
-				       Pos::GeomID,const HorSampling&,
+				       Pos::GeomID,const TrcKeySampling&,
 				       ObjectSet<DataPointSet>&);
     static void 	getWantedPositions(od_ostream&,ObjectSet<MultiID>&,
-					   BinIDValueSet&,const HorSampling&,
+					   BinIDValueSet&,const TrcKeySampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
 					   float extrawidth,
 					   Pos::Provider* provider=0);
     static void 	getWantedPos2D(od_ostream&,ObjectSet<MultiID>&,
-				       DataPointSet*,const HorSampling&,
+				       DataPointSet*,const TrcKeySampling&,
 				       const Interval<float>& extraz,
 				       Pos::GeomID);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,

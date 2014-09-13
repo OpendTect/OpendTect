@@ -98,7 +98,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     SeisIOObjInfo oinf( wts.seisid_ );
     if ( oinf.isOK() )
     {
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	oinf.getRanges( cs );
 	if ( cs.zrg.stop > stoptime )
 	    stoptime = cs.zrg.stop;

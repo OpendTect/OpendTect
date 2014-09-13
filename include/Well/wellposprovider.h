@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "posprovider.h"
 #include "callback.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 
 namespace Well { class Data; }
 
@@ -62,8 +62,8 @@ public:
     const Well::Data*	wellData(int idx) const;
     StepInterval<float>& zRange()		{ return zrg_; }
     const StepInterval<float>& zRange() const	{ return zrg_; }
-    HorSampling&	horSampling()		{ return hs_; }
-    const HorSampling&	horSampling() const	{ return hs_; }
+    TrcKeySampling&	horSampling()		{ return hs_; }
+    const TrcKeySampling&	horSampling() const	{ return hs_; }
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
@@ -84,8 +84,8 @@ protected:
     int			inlext_;
     int			crlext_;
     float		zext_;
-    HorSampling&	hs_;
-    HorSamplingIterator hsitr_;
+    TrcKeySampling&	hs_;
+    TrcKeySamplingIterator hsitr_;
     StepInterval<float>	zrg_;
 
     BinID		curbid_;

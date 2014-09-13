@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "basemapimpl.h"
 #include "binidvalue.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "envvars.h"
 #include "fontdata.h"
 #include "iopar.h"
@@ -128,14 +128,14 @@ void Scene::setup()
     annot_ = visBase::Annotation::create();
     annot_->setFont( FontData(20) );
 
-    const CubeSampling& cs = SI().sampling(true);
+    const TrcKeyZSampling& cs = SI().sampling(true);
 
     if ( !SI().pars().get( sKeyZStretch(), curzstretch_ ) )
         SI().pars().get( "Z Scale", curzstretch_ );
 
     updateTransforms( cs );
 
-    setCubeSampling( cs );
+    setTrcKeyZSampling( cs );
     addInlCrlZObject( annot_ );
     updateAnnotationText();
 
@@ -207,7 +207,7 @@ Scene::~Scene()
 #define mZFactor(stretch) (zscale_*stretch / 2)
 
 
-void Scene::updateTransforms( const CubeSampling& cs )
+void Scene::updateTransforms( const TrcKeyZSampling& cs )
 {
     if ( !tempzstretchtrans_ )
     {
@@ -315,16 +315,16 @@ void Scene::getAllowedZDomains( BufferString& dms ) const
 }
 
 
-void Scene::setCubeSampling( const CubeSampling& cs )
+void Scene::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     cs_ = cs;
     if ( !annot_ ) return;
 
-    annot_->setCubeSampling( cs );
+    annot_->setTrcKeyZSampling( cs );
 }
 
 
-void Scene::setAnnotScale( const CubeSampling& cs )
+void Scene::setAnnotScale( const TrcKeyZSampling& cs )
 {
     annotscale_ = cs;
     if ( !annot_ ) return;
@@ -333,7 +333,7 @@ void Scene::setAnnotScale( const CubeSampling& cs )
 }
 
 
-const CubeSampling& Scene::getAnnotScale() const
+const TrcKeyZSampling& Scene::getAnnotScale() const
 { return annot_ ? annot_->getScale() : annotscale_; }
 
 
@@ -735,7 +735,7 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     datatransform_ = zat;
     if ( datatransform_ ) datatransform_->ref();
 
-    CubeSampling cs = SI().sampling( true );
+    TrcKeyZSampling cs = SI().sampling( true );
     if ( !zat )
     {
 	setZDomainInfo( ZDomain::Info(ZDomain::SI()) );
@@ -755,8 +755,8 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	setZScale( zat->toZScale() );
     }
 
-    setAnnotScale( CubeSampling(false) );
-    setCubeSampling( cs );
+    setAnnotScale( TrcKeyZSampling(false) );
+    setTrcKeyZSampling( cs );
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -1017,10 +1017,10 @@ bool Scene::usePar( const IOPar& par )
     }
     else
     {
-	CubeSampling cs; float zscale=0.0f;
+	TrcKeyZSampling cs; float zscale=0.0f;
 	if ( cs.usePar( par ) && par.get( sKey::Scale(), zscale ) )
 	{
-	    setCubeSampling( cs );
+	    setTrcKeyZSampling( cs );
 	    setZScale( zscale );
 	    delete zdomaininfo_; zdomaininfo_ = new ZDomain::Info( par );
 	}

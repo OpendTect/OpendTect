@@ -68,13 +68,13 @@ public:
     void            setPlaneOrientation(int orient);
     int		    getPlaneOrientation() const;
 
-    bool            getPlanePosition(CubeSampling&) const;
+    bool	    getPlanePosition(TrcKeyZSampling&) const;
     void            moveMPEPlane(int nrsteps);    
 
     void            updateBoxSpace();
     void            freezeBoxPosition(bool yn);
 
-    CubeSampling	getCubeSampling(int attrib=-1) const;
+    TrcKeyZSampling	getTrcKeyZSampling(int attrib=-1) const;
    
     void            setSelSpec(int,const Attrib::SelSpec&);
     const char*		getSelSpecUserRef() const;
@@ -133,7 +133,7 @@ public:
     virtual bool	setDataVolume( int attr, const Attrib::DataCubes* dc,
 				      TaskRunner* tr )
 			{ return SurveyObject::setDataVolume(attr,dc,tr); }
-    void		setCubeSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
     bool		setDataPackID(int attrib,DataPack::ID,TaskRunner*);
@@ -174,8 +174,8 @@ public:
     
 protected:
     			~MPEDisplay();
-    CubeSampling	getBoxPosition() const;
-    void		setPlanePosition(const CubeSampling&);
+    TrcKeyZSampling	getBoxPosition() const;
+    void		setPlanePosition(const TrcKeyZSampling&);
 
     void		setSliceDimension(int slice,int dim);
     void		alignSliceToSurvey(visBase::OrthogonalSlice&);
@@ -189,7 +189,7 @@ protected:
     void		updateBoxPosition(CallBacker*);
 
     // methods for volume-based display
-    CubeSampling	getCubeSampling(bool manippos,bool display,
+    TrcKeyZSampling	getTrcKeyZSampling(bool manippos,bool display,
 	    		    		int attrib) const;
     
     void		triggerSel();
@@ -222,7 +222,7 @@ protected:
     int				lasteventnr_;
 
     Attrib::SelSpec&		curtextureas_;
-    CubeSampling		curtexturecs_;
+    TrcKeyZSampling		curtexturecs_;
 
     // data for volume-based display
     visBase::Transformation*	voltrans_;
@@ -231,7 +231,7 @@ protected:
     const Attrib::CubeDataPack* volumecache_;
     BufferString		sliceposition_;
     BufferString		slicename_;
-    CubeSampling		csfromsession_;
+    TrcKeyZSampling		csfromsession_;
     bool			issliceshown_;
     bool			allowshading_;
     int				dim_;

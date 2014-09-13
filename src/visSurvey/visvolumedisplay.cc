@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalue.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "marchingcubes.h"
@@ -75,9 +75,9 @@ const char* VolumeDisplay::sKeySeedsMid()	{ return "Surf Seeds Mid"; }
 const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 
 
-static CubeSampling getInitCubeSampling( const CubeSampling& csin )
+static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
 {
-    CubeSampling cs(false);
+    TrcKeyZSampling cs(false);
     cs.hrg.start.inl() = (5*csin.hrg.start.inl()+3*csin.hrg.stop.inl())/8;
     cs.hrg.start.crl() = (5*csin.hrg.start.crl()+3*csin.hrg.stop.crl())/8;
     cs.hrg.stop.inl() = (3*csin.hrg.start.inl()+5*csin.hrg.stop.inl())/8;
@@ -133,9 +133,9 @@ VolumeDisplay::VolumeDisplay()
     scalarfield_->setMaterial( getMaterial() );
     scalarfield_->useShading( canUseVolRenShading() );
 
-    CubeSampling sics = SI().sampling( true );
-    CubeSampling cs = getInitCubeSampling( sics );
-    setCubeSampling( cs );
+    TrcKeyZSampling sics = SI().sampling( true );
+    TrcKeyZSampling cs = getInitTrcKeyZSampling( sics );
+    setTrcKeyZSampling( cs );
 
     int buttonkey = OD::NoButton;
     mSettUse( get, "dTect.MouseInteraction", sKeyVolDepthKey(), buttonkey );
@@ -292,15 +292,15 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 {
     if ( !datatransform_ ) return;
 
-    const CubeSampling defcs( true );
+    const TrcKeyZSampling defcs( true );
     if ( csfromsession_ != defcs )
-	setCubeSampling( csfromsession_ );
+	setTrcKeyZSampling( csfromsession_ );
     else
     {
-	const CubeSampling& csin = scene_ ? scene_->getCubeSampling()
-	    				  : getCubeSampling( 0 );
-	CubeSampling cs = getInitCubeSampling( csin );
-	setCubeSampling( cs );
+	const TrcKeyZSampling& csin = scene_ ? scene_->getTrcKeyZSampling()
+	    				  : getTrcKeyZSampling( 0 );
+	TrcKeyZSampling cs = getInitTrcKeyZSampling( csin );
+	setTrcKeyZSampling( cs );
     }
 }
 
@@ -329,7 +329,7 @@ bool VolumeDisplay::isManipulatorShown() const
 
 bool VolumeDisplay::isManipulated() const
 {
-    return !texturecs_.includes( getCubeSampling(true,true,0) );
+    return !texturecs_.includes( getTrcKeyZSampling(true,true,0) );
 }
 
 
@@ -344,7 +344,7 @@ void VolumeDisplay::resetManipulation()
 
 void VolumeDisplay::acceptManipulation()
 {
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 }
 
 
@@ -356,7 +356,7 @@ void VolumeDisplay::draggerStartCB( CallBacker* )
 
 void VolumeDisplay::draggerMoveCB( CallBacker* )
 {
-    CubeSampling cs = getCubeSampling(true,true,0);
+    TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
     cs.snapToSurvey();
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
@@ -370,7 +370,7 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
     boxdragger_->setCenter( center );
     boxdragger_->setWidth( width );
 
-    setCubeSampling( cs, true );
+    setTrcKeyZSampling( cs, true );
     if ( keepdraggerinsidetexture_ )
     {
 	boxdragger_->setBoxTransparency( 1.0 );
@@ -400,7 +400,7 @@ int VolumeDisplay::addSlice( int dim )
 	    	   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
 
     addChild( slice->osgNode() );
-    const CubeSampling cs = getCubeSampling( 0 );
+    const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
     const Interval<float> defintv(-0.5,0.5);
     slice->setSpaceLimits( defintv, defintv, defintv );
     if ( cache_ )
@@ -525,10 +525,10 @@ int VolumeDisplay::volRenID() const
     scale = Coord3( scale.z, -scale.y, -scale.x ); \
     scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale );
 
-void VolumeDisplay::setCubeSampling( const CubeSampling& desiredcs,
+void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 				     bool dragmode )
 {
-    CubeSampling cs( desiredcs );
+    TrcKeyZSampling cs( desiredcs );
 
     if ( dragmode )
 	cs.limitTo( texturecs_ );
@@ -570,7 +570,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& desiredcs,
 
 void VolumeDisplay::updateDraggerLimits( bool dragmode )
 {
-    const CubeSampling curcs = getCubeSampling( true, true, 0 );
+    const TrcKeyZSampling curcs = getTrcKeyZSampling( true, true, 0 );
 
     if ( !dragmode )
     {
@@ -584,9 +584,9 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
 	keepdraggerinsidetexture_ = true;
     }
 
-    CubeSampling limcs( texturecs_ );
+    TrcKeyZSampling limcs( texturecs_ );
     if ( !keepdraggerinsidetexture_ && scene_ )
-	limcs = scene_->getCubeSampling();
+	limcs = scene_->getTrcKeyZSampling();
 
     const Interval<float> inlrg( float(limcs.hrg.start.inl()),
 				 float(limcs.hrg.stop.inl()) );
@@ -729,7 +729,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	    isosurfsettings_[idx].seedsaboveisoval_, newarr );    
     ff.useInputValue( true );
 
-    CubeSampling cs = getCubeSampling(true,true,0);
+    TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
     cs.normalise();
     for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
     {
@@ -838,7 +838,7 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     if ( scene_ && scene_->getZAxisTransform() )
 	return;
 
-    CubeSampling cs = getCubeSampling( true, true, 0 );
+    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
@@ -886,7 +886,7 @@ BufferString VolumeDisplay::getManipulationString() const
 
 void VolumeDisplay::getObjectInfo( BufferString& info ) const
 {
-    const CubeSampling cs = getCubeSampling( true, true, 0 );
+    const TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     info = "Inl: ";
     info += cs.hrg.start.inl(); info += "-"; info += cs.hrg.stop.inl();
     info += ", Crl: ";
@@ -953,7 +953,7 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 
 
 void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice, 
-					const CubeSampling& cs ) 
+					const TrcKeyZSampling& cs )
 {
     if ( !slice ) return;
 
@@ -1010,8 +1010,8 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 }
 
 
-CubeSampling VolumeDisplay::getCubeSampling( int attrib ) const
-{ return getCubeSampling(true,false,attrib); }
+TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( int attrib ) const
+{ return getTrcKeyZSampling(true,false,attrib); }
 
 
 bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
@@ -1057,7 +1057,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	datatransformer_->setInterpolate( true );
 	datatransformer_->setInput( attribdata->getCube(0),
 				    attribdata->cubeSampling() );
-	datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
+	datatransformer_->setOutputRange( getTrcKeyZSampling(true,true,0) );
 
 	if ( !TaskRunner::execute( tr, *datatransformer_ ) )
 	{
@@ -1077,7 +1077,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
     scalarfield_->setScalarField( usedarray, !arrayismine, tr );
 
-    setCubeSampling( getCubeSampling(true,true,0) );
+    setTrcKeyZSampling( getTrcKeyZSampling(true,true,0) );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
 	slices_[idx]->setVolumeDataSize( usedarray->info().getSize(2),
@@ -1128,10 +1128,10 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
-CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
+TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos, bool displayspace,
 					     int attrib ) const
 {
-    CubeSampling res;
+    TrcKeyZSampling res;
     if ( manippos )
     {
 	Coord3 center = boxdragger_->center();
@@ -1168,7 +1168,7 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
     if ( alreadytf )
     {
 	if ( scene_ )
-	    res.zrg.step = scene_->getCubeSampling().zrg.step;
+	    res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
 	else if ( datatransform_ )
 	    res.zrg.step = datatransform_->getGoodZStep();
 	return res;
@@ -1184,7 +1184,7 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 	else
 	{
 	    if ( scene_ )
-		res.zrg.step = scene_->getCubeSampling().zrg.step;
+		res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
 	    else
 		res.zrg.step = datatransform_->getGoodZStep();
 	}
@@ -1228,7 +1228,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 
     vd->showVolRen( isVolRenShown() );
 
-    vd->setCubeSampling( getCubeSampling(false,true,0) );
+    vd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
 
     vd->setSelSpec( 0, as_ );
     vd->setDataVolume( 0, cache_, tr );
@@ -1364,7 +1364,7 @@ void VolumeDisplay::fillPar( IOPar& par ) const
 {
     visBase::VisualObjectImpl::fillPar( par );
     visSurvey::SurveyObject::fillPar( par );
-    const CubeSampling cs = getCubeSampling(false,true,0);
+    const TrcKeyZSampling cs = getTrcKeyZSampling(false,true,0);
     cs.fillPar( par );
 
     pErrMsg( "Not implemented" );
@@ -1440,11 +1440,11 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    os->setDim( cTimeSlice() );
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( cs.usePar(par) )
     {
 	csfromsession_ = cs;
-	setCubeSampling( cs );
+	setTrcKeyZSampling( cs );
     }
 
     int nrisosurfaces;
@@ -1514,11 +1514,11 @@ visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
 }
 
 
-CubeSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
+TrcKeyZSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
 {
-    CubeSampling cs(false); 
+    TrcKeyZSampling cs(false);
     if ( !slice ) return cs; 
-    cs = getCubeSampling(false,true,0);
+    cs = getTrcKeyZSampling(false,true,0);
     float pos = slicePosition( slice ); 
     if ( slice->getDim() == cTimeSlice() )
 	cs.zrg.limitTo( Interval<float>( pos, pos ) );
@@ -1533,12 +1533,12 @@ CubeSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
 void VolumeDisplay::setDisplayTransformation( const mVisTrans* t )
 {
     const bool voldisplayed = scalarfield_->isOn();
-    CubeSampling cs = getCubeSampling( false, true, 0 );
+    TrcKeyZSampling cs = getTrcKeyZSampling( false, true, 0 );
 
     displaytrans_ = t;
     boxdragger_->setDisplayTransformation( t );
 
-    setCubeSampling( cs );
+    setTrcKeyZSampling( cs );
     scalarfield_->turnOn( voldisplayed );
 }
 

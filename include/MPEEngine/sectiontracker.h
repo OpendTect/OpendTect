@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "mpeenginemod.h"
 #include "task.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 #include "geomelement.h"
 
@@ -80,7 +80,7 @@ public:
 
     void			getNeededAttribs(
 	    			    ObjectSet<const Attrib::SelSpec>&) const;
-    virtual CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    virtual TrcKeyZSampling	getAttribCube(const Attrib::SelSpec&) const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);

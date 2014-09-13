@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "bufstring.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceposprov.h"
@@ -150,7 +150,7 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	return;
     }
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     if ( subselfld3d_ )
     {
 	const SeisIOObjInfo si( seisselfld_->ioobj() );

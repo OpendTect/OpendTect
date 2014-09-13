@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 
-class HorSampling;
+class TrcKeySampling;
 
 namespace visBase { class PolyLine; };
 
@@ -68,7 +68,7 @@ public:
 
     bool		activate(const Color&,const visBase::EventInfo&,
 	    			 int underlyingobjid=-1,
-	    			 const HorSampling* workrange=0);
+				 const TrcKeySampling* workrange=0);
 
 protected:
 
@@ -93,7 +93,7 @@ protected:
     SowingMode				mode_;
     ObjectSet<visBase::EventInfo>	eventlist_;
     int					underlyingobjid_;
-    HorSampling*			workrange_;
+    TrcKeySampling*			workrange_;
     TypeSet<Coord>			mousecoords_;
     TypeSet<int>			bendpoints_;
 

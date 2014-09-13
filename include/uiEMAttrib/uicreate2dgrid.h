@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "grid2d.h"
 
 class BufferStringSet;
-class CubeSampling;
-class HorSampling;
+class TrcKeyZSampling;
+class TrcKeySampling;
 class uiBatchJobDispatcherSel;
 class uiCheckBox;
 class uiGenInput;
@@ -52,7 +52,7 @@ public:
 
 protected:
 
-    				ui2DGridLines(uiParent*,const HorSampling&);
+				ui2DGridLines(uiParent*,const TrcKeySampling&);
 
     virtual bool		computeGrid()			= 0;
 
@@ -60,7 +60,7 @@ protected:
     uiGenInput*			crlprefixfld_;
 
     Grid2D*			grid_;
-    const HorSampling&		hs_;
+    const TrcKeySampling&		hs_;
 };
 
 
@@ -68,7 +68,7 @@ mExpClass(uiEMAttrib) ui2DGridLinesFromInlCrl : public ui2DGridLines
 { mODTextTranslationClass(ui2DGridLinesFromInlCrl)
 public:
     				ui2DGridLinesFromInlCrl(uiParent*,
-							const HorSampling&);
+							const TrcKeySampling&);
 
     bool			fillPar(IOPar&) const;
     void			updateRange();
@@ -95,7 +95,7 @@ mExpClass(uiEMAttrib) ui2DGridLinesFromRandLine : public ui2DGridLines
 { mODTextTranslationClass(ui2DGridLinesFromRandLine)
 public:
     				ui2DGridLinesFromRandLine(uiParent*,
-						const HorSampling&,
+						const TrcKeySampling&,
 						const Geometry::RandomLine*);
     				~ui2DGridLinesFromRandLine();
 
@@ -151,7 +151,7 @@ protected:
     uiGenInput*			hornmfld_;
     uiBatchJobDispatcherSel*	batchfld_;
 
-    CubeSampling&		cs_;
+    TrcKeyZSampling&		cs_;
 
     void			horCheckCB(CallBacker*);
     void			inpSelCB(CallBacker*);

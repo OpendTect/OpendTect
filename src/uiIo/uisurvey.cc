@@ -40,7 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "angles.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "dirlist.h"
 #include "envvars.h"
 #include "executor.h"

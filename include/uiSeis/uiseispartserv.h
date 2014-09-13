@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class BufferStringSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class IOPar;
 class SeisTrcBuf;
 class uiFlatViewWin;
@@ -54,7 +54,7 @@ public:
 					    const char* zdomainstr,
 					    BufferStringSet& attribs);
     bool		create2DOutput(const MultiID&,const char* linekey,
-				       CubeSampling&,SeisTrcBuf&);
+				       TrcKeyZSampling&,SeisTrcBuf&);
     void		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 

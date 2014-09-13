@@ -6,7 +6,7 @@
  
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 
 #include "iopar.h"
 #include "keystrs.h"
@@ -16,7 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-void HorSampling::init( bool tosi )
+void TrcKeySampling::init( bool tosi )
 {
     if ( tosi )
     {
@@ -32,7 +32,7 @@ void HorSampling::init( bool tosi )
 }
 
 
-BinID HorSampling::atIndex(  od_int64 globalidx ) const
+BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
 {
     const int nrcrl = nrCrl();
     if ( !nrcrl )
@@ -44,7 +44,7 @@ BinID HorSampling::atIndex(  od_int64 globalidx ) const
 }
 
 
-void HorSampling::set2DDef()
+void TrcKeySampling::set2DDef()
 {
     start.inl() = start.crl() = 0;
     stop.inl() = stop.crl() = mUdf(int);
@@ -52,7 +52,7 @@ void HorSampling::set2DDef()
 }
 
 
-HorSampling& HorSampling::set( const Interval<int>& inlrg,
+TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
 			       const Interval<int>& crlrg )
 {
     setInlRange( inlrg );
@@ -61,7 +61,7 @@ HorSampling& HorSampling::set( const Interval<int>& inlrg,
 }
 
 
-void HorSampling::setInlRange( const Interval<int>& inlrg )
+void TrcKeySampling::setInlRange( const Interval<int>& inlrg )
 {
     start.inl() = inlrg.start; stop.inl() = inlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
@@ -70,7 +70,7 @@ void HorSampling::setInlRange( const Interval<int>& inlrg )
 }
 
 
-void HorSampling::setCrlRange( const Interval<int>& crlrg )
+void TrcKeySampling::setCrlRange( const Interval<int>& crlrg )
 {
     start.crl() = crlrg.start; stop.crl() = crlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
@@ -79,15 +79,15 @@ void HorSampling::setCrlRange( const Interval<int>& crlrg )
 }
 
 
-StepInterval<int> HorSampling::inlRange() const
+StepInterval<int> TrcKeySampling::inlRange() const
 { return StepInterval<int>( start.inl(), stop.inl(), step.inl() ); }
 
 
-StepInterval<int> HorSampling::crlRange() const
+StepInterval<int> TrcKeySampling::crlRange() const
 { return StepInterval<int>( start.crl(), stop.crl(), step.crl() ); }
 
 
-bool HorSampling::includes( const HorSampling& hs, bool ignoresteps ) const
+bool TrcKeySampling::includes( const TrcKeySampling& hs, bool ignoresteps ) const
 {
     if ( ignoresteps )
 	return hs.start.inl() >= start.inl() && hs.stop.inl() <= stop.inl()
@@ -99,7 +99,7 @@ bool HorSampling::includes( const HorSampling& hs, bool ignoresteps ) const
 }
 
 
-void HorSampling::includeInl( int inl )
+void TrcKeySampling::includeInl( int inl )
 {
     if ( mIsUdf(start.inl()) || mIsUdf(stop.inl()) || nrInl()<1 )
 	start.inl() = stop.inl() = inl;
@@ -111,7 +111,7 @@ void HorSampling::includeInl( int inl )
 }
 
 
-void HorSampling::includeCrl( int crl )
+void TrcKeySampling::includeCrl( int crl )
 {
     if ( mIsUdf(start.crl()) || mIsUdf(stop.crl()) || nrCrl()<1 )
 	start.crl() = stop.crl() = crl;
@@ -123,7 +123,7 @@ void HorSampling::includeCrl( int crl )
 }
 
 
-void HorSampling::include( const HorSampling& hs, bool ignoresteps )
+void TrcKeySampling::include( const TrcKeySampling& hs, bool ignoresteps )
 {
     if ( ignoresteps )
     {
@@ -132,7 +132,7 @@ void HorSampling::include( const HorSampling& hs, bool ignoresteps )
 	return;
     }
 
-    HorSampling temp( *this );
+    TrcKeySampling temp( *this );
     temp.include( hs.start );
     temp.include( hs.stop );
 
@@ -151,7 +151,7 @@ void HorSampling::include( const HorSampling& hs, bool ignoresteps )
 }
 
 
-void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
+void TrcKeySampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 {
     inlrg.start = start.inl(); inlrg.stop = stop.inl();
     mDynamicCastGet(StepInterval<int>*,inlsrg,&inlrg)
@@ -164,7 +164,7 @@ void HorSampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 }
 
 
-bool HorSampling::isDefined() const
+bool TrcKeySampling::isDefined() const
 {
     return !mIsUdf(start.inl()) && !mIsUdf(start.crl()) &&
 	   !mIsUdf(stop.inl()) && !mIsUdf(stop.crl()) &&
@@ -172,9 +172,9 @@ bool HorSampling::isDefined() const
 }
 
 
-void HorSampling::limitTo( const HorSampling& h, bool ignoresteps )
+void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 {
-    HorSampling hs( h ); hs.normalise();
+    TrcKeySampling hs( h ); hs.normalise();
     normalise();
 
     if ( hs.start.inl() > stop.inl() || hs.stop.inl() < start.inl() ||
@@ -220,9 +220,9 @@ void HorSampling::limitTo( const HorSampling& h, bool ignoresteps )
 # define mAdjustIf(v1,op,v2) \
       if ( !mIsUdf(v1) && !mIsUdf(v2) && v1 op v2 ) v1 = v2;
 
-void HorSampling::limitToWithUdf( const HorSampling& h )
+void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 {
-    HorSampling hs( h ); hs.normalise();
+    TrcKeySampling hs( h ); hs.normalise();
     normalise();
 
     mAdjustIf(start.inl(),<,hs.start.inl());
@@ -253,7 +253,7 @@ static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
 }
 
 
-bool HorSampling::usePar( const IOPar& pars )
+bool TrcKeySampling::usePar( const IOPar& pars )
 {
     bool inlok = getRange( pars, sKey::InlRange(),
 			   start.inl(), stop.inl(), step.inl() );
@@ -277,7 +277,7 @@ bool HorSampling::usePar( const IOPar& pars )
 }
 
 
-void HorSampling::fillPar( IOPar& pars ) const
+void TrcKeySampling::fillPar( IOPar& pars ) const
 {
     pars.set( sKey::FirstInl(), start.inl() );
     pars.set( sKey::FirstCrl(), start.crl() );
@@ -288,7 +288,7 @@ void HorSampling::fillPar( IOPar& pars ) const
 }
 
 
-void HorSampling::removeInfo( IOPar& par )
+void TrcKeySampling::removeInfo( IOPar& par )
 {
     par.removeWithKey( sKey::FirstInl() );
     par.removeWithKey( sKey::FirstCrl() );
@@ -299,7 +299,7 @@ void HorSampling::removeInfo( IOPar& par )
 }
 
 
-int HorSampling::nrInl() const
+int TrcKeySampling::nrInl() const
 {
     if ( (mIsUdf(start.inl()) && mIsUdf(stop.inl())) )
 	return 0;
@@ -315,7 +315,7 @@ int HorSampling::nrInl() const
 }
 
 
-int HorSampling::nrCrl() const
+int TrcKeySampling::nrCrl() const
 {
     if ( (mIsUdf(start.crl()) && mIsUdf(stop.crl())) )
 	return 0;
@@ -410,11 +410,11 @@ static bool intersectF(	float start1, float stop1, float step1,
 }
 
 
-bool HorSampling::getInterSection( const HorSampling& hs,
-				   HorSampling& out ) const
+bool TrcKeySampling::getInterSection( const TrcKeySampling& hs,
+				   TrcKeySampling& out ) const
 {
-    HorSampling hs1( hs );	hs1.normalise();
-    HorSampling hs2( *this );	hs2.normalise();
+    TrcKeySampling hs1( hs );	hs1.normalise();
+    TrcKeySampling hs2( *this );	hs2.normalise();
 
     return intersect( hs1.start.inl(), hs1.stop.inl(), hs1.step.inl(),
 		      hs2.start.inl(), hs2.stop.inl(), hs2.step.inl(),
@@ -439,7 +439,7 @@ static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step )
 }
 
 
-BinID HorSampling::getNearest( const BinID& bid ) const
+BinID TrcKeySampling::getNearest( const BinID& bid ) const
 {
     BinID relbid( bid.first - start.first, bid.second - start.second );
 
@@ -463,14 +463,14 @@ BinID HorSampling::getNearest( const BinID& bid ) const
 
 
 
-void HorSampling::snapToSurvey()
+void TrcKeySampling::snapToSurvey()
 {
     SI().snap( start, BinID(-1,-1) );
     SI().snap( stop, BinID(1,1) );
 }
 
 
-void HorSampling::toString( BufferString& str ) const
+void TrcKeySampling::toString( BufferString& str ) const
 {
     str.add( "Inline range: " ).add( start.inl() ).add( " - " )
 	.add( stop.inl() ).add( " [" ).add( step.inl() ).add( "]\n" );
@@ -479,7 +479,7 @@ void HorSampling::toString( BufferString& str ) const
 }
 
 
-void HorSampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
+void TrcKeySampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
 {
     if ( nr > totalNr() )
 	nr = (int) totalNr();
@@ -494,15 +494,15 @@ void HorSampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
 }
 
 
-// CubeSampling
-void CubeSampling::set2DDef()
+// TrcKeyZSampling
+void TrcKeyZSampling::set2DDef()
 {
     hrg.set2DDef();
     zrg = SI().zRange(false);
 }
 
 
-void CubeSampling::init( bool tosi )
+void TrcKeyZSampling::init( bool tosi )
 {
     hrg.init( tosi );
     if ( tosi )
@@ -520,8 +520,8 @@ static void normaliseZ( StepInterval<float>& zrg )
 }
 
 
-bool CubeSampling::getIntersection( const CubeSampling& cs,
-				    CubeSampling& out ) const
+bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& cs,
+				    TrcKeyZSampling& out ) const
 {
     if ( !hrg.getInterSection(cs.hrg,out.hrg) )
 	return false;
@@ -534,7 +534,7 @@ bool CubeSampling::getIntersection( const CubeSampling& cs,
 }
     
 
-bool CubeSampling::isFlat() const
+bool TrcKeyZSampling::isFlat() const
 {
     if ( hrg.start.inl()==hrg.stop.inl() || hrg.start.crl()==hrg.stop.crl() )
 	return true;
@@ -543,7 +543,7 @@ bool CubeSampling::isFlat() const
 }
 
 
-CubeSampling::Dir CubeSampling::defaultDir() const
+TrcKeyZSampling::Dir TrcKeyZSampling::defaultDir() const
 {
     const int nrinl = nrInl();
     const int nrcrl = nrCrl();
@@ -555,7 +555,7 @@ CubeSampling::Dir CubeSampling::defaultDir() const
 }
 
 
-void CubeSampling::getDefaultNormal( Coord3& ret ) const
+void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 {
     if ( defaultDir() == Inl )
 	ret = Coord3( SI().binID2Coord().inlDir(), 0 );
@@ -566,11 +566,11 @@ void CubeSampling::getDefaultNormal( Coord3& ret ) const
 } 
 
 
-od_int64 CubeSampling::totalNr() const
+od_int64 TrcKeyZSampling::totalNr() const
 { return ((od_int64) nrZ()) * ((od_int64) hrg.totalNr()); }
 
 
-bool CubeSampling::includes( const CubeSampling& c ) const
+bool TrcKeyZSampling::includes( const TrcKeyZSampling& c ) const
 {
     return hrg.includes( c.hrg ) && 
 	   zrg.includes( c.zrg.start, false ) &&
@@ -578,16 +578,16 @@ bool CubeSampling::includes( const CubeSampling& c ) const
 }
 
 
-void CubeSampling::include( const BinID& bid, float z )
+void TrcKeyZSampling::include( const BinID& bid, float z )
 {
     hrg.include( bid );
     zrg.include( z );
 }
 
 
-void CubeSampling::include( const CubeSampling& c )
+void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 {
-    CubeSampling cs( c ); cs.normalise();
+    TrcKeyZSampling cs( c ); cs.normalise();
     normalise();
 
     hrg.include( cs.hrg );
@@ -597,7 +597,7 @@ void CubeSampling::include( const CubeSampling& c )
 }
 
 
-bool CubeSampling::isDefined() const
+bool TrcKeyZSampling::isDefined() const
 {
     return hrg.isDefined() &&
 	!mIsUdf(zrg.start) && !mIsUdf(zrg.stop) && !mIsUdf(zrg.step);
@@ -605,9 +605,9 @@ bool CubeSampling::isDefined() const
 
 
 
-void CubeSampling::limitTo( const CubeSampling& c, bool ignoresteps )
+void TrcKeyZSampling::limitTo( const TrcKeyZSampling& c, bool ignoresteps )
 {
-    CubeSampling cs( c ); cs.normalise();
+    TrcKeyZSampling cs( c ); cs.normalise();
     normalise();
     hrg.limitTo( cs.hrg, ignoresteps );
     if ( hrg.isEmpty() || cs.zrg.start > zrg.stop || cs.zrg.stop < zrg.start )
@@ -623,9 +623,9 @@ void CubeSampling::limitTo( const CubeSampling& c, bool ignoresteps )
 }
 
 
-void CubeSampling::limitToWithUdf( const CubeSampling& c )
+void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
 {
-    CubeSampling cs( c ); cs.normalise();
+    TrcKeyZSampling cs( c ); cs.normalise();
     normalise();
     hrg.limitToWithUdf( cs.hrg );
     mAdjustIf(zrg.start,<,cs.zrg.start);
@@ -633,7 +633,7 @@ void CubeSampling::limitToWithUdf( const CubeSampling& c )
 }
 
 
-void CubeSampling::snapToSurvey()
+void TrcKeyZSampling::snapToSurvey()
 {
     hrg.snapToSurvey();
     SI().snapZ( zrg.start, -1 );
@@ -641,7 +641,7 @@ void CubeSampling::snapToSurvey()
 }
 
 
-bool CubeSampling::operator==( const CubeSampling& cs ) const
+bool TrcKeyZSampling::operator==( const TrcKeyZSampling& cs ) const
 {
     if ( this == &cs ) return true;
 
@@ -664,27 +664,27 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
 }
 
 
-bool CubeSampling::usePar( const IOPar& par )
+bool TrcKeyZSampling::usePar( const IOPar& par )
 {
     return hrg.usePar( par ) && par.get( sKey::ZRange(), zrg );
 }
 
 
-void CubeSampling::fillPar( IOPar& par ) const
+void TrcKeyZSampling::fillPar( IOPar& par ) const
 {
     hrg.fillPar( par );
     par.set( sKey::ZRange(), zrg.start, zrg.stop, zrg.step );
 }
 
 
-void CubeSampling::removeInfo( IOPar& par )
+void TrcKeyZSampling::removeInfo( IOPar& par )
 {
-    HorSampling::removeInfo( par );
+    TrcKeySampling::removeInfo( par );
     par.removeWithKey( sKey::ZRange() );
 }
 
 
-void HorSampling::normalise()
+void TrcKeySampling::normalise()
 {
     if ( start.inl() > stop.inl() )	Swap(start.inl(),stop.inl());
     if ( start.crl() > stop.crl() )	Swap(start.crl(),stop.crl());
@@ -695,21 +695,21 @@ void HorSampling::normalise()
 }
 
 
-void CubeSampling::normalise()
+void TrcKeyZSampling::normalise()
 {
     hrg.normalise();
     normaliseZ( zrg );
 }
 
 
-void HorSamplingIterator::reset()
+void TrcKeySamplingIterator::reset()
 {
     curpos_ = 0;
     totalnr_ = hrg_.totalNr();
 }
 
 
-bool HorSamplingIterator::next( BinID& res ) const
+bool TrcKeySamplingIterator::next( BinID& res ) const
 {
     const od_int64 mypos = curpos_++;
     if ( mypos>=totalnr_ )

@@ -256,7 +256,7 @@ bool uiODVw2DFaultTreeItem::showSubMenu()
 }
 
 
-void uiODVw2DFaultTreeItem::updateCS( const CubeSampling& cs, bool upd )
+void uiODVw2DFaultTreeItem::updateCS( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	faultview_->draw();

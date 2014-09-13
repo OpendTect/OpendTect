@@ -585,7 +585,7 @@ void EMObject::removeAllUnSeedPos()
 }
 
 
-const CubeSampling EMObject::getRemovedPolySelectedPosBox()
+const TrcKeyZSampling EMObject::getRemovedPolySelectedPosBox()
 {
     return removebypolyposbox_;
 }

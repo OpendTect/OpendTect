@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "uigroup.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "linekey.h"
 #include "multiid.h"
 #include "datapackbase.h"
@@ -51,11 +51,11 @@ mExpClass(uiSeis) uiTrcPositionDlg: public uiDialog
 public:                                                                         
 				uiTrcPositionDlg(uiParent*,
 						 const DataPack::FullID&);
-				uiTrcPositionDlg(uiParent*,const CubeSampling&,
+				uiTrcPositionDlg(uiParent*,const TrcKeyZSampling&,
 			      			 bool,const MultiID&);
 				~uiTrcPositionDlg();
 
-    CubeSampling		getCubeSampling() const;
+    TrcKeyZSampling		getTrcKeyZSampling() const;
     LineKey			getLineKey() const;
     uiLabeledSpinBox*		trcnrfld_;
     uiLabeledSpinBox*		inlfld_;

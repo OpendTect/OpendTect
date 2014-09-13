@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"
@@ -48,7 +48,7 @@ void HorizonSorter::init()
     if ( !is2d_ )
     {
 	delete iterator_;
-	iterator_ = new HorSamplingIterator( hrg_ );
+	iterator_ = new TrcKeySamplingIterator( hrg_ );
     }
 
     delete result_;

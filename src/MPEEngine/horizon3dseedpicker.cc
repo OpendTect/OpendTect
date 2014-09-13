@@ -84,7 +84,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 	return true;
 
     const BinID seedbid = SI().transform( seedcrd );
-    const HorSampling hrg = engine().activeVolume().hrg;
+    const TrcKeySampling hrg = engine().activeVolume().hrg;
     const StepInterval<float> zrg = engine().activeVolume().zrg;
     if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
 	return false;
@@ -404,9 +404,9 @@ bool Horizon3DSeedPicker::retrackFromSeedList()
     mDynamicCastGet( HorizonAdjuster*, adjuster, sectracker->adjuster() );
 
     extender->setExtBoundary( getTrackBox() );
-    if ( extender->getExtBoundary().defaultDir() == CubeSampling::Inl )
+    if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Inl )
 	extender->setDirection( BinIDValue(BinID(0,1), mUdf(float)) );
-    else if ( extender->getExtBoundary().defaultDir() == CubeSampling::Crl )
+    else if ( extender->getExtBoundary().defaultDir() == TrcKeyZSampling::Crl )
 	extender->setDirection( BinIDValue(BinID(1,0), mUdf(float)) );
 
     TypeSet<EM::SubID> addedpos;
@@ -531,7 +531,7 @@ bool Horizon3DSeedPicker::stopSeedPick( bool iscancel )
 bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir, 
 					    bool perptotrackdir ) const
 {
-    const CubeSampling& activevol = engine().activeVolume();
+    const TrcKeyZSampling& activevol = engine().activeVolume();
     dir = activevol.hrg.step;
     
     const bool inltracking = activevol.nrInl()==1 && activevol.nrCrl()>1;
@@ -641,9 +641,9 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 }
 
 
-CubeSampling Horizon3DSeedPicker::getTrackBox() const
+TrcKeyZSampling Horizon3DSeedPicker::getTrackBox() const
 {
-    CubeSampling trackbox( true );
+    TrcKeyZSampling trackbox( true );
     trackbox.hrg.init( false );
     for ( int idx=0; idx<seedpos_.size(); idx++ )
     {

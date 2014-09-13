@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "array2dinterpol.h"
 #include "bidvsetarrayadapter.h"
 #include "ctxtioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datacoldef.h"
 #include "datainpspec.h"
 #include "datapointset.h"
@@ -621,7 +621,7 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 }
 
 
-void uiEMPartServer::setHorizon3DDisplayRange( const HorSampling& hs )
+void uiEMPartServer::setHorizon3DDisplayRange( const TrcKeySampling& hs )
 { selectedrg_ = hs; }
 
 
@@ -984,7 +984,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdataidx,
 
 bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	DataPointSet& data, TypeSet<float>* shifts,
-	const CubeSampling* cs ) const
+	const TrcKeyZSampling* cs ) const
 {
     EM::EMObject* object = em_.getObject( oid );
     mDynamicCastGet( EM::Horizon3D*, hor3d, object );
@@ -1383,7 +1383,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 
 void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
-				    const HorSampling& hs ) const
+				    const TrcKeySampling& hs ) const
 {
     bivs.setEmpty(); bivs.setNrVals( 2, false );
 

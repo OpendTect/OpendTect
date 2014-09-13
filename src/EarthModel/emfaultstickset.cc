@@ -124,7 +124,7 @@ Geometry::FaultStickSet* FaultStickSetGeometry::createSectionGeometry() const
 
 
 EMObjectIterator* FaultStickSetGeometry::createIterator( const SectionID& sid,
-						const CubeSampling* cs ) const
+						const TrcKeyZSampling* cs ) const
 { return new RowColIterator( surface_, sid, cs ); }
 
 

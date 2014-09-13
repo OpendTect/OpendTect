@@ -40,7 +40,7 @@ public:
 
     Array3D<float>*		arr_;
     float			threshold_;//Any value below threshold is inside
-    CubeSampling		cs_; //has same size as arr_
+    TrcKeyZSampling		cs_; //has same size as arr_
 };
 
 
@@ -57,7 +57,7 @@ public:
     virtual const char*		type() const = 0;
 
     const IOObjContext&		getBodyContext() const;
-    virtual bool		getBodyRange(CubeSampling&) = 0;
+    virtual bool		getBodyRange(TrcKeyZSampling&) = 0;
 
     virtual MultiID		storageID() const	= 0;
     virtual BufferString	storageName()const	= 0;

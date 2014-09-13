@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uigroup.h"
 namespace Pos { class Provider; }
-class CubeSampling;
+class TrcKeyZSampling;
 class uiPosProvSel;
 
 
@@ -61,12 +61,12 @@ public:
     Pos::Provider*	curProvider();
     const Pos::Provider* curProvider() const;
 
-    const CubeSampling&	envelope() const;
-    const CubeSampling&	inputLimit() const;
-    void		setInput(const CubeSampling&,bool chgtype=true);
-    void                setInput(const CubeSampling& initcs,
-				 const CubeSampling& ioparcs);
-    void                setInputLimit(const CubeSampling&);
+    const TrcKeyZSampling&	envelope() const;
+    const TrcKeyZSampling&	inputLimit() const;
+    void		setInput(const TrcKeyZSampling&,bool chgtype=true);
+    void		setInput(const TrcKeyZSampling& initcs,
+				 const TrcKeyZSampling& ioparcs);
+    void		setInputLimit(const TrcKeyZSampling&);
 
     bool		isAll() const;
     void		setToAll();

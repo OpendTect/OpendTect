@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "progressmeter.h"
@@ -46,7 +46,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( const IOObj& inobj, const IOObj& outobj,
     if ( rln.nrNodes() < 2 ) return;
 
     SeisIOObjInfo inpsi( inobj );
-    CubeSampling inpcs;
+    TrcKeyZSampling inpcs;
     inpsi.getRanges( inpcs );
     const BinID inpstep = inpcs.hrg.step;
 
@@ -264,7 +264,7 @@ SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, od_ostream& s )
 
 bool SeisRandLineTo2DGrid::createGrid()
 {
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     SeisIOObjInfo info( inpobj_ );
     info.getRanges( cs );
     Geometry::RandomLineSet parset( rln_, gridspacing_, true );

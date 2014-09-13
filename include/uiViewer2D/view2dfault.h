@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "emposid.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class uiFlatViewWin;
 class uiFlatViewAuxDataEditor;
 
@@ -32,7 +32,7 @@ public:
 			     mCreateVw2DDataObj(VW2DFault,id,fvw,eds);
 			~VW2DFault();
 
-    void		setCubeSampling(const CubeSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);

@@ -609,9 +609,9 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	trackbox.hrg.include( BinID(rc) ); \
     }
 
-CubeSampling Horizon2DSeedPicker::getTrackBox() const
+TrcKeyZSampling Horizon2DSeedPicker::getTrackBox() const
 {
-    CubeSampling trackbox( true );
+    TrcKeyZSampling trackbox( true );
     trackbox.hrg.init( false );
     mAddToBox(seedlist_);
     mAddToBox(trackbounds_);

@@ -21,7 +21,7 @@ ________________________________________________________________________
 class IOObj;
 class Executor;
 class SeisTrcBuf;
-class CubeSampling;
+class TrcKeyZSampling;
 class BinIDValueSet;
 class BufferStringSet;
 class SeisTrcWriter;
@@ -100,9 +100,9 @@ public:
 	    			   BufferString& stdinfo) const;
     bool		getRanges(int,StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
-    const char*		getCubeSampling(CubeSampling&,int linenr=-1) const;
+    const char*		getTrcKeyZSampling(TrcKeyZSampling&,int linenr=-1) const;
     			//!< returns err msg, or null when OK
-    const char*		getCubeSampling(CubeSampling&,const LineKey&) const;
+    const char*		getTrcKeyZSampling(TrcKeyZSampling&,const LineKey&) const;
     			//!< returns err msg, or null when OK
     bool		haveMatch(int,const BinIDValueSet&) const;
     			//!< Uses getGeometry

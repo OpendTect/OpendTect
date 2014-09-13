@@ -482,7 +482,7 @@ sp.set( *psdesc ); \
 attribspecs += sp; \
 aem->setAttribSet( descset ); \
 aem->setAttribSpecs( attribspecs ); \
-aem->setCubeSampling( cs ); \
+aem->setTrcKeyZSampling( cs ); \
 BinIDValueSet bidvals( 0, false ); \
 const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
 for ( int idx=0; idx<gathers.size(); idx++ ) \
@@ -515,7 +515,7 @@ SeisTrcBufDataPack* angledp = \
 delete sd;
 
 SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
-					     const CubeSampling& cs,
+					     const TrcKeyZSampling& cs,
 					     const SynthGenParams& synthgenpar,
 					     const Seis::RaySynthGenerator& sg )
 {
@@ -547,7 +547,7 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
 
 
 SyntheticData* StratSynth::createAngleStack( SyntheticData* sd,
-					     const CubeSampling& cs,
+					     const TrcKeyZSampling& cs,
 					     const SynthGenParams& synthgenpar )
 {
     mCreateDesc();
@@ -724,7 +724,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		      SI().crlRange(false).stop + crlstep );
 
     ObjectSet<SeisTrcBuf> tbufs;
-    CubeSampling cs( false );
+    TrcKeyZSampling cs( false );
     for ( int imdl=0; imdl<layMod().size(); imdl++ )
     {
 	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );

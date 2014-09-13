@@ -82,7 +82,7 @@ void DataCubes::removeCube( int idx )
 }
 
 
-bool DataCubes::setSizeAndPos( const CubeSampling& cs )
+bool DataCubes::setSizeAndPos( const TrcKeyZSampling& cs )
 {
     inlsampling_.start = cs.hrg.start.inl();
     crlsampling_.start = cs.hrg.start.crl();
@@ -193,7 +193,7 @@ bool DataCubes::includes( const BinID& binid ) const
 }
 
 
-bool DataCubes::includes( const CubeSampling& cs ) const
+bool DataCubes::includes( const TrcKeyZSampling& cs ) const
 {
     return includes( BinIDValue( cs.hrg.start, cs.zrg.start ) ) &&
            includes( BinIDValue( cs.hrg.stop, cs.zrg.stop ) );
@@ -212,9 +212,9 @@ void DataCubes::setCube( int idx, const Array3D<float>& cube )
 { cubes_[idx]->copyFrom( cube ); }
 
 
-CubeSampling DataCubes::cubeSampling() const
+TrcKeyZSampling DataCubes::cubeSampling() const
 {
-    CubeSampling res(false);
+    TrcKeyZSampling res(false);
 
     if ( inlsz_ && crlsz_ && zsz_ )
     {

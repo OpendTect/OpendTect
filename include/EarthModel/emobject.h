@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "bufstring.h"
 #include "callback.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "refcount.h"
 #include "uistring.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class Executor;
 class IOObj;
 class IOObjContext;
@@ -181,7 +181,7 @@ public:
 				*/
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&, 
-	    				       const CubeSampling* =0) const
+					       const TrcKeyZSampling* =0) const
 				{ return 0; }
     				/*!< creates an iterator. If the sectionid is
 				     -1, all sections will be traversed. */
@@ -208,7 +208,7 @@ public:
     void			removeListOfSubIDs(const TypeSet<EM::SubID>&,
 	    					   const EM::SectionID&);
     void			removeAllUnSeedPos();
-    const CubeSampling		getRemovedPolySelectedPosBox();
+    const TrcKeyZSampling		getRemovedPolySelectedPosBox();
     void			emptyRemovedPolySelectedPosBox();
 
     CNotifier<EMObject,const EMObjectCallbackData&>	change;
@@ -262,7 +262,7 @@ protected:
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
 
-    CubeSampling		removebypolyposbox_;
+    TrcKeyZSampling		removebypolyposbox_;
 
     bool			changed_;
     bool			fullyloaded_;

@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiioobjsel.h"
 #include "uiselsurvranges.h"
 #include "uimsg.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ctxtioobj.h"
 #include "file.h"
 #include "ioobj.h"
@@ -72,7 +72,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 
 void uiRangePosProvGroup::usePar( const IOPar& iop )
 {
-    CubeSampling cs; getCubeSampling( cs );
+    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
     cs.usePar( iop );
 
     if ( hrgfld_ )
@@ -93,7 +93,7 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type(), sKey::Range() );
-    CubeSampling cs; getCubeSampling( cs );
+    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
 
     if ( setup_.is2d_ )
     {
@@ -109,12 +109,12 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 
 void uiRangePosProvGroup::getSummary( BufferString& txt ) const
 {
-    CubeSampling cs; getCubeSampling( cs );
+    TrcKeyZSampling cs; getTrcKeyZSampling( cs );
     txt += setup_.withz_ ? "Sub-volume" : "Sub-area";
 }
 
 
-static void getExtrDefCubeSampling( CubeSampling& cs )
+static void getExtrDefTrcKeyZSampling( TrcKeyZSampling& cs )
 {
     int nrsamps = cs.zrg.nrSteps() + 1;
     if ( nrsamps > 2000 ) cs.zrg.step *= 1000;
@@ -134,7 +134,7 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
 
 void uiRangePosProvGroup::setExtractionDefaults()
 {
-    CubeSampling cs( true ); getExtrDefCubeSampling( cs );
+    TrcKeyZSampling cs( true ); getExtrDefTrcKeyZSampling( cs );
     if ( hrgfld_ )
 	hrgfld_->setSampling( cs.hrg );
     if ( nrrgfld_ )
@@ -147,7 +147,7 @@ void uiRangePosProvGroup::setExtractionDefaults()
 }
 
 
-void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
+void uiRangePosProvGroup::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     cs = SI().sampling( false );
     if ( hrgfld_ )
@@ -246,7 +246,7 @@ void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 
 void uiPolyPosProvGroup::setExtractionDefaults()
 {
-    CubeSampling cs( true ); getExtrDefCubeSampling( cs );
+    TrcKeyZSampling cs( true ); getExtrDefTrcKeyZSampling( cs );
     if ( stepfld_ ) stepfld_->setSteps( cs.hrg.step );
     if ( zrgfld_ ) zrgfld_->setRange( cs.zrg );
 }

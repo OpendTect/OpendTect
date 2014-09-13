@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "oduicommon.h"
 
 class uiSliceSelDlg;
-class CubeSampling;
+class TrcKeyZSampling;
 namespace Attrib { class DescID; }
 namespace Well { class Data; }
 
@@ -55,7 +55,7 @@ protected:
 
     void		selChg(CallBacker*);
     void		posChange(CallBacker*);
-    void		movePlaneAndCalcAttribs(const CubeSampling&);
+    void		movePlaneAndCalcAttribs(const TrcKeyZSampling&);
 
     const OD::SliceType	orient_;
     const Type		type_;

@@ -512,9 +512,9 @@ void uiODApplMgr::addTimeDepthScene()
     {
 	const float zscale = ztrans->zScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
-	CubeSampling cs = SI().sampling( true );
+	TrcKeyZSampling cs = SI().sampling( true );
 	cs.zrg = zsampling;
-	scene->setCubeSampling( cs );
+	scene->setTrcKeyZSampling( cs );
 	scene->setZScale( zscale );
     }
 }
@@ -604,7 +604,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( cacheid == DataPack::cNoID() )
 		useDefColTab( visid, attrib );
 
-	    CubeSampling cs = visserv_->getCubeSampling( visid, attrib );
+	    TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid, attrib );
 	    if ( !cs.isDefined() )
 		return false;
 
@@ -908,7 +908,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 				visserv_->getAttributeFormat( visid, attrib );
     if ( format == uiVisPartServer::Cube )
     {
-	const CubeSampling cs = visserv_->getCubeSampling( visid );
+	const TrcKeyZSampling cs = visserv_->getTrcKeyZSampling( visid );
 	DataPack::ID packid  = attrserv_->createOutput( cs, DataPack::cNoID() );
 	visserv_->setDataPackID( visid, attrib, packid );
     }
@@ -948,7 +948,7 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
 		    visserv_->getObject(visid))
     if ( !s2d ) return false;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
@@ -1084,7 +1084,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	const Attrib::SelSpec* as = mpeserv_->getAttribSelSpec();
 	if ( !as ) return false;
-	const CubeSampling cs = mpeserv_->getAttribVolume(*as);
+	const TrcKeyZSampling cs = mpeserv_->getAttribVolume(*as);
 	DataPack::ID olddatapackid = mpeserv_->getAttribCacheID(*as);
 	attrserv_->setTargetSelSpec( *as );
 	DataPack::ID datapackid = attrserv_->createOutput( cs, olddatapackid );
@@ -1426,7 +1426,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	}
 
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
-			       pickserv_->selHorSampling() );
+			       pickserv_->selTrcKeySampling() );
     }
     else if ( evid == uiPickPartServer::evGetHorDef2D() )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),

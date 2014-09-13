@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "segytr.h"
 #include "segyhdr.h"
 #include "posinfodetector.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ptrman.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -95,7 +95,7 @@ static void showReport( const SEGY::Scanner& scanner )
 }
 
 
-bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
+bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
 				      Coord crd[3] )
 {
     if ( !d ) return false;

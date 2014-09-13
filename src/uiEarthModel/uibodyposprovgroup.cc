@@ -79,7 +79,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 	Interval<float> zrg;
 	iop.get( Pos::EMImplicitBodyProvider::sKeyBBZrg(), zrg );
 
-	CubeSampling cs(true);
+	TrcKeyZSampling cs(true);
 	cs.hrg.set( inlrg, crlrg );
 	cs.zrg.setFrom( zrg );
 	outsidergfld_->setInput( cs );
@@ -99,7 +99,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 	    inoutbut_->getBoolValue() );
     if ( !inoutbut_->getBoolValue() )
     {
-	const CubeSampling& cs = outsidergfld_->envelope();
+	const TrcKeyZSampling& cs = outsidergfld_->envelope();
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(), cs.hrg.inlRange());
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), cs.hrg.crlRange());
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBZrg(), cs.zrg );

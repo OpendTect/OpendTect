@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "attributeenginemod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "executor.h"
 #include "multiid.h" 
 
@@ -37,7 +37,7 @@ public:
 				       const TypeSet<int>& cubeindices);
 			~DataCubesWriter();
 
-    void		setSelection(const HorSampling&,const Interval<int>&);
+    void		setSelection(const TrcKeySampling&,const Interval<int>&);
 
     od_int64		nrDone() const;
     od_int64		totalNr() const;		
@@ -50,13 +50,13 @@ private:
    int				nrdone_;    
    int				totalnr_;
    const Attrib::DataCubes&	cube_;
-   HorSamplingIterator		iterator_;
+   TrcKeySamplingIterator	iterator_;
    MultiID			mid_;
    SeisTrcWriter*		writer_;
    SeisTrc*			trc_;
    TypeSet<int>			cubeindices_;
 
-   HorSampling			hrg_;
+   TrcKeySampling		hrg_;
    Interval<int>		zrg_;
 };
 

@@ -86,7 +86,7 @@ protected:
     void		interpolateCB(CallBacker*);
     void		settCB(CallBacker*);
 
-    HorSampling		hrg_;
+    TrcKeySampling		hrg_;
 };
 
 #endif

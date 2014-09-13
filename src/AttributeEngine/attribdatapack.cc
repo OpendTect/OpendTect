@@ -62,11 +62,11 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
 {
     cube_.ref();
     if ( cube_.getInlSz() < 2 )
-	dir_ = CubeSampling::Inl;
+	dir_ = TrcKeyZSampling::Inl;
     else if ( cube_.getCrlSz() < 2 )
-	dir_ = CubeSampling::Crl;
+	dir_ = TrcKeyZSampling::Crl;
     else
-	dir_ = CubeSampling::Z;
+	dir_ = TrcKeyZSampling::Z;
 
     if ( usemultcubes_ )
     {
@@ -93,13 +93,13 @@ Flat3DDataPack::~Flat3DDataPack()
 void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
 {
     int unuseddim, dim0, dim1;
-    if ( dir_==CubeSampling::Inl )
+    if ( dir_==TrcKeyZSampling::Inl )
     {
 	unuseddim = DataCubes::cInlDim();
 	dim0 = DataCubes::cCrlDim();
 	dim1 = DataCubes::cZDim();
     }
-    else if ( dir_==CubeSampling::Crl )
+    else if ( dir_==TrcKeyZSampling::Crl )
     {
 	unuseddim = DataCubes::cCrlDim();
 	dim0 = DataCubes::cInlDim();
@@ -107,7 +107,7 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
     }
     else
     {
-	dir_ = CubeSampling::Z;
+	dir_ = TrcKeyZSampling::Z;
 	unuseddim = DataCubes::cZDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cCrlDim();
@@ -125,10 +125,10 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
 
 void Flat3DDataPack::createA2DSFromMultCubes()
 {
-    const CubeSampling cs = cube_.cubeSampling();
+    const TrcKeyZSampling cs = cube_.cubeSampling();
     bool isvert = cs.nrZ() > 1;
     int dim0sz = isvert ? cube_.nrCubes()
-			: dir_==CubeSampling::Inl ? cube_.getCrlSz()
+			: dir_==TrcKeyZSampling::Inl ? cube_.getCrlSz()
 						  : cube_.getInlSz();
     int dim1sz = isvert ? cube_.getZSz() : cube_.nrCubes();
 
@@ -138,7 +138,7 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 	for ( int id1=0; id1<dim1sz; id1++ )
 	{
 	    float val = isvert ? cube_.getCube(id0).get( 0, 0, id1 )
-			       : dir_==CubeSampling::Inl
+			       : dir_==TrcKeyZSampling::Inl
 					? cube_.getCube(id1).get( 0, id0, 0 )
 					: cube_.getCube(id1).get( id0, 0, 0 );
 	    arr2dsource_->set( id0, id1, val );
@@ -151,7 +151,7 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 }
 
 
-bool Flat3DDataPack::setDataDir( CubeSampling::Dir dir )
+bool Flat3DDataPack::setDataDir( TrcKeyZSampling::Dir dir )
 {
     if ( arr2dsource_ )
     {
@@ -165,9 +165,9 @@ bool Flat3DDataPack::setDataDir( CubeSampling::Dir dir )
 }
 
 #define mGetDim( unuseddim ) \
-    if ( dir_==CubeSampling::Inl ) \
+    if ( dir_==TrcKeyZSampling::Inl ) \
 	unuseddim = DataCubes::cInlDim(); \
-    else if ( dir_==CubeSampling::Crl ) \
+    else if ( dir_==TrcKeyZSampling::Crl ) \
 	unuseddim = DataCubes::cCrlDim(); \
     else \
 	unuseddim = DataCubes::cZDim()
@@ -221,23 +221,23 @@ Array2D<float>& Flat3DDataPack::data()
 
 void Flat3DDataPack::setPosData()
 {
-    const CubeSampling cs = cube_.cubeSampling();
+    const TrcKeyZSampling cs = cube_.cubeSampling();
     if ( usemultcubes_ )
     {
 	StepInterval<int> cubeintv( 0, cube_.nrCubes(), 1 );
 	bool isvert = cs.nrZ() > 1;
 	posdata_.setRange( true,
 	    isvert ? mStepIntvD(cubeintv)
-		   : dir_==CubeSampling::Inl ? mStepIntvD(cs.hrg.crlRange())
+		   : dir_==TrcKeyZSampling::Inl ? mStepIntvD(cs.hrg.crlRange())
 					     : mStepIntvD(cs.hrg.inlRange()) );
 	posdata_.setRange(false, isvert ? mStepIntvD(cs.zrg)
 					: mStepIntvD(cubeintv) );
     }
     else
     {
-	posdata_.setRange( true, dir_==CubeSampling::Inl
+	posdata_.setRange( true, dir_==TrcKeyZSampling::Inl
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
-	posdata_.setRange( false, dir_==CubeSampling::Z
+	posdata_.setRange( false, dir_==TrcKeyZSampling::Z
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.zrg) );
     }
 }
@@ -252,22 +252,22 @@ void Flat3DDataPack::dumpInfo( IOPar& iop ) const
 
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
-    const CubeSampling& cs = cube_.cubeSampling();
+    const TrcKeyZSampling& cs = cube_.cubeSampling();
     int inlidx = i0; int crlidx = 0; int zidx = i1;
     if ( usemultcubes_ )
     {
 	if ( cs.nrZ() > 1 )
 	    inlidx = 0;
-	else if ( dir_==CubeSampling::Inl )
+	else if ( dir_==TrcKeyZSampling::Inl )
 	    { inlidx = 0; crlidx = i0; zidx = 0; }
 	else
 	    { zidx = 0; }
     }
     else
     {
-	if ( dir_ == CubeSampling::Inl )
+	if ( dir_ == TrcKeyZSampling::Inl )
 	    { inlidx = 0; crlidx = i0; }
-	else if ( dir_ == CubeSampling::Z )
+	else if ( dir_ == TrcKeyZSampling::Z )
 	    { crlidx = i1; zidx = 0; }
     }
 
@@ -289,14 +289,14 @@ const char* Flat3DDataPack::dimName( bool dim0 ) const
     {
 	if ( cube_.cubeSampling().nrZ() > 1 )
 	    return dim0 ? mKeyCube : "Z";
-	else if ( dir_ == CubeSampling::Inl )
+	else if ( dir_ == TrcKeyZSampling::Inl )
 	    return dim0 ? mKeyCrl : mKeyCube;
 	else
 	    return dim0 ? mKeyInl : mKeyCube;
     }
 
-    return dim0 ? (dir_==CubeSampling::Inl ? mKeyCrl : mKeyInl)
-		: (dir_==CubeSampling::Z ? mKeyCrl : "Z");
+    return dim0 ? (dir_==TrcKeyZSampling::Inl ? mKeyCrl : mKeyInl)
+		: (dir_==TrcKeyZSampling::Z ? mKeyCrl : "Z");
 }
 
 
@@ -311,7 +311,7 @@ void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     if ( usemultcubes_ && cube_.cubeSampling().nrZ() > 1 )
 	bss.add( mKeyCube );
-    if ( dir_== CubeSampling::Crl )
+    if ( dir_== TrcKeyZSampling::Crl )
 	bss.add( mKeyInl );
     else
 	bss.add( mKeyCrl );
@@ -466,10 +466,10 @@ Flat2DDHDataPack::~Flat2DDHDataPack()
 }
 
 
-CubeSampling Flat2DDHDataPack::getCubeSampling() const
+TrcKeyZSampling Flat2DDHDataPack::getTrcKeyZSampling() const
 {
     // TODO: Get rid of this function.
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.setInlRange( StepInterval<int>(0,0,1) );
     cs.hrg.setCrlRange( tracerange_ );
     cs.zrg = samplingdata_.interval( arr2d_->info().getSize(1) );

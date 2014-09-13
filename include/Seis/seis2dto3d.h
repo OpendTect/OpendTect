@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "executor.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "arrayndimpl.h"
 #include "fourier.h"
 #include "binid.h"
@@ -38,10 +38,10 @@ public:
 			~SeisInterpol();
 
     void		setInput(const ObjectSet<const SeisTrc>&);
-    void		setParams(const HorSampling&,float maxvel);
+    void		setParams(const TrcKeySampling&,float maxvel);
 
     void		getOutTrcs(ObjectSet<SeisTrc>&,
-					const HorSampling&) const;
+					const TrcKeySampling&) const;
     uiString		uiMessage() const
 			{ return  errmsg_.isEmpty() ? tr( "interpolating" )
 						    : errmsg_; }
@@ -83,7 +83,7 @@ protected:
     TypeSet<TrcPosTrl>			posidxs_;
 
     Array3DImpl<float_complex>*		trcarr_;
-    HorSampling				hs_;
+    TrcKeySampling				hs_;
 
     void		clear();
     void		doPrepare();
@@ -133,7 +133,7 @@ protected:
 
     const Seis2DDataSet* ds_;
     IOObj*		outioobj_;
-    CubeSampling	cs_;
+    TrcKeyZSampling	cs_;
 
     BinID		curbid_;
     BinID		prevbid_;
@@ -153,7 +153,7 @@ protected:
     SeisTrcBuf		tmpseisbuf_;
 
     SeisInterpol	interpol_;
-    HorSamplingIterator hsit_;
+    TrcKeySamplingIterator hsit_;
 
     bool		read_;
     int			nrdone_;

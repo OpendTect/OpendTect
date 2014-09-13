@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiiomod.h"
 #include "uiposprovgroup.h"
 class CtxtIOObj;
-class CubeSampling;
+class TrcKeyZSampling;
 class uiGenInput;
 class uiIOObjSel;
 class uiSelSteps;
@@ -40,7 +40,7 @@ public:
 
     void		setExtractionDefaults();
 
-    void		getCubeSampling(CubeSampling&) const;
+    void		getTrcKeyZSampling(TrcKeyZSampling&) const;
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
     			{ return new uiRangePosProvGroup(p,s); }

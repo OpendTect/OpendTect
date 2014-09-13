@@ -72,10 +72,10 @@ HorizonFlatViewEditor3D::~HorizonFlatViewEditor3D()
 }
 
 
-void HorizonFlatViewEditor3D::setCubeSampling( const CubeSampling& cs )
+void HorizonFlatViewEditor3D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     curcs_ = cs;
-    horpainter_->setCubeSampling( cs );
+    horpainter_->setTrcKeyZSampling( cs );
 }
 
 

@@ -81,10 +81,10 @@ public:
 			~EventPatchReader();
 
     void		getPositions(BinIDValueSet& bidset) const;
-    const HorSampling&	getRange() const	{ return filebbox_; }
+    const TrcKeySampling&	getRange() const	{ return filebbox_; }
 
     void		setSelection(const BinIDValueSet*);
-    void		setSelection(const HorSampling*);
+    void		setSelection(const TrcKeySampling*);
 
     bool		hasDataInRange() const;
     const char*		errMsg() const;
@@ -108,8 +108,8 @@ protected:
 
     EventManager*		eventmanager_;
     Conn*			conn_;
-    HorSampling			filebbox_;
-    const HorSampling*		horsel_;
+    TrcKeySampling			filebbox_;
+    const TrcKeySampling*		horsel_;
     const BinIDValueSet*	bidvalsel_;
     BufferString		errmsg_;
 
@@ -126,7 +126,7 @@ public:
 
     void	setReader(EventPatchReader*);
 
-    void	setSelection(const HorSampling&);
+    void	setSelection(const TrcKeySampling&);
     void	setBinary(bool yn)			{ binary_ = yn; }
     const char*	errMsg() const;
 
@@ -147,7 +147,7 @@ protected:
     EventManager&		eventmanager_;
     BufferString		filename_;
     SafeFileIO			fileio_;
-    HorSampling			horsel_;
+    TrcKeySampling			horsel_;
     od_stream::Pos		fileheaderoffset_;
     BufferString		errmsg_;
 };
@@ -192,7 +192,7 @@ bool EventReader::getBoundingBox( Interval<int>& inlrg,
     for ( int idx=0; idx<patchreaders_.size(); idx++ )
     {
 	mDynamicCastGet( const EventPatchReader*, reader, patchreaders_[idx] );
-	const HorSampling& hrg = reader->getRange();
+	const TrcKeySampling& hrg = reader->getRange();
 	if ( !idx )
 	{
 	    inlrg.start = hrg.start.inl();
@@ -239,7 +239,7 @@ void EventReader::setSelection( const BinIDValueSet* bivs )
 { bidsel_ = bivs; }
 
 
-void EventReader::setSelection( const HorSampling* hs )
+void EventReader::setSelection( const TrcKeySampling* hs )
 { horsel_ = hs; }
 
 
@@ -349,7 +349,7 @@ bool EventReader::prepareWork()
 	   continue;
 
        const SeparString sepstr( dirlist[idx]->buf(), '_' );
-       HorSampling filehrg;
+       TrcKeySampling filehrg;
        if ( !getFromString( filehrg.start.inl(), sepstr[0], -1 ) ||
 	    !getFromString( filehrg.stop.inl(), sepstr[1], -1 ) ||
 	    !getFromString( filehrg.start.crl(), sepstr[2], -1 ) ||
@@ -365,7 +365,7 @@ bool EventReader::prepareWork()
 	{
 	    usefile = false;
 
-	    HorSampling dummy;
+	    TrcKeySampling dummy;
 	    if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
 		usefile = true;
 
@@ -611,7 +611,7 @@ int EventWriter::nextStep()
 	if ( !rcols.size() )
 	    return Finished();
 
-	HorSampling hrg( true );
+	TrcKeySampling hrg( true );
 
 	for ( int idx=0; idx<rcols.size(); idx++ )
 	{
@@ -1108,7 +1108,7 @@ void EventPatchReader::setSelection(
 
 
 
-void EventPatchReader::setSelection( const HorSampling* hs )
+void EventPatchReader::setSelection( const TrcKeySampling* hs )
 { horsel_ = hs; }
 
 
@@ -1119,7 +1119,7 @@ bool EventPatchReader::hasDataInRange() const
 
     if ( horsel_ )
     {
-	HorSampling dummy;
+	TrcKeySampling dummy;
 	if ( horsel_->getInterSection( filebbox_, dummy ) )
 	    return true;
     }
@@ -1348,7 +1348,7 @@ void EventPatchWriter::setReader( EventPatchReader* reader )
 }
 
 
-void EventPatchWriter::setSelection( const HorSampling& hrg )
+void EventPatchWriter::setSelection( const TrcKeySampling& hrg )
 { horsel_ = hrg; }
 
 
@@ -1382,7 +1382,7 @@ int EventPatchWriter::nextStep()
 	int pos[] = { -1, -1 };
 
 	TypeSet<BinID> bids;
-	HorSampling hrg( true );
+	TrcKeySampling hrg( true );
 	while ( evstor.next( pos, true ) )
 	{
 	    BinID bid;

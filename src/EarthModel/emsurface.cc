@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emsurface.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -238,7 +238,7 @@ Geometry::Element* Surface::sectionGeometryInternal( const SectionID& sid )
 { return geometry().sectionGeometry(sid); }
 
 EMObjectIterator* Surface::createIterator( const SectionID& sid,
-					   const CubeSampling* cs ) const
+					   const TrcKeyZSampling* cs ) const
 { return geometry().createIterator( sid, cs ); }
 
 bool Surface::enableGeometryChecks( bool nv )

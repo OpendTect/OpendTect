@@ -117,10 +117,10 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 }
 
 
-void FaultStickSetFlatViewEditor::setCubeSampling( const CubeSampling& cs )
+void FaultStickSetFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    EM::FaultStickSetFlatViewEditor::setCubeSampling( cs );
-    fsspainter_->setCubeSampling( cs, true );
+    EM::FaultStickSetFlatViewEditor::setTrcKeyZSampling( cs );
+    fsspainter_->setTrcKeyZSampling( cs, true );
 }
 
 

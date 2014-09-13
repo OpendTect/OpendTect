@@ -80,10 +80,10 @@ HorizonFlatViewEditor2D::~HorizonFlatViewEditor2D()
 }
 
 
-void HorizonFlatViewEditor2D::setCubeSampling( const CubeSampling& cs )
+void HorizonFlatViewEditor2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     curcs_ = cs;
-    horpainter_->setCubeSampling( cs );
+    horpainter_->setTrcKeyZSampling( cs );
 }
 
 

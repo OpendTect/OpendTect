@@ -246,7 +246,7 @@ void prepareForTransform( int rowidx, const char* linenm,
     const StepInterval<int>& colrg )
 {
     Threads::MutexLocker lock( lock_ );
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     const Pos::GeomID geomid = Survey::GM().getGeomID(linenm);
     cs.hrg.start = BinID( geomid, colrg.start );
     cs.hrg.step = BinID( colrg.step, colrg.step );

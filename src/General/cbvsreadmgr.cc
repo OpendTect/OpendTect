@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "survinfo.h"
 #include "datachar.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "strmprov.h"
 #include "od_iostream.h"
 
@@ -25,7 +25,7 @@ static inline void mkErrMsg( BufferString& errmsg, const char* fname,
 }
 
 
-CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
+CBVSReadMgr::CBVSReadMgr( const char* fnm, const TrcKeyZSampling* cs,
 		  bool single_file, bool glob_info_only, bool forceusecbvsinfo )
 	: CBVSIOMgr(fnm)
 	, info_(*new CBVSInfo)
@@ -97,7 +97,7 @@ const char* CBVSReadMgr::errMsg_() const
 }
 
 
-bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
+bool CBVSReadMgr::addReader( const char* fname, const TrcKeyZSampling* cs,
                              bool info_only, bool forceusecbvsinfo )
 {
     od_istream* istream = new od_istream( fname );
@@ -113,7 +113,7 @@ bool CBVSReadMgr::addReader( const char* fname, const CubeSampling* cs,
 }
 
 
-bool CBVSReadMgr::addReader( od_istream* strm, const CubeSampling* cs,
+bool CBVSReadMgr::addReader( od_istream* strm, const TrcKeyZSampling* cs,
 				bool info_only, bool usecbvsinfo )
 {
     CBVSReader* newrdr = new CBVSReader( strm, info_only, usecbvsinfo );
@@ -135,7 +135,7 @@ bool CBVSReadMgr::addReader( od_istream* strm, const CubeSampling* cs,
 }
 
 
-int CBVSReadMgr::pruneReaders( const CubeSampling& cs )
+int CBVSReadMgr::pruneReaders( const TrcKeyZSampling& cs )
 {
     if ( cs.isEmpty() )
 	return readers_.size();

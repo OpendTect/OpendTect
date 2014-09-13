@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "ranges.h"
 #include "coord.h"
-class CubeSampling;
+class TrcKeyZSampling;
 
 
 namespace Seis
@@ -66,7 +66,7 @@ public:
 
     void		getCoordRange(Coord&,Coord&) const;
 
-    CubeSampling&	cs_;
+    TrcKeyZSampling&	cs_;
 
 };
 

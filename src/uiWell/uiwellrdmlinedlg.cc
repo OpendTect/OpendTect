@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "randomlinetr.h"
 #include "survgeometry.h"
 #include "survinfo.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "welldata.h"
 #include "wellman.h"
 #include "welltrack.h"

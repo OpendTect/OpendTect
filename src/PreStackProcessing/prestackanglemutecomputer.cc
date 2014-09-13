@@ -76,7 +76,7 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 
 bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    const HorSampling& hrg = params().hrg_;
+    const TrcKeySampling& hrg = params().hrg_;
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 

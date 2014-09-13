@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Attrib { class Desc; class DescSet; class SelInfo; class SelSpec; };
 namespace ZDomain { class Info; }
 
-class CubeSampling;
+class TrcKeyZSampling;
 class IOObj;
 class NLAModel;
 class uiButtonGroup;
@@ -189,7 +189,7 @@ public:
     virtual void	processInput();
 
     const char*		errMsg()		{ return errmsg_.str(); }
-    bool		getRanges(CubeSampling&) const;
+    bool		getRanges(TrcKeyZSampling&) const;
     			//!< Tries to determine ranges of currently selected.
 
     void		fillSelSpec(Attrib::SelSpec&) const;

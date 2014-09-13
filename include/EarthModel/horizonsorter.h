@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "earthmodelmod.h"
 #include "executor.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "multiid.h"
 #include "binid.h"
 #include "posinfo2dsurv.h"
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 namespace EM { class Horizon; }
 template <class T> class Array3D;
-class HorSamplingIterator;
+class TrcKeySamplingIterator;
 
 /*!
 \brief Executor to sort horizons.
@@ -38,7 +38,7 @@ public:
 				~HorizonSorter();
 
     void			getSortedList(TypeSet<MultiID>&);
-    const HorSampling&		getBoundingBox() const	{ return hrg_; }
+    const TrcKeySampling&		getBoundingBox() const	{ return hrg_; }
     int				getNrCrossings(const MultiID&,
 	    				       const MultiID&) const;
 
@@ -61,9 +61,9 @@ protected:
     TypeSet<Pos::GeomID>	geomids_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
-    HorSamplingIterator*	iterator_;
+    TrcKeySamplingIterator*	iterator_;
     BinID			binid_;
-    HorSampling			hrg_;
+    TrcKeySampling			hrg_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
     TypeSet<MultiID>		unsortedids_;

@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscubeprov.h"
 #include "seisselectionimpl.h"
 #include "ioobj.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "binidvalset.h"
 
 

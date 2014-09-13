@@ -76,7 +76,7 @@ Vw2DHorizon3D::~Vw2DHorizon3D()
 }
 
 
-void Vw2DHorizon3D::setCubeSampling( const CubeSampling& cs, bool upd )
+void Vw2DHorizon3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
@@ -125,7 +125,7 @@ void Vw2DHorizon3D::draw()
 	    horeds_[ivwr]->setMouseEventHandler(
 			&vwr.rgbCanvas().scene().getMouseEventHandler() );
 	    if ( dp3d )
-		horeds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+		horeds_[ivwr]->setTrcKeyZSampling( dp3d->cube().cubeSampling() );
 
 	    if ( dprdm )
 	    {
@@ -134,7 +134,7 @@ void Vw2DHorizon3D::draw()
 	    }
 
 	    if ( zatdp3d )
-		horeds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
+		horeds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	    horeds_[ivwr]->setSelSpec( vdselspec_, false );

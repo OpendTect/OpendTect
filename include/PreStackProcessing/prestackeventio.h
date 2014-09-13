@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "executor.h"
 #include "bufstringset.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "iopar.h"
 #include "sets.h"
 #include "valseriesevent.h"
 
 class IOObj;
 class BinIDValueSet;
-class HorSampling;
+class TrcKeySampling;
 template <class T> class DataInterpreter;
 
 namespace PreStack
@@ -46,7 +46,7 @@ public:
     			~EventReader();
 
     void		setSelection(const BinIDValueSet*);
-    void		setSelection(const HorSampling*);
+    void		setSelection(const TrcKeySampling*);
 
     bool		prepareWork();
     			//!<Will run automaticly at first nextStep
@@ -92,7 +92,7 @@ protected:
     const IOObj*				ioobj_;
     EventManager*				eventmanager_;
     const BinIDValueSet*			bidsel_;
-    const HorSampling*				horsel_;
+    const TrcKeySampling*				horsel_;
 
     ObjectSet<EventPatchReader>			patchreaders_;	
 

@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "cbvsio.h"
 #include "cbvsinfo.h"
 #include "datainterp.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include <iostream>
 
 
@@ -98,7 +98,7 @@ private:
     DataInterpreter<int> iinterp_;
     DataInterpreter<float> finterp_;
     DataInterpreter<double> dinterp_;
-    HorSampling		hs_;
+    TrcKeySampling		hs_;
     Interval<int>	samprg_;
     TypeSet<int>	posnrs_;
 

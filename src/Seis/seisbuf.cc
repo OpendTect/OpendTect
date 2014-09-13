@@ -18,7 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "survinfo.h"
 #include "iopar.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "bufstringset.h"
 #include "strmprov.h"
 #include "arrayndimpl.h"
@@ -584,7 +584,7 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
 }
 
 
-bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
+bool SeisTrcBufDataPack::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 {
     const SeisTrcBuf& buf = trcBuf();
     if ( buf.isEmpty() )

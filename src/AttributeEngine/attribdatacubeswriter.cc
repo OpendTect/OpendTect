@@ -51,7 +51,7 @@ od_int64 DataCubesWriter::nrDone() const
 { return nrdone_; }    
 
 
-void DataCubesWriter::setSelection( const HorSampling& hrg,
+void DataCubesWriter::setSelection( const TrcKeySampling& hrg,
 				    const Interval<int>& zrg )
 {
     zrg_ = zrg;

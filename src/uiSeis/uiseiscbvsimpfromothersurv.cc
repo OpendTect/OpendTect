@@ -120,7 +120,7 @@ bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
     if ( !outioobj )
 	return false;
     int cellsz = issinc_ ? cellsizefld_->box()->getValue() : 0;
-    CubeSampling cs; subselfld_->getSampling( cs );
+    TrcKeyZSampling cs; subselfld_->getSampling( cs );
     import_->setPars( interpol_, cellsz, cs );
     import_->setOutput( const_cast<IOObj&>(*outioobj) );
     uiTaskRunner taskrunner( this );
@@ -169,7 +169,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     olddata_.cs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
     olddata_.cs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
     olddata_.cs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() );
-    data_.hsit_ = new HorSamplingIterator( olddata_.cs_.hrg );
+    data_.hsit_ = new TrcKeySamplingIterator( olddata_.cs_.hrg );
     olddata_.cs_.zrg = info.sd_.interval( info.nrsamples_ );
     data_.cs_.zrg = olddata_.cs_.zrg; data_.cs_.zrg.step = SI().zStep();
 
@@ -193,7 +193,7 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 
 
 void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
-					const CubeSampling& cs )
+					const TrcKeyZSampling& cs )
 {
     interpol_ = interp;
     data_.cs_ = cs;

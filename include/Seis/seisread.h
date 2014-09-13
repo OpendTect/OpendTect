@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "linekey.h"
 class SeisTrc;
 class Executor;
-class HorSampling;
+class TrcKeySampling;
 class SeisTrcBuf;
 class SeisPS3DReader;
 namespace PosInfo { class Line2DData; class CubeDataIterator; }
@@ -96,7 +96,7 @@ protected:
     int			prev_inl;
     int			curlineidx;
     int			nrfetchers;
-    HorSampling*	outer;
+    TrcKeySampling*	outer;
     SeisTrcBuf*		tbuf_;
     Executor*		fetcher;
     Seis::ReadMode	readmode;

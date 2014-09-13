@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uilabel.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "posinfo.h"
 #include "ptrman.h"
 #include "iodir.h"
@@ -329,7 +329,7 @@ void uiPreStackCopyDlg::objSel( CallBacker* )
     SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inctio_.ioobj );
     if ( !rdr ) return;
 
-    HorSampling hs;
+    TrcKeySampling hs;
     StepInterval<int> inlrg, crlrg;
     rdr->posData().getInlRange( inlrg );
     rdr->posData().getCrlRange( crlrg );

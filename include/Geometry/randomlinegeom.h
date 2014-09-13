@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "namedobj.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class Line2;
 
 namespace Geometry
@@ -37,7 +37,7 @@ public:
     void		setNodePosition(int idx,const BinID&);
     void		removeNode(int);
     void		removeNode(const BinID&);
-    void		limitTo(const CubeSampling&); // nrNodes should be 2
+    void		limitTo(const TrcKeyZSampling&); // nrNodes should be 2
 
     int			nodeIndex(const BinID&) const;
     int			nrNodes() const;
@@ -87,7 +87,7 @@ public:
     void		removeLine( int idx )	{ delete lines_.removeSingle(idx); }
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
-    void		limitTo(const CubeSampling&);
+    void		limitTo(const TrcKeyZSampling&);
 
     const IOPar&	pars() const		{ return pars_; }
     IOPar&		pars()			{ return pars_; }

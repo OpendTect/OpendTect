@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ascstream.h"
 #include "file.h"
 #include "filepath.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "latlong.h"
 #include "undefval.h"
 #include "safefileio.h"
@@ -118,7 +118,7 @@ Coord Survey::Geometry3D::transform( const BinID& b ) const
 
 
 void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
-				const CubeSampling& cs, float zscl )
+				const TrcKeyZSampling& cs, float zscl )
 {
     b2c_ = b2c;
     cs_ = cs;
@@ -204,8 +204,8 @@ SurveyInfo* SurveyInfo::popSI()
 
 
 SurveyInfo::SurveyInfo()
-    : cs_(*new CubeSampling(false))
-    , wcs_(*new CubeSampling(false))
+    : cs_(*new TrcKeyZSampling(false))
+    , wcs_(*new TrcKeyZSampling(false))
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
     , xyinfeet_(false)
@@ -231,8 +231,8 @@ SurveyInfo::SurveyInfo()
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : NamedObject( si )
-    , cs_(*new CubeSampling(false))
-    , wcs_(*new CubeSampling(false))
+    , cs_(*new TrcKeyZSampling(false))
+    , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
     , zdef_(*new ZDomain::Def( si.zDomain() ) )
     , ll2c_(*new LatLong2Coord)
@@ -537,7 +537,7 @@ Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
 }
 
 
-void SurveyInfo::setRange( const CubeSampling& cs, bool work )
+void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
 {
     if ( work )
 	wcs_ = cs;
@@ -550,7 +550,7 @@ void SurveyInfo::setRange( const CubeSampling& cs, bool work )
 }
 
 
-void SurveyInfo::setWorkRange( const CubeSampling& cs )
+void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
 {
     setRange( cs, true);
     workRangeChg.trigger();
@@ -590,7 +590,7 @@ bool SurveyInfo::isReasonable( const Coord& crd ) const
 
 Coord SurveyInfo::minCoord( bool work ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const TrcKeyZSampling& cs = sampling(work);
     Coord minc = transform( cs.hrg.start );
     Coord c = transform( cs.hrg.stop );
     mChkCoord(c);
@@ -610,7 +610,7 @@ Coord SurveyInfo::minCoord( bool work ) const
 
 Coord SurveyInfo::maxCoord( bool work ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const TrcKeyZSampling& cs = sampling(work);
     Coord maxc = transform( cs.hrg.start );
     Coord c = transform( cs.hrg.stop );
     mChkCoord(c);
@@ -626,7 +626,7 @@ Coord SurveyInfo::maxCoord( bool work ) const
 
 void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
     if ( intv.start < cs.hrg.start.inl() ) intv.start = cs.hrg.start.inl();
     if ( intv.start > cs.hrg.stop.inl() )  intv.start = cs.hrg.stop.inl();
@@ -639,7 +639,7 @@ void SurveyInfo::checkInlRange( Interval<int>& intv, bool work ) const
 
 void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const TrcKeyZSampling& cs = sampling(work);
     intv.sort();
     if ( intv.start < cs.hrg.start.crl() ) intv.start = cs.hrg.start.crl();
     if ( intv.start > cs.hrg.stop.crl() )  intv.start = cs.hrg.stop.crl();
@@ -667,7 +667,7 @@ void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 
 bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 {
-    const CubeSampling& cs = sampling(work);
+    const TrcKeyZSampling& cs = sampling(work);
     const float eps = 1e-8;
     return cs.hrg.includes( bid )
 	&& cs.zrg.start < z + eps && cs.zrg.stop > z - eps;
@@ -815,7 +815,7 @@ static void doSnap( int& idx, int start, int step, int dir )
 
 void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 {
-    const CubeSampling& cs = sampling( false );
+    const TrcKeyZSampling& cs = sampling( false );
     const BinID& stp = cs.hrg.step;
     if ( stp.inl() == 1 && stp.crl() == 1 ) return;
     doSnap( binid.inl(), cs.hrg.start.inl(), stp.inl(), rounding.inl() );

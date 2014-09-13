@@ -87,7 +87,7 @@ VW2DFaultSS3D::~VW2DFaultSS3D()
 }
 
 
-void VW2DFaultSS3D::setCubeSampling( const CubeSampling& cs, bool upd )
+void VW2DFaultSS3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool upd )
 {
     if ( upd )
 	draw();
@@ -110,7 +110,7 @@ void VW2DFaultSS3D::draw()
 	if ( fsseds_[ivwr] )
 	{
 	    if ( dp3d )
-		fsseds_[ivwr]->setCubeSampling( dp3d->cube().cubeSampling() );
+		fsseds_[ivwr]->setTrcKeyZSampling( dp3d->cube().cubeSampling() );
 
 	    if ( dprdm )
 	    {
@@ -119,7 +119,7 @@ void VW2DFaultSS3D::draw()
 	    }
 
 	    if ( zatdp3d )
-		fsseds_[ivwr]->setCubeSampling( zatdp3d->inputCS() );
+		fsseds_[ivwr]->setTrcKeyZSampling( zatdp3d->inputCS() );
 
 	    fsseds_[ivwr]->drawFault();
 	}

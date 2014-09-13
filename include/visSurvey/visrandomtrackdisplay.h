@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 
 namespace visBase 
 { 
@@ -115,7 +115,7 @@ public:
     void			lockGeometry(bool);
     bool			isGeometryLocked() const;
 
-    CubeSampling		getCubeSampling(int attrib) const;
+    TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
 

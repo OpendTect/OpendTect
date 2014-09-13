@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "paralleltask.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 template <class T> class Array3D;
 
 
@@ -27,7 +27,7 @@ template <class T> class Array3D;
 mExpClass(Algo) BodyVolumeCalculator: public ParallelTask
 {
 public:
-			BodyVolumeCalculator(const CubeSampling& cs,
+			BodyVolumeCalculator(const TrcKeyZSampling& cs,
 					     const Array3D<float>& arr,
 					     float threshold,
 					     float velocityinmeter);

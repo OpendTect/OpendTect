@@ -348,7 +348,7 @@ bool IOObjInfo::sortHorizonsOnZValues( const TypeSet<MultiID>& list,
 }
 
 
-bool IOObjInfo::getBodyRange( CubeSampling& cs ) const
+bool IOObjInfo::getBodyRange( TrcKeyZSampling& cs ) const
 {
     if ( type_ != IOObjInfo::Body )
 	return false;

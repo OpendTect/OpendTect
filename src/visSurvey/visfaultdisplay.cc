@@ -766,7 +766,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( viseditor_->sower().accept(eventinfo) )
 	return;
 
-    CubeSampling mouseplanecs;
+    TrcKeyZSampling mouseplanecs;
     mouseplanecs.setEmpty();
     Coord3 editnormal = Coord3::udf();
 
@@ -778,7 +778,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane, dataobj );
 	if ( plane )
 	{
-	    mouseplanecs = plane->getCubeSampling();
+	    mouseplanecs = plane->getTrcKeyZSampling();
 	    editnormal = plane->getNormal( Coord3::udf() );
 	    break;
 	}
@@ -1423,7 +1423,7 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	if ( !plane || !plane->isOn() )
 	    continue;
 
-	const CubeSampling cs = plane->getCubeSampling(true,true,-1);
+	const TrcKeyZSampling cs = plane->getTrcKeyZSampling(true,true,-1);
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 

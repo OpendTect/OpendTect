@@ -40,7 +40,7 @@ public:
     int				maxNrPosInExtArea() const;
     void			preallocExtArea();
 
-    const CubeSampling&		getExtBoundary() const;
+    const TrcKeyZSampling&		getExtBoundary() const;
 
 protected:
     				BaseHorizon3DExtender(EM::Horizon3D& surface_,

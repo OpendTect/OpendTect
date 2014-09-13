@@ -138,9 +138,9 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 
     if ( dp3d || zatdp3d )
     {
-	const CubeSampling& cs = dp3d ? dp3d->cube().cubeSampling()
+	const TrcKeyZSampling& cs = dp3d ? dp3d->cube().cubeSampling()
 				      : zatdp3d->inputCS();
-	if ( cs_ != cs ) { removeAvailablePacks(); setCubeSampling( cs ); }
+	if ( cs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     }
 
     if ( slicepos_ )
@@ -157,7 +157,7 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
 	if ( dp3d )
 	    treetp_->updCubeSamling( dp3d->cube().cubeSampling(), true );
 	else if ( dp2ddh )
-	    treetp_->updCubeSamling( dp2ddh->getCubeSampling(), true );
+	    treetp_->updCubeSamling( dp2ddh->getTrcKeyZSampling(), true );
 	else if ( zatdp3d )
 	    treetp_->updCubeSamling( zatdp3d->inputCS(), true );
     }
@@ -173,13 +173,13 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
     const bool setpack = ( !wva ? ddp.wva_.show_ : ddp.vd_.show_ );
     if ( !slicepos_ || !setpack ) return;
 
-    const CubeSampling& cs = slicepos_->getCubeSampling();
+    const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     const bool newcs = ( cs != cs_ );
     const Attrib::SelSpec& selspec( wva ? wvaselspec_ : vdselspec_ );
     const DataPack::ID othrdpid = newcs ? createDataPack(selspec)
 					: getDataPackID(!wva);
     if ( newcs && (othrdpid != DataPack::cNoID()) )
-    { removeAvailablePacks(); setCubeSampling( cs ); }
+    { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     setDataPack( othrdpid, !wva, isnew );
 }
 
@@ -240,17 +240,17 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
-void uiODViewer2D::setCubeSampling( const CubeSampling& cs )
+void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
     cs_ = cs;
     if ( slicepos_ )
     {
-	slicepos_->setCubeSampling( cs );
+	slicepos_->setTrcKeyZSampling( cs );
 	slicepos_->getToolBar()->display( cs.isFlat() );
 
 	if ( datatransform_ )
 	{
-	    CubeSampling limitcs;
+	    TrcKeyZSampling limitcs;
 	    limitcs.zrg.setFrom( datatransform_->getZInterval(false) );
 	    slicepos_->setLimitSampling( limitcs );
 	}
@@ -432,12 +432,12 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 
 void uiODViewer2D::posChg( CallBacker* )
 {
-    setPos( slicepos_->getCubeSampling() );
-    setCubeSampling( cs_ );
+    setPos( slicepos_->getTrcKeyZSampling() );
+    setTrcKeyZSampling( cs_ );
 }
 
 
-void uiODViewer2D::setPos( const CubeSampling& cs )
+void uiODViewer2D::setPos( const TrcKeyZSampling& cs )
 {
     if ( cs == cs_ ) return;
     const uiFlatViewer& vwr = viewwin()->viewer(0);
@@ -450,7 +450,7 @@ void uiODViewer2D::setPos( const CubeSampling& cs )
 	dpid = createDataPack( vdselspec_ );
 	if ( dpid != DataPack::cNoID() ) removeAvailablePacks();
 	//<--TODO: This line is needed only for z-slices in z-transformed domain
-	//as setUpView cannot getCubeSampling from a FlatDataPack.Try to remove.
+	//as setUpView cannot getTrcKeyZSampling from a FlatDataPack.Try to remove.
 	setUpView( dpid, false );
     }
     else if ( shwwva && wvaselspec_.id().isValid() )
@@ -480,7 +480,7 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    const CubeSampling& cs = slicepos_ ? slicepos_->getCubeSampling() : cs_;
+    const TrcKeyZSampling& cs = slicepos_ ? slicepos_->getTrcKeyZSampling() : cs_;
     if ( !cs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
@@ -499,7 +499,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 {
     if ( !slicepos_ || !hasZAxisTransform() ) return DataPack::cNoID();
 
-    const CubeSampling& cs = slicepos_->getCubeSampling();
+    const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
     if ( cs.nrZ() != 1 ) return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
@@ -585,13 +585,13 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     }
     else
     {
-	if ( cs_.defaultDir() == CubeSampling::Z )
+	if ( cs_.defaultDir() == TrcKeyZSampling::Z )
 	{
 	    const ZDomain::Def& zdef = SI().zDomain();
 	    info = zdef.userName(); info += ": ";
 	    info += cs_.zrg.start * zdef.userFactor();
 	}
-	else if ( cs_.defaultDir() == CubeSampling::Crl )
+	else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 	{ info = "Cross-line: "; info += cs_.hrg.start.crl(); }
 	else
 	{ info = "In-line: "; info += cs_.hrg.start.inl(); }
@@ -611,7 +611,7 @@ void uiODViewer2D::usePar( const IOPar& iop )
     if ( wvaselspecpar ) wvaselspec_.usePar( *wvaselspecpar );
     delete vdselspecpar; delete wvaselspecpar;
     IOPar* cspar = iop.subselect( sKeyPos() );
-    CubeSampling cs; if ( cspar ) cs.usePar( *cspar );
+    TrcKeyZSampling cs; if ( cspar ) cs.usePar( *cspar );
     if ( viewwin()->nrViewers() > 0 )
     {
 	const uiFlatViewer& vwr = viewwin()->viewer(0);
@@ -682,9 +682,9 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     ConstRefMan<ZAxisTransform> zat = getZAxisTransform();
     const double z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
 
-    if ( cs_.defaultDir() == CubeSampling::Inl )
+    if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
 	pt = FlatView::Point( bid.crl(), z );
-    else if ( cs_.defaultDir() == CubeSampling::Crl )
+    else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
 	pt = FlatView::Point( bid.inl(), z );
     else
 	pt = FlatView::Point( bid.inl(), bid.crl() );

@@ -538,7 +538,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     if ( viseditor_->sower().accept(eventinfo) )
 	return;
 
-    CubeSampling mouseplanecs;
+    TrcKeyZSampling mouseplanecs;
     mouseplanecs.setEmpty();
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
@@ -549,7 +549,7 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
 	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane, dataobj );
 	if ( plane )
 	{
-	    mouseplanecs = plane->getCubeSampling();
+	    mouseplanecs = plane->getTrcKeyZSampling();
 	    break;
 	}
     }
@@ -634,10 +634,10 @@ void PolygonBodyDisplay::mouseCB( CallBacker* cb )
     {
 	Coord3 editnormal(0,0,1);
 
-	if ( mouseplanecs.defaultDir()==CubeSampling::Inl )
+	if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Inl )
 	    editnormal = Coord3( SI().transform(BinID(1,0))-
 		    SI().transform(BinID(0,0)), 0 );
-	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl )
+	else if ( mouseplanecs.defaultDir()==TrcKeyZSampling::Crl )
 	    editnormal = Coord3( SI().transform(BinID(0,1))-
 		    SI().transform(BinID(0,0)), 0 );
 
@@ -869,7 +869,7 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	if ( !plane || !plane->isOn() )
 	    continue;
 
-	const CubeSampling cs = plane->getCubeSampling(true,true,-1);
+	const TrcKeyZSampling cs = plane->getTrcKeyZSampling(true,true,-1);
 	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
 	BinID b01, b10;
 

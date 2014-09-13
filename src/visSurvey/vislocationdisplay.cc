@@ -133,7 +133,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     if ( datatransform_ && datatransform_->needsVolumeOfInterest() )
     {
-	CubeSampling cs( false );
+	TrcKeyZSampling cs( false );
 	for ( int pidx=0; pidx<set_->size(); pidx++ )
 	{
 	    Pick::Location loc = (*set_)[pidx];

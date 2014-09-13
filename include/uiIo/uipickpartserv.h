@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 #include "bufstringset.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "ranges.h"
 #include "multiid.h"
 
@@ -77,7 +77,7 @@ public:
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
-    HorSampling			selHorSampling() const	{ return selhs_; }
+    TrcKeySampling			selTrcKeySampling() const	{ return selhs_; }
     MultiID			horID()			{ return horid_; }
 
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
@@ -93,7 +93,7 @@ protected:
 
     ObjectSet<SurfaceInfo> 	hinfos_;
     ObjectSet<MultiID>		selhorids_;
-    HorSampling			selhs_;
+    TrcKeySampling			selhs_;
     Pick::Set*			ps_;
     MultiID			picksetid_;
     MultiID			horid_;

@@ -527,7 +527,7 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
 
     if ( datatransform_ && !alreadyTransformed(attrib) )
     {
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
 	cs.hrg.start.crl() =
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.start];

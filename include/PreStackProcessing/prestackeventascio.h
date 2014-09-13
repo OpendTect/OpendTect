@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "prestackprocessingmod.h"
 #include "binidvalset.h"
 #include "task.h"
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "prestackevents.h"
 #include "tableascio.h"
 #include "binidvalset.h"
@@ -48,7 +48,7 @@ mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 public:
     			EventExporter(od_ostream& strm,EventManager&);
     			~EventExporter();
-    void		setHRange(const HorSampling& hrg);
+    void		setHRange(const TrcKeySampling& hrg);
 
     od_int64		nrDone() const	{ return nrdone_; }
     od_int64		totalNr() const	{ return locations_.totalSize(); }
@@ -61,7 +61,7 @@ protected:
 
     od_ostream&			strm_;
     EventManager&		events_;
-    HorSampling			hrg_;
+    TrcKeySampling			hrg_;
 
     BinIDValueSet		locations_;
     BinIDValueSet::SPos		pos_;

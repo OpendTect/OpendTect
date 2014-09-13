@@ -60,7 +60,7 @@ uiODViewer2D* uiODVw2DTreeTop::viewer2D()
 }
 
 
-void uiODVw2DTreeTop::updCubeSamling( const CubeSampling& cs, bool update )
+void uiODVw2DTreeTop::updCubeSamling( const TrcKeyZSampling& cs, bool update )
 {
         for ( int idx=0; idx<nrChildren(); idx++ )
 	{
@@ -127,7 +127,7 @@ uiODVw2DTreeItem::uiODVw2DTreeItem( const char* name__ )
 {}
 
 
-void uiODVw2DTreeItem::updCubeSamling( const CubeSampling& cs, bool update )
+void uiODVw2DTreeItem::updCubeSamling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
     {

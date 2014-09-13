@@ -197,10 +197,10 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 }
 
 
-void uiIOSurface::fillRangeFld( const HorSampling& hrg )
+void uiIOSurface::fillRangeFld( const TrcKeySampling& hrg )
 {
     if ( !rgfld_ ) return;
-    CubeSampling cs( rgfld_->envelope() );
+    TrcKeyZSampling cs( rgfld_->envelope() );
     cs.hrg = hrg;
     rgfld_->setInputLimit( cs );	// Set spinbox limits
 
@@ -428,7 +428,7 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 
     if ( !issubsel && rgfld_ && !rgfld_->isAll() )
     {
-	const HorSampling& hrg = rgfld_->envelope().hrg;
+	const TrcKeySampling& hrg = rgfld_->envelope().hrg;
 	issubsel = surfrange_.isEmpty() ? true :
 	    !hrg.includes(surfrange_.start) || !hrg.includes(surfrange_.stop);
     }

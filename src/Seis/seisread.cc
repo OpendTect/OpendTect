@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "binidvalset.h"
 #include "file.h"
 #include "iopar.h"
@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
-    	, outer(mUndefPtr(HorSampling))
+	, outer(mUndefPtr(TrcKeySampling))
     	, fetcher(0)
     	, psrdr_(0)
     	, tbuf_(0)
@@ -54,7 +54,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
-    	, outer(mUndefPtr(HorSampling))
+	, outer(mUndefPtr(TrcKeySampling))
     	, fetcher(0)
     	, psrdr_(0)
 	, pscditer_(0)
@@ -65,7 +65,7 @@ SeisTrcReader::SeisTrcReader( const char* fname )
 }
 
 
-#define mDelOuter if ( outer != mUndefPtr(HorSampling) ) delete outer
+#define mDelOuter if ( outer != mUndefPtr(TrcKeySampling) ) delete outer
 
 SeisTrcReader::~SeisTrcReader()
 {
@@ -82,7 +82,7 @@ void SeisTrcReader::init()
     prev_inl = mUdf(int);
     readmode = Seis::Prod;
     if ( tbuf_ ) tbuf_->deepErase();
-    mDelOuter; outer = mUndefPtr(HorSampling);
+    mDelOuter; outer = mUndefPtr(TrcKeySampling);
     delete fetcher; fetcher = 0;
     delete psrdr_; psrdr_ = 0;
     delete pscditer_; pscditer_ = 0;
@@ -168,7 +168,7 @@ void SeisTrcReader::startWork()
     sttrl.setSelData( seldata_ );
     if ( sttrl.inlCrlSorted() && seldata_ && !seldata_->isAll() )
     {
-	outer = new HorSampling;
+	outer = new TrcKeySampling;
 	outer->set( seldata_->inlRange(), seldata_->crlRange() );
     }
 
@@ -269,7 +269,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 {
     if ( !prepared && !prepareWork(readmode) )
 	return -1;
-    else if ( outer == mUndefPtr(HorSampling) )
+    else if ( outer == mUndefPtr(TrcKeySampling) )
 	startWork();
 
     if ( is2d_ )
@@ -366,7 +366,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
     needskip = false;
     if ( !prepared && !prepareWork(readmode) )
 	return false;
-    else if ( outer == mUndefPtr(HorSampling) )
+    else if ( outer == mUndefPtr(TrcKeySampling) )
 	startWork();
     if ( is2d_ )
 	return get2D(trc);

@@ -308,7 +308,7 @@ void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 
 
 bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
-				       CubeSampling& cs, SeisTrcBuf& buf )
+				       TrcKeyZSampling& cs, SeisTrcBuf& buf )
 {
     mGet2DDataSet(false)
 

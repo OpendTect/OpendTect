@@ -215,7 +215,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 {
     if ( forread_ && !is2d_ && seldata_ && !seldata_->isAll() )
     {
-	CubeSampling cs;
+	TrcKeyZSampling cs;
 	Interval<int> inlrg = seldata_->inlRange();
 	Interval<int> crlrg = seldata_->crlRange();
 	cs.hrg.start.inl() = inlrg.start; cs.hrg.start.crl() = crlrg.start;

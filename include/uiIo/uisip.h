@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 
-class CubeSampling;
+class TrcKeyZSampling;
 class SurveyInfo;
 class uiDialog;
 
@@ -43,7 +43,7 @@ public:
 
     virtual const char*		usrText() const		= 0;
     virtual uiDialog*		dialog(uiParent*)	= 0;
-    virtual bool		getInfo(uiDialog*,CubeSampling&,
+    virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };

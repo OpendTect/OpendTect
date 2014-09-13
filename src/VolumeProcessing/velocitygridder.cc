@@ -115,9 +115,9 @@ VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
     , step_( step )
 {
     const Attrib::DataCubes* output = step_.getOutput();
-    const HorSampling hrg = output->cubeSampling().hrg;
+    const TrcKeySampling hrg = output->cubeSampling().hrg;
 
-    HorSamplingIterator iterator( hrg );
+    TrcKeySamplingIterator iterator( hrg );
     BinID bid;
     while ( iterator.next( bid ) )
 	remainingbids_.add( bid );

@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "emposid.h"
 #include "sets.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "sortedlist.h"
 
 class BinIDValue;
@@ -59,8 +59,8 @@ public:
     const TypeSet<EM::SubID>&	getAddedPositions() const;
     const TypeSet<EM::SubID>&	getAddedPositionsSource() const;
 
-    virtual const CubeSampling& getExtBoundary() const;
-    void			setExtBoundary(const CubeSampling&);
+    virtual const TrcKeyZSampling& getExtBoundary() const;
+    void			setExtBoundary(const TrcKeyZSampling&);
     void			unsetExtBoundary();
 
     virtual int			maxNrPosInExtArea() const { return -1; }
@@ -85,7 +85,7 @@ protected:
     
     const TypeSet<EM::SubID>*	excludedpos_;
 
-    CubeSampling		extboundary_;
+    TrcKeyZSampling		extboundary_;
 
     const EM::SectionID		sid_;
     BufferString		errmsg;

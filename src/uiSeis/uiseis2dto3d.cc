@@ -21,7 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "od_helpids.h"
 #include "seis2dto3d.h"
 #include "seisjobexecprov.h"
@@ -115,7 +115,7 @@ bool uiSeis2DTo3D::fillSeisPar()
     IOPar subsel;
     subsel.mergeComp( sampling, sKey::Subsel() );
     uiSeisIOObjInfo ioobjinfo( *(outfld_->ioobj()), true );
-    CubeSampling cs = possubsel_->envelope();
+    TrcKeyZSampling cs = possubsel_->envelope();
     SeisIOObjInfo::SpaceInfo spi( cs.nrZ(), (int)cs.hrg.totalNr() );
     subsel.set( "Estimated MBs", ioobjinfo.expectedMBs(spi) );
     if ( !ioobjinfo.checkSpaceLeft(spi) )

@@ -43,7 +43,7 @@ ZAxisTransformer::~ZAxisTransformer()
 
 
 bool ZAxisTransformer::setInput( const Array3D<float>& arr,
-				 const CubeSampling& cs )
+				 const TrcKeyZSampling& cs )
 {
     input_ = &arr;
     inputcs_ = cs;
@@ -52,7 +52,7 @@ bool ZAxisTransformer::setInput( const Array3D<float>& arr,
 }
 
 
-void ZAxisTransformer::setOutputRange( const CubeSampling& cs )
+void ZAxisTransformer::setOutputRange( const TrcKeyZSampling& cs )
 {
     outputcs_ = cs;
 }

@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class BufferStringSet;
-class CubeSampling;
+class TrcKeyZSampling;
 class DataPointSet;
 class Executor;
 class LineKey;
@@ -54,7 +54,7 @@ public:
 
     static Processor*	createProcessor(const DescSet&,const char*,
 					const DescID&,uiString& errmsg);
-    static void		getPossibleVolume(DescSet&,CubeSampling&,
+    static void		getPossibleVolume(DescSet&,TrcKeyZSampling&,
 					  const char* linename,const DescID&);
     static void		addNLADesc(const char*,DescID&,DescSet&,int,
 				   const NLAModel*,uiString&);
@@ -63,7 +63,7 @@ public:
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
-    const CubeSampling&	cubeSampling() const	{ return cs_; }
+    const TrcKeyZSampling&	cubeSampling() const	{ return cs_; }
     Pos::GeomID		getGeomID() const	{ return geomid_; }
     float		undefValue() const	{ return udfval_; }
 
@@ -71,7 +71,7 @@ public:
     void		setNLAModel(const NLAModel*);
     void		setAttribSpec(const SelSpec&);
     void		setAttribSpecs(const TypeSet<SelSpec>&);
-    void		setCubeSampling(const CubeSampling&);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void		setGeomID( const Pos::GeomID geomid )
 			{ geomid_ = geomid; }
     void		setUndefValue( float v )	{ udfval_ = v; }
@@ -123,7 +123,7 @@ protected:
 
     const DescSet*	inpattrset_;
     const NLAModel*	nlamodel_;
-    CubeSampling&	cs_;
+    TrcKeyZSampling&	cs_;
     const DataCubes*	cache_;
     float		udfval_;
     Pos::GeomID		geomid_;

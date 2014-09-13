@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uioddatatreeitem.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "color.h"
 #include "externalattrib.h"
 #include "polygon.h"

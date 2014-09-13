@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "position.h"
 
-class HorSampling;
+class TrcKeySampling;
 class Line2;
 
 /*!
@@ -35,7 +35,7 @@ public:
     public:
 			Line(const BinID&,const BinID&);
 
-	void		limitTo(const HorSampling&);
+	void		limitTo(const TrcKeySampling&);
 	bool		isReasonable() const;
 
 	BinID		start_;
@@ -51,11 +51,11 @@ public:
     const Grid2D::Line*	getLine(int idx,bool dim) const;
 
     void		set(const TypeSet<int>& inls,const TypeSet<int>& crls,
-	    		    const HorSampling&);
+			    const TrcKeySampling&);
     void		set(const Grid2D::Line&,double pardist,double perpdist,
-	    		    const HorSampling&);
+			    const TrcKeySampling&);
 
-    void		limitTo(const HorSampling&);
+    void		limitTo(const TrcKeySampling&);
 
 protected:
 
@@ -64,7 +64,7 @@ protected:
 
     void		empty();
     void		createParallelLines(const Line2& baseline,double dist,
-	    				    const HorSampling&,
+					    const TrcKeySampling&,
 					    ObjectSet<Grid2D::Line>& );
 };
 

@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "datainterp.h"
 class CBVSInfo;
 class CBVSReader;
-class CubeSampling;
+class TrcKeyZSampling;
 class od_ostream;
 
 
@@ -31,7 +31,7 @@ mExpClass(General) CBVSReadMgr : public CBVSIOMgr
 {
 public:
 
-			CBVSReadMgr(const char*,const CubeSampling* cs=0,
+			CBVSReadMgr(const char*,const TrcKeyZSampling* cs=0,
 				    bool single_file=false,
 				    bool glob_info_only=false,
 				    bool forceusecbvsinfo=false);
@@ -67,7 +67,7 @@ public:
 			{ return readers_.size(); }
     const CBVSReader&	reader( int idx ) const
 			{ return *readers_[idx]; }
-    int			pruneReaders(const CubeSampling&);
+    int			pruneReaders(const TrcKeyZSampling&);
     			//!< returns number of readers left.
 
     void		dumpInfo(od_ostream&,bool include_compinfo) const;
@@ -83,8 +83,8 @@ protected:
     bool		vertical_;
     int			rdr1firstsampnr_;
 
-    bool		addReader(od_istream*,const CubeSampling*,bool,bool);
-    bool		addReader(const char*,const CubeSampling*,bool,bool);
+    bool		addReader(od_istream*,const TrcKeyZSampling*,bool,bool);
+    bool		addReader(const char*,const TrcKeyZSampling*,bool,bool);
     int			nextRdrNr(int) const;
     const char*		errMsg_() const;
 

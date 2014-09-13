@@ -9,7 +9,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestackanglemutecomputer.h"
 #include "uiprestackanglemute.h"
 
-#include "horsampling.h"
+#include "trckeysampling.h"
 #include "prestackanglemutecomputer.h"
 #include "prestackmute.h"
 #include "prestackmutedeftransl.h"
@@ -40,7 +40,7 @@ uiAngleMuteComputer::uiAngleMuteComputer( uiParent* p )
     sep->attach( stretchedBelow, anglecompgrp_ );
 
     subsel_ = uiSeisSubSel::get( this, Seis::SelSetup( false ) );
-    HorSampling hs; subsel_->getSampling( hs );
+    TrcKeySampling hs; subsel_->getSampling( hs );
     hs.step = BinID( SI().inlStep()*20, SI().crlStep()*20 );
     subsel_->setInput( hs );
     subsel_->attach( alignedBelow, anglecompgrp_ );
@@ -69,7 +69,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
 	uiMSG().error(tr("Please select a valid output mute function"));
 	return false;
     }
-    HorSampling hrg;
+    TrcKeySampling hrg;
     if ( !subsel_->isAll() )
 	subsel_->getSampling( hrg );
 

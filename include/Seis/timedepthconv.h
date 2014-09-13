@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "zaxistransform.h"
 
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "datapack.h"
 #include "multidimstorage.h"
 #include "veldesc.h"
@@ -60,8 +60,8 @@ public:
     bool		isOK() const;
 
     bool		needsVolumeOfInterest() const	{ return true; }
-    int			addVolumeOfInterest(const CubeSampling&,bool);
-    void		setVolumeOfInterest(int,const CubeSampling&,bool);
+    int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
+    void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
@@ -90,7 +90,7 @@ protected:
     static void				udfFill(ValueSeries<float>&,int);
 
     ObjectSet<Array3D<float> >		voidata_;
-    TypeSet<CubeSampling>		voivols_;
+    TypeSet<TrcKeyZSampling>		voivols_;
     BoolTypeSet				voiintime_;
     TypeSet<int>			voiids_;
 
@@ -118,8 +118,8 @@ public:
     bool		isOK() const;
 
     bool		needsVolumeOfInterest() const;
-    int			addVolumeOfInterest(const CubeSampling&,bool);
-    void		setVolumeOfInterest(int,const CubeSampling&,bool);
+    int			addVolumeOfInterest(const TrcKeyZSampling&,bool);
+    void		setVolumeOfInterest(int,const TrcKeyZSampling&,bool);
     void		removeVolumeOfInterest(int);
     bool		loadDataIfMissing(int,TaskRunner* =0);
     void		transformTrc(const TrcKey&,const SamplingData<float>&,
@@ -163,8 +163,8 @@ public:
 protected:
 
     BufferString		msg_;
-    HorSampling			subsel_;
-    HorSamplingIterator		hsiter_;
+    TrcKeySampling			subsel_;
+    TrcKeySamplingIterator		hsiter_;
     bool			definedv0_;
     bool			definedv1_;
     bool			zistime_;

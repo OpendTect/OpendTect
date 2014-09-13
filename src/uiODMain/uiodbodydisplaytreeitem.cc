@@ -43,7 +43,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 /*test*/
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "ranges.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"

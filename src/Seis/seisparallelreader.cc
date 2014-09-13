@@ -9,9 +9,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisparallelreader.h"
 
 #include "arrayndimpl.h"
+#include "trckeyzsampling.h"
 #include "binidvalset.h"
 #include "cbvsreadmgr.h"
-#include "cubesampling.h"
 #include "ioobj.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
@@ -28,7 +28,7 @@ namespace Seis
 ParallelReader::ParallelReader( const IOObj& ioobj,
 	const TypeSet<int>& components,
 	const ObjectSet<Array3D<float> >& arrays,
-	const CubeSampling& cs )
+	const TrcKeyZSampling& cs )
     : arrays_( new ObjectSet<Array3D<float> >( arrays ) )
     , components_( components )
     , bidvals_( 0 )
@@ -38,7 +38,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 {}
 
 
-ParallelReader::ParallelReader( const IOObj& ioobj, const CubeSampling& cs )
+ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : arrays_(new ObjectSet<Array3D<float> >)
     , bidvals_(0)
     , cs_(cs)
@@ -165,7 +165,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 	return false;
     }
 
-    HorSamplingIterator iter;
+    TrcKeySamplingIterator iter;
     BinIDValueSet::SPos bidvalpos;
     BinID curbid;
     if ( bidvals_ )
@@ -270,7 +270,7 @@ bool ParallelReader::doFinish( bool success )
 
 // ParallelReader2D
 ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
-				    const CubeSampling& cs )
+				    const TrcKeyZSampling& cs )
     : arrays_(new ObjectSet<Array2D<float> >)
     , geomid_(geomid)
     , cs_(cs)

@@ -387,7 +387,7 @@ int AutoTracker::nextStep()
 }
 
 
-void AutoTracker::setTrackBoundary( const CubeSampling& cs )
+void AutoTracker::setTrackBoundary( const TrcKeyZSampling& cs )
 { extender_->setExtBoundary( cs ); }
 
 

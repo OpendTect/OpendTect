@@ -80,7 +80,7 @@ bool uiPreStackMMProc::initWork( bool retry )
     const PosInfo::CubeData& cd = rdr->posData();
     TypeSet<int> inlnrs; int previnl = mUdf(int);
     PosInfo::CubeDataPos cdp;
-    HorSampling jobhs; jobhs.usePar( jobpars_ );
+    TrcKeySampling jobhs; jobhs.usePar( jobpars_ );
     while ( cd.toNext(cdp) )
     {
 	const BinID curbid = cd.binID( cdp );

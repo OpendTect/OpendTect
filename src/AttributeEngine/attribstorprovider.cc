@@ -399,10 +399,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
     }\
 }
 
-bool StorageProvider::getPossibleVolume( int, CubeSampling& globpv )
+bool StorageProvider::getPossibleVolume( int, TrcKeyZSampling& globpv )
 {
     if ( !possiblevolume_ )
-	possiblevolume_ = new CubeSampling;
+	possiblevolume_ = new TrcKeyZSampling;
 
     *possiblevolume_ = storedvolume_;
     globpv.limitToWithUdf( *possiblevolume_ );
@@ -514,7 +514,7 @@ bool StorageProvider::setMSCProvSelData()
     if ( !checkDesiredVolumeOK() )
 	return false;
 
-    CubeSampling cs;
+    TrcKeyZSampling cs;
     cs.hrg.start.inl() =
 	    desiredvolume_->hrg.start.inl() < storedvolume_.hrg.start.inl() ?
 	    storedvolume_.hrg.start.inl() : desiredvolume_->hrg.start.inl();

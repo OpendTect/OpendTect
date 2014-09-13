@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "earthmodelmod.h"
-#include "cubesampling.h"
+#include "trckeyzsampling.h"
 #include "emposid.h"
 #include "flatview.h"
 
@@ -34,7 +34,7 @@ public:
     			HorizonPainter3D(FlatView::Viewer&,const EM::ObjectID&);
 			~HorizonPainter3D();
 
-    void		setCubeSampling(const CubeSampling&,bool upd=false);
+    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
     void		setPath(const TypeSet<BinID>*);
     void		setFlatPosData(const FlatPosData*);
 
@@ -79,7 +79,7 @@ protected:
     void		changePolyLinePosition( const EM::PosID& pid );
 
     EM::ObjectID        id_;
-    CubeSampling        cs_;
+    TrcKeyZSampling        cs_;
     const TypeSet<BinID>* 	path_;
     const FlatPosData*	flatposdata_;
 

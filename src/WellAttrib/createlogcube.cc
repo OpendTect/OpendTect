@@ -440,12 +440,12 @@ bool LogCubeCreator::makeLogTraces( int iwll )
 			    logtrcs[ilog]->get( itrckpt, 0 ) : mUdf(float);
 	}
 
-	HorSampling hrg(false);
+	TrcKeySampling hrg(false);
 	hrg.start = trackpos - bidvar;
 	hrg.stop = trackpos + bidvar;
 	hrg.snapToSurvey();
 
-	HorSamplingIterator hsit( hrg );
+	TrcKeySamplingIterator hsit( hrg );
 	BinID bid;
 	while ( hsit.next(bid) )
 	{
