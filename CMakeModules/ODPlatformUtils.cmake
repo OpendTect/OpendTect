@@ -149,6 +149,7 @@ if(WIN32)
     set ( CMAKE_CXX_FLAGS   "-DmUsedVar= ${CMAKE_CXX_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUnusedVar= ${CMAKE_C_FLAGS}")
     set ( CMAKE_C_FLAGS   "-DmUsedVar= ${CMAKE_C_FLAGS}")
+    string ( REPLACE "/W3" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
     set ( CMAKE_CXX_FLAGS " /W4 ${CMAKE_CXX_FLAGS}" )
     set ( CMAKE_CXX_FLAGS "/Zc:wchar_t- ${CMAKE_CXX_FLAGS}" )
 
