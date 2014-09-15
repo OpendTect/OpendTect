@@ -72,7 +72,7 @@ public:
 		break;
 
 	    const char* writeptr = data;
-	    int nrtowrite = readsize;;
+	    od_int64 nrtowrite = readsize;
 	    while ( nrtowrite )
 	    {
 		const int nrwritten = socket->writeArray( writeptr, nrtowrite );
