@@ -618,15 +618,14 @@ void uiMMBatchJobDispatcher::handleJobPausing()
 
 
 #ifdef __win__
-#define mAddReDirectToNull checkcmd += " > NUL"
+# define mAddReDirectToNull checkcmd += " > NUL"
 #else
-#define mAddReDirectToNull checkcmd += " > /dev/null"
+# define mAddReDirectToNull checkcmd += " > /dev/null"
 #endif
 
-#ifndef __win__
 
 static bool hostOK( const HostData& hd, const char* rshcomm,
-		      BufferString& errmsg )
+		    BufferString& errmsg )
 {
     BufferString remotecmd( rshcomm );
     remotecmd += " "; remotecmd += hd.getHostName();
@@ -664,8 +663,6 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
 
     return true;
 }
-
-#endif
 
 
 #define mErrRet(s) { uiMSG().error(s); return; }
