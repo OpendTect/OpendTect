@@ -18,10 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
-#include "uitoolbar.h"
 #include "pixmap.h"
-#include "settings.h"
+#include "uitoolbar.h"
+
+#include "odiconfile.h"
 #include "perthreadrepos.h"
+#include "settings.h"
 
 
 #include <QCheckBox>
@@ -166,7 +168,7 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 
 void uiButton::setPixmap( const char* pmnm )
 {
-    setPM( ioPixmap(pmnm) );
+    setPM( ioPixmap(pmnm,true) );
 }
 
 

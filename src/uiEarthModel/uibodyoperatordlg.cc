@@ -202,7 +202,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	    listinfo_[curidx].defined = false;
 
 	    tree_->selectedItem()->setText( "", 1 );
-	    tree_->selectedItem()->setPixmap( 1, "blank" );
+	    tree_->selectedItem()->setPixmap( 1, "empty" );
 	}
 
 	itemClick( cb );

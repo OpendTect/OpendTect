@@ -28,7 +28,7 @@ set(QT_MOC_HEADERS i_qaction.h
 SET(OD_MODULE_SOURCES     i_layout.cc
 		i_layoutitem.cc
 		inituibase.cc
-		pixmap.cc
+		odgraphicsitem.cc
 		qptr.cc
 		uiaction.cc
 		uibutton.cc
@@ -62,7 +62,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uiobj.cc
 		uiobjectstack.cc
 		uiobjbody.cc
-		odgraphicsitem.cc
+		uipixmap.cc
 		uiprogressbar.cc
 		uirgbarray.cc
 		uirubberband.cc

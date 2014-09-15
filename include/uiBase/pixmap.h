@@ -24,24 +24,31 @@ namespace ColTab { class Sequence; }
 class uiRGBArray;
 
 
+
 /*!\brief Off-screen pixel-based paint device
 
-  Icons pixmaps can be created from the identifier, see OD::IconFile: the file
-  name without extension.
+  Note: This class will be renamed to 'uiPixmap' after 5.0 ...!
+
+  Icons pixmaps can be created from the identifier, see odiconfile.h. It is,
+  basically, the file name without extension.
 
 */
 
 mExpClass(uiBase) ioPixmap : public NamedObject
 {
 public:
+
 			ioPixmap() : qpixmap_(0)		{}
+			ioPixmap(int w,int h);
+
+			ioPixmap(const char* icon_identifier,bool small=false);
+
 			ioPixmap(const uiRGBArray&);
 			ioPixmap(const char* xpm[]);
-			ioPixmap(int w,int h);
 			ioPixmap(const mQtclass(QPixmap&));
-			ioPixmap(const ioPixmap&);
-			ioPixmap(const char* icon_identifier);
 			ioPixmap(const ColTab::Sequence&,int w,int h,bool hor);
+			ioPixmap(const ioPixmap&);
+
     virtual		~ioPixmap();
 
     void		convertFromRGBArray(const uiRGBArray&);
@@ -63,15 +70,11 @@ public:
     static bool		isPresent(const char*);
     static void		supportedImageFormats(BufferStringSet&);
 
-    // DEPRECATED: will be gone after 5.0. Use only PNG icons.
-			ioPixmap(const char* filename,const char* fmt);
-
 protected:
 
     mQtclass(QPixmap*)	qpixmap_;
     BufferString	srcname_;
 };
-
 
 
 // DEPRECATED: will be gone after 5.0. Was never used.
@@ -89,12 +92,15 @@ header to guess the file format.
 mExpClass(uiBase) ioBitmap : public ioPixmap
 {
 public:
-			ioBitmap(const char* filename,const char* fmt=0);
-    mQtclass(QBitmap*)	Bitmap();
+				ioBitmap(const char* filenm,const char* fmt=0);
+    mQtclass(QBitmap*)		Bitmap();
     const mQtclass(QBitmap*)	Bitmap() const;
 
 };
 
+
+
 mGlobal(uiBase) void supportedImageFormats(BufferStringSet&);
+
 
 #endif
