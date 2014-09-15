@@ -484,7 +484,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     FilePath logfp(basefp); logfp.setExtension( ".log", false );
     const BufferString logfnm( logfp.fullPath() );
 
-    FilePath remotelogfnm( machine.convPath( HostData::Data, logfp ));
+    FilePath remotelogfnm( machine.convPath(HostData::Data,logfp) );
 
     IOPar newiop( iop );
     newiop.set( sKey::LogFile(), remotelogfnm.fullPath(machine.pathStyle()) );
@@ -492,11 +492,17 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
     const char* tmpstor = iop.find( sKey::TmpStor() );
     if ( tmpstor )
     {
-	FilePath remotetmpdir = machine.convPath( HostData::Data, tmpstor );
+	const FilePath remotetmpdir =
+		machine.convPath( HostData::Data, tmpstor );
 	newiop.set( sKey::TmpStor(),
 		    remotetmpdir.fullPath(machine.pathStyle()) );
     }
 
+
+    const FilePath remotedr =
+		machine.convPath( HostData::Data, GetBaseDataDir() );
+    newiop.set( sKey::DataRoot(),
+		remotedr.fullPath(machine.pathStyle()) );
     newiop.set( sKey::Survey(), IOM().surveyName() );
 
     if ( File::exists(iopfnm) ) File::remove( iopfnm );
@@ -514,6 +520,7 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 	mErrRet(s)
     }
 
+    iopfp = machine.convPath( HostData::Data, iopfp );
     return true;
 }
 
@@ -529,60 +536,58 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 
     cmd = "@";
 
-#ifdef __msvc__
-// Do not use od_remexe if host is local
-    BufferString remhostaddress = System::hostAddress( machine.getHostName() );
-    if ( remhostaddress != System::localAddress() )
+    if ( __iswin__ || machine.isWindows() ) // from or to Windows
     {
-	cmd.add( "od_remexec" );
-	cmd.add( machine.getIPAddress() );
-    }
-    cmd.add( progname );
-    cmd.addFlag( "-masterhost", System::localAddress() );
-    cmd.addFlag( "-masterport", iohdlr_.port() );
-    cmd.addFlag( "-jobid", ji.descnr_ );
-    FilePath parfp( iopfp );
-    cmd.addFilePath( parfp, FilePath::Windows );
-
-#else
-    cmd.addWoSpc( GetExecScript(remote) );
-
-    if ( remote )
-    {
-	cmd.add( machine.getIPAddress() );
-	cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh/rcmd
-	if ( machine.isWindows()  ) cmd.add( "--iswin" );
-
-	cmd.addFilePathFlag( "--with-dtect-appl",
-			     machine.convPath(HostData::Appl,GetSoftwareDir(0)),
-			     FilePath::Unix );
-
-	cmd.addFilePathFlag( "--with-dtect-data",
-			     machine.convPath(HostData::Data, GetBaseDataDir()),
-			     FilePath::Unix );
-
-	cmd.addFilePathFlag( "--with-local-file-base", basefp, FilePath::Unix);
-	cmd.addFilePathFlag( "--with-remote-file-base",
-	    machine.convPath(HostData::Data, basefp), FilePath::Unix );
-
-	if ( machine.isWindows() && machine.shareData() )
+    // Do not use od_remexe if host is local
+	const BufferString remhostaddress =
+		System::hostAddress( machine.getHostName() );
+	if ( remhostaddress != System::localAddress() )
 	{
-	    const ShareData& sd = *machine.shareData();
-	    cmd.addFlag( "--data-host", sd.hostName() );
-	    cmd.addFlag( "--data-drive", sd.drive() );
-	    cmd.addFlag( "--data-share", sd.share() );
-	    cmd.addFlag( "--remotepass", sd.pass() );
+	    cmd.add( "od_remexec" );
+	    cmd.add( machine.getIPAddress() );
 	}
+
+	cmd.add( progname );
+	cmd.addFlag( "-masterhost", System::localAddress() );
+	cmd.addFlag( "-masterport", iohdlr_.port() );
+	cmd.addFlag( "-jobid", ji.descnr_ );
+	FilePath parfp( iopfp );
+	cmd.addFilePath( parfp, FilePath::Windows );
     }
+    else
+    {
+	cmd.addWoSpc( GetExecScript(remote) );
 
-    cmd.addFlag( "--nice", niceval_ );
-    cmd.addFlag( "--inbg", progname );
-    cmd.addFlag( "-masterhost", HostData::localHostName() );
-    cmd.addFlag( "-masterport", iohdlr_.port() );
-    cmd.addFlag( "-jobid", ji.descnr_ );
+	if ( remote )
+	{
+	    cmd.add( machine.getIPAddress() );
+	    cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh
+	    if ( machine.isWindows()  ) cmd.add( "--iswin" );
 
-    FilePath riopfp( remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
-    const bool winstyle = machine.isWindows() && FixedString(rshcomm) == "rcmd";
-    cmd.addFilePath( riopfp, winstyle ? FilePath::Windows : FilePath::Unix );
-#endif
+	    cmd.addFilePathFlag( "--with-dtect-appl",
+			machine.convPath(HostData::Appl,GetSoftwareDir(0)),
+			FilePath::Unix );
+
+	    cmd.addFilePathFlag( "--with-dtect-data",
+			machine.convPath(HostData::Data,GetBaseDataDir()),
+			FilePath::Unix );
+
+	    cmd.addFilePathFlag( "--with-local-file-base", basefp,
+			FilePath::Unix);
+
+	    cmd.addFilePathFlag( "--with-remote-file-base",
+			machine.convPath(HostData::Data, basefp),
+			FilePath::Unix );
+	}
+
+	cmd.addFlag( "--nice", niceval_ );
+	cmd.addFlag( "--inbg", progname );
+	cmd.addFlag( "-masterhost", HostData::localHostName() );
+	cmd.addFlag( "-masterport", iohdlr_.port() );
+	cmd.addFlag( "-jobid", ji.descnr_ );
+
+	const FilePath riopfp(
+		remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
+	cmd.addFilePath( riopfp, FilePath::Unix );
+    }
 }

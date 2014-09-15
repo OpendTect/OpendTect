@@ -49,7 +49,7 @@ protected:
     virtual bool	recoverFailedWrapUp() const	{ return false; }
 
     IOPar&		jobpars_;
-    HostDataList&	hdl_;
+    const HostDataList& hdl_;
     Timer*		timer_;
     int			nrcyclesdone_;
     BufferString	basecaption_;
