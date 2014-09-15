@@ -616,7 +616,7 @@ TrcKey TrcKeySampling::trcKeyAt(int i0, int i1) const
 }
 
 
-TrcKey TrcKeySampling::trcKeyAt( int64_t globalidx ) const
+TrcKey TrcKeySampling::trcKeyAt( od_int64 globalidx ) const
 {
     const BinID res = atIndex( globalidx );
     if ( res.isUdf() )
