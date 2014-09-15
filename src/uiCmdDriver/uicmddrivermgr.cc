@@ -79,7 +79,6 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 uiCmdDriverMgr::~uiCmdDriverMgr()
 {
     closeDlg(0);
-    stopRecordingCB(0);
 
     IOM().surveyToBeChanged.remove( mCB(this,uiCmdDriverMgr,beforeSurveyChg) );
     IOM().afterSurveyChange.remove( mCB(this,uiCmdDriverMgr,afterSurveyChg) );
@@ -123,6 +122,8 @@ void uiCmdDriverMgr::closeDlg( CallBacker* )
 	delete cmddlg_;
 	cmddlg_ = 0;
     }
+
+    stopRecordingCB(0);
 }
 
 

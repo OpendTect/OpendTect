@@ -558,6 +558,8 @@ void CmdRecorder::handleEvent( CallBacker* cb )
     const char* msgtail = getNextWord( msgnexxxt, keyword.getCStr() );
     mSkipBlanks ( msgtail );
 
+    BufferString fackey;
+
     if ( !iscarrieronly )
     {
 	if ( ev.begin_ || !mMatchCI(keyword,"Close") )
@@ -566,9 +568,9 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 	    mDynamicCast( uiAction*, ev.mnuitm_, caller );
 	    mDynamicCast( const uiMainWin*, ev.srcwin_, caller );
 	}
+	else
+	    fackey = "UIMAINWIN_CLOSE";
     }
-
-    BufferString fackey = CmdComposer::factoryKey( caller, keyword );
 
     if ( mMatchCI(keyword,"WinPopUp") )
     {
@@ -671,6 +673,9 @@ void CmdRecorder::handleEvent( CallBacker* cb )
 
     if ( !ev.nraccepts_ && !ev.dynamicpopup_ )
     {
+	if ( fackey.isEmpty() )
+	    fackey = CmdComposer::factoryKey( caller, keyword );
+
 	CmdComposer* newcomp = CmdComposer::factory().create( fackey, rec_ );
 
 	if ( newcomp )
