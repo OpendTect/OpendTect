@@ -436,7 +436,10 @@ void uiSeis2DMultiLineSelDlg::lineSel( CallBacker* )
     if ( multisel ) return;
 
     NotifyStopper ns( trcrgfld_->rangeChanged );
-    const int curitm = lnmsfld_->currentItem();
+    int curitm = lnmsfld_->currentItem();
+    if ( curitm<0 && lnmsfld_->nrSelected()==1 )
+	curitm = lnmsfld_->nextSelected( -1 );
+
     if ( trcrgs_.isEmpty() || curitm<0 )
 	return;
 
