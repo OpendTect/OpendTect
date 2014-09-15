@@ -811,6 +811,7 @@ void TileResolutionData::setWireframeColor( Color& color)
 {
     mGetOsgVec4Arr( linecolor_ )->clear();
     mGetOsgVec4Arr( linecolor_ )->push_back( Conv::to<osg::Vec4>( color ) );
+    dirtyGeometry();
 }
 
 
