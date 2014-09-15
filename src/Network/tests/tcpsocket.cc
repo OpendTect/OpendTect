@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpconnection.h"
+#include "tcpsocket.h"
 
 #include "applicationdata.h"
 #include "oscommand.h"
@@ -35,11 +35,11 @@ ArrPtrMan<double> doublewritearr, doublereadarr;
 class TestRunner : public CallBacker
 {
 public:
-    bool	testTcpConnection();
+    bool	testTcpSocket();
 
     void	testCallBack(CallBacker*)
     {
-	const bool testresult = testTcpConnection();
+	const bool testresult = testTcpSocket();
 	if ( exitonfinish_ ) ApplicationData::exit( testresult ? 0 : 1 );
     }
 
@@ -52,9 +52,9 @@ public:
 };
 
 
-bool TestRunner::testTcpConnection()
+bool TestRunner::testTcpSocket()
 {
-    TcpConnection connection( !noeventloop_ );
+    TcpSocket connection( !noeventloop_ );
     connection.setTimeout( 10000 );
 
     if ( !connection.connectToHost( "localhost", port_, true ) )
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    if ( !runner.testTcpConnection() )
+    if ( !runner.testTcpSocket() )
 	ExitProgram( 1 );
 
     //Now with a running event loop

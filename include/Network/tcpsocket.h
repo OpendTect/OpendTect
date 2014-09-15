@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          March 2009
- RCS:           $Id$
+ Author:	K. Tingdahl
+ Date:		August 2014
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -15,63 +15,111 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "callback.h"
-#include "bufstring.h"
+#include "uistring.h"
 
+#include "threadlock.h"
+
+namespace Network
+{
+    class RequestPacket;
+}
+
+template <class T> class DataInterpreter;
 class QTcpSocket;
+class BufferString;
 class QTcpSocketComm;
 
+/*!Enables the connection and sending of binary and text data through
+   a socket both with and without event-loops.
+
+   After construction, you need to connect to a host on a port. If you choose
+   not to wait then (dis-)connecting only fails if it is already in progress.
+
+   Strings are transferred without trailing '\0', but with a leading integer
+   for the size.
+ */
 
 mExpClass(Network) TcpSocket : public CallBacker
-{
-friend class QTcpSocketComm;
+{ mODTextTranslationClass(TcpSocket);
 
 public:
-				TcpSocket();
-				TcpSocket(QTcpSocket*,int id);
-				~TcpSocket();
+		TcpSocket(bool haveeventloop=true);
+		TcpSocket(QTcpSocket*,bool haveeventloop=true);
+		~TcpSocket();
 
-    void			connectToHost(const char* host,int port);
-    void			disconnectFromHost();
-    void			abort();
-    int				write(const char*);
-    int				write(const IOPar&);
-    int				write(const int&);
-    int				write(bool);
-    int				writedata(const char*, int nr);
+    void	setTimeout(int ms) { timeout_ = ms; }
 
-    void			read(BufferString&) const;
-    void			read(IOPar&) const;
-    void			read(int&) const;
-    void			read(bool&) const;
-    int				readdata(char* data, int sz) const;
-    int				getID() const { return id_; }
+    bool	connectToHost(const char* host,int port,
+			      bool wait=true);
+    bool	disconnectFromHost(bool wait=false);
 
-    const char*			errorMsg() const;
+    bool	isBad() const;
+    bool	isConnected() const;
+    od_int64	bytesAvailable() const;
+    uiString	errMsg() const	{ return errmsg_; }
+    void	abort();	//!<Just stops all pending operations.
 
-    Notifier<TcpSocket>		connected;
-    Notifier<TcpSocket>		disconnected;
-    Notifier<TcpSocket>		hostFound;
-    Notifier<TcpSocket>		readyRead;
-    Notifier<TcpSocket>		error;
-    Notifier<TcpSocket>		stateChanged;
+    bool	writeChar(char);
+    bool	writeShort(short);
+    bool	writeInt32(od_int32);
+    bool	writeInt64(od_int64);
+    bool	writeFloat(float);
+    bool	writeDouble(double);
+    bool	write(const Network::RequestPacket&);
+    bool	write(const OD::String&);
+    bool	write(const IOPar&);
 
-    bool			waitForConnected(int msec);
-				//!<Useful when no event loop available
-    bool			waitForReadyRead(int msec);
-				//!<Useful when no event loop available
-    bool			waitForReadyWrite(int msec);
-				//!<Useful when no event loop available
-    bool			waitForDisconnected(int msec);
-				//!<Useful when no event loop available
+    bool	writeArray(const void*,od_int64,bool wait=false);
+    bool	writeShortArray(const short*,od_int64,bool wait=false);
+    bool	writeInt32Array(const od_int32*,od_int64,bool wait=false);
+    bool	writeInt64Array(const od_int64*,od_int64,bool wait=false);
+    bool	writeFloatArray(const float*,od_int64,bool wait=false);
+    bool	writeDoubleArray(const double*,od_int64,bool wait=false);
 
-protected:
+    enum ReadStatus { ReadOK, Timeout, ReadError };
+    bool	readChar(char&) const;
+    bool	readShort(short&) const;
+    bool	readInt32(od_int32&) const;
+    bool	readInt64(od_int64&) const;
+    bool	readFloat(float&) const;
+    bool	readDouble(double&) const;
+    bool	read(BufferString&) const;
+    bool	read(IOPar&) const;
+    ReadStatus	read(Network::RequestPacket&) const;
+
+    ReadStatus	readArray(void*,od_int64) const;
+    bool	readShortArray(short*,od_int64) const;
+    bool	readInt32Array(od_int32*,od_int64) const;
+    bool	readInt64Array(od_int64*,od_int64) const;
+    bool	readFloatArray(float*,od_int64) const;
+    bool	readDoubleArray(double*,od_int64) const;
+
+    Notifier<TcpSocket> disconnected; //!< usually remote host terminates.
+    Notifier<TcpSocket> readyRead;    /*!<Note that object may or may not be
+					  locked, so you may not be able to
+					  read immediately */
+
+private:
+
+    bool			waitForConnected() const;
+				//!<\note Lock should be unlocked when calling
+    bool			waitForNewData() const;
+				//!<\note Lock should be locked when calling
+    bool			waitForWrite(bool all) const;
+				//!<\note Lock should be locked when calling
+
+    mutable uiString		errmsg_;
+    mutable Threads::Lock	lock_;
+
+    int				timeout_;
+    bool			noeventloop_;
 
     QTcpSocket*			qtcpsocket_;
-    QTcpSocketComm*		comm_;
-    mutable BufferString	errmsg_;
-    const int			id_;
-    bool			isownsocket_;
+    bool			ownssocket_;
+
+    QTcpSocketComm*		socketcomm_;
 };
+
 
 #endif
 

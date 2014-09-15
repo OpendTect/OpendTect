@@ -23,10 +23,9 @@ set ( OD_MODULE_SOURCES
 		odnetworkreply.cc
 		svnaccess.cc
 		systeminfo.cc
-		tcpconnection.cc
 		tcpserver.cc
 		tcpsocket.cc)
-set ( OD_TEST_PROGS networkaccess.cc )
-set ( OD_NIGHTLY_TEST_PROGS tcpconnection.cc )
-set ( OD_MODULE_PROGS od_ReportIssue.cc echoserver.cc )
+set ( OD_TEST_PROGS networkaccess.cc netreq.cc )
+set ( OD_NIGHTLY_TEST_PROGS tcpsocket.cc echoserver.cc netreqechoserver.cc)
+set ( OD_MODULE_PROGS od_ReportIssue.cc )
 OD_INIT_MODULE()

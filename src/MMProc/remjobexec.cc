@@ -27,9 +27,7 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
     , par_(*new IOPar)
     , isconnected_(false)
 {
-    socket_.connectToHost( host_, port );
-    socket_.connected.notify( mCB(this,RemoteJobExec,connectedCB) );
-    socket_.waitForConnected( 2000 );
+    isconnected_ = socket_.connectToHost( host_, port, true );
     ckeckConnection();
 }
 
@@ -53,12 +51,6 @@ bool RemoteJobExec::launchProc() const
 
 void RemoteJobExec::addPar( const IOPar& par )
 { par_ = par; }
-
-
-void RemoteJobExec::connectedCB( CallBacker* )
-{
-    isconnected_ = true;
-}
 
 
 void RemoteJobExec::ckeckConnection()

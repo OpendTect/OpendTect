@@ -33,7 +33,6 @@ public:
 
 protected:
     void		ckeckConnection();
-    void		connectedCB(CallBacker*);
     void		uiErrorMsg(const char*);
 
     TcpSocket&		socket_;

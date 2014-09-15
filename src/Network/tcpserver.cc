@@ -122,12 +122,14 @@ void TcpServer::notifyNewConnection()
     if ( !hasPendingConnections() )
 	return;
 
-    TcpSocket* tcpsocket = new TcpSocket( nextPendingConnection(), getNewID() );
+    TcpSocket* tcpsocket = new TcpSocket( nextPendingConnection() );
     tcpsocket->readyRead.notify( mCB(this,TcpServer,readyReadCB));
-    tcpsocket->disconnected.notify( mCB(this,TcpServer,disconnectCB) );
+    mAttachCB( tcpsocket->disconnected, TcpServer::disconnectCB);
+    const int id = getNewID();
     sockets_ += tcpsocket;
+    ids_ += id;
 
-    newConnection.trigger( tcpsocket->getID() );
+    newConnection.trigger( id );
 }
 
 
@@ -136,7 +138,11 @@ void TcpServer::readyReadCB( CallBacker* cb )
     mDynamicCastGet(TcpSocket*,socket,cb);
     if ( !socket ) return;
 
-    readyRead.trigger( socket->getID() );
+    const int idx = sockets_.indexOf( socket );
+    if ( idx<0 )
+	return;
+
+    readyRead.trigger( ids_[idx] );
 }
 
 
@@ -145,9 +151,14 @@ void TcpServer::disconnectCB( CallBacker* cb )
     mDynamicCastGet(TcpSocket*,socket,cb);
     if ( !socket ) return;
 
-    socket->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
-    socket->disconnected.remove( mCB(this,TcpServer,disconnectCB) );
-    sockets_ -= socket;
+    //socket->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
+    const int idx = sockets_.indexOf( socket );
+    if ( idx>=0 )
+    {
+	sockets_.removeSingle( idx );
+	ids_.removeSingle( idx );
+    }
+
     sockets2bdeleted_ += socket;
 }
 
@@ -178,19 +189,17 @@ int TcpServer::write( int id, const IOPar& par )
 int TcpServer::write( int id, const char* str )
 {
     TcpSocket* socket = getSocket( id );
-    return socket ? socket->write( str ) : 0;
+    return socket ? socket->write( FixedString(str) ) : 0;
 }
 
 
 TcpSocket* TcpServer::getSocket( int id )
 {
-    for ( int idx=0; idx<sockets_.size(); idx++ )
-    {
-	if ( sockets_[idx]->getID() == id )
-	    return (TcpSocket*)sockets_[idx];
-    }
+    const int idx = ids_.indexOf( id );
+    if ( idx<0 )
+	return 0;
 
-    return 0;
+    return sockets_[idx];
 }
 
 

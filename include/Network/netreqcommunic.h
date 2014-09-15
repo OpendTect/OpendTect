@@ -17,8 +17,10 @@ ________________________________________________________________________
 #include "thread.h"
 #include "objectset.h"
 #include "callback.h"
+#include "uistring.h"
 
-class TcpConnection;
+class TcpSocket;
+class TcpServer;
 
 
 namespace Network
@@ -43,10 +45,14 @@ class RequestPacket;
 
 
 mExpClass(Network) RequestCommunicator : public CallBacker
-{
+{ mODTextTranslationClass(RequestCommunicator);
 public:
 			RequestCommunicator(const char* servername,
 					    int serverport);
+			//!<Initiates communications
+			RequestCommunicator(int serverport);
+			//!<Listens
+
 			~RequestCommunicator();
 
     bool		isOK() const;
@@ -60,27 +66,39 @@ public:
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
 
-    TcpConnection*	tcpConnection()		{ return tcpconn_; }
+    TcpSocket*		tcpSocket()		{ return tcpsocket_; }
 
+    CNotifier<RequestCommunicator,od_int32> packetArrived;
     Notifier<RequestCommunicator> connectionClosed;
 
+    uiString		errMsg() const		{ return errmsg_; }
 private:
+
+
+    void			threadFunc(CallBacker*);
+
+    uiString			errmsg_;
 
     TypeSet<od_int32>		ourrequestids_;
     ObjectSet<RequestPacket>	receivedpackets_;
 
-    Threads::Lock		lock_;
-    TcpConnection*		tcpconn_;
+    Threads::ConditionVar	lock_;
+    TcpSocket*			tcpsocket_;
+    TcpServer*			tcpserv_;
 
     BufferString		servername_;
     int				serverport_;
 
+    void			startListening();
     void			connectToHost();
     void			connCloseCB(CallBacker*);
+    void			newConnectionCB(CallBacker*);
+    void			dataArrivedCB(CallBacker*);
+    void			readFromSocket(CallBacker*);
+
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);
-
 };
 
 

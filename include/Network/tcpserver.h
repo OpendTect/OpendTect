@@ -68,6 +68,7 @@ protected:
     QTcpServerComm*	 comm_;
     mutable BufferString errmsg_;
     ObjectSet<TcpSocket> sockets_;
+    TypeSet<int>	ids_;
     ObjectSet<TcpSocket> sockets2bdeleted_;
 };
 

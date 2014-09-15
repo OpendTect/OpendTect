@@ -40,9 +40,9 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     , sdout_( sout )
     , lastsucces_( Time::getMilliSeconds() )
 {
-    socket_ = new TcpSocket();
+    socket_ = new TcpSocket( false );
+    socket_->setTimeout( 2000 );
     socket_->connectToHost( masterhost_, masterport_ );
-    socket_->waitForConnected( -1 );
 }
 
 
@@ -137,7 +137,6 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     char masterinfo;
     BufferString errbuf;
     BufferString inp;
-    socket_->waitForReadyRead( 2000 );
     socket_->read( inp );
     masterinfo = inp[0];
     bool ret = !inp.isEmpty();
