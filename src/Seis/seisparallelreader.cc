@@ -365,7 +365,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
-	curbid.crl() = trcrg.atIndex( idx );
+	curbid.crl() = trcrg.atIndex( mCast(int,idx) );
 	if ( trl->goTo(curbid) && trl->read(trc) )
 	{
 	    const StepInterval<float> trczrg = trc.zRange();
@@ -380,7 +380,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 			val = trc.getValue( z, components_[idc] );
 			if ( !mIsUdf(val) )
 			{
-			    (*arrays_)[idc]->set( idx, idz, val );
+			    (*arrays_)[idc]->set( mCast(int,idx), idz, val );
 			}
 		    }
 		}
