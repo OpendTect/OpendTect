@@ -39,6 +39,7 @@ public:
     virtual void	prepareDesc()	{ getTopDepthFromScreen(); }
     virtual void	setEditDesc();
     virtual void	setFromEditDesc();
+    virtual bool	selProps();
 
 protected:
 
