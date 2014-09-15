@@ -103,13 +103,6 @@ FaultStickSetDisplay::FaultStickSetDisplay()
 FaultStickSetDisplay::~FaultStickSetDisplay()
 {
     detachAllNotifiers();
-    if ( scene_ && scene_->getPolySelection() &&
-	 scene_->getPolySelection()->polygonFinished() )
-    {
-	const CallBack cb = mCB(this, FaultStickSetDisplay, polygonFinishedCB);
-	scene_->getPolySelection()->polygonFinished()->remove( cb );
-    }
-
     setSceneEventCatcher( 0 );
     showManipulator( false );
 
@@ -1048,17 +1041,16 @@ void FaultStickSetDisplay::setStickSelectMode( bool yn )
     updateEditPids();
     updateKnotMarkers();
 
-    if ( scene_ && scene_->getPolySelection() &&
-	 scene_->getPolySelection()->polygonFinished() )
+    if ( scene_ && scene_->getPolySelection() )
     {
-	const CallBack cb = mCB(this,FaultStickSetDisplay,polygonFinishedCB);
 	if ( yn )
-	{
-	    scene_->getPolySelection()->polygonFinished()->
-						    notifyIfNotNotified(cb);
-	}
+	    mAttachCBIfNotAttached(
+	    scene_->getPolySelection()->polygonFinished(),
+	    FaultStickSetDisplay::polygonFinishedCB );
 	else
-	    scene_->getPolySelection()->polygonFinished()->remove( cb );
+	    mDetachCB(
+	    scene_->getPolySelection()->polygonFinished(),
+	    FaultStickSetDisplay::polygonFinishedCB );
     }
 }
 
@@ -1067,36 +1059,8 @@ bool FaultStickSetDisplay::isSelectableMarkerInPolySel(
 					const Coord3& markerworldpos ) const
 {
     visBase::PolygonSelection* polysel = scene_->getPolySelection();
-    if ( !polysel->isInside(markerworldpos) )
-	return false;
-
-    const double epsxy = get3DSurvGeom()->inlDistance()*0.1f;
-    const double epsz = 0.01 * get3DSurvGeom()->zStep();
-    const Coord3 eps( epsxy,epsxy,epsz );
-
-    TypeSet<int> pickedobjids;
-    for ( int depthidx=0; true; depthidx++ )
-    {
-	if ( !polysel->rayPickThrough(markerworldpos, pickedobjids, depthidx) )
-	    break;
-
-	for ( int idx=0; true; idx++ )
-	{
-	    if ( idx == pickedobjids.size() )
-		return false;
-
-	    const int visid = pickedobjids[idx];
-	    visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	    mDynamicCastGet( visBase::MarkerSet*, markerset, dataobj );
-	    if ( markerset )
-	    {
-		const int markeridx = markerset->findMarker(markerworldpos,eps);
-		if( markeridx >=0 )
-		    return true;
-		break;
-	    }
-	}
-    }
+    if ( polysel )
+	return polysel->isInside( markerworldpos );
     return false;
 }
 
