@@ -329,8 +329,6 @@ void ui3DViewerBody::setupView()
     camera_ = visBase::Camera::create();
     if ( axes_ )
 	axes_->setMasterCamera( camera_ );
-    if ( polygonselection_ )
-	polygonselection_->setMasterCamera( camera_ );
 
     if ( scene_ )
         scene_->setCamera( camera_ );
@@ -381,6 +379,9 @@ void ui3DViewerBody::setupView()
 
     // To put exaggerated bounding sphere radius offside
     manip->setMinimumDistance( 0 );
+
+    if ( polygonselection_ )
+	polygonselection_->setMasterCamera( camera_ );
 
     osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
 
