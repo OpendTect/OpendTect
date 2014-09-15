@@ -247,6 +247,12 @@ protected:
     // common keys
     static const char*		sKeyTransparency() { return "Transparency"; }
     static const char*		sKeyBoxShown()     { return "Box Shown"; }
+
+    static const char*		sKeyBoxDepthKey()   { return "BoxDepthKey"; }
+    static const char*		sKeyBoxPlaneKey()   { return "BoxPlaneKey"; }
+    static const char*		sKeyInDepthBoxResize()
+						{ return "InDepthBoxResize"; }
+
     static const Color		reTrackColor;
     static const Color		eraseColor;
     static const Color		movingColor;

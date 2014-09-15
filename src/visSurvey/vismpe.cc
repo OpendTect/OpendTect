@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatapack.h"
 #include "keystrs.h"
 #include "mpeengine.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
@@ -68,6 +69,18 @@ MPEDisplay::MPEDisplay()
     updateBoxPosition( 0 );
 
     turnOn( true );
+
+    int buttonkey = OD::NoButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyBoxDepthKey(), buttonkey );
+    boxdragger_->setPlaneTransDragKeys( true, buttonkey );
+    buttonkey = OD::ShiftButton;
+    mSettUse( get, "dTect.MouseInteraction", sKeyBoxPlaneKey(), buttonkey );
+    boxdragger_->setPlaneTransDragKeys( false, buttonkey );
+
+    bool useindepthtransforresize = true;
+    mSettUse( getYN, "dTect.MouseInteraction", sKeyInDepthBoxResize(),
+	    useindepthtransforresize );
+    boxdragger_->useInDepthTranslationForResize( useindepthtransforresize );
 }
 
 
@@ -578,6 +591,12 @@ void MPEDisplay::updateBoxSpace()
 	    			   SI().zRange(true).stop );
 
     boxdragger_->setSpaceLimits( survinlrg, survcrlrg, survzrg );
+
+    const int minwidth = 1;
+    boxdragger_->setWidthLimits(
+	Interval<float>( float(minwidth*hs.step.inl()), mUdf(float) ),
+	Interval<float>( float(minwidth*hs.step.crl()), mUdf(float) ),
+	Interval<float>( minwidth*SI().zRange(true).step, mUdf(float) ) );
 }
 
 

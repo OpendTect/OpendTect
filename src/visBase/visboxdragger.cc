@@ -71,6 +71,9 @@ bool BoxDraggerCallbackHandler::receive(
     mDynamicCastGet( const osgManipulator::TranslateInPlaneCommand*,
 		     translatedinplane, &cmd );
 
+    if ( !dragger_.useindepthtransforresize_ )
+	translatedinline = 0;
+
     if ( !s1d && !s2d && !translatedinline && !translatedinplane )
     {
 	dragger_.osgboxdragger_->setMatrix( initialosgmatrix_ );
@@ -86,7 +89,7 @@ bool BoxDraggerCallbackHandler::receive(
     {
 	Coord3 scale = dragger_.width();
 	Coord3 center = dragger_.center();
-	if ( translatedinline && dragger_.useindepthtransforresize_ )
+	if ( translatedinline )
 	{
 	    if ( dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx()%2 )
 		scale -= center - initialcenter_;
