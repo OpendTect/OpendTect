@@ -319,11 +319,7 @@ StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
 {
     StepInterval<int> trcrg = StepInterval<int>::udf();
     if ( multilnmsel_ )
-    {
-	const TypeSet<StepInterval<int> >& trcrgs =
-						multilnmsel_->getTrcRanges();
-	if ( trcrgs.validIdx(lidx) ) trcrg = trcrgs[lidx];
-    }
+	trcrg = multilnmsel_->getTrcRange( lidx );
     else
 	trcrg = selfld_->envelope().hrg.crlRange();
 
@@ -335,10 +331,7 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
 {
     StepInterval<float> zrg = StepInterval<float>::udf();
     if ( multilnmsel_ )
-    {
-	const TypeSet<StepInterval<float> >& zrgs = multilnmsel_->getZRanges();
-	if ( zrgs.validIdx(lidx) ) zrg = zrgs[lidx];
-    }
+	zrg = multilnmsel_->getZRange( lidx );
     else
 	zrg.setFrom( selfld_->envelope().zrg );
 

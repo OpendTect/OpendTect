@@ -490,53 +490,59 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 class uiSeis2DMultiLineSelDlg : public uiDialog
 {
 public:
-				uiSeis2DMultiLineSelDlg(uiParent*,
-					const TypeSet<Pos::GeomID>& geomids,
-					const BufferStringSet& lnms,
-					bool withz,bool withstep);
-				~uiSeis2DMultiLineSelDlg()	{}
+			uiSeis2DMultiLineSelDlg(uiParent*,
+				const TypeSet<Pos::GeomID>& geomids,
+				const BufferStringSet& lnms,
+				const TypeSet<StepInterval<int> >& maxtrcrgs,
+				const TypeSet<StepInterval<float> >& maxzrgs,
+				bool withz,bool withstep);
+			~uiSeis2DMultiLineSelDlg()	{}
 
-    BufferString		getSummary() const;
+    BufferString	getSummary() const;
 
-    void			getSelLines(TypeSet<int>&) const;
-    bool			isAll() const;
-    void			getZRgs(TypeSet<StepInterval<float> >&)const;
-    void			getTrcRgs(TypeSet<StepInterval<int> >&) const;
+    void		getSelLines(TypeSet<int>&) const;
+    bool		isAll() const;
+    void		getZRgs(TypeSet<StepInterval<float> >&)const;
+    void		getTrcRgs(TypeSet<StepInterval<int> >&) const;
 
-    void			setSelection(const TypeSet<int>&,
-					const TypeSet<StepInterval<int> >&,
-					const TypeSet<StepInterval<float> >&);
-    void			setAll(bool);
-    void			setZRgs(const StepInterval<float>&);
+    void		setSelection(const TypeSet<int>&,
+				const TypeSet<StepInterval<int> >&,
+				const TypeSet<StepInterval<float> >&);
+    void		setAll(bool);
+    void		setZRgs(const StepInterval<float>&);
 
 protected:
 
-    uiListBox*			lnmsfld_;
-    uiSelNrRange*		trcrgfld_;
-    uiSelZRange*		zrgfld_;
+    uiListBox*		lnmsfld_;
+    uiSelNrRange*	trcrgfld_;
+    uiSelZRange*	zrgfld_;
 
     TypeSet<StepInterval<int> >	trcrgs_;
     TypeSet<StepInterval<float> > zrgs_;
 
-    TypeSet<StepInterval<int> >	maxtrcrgs_;
-    TypeSet<StepInterval<float> > maxzrgs_;
+    const TypeSet<StepInterval<int> >&		maxtrcrgs_;
+    const TypeSet<StepInterval<float> >&	maxzrgs_;
 
-    void			finalised(CallBacker*);
-    void			lineSel(CallBacker*);
-    void			trcRgChanged(CallBacker*);
-    void			zRgChanged(CallBacker*);
-    void			applyZRgToAllCB(CallBacker*);
+    void		finalised(CallBacker*);
+    void		lineSel(CallBacker*);
+    void		trcRgChanged(CallBacker*);
+    void		zRgChanged(CallBacker*);
+    void		applyZRgToAllCB(CallBacker*);
 
-    virtual bool		acceptOK(CallBacker*);
+    virtual bool	acceptOK(CallBacker*);
 };
 
 
 uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
-					const TypeSet<Pos::GeomID>& geomids,
-					const BufferStringSet& lnms,
-					bool withz, bool withstep )
+				const TypeSet<Pos::GeomID>& geomids,
+				const BufferStringSet& lnms,
+				const TypeSet<StepInterval<int> >& maxtrcrgs,
+				const TypeSet<StepInterval<float> >& maxzrgs,
+				bool withz, bool withstep )
     : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,
                                     mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
+    , maxtrcrgs_(maxtrcrgs), maxzrgs_(maxzrgs)
+    , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
     , zrgfld_(0)
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, lnms, "Select Lines",
@@ -544,22 +550,6 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
     lnmsfld_ = llb->box();
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
-
-    for ( int idx=0; idx<geomids.size(); idx++ )
-    {
-	mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-			 Survey::GM().getGeometry(geomids[idx]) );
-	StepInterval<int> trcrg( 0, 0, 1 );
-	StepInterval<float> zrg = SI().zRange( true );
-	if ( geom2d )
-	{
-	    trcrg = geom2d->data().trcNrRange();
-	    zrg = geom2d->data().zRange();
-	}
-
-	maxtrcrgs_ += trcrg; trcrgs_ += trcrg;
-	maxzrgs_ += zrg; zrgs_ += zrg;
-    }
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(), withstep,
 				  "Trace" );
@@ -592,28 +582,23 @@ void uiSeis2DMultiLineSelDlg::finalised( CallBacker* )
 
 
 void uiSeis2DMultiLineSelDlg::setAll( bool yn )
-{ lnmsfld_->chooseAll( yn ); }
+{
+    lnmsfld_->chooseAll( yn );
+    trcrgs_ = maxtrcrgs_;
+    if ( zrgfld_ )
+	zrgs_ = maxzrgs_;
+}
 
 void uiSeis2DMultiLineSelDlg::setSelection( const TypeSet<int>& selidxs,
 				const TypeSet<StepInterval<int> >& trcrgs,
 				const TypeSet<StepInterval<float> >& zrgs )
 {
-    if ( trcrgs.size() != selidxs.size() )
-	return;
-
-    const bool usezrgs = zrgs.size() == selidxs.size();
-    lnmsfld_->chooseAll( false );
+    lnmsfld_->setChosen( selidxs );
     if ( !selidxs.isEmpty() )
 	lnmsfld_->setCurrentItem( selidxs[0] );
 
-    for ( int idx=0; idx<selidxs.size(); idx++ )
-    {
-	lnmsfld_->setChosen( selidxs[idx] );
-	trcrgs_[selidxs[idx]] = trcrgs[idx];
-	if ( usezrgs )
-	    zrgs_[selidxs[idx]] = zrgs[idx];
-    }
-
+    trcrgs_ = trcrgs;
+    zrgs_ = zrgs;
     lineSel(0);
 }
 
@@ -627,14 +612,7 @@ void uiSeis2DMultiLineSelDlg::getSelLines( TypeSet<int>& selidxs ) const
 
 void uiSeis2DMultiLineSelDlg::getTrcRgs(TypeSet<StepInterval<int> >& rgs) const
 {
-    rgs.erase();
-    for ( int idx=0; idx<lnmsfld_->size(); idx++ )
-    {
-	if ( !lnmsfld_->isChosen(idx) )
-	    continue;
-
-	rgs += trcrgs_[idx];
-    }
+    rgs = trcrgs_;
 }
 
 
@@ -651,14 +629,7 @@ bool uiSeis2DMultiLineSelDlg::isAll() const
 void uiSeis2DMultiLineSelDlg::getZRgs(
 				TypeSet<StepInterval<float> >& zrgs ) const
 {
-    zrgs.erase();
-    for ( int idx=0; idx<lnmsfld_->size(); idx++ )
-    {
-	if ( !lnmsfld_->isChosen(idx) )
-	    continue;
-
-	zrgs += zrgs_[idx];
-    }
+    zrgs = zrgs_;
 }
 
 
@@ -690,6 +661,7 @@ void uiSeis2DMultiLineSelDlg::trcRgChanged( CallBacker* )
 
 void uiSeis2DMultiLineSelDlg::zRgChanged( CallBacker* )
 {
+    if ( !zrgfld_ ) return;
     const int curitm = lnmsfld_->currentItem();
     if ( curitm<0 ) return;
 
@@ -722,6 +694,7 @@ uiSeis2DMultiLineSel::uiSeis2DMultiLineSel( uiParent* p, const char* text,
     , isall_(false),withz_(withz),withstep_(withstep)
 {
     if ( text && *text ) txtfld_->setTitleText( text );
+    initRanges();
 }
 
 
@@ -729,10 +702,74 @@ uiSeis2DMultiLineSel::~uiSeis2DMultiLineSel()
 {
 }
 
+void uiSeis2DMultiLineSel::clearAll()
+{
+    uiSeis2DLineSel::clearAll();
+    zrgs_.erase(); trcrgs_.erase();
+    maxzrgs_.erase(); maxtrcrgs_.erase();
+}
+
+
+void uiSeis2DMultiLineSel::setInput( const BufferStringSet& lnms )
+{
+    selectionChanged.disable();
+    uiSeis2DLineSel::setInput( lnms );
+    initRanges();
+    selectionChanged.enable();
+    selectionChanged.trigger();
+}
+
+
+void uiSeis2DMultiLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
+{
+    selectionChanged.disable();
+    uiSeis2DLineSel::setInput( geomids );
+    initRanges();
+    selectionChanged.enable();
+    selectionChanged.trigger();
+}
+
+
+void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
+{
+    selectionChanged.disable();
+    uiSeis2DLineSel::setInput( datasetid );
+    initRanges(&datasetid);
+    selectionChanged.enable();
+    selectionChanged.trigger();
+}
+
+
+void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
+{
+    PtrMan<SeisIOObjInfo> si = datasetid ? new SeisIOObjInfo(*datasetid) : 0;
+    for ( int idx=0; idx<geomids_.size(); idx++ )
+    {
+	StepInterval<int> trcrg(0,0,1);
+	StepInterval<float> zrg = SI().zRange(false);
+	if ( si )
+	    si->getRanges( geomids_[idx], trcrg, zrg );
+	else
+	{
+	    mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+			     Survey::GM().getGeometry(geomids_[idx]) );
+	    if ( geom2d )
+	    {
+		trcrg = geom2d->data().trcNrRange();
+		zrg = geom2d->data().zRange();
+	    }
+	}
+
+	maxtrcrgs_ += trcrg; trcrgs_ += trcrg;
+	maxzrgs_ += zrg; zrgs_ += zrg;
+    }
+}
+
 
 void uiSeis2DMultiLineSel::selPush( CallBacker* )
 {
-    uiSeis2DMultiLineSelDlg dlg( this, geomids_, lnms_, withz_, withstep_ );
+    uiSeis2DMultiLineSelDlg dlg( this, geomids_, lnms_, maxtrcrgs_, maxzrgs_,
+				 withz_, withstep_ );
     if ( isall_ )
 	dlg.setAll( true );
     else
@@ -757,11 +794,11 @@ bool uiSeis2DMultiLineSel::fillPar( IOPar& par ) const
     for ( int idx=0; idx<selidxs_.size(); idx++ )
     {
 	IOPar linepar;
-	linepar.set( sKey::GeomID(), geomids_[selidxs_[idx]] );
-	if ( trcrgs_.validIdx(idx) )
-	    linepar.set( sKey::TrcRange(), trcrgs_[idx] );
-	if ( withz_ && zrgs_.validIdx(idx) )
-	    linepar.set( sKey::ZRange(), zrgs_[idx] );
+	const Pos::GeomID selgeomid = geomids_[selidxs_[idx]];
+	linepar.set( sKey::GeomID(), selgeomid );
+	linepar.set( sKey::TrcRange(), trcrgs_[selidxs_[idx]] );
+	if ( withz_ )
+	    linepar.set( sKey::ZRange(), zrgs_[selidxs_[idx]] );
 
 	mergekey = idx;
 	lspar.mergeComp( linepar, mergekey );
@@ -785,12 +822,12 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
     }
 
     clearSelection();
-    trcrgs_.erase();
-    zrgs_.erase();
     PtrMan<IOPar> lspar = par.subselect( "Line" );
     if ( !lspar ) return;
 
     TypeSet<Pos::GeomID> selgeomids;
+    TypeSet<StepInterval<float> > selzrgs;
+    TypeSet<StepInterval<int> > seltrcrgs;
     for ( int idx=0; idx<1024; idx++ )
     {
 	PtrMan<IOPar> linepar = lspar->subselect( idx );
@@ -812,16 +849,18 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 	if ( !linepar->get(sKey::TrcRange(),trcrg) )
 	    continue;
 
-	trcrgs_ += trcrg;
+	seltrcrgs += trcrg;
 	if ( !withz_ )
 	    continue;
 
 	StepInterval<float> zrg;
 	if ( linepar->get(sKey::ZRange(),zrg) )
-	    zrgs_ += zrg;
+	    selzrgs += zrg;
     }
 
     setSelGeomIDs( selgeomids );
+    if ( !selzrgs.isEmpty() ) setZRanges( selzrgs );
+    if ( !seltrcrgs.isEmpty() ) setTrcRanges( seltrcrgs );
     isall_ = uiSeis2DLineSel::isAll();
 }
 
@@ -829,11 +868,44 @@ void uiSeis2DMultiLineSel::usePar( const IOPar& par )
 bool uiSeis2DMultiLineSel::isAll() const
 { return isall_; }
 
-const TypeSet<StepInterval<float> >& uiSeis2DMultiLineSel::getZRanges() const
-{ return zrgs_; }
 
-const TypeSet<StepInterval<int> >&  uiSeis2DMultiLineSel::getTrcRanges() const
-{ return trcrgs_; }
+void uiSeis2DMultiLineSel::getZRanges(
+				TypeSet<StepInterval<float> >& zrgs ) const
+{
+    zrgs.erase();
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	zrgs += zrgs_[selidxs_[idx]];
+}
+
+
+void uiSeis2DMultiLineSel::getTrcRanges(
+				TypeSet<StepInterval<int> >& trcrgs ) const
+{
+    trcrgs.erase();
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	trcrgs += trcrgs_[selidxs_[idx]];
+}
+
+
+StepInterval<float> uiSeis2DMultiLineSel::getZRange( int lidx ) const
+{
+    StepInterval<float> zrg = StepInterval<float>::udf();
+    if ( selidxs_.validIdx(lidx) )
+	zrg = zrgs_[selidxs_[lidx]];
+
+    return zrg;
+}
+
+
+StepInterval<int> uiSeis2DMultiLineSel::getTrcRange( int lidx ) const
+{
+    StepInterval<int> trcrg = StepInterval<int>::udf();
+    if ( selidxs_.validIdx(lidx) )
+	trcrg = trcrgs_[selidxs_[lidx]];
+
+    return trcrg;
+}
+
 
 void uiSeis2DMultiLineSel::setSelLines( const BufferStringSet& sellines )
 { isall_ = false; uiSeis2DLineSel::setSelLineNames( sellines ); }
@@ -843,9 +915,22 @@ void uiSeis2DMultiLineSel::setAll( bool yn )
 
 void uiSeis2DMultiLineSel::setZRanges(
 				const TypeSet<StepInterval<float> >& zrgs )
-{ zrgs_ = zrgs; }
+{
+    if ( zrgs.size() != selidxs_.size() )
+	return;
+
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	zrgs_[selidxs_[idx]] = zrgs[idx];
+}
+
 
 void uiSeis2DMultiLineSel::setTrcRanges(
 				const TypeSet<StepInterval<int> >& trcrgs )
-{ trcrgs_ = trcrgs; }
+{
+    if ( trcrgs.size() != selidxs_.size() )
+	return;
+
+    for ( int idx=0; idx<selidxs_.size(); idx++ )
+	trcrgs_[selidxs_[idx]] = trcrgs[idx];
+}
 

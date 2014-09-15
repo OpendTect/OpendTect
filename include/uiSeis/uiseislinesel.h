@@ -90,9 +90,9 @@ public:
     void		setSelGeomIDs(const TypeSet<Pos::GeomID>&);
     void		setSelLineNames(const BufferStringSet&);
 
-    void		setInput(const MultiID&);
-    void		setInput(const BufferStringSet& lnms);
-    void		setInput(const TypeSet<Pos::GeomID>& geomid);
+    virtual void	setInput(const MultiID&);
+    virtual void	setInput(const BufferStringSet& lnms);
+    virtual void	setInput(const TypeSet<Pos::GeomID>& geomid);
 
     void		clearSelection();
     int			nrSelected() const;
@@ -154,8 +154,14 @@ public:
 
     bool		isAll() const;
 
-    const TypeSet<StepInterval<float> >& getZRanges() const;
-    const TypeSet<StepInterval<int> >&	getTrcRanges() const;
+    void		getZRanges(TypeSet<StepInterval<float> >&) const;
+    void		getTrcRanges(TypeSet<StepInterval<int> >&) const;
+    StepInterval<float> getZRange(int lidx) const;
+    StepInterval<int>	getTrcRange(int lidx) const;
+
+    void		setInput(const MultiID&);
+    void		setInput(const BufferStringSet& lnms);
+    void		setInput(const TypeSet<Pos::GeomID>& geomid);
 
     void		setSelLines(const BufferStringSet&);
     void		setAll(bool);
@@ -170,10 +176,15 @@ protected:
     TypeSet<StepInterval<float> > zrgs_;
     TypeSet<StepInterval<int> >	trcrgs_;
 
+    TypeSet<StepInterval<float> > maxzrgs_;
+    TypeSet<StepInterval<int> > maxtrcrgs_;
+
     bool		isall_;
     bool		withstep_;
     bool		withz_;
 
+    void		clearAll();
+    void		initRanges(const MultiID* datasetid=0);
 
     void		selPush(CallBacker*);
 };
