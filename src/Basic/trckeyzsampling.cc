@@ -12,43 +12,80 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "survgeom.h"
 
 #include <math.h>
+
+
+TrcKeySampling::TrcKeySampling()
+    : start( start_ )
+    , stop( stop_ )
+    , step( step_ )
+    , survid_( mUdf(int) )
+{ init( true ); }
+
+
+TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
+    : start( start_ )
+    , stop( stop_ )
+    , step( step_ )
+{ init( gid ); }
+
+
+TrcKeySampling::TrcKeySampling( bool settosi )
+    : start( start_ )
+    , stop( stop_ )
+    , step( step_ )
+    , survid_( mUdf(int) )
+{ init( settosi ); }
+
+
+bool TrcKeySampling::init( Pos::GeomID gid )
+{
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry( gid );
+    if ( !geom )
+	return false;
+
+    (*this) = geom->sampling().hsamp_;
+    survid_ = geom->getSurvID();
+
+    return true;
+}
 
 
 void TrcKeySampling::init( bool tosi )
 {
     if ( tosi )
     {
-	start = SI().sampling(false).hrg.start;
-	stop = SI().sampling(false).hrg.stop;
-	step = SI().sampling(false).hrg.step;
+	init( Survey::GM().default3DSurvID() );
     }
     else
     {
-	start.inl() = start.crl() = stop.inl() = stop.crl() = mUdf(int);
-	step.inl() = step.crl() = 1;
+	survid_ = mUdf(int);
+	start_.lineNr() = start_.trcNr() = stop_.lineNr() =
+		stop_.trcNr() = mUdf(int);
+	step_.lineNr() = step_.trcNr() = 1;
     }
 }
 
 
 BinID TrcKeySampling::atIndex(  od_int64 globalidx ) const
 {
-    const int nrcrl = nrCrl();
-    if ( !nrcrl )
-	return BinID(0,0);
+    const int nrtrcs = nrTrcs();
+    if ( !nrtrcs )
+	return BinID::udf();
 
-    const int inlidx = (int)(globalidx/nrcrl);
-    const int crlidx = (int)(globalidx%nrcrl);
-    return atIndex( inlidx, crlidx );
+    const int lineidx = (int)(globalidx/nrtrcs);
+    const int trcidx = (int)(globalidx%nrtrcs);
+    return atIndex( lineidx, trcidx );
 }
 
 
 void TrcKeySampling::set2DDef()
 {
-    start.inl() = start.crl() = 0;
-    stop.inl() = stop.crl() = mUdf(int);
-    step.inl() = step.crl() = 1;
+    start_.lineNr() = start_.trcNr() = 0;
+    stop_.lineNr() = stop_.trcNr() = mUdf(int);
+    step_.lineNr() = step_.trcNr() = 1;
 }
 
 
@@ -61,90 +98,93 @@ TrcKeySampling& TrcKeySampling::set( const Interval<int>& inlrg,
 }
 
 
-void TrcKeySampling::setInlRange( const Interval<int>& inlrg )
+void TrcKeySampling::setLineRange( const Interval<int>& inlrg )
 {
-    start.inl() = inlrg.start; stop.inl() = inlrg.stop;
+    start_.lineNr() = inlrg.start; stop_.lineNr() = inlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	step.inl() = inlsrg->step;
+	step_.lineNr() = inlsrg->step;
 }
 
 
-void TrcKeySampling::setCrlRange( const Interval<int>& crlrg )
+void TrcKeySampling::setTrcRange( const Interval<int>& crlrg )
 {
-    start.crl() = crlrg.start; stop.crl() = crlrg.stop;
+    start_.trcNr() = crlrg.start; stop_.trcNr() = crlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	step.crl() = crlsrg->step;
+	step_.trcNr() = crlsrg->step;
 }
 
 
-StepInterval<int> TrcKeySampling::inlRange() const
-{ return StepInterval<int>( start.inl(), stop.inl(), step.inl() ); }
+StepInterval<int> TrcKeySampling::lineRange() const
+{ return StepInterval<int>( start_.lineNr(), stop_.lineNr(), step_.lineNr() ); }
 
 
-StepInterval<int> TrcKeySampling::crlRange() const
-{ return StepInterval<int>( start.crl(), stop.crl(), step.crl() ); }
+StepInterval<int> TrcKeySampling::trcRange() const
+{ return StepInterval<int>( start_.trcNr(), stop_.trcNr(), step_.trcNr() ); }
 
 
-bool TrcKeySampling::includes( const TrcKeySampling& hs, bool ignoresteps ) const
+bool TrcKeySampling::includes( const TrcKeySampling& tks,
+			       bool ignoresteps ) const
 {
     if ( ignoresteps )
-	return hs.start.inl() >= start.inl() && hs.stop.inl() <= stop.inl()
-	    && hs.start.crl() >= start.crl() && hs.stop.crl() <= stop.crl();
+	return tks.start_.lineNr() >= start_.lineNr() &&
+	       tks.stop_.lineNr() <= stop_.lineNr() &&
+	       tks.start_.trcNr() >= start_.trcNr() &&
+	       tks.stop_.trcNr() <= stop_.trcNr();
 
-    return includes(hs.start) && includes(hs.stop)
-	&& step.inl() && !(hs.step.inl() % step.inl())
-	&& step.crl() && !(hs.step.crl() % step.crl());
+    return includes(tks.start_) && includes(tks.stop_)
+	&& step_.lineNr() && !(tks.step_.lineNr() % step_.lineNr())
+	&& step_.trcNr() && !(tks.step_.trcNr() % step_.trcNr());
 }
 
 
-void TrcKeySampling::includeInl( int inl )
+void TrcKeySampling::includeLine( Pos::LineID lid )
 {
-    if ( mIsUdf(start.inl()) || mIsUdf(stop.inl()) || nrInl()<1 )
-	start.inl() = stop.inl() = inl;
+    if ( mIsUdf(start_.lineNr()) || mIsUdf(stop_.lineNr()) || nrLines()<1 )
+	start_.lineNr() = stop_.lineNr() = lid;
     else
     {
-	start.inl() = mMIN( start.inl(), inl );
-	stop.inl() = mMAX( stop.inl(), inl );
+	start_.lineNr() = mMIN( start_.lineNr(), lid );
+	stop_.lineNr() = mMAX( stop_.lineNr(), lid );
     }
 }
 
 
-void TrcKeySampling::includeCrl( int crl )
+void TrcKeySampling::includeTrc( Pos::TraceID trcid )
 {
-    if ( mIsUdf(start.crl()) || mIsUdf(stop.crl()) || nrCrl()<1 )
-	start.crl() = stop.crl() = crl;
+    if ( mIsUdf(start_.trcNr()) || mIsUdf(stop_.trcNr()) || nrTrcs()<1 )
+	start_.trcNr() = stop_.trcNr() = trcid;
     else
     {
-	start.crl() = mMIN( start.crl(), crl );
-	stop.crl() = mMAX( stop.crl(), crl );
+	start_.trcNr() = mMIN( start_.trcNr(), trcid );
+	stop_.trcNr() = mMAX( stop_.trcNr(), trcid );
     }
 }
 
 
-void TrcKeySampling::include( const TrcKeySampling& hs, bool ignoresteps )
+void TrcKeySampling::include( const TrcKeySampling& tks, bool ignoresteps )
 {
     if ( ignoresteps )
     {
-	include( hs.start );
-	include( hs.stop );
+	include( tks.start_ );
+	include( tks.stop_ );
 	return;
     }
 
     TrcKeySampling temp( *this );
-    temp.include( hs.start );
-    temp.include( hs.stop );
+    temp.include( tks.start_ );
+    temp.include( tks.stop_ );
 
 #define mHandleIC( ic ) \
-    const int newstart##ic = temp.start.ic(); \
-    const int newstop##ic = temp.stop.ic(); \
-    int offset##ic = mIsUdf(start.ic()) || mIsUdf(hs.start.ic()) ? 0 \
-	: ( start.ic() != newstart##ic ? start.ic() - newstart##ic \
-				     : hs.start.ic() - newstart##ic ); \
-    step.ic() = Math::HCFOf( step.ic(), hs.step.ic() ); \
-    if ( offset##ic ) step.ic() = Math::HCFOf( step.ic(), offset##ic ); \
-    start.ic() = newstart##ic; stop.ic() = newstop##ic
+    const int newstart_##ic = temp.start_.ic(); \
+    const int newstop_##ic = temp.stop_.ic(); \
+    int offset##ic = mIsUdf(start_.ic()) || mIsUdf(tks.start_.ic()) ? 0 \
+	: ( start_.ic() != newstart_##ic ? start_.ic() - newstart_##ic \
+				     : tks.start_.ic() - newstart_##ic ); \
+    step_.ic() = Math::HCFOf( step_.ic(), tks.step_.ic() ); \
+    if ( offset##ic ) step_.ic() = Math::HCFOf( step_.ic(), offset##ic ); \
+    start_.ic() = newstart_##ic; stop_.ic() = newstop_##ic
 
     mHandleIC(inl);
     mHandleIC(crl);
@@ -153,63 +193,96 @@ void TrcKeySampling::include( const TrcKeySampling& hs, bool ignoresteps )
 
 void TrcKeySampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 {
-    inlrg.start = start.inl(); inlrg.stop = stop.inl();
+    inlrg.start = start_.lineNr(); inlrg.stop = stop_.lineNr();
     mDynamicCastGet(StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
-	inlsrg->step = step.inl();
-    crlrg.start = start.crl(); crlrg.stop = stop.crl();
+	inlsrg->step = step_.lineNr();
+    crlrg.start = start_.trcNr(); crlrg.stop = stop_.trcNr();
     mDynamicCastGet(StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
-	crlsrg->step = step.crl();
+	crlsrg->step = step_.trcNr();
 }
 
 
 bool TrcKeySampling::isDefined() const
 {
-    return !mIsUdf(start.inl()) && !mIsUdf(start.crl()) &&
-	   !mIsUdf(stop.inl()) && !mIsUdf(stop.crl()) &&
-	   !mIsUdf(step.inl()) && !mIsUdf(step.crl());
+    return !mIsUdf(survid_) &&
+	   !mIsUdf(start_.lineNr()) && !mIsUdf(start_.trcNr()) &&
+	   !mIsUdf(stop_.lineNr()) && !mIsUdf(stop_.trcNr()) &&
+	   !mIsUdf(step_.lineNr()) && !mIsUdf(step_.trcNr());
 }
+
+
+TrcKeySampling& TrcKeySampling::operator=(const TrcKeySampling& hrg)
+{
+    survid_ = hrg.survid_;
+    start_ = hrg.start_;
+    stop_ = hrg.stop_;
+    step_ = hrg.step;
+
+    return *this;
+}
+
+
+bool TrcKeySampling::operator==( const TrcKeySampling& tks ) const
+{
+    return tks.start_==start_ && tks.stop_==stop_ &&
+	   tks.step_==step_ && tks.survid_==survid_;
+}
+
+
+bool TrcKeySampling::operator!=( const TrcKeySampling& tks ) const
+{ return !(*this==tks); }
+
+
+od_int64 TrcKeySampling::totalNr() const
+{ return ((od_int64) nrLines()) * nrTrcs(); }
+
+
+bool TrcKeySampling::isEmpty() const
+{ return nrLines() < 1 || nrTrcs() < 1; }
 
 
 void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 {
-    TrcKeySampling hs( h ); hs.normalise();
+    TrcKeySampling tks( h ); tks.normalise();
     normalise();
 
-    if ( hs.start.inl() > stop.inl() || hs.stop.inl() < start.inl() ||
-	 hs.start.crl() > stop.crl() || hs.stop.crl() < start.crl() )
+    if ( tks.start_.lineNr()>stop_.lineNr() ||
+	 tks.stop_.lineNr()<start_.lineNr() ||
+	 tks.start_.trcNr()>stop_.trcNr() ||
+	 tks.stop_.trcNr() < start_.trcNr() )
     {
 	init( false );
 	return;
     }
 
 #define mLimitIC( ic ) \
-    const bool ic##invalidstep = step.ic() == 0 || mIsUdf(step.ic()) \
-			    || h.step.ic() == 0 || mIsUdf(h.step.ic()); \
-    const bool ic##nostephandling = step.ic() == h.step.ic() && \
-    			( ic##OK(hs.start.ic()) || hs.ic##OK(start.ic()) ); \
-    if ( ignoresteps || ic##invalidstep || ic##nostephandling ) \
+    const bool ic##invalidstep_ = step_.ic() == 0 || mIsUdf(step_.ic()) \
+			    || h.step_.ic() == 0 || mIsUdf(h.step_.ic()); \
+    const bool ic##nostep_handling = step_.ic() == h.step_.ic() && \
+			( ic##OK(tks.start_.ic()) || tks.ic##OK(start_.ic()) );\
+    if ( ignoresteps || ic##invalidstep_ || ic##nostep_handling ) \
     { \
-	if ( hs.start.ic() > start.ic() ) start.ic() = hs.start.ic(); \
-	if ( hs.stop.ic() < stop.ic() ) stop.ic() = hs.stop.ic(); \
+	if ( tks.start_.ic() > start_.ic() ) start_.ic() = tks.start_.ic(); \
+	if ( tks.stop_.ic() < stop_.ic() ) stop_.ic() = tks.stop_.ic(); \
     } \
     else \
     { \
-	float startdiff = mCast( float, start.ic() - h.start.ic() ); \
-	int minstop = mMIN( stop.ic(), h.stop.ic() ); \
-	int common = mCast( int, start.ic() + step.ic() * (startdiff > 0 ? 1 \
-					: ceil(-startdiff/step.ic())) ); \
-	while ( common <= minstop && (common-h.start.ic())%h.step.ic() ) \
-	    common += step.ic(); \
-	if ( common > minstop ) \
+	float start_diff = mCast( float, start_.ic() - h.start_.ic() ); \
+	int minstop_ = mMIN( stop_.ic(), h.stop_.ic() ); \
+	int common = mCast( int, start_.ic() + step_.ic() * (start_diff > 0 ? 1\
+					: ceil(-start_diff/step_.ic())) ); \
+	while ( common <= minstop_ && (common-h.start_.ic())%h.step_.ic() ) \
+	    common += step_.ic(); \
+	if ( common > minstop_ ) \
 	{ \
 	    init( false ); \
 	    return; \
 	} \
-	start.ic() = common; \
-	step.ic() = Math::LCMOf( step.ic(), h.step.ic() ); \
-	stop.ic() = common + step.ic() * ((minstop-common)/step.ic()); \
+	start_.ic() = common; \
+	step_.ic() = Math::LCMOf( step_.ic(), h.step_.ic() ); \
+	stop_.ic() = common + step_.ic() * ((minstop_-common)/step_.ic()); \
     }
 
     mLimitIC(inl);
@@ -222,20 +295,20 @@ void TrcKeySampling::limitTo( const TrcKeySampling& h, bool ignoresteps )
 
 void TrcKeySampling::limitToWithUdf( const TrcKeySampling& h )
 {
-    TrcKeySampling hs( h ); hs.normalise();
+    TrcKeySampling tks( h ); tks.normalise();
     normalise();
 
-    mAdjustIf(start.inl(),<,hs.start.inl());
-    mAdjustIf(start.crl(),<,hs.start.crl());
-    mAdjustIf(stop.inl(),>,hs.stop.inl());
-    mAdjustIf(stop.crl(),>,hs.stop.crl());
-    mAdjustIf(step.inl(),<,hs.step.inl());
-    mAdjustIf(step.crl(),<,hs.step.crl());
+    mAdjustIf(start_.lineNr(),<,tks.start_.lineNr());
+    mAdjustIf(start_.trcNr(),<,tks.start_.trcNr());
+    mAdjustIf(stop_.lineNr(),>,tks.stop_.lineNr());
+    mAdjustIf(stop_.trcNr(),>,tks.stop_.trcNr());
+    mAdjustIf(step_.lineNr(),<,tks.step_.lineNr());
+    mAdjustIf(step_.trcNr(),<,tks.step_.trcNr());
 }
 
 
-static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
-		      int& step )
+static bool getRange( const IOPar& par, const char* key, int& start_,
+		      int& stop_, int& step_ )
 {
     FixedString parval = par[key];
     if ( !parval )
@@ -243,11 +316,11 @@ static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
 
     FileMultiString fms( parval );
     if ( fms.size() > 0 )
-	start = fms.getIValue( 0 );
+	start_ = fms.getIValue( 0 );
     if ( fms.size() > 1 )
-	stop = fms.getIValue( 1 );
+	stop_ = fms.getIValue( 1 );
     if ( fms.size() > 2 )
-	step = fms.getIValue( 2 );
+	step_ = fms.getIValue( 2 );
 
     return true;
 }
@@ -256,21 +329,21 @@ static bool getRange( const IOPar& par, const char* key, int& start, int& stop,
 bool TrcKeySampling::usePar( const IOPar& pars )
 {
     bool inlok = getRange( pars, sKey::InlRange(),
-			   start.inl(), stop.inl(), step.inl() );
+			   start_.lineNr(), stop_.lineNr(), step_.lineNr() );
     if ( !inlok )
     {
-	inlok = pars.get( sKey::FirstInl(), start.inl() );
-	inlok = pars.get( sKey::LastInl(), stop.inl() ) || inlok;
-	pars.get( sKey::StepInl(), step.inl() );
+	inlok = pars.get( sKey::FirstInl(), start_.lineNr() );
+	inlok = pars.get( sKey::LastInl(), stop_.lineNr() ) || inlok;
+	pars.get( sKey::StepInl(), step_.lineNr() );
     }
 
     bool crlok = getRange( pars, sKey::CrlRange(),
-			   start.crl(), stop.crl(), step.crl() );
+			   start_.trcNr(), stop_.trcNr(), step_.trcNr() );
     if ( !crlok )
     {
-	crlok = pars.get( sKey::FirstCrl(), start.crl() );
-	crlok = pars.get( sKey::LastCrl(), stop.crl() ) || crlok;
-	pars.get( sKey::StepCrl(), step.crl() );
+	crlok = pars.get( sKey::FirstCrl(), start_.trcNr() );
+	crlok = pars.get( sKey::LastCrl(), stop_.trcNr() ) || crlok;
+	pars.get( sKey::StepCrl(), step_.trcNr() );
     }
 
     return inlok && crlok;
@@ -279,12 +352,12 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 
 void TrcKeySampling::fillPar( IOPar& pars ) const
 {
-    pars.set( sKey::FirstInl(), start.inl() );
-    pars.set( sKey::FirstCrl(), start.crl() );
-    pars.set( sKey::LastInl(), stop.inl() );
-    pars.set( sKey::LastCrl(), stop.crl() );
-    pars.set( sKey::StepInl(), step.inl() );
-    pars.set( sKey::StepCrl(), step.crl() );
+    pars.set( sKey::FirstInl(), start_.lineNr() );
+    pars.set( sKey::FirstCrl(), start_.trcNr() );
+    pars.set( sKey::LastInl(), stop_.lineNr() );
+    pars.set( sKey::LastCrl(), stop_.trcNr() );
+    pars.set( sKey::StepInl(), step_.lineNr() );
+    pars.set( sKey::StepCrl(), step_.trcNr() );
 }
 
 
@@ -299,62 +372,62 @@ void TrcKeySampling::removeInfo( IOPar& par )
 }
 
 
-int TrcKeySampling::nrInl() const
+int TrcKeySampling::nrLines() const
 {
-    if ( (mIsUdf(start.inl()) && mIsUdf(stop.inl())) )
+    if ( (mIsUdf(start_.lineNr()) && mIsUdf(stop_.lineNr())) )
 	return 0;
     
-    if ( !step.inl() )
+    if ( !step_.lineNr() )
 	return 0;
 
-    if ( start.inl()==stop.inl() )
+    if ( start_.lineNr()==stop_.lineNr() )
 	return 1;
     
-    int ret = inlIdx( stop.inl() );
+    int ret = inlIdx( stop_.lineNr() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
 
 
-int TrcKeySampling::nrCrl() const
+int TrcKeySampling::nrTrcs() const
 {
-    if ( (mIsUdf(start.crl()) && mIsUdf(stop.crl())) )
+    if ( (mIsUdf(start_.trcNr()) && mIsUdf(stop_.trcNr())) )
 	return 0;
     
-    if ( !step.crl() )
+    if ( !step_.trcNr() )
 	return 0;
 
-    if ( start.crl()==stop.crl() )
+    if ( start_.trcNr()==stop_.trcNr() )
 	return 1;
     
-    int ret = crlIdx( stop.crl() );
+    int ret = crlIdx( stop_.trcNr() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
 
 
-static bool intersect(	int start1, int stop1, int step1,
-			int start2, int stop2, int step2,
-			int& outstart, int& outstop, int& outstep )
+static bool intersect(	int start_1, int stop_1, int step_1,
+			int start_2, int stop_2, int step_2,
+			int& outstart_, int& outstop_, int& outstep_ )
 {
-    if ( stop1 < start2 || start1 > stop2 )
+    if ( stop_1 < start_2 || start_1 > stop_2 )
 	return false;
 
-    // Determine step. Only accept reasonable step differences
-    outstep = step2 > step1 ? step2 : step1;
-    int lostep = step2 > step1 ? step1 : step2;
-    if ( !lostep || outstep%lostep ) return false;
+    // Determine step_. Only accept reasonable step_ differences
+    outstep_ = step_2 > step_1 ? step_2 : step_1;
+    int lostep_ = step_2 > step_1 ? step_1 : step_2;
+    if ( !lostep_ || outstep_%lostep_ ) return false;
 
-    // Snap start
-    outstart = start1 < start2 ? start2 : start1;
-    while ( (outstart-start1) % step1 )
-	outstart += lostep;
-    while ( (outstart-start2) % step2 )
-	outstart += lostep;
+    // Snap start_
+    outstart_ = start_1 < start_2 ? start_2 : start_1;
+    while ( (outstart_-start_1) % step_1 )
+	outstart_ += lostep_;
+    while ( (outstart_-start_2) % step_2 )
+	outstart_ += lostep_;
 
-    // Snap stop
-    outstop = stop1 > stop2 ? stop2 : stop1;
-    int nrsteps = (outstop - outstart) / outstep;
-    outstop = outstart + nrsteps * outstep;
-    return outstop >= outstart;
+    // Snap stop_
+    outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
+    int nrstep_s = (outstop_ - outstart_) / outstep_;
+    outstop_ = outstart_ + nrstep_s * outstep_;
+    return outstop_ >= outstart_;
 }
 
 #define Eps 2e-5
@@ -364,99 +437,126 @@ inline bool IsZero( float f, float eps=Eps )
     return f > -eps && f < eps;
 }
 
-static inline bool inSeries( float v, float start, float step )
+
+static inline bool inSeries( float v, float start_, float step_ )
 {
-    float fdiff = (start - v) / step;
+    float fdiff = (start_ - v) / step_;
     int idiff = mNINT32( fdiff );
     fdiff -= (float)idiff;
     return IsZero( fdiff, 1e-3 );
 }
 
 
-static bool intersectF(	float start1, float stop1, float step1,
-			float start2, float stop2, float step2,
-			float& outstart, float& outstop, float& outstep )
+static bool intersectF( float start_1, float stop_1, float step_1,
+			float start_2, float stop_2, float step_2,
+			float& outstart_, float& outstop_, float& outstep_ )
 {
-    if ( stop1-start2 < mDefEps || start1-stop2 > mDefEps )
+    if ( stop_1-start_2 < mDefEps || start_1-stop_2 > mDefEps )
 	return false;
 
-    outstep = step2 > step1 ? step2 : step1;
-    float lostep = step2 > step1 ? step1 : step2;
-    if ( IsZero(lostep) ) return false;
+    outstep_ = step_2 > step_1 ? step_2 : step_1;
+    float lostep_ = step_2 > step_1 ? step_1 : step_2;
+    if ( IsZero(lostep_) ) return false;
 
-    // See if starts are compatible
-    if ( !inSeries(start1,start2,lostep) )
+    // See if start_s are compatible
+    if ( !inSeries(start_1,start_2,lostep_) )
 	return false;
 
-    // Only accept reasonable step differences
+    // Only accept reasonable step_ differences
     int ifac = 1;
     for ( ; ifac<2001; ifac++ )
     {
-	float stp = ifac * lostep;
-	if ( IsZero(stp-outstep) ) break;
+	float stp = ifac * lostep_;
+	if ( IsZero(stp-outstep_) ) break;
 	else if ( ifac == 2000 ) return false;
     }
 
-    outstart = start1 < start2 ? start2 : start1;
-    while ( !inSeries(outstart,start1,step1)
-	 || !inSeries(outstart,start2,step2) )
-	outstart += lostep;
+    outstart_ = start_1 < start_2 ? start_2 : start_1;
+    while ( !inSeries(outstart_,start_1,step_1)
+	 || !inSeries(outstart_,start_2,step_2) )
+	outstart_ += lostep_;
 
-    // Snap stop
-    outstop = stop1 > stop2 ? stop2 : stop1;
-    int nrsteps = (int)( (outstop - outstart + Eps) / outstep );
-    outstop = outstart + nrsteps * outstep;
-    return (outstop-outstart) > Eps;
+    // Snap stop_
+    outstop_ = stop_1 > stop_2 ? stop_2 : stop_1;
+    int nrstep_s = (int)( (outstop_ - outstart_ + Eps) / outstep_ );
+    outstop_ = outstart_ + nrstep_s * outstep_;
+    return (outstop_-outstart_) > Eps;
 }
 
 
-bool TrcKeySampling::getInterSection( const TrcKeySampling& hs,
+bool TrcKeySampling::getInterSection( const TrcKeySampling& tks,
 				   TrcKeySampling& out ) const
 {
-    TrcKeySampling hs1( hs );	hs1.normalise();
-    TrcKeySampling hs2( *this );	hs2.normalise();
+    TrcKeySampling tks1( tks ); tks1.normalise();
+    TrcKeySampling tks2( *this );	tks2.normalise();
 
-    return intersect( hs1.start.inl(), hs1.stop.inl(), hs1.step.inl(),
-		      hs2.start.inl(), hs2.stop.inl(), hs2.step.inl(),
-		      out.start.inl(), out.stop.inl(), out.step.inl() )
-	&& intersect( hs1.start.crl(), hs1.stop.crl(), hs1.step.crl(),
-		      hs2.start.crl(), hs2.stop.crl(), hs2.step.crl(),
-		      out.start.crl(), out.stop.crl(), out.step.crl() );
+    return intersect( tks1.start_.lineNr(),
+		      tks1.stop_.lineNr(),
+		      tks1.step_.lineNr(),
+		      tks2.start_.lineNr(),
+		      tks2.stop_.lineNr(),
+		      tks2.step_.lineNr(),
+		      out.start_.lineNr(),
+		      out.stop_.lineNr(),
+		      out.step_.lineNr())
+	&& intersect( tks1.start_.trcNr(),
+		      tks1.stop_.trcNr(),
+		      tks1.step_.trcNr(),
+		      tks2.start_.trcNr(),
+		      tks2.stop_.trcNr(),
+		      tks2.step_.trcNr(),
+		      out.start_.trcNr(),
+		      out.stop_.trcNr(),
+		      out.step_.trcNr());
 }
 
 
-
-static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step )
+static void getNearestIdx( Pos::Index_Type& diridx, Pos::Index_Type step_ )
 {
-    const Pos::Index_Type rest = diridx % step;
+    const Pos::Index_Type rest = diridx % step_;
     if ( !rest )
 	return;
 
-    if ( rest > step/2 )
-	diridx += step - rest;
+    if ( rest > step_/2 )
+	diridx += step_ - rest;
     else
 	diridx -= rest;
 }
 
 
-BinID TrcKeySampling::getNearest( const BinID& bid ) const
+TrcKey TrcKeySampling::getNearest( const TrcKey& trckey ) const
 {
-    BinID relbid( bid.first - start.first, bid.second - start.second );
+    if ( trckey.survID()!=survid_ )
+	return TrcKey::udf();
 
-    if ( step.first )
-	getNearestIdx( relbid.first, step.first );
-    if ( step.second )
-	getNearestIdx( relbid.second, step.second );
 
-    BinID ret( start.first + relbid.first, start.second + relbid.second );
-    if ( ret.first < start.first )
-	ret.first = start.first;
-    else if ( ret.first > stop.first )
-	ret.first = stop.first;
-    if ( ret.second < start.second )
-	ret.second = start.second;
-    else if ( ret.second > stop.second )
-	ret.second = stop.second;
+    BinID relbid( trckey.pos().first - start_.first,
+		  trckey.pos().second - start_.second );
+
+    BinID ret( 0, 0 );
+
+    if ( !TrcKey::is2D( survid_ ) )
+    {
+	if ( step_.first )
+	    getNearestIdx( relbid.first, step_.first );
+
+	ret.first = start_.first + relbid.first;
+
+	if ( ret.first < start_.first )
+	    ret.first = start_.first;
+	else if ( ret.first > stop_.first )
+	    ret.first = stop_.first;
+    }
+
+    if ( step_.second )
+	getNearestIdx( relbid.second, step_.second );
+
+    ret.second = start_.second + relbid.second;
+
+    if ( ret.second < start_.second )
+	ret.second = start_.second;
+    else if ( ret.second > stop_.second )
+	ret.second = stop_.second;
 
     return ret;
 }
@@ -465,88 +565,169 @@ BinID TrcKeySampling::getNearest( const BinID& bid ) const
 
 void TrcKeySampling::snapToSurvey()
 {
-    SI().snap( start, BinID(-1,-1) );
-    SI().snap( stop, BinID(1,1) );
+    SI().snap( start_, BinID(-1,-1) );
+    SI().snap( stop_, BinID(1,1) );
 }
 
 
 void TrcKeySampling::toString( BufferString& str ) const
 {
-    str.add( "Inline range: " ).add( start.inl() ).add( " - " )
-	.add( stop.inl() ).add( " [" ).add( step.inl() ).add( "]\n" );
-    str.add( "Crossline range: " ).add( start.crl() ).add( " - " )
-	.add( stop.crl() ).add( " [" ).add( step.crl() ).add( "]" );
+    str.add( "Inline range: " ).add( start_.lineNr() ).add( " - " )
+	.add( stop_.lineNr() ).add( " [" ).add( step_.lineNr() ).add( "]\n" );
+    str.add( "Crossline range: " ).add( start_.trcNr() ).add( " - " )
+	.add( stop_.trcNr() ).add( " [" ).add( step_.trcNr() ).add( "]" );
 }
 
 
-void TrcKeySampling::getRandomSet( int nr, TypeSet<BinID>& bidset ) const
+void TrcKeySampling::getRandomSet( int nr, TypeSet<TrcKey>& res ) const
 {
     if ( nr > totalNr() )
 	nr = (int) totalNr();
 
     while ( nr )
     {
-	BinID bid( inlRange().start + std::rand() % nrInl(),
-		   crlRange().start + std::rand() % nrCrl() );
-	if ( includes(bid) && bidset.addIfNew(bid) )
+	const TrcKey trckey( lineRange().start + std::rand() % nrLines(),
+			     trcRange().start + std::rand() % nrTrcs() );
+	if ( includes(trckey) && res.addIfNew(trckey) )
 	    nr--;
     }
+}
+
+
+BinID TrcKeySampling::atIndex( int i0, int i1 ) const
+{
+    const Pos::TraceID trcnr = start_.trcNr() + i1*step_.trcNr();
+    const Pos::LineID linenr = TrcKey::is2D(survid_)
+	? start_.lineNr()
+	: start_.lineNr() + i0*step_.lineNr();
+
+
+    return BinID(linenr,trcnr);
+}
+
+
+TrcKey TrcKeySampling::trcKeyAt(int i0, int i1) const
+{
+    const BinID res = atIndex( i0, i1 );
+    if ( res.isUdf() )
+	return TrcKey::udf();
+
+    return TrcKey( survid_, res );
+}
+
+
+TrcKey TrcKeySampling::trcKeyAt( int64_t globalidx ) const
+{
+    const BinID res = atIndex( globalidx );
+    if ( res.isUdf() )
+	return TrcKey::udf();
+
+    return TrcKey( survid_, res );
+}
+
+
+void TrcKeySampling::include( const TrcKey& trckey )
+{
+    includeLine( trckey.lineNr() );
+    includeTrc( trckey.trcNr() );
+}
+
+
+od_int64 TrcKeySampling::globalIdx( const TrcKey& trk ) const
+{
+    if ( trk.survID()!=survid_ )
+	return -1;
+
+    return globalIdx( trk.pos() );
+}
+
+
+od_int64 TrcKeySampling::globalIdx( const BinID& bid ) const
+{
+    return lineIdx( bid.lineNr() ) * nrTrcs() + trcIdx(bid.trcNr() );
+}
+
+
+bool TrcKeySampling::lineOK( Pos::LineID lid ) const
+{
+    return lid >= start_.lineNr() &&
+	   lid <= stop_.lineNr() &&
+	   (step_.lineNr()
+		? !( (lid-start_.lineNr()) % step_.lineNr() )
+		: lid==start_.lineNr());
+}
+
+
+bool TrcKeySampling::trcOK( Pos::TraceID tid ) const
+{
+    return tid >= start_.trcNr() &&
+	   tid <= stop_.trcNr() &&
+	   (step_.crl()
+		? !( (tid-start_.trcNr()) % step_.trcNr() )
+		: tid==start_.trcNr());
+}
+
+
+bool TrcKeySampling::includes( const TrcKey& tk ) const
+{
+    return survid_==tk.survID() && lineOK(tk.lineNr())	&& trcOK(tk.trcNr());
 }
 
 
 // TrcKeyZSampling
 void TrcKeyZSampling::set2DDef()
 {
-    hrg.set2DDef();
-    zrg = SI().zRange(false);
+    hsamp_.set2DDef();
+    zsamp_ = SI().zRange(false);
 }
 
 
 void TrcKeyZSampling::init( bool tosi )
 {
-    hrg.init( tosi );
+    hsamp_.init( tosi );
     if ( tosi )
-	zrg = SI().zRange(false);
+	zsamp_ = SI().zRange(false);
     else
-	{ zrg.start = zrg.stop = 0; zrg.step = 1; }
+	{ zsamp_.start = zsamp_.stop = 0; zsamp_.step = 1; }
 }
 
 
-static void normaliseZ( StepInterval<float>& zrg )
+static void normaliseZ( StepInterval<float>& zsamp )
 {
-    if ( zrg.start > zrg.stop )	Swap(zrg.start,zrg.stop);
-    if ( zrg.step < 0 )		zrg.step = -zrg.step;
-    else if ( !zrg.step )	zrg.step = SI().zStep();
+    if ( zsamp.start > zsamp.stop )	Swap(zsamp.start,zsamp.stop);
+    if ( zsamp.step < 0 )		zsamp.step = -zsamp.step;
+    else if ( !zsamp.step )		zsamp.step = SI().zStep();
 }
 
 
-bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& cs,
+bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
 				    TrcKeyZSampling& out ) const
 {
-    if ( !hrg.getInterSection(cs.hrg,out.hrg) )
+    if ( !hsamp_.getInterSection(tkzs.hsamp_,out.hsamp_) )
 	return false;
 
-    StepInterval<float> zrg1( cs.zrg );	normaliseZ( zrg1 );
-    StepInterval<float> zrg2( zrg );	normaliseZ( zrg2 );
-    return intersectF( zrg1.start, zrg1.stop, zrg1.step,
-		       zrg2.start, zrg2.stop, zrg2.step,
+    StepInterval<float> zsamp1( tkzs.zsamp_ );	normaliseZ( zsamp1 );
+    StepInterval<float> zsamp2( zsamp_ );	normaliseZ( zsamp2 );
+    return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
+		       zsamp2.start, zsamp2.stop, zsamp2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
 }
     
 
 bool TrcKeyZSampling::isFlat() const
 {
-    if ( hrg.start.inl()==hrg.stop.inl() || hrg.start.crl()==hrg.stop.crl() )
+    if ( hsamp_.start_.lineNr()==hsamp_.stop_.lineNr() ||
+	 hsamp_.start_.trcNr()==hsamp_.stop_.trcNr() )
 	return true;
 
-    return fabs( zrg.stop-zrg.start ) < fabs( zrg.step * 0.5 );
+    return fabs( zsamp_.stop-zsamp_.start ) < fabs( zsamp_.step * 0.5 );
 }
 
 
 TrcKeyZSampling::Dir TrcKeyZSampling::defaultDir() const
 {
-    const int nrinl = nrInl();
-    const int nrcrl = nrCrl();
+    const int nrinl = nrLines();
+    const int nrcrl = nrTrcs();
     const int nrz = nrZ();
     if ( nrz < nrinl && nrz < nrcrl )
 	return Z;
@@ -567,94 +748,158 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 
 
 od_int64 TrcKeyZSampling::totalNr() const
-{ return ((od_int64) nrZ()) * ((od_int64) hrg.totalNr()); }
+{ return ((od_int64) nrZ()) * ((od_int64) hsamp_.totalNr()); }
+
+
+
+TrcKeyZSampling::TrcKeyZSampling()
+    : hrg(hsamp_),zrg(zsamp_)
+{ init( true ); }
+
+
+TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
+    : hrg(hsamp_),zrg(zsamp_)
+{ init( settoSI ); }
+
+
+int TrcKeyZSampling::lineIdx(int lineid)const
+{return hsamp_.lineIdx(lineid);}
+
+
+int TrcKeyZSampling::trcIdx( int trcnr ) const
+{return hsamp_.trcIdx(trcnr); }
+
+
+int TrcKeyZSampling::zIdx( float z ) const
+{ return zsamp_.getIndex(z); }
+
+
+int TrcKeyZSampling::nrLines() const
+{ return hsamp_.nrLines(); }
+
+
+int TrcKeyZSampling::nrTrcs() const
+{ return hsamp_.nrTrcs(); }
+
+
+int TrcKeyZSampling::nrZ() const
+{ return zsamp_.nrSteps() + 1; }
+
+
+int TrcKeyZSampling::size( Dir d ) const
+{ return d == Inl
+    ? nrInl()
+    : (d == Crl
+       ? nrCrl()
+       : nrZ());
+}
+
+
+float TrcKeyZSampling::zAtIndex( int idx ) const
+{ return zsamp_.atIndex(idx); }
+
+
+bool TrcKeyZSampling::isEmpty() const
+{ return hsamp_.isEmpty(); }
+
+
+bool TrcKeyZSampling::operator!=( const TrcKeyZSampling& tkzs ) const
+{ return !(tkzs==*this); }
+
+
+TrcKeyZSampling& TrcKeyZSampling::operator=(const TrcKeyZSampling& b)
+{
+    hsamp_ = b.hsamp_;
+    zsamp_ = b.zsamp_;
+    return *this;
+}
 
 
 bool TrcKeyZSampling::includes( const TrcKeyZSampling& c ) const
 {
-    return hrg.includes( c.hrg ) && 
-	   zrg.includes( c.zrg.start, false ) &&
-	   zrg.includes( c.zrg.stop, false );
+    return hsamp_.includes( c.hsamp_ ) &&
+	   zsamp_.includes( c.zsamp_.start, false ) &&
+	   zsamp_.includes( c.zsamp_.stop, false );
 }
 
 
 void TrcKeyZSampling::include( const BinID& bid, float z )
 {
-    hrg.include( bid );
-    zrg.include( z );
+    hsamp_.include( bid );
+    zsamp_.include( z );
 }
 
 
 void TrcKeyZSampling::include( const TrcKeyZSampling& c )
 {
-    TrcKeyZSampling cs( c ); cs.normalise();
+    TrcKeyZSampling tkzs( c ); tkzs.normalise();
     normalise();
 
-    hrg.include( cs.hrg );
-    if ( cs.zrg.start < zrg.start ) zrg.start = cs.zrg.start;
-    if ( cs.zrg.stop > zrg.stop ) zrg.stop = cs.zrg.stop;
-    if ( cs.zrg.step < zrg.step ) zrg.step = cs.zrg.step;
+    hsamp_.include( tkzs.hsamp_ );
+    if ( tkzs.zsamp_.start < zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
+    if ( tkzs.zsamp_.stop > zsamp_.stop ) zsamp_.stop = tkzs.zsamp_.stop;
+    if ( tkzs.zsamp_.step < zsamp_.step ) zsamp_.step = tkzs.zsamp_.step;
 }
 
 
 bool TrcKeyZSampling::isDefined() const
 {
-    return hrg.isDefined() &&
-	!mIsUdf(zrg.start) && !mIsUdf(zrg.stop) && !mIsUdf(zrg.step);
+    return hsamp_.isDefined() &&
+	!mIsUdf(zsamp_.start) && !mIsUdf(zsamp_.stop) && !mIsUdf(zsamp_.step);
 }
-
 
 
 void TrcKeyZSampling::limitTo( const TrcKeyZSampling& c, bool ignoresteps )
 {
-    TrcKeyZSampling cs( c ); cs.normalise();
+    TrcKeyZSampling tkzs( c ); tkzs.normalise();
     normalise();
-    hrg.limitTo( cs.hrg, ignoresteps );
-    if ( hrg.isEmpty() || cs.zrg.start > zrg.stop || cs.zrg.stop < zrg.start )
+    hsamp_.limitTo( tkzs.hsamp_, ignoresteps );
+    if ( hsamp_.isEmpty() || tkzs.zsamp_.start>zsamp_.stop ||
+	 tkzs.zsamp_.stop<zsamp_.start )
     {
 	init( false );
 	return;
     }
 
-    if ( zrg.start < cs.zrg.start ) zrg.start = cs.zrg.start;
-    if ( zrg.stop > cs.zrg.stop ) zrg.stop = cs.zrg.stop;
+    if ( zsamp_.start < tkzs.zsamp_.start ) zsamp_.start = tkzs.zsamp_.start;
+    if ( zsamp_.stop > tkzs.zsamp_.stop) zsamp_.stop = tkzs.zsamp_.stop;
     if ( !ignoresteps )
-	if ( zrg.step < cs.zrg.step ) zrg.step = cs.zrg.step;
+	if ( zsamp_.step < tkzs.zsamp_.step ) zsamp_.step = tkzs.zsamp_.step;
 }
 
 
 void TrcKeyZSampling::limitToWithUdf( const TrcKeyZSampling& c )
 {
-    TrcKeyZSampling cs( c ); cs.normalise();
+    TrcKeyZSampling tkzs( c ); tkzs.normalise();
     normalise();
-    hrg.limitToWithUdf( cs.hrg );
-    mAdjustIf(zrg.start,<,cs.zrg.start);
-    mAdjustIf(zrg.stop,>,cs.zrg.stop);
+    hsamp_.limitToWithUdf( tkzs.hsamp_ );
+    mAdjustIf(zsamp_.start,<,tkzs.zsamp_.start);
+    mAdjustIf(zsamp_.stop,>,tkzs.zsamp_.stop);
 }
 
 
 void TrcKeyZSampling::snapToSurvey()
 {
-    hrg.snapToSurvey();
-    SI().snapZ( zrg.start, -1 );
-    SI().snapZ( zrg.stop, 1 );
+    hsamp_.snapToSurvey();
+    SI().snapZ( zsamp_.start, -1 );
+    SI().snapZ( zsamp_.stop, 1 );
 }
 
 
-bool TrcKeyZSampling::operator==( const TrcKeyZSampling& cs ) const
+bool TrcKeyZSampling::operator==( const TrcKeyZSampling& tkzs ) const
 {
-    if ( this == &cs ) return true;
+    if ( this == &tkzs ) return true;
 
-   if ( cs.hrg == this->hrg )
+   if ( tkzs.hsamp_ == this->hsamp_ )
    {
-       float diff = cs.zrg.start - this->zrg.start;
+       float diff = tkzs.zsamp_.start - this->zsamp_.start;
        const float eps = (float) ( SI().zIsTime() ? 1e-6 : 1e-3 );
        if ( fabs(diff) > eps ) return false;
 
-       diff = cs.zrg.stop - this->zrg.stop;
+       diff = tkzs.zsamp_.stop - this->zsamp_.stop;
        if ( fabs(diff) > eps ) return false;
 
-       diff = cs.zrg.step - this->zrg.step;
+       diff = tkzs.zsamp_.step - this->zsamp_.step;
        if ( fabs(diff) > eps ) return false;
 
        return true;
@@ -666,14 +911,14 @@ bool TrcKeyZSampling::operator==( const TrcKeyZSampling& cs ) const
 
 bool TrcKeyZSampling::usePar( const IOPar& par )
 {
-    return hrg.usePar( par ) && par.get( sKey::ZRange(), zrg );
+    return hsamp_.usePar( par ) && par.get( sKey::ZRange(), zsamp_ );
 }
 
 
 void TrcKeyZSampling::fillPar( IOPar& par ) const
 {
-    hrg.fillPar( par );
-    par.set( sKey::ZRange(), zrg.start, zrg.stop, zrg.step );
+    hsamp_.fillPar( par );
+    par.set( sKey::ZRange(), zsamp_.start, zsamp_.stop, zsamp_.step );
 }
 
 
@@ -686,26 +931,43 @@ void TrcKeyZSampling::removeInfo( IOPar& par )
 
 void TrcKeySampling::normalise()
 {
-    if ( start.inl() > stop.inl() )	Swap(start.inl(),stop.inl());
-    if ( start.crl() > stop.crl() )	Swap(start.crl(),stop.crl());
-    if ( step.inl() < 0 )		step.inl() = -step.inl();
-    else if ( !step.inl() )	step.inl() = SI().inlStep();
-    if ( step.crl() < 0 )		step.crl() = -step.crl();
-    else if ( !step.crl() )	step.crl() = SI().crlStep();
+    if ( start_.lineNr() > stop_.lineNr() )
+	Swap(start_.lineNr(),stop_.lineNr());
+    if ( start_.trcNr() > stop_.trcNr() )
+	Swap(start_.trcNr(),stop_.trcNr());
+    if ( step_.lineNr() < 0 )
+	step_.lineNr() = -step_.lineNr();
+    else if ( !step_.lineNr() )
+	step_.lineNr() = SI().inlStep();
+    if ( step_.trcNr() < 0 )
+	step_.trcNr() = -step_.trcNr();
+    else if ( !step_.trcNr() )
+	step_.trcNr() = SI().crlStep();
 }
 
 
 void TrcKeyZSampling::normalise()
 {
-    hrg.normalise();
-    normaliseZ( zrg );
+    hsamp_.normalise();
+    normaliseZ( zsamp_ );
 }
 
 
 void TrcKeySamplingIterator::reset()
 {
     curpos_ = 0;
-    totalnr_ = hrg_.totalNr();
+    totalnr_ = tks_.totalNr();
+}
+
+
+bool TrcKeySamplingIterator::next( TrcKey& tk ) const
+{
+    const od_int64 mypos = curpos_++;
+    if ( mypos>=totalnr_ )
+	return false;
+
+    tk = tks_.atIndex( mypos );
+    return true;
 }
 
 
@@ -715,6 +977,6 @@ bool TrcKeySamplingIterator::next( BinID& res ) const
     if ( mypos>=totalnr_ )
 	return false;
 
-    res = hrg_.atIndex( mypos );
+    res = tks_.atIndex( mypos );
     return true;
 }

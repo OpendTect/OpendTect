@@ -524,7 +524,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     
     TrcKeyZSampling cs( false );
     const bool isinpindp = dpfids_.size();
-    TypeSet<BinID> bidset;
+    TypeSet<TrcKey> trckeys;
     int nrtrcs = 0;
     if ( !isinpindp )
     {
@@ -593,12 +593,12 @@ void uiScalingAttrib::analyseCB( CallBacker* )
     if ( nrtrcs <= 0 )
 	return uiMSG().error(tr("Number of traces cannot be zero or negative"));
 
-    cs.hrg.getRandomSet( nrtrcs, bidset );
+    cs.hrg.getRandomSet( nrtrcs, trckeys );
     aem->setTrcKeyZSampling( cs );
 
     BinIDValueSet bidvals( 0, false );
-    for ( int idx=0; idx<bidset.size(); idx++ )
-       bidvals.add( bidset[idx] );	
+    for ( int idx=0; idx<trckeys.size(); idx++ )
+       bidvals.add( trckeys[idx].pos() );
 
     uiString errmsg;
     SeisTrcBuf bufs( true );

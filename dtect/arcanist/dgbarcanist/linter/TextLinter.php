@@ -268,13 +268,13 @@ final class TextLinter extends ArcanistLinter {
 
   protected function lintForbiddenStrings($path) {
 
-    $bad = array( 'sqrt(', 'atan2(' );
+    $badstrings = array( 'sqrt(', 'atan2(' );
+    $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/' );
     //$bad = array( 'sqrt', 'std::ostream', 'std::istream' );
 
     $data = $this->getData( $path );
-    $hasbadword = false;
 
-    foreach ( $bad as $keyword ) {
+    foreach ( $badstrings as $keyword ) {
       $offset = strpos( $data, $keyword );
       if ($offset !== false) {
 	$this->raiseLintAtOffset(
@@ -282,7 +282,6 @@ final class TextLinter extends ArcanistLinter {
 	  self::LINT_FORBIDDEN_WORD,
 	  'This file contains the string "'.$keyword.'", which is on the '.
 	  'list of words not allowed in the code' );
-	$hasbadword = false;
 
 	if ($this->isMessageEnabled(self::LINT_FORBIDDEN_WORD) ) {
 	  $this->stopAllLinters();
@@ -290,6 +289,31 @@ final class TextLinter extends ArcanistLinter {
       }
     }
 
+    foreach ( $badregexps as $keyword ) {
+      $matches = null;
+      $preg = preg_match_all(
+	$keyword,
+	$data,
+	$matches,
+	PREG_OFFSET_CAPTURE);
+
+      if (!$preg) {
+	continue;
+      }
+
+      foreach ($matches[0] as $match) {
+	list($string, $offset) = $match;
+	$this->raiseLintAtOffset(
+	  $offset,
+	  self::LINT_FORBIDDEN_WORD,
+	  'This file contains the string "'.$string.'", which is on the '.
+	  'list of words not allowed in the code' );
+      }
+
+      if ($this->isMessageEnabled(self::LINT_FORBIDDEN_WORD) ) {
+	$this->stopAllLinters();
+      }
+    }
   }
 
 

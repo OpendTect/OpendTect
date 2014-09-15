@@ -154,8 +154,9 @@ int Time2DepthStretcher::addVolumeOfInterest(const TrcKeyZSampling& cs,
 }
 
 
-void Time2DepthStretcher::setVolumeOfInterest( int id, const TrcKeyZSampling& cs,
-					        bool depth )
+void Time2DepthStretcher::setVolumeOfInterest( int id,
+					       const TrcKeyZSampling& cs,
+					       bool depth )
 {
     const int idx = voiids_.indexOf( id );
     if ( idx<0 )
@@ -388,7 +389,7 @@ void Time2DepthStretcher::transformTrc(const TrcKey& trckey,
     if ( trckey.is2D() )
 	return;
 
-    const BinID bid = trckey.pos_;
+    const BinID bid = trckey.pos();
 
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
@@ -463,7 +464,7 @@ void Time2DepthStretcher::transformTrcBack(const TrcKey& trckey,
     if ( trckey.is2D() )
 	return;
 
-    const BinID bid = trckey.pos_;
+    const BinID bid = trckey.pos();
 
     const Interval<float> resrg = sd.interval(sz);
     int bestidx = -1;
@@ -653,11 +654,13 @@ bool Depth2TimeStretcher::usePar( const IOPar& par )
 { return stretcher_->usePar( par ); }
 
 
-int Depth2TimeStretcher::addVolumeOfInterest(const TrcKeyZSampling& cs, bool time )
+int Depth2TimeStretcher::addVolumeOfInterest(const TrcKeyZSampling& cs,
+					     bool time )
 { return stretcher_->addVolumeOfInterest( cs, !time ); }
 
 
-void Depth2TimeStretcher::setVolumeOfInterest( int id, const TrcKeyZSampling& cs,
+void Depth2TimeStretcher::setVolumeOfInterest( int id,
+					       const TrcKeyZSampling& cs,
 					       bool time )
 { stretcher_->setVolumeOfInterest( id, cs, !time ); }
 

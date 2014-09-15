@@ -262,7 +262,7 @@ bool PosInfo::Line2DData::write( od_ostream& strm, bool asc,
 }
 
 
-StepInterval<int> PosInfo::Line2DData::trcNrRange() const
+StepInterval<Pos::TraceID> PosInfo::Line2DData::trcNrRange() const
 {
     const int sz = posns_.size();
     StepInterval<int> res( -1, -1, 1 );

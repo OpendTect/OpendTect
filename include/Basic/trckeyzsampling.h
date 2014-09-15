@@ -35,10 +35,8 @@ mExpClass(Basic) TrcKeyZSampling
 {
 public:
 
-			TrcKeyZSampling()
-			    : hrg(true)		{ init( true ); }
-			TrcKeyZSampling( bool settoSI )
-			    : hrg(settoSI)	{ init( settoSI ); }
+			TrcKeyZSampling();
+			TrcKeyZSampling( bool settoSI );
 
     enum Dir		{ Z, Inl, Crl };
     Dir			defaultDir() const;
@@ -48,35 +46,32 @@ public:
     bool		isFlat() const; //!< is one of directions size 1?
 
     void		init(bool settoSI=true);
-			//!< Sets hrg.init and zrg to survey values or zeros
+			//!< Sets hrg_.init and zrg_ to survey values or zeros
     inline void		setEmpty()		{ init(false); }
     void		set2DDef();
-			//!< Sets to survey zrange and hrg.set2DDef
+			//!< Sets to survey zrange and hrg_.set2DDef
     void		normalise();
 			//!< Makes sure start<stop and steps are non-zero
 
-    TrcKeySampling		hrg;
-    StepInterval<float>	zrg;
+    TrcKeySampling	hsamp_;
+    StepInterval<float> zsamp_;
 
-    inline int		inlIdx( int inl ) const	{ return hrg.inlIdx(inl); }
-    inline int		crlIdx( int crl ) const	{ return hrg.crlIdx(crl); }
-    inline int		zIdx( float z ) const	{ return zrg.getIndex(z); }
-    inline int		nrInl() const		{ return hrg.nrInl(); }
-    inline int		nrCrl() const		{ return hrg.nrCrl(); }
-    inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
+    int			lineIdx(Pos::LineID) const;
+    int			trcIdx(Pos::TraceID) const;
+    int			zIdx(float z) const;
+    int			nrLines() const;
+    int			nrTrcs() const;
+    int			nrZ() const;
     od_int64		totalNr() const;
-    inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
-						      : (d == Crl ? nrCrl()
-							          : nrZ()); }
-    inline float	zAtIndex( int idx ) const
-						{ return zrg.atIndex(idx); }
-    inline bool		isEmpty() const		{ return hrg.isEmpty(); }
+    int			size(Dir d) const;
+    float		zAtIndex( int idx ) const;
+    bool		isEmpty() const;
     bool		isDefined() const;
     bool		includes(const TrcKeyZSampling&) const;
     bool		getIntersection(const TrcKeyZSampling&,
 					TrcKeyZSampling&) const;
 			//!< Returns false if intersection is empty
-    void		include(const BinID&,float z);
+    void		include(const TrcKey&,float z);
     void		include(const TrcKeyZSampling&);
     void		limitTo(const TrcKeyZSampling&,bool ignoresteps=false);
     void		limitToWithUdf(const TrcKeyZSampling&);
@@ -87,13 +82,31 @@ public:
 			/*!< Checks if it is on valid bids and sample positions.
 			     If not, it will expand until it is */
 
-    bool		operator==( const TrcKeyZSampling& cs ) const;
-    bool		operator!=( const TrcKeyZSampling& cs ) const
-			{ return !(cs==*this); }
+    bool		operator==(const TrcKeyZSampling&) const;
+    bool		operator!=(const TrcKeyZSampling&) const;
+    TrcKeyZSampling&	operator=(const TrcKeyZSampling&);
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&) const;
     static void		removeInfo(IOPar&);
+
+//Legacy, don't use
+    inline int		inlIdx( int inl ) const { return lineIdx(inl); }
+    inline int		crlIdx( int crl ) const { return trcIdx(crl); }
+    void		include(const BinID& bid,float z);
+
+    inline int		nrInl() const		{ return nrLines(); }
+    inline int		nrCrl() const		{ return nrTrcs(); }
+
+    TrcKeySampling&		hrg;
+    StepInterval<float>&	zrg;
+};
+
+
+
+mExpClass(Basic) TrcKeyZSamplingSet : public TypeSet<TrcKeyZSampling>
+{
+
 };
 
 
@@ -105,11 +118,14 @@ inline TrcKeyZSampling::Dir direction( TrcKeyZSampling::Dir slctype, int dimnr )
 	return slctype == TrcKeyZSampling::Inl ? TrcKeyZSampling::Crl
 					    : TrcKeyZSampling::Inl;
     else
-	return slctype == TrcKeyZSampling::Z ? TrcKeyZSampling::Crl : TrcKeyZSampling::Z;
+	return slctype == TrcKeyZSampling::Z
+		? TrcKeyZSampling::Crl
+		: TrcKeyZSampling::Z;
 }
 
 
-inline int dimension( TrcKeyZSampling::Dir slctype, TrcKeyZSampling::Dir direction )
+inline int dimension( TrcKeyZSampling::Dir slctype,
+		      TrcKeyZSampling::Dir direction )
 {
     if ( slctype == direction )
 	return 0;
@@ -121,6 +137,9 @@ inline int dimension( TrcKeyZSampling::Dir slctype, TrcKeyZSampling::Dir directi
 
     return slctype == TrcKeyZSampling::Z ? 2 : 1;
 }
+
+
+typedef TrcKeyZSampling CubeSampling;
 
 
 #endif

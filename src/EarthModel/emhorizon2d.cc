@@ -89,7 +89,7 @@ PosID Horizon2DGeometry::getPosID( const TrcKey& trckey ) const
     if ( trckey.survID()!=hor->getSurveyID() )
 	return PosID::udf();
 
-    const int lineidx = geomids_.indexOf( Survey::GM().getGeomID(trckey) );
+    const int lineidx = geomids_.indexOf( trckey.geomID() );
     if ( !geomids_.validIdx( lineidx ))
 	return PosID::udf();
 

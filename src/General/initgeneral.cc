@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "rangeposprovider.h"
 #include "price.h"
 #include "mathproperty.h"
+#include "ioman.h"
 #include "elasticpropseltransl.h"
 #include "mathformulatransl.h"
 #include "ioobjselectiontransl.h"
@@ -28,6 +29,8 @@ mDefSimpleTranslators(IOObjSelection,"Object selection",od,Misc);
 mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
+
+    IOM(); //Trigger createion & reading of geometries
 
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();

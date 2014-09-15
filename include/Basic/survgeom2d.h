@@ -27,7 +27,6 @@ namespace Survey
 mExpClass(Basic) Geometry2D : public Geometry
 {
 public:
-                   		Geometry2D();
 				Geometry2D(PosInfo::Line2DData*);
 				//!<Line2DData becomes mine
     virtual bool		is2D() const		{ return true; }

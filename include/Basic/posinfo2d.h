@@ -101,7 +101,7 @@ public:
     bool		read(od_istream&,bool asc);
     bool		write(od_ostream&,bool asc,bool newlns=false) const;
 
-    StepInterval<int>	trcNrRange() const;
+    StepInterval<Pos::TraceID>	trcNrRange() const;
     Coord		getNormal(int trcnr) const;
     void		compDistBetwTrcsStats(float& max, float& median) const;
 

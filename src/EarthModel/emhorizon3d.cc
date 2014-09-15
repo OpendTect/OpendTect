@@ -519,7 +519,7 @@ Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 
 Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 				      const BufferStringSet& attribnms,
-				      const int start, const TrcKeySampling& hs )
+				      const int start, const TrcKeySampling& hs)
 {
     return new AuxDataImporter( *this, sections, attribnms, start, hs );
 }
@@ -631,7 +631,7 @@ PosID Horizon3DGeometry::getPosID( const TrcKey& trckey ) const
     if ( trckey.survID()!=hor->getSurveyID() )
 	return PosID::udf();
 
-    return PosID( surface_.id(), sectionID(0), trckey.pos_.toInt64() );
+    return PosID( surface_.id(), sectionID(0), trckey.pos().toInt64() );
 }
 
 

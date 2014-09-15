@@ -32,19 +32,28 @@ public:
     typedef Pos::SurvID	SurvID;
 
 			TrcKey()		{ *this = udf(); }
-			TrcKey(SurvID,const BinID&);
-			TrcKey(SurvID,Pos::LineID,Pos::TraceID);
+
+			//3D
 			TrcKey(const BinID&); // default 3D surv ID
-    bool		is2D() const	{ return survid_ == std2DSurvID(); }
+			TrcKey(SurvID,const BinID&);
 
-    			// convenience
-    int&		trcNr()			{ return pos_.trcNr(); }
-    int			trcNr() const		{ return pos_.trcNr(); }
-    int&		lineNr()		{ return pos_.lineNr(); }
-    int			lineNr() const		{ return pos_.lineNr(); }
+			//2D
+			TrcKey(Pos::GeomID,Pos::TraceID);
 
-    bool		operator ==( const TrcKey& oth ) const
-    			{ return oth.survid_==survid_ && oth.pos_==pos_; }
+    bool		is2D() const { return is2D(survid_); }
+    static bool		is2D(SurvID);
+
+    Pos::TraceID&	trcNr();
+    Pos::TraceID	trcNr() const;
+    Pos::LineID&	lineNr();
+			//!<Not valid for 2D. Returns bogus
+    Pos::LineID		lineNr() const;
+			//!<Not valid for 2D. Returns bogus
+
+    Pos::GeomID&	geomID();
+    Pos::GeomID		geomID() const;
+
+    bool		operator==(const TrcKey&) const;
 
     inline bool		isUdf() const		{ return *this==udf(); }
     static const TrcKey& udf();
@@ -57,6 +66,8 @@ public:
     const BinID&	pos() const		{ return pos_; }
     void		setPos( BinID bid )	{ pos_ = bid; }
 
+
+private:
     SurvID		survid_;
     BinID		pos_;
 

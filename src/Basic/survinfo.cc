@@ -62,15 +62,15 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
     TrcKey tk = TrcKey( getID(), transform(crd) );
     if ( dist )
     {
-	if ( cs_.hrg.includes(tk.pos()) )
+	if ( sampling_.hrg.includes(tk.pos()) )
 	{
 	    const Coord projcoord( transform(tk.pos()) );
 	    *dist = (float)projcoord.distTo( crd );
 	}
 	else
 	{
-	    BinID nearbid( cs_.hrg.getNearest(tk.pos()) );
-	    const Coord nearcoord( transform(nearbid) );
+	    TrcKey nearbid( sampling_.hrg.getNearest(tk.pos()) );
+	    const Coord nearcoord( transform(nearbid.pos()) );
 	    *dist = (float)nearcoord.distTo( crd );
 	}
     }
@@ -80,7 +80,7 @@ TrcKey Survey::Geometry3D::nearestTrace( const Coord& crd, float* dist ) const
 
 bool Survey::Geometry3D::includes( int line, int tracenr ) const
 {
-    return cs_.hrg.includes( BinID(line,tracenr) );
+    return sampling_.hrg.includes( BinID(line,tracenr) );
 }
 
 
@@ -99,15 +99,15 @@ bool Survey::Geometry3D::isClockWise() const
 float Survey::Geometry3D::averageTrcDist() const
 {
     const Coord c00 = transform( BinID(0,0) );
-    const Coord c10 = transform( BinID(cs_.hrg.step.inl(),0) );
-    const Coord c01 = transform( BinID(0,cs_.hrg.step.crl()) );
+    const Coord c10 = transform( BinID(sampling_.hrg.step.inl(),0) );
+    const Coord c01 = transform( BinID(0,sampling_.hrg.step.crl()) );
     return (float) ( c00.distTo(c10) + c00.distTo(c01) )/2;
 }
 
 
 BinID Survey::Geometry3D::transform( const Coord& c ) const
 {
-    return b2c_.transformBack( c, cs_.hrg.start, cs_.hrg.step );
+    return b2c_.transformBack( c, sampling_.hrg.start, sampling_.hrg.step );
 }
 
 
@@ -117,11 +117,48 @@ Coord Survey::Geometry3D::transform( const BinID& b ) const
 }
 
 
+const Survey::Geometry3D* Survey::Geometry::as3D() const
+{
+    return const_cast<Geometry*>( this )->as3D();
+}
+
+
+Survey::Geometry3D::Geometry3D( const char* nm, const ZDomain::Def& zd )
+    : name_( nm )
+    , zdomain_( zd )
+{ sampling_.hrg.survid_ = getID(); }
+
+
+StepInterval<int> Survey::Geometry3D::inlRange() const
+{ return sampling_.hrg.inlRange(); }
+
+
+StepInterval<int> Survey::Geometry3D::crlRange() const
+{ return sampling_.hrg.crlRange(); }
+
+
+StepInterval<float> Survey::Geometry3D::zRange() const
+{ return sampling_.zrg; }
+
+
+int Survey::Geometry3D::inlStep() const
+{ return sampling_.hrg.step.inl(); }
+
+
+int Survey::Geometry3D::crlStep() const
+{ return sampling_.hrg.step.crl(); }
+
+
+float Survey::Geometry3D::zStep() const
+{ return sampling_.zrg.step; }
+
+
+
 void Survey::Geometry3D::setGeomData( const Pos::IdxPair2Coord& b2c,
 				const TrcKeyZSampling& cs, float zscl )
 {
     b2c_ = b2c;
-    cs_ = cs;
+    sampling_ = cs;
     zscale_ = zscl;
 }
 

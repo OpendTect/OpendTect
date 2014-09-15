@@ -455,20 +455,17 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 
 	if ( is2d_ )
 	{
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					    trc.info().nr );
+	    trckey = TrcKey( seisreader_->selData()->geomID(), trc.info().nr );
 	}
 	else
 	{
-	    trckey = Survey::GM().traceKey( seisreader_->selData()->geomID(),
-					    trc.info().binid.inl(),
-					    trc.info().binid.crl() );
+	    trckey = TrcKey( seisreader_->selData()->geomID(),trc.info().binid);
 	}
 
-	if ( !outcs_.hrg.includes( trckey.pos_ ) )
+	if ( !outcs_.hrg.includes( trckey ) )
 	    continue;
 
-	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey.pos_) )
+	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
 	{
 	    waitforall_ = true;
 	    while ( shouldContinue() && nrwaiting_!=nrthreads_-1 )
@@ -480,11 +477,11 @@ bool SeisZAxisStretcher::getInputTrace( SeisTrc& trc, TrcKey& trckey )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( trckey.pos_.inl() ) )
+	    if ( !loadTransformChunk( trckey.pos().inl() ) )
 		continue;
 	}
 
-	sequentialwriter_->announceTrace( trckey.pos_ );
+	sequentialwriter_->announceTrace( trckey.pos() );
 
 	return true;
     }
@@ -532,7 +529,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 					   trc.info().binid.crl() );
 	}
 
-	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey.pos_) )
+	if ( curhrg_.isEmpty() || !curhrg_.includes(trckey) )
 	{
 	    waitforall_ = true;
 	    while ( shouldContinue() && nrwaiting_!=nrthreads_-1 )
@@ -544,7 +541,7 @@ bool SeisZAxisStretcher::getModelTrace( SeisTrc& trc, TrcKey& trckey )
 	    if ( !shouldContinue() )
 		return false;
 
-	    if ( !loadTransformChunk( trckey.pos_.inl() ) )
+	    if ( !loadTransformChunk( trckey.pos().inl() ) )
 		continue;
 	}
 

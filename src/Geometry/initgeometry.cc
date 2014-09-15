@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "indexedshape.h"
+#include "ioman.h"
 #include "polyposprovider.h"
 #include "tableposprovider.h"
 #include "picksettr.h"
@@ -21,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 mDefModInitFn(Geometry)
 {
     mIfNotFirstTime( return );
+
+    IOM(); //Trigger createion & reading of geometries
 
     PickSetTranslatorGroup::initClass();
     PosVecDataSetTranslatorGroup::initClass();

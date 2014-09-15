@@ -28,21 +28,20 @@ mExpClass(Basic) Geometry3D : public Survey::Geometry
 {
 public:
     
-			Geometry3D(const char* nm,const ZDomain::Def& zd )
-			    : name_( nm )
-    			    , zdomain_( zd )	{}
+			Geometry3D(const char* nm,const ZDomain::Def& zd );
+
     virtual bool	is2D() const		{ return false; }
     virtual const char*	getName() const		{ return name_.buf(); }
     			    
     float		zScale() const 		{ return zscale_; }
 
-    StepInterval<int>	inlRange() const	{ return cs_.hrg.inlRange(); }
-    StepInterval<int>	crlRange() const	{ return cs_.hrg.crlRange(); }
-    StepInterval<float>	zRange() const		{ return cs_.zrg; }
-    int			inlStep() const 	{ return cs_.hrg.step.inl(); }
-    int			crlStep() const 	{ return cs_.hrg.step.crl(); }
+    StepInterval<int>	inlRange() const;
+    StepInterval<int>	crlRange() const;
+    StepInterval<float> zRange() const;
+    int			inlStep() const;
+    int			crlStep() const;
     
-    float		zStep() const 		{ return cs_.zrg.step; }
+    float		zStep() const;
 
     virtual Coord	toCoord(int line,int tracenr) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance) const;
@@ -59,7 +58,6 @@ public:
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
 
-    const TrcKeyZSampling&	sampling() const	{ return cs_; }
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
 
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
@@ -67,14 +65,15 @@ public:
 					const TrcKeyZSampling&,float zscl);
     float		averageTrcDist() const;
 
+    Geometry3D*		as3D()			{ return this; }
+
 protected:
     
     BufferString	name_;
     const ZDomain::Def	zdomain_;
     Pos::IdxPair2Coord	b2c_;
-    TrcKeyZSampling	cs_;
-    float		zscale_;
 
+    float		zscale_;
 };
 
 } // namespace Survey

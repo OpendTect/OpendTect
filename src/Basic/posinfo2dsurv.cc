@@ -911,18 +911,20 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
     return false;
 }
 
-
-Survey::Geometry2D::Geometry2D()
-    : data_(*new PosInfo::Line2DData)
-    , trcdist_( mUdf(float) )
-{
-}
-
+#define mSetSampling \
+const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
+sampling_.zrg = data_.zRange(); \
+sampling_.hrg.start_.lineNr() = sampling_.hrg.stop_.lineNr() = getID(); \
+sampling_.hrg.start_.trcNr() = trcrg.start; \
+sampling_.hrg.stop_.trcNr() = trcrg.stop; \
+sampling_.hrg.step_.trcNr() = trcrg.step
 
 Survey::Geometry2D::Geometry2D( PosInfo::Line2DData* l2d )
     : data_( *l2d )
     , trcdist_( mUdf(float) )
 {
+    sampling_.hrg.survid_ = TrcKey::std2DSurvID();
+    mSetSampling;
 }
 
 
@@ -949,13 +951,14 @@ TrcKey Survey::Geometry2D::nearestTrace( const Coord& crd, float* dist ) const
     if ( !data_.getPos(crd,pos,dist) )
 	return TrcKey::udf();
 
-    return Survey::GM().traceKey( id_, pos.nr_ );
+    return Survey::GM().traceKey( getID(), pos.nr_ );
 }
 
 
 void Survey::Geometry2D::touch()
 {
     Threads::Locker locker( lock_ );
+    mSetSampling;
     trcdist_ = mUdf(float);
 }
 

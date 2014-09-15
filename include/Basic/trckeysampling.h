@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "binid.h"
 #include "ranges.h"
+#include "typeset.h"
 
 
 /*!
@@ -25,101 +26,122 @@ mExpClass(Basic) TrcKeySampling
 {
 public:
 
-			TrcKeySampling()			{ init( true ); }
-			TrcKeySampling( bool settoSI )	{ init( settoSI ); }
+			TrcKeySampling();
+			TrcKeySampling(Pos::GeomID);
 
-    TrcKeySampling&	set(const Interval<int>& inlrg,
-			    const Interval<int>& crlrg);
+    TrcKeySampling&	set(const Interval<int>& linerg,
+			    const Interval<int>& trcnrrg);
 			    //!< steps copied if available
-    void		get(Interval<int>& inlrg,Interval<int>& crlrg) const;
+    void		get(Interval<int>& linerg,Interval<int>& trcnrrg) const;
 			    //!< steps filled if available
 
-    StepInterval<int>	inlRange() const;
-    StepInterval<int>	crlRange() const;
-    void		setInlRange(const Interval<int>&);
-    void		setCrlRange(const Interval<int>&);
+    StepInterval<int>	lineRange() const;
+    StepInterval<int>	trcRange() const;
+    void		setLineRange(const Interval<int>&);
+    void		setTrcRange(const Interval<int>&);
 
-    bool		includes( const TrcKeySampling& hs,
-				  bool ignoresteps=false ) const;
-    inline bool		includes( const BinID& bid ) const
-			{ return inlOK(bid.inl()) && crlOK(bid.crl()); }
-    inline bool		inlOK( int inl ) const
-			{ return inl >= start.inl() && inl <= stop.inl() &&
-			    (step.inl() ? !( (inl-start.inl()) % step.inl() )
-				      : inl==start.inl()); }
+    bool		includes(const TrcKeySampling&,
+				 bool ignoresteps=false) const;
+    bool		includes(const TrcKey&) const;
+    bool		lineOK(Pos::LineID) const;
+    bool		trcOK(Pos::TraceID) const;
 
-    inline bool		crlOK( int crl ) const
-			{ return crl >= start.crl() && crl <= stop.crl() &&
-			    (step.crl() ? !( (crl-start.crl()) % step.crl() )
-				      : crl==start.crl()); }
-
-    inline void		include( const BinID& bid )
-			{ includeInl(bid.inl()); includeCrl(bid.crl()); }
-    void		includeInl( int inl );
-    void		includeCrl( int crl );
-    void		include( const TrcKeySampling&, bool ignoresteps=false );
+    void		include(const TrcKey&);
+    void		includeLine(Pos::LineID);
+    void		includeTrc(Pos::TraceID);
+    void		include(const TrcKeySampling&, bool ignoresteps=false );
     bool		isDefined() const;
     void		limitTo(const TrcKeySampling&,bool ignoresteps=false);
     void		limitToWithUdf(const TrcKeySampling&);
 			    /*!< handles undef values +returns reference HS
 				 nearest limit if HS's do not intersect */
 
-    inline int		inlIdx( int inl ) const
-			{ return step.inl() ? (inl-start.inl()) / step.inl()
-					  : (inl==start.inl() ? 0 : -1); }
-    inline int		crlIdx( int crl ) const
-			{ return step.crl() ? (crl-start.crl()) / step.crl()
-					  : (crl==start.crl() ? 0 : -1); }
-    inline od_int64	globalIdx( const BinID& bid ) const
-			{ return inlIdx(bid.inl())*nrCrl()
-			       + crlIdx(bid.crl()); }
-    BinID		atIndex( int i0, int i1 ) const
-			{ return BinID( start.inl() + i0*step.inl(),
-					start.crl() + i1*step.crl() ); }
-    BinID		atIndex( od_int64 globalidx ) const;
-    int			nrInl() const;
-    int			nrCrl() const;
-    inline od_int64	totalNr() const	{ return ((od_int64)nrInl())*nrCrl(); }
-    inline bool		isEmpty() const { return nrInl() < 1 || nrCrl() < 1; }
+    int			lineIdx(Pos::LineID) const;
+    int			trcIdx(Pos::TraceID) const;
+
+    od_int64		globalIdx(const TrcKey&) const;
+    od_int64		globalIdx(const BinID&) const;
+    BinID		atIndex(int i0,int i1) const;
+    BinID		atIndex(od_int64 globalidx) const;
+    TrcKey		trcKeyAt(int i0,int i1) const;
+    TrcKey		trcKeyAt(od_int64 globalidx) const;
+    int			nrLines() const;
+    int			nrTrcs() const;
+    od_int64		totalNr() const;
+    bool		isEmpty() const;
 
     void		init(bool settoSI=true);
-			    //!< Sets to survey values or mUdf(int) (but step 1)
+			//!< Sets to survey values or mUdf(int) (but step 1)
+    bool		init(Pos::GeomID);
+
     void		set2DDef();
 			    //!< Sets ranges to 0-maxint
     void		normalise();
-			    //!< Makes sure start<stop and steps are non-zero
-    void		getRandomSet(int nr,TypeSet<BinID>&) const;
+			    //!< Makes sure start_<stop_ and steps are non-zero
+    void		getRandomSet(int nr,TypeSet<TrcKey>&) const;
 
-    bool		getInterSection(const TrcKeySampling&,TrcKeySampling&) const;
+    bool		getInterSection(const TrcKeySampling&,
+					TrcKeySampling&) const;
 			    //!< Returns false if intersection is empty
 
-    BinID		getNearest(const BinID&) const;
-			    /*!< step-snap and outside -> edge.
+    TrcKey		getNearest(const TrcKey&) const;
+			    /*!< step_-snap and outside -> edge.
 				Assumes inldist == crldist */
     void		snapToSurvey();
 			    /*!< Checks if it is on valid bids. If not, it will
 				 expand until it is */
 
-    bool		operator==( const TrcKeySampling& hs ) const
-			{ return hs.start==start && hs.stop==stop
-						 && hs.step==step; }
-    bool		operator!=( const TrcKeySampling& hs ) const
-			{ return !(*this==hs); }
+    bool		operator==(const TrcKeySampling&) const;
+    bool		operator!=(const TrcKeySampling&) const;
+    TrcKeySampling&	operator=(const TrcKeySampling&);
 
     bool		usePar(const IOPar&);	//!< Keys as in keystrs.h
     void		fillPar(IOPar&) const;	//!< Keys as in keystrs.h
     static void		removeInfo(IOPar&);
     void		toString(BufferString&) const; //!< Nice text for info
 
-    BinID		start;
-    BinID		stop;
-    BinID		step;
+    Pos::SurvID		survid_;
+    BinID		start_;
+    BinID		stop_;
+    BinID		step_;
 
+    //Legacy. Will be removed
+			TrcKeySampling(bool settoSI);
+    StepInterval<int>	inlRange() const	{ return lineRange(); }
+    StepInterval<int>	crlRange() const	{ return trcRange(); }
+    void		setInlRange(const Interval<int>& rg) {setLineRange(rg);}
+    void		setCrlRange(const Interval<int>& rg) {setTrcRange(rg);}
+
+    int			nrInl() const { return nrLines(); }
+    int			nrCrl() const { return nrTrcs(); }
+
+    int			inlIdx( Pos::LineID lid ) const {return lineIdx(lid);}
+    int			crlIdx( Pos::TraceID tid ) const { return trcIdx(tid); }
+    inline void		include( const BinID& bid )
+			{ includeLine(bid.inl()); includeTrc(bid.crl()); }
+    void		includeInl( int inl ) { includeLine(inl); }
+    void		includeCrl( int crl ) { includeTrc(crl); }
+    inline bool		includes( const BinID& bid ) const
+			{ return lineOK(bid.inl()) && trcOK(bid.crl()); }
+    inline bool		inlOK( int inl ) const { return lineOK(inl); }
+    inline bool		crlOK( int crl ) const { return trcOK(crl); }
+
+    BinID&		start;
+    BinID&		stop;
+    BinID&		step;
 };
 
 
-//!Old name, use the new one in all new code
-typedef TrcKeySampling HorSampling;
+mExpClass(Basic) TrcKeySamplingSet : public TypeSet<TrcKeySampling>
+{
+public:
+
+    void			isOK() const;
+    void			add(Pos::GeomID);
+    bool			isPresent(Pos::GeomID);
+};
+
+
 
 
 /*!
@@ -129,25 +151,49 @@ typedef TrcKeySampling HorSampling;
 mExpClass(Basic) TrcKeySamplingIterator
 {
 public:
-		TrcKeySamplingIterator() : hrg_( true ) { reset(); }
+		TrcKeySamplingIterator() : tks_( true ) { reset(); }
 		TrcKeySamplingIterator( const TrcKeySampling& hs )
-		    : hrg_(hs)	{ reset(); }
+		    : tks_(hs)	{ reset(); }
 
-    void	setSampling( const TrcKeySampling& hs )
-		{ hrg_ = hs; reset(); }
+    void	setSampling( const TrcKeySampling& tks )
+		{ tks_ = tks; reset(); }
 
     void	reset();
-    void	setNextPos(const BinID& bid) { curpos_ = hrg_.globalIdx(bid); }
+    void	setNextPos(const TrcKey& trk) { curpos_ = tks_.globalIdx(trk); }
+    bool	next(TrcKey&) const;
     bool	next(BinID&) const;
 
     od_int64	curIdx() const		     { return curpos_; }
 
 protected:
 
-    TrcKeySampling 			hrg_;
+    TrcKeySampling			tks_;
     od_int64				totalnr_;
     mutable Threads::Atomic<od_int64>	curpos_;
 };
+
+
+
+
+typedef TrcKeySampling HorSampling;
+typedef TrcKeySamplingIterator	HorSamplingIterator;
+
+
+inline int TrcKeySampling::lineIdx( Pos::LineID line ) const
+{
+    return step_.lineNr()
+	? (line-start_.lineNr()) / step_.lineNr()
+	: (line==start_.lineNr() ? 0 : -1);
+}
+
+
+inline int TrcKeySampling::trcIdx( Pos::TraceID trcid ) const
+{
+    return step_.trcNr()
+	? (trcid-start_.trcNr()) / step_.trcNr()
+	: (trcid==start_.trcNr() ? 0 : -1);
+}
+
 
 
 

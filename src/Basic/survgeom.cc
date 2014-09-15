@@ -30,9 +30,14 @@ const TrcKey::SurvID GeometryManager::surv2did_ = 0;
 
 const GeometryManager& GM()
 {
-    mDefineStaticLocalObject( GeometryManager*, theinst, = 0 );
+    mDefineStaticLocalObject( PtrMan<GeometryManager>, theinst, = 0 );
     if ( !theinst )
-	{ theinst = new GeometryManager; }
+    {
+	GeometryManager* newgm = new GeometryManager;
+	if ( !theinst.setIfNull( newgm ) )
+	    delete newgm;
+    }
+
     return *theinst;
 }
 
@@ -64,23 +69,38 @@ TrcKey Geometry::getTrace( const Coord& crd, float maxdist ) const
 
 bool Geometry::includes( const TrcKey& tk ) const
 {
-    return GM().getGeomID( tk ) == getID()
+    return tk.geomID() == getID()
 	&& includes( tk.lineNr(), tk.trcNr() );
 }
 
 
 Coord Geometry::toCoord( const TrcKey& tk )
 {
-    const Geometry* geom = GM().getGeometry( GM().getGeomID(tk)  );
+    const Geometry* geom = GM().getGeometry( tk.geomID() );
     return geom ? geom->toCoord( tk.pos() ) : Coord::udf();
 }
 
 
 bool Geometry::exists( const TrcKey& tk )
 {
-    const Geometry* geom = GM().getGeometry( GM().getGeomID(tk) );
+    const Geometry* geom = GM().getGeometry( tk.geomID() );
     return geom && geom->includes( tk.pos() );
 }
+
+
+Pos::SurvID Geometry::getSurvID() const
+{
+    return is2D()
+	? Survey::GeometryManager::get2DSurvID()
+	: (Pos::SurvID) getID();
+}
+
+
+const Geometry2D* Geometry::as2D() const
+{
+    return const_cast<Geometry*>( this )->as2D();
+}
+
 
 
 #define mGetConstGeom(varnm,geomid) \
@@ -164,15 +184,6 @@ const Geometry* GeometryManager::getGeometry( const char* nm ) const
 }
 
 
-Geometry::ID GeometryManager::getGeomID( const TrcKey& tk ) const
-{
-    Geometry::ID geomid = tk.survID();
-    if ( geomid == surv2did_ )
-	geomid = tk.lineNr();
-    return geomid;
-}
-
-
 Geometry::ID GeometryManager::getGeomID( const char* lnnm ) const
 {
     const FixedString reqln( lnnm );
@@ -208,8 +219,7 @@ const char* GeometryManager::getName( Geometry::ID geomid ) const
 
 Coord GeometryManager::toCoord( const TrcKey& tk ) const
 {
-    const Geometry::ID geomid = getGeomID( tk );
-    mGetConstGeom(geom,geomid);
+    mGetConstGeom(geom,tk.geomID());
     return geom ? geom->toCoord( tk.lineNr(), tk.trcNr() ) : Coord::udf();
 }
 
@@ -222,9 +232,9 @@ TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::LineID lid,
 	return TrcKey::udf();
 
     if ( geom->is2D() )
-	return TrcKey( TrcKey::std2DSurvID(), geomid,  tid );
+	return TrcKey( geomid,	tid );
 
-    return TrcKey( geomid, lid, tid );
+    return TrcKey( geomid, BinID(lid, tid) );
 }
 
 
@@ -234,7 +244,7 @@ TrcKey GeometryManager::traceKey( Geometry::ID geomid, Pos::TraceID tid ) const
     if ( !geom || !geom->is2D() )
 	return TrcKey::udf();
 
-    return TrcKey( TrcKey::std2DSurvID(), geomid,  tid );
+    return TrcKey( geomid,  tid );
 }
 
 

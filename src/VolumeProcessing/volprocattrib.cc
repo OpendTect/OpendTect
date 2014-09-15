@@ -81,7 +81,7 @@ void VolProcAttrib::prepareForComputeData()
     executor_ = new VolProc::ChainExecutor( *chain_ );
     const TrcKeyZSampling cs = *getDesiredVolume();
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const StepInterval<float> geometryzrg = geometry.zRange();
+    const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
     StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
 			   geometryzrg.nearestIndex( cs.zrg.stop ),
 			   mNINT32(cs.zrg.step/geometryzrg.step) );
@@ -214,7 +214,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 
     ChainExecutor executor( *chain_ );
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
-    const StepInterval<float> geometryzrg = geometry.zRange();
+    const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
 
     StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
 			   geometryzrg.nearestIndex( cs.zrg.stop ),

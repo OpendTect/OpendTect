@@ -45,10 +45,14 @@ public:
 		    (int)tmpirg.step),
 		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
 		    (int)tmpcrg.step) );
-	Coord spt1 = SI().transform(BinID(hsamp_.start.inl(),hsamp_.start.crl()) );
-	Coord spt2 = SI().transform( BinID(hsamp_.start.inl(),hsamp_.stop.crl()) );
-	Coord spt3 = SI().transform( BinID(hsamp_.stop.inl(),hsamp_.start.crl()) );
-	Coord spt4 = SI().transform( BinID(hsamp_.stop.inl(),hsamp_.stop.crl()) );
+	Coord spt1 = SI().transform(
+				BinID(hsamp_.start.inl(),hsamp_.start.crl()) );
+	Coord spt2 = SI().transform(
+				BinID(hsamp_.start.inl(),hsamp_.stop.crl()) );
+	Coord spt3 = SI().transform(
+				BinID(hsamp_.stop.inl(),hsamp_.start.crl()) );
+	Coord spt4 = SI().transform(
+				BinID(hsamp_.stop.inl(),hsamp_.stop.crl()) );
 	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
 		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
 	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
@@ -96,10 +100,10 @@ public:
 		float diffy = ( float ) (( coord.y - approxcoord.y ) / ystep_);
 		toreach00.inl() = diffx>=0 ? 0 : -1;
 		toreach00.crl() = diffy>=0 ? 0 : -1;
-		int id0v00 = (approxbid.inl() - hsamp_.start.inl())/hsamp_.step.inl()
-		    + toreach00.inl();
-		int id1v00 = (approxbid.crl() - hsamp_.start.crl())/hsamp_.step.crl()
-		    + toreach00.crl();
+		int id0v00 = (approxbid.inl() - hsamp_.start.inl()) /
+			hsamp_.step.inl() + toreach00.inl();
+		int id1v00 = (approxbid.crl() - hsamp_.start.crl())/
+			hsamp_.step.crl() + toreach00.crl();
 		float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
 		float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
 		float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
@@ -257,7 +261,8 @@ void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
     }
     else
     {
-	const Coord pos2d = SI().transform( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
+	const Coord pos2d =
+		SI().transform( BinID(mNINT32(pos.x),mNINT32(pos.y)) );
 	par.set( axeslbls_[0], pos2d.x );
 	par.set( axeslbls_[1], pos2d.y );
     }
@@ -449,7 +454,10 @@ CubeDataPack::~CubeDataPack()
 
 Coord3 CubeDataPack::getCoord( int i0, int i1, int i2 ) const
 {
-    Coord c( SI().transform(cs_.hrg.atIndex(i0,i1)) );
+    const TrcKey key = cs_.hsamp_.atIndex(i0,i1);
+    ConstRefMan<Survey::Geometry> geom =
+	Survey::GM().getGeometry( key.geomID() );
+    const Coord c = geom->toCoord( key.pos() );
     return Coord3( c.x, c.y, cs_.zAtIndex(i2) );
 }
 

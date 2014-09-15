@@ -155,7 +155,8 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     }
     else
     {
-	Survey::Geometry2D* newgeom = new Survey::Geometry2D;
+	Survey::Geometry2D* newgeom =
+		new Survey::Geometry2D( new PosInfo::Line2DData );
 	newgeom->dataAdmin().setLineName( linenm );
 	uiString msg;
 	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );

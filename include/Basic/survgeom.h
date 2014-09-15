@@ -16,12 +16,15 @@ ________________________________________________________________________
 #include "coord.h"
 #include "trckey.h"
 #include "refcount.h"
+#include "trckeyzsampling.h"
 
 class TaskRunner;
 class IOObj;
 
 namespace Survey
 {
+class Geometry2D;
+class Geometry3D;
 
 /*!\brief A Geometry which holds trace positions.
 
@@ -40,6 +43,7 @@ public:
     typedef Pos::GeomID	ID;
 
     virtual bool	is2D() const			= 0;
+    Pos::SurvID		getSurvID() const;
     static const Geometry& default3D();
 
     ID			getID() const			{ return id_; }
@@ -61,13 +65,23 @@ public:
     virtual TrcKey	getTrace(const Coord&,float maxdist) const;
     virtual TrcKey	nearestTrace(const Coord&,float* distance=0) const = 0;
 
-    virtual StepInterval<float> zRange() const				= 0;
+    const TrcKeyZSampling&	sampling() const	{ return sampling_; }
 
     virtual float		averageTrcDist() const			= 0;
 
+    //Convenience functions for the most commone geometries
+    virtual Geometry2D*		as2D()			{ return 0; }
+    const Geometry2D*		as2D() const;
+
+    virtual Geometry3D*		as3D()			{ return 0; }
+    const Geometry3D*		as3D() const;
+
 protected:
 
-			Geometry();
+				Geometry();
+
+    TrcKeyZSampling		sampling_;
+private:
 
     ID			id_;
 
@@ -87,9 +101,10 @@ public:
     const Geometry*		getGeometry(const char*) const;
     const Geometry*		getGeometry(const MultiID&) const;
 
+    const Geometry3D*		getGeometry3D(Pos::SurvID) const;
+
     int 			nrGeometries() const;
 
-    Geometry::ID		getGeomID(const TrcKey&) const;
     Geometry::ID		getGeomID(const char* linenm) const;
     const char*			getName(Geometry::ID) const;
     

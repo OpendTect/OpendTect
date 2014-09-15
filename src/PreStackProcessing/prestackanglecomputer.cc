@@ -43,7 +43,7 @@ AngleComputer::AngleComputer()
     : thresholdparam_(0.01)
     , needsraytracing_(true)
     , raytracer_(0)
-    , trckey_(TrcKey::std3DSurvID(),0,0)
+    , trckey_(TrcKey::std3DSurvID(),BinID(0,0))
 {
     maxthickness_ = SI().depthsInFeet() ? 165.0f : 50.0f;
 }
@@ -412,7 +412,7 @@ bool VelocityBasedAngleComputer::setMultiID( const MultiID& mid )
 Gather* VelocityBasedAngleComputer::computeAngles()
 {
     ConstRefMan<Survey::Geometry> geom =
-	Survey::GM().getGeometry( Survey::GM().getGeomID(trckey_) );
+	Survey::GM().getGeometry( trckey_.geomID() );
 
     if ( geom && geom->is2D() )
 	{ pErrMsg( "Only 3D is supported at this time" ); return 0; }

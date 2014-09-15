@@ -295,6 +295,13 @@ TrcKey::TrcKey( TrcKey::SurvID id, const BinID& bid )
 }
 
 
+TrcKey::TrcKey( Pos::GeomID id, Pos::TraceID tid )
+    : survid_( std2DSurvID() )
+    , pos_( id, tid )
+{
+}
+
+
 TrcKey::TrcKey( const BinID& bid )
     : survid_( std3DSurvID() )
     , pos_( bid )
@@ -302,19 +309,47 @@ TrcKey::TrcKey( const BinID& bid )
 }
 
 
-TrcKey::TrcKey( TrcKey::SurvID id, int linenr, int trcnr )
-    : survid_(id)
-    , pos_(linenr,trcnr)
-{
-}
+bool TrcKey::is2D( SurvID sid )
+{ return sid==std2DSurvID(); }
+
+
+int& TrcKey::trcNr()
+{ return pos_.trcNr(); }
+
+
+int TrcKey::trcNr() const
+{ return pos_.trcNr(); }
+
+
+Pos::LineID& TrcKey::lineNr()
+{ return pos_.lineNr(); }
+
+
+int TrcKey::lineNr() const
+{ return pos_.lineNr(); }
+
+
+
+#define mGetGeomID return is2D() ? pos_.lineNr() : survid_;
+
+Pos::GeomID& TrcKey::geomID()
+{ mGetGeomID; }
+
+
+Pos::GeomID TrcKey::geomID() const
+{ mGetGeomID; }
 
 
 const TrcKey& TrcKey::udf()
 {
     mDefineStaticLocalObject( const TrcKey, udfkey,
-	    (mUdf(SurvID), BinID::udf().lineNr(), BinID::udf().trcNr()) );
+	    (mUdf(SurvID), BinID::udf() ));
     return udfkey;
 }
+
+
+bool TrcKey::operator==( const TrcKey& oth ) const
+{ return oth.survid_==survid_ && oth.pos_==pos_; }
 
 
 TrcKey::SurvID TrcKey::std2DSurvID()

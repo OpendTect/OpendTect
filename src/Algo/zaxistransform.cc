@@ -247,7 +247,7 @@ ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
        					      bool is2d	)
     : transform_(trans)
     , back_(b)
-    , trckey_(0,0,0)
+    , trckey_(0,BinID(0,0))
     , sd_(nsd)
     , is2d_(is2d)
 { transform_.ref(); }
@@ -267,7 +267,7 @@ void ZAxisTransformSampler::setLineName( const char* lnm )
 
 
 void ZAxisTransformSampler::setTrcNr( int trcnr )
-{ trckey_.pos_.crl() = trcnr; }
+{ trckey_.trcNr() = trcnr; }
 
 
 void ZAxisTransformSampler::setBinID( const BinID& bid )

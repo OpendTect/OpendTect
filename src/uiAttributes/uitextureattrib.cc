@@ -324,11 +324,11 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 	aem->setGeomID( Survey::GM().getGeomID(lk.lineName().buf()) );
 
     aem->setTrcKeyZSampling( cs );
-    TypeSet<BinID> bidset;
-    cs.hrg.getRandomSet( nrtrcs, bidset );
+    TypeSet<TrcKey> trckeys;
+    cs.hrg.getRandomSet( nrtrcs, trckeys );
     BinIDValueSet bidvals( 0, false );
-    for ( int idx=0; idx<bidset.size(); idx++ )
-	bidvals.add( bidset[idx] );
+    for ( int idx=0; idx<trckeys.size(); idx++ )
+	bidvals.add( trckeys[idx].pos() );
 
     uiString errmsg;
     Interval<float> zrg( cs.zrg );

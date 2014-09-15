@@ -125,8 +125,8 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;
 
-	const BinID bid = inputcs_.hrg.atIndex( inlidx, crlidx );
-	outpsampler.setBinID( bid );
+	const TrcKey trck = inputcs_.hrg.atIndex( inlidx, crlidx );
+	outpsampler.setTrcKey( trck );
 	outpsampler.computeCache( Interval<int>(0,outputzsz-1) );
 
 	float* outputptr = output_->getData() +
