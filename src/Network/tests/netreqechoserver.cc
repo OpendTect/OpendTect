@@ -96,7 +96,7 @@ int main(int argc, char** argv)
     int startport = 1025;
     clparser.getVal( "port", startport );
 
-    Network::RequestCommunicatorServer server( startport, app );
+    Network::RequestCommunicatorServer server( mCast(short,startport), app );
 
     ExitProgram( app.exec() );
 }

@@ -72,13 +72,8 @@ public:
 		break;
 
 	    const char* writeptr = data;
-	    od_int64 nrtowrite = readsize;
-	    while ( nrtowrite )
-	    {
-		const int nrwritten = socket->writeArray( writeptr, nrtowrite );
-		nrtowrite -= nrwritten;
-		writeptr += nrwritten;
-	    }
+	    const od_int64 nrtowrite = readsize;;
+	    socket->writeArray( writeptr, nrtowrite );
 	}
     }
 
