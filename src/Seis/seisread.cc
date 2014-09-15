@@ -488,7 +488,7 @@ bool SeisTrcReader::mkNextFetcher()
     curlineidx++; tbuf_->deepErase();
     Pos::GeomID geomid( seldata_ ? seldata_->geomID() 
 				 : Survey::GM().cUndefGeomID() );
-    const bool islinesel = mIsUdf( geomid ) ? false : true;
+    const bool islinesel = geomid != Survey::GM().cUndefGeomID();
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
     const int nrlines = dataset_->nrLines();
 
@@ -519,7 +519,7 @@ bool SeisTrcReader::mkNextFetcher()
 	}
 	if ( !found )
 	{
-	    errmsg_ = "Line key not found in line set: ";
+	    errmsg_ = "Data not available for the selected line";
 	    return false;
 	}
     }
