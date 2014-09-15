@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicolor.h"
 #include "uidialog.h"
 #include "uitoolbutton.h"
+#include "uitoolbar.h"
 
 
 namespace CmdDrive
@@ -119,6 +120,18 @@ void MenuActivator::actCB( CallBacker* cb )
     }
 
     actmnuitm_.triggered.trigger();
+
+    ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	ObjectSet<const CallBacker> entities;
+	toolbars[tbidx]->getEntityList( entities );
+	if ( entities.isPresent(&actmnuitm_) )
+	{
+	    toolbars[tbidx]->buttonClicked.trigger( actmnuitm_.getID(),
+						    toolbars[tbidx] );
+	}
+    }
 }
 
 
@@ -1003,7 +1016,6 @@ bool CloseCmdComposer::accept( const CmdRecEvent& ev )
     if ( ev.srcwin_ == applWin() )
     {
 	mRecOutStrm << "Close All" << od_endl;
-	rec_.stop();
     }
     else
 	mRecOutStrm << "Close" << od_endl;
