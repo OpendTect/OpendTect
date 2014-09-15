@@ -126,6 +126,10 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     , surfdataremovebut_(0)
     , copybut_(0)
     , mergehorbut_(0)
+    , applybodybut_(0)
+    , createregbodybut_(0)
+    , volestimatebut_(0)
+    , switchvalbut_(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
@@ -198,14 +202,17 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     }
     if ( type_ == Body )
     {
-	manipgrp->addButton( "set_union", "Apply Body operations",
-		mCB(this,uiSurfaceMan,mergeBodyCB) );
-	manipgrp->addButton( "set_implicit", "Create region Body",
-		mCB(this,uiSurfaceMan,createBodyRegionCB) );
-	manipgrp->addButton( "bodyvolume", "Volume estimate",
-		mCB(this,uiSurfaceMan,calcVolCB) );
-	manipgrp->addButton( "switch_implicit", "Switch inside/outside value",
-		mCB(this,uiSurfaceMan,switchValCB) );
+	applybodybut_ = manipgrp->addButton( "set_union",
+					     "Apply Body operations",
+					   mCB(this,uiSurfaceMan,mergeBodyCB) );
+	createregbodybut_ = manipgrp->addButton( "set_implicit",
+						 "Create region Body",
+				mCB(this,uiSurfaceMan,createBodyRegionCB) );
+	volestimatebut_ = manipgrp->addButton( "bodyvolume", "Volume estimate",
+					     mCB(this,uiSurfaceMan,calcVolCB) );
+	switchvalbut_ = manipgrp->addButton( "switch_implicit",
+					     "Switch inside/outside value",
+					mCB(this,uiSurfaceMan,switchValCB) );
     }
 
     mTriggerInstanceCreatedNotifier();
@@ -215,6 +222,12 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
 
 uiSurfaceMan::~uiSurfaceMan()
 {}
+
+
+void uiSurfaceMan::ownSelChg()
+{
+    setToolButtonProperties();
+}
 
 
 void uiSurfaceMan::attribSel( CallBacker* )
@@ -242,7 +255,10 @@ void uiSurfaceMan::setToolButtonProperties()
 {
     const bool hasattribs = attribfld_ && !attribfld_->isEmpty();
 
-    BufferString tt;
+    BufferString tt, cursel;
+    if ( curioobj_ )
+	cursel.add( curioobj_->name() );
+
     if ( surfdatarenamebut_ )
     {
 	surfdatarenamebut_->setSensitive( hasattribs );
@@ -262,10 +278,6 @@ void uiSurfaceMan::setToolButtonProperties()
     if ( copybut_ )
     {
 	copybut_->setSensitive( curioobj_ );
-	BufferString cursel;
-	if ( curioobj_ )
-	    cursel.add( curioobj_->name() );
-
 	mSetButToolTip(copybut_,"Copy '",cursel,"' to new object",
 		       "Copy to new object")
     }
@@ -283,6 +295,18 @@ void uiSurfaceMan::setToolButtonProperties()
 	else
 	    mergehorbut_->setToolTip( "Merge 3D horizons" );
     }
+
+     if ( type_ == Body )
+     {
+	 applybodybut_->setSensitive( curioobj_ );
+	 createregbodybut_->setSensitive( curioobj_ );
+	 volestimatebut_->setSensitive( curioobj_ );
+	 switchvalbut_->setSensitive( curioobj_ );
+	 mSetButToolTip(volestimatebut_,"Estimate volume of '",cursel,"'",
+			"Volume estimate");
+	 mSetButToolTip(switchvalbut_,"Switch inside/outside value of '",
+			cursel,"'","Switch inside/outside value");
+     }
 }
 
 
@@ -346,11 +370,16 @@ void uiSurfaceMan::calcVolCB( CallBacker* )
     mDynamicCastGet( EM::Body*, emb, emo.ptr() );
     if ( !emb )
     {
-	uiMSG().error( tr("Body is empty") );
+	BufferString msg( "Body '" );
+	msg.add( curioobj_->name() ).add( "'" ).add( " is empty" );
+	uiMSG().error( tr(msg.buf()) );
 	return;
     }
 
     uiImplBodyCalDlg dlg( this, *emb );
+    BufferString dlgtitle( "Body volume estimation for '" );
+    dlgtitle.add( curioobj_->name() ).add( "'" );
+    dlg.setTitleText( dlgtitle.buf() );
     dlg.go();
 }
 
