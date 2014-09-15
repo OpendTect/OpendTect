@@ -49,6 +49,11 @@ protected:
     uiToolButton*	surfdataremovebut_;
     uiToolButton*	copybut_;
     uiToolButton*	mergehorbut_;
+    uiToolButton*	applybodybut_;
+    uiToolButton*	createregbodybut_;
+    uiToolButton*	volestimatebut_;
+    uiToolButton*	switchvalbut_;
+
     void		attribSel(CallBacker*);
     void		copyCB(CallBacker*);
     void		man2dCB(CallBacker*);
@@ -68,6 +73,7 @@ protected:
     void		fillAttribList(const BufferStringSet&);
     double		getFileSize(const char*,int&) const;
     void		setToolButtonProperties();
+    void		ownSelChg();
 };
 
 
