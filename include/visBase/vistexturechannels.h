@@ -77,10 +77,6 @@ public:
     void			setSize(int channel,int sz0,int sz1,int sz2);
     int				getSize(int channel,unsigned char dim) const;
 
-    				//Old, don't use in new code. Will be removed
-    void			setSize(int sz0,int sz1,int sz2);
-    int				getSize(unsigned char dim) const;
-
     void			setNrComponents(int channel,int nrcomp);
     int				getNrComponents(int channel) const;
 

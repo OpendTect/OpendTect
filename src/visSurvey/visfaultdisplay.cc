@@ -1185,8 +1185,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     }
 
     delete texuredatas_.replace( attrib, texturedata );
-    channels_->setSize( 1, texturedata->info().getSize(0),
-			   texturedata->info().getSize(1) );
+    channels_->setSize( attrib, 1, texturedata->info().getSize(0),
+			texturedata->info().getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
 				OD::UsePtr, tr );
     validtexture_ = true;
@@ -1211,7 +1211,7 @@ void FaultDisplay::showSelectedSurfaceData()
 	if ( !data )
 	    continue;
 
-	channels_->setSize( 1, data->info().getSize(0),
+	channels_->setSize( lastattridx, 1, data->info().getSize(0),
 			       data->info().getSize(1) );
 	channels_->setUnMappedData( lastattridx--, 0, data->getData(),
 				    OD::UsePtr, 0 );

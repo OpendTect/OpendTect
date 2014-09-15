@@ -578,22 +578,6 @@ int TextureChannels::getSize( int channel, unsigned char dim ) const
 }
 
 
-void TextureChannels::setSize( int s0, int s1, int s2 )
-{
-    for ( int channel=0; channel<channelinfo_.size(); channel++ )
-	setSize( channel, s0, s1, s2 );
-}
-
-
-int TextureChannels::getSize( unsigned char dim ) const
-{
-    if ( channelinfo_.size() )
-	return getSize( 0, dim );
-
-    return -1;
-}
-
-
 bool TextureChannels::turnOn( bool yn )
 {
     bool res = isOn();

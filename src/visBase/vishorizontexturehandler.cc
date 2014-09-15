@@ -280,7 +280,7 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
     const int nrrows = rrg.nrSteps()+1;
     const int nrcols = crg.nrSteps()+1;
 
-    channels_->setSize( 1, nrrows, nrcols );
+    channels_->setSize( channel, 1, nrrows, nrcols );
 
     ObjectSet<float> versiondata;
     versiondata.allowNull( true );
