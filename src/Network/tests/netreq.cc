@@ -123,7 +123,7 @@ public:
 	    Threads::MutexLocker locker( condvar_ );
 	    unexpectedarrived_ = true;
 	    condvar_.signal( true );
-	    reqid  = 0; //Avoid unused warning.
+	    reqid++; //Avoid unused warning.
 	}
     }
 
