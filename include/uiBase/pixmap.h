@@ -41,7 +41,8 @@ public:
 			ioPixmap() : qpixmap_(0)		{}
 			ioPixmap(int w,int h);
 
-			ioPixmap(const char* icon_identifier,bool small=false);
+			ioPixmap(const char* icon_identifier,
+				 bool shortname=false);
 
 			ioPixmap(const uiRGBArray&);
 			ioPixmap(const char* xpm[]);
