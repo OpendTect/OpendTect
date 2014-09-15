@@ -252,7 +252,8 @@ bool uiBatchJobDispatcherLauncher::go( uiParent* p )
     if ( !dispatcher().go(jobspec_) )
     {
 	uiString errmsg = dispatcher().errMsg();
-	uiMSG().error( errmsg.isSet() ? errmsg : tr("Cannot start required program" ) );
+	uiMSG().error(
+		errmsg.isSet() ? errmsg : tr("Cannot start required program") );
 	return false;
     }
     return true;
@@ -320,7 +321,7 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 {
     Batch::SingleJobDispatcher::getDefParFilename( js.prognm_, defparfnm_ );
 
-    BufferStringSet hnms; HostDataList hdl;
+    BufferStringSet hnms; HostDataList hdl( false );
     hdl.fill( hnms, false );
     if ( hnms.size() > 1 )
     {

@@ -89,7 +89,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		.nrstatusflds(-1)
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))
-    , hdl_(*new HostDataList)
+    , hdl_(*new const HostDataList(false))
     , avmachfld_(0), usedmachfld_(0)
     , nicefld_(0)
     , logvwer_(0)
@@ -144,17 +144,17 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 
     uiGroup* usedmachgrp = new uiGroup( machgrp, "Used machine handling" );
     uiLabeledListBox* usedmachfld = new uiLabeledListBox( usedmachgrp,
-				multihost ? tr("Used hosts") 
+				multihost ? tr("Used hosts")
                                           : uiStrings::sEmptyString(),
 				OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     usedmachfld_ = usedmachfld->box();
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
     usedmachfld_->setPrefHeightInChar( maxhostdisp );
 
-    uiButton* stopbut = new uiPushButton( usedmachgrp, 
+    uiButton* stopbut = new uiPushButton( usedmachgrp,
                                           uiStrings::sStop(), true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
-    uiButton* vwlogbut = new uiPushButton( usedmachgrp, 
+    uiButton* vwlogbut = new uiPushButton( usedmachgrp,
                                            tr("View Log"), false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
@@ -202,12 +202,12 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     jrpworklbl_->attach( rightOf, jrppolselfld_ );
 
     const char* envstr = GetEnvVar( "DTECT_STOP_OFFICEHOURS" );
-    jrpstartfld_ = new uiGenInput( jrppolgrp, uiStrings::sEmptyString(), 
+    jrpstartfld_ = new uiGenInput( jrppolgrp, uiStrings::sEmptyString(),
                                    envstr ? envstr : "18:00" );
     jrpstartfld_->attach( rightOf, jrppolselfld_ );
 
     envstr = GetEnvVar( "DTECT_START_OFFICEHOURS" );
-    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"), envstr ? envstr 
+    jrpstopfld_ = new uiGenInput( jrppolgrp, tr("and"), envstr ? envstr
                                                                : "7:30" );
     jrpstopfld_->attach( rightOf, jrpstartfld_ );
 
@@ -701,12 +701,13 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	if ( !hd )
 	    { pErrMsg("Huh"); continue; }
 
-#ifndef __win__
-	BufferString errmsg;
-	if ( !hd->isKnownAs(HostData::localHostName())
-		&& !hostOK(*hd,hdl_.loginCmd(),errmsg) )
-	    { progrfld_->append( errmsg.buf() ); continue; }
-#endif
+	if ( !__iswin__ && !hd->isWindows() )
+	{
+	    BufferString errmsg;
+	    if ( !hd->isKnownAs(HostData::localHostName())
+		    && !hostOK(*hd,hdl_.loginCmd(),errmsg) )
+		{ progrfld_->append( errmsg.buf() ); continue; }
+	}
 
 	if ( !jobrunner_->addHost(*hd) && jobrunner_->jobsLeft() > 0 )
 	{

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "od_iosfwd.h"
 #include "odplatform.h"
+#include "uistring.h"
 
 class HostDataList;
 class IOPar;
@@ -46,7 +47,6 @@ public:
     const char*		getHostName() const;
     void		setIPAddress(const char*);
     const char*		getIPAddress() const;
-    const char*		pass() const	{ mRetNoneIfEmpty(pass_) }
 
     int			nrAliases() const
 			{ return aliases_.size(); }
@@ -66,8 +66,8 @@ public:
 			//! As is on remote host.
     const FilePath&	prefixFilePath(PathType) const;
 
-    const char*		getDataRoot() const;
-    void		setDataRoot(const char*);
+    const FilePath&	getDataRoot() const;
+    void		setDataRoot(const FilePath&);
 
     FilePath		convPath( PathType pt, const FilePath&,
 				  const HostData* from = 0 ) const;
@@ -81,8 +81,7 @@ public:
     const HostData&	localHost() const
 			{ return localhd_ ? *localhd_ : *this; }
 
-    const ShareData*	shareData() const	{ return sharedata_; }
-    void		setShareData( const ShareData* sd ) { sharedata_ = sd; }
+    bool		isOK(uiString& errmsg) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -96,50 +95,11 @@ protected:
     OD::Platform	platform_;
     FilePath		appl_pr_;
     FilePath		data_pr_;
-    BufferString	pass_;
     const HostData*	localhd_;
-    const ShareData*	sharedata_;
 
     friend class	HostDataList;
 
     void		init( const char* nm );
-};
-
-
-/*!
-\brief Describes shared drive and host. Mostly win32.
-*/
-
-mExpClass(Basic) ShareData
-{
-public:
-			ShareData( const HostData* hst=0 ) : host_(hst) {}
-
-    const HostData*	host() const	{ return host_; }
-    const char*		hostName() const
-			{
-			    if ( host() ) return host()->getHostName();
-			    return "_none_";
-			}
-
-    // Windows only
-    const char*		drive() const	{ mRetNoneIfEmpty(drive_) }
-    const char*		share() const	{ mRetNoneIfEmpty(share_) }
-    const char*		pass() const
-			{
-			    if ( pass_ != "" ) return pass_;
-			    if ( host() ) return host()->pass();
-			    return "_none_";
-			}
-protected:
-
-
-    const HostData*	host_;
-    BufferString	drive_;
-    BufferString	share_;
-    BufferString	pass_;
-
-    friend class	HostDataList;
 };
 
 
@@ -150,10 +110,9 @@ protected:
 */
 
 mExpClass(Basic) HostDataList : public ManagedObjectSet<HostData>
-{
+{ mODTextTranslationClass(HostDataList)
 public:
-			HostDataList(bool readhostfile=true,
-				     bool addlocalhost=true);
+			HostDataList(bool foredit);
 
     void		setNiceLevel(int);
     int			niceLevel() const;
@@ -161,6 +120,10 @@ public:
     int			firstPort() const;
     void		setLoginCmd(const char*);
     const char*		loginCmd() const;
+    void		setUnixDataRoot(const char*);
+    const char*		unixDataRoot() const;
+    void		setWinDataRoot(const char*);
+    const char*		winDataRoot() const;
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
@@ -171,19 +134,20 @@ public:
     const char*		getBatchHostsFilename() const;
     bool		writeHostFile(const char* fnm);
     void		fillFromNetwork(); // Unix only
+    bool		isOK(uiStringSet&) const;
 
 protected:
 
     BufferString	logincmd_;
     int			nicelvl_;
     int			firstport_;
-    FilePath		win_appl_pr_;
-    FilePath		unx_appl_pr_;
-    FilePath		win_data_pr_;
-    FilePath		unx_data_pr_;
-    ShareData		sharedata_;
+    BufferString	win_appl_pr_;
+    BufferString	unx_appl_pr_;
+    BufferString	win_data_pr_;
+    BufferString	unx_data_pr_;
 
     void		handleLocal();
+    void		initDataRoot();
     bool		readHostFile(const char*);
     bool		readOldHostFile(const char*);
     HostData*		findHost(const char*) const;

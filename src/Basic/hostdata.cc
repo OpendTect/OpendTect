@@ -43,14 +43,12 @@ static const char* sKeyPlatform()	{ return "Platform"; }
 
 HostData::HostData( const char* nm )
     : localhd_(0)
-    , sharedata_(0)
 { init( nm ); }
 
 
 HostData::HostData( const char* nm, const OD::Platform& plf )
     : platform_(plf)
     , localhd_(0)
-    , sharedata_(0)
 { init( nm ); }
 
 
@@ -58,7 +56,6 @@ HostData::HostData( const char* nm, const HostData& localhost,
 		    const OD::Platform& plf )
     : platform_(plf)
     , localhd_(&localhost)
-    , sharedata_(0)
 { init( nm ); }
 
 
@@ -67,9 +64,7 @@ HostData::HostData( const HostData& oth )
     , platform_( oth.platform_ )
     , appl_pr_( oth.appl_pr_ )
     , data_pr_( oth.data_pr_ )
-    , pass_( oth.pass_ )
     , localhd_( oth.localhd_ )
-    , sharedata_( oth.sharedata_ )
 {
     init( oth.hostname_ );
 }
@@ -148,11 +143,11 @@ FilePath::Style HostData::pathStyle() const
 const FilePath& HostData::prefixFilePath( PathType pt ) const
 { return pt == Appl ? appl_pr_ : data_pr_; }
 
-void HostData::setDataRoot( const char* dataroot )
+void HostData::setDataRoot( const FilePath& dataroot )
 { data_pr_ = dataroot; }
 
-const char* HostData::getDataRoot() const
-{ return data_pr_.fullPath(); }
+const FilePath& HostData::getDataRoot() const
+{ return data_pr_; }
 
 
 void HostData::init( const char* nm )
@@ -200,7 +195,7 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     }
 
     if ( !tail )
-	return FilePath(dir_);
+	return FilePath(toprefix_);
 
     tail += fromprefix.size();
 
@@ -231,6 +226,17 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 {
     if ( !from ) from = &localHost();
     return getReplacePrefix( fp, from->prefixFilePath(pt), prefixFilePath(pt) );
+}
+
+
+bool HostData::isOK( uiString& errmsg ) const
+{
+    if ( hostname_.isEmpty() )
+	errmsg.append( "Hostname is empty; " );
+    if ( ipaddress_.isEmpty() )
+	errmsg.append( "IP address is empty; " );
+
+    return errmsg.isEmpty();
 }
 
 
@@ -269,8 +275,10 @@ void HostData::usePar( const IOPar& par )
 static const char* sKeyLoginCmd()	{ return "Remote login command"; }
 static const char* sKeyNiceLevel()	{ return "Nice level"; }
 static const char* sKeyFirstPort()	{ return "First port"; }
+static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
+static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
 
-HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
+HostDataList::HostDataList( bool foredit )
 	: logincmd_("rsh")
 	, nicelvl_(19)
 	, firstport_(37500)
@@ -285,11 +293,13 @@ HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
     batchhostsfnm_ = fname;
-    if ( readhostfile )
-	readHostFile( fname );
+    readHostFile( fname );
 
-    if ( addlocalhost )
+    if ( !foredit )
+    {
 	handleLocal();
+	initDataRoot();
+    }
 }
 
 
@@ -316,12 +326,43 @@ void HostDataList::fillFromNetwork()
 }
 
 
+void HostDataList::initDataRoot()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	HostData* hd = (*this)[idx];
+	BufferString dr = hd->getDataRoot().fullPath();
+	if ( !dr.isEmpty() ) continue;
+
+	if ( !__iswin__ && unx_data_pr_.isEmpty() )
+	    unx_data_pr_ = GetBaseDataDir();
+	if ( __iswin__ && win_data_pr_.isEmpty() )
+	    win_data_pr_ = GetBaseDataDir();
+
+	const FilePath fp( hd->isWindows() ? win_data_pr_ : unx_data_pr_ );
+	hd->setDataRoot( fp );
+    }
+}
+
+
 void HostDataList::setNiceLevel( int lvl )		{ nicelvl_ = lvl; }
 int HostDataList::niceLevel() const			{ return nicelvl_; }
 void HostDataList::setFirstPort( int port )		{ firstport_ = port; }
 int HostDataList::firstPort() const			{ return firstport_; }
 void HostDataList::setLoginCmd( const char* cmd )	{ logincmd_ = cmd; }
 const char* HostDataList::loginCmd() const		{ return logincmd_; }
+
+void HostDataList::setUnixDataRoot( const char* dr )
+{ unx_data_pr_.set( dr ); }
+
+const char* HostDataList::unixDataRoot() const
+{ return unx_data_pr_.buf(); }
+
+void HostDataList::setWinDataRoot( const char* dr )
+{ win_data_pr_.set( dr ); }
+
+const char* HostDataList::winDataRoot() const
+{ return win_data_pr_.buf(); }
 
 
 bool HostDataList::readHostFile( const char* fnm )
@@ -344,6 +385,14 @@ bool HostDataList::readHostFile( const char* fnm )
     par.get( sKeyNiceLevel(), nicelvl_ );
     par.get( sKeyFirstPort(), firstport_ );
     OS::MachineCommand::setDefaultRemExec( logincmd_ );
+
+    BufferString dataroot;
+    par.get( sKeyUnixDataRoot(), dataroot );
+    unx_data_pr_ = dataroot;
+    dataroot.setEmpty();
+    par.get( sKeyWinDataRoot(), dataroot );
+    dataroot.replace( ";", ":" );
+    win_data_pr_ = dataroot;
 
     deepErase( *this );
     for ( int idx=0; ; idx++ )
@@ -374,8 +423,6 @@ bool HostDataList::readOldHostFile( const char* fname )
 	ErrMsg( msg ); return false;
     }
 
-    BufferString sharehost;
-
     if ( atEndOfSection(astrm) ) astrm.next();
 
     bool foundrsh = false;
@@ -395,15 +442,6 @@ bool HostDataList::readOldHostFile( const char* fname )
 	    win_data_pr_.set( (char*) astrm.value() );
 	if ( astrm.hasKeyword("Unx data prefix") )
 	    unx_data_pr_.set( (char*) astrm.value() );
-
-	if ( astrm.hasKeyword("Data host") )
-	    sharehost = astrm.value();  // store in a temporary
-	if ( astrm.hasKeyword("Data drive") )
-	    sharedata_.drive_ = astrm.value();
-	if ( astrm.hasKeyword("Data share") )
-	    sharedata_.share_ = astrm.value();
-	if ( astrm.hasKeyword("Data pass") )
-	    sharedata_.pass_ = astrm.value();
 
 	astrm.next();
     }
@@ -456,35 +494,10 @@ bool HostDataList::readOldHostFile( const char* fname )
 	    {
 		if ( newhd->isWindows() )
 		    vstr.replace( ';', ':' );
-		newhd->pass_ = vstr;
 	    }
-	    else if ( newhd->isWindows() )
-		newhd->pass_ = sharedata_.pass_;
 
-	    newhd->setShareData( &sharedata_ );
 	}
 	*this += newhd;
-    }
-
-    const int sz = size();
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	HostData* hd = (*this)[idx];
-	if ( hd->isKnownAs(sharehost) )
-	{
-	    sharedata_.host_ = hd;
-	    break;
-	}
-    }
-
-    static bool complain = !GetEnvVarYN( "OD_NO_DATAHOST_CHK" );
-    if ( sharehost.size() && !sharedata_.host_ && complain )
-    {
-	BufferString msg("No host "); msg += sharehost;
-	msg += "  found in "; msg += fname;
-	msg += ". Multi machine batch processing may not work as expected.";
-	ErrMsg( msg );
-	complain = false;
     }
 
     if ( mDebugOn )
@@ -502,6 +515,9 @@ bool HostDataList::writeHostFile( const char* fnm )
     par.set( sKeyLoginCmd(), logincmd_ );
     par.set( sKeyNiceLevel(), nicelvl_ );
     par.set( sKeyFirstPort(), firstport_ );
+    par.set( sKeyUnixDataRoot(), unx_data_pr_ );
+    win_data_pr_.replace( ":", ";" );
+    par.set( sKeyWinDataRoot(), win_data_pr_ );
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -534,19 +550,11 @@ void HostDataList::dump( od_ostream& strm ) const
     mPrMemb(this,logincmd_)
     mPrMemb(this,nicelvl_)
     mPrMemb(this,firstport_)
-    mPrMemb(this,win_appl_pr_.fullPath())
-    mPrMemb(this,unx_appl_pr_.fullPath())
-    mPrMemb(this,win_data_pr_.fullPath())
-    mPrMemb(this,unx_data_pr_.fullPath())
-    const ShareData* sd = &sharedata_;
-    strm << "-- -- Global share data:\n";
-    mPrMemb(sd,drive_)
-    mPrMemb(sd,share_)
-    mPrMemb(sd,pass_)
-    if ( sd->host_ )
-	mPrMemb(sd,host_->getHostName())
-    else
-	strm << "-- No sharedata_->host_\n";
+    mPrMemb(this,win_appl_pr_)
+    mPrMemb(this,unx_appl_pr_)
+    mPrMemb(this,win_data_pr_)
+    mPrMemb(this,unx_data_pr_)
+
     strm << "--\n-- -- Host data:\n--\n";
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -555,23 +563,10 @@ void HostDataList::dump( od_ostream& strm ) const
 	mPrMemb(hd,isWindows())
 	mPrMemb(hd,appl_pr_.fullPath())
 	mPrMemb(hd,data_pr_.fullPath())
-	mPrMemb(hd,pass_)
 	if ( hd->localhd_ )
 	    mPrMemb(hd,localhd_->getHostName())
 	else
 	    strm << "-- No localhd_\n";
-	sd = hd->sharedata_;
-	if ( sd )
-	{
-	    strm << "-- -- -- Share data:\n";
-	    mPrMemb(sd,drive_)
-	    mPrMemb(sd,share_)
-	    mPrMemb(sd,pass_)
-	    if ( sd->host_ )
-		mPrMemb(sd,host_->getHostName())
-	    else
-		strm << "-- No sharedata_->host_\n";
-	}
 	strm << "--\n";
     }
     strm.flush();
@@ -679,3 +674,23 @@ void HostDataList::fill( BufferStringSet& bss, bool inclocalhost ) const
 
 const char* HostDataList::getBatchHostsFilename() const
 { return batchhostsfnm_.buf(); }
+
+
+bool HostDataList::isOK( uiStringSet& errors ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	uiString msg;
+	if ( !(*this)[idx]->isOK(msg) )
+	{
+	    uiString fullmsg( BufferString("Host ", idx+1, ": ") );
+	    fullmsg.append( msg );
+	    errors.add( fullmsg );
+	}
+    }
+
+    if ( errors.isEmpty() ) return true;
+
+    errors.insert( 0, tr("Errors in Host information") );
+    return false;
+}
