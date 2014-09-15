@@ -112,7 +112,7 @@ float uiStratLayerModelDisp::getLayerPropValue( const Strat::Layer& lay,
     const UnitOfMeasure* uom = UoMR().getDefault( pr->name(), pr->stdType());
     const float sival = propidx < lay.nrValues() ? lay.value( propidx )
 						 : mUdf(float);
-    return mIsUdf(sival) ? mUdf(float) : uom->getUserValueFromSI( sival );
+    return uom ? uom->getUserValueFromSI( sival ) : sival;
 }
 
 
