@@ -67,7 +67,7 @@ public:
 	char data[1024];
 	while ( true )
 	{
-	    const int readsize = mMIN(1024,socket->bytesAvailable());
+	    const od_int64 readsize = mMIN(1024,socket->bytesAvailable());
 	    if ( !socket->readArray( data, readsize ) )
 		break;
 
