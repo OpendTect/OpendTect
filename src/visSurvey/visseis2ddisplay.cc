@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bendpointfinder.h"
 #include "mousecursor.h"
 #include "zaxistransform.h"
+#include "samplfunc.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -418,28 +419,111 @@ void Seis2DDisplay::setData( int attrib,
     const int nrseries = dpids.size();
     channels_->setNrVersions( attrib, nrseries );
 
+    const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
+
+    Array2DSlice<float> slice2d( *data2dh.dataset_ );
+    slice2d.setDimMap( 0, 1 );
+    slice2d.setDimMap( 1, 2 );
+
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     int sz0=mUdf(int), sz1=mUdf(int);
     for ( int seriesidx=0; seriesidx<nrseries; seriesidx++ )
     {
+	slice2d.setPos( 0, seriesidx );
+	slice2d.init();
+
 	DataPackRef<Flat2DDHDataPack> dp2ddh =
 	    DPM(DataPackMgr::FlatID()).obtain( dpids[seriesidx] );
-	Array2D<float>& data = dp2ddh->data();
+
+	PtrMan<Array2D<float> > tmparr = 0;
+	Array2D<float>* usedarr = &dp2ddh->data();
+
+	if ( alreadyTransformed(attrib) || !datatransform_ )
+	{
+	    const int nrsamples = slice2d.info().getSize(1);
+	    const int nrdisplaytraces = trcdisplayinfo_.rg_.width()+1;
+	    const int nrdisplaysamples = trcdisplayinfo_.zrg_.nrSteps()+1;
+	    if ( slice2d.info().getSize(0)==nrdisplaytraces &&
+		 nrsamples==nrdisplaysamples &&
+		 data2dh.trcinfoset_[0]->nr==trcdisplayinfo_.alltrcnrs_[0] )
+	    {
+		usedarr = &slice2d;
+	    }
+	    else
+	    {
+		mTryAlloc( tmparr,
+		    Array2DImpl<float>( nrdisplaytraces, nrdisplaysamples) );
+		usedarr = tmparr;
+		const int startidx = trcdisplayinfo_.rg_.start;
+		float* sampleptr = tmparr->getData();
+		for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
+		{
+		    const int trcnr =
+			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
+		    const int trcidx = data2dh.indexOf( trcnr );
+		    const float* trcptr = slice2d.getData();
+		    const ValueSeries<float>* stor = slice2d.getStorage();
+		    od_int64 offset = slice2d.info().getOffset( trcidx, 0 );
+
+		    if ( trcptr ) trcptr += offset;
+		    OffsetValueSeries<float> trcstor( *stor, offset );
+
+		    for ( int zidx=0; zidx<nrdisplaysamples; zidx++ )
+		    {
+			if ( trcidx==-1 )
+			{
+			    if ( sampleptr )
+			    {
+				*sampleptr = mUdf(float);
+				sampleptr++;
+			    }
+			    else
+				tmparr->set( crlidx, zidx, mUdf(float) );
+
+			    continue;
+			}
+
+			const float z = trcdisplayinfo_.zrg_.atIndex( zidx );
+			const float sample = sd.getfIndex( z );
+			float val = mUdf(float);
+			if ( trcptr )
+			{
+			    IdxAble::interpolateReg( trcptr, nrsamples, sample,
+						     val, false );
+			}
+			else
+			{
+			    IdxAble::interpolateReg( trcstor, nrsamples, sample,
+						     val, false );
+			}
+
+			if ( sampleptr )
+			{
+			    *sampleptr = val;
+			    sampleptr++;
+			}
+			else
+			    tmparr->set( crlidx, zidx, val );
+		    }
+		}
+	    }
+	}
 
 	if ( !seriesidx )
 	{
-	    sz0 = 1 + (data.info().getSize(0)-1) * (resolution_+1);
-	    sz1 = 1 + (data.info().getSize(1)-1) * (resolution_+1);
+	    sz0 = 1 + (usedarr->info().getSize(0)-1) * (resolution_+1);
+	    sz1 = 1 + (usedarr->info().getSize(1)-1) * (resolution_+1);
 
 	    //If the size is too big to display, use low resolution only
 	    if ( sz0 > mMaxImageSize && resolution_ > 0 )
-		sz0 = data.info().getSize(0);
+		sz0 = usedarr->info().getSize(0);
 
 	    if ( sz1 > mMaxImageSize && resolution_ > 0 )
-		sz1 = data.info().getSize(1);
+		sz1 = usedarr->info().getSize(1);
 	}
 
-	ValueSeries<float>* stor = !resolution_ ? data.getStorage() : 0;
+	ValueSeries<float>* stor =
+			    !resolution_ && !tmparr ? usedarr->getStorage() : 0;
 	bool ownsstor = false;
 
 	//We are only interested in the global, permanent storage
@@ -463,15 +547,15 @@ void Seis2DDisplay::setData( int attrib,
 	if ( ownsstor )
 	{
 	    if ( resolution_==0 )
-		data.getAll( *stor );
+		usedarr->getAll( *stor );
 	    else
 	    {
-		// Copy all the data from data to an Array2DImpl and pass
+		// Copy all the data from usedarr to an Array2DImpl and pass
 		// this object to Array2DReSampler. This copy is done because
 		// Array2DReSampler will access the input using the "get"
 		// method. The get method of Array2DImpl is much faster than
 		// that of Seis2DArray.
-		Array2DImpl<float> sourcearr2d( data.info() );
+		Array2DImpl<float> sourcearr2d( usedarr->info() );
 		if ( !sourcearr2d.isOK() )
 		{
 		    channels_->turnOn( false );
@@ -480,7 +564,7 @@ void Seis2DDisplay::setData( int attrib,
 		    return;
 		}
 
-		sourcearr2d.copyFrom( data );
+		sourcearr2d.copyFrom( *usedarr );
 		Array2DReSampler<float,float> resampler(
 				sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
@@ -488,7 +572,7 @@ void Seis2DDisplay::setData( int attrib,
 	    }
 	}
 
-	channels_->setSize( 1, sz0, sz1 );
+	channels_->setSize( attrib, 1, sz0, sz1 );
 	channels_->setUnMappedVSData(attrib, seriesidx, stor,
 			ownsstor ? OD::TakeOverPtr : OD::UsePtr, tr);
     }
