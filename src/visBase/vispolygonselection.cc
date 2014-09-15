@@ -106,7 +106,9 @@ void PolygonSelection::setMasterCamera( Camera* maincam )
     mastercamera_->ref();
 
     if ( !selector_->setEventHandlerCamera(mastercamera_->osgCamera(),false) )
+    {
 	pErrMsg( "Need access to camera view and scene data" );
+    }
 }
 
 
