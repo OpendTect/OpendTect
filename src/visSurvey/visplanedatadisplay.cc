@@ -871,9 +871,9 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     if ( nrAttribs()>1 )
     {
 	const int oldchannelsz0 =
-			(channels_->getSize(1)+resolution_) / (resolution_+1);
+		  (channels_->getSize(attrib,1)+resolution_) / (resolution_+1);
 	const int oldchannelsz1 =
-			(channels_->getSize(2)+resolution_) / (resolution_+1);
+		  (channels_->getSize(attrib,2)+resolution_) / (resolution_+1);
 
 	//check current attribe sizes
 	int newsz0 = 0, newsz1 = 0;
@@ -1060,7 +1060,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib, TaskRunner* tr )
 	    cp = OD::TakeOverPtr;
 	}
 
-	channels_->setSize( 1, sz0, sz1 );
+	channels_->setSize( attrib, 1, sz0, sz1 );
 	channels_->setUnMappedData( attrib, idx, arr, cp, tr );
     }
 
@@ -1294,8 +1294,9 @@ void PlaneDataDisplay::annotateNextUpdateStage( bool yn )
     {
 	updatestageinfo_.oldcs_ = getCubeSampling( false, true );
 	updatestageinfo_.oldorientation_ = orientation_;
-	updatestageinfo_.oldimagesize_.x = channels_->getSize(2);
-	updatestageinfo_.oldimagesize_.y = channels_->getSize(1);
+	// Needs refinement when introducing variably sized texture layers
+	updatestageinfo_.oldimagesize_.x = channels_->getSize(0,2);
+	updatestageinfo_.oldimagesize_.y = channels_->getSize(0,1);
 	updatestageinfo_.refreeze_ = true;
     }
     else if ( updatestageinfo_.refreeze_ )

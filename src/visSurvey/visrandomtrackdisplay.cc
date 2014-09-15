@@ -617,7 +617,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	const Array2D<float>& array = dprdm->data();
 	const int sz0 = 1 + (array.info().getSize(0)-1) * (resolution_+1);
 	const int sz1 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
-	channels_->setSize( 1, sz0, sz1 );
+	channels_->setSize( attrib, 1, sz0, sz1 );
 
 	if ( resolution_==0 )
 	    channels_->setUnMappedData(attrib,sidx,array.getData(),

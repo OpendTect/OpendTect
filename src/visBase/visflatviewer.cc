@@ -165,7 +165,7 @@ void FlatViewer::handleChange( unsigned int dt)
 			cp = OD::TakeOverPtr;
 		    }
 
-		    channels_->setSize( 1, rowsz, colsz );
+		    channels_->setSize( 0, 1, rowsz, colsz );
 		    channels_->setUnMappedData( 0, 0, arr, cp, 0 );
 
 		    appearance().ddpars_.vd_.ctab_ =
