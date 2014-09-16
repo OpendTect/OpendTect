@@ -69,8 +69,7 @@ uiIcon::~uiIcon()
 void uiIcon::setIdentifier( const char* iconnm )
 {
     OD::IconFile icfile( iconnm );
-    BufferStringSet allfnms;
-    icfile.getAllFileNames( allfnms );
+    const BufferStringSet& allfnms = icfile.fileNames();
     for ( int idx=0; idx<allfnms.size(); idx++ )
 	qicon_.addFile( allfnms.get(idx).buf() );
 }

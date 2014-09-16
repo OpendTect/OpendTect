@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "oddirs.h"
-#include "separstr.h"
+#include "dirlist.h"
 #include "settings.h"
+#include "perthreadrepos.h"
 
-static const char* sLargeFileEnd = ".png";
-static const char* sSmallFileEnd = "_small.png";
+static const char* sFileNameEnd = ".png";
 #define mIconDirStart "icons."
 #define mIconDirDefault "Default"
 
@@ -30,10 +30,10 @@ OD::IconFile::IconFile( const char* identifier )
     BufferString dirnm( mIconDirStart, icsetnm );
     icdirnm_ = mGetSetupFileName(dirnm);
     if ( icsetnm == "Default" )
-	usedeficons_ = false;
+	trydeficons_ = false;
     else
     {
-	usedeficons_ = true;
+	trydeficons_ = true;
 	deficdirnm_ = mGetSetupFileName( mIconDirStart mIconDirDefault );
     }
 
@@ -41,118 +41,87 @@ OD::IconFile::IconFile( const char* identifier )
 }
 
 
-void OD::IconFile::set( const char* inpstr )
+void OD::IconFile::set( const char* inp )
 {
-    setName( inpstr );
-    state_ = Empty;
-    fromdefault_ = false;
+    nms_.setEmpty();
+    setName( inp );
 
-    fullpath_ = inpstr;
-    if ( fullpath_.isEmpty() )
+    BufferString inpstr = inp;
+    if ( inpstr.isEmpty() )
 	return;
 
-    FilePath fp( fullpath_ );
+    FilePath fp( inpstr );
     if ( fp.isAbsolute() )
     {
-	state_ = File::exists( fullpath_ ) ? Explicit : NotFound;
+	if ( File::exists(inpstr) )
+	    nms_.add( inpstr );
 	return;
     }
 
     BufferString identifier( inpstr );
-    if ( fullpath_.endsWith(sLargeFileEnd) )
+    if ( inpstr.endsWith(sFileNameEnd) )
     {
-	char* pngptr = lastOcc( fullpath_.getCStr(), sLargeFileEnd );
+	char* pngptr = lastOcc( inpstr.getCStr(), sFileNameEnd );
 	if ( pngptr ) *pngptr = '\0';
-	setName( fullpath_ );
+	setName( inpstr );
     }
 
-    if ( !tryFind(identifier,false,Exists)
-      && !tryFind(identifier,true,SmallOnly) )
+    if ( findIcons(identifier,false) )
+	return;
+
+    if ( trydeficons_ )
     {
-	pErrMsg(BufferString("Icon not found: '",identifier,"'"));
-	state_ = NotFound;
+	if ( findIcons(identifier,true) )
+	return;
     }
+
+    pErrMsg(BufferString("No icon found for identifier '",identifier,"'"));
 }
 
 
-bool OD::IconFile::tryFind( const char* id, bool shortname,
-				OD::IconFile::State state )
+bool OD::IconFile::findIcons( const char* id, bool indef )
 {
-    BufferString fnm = getIconFileName( id, false, shortname );
 
-    if ( File::exists(fnm) )
+    const BufferString& dirnm = indef ? deficdirnm_ : icdirnm_;
+    FilePath fp( dirnm, BufferString(id,".png") );
+    const BufferString simplefnm( fp.fullPath() );
+    bool havesimple = false;
+    if ( File::exists(simplefnm) )
     {
-	fullpath_ = fnm; state_ = state;
-	return true;
+	nms_.add( simplefnm );
+	havesimple = true;
     }
 
-    if ( !usedeficons_ )
-    {
-    fnm = getIconFileName( id, true, shortname );
-	if ( File::exists(fnm) )
-	{
-	    fromdefault_ = true; fullpath_ = fnm; state_ = state;
-	    return true;
-	}
-    }
+    DirList dl( dirnm, DirList::FilesOnly, BufferString(id,".*",sFileNameEnd) );
+    if ( dl.isEmpty() )
+	return havesimple;
 
-    return false;
-}
+    for ( int idx=0; idx<dl.size(); idx++ )
+	nms_.add( dl.fullPath(idx) );
 
-
-BufferString OD::IconFile::getIconFileName( const char* id, bool fromdefault,
-                bool shortname ) const
-{
-    const BufferString fnm( id, shortname ? sSmallFileEnd : sLargeFileEnd );
-    FilePath fp( fromdefault ? deficdirnm_ : icdirnm_, fnm );
-    return BufferString( fp.fullPath() );
+    return true;
 }
 
 
 bool OD::IconFile::isPresent( const char* identifier )
 {
     OD::IconFile icf( identifier );
-    return icf.state_ != NotFound;
+    return icf.nms_.isEmpty();
 }
 
 
-BufferString OD::IconFile::fullFileName( bool shortname ) const
+const char* OD::IconFile::notFoundIconFileName()
 {
-    switch ( state_ )
+    mDeclStaticString( ret );
+
+    if ( ret.isEmpty() )
     {
-	case Exists:
-	{
-        if ( shortname )
-	    {
-		FilePath fp( fullpath_ );
-		fp.setExtension( 0 );
-		BufferString fnm( fp.fullPath(), sSmallFileEnd );
-		if ( File::exists(fnm) )
-		    return fnm;
-	    }
-	    // fallthrough: small wanted but not available
-	}
-	case SmallOnly:
-	case Explicit:
-	    return fullpath_;
-	case Empty:
-	    return getIconFileName( "empty", true, false );
-	default:
-	    break;
+	OD::IconFile icf( "iconnotfound" );
+	if ( !icf.haveData() )
+	    ret = mGetSetupFileName("od.png");
+	else
+	    ret = icf.nms_.get(0);
     }
 
-    return getIconFileName( "iconnotfound", true, false );
-}
-
-
-void OD::IconFile::getAllFileNames( BufferStringSet& fnms ) const
-{
-// TODO: Edit when we support more sizes
-    BufferString fnm = fullFileName( true );
-    if ( !fnm.isEmpty() )
-	fnms.add( fnm );
-
-    fnm = fullFileName( false );
-    if ( !fnm.isEmpty() )
-	fnms.add( fnm );
+    return ret.str();
 }

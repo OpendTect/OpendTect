@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "namedobj.h"
+#include "bufstringset.h"
 
 
 /*!\brief Constructs file names for OD icons.
@@ -31,29 +32,28 @@ ________________________________________________________________________
   add icons on buttons, trees, lists etc., too. These will be 'small' (usually
   between 16x16 and 24x24).
 
-  Therefore, for icons that can be used in both worlds, provide one of about
-  48x48 and give it the usual name. Then add your small one of about 24x24 so
-  there are then 2 icons in the icon set - like:
-  "myicon.png" and "myicon_small.png".
+  Therefore, for icons that can be used in both worlds, provide at least one
+  of about 48x48 and give it the usual name. Then add one or more pixmaps with
+  different resolutions, like a small one of about 24x24 so there are then 2
+  icons in the icon set - like:
+  "myicon.png" and "myicon.small.png".
 
   The icon identifier that is required is usually the file name for 'large'
   without '.png'. You can also pass the file name itself, or a full path.
   Note that *only* PNG type files are supported.
 
-  The necessary icon will be sought in the user-selected icon set first. If the
-  requested size cannot be found, then the other size will be used. If that
-  still doesn't result in an icon file, then the same procedure will be
+  The necessary icons will be sought in the user-selected icon set first. If
+  nothing can be found there, the then the same procedure will be
   applied in the 'Default' set (if that isn't already the current set).
 
   You can get an 'empty' icon by passing a null or empty string. This is OK but
-  uiPixmap does not like that.
+  uiIcon does not like that.
 
   If the requested icon is simply not there then a pErrMsg will follow;
   "iconnotfound.png" will be displayed.
 
  */
 
-class BufferStringSet;
 
 namespace OD
 {
@@ -67,23 +67,19 @@ public:
     void		set(const char* identifier);
     static bool		isPresent(const char* identifier);
 
-    BufferString	fullFileName(bool shortname=false) const;
-    void		getAllFileNames(BufferStringSet&) const;
+    bool		haveData() const	{ return !nms_.isEmpty(); }
+    const BufferStringSet& fileNames() const	{ return nms_; }
+
+    static const char*	notFoundIconFileName();
 
 protected:
 
-    enum State		{ Exists, SmallOnly, Empty, Explicit, NotFound };
-
-    bool		usedeficons_;
-    bool		fromdefault_;
+    bool		trydeficons_;
     BufferString	icdirnm_;
     BufferString	deficdirnm_;
-    BufferString	fullpath_;
-    State		state_;
+    BufferStringSet	nms_;
 
-    bool		tryFind(const char*,bool shortname,State);
-    BufferString	getIconFileName(const char*,bool def,
-					bool shortname) const;
+    bool		findIcons(const char*,bool shortname);
 
 };
 
