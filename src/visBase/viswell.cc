@@ -42,8 +42,6 @@ mCreateFactoryEntry( visBase::Well );
 namespace visBase
 {
 
-static const int cMaxNrLogSamples = 2000;
-
 const char* Well::linestylestr()	{ return "Line style"; }
 const char* Well::showwelltopnmstr()	{ return "Show top name"; }
 const char* Well::showwellbotnmstr()	{ return "Show bottom name"; }
@@ -227,7 +225,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	Coord3 crd = pts[idx];
 	if ( zaxistransform_ )
 	    crd.z = zaxistransform_->transform( crd );
-	
+
 	if ( !crd.isDefined() )
 	    continue;
 
@@ -469,15 +467,6 @@ bool Well::markerNameShown() const
     return markernames_->isOn();
 }
 
-#define mGetLoopSize(nrsamp,step)\
-{\
-    if ( nrsamp > cMaxNrLogSamples )\
-    {\
-	step = (float)nrsamp/cMaxNrLogSamples;\
-	nrsamp = cMaxNrLogSamples;\
-    }\
-}
-
 
 #define mSclogval(val)\
 {\
@@ -526,55 +515,41 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
     logdisplay->setFillRevScale( fillrev );
     logdisplay->setFullFilled( isfullfilled );
 
-    const int nrsamp  = crdvals.size();
-    const int nrsampF = crdvalsF.size();
-    int longsmp = nrsamp >= nrsampF ? nrsamp : nrsampF;
-
-    float step = 1;
-    mGetLoopSize( longsmp, step );
-
     float maxval( 0 );
-    for ( int idx=0; idx<longsmp; idx++ )
+    for ( int idx=0; idx<crdvals.size(); idx++ )
     {
-	const int index = mNINT32(idx*step);
-	if( idx < nrsamp )
+	float val = isfullfilled ? FULLFILLVALUE :
+		    getValue( crdvals, idx, lp.islogarithmic_, scaler );
+
+	const Coord3& pos = getPos( crdvals, idx );
+	if ( mIsUdf(pos.z) || mIsUdf(val) )
+	    continue;
+
+	osg::Vec3Array* logPath = logdisplay->getPath();
+	osg::FloatArray* shapeLog = logdisplay->getShapeLog();
+
+	if(!logPath || !shapeLog)
+	    continue;
+
+	logPath->push_back(
+	    osg::Vec3d((float) pos.x,(float) pos.y,(float) pos.z) );
+	shapeLog->push_back(val);
+	if ( val > maxval )
+	    maxval = val;
+
+	if ( isFilled )
 	{
-	    const float val = isfullfilled ? FULLFILLVALUE :
-		getValue( crdvals, index, lp.islogarithmic_, scaler );
-	    const Coord3& pos = getPos( crdvals, index );
-
-	    if ( mIsUdf( pos.z ) || mIsUdf( val ) )
+	    val = getValue( crdvalsF, idx, lp.islogarithmic_, scalerF );
+	    if ( mIsUdf(val) )
 		continue;
 
-	    osg::Vec3Array* logPath = logdisplay->getPath();
-	    osg::FloatArray* shapeLog = logdisplay->getShapeLog();
-
-	    if(!logPath || !shapeLog)
-		continue;
-
-	    logPath->push_back(
-		osg::Vec3d((float) pos.x,(float) pos.y,(float) pos.z) );
-	    shapeLog->push_back(val);
-	    if ( val >maxval )
-		maxval = val;
-	}
-
-	if ( isFilled && nrsampF != 0 && index < nrsampF )
-	{
-	    const float val = getValue( crdvalsF,
-		  index, lp.islogarithmic_, scalerF );
-	    const Coord3& pos = getPos( crdvalsF, index );
-
-	    if ( mIsUdf( pos.z ) || mIsUdf( val ) )
-		continue;
 	    osg::FloatArray* fillLog = logdisplay->getFillLogValues();
 	    if( !fillLog )
 	        continue;
 	    fillLog->push_back( val );
 	    osg::FloatArray* fillLogDepths = logdisplay->getFillLogDepths();
 	    fillLogDepths->push_back(pos.z);
-	  }
-
+	}
     }
 
     if ( maxval )
@@ -583,7 +558,6 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 	updateMakerNamePosition( lp.side_, maxval );
     }
 
-    
     logdisplay->setMaxFillValue( rgStopF );
     logdisplay->setMinFillValue( rgStartF );
     logdisplay->setMaxShapeValue( rgStop );
@@ -651,7 +625,9 @@ float Well::getValue( const TypeSet<Coord3Value>& crdvals, int idx,
     mGetCoordVal(cv,crdvals,idx);
 
     float val = (float) scaler.scale( cv.second );
-    if ( val < 0 || mIsUdf(val) ) val = 0;
+    if ( mIsUdf(val) ) return mUdf(float);
+
+    if ( val < 0 ) val = 0;
     if ( val > 100 ) val = 100;
     if ( sclog ) mSclogval(val);
 
