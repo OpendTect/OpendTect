@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "genc.h"
-#include "hostdata.h"
 #include "oddirs.h"
 #include "msgh.h"
 
@@ -263,7 +262,7 @@ void SafeFileIO::mkLock( bool forread )
 	DateInfo di; BufferString datestr; di.getUsrDisp( datestr, true );
 	strm << "Type: " << (forread ? "Read\n" : "Write\n");
 	strm << "Date: " << datestr << " (" << di.key() << ")\n";
-	strm << "Host: " << HostData::localHostName() << od_newline;
+	strm << "Host: " << GetLocalHostName() << od_newline;
 	strm << "Process: " << GetPID() << '\n';
 	const char* ptr = GetPersonalDir();
 	strm << "User's HOME: " << (ptr ? ptr : "<none>") << od_newline;

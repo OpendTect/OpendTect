@@ -56,7 +56,6 @@ set( OD_MODULE_SOURCES
 	filepath.cc
 	genc.cc
 	globexpr.cc
-	hostdata.cc
 	iopar.cc
 	initbasic.cc
 	latlong.cc

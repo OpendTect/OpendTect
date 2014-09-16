@@ -13,18 +13,20 @@ set ( QT_MOC_HEADERS
 	qtcpservercomm.h
 	qtcpsocketcomm.h)
 set ( OD_MODULE_SOURCES
-		cvsaccess.cc
-		issuereporter.cc
-		jobcommunic.cc
-		netreqcommunic.cc
-		netreqpacket.cc
-		oddlsite.cc
-		odnetworkaccess.cc
-		odnetworkreply.cc
-		svnaccess.cc
-		systeminfo.cc
-		tcpserver.cc
-		tcpsocket.cc)
+	cvsaccess.cc
+	hostdata.cc
+	issuereporter.cc
+	jobcommunic.cc
+	netreqcommunic.cc
+	netreqpacket.cc
+	oddlsite.cc
+	odnetworkaccess.cc
+	odnetworkreply.cc
+	svnaccess.cc
+	systeminfo.cc
+	tcpserver.cc
+	tcpsocket.cc
+)
 set ( OD_TEST_PROGS networkaccess.cc )
 set ( OD_NIGHTLY_TEST_PROGS netreq.cc tcpsocket.cc echoserver.cc netreqechoserver.cc)
 set ( OD_MODULE_PROGS od_ReportIssue.cc )
