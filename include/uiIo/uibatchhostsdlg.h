@@ -38,7 +38,6 @@ protected:
 
     void		fillTable();
     void		advbutCB(CallBacker*);
-    void		defbutCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     void		changedCB(CallBacker*);
