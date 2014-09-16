@@ -53,6 +53,8 @@ ________________________________________________________________________
 
  */
 
+class BufferStringSet;
+
 namespace OD
 {
 
@@ -66,6 +68,7 @@ public:
     static bool		isPresent(const char* identifier);
 
     BufferString	fullFileName(bool shortname=false) const;
+    void		getAllFileNames(BufferStringSet&) const;
 
 protected:
 
@@ -79,13 +82,11 @@ protected:
     State		state_;
 
     bool		tryFind(const char*,bool shortname,State);
-    BufferString	getIconFileName(const char*,bool def,bool shortname) const;
+    BufferString	getIconFileName(const char*,bool def,
+					bool shortname) const;
 
 };
 
-
 } // namespace OD
-
-
 
 #endif

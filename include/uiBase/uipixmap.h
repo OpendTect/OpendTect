@@ -35,11 +35,10 @@ mExpClass(uiBase) uiPixmap : public NamedObject
 {
 public:
 
-			uiPixmap() : qpixmap_(0)		{}
+			uiPixmap();
 			uiPixmap(int w,int h);
-
-            uiPixmap(const char* icon_identifier,bool shortname=false);
-
+			uiPixmap(const char* icon_identifier,
+				 bool shortname=false);
 			uiPixmap(const uiRGBArray&);
 			uiPixmap(const char* xpm[]);
 			uiPixmap(const mQtclass(QPixmap&));

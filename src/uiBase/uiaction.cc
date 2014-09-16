@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaction.h"
 #include "i_qaction.h"
 
+#include "uiicon.h"
 #include "uimain.h"
 #include "uimenu.h"
-#include "uipixmap.h"
 
 #include "menuhandler.h"
 #include "perthreadrepos.h"
@@ -59,7 +59,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
 
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb,
-		    const uiPixmap& icon )
+		    const uiIcon& icon )
     : mInit
 {
     init( txt );
@@ -75,7 +75,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
     FixedString pixmapfile( iconfile );
     init( txt );
     if ( pixmapfile )
-	setIcon( uiPixmap(pixmapfile) );
+	setIcon( uiIcon(pixmapfile) );
 
     triggered.notify( cb );
 }
@@ -87,7 +87,7 @@ uiAction::uiAction( const uiString& txt, const char* iconfile )
     FixedString pixmapfile( iconfile );
     init( txt );
     if ( pixmapfile )
-	setIcon( uiPixmap(pixmapfile) );
+	setIcon( uiIcon(pixmapfile) );
 }
 
 
@@ -101,7 +101,7 @@ uiAction::uiAction( const MenuItem& itm )
     setChecked( itm.checked );
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
-	setIcon( uiPixmap(itm.iconfnm) );
+	setIcon( uiIcon(itm.iconfnm) );
 }
 
 uiAction::~uiAction()
@@ -258,11 +258,11 @@ void uiAction::reloadIcon()
     if ( iconfile_.isEmpty() || iconfile_[0] == '[' )
 	return;
 
-    const uiPixmap pm( iconfile_ );
-    if ( pm.isEmpty() )
+    const uiIcon icon( iconfile_ );
+    if ( icon.isEmpty() )
 	return;
 
-    qaction_->setIcon( *pm.qpixmap() );
+    qaction_->setIcon( icon.qicon() );
 }
 
 
@@ -274,16 +274,16 @@ void uiAction::translateCB( CallBacker* cb )
 }
 
 
-void uiAction::setIcon( const uiPixmap& pm )
+void uiAction::setIcon( const uiIcon& icon )
 {
-    iconfile_ = pm.source();
-    qaction_->setIcon( *pm.qpixmap() );
+    iconfile_ = icon.source();
+    qaction_->setIcon( icon.qicon() );
 }
 
 
 void uiAction::setIcon( const char* file )
 {
-    setIcon( uiPixmap(file) );
+    setIcon( uiIcon(file) );
 }
 
 
@@ -545,18 +545,18 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 }
 
 
-int uiActionContainer::insertItem( uiMenu* pm )
+int uiActionContainer::insertItem( uiMenu* mnu )
 {
-    addMenu( pm, 0 );
-    uiAction* menuaction = findAction( pm );
+    addMenu( mnu, 0 );
+    uiAction* menuaction = findAction( mnu );
     return menuaction->getID();
 }
 
 
-uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
+uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
 {
-    uiAction* submenuitem = new uiAction( pm->text() );
-    submenuitem->setMenu( pm );
+    uiAction* submenuitem = new uiAction( mnu->text() );
+    submenuitem->setMenu( mnu );
 
     uiAction* beforeaction = 0;
     if ( before )
@@ -572,7 +572,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
     }
 
     insertItem( submenuitem, -1, beforeaction );
-    return pm;
+    return mnu;
 }
 
 

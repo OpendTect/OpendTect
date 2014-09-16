@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenuhandler.h"
 
 #include "uimenu.h"
-#include "uipixmap.h"
 #include "uitoolbar.h"
 
 #include "mousecursor.h"
@@ -127,7 +126,7 @@ uiMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	    mnuitem->setCheckable( subitm.checkable );
 	    mnuitem->setChecked( subitm.checked );
 	    if ( !subitm.iconfnm.isEmpty() )
-		mnuitem->setIcon( uiPixmap(subitm.iconfnm) );
+		mnuitem->setIcon( subitm.iconfnm );
 	}
 
 	handled[lowestitem] = true;

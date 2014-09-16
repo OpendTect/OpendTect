@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "uiaction.h"
+#include "uiicon.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
-#include "uipixmap.h"
 #include "uitoolbutton.h"
 
 #include "bufstringset.h"
@@ -27,12 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-const char* uiIcon::save()		{ return "save"; }
-const char* uiIcon::saveAs()		{ return "saveas"; }
-const char* uiIcon::openObject()	{ return "open"; }
-const char* uiIcon::newObject()		{ return "new"; }
-const char* uiIcon::removeObject()	{ return "trashcan"; }
-const char* uiIcon::None()		{ return "-"; }
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
 {
@@ -200,14 +194,14 @@ void uiToolBar::setToggle( int id, bool yn )
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    setIcon( id, uiPixmap(fnm) );
+    setIcon( id, uiIcon(fnm) );
 }
 
 
-void uiToolBar::setIcon( int id, const uiPixmap& pm )
+void uiToolBar::setIcon( int id, const uiIcon& icon )
 {
     mGetAction( , return );
-    action->setIcon( pm );
+    action->setIcon( icon );
 }
 
 

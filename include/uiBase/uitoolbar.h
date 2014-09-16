@@ -20,13 +20,13 @@ ________________________________________________________________________
 mFDQtclass(QAction)
 mFDQtclass(QToolBar)
 
-class uiPixmap;
 class MenuItem;
+class uiButton;
+class uiIcon;
 class uiObject;
 class uiToolButton;
 class uiToolButtonSetup;
 class i_ToolBarMessenger;
-class uiButton;
 
 
 mExpClass(uiBase) uiToolBar : public uiActionContainer, public uiParent
@@ -37,8 +37,8 @@ public:
     /*
 	Toolbars can be created on docks,
     */
-    enum ToolBarArea 
-    { 
+    enum ToolBarArea
+    {
 	    Left=0x1,	//!< To the left of the central uiGroup.
 	    Right=0x2,	//!< To the right of the central uiGroup.
 	    Top=0x4,	//!< Above the central uiGroup, below the menubar.
@@ -47,15 +47,15 @@ public:
 	    All=0xf	//!< All areas.
     };
 
-    			uiToolBar(uiParent*,const char* nm,
+			uiToolBar(uiParent*,const char* nm,
 				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 
     uiParent*		parent()			{ return parent_; }
 
-    int 		addButton(const uiToolButtonSetup&);
-    int 		addButton(const char* fnm,const uiString& tooltip,
-	    			  const CallBack& =CallBack(),
+    int			addButton(const uiToolButtonSetup&);
+    int			addButton(const char* fnm,const uiString& tooltip,
+				  const CallBack& =CallBack(),
 				  bool toggle=false);
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
@@ -64,37 +64,37 @@ public:
 
     void		setToggle(int id, bool);
     void		setIcon(int id,const char*);
-    void		setIcon(int id,const uiPixmap&);
+    void		setIcon(int id,const uiIcon&);
     void		setToolTip(int id,const uiString&);
     void		setShortcut(int id,const char*);
     void		turnOn(int id,bool yn);
-    			/*!< Does only work on toggle-buttons */
+			/*!< Does only work on toggle-buttons */
     bool		isOn(int id) const;
-    			/*!< Does only work on toggle-buttons */
+			/*!< Does only work on toggle-buttons */
     void		setSensitive(int id,bool yn);
-    			/*!< Does only work on buttons */
+			/*!< Does only work on buttons */
     void		setSensitive(bool yn);
-    			/*!< Works on complete toolbar */
+			/*!< Works on complete toolbar */
     bool		isSensitive() const;
 
     void		setButtonMenu(int,uiMenu*);
-    			//!<Menu will be owned by uiToolButton
+			//!<Menu will be owned by uiToolButton
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added
 			     s and m are not used. */
 
     void		setToolBarMenuAction(uiAction*);
-    			/*!The actions will be checked/unchecked
+			/*!The actions will be checked/unchecked
 			   as toolbar is displayed/hidden */
-			  
+
     void		translateText();
 
     bool		isHidden() const;
     bool		isVisible() const;
 
     void		addSeparator() { insertSeparator(); }
-    
+
     void		clear();
 
     static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
@@ -106,7 +106,7 @@ public:
     CNotifier<uiToolBar,int>		buttonClicked;
 
 protected:
-	    
+
     void			doInsertMenu(mQtclass(QMenu)*,
 					     mQtclass(QAction)* before);
     void			doInsertAction(mQtclass(QAction)*,
@@ -127,9 +127,9 @@ protected:
     int				getButtonID(mQtclass(QAction*));
 
     uiParent*			parent_;
-    
+
 public:
-    			//!CmdDriver functionality, not for casual use
+			//!CmdDriver functionality, not for casual use
     void		getEntityList(ObjectSet<const CallBacker>&) const;
 
     void		addButton(uiButton*);

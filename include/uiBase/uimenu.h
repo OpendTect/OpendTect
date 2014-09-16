@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uibasemod.h"
 #include "uiaction.h"
 #include "uibaseobject.h"
-#include "uiicons.h"
 #include "separstr.h"
 
 class uiParent;

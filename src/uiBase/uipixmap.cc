@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 #include "uirgbarray.h"
-#include "uiicons.h"
+#include "uiicon.h"
 
 #include <QPixmap>
 #include <QBitmap>
@@ -28,6 +28,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <QImageWriter>
 
 mUseQtnamespace
+
+
+uiPixmap::uiPixmap()
+    : qpixmap_(0)
+{}
 
 
 uiPixmap::uiPixmap( const uiPixmap& pm )

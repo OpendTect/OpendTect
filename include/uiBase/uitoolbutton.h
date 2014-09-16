@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uibutton.h"
-#include "uiicons.h"
+#include "uiicon.h"
 
 class uiToolButtonBody;
 class uiToolButtonSetup;

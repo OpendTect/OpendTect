@@ -19,13 +19,15 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 
 
-class uiPixmap;
-class MenuItem;
-class uiMenu;
-class uiActionContainer;
 class i_ActionMessenger;
-mFDQtclass(QAction);
-mFDQtclass(QMenu);
+class uiActionContainer;
+class uiIcon;
+class uiMenu;
+class MenuItem;
+
+mFDQtclass(QAction)
+mFDQtclass(QMenu)
+
 
 /*!Represents either a menu item, or a toolbar item that can be
    clicked by a user .*/
@@ -37,7 +39,7 @@ public:
 			uiAction(const uiString&);
 			uiAction(const uiString&,const CallBack&);
 			uiAction(const uiString&,const CallBack&,
-				 const uiPixmap&);
+				 const uiIcon&);
 			uiAction(const uiString&,const CallBack&,
 				 const char* pmfln);
 			uiAction(const uiString&,const char* pmfln);
@@ -64,7 +66,7 @@ public:
 
     void		setShortcut(const char*);
 
-    void		setIcon(const uiPixmap&);
+    void		setIcon(const uiIcon&);
     void		setIcon(const char*);
 
     void		setCheckable(bool);

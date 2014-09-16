@@ -143,3 +143,16 @@ BufferString OD::IconFile::fullFileName( bool shortname ) const
 
     return getIconFileName( "iconnotfound", true, false );
 }
+
+
+void OD::IconFile::getAllFileNames( BufferStringSet& fnms ) const
+{
+// TODO: Edit when we support more sizes
+    BufferString fnm = fullFileName( true );
+    if ( !fnm.isEmpty() )
+	fnms.add( fnm );
+
+    fnm = fullFileName( false );
+    if ( !fnm.isEmpty() )
+	fnms.add( fnm );
+}
