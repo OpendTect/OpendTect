@@ -12,7 +12,8 @@ ________________________________________________________________________
 
 -*/
 
-#include "basicmod.h"
+#include "networkmod.h"
+
 #include "bufstringset.h"
 #include "filepath.h"
 #include "manobjectset.h"
@@ -32,7 +33,7 @@ class ShareData;
 \brief Host name and aliases.
 */
 
-mExpClass(Basic) HostData
+mExpClass(Network) HostData
 {
 public:
 			HostData(const char* nm);
