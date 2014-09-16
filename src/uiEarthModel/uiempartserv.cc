@@ -1232,7 +1232,14 @@ bool uiEMPartServer::attr2Geom( const EM::ObjectID& oid,
 	return false;
 
     uiHorAttr2Geom dlg( parent(), *hor3d, dpset, cid );
-    return dlg.go();
+    if ( !dlg.go() )
+	return false;
+
+    if ( dlg.saveFldGrp()->displayNewHorizon() &&
+	 dlg.saveFldGrp()->getNewHorizon( ) )
+	displayEMObject( dlg.saveFldGrp()->getNewHorizon()->multiID() );
+
+    return true;
 }
 
 
