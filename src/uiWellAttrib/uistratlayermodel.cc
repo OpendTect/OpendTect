@@ -47,7 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimultiflatviewcontrol.h"
 #include "uiobjdisposer.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uisaveimagedlg.h"
 #include "uiselsimple.h"
 #include "uispinbox.h"
