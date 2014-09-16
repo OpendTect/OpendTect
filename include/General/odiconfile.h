@@ -65,7 +65,7 @@ public:
     void		set(const char* identifier);
     static bool		isPresent(const char* identifier);
 
-    BufferString	fullFileName(bool shortname=false) const;
+    BufferString	fullFileName(bool smalltype=false) const;
 
 protected:
 
@@ -78,9 +78,9 @@ protected:
     BufferString	fullpath_;
     State		state_;
 
-    bool		tryFind(const char*,bool shortname,State);
+    bool		tryFind(const char*,bool smalltype,State);
     BufferString	getIconFileName(const char*,bool def,
-					bool shortname) const;
+					bool smalltype) const;
 
 };
 

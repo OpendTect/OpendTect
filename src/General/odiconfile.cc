@@ -75,10 +75,10 @@ void OD::IconFile::set( const char* inpstr )
 }
 
 
-bool OD::IconFile::tryFind( const char* id, bool shortname,
+bool OD::IconFile::tryFind( const char* id, bool smalltype,
 				OD::IconFile::State state )
 {
-    BufferString fnm = getIconFileName( id, false, shortname );
+    BufferString fnm = getIconFileName( id, false, smalltype );
 
     if ( File::exists(fnm) )
     {
@@ -88,7 +88,7 @@ bool OD::IconFile::tryFind( const char* id, bool shortname,
 
     if ( !usedeficons_ )
     {
-	fnm = getIconFileName( id, true, shortname );
+	fnm = getIconFileName( id, true, smalltype );
 	if ( File::exists(fnm) )
 	{
 	    fromdefault_ = true; fullpath_ = fnm; state_ = state;
@@ -101,9 +101,9 @@ bool OD::IconFile::tryFind( const char* id, bool shortname,
 
 
 BufferString OD::IconFile::getIconFileName( const char* id, bool fromdefault,
-					    bool shortname ) const
+				bool smalltype ) const
 {
-    const BufferString fnm( id, shortname ? sSmallFileEnd : sLargeFileEnd );
+    const BufferString fnm( id, smalltype ? sSmallFileEnd : sLargeFileEnd );
     FilePath fp( fromdefault ? deficdirnm_ : icdirnm_, fnm );
     return BufferString( fp.fullPath() );
 }
@@ -116,13 +116,13 @@ bool OD::IconFile::isPresent( const char* identifier )
 }
 
 
-BufferString OD::IconFile::fullFileName( bool shortname ) const
+BufferString OD::IconFile::fullFileName( bool smalltype ) const
 {
     switch ( state_ )
     {
 	case Exists:
 	{
-	    if ( shortname )
+	    if ( smalltype )
 	    {
 		FilePath fp( fullpath_ );
 		fp.setExtension( 0 );
