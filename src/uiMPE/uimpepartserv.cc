@@ -862,7 +862,8 @@ const MPE::DataHolder*
 { return MPE::engine().getAttribCache( spec ); }
 
 
-TrcKeyZSampling uiMPEPartServer::getAttribVolume( const Attrib::SelSpec& as )const
+TrcKeyZSampling uiMPEPartServer::getAttribVolume(
+					const Attrib::SelSpec& as )const
 { return MPE::engine().getAttribCube(as); }
 
 
@@ -884,7 +885,8 @@ void uiMPEPartServer::expandActiveVolume(const TrcKeyZSampling& seedcs)
     const TrcKeyZSampling activecs = MPE::engine().activeVolume();
     const bool isdefault = activeVolumeIsDefault();
 
-    TrcKeyZSampling newcube = isdefault || activecs.isFlat() ? seedcs : activecs;
+    TrcKeyZSampling newcube = isdefault ||
+	activecs.isFlat() ? seedcs : activecs;
     newcube.zrg.step = SI().zStep();
     if ( !isdefault )
     {
@@ -995,7 +997,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     iopar.mergeComp( attrpar, "Attribs" );
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
-    if ( !iopar.write(setupfilenm,"Tracking Setup") )
+    if ( !setupfilenm.isEmpty() && !iopar.write(setupfilenm,"Tracking Setup") )
     {
 	uiString errmsg( tr("Unable to save tracking setup file \n"
 	                    " %1 .\nPlease check whether the file is writable")
