@@ -149,7 +149,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
     , doread_(doread)
 {
     mDefineStaticLocalObject( BufferString, fixeddumpfnm,
-			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) )
+			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) );
     if ( !fixeddumpfnm.isEmpty() )
 	fnm_ = BufferString( fixeddumpfnm );
 
