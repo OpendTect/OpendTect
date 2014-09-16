@@ -85,7 +85,7 @@ Scene::Scene()
     , scenecoltab_(0)
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
-    setAmbientLight( 1 );
+    setCameraAmbientLight( 1 );
     setup();
 
     if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )

@@ -45,10 +45,12 @@ public:
 
     void		addObject(DataObject*);
 
-    void		setAmbientLight(float);
-    float		ambientLight() const;
+    void		setCameraAmbientLight(float);
+    float		getCameraAmbientLight() const;
+    void		setCameraLightIntensity( float );
+    float		getCameraLightIntensity() const;
 
-    Light*		getLight() const;
+    Light*		getDirectionalLight() const;
 
     PolygonOffset*	getPolygonOffset()	{ return polygonoffset_; }
     bool		saveCurrentOffsetAsDefault() const;
@@ -72,7 +74,6 @@ public:
     static const char*	sKeyFactor()	{ return "Factor"; }
     static const char*	sKeyUnits()	{ return "Units"; }
     static const char*	sKeyLight()	{ return "Light"; }
-
 
 protected:
     virtual		~Scene();

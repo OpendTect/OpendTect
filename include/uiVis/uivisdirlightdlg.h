@@ -31,17 +31,15 @@ public:
 				uiDirLightDlg(uiParent*, uiVisPartServer*);
 				~uiDirLightDlg();
 
-    float			getHeadOnIntensity() const;
-    void			setHeadOnIntensity(float);
     void			show();
 
 protected:
 
     visBase::Light*		getDirLight(int) const;
     void			setDirLight();
-    float			getHeadOnLight(int) const;
-    void			setHeadOnLight();
-    float			getAmbientLight(int) const;
+    float			getCameraLightIntensity( int ) const;
+    void			setCameraLightIntensity();
+    float			getCameraAmbientIntensity(int) const;
     bool			updateSceneSelector();
     void			updateInitInfo();
     void			saveInitInfo();
@@ -51,6 +49,7 @@ protected:
     void			validateInput();
     bool			isInSync();
     void			removeSceneNotifiers();
+    float			getDiffuseIntensity() const;
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
@@ -60,8 +59,8 @@ protected:
     void			sceneSelChangedCB(CallBacker*);
     void			fieldChangedCB(CallBacker*);
     void			polarDiagramCB(CallBacker*);
-    void			headOnChangedCB(CallBacker*);
-    void			ambientChangedCB(CallBacker*);
+    void			cameraLightChangedCB(CallBacker*);
+    void			cameraAmbientChangedCB( CallBacker* );
     void			nrScenesChangedCB(CallBacker*);
     void			sceneNameChangedCB(CallBacker*);
     void			activeSceneChangedCB(CallBacker*);
@@ -73,13 +72,12 @@ protected:
     uiLabeledComboBox*		scenefld_;
     uiDialExtra*		azimuthfld_;
     uiSlider*			dipfld_;
-    uiSlider*			intensityfld_;
-    uiSlider*			headonintensityfld_;
-    uiSlider*			ambintensityfld_;
+    uiSlider*			dirintensityfld_;
+    uiSlider*			cameradirintensityfld_;
+    uiSlider*			cameraambintensityfld_;
     uiPushButton*		showpdfld_;
     uiPolarDiagram*		pd_;
     uiDialog*			pddlg_;
-    uiGenInput*			lighttypefld_;
     uiGenInput*			switchfld_;
 
     typedef mStruct(uiVis) InitInfo
@@ -89,11 +87,11 @@ protected:
 	float		azimuth_;  // user degrees
 	float		dip_;  // degrees
 
-	float		headonintensity_;
+	float		cameraintensity_;
 	float		ambintensity_;
 
 	bool		directlighton_;
-	float		intensity_;
+	float		dirintensity_;
 	float		dx_;
 	float		dy_;
 	float		dz_;
@@ -109,9 +107,6 @@ protected:
 
     TypeSet<InitInfoType>	initinfo_;
 
-    bool			initlighttype_;
-				// initial light type: 0 - headon light,
-				// 1 - scene (directional light)
 };
 
 #endif

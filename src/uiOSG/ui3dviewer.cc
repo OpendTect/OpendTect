@@ -1152,7 +1152,6 @@ void ui3DViewerBody::setScenesPixelDensity( float dpi )
     requestRedraw();
 }
 
-
 bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
 {
     stereotype_ = st;
@@ -1199,7 +1198,6 @@ float ui3DViewerBody::getStereoOffset() const
 }
 
 //------------------------------------------------------------------------------
-
 
 ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     : uiObject(parnt,nm,mkBody(parnt, direct, nm) )
@@ -1525,17 +1523,6 @@ bool ui3DViewer::usePar( const IOPar& par )
 
     osgbody_->useCameraPos( par );
     return true;
-}
-
-
-
-float ui3DViewer::getHeadOnLightIntensity() const
-{
-    return -1;
-}
-
-void ui3DViewer::setHeadOnLightIntensity( float value )
-{
 }
 
 

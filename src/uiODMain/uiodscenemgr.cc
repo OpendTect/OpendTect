@@ -485,7 +485,7 @@ void uiODSceneMgr::updateStatusBar()
     }
 
     const Coord3 xytpos = visServ().getMousePos( true );
-    const bool haspos = !mIsUdf( xytpos.x );
+    const bool haspos = xytpos.isDefined();
 
     BufferString msg;
     if ( haspos  )
@@ -1162,22 +1162,6 @@ void uiODSceneMgr::remove2DViewer( int visid )
 void uiODSceneMgr::doDirectionalLight(CallBacker*)
 {
     visServ().setDirectionalLight();
-}
-
-
-float uiODSceneMgr::getHeadOnLightIntensity( int sceneid ) const
-{
-    const Scene* scene = getScene( sceneid );
-    return scene && scene->sovwr_
-	? scene->sovwr_->getHeadOnLightIntensity() : 0;
-}
-
-
-void uiODSceneMgr::setHeadOnLightIntensity( int sceneid, float value )
-{
-    Scene* scene = getScene( sceneid );
-    if ( scene && scene->sovwr_ )
-	scene->sovwr_->setHeadOnLightIntensity( value );
 }
 
 

@@ -322,15 +322,6 @@ public:
     int				duplicateObject(int id,int sceneid);
 				/*!< \returns id of new object */
 
-				// Headon intensity event-related
-    float			sendGetHeadOnIntensityEvent(int sceneid);
-    void			sendSetHeadOnIntensityEvent(int sceneid,
-							    float val);
-    float			getHeadOnIntensity() const;
-    void			setHeadOnIntensity(float val);
-    static int			evGetHeadOnIntensity();
-    static int			evSetHeadOnIntensity();
-
 				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static int			evPickingStatusChange();
