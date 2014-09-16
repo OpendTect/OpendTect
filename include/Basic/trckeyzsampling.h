@@ -36,7 +36,8 @@ mExpClass(Basic) TrcKeyZSampling
 public:
 
 			TrcKeyZSampling();
-			TrcKeyZSampling( bool settoSI );
+			TrcKeyZSampling(const TrcKeyZSampling&);
+			TrcKeyZSampling(bool settoSI);
 
     enum Dir		{ Z, Inl, Crl };
     Dir			defaultDir() const;

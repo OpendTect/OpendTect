@@ -27,6 +27,7 @@ mExpClass(Basic) TrcKeySampling
 public:
 
 			TrcKeySampling();
+			TrcKeySampling(const TrcKeySampling&);
 			TrcKeySampling(Pos::GeomID);
 
     TrcKeySampling&	set(const Interval<int>& linerg,

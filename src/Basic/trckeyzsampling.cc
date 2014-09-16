@@ -25,6 +25,15 @@ TrcKeySampling::TrcKeySampling()
 { init( true ); }
 
 
+TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
+    : start( start_ )
+    , stop( stop_ )
+    , step( step_ )
+{ 
+    *this = tks;
+}
+
+
 TrcKeySampling::TrcKeySampling( Pos::GeomID gid )
     : start( start_ )
     , stop( stop_ )
@@ -218,7 +227,7 @@ TrcKeySampling& TrcKeySampling::operator=(const TrcKeySampling& hrg)
     survid_ = hrg.survid_;
     start_ = hrg.start_;
     stop_ = hrg.stop_;
-    step_ = hrg.step;
+    step_ = hrg.step_;
 
     return *this;
 }
@@ -755,6 +764,13 @@ od_int64 TrcKeyZSampling::totalNr() const
 TrcKeyZSampling::TrcKeyZSampling()
     : hrg(hsamp_),zrg(zsamp_)
 { init( true ); }
+
+
+TrcKeyZSampling::TrcKeyZSampling( const TrcKeyZSampling& tkzs )
+    : hrg(hsamp_),zrg(zsamp_)
+{
+    *this = tkzs;
+}
 
 
 TrcKeyZSampling::TrcKeyZSampling( bool settoSI )
