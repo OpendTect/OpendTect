@@ -995,7 +995,7 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     iopar.mergeComp( attrpar, "Attribs" );
 
     BufferString setupfilenm = MPE::engine().setupFileName( mid );
-    if ( !iopar.write(setupfilenm,"Tracking Setup") )
+    if ( !setupfilenm.isEmpty() && !iopar.write(setupfilenm,"Tracking Setup") )
     {
 	BufferString errmsg( "Unable to save tracking setup file \n",
 	                     setupfilenm,
