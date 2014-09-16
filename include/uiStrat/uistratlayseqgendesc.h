@@ -52,7 +52,7 @@ public:
     Strat::LayerSequenceGenDesc& desc()			{ return desc_; }
     bool		needSave() const		{ return needsave_; }
     void		setNeedSave( bool yn )		{ needsave_ = yn; }
-    bool		selProps();
+    virtual bool	selProps();
 
 protected:
 

@@ -180,6 +180,20 @@ void uiExtLayerSequenceGenDesc::setFromEditDesc()
 }
 
 
+bool uiExtLayerSequenceGenDesc::selProps()
+{
+    PropertyRefSelection prs( editdesc_.propSelection() );
+    uiSelectPropRefs dlg( outerObj()->parent(), prs );
+    const bool ret = dlg.go();
+    if ( ret || dlg.structureChanged() )
+    {
+	editdesc_.setPropSelection( prs );
+	descHasChanged();
+    }
+    return ret;
+}
+
+
 void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 {
     uiRect& wr = const_cast<uiRect&>( workrect_ );
