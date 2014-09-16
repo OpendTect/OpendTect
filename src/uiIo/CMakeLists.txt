@@ -70,4 +70,7 @@ SET(OD_MODULE_SOURCES
 	uit2dconvsel.cc
 	inituiio.cc
 )
+SET( OD_MODULE_GUI_PROGS
+	od_BatchHosts.cc
+)
 OD_INIT_MODULE()
