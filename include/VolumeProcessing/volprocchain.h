@@ -55,7 +55,8 @@ public:
     static int			cUndefSlotID()		{ return mUdf(int); }
     ID				getID() const		{ return id_; }
 
-    Chain&			getChain()		{ return *chain_; }
+    Chain&			getChain();
+    const Chain&		getChain() const;
     void			setChain(Chain&);
 
     virtual const char*		userName() const;
@@ -73,7 +74,7 @@ public:
     bool			validInputSlotID(InputSlotID) const;
     bool			validOutputSlotID(OutputSlotID) const;
 
-    virtual TrcKeySampling		getInputHRg(const TrcKeySampling&) const;
+    virtual TrcKeySampling	getInputHRg(const TrcKeySampling&) const;
 				/*!<When computing TrcKeySampling, how
 				 big input is needed? */
     virtual StepInterval<int>	getInputZRg(const StepInterval<int>&) const;

@@ -35,7 +35,8 @@ public:
 protected:
     bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
-		    const TrcKeySampling hrg( step_.output_->cubeSampling().hrg );
+		    const TrcKeySampling hrg(
+				step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
 
 		    const int nrinls = mCast( int, start/hrg.nrCrl() );
@@ -904,6 +905,13 @@ void Step::releaseData()
 
     resetInput();
 }
+
+
+Chain& Step::getChain()
+{ return *chain_; }
+
+const Chain& Step::getChain() const
+{ return const_cast<Step*>(this)->getChain(); }
 
 
 void Step::setChain( VolProc::Chain& c )
