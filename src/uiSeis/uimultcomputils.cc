@@ -23,10 +23,13 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, const BufferStringSet& complist )
                                      mNoHelpKey) )
 	, compfld_(0)
 {
-    BufferString instructions = "After loading multiple attributes,\n";
-    instructions += "use 'Page Up and 'Page Down' buttons to scroll.\n";
-    instructions += "Make sure the attribute treeitem is selected\n";
-    instructions += "and that the mouse pointer is in the scene.";
+    uiString instructions( tr("Workflow :-\n"
+	"1) Select multiple attributes and press \"OK\".\n"
+	"2) Wait until the attributes are loaded and displayed\n"
+	"3) Make sure the attribute treeitem is still selected"
+	    " and click on the corresponding object in the scene\n"
+	"4) Press the PageUp / PageDown key to scroll through"
+	    " the individual attributes") );
     setTitleText( instructions );
 
     compfld_ = new uiListBox( this, complist, "", OD::ChooseAtLeastOne );
