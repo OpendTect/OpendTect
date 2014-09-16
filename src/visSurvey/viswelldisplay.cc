@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllog.h"
 #include "welllogset.h"
 #include "welldata.h"
+#include "wellextractdata.h"
 #include "welltransl.h"
 #include "welltrack.h"
 #include "wellmarker.h"
@@ -137,11 +138,11 @@ WellDisplay::~WellDisplay()
 
     delete dispprop_;
     delete Well::MGR().release( wellid_ );
-    
+
     unRefAndZeroPtr( markerset_ );
 
     setBaseMap( 0 );
-    
+
     if ( pseudotrack_ )
 	delete pseudotrack_;
 }
@@ -442,13 +443,17 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 {
     mGetWD(return);
 
-    Well::Log& wlF = wd->logs().getLog( lp.filllogidx_ );
-    Well::Log& wl  = wd->logs().getLog( lp.logidx_ );
+    Well::Log logdata = wd->logs().getLog( lp.logidx_ );
+    Well::Log* logfill = 0;
 
-    if ( wl.isEmpty() ) return;
-    const int logsz = wl.size();
-    const int logszf = wlF.size();
-    const int longSize = logsz >= logszf ? logsz : logszf;
+    if ( isfilled )
+	logfill = new Well::Log( wd->logs().getLog( lp.filllogidx_ ) );
+
+    if ( !upscaleLogs(*wd,logdata,logfill,lp) )
+    {
+	if ( logfill ) delete logfill;
+	return;
+    }
 
     const Well::Track& track = wd->track();
     float minval=mUdf(float), maxval=-mUdf(float);
@@ -457,46 +462,44 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     TypeSet<visBase::Well::Coord3Value> crdvals;
     TypeSet<visBase::Well::Coord3Value> crdvalsF;
 
-    for ( int idx=0; idx<longSize; idx++ )
+    const int logsz = logdata.size();
+    for ( int idx=0; idx<logsz; idx++ )
     {
-	if( idx < logsz )
-	{
-	    const float dah = wl.dah(idx);
-	    Coord3 pos = track.getPos( dah );
-	    if ( !pos.x && !pos.y && !pos.z )
-		continue;
-	    if ( zistime_ )
-		pos.z = wd->d2TModel()->getTime( dah, wd->track() );
-	    if ( mIsUdf( pos.z ) )
-		continue;
-	    float val = wl.value(idx);
-	    if ( mIsUdf(val) )
-		continue;
-	    val = lp.range_.limitValue( val );
-	    minval = getminVal(minval,val);
-	    maxval = getmaxVal(maxval,val);
-	    crdvals += visBase::Well::Coord3Value( pos, val );
-	}
+	const float dah = logdata.dah( idx );
 
-	if( isfilled && logszf !=0 && idx < logszf )
-	{
-	    const float dah = wlF.dah(idx);
-	    Coord3 pos = track.getPos( dah );
-	    if ( !pos.x && !pos.y && !pos.z )
-		continue;
-	    if ( zistime_ )
-		pos.z = wd->d2TModel()->getTime( dah, wd->track() );
-	    if ( mIsUdf( pos.z ) )
-		continue;
-	    float valF = wlF.value(idx);
-	    if ( mIsUdf(valF) )
-		continue;
-	    minvalF = getminVal(minvalF,valF);
-	    maxvalF = getmaxVal(maxvalF,valF);
-	    crdvalsF += visBase::Well::Coord3Value( pos, valF );
-	}
+	Coord3 pos = track.getPos( dah );
+	if ( pos.isUdf() )
+	    continue;
 
+	if ( zistime_ )
+	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
+
+	if ( mIsUdf(pos.z) )
+	    continue;
+
+	float val = logdata.value(idx);
+	if ( mIsUdf(val) )
+	    continue;
+
+	val = lp.range_.limitValue( val );
+	minval = getminVal(minval,val);
+	maxval = getmaxVal(maxval,val);
+	crdvals += visBase::Well::Coord3Value( pos, val );
+
+	if( isfilled )
+	{
+	    const float valfill = logfill->value(idx);
+	    if ( !mIsUdf(valfill) )
+	    {
+		minvalF = getminVal(minvalF,valfill);
+		maxvalF = getmaxVal(maxvalF,valfill);
+	    }
+
+	    crdvalsF += visBase::Well::Coord3Value( pos, valfill );
+	}
     }
+    if ( logfill )
+	delete logfill;
 
     if ( crdvals.isEmpty() && crdvalsF.isEmpty() )
 	return;
@@ -506,6 +509,57 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
     well_->setLogData( crdvals,crdvalsF,lp,isfilled );
 
 }
+
+#define cMaxLogSamp 2000
+
+bool WellDisplay::upscaleLogs( const Well::Data& wd, Well::Log& logdata,
+			       Well::Log* logfill,
+			       visBase::Well::LogParams& ld ) const
+{
+    const Well::Track& track = wd.track();
+    if ( track.size() < 2 )
+	return false;
+
+    const Well::Log* logdatain = wd.logs().getLog( logdata.name() );
+    const Well::Log* logfillin = !logfill ? 0
+					  : wd.logs().getLog( logfill->name() );
+    if ( !logdatain || ( logfill && !logfillin ) )
+	return false;
+
+    float start = logdata.dah( 0 );
+    if ( start < track.dahRange().start )
+	start = track.dahRange().start;
+
+    float stop = logdata.dah( logdata.size()-1 );
+    if ( stop > track.dahRange().stop )
+	stop = track.dahRange().stop;
+
+    StepInterval<float> dahrange( start, stop, mUdf(float) );
+    dahrange.step = dahrange.width() / mCast(float, cMaxLogSamp-1 );
+
+    logdata.setEmpty();
+    if ( logfill )
+	logfill->setEmpty();
+
+    const bool filldata = logdatain == logfillin;
+    for ( int idah=0; idah<dahrange.nrSteps()+1; idah++ )
+    {
+	const float dah = dahrange.atIndex( idah );
+	const float val = Well::LogDataExtracter::calcVal( *logdatain,
+				dah, dahrange.step, Stats::UseAvg );
+	logdata.addValue( dah, val );
+	if ( logfill )
+	{
+	    const float fillval = filldata ? val
+				: Well::LogDataExtracter::calcVal( *logfillin,
+					dah, dahrange.step, Stats::UseAvg );
+	    logfill->addValue( dah, fillval );
+	}
+    }
+
+    return true;
+}
+
 
 void WellDisplay::setLogDisplay( visBase::Well::Side side )
 {
@@ -564,7 +618,7 @@ void WellDisplay::setLogProperties( visBase::Well::LogParams& lp )
 
     if ( lp.cliprate_ && lp.logidx_ >= 0 )
 	calcClippedRange( lp.cliprate_, lp.range_, lp.logidx_ );
-    
+
     requestSingleRedraw();
 }
 
@@ -647,11 +701,11 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     info += zinfeet_ || SI().depthsInFeet() ? "(ft): " : "(m): ";
     const float zfac = SI().depthsInFeet() && SI().zIsTime() ?
 							mToFeetFactorF : 1;
-    
+
     Coord3 mouseworldpos = pos;
     if ( datatransform_ )
 	mouseworldpos.z = datatransform_->transformBack( mouseworldpos );
-    
+
     const float dah = track.nearestDah(mouseworldpos);
     info += toString( mNINT32(dah*zfac) );
 

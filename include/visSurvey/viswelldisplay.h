@@ -57,15 +57,15 @@ mExpClass(visSurvey) WellDisplay : public visBase::VisualObjectImpl
 {
 public:
 				WellDisplay();
-				mDefaultFactoryInstantiation( 
+				mDefaultFactoryInstantiation(
 				    visSurvey::SurveyObject,WellDisplay,
 				    "WellDisplay", sFactoryKeyword() );
 
     bool			setMultiID(const MultiID&);
-    MultiID			getMultiID() const 	{ return wellid_; }
+    MultiID			getMultiID() const	{ return wellid_; }
 
     //track
-    void 			fillTrackParams(visBase::Well::TrackParams&);
+    void			fillTrackParams(visBase::Well::TrackParams&);
 
     bool			wellTopNameShown() const;
     void			showWellTopName(bool);
@@ -74,7 +74,7 @@ public:
     TypeSet<Coord3>             getWellCoords()	const;
 
     //markers
-    void 			fillMarkerParams(visBase::Well::MarkerParams&);
+    void			fillMarkerParams(visBase::Well::MarkerParams&);
 
     bool			canShowMarkers() const;
     bool			markersShown() const;
@@ -83,16 +83,16 @@ public:
     void			showMarkerName(bool);
     int				markerScreenSize() const;
     void			setMarkerScreenSize(int);
-    
+
     //logs
-    void 			fillLogParams(visBase::Well::LogParams&,
+    void			fillLogParams(visBase::Well::LogParams&,
 						visBase::Well::Side side);
 
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
-    void 			setLogData(visBase::Well::LogParams&,bool);
+    void			setLogData(visBase::Well::LogParams&,bool);
     void			setLogDisplay(visBase::Well::Side);
     void			calcClippedRange(float,Interval<float>&,int);
     void			displayRightLog();
@@ -111,20 +111,20 @@ public:
 
     const mVisTrans*		getDisplayTransformation() const;
     void			setDisplayTransformation(const mVisTrans*);
-    void 			setDisplayTransformForPicks(const mVisTrans*);
-    
+    void			setDisplayTransformForPicks(const mVisTrans*);
+
     void                        setSceneEventCatcher(visBase::EventCatcher*);
-    void 			addPick(Coord3);
-    				//only used for user-made wells
+    void			addPick(Coord3);
+				//only used for user-made wells
     void			addKnownPos();
     void			getMousePosInfo(const visBase::EventInfo& ei,
-	    					IOPar& iop ) const
+						IOPar& iop ) const
 				{ return SurveyObject::getMousePosInfo(ei,iop);}
     void			getMousePosInfo(const visBase::EventInfo& pos,
-	    					Coord3&,BufferString& val,
+						Coord3&,BufferString& val,
 						BufferString& info) const;
     NotifierAccess*             getManipulationNotifier() { return &changed_; }
-    bool			hasChanged() const 	{ return needsave_; }
+    bool			hasChanged() const	{ return needsave_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
     void			setChanged( bool yn )	{ needsave_ = yn; }
     void			setupPicking(bool);
@@ -136,7 +136,7 @@ public:
 
     bool			setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
-    
+
     virtual void                fillPar(IOPar&) const;
     virtual bool                usePar(const IOPar&);
     virtual void		setPixelDensity(float);
@@ -155,11 +155,15 @@ protected:
     void			setLogProperties(visBase::Well::LogParams&);
     void                        pickCB(CallBacker* cb=0);
     void                        welldataDelNotify(CallBacker* cb=0);
-    void 			saveDispProp( const Well::Data* wd );
+    void			saveDispProp( const Well::Data* wd );
     void			setLogInfo(BufferString&,BufferString&,
 					   float,bool) const;
-    
-    Well::DisplayProperties* 	dispprop_;
+    bool			upscaleLogs(const Well::Data& wd,
+					    Well::Log& logdata,
+					    Well::Log* logfill,
+					    visBase::Well::LogParams&) const;
+
+    Well::DisplayProperties*	dispprop_;
 
     Coord3                      mousepressposition_;
     const mVisTrans*		transformation_;
@@ -175,7 +179,7 @@ protected:
 
     Notifier<WellDisplay>	changed_;
 
-    int 			logsnumber_;
+    int				logsnumber_;
     int                         mousepressid_;
     bool			needsave_;
     bool			onelogdisplayed_;
