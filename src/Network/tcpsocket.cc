@@ -406,24 +406,27 @@ TcpSocket::ReadStatus TcpSocket::read( Network::RequestPacket& packet ) const
     }
 
     const od_int32 payloadsize = packet.payloadSize();
-    mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
-
-    if ( !payload )
+    if ( payloadsize > 0 )
     {
-	errmsg_ = tr("Out of memory");
-	return ReadError;
+	mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
+
+	if ( !payload )
+	{
+	    errmsg_ = tr("Out of memory");
+	    return ReadError;
+	}
+
+
+	res = readArray( payload, payloadsize );
+
+	if ( res!=ReadOK )
+	{
+	    delete [] payload;
+	    return ReadError;
+	}
+
+	packet.setPayload( payload );
     }
-
-
-    res = readArray( payload, payloadsize );
-
-    if ( res!=ReadOK )
-    {
-	delete [] payload;
-	return ReadError;
-    }
-
-    packet.setPayload( payload );
 
     return ReadOK;
 }
