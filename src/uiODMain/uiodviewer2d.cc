@@ -374,12 +374,12 @@ void uiODViewer2D::createPolygonSelBut( uiToolBar* tb )
     uiAction* polyitm = new uiAction( uiStrings::sPolygon(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( polyitm, 0 );
-    polyitm->setIcon( uiPixmap("polygonselect") );
+    polyitm->setIcon( "polygonselect" );
 
     uiAction* rectitm = new uiAction( uiStrings::sRectangle(),
 				      mCB(this,uiODViewer2D,handleToolClick) );
     polymnu->insertItem( rectitm, 1 );
-    rectitm->setIcon( uiPixmap("rectangleselect") );
+    rectitm->setIcon( "rectangleselect" );
 
     tb->setButtonMenu( polyseltbid_, polymnu );
 
@@ -450,7 +450,8 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& cs )
 	dpid = createDataPack( vdselspec_ );
 	if ( dpid != DataPack::cNoID() ) removeAvailablePacks();
 	//<--TODO: This line is needed only for z-slices in z-transformed domain
-	//as setUpView cannot getTrcKeyZSampling from a FlatDataPack.Try to remove.
+	//as setUpView cannot getTrcKeyZSampling from a FlatDataPack.
+	//Try to remove.
 	setUpView( dpid, false );
     }
     else if ( shwwva && wvaselspec_.id().isValid() )
@@ -480,7 +481,8 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    const TrcKeyZSampling& cs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
+    const TrcKeyZSampling& cs =
+		slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
     if ( !cs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
