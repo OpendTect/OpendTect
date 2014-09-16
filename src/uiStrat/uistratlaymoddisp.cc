@@ -91,7 +91,7 @@ void uiStratLayerModelDisp::setFlattened( bool yn, bool trigger )
 {
     flattened_ = yn;
     if ( !trigger ) return;
-    
+
     modelChanged();
     reSetView();
 }
@@ -122,7 +122,7 @@ void uiStratLayerModelDisp::displayFRText()
     if ( !frtxtitm_ )
 	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
 				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled") 
+    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
                                       : tr("Hydrocarbon filled"));
     frtxtitm_->setPenColor( Color::Black() );
     const int xpos = mNINT32( scene().width()/2 );
@@ -149,7 +149,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
     , doread_(doread)
 {
     mDefineStaticLocalObject( BufferString, fixeddumpfnm,
-			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) )
+			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) );
     if ( !fixeddumpfnm.isEmpty() )
 	fnm_ = BufferString( fixeddumpfnm );
 
@@ -522,8 +522,8 @@ void uiStratSimpleLayerModelDisp::handleRightClick( int selidx )
 	uiDialog dlg( this, uiDialog::Setup( "Remove a layer",
 		                  BufferString("Remove '",lay.name(),"'"),
                                   mODHelpKey(mStratSimpleLayerModDispHelpID)));
-	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(true), 
-                                         BoolInpSpec(true, 
+	uiGenInput* gi = new uiGenInput( &dlg, uiStrings::sRemove(true),
+                                         BoolInpSpec(true,
                                          "Only this layer",
                                          "All layers with this ID") );
 	if ( dlg.go() )
@@ -631,11 +631,11 @@ void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
     {
 	if ( !emptyitm_ )
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
-		    		new uiTextItem( "<---empty--->",
+				new uiTextItem( "<---empty--->",
 				mAlignment(HCenter,VCenter) ) );
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
-		    		    vwr_.rgbCanvas().height() / 2 ) );
+				    vwr_.rgbCanvas().height() / 2 ) );
 	return;
     }
 
@@ -760,9 +760,9 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     if ( vrg_.width() == 0 )
 	{ vrg_.start -= 1; vrg_.stop += 1; }
     const float vwdth = vrg_.width();
-    int auxdataidx = 0; 
+    int auxdataidx = 0;
     mStartLayLoop( false, )
-	
+
 	if ( !isDisplayedModel(iseq) )
 	    continue;
 	const Color laycol = lay.dispColor( uselithcols_ );
@@ -774,7 +774,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
 	bool canjoinlayers = ilay > 0;
 	if ( canjoinlayers )
 	{
-	    const Strat::Layer& prevlay = *seq.layers()[ilay-1]; 
+	    const Strat::Layer& prevlay = *seq.layers()[ilay-1];
 	    const Color prevlaycol = prevlay.dispColor( uselithcols_ );
 	    canjoinlayers = prevlaycol==laycol;
 	}
@@ -836,12 +836,12 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     const bool haveprop = lm.propertyRefs().validIdx(dispprop_);
     mGetDispZrg(zrg_,dispzrg);
     StepInterval<double> zrg( dispzrg.start, dispzrg.stop,
-	    		      dispzrg.width()/5.0f );
+			      dispzrg.width()/5.0f );
     emptydp_->posData().setRange(
 	    true, StepInterval<double>(1, nrseqs<2 ? 1 : nrseqs,1) );
     emptydp_->posData().setRange( false, zrg );
     emptydp_->setName( !haveprop ? "No property selected"
-	    			 : lm.propertyRefs()[dispprop_]->name().buf() );
+				 : lm.propertyRefs()[dispprop_]->name().buf() );
     vwr_.setViewToBoundingBox();
 }
 
