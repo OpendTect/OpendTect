@@ -1519,16 +1519,6 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	mpeserv_->fireLAttribData();
     else if ( evid == uiVisPartServer::evFromMPEManStoreEMObject() )
 	storeEMObject();
-    else if (evid == uiVisPartServer::evGetHeadOnIntensity() )
-    {
-	visserv_->setHeadOnIntensity( sceneMgr().getHeadOnLightIntensity(
-		    visserv_->getEventObjId() ) );
-    }
-    else if (evid == uiVisPartServer::evSetHeadOnIntensity() )
-    {
-	sceneMgr().setHeadOnLightIntensity( visserv_->getEventObjId(),
-	       visserv_->getHeadOnIntensity() );
-    }
     else
     {
 	pErrMsg("Unknown event from visserv");
