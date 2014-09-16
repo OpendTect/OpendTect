@@ -1528,17 +1528,6 @@ bool ui3DViewer::usePar( const IOPar& par )
 }
 
 
-
-float ui3DViewer::getHeadOnLightIntensity() const
-{
-    return -1;
-}
-
-void ui3DViewer::setHeadOnLightIntensity( float value )
-{
-}
-
-
 visBase::Scene* ui3DViewer::getScene()
 {
     return osgbody_->getScene();

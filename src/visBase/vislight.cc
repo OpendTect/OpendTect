@@ -26,11 +26,30 @@ const char* Light::sKeyDirection() { return "Direction"; }
 
 
 Light::Light( )
-    : light_( new osg::Light(0) )
+    : light_( addAttribute( new osg::Light ) )
     , ison_( true )
     , diffuse_( 0.8f )
     , ambient_( 0.2f )
 {
+    light_->ref();
+    initLight();
+}
+
+
+Light::~Light ( )
+{
+    light_->unref();
+}
+
+
+void Light::initLight()
+{
+    if ( !light_ ) return;
+    light_->setSpotExponent( 0.0f );
+    light_->setSpotCutoff( 180.0f );
+    light_->setConstantAttenuation( 1.0f );
+    light_->setLinearAttenuation( 0.0f );
+    light_->setQuadraticAttenuation( 0.0f );
     updateLights();
 }
 
@@ -64,26 +83,27 @@ mSetGet( diffuse_, Diffuse )
 void Light::updateLights()
 {
     float newlight = ison_ ? ambient_ : 0;
-    light_->setAmbient(osg::Vec4(newlight,newlight,newlight,1.0f));
+    light_->setAmbient( osg::Vec4( newlight,newlight,newlight,1.0f ) );
 
     newlight = ison_ ? diffuse_ : 0;
-    light_->setDiffuse(osg::Vec4(newlight,newlight,newlight,1.0f));
+    light_->setDiffuse( osg::Vec4( newlight,newlight,newlight,1.0f ) );
+    visBase::DataObject::requestSingleRedraw();
 }
 
 
-void Light::setDirection(float x, float y, float z )
+void Light::setDirection( float x, float y, float z )
 {
-    light_->setDirection( osg::Vec3(x,y,z) );
+    osg::Vec3 dir( x, y, z );
+    dir.normalize();
+    light_->setPosition( osg::Vec4( dir, 0.0 ) );
 }
 
 
 float Light::direction( int dim ) const
 {
-    const osg::Vec3 dir = light_->getDirection();
+    const osg::Vec4 dir = light_->getPosition();
     return dir[dim];
 }
-
-
 
 
 void Light::fillPar( IOPar& par ) const
@@ -125,6 +145,12 @@ bool Light::usePar( const IOPar& par )
     setDirection( dirx, diry, dirz );
 
     return true;
+}
+
+
+void Light::applyAttribute( osg::StateSet* ns, osg::StateAttribute* attr )
+{
+    ns->setAttributeAndModes( attr,osg::StateAttribute::ON  );
 }
 
 } // namespace visBase

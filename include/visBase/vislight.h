@@ -15,17 +15,14 @@ ________________________________________________________________________
 
 #include "visbasemod.h"
 #include "visdata.h"
+#include "visnodestate.h"
 #include "visosg.h"
-
-
-class SoLight;
-class SoLightModel;
 
 
 namespace osg
 {
     class Light;
-}
+ }
 
 namespace visBase
 {
@@ -35,9 +32,8 @@ Class for all lights. More options are available in osg, but only what we
  currently need is implemented.
 
 */
-
-mExpClass(visBase) Light
-{ mRefCountImplNoDestructor(Light)
+mExpClass( visBase ) Light : public NodeState
+{
 public:
 			Light();
     void		setLightNum(int);
@@ -54,18 +50,19 @@ public:
 			/*!< 0 = nada, 1 = full light */
     float		getDiffuse() const;
 
-    void		setDirection(float,float,float);
+    void		setDirection(float x,float y,float z);
+			/*!< the direction is specified towards light source*/
     float		direction(int dim) const;
+			/*!< the direction is specified towards light source*/
 
     void		fillPar( IOPar& ) const;
     bool		usePar( const IOPar& );
-
-    osg::Light*		osgLight()	{ return light_; }
+ 
 
 protected:
-
+				~Light();
     void			updateLights();
-
+    void			initLight();
     bool			ison_;
     float			ambient_;
     float			diffuse_;
@@ -76,6 +73,9 @@ protected:
     static const char*	sKeyDiffuse();
     static const char*	sKeyLightNum();
     static const char*	sKeyDirection();
+private:
+    void			applyAttribute(
+				osg::StateSet*,osg::StateAttribute*);
 };
 
 

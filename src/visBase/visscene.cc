@@ -25,7 +25,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "threadwork.h"
 
 #include <osg/Group>
-#include <osg/Light>
+#include <osg/Camera>
+#include <osg/View>
+
 
 #define mDefaultFactor	1
 #define mDefaultUnits	200
@@ -50,8 +52,7 @@ Scene::Scene()
     light_->turnOn( false );
     light_->setAmbient( 0 );
     light_->setLightNum( 1 );
-    osg::ref_ptr<osg::StateSet> stateset = osggroup_->getOrCreateStateSet();
-    stateset->setAttributeAndModes(light_->osgLight() );
+    addNodeState( light_ );
 
     polygonoffset_->ref();
 
@@ -143,20 +144,46 @@ void Scene::addObject( DataObject* dataobj )
 }
 
 
-void Scene::setAmbientLight( float n )
+void Scene::setCameraLightIntensity( float value )
 {
-    //environment_->ambientIntensity.setValue( n );
+    if ( !camera_ ) return;
+    osg::Light* headlight = camera_->osgCamera()->getView()->getLight();
+    headlight->setDiffuse( osg::Vec4( value, value, value, 1.0 ) );
+    visBase::DataObject::requestSingleRedraw();
 }
 
 
-float Scene::ambientLight() const
+float Scene::getCameraLightIntensity() const
 {
-    return 0;
-    //return environment_->ambientIntensity.getValue();
+    if ( !camera_ ) return 1.0f;
+    const osg::Light* headlight =
+	camera_->osgCamera()->getView()->getLight();
+    const osg::Vec4 diffuse = headlight->getDiffuse();
+    return diffuse[0];
 }
 
 
-Light* Scene::getLight() const
+
+void Scene::setCameraAmbientLight( float value )
+{
+    if ( !camera_ ) return;
+    osg::Light* headlight = camera_->osgCamera()->getView()->getLight();
+    headlight->setAmbient( osg::Vec4( value, value, value, 1.0 ) );
+    visBase::DataObject::requestSingleRedraw();
+}
+
+
+float Scene::getCameraAmbientLight() const
+{
+    if ( !camera_ ) return 1.0f;
+    const osg::Light* headlight = 
+	camera_->osgCamera()->getView()->getLight();
+    const osg::Vec4 ambient = headlight->getAmbient();
+    return ambient[0];
+}
+
+
+Light* Scene::getDirectionalLight() const
 {
     return light_;
 }
@@ -301,7 +328,5 @@ void Scene::fillOffsetPar( IOPar& par ) const
     offsetpar.set( sKeyUnits(), polygonoffset_->getUnits() );
     par.mergeComp( offsetpar, sKeyOffset() );
 }
-
-
 
 }; // namespace visBase

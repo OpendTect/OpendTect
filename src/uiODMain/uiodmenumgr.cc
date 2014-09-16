@@ -970,7 +970,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 	viewselectid_ = -1;
     }
 
-    mAddTB( cointb_, "dir-light", "Set directional light", false,
+    mAddTB( cointb_, "dir-light", "Set light options", false,
 	    doDirectionalLight);
 
     axisid_ = mAddTB(cointb_,"axis","Display orientation axis",

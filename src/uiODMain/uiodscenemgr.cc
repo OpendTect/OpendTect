@@ -1165,22 +1165,6 @@ void uiODSceneMgr::doDirectionalLight(CallBacker*)
 }
 
 
-float uiODSceneMgr::getHeadOnLightIntensity( int sceneid ) const
-{
-    const Scene* scene = getScene( sceneid );
-    return scene && scene->sovwr_
-	? scene->sovwr_->getHeadOnLightIntensity() : 0;
-}
-
-
-void uiODSceneMgr::setHeadOnLightIntensity( int sceneid, float value )
-{
-    Scene* scene = getScene( sceneid );
-    if ( scene && scene->sovwr_ )
-	scene->sovwr_->setHeadOnLightIntensity( value );
-}
-
-
 uiODSceneMgr::Scene* uiODSceneMgr::getScene( int sceneid )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )

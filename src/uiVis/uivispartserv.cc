@@ -80,8 +80,6 @@ int uiVisPartServer::evColorTableChange()	    { return 17; }
 int uiVisPartServer::evLoadAttribDataInMPEServ()    { return 18; }
 int uiVisPartServer::evPostponedLoadingData()	    { return 19; }
 int uiVisPartServer::evFromMPEManStoreEMObject()    { return 20; }
-int uiVisPartServer::evGetHeadOnIntensity()	    { return 21; }
-int uiVisPartServer::evSetHeadOnIntensity()	    { return 22; }
 
 
 const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
@@ -1300,30 +1298,6 @@ void uiVisPartServer::setDirectionalLight()
 
     dirlightdlg_->show();
 }
-
-
-// Headon light-related
-float uiVisPartServer::sendGetHeadOnIntensityEvent( int sceneid )
-{
-    eventmutex_.lock();
-    eventobjid_ = sceneid;
-    return sendEvent( evGetHeadOnIntensity() );
-}
-
-
-void uiVisPartServer::sendSetHeadOnIntensityEvent( int sceneid, float val )
-{
-    eventmutex_.lock();
-    eventobjid_ = sceneid;
-    sendEvent( evSetHeadOnIntensity() );
-}
-
-
-float uiVisPartServer::getHeadOnIntensity() const
-{ return dirlightdlg_ ? dirlightdlg_->getHeadOnIntensity() : 0; }
-
-void uiVisPartServer::setHeadOnIntensity( float val )
-{ if ( dirlightdlg_ ) dirlightdlg_->setHeadOnIntensity( val ); }
 
 
 void uiVisPartServer::vwAll( CallBacker* )
