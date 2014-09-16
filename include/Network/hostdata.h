@@ -110,7 +110,7 @@ protected:
   The first entry will be the local host.
 */
 
-mExpClass(Basic) HostDataList : public ManagedObjectSet<HostData>
+mExpClass(Network) HostDataList : public ManagedObjectSet<HostData>
 { mODTextTranslationClass(HostDataList)
 public:
 			HostDataList(bool foredit);
