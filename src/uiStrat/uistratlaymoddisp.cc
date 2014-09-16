@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiworld2ui.h"
 #include "uiflatviewer.h"
 #include "uimultiflatviewcontrol.h"
+#include "envvars.h"
 #include "flatposdata.h"
 #include "stratlevel.h"
 #include "arrayndimpl.h"
@@ -121,7 +122,7 @@ void uiStratLayerModelDisp::displayFRText()
     if ( !frtxtitm_ )
 	frtxtitm_ = scene().addItem( new uiTextItem( tr("<---empty--->"),
 				 mAlignment(HCenter,VCenter) ) );
-    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled") 
+    frtxtitm_->setText(isbrinefilled_ ? tr("Brine filled")
                                       : tr("Hydrocarbon filled"));
     frtxtitm_->setPenColor( Color::Black() );
     const int xpos = mNINT32( scene().width()/2 );
@@ -138,48 +139,57 @@ class uiStratLayerModelDispIO : public uiDialog
 {
 public:
 
-uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, 
-			    BufferString& fnm, bool forread )
-    : uiDialog( p, Setup(forread ? "Read dumped models" : "Dump models",
+uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
+    : uiDialog( p, Setup(doread ? "Read dumped models" : "Dump models",
 		mNoDlgTitle,mTODOHelpKey) )
-    , presmathfld_(0)
+    , doreplacefld_(0)
     , eachfld_(0)
-    , fnm_(fnm)
+    , presmathfld_(0)
     , lm_(lm)
+    , doread_(doread)
 {
-    if ( !forread )
-	presmathfld_ = new uiGenInput( this, "Preserve Math Formulas",
-					BoolInpSpec(false) );
+    mDefineStaticLocalObject( BufferString, fixeddumpfnm,
+			      = GetEnvVar( "OD_FIXED_LAYMOD_DUMPFILE" ) )
+    if ( !fixeddumpfnm.isEmpty() )
+	fnm_ = BufferString( fixeddumpfnm );
+
     uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
     filefld_ = new uiFileInput( this, "File name", su );
-    if ( presmathfld_ )
-	filefld_->attach( alignedBelow, presmathfld_ );
 
-    if ( forread )
+    if ( doread )
     {
-	eachfld_ = new uiGenInput( this, "Use each", IntInpSpec(1,1,999999) );
+	IntInpSpec val(1);
+	val.setLimits( Interval<int>(1,99999) );
+	eachfld_ = new uiGenInput( this, "Use each", val );
 	eachfld_->attach( alignedBelow, filefld_ );
-    }
-}
-
-bool acceptOK( CallBacker* )
-{
-    fnm_ = filefld_->fileName();
-    if ( fnm_.isEmpty() )
-	mErrRet( "Please provide a file name" );
-
-    if ( presmathfld_ )
-    {
-	od_ostream strm( fnm_ );
-	if ( !strm.isOK() )
-	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor write") )
-	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
-	    mErrRet( "Unknown error during write ..." )
+	doreplacefld_ = new uiGenInput( this, "Clear existing model before add",
+					BoolInpSpec(true) );
+	doreplacefld_->attach( alignedBelow, eachfld_ );
     }
     else
     {
-	if ( !File::exists(fnm_) )
-	    mErrRet( "File does not exist" );
+	presmathfld_ = new uiGenInput( this, "Preserve Math Formulas",
+				       BoolInpSpec(true) );
+	presmathfld_->attach( alignedBelow, filefld_ );
+    }
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    if ( fnm_.isEmpty() )
+    {
+	if ( !filefld_->fileName() )
+	    mErrRet( "Please provide a file name" )
+
+	fnm_ = filefld_->fileName();
+    }
+
+    if ( doread_ && !File::exists(fnm_) )
+	mErrRet( "Input file does not exist" )
+
+    if ( doread_ )
+    {
 	od_istream strm( fnm_ );
 	if ( !strm.isOK() )
 	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor read") )
@@ -187,23 +197,37 @@ bool acceptOK( CallBacker* )
 	Strat::LayerModel newlm;
 	if ( !newlm.read(strm) )
 	    mErrRet( "Cannot read layer model from file.\nDetails may be "
-		    	"in the log file ('Utilities-Show log file')" )
+			"in the log file ('Utilities-Show log file')" )
 
 	const int each = eachfld_->getIntValue();
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
+	if ( doreplacefld_->getBoolValue() )
+	    lm.setEmpty();
+
 	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
 	    lm.addSequence( newlm.sequence(iseq) );
+    }
+    else
+    {
+	od_ostream strm( fnm_ );
+	if ( !strm.isOK() )
+	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor write") )
+
+	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
+	    mErrRet( "Unknown error during write ..." )
     }
 
     return true;
 }
 
-    uiFileInput*	filefld_;
-    uiGenInput*		presmathfld_;
-    uiGenInput*		eachfld_;
+    uiFileInput*		filefld_;
+    uiGenInput*			doreplacefld_;
+    uiGenInput*			eachfld_;
+    uiGenInput*			presmathfld_;
 
-    const Strat::LayerModel& lm_;
-    BufferString&	fnm_;
+    const Strat::LayerModel&	lm_;
+    BufferString		fnm_;
+    bool			doread_;
 
 };
 
@@ -223,7 +247,7 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
-    uiStratLayerModelDispIO dlg( this, lm, dumpfnm_, foradd );
+    uiStratLayerModelDispIO dlg( this, lm, foradd );
     return dlg.go();
 }
 
@@ -605,11 +629,11 @@ void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
     {
 	if ( !emptyitm_ )
 	    emptyitm_ = vwr_.rgbCanvas().scene().addItem(
-		    		new uiTextItem( "<---empty--->",
+				new uiTextItem( "<---empty--->",
 				mAlignment(HCenter,VCenter) ) );
 	emptyitm_->setPenColor( Color::Black() );
 	emptyitm_->setPos( uiPoint( vwr_.rgbCanvas().width()/2,
-		    		    vwr_.rgbCanvas().height() / 2 ) );
+				    vwr_.rgbCanvas().height() / 2 ) );
 	return;
     }
 
@@ -736,7 +760,7 @@ void uiStratSimpleLayerModelDisp::updateLayerAuxData()
     const float vwdth = vrg_.width();
     int auxdataidx = 0;
     mStartLayLoop( false, )
-	
+
 	if ( !isDisplayedModel(iseq) )
 	    continue;
 	const Color laycol = lay.dispColor( uselithcols_ );
@@ -810,12 +834,12 @@ void uiStratSimpleLayerModelDisp::updateDataPack()
     const bool haveprop = lm.propertyRefs().validIdx(dispprop_);
     mGetDispZrg(zrg_,dispzrg);
     StepInterval<double> zrg( dispzrg.start, dispzrg.stop,
-	    		      dispzrg.width()/5.0f );
+			      dispzrg.width()/5.0f );
     emptydp_->posData().setRange(
 	    true, StepInterval<double>(1, nrseqs<2 ? 1 : nrseqs,1) );
     emptydp_->posData().setRange( false, zrg );
     emptydp_->setName( !haveprop ? "No property selected"
-	    			 : lm.propertyRefs()[dispprop_]->name().buf() );
+				 : lm.propertyRefs()[dispprop_]->name().buf() );
     vwr_.setViewToBoundingBox();
 }
 
