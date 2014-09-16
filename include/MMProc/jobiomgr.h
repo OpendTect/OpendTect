@@ -19,7 +19,6 @@ ________________________________________________________________________
 class CommandString;
 class FilePath;
 class HostData;
-class HostDataList;
 class JobInfo;
 class JobIOHandler;
 template <class T> class ObjQueue;
