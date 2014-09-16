@@ -114,11 +114,6 @@ uiBatchHostsDlg::~uiBatchHostsDlg()
 }
 
 
-void uiBatchHostsDlg::defbutCB( CallBacker* )
-{
-}
-
-
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
     uiDialog dlg( this,
