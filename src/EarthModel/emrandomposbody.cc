@@ -49,7 +49,7 @@ public:
 
 	if ( !astream.isOK() )
 	    mRetErr( "Cannot read from input file" );
-	if ( !astream.isOfFileType( sFileType() ) ||
+	if ( !astream.isOfFileType( sFileType() ) &&
 	     !astream.isOfFileType( sOldFileType()) )
 	    mRetErr( sInvalidFile() );
 
