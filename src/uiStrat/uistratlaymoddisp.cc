@@ -254,7 +254,7 @@ bool acceptOK( CallBacker* )
 
 	const int each = eachfld_->getIntValue();
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
-	if ( doreplace_ )
+	if ( doreplacefld_->getBoolValue() )
 	    lm.setEmpty();
 
 	for ( int iseq=0; iseq<newlm.size(); iseq+=each )
@@ -280,7 +280,6 @@ bool acceptOK( CallBacker* )
     const Strat::LayerModel&	lm_;
     BufferString		fnm_;
     bool			doread_;
-    bool			doreplace_;
 
 };
 
@@ -814,7 +813,7 @@ void uiStratSimpleLayerModelDisp::doDraw()
 	xax_->setBounds( Interval<float>((float)zoomwr_.left(),
 						(float)zoomwr_.right()) );
 	yax_->setBounds( Interval<float>((float)zoomwr_.top(),
-			 		 (float)zoomwr_.bottom()) );
+					 (float)zoomwr_.bottom()) );
     }
 
     yax_->plotAxis(); xax_->plotAxis();
