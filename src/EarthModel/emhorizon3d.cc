@@ -854,8 +854,8 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     if ( !cs )
         return new RowColIterator( surface_, sid, cs );
 
-    const StepInterval<int> rowrg = cs->hrg.inlRange();
-    const StepInterval<int> colrg = cs->hrg.crlRange();
+    const StepInterval<int> rowrg = cs->hsamp_.inlRange();
+    const StepInterval<int> colrg = cs->hsamp_.crlRange();
     return new RowColIterator( surface_, sid, rowrg, colrg );
 }
 

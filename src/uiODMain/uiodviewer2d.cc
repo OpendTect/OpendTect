@@ -140,11 +140,11 @@ void uiODViewer2D::setUpView( DataPack::ID packid, bool wva )
     {
 	const TrcKeyZSampling& cs = dp3d ? dp3d->cube().cubeSampling()
 				      : zatdp3d->inputCS();
-	if ( cs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
+	if ( tkzs_ != cs ) { removeAvailablePacks(); setTrcKeyZSampling( cs ); }
     }
 
     if ( slicepos_ )
-	slicepos_->getToolBar()->display( cs_.isFlat() );
+	slicepos_->getToolBar()->display( tkzs_.isFlat() );
 
     setDataPack( packid, wva, isnew ); adjustOthrDisp( wva, isnew );
 
@@ -174,7 +174,7 @@ void uiODViewer2D::adjustOthrDisp( bool wva, bool isnew )
     if ( !slicepos_ || !setpack ) return;
 
     const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
-    const bool newcs = ( cs != cs_ );
+    const bool newcs = ( cs != tkzs_ );
     const Attrib::SelSpec& selspec( wva ? wvaselspec_ : vdselspec_ );
     const DataPack::ID othrdpid = newcs ? createDataPack(selspec)
 					: getDataPackID(!wva);
@@ -242,7 +242,7 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 
 void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     if ( slicepos_ )
     {
 	slicepos_->setTrcKeyZSampling( cs );
@@ -251,7 +251,7 @@ void uiODViewer2D::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 	if ( datatransform_ )
 	{
 	    TrcKeyZSampling limitcs;
-	    limitcs.zrg.setFrom( datatransform_->getZInterval(false) );
+	    limitcs.zsamp_.setFrom( datatransform_->getZInterval(false) );
 	    slicepos_->setLimitSampling( limitcs );
 	}
 
@@ -433,13 +433,13 @@ void uiODViewer2D::setSelSpec( const Attrib::SelSpec* as, bool wva )
 void uiODViewer2D::posChg( CallBacker* )
 {
     setPos( slicepos_->getTrcKeyZSampling() );
-    setTrcKeyZSampling( cs_ );
+    setTrcKeyZSampling( tkzs_ );
 }
 
 
 void uiODViewer2D::setPos( const TrcKeyZSampling& cs )
 {
-    if ( cs == cs_ ) return;
+    if ( cs == tkzs_ ) return;
     const uiFlatViewer& vwr = viewwin()->viewer(0);
     const bool shwvd = vwr.isVisible(false);
     const bool shwwva = vwr.isVisible(true);
@@ -460,7 +460,7 @@ void uiODViewer2D::setPos( const TrcKeyZSampling& cs )
 	setUpView( dpid, true );
     }
 
-    if ( dpid != DataPack::cNoID() ) cs_ = cs;
+    if ( dpid != DataPack::cNoID() ) tkzs_ = cs;
 }
 
 
@@ -480,7 +480,7 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    const TrcKeyZSampling& cs = slicepos_ ? slicepos_->getTrcKeyZSampling() : cs_;
+    const TrcKeyZSampling& cs = slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
     if ( !cs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
@@ -585,16 +585,16 @@ void uiODViewer2D::setWinTitle( bool fromcs )
     }
     else
     {
-	if ( cs_.defaultDir() == TrcKeyZSampling::Z )
+	if ( tkzs_.defaultDir() == TrcKeyZSampling::Z )
 	{
 	    const ZDomain::Def& zdef = SI().zDomain();
 	    info = zdef.userName(); info += ": ";
-	    info += cs_.zrg.start * zdef.userFactor();
+	    info += tkzs_.zsamp_.start * zdef.userFactor();
 	}
-	else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
-	{ info = "Cross-line: "; info += cs_.hrg.start.crl(); }
+	else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
+	{ info = "Cross-line: "; info += tkzs_.hrg.start.crl(); }
 	else
-	{ info = "In-line: "; info += cs_.hrg.start.inl(); }
+	{ info = "In-line: "; info += tkzs_.hrg.start.inl(); }
     }
 
     basetxt_ += info; if ( viewwin() ) viewwin()->setWinTitle( basetxt_ );
@@ -634,7 +634,7 @@ void uiODViewer2D::fillPar( IOPar& iop ) const
     wvaselspec_.fillPar( wvaselspecpar );
     iop.mergeComp( vdselspecpar, sKeyVDSelSpec() );
     iop.mergeComp( wvaselspecpar, sKeyWVASelSpec() );
-    IOPar pospar; cs_.fillPar( pospar );
+    IOPar pospar; tkzs_.fillPar( pospar );
     iop.mergeComp( pospar, sKeyPos() );
 
     datamgr_->fillPar( iop );
@@ -682,9 +682,9 @@ void uiODViewer2D::mouseCursorCB( CallBacker* cb )
     ConstRefMan<ZAxisTransform> zat = getZAxisTransform();
     const double z = zat ? zat->transform(info.surveypos_) : info.surveypos_.z;
 
-    if ( cs_.defaultDir() == TrcKeyZSampling::Inl )
+    if ( tkzs_.defaultDir() == TrcKeyZSampling::Inl )
 	pt = FlatView::Point( bid.crl(), z );
-    else if ( cs_.defaultDir() == TrcKeyZSampling::Crl )
+    else if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	pt = FlatView::Point( bid.inl(), z );
     else
 	pt = FlatView::Point( bid.inl(), bid.crl() );

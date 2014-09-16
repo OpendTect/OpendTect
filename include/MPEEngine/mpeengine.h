@@ -66,8 +66,8 @@ public:
 	    
     bool			is2D() const		{ return is2d_; }
     void			setTrcKeyZSampling(const TrcKeyZSampling cs)
-							{ cs_ = cs; }
-    TrcKeyZSampling		getTrcKeyZSampling() const	{ return cs_; }
+							{ tkzs_ = cs; }
+    TrcKeyZSampling		getTrcKeyZSampling() const	{ return tkzs_; }
     void			set3DData(const Attrib::DataCubes* dc);
     const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
     void			set2DData(const Attrib::Data2DArray* d2h);
@@ -75,7 +75,7 @@ public:
     int				nrCubes() const;
 
 protected:
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     const Attrib::DataCubes*	dcdata_;
     const Attrib::Data2DArray*	d2dhdata_;
     bool			is2d_;

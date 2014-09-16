@@ -90,7 +90,7 @@ void GridLines::setGridTrcKeyZSampling( const TrcKeyZSampling& cs )
     if ( cs.hrg.crlRange() != gridcs_.hrg.crlRange() ||
 	 cs.hrg.step.crl() != gridcs_.hrg.step.crl() )
 	cscrlchanged_ = true;
-    if ( cs.zrg != gridcs_.zrg || cs.zrg.step != gridcs_.zrg.step )
+    if ( cs.zsamp_ != gridcs_.zsamp_ || cs.zsamp_.step != gridcs_.zsamp_.step )
 	cszchanged_ = true;
 
     gridcs_ = cs;
@@ -99,8 +99,8 @@ void GridLines::setGridTrcKeyZSampling( const TrcKeyZSampling& cs )
 	gridcs_.hrg.step.inl() = planecs_.hrg.step.inl();
     if ( gridcs_.hrg.step.crl() == 0 )
 	gridcs_.hrg.step.crl() = planecs_.hrg.step.crl();
-    if ( mIsZero(gridcs_.zrg.step,mDefEps) )
-	gridcs_.zrg.step = planecs_.zrg.step;
+    if ( mIsZero(gridcs_.zsamp_.step,mDefEps) )
+	gridcs_.zsamp_.step = planecs_.zsamp_.step;
 }
 
 
@@ -146,17 +146,17 @@ void GridLines::adjustGridCS()
 
     if ( cszchanged_ )
     {
-	while ( planecs_.zrg.start > gridcs_.zrg.start )
-	    gridcs_.zrg.start += gridcs_.zrg.step;
+	while ( planecs_.zsamp_.start > gridcs_.zsamp_.start )
+	    gridcs_.zsamp_.start += gridcs_.zsamp_.step;
 
-	while ( planecs_.zrg.start < gridcs_.zrg.start - gridcs_.zrg.step )
-	    gridcs_.zrg.start -= gridcs_.zrg.step;
+	while ( planecs_.zsamp_.start < gridcs_.zsamp_.start - gridcs_.zsamp_.step )
+	    gridcs_.zsamp_.start -= gridcs_.zsamp_.step;
 	
-	while ( planecs_.zrg.stop > gridcs_.zrg.stop + gridcs_.zrg.step )
-	    gridcs_.zrg.stop += gridcs_.zrg.step;
+	while ( planecs_.zsamp_.stop > gridcs_.zsamp_.stop + gridcs_.zsamp_.step )
+	    gridcs_.zsamp_.stop += gridcs_.zsamp_.step;
 
-	while ( planecs_.zrg.stop < gridcs_.zrg.stop )
-	    gridcs_.zrg.stop -= gridcs_.zrg.step;
+	while ( planecs_.zsamp_.stop < gridcs_.zsamp_.stop )
+	    gridcs_.zsamp_.stop -= gridcs_.zsamp_.step;
 	cszchanged_ = false;
     }
 }
@@ -168,7 +168,7 @@ void GridLines::setPlaneTrcKeyZSampling( const TrcKeyZSampling& cs )
 	csinlchanged_ = true;
     if ( cs.hrg.crlRange() != planecs_.hrg.crlRange() )
 	cscrlchanged_ = true;
-    if ( cs.zrg != planecs_.zrg )
+    if ( cs.zsamp_ != planecs_.zsamp_ )
 	cszchanged_ = true;
 
     planecs_ = cs;
@@ -227,8 +227,8 @@ void GridLines::drawInlines()
     for ( int inl=ghs.start.inl(); inl<=ghs.stop.inl(); inl+=ghs.step.inl() )
     {
 	addLine( *inlines_, 
-		 Coord3(inl,planecs_.hrg.start.crl(),planecs_.zrg.start),
-		 Coord3(inl,planecs_.hrg.stop.crl(),planecs_.zrg.stop) );
+		 Coord3(inl,planecs_.hrg.start.crl(),planecs_.zsamp_.start),
+		 Coord3(inl,planecs_.hrg.stop.crl(),planecs_.zsamp_.stop) );
     }
     csinlchanged_ = false;
 }
@@ -245,8 +245,8 @@ void GridLines::drawCrosslines()
     for ( int crl=ghs.start.crl(); crl<=ghs.stop.crl(); crl+=ghs.step.crl() )
     {
 	addLine( *crosslines_, 
-		 Coord3(planecs_.hrg.start.inl(),crl,planecs_.zrg.start),
-		 Coord3(planecs_.hrg.stop.inl(),crl,planecs_.zrg.stop) );
+		 Coord3(planecs_.hrg.start.inl(),crl,planecs_.zsamp_.start),
+		 Coord3(planecs_.hrg.stop.inl(),crl,planecs_.zsamp_.stop) );
     }
     if ( crosslines_ )
 	crosslines_->dirtyCoordinates();
@@ -263,9 +263,9 @@ void GridLines::drawZlines()
 	emptyLineSet( zlines_ );
     
     const TrcKeySampling& phs = planecs_.hrg;
-    for ( int zidx=0; zidx<gridcs_.zrg.nrSteps()+1; zidx++ )
+    for ( int zidx=0; zidx<gridcs_.zsamp_.nrSteps()+1; zidx++ )
     {
-	const float zval = gridcs_.zrg.atIndex( zidx );
+	const float zval = gridcs_.zsamp_.atIndex( zidx );
 	addLine( *zlines_, Coord3(phs.start.inl(),phs.start.crl(),zval),
 			   Coord3(phs.stop.inl(),phs.stop.crl(),zval) );
     }

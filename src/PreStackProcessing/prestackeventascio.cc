@@ -23,7 +23,7 @@ namespace PreStack
 EventExporter::EventExporter( od_ostream& strm, EventManager& events )
     : strm_( strm )
     , events_( events )
-    , hrg_( true )
+    , tks_( true )
     , nrdone_( 0 )
     , fileidx_( 0 )
     , locations_( 0, false )
@@ -40,7 +40,7 @@ EventExporter::~EventExporter()
 
 void EventExporter::setHRange( const TrcKeySampling& hrg )
 {
-    hrg_ = hrg;
+    tks_ = hrg;
 }
 
 
@@ -67,7 +67,7 @@ int EventExporter::nextStep()
 	}
 
 	const BinID bid = locations_.getBinID(pos_);
-	if ( !hrg_.includes( bid ) )
+	if ( !tks_.includes( bid ) )
 	    continue;
 
 	currentbatch.add( bid );

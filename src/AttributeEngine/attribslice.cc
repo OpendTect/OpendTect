@@ -48,7 +48,7 @@ SliceSet::~SliceSet()
 
 #define mInlIdx ((inl-sampling_.hrg.start.inl()) / sampling_.hrg.step.inl())
 #define mCrlIdx ((crl-sampling_.hrg.start.crl()) / sampling_.hrg.step.crl())
-#define mZIdx (sampling_.zrg.nearestIndex(z))
+#define mZIdx (sampling_.zsamp_.nearestIndex(z))
 
 void SliceSet::getIdxs( int inl, int crl, float z,
 			 int& i0, int& i1, int& i2 ) const

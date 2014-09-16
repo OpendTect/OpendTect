@@ -147,7 +147,7 @@ void Horizon::prepareForComputeData()
     if ( objid < 0 )
     {
 	if ( getDesiredVolume() )
-	    sel.rg = getDesiredVolume()->hrg;
+	    sel.rg = getDesiredVolume()->hsamp_;
 
 	loader = em.objectLoader( horid_, &sel );
 	if ( !loader ) mRet

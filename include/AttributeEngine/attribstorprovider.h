@@ -84,7 +84,7 @@ protected:
     bool		fillDataHolderWithTrc(const SeisTrc*,
 					      const DataHolder&) const;
     bool		getZStepStoredData(float& step) const
-			{ step = storedvolume_.zrg.step; return true; }
+			{ step = storedvolume_.zsamp_.step; return true; }
 
     BinDataDesc		getOutputFormat(int output) const;
     

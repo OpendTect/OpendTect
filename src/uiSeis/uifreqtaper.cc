@@ -39,7 +39,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
     : uiDialog( p, uiDialog::Setup(tr("Frequency taper"),
 		             tr("Select taper parameters at cut-off frequency"),
                                     mODHelpKey(mFreqTaperDlgHelpID) ))
-    , cs_(new TrcKeyZSampling())
+    , tkzs_(new TrcKeyZSampling())
     , posdlg_(0)
     , funcvals_(0)
     , seisnm_(s.seisnm_)
@@ -73,7 +73,7 @@ uiFreqTaperDlg::uiFreqTaperDlg( uiParent* p, const FreqTaperSetup& s )
 
 uiFreqTaperDlg::~uiFreqTaperDlg()
 {
-    delete cs_;
+    delete tkzs_;
     delete funcvals_;
     delete posdlg_;
 }
@@ -127,7 +127,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 	mErrRet( tr("Cannot read input data, "
 		 "please make sure you selected valid data") );
 
-    objinfo.getRanges( *cs_ );
+    objinfo.getRanges( *tkzs_ );
 
     const bool is2d = objinfo.is2D();
     uiFreqTaperSelLineDlg lineposdlg( this, objinfo );
@@ -139,7 +139,7 @@ void uiFreqTaperDlg::previewPushed(CallBacker*)
 				   : (lineposdlg.isInl() ? uiSliceSel::Inl
 							 : uiSliceSel::Crl);
 	CallBack dummycb;
-	posdlg_ = new uiSliceSelDlg( this, *cs_, *cs_, dummycb, tp, info );
+	posdlg_ = new uiSliceSelDlg( this, *tkzs_, *tkzs_, dummycb, tp, info );
 	posdlg_->grp()->enableApplyButton( false );
 	posdlg_->grp()->enableScrollButton( false );
 	posdlg_->setModal( true );

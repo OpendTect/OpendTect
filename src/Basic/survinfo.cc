@@ -138,7 +138,7 @@ StepInterval<int> Survey::Geometry3D::crlRange() const
 
 
 StepInterval<float> Survey::Geometry3D::zRange() const
-{ return sampling_.zrg; }
+{ return sampling_.zsamp_; }
 
 
 int Survey::Geometry3D::inlStep() const
@@ -150,7 +150,7 @@ int Survey::Geometry3D::crlStep() const
 
 
 float Survey::Geometry3D::zStep() const
-{ return sampling_.zrg.step; }
+{ return sampling_.zsamp_.step; }
 
 
 
@@ -241,7 +241,7 @@ SurveyInfo* SurveyInfo::popSI()
 
 
 SurveyInfo::SurveyInfo()
-    : cs_(*new TrcKeyZSampling(false))
+    : tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , zdef_(*new ZDomain::Def(ZDomain::Time()) )
     , depthsinfeet_(false)
@@ -268,7 +268,7 @@ SurveyInfo::SurveyInfo()
 
 SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : NamedObject( si )
-    , cs_(*new TrcKeyZSampling(false))
+    , tkzs_(*new TrcKeyZSampling(false))
     , wcs_(*new TrcKeyZSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
     , zdef_(*new ZDomain::Def( si.zDomain() ) )
@@ -283,7 +283,7 @@ SurveyInfo::~SurveyInfo()
 {
     delete &pars_;
     delete &ll2c_;
-    delete &cs_;
+    delete &tkzs_;
     delete &wcs_;
     delete &zdef_;
 
@@ -315,7 +315,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3binids_[idx] = si.set3binids_[idx];
 	set3coords_[idx] = si.set3coords_[idx];
     }
-    cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
+    tkzs_ = si.tkzs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
     seisrefdatum_ = si.seisrefdatum_;
     sipnm_ = si.sipnm_;
 
@@ -371,26 +371,26 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.inl() = fms.getIValue( 0 );
-	    si->cs_.hrg.stop.inl() = fms.getIValue( 1 );
-	    si->cs_.hrg.step.inl() = fms.getIValue( 2 );
+	    si->tkzs_.hrg.start.inl() = fms.getIValue( 0 );
+	    si->tkzs_.hrg.stop.inl() = fms.getIValue( 1 );
+	    si->tkzs_.hrg.step.inl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.hrg.start.crl() = fms.getIValue( 0 );
-	    si->cs_.hrg.stop.crl() = fms.getIValue( 1 );
-	    si->cs_.hrg.step.crl() = fms.getIValue( 2 );
+	    si->tkzs_.hrg.start.crl() = fms.getIValue( 0 );
+	    si->tkzs_.hrg.stop.crl() = fms.getIValue( 1 );
+	    si->tkzs_.hrg.step.crl() = fms.getIValue( 2 );
 	}
 	else if ( keyw == sKeyZRange() )
 	{
 	    FileMultiString fms( astream.value() );
-	    si->cs_.zrg.start = fms.getFValue( 0 );
-	    si->cs_.zrg.stop = fms.getFValue( 1 );
-	    si->cs_.zrg.step = fms.getFValue( 2 );
-	    if ( Values::isUdf(si->cs_.zrg.step)
-	      || mIsZero(si->cs_.zrg.step,mDefEps) )
-		si->cs_.zrg.step = 0.004;
+	    si->tkzs_.zsamp_.start = fms.getFValue( 0 );
+	    si->tkzs_.zsamp_.stop = fms.getFValue( 1 );
+	    si->tkzs_.zsamp_.step = fms.getFValue( 2 );
+	    if ( Values::isUdf(si->tkzs_.zsamp_.step)
+	      || mIsZero(si->tkzs_.zsamp_.step,mDefEps) )
+		si->tkzs_.zsamp_.step = 0.004;
 	    if ( fms.size() > 3 )
 	    {
 		if ( *fms[3] == 'T' )
@@ -423,8 +423,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 
 	astream.next();
     }
-    si->cs_.normalise();
-    si->wcs_ = si->cs_;
+    si->tkzs_.normalise();
+    si->wcs_ = si->tkzs_;
 
     BufferString line;
     while ( astream.stream().getLine(line) )
@@ -511,7 +511,7 @@ StepInterval<int> SurveyInfo::crlRange( bool work ) const
 
 const StepInterval<float>& SurveyInfo::zRange( bool work ) const
 {
-    return sampling(work).zrg;
+    return sampling(work).zsamp_;
 }
 
 int SurveyInfo::maxNrTraces( bool work ) const
@@ -522,11 +522,11 @@ int SurveyInfo::maxNrTraces( bool work ) const
 
 int SurveyInfo::inlStep() const
 {
-    return cs_.hrg.step.inl();
+    return tkzs_.hrg.step.inl();
 }
 int SurveyInfo::crlStep() const
 {
-    return cs_.hrg.step.crl();
+    return tkzs_.hrg.step.crl();
 }
 
 
@@ -565,7 +565,7 @@ float SurveyInfo::getArea( bool work ) const
 
 
 
-float SurveyInfo::zStep() const { return cs_.zrg.step; }
+float SurveyInfo::zStep() const { return tkzs_.zsamp_.step; }
 
 
 Coord3 SurveyInfo::oneStepTranslation( const Coord3& planenormal ) const
@@ -579,11 +579,11 @@ void SurveyInfo::setRange( const TrcKeyZSampling& cs, bool work )
     if ( work )
 	wcs_ = cs;
     else
-	cs_ = cs;
+	tkzs_ = cs;
 
-    wcs_.limitTo( cs_ );
-    wcs_.hrg.step = cs_.hrg.step;
-    wcs_.zrg.step = cs_.zrg.step;
+    wcs_.limitTo( tkzs_ );
+    wcs_.hrg.step = tkzs_.hrg.step;
+    wcs_.zsamp_.step = tkzs_.zsamp_.step;
 }
 
 
@@ -597,8 +597,8 @@ void SurveyInfo::setWorkRange( const TrcKeyZSampling& cs )
 Interval<int> SurveyInfo::reasonableRange( bool inl ) const
 {
     const Interval<int> rg = inl
-      ? Interval<int>( cs_.hrg.start.inl(), cs_.hrg.stop.inl() )
-      : Interval<int>( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
+      ? Interval<int>( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.inl() )
+      : Interval<int>( tkzs_.hrg.start.crl(), tkzs_.hrg.stop.crl() );
 
     const int w = rg.stop - rg.start;
 
@@ -691,7 +691,7 @@ void SurveyInfo::checkCrlRange( Interval<int>& intv, bool work ) const
 
 void SurveyInfo::checkZRange( Interval<float>& intv, bool work ) const
 {
-    const StepInterval<float>& rg = sampling(work).zrg;
+    const StepInterval<float>& rg = sampling(work).zsamp_;
     intv.sort();
     if ( intv.start < rg.start ) intv.start = rg.start;
     if ( intv.start > rg.stop )  intv.start = rg.stop;
@@ -707,7 +707,7 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
     const TrcKeyZSampling& cs = sampling(work);
     const float eps = 1e-8;
     return cs.hrg.includes( bid )
-	&& cs.zrg.start < z + eps && cs.zrg.stop > z - eps;
+	&& cs.zsamp_.start < z + eps && cs.zsamp_.stop > z - eps;
 }
 
 
@@ -794,9 +794,9 @@ void SurveyInfo::get3Pts( Coord c[3], BinID b[2], int& xline ) const
     }
     else
     {
-	b[0] = cs_.hrg.start; c[0] = transform( b[0] );
-	b[1] = cs_.hrg.stop; c[1] = transform( b[1] );
-	BinID b2 = cs_.hrg.stop; b2.inl() = b[0].inl();
+	b[0] = tkzs_.hrg.start; c[0] = transform( b[0] );
+	b[1] = tkzs_.hrg.stop; c[1] = transform( b[1] );
+	BinID b2 = tkzs_.hrg.stop; b2.inl() = b[0].inl();
 	c[2] = transform( b2 ); xline = b2.crl();
     }
 }
@@ -826,9 +826,9 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
 
 void SurveyInfo::gen3Pts()
 {
-    set3binids_[0] = cs_.hrg.start;
-    set3binids_[1] = cs_.hrg.stop;
-    set3binids_[2] = BinID( cs_.hrg.start.inl(), cs_.hrg.stop.crl() );
+    set3binids_[0] = tkzs_.hrg.start;
+    set3binids_[1] = tkzs_.hrg.stop;
+    set3binids_[2] = BinID( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.crl() );
     set3coords_[0] = transform( set3binids_[0] );
     set3coords_[1] = transform( set3binids_[1] );
     set3coords_[2] = transform( set3binids_[2] );
@@ -862,7 +862,7 @@ void SurveyInfo::snap( BinID& binid, const BinID& rounding ) const
 
 void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 {
-    const BinID& stp = cs_.hrg.step;
+    const BinID& stp = tkzs_.hrg.step;
     if ( s.inl() < 0 ) s.inl() = -s.inl();
     if ( s.crl() < 0 ) s.crl() = -s.crl();
     if ( s.inl() < stp.inl() ) s.inl() = stp.inl();
@@ -888,7 +888,7 @@ void SurveyInfo::snapStep( BinID& s, const BinID& rounding ) const
 
 void SurveyInfo::snapZ( float& z, int dir ) const
 {
-    const StepInterval<float>& zrg = cs_.zrg;
+    const StepInterval<float>& zrg = tkzs_.zsamp_;
     const float eps = 1e-8;
 
     if ( z < zrg.start + eps )
@@ -953,15 +953,15 @@ bool SurveyInfo::write( const char* basedir ) const
     astream.put( sKey::Name(), name() );
     astream.put( sKeySurvDataType(), getPol2DString( survDataType()) );
     FileMultiString fms;
-    fms += cs_.hrg.start.inl(); fms += cs_.hrg.stop.inl();
-				fms += cs_.hrg.step.inl();
+    fms += tkzs_.hrg.start.inl(); fms += tkzs_.hrg.stop.inl();
+				fms += tkzs_.hrg.step.inl();
     astream.put( sKeyInlRange(), fms );
     fms = "";
-    fms += cs_.hrg.start.crl(); fms += cs_.hrg.stop.crl();
-				fms += cs_.hrg.step.crl();
+    fms += tkzs_.hrg.start.crl(); fms += tkzs_.hrg.stop.crl();
+				fms += tkzs_.hrg.step.crl();
     astream.put( sKeyCrlRange(), fms );
-    fms = ""; fms += cs_.zrg.start; fms += cs_.zrg.stop;
-    fms += cs_.zrg.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+    fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
+    fms += tkzs_.zsamp_.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     astream.put( sKeyZRange(), fms );
 
     if ( !wsprojnm_.isEmpty() )

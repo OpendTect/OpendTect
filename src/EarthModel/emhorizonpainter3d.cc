@@ -58,7 +58,7 @@ HorizonPainter3D::~HorizonPainter3D()
 
 void HorizonPainter3D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
 {
-    cs_ = cs;
+    tkzs_ = cs;
 }
 
 
@@ -145,7 +145,7 @@ bool HorizonPainter3D::addPolyLine()
 	    continue;
 	}
 
-	TrcKeySamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hrg );
 	while ( iter.next(bid) )
 	{
 	    int inlfromcs = bid.inl();
@@ -216,13 +216,13 @@ void HorizonPainter3D::addDataToMarker( const BinID& bid, const Coord3& crd,
 	return;
     }
 
-    if ( cs_.nrInl() == 1 )
+    if ( tkzs_.nrInl() == 1 )
     {
 	marker.marker_->poly_ += FlatView::Point( bid.crl(), z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
 	    markerseeds_->marker_->poly_ += FlatView::Point( bid.crl(), z );
     }
-    else if ( cs_.nrCrl() == 1 )
+    else if ( tkzs_.nrCrl() == 1 )
     {
 	marker.marker_->poly_ += FlatView::Point( bid.inl(), z );
 	if ( hor3d.isPosAttrib(posid,EM::EMObject::sSeedNode()) )
@@ -253,7 +253,7 @@ void HorizonPainter3D::horChangeCB( CallBacker* cb )
 		    return;
 		
 		BinID bid = BinID::fromInt64( cbdata.pid0.subID() );
-		if ( cs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
+		if ( tkzs_.hrg.includes(bid) || (path_&&path_->isPresent(bid)) )
 		{
 		    changePolyLinePosition( cbdata.pid0 );
 		    viewer_.handleChange( FlatView::Viewer::Auxdata );
@@ -335,7 +335,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		    continue;
 		}
 
-		if ( cs_.nrInl() == 1 )
+		if ( tkzs_.nrInl() == 1 )
 		{
 		    if ( binid.crl() == auxdata->poly_[posidx].x )
 		    {
@@ -343,7 +343,7 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 			return;
 		    }
 		}
-		else if ( cs_.nrCrl() == 1 )
+		else if ( tkzs_.nrCrl() == 1 )
 		{
 		    if ( binid.inl() == auxdata->poly_[posidx].x )
 		    {
@@ -361,9 +361,9 @@ void HorizonPainter3D::changePolyLinePosition( const EM::PosID& pid )
 		flatposdata_->position(true,path_->indexOf(binid)), crd.z );
 		    continue;
 		}
-		if ( cs_.nrInl() == 1 )
+		if ( tkzs_.nrInl() == 1 )
 		    auxdata->poly_ += FlatView::Point( binid.crl(), crd.z );
-		else if ( cs_.nrCrl() == 1 )
+		else if ( tkzs_.nrCrl() == 1 )
 		    auxdata->poly_ += FlatView::Point( binid.inl(), crd.z );
 	    }
 	}

@@ -82,9 +82,9 @@ void VolProcAttrib::prepareForComputeData()
     const TrcKeyZSampling cs = *getDesiredVolume();
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
     const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
-    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
-			   geometryzrg.nearestIndex( cs.zrg.stop ),
-			   mNINT32(cs.zrg.step/geometryzrg.step) );
+    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zsamp_.start ),
+			   geometryzrg.nearestIndex( cs.zsamp_.stop ),
+			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
     if ( !executor_->setCalculationScope(cs.hrg,zrg) )
     {
 	errmsg_ = "Cannot calculate at this location";
@@ -216,9 +216,9 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
     const Survey::Geometry& geometry = Survey::Geometry3D::default3D();
     const StepInterval<float> geometryzrg = geometry.sampling().zsamp_;
 
-    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zrg.start ),
-			   geometryzrg.nearestIndex( cs.zrg.stop ),
-			   mNINT32(cs.zrg.step/geometryzrg.step) );
+    StepInterval<int> zrg( geometryzrg.nearestIndex( cs.zsamp_.start ),
+			   geometryzrg.nearestIndex( cs.zsamp_.stop ),
+			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
     if ( !executor.setCalculationScope(cs.hrg,zrg) )
     {
 	errmsg_ = "Cannot calculate at this location";
@@ -261,7 +261,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
     else
     {
 	dir = TrcKeyZSampling::Z;
-	slice = mNINT32( cs.zrg.start/datacubes->zstep_ )-datacubes->z0_;
+	slice = mNINT32( cs.zsamp_.start/datacubes->zstep_ )-datacubes->z0_;
     }
 
     if ( !ndp->setDataDir( dir ) || !ndp->setDataSlice( slice ) )

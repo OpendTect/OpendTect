@@ -146,7 +146,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	crlfld_->setInterval( cs.hrg.crlRange() );
 	crlfld_->setValue( cs.hrg.crlRange().snappedCenter() );
 	DPM( DataPackMgr::CubeID() ).release( dpfid.ID(1) );
-	zrg_ = cs.zrg;
+	zrg_ = cs.zsamp_;
     }
 
     DPM( dpmid ).release( dpfid.ID(1) );
@@ -203,7 +203,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
     pickretriever_ = PickRetriever::getInstance();
     pickretriever_->finished()->notify(
 				mCB(this,uiTrcPositionDlg,pickRetrievedCB) );
-    zrg_.setFrom( cs.zrg );
+    zrg_.setFrom( cs.zsamp_ );
 }
 
 
@@ -295,7 +295,7 @@ TrcKeyZSampling uiTrcPositionDlg::getTrcKeyZSampling() const
 		    StepInterval<int>( crlnr, crlnr, 1 ) );
     }
 
-    cs.zrg = zrg_;
+    cs.zsamp_ = zrg_;
     return cs;
 }
 

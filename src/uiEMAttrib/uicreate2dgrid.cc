@@ -469,7 +469,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
     : uiDialog(p,uiDialog::Setup("Create 2D Seismic grid",mNoDlgTitle,
 				 mODHelpKey(mCreate2DGridHelpID) ) )
     , sourceselfld_(0),inlcrlgridgrp_(0)
-    , cs_(*new TrcKeyZSampling(true))
+    , tkzs_(*new TrcKeyZSampling(true))
 {
     uiGroup* seisgrp = createSeisGroup( rdl );
 
@@ -493,7 +493,7 @@ uiCreate2DGrid::uiCreate2DGrid( uiParent* p, const Geometry::RandomLine* rdl )
 
 uiCreate2DGrid::~uiCreate2DGrid()
 {
-    delete &cs_;
+    delete &tkzs_;
 }
 
 
@@ -510,7 +510,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
     bboxfld_->selChange.notify( mCB(this,uiCreate2DGrid,subSelCB) );
     bboxfld_->attach( alignedBelow, infld_ );
 
-    randlinegrdgrp_ = new ui2DGridLinesFromRandLine( grp, cs_.hrg, rdl );
+    randlinegrdgrp_ = new ui2DGridLinesFromRandLine( grp, tkzs_.hrg, rdl );
     randlinegrdgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
 					      updatePreview) );
     if ( rdl )
@@ -521,7 +521,7 @@ uiGroup* uiCreate2DGrid::createSeisGroup( const Geometry::RandomLine* rdl )
 				  BoolInpSpec(true,"Inl/Crl","Random line") );
 	sourceselfld_->valuechanged.notify( mCB(this,uiCreate2DGrid,srcSelCB) );
 	sourceselfld_->attach( alignedBelow, bboxfld_ );
-	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, cs_.hrg );
+	inlcrlgridgrp_ = new ui2DGridLinesFromInlCrl( grp, tkzs_.hrg );
 	inlcrlgridgrp_->gridChanged.notify( mCB(this,uiCreate2DGrid,
 						 updatePreview) );
 	inlcrlgridgrp_->attach( alignedBelow, sourceselfld_ );
@@ -596,10 +596,10 @@ void uiCreate2DGrid::finaliseCB( CallBacker* )
 void uiCreate2DGrid::inpSelCB( CallBacker* )
 {
     uiSeisIOObjInfo info( infld_->key(true) );
-    if ( info.getRanges(cs_) )
+    if ( info.getRanges(tkzs_) )
     {
-	bboxfld_->setInputLimit( cs_ );
-	bboxfld_->setInput( cs_ );
+	bboxfld_->setInputLimit( tkzs_ );
+	bboxfld_->setInput( tkzs_ );
     }
 
     subSelCB( 0 );
@@ -608,7 +608,7 @@ void uiCreate2DGrid::inpSelCB( CallBacker* )
 
 void uiCreate2DGrid::subSelCB( CallBacker* )
 {
-    cs_ = bboxfld_->envelope();
+    tkzs_ = bboxfld_->envelope();
     randlinegrdgrp_->updateRange();
     if ( inlcrlgridgrp_ )
 	inlcrlgridgrp_->updateRange();

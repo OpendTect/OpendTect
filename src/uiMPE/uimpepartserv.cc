@@ -172,7 +172,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 	TrcKeyZSampling poscs(false);
 	const BinID bid = SI().transform(pickedpos);
 	poscs.hrg.start = poscs.hrg.stop = bid;
-	poscs.zrg.start = poscs.zrg.stop = (float) pickedpos.z;
+	poscs.zsamp_.start = poscs.zsamp_.stop = (float) pickedpos.z;
 	expandActiveVolume( poscs );
     }
 
@@ -475,12 +475,12 @@ void uiMPEPartServer::adjustSeedBox()
 	if ( trackerseedbox_.isEmpty() )
 	{
 	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop =(float)pos.z;
+	    trackerseedbox_.zsamp_.start = trackerseedbox_.zsamp_.stop =(float)pos.z;
 	}
 	else
 	{
 	    trackerseedbox_.hrg.include( bid );
-	    trackerseedbox_.zrg.include( (float)pos.z );
+	    trackerseedbox_.zsamp_.include( (float)pos.z );
 	}
     }
 }
@@ -885,15 +885,16 @@ void uiMPEPartServer::expandActiveVolume(const TrcKeyZSampling& seedcs)
     const TrcKeyZSampling activecs = MPE::engine().activeVolume();
     const bool isdefault = activeVolumeIsDefault();
 
+
     TrcKeyZSampling newcube = isdefault ||
 	activecs.isFlat() ? seedcs : activecs;
-    newcube.zrg.step = SI().zStep();
+    newcube.zsamp_.step = SI().zStep();
     if ( !isdefault )
     {
 	newcube.hrg.include( seedcs.hrg.start );
 	newcube.hrg.include( seedcs.hrg.stop );
-	newcube.zrg.include( seedcs.zrg.start );
-	newcube.zrg.include( seedcs.zrg.stop );
+	newcube.zsamp_.include( seedcs.zsamp_.start );
+	newcube.zsamp_.include( seedcs.zsamp_.stop );
     }
 
     const int minnr = 20;
@@ -910,7 +911,7 @@ void uiMPEPartServer::expandActiveVolume(const TrcKeyZSampling& seedcs)
     }
 
     if ( isdefault )
-	newcube.zrg.widen( 0.05 );
+	newcube.zsamp_.widen( 0.05 );
 
     newcube.snapToSurvey();
     newcube.limitTo( SI().sampling(true) );

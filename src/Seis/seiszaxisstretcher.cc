@@ -164,7 +164,7 @@ void SeisZAxisStretcher::setLineKey( const char* lnm )
 
 bool SeisZAxisStretcher::doWork( od_int64, od_int64, int ) 
 {
-    StepInterval<float> trcrg = outcs_.zrg;
+    StepInterval<float> trcrg = outcs_.zsamp_;
     SamplingData<float> sd( trcrg );
     mAllocLargeVarLenArr( float, outputptr, trcrg.nrSteps()+1 );
 

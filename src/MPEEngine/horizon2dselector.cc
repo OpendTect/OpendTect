@@ -46,7 +46,7 @@ int Horizon2DSelector::nextStep()
 
     StepInterval<int> inlrg = trackplane_.boundingBox().hrg.inlRange();
     StepInterval<int> crlrg = trackplane_.boundingBox().hrg.crlRange();
-    const StepInterval<float >& zrg = trackplane_.boundingBox().zrg;
+    const StepInterval<float >& zrg = trackplane_.boundingBox().zsamp_;
 
     inlrg.include( inlrg.start+trackplane_.motion().inl() );
     crlrg.include( crlrg.start+trackplane_.motion().crl() );

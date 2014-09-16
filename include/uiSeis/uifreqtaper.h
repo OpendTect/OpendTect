@@ -204,7 +204,7 @@ protected:
     const char*		attrnm_;
     uiPushButton*	previewfld_;
     uiSliceSelDlg*	posdlg_;
-    TrcKeyZSampling*	cs_;
+    TrcKeyZSampling*	tkzs_;
 
     void		previewPushed(CallBacker*);
 };

@@ -60,7 +60,7 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
-    , cs_(cs)
+    , tkzs_(cs)
     , plg_(p)
 {
     res_.setAll( 1 );
@@ -79,15 +79,15 @@ BodyExtractorFromHorizons( const TypeSet<MultiID>& hlist,
 
 
 ~BodyExtractorFromHorizons()	{ deepUnRef( hors_ ); }
-od_int64 nrIterations() const   { return cs_.nrInl()*cs_.nrCrl(); }
+od_int64 nrIterations() const   { return tkzs_.nrInl()*tkzs_.nrCrl(); }
 uiString uiMessage() const	{ return "Extracting body from horizons"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const int crlsz = cs_.nrCrl();
+    const int crlsz = tkzs_.nrCrl();
     if ( !crlsz ) return true;
 
-    const int zsz = cs_.nrZ();
+    const int zsz = tkzs_.nrZ();
     const int horsz = hors_.size();
     const bool usepolygon = !plg_.isEmpty();
 
@@ -96,9 +96,9 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     {
 	const int inlidx = idx/crlsz;
 	const int crlidx = idx%crlsz;
-	const BinID bid = cs_.hrg.atIndex(inlidx,crlidx);
-	if ( bid.inl()==cs_.hrg.start.inl() || bid.inl()==cs_.hrg.stop.inl() ||
-	     bid.crl()==cs_.hrg.start.crl() || bid.crl()==cs_.hrg.stop.crl() )
+	const BinID bid = tkzs_.hrg.atIndex(inlidx,crlidx);
+	if ( bid.inl()==tkzs_.hrg.start.inl() || bid.inl()==tkzs_.hrg.stop.inl() ||
+	     bid.crl()==tkzs_.hrg.start.crl() || bid.crl()==tkzs_.hrg.stop.crl() )
 	    continue;/*Extended one layer*/
 
 	if ( usepolygon )
@@ -111,7 +111,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	for ( int idz=1; idz<zsz-1; idz++ ) /*Extended one layer*/
 	{
-	    const float curz = cs_.zrg.atIndex( idz );
+	    const float curz = tkzs_.zsamp_.atIndex( idz );
 	    bool curzinrange = true;
 	    float mindist = -1;
 	    for ( int idy=0; idy<horsz; idy++ )
@@ -139,7 +139,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 }
 
 Array3D<float>&					res_;
-const TrcKeyZSampling&				cs_;
+const TrcKeyZSampling&				tkzs_;
 ObjectSet<EM::Horizon3D>			hors_;
 TypeSet<char>					hsides_;
 TypeSet<float>					horshift_;
@@ -154,20 +154,20 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
 	const TypeSet<char>& sides, const TypeSet<float>& horshift,
 	const TrcKeyZSampling& cs, Array3D<float>& res, const ODPolygon<float>& p )
     : res_(res)
-    , cs_(cs)
+    , tkzs_(cs)
     , plg_(p)
     , bidinplg_(0)
 {
     res_.setAll( 1 );
 
-    c_[0] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()),
-	                          mCast(float,cs_.hrg.start.crl()) );
-    c_[1] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()),
-				  mCast(float,cs_.hrg.start.crl()) );
-    c_[2] = Geom::Point2D<float>( mCast(float,cs_.hrg.stop.inl()),
-				  mCast(float,cs_.hrg.stop.crl()) );
-    c_[3] = Geom::Point2D<float>( mCast(float,cs_.hrg.start.inl()),
-				  mCast(float,cs_.hrg.stop.crl()) );
+    c_[0] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.start.inl()),
+	                          mCast(float,tkzs_.hrg.start.crl()) );
+    c_[1] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.stop.inl()),
+				  mCast(float,tkzs_.hrg.start.crl()) );
+    c_[2] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.stop.inl()),
+				  mCast(float,tkzs_.hrg.stop.crl()) );
+    c_[3] = Geom::Point2D<float>( mCast(float,tkzs_.hrg.start.inl()),
+				  mCast(float,tkzs_.hrg.stop.crl()) );
 
     for ( int idx=0; idx<surflist.size(); idx++ )
     {
@@ -204,14 +204,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     computeHorOuterRange();
     if ( !plg_.isEmpty() )
     {
-	bidinplg_ = new Array2DImpl<unsigned char>(cs_.nrInl(),cs_.nrCrl());
+	bidinplg_ = new Array2DImpl<unsigned char>(tkzs_.nrInl(),tkzs_.nrCrl());
 
-	TrcKeySamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hrg );
 	BinID bid;
 	while( iter.next(bid) )
 	{
-	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
 	    bidinplg_->set( inlidx, crlidx, plg_.isInside(
 		    Geom::Point2D<float>( mCast(float,bid.inl()),
 					 mCast(float,bid.crl()) ),true,0.01 ) );
@@ -228,14 +228,14 @@ ImplicitBodyRegionExtractor( const TypeSet<MultiID>& surflist,
     deepUnRef( flts_ );
 }
 
-od_int64 nrIterations() const	{ return cs_.nrZ(); }
+od_int64 nrIterations() const	{ return tkzs_.nrZ(); }
 uiString uiMessage() const		{ return "Extracting implicit body"; }
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    const int lastinlidx = cs_.nrInl()-1;
-    const int lastcrlidx = cs_.nrCrl()-1;
-    const int lastzidx = cs_.nrZ()-1;
+    const int lastinlidx = tkzs_.nrInl()-1;
+    const int lastcrlidx = tkzs_.nrCrl()-1;
+    const int lastzidx = tkzs_.nrZ()-1;
     const int horsz = hors_.size();
     const int fltsz = fsides_.size();
     const bool usepolygon = !plg_.isEmpty();
@@ -251,11 +251,11 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     TypeSet<Coord3> corners;
     if ( fltsz )
     {
-	corners += Coord3( SI().transform(cs_.hrg.start), 0 );
-	const BinID cbid0( cs_.hrg.start.inl(), cs_.hrg.stop.crl() );
+	corners += Coord3( SI().transform(tkzs_.hrg.start), 0 );
+	const BinID cbid0( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.crl() );
 	corners += Coord3( SI().transform(cbid0), 0 );
-	corners += Coord3( SI().transform(cs_.hrg.stop), 0 );
-	const BinID cbid1( cs_.hrg.stop.inl(), cs_.hrg.start.crl() );
+	corners += Coord3( SI().transform(tkzs_.hrg.stop), 0 );
+	const BinID cbid1( tkzs_.hrg.stop.inl(), tkzs_.hrg.start.crl() );
 	corners += Coord3( SI().transform(cbid1), 0 );
     }
     const int cornersz = corners.size();
@@ -266,7 +266,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( !idz || idz==lastzidx )
 	    continue;
 
-	const double curz = cs_.zrg.atIndex( idz );
+	const double curz = tkzs_.zsamp_.atIndex( idz );
 	bool outsidehorrg = false;
 	for ( int hidx=0; hidx<horoutrgs_.size(); hidx++ )
 	{
@@ -296,7 +296,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    }
 	}
 
-	TrcKeySamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hrg );
 	BinID bid;
 	ObjectSet<ODPolygon<float> > polygons;
 	for ( int idx=0; idx<fltsz; idx++ )
@@ -307,8 +307,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 
 	while( iter.next(bid) )
 	{
-	    const int inlidx = cs_.hrg.inlIdx(bid.inl());
-	    const int crlidx = cs_.hrg.crlIdx(bid.crl());
+	    const int inlidx = tkzs_.hrg.inlIdx(bid.inl());
+	    const int crlidx = tkzs_.hrg.crlIdx(bid.crl());
 	    if (!inlidx || !crlidx || inlidx==lastinlidx || crlidx==lastcrlidx)
 		continue;
 
@@ -349,8 +349,8 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    if ( mIsUdf(minz) && mIsUdf(maxz) )
 		continue;
 
-	    if ( mIsUdf(minz) ) minz = cs_.zrg.start;
-	    if ( mIsUdf(maxz) ) maxz = cs_.zrg.stop;
+	    if ( mIsUdf(minz) ) minz = tkzs_.zsamp_.start;
+	    if ( mIsUdf(maxz) ) maxz = tkzs_.zsamp_.stop;
 	    if ( minz>=maxz )
 		continue;
 
@@ -544,14 +544,14 @@ void computeHorOuterRange()
 	if ( hsides_[idx]==mBelow )
 	{
 	    if ( hortopoutrg.isUdf() )
-		hortopoutrg.set(cs_.zrg.start,zrg.start);
+		hortopoutrg.set(tkzs_.zsamp_.start,zrg.start);
 	    else if ( hortopoutrg.stop>zrg.start )
 		hortopoutrg.stop = zrg.start;
 	}
 	else
 	{
 	    if ( horbotoutrg.isUdf() )
-		horbotoutrg.set(zrg.stop,cs_.zrg.stop);
+		horbotoutrg.set(zrg.stop,tkzs_.zsamp_.stop);
 	    else if ( horbotoutrg.start<zrg.stop )
 		hortopoutrg.start = zrg.stop;
 	}
@@ -581,23 +581,23 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 
     if ( side==mToMinInline )
     {
-	insiderg.set( cs_.hrg.start.inl(), hrg.start.inl() );
-	outsiderg.set( hrg.stop.inl(), cs_.hrg.stop.inl() );
+	insiderg.set( tkzs_.hrg.start.inl(), hrg.start.inl() );
+	outsiderg.set( hrg.stop.inl(), tkzs_.hrg.stop.inl() );
     }
     else if ( side==mToMaxInline )
     {
-	insiderg.set( hrg.stop.inl(), cs_.hrg.stop.inl() );
-	outsiderg.set( cs_.hrg.start.inl(), hrg.start.inl() );
+	insiderg.set( hrg.stop.inl(), tkzs_.hrg.stop.inl() );
+	outsiderg.set( tkzs_.hrg.start.inl(), hrg.start.inl() );
     }
     else if ( side==mToMinCrossline )
     {
-	insiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
-	outsiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
+	insiderg.set( tkzs_.hrg.start.crl(), hrg.start.crl() );
+	outsiderg.set( hrg.stop.crl(), tkzs_.hrg.stop.crl() );
     }
     else
     {
-	insiderg.set( hrg.stop.crl(), cs_.hrg.stop.crl() );
-	outsiderg.set( cs_.hrg.start.crl(), hrg.start.crl() );
+	insiderg.set( hrg.stop.crl(), tkzs_.hrg.stop.crl() );
+	outsiderg.set( tkzs_.hrg.start.crl(), hrg.start.crl() );
     }
 
     insidergs_ += insiderg;
@@ -605,7 +605,7 @@ void computeFltOuterRange( const Geometry::FaultStickSurface& flt, char side )
 }
 
 Array3D<float>&					res_;
-const TrcKeyZSampling&				cs_;
+const TrcKeyZSampling&				tkzs_;
 Geom::Point2D<float>				c_[4];
 
 ObjectSet<EM::Horizon3D>			hors_;
@@ -927,7 +927,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	surfacelist_.insert( duplicatehoridx, surfacelist_[duplicatehoridx] );
 
     TrcKeyZSampling cs = subvolfld_->envelope();
-    cs.zrg.start -= cs.zrg.step; cs.zrg.stop += cs.zrg.step;
+    cs.zsamp_.start -= cs.zsamp_.step; cs.zsamp_.stop += cs.zsamp_.step;
     cs.hrg.start.inl() -= cs.hrg.step.inl();
     cs.hrg.stop.inl() += cs.hrg.step.inl();
     cs.hrg.start.crl() -= cs.hrg.step.crl();
@@ -966,7 +966,7 @@ bool uiBodyRegionDlg::createImplicitBody()
 	    SamplingData<int>(cs.hrg.start.inl(),cs.hrg.step.inl()));
     emcs->setCrlSampling(
 	    SamplingData<int>(cs.hrg.start.crl(),cs.hrg.step.crl()));
-    emcs->setZSampling(SamplingData<float>(cs.zrg.start,cs.zrg.step));
+    emcs->setZSampling(SamplingData<float>(cs.zsamp_.start,cs.zsamp_.step));
 
     emcs->setMultiID( outputfld_->key() );
     emcs->setName( outputfld_->getInput() );

@@ -81,7 +81,7 @@ void uiBodyPosProvGroup::usePar( const IOPar& iop )
 
 	TrcKeyZSampling cs(true);
 	cs.hrg.set( inlrg, crlrg );
-	cs.zrg.setFrom( zrg );
+	cs.zsamp_.setFrom( zrg );
 	outsidergfld_->setInput( cs );
     }
 
@@ -102,7 +102,7 @@ bool uiBodyPosProvGroup::fillPar( IOPar& iop ) const
 	const TrcKeyZSampling& cs = outsidergfld_->envelope();
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBInlrg(), cs.hrg.inlRange());
 	iop.set( Pos::EMImplicitBodyProvider::sKeyBBCrlrg(), cs.hrg.crlRange());
-	iop.set( Pos::EMImplicitBodyProvider::sKeyBBZrg(), cs.zrg );
+	iop.set( Pos::EMImplicitBodyProvider::sKeyBBZrg(), cs.zsamp_ );
     }
     return true;
 }

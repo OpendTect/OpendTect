@@ -33,7 +33,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 	, trcbuf_(new SeisTrcBuf(false))
 	, nrdone_(0)
 	, outtrc_(0)
-	, cs_(new TrcKeyZSampling(false))
+	, tkzs_(new TrcKeyZSampling(false))
 	, extrintv_(SI().zRange(false))
 	, linenm_(*new BufferString)
 	, radius_(1)
@@ -42,7 +42,7 @@ SeismicExtractor::SeismicExtractor( const IOObj& ioobj )
 
 SeismicExtractor::~SeismicExtractor()
 {
-    delete cs_;
+    delete tkzs_;
     delete rdr_;
     delete trcbuf_;
     delete outtrc_;
@@ -67,24 +67,24 @@ bool SeismicExtractor::collectTracesAroundPath()
     const bool seisid2D = rdr_->is2D();
     if ( seisid2D )
     {
-	cs_->hrg.setInlRange( Interval<int>(bidset_[0].inl(),
+	tkzs_->hsamp_.setInlRange( Interval<int>(bidset_[0].inl(),
 					    bidset_[0].inl()) );
-	cs_->hrg.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
+	tkzs_->hsamp_.setCrlRange( Interval<int>(0,SI().crlRange(true).stop) );
     }
     else
     {
 	for ( int idx=0; idx<bidset_.size(); idx++ )
 	{
 	    BinID bid = bidset_[idx];
-	    cs_->hrg.include( BinID( bid.inl() + radius_,
+	    tkzs_->hsamp_.include( BinID( bid.inl() + radius_,
 				     bid.crl() + radius_ ) );
-	    cs_->hrg.include( BinID( bid.inl() - radius_,
+	    tkzs_->hsamp_.include( BinID( bid.inl() - radius_,
 				     bid.crl() - radius_ ) );
 	}
     }
-    cs_->hrg.snapToSurvey();
-    cs_->zrg = extrintv_;
-    Seis::RangeSelData* sd = new Seis::RangeSelData( *cs_ );
+    tkzs_->hsamp_.snapToSurvey();
+    tkzs_->zrg = extrintv_;
+    Seis::RangeSelData* sd = new Seis::RangeSelData( *tkzs_ );
     if ( seisid2D && !linenm_.isEmpty() )
 	sd->setGeomID( Survey::GM().getGeomID(linenm_) );
 

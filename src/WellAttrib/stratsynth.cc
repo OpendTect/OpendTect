@@ -488,7 +488,7 @@ const ObjectSet<PreStack::Gather>& gathers = gdp.getGathers(); \
 for ( int idx=0; idx<gathers.size(); idx++ ) \
     bidvals.add( gathers[idx]->getBinID() ); \
 SeisTrcBuf* dptrcbufs = new SeisTrcBuf( true ); \
-Interval<float> zrg( cs.zrg ); \
+Interval<float> zrg( cs.zsamp_ ); \
 uiString errmsg; \
 PtrMan<Attrib::Processor> proc = \
     aem->createTrcSelOutput( errmsg, bidvals, *dptrcbufs, 0, &zrg); \
@@ -742,7 +742,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		StepInterval<float> zrg( sd.start,
 					 sd.start+(sd.step*trc->size()),
 					 sd.step );
-		cs.zrg.include( zrg, false );
+		cs.zsamp_.include( zrg, false );
 	    }
 
 	    trc->info().coord = SI().transform( trc->info().binid );

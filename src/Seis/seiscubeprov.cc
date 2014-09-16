@@ -520,7 +520,7 @@ int nextStep()
 
 
 SeisFixedCubeProvider::SeisFixedCubeProvider( const MultiID& key )
-    : cs_(false)
+    : tkzs_(false)
     , data_(0)
     , ioobj_(IOM().get(key))
     , trcdist_(SI().crlDistance())
@@ -601,9 +601,9 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     PtrMan<SeisTrcReader> seisrdr = new SeisTrcReader( ioobj_ );
     seisrdr->prepareWork();
 
-    cs_ = cs;
+    tkzs_ = cs;
     bool is2d = geomid != Survey::GM().cUndefGeomID();
-    Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
+    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
     if ( is2d )
     {
 	sd->setGeomID( geomid );
@@ -614,13 +614,13 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
     seisrdr->setSelData( sd );
 
     clear();
-    data_ = new Array2DImpl<SeisTrc*>( cs_.hrg.nrInl(), cs_.hrg.nrCrl() );
+    data_ = new Array2DImpl<SeisTrc*>( tkzs_.hrg.nrInl(), tkzs_.hrg.nrCrl() );
     for ( int idx=0; idx<data_->info().getSize(0); idx++ )
 	for ( int idy=0; idy<data_->info().getSize(1); idy++ )
 	    data_->set( idx, idy, 0 );
 
     PtrMan<TrcDataLoader> loader =
-	new TrcDataLoader( *seisrdr, *data_, cs_.hrg, is2d );
+	new TrcDataLoader( *seisrdr, *data_, tkzs_.hrg, is2d );
     const bool res = TaskRunner::execute( tr, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
@@ -635,8 +635,8 @@ const SeisTrc* SeisFixedCubeProvider::getTrace( int trcnr ) const
 
 const SeisTrc* SeisFixedCubeProvider::getTrace( const BinID& bid ) const
 {
-    if ( !data_ || !cs_.hrg.includes(bid) )
+    if ( !data_ || !tkzs_.hrg.includes(bid) )
 	return 0;
 
-    return data_->get( cs_.inlIdx(bid.inl()), cs_.crlIdx(bid.crl()) );
+    return data_->get( tkzs_.inlIdx(bid.inl()), tkzs_.crlIdx(bid.crl()) );
 }

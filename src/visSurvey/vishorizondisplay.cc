@@ -1556,7 +1556,7 @@ void HorizonDisplay::traverseLine( bool oninline, const TrcKeyZSampling& cs,
 	    }
 	}
 
-	if ( !pos.isDefined() || !cs.zrg.includes(pos.z,false) )
+	if ( !pos.isDefined() || !cs.zsamp_.includes(pos.z,false) )
 	{
 	    if ( curline.size() == 1 )
 	    {
@@ -1699,7 +1699,7 @@ static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
     ictracer.setSampling( geom->rowRange(), geom->colRange() );
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
-    ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
+    ictracer.getContours( isocontours, cs.zsamp_.start-zshift, false );
 
     TypeSet<int> idxps;
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
@@ -1710,7 +1710,7 @@ static void drawHorizonOnZSlice( const TrcKeyZSampling& cs, float zshift,
 	    const Geom::Point2D<float> vertex = ic.getVertex( vidx );
 	    Coord vrtxcoord( vertex.x, vertex.y );
 	    vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
-	    const Coord3 pos( vrtxcoord, cs.zrg.start-zshift );
+	    const Coord3 pos( vrtxcoord, cs.zsamp_.start-zshift );
 	    line->getCoordinates()->addPos( pos );
 	    idxps.add( cii++ );
 	}
@@ -1821,8 +1821,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( rtdisplay )
 	{
-	    cs.zrg.setFrom( rtdisplay->getDepthInterval() );
-	    cs.zrg.step = s3dgeom_->zStep();
+	    cs.zsamp_.setFrom( rtdisplay->getDepthInterval() );
+	    cs.zsamp_.step = s3dgeom_->zStep();
 	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
@@ -1836,8 +1836,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    visBase::DM().getObject(linestoupdate[idx]) );
 	if ( seis2ddisplay )
 	{
-	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
-	    cs.zrg.step = s3dgeom_->zStep();
+	    cs.zsamp_.setFrom( seis2ddisplay->getZRange(false) );
+	    cs.zsamp_.step = s3dgeom_->zStep();
 	    const Interval<int>& trcnrrg = seis2ddisplay->getTraceNrRange();
 	    for ( int trcnr=trcnrrg.start; trcnr<=trcnrrg.stop; trcnr++ )
 	    {
@@ -1926,7 +1926,7 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    if ( rtdisplay || seis2ddisplay )
 	    {
-		drawHorizonOnRandomTrack( trclist, cs.zrg, sid,
+		drawHorizonOnRandomTrack( trclist, cs.zsamp_, sid,
 		    line, cii, pointgroup );
 	    }
 	    else if ( cs.hrg.start.inl()==cs.hrg.stop.inl() )

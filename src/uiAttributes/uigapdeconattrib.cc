@@ -55,7 +55,7 @@ class uiGDPositionDlg: public uiDialog
 
     uiGenInput*		inlcrlfld_;
     uiLabeledComboBox*	linesfld_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     TrcKeyZSampling*	prefcs_;
     uiSliceSelDlg*	posdlg_;
     bool		is2d_;
@@ -261,13 +261,13 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     Interval<float> gate = gatefld_->getFInterval();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
-    if ( !cs.zrg.includes(gate) )
+    if ( !cs.zsamp_.includes(gate) )
     {
-	Interval<float> zrg = cs.zrg;
+	Interval<float> zrg = cs.zsamp_;
 	gate = zrg; zrg.scale( zfac );
 	gatefld_->setValue( zrg );
     }
-    cs.zrg.limitTo( gate );
+    cs.zsamp_.limitTo( gate );
 
     MultiID mid;
     getInputMID( mid );
@@ -564,13 +564,13 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     Interval<float> gate = gatefld_->getFInterval();
     const float zfac = mCast(float,SI().zDomain().userFactor());
     gate.scale(1.f/zfac);
-    if ( !cs.zrg.includes(gate) )
+    if ( !cs.zsamp_.includes(gate) )
     {
-	Interval<float> zrg = cs.zrg;
+	Interval<float> zrg = cs.zsamp_;
 	gate = zrg; zrg.scale( zfac );
 	gatefld_->setValue( zrg );
     }
-    cs.zrg.limitTo( gate );
+    cs.zsamp_.limitTo( gate );
 
     MultiID mid;
     getInputMID(mid);
@@ -632,7 +632,7 @@ uiGDPositionDlg::uiGDPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 				  bool is2d, const MultiID& mid )
     : uiDialog( p, uiDialog::Setup("Gap Decon viewer position",
                                    0,mNoHelpKey) )
-    , cs_( cs )
+    , tkzs_( cs )
     , prefcs_(0)
     , is2d_( is2d )
     , mid_( mid )
@@ -669,16 +669,16 @@ void uiGDPositionDlg::popUpPosDlg()
     CallBack dummycb;
     bool is2d = inlcrlfld_ == 0;
     bool isinl = is2d ? false : inlcrlfld_->getBoolValue();
-    TrcKeyZSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = tkzs_;
     if ( is2d )
     {
 	SeisTrcTranslator::getRanges(
 		mid_, inputcs, Survey::GM().getName(getGeomID()) );
-	cs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
+	tkzs_.hrg.set( inputcs.hrg.inlRange(), inputcs.hrg.crlRange() );
     }
 
-    cs_.zrg.stop = cs_.zrg.width();
-    cs_.zrg.start = 0;
+    tkzs_.zsamp_.stop = tkzs_.zsamp_.width();
+    tkzs_.zsamp_.start = 0;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
@@ -693,13 +693,13 @@ void uiGDPositionDlg::popUpPosDlg()
 				       = inputcs.hrg.crlRange().snappedCenter();
 	}
 
-	inputcs.zrg.start = 0;
+	inputcs.zsamp_.start = 0;
     }
 
     ZDomain::Info info( ZDomain::SI() );
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD
 			       : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl);
-    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, tp, info );
+    posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
     posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
@@ -712,7 +712,7 @@ void uiGDPositionDlg::popUpPosDlg()
 
 const TrcKeyZSampling& uiGDPositionDlg::getTrcKeyZSampling()
 {
-    return posdlg_ ? posdlg_->getTrcKeyZSampling() : cs_;
+    return posdlg_ ? posdlg_->getTrcKeyZSampling() : tkzs_;
 }
 
 

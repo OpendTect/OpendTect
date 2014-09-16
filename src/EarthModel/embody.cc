@@ -31,7 +31,7 @@ namespace EM
 ImplicitBody::ImplicitBody()
     : arr_( 0 )
     , threshold_( mUdf(float) )
-    , cs_( false )
+    , tkzs_( false )
 {}
 
 #define mCopyArr( ib ) \
@@ -49,7 +49,7 @@ ImplicitBody::ImplicitBody()
 
 ImplicitBody::ImplicitBody( const ImplicitBody& ib )
    : threshold_( ib.threshold_ )
-   , cs_( ib.cs_ )
+   , tkzs_( ib.tkzs_ )
    , arr_( 0 )
 {
     mCopyArr(ib)
@@ -63,7 +63,7 @@ ImplicitBody::~ImplicitBody()
 ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
 {
     threshold_ = ib.threshold_;
-    cs_ = ib.cs_;
+    tkzs_ = ib.tkzs_;
 
     delete arr_; arr_ = 0;
     mCopyArr( ib );

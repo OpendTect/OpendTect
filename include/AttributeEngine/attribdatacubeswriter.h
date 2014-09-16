@@ -56,7 +56,7 @@ private:
    SeisTrc*			trc_;
    TypeSet<int>			cubeindices_;
 
-   TrcKeySampling		hrg_;
+   TrcKeySampling		tks_;
    Interval<int>		zrg_;
 };
 

@@ -96,13 +96,13 @@ EngineMan* GapDeconACorrView::createEngineMan()
     aem->setAttribSpecs( attribspecs );
     aem->setGeomID( geomid_ );
 
-    TrcKeyZSampling cs = cs_;
-    if ( !SI().zRange(0).includes( cs_.zrg.start, false ) ||
-	 !SI().zRange(0).includes( cs_.zrg.stop, false ) )
+    TrcKeyZSampling cs = tkzs_;
+    if ( !SI().zRange(0).includes( tkzs_.zsamp_.start, false ) ||
+	 !SI().zRange(0).includes( tkzs_.zsamp_.stop, false ) )
     {
 	//'fake' a 'normal' cubesampling for the attribute engine
-	cs.zrg.start = SI().sampling(0).zrg.start;
-	cs.zrg.stop = cs.zrg.start + cs_.zrg.width();
+	cs.zsamp_.start = SI().sampling(0).zsamp_.start;
+	cs.zsamp_.stop = cs.zsamp_.start + tkzs_.zsamp_.width();
     }
     aem->setTrcKeyZSampling( cs );
 
@@ -128,15 +128,15 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 	correctd2dh->trcinfoset_ += info;
     }
 
-    if ( ( !SI().zRange(0).includes(cs_.zrg.start, false )
-	|| !SI().zRange(0).includes(cs_.zrg.stop, false ) )
+    if ( ( !SI().zRange(0).includes(tkzs_.zsamp_.start, false )
+	|| !SI().zRange(0).includes(tkzs_.zsamp_.stop, false ) )
 	 && correctd2dh.ptr()->trcinfoset_.size() )
     {
 	//we previously 'faked' a 'normal' cubesampling for the attribute engine
 	//now we have to go back to the user specified sampling
 	float zstep = correctd2dh.ptr()->trcinfoset_[0]->sampling.step;
 	for ( int idx=0; idx<correctd2dh.ptr()->dataset_.size(); idx++ )
-	    correctd2dh.ptr()->dataset_[idx]->z0_=mNINT32(cs_.zrg.start/zstep);
+	    correctd2dh.ptr()->dataset_[idx]->z0_=mNINT32(tkzs_.zsamp_.start/zstep);
     }
 
     if ( isqc )
@@ -161,11 +161,11 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 	return;
 
     output->ref();
-    bool csmatchessurv = SI().zRange(0).includes(cs_.zrg.start, false )
-			&& SI().zRange(0).includes(cs_.zrg.stop, false );
+    bool csmatchessurv = SI().zRange(0).includes(tkzs_.zsamp_.start, false )
+			&& SI().zRange(0).includes(tkzs_.zsamp_.stop, false );
     //if we previously 'faked' a 'normal' cubesampling for the attribute engine
     //we now have to go back to the user specified sampling
-    TrcKeyZSampling cs = csmatchessurv ? output->cubeSampling() : cs_;
+    TrcKeyZSampling cs = csmatchessurv ? output->cubeSampling() : tkzs_;
     Attrib::DataCubes* correctoutput = new Attrib::DataCubes();
     correctoutput->ref();
     correctoutput->setSizeAndPos( cs );
@@ -188,7 +188,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 void GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
-    StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
+    StepInterval<double> newrg( 0, tkzs_.zsamp_.stop-tkzs_.zsamp_.start, tkzs_.zsamp_.step );
     dp->posData().setRange( false, newrg );
 
     uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;

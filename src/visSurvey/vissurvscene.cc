@@ -222,7 +222,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
     // -1 to compensate for that we want z to increase with depth
 
     SceneTransformManager::computeICRotationTransform(*SI().get3DGeometry(true),
-	zfactor, cs.zrg.center(), newinlcrlrotation, newinlcrlscale );
+	zfactor, cs.zsamp_.center(), newinlcrlrotation, newinlcrlscale );
 
     tempzstretchtrans_->addObject( newinlcrlrotation );
 
@@ -248,7 +248,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
 
     RefMan<mVisTrans> newutm2disptransform = mVisTrans::create();
     SceneTransformManager::computeUTM2DisplayTransform(
-		    *SI().get3DGeometry(true), zfactor, cs.zrg.center(),
+		    *SI().get3DGeometry(true), zfactor, cs.zsamp_.center(),
                     newutm2disptransform );
 
     if ( utm2disptransform_ )
@@ -317,7 +317,7 @@ void Scene::getAllowedZDomains( BufferString& dms ) const
 
 void Scene::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     if ( !annot_ ) return;
 
     annot_->setTrcKeyZSampling( cs );
@@ -446,7 +446,7 @@ void Scene::setFixedZStretch( float zstretch )
     if ( mIsEqual(zstretch,curzstretch_,mDefEps) ) return;
 
     curzstretch_ = zstretch;
-    updateTransforms( cs_ );
+    updateTransforms( tkzs_ );
 }
 
 
@@ -477,7 +477,7 @@ void Scene::setTempZStretch( float zstretch )
 void Scene::setZScale( float zscale )
 {
     zscale_ = zscale;
-    updateTransforms( cs_ );
+    updateTransforms( tkzs_ );
 }
 
 
@@ -746,9 +746,9 @@ void Scene::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
 	const Interval<float> zrg = zat->getZInterval( false );
 	if ( !zrg.isUdf() )
 	{
-	    cs.zrg.start = zrg.start;
-	    cs.zrg.stop = zrg.stop;
-	    cs.zrg.step = zat->getGoodZStep();
+	    cs.zsamp_.start = zrg.start;
+	    cs.zsamp_.stop = zrg.stop;
+	    cs.zsamp_.step = zat->getGoodZStep();
 	}
 
 	setZDomainInfo( zat->toZDomainInfo() );
@@ -945,7 +945,7 @@ void Scene::fillPar( IOPar& par ) const
     {
 	zdomaininfo_->def_.set( par );
 	par.mergeComp( zdomaininfo_->pars_, ZDomain::sKey() );
-	cs_.fillPar( par );
+	tkzs_.fillPar( par );
     }
 
     par.set( sKey::Scale(), zscale_ );

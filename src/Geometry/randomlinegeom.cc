@@ -69,7 +69,7 @@ void RandomLine::limitTo( const TrcKeyZSampling& cs )
 {
     if ( nrNodes() != 2 ) return;
 
-    zrange_.limitTo( cs.zrg );
+    zrange_.limitTo( cs.zsamp_ );
     const TrcKeySampling& hs = cs.hrg;
     const bool startin = hs.includes( nodes_[0] );
     const bool stopin = hs.includes( nodes_[1] );

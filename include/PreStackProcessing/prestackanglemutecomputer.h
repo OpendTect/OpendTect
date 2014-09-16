@@ -43,7 +43,7 @@ public:
     mStruct(PreStackProcessing) AngleMuteCompPars : public AngleCompParams
     {
 	MultiID			outputmutemid_;
-	TrcKeySampling		hrg_;
+	TrcKeySampling		tks_;
     };
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 

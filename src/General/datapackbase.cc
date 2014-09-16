@@ -46,11 +46,11 @@ public:
 		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
 		    (int)tmpcrg.step) );
 	Coord spt1 = SI().transform(
-				BinID(hsamp_.start.inl(),hsamp_.start.crl()) );
+				BinID(hsamp_.start_.inl(),hsamp_.start_.crl()) );
 	Coord spt2 = SI().transform(
-				BinID(hsamp_.start.inl(),hsamp_.stop.crl()) );
+				BinID(hsamp_.start_.inl(),hsamp_.stop.crl()) );
 	Coord spt3 = SI().transform(
-				BinID(hsamp_.stop.inl(),hsamp_.start.crl()) );
+				BinID(hsamp_.stop.inl(),hsamp_.start_.crl()) );
 	Coord spt4 = SI().transform(
 				BinID(hsamp_.stop.inl(),hsamp_.stop.crl()) );
 	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
@@ -100,10 +100,10 @@ public:
 		float diffy = ( float ) (( coord.y - approxcoord.y ) / ystep_);
 		toreach00.inl() = diffx>=0 ? 0 : -1;
 		toreach00.crl() = diffy>=0 ? 0 : -1;
-		int id0v00 = (approxbid.inl() - hsamp_.start.inl()) /
-			hsamp_.step.inl() + toreach00.inl();
-		int id1v00 = (approxbid.crl() - hsamp_.start.crl())/
-			hsamp_.step.crl() + toreach00.crl();
+		int id0v00 = (approxbid.inl() - hsamp_.start_.inl()) /
+			hsamp_.step_.inl() + toreach00.inl();
+		int id1v00 = (approxbid.crl() - hsamp_.start_.crl())/
+			hsamp_.step_.crl() + toreach00.crl();
 		float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
 		float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
 		float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
@@ -421,7 +421,7 @@ int VolumeDataPack::size( char dim ) const
 
 CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
     : VolumeDataPack(cat)
-    , cs_(*new TrcKeyZSampling(true))
+    , tkzs_(*new TrcKeyZSampling(true))
 {
     init();
 }
@@ -429,7 +429,7 @@ CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
 
 CubeDataPack::CubeDataPack( const char* cat )
     : VolumeDataPack(cat)
-    , cs_(*new TrcKeyZSampling(true))
+    , tkzs_(*new TrcKeyZSampling(true))
 {
     // We cannot call init() here: size() does not dispatch virtual here
     // Subclasses with no arr3d_ will have to do a position init 'by hand'
@@ -439,26 +439,26 @@ CubeDataPack::CubeDataPack( const char* cat )
 void CubeDataPack::init()
 {
     if ( !arr3d_ ) return;
-    cs_.hrg.stop.inl() = cs_.hrg.start.inl() + (size(0)-1) * cs_.hrg.step.inl();
-    cs_.hrg.stop.crl() = cs_.hrg.start.crl() + (size(1)-1) * cs_.hrg.step.crl();
-    cs_.zrg.stop = cs_.zrg.start + (size(2)-1) * cs_.zrg.step;
+    tkzs_.hrg.stop.inl() = tkzs_.hrg.start.inl() + (size(0)-1) * tkzs_.hrg.step.inl();
+    tkzs_.hrg.stop.crl() = tkzs_.hrg.start.crl() + (size(1)-1) * tkzs_.hrg.step.crl();
+    tkzs_.zsamp_.stop = tkzs_.zsamp_.start + (size(2)-1) * tkzs_.zsamp_.step;
 }
 
 
 CubeDataPack::~CubeDataPack()
 {
     delete arr3d_;
-    delete &cs_;
+    delete &tkzs_;
 }
 
 
 Coord3 CubeDataPack::getCoord( int i0, int i1, int i2 ) const
 {
-    const TrcKey key = cs_.hsamp_.atIndex(i0,i1);
+    const TrcKey key = tkzs_.hsamp_.atIndex(i0,i1);
     ConstRefMan<Survey::Geometry> geom =
 	Survey::GM().getGeometry( key.geomID() );
     const Coord c = geom->toCoord( key.pos() );
-    return Coord3( c.x, c.y, cs_.zAtIndex(i2) );
+    return Coord3( c.x, c.y, tkzs_.zAtIndex(i2) );
 }
 
 
@@ -471,5 +471,5 @@ void CubeDataPack::dumpInfo( IOPar& iop ) const
 	    		      cs.hrg.step.inl() );
     iop.set( "Positions.crl()", cs.hrg.start.crl(), cs.hrg.stop.crl(),
 	    		      cs.hrg.step.crl() );
-    iop.set( "Positions.z", cs.zrg.start, cs.zrg.stop, cs.zrg.step );
+    iop.set( "Positions.z", cs.zsamp_.start, cs.zsamp_.stop, cs.zsamp_.step );
 }

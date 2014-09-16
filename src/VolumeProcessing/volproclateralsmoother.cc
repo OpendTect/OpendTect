@@ -421,11 +421,11 @@ Task* LateralSmoother::createTask()
 
     pars_.filludf_ = true;
 
-    Interval<int> inlsamples(input->inlsampling_.nearestIndex(hrg_.start.inl()),
-			     input->inlsampling_.nearestIndex(hrg_.stop.inl()));
+    Interval<int> inlsamples(input->inlsampling_.nearestIndex(tks_.start.inl()),
+			     input->inlsampling_.nearestIndex(tks_.stop.inl()));
 
-    Interval<int> crlsamples(input->crlsampling_.nearestIndex(hrg_.start.crl()),
-			     input->crlsampling_.nearestIndex(hrg_.stop.crl()));
+    Interval<int> crlsamples(input->crlsampling_.nearestIndex(tks_.start.crl()),
+			     input->crlsampling_.nearestIndex(tks_.stop.crl()));
 
 
     return new LateralSmootherTask( input->getCube( 0 ),

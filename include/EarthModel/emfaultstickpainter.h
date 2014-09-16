@@ -40,7 +40,7 @@ public:
 			~FaultStickPainter();
 
     void		setTrcKeyZSampling(const TrcKeyZSampling&,bool);
-    const TrcKeyZSampling&	getTrcKeyZSampling() const			{ return cs_; }
+    const TrcKeyZSampling&	getTrcKeyZSampling() const			{ return tkzs_; }
 
     void                setPath(const TypeSet<BinID>*);
     void                setFlatPosData(const FlatPosData*);
@@ -99,7 +99,7 @@ protected:
 
     virtual void	fssChangedCB(CallBacker*);
 
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     const TypeSet<BinID>*	path_;
     const FlatPosData*	flatposdata_;
 

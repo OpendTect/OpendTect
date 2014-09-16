@@ -121,7 +121,7 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
 
     TrcKeyZSampling  cs;
     subselfld_->getSampling( cs.hrg );
-    subselfld_->getZRange( cs.zrg );
+    subselfld_->getZRange( cs.zsamp_ );
     tst_.setRange( cs );
 
     // Set action-specific parameters

@@ -287,7 +287,7 @@ void uiTextureAttrib::analyseCB( CallBacker* )
 		trcrg, zrg );
 	cs.hrg.setCrlRange( trcrg );
 	cs.hrg.setInlRange( Interval<int>(0,0) );
-	cs.zrg = zrg;
+	cs.zsamp_ = zrg;
 	lk = subseldlg.lineKey();
     }
     else
@@ -331,7 +331,7 @@ bool uiTextureAttrib::readInpAttrib( SeisTrcBuf& buf, const TrcKeyZSampling& cs,
 	bidvals.add( trckeys[idx].pos() );
 
     uiString errmsg;
-    Interval<float> zrg( cs.zrg );
+    Interval<float> zrg( cs.zsamp_ );
     PtrMan<Processor> proc =
 	aem->createTrcSelOutput( errmsg, bidvals, buf, 0, &zrg );
 

@@ -504,19 +504,19 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const Interval<float> zintv =
 		scene->getZAxisTransform()->getZInterval( false );
-	    maxcs.zrg.start = zintv.start;
-	    maxcs.zrg.stop = zintv.stop;
+	    maxcs.zsamp_.start = zintv.start;
+	    maxcs.zsamp_.stop = zintv.stop;
 	}
 
 	TrcKeyZSampling curcs;
-	curcs.zrg.setFrom( SI().zRange(true) );
+	curcs.zsamp_.setFrom( SI().zRange(true) );
 	curcs.hrg.set( section->displayedRowRange(),
 		       section->displayedColRange() );
 
 	uiPosProvider::Setup setup( false, true, false );
 	setup.allownone_ = true;
 	setup.seltxt( "Area subselection" );
-	setup.cs_ = maxcs;
+	setup.tkzs_ = maxcs;
 
 	uiDialog dlg( getUiParent(),
 		uiDialog::Setup("Positions","Specify positions",

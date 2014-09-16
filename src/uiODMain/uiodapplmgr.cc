@@ -513,7 +513,7 @@ void uiODApplMgr::addTimeDepthScene()
 	const float zscale = ztrans->zScale();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
 	TrcKeyZSampling cs = SI().sampling( true );
-	cs.zrg = zsampling;
+	cs.zsamp_ = zsampling;
 	scene->setTrcKeyZSampling( cs );
 	scene->setZScale( zscale );
     }
@@ -952,7 +952,7 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-    cs.zrg.setFrom( s2d->getZRange(false) );
+    cs.zsamp_.setFrom( s2d->getZRange(false) );
 
     uiTaskRunner uitr( &appl_ );
     DataPack::ID dpid = attrserv_->create2DOutput( cs, s2d->getGeomID(), uitr );

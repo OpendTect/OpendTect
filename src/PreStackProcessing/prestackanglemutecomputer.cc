@@ -76,7 +76,7 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 
 bool AngleMuteComputer::doWork( od_int64 start, od_int64 stop, int thread )
 {
-    const TrcKeySampling& hrg = params().hrg_;
+    const TrcKeySampling& hrg = params().tks_;
     ObjectSet<PointBasedMathFunction> mutefuncs;
     TypeSet<BinID> bids;
 
@@ -171,7 +171,7 @@ bool AngleMuteComputer::doFinish( bool sucess )
 
 
 od_int64 AngleMuteComputer::nrIterations() const
-{ return params().hrg_.totalNr(); }
+{ return params().tks_.totalNr(); }
 
 
 AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params()

@@ -151,7 +151,7 @@ protected:
     uiGenInput*			hornmfld_;
     uiBatchJobDispatcherSel*	batchfld_;
 
-    TrcKeyZSampling&		cs_;
+    TrcKeyZSampling&		tkzs_;
 
     void			horCheckCB(CallBacker*);
     void			inpSelCB(CallBacker*);

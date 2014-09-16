@@ -32,8 +32,8 @@ TrackPlane::TrackPlane( const BinID& start, const BinID& stop, float time )
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;
-    cubesampling.zrg.start = time;
-    cubesampling.zrg.stop = time;
+    cubesampling.zsamp_.start = time;
+    cubesampling.zsamp_.stop = time;
 }
 
 
@@ -43,14 +43,14 @@ TrackPlane::TrackPlane( const BinID& start, const BinID& stop,
 {
     cubesampling.hrg.start = start;
     cubesampling.hrg.stop = stop;
-    cubesampling.zrg.start = starttime;
-    cubesampling.zrg.stop = stoptime;
+    cubesampling.zsamp_.start = starttime;
+    cubesampling.zsamp_.stop = stoptime;
 }
 
 
 bool TrackPlane::isVertical() const
 {
-    return !mIsZero(cubesampling.zrg.width() ,mDefEps);
+    return !mIsZero(cubesampling.zsamp_.width() ,mDefEps);
 }
 
 
@@ -73,8 +73,8 @@ float TrackPlane::distance( const Coord3& pos,
     if ( !isVertical() )
     {
 	double ownz = t2d
-	    ? t2d->getValue(cubesampling.zrg.start)
-	    : cubesampling.zrg.start;
+	    ? t2d->getValue(cubesampling.zsamp_.start)
+	    : cubesampling.zsamp_.start;
 	double testz = t2d
 	    ? t2d->getValue((float) pos.z)
 	    : pos.z;
@@ -101,11 +101,11 @@ void TrackPlane::setMotion( int inl, int crl, float z )
 void TrackPlane::computePlane(Plane3& plane) const
 {
     const Coord3 p0( SI().transform(cubesampling.hrg.start),
-	    	     cubesampling.zrg.start );
+		     cubesampling.zsamp_.start );
     const Coord3 p1( SI().transform(cubesampling.hrg.start),
-	    	     cubesampling.zrg.stop );
+		     cubesampling.zsamp_.stop );
     const Coord3 p2( SI().transform(cubesampling.hrg.stop),
-	    	     cubesampling.zrg.start );
+		     cubesampling.zsamp_.start );
 
     plane.set( p0, p1, p2 );
 }

@@ -283,12 +283,12 @@ bool uiExportHorizon::writeAscii()
 		{
 		    first = false;
 		    bbox.hrg.start = bbox.hrg.stop = bid;
-		    bbox.zrg.start = bbox.zrg.stop = (float) crd.z;
+		    bbox.zsamp_.start = bbox.zsamp_.stop = (float) crd.z;
 		}
 		else
 		{
 		    bbox.hrg.include( bid );
-		    bbox.zrg.include( (float) crd.z );
+		    bbox.zsamp_.include( (float) crd.z );
 		}
 	    }
 

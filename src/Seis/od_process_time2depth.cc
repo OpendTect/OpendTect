@@ -30,7 +30,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !outputcs.hrg.usePar( pars() ) )
     { outputcs.hrg.init( true ); }
 
-    if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zrg ) )
+    if ( !pars().get( SurveyInfo::sKeyZRange(), outputcs.zsamp_ ) )
     {
 	strm << "Cannot read output sampling";
 	return false;

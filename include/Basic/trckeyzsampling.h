@@ -50,7 +50,7 @@ public:
 			//!< Sets hrg_.init and zrg_ to survey values or zeros
     inline void		setEmpty()		{ init(false); }
     void		set2DDef();
-			//!< Sets to survey zrange and hrg_.set2DDef
+			//!< Sets to survey zrange and
     void		normalise();
 			//!< Makes sure start<stop and steps are non-zero
 

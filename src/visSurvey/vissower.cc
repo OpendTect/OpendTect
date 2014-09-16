@@ -199,13 +199,13 @@ void Sower::calibrateEventInfo( visBase::EventInfo& eventinfo )
 	return;
 
     TrcKeyZSampling cs = pdd->getTrcKeyZSampling( false, false );
-    Coord3 p0( SI().transform(cs.hrg.start), cs.zrg.start );
+    Coord3 p0( SI().transform(cs.hrg.start), cs.zsamp_.start );
     transformation_->transform( p0 );
     scene->getTempZStretchTransform()->transform( p0 );
-    Coord3 p1( SI().transform( cs.hrg.stop), cs.zrg.start );
+    Coord3 p1( SI().transform( cs.hrg.stop), cs.zsamp_.start );
     transformation_->transform( p1 );
     scene->getTempZStretchTransform()->transform( p1 );
-    Coord3 p2( SI().transform(cs.hrg.start), cs.zrg.stop );
+    Coord3 p2( SI().transform(cs.hrg.start), cs.zsamp_.stop );
     transformation_->transform( p2 );
     scene->getTempZStretchTransform()->transform( p2 );
 

@@ -73,7 +73,7 @@ bool uiAngleMuteComputer::acceptOK(CallBacker*)
     if ( !subsel_->isAll() )
 	subsel_->getSampling( hrg );
 
-    processor_->params().hrg_ = hrg;
+    processor_->params().tks_ = hrg;
     processor_->params().outputmutemid_ = mutedeffld_->key(true); 
 
     uiTaskRunner taskrunner(this);

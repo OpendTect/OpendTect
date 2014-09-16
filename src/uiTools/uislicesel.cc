@@ -164,8 +164,8 @@ uiSliceScroll( uiSliceSel* ss )
     }
     else if ( ss->istsl_ )
     {
-	step = mNINT32(cs.zrg.step*zfact_);
-	float zrg = (cs.zrg.stop - cs.zrg.start) * zfact_;
+	step = mNINT32(cs.zsamp_.step*zfact_);
+	float zrg = (cs.zsamp_.stop - cs.zsamp_.start) * zfact_;
 	maxstep = mNINT32(zrg);
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
@@ -259,7 +259,7 @@ void doAdvance( bool reversed )
     slcsel_->readInput();
     if ( slcsel_->isinl_ )
     {
-	int newval = slcsel_->cs_.hrg.start.inl() + step;
+	int newval = slcsel_->tkzs_.hrg.start.inl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
@@ -267,7 +267,7 @@ void doAdvance( bool reversed )
     }
     else if ( slcsel_->iscrl_ )
     {
-	int newval = slcsel_->cs_.hrg.start.crl() + step;
+	int newval = slcsel_->tkzs_.hrg.start.crl() + step;
 	if ( slcsel_->dogeomcheck_ && !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
@@ -275,9 +275,9 @@ void doAdvance( bool reversed )
     }
     else
     {
-	float newval = slcsel_->cs_.zrg.start + step / zfact_;
+	float newval = slcsel_->tkzs_.zsamp_.start + step / zfact_;
 	if ( slcsel_->dogeomcheck_ &&
-	     !SI().sampling(true).zrg.includes(newval,false) )
+	     !SI().sampling(true).zsamp_.includes(newval,false) )
 	    stopAuto( true );
 	else
 	{
@@ -409,25 +409,25 @@ void uiSliceSel::readInput()
     const float zfac = mCast( float, zdominfo_.userFactor() );
     Interval<float> zrg;
     zrg.start = z0fld_->box()->getFValue() / zfac;
-    zrg.start = maxcs_.zrg.snap( zrg.start );
+    zrg.start = maxcs_.zsamp_.snap( zrg.start );
     if ( istsl_ )
 	zrg.stop = zrg.start;
     else
     {
 	zrg.stop = z1fld_->getFValue() / zfac;
 	zrg.sort();
-	zrg.stop = maxcs_.zrg.snap( zrg.stop );
+	zrg.stop = maxcs_.zsamp_.snap( zrg.stop );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
-	    zrg.stop += maxcs_.zrg.step;
+	    zrg.stop += maxcs_.zsamp_.step;
     }
 
-    cs_.hrg.set( inlrg, crlrg );
-    cs_.zrg.setFrom( zrg );
+    tkzs_.hrg.set( inlrg, crlrg );
+    tkzs_.zsamp_.setFrom( zrg );
 
     if ( dogeomcheck_ )
     {
-	SI().snap( cs_.hrg.start, BinID(0,0) );
-	SI().snap( cs_.hrg.stop, BinID(0,0) );
+	SI().snap( tkzs_.hrg.start, BinID(0,0) );
+	SI().snap( tkzs_.hrg.stop, BinID(0,0) );
     }
 }
 
@@ -436,7 +436,7 @@ void uiSliceSel::updateUI()
 {
     if ( inl0fld_ )
     {
-	Interval<int> inlrg( cs_.hrg.start.inl(), cs_.hrg.stop.inl() );
+	Interval<int> inlrg( tkzs_.hrg.start.inl(), tkzs_.hrg.stop.inl() );
 	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl(),
 				    maxcs_.hrg.stop.inl(),
 				    maxcs_.hrg.step.inl() );
@@ -444,7 +444,7 @@ void uiSliceSel::updateUI()
 	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
     }
 
-    Interval<int> crlrg( cs_.hrg.start.crl(), cs_.hrg.stop.crl() );
+    Interval<int> crlrg( tkzs_.hrg.start.crl(), tkzs_.hrg.stop.crl() );
     StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl(), maxcs_.hrg.stop.crl(),
 				maxcs_.hrg.step.crl() );
     setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
@@ -452,7 +452,7 @@ void uiSliceSel::updateUI()
 
     int nrdec = 0;
     const float zfac = mCast( float, zdominfo_.userFactor() );
-    float step = maxcs_.zrg.step * zfac;
+    float step = maxcs_.zsamp_.step * zfac;
     while ( true )
     {
 	if ( step>1 || mIsEqual(step,1,mDefEps) )
@@ -463,27 +463,27 @@ void uiSliceSel::updateUI()
 
     if ( nrdec==0 )
     {
-	Interval<int> zrg( mNINT32(cs_.zrg.start*zfac),
-			   mNINT32(cs_.zrg.stop*zfac) );
+	Interval<int> zrg( mNINT32(tkzs_.zsamp_.start*zfac),
+			   mNINT32(tkzs_.zsamp_.stop*zfac) );
 	StepInterval<int> maxzrg =
-	    StepInterval<int>( mNINT32(maxcs_.zrg.start*zfac),
-			       mNINT32(maxcs_.zrg.stop*zfac),
-			       mNINT32(maxcs_.zrg.step*zfac) );
+	    StepInterval<int>( mNINT32(maxcs_.zsamp_.start*zfac),
+			       mNINT32(maxcs_.zsamp_.stop*zfac),
+			       mNINT32(maxcs_.zsamp_.step*zfac) );
 	setBoxValues( z0fld_->box(), maxzrg, zrg.start );
 	setBoxValues( z1fld_, maxzrg, zrg.stop );
     }
     else
     {
-	StepInterval<float> zrg = cs_.zrg;
+	StepInterval<float> zrg = tkzs_.zsamp_;
 	zrg.scale( zfac );
-	StepInterval<float> maxzrg = maxcs_.zrg;
+	StepInterval<float> maxzrg = maxcs_.zsamp_;
 	maxzrg.scale( zfac );
 
 	z0fld_->box()->setInterval( maxzrg );
-	z0fld_->box()->setValue( cs_.zrg.start );
+	z0fld_->box()->setValue( tkzs_.zsamp_.start );
 
 	z1fld_->setInterval( maxzrg );
-	z1fld_->setValue( cs_.zrg.stop );
+	z1fld_->setValue( tkzs_.zsamp_.stop );
     }
 
     z0fld_->box()->setNrDecimals( nrdec );
@@ -493,7 +493,7 @@ void uiSliceSel::updateUI()
 
 void uiSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     updateUI();
 }
 
@@ -543,8 +543,8 @@ void uiSliceSel::fillPar( IOPar& iop )
     cs.hrg.stop.crl() = iscrl_ ? crl0fld_->box()->getValue()
 			     : crl1fld_->getValue();
 
-    cs.zrg.start = mCast( float, z0fld_->box()->getValue() );
-    cs.zrg.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
+    cs.zsamp_.start = mCast( float, z0fld_->box()->getValue() );
+    cs.zsamp_.stop = mCast( float, istsl_ ? z0fld_->box()->getValue()
 			 : z1fld_->getValue() );
 
     cs.fillPar( iop );
@@ -619,7 +619,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     : uiDialog( p, uiDialog::Setup("Select line position",
 				   mNoDlgTitle,mNoHelpKey) )
-    , cs_( cs )
+    , tkzs_( cs )
     , prefcs_(0)
     , is2d_(false)
     , linesfld_(0)
@@ -650,18 +650,18 @@ bool uiLinePosSelDlg::selectPos2D()
 	    	     Survey::GM().getGeometry(linesfld_->text()) );
     if ( !geom2d ) return false;
 
-    TrcKeyZSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = tkzs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
     {
 	inputcs.hrg.setCrlRange( geom2d->data().trcNrRange() );
-	inputcs.zrg = geom2d->data().zRange();
+	inputcs.zsamp_ = geom2d->data().zRange();
     }
 
     const ZDomain::Info info( ZDomain::SI() );
     const uiSliceSel::Type tp = uiSliceSel::TwoD;
-    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, CallBack(), tp, info );
+    posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, CallBack(), tp, info );
     posdlg_->grp()->enableApplyButton( false );
     posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
@@ -677,7 +677,7 @@ bool uiLinePosSelDlg::selectPos3D()
     CallBack dummycb;
     const bool isinl = inlcrlfld_->getBoolValue();
 
-    TrcKeyZSampling inputcs = cs_;
+    TrcKeyZSampling inputcs = tkzs_;
     if ( prefcs_ )
 	inputcs = *prefcs_;
     else
@@ -689,12 +689,12 @@ bool uiLinePosSelDlg::selectPos3D()
 	    inputcs.hrg.stop.crl() = inputcs.hrg.start.crl()
 				   = inputcs.hrg.crlRange().snappedCenter();
 
-	inputcs.zrg.start = 0;
+	inputcs.zsamp_.start = 0;
     }
 
     const ZDomain::Info info( ZDomain::SI() );
     const uiSliceSel::Type tp = isinl ? uiSliceSel::Inl : uiSliceSel::Crl;
-    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, tp, info );
+    posdlg_ = new uiSliceSelDlg( this, inputcs, tkzs_, dummycb, tp, info );
     posdlg_->grp()->enableApplyButton( false );
     posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
@@ -706,7 +706,7 @@ bool uiLinePosSelDlg::selectPos3D()
 
 
 const TrcKeyZSampling& uiLinePosSelDlg::getTrcKeyZSampling() const
-{ return posdlg_ ? posdlg_->getTrcKeyZSampling() : cs_; }
+{ return posdlg_ ? posdlg_->getTrcKeyZSampling() : tkzs_; }
 
 
 const char* uiLinePosSelDlg::getLineName() const

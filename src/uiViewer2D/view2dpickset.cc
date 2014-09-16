@@ -190,10 +190,10 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	else
 	{
 	    bid = BinID( (int)pt.x, (int)pt.y );
-	    z = cs.zrg.start;
+	    z = cs.zsamp_.start;
 	}
 
-	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ?
+	return ( cs.hrg.includes(bid) && cs.zsamp_.includes(z,false) ) ?
 	    Coord3( SI().transform(bid),
 		    zat->transformBack(BinIDValue(bid,z)) ) : Coord3::udf();
     }

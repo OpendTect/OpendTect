@@ -42,8 +42,8 @@ public:
     RangeSelData&	operator =( const RangeSelData& rsd )
     						{ copyFrom(rsd); return *this; }
 
-    TrcKeyZSampling&	cubeSampling()		{ return cs_; }
-    const TrcKeyZSampling&	cubeSampling() const	{ return cs_; }
+    TrcKeyZSampling&	cubeSampling()		{ return tkzs_; }
+    const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
 
     SelData*		clone() const	{ return new RangeSelData(*this); }
     virtual void	copyFrom(const SelData&);
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
 
     void		doExtendH(BinID,BinID);
 };

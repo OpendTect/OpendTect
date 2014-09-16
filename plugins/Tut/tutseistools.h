@@ -62,7 +62,7 @@ protected:
 
     IOObj*		inioobj_;
     IOObj*		outioobj_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     Action		action_;
     float		factor_;
     float		shift_;

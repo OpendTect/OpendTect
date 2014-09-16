@@ -280,7 +280,7 @@ public:
     virtual void		getSummary(BufferString&) const;
 
     virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
-    const TrcKeyZSampling&		getImpBodyRange() const { return cs_; }
+    const TrcKeyZSampling&		getImpBodyRange() const { return tkzs_; }
     Array3D<float>*		getImpBodyData() const	{ return imparr_; }
     float                       getThreshold() const	{ return threshold_; }
 
@@ -293,7 +293,7 @@ protected:
 
     bool			isOK() const;
 
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     Array3D<float>*		imparr_;
     float			threshold_;
     bool			useinside_;

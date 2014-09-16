@@ -1438,10 +1438,10 @@ void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 	    b10 = b11;
 	}
 
-	const Coord3 c00( s3dgeom_->transform(b00),cs.zrg.start );
-	const Coord3 c01( s3dgeom_->transform(b01),cs.zrg.stop );
-	const Coord3 c11( s3dgeom_->transform(b11),cs.zrg.stop );
-	const Coord3 c10( s3dgeom_->transform(b10),cs.zrg.start );
+	const Coord3 c00( s3dgeom_->transform(b00),cs.zsamp_.start );
+	const Coord3 c01( s3dgeom_->transform(b01),cs.zsamp_.stop );
+	const Coord3 c11( s3dgeom_->transform(b11),cs.zsamp_.stop );
+	const Coord3 c10( s3dgeom_->transform(b10),cs.zsamp_.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 

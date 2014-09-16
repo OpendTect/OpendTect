@@ -15,16 +15,16 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr,
     : bidvs_( bidvs )
     , targetcolidx_( colnr )
 {
-    hrg_.setInlRange( bidvs.inlRange() );
-    hrg_.setCrlRange( bidvs.crlRange() );
-    hrg_.step = step;
-    arrinfo_ = Array2DInfoImpl( hrg_.nrInl(), hrg_.nrCrl() );
+    tks_.setInlRange( bidvs.inlRange() );
+    tks_.setCrlRange( bidvs.crlRange() );
+    tks_.step = step;
+    arrinfo_ = Array2DInfoImpl( tks_.nrInl(), tks_.nrCrl() );
 }
 
 
 void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 {
-    BinID bid = hrg_.atIndex( inlidx, crlidx );
+    BinID bid = tks_.atIndex( inlidx, crlidx );
     BinIDValueSet::SPos pos = bidvs_.find( bid );
     if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ ) return;
 
@@ -37,7 +37,7 @@ void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
 
 float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
 {
-    BinID bid = hrg_.atIndex( inlidx, crlidx );
+    BinID bid = tks_.atIndex( inlidx, crlidx );
     BinIDValueSet::SPos pos = bidvs_.find( bid );
     if ( !pos.isValid() || bidvs_.nrVals()<targetcolidx_ )
 	return mUdf(float);

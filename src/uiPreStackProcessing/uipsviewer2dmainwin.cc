@@ -61,7 +61,7 @@ uiViewer2DMainWin::uiViewer2DMainWin( uiParent* p, const char* title )
     , control_(0)
     , seldatacalled_(this)
     , axispainter_(0)
-    , cs_(false)
+    , tkzs_(false)
     , preprocmgr_(0)
 {
     setDeleteOnClose( true );
@@ -468,8 +468,8 @@ uiComboBox*			datasetcb_;
 void uiViewer2DMainWin::setGatherView( uiGatherDisplay* gd,
 				       uiGatherDisplayInfoHeader* gdi )
 {
-    const Interval<double> zrg( cs_.zrg.start, cs_.zrg.stop );
-    gd->setPosition( gd->getBinID(), cs_.zrg.width()==0 ? 0 : &zrg );
+    const Interval<double> zrg( tkzs_.zsamp_.start, tkzs_.zsamp_.stop );
+    gd->setPosition( gd->getBinID(), tkzs_.zsamp_.width()==0 ? 0 : &zrg );
     gd->updateViewRange();
     uiFlatViewer* fv = gd->getUiFlatViewer();
     gd->displayAnnotation( false );
@@ -548,7 +548,7 @@ void uiViewer2DMainWin::posDlgPushed( CallBacker* )
     {
 	BufferStringSet gathernms;
 	getGatherNames( gathernms );
-	posdlg_ = new uiViewer2DPosDlg( this, is2D(), cs_, gathernms,
+	posdlg_ = new uiViewer2DPosDlg( this, is2D(), tkzs_, gathernms,
 					!isStored() );
 	posdlg_->okpushed_.notify( mCB(this,uiViewer2DMainWin,posDlgChgCB) );
 	posdlg_->windowClosed.notify( mCB(this,uiViewer2DMainWin,posDlgClosed));
@@ -643,27 +643,27 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 {
     mids_ += mid;
     linename_ = linename;
-    cs_.zrg = SI().zRange(true);
+    tkzs_.zsamp_ = SI().zRange(true);
 
     if ( is2d_ )
     {
-	cs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
-	cs_.hrg.setCrlRange( trcrg );
+	tkzs_.hrg.setInlRange( Interval<int>( 1, 1 ) );
+	tkzs_.hrg.setCrlRange( trcrg );
     }
     else
     {
 	if ( isinl )
 	{
-	    cs_.hrg.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
-	    cs_.hrg.setCrlRange( trcrg );
+	    tkzs_.hrg.setInlRange( Interval<int>( bid.inl(), bid.inl() ) );
+	    tkzs_.hrg.setCrlRange( trcrg );
 	}
 	else
 	{
-	    cs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
-	    cs_.hrg.setInlRange( trcrg );
+	    tkzs_.hrg.setCrlRange( Interval<int>( bid.crl(), bid.crl() ) );
+	    tkzs_.hrg.setInlRange( trcrg );
 	}
 
-	slicepos_->setTrcKeyZSampling( cs_ );
+	slicepos_->setTrcKeyZSampling( tkzs_ );
     }
 
     setUpNewPositions( isinl, bid, trcrg );
@@ -673,8 +673,8 @@ void uiStoredViewer2DMainWin::init( const MultiID& mid, const BinID& bid,
 
 void uiStoredViewer2DMainWin::setUpNewSlicePositions()
 {
-    const bool isinl = is2d_ || cs_.defaultDir()==TrcKeyZSampling::Inl;
-    const int newpos = isinl ? cs_.hrg.start.inl() : cs_.hrg.start.crl();
+    const bool isinl = is2d_ || tkzs_.defaultDir()==TrcKeyZSampling::Inl;
+    const int newpos = isinl ? tkzs_.hrg.start.inl() : tkzs_.hrg.start.crl();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
     {
@@ -757,7 +757,7 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, cs_.defaultDir()==TrcKeyZSampling::Inl, is2d_, nm);
+    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl, is2d_, nm);
 }
 
 
@@ -765,7 +765,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 {
     if ( posdlg_ )
     {
-	posdlg_->getTrcKeyZSampling( cs_ );
+	posdlg_->getTrcKeyZSampling( tkzs_ );
 	posdlg_->getSelGatherInfos( gatherinfos_ );
 	BufferStringSet gathernms;
 
@@ -783,7 +783,7 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
     }
 
     if ( slicepos_ )
-	slicepos_->setTrcKeyZSampling( cs_ );
+	slicepos_->setTrcKeyZSampling( tkzs_ );
 
     setUpView();
 }
@@ -792,9 +792,9 @@ void uiStoredViewer2DMainWin::posDlgChgCB( CallBacker* )
 void uiStoredViewer2DMainWin::posSlcChgCB( CallBacker* )
 {
     if ( slicepos_ )
-	cs_ = slicepos_->getTrcKeyZSampling();
+	tkzs_ = slicepos_->getTrcKeyZSampling();
     if ( posdlg_ )
-	posdlg_->setTrcKeyZSampling( cs_ );
+	posdlg_->setTrcKeyZSampling( tkzs_ );
 
     setUpNewSlicePositions();
     setUpNewIDs();
@@ -1118,7 +1118,7 @@ void uiSyntheticViewer2DMainWin::posDlgChgCB( CallBacker* )
     if ( posdlg_ )
     {
 	TypeSet<GatherInfo> gatherinfos;
-	posdlg_->getTrcKeyZSampling( cs_ );
+	posdlg_->getTrcKeyZSampling( tkzs_ );
 	posdlg_->getSelGatherInfos( gatherinfos );
 	for ( int idx=0; idx<gatherinfos_.size(); idx++ )
 	    gatherinfos_[idx].isselected_ = false;
@@ -1155,7 +1155,7 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	oldgathernms.addIfNew( gatherinfos_[idx].gathernm_ );
     gatherinfos_ = dps;
     StepInterval<int> trcrg( mUdf(int), -mUdf(int), 1 );
-    cs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
+    tkzs_.hrg.setInlRange( StepInterval<int>(gatherinfos_[0].bid_.inl(),
 					   gatherinfos_[0].bid_.inl(),1) );
     BufferStringSet newgathernms;
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
@@ -1183,8 +1183,8 @@ void uiSyntheticViewer2DMainWin::setGathers( const TypeSet<GatherInfo>& dps,
 	}
     }
 
-    cs_.hrg.setCrlRange( trcrg );
-    cs_.zrg.set( mUdf(float), -mUdf(float), SI().zStep() );
+    tkzs_.hrg.setCrlRange( trcrg );
+    tkzs_.zsamp_.set( mUdf(float), -mUdf(float), SI().zStep() );
     setUpView();
     reSizeSld(0);
 }
@@ -1206,7 +1206,7 @@ void uiSyntheticViewer2DMainWin::setGather( const GatherInfo& ginfo )
     }
 
     if ( !posdlg_ )
-	cs_.zrg.include( wvagather ? wvagather->zRange()
+	tkzs_.zsamp_.include( wvagather ? wvagather->zRange()
 				   : vdgather->zRange(), false );
     DataPack::ID ppgatherid = -1;
     if ( preprocmgr_ && preprocmgr_->nrProcessors() )

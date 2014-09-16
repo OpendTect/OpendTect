@@ -401,7 +401,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
     if ( !emobject_.isAtEdge(pid) )	return false;
 
     const Coord3& pos = emobject_.getPos(pid);
-    if ( !engine().activeVolume().zrg.includes(pos.z,false) )	return false;
+    if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )	return false;
     const BinID bid = SI().transform(pos);
     if ( !engine().activeVolume().hrg.includes(bid) )	return false;
 

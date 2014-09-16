@@ -884,10 +884,10 @@ void PolygonBodyDisplay::otherObjectsMoved(
 	    b10 = b11;
 	}
 
-	const Coord3 c00( SI().transform(b00),cs.zrg.start );
-	const Coord3 c01( SI().transform(b01),cs.zrg.stop );
-	const Coord3 c11( SI().transform(b11),cs.zrg.stop );
-	const Coord3 c10( SI().transform(b10),cs.zrg.start );
+	const Coord3 c00( SI().transform(b00),cs.zsamp_.start );
+	const Coord3 c01( SI().transform(b01),cs.zsamp_.stop );
+	const Coord3 c11( SI().transform(b11),cs.zsamp_.stop );
+	const Coord3 c10( SI().transform(b10),cs.zsamp_.start );
 
 	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
 

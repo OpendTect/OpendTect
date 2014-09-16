@@ -40,7 +40,7 @@ public:
 
     Array3D<float>*		arr_;
     float			threshold_;//Any value below threshold is inside
-    TrcKeyZSampling		cs_; //has same size as arr_
+    TrcKeyZSampling		tkzs_; //has same size as arr_
 };
 
 

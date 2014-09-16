@@ -54,7 +54,7 @@ DataHolder::DataHolder()
 	, dcdata_( 0 )
 	, d2dhdata_( 0 )
 { 
-    cs_.setEmpty(); 
+    tkzs_.setEmpty();
 }
 
 
@@ -159,7 +159,7 @@ void Engine::setActiveVolume( const TrcKeyZSampling& nav )
     if ( trackplane_.boundingBox().hrg.start.crl()==
 	 trackplane_.boundingBox().hrg.stop.crl() )
 	dim = 1;
-    else if ( !trackplane_.boundingBox().zrg.width() )
+    else if ( !trackplane_.boundingBox().zsamp_.width() )
 	dim = 2;
 
     TrackPlane ntp;
@@ -175,7 +175,7 @@ void Engine::setActiveVolume( const TrcKeyZSampling& nav )
 	    SI().crlRange(true).snap(
 		(ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
     else
-	ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(ncs.zrg.center());
+	ncs.zsamp_.start = ncs.zsamp_.stop = SI().zRange(true).snap(ncs.zsamp_.center());
 
     ntp.setTrackMode( trackPlane().getTrackMode() );
     setTrackPlane( ntp, false );
@@ -296,7 +296,7 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 	    if ( trackplane_.boundingBox().hrg.start.crl()==
 		 trackplane_.boundingBox().hrg.stop.crl() )
 		dim = 1;
-	    else if ( !trackplane_.boundingBox().zrg.width() )
+	    else if ( !trackplane_.boundingBox().zsamp_.width() )
 		dim = 2;
 
 	    TrackPlane ntp;
@@ -312,8 +312,8 @@ void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector,
 		    SI().crlRange(true).snap(
 			    (ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
 	    else
-		ncs.zrg.start = ncs.zrg.stop = SI().zRange(true).snap(
-							ncs.zrg.center());
+		ncs.zsamp_.start = ncs.zsamp_.stop = SI().zRange(true).snap(
+							ncs.zsamp_.center());
 	    ntp.setTrackMode( trackPlane().getTrackMode() );
 	    setTrackPlane( ntp, false );
 	    //setActiveVolume( emobj->getRemovedPolySelectedPosBox() );
@@ -673,7 +673,7 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 
     TrcKeyZSampling cachedcs = cache->getTrcKeyZSampling();
     const float zrgeps = 0.01f * SI().zStep();
-    cachedcs.zrg.widen( zrgeps );
+    cachedcs.zsamp_.widen( zrgeps );
 
     return cachedcs.includes( cs );
 }
@@ -828,12 +828,12 @@ TrcKeyZSampling Engine::getDefaultActiveVolume()
 			5*SI().inlRange(true).stop)/8;
     cs.hrg.stop.crl() =(3*SI().crlRange(true).start+
 			5*SI().crlRange(true).stop)/8;
-    cs.zrg.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
-    cs.zrg.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
+    cs.zsamp_.start = (5*SI().zRange(true).start+3*SI().zRange(true).stop)/ 8;
+    cs.zsamp_.stop = (3*SI().zRange(true).start+5*SI().zRange(true).stop)/8;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    float z0 = SI().zRange(true).snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
     return cs;
 }
 

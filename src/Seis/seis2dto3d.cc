@@ -48,7 +48,7 @@ Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating a 3D cube from a 2DDataSet")
     , ds_(0)
     , outioobj_(0)
-    , cs_(true)
+    , tkzs_(true)
     , read_(false)
     , seisbuf_(*new SeisTrcBuf(false))
     , nrdone_(0)
@@ -93,7 +93,7 @@ bool Seis2DTo3D::usePar( const IOPar& pars )
 	crlstep_ = step.stop;
 	parampars->getYN( sKeyReUse(), reusetrcs_ );
 	parampars->get( sKeyMaxVel(), maxvel_ );
-	cs_.hrg.step = BinID( inlstep_, crlstep_ );
+	tkzs_.hrg.step = BinID( inlstep_, crlstep_ );
     }
 
     return true;
@@ -122,7 +122,7 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
     if ( !sampling )
 	mErrRet( tr("No volume processing area found") )
 
-    cs_.usePar( *sampling );
+    tkzs_.usePar( *sampling );
 
     return true;
 }
@@ -157,10 +157,10 @@ bool Seis2DTo3D::read()
     if ( lnms.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
-    Interval<int> inlrg( cs_.hrg.inlRange().start - inlstep_,
-			 cs_.hrg.inlRange().stop + inlstep_ );
-    Interval<int> crlrg( cs_.hrg.crlRange().start - crlstep_,
-			 cs_.hrg.crlRange().stop + crlstep_ );
+    Interval<int> inlrg( tkzs_.hrg.inlRange().start - inlstep_,
+			 tkzs_.hrg.inlRange().stop + inlstep_ );
+    Interval<int> crlrg( tkzs_.hrg.crlRange().start - crlstep_,
+			 tkzs_.hrg.crlRange().stop + crlstep_ );
     SeisTrcBuf tmpbuf(false);
     for ( int iline=0; iline<lnms.size(); iline++)
     {
@@ -179,13 +179,13 @@ bool Seis2DTo3D::read()
 		continue;
 
 	    SeisTrc* trc = new SeisTrc( intrc );
-	    const int ns = cs_.zrg.nrSteps() + 1;
+	    const int ns = tkzs_.zsamp_.nrSteps() + 1;
 	    trc->reSize( ns, false );
-	    trc->info().sampling.start = cs_.zrg.start;
-	    trc->info().sampling.step = cs_.zrg.step;
+	    trc->info().sampling.start = tkzs_.zsamp_.start;
+	    trc->info().sampling.step = tkzs_.zsamp_.step;
 	    for ( int isamp=0; isamp<ns; isamp++ )
 	    {
-		const float z = cs_.zrg.atIndex( isamp );
+		const float z = tkzs_.zsamp_.atIndex( isamp );
 		for ( int icomp=0; icomp<intrc.nrComponents(); icomp++ )
 		    trc->set( isamp, intrc.getValue(z,icomp), icomp );
 	    }
@@ -198,7 +198,7 @@ bool Seis2DTo3D::read()
     if ( seisbuf_.isEmpty() )
 	return true;
 
-    hsit_.setSampling( cs_.hrg );
+    hsit_.setSampling( tkzs_.hrg );
 
    delete ds_;
     if ( !nearesttrace_ )
@@ -322,7 +322,7 @@ bool Seis2DTo3D::doWorkFFT()
     Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
-    TrcKeySampling winhrg; winhrg.set( cs_.hrg.inlRange(), cs_.hrg.crlRange() );
+    TrcKeySampling winhrg; winhrg.set( tkzs_.hrg.inlRange(), tkzs_.hrg.crlRange() );
     winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
@@ -393,7 +393,7 @@ bool Seis2DTo3D::writeTmpTrcs()
 
 od_int64 Seis2DTo3D::totalNr() const
 {
-    return cs_.hrg.totalNr();
+    return tkzs_.hrg.totalNr();
 }
 
 

@@ -618,7 +618,7 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
 	cs.hrg.stop.crl() =
 	    trcdisplayinfo_.alltrcnrs_[trcdisplayinfo_.rg_.stop];
 	cs.hrg.step.crl() = 1;
-	assign( cs.zrg, trcdisplayinfo_.zrg_ );
+	assign( cs.zsamp_, trcdisplayinfo_.zrg_ );
 	// use survey step here?
 	if ( voiidx_ < 0 )
 	    voiidx_ = datatransform_->addVolumeOfInterest2D(

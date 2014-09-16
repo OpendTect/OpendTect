@@ -125,7 +125,7 @@ void uiSlicePos::slicePosChanged( uiSlicePos::SliceDir orientation,
     else if ( orientation == OD::CrosslineSlice )
 	curcs_.hrg.start.crl() = curcs_.hrg.stop.crl() = posbox->getValue();
     else
-	curcs_.zrg.start = curcs_.zrg.stop = (float)posbox->getValue()/zfactor_;
+	curcs_.zsamp_.start = curcs_.zsamp_.stop = (float)posbox->getValue()/zfactor_;
 
     if ( oldcs == curcs_ )
 	return;
@@ -168,10 +168,10 @@ void uiSlicePos::setBoxRg( uiSlicePos::SliceDir orientation,
     else
     {
 	const int zfac = zfactor_;
-	posbox->setInterval( survcs.zrg.start*zfac, survcs.zrg.stop*zfac);
-	stepbox->setInterval( survcs.zrg.step*zfac,
-			      (survcs.zrg.stop-survcs.zrg.start)*zfac,
-			      survcs.zrg.step*zfac );
+	posbox->setInterval( survcs.zsamp_.start*zfac, survcs.zsamp_.stop*zfac);
+	stepbox->setInterval( survcs.zsamp_.step*zfac,
+			      (survcs.zsamp_.stop-survcs.zsamp_.start)*zfac,
+			      survcs.zsamp_.step*zfac );
     }
 }
 
@@ -187,7 +187,7 @@ void uiSlicePos::setPosBoxVal( uiSlicePos::SliceDir orientation,
     else if ( orientation == OD::CrosslineSlice )
 	posbox->setValue( cs.hrg.start.crl() );
     else
-	posbox->setValue( cs.zrg.start*zfactor_ );
+	posbox->setValue( cs.zsamp_.start*zfactor_ );
 }
 
 

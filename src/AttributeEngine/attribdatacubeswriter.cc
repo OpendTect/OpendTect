@@ -25,7 +25,7 @@ DataCubesWriter::DataCubesWriter( const MultiID& mid,
 				  const TypeSet<int>& cubeindices )
     : Executor( "Attribute volume writer" )
     , nrdone_( 0 )
-    , hrg_( dc.cubeSampling().hrg )
+    , tks_( dc.cubeSampling().hrg )
     , zrg_( dc.z0_, dc.z0_+dc.getZSz()-1 )
     , totalnr_( (int) dc.cubeSampling().hrg.totalNr() )
     , cube_( dc )
@@ -55,7 +55,7 @@ void DataCubesWriter::setSelection( const TrcKeySampling& hrg,
 				    const Interval<int>& zrg )
 {
     zrg_ = zrg;
-    hrg_ = hrg;
+    tks_ = hrg;
 
     iterator_.setSampling( hrg );
     totalnr_ = (int) hrg.totalNr();

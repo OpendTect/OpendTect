@@ -51,7 +51,7 @@ protected:
     const char*		attrnm_;
     int                 nrdone_;
     int			radius_;
-    TrcKeyZSampling*	cs_;
+    TrcKeyZSampling*	tkzs_;
     TypeSet<BinID>	bidset_;
     SeisTrc*		outtrc_;
     SeisTrcBuf*		trcbuf_;

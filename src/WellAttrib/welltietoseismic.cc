@@ -107,7 +107,7 @@ bool DataPlayer::extractSeismics()
     TrcKeyZSampling cs;
     oinf.getRanges( cs );
     const StepInterval<float> tracerg = data_.getTraceRange();
-    StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zrg.step );
+    StepInterval<float> seisrg( tracerg.start, tracerg.stop, cs.zsamp_.step );
 
     Well::SimpleTrackSampler wtextr( data_.wd_->track(), data_.wd_->d2TModel(),
 				     true, false );

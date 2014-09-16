@@ -63,7 +63,7 @@ public:
 
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
-    const TrcKeyZSampling&	cubeSampling() const	{ return cs_; }
+    const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
     Pos::GeomID		getGeomID() const	{ return geomid_; }
     float		undefValue() const	{ return udfval_; }
 
@@ -123,7 +123,7 @@ protected:
 
     const DescSet*	inpattrset_;
     const NLAModel*	nlamodel_;
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
     const DataCubes*	cache_;
     float		udfval_;
     Pos::GeomID		geomid_;

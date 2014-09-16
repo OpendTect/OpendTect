@@ -114,7 +114,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, TrcKeyZSampling& cs,
     if ( errmsg && *errmsg )
     {	mShowErr( errmsg ); return false; }
 
-    cs.zrg = scanner->zRange();
+    cs.zsamp_ = scanner->zRange();
     const SEGYSeisTrcTranslator* tr = scanner->translator();
     xyinft_ = tr && tr->binHeader().isInFeet();
     return true;

@@ -56,7 +56,7 @@ HorizonPainter2D::~HorizonPainter2D()
 
 void HorizonPainter2D::setTrcKeyZSampling( const TrcKeyZSampling& cs, bool update )
 {
-    cs_ = cs;
+    tkzs_ = cs;
 }
 
 
@@ -105,7 +105,7 @@ bool HorizonPainter2D::addPolyLine()
 	bool coorddefined = true;
 
 	Marker2D* marker = 0;
-	TrcKeySamplingIterator iter( cs_.hrg );
+	TrcKeySamplingIterator iter( tkzs_.hrg );
 	BinID bid;
 
 	while ( iter.next(bid) )

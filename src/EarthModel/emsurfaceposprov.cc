@@ -564,7 +564,7 @@ void EMSurface2DProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 
 EMImplicitBodyProvider::EMImplicitBodyProvider()
-    : cs_( true )
+    : tkzs_( true )
     , imparr_( 0 )     
     , threshold_( 0 )		      
     , embody_( 0 )
@@ -576,7 +576,7 @@ EMImplicitBodyProvider::EMImplicitBodyProvider()
 
 EMImplicitBodyProvider::EMImplicitBodyProvider( 
 	const EMImplicitBodyProvider& ep )
-    : cs_( ep.cs_ )
+    : tkzs_( ep.tkzs_ )
     , imparr_( ep.imparr_ )      
     , threshold_( ep.threshold_ )		       
     , embody_( ep.embody_ )						       
@@ -614,7 +614,7 @@ EMImplicitBodyProvider& EMImplicitBodyProvider::operator = (
     {
 	useinside_ = ep.useinside_;
 	embody_ = ep.embody_;
-	cs_ = ep.cs_;
+	tkzs_ = ep.tkzs_;
 	bbox_ = ep.bbox_;
 	threshold_ = ep.threshold_;
 	mCopyImpArr( ep.imparr_ );
@@ -626,7 +626,7 @@ EMImplicitBodyProvider& EMImplicitBodyProvider::operator = (
 
 
 void EMImplicitBodyProvider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
-{ cs = useinside_ ? cs_ : bbox_; }
+{ cs = useinside_ ? tkzs_ : bbox_; }
 
 
 bool EMImplicitBodyProvider::initialize( TaskRunner* tr )
@@ -642,11 +642,11 @@ bool EMImplicitBodyProvider::initialize( TaskRunner* tr )
     }
 
     mCopyImpArr( body->arr_ );
-    cs_ = body->cs_;
+    tkzs_ = body->tkzs_;
     threshold_ = body->threshold_;
     
-    curbid_ = cs_.hrg.start;
-    curz_ = cs_.zrg.start;
+    curbid_ = tkzs_.hrg.start;
+    curz_ = tkzs_.zsamp_.start;
 
     initializedbody_ = true;
     return imparr_;
@@ -679,7 +679,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     if ( embody_ ) embody_->unRefBody();
     embody_ = emb;
     embody_->refBody();
-    embody_->getBodyRange( cs_ );
+    embody_->getBodyRange( tkzs_ );
 
     iop.getYN( sKeyUseInside(), useinside_ );
 
@@ -689,7 +689,7 @@ void EMImplicitBodyProvider::usePar( const IOPar& iop )
     iop.get( sKeyBBCrlrg(), crlrg ); 
     iop.get( sKeyBBZrg(), zrg ); 
     bbox_.hrg.set( inlrg, crlrg ); 
-    bbox_.zrg.setFrom( zrg );
+    bbox_.zsamp_.setFrom( zrg );
 
     initializedbody_ = false;
 }
@@ -703,7 +703,7 @@ void EMImplicitBodyProvider::fillPar( IOPar& iop ) const
     {
 	iop.set( sKeyBBInlrg(), bbox_.hrg.inlRange() ); 
 	iop.set( sKeyBBCrlrg(), bbox_.hrg.crlRange() ); 
-	iop.set( sKeyBBZrg(), bbox_.zrg ); 
+	iop.set( sKeyBBZrg(), bbox_.zsamp_ );
     }
 }
 
@@ -737,8 +737,8 @@ void EMImplicitBodyProvider::getSummary( BufferString& txt ) const
 	txt += bbox_.hrg.stop.inl(); txt += " ), Crossline( ";
 	txt += bbox_.hrg.start.crl(); txt += ", ";
 	txt += bbox_.hrg.stop.crl(); txt += " ), Z( ";
-	txt += bbox_.zrg.start; txt += ", ";
-	txt += bbox_.zrg.stop; txt += " ).";
+	txt += bbox_.zsamp_.start; txt += ", ";
+	txt += bbox_.zsamp_.stop; txt += " ).";
     }
 }
 
@@ -751,14 +751,14 @@ void EMImplicitBodyProvider::getExtent( BinID& start, BinID& stop ) const
 	return;
     }
 
-    const TrcKeyZSampling& cs = useinside_ ? cs_ : bbox_;
+    const TrcKeyZSampling& cs = useinside_ ? tkzs_ : bbox_;
     start = cs.hrg.start;
     stop = cs.hrg.stop;
 }
 
 
 void EMImplicitBodyProvider::getZRange( Interval<float>& zrg ) const
-{ zrg = useinside_ ? cs_.zrg : bbox_.zrg; }
+{ zrg = useinside_ ? tkzs_.zsamp_ : bbox_.zsamp_; }
 
 
 bool EMImplicitBodyProvider::includes( const Coord& c, float z ) const
@@ -767,15 +767,15 @@ bool EMImplicitBodyProvider::includes( const Coord& c, float z ) const
 
 bool EMImplicitBodyProvider::includes( const BinID& bid, float z ) const
 {
-    const TrcKeyZSampling& bb = useinside_ ? cs_ : bbox_;
+    const TrcKeyZSampling& bb = useinside_ ? tkzs_ : bbox_;
     if ( mIsUdf(z) ) return bb.hrg.includes(bid);
 
-    if ( !isOK() || !bb.hrg.includes(bid) || !bb.zrg.includes(z,false) ) 
+    if ( !isOK() || !bb.hrg.includes(bid) || !bb.zsamp_.includes(z,false) )
 	return false;
 
-    const int inlidx = cs_.inlIdx(bid.inl());
-    const int crlidx = cs_.crlIdx(bid.crl());
-    const int zidx = cs_.zIdx(z);
+    const int inlidx = tkzs_.inlIdx(bid.inl());
+    const int crlidx = tkzs_.crlIdx(bid.crl());
+    const int zidx = tkzs_.zIdx(z);
     const bool inbody = imparr_->info().validPos(inlidx,crlidx,zidx) &&
 	imparr_->get(inlidx,crlidx,zidx)<=threshold_;
 

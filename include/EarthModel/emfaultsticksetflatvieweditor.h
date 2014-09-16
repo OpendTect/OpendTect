@@ -37,7 +37,7 @@ public:
     virtual void	drawFault() =0;    
 
 protected:
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
 };
 } //namespace EM
 

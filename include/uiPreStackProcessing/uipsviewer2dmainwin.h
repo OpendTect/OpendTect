@@ -79,7 +79,7 @@ protected:
     TypeSet<int> 	dpids_;
     ObjectSet<PreStack::MuteDef> mutes_;
     TypeSet<Color>	mutecolors_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     uiViewer2DPosDlg* 	posdlg_;
     uiViewer2DControl*	control_;
     uiObjectItemViewAxisPainter* axispainter_;

@@ -486,7 +486,7 @@ bool initNextLine()
 	return false;
 
     sd_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
-    sd_.cubeSampling().zrg = zrgs_[lineidx_];
+    sd_.cubeSampling().zsamp_ = zrgs_[lineidx_];
     sd_.setGeomID( selgeomids_[lineidx_] );
     rdr_->setSelData( sd_.clone() );
     Seis::SelData* wrrsd = sd_.clone();

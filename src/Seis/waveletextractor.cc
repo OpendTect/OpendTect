@@ -63,7 +63,7 @@ void WaveletExtractor::initWavelet( const IOObj& ioobj )
     PtrMan<SeisIOObjInfo> si = new SeisIOObjInfo( ioobj );
     si->getRanges( cs );
     wvlt_.reSize( wvltsize_ );
-    wvlt_.setSampleRate( cs.zrg.step );
+    wvlt_.setSampleRate( cs.zsamp_.step );
     wvlt_.setCenterSample( wvltsize_/2 );
     for ( int samp=0; samp<wvltsize_; samp++ )
 	wvlt_.samples()[samp] = 0;

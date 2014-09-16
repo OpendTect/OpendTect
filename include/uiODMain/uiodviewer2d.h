@@ -131,7 +131,7 @@ protected:
     ZAxisTransform*		datatransform_;
 
     Pos::GeomID 		geomid_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
 
     int				polyseltbid_;
     bool			ispolyselect_;

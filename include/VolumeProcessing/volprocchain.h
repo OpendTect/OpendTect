@@ -128,7 +128,7 @@ protected:
     BufferString			username_;
     ID					id_;
 
-    TrcKeySampling				hrg_;
+    TrcKeySampling				tks_;
     StepInterval<int>			zrg_;
     TypeSet<OutputSlotID>		outputslotids_; // enabled slotids
 

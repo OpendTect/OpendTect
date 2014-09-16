@@ -99,7 +99,7 @@ public:
     virtual void		removeObject(int idx);
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
-    const TrcKeyZSampling&		getTrcKeyZSampling() const		{ return cs_; }
+    const TrcKeyZSampling&		getTrcKeyZSampling() const		{ return tkzs_; }
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -236,7 +236,7 @@ protected:
     float			zscale_;
 
     bool			userwantsshading_; //from settings
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 
     bool			ctshownusepar_;

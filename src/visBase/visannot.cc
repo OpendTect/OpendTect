@@ -122,7 +122,7 @@ void Annotation::setDisplayTransformation(const visBase::Transformation* tr)
     displaytrans_ = tr;
     if ( displaytrans_ ) displaytrans_->ref();
 
-    setTrcKeyZSampling( cs_ );
+    setTrcKeyZSampling( tkzs_ );
 }
 
 
@@ -177,8 +177,8 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
     scale.hrg.start.crl() = crlal.sd_.start;
     scale.hrg.step.crl() = crlal.sd_.step;
 
-    const AxisLayout<float> zal( (Interval<float>)cs.zrg );
-    scale.zrg.start = zal.sd_.start; scale.zrg.step = zal.sd_.step;
+    const AxisLayout<float> zal( (Interval<float>)cs.zsamp_ );
+    scale.zsamp_.start = zal.sd_.start; scale.zsamp_.step = zal.sd_.step;
 
     return scale;
 }
@@ -186,10 +186,10 @@ static TrcKeyZSampling getDefaultScale( const TrcKeyZSampling& cs )
 
 void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     const Interval<int> inlrg = cs.hrg.inlRange();
     const Interval<int> crlrg = cs.hrg.crlRange();
-    const Interval<float>& zrg = cs.zrg;
+    const Interval<float>& zrg = cs.zsamp_;
 
     setCorner( 0, inlrg.start, crlrg.start, zrg.start );
     setCorner( 1, inlrg.stop, crlrg.start, zrg.start );
@@ -210,7 +210,7 @@ void Annotation::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 
 
 const TrcKeyZSampling& Annotation::getTrcKeyZSampling() const
-{ return cs_; }
+{ return tkzs_; }
 
 
 void Annotation::setScale( const TrcKeyZSampling& cs )
@@ -327,7 +327,7 @@ void Annotation::updateGridLines()
 	Interval<float> range( p0[dim], p1[dim] );
 
 	const TrcKeyZSampling usedscale =
-	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
+	    scale_.isEmpty() ? getDefaultScale( tkzs_ ) : scale_;
 	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 
 	const int* psindexes = psindexarr[dim];
@@ -432,7 +432,7 @@ void Annotation::updateTextPos()
 	Interval<float> range( p0[dim], p1[dim] );
 
 	const TrcKeyZSampling usedscale =
-	    scale_.isEmpty() ? getDefaultScale( cs_ ) : scale_;
+	    scale_.isEmpty() ? getDefaultScale( tkzs_ ) : scale_;
 	const SamplingData<float> sd = getAxisSD( usedscale, dim );
 
 	for ( int idx=0; ; idx++ )

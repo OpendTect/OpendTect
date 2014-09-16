@@ -216,7 +216,7 @@ bool CBVSInfo::contributesTo( const TrcKeyZSampling& cs ) const
 	return false;
 
     float zend = sd_.start + (nrsamples_-1) * sd_.step;
-    if ( sd_.start > cs.zrg.stop+1e-7 || zend < cs.zrg.start-1e-7 )
+    if ( sd_.start > cs.zsamp_.stop+1e-7 || zend < cs.zsamp_.start-1e-7 )
 	return false;
 
     return true;

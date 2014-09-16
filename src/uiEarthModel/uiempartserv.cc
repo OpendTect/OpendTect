@@ -1024,12 +1024,12 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	    BinID bid = BinID::fromInt64( pid.subID() );
 	    if ( cs )
 	    {
-		if ( !cs->hrg.includes(bid) )
+		if ( !cs->hsamp_.includes(bid) )
 		    continue;
 
-		BinID diff = bid - cs->hrg.start;
-		if ( diff.inl() % cs->hrg.step.inl() ||
-		     diff.crl() % cs->hrg.step.crl() )
+		BinID diff = bid - cs->hsamp_.start_;
+		if ( diff.inl() % cs->hsamp_.step_.inl() ||
+		     diff.crl() % cs->hsamp_.step_.crl() )
 		    continue;
 	    }
 

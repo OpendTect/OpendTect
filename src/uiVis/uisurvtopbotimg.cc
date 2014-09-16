@@ -160,11 +160,11 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
     setCtrlStyle( CloseOnly );
 
     topfld_ = new uiSurvTopBotImageGrp( this, true,
-					scene_->getTrcKeyZSampling().zrg );
+					scene_->getTrcKeyZSampling().zsamp_ );
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, topfld_ );
     botfld_ = new uiSurvTopBotImageGrp( this, false,
-					scene_->getTrcKeyZSampling().zrg );
+					scene_->getTrcKeyZSampling().zsamp_ );
     botfld_->attach( alignedBelow, topfld_ );
     botfld_->attach( ensureBelow, sep );
 }

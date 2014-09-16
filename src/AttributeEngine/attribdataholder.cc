@@ -234,9 +234,9 @@ TrcKeyZSampling Data2DHolder::getTrcKeyZSampling() const
     res.hrg.stop = BinID( 0, trcrange.stop );
     res.hrg.step = BinID( 1, trcrange.step );
 
-    res.zrg.start = zrange.start*zstep;
-    res.zrg.stop = zrange.stop*zstep;
-    res.zrg.step = zstep;
+    res.zsamp_.start = zrange.start*zstep;
+    res.zsamp_.stop = zrange.stop*zstep;
+    res.zsamp_.step = zstep;
 
     return res;
 }
@@ -276,7 +276,7 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	    continue;
 
 	const int trcidx = trcrange.nearestIndex( trcinfoset_[idx]->nr );
-	const int zpos = dataset_[idx]->z0_ - mNINT32(cs.zrg.start/cs.zrg.step);
+	const int zpos = dataset_[idx]->z0_ - mNINT32(cs.zsamp_.start/cs.zsamp_.step);
 	if ( arrptr )
 	{
 	    const od_int64 offset = array.info().getOffset( 0, trcidx, zpos );

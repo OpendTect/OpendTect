@@ -128,11 +128,11 @@ void Processor::useFullProcess( int& res )
 	{
 	    const BinID step = provider_->getStepoutStep();
 	    firstpos.inl() = step.inl()/abs(step.inl())>0 ? 
-			   provider_->getDesiredVolume()->hrg.start.inl() : 
-			   provider_->getDesiredVolume()->hrg.stop.inl();
+			   provider_->getDesiredVolume()->hsamp_.start_.inl() :	
+			   provider_->getDesiredVolume()->hsamp_.stop.inl();
 	    firstpos.crl() = step.crl()/abs(step.crl())>0 ?
-			   provider_->getDesiredVolume()->hrg.start.crl() :
-			   provider_->getDesiredVolume()->hrg.stop.crl();
+			   provider_->getDesiredVolume()->hsamp_.start_.crl() :
+			   provider_->getDesiredVolume()->hsamp_.stop.crl();
 	}
 	provider_->resetMoved();
 	res = provider_->moveToNextTrace( firstpos, true );
@@ -302,7 +302,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	TrcKeyZSampling cs;
-	cs.zrg.start = 0;    //cover up for synthetics
+	cs.zsamp_.start = 0;	//cover up for synthetics
 	if ( !outputs_[idx]->getDesiredVolume(cs) )
 	{
 	    outputs_[idx]->unRef();
@@ -317,7 +317,7 @@ void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 	{
 	    globalcs.hrg.include(cs.hrg.start);
 	    globalcs.hrg.include(cs.hrg.stop);
-	    globalcs.zrg.include(cs.zrg);
+	    globalcs.zsamp_.include(cs.zrg);
 	}
 
 	for ( int idy=0; idy<outpinterest_.size(); idy++ )

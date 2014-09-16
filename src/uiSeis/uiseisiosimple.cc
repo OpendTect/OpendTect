@@ -532,7 +532,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( !subselfld_->isAll() )
 	{
 	    TrcKeyZSampling cs;
-	    subselfld_->getSampling( cs.hrg ); subselfld_->getZRange( cs.zrg );
+	    subselfld_->getSampling( cs.hrg ); subselfld_->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
     }

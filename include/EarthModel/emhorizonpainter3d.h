@@ -79,7 +79,7 @@ protected:
     void		changePolyLinePosition( const EM::PosID& pid );
 
     EM::ObjectID        id_;
-    TrcKeyZSampling        cs_;
+    TrcKeyZSampling        tkzs_;
     const TypeSet<BinID>* 	path_;
     const FlatPosData*	flatposdata_;
 

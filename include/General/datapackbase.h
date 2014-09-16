@@ -195,8 +195,8 @@ public:
 				//!< Array2D become mine (of course)
 				~CubeDataPack();
 
-    TrcKeyZSampling&		sampling()		{ return cs_; }
-    const TrcKeyZSampling&		sampling() const	{ return cs_; }
+    TrcKeyZSampling&		sampling()		{ return tkzs_; }
+    const TrcKeyZSampling&		sampling() const	{ return tkzs_; }
     virtual void		getAuxInfo(int,int,int,IOPar&) const {}
     				//!< int,int,int = Array3D position
     Coord3			getCoord(int,int,int) const;
@@ -209,7 +209,7 @@ protected:
 				//!< For this you have to overload data()
 				//!< and the destructor
 
-    TrcKeyZSampling&		cs_;
+    TrcKeyZSampling&		tkzs_;
 
 private:
 

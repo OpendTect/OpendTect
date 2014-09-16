@@ -913,7 +913,7 @@ bool PosInfo::Survey2D::readDistBetwTrcsStats( const char* linenm,
 
 #define mSetSampling \
 const StepInterval<Pos::TraceID> trcrg = data_.trcNrRange(); \
-sampling_.zrg = data_.zRange(); \
+sampling_.zsamp_ = data_.zRange(); \
 sampling_.hrg.start_.lineNr() = sampling_.hrg.stop_.lineNr() = getID(); \
 sampling_.hrg.start_.trcNr() = trcrg.start; \
 sampling_.hrg.stop_.trcNr() = trcrg.stop; \

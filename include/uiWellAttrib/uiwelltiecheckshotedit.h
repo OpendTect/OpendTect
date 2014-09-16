@@ -80,7 +80,7 @@ protected:
 
     Well::D2TModel*		d2t_;
     Well::D2TModel*		orgd2t_;
-    Well::D2TModel*		cs_;
+    Well::D2TModel*		tkzs_;
     Well::D2TModel*		orgcs_;
     DriftCurve			driftcurve_;
     DriftCurve			newdriftcurve_;

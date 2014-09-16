@@ -161,7 +161,7 @@ bool ObjectEditor::canSnapAfterEdit(const EM::PosID& pid) const
 
 	if ( !trackvolume.hrg.includes( bid ) )
 	    return false;
-	if ( !trackvolume.zrg.includes( pos.z,false ) )
+	if ( !trackvolume.zsamp_.includes( pos.z,false ) )
 	    return false;
     }
 

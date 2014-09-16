@@ -100,8 +100,8 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     {
 	TrcKeyZSampling cs;
 	oinf.getRanges( cs );
-	if ( cs.zrg.stop > stoptime )
-	    stoptime = cs.zrg.stop;
+	if ( cs.zsamp_.stop > stoptime )
+	    stoptime = cs.zsamp_.stop;
     }
 
     tracerg_.set( 0.f, stoptime, cDefSeisSr() );

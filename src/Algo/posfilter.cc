@@ -348,7 +348,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	if ( !prov3d ) return mUdf(float);
 	TrcKeyZSampling provcs( true ); prov3d->getTrcKeyZSampling( provcs );
 	float provnr = (float) provcs.hrg.totalNr(); 
-	provnr *= provcs.zrg.nrSteps() + 1;
+	provnr *= provcs.zsamp_.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }
 }
@@ -363,14 +363,14 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 	StepInterval<int> ext; prov2d->getExtent( ext, 0 );
 	cs.hrg.start.crl() = ext.start; cs.hrg.stop.crl() = ext.stop;
 	cs.hrg.step.crl() = ext.step;
-	prov2d->getZRange( cs.zrg, 0 );
+	prov2d->getZRange( cs.zsamp_, 0 );
     }
     else
     {
 	cs = TrcKeyZSampling(true);
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,this)
 	prov3d->getExtent( cs.hrg.start, cs.hrg.stop );
-	prov3d->getZRange( cs.zrg );
+	prov3d->getZRange( cs.zsamp_ );
     }
 
 }

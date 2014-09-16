@@ -719,7 +719,7 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
     StepInterval<float> zsamp2( zsamp_ );	normaliseZ( zsamp2 );
     return intersectF( zsamp1.start, zsamp1.stop, zsamp1.step,
 		       zsamp2.start, zsamp2.stop, zsamp2.step,
-		       out.zrg.start, out.zrg.stop, out.zrg.step );
+		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
 }
     
 

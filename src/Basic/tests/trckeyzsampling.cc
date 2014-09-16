@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
     TrcKeyZSampling cs( false ); \
     cs.hrg.set( StepInterval<int>(istart,istop,istep), \
 	        StepInterval<int>(cstart,cstop,cstep) ); \
-    cs.zrg.set( zstart, zstop, zstep );
+    cs.zsamp_.set( zstart, zstop, zstep );
 
 
 #define mRetResult( funcname ) \

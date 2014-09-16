@@ -82,16 +82,16 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , wd_(*server.wd())   
     , d2tlineitm_(0)	     
     , d2t_(wd_.d2TModel())
-    , cs_(wd_.checkShotModel())
+    , tkzs_(wd_.checkShotModel())
     , orgcs_(0)
     , isedit_(false)
     , movingpointidx_(-1)  
 {
-    if ( !cs_ ) 
+    if ( !tkzs_ )
 	mErrRet( "No checkshot provided", return );
 
-    orgcs_ = new Well::D2TModel( *cs_ );
-    cs_->setName( "CheckShot Curve" );
+    orgcs_ = new Well::D2TModel( *tkzs_ );
+    tkzs_->setName( "CheckShot Curve" );
 
     newdriftcurve_.setName( "User defined Drift Curve" );
 
@@ -262,7 +262,7 @@ void uiCheckShotEdit::editCSPushed( CallBacker* )
     uiD2TModelDlg csmdlg( this, wd_, true );
     if ( csmdlg.go() )
     {
-	cs_ = wd_.checkShotModel();
+	tkzs_ = wd_.checkShotModel();
 	draw();
     }
 }
@@ -295,7 +295,7 @@ void uiCheckShotEdit::redoCB( CallBacker* )
 void uiCheckShotEdit::draw()
 {
     drawDahObj( orgd2t_, true, true );
-    drawDahObj( cs_, false, true );
+    drawDahObj( tkzs_, false, true );
     drawDrift();
 }
 
@@ -308,7 +308,7 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 					: Color::stdDrawColor(first ? 0 : 1); 
     dahdata.setData( d );
     dahdata.xrev_ = false;
-    dahdata.drawaspoints_ = d == cs_ || d == &newdriftcurve_;
+    dahdata.drawaspoints_ = d == tkzs_ || d == &newdriftcurve_;
 
     disp->reDraw();
 }
@@ -317,16 +317,16 @@ void uiCheckShotEdit::drawDahObj( const Well::DahObj* d, bool first, bool left )
 void uiCheckShotEdit::drawDrift()
 {
     const int sz1 = orgd2t_->size();
-    const int sz2 = cs_->size();
+    const int sz2 = tkzs_->size();
     int maxsz = mMAX(sz1,sz2);
-    const Well::D2TModel* longermdl = sz1 > sz2 ? orgd2t_ : cs_;
+    const Well::D2TModel* longermdl = sz1 > sz2 ? orgd2t_ : tkzs_;
 
     driftcurve_.setEmpty();
     for ( int idx=0; idx<maxsz; idx++ )
     {
 	const float dah = longermdl->dah( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
-	const float csval = cs_->getTime( dah, wd_.track() );
+	const float csval = tkzs_->getTime( dah, wd_.track() );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	driftcurve_.add( dah, drift ); 
     }
@@ -338,9 +338,9 @@ void uiCheckShotEdit::drawDrift()
 
     for ( int idx=0; idx<sz2; idx++ )
     {
-	const float dah = cs_->dah( idx );
+	const float dah = tkzs_->dah( idx );
 	const float d2tval = orgd2t_->getTime( dah, wd_.track() );
-	const float csval = cs_->value( idx );
+	const float csval = tkzs_->value( idx );
 	const float drift = SI().zDomain().userFactor()*( csval - d2tval );
 	uiWellDahDisplay::PickData pd( dah, Color::stdDrawColor( 0 ) );
 	pd.val_ = drift;

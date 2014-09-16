@@ -52,15 +52,15 @@ public:
     virtual od_int64	estNrPos() const;
     virtual int		estNrZPerPos() const;
 
-    TrcKeyZSampling&	sampling()		{ return cs_; }
-    const TrcKeyZSampling&	sampling() const	{ return cs_; }
+    TrcKeyZSampling&	sampling()		{ return tkzs_; }
+    const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
 
     virtual bool	includes( const Coord& c, float z=mUdf(float) ) const
 			{ return Pos::Provider3D::includes(c,z); }
 
 protected:
 
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
     BinID		curbid_;
     int			curzidx_;
 

@@ -140,7 +140,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	    BinID bid = SI().transform( loc.pos_ );
 	    const float zval = mCast( float, loc.pos_.z );
 	    cs.hrg.include( bid );
-	    cs.zrg.include( zval, false );
+	    cs.zsamp_.include( zval, false );
 	}
 
 	if ( set_->size() )

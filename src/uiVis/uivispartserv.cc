@@ -1366,7 +1366,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
     {
 	FileMultiString fms(res);
 	TrcKeyZSampling cs;
-	TrcKeySampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zrg;
+	TrcKeySampling& hs = cs.hrg; StepInterval<float>& zrg = cs.zsamp_;
 	hs.start.inl() = fms.getIValue(0); hs.stop.inl() = fms.getIValue(1);
 	hs.start.crl() = fms.getIValue(2); hs.stop.crl() = fms.getIValue(3);
 	zrg.start = fms.getFValue( 4 ); zrg.stop = fms.getFValue( 5 );
@@ -1446,8 +1446,8 @@ void uiVisPartServer::fillPar( IOPar& par ) const
     fms += cs.hrg.stop.inl();
     fms += cs.hrg.start.crl();
     fms += cs.hrg.stop.crl();
-    fms += cs.zrg.start;
-    fms += cs.zrg.stop;
+    fms += cs.zsamp_.start;
+    fms += cs.zsamp_.stop;
     par.set( sKeyWorkArea(), fms );
 
     for ( int idx=0; idx<scenes_.size(); idx++ )

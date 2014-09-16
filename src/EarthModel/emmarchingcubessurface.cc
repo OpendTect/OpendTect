@@ -372,9 +372,9 @@ bool MarchingCubesSurface::regenerateMCBody( TaskRunner* taskrunner )
     if ( !operator_->createImplicitBody(body,taskrunner) || !body )
 	return false;
 
-    setInlSampling( SamplingData<int>(body->cs_.hrg.inlRange()) );
-    setCrlSampling( SamplingData<int>(body->cs_.hrg.crlRange()) );
-    setZSampling( SamplingData<float>(body->cs_.zrg) );
+    setInlSampling( SamplingData<int>(body->tkzs_.hrg.inlRange()) );
+    setCrlSampling( SamplingData<int>(body->tkzs_.hrg.crlRange()) );
+    setZSampling( SamplingData<float>(body->tkzs_.zrg) );
 
     return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
 }
@@ -393,9 +393,9 @@ bool MarchingCubesSurface::getBodyRange( TrcKeyZSampling& cs )
     cs.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
 			 crlsampling_.atIndex(crlrg.stop) );
     cs.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
-    cs.zrg.start = zsampling_.atIndex( zrg.start );
-    cs.zrg.step = zsampling_.step;
-    cs.zrg.stop = zsampling_.atIndex( zrg.stop );
+    cs.zsamp_.start = zsampling_.atIndex( zrg.start );
+    cs.zsamp_.step = zsampling_.step;
+    cs.zsamp_.stop = zsampling_.atIndex( zrg.stop );
 
     return true;
 }
@@ -453,14 +453,14 @@ ImplicitBody* MarchingCubesSurface::createImplicitBody( TaskRunner* taskrunner,
     res->arr_ = arr;
     res->threshold_ = m2i.threshold();
 
-    res->cs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
+    res->tkzs_.hrg.start = BinID( inlsampling_.atIndex(inlrg.start),
 				crlsampling_.atIndex(crlrg.start) );
-    res->cs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
-    res->cs_.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
+    res->tkzs_.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
+    res->tkzs_.hrg.stop = BinID( inlsampling_.atIndex(inlrg.stop),
 				crlsampling_.atIndex(crlrg.stop) );
-    res->cs_.zrg.start = zsampling_.atIndex( zrg.start );
-    res->cs_.zrg.stop = zsampling_.atIndex( zrg.stop );
-    res->cs_.zrg.step = zsampling_.step;
+    res->tkzs_.zsamp_.start = zsampling_.atIndex( zrg.start );
+    res->tkzs_.zsamp_.stop = zsampling_.atIndex( zrg.stop );
+    res->tkzs_.zsamp_.step = zsampling_.step;
 
     return res;
 }

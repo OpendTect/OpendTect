@@ -501,7 +501,7 @@ void PSEventDisplay::updateDisplay( ParentAttachedObject* pao )
     int lastmarker = 0;
 
     pao->eventsets_.erase();
-    pao->hrg_ = cs.hrg;
+    pao->tks_ = cs.hrg;
     pao->objectgroup_->addObject( pao->markerset_ );
     pao->markerset_->setMarkerStyle( markerstyle_ );
 
@@ -693,7 +693,7 @@ void PSEventDisplay::eventChangeCB(CallBacker*)
     for ( int idx=parentattached_.size()-1; idx>=0; idx-- )
     {
 	ParentAttachedObject* pao = parentattached_[idx];
-	if ( !pao->hrg_.includes(bid) )
+	if ( !pao->tks_.includes(bid) )
 	    continue;
 
 	updateDisplay(pao);
@@ -707,7 +707,7 @@ void PSEventDisplay::eventForceReloadCB(CallBacker*)
     {
 	ParentAttachedObject* pao = parentattached_[idx];
 	deepUnRef( pao->eventsets_ );
-	TrcKeySamplingIterator iter( pao->hrg_ );
+	TrcKeySamplingIterator iter( pao->tks_ );
 
 	BinID bid;
 	while( iter.next( bid ))

@@ -92,14 +92,14 @@ void SurfaceSourceSelector::setTrackPlane( const MPE::TrackPlane& plane )
 	    		    plane.boundingBox().hrg.stop.inl() );
     Interval<int> crlrange( plane.boundingBox().hrg.start.crl(),
 	    		    plane.boundingBox().hrg.stop.crl() );
-    Interval<float> zrange( plane.boundingBox().zrg.start,
-	    		    plane.boundingBox().zrg.stop );
+    Interval<float> zrange( plane.boundingBox().zsamp_.start,
+			    plane.boundingBox().zsamp_.stop );
 
     inlrange.include( plane.boundingBox().hrg.start.inl()-
 	    	      plane.motion().inl() );
     crlrange.include( plane.boundingBox().hrg.start.crl()-
 	    	      plane.motion().crl() );
-    zrange.include( plane.boundingBox().zrg.start-plane.motion().val() );
+    zrange.include( plane.boundingBox().zsamp_.start-plane.motion().val() );
 
     for ( int idx=0; idx<allnodes.size(); idx++ )
     {

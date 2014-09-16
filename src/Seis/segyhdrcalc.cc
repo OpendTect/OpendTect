@@ -195,7 +195,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 			od_istream& is, od_ostream& os, int dbpt,
 			const SEGY::BinHeader* bh, const SEGY::TxtHeader* th )
     : Executor("Manipulate SEG-Y file")
-    , cs_(cs)
+    , tkzs_(cs)
     , inpstrm_(is)
     , outstrm_(os)
     , bptrc_(dbpt+240)
@@ -248,7 +248,7 @@ int nextStep()
 	msg_ = "Unexpected early end of input file encountered";
 	return ErrorOccurred();
     }
-    cs_.apply( buf_, needswap_ );
+    tkzs_.apply( buf_, needswap_ );
     if ( !outstrm_.addBin(buf_,bptrc_) )
     {
 	msg_ = "Cannot write to output file.";
@@ -262,7 +262,7 @@ int nextStep()
     return nrdone_ == totalnr_ ? Finished() : MoreToDo();
 }
 
-    const SEGY::HdrCalcSet& cs_;
+    const SEGY::HdrCalcSet& tkzs_;
     od_istream&		inpstrm_;
     od_ostream&		outstrm_;
     od_int64		nrdone_;

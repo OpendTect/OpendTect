@@ -110,7 +110,7 @@ protected:
 
 	visBase::MarkerSet*		markerset_;
 	ObjectSet<PreStack::EventSet>	eventsets_;
-	TrcKeySampling			hrg_;
+	TrcKeySampling			tks_;
 
 	const int			parentid_;
     };

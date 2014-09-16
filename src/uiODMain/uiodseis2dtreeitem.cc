@@ -573,12 +573,12 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 
 	TrcKeyZSampling maxcs;
-	assign( maxcs.zrg, s2d->getMaxZRange(true)  );
+	assign( maxcs.zsamp_, s2d->getMaxZRange(true)  );
 	maxcs.hrg.start.crl() = s2d->getMaxTraceNrRange().start;
 	maxcs.hrg.stop.crl() = s2d->getMaxTraceNrRange().stop;
 
 	TrcKeyZSampling curcs;
-	curcs.zrg.setFrom( s2d->getZRange(true) );
+	curcs.zsamp_.setFrom( s2d->getZRange(true) );
 	curcs.hrg.start.crl() = s2d->getTraceNrRange().start;
 	curcs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
 
@@ -590,7 +590,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !positiondlg.go() ) return;
 	const TrcKeyZSampling newcs = positiondlg.getTrcKeyZSampling();
 
-	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
+	const Interval<float> newzrg( newcs.zsamp_.start, newcs.zsamp_.stop );
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
 	{
 	    s2d->annotateNextUpdateStage( true );
@@ -667,7 +667,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
     cs.hrg.step.crl() = 1;
-    cs.zrg.setFrom( s2d->getZRange(false) );
+    cs.zsamp_.setFrom( s2d->getZRange(false) );
 
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
     as.set2DFlag();
@@ -998,7 +998,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
     const FixedString zdomainkey = myas.zDomainKey();
     const bool alreadytransformed = scene && zdomainkey == scene->zDomainKey();
-    cs.zrg.setFrom( s2d->getZRange(alreadytransformed) );
+    cs.zsamp_.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
 	applMgr()->attrServer()->create2DOutput(cs,s2d->getGeomID(),taskrunner);
@@ -1028,7 +1028,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas,
     TrcKeyZSampling cs;
     cs.hrg.start.crl() = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl() = s2d->getTraceNrRange().stop;
-    cs.zrg.setFrom( s2d->getZRange(false) );
+    cs.zsamp_.setFrom( s2d->getZRange(false) );
 
     applMgr()->attrServer()->setTargetSelSpec( myas );
     const DataPack::ID dpid =

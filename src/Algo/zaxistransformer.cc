@@ -63,7 +63,7 @@ bool ZAxisTransformer::doPrepare(int)
     delete output_;
     output_ = new Array3DImpl<float>( outputcs_.hrg.nrInl(),
 	    			      outputcs_.hrg.nrCrl(),
-				      outputcs_.zrg.nrSteps()+1 );
+				      outputcs_.zsamp_.nrSteps()+1 );
     if ( !output_ || !output_->isOK() )
 	return false;
 
@@ -110,7 +110,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
     if ( !input_ ) return true;
 
     ZAxisTransformSampler outpsampler( transform_, forward_,
-	SamplingData<double>(outputcs_.zrg.start, outputcs_.zrg.step), false );
+	SamplingData<double>(outputcs_.zsamp_.start, outputcs_.zsamp_.step), false );
 
     const int inputzsz = input_->info().getSize(mZ);
     const int outputzsz = output_->info().getSize(mZ);
@@ -137,7 +137,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 	    const float* inputptr = input_->getData() +
 		input_->info().getOffset(inlidx,crlidx,0);
 	    SampledFunctionImpl<float,const float*> inputfunc(
-	       inputptr, inputzsz, inputcs_.zrg.atIndex(0), inputcs_.zrg.step);
+	       inputptr, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );
@@ -150,7 +150,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 		input_->info().getOffset(inlidx,crlidx,0) );
 		
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-	       vs, inputzsz, inputcs_.zrg.atIndex(0), inputcs_.zrg.step);
+	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );
@@ -167,7 +167,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 		return false;
 
 	    SampledFunctionImpl<float,ValueSeries<float> > inputfunc(
-	       vs, inputzsz, inputcs_.zrg.atIndex(0), inputcs_.zrg.step);
+	       vs, inputzsz, inputcs_.zsamp_.atIndex(0), inputcs_.zsamp_.step);
 
 	    inputfunc.setHasUdfs( true );
 	    inputfunc.setInterpolate( interpolate_ );

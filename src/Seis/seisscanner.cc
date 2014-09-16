@@ -96,9 +96,9 @@ bool SeisScanner::getSurvInfo( TrcKeyZSampling& cs, Coord crd[3] ) const
     if ( msg )
 	{ curmsg_ = msg; return false; }
 
-    cs.zrg.start = sampling_.atIndex( nonnullsamplerg_.start );
-    cs.zrg.stop = sampling_.atIndex( nonnullsamplerg_.stop );
-    cs.zrg.step = sampling_.step;
+    cs.zsamp_.start = sampling_.atIndex( nonnullsamplerg_.start );
+    cs.zsamp_.stop = sampling_.atIndex( nonnullsamplerg_.stop );
+    cs.zsamp_.step = sampling_.step;
     return true;
 }
 
@@ -135,9 +135,9 @@ void SeisScanner::report( IOPar& iopar ) const
     {
 	TrcKeyZSampling cs; Coord crd[3];
 	getSurvInfo(cs,crd);
-	iopar.set( "Z.start", cs.zrg.start );
-	iopar.set( "Z.stop", cs.zrg.stop );
-	iopar.set( "Z.step", cs.zrg.step );
+	iopar.set( "Z.start", cs.zsamp_.start );
+	iopar.set( "Z.stop", cs.zsamp_.stop );
+	iopar.set( "Z.step", cs.zsamp_.step );
     }
 
     if ( !mIsUdf(valrg_.start) )

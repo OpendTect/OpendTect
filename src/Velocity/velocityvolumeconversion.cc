@@ -35,7 +35,7 @@ const char* VolumeConverter::sKeyOutput() { return sKey::Output(); }
 VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
 				  const TrcKeySampling& ranges,
 				  const VelocityDesc& desc )
-    : hrg_( ranges )
+    : tks_( ranges )
     , veloutpdesc_( desc )
     , input_( input.clone() )
     , output_( output.clone() )
@@ -59,15 +59,15 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     {
 	BinIDValueSet bivs( 0, false );
 	bivs.add( *packetinfo.cubedata );
-	bivs.remove( hrg_, false );
+	bivs.remove( tks_, false );
 	totalnr_ = bivs.totalSize();
     }
     else
     {
-	totalnr_ = hrg_.totalNr();
+	totalnr_ = tks_.totalNr();
     }
 
-    Seis::SelData* seldata = new Seis::RangeSelData( hrg_ );
+    Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
     reader_->setSelData( seldata );
 }
 
@@ -152,7 +152,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	    return false;
 	}
 
-	Seis::SelData* seldata = new Seis::RangeSelData( hrg_ );
+	Seis::SelData* seldata = new Seis::RangeSelData( tks_ );
 	reader_->setSelData( seldata );
     }
 
@@ -272,7 +272,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
 	return 0;
 
     int res = 2;
-    while ( res==2 || !hrg_.includes( trc.info().binid ) )
+    while ( res==2 || !tks_.includes( trc.info().binid ) )
 	res = reader_->get( trc.info() );
 
     if ( res==1 )

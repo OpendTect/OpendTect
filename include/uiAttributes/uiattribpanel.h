@@ -50,7 +50,7 @@ protected:
     virtual const char*		getPanelName()	{ return "Attribute preview"; }
 
     uiFlatViewMainWin*		flatvwin_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*    	dset_;

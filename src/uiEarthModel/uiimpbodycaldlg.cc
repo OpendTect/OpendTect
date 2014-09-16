@@ -77,7 +77,7 @@ void uiImplBodyCalDlg::calcCB( CallBacker* )
     }
 
     uiTaskRunner taskrunner(this);
-    BodyVolumeCalculator bc( impbody_->cs_, *impbody_->arr_, 
+    BodyVolumeCalculator bc( impbody_->tkzs_, *impbody_->arr_,
 	    impbody_->threshold_, vel );
     TaskRunner::execute( &taskrunner, bc );
 

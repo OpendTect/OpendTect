@@ -107,8 +107,8 @@ bool TwoDSeisTrcTranslator::initRead_()
     TrcKeyZSampling cs( true );
     errmsg_ = lset.getTrcKeyZSampling( cs, curlinekey_ );
 
-    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
-    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
+    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) / cs.zsamp_.step + 1.5);
     pinfo_.inlrg.start = cs.hrg.start.inl();
     pinfo_.inlrg.stop = cs.hrg.stop.inl();
     pinfo_.inlrg.step = cs.hrg.step.inl();
@@ -180,8 +180,8 @@ bool TwoDDataSeisTrcTranslator::initRead_()
 	{ errmsg_ = tr( "Cannot find GeomID %1" ).arg(geomid_); return false; }
     TrcKeyZSampling cs( true );
 
-    insd_.start = cs.zrg.start; insd_.step = cs.zrg.step;
-    innrsamples_ = (int)((cs.zrg.stop-cs.zrg.start) / cs.zrg.step + 1.5);
+    insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
+    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) / cs.zsamp_.step + 1.5);
     pinfo_.inlrg.start = cs.hrg.start.inl();
     pinfo_.inlrg.stop = cs.hrg.stop.inl();
     pinfo_.inlrg.step = cs.hrg.step.inl();

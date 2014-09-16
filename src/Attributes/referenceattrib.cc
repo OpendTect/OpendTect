@@ -124,7 +124,7 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	    setOutputValue( output, 3, idx, z0, mCast(float,truepos.crl()) );
 	    setOutputValue( output, 4, idx, z0, mCast(float,z0+idx+1) );
 	    setOutputValue( output, 5, idx, z0,
-		mCast(float,truepos.crl() - desiredvolume_->hrg.start.crl() + 1) );
+		mCast(float,truepos.crl() - desiredvolume_->hsamp_.start_.crl() + 1) );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val = z0 - mNINT32(SI().zRange(0).start/step) + idx + 1;

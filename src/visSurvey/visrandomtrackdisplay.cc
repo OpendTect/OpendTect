@@ -175,7 +175,7 @@ float RandomTrackDisplay::appliedZRangeStep() const
 {
     float step = datatransform_ ? datatransform_->getGoodZStep() : SI().zStep();
     if ( scene_ )
-	step = scene_->getTrcKeyZSampling().zrg.step;
+	step = scene_->getTrcKeyZSampling().zsamp_.step;
 
     return step;
 }
@@ -189,8 +189,8 @@ TrcKeyZSampling RandomTrackDisplay::getTrcKeyZSampling( int attrib ) const
     for ( int idx=0; idx<knots.size(); idx++ )
 	cs.hrg.include( knots[idx] );
 
-    cs.zrg.setFrom( getDepthInterval() );
-    cs.zrg.step = appliedZRangeStep();
+    cs.zsamp_.setFrom( getDepthInterval() );
+    cs.zsamp_.step = appliedZRangeStep();
 
     return cs;
 }
@@ -694,8 +694,8 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
 	TrcKeyZSampling cs( false );
 	for ( int pi=0; pi<pathsz; pi++ )
 	    cs.hrg.include( path[pi] );
-	cs.zrg = panelstrip_->getZRange();
-	cs.zrg.step = scene_ ? scene_->getTrcKeyZSampling().zrg.step
+	cs.zsamp_ = panelstrip_->getZRange();
+	cs.zsamp_.step = scene_ ? scene_->getTrcKeyZSampling().zsamp_.step
 			     : datatransform_->getGoodZStep();
 
 	if ( voiidx_<0 )

@@ -656,18 +656,18 @@ bool uiSurveyInfoEditor::setRanges()
 
     const int curzunititem = zunitfld_->currentItem();
     si_.setZUnit( curzunititem == 0, curzunititem == 2 );
-    cs.zrg = zfld_->getFStepInterval();
-    if ( mIsUdf(cs.zrg.start) || mIsUdf(cs.zrg.stop) || mIsUdf(cs.zrg.step) )
+    cs.zsamp_ = zfld_->getFStepInterval();
+    if ( mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop) || mIsUdf(cs.zsamp_.step) )
 	mErrRet(tr("Please enter the Z Range"))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
-	{ cs.zrg.start *= zfac; cs.zrg.stop *= zfac; cs.zrg.step *= zfac; }
-    if ( mIsZero(cs.zrg.step,1e-8) )
-	cs.zrg.step = si_.zIsTime() ? 0.004f : 1;
+	{ cs.zsamp_.start *= zfac; cs.zsamp_.stop *= zfac; cs.zsamp_.step *= zfac; }
+    if ( mIsZero(cs.zsamp_.step,1e-8) )
+	cs.zsamp_.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
     if ( !hs.totalNr() )
 	mErrRet(tr("Please specify in-line/cross-line ranges"))
-    if ( cs.zrg.nrSteps() == 0 )
+    if ( cs.zsamp_.nrSteps() == 0 )
 	mErrRet(tr("Please specify a valid Z range"))
 
     si_.setRange( cs, false );
@@ -752,9 +752,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     xyinftfld_->setChecked( sip->xyInFeet() );
     updatePar(0);
 
-    const bool havez = !mIsUdf(cs.zrg.start);
+    const bool havez = !mIsUdf(cs.zsamp_.start);
     if ( !havez )
-	cs.zrg = si_.zRange(false);
+	cs.zsamp_ = si_.zRange(false);
 
     si_.setRange(cs,false);
     BinID bid[2];

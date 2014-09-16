@@ -85,7 +85,7 @@ bool Horizon3DSeedPicker::addSeed( const Coord3& seedcrd, bool drop,
 
     const BinID seedbid = SI().transform( seedcrd );
     const TrcKeySampling hrg = engine().activeVolume().hrg;
-    const StepInterval<float> zrg = engine().activeVolume().zrg;
+    const StepInterval<float> zrg = engine().activeVolume().zsamp_;
     if ( !zrg.includes(seedcrd.z,false) || !hrg.includes(seedbid) )
 	return false;
     

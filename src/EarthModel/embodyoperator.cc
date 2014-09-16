@@ -68,12 +68,12 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const float z = zrg_.atIndex(p[2]);
 
 	int id0[3], id1[3];
-	id0[0] = b0_.cs_.inlIdx( inl );
-	id0[1] = b0_.cs_.crlIdx( crl );
-	id0[2] = b0_.cs_.zIdx( z );
-	id1[0] = b1_.cs_.inlIdx( inl );
-	id1[1] = b1_.cs_.crlIdx( crl );
-	id1[2] = b1_.cs_.zIdx( z );
+	id0[0] = b0_.tkzs_.inlIdx( inl );
+	id0[1] = b0_.tkzs_.crlIdx( crl );
+	id0[2] = b0_.tkzs_.zIdx( z );
+	id1[0] = b1_.tkzs_.inlIdx( inl );
+	id1[1] = b1_.tkzs_.crlIdx( crl );
+	id1[2] = b1_.tkzs_.zIdx( z );
 
 	char pos0 = mOutsideVal, pos1 = mOutsideVal;
 	float v0 = b0_.threshold_+mOutsideVal, v1 = b1_.threshold_+mOutsideVal;
@@ -648,12 +648,12 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     }
 
     //Set new body ranges.
-    const StepInterval<int>& inlrg0 = b0->cs_.hrg.inlRange();
-    const StepInterval<int>& crlrg0 = b0->cs_.hrg.crlRange();
-    const StepInterval<float>& zrg0 = b0->cs_.zrg;
-    const StepInterval<int>& inlrg1 = b1->cs_.hrg.inlRange();
-    const StepInterval<int>& crlrg1 = b1->cs_.hrg.crlRange();
-    const StepInterval<float>& zrg1 = b1->cs_.zrg;
+    const StepInterval<int>& inlrg0 = b0->tkzs_.hrg.inlRange();
+    const StepInterval<int>& crlrg0 = b0->tkzs_.hrg.crlRange();
+    const StepInterval<float>& zrg0 = b0->tkzs_.zsamp_;
+    const StepInterval<int>& inlrg1 = b1->tkzs_.hrg.inlRange();
+    const StepInterval<int>& crlrg1 = b1->tkzs_.hrg.crlRange();
+    const StepInterval<float>& zrg1 = b1->tkzs_.zsamp_;
 
     //If action is Minus, make the new cube the same size as body0.
     StepInterval<int> newinlrg( inlrg0.start, inlrg0.stop,
@@ -724,10 +724,10 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 
     res->arr_ = arr;
     res->threshold_ = 0;
-    res->cs_.hrg.start = BinID(newinlrg.start, newcrlrg.start);
-    res->cs_.hrg.stop = BinID(newinlrg.stop, newcrlrg.stop);
-    res->cs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
-    res->cs_.zrg = newzrg;
+    res->tkzs_.hrg.start = BinID(newinlrg.start, newcrlrg.start);
+    res->tkzs_.hrg.stop = BinID(newinlrg.stop, newcrlrg.stop);
+    res->tkzs_.hrg.step = BinID(newinlrg.step, newcrlrg.step);
+    res->tkzs_.zsamp_ = newzrg;
 
     return true;
 }
@@ -808,10 +808,10 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	{
 	    res->arr_ = arr;
 	    res->threshold_ = 0;
-	    res->cs_.hrg.start = BinID(inlrg.start, crlrg.start);
-	    res->cs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
-	    res->cs_.hrg.step = BinID(inlrg.step, crlrg.step);
-	    res->cs_.zrg = zrg;
+	    res->tkzs_.hrg.start = BinID(inlrg.start, crlrg.start);
+	    res->tkzs_.hrg.stop = BinID(inlrg.stop, crlrg.stop);
+	    res->tkzs_.hrg.step = BinID(inlrg.step, crlrg.step);
+	    res->tkzs_.zsamp_ = zrg;
 
 	    cursorchanger.restore();
 	    return res;

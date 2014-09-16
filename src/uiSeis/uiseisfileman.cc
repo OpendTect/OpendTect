@@ -218,9 +218,9 @@ void uiSeisFileMan::mkFileInfo()
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 
 	    txt.add("\n").add(zddef.userName()).add(" range ")
-		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zrg.start)
-		.add(" - ") mAddZValTxt(cs.zrg.stop)
-		.add(" [") mAddZValTxt(cs.zrg.step) .add("]");
+		.add(zddef.unitStr(true)).add(": ") mAddZValTxt(cs.zsamp_.start)
+		.add(" - ") mAddZValTxt(cs.zsamp_.stop)
+		.add(" [") mAddZValTxt(cs.zsamp_.step) .add("]");
 	}
     }
 

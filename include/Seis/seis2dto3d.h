@@ -133,7 +133,7 @@ protected:
 
     const Seis2DDataSet* ds_;
     IOObj*		outioobj_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
 
     BinID		curbid_;
     BinID		prevbid_;

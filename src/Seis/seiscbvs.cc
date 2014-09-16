@@ -220,8 +220,8 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	Interval<int> crlrg = seldata_->crlRange();
 	cs.hrg.start.inl() = inlrg.start; cs.hrg.start.crl() = crlrg.start;
 	cs.hrg.stop.inl() = inlrg.stop; cs.hrg.stop.crl() = crlrg.stop;
-	cs.zrg.start = outsd_.start; cs.zrg.step = outsd_.step;
-	cs.zrg.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
+	cs.zsamp_.start = outsd_.start; cs.zsamp_.step = outsd_.step;
+	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
 	if ( !rdmgr_->pruneReaders( cs ) )
 	    { errmsg_ = "Input contains no relevant data"; return false; }

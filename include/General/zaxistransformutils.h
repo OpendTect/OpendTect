@@ -94,12 +94,12 @@ protected:
     bool			doWork(od_int64,od_int64,int threadid);
     bool			doFinish(bool success);
     od_int64			nrIterations() const
-				{ return cs_.hrg.totalNr(); }
+				{ return tkzs_.hrg.totalNr(); }
 
     int 			voiid_;
     ObjectSet<BinIDValueSet>	bidvalsets_;
     TrcKeySamplingIterator 	iter_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     ZAxisTransform&		transform_;
     DataPointSet*		dps_;
 };

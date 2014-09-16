@@ -156,7 +156,7 @@ protected:
 
     Array2D<SeisTrc*>*	data_;
 
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     IOObj*		ioobj_;
     BufferString	errmsg_;
     float		trcdist_;

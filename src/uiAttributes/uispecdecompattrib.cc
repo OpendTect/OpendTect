@@ -102,8 +102,8 @@ void uiSpecDecompAttrib::inputSel( CallBacker* )
     if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
 
-    ds_ = cs.zrg.step;
-    int ns = (int)((cs.zrg.stop-cs.zrg.start)/ds_ + .5) + 1;
+    ds_ = cs.zsamp_.step;
+    int ns = (int)((cs.zsamp_.stop-cs.zsamp_.start)/ds_ + .5) + 1;
     int temp = 2;
     while ( temp  < ns ) temp *= 2;
     nrsamples_ = temp;

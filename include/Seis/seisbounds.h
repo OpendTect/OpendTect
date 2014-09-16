@@ -66,7 +66,7 @@ public:
 
     void		getCoordRange(Coord&,Coord&) const;
 
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
 
 };
 

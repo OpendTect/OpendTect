@@ -399,7 +399,7 @@ int uiEMDataPointSetPickDlg::addSurfaceData()
 
     float auxvals[3];
     const EM::SectionID sid = hor3d->sectionID( 0 );
-    hrg_ = hor3d->range( sid );
+    tks_ = hor3d->range( sid );
     auxvals[1] = sid;
     PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
     while ( true )
@@ -428,13 +428,13 @@ void uiEMDataPointSetPickDlg::interpolateCB( CallBacker* )
 	dataidx_ = addSurfaceData();
 
     BinIDValueSet& bivs = emdps_.bivSet();
-    BIDValSetArrAdapter adapter( bivs, 2, hrg_.step );
+    BIDValSetArrAdapter adapter( bivs, 2, tks_.step );
     adapter.setAll( mUdf(float) );
     for ( int idx=0; idx<dps_.size(); idx++ )
     {
 	DataPointSet::Pos pos = dps_.pos( idx );
-	const int inlidx = hrg_.inlIdx( pos.binid_.inl() );
-	const int crlidx = hrg_.crlIdx( pos.binid_.crl() );
+	const int inlidx = tks_.inlIdx( pos.binid_.inl() );
+	const int crlidx = tks_.crlIdx( pos.binid_.crl() );
 	const float* vals = dps_.getValues( idx );
 	adapter.set( inlidx, crlidx, vals[0] );
     }

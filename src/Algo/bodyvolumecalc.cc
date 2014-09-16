@@ -31,7 +31,7 @@ BodyVolumeCalculator::BodyVolumeCalculator( const TrcKeyZSampling& cs,
     const float xyfactor = SI().xyInFeet() ? mFromFeetFactorF : 1;
     unitvol_ = cs.hrg.step.inl() * SI().inlDistance() * xyfactor * 
 	       cs.hrg.step.crl() * SI().crlDistance() * xyfactor *
-	       cs.zrg.step * zfactor;
+	       cs.zsamp_.step * zfactor;
 }
 
 

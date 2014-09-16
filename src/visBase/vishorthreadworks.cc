@@ -22,7 +22,7 @@ using namespace visBase;
 HorizonTileRenderPreparer::HorizonTileRenderPreparer( 
     HorizonSection& hrsection, const osg::CullStack* cs, char res )
     : hrsection_( hrsection )
-    , cs_( cs )
+    , tkzs_( cs )
     , hrsectiontiles_( hrsection.tiles_.getData() )
     , nrtiles_( hrsection.tiles_.info().getTotalSz() )
     , nrcoltiles_( hrsection.tiles_.info().getSize(1) )
@@ -57,7 +57,7 @@ bool HorizonTileRenderPreparer::doWork( od_int64 start, od_int64 stop, int )
     {
 	const int realidx = permutation_[idx];
 	if ( hrsectiontiles_[realidx] ) 
-	    hrsectiontiles_[realidx]->updateAutoResolution( cs_ );
+	    hrsectiontiles_[realidx]->updateAutoResolution( tkzs_ );
     }
 
     barrier_.waitForAll();

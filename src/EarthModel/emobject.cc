@@ -494,13 +494,13 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 					      = bid;
-		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
+		removebypolyposbox_.zsamp_.start = removebypolyposbox_.zsamp_.stop
 					      = (float) pos.z;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hrg.include(bid);
-		removebypolyposbox_.zrg.include((float) pos.z);
+		removebypolyposbox_.zsamp_.include((float) pos.z);
 	    }
 
 	    if ( ++poscount >= 10000 )
@@ -539,13 +539,13 @@ void EMObject::removeSelected( const Selector<Coord3>& selector,
 	    {
 		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
 					      = bid;
-		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
+		removebypolyposbox_.zsamp_.start = removebypolyposbox_.zsamp_.stop
 					      = pos.z;
 	    }
 	    else
 	    {
 		removebypolyposbox_.hrg.include(bid);
-		removebypolyposbox_.zrg.include(pos.z);
+		removebypolyposbox_.zsamp_.include(pos.z);
 	    }
 	}
     }

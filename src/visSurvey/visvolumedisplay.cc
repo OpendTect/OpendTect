@@ -82,12 +82,12 @@ static TrcKeyZSampling getInitTrcKeyZSampling( const TrcKeyZSampling& csin )
     cs.hrg.start.crl() = (5*csin.hrg.start.crl()+3*csin.hrg.stop.crl())/8;
     cs.hrg.stop.inl() = (3*csin.hrg.start.inl()+5*csin.hrg.stop.inl())/8;
     cs.hrg.stop.crl() = (3*csin.hrg.start.crl()+5*csin.hrg.stop.crl())/8;
-    cs.zrg.start = ( 5*csin.zrg.start + 3*csin.zrg.stop ) / 8.f;
-    cs.zrg.stop = ( 3*csin.zrg.start + 5*csin.zrg.stop ) / 8.f;
+    cs.zsamp_.start = ( 5*csin.zsamp_.start + 3*csin.zsamp_.stop ) / 8.f;
+    cs.zsamp_.stop = ( 3*csin.zsamp_.start + 5*csin.zsamp_.stop ) / 8.f;
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = csin.zrg.snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = csin.zrg.snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    float z0 = csin.zsamp_.snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
+    float z1 = csin.zsamp_.snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
     return cs;
 }
 
@@ -361,11 +361,11 @@ void VolumeDisplay::draggerMoveCB( CallBacker* )
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
-			 (cs.zrg.start + cs.zrg.stop)/2.0 );
+			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
 
     const Coord3 width( cs.hrg.stop.inl() - cs.hrg.start.inl(),
 			cs.hrg.stop.crl() - cs.hrg.start.crl(),
-			cs.zrg.stop - cs.zrg.start );
+			cs.zsamp_.stop - cs.zsamp_.start );
 
     boxdragger_->setCenter( center );
     boxdragger_->setWidth( width );
@@ -537,13 +537,13 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
-			 (cs.zrg.start + cs.zrg.stop)/2.0 );
+			 (cs.zsamp_.start + cs.zsamp_.stop)/2.0 );
 
     const Coord3 width( cs.hrg.stop.inl() - cs.hrg.start.inl(),
 			cs.hrg.stop.crl() - cs.hrg.start.crl(),
-			cs.zrg.stop - cs.zrg.start );
+			cs.zsamp_.stop - cs.zsamp_.start );
 
-    const Coord3 step( cs.hrg.step.inl(), cs.hrg.step.crl(), cs.zrg.step );
+    const Coord3 step( cs.hrg.step.inl(), cs.hrg.step.crl(), cs.zsamp_.step );
 
     updateDraggerLimits( dragmode );
     mSetVolumeTransform( ROIVolume, center, width, trans, scale );
@@ -593,13 +593,13 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
     const Interval<float> crlrg( float(limcs.hrg.start.crl()),
 				 float(limcs.hrg.stop.crl()) );
 
-    boxdragger_->setSpaceLimits( inlrg, crlrg, limcs.zrg );
+    boxdragger_->setSpaceLimits( inlrg, crlrg, limcs.zsamp_ );
 
     const int minvoxwidth = 1;
     boxdragger_->setWidthLimits(
 	Interval<float>( float(minvoxwidth*limcs.hrg.step.inl()), mUdf(float) ),
 	Interval<float>( float(minvoxwidth*limcs.hrg.step.crl()), mUdf(float) ),
-	Interval<float>( minvoxwidth*limcs.zrg.step, mUdf(float) ) );
+	Interval<float>( minvoxwidth*limcs.zsamp_.step, mUdf(float) ) );
 }
 
 
@@ -811,7 +811,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	isosurfaces_[idx]->setBoxBoundary(
 		mCast(float,cache_->cubeSampling().hrg.inlRange().stop),
 		mCast(float,cache_->cubeSampling().hrg.crlRange().stop),
-		cache_->cubeSampling().zrg.stop );
+		cache_->cubeSampling().zsamp_.stop );
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling_, cache_->crlsampling_,
 		SamplingData<float>((float) (cache_->z0_*cache_->zstep_),
@@ -841,12 +841,12 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
+    float z0 = SI().zRange(true).snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
+    float z1 = SI().zRange(true).snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
 
     Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
     Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
-    Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
+    Interval<float> zrg( cs.zsamp_.start, cs.zsamp_.stop );
     SI().checkInlRange( inlrg, true );
     SI().checkCrlRange( crlrg, true );
     SI().checkZRange( zrg, true );
@@ -861,16 +861,16 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     {
 	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
 	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
-	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
+	cs.zsamp_.start = zrg.start; cs.zsamp_.stop = zrg.stop;
     }
 
     const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
 			   cs.hrg.stop.crl - cs.hrg.start.crl,
-			   cs.zrg.stop - cs.zrg.start );
+			   cs.zsamp_.stop - cs.zsamp_.start );
     boxdragger_->setWidth( newwidth );
     const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
 			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
-			    0.5*(cs.zrg.stop + cs.zrg.start) );
+			    0.5*(cs.zsamp_.stop + cs.zsamp_.start) );
     boxdragger_->setCenter( newcenter );
     */
 }
@@ -893,8 +893,8 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
     info += cs.hrg.start.crl(); info += "-"; info += cs.hrg.stop.crl();
     info += ", ";
     
-    float zstart = cs.zrg.start;
-    float zstop = cs.zrg.stop;
+    float zstart = cs.zsamp_.start;
+    float zstop = cs.zsamp_.stop;
 
     if ( scene_ )
     {
@@ -967,7 +967,7 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     else if ( dim == 1 )
 	pos = (float)cs.hrg.crlRange().start;
     else
-	pos = (float)cs.zrg.start;
+	pos = (float)cs.zsamp_.start;
 
     pos -= (float) voltrans_->getTranslation()[2-dim];
     pos /= (float) -voltrans_->getScale()[dim];
@@ -1145,8 +1145,8 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos, bool displaysp
 
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 
-	res.zrg.start = (float) ( center.z - width.z/2 );
-	res.zrg.stop = (float) ( center.z + width.z/2 );
+	res.zsamp_.start = (float) ( center.z - width.z/2 );
+	res.zsamp_.stop = (float) ( center.z + width.z/2 );
     }
     else
     {
@@ -1160,17 +1160,17 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos, bool displaysp
 			      mNINT32(transl.y+scale.y) );
 	res.hrg.stop = BinID( mNINT32(transl.x), mNINT32(transl.y) );
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-	res.zrg.start = float( transl.z+scale.z );
-	res.zrg.stop = float( transl.z );
+	res.zsamp_.start = float( transl.z+scale.z );
+	res.zsamp_.stop = float( transl.z );
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
     if ( alreadytf )
     {
 	if ( scene_ )
-	    res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
+	    res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	else if ( datatransform_ )
-	    res.zrg.step = datatransform_->getGoodZStep();
+	    res.zsamp_.step = datatransform_->getGoodZStep();
 	return res;
     }
 
@@ -1178,19 +1178,19 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos, bool displaysp
     {
 	if ( !displayspace )
 	{
-	    res.zrg.setFrom( datatransform_->getZInterval(true) );
-	    res.zrg.step = SI().zRange(true).step;
+	    res.zsamp_.setFrom( datatransform_->getZInterval(true) );
+	    res.zsamp_.step = SI().zRange(true).step;
 	}
 	else
 	{
 	    if ( scene_ )
-		res.zrg.step = scene_->getTrcKeyZSampling().zrg.step;
+		res.zsamp_.step = scene_->getTrcKeyZSampling().zsamp_.step;
 	    else
-		res.zrg.step = datatransform_->getGoodZStep();
+		res.zsamp_.step = datatransform_->getGoodZStep();
 	}
     }
     else
-	res.zrg.step = SI().zRange(true).step;
+	res.zsamp_.step = SI().zRange(true).step;
 
     return res;
 }
@@ -1521,7 +1521,7 @@ TrcKeyZSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) co
     cs = getTrcKeyZSampling(false,true,0);
     float pos = slicePosition( slice ); 
     if ( slice->getDim() == cTimeSlice() )
-	cs.zrg.limitTo( Interval<float>( pos, pos ) );
+	cs.zsamp_.limitTo( Interval<float>( pos, pos ) );
     else if ( slice->getDim() == cCrossLine() )
 	cs.hrg.setCrlRange( Interval<int>( mNINT32(pos), mNINT32(pos) ) );
     else if ( slice->getDim() == cInLine() )

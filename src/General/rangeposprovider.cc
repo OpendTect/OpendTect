@@ -21,14 +21,14 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 
 Pos::RangeProvider3D::RangeProvider3D()
-    : cs_(*new TrcKeyZSampling(true))
+    : tkzs_(*new TrcKeyZSampling(true))
 {
     reset();
 }
 
 
 Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )          
-    : cs_(*new TrcKeyZSampling(false))
+    : tkzs_(*new TrcKeyZSampling(false))
 {
     *this = p;
 }
@@ -36,7 +36,7 @@ Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )
 
 Pos::RangeProvider3D::~RangeProvider3D()
 {
-    delete &cs_;
+    delete &tkzs_;
 }
 
 
@@ -45,7 +45,7 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
 {
     if ( &p != this )
     {
-	cs_ = p.cs_;
+	tkzs_ = p.tkzs_;
 	curbid_ = p.curbid_;
 	curzidx_ = p.curzidx_;
     }
@@ -61,21 +61,21 @@ const char* Pos::RangeProvider3D::type() const
 
 void Pos::RangeProvider3D::reset()
 {
-    curbid_ = BinID( cs_.hrg.start.inl(), 
-		     cs_.hrg.start.crl()-cs_.hrg.step.crl() );
-    curzidx_ = cs_.zrg.nrSteps();
+    curbid_ = BinID( tkzs_.hrg.start.inl(),
+		     tkzs_.hrg.start.crl()-tkzs_.hrg.step.crl() );
+    curzidx_ = tkzs_.zsamp_.nrSteps();
 }
 
 
 bool Pos::RangeProvider3D::toNextPos()
 {
-    curbid_.crl() += cs_.hrg.step.crl();
-    if ( curbid_.crl() > cs_.hrg.stop.crl() )
+    curbid_.crl() += tkzs_.hrg.step.crl();
+    if ( curbid_.crl() > tkzs_.hrg.stop.crl() )
     {
-	curbid_.inl() += cs_.hrg.step.inl();
-	if ( curbid_.inl() > cs_.hrg.stop.inl() )
+	curbid_.inl() += tkzs_.hrg.step.inl();
+	if ( curbid_.inl() > tkzs_.hrg.stop.inl() )
 	    return false;
-	curbid_.crl() = cs_.hrg.start.crl();
+	curbid_.crl() = tkzs_.hrg.start.crl();
     }
 
     curzidx_ = 0;
@@ -83,12 +83,12 @@ bool Pos::RangeProvider3D::toNextPos()
 }
 
 
-#define mZrgEps (1e-6*cs_.zrg.step)
+#define mZrgEps (1e-6*tkzs_.zsamp_.step)
 
 bool Pos::RangeProvider3D::toNextZ()
 {
     curzidx_++;
-    if ( curzidx_ > cs_.zrg.nrSteps() )
+    if ( curzidx_ > tkzs_.zsamp_.nrSteps() )
 	return toNextPos();
 
     return true;
@@ -97,40 +97,40 @@ bool Pos::RangeProvider3D::toNextZ()
 
 float Pos::RangeProvider3D::curZ() const
 {
-    if ( curzidx_<0 || curzidx_>cs_.zrg.nrSteps() )
+    if ( curzidx_<0 || curzidx_>tkzs_.zsamp_.nrSteps() )
 	return mUdf(float);
 
-    return cs_.zrg.atIndex( curzidx_ );
+    return tkzs_.zsamp_.atIndex( curzidx_ );
 }
 
 
 bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
 {
-    bool issel = cs_.hrg.includes(bid);
+    bool issel = tkzs_.hrg.includes(bid);
     if ( !issel ) return false;
     if ( mIsUdf(z) ) return true;
 
-    return z < cs_.zrg.stop+mZrgEps && z > cs_.zrg.start - mZrgEps;
+    return z < tkzs_.zsamp_.stop+mZrgEps && z > tkzs_.zsamp_.start - mZrgEps;
 }
 
 
 void Pos::RangeProvider3D::usePar( const IOPar& iop )
 {
-    cs_.usePar( iop );
+    tkzs_.usePar( iop );
 }
 
 
 void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 {
-    cs_.fillPar( iop );
+    tkzs_.fillPar( iop );
 }
 
 
 void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 {
-    txt.set( cs_.hrg.start.toString() ).add( "-" );
-    txt.add( cs_.hrg.stop.toString() ); // needs to be a separate line
-    const int nrsamps = cs_.zrg.nrSteps() + 1;
+    txt.set( tkzs_.hrg.start.toString() ).add( "-" );
+    txt.add( tkzs_.hrg.stop.toString() ); // needs to be a separate line
+    const int nrsamps = tkzs_.zsamp_.nrSteps() + 1;
     if ( nrsamps > 1 )
 	txt.add( " (" ).add( nrsamps ).add( " samples)" );
 }
@@ -138,28 +138,28 @@ void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
 
 void Pos::RangeProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
-    start = cs_.hrg.start; stop = cs_.hrg.stop;
+    start = tkzs_.hrg.start; stop = tkzs_.hrg.stop;
 }
 
 
 void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
 {
-    assign( zrg, cs_.zrg );
+    assign( zrg, tkzs_.zsamp_ );
     mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
     if ( szrg )
-	szrg->step = cs_.zrg.step;
+	szrg->step = tkzs_.zsamp_.step;
 }
 
 
 od_int64 Pos::RangeProvider3D::estNrPos() const
 {
-    return cs_.hrg.totalNr();
+    return tkzs_.hrg.totalNr();
 }
 
 
 int Pos::RangeProvider3D::estNrZPerPos() const
 {
-    return cs_.zrg.nrSteps() + 1;
+    return tkzs_.zsamp_.nrSteps() + 1;
 }
 
 
@@ -438,7 +438,7 @@ void Pos::RangeProvider2D::usePar( const IOPar& iop )
 	if ( cs.usePar(iop) )
 	{
 	    trcrgs_[0] = cs.hrg.crlRange();
-	    zrgs_[0] = cs.zrg;
+	    zrgs_[0] = cs.zsamp_;
 	}
 
 	return;

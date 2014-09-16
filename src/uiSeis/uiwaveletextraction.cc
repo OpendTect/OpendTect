@@ -157,13 +157,13 @@ void uiWaveletExtraction::inputSelCB( CallBacker* )
 	si.getRanges( cs );
 	cs.hrg.step.inl() = cs.hrg.step.crl() = 10;
 	subselfld3d_->uiSeisSubSel::setInput( cs );
-	datastep_ = cs.zrg.step;
+	datastep_ = cs.zsamp_.step;
     }
 
     if ( zextraction_->getBoolValue() )
     {
-	zrangefld_->setRangeLimits( cs.zrg );
-	zrangefld_->setRange( cs.zrg );
+	zrangefld_->setRangeLimits( cs.zsamp_ );
+	zrangefld_->setRange( cs.zsamp_ );
     }
 }
 

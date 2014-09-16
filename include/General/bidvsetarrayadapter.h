@@ -31,7 +31,7 @@ public:
     float			get(int inlidx,int crlidx) const;
 
     const Array2DInfo&		info() const		{ return arrinfo_; }
-    TrcKeySampling			hrg_;
+    TrcKeySampling			tks_;
 
 protected:
 

@@ -740,7 +740,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 {
     reader_->prepareWork();
     mDynamicCastGet( Seis::Bounds3D*, bd3, reader_->getBounds() );
-    if ( bd3 ) subsel_ = bd3->cs_.hrg;
+    if ( bd3 ) subsel_ = bd3->tkzs_.hrg;
 
     hsiter_.setSampling(  subsel_ );
     zistime_ = ZDomain::isTime( input.pars() );

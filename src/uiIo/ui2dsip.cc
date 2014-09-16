@@ -167,9 +167,9 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     crd[2] = Coord( c0.x, cmax.y );
 
     const float zfac = SI().showZ2UserFactor();
-    cs.zrg.start = 0.f;
-    cs.zrg.stop = dlg->zmaxfld_->getfValue() / zfac;
-    cs.zrg.step = dlg->srfld_->getfValue() / zfac;
+    cs.zsamp_.start = 0.f;
+    cs.zsamp_.stop = dlg->zmaxfld_->getfValue() / zfac;
+    cs.zsamp_.step = dlg->srfld_->getfValue() / zfac;
 
     xyft_ = !dlg->ismfld_->getBoolValue();
 

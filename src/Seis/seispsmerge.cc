@@ -42,8 +42,8 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	else
 	{
 	    Interval<float> zrg = sd_->zRange();
-	    cs.zrg.start = zrg.start;
-	    cs.zrg.stop = zrg.stop;
+	    cs.zsamp_.start = zrg.start;
+	    cs.zsamp_.stop = zrg.stop;
 	}
     }
 

@@ -60,7 +60,7 @@ void Tut::SeisTools::setOutput( const IOObj& ioobj )
 { delete outioobj_; outioobj_ = ioobj.clone(); }
 
 void Tut::SeisTools::setRange( const TrcKeyZSampling& cs )
-{ cs_ = cs; }
+{ tkzs_ = cs; }
 
 
 uiString Tut::SeisTools::uiMessage() const
@@ -89,7 +89,7 @@ od_int64 Tut::SeisTools::totalNr() const
 bool Tut::SeisTools::createReader()
 {
     rdr_ = new SeisTrcReader( inioobj_ );
-    Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
+    Seis::RangeSelData* sd = new Seis::RangeSelData( tkzs_ );
     rdr_->setSelData( sd );
 
     rdr_->forceFloatData( action_ != Smooth );

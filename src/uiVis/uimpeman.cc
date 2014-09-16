@@ -409,7 +409,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	newvolume = clickcatcher->info().getObjCS();
 	const TrcKeyZSampling trkplanecs = engine.trackPlane().boundingBox();
 
-	if ( trackerisshown && trkplanecs.zrg.includes(seedpos.z,true) &&
+	if ( trackerisshown && trkplanecs.zsamp_.includes(seedpos.z,true) &&
 	     trkplanecs.hrg.includes( SI().transform(seedpos) ) &&
 	     trkplanecs.defaultDir()==newvolume.defaultDir() )
 	{
@@ -766,7 +766,7 @@ void uiMPEMan::showCubeCB( CallBacker* )
 			const Coord3 pos = emobj->getPos( (*seeds)[idx] );
 			const BinID bid = SI().transform(pos);
 			cube.hrg.include(bid);
-			cube.zrg.include((float) pos.z);
+			cube.zsamp_.include((float) pos.z);
 		    }
 		}
 	    }

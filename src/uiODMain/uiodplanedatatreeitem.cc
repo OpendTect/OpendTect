@@ -303,11 +303,11 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
     {
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( !scene )
-	    res = cs.zrg.start;
+	    res = cs.zsamp_.start;
 	else
 	{
 	    const ZDomain::Def& zdef = scene->zDomainInfo().def_;
-	    const float zval = cs.zrg.start * zdef.userFactor();
+	    const float zval = cs.zsamp_.start * zdef.userFactor();
 	    res = toString( zdef.isTime() || zdef.userFactor()==1000
 		    ? (float)(mNINT32(zval)) : zval );
 	}
@@ -463,8 +463,8 @@ void uiODPlaneDataTreeItem::movePlane( bool forward, int step )
     }
     else if ( pdd->getOrientation() == OD::ZSlice )
     {
-	cs.zrg.start += cs.zrg.step * dir;
-	cs.zrg.stop = cs.zrg.start;
+	cs.zsamp_.start += cs.zsamp_.step * dir;
+	cs.zsamp_.stop = cs.zsamp_.start;
     }
     else
 	return;

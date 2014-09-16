@@ -67,7 +67,7 @@ public:
     Coord3		oneStepTranslation(const Coord3& planenormal) const;
 
     const TrcKeyZSampling&	sampling( bool work ) const
-			{ return work ? wcs_ : cs_; }
+			{ return work ? wcs_ : tkzs_; }
 
     Coord		transform( const BinID& b ) const;
     BinID		transform(const Coord&) const;
@@ -153,7 +153,7 @@ protected:
     BufferString	comment_;
     BufferString	wsprojnm_;
     BufferString	wspwd_;
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
     IOPar&		pars_;
 

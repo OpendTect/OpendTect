@@ -145,7 +145,7 @@ void uiGridLinesDlg::setParameters()
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridTrcKeyZSampling();
-	cs.zrg.scale( mCast(float,SI().zDomain().userFactor()) );
+	cs.zsamp_.scale( mCast(float,SI().zDomain().userFactor()) );
     }
     else
     {
@@ -153,7 +153,7 @@ void uiGridLinesDlg::setParameters()
 			       cs.hrg.step.inl() );
 	getDefaultTrcKeySampling( cs.hrg.start.crl(), cs.hrg.stop.crl(),
 			       cs.hrg.step.crl() );
-	getDefaultZSampling( cs.zrg );
+	getDefaultZSampling( cs.zsamp_ );
     }
 
     if ( inlfld_ )
@@ -172,8 +172,8 @@ void uiGridLinesDlg::setParameters()
     {
 	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
 	zspacingfld_->setValue(
-		StepInterval<int>(mNINT32(cs.zrg.start),mNINT32(cs.zrg.stop),
-				  mNINT32(cs.zrg.step)) );
+		StepInterval<int>(mNINT32(cs.zsamp_.start),mNINT32(cs.zsamp_.stop),
+				  mNINT32(cs.zsamp_.step)) );
     }
 
     showGridLineCB(0);
@@ -194,13 +194,13 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     if ( crlfld_ ) { mGetHrgSampling(crl) };
     if ( zfld_ )
     {
-	cs.zrg.setFrom( zspacingfld_->getFStepInterval() );
-	cs.zrg.scale( 1.f/SI().zDomain().userFactor() );
+	cs.zsamp_.setFrom( zspacingfld_->getFStepInterval() );
+	cs.zsamp_.scale( 1.f/SI().zDomain().userFactor() );
     }
 
     if ( (inlfld_ && inlfld_->isChecked() && cs.hrg.step.inl()==0) ||
 	 (crlfld_ && crlfld_->isChecked() && cs.hrg.step.crl()==0) ||
-	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zrg.step,mDefEps)) )
+	 (zfld_ && zfld_->isChecked() && mIsZero(cs.zsamp_.step,mDefEps)) )
     {
 	uiMSG().error( tr("Please make sure all steps are non-zero") );
 	return false;

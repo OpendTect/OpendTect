@@ -38,7 +38,7 @@ public:
 
     void			setApplyCB(const CallBack&);
 
-    const TrcKeyZSampling&		getTrcKeyZSampling() const	{ return cs_; }
+    const TrcKeyZSampling&		getTrcKeyZSampling() const	{ return tkzs_; }
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void			setMaxTrcKeyZSampling(const TrcKeyZSampling&);
     void			enableApplyButton(bool);
@@ -76,7 +76,7 @@ protected:
     uiSliceScroll*		scrolldlg_;
 
     TrcKeyZSampling		maxcs_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     CallBack*			applycb_;
     bool			isinl_, iscrl_, istsl_, isvol_, is2d_,
 				dogeomcheck_;
@@ -129,7 +129,7 @@ protected:
 
     uiGenInput*		inlcrlfld_;
     uiGenInput*		linesfld_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
     TrcKeyZSampling*	prefcs_;
     uiSliceSelDlg*	posdlg_;
     bool		is2d_;

@@ -294,7 +294,7 @@ bool uiODVW2DVariableDensityTreeItem::handleSelMenu( int mnuid )
 
 	uiTaskRunner uitr( &viewer2D()->viewwin()->viewer() );
 	TrcKeyZSampling cs = dp2ddh->getTrcKeyZSampling();
-	if ( zat ) cs.zrg = zat->getZInterval( true );
+	if ( zat ) cs.zsamp_ = zat->getZInterval( true );
 
 	if ( !stored )
 	{

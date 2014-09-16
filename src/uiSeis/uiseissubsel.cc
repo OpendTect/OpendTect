@@ -74,7 +74,7 @@ void uiSeisSubSel::getSampling( TrcKeySampling& hs ) const
 
 void uiSeisSubSel::getZRange( StepInterval<float>& zrg ) const
 {
-    zrg = selfld_->envelope().zrg;
+    zrg = selfld_->envelope().zsamp_;
 }
 
 
@@ -114,7 +114,7 @@ void uiSeisSubSel::setInput( const TrcKeySampling& hs )
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
-    TrcKeyZSampling cs = selfld_->envelope(); cs.zrg = zrg;
+    TrcKeyZSampling cs = selfld_->envelope(); cs.zsamp_ = zrg;
     selfld_->setInput( cs );
 }
 
@@ -161,8 +161,8 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 	if ( &oinf.zDomainDef() != &ZDomain::SI() )
 	{
 	    TrcKeyZSampling limcs( selfld_->inputLimit() );
-	    limcs.zrg.start = -1e9; limcs.zrg.stop = 1e9;
-	    limcs.zrg.step = 0.001;
+	    limcs.zsamp_.start = -1e9; limcs.zsamp_.stop = 1e9;
+	    limcs.zsamp_.step = 0.001;
 	    selfld_->setInputLimit( limcs );
 	}
     }
@@ -333,7 +333,7 @@ StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
     if ( multilnmsel_ )
 	zrg = multilnmsel_->getZRange( lidx );
     else
-	zrg.setFrom( selfld_->envelope().zrg );
+	zrg.setFrom( selfld_->envelope().zsamp_ );
 
     return zrg;
 
@@ -344,7 +344,7 @@ void uiSeis2DSubSel::getSampling( TrcKeyZSampling& cs, int lidx ) const
 {
     cs.set2DDef();
     cs.hrg.setCrlRange( getTrcRange(lidx) );
-    cs.zrg.setFrom( getZRange(lidx) );
+    cs.zsamp_.setFrom( getZRange(lidx) );
 }
 
 
@@ -361,7 +361,7 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	    TrcKeyZSampling cs;
 	    StepInterval<int> inlrg( 0, 0, 1 );
 	    cs.hrg.set( inlrg, trcrg );
-	    cs.zrg = zrg;
+	    cs.zsamp_ = zrg;
 	    selfld_->provSel()->setInputLimit( cs );
 	}
     }

@@ -464,7 +464,7 @@ TrcKeyZSampling uiSelSubvol::getSampling() const
 {
     TrcKeyZSampling cs( false );
     cs.hrg = hfld_->getSampling();
-    cs.zrg = zfld_->getRange();
+    cs.zsamp_ = zfld_->getRange();
     return cs;
 }
 
@@ -472,7 +472,7 @@ TrcKeyZSampling uiSelSubvol::getSampling() const
 void uiSelSubvol::setSampling( const TrcKeyZSampling& cs )
 {
     hfld_->setSampling( cs.hrg );
-    zfld_->setRange( cs.zrg );
+    zfld_->setRange( cs.zsamp_ );
 }
 
 

@@ -147,8 +147,8 @@ TypeSet< Interval<int> > DataCubesOutput::getLocalZRanges( const BinID&,
 {
     if ( sampleinterval_.size() ==0 )
     {
-	Interval<int> interval( mNINT32( desiredvolume_.zrg.start / zstep ),
-				mNINT32( desiredvolume_.zrg.stop / zstep ) );
+	Interval<int> interval( mNINT32( desiredvolume_.zsamp_.start / zstep ),
+				mNINT32( desiredvolume_.zsamp_.stop / zstep ) );
 	const_cast<DataCubesOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -177,7 +177,7 @@ void DataCubesOutput::adjustInlCrlStep( const TrcKeyZSampling& cs )
 		  /dcsampling_.hrg.step.dir() + 1;\
 
 #define mGetZSz()\
-	zsz = mNINT32( ( dcsampling_.zrg.stop - dcsampling_.zrg.start )\
+	zsz = mNINT32( ( dcsampling_.zsamp_.stop - dcsampling_.zsamp_.start )\
 	      /refstep + 1 );
 
 void DataCubesOutput::collectData( const DataHolder& data, float refstep,
@@ -287,7 +287,7 @@ void DataCubesOutput::init( float refstep )
     datacubes_->crlsampling_= StepInterval<int>(dcsampling_.hrg.start.crl(),
 						dcsampling_.hrg.stop.crl(),
 						dcsampling_.hrg.step.crl());
-    datacubes_->z0_ = mNINT32(dcsampling_.zrg.start/refstep);
+    datacubes_->z0_ = mNINT32(dcsampling_.zsamp_.start/refstep);
     datacubes_->zstep_ = refstep;
     int inlsz, crlsz, zsz;
     mGetSz(inl); mGetSz(crl); mGetZSz();
@@ -583,8 +583,8 @@ TypeSet< Interval<int> > SeisTrcStorOutput::getLocalZRanges(
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT32(desiredvolume_.zrg.start/zstep),
-				mNINT32(desiredvolume_.zrg.stop/zstep) );
+	Interval<int> interval( mNINT32(desiredvolume_.zsamp_.start/zstep),
+				mNINT32(desiredvolume_.zsamp_.stop/zstep) );
 	const_cast<SeisTrcStorOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -647,7 +647,7 @@ bool TwoDOutput::getDesiredVolume( TrcKeyZSampling& cs ) const
     const Interval<int> rg( seldata_->crlRange() );
     cs.hrg.start.crl() = rg.start; cs.hrg.stop.crl() = rg.stop;
     const Interval<float> zrg( seldata_->zRange() );
-    cs.zrg = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
+    cs.zsamp_ = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
     cs.hrg.start.inl() = cs.hrg.stop.inl() = 0;
     return true;
 }

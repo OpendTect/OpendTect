@@ -74,7 +74,7 @@ protected:
     BinIDValueSet*		bidvals_;
 
     ObjectSet<Array3D<float> >*	arrays_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
 
     IOObj*			ioobj_;
     od_int64			totalnr_;
@@ -108,7 +108,7 @@ protected:
 
     TypeSet<int>		components_;
     ObjectSet<Array2D<float> >* arrays_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     IOObj*			ioobj_;
     od_int64			totalnr_;

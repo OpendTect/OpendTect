@@ -156,7 +156,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
 
     TrcKeyZSampling cs;
     selfld->getSampling( cs.hrg );
-    selfld->getZRange( cs.zrg );
+    selfld->getZRange( cs.zsamp_ );
     return new SeisResampler( cs, Seis::is2D(setup_.geomType()) );
 }
 

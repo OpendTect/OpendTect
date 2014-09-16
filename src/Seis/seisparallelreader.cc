@@ -32,7 +32,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
     : arrays_( new ObjectSet<Array3D<float> >( arrays ) )
     , components_( components )
     , bidvals_( 0 )
-    , cs_( cs )
+    , tkzs_( cs )
     , ioobj_( ioobj.clone() )
     , totalnr_( cs.hrg.totalNr() )
 {}
@@ -41,7 +41,7 @@ ParallelReader::ParallelReader( const IOObj& ioobj,
 ParallelReader::ParallelReader( const IOObj& ioobj, const TrcKeyZSampling& cs )
     : arrays_(new ObjectSet<Array3D<float> >)
     , bidvals_(0)
-    , cs_(cs)
+    , tkzs_(cs)
     , ioobj_( ioobj.clone() )
     , totalnr_( cs.hrg.totalNr() )
 {
@@ -100,8 +100,8 @@ bool ParallelReader::doPrepare( int nrthreads )
     {
         for ( int idx=0; idx<components_.size(); idx++ )
         {
-	    const Array3DInfoImpl sizes( cs_.hrg.nrInl(), cs_.hrg.nrCrl(),
-				     cs_.zrg.nrSteps()+1 );
+	    const Array3DInfoImpl sizes( tkzs_.hrg.nrInl(), tkzs_.hrg.nrCrl(),
+				     tkzs_.zsamp_.nrSteps()+1 );
 	    bool setbg = false;
             if ( idx>=arrays_->size() )
             {
@@ -178,8 +178,8 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     }
     else
     {
-        iter.setSampling( cs_.hrg );
-	iter.setNextPos( cs_.hrg.atIndex( start ) );
+	iter.setSampling( tkzs_.hrg );
+	iter.setNextPos( tkzs_.hrg.atIndex( start ) );
 	iter.next( curbid );
     }
 
@@ -218,13 +218,13 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
             }
             else
             {
-		const int inlidx = cs_.hrg.inlIdx( curbid.inl() );
-		const int crlidx = cs_.hrg.crlIdx( curbid.crl() );
+		const int inlidx = tkzs_.hrg.inlIdx( curbid.inl() );
+		const int crlidx = tkzs_.hrg.crlIdx( curbid.crl() );
 
 		for ( int idz=(*arrays_)[0]->info().getSize(2)-1; idz>=0; idz--)
 		{
 		    float val;
-		    const double z = cs_.zrg.atIndex( idz );
+		    const double z = tkzs_.zsamp_.atIndex( idz );
 		    if ( trczrg.includes( z, false ) )
 		    {
 			for ( int idc=arrays_->size()-1; idc>=0; idc-- )
@@ -273,7 +273,7 @@ ParallelReader2D::ParallelReader2D( const IOObj& ioobj, Pos::GeomID geomid,
 				    const TrcKeyZSampling& cs )
     : arrays_(new ObjectSet<Array2D<float> >)
     , geomid_(geomid)
-    , cs_(cs)
+    , tkzs_(cs)
     , ioobj_(ioobj.clone())
     , totalnr_(cs.hrg.nrCrl())
 {
@@ -307,7 +307,7 @@ bool ParallelReader2D::doPrepare( int nrthreads )
 
     for ( int idx=0; idx<components_.size(); idx++ )
     {
-	const Array2DInfoImpl sizes( cs_.nrCrl(), cs_.nrZ() );
+	const Array2DInfoImpl sizes( tkzs_.nrCrl(), tkzs_.nrZ() );
 	bool setbg = false;
 	if ( idx>=arrays_->size() )
 	{
@@ -359,7 +359,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
     SeisTrc trc;
     BinID curbid;
-    StepInterval<int> trcrg = cs_.hrg.crlRange();
+    StepInterval<int> trcrg = tkzs_.hrg.crlRange();
     trl->toStart();
     curbid = trl->readMgr()->binID();
 
@@ -372,7 +372,7 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 	    for ( int idz=(*arrays_)[0]->info().getSize(1)-1; idz>=0; idz--)
 	    {
 		float val;
-		const float z = cs_.zrg.atIndex( idz );
+		const float z = tkzs_.zsamp_.atIndex( idz );
 		if ( trczrg.includes(z,false) )
 		{
 		    for ( int idc=arrays_->size()-1; idc>=0; idc-- )

@@ -64,7 +64,7 @@ FlatDataPack* uiAttribPanel::computeAttrib()
 	return 0;
     }
 
-    const bool issingtrc = ( is2d || cs_.nrInl()==1 ) && cs_.nrCrl()==1;
+    const bool issingtrc = ( is2d || tkzs_.nrInl()==1 ) && tkzs_.nrCrl()==1;
     if ( issingtrc && proc->getProvider() )
 	proc->getProvider()->enableAllOutputs( true );
 
@@ -94,7 +94,7 @@ EngineMan* uiAttribPanel::createEngineMan()
     aem->setAttribSet( dset_ );
     aem->setAttribSpecs( attribspecs );
     aem->setGeomID( geomid_ );
-    aem->setTrcKeyZSampling( cs_ );	//should be only 1 trace
+    aem->setTrcKeyZSampling( tkzs_ );	//should be only 1 trace
     return aem;
 }
 
@@ -152,7 +152,7 @@ void uiAttribPanel::compAndDispAttrib( DescSet* dset, const DescID& mpid,
 				       const Pos::GeomID& geomid )
 {
     attribid_ = mpid;
-    cs_ = cs;
+    tkzs_ = cs;
     geomid_ = geomid;
     
     if ( dset_ ) delete dset_;

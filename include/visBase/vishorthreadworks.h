@@ -57,7 +57,7 @@ public:
     int				nrthreads_;
     int				nrthreadsfinishedwithres_;
     Threads::Barrier		barrier_;
-    const osg::CullStack*	cs_;
+    const osg::CullStack*	tkzs_;
 };
 
 

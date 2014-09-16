@@ -30,23 +30,23 @@ void InterpolationLayerModel::fillPar( IOPar& par ) const
 
 // ZSliceInterpolationModel
 void ZSliceInterpolationModel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
-{ cs_ = cs; }
+{ tkzs_ = cs; }
 
 int ZSliceInterpolationModel::nrLayers() const
-{ return cs_.nrZ(); }
+{ return tkzs_.nrZ(); }
 
 bool ZSliceInterpolationModel::hasPosition( const BinID& bid ) const
-{ return cs_.hrg.includes( bid ); }
+{ return tkzs_.hrg.includes( bid ); }
 
 float ZSliceInterpolationModel::getZ( const BinID& bid, int layer ) const
-{ return hasPosition( bid ) ? cs_.zrg.atIndex( layer ) : mUdf(float); }
+{ return hasPosition( bid ) ? tkzs_.zsamp_.atIndex( layer ) : mUdf(float); }
 
 void ZSliceInterpolationModel::getAllZ( const BinID& bid,
 					TypeSet<float>& zvals ) const
 {
-    for ( int idx=0; idx<cs_.nrZ(); idx++ )
-	zvals += cs_.zrg.atIndex( idx );
+    for ( int idx=0; idx<tkzs_.nrZ(); idx++ )
+	zvals += tkzs_.zsamp_.atIndex( idx );
 }
 
 float ZSliceInterpolationModel::getLayerIndex( const BinID& bid, float z ) const
-{ return hasPosition(bid) ? cs_.zrg.getfIndex( z ) : mUdf(float); }
+{ return hasPosition(bid) ? tkzs_.zsamp_.getfIndex( z ) : mUdf(float); }

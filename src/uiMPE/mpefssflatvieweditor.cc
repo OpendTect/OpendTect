@@ -273,7 +273,7 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     const IndexInfo ix = pd.indexInfo( true, pos.x );
     const IndexInfo iy = pd.indexInfo( false, pos.y );
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = (!cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : pos.y;
+    coord3.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
@@ -320,7 +320,7 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
     worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    worldpos.z = ( !cs_.isEmpty() && cs_.nrZ() == 1) ? cs_.zrg.start : wp.y;
+    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : wp.y;
 
     if ( trcnr )
     {
@@ -381,7 +381,7 @@ Coord3 FaultStickSetFlatViewEditor::getScaleVector() const
 
 #define mGetNormal(var) \
     Coord3 var( Coord3::udf() ); \
-    if ( !cs_.isEmpty() ) cs_.getDefaultNormal( var )
+    if ( !tkzs_.isEmpty() ) tkzs_.getDefaultNormal( var )
 
 void FaultStickSetFlatViewEditor::mouseMoveCB( CallBacker* cb )
 {
@@ -575,7 +575,7 @@ void FaultStickSetFlatViewEditor::mouseReleaseCB( CallBacker* cb )
 	mGetNormal( editnormal );
 
 	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
-	if ( cs_.isEmpty() )
+	if ( tkzs_.isEmpty() )
 	{
 	    geomid = fsspainter_->getGeomID();
 	    editnormal = Coord3( fsspainter_->getNormalToTrace(trcnr), 0 );

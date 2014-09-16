@@ -43,12 +43,12 @@ HorizonSorter::~HorizonSorter()
 void HorizonSorter::init()
 {
     calcBoundingBox();
-    totalnr_ = is2d_ ? geomids_.size() : hrg_.nrInl();
+    totalnr_ = is2d_ ? geomids_.size() : tks_.nrInl();
 
     if ( !is2d_ )
     {
 	delete iterator_;
-	iterator_ = new TrcKeySamplingIterator( hrg_ );
+	iterator_ = new TrcKeySamplingIterator( tks_ );
     }
 
     delete result_;
@@ -92,12 +92,12 @@ void HorizonSorter::calcBoundingBox()
 	StepInterval<int> crg = horizons_[idx]->geometry().colRange();
 	if ( !idx )
 	{
-	    hrg_.set( rrg, crg );
+	    tks_.set( rrg, crg );
 	    continue;
 	}
 
-	hrg_.include( BinID(rrg.start,crg.start) );
-	hrg_.include( BinID(rrg.stop,crg.stop) );
+	tks_.include( BinID(rrg.start,crg.start) );
+	tks_.include( BinID(rrg.stop,crg.stop) );
     }
 }
 

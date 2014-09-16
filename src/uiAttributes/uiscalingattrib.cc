@@ -548,7 +548,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    seisinfo.getRanges( geomid, trcrg, zrg );
 	    cs.hrg.setCrlRange( trcrg );
 	    cs.hrg.setInlRange( Interval<int>(0,0) );
-	    cs.zrg = zrg;
+	    cs.zsamp_ = zrg;
 	    aem->setGeomID( geomid );
 	}
 	else
@@ -584,7 +584,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 	    StepInterval<float> zrg( mCast(float,dzrg.start),
 				     mCast(float,dzrg.stop),
 				     mCast(float,dzrg.step) );
-	    cs.zrg = zrg;
+	    cs.zsamp_ = zrg;
 	    DPM(dpfid.ID(0)).release( dpfid.ID(1) );
 	}
 	nrtrcs = subseldlg.nrTrcs();
@@ -602,7 +602,7 @@ void uiScalingAttrib::analyseCB( CallBacker* )
 
     uiString errmsg;
     SeisTrcBuf bufs( true );
-    Interval<float> zrg( cs.zrg );
+    Interval<float> zrg( cs.zsamp_ );
     PtrMan<Processor> proc =
 	aem->createTrcSelOutput( errmsg, bidvals, bufs, 0, &zrg );
 

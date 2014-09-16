@@ -476,55 +476,55 @@ int Seis::Bounds::expectedNrTraces() const
 
 
 Seis::Bounds3D::Bounds3D()
-    : cs_(*new TrcKeyZSampling)
+    : tkzs_(*new TrcKeyZSampling)
 {
 }
 
 
 Seis::Bounds3D::Bounds3D( const Bounds3D& b )
-    : cs_(*new TrcKeyZSampling(b.cs_))
+    : tkzs_(*new TrcKeyZSampling(b.tkzs_))
 {
 }
 
 
 Seis::Bounds3D::~Bounds3D()
 {
-    delete &cs_;
+    delete &tkzs_;
 }
 
 
 int Seis::Bounds3D::start( bool first ) const
 {
-    return first ? cs_.hrg.start.inl() : cs_.hrg.start.crl();
+    return first ? tkzs_.hrg.start.inl() : tkzs_.hrg.start.crl();
 }
 
 
 int Seis::Bounds3D::stop( bool first ) const
 {
-    return first ? cs_.hrg.stop.inl() : cs_.hrg.stop.crl();
+    return first ? tkzs_.hrg.stop.inl() : tkzs_.hrg.stop.crl();
 }
 
 
 int Seis::Bounds3D::step( bool first ) const
 {
-    return first ? cs_.hrg.step.inl() : cs_.hrg.step.crl();
+    return first ? tkzs_.hrg.step.inl() : tkzs_.hrg.step.crl();
 }
 
 
 StepInterval<float> Seis::Bounds3D::getZRange() const
 {
-    return cs_.zrg;
+    return tkzs_.zsamp_;
 }
 
 
 void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 {
-    mn = SI().transform( BinID(cs_.hrg.start.inl(),cs_.hrg.start.crl()) );
-    Coord c = SI().transform( BinID(cs_.hrg.stop.inl(),cs_.hrg.start.crl()) );
+    mn = SI().transform( BinID(tkzs_.hrg.start.inl(),tkzs_.hrg.start.crl()) );
+    Coord c = SI().transform( BinID(tkzs_.hrg.stop.inl(),tkzs_.hrg.start.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(cs_.hrg.stop.inl(),cs_.hrg.stop.crl()) );
+    c = SI().transform( BinID(tkzs_.hrg.stop.inl(),tkzs_.hrg.stop.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
-    c = SI().transform( BinID(cs_.hrg.start.inl(),cs_.hrg.stop.crl()) );
+    c = SI().transform( BinID(tkzs_.hrg.start.inl(),tkzs_.hrg.stop.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
 }
 

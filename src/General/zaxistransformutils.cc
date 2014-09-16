@@ -117,8 +117,8 @@ bool ZAxisTransformDataPack::transform()
     TrcKeyZSampling outputcs = outputcs_ ? *outputcs_ : inputcs_;
     if ( !outputcs_ )
     {
-	outputcs.zrg.setFrom( transform_.getZInterval(false) );
-	outputcs.zrg.step = transform_.getGoodZStep();
+	outputcs.zsamp_.setFrom( transform_.getZInterval(false) );
+	outputcs.zsamp_.step = transform_.getGoodZStep();
     }
     transformer.setOutputRange( outputcs );
 
@@ -137,7 +137,7 @@ bool ZAxisTransformDataPack::transform()
     array2dsl_->setDimMap( 1, dim1 );
     array2dsl_->init();
 
-    const StepInterval<float> zrg = outputcs.zrg;
+    const StepInterval<float> zrg = outputcs.zsamp_;
     posdata_.setRange( false,
 		       StepInterval<double>(zrg.start,zrg.stop,zrg.step) );
     return true;
@@ -197,7 +197,7 @@ ZAxisTransformPointGenerator::~ZAxisTransformPointGenerator()
 
 void ZAxisTransformPointGenerator::setInput( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     iter_.setSampling( cs.hrg );
 
     if ( transform_.needsVolumeOfInterest() )
@@ -227,7 +227,7 @@ bool ZAxisTransformPointGenerator::doWork(
 {
     if ( !dps_ ) return false;
     BinIDValue curpos;
-    curpos.val() = cs_.zrg.start;
+    curpos.val() = tkzs_.zsamp_.start;
     for ( int idx=mCast(int,start); idx<=mCast(int,stop); idx++ )
     {
 	iter_.next(curpos);

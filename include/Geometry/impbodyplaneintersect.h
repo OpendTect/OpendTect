@@ -44,7 +44,7 @@ protected:
     IndexedShape&		output_;
 
     const Array3D<float>&	arr_;
-    const TrcKeyZSampling&		cs_;
+    const TrcKeyZSampling&		tkzs_;
     float			threshold_;
     char			dim_;
     float			inlcrlz_;

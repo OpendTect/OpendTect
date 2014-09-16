@@ -152,8 +152,8 @@ void uiGatherPosSliceSel::reDoTable()
     }
 
     posseltbl_->setColumnLabels( gathernms_ );
-    StepInterval<int> trcrg = is2d_ || isinl_ ? cs_.hrg.crlRange()
-					      : cs_.hrg.inlRange();
+    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hrg.crlRange()
+					      : tkzs_.hrg.inlRange();
     trcrg.step = stepfld_->box()->getValue();
     const int nrrows = trcrg.nrSteps()+1;
     posseltbl_->setNrRows( nrrows );
@@ -209,9 +209,9 @@ void uiGatherPosSliceSel::reDoTable()
 
 void uiGatherPosSliceSel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 {
-    cs_ = cs;
+    tkzs_ = cs;
     if ( issynthetic_ )
-	cs_.hrg.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
+	tkzs_.hrg.setCrlRange( StepInterval<int>(0,gatherinfos_.size(),
 					       stepfld_->box()->getValue()) );
     uiSliceSel::setTrcKeyZSampling( cs );
 }
@@ -340,13 +340,13 @@ void uiGatherPosSliceSel::setSelGatherInfos(
 
     trcrg.step = stepfld_->box()->getValue();
     if ( is2d_ || isinl_ )
-	cs_.hrg.setCrlRange( trcrg );
+	tkzs_.hrg.setCrlRange( trcrg );
     else
-	 cs_.hrg.setInlRange( trcrg );
+	 tkzs_.hrg.setInlRange( trcrg );
 
     if ( issynthetic_ )
-	setMaxTrcKeyZSampling( cs_ );
-    setTrcKeyZSampling( cs_ );
+	setMaxTrcKeyZSampling( tkzs_ );
+    setTrcKeyZSampling( tkzs_ );
     dispgatheridxs_.erase();
 
     for ( int idx=0; idx<gatherinfos_.size(); idx++ )
@@ -407,8 +407,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
     if ( !issynthetic_ )
 	gatherinfos_.erase();
 
-    StepInterval<int> trcrg = is2d_ || isinl_ ? cs_.hrg.crlRange()
-					      : cs_.hrg.inlRange();
+    StepInterval<int> trcrg = is2d_ || isinl_ ? tkzs_.hrg.crlRange()
+					      : tkzs_.hrg.inlRange();
     TrcKeyZSampling cs( true );
     trcrg.step = stepfld_->box()->getValue();
     for ( int colidx=0; colidx<gathernms_.size(); colidx++ )
@@ -421,8 +421,8 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 
 	    if ( !issynthetic_ )
 	    {
-		BinID bid( isinl_ ? cs_.hrg.start.inl() : trcnr,
-			   isinl_ ? trcnr : cs_.hrg.start.crl() );
+		BinID bid( isinl_ ? tkzs_.hrg.start.inl() : trcnr,
+			   isinl_ ? trcnr : tkzs_.hrg.start.crl() );
 		GatherInfo ginfo;
 		ginfo.bid_ = bid;
 		ginfo.gathernm_ = gathernm;

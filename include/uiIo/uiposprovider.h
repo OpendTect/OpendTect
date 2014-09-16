@@ -90,7 +90,7 @@ public:
     void		setInput(const TrcKeyZSampling& initcs,
 				 const TrcKeyZSampling& ioparcs);
     void		setInputLimit(const TrcKeyZSampling&);
-    const TrcKeyZSampling&	inputLimit() const		{ return setup_.cs_; }
+    const TrcKeyZSampling&	inputLimit() const		{ return setup_.tkzs_; }
 
     bool		isAll() const;
     void		setToAll();
@@ -100,7 +100,7 @@ protected:
     Setup		setup_;
     IOPar		iop_;
     Pos::Provider*	prov_;
-    TrcKeyZSampling&	cs_;
+    TrcKeyZSampling&	tkzs_;
 
     void		doDlg(CallBacker*);
     BufferString	getSummary() const;

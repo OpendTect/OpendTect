@@ -190,7 +190,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     : uiCompoundParSel(p,su.seltxt_)
     , setup_(su)
     , prov_(0)
-    , cs_(*new TrcKeyZSampling(false))
+    , tkzs_(*new TrcKeyZSampling(false))
 {
     txtfld_->setElemSzPol( uiObject::WideVar );
     iop_.set( sKey::Type(), sKey::None() );
@@ -202,7 +202,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
 uiPosProvSel::~uiPosProvSel()
 {
     delete prov_;
-    delete &cs_;
+    delete &tkzs_;
 }
 
 
@@ -223,9 +223,9 @@ BufferString uiPosProvSel::getSummary() const
 void uiPosProvSel::setCSToAll() const
 {
     if ( setup_.is2d_ )
-	cs_.set2DDef();
+	tkzs_.set2DDef();
     else
-	cs_ = TrcKeyZSampling(true);
+	tkzs_ = TrcKeyZSampling(true);
 }
 
 
@@ -235,14 +235,14 @@ void uiPosProvSel::setProvFromCS()
     if ( setup_.is2d_ )
     {
 	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
-	rp2d->trcRange(0) = cs_.hrg.crlRange();
-	rp2d->zRange() = cs_.zrg;
+	rp2d->trcRange(0) = tkzs_.hrg.crlRange();
+	rp2d->zRange() = tkzs_.zsamp_;
 	prov_ = rp2d;
     }
     else
     {
 	Pos::RangeProvider3D* rp3d = new Pos::RangeProvider3D;
-	rp3d->sampling() = cs_;
+	rp3d->sampling() = tkzs_;
 	prov_ = rp3d;
     }
     prov_->fillPar( iop_ );
@@ -253,7 +253,7 @@ void uiPosProvSel::setProvFromCS()
 
 const TrcKeyZSampling& uiPosProvSel::envelope() const
 {
-    return cs_;
+    return tkzs_;
 }
 
 
@@ -267,12 +267,12 @@ void uiPosProvSel::mkNewProv( bool updsumm )
 
     if ( prov_ )
     {
-	prov_->getTrcKeyZSampling( cs_ );
+	prov_->getTrcKeyZSampling( tkzs_ );
 	if ( !setup_.is2d_ ) //set step for 3D cs
 	{
 	    TrcKeyZSampling tmpcs;
 	    tmpcs.usePar( iop_ );
-	    cs_.hrg.step = tmpcs.hrg.step;
+	    tkzs_.hrg.step = tmpcs.hrg.step;
 	}
     }
     else
@@ -291,7 +291,7 @@ void uiPosProvSel::setInput( const TrcKeyZSampling& cs, bool chgtyp )
 {
     if ( chgtyp || (prov_ && sKey::Range()==prov_->type()) )
     {
-	cs_ = cs;
+	tkzs_ = cs;
 	setProvFromCS();
     }
 }
@@ -307,7 +307,7 @@ void uiPosProvSel::setInput( const TrcKeyZSampling& initcs,
 
 void uiPosProvSel::setInputLimit( const TrcKeyZSampling& cs )
 {
-    setup_.cs_ = cs;
+    setup_.tkzs_ = cs;
 }
 
 
@@ -316,10 +316,10 @@ bool uiPosProvSel::isAll() const
     if ( setup_.allownone_ )
 	return !prov_;
 
-    TrcKeyZSampling cskp = cs_;
+    TrcKeyZSampling cskp = tkzs_;
     setCSToAll();
-    const bool ret = cs_ == cskp;
-    cs_ = cskp;
+    const bool ret = tkzs_ == cskp;
+    tkzs_ = cskp;
     return ret;
 }
 

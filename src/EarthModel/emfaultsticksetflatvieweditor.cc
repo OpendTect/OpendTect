@@ -20,11 +20,11 @@ namespace EM
 FaultStickSetFlatViewEditor::FaultStickSetFlatViewEditor(
 				FlatView::AuxDataEditor* editor )
 {
-    cs_.setEmpty();
+    tkzs_.setEmpty();
 }
 
 
 void FaultStickSetFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
-{ cs_ = cs; }
+{ tkzs_ = cs; }
 
 } //namespace EM

@@ -662,41 +662,41 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 					  const StepInterval<float>& zrg ) const
 {
     Seis::Bounds3D* b3d = new Seis::Bounds3D;
-    b3d->cs_.hrg.start.inl() = inlrg.start;
-    b3d->cs_.hrg.start.crl() = crlrg.start;
-    b3d->cs_.hrg.stop.inl() = inlrg.stop;
-    b3d->cs_.hrg.stop.crl() = crlrg.stop;
-    b3d->cs_.hrg.step.inl() = inlrg.step;
-    b3d->cs_.hrg.step.crl() = crlrg.step;
+    b3d->tkzs_.hrg.start.inl() = inlrg.start;
+    b3d->tkzs_.hrg.start.crl() = crlrg.start;
+    b3d->tkzs_.hrg.stop.inl() = inlrg.stop;
+    b3d->tkzs_.hrg.stop.crl() = crlrg.stop;
+    b3d->tkzs_.hrg.step.inl() = inlrg.step;
+    b3d->tkzs_.hrg.step.crl() = crlrg.step;
 
-    if ( b3d->cs_.hrg.step.inl() < 0 )
+    if ( b3d->tkzs_.hrg.step.inl() < 0 )
     {
 	pErrMsg("Poss prob: negative inl step from transl");
-	b3d->cs_.hrg.step.inl() = -b3d->cs_.hrg.step.inl();
+	b3d->tkzs_.hrg.step.inl() = -b3d->tkzs_.hrg.step.inl();
     }
-    if ( b3d->cs_.hrg.step.crl() < 0 )
+    if ( b3d->tkzs_.hrg.step.crl() < 0 )
     {
 	pErrMsg("Poss prob: negative crl step from transl");
-	b3d->cs_.hrg.step.crl() = -b3d->cs_.hrg.step.crl();
+	b3d->tkzs_.hrg.step.crl() = -b3d->tkzs_.hrg.step.crl();
     }
-    b3d->cs_.zrg = zrg;
+    b3d->tkzs_.zsamp_ = zrg;
 
     if ( !seldata_ || seldata_->isAll() )
 	return b3d;
 
 #define mChkRg(dir) \
     const Interval<int> dir##rng( seldata_->dir##Range() ); \
-    if ( b3d->cs_.hrg.start.dir() < dir##rng.start ) \
-	b3d->cs_.hrg.start.dir() = dir##rng.start; \
-    if ( b3d->cs_.hrg.stop.dir() > dir##rng.stop ) \
-	b3d->cs_.hrg.stop.dir() = dir##rng.stop;
+    if ( b3d->tkzs_.hrg.start.dir() < dir##rng.start ) \
+	b3d->tkzs_.hrg.start.dir() = dir##rng.start; \
+    if ( b3d->tkzs_.hrg.stop.dir() > dir##rng.stop ) \
+	b3d->tkzs_.hrg.stop.dir() = dir##rng.stop;
 
     mChkRg(inl)
     mChkRg(crl)
 
     const Interval<float> zrng( seldata_->zRange() );
-    if ( b3d->cs_.zrg.start < zrng.start ) b3d->cs_.zrg.start = zrng.start;
-    if ( b3d->cs_.zrg.stop > zrng.stop ) b3d->cs_.zrg.stop = zrng.stop;
+    if ( b3d->tkzs_.zsamp_.start < zrng.start ) b3d->tkzs_.zsamp_.start = zrng.start;
+    if ( b3d->tkzs_.zsamp_.stop > zrng.stop ) b3d->tkzs_.zsamp_.stop = zrng.stop;
 
     return b3d;
 }
@@ -749,7 +749,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	const PosInfo::CubeData& cd = rdr->posData();
 	StepInterval<int> inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getInlRange( crlrg );
-	return get3DBounds( inlrg, crlrg, SI().sampling(false).zrg );
+	return get3DBounds( inlrg, crlrg, SI().sampling(false).zsamp_ );
     }
     if ( !is2D() )
     {

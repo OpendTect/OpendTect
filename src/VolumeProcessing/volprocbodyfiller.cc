@@ -158,8 +158,8 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
     }
     else
     {
-	bodyinlidx = implicitbody_->cs_.hrg.inlRange().nearestIndex( bid.inl());
-	bodycrlidx = implicitbody_->cs_.hrg.crlRange().nearestIndex( bid.crl());
+	bodyinlidx = implicitbody_->tkzs_.hrg.inlRange().nearestIndex( bid.inl());
+	bodycrlidx = implicitbody_->tkzs_.hrg.crlRange().nearestIndex( bid.crl());
 
 	alloutside = bodyinlidx<0 || bodycrlidx<0 ||
 	    bodyinlidx>=implicitbody_->arr_->info().getSize(0) ||
@@ -179,7 +179,7 @@ bool BodyFiller::computeBinID( const BinID& bid, int )
 							   : outsideval_;
 	    else
 	    {
-		const int bodyzidx = implicitbody_->cs_.zrg.nearestIndex(z);
+		const int bodyzidx = implicitbody_->tkzs_.zsamp_.nearestIndex(z);
 		if ( bodyzidx<0 ||
 			bodyzidx>=implicitbody_->arr_->info().getSize(2) )
 		    val = outsideval_;
@@ -276,13 +276,13 @@ Task* BodyFiller::createTask()
 	if ( flatpolygon_.isEmpty() )
 	{
 	    flatpolygon_.hrg.start = flatpolygon_.hrg.stop = bid;
-	    flatpolygon_.zrg.start = flatpolygon_.zrg.stop
+	    flatpolygon_.zsamp_.start = flatpolygon_.zsamp_.stop
 				   = (float)plgknots_[idx].z;
 	}
 	else
 	{
 	    flatpolygon_.hrg.include( bid );
-	    flatpolygon_.zrg.include( (float) plgknots_[idx].z );
+	    flatpolygon_.zsamp_.include( (float) plgknots_[idx].z );
 	}
     }
 
@@ -314,8 +314,8 @@ bool BodyFiller::getFlatPlgZRange( const BinID& bid, Interval<double>& res )
     if ( plgdir_ < 2 ) //Inline or Crossline case
     {
 	int count = 0;
-	double z = flatpolygon_.zrg.start;
-	while ( z <= flatpolygon_.zrg.stop )
+	double z = flatpolygon_.zsamp_.start;
+	while ( z <= flatpolygon_.zsamp_.stop )
 	{
 	    if ( pointInPolygon( Coord3(coord,z), plgbids_, epsilon_ ) )
 	    {

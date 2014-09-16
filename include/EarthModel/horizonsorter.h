@@ -38,7 +38,7 @@ public:
 				~HorizonSorter();
 
     void			getSortedList(TypeSet<MultiID>&);
-    const TrcKeySampling&		getBoundingBox() const	{ return hrg_; }
+    const TrcKeySampling&		getBoundingBox() const	{ return tks_; }
     int				getNrCrossings(const MultiID&,
 	    				       const MultiID&) const;
 
@@ -63,7 +63,7 @@ protected:
 
     TrcKeySamplingIterator*	iterator_;
     BinID			binid_;
-    TrcKeySampling			hrg_;
+    TrcKeySampling			tks_;
     ObjectSet<EM::Horizon>	horizons_;
     Array3D<int>*		result_;
     TypeSet<MultiID>		unsortedids_;

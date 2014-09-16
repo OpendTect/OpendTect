@@ -916,7 +916,7 @@ int SurfaceGeometry::findPos( const TrcKeyZSampling& cs,
     yinterval.include( (float) xypos.y );
 
     TypeSet<PosID> posids;
-    findPos( xinterval, yinterval, cs.zrg, &posids );
+    findPos( xinterval, yinterval, cs.zsamp_, &posids );
 
     for ( int idx=0; idx<posids.size(); idx++ )
     {

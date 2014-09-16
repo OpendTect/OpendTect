@@ -287,17 +287,17 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     if ( !impbody_ ) impbody_ = emsurface_->createImplicitBody(0,false);
     if ( !impbody_ || !impbody_->arr_ ) return;
 
-    const int inlsz = impbody_->cs_.nrInl();
-    const int crlsz = impbody_->cs_.nrCrl();
-    const int zsz = impbody_->cs_.nrZ();
+    const int inlsz = impbody_->tkzs_.nrInl();
+    const int crlsz = impbody_->tkzs_.nrCrl();
+    const int zsz = impbody_->tkzs_.nrZ();
 
     BinIDValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
-	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl());
-	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl());
+	const int inlidx = impbody_->tkzs_.hrg.inlRange().nearestIndex(bid.inl());
+	const int crlidx = impbody_->tkzs_.hrg.crlRange().nearestIndex(bid.crl());
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{
 	    vals[valcol] = 0;
@@ -311,7 +311,7 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 	    if ( impbody_->arr_->get(inlidx,crlidx,idz)>impbody_->threshold_ )
 		continue;
 
-	    const float curz = impbody_->cs_.zrg.atIndex(idz);
+	    const float curz = impbody_->tkzs_.zsamp_.atIndex(idz);
 	    if ( !found )
 	    {
 		found = true;
@@ -826,7 +826,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
 	TrcKeyZSampling cs = activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
-	const float pos = ori==OD::ZSlice ? cs.zrg.start
+	const float pos = ori==OD::ZSlice ? cs.zsamp_.start
 	    : (ori==OD::InlineSlice ? cs.hrg.start.inl() : cs.hrg.start.crl());
 
 	pi->planeorientation_ = (char)ori;
@@ -869,7 +869,7 @@ void MarchingCubesDisplay::updateIntersectionDisplay()
 
 	    intsinfo_[idx]->computed_ = true;
 	    Geometry::ImplicitBodyPlaneIntersector gii( *impbody_->arr_,
-		    impbody_->cs_, impbody_->threshold_,
+		    impbody_->tkzs_, impbody_->threshold_,
 		    intsinfo_[idx]->planeorientation_,
 		    intsinfo_[idx]->planepos_, *intsinfo_[idx]->shape_ );
 	    gii.compute();

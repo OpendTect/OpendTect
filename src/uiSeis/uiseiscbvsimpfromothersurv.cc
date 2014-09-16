@@ -166,25 +166,25 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     const CBVSInfo& info = tr_->readMgr()->info();
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
     const CBVSInfo::SurvGeom& geom = info.geom_;
-    olddata_.cs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
-    olddata_.cs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
-    olddata_.cs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() );
-    data_.hsit_ = new TrcKeySamplingIterator( olddata_.cs_.hrg );
-    olddata_.cs_.zrg = info.sd_.interval( info.nrsamples_ );
-    data_.cs_.zrg = olddata_.cs_.zrg; data_.cs_.zrg.step = SI().zStep();
+    olddata_.tkzs_.hrg.start = BinID( geom.start.inl(), geom.start.crl() );
+    olddata_.tkzs_.hrg.stop  = BinID( geom.stop.inl(), geom.stop.crl() );
+    olddata_.tkzs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() );
+    data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hrg );
+    olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
+    data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_; data_.tkzs_.zsamp_.step = SI().zStep();
 
     BinID bid;
     while ( data_.hsit_->next( bid ) )
-	data_.cs_.hrg.include( SI().transform( b2c.transform( bid ) ) );
+	data_.tkzs_.hrg.include( SI().transform( b2c.transform( bid ) ) );
 
-    if ( !SI().isInside(data_.cs_.hrg.start,true)
-	&& !SI().isInside(data_.cs_.hrg.stop,true) )
+    if ( !SI().isInside(data_.tkzs_.hrg.start,true)
+	&& !SI().isInside(data_.tkzs_.hrg.stop,true) )
 	mErrRet( tr("The selected cube has no coordinates "
 		 "matching the current survey.") )
 
-    int step = olddata_.cs_.hrg.step.inl();
+    int step = olddata_.tkzs_.hrg.step.inl();
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;
-    step = olddata_.cs_.hrg.step.crl();
+    step = olddata_.tkzs_.hrg.step.crl();
     int pady = (int)( getInlXlnDist(b2c,false,step) /SI().crlDistance() )+1;
     padfac_ = mMAX( padx, pady );
 
@@ -196,16 +196,16 @@ void SeisImpCBVSFromOtherSurvey::setPars( Interpol& interp, int cellsz,
 					const TrcKeyZSampling& cs )
 {
     interpol_ = interp;
-    data_.cs_ = cs;
-    data_.cs_.limitTo( SI().sampling(false) );
-    data_.cs_.hrg.snapToSurvey();
-    data_.hsit_->setSampling( data_.cs_.hrg );
-    totnr_ = mCast( int, data_.cs_.hrg.totalNr() );
+    data_.tkzs_ = cs;
+    data_.tkzs_.limitTo( SI().sampling(false) );
+    data_.tkzs_.hrg.snapToSurvey();
+    data_.hsit_->setSampling( data_.tkzs_.hrg );
+    totnr_ = mCast( int, data_.tkzs_.hrg.totalNr() );
     if ( !cellsz ) return;
     fft_ = Fourier::CC::createDefault();
     sz_ = fft_->getFastSize( cellsz );
-    StepInterval<float> zsi( data_.cs_.zrg );
-    zsi.step = olddata_.cs_.zrg.step;
+    StepInterval<float> zsi( data_.tkzs_.zsamp_ );
+    zsi.step = olddata_.tkzs_.zsamp_.step;
     szz_ = fft_->getFastSize( zsi.nrSteps() );
     arr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
     fftarr_ = new Array3DImpl<float_complex>( sz_, sz_, szz_ );
@@ -244,19 +244,19 @@ int SeisImpCBVSFromOtherSurvey::nextStep()
 
     const Coord curcoord = SI().transform( data_.curbid_ );
     const Pos::IdxPair2Coord& b2c = tr_->getTransform();
-    const BinID oldbid = b2c.transformBack( curcoord, olddata_.cs_.hrg.start,
-						olddata_.cs_.hrg.step );
+    const BinID oldbid = b2c.transformBack( curcoord, olddata_.tkzs_.hrg.start,
+						olddata_.tkzs_.hrg.step );
     SeisTrc* outtrc = 0;
     if ( interpol_ == Nearest || padfac_ <= 1 )
     {
 	outtrc = readTrc( oldbid );
 	if ( !outtrc )
 	{
-	    outtrc = new SeisTrc( data_.cs_.zrg.nrSteps() );
+	    outtrc = new SeisTrc( data_.tkzs_.zsamp_.nrSteps() );
 	    outtrc->zero();
 	}
 
-	outtrc->info().sampling = olddata_.cs_.zrg;
+	outtrc->info().sampling = olddata_.tkzs_.zsamp_;
     }
     else
     {
@@ -317,8 +317,8 @@ bool SeisImpCBVSFromOtherSurvey::findSquareTracesAroundCurbid(
 					    ObjectSet<SeisTrc>& trcs ) const
 {
     deepErase( trcs );
-    const int inlstep = olddata_.cs_.hrg.step.inl();
-    const int crlstep = olddata_.cs_.hrg.step.crl();
+    const int inlstep = olddata_.tkzs_.hrg.step.inl();
+    const int crlstep = olddata_.tkzs_.hrg.step.crl();
     const int nrinltrcs = sz_*inlstep/2;
     const int nrcrltrcs = sz_*crlstep/2;
     for ( int idinl=-nrinltrcs; idinl<nrinltrcs; idinl+=inlstep)
@@ -424,7 +424,7 @@ void SeisImpCBVSFromOtherSurvey::sincInterpol( ObjectSet<SeisTrc>& trcs ) const
 	for ( int idy=0; idy<newszy; idy++ )
 	{
 	    SeisTrc* trc = new SeisTrc( szz_ );
-	    trc->info().sampling = olddata_.cs_.zrg;
+	    trc->info().sampling = olddata_.tkzs_.zsamp_;
 	    trc->info().coord.x = startcrd.x + idy*xcrldist + idx*xinldist;
 	    trc->info().coord.y = startcrd.y + idy*ycrldist + idx*yinldist;
 	    trcs += trc;

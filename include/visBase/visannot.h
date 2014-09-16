@@ -94,7 +94,7 @@ protected:
 
     int				scalefactor_[3];
 
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		scale_;
     osg::Geometry*		box_;
     osg::Array*			gridlinecoords_;

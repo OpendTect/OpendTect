@@ -24,7 +24,7 @@ ImplicitBodyPlaneIntersector::ImplicitBodyPlaneIntersector(
 	char dim, float icz, IndexedShape& ns )
     : output_( ns )
     , arr_( arr )
-    , cs_( cs )  
+    , tkzs_( cs )
     , dim_( dim )
     , inlcrlz_( icz )		
     , threshold_( threshold )			       	
@@ -39,16 +39,16 @@ bool ImplicitBodyPlaneIntersector::compute()
 
     geo->removeAll( false );
 
-    const int sz0 = dim_ ? cs_.nrInl() : cs_.nrCrl();
-    const int sz1 = dim_==2 ? cs_.nrCrl() : cs_.nrZ();
+    const int sz0 = dim_ ? tkzs_.nrInl() : tkzs_.nrCrl();
+    const int sz1 = dim_==2 ? tkzs_.nrCrl() : tkzs_.nrZ();
     mDeclareAndTryAlloc( PtrMan<Array2D<float> >, data,
 	    Array2DImpl<float>(sz0,sz1) );
     if ( !data ) return false;
 
-    const int pidx = !dim_ ? cs_.hrg.inlRange().nearestIndex((int)inlcrlz_) : 
-	(dim_==1 ? cs_.hrg.crlRange().nearestIndex((int)inlcrlz_) : 
-	 	   cs_.zrg.nearestIndex(inlcrlz_) );
-    const int psz = !dim_ ? cs_.nrInl() : (dim_==1 ? cs_.nrCrl() : cs_.nrZ());
+    const int pidx = !dim_ ? tkzs_.hrg.inlRange().nearestIndex((int)inlcrlz_) :
+	(dim_==1 ? tkzs_.hrg.crlRange().nearestIndex((int)inlcrlz_) :
+	 	   tkzs_.zsamp_.nearestIndex(inlcrlz_) );
+    const int psz = !dim_ ? tkzs_.nrInl() : (dim_==1 ? tkzs_.nrCrl() : tkzs_.nrZ());
     if ( pidx<0 || pidx>=psz ) return false;
     
     data->setAll( mUdf(float) );
@@ -66,16 +66,16 @@ bool ImplicitBodyPlaneIntersector::compute()
     for ( int idx=0; idx<sz0; idx++ )
     {
 	if ( !dim_ )
-	    bid.crl() = cs_.hrg.crlRange().atIndex(idx);
+	    bid.crl() = tkzs_.hrg.crlRange().atIndex(idx);
 	else
-	    bid.inl() = cs_.hrg.inlRange().atIndex(idx);
+	    bid.inl() = tkzs_.hrg.inlRange().atIndex(idx);
 
 	for ( int idy=0; idy<sz1; idy++ )
 	{
 	    if ( dim_==2 )
-		bid.crl() = cs_.hrg.crlRange().atIndex(idy);
+		bid.crl() = tkzs_.hrg.crlRange().atIndex(idy);
 	    else
-		z = cs_.zrg.atIndex(idy);
+		z = tkzs_.zsamp_.atIndex(idy);
 
 	    float val;
 	    if ( !dim_ )

@@ -88,8 +88,8 @@ bool DataCubes::setSizeAndPos( const TrcKeyZSampling& cs )
     crlsampling_.start = cs.hrg.start.crl();
     inlsampling_.step = cs.hrg.step.inl();
     crlsampling_.step = cs.hrg.step.crl();
-    z0_ = mNINT32(cs.zrg.start/cs.zrg.step);
-    zstep_ = cs.zrg.step;
+    z0_ = mNINT32(cs.zsamp_.start/cs.zsamp_.step);
+    zstep_ = cs.zsamp_.step;
 
     return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
 }
@@ -195,8 +195,8 @@ bool DataCubes::includes( const BinID& binid ) const
 
 bool DataCubes::includes( const TrcKeyZSampling& cs ) const
 {
-    return includes( BinIDValue( cs.hrg.start, cs.zrg.start ) ) &&
-           includes( BinIDValue( cs.hrg.stop, cs.zrg.stop ) );
+    return includes( BinIDValue( cs.hrg.start, cs.zsamp_.start ) ) &&
+	   includes( BinIDValue( cs.hrg.stop, cs.zsamp_.stop ) );
 }
 
 
@@ -223,9 +223,9 @@ TrcKeyZSampling DataCubes::cubeSampling() const
 			      crlsampling_.atIndex(crlsz_-1) );
 	res.hrg.step = BinID( inlsampling_.step, crlsampling_.step );
 
-	res.zrg.start = (float) (z0_ * zstep_);
-	res.zrg.stop = (float) ((z0_ + zsz_ - 1) * zstep_);
-	res.zrg.step = (float) zstep_;
+	res.zsamp_.start = (float) (z0_ * zstep_);
+	res.zsamp_.stop = (float) ((z0_ + zsz_ - 1) * zstep_);
+	res.zsamp_.step = (float) zstep_;
     }
 
     return res;

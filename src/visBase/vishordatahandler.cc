@@ -66,11 +66,11 @@ void HorizonSectionDataHandler::updateZAxisVOI()
 
 	if ( first )
 	{
-	    cs.zrg.start = cs.zrg.stop = depth;
+	    cs.zsamp_.start = cs.zsamp_.stop = depth;
 	    first = false;
 	}
 	else
-	    cs.zrg.include( depth );
+	    cs.zsamp_.include( depth );
     }
 
     if ( first ) return;

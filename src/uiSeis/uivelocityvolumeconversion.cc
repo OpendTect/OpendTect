@@ -98,7 +98,7 @@ void Vel::uiBatchVolumeConversion::inputChangeCB( CallBacker* )
     if ( !bounds3d )
 	return;
 
-    possubsel_->setInputLimit( bounds3d->cs_ );
+    possubsel_->setInputLimit( bounds3d->tkzs_ );
 }
 
 

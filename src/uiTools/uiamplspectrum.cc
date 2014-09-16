@@ -117,7 +117,7 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	mDynamicCastGet(const ::CubeDataPack*,dp,datapack);
 	if ( dp )
 	{
-	    setup_.nyqvistspspace_ = dp->sampling().zrg.step;
+	    setup_.nyqvistspspace_ = dp->sampling().zsamp_.step;
 	    setData( dp->data() );
 	}
     }

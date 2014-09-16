@@ -200,7 +200,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 
     if ( !isondisc_ )
     {
-	storedvolume_.zrg.start = 0;	//cover up for synthetics
+	storedvolume_.zsamp_.start = 0;	//cover up for synthetics
 	DataPack::FullID fid( getDPID() );
 	DataPackRef<SeisTrcBufDataPack> stbdtp =
 				DPM(fid).obtain( DataPack::getID(fid) );
@@ -209,7 +209,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	stbdtp->trcBuf().fill( si );
 	storedvolume_.hrg.setInlRange( si.inlrg );
 	storedvolume_.hrg.setCrlRange( si.crlrg );
-	storedvolume_.zrg = si.zrg;
+	storedvolume_.zsamp_ = si.zrg;
 	return true;
     }
 
@@ -254,13 +254,13 @@ bool StorageProvider::checkInpAndParsAtStart()
 			{
 			    storedvolume_.hrg.include( BinID(0,trcrg.start) );
 			    storedvolume_.hrg.include( BinID(0,trcrg.stop) );
-			    storedvolume_.zrg.include( zrg );
+			    storedvolume_.zsamp_.include( zrg );
 			}
 			else
 			{
 			    storedvolume_.hrg.start.crl() = trcrg.start;
 			    storedvolume_.hrg.stop.crl() = trcrg.stop;
-			    storedvolume_.zrg = zrg;
+			    storedvolume_.zsamp_ = zrg;
 			}
 			foundone = true;
 		    }
@@ -278,7 +278,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    {
 		storedvolume_.hrg.start.crl() = trcrg.start;
 		storedvolume_.hrg.stop.crl() = trcrg.stop;
-		storedvolume_.zrg = zrg;
+		storedvolume_.zsamp_ = zrg;
 	    }
 	}
     }
@@ -391,10 +391,10 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 {\
     if ( res.hrg.step.dir>1 )\
     {\
-	float remain = ( possiblevolume_->hrg.start.dir - res.hrg.start.dir ) %\
+	float remain = ( possiblevolume_->hsamp_.start_.dir - res.hrg.start.dir ) %\
 			res.hrg.step.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
-	    res.hrg.start.dir = possiblevolume_->hrg.start.dir + \
+	    res.hrg.start.dir = possiblevolume_->hsamp_.start_.dir + \
 				mNINT32(remain +0.5) *res.hrg.step.dir;\
     }\
 }
@@ -516,21 +516,21 @@ bool StorageProvider::setMSCProvSelData()
 
     TrcKeyZSampling cs;
     cs.hrg.start.inl() =
-	    desiredvolume_->hrg.start.inl() < storedvolume_.hrg.start.inl() ?
-	    storedvolume_.hrg.start.inl() : desiredvolume_->hrg.start.inl();
+	    desiredvolume_->hsamp_.start_.inl() < storedvolume_.hrg.start.inl() ?
+	    storedvolume_.hrg.start.inl() : desiredvolume_->hsamp_.start_.inl();
     cs.hrg.stop.inl() =
-	    desiredvolume_->hrg.stop.inl() > storedvolume_.hrg.stop.inl() ?
-	    storedvolume_.hrg.stop.inl() : desiredvolume_->hrg.stop.inl();
+	    desiredvolume_->hsamp_.stop.inl() > storedvolume_.hrg.stop.inl() ?
+	    storedvolume_.hrg.stop.inl() : desiredvolume_->hsamp_.stop.inl();
     cs.hrg.stop.crl() =
-	    desiredvolume_->hrg.stop.crl() > storedvolume_.hrg.stop.crl() ?
-	    storedvolume_.hrg.stop.crl() : desiredvolume_->hrg.stop.crl();
+	    desiredvolume_->hsamp_.stop.crl() > storedvolume_.hrg.stop.crl() ?
+	    storedvolume_.hrg.stop.crl() : desiredvolume_->hsamp_.stop.crl();
     cs.hrg.start.crl() =
-	    desiredvolume_->hrg.start.crl() < storedvolume_.hrg.start.crl() ?
-	    storedvolume_.hrg.start.crl() : desiredvolume_->hrg.start.crl();
-    cs.zrg.start = desiredvolume_->zrg.start < storedvolume_.zrg.start ?
-		    storedvolume_.zrg.start : desiredvolume_->zrg.start;
-    cs.zrg.stop = desiredvolume_->zrg.stop > storedvolume_.zrg.stop ?
-		     storedvolume_.zrg.stop : desiredvolume_->zrg.stop;
+	    desiredvolume_->hsamp_.start_.crl() < storedvolume_.hrg.start.crl() ?
+	    storedvolume_.hrg.start.crl() : desiredvolume_->hsamp_.start_.crl();
+    cs.zsamp_.start = desiredvolume_->zrg.start < storedvolume_.zsamp_.start ?
+		    storedvolume_.zsamp_.start : desiredvolume_->zrg.start;
+    cs.zsamp_.stop = desiredvolume_->zrg.stop > storedvolume_.zsamp_.stop ?
+		     storedvolume_.zsamp_.stop : desiredvolume_->zrg.stop;
 
     reader.setSelData( haveseldata ? seldata_->clone()
 				   : new Seis::RangeSelData(cs) );
@@ -594,10 +594,10 @@ bool StorageProvider::set2DRangeSelData()
 		return false;
 	    Interval<int> rg( 0, 0 );
 	    seldata->setInlRange( rg );
-	    rg.start = desiredvolume_->hrg.start.crl() < trcrg.start?
-			trcrg.start : desiredvolume_->hrg.start.crl();
-	    rg.stop = desiredvolume_->hrg.stop.crl() > trcrg.stop ?
-			trcrg.stop : desiredvolume_->hrg.stop.crl();
+	    rg.start = desiredvolume_->hsamp_.start_.crl() < trcrg.start?
+			trcrg.start : desiredvolume_->hsamp_.start_.crl();
+	    rg.stop = desiredvolume_->hsamp_.stop.crl() > trcrg.stop ?
+			trcrg.stop : desiredvolume_->hsamp_.stop.crl();
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
 	    zrg.start = desiredvolume_->zrg.start < lsetzrg.start ?
@@ -630,15 +630,15 @@ bool StorageProvider::checkDesiredVolumeOK()
 	return true;
 
     const bool inlwrong =
-	desiredvolume_->hrg.start.inl() > storedvolume_.hrg.stop.inl()
-     || desiredvolume_->hrg.stop.inl() < storedvolume_.hrg.start.inl();
+	desiredvolume_->hsamp_.start_.inl() > storedvolume_.hrg.stop.inl()
+     || desiredvolume_->hsamp_.stop.inl() < storedvolume_.hrg.start.inl();
     const bool crlwrong =
-	desiredvolume_->hrg.start.crl() > storedvolume_.hrg.stop.crl()
-     || desiredvolume_->hrg.stop.crl() < storedvolume_.hrg.start.crl();
+	desiredvolume_->hsamp_.start_.crl() > storedvolume_.hrg.stop.crl()
+     || desiredvolume_->hsamp_.stop.crl() < storedvolume_.hrg.start.crl();
     const bool zwrong =
-	desiredvolume_->zrg.start > storedvolume_.zrg.stop
-     || desiredvolume_->zrg.stop < storedvolume_.zrg.start;
-    const float zstepratio = desiredvolume_->zrg.step / storedvolume_.zrg.step;
+	desiredvolume_->zrg.start > storedvolume_.zsamp_.stop
+     || desiredvolume_->zrg.stop < storedvolume_.zsamp_.start;
+    const float zstepratio = desiredvolume_->zrg.step / storedvolume_.zsamp_.step;
     const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
 
     if ( !inlwrong && !crlwrong && !zwrong && !zstepwrong )
@@ -649,7 +649,7 @@ bool StorageProvider::checkDesiredVolumeOK()
 		storedvolume_.hrg.start.inl(),storedvolume_.hrg.stop.inl())
     mAdd2ErrMsg(crlwrong,"Crossline",
 		storedvolume_.hrg.start.crl(),storedvolume_.hrg.stop.crl())
-    mAdd2ErrMsg(zwrong,"Z",storedvolume_.zrg.start,storedvolume_.zrg.stop)
+    mAdd2ErrMsg(zwrong,"Z",storedvolume_.zsamp_.start,storedvolume_.zsamp_.stop)
     if ( zstepwrong )
 	errmsg_ = tr("Z-Step is not correct. The maximum resampling allowed"
                      " is a factor 100. Probably the data belongs to a"
@@ -669,8 +669,8 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     }
 
     const bool trcrgwrong =
-	desiredvolume_->hrg.start.crl() > trcrg.stop
-     || desiredvolume_->hrg.stop.crl() < trcrg.start;
+	desiredvolume_->hsamp_.start_.crl() > trcrg.stop
+     || desiredvolume_->hsamp_.stop.crl() < trcrg.start;
     const bool zwrong =
 	desiredvolume_->zrg.start > zrg.stop
      || desiredvolume_->zrg.stop < zrg.start;
@@ -847,9 +847,9 @@ void StorageProvider::adjust2DLineStoredVolume()
     {
 	storedvolume_.hrg.start.crl() = trcrg.start;
 	storedvolume_.hrg.stop.crl() = trcrg.stop;
-	storedvolume_.zrg.start = zrg.start;
-	storedvolume_.zrg.stop = zrg.stop;
-	storedvolume_.zrg.step = zrg.step;
+	storedvolume_.zsamp_.start = zrg.start;
+	storedvolume_.zsamp_.stop = zrg.stop;
+	storedvolume_.zsamp_.step = zrg.step;
     }
 }
 

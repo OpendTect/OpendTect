@@ -1025,7 +1025,7 @@ void Step::setOutput( OutputSlotID slotid, Attrib::DataCubes* dc,
     output_ = dc;
     if ( output_ ) output_->ref();
 
-    hrg_ = hrg;
+    tks_ = hrg;
     zrg_ = zrg;
 }
 

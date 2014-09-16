@@ -220,7 +220,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 
     const int zsz = cs.nrZ();
 
-    const SamplingData<double> sd( cs.zrg.start,cs.zrg.step );
+    const SamplingData<double> sd( cs.zsamp_.start,cs.zsamp_.step );
 
     const OffsetValueSeries<float> toarr( 
 		    const_cast<ValueSeries<float>&>(*storage), tooffset ); 
@@ -319,12 +319,12 @@ TrcKeyZSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) cons
 
     TrcKeyZSampling res = engine().activeVolume();
 
-    res.zrg.start += tracker_->permittedRange().start;
-    res.zrg.stop += tracker_->permittedRange().stop;
+    res.zsamp_.start += tracker_->permittedRange().start;
+    res.zsamp_.stop += tracker_->permittedRange().stop;
     if ( !trackByValue() )
     {
-	res.zrg.start += tracker_->similarityWindow().start;
-	res.zrg.stop += tracker_->similarityWindow().stop;
+	res.zsamp_.start += tracker_->similarityWindow().start;
+	res.zsamp_.stop += tracker_->similarityWindow().stop;
     }
 
     res.snapToSurvey();

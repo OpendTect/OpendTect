@@ -154,7 +154,7 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
     if ( !getRanges(cs) )
 	return false;
 
-    spinf.expectednrsamps = cs.zrg.nrSteps() + 1;
+    spinf.expectednrsamps = cs.zsamp_.nrSteps() + 1;
     spinf.expectednrtrcs = mCast( int, cs.hrg.totalNr() );
     getBPS( spinf.maxbytespsamp, -1 );
     return true;
@@ -236,7 +236,7 @@ bool SeisIOObjInfo::getRanges( TrcKeyZSampling& cs ) const
     {
 	SeisTrc* trc = rdr->getTrace( BinID(cs.hrg.start.inl(),icrl) );
 	if ( trc )
-	    { cs.zrg = trc->zRange(); delete trc; break; }
+	    { cs.zsamp_ = trc->zRange(); delete trc; break; }
     }
     delete rdr;
     return true;

@@ -316,7 +316,7 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
     if ( lidx < 0 ) return false;
 
     StepInterval<int> trcrg;
-    dataset.getRanges( lidx, trcrg, cs.zrg );
+    dataset.getRanges( lidx, trcrg, cs.zsamp_ );
     cs.hrg.setCrlRange( trcrg );
     PtrMan<Executor> exec = dataset.lineFetcher( lidx, buf );
     uiTaskRunner dlg( parent() );

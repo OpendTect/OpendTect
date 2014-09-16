@@ -272,7 +272,7 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
     }
 
     const Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
-    return Coord3(c.x,c.y,cs.zrg.atIndex(zidx));
+    return Coord3(c.x,c.y,cs.zsamp_.atIndex(zidx));
 }
 
 
@@ -472,7 +472,7 @@ TrcKeyZSampling Flat2DDHDataPack::getTrcKeyZSampling() const
     TrcKeyZSampling cs;
     cs.hrg.setInlRange( StepInterval<int>(0,0,1) );
     cs.hrg.setCrlRange( tracerange_ );
-    cs.zrg = samplingdata_.interval( arr2d_->info().getSize(1) );
+    cs.zsamp_ = samplingdata_.interval( arr2d_->info().getSize(1) );
     return cs;
 }
 
@@ -594,7 +594,7 @@ CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
     , cubeidx_(ci)
 {
     cube_.ref();
-    cs_ = cube_.cubeSampling();
+    tkzs_ = cube_.cubeSampling();
 }
 
 

@@ -61,7 +61,7 @@ public:
 
 protected:
 
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
 };
 
 #endif

@@ -30,14 +30,16 @@ public:
 			    : uiPosFiltGroup::Setup(is_2d)
 			    , withstep_(with_step)
 			    , withz_(with_z)
-			    , cs_(!is_2d)
-			 { if ( is_2d ) cs_.set2DDef(); }
+			    , tkzs_(!is_2d)
+			 { if ( is_2d ) tkzs_.set2DDef(); }
 
 	virtual	~Setup()				{}
+	Setup& cs(TrcKeyZSampling d) { tkzs_ = d; return *this; }
+	//!<For legacy compliance
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(BufferString,zdomkey)
-	mDefSetupMemb(TrcKeyZSampling,cs)
+	mDefSetupMemb(TrcKeyZSampling,tkzs)
 	mDefSetupMemb(TypeSet< StepInterval<int> >,trcrgs)
 	mDefSetupMemb(TypeSet< StepInterval<float> >,zrgs)
     };

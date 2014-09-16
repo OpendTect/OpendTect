@@ -54,7 +54,7 @@ public:
     void		setPars(Interpol&,int,const TrcKeyZSampling&);
     inline void		setOutput( IOObj& obj )	{ outioobj_ = &obj; }
 
-    const TrcKeyZSampling& cubeSampling() const { return data_.cs_; }
+    const TrcKeyZSampling& cubeSampling() const { return data_.tkzs_; }
 
 protected:
 
@@ -74,10 +74,10 @@ protected:
     {
 			PosData()
 			    : hsit_(0)
-			    , cs_(false) {}
+			    , tkzs_(false) {}
 
 	BinID		curbid_;
-	TrcKeyZSampling cs_;
+	TrcKeyZSampling tkzs_;
 	TrcKeySamplingIterator* hsit_;
     };
     PosData		data_, olddata_;

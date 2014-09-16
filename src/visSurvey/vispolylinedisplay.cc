@@ -32,7 +32,7 @@ PolyLineDisplay::~PolyLineDisplay()
 void PolyLineDisplay::fillPolyLine( const TypeSet<Coord>& coords )
 {
     for ( int idx=0; idx<coords.size(); idx++ )
-	fillPolyLine( Coord3(coords[idx], SI().sampling(0).zrg.start) );
+	fillPolyLine( Coord3(coords[idx], SI().sampling(0).zsamp_.start) );
 }
 
 

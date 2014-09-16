@@ -58,7 +58,7 @@ protected:
     IOObj*			output_;
     VelocityDesc		velinpdesc_;
     VelocityDesc		veloutpdesc_;
-    TrcKeySampling			hrg_;
+    TrcKeySampling			tks_;
     FixedString			errmsg_;
 
     SeisTrcReader*		reader_;

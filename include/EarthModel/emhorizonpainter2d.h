@@ -68,7 +68,7 @@ protected:
     void		changePolyLineColor();
 
     EM::ObjectID	id_;
-    TrcKeyZSampling	cs_;
+    TrcKeyZSampling	tkzs_;
 
     LineStyle           markerlinestyle_;
     MarkerStyle2D       markerstyle_;

@@ -34,7 +34,7 @@ public:
 
     bool                computeAutocorr(bool);
     void                createAndDisplay2DViewer(bool);
-    void		setTrcKeyZSampling( TrcKeyZSampling cs )	{ cs_ = cs; }
+    void		setTrcKeyZSampling( TrcKeyZSampling cs )	{ tkzs_ = cs; }
     void		setGeomID( const Pos::GeomID& geomid )
 			{ geomid_ = geomid; }
     void		setAttribID( Attrib::DescID id )	{ attribid_=id;}
@@ -52,7 +52,7 @@ protected:
 
     uiFlatViewMainWin*		examwin_;
     uiFlatViewMainWin*		qcwin_;
-    TrcKeyZSampling		cs_;
+    TrcKeyZSampling		tkzs_;
     Pos::GeomID			geomid_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*		dset_;

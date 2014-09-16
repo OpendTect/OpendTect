@@ -768,12 +768,12 @@ const char* Seis2DLineSet::getTrcKeyZSampling( TrcKeyZSampling& cs,
 		    cs.hrg.stop.crl() = trg.stop;
 		if ( cs.hrg.step.crl() > trg.step )
 		    cs.hrg.step.crl() = trg.step;
-		if ( cs.zrg.start > zrg.start )
-		    cs.zrg.start = zrg.start;
-		if ( cs.zrg.stop < zrg.stop )
-		    cs.zrg.stop = zrg.stop;
-		if ( cs.zrg.step > zrg.step )
-		    cs.zrg.step = zrg.step;
+		if ( cs.zsamp_.start > zrg.start )
+		    cs.zsamp_.start = zrg.start;
+		if ( cs.zsamp_.stop < zrg.stop )
+		    cs.zsamp_.stop = zrg.stop;
+		if ( cs.zsamp_.step > zrg.step )
+		    cs.zsamp_.step = zrg.step;
 	    }
 	}
     }
@@ -787,7 +787,7 @@ const char* Seis2DLineSet::getTrcKeyZSampling( TrcKeyZSampling& cs, int lnr ) co
     cs.hrg.step.inl() = cs.hrg.step.crl() = 1;
     cs.hrg.start.inl() = 0; cs.hrg.stop.inl() = nrLines()-1;
     cs.hrg.start.crl() = 0; cs.hrg.stop.crl() = mUdf(int);
-    cs.zrg = SI().zRange(false);
+    cs.zsamp_ = SI().zRange(false);
     const int nrlines = nrLines();
     if ( nrlines < 1 )
 	return "No lines in Line Set";
@@ -827,7 +827,7 @@ const char* Seis2DLineSet::getTrcKeyZSampling( TrcKeyZSampling& cs, int lnr ) co
 
     cs.hrg.start.crl() = trg.start; cs.hrg.stop.crl() = trg.stop;
     cs.hrg.step.crl() = trg.step;
-    cs.zrg = zrg;
+    cs.zsamp_ = zrg;
     return 0;
 }
 

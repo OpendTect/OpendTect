@@ -61,7 +61,7 @@ protected:
 
     od_ostream&			strm_;
     EventManager&		events_;
-    TrcKeySampling			hrg_;
+    TrcKeySampling			tks_;
 
     BinIDValueSet		locations_;
     BinIDValueSet::SPos		pos_;
