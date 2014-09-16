@@ -86,14 +86,15 @@ void uiSeisPreStackMan::mkFileInfo()
 	    txt.add( "\nInline range: " )
 			.add( rg.start ).add( " - " ).add( rg.stop );
 	    if ( cd.haveInlStepInfo() )
-		{ txt.add( " step " ).add( rg.step ); }
+		{ txt.add( " [" ).add( rg.step ).add( "]" ); }
 	    cd.getCrlRange( rg );
 	    txt.add( "\nCrossline range: " )
 			.add( rg.start ).add( " - " ).add( rg.stop );
 	    if ( cd.haveCrlStepInfo() )
-		{ txt.add( " step " ).add( rg.step ); }
+		{ txt.add( " [" ).add( rg.step ).add( "]" ); }
 	}
 	txt.add("\n");
+
 	TrcKeyZSampling cs;
 	if ( objinf.getRanges(cs) )
 	{
