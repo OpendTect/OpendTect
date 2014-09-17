@@ -85,6 +85,7 @@ protected:
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;
 
+    void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

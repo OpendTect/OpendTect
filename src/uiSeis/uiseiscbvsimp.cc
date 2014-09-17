@@ -565,11 +565,15 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
+    inpfld_->selectionDone.notify( mCB(this,uiSeisCopyLineSet,inpSel) );
 
     subselfld_ = new uiSeis2DMultiLineSel( this, "Selet Lines to copy", true );
     subselfld_->attach( alignedBelow, inpfld_ );
     if ( obj )
+    {
+	inpfld_->setInput( obj->key() );
 	subselfld_->setInput( obj->key() );
+    }
 
     scalefld_ = new uiScaler( this, "Scale values", true );
     scalefld_->attach( alignedBelow, subselfld_ );
@@ -577,6 +581,13 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
     ioctxt.forread = false;
     outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     outpfld_->attach( alignedBelow, scalefld_ );
+}
+
+
+void uiSeisCopyLineSet::inpSel( CallBacker* )
+{
+    if ( inpfld_->ioobj(true) )
+	subselfld_->setInput( inpfld_->key() );
 }
 
 
