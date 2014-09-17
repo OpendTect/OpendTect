@@ -844,6 +844,12 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	    for ( int idy=definedidxs_.size()-1; idy>=0; idy-- )
 	    {
 		const od_int64 source = definedidxs_[idy];
+		if ( source == idx )
+		{
+		    weights[idy] = 0;
+		    continue;
+		}
+
 		const float sourcerow = mCast(float,source/nrcols_);
 		const float sourcecol = mCast(float,source%nrcols_);
 
