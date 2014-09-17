@@ -33,6 +33,15 @@ DataHolder::~DataHolder()
 { deepErase(data_); }
 
 
+ValueSeries<float>* DataHolder::gtSer( int idx ) const
+{
+    if ( !data_.validIdx(idx) )
+	return 0;
+
+    return const_cast<ValueSeries<float>*>(data_[idx]);
+}
+
+
 DataHolder* DataHolder::clone() const
 {
     DataHolder* dh = new DataHolder( z0_, nrsamples_ );

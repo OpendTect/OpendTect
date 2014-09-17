@@ -63,14 +63,16 @@ bool Evaluate::getInputData( const BinID& relpos, int zintv )
 bool Evaluate::computeData( const DataHolder& output, const BinID& relpos,
 			    int z0, int nrsamples, int threadid ) const
 {
-    if ( inputdata_.isEmpty() || output.isEmpty() ) return false;
+    if ( inputdata_.isEmpty() || output.isEmpty() || 
+	 inputdata_.size()<output.nrSeries() ) 
+	 return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
 	for ( int sidx=0; sidx<output.nrSeries(); sidx++ )
 	{
-	    if ( !isOutputEnabled(sidx) ) continue;
+	    if ( !isOutputEnabled(sidx) || !inputdata_[sidx] ) continue;
 
 	    const ValueSeries<float>* valseries = 
 			inputdata_[sidx]->series( dataidx_[sidx] );
