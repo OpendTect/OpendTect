@@ -56,8 +56,8 @@ public:
     const Strat::LayerModel&            layerModel() const;
     Strat::LayerModel&                  layerModel();
     const char*				levelName() const; //!< null if none
-    const StratSynth&		currentStratSynth() const;
-    StratSynth&			currentStratSynth();
+    const StratSynth&			currentStratSynth() const;
+    StratSynth&				currentStratSynth();
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;
@@ -132,6 +132,7 @@ protected:
     bool			saveGenDesc() const;
     bool			saveGenDescIfNecessary(
 					bool allowcancel=true) const;
+    void			updateGenDesc();
     void			manPropsCB(CallBacker*);
     void			snapshotCB(CallBacker*);
     void			synthDispParsChangedCB(CallBacker*);

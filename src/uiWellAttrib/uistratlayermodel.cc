@@ -494,6 +494,7 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
     synthdisp_->setDispEach( modtools_->dispEach() );
+    updateGenDesc();
 }
 
 
@@ -666,6 +667,12 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
     }
 
     return saveGenDesc();
+}
+
+
+void uiStratLayerModel::updateGenDesc()
+{
+    fillWorkBenchPars( desc_.getWorkBenchParams() );
 }
 
 
@@ -995,7 +1002,7 @@ void uiStratLayerModel::displayFRResult( bool usefr, bool parschanged,
     }
     synthdisp_->showFRResults();
     synthdisp_->setDispMrkrs( modtools_->selLevel(), moddisp_->levelDepths(),
-		    	      modtools_->selLevelColor() );
+			      modtools_->selLevelColor() );
     moddisp_->setBrineFilled( fwd );
     moddisp_->setFluidReplOn( usefr );
     moddisp_->modelChanged();
