@@ -65,6 +65,7 @@ public:
 
     static int		cInvalidRequest()	{ return 1; }
     static int		cTimeout()		{ return 2; }
+    static int		cDisconnected()		{ return 3; }
 
     TcpSocket*		tcpSocket()		{ return tcpsocket_; }
 
@@ -94,8 +95,8 @@ private:
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
-    void			readFromSocket(CallBacker*);
 
+    bool			readFromSocket();
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);

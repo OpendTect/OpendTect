@@ -49,45 +49,7 @@ RequestCommunicator::~RequestCommunicator()
 
     if ( !tcpserv_ )
 	deleteAndZeroPtr( tcpsocket_ );
-
     deleteAndZeroPtr( tcpserv_ );
-}
-
-
-void RequestCommunicator::readFromSocket(CallBacker*)
-{
-    while ( tcpsocket_ )
-    {
-	PtrMan<RequestPacket> nextreceived = new RequestPacket;
-	TcpSocket::ReadStatus readres = tcpsocket_->read( *nextreceived );
-	if ( readres==TcpSocket::ReadError )
-	{
-	    tcpsocket_->disconnectFromHost();
-	    break;
-	    //DO more stuff.
-	}
-	else if ( readres==TcpSocket::ReadOK )
-	{
-	    const od_int32 receivedid = nextreceived->requestID();
-	    const od_int16 receivesubid = nextreceived->subID();
-
-	    Threads::MutexLocker locker ( lock_ );
-	    if ( receivesubid!=RequestPacket::cBeginSubID() &&
-		!ourrequestids_.isPresent( receivedid ))
-	    {
-	    }
-	    else
-	    {
-		receivedpackets_ += nextreceived.release();
-		locker.unLock();
-
-		packetArrived.trigger(receivedid);
-	    }
-	}
-
-	if ( !tcpsocket_->bytesAvailable() ) //Not sure this works
-	    break;
-    }
 }
 
 
@@ -105,14 +67,13 @@ void RequestCommunicator::connectToHost()
 
 void RequestCommunicator::startListening()
 {
+    deleteAndZeroPtr( tcpsocket_ );
+
     if ( !tcpserv_ )
     {
 	tcpserv_ = new TcpServer;
-	mAttachCB( tcpserv_->newConnection,
-		   RequestCommunicator::newConnectionCB );
+	mAttachCB( tcpserv_->newConnection, RequestCommunicator::newConnectionCB );
     }
-
-    tcpsocket_ = 0;
 
     tcpserv_->listen( 0, serverport_ );
 }
@@ -124,10 +85,15 @@ void RequestCommunicator::newConnectionCB(CallBacker* cb)
     Threads::MutexLocker locker( lock_ );
     TcpSocket* sock = tcpserv_->getSocket(socketid);
 
-    if ( tcpsocket_ && tcpsocket_->isConnected() )
-    { //I will only deal with one counterpart.
-	sock->disconnectFromHost();
-	return;
+    if ( tcpsocket_ )
+    {
+	if ( tcpsocket_->isConnected() )
+	{
+	    //I will only deal with one counterpart.
+	    sock->disconnectFromHost();
+	    return;
+	}
+	delete tcpsocket_;
     }
 
     tcpsocket_ = sock;
@@ -153,34 +119,71 @@ bool RequestCommunicator::isOK() const
 void RequestCommunicator::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
+    tcpserv_ = 0; tcpsocket_ = 0;
 }
 
 
-bool RequestCommunicator::sendPacket( const RequestPacket& req )
+bool RequestCommunicator::readFromSocket()
 {
-    if ( !req.isOK() )
+    while ( tcpsocket_ )
     {
-	return false;
+	PtrMan<RequestPacket> nextreceived = new RequestPacket;
+	TcpSocket::ReadStatus readres = tcpsocket_->read( *nextreceived );
+	if ( readres==TcpSocket::ReadError )
+	{
+	    tcpsocket_->disconnectFromHost();
+	    return false;
+	}
+	else if ( readres==TcpSocket::ReadOK )
+	{
+	    const od_int32 receivedid = nextreceived->requestID();
+	    const od_int16 receivesubid = nextreceived->subID();
+
+	    Threads::MutexLocker locker ( lock_ );
+	    if ( receivesubid==RequestPacket::cBeginSubID() ||
+		 ourrequestids_.isPresent( receivedid ) )
+	    {
+		receivedpackets_ += nextreceived.release();
+		locker.unLock();
+
+		packetArrived.trigger(receivedid);
+	    }
+	}
+
+	if ( !tcpsocket_->bytesAvailable() ) //Not sure this works
+	    break;
     }
 
-    const od_int32 reqid = req.requestID();
-    const od_int16 subid = req.subID();
+    return true;
+}
+
+
+
+bool RequestCommunicator::sendPacket( const RequestPacket& pkt )
+{
+    if ( !isOK() || !pkt.isOK() || (tcpserv_ && !tcpsocket_) )
+	return false;
+
+    const od_int32 reqid = pkt.requestID();
+    const od_int16 subid = pkt.subID();
 
     Threads::MutexLocker locker( lock_ );
     if ( !ourrequestids_.isPresent( reqid ) )
     {
-	if ( subid == RequestPacket::cBeginSubID() ||
-	     subid==RequestPacket::cEndSubID())
+	if ( subid == RequestPacket::cBeginSubID() )
 	    ourrequestids_ += reqid;
 	else
+	{
+	    pErrMsg( BufferString("Packet send requested for unknown ID: ",reqid) );
 	    return false;
+	}
     }
 
-    const bool result = tcpsocket_->write( req );
+    const bool result = tcpsocket_->write( pkt );
     //Should we wait for written?
 
-    if ( !result || req.subID() == RequestPacket::cEndSubID() )
-	requestEnded( req.requestID() );
+    if ( !result || pkt.subID() == RequestPacket::cEndSubID() )
+	requestEnded( pkt.requestID() );
 
     return true;
 }
@@ -197,28 +200,39 @@ RequestPacket* RequestCommunicator::pickupPacket( od_int32 reqid, int timeout,
 	return 0;
     }
 
-    const int starttm = Time::getMilliSeconds();
-
     RequestPacket* pkt = getNextAlreadyRead( reqid );
-
-    while ( !pkt )
+    if ( !pkt )
     {
-	const int remaining = timeout-Time::getMilliSeconds()+starttm;
-	if ( remaining<=0 )
-	    break;
+	const int starttm = Time::getMilliSeconds();
+	do
+	{
+	    const int remaining = timeout - Time::getMilliSeconds() + starttm;
+	    if ( remaining<=0 )
+		break;
 
-	locker.unLock();
-	readFromSocket( 0 );
-	locker.lock();
+	    locker.unLock();
+	    if ( !readFromSocket() )
+	    {
+		if ( errorcode ) *errorcode = cDisconnected();
+		requestEnded( reqid );
+		return 0;
+	    }
+	    locker.lock();
 
-	pkt = getNextAlreadyRead( reqid );
+	    pkt = getNextAlreadyRead( reqid );
+
+	} while ( !pkt );
+	
+	if ( !pkt )
+	{
+	    if ( errorcode )
+		*errorcode = cTimeout();
+	    return 0;
+	}
     }
 
-    if ( !pkt && errorcode )
-	*errorcode = cTimeout();
-
-
-    if ( pkt && pkt->subID() == RequestPacket::cEndSubID() )
+    if ( pkt->subID() == RequestPacket::cEndSubID()
+	|| pkt->subID() < RequestPacket::cBeginSubID() )
 	requestEnded( reqid );
 
     return pkt;
@@ -240,7 +254,6 @@ RequestPacket* RequestCommunicator::getNextAlreadyRead( int reqid )
 RequestPacket* RequestCommunicator::getNextExternalPacket()
 {
     Threads::MutexLocker locker( lock_ );
-
 
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
@@ -266,5 +279,5 @@ void RequestCommunicator::requestEnded( od_int32 reqid )
 
 void RequestCommunicator::dataArrivedCB( CallBacker* cb )
 {
-    readFromSocket( cb );
+    readFromSocket();
 }
