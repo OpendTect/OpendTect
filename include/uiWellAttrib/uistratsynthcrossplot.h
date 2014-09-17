@@ -73,6 +73,7 @@ protected:
 					const StepInterval<float>&);
     Attrib::EngineMan*		createEngineMan(const Attrib::DescSet&) const;
 
+    void			removeUnusedDescs();
     bool			handleUnsaved();
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
