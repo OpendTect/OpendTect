@@ -30,7 +30,7 @@ namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 mStruct(uiStrat) LMPropSpecificDispPars
 {
-    			LMPropSpecificDispPars( const char* nm=0 )
+			LMPropSpecificDispPars( const char* nm=0 )
 			    : propnm_(nm)	{}
     bool		operator==( const LMPropSpecificDispPars& oth ) const
 			{ return propnm_ == oth.propnm_; }
@@ -68,10 +68,10 @@ public:
     void		setFluidReplOn(bool yn)		{ fluidreplon_= yn; }
     bool		isBrineFilled() const		{return isbrinefilled_;}
     void		setBrineFilled(bool yn)		{ isbrinefilled_= yn; }
-    
+
 
     float		getLayerPropValue(const Strat::Layer&,
-	    				  const PropertyRef*,int) const;
+					  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
 
@@ -94,16 +94,17 @@ protected:
     bool		isbrinefilled_;
     TypeSet<float>	lvldpths_;
     TypeSet<LMPropSpecificDispPars> lmdisppars_;
-    BufferString	dumpfnm_;
+    BufferString	dumpfnm_; //Do not use, obsoleted by dumppars_
+    IOPar		dumppars_;
 
     bool		haveAnyZoom() const;
-    virtual uiGraphicsScene& scene() const		= 0;		
+    virtual uiGraphicsScene& scene() const		= 0;
     void		displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
-    				//!< returns whether layermodel has changed
+				//!< returns whether layermodel has changed
 
 };
 

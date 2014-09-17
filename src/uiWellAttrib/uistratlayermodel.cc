@@ -496,6 +496,7 @@ void uiStratLayerModel::initWin( CallBacker* cb )
 void uiStratLayerModel::dispEachChg( CallBacker* )
 {
     synthdisp_->setDispEach( modtools_->dispEach() );
+    updateGenDesc();
 }
 
 
@@ -668,6 +669,12 @@ bool uiStratLayerModel::saveGenDescIfNecessary( bool allowcncl ) const
     }
 
     return saveGenDesc();
+}
+
+
+void uiStratLayerModel::updateGenDesc()
+{
+    fillWorkBenchPars( desc_.getWorkBenchParams() );
 }
 
 

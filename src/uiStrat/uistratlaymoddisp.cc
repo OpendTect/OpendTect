@@ -139,13 +139,22 @@ class uiStratLayerModelDispIO : public uiDialog
 {
 public:
 
-uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
+static const char* sKeyUseEach()	{ return "Use Each"; }
+static const char* sKeyDoClear()	{ return "Clear First"; }
+static const char* sKeyNrDisplay()	{ return "Display Nr Models"; }
+static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
+
+
+uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
+			 bool doread )
     : uiDialog( p, Setup(doread ? "Read dumped models" : "Dump models",
 		mNoDlgTitle,mTODOHelpKey) )
     , doreplacefld_(0)
     , eachfld_(0)
+    , nrdisplayfld_(0)
     , presmathfld_(0)
     , lm_(lm)
+    , pars_(pars)
     , doread_(doread)
 {
     mDefineStaticLocalObject( BufferString, fixeddumpfnm,
@@ -154,17 +163,23 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
 	fnm_ = BufferString( fixeddumpfnm );
 
     uiFileInput::Setup su( uiFileDialog::Txt, fnm_ );
+    su.forread_ = doread;
     filefld_ = new uiFileInput( this, "File name", su );
 
     if ( doread )
     {
 	IntInpSpec val(1);
-	val.setLimits( Interval<int>(1,99999) );
-	eachfld_ = new uiGenInput( this, "Use each", val );
+	val.setLimits( Interval<int>(1,10000) );
+	eachfld_ = new uiGenInput( this, sKeyUseEach(), val );
 	eachfld_->attach( alignedBelow, filefld_ );
+
 	doreplacefld_ = new uiGenInput( this, "Clear existing model before add",
 					BoolInpSpec(true) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
+
+	val = 10;
+	nrdisplayfld_ = new uiGenInput( this, sKeyNrDisplay(), val );
+	nrdisplayfld_->attach( alignedBelow, doreplacefld_ );
     }
     else
     {
@@ -172,6 +187,65 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, bool doread )
 				       BoolInpSpec(true) );
 	presmathfld_->attach( alignedBelow, filefld_ );
     }
+
+    usePar();
+}
+
+
+bool usePar()
+{
+    BufferString fnm;
+    if ( pars_.get(sKey::FileName(),fnm) )
+	filefld_->setFileName( fnm );
+
+    if ( doread_ )
+    {
+	int each;
+	if ( pars_.get(sKeyUseEach(),each) )
+	    eachfld_->setValue( each );
+
+	bool doreplace = true;
+	if ( pars_.getYN(sKeyDoClear(),doreplace) )
+	    doreplacefld_->setValue( doreplace );
+
+	int nrmodels;
+	if ( pars_.get(sKeyNrDisplay(),nrmodels) )
+	    nrdisplayfld_->setValue( nrmodels );
+    }
+    else
+    {
+	bool preservemath = true;
+	if ( pars_.getYN(sKeyPreserveMath(),preservemath) )
+	    presmathfld_->setValue( preservemath );
+    }
+
+    return true;
+}
+
+
+void fillPar()
+{
+    pars_.set( sKey::FileName(), filefld_->fileName() );
+    if ( doread_ )
+    {
+	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
+	pars_.setYN( sKeyDoClear(), doreplacefld_->getBoolValue() );
+	pars_.set( sKeyNrDisplay(), nrdisplayfld_->getIntValue() );
+    }
+    else
+    {
+	pars_.setYN( sKeyPreserveMath(), presmathfld_->getBoolValue() );
+    }
+}
+
+
+int getNrDisplayModels()
+{
+    int nrmoddisp;
+    if ( pars_.get(sKeyNrDisplay(),nrmoddisp) )
+	return nrmoddisp;
+
+    return mUdf(int);
 }
 
 
@@ -217,16 +291,20 @@ bool acceptOK( CallBacker* )
 	    mErrRet( "Unknown error during write ..." )
     }
 
+    fillPar();
+
     return true;
 }
 
     uiFileInput*		filefld_;
     uiGenInput*			doreplacefld_;
     uiGenInput*			eachfld_;
+    uiGenInput*			nrdisplayfld_;
     uiGenInput*			presmathfld_;
 
     const Strat::LayerModel&	lm_;
     BufferString		fnm_;
+    IOPar&			pars_;
     bool			doread_;
 
 };
@@ -247,8 +325,18 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
     if ( !foradd && lm.isEmpty() )
 	mErrRet( tr("Please generate at least one layer sequence") )
 
-    uiStratLayerModelDispIO dlg( this, lm, foradd );
-    return dlg.go();
+    uiStratLayerModelDispIO dlg( this, lm, dumppars_, foradd );
+    if ( !dlg.go() )
+	return false;
+
+    const int nrdisplaymodels = dlg.getNrDisplayModels();
+    if ( !mIsUdf(nrdisplaymodels) )
+    {
+	const int nrmodels = lm.size();
+	tools_.setDispEach( nrmodels/nrdisplaymodels );
+    }
+
+    return true;
 }
 
 
