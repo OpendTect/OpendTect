@@ -1337,8 +1337,7 @@ void StratSynth::trimTraces( SeisTrcBuf& tbuf, float flatshift,
 	SeisTrc* trc = tbuf.get( idx );
 	SeisTrc* newtrc = new SeisTrc( *trc );
 	newtrc->info() = trc->info();
-	const int startidx =
-	    trc->nearestSample( trc->info().sampling.start + highetszkip );
+	const int startidx = trc->nearestSample( highetszkip );
 	newtrc->reSize( trc->size()-startidx, false );
 	newtrc->setStartPos( trc->samplePos(startidx) );
 	for ( int sampidx=startidx; sampidx<trc->size(); sampidx++ )

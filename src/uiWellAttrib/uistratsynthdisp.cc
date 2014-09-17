@@ -519,17 +519,28 @@ void uiStratSynthDisp::scalePush( CallBacker* )
 bool uiStratSynthDisp::haveUserScaleWavelet()
 {
     uiMsgMainWinSetter mws( mainwin() );
-    SeisTrcBuf& tbuf = const_cast<SeisTrcBuf&>( curTrcBuf() );
+    if ( !currentwvasynthetic_ )
+    {
+	uiMSG().error( "Please select a synthetic data in wiggle display. "
+		       "The scaling tool compares the amplitudes of the "
+		       "synthetic data at the selected Stratigraphic Level "
+		       "to real amplitudes along a horizon" );
+	return false;
+    }
+
+
+    mDynamicCastGet(const PostStackSyntheticData*,pssd,currentwvasynthetic_);
+    const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
     {
-	uiMSG().error( "Please generate layer models first.\n"
-		"The scaling tool compares the amplitudes at the selected\n"
-		"Stratigraphic Level to real amplitudes along a horizon" );
+	uiMSG().error( "Synthetic seismic has no trace. "
+		       "Please regenerate the synthetic." );
 	return false;
     }
     BufferString levelname;
-    if ( curSS().getLevel() ) levelname = curSS().getLevel()->name();
-    if ( levelname.isEmpty() || matchString( "--", levelname) )
+    if ( curSS().getLevel() )
+	levelname = curSS().getLevel()->name();
+    if ( levelname.isEmpty() || levelname[0]=='-' )
     {
 	uiMSG().error( "Please select a Stratigraphic Level.\n"
 		"The scaling tool compares the amplitudes there\n"
@@ -547,7 +558,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     }
 
     bool rv = false;
-    uiSynthToRealScale dlg( this, is2d, tbuf, wvltfld_->getID(), levelname );
+    PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
+    curSS().getLevelTimes( *scaletbuf, currentwvasynthetic_->d2tmodels_ );
+    uiSynthToRealScale dlg( this, is2d, *scaletbuf, wvltfld_->getID(),
+	    		    levelname );
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -775,15 +789,14 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     curSS().decimateTraces( *disptbuf, dispeach_ );
+    reSampleTraces( sd, *disptbuf );
     if ( dispflattened_ )
     {
 	curSS().getLevelTimes( *disptbuf, curd2tmodels );
 	curSS().flattenTraces( *disptbuf );
     }
     else
-        reSampleTraces( sd, *disptbuf );
-
-    curSS().trimTraces( *disptbuf, 0.0, curd2tmodels, dispskipz_);
+	curSS().trimTraces( *disptbuf, 0.0, curd2tmodels, dispskipz_);
     SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( disptbuf, Seis::Line,
 				    SeisTrcInfo::TrcNr, "Forward Modeling" );
     DPM( DataPackMgr::FlatID() ).add( dp );
