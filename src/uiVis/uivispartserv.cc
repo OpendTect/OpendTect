@@ -47,6 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
+#include "vismpe.h"
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visselman.h"
@@ -685,7 +686,8 @@ void uiVisPartServer::setAttribTransparency( int id, int attrib,
 }
 
 
-TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id, int attribid )const
+TrcKeyZSampling uiVisPartServer::getTrcKeyZSampling( int id,
+						     int attribid ) const
 {
     TrcKeyZSampling res;
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
@@ -1240,8 +1242,14 @@ void uiVisPartServer::updateDraggers()
 	{
 	    visBase::DataObject* obj = scene->getObject( objidx );
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
+	    mDynamicCastGet(visSurvey::MPEDisplay*,mpedisp,so)
 
-	    if ( so )
+	    if ( mpedisp )
+	    {
+		// Tells the tracker box not to hide in view mode
+		mpedisp->setPickable( workmode_==uiVisPartServer::Interactive );
+	    }
+	    else if ( so )
 	    {
 		const bool turndraggeron = !so->isLocked() &&
 				    selected.isPresent(obj->id()) &&
