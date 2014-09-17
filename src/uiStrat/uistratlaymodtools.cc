@@ -450,18 +450,29 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
     mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
     mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
+    const bool haspwave =
+	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
+	    proprefsel.find( PropertyRef::standardPVelAliasStr()) >= 0;
+    if ( !haspwave )
+	errmsg_ = tr( "No reference to P wave velocity found" );
+    const bool hasswave =
+	    proprefsel.find(PropertyRef::standardSVelStr()) >=0 ||
+	    proprefsel.find( PropertyRef::standardSVelAliasStr()) >= 0;
+    if ( !hasswave )
+	errmsg_ = tr( "No reference to S wave velocity found" );
+}
+
+
+bool uiStratLayModFRPropSelector::isOK() const
+{
+    return errmsg_.isEmpty();
 }
 
 
 bool uiStratLayModFRPropSelector::needsDisplay() const
 {
-    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
-	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr()) )
-    {
-	vpfld_->setCurrentItem( 0 );
-	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
+    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1 )
 	return false;
-    }
 
     return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
 }
