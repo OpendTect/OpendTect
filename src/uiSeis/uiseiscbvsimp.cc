@@ -567,7 +567,7 @@ uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
     inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
     inpfld_->selectionDone.notify( mCB(this,uiSeisCopyLineSet,inpSel) );
 
-    subselfld_ = new uiSeis2DMultiLineSel( this, "Selet Lines to copy", true );
+    subselfld_ = new uiSeis2DMultiLineSel( this, "Select Lines to copy", true );
     subselfld_->attach( alignedBelow, inpfld_ );
     if ( obj )
     {
