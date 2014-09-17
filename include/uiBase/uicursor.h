@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "mousecursor.h"
 #include "thread.h"
 
-class uiPixmap;
 mFDQtclass(QCursor)
 
 mExpClass(uiBase) uiCursorManager : public MouseCursorManager
