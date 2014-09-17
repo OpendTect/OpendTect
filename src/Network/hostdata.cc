@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "strmoper.h"
 #include "strmprov.h"
+#include "systeminfo.h"
 
 #ifdef __win__
 # include <windows.h>
@@ -170,9 +171,13 @@ void HostData::init( const char* nm )
 	char* dot = name.find( '.' );
 	if ( dot ) { *dot ='\0'; addAlias(nm); }
 	hostname_ = name;
+	ipaddress_ = System::hostAddress( hostname_ );
     }
     else
+    {
 	ipaddress_ = name;
+	hostname_ = System::hostName( ipaddress_ );
+    }
 }
 
 

@@ -94,14 +94,16 @@ const char* hostAddress( const char* hostname )
 }
 
 
-bool lookupHost( const char* host_ip, BufferString& msg )
+bool lookupHost( const char* host_ip, BufferString* msg )
 {
 #ifndef OD_NO_QT
-    msg.set( host_ip ).add( ": " );
+    if ( msg )
+	msg->set( host_ip ).add( ": " );
     QHostInfo hi = QHostInfo::fromName( host_ip );
     if ( hi.error() != QHostInfo::NoError )
     {
-	msg.add( hi.errorString() );
+	if ( msg )
+	    msg->add( hi.errorString() );
 	return false;
     }
 
@@ -110,16 +112,17 @@ bool lookupHost( const char* host_ip, BufferString& msg )
     if ( isip )
     {
 	const BufferString hostname = hostName( host_ip );
-	if ( hostname==host_ip )
+	if ( hostname.isEmpty() || hostname==host_ip )
 	{
-	    msg.add( "Not found" );
+	    if ( msg )
+		msg->add( "Not found" );
 	    return false;
 	}
-
-	msg.add( "Found with hostname " ).add( hostName(host_ip) );
+	if ( msg )
+	    msg->add( "Found with hostname " ).add( hostName(host_ip) );
     }
-    else
-	msg.add( "Found with IP address " ).add( hostAddress(host_ip) );
+    else if ( msg )
+	msg->add( "Found with IP address " ).add( hostAddress(host_ip) );
 
     return true;
 #else

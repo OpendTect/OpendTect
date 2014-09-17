@@ -47,8 +47,8 @@ protected:
     void		moveDownCB(CallBacker*);
     void		testHostsCB(CallBacker*);
     void		hostSelCB(CallBacker*);
-    void		defbutCB(CallBacker*);
 
+    void		checkIPAddress(int row);
     void		ipAddressChanged(int row);
     void		hostNameChanged(int row);
     void		displayNameChanged(int row);
