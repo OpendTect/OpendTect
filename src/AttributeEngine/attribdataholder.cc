@@ -33,6 +33,15 @@ DataHolder::~DataHolder()
 { deepErase(data_); }
 
 
+ValueSeries<float>* DataHolder::gtSer( int idx ) const
+{
+    if ( !data_.validIdx(idx) )
+	return 0;
+
+    return const_cast<ValueSeries<float>*>(data_[idx]);
+}
+
+
 DataHolder* DataHolder::clone() const
 {
     DataHolder* dh = new DataHolder( z0_, nrsamples_ );
@@ -276,7 +285,8 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
 	    continue;
 
 	const int trcidx = trcrange.nearestIndex( trcinfoset_[idx]->nr );
-	const int zpos = dataset_[idx]->z0_ - mNINT32(cs.zsamp_.start/cs.zsamp_.step);
+	const int zpos = 
+	    dataset_[idx]->z0_ - mNINT32(cs.zsamp_.start/cs.zsamp_.step);
 	if ( arrptr )
 	{
 	    const od_int64 offset = array.info().getOffset( 0, trcidx, zpos );

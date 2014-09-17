@@ -73,8 +73,7 @@ public:
 protected:
 
     ObjectSet< ValueSeries<float> >	data_;
-    ValueSeries<float>*	gtSer( int idx ) const
-    			{ return const_cast<ValueSeries<float>*>(data_[idx]); }
+    ValueSeries<float>*	gtSer(int idx) const;
 
 };
 
