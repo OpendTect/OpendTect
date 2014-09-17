@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiicon.h"
 #include "uimain.h"
 #include "uimenu.h"
+#include "uipixmap.h"
 
 #include "menuhandler.h"
 #include "perthreadrepos.h"
@@ -72,11 +73,8 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 		    const char* iconfile )
     : mInit
 {
-    FixedString pixmapfile( iconfile );
     init( txt );
-    if ( pixmapfile )
-	setIcon( uiIcon(pixmapfile) );
-
+    setIcon( iconfile );
     triggered.notify( cb );
 }
 
@@ -91,7 +89,6 @@ uiAction::uiAction( const uiString& txt, const char* iconfile )
 }
 
 
-
 uiAction::uiAction( const MenuItem& itm )
     : mInit
 {
@@ -103,6 +100,7 @@ uiAction::uiAction( const MenuItem& itm )
     if ( !itm.iconfnm.isEmpty() )
 	setIcon( uiIcon(itm.iconfnm) );
 }
+
 
 uiAction::~uiAction()
 {
@@ -274,6 +272,12 @@ void uiAction::translateCB( CallBacker* cb )
 }
 
 
+void uiAction::setIcon( const char* file )
+{
+    setIcon( uiIcon(file) );
+}
+
+
 void uiAction::setIcon( const uiIcon& icon )
 {
     iconfile_ = icon.source();
@@ -281,11 +285,12 @@ void uiAction::setIcon( const uiIcon& icon )
 }
 
 
-void uiAction::setIcon( const char* file )
+void uiAction::setPixmap( const uiPixmap& pm )
 {
-    setIcon( uiIcon(file) );
+    iconfile_ = pm.source();
+    if ( pm.qpixmap() )
+	qaction_->setIcon( *pm.qpixmap() );
 }
-
 
 
 #define mSetGet(setfn,getfn) \

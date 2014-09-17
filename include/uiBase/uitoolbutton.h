@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "uibasemod.h"
 #include "uibutton.h"
-#include "uiicon.h"
 
 class uiToolButtonBody;
 class uiToolButtonSetup;
@@ -57,7 +56,7 @@ public:
 private:
 
     uiToolButtonBody*		tbbody_;
-    uiToolButtonBody&		mkbody(uiParent*,const uiPixmap&,
+    uiToolButtonBody&		mkbody(uiParent*,const char* icon_identifier,
 				       const uiString&);
 
     int				id_; // Used by toolbar
@@ -99,6 +98,4 @@ public:
 
 };
 
-
 #endif
-

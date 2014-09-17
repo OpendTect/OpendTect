@@ -22,13 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-const char* uiIcon::save()		{ return "save"; }
-const char* uiIcon::saveAs()		{ return "saveas"; }
-const char* uiIcon::openObject()	{ return "open"; }
-const char* uiIcon::newObject()		{ return "new"; }
-const char* uiIcon::removeObject()	{ return "trashcan"; }
-const char* uiIcon::None()		{ return "-"; }
-
+const char* uiIcon::None()		{ return ""; }
 
 uiIcon::uiIcon()
     : qicon_(*new QIcon)
@@ -40,17 +34,7 @@ uiIcon::uiIcon( const char* iconnm )
     : qicon_(*new QIcon)
     , srcnm_(iconnm)
 {
-    if ( srcnm_ == None() )
-	return;
-
     setIdentifier( iconnm );
-}
-
-
-uiIcon::uiIcon( const uiPixmap& pm )
-    : qicon_(*new QIcon(*pm.qpixmap()))
-    , srcnm_(pm.source())
-{
 }
 
 

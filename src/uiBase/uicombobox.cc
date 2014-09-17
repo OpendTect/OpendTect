@@ -10,6 +10,7 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicombobox.h"
+#include "uiicon.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
@@ -149,13 +150,23 @@ int uiComboBox::indexOf( const char* str ) const
 }
 
 
-void uiComboBox::setPixmap( const uiPixmap& pixmap, int index )
+void uiComboBox::setPixmap( int index, const uiPixmap& pixmap )
 {
     if ( index >= 0 && index < body_->count() )
     {
 	body_->setItemText( index, itemstrings_[index].getQtString() );
 	body_->setItemIcon( index, *pixmap.qpixmap() );
     }
+}
+
+
+void uiComboBox::setIcon( int index, const char* iconnm )
+{
+    if ( index<0 || index>=body_->count() )
+	return;
+
+    uiIcon icon( iconnm );
+    body_->setItemIcon( index, icon.qicon() );
 }
 
 

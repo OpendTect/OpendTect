@@ -166,9 +166,14 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 }
 
 
-void uiButton::setPixmap( const char* pmnm )
+void uiButton::setIcon( const char* iconnm )
 {
-    setPM( uiPixmap(pmnm,true) );
+    if ( !isMainThreadCurrent() )
+	return;
+
+    uiIcon icon( iconnm );
+    qButton()->setIcon( icon.qicon() );
+    updateIconSize();
 }
 
 
@@ -416,7 +421,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
     : uiButton( parnt, su.name_, &su.cb_,
-		mkbody(parnt,uiPixmap(su.filename_),su.name_) )
+		mkbody(parnt,su.filename_,su.name_) )
     , mInitTBList
 {
     setToolTip( su.tooltip_ );
@@ -437,7 +442,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
 uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-		mkbody(parnt,uiPixmap(fnm),tt) )
+		mkbody(parnt,fnm,tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -448,7 +453,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-		mkbody(parnt,uiPixmap(uiIcon::None()),tt) )
+		mkbody(parnt,"empty",tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -464,13 +469,12 @@ uiToolButton::~uiToolButton()
 }
 
 
-uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const uiPixmap& pm,
+uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const char* iconnm,
 					const uiString& txt)
 {
     tbbody_ = new uiToolButtonBody(*this,parnt,txt);
-    if ( pm.qpixmap() )
-	tbbody_->setIcon( QIcon(*pm.qpixmap()) );
-
+    uiIcon icon( iconnm );
+    tbbody_->setIcon( icon.qicon() );
     tbbody_->setIconSize( QSize(iconSize(),iconSize()) );
     return *tbbody_;
 }

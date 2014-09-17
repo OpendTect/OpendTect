@@ -73,7 +73,7 @@ uiHandleDLSiteFail::uiHandleDLSiteFail( uiParent* p, const ODDLSite& dlsite,
     }
 
     proxybut_ = new uiPushButton( this, tr("Proxy settings"), false );
-    proxybut_->setPixmap( "proxysettings" );
+    proxybut_->setIcon( "proxysettings" );
     proxybut_->setPrefWidthInChar( 21 );
     proxybut_->activated.notify( mCB(this,uiHandleDLSiteFail,proxyButCB) );
     proxybut_->attach( rightOf, lcb );

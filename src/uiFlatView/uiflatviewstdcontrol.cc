@@ -295,7 +295,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+    manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->rgbCanvas().setDragMode(

@@ -130,7 +130,7 @@ float uiFKSpectrum::getMaxValue() const
 
 static void updateTB( uiToolButton& tb, bool quietmode )
 {
-    tb.setPixmap( quietmode ? "pick" : "stop" );
+    tb.setIcon( quietmode ? "pick" : "stop" );
     tb.setToolTip( quietmode ? "Set velocity" : "Cancel" );
 }
 

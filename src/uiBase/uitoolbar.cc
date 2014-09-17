@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "uiaction.h"
-#include "uiicon.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
 #include "uitoolbutton.h"
@@ -194,7 +193,8 @@ void uiToolBar::setToggle( int id, bool yn )
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    setIcon( id, uiIcon(fnm) );
+    mGetAction( , return );
+    action->setIcon( fnm );
 }
 
 

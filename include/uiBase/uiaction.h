@@ -23,6 +23,7 @@ class i_ActionMessenger;
 class uiActionContainer;
 class uiIcon;
 class uiMenu;
+class uiPixmap;
 class MenuItem;
 
 mFDQtclass(QAction)
@@ -41,8 +42,8 @@ public:
 			uiAction(const uiString&,const CallBack&,
 				 const uiIcon&);
 			uiAction(const uiString&,const CallBack&,
-				 const char* pmfln);
-			uiAction(const uiString&,const char* pmfln);
+				 const char* icon_identifier);
+			uiAction(const uiString&,const char* icon_identifier);
 			uiAction(const MenuItem&);
 			uiAction(mQtclass(QAction*));
 			~uiAction();
@@ -66,8 +67,9 @@ public:
 
     void		setShortcut(const char*);
 
+    void		setIcon(const char* identifier);
     void		setIcon(const uiIcon&);
-    void		setIcon(const char*);
+    void		setPixmap(const uiPixmap&);
 
     void		setCheckable(bool);
     bool		isCheckable() const;
@@ -85,7 +87,7 @@ public:
     int			getID() const;
 			/*!<Only works if parent is set. */
 
-    mQtclass(QAction*)	qaction()		{ return qaction_; }
+    mQtclass(QAction*)		qaction()	{ return qaction_; }
     const mQtclass(QAction*)	qaction() const { return qaction_; }
 
     Notifier<uiAction>	toggled;

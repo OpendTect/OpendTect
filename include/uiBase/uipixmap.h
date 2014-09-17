@@ -37,8 +37,7 @@ public:
 
 			uiPixmap();
 			uiPixmap(int w,int h);
-			uiPixmap(const char* icon_identifier,
-				 bool shortname=false);
+			uiPixmap(const char* icon_identifier);
 			uiPixmap(const uiRGBArray&);
 			uiPixmap(const char* xpm[]);
 			uiPixmap(const mQtclass(QPixmap&));

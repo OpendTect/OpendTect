@@ -39,7 +39,7 @@ public:
 
     virtual void	setText(const uiString&);
     const uiString&	text() const			{ return text_; }
-    void		setPixmap(const char*);
+    void		setIcon(const char* icon_identifier);
     void		setPixmap( const uiPixmap& pm ) { setPM(pm); }
     void		setIconScale(float val); /*!< val between [0-1] */
     virtual void	updateIconSize()	{}

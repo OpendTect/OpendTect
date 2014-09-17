@@ -127,7 +127,7 @@ void uiBasemapWin::viewCB( CallBacker* )
 
 void uiBasemapWin::updateViewMode()
 {
-    viewbut_->setPixmap( pickmode_ ? "altpick" : "altview" );
+    viewbut_->setIcon( pickmode_ ? "altpick" : "altview" );
     viewbut_->setToolTip( pickmode_ ? "Switch to view mode"
 				    : "Switch to pick mode" );
     basemapview_->view().setDragMode(

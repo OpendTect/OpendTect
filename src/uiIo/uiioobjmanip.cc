@@ -96,7 +96,7 @@ void uiManipButGrp::useAlternative( uiToolButton* button, bool yn )
 	    uiManipButGrp::ButData* altbd = altbutdata[idx];
 	    if ( yn && !altbd ) return;
 	    uiManipButGrp::ButData& bd = yn ? *altbd : *normbd;
-	    button->setPixmap( uiPixmap(bd.pmnm) );
+	    button->setIcon( bd.pmnm );
 	    button->setToolTip( bd.tt );
 	    break;
 	}

@@ -27,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiobjdisposer.h"
 #include "uiparent.h"
-#include "uipixmap.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
 #include "uistratdisplay.h"
@@ -162,29 +161,29 @@ void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
     uiMenu* mnu = new uiMenu( this, uiStrings::sFile() );
-    expandmnuitem_ = new uiAction( mExpandTxt(true),
-				     mCB(this,uiStratTreeWin,setExpCB) );
+    expandmnuitem_ =
+	new uiAction( mExpandTxt(true), mCB(this,uiStratTreeWin,setExpCB) );
     mnu->insertItem( expandmnuitem_ );
-    expandmnuitem_->setIcon( uiPixmap("collapse_tree") );
+    expandmnuitem_->setIcon( "collapse_tree" );
     mnu->insertSeparator();
-    editmnuitem_ = new uiAction( mEditTxt(true),
-				   mCB(this,uiStratTreeWin,editCB) );
+    editmnuitem_ =
+	new uiAction( mEditTxt(true), mCB(this,uiStratTreeWin,editCB) );
     mnu->insertItem( editmnuitem_ );
-    editmnuitem_->setIcon( uiPixmap("unlock") );
+    editmnuitem_->setIcon( "unlock" );
     savemnuitem_ = new uiAction( uiStrings::sSave(true),
 				 mCB(this,uiStratTreeWin,saveCB) );
     mnu->insertItem( savemnuitem_ );
-    savemnuitem_->setIcon( uiPixmap("save") );
+    savemnuitem_->setIcon( "save" );
     resetmnuitem_ = new uiAction( tr("Reset to last saved"),
-				    mCB(this,uiStratTreeWin,resetCB));
+				  mCB(this,uiStratTreeWin,resetCB));
     mnu->insertItem( resetmnuitem_ );
-    resetmnuitem_->setIcon( uiPixmap("undo") );
+    resetmnuitem_->setIcon( "undo" );
     mnu->insertSeparator();
 
     saveasmnuitem_ = new uiAction( uiStrings::sSaveAs(false),
 				   mCB(this,uiStratTreeWin,saveAsCB) );
     mnu->insertItem( saveasmnuitem_ );
-    saveasmnuitem_->setIcon( uiPixmap("saveas") );
+    saveasmnuitem_->setIcon( "saveas" );
     menubar->insertItem( mnu );
 }
 
@@ -252,10 +251,8 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 	FixedString(expandmnuitem_->text().getFullString()) == mExpandTxt(true);
     uitree_->expand( expand );
     expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
-    expandmnuitem_->setIcon( expand ? uiPixmap("collapse_tree")
-				      : uiPixmap("expand_tree") );
-    colexpbut_->setPixmap( expand ? uiPixmap("collapse_tree")
-				  : uiPixmap("expand_tree") );
+    expandmnuitem_->setIcon( expand ? "collapse_tree" : "expand_tree" );
+    colexpbut_->setIcon( expand ? "collapse_tree" : "expand_tree" );
     colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
 }
 
@@ -281,10 +278,8 @@ void uiStratTreeWin::editCB( CallBacker* )
 	FixedString(editmnuitem_->text().getFullString()) == mEditTxt(true);
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
-    editmnuitem_->setIcon( doedit ? uiPixmap("unlock")
-				    : uiPixmap("readonly") );
-    lockbut_->setPixmap( doedit ? uiPixmap("unlock")
-				: uiPixmap("readonly") );
+    editmnuitem_->setIcon( doedit ? "unlock" : "readonly" );
+    lockbut_->setIcon( doedit ? "unlock" : "readonly" );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     lockbut_->setOn( !doedit );
     setIsLocked( !doedit );
@@ -369,8 +364,8 @@ void uiStratTreeWin::switchViewCB( CallBacker* )
     if ( uistratdisp_->control() )
 	uistratdisp_->control()->setSensitive( !istreedisp_ );
     uitree_->treeView()->display( istreedisp_ );
-    switchviewbut_->setPixmap(
-	istreedisp_ ? "stratframeworkgraph" : "strat_tree" );
+    switchviewbut_->setIcon(
+		istreedisp_ ? "stratframeworkgraph" : "strat_tree" );
     colexpbut_->setSensitive( istreedisp_ );
 }
 

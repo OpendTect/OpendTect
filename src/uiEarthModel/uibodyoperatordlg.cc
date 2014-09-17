@@ -96,9 +96,9 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     operators.add( "Union" ).add( "Intersection" ).add( "Difference" );
     oprselfld_ = new uiLabeledComboBox( rgrp, operators,
                                         uiStrings::sOperator() );
-    oprselfld_->box()->setPixmap( "set_union", 0 );
-    oprselfld_->box()->setPixmap( "set_intersect", 1 );
-    oprselfld_->box()->setPixmap( "set_minus", 2 );
+    oprselfld_->box()->setIcon( 0, "set_union" );
+    oprselfld_->box()->setIcon( 1, "set_intersect" );
+    oprselfld_->box()->setIcon( 2, "set_minus" );
     oprselfld_->attach( alignedBelow, typefld_ );
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );

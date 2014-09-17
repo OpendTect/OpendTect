@@ -69,7 +69,8 @@ public:
     void		getItems(BufferStringSet&) const;
 
     void		setItemText(int,const uiString&);
-    void		setPixmap(const uiPixmap&,int index);
+    void		setPixmap(int index,const uiPixmap&);
+    void		setIcon(int index,const char* icon_identifier);
 
     void		setItemID(int index,int id);
     int			currentItemID() const;

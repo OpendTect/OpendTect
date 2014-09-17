@@ -129,7 +129,7 @@ void uiObjectItemViewWin::makeSliders()
     versliderfld_->setStretch( 0, 0 );
 
     fittoscreenbut_ = new uiToolButton( this, "exttofullsurv",
-		                        tr("Fit to screen"), 
+					tr("Fit to screen"),
                                         mCB(this,uiObjectItemViewWin,
                                         fitToScreen));
     fittoscreenbut_->attach( centeredBelow, versliderfld_ );
@@ -485,7 +485,7 @@ void uiObjectItemViewControl::changeStatus()
 	uiGraphicsViewBase::RubberBandDrag : uiGraphicsViewBase::ScrollHandDrag;
 
     if ( manipdrawbut_ )
-	manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+	manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
 
     mainviewer_.setDragMode( mode );
     mainviewer_.scene().setMouseEventActive( true );

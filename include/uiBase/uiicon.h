@@ -30,7 +30,6 @@ mExpClass(uiBase) uiIcon
 public:
 				uiIcon();
 				uiIcon(const char* icon_identifier);
-				uiIcon(const uiPixmap&);
 				uiIcon(const uiIcon&);
 				~uiIcon();
 
@@ -41,11 +40,6 @@ public:
     mQtclass(QIcon&)		qicon()		{ return qicon_; }
     const mQtclass(QIcon&)	qicon() const	{ return qicon_; }
 
-    static const char*		save();
-    static const char*		saveAs();
-    static const char*		openObject();
-    static const char*		newObject();
-    static const char*		removeObject();
     static const char*		None();
 
 protected:

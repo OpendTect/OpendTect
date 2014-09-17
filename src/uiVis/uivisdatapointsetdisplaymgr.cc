@@ -151,7 +151,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
-	    selfld_->setPixmap( pixmap, idx );
+	    selfld_->setPixmap( idx, pixmap );
 	}
     }
     else
@@ -197,7 +197,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 	    uiPixmap pixmap( 20, 20 );
 	    Color col = selgrpcols[ idx ];
 	    pixmap.fill( col );
-	    selfld_->setPixmap( pixmap, idx );
+	    selfld_->setPixmap( idx, pixmap );
 	}
 
 	addStdFields( cbx->attachObj() );

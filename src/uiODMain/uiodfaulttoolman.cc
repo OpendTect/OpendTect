@@ -304,7 +304,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputselbut_->setToolTip( "Select output" );
     toolbar_->addObject( outputselbut_ );
 
-    colorbut_ = new uiToolButton( toolbar_, uiIcon::None(), "Output color",
+    colorbut_ = new uiToolButton( toolbar_, "empty", "Output color",
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );

@@ -56,7 +56,7 @@ void uiCompoundParSel::setSelText( const char* txt )
 
 void uiCompoundParSel::setSelIcon( const char* ident )
 {
-    selbut_->setPixmap( ident );
+    selbut_->setIcon( ident );
 }
 
 

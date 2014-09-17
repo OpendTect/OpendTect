@@ -90,7 +90,7 @@ void uiStratDisplay::addControl( uiToolBar* tb )
 {
     mDynamicCastGet(uiGraphicsView*,v,const_cast<uiStratDisplay*>(this))
     uiStratViewControl::Setup su( maxrg_ ); su.tb_ = tb;
-    uicontrol_ = new uiStratViewControl( *v, su ); 
+    uicontrol_ = new uiStratViewControl( *v, su );
     uicontrol_->rangeChanged.notify( mCB(this,uiStratDisplay,controlRange) );
     uicontrol_->setRange( rangefld_->getFInterval() );
 }
@@ -129,8 +129,8 @@ public :
     uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
 	: uiDialog(p,uiDialog::Setup("View Columns",uiStrings::sEmptyString(),
                                      mNoHelpKey))
-	, drawer_(drawer) 
-	, data_(ad)			  
+	, drawer_(drawer)
+	, data_(ad)
     {
 	setCtrlStyle( CloseOnly );
 
@@ -144,7 +144,7 @@ public :
 	    box->setChecked( data_.getCol( idx )->isdisplayed_ );
 	    box->activated.notify( mCB(this,uiColViewerDlg,selChg) );
 	    colboxflds_ += box;
-	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] ); 
+	    if ( idx ) box->attach( alignedBelow, colboxflds_[idx-1] );
 	}
 	if ( colnms.size() )
 	{
@@ -201,7 +201,7 @@ void uiStratDisplay::reDraw( CallBacker* cb )
 void uiStratDisplay::setZRange( Interval<float> zrg )
 {
     rangefld_->setValue( zrg );
-    if ( uicontrol_ ) 
+    if ( uicontrol_ )
 	uicontrol_->setRange( zrg );
     zrg.sort(false);
     drawer_.setZRange( zrg );
@@ -219,8 +219,8 @@ void uiStratDisplay::display( bool yn, bool shrk, bool maximize )
 void uiStratDisplay::dispParamChgd( CallBacker* cb )
 {
     Interval<float> rg = rangefld_->getFInterval();
-    if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop 
-	    || rg.stop <= rg.start || rg.stop <= 0 ) 
+    if ( rg.start < maxrg_.start || rg.stop > maxrg_.stop
+	    || rg.stop <= rg.start || rg.stop <= 0 )
 	rg = maxrg_;
 
     setZRange( rg );
@@ -245,12 +245,12 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	if ( getColIdxFromPos() == uidatagather_->levelColIdx() )
 	{
 	    const StratDispData::Level* lvl = getLevelFromPos();
-	    if ( !lvl ) return false; 
+	    if ( !lvl ) return false;
 	    uiAction* assmnuitm = new uiAction( tr("Assign marker boundary") );
 	    uiMenu menu( parent(), uiStrings::sAction() );
 	    menu.insertItem( assmnuitm, 1 );
 	    const int mnuid = menu.exec();
-	    if ( mnuid<0 ) 
+	    if ( mnuid<0 )
 		return false;
 	    else if ( mnuid == 1 )
 		uidatawriter_.setUnitLvl( lvl->unitcode_ );
@@ -259,11 +259,11 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 	{
 	    uidatawriter_.handleUnitMenu( getUnitFromPos()->fullCode() );
 	}
-	else if ( getParentUnitFromPos() || getColIdxFromPos() == 0 ) 
+	else if ( getParentUnitFromPos() || getColIdxFromPos() == 0 )
 	{
-	    const StratDispData::Unit* unit = getColIdxFromPos() > 0 ? 
+	    const StratDispData::Unit* unit = getColIdxFromPos() > 0 ?
 						getParentUnitFromPos() : 0;
-	    bool addunit = data_.nrUnits( 0 ) == 0;  
+	    bool addunit = data_.nrUnits( 0 ) == 0;
 	    if ( !addunit )
 	    {
 		uiAction* assmnuitm = new uiAction( tr("Add Unit") );
@@ -284,22 +284,22 @@ bool uiStratDisplay::handleUserClick( const MouseEvent& ev )
 Geom::Point2D<float> uiStratDisplay::getPos() const
 {
     uiStratDisplay* self = const_cast<uiStratDisplay*>( this );
-    const float xpos = drawer_.xAxis()->getVal( 
-			self->getMouseEventHandler().event().pos().x ); 
-    const float ypos = drawer_.yAxis()->getVal( 
-			self->getMouseEventHandler().event().pos().y ); 
+    const float xpos = drawer_.xAxis()->getVal(
+			self->getMouseEventHandler().event().pos().x );
+    const float ypos = drawer_.yAxis()->getVal(
+			self->getMouseEventHandler().event().pos().y );
     return Geom::Point2D<float>( xpos, ypos );
 }
 
 
-int uiStratDisplay::getColIdxFromPos() const 
+int uiStratDisplay::getColIdxFromPos() const
 {
     float xpos = getPos().x;
     Interval<int> borders(0,0);
     for ( int idx=0; idx<data_.nrCols(); idx++ )
     {
 	borders.stop += drawer_.colItem(idx).size_;
-	if ( borders.includes( xpos, true ) ) 
+	if ( borders.includes( xpos, true ) )
 	    return idx;
 	borders.start = borders.stop;
     }
@@ -323,7 +323,7 @@ const StratDispData::Unit* uiStratDisplay::getUnitFromPos( int cidx ) const
 {
     if ( cidx >=0 && cidx<data_.nrCols() )
     {
-	Geom::Point2D<float> pos = getPos(); 
+	Geom::Point2D<float> pos = getPos();
 	for ( int idunit=0; idunit<data_.nrUnits(cidx); idunit++ )
 	{
 	    const StratDispData::Unit* unit = data_.getUnit( cidx, idunit );
@@ -341,7 +341,7 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
     const int cidx = getColIdxFromPos();
     if ( cidx >=0 && cidx<data_.nrCols() )
     {
-	Geom::Point2D<float> pos = getPos(); 
+	Geom::Point2D<float> pos = getPos();
 	for ( int idlvl=0; idlvl<data_.nrLevels(cidx); idlvl++ )
 	{
 	    const StratDispData::Level* lvl= data_.getLevel( cidx, idlvl );
@@ -356,11 +356,11 @@ const StratDispData::Level* uiStratDisplay::getLevelFromPos() const
 static int border = 20;
 
 uiStratDrawer::uiStratDrawer( uiGraphicsScene& sc, const StratDispData& ad )
-    : data_(ad) 
-    , scene_(sc)  
+    : data_(ad)
+    , scene_(sc)
     , xax_(0)
     , yax_(0)
-    , emptyitm_(0)	     
+    , emptyitm_(0)
 {
     initAxis();
 }
@@ -388,8 +388,8 @@ uiStratDrawer::~uiStratDrawer()
 
 void uiStratDrawer::setNewAxis( uiAxisHandler* axis, bool isxaxis )
 {
-    if ( isxaxis ) 
-	{ delete xax_; xax_ = axis; } 
+    if ( isxaxis )
+	{ delete xax_; xax_ = axis; }
     else
 	{ delete yax_; yax_ = axis; }
 
@@ -421,7 +421,7 @@ void uiStratDrawer::drawColumns()
 {
     eraseAll();
     int pos = 0;
-    const int nrcols = data_.nrCols(); 
+    const int nrcols = data_.nrCols();
 
     for ( int idcol=0; idcol<nrcols; idcol++ )
     {
@@ -431,7 +431,7 @@ void uiStratDrawer::drawColumns()
 	colitm->pos_ = pos;
 	colitm->size_ = (int)xax_->getVal( (int)(scene_.width()+10) )
 	    	      /( data_.nrDisplayedCols() ) ;
-	if ( colitm->size_ <0 ) 
+	if ( colitm->size_ <0 )
 	    colitm->size_ = 0;
 	drawBorders( *colitm );
 	drawLevels( *colitm );
@@ -468,7 +468,7 @@ void uiStratDrawer::drawBorders( ColumnItem& colitm )
     int x2 = xax_->getPix( mCast( float, (colitm.pos_+1)*colitm.size_ ) );
     int y1 = yax_->getPix( yax_->range().stop );
     int y2 = yax_->getPix( yax_->range().start );
-	
+
     TypeSet<uiPoint> rectpts;
     rectpts += uiPoint( x1, y1 );
     rectpts += uiPoint( x2, y1  );
@@ -504,14 +504,14 @@ void uiStratDrawer::drawLevels( ColumnItem& colitm )
 
 	uiLineItem* li = scene_.addItem( new uiLineItem(x1, y, x2, y ) );
 
-	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot 
+	LineStyle::Type lst = lvl.name_.isEmpty() ? LineStyle::Dot
 	    					  : LineStyle::Solid;
 	li->setPenStyle( LineStyle(lst,2,lvl.color_) );
 	uiTextItem* ti = scene_.addItem( new uiTextItem( lvl.name_.buf() ) );
-	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) ); 
+	ti->setPos( mCast( float, x1 + (x2-x1)/2 ), mCast( float, y ) );
 	ti->setZValue( 2 );
 	ti->setTextColor( lvl.color_ );
-    
+
 	colitm.txtitms_ += ti;
 	colitm.lvlitms_ += li;
     }
@@ -534,7 +534,7 @@ void uiStratDrawer::drawEmptyText()
 }
 
 
-void uiStratDrawer::drawUnits( ColumnItem& colitm ) 
+void uiStratDrawer::drawUnits( ColumnItem& colitm )
 {
     colitm.txtitms_.erase(); colitm.unititms_.erase();
     const int colidx = colitms_.indexOf( &colitm );
@@ -597,15 +597,15 @@ void uiStratDrawer::drawUnits( ColumnItem& colitm )
 
 uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
     : viewer_(v)
-    , manip_(false)		 
+    , manip_(false)
     , rangeChanged(this)
     , tb_(su.tb_)
-    , boundingrange_(su.maxrg_)	 
+    , boundingrange_(su.maxrg_)
 {
-    if ( tb_ ) 
+    if ( tb_ )
 	tb_->addSeparator();
     else
-    {	
+    {
 	tb_ = new uiToolBar( v.parent(), "Viewer toolbar", uiToolBar::Top );
 	mDynamicCastGet(uiMainWin*,mw,v.parent())
 	if ( mw )
@@ -685,7 +685,7 @@ void uiStratViewControl::stateCB( CallBacker* )
     if ( !manipdrawbut_ ) return;
     manip_ = !manip_;
 
-    manipdrawbut_->setPixmap( manip_ ? "altview" : "altpick" );
+    manipdrawbut_->setIcon( manip_ ? "altview" : "altpick" );
     viewer_.setDragMode( !manip_ ? uiGraphicsViewBase::RubberBandDrag
 			         : uiGraphicsViewBase::ScrollHandDrag);
     viewer_.scene().setMouseEventActive( true );
@@ -711,7 +711,7 @@ void uiStratViewControl::handDragStarted( CallBacker* )
 
 void uiStratViewControl::handDragging( CallBacker* )
 {
-    if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag 
+    if ( viewer_.dragMode() != uiGraphicsViewBase::ScrollHandDrag
 	|| !mousepressed_ || !manip_ ) return;
 
     const float newpos = mCast(float,mouseEventHandler().event().pos().y);
@@ -723,7 +723,7 @@ void uiStratViewControl::handDragging( CallBacker* )
 
     Interval<float> rg( range_.start - shift, range_.stop - shift );
     if ( rg.start < boundingrange_.start )
-	rg.set( boundingrange_.start, range_.stop ); 
+	rg.set( boundingrange_.start, range_.stop );
     if ( rg.stop > boundingrange_.stop )
 	rg.set( range_.start, boundingrange_.stop );
     range_ = rg;
@@ -742,7 +742,7 @@ void uiStratViewControl::handDragged( CallBacker* cb )
 void uiStratViewControl::rubBandCB( CallBacker* )
 {
     const uiRect* selarea = viewer_.getSelectedArea();
-    if ( !selarea || (selarea->topLeft() == selarea->bottomRight()) 
+    if ( !selarea || (selarea->topLeft() == selarea->bottomRight())
 	    || (selarea->width()<5 && selarea->height()<5) )
 	return;
 

@@ -35,7 +35,7 @@ uiCheckList& uiCheckList::addItem( const uiString& txt,const char* iconfnm )
     uiCheckBox* cb = new uiCheckBox( grp_, txt );
 
     if ( iconfnm && *iconfnm )
-	cb->setPixmap( iconfnm );
+	cb->setIcon( iconfnm );
 
     if ( !boxs_.isEmpty() )
 	cb->attach( isHor() ? rightOf : alignedBelow, boxs_[ boxs_.size()-1 ] );
@@ -65,7 +65,7 @@ void uiCheckList::setLabel( const uiString& txt )
 	lbl_->attach( centeredLeftOf, grp_ );
     }
     setName( txt.getFullString() );
-    
+
 }
 
 

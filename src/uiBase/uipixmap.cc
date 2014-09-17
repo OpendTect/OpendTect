@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 #include "uirgbarray.h"
-#include "uiicon.h"
 
 #include <QPixmap>
 #include <QBitmap>
@@ -71,20 +70,10 @@ uiPixmap::uiPixmap( const QPixmap& pm )
 }
 
 
-uiPixmap::uiPixmap( const char* icnm, bool shortname )
+uiPixmap::uiPixmap( const char* icnm )
     : qpixmap_(0)
     , srcname_(icnm)
 {
-    bool isnone = true;
-    if ( srcname_.isEmpty() )
-	{ pErrMsg("Empty icon name specified. "
-		    " (if this is intentional, use uiIcon::None())"); }
-
-    if ( srcname_ != uiIcon::None() )
-	isnone = false;
-    if ( isnone )
-	{ qpixmap_ = new QPixmap; return; }
-
     OD::IconFile icfile( icnm );
     if ( !icfile.haveData() )
 	{ qpixmap_ = new QPixmap; return; }
