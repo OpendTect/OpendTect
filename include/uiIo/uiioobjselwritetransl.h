@@ -47,10 +47,18 @@ public:
 
     const Translator&	translator() const	{ return transl_; }
 
+    Notifier<uiIOObjTranslatorWriteOpts> suggestedNameAvailble;
+    virtual const char*	suggestedName() const	{ return ""; }
+
 protected:
 
     const Translator&	transl_;
     mutable BufferString errmsg_;
+
+public:
+
+    void		suggestedNameChanged(CallBacker*)
+					{ suggestedNameAvailble.trigger(); }
 
 };
 
@@ -86,6 +94,9 @@ public:
 
     bool		hasSelectedTranslator(const IOObj&) const;
 
+    Notifier<uiIOObjSelWriteTranslator> suggestedNameAvailble;
+    virtual const char*	suggestedName() const;
+
 protected:
 
     IOObjContext&	ctxt_;
@@ -98,6 +109,8 @@ protected:
     void		mkSelFld(const CtxtIOObj&,bool);
     int			translIdx() const;
     void		selChg(CallBacker*);
+    void		nmAvCB( CallBacker* )
+					{ suggestedNameAvailble.trigger(); }
     uiIOObjTranslatorWriteOpts* getCurOptFld() const;
 
 };

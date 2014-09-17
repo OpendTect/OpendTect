@@ -214,7 +214,11 @@ void uiIOObjSelGrp::mkWriteFlds()
     uiGroup* wrgrp = new uiGroup( this, "Write group" );
     wrtrselfld_ = 0;
     if ( setup_.withwriteopts_ )
+    {
 	wrtrselfld_ = new uiIOObjSelWriteTranslator( wrgrp, ctio_, true );
+	wrtrselfld_->suggestedNameAvailble.notify(
+				mCB(this,uiIOObjSelGrp,nameAvCB) );
+    }
 
     nmfld_ = new uiGenInput( wrgrp, uiStrings::sName() );
     nmfld_->setElemSzPol( uiObject::SmallMax );
@@ -789,6 +793,14 @@ void uiIOObjSelGrp::objInserted( CallBacker* cb )
 	fullUpdate( ky );
 }
 
+
+void uiIOObjSelGrp::nameAvCB( CallBacker* )
+{
+    if ( !nmfld_ ) return;
+    const char* newnm = wrtrselfld_->suggestedName();
+    if ( newnm && *newnm )
+	nmfld_->setText( newnm );
+}
 
 
 void uiIOObjSelGrp::delPress( CallBacker* )

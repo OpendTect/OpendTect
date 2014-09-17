@@ -163,6 +163,7 @@ protected:
     void		choiceChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		objInserted(CallBacker*);
+    void		nameAvCB(CallBacker*);
     void		delPress(CallBacker*);
     void		makeDefaultCB(CallBacker*);
     void		readChoiceDone(CallBacker*);
