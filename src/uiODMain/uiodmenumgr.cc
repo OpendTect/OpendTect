@@ -407,7 +407,7 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, tr("Bodies ..."), mManBodyMnuItm,
                         "man_body" );
     mInsertPixmapItem( manmnu_, tr("Color Tables ..."), mManColTabMnuItm,
-		       uiIcon::None() );
+		       "empty" );
     mInsertPixmapItem( manmnu_, tr("Cross-plot data ..."), mManCrossPlotItm,
 			"manxplot" );
     mInsertPixmapItem( manmnu_, uiStrings::sFaults(false), mManFaultMnuItm,
@@ -437,14 +437,13 @@ void uiODMenuMgr::fillManMenu()
                    mManSeis3DMnuItm, "man_seis" );
     create2D3DMnu( manmnu_, "Seismics Prestack", mManSeisPS2DMnuItm,
 		   mManSeisPS3DMnuItm, "man_ps" );
-    mInsertPixmapItem( manmnu_, tr("Sessions ..."), mManSessMnuItm,
-                   uiIcon::None())
+    mInsertPixmapItem( manmnu_, tr("Sessions ..."), mManSessMnuItm, "empty" )
     mInsertPixmapItem( manmnu_, uiStrings::sStratigraphy(false),
                        mManStratMnuItm, "man_strat" )
-    mInsertPixmapItem( manmnu_, tr("Wavelets ..."), mManWvltMnuItm,
-                        "man_wvlt" )
-    mInsertPixmapItem( manmnu_, uiStrings::sWells(false), mManWellMnuItm,
-                        "man_wll"  )
+    mInsertPixmapItem( manmnu_, tr("Wavelets ..."),
+		       mManWvltMnuItm, "man_wvlt" )
+    mInsertPixmapItem( manmnu_, uiStrings::sWells(false),
+		       mManWellMnuItm, "man_wll" )
     manmnu_->insertSeparator();
 }
 
@@ -615,7 +614,7 @@ void uiODMenuMgr::fillAnalMenu()
     layermodelmnu_ = new uiMenu( &appl_, tr("Layer Modeling"),
                         "stratlayermodeling" );
     layermodelmnu_->insertItem( new uiAction( tr("Basic ..."),
-	mCB(&applMgr(),uiODApplMgr,doLayerModeling), uiIcon::None() ) );
+	mCB(&applMgr(),uiODApplMgr,doLayerModeling), "empty") );
     analmnu_->insertItem( layermodelmnu_ );
     analmnu_->insertSeparator();
 }
