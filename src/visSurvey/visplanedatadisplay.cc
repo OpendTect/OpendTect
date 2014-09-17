@@ -705,7 +705,7 @@ TrcKeyZSampling PlaneDataDisplay::getTrcKeyZSampling( bool manippos,
 						bool displayspace,
 						int attrib ) const
 {
-    TrcKeyZSampling res(false);
+    TrcKeyZSampling res;
     Coord3 c0, c1;
 
     if ( manippos )
