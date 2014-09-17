@@ -58,6 +58,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     {
 	oldbgcolor_ = viewers_[curvwridx_]->getBackgroundColor();
 	hadanimation_ = viewers_[curvwridx_]->isAnimationEnabled();
+	wheeldisplaymode_ = viewers_[curvwridx_]->getWheelDisplayMode();
 
 	mDynamicCast(visSurvey::Scene*, scene_, const_cast <visBase::Scene*>
 			(viewers_[curvwridx_]->getScene()));
@@ -132,15 +133,23 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotcolfld_->attach( alignedBelow, markercolfld_ );
     annotcolfld_->colorChanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
-    uiPushButton* ltbutton = new uiPushButton(this, 
-                                              tr("Line/Surface separation"),
-			mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
+    uiPushButton* ltbutton =
+	new uiPushButton( this, tr("Line/Surface separation"),
+			  mCB(this,uiScenePropertyDlg,setOffsetCB ), false );
     ltbutton->attach( alignedBelow, annotcolfld_ );
 
     animationfld_ = new uiCheckBox( this, tr("Allow spin animation") );
     animationfld_->setChecked( hadanimation_ );
     animationfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     animationfld_->attach( alignedBelow, ltbutton );
+
+    BufferStringSet modes;
+    modes.add( "Hide" ).add( "Always show" ).add( "Show on mouse hover" );
+    wheelmodefld_ = new uiGenInput( this, tr("Zoom/Rotate Wheels Display"),
+				    StringListInpSpec(modes) );
+    wheelmodefld_->valuechanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    wheelmodefld_->setValue( wheeldisplaymode_ );
+    wheelmodefld_->attach( alignedBelow, animationfld_ );
 }
 
 
@@ -203,6 +212,8 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
 	vwr->setBackgroundColor( bgcolfld_->color() );
 	vwr->setAnnotationColor( annotcolfld_->color() );
 	vwr->enableAnimation( animationfld_->isChecked() );
+	vwr->setWheelDisplayMode(
+		(ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
     }
 
     annotfld_->setSensitive( survboxfld_->isChecked() );
@@ -257,6 +268,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
 	vwr->setBackgroundColor( oldbgcolor_ );
 	vwr->setAnnotationColor( annotcolor_ );
 	vwr->enableAnimation( hadanimation_ );
+	vwr->setWheelDisplayMode( wheeldisplaymode_ );
     }
 
     return true;
@@ -328,6 +340,8 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	    vwr->setBackgroundColor( bgcolfld_->color() );
 	    vwr->setAnnotationColor( annotcolfld_->color() );
 	    vwr->enableAnimation( animationfld_->isChecked() );
+	    vwr->setWheelDisplayMode(
+			(ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
 	}
     }
 

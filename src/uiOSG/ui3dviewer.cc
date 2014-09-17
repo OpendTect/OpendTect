@@ -74,13 +74,17 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* sKeydTectScene()	{ return "dTect.Scene."; }
 static const char* sKeyManipCenter()	{ return "Manipulator Center"; }
 static const char* sKeyManipDistance()	{ return "Manipulator Distance"; }
-static const char* preOdHomePosition()	{return "Home position.Aspect ratio";}
+static const char* preOdHomePosition()	{return "Home position.Aspect ratio"; }
 static const char* sKeyHomePos()	{ return "Home position"; }
 static const char* sKeyCameraRotation() { return "Camera Rotation"; }
+static const char* sKeyWheelDisplayMode() { return "Wheel Display Mode"; }
 
 
 DefineEnumNames(ui3DViewer,StereoType,0,"StereoType")
 { sKey::None().str(), "RedCyan", "QuadBuffer", 0 };
+
+DefineEnumNames(ui3DViewer,WheelMode,0,"WheelMode")
+{ "Never", "Always", "On Hover", 0 };
 
 
 class TrackBallManipulatorMessenger : public osg::NodeCallback
@@ -195,6 +199,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
     , keybindman_( *new KeyBindMan )
     , stereooffset_( 0 )
+    , wheeldisplaymode_((int)ui3DViewer::OnHover)
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -285,7 +290,6 @@ void ui3DViewerBody::setupHUD()
     hudscene_->addObject( distancethumbwheel_ );
     mAttachCB( distancethumbwheel_->rotation,
                ui3DViewerBody::thumbWheelRotationCB);
-
 
     if ( !axes_ )
     {
@@ -613,11 +617,29 @@ bool ui3DViewerBody::isAxisShown() const
 }
 
 
-void ui3DViewerBody::showThumbWheels( bool yn )
+void ui3DViewerBody::setWheelDisplayMode( WheelMode mode )
 {
-   horthumbwheel_->turnOn( yn );
-   verthumbwheel_->turnOn( yn );
-   distancethumbwheel_->turnOn( yn );
+    const bool doshow = mode != Never;
+    horthumbwheel_->turnOn( doshow );
+    verthumbwheel_->turnOn( doshow );
+    distancethumbwheel_->turnOn( doshow );
+
+    const bool enablefadeinout = mode==OnHover;
+    horthumbwheel_->enableFadeInOut( enablefadeinout );
+    verthumbwheel_->enableFadeInOut( enablefadeinout );
+    distancethumbwheel_->enableFadeInOut( enablefadeinout );
+}
+
+
+ui3DViewerBody::WheelMode ui3DViewerBody::getWheelDisplayMode() const
+{
+    if ( !horthumbwheel_->isOn() )
+	return Never;
+
+    if ( horthumbwheel_->isFadeInOutEnabled() )
+	return OnHover;
+
+    return Always;
 }
 
 
@@ -1220,6 +1242,15 @@ ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
     bool res = false;
     mGetProp( get, sKeyBGColor(), Color, bgcol, setBackgroundColor );
     mGetProp( getYN, sKeyAnimate(), bool, yn, enableAnimation );
+
+    BufferString modestr;
+    res = Settings::common().get(
+    BufferString(sKeydTectScene(),sKeyWheelDisplayMode()), modestr );
+    if ( res )
+    {
+	WheelMode mode; parseEnum( modestr, mode );
+	setWheelDisplayMode( mode );
+    }
 }
 
 
@@ -1356,15 +1387,11 @@ float ui3DViewer::getStereoOffset() const
 
 
 void ui3DViewer::setSceneID( int sceneid )
-{
-    osgbody_->setSceneID( sceneid );
-}
+{ osgbody_->setSceneID( sceneid ); }
 
 
 int ui3DViewer::sceneID() const
-{
-    return osgbody_->getScene() ? osgbody_->getScene()->id() : -1;
-}
+{ return osgbody_->getScene() ? osgbody_->getScene()->id() : -1; }
 
 
 void ui3DViewer::setViewMode( bool yn )
@@ -1376,95 +1403,58 @@ void ui3DViewer::setViewMode( bool yn )
 
 
 bool ui3DViewer::isViewMode() const
-{
-    return osgbody_->isViewMode();
-}
-
+{ return osgbody_->isViewMode(); }
 
 void ui3DViewer::rotateH( float angle )
 { osgbody_->uiRotate( angle, true ); }
 
-
 void ui3DViewer::rotateV( float angle )
 { osgbody_->uiRotate( angle, false ); }
-
 
 void ui3DViewer::dolly( float rel )
 { osgbody_->uiZoom( rel ); }
 
-
 void ui3DViewer::setCameraZoom( float val )
 { osgbody_->setCameraZoom( val ); }
-
 
 float ui3DViewer::getCameraZoom()
 { return osgbody_->getCameraZoom(); }
 
-
 const Coord3 ui3DViewer::getCameraPosition() const
-{
-    return osgbody_->getCameraPosition();
-}
-
+{ return osgbody_->getCameraPosition(); }
 
 void ui3DViewer::align()
-{
-    osgbody_->align();
-}
-
+{ osgbody_->align(); }
 
 void ui3DViewer::toHomePos()
-{
-    osgbody_->toHomePos();
-}
-
+{ osgbody_->toHomePos(); }
 
 void ui3DViewer::saveHomePos()
-{
-    osgbody_->saveHomePos();
-}
+{ osgbody_->saveHomePos(); }
 
+void ui3DViewer::showRotAxis( bool yn ) // OSG-TODO
+{ osgbody_->showRotAxis( yn ); }
 
-void ui3DViewer::showRotAxis( bool yn )
-{
-    // OSG-TODO
-    osgbody_->showRotAxis( yn );
-}
+void ui3DViewer::setWheelDisplayMode( WheelMode mode )
+{ osgbody_->setWheelDisplayMode( (ui3DViewerBody::WheelMode)mode ); }
 
-void ui3DViewer::showThumbWheels( bool yn )
-{
-    osgbody_->showThumbWheels( yn );
-}
-
+ui3DViewer::WheelMode ui3DViewer::getWheelDisplayMode() const
+{ return (ui3DViewer::WheelMode)osgbody_->getWheelDisplayMode(); }
 
 bool ui3DViewer::rotAxisShown() const
-{
-    return osgbody_->isAxisShown();
-}
-
+{ return osgbody_->isAxisShown(); }
 
 visBase::PolygonSelection* ui3DViewer::getPolygonSelector() const
-{
-    return osgbody_->getPolygonSelector();
-}
-
+{ return osgbody_->getPolygonSelector(); }
 
 visBase::SceneColTab* ui3DViewer::getSceneColTab() const
-{
-    return osgbody_->getSceneColTab();
-}
-
+{ return osgbody_->getSceneColTab(); }
 
 void ui3DViewer::toggleCameraType()
-{
-    osgbody_->toggleCameraType();
-}
-
+{ osgbody_->toggleCameraType(); }
 
 Geom::Size2D<int> ui3DViewer::getViewportSizePixels() const
-{
-    return osgbody_->getViewportSizePixels();
-}
+{ return osgbody_->getViewportSizePixels(); }
 
 
 void ui3DViewer::savePropertySettings() const
@@ -1474,6 +1464,8 @@ void ui3DViewer::savePropertySettings() const
 
     mSaveProp( set, sKeyBGColor(), getBackgroundColor() );
     mSaveProp( setYN, sKeyAnimate(), isAnimationEnabled() );
+    mSaveProp( set, sKeyWheelDisplayMode(),
+	       getWheelModeString(getWheelDisplayMode()) );
     Settings::common().write();
 }
 
@@ -1488,7 +1480,6 @@ void ui3DViewer::fillPar( IOPar& par ) const
     par.setYN( sKeyPersCamera(), isCameraPerspective() );
 
     osgbody_->fillCameraPos( par );
-
 }
 
 
@@ -1506,7 +1497,6 @@ bool ui3DViewer::usePar( const IOPar& par )
 	Color newcol; newcol.setRgb( col );
 	setBackgroundColor( newcol );
     }
-
 
     StereoType stereotype;
     if ( parseEnum( par, sKeyStereo(), stereotype ) )
@@ -1527,34 +1517,19 @@ bool ui3DViewer::usePar( const IOPar& par )
 
 
 visBase::Scene* ui3DViewer::getScene()
-{
-    return osgbody_->getScene();
-}
-
+{ return osgbody_->getScene(); }
 
 const visBase::Scene* ui3DViewer::getScene() const
 { return const_cast<ui3DViewer*>(this)->getScene(); }
 
-
 const osgViewer::View*	ui3DViewer::getOsgViewerMainView() const
-{
-    return osgbody_->getOsgViewerMainView();
-}
-
+{ return osgbody_->getOsgViewerMainView(); }
 
 const osgViewer::View*	ui3DViewer::getOsgViewerHudView() const
-{
-    return osgbody_->getOsgViewerHudView();
-}
-
+{ return osgbody_->getOsgViewerHudView(); }
 
 void ui3DViewer::setScenesPixelDensity(float dpi)
-{
-    osgbody_->setScenesPixelDensity( dpi );
-}
-
+{ osgbody_->setScenesPixelDensity( dpi ); }
 
 float ui3DViewer::getScenesPixelDensity() const
-{
-    return getScene()->getPixelDensity();
-}
+{ return getScene()->getPixelDensity(); }

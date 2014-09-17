@@ -48,6 +48,8 @@ protected:
     ThumbWheel*	visthumbwheel_;
 };
 
+
+
 ThumbWheel::ThumbWheel()
     : rotation( this )
     , thumbwheel_( new osgGeo::ThumbWheel )
@@ -80,6 +82,13 @@ void ThumbWheel::setPosition(bool horizontal, float x, float y, float len,
 }
 
 
+void ThumbWheel::enableFadeInOut( bool yn )
+{ thumbwheel_->enableFadeInOut( yn ); }
+
+bool ThumbWheel::isFadeInOutEnabled() const
+{ return thumbwheel_->isFadeInOutEnabled(); }
+
+
 void ThumbWheel::setAnnotationColor( const Color& col )
 {
     osg::Vec4 osgcol( col2f(r),col2f(g),col2f(b), 0.2 );
@@ -88,15 +97,9 @@ void ThumbWheel::setAnnotationColor( const Color& col )
 
 
 float ThumbWheel::getAngle() const
-{
-    return thumbwheel_->getAngle();
-}
-
+{ return thumbwheel_->getAngle(); }
 
 void ThumbWheel::setAngle( float angle, float rotationtime )
-{
-    thumbwheel_->setAngle( angle, rotationtime );
-}
+{ thumbwheel_->setAngle( angle, rotationtime ); }
 
-
-}; // namespace visBase
+} // namespace visBase

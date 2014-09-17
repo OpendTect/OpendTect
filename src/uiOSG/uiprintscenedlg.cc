@@ -178,9 +178,10 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     osgViewer::View* hudview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerHudView() );
 
-    vwr->showThumbWheels( false );
+    ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
+    vwr->setWheelDisplayMode( ui3DViewer::Never );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
-    vwr->showThumbWheels( true );
+    vwr->setWheelDisplayMode( curmode );
 
     osg::ref_ptr<osg::Image> mainviewimage =
 					offScreenRenderViewToImage( mainview );
