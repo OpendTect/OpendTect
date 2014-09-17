@@ -336,12 +336,11 @@ bool uiWaveletExtraction::doProcess( const IOObj& seisioobj,
 
 	TypeSet<Pos::GeomID> geomids;
 	linesel2dfld_->getSelGeomIDs( geomids );
-	const TypeSet<StepInterval<int> >&  trcrgs =
-					linesel2dfld_->getTrcRanges();
 	for ( int lidx=0; lidx<geomids.size(); lidx++ )
 
 	{
-	    range.cubeSampling().hrg.setCrlRange( trcrgs[lidx] );
+	    range.cubeSampling().hrg.setCrlRange(
+				linesel2dfld_->getTrcRange(lidx) );
 	    range.setGeomID( geomids[lidx] );
 	    seldata_ = range.clone();
 	    sdset += seldata_;

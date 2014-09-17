@@ -76,8 +76,8 @@ private:
 mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
 {
 public:
-
 			uiSeisCopyLineSet(uiParent*,const IOObj*);
+
 protected:
 
     uiSeisSel*		inpfld_;
@@ -85,6 +85,7 @@ protected:
     uiScaler*		scalefld_;
     uiSeisSel*		outpfld_;
 
+    void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };
