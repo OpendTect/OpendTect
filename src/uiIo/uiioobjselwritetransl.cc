@@ -28,6 +28,7 @@ uiIOObjTranslatorWriteOpts::uiIOObjTranslatorWriteOpts( uiParent* p,
 							const Translator& trl )
     : uiGroup(p,BufferString("Write options group for ",trl.getDisplayName()))
     , transl_(trl)
+    , suggestedNameAvailble(this)
 {
 }
 
@@ -38,6 +39,7 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
     , ctxt_(*new IOObjContext(ctio.ctxt))
     , selfld_(0)
     , lbl_(0)
+    , suggestedNameAvailble(this)
 {
     optflds_.allowNull( true );
     const TranslatorGroup& trgrp = *ctio.ctxt.trgroup;
@@ -69,6 +71,8 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 	{
 	    uiIOObjTranslatorWriteOpts* fld =
 		uiIOObjTranslatorWriteOpts::create( this, *trs_[idx] );
+	    fld->suggestedNameAvailble.notify(
+			mCB(this,uiIOObjSelWriteTranslator,nmAvCB) );
 	    optflds_ += fld;
 	    if ( fld && !firstoptfld )
 		firstoptfld = fld;
@@ -128,6 +132,13 @@ bool uiIOObjSelWriteTranslator::isEmpty() const
 	    return false;
 
     return true;
+}
+
+
+const char* uiIOObjSelWriteTranslator::suggestedName() const
+{
+    uiIOObjTranslatorWriteOpts* optfld = getCurOptFld();
+    return optfld ? optfld->suggestedName() : "";
 }
 
 
