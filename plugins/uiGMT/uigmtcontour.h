@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class uiCheckBox;
+class uiColorTableSel;
 class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
@@ -58,7 +59,7 @@ protected:
     uiCheckBox*		linefld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
-    uiComboBox*		colseqfld_;
+    uiColorTableSel*	colseqfld_;
     uiCheckBox*		flipfld_;
 
     void		readCB(CallBacker*);
@@ -68,7 +69,6 @@ protected:
     void		objSel(CallBacker*);
     void		drawSel(CallBacker*);
 
-    void		fillColSeqs();
     bool		loadHor();
 };
 

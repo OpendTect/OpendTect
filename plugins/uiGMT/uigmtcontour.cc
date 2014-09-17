@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uicolortable.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -95,9 +96,8 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     fillfld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->attach( leftOf, fillfld_ );
 
-    colseqfld_ = new uiComboBox( this, "Col Seq" );
+    colseqfld_ = new uiColorTableSel( this, "Color table" );
     colseqfld_->attach( rightOf, fillfld_ );
-    fillColSeqs();
 
     flipfld_ = new uiCheckBox( this, "Flip" );
     flipfld_->attach( rightOf, colseqfld_ );
@@ -127,18 +127,6 @@ void uiGMTContourGrp::reset()
     lsfld_->setStyle( LineStyle() );
     fillfld_->setChecked( false );
     drawSel( 0 );
-}
-
-
-void uiGMTContourGrp::fillColSeqs()
-{
-    const int nrseq = ColTab::SM().size();
-    for ( int idx=0; idx<nrseq; idx++ )
-    {
-	const ColTab::Sequence& seq = *ColTab::SM().get( idx );
-	colseqfld_->addItem( seq.name() );
-	colseqfld_->setPixmap( uiPixmap(seq,16,10,true), idx );
-    }
 }
 
 
