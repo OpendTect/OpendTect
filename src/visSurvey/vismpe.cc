@@ -530,6 +530,17 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	}
 	sceneeventcatcher_->setHandled();
     }
+    else if ( OD::leftMouseButton(eventinfo.buttonstate_) &&
+	      !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+	      !eventinfo.pickedobjids.isPresent(boxdragger_->id()) &&
+	      isBoxDraggerShown() && isPickable() )
+    {
+	sceneeventcatcher_->setHandled();
+	if ( !eventinfo.pressed )
+	    showBoxDragger( false );
+    }
 }
 
 
