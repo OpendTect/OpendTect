@@ -1308,7 +1308,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
 	    Settings::common().set( sKeyIconSetNm,
-				    itm->text().getFullString() + 1 );
+				    itm->text().getFullString() );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reloadIcons();
 	    Settings::common().write();
