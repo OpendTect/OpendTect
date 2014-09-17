@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
 
-#include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uiicon.h"
 #include "uiioobjseldlg.h"
 #include "uilabel.h"
@@ -22,12 +22,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "uitoolbutton.h"
 
 
 namespace PreStack
 {
 
-mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD );
+mImplFactory2Param( uiDialog, uiParent*, Processor*, uiPSPD )
 
 
 uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
@@ -43,20 +44,19 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     factorylist_ = new uiListBox( this, Processor::factory().getUserNames(),
 				  lbltxt, OD::ChooseOnlyOne );
+    factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );
 
-    addprocessorbutton_ = new uiPushButton( this, uiStrings::sAdd(true),
-	    mCB(this,uiProcessorManager,addProcessorCB), true );
-    addprocessorbutton_->attach( rightOf, factorylist_ );
-
-    removeprocessorbutton_ = new uiPushButton( this, uiStrings::sRemove(true),
-	    mCB(this,uiProcessorManager,removeProcessorCB), true);
-    removeprocessorbutton_->attach( alignedBelow, addprocessorbutton_ );
+    addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
+		tr("Add method"), mCB(this,uiProcessorManager,addCB) );
+    addprocessorbutton_->attach( centeredRightOf, factorylist_ );
 
     processorlist_ = new uiListBox( this );
-    processorlist_->attach( rightOf, addprocessorbutton_ );
+    processorlist_->setHSzPol( uiObject::Wide );
+    processorlist_->attach( rightTo, factorylist_ );
+    processorlist_->attach( ensureRightOf, addprocessorbutton_ );
     processorlist_->attach( heightSameAs, factorylist_ );
     processorlist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,processorClickCB) );
@@ -66,32 +66,29 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     label = new uiLabel( this, tr("Used preprocessing methods") );
     label->attach( alignedAbove, processorlist_ );
 
-    moveupbutton_ = new uiPushButton( this, uiStrings::sUp(),
-	    mCB(this,uiProcessorManager,moveUpCB), true );
-    moveupbutton_->attach( rightOf, processorlist_ );
+    uiButtonGroup* butgrp = new uiButtonGroup( this, "Buttons", OD::Vertical );
+    butgrp->attach( rightOf, processorlist_ );
+    moveupbutton_ = new uiToolButton( butgrp, uiToolButton::UpArrow,
+		tr("Move up"), mCB(this,uiProcessorManager,moveUpCB) );
 
-    movedownbutton_ = new uiPushButton( this, uiStrings::sDown(),
-	    mCB(this,uiProcessorManager,moveDownCB), true);
-    movedownbutton_->attach( alignedBelow, moveupbutton_ );
+    movedownbutton_ = new uiToolButton( butgrp, uiToolButton::DownArrow,
+		tr("Move down"), mCB(this,uiProcessorManager,moveDownCB) );
 
-    propertiesbutton_ = new uiPushButton( this, uiStrings::sProperties(true),
-	    mCB(this,uiProcessorManager,propertiesCB), false );
-    propertiesbutton_->attach( alignedBelow, movedownbutton_ );
+    propertiesbutton_ = new uiToolButton( butgrp, "settings",
+		tr("Edit step"), mCB(this,uiProcessorManager,propertiesCB) );
 
-    loadbutton_ = new uiPushButton( this, uiStrings::sLoad(true),
-			uiPixmap(uiIcon::openObject()),
-			mCB(this, uiProcessorManager,loadCB), true );
-    loadbutton_->attach( alignedBelow, factorylist_ );
+    removeprocessorbutton_ = new uiToolButton( butgrp, "trashcan",
+		tr("Remove step"), mCB(this,uiProcessorManager,removeCB) );
 
-    savebutton_ = new uiPushButton( this, uiStrings::sSave(true),
-			uiPixmap(uiIcon::save()),
-	    mCB(this, uiProcessorManager,saveCB), true );
-    savebutton_->attach( rightOf, loadbutton_ );
-
-    saveasbutton_ = new uiPushButton( this, uiStrings::sSaveAs(true),
-			    uiPixmap(uiIcon::saveAs()),
-			    mCB(this, uiProcessorManager,saveAsCB), true );
-    saveasbutton_->attach( rightOf, savebutton_ );
+    uiButtonGroup* iogrp =
+	new uiButtonGroup( this, "IO Buttons", OD::Horizontal );
+    iogrp->attach( alignedBelow, factorylist_ );
+    loadbutton_ = new uiToolButton( iogrp, "open", tr("Open stored setup"),
+		mCB(this, uiProcessorManager,loadCB) );
+    savebutton_ = new uiToolButton( iogrp, "save", tr("Save setup"),
+		mCB(this, uiProcessorManager,saveCB) );
+    saveasbutton_ = new uiToolButton( iogrp, "saveas", tr("Save setup as"),
+		mCB(this, uiProcessorManager,saveAsCB) );
 
     updateList();
     updateButtons();
@@ -211,7 +208,7 @@ void uiProcessorManager::processorDoubleClickCB( CallBacker* )
 }
 
 
-void uiProcessorManager::addProcessorCB( CallBacker* )
+void uiProcessorManager::addCB( CallBacker* )
 {
     if ( factorylist_->firstChosen()==-1 )
 	return;
@@ -230,7 +227,7 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
 }
 
 
-void uiProcessorManager::removeProcessorCB( CallBacker* )
+void uiProcessorManager::removeCB( CallBacker* )
 {
     const int idx = processorlist_->firstChosen();
     if ( idx<0 ) return;

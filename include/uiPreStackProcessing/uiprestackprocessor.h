@@ -14,11 +14,13 @@ ________________________________________________________________________
 -*/
 
 #include "uiprestackprocessingmod.h"
-#include "iopar.h"
-#include "multiid.h"
+
 #include "uidialog.h"
 #include "uigroup.h"
+
 #include "factory.h"
+#include "iopar.h"
+#include "multiid.h"
 
 class uiListBox;
 class IOObj;
@@ -54,8 +56,8 @@ protected:
     void			factoryClickCB(CallBacker*);
     void			processorClickCB(CallBacker*);
     void			processorDoubleClickCB(CallBacker*);
-    void			addProcessorCB(CallBacker*);
-    void			removeProcessorCB(CallBacker*);
+    void			addCB(CallBacker*);
+    void			removeCB(CallBacker*);
     void			moveUpCB(CallBacker*);
     void			moveDownCB(CallBacker*);
     void			propertiesCB(CallBacker*);
@@ -64,7 +66,7 @@ protected:
     void			saveCB(CallBacker*);
     bool			doSave(const IOObj&);
     bool			doSaveAs();
-    
+
 
     IOPar			restorepar_;
 
