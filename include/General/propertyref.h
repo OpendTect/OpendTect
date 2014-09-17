@@ -101,6 +101,10 @@ public:
     static const PropertyRef& thickness();
 		//!< use this always. It has automatic defaults from SI()
     inline bool		isThickness() const	{ return this == &thickness(); }
+    static const char*	standardSVelStr()	{ return "Swave velocity";}
+    static const char*	standardSVelAliasStr()	{ return "SVel";}
+    static const char*	standardPVelStr()	{ return "Pwave velocity";}
+    static const char*	standardPVelAliasStr()	{ return "PVel";}
 
 protected:
 

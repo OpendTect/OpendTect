@@ -142,22 +142,25 @@ protected:
 class PropertyRefSelection;
 
 mExpClass(uiStrat) uiStratLayModFRPropSelector : public uiDialog
-{
+{ mODTextTranslationClass(uiStratLayModFRPropSelector)
 public:
 
 			uiStratLayModFRPropSelector(uiParent*,
 						  const PropertyRefSelection&);
 
     bool		needsDisplay() const;
+    bool		isOK() const;
     const char*		getSelVPName() const;
     const char*		getSelVSName() const;
     const char*		getSelDenName() const;
+    const uiString&	errMsg() const	{ return errmsg_; }
 
 protected:
 
     uiComboBox*		vpfld_;
     uiComboBox*		vsfld_;
     uiComboBox*		denfld_;
+    uiString		errmsg_;
 
 };
 

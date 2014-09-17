@@ -1016,9 +1016,12 @@ void uiStratLayerModel::prepareFluidRepl()
 {
     lmp_.initEditing();
     Strat::LayerModel& edlm = lmp_.getEdited( true );
-    if ( edlm.propertyRefs().find(Strat::LayerModel::defSVelStr()) == -1 )
-	edlm.propertyRefs() += new PropertyRef( Strat::LayerModel::defSVelStr(),
-					 PropertyRef::Vel );
+    const bool hasswave =
+	edlm.propertyRefs().find(PropertyRef::standardSVelStr()) >= 0 ||
+	edlm.propertyRefs().find(PropertyRef::standardSVelAliasStr()) >= 0;
+    if ( !hasswave )
+	edlm.propertyRefs() += new PropertyRef( PropertyRef::standardSVelStr(),
+						PropertyRef::Vel );
 }
 
 
