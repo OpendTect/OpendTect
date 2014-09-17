@@ -106,7 +106,7 @@ bool OD::IconFile::findIcons( const char* id, bool indef )
 bool OD::IconFile::isPresent( const char* identifier )
 {
     OD::IconFile icf( identifier );
-    return icf.nms_.isEmpty();
+    return !icf.nms_.isEmpty();
 }
 
 
