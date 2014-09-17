@@ -639,7 +639,7 @@ uiMarkerItem::uiMarkerItem( const uiPoint& pos, const MarkerStyle2D& mstyle,
     : uiGraphicsItem( mkQtObj() )
 {
     setPos( pos );
-    qmarkeritem_->setMarkerStyle( mstyle );
+    setMarkerStyle( mstyle );
     setFill( fill );
 }
 
@@ -647,7 +647,7 @@ uiMarkerItem::uiMarkerItem( const uiPoint& pos, const MarkerStyle2D& mstyle,
 uiMarkerItem::uiMarkerItem( const MarkerStyle2D& mstyle, bool fill )
     : uiGraphicsItem( mkQtObj() )
 {
-    qmarkeritem_->setMarkerStyle( mstyle );
+    setMarkerStyle( mstyle );
     if ( fill )
 	setFillColor( mstyle.color_ );
 }
