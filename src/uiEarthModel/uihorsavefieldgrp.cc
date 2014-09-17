@@ -170,9 +170,6 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     if ( !horizon_ )
 	mErrRet( tr("No selected horizon, cannot create a new one.") );
 
-    if ( needsFullSurveyArray() )
-	expandToFullSurveyArray();
-
     if ( newhorizon_ )
     {
 	newhorizon_->unRef();
@@ -207,6 +204,9 @@ bool uiHorSaveFieldGrp::createNewHorizon()
     newhorizon_->setMultiID( outputfld_->ioobj()->key() );
     File::copy( horizon_->name(), newhorizon_->name() );
 
+    if ( needsFullSurveyArray() )
+	expandToFullSurveyArray();
+
     return true;
 }
 
@@ -214,17 +214,18 @@ bool uiHorSaveFieldGrp::createNewHorizon()
 
 void uiHorSaveFieldGrp::expandToFullSurveyArray()
 {
-    if ( !horizon_ || !horizon_->geometry().nrSections() )
+    EM::Horizon* hor = overwriteHorizon() ? horizon_ : newhorizon_;
+    if ( !hor || !hor->geometry().nrSections() )
 	return;
     
-    const EM::SectionID sid = horizon_->geometry().sectionID( 0 );
+    const EM::SectionID sid = hor->geometry().sectionID( 0 );
     mDynamicCastGet( Geometry::ParametricSurface*, surf,
-	    horizon_->sectionGeometry( sid ) );
+	    hor->sectionGeometry( sid ) );
     if ( !surf || !needsFullSurveyArray() )
 	return;
     
-    StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
-    StepInterval<int> colrg = horizon_->geometry().colRange( sid, -1 );
+    StepInterval<int> rowrg = hor->geometry().rowRange( sid );
+    StepInterval<int> colrg = hor->geometry().colRange( sid, -1 );
     
     const StepInterval<int> survcrlrg = SI().crlRange(true);
     while ( colrg.start-colrg.step>=survcrlrg.start )

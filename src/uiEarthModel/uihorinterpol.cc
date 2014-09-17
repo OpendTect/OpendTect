@@ -127,17 +127,16 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
     if ( !interpolator->usePar(par) )
 	mErrRet( "Incomplete parameters" )
 
+    if ( interpolhor3dsel_->isFullSurvey() )
+	savefldgrp_->setFullSurveyArray( true );
+
     if ( !savefldgrp_->acceptOK(0) ) 
 	return false;
 
     EM::Horizon* usedhor = savefldgrp_->getNewHorizon() ?
 	savefldgrp_->getNewHorizon() : horizon_;
 
-    mDynamicCastGet(EM::Horizon3D*,usedhor3d,usedhor)
-    if ( !usedhor3d )
-	return false;
-    
-    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,usedhor)
     if ( !hor3d )
 	return false;
 
@@ -203,7 +202,7 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	}
 
 	success = true;
-	usedhor3d->geometry().sectionGeometry(sid)->setArray(
+	hor3d->geometry().sectionGeometry(sid)->setArray(
 					    hs.start, hs.step, arr, true );
     }
 
@@ -373,6 +372,12 @@ BinID uiHor3DInterpolSel::getStep() const
 void uiHor3DInterpolSel::setStep( const BinID& steps )
 {
     stepfld_->setValue( steps );
+}
+
+
+bool uiHor3DInterpolSel::isFullSurvey() const
+{
+    return filltypefld_->getIntValue() == 0;
 }
 
 
@@ -562,8 +567,8 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
 	par.set( IOPar::compKey(HorizonGridder::sKeyFaultID(),idx),
 		 selfaultids[idx] );
 
-    par.set( TriangulationArray2DInterpol::sKeyDoInterpol(),
-	     !useneighborfld_->isChecked() );
+    par.setYN( TriangulationArray2DInterpol::sKeyDoInterpol(),
+	       !useneighborfld_->isChecked() );
     if ( usemax )
 	par.set( TriangulationArray2DInterpol::sKeyMaxDistance(), maxdist );
 
