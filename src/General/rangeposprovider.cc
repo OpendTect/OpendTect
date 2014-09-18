@@ -184,6 +184,11 @@ Pos::RangeProvider2D::RangeProvider2D( const Pos::RangeProvider2D& p )
     *this = p;
 }
 
+Pos::RangeProvider2D::~RangeProvider2D()
+{
+    deleteAndZeroPtr( curlinegeom_ );
+}
+
 
 Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 					const Pos::RangeProvider2D& p )
@@ -194,7 +199,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 	trcrgs_ = p.trcrgs_;
 	curtrcidx_ = p.curtrcidx_;
 	curlineidx_ =  p.curlineidx_;
-	delete curlinegeom_; curlinegeom_ = 0;
+	deleteAndZeroPtr( curlinegeom_ );
 	curzidx_ = p.curzidx_;
 	for ( int idx=0; idx<p.nrLines(); idx++ )
 	    addGeomID( p.geomID(idx) );
@@ -213,7 +218,7 @@ const char* Pos::RangeProvider2D::type() const
 void Pos::RangeProvider2D::reset()
 {
     curlineidx_ = 0;
-    delete curlinegeom_; curlinegeom_ = 0;
+    deleteAndZeroPtr( curlinegeom_ );
     StepInterval<float> zrg = zrgs_[0];
     if ( !geomids_.isEmpty() )
     {
@@ -262,7 +267,7 @@ bool Pos::RangeProvider2D::toNextPos()
 	    break;
 
 	curlineidx_++;
-	delete curlinegeom_; curlinegeom_ = 0;
+	deleteAndZeroPtr( curlinegeom_ );
 	if ( !geomids_.validIdx(curlineidx_) )
 	    return false;
 
@@ -381,7 +386,7 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 	if ( !geom2d )
 	    continue;
 
-	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->positions();
+	const TypeSet<PosInfo::Line2DPos>& pos = geom2d->data().positions();
 	for ( int idx=0; idx<pos.size(); idx++ )
 	{
 	    if ( pos[idx].coord_ == c )

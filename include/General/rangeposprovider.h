@@ -84,6 +84,8 @@ public:
 
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
+			~RangeProvider2D();
+
     RangeProvider2D&	operator =(const RangeProvider2D&);
     const char*		type() const;	//!< sKey::Range()
     const char*		factoryKeyword() const { return type(); }
