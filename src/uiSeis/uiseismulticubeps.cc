@@ -97,7 +97,7 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p, const char* ky )
     compfld_ = new uiComboBox( this, "Component" );
     compfld_->setHSzPol( uiObject::WideMax );
     compfld_->attach( alignedBelow, selllb );
-    compfld_->display( false );
+    compfld_->setSensitive( false );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, compfld_ );
@@ -137,7 +137,8 @@ const IOObj* uiSeisMultiCubePS::createdIOObj() const
 void uiSeisMultiCubePS::fillEntries()
 {
     const IODir iodir( ctio_.ctxt.getSelKey() );
-    const IODirEntryList del( iodir, SeisTrcTranslatorGroup::ioContext() );
+    PtrMan<IOObjContext> ctxt = Seis::getIOObjContext( Seis::Vol, true );
+    const IODirEntryList del( iodir, *ctxt );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IODirEntry& de = *del[idx];
@@ -223,7 +224,7 @@ void uiSeisMultiCubePS::setCompFld( const uiSeisMultiCubePSEntry& se )
     BufferStringSet compnms;
     ioobjinf.getComponentNames( compnms );
     const bool dodisp = compnms.size() > 1;
-    compfld_->display( dodisp );
+    compfld_->setSensitive( dodisp );
     if ( dodisp )
     {
 	compfld_->addItems( compnms );
@@ -306,8 +307,13 @@ void uiSeisMultiCubePS::fullUpdate()
 	uiSeisMultiCubePSEntry& se = *selentries_[curselidx_];
 	setCompFld( se );
     }
-    selfld_->setCurrentItem( curselidx_ );
+    else
+    {
+	compfld_->setEmpty();
+	compfld_->setSensitive( false );
+    }
 
+    selfld_->setCurrentItem( curselidx_ );
 }
 
 
