@@ -42,12 +42,9 @@ public:
 
     SeisTrcBufDataPack*	dataPack()		{ return dp_; }
     void		handleBufChange();
-    void		clearData();
 
     // Convenience
     void		selectDispTypes(bool wva,bool vd);
-
-    uiFlatViewer*	getViewer()		{ return &viewer(); }
 
 protected:
 
@@ -56,7 +53,6 @@ protected:
     void	setBuf(const SeisTrcBuf&,Seis::GeomType,
 		       const char*,const char* nm,int compnr,bool);
     void	releaseDP();
-
 
 };
 

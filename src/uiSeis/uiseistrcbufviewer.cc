@@ -12,12 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbufadapters.h"
 #include "seisinfo.h"
 #include "seistrc.h"
-#include "ioobj.h"
-#include "ioman.h"
-#include "ptrman.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
-#include "uirgbarraycanvas.h"
 #include "uiseistrcbufviewer.h"
 
 
@@ -112,10 +108,3 @@ void uiSeisTrcBufViewer::handleBufChange()
     viewer().handleChange( mCast(unsigned int,FlatView::Viewer::All) );
 }
 
-
-void uiSeisTrcBufViewer::clearData()
-{
-    const TypeSet<DataPack::ID> ids = viewer().availablePacks();
-    for ( int idx=0; idx<ids.size(); idx++ )
-	viewer().removePack( ids[idx] );
-}
