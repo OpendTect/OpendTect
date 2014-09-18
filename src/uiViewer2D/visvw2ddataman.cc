@@ -66,12 +66,7 @@ void Vw2DDataManager::removeObject( Vw2DDataObject* dobj )
 
 void Vw2DDataManager::removeAll()
 {
-    while ( objects_.size() )
-    {
-	while ( objects_.size() && objects_[0]->nrRefs() )
-	    objects_[0]->unRef();
-    }
-
+    deepUnRef( objects_ );
     selectedid_ = -1;
     freeid_ = 0;
 
