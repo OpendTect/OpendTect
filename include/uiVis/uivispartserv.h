@@ -391,6 +391,8 @@ protected:
     const visSurvey::Scene*	getScene(int) const;
 
     bool			selectAttrib(int id, int attrib);
+    void			updateManipulatorStatus(visBase::DataObject*,
+							bool issel) const;
 
     void			setMarkerPos(const Coord3&,int dontsetscene);
 

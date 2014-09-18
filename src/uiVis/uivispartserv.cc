@@ -1240,24 +1240,8 @@ void uiVisPartServer::updateDraggers()
 
 	for ( int objidx=0; objidx<scene->size(); objidx++ )
 	{
-	    visBase::DataObject* obj = scene->getObject( objidx );
-	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
-	    mDynamicCastGet(visSurvey::MPEDisplay*,mpedisp,so)
-
-	    if ( mpedisp )
-	    {
-		// Tells the tracker box not to hide in view mode
-		mpedisp->setPickable( workmode_==uiVisPartServer::Interactive );
-	    }
-	    else if ( so )
-	    {
-		const bool turndraggeron = !so->isLocked() &&
-				    selected.isPresent(obj->id()) &&
-				    workmode_==uiVisPartServer::Interactive;
-
-		if ( so->isManipulatorShown() != turndraggeron )
-		    so->showManipulator( turndraggeron );
-	    }
+	    visBase::DataObject* dobj = scene->getObject( objidx );
+	    updateManipulatorStatus( dobj, selected.isPresent(dobj->id()) );
 	}
     }
 }
@@ -1931,13 +1915,28 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
 }
 
 
+void uiVisPartServer::updateManipulatorStatus( visBase::DataObject* dobj,
+					       bool isselected ) const
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, dobj );
+    if ( !so )
+	return;
+
+    const bool showmanipulator =  !so->isLocked() && 
+	workmode_==uiVisPartServer::Interactive && 
+	isselected;
+
+    if ( showmanipulator!=so->isManipulatorShown() )
+	so->showManipulator( showmanipulator );
+}
+
+
 void uiVisPartServer::selectObjCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,sel,cb);
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
-    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
-    if ( ( workmode_ == uiVisPartServer::Interactive ) && so )
-	so->showManipulator( !so->isLocked() );
+ 
+    updateManipulatorStatus( dobj, true );
 
     selattrib_ = -1;
 
@@ -1959,10 +1958,9 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     {
 	if ( so->isManipulated() && !calcManipulatedAttribs(oldsel) )
 	    resetManipulation( oldsel );
-
-	if ( workmode_ == uiVisPartServer::Interactive )
-	    so->showManipulator(false);
     }
+
+    updateManipulatorStatus( dobj, false );
 
     eventmutex_.lock();
     eventobjid_ = oldsel;
@@ -2225,15 +2223,14 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
 
 void uiVisPartServer::lock( int id, bool yn )
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    visBase::DataObject* dobj = getObject(id);
+    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
     if ( !so ) return;
 
     const TypeSet<int>& selected = visBase::DM().selMan().selected();
     so->lock( yn );
-
-    const bool isdraggeron = selected.isPresent(id) &&
-	( workmode_ == uiVisPartServer::Interactive );
-    so->showManipulator( isdraggeron && !so->isLocked() );
+   
+    updateManipulatorStatus( dobj, selected.isPresent(id) );
 }
 
 
