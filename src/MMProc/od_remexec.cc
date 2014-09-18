@@ -9,11 +9,10 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "prog.h"
+#include "hostdata.h"
 #include "iopar.h"
-#include "oddirs.h"
+#include "prog.h"
 #include "remjobexec.h"
-#include "oscommand.h"
 #include "systeminfo.h"
 
 
@@ -35,11 +34,15 @@ int main( int argc, char** argv )
 	par.set( "Job ID", argv[8] );
 	par.set( "Par File", argv[9] );
     }
-    
+
     const char* hostnmarg = argv[1];
-    BufferString remhostaddress = System::hostAddress( hostnmarg );
+    HostData hd( hostnmarg );
+    BufferString remhostaddress = hd.getIPAddress();
+    if ( remhostaddress.isEmpty() )
+	remhostaddress = System::hostAddress( hostnmarg );
     if ( remhostaddress.isEmpty() )
 	remhostaddress = hostnmarg;
+
     RemoteJobExec* rje = new RemoteJobExec( remhostaddress, 5050 );
     rje->addPar( par );
     rje->launchProc();
