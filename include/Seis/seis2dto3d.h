@@ -47,7 +47,7 @@ public:
 						    : errmsg_; }
     od_int64		nrDone() const		{ return nrdone_; }
     uiString		uiNrDoneText() const	{return "Number of iterations";}
-    od_int64		totalNr() const		{ return nriter_; };
+    od_int64		totalNr() const		{ return nriter_; }
     int			nextStep();
 
 protected:
@@ -131,7 +131,8 @@ protected:
     void		doWorkNearest();
     bool		doWorkFFT();
 
-    const Seis2DDataSet* ds_;
+
+    IOObj*		inioobj_;
     IOObj*		outioobj_;
     TrcKeyZSampling	tkzs_;
 
@@ -149,6 +150,8 @@ protected:
     SeisScaler*		sc_;
 
     SeisTrcBuf&		seisbuf_;
+    TrcKeySampling	seisbuftks_;
+
     SeisTrcWriter*      wrr_;
     SeisTrcBuf		tmpseisbuf_;
 

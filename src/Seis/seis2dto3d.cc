@@ -46,11 +46,11 @@ const char* Seis2DTo3D::sKeyMaxVel()	{ return "Maximum Velocity"; }
 
 Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating a 3D cube from a 2DDataSet")
-    , ds_(0)
+    , inioobj_(0)
     , outioobj_(0)
     , tkzs_(true)
     , read_(false)
-    , seisbuf_(*new SeisTrcBuf(false))
+    , seisbuf_(*new SeisTrcBuf(true))
     , nrdone_(0)
     , sc_(0)
     , wrr_(0)
@@ -58,15 +58,17 @@ Seis2DTo3D::Seis2DTo3D()
     , maxvel_(mUdf(float))
     , inlstep_(0)
     , crlstep_(0)
+    , reusetrcs_(false)
 {}
 
 
 Seis2DTo3D::~Seis2DTo3D()
 {
     seisbuf_.erase();
-    delete wrr_; wrr_ = 0;
-    if ( !nearesttrace_ && sc_ )
-	delete sc_; sc_ = 0;
+    delete wrr_;
+    delete sc_;
+    delete inioobj_;
+    delete outioobj_;
 }
 
 
@@ -104,11 +106,9 @@ bool Seis2DTo3D::setIO( const IOPar& pars )
 {
     MultiID key;
     pars.get( sKeyInput(), key );
-    PtrMan<IOObj> input = IOM().get( key );
-    if ( !input )
+    inioobj_ = IOM().get( key );
+    if ( !inioobj_ )
 	mErrRet( tr("2DDataSet not found") )
-
-    ds_ = new Seis2DDataSet( *input );
 
     pars.get( SeisJobExecProv::sKeySeisOutIDKey(), key );
     outioobj_ = IOM().get( key );
@@ -149,11 +149,11 @@ bool Seis2DTo3D::checkParameters()
 
 bool Seis2DTo3D::read()
 {
-    if ( ds_->nrLines() < 1 )
-	mErrRet( tr("Empty LineSet") )
+    if ( !inioobj_ ) return false;
 
+    Seis2DDataSet ds( *inioobj_ );
     BufferStringSet lnms;
-    ds_->getLineNames( lnms );
+    ds.getLineNames( lnms );
     if ( lnms.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
@@ -162,14 +162,18 @@ bool Seis2DTo3D::read()
     Interval<int> crlrg( tkzs_.hrg.crlRange().start - crlstep_,
 			 tkzs_.hrg.crlRange().stop + crlstep_ );
     SeisTrcBuf tmpbuf(false);
+    seisbuf_.erase();
+    seisbuftks_.init( false );
     for ( int iline=0; iline<lnms.size(); iline++)
     {
-	const int lsidx = ds_->indexOf( lnms.get(iline) );
+	const int lsidx = ds.indexOf( lnms.get(iline) );
 	if ( lsidx < 0 )
 	    continue;
 
-	Executor* lf = ds_->lineFetcher( lsidx, tmpbuf );
-	lf->execute();
+	PtrMan<Executor> lf = ds.lineFetcher( lsidx, tmpbuf );
+	if ( !lf || !lf->execute() )
+	    continue;
+
 	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
 	{
 	    const SeisTrc& intrc = *tmpbuf.get( idx );
@@ -190,6 +194,7 @@ bool Seis2DTo3D::read()
 		    trc->set( isamp, intrc.getValue(z,icomp), icomp );
 	    }
 	    seisbuf_.add( trc );
+	    seisbuftks_.include( bid );
 	}
 
 	tmpbuf.erase();
@@ -200,7 +205,6 @@ bool Seis2DTo3D::read()
 
     hsit_.setSampling( tkzs_.hrg );
 
-   delete ds_;
     if ( !nearesttrace_ )
 	sc_ = new SeisScaler( seisbuf_ );
 
@@ -217,7 +221,7 @@ int Seis2DTo3D::nextStep()
     if ( !hsit_.next(curbid_) )
 	{ writeTmpTrcs(); return Finished(); }
 
-    if ( !SI().includes( curbid_, 0, true ) )
+    if ( !SI().sampling(false).hsamp_.includes(curbid_) )
 	return MoreToDo();
 
     if ( nrdone_ == 0 )
@@ -291,13 +295,19 @@ bool Seis2DTo3D::doWorkFFT()
     if ( !outioobj_ )
 	mErrRet("Internal: No output is set")
 
-    SeisTrcReader rdr( outioobj_ );
     SeisTrcBuf outtrcbuf(false);
-    SeisBufReader sbrdr( rdr, outtrcbuf );
-    sbrdr.execute();
+    if ( reusetrcs_ )
+    {
+	SeisTrcReader rdr( outioobj_ );
+	SeisBufReader sbrdr( rdr, outtrcbuf );
+	sbrdr.execute();
+    }
+
+
     while ( localhsit.next(binid) )
     {
-	const int idtrc = seisbuf_.find( binid	);
+	const bool hasbid = seisbuftks_.includes( binid );
+	const int idtrc = hasbid ? seisbuf_.find(binid) : -1;
 	if ( idtrc >= 0 )
 	    trcs += seisbuf_.get( idtrc );
 	else if ( reusetrcs_ && !tmpseisbuf_.isEmpty() )
@@ -322,28 +332,30 @@ bool Seis2DTo3D::doWorkFFT()
     Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
-    TrcKeySampling winhrg; winhrg.set( tkzs_.hrg.inlRange(), tkzs_.hrg.crlRange() );
+    TrcKeySampling winhrg;
+    winhrg.set( wininlrg, wincrlrg );
     winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
 
-    if ( outtrcs.isEmpty() )
+    for ( int idx=0; sc_ && idx<outtrcs.size(); idx ++ )
+	sc_->scaleTrace( *outtrcs[idx] );
+
+    if ( reusetrcs_ && outtrcs.isEmpty() )
     {
 	BinID bid;
 	TrcKeySamplingIterator hsit( winhrg );
-	while ( hsit.next( bid ) )
+	while ( hsit.next(bid) )
 	{
-	    SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
-	    trc->info().sampling = seisbuf_.get( 0 )->info().sampling;
+	    SeisTrc* trc = new SeisTrc( seisbuf_.get(0)->size() );
+	    trc->info().sampling = seisbuf_.get(0)->info().sampling;
 	    trc->info().binid = bid;
+	    outtrcs += trc;
 	}
     }
 
     for ( int idx=0; idx<outtrcs.size(); idx ++ )
-    {
-	sc_->scaleTrace( *outtrcs[idx] );
 	tmpseisbuf_.add( outtrcs[idx] );
-    }
 
     return true;
 }
