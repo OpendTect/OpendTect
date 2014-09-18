@@ -133,19 +133,19 @@ void uiAttribDescSetEd::createMenuBar()
         { pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( "New set ...", newSet, "new" );
-    mInsertItem( "Open set ...", openSet, "open" );
-    mInsertItem( "Save set ...", savePush, "save" );
-    mInsertItem( "Save set as ...", saveAsPush, "saveas" );
-    mInsertItemNoIcon( "Auto Load Attribute Set ...", autoSet );
-    mInsertItemNoIcon( "Change attribute input(s) ...", changeInput );
+    mInsertItem( tr("New set ..."), newSet, "newset" );
+    mInsertItem( tr("Open set ..."), openSet, "openset" );
+    mInsertItem( tr("Save set ..."), savePush, "save" );
+    mInsertItem( tr("Save set as ..."), saveAsPush, "saveas" );
+    mInsertItemNoIcon( tr("Auto Load Attribute Set ..."), autoSet );
+    mInsertItemNoIcon( tr("Change attribute input(s) ..."), changeInput );
     filemnu->insertSeparator();
-    mInsertItem( "Open Default set ...", defaultSet, "defset" );
+    mInsertItem( tr("Open Default set ..."), defaultSet, "defset" );
     uiMenu* impmnu = new uiMenu( this, uiStrings::sImport() );
-    mInsertMnuItem( impmnu, "From other Survey ...", importSet, "impset" );
-    mInsertMnuItemNoIcon( impmnu, "From File ...", importFile );
-    mInsertItem( "Reconstruct from job file ...", job2Set, "job2set" );
-    mInsertItemNoIcon( "Import set from Seismics ...", importFromSeis );
+    mInsertMnuItem( impmnu, tr("From other Survey ..."), importSet, "impset" );
+    mInsertMnuItemNoIcon( impmnu, tr("From File ..."), importFile );
+    mInsertItem( tr("Reconstruct from job file ..."), job2Set, "job2set" );
+    mInsertItemNoIcon( tr("Import set from Seismics ..."), importFromSeis );
 
     filemnu->insertItem( impmnu );
     menu->insertItem( filemnu );
@@ -158,21 +158,21 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, "AttributeSet tools" );
-    mAddButton( "new", newSet, "New attribute set" );
-    mAddButton( "open", openSet, "Open attribute set" );
-    mAddButton( "defset", defaultSet, "Open default attribute set" );
+    mAddButton( "newset", newSet, tr("New attribute set") );
+    mAddButton( "openset", openSet, tr("Open attribute set") );
+    mAddButton( "defset", defaultSet, tr("Open default attribute set") );
     mAddButton( "impset", importSet,
-		"Import attribute set from other survey" );
-    mAddButton( "job2set", job2Set, "Reconstruct set from job file" );
-    mAddButton( "save", savePush, "Save attribute set" );
-    mAddButton( "saveas", saveAsPush, "Save attribute set as" );
+		tr("Import attribute set from other survey") );
+    mAddButton( "job2set", job2Set, tr("Reconstruct set from job file") );
+    mAddButton( "save", savePush, tr("Save attribute set") );
+    mAddButton( "saveas", saveAsPush, tr("Save attribute set as") );
     toolbar_->addSeparator();
     mAddButton( "showattrnow", directShow,
-		"Redisplay element with current attribute");
-    mAddButton( "evalattr", evalAttribute, "Evaluate attribute" );
-    mAddButton( "evalcrossattr",crossEvalAttrs,"Cross attributes evaluate");
-    mAddButton( "xplot", crossPlot, "Cross-Plot attributes" );
-    mAddButton( "dot", exportToDotCB, "View as graph" );
+		tr("Redisplay element with current attribute"));
+    mAddButton( "evalattr", evalAttribute, tr("Evaluate attribute") );
+    mAddButton( "evalcrossattr",crossEvalAttrs,tr("Cross attributes evaluate"));
+    mAddButton( "xplot", crossPlot, tr("Cross-Plot attributes") );
+    mAddButton( "dot", exportToDotCB, tr("View as graph") );
 }
 
 
@@ -180,7 +180,7 @@ void uiAttribDescSetEd::createGroups()
 {
 //  Left part
     uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
-    attrsetfld_ = new uiGenInput( leftgrp, "Attribute set", StringInpSpec() );
+    attrsetfld_ = new uiGenInput(leftgrp, tr("Attribute set"), StringInpSpec());
     attrsetfld_->setReadOnly( true );
 
     attrlistfld_ = new uiListBox( leftgrp, "Defined Attributes" );
@@ -196,10 +196,10 @@ void uiAttribDescSetEd::createGroups()
                                      uiStrings::sDown(),
 				    mCB(this,uiAttribDescSetEd,moveUpDownCB) );
     movedownbut_->attach( alignedBelow, moveupbut_ );
-    sortbut_ = new uiToolButton( leftgrp, "sort", "Sort attributes",
+    sortbut_ = new uiToolButton( leftgrp, "sort", tr("Sort attributes"),
 				 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( alignedBelow, movedownbut_ );
-    rmbut_ = new uiToolButton( leftgrp, "trashcan", "Remove selected",
+    rmbut_ = new uiToolButton( leftgrp, "trashcan", tr("Remove selected"),
 				mCB(this,uiAttribDescSetEd,rmPush) );
     rmbut_->attach( alignedBelow, sortbut_ );
 
@@ -241,12 +241,12 @@ void uiAttribDescSetEd::createGroups()
 				mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut_->attach( rightTo, attrtypefld_ );
 
-    attrnmfld_ = new uiGenInput( rightgrp, "Attribute name" );
+    attrnmfld_ = new uiGenInput( rightgrp, tr("Attribute name") );
     attrnmfld_->setElemSzPol( uiObject::Wide );
     attrnmfld_->attach( alignedBelow, degrp );
     attrnmfld_->updateRequested.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
-    addbut_ = new uiPushButton( rightgrp, "Add as new", true );
+    addbut_ = new uiPushButton( rightgrp, tr("Add as new"), true );
     addbut_->attach( rightTo, attrnmfld_ );
     addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
@@ -890,7 +890,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	    mErrRetFalse(tr("Cannot find attribute set in data base"))
     }
 
-    BufferString bs;
+    uiString bs;
     if ( forread )
     {
 	Attrib::DescSet attrset( is2D() );
@@ -899,9 +899,11 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 
 	if ( attrset.is2D() != is2D() )
 	{
-	    bs = "Attribute Set "; bs += setctio_.ioobj->name();
-	    bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
-	    mErrRetFalse(bs.buf())
+	    bs = tr("Attribute Set %1 is of type %2")
+               .arg(setctio_.ioobj->name())
+	       .arg(attrset.is2D() ? uiStrings::s2D(true) 
+                                   : uiStrings::s3D(true));
+	    mErrRetFalse(bs)
 	}
 
 	*attrset_ = attrset;
@@ -912,7 +914,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	mErrRetFalse(bs)
 
     if ( !bs.isEmpty() )
-	{ pErrMsg( bs ); }
+	{ pErrMsg( bs.getFullString() ); }
 
     setid_ = setctio_.ioobj->key();
     return true;
@@ -1200,7 +1202,7 @@ bool uiAttribDescSetEd::offerSetSave()
     bool saved = adsman_->isSaved();
     if ( saved ) return true;
 
-    BufferString msg( "Attribute set is not saved.\nSave now?" );
+    uiString msg = tr( "Attribute set is not saved.\nSave now?" );
     const int res = uiMSG().askSave( msg );
     if ( res==1 )
 	return doSave(false);
@@ -1266,7 +1268,7 @@ void uiAttribDescSetEd::exportToDotCB( CallBacker* )
     const bool res = OS::ExecCommand( cmd.buf() );
     if ( !res )
     {
-	uiMSG().error( "Could not execute ", cmd );
+	uiMSG().error( tr("Could not execute %1").arg(cmd) );
 	return;
     }
 

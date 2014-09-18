@@ -286,9 +286,9 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 
     if ( desc->isSatisfied() == Desc::Error )
     {
-	const BufferString derrmsg( desc->errMsg() );
+	const uiString derrmsg( desc->errMsg() );
 	if ( !desc->isStored() || derrmsg
-                               != "Parameter 'id' is not correct" )
+                               != tr("Parameter 'id' is not correct") )
 	                          errmsg_ = derrmsg;
 	else
 	{

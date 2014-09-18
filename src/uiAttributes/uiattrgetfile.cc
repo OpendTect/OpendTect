@@ -54,7 +54,7 @@ uiGetFileForAttrSet::uiGetFileForAttrSet( uiParent* p, bool isads, bool is2d )
     if ( !isattrset_ )
     {
 	uiPushButton* but = new uiPushButton( this,
-				"Find from created cube",
+				tr("Find from created cube"),
 				mCB(this,uiGetFileForAttrSet,srchDir), false );
 	but->attach( rightOf, fileinpfld );
     }
@@ -173,7 +173,7 @@ uiImpAttrSet::uiImpAttrSet( uiParent* p )
 
     IOObjContext ctxt = mIOObjContext(AttribDescSet);
     ctxt.forread = false;
-    attrsetfld_ = new uiIOObjSel( this, ctxt, "Output Attribute Set" );
+    attrsetfld_ = new uiIOObjSel( this, ctxt, tr("Output Attribute Set") );
     attrsetfld_->attach( alignedBelow, fileinpfld_ );
 }
 
@@ -194,7 +194,7 @@ bool uiImpAttrSet::acceptOK( CallBacker* )
     const IOObj* ioobj = attrsetfld_->ioobj();
     if ( !ioobj ) return false;
 
-    BufferString errmsg;
+    uiString errmsg;
     Attrib::DescSet ds( false );
     bool res = AttribDescSetTranslator::retrieve( ds, fnm, errmsg );
     if ( !res )

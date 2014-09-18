@@ -163,7 +163,7 @@ void uiAttribPartServer::useAutoSet( bool is2d )
     if ( SI().pars().get(idkey,id) )
     {
 	PtrMan<IOObj> ioobj = IOM().get( id );
-	BufferString bs;
+	uiString bs;
 	DescSet* attrset = new DescSet( is2d );
 	if ( !ioobj || !AttribDescSetTranslator::retrieve(*attrset,ioobj,bs)
 		|| attrset->is2D()!=is2d )
@@ -516,7 +516,7 @@ void uiAttribPartServer::saveSet( bool is2d )
     {
 	ctio->ioobj = 0;
 	ctio->setObj( dlg.ioObj()->clone() );
-	BufferString bs;
+	uiString bs;
 	if ( !ctio->ioobj )
 	    uiMSG().error(tr("Cannot find attribute set in data base"));
 	else if (
@@ -1583,8 +1583,9 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d, bool isstored )
 
 	if ( !errmsgs.isEmpty() )
 	{
-	    BufferString basemsg = "Error during restore of ";
-	    basemsg += is2d ? "2D " : "3D "; basemsg += "Attribute Set";
+	    uiString basemsg = tr("Error during restore of %1 Attribute Set")
+	                     .arg(is2d ? uiStrings::s2D(true) 
+                                       : uiStrings::s3D(true));
 	uiMSG().errorWithDetails( errmsgs, basemsg );
 	}
 
