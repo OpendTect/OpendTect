@@ -73,13 +73,16 @@ uiIOObjSelWriteTranslator::uiIOObjSelWriteTranslator( uiParent* p,
 	{
 	    uiIOObjTranslatorWriteOpts* fld =
 		uiIOObjTranslatorWriteOpts::create( this, *trs_[idx] );
-	    fld->suggestedNameAvailble.notify(
-			mCB(this,uiIOObjSelWriteTranslator,nmAvCB) );
 	    optflds_ += fld;
-	    if ( fld && !firstoptfld )
-		firstoptfld = fld;
-	    if ( selfld_ && fld )
-		fld->attach( alignedBelow, selfld_ );
+	    if ( fld )
+	    {
+		fld->suggestedNameAvailble.notify(
+			    mCB(this,uiIOObjSelWriteTranslator,nmAvCB) );
+		if ( !firstoptfld )
+		    firstoptfld = fld;
+		if ( selfld_ )
+		    fld->attach( alignedBelow, selfld_ );
+	    }
 	}
     }
 
