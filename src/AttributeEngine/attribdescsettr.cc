@@ -62,11 +62,11 @@ static const char* readFromStream( ascistream& astream, Attrib::DescSet& ads,
 
 
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
-					const char* fnm, BufferString& bs )
+					const char* fnm, uiString& bs )
 {
     if ( !File::exists(fnm) )
     {
-	bs.set("File ").add(fnm).add(" does not exist.");
+	tr("File %1 does not exist.").arg(fnm);
 	return false;
     }
 
@@ -75,42 +75,59 @@ bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
     uiString uistr;
     const char* res = readFromStream( astream, ads, uistr );
     bs = uistr.getFullString();
-    if ( bs.isEmpty() ) bs.set( res );
+    if (bs.isEmpty())
+	bs = uiString(res);
     return !res;
 }
 
 
 bool AttribDescSetTranslator::retrieve( Attrib::DescSet& ads,
-					const IOObj* ioobj, BufferString& bs )
+					const IOObj* ioobj, uiString& bs)
 {
-    if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
-    PtrMan<AttribDescSetTranslator> tr
+    if (!ioobj) { bs = tr("Cannot find object in data base"); return false; }
+    PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
+    if (!trans)
+    {
+	bs = tr("Selected object is not an Attribute Set");
+	return false;
+    }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
+    {
+	bs = tr("Cannot open %1").arg(ioobj->fullUserExpr(true));
+	return false;
+    }
 
-    bs = tr->read( ads, *conn );
+    bs = trans->read( ads, *conn );
     bool rv = bs.isEmpty();
-    if ( rv ) bs = tr->warningMsg();
+    if ( rv ) bs = trans->warningMsg();
     return rv;
 }
 
 
 bool AttribDescSetTranslator::store( const Attrib::DescSet& ads,
-				     const IOObj* ioobj, BufferString& bs )
+				     const IOObj* ioobj, uiString& bs )
 {
-    if ( !ioobj ) { bs = "No object to store set in data base"; return false; }
-    PtrMan<AttribDescSetTranslator> tr
+    if (!ioobj)
+    {
+	bs = tr("No object to store set in data base"); return false;
+    }
+    PtrMan<AttribDescSetTranslator> trans
 	= dynamic_cast<AttribDescSetTranslator*>(ioobj->createTranslator());
-    if ( !tr ) { bs = "Selected object is not an Attribute Set"; return false; }
+    if (!trans)
+    {
+	bs = tr("Selected object is not an Attribute Set"); return false;
+    }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(false); return false; }
+    {
+	bs = tr("Cannot open %1").arg(ioobj->fullUserExpr(false));
+	return false;
+    }
     ioobj->pars().set( sKey::Type(), ads.is2D() ? "2D" : "3D" );
     IOM().commitChanges( *ioobj );
-    bs = tr->write( ads, *conn );
+    bs = trans->write( ads, *conn );
     return bs.isEmpty();
 }
 

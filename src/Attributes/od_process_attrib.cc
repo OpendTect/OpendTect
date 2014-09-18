@@ -122,9 +122,9 @@ bool BatchProgram::go( od_ostream& strm )
 	PtrMan<IOObj> ioobj = IOM().get( setid );
 	if ( !ioobj )
 	    mRetHostErr( "Cannot find provided attrib set ID" )
-	BufferString msg;
+	uiString msg;
 	if ( !AttribDescSetTranslator::retrieve(attribset,ioobj,msg) )
-	    mRetJobErr( msg );
+	    mRetJobErr( msg.getFullString() );
     }
     else
     {

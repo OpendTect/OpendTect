@@ -62,16 +62,17 @@ void uiAttrSetMan::mkFileInfo()
     if ( !curioobj_ ) { setInfo( "" ); return; }
 
     BufferString txt;
-    Attrib::DescSet attrset( !SI().has3D() );
-    if ( !AttribDescSetTranslator::retrieve(attrset,curioobj_,txt) )
+    uiString errmsg;
+    Attrib::DescSet attrset(!SI().has3D());
+    if (!AttribDescSetTranslator::retrieve(attrset, curioobj_, errmsg))
     {
-	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
-	txt = msg;
+	BufferString msg("Read error: '"); msg += errmsg.getFullString(); 
+	msg += "'"; txt = msg;
     }
     else
     {
-	if ( !txt.isEmpty() )
-	    ErrMsg( txt );
+	if (!errmsg.isEmpty())
+	    ErrMsg(errmsg.getFullString());
 
 	const int nrattrs = attrset.nrDescs( false, false );
 	const int nrwithstor = attrset.nrDescs( true, false );
@@ -86,12 +87,12 @@ void uiAttrSetMan::mkFileInfo()
 	    txt += "\nNo attributes defined";
 	else
 	{
-	    txt += "\nAttribute"; txt += nrattrs == 1 ? ": " : "s: "; 
+	    txt += "\nAttribute"; txt += nrattrs == 1 ? ": " : "s: ";
 	    addAttrNms( attrset, txt, false );
 	}
     }
 
     txt += "\n";
     txt += getFileInfo();
-    setInfo( txt );
+    setInfo(txt);
 }

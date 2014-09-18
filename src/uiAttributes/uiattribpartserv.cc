@@ -630,7 +630,8 @@ DataPack::ID uiAttribPartServer::createOutput( const TrcKeyZSampling& cs,
 
 
 const Attrib::DataCubes* uiAttribPartServer::createOutput(
-				const TrcKeyZSampling& cs, const DataCubes* cache )
+				const TrcKeyZSampling& cs, 
+				const DataCubes* cache )
 {
     PtrMan<EngineMan> aem = createEngMan( &cs, 0 );
     if ( !aem ) return 0;

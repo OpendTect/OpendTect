@@ -38,7 +38,7 @@ public:
 */
 
 mExpClass(AttributeEngine) AttribDescSetTranslator : public Translator
-{
+{ mODTextTranslationClass(AttribDescSetTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
 
@@ -49,14 +49,14 @@ public:
 			//!< returns err msg or null on success
 
     static bool		retrieve(Attrib::DescSet&,const char* fnm,
-				 BufferString&);
+				 uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool		retrieve(Attrib::DescSet&,const IOObj*,BufferString&);
+    static bool		retrieve(Attrib::DescSet&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
     static bool 	store(const Attrib::DescSet&,const IOObj*,
-			      BufferString&);
+			      uiString&);
 			//!< BufferString has errmsg, if any
 };
 

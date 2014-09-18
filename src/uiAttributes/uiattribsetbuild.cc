@@ -266,7 +266,7 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 
     const bool is2d = attrsetup_.is2d_;
 
-    BufferString emsg;
+    uiString emsg;
     Attrib::DescSet descset( is2d );
     bool res = forread
 	? AttribDescSetTranslator::retrieve(descset,dlg.ioObj(),emsg)
@@ -282,11 +282,10 @@ bool uiAttribDescSetBuild::doAttrSetIO( bool forread )
 	const bool badmatch = (!isdesc2d && is2d) || (isdesc2d && !is2d);
 	if ( res && badmatch && !isdescanyd )
 	{
-	    emsg = "Can not load Attribute Set:\n";
-            emsg += "Attribute Set is";
-            emsg += isdesc2d ? "2D" : "3D" ;
-            emsg += ". Current definition is ";
-            emsg += is2d ? "2D" : "3D";
+	    emsg = tr("Can not load Attribute Set:\n"
+		      "Attribute Set is %1. Current definition is %2")
+		 .arg(isdesc2d ? uiStrings::s2D(true) : uiStrings::s3D(true))
+		 .arg(is2d ? uiStrings::s2D(true) : uiStrings::s3D(true));
 	    res = false;
 	}
 	else if ( res )

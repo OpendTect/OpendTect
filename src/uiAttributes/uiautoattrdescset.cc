@@ -113,15 +113,17 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
 
     ctio_.setObj( selgrp_->chosenID() );
     Attrib::DescSet attrset( is2d_ );
-    BufferString bs;
+    uiString bs;
     if ( !AttribDescSetTranslator::retrieve(attrset,ctio_.ioobj,bs) )
 	mErrRet(tr("Cannot read selected attribute set"))
 
     if ( attrset.is2D() != is2d_ )
     {
-            bs = "Attribute Set "; bs += ctio_.ioobj->name();
-            bs += " is of type "; bs += attrset.is2D() ? "2D" : "3D";
-	uiMSG().error( bs.buf(), "Please select another attribute set" );
+            bs = tr("Attribute Set %1 is fo type %2 "
+		    "Please select another attribute set")
+	       .arg(ctio_.ioobj->name())
+	       .arg(attrset.is2D() ? "2D" : "3D");
+	uiMSG().error( bs );
 	return false;
     }
 
