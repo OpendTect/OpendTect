@@ -134,12 +134,12 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     if ( !txthead_ )
 	txthead_ = new SEGY::TxtHeader;
     if ( !strm.getBin(txthead_->txt_,SegyTxtHeaderLength) )
-	mErrRet( "Cannot read SEG-Y Text header" )
+	mErrRet( tr("Cannot read SEG-Y Text header") )
     txthead_->setAscii();
 
     unsigned char binheaderbuf[400];
     if ( !strm.getBin( binheaderbuf, SegyBinHeaderLength ) )
-	mErrRet( "Cannot read SEG-Y Text header" )
+	mErrRet( tr("Cannot read SEG-Y Text header") )
     binhead_.setInput( binheaderbuf, filepars_.byteswap_ > 1 );
     if ( forcerev0_ )
 	binhead_.setEntryVal( SEGY::BinHeader::EntryRevCode(), 0 );
@@ -168,7 +168,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 		{
 		    char tmpbuf[SegyTxtHeaderLength];
 		    if ( !strm.getBin(tmpbuf,SegyTxtHeaderLength) )
-			mErrRet( "No traces found in the SEG-Y file" )
+			mErrRet( tr("No traces found in the SEG-Y file") )
 		}
 	    }
 	}
@@ -181,7 +181,8 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     {
 	filepars_.fmt_ = binhead_.format();
 	if ( filepars_.fmt_ == 4 && read_mode != Seis::PreScan )
-	    mErrRet( "SEG-Y format '4' (fixed point/gain code) not supported" )
+	    mErrRet( tr("SEG-Y format '4' (fixed point/gain code) "
+                        "not supported") )
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
@@ -209,24 +210,24 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
 			= Settings::common().isTrue("SEG-Y.No warnings") );
     if ( nowarn || warnnrs_.isPresent(nr) ) return;
 
-    BufferString msg;
+    uiString msg;
     if ( nr == cSEGYWarnBadFmt )
     {
-	msg = "SEG-Y format '"; msg += detail;
-	msg += "' found.\n\tReplaced with '1' (4-byte floating point)";
+	msg = tr("SEG-Y format '%1' "
+                 "found.\n\tReplaced with '1' (4-byte floating point)")
+            .arg(detail);
 	if ( toInt(detail) > 254 )
-	    msg += "\n-> The file may not be SEG-Y, or byte-swapped";
+	    msg = tr("\n-> The file may not be SEG-Y, or byte-swapped");
     }
     else if ( nr == cSEGYWarnPos )
     {
-	msg = "Bad position found. Such traces are ignored.\nFirst occurrence ";
-	msg += detail;
+	msg = tr("Bad position found. Such traces are "
+                 "ignored.\nFirst occurrence %1").arg(detail);
     }
     else if ( nr == cSEGYWarnZeroSampIntv )
     {
-	msg = "Zero sample interval found in trace header.\n"
-	      "First occurrence ";
-	msg += detail;
+	msg = tr("Zero sample interval found in trace header.\n"
+	         "First occurrence ").arg(detail);
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
@@ -234,37 +235,36 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
-	msg = "Trace header indicates Geographic Coordinates (byte 89).\n"
-	      "These are not supported.\n"
-	      "Will bluntly load them as rectangular coordinates "
-	      "(which they are most often)."
-	      "\nBeware that the positions may therefore not be correct.\n"
-	      "First occurrence ";
-	msg += detail;
+	msg = tr("Trace header indicates Geographic Coordinates (byte 89).\n"
+	         "These are not supported.\n"
+	         "Will bluntly load them as rectangular coordinates "
+	         "(which they are most often)."
+	         "\nBeware that the positions may therefore not be correct.\n"
+	         "First occurrence %1").arg(detail);
     }
     else if ( nr == cSEGYWarnSuspiciousCoord )
     {
-	msg = "Suspiciously large coordinate found.\nThis may be incorrect "
-	    "- please check the coordinate scaling.\nOverrule if necessary."
-	    "\nCoordinate found: ";
-	msg.add( detail ).add( " at " ).add( getTrcPosStr() );
+	msg = tr("Suspiciously large coordinate found.\nThis may be incorrect "
+	         "- please check the coordinate scaling.\nOverrule "
+                 "if necessary.\nCoordinate found: %1 at %2")
+	    .arg( detail ).arg( getTrcPosStr() );
     }
     else if ( nr == cSEGYFoundStanzas )
     {
-	msg = "SEG-Y REV.1 header indicates the presence of\n";
-	msg.add( detail ).add( " Extended Textual File Header" );
-	if ( toInt(detail) > 1 ) msg.add( "s" );
-	msg.add( ".\nThis is rarely correct. Please set the variable:"
+	msg = tr("SEG-Y REV.1 header indicates the presence of\n"
+	         "%1 Extended Textual File Header").arg(detail);
+	if ( toInt(detail) > 1 )
+	msg = tr( "%1s.\nThis is rarely correct. Please set the variable:"
 		  "\nOD_SEIS_SEGY_REV1_STANZAS"
-		  "\nif the file indeed contains these." );
+		  "\nif the file indeed contains these." ).arg(detail);
     }
     else if ( nr == cSEGYWarnNonFixedLength )
     {
-	msg = "SEG-Y REV.1 header indicates variable length traces."
-	      "\nOpendTect will assume fixed trace length anyway.";
+	msg = tr("SEG-Y REV.1 header indicates variable length traces."
+	         "\nOpendTect will assume fixed trace length anyway.");
     }
 
-    SeisTrcTranslator::addWarn( nr, msg );
+    SeisTrcTranslator::addWarn( nr, detail );
 }
 
 
@@ -411,7 +411,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	    txthead_->setEbcdic();
     }
     if ( !sConn().oStream().addBin( txthead_->txt_, SegyTxtHeaderLength ) )
-	mErrRet("Cannot write SEG-Y textual header")
+	mErrRet(tr("Cannot write SEG-Y textual header"))
 
     binhead_.setForWrite();
     binhead_.setFormat( mCast(short,filepars_.fmt_ < 2 ? 1 : filepars_.fmt_) );
@@ -425,7 +425,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 					// To make Strata users happy
     binhead_.setInFeet( SI().xyInFeet() );
     if ( !sConn().oStream().addBin( binhead_.buf(), SegyBinHeaderLength ) )
-	mErrRet("Cannot write SEG-Y binary header")
+	mErrRet(tr("Cannot write SEG-Y binary header"))
 
     return true;
 }
@@ -571,9 +571,9 @@ bool SEGYSeisTrcTranslator::initRead_()
 	updateCDFromBuf();
 
     if ( innrsamples_ <= 0 || innrsamples_ > cMaxNrSamples )
-	mErrRet(BufferString("Cannot find a reasonable number of samples."
-			     "\nFound: ",innrsamples_,
-			     ".\nPlease 'Overrule' to set something usable"))
+	mErrRet(tr("Cannot find a reasonable number of samples."
+	           "\nFound: %1.\nPlease 'Overrule' to set something usable")
+              .arg(innrsamples_))
 
     sConn().iStream().setPosition( cEndTapeHeader );
     return true;
@@ -796,7 +796,7 @@ bool SEGYSeisTrcTranslator::skip( int ntrcs )
     headerdone_ = false;
 
     if ( strm.isBad() )
-	mPosErrRet("Read error during trace skipping")
+	mPosErrRet(tr("Read error during trace skipping"))
     return true;
 }
 
@@ -807,7 +807,7 @@ bool SEGYSeisTrcTranslator::writeTrc_( const SeisTrc& trc )
     fillHeaderBuf( trc );
 
     if ( !sConn().oStream().addBin( headerbuf_, mSEGYTraceHeaderBytes ) )
-	mErrRet("Cannot write trace header")
+	mErrRet(tr("Cannot write trace header"))
 
     return writeData( trc );
 }
@@ -891,23 +891,23 @@ bool SEGYSeisTrcTranslator::writeData( const SeisTrc& trc )
 
     if ( !sConn().oStream().addBin( blockbuf_,
 			 outnrsamples_ * outcd_->datachar.nrBytes() ) )
-	mErrRet("Cannot write trace data")
+	mErrRet(tr("Cannot write trace data"))
 
     headerdone_ = false;
     return true;
 }
 
 
-void SEGYSeisTrcTranslator::fillErrMsg( const char* s, bool withpos )
+void SEGYSeisTrcTranslator::fillErrMsg( uiString s, bool withpos )
 {
     const BufferString fnm = sConn().odStream().fileName();
 
-    errmsg_ = uiString("%1%2:\n%3")
-	.arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
-	.arg( withpos
+    errmsg_ = tr("%1%2:\n%3")
+	    .arg( fnm.isEmpty() ? usrname_ : tr("In file '%1'").arg( fnm ) )
+	    .arg( withpos
 		? uiString(" %1").arg( getTrcPosStr() )
 		: uiString::emptyString() )
-	.arg( s );
+	    .arg( s );
 }
 
 
