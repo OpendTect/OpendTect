@@ -389,7 +389,7 @@ TrcKey EMSurfaceProvider2D::curTrcKey() const
     if ( !hor2d )
 	return TrcKey::udf();
 
-    return hor2d->geometry().getTrcKey( curpos_.subID() );
+    return hor2d->geometry().getTrcKey( curpos_ );
 }
 
 
