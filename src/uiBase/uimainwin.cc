@@ -65,6 +65,27 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
+static Threads::Mutex		winlistmutex_;
+static ObjectSet<uiMainWin>	orderedwinlist_;
+static uiMainWin*		programmedactivewin_ = 0;
+
+static void addToOrderedWinList( uiMainWin* uimw )
+{
+    winlistmutex_.lock();
+    orderedwinlist_ -= uimw;
+    orderedwinlist_ += uimw;
+    winlistmutex_.unLock();
+}
+
+static bool isInOrderedWinList( const uiMainWin* uimw )
+{
+    winlistmutex_.lock();
+    const bool res = orderedwinlist_.isPresent( uimw );
+    winlistmutex_.unLock();
+    return res;
+}
+
+
 class uiMainWinBody : public uiParentBody , public QMainWindow
 {
 friend class		uiMainWin;
@@ -418,8 +439,8 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
     {
 	handle_.windowClosed.trigger( handle_ );
 	ce->accept();
-
-	if ( modal_ )
+	
+	if ( isInOrderedWinList(&handle_) && modal_ )
 	    eventloop_.exit();
     }
     else
@@ -434,6 +455,9 @@ void uiMainWinBody::close()
     if ( !handle_.closeOK() ) return; 
 
     handle_.windowClosed.trigger( handle_ );
+    
+    if ( !isInOrderedWinList(&handle_) )
+	return;
 
     if ( modal_ )
 	eventloop_.exit();
@@ -719,10 +743,6 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 }
 
 
-static Threads::Mutex		winlistmutex_;
-static ObjectSet<uiMainWin>	orderedwinlist_;
-static uiMainWin*		programmedactivewin_ = 0;
-
 uiMainWin::~uiMainWin()
 {
     if ( !body_->deletefrombody_ )
@@ -772,15 +792,9 @@ uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
 uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
 
-#define mAddToOrderedWinList( uimw ) \
-    winlistmutex_.lock(); \
-    orderedwinlist_ -= uimw; \
-    orderedwinlist_ += uimw; \
-    winlistmutex_.unLock();
-
 void uiMainWin::show()
 {
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     body_->go();
 }
 
@@ -1878,14 +1892,14 @@ bool uiDialog::haveCredits() const
 
 int uiDialog::go()
 { 
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     return mBody->exec( false );
 }
 
 
 int uiDialog::goMinimized()
 { 
-    mAddToOrderedWinList( this );
+    addToOrderedWinList( this );
     return mBody->exec( true );
 }
 
