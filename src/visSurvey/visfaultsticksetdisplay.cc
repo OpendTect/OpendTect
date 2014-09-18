@@ -215,6 +215,7 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 	addChild( viseditor_->osgNode() );
 	mAttachCB( viseditor_->draggingStarted,
 		   FaultStickSetDisplay::draggingStartedCB );
+	viseditor_->turnOn( showmanipulator_ );
     }
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultStickSetEditor*, fsseditor, editor.ptr() );
