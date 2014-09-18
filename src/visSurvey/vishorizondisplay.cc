@@ -862,7 +862,11 @@ void HorizonDisplay::createDisplayDataPacks(
     {
 	mDeclareAndTryAlloc(BIDValSetArrAdapter*, bvsarr,
 			    BIDValSetArrAdapter(*cache,idx+shift,step));
+	if ( !bvsarr ) continue;
+
 	mDeclareAndTryAlloc(MapDataPack*,mapdp,MapDataPack(catnm,bvsarr));
+	if ( !mapdp ) continue;
+
 	mapdp->setName( dpnm );
 	mapdp->setProps( inlrg, crlrg, true, &dimnames );
 	DPM(DataPackMgr::FlatID()).add( mapdp );
