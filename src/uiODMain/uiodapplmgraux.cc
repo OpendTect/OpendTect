@@ -177,15 +177,11 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 		am_.emserv_->export2DHorizon();
 	    break;
 	mCase(Man):
-	    if ( opt == 0 )
-		am_.emserv_->manageSurfaces(
-				 EMAnyHorizonTranslatorGroup::keyword() );
-	    else if ( opt == 1 )
-		am_.emserv_->manageSurfaces(
-				EMHorizon2DTranslatorGroup::keyword());
+	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
+	    if ( opt == 1 )
+		am_.emserv_->manage2DHorizons();
 	    else if ( opt == 2 )
-		am_.emserv_->manageSurfaces(
-				EMHorizon3DTranslatorGroup::keyword());
+		am_.emserv_->manage3DHorizons();
 	    break;
 	}
     break;
@@ -209,11 +205,9 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 	mCase(Man):
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
 	    if ( opt == 1 )
-		am_.emserv_->manageSurfaces(
-				EMFaultStickSetTranslatorGroup::keyword() );
+		am_.emserv_->manageFaultStickSets();
 	    else if ( opt == 2 )
-		am_.emserv_->manageSurfaces(
-				EMFault3DTranslatorGroup::keyword() );
+		am_.emserv_->manage3DFaults();
 	    break;
 	}
     break;
@@ -339,7 +333,7 @@ void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
     break;
     mCase(Body):
 	if ( at == uiODApplMgr::Man )
-	    am_.emserv_->manageSurfaces( EMBodyTranslatorGroup::keyword() );
+	    am_.emserv_->manageBodies();
     break;
     mCase(Props):
 	if ( at == uiODApplMgr::Man )

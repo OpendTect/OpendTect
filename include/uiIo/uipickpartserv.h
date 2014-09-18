@@ -26,6 +26,7 @@ class DataPointSet;
 class RandLocGenPars;
 class SurfaceInfo;
 class uiImpExpPickSet;
+class uiPickSetMan;
 class uiPickSetMgr;
 namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
@@ -77,7 +78,8 @@ public:
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
-    TrcKeySampling			selTrcKeySampling() const	{ return selhs_; }
+    TrcKeySampling		selTrcKeySampling() const
+				{ return selhs_; }
     MultiID			horID()			{ return horid_; }
 
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
@@ -105,6 +107,7 @@ protected:
 
     uiImpExpPickSet*		imppsdlg_;
     uiImpExpPickSet*		exppsdlg_;
+    uiPickSetMan*		manpicksetsdlg_;
 
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);

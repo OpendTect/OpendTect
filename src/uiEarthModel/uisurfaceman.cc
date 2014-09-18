@@ -117,7 +117,8 @@ default:			return mODHelpKey(mSurfaceManHelpID);
 
 uiSurfaceMan::uiSurfaceMan( uiParent* p, uiSurfaceMan::Type typ )
     : uiObjFileMan(p,uiDialog::Setup(getActStr(typ,"Manage"),mNoDlgTitle,
-                                     getHelpID(typ)).nrstatusflds(1),
+				     getHelpID(typ)).nrstatusflds(1)
+						    .modal(false),
 		   getIOCtxt(typ) )
     , type_(typ)
     , attribfld_(0)

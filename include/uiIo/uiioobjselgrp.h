@@ -129,6 +129,7 @@ public:
 				     statusbars and similar */
 
     void		fullUpdate(const MultiID& kpselected);
+    void		fullUpdate(int);
 
 protected:
 
@@ -151,7 +152,6 @@ protected:
     ObjectSet<uiIOObjInserter> inserters_;
     uiGroup*		topgrp_;
 
-    void		fullUpdate(int);
     void		fillListBox();
     IOObj*		getIOObj(int);
     virtual bool	createEntry(const char*);

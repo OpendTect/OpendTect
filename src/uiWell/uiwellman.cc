@@ -55,7 +55,8 @@ mDefineInstanceCreatedNotifierAccess(uiWellMan)
 
 uiWellMan::uiWellMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wells"),mNoDlgTitle,
-				    mODHelpKey(mWellManHelpID)).nrstatusflds(1),
+				    mODHelpKey(mWellManHelpID))
+				.nrstatusflds(1).modal(false),
 	           WellTranslatorGroup::ioContext() )
     , d2tbut_(0)
     , csbut_(0)

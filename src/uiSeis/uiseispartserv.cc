@@ -75,6 +75,10 @@ static const char* sKeyPreLoad()	{ return "PreLoad"; }
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
+    , man2dseisdlg_(0)
+    , man3dseisdlg_(0)
+    , man2dprestkdlg_(0)
+    , man3dprestkdlg_(0)
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
@@ -83,7 +87,12 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 
 
 uiSeisPartServer::~uiSeisPartServer()
-{}
+{
+    delete man2dseisdlg_;
+    delete man3dseisdlg_;
+    delete man2dprestkdlg_;
+    delete man3dprestkdlg_;
+}
 
 
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
@@ -192,20 +201,27 @@ void uiSeisPartServer::manageSeismics()
     manageSeismics( dlg.getSelOption() );
 }
 
+#define mManageSeisDlg( dlgobj, dlgclss ) \
+    if ( !dlgobj ) \
+	dlgobj = new dlgclss( parent(), is2d ); \
+    else \
+	dlgobj->selGroup()->fullUpdate( -1 ); \
+    dlgobj->go();
 
 void uiSeisPartServer::manageSeismics( int opt )
 {
-    PtrMan<uiDialog> dlg = 0;
-    if ( opt==0 )
-	dlg = new uiSeisFileMan( parent(), false );
-    else if ( opt==1 )
-	dlg = new uiSeisFileMan( parent(), true );
-    else if ( opt==2 )
-	dlg = new uiSeisPreStackMan( parent(), false );
-    else if ( opt==3 )
-	dlg = new uiSeisPreStackMan( parent(), true );
-
-    if ( dlg ) dlg->go();
+    const bool is2d = opt == 1 || opt == 3;
+    switch( opt )
+    {
+	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan);
+		break;
+	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan);
+		break;
+	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan);
+		break;
+	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan);
+		break;
+    }
 }
 
 

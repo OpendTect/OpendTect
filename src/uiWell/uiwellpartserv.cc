@@ -66,6 +66,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , randLineDlgClosed(this)
     , uiwellpropDlgClosed(this)
     , isdisppropopened_(false)
+    , manwelldlg_(0)
 {
 }
 
@@ -74,6 +75,7 @@ uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
     Well::MGR().removeAll();
+    delete manwelldlg_;
 }
 
 
@@ -267,11 +269,17 @@ void uiWellPartServer::getLogNames( const MultiID& wellid,
 
 void uiWellPartServer::manageWells()
 {
-    uiWellMan dlg( parent() );
-    new uiToolButton( dlg.extraButtonGroup(), "multisimplewell",
-				tr("Create multiple simple wells"),
-				mCB(this,uiWellPartServer,simpImp) );
-    dlg.go();
+    if ( !manwelldlg_ )
+    {
+	manwelldlg_ = new uiWellMan( parent() );
+	new uiToolButton( manwelldlg_->extraButtonGroup(), "multisimplewell",
+			  tr("Create multiple simple wells"),
+			  mCB(this,uiWellPartServer,simpImp) );
+    }
+    else
+	manwelldlg_->selGroup()->fullUpdate( -1 );
+
+    manwelldlg_->go();
 }
 
 
