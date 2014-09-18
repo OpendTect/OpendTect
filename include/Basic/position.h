@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "trckey.h"
 class BinIDValue;
 class BinIDValues;
+class TrcKeyValue;
 
 
 #endif

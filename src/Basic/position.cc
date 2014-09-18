@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "string2.h"
 #include "undefval.h"
 #include "survgeom.h"
+#include "trckeyvalue.h"
 
 #include <ctype.h>
 #include <math.h>
@@ -368,6 +369,12 @@ TrcKey::SurvID TrcKey::cUndefSurvID()
 {
     return Survey::GeometryManager::cUndefGeomID();
 }
+
+
+TrcKeyValue::TrcKeyValue( const BinIDValue& bidv )
+    : tk_( bidv )
+    , val_( bidv.val() )
+{}
 
 
 bool Pos::IdxPair2Coord::set3Pts( const Coord& c0, const Coord& c1,
