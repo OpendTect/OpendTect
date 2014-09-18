@@ -421,10 +421,10 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 
     BufferStringSet attrnms;
     attribfld_->getChosen( attrnms );
-    BufferString msg;
-    msg.add( attrnms.getDispString(2) )
-       .add( "\nwill be removed from disk.\nDo you wish to continue?" );
-    if ( !uiMSG().askRemove(tr(msg)) )
+    uiString msg = tr("%1\nwill be removed from disk.\n"
+                      "Do you wish to continue?")
+                 .arg(attrnms.getDispString(2));
+    if ( !uiMSG().askRemove(msg) )
 	return;
 
     if ( curioobj_->group()==EMFault3DTranslatorGroup::keyword() )
@@ -625,7 +625,7 @@ od_int64 uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 
 
 class uiSurfaceStratDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSurfaceStratDlg);
 public:
 uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     : uiDialog(p,uiDialog::Setup(uiStrings::sStratigraphy(true),mNoDlgTitle,
@@ -685,7 +685,7 @@ void doCol( CallBacker* )
     const bool havelvl = levelsel && levelsel->getID() >= 0;
     if ( havelvl )
     {
-	uiMSG().error( "Cannot change color of regional marker" );
+	uiMSG().error( tr("Cannot change color of regional marker") );
 	return;
     }
 

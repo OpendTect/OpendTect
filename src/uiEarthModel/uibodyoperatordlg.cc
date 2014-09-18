@@ -347,10 +347,9 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
 
     TaskRunner::execute( &taskrunner, *exec );
 
-    BufferString msg = "The body ";
-    msg += outputfld_->getInput();
-    msg += " created successfully";
-    uiMSG().message( msg.buf() );
+    uiString msg = tr("The body %1 created successfully")
+                 .arg(outputfld_->getInput());
+    uiMSG().message( msg );
 
     return false;
 }
@@ -440,12 +439,12 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
 	EM::EMM().loadIfNotFullyLoaded( inpiobj->key(), &taskrunner );
     mDynamicCastGet(EM::Body*,emb,emo.ptr());
     if ( !emb )
-	mRetErr( "Cannot read input body" );
+	mRetErr( tr("Cannot read input body") );
 
     PtrMan<EM::ImplicitBody> impbd =
 				emb->createImplicitBody( &taskrunner, false );
     if ( !impbd || !impbd->arr_ )
-	mRetErr( "Creating implicit body failed" );
+	mRetErr( tr("Creating implicit body failed") );
 
     float* data = impbd->arr_->getData();
     if ( data )
@@ -488,18 +487,19 @@ bool uiImplicitBodyValueSwitchDlg::acceptOK( CallBacker* )
     EM::EMM().addObject( emcs );
     PtrMan<Executor> exec = emcs->saver();
     if ( !exec )
-	mRetErr( "Body saving failed" );
+	mRetErr( tr("Body saving failed") );
 
     PtrMan<IOObj> ioobj = IOM().get( outputfld_->key() );
     if ( !ioobj->pars().find(sKey::Type()) )
     {
 	ioobj->pars().set( sKey::Type(), emcs->getTypeStr() );
 	if ( !IOM().commitChanges(*ioobj) )
-	    mRetErr( "Writing body to disk failed. Please check permissions." )
+	    mRetErr( tr("Writing body to disk failed. "
+                        "Please check permissions.") )
     }
 
     if ( !TaskRunner::execute(&taskrunner,*exec) )
-	mRetErr("Saving body failed");
+	mRetErr(tr("Saving body failed"));
 
     return true;
 }

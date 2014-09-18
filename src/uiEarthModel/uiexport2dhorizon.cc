@@ -198,7 +198,7 @@ bool uiExport2DHorizon::doExport()
 	    strm << line << od_newline;
 	    if ( !strm.isOK() )
 	    {
-		BufferString msg( "Error writing to the output file." );
+		uiString msg = tr( "Error writing to the output file." );
 		strm.addErrMsgTo( msg );
 		mErrRet(msg)
 	    }

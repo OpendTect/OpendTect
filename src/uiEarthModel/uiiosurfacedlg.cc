@@ -131,8 +131,8 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     const bool ispres = checkIfAlreadyPresent( attrnm.buf() );
     if ( ispres )
     {
-	BufferString msg( "This surface already has an attribute called:\n" );
-	msg += attrnm; msg += "\nDo you wish to overwrite this data?";
+	uiString msg = tr("This surface already has an attribute called:\n%1"
+	                  "\nDo you wish to overwrite this data?").arg(attrnm);
 	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
 	dooverwrite_ = true;

@@ -140,9 +140,8 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    BufferString msg( "Unload " );
-    msg.add( "selected horizon(s)" )
-       .add( "'?\n(This will not delete the object(s) from disk)" );
+    uiString msg( "Unload selected horizon(s)'?\n" 
+                  "(This will not delete the object(s) from disk)" );
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
@@ -199,7 +198,7 @@ void uiHorizonPreLoadDlg::openPushCB( CallBacker* )
     ascistream astrm( strm, true );
     IOPar fulliop( astrm );
     if ( fulliop.isEmpty() )
-	{ uiMSG().message( "No valid objects found" ); return; }
+	{ uiMSG().message( tr("No valid objects found") ); return; }
 
     PtrMan<IOPar> par = fulliop.subselect( "Hor" );
     TypeSet<MultiID> selmids;
@@ -251,7 +250,10 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	{ uiMSG().message( "Cannot open output file:\n", fnm ); return; }
+	{ 
+            uiMSG().message(tr("Cannot open output file:\n%1")
+                          .arg(fnm)); return; 
+        }
 
     IOPar par;
     EM::HorizonPreLoader& hpl = EM::HPreL();
@@ -270,8 +272,8 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
     {
-	uiMSG().message( "Cannot write to output file:\n", fnm );
-	return;
+	uiMSG().message(tr("Cannot write to output file:\n%1")
+                      .arg(fnm)); return;
     }
 
     par.putTo( astrm );

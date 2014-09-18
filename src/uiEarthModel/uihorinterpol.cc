@@ -161,9 +161,9 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 	    new Array2DImpl<float>( hs.nrInl(), hs.nrCrl() );
 	if ( !arr->isOK() )
 	{
-	    BufferString msg( "Not enough horizon data for section " );
-	    msg += sid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Not enough horizon data for section %1")
+                         .arg(sid);
+	    ErrMsg( msg.getFullString() ); continue;
 	}
 
         arr->setAll( mUdf(float) );	
@@ -188,17 +188,17 @@ bool uiHorizonInterpolDlg::interpolate3D( const IOPar& par )
 
 	if ( !interpolator->setArray2D(*arr,&taskrunner) )
 	{
-	    BufferString msg( "Cannot setup interpolation on section " );
-	    msg += sid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Cannot setup interpolation on section %1")
+	                 .arg(sid);
+	    ErrMsg( msg.getFullString() ); continue;
 	}
 
 	mDynamicCastGet(Task*,task,interpolator);
 	if ( !TaskRunner::execute(&taskrunner,*task) )
 	{
-	    BufferString msg( "Cannot interpolate section " );
-	    msg += sid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Cannot interpolate section %1")
+	                 .arg(sid);
+	    ErrMsg( msg.getFullString() ); continue;
 	}
 
 	success = true;
@@ -246,9 +246,9 @@ bool uiHorizonInterpolDlg::interpolate2D()
 
 	if ( !TaskRunner::execute( &taskrunner, execgrp ) )
 	{
-	    BufferString msg( "Cannot interpolate section " );
-	    msg += sid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Cannot interpolate section %1")
+	                 .arg(sid);
+	    ErrMsg( msg.getFullString() ); continue;
 	}
 
 	for ( int idx=0; idx<arr1d.size(); idx++ )
@@ -483,8 +483,8 @@ bool uiInvDistHor3DInterpol::fillPar( IOPar& par ) const
     if ( hasradius && (mIsUdf(radius) || radius<=0) )
     {
 	uiMSG().error(
-		"Please enter a positive value for the search radius\n"
-		"(or uncheck the field)" );
+		tr("Please enter a positive value for the search radius\n"
+		   "(or uncheck the field)") );
 	return false;
     }
 
@@ -557,7 +557,7 @@ bool uiTriangulationHor3DInterpol::fillPar( IOPar& par ) const
     const float maxdist = maxdistfld_->getfValue();
     if ( usemax && !mIsUdf(maxdist) && maxdist<0 )
     {
-	uiMSG().error( "Maximum distance must be > 0. " );
+	uiMSG().error( tr("Maximum distance must be > 0. ") );
 	return false;
     }
 
@@ -605,7 +605,7 @@ bool uiExtensionHor3DInterpol::fillPar( IOPar& par ) const
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
-	uiMSG().error( "Nr steps must be > 0." );	
+	uiMSG().error( tr("Nr steps must be > 0.") );	
 	return false;
     }
 

@@ -379,12 +379,12 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 bool uiSurfaceWrite::processInput()
 {
     if ( sectionfld_ && sectionfld_->box()->nrChosen() < 1 )
-	{ uiMSG().error( "Horizon has no patches" ); return false; }
+	{ uiMSG().error( tr("Horizon has no patches") ); return false; }
 
     if ( !objfld_->commitInput() )
     {
 	if ( objfld_->isEmpty() )
-	    uiMSG().error( "Please select Output" );
+	    uiMSG().error( tr("Please select Output") );
 	return false;
     }
 
@@ -499,10 +499,10 @@ void uiSurfaceRead::setIOObj( const MultiID& mid )
 bool uiSurfaceRead::processInput()
 {
     if ( !objfld_->commitInput() )
-	{ uiMSG().error( "Please select input" ); return false; }
+	{ uiMSG().error( tr("Please select input") ); return false; }
 
     if ( sectionfld_ && sectionfld_->box()->nrChosen()<1 )
-	{ uiMSG().error( "Horizon has no pataches" ); return false; }
+	{ uiMSG().error( tr("Horizon has no pataches") ); return false; }
 
     return true;
 }

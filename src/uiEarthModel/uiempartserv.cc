@@ -89,7 +89,7 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
-#define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
+#define mErrRet(s) { uiString msg = tr("Cannot load '%1'").arg(s);\
 			uiMSG().error( msg ); return false; }
 
 
@@ -520,9 +520,10 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 
 
 #define mMkMsg(s) \
-	BufferString msg( emobj->getTypeStr() ); \
-	msg += " '"; msg += emobj->name(); msg += "' "; msg += s; \
-	msg += ".\nDo you want to save it?"
+	uiString msg = tr("%1 '%2' %3.\nDo you want to save it?") \
+                     .arg(emobj->getTypeStr()) \
+	             .arg(emobj->name()) \
+                     .arg(s); \
 
 bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 				    bool withcancel ) const
@@ -535,7 +536,7 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
-    mMkMsg( "has changed" );
+    mMkMsg( tr("has changed") );
     const int ret = uiMSG().askSave( msg, withcancel );
     if ( ret == 1 )
     {
@@ -743,9 +744,10 @@ bool uiEMPartServer::storeFaultAuxData( const EM::ObjectID& id,
     auxdatanm = dlg.text();
     if ( atrrnms.indexOf(auxdatanm.buf())>=0 )
     {
-	BufferString msg( "The name '" ); msg.add( auxdatanm);
-	msg.add("' already exists, do you really want to overwrite it?");
-	if ( !uiMSG().askGoOn( msg.buf() ) )
+	uiString msg = tr("The name '%1' already exists, "
+	                  "do you really want to overwrite it?")
+                     .arg(auxdatanm);
+	if ( !uiMSG().askGoOn( msg ) )
 	    return false;
     }
 
@@ -800,10 +802,10 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     eminfo.getAttribNames( atrrnms );
     uiSelectFromList::Setup setup( tr("Horizon Data"), atrrnms );
     setup.dlgtitle( tr("Select one or more attributes to be displayed\n"
-		    "on the horizon. After loading, use 'Page Up'\n"
-		    "and 'Page Down' buttons to scroll.\n"
-		    "Make sure the attribute treeitem is selected\n"
-		    "and that the mouse pointer is in the scene.") );
+		       "on the horizon. After loading, use 'Page Up'\n"
+		       "and 'Page Down' buttons to scroll.\n"
+		       "Make sure the attribute treeitem is selected\n"
+		       "and that the mouse pointer is in the scene.") );
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiChoice( true );

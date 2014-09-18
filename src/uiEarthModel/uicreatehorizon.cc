@@ -71,7 +71,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     float zval = zfld_->getfValue();
     if ( mIsUdf(zval) )
     {
-	uiMSG().error( "Z value is undefined. Please enter a valid value" );
+	uiMSG().error( tr("Z value is undefined. Please enter a valid value") );
 	return false;
     }
 
@@ -79,7 +79,7 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     if ( !SI().zRange(false).includes(zval,false) )
     {
 	const bool res =
-		uiMSG().askContinue( "Z Value is outside survey Z range" );
+		uiMSG().askContinue( tr("Z Value is outside survey Z range") );
 	if ( !res ) return false;
     }
 
@@ -96,12 +96,12 @@ bool uiCreateHorizon::acceptOK( CallBacker* )
     PtrMan<Executor> saver = hor3d->saver();
     if ( !saver || !uitr.execute(*saver) )
     {
-	uiMSG().error( "Cannot save horizon" );
+	uiMSG().error( tr("Cannot save horizon") );
 	return false;
     }
 
     ready.trigger();
-    const bool res = uiMSG().askGoOn( "Horizon successfully created. "
-				      "Do you want to create another one?" );
+    const bool res = uiMSG().askGoOn(tr("Horizon successfully created. "
+				        "Do you want to create another one?"));
     return !res;
 }

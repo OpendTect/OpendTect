@@ -81,7 +81,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiImplicitBodyValueSwitchDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiImplicitBodyValueSwitchDlg);
 public:
     			uiImplicitBodyValueSwitchDlg(uiParent*,const IOObj*);
 

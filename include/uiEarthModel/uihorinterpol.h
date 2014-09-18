@@ -56,7 +56,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHor3DInterpolSel : public uiGroup
-{
+{ mODTextTranslationClass(uiHor3DInterpolSel);
 public:
 				uiHor3DInterpolSel(uiParent*,
 						   bool musthandlefaults);
@@ -84,7 +84,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHor3DInterpol : public uiGroup
-{
+{ mODTextTranslationClass(uiHor3DInterpol);
 public:
     mDefineFactory1ParamInClass(uiHor3DInterpol,uiParent*,factory);
 
@@ -101,7 +101,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiInvDistHor3DInterpol : public uiHor3DInterpol
-{
+{ mODTextTranslationClass(uiInvDistHor3DInterpol);
 public:
 				uiInvDistHor3DInterpol(uiParent*);
 
@@ -130,7 +130,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiTriangulationHor3DInterpol : public uiHor3DInterpol
-{
+{ mODTextTranslationClass(uiTriangulationHor3DInterpol);
 public:
 				uiTriangulationHor3DInterpol(uiParent*);
 
@@ -154,7 +154,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiExtensionHor3DInterpol : public uiHor3DInterpol
-{
+{ mODTextTranslationClass(uiExtensionHor3DInterpol);
 public:
 				uiExtensionHor3DInterpol(uiParent*);
 

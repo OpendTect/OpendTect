@@ -66,7 +66,7 @@ protected:
 /*! \brief Generate random lines by shifting an existing */
 
 mExpClass(uiEarthModel) uiGenRanLinesByShift : public uiDialog
-{
+{ mODTextTranslationClass(uiGenRanLinesByShift);
 public:
 			uiGenRanLinesByShift(uiParent*);
 			~uiGenRanLinesByShift();
@@ -93,7 +93,7 @@ protected:
 /*! \brief Generate random line from polygon */
 
 mExpClass(uiEarthModel) uiGenRanLineFromPolygon : public uiDialog
-{
+{ mODTextTranslationClass(uiGenRanLineFromPolygon);
 public:
 			uiGenRanLineFromPolygon(uiParent*);
 			~uiGenRanLineFromPolygon();

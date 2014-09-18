@@ -192,8 +192,8 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	   mErrRet(emsg)
     }
 
-    uiMSG().message( BufferString("Created ", rls.size(),
-				  rls.size()>1?" lines":" line") );
+    uiMSG().message(tr("Created %1%2").arg(rls.size())
+		  .arg(rls.size()>1 ? tr(" lines") : tr(" line")));
     return true;
 }
 

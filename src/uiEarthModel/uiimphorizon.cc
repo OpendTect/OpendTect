@@ -307,8 +307,8 @@ void uiImportHorizon::scanPush( CallBacker* )
     const int df = n##ic##lnrg.start - ic##rg.start; \
     if ( df%2 && !(ic##rg.step%2) && !(n##ic##lnrg.step%2) ) \
     { \
-	BufferString msg = "The horizon is not compatible with survey "; \
-	msg +=  "trace, do you want to continue?"; \
+	uiString msg = tr("The horizon is not compatible with survey " \
+	                  "trace, do you want to continue?"); \
 	if ( !uiMSG().askGoOn(msg) ) \
 	    return false; \
     }
@@ -414,8 +414,8 @@ bool uiImportHorizon::doImport()
 
     if ( scanner_->nrPositions() == 0 )
     {
-	BufferString msg( "No valid positions found\n" );
-	msg.add( "Please re-examine input file and format definition" );
+	uiString msg( "No valid positions found\n"
+	              "Please re-examine input file and format definition" );
 	uiMSG().message( msg );
 	return false;
     }
@@ -511,8 +511,8 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 	const char* fnm = filenames[idx]->buf();
 	if ( !File::exists(fnm) )
 	{
-	    BufferString errmsg( "Cannot find input file:\n" );
-	    errmsg += fnm;
+	    uiString errmsg = tr("Cannot find input file:\n%1")
+	                    .arg(fnm);
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}

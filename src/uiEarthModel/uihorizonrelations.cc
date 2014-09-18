@@ -100,7 +100,7 @@ void uiHorizonRelationsDlg::fillRelationField( const BufferStringSet& strs )
 
 
 class HorizonModifyDlg : public uiDialog
-{
+{ mODTextTranslationClass(HorizonModifyDlg);
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  bool is2d, int nrcross )
@@ -116,8 +116,8 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     hornms.add( EM::EMM().objectName(mid1) );
     hornms.add( EM::EMM().objectName(mid2) );
 
-    BufferString msg( "'", hornms.get(0), "' crosses '" );
-    msg.add( hornms.get(1) ).add( "' at " ).add( nrcross ).add( " positions." );
+    uiString msg = tr("'%1' crosses '%2' at %3 positions").arg(hornms.get(0))
+                 .arg(hornms.get(1)).arg( nrcross );
     uiLabel* lbl = new uiLabel( this, msg );
 
     horizonfld_ = new uiGenInput( this, "Modify horizon",

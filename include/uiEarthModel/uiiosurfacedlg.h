@@ -53,7 +53,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiReadSurfaceDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiReadSurfaceDlg);
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
 
@@ -67,7 +67,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiStoreAuxData : public uiDialog
-{
+{ mODTextTranslationClass(uiStoreAuxData);
 public:
 			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
 
@@ -85,7 +85,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiCopySurface : public uiDialog
-{
+{ mODTextTranslationClass(uiCopySurface);
 public:
 			uiCopySurface(uiParent*,const IOObj&,
 				      const uiSurfaceRead::Setup&);

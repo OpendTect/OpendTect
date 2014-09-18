@@ -129,9 +129,9 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	PtrMan<Array2D<float> > arr = hor3d->createArray2D( sid );
 	if ( !arr )
 	{
-	    BufferString msg( "Not enough horizon data for section " );
-	    msg += sid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Not enough horizon data for section %1")
+                         .arg(sid);
+	    ErrMsg( msg.getFullString() ); continue;
 	}
 
 	PtrMan<Executor> worker = getWorker( *arr,
@@ -148,9 +148,8 @@ bool uiChangeHorizonDlg::doProcessing3D()
 	const EM::SectionID usedsid = usedhor3d->geometry().sectionID( idx );
 	if ( !usedhor3d->setArray2D(*arr, usedsid, fillUdfsOnly(), undoText()) )
 	{
-	    BufferString msg( "Cannot set new data to section " );
-	    msg += usedsid;
-	    ErrMsg( msg ); continue;
+	    uiString msg = tr("Cannot set new data to section %1").arg(usedsid);
+	    ErrMsg( msg.getFullString() ); continue;
         }
 	else if ( usedhor3d==hor3d )
 	{

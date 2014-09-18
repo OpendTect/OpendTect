@@ -864,10 +864,9 @@ bool uiBodyRegionDlg::acceptOK( CallBacker* cb )
 
     if ( createImplicitBody() )
     {
-	BufferString msg = "The body ";
-	msg += outputfld_->getInput();
-	msg += " created successfully";
-	uiMSG().message( msg.buf() );
+	uiString msg = tr("The body %1 created successfully")
+	             .arg(outputfld_->getInput());
+	uiMSG().message( msg );
     }
 
     return false; //Make the dialog stay.

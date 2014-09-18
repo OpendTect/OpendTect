@@ -136,7 +136,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
-{
+{ mODTextTranslationClass(uiSurfaceRead);
 public:
     mExpClass(uiEarthModel) Setup
     {
@@ -173,7 +173,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHorizonParSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiHorizonParSel);
 public:
 				uiHorizonParSel(uiParent*,bool is2d,
 						bool withclear=false);
@@ -198,7 +198,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiFaultParSel);
 public:
 				uiFaultParSel(uiParent*,bool is2d,
 					      bool use_act_option=false);
