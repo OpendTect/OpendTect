@@ -15,7 +15,9 @@ ________________________________________________________________________
 
 #include "uiearthmodelmod.h"
 #include "uiselsimple.h"
+
 class uiGenInput;
+class uiHorSaveFieldGrp;
 class DataPointSet;
 namespace EM { class Horizon3D; }
 
@@ -49,6 +51,9 @@ mExpClass(uiEarthModel) uiHorAttr2Geom : public uiDialog
 public:
 			uiHorAttr2Geom(uiParent*,EM::Horizon3D&,
 					const DataPointSet&,int colid);
+			~uiHorAttr2Geom();
+
+    const uiHorSaveFieldGrp*	saveFldGrp() const	{ return savefldgrp_; }
 
 protected:
 
@@ -58,6 +63,7 @@ protected:
 
     uiGenInput*		isdeltafld_;
     uiGenInput*		msfld_;
+    uiHorSaveFieldGrp*	savefldgrp_;
 
     virtual bool	acceptOK(CallBacker*);
 

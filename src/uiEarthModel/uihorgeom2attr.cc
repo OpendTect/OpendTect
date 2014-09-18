@@ -14,6 +14,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
+#include "uihorsavefieldgrp.h"
+#include "uiseparator.h"
 
 #include "emhorizon3d.h"
 #include "executor.h"
@@ -52,6 +54,7 @@ uiHorGeom2Attr::uiHorGeom2Attr( uiParent* p, EM::Horizon3D& hor )
 uiHorGeom2Attr::~uiHorGeom2Attr()
 {
     delete itmnms_;
+    hor_.unRef();
 }
 
 
@@ -117,6 +120,21 @@ uiHorAttr2Geom::uiHorAttr2Geom( uiParent* p, EM::Horizon3D& hor,
     isdeltafld_ = new uiGenInput( this, "Values are",
 			  BoolInpSpec(false,"Relative (deltas)","Absolute") );
     mAddMSFld("Units",isdeltafld_)
+
+    uiSeparator* sep = new uiSeparator( this, "HSep" );
+    if ( msfld_ ) sep->attach( stretchedBelow, msfld_ );
+    else sep->attach( stretchedBelow, isdeltafld_ );
+
+    savefldgrp_ = new uiHorSaveFieldGrp( this, &hor_, false );
+    savefldgrp_->setSaveFieldName( "Save modified horizon" );
+    savefldgrp_->attach( alignedBelow, isdeltafld_ );
+    savefldgrp_->attach( ensureBelow, sep );
+}
+
+
+uiHorAttr2Geom::~uiHorAttr2Geom()
+{
+    hor_.unRef();
 }
 
 
@@ -207,7 +225,17 @@ bool uiHorAttr2Geom::acceptOK( CallBacker* cb )
     mGetZFac( 0.001f );
     const bool isdelta = isdeltafld_->getBoolValue();
 
-    uiHorAttr2GeomExec exec( hor_, dps_, colid_, zfac, isdelta );
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, exec );
+    if ( !savefldgrp_->acceptOK(0) )
+	return false;
+
+    EM::Horizon3D* usedhor = &hor_;
+    if ( !savefldgrp_->overwriteHorizon() )
+	mDynamicCast( EM::Horizon3D*, usedhor, savefldgrp_->getNewHorizon() );
+
+    if ( !usedhor ) return false;
+    uiHorAttr2GeomExec exec( *usedhor, dps_, colid_, zfac, isdelta );
+    uiTaskRunner taskrunner( this );
+    const bool res = TaskRunner::execute( &taskrunner, exec )
+	&& savefldgrp_->saveHorizon();
+    return res;
 }

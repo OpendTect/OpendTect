@@ -65,6 +65,8 @@ public:
     BinID			getStep() const;
     void			setStep(const BinID&);
 
+    bool			isFullSurvey() const;
+
     bool			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 

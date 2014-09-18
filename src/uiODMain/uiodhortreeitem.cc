@@ -352,31 +352,6 @@ bool uiODHorizonTreeItem::init()
     }
 
     if ( hd ) hd->setOnlyAtSectionsDisplay( atsections.getParam(this) );
-
-    visBase::HorizonSection* sect = hd ? hd->getHorizonSection(0) : 0;
-    const bool geodf = !sect ? false
-	: (hd->geometryRowRange().width() && hd->geometryColRange().width());
-    if ( geodf )
-    {
-	const StepInterval<int> rrg = hd->geometryRowRange();
-	const StepInterval<int> crg = hd->geometryColRange();
-	const HorSampling& rg = applMgr()->EMServer()->horizon3DDisplayRange();
-	bool userchanged = rg.inlRange()!=rrg || rg.crlRange()!=crg;
-	if ( rg.inlRange().start<rrg.start || rg.inlRange().stop>rrg.stop ||
-	     rg.crlRange().start<crg.start || rg.crlRange().stop>crg.stop )
-	    userchanged = false;
-
-	if ( rg.isDefined() && userchanged )
-	{
-	    sect->setDisplayRange( rg.inlRange(), rg.crlRange() );
-	    for ( int idx=0; idx<hd->nrAttribs(); idx++ )
-	    {
-		if ( hd->hasDepth(idx) ) hd->setDepthAsAttrib( idx );
-		else applMgr()->calcRandomPosAttrib( displayID(), idx );
-	    }
-	}
-    }
-
     const bool res = uiODEarthModelSurfaceTreeItem::init();
     if ( !res ) return res;
 
