@@ -354,7 +354,7 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 	if ( !S2DPOS().getGeometry(geomids_[lidx],l2d) )
 	    continue;
 
-	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->positions();
+	const TypeSet<PosInfo::Line2DPos>& pos = l2d.positions();
 	for ( int idx=0; idx<pos.size(); idx++ )
 	{
 	    if ( pos[idx].coord_ == c )
