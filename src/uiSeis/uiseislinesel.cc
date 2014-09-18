@@ -354,6 +354,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     if ( lnms_.isEmpty() )
 	mErrRet( tr("No 2D lines available") )
 
+    const TypeSet<int> curselidxs = selidxs_;
     uiDialog dlg( this,
 		  uiDialog::Setup("Line selection",mNoDlgTitle,mNoHelpKey) );
     uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
@@ -372,7 +373,8 @@ void uiSeis2DLineSel::selPush( CallBacker* )
     for ( int idx=0; idx<chosenids.size(); idx++ )
 	selidxs_ += geomids_.indexOf( chosenids[idx] );
 
-    selectionChanged.trigger();
+    if ( curselidxs != selidxs_ )
+	selectionChanged.trigger();
 }
 
 
