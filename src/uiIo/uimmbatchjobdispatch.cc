@@ -708,12 +708,12 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 
 	if ( !jobrunner_->addHost(*hd) && jobrunner_->jobsLeft() > 0 )
 	{
-	    BufferString msg = "Could not start job";
+	    uiString msg = tr("Could not start job");
 	    if ( isMultiHost() )
-		msg.add( " on " ).add( hnm );
-	    if ( jobrunner_->errorMsg() && *jobrunner_->errorMsg() )
-		msg.add( " : " ).add( jobrunner_->errorMsg() );
-	    progrfld_->append( msg );
+		msg.arg( " on %1" ).arg( hnm );
+	    if ( jobrunner_->errorMsg().isSet() )
+		msg.arg( " : " ).arg( jobrunner_->errorMsg() );
+	    progrfld_->append( msg.getFullString() );
 	}
     }
 }

@@ -20,7 +20,7 @@ namespace MMProc
 {
 
 mClass(MMProc) ExecProxy
-{
+{ mODTextTranslationClass(ExecProxy);
     			ExecProxy(const char* prognm,const char* hostnm);
 
     bool		launch(const IOPar&);

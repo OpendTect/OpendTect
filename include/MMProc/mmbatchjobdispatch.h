@@ -19,7 +19,7 @@ namespace Batch
 {
 
 mExpClass(MMProc) MMProgDef
-{
+{ mODTextTranslationClass(MMProgDef);
 public:
 
 			MMProgDef( const char* mmpnm )

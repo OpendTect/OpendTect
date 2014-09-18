@@ -30,8 +30,8 @@ Batch::MMJobDispatcher::MMJobDispatcher()
 
 uiString Batch::MMJobDispatcher::description() const
 {
-    return "The job will be split into parts that can each "
-	   "run on a separate computer.";
+    return tr("The job will be split into parts that can each "
+	      "run on a separate computer.");
 }
 
 

@@ -28,7 +28,7 @@ class StatusInfo;
 */
 
 mExpClass(MMProc) HostNFailInfo
-{
+{ mODTextTranslationClass(HostNFailInfo);
 public:
     			HostNFailInfo( const HostData& hd )
 			    : hostdata_(hd)
@@ -52,7 +52,7 @@ public:
 */
 
 mExpClass(MMProc) JobRunner : public Executor
-{
+{ mODTextTranslationClass(JobRunner);
 public:
 
     				JobRunner(JobDescProv*,const char* cmd);
@@ -89,7 +89,7 @@ public:
     od_int64			nrDone() const	{ return jobsDone(); }
     od_int64			totalNr() const	{ return totalJobs(); }
     uiString			uiMessage() const;
-    const char*			nrDoneMessage() const;
+    uiString			nrDoneMessage() const;
 
     				// Set these before first step
     void			setFirstPort( int n )	    { firstport_ = n; }
@@ -112,7 +112,7 @@ public:
 
     const char*			procDir() const	{ return procdir_.buf(); }
 				// processing directory on local machine
-    const char*			errorMsg() const;
+    uiString			errorMsg() const;
 
 protected:
 
@@ -140,7 +140,7 @@ protected:
     int				wrapuptimeout_;
     int				hosttimeout_;
     int				startwaittime_;  //!< wait B4 next client start
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     int				doCycle();
     HostNFailInfo*		hostNFailInfoFor(const HostData*) const;

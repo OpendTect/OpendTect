@@ -144,8 +144,8 @@ bool JobRunner::addHost( const HostData& hd )
     {
 	delete iomgr_;
 	iomgr_ = 0;
-	errmsg_ = BufferString( "Failed to listen to Port ", firstport_," on ");
-	errmsg_ += HostData::localHostName();
+	errmsg_ = tr("Failed to listen to Port %1 on %2 on ")
+	        .arg(firstport_).arg(HostData::localHostName());
 	return false;
     }
 
@@ -527,10 +527,10 @@ int JobRunner::jobsInProgress() const
 
 
 uiString JobRunner::uiMessage() const
-{ return "Processing"; }
+{ return tr("Processing"); }
 
-const char* JobRunner::nrDoneMessage() const
-{ return "Jobs completed"; }
+uiString JobRunner::nrDoneMessage() const
+{ return tr("Jobs completed"); }
 
 
 void JobRunner::setNiceNess( int n )
@@ -764,5 +764,5 @@ JobInfo* JobRunner::gtJob( int descnr )
 }
 
 
-const char* JobRunner::errorMsg() const
-{ return errmsg_.size() ? errmsg_.buf() : 0; }
+uiString JobRunner::errorMsg() const
+{ return errmsg_.isSet() ? errmsg_ : uiString::emptyString(); }

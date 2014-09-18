@@ -12,7 +12,7 @@ static const char* rcsID mUsedVar = "$Id";
 MMProc::ExecProxy::ExecProxy( const char* pnm, const char* hnm )
     : prognm_(pnm)
     , hostnm_(hnm)
-    , msg_("Not started")
+    , msg_(tr("Not started"))
 {
 }
 
