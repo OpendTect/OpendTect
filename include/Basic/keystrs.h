@@ -103,6 +103,7 @@ namespace sKey
     inline FixedString Subsel()		{ return "Subsel"; }
     inline FixedString Surface()	{ return "Surface"; }
     inline FixedString Survey()		{ return "Survey"; }
+    inline FixedString SurveyID()	{ return "Survey ID"; }
     inline FixedString Table()		{ return "Table"; }
     inline FixedString Target()		{ return "Target"; }
     inline FixedString Time()		{ return "Time"; }

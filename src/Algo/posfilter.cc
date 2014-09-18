@@ -376,15 +376,28 @@ void Pos::Provider::getTrcKeyZSampling( TrcKeyZSampling& cs ) const
 }
 
 
+Pos::Provider3D::Provider3D()
+    : survid_( Survey::GM().default3DSurvID() )
+{}
+
+
 bool Pos::Provider3D::includes( const Coord& c, float z ) const
 {
-    return includes( SI().transform(c), z );
+    ConstRefMan<Survey::Geometry3D> geom = Survey::GM().getGeometry3D(survID());
+    return includes( geom->transform(c), z );
 }
 
 
 Coord Pos::Provider3D::curCoord() const
 {
-    return SI().transform( curBinID() );
+    ConstRefMan<Survey::Geometry> geom = Survey::GM().getGeometry3D( survID() );
+    return geom->toCoord( curBinID() );
+}
+
+
+Pos::SurvID Pos::Provider2D::survID() const
+{
+    return Survey::GeometryManager::get2DSurvID();
 }
 
 

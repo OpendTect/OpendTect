@@ -164,6 +164,14 @@ Geometry* GeometryManager::getGeometry( Geometry::ID geomid )
 }
 
 
+const Geometry3D* GeometryManager::getGeometry3D( Pos::SurvID sid ) const
+{
+    const TrcKey tk( sid, BinID(0,0) );
+    const Geometry* geom = getGeometry( tk.geomID() );
+    return geom ? geom->as3D() : 0;
+}
+
+
 const Geometry* GeometryManager::getGeometry( const MultiID& mid ) const
 {
     if ( mid.nrKeys() == 2 )

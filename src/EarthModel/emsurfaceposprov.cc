@@ -376,11 +376,21 @@ const char* EMSurfaceProvider2D::curLine() const
 
 
 int EMSurfaceProvider2D::curNr() const
-{ return BinID::fromInt64( curpos_.subID() ).crl(); }
+{ return BinID::fromInt64( curpos_.subID() ).trcNr(); }
 
 
 Coord EMSurfaceProvider2D::curCoord() const
 { return surf1_ ? surf1_->getPos( curpos_ ) : Coord(0,0); }
+
+
+TrcKey EMSurfaceProvider2D::curTrcKey() const
+{
+    mDynamicCastGet(EM::Horizon2D*,hor2d,surf1_);
+    if ( !hor2d )
+	return TrcKey::udf();
+
+    return hor2d->geometry().getTrcKey( curpos_.subID() );
+}
 
 
 bool EMSurfaceProvider2D::includes( const Coord& c, float z ) const

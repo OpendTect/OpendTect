@@ -81,9 +81,9 @@ Can only be used if Line2DData is filled.
 mExpClass(General) RangeProvider2D : public Provider2D
 {
 public:
-
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
+			~RangeProvider2D();
     RangeProvider2D&	operator =(const RangeProvider2D&);
     const char*		type() const;	//!< sKey::Range()
     const char*		factoryKeyword() const { return type(); }
@@ -97,6 +97,7 @@ public:
     virtual int		curNr() const;
     virtual float	curZ() const;
     virtual Coord	curCoord() const;
+    virtual TrcKey	curTrcKey() const;
     virtual bool	includes(int,float z=mUdf(float),int lidx=0) const;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
@@ -126,9 +127,10 @@ protected:
     int			curlineidx_;
     int			curzidx_;
 
-    PosInfo::Line2DData*	curlinegeom_;
+    const Survey::Geometry2D*	curgeom_;
 
-    const PosInfo::Line2DData*	curGeom() const;
+    Pos::GeomID			curGeomID() const;
+    const Survey::Geometry2D*	curGeom() const;
     StepInterval<float>		curZRange() const;
     StepInterval<int>		curTrcRange() const;
 

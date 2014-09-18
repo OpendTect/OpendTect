@@ -175,6 +175,7 @@ public:
 
     virtual const char*	curLine() const;
     virtual int		curNr() const;
+    virtual TrcKey	curTrcKey() const;
     virtual Coord	curCoord() const;
     virtual bool	includes(const Coord&,float) const;
     virtual bool	includes(int,float,int) const;
@@ -280,7 +281,7 @@ public:
     virtual void		getSummary(BufferString&) const;
 
     virtual void		getTrcKeyZSampling(TrcKeyZSampling& cs) const;
-    const TrcKeyZSampling&		getImpBodyRange() const { return tkzs_; }
+    const TrcKeyZSampling&	getImpBodyRange() const { return tkzs_; }
     Array3D<float>*		getImpBodyData() const	{ return imparr_; }
     float                       getThreshold() const	{ return threshold_; }
 

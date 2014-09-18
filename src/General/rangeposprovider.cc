@@ -17,7 +17,7 @@ static const char* rcsID mUnusedVar = "$Id$";
 
 #define mGet2DGeometry(gid) \
     const Survey::Geometry* geometry = Survey::GM().getGeometry( gid ); \
-    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry )
+    const Survey::Geometry2D* geom2d = geometry ? geometry->as2D() : 0
 
 
 Pos::RangeProvider3D::RangeProvider3D()
@@ -170,7 +170,7 @@ void Pos::RangeProvider3D::initClass()
 
 
 Pos::RangeProvider2D::RangeProvider2D()
-    : curlinegeom_(0)
+    : curgeom_(0)
 {
     zrgs_ += SI().zRange( false );
     trcrgs_ += StepInterval<int>(1,mUdf(int),1);
@@ -179,9 +179,15 @@ Pos::RangeProvider2D::RangeProvider2D()
 
 
 Pos::RangeProvider2D::RangeProvider2D( const Pos::RangeProvider2D& p )
-    : curlinegeom_(0)
+    : curgeom_(0)
 {
     *this = p;
+}
+
+
+Pos::RangeProvider2D::~RangeProvider2D()
+{
+    unRefAndZeroPtr( curgeom_ );
 }
 
 
@@ -194,7 +200,7 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 	trcrgs_ = p.trcrgs_;
 	curtrcidx_ = p.curtrcidx_;
 	curlineidx_ =  p.curlineidx_;
-	delete curlinegeom_; curlinegeom_ = 0;
+	unRefAndZeroPtr( curgeom_ );
 	curzidx_ = p.curzidx_;
 	for ( int idx=0; idx<p.nrLines(); idx++ )
 	    addGeomID( p.geomID(idx) );
@@ -213,17 +219,16 @@ const char* Pos::RangeProvider2D::type() const
 void Pos::RangeProvider2D::reset()
 {
     curlineidx_ = 0;
-    delete curlinegeom_; curlinegeom_ = 0;
+    unRefAndZeroPtr( curgeom_ );
     StepInterval<float> zrg = zrgs_[0];
     if ( !geomids_.isEmpty() )
     {
-	mGet2DGeometry(geomids_[0])
+	mGet2DGeometry(geomids_[0]);
 	if ( geom2d )
 	{
-	    PosInfo::Line2DData* linegeom = new PosInfo::Line2DData;
-	    *linegeom = geom2d->data();
-	    curlinegeom_ = linegeom;
-	    zrg.limitTo( curlinegeom_->zRange() );
+	    curgeom_ = geom2d;
+	    curgeom_->ref();
+	    zrg.limitTo( curgeom_->data().zRange() );
 	}
     }
 
@@ -232,20 +237,37 @@ void Pos::RangeProvider2D::reset()
 }
 
 
-const PosInfo::Line2DData* Pos::RangeProvider2D::curGeom() const
+TrcKey Pos::RangeProvider2D::curTrcKey() const
 {
-    if ( !curlinegeom_ && geomids_.validIdx(curlineidx_) )
+    const Pos::GeomID gid = curGeomID();
+    if ( mIsUdf(gid) )
+	return TrcKey::udf();
+
+    return TrcKey( gid, curNr() );
+}
+
+
+Pos::GeomID Pos::RangeProvider2D::curGeomID() const
+{
+    return geomids_.validIdx(curlineidx_)
+	? geomids_[curlineidx_]
+	: mUdf(Pos::GeomID);
+}
+
+
+const Survey::Geometry2D* Pos::RangeProvider2D::curGeom() const
+{
+    if ( !curgeom_ )
     {
-	mGet2DGeometry(geomids_[curlineidx_])
+	mGet2DGeometry( curGeomID() );
 	if ( geom2d )
 	{
-	    PosInfo::Line2DData* linegeom = new PosInfo::Line2DData;
-	    *linegeom = geom2d->data();
-	    const_cast<Pos::RangeProvider2D*>(this)->curlinegeom_ = linegeom;
+	    const_cast<Pos::RangeProvider2D*>(this)->curgeom_ = geom2d;
+	    curgeom_->ref();
 	}
     }
 
-    return curlinegeom_;
+    return curgeom_;
 }
 
 
@@ -262,13 +284,13 @@ bool Pos::RangeProvider2D::toNextPos()
 	    break;
 
 	curlineidx_++;
-	delete curlinegeom_; curlinegeom_ = 0;
+	unRefAndZeroPtr( curgeom_ );
 	if ( !geomids_.validIdx(curlineidx_) )
 	    return false;
 
 	curtrcidx_ = -1;
     }
-    
+
     StepInterval<float> zrg = curZRange();
     curzidx_ = 0;
     return true;
@@ -308,11 +330,11 @@ float Pos::RangeProvider2D::curZ() const
 
 Coord Pos::RangeProvider2D::curCoord() const
 {
-    const PosInfo::Line2DData* curgeom = curGeom();
+    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
     if ( curgeom )
     {
 	PosInfo::Line2DPos l2dpos;
-	if ( curgeom->getPos(curNr(),l2dpos) )
+	if ( curgeom->data().getPos(curNr(),l2dpos) )
 	    return l2dpos.coord_;
     }
 
@@ -324,9 +346,10 @@ StepInterval<int> Pos::RangeProvider2D::curTrcRange() const
 {
     StepInterval<int> trcrg = trcrgs_.validIdx(curlineidx_) ?
 					trcrgs_[curlineidx_] : trcrgs_[0];
-    const PosInfo::Line2DData* curgeom = curGeom();
+
+    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
     if ( curgeom )
-	trcrg.limitTo( curGeom()->trcNrRange() );
+	trcrg.limitTo( curgeom->data().trcNrRange() );
 
     return trcrg;
 }
@@ -336,9 +359,10 @@ StepInterval<float> Pos::RangeProvider2D::curZRange() const
 {
     StepInterval<float> zrg = zrgs_.validIdx(curlineidx_) ? zrgs_[curlineidx_]
 							  : zrgs_[0];
-    const PosInfo::Line2DData* curgeom = curGeom();
+    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
+
     if ( curgeom )
-	zrg.limitTo( curGeom()->zRange() );
+	zrg.limitTo( curgeom->data().zRange() );
 
     return zrg;
 }
@@ -350,7 +374,7 @@ bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 	return curTrcRange().includes(nr,false)
 	    && curZRange().includes(z,false);
 
-    mGet2DGeometry(geomids_[lidx])
+    mGet2DGeometry(geomids_[lidx]);
     if ( !geom2d )
 	return false;
 
@@ -364,11 +388,12 @@ bool Pos::RangeProvider2D::includes( int nr, float z, int lidx ) const
 
 
 bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
-{ 
-    const PosInfo::Line2DData* curgeom = curGeom();
+{
+    ConstRefMan<Survey::Geometry2D> curgeom = curGeom();
+
     if ( curgeom )
     {
-	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->positions();
+	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->data().positions();
 	for ( int idx=0; idx<pos.size(); idx++ )
 	    if ( pos[idx].coord_ == c )
 		return curTrcRange().includes(pos[idx].nr_,false)
@@ -377,11 +402,11 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 
     for ( int lidx=0; lidx<nrLines(); lidx++ )
     {
-	mGet2DGeometry(geomids_[lidx])
+	mGet2DGeometry(geomids_[lidx]);
 	if ( !geom2d )
 	    continue;
 
-	const TypeSet<PosInfo::Line2DPos>& pos = curgeom->positions();
+	const TypeSet<PosInfo::Line2DPos>& pos = geom2d->data().positions();
 	for ( int idx=0; idx<pos.size(); idx++ )
 	{
 	    if ( pos[idx].coord_ == c )
@@ -407,7 +432,7 @@ void Pos::RangeProvider2D::getExtent( Interval<int>& rg, int lidx ) const
     { rg = curTrcRange(); return; }
 
     rg = trcrgs_.validIdx(lidx) ? trcrgs_[lidx] : trcrgs_[0];
-    mGet2DGeometry(geomids_[lidx])
+    mGet2DGeometry(geomids_[lidx]);
     if ( !geom2d )
 	return;
 
@@ -421,7 +446,7 @@ void Pos::RangeProvider2D::getZRange( Interval<float>& zrg, int lidx ) const
     { zrg = curZRange(); return; }
 
     zrg = zrgs_.validIdx(lidx) ? zrgs_[lidx] : zrgs_[0];
-    mGet2DGeometry(geomids_[lidx])
+    mGet2DGeometry(geomids_[lidx]);
     if ( !geom2d )
 	return;
 
@@ -512,7 +537,7 @@ od_int64 Pos::RangeProvider2D::estNrPos() const
     od_int64 sz = 0;
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
-	mGet2DGeometry(geomids_[idx])
+	mGet2DGeometry(geomids_[idx]);
 	if ( !geom2d )
 	    continue;
 
