@@ -46,7 +46,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
     logextenfld_->attach( alignedBelow, extensfld_ );
 
     uiWellExtractParams::Setup su;
-    su.singlelog(true);
+    su.singlelog(true).withextractintime(false).withsampling(true);
     welllogsel_ = new uiMultiWellLogSel( this, su );
     welllogsel_->attach( alignedBelow, logextenfld_ );
 
