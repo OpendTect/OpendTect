@@ -567,8 +567,8 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     }
 
     dps().setEmpty();
-    const char* res = crdesc.prepareData( dpss, dps() );
-    if ( res ) mErrRet(res)
+    uiString res = crdesc.prepareData( dpss, dps() );
+    if ( res.isSet() ) mErrRet(res.getFullString())
 
     // allow user to view and edit data
     if ( !doDPSDlg() )

@@ -26,7 +26,7 @@ class DataPointSet;
 */
 
 mExpClass(NLA) NLACreationDesc
-{
+{ mODTextTranslationClass(NLACreationDesc);
 public:
     			NLACreationDesc()	{ clear(); }
 			~NLACreationDesc()	{ clear(); }
@@ -48,7 +48,7 @@ public:
 
     inline bool		isSupervised() const	{ return design.isSupervised();}
 
-    const char*		prepareData(const ObjectSet<DataPointSet>&,
+    uiString		prepareData(const ObjectSet<DataPointSet>&,
 				    DataPointSet&) const;
 
     enum DataType	{ Train=0, Test, MCTrain, MCTest };

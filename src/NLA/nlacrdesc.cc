@@ -91,7 +91,7 @@ static bool isPresentInDesgn( const NLADesign& des, const char* inpcolnm )
 }
 
 
-const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
+uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 					  DataPointSet& dps ) const
 {
     int nrout = dpss.size();
@@ -100,7 +100,10 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     if ( doextraction )
     {
 	if ( nrout < 1 )
-	    { return "Internal: No input DataPointSets to transfer data from"; }
+	{
+	    return tr("Internal: No input DataPointSets to "
+		      "transfer data from");
+	}
 	for ( int idps=0; idps<dpss.size(); idps++ )
 	    totnrvec += dpss[idps]->size();
     }
@@ -108,14 +111,14 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     {
 	PtrMan<IOObj> ioobj = IOM().get( vdsid );
 	if ( !ioobj )
-	    return "Cannot find training data set specified";
+	    return tr("Cannot find training data set specified");
 
 	mDeclStaticString( errmsg ); 
 	PosVecDataSet vds;
 	if ( !vds.getFrom(ioobj->fullUserExpr(true),errmsg) )
 	    return errmsg.buf();
 	if ( vds.pars().isEmpty() || vds.data().isEmpty() )
-	    return "Invalid input data set specified";
+	    return tr("Invalid input data set specified");
 
 	ObjectSet<DataPointSet>& ncdpss
 	    		= const_cast<ObjectSet<DataPointSet>&>( dpss );
@@ -128,7 +131,7 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	const_cast<NLACreationDesc*>(this)->pars.merge( vds.pars() );
     }
     if ( totnrvec < 1 )
-	return "No data vectors found";
+	return tr("No data vectors found");
 
     dps.setEmpty();
     const DataPointSet& dps0 = *dpss[0];
