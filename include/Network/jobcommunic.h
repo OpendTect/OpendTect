@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "genc.h"
 #include "callback.h"
+#include "uistring.h"
 
 class Socket;
 class BatchProgram;
