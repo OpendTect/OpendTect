@@ -436,14 +436,17 @@ void ODGraphicsTextItem::paint( QPainter* painter,
     painter->save();
     painter->resetTransform();
 
-    const QPointF alignment = getAlignment();
-
     QFontMetrics qfm( getFont() );
     const float txtwidth = qfm.width( text_ );
     const float txtheight = qfm.height();
 
-    const float movex = alignment.x() * (txtwidth * cos(paintangle));
-    const float movey = alignment.y() * (txtheight + txtwidth*sin(paintangle));
+    const float width = txtwidth * cos(paintangle) +
+			txtheight * sin(paintangle);
+    const float height = txtheight + txtwidth * sin(paintangle);
+
+    const QPointF alignment = getAlignment();
+    const float movex = alignment.x() * width;
+    const float movey = alignment.y() * height;
 
     painter->setPen( pen() );
     painter->setFont( font_ );

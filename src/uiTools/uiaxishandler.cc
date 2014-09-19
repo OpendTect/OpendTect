@@ -686,10 +686,10 @@ void uiAxisHandler::updateName()
 
     Alignment al( Alignment::HCenter, Alignment::VCenter );
     uiPoint pt;
+    const int namepos = pixToEdge() - ticSz() - calcwdth_;
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
-	const int namepos = pixToEdge() - ticSz() - calcwdth_;
 	pt.x = pixBefore() + axsz_/2;
 	pt.y = istop ? namepos : height_-namepos;
 	al.set( istop ? Alignment::Top : Alignment::Bottom );
@@ -697,9 +697,8 @@ void uiAxisHandler::updateName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	pt.x = isleft ? pixAfter() : width_-pixAfter();
+	pt.x = isleft ? namepos : width_-namepos;
 	pt.y = height_/2 - pixAfter();
-	al.set( Alignment::HCenter );
 
 	if ( !ynmtxtvertical_ )
 	    nameitm_->setRotation( mCast( float, isleft ? -90 : 90 ) );
