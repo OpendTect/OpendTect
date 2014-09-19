@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "matlablinkmod.h"
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class SharedLibAccess;
