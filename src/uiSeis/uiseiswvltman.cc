@@ -48,7 +48,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisWvltMan)
 uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup(tr("Manage Wavelets"),mNoDlgTitle,
                                      mODHelpKey(mSeisWvltManHelpID) )
-                                     .nrstatusflds(1),
+				     .nrstatusflds(1).modal(false),
 		   WaveletTranslatorGroup::ioContext() )
     , wvltext_(0)
     , wvltpropdlg_(0)
@@ -82,10 +82,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 uiSeisWvltMan::~uiSeisWvltMan()
 {
     if ( wvltext_ )
-    {
-	wvltext_->close();
 	wvltext_->extractionDone.remove( mCB(this,uiSeisWvltMan,updateCB) );
-    }
 
     delete wvltext_;
 
@@ -158,12 +155,8 @@ void uiSeisWvltMan::extractPush( CallBacker* cb )
 	    is2d = res == 1;
     }
 
-    if ( !wvltext_ || wvltext_->isHidden() )
-    {
-	wvltext_ = new uiWaveletExtraction( 0, is2d );
-	wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
-    }
-
+    wvltext_ = new uiWaveletExtraction( parent(), is2d );
+    wvltext_->extractionDone.notify( mCB(this,uiSeisWvltMan,updateCB) );
     wvltext_->show();
 }
 

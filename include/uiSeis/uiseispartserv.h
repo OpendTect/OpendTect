@@ -84,6 +84,7 @@ protected:
     uiSeisFileMan*	man3dseisdlg_;
     uiSeisPreStackMan*	man2dprestkdlg_;
     uiSeisPreStackMan*	man3dprestkdlg_;
+    uiSeisWvltMan*	manwvltdlg_;
 };
 
 #endif

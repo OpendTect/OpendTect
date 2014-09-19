@@ -79,6 +79,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     , man3dseisdlg_(0)
     , man2dprestkdlg_(0)
     , man3dprestkdlg_(0)
+    , manwvltdlg_(0)
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
@@ -92,6 +93,7 @@ uiSeisPartServer::~uiSeisPartServer()
     delete man3dseisdlg_;
     delete man2dprestkdlg_;
     delete man3dprestkdlg_;
+    delete manwvltdlg_;
 }
 
 
@@ -248,8 +250,12 @@ void uiSeisPartServer::exportWavelets()
 
 void uiSeisPartServer::manageWavelets()
 {
-    uiSeisWvltMan dlg( parent() );
-    dlg.go();
+    if ( !manwvltdlg_ )
+	manwvltdlg_ = new uiSeisWvltMan( parent() );
+    else
+	manwvltdlg_->selGroup()->fullUpdate( -1 );
+
+    manwvltdlg_->go();
 }
 
 
