@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "iopar.h"
 #include "enums.h"
+#include "uistring.h"
 
 class DataPointSet;
 
@@ -28,7 +29,7 @@ class DataPointSet;
 mExpClass(NLA) NLACreationDesc
 { mODTextTranslationClass(NLACreationDesc);
 public:
-    			NLACreationDesc()	{ clear(); }
+			NLACreationDesc()	{ clear(); }
 			~NLACreationDesc()	{ clear(); }
 			NLACreationDesc( const NLACreationDesc& sd )
 						{ *this = sd; }
@@ -40,11 +41,11 @@ public:
     MultiID		vdsid;
     float		ratiotst;
     BufferStringSet	outids;
-    			//!< different from design outputs if unsupervised
-    			//!< Well IDs if direct supervised prediction
+			//!< different from design outputs if unsupervised
+			//!< Well IDs if direct supervised prediction
     bool		isdirect;
     IOPar		pars;
-    			//!< Extra details
+			//!< Extra details
 
     inline bool		isSupervised() const	{ return design.isSupervised();}
 
