@@ -104,7 +104,7 @@ public:
     Translator*			createTranslator() const;
 				//!< returns a subclass of Translator according
 				//!< to the translator name and group.
-    virtual void		acquireNewKey();
+    void			acquireNewKeyIn(const MultiID&);
 				//!< This will give the IOObj a new (free) ID
 
     static int			tmpID()		{ return  999999; }
@@ -113,6 +113,8 @@ public:
     bool			isUserSelectable(bool forread=true) const;
     bool			isInCurrentSurvey() const;
 
+    //!< DEPRECATED in 5.0. Works in current IODir, is not safe at all.
+     void			acquireNewKey();
     // DEPRECATED in 5.0, where you may want to override implManagesObjects
     virtual bool		implShouldRemove() const	{ return true; }
     // DEPRECATED in 5.0, never used

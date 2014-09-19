@@ -153,18 +153,6 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 }
 
 
-#define mGetParentDirKey(key, dirkey) \
-    if ( key.nrKeys()<2 ) \
-    { \
-	pErrMsg("This code has to be checked by Bert!"); \
-	dirkey = MultiID(); \
-    } \
-    else \
-    { \
-	dirkey = key.upLevel(); \
-    }
-
-
 IOObj* IOObj::produce( const char* typ, const char* nm, const char* keyin,
 			bool gendef )
 {
@@ -220,12 +208,22 @@ IOObj* IOObj::clone() const
 }
 
 
+void IOObj::acquireNewKeyIn( const MultiID& dirky )
+{
+    key_ = IOM().createNewKey( dirky );
+}
+
+
 void IOObj::acquireNewKey()
 {
-    MultiID dirkey;
-    mGetParentDirKey( key_, dirkey );
+    MultiID dirky;
 
-    key_ = IOM().createNewKey( dirkey );
+    if ( key_.nrKeys() < 2 )
+	dirky = IOM().key();
+    else
+	dirky = key_.upLevel();
+
+    acquireNewKeyIn( dirky );
 }
 
 
