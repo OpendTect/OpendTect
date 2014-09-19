@@ -67,7 +67,7 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 		const float th = 
 		    horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 		horadj->setAmplitudeThreshold( th );
-		execmsg_ = "Step: "; execmsg_ += th;
+		execmsg_ = tr("Step: %1").arg(th);
 	    }
 	}
 	else if ( horadj->getAllowedVariances().size()>0 ) 
@@ -78,7 +78,7 @@ AutoTracker::AutoTracker( EMTracker& et, const EM::SectionID& sid )
 		adjuster_->removeOnFailure( true );
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
-	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";	    
+	    execmsg_ = tr("Step: %1%").arg(var * 100);
 	}
     }
 
@@ -344,7 +344,7 @@ int AutoTracker::nextStep()
 	    const float th =
 		horadj->getAmplitudeThresholds()[stepcntapmtthesld_];
 	    horadj->setAmplitudeThreshold( th );
-	    execmsg_ = "Step: "; execmsg_ += th;
+	    execmsg_ = tr("Step: %1").arg(th);
 	    nrdone_ = 1;
 	}
 	else
@@ -375,7 +375,7 @@ int AutoTracker::nextStep()
 
 	    const float var = horadj->getAllowedVariances()[stepcntallowedvar_];
 	    horadj->setAllowedVariance( var );
-	    execmsg_ = "Step: "; execmsg_ += var*100; execmsg_ += "%";
+	    execmsg_ = tr("Step: %1%").arg(var * 100);
 	    nrdone_ = 1;	    
 	}
 
@@ -401,7 +401,8 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
     if ( !emobject_.isAtEdge(pid) )	return false;
 
     const Coord3& pos = emobject_.getPos(pid);
-    if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )	return false;
+    if ( !engine().activeVolume().zsamp_.includes(pos.z,false) )	
+	return false;
     const BinID bid = SI().transform(pos);
     if ( !engine().activeVolume().hrg.includes(bid) )	return false;
 
@@ -411,7 +412,7 @@ bool AutoTracker::addSeed( const EM::PosID& pid )
 
 
 uiString AutoTracker::uiMessage() const
-{ return execmsg_.buf(); }
+{ return execmsg_; }
 
 
 }; // namespace MPE

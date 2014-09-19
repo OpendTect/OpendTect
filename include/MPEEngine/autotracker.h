@@ -39,7 +39,7 @@ class EMTracker;
 */
 
 mExpClass(MPEEngine) AutoTracker : public Executor
-{
+{ mODTextTranslationClass(AutoTracker);
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);
 				~AutoTracker();
@@ -78,7 +78,7 @@ protected:
     Array2D<float>*		horizon3dundoinfo_;
     RowCol			horizon3dundoorigin_;
 
-    BufferString		execmsg_;
+    uiString			execmsg_;
 };
 
 
