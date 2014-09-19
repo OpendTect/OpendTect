@@ -144,7 +144,7 @@ bool MatlabTask::doWork( od_int64 start, od_int64 stop, int )
     (*fn)( 1, &mxarrout, pars, mxarrin );
 
     if ( !mxarrout )
-	mErrRet( "No MATLAB output generated" );
+	mErrRet( tr("No MATLAB output generated") );
 
     Array3D<float>& output =
 	step_.getOutput( step_.getOutputSlotID(0) )->getCube( 0 );
@@ -193,7 +193,7 @@ Task* MatlabStep::createTask()
     Attrib::DataCubes* output = getOutput( getOutputSlotID(0) );
     if ( !output || output->nrCubes()<1 )
     {
-	errmsg_ = "No output provided.";
+	errmsg_ = tr("No output provided.");
 	return 0;
     }
 

@@ -74,7 +74,7 @@ bool MatlabLibAccess::init()
     if ( inited_ ) return true;
 
     if ( !File::exists(shlibfnm_) )
-	mErrRet( BufferString("Cannot find shared library ",shlibfnm_) );
+	mErrRet( tr("Cannot find shared library %1").arg(shlibfnm_) );
 
     sla_ = new SharedLibAccess( shlibfnm_ );
     if ( !sla_->isOK() )
@@ -83,10 +83,10 @@ bool MatlabLibAccess::init()
     const BufferString initfnm = getFnm( shlibfnm_, true );
     initfn ifn = (initfn)sla_->getFunction( initfnm.buf() );
     if ( !ifn )
-	mErrRet( BufferString("Cannot find function ",initfnm) );
+	mErrRet( tr("Cannot find function %1").arg(initfnm) );
 
     if ( !(*ifn)() )
-	mErrRet( "Cannot initialize shared library" );
+	mErrRet( tr("Cannot initialize shared library") );
 
     inited_ = true;
     return true;
@@ -100,7 +100,7 @@ bool MatlabLibAccess::terminate()
     const BufferString termfnm = getFnm( shlibfnm_, false );
     termfn tfn = (termfn)sla_->getFunction( termfnm.buf() );
     if ( !tfn )
-	mErrRet( BufferString("Cannot find function ",termfnm) );
+	mErrRet( tr("Cannot find function %1").arg(termfnm) );
     (*tfn)();
 
     inited_ = false;
@@ -114,12 +114,12 @@ bool MatlabLibAccess::getParameters( BufferStringSet& names,
     const char* getparfnm = sGetParametersStr;
     getparfn fn = (getparfn)sla_->getFunction( getparfnm );
     if ( !fn )
-	mErrRet( BufferString("Cannot find function ",getparfnm) );
+	mErrRet( tr("Cannot find function %1").arg(getparfnm) );
 
     mxArray* parsarr = NULL;
     const bool res = (*fn)( 1, &parsarr );
     if ( !res )
-       mErrRet( BufferString("Function ",getparfnm," returned false") );
+	mErrRet( tr("Function %1 returned false").arg(getparfnm) );
 
     const int nrvars = mxGetNumberOfFields( parsarr );
     for ( int idx=0; idx<nrvars; idx++ )
@@ -147,7 +147,7 @@ int MatlabLibAccess::getNrInputs() const
     mxArray* mxarr = NULL;
     const bool res = (*fn)( 1, &mxarr );
     if ( !res )
-       mErrRet( BufferString("Function ",funcnm," returned false") );
+	mErrRet( tr("Function %1 returned false").arg(funcnm) );
 
     const int nr = mCast(int,mxGetScalar(mxarr));
     return nr;
@@ -164,7 +164,7 @@ int MatlabLibAccess::getNrOutputs() const
     mxArray* mxarr = NULL;
     const bool res = (*fn)( 1, &mxarr );
     if ( !res )
-       mErrRet( BufferString("Function ",funcnm," returned false") );
+	mErrRet( tr("Function %1 returned false").arg(funcnm) );
 
     const int nr = mCast(int,mxGetScalar(mxarr));
     return nr;
@@ -172,7 +172,7 @@ int MatlabLibAccess::getNrOutputs() const
 
 #else
 bool MatlabLibAccess::init()
-{ errmsg_ = "This plugin has not been linked to MATLAB."; return false; }
+{ errmsg_ = tr("This plugin has not been linked to MATLAB."); return false; }
 bool MatlabLibAccess::terminate()	{ return true; }
 bool MatlabLibAccess::getParameters( BufferStringSet& names,
 				     BufferStringSet& values ) const
@@ -188,7 +188,7 @@ void* MatlabLibAccess::getFunction( const char* funcnm ) const
 {
     void* fn = sla_->getFunction( funcnm );
     if ( !fn )
-	errmsg_ = BufferString("Cannot find function ",funcnm);
+	errmsg_ = tr("Cannot find function %1").arg(funcnm);
 
     return fn;
 }
@@ -273,7 +273,7 @@ bool MatlabLibMgr::initApplication()
     const char* options[] = { "-nojvm", "-nojit", 0 };
     if ( !mclInitializeApplication(options,2) )
     {
-	errmsg_ = "Cannot initialize MATLAB application";
+	errmsg_ = tr("Cannot initialize MATLAB application");
 	return false;
     }
 

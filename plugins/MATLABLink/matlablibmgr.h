@@ -22,7 +22,7 @@ class SharedLibAccess;
 
 
 mExpClass(MATLABLink) MatlabLibAccess
-{
+{ mODTextTranslationClass(MatlabLibAccess);
 public:
 			MatlabLibAccess(const char* libfnm);
 			~MatlabLibAccess();
@@ -35,19 +35,19 @@ public:
 				      BufferStringSet& values) const;
     int			getNrInputs() const;
     int			getNrOutputs() const;
-    const char*		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
 protected:
 
     SharedLibAccess*	sla_;
     BufferString	shlibfnm_;
     bool		inited_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 };
 
 
 mExpClass(MATLABLink) MatlabLibMgr
-{
+{ mODTextTranslationClass(MatlabLibMgr);
 public:
 			MatlabLibMgr();
 			~MatlabLibMgr();
@@ -57,7 +57,7 @@ public:
     MatlabLibAccess*	getMatlabLibAccess(const char* libfnm,bool doload);
     bool		isLoaded(const char* libfnm) const;
     bool		close(const char* libfnm);
-    const char*		errMsg() const	{ return errmsg_; }
+    uiString		errMsg() const	{ return errmsg_; }
 
 
 protected:
@@ -68,7 +68,7 @@ protected:
 
     ObjectSet<MatlabLibAccess>	mlas_;
     BufferStringSet		libnms_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     bool			inited_;
 };
