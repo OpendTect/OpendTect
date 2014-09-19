@@ -15,13 +15,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "debug.h"
 #include "envvars.h"
 #include "filepath.h"
-#include "keystrs.h"
 #include "genc.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "msgh.h"
 #include "oddirs.h"
 #include "od_strstream.h"
 #include "oscommand.h"
+#include "perthreadrepos.h"
 #include "safefileio.h"
 #include "separstr.h"
 #include "strmoper.h"
@@ -152,7 +153,11 @@ void HostData::setDataRoot( const char* dataroot )
 { data_pr_ = dataroot; }
 
 const char* HostData::getDataRoot() const
-{ return data_pr_.fullPath(); }
+{
+    mDeclStaticString( ret );
+    ret = data_pr_.fullPath( pathStyle() );
+    return ret.buf();
+}
 
 
 void HostData::init( const char* nm )
@@ -200,7 +205,7 @@ static FilePath getReplacePrefix( const FilePath& dir_,
     }
 
     if ( !tail )
-	return FilePath(dir_);
+	return FilePath(toprefix_);
 
     tail += fromprefix.size();
 
@@ -234,13 +239,24 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 
+bool HostData::isOK( uiString& errmsg ) const
+{
+    if ( hostname_.isEmpty() )
+	errmsg.append( "Hostname is empty; " );
+    if ( ipaddress_.isEmpty() )
+	errmsg.append( "IP address is empty; " );
+
+    return errmsg.isEmpty();
+}
+
+
 void HostData::fillPar( IOPar& par ) const
 {
     par.set( sKeyIPAddress(), ipaddress_ );
     par.set( sKeyHostName(), hostname_ );
     par.set( sKeyDispName(), nrAliases() ? alias(0) : "" );
     par.set( sKeyPlatform(), platform_.shortName() );
-    BufferString dataroot = data_pr_.fullPath();
+    BufferString dataroot = data_pr_.fullPath( pathStyle() );
     dataroot.replace( ":", ";" );
     par.set( sKey::DataRoot(), dataroot );
 }
@@ -269,6 +285,8 @@ void HostData::usePar( const IOPar& par )
 static const char* sKeyLoginCmd()	{ return "Remote login command"; }
 static const char* sKeyNiceLevel()	{ return "Nice level"; }
 static const char* sKeyFirstPort()	{ return "First port"; }
+static const char* sKeyUnixDataRoot()	{ return "Default Unix Data Root"; }
+static const char* sKeyWinDataRoot()	{ return "Default Windows Data Root"; }
 
 HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
 	: logincmd_("rsh")
@@ -285,11 +303,13 @@ HostDataList::HostDataList( bool readhostfile, bool addlocalhost )
 	fname = GetEnvVar("DTECT_BATCH_HOSTS_FILEPATH");
 
     batchhostsfnm_ = fname;
-    if ( readhostfile )
-	readHostFile( fname );
+    readHostFile( fname );
 
     if ( addlocalhost )
+    {
 	handleLocal();
+	initDataRoot();
+    }
 }
 
 
@@ -316,12 +336,42 @@ void HostDataList::fillFromNetwork()
 }
 
 
+void HostDataList::initDataRoot()
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	HostData* hd = (*this)[idx];
+	const BufferString dr = hd->getDataRoot();
+	if ( !dr.isEmpty() ) continue;
+
+	if ( !__iswin__ && unx_data_pr_.isEmpty() )
+	    unx_data_pr_ = GetBaseDataDir();
+	if ( __iswin__ && win_data_pr_.isEmpty() )
+	    win_data_pr_ = GetBaseDataDir();
+
+	hd->setDataRoot( hd->isWindows() ? win_data_pr_ : unx_data_pr_ );
+    }
+}
+
+
 void HostDataList::setNiceLevel( int lvl )		{ nicelvl_ = lvl; }
 int HostDataList::niceLevel() const			{ return nicelvl_; }
 void HostDataList::setFirstPort( int port )		{ firstport_ = port; }
 int HostDataList::firstPort() const			{ return firstport_; }
 void HostDataList::setLoginCmd( const char* cmd )	{ logincmd_ = cmd; }
 const char* HostDataList::loginCmd() const		{ return logincmd_; }
+
+void HostDataList::setUnixDataRoot( const char* dr )
+{ unx_data_pr_.set( dr ); }
+
+const char* HostDataList::unixDataRoot() const
+{ return unx_data_pr_.buf(); }
+
+void HostDataList::setWinDataRoot( const char* dr )
+{ win_data_pr_.set( dr ); }
+
+const char* HostDataList::winDataRoot() const
+{ return win_data_pr_.buf(); }
 
 
 bool HostDataList::readHostFile( const char* fnm )
@@ -344,6 +394,14 @@ bool HostDataList::readHostFile( const char* fnm )
     par.get( sKeyNiceLevel(), nicelvl_ );
     par.get( sKeyFirstPort(), firstport_ );
     OS::MachineCommand::setDefaultRemExec( logincmd_ );
+
+    BufferString dataroot;
+    par.get( sKeyUnixDataRoot(), dataroot );
+    unx_data_pr_ = dataroot;
+    dataroot.setEmpty();
+    par.get( sKeyWinDataRoot(), dataroot );
+    dataroot.replace( ";", ":" );
+    win_data_pr_ = dataroot;
 
     deepErase( *this );
     for ( int idx=0; ; idx++ )
@@ -502,6 +560,9 @@ bool HostDataList::writeHostFile( const char* fnm )
     par.set( sKeyLoginCmd(), logincmd_ );
     par.set( sKeyNiceLevel(), nicelvl_ );
     par.set( sKeyFirstPort(), firstport_ );
+    par.set( sKeyUnixDataRoot(), unx_data_pr_ );
+    win_data_pr_.replace( ":", ";" );
+    par.set( sKeyWinDataRoot(), win_data_pr_ );
 
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -534,10 +595,10 @@ void HostDataList::dump( od_ostream& strm ) const
     mPrMemb(this,logincmd_)
     mPrMemb(this,nicelvl_)
     mPrMemb(this,firstport_)
-    mPrMemb(this,win_appl_pr_.fullPath())
-    mPrMemb(this,unx_appl_pr_.fullPath())
-    mPrMemb(this,win_data_pr_.fullPath())
-    mPrMemb(this,unx_data_pr_.fullPath())
+    mPrMemb(this,win_appl_pr_)
+    mPrMemb(this,unx_appl_pr_)
+    mPrMemb(this,win_data_pr_)
+    mPrMemb(this,unx_data_pr_)
     const ShareData* sd = &sharedata_;
     strm << "-- -- Global share data:\n";
     mPrMemb(sd,drive_)
@@ -679,3 +740,23 @@ void HostDataList::fill( BufferStringSet& bss, bool inclocalhost ) const
 
 const char* HostDataList::getBatchHostsFilename() const
 { return batchhostsfnm_.buf(); }
+
+
+bool HostDataList::isOK( uiStringSet& errors ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	uiString msg;
+	if ( !(*this)[idx]->isOK(msg) )
+	{
+	    uiString fullmsg( BufferString("Host ", idx+1, ": ") );
+	    fullmsg.append( msg );
+	    errors.add( fullmsg );
+	}
+    }
+
+    if ( errors.isEmpty() ) return true;
+
+    errors.insert( 0, "Errors in Host information" );
+    return false;
+}

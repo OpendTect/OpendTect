@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class HostDataList;
 class RowCol;
+class uiCheckBox;
 class uiGenInput;
 class uiTable;
 class uiToolButton;
@@ -31,11 +32,11 @@ protected:
     uiTable*		table_;
     uiToolButton*	upbut_;
     uiToolButton*	downbut_;
+    uiCheckBox*		autobox_;
 
     HostDataList&	hostdatalist_;
 
     void		fillTable();
-    bool		fillHostData(const RowCol&);
     void		advbutCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
@@ -46,7 +47,13 @@ protected:
     void		moveDownCB(CallBacker*);
     void		testHostsCB(CallBacker*);
     void		hostSelCB(CallBacker*);
+
+    void		checkIPAddress(int row);
+    void		ipAddressChanged(int row);
+    void		hostNameChanged(int row);
+    void		displayNameChanged(int row);
+    void		platformChanged(int row);
+    void		dataRootChanged(int row);
 };
 
 #endif
-

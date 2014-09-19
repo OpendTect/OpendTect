@@ -77,7 +77,7 @@ const char* hostAddress( const char* hostname )
 {
 #ifndef OD_NO_QT
     mDeclStaticString( str );
-    str = hostname; //if conversion fails return the name atleast;
+    str.setEmpty();
     QHostInfo qhi = QHostInfo::fromName( hostname );
     QList<QHostAddress> addresses = qhi.addresses();
     for ( int idx=0; idx<addresses.size(); idx++ )
@@ -110,7 +110,7 @@ bool lookupHost( const char* host_ip, BufferString& msg )
     if ( isip )
     {
 	const BufferString hostname = hostName( host_ip );
-	if ( hostname==host_ip )
+	if ( hostname.isEmpty() || hostname==host_ip )
 	{
 	    msg.add( "Not found" );
 	    return false;
@@ -142,8 +142,6 @@ void macAddresses( BufferStringSet& names, BufferStringSet& addresses )
 	names.add( qni.name() );
 	addresses.add( qni.hardwareAddress() );
     }
-#else
-    return;
 #endif
 }
 

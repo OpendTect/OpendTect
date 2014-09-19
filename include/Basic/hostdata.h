@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "manobjectset.h"
 #include "od_iosfwd.h"
 #include "odplatform.h"
+#include "uistring.h"
 
 class HostDataList;
 class IOPar;
@@ -83,6 +84,7 @@ public:
 
     const ShareData*	shareData() const	{ return sharedata_; }
     void		setShareData( const ShareData* sd ) { sharedata_ = sd; }
+    bool		isOK(uiString& errmsg) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -161,6 +163,10 @@ public:
     int			firstPort() const;
     void		setLoginCmd(const char*);
     const char*		loginCmd() const;
+    void		setUnixDataRoot(const char*);
+    const char*		unixDataRoot() const;
+    void		setWinDataRoot(const char*);
+    const char*		winDataRoot() const;
 
     HostData*		find( const char* nm )	{ return findHost(nm); }
     const HostData*	find( const char* nm ) const { return findHost(nm); }
@@ -171,19 +177,21 @@ public:
     const char*		getBatchHostsFilename() const;
     bool		writeHostFile(const char* fnm);
     void		fillFromNetwork(); // Unix only
+    bool		isOK(uiStringSet&) const;
 
 protected:
 
     BufferString	logincmd_;
     int			nicelvl_;
     int			firstport_;
-    FilePath		win_appl_pr_;
-    FilePath		unx_appl_pr_;
-    FilePath		win_data_pr_;
-    FilePath		unx_data_pr_;
+    BufferString	win_appl_pr_;
+    BufferString	unx_appl_pr_;
+    BufferString	win_data_pr_;
+    BufferString	unx_data_pr_;
     ShareData		sharedata_;
 
     void		handleLocal();
+    void		initDataRoot();
     bool		readHostFile(const char*);
     bool		readOldHostFile(const char*);
     HostData*		findHost(const char*) const;

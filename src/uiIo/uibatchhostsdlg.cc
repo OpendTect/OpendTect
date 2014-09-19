@@ -13,10 +13,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibatchhostsdlg.h"
 
+#include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitable.h"
@@ -37,7 +39,7 @@ static const int sDataRootCol	= 4;
 
 
 uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
-    : uiDialog(p,Setup("Setup Multi Machine Processing",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Setup Multi Machine Processing"),mNoDlgTitle,
 		       mODHelpKey(mBatchHostsDlgHelpID)))
     , hostdatalist_(*new HostDataList(true,false))
 {
@@ -58,7 +60,7 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
 	setCtrlStyle( CloseOnly );
 
     uiGenInput* filefld = new uiGenInput( this, tr("BatchHosts file") );
-    filefld->setElemSzPol( uiObject::Wide );
+    filefld->setElemSzPol( uiObject::WideMax );
     filefld->setText( bhfnm );
     filefld->setReadOnly();
 
@@ -78,9 +80,15 @@ uiBatchHostsDlg::uiBatchHostsDlg( uiParent* p )
     table_->setPrefWidth( 800 );
     table_->resizeHeaderToContents( true );
     table_->setTableReadOnly( !writeallowed );
+    table_->setSelectionMode( uiTable::NoSelection );
     table_->valueChanged.notify( mCB(this,uiBatchHostsDlg,changedCB) );
-    table_->selectionChanged.notify( mCB(this,uiBatchHostsDlg,hostSelCB) );
+    table_->rowClicked.notify( mCB(this,uiBatchHostsDlg,hostSelCB) );
     table_->attach( leftAlignedBelow, filefld );
+
+    autobox_ = new uiCheckBox( this,
+	"Automatically fill in IP address or Hostname" );
+    autobox_->setChecked( true );
+    autobox_->attach( alignedBelow, table_ );
 
     uiButtonGroup* buttons = new uiButtonGroup( this, "", OD::Vertical );
     new uiToolButton( buttons, "addnew", tr("Add Host"),
@@ -109,7 +117,7 @@ uiBatchHostsDlg::~uiBatchHostsDlg()
 void uiBatchHostsDlg::advbutCB( CallBacker* )
 {
     uiDialog dlg( this,
-	uiDialog::Setup("Advanced Settings",mNoDlgTitle,mNoHelpKey) );
+	uiDialog::Setup(tr("Advanced Settings"),mNoDlgTitle,mNoHelpKey) );
 
     uiLabel* albl = new uiLabel( &dlg, tr("Settings for all platforms:") );
     albl->attach( leftBorder );
@@ -139,51 +147,59 @@ void uiBatchHostsDlg::advbutCB( CallBacker* )
 				  IntInpSpec(nicelvl,nicelvlrg) );
     nicelvlfld->attach( alignedBelow, remoteshellfld );
 
+    uiSeparator* sep2 = new uiSeparator( &dlg );
+    sep2->attach( stretchedBelow, nicelvlfld );
+
+    uiLabel* drlbl = new uiLabel( &dlg, tr("Default Survey Data Root:") );
+    drlbl->attach( leftBorder );
+    drlbl->attach( ensureBelow, sep2 );
+
+    uiGenInput* unixdrfld = new uiGenInput( &dlg, tr("Unix hosts") );
+    unixdrfld->setText( hostdatalist_.unixDataRoot() );
+    unixdrfld->setElemSzPol( uiObject::Wide );
+    unixdrfld->attach( ensureBelow, drlbl );
+    unixdrfld->attach( alignedBelow, nicelvlfld );
+
+    uiGenInput* windrfld = new uiGenInput( &dlg, tr("Windows hosts") );
+    windrfld->setText( hostdatalist_.winDataRoot() );
+    windrfld->setElemSzPol( uiObject::Wide );
+    windrfld->attach( alignedBelow, unixdrfld );
+
     if ( !dlg.go() ) return;
 
     const int cmdres = (int)(!remoteshellfld->getBoolValue());
     hostdatalist_.setLoginCmd( cmds[cmdres] );
     hostdatalist_.setNiceLevel( nicelvlfld->getIntValue() );
     hostdatalist_.setFirstPort( portnrfld->getIntValue() );
+    hostdatalist_.setUnixDataRoot( unixdrfld->text() );
+    hostdatalist_.setWinDataRoot( windrfld->text() );
 }
 
 
-void setIPAddress( uiTable& tbl, int row, const HostData& hd )
-{ tbl.setText( RowCol(row,sIPCol), hd.getIPAddress() ); }
-
-bool getIPAddress( const uiTable& tbl, int row, HostData& hd )
+static void setIPAddress( uiTable& tbl, int row, const HostData& hd )
 {
-    const BufferString ip = tbl.text( RowCol(row,sIPCol) );
-    if ( ip.isEmpty() ) return false;
-
-    hd.setIPAddress( ip );
-    return true;
+    const RowCol rc( row, sIPCol );
+    tbl.setText( rc, hd.getIPAddress() );
+    tbl.setColor( rc, Color::White() );
 }
 
-void setDisplayName( uiTable& tbl, int row, const HostData& hd )
+
+static void setHostName( uiTable& tbl, int row, const HostData& hd )
+{
+    const RowCol rc( row, sHostNameCol );
+    tbl.setText( rc, hd.getHostName() );
+    tbl.setColor( rc, Color::White() );
+}
+
+
+static void setDisplayName( uiTable& tbl, int row, const HostData& hd )
 {
     const char* nm = hd.nrAliases()>0 ? hd.alias(0) : hd.getHostName();
     tbl.setText( RowCol(row,sDispNameCol), nm );
 }
 
-void getDisplayName( const uiTable& tbl, int row, HostData& hd )
-{ hd.setAlias( tbl.text(RowCol(row,sDispNameCol)) ); }
 
-void setHostName( uiTable& tbl, int row, const HostData& hd )
-{ tbl.setText( RowCol(row,sHostNameCol), hd.getHostName() ); }
-
-bool getHostName( const uiTable& tbl, int row, HostData& hd )
-{
-    const BufferString hostname = tbl.text( RowCol(row,sHostNameCol) );
-    if ( hostname.isEmpty() )
-	return false;
-
-    hd.setHostName( hostname );
-    return true;
-}
-
-
-void setPlatform( uiTable& tbl, int row, const HostData& hd )
+static void setPlatform( uiTable& tbl, int row, const HostData& hd )
 {
     uiObject* cellobj = tbl.getCellObject( RowCol(row,2) );
     mDynamicCastGet(uiComboBox*,cb,cellobj)
@@ -197,26 +213,24 @@ void setPlatform( uiTable& tbl, int row, const HostData& hd )
 }
 
 
-void getPlatform( const uiTable& tbl, int row, HostData& hd )
+static void setDataRoot( uiTable& tbl, int row, const HostData& hd )
 {
-    uiObject* cellobj = tbl.getCellObject( RowCol(row,sPlfCol) );
-    mDynamicCastGet(uiComboBox*,cb,cellobj)
-    if ( !cb ) return;
-
-    OD::Platform plf( (OD::Platform::Type)cb->getIntValue() );
-    hd.setPlatform( plf );
-}
-
-
-void setDataRoot( uiTable& tbl, int row, const HostData& hd )
-{
-    const FilePath& fp = hd.prefixFilePath( HostData::Data );
-    const BufferString dataroot = fp.fullPath();
+    const BufferString dataroot = hd.getDataRoot();
     tbl.setText( RowCol(row,sDataRootCol), dataroot );
 }
 
-void getDataRoot( const uiTable& tbl, int row, HostData& hd )
-{ hd.setDataRoot( tbl.text(RowCol(row,sDataRootCol)) ); }
+
+static void updateDisplayName( uiTable& tbl, int row, HostData& hd )
+{
+    BufferString dispnm = tbl.text( RowCol(row,sDispNameCol) );
+    if ( dispnm.isEmpty() )
+	dispnm = tbl.text( RowCol(row,sHostNameCol) );
+    if ( dispnm.isEmpty() )
+	dispnm = tbl.rowLabel( row );
+
+    hd.setAlias( dispnm );
+    setDisplayName( tbl, row, hd );
+}
 
 
 void uiBatchHostsDlg::fillTable()
@@ -230,22 +244,32 @@ void uiBatchHostsDlg::fillTable()
     {
 	HostData* hd = hostdatalist_[idx];
 	setIPAddress( *table_, idx, *hd );
+	checkIPAddress( idx );
 	setHostName( *table_, idx, *hd );
 	setDisplayName( *table_, idx, *hd );
 	setPlatform( *table_, idx, *hd );
 	setDataRoot( *table_, idx, *hd );
+
+	const FixedString ipaddress = hd->getIPAddress();
+	const FixedString hostname = hd->getHostName();
+	if ( !ipaddress.isEmpty() && !hostname.isEmpty() )
+	    continue;
+
+	if ( ipaddress.isEmpty() )
+	{
+	    hd->setIPAddress( System::hostAddress(hostname) );
+	    setIPAddress( *table_, idx, *hd );
+	}
+	if ( hostname.isEmpty() )
+	{
+	    hd->setHostName( System::hostName(ipaddress) );
+	    setHostName( *table_, idx, *hd );
+	}
     }
 
     table_->resizeColumnsToContents();
     table_->setColumnResizeMode( uiTable::ResizeToContents );
     table_->setColumnStretchable( sDataRootCol, true );
-}
-
-
-void uiBatchHostsDlg::changedCB( CallBacker* )
-{
-    const RowCol rc = table_->notifiedCell();
-    fillHostData( rc );
 }
 
 
@@ -255,6 +279,8 @@ void uiBatchHostsDlg::addHostCB( CallBacker* )
     hostdatalist_ += hd;
     fillTable();
     table_->selectRow( hostdatalist_.size()-1 );
+    table_->setSelectionMode( uiTable::NoSelection );
+    hostSelCB( 0 );
 }
 
 
@@ -264,8 +290,13 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
 
     const int row = table_->currentRow();
     const BufferString hostname = table_->text( RowCol(row,1) );
-    const BufferString msg( "Host ", hostname,
-			    " will be removed from this list" );
+    BufferString msgtxt;
+    if ( !hostname.isEmpty() )
+	msgtxt.set( "Host " ).add( hostname );
+    else
+	msgtxt.set( table_->rowLabel(row) );
+
+    const BufferString msg( msgtxt, " will be removed from this list" );
     const bool res = uiMSG().askContinue( msg );
     if ( !res ) return;
 
@@ -317,69 +348,158 @@ void uiBatchHostsDlg::testHostsCB( CallBacker* )
 }
 
 
+static Color getColor( bool sel )
+{
+    mDefineStaticLocalObject( Color, bgcol, = uiMain::theMain().windowColor() );
+    mDefineStaticLocalObject( Color, selcol, = bgcol.darker(0.3f) );
+    return sel ? selcol : bgcol;
+}
+
+
 void uiBatchHostsDlg::hostSelCB( CallBacker* )
 {
     const int row = table_->currentRow();
     upbut_->setSensitive( row>0 );
     downbut_->setSensitive( row!=hostdatalist_.size()-1 );
+
+    for ( int idx=0; idx<table_->nrRows(); idx++ )
+	table_->setHeaderBackground( idx, getColor(idx==row), true );
 }
 
 
-bool uiBatchHostsDlg::fillHostData( const RowCol& rc )
+void uiBatchHostsDlg::changedCB( CallBacker* )
 {
+    const RowCol rc = table_->notifiedCell();
     const int row = rc.row();
     const int col = rc.col();
-    const bool all = col<0;
-
     if ( !hostdatalist_.validIdx(row) )
-	return false;
+	return;
 
+    NotifyStopper ns( table_->valueChanged );
+
+    if ( col==sIPCol )
+	ipAddressChanged( row );
+    else if ( col==sHostNameCol )
+	hostNameChanged( row );
+    else if ( col==sDispNameCol )
+	displayNameChanged( row );
+    else if ( col==sPlfCol )
+	platformChanged( row );
+    else if ( col==sDataRootCol )
+	dataRootChanged( row );
+}
+
+
+static Color getCellColor( bool isok )
+{
+    mDefineStaticLocalObject( Color, okcol, = Color::White() );
+    mDefineStaticLocalObject( Color, errorcol, = Color::Red() );
+    return isok ? okcol : errorcol;
+}
+
+
+void uiBatchHostsDlg::checkIPAddress( int row )
+{
     HostData& hd = *hostdatalist_[row];
-    if ( all || col==sIPCol )
+    const RowCol curcell = RowCol(row,sIPCol);
+    const char* ipaddress = hd.getIPAddress();
+    BufferString msg;
+    const bool isok = System::lookupHost( ipaddress, msg );
+    table_->setColor( curcell, getCellColor(isok) );
+}
+
+
+void uiBatchHostsDlg::ipAddressChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    const RowCol curcell = RowCol(row,sIPCol);
+    const BufferString ipaddress = table_->text( curcell );
+    hd.setIPAddress( ipaddress );
+    checkIPAddress( row );
+
+    if ( autobox_->isChecked() )
     {
-	if ( !getIPAddress(*table_,row,hd) )
-	{
-	    uiMSG().error(table_->rowLabel(row),": IP address cannot be empty");
-	    return false;
-	}
-
-	if ( !all )
-	{
-	    const FixedString hostnm = hd.getHostName();
-	    if ( hostnm.isEmpty() )
-		table_->setText( RowCol(row,sHostNameCol),
-				 System::hostName(hd.getIPAddress()) );
-	}
+	const FixedString hostname = System::hostName( ipaddress );
+	hd.setHostName( hostname );
+	setHostName( *table_, row, hd );
+	updateDisplayName( *table_, row, hd );
     }
+}
 
-    if ( all || col==sHostNameCol )
+
+void uiBatchHostsDlg::hostNameChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    const RowCol curcell = RowCol(row,sHostNameCol);
+    const BufferString hostname = table_->text( curcell );
+    hd.setHostName( hostname );
+
+    const FixedString ipaddress = System::hostAddress( hostname );
+    table_->setColor( curcell, getCellColor(!ipaddress.isEmpty()) );
+
+    if ( autobox_->isChecked() )
     {
-	if ( !getHostName(*table_,row,hd) )
-	{
-	    uiMSG().error(table_->rowLabel(row),": Hostname cannot be empty");
-	    return false;
-	}
+	hd.setIPAddress( ipaddress.buf() );
+	setIPAddress( *table_, row, hd );
+	updateDisplayName( *table_, row, hd );
     }
+}
 
-    if ( all || col==sDispNameCol )
-	getDisplayName( *table_, row, hd );
-    if ( all || col==sPlfCol )
-	getPlatform( *table_, row, hd );
-    if ( all || col==sDataRootCol )
-	getDataRoot( *table_, row, hd );
 
-    return true;
+void uiBatchHostsDlg::displayNameChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    updateDisplayName( *table_, row, hd );
+    const BufferString oldnm = hd.alias( 0 );
+    BufferString dispnm = table_->text( RowCol(row,sDispNameCol) );
+    if ( dispnm.isEmpty() )
+	dispnm = table_->text( RowCol(row,sHostNameCol) );
+    if ( dispnm.isEmpty() )
+	dispnm = table_->rowLabel( row );
+
+    hd.setAlias( dispnm );
+    if ( oldnm != dispnm )
+	setDisplayName( *table_, row, hd );
+}
+
+
+void uiBatchHostsDlg::platformChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    uiObject* cellobj = table_->getCellObject( RowCol(row,sPlfCol) );
+    mDynamicCastGet(uiComboBox*,cb,cellobj)
+    if ( !cb ) return;
+
+    OD::Platform plf( (OD::Platform::Type)cb->getIntValue() );
+    hd.setPlatform( plf );
+}
+
+
+void uiBatchHostsDlg::dataRootChanged( int row )
+{
+    HostData& hd = *hostdatalist_[row];
+    hd.setDataRoot( table_->text(RowCol(row,sDataRootCol)) );
 }
 
 
 bool uiBatchHostsDlg::acceptOK( CallBacker* )
 {
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
+    uiStringSet errmsg;
+    if ( !hostdatalist_.isOK(errmsg) )
     {
-	if ( !fillHostData(RowCol(idx,-1)) )
-	    return false;
+	uiMSG().errorWithDetails( errmsg );
+	return false;
     }
 
     // TODO: Support BatchHosts file selection?
-    return hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
+    const bool res =
+	hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
+    if ( !res )
+    {
+	uiMSG().error( "Could not write BatchHosts file. "
+		       "Please check file permissions." );
+	return false;
+    }
+
+    return true;
 }

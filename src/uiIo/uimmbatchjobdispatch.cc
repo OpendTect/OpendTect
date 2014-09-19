@@ -88,7 +88,7 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
 		.nrstatusflds(-1)
 		.fixedsize(true))
     , jobpars_(*new IOPar(iop))
-    , hdl_(*new HostDataList)
+    , hdl_(*new HostDataList(true,true))
     , avmachfld_(0), usedmachfld_(0)
     , nicefld_(0)
     , logvwer_(0)
@@ -149,9 +149,9 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     usedmachfld_->setPrefWidthInChar( hostnmwdth );
     usedmachfld_->setPrefHeightInChar( maxhostdisp );
 
-    uiButton* stopbut = new uiPushButton( usedmachgrp, "St&op", true );
+    uiButton* stopbut = new uiPushButton( usedmachgrp, "Stop", true );
     stopbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,stopPush) );
-    uiButton* vwlogbut = new uiPushButton( usedmachgrp, "&View log", false );
+    uiButton* vwlogbut = new uiPushButton( usedmachgrp, "View log", false );
     vwlogbut->activated.notify( mCB(this,uiMMBatchJobDispatcher,vwLogPush) );
     vwlogbut->attach( rightAlignedBelow, usedmachfld );
 
@@ -159,14 +159,14 @@ uiMMBatchJobDispatcher::uiMMBatchJobDispatcher( uiParent* p, const IOPar& iop,
     if ( multihost )
     {
 	stopbut->attach( alignedBelow, usedmachfld );
-	addbut = new uiPushButton( machgrp, ">> &Add >>", true );
+	addbut = new uiPushButton( machgrp, ">> Add >>", true );
 	if ( avmachfld )
 	    addbut->attach( centeredRightOf, avmachfld );
 	usedmachgrp->attach( ensureRightOf, addbut );
     }
     else
     {
-	addbut = new uiPushButton( usedmachgrp, "St&art", true );
+	addbut = new uiPushButton( usedmachgrp, "Start", true );
 	addbut->attach( alignedBelow, usedmachfld );
 	stopbut->attach( centeredBelow, usedmachfld );
 	machgrp->setHAlignObj( stopbut );
@@ -610,15 +610,14 @@ void uiMMBatchJobDispatcher::handleJobPausing()
 
 
 #ifdef __win__
-#define mAddReDirectToNull checkcmd += " > NUL"
+# define mAddReDirectToNull checkcmd += " > NUL"
 #else
-#define mAddReDirectToNull checkcmd += " > /dev/null"
+# define mAddReDirectToNull checkcmd += " > /dev/null"
 #endif
 
-#ifndef __win__
 
 static bool hostOK( const HostData& hd, const char* rshcomm,
-		      BufferString& errmsg )
+		    BufferString& errmsg )
 {
     BufferString remotecmd( rshcomm );
     remotecmd += " "; remotecmd += hd.getHostName();
@@ -657,8 +656,6 @@ static bool hostOK( const HostData& hd, const char* rshcomm,
     return true;
 }
 
-#endif
-
 
 #define mErrRet(s) { uiMSG().error(s); return; }
 
@@ -693,12 +690,13 @@ void uiMMBatchJobDispatcher::addPush( CallBacker* )
 	if ( !hd )
 	    { pErrMsg("Huh"); continue; }
 
-#ifndef __win__
-	BufferString errmsg;
-	if ( !hd->isKnownAs(HostData::localHostName())
-		&& !hostOK(*hd,hdl_.loginCmd(),errmsg) )
-	    { progrfld_->append( errmsg.buf() ); continue; }
-#endif
+	if ( !__iswin__ && !hd->isWindows() )
+	{
+	    BufferString errmsg;
+	    if ( !hd->isKnownAs(HostData::localHostName())
+		    && !hostOK(*hd,hdl_.loginCmd(),errmsg) )
+		{ progrfld_->append( errmsg.buf() ); continue; }
+	}
 
 	if ( !jobrunner_->addHost(*hd) && jobrunner_->jobsLeft() > 0 )
 	{
@@ -784,7 +782,9 @@ bool uiMMBatchJobDispatcher::acceptOK(CallBacker*)
 	    return false;
     }
 
-    if ( jobrunner_ )
-	jobrunner_->stopAll();
+    if ( !jobrunner_ )
+	return true;
+
+    jobrunner_->stopAll();
     return wrapUp();
 }
