@@ -49,9 +49,11 @@ uiSeis2DFrom3D::~uiSeis2DFrom3D()
 void uiSeis2DFrom3D::cubeSel( CallBacker* )
 {
     const IOObj* ioobj = data3dfld_->ioobj( true );
-    const FixedString attrnm = data2dfld_->getInput();
-    if ( ioobj && attrnm.isEmpty() )
-	data2dfld_->setInputText( attrnm );
+    const FixedString selattrnm = data2dfld_->getInput();
+    if ( !ioobj || !selattrnm.isEmpty() ) return;
+
+    const BufferString attrnm( ioobj->name(), "[2D]" );
+    data2dfld_->setInputText( attrnm.buf() );
 }
 
 
