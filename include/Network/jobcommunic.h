@@ -48,7 +48,7 @@ class TcpSocket;
  *  the client's point of view.
  */
 mExpClass(Network) JobCommunic : public CallBacker
-{
+{ mODTextTranslationClass(JobCommunic);
 public:
     enum State		{ Undef, Working, WrapUp, Finished, AllDone, Paused,
 			  JobError, HostError, Killed, Timeout };
@@ -57,7 +57,7 @@ public:
 					int jobid, StreamData& );
 
     bool		ok()		{ return stillok_; }
-    const char*		errMsg()	{ return errmsg_.str(); }
+    uiString		errMsg()	{ return errmsg_; }
 
     State		state()	const	{ return stat_; }
     void		setState( State s ) { stat_ = s; }
@@ -91,8 +91,8 @@ protected:
     int			masterport_;
     bool		stillok_;
     State		stat_;
-    BufferString	errmsg_;
-    int		jobid_;
+    uiString		errmsg_;
+    int			jobid_;
     bool		pausereq_;
     StreamData&		sdout_;
 
@@ -114,8 +114,7 @@ private:
 
     void		setErrMsg( const char* m )
 			{
-			    errmsg_ = ("["); errmsg_ += GetPID();
-			    errmsg_ += "]: "; errmsg_ += m;
+			    errmsg_ = tr("[%1]: %2").arg(GetPID()).arg(m);
 			}
 
     void		checkMasterTimeout();

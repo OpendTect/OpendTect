@@ -83,7 +83,7 @@ namespace Network
 
 //!>Provides file download facility
 mExpClass(Network) FileDownloader : public SequentialTask
-{
+{ mODTextTranslationClass(FileDownloader);
 public:
 			FileDownloader(const char* url);
 			FileDownloader(const char* url,DataBuffer* db);
@@ -120,13 +120,13 @@ protected:
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-    BufferString	msg_;
+    uiString		msg_;
 };
 
 
 //!>Provides file or data upload facility
 mExpClass(Network) DataUploader : public SequentialTask
-{
+{ mODTextTranslationClass(DataUploader);
 public:
 			DataUploader(const char* url,const DataBuffer& data,
 				     BufferString& header);
@@ -152,7 +152,7 @@ protected:
 
     od_int64		nrdone_;
     od_int64		totalnr_;
-    BufferString	msg_;
+    uiString		msg_;
 };
 
 

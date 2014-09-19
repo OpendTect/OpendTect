@@ -265,8 +265,8 @@ bool FileDownloader::writeDataToFile(const char* buffer, int size)
 	osd_->open( saveaspaths_.get(nrfilesdownloaded_) );
 	if ( osd_->isBad() )
 	{
-	    msg_.add( " Didn't have permission to write to: " );
-	    msg_.add( fp.fullPath() );
+	    msg_ = tr("%1 Didn't have permission to write to: %2")
+		 .arg(osd_->isBad()).arg(fp.fullPath());
 	    return false;
 	}
     }
@@ -291,10 +291,10 @@ bool FileDownloader::writeDataToBuffer(const char* buffer, int size)
 int FileDownloader::errorOccured()
 {
 #ifndef OD_NO_QT
-    msg_ = "Oops! Something went wrong.\n";
-    if( odnr_ )
-	msg_.add( "Details: " ).add( qPrintable(
-				       odnr_->qNetworkReply()->errorString()) );
+    msg_ = tr("Oops! Something went wrong.\n");
+    if (odnr_)
+	msg_ = tr("Details: %1")
+	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
 #endif
     return ErrorOccurred();
 }
@@ -309,7 +309,7 @@ od_int64 FileDownloader::nrDone() const
 
 
 uiString FileDownloader::uiNrDoneText() const
-{return "KBytes downloaded";}
+{ return tr("KBytes downloaded"); }
 
 
 od_int64 FileDownloader::totalNr() const
@@ -456,10 +456,10 @@ int DataUploader::nextStep()
 int DataUploader::errorOccured()
 {
 #ifndef OD_NO_QT
-    msg_ = "Oops! Something went wrong.\n";
-    if( odnr_ )
-	msg_.add( "Details: " ).add( qPrintable(
-				       odnr_->qNetworkReply()->errorString()) );
+    msg_ = tr("Oops! Something went wrong.\n");
+    if (odnr_)
+	msg_ = tr("Details: %1")
+	     .arg(qPrintable(odnr_->qNetworkReply()->errorString()));
 #endif
     return ErrorOccurred();
 }
@@ -474,7 +474,7 @@ od_int64 DataUploader::nrDone() const
 
 
 uiString DataUploader::uiNrDoneText() const
-{return "KBytes uploaded";}
+{ return tr("KBytes uploaded"); }
 
 
 od_int64 DataUploader::totalNr() const

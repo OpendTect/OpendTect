@@ -142,8 +142,7 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     bool ret = !inp.isEmpty();
     if ( !ret )
     {
-	BufferString emsg( "Error writing status to Master: " );
-	emsg += errbuf;
+	uiString emsg = tr("Error writing status to Master: %1").arg(errbuf);
 	setErrMsg( errbuf );
     }
 
@@ -160,8 +159,8 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     }
     else
     {
-	BufferString emsg( "Master sent an unkown response code. " );
-	emsg += errbuf;
+	uiString emsg = tr("Master sent an unkown response code. %1")
+		      .arg(errbuf);
 	setErrMsg( errbuf );
 	ret = false;
     }
