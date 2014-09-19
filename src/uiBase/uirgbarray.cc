@@ -173,7 +173,7 @@ OD::RGBImage* uiRGBImageLoader::loadImage( const char* fnm,
 {
     if ( !File::exists(fnm) )
     {
-	errmsg = "File does not exist";
+	errmsg = tr("File does not exist");
 	return 0;
     }
 

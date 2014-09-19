@@ -19,7 +19,7 @@ mFDQtclass(QImage)
 
 
 mExpClass(uiBase) uiRGBArray : public OD::RGBImage
-{
+{ mODTextTranslationClass(uiRGBArray);
 public:
 
                         uiRGBArray(bool withalpha);
@@ -56,7 +56,7 @@ protected:
 
 
 mExpClass(uiBase) uiRGBImageLoader : public OD::RGBImageLoader
-{
+{ mODTextTranslationClass(uiRGBImageLoader);
 public:
 			    
     static void		    initClass();

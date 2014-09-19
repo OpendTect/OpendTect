@@ -37,7 +37,7 @@ private:
 
 /*! HelpProvider for the developers documentation. */
 mExpClass(uiBase) DevDocHelp : public HelpProvider
-{
+{ mODTextTranslationClass(DevDocHelp);
 public:
     static void 		initClass();
 

@@ -125,7 +125,7 @@ void DevDocHelp::provideHelp( const char* arg ) const
     BufferString url = getUrl();
 
     if ( url.isEmpty() )
-	uiMSG().error( "Cannot open developer's documentation" );
+	uiMSG().error(tr("Cannot open developer's documentation"));
     else
 	uiDesktopServices::openUrl( url );
 }

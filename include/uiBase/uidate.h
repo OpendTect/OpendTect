@@ -25,7 +25,7 @@ class uiPushButton;
 
 /* Displays a calendar where the uses can select a date. */
 mExpClass(uiBase) uiCalendar : public uiObject
-{
+{ mODTextTranslationClass(uiCalendar);
 public:
                         uiCalendar(uiParent*);
     void		setDate(const DateInfo&);
@@ -42,7 +42,7 @@ private:
 /*! A field where the user either can enter a date, or select a date
     in a popup-calendar. */
 mExpClass(uiBase) uiDateSel : public uiGroup
-{
+{ mODTextTranslationClass(uiDateSel);
 public:
 			uiDateSel(uiParent*,const uiString& label,
 				  const DateInfo* = 0 );

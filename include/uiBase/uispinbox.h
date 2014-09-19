@@ -22,7 +22,7 @@ class uiLabel;
 
 
 mExpClass(uiBase) uiSpinBox : public uiObject
-{
+{ mODTextTranslationClass(uiSpinBox);
 friend class		uiSpinBoxBody;
 
 public:
@@ -118,7 +118,7 @@ private:
 
 
 mExpClass(uiBase) uiLabeledSpinBox : public uiGroup
-{
+{ mODTextTranslationClass(uiLabeledSpinBox);
 public:
 			uiLabeledSpinBox(uiParent*,const uiString&,
 					 int nrdecimals=0,const char* nm=0);
