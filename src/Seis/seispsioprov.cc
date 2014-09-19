@@ -58,7 +58,7 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     IOX* iox = new IOX( nm );
     iox->setTranslator( mTranslKey(SeisTrc,SeisPSCube) );
     iox->setGroup( mTranslGroupName(SeisTrc) );
-    iox->acquireNewKey();
+    iox->acquireNewKeyIn( iodir.key() );
     ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
     iodir.commitChanges( &ioobj );
     iox->setOwnKey( ioobj.key() );

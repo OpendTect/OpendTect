@@ -103,7 +103,7 @@ public:
     Translator*			createTranslator() const;
 				//!< returns a subclass of Translator according
 				//!< to the translator name and group.
-    virtual void		acquireNewKey();
+    void			acquireNewKeyIn(const MultiID&);
 				//!< This will give the IOObj a new (free) ID
 
     static int			tmpID()		{ return  999999; }

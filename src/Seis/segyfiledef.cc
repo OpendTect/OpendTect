@@ -11,6 +11,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iostrm.h"
 #include "keystrs.h"
 #include "separstr.h"
+#include "ctxtioobj.h"
+#include "seistrctr.h"
 #include "perthreadrepos.h"
 
 namespace SEGY
@@ -71,15 +73,16 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
 IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
 {
     IOStream* iostrm;
+    const BufferString seisdirky( mIOObjContext(SeisTrc).getSelKey() );
     if ( tmp )
     {
-	BufferString idstr( "100010.", IOObj::tmpID() );
+	BufferString idstr( seisdirky, IOObj::tmpID() );
 	iostrm = new IOStream( fname_, idstr );
     }
     else
     {
 	iostrm = new IOStream( fname_ );
-	iostrm->acquireNewKey();
+	iostrm->acquireNewKeyIn( MultiID(seisdirky) );
     }
     iostrm->setFileName( fname_ );
     iostrm->setGroup( "Seismic Data" );
