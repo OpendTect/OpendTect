@@ -38,7 +38,7 @@ class LayerValue;
  */
 
 mExpClass(Strat) Layer
-{
+{ mODTextTranslationClass(Layer);
 public:
 
     typedef CompoundKey	ID;
@@ -92,7 +92,7 @@ protected:
 
 
 mExpClass(Strat) LayerValue
-{
+{ mODTextTranslationClass(LayerValue);
 public:
 
     virtual LayerValue*	clone(const Layer* l=0) const	= 0;
@@ -107,7 +107,7 @@ public:
 
 
 mExpClass(Strat) SimpleLayerValue : public LayerValue
-{
+{ mODTextTranslationClass(SimpleLayerValue);
 public:
 			SimpleLayerValue( float val )
 			    : val_ (val)		{}
@@ -129,7 +129,7 @@ protected:
   Formula, so keep the formula alive while the layer is alive! */
 
 mExpClass(Strat) FormulaLayerValue : public LayerValue
-{
+{ mODTextTranslationClass(FormulaLayerValue);
 public:
 
 			FormulaLayerValue(const Math::Formula&,
@@ -142,7 +142,7 @@ public:
     FormulaLayerValue*	clone(const Layer*) const;
 
     bool		isBad() const		{ return !errmsg_.isEmpty(); }
-    const char*		errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
     void		fillPar(IOPar&) const;
     virtual void	setXPos(float);
 
@@ -160,7 +160,7 @@ protected:
 
     TypeSet<int>		inpidxs_;
     mutable TypeSet<float>	inpvals_;
-    mutable BufferString	errmsg_;
+    mutable uiString	        errmsg_;
 
     void			useForm(const PropertyRefSelection&);
 

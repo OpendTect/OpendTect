@@ -34,7 +34,7 @@ class LaySeqAttribSet;
  */
 
 mExpClass(Strat) LaySeqAttrib : public NamedObject
-{
+{ mODTextTranslationClass(LaySeqAttrib);
 public:
 
     enum Transform	{ Pow, Log, Exp };
@@ -89,7 +89,7 @@ protected:
 
 mExpClass(Strat) LaySeqAttribSet : public NamedObject
 		       , public ManagedObjectSet<LaySeqAttrib>
-{
+{ mODTextTranslationClass(LaySeqAttribSet);
 public:
 
     			LaySeqAttribSet( const char* nm=0 )

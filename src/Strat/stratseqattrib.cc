@@ -370,7 +370,7 @@ Strat::LayModAttribCalc::LayModAttribCalc( const Strat::LayerModel& lm,
     , lm_(lm)
     , dps_(res)
     , seqidx_(0)
-    , msg_("Extracting layer attributes")
+    , msg_(tr("Extracting layer attributes"))
     , stoplvl_(0)
 {
     for ( int idx=0; idx<lsas.size(); idx++ )
@@ -404,23 +404,23 @@ int Strat::LayModAttribCalc::nextStep()
 {
     const int dpssz = dps_.size();
     if ( dpssz < 1 )
-	mErrRet("No data points for extraction")
+	mErrRet(tr("No data points for extraction"))
     if ( seqidx_ >= lm_.size() )
 	return Finished();
 
     const int dpsdepthidx = dps_.indexOf( sKey::Depth() );
     if ( dpsdepthidx<0 )
-	mErrRet( "No depth data found" )
+	mErrRet( tr("No depth data found") )
     const LayerSequence& seq = lm_.sequence( mCast(int,seqidx_) );
-    BufferString errmsg = "No extraction interval specified ";
-    errmsg.add( "for pseudo-well number " );
+    uiString errmsg = tr("No extraction interval specified "
+                         "for pseudo-well number %1");
     DataPointSet::RowID dpsrid = 0;
     while ( dpsrid < dpssz && dps_.trcNr(dpsrid) != seqidx_ + 1 )
 	dpsrid++;
 
     const int dpthidx = dps_.indexOf( sKey::Depth() );
     if ( dpthidx < 0 )
-	mErrRet("No 'Depth' column in input data")
+	mErrRet(tr("No 'Depth' column in input data"))
 
     const bool zinft = SI().depthsInFeet();
     int pointidx = 0;
@@ -447,14 +447,14 @@ int Strat::LayModAttribCalc::nextStep()
 	{
 	    if ( !extrgates_.validIdx(seqnb) )
 	    {
-		errmsg.add( seqnb+1 );
+		errmsg.arg( seqnb+1 );
 		mErrRet( errmsg )
 	    }
 
 	    const ExtrGateSet& gateset( *extrgates_[seqnb] );
 	    if ( !gateset.validIdx(pointidx) )
 	    {
-		errmsg.add( seqnb+1 );
+		errmsg.arg( seqnb+1 );
 		mErrRet( errmsg )
 	    }
 

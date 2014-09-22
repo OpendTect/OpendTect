@@ -49,7 +49,7 @@ void Strat::LayerModelGenerator::reset()
     lm_.setEmpty();
     seqnr_ = 0;
     if ( desc_.prepareGenerate() )
-	msg_ = "Generating layer sequences";
+	msg_ = tr("Generating layer sequences");
     else
 	msg_ = desc_.errMsg();
 }
@@ -145,7 +145,7 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType) )
-	{ errmsg_ = "Bad header found"; return false; }
+	{ errmsg_ = tr("Bad header found"); return false; }
 
     deepErase( *this );
 
@@ -186,7 +186,7 @@ bool Strat::LayerSequenceGenDesc::putTo( od_ostream& strm ) const
 {
     ascostream astrm( strm );
     if ( !astrm.putHeader(sKeyFileType) )
-	{ errmsg_ = "Cannot write file header"; return false; }
+	{ errmsg_ = tr("Cannot write file header"); return false; }
 
     IOPar iop;
     iop.set( sKeyTopdepth, startdepth_ );
@@ -524,7 +524,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	    if ( !mp )
 	    {
 		const float val = prop.value( eo );
-		if ( mIsUdf(val) && prop.errMsg() && *prop.errMsg() )
+		if ( mIsUdf(val) && prop.errMsg().isSet()  )
 		    { errmsg_ = prop.errMsg(); return false; }
 		else if ( ipr == 0 && val < 1e-8 )
 		    { delete newlay; return true; }

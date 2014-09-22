@@ -33,7 +33,7 @@ class LayerSequence;
  */
 
 mExpClass(Strat) LaySeqAttribCalc
-{
+{ mODTextTranslationClass(LaySeqAttribCalc);
 public:
 
 			LaySeqAttribCalc(const LaySeqAttrib&,const LayerModel&);
@@ -64,7 +64,7 @@ protected:
 
 
 mExpClass(Strat) LayModAttribCalc : public Executor
-{
+{ mODTextTranslationClass(LayModAttribCalc);
 public:
 
     typedef TypeSet<Interval<float> > ExtrGateSet;
@@ -78,7 +78,7 @@ public:
     void		setExtrGates(const ObjectSet<ExtrGateSet>&,
 				const Strat::Level* stoplvl=0);
 
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Models handled";}
     od_int64		nrDone() const		{ return seqidx_; }
     od_int64		totalNr() const;
@@ -93,7 +93,7 @@ protected:
     od_int64			seqidx_;
     TypeSet<int>		dpscidxs_;
     DataPointSet&		dps_;
-    BufferString		msg_;
+    uiString		        msg_;
     ObjectSet<ExtrGateSet>	extrgates_;
     const Strat::Level*		stoplvl_;
 

@@ -98,13 +98,13 @@ Strat::RefTree* Strat::RepositoryAccess::readTree()
 	    return rt;
     }
 
-    msg_ = "New, empty stratigraphic tree created";
+    msg_ = tr("New, empty stratigraphic tree created");
     src_ = Repos::Survey;
     return new RefTree;
 }
 
 
-#define mAddFilenameToMsg(fnm) msg_.add(" '").add(fnm).add("'")
+#define mAddFilenameToMsg(fnm) msg_.arg(" '").arg(fnm).arg("'")
 
 Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
 {
@@ -113,18 +113,18 @@ Strat::RefTree* Strat::RepositoryAccess::readTree( Repos::Source src )
     const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm );
     if ( !sfio.open(true) )
-	{ msg_ = "Cannot open"; mAddFilenameToMsg(fnm); return 0; }
+	{ msg_ = tr("Cannot open %1").arg(fnm); return 0; }
 
     RefTree* rt = new RefTree;
     if ( !rt->read(sfio.istrm()) )
     {
 	delete rt;
-	msg_ = "Error during read of"; mAddFilenameToMsg(fnm);
+	msg_ = tr("Error during read of %1").arg(fnm);
 	sfio.closeFail(); return 0;
     }
 
     sfio.closeSuccess();
-    msg_ = "Stratigraphic tree read from"; mAddFilenameToMsg(fnm);
+    msg_ = tr("Stratigraphic tree read from %1").arg(fnm);
     return rt;
 }
 
@@ -137,15 +137,15 @@ bool Strat::RepositoryAccess::writeTree( const Strat::RefTree& rt,
     const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm, true );
     if ( !sfio.open(false) )
-	{ msg_ = "Cannot write to"; mAddFilenameToMsg(fnm); return 0; }
+	{ msg_ = tr("Cannot write to %1").arg(fnm); return 0; }
 
     if ( !rt.write(sfio.ostrm()) )
     {
-	msg_ = "Error during write to"; mAddFilenameToMsg(fnm);
+	msg_ = tr("Error during write to %1").arg(fnm);
 	sfio.closeFail(); return false;
     }
 
     sfio.closeSuccess();
-    msg_ = "Stratigraphic tree written to"; mAddFilenameToMsg(fnm);
+    msg_ = tr("Stratigraphic tree written to %1").arg(fnm);
     return true;
 }

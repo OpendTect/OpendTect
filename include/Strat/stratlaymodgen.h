@@ -25,7 +25,7 @@ class LayerSequenceGenDesc;
 /*!\brief Generates LayerSequences.  */
 
 mExpClass(Strat) LayerModelGenerator : public Executor
-{
+{ mODTextTranslationClass(LayerModelGenerator);
 public:
 
 			LayerModelGenerator(const LayerSequenceGenDesc&,

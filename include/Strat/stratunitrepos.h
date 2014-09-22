@@ -26,12 +26,12 @@ class RefTree;
 */
 
 mExpClass(Strat) RepositoryAccess
-{
+{ mODTextTranslationClass(RepositoryAccess);
 public:
 
     bool		haveTree() const;
     Repos::Source	lastSource() const	{ return src_; }
-    const char*		lastMsg() const		{ return msg_.buf(); }
+    uiString		lastMsg() const		{ return msg_; }
 
     RefTree*		readTree(Repos::Source);
     bool		writeTree(const RefTree&,
@@ -43,7 +43,7 @@ public:
 
 protected:
 
-    mutable BufferString	msg_;
+    mutable uiString	        msg_;
     mutable Repos::Source	src_;
 
 };
