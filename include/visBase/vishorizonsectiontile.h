@@ -110,6 +110,7 @@ protected:
     friend class		TileResolutionData;
     friend class		HorTilesCreatorAndUpdator;
     friend class		HorizonSectionTileGlue;
+    friend class		HorizonTextureHandler;
 
     void			updateBBox();
     void			buildOsgGeometries();
