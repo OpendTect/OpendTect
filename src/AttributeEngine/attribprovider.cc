@@ -126,8 +126,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	FixedString errmsg = desc.errMsg();
 	if ( errmsg )
 	{
-	    if ( errmsg=="Parameter 'id' is not correct" &&
-		 desc.isStored() )
+	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )
 	    {
 		errstr = tr( "Impossible to find stored data '%1'\n"
 				 "used as input for other attribute(s). \n"
@@ -375,8 +374,9 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	    desiredvolume_->zrg.start = 
 		desiredvolume_->zrg.start < ndv.zsamp_.start?
 		desiredvolume_->zrg.start : ndv.zsamp_.start;
-	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop > ndv.zsamp_.stop ?
-		desiredvolume_->zrg.stop : ndv.zsamp_.stop;
+	    desiredvolume_->zrg.stop = desiredvolume_->zrg.stop >ndv.zsamp_.stop
+				    ? desiredvolume_->zrg.stop
+				    : ndv.zsamp_.stop;
 	}
     }
 
@@ -600,7 +600,7 @@ int Provider::moveToNextTrace( BinID startpos, bool firstcheck )
 	    if ( currentbid_.inl() == -1 && currentbid_.crl() == -1 )
 	    {
 		currentbid_.inl() = is2D() ? 0 
-					   : desiredvolume_->hsamp_.start_.inl();
+					  : desiredvolume_->hsamp_.start_.inl();
 		currentbid_.crl() = desiredvolume_->hsamp_.start_.crl();
 	    }
 	    else

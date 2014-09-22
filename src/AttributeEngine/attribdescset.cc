@@ -598,8 +598,7 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 	{
 	    uiString err;
 	    FixedString dscerr = dsc.errMsg();
-	    if ( dscerr=="Parameter 'id' is not correct" &&
-		 dsc.isStored() )
+	    if ( dscerr==DescSet::storedIDErrStr() && dsc.isStored() )
 	    {
 		err = tr( "Impossible to find stored data '%1'"
 			"used as input for other attribute(s). \n"

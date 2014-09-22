@@ -287,9 +287,8 @@ uiString uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
     if ( desc->isSatisfied() == Desc::Error )
     {
 	const uiString derrmsg( desc->errMsg() );
-	if ( !desc->isStored() || derrmsg
-                               != tr("Parameter 'id' is not correct") )
-	                          errmsg_ = derrmsg;
+	if ( !desc->isStored() || derrmsg != DescSet::storedIDErrStr() )
+	    errmsg_ = derrmsg;
 	else
 	{
 	    errmsg_ = tr("Cannot find stored data %1.\n"
