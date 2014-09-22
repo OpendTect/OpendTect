@@ -63,7 +63,10 @@ bool AngleMuteComputer::doPrepare( int nrthreads )
 
     PtrMan<IOObj> muteioobj = IOM().get( params().outputmutemid_ );
     if ( !muteioobj )
-	{ errmsg_ = "Cannot find MuteDef ID in Object Manager"; return false; }
+    {
+	errmsg_ = tr("Cannot find MuteDef ID in Object Manager");
+	return false;
+    }
 
     MuteDefTranslator::store( outputmute_, muteioobj, errmsg_ );
 

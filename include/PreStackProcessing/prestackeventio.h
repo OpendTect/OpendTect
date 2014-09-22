@@ -38,7 +38,7 @@ class EventPatchWriter;
 */
 
 mExpClass(PreStackProcessing) EventReader : public Executor
-{
+{ mODTextTranslationClass(EventReader);
 public:
     			EventReader(IOObj*,EventManager*,bool trigger);
 			//!<If not mgr is given, only prepareWork &
@@ -59,8 +59,8 @@ public:
     static bool		readSamplingData(const IOObj&,SamplingData<int>& inl,
 	    				SamplingData<int>& crl);
 			
-    uiString		uiMessage() const	{ return "Loading events"; }
-    const char*		errMsg() const;
+    uiString		uiMessage() const	{ return tr("Loading events"); }
+    uiString		errMsg() const;
 
     static int		encodeEventType(VSEvent::Type);
     static VSEvent::Type decodeEventType(int);
@@ -96,7 +96,7 @@ protected:
 
     ObjectSet<EventPatchReader>			patchreaders_;	
 
-    BufferString				errmsg_;
+    uiString					errmsg_;
     bool					trigger_;
 };
 
@@ -106,14 +106,14 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventWriter : public Executor
-{
+{ mODTextTranslationClass(EventWriter);
 public:
     			EventWriter(IOObj*,EventManager&);
     			~EventWriter();
 
     int			nextStep();
-    const char*		errMsg() const;
-    uiString		uiMessage() const	{ return "Storing events"; }
+    uiString		errMsg() const;
+    uiString		uiMessage() const	{ return tr("Storing events"); }
 
 
 protected:
@@ -124,7 +124,7 @@ protected:
     IOObj*			ioobj_;
     IOPar			auxinfo_;
     EventManager&		eventmanager_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 };
 
 
@@ -133,7 +133,7 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventDuplicator : public Executor
-{
+{ mODTextTranslationClass(EventDuplicator);
 public:
     			EventDuplicator(IOObj* from,IOObj* to);
     			~EventDuplicator();
@@ -144,14 +144,14 @@ public:
     uiString		uiNrDoneText() const { return "Files copied"; }
 
     int			nextStep();
-    const char*		errMsg() const { return errmsg_.str(); }
+    uiString		errMsg() const { return errmsg_; }
 
 protected:
     void			errorCleanup();
 
     int				totalnr_;
     BufferStringSet		filestocopy_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
     uiString			message_;
 
     IOObj*			from_;

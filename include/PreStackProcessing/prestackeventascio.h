@@ -44,7 +44,7 @@ The columns are as follows:
 */
 
 mExpClass(PreStackProcessing) EventExporter : public SequentialTask
-{
+{ mODTextTranslationClass(EventExporter);
 public:
     			EventExporter(od_ostream& strm,EventManager&);
     			~EventExporter();
@@ -77,7 +77,7 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(EventAscIO);
 public:
     				EventAscIO( const Table::FormatDesc& fd,
 						od_istream& strm )
@@ -108,7 +108,7 @@ protected:
 */
 
 mExpClass(PreStackProcessing) EventImporter : public SequentialTask
-{
+{ mODTextTranslationClass(EventImporter);
 public:
     			EventImporter(const char*,const Table::FormatDesc&,
 				      EventManager&);

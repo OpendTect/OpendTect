@@ -45,7 +45,7 @@ void EventExporter::setHRange( const TrcKeySampling& hrg )
 
 
 uiString EventExporter::uiNrDoneText() const
-{ return "CDP's exported"; }
+{ return tr("CDP's exported"); }
 
 #define mWrite( var ) strm_ << (var) << '\t';
 #define mBatchSize    10000
@@ -55,7 +55,7 @@ uiString EventExporter::uiNrDoneText() const
 int EventExporter::nextStep()
 {
     bool isatend = false;
-    message_ = "Reading";
+    message_ = tr("Reading");
 
     BinIDValueSet currentbatch( 0, false );
     for ( int idx=0; idx<mBatchSize; idx++ )
@@ -78,7 +78,7 @@ int EventExporter::nextStep()
     if ( !exec || !exec->execute() )
 	return ErrorOccurred();
 
-    message_ = "Writing";
+    message_ = tr("Writing");
     BinIDValueSet::SPos pos;
 
     while ( currentbatch.next( pos ) )
@@ -136,7 +136,7 @@ EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
 	ascio_ = new EventAscIO( fd, strm_ );
     totalnr_ = File::getFileSize( filenm );
     evmgr_.ref();
-    message_ = ascio_ ? "Importing" : "Cannot open input file";
+    message_ = ascio_ ? tr("Importing") : tr("Cannot open input file");
 }
 
 
@@ -145,7 +145,7 @@ EventImporter::~EventImporter()
 
 
 uiString EventImporter::uiNrDoneText() const
-{ return "Nr bytes read"; }
+{ return tr("Nr bytes read"); }
 
 
 od_int64 EventImporter::nrDone() const
@@ -164,7 +164,7 @@ int EventImporter::nextStep()
     float offset, zval;
     const int ret = ascio_->getNextLine( bid, horid, offset, zval );
     if ( ret < 0 )
-	{ message_ = "Error during read"; return ErrorOccurred(); }
+    { message_ = tr("Error during read"); return ErrorOccurred(); }
 
     if ( bid != lastbid_ || horid != lasthorid_ )
     {

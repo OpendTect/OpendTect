@@ -35,7 +35,7 @@ class MuteDef;
 
 mExpClass(PreStackProcessing) AngleMuteComputer : public ParallelTask
 						, public AngleMuteBase
-{ mODTextTranslationClass(PreStackProcessing)
+{ mODTextTranslationClass(AngleMuteComputer);
 public:
 				AngleMuteComputer();
 				~AngleMuteComputer();
