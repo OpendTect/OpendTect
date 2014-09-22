@@ -282,7 +282,7 @@ const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
     if ( desc->isSatisfied() == Desc::Error )
     {
 	const BufferString derrmsg( desc->errMsg() );
-	if ( !desc->isStored() || derrmsg != "Parameter 'id' is not correct" )
+	if ( !desc->isStored() || derrmsg != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;
 	else
 	{                                                                       

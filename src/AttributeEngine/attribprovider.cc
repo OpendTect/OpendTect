@@ -126,8 +126,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	FixedString errmsg = desc.errMsg();
 	if ( errmsg )
 	{
-	    if ( errmsg=="Parameter 'id' is not correct" &&
-		 desc.isStored() )
+	    if ( errmsg==DescSet::storedIDErrStr() && desc.isStored() )
 	    {
 		errstr = tr( "Impossible to find stored data '%1'\n"
 				 "used as input for other attribute(s). \n"

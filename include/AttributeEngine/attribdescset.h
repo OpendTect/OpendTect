@@ -163,6 +163,8 @@ public:
     static const char*	inputPrefixStr()	{ return "Input"; }
     static const char*	hiddenStr()		{ return "Hidden"; }
     static const char*	indexStr()		{ return "Index"; }
+    static BufferString storedIDErrStr()
+				    { return "Parameter 'id' is not correct"; }
 
     CNotifier<DescSet,DescID>	descToBeRemoved;
 
