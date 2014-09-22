@@ -110,6 +110,11 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , expfltdlg_(0)
     , expfltstickdlg_(0)
     , impfltstickdlg_(0)
+    , man3dhordlg_(0)
+    , man2dhordlg_(0)
+    , ma3dfaultdlg_(0)
+    , manfssdlg_(0)
+    , manbodydlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiEMPartServer,survChangedCB) );
 
@@ -125,6 +130,11 @@ uiEMPartServer::~uiEMPartServer()
     uiCreateHorizon* crhordlg = crhordlgs.getParam( this );
     crhordlgs.removeParam( this );
     delete crhordlg;
+    delete man3dhordlg_;
+    delete man2dhordlg_;
+    delete ma3dfaultdlg_;
+    delete manfssdlg_;
+    delete manbodydlg_;
 }
 
 
@@ -155,6 +165,43 @@ void uiEMPartServer::manageSurfaces( const char* typstr )
 {
     uiSurfaceMan dlg( parent(), uiSurfaceMan::parseEnumType(typstr) );
     dlg.go();
+}
+
+
+#define mManSurfaceDlg( dlgobj, surfacetype ) \
+    if ( !dlgobj ) \
+	dlgobj = new uiSurfaceMan( parent(), uiSurfaceMan::surfacetype ); \
+    else \
+	dlgobj->selGroup()->fullUpdate( -1 ); \
+    dlgobj->go();
+
+void uiEMPartServer::manage3DHorizons()
+{
+    mManSurfaceDlg(man3dhordlg_,Hor3D);
+}
+
+
+void uiEMPartServer::manage2DHorizons()
+{
+    mManSurfaceDlg(man2dhordlg_,Hor2D);
+}
+
+
+void uiEMPartServer::manage3DFaults()
+{
+    mManSurfaceDlg(ma3dfaultdlg_,Flt3D);
+}
+
+
+void uiEMPartServer::manageFaultStickSets()
+{
+    mManSurfaceDlg(manfssdlg_,StickSet);
+}
+
+
+void uiEMPartServer::manageBodies()
+{
+    mManSurfaceDlg(manbodydlg_,Body);
 }
 
 

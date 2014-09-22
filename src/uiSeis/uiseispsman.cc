@@ -36,7 +36,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
                        mODHelpKey(mSeisPrestackMan3DHelpID)
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
-		     .nrstatusflds(1),
+		     .nrstatusflds(1).modal(false),
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)

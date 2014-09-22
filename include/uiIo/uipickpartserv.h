@@ -25,6 +25,7 @@ class DataPointSet;
 class RandLocGenPars;
 class SurfaceInfo;
 class uiImpExpPickSet;
+class uiPickSetMan;
 class uiPickSetMgr;
 namespace Pick { class Set; class SetMgr; }
 namespace PosInfo { class Line2DData; }
@@ -104,6 +105,7 @@ protected:
 
     uiImpExpPickSet*		imppsdlg_;
     uiImpExpPickSet*		exppsdlg_;
+    uiPickSetMan*		manpicksetsdlg_;
 
     void			survChangedCB(CallBacker*);
     void			importReadyCB(CallBacker*);

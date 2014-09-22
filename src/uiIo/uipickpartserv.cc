@@ -51,6 +51,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
     , ps_(0)
     , imppsdlg_(0)
     , exppsdlg_(0)
+    , manpicksetsdlg_(0)
 {
     IOM().surveyChanged.notify( mCB(this,uiPickPartServer,survChangedCB) );
 }
@@ -61,6 +62,7 @@ uiPickPartServer::~uiPickPartServer()
     delete &uipsmgr_;
     delete &gendef_;
     deepErase( selhorids_ );
+    delete manpicksetsdlg_;
 }
 
 
@@ -73,8 +75,12 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 
 void uiPickPartServer::managePickSets()
 {
-    uiPickSetMan dlg( parent() );
-    dlg.go();
+    if ( !manpicksetsdlg_ )
+	manpicksetsdlg_ = new uiPickSetMan( parent() );
+    else
+	manpicksetsdlg_->selGroup()->fullUpdate( -1 );
+
+    manpicksetsdlg_->go();
 }
 
 

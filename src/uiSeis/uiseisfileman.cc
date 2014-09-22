@@ -53,7 +53,8 @@ mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
 #define mHelpID is2d ? mODHelpKey(mSeisFileMan2DHelpID) : \
                        mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
-    :uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID).nrstatusflds(1),
+    :uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
+				    .nrstatusflds(1).modal(false),
 		   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)

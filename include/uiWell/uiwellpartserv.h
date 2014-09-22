@@ -18,11 +18,12 @@ ________________________________________________________________________
 
 namespace Well { class Data; class LogDisplayParSet; }
 
+class uiD2TMLogSelDlg;
+class uiD2TModelGen;
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiWellImportAsc;
-class uiD2TModelGen;
-class uiD2TMLogSelDlg;
+class uiWellMan;
 
 /*!
 \ingroup uiWell
@@ -95,6 +96,7 @@ protected:
     uiWellDispPropDlg*		uiwellpropdlg_;
     uiD2TModelGen*		uid2tmgen_;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_;
+    uiWellMan*			manwelldlg_;
     TypeSet<int>		previewids_;
 
     BufferStringSet		crwellids_; // for uiSimpleMultiWellCreate

@@ -21,6 +21,9 @@ class CubeSampling;
 class IOPar;
 class SeisTrcBuf;
 class uiFlatViewWin;
+class uiSeisFileMan;
+class uiSeisPreStackMan;
+class uiSeisWvltMan;
 
 namespace PosInfo { class Line2DData; }
 namespace Geometry { class RandomLine; }
@@ -34,7 +37,7 @@ mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);
-			//~uiSeisPartServer();
+			~uiSeisPartServer();
     const char*		name() const			{ return "Seismics"; }
 
     bool		importSeis(int opt);
@@ -75,6 +78,11 @@ public:
 protected:
 
     bool		ioSeis(int,bool);
+    uiSeisFileMan*	man2dseisdlg_;
+    uiSeisFileMan*	man3dseisdlg_;
+    uiSeisPreStackMan*	man2dprestkdlg_;
+    uiSeisPreStackMan*	man3dprestkdlg_;
+    uiSeisWvltMan*	manwvltdlg_;
 };
 
 #endif

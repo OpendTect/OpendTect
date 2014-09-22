@@ -35,6 +35,7 @@ class uiExportHorizon;
 class uiImportFault3D;
 class uiImportFaultStickSet2D;
 class uiImportHorizon;
+class uiSurfaceMan;
 class uiVariogramDisplay;
 
 namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; }
@@ -116,6 +117,11 @@ public:
 					  BufferString& auxdatanm,
 					  const Array2D<float>& data);
     void		manageSurfaces(const char* typ);
+    void		manage2DHorizons();
+    void		manage3DHorizons();
+    void		manageFaultStickSets();
+    void		manage3DFaults();
+    void		manageBodies();
     bool		loadSurface(const MultiID&,
 				    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
@@ -203,6 +209,11 @@ protected:
     ObjectSet<uiVariogramDisplay>	variodlgs_;
 
     static const char*  sKeySectionID() { return "Section ID"; }
+    uiSurfaceMan*	man2dhordlg_;
+    uiSurfaceMan*	man3dhordlg_;
+    uiSurfaceMan*	ma3dfaultdlg_;
+    uiSurfaceMan*	manfssdlg_;
+    uiSurfaceMan*	manbodydlg_;
 };
 
 #endif
