@@ -14,13 +14,14 @@ ________________________________________________________________________
 
 #include "stratmod.h"
 #include "repos.h"
+#include "uistring.h"
 
 namespace Strat
 {
 class RefTree;
 
 /*!
-\ingroup Strat  
+\ingroup Strat
 \brief Repository of all stratigraphic descriptions defining the building
 	  blocks of subsurface descriptions
 */
@@ -35,7 +36,7 @@ public:
 
     RefTree*		readTree(Repos::Source);
     bool		writeTree(const RefTree&,
-	    			  Repos::Source src=Repos::Survey);
+				  Repos::Source src=Repos::Survey);
 
     static const char*	fileNameBase();
 

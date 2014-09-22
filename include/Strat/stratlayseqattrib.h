@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "stratmod.h"
 #include "namedobj.h"
 #include "enums.h"
+#include "uistring.h"
 #include "bufstringset.h"
 #include "od_iosfwd.h"
 class PropertyRef;
@@ -30,7 +31,7 @@ class LaySeqAttribSet;
   Rather than attaching everything to the UnitRefs, PropertyRefs etc., we simply
   work with strings. When actual evaluation needs to be done, construct a
   LaySeqAttribCalc object.
- 
+
  */
 
 mExpClass(Strat) LaySeqAttrib : public NamedObject
@@ -38,9 +39,9 @@ mExpClass(Strat) LaySeqAttrib : public NamedObject
 public:
 
     enum Transform	{ Pow, Log, Exp };
-    			DeclareEnumUtils(Transform)
+			DeclareEnumUtils(Transform)
 
-    			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
+			LaySeqAttrib( LaySeqAttribSet& s,const PropertyRef& p,
 				      const char* nm=0 )
 			    : NamedObject(nm)
 			    , set_(&s), prop_(p)
@@ -59,7 +60,7 @@ public:
     Transform		transform_;
     float		transformval_;
     inline bool		hasTransform() const
-    			{ return !mIsUdf(transformval_); }
+			{ return !mIsUdf(transformval_); }
 
     static const char*	sKeyIsLocal()		{ return "Local"; }
     static const char*	sKeyStats()		{ return "Statistics"; }
@@ -83,7 +84,7 @@ protected:
   Rather than attaching everything to the UnitRefs, PropertyRefs etc., we simply
   work with strings. When actual evaluation needs to be done, the
   LaySeqAttribCalc will step in.
- 
+
  */
 
 
@@ -92,12 +93,12 @@ mExpClass(Strat) LaySeqAttribSet : public NamedObject
 { mODTextTranslationClass(LaySeqAttribSet);
 public:
 
-    			LaySeqAttribSet( const char* nm=0 )
+			LaySeqAttribSet( const char* nm=0 )
 			    : NamedObject(nm)	{}
 
     LaySeqAttrib&	attr( int idx )		{ return *(*this)[idx]; }
     const LaySeqAttrib&	attr( int idx ) const	{ return *(*this)[idx]; }
-    LaySeqAttrib*	attr( const char* nm )	   	{ return gtAttr(nm); }
+    LaySeqAttrib*	attr( const char* nm )		{ return gtAttr(nm); }
     const LaySeqAttrib*	attr( const char* nm ) const	{ return gtAttr(nm); }
 
     void		getFrom(const IOPar&);

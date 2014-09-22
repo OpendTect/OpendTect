@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "compoundkey.h"
 #include "stratcontent.h"
 #include "typeset.h"
+#include "uistring.h"
 
 class PropertyRef;
 class PropertyRefSelection;
