@@ -48,13 +48,13 @@ void Horizon2DScanner::init()
 
 uiString Horizon2DScanner::uiMessage() const
 {
-    return "Scanning";
+    return tr("Scanning");
 }
 
 
 uiString Horizon2DScanner::uiNrDoneText() const
 {
-    return "Positions handled";
+    return tr("Positions handled");
 }
 
 

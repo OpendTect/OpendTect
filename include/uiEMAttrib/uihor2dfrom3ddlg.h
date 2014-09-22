@@ -22,7 +22,7 @@ class uiSurfaceWrite;
 class uiCheckBox;
 
 mExpClass(uiEMAttrib) uiHor2DFrom3DDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiHor2DFrom3DDlg);
 public:
     				uiHor2DFrom3DDlg(uiParent*);
 

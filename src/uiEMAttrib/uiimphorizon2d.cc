@@ -44,7 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class Horizon2DImporter : public Executor
-{
+{ mODTextTranslationClass(Horizon2DImporter);
 public:
 
     enum UndefTreat		{ Skip, Adopt, Interpolate };
@@ -66,13 +66,13 @@ Horizon2DImporter( const BufferStringSet& lnms, ObjectSet<EM::Horizon2D>& hors,
 
 
 uiString uiMessage() const
-{ return "Horizon Import"; }
+{ return tr("Horizon Import"); }
 
 od_int64 totalNr() const
 { return bvalset_ ? bvalset_->totalSize() : 0; }
 
 uiString uiNrDoneText() const
-{ return "Positions written:"; }
+{ return tr("Positions written:"); }
 
 od_int64 nrDone() const
 { return nrdone_; }
@@ -281,8 +281,8 @@ void uiImportHorizon2D::addHor( CallBacker* )
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
     if ( IOM().getLocal(hornm,0) )
     {
-	uiMSG().error( "Failed to add: a surface already exists with name ",
-			hornm );
+	uiMSG().error(tr("Failed to add: a surface already "
+                         "exists with name %1").arg(hornm));
 	return;
     }
 
@@ -345,8 +345,8 @@ bool uiImportHorizon2D::doImport()
     const BinIDValueSet* valset = scanner_->getVals();
     if ( !valset || valset->totalSize() == 0 )
     {
-	BufferString msg( "No valid positions found\n" );
-	msg.add( "Please re-examine input files and format definition" );
+	uiString msg = tr("No valid positions found\nPlease re-examine "
+			  "input files and format definition");
 	uiMSG().message( msg );
 	return false;
     }
@@ -401,12 +401,11 @@ bool uiImportHorizon2D::doImport()
 	const int nrexist = existinglines.size();
 	if ( nrexist > 0 )
 	{
-	    BufferString msg( "Horizon ", nm, " already exists for " );
-	    msg.add( nrexist==1 ? "2D line " : "some 2D lines (" );
-	    msg.add( existinglines.getDispString(3,false) );
-	    if ( nrexist > 1 )
-		msg.add( ")" );
-	    msg.add( ", and will be overwritten." );
+	    uiString msg = tr("Horizon %1 already exists for %2").arg(nm)
+			 .arg((nrexist == 1
+			 ? tr("2D line %1")
+			 : tr("some 2D lines (%1) and will be overwritten"))
+			 .arg(existinglines.getDispString(3, false)));
 	    if ( !uiMSG().askOverwrite(msg) )
 		mDeburstRet( false, unRef );
 	}
@@ -464,8 +463,8 @@ bool uiImportHorizon2D::getFileNames( BufferStringSet& filenames ) const
 	const char* fnm = filenames[idx]->buf();
 	if ( !File::exists(fnm) )
 	{
-	    BufferString errmsg( "Cannot find input file:\n" );
-	    errmsg += fnm;
+	    uiString errmsg = tr("Cannot find input file:\n%1")
+	                    .arg(fnm);
 	    deepErase( filenames );
 	    mErrRet( errmsg );
 	}

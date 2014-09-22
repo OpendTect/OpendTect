@@ -25,7 +25,7 @@ namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
 mExpClass(uiEMAttrib) Horizon2DScanner : public Executor
-{
+{ mODTextTranslationClass(Horizon2DScanner);
 public:
 
 			Horizon2DScanner(const BufferStringSet& fnms,

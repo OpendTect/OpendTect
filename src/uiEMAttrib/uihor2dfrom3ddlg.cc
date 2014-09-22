@@ -70,7 +70,7 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
 	emobj = EM::EMM().createTempObject( hor3dsel_->selIOObj()->group() );
 	if ( !emobj )
 	{
-	    uiMSG().error( "Cannot read or create 3D horizon" );
+	    uiMSG().error( tr("Cannot read or create 3D horizon") );
 	    return false;
 	}
 
@@ -123,11 +123,11 @@ EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 bool uiHor2DFrom3DDlg::checkFlds()
 {
     if ( !hor3dsel_->getObjSel()->commitInput() )
-	mErrRet( "Pease select a valid 3d Horizon. " )
+	mErrRet( tr("Pease select a valid 3D Horizon. ") )
     if ( !linesetinpsel_->nrSelected() )
-	mErrRet( "Pease select at least one 2D line" )
+	mErrRet( tr("Pease select at least one 2D line") )
     if ( !out2dfld_->getObjSel()->commitInput() )
-	mErrRet( "Enter the output Horizon where you want to write. " )
+	mErrRet( tr("Enter the output Horizon where you want to write. ") )
     return true;
 }
 

@@ -27,7 +27,7 @@ namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; }
 
 mClass(uiEMAttrib) uiHorizonShiftDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiHorizonShiftDialog);
 public:
 			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
 					     int visid,

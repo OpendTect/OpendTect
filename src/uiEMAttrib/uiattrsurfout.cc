@@ -92,7 +92,7 @@ void uiAttrSurfaceOut::fillUdfSelCB( CallBacker* )
 void uiAttrSurfaceOut::settingsCB( CallBacker* )
 {
     uiSingleGroupDlg dlg( this, uiDialog::Setup(tr("Interpolation"),
-					     tr("Interpolation Settings"),
+					        tr("Interpolation Settings"),
                                                 mNoHelpKey) );
     uiArray2DInterpolSel* interpolsel =
 		new uiArray2DInterpolSel( &dlg, true, true, false, interpol_ );
@@ -130,7 +130,7 @@ bool uiAttrSurfaceOut::prepareProcessing()
     const FixedString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() )
     {
-	uiMSG().error( "Please provide output attribute name" );
+	uiMSG().error( tr("Please provide output attribute name") );
 	return false;
     }
 
@@ -164,8 +164,8 @@ bool uiAttrSurfaceOut::fillPar()
 	EM::SurfaceAuxData::getFileName( *ioobj, attrnm );
     if ( !attrfnm.isEmpty() )
     {
-	const int val = uiMSG().askOverwrite("Horizon data with this attribute"
-		" name already exists. Do you want to overwrite?");
+	const int val = uiMSG().askOverwrite(tr("Horizon data with "
+            "this attribute name already exists. Do you want to overwrite?"));
 	if ( val==0 )
 	    return false;
     }
@@ -176,7 +176,7 @@ bool uiAttrSurfaceOut::fillPar()
 	    EM::dgbSurfDataWriter::writeDummyHeader( attrfnm, attrnm );
 	if ( !res )
 	{
-	    uiMSG().error( "Cannot save Horizon data to: ", attrfnm );
+	    uiMSG().error(tr("Cannot save Horizon data to: %1").arg(attrfnm));
 	    return false;
 	}
     }

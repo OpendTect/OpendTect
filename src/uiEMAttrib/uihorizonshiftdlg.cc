@@ -149,7 +149,7 @@ void uiHorizonShiftDialog::attribChangeCB( CallBacker* )
     if ( !isok )
 	return;
 
-    if ( uiMSG().question("Calculate now?" ) )
+    if ( uiMSG().question(tr("Calculate now?")) )
 	calcAttrib( 0 );
 }
 
@@ -175,7 +175,8 @@ void uiHorizonShiftDialog::rangeChangeCB( CallBacker* )
     if ( (calcshiftrg_ != shiftrg_) && (!mIsUdf(calcshiftrg_.start) &&
 				        !mIsUdf(calcshiftrg_.stop)) )
     {
-	if ( uiMSG().askGoOn("Do you want to recalculate on the give range") )
+	if ( uiMSG().askGoOn(tr("Do you want to recalculate "
+                                "on the give range")) )
 	{
 	    calcshiftrg_ = rangeinpfld_->getFStepInterval();
 	    calcAttrib( 0 );
@@ -254,7 +255,7 @@ bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 	const FixedString nm = namefld_->text();
 	if ( nm.isEmpty() || nm==sDefaultAttribName() )
 	{
-	    uiMSG().error("No basename defined");
+	    uiMSG().error(tr("No basename defined"));
 	    return false;
 	}
     }
