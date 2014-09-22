@@ -78,6 +78,7 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
 
 	if ( hrsection_->getOsgTexture()->needsRetiling() )
 	{
+	    hrsection_->getOsgTexture()->reInitTiling();
 	    hrsection_->hortexturehandler_->updateTileTextureOrigin();
 	}
     }
@@ -146,6 +147,7 @@ HorizonSection::HorizonSection()
     , transformation_( 0 )
     , geometry_( 0 )
     , origin_( 0, 0 )
+    , textureorigin_( 0, 0 )
     , displayrrg_( -1, -1, 0 )
     , displaycrg_( -1, -1, 0 )
     , userchangedisplayrg_( false )			      
@@ -358,6 +360,10 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 
     setResolution( desiredresolution_, 0 );
 }
+
+
+void HorizonSection::setTextureOrigin( const RowCol& origin )
+{ textureorigin_ = origin; }
 
 
 StepInterval<int> HorizonSection::displayedRowRange() const

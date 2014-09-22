@@ -335,28 +335,23 @@ void HorizonTextureHandler::updateTexture(int channel,int sectionid,
 
 void HorizonTextureHandler::updateTileTextureOrigin()
 {
-    std::vector<float> sorigins, torigins;
-    osgGeo::LayeredTexture* texture = channels_->getOsgTexture(); 
+    if ( !horsection_ )
+	return;
 
-    const osg::Vec2f texturesize = texture->imageEnvelopeSize();
-    if ( !texturesize.length() ) return;
+    const float tilesize = horsection_->nrcoordspertileside_ - 1;
 
-    texture->reInitTiling();
-    texture->planTiling(horsection_->nrcoordspertileside_-1,sorigins,torigins);
-
-    const int nrs = sorigins.size()-1;
-    const int nrt = torigins.size()-1;
-
-    for ( int ids=0; ids<nrs; ids++ )
+    for ( int idx=0; idx<horsection_->tiles_.info().getSize(0); idx++ )
     {
-	for ( int idt=0; idt<nrt; idt++ )
+	for ( int idy=0; idy<horsection_->tiles_.info().getSize(1); idy++ )
 	{
-	    const Coord origin( sorigins[ids], torigins[idt] );
-	    const Coord opposite( sorigins[ids+1], torigins[idt+1] );
-	    HorizonSectionTile* tile = horsection_->tiles_.get( idt, ids );
-	    if ( !tile ) 
+	    HorizonSectionTile* tile = horsection_->tiles_.get( idx, idy );
+
+	    if ( !tile )
 		continue;
-	    tile->setTexture( origin, opposite );
+
+	    const RowCol offset = tile->origin_ - horsection_->textureorigin_;
+	    const Coord origin( offset[1], offset[0] );
+	    tile->setTexture( origin, origin+Coord(tilesize,tilesize) );
 	}
     }
 }

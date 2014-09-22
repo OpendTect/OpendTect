@@ -112,6 +112,8 @@ public:
     void			setDisplayRange(const StepInterval<int>&,
 	    					const StepInterval<int>&);
 
+    void			setTextureOrigin(const RowCol&);
+
     char	 		nrResolutions() const;
     char 			currentResolution() const;
     void			setResolution(char,TaskRunner*);
@@ -157,6 +159,7 @@ protected:
 
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
+    RowCol			textureorigin_;
 
     bool			userchangedisplayrg_;
     StepInterval<int>		displayrrg_;
