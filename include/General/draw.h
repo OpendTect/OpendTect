@@ -64,7 +64,7 @@ public:
 				  HLine, VLine, Plane, Triangle, Arrow };
 				DeclareEnumUtils(Type)
 
-				MarkerStyle2D( Type tp=Square, int sz=2,
+				MarkerStyle2D( Type tp=Square, int sz=1,
 					       Color col=Color::Black(),
 					       float rot=0);
 
