@@ -29,13 +29,13 @@ ________________________________________________________________________
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>
-void deleteAndZeroPtr( T*& ptr )
-{ delete ptr; ptr = 0; }
+void deleteAndZeroPtr( T*& ptr, bool isowner=true )
+{ if ( isowner ) delete ptr; ptr = 0; }
 
 
 template <class T>
-void deleteAndZeroArrPtr( T*& ptr )
-{ delete [] ptr; ptr = 0; }
+void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
+{ if ( isowner ) delete [] ptr; ptr = 0; }
 
 
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan

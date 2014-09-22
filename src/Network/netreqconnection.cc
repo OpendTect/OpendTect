@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "netreqcommunic.h"
+#include "netreqconnection.h"
 
 #include "netreqpacket.h"
 #include "tcpsocket.h"
@@ -20,40 +20,42 @@ static const char* rcsID mUsedVar = "$Id$";
 using namespace Network;
 
 
-RequestCommunicator::RequestCommunicator( const char* servername, int port )
+RequestConnection::RequestConnection( const char* servername,
+				      unsigned short port )
     : tcpsocket_( 0 )
+    , ownssocket_( true )
     , servername_( servername )
     , serverport_( port )
     , connectionClosed( this )
     , packetArrived( this )
-    , tcpserv_( 0 )
 {
     connectToHost();
 }
 
 
-RequestCommunicator::RequestCommunicator( int port )
-    : tcpsocket_( 0 )
-    , serverport_( port )
+RequestConnection::RequestConnection( TcpSocket* socket )
+    : tcpsocket_( socket )
+    , ownssocket_( false )
+    , serverport_( mUdf(unsigned short) )
     , connectionClosed( this )
     , packetArrived( this )
-    , tcpserv_( 0 )
 {
-    startListening();
+    if ( !socket )
+	return;
+
+    mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
 }
 
 
-RequestCommunicator::~RequestCommunicator()
+RequestConnection::~RequestConnection()
 {
     deepErase( receivedpackets_ );
 
-    if ( !tcpserv_ )
-	deleteAndZeroPtr( tcpsocket_ );
-    deleteAndZeroPtr( tcpserv_ );
+    deleteAndZeroPtr( tcpsocket_, ownssocket_ );
 }
 
 
-void RequestCommunicator::connectToHost()
+void RequestConnection::connectToHost()
 {
     Threads::MutexLocker locker( lock_ );
 
@@ -61,69 +63,25 @@ void RequestCommunicator::connectToHost()
 	tcpsocket_ = new TcpSocket;
 
     if ( tcpsocket_->connectToHost(servername_,serverport_) )
-	mAttachCB(tcpsocket_->disconnected,RequestCommunicator::connCloseCB);
+	mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
 }
 
 
-void RequestCommunicator::startListening()
+bool RequestConnection::isOK() const
 {
-    deleteAndZeroPtr( tcpsocket_ );
-
-    if ( !tcpserv_ )
-    {
-	tcpserv_ = new TcpServer;
-	mAttachCB( tcpserv_->newConnection, RequestCommunicator::newConnectionCB );
-    }
-
-    tcpserv_->listen( 0, serverport_ );
-}
-
-
-void RequestCommunicator::newConnectionCB(CallBacker* cb)
-{
-    mCBCapsuleUnpack(int,socketid,cb);
-    Threads::MutexLocker locker( lock_ );
-    TcpSocket* sock = tcpserv_->getSocket(socketid);
-
-    if ( tcpsocket_ )
-    {
-	if ( tcpsocket_->isConnected() )
-	{
-	    //I will only deal with one counterpart.
-	    sock->disconnectFromHost();
-	    return;
-	}
-	delete tcpsocket_;
-    }
-
-    tcpsocket_ = sock;
-    tcpsocket_->setTimeout( 2000 );
-    mAttachCB( tcpsocket_->readyRead, RequestCommunicator::dataArrivedCB );
-}
-
-
-bool RequestCommunicator::isOK() const
-{
-    if ( tcpserv_ )
-    {
-	if ( !tcpserv_->isListening() )
-	    return false;
-
-	return tcpsocket_ ? !tcpsocket_->isBad() : true;
-    }
-
     return tcpsocket_ && !tcpsocket_->isBad();
 }
 
 
-void RequestCommunicator::connCloseCB( CallBacker* )
+void RequestConnection::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
-    tcpserv_ = 0; tcpsocket_ = 0;
+
+    deleteAndZeroPtr( tcpsocket_, ownssocket_ );
 }
 
 
-bool RequestCommunicator::readFromSocket()
+bool RequestConnection::readFromSocket()
 {
     while ( tcpsocket_ )
     {
@@ -159,9 +117,9 @@ bool RequestCommunicator::readFromSocket()
 
 
 
-bool RequestCommunicator::sendPacket( const RequestPacket& pkt )
+bool RequestConnection::sendPacket( const RequestPacket& pkt )
 {
-    if ( !isOK() || !pkt.isOK() || (tcpserv_ && !tcpsocket_) )
+    if ( !isOK() || !pkt.isOK() || !tcpsocket_ )
 	return false;
 
     const od_int32 reqid = pkt.requestID();
@@ -174,7 +132,8 @@ bool RequestCommunicator::sendPacket( const RequestPacket& pkt )
 	    ourrequestids_ += reqid;
 	else
 	{
-	    pErrMsg( BufferString("Packet send requested for unknown ID: ",reqid) );
+	    pErrMsg(
+		BufferString("Packet send requested for unknown ID: ",reqid) );
 	    return false;
 	}
     }
@@ -189,7 +148,7 @@ bool RequestCommunicator::sendPacket( const RequestPacket& pkt )
 }
 
 
-RequestPacket* RequestCommunicator::pickupPacket( od_int32 reqid, int timeout,
+RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 						  int* errorcode )
 {
     Threads::MutexLocker locker( lock_ );
@@ -231,15 +190,15 @@ RequestPacket* RequestCommunicator::pickupPacket( od_int32 reqid, int timeout,
 	}
     }
 
-    if ( pkt->subID() == RequestPacket::cEndSubID()
-	|| pkt->subID() < RequestPacket::cBeginSubID() )
+    if ( pkt->subID()==RequestPacket::cEndSubID() ||
+	 pkt->subID()<RequestPacket::cBeginSubID() )
 	requestEnded( reqid );
 
     return pkt;
 }
 
 
-RequestPacket* RequestCommunicator::getNextAlreadyRead( int reqid )
+RequestPacket* RequestConnection::getNextAlreadyRead( int reqid )
 {
     for ( int idx=0; idx<receivedpackets_.size(); idx++ )
     {
@@ -251,7 +210,7 @@ RequestPacket* RequestCommunicator::getNextAlreadyRead( int reqid )
 }
 
 
-RequestPacket* RequestCommunicator::getNextExternalPacket()
+RequestPacket* RequestConnection::getNextExternalPacket()
 {
     Threads::MutexLocker locker( lock_ );
 
@@ -265,7 +224,7 @@ RequestPacket* RequestCommunicator::getNextExternalPacket()
 }
 
 
-void RequestCommunicator::requestEnded( od_int32 reqid )
+void RequestConnection::requestEnded( od_int32 reqid )
 {
     ourrequestids_ -= reqid;
 
@@ -277,7 +236,65 @@ void RequestCommunicator::requestEnded( od_int32 reqid )
 }
 
 
-void RequestCommunicator::dataArrivedCB( CallBacker* cb )
+void RequestConnection::dataArrivedCB( CallBacker* cb )
 {
     readFromSocket();
+}
+
+
+RequestServer::RequestServer( unsigned short port )
+    : serverport_( port )
+    , tcpserv_( new TcpServer )
+    , newConnection( this )
+{
+    if ( !tcpserv_ )
+	return;
+
+    mAttachCB( tcpserv_->newConnection, RequestServer::newConnectionCB );
+    tcpserv_->listen( 0, serverport_ );
+}
+
+
+RequestServer::~RequestServer()
+{
+    detachAllNotifiers();
+
+    deepErase( pendingconns_ );
+    deleteAndZeroPtr( tcpserv_ );
+}
+
+
+bool RequestServer::isOK() const
+{
+    return tcpserv_ && tcpserv_->isListening();
+}
+
+
+
+RequestConnection* RequestServer::pickupNewConnection()
+{
+    Threads::Locker locker( lock_ );
+    return pendingconns_.size() ? pendingconns_.removeSingle( 0 ) : 0;
+}
+
+
+void RequestServer::newConnectionCB(CallBacker* cb)
+{
+    mCBCapsuleUnpack(int,socketid,cb);
+    TcpSocket* sock = tcpserv_->getSocket(socketid);
+
+    if ( !sock )
+	return;
+
+    if ( sock->isConnected() && !sock->isBad() )
+    {
+	sock->disconnectFromHost();
+	return;
+    }
+
+    Threads::Locker locker( lock_ );
+    pendingconns_ += new RequestConnection( sock );
+    locker.unlockNow();
+
+    newConnection.trigger();
 }

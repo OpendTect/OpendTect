@@ -17,7 +17,7 @@ set ( OD_MODULE_SOURCES
 	hostdata.cc
 	issuereporter.cc
 	jobcommunic.cc
-	netreqcommunic.cc
+	netreqconnection.cc
 	netreqpacket.cc
 	oddlsite.cc
 	odnetworkaccess.cc

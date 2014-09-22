@@ -13,7 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "testprog.h"
 
-#include "netreqcommunic.h"
+#include "netreqconnection.h"
 #include "netreqpacket.h"
 
 class Tester : public CallBacker
@@ -29,17 +29,17 @@ public:
 
     bool runTest( bool sendkill )
     {
-	Network::RequestCommunicator comm( hostname_, port_ );
-	mAttachCB( comm.packetArrived, Tester::packetArrivedCB );
+	Network::RequestConnection conn( hostname_, port_ );
+	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
 	Network::RequestPacket packet;
 	BufferString sentmessage = "Hello World";
 	packet.setIsNewRequest();
 	packet.setStringPayload( sentmessage );
 
-	mRunStandardTestWithError( comm.sendPacket( packet ),
+	mRunStandardTestWithError( conn.sendPacket( packet ),
 				  BufferString( prefix_, "Sending packet 1"),
-				  comm.errMsg().getFullString() );
+				  conn.errMsg().getFullString() );
 
 	Network::RequestPacket packet2;
 	packet2.setRequestID( packet.requestID() );
@@ -47,17 +47,17 @@ public:
 	BufferString sentmessage2 = "Peace on Earth!";
 	packet2.setStringPayload( sentmessage2 );
 
-	mRunStandardTestWithError( comm.sendPacket( packet2 ),
+	mRunStandardTestWithError( conn.sendPacket( packet2 ),
 				  BufferString( prefix_, "Sending packet 2"),
-				  comm.errMsg().getFullString() );
+				  conn.errMsg().getFullString() );
 
 
 	PtrMan<Network::RequestPacket> receivedpacket = 0;
 
 	mRunStandardTestWithError(
-	    receivedpacket=comm.pickupPacket( packet.requestID(), 2000 ),
+	    receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
 	    BufferString( prefix_, "Receiving packet 1"),
-	    comm.errMsg().getFullString() );
+	    conn.errMsg().getFullString() );
 
 	BufferString receivedmessage1;
 	receivedpacket->getStringPayload( receivedmessage1 );
@@ -67,9 +67,9 @@ public:
 			 BufferString( prefix_, "Received content 1"));
 
 	mRunStandardTestWithError(
-		  receivedpacket=comm.pickupPacket( packet.requestID(), 2000 ),
+		  receivedpacket=conn.pickupPacket( packet.requestID(), 2000 ),
 		  BufferString( prefix_, "Receiving packet 2"),
-		  comm.errMsg().getFullString() );
+		  conn.errMsg().getFullString() );
 
 	BufferString receivedmessage2;
 	receivedpacket->getStringPayload( receivedmessage2 );
@@ -87,9 +87,9 @@ public:
 	    Threads::MutexLocker locker( condvar_ );
 	    unexpectedarrived_ = false;
 
-	    mRunStandardTestWithError( comm.sendPacket( newpacket ),
+	    mRunStandardTestWithError( conn.sendPacket( newpacket ),
 				BufferString( prefix_, "Sending newpacket"),
-				comm.errMsg().getFullString() );
+				conn.errMsg().getFullString() );
 
 	    mRunStandardTest( condvar_.wait(10000) && unexpectedarrived_,
 			     "External arrived" )
@@ -104,9 +104,9 @@ public:
 	    killpacket.setStringPayload("Kill");
 	    killpacket.setIsNewRequest();
 
-	    mRunStandardTestWithError( comm.sendPacket( killpacket ),
+	    mRunStandardTestWithError( conn.sendPacket( killpacket ),
 			  BufferString( prefix_, "Sending kill packet"),
-			   comm.errMsg().getFullString() );
+			   conn.errMsg().getFullString() );
 	}
 
 	return true;
@@ -116,8 +116,8 @@ public:
     void packetArrivedCB(CallBacker* cb)
     {
 	mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
-	mDynamicCastGet(Network::RequestCommunicator*, comm, cber );
-	PtrMan<Network::RequestPacket> packet = comm->getNextExternalPacket();
+	mDynamicCastGet(Network::RequestConnection*, conn, cber );
+	PtrMan<Network::RequestPacket> packet = conn->getNextExternalPacket();
 	if ( packet )
 	{
 	    Threads::MutexLocker locker( condvar_ );

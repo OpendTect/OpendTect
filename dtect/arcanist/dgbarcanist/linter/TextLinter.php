@@ -272,7 +272,7 @@ final class TextLinter extends ArcanistLinter {
     $badregexps = array( '/[\n[:blank:]]+small+[^a-zA-Z0-9\s]+/' );
     //$bad = array( 'sqrt', 'std::ostream', 'std::istream' );
 
-    $data = $this->getData( $path );
+    $data = $this->emptyDoubleQuotes( $this->getData( $path ) );
 
     foreach ( $badstrings as $keyword ) {
       $offset = strpos( $data, $keyword );
@@ -429,5 +429,29 @@ final class TextLinter extends ArcanistLinter {
     }
   }
 
+  //Replaces quoted text with space-string
+  private function emptyDoubleQuotes($data) { 
+    //Remove everything inside double-quotes
+    $preg = preg_match_all(
+      "/[\"]+[^\"]+[\"]+/",
+      $data,
+      $matches,
+      PREG_OFFSET_CAPTURE);
 
+    if (!$preg)
+      return $data;
+
+    foreach ($matches[0] as $match) {
+      list($string, $offset) = $match;
+      $len = strlen( $string );
+      if ( $len>2 ) {
+	$repl = str_pad( "", $len-2 );
+	$repl = "\"".$repl."\"";
+      
+	$data = substr_replace( $data, $repl, $offset, $len );
+      }
+    }
+
+    return $data;
+  }
 }

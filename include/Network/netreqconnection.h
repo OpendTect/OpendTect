@@ -35,7 +35,7 @@ class RequestPacket;
   To send a packet, make the RequestPacket and use sendPacket().
 
   To receive, you want only packets for your request ID. If you set a timeout
-  the communicator will wait for a packet with your ID if there wasn't already
+  the connection will wait for a packet with your ID if there wasn't already
   one present. On success, the returned packet is yours.
 
   If the other side can also send requests to us, then you need to periodically
@@ -44,16 +44,17 @@ class RequestPacket;
  */
 
 
-mExpClass(Network) RequestCommunicator : public CallBacker
-{ mODTextTranslationClass(RequestCommunicator);
+mExpClass(Network) RequestConnection : public CallBacker
+{ mODTextTranslationClass(RequestConnection);
 public:
-			RequestCommunicator(const char* servername,
-					    int serverport);
+			RequestConnection(const char* servername,
+					  unsigned short serverport);
 			//!<Initiates communications
-			RequestCommunicator(int serverport);
-			//!<Listens
+			RequestConnection(TcpSocket*);
+			/*!<Socket does NOT become mine. Socket should be
+			    connected to whomever is my counterpart. */
 
-			~RequestCommunicator();
+			~RequestConnection();
 
     bool		isOK() const;
 
@@ -69,10 +70,11 @@ public:
 
     TcpSocket*		tcpSocket()		{ return tcpsocket_; }
 
-    CNotifier<RequestCommunicator,od_int32> packetArrived;
-    Notifier<RequestCommunicator> connectionClosed;
+    CNotifier<RequestConnection,od_int32> packetArrived;
+    Notifier<RequestConnection> connectionClosed;
 
     uiString		errMsg() const		{ return errmsg_; }
+
 private:
 
 
@@ -85,12 +87,11 @@ private:
 
     Threads::ConditionVar	lock_;
     TcpSocket*			tcpsocket_;
-    TcpServer*			tcpserv_;
+    bool			ownssocket_;
 
     BufferString		servername_;
-    int				serverport_;
+    unsigned short		serverport_;
 
-    void			startListening();
     void			connectToHost();
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
@@ -100,6 +101,39 @@ private:
     Network::RequestPacket*	readConnection(int);
     Network::RequestPacket*	getNextAlreadyRead(int);
     void			requestEnded(od_int32);
+};
+
+
+
+/*! Sets up a listening service at the port and creates
+    Network::RequestConnections when there is a connection.
+    */
+
+mExpClass(Network) RequestServer : public CallBacker
+{ mODTextTranslationClass(RequestServer);
+public:
+				RequestServer(unsigned short serverport);
+				~RequestServer();
+
+    bool			isOK() const;
+
+    Notifier<RequestServer>	newConnection;
+    RequestConnection*		pickupNewConnection();
+				//!Becomes yours.
+
+    uiString			errMsg() const		{ return errmsg_; }
+
+private:
+
+    void				newConnectionCB(CallBacker*);
+
+    uiString				errmsg_;
+
+    ObjectSet<RequestConnection>	pendingconns_;
+
+    Threads::Lock			lock_;
+    unsigned short			serverport_;
+    TcpServer*				tcpserv_;
 };
 
 

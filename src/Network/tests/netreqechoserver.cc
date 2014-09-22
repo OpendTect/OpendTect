@@ -8,10 +8,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "tcpsocket.h"
 
-#include "netreqcommunic.h"
+#include "netreqconnection.h"
 
-#include "netreqpacket.h"
 #include "applicationdata.h"
+#include "netreqpacket.h"
+#include "manobjectset.h"
+
 #include "ptrman.h"
 #include "testprog.h"
 
@@ -19,30 +21,46 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Network
 {
 
-class RequestCommunicatorServer : public CallBacker
+class RequestEchoServer : public CallBacker
 {
 public:
-    RequestCommunicatorServer( short port, ApplicationData& app )
-	: comm_( new RequestCommunicator(port) )
+    RequestEchoServer( unsigned short port, ApplicationData& app )
+	: server_( new RequestServer(port) )
 	, app_( app )
     {
-	mAttachCB( comm_->packetArrived,
-		  RequestCommunicatorServer::packetArrivedCB );
+	mAttachCB( server_->newConnection,
+		  RequestEchoServer::newConnectionCB );
 
 	Threads::sleep( 1 );
-	if ( !comm_->isOK() )
+	if ( !server_->isOK() )
 	    closeServerCB( 0 );
 
 
     }
 
+    void newConnectionCB( CallBacker* )
+    {
+	RequestConnection* newconn = server_->pickupNewConnection();
+	if ( !newconn )
+	    return;
+
+	mAttachCB( newconn->packetArrived, RequestEchoServer::packetArrivedCB );
+	mAttachCB( newconn->connectionClosed, RequestEchoServer::connClosedCB );
+
+	conns_ += newconn;
+    }
+
+
     void packetArrivedCB( CallBacker* cb )
     {
-	mCBCapsuleUnpack( od_int32, reqid, cb );
-	PtrMan<RequestPacket> packet = comm_->pickupPacket( reqid, 200 );
+	mCBCapsuleUnpackWithCaller( od_int32, reqid, cber, cb );
+
+	RequestConnection* conn = static_cast<RequestConnection*>( cber );
+
+	PtrMan<RequestPacket> packet = conn->pickupPacket( reqid, 200 );
 	if ( !packet )
 	{
-	    packet = comm_->getNextExternalPacket();
+	    packet = conn->getNextExternalPacket();
 	    if ( !packet )
 		return;
 	}
@@ -53,7 +71,7 @@ public:
 	if ( packetstring=="Kill" )
 	{
 	    app_.addToEventLoop(
-			mCB(this,RequestCommunicatorServer,closeServerCB));
+			mCB(this,RequestEchoServer,closeServerCB));
 	}
 	else if ( packetstring=="New" )
 	{
@@ -61,23 +79,42 @@ public:
 	    BufferString sentmessage = "The answer is 42";
 	    newpacket.setIsNewRequest();
 	    newpacket.setStringPayload( sentmessage );
-	    comm_->sendPacket( newpacket );
+	    conn->sendPacket( newpacket );
 	}
 	else
 	{
-	    comm_->sendPacket( *packet.release() );
+	    conn->sendPacket( *packet.release() );
+	}
+    }
+
+    void connClosedCB( CallBacker* cb )
+    {
+	app_.addToEventLoop( mCB(this,RequestEchoServer,closeServerCB));
+    }
+
+
+    void cleanupOldConnections( CallBacker* )
+    {
+	for ( int idx=0; idx<conns_.size(); idx++ )
+	{
+	    if ( !conns_[idx]->isOK() )
+	    {
+		delete conns_.removeSingle( idx );
+		idx--;
+	    }
 	}
     }
 
     void closeServerCB( CallBacker* )
     {
-	deleteAndZeroPtr( comm_ );
+	conns_.erase();
 	ApplicationData::exit( 0 );
     }
 
 
-    ApplicationData&		app_;
-    RequestCommunicator*	comm_;
+    ApplicationData&			app_;
+    ManagedObjectSet<RequestConnection> conns_;
+    RequestServer*			server_;
 };
 
 } //Namespace
@@ -96,7 +133,7 @@ int main(int argc, char** argv)
     int startport = 1025;
     clparser.getVal( "port", startport );
 
-    Network::RequestCommunicatorServer server( mCast(short,startport), app );
+    Network::RequestEchoServer server( mCast(unsigned short,startport), app );
 
     ExitProgram( app.exec() );
 }
