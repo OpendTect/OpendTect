@@ -77,7 +77,7 @@ public:
     bool		add(const CrdBidOffs&);
 
     bool		finish();
-    bool		usable() const		{ return !*errMsg(); }
+    bool		usable() const		{ return errmsg_.isEmpty(); }
     const char*		errMsg() const		{ return errmsg_.str(); }
 
     int			nrPositions( bool uniq=true ) const
