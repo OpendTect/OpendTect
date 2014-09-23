@@ -69,10 +69,11 @@ void PosInfo::LineSet2DData::removeLine( const char* lnm )
 void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 			ObjectSet<PosInfo::LineSet2DData::IR>& resultset ) const
 {
-    BinIDValueSet* globalbivset = new BinIDValueSet( bivset.nrVals(), true );
+    const int nrvals = bivset.nrVals();
+    BinIDValueSet* globalbivset = new BinIDValueSet( nrvals, true );
     for ( int idx=0; idx<nrLines(); idx++ )
     {
-	BinIDValueSet* newbivset = new BinIDValueSet( bivset.nrVals(), true );
+	BinIDValueSet* newbivset = new BinIDValueSet( nrvals, true );
 	BinID prevbid(-1,-1);
 	for ( int idy=0; idy<lineData(idx).positions().size(); idy++ )
 	{
@@ -85,12 +86,12 @@ void PosInfo::LineSet2DData::intersect( const BinIDValueSet& bivset,
 
 		while ( true )
 		{
-		    BinIDValues bidvalues;
-		    bivset.get(pos,bidvalues);
-		    if ( !globalbivset->includes( bidvalues ) )
+		    BinIDValues bidvalues( bid, nrvals );
+		    bivset.get( pos, bidvalues, bidvalues.values() );
+		    if ( !globalbivset->includes(bid) )
 		    {
-			newbivset->add(bidvalues);
-			globalbivset->add(bidvalues);
+			newbivset->add( bid, bidvalues.values() );
+			globalbivset->add( bid, bidvalues.values() );
 		    }
 		    bivset.next( pos );
 		    if ( bid != bivset.getBinID(pos) )
