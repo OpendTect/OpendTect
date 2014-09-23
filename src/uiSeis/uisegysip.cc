@@ -101,6 +101,7 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
     if ( !d ) return false;
     mDynamicCastGet(uiSEGYSIPMgrDlg*,dlg,d)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
+    else if ( dlg->uiResult() != 1 ) return false; // cancelled
 
     PtrMan<SEGY::Scanner> scanner = dlg->sr_->getScanner();
     if ( !scanner ) { pErrMsg("Huh?"); return false; }
