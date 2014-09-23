@@ -143,6 +143,7 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, TrcKeyZSampling& cs,
     if ( !din ) return false;
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
+    else if ( dlg->uiResult() != 1 ) return false; // cancelled
 
     Coord c0( dlg->xrgfld_->getdValue(0), dlg->yrgfld_->getdValue(0) );
     Coord c1( dlg->xrgfld_->getdValue(1), dlg->yrgfld_->getdValue(1) );
