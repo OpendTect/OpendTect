@@ -116,8 +116,9 @@ void uiWellDispPropDlg::tabSel(CallBacker*)
 	    uiWellLogDispProperties*, curwelllogproperty,propflds_[curpageid]);
 	if ( curwelllogproperty )
 	   propflds_[idx]->curwelllogproperty_ =  curwelllogproperty;
+	else
+	   propflds_[idx]->curwelllogproperty_ = 0;
     }
-
 }
 
 
