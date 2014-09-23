@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestkmergedlg.h"
 #include "uiseismulticubeps.h"
 #include "uitextedit.h"
+#include "uitoolbutton.h"
 #include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiSeisPreStackMan)
@@ -40,15 +41,17 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 		   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext())
     , is2d_(is2d)
+    , copybut_(0)
+    , mergebut_(0)
 {
     createDefaultUI( true );
     uiIOObjManipGroup* manipgrp = selgrp_->getManipGroup();
     if ( !is2d )
     {
-	manipgrp->addButton( "copyobj", "Copy data store",
-			     mCB(this,uiSeisPreStackMan,copyPush) );
-	manipgrp->addButton( "mergeseis", "Merge data stores",
-			     mCB(this,uiSeisPreStackMan,mergePush) );
+	copybut_ = manipgrp->addButton( "copyobj", "Copy data store",
+					mCB(this,uiSeisPreStackMan,copyPush) );
+	mergebut_ = manipgrp->addButton( "mergeseis", "Merge data stores",
+					mCB(this,uiSeisPreStackMan,mergePush) );
 	manipgrp->addButton( "mkmulticubeps",
 			     "Create/Edit Multi-Cube data store",
 			     mCB(this,uiSeisPreStackMan,mkMultiPush) );
@@ -61,6 +64,40 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
 
 uiSeisPreStackMan::~uiSeisPreStackMan()
 {
+}
+
+
+#define mSetButToolTip(but,str1,cursel,str2,deftt) \
+    if ( !but->sensitive() ) \
+	but->setToolTip( deftt ); \
+    else \
+    { \
+	tt.setEmpty(); \
+	tt.add( str1 ).add( cursel ).add( str2 ); \
+	but->setToolTip( tr(tt) ); \
+    }
+
+void uiSeisPreStackMan::ownSelChg()
+{
+    if ( is2d_ )
+	return;
+
+    BufferString tt,cursel;
+    if ( curioobj_ )
+	cursel.add( curioobj_->name() );
+
+    copybut_->setSensitive( curioobj_ );
+    mergebut_->setSensitive( curioobj_ );
+    mSetButToolTip(copybut_,"Make a copy of '",cursel,"'","Copy data store");
+    BufferStringSet selnms;
+    selgrp_->getChosen( selnms );
+    if ( selnms.size() > 1 )
+    {
+	mSetButToolTip(mergebut_,"Merge ",selnms.getDispString(2),"",
+		       "Merge data store");
+    }
+    else
+	mergebut_->setToolTip( "Merge data store" );
 }
 
 
@@ -130,6 +167,9 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
     const MultiID key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );
+    BufferStringSet selnms;
+    selgrp_->getChosen( selnms );
+    dlg.setInputIds( selnms );
     dlg.go();
     selgrp_->fullUpdate( key );
 }

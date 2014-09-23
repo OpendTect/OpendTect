@@ -36,6 +36,7 @@ public:
     			uiPreStackMergeDlg(uiParent*);
     			~uiPreStackMergeDlg();
 
+    void		setInputIds( const BufferStringSet& selnms );
 protected:
 
     void		fillListBox();
@@ -49,6 +50,7 @@ protected:
     void		selButPush(CallBacker*);
     void		moveButPush(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		setToolButtonProperty();
 
     BufferStringSet     allvolsnames_;
     TypeSet<MultiID>    allvolsids_;
