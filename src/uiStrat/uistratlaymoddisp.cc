@@ -168,8 +168,8 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 
     if ( doread )
     {
-	IntInpSpec val(1);
-	val.setLimits( Interval<int>(1,10000) );
+	const Interval<int> valrg( 1, 1000 );
+	IntInpSpec val( 1, valrg );
 	eachfld_ = new uiGenInput( this, sKeyUseEach(), val );
 	eachfld_->attach( alignedBelow, filefld_ );
 
@@ -178,7 +178,10 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 	doreplacefld_->attach( alignedBelow, eachfld_ );
 
 	val = 10;
+	val.setLimits( valrg );
 	nrdisplayfld_ = new uiGenInput( this, sKeyNrDisplay(), val );
+	nrdisplayfld_->setWithCheck();
+	nrdisplayfld_->setChecked( true );
 	nrdisplayfld_->attach( alignedBelow, doreplacefld_ );
     }
     else
@@ -210,7 +213,10 @@ bool usePar()
 
 	int nrmodels;
 	if ( pars_.get(sKeyNrDisplay(),nrmodels) )
+	{
 	    nrdisplayfld_->setValue( nrmodels );
+	    nrdisplayfld_->setChecked( true );
+	}
     }
     else
     {
@@ -230,7 +236,8 @@ void fillPar()
     {
 	pars_.set( sKeyUseEach(), eachfld_->getIntValue() );
 	pars_.setYN( sKeyDoClear(), doreplacefld_->getBoolValue() );
-	pars_.set( sKeyNrDisplay(), nrdisplayfld_->getIntValue() );
+	if ( nrdisplayfld_->isChecked() )
+	    pars_.set( sKeyNrDisplay(), nrdisplayfld_->getIntValue() );
     }
     else
     {
@@ -242,10 +249,10 @@ void fillPar()
 int getNrDisplayModels()
 {
     int nrmoddisp;
-    if ( pars_.get(sKeyNrDisplay(),nrmoddisp) )
-	return nrmoddisp;
+    if ( !pars_.get(sKeyNrDisplay(),nrmoddisp) )
+	return mUdf(int);
 
-    return mUdf(int);
+    return nrmoddisp;
 }
 
 
@@ -330,10 +337,11 @@ bool uiStratLayerModelDisp::doLayerModelIO( bool foradd )
 	return false;
 
     const int nrdisplaymodels = dlg.getNrDisplayModels();
-    if ( !mIsUdf(nrdisplaymodels) )
+    if ( !mIsUdf(nrdisplaymodels) && nrdisplaymodels > 0 )
     {
 	const int nrmodels = lm.size();
-	tools_.setDispEach( nrmodels/nrdisplaymodels );
+	if ( nrdisplaymodels <= nrmodels )
+	    tools_.setDispEach( nrmodels/nrdisplaymodels );
     }
 
     return true;
