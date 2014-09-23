@@ -53,6 +53,13 @@ RequestConnection::~RequestConnection()
 {
     deepErase( receivedpackets_ );
 
+    if ( isOK() )
+    {
+	Network::RequestPacket pkt( 0 );
+	pkt.setSubID( Network::RequestPacket::cCloseDownSubID() );
+	tcpsocket_->write( pkt );
+    }
+
     deleteAndZeroPtr( tcpsocket_, ownssocket_ );
 }
 
@@ -183,7 +190,7 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	    pkt = getNextAlreadyRead( reqid );
 
 	} while ( !pkt );
-	
+
 	if ( !pkt )
 	{
 	    if ( errorcode )
