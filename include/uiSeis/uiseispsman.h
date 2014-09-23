@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiobjfileman.h"
 
+class uiToolButton;
 
 mExpClass(uiSeis) uiSeisPreStackMan : public uiObjFileMan
 {
@@ -27,11 +28,15 @@ protected:
 
     bool		is2d_;
 
+    void		ownSelChg();
     void		mkFileInfo();
 
     void		copyPush(CallBacker*);
     void                mergePush(CallBacker*);
     void                mkMultiPush(CallBacker*);
+
+    uiToolButton*	copybut_;
+    uiToolButton*	mergebut_;
 };
 
 

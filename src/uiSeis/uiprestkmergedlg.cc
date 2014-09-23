@@ -57,6 +57,7 @@ uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
     attachFields( selbuttons, topgrp, movebuttons_ );
 
     fillListBox();
+    setToolButtonProperty();
 }
 
 
@@ -133,40 +134,44 @@ void uiPreStackMergeDlg::stackSel( CallBacker* )
 }
 
 
+void uiPreStackMergeDlg::setToolButtonProperty()
+{
+    toselect_->setSensitive( !volsbox_->isEmpty() );
+    fromselect_->setSensitive( !selvolsbox_->isEmpty() );
+}
+
+
+void uiPreStackMergeDlg::setInputIds( const BufferStringSet& selnms )
+{
+    volsbox_->setChosen( selnms );
+}
+
+
 void uiPreStackMergeDlg::selButPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,but,cb)
+    BufferStringSet selnms;
     if ( but == toselect_ )
     {
-	int lastusedidx = 0;
-	for ( int idx=0; idx<volsbox_->size(); idx++ )
+	volsbox_->getChosen( selnms );
+	for ( int idx=0; idx<selnms.size(); idx++ )
 	{
-	    if ( !volsbox_->isChosen(idx) ) continue;
-
-	    selvolsbox_->addItem( volsbox_->textOfItem(idx));
-	    volsbox_->removeItem(idx);
-	    lastusedidx = idx;
-	    idx--;
+	    selvolsbox_->addItem( selnms.get( idx ) );
+	    volsbox_->removeItem( selnms.get( idx ) );
 	}
-	volsbox_->sortItems();
-	volsbox_->setCurrentItem( lastusedidx<volsbox_->size() ?
-			        lastusedidx : volsbox_->size()-1 );
     }
     else if ( but == fromselect_ )
     {
-	int lastusedidx = 0;
-	for ( int idx=0; idx<selvolsbox_->size(); idx++ )
+	selvolsbox_->getChosen( selnms );
+	for ( int idx=0; idx<selnms.size(); idx++ )
 	{
-	    if ( !selvolsbox_->isChosen(idx) ) continue;
-
-	    volsbox_->addItem( selvolsbox_->textOfItem(idx));
-	    selvolsbox_->removeItem(idx);
-	    lastusedidx = idx;
-	    idx--;
+	    volsbox_->addItem( selnms.get( idx ) );
+	    selvolsbox_->removeItem( selnms.get( idx ) );
 	}
-	selvolsbox_->setCurrentItem( lastusedidx<selvolsbox_->size() ?
-				     lastusedidx : selvolsbox_->size()-1 );
     }
+
+    volsbox_->sortItems();
+    setToolButtonProperty();
 }
 
 
