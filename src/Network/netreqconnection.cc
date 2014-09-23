@@ -21,7 +21,8 @@ using namespace Network;
 
 
 RequestConnection::RequestConnection( const char* servername,
-				      unsigned short port )
+				      unsigned short port,
+       				      bool haseventloop )
     : tcpsocket_( 0 )
     , ownssocket_( true )
     , servername_( servername )
@@ -29,7 +30,7 @@ RequestConnection::RequestConnection( const char* servername,
     , connectionClosed( this )
     , packetArrived( this )
 {
-    connectToHost();
+    connectToHost( haseventloop );
 }
 
 
@@ -44,6 +45,7 @@ RequestConnection::RequestConnection( TcpSocket* socket )
 	return;
 
     mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
+    mAttachCB(tcpsocket_->readyRead,RequestConnection::dataArrivedCB);
 }
 
 
@@ -55,12 +57,12 @@ RequestConnection::~RequestConnection()
 }
 
 
-void RequestConnection::connectToHost()
+void RequestConnection::connectToHost( bool haseventloop )
 {
     Threads::MutexLocker locker( lock_ );
 
     if ( !tcpsocket_ )
-	tcpsocket_ = new TcpSocket;
+	tcpsocket_ = new TcpSocket( haseventloop );
 
     if ( tcpsocket_->connectToHost(servername_,serverport_) )
 	mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
@@ -286,7 +288,7 @@ void RequestServer::newConnectionCB(CallBacker* cb)
     if ( !sock )
 	return;
 
-    if ( sock->isConnected() && !sock->isBad() )
+    if ( !sock->isConnected() || sock->isBad() )
     {
 	sock->disconnectFromHost();
 	return;

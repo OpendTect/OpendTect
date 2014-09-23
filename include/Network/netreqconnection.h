@@ -48,13 +48,16 @@ mExpClass(Network) RequestConnection : public CallBacker
 { mODTextTranslationClass(RequestConnection);
 public:
 			RequestConnection(const char* servername,
-					  unsigned short serverport);
+					  unsigned short serverport,
+					  bool haveeventloop=true);
 			//!<Initiates communications
 			RequestConnection(TcpSocket*);
 			/*!<Socket does NOT become mine. Socket should be
 			    connected to whomever is my counterpart. */
 
 			~RequestConnection();
+
+    
 
     bool		isOK() const;
 
@@ -92,7 +95,7 @@ private:
     BufferString		servername_;
     unsigned short		serverport_;
 
-    void			connectToHost();
+    void			connectToHost(bool haveeventloop);
     void			connCloseCB(CallBacker*);
     void			newConnectionCB(CallBacker*);
     void			dataArrivedCB(CallBacker*);
