@@ -530,11 +530,13 @@ void uiToolButton::setMenu( uiMenu* mnu )
     uimenu_ = mnu;
     qmenu_ = new QMenu;
 
+    mDynamicCastGet(uiToolBar*,tb,parent()) \
     if ( !uimenu_ || uimenu_->nrActions() < 1 )
     {
 	qmenu_->setVisible( false );
 	tbbody_->setPopupMode( QToolButton::DelayedPopup );
 		// ... without this, the menu still remains visible
+	if ( !tb ) setPrefWidth( prefVNrPics() );
     }
     else
     {
@@ -545,6 +547,7 @@ void uiToolButton::setMenu( uiMenu* mnu )
 	    qmenu_->addAction( qact );
 	}
 	tbbody_->setPopupMode( QToolButton::MenuButtonPopup );
+	if ( !tb ) setPrefWidth( 1.5*prefVNrPics() );
     }
 
 
