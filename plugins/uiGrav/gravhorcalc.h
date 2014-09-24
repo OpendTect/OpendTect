@@ -24,11 +24,11 @@ namespace Grav
 
 
 mClass(uiGrav) HorCalc : public ::Executor
-{
+{ mODTextTranslationClass(HorCalc);
 public:
 
     mExpClass(uiGrav) Setup
-    {
+    { mODTextTranslationClass(Setup);
     public:
 			Setup( const MultiID& calcmid )
 			    : calcid_(calcmid)		{}
@@ -62,7 +62,7 @@ protected:
     EM::Horizon3D*	bothor_;
     ZAxisTransform*	ztransf_;
 
-    BufferString	msg_;
+    uiString		msg_;
     od_int64		totnr_;
     od_int64		nrdone_;
 

@@ -19,7 +19,7 @@ Grav::HorCalc::HorCalc( const MultiID& calc, const MultiID* top,
     , bothor_(0)
     , ztransf_(0)
     , cutoffangle_(ang)
-    , msg_("Loading horizons")
+    , msg_(tr("Loading horizons"))
     , nrdone_(0)
     , totnr_(3)
 {
@@ -41,7 +41,7 @@ Grav::HorCalc::~HorCalc()
 
 uiString Grav::HorCalc::uiNrDoneText() const
 {
-    return ztransf_ ? "Positions done" : "Horizons loaded";
+    return ztransf_ ? tr("Positions done") : tr("Horizons loaded");
 }
 
 
@@ -57,7 +57,7 @@ int Grav::HorCalc::doLoadStep()
     else if ( nrdone_ == 4 )
     {
 	// ztransf_ = ZATF().create( xxx );
-	msg_ = "TODO";
+	msg_ = tr("TODO");
 	nrdone_ = 0;
 	return ErrorOccurred();
 	

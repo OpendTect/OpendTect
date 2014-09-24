@@ -114,7 +114,7 @@ void uiGravHorCalc::topSel( CallBacker* )
     EM::IOObjInfo eminfo( ioobj->key() );
     if ( !eminfo.isOK() )
     {
-	BufferString msg( "Cannot read '", ioobj->name().buf(), "'" );
+	uiString msg = tr("Cannot read '%1'").arg(ioobj->name().buf());
 	uiMSG().error(msg); return;
     }
 
