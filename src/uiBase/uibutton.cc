@@ -265,7 +265,8 @@ void uiPushButton::setMenu( uiMenu* menu )
     mDynamicCastGet(QPushButton*,qpushbut,qbut)
     if ( !qpushbut ) return;
 
-    qpushbut->setMenu( menu->getQMenu() );
+    // not tested null, but found a link on Internet that says null hides
+    qpushbut->setMenu( menu ? menu->getQMenu() : 0 );
 }
 
 
@@ -523,16 +524,25 @@ void uiToolButton::setMenu( uiMenu* mnu )
 {
     delete qmenu_; delete uimenu_;
     uimenu_ = mnu;
-    if ( !uimenu_ ) return;
-
     qmenu_ = new QMenu;
-    for ( int idx=0; idx<mnu->nrActions(); idx++ )
+
+    if ( !uimenu_ || uimenu_->nrActions() < 1 )
     {
-	QAction* qact =
-		 const_cast<QAction*>( mnu->actions()[idx]->qaction() );
-	qmenu_->addAction( qact );
+	qmenu_->setVisible( false );
+	tbbody_->setPopupMode( QToolButton::DelayedPopup );
+		// ... without this, the menu still remains visible
+    }
+    else
+    {
+	for ( int idx=0; idx<mnu->nrActions(); idx++ )
+	{
+	    QAction* qact =
+		     const_cast<QAction*>( mnu->actions()[idx]->qaction() );
+	    qmenu_->addAction( qact );
+	}
+	tbbody_->setPopupMode( QToolButton::MenuButtonPopup );
     }
 
+
     tbbody_->setMenu( qmenu_ );
-    tbbody_->setPopupMode( QToolButton::MenuButtonPopup );
 }
