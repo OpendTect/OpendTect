@@ -20,8 +20,8 @@ DataPackMgr::ID DataPackMgr::SurfID()		{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 float DataPack::sKb2MbFac()			{ return 0.0009765625; }
 
-ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 Threads::Lock DataPackMgr::mgrlistlock_;
+ManagedObjectSet<DataPackMgr> DataPackMgr::mgrs_;
 
 
 DataPack::ID DataPack::getNewID()
