@@ -22,7 +22,8 @@ using namespace Network;
 
 RequestConnection::RequestConnection( const char* servername,
 				      unsigned short port,
-       				      bool haseventloop )
+				      bool haseventloop,
+				      int timeout )
     : tcpsocket_( 0 )
     , ownssocket_( true )
     , servername_( servername )
@@ -30,7 +31,7 @@ RequestConnection::RequestConnection( const char* servername,
     , connectionClosed( this )
     , packetArrived( this )
 {
-    connectToHost( haseventloop );
+    connectToHost( haseventloop, timeout );
 }
 
 
@@ -64,12 +65,15 @@ RequestConnection::~RequestConnection()
 }
 
 
-void RequestConnection::connectToHost( bool haseventloop )
+void RequestConnection::connectToHost( bool haseventloop, int timeout )
 {
     Threads::MutexLocker locker( lock_ );
 
     if ( !tcpsocket_ )
 	tcpsocket_ = new TcpSocket( haseventloop );
+
+    if ( timeout > 0 )
+	tcpsocket_->setTimeout( timeout );
 
     if ( tcpsocket_->connectToHost(servername_,serverport_) )
 	mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
