@@ -121,15 +121,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
     }
 
     if ( processInput() )
-    {
-	if ( !cb )
-	{
-	    if ( !fillFields(ioobjselgrp_->chosenID(0), false) )
-		ioobjselgrp_->getListField()->setEmpty();
-	}
-	else
-	    fillFields( ioobjselgrp_->chosenID(0) );
-    }
+ 	fillFields( ioobjselgrp_->chosenID(0), cb );
 }
 
 
