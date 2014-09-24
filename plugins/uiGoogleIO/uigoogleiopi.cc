@@ -53,7 +53,7 @@ mDefODPluginInfo(uiGoogleIO)
 
 
 class uiGoogleIOMgr : public CallBacker
-{
+{ mODTextTranslationClass(uiGoogleIOMgr);
 public:
 
     			uiGoogleIOMgr(uiODMain&);
@@ -158,9 +158,9 @@ void uiGoogleIOMgr::exportPolygon( CallBacker* cb )
     if ( !psd || !psd->getSet() ) return;
     const Pick::Set& ps = *psd->getSet();
     if ( ps.disp_.connect_ == Pick::Set::Disp::None )
-	{ uiMSG().error("Can only export Polygons" ); return; }
+	{ uiMSG().error(tr("Can only export Polygons")); return; }
     if ( ps.size() < 3 )
-	{ uiMSG().error("Polygon needs at least 3 points" ); return; }
+	{ uiMSG().error(tr("Polygon needs at least 3 points")); return; }
 
     if ( !uiLatLong2CoordDlg::ensureLatLongDefined(&appl_) )
 	return;
@@ -177,7 +177,7 @@ void uiGoogleIOMgr::exportRandLine( CallBacker* cb )
 		    appl_.applMgr().visServer()->getObject(displayid))
     if ( !rtd ) return;
     if ( rtd->nrKnots() < 2 )
-	{ uiMSG().error("Need at least 2 points" ); return; }
+	{ uiMSG().error(tr("Need at least 2 points")); return; }
 
     TypeSet<BinID> knots;
     rtd->getAllKnotPos( knots );
