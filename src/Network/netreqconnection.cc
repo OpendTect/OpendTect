@@ -260,7 +260,10 @@ RequestServer::RequestServer( unsigned short port )
 	return;
 
     mAttachCB( tcpserv_->newConnection, RequestServer::newConnectionCB );
-    tcpserv_->listen( 0, serverport_ );
+    if ( !tcpserv_->listen( 0, serverport_ ) )
+    {
+	errmsg_ = tr("Cannot start listening on port %1").arg( serverport_ );
+    }
 }
 
 
