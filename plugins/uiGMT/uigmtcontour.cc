@@ -73,25 +73,25 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
     lcb->attach( alignedBelow, subselfld_ );
 
-    BufferString ztag = "Value range ";
+    uiString ztag = tr("Value range ");
     rgfld_ = new uiGenInput( this, ztag, FloatInpIntervalSpec(true) );
     rgfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     rgfld_->attach( alignedBelow, lcb );
 
-    nrcontourfld_ = new uiGenInput( this, "Number of contours",
+    nrcontourfld_ = new uiGenInput( this, tr("Number of contours"),
 	    			    IntInpSpec() );
     nrcontourfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     nrcontourfld_->attach( alignedBelow, rgfld_ );
 
-    resetbut_ = new uiPushButton( this, "Reset range",
+    resetbut_ = new uiPushButton( this, tr("Reset range"),
 	    			  mCB(this,uiGMTContourGrp,resetCB), false );
     resetbut_->attach( rightTo, nrcontourfld_ );
     resetbut_->setSensitive( false );
 
-    linefld_ = new uiCheckBox( this, "Draw contour lines",
+    linefld_ = new uiCheckBox( this, tr("Draw contour lines"),
 	   		       mCB(this,uiGMTContourGrp,drawSel) );
     linefld_->setChecked( true );
-    fillfld_ = new uiCheckBox( this, "Fill Color",
+    fillfld_ = new uiCheckBox( this, tr("Fill Color"),
 	    		       mCB(this,uiGMTContourGrp,drawSel) );
     fillfld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->attach( leftOf, fillfld_ );
@@ -99,10 +99,10 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     colseqfld_ = new uiColorTableSel( this, "Color table" );
     colseqfld_->attach( rightOf, fillfld_ );
 
-    flipfld_ = new uiCheckBox( this, "Flip" );
+    flipfld_ = new uiCheckBox( this, tr("Flip") );
     flipfld_->attach( rightOf, colseqfld_ );
 
-    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_ = new uiSelLineStyle( this, LineStyle(), tr("Line Style") );
     lsfld_->attach( alignedBelow, fillfld_ );
     drawSel( 0 );
 }
