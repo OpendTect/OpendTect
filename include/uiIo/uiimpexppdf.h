@@ -52,7 +52,7 @@ protected:
 */
 
 mExpClass(uiIo) uiExpRokDocPDF : public uiDialog
-{
+{ mODTextTranslationClass(uiExpRokDocPDF);
 public:
 			uiExpRokDocPDF(uiParent*);
 
