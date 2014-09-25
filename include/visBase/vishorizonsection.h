@@ -111,8 +111,8 @@ public:
     StepInterval<int>		displayedColRange() const;
     void			setDisplayRange(const StepInterval<int>&,
 	    					const StepInterval<int>&);
-
-    void			setTextureOrigin(const RowCol&);
+    void			setTextureRange(const StepInterval<int>&,
+						const StepInterval<int>&);
 
     char	 		nrResolutions() const;
     char 			currentResolution() const;
@@ -159,11 +159,12 @@ protected:
 
     Geometry::BinIDSurface*	geometry_;
     RowCol			origin_;
-    RowCol			textureorigin_;
 
     bool			userchangedisplayrg_;
     StepInterval<int>		displayrrg_;
     StepInterval<int>		displaycrg_;
+    StepInterval<int>		texturerowrg_;
+    StepInterval<int>		texturecolrg_;
     Threads::Mutex		updatelock_;
     Threads::SpinLock		spinlock_;
 

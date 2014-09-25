@@ -848,7 +848,7 @@ void HorizonDisplay::createDisplayDataPacks(
     const StepInterval<int> dispinlrg = sections_[0]->displayedRowRange();
     const StepInterval<int> dispcrlrg = sections_[0]->displayedColRange();
     const BinID step( dispinlrg.step, dispcrlrg.step );
-    sections_[0]->setTextureOrigin( RowCol(dispinlrg.start,dispcrlrg.start) );
+    sections_[0]->setTextureRange( dispinlrg, dispcrlrg );
 
     StepInterval<double> inlrg( (double)dispinlrg.start, (double)dispinlrg.stop,
 					    (double)dispinlrg.step );
