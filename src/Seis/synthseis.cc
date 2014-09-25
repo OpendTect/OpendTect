@@ -714,7 +714,7 @@ bool RaySynthGenerator::doPrepare( int )
     outputsampling_.include( cursampling, false );
     outputsampling_.step = cursampling.step;
 
-    message_ = "Generating synthethics";
+    message_ = "Generating synthetics";
 
     return true;
 }

@@ -61,7 +61,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 	types.indexOf( SynthGenParams::toString(SynthGenParams::StratProp) );
     types.removeSingle( stratpropidx );
     uiLabeledComboBox* lblcbx =
-	new uiLabeledComboBox( toppargrp, types, "Synthethic type" );
+	new uiLabeledComboBox( toppargrp, types, "Synthetic type" );
     typefld_ = lblcbx->box();
     typefld_->selectionChanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
