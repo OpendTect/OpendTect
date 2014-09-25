@@ -194,6 +194,11 @@ public:
     virtual int			type() const	{ return ODGraphicsType+7; }
 
     Notifier<ODGraphicsDynamicImageItem>	wantsData;
+    bool					isSnapshot() const;
+						/*!<If set during a wantsData
+						   trigger, the delivered image
+						   must be of same size as
+						   requested image. */
 
 protected:
 
@@ -210,6 +215,7 @@ protected:
     QImage			baseimage_;
     QRectF			bbox_;
     bool			baserev_[2];
+    bool			issnapshot_;
 
     PtrMan<QPixmap>		basepixmap_;	//Only access in paint
     PtrMan<QPixmap>		dynamicpixmap_; //Only access in paint

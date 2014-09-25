@@ -177,7 +177,7 @@ void uiBitMapDisplay::update()
 
     TypeSet<Threads::Work> updatework;
 
-    PtrMan<Task> dynamictask = createDynamicTask();
+    PtrMan<Task> dynamictask = createDynamicTask( false );
     if ( dynamictask )
 	updatework += Threads::Work( *dynamictask, false );
 
@@ -214,18 +214,25 @@ Interval<float> uiBitMapDisplay::getDataRange( bool iswva ) const
 
 void uiBitMapDisplay::reGenerateCB(CallBacker*)
 {
-    Task* dynamictask = createDynamicTask();
+    const bool issnapshot = display_->isSnapshot();
 
+    Task* dynamictask = createDynamicTask( issnapshot );
     if ( !dynamictask )
 	return;
 
-    Threads::WorkManager::twm().emptyQueue( workqueueid_, false );
+    const int queueid = issnapshot ? Threads::WorkManager::cDefaultQueueID()
+				   : workqueueid_;
+    if ( !issnapshot )
+    {
+	Threads::WorkManager::twm().emptyQueue( queueid, false );
+    }
+
     Threads::WorkManager::twm().addWork(
-	Threads::Work(*dynamictask,true), &finishedcb_, workqueueid_, true);
+	    Threads::Work(*dynamictask,true), &finishedcb_, queueid, true );
 }
 
 
-Task* uiBitMapDisplay::createDynamicTask()
+Task* uiBitMapDisplay::createDynamicTask( bool issnapshot  )
 {
     if ( !display_ )
 	return 0;
@@ -238,18 +245,20 @@ Task* uiBitMapDisplay::createDynamicTask()
     uiBitMapDisplayTask* dynamictask =
 	new uiBitMapDisplayTask( viewer_, display_, true );
 
-    const double expandx = wr.width()*overlap_ * (wr.revX() ? -1 : 1 );
-    const double expandy = wr.height()*overlap_ * (wr.revY() ? 1 : -1 );
+    uiWorldRect computewr = wr;
+    uiSize computesz = sz;
+    if ( !issnapshot )
+    {
+	const double expandx = wr.width()*overlap_ * (wr.revX() ? -1 : 1 );
+	const double expandy = wr.height()*overlap_ * (wr.revY() ? 1 : -1 );
 
-    uiWorldRect computewr( wr.left()-expandx,
-			   wr.top()-expandy,
-			   wr.right()+expandx,
-			   wr.bottom()+expandy );
-    computewr.limitTo( viewer_.boundingBox() );
-    const uiSize computesz(
-	    mNINT32(sz.width()/wr.width()*computewr.width()),
-	    mNINT32(sz.height()/wr.height()*computewr.height()) );
-
+	computewr = uiWorldRect( wr.left()-expandx, wr.top()-expandy,
+				 wr.right()+expandx, wr.bottom()+expandy );
+	computewr.limitTo( viewer_.boundingBox() );
+	computesz = uiSize(
+		mNINT32(sz.width()/wr.width()*computewr.width()),
+		mNINT32(sz.height()/wr.height()*computewr.height()) );
+    }
 
     dynamictask->setScope( computewr, computesz );
 
