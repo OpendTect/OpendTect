@@ -10,6 +10,7 @@
 
 #include "madagascarmod.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 
 namespace ODMad

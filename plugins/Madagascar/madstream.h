@@ -12,6 +12,7 @@
 #include "position.h"
 #include "strmdata.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 class SeisTrcReader;
 class SeisTrcWriter;

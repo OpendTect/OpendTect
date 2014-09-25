@@ -12,6 +12,7 @@
 #include "madproc.h"
 #include "namedobj.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 
 namespace ODMad

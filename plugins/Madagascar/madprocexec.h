@@ -11,6 +11,7 @@
 #include "enums.h"
 #include "executor.h"
 #include "od_ostream.h"
+#include "uistring.h"
 
 class StreamData;
 class TextStreamProgressMeter;
