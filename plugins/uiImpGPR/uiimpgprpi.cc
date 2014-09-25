@@ -71,7 +71,7 @@ void uiImpGPRMgr::updMnu( CallBacker* )
 
 
 class uiDZTImporter : public uiDialog
-{
+{ mODTextTranslationClass(uiDZTImporter);
 public:
 
 uiDZTImporter( uiParent* p )
@@ -137,9 +137,9 @@ bool acceptOK( CallBacker* )
     if ( !inpfld_ ) return true;
 
     const BufferString fnm( inpfld_->fileName() );
-    if ( fnm.isEmpty() ) mErrRet("Please enter the input file name")
+    if ( fnm.isEmpty() ) mErrRet(tr("Please enter the input file name"))
     const BufferString lnm( lnmfld_->text() );
-    if ( lnm.isEmpty() ) mErrRet("Please enter the output line name")
+    if ( lnm.isEmpty() ) mErrRet(tr("Please enter the output line name"))
 
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;
