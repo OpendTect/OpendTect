@@ -17,6 +17,7 @@ final class TextLinter extends ArcanistLinter {
   const LINT_SPACE_ALIGNMENT		= 8;
   const LINT_FORBIDDEN_WORD		= 9;
   const LINT_LOCAL_STATIC		= 10;
+  const LINT_TR_IN_MACRO		= 11;
 
   private $maxLineLength = 80;
   private $nrautofixes = 0;
@@ -62,6 +63,7 @@ final class TextLinter extends ArcanistLinter {
       self::LINT_SPACE_ALIGNMENT	=> pht('Spaces used instead of tabs'),
       self::LINT_FORBIDDEN_WORD 	=> pht('Forbidden words'),
       self::LINT_LOCAL_STATIC 		=> pht('Local static variable'),
+      self::LINT_TR_IN_MACRO 		=> pht('tr() statement in macro'),
     );
   }
 
@@ -105,6 +107,7 @@ final class TextLinter extends ArcanistLinter {
 
     $this->lintEOFNewline($path);
     $this->lintTrailingWhitespace($path);
+    $this->lintTrInMacro($path);
 
     if (!$iscmake) {
       $this->lintLineLength($path);
@@ -408,6 +411,33 @@ final class TextLinter extends ArcanistLinter {
           'time.',
         $string,
         '');
+    }
+
+    $this->nrautofixes++;
+  }
+
+
+  protected function lintTrInMacro($path) {
+    //Make macros to one line
+    $data = str_replace( "\\\n", "  ", $this->getData($path) );
+
+    $matches = null;
+    $preg = preg_match_all(
+      '/#define[^\n]+tr[[:blank:]]*\([[:blank:]]*"/m',
+      $data,
+      $matches,
+      PREG_OFFSET_CAPTURE);
+
+    if (!$preg) {
+      return;
+    }
+
+    foreach ($matches[0] as $match) {
+      list($string, $offset) = $match;
+      $this->raiseLintAtOffset(
+        $offset,
+        self::LINT_TR_IN_MACRO,
+        'This line a tr() call inside a macro, which is not allowed.' );
     }
 
     $this->nrautofixes++;
