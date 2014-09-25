@@ -304,9 +304,8 @@ bool uiMadagascarMain::askSave( bool withcancel )
 {
     if ( !needsave_ ) return true;
 
-    BufferString msg = "Current Madagascar flow ";
-    msg += procflow_.name();
-    msg += " is not saved";
+    uiString msg = tr("Current Madagascar flow %1 is not saved")
+		 .arg(procflow_.name());
     const int ret = uiMSG().askSave( msg, withcancel );
     if ( ret < 0 ) return false;
     if ( !ret ) return true;
@@ -345,9 +344,9 @@ bool uiMadagascarMain::rejectOK( CallBacker* )
 
 bool uiMadagascarMain::fillPar()
 {
-    BufferString errmsg;
-    if ( !procflow_.isOK(errmsg) )
-	mErrRet( errmsg.buf() )
+    uiString errmsg;
+    if (!procflow_.isOK(errmsg))
+	mErrRet(errmsg)
 
     IOPar& iop =  batchfld_->jobSpec().pars_;
     iop.setEmpty();

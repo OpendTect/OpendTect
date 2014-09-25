@@ -23,7 +23,7 @@ class uiSeis3DSubSel;
 
 
 mClass(uiMadagascar) uiMadIOSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiMadIOSel);
 public:
 			uiMadIOSel(uiParent*,bool isinp);
 
@@ -45,7 +45,7 @@ protected:
 
 
 mClass(uiMadagascar) uiMadIOSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMadIOSelDlg);
 public:
 
 			uiMadIOSelDlg(uiParent*,IOPar&,bool isinp);
