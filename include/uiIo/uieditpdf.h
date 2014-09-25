@@ -34,7 +34,7 @@ class GaussianNDProbDenFunc;
 /*!\brief Base class for edit probability density function editors. */
 
 mExpClass(uiIo) uiEditProbDenFunc : public uiGroup
-{
+{ mODTextTranslationClass(uiEditProbDenFunc);
 public:
 			uiEditProbDenFunc(uiParent*,ProbDenFunc&,bool editable);
 
@@ -55,7 +55,7 @@ protected:
 /*!\brief Dialog to edit probability density functions. */
 
 mExpClass(uiIo) uiEditProbDenFuncDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiEditProbDenFuncDlg);
 public:
 			uiEditProbDenFuncDlg(uiParent*,ProbDenFunc&,bool edit,
 						bool isnew=false);
@@ -74,7 +74,7 @@ protected:
 /*!\brief Group to edit SampledProbDenFunc's. */
 
 mExpClass(uiIo) uiEditSampledProbDenFunc : public uiEditProbDenFunc
-{
+{ mODTextTranslationClass(uiEditSampledProbDenFunc);
 public:
 			uiEditSampledProbDenFunc(uiParent*,ProbDenFunc&,bool);
 			~uiEditSampledProbDenFunc();
@@ -113,7 +113,7 @@ protected:
 
 
 class uiEditGaussianProbDenFunc : public uiEditProbDenFunc
-{
+{ mODTextTranslationClass(uiEditGaussianProbDenFunc);
 public:
 
 			uiEditGaussianProbDenFunc(uiParent*,ProbDenFunc&,
