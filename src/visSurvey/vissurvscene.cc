@@ -569,6 +569,7 @@ const FontData& Scene::getAnnotFont() const
 
 void Scene::setAnnotFont( const FontData& nf )
 {
+    if ( scenecoltab_ ) scenecoltab_->setAnnotFont( nf );
     return annot_->setFont( nf );
 }
 

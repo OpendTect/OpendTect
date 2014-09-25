@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "position.h"
 #include "enums.h"
 
-
-class ui3DViewerBody;
 class BufferStringSet;
+class FontData;
+class ui3DViewerBody;
 
 namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
 namespace osgViewer { class View; }
@@ -72,6 +72,7 @@ public:
     void		showRotAxis(bool);
     void		setAnnotationColor(const Color&);
     Color		getAnnotationColor() const;
+    void		setAnnotationFont(const FontData&);
     bool		rotAxisShown() const;
     void		toggleCameraType();
     bool		isCameraPerspective() const;

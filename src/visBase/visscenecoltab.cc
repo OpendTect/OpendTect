@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "fontdata.h"
+#include "vistext.h"
 
 #include <osg/Geode>
 #include <osg/Geometry>
@@ -80,6 +81,7 @@ void SceneColTab::setAnnotFont( const FontData& fd )
 {
     mScalarBarType::TextProperties tp;
     const float sizefactor = pixeldensity_/getDefaultPixelDensity();
+    tp._font = OsgFontCreator::create( fd );
     tp._characterSize = fd.pointSize()*sizefactor;
     mScalarBar->setTextProperties( tp );
     fontsize_ = fd.pointSize();
