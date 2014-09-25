@@ -43,10 +43,7 @@ public:
     void		init(const TypeSet<Geom::PosRectangle<double> >&);
     void		reInit(const TypeSet<Geom::PosRectangle<double> >&);
 
-    void		add(const TypeSet<Size>&);
-			/*!< Will put this Size at the right place and makes it
-			current. Also removes zooms larger than this one. */
-    void		add(Size,int vieweridx=-1);
+    void		add(Size,int vieweridx=0);
 			/*!< Will put this Size at the right place and makes it
 			current. Also removes zooms larger than this one. */
 
