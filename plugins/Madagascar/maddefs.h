@@ -16,7 +16,7 @@ namespace ODMad
 {
 
 mClass(Madagascar) ProgDef
-{
+{ mODTextTranslationClass(ProgDef);
 public:
 
 				ProgDef() : group_(0) {}
@@ -32,7 +32,7 @@ public:
 /* Scans $RSFROOT/doc/txt directory for program definitions */
 
 mExpClass(Madagascar) ProgInfo
-{
+{ mODTextTranslationClass(ProgInfo);
 public:
 			//!< When PI() is first used, a Pre-Scan is done
 			//!< if Pre-Scan check is OK, err msg will be empty
@@ -41,7 +41,7 @@ public:
     Executor*		getScanner() const;
 			//!< If scan fails, err msg will be filled
 
-    const OD::String&	errMsg() const		{ return errmsg_; }
+    const uiString&	errMsg() const		{ return errmsg_; }
 
     const ObjectSet<ProgDef>&	defs() const	{ return defs_; }
     const BufferStringSet&	groups() const	{ return groups_; }
@@ -56,7 +56,7 @@ protected:
 
     BufferString	rsfroot_;
     BufferString	defdir_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     bool		scanned_;
     BufferStringSet	groups_;
     ObjectSet<ProgDef>	defs_;

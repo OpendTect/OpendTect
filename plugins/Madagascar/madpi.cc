@@ -28,6 +28,7 @@ mDefODInitPlugin(Madagascar)
     ODMadProcFlowTranslatorGroup::initClass();
     dgbODMadProcFlowTranslator::initClass();
 
-    mDefineStaticLocalObject( BufferString, prescanmsg, =ODMad::PI().errMsg());
+    mDefineStaticLocalObject(BufferString, prescanmsg,
+			     = ODMad::PI().errMsg().getFullString());
     return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
 }

@@ -21,7 +21,7 @@ mExtern(Madagascar) const char* sKeyMadSelKey();
 /*!\brief Specifies file name and optional mask filename */
 
 mExpClass(Madagascar) FileSpec
-{
+{ mODTextTranslationClass(FileSpec);
 public:
 
     			FileSpec(bool forread);
@@ -32,7 +32,7 @@ public:
 
     StreamData		open() const;		//!< if !usable() -> errMsg()
     StreamData		openMask() const;	//!< if !usable() -> errMsg()
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     static const char*	defPath();	//!< returns Madagascar dir in survey
     static const char*	madDataPath();
@@ -47,7 +47,7 @@ protected:
     bool		forread_;
     BufferString	fnm_;
     BufferString	maskfnm_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     StreamData		doOpen(const char*) const;
     bool		fileNameOK(const char*) const;

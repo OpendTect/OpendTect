@@ -22,7 +22,7 @@ namespace ODMad
 class MadStream;
 
 mExpClass(Madagascar) ProcExec : public ::Executor
-{
+{ mODTextTranslationClass(ProcExec);
 public:
 
     enum FlowStage	{ Start, Intermediate, Finish };
@@ -40,7 +40,7 @@ public:
     int			nextStep();
 
     bool		init();
-    BufferString	errMsg()		{ return errmsg_; }
+    uiString		errMsg()		{ return errmsg_; }
 
     static const char*	sKeyFlowStage();
     static const char*	sKeyCurProc();
@@ -50,7 +50,7 @@ protected:
     IOPar&		pars_;
     FlowStage		stage_;
 //    ProcFlow&		procflow_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     od_ostream&		strm_;
     int			nrdone_;
     float*		trc_;

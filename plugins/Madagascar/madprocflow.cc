@@ -69,21 +69,21 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 }
 
 #define mRetFalse(s) { errmsg = s; return false; }
-bool ODMad::ProcFlow::isOK( BufferString& errmsg ) const
+bool ODMad::ProcFlow::isOK(uiString& errmsg) const
 {
     if ( !inpiop_.size() )
-	mRetFalse("Input parameters missing")
+	mRetFalse(tr("Input parameters missing"))
     if ( !outiop_.size() )
-	mRetFalse("Output parameters missing")
+	mRetFalse(tr("Output parameters missing"))
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( !(*this)[idx] )
-	    mRetFalse("Empty proc found")
+	    mRetFalse(tr("Empty proc found"))
 	if ( !(*this)[idx]->isValid() )
 	{
-	    errmsg = "Invalid command: ";
-	    errmsg += (*this)[idx]->getSummary();
+	    errmsg = tr("Invalid command: %1")
+		   .arg((*this)[idx]->getSummary());
 	    return false;
 	}
     }

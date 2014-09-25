@@ -19,7 +19,7 @@ namespace ODMad
 
 mExpClass(Madagascar) ProcFlow : public ::NamedObject
 	       , public ObjectSet<Proc>
-{
+{ mODTextTranslationClass(ProcFlow);
 public:
 
     enum IOType		{ Vol, VolPS, Line, LinePS, Madagascar, SU, None };
@@ -37,7 +37,7 @@ public:
     void		setIOType( bool inp, IOType iot )
     			{ setIOType( inp ? inpiop_ : outiop_, iot ); }
 
-    bool		isOK(BufferString&) const;
+    bool		isOK(uiString&) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 

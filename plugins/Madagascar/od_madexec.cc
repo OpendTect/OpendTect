@@ -22,7 +22,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( !exec.init() || !exec.execute() )
     {
 	BufferString cmd = "od_DispMsg --err ";
-	cmd += exec.errMsg();
+	cmd += exec.errMsg().getFullString();
 	system( cmd );
 	return false;
     }

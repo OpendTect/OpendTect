@@ -46,14 +46,14 @@ void ODMad::ProgInfo::doPreScanCheck()
 
     if ( rsfroot_.isEmpty() )
     {
-	errmsg_ = "RSFROOT not set - no program definitions available";
+	errmsg_ = tr("RSFROOT not set - no program definitions available");
 	return;
     }
     if ( !File::isDirectory(rsfroot_) )
     {
-	errmsg_ = "$RSFROOT (Madagascar) is invalid:\n";
-	errmsg_ += rsfroot_;
-	errmsg_ += "\nThe directory does not exist or cannot be read";
+	errmsg_ = tr("$RSFROOT (Madagascar) is invalid:\n%1"
+		     "\nThe directory does not exist or cannot be read")
+		.arg(rsfroot_);
 	return;
     }
 
@@ -74,10 +74,10 @@ void ODMad::ProgInfo::doPreScanCheck()
 
     if ( !File::isDirectory(defdir_) )
     {
-	errmsg_ = "Madagascar installation not prepared. Directory:\n";
-	errmsg_ += defdir_;
-	errmsg_ += "\ndoes not exist. You need to issue the command:\n"
-		   "$RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt";
+	errmsg_ = tr("Madagascar installation not prepared. Directory:\n%1"
+		     "\ndoes not exist. You need to issue the command:\n"
+		     "$RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt")
+		.arg(defdir_);
     }
 }
 
@@ -86,7 +86,7 @@ namespace ODMad
 {
 
 class ProgInfoScanner : public Executor
-{
+{ mODTextTranslationClass(ProgInfoScanner);
 public:
 
 ProgInfoScanner( ODMad::ProgInfo& pi )
@@ -104,9 +104,9 @@ ProgInfoScanner( ODMad::ProgInfo& pi )
     totnr_ = dl_->size();
     if ( totnr_ < 1 )
     {
-	pi_.errmsg_ = "Madagascar Definition directory:\n";
-	pi_.errmsg_ += pi_.defdir_;
-	pi_.errmsg_ += "\ncontains no definition files";
+	pi_.errmsg_ = tr("Madagascar Definition directory:\n%1"
+			 "\ncontains no definition files")
+		    .arg(pi_.defdir_);
 	delete dl_; dl_ = 0;
     }
 }
@@ -121,13 +121,13 @@ uiString uiMessage() const
     if ( !dl_ )
 	return pi_.errMsg();
     if ( curnr_ < 0 || curnr_ >= dl_->size() )
-	return "Scanning files";
+	return tr("Scanning files");
 
-    msg_ = "Scanning "; msg_ += dl_->get( curnr_ );
+    msg_ = tr("Scanning %1").arg(dl_->get(curnr_));
     return msg_;
 }
 
-uiString	uiNrDoneText() const	{ return "Files scanned"; }
+uiString	uiNrDoneText() const	{ return tr("Files scanned"); }
 od_int64	nrDone() const		{ return curnr_; }
 od_int64	totalNr() const		{ return totnr_; }
 
@@ -148,7 +148,7 @@ int nextStep()
     DirList*		dl_;
     int			totnr_;
     int			curnr_;
-    mutable BufferString msg_;
+    mutable uiString	msg_;
 
 };
 

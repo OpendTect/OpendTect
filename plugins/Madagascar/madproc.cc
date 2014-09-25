@@ -123,8 +123,8 @@ void ODMad::Proc::makeProc( const char* cmd, const char* auxcmd )
 	    if ( !File::exists(fp.fullPath()) )
 	    {
 		isvalid_ = false;
-		errmsg_ = "Cannot find RSF file ";
-		errmsg_ += fp.fullPath();
+		errmsg_ = tr("Cannot find RSF file %1")
+			.arg(fp.fullPath());
 		return;
 	    }
 

@@ -26,7 +26,7 @@ namespace ODMad
 {
 
 mExpClass(Madagascar) MadStream
-{
+{ mODTextTranslationClass(MadStream);
 public:
     				MadStream(IOPar&);
 				~MadStream();
@@ -39,7 +39,7 @@ public:
     SeisTrcBuf*			getTrcBuf() const	{ return stortrcbuf_; }
 
     bool			isOK() const;
-    const char*			errMsg() const;
+    uiString			errMsg() const;
 
     bool			isBinary() const	{ return isbinary_; }
     bool			is2D() const		{ return is2d_; }
@@ -49,13 +49,19 @@ public:
 
 protected:
 
+    static uiString		sCannotCreatePosFile();
+    static uiString		sCannotWritePosFile();
+    static uiString		sCannotOpenPosFile();
+    static uiString		sCannotReadPosFile();
+    static uiString		sNoPositionsInPosFile();
+
     bool			iswrite_;
     bool			is2d_;
     bool			isps_;
     bool			isbinary_;
     IOPar&			pars_;
     IOPar*			headerpars_;
-    BufferString&		errmsg_;
+    uiString&			errmsg_;
 
     od_istream*			istrm_;
     od_ostream*			ostrm_;

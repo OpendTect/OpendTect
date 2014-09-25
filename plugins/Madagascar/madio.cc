@@ -34,17 +34,15 @@ bool ODMad::FileSpec::fileNameOK( const char* fnm ) const
 	FilePath fp( fnm );
 	if ( !File::isWritable(fp.pathOnly()) )
 	{
-	    errmsg_ = "Directory '";
-	    errmsg_ += fp.pathOnly();
-	    errmsg_ += "' is not writable";
+	    errmsg_ = tr("Directory '%1' is not writable")
+		    .arg(fp.pathOnly());
 	    return false;
 	}
     }
     else if ( fnm && *fnm && File::isEmpty(fnm) )
     {
-	errmsg_ = "File '";
-	errmsg_ += fnm;
-	errmsg_ += "' is not readable";
+	errmsg_ = tr("File '%1' is not readable")
+		.arg(fnm);
 	return false;
     }
 
@@ -55,7 +53,7 @@ bool ODMad::FileSpec::fileNameOK( const char* fnm ) const
 bool ODMad::FileSpec::set( const char* fnm, const char* maskfnm )
 {
     if ( !fnm || !*fnm )
-	{ errmsg_ = "No file name provided"; return false; }
+    { errmsg_ = tr("No file name provided"); return false; }
     FilePath fp( fnm );
     if ( !fp.isAbsolute() )
 	fp.set( GetDataDir() ).add( sKeyMadagascar() ).add( fnm );
@@ -126,32 +124,32 @@ StreamData ODMad::FileSpec::openMask() const
 }
 
 
-#define mErrRet(s1,s2,s3) \
-	{ errmsg_ = s1; errmsg_+= s2; errmsg_ += s3; return StreamData(); }
+#define mErrRet(msg) \
+	{ errmsg_ = msg; return StreamData(); }
 
 StreamData ODMad::FileSpec::doOpen( const char* fnm ) const
 {
     if ( forread_ )
     {
-	if ( !File::exists(fnm) )
-	    mErrRet("File '",fnm,"' does not exist")
+	if (!File::exists(fnm))
+	    mErrRet(tr("File '%1' does not exist").arg( fnm ) )
 	else if ( File::isEmpty(fnm) )
-	    mErrRet("File '",fnm,"' is empty")
+	    mErrRet(tr("File '%1' is empty").arg(fnm))
     }
     else
     {
 	FilePath fp( fnm );
 	const BufferString dirnm( fp.pathOnly() );
 	if ( !File::isDirectory(dirnm) )
-	    mErrRet("Directory '",dirnm,"' does not exist")
+	    mErrRet(tr("Directory '%1' does not exist").arg( dirnm ))
 	else if ( !File::isWritable(dirnm) )
-	    mErrRet("Directory '",dirnm,"' is not writable")
+	    mErrRet(tr("Directory '%1' is not writable").arg( dirnm ) )
     }
 
     StreamData ret = forread_ ? StreamProvider(fnm).makeIStream()
 			      : StreamProvider(fnm).makeOStream();
     if ( !ret.usable() )
-	mErrRet("File '",fnm,"' cannot be opened")
+	    mErrRet(tr("File '%1' cannot be opened").arg( fnm ) )
 
     return ret;
 }

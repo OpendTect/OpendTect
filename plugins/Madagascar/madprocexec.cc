@@ -74,7 +74,7 @@ bool ODMad::ProcExec::init()
 
 	PtrMan<IOPar> inpar = pars_.subselect( ODMad::ProcFlow::sKeyInp() );
 	if ( !inpar || !inpar->size() )
-	    mErrRet( "Input parameters missing" )
+	    mErrRet(tr("Input parameters missing"))
 
 	ODMad::ProcFlow::IOType inptyp = ODMad::ProcFlow::ioType( *inpar );
 	const char* comm = getProcString();
@@ -104,11 +104,11 @@ bool ODMad::ProcExec::init()
 	    procstream_ = StreamProvider( comm ).makeOStream();
 
 	if ( !procstream_.usable() )
-	    mErrRet("Failed to create output stream")
+	    mErrRet(tr("Failed to create output stream"))
 
         od_ostream procstrm(*procstream_.ostrm);
 	if ( !madstream_->putHeader(procstrm) )
-	    mErrRet("Failed to get RSF header")
+	    mErrRet(tr("Failed to get RSF header"))
 
 	if ( stage_ == Intermediate )
 	{
@@ -118,7 +118,7 @@ bool ODMad::ProcExec::init()
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
             od_ostream plotstrm( *plotstream_.ostrm );
 	    if ( !madstream_->putHeader(plotstrm) )
-		mErrRet("Failed to put RSF header in plot stream")
+		mErrRet(tr("Failed to put RSF header in plot stream"))
 	}
 
 	const int trcsize = madstream_->getNrSamples();
@@ -284,15 +284,11 @@ const char* ODMad::ProcExec::getPlotString() const
 
 
 uiString ODMad::ProcExec::uiMessage() const
-{
-    return "Working";
-}
+{ return tr("Working"); }
 
 
 uiString ODMad::ProcExec::uiNrDoneText() const
-{
-    return "Traces handled";
-}
+{ return tr("Traces handled"); }
 
 
 od_int64 ODMad::ProcExec::totalNr() const

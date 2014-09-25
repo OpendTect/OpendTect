@@ -16,7 +16,7 @@ namespace ODMad
 {
 
 mExpClass(Madagascar) Proc
-{
+{ mODTextTranslationClass(Proc);
 public:
 
     enum IOType		{ Vol, VolPS, Line, LinePS, Madagascar, SegY, SU,
@@ -35,7 +35,7 @@ public:
     const char*		parStr(int) const;
     const char*		getCommand() const;
     const char*		getSummary() const;
-    BufferString	errMsg() const		{ return errmsg_; }
+    uiString		errMsg() const		{ return errmsg_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -49,7 +49,7 @@ protected:
     BufferString	progname_;
     BufferStringSet	parstrs_;
     BufferString	auxcmd_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     IOType		inptype_;
     IOType		outptype_;
 
