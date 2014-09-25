@@ -90,17 +90,19 @@ endif
 
 shift 
 
-cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | ${grepcommand} -q "${keyword}"
-if ( ${status} == 0 ) then
-    if ( "${exceptionfile}" != "" ) then
-	${grepcommand} -q ${filename} ${exceptionfile}
-	if ( ${status} == 0 ) then
-	    goto nextfile
+if ( -e ${filename} ) then
+    cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | ${grepcommand} -q "${keyword}"
+    if ( ${status} == 0 ) then
+	if ( "${exceptionfile}" != "" ) then
+	    ${grepcommand} -q ${filename} ${exceptionfile}
+	    if ( ${status} == 0 ) then
+		goto nextfile
+	    endif
 	endif
+		
+	echo ${filename}
+	set failure = 1;
     endif
-	    
-    echo ${filename}
-    set failure = 1;
 endif
 
 goto nextfile
