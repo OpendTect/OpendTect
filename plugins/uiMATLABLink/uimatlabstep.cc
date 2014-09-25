@@ -147,7 +147,7 @@ bool uiMatlabStep::readTable( BufferStringSet& names,
 	if ( valtxt.isEmpty() )
 	{
 	    const char* parnm = partable_->text( RowCol(idx,0) );
-	    uiMSG().error( BufferString("No value given for ",parnm) );
+	    uiMSG().error( tr("No value given for %1").arg(parnm) );
 	    return false;
 	}
 
