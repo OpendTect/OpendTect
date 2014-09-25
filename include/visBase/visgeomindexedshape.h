@@ -76,12 +76,13 @@ public:
     void			setMaterial(Material*);
     void			updateMaterialFrom(const Material*);
 
-    void			setPrimitiveType(
-				const Geometry::PrimitiveSet::PrimitiveType);
-
     enum			GeomShapeType{ Triangle, PolyLine, PolyLine3D };
-    void			setIndexedGeometryShapeType(
-						  GeomShapeType geomshapetype);
+    void			setGeometryShapeType(GeomShapeType shapetype,
+				 Geometry::PrimitiveSet::PrimitiveType pstype 
+				 = Geometry::PrimitiveSet::TriangleStrip);
+				/*!<remove previous geometry shape and create 
+				a new geometry shape based on shape type.*/
+
     void			useOsgNormal(bool);
     void			setNormalBindType(VertexShape::BindType);
     void			setColorBindType(VertexShape::BindType);
@@ -115,7 +116,6 @@ protected:
 
     Geometry::IndexedShape*			shape_;
     VertexShape*				vtexshape_;
-    DrawStyle*					drawstyle_;
     bool					colortableenabled_ ;
     int						renderside_;
        					    /*!< 0 = visisble from both sides.
@@ -124,7 +124,6 @@ protected:
     Material*					singlematerial_;
     Material*					coltabmaterial_;
     ColTab::Sequence		                sequence_;
-    Geometry::PrimitiveSet::PrimitiveType	primitivesettype_;
     GeomShapeType				geomshapetype_;
 
     LineStyle					linestyle_;

@@ -247,7 +247,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	paneldisplay_->setDisplayTransformation( displaytransform_ );
 	paneldisplay_->setMaterial( 0 );
 	paneldisplay_->setSelectable( false );
-	paneldisplay_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
+	paneldisplay_->setGeometryShapeType(
+	    visBase::GeomIndexedShape::Triangle );
 	paneldisplay_->useOsgNormal( true );
 	paneldisplay_->setRenderMode( visBase::RenderBothSides );
 	paneldisplay_->setTextureChannels( channels_ );
@@ -262,9 +263,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
 	intersectiondisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
-	intersectiondisplay_->setPrimitiveType( Geometry::PrimitiveSet::Lines );
-	intersectiondisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
+	intersectiondisplay_->setGeometryShapeType(
+	   visBase::GeomIndexedShape::PolyLine3D,Geometry::PrimitiveSet::Lines);
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
     }
@@ -277,9 +277,9 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	if ( !stickdisplay_->getMaterial() )
 	    stickdisplay_->setMaterial( new visBase::Material );
 	stickdisplay_->setSelectable( false );
-	stickdisplay_->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
-	stickdisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
+	stickdisplay_->setGeometryShapeType( 
+	    visBase::GeomIndexedShape::PolyLine3D,
+	    Geometry::PrimitiveSet::LineStrips );
 	addChild( stickdisplay_->osgNode() );
     }
 
@@ -1384,6 +1384,9 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	line->setDisplayTransformation( displaytransform_ );
 	line->setSelectable( false );
 	line->setRightHandSystem( righthandsystem_ );
+	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine,
+	    Geometry::PrimitiveSet::Lines );
+
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = 0;

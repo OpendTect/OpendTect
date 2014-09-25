@@ -296,8 +296,10 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
-	const int inlidx = impbody_->tkzs_.hrg.inlRange().nearestIndex(bid.inl());
-	const int crlidx = impbody_->tkzs_.hrg.crlRange().nearestIndex(bid.crl());
+	const int inlidx = 
+	    impbody_->tkzs_.hrg.inlRange().nearestIndex(bid.inl());
+	const int crlidx = 
+	    impbody_->tkzs_.hrg.crlRange().nearestIndex(bid.crl());
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{
 	    vals[valcol] = 0;
@@ -824,7 +826,8 @@ void MarchingCubesDisplay::otherObjectsMoved(
 	pi->visshape_->turnOn( displayintersections_ );
 	addChild( pi->visshape_->osgNode() );
 
-	TrcKeyZSampling cs = activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
+	TrcKeyZSampling cs = 
+	    activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==OD::ZSlice ? cs.zsamp_.start
 	    : (ori==OD::InlineSlice ? cs.hrg.start.inl() : cs.hrg.start.crl());
@@ -928,8 +931,7 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 
     visshape_->addNodeState( offset );
     visshape_->setSurface( shape_ );
-    visshape_->setIndexedGeometryShapeType(visBase::GeomIndexedShape::Triangle);
-    visshape_->setPrimitiveType( Geometry::PrimitiveSet::TriangleStrip );
+    visshape_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle );
     visshape_->setNormalBindType( visBase::VertexShape::BIND_OVERALL );
     visshape_->setRenderMode( visBase::RenderBothSides );
 
