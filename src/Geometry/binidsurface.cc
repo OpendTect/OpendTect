@@ -201,7 +201,7 @@ bool BinIDSurface::removeRow( int start, int stop )
     const int stopidx = rowIndex( stop );
     if ( startidx<0 || startidx>=curnrrows || stopidx<0 || stopidx>=curnrrows )
     { 
-	errmsg() = "Row to remove does not exist"; 
+	errmsg() = tr("Row to remove does not exist");
 	return false; 
     }
 
@@ -245,7 +245,7 @@ bool BinIDSurface::removeCol( int start, int stop )
     const int stopidx = colIndex( stop );
     if ( startidx<0 || startidx>=curnrcols || stopidx<0 || stopidx>=curnrcols )
     { 
-	errmsg() = "Column to remove does not exist"; 
+	errmsg() = tr("Column to remove does not exist");
 	return false; 
     }
 

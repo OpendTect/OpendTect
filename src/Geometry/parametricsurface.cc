@@ -45,8 +45,9 @@ Coord3 ParametricSurface::computeNormal( const Coord& ) const
 
 StepInterval<int> ParametricSurface::rowRange() const
 {
-    return StepInterval<int>( origin_.row(), origin_.row()+(nrRows()-1)*step_.row(),
-	   		      step_.row() );
+    return StepInterval<int>(origin_.row(),
+			     origin_.row() + (nrRows() - 1)*step_.row(),
+	   		     step_.row());
 }
 
 
@@ -56,8 +57,9 @@ StepInterval<int> ParametricSurface::rowRange(int) const
 
 StepInterval<int> ParametricSurface::colRange() const
 {
-    return StepInterval<int>( origin_.col(), origin_.col()+(nrCols()-1)*step_.col(),
-	    		      step_.col() );
+    return StepInterval<int>(origin_.col(),
+			     origin_.col() + (nrCols() - 1)*step_.col(),
+	    		     step_.col());
 }
 
 
@@ -120,7 +122,7 @@ bool ParametricSurface::setKnot( const RowCol& rc, const Coord3& np )
     {
 	if ( wasundef && checksupport_ && !hasSupport(rc) )
 	{
-	    errmsg() = "New rc does not have any support";
+	    errmsg() = tr("New rc does not have any support");
 	    return false;
 	}
 
@@ -196,7 +198,7 @@ bool ParametricSurface::unsetKnot( const RowCol& rc )
     const int index = getKnotIndex(rc);
     if ( index==-1 )
     {
-	errmsg() = "Cannot unset non-existing knot";
+	errmsg() = tr("Cannot unset non-existing knot");
 	return false;
     }
 
@@ -348,10 +350,10 @@ bool ParametricSurface::hasSupport( const RowCol& rc ) const
 
 bool ParametricSurface::isAtEdge( const RowCol& rc ) const
 {
-    return !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()+step_.col()) ) ||
-	   !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()-step_.col()) ) ||
-	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()+step_.col()) ) ||
-	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()-step_.col()) );
+    return !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()+step_.col())) ||
+	   !isKnotDefined(RowCol(rc.row()+step_.row(), rc.col()-step_.col())) ||
+	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()+step_.col())) ||
+	   !isKnotDefined(RowCol(rc.row()-step_.row(), rc.col()-step_.col()));
 }
 
 
@@ -369,11 +371,14 @@ bool ParametricSurface::isAtSameEdge( const RowCol& rc1, const RowCol& rc2,
     int udefidx = -1;
     if ( !isKnotDefined(RowCol(rc1.row()+step_.row(), rc1.col()+step_.col())) )
 	udefidx = dirs.indexOf(RowCol(1,1));
-    else if ( !isKnotDefined(RowCol(rc1.row()+step_.row(), rc1.col()-step_.col())) )
+    else if (!isKnotDefined(RowCol(rc1.row() + step_.row(),
+				   rc1.col() - step_.col())))
 	udefidx = dirs.indexOf(RowCol(1,-1));
-    else if ( !isKnotDefined(RowCol(rc1.row()-step_.row(), rc1.col()+step_.col())) )
+    else if (!isKnotDefined(RowCol(rc1.row() - step_.row(),
+				   rc1.col() + step_.col())))
 	udefidx = dirs.indexOf(RowCol(-1,1));
-    else if ( !isKnotDefined(RowCol(rc1.row()-step_.row(), rc1.col()-step_.col())) )
+    else if (!isKnotDefined(RowCol(rc1.row() - step_.row(),
+				   rc1.col() - step_.col())))
 	udefidx = dirs.indexOf(RowCol(-1,-1));
 
     if ( udefidx==-1 )

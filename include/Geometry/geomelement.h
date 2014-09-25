@@ -25,7 +25,7 @@ namespace Geometry
 /*!Iterator through all positions on an element. */
 
 mExpClass(Geometry) Iterator
-{
+{ mODTextTranslationClass(Iterator);
 public:
     virtual 			~Iterator()		{}
     virtual GeomPosID		next()			= 0;
@@ -34,7 +34,7 @@ public:
 
 
 mExpClass(Geometry) Element : public CallBacker
-{
+{ mODTextTranslationClass(Element);
 public:
     				Element();
     virtual			~Element();
@@ -44,7 +44,7 @@ public:
 	   				  bool noudf=true) const;
     virtual IntervalND<float>	boundingBox(bool approx) const;
     virtual Element*		clone() const				= 0;
-    virtual const char*		errMsg() const;
+    virtual uiString		errMsg() const;
 
     virtual Coord3	getPosition(GeomPosID) const			= 0;
     virtual bool	setPosition(GeomPosID,const Coord3&)		= 0;
@@ -81,11 +81,11 @@ protected:
     void			triggerNrPosCh();
     bool			ischanged_;
 
-    BufferString&		errmsg();
+    uiString&			errmsg();
 
 private:
 
-    BufferString*		errmsg_;
+    uiString*			errmsg_;
 };
 
 };

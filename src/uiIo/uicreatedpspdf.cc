@@ -313,7 +313,7 @@ bool uiCreateDPSPDF::acceptOK( CallBacker* )
 
 
 #define mSavePDF( retstatement ) \
-BufferString errmsg; \
+uiString errmsg; \
 const IOObj* ioobj = outputfld_->ioobj(); \
 if ( !ProbDenFuncTranslator::write(*pdf_,*ioobj,&errmsg) ) \
 { uiMSG().error(errmsg); retstatement; } \

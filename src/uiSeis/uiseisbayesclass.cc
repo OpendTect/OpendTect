@@ -42,7 +42,7 @@ static const char* sKeyBayesClss = "Bayesian classification";
 #define mOutput		13
 
 
-static ProbDenFunc* getPDF( const char* id, BufferString& emsg )
+static ProbDenFunc* getPDF( const char* id, uiString& emsg )
 {
     if ( !id || !*id ) { emsg = "No ID"; return 0; }
     PtrMan<IOObj> ioobj = IOM().get( MultiID(id) );
@@ -183,7 +183,7 @@ bool acceptOK( CallBacker* )
 
 	const IOObj* ioobj = fld->ioobj();
 	if ( !ioobj ) return false;
-	BufferString emsg;
+	uiString emsg;
 	ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &emsg );
 	if ( !pdf )
 	    { uiMSG().error(emsg); delete pdf; return false; }
@@ -414,7 +414,7 @@ uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
     , lsfld_(0)
     , is2d_(*pars[sKey::Type()] == '2')
 {
-    BufferString emsg;
+    uiString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
 					emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }
@@ -507,7 +507,7 @@ uiSeisBayesOut( uiParent* p, IOPar& pars )
 {
     if ( is2d_ ) { new uiLabel( this, tr("2D not implemented") ); return; }
 
-    BufferString emsg;
+    uiString emsg;
     PtrMan<ProbDenFunc> pdf = getPDF( pars_.find( mGetSeisBayesPDFIDKey(0) ),
 					emsg );
     if ( !pdf ) { new uiLabel(this,emsg); return; }

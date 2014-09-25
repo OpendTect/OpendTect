@@ -59,13 +59,13 @@ IntervalND<float> Element::boundingBox(bool) const
 
 
 
-const char* Element::errMsg() const
-{ return errmsg_ ? errmsg_->str() : 0; }
+uiString Element::errMsg() const
+{ return errmsg_ ? *errmsg_ : uiString::emptyString(); }
 
 
-BufferString& Element::errmsg()
+uiString& Element::errmsg()
 {
-    if ( !errmsg_ ) errmsg_ = new BufferString;
+    if ( !errmsg_ ) errmsg_ = new uiString;
     return *errmsg_;
 }
 

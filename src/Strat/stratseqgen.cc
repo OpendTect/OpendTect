@@ -524,7 +524,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 	    if ( !mp )
 	    {
 		const float val = prop.value( eo );
-		if ( mIsUdf(val) && !FixedString(prop.errMsg()).isEmpty()  )
+		if ( mIsUdf(val) && !uiString(prop.errMsg()).isEmpty()  )
 		    { errmsg_ = prop.errMsg(); return false; }
 		else if ( ipr == 0 && val < 1e-8 )
 		    { delete newlay; return true; }

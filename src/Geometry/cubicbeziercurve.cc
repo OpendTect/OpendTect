@@ -144,8 +144,8 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
     const int idx = getIndex(param);
 
     if ( idx<-1||idx>positions.size() )
-	mRetErr("Cannot add position that is not a neighbor to an existing"
-		" position", false );
+	mRetErr(tr("Cannot add position that is not a neighbor to an existing"
+		   " position"), false);
 
     if ( idx==-1 )
     {
@@ -173,7 +173,7 @@ bool CubicBezierCurve::setPosition( GeomPosID param, const Coord3& np )
 bool CubicBezierCurve::insertPosition( GeomPosID param, const Coord3& np )
 {
     if ( !np.isDefined() )
-	mRetErr("Cannot insert undefined position", false );
+	mRetErr(tr("Cannot insert undefined position"), false);
 
     const int idx = getIndex(param);
     if ( idx<0 || idx>=positions.size() )
@@ -196,7 +196,7 @@ bool CubicBezierCurve::removePosition( GeomPosID param )
 {
     const int idx = getIndex(param);
     if ( idx<0 || idx>=positions.size() )
-	mRetErr("Cannot remove non-existing position", false );
+	mRetErr(tr("Cannot remove non-existing position"), false);
 
     if ( idx==0 || idx==positions.size()-1 )
 	return unsetPosition(param);
@@ -219,8 +219,8 @@ bool CubicBezierCurve::unsetPosition( GeomPosID param )
     const int idx = getIndex( param );
 
     if ( positions.size()<3 )
-	mRetErr("Cannot remove positions since too few positions will be left",
-		false );
+	mRetErr(tr("Cannot remove positions since too few "
+		   "positions will be left"), false);
 
     if ( !idx || idx==positions.size()-1)
     {
@@ -231,8 +231,8 @@ bool CubicBezierCurve::unsetPosition( GeomPosID param )
 	return true;
     }
 
-    mRetErr("Cannot remove positions in the middle of a curve, since that "
-	    "would split the curve.", false );
+    mRetErr(tr("Cannot remove positions in the middle of a curve, since that "
+	       "would split the curve."), false);
 }
 
 
@@ -277,7 +277,7 @@ bool CubicBezierCurve::setTangent( GeomPosID param, const Coord3& np )
     const int idx = getIndex(param);
 
     if ( idx<0||idx>=positions.size() )
-	mRetErr("No corresponding position", false );
+	mRetErr(tr("No corresponding position"), false);
 
     directions[idx] = np;
 

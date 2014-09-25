@@ -54,14 +54,14 @@ SeisBayesClass::SeisBayesClass( const IOPar& iop )
     const char* res = pars_.find( sKey::Type() );
     is2d_ = res && *res == '2';
     if ( is2d_ )
-	{ msg_ = "2D not implemented"; return; }
+    { msg_ = tr("2D not implemented"); return; }
 
-    msg_ = "Initializing";
+    msg_ = tr("Initializing");
 }
 
-#define mAddIdxRank(idx) arg( uiString("%1%2") \
-				.arg(toString(idx+1)) \
-				.arg( getRankPostFix(idx+1)) )
+#define mAddIdxRank(idx) arg( ("%1%2") \
+			  .arg(toString(idx+1)) \
+			  .arg( getRankPostFix(idx+1)) )
 
 
 SeisBayesClass::~SeisBayesClass()
@@ -97,11 +97,11 @@ bool SeisBayesClass::getPDFs()
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find object for %1 PDF in data store")
-			.mAddIdxRank(ipdf);
+		 .arg(ipdf);
 	    return false;
 	}
 
-	BufferString errmsg;
+	uiString errmsg;
 	ProbDenFunc* pdf = ProbDenFuncTranslator::read( *ioobj, &errmsg );
 	if ( !pdf )
 	{
@@ -116,9 +116,9 @@ bool SeisBayesClass::getPDFs()
 	if ( ipdf == 0 )
 	    const_cast<int&>(nrdims_) = pdf->nrDims();
 	else if ( pdf->nrDims() != nrdims_ )
-	    { msg_ = "PDF's have different dimensions"; return false; }
+	{ msg_ = tr("PDF's have different dimensions"); return false; }
 	else if ( !pdf->isCompatibleWith(pdf0) )
-	    { msg_ = "PDF's are not compatible"; return false; }
+	{ msg_ = tr("PDF's are not compatible"); return false; }
 
 	TypeSet<int>* idxs = new TypeSet<int>;
 	pdf->getIndexTableFor( pdf0, *idxs );
@@ -144,7 +144,7 @@ bool SeisBayesClass::getPDFs()
 
     const_cast<int&>(nrpdfs_) = inppdfs_.size();
     if ( nrpdfs_ < 1 )
-	{ msg_ = "No PDF's in parameters"; return false; }
+    { msg_ = tr("No PDF's in parameters"); return false; }
     preScalePDFs();
 
     pdfinpvals_.setSize( nrdims_, 0 );
@@ -210,7 +210,7 @@ bool SeisBayesClass::getReaders()
 	if ( !id || !*id )
 	{
 	    msg_ = tr("Cannot find %1  input cube (for %2) in parameters")
-		    .mAddIdxRank(idim).arg( pdf0.dimName(idim) );
+		 .arg(idim).arg( pdf0.dimName(idim) );
 	    return false;
 	}
 
@@ -243,9 +243,9 @@ bool SeisBayesClass::getWriters()
 	if ( !ioobj )
 	{
 	    msg_ = tr("Cannot find output cube for %1"
-		       "\nID found is %2)")
-		      .arg( pdfnames_.get( ipdf ) )
-		      .arg( id );
+		      "\nID found is %2)")
+		 .arg( pdfnames_.get( ipdf ) )
+		 .arg( id );
 	    return false;
 	}
 
@@ -253,11 +253,11 @@ bool SeisBayesClass::getWriters()
     }
 
     if ( !haveoutput )
-	{ msg_ = "No output specified in parameters"; return false; }
+    { msg_ = tr("No output specified in parameters"); return false; }
 
     const_cast<bool&>(needclass_) = wrrs_[nrpdfs_] || wrrs_[nrpdfs_+1];
     initstep_ = 0;
-    msg_ = "Processing";
+    msg_ = tr("Processing");
     return true;
 }
 
@@ -270,7 +270,7 @@ uiString SeisBayesClass::uiMessage() const
 
 uiString SeisBayesClass::uiNrDoneText() const
 {
-    return initstep_ ? "Step" : "Positions handled";
+    return initstep_ ? tr("Step") : tr("Positions handled");
 }
 
 

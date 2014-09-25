@@ -33,7 +33,7 @@ public:
 
 
 mExpClass(Geometry) PickSetTranslator : public Translator
-{
+{ mODTextTranslationClass(PickSetTranslator);
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
 

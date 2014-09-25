@@ -124,14 +124,17 @@ bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 currentpos = computePos(u,v);
-	const float sqdist = (float) (currentpos-linepoint).cross(linedir).sqAbs();
+	const float sqdist = (float)(currentpos - linepoint).cross(linedir)
+		       .sqAbs();
 	if ( sqdist<eps ) return true;
 
 	const Coord3 upos = computePos(u+1e-3f,v);
-	const float udist = (float) (upos-linepoint).cross(linedir).sqAbs()-sqdist;
+	const float udist = (float)(upos - linepoint).cross(linedir)
+		      .sqAbs() - sqdist;
 
 	const Coord3 vpos = computePos(u,v+1e-3f);
-	const float vdist = (float) (vpos-linepoint).cross(linedir).sqAbs()-sqdist;
+	const float vdist = (float)(vpos - linepoint).cross(linedir)
+		      .sqAbs() - sqdist;
 
  	if ( fabs(udist)>fabs(vdist) )	
 	    u = u-(sqdist/udist*1e-3f);
@@ -419,7 +422,7 @@ bool CubicBezierSurface::removeRow( int row, int )
     const int rowidx = rowIndex( row );
     if ( rowidx<0 || rowidx>=curnrrows )
     { 
-	errmsg() = "Row to remove does not exist"; 
+	errmsg() = tr("Row to remove does not exist");
 	return false; 
     }
 
@@ -495,7 +498,7 @@ bool CubicBezierSurface::removeCol( int col, int )
     const int colidx = colIndex( col );
     if ( colidx<0 || colidx>=curnrcols )
     { 
-	errmsg() = "Column to remove does not exist"; 
+	errmsg() = tr("Column to remove does not exist");
 	return false; 
     }
 

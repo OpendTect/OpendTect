@@ -32,12 +32,12 @@ static const float cMaxSampledBinVal = 100.0f;
 
 static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
 {
-    BufferString emsg;
+    uiString emsg;
     if ( ProbDenFuncTranslator::write(pdf,ioobj,&emsg) )
 	return true;
 
-    const char* msg = emsg.buf();
-    if ( !msg || !*msg )
+    uiString msg = emsg;
+    if ( !msg.isSet() )
 	msg = "Could not write PDF to disk";
     uiMSG().error( msg );
     return false;
@@ -45,7 +45,7 @@ static bool writePDF( const ProbDenFunc& pdf, const IOObj& ioobj )
 
 
 class uiProbDenFuncGenSampled : public uiDialog
-{
+{ mODTextTranslationClass(uiProbDenFuncGenSampled);
 public:
 
 			uiProbDenFuncGenSampled(uiParent*,int nrdim,bool gauss,
@@ -78,7 +78,7 @@ public:
 
 
 class uiProbDenFuncGenGaussian : public uiDialog
-{
+{ mODTextTranslationClass(uiProbDenFuncGenGaussian);
 public:
 
 			uiProbDenFuncGenGaussian(uiParent*,int nrdim,MultiID&);
@@ -102,11 +102,13 @@ uiProbDenFuncGen::uiProbDenFuncGen( uiParent* p )
 {
 
     choicefld_ = new uiCheckList( this, uiCheckList::OneOnly );
-    choicefld_->addItem( "Create an editable PDF filled with Gaussian values",
-			 "createsampledgaussianprdf"  );
-    choicefld_->addItem( "Create a full Gaussian PDF", "creategaussianprdf"  );
-    choicefld_->addItem( "Create an empty PDF to edit by hand",
-			 "createuniformprdf" );
+    choicefld_->addItem( tr("Create an editable PDF filled "
+			    "with Gaussian values"),
+			    "createsampledgaussianprdf"  );
+    choicefld_->addItem( tr("Create a full Gaussian PDF"), 
+			    "creategaussianprdf"  );
+    choicefld_->addItem( tr("Create an empty PDF to edit by hand"),
+			    "createuniformprdf" );
     choicefld_->changed.notify( mCB(this,uiProbDenFuncGen,choiceSel) );
 
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
@@ -250,9 +252,10 @@ bool uiProbDenFuncGenSampled::getFromScreen()
     nrbins_= nrbinsfld_->getValue();
     od_int64 totalbins = nrbins_;
     totalbins = Math::IntPowerOf( totalbins, nrdims_ );
-    if ( totalbins > 100000
-      && !uiMSG().askGoOn(BufferString("You have requested a total of ",
-	      totalbins, " bins.\nAre you sure this is what you want?")) )
+    if (totalbins > 100000
+	&& !uiMSG().askGoOn(tr("You have requested a total of %1"
+			       " bins.\nAre you sure this is what you want?")
+		       .arg(totalbins)))
 	return false;
 
     dimnms_.setEmpty(); rgs_.setEmpty();
@@ -261,19 +264,19 @@ bool uiProbDenFuncGenSampled::getFromScreen()
     {
 	dimnms_.add( nmflds_[idim]->text() );
 	if ( dimnms_.get(idim).isEmpty() )
-	    mErrRet( "Please enter a name for each variable" )
+	    mErrRet(tr("Please enter a name for each variable"))
 
 	float exp = expstdflds_[idim]->getfValue(0);
 	float stdev = expstdflds_[idim]->getfValue(1);
 	if ( mIsUdf(exp) || mIsUdf(stdev) )
-	    mErrRet( "Please fill all expectations and standard deviations" )
+	    mErrRet(tr("Please fill all expectations and standard deviations"))
 	exps_ += exp; stds_ += stdev;
 
 	Interval<float> rg;
 	rg.start = rgflds_[idim]->getfValue(0);
 	rg.stop = rgflds_[idim]->getfValue(1);
 	if ( mIsUdf(rg.start) || mIsUdf(rg.stop) )
-	    mErrRet( "Please fill all variable ranges" )
+	    mErrRet(tr("Please fill all variable ranges"))
 	rg.sort();
 	rgs_ += rg;
 

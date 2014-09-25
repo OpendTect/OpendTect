@@ -25,7 +25,7 @@ namespace Geometry
 
 
 mExpClass(Geometry) BinIDSurface : public ParametricSurface
-{
+{ mODTextTranslationClass(BinIDSurface);
 public:
     			BinIDSurface(const BinID& step);
     			BinIDSurface(const BinIDSurface&);

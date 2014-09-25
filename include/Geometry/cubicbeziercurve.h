@@ -20,7 +20,7 @@ namespace Geometry
 {
 
 mExpClass(Geometry) CubicBezierCurve : public ParametricCurve
-{
+{ mODTextTranslationClass(CubicBezierCurve);
 public:
 			CubicBezierCurve( const Coord3&, const Coord3&,
 					  int firstparam=0, int step=1 );

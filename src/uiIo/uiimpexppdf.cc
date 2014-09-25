@@ -83,7 +83,7 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 
 
 class RokDocImporter
-{
+{ mODTextTranslationClass(RokDocImporter);
 public:
 
 RokDocImporter( const char* fnm )
@@ -94,7 +94,7 @@ RokDocImporter( const char* fnm )
 Sampled2DProbDenFunc* getPDF()
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = "Cannot open input file"; return 0; }
+	{ errmsg_ = tr("Cannot open input file"); return 0; }
 
     BufferString word; int wordnr = 0; int nrdims = 2;
     while ( strm_.getWord(word) )
@@ -105,8 +105,8 @@ Sampled2DProbDenFunc* getPDF()
     }
     if ( nrdims != 2 )
     {
-	errmsg_ = "Can only handle 2D PDFs. Dimension found: ";
-	errmsg_ += nrdims;
+	errmsg_ = tr("Can only handle 2D PDFs. Dimension found: %1")
+		.arg(nrdims);
 	return 0;
     }
 
@@ -140,8 +140,8 @@ Sampled2DProbDenFunc* getPDF()
     }
     if ( nr0 < 0 || nr1 < 0 )
     {
-	errmsg_ = "Could not find size for ";
-	errmsg_ += nr0 < 0 ? "X variable" : "Y variable";
+	errmsg_ = tr("Could not find size for %1")
+		.arg(nr0 < 0 ? tr("X variable") : tr("Y variable"));
 	return 0;
     }
 
@@ -168,7 +168,7 @@ Sampled2DProbDenFunc* getPDF()
     return pdf;
 }
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     od_istream		strm_;
 
 };
@@ -277,12 +277,12 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 	{ uiMSG().error(tr("Invalid output X and/or Y range/size")); 
           return false; }
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( !ProbDenFuncTranslator::write(*pdf,*pdfioobj,&errmsg) )
 	{ uiMSG().error(errmsg); delete pdf; return false; }
 
-    BufferString msg( "Imported " );
-    msg.add( pdf->size(0) ).add("x").add( pdf->size(1) ).add(" PDF.");
+    uiString msg = tr( "Imported %1 x %2 PDF." )
+		 .arg( pdf->size(0) ).arg( pdf->size(1) );
     uiMSG().message( msg );
     delete pdf;
     return false;
@@ -309,7 +309,7 @@ uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
 
 
 class RokDocExporter
-{
+{ mODTextTranslationClass(RokDocExporter);
 public:
 
 RokDocExporter( const char* fnm )
@@ -320,7 +320,7 @@ RokDocExporter( const char* fnm )
 bool putPDF( const Sampled2DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
-	{ errmsg_ = "Cannot open output file"; return false; }
+	{ errmsg_ = tr("Cannot open output file"); return false; }
 
     strm_ << "Probability Density Function 2D \"" << pdf.name()
 	 << "\" output by OpendTect " << GetFullODVersion()
@@ -357,11 +357,11 @@ bool putPDF( const Sampled2DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = tr("Error during write"); strm_.addErrMsgTo( errmsg_ ); }
     return errmsg_.isEmpty();
 }
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
     od_ostream		strm_;
 
 };
@@ -371,14 +371,14 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
 {
     const IOObj* pdfioobj = inpfld_->ioobj();
     if ( !pdfioobj ) return false;
-    BufferString errmsg;
+    uiString errmsg;
     ProbDenFunc* pdf = ProbDenFuncTranslator::read( *pdfioobj, &errmsg );
     if ( !pdf )
 	{ uiMSG().error(errmsg); return false; }
 
     mDynamicCastGet(Sampled2DProbDenFunc*,spdf,pdf)
     if ( !spdf )
-	{ uiMSG().error("Can only export 2D sampled PDFs"); delete pdf;
+	{ uiMSG().error(tr("Can only export 2D sampled PDFs")); delete pdf;
 	    return false; }
 
     RokDocExporter exp( outfld_->fileName() );
@@ -386,6 +386,6 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
 	{ uiMSG().error(exp.errmsg_); delete pdf; return false; }
 
     delete pdf;
-    uiMSG().message( "Output file created" );
+    uiMSG().message( tr("Output file created") );
     return false;
 }

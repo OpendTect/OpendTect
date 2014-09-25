@@ -46,7 +46,7 @@ public:
     virtual void	reset()				{}
     virtual bool	init(const PropertySet&) const	{ return true; }
 			    //!< clears 'memory' and makes property usable
-    virtual const char*	errMsg() const			{ return 0; }
+    virtual uiString	errMsg() const			{ return 0; }
 
     virtual bool	isUdf() const			= 0;
     virtual bool	dependsOn(const Property&) const { return false; }
@@ -137,13 +137,13 @@ public:
     void		erase()			{ deepErase(props_); }
 
     bool		prepareUsage() const;	//!< init()'s all Properties
-    inline const char*	errMsg() const		{ return errmsg_; }
+    inline uiString	errMsg() const		{ return errmsg_; }
 
 
 protected:
 
     ObjectSet<Property>	props_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     Property*		fnd(const char*,bool) const;
 

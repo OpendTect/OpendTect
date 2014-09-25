@@ -31,15 +31,15 @@ public:
 
 
 mExpClass(Geometry) ProbDenFuncTranslator : public Translator
-{
+{ mODTextTranslationClass(ProbDenFuncTranslator);
 public:
     			ProbDenFuncTranslator(const char* nm,const char* unm);
 
     static const char*	key();
 
-    static ProbDenFunc* read(const IOObj&,BufferString* emsg=0);
+    static ProbDenFunc* read(const IOObj&,uiString* emsg=0);
     static bool		write(const ProbDenFunc&,const IOObj&,
-	    		      BufferString* emsg=0);
+	    		      uiString* emsg=0);
 
     virtual ProbDenFunc* read(od_istream&)			= 0;
     virtual bool	 write(const ProbDenFunc&,od_ostream&) = 0;;

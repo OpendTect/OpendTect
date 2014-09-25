@@ -44,7 +44,7 @@ public:
 			//!< Must be done for all inputs after each setDef()
 
     virtual bool	init(const PropertySet&) const;
-    virtual const char*	errMsg() const		{ return errmsg_.buf(); }
+    virtual uiString	errMsg() const		{ return errmsg_.buf(); }
     virtual bool	dependsOn(const Property&) const;
 
     mDefPropertyFns(MathProperty,"Math");

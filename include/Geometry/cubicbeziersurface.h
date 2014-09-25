@@ -21,7 +21,7 @@ namespace Geometry
 {
 
 mExpClass(Geometry) CubicBezierSurfacePatch
-{
+{ mODTextTranslationClass(CubicBezierSurfacePatch);
 public:
 			CubicBezierSurfacePatch(
 					const Coord3& p00, const Coord3& p01,
@@ -52,7 +52,7 @@ public:
 
 
 mExpClass(Geometry) CubicBezierSurface : public ParametricSurface
-{
+{ mODTextTranslationClass(CubicBezierSurface);
 public:
     			CubicBezierSurface( const RowCol& step=RowCol(1,1));
     			CubicBezierSurface( const CubicBezierSurface& );

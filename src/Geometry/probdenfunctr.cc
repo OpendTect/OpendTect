@@ -35,20 +35,22 @@ const char* ProbDenFuncTranslator::key()
 
 
 ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
-					  BufferString* emsg )
+					  uiString* emsg )
 {
     mDynamicCast(ProbDenFuncTranslator*,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
-	{ if ( emsg ) *emsg = "Cannot create Translator"; return 0; }
+    { if (emsg) *emsg = tr("Cannot create Translator"); return 0; }
 
     const BufferString fnm( ioobj.fullUserExpr(true) );
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
 	if ( emsg )
-	    { emsg->set( "Cannot open '" ).add( fnm ).add( "'" );
-		strm.addErrMsgTo(*emsg); }
+	{
+	    *emsg = tr("Cannot open '%1'").arg(fnm);
+	    strm.addErrMsgTo(*emsg); 
+	}
 	return 0;
     }
 
@@ -56,32 +58,34 @@ ProbDenFunc* ProbDenFuncTranslator::read( const IOObj& ioobj,
     if ( !ret ) return 0;
     ret->setName( ioobj.name() );
     if ( !ret && emsg )
-	{ *emsg = "Cannot read PDF from '"; *emsg += fnm; *emsg += "'"; }
+    { *emsg = tr("Cannot read PDF from '%1'").arg(fnm); }
     return ret;
 }
 
 
 bool ProbDenFuncTranslator::write( const ProbDenFunc& pdf, const IOObj& ioobj,
-				   BufferString* emsg )
+				   uiString* emsg )
 {
     mDynamicCast(ProbDenFuncTranslator*,
 		 PtrMan<ProbDenFuncTranslator> pdftr, ioobj.createTranslator());
     if ( !pdftr )
-	{ if ( emsg ) *emsg = "Cannot create Translator"; return false; }
+    { if (emsg) *emsg = tr("Cannot create Translator"); return false; }
 
     const BufferString fnm( ioobj.fullUserExpr(false) );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
 	if ( emsg )
-	    { emsg->set( "Cannot write to '" ).add( fnm ).add( "'" );
-		strm.addErrMsgTo(*emsg); }
+	{
+	    *emsg = tr("Cannot write to '%1'").arg(fnm);
+	    strm.addErrMsgTo(*emsg); 
+	}
 	return false;
     }
 
     const bool ret = pdftr->write( pdf, strm );
     if ( !ret && emsg )
-	{ *emsg = "Cannot write PDF to '"; *emsg += fnm; *emsg += "'"; }
+    { *emsg = tr("Cannot write PDF to '%1'").arg(fnm); }
     return ret;
 }
 
