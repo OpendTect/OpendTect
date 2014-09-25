@@ -46,7 +46,7 @@ mDefODPluginInfo(uiHello)
 // that may be a 'normal' object inheriting from CallBacker.
 
 class uiHelloMgr :  public CallBacker
-{
+{ mODTextTranslationClass(uiHelloMgr);
 public:
 
 			uiHelloMgr(uiODMain&);
@@ -59,14 +59,14 @@ public:
 uiHelloMgr::uiHelloMgr( uiODMain& a )
 	: appl(a)
 {
-    uiAction* newitem = new uiAction( "Display Hello Message ...",
+    uiAction* newitem = new uiAction( tr("Display Hello Message ..."),
 					  mCB(this,uiHelloMgr,dispMsg) );
     appl.menuMgr().utilMnu()->insertItem( newitem );
 }
 
 
 class uiHelloMsgBringer : public uiDialog
-{
+{ mODTextTranslationClass(uiHelloMsgBringer);
 public:
 
 uiHelloMsgBringer( uiParent* p )
@@ -85,7 +85,7 @@ bool acceptOK( CallBacker* )
     const char* typedtxt = txtfld->text();
     if ( ! *typedtxt )
     {
-	uiMSG().error( "Please type a message text" );
+	uiMSG().error( tr("Please type a message text") );
 	return false;
     }
     if ( typfld->getBoolValue() )
