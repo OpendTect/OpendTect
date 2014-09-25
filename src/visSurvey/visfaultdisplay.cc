@@ -244,7 +244,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	paneldisplay_->setDisplayTransformation( displaytransform_ );
 	paneldisplay_->setMaterial( 0 );
 	paneldisplay_->setSelectable( false );
-	paneldisplay_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
+	paneldisplay_->setGeometryShapeType(
+	    visBase::GeomIndexedShape::Triangle );
 	paneldisplay_->useOsgNormal( true );
 	paneldisplay_->setRenderMode( visBase::RenderBothSides );
 	paneldisplay_->setTextureChannels( channels_ );
@@ -259,9 +260,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
 	intersectiondisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
-	intersectiondisplay_->setPrimitiveType( Geometry::PrimitiveSet::Lines );
-	intersectiondisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
+	intersectiondisplay_->setGeometryShapeType(
+	 visBase::GeomIndexedShape::PolyLine3D,Geometry::PrimitiveSet::Lines );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
     }
@@ -274,9 +274,9 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	if ( !stickdisplay_->getMaterial() )
 	    stickdisplay_->setMaterial( new visBase::Material );
 	stickdisplay_->setSelectable( false );
-	stickdisplay_->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
-	stickdisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
+	stickdisplay_->setGeometryShapeType(
+	    visBase::GeomIndexedShape::PolyLine3D,
+	    Geometry::PrimitiveSet::LineStrips );
 	addChild( stickdisplay_->osgNode() );
     }
 
@@ -1142,8 +1142,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
     }
 
     delete texuredatas_.replace( attrib, texturedata );
-    channels_->setSize( attrib, 1, texturedata->info().getSize(0),
-			texturedata->info().getSize(1) );
+    channels_->setSize( 1, texturedata->info().getSize(0),
+			   texturedata->info().getSize(1) );
     channels_->setUnMappedData( attrib, 0, texturedata->getData(),
 				OD::UsePtr, tr );
     validtexture_ = true;
@@ -1168,8 +1168,8 @@ void FaultDisplay::showSelectedSurfaceData()
 	if ( !data )
 	    continue;
 
-	channels_->setSize( lastattridx, 1, data->info().getSize(0),
-			    data->info().getSize(1) );
+	channels_->setSize( 1, data->info().getSize(0),
+			       data->info().getSize(1) );
 	channels_->setUnMappedData( lastattridx--, 0, data->getData(),
 				    OD::UsePtr, 0 );
 	if ( lastattridx<0 )
@@ -1340,7 +1340,8 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	line->getMaterial()->setColor( nontexturecol_ );
 	line->setDisplayTransformation( displaytransform_ );
 	line->setSelectable( false );
-	line->setRightHandSystem( righthandsystem_ );
+	line->setGeometryShapeType(visBase::GeomIndexedShape::PolyLine,
+	    Geometry::PrimitiveSet::Lines );
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = 0;

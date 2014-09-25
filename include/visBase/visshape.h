@@ -91,6 +91,7 @@ public:
 
     virtual  void	  setCoordinates(Coordinates* coords);
     virtual  Coordinates* getCoordinates() { return coords_; }
+    virtual  void	  setLineStyle( const LineStyle& lst ){};
 
     void		removeSwitch();
 			/*!<Will turn the object permanently on.

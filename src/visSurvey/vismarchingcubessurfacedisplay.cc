@@ -297,8 +297,10 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
-	const int inlidx = impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl());
-	const int crlidx = impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl());
+	const int inlidx = 
+	    impbody_->cs_.hrg.inlRange().nearestIndex(bid.inl());
+	const int crlidx = 
+	    impbody_->cs_.hrg.crlRange().nearestIndex(bid.crl());
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{
 	    vals[valcol] = 0;
@@ -929,8 +931,7 @@ MarchingCubesDisplay::PlaneIntersectInfo::PlaneIntersectInfo()
 
     visshape_->addNodeState( offset );
     visshape_->setSurface( shape_ );
-    visshape_->setIndexedGeometryShapeType(visBase::GeomIndexedShape::Triangle);
-    visshape_->setPrimitiveType( Geometry::PrimitiveSet::TriangleStrip );
+    visshape_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle );
     visshape_->setNormalBindType( visBase::VertexShape::BIND_OVERALL );
     visshape_->setRenderMode( visBase::RenderBothSides );
 

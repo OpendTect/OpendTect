@@ -233,7 +233,7 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     {
 	bodydisplay_ = visBase::GeomIndexedShape::create();
 	bodydisplay_->ref();
-	bodydisplay_->setPrimitiveType( Geometry::PrimitiveSet::TriangleStrip );
+	bodydisplay_->setGeometryShapeType(visBase::GeomIndexedShape::Triangle);
 	bodydisplay_->setDisplayTransformation( displaytransform_ );
 	bodydisplay_->setMaterial( 0 );
 	bodydisplay_->setSelectable( false );
@@ -244,14 +244,12 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     {
 	intersectiondisplay_ = visBase::GeomIndexedShape::create();
 	intersectiondisplay_->ref();
-	intersectiondisplay_->setPrimitiveType(
-	    Geometry::PrimitiveSet::LineStrips ) ;
 	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
 	bodydisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
-	intersectiondisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
-
+	intersectiondisplay_->setGeometryShapeType(
+	    visBase::GeomIndexedShape::PolyLine3D,
+	    Geometry::PrimitiveSet::LineStrips );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
 	setLineRadius( intersectiondisplay_ );
@@ -261,13 +259,13 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     {
 	polygondisplay_ = visBase::GeomIndexedShape::create();
 	polygondisplay_->ref();
-	polygondisplay_->setPrimitiveType( Geometry::PrimitiveSet::LineStrips );
 	polygondisplay_->setDisplayTransformation( displaytransform_ );
 
 	polygondisplay_->setMaterial( getMaterial() );
 	polygondisplay_->setSelectable( false );
-	polygondisplay_->setIndexedGeometryShapeType(
-	    visBase::GeomIndexedShape::PolyLine3D );
+	polygondisplay_->setGeometryShapeType(
+	    visBase::GeomIndexedShape::PolyLine3D,
+	    Geometry::PrimitiveSet::LineStrips );
 
 	addChild( polygondisplay_->osgNode() );
 

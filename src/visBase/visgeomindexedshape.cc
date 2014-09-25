@@ -47,18 +47,14 @@ GeomIndexedShape::GeomIndexedShape()
     , colortableenabled_( false )
     , singlematerial_( new Material )
     , coltabmaterial_( new Material )
-    , primitivesettype_ ( Geometry::PrimitiveSet::Triangles )
     , geomshapetype_( Triangle )
     , linestyle_( LineStyle::Solid,2,Color(0,255,0) )
     , useosgnormal_( false )
-    , drawstyle_( new visBase::DrawStyle )
 {
     singlematerial_->ref();
     coltabmaterial_->ref();
-    drawstyle_->ref();
 
     vtexshape_->ref();
-    vtexshape_->addNodeState( drawstyle_ );
     addChild( vtexshape_->osgNode() );
 
     vtexshape_->setMaterial( singlematerial_ );
@@ -78,23 +74,11 @@ GeomIndexedShape::~GeomIndexedShape()
     unRefAndZeroPtr( coltabmaterial_ );
 
     delete colorhandler_;
-
-    unRefAndZeroPtr( drawstyle_ );
     unRefAndZeroPtr( vtexshape_ );
 
     if ( getMaterial() )
 	getMaterial()->change.remove( mCB(this,GeomIndexedShape,matChangeCB) );
 
-}
-
-
-void GeomIndexedShape::setPrimitiveType(
-			const Geometry::PrimitiveSet::PrimitiveType type )
-{
-   if ( vtexshape_ )
-       vtexshape_->setPrimitiveType( type );
-
-   primitivesettype_ = type;
 }
 
 
@@ -356,7 +340,7 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
 	if ( idxgeom->primitivetype_ == Geometry::IndexedGeometry::Lines &&
 	    geomshapetype_ > Triangle )
 	{
-	    drawstyle_->setLineStyle( linestyle_ );
+	    vtexshape_->setLineStyle( linestyle_ );
 	}
     }
 
@@ -477,37 +461,40 @@ void GeomIndexedShape::reClip()
 
 void GeomIndexedShape::setLineStyle( const LineStyle& lnstyle)
 {
-    if ( lnstyle == drawstyle_->lineStyle() )
+    if ( lnstyle == linestyle_ )
 	return;
 
-    if ( drawstyle_ )
-	drawstyle_->setLineStyle( lnstyle );
+    linestyle_ = lnstyle;
+
+    if ( vtexshape_ )
+	vtexshape_->setLineStyle( lnstyle );
     else
 	touch( true );
 }
 
 
-void GeomIndexedShape::setIndexedGeometryShapeType( GeomShapeType geomshapetype)
+void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
+		       Geometry::PrimitiveSet::PrimitiveType pstype )
 {
-    if ( geomshapetype == geomshapetype_ )
+    if ( shapetype == geomshapetype_ )
 	return;
 
     removeChild( vtexshape_->osgNode() );
     unRefAndZeroPtr( vtexshape_ );
 
-    if ( geomshapetype == PolyLine )
+    if ( shapetype == PolyLine )
 	vtexshape_ = visBase::PolyLine::create();
-    else if ( geomshapetype == PolyLine3D )
+    else if ( shapetype == PolyLine3D )
 	vtexshape_ = visBase::PolyLine3D::create();
     else
 	vtexshape_ = visBase::VertexShape::create();
 
     vtexshape_->ref();
     vtexshape_->setMaterial( singlematerial_ );
-
+    vtexshape_->setPrimitiveType( pstype );
     addChild( vtexshape_->osgNode() );
 
-    geomshapetype_ = geomshapetype;
+    geomshapetype_ = shapetype;
 }
 
 void GeomIndexedShape::useOsgNormal( bool yn )
