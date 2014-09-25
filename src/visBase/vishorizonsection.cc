@@ -1,4 +1,4 @@
-    /*+
+/*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : D. Zheng
  * DATE     : Feb 2013
@@ -147,9 +147,10 @@ HorizonSection::HorizonSection()
     , transformation_( 0 )
     , geometry_( 0 )
     , origin_( 0, 0 )
-    , textureorigin_( 0, 0 )
     , displayrrg_( -1, -1, 0 )
     , displaycrg_( -1, -1, 0 )
+    , texturerowrg_( 0, mUdf(int), 1 )
+    , texturecolrg_( 0, mUdf(int), 1 )
     , userchangedisplayrg_( false )			      
     , tiles_( 0, 0 )					  
     , desiredresolution_( cNoneResolution )
@@ -361,8 +362,12 @@ void HorizonSection::setDisplayRange( const StepInterval<int>& rrg,
 }
 
 
-void HorizonSection::setTextureOrigin( const RowCol& origin )
-{ textureorigin_ = origin; }
+void HorizonSection::setTextureRange( const StepInterval<int>& rowrg,
+				      const StepInterval<int>& colrg )
+{
+    texturerowrg_ = rowrg;
+    texturecolrg_ = colrg;
+}
 
 
 StepInterval<int> HorizonSection::displayedRowRange() const

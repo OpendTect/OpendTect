@@ -348,8 +348,15 @@ void HorizonTextureHandler::updateTileTextureOrigin()
 	    if ( !tile ) 
 		continue;
 
-	    const RowCol offset = tile->origin_ - horsection_->textureorigin_;
-	    const Coord origin( offset[1], offset[0] );
+	    Coord origin( tile->origin_.col(), tile->origin_.row() );
+	    origin.x -= horsection_->texturecolrg_.start;
+	    origin.y -= horsection_->texturerowrg_.start;
+
+	    if ( horsection_->texturecolrg_.step )
+		origin.x /= horsection_->texturecolrg_.step;
+	    if ( horsection_->texturerowrg_.step )
+		origin.y /= horsection_->texturerowrg_.step;
+
 	    tile->setTexture( origin, origin+Coord(tilesize,tilesize) );
 	}
     }
