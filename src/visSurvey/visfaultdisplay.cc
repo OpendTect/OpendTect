@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mouseevent.h"
 #include "mpeengine.h"
 #include "posvecdataset.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "undo.h"
 #include "viscoord.h"
@@ -59,6 +60,7 @@ const char* FaultDisplay::sKeyDisplayHorIntersections()
 				{ return "Display horizon intersections"; }
 const char* FaultDisplay::sKeyUseTexture()	{ return "Use texture"; }
 const char* FaultDisplay::sKeyLineStyle()	{ return "Linestyle"; }
+const char* FaultDisplay::sKeyZValues()		{ return "Z values"; }
 
 FaultDisplay::FaultDisplay()
     : MultiTextureSurveyObject()
@@ -439,17 +441,51 @@ void FaultDisplay::useTexture( bool yn, bool trigger )
 
 void FaultDisplay::setDepthAsAttrib( int attrib )
 {
-    const Attrib::SelSpec as( "", Attrib::SelSpec::cNoAttrib(), false, "" );
+    const bool attribwasdepth = getSelSpec(attrib) &&
+		    FixedString(getSelSpec(attrib)->userRef())==sKeyZValues();
+
+    const Attrib::SelSpec as( sKeyZValues(), Attrib::SelSpec::cNoAttrib(),
+			      false, "" );
     setSelSpec( attrib, as );
 
-    TypeSet<DataPointSet::DataRow> pts;
-    BufferStringSet nms;
-    DataPointSet positions( pts, nms, false, true );
-    getRandomPos( positions, 0 );
+    DataPointSet* data = new DataPointSet( false, true );
+    DPM( DataPackMgr::PointID() ).addAndObtain( data );
+    getRandomPos( *data, 0 );
+    DataColDef* zvalsdef = new DataColDef( sKeyZValues() );
+    data->dataSet().add( zvalsdef );
+    BinIDValueSet& bivs = data->bivSet();
+    if ( data->size() && bivs.nrVals()==4 )
+    {
+	int zcol = data->dataSet().findColDef( *zvalsdef,
+					       PosVecDataSet::NameExact );
+	if ( zcol==-1 ) zcol = 3;
 
-    if ( !positions.size() ) return;
+	BinIDValueSet::SPos pos;
+	while ( bivs.next(pos) )
+	{
+	    float* vals = bivs.getVals(pos);
+	    if ( zaxistransform_ )
+	    {
+		vals[zcol] = zaxistransform_->transform(
+				    BinIDValue(bivs.getBinID(pos), vals[0]) );
+	    }
+	    else
+		vals[zcol] = vals[0];
+	}
 
-    setRandomPosData( attrib, &positions, 0 );
+	setRandomPosData( attrib, data, 0 );
+    }
+
+    DPM( DataPackMgr::PointID() ).release( data->id() );
+
+    if ( !attribwasdepth )
+    {
+	BufferString seqnm;
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
+	ColTab::Sequence seq( seqnm );
+	setColTabSequence( attrib, seq, 0 );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+    }
 }
 
 
@@ -1111,6 +1147,7 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* tr ) const
 {
     if ( explicitpanels_ )
     {
+	MouseCursorChanger mousecursorchanger( MouseCursor::Wait );
 	explicitpanels_->getTexturePositions( dpset, tr );
 	paneldisplay_->touch( false, false );
     }
