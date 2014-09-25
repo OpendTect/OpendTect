@@ -138,7 +138,7 @@ if(WIN32)
     if ( CTEST_MODEL STREQUAL "Experimental" )
 	set ( OD_PLATFORM_LINK_OPTIONS "${OD_PLATFORM_LINK_OPTIONS} /debug" )
 	#/debug will enable the generation of pdb-files.
-	set ( CMAKE_CXX_FLAGS " /Zi ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file. 
+	set ( CMAKE_CXX_FLAGS " /Z7 ${CMAKE_CXX_FLAGS}" ) #/Zi for additional debug info to the .pdb file.
     endif()
 
     set ( CMAKE_CXX_FLAGS "/vmg /EHsc ${CMAKE_CXX_FLAGS}")
@@ -189,6 +189,17 @@ if(WIN32)
     else()
         set ( OD_UAC_LINKFLAGS "/level='requireAdministrator' /uiAccess='false'" )
     endif()
+
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_CXX_FLAGS_MINSIZEREL} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS ${CMAKE_C_FLAGS} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE} )
+    string ( REPLACE  "/Zi" "/Z7" CMAKE_C_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL} )
 
 endif()
 
