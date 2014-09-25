@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "coord.h"
 #include "ranges.h"
 #include "callback.h"
+#include "uistring.h"
 
 typedef od_int64 GeomPosID;
 namespace Geometry
