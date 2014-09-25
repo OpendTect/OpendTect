@@ -282,15 +282,21 @@ bool TcpSocket::write( const IOPar& par )
 }
 
 
-bool TcpSocket::write( const Network::RequestPacket& packet )
+bool TcpSocket::write( const Network::RequestPacket& packet, bool waitfor )
 {
     if ( !packet.isOK() )
 	return false;
 
     Threads::Locker locker( lock_ );
-    return writeArray( packet.getRawHeader(), packet.headerSize(), true ) &&
-	   writeArray( packet.payload(), packet.payloadSize(), true );
+    if ( !writeArray( packet.getRawHeader(), packet.headerSize(), true ) ||
+	   !writeArray( packet.payload(), packet.payloadSize(), true ) )
+	return false;
 
+    if ( waitfor )
+    {
+	//TODO implement
+    }
+    return true;
 }
 
 

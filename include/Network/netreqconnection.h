@@ -62,7 +62,8 @@ public:
 
     bool		isOK() const;
 
-    bool		sendPacket(const RequestPacket&);
+    bool		sendPacket(const RequestPacket&,
+				   bool waitforfinish=false);
 
     RequestPacket*	pickupPacket(od_int32 reqid,int timeout /* in ms */,
 					int* errorcode=0);

@@ -130,7 +130,7 @@ bool RequestConnection::readFromSocket()
 
 
 
-bool RequestConnection::sendPacket( const RequestPacket& pkt )
+bool RequestConnection::sendPacket( const RequestPacket& pkt, bool waitforfinish )
 {
     if ( !isOK() || !pkt.isOK() || !tcpsocket_ )
 	return false;
@@ -151,8 +151,7 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt )
 	}
     }
 
-    const bool result = tcpsocket_->write( pkt );
-    //Should we wait for written?
+    const bool result = tcpsocket_->write( pkt, waitforfinish );
 
     if ( !result || pkt.subID() == RequestPacket::cEndSubID() )
 	requestEnded( pkt.requestID() );

@@ -65,9 +65,10 @@ public:
     bool	writeInt64(od_int64);
     bool	writeFloat(float);
     bool	writeDouble(double);
-    bool	write(const Network::RequestPacket&);
     bool	write(const OD::String&);
     bool	write(const IOPar&);
+
+    bool	write(const Network::RequestPacket&,bool wait=false);
 
     bool	writeArray(const void*,od_int64,bool wait=false);
     bool	writeShortArray(const short*,od_int64,bool wait=false);
