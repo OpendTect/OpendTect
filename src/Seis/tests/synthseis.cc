@@ -159,8 +159,8 @@ bool BatchProgram::go( od_ostream& strm )
     const float start_depth = 48.f;
 
     ObjectSet<Wavelet> wvlts;
-    Wavelet synthethicricker(true,50.f,cStep,1.f); //Ricker 50Hz, 4ms SR
-    wvlts += &synthethicricker;
+    Wavelet syntheticricker(true,50.f,cStep,1.f); //Ricker 50Hz, 4ms SR
+    wvlts += &syntheticricker;
     MultiID wavid;
     if ( !pars().get(sKeyWaveletID(),wavid) )
     {
