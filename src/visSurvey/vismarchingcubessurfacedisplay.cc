@@ -266,11 +266,12 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 
 
 #define mSetDataPointSet(nm) \
+    const bool attribselchange = FixedString(selspec_.userRef())!=nm; \
     selspec_.set( nm, Attrib::SelSpec::cNoAttrib(), false, "" ); \
     DataPointSet* data = new DataPointSet(false,true); \
     DPM( DataPackMgr::PointID() ).addAndObtain( data ); \
     getRandomPos( *data, 0 ); \
-    DataColDef* isovdef = new DataColDef("Depth"); \
+    DataColDef* isovdef = new DataColDef(nm); \
     data->dataSet().add( isovdef ); \
     BinIDValueSet& bivs = data->bivSet();  \
     if ( !data->size() || bivs.nrVals()!=3 ) \
@@ -296,10 +297,12 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
     {
 	BinID bid = bivs.getBinID(pos);
 	float* vals = bivs.getVals(pos);
+
 	const int inlidx = 
 	    impbody_->tkzs_.hrg.inlRange().nearestIndex(bid.inl());
 	const int crlidx = 
 	    impbody_->tkzs_.hrg.crlRange().nearestIndex(bid.crl());
+
 	if ( inlidx<0 || inlidx>=inlsz || crlidx<0 || crlidx>=crlsz )
 	{
 	    vals[valcol] = 0;
@@ -333,17 +336,22 @@ void MarchingCubesDisplay::setIsoPatch( int attrib )
 
     setRandomPosData( attrib, data, 0 );
 
-    BufferString seqnm;
-    Settings::common().get( "dTect.Color table.Horizon", seqnm );
-    ColTab::Sequence seq( seqnm );
-    setColTabSequence( attrib, seq, 0 );
+    if ( attribselchange )
+    {
+	BufferString seqnm;
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
+	ColTab::Sequence seq( seqnm );
+	setColTabSequence( attrib, seq, 0 );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+    }
+
     DPM( DataPackMgr::PointID() ).release( data->id() );
 }
 
 
 void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 {
-    mSetDataPointSet("Depth");
+    mSetDataPointSet("Z values");
     BinIDValueSet::SPos pos;
     while ( bivs.next(pos) )
     {
@@ -353,10 +361,14 @@ void MarchingCubesDisplay::setDepthAsAttrib( int attrib )
 
     setRandomPosData( attrib, data, 0 );
 
-    BufferString seqnm;
-    Settings::common().get( "dTect.Color table.Horizon", seqnm );
-    ColTab::Sequence seq( seqnm );
-    setColTabSequence( attrib, seq, 0 );
+    if ( attribselchange )
+    {
+	BufferString seqnm;
+	Settings::common().get( "dTect.Horizon.Color table", seqnm );
+	ColTab::Sequence seq( seqnm );
+	setColTabSequence( attrib, seq, 0 );
+	setColTabMapperSetup( attrib, ColTab::MapperSetup(), 0 );
+    }
 
     DPM( DataPackMgr::PointID() ).release( data->id() );
 }
@@ -828,6 +840,7 @@ void MarchingCubesDisplay::otherObjectsMoved(
 
 	TrcKeyZSampling cs = 
 	    activeplanes[idx]->getTrcKeyZSampling(true,true,-1);
+
 	OD::SliceType ori = activeplanes[idx]->getOrientation();
 	const float pos = ori==OD::ZSlice ? cs.zsamp_.start
 	    : (ori==OD::InlineSlice ? cs.hrg.start.inl() : cs.hrg.start.crl());

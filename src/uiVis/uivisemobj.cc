@@ -191,7 +191,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
 
 	    visserv_->addObject( emod, sceneid, true );
 	displayid_ = emod->id();
-	setDepthAsAttrib( 0 );
+	if ( !emobj->isEmpty() )
+	    setDepthAsAttrib( 0 );
     }
 
     setUpConnections();
