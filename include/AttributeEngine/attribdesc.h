@@ -104,7 +104,7 @@ public:
     DescID			id() const;
     bool			getParentID(DescID cid,DescID& pid,int&) const;
     void			getAncestorIDs(DescID cid,
-				TypeSet<Attrib::DescID>&,TypeSet<int>&) const;
+					TypeSet<DescID>&,TypeSet<int>&) const;
 				/*ordered from parent to oldest original*/
 
     bool			getDefStr(BufferString&) const;
@@ -146,6 +146,7 @@ public:
     bool			setInput(int,const Desc*);
     Desc*			getInput(int);
     const Desc*			getInput(int) const;
+    void			getInputs(TypeSet<Attrib::DescID>&) const;
     void			getDependencies(TypeSet<Attrib::DescID>&) const;
 				/*!<Generates list of attributes this attribute
 				    is dependant on. */

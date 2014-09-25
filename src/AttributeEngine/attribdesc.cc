@@ -246,6 +246,13 @@ int Desc::selectedOutput() const		{ return seloutput_; }
 int Desc::nrInputs() const			{ return inputs_.size(); }
 
 
+void Desc::getInputs( TypeSet<DescID>& ids ) const
+{
+    for ( int idx=0; idx<nrInputs(); idx++ )
+	ids += inputs_[idx] ? inputs_[idx]->id() : DescID::undef();
+}
+
+
 void Desc::getDependencies(TypeSet<Attrib::DescID>& deps) const
 {
     for ( int idx=nrInputs()-1; idx>=0; idx-- )
