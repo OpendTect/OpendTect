@@ -444,7 +444,17 @@ void uiEMPartServer::displayEMObject( const MultiID& mid )
     }
 
     if ( selemid_>=0 )
+    {
+	mDynamicCastGet( EM::Horizon3D*,hor3d,em_.getObject( selemid_ ) )
+	if (hor3d)
+	{
+	    HorSampling selrg;
+	    selrg.setInlRange( hor3d->geometry().rowRange( 0 ) );
+	    selrg.setCrlRange( hor3d->geometry().colRange( 0 ) );
+	    setHorizon3DDisplayRange( selrg );
+	}
 	sendEvent( evDisplayHorizon() );
+    }
 }
 
 
