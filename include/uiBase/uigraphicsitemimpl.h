@@ -148,6 +148,11 @@ public:
     				/*!<If dynamic==false, worldrect will define
 				    the bounding box of the item. */
     NotifierAccess&		wantsData();
+    bool			isSnapshot() const;
+				/*!<If set during a wantsData trigger, the
+				  delivered image must have the exact size of
+				  requested image.*/
+
     uiWorldRect			wantedWorldRect() const;
     uiSize			wantedScreenSize() const;
 

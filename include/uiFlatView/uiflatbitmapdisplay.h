@@ -65,7 +65,7 @@ private:
     void			reGenerateCB(CallBacker*);
     void			dynamicTaskFinishCB(CallBacker*);
 
-    Task*			createDynamicTask();
+    Task*			createDynamicTask(bool issnapshot);
 
     uiFlatViewer&		viewer_;
     int				workqueueid_;

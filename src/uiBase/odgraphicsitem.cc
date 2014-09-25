@@ -499,6 +499,7 @@ ODGraphicsDynamicImageItem::ODGraphicsDynamicImageItem()
     , bbox_( 0, 0, 1, 1 )
     , updatedynpixmap_( false )
     , updatebasepixmap_( false )
+    , issnapshot_( false )
 {}
 
 
@@ -567,6 +568,10 @@ void ODGraphicsDynamicImageItem::setImage( bool isdynamic,
 }
 
 
+bool ODGraphicsDynamicImageItem::isSnapshot() const
+{ return issnapshot_; }
+
+
 void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 			      const QStyleOptionGraphicsItem* option,
 			      QWidget* widget )
@@ -576,16 +581,18 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	mDynamicCastGet( QImage*, paintimage, painter->device() );
 
 	imagelock_.lock();
+
+	issnapshot_ = paintimage;
 	wantsData.trigger();
 
-	if ( paintimage )
+	if ( issnapshot_ )
 	{
 	    const QSize wantedscreensz = wantedscreensz_;
 
 	    int nrretries = 3;
 	    while ( nrretries && wantedscreensz!=dynamicimage_.size() )
 	    {
-		imagecond_.wait( &imagelock_ );
+		imagecond_.wait( &imagelock_, 2000 );
 		nrretries--;
 	    }
 	}
@@ -676,7 +683,6 @@ void ODGraphicsDynamicImageItem::paint(QPainter* painter,
 	const QRect scenerect = worldtrans.mapRect(bbox_).toRect();
 	painter->drawPixmap( scenerect, *basepixmap_ );
     }
-
 
     if ( dynamicpixmap_ )
 	painter->drawPixmap( dynamicscenerect, *dynamicpixmap_ );

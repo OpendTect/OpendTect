@@ -287,6 +287,10 @@ NotifierAccess& uiDynamicImageItem::wantsData()
 { return item_->wantsData; }
 
 
+bool uiDynamicImageItem::isSnapshot() const
+{ return item_->isSnapshot(); }
+
+
 uiWorldRect uiDynamicImageItem::wantedWorldRect() const
 {
     QRectF res = item_->wantedWorldRect();
