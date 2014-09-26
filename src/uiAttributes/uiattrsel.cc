@@ -776,7 +776,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 
     if ( is2D() && !SeisTrcTranslator::is2D(ioobj) )
     {
-	uiMSG().error( "Can only store this in a 2D line set" );
+	uiMSG().error( "Can only store this in a 2D Data set" );
 	return false;
     }
 

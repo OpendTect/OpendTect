@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "ioobj.h"
 
-
 class Seis2DFrom3DGeomIDProvider : public GeomIDProvider
 {
 public:

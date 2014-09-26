@@ -178,7 +178,8 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 {
     if ( multiln_ )
     {
-	multilnmsel_ = new uiSeis2DLineSel( this, multiln_ );
+	multilnmsel_ = new uiSeis2DMultiLineSel( this, 0, !ss.withoutz_,
+						 ss.withstep_ );
 	setHAlignObj( multilnmsel_ );
 	multilnmsel_->selectionChanged.notify(mCB(this,uiSeis2DSubSel,lineChg));
     }
@@ -189,15 +190,10 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	singlelnmsel_->nameChanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
 
-    if ( ss.fornewentry_ && multiln_ )
+    if ( multilnmsel_ )
 	selfld_->display( false );
     else
-    {
-	if ( multilnmsel_ )
-	    selfld_->attach( alignedBelow, multilnmsel_ );
-	else
-	    selfld_->attach( alignedBelow, singlelnmsel_ );
-    }
+	selfld_->attach( alignedBelow, singlelnmsel_ );
 
 }
 
@@ -227,50 +223,60 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 }
 
 
+void uiSeis2DSubSel::setInputLines( const TypeSet<Pos::GeomID>& geomids )
+{
+    if ( multilnmsel_ )
+	multilnmsel_->setInput( geomids );
+}
+
+
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
-    uiSeisSubSel::usePar( iopar );
-
     BufferStringSet lnms;
     iopar.get( sKey::LineKey(), lnms );
+    if ( lnms.isEmpty() && multilnmsel_ )
+    {
+	mDynamicCastGet(uiSeis2DMultiLineSel*,multisel,multilnmsel_)
+	multisel->usePar( iopar );
+	return;
+    }
+
     if ( multilnmsel_ )
 	multilnmsel_->setSelLineNames( lnms );
-    else if ( lnms.isEmpty() )
+    else if ( !lnms.isEmpty() )
 	singlelnmsel_->setInput( lnms.get(0).buf() );
 }
 
 
 bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 {
-    if ( !uiSeisSubSel::fillPar(iopar) )
-	return false;
-
-    BufferStringSet sellnms;
     if ( multilnmsel_ )
-	multilnmsel_->getSelLineNames( sellnms );
-    else
-	sellnms.add( singlelnmsel_->getInput() );
-    if ( sellnms.isEmpty() )
     {
-	BufferString msg( "Please select " );
-	msg.add( multiln_ ? "at least one line" : "the line" );
-	uiMSG().error( msg );
+	if ( !multilnmsel_->nrSelected() )
+	{
+	    uiMSG().error( "Please select at least one line" );
+	    return false;
+	}
+
+	mDynamicCastGet(uiSeis2DMultiLineSel*,multisel,multilnmsel_)
+	return multisel->fillPar( iopar );
+    }
+
+    const FixedString sellinenm( singlelnmsel_->getInput() );
+    if ( sellinenm.isEmpty() )
+    {
+	uiMSG().error( "Please select the line" );
 	return false;
     }
 
-    iopar.set( sKey::LineKey(), sellnms );
+    iopar.set( sKey::LineKey(), sellinenm );
     return true;
 }
 
 
 bool uiSeis2DSubSel::isSingLine() const
 {
-    if ( !multiln_ )
-	return true;
-
-    BufferStringSet sellnms;
-    multilnmsel_->getSelLineNames( sellnms );
-    return sellnms.size() == 1;
+    return !multilnmsel_ || (multilnmsel_->nrSelected() == 1);
 }
 
 
@@ -291,15 +297,17 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 
 void uiSeis2DSubSel::getSelGeomIDs( TypeSet<Pos::GeomID>& geomids ) const
 {
+    geomids.erase();
     if ( multilnmsel_ )
 	multilnmsel_->getSelGeomIDs( geomids );
     else
-	geomids.add( singlelnmsel_->getInputGeomID() );
+	geomids += singlelnmsel_->getInputGeomID();
 }
 
 
 void uiSeis2DSubSel::selectedLines( BufferStringSet& lnms ) const
 {
+    lnms.erase();
     if ( multilnmsel_ )
 	multilnmsel_->getSelLineNames( lnms );
     else
@@ -316,14 +324,42 @@ void uiSeis2DSubSel::setSelectedLines( const BufferStringSet& lnms )
 }
 
 
+StepInterval<int> uiSeis2DSubSel::getTrcRange( int lidx ) const
+{
+    StepInterval<int> trcrg = StepInterval<int>::udf();
+    if ( multilnmsel_ )
+    {
+	mDynamicCastGet(uiSeis2DMultiLineSel*,multisel,multilnmsel_)
+	trcrg = multisel->getTrcRange( lidx );
+    }
+    else
+	trcrg = selfld_->envelope().hrg.crlRange();
+
+    return trcrg;
+}
+
+
+StepInterval<float> uiSeis2DSubSel::getZRange(int lidx) const
+{
+    StepInterval<float> zrg = StepInterval<float>::udf();
+    if ( multilnmsel_ )
+    {
+	mDynamicCastGet(uiSeis2DMultiLineSel*,multisel,multilnmsel_)
+	zrg = multisel->getZRange( lidx );
+    }
+    else
+	zrg.setFrom( selfld_->envelope().zrg );
+
+    return zrg;
+
+}
+
+
 void uiSeis2DSubSel::lineChg( CallBacker* )
 {
-    if ( isSingLine() )
+    if ( singlelnmsel_ )
     {
-	selfld_->setSensitive( true );
-	const Pos::GeomID selid =
-	    multilnmsel_ ? multilnmsel_->geomID()
-			 : singlelnmsel_->getInputGeomID();
+	const Pos::GeomID selid = singlelnmsel_->getInputGeomID();
 	SeisIOObjInfo oif( inpkey_ );
 	StepInterval<float> zrg;
 	StepInterval<int> trcrg;
@@ -336,8 +372,6 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 	    selfld_->provSel()->setInputLimit( cs );
 	}
     }
-    else
-	selfld_->setSensitive( false );
 
     lineSel.trigger();
 }

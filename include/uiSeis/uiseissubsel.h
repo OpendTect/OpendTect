@@ -94,6 +94,7 @@ public:
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setInput(const IOObj&);
+    void		setInputLines(const TypeSet<Pos::GeomID>&);
 
     Notifier<uiSeis2DSubSel> lineSel;
     bool		isSingLine() const;
@@ -103,6 +104,9 @@ public:
     void		getSelGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		selectedLines(BufferStringSet&) const;
     void		setSelectedLines(const BufferStringSet&);
+
+    StepInterval<int>	getTrcRange(int lidx=-1) const;
+    StepInterval<float> getZRange(int lidx=-1) const;
 
 protected:
 

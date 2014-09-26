@@ -48,7 +48,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "commandlineparser.h"
 
-
 using namespace Attrib;
 using namespace EM;
 
@@ -172,7 +171,7 @@ static bool prepare( od_ostream& strm, const IOPar& iopar, const char* idstr,
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << '\n'; }
 
 
-static bool process( od_ostream& strm, Processor* proc, bool useoutwfunc,
+static bool process( od_ostream& strm, Processor*& proc, bool useoutwfunc,
 		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     if ( !proc ) return false;
@@ -339,12 +338,8 @@ bool BatchProgram::go( od_ostream& strm )
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry());
     HorSampling hsamp;
-    BufferString linename;
     if ( iscubeoutp && geompar )
-    {
-	geompar->get( sKey::LineKey(), linename );
 	hsamp = getHorSamp( *geompar );
-    }
 
     PtrMan<IOPar> mmprocrange =
 	pars().subselect( IOPar::compKey(sKey::Output(),sKey::Subsel()) );
@@ -498,36 +493,6 @@ bool BatchProgram::go( od_ostream& strm )
 	    zbounds.scale( 1.f/SI().zDomain().userFactor() );
 	}
 
-	const bool is2d = attribset.is2D();
-	BinIDValueSet bivs(2,false);
-	TypeSet<DataPointSet::DataRow> startset;
-	BufferStringSet valnms;
-	valnms.add("z2");
-	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
-	if ( is2d )
-	{
-	    const Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-	    hsamp.start.inl() = hsamp.stop.inl() = 0;
-	    if ( mIsUdf(hsamp.stop.crl()) )
-	    {
-		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-				 Survey::GM().getGeometry(geomid) );
-		if ( geom2d )
-		    hsamp.setCrlRange( geom2d->data().trcNrRange() );
-	    }
-
-	    HorizonUtils::getWantedPos2D( strm, midset, dtps,
-					  hsamp, extraz, geomid );
-	}
-	else
-	{
-	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
-								  false );
-	    HorizonUtils::getWantedPositions( strm, midset, bivs,
-				hsamp, extraz, nrinterpsamp, mainhoridx,
-				extrawidth, provider );
-	}
-
 	if ( !zboundsset && mmprocrange )
 	{
 	    //fix needed to get homogeneity when using multi-machines processing
@@ -536,17 +501,57 @@ bool BatchProgram::go( od_ostream& strm )
 						     : zbounds4mmproc + extraz;
 	}
 
-	SeisTrcBuf seisoutp( false );
-	uiString uierrmsg;
-	Processor* proc =
-	    is2d ? aem.create2DVarZOutput( uierrmsg, pars(), dtps, outval,
-					   zboundsset ? &zbounds : 0 )
-		 : aem.createTrcSelOutput( uierrmsg, bivs, seisoutp, outval,
-					   zboundsset ? &zbounds : 0 );
-	if ( !proc ) mErrRet( uierrmsg.getFullString() );
-	if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
+	const bool is2d = attribset.is2D();
+	if ( is2d )
+	{
+	    int lidx = 0;
+	    while ( true )
+	    {
+		PtrMan<IOPar> linepar = mmprocrange->subselect(
+					IOPar::compKey(sKey::Line(),lidx++) );
+		if ( !linepar )
+		    break;
 
-	delete dtps;
+		Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+		TypeSet<DataPointSet::DataRow> startset;
+		BufferStringSet valnms;
+		valnms.add("z2");
+		DataPointSet* dtps = new DataPointSet( startset, valnms, true );
+
+		linepar->get( sKey::GeomID(), geomid );
+		hsamp.start.inl() = hsamp.stop.inl() = 0;
+		StepInterval<int> trcrg;
+		linepar->get( sKey::TrcRange(), trcrg );
+		hsamp.setCrlRange( trcrg );
+		HorizonUtils::getWantedPos2D( strm, midset, dtps,
+					      hsamp, extraz, geomid );
+		SeisTrcBuf seisoutp( false );
+		uiString uierrmsg;
+		aem.setGeomID( geomid );
+		Processor* proc = aem.create2DVarZOutput( uierrmsg, pars(),
+				dtps, outval, zboundsset ? &zbounds : 0 );
+		if ( !proc ) mErrRet( uierrmsg.getFullString() );
+		if ( !process(strm,proc,is2d,outpid,&seisoutp) )
+		    return false;
+
+		delete dtps;
+	    }
+	}
+	else
+	{
+	    BinIDValueSet bivs(2,false);
+	    PtrMan<Pos::Provider> provider = Pos::Provider::make( *geompar,
+								  false );
+	    HorizonUtils::getWantedPositions( strm, midset, bivs,
+				hsamp, extraz, nrinterpsamp, mainhoridx,
+				extrawidth, provider );
+	    SeisTrcBuf seisoutp( false );
+	    uiString uierrmsg;
+	    Processor* proc = aem.createTrcSelOutput( uierrmsg, bivs, seisoutp,
+					outval, zboundsset ? &zbounds : 0 );
+	    if ( !proc ) mErrRet( uierrmsg.getFullString() );
+	    if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
+	}
     }
 
     strm << "Successfully saved data." << od_newline;

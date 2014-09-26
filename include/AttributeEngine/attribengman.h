@@ -64,6 +64,7 @@ public:
     const DescSet*	attribSet() const	{ return inpattrset_; }
     const NLAModel*	nlaModel() const	{ return nlamodel_; }
     const CubeSampling&	cubeSampling() const	{ return cs_; }
+    Pos::GeomID		getGeomID() const	{ return geomid_; }
     const OD::String&	lineKey() const		{ return linekey_; }
     float		undefValue() const	{ return udfval_; }
 
@@ -72,7 +73,9 @@ public:
     void		setAttribSpec(const SelSpec&);
     void		setAttribSpecs(const TypeSet<SelSpec>&);
     void		setCubeSampling(const CubeSampling&);
-    void		setLineKey( const char* lk )	{ linekey_ = lk; }
+    void		setLineKey(const char* lk);
+    void		setGeomID( const Pos::GeomID geomid )
+			{ geomid_ = geomid; }
     void		setUndefValue( float v )	{ udfval_ = v; }
     DescSet*		createNLAADS(DescID& outid,uiString& errmsg,
 				     const DescSet* addtoset=0);
@@ -126,6 +129,7 @@ protected:
     const DataCubes*	cache_;
     float		udfval_;
     BufferString	linekey_;
+    Pos::GeomID		geomid_;
 
     DescSet*		procattrset_;
     int			curattridx_;

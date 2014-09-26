@@ -454,40 +454,7 @@ bool uiAttrVolOut::fillPar()
 
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
 	       transffld_->extendTrcsToSI() );
-
-    IOPar tmpiop; CubeSampling cs;
-    transffld_->selfld->fillPar( tmpiop );
-    BufferString typestr;
-    //Subselection type and geometry will have an extra level key: 'Subsel
-    if ( tmpiop.get( sKey::Type(), typestr ) )
-	tmpiop.removeWithKey( sKey::Type() );
-
-    CubeSampling::removeInfo( tmpiop );
-    iop.mergeComp( tmpiop, keybase );
-    tmpiop.setEmpty();
-    if ( !typestr.isEmpty() )
-	tmpiop.set( sKey::Type(), typestr );
-
-    const bool usecs = typestr != "None";
-    if ( usecs )
-    {
-	cs.usePar( subselpar_ );
-	if ( !cs.hrg.isEmpty() )
-	    cs.fillPar( tmpiop );
-	else if ( todofld_ )
-	{
-	    CubeSampling curcs; todofld_->getRanges( curcs );
-	    curcs.fillPar( tmpiop );
-	}
-    }
-
-    const BufferString subkey = IOPar::compKey( sKey::Output(), sKey::Subsel());
-    iop.mergeComp( tmpiop, subkey );
-
-    CubeSampling::removeInfo( subselpar_ );
-    subselpar_.removeWithKey( sKey::Type() );
-    iop.mergeComp( subselpar_, sKey::Output() );
-
+    iop.mergeComp( subselpar_, IOPar::compKey(sKey::Output(),sKey::Subsel()) );
     Scaler* sc = transffld_->getScaler();
     if ( sc )
     {
@@ -520,17 +487,7 @@ bool uiAttrVolOut::fillPar()
 	}
     }
 
-    if ( usecs )
-    {
-	Attrib::EngineMan::getPossibleVolume( *clonedset, cs, linename,
-						outdescids[0] );
-	iop.set( sKeyMaxInlRg(),
-		 cs.hrg.start.inl(), cs.hrg.stop.inl(), cs.hrg.step.inl() );
-	iop.set( sKeyMaxCrlRg(),
-		 cs.hrg.start.crl(), cs.hrg.stop.crl(), cs.hrg.step.crl() );
-    }
     delete clonedset;
-
     return true;
 }
 

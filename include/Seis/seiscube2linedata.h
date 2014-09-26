@@ -24,7 +24,6 @@ class SeisTrcWriter;
 class Cube2LineDataLineKeyProvider;
 namespace Survey { class Geometry2D; }
 
-
 /*!\brief Extracts 2D data from 3D Cube */
 
 mExpClass(Seis) Seis2DFrom3DExtractor : public Executor

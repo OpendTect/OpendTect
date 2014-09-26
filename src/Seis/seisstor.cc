@@ -91,12 +91,8 @@ void SeisStoreAccess::setIOObj( const IOObj* ioob )
     else if ( is2d_ )
     {
 	dataset_ = new Seis2DDataSet( *ioobj_ );
-	lset_ = new Seis2DLineSet( ioobj_->fullUserExpr(true) );
 	if ( !ioobj_->name().isEmpty() )
-	{
 	    dataset_->setName( ioobj_->name() );
-	    lset_->setName( ioobj_->name() );
-	}
     }
     else
     {

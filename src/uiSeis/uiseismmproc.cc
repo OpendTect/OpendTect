@@ -33,6 +33,7 @@ bool Batch::SeisMMProgDef::isSuitedFor( const char* pnm ) const
 {
     FixedString prognm = pnm;
     return prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::Attrib )
+	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::AttribEM )
 	|| prognm == Batch::JobSpec::progNameFor( Batch::JobSpec::TwoDto3D );
 }
 
@@ -198,8 +199,8 @@ bool uiSeisMMProc::initWork( bool retry )
 	    jobpars_.set( sKey::TmpStor(), tmpstordir );
 	}
 
-	jobprov_ = new SeisJobExecProv(
-		Batch::JobSpec::progNameFor(Batch::JobSpec::Attrib), jobpars_ );
+	const FixedString progname = jobpars_.find( "Program.Name" );
+	jobprov_ = new SeisJobExecProv( progname, jobpars_ );
 	if ( jobprov_->errMsg() )
 	    { errmsg_ = jobprov_->errMsg(); return false; }
 

@@ -59,6 +59,7 @@ EngineMan::EngineMan()
     , cache_(0)
     , udfval_(mUdf(float))
     , curattridx_(0)
+    , geomid_(Survey::GeometryManager::cUndefGeomID())
 {
 }
 
@@ -143,14 +144,22 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
 	    cs_.hrg.start.inl() = cs_.hrg.stop.inl() = 0;
 	    Pos::GeomID geomid = Survey::GM().getGeomID( linename );
-	    const Survey::Geometry* geometry = Survey::GM().getGeometry(geomid);
-	    mDynamicCastGet( const Survey::Geometry2D*, geom2d, geometry );
-	    PosInfo::Line2DData l2dd;
-	    if ( geom2d )
+	    if ( outpar && outpar->hasKey(sKey::TrcRange()) )
 	    {
-		l2dd = geom2d->data();
-		cs_.hrg.setCrlRange( l2dd.trcNrRange() );
-		cs_.zrg = l2dd.zRange();
+		StepInterval<int> trcrg( 0, 0, 1 );
+		outpar->get( sKey::TrcRange(), trcrg );
+		cs_.hrg.setCrlRange( trcrg );
+		outpar->get( sKey::ZRange(), cs_.zrg );
+	    }
+	    else
+	    {
+		mDynamicCastGet( const Survey::Geometry2D*, geom2d,
+				 Survey::GM().getGeometry(geomid) );
+		if ( geom2d )
+		{
+		    cs_.hrg.setCrlRange( geom2d->data().trcNrRange() );
+		    cs_.zrg = geom2d->data().zRange();
+		}
 	    }
 	}
     }
@@ -264,6 +273,13 @@ void EngineMan::setAttribSet( const DescSet* ads )
 {
     delete inpattrset_;
     inpattrset_ = ads ? new DescSet( *ads ) : 0;
+}
+
+
+void EngineMan::setLineKey( const char* lk )
+{
+    linekey_ = lk;
+    setGeomID( Survey::GM().getGeomID(LineKey(lk).lineName()) );
 }
 
 
@@ -993,6 +1009,9 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	    proc->addOutputInterest(idx);
     }
 
+    if ( proc->getProvider() )
+	proc->getProvider()->setGeomID( geomid_ );
+
     return proc;
 }
 
@@ -1013,7 +1032,9 @@ Processor* EngineMan::createTrcSelOutput( uiString& errmsg,
     if ( cubezbounds )
 	attrout->setTrcsBounds( *cubezbounds );
 
-    if ( !linekey_.isEmpty() )
+    if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
+	attrout->setGeomID( geomid_ );
+    else if ( !linekey_.isEmpty() )
 	attrout->setGeomID( Survey::GM().getGeomID(mLineName) );
 
     proc->addOutput( attrout );
@@ -1029,18 +1050,10 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( IOPar::compKey(sKey::Output(),"0") );
-    const char* linekey = output->find(sKey::LineKey());
-    if ( !linekey )
-	linekey = pars.find( IOPar::compKey(sKey::Geometry(),sKey::LineKey()));
-
-    setLineKey( linekey );
-
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    const Pos::GeomID geomid = Survey::GM().getGeomID( mLineName );
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid,
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid_,
 							datapointset, outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )

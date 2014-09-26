@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "settings.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "undefval.h"
 #include "od_ostream.h"
 
@@ -46,16 +47,16 @@ KeyReplaceJobDescProv::KeyReplaceJobDescProv( const IOPar& iop,
 }
 
 
-void KeyReplaceJobDescProv::getJob( int jid, IOPar& iop ) const
+void KeyReplaceJobDescProv::getJob( int jidx, IOPar& iop ) const
 {
     iop = inpiopar_;
-    iop.set( key_, objName(jid) );
+    iop.set( key_, objName(jidx) );
 }
 
 
-const char* KeyReplaceJobDescProv::objName( int jid ) const
+const char* KeyReplaceJobDescProv::objName( int jidx ) const
 {
-    objnm_ = gtObjName( jid );
+    objnm_ = gtObjName( jidx );
     return objnm_.buf();
 }
 
@@ -77,9 +78,9 @@ StringKeyReplaceJobDescProv::StringKeyReplaceJobDescProv( const IOPar& iop,
 }
 
 
-const char* StringKeyReplaceJobDescProv::gtObjName( int jid ) const
+const char* StringKeyReplaceJobDescProv::gtObjName( int jidx ) const
 {
-    return names_.validIdx(jid) ? names_.get(jid).buf() : "";
+    return names_.validIdx(jidx) ? names_.get(jidx).buf() : "";
 }
 
 
@@ -91,9 +92,9 @@ IDKeyReplaceJobDescProv::IDKeyReplaceJobDescProv( const IOPar& iop,
 }
 
 
-const char* IDKeyReplaceJobDescProv::gtObjName( int jid ) const
+const char* IDKeyReplaceJobDescProv::gtObjName( int jidx ) const
 {
-    return toString( idrg_.atIndex(jid) );
+    return toString( idrg_.atIndex(jidx) );
 }
 
 
@@ -186,27 +187,27 @@ int InlineSplitJobDescProv::nrJobs() const
 }
 
 
-int InlineSplitJobDescProv::firstInlNr( int jid ) const
+int InlineSplitJobDescProv::firstInlNr( int jidx ) const
 {
-    return inls_ ? (*inls_)[jid]
-	         : inlrg_.start + jid * inlrg_.step * ninlperjob_;
+    return inls_ ? (*inls_)[jidx]
+		 : inlrg_.start + jidx * inlrg_.step * ninlperjob_;
 }
 
 
-int InlineSplitJobDescProv::lastInlNr( int jid ) const
+int InlineSplitJobDescProv::lastInlNr( int jidx ) const
 {
-    return firstInlNr(jid) + inlrg_.step * (ninlperjob_ - 1);
+    return firstInlNr(jidx) + inlrg_.step * (ninlperjob_ - 1);
 }
 
 
-void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
+void InlineSplitJobDescProv::getJob( int jidx, IOPar& iop ) const
 {
     Interval<float> tmprg;
     const bool isfullrange = inpiopar_.get(mGetSubselKey(ZRange), tmprg);
     iop = inpiopar_;
     iop.set( mGetSubselKey(Type), sKey::Range() );
-    iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
-    iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
+    iop.set( mGetSubselKey(FirstInl), firstInlNr(jidx) );
+    iop.set( mGetSubselKey(LastInl), lastInlNr(jidx) );
 
     if ( !isfullrange )
     {
@@ -218,10 +219,10 @@ void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 }
 
 
-const char* InlineSplitJobDescProv::objName( int jid ) const
+const char* InlineSplitJobDescProv::objName( int jidx ) const
 {
-    const int firstinl = firstInlNr( jid );
-    const int lastinl = lastInlNr( jid );
+    const int firstinl = firstInlNr( jidx );
+    const int lastinl = lastInlNr( jidx );
     objnm_ = ""; objnm_ += firstinl;
     if ( lastinl > firstinl )
 	{ objnm_ += "-"; objnm_ += lastinl; }
@@ -264,3 +265,58 @@ void InlineSplitJobDescProv::setDefaultNrInlPerJob( int nr )
     Settings::common().set( IOPar::compKey(mMMKey,mNrInlPerJobKey), nr );
     Settings::common().write();
 }
+
+
+ParSubselJobDescProv::ParSubselJobDescProv( const IOPar& iop,
+					    const char* subselkey )
+	: JobDescProv(iop)
+	, subselkey_(subselkey)
+{
+    int idx = 0;
+    while ( true )
+    {
+	const BufferString curselkey = IOPar::compKey( subselkey_, idx++ );
+	IOPar* curselpar = inpiopar_.subselect( curselkey );
+	if ( !curselpar )
+	    break;
+
+	subselpars_ += curselpar;
+    }
+}
+
+
+void ParSubselJobDescProv::getJob( int jidx, IOPar& iop ) const
+{
+    if ( !subselpars_.validIdx(jidx) )
+	return;
+
+    iop = inpiopar_;
+    iop.removeSubSelection( subselkey_ );
+    iop.mergeComp( *subselpars_[jidx], IOPar::compKey(subselkey_,0) );
+}
+
+
+void ParSubselJobDescProv::dump( od_ostream& strm ) const
+{
+    strm << "\nIOPar Subselection based JobDescProv dump.\n"
+	    "The following jobs description keys are available:\n";
+    for ( int idx=0; idx<nrJobs(); idx++ )
+	strm << objName( idx ) << ' ';
+    strm << od_endl;
+}
+
+
+Line2DSubselJobDescProv::Line2DSubselJobDescProv( const IOPar& iop )
+    : ParSubselJobDescProv(iop,IOPar::compKey(getOutSubSelKey(),sKey::Line()))
+{}
+
+const char* Line2DSubselJobDescProv::objName( int jidx ) const
+{
+    if ( !subselpars_.validIdx(jidx) )
+	return 0;
+
+    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
+    subselpars_[jidx]->get( sKey::GeomID(), geomid );
+    return Survey::GM().getName( geomid );
+}
+

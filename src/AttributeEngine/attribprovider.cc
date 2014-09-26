@@ -1427,6 +1427,9 @@ void Provider::adjust2DLineStoredVolume()
 
 Pos::GeomID  Provider::getGeomID() const
 {
+    if ( geomid_ != Survey::GM().cUndefGeomID() )
+	return geomid_;
+
     Pos::GeomID geomid = Survey::GM().cUndefGeomID();
     for ( int idx=0; idx<inputs_.size(); idx++ )
     {
@@ -1439,6 +1442,17 @@ Pos::GeomID  Provider::getGeomID() const
     }
 
     return geomid;
+}
+
+
+void Provider::setGeomID( Pos::GeomID geomid )
+{
+    geomid_ = geomid;
+    for ( int idx=0; idx<inputs_.size(); idx++ )
+    {
+	if ( inputs_[idx] )
+	    inputs_[idx]->setGeomID( geomid );
+    }
 }
 
 

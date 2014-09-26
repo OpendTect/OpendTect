@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribengman.h"
 #include "attriboutput.h"
 #include "ctxtioobj.h"
+#include "emioobjinfo.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "ioman.h"
@@ -405,7 +406,8 @@ bool uiAttrTrcSelOut::fillPar()
     }
 
     CubeSampling::removeInfo( *subselpar );
-    iopar.mergeComp( *subselpar, sKey::Geometry() );
+    iopar.mergeComp( *subselpar,
+		     IOPar::compKey(sKey::Output(),sKey::Subsel()) );
 
     Interval<float> zinterval;
     if ( gatefld_ )
@@ -521,6 +523,27 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     if ( !objfld_->commitInput() ||
 	 ( !usesinglehor_ && !obj2fld_->commitInput() ) )
 	return;
+
+    if ( ads_.is2D() )
+    {
+	EM::IOObjInfo info( ctio_.ioobj->key() );
+	TypeSet<Pos::GeomID> geomids;
+	info.getGeomIDs( geomids );
+	if ( !usesinglehor_ )
+	{
+	    EM::IOObjInfo info2( ctio2_.ioobj->key() );
+	    TypeSet<Pos::GeomID> geomids2;
+	    info2.getGeomIDs( geomids2 );
+	    for ( int idx=geomids.size()-1; idx>=0; idx-- )
+	    {
+		if ( !geomids2.isPresent(geomids[idx]) )
+		    geomids.removeSingle( idx );
+	    }
+	}
+
+	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
+	seis2dsubsel->setInputLines( geomids );
+    }
 
     CubeSampling cs;
     attrfld_->getRanges( cs );
