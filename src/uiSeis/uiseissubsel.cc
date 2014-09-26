@@ -223,6 +223,13 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 }
 
 
+void uiSeis2DSubSel::setInputLines( const TypeSet<Pos::GeomID>& geomids )
+{
+    if ( multilnmsel_ )
+	multilnmsel_->setInput( geomids );
+}
+
+
 void uiSeis2DSubSel::usePar( const IOPar& iopar )
 {
     BufferStringSet lnms;

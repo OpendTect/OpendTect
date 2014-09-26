@@ -574,7 +574,7 @@ bool StorageProvider::set2DRangeSelData()
 
     mDynamicCastGet(const Seis::RangeSelData*,rsd,seldata_)
     Seis::RangeSelData* seldata = rsd ? (Seis::RangeSelData*)rsd->clone()
-				      : new Seis::RangeSelData( true );
+				      : new Seis::RangeSelData( false );
     SeisTrcReader& reader = mscprov_->reader();
     Seis2DDataSet* dset = reader.dataSet();
     if ( !dset )
@@ -583,7 +583,7 @@ bool StorageProvider::set2DRangeSelData()
 	return false;
     }
 
-    if ( geomid_ >= 0 )
+    if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
     {
 	seldata->setGeomID( geomid_ );
 	int idx = dset->indexOf( geomid_ );

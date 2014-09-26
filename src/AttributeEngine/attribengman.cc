@@ -646,19 +646,22 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 
 	todocs = tkzs_;
 	todocs.hrg.start.inl() = startinl; todocs.hrg.stop.inl() = stopinl;
-	todocs.hrg.start.crl() = mMAX(tkzs_.hrg.start.crl(), mRg(h).start.crl() );
-	todocs.hrg.stop.crl() = mMIN(tkzs_.hrg.stop.crl(), mRg(h).stop.crl() );
+	todocs.hrg.start.crl() = mMAX( tkzs_.hrg.start.crl(),
+				       mRg(h).start.crl() );
+	todocs.hrg.stop.crl() = mMIN( tkzs_.hrg.stop.crl(), mRg(h).stop.crl() );
 
 	if ( mRg(z).start > tkzs_.zsamp_.start + mStepEps*tkzs_.zsamp_.step )
 	{
-	    todocs.zsamp_.stop = mMAX(mRg(z).start-tkzs_.zsamp_.step, todocs.zsamp_.start);
+	    todocs.zsamp_.stop = mMAX( mRg(z).start-tkzs_.zsamp_.step,
+		    		       todocs.zsamp_.start );
 	    mAddAttrOut( todocs )
 	}
 
 	if ( mRg(z).stop < tkzs_.zsamp_.stop - mStepEps*tkzs_.zsamp_.step )
 	{
 	    todocs.zsamp_ = tkzs_.zsamp_;
-	    todocs.zsamp_.start = mMIN(mRg(z).stop+tkzs_.zsamp_.step, todocs.zsamp_.stop);
+	    todocs.zsamp_.start = mMIN( mRg(z).stop+tkzs_.zsamp_.step,
+		    			todocs.zsamp_.stop );
 	    mAddAttrOut( todocs )
 	}
     }
@@ -673,7 +676,8 @@ Processor* EngineMan::createDataCubesOutput( uiString& errmsg,
 					tkzs_.hrg.step.crl()*idx );
 	if ( tkzs_.defaultDir() == TrcKeyZSampling::Crl )
 	    for ( int idx=0; idx<tkzs_.nrInl(); idx++ )
-		positions += BinID( tkzs_.hrg.start.inl()+ tkzs_.hrg.step.inl()*idx,
+		positions += BinID( tkzs_.hrg.start.inl() +
+				    tkzs_.hrg.step.inl()*idx,
 				    tkzs_.hrg.start.crl() );
 
 	proc->setRdmPaths( &positions, &positions );
@@ -996,6 +1000,9 @@ Processor* EngineMan::getProcessor( uiString& errmsg )
 	    proc->addOutputInterest(idx);
     }
 
+    if ( proc->getProvider() )
+	proc->getProvider()->setGeomID( geomid_ );
+
     return proc;
 }
 
@@ -1030,20 +1037,10 @@ Processor* EngineMan::create2DVarZOutput( uiString& errmsg,
 					  float outval,
 					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> subpar = pars.subselect( IOPar::compKey(sKey::Output(),
-							  sKey::Subsel()) );
-    if ( !subpar ) return 0;
-
-    Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
-    PtrMan<IOPar> linepar = subpar->subselect( IOPar::compKey(sKey::Line(),0) );
-    if ( !linepar || !linepar->get(sKey::GeomID(),geomid) )
-	return 0;
-
-    setGeomID( geomid );
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid,
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( geomid_,
 							datapointset, outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )

@@ -516,10 +516,7 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 bool SeisTrcStorOutput::writeTrc()
 {
     if ( !writer_ || !trc_ )
-    {
-	errmsg_ = tr("Internal: No writer or no trace");
-	return false;
-    }
+	return true;
 
     SeisTrc* usetrc = trc_;
     PtrMan<SeisTrc> tmptrc = 0;

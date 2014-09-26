@@ -94,6 +94,7 @@ public:
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setInput(const IOObj&);
+    void		setInputLines(const TypeSet<Pos::GeomID>&);
 
     Notifier<uiSeis2DSubSel> lineSel;
     bool		isSingLine() const;

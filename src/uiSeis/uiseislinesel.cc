@@ -685,7 +685,11 @@ void uiSeis2DMultiLineSelDlg::applyZRgToAllCB( CallBacker* )
 bool uiSeis2DMultiLineSelDlg::acceptOK( CallBacker* )
 {
     if ( lnmsfld_->nrChosen() == 1 )
+    {
 	trcRgChanged( 0 );
+	zRgChanged( 0 );
+    }
+
     return true;
 }
 
@@ -735,7 +739,9 @@ void uiSeis2DMultiLineSel::setInput( const TypeSet<Pos::GeomID>& geomids )
 void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
 {
     selectionChanged.disable();
-    uiSeis2DLineSel::setInput( datasetid );
+    const SeisIOObjInfo oi( datasetid );
+    BufferStringSet lnms; oi.getLineNames( lnms );
+    uiSeis2DLineSel::setInput( lnms );
     initRanges(&datasetid);
     selectionChanged.enable();
     selectionChanged.trigger();
@@ -744,6 +750,8 @@ void uiSeis2DMultiLineSel::setInput( const MultiID& datasetid )
 
 void uiSeis2DMultiLineSel::initRanges( const MultiID* datasetid )
 {
+    zrgs_.erase(); trcrgs_.erase();
+    maxzrgs_.erase(); maxtrcrgs_.erase();
     PtrMan<SeisIOObjInfo> si = datasetid ? new SeisIOObjInfo(*datasetid) : 0;
     for ( int idx=0; idx<geomids_.size(); idx++ )
     {
