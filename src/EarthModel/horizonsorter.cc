@@ -186,14 +186,14 @@ int HorizonSorter::nextStep()
 	    EM::ObjectID objid = EM::EMM().getObjectID( unsortedids_[idx] );
 	    EM::EMObject* emobj = EM::EMM().getObject( objid );
 	    if ( !emobj )
-		mErrRet( "Could not load all horizons" );
+		mErrRet( tr("Could not load all horizons") );
 
 	    emobj->ref();
 	    mDynamicCastGet(EM::Horizon*,horizon,emobj);
 	    if ( !horizon )
 	    {
 		emobj->unRef();
-		mErrRet( "Loaded object is not a horizon" );
+		mErrRet( tr("Loaded object is not a horizon") );
 	    }
 	    horizons_ += horizon;
 	}
@@ -204,7 +204,7 @@ int HorizonSorter::nextStep()
     if ( !is2d_ && !iterator_ ) return Finished();
 
     if ( is2d_ && geomids_.isEmpty() )
-	mErrRet( "Could not load 2D geometry." );
+	mErrRet( tr("Could not load 2D geometry.") );
 
     const int previnl = binid_.inl();
     while ( binid_.inl()==previnl )

@@ -61,7 +61,7 @@ public:
 */
 
 mExpClass(EarthModel) lmkEMFault3DReader : public Executor
-{
+{ mODTextTranslationClass(lmkEMFault3DReader);
 public:
 			lmkEMFault3DReader(EM::Fault3D&,Conn*,
 					   const char* formatfile);
@@ -76,7 +76,7 @@ protected:
     EM::Fault3D&	fault;
 
     Conn*               conn;
-    BufferString        msg;
+    uiString            msg;
     bool		useinlcrl;
     bool                error;
 
@@ -100,7 +100,7 @@ protected:
 */
 
 mClass(EarthModel) lmkEMFault3DWriter : public Executor
-{
+{ mODTextTranslationClass(lmkEMFault3DWriter);
 public:
 			lmkEMFault3DWriter(const EM::Fault3D&,
 					   Conn*,const char* formatfile);

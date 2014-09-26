@@ -68,7 +68,7 @@ uiString HorizonScanner::uiMessage() const
 
 uiString HorizonScanner::uiNrDoneText() const
 {
-    return "Positions handled";
+    return tr("Positions handled");
 }
 
 
@@ -123,7 +123,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "But the positions in input file appear to be in", actual );
 	BufferString msg = "OpendTect will use ";
 	msg += actual; msg += " for final import";
-	iopar.add( msg.buf(), "" );
+        iopar.add( msg.buf(), "" );
     }
 
     iopar.add( IOPar::sKeyHdr(), "Geometry" );

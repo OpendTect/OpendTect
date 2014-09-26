@@ -31,7 +31,7 @@ class Horizon3D;
 */
 
 mExpClass(EarthModel) dgbSurfDataWriter : public Executor
-{
+{ mODTextTranslationClass(dgbSurfDataWriter);
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
@@ -82,7 +82,7 @@ protected:
     int				chunksize_;
     int				nrdone_;
     int				totalnr_;
-    BufferString		errmsg_;
+    uiString		        errmsg_;
 
     od_ostream*			stream_;
     bool			binary_;
@@ -95,7 +95,7 @@ protected:
 */
 
 mExpClass(EarthModel) dgbSurfDataReader : public Executor
-{
+{ mODTextTranslationClass(dgbSurfDataReader);
 public:
     				dgbSurfDataReader(const char* filename);
 				~dgbSurfDataReader();
@@ -131,7 +131,7 @@ protected:
     int				chunksize_;
     int				nrdone_;
     int				totalnr_;
-    BufferString		errmsg_;
+    uiString		        errmsg_;
 
     od_istream*			stream_;
     DataInterpreter<int>*	intinterpreter_;

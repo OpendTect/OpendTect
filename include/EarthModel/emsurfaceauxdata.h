@@ -36,7 +36,7 @@ class PosID;
 */
 
 mExpClass(EarthModel) SurfaceAuxData 
-{
+{ mODTextTranslationClass(SurfaceAuxData);
 public:
 			SurfaceAuxData(Horizon3D&);
     virtual		~SurfaceAuxData();

@@ -245,15 +245,15 @@ int IOObjInfo::getParsOffsetInFile() const
 bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 {
     if ( !ioobj_ )
-	mErrRet( "Cannot find surface in object database" )
+	mErrRet( tr("Cannot find surface in object database") )
 
     if ( !ioobj_->implExists(true) )
-	mErrRet( "Cannot find file on disk" )
+	mErrRet( tr("Cannot find file on disk") )
 
     if ( !isSurface() )
     {
 	pErrMsg("getSurfaceData called on non-surface");
-	mErrRet( "Internal: Trying to get surface data from a non-surface" )
+	mErrRet("Internal: Trying to get surface data from a non-surface")
     }
 
     Translator* trans = ioobj_->createTranslator();
@@ -265,7 +265,7 @@ bool IOObjInfo::getSurfaceData( SurfaceIOData& sd, uiString& errmsg ) const
 	    { pErrMsg("No Translator for IOObj" ); }
 	else
 	    { pErrMsg("Created Translator is not a EMSurfaceTranslator"); }
-	mErrRet( "Internal: Unknown Surface interpreter encountered" )
+	mErrRet("Internal: Unknown Surface interpreter encountered")
     }
 
     if ( !str->startRead(*ioobj_) )

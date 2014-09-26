@@ -267,7 +267,7 @@ int dgbSurfaceReader::scanFor2DGeom( TypeSet< StepInterval<int> >& trcranges )
     {
 	is2d = true;
 	if ( linenames_.size() != lineids.size() )
-	    { msg_ = "Inconsistency in horizon file header"; return -1; }
+	    { msg_ = tr("Inconsistency in horizon file header"); return -1; }
 
 	for ( int idx=0; idx<lineids.size(); idx++ )
 	{
@@ -321,12 +321,12 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     od_istream& strm = sconn.iStream();
     if ( !strm.isOK() )
     {
-	msg_ = "Could not open horizon file"; strm.addErrMsgTo( msg_ );
+	msg_ = tr("Could not open horizon file"); strm.addErrMsgTo( msg_ );
 	delete conn_; conn_ = 0; return false;
     }
     ascistream astream( strm );
     if ( !astream.isOfFileType(filetype) )
-	{ msg_ = "Horizon file has wrong file type"; return false; }
+	{ msg_ = tr("Horizon file has wrong file type"); return false; }
 
     version_ = 1;
     astream.next();
@@ -377,7 +377,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     if ( is2d && linesets_.isEmpty() && geomids_.isEmpty() )
     {
-	msg_ = "No geometry found for this horizon";
+	msg_ = tr("No geometry found for this horizon");
 	return false;
     }
 
@@ -611,7 +611,7 @@ od_int64 dgbSurfaceReader::nrDone() const
 
 uiString dgbSurfaceReader::uiNrDoneText() const
 {
-    return "Gridlines read";
+    return tr("Gridlines read");
 }
 
 
@@ -766,7 +766,7 @@ int dgbSurfaceReader::nextStep()
 	    setsurfacepar_ = true;
 	    if ( !surface_->usePar(*par_) )
 	    {
-		msg_ = "Could not parse header";
+		msg_ = tr("Could not parse header");
 		return ErrorOccurred();
 	    }
 
@@ -873,7 +873,8 @@ int dgbSurfaceReader::nextStep()
 			     Survey::GM().getGeometry(geomid) );
 	    if ( !geom2d  )
 	    {
-		msg_ = "Cannot find 2D line associated with the 2D horizon.";
+		msg_ = tr("Cannot find 2D line associated " 
+                          "with the 2D horizon.");
 		return ErrorOccurred();
 	    }
 
@@ -1322,7 +1323,7 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
 
 uiString dgbSurfaceReader::uiMessage() const
 {
-    return msg_.buf();
+    return msg_;
 }
 
 
@@ -1656,7 +1657,7 @@ od_int64 dgbSurfaceWriter::nrDone() const
 
 uiString dgbSurfaceWriter::uiNrDoneText() const
 {
-    return "Gridlines written";
+    return tr("Gridlines written");
 }
 
 
@@ -1681,11 +1682,14 @@ int dgbSurfaceWriter::nextStep()
     {
 	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
-	    { msg_ = "Cannot open output surface file"; return ErrorOccurred();}
+	    { 
+                msg_ = tr("Cannot open output surface file"); 
+                return ErrorOccurred();
+            }
 	od_ostream& strm = conn_->oStream();
 	if ( !strm.isOK() )
 	{
-	    msg_ = "Cannot open output surface file";
+	    msg_ = tr("Cannot open output surface file");
 	    strm.addErrMsgTo( msg_ );
 	    delete conn_; conn_ = 0;
 	    return ErrorOccurred();
@@ -1796,7 +1800,7 @@ int dgbSurfaceWriter::nextStep()
 
 uiString dgbSurfaceWriter::uiMessage() const
 {
-    return msg_.buf();
+    return msg_;
 }
 
 

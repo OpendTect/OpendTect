@@ -33,7 +33,7 @@ class BinIDValueSet;
 */
 
 mExpClass(EarthModel) FaultTrace : public Coord3List
-{
+{ mODTextTranslationClass(FaultTrace);
 public:
 
     int			nextID(int) const;
@@ -134,7 +134,7 @@ protected:
 */
 
 mExpClass(EarthModel) FaultTrcHolder
-{
+{ mODTextTranslationClass(FaultTrcHolder);
 public:
 			FaultTrcHolder();
 			~FaultTrcHolder();
@@ -158,7 +158,7 @@ public:
 */
 
 mExpClass(EarthModel) FaultTraceExtractor : public ParallelTask
-{
+{ mODTextTranslationClass(FaultTraceExtractor);
 public:
 			FaultTraceExtractor(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor();
@@ -181,7 +181,7 @@ protected:
 
 
 mExpClass(EarthModel) FaultTraceExtractor3D : public FaultTraceExtractor
-{
+{ mODTextTranslationClass(FaultTraceExtractor3D);
 public:
 			FaultTraceExtractor3D(const EM::Fault&,FaultTrcHolder&);
 			~FaultTraceExtractor3D();
@@ -198,7 +198,7 @@ protected:
 
 
 mExpClass(EarthModel) FaultTraceExtractor2D : public FaultTraceExtractor
-{
+{ mODTextTranslationClass(FaultTraceExtractor2D);
 public:
 			FaultTraceExtractor2D(const EM::Fault&,FaultTrcHolder&,
 					      Pos::GeomID);
@@ -219,7 +219,7 @@ protected:
 */
 
 mExpClass(EarthModel) FaultTrcDataProvider
-{
+{ mODTextTranslationClass(FaultTrcDataProvider);
 public:
 			FaultTrcDataProvider();
 			FaultTrcDataProvider(Pos::GeomID);
@@ -244,7 +244,7 @@ public:
 
     void		clear();
     bool		isEmpty() const;
-    const char*		errMsg() const;
+    uiString		errMsg() const;
 
 protected:
 
@@ -254,7 +254,7 @@ protected:
     ObjectSet<FaultTrcHolder>	holders_;
 
     Pos::GeomID		geomid_;
-    BufferString	errmsg_;
+    uiString	        errmsg_;
     bool		is2d_;
 };
 

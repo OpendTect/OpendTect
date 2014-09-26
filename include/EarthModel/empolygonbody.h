@@ -33,7 +33,7 @@ class PolygonBody;
 */
 
 mExpClass(EarthModel) PolygonBodyGeometry : public SurfaceGeometry
-{
+{ mODTextTranslationClass(uiStrings);
 public:
 			PolygonBodyGeometry(PolygonBody&);
 			~PolygonBodyGeometry();

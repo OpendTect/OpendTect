@@ -960,7 +960,7 @@ od_int64 FaultTraceExtractor::nrIterations() const
 { return totalnr_; }
 
 uiString FaultTraceExtractor::uiMessage() const
-{ return "Extracting Fault Traces"; }
+{ return tr("Extracting Fault Traces"); }
 
 bool FaultTraceExtractor::doPrepare( int nrthreads )
 {
@@ -1232,8 +1232,8 @@ FaultTrcDataProvider::FaultTrcDataProvider( const Pos::GeomID geomid )
 FaultTrcDataProvider::~FaultTrcDataProvider()
 { clear(); }
 
-const char* FaultTrcDataProvider::errMsg() const
-{ return errmsg_.buf(); }
+uiString FaultTrcDataProvider::errMsg() const
+{ return errmsg_; }
 
 int FaultTrcDataProvider::nrFaults() const
 { return holders_.size(); }

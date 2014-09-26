@@ -39,7 +39,7 @@ class SurfaceIODataSelection;
 */
 
 mExpClass(EarthModel) SurfaceGeometry : public CallBacker
-{
+{ mODTextTranslationClass(SurfaceGeometry);
 public:
 			SurfaceGeometry(Surface&);
     virtual		~SurfaceGeometry();
@@ -122,7 +122,7 @@ protected:
 */
 
 mExpClass(EarthModel) RowColSurfaceGeometry : public SurfaceGeometry
-{
+{ mODTextTranslationClass(RowColSurfaceGeometry);
 public:
 			RowColSurfaceGeometry(Surface&);
     virtual		~RowColSurfaceGeometry();

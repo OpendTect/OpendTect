@@ -201,7 +201,7 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( "Cannot find surface" );
+	horizon_.setErrMsg( tr("Cannot find surface") );
 	return 0;
     }
 
@@ -261,7 +261,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
     {
-	horizon_.setErrMsg( "Cannot find surface" );
+	horizon_.setErrMsg( tr("Cannot find surface") );
 	return 0;
     }
 

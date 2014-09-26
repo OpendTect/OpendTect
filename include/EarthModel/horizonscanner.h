@@ -27,7 +27,7 @@ namespace PosInfo { class Detector; }
 */
 
 mExpClass(EarthModel) HorizonScanner : public Executor
-{
+{ mODTextTranslationClass(HorizonScanner);
 public:
 
 			HorizonScanner(const BufferStringSet& fnms,

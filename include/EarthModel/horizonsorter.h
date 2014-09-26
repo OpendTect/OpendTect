@@ -30,7 +30,7 @@ class TrcKeySamplingIterator;
 */
 
 mExpClass(EarthModel) HorizonSorter : public Executor
-{
+{ mODTextTranslationClass(HorizonSorter);
 public:
 
 				HorizonSorter(const TypeSet<MultiID>&,

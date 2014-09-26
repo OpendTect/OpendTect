@@ -31,7 +31,7 @@ class Fault3D;
 */
 
 mExpClass(EarthModel) FaultAuxData 
-{
+{ mODTextTranslationClass(FaultAuxData);
 public:
 			FaultAuxData(const Fault3D&);
 			FaultAuxData(const MultiID&);
@@ -60,7 +60,7 @@ public:
     void		renameFault(const char* fltnewname);
 
     void		getAuxDataList(BufferStringSet&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
 protected:
 
@@ -75,7 +75,7 @@ protected:
 
     const MultiID&	faultmid_;
     BufferString	fltfullnm_;
-    BufferString	errmsg_;
+    uiString	        errmsg_;
 
     struct DataInfo
     {

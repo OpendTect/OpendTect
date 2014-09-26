@@ -43,7 +43,7 @@ class RowColSurfaceGeometry;
 */
 
 mExpClass(EarthModel) dgbSurfaceReader : public ExecutorGroup
-{
+{ mODTextTranslationClass(dgbSurfaceReader);
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
 					 const char* filetype);
@@ -173,7 +173,7 @@ protected:
 
     const IOPar*	par_;
 
-    BufferString	msg_;
+    uiString	        msg_;
     bool		error_;
     int			nrdone_;
 
@@ -240,7 +240,7 @@ protected:
 */
 
 mExpClass(EarthModel) dgbSurfaceWriter : public ExecutorGroup
-{
+{ mODTextTranslationClass(dgbSurfaceWriter);
 public:
 			dgbSurfaceWriter( const IOObj* ioobj,
 					  const char* filetype,
@@ -327,7 +327,7 @@ protected:
 
     IOPar*			par_;
 
-    BufferString		msg_;
+    uiString		        msg_;
     BufferString		fulluserexpr_;
     MultiID			objectmid_;
     int				nrdone_;

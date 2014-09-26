@@ -49,7 +49,7 @@ bool HorizonGridder::init( TaskRunner* taskrunner )
 
     if ( fltdataprov_ && !fltdataprov_->init(faultids_,hs_,taskrunner) )
     {
-	infomsg_ = "Cannot read Faults";
+	infomsg_ = tr("Cannot read Faults");
 	return false;
     }
 

@@ -372,7 +372,7 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     errmsg_.setEmpty();
 
     if ( !dataset_.validIdx(sdidx) || !dataset_[sdidx]->data )
-	mErrRtn("No valid surface data to store");
+	mErrRtn(tr("No valid surface data to store"));
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
     FilePath fp( fltsdnm );
@@ -386,7 +386,8 @@ bool FaultAuxData::storeData( int sdidx, bool binary )
     if ( !sfio.open(false,true) )
     {
 	File::remove( backupfp.fullPath() );
-	mErrRtn("Cannot open file to write, check your disk I/O permission");
+	mErrRtn(tr("Cannot open file to write, "
+                   "check your disk I/O permission"));
     }
 
     ascostream astream( sfio.ostrm() );
@@ -457,23 +458,23 @@ bool FaultAuxData::loadData( int sdidx )
 {
     errmsg_.setEmpty();
     if ( !dataset_.validIdx(sdidx) )
-	mErrRtn("Surface data does not exist");
+	mErrRtn(tr("Surface data does not exist"));
 
     const BufferString fltsdnm = createFltDataName( fltfullnm_, sdidx );
     FilePath fp( fltsdnm );
 
     if ( !File::exists(fp.fullPath()) )
-	mErrRtn("Surface data does not exist");
+	mErrRtn(tr("Surface data does not exist"));
 
     SafeFileIO sfio( fp.fullPath(), false );
     if ( !sfio.open(true) )
-	mErrRtn("Cannot open file, check your file read permission");
+	mErrRtn(tr("Cannot open file, check your file read permission"));
 
     ascistream astream( sfio.istrm(), true );
     if ( !astream.isOfFileType( sKeyFaultAuxData() ) )
     {
 	sfio.closeSuccess();
-	mErrRtn("Wrong file type, not fault aux data");
+	mErrRtn(tr("Wrong file type, not fault aux data"));
     }
 
     astream.next();

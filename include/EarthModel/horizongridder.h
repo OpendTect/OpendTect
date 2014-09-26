@@ -26,11 +26,11 @@ class TaskRunner;
 */
 
 mExpClass(EarthModel) HorizonGridder
-{
+{ mODTextTranslationClass(HorizonGridder);
 public:
     mDefineFactoryInClass(HorizonGridder,factory);
 
-    const char*		infoMsg() const	{ return infomsg_.buf(); }
+    uiString		infoMsg() const	{ return infomsg_; }
 
     void		setFaultIds(const TypeSet<MultiID>&);
 
@@ -51,7 +51,7 @@ protected:
 
     FaultTrcDataProvider* fltdataprov_;
 
-    BufferString	infomsg_;
+    uiString	        infomsg_;
     TrcKeySampling		hs_;
     TypeSet<MultiID>	faultids_;
 
@@ -65,7 +65,7 @@ protected:
 
 mExpClass(EarthModel) InvDistHor3DGridder
 	: public InverseDistanceArray2DInterpol, public HorizonGridder
-{
+{ mODTextTranslationClass(InvDistHor3DGridder);
 public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
@@ -88,7 +88,7 @@ protected:
 
 mExpClass(EarthModel) TriangulationHor3DGridder
 	: public TriangulationArray2DInterpol, public HorizonGridder
-{
+{ mODTextTranslationClass(TriangulationHor3DGridder);
 public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,
@@ -111,7 +111,7 @@ protected:
 
 mExpClass(EarthModel) ExtensionHor3DGridder
 	: public ExtensionArray2DInterpol, public HorizonGridder
-{
+{ mODTextTranslationClass(ExtensionHor3DGridder);
 public:
 
 			mDefaultFactoryInstantiation( HorizonGridder,

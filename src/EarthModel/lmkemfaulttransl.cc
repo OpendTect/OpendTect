@@ -61,11 +61,11 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     , distancuniteinterval(-1,-1)
 {
     if ( !formatfilename || !*formatfilename )
-	{ msg = "No format file name specified"; error = true; return; }
+	{ msg = tr("No format file name specified"); error = true; return; }
 
     od_istream formatstrm( formatfilename );
     if ( !formatstrm.isOK() )
-	{ msg = "Cannot open format file"; error = true; return; }
+	{ msg = tr("Cannot open format file"); error = true; return; }
 
     while ( formatstrm.isOK() )
     {
@@ -110,11 +110,10 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
 		zinterval.start==-1 || zinterval.stop==-1 ||
 		pointtypeinterval.start==-1 || pointtypeinterval.stop==-1 )
     {
-	msg.set( lmkEMFault3DTranslator::xstr() ).add( ", " )
-	   .add( lmkEMFault3DTranslator::ystr() ).add( ", " )
-	   .add( lmkEMFault3DTranslator::zstr() ).add( "and " )
-	   .add( lmkEMFault3DTranslator::pointtypestr() )
-	   .add( " must be provided for reading" );
+	msg = tr( "%1, %2 and %3 must be provided for reading")
+            .arg( lmkEMFault3DTranslator::xstr() )
+            .arg( lmkEMFault3DTranslator::ystr() )
+            .arg( lmkEMFault3DTranslator::pointtypestr() );
 	error = true;
 	return;
     }
@@ -215,14 +214,14 @@ int lmkEMFault3DReader::nextStep()
 	else if ( str == "ft" )
 	    zfac = mFromFeetFactorF;
 	else if ( str != "ms" )
-	    { msg = "Unknown time unit"; return ErrorOccurred(); }
+	    { msg = tr("Unknown time unit"); return ErrorOccurred(); }
 
 	str = &buffer[domaininterval.start-1];
 	str[domaininterval.width()+1] = 0;
 	const bool ist = str == "TIME";
 	if ( (ist && SI().zIsTime()) || (ist && !SI().zIsTime()) )
 	{
-	    msg = "Z domain is not equal to survey domain";
+	    msg = tr("Z domain is not equal to survey domain");
 	    return ErrorOccurred();
 	}
     }
@@ -256,7 +255,7 @@ int lmkEMFault3DReader::nextStep()
 
 uiString lmkEMFault3DReader::uiMessage() const
 {
-    return msg.isEmpty() ? "Reading Fault" : msg.buf();
+    return msg.isEmpty() ? tr("Reading Fault") : msg;
 }
 
 

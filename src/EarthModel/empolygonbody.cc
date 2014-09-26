@@ -485,8 +485,8 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 
 
 #define mDefEditNormalStr( editnormstr, sid, polygonnr ) \
-    BufferString editnormstr("Edit normal of section "); \
-    editnormstr += sid; editnormstr += " polygonnr "; editnormstr += polygonnr;
+     BufferString editnormstr("Edit normal of section "); \
+     editnormstr += sid; editnormstr += " polygonnr "; editnormstr += polygonnr;
 
 
 #define mDefKnotsStr( knotstr, sid, polygonnr, knotidx ) \
@@ -495,7 +495,7 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     knotstr += " knot "; knotstr += knotidx;
 
 #define mDefPlgBezierNr( bez, sid ) \
-    BufferString bez("BezierCurve nr of section "); bez += sid;
+     BufferString bez("BezierCurve nr of section "); bez += sid;
 
 
 void PolygonBodyGeometry::fillPar( IOPar& par ) const

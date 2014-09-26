@@ -138,7 +138,7 @@ int dgbSurfDataWriter::nextStep()
 	    else
 	    {
 		if ( !writeInt(surf_.nrSections()) )
-		    mErrRetWrite("Error in writing data information")
+		    mErrRetWrite(tr("Error in writing data information"))
 	    }
 
 	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
@@ -173,10 +173,10 @@ int dgbSurfDataWriter::nextStep()
 	    }
 
 	    if ( subids_.isEmpty() )
-		mErrRetWrite("No data available for this surface")
+		mErrRetWrite(tr("No data available for this surface"))
 
 	    if ( !writeInt(sectionid) || !writeInt(subids_.size()) )
-		mErrRetWrite("Error in writing data information")
+		mErrRetWrite(tr("Error in writing data information"))
 	}
 
 	const int subidindex = subids_.size()-1;
@@ -184,7 +184,7 @@ int dgbSurfDataWriter::nextStep()
 	const float auxvalue = values_[subidindex];
 
 	if ( !writeInt64(subid) || !writeFloat(auxvalue) )
-	    mErrRetWrite("Error in writing datavalues")
+	    mErrRetWrite(tr("Error in writing datavalues"))
 
 	subids_.removeSingle( subidindex );
 	values_.removeSingle( subidindex );
@@ -231,7 +231,7 @@ od_int64 dgbSurfDataWriter::totalNr() const
 
 
 uiString dgbSurfDataWriter::uiMessage() const
-{ return errmsg_.str(); }
+{ return errmsg_; }
 
 
 
@@ -279,7 +279,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	if ( !par.get(dgbSurfDataWriter::sKeyInt64DataChar(),dc) )
 	{
 	    error_ = true;
-	    errmsg_ = "Error in reading data characteristics (int64)";
+	    errmsg_ = tr("Error in reading data characteristics (int64)");
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
@@ -288,7 +288,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
 	    error_ = true;
-	    errmsg_ = "Error in reading data characteristics (float)";
+	    errmsg_ = tr("Error in reading data characteristics (float)");
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
@@ -421,6 +421,6 @@ od_int64 dgbSurfDataReader::totalNr() const
 
 
 uiString dgbSurfDataReader::uiMessage() const
-{ return errmsg_.str(); }
+{ return errmsg_; }
 
 }; //nsamespace
