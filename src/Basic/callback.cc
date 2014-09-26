@@ -224,7 +224,9 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
     : cber_( na.cber_ )
     , enabled_( na.enabled_ )
+    , cbs_(*new CallBackSet(na.cbs_) )
 {
+    cbs_.ref();
     Threads::Locker lckr( na.cbs_.lock_ );
     cbs_ = na.cbs_;
 }
@@ -232,7 +234,10 @@ NotifierAccess::NotifierAccess( const NotifierAccess& na )
 
 NotifierAccess::NotifierAccess()
     : enabled_(true)		
-{}
+    , cbs_(*new CallBackSet )
+{
+    cbs_.ref();
+}
 
 
 NotifierAccess::~NotifierAccess()
@@ -257,6 +262,8 @@ NotifierAccess::~NotifierAccess()
 	    lckr.reLock();
 	}
     }
+
+    cbs_.unRef();
 }
 
 

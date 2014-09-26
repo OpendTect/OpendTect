@@ -27,6 +27,8 @@ class QTcpSocketComm : public QObject
     Q_OBJECT
     friend class	TcpSocket;
 
+    void		disconnect() { tcpsocket_ = 0; }
+
 protected:
 
 QTcpSocketComm( QTcpSocket* qtcpsocket, TcpSocket* tcpsocket )
@@ -40,11 +42,17 @@ QTcpSocketComm( QTcpSocket* qtcpsocket, TcpSocket* tcpsocket )
 private slots:
 
 void disconnected()
-{ tcpsocket_->disconnected.trigger( *tcpsocket_ ); }
+{
+    if ( tcpsocket_ )
+	tcpsocket_->disconnected.trigger( *tcpsocket_ );
+}
 
 
 void readyRead()
-{ tcpsocket_->readyRead.trigger( *tcpsocket_ ); }
+{
+    if ( tcpsocket_ )
+	tcpsocket_->readyRead.trigger( *tcpsocket_ );
+}
 
 private:
 

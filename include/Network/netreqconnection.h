@@ -58,9 +58,9 @@ public:
 
 			~RequestConnection();
 
-
-
     bool		isOK() const;
+    const char*		server() const		{ return servername_; }
+    unsigned short	port() const		{ return serverport_; }
 
     bool		sendPacket(const RequestPacket&,
 				   bool waitforfinish=false);

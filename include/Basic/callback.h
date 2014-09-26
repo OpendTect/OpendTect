@@ -14,6 +14,7 @@ ________________________________________________________________________
 -*/
 
 #include "basicmod.h"
+#include "refcount.h"
 #include "sets.h"
 #include "threadlock.h"
 
@@ -88,7 +89,7 @@ protected:
 */
 
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
-{
+{ mRefCountImplWithDestructor(CallBackSet, public: virtual ~CallBackSet() {}, delete this; );
 public:
 		CallBackSet() : lock_(true)	{}
 		CallBackSet( const CallBackSet& cbs )
@@ -145,7 +146,7 @@ public:
 			     CallBacker. */
 
 
-    CallBackSet		cbs_;
+    CallBackSet&	cbs_;
     CallBacker*		cber_;
 
     bool		isShutdownSubscribed(CallBacker*) const;
@@ -225,7 +226,11 @@ public:
 			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
-			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
+			{
+			    cbs_.ref();
+			    cbs_.doCall(c ? c : cber_, &enabled_, exclude);
+			    cbs_.unRef();
+			}
 };
 
 

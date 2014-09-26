@@ -26,12 +26,12 @@ public:
     bool event( QEvent* )
     {
 	Threads::MutexLocker locker( ad_.eventloopqueuelock_ );
-	CallBackSet mycopy = ad_.eventloopqueue_;
+	RefMan<CallBackSet> mycopy = new CallBackSet( ad_.eventloopqueue_ );
 	ad_.eventloopqueue_.erase();
 
 	locker.unLock();
 
-	mycopy.doCall( &ad_ );
+	mycopy->doCall( &ad_ );
 	return true;
     }
 

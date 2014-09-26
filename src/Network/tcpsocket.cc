@@ -86,8 +86,9 @@ TcpSocket::TcpSocket( QTcpSocket* s, bool haveevloop )
 TcpSocket::~TcpSocket()
 {
 #ifndef OD_NO_QT
-    delete socketcomm_;
-    if ( ownssocket_ ) delete qtcpsocket_;
+    socketcomm_->disconnect();
+    socketcomm_->deleteLater();
+    if ( ownssocket_ ) qtcpsocket_->deleteLater();
 #endif
 }
 

@@ -205,17 +205,16 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 	return 0;
     }
 
-    PtrMan<EMSurfaceTranslator> tr =
+    PtrMan<EMSurfaceTranslator> transl =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !tr || !tr->startRead(*ioobj) )
+    if ( !transl || !transl->startRead(*ioobj) )
     {
-	horizon_.setErrMsg( tr
-	    ? tr->errMsg()
-	    : "Cannot find Translator" );
+	horizon_.setErrMsg( transl ? transl->errMsg()
+				   : "Cannot find Translator" );
 	return 0;
     }
 
-    SurfaceIODataSelection& sel = tr->selections();
+    SurfaceIODataSelection& sel = transl->selections();
     int nrauxdata = sel.sd.valnames.size();
     if ( !nrauxdata || selidx >= nrauxdata ) return 0;
 

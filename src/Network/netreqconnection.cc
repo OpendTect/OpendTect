@@ -21,13 +21,13 @@ using namespace Network;
 
 
 RequestConnection::RequestConnection( const char* servername,
-				      unsigned short port,
+				      unsigned short servport,
 				      bool haseventloop,
 				      int timeout )
     : tcpsocket_( 0 )
     , ownssocket_( true )
     , servername_( servername )
-    , serverport_( port )
+    , serverport_( servport )
     , connectionClosed( this )
     , packetArrived( this )
 {
@@ -52,14 +52,8 @@ RequestConnection::RequestConnection( TcpSocket* socket )
 
 RequestConnection::~RequestConnection()
 {
+    detachAllNotifiers();
     deepErase( receivedpackets_ );
-
-    if ( isOK() )
-    {
-	Network::RequestPacket pkt( 0 );
-	pkt.setSubID( Network::RequestPacket::cCloseDownSubID() );
-	tcpsocket_->write( pkt );
-    }
 
     deleteAndZeroPtr( tcpsocket_, ownssocket_ );
 }
@@ -254,8 +248,8 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 }
 
 
-RequestServer::RequestServer( unsigned short port )
-    : serverport_( port )
+RequestServer::RequestServer( unsigned short servport )
+    : serverport_( servport )
     , tcpserv_( new TcpServer )
     , newConnection( this )
 {
