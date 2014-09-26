@@ -18,10 +18,6 @@ else()
 endif()
 include( ${SOURCE_DIR}/CMakeModules/packagescripts/ODMakePackagesUtils.cmake )
 
-if( APPLE OR WIN32 )
-    od_sign_libs()
-endif()
-
 foreach ( BASEPACKAGE ${BASEPACKAGES} )
     if ( EXISTS  CMakeModules/packagescripts/${BASEPACKAGE}.cmake )
         include( CMakeModules/packagescripts/${BASEPACKAGE}.cmake) 
