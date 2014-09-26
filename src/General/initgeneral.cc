@@ -30,8 +30,6 @@ mDefModInitFn(General)
 {
     mIfNotFirstTime( return );
 
-    IOM(); //Trigger createion & reading of geometries
-
     ElasticPropSelectionTranslatorGroup::initClass();
     MathFormulaTranslatorGroup::initClass();
     IOObjSelectionTranslatorGroup::initClass();
@@ -56,6 +54,8 @@ mDefModInitFn(General)
     Survey::GeometryReader2D::initClass();
     Survey::SurvGeomTranslatorGroup::initClass();
     Survey::dgb2DSurvGeomTranslator::initClass();
+
+    IOM(); //Trigger createion & reading of geometries
 
     Currency::repository_ += new Currency( "EUR", 100 );
     Currency::repository_ += new Currency( "USD", 100 );
