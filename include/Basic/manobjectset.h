@@ -94,7 +94,7 @@ void ManagedObjectSet<T>::append( const ObjectSet<T>& os )
 	ObjectSet<T>::append( os );
     else
 	for ( int idx=0; idx<sz; idx++ )
-	    *this += new T( *os[idx] );
+	    *this += os[idx] ? new T( *os[idx] ) : 0;
 }
 
 
