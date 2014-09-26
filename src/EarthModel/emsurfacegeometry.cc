@@ -961,13 +961,13 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     if ( !ioobj )
 	{ surface_.errmsg_ = tr("Cannot find surface"); return 0; }
 
-    PtrMan<EMSurfaceTranslator> tr =
+    PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !tr || !tr->startRead(*ioobj) )
-	{ surface_.errmsg_ = tr ? tr->errMsg() :
+    if ( !trans || !trans->startRead(*ioobj) )
+	{ surface_.errmsg_ = trans ? trans->errMsg() :
 	    "Cannot find Translator"; return 0; }
 
-    SurfaceIODataSelection& sel = tr->selections();
+    SurfaceIODataSelection& sel = trans->selections();
     if ( newsel && !sel.rg.isEmpty() )
     {
 	sel.sellinenames = newsel->sellinenames;
@@ -997,8 +997,8 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     else
 	sel.selvalues.erase();
 
-    Executor* exec = tr->reader( surface_ );
-    surface_.errmsg_ = tr->errMsg();
+    Executor* exec = trans->reader( surface_ );
+    surface_.errmsg_ = trans->errMsg();
     return exec;
 }
 
@@ -1011,15 +1011,15 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     if ( !ioobj )
 	{ surface_.errmsg_ = tr("Cannot find surface"); return 0; }
 
-    PtrMan<EMSurfaceTranslator> tr =
+    PtrMan<EMSurfaceTranslator> trans =
 			(EMSurfaceTranslator*)ioobj->createTranslator();
-    if ( !tr )
+    if ( !trans )
 	{ surface_.errmsg_ = "Internal: No Translator"; return 0; }
-    if ( !tr->startWrite(surface_) )
-	{ surface_.errmsg_ = tr->errMsg(); return 0; }
+    if ( !trans->startWrite(surface_) )
+	{ surface_.errmsg_ = trans->errMsg(); return 0; }
 
 
-    SurfaceIODataSelection& sel = tr->selections();
+    SurfaceIODataSelection& sel = trans->selections();
     if ( newsel )
     {
 	sel.rg = newsel->rg;
@@ -1027,8 +1027,8 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	sel.selsections = newsel->selsections;
     }
 
-    Executor* exec = tr->writer( *ioobj, changed_ );
-    surface_.errmsg_ = tr->errMsg();
+    Executor* exec = trans->writer( *ioobj, changed_ );
+    surface_.errmsg_ = trans->errMsg();
     return exec;
 }
 

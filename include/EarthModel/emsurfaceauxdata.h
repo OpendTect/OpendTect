@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "typeset.h"
 #include "bufstringset.h"
 #include "emposid.h"
+#include "uistring.h"
 
 class Executor;
 class IOObj;
