@@ -467,7 +467,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 	return;
     }
 
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_)
     if ( !h2d ) return;
 
     LineRanges linergs;
@@ -497,6 +497,9 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
 		    continue;
 	    }
+
+	    if ( !seis2dlist[idx]->isPanelShown() )
+		trcrg = Interval<int>::udf();
 
 	    linergs.trcrgs[lnidx] += trcrg;
 	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
