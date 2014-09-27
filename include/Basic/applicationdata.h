@@ -15,12 +15,12 @@ Wrapper class around QCoreApplication
 -*/
 
 #include "basicmod.h"
-
 #include "callback.h"
 #include "thread.h"
 
 mFDQtclass(QCoreApplication);
 class QEventLoopReceiver;
+
 
 /*!Wrapper class around the QCoreApplicaiton, which provides an event-loop
    for console applications. It can also be used in GUI program as an
@@ -57,13 +57,13 @@ protected:
 
     mQtclass(QCoreApplication)*		application_;
 
-    CallBackSet				eventloopqueue_;
+    CallBackSet&			eventloopqueue_;
     Threads::Mutex			eventloopqueuelock_;
 
     friend class QEventLoopReceiver;
     QEventLoopReceiver*			eventloopreceiver_;
+
 };
 
 
 #endif
-

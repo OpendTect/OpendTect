@@ -89,7 +89,7 @@ protected:
 */
 
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
-{ mRefCountImplWithDestructor(CallBackSet, public: virtual ~CallBackSet() {}, delete this; );
+{ mRefCountImpl(CallBackSet)
 public:
 		CallBackSet() : lock_(true)	{}
 		CallBackSet( const CallBackSet& cbs )
@@ -136,11 +136,11 @@ public:
     bool		removeWith(CallBacker*,bool wait=true);
 			//!<\returns false only if wait and no lock could be got
 
-    inline bool 	isEnabled() const	{ return enabled_; }
-    inline bool 	enable( bool yn=true )	{ return doEnable(yn); }
-    inline bool 	disable()		{ return doEnable(false); }
+    inline bool	isEnabled() const	{ return enabled_; }
+    inline bool	enable( bool yn=true )	{ return doEnable(yn); }
+    inline bool	disable()		{ return doEnable(false); }
 
-    inline bool 	isEmpty() const 	{ return cbs_.isEmpty(); }
+    inline bool	isEmpty() const 	{ return cbs_.isEmpty(); }
     bool		willCall(CallBacker*) const;
 			/*!<\returns true if the callback list contains
 			     CallBacker. */
@@ -255,14 +255,14 @@ public:
     bool		attachCB(NotifierAccess* notif,const CallBack& cb,
 				 bool onlyifnew=false)
 			{ return notif ? attachCB(*notif,cb,onlyifnew):false; }
-    			/*!<\note Attaches only if \param notif is not null.*/
+			/*!<\note Attaches only if \param notif is not null.*/
 
     void		detachCB(NotifierAccess&,const CallBack&);
 			/*!<\note Normally not needed if you don't
 			          want this explicitly. */
     void		detachCB(NotifierAccess* notif,const CallBack& cb)
 			{ if ( notif ) detachCB( *notif, cb ); }
-    			/*!<\note Detaches only if \param notif is not null.*/
+			/*!<\note Detaches only if \param notif is not null.*/
 
     bool		isNotifierAttached(NotifierAccess*) const;
 			//!<Only for debugging purposes, don't use

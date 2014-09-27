@@ -306,7 +306,7 @@ mSetGet( setChecked, isChecked )
 mSetGet( setEnabled, isEnabled )
 mSetGet( setVisible, isVisible )
 
-static CallBackSet cmdrecorders_;
+static CallBackSet& cmdrecorders_ = *new CallBackSet;
 
 int uiAction::beginCmdRecEvent( const char* msg )
 {

@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-static CallBackSet cmdrecorders_;
+static CallBackSet& cmdrecorders_ = *new CallBackSet;
 
 static ObjectSet<const uiBaseObject> cmdrecstopperstack_;
 static ObjectSet<const uiBaseObject> cmdrecstopperlist_;

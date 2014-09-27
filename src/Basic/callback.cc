@@ -31,7 +31,7 @@ CallBacker::~CallBacker()
 	   If not done, they may still get callbacks after the destuctor
 	   is called, but before this destructor is called.
 	 */
-	
+
 	//Remove them now.
 	detachAllNotifiers();
     }
@@ -43,9 +43,9 @@ void CallBacker::detachAllNotifiers()
     /*Avoid deadlocks (will happen if one thread deletes the notifier while
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */
-    
+
     Threads::Locker lckr( attachednotifierslock_ );
-    
+
     while ( attachednotifiers_.size() )
     {
 	for ( int idx=attachednotifiers_.size()-1; idx>=0; idx-- )
@@ -54,9 +54,9 @@ void CallBacker::detachAllNotifiers()
 	    if ( na->removeWith( this, false ) &&
 		na->removeShutdownSubscription( this, false ) )
 		attachednotifiers_.removeSingle( idx );
-	    
+
 	}
-	
+
 	if ( attachednotifiers_.size() )
 	{
 	    lckr.unlockNow();
@@ -79,15 +79,15 @@ bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
     {
 	notif.notify( cb );
     }
- 
+
     if ( cb.cbObj()!=this )
 	return true;
-    
+
     if ( notif.cber_==this )
 	return true;
 
     notif.addShutdownSubscription( this );
-    
+
     Threads::Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
 	attachednotifiers_ += &notif;
@@ -95,7 +95,7 @@ bool CallBacker::attachCB(NotifierAccess& notif, const CallBack& cb,
     return true;
 }
 
- 
+
 void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 {
     if ( cb.cbObj()!=this || notif.cber_==this )
@@ -104,7 +104,7 @@ void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 	notif.remove( cb );
 	return;
     }
-    
+
     Threads::Locker lckr( attachednotifierslock_ );
     if ( !attachednotifiers_.isPresent( &notif ) )
     {
@@ -116,8 +116,8 @@ void CallBacker::detachCB( NotifierAccess& notif, const CallBack& cb )
 
     if ( !notif.willCall( this ) )
     {
-    	while ( attachednotifiers_.isPresent( &notif ) )
-    	{
+	while ( attachednotifiers_.isPresent( &notif ) )
+	{
             if ( notif.removeShutdownSubscription( this, false ) )
             {
                 attachednotifiers_ -= &notif;
@@ -142,7 +142,7 @@ bool CallBacker::isNotifierAttached( NotifierAccess* na ) const
 
 #define mGetLocker( thelock, wait ) \
     Threads::Locker lckr( thelock, wait ? Threads::Locker::WaitIfLocked \
-	    				: Threads::Locker::DontWaitForLock ); \
+					: Threads::Locker::DontWaitForLock ); \
     if ( !lckr.isLocked() ) return false
 
 
@@ -163,6 +163,11 @@ void CallBack::doCall( CallBacker* cber )
 }
 
 
+CallBackSet::~CallBackSet()
+{
+}
+
+
 void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
 			  CallBacker* exclude )
 {
@@ -173,14 +178,14 @@ void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
     Threads::Locker lckr( lock_ );
     TypeSet<CallBack> cbscopy = *this;
     lckr.unlockNow();
-    
+
     for ( int idx=0; idx<cbscopy.size(); idx++ )
     {
 	CallBack& cb = cbscopy[idx];
 	lckr.reLock();
 	if ( !isPresent(cb) )
 	    { lckr.unlockNow(); continue; }
-	
+
 	lckr.unlockNow();
 	if ( !exclude || cb.cbObj()!=exclude )
 	    cb.doCall( obj );
@@ -233,7 +238,7 @@ NotifierAccess::NotifierAccess( const NotifierAccess& na )
 
 
 NotifierAccess::NotifierAccess()
-    : enabled_(true)		
+    : enabled_(true)
     , cbs_(*new CallBackSet )
 {
     cbs_.ref();
@@ -245,7 +250,7 @@ NotifierAccess::~NotifierAccess()
     /*Avoid deadlocks (will happen if one thread deletes the notifier while
      the other thread deletes the callbacker at the same time) by using
      try-locks and retry after releasing own lock. */
-    
+
     Threads::Locker lckr( shutdownsubscriberlock_ );
     while ( shutdownsubscribers_.size() )
     {
@@ -254,7 +259,7 @@ NotifierAccess::~NotifierAccess()
 	    if ( shutdownsubscribers_[idx]->notifyShutdown( this, false ) )
 		shutdownsubscribers_.removeSingle( idx );
 	}
-	
+
 	if ( shutdownsubscribers_.size() )
 	{
 	    lckr.unlockNow();
@@ -275,7 +280,7 @@ void NotifierAccess::addShutdownSubscription( CallBacker* cber )
 
 
 bool NotifierAccess::isShutdownSubscribed( CallBacker* cber ) const
-{    
+{
     Threads::Locker lckr( shutdownsubscriberlock_ );
     return shutdownsubscribers_.isPresent( cber );
 }
@@ -292,11 +297,11 @@ bool NotifierAccess::removeShutdownSubscription( CallBacker* cber, bool wait )
 void NotifierAccess::notify( const CallBack& cb, bool first )
 {
     Threads::Locker lckr( cbs_.lock_ );
-    
-    if ( first ) 
-	cbs_.insert(0,cb); 
+
+    if ( first )
+	cbs_.insert(0,cb);
     else
-	cbs_ += cb; 
+	cbs_ += cb;
 }
 
 
@@ -328,12 +333,12 @@ bool NotifierAccess::removeWith( CallBacker* cber, bool wait )
 bool NotifierAccess::willCall( CallBacker* cber ) const
 {
     Threads::Locker lckr( cbs_.lock_ );
-    
+
     for ( int idx=0; idx<cbs_.size(); idx++ )
     {
         if ( cbs_[idx].cbObj()==cber )
             return true;
     }
-    
+
     return false;
 }

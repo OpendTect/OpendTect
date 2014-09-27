@@ -41,7 +41,9 @@ public:
 
 ApplicationData::ApplicationData()
     : eventloopreceiver_( 0 )
+    , eventloopqueue_(*new CallBackSet)
 {
+    eventloopqueue_.ref();
     if ( !QCoreApplication::instance() )
     {
 	int argc = GetArgC();
@@ -52,6 +54,7 @@ ApplicationData::ApplicationData()
 
 ApplicationData::~ApplicationData()
 {
+    eventloopqueue_.unRef();
     deleteAndZeroPtr( eventloopreceiver_ );
     deleteAndZeroPtr( application_ );
 }

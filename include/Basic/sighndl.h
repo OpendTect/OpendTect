@@ -25,8 +25,9 @@ namespace DBG { mGlobal(Basic) void forceCrash(bool); }
 mExpClass(Basic) SignalHandling : public CallBacker
 {
 public:
+
     static void			initClass();
-    
+
     enum EvType			{
 				    ConnClose,
 				    ChldStop,
@@ -47,16 +48,17 @@ public:
 protected:
 
 					SignalHandling();
+					~SignalHandling();
     static SignalHandling&		SH();
-    					/*!<Access to a static instance */
+					/*!<Access to a static instance */
 
-    CallBackSet				conncbs_;
-    CallBackSet				chldcbs_;
-    CallBackSet				reinitcbs_;
-    CallBackSet				stopcbs_;
-    CallBackSet				contcbs_;
-    CallBackSet				alarmcbs_;
-    CallBackSet				killcbs_;
+    CallBackSet&			conncbs_;
+    CallBackSet&			chldcbs_;
+    CallBackSet&			reinitcbs_;
+    CallBackSet&			stopcbs_;
+    CallBackSet&			contcbs_;
+    CallBackSet&			alarmcbs_;
+    CallBackSet&			killcbs_;
 
     CallBackSet&			getCBL(EvType);
 
@@ -77,4 +79,3 @@ protected:
 
 
 #endif
-

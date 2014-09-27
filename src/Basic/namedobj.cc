@@ -16,7 +16,7 @@ NamedObject::~NamedObject()
     if ( delnotify_ )
     {
 	delnotify_->doCall( this, 0 );
-	delete delnotify_; delnotify_ = 0;
+	delnotify_->unRef(); delnotify_ = 0;
     }
 
 #ifdef __debug__
@@ -32,6 +32,9 @@ NamedObject::~NamedObject()
 }
 
 
+#define mMkDelnotif(obj) \
+{ obj->delnotify_ = new CallBackSet; obj->delnotify_->ref(); }
+
 void NamedObject::deleteNotify( const CallBack& c )
 {
     if ( !c.willCall() ) return;
@@ -39,8 +42,10 @@ void NamedObject::deleteNotify( const CallBack& c )
     mDynamicCastGet(NamedObject*,o,cb.cbObj())
     if ( !o ) return;
 
-    if ( !delnotify_ ) delnotify_ = new CallBackSet;
-    if ( !o->delnotify_ ) o->delnotify_ = new CallBackSet;
+    if ( !delnotify_ )
+	mMkDelnotif(this)
+    if ( !o->delnotify_ )
+	mMkDelnotif(o)
 
     *o->delnotify_ += mCB(this,NamedObject,cbRem);
     *delnotify_    += mCB(o,NamedObject,cbRem);

@@ -103,7 +103,7 @@ QWidget* uiMenuBar::getWidget()
 
 // -----------------------------------------------------------------------
 
-static CallBackSet interceptors_;
+static CallBackSet& interceptors_ = *new CallBackSet;
 
 uiMenu::uiMenu( uiParent* p, const uiString& txt, const char* pmnm )
     : uiBaseObject( txt.getFullString() )

@@ -77,24 +77,29 @@ public:
 			    return Color( qc.red(), qc.green(), qc.blue() );
 			}
 
-    int 		addMsgFld( const uiString& lbltxt, int stretch )
+    int		addMsgFld( const uiString& lbltxt, int stretch )
 			{
-			    QLabel* msg_ = new QLabel( lbltxt.getQtString() );
+			    QLabel* lbl = new QLabel( lbltxt.getQtString() );
 			    int idx = msgs_.size();
-			    msgs_ += msg_;
+			    msgs_ += lbl;
 
 			    if ( !lbltxt.isEmpty() )
 			    {
 				QLabel* txtlbl =
 					new QLabel( lbltxt.getQtString() );
-				msg_->setBuddy( txtlbl );
+				lbl->setBuddy( txtlbl );
 
 				qthing()->addWidget( txtlbl );
 				txtlbl->setFrameStyle(QFrame::NoFrame);
 			    }
 
-			    qthing()->addWidget( msg_, stretch );
+			    qthing()->addWidget( lbl, stretch );
 			    return idx;
+			}
+
+    void		addWidget( QWidget* qw )
+			{
+			    qthing()->addWidget( qw );
 			}
 
     void		repaint()
@@ -194,6 +199,19 @@ int uiStatusBar::addMsgFld( const uiString& tooltip,
     setTxtAlign( idx, al );
 
     return idx;
+}
+
+
+bool uiStatusBar::addObject( uiObject* obj )
+{
+    if ( !obj )
+	return false;
+    QWidget* qw = obj->qwidget();
+    if ( !qw )
+	return false;
+
+    body_->addWidget( qw );
+    return true;
 }
 
 

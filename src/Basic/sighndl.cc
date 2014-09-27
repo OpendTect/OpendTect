@@ -94,7 +94,17 @@ CallBackSet& SignalHandling::getCBL( SignalHandling::EvType et )
 #define mCatchSignal(nr) (void)signal( nr, &SignalHandling::handle )
 
 SignalHandling::SignalHandling()
+    : conncbs_(*new CallBackSet)
+    , chldcbs_(*new CallBackSet)
+    , reinitcbs_(*new CallBackSet)
+    , stopcbs_(*new CallBackSet)
+    , contcbs_(*new CallBackSet)
+    , alarmcbs_(*new CallBackSet)
+    , killcbs_(*new CallBackSet)
 {
+    conncbs_.ref(); chldcbs_.ref(); reinitcbs_.ref(); stopcbs_.ref();
+    contcbs_.ref(); alarmcbs_.ref(); killcbs_.ref();
+
     if ( !GetEnvVarYN("DTECT_NO_OS_EVENT_HANDLING") )
     {
     initFatalSignalHandling();
@@ -125,6 +135,13 @@ SignalHandling::SignalHandling()
 #endif
 
     }
+}
+
+
+SignalHandling::~SignalHandling()
+{
+    conncbs_.unRef(); chldcbs_.unRef(); reinitcbs_.unRef(); stopcbs_.unRef();
+    contcbs_.unRef(); alarmcbs_.unRef(); killcbs_.unRef();
 }
 
 
