@@ -132,7 +132,7 @@ WellDisplay::~WellDisplay()
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
 
-    mGetWD();
+    mGetWD( {} );
 
     if	( wd )
 	wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
