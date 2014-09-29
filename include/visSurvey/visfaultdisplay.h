@@ -282,6 +282,7 @@ protected:
     static const char*			sKeyDisplayHorIntersections();
     static const char*			sKeyUseTexture();
     static const char*			sKeyLineStyle();
+    static const char*			sKeyZValues();
 };
 
 };
