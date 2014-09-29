@@ -701,7 +701,7 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    false && !islocked && nrsurfdata>0, false );
 
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, false && !islocked,
+    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
     /*TODO: enable save surface data when it's ready
@@ -758,6 +758,8 @@ void uiODFaultSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		visserv->getObject(visid) );
 	fltdisp->setDepthAsAttrib( attribnr );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	updateColumnText( uiODSceneMgr::cColorColumn() );
+	applMgr()->updateColorTable( displayID(), attribnr );
 	changed_ = false;
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )

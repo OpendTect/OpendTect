@@ -533,6 +533,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	uivisemobj_->setDepthAsAttrib( attribnr );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
+	applMgr()->updateColorTable( displayID(), attribnr );
 	changed_ = false;
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )

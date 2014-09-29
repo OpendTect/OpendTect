@@ -593,6 +593,8 @@ void uiODBodyDisplayDataTreeItem::handleMenuCB( CallBacker* cb )
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+    applMgr()->updateColorTable( displayID(), attribNr() );
 }
 
 
