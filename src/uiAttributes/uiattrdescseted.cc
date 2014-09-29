@@ -133,8 +133,8 @@ void uiAttribDescSetEd::createMenuBar()
         { pErrMsg("huh?"); return; }
 
     uiMenu* filemnu = new uiMenu( this, uiStrings::sFile() );
-    mInsertItem( tr("New set ..."), newSet, "newset" );
-    mInsertItem( tr("Open set ..."), openSet, "openset" );
+    mInsertItem( tr("New set ..."), newSet, "new" );
+    mInsertItem( tr("Open set ..."), openSet, "open" );
     mInsertItem( tr("Save set ..."), savePush, "save" );
     mInsertItem( tr("Save set as ..."), saveAsPush, "saveas" );
     mInsertItemNoIcon( tr("Auto Load Attribute Set ..."), autoSet );
@@ -158,8 +158,8 @@ void uiAttribDescSetEd::createMenuBar()
 void uiAttribDescSetEd::createToolBar()
 {
     toolbar_ = new uiToolBar( this, "AttributeSet tools" );
-    mAddButton( "newset", newSet, tr("New attribute set") );
-    mAddButton( "openset", openSet, tr("Open attribute set") );
+    mAddButton( "new", newSet, tr("New attribute set") );
+    mAddButton( "open", openSet, tr("Open attribute set") );
     mAddButton( "defset", defaultSet, tr("Open default attribute set") );
     mAddButton( "impset", importSet,
 		tr("Import attribute set from other survey") );
@@ -901,7 +901,7 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 	{
 	    bs = tr("Attribute Set %1 is of type %2")
                .arg(setctio_.ioobj->name())
-	       .arg(attrset.is2D() ? uiStrings::s2D(true) 
+	       .arg(attrset.is2D() ? uiStrings::s2D(true)
                                    : uiStrings::s3D(true));
 	    mErrRetFalse(bs)
 	}
