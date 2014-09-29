@@ -132,9 +132,11 @@ WellDisplay::~WellDisplay()
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
 
-    wd_ = 0;
-    mGetWD(return);
-    wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
+    mGetWD();
+
+    if	( wd )
+	wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
+
     delete dispprop_;
     delete Well::MGR().release( wellid_ );
     unRefAndZeroPtr( markerset_ );
@@ -295,7 +297,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     Well::Data* oldwd = getWD();
     if ( oldwd )
-	Well::MGR().release( wellid_ );
+	delete Well::MGR().release( wellid_ );
 
     wellid_ = multiid; wd_ = 0;
     mGetWD(return false);
