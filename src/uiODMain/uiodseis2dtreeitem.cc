@@ -362,7 +362,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
     else if ( attrtype == 2 || attrtype == 3 )
     {
 	Attrib::SelSpec as;
-	if ( attrtype == 1 )
+	if ( attrtype == 2 )
 	{
 	    const Attrib::Desc* desc = ds->getDesc(dlg.getSelDescID());
 	    if ( !desc )
