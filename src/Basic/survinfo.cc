@@ -40,7 +40,6 @@ const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
 const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
 const char* SurveyInfo::sKeyYRange()	    { return "Y range"; }
 const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
-const char* SurveyInfo::sKeyWSProjName()    {return "Workstation Project Name";}
 const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
 const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
 const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
@@ -304,8 +303,6 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     zdef_ = si.zdef_;
     datadir_ = si.datadir_;
     dirname_ = si.dirname_;
-    wsprojnm_ = si.wsprojnm_;
-    wspwd_ = si.wspwd_;
     xyinfeet_ = si.xyinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
@@ -366,8 +363,6 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	keyw = astream.keyWord();
 	if ( keyw == sKey::Name() )
 	    si->setName( astream.value() );
-	else if ( keyw == sKeyWSProjName() )
-	    si->wsprojnm_ = astream.value();
 	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
@@ -963,9 +958,6 @@ bool SurveyInfo::write( const char* basedir ) const
     fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
     fms += tkzs_.zsamp_.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     astream.put( sKeyZRange(), fms );
-
-    if ( !wsprojnm_.isEmpty() )
-	astream.put( sKeyWSProjName(), wsprojnm_ );
 
     writeSpecLines( astream );
 

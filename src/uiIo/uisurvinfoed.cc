@@ -109,7 +109,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 #ifdef __win__
     pathfld_->setSensitive( false );
 #else
-    uiButton* pathbut = new uiPushButton( topgrp_, uiStrings::sSelect(true), 
+    uiButton* pathbut = new uiPushButton( topgrp_, uiStrings::sSelect(true),
                                           false);
     pathbut->attach( rightOf, pathfld_ );
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
@@ -740,7 +740,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !dlg || !dlg->go() ) return;
 
     TrcKeyZSampling cs; Coord crd[3];
-    if ( !sip->getInfo(dlg,cs,crd) )
+    if ( sip->getInfo(dlg,cs,crd) )
+	sip->fillPar( si_.getPars() );
+    else
 	return;
 
     if ( sip->tdInfo() == uiSurvInfoProvider::Time )
@@ -762,10 +764,8 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     bid[1].inl() = cs.hrg.stop.inl(); bid[1].crl() = cs.hrg.stop.crl();
     si_.set3Pts( crd, bid, cs.hrg.stop.crl() );
     setValues();
-    if ( !havez ) zfld_->clear();
-
-    si_.setWSProjName( SI().getWSProjName() );
-    si_.setWSPwd( SI().getWSPwd() );
+    if ( !havez )
+	zfld_->clear();
 
     lastsip_ = sip;
     impiop_ = lastsip_->getImportPars();

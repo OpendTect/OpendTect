@@ -25,14 +25,22 @@ class uiDialog;
 /*\brief Interface for survey info provider
 
   The survey setup can be delivered by scanning files (SEG-Y) or by querying
-  data stores like SeisWorks and GeoFrame. Another idea not implemented may be
+  data stores like SeisWorks, Petrel, .... Another idea not implemented may be
   to read a simple ascii file. In any case, this is the interface. The
   implementation should be added to the factory using
   uiSurveyInfoEditor::addInfoProvider.
 
+  The logic is:
+
+  * User gets list including your usrText()
+  * User fills in your dialog
+  * On OK, getInfo is called
+  * If getInfo returns true, then you can stuff your own things in the
+    new SurveyInfo's IOPar if you define fillPar().
+
   In some cases, the provider can also allow actual data import. After
   setting up the survey, the user can be automatically put into an import
-  facility. If that is the case, you can return an IOPar in getImportPars()
+  facility. If that is the case, you have to return an IOPar by getImportPars()
   that, when the time comes, will be used to call startImport().
 
  */
@@ -45,6 +53,7 @@ public:
     virtual uiDialog*		dialog(uiParent*)	= 0;
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
+    virtual void		fillPar(IOPar&)		{}
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }
@@ -59,4 +68,3 @@ public:
 
 
 #endif
-

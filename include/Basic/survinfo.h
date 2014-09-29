@@ -146,18 +146,12 @@ protected:
     BufferString	dirname_;
 
     ZDomain::Def&	zdef_;
-
     bool		xyinfeet_;
     bool		depthsinfeet_;
-
-    BufferString	comment_;
-    BufferString	wsprojnm_;
-    BufferString	wspwd_;
     TrcKeyZSampling&	tkzs_;
     TrcKeyZSampling&	wcs_;
-    IOPar&		pars_;
-
     double		seisrefdatum_;
+    IOPar&		pars_;
 
     mutable Threads::AtomicPointer<Survey::Geometry3D>	s3dgeom_;
     mutable Threads::AtomicPointer<Survey::Geometry3D>	work_s3dgeom_;
@@ -169,6 +163,8 @@ protected:
 
     Pol2D		survdatatype_;
     bool		survdatatypeknown_;
+
+    BufferString	comment_;
     BufferString	sipnm_;
 
     void		handleLineRead(const BufferString&,const char*);
@@ -225,7 +221,6 @@ public:
     static const char*	sKeyXRange();
     static const char*	sKeyYRange();
     static const char*	sKeyZRange();
-    static const char*	sKeyWSProjName();
     static const char*	sKeyXYInFt();
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
@@ -240,16 +235,14 @@ public:
     Pol2D		survDataType() const	{ return survdatatype_; }
     void		setSurvDataType( Pol2D typ )
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }
+
+			// Auxiliary info
+    const char*		comment() const		{ return comment_.buf(); }
     BufferString	sipName() const		{ return sipnm_; }
     void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
+    void		setComment( const char* s )	{ comment_ = s; }
 
-    const char*		comment() const		{ return comment_.buf(); }
-
-    const char*		getWSProjName() const	{ return wsprojnm_.buf(); }
-			// Password only in memory this session
-    const char*		getWSPwd() const	{ return wspwd_.buf(); }
-
-	// These fns are used by specialist classes. Know what you are doing!
+	// Following fns are used by specialist classes. Don't use casually.
 
 			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
@@ -269,12 +262,6 @@ public:
     void		setRange(const TrcKeyZSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		gen3Pts();
-    void		setComment( const char* s )	{ comment_ = s; }
-
-    void		setWSProjName( const char* nm ) const
-			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
-    void		setWSPwd( const char* nm ) const
-			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
     static const char*	curSurveyName();
 
@@ -295,4 +282,3 @@ mExternC( Basic ) const char* GetSurveyName(void);
 
 
 #endif
-
