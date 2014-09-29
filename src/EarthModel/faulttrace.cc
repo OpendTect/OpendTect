@@ -1313,7 +1313,8 @@ bool FaultTrcDataProvider::calcFaultBBox( const EM::Fault& flt,
 { errmsg_.setEmpty(); errmsg_ = str; return false; }
 
 bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
-				 const TrcKeySampling& hrg, TaskRunner* tr )
+				 const TrcKeySampling& hrg,
+				 TaskRunner* taskrunner )
 {
     clear();
     EM::SurfaceIOData sd;
@@ -1324,12 +1325,12 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	if ( EM::EMM().getObjectID(faultids[idx]) < 0 )
 	    loadergrp.add( EM::EMM().objectLoader(faultids[idx],&sel) );
 
-    const int res = TaskRunner::execute( tr, loadergrp );
+    const int res = TaskRunner::execute( taskrunner, loadergrp );
     if ( !res )
 	mErrRet("Failed to read the faults from disc")
 
     if ( is2d_ )
-	return get2DTraces( faultids, tr );
+	return get2DTraces( faultids, taskrunner );
 
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
@@ -1352,7 +1353,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 	taskgrp.addTask( new FaultTraceExtractor3D(*flt,*holder) );
     }
 
-    const bool ret = TaskRunner::execute( tr, taskgrp );
+    const bool ret = TaskRunner::execute( taskrunner, taskgrp );
     if ( !ret )
 	mErrRet("Failed to extract Fault traces")
 
@@ -1361,7 +1362,7 @@ bool FaultTrcDataProvider::init( const TypeSet<MultiID>& faultids,
 
 
 bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids,
-					TaskRunner* tr )
+					TaskRunner* taskrunner )
 {
     TaskGroup taskgrp;
     for ( int idx=0; idx<faultids.size(); idx++ )
@@ -1379,7 +1380,7 @@ bool FaultTrcDataProvider::get2DTraces( const TypeSet<MultiID>& faultids,
 	taskgrp.addTask( new FaultTraceExtractor2D(*flt,*holder,geomid_) );
     }
 
-    return TaskRunner::execute( tr, taskgrp );
+    return TaskRunner::execute( taskrunner, taskgrp );
 }
 
 
