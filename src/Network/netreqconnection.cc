@@ -97,15 +97,23 @@ bool RequestConnection::readFromSocket()
 	if ( readres==TcpSocket::ReadError )
 	{
 	    tcpsocket_->disconnectFromHost();
+	    errmsg_ = tcpsocket_->errMsg();
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = tr("Error reading from socket");
 	    return false;
 	}
 	else if ( readres==TcpSocket::ReadOK )
 	{
-	    const od_int32 receivedid = nextreceived->requestID();
-	    const od_int16 receivesubid = nextreceived->subID();
+	    if ( !nextreceived->isOK() )
+	    {
+		tcpsocket_->disconnectFromHost();
+		errmsg_ = tr("Garbled network packet received. Disconnected.");
+		return false;
+	    }
 
+	    const od_int32 receivedid = nextreceived->requestID();
 	    Threads::MutexLocker locker ( lock_ );
-	    if ( receivesubid==RequestPacket::cBeginSubID() ||
+	    if ( nextreceived->isNewRequest() ||
 		 ourrequestids_.isPresent( receivedid ) )
 	    {
 		receivedpackets_ += nextreceived.release();
@@ -124,18 +132,17 @@ bool RequestConnection::readFromSocket()
 
 
 
-bool RequestConnection::sendPacket( const RequestPacket& pkt, bool waitforfinish )
+bool RequestConnection::sendPacket( const RequestPacket& pkt,
+				    bool waitforfinish )
 {
     if ( !isOK() || !pkt.isOK() || !tcpsocket_ )
 	return false;
 
     const od_int32 reqid = pkt.requestID();
-    const od_int16 subid = pkt.subID();
-
     Threads::MutexLocker locker( lock_ );
     if ( !ourrequestids_.isPresent( reqid ) )
     {
-	if ( subid == RequestPacket::cBeginSubID() )
+	if ( pkt.isNewRequest() )
 	    ourrequestids_ += reqid;
 	else
 	{
@@ -147,7 +154,7 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt, bool waitforfinish
 
     const bool result = tcpsocket_->write( pkt, waitforfinish );
 
-    if ( !result || pkt.subID() == RequestPacket::cEndSubID() )
+    if ( !result || pkt.isRequestEnd() )
 	requestEnded( pkt.requestID() );
 
     return true;
@@ -178,7 +185,8 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	    locker.unLock();
 	    if ( !readFromSocket() )
 	    {
-		if ( errorcode ) *errorcode = cDisconnected();
+		if ( errorcode )
+		    *errorcode = cDisconnected();
 		requestEnded( reqid );
 		return 0;
 	    }
@@ -196,8 +204,7 @@ RequestPacket* RequestConnection::pickupPacket( od_int32 reqid, int timeout,
 	}
     }
 
-    if ( pkt->subID()==RequestPacket::cEndSubID() ||
-	 pkt->subID()<RequestPacket::cBeginSubID() )
+    if ( pkt->isRequestEnd() )
 	requestEnded( reqid );
 
     return pkt;

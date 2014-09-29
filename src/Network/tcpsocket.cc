@@ -432,7 +432,7 @@ TcpSocket::ReadStatus TcpSocket::read( Network::RequestPacket& packet ) const
 	    return ReadError;
 	}
 
-	packet.setPayload( payload );
+	packet.setPayload( payload, payloadsize );
     }
 
     return ReadOK;

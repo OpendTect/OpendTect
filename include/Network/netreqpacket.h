@@ -27,6 +27,13 @@ namespace Network
   The sub-ID is a flag that can be used to implement your protocol. Negative
   sub-IDs are special and cannot be freely used.
 
+  Servers will not send Begin packets as they don't initiate requests. Replies
+  are never Begin packets. Error always implies End.
+
+  Request IDs are obtained by using setIsNewRequest().
+
+  At the end of the class there is a public section for expert usage.
+
   */
 
 mExpClass(Network) RequestPacket
@@ -35,40 +42,23 @@ public:
 			RequestPacket(od_int32 payloadsize=-1);
 			~RequestPacket();
 
-    bool		isOK() const;
-			//!< checks whether the header is reasonable
-
-    static od_int32	headerSize() { return mRequestPacketHeaderSize; }
-    static od_int32	getPayloadSize(const void*);
-
-    int			setIsNewRequest(); //!< conveniently returns reqID()
-    bool		isNewRequest() const { return subID()==cBeginSubID(); }
-    void		setIsRequestEnd(int reqid);
-    bool		isRequestEnd() const { return subID()==cEndSubID(); }
-
     od_int32		requestID() const;
-    void		setRequestID(od_int32);
-    od_int16		subID() const;
-    void		setSubID(od_int16);
-
+    bool		isNewRequest() const { return subID()==cBeginSubID(); }
+    bool		isRequestEnd() const { return subID()<cMoreSubID(); }
+    bool		isError() const	     { return subID()==cErrorSubID(); }
     od_int32		payloadSize() const;
     const void*		payload() const;
-    void*		payload(bool takeover=false);
-			/*!< if takeover, cast to char*, and delete with []. */
     void		getStringPayload(BufferString&) const;
 
-    void		setPayload(void*);
-			/*!< should be allocated as new char[payloadSize()] */
-    void		setPayload(void*,od_int32 size);
-			//!< becomes mine
+    int			setIsNewRequest();   //!< conveniently returns reqID()
+    void		setIsError()	     { setSubID( cErrorSubID() ); }
+    void		setIsLast()	     { setSubID( cEndSubID() ); }
+    void*		allocPayload(od_int32 size);
+    void		setPayload(void*,od_int32 size); //!< buf becomes mine
     void		setStringPayload(const char*);
 
-    static od_int16	cBeginSubID()		{ return -2; }
-    static od_int16	cEndSubID()		{ return -1; }
-    static od_int16	cNormalSubID()		{ return 0; }
+    void		addErrMsg(BufferString&) const;
 
-    void*		getRawHeader()		{ return header_.int32s_; }
-    const void*		getRawHeader() const	{ return header_.int32s_; }
 
     /*\brief interprets what is in a packet.
 
@@ -82,7 +72,7 @@ public:
     public:
 				Interpreter( const RequestPacket& p )
 				    : pkt_(p)
-				    , curpos_(mRequestPacketHeaderSize) {}
+				    , curpos_(0)		{}
 
 	template <class T> void	get(T&) const;
 	inline int		getInt() const;
@@ -113,7 +103,30 @@ protected:
     Header		header_;
     char*		payload_;
 
+    static od_int16	cBeginSubID()		{ return -1; }
+    static od_int16	cMoreSubID()		{ return -2; }
+    static od_int16	cEndSubID()		{ return -4; }
+    static od_int16	cErrorSubID()		{ return -8; }
+
     friend class	Interpreter;
+
+public:
+
+    bool		isOK() const;
+			//!< checks whether the header is reasonable
+    od_int16		subID() const;
+
+    void		setRequestID(od_int32);
+    void		setSubID(od_int16);
+
+    static od_int32	headerSize() { return mRequestPacketHeaderSize; }
+    static od_int32	getPayloadSize(const void*);
+
+    void*		payload(bool takeover=false);
+			    /*!< takeover: delete char[] */
+
+    void*		getRawHeader()		{ return header_.int32s_; }
+    const void*		getRawHeader() const	{ return header_.int32s_; }
 };
 
 
