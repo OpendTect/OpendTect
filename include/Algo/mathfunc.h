@@ -28,7 +28,7 @@ template <class T> class LineParameters;
 
 /*!
 \brief Multidimensional Mathematical function.
-  
+
   A MathFunctionND must deliver a value at any position: F(x*).
   The positioning may need a different precision than the outcome, hence
   the two types.
@@ -51,7 +51,7 @@ public:
 			}
 
     virtual RT		getValue(const PT*) const		= 0;
-    virtual int		getNrDim() const 			= 0;
+    virtual int		getNrDim() const			= 0;
 };
 
 typedef MathFunctionND<float,float> FloatMathFunctionND;
@@ -59,7 +59,7 @@ typedef MathFunctionND<float,float> FloatMathFunctionND;
 
 /*!
 \brief Mathematical function
-  
+
   A MathFunction must deliver a value at any position: F(x).
   The positioning may need a different precision than the outcome, hence
   the two types.
@@ -115,7 +115,7 @@ public:
     virtual RT	getValue(PT,PT) const		= 0;
 
     RT		getValue( const PT* pos ) const
-    		        { return getValue(pos[0],pos[1]);}
+		        { return getValue(pos[0],pos[1]);}
     int		getNrDim() const { return 2; }
 
 };
@@ -132,7 +132,7 @@ public:
     virtual RT	getValue(PT,PT,PT) const	= 0;
 
     RT		getValue( const PT* pos ) const
-    		        { return getValue(pos[0],pos[1],pos[2]);}
+		        { return getValue(pos[0],pos[1],pos[2]);}
     int		getNrDim() const { return 3; }
 
 };
@@ -141,10 +141,10 @@ public:
 
 /*!
 \brief MathFunction based on bend points
-  
+
   The object maintains sorted positions (in X), so you cannot bluntly stuff
   X and Y in. You cannot change or remove positions; instead make a copy.
-  
+
   If the given point is outside the 'defined' X-range, the value can be undef
   or the first/last defined point's value, depending on the 'extrapol_'
   setting. If no point at all is defined you will always get undef.
@@ -160,8 +160,8 @@ public:
     enum InterpolType	{ Linear, Poly, Snap };
     enum ExtrapolType   { None, EndVal, ExtraPolGradient };
 
-    			PointBasedMathFunction( InterpolType t=Linear,
-			       			ExtrapolType extr=EndVal )
+			PointBasedMathFunction( InterpolType t=Linear,
+						ExtrapolType extr=EndVal )
 			    : itype_(t)
 			    , extrapol_(extr)	{}
 
@@ -178,9 +178,12 @@ public:
     const TypeSet<float>& yVals() const		{ return y_; }
 
     InterpolType	interpolType() const	{ return itype_; }
+    ExtrapolType	extrapolateType() const	{ return extrapol_; }
     bool		extrapolate() const	{ return extrapol_; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
+			//Do not use, obsoleted by setExtrapolateType
     void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
+    void		setExtrapolateType( ExtrapolType t ) { extrapol_ = t; }
 
 protected:
 
@@ -199,10 +202,10 @@ protected:
 /*!
 \brief A MathFunction that cuts through another mathfunction with
 higher number of dimensions.
-  
+
   A starting point (P) and a vector (N) is used to project a line through
   a MathFunctionND (func). The value returned is:
-  
+
   f(x) = func(P+N*x)
 */
 
@@ -210,7 +213,7 @@ template <class RT,class PT>
 mClass(Algo) AlongVectorFunction : public MathFunction<RT,PT>
 {
 public:
-    			AlongVectorFunction( const MathFunctionND<RT,PT>& func_,
+			AlongVectorFunction( const MathFunctionND<RT,PT>& func_,
 					     const PT* P_, const PT* N_)
 			    : P( P_ )
 			    , N( N_ )
@@ -244,7 +247,7 @@ protected:
 mExpClass(Algo) SecondOrderPoly : public FloatMathFunction
 {
 public:
-    			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
+			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
 			    : a( a_ ), b( b_ ), c( c_ )
 			{}
 
@@ -313,7 +316,7 @@ public:
 mExpClass(Algo) ThirdOrderPoly : public FloatMathFunction
 {
 public:
-    			ThirdOrderPoly( float a_=0, float b_=0,
+			ThirdOrderPoly( float a_=0, float b_=0,
 					float c_=0, float d_=0 )
 			    : a( a_ ), b( b_ ), c( c_ ), d( d_ )
 			{}

@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2003
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 
@@ -76,20 +76,20 @@ void PointBasedMathFunction::remove( int idx )
 float PointBasedMathFunction::outsideVal( float x ) const
 {
     if ( extrapol_==None ) return mUdf(float);
-    
+
     const int sz = x_.size();
-    
+
     if ( extrapol_==EndVal || sz<2 )
     {
-    	return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
+	return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
     }
-    
+
     if ( x<x_[0] )
     {
 	const float gradient = (y_[1]-y_[0])/(x_[1]-x_[0]);
 	return y_[0]+(x-x_[0])*gradient;
     }
-    
+
     const float gradient = (y_[sz-1]-y_[sz-2])/(x_[sz-1]-x_[sz-2]);
     return y_[sz-1] + (x-x_[sz-1])*gradient;
 }
@@ -103,6 +103,9 @@ float PointBasedMathFunction::outsideVal( float x ) const
 float PointBasedMathFunction::snapVal( float x ) const
 {
     mInitFn();
+    if ( x < x_[0] || x > x_[sz-1] )
+	return outsideVal(x);
+
     const int baseidx = baseIdx( x );
 
     if ( baseidx < 0 )
