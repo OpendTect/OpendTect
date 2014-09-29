@@ -25,25 +25,27 @@ void uiMute::initClass()
 }
 
 
-uiDialog* uiMute::create( uiParent* p, Processor* sgp )
+uiDialog* uiMute::create( uiParent* p, Processor* proc )
 {
-    mDynamicCastGet( Mute*, sgmute, sgp );
-    if ( !sgmute ) return 0;
+    mDynamicCastGet(Mute*,mute,proc);
+    if ( !mute ) return 0;
 
-    return new uiMute( p, sgmute );
+    return new uiMute( p, mute );
 }
 
 
-uiMute::uiMute( uiParent* p, Mute* sgmute )
-    : uiDialog( p, uiDialog::Setup(tr("Mute setup"),0,
-                                   mODHelpKey(mPreStackMuteHelpID) ) )
-    , processor_( sgmute )
-    , ctio_( *mMkCtxtIOObj(MuteDef) )
+uiMute::uiMute( uiParent* p, Mute* mute )
+    : uiDialog(p,uiDialog::Setup(tr("Mute setup"),mNoDlgTitle,
+				 mODHelpKey(mPreStackMuteHelpID)))
+    , processor_(mute)
 {
-    mutedeffld_ = new uiIOObjSel( this, ctio_ );
+    const IOObjContext ctxt = mIOObjContext( MuteDef );
+    mutedeffld_ = new uiIOObjSel( this, ctxt );
+
     topfld_ = new uiGenInput( this, tr("Mute type"),
-	    		      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
+			      BoolInpSpec(true,tr("Outer"),tr("Inner")) );
     topfld_->attach( alignedBelow, mutedeffld_ );
+
     taperlenfld_ = new uiGenInput( this, tr("Taper length (in samples)"),
 	    			   FloatInpSpec() );
     taperlenfld_->attach( alignedBelow, topfld_ );
@@ -54,24 +56,21 @@ uiMute::uiMute( uiParent* p, Mute* sgmute )
 }
 
 
-bool uiMute::acceptOK(CallBacker*)
+bool uiMute::acceptOK( CallBacker* )
 {
     if ( !processor_ ) return true;
 
-    if ( mutedeffld_->isEmpty() )
-	processor_->setEmptyMute();
-    else if ( !mutedeffld_->commitInput() || !ctio_.ioobj )
+    const IOObj* ioobj = mutedeffld_->ioobj();
+    if ( !ioobj )
     {
-	uiMSG().error(tr("Cannot find mute"));
+	processor_->setEmptyMute();
 	return false;
     }
-    else
-	processor_->setMuteDefID( ctio_.ioobj->key() );
 
+    processor_->setMuteDefID( ioobj->key() );
     processor_->setTaperLength( taperlenfld_->getfValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     return true;
 }
 
-
-}; //namespace
+} // namespace PreStack

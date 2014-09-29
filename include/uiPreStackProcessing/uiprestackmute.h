@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uiprestackprocessingmod.h"
 #include "uidialog.h"
-class CtxtIOObj;
+
 class uiGenInput;
 class uiIOObjSel;
 
@@ -26,7 +26,7 @@ class Mute;
 class Processor;
 
 mExpClass(uiPreStackProcessing) uiMute : public uiDialog
-{ mODTextTranslationClass(uiMute);
+{ mODTextTranslationClass(uiMute)
 public:
 
     static void		initClass();
@@ -35,7 +35,6 @@ public:
 protected:
 
     Mute*		processor_;
-    CtxtIOObj&		ctio_;
 
     bool		acceptOK(CallBacker*);
     static uiDialog*	create(uiParent*,Processor*);
@@ -46,8 +45,6 @@ protected:
 
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-
