@@ -38,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define		mPickSz	3
 #define         mPickType	3
 
-#define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) act;
+#define mGetWD(act) Well::Data* wd = getWD(); if ( !wd ) { act; }
 #define mMeter2Feet(val) val *= mToFeetFactorF;
 #define mFeet2Meter(val) val *= mFromFeetFactorF;
 #define mGetDispPar(param) wd->displayProperties().param
@@ -132,7 +132,7 @@ WellDisplay::~WellDisplay()
     setSceneEventCatcher(0);
     if ( transformation_ ) transformation_->unRef();
 
-    mGetWD();
+    mGetWD( {} );
 
     if	( wd )
 	wd->tobedeleted.remove( mCB(this,WellDisplay,welldataDelNotify) );
