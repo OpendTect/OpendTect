@@ -924,10 +924,15 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 	translation_->ref();
 	addChild( translation_->osgNode() );
 
-	for ( int idx = 0; idx< sections_.size(); idx++ )
+	for ( int idx=0; idx< sections_.size(); idx++ )
 	{
 	    removeChild( sections_[idx]->osgNode() );
 	    translation_->addObject( sections_[idx] );
+	}
+	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	{
+	    removeChild( intersectionlines_[idx]->osgNode() );
+	    translation_->addObject( intersectionlines_[idx] );
 	}
     }
 
