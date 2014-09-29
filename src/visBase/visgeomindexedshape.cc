@@ -64,6 +64,7 @@ GeomIndexedShape::GeomIndexedShape()
     setRenderMode( RenderBothSides );
 
     setMaterial( new Material );
+    setDataSequence( ColTab::Sequence(ColTab::defSeqName()) );
 }
 
 
@@ -442,7 +443,8 @@ void GeomIndexedShape::mapAttributeToColorTableMaterial()
     {
 	const int coloridx = ColTab::Mapper::snappedPosition(
 	    &colorhandler_->mapper_,colorhandler_->attributecache_[idx],
-	    mNrMaterialSteps, mUndefMaterial )+1;
+	    mNrMaterialSteps, mUndefMaterial );
+
 	colors.add( colorhandler_->material_->getColor(coloridx ) );
     }
 
