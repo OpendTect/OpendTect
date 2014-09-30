@@ -168,6 +168,14 @@ CallBackSet::~CallBackSet()
 }
 
 
+CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
+{
+    Threads::Locker lckr( cbs.lock_ );
+    TypeSet<CallBack>::operator=( cbs );
+    return *this;
+}
+
+
 void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
 			  CallBacker* exclude )
 {
@@ -232,8 +240,6 @@ NotifierAccess::NotifierAccess( const NotifierAccess& na )
     , cbs_(*new CallBackSet(na.cbs_) )
 {
     cbs_.ref();
-    Threads::Locker lckr( na.cbs_.lock_ );
-    cbs_ = na.cbs_;
 }
 
 

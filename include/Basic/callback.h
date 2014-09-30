@@ -95,6 +95,8 @@ public:
 		CallBackSet( const CallBackSet& cbs )
 		    : TypeSet<CallBack>( cbs )
 		{}
+		
+    CallBackSet& operator=(const CallBackSet&);
 
     void	doCall(CallBacker*,const bool* enabledflag=0,
 			CallBacker* exclude=0);
