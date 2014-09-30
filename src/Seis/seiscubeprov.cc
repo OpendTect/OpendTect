@@ -586,14 +586,14 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, TaskRunner* tr)
-{ return readData( cs, Survey::GM().cUndefGeomID(), tr ); }
+bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, TaskRunner* trans)
+{ return readData( cs, Survey::GM().cUndefGeomID(), trans ); }
 
 
 #define mErrRet(s) { errmsg_ = s; return false; }
 
 bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
-				      const Pos::GeomID geomid, TaskRunner* tr )
+				      const Pos::GeomID geomid, TaskRunner* trans )
 {
     if ( !ioobj_ )
 	mErrRet( "Failed to find the input dataset" )
@@ -621,7 +621,7 @@ bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs,
 
     PtrMan<TrcDataLoader> loader =
 	new TrcDataLoader( *seisrdr, *data_, tkzs_.hrg, is2d );
-    const bool res = TaskRunner::execute( tr, *loader );
+    const bool res = TaskRunner::execute( trans, *loader );
     if ( !res )
 	mErrRet( "Failed to read input dataset" )
 
