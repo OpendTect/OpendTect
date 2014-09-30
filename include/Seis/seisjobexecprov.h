@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ranges.h"
 #include "sets.h"
+#include "uistring.h"
 #include <iosfwd>
 class IOObj;
 class Executor;
