@@ -94,6 +94,7 @@ public:
 		CallBackSet() : lock_(true)	{}
 		CallBackSet( const CallBackSet& cbs )
 		    : TypeSet<CallBack>( cbs )
+		    , lock_( true )
 		{}
 		
     CallBackSet& operator=(const CallBackSet&);
