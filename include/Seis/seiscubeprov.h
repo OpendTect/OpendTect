@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "trckeyzsampling.h"
 #include "rowcol.h"
 #include "objectset.h"
+#include "uistring.h"
 
 template <class T> class Array2D;
 class IOObj;
