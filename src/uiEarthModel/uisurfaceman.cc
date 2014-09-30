@@ -670,7 +670,9 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     for ( int idx=0; idx<ids.size(); idx++ )
     {
 	par.setEmpty();
-	EM::EMM().readPars( *ids[idx], par );
+	if ( !EM::EMM().readDisplayPars(*ids[idx],par) )
+	    continue;
+
 	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
 
 	Color col( Color::White() );
@@ -726,19 +728,21 @@ void lvlChg( CallBacker* cb )
     tbl_->setColor( RowCol(rc.row(),1), col );
 }
 
+
 bool acceptOK( CallBacker* )
 {
     for ( int idx=0; idx<objids_.size(); idx++ )
     {
-	IOPar par;
 	Color col = tbl_->getColor( RowCol(idx,1) );
-	par.set( sKey::Color(), col );
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			tbl_->getCellGroup(RowCol(idx,2)))
 	const int lvlid = levelsel ? levelsel->getID() : -1;
-	par.set( sKey::StratRef(), lvlid );
-	EM::EMM().writePars( *objids_[idx], par );
+
+	IOPar displaypar;
+	displaypar.set( sKey::StratRef(), lvlid );
+	displaypar.set( sKey::Color(), col );
+	EM::EMM().writeDisplayPars( *objids_[idx], displaypar );
     }
 
     return true;

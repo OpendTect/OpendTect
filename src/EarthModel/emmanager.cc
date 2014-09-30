@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "stratlevel.h"
 #include "keystrs.h"
 
+#include "od_iostream.h"
 
 EM::EMManager& EM::EMM()
 {
@@ -34,7 +35,7 @@ EM::EMManager& EM::EMM()
 
 namespace EM
 {
-
+const char* EMManager::displayparameterstr() { return "Display Parameters"; }
 
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
@@ -358,30 +359,81 @@ void EMManager::removeSelected( const ObjectID& id,
 }
 
 
-bool EMManager::readPars( const MultiID& mid, IOPar& outpar ) const
+bool EMManager::readDisplayPars( const MultiID& mid, IOPar& outpar ) const
 {
-    outpar.setEmpty();
-    IOPar* par = IOObjInfo(mid).getPars();
-    if ( !par )
-	return false;
+    if ( !readParsFromDisplayInfoFile(mid,outpar) )
+	return readParsFromGeometryInfoFile( mid, outpar );
 
-    outpar = *par;
-    delete par;
     return true;
+
 }
 
 
-bool EMManager::writePars( const MultiID& mid, const IOPar& inpar ) const
+bool EMManager::readParsFromDisplayInfoFile(
+    const MultiID& mid, IOPar& outpar ) const
+{
+    outpar.setEmpty();
+
+    IOObjInfo ioobjinfo( mid );
+    if ( !ioobjinfo.isOK() )
+	return false;
+
+    const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
+    FilePath fp( filenm );
+    fp.setExtension( "par" );
+    od_istream strm( fp );
+
+    if ( !strm.isOK() )
+	return false;
+
+    return outpar.read( strm, displayparameterstr() );
+
+}
+
+
+bool EMManager::readParsFromGeometryInfoFile(
+    const MultiID& mid, IOPar& outpar ) const
+{
+    outpar.setEmpty();
+    IOPar* par = IOObjInfo( mid ).getPars();
+    if ( !par )
+	return false;
+
+    Color col;
+    if ( par->get(sKey::Color(),col) )
+	outpar.set( sKey::Color(), col );
+
+    BufferString lnststr;
+    if ( par->get(sKey::LineStyle(),lnststr) )
+	outpar.set( sKey::LineStyle(), lnststr );
+
+    BufferString mkststr;
+    if ( par->get(sKey::MarkerStyle(),mkststr) )
+	outpar.set( sKey::MarkerStyle(), mkststr );
+
+    int lvlid;
+    if ( par->get(sKey::StratRef(),lvlid) )
+	outpar.set( sKey::StratRef(), lvlid );
+
+    delete par;
+    return true;
+
+}
+
+
+bool EMManager::writeDisplayPars( const MultiID& mid, const IOPar& inpar ) const
 {
     IOObjInfo ioobjinfo( mid );
     if ( !ioobjinfo.isOK() || !ioobjinfo.isHorizon() )
 	return false;
 
-    IOPar* rdpar = ioobjinfo.getPars();
-    IOPar wrpar( *rdpar ); delete rdpar;
-    wrpar.merge( inpar );
+    IOPar displaypar;
+    readDisplayPars( mid, displaypar );
+    displaypar.merge( inpar );
+
     const BufferString filenm = Surface::getParFileName( *ioobjinfo.ioObj() );
-    return wrpar.write( filenm.buf(), "Surface parameters" );
+    return displaypar.write( filenm.buf(), displayparameterstr() );
+
 }
 
 

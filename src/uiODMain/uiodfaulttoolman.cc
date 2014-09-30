@@ -828,7 +828,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		if ( emobj )
 		    curcolor = emobj->preferredColor();
 		else
-		    EM::EMM().readPars( mid, iopar );
+		    EM::EMM().readDisplayPars( mid, iopar );
 
 		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{

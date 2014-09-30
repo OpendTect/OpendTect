@@ -44,6 +44,9 @@ DrawStyle::Style DrawStyle::getDrawStyle() const
 
 void DrawStyle::setPointSize( float nsz )
 {
+    if ( pointsize_ == nsz )
+	return;
+
     if ( !pointsizeattrib_ )
 	pointsizeattrib_ = addAttribute( new osg::Point );
 
@@ -62,6 +65,9 @@ float DrawStyle::getPointSize() const
 
 void DrawStyle::setLineStyle( const LineStyle& nls )
 {
+    if ( linestyle_ == nls )
+	return;
+
     linestyle_ = nls;
     updateLineStyle();
 }
@@ -69,6 +75,9 @@ void DrawStyle::setLineStyle( const LineStyle& nls )
 
 void DrawStyle::setLineWidth( int width )
 {
+    if ( linestyle_.width_ == width )
+	return;
+
     linestyle_.width_ = width;
     updateLineStyle();
 }    
@@ -111,6 +120,9 @@ void DrawStyle::updateLineStyle()
 
 void DrawStyle::setPixelDensity( float dpi )
 {
+    if ( dpi == pixeldensity_ )
+	return;
+
     pixeldensity_ = dpi;
     updateLineStyle();
 

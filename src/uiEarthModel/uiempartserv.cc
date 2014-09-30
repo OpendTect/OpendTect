@@ -924,7 +924,13 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 
     storagekey = key;
     uiTaskRunner exdlg( parent() );
-    return TaskRunner::execute( &exdlg, *exec );
+    
+    const bool ret = TaskRunner::execute( &exdlg, *exec );
+    if ( ret && surface )
+	surface->saveDisplayPars();
+
+    return ret;
+
 }
 
 

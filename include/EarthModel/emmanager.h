@@ -81,8 +81,8 @@ public:
 
     void		removeSelected(const ObjectID&,const Selector<Coord3>&,
 	    			       TaskRunner*);
-    bool		readPars(const MultiID&,IOPar&) const;
-    bool		writePars(const MultiID&,const IOPar&) const;
+    bool		readDisplayPars(const MultiID&,IOPar&) const;
+    bool		writeDisplayPars(const MultiID&,const IOPar&) const;
     bool		getSurfaceData(const MultiID&,SurfaceIOData&,
 	    			       BufferString& errmsg) const;
 
@@ -95,6 +95,12 @@ protected:
     ObjectSet<EMObject>		objects_;
 
     void		levelToBeRemoved(CallBacker*);
+    static const char*	displayparameterstr();
+
+    bool		readParsFromDisplayInfoFile(const MultiID&,
+						    IOPar&)const;
+    bool		readParsFromGeometryInfoFile(const MultiID&,
+						     IOPar&)const;
 
 public:
 

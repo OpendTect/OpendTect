@@ -70,6 +70,8 @@ namespace sKey
     inline FixedString Keys()		{ return "Keys"; }
     inline FixedString Level()		{ return "Level"; }
     inline FixedString Line()		{ return "Line"; }
+    inline FixedString LineStyle()	{ return "Line Style"; }
+    inline FixedString MarkerStyle()	{ return "Marker Style"; }
     inline FixedString LineKey()	{ return "Line key"; }
     inline FixedString LineName()	{ return "Line name"; }
     inline FixedString LineNames()	{ return "Line names"; }
