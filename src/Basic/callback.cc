@@ -163,6 +163,19 @@ void CallBack::doCall( CallBacker* cber )
 }
 
 
+CallBackSet::CallBackSet()
+    : lock_(true)
+    , enabled_(true)     
+{}
+
+
+CallBackSet::CallBackSet( const CallBackSet& cbs )
+    : TypeSet<CallBack>( cbs )
+    , lock_( true )
+    , enabled_( cbs.enabled_ )
+{}
+
+
 CallBackSet::~CallBackSet()
 {
 }
@@ -176,12 +189,10 @@ CallBackSet& CallBackSet::operator=( const CallBackSet& cbs )
 }
 
 
-void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
+void CallBackSet::doCall( CallBacker* obj, 
 			  CallBacker* exclude )
 {
-    const bool enab = true;
-    const bool& enabled = enabledflag ? *enabledflag : enab;
-    if ( !enabled ) return;
+    if ( !enabled_ ) return;
 
     Threads::Locker lckr( lock_ );
     TypeSet<CallBack> cbscopy = *this;
@@ -198,6 +209,14 @@ void CallBackSet::doCall( CallBacker* obj, const bool* enabledflag,
 	if ( !exclude || cb.cbObj()!=exclude )
 	    cb.doCall( obj );
     }
+}
+
+
+bool CallBackSet::doEnable( bool yn )
+{
+    bool ret = enabled_;
+    enabled_ = yn;
+    return ret;
 }
 
 
@@ -236,7 +255,6 @@ void CallBackSet::removeWith( StaticCallBackFunction cbfn )
 
 NotifierAccess::NotifierAccess( const NotifierAccess& na )
     : cber_( na.cber_ )
-    , enabled_( na.enabled_ )
     , cbs_(*new CallBackSet(na.cbs_) )
 {
     cbs_.ref();
@@ -244,8 +262,7 @@ NotifierAccess::NotifierAccess( const NotifierAccess& na )
 
 
 NotifierAccess::NotifierAccess()
-    : enabled_(true)
-    , cbs_(*new CallBackSet )
+    : cbs_(*new CallBackSet )
 {
     cbs_.ref();
 }
@@ -348,3 +365,33 @@ bool NotifierAccess::willCall( CallBacker* cber ) const
 
     return false;
 }
+
+
+void NotifierAccess::doTrigger( CallBackSet& cbs, CallBacker* c,
+				CallBacker* exclude)
+{
+    cbs.ref();
+    cbs.doCall( c, exclude );
+    cbs.unRef();
+}
+
+
+NotifyStopper::NotifyStopper( NotifierAccess& na )
+    : oldst_(na.disable())
+    , thenotif_(na)
+{}
+
+
+NotifyStopper::~NotifyStopper()
+{ restore(); }
+
+void NotifyStopper::enable() 
+{ thenotif_.cbs_.doEnable(false); }
+
+
+void NotifyStopper::disable()
+{ thenotif_.cbs_.doEnable(true); }
+
+
+void NotifyStopper::restore()
+{ thenotif_.cbs_.doEnable(oldst_);}
