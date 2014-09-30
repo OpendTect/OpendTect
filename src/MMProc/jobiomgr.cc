@@ -562,6 +562,16 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	{
 	    cmd.add( machine.getIPAddress() );
 	    cmd.addFlag( "--rexec", rshcomm ); // rsh/ssh
+	}
+
+	cmd.addFlag( "--nice", niceval_ );
+	cmd.addFlag( "--inbg", progname );
+	cmd.addFlag( "-masterhost", HostData::localHostName() );
+	cmd.addFlag( "-masterport", iohdlr_.port() );
+	cmd.addFlag( "-jobid", ji.descnr_ );
+
+	if ( remote )
+	{
 	    if ( machine.isWindows()  ) cmd.add( "--iswin" );
 
 	    cmd.addFilePathFlag( "--with-dtect-appl",
@@ -579,12 +589,6 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 			machine.convPath(HostData::Data, basefp),
 			FilePath::Unix );
 	}
-
-	cmd.addFlag( "--nice", niceval_ );
-	cmd.addFlag( "--inbg", progname );
-	cmd.addFlag( "-masterhost", HostData::localHostName() );
-	cmd.addFlag( "-masterport", iohdlr_.port() );
-	cmd.addFlag( "-jobid", ji.descnr_ );
 
 	const FilePath riopfp(
 		remote ? machine.convPath(HostData::Data,iopfp) : iopfp );
