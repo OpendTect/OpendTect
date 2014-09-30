@@ -70,9 +70,10 @@ public:
     mExpClass(Network) Interpreter
     {
     public:
-				Interpreter( const RequestPacket& p )
+				Interpreter( const RequestPacket& p,
+					     int startpos=0 )
 				    : pkt_(p)
-				    , curpos_(0)		{}
+				    , curpos_(startpos)	{}
 
 	template <class T> void	get(T&) const;
 	inline int		getInt() const;
@@ -83,6 +84,9 @@ public:
 	template <class T> void	getArr(T*,int maxsz) const;
 	template <class T> void	getSet(TypeSet<T>&,int maxsz=-1) const;
 	inline void		getSet(BufferStringSet&,int maxsz=-1) const;
+
+	inline void		move( int nrb ) const { curpos_ += nrb; }
+	inline void		moveTo( int pos ) const	{ curpos_ = pos; }
 
     protected:
 
@@ -141,6 +145,13 @@ template <>
 inline void RequestPacket::Interpreter::get( BufferString& var ) const
 {
     int sz; get( sz );
+    if ( sz < 1 )
+    {
+	if ( sz < 0 )
+	    { pErrMsg("Invalid string size"); }
+	var.setEmpty();
+	return;
+    }
     var.setBufSize( sz+1 );
     char* cstr = var.getCStr();
     OD::memCopy( cstr, pkt_.payload_+curpos_, sz );
