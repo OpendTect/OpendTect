@@ -573,7 +573,7 @@ bool SeisSequentialWriter::iterateBuffer( bool waitforbuffer )
     {
 	int bufsize = outputs_.size() +
 	    Threads::WorkManager::twm().queueSize( queueid_ );
-	while ( bufsize>=maxbuffersize_ && !errmsg_.str() )
+	while ( bufsize>=maxbuffersize_ && !errmsg_ )
 	{
 	    lock_.wait();
 	    bufsize = outputs_.size() +

@@ -34,7 +34,7 @@ namespace PosInfo { class Line2DData; }
 
 
 mExpClass(Seis) SeisTrcWriter : public SeisStoreAccess
-{
+{ mODTextTranslationClass(SeisTrcWriter);
 public:
 
 			SeisTrcWriter(const IOObj*,
@@ -123,7 +123,7 @@ protected:
 
 
 mExpClass(Seis) SeisSequentialWriter
-{
+{ mODTextTranslationClass(SeisSequentialWriter);
 public:
 			SeisSequentialWriter( SeisTrcWriter*, int buffsize=-1 );
 			/*!<Writer is owned by caller, not mine. Default bufsize
@@ -149,7 +149,7 @@ public:
 			/*!<Wait for everything to be written. Should be
 			    after final submitTrace, before closure.*/
 
-    const char*		errMsg() const { return errmsg_.str(); }
+    uiString		errMsg() const { return errmsg_; }
 
 protected:
 
@@ -166,7 +166,7 @@ protected:
     BinID			latestbid_;
 
     int				queueid_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
 };
 

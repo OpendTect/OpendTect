@@ -204,7 +204,7 @@ bool uiSeisMMProc::initWork( bool retry )
 
 	const FixedString progname = jobpars_.find( "Program.Name" );
 	jobprov_ = new SeisJobExecProv( progname, jobpars_ );
-	if ( jobprov_->errMsg() )
+	if (jobprov_->errMsg().isSet())
 	    { errmsg_ = jobprov_->errMsg(); return false; }
 
 	nrinlperjob_ = 1;
@@ -220,7 +220,7 @@ bool uiSeisMMProc::initWork( bool retry )
 
     delete jobrunner_;
     jobrunner_ = jobprov_->getRunner( retry ? 1 : nrinlperjob_ );
-    if ( jobprov_->errMsg() && *jobprov_->errMsg() )
+    if (jobprov_->errMsg().isSet())
     {
 	delete jobrunner_; jobrunner_ = 0;
 	errmsg_ = jobprov_->errMsg();
@@ -306,7 +306,7 @@ bool uiSeisMMProc::removeTmpProcFiles()
     }
 
     if ( !removed )
-	errmsg_.set( "Could not remove all temporary seismics" );
+	errmsg_ = tr("Could not remove all temporary seismics");
 
     return removed;
 }

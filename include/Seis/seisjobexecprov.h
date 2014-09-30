@@ -46,14 +46,14 @@ class Seis2DDataSet;
  */
 
 mExpClass(Seis) SeisJobExecProv
-{
+{ mODTextTranslationClass(SeisJobExecProv);
 public:
 
 			SeisJobExecProv(const char* prognm,const IOPar&);
     virtual		~SeisJobExecProv();
 
     bool		isRestart() const	{ return isRestart(iopar_); }
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    inline uiString	errMsg() const		{ return errmsg_; }
     const IOPar&	pars() const		{ return iopar_; }
 
     JobRunner*		getRunner( int nrinlperjob );
@@ -85,7 +85,7 @@ protected:
     MultiID		seisoutid_;
     MultiID		tmpstorid_;
     const BufferString	progname_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
     int			nrrunners_;
     StepInterval<int>	todoinls_;
     Seis2DDataSet*	outds_;

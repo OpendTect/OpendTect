@@ -132,7 +132,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
     if ( !workstarted_ && !startWork() )
     {
 	if ( errmsg_.isEmpty() ) errmsg_ = rdr_.errMsg();
-	if ( errmsg_.isEmpty() ) errmsg_ = "No valid data found";
+	if ( errmsg_.isEmpty() ) errmsg_ = tr("No valid data found");
 	return Error;
     }
 
@@ -260,7 +260,7 @@ bool SeisMSCProvider::startWork()
     if ( rv < 0 )
 	{ errmsg_ = rdr_.errMsg(); return false; }
     else if ( rv == 0 )
-	{ errmsg_ = "No valid/selected trace found"; return false; }
+    { errmsg_ = tr("No valid/selected trace found"); return false; }
 
     SeisTrcBuf* newbuf = new SeisTrcBuf( false );
     tbufs_ += newbuf;
@@ -535,8 +535,8 @@ SeisFixedCubeProvider::~SeisFixedCubeProvider()
 }
 
 
-const char* SeisFixedCubeProvider::errMsg() const
-{ return errmsg_.buf(); }
+uiString SeisFixedCubeProvider::errMsg() const
+{ return errmsg_; }
 
 
 void SeisFixedCubeProvider::clear()
@@ -571,13 +571,13 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 	mDynamicCastGet(const Survey::Geometry2D*,geom2d,
 			Survey::GM().getGeometry(geomid))
 	if ( !geom2d )
-	{ errmsg_ = "Cannot read 2D geometry"; return false; }
+	{ errmsg_ = tr("Cannot read 2D geometry"); return false; }
 
 	float max;
 	geom2d->data().compDistBetwTrcsStats( max, trcdist_ );
 	if ( mIsZero(trcdist_,mDefEps) )
 	{
-	    errmsg_ = "Cannot calculate median trace distance";
+	    errmsg_ = tr("Cannot calculate median trace distance");
 	    return false;
 	}
     }
@@ -586,7 +586,7 @@ bool SeisFixedCubeProvider::calcTrcDist( const Pos::GeomID geomid )
 }
 
 
-bool SeisFixedCubeProvider::readData( const TrcKeyZSampling& cs, TaskRunner* tr )
+bool SeisFixedCubeProvider::readData(const TrcKeyZSampling& cs, TaskRunner* tr)
 { return readData( cs, Survey::GM().cUndefGeomID(), tr ); }
 
 

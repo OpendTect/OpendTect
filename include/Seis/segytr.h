@@ -104,7 +104,7 @@ protected:
     virtual bool	writeTapeHeader();
     virtual void	fillHeaderBuf(const SeisTrc&);
     void		selectWriteDataChar(DataCharacteristics&) const;
-    void		fillErrMsg(uiString,bool);
+    void		fillErrMsg(const uiString&,bool);
     bool		noErrMsg();
 
     DataCharacteristics	getDataChar(int) const;

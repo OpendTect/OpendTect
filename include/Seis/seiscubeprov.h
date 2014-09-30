@@ -53,7 +53,7 @@ traces.
 
 
 mExpClass(Seis) SeisMSCProvider
-{
+{ mODTextTranslationClass(SeisMSCProvider);
 public:
 
 			SeisMSCProvider(const MultiID&);
@@ -136,7 +136,7 @@ protected:
 
 
 mExpClass(Seis) SeisFixedCubeProvider
-{
+{ mODTextTranslationClass(SeisFixedCubeProvider);
 public:
 			SeisFixedCubeProvider(const MultiID&);
 			~SeisFixedCubeProvider();
@@ -144,13 +144,13 @@ public:
     void		clear();
     bool		isEmpty() const;
     bool		readData(const TrcKeyZSampling&,TaskRunner* tr=0);
-    bool		readData(const TrcKeyZSampling&,const Pos::GeomID geomid,
-				 TaskRunner* tr=0);
+    bool		readData(const TrcKeyZSampling&,
+				 const Pos::GeomID geomid, TaskRunner* tr = 0);
 
     const SeisTrc*	getTrace(const BinID&) const;
     const SeisTrc*	getTrace(int trcnr) const;
     float		getTrcDist() const		{ return trcdist_; }
-    const char*		errMsg() const;
+    uiString		errMsg() const;
 
 protected:
 
@@ -158,7 +158,7 @@ protected:
 
     TrcKeyZSampling	tkzs_;
     IOObj*		ioobj_;
-    BufferString	errmsg_;
+    uiString		errmsg_;
     float		trcdist_;
 
     bool		calcTrcDist(const Pos::GeomID);

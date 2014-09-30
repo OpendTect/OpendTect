@@ -54,7 +54,7 @@ protected:
     int			nrcyclesdone_;
     BufferString	basecaption_;
     JobRunner*		jobrunner_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     inline bool		isMultiHost() const		{ return avmachfld_; }
     bool		isPaused() const;
