@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "bufstring.h"
+#include "uistring.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "sets.h"
