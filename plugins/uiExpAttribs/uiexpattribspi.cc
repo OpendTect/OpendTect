@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "odplugin.h"
 
-#include "uicurvgrad.h"
 #include "uieventfreqattrib.h"
 #include "uigrubbsfilterattrib.h"
 #include "uisimilaritybyaw.h"
@@ -33,7 +32,6 @@ mDefODPluginInfo(uiExpAttribs)
 
 mDefODInitPlugin(uiExpAttribs)
 {
-    uiCurvGrad::initClass();
     uiEventFreqAttrib::initClass();
     uiGrubbsFilterAttrib::initClass();
 #ifdef __debug__
