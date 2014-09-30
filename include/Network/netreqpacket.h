@@ -59,42 +59,6 @@ public:
 
     void		addErrMsg(BufferString&) const;
 
-
-    /*\brief interprets what is in a packet.
-
-      You need to know what should be in there. Arrays/sets are always
-      preceeded by their size.
-
-      */
-
-    mExpClass(Network) Interpreter
-    {
-    public:
-				Interpreter( const RequestPacket& p,
-					     int startpos=0 )
-				    : pkt_(p)
-				    , curpos_(startpos)	{}
-
-	template <class T> void	get(T&) const;
-	inline int		getInt() const;
-	inline float		getFloat() const;
-	inline double		getDouble() const;
-	inline BufferString	getString() const;
-
-	template <class T> void	getArr(T*,int maxsz) const;
-	template <class T> void	getSet(TypeSet<T>&,int maxsz=-1) const;
-	inline void		getSet(BufferStringSet&,int maxsz=-1) const;
-
-	inline void		move( int nrb ) const { curpos_ += nrb; }
-	inline void		moveTo( int pos ) const	{ curpos_ = pos; }
-
-    protected:
-
-	const RequestPacket& pkt_;
-	mutable int	curpos_;
-
-    };
-
 protected:
 
     union Header
@@ -112,7 +76,7 @@ protected:
     static od_int16	cEndSubID()		{ return -4; }
     static od_int16	cErrorSubID()		{ return -8; }
 
-    friend class	Interpreter;
+    friend class	PacketInterpreter;
 
 public:
 
@@ -134,15 +98,51 @@ public:
 };
 
 
+/*\brief interprets what is in a packet.
+
+  You need to know what should be in there. Arrays/sets are always
+  preceeded by their size.
+
+*/
+
+mExpClass(Network) PacketInterpreter
+{
+public:
+			PacketInterpreter( const RequestPacket& p,
+					 int startpos=0 )
+			    : pkt_(p)
+			    , curpos_(startpos)	{}
+
+    template <class T> void	get(T&) const;
+    inline int			getInt() const;
+    inline float		getFloat() const;
+    inline double		getDouble() const;
+    inline BufferString		getString() const;
+
+    template <class T> void	getArr(T*,int maxsz) const;
+    template <class T> void	getSet(TypeSet<T>&,int maxsz=-1) const;
+    inline void			getSet(BufferStringSet&,int maxsz=-1) const;
+
+    inline void			move( int nrb ) const { curpos_ += nrb; }
+    inline void			moveTo( int pos ) const	{ curpos_ = pos; }
+
+protected:
+
+    const RequestPacket&	pkt_;
+    mutable int			curpos_;
+
+};
+
+
 template <class T>
-inline void RequestPacket::Interpreter::get( T& var ) const
+inline void PacketInterpreter::get( T& var ) const
 {
     OD::memCopy( &var, pkt_.payload_+curpos_, sizeof(T) );
     curpos_ += sizeof(T);
 }
 
 template <>
-inline void RequestPacket::Interpreter::get( BufferString& var ) const
+inline void PacketInterpreter::get( BufferString& var ) const
 {
     int sz; get( sz );
     if ( sz < 1 )
@@ -159,17 +159,17 @@ inline void RequestPacket::Interpreter::get( BufferString& var ) const
     curpos_ += sz;
 }
 
-inline int RequestPacket::Interpreter::getInt() const
+inline int PacketInterpreter::getInt() const
 { int ret = 0; get(ret); return ret; }
-inline float RequestPacket::Interpreter::getFloat() const
+inline float PacketInterpreter::getFloat() const
 { float ret = 0.f; get(ret); return ret; }
-inline double RequestPacket::Interpreter::getDouble() const
+inline double PacketInterpreter::getDouble() const
 { double ret = 0.; get(ret); return ret; }
-inline BufferString RequestPacket::Interpreter::getString() const
+inline BufferString PacketInterpreter::getString() const
 { BufferString ret; get(ret); return ret; }
 
 template <class T>
-inline void RequestPacket::Interpreter::getArr( T* arr, int maxsz ) const
+inline void PacketInterpreter::getArr( T* arr, int maxsz ) const
 {
     int arrsz; get( arrsz );
     int sz = arrsz;
@@ -183,7 +183,7 @@ inline void RequestPacket::Interpreter::getArr( T* arr, int maxsz ) const
 }
 
 template <class T>
-inline void RequestPacket::Interpreter::getSet( TypeSet<T>& ts, int maxsz) const
+inline void PacketInterpreter::getSet( TypeSet<T>& ts, int maxsz) const
 {
     int arrsz; get( arrsz );
     int sz = arrsz;
@@ -197,7 +197,7 @@ inline void RequestPacket::Interpreter::getSet( TypeSet<T>& ts, int maxsz) const
     curpos_ += arrsz;
 }
 
-inline void RequestPacket::Interpreter::getSet( BufferStringSet& bss,
+inline void PacketInterpreter::getSet( BufferStringSet& bss,
 						int maxsz ) const
 {
     int setsz; get( setsz );
@@ -220,7 +220,7 @@ inline void RequestPacket::Interpreter::getSet( BufferStringSet& bss,
 }
 
 
-}; //Namespace
+}; //Namespace Network
 
 
 #endif
