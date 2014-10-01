@@ -154,6 +154,9 @@ public:
     const char*		getSelVPName() const;
     const char*		getSelVSName() const;
     const char*		getSelDenName() const;
+    const char*		getSelSat1Name() const;
+    const char*		getSelSat2Name() const;
+    const char*		getSelPorName() const;
 
 protected:
 

@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uistratlaymodtools.h"
 
+#include "hiddenparam.h"
 #include "keystrs.h"
 #include "propertyref.h"
 #include "stratlevel.h"
@@ -428,6 +429,11 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 //-----------------------------------------------------------------------------
 
+HiddenParam<uiStratLayModFRPropSelector,uiComboBox*> sat1fld( 0 );
+HiddenParam<uiStratLayModFRPropSelector,uiComboBox*> sat2fld( 0 );
+HiddenParam<uiStratLayModFRPropSelector,uiComboBox*> porosityfld( 0 );
+
+
 #define mCreatePropSelFld( propnm, txt, prop, prevbox ) \
     uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
     propnm##fld_ = lblbox##propnm->box(); \
@@ -437,6 +443,16 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 	    propnm##fld_->addItem( subsel##propnm[idx]->name() );\
     if ( prevbox )\
 	lblbox##propnm->attach( alignedBelow, prevbox );
+
+#define mCreatePropSelHiddenFld( propnm, txt, prop, prevbox ) \
+    uiLabeledComboBox* lblbox##propnm = new uiLabeledComboBox( this, txt ); \
+    PropertyRefSelection subsel##propnm = proprefsel.subselect( prop );\
+    for ( int idx=0; idx<subsel##propnm.size(); idx++ )\
+	if ( subsel##propnm[idx] )\
+	    lblbox##propnm->box()->addItem( subsel##propnm[idx]->name() );\
+    if ( prevbox )\
+	lblbox##propnm->attach( alignedBelow, prevbox ); \
+    propnm##fld.setParam( this, lblbox##propnm->box() );
 
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
@@ -450,13 +466,22 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
     mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
     mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
+
+    mCreatePropSelHiddenFld( sat1, "Reference for Initial Saturation",
+			     PropertyRef::Volum, lblboxvs );
+    mCreatePropSelHiddenFld( sat2, "Reference for Final Saturation",
+	    		     PropertyRef::Volum, lblboxsat1 );
+    mCreatePropSelHiddenFld( porosity, "Reference for Porosity",
+	    		     PropertyRef::Volum, lblboxsat2 );
 }
 
 
+//TODO update
 bool uiStratLayModFRPropSelector::needsDisplay() const
 {
     if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
-	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr()) )
+	    && vsfld_->isPresent(Strat::LayerModel::defSVelStr())
+      	    && sat1fld.getParam( this )->size() == 1 )
     {
 	vpfld_->setCurrentItem( 0 );
 	vsfld_->setCurrentItem( Strat::LayerModel::defSVelStr() );
@@ -483,3 +508,23 @@ const char* uiStratLayModFRPropSelector::getSelDenName() const
 {
     return denfld_->text();
 }
+
+
+const char* uiStratLayModFRPropSelector::getSelSat1Name() const
+{
+    return sat1fld.getParam( this )->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelSat2Name() const
+{
+    return sat2fld.getParam( this )->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelPorName() const
+{
+    return porosityfld.getParam( this )->text();
+}
+
+
