@@ -176,7 +176,7 @@ public:
     bool		extrapolate() const	{ return extrapol_ != None; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
 			//Do not use, obsoleted by setExtrapolateType
-    void		setExtrapolate( ExtrapolType t ) { extrapol_ = yn; }
+    void		setExtrapolate( ExtrapolType t ) { extrapol_ = t; }
     void		setExtrapolateType( ExtrapolType t ) { extrapol_ = t; }
     virtual yT		getNDValue( const xT* p ) const	{ return getValue(*p); }
 
