@@ -1,5 +1,5 @@
-#ifndef uiicons_h
-#define uiicons_h
+#ifndef uiicon_h
+#define uiicon_h
 
 /*+
 ________________________________________________________________________
@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 mFDQtclass(QIcon)
 
-class uiPixmap;
 
 /**\brief Manager for icons of different sizes.
 
