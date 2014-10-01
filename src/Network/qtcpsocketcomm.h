@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <QTcpSocket>
-#include "tcpsocket.h"
+#include "netsocket.h"
 
 /*\brief QTcpSocket communication class
 
@@ -22,42 +22,42 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class QTcpSocketComm : public QObject 
+class QTcpSocketComm : public QObject
 {
     Q_OBJECT
-    friend class	TcpSocket;
+    friend class	Network::Socket;
 
-    void		disconnect() { tcpsocket_ = 0; }
+    void		disconnect() { netsocket_ = 0; }
 
 protected:
 
-QTcpSocketComm( QTcpSocket* qtcpsocket, TcpSocket* tcpsocket )
+QTcpSocketComm( QTcpSocket* qtcpsocket, Network::Socket* netsocket )
     : qtcpsocket_(qtcpsocket)
-    , tcpsocket_(tcpsocket)
+    , netsocket_(netsocket)
 {
-    connect( qtcpsocket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
-    connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
+    connect( qtcpsocket, SIGNAL(disconnected()), this, SLOT(trigDisconnect()));
+    connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(trigReadyRead()) );
 }
 
 private slots:
 
-void disconnected()
+void trigDisconnect()
 {
-    if ( tcpsocket_ )
-	tcpsocket_->disconnected.trigger( *tcpsocket_ );
+    if ( netsocket_ )
+	netsocket_->disconnected.trigger( *netsocket_ );
 }
 
 
-void readyRead()
+void trigReadyRead()
 {
-    if ( tcpsocket_ )
-	tcpsocket_->readyRead.trigger( *tcpsocket_ );
+    if ( netsocket_ )
+	netsocket_->readyRead.trigger( *netsocket_ );
 }
 
 private:
 
     QTcpSocket*		qtcpsocket_;
-    TcpSocket*		tcpsocket_;
+    Network::Socket*	netsocket_;
 
 };
 

@@ -18,10 +18,9 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uistring.h"
 
-class Socket;
 class BatchProgram;
 class StreamData;
-class TcpSocket;
+namespace Network { class Socket; }
 
 #define mReturn( ret ) { \
     if ( ret ) { nrattempts_ = 0; return true; } \
@@ -97,7 +96,7 @@ protected:
     bool		pausereq_;
     StreamData&		sdout_;
 
-    TcpSocket*		socket_;
+    Network::Socket*	socket_;
 
     bool		sendState_( State, bool isexit, bool immediate );
     bool		sendProgress_( int, bool immediate );

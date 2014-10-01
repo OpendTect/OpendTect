@@ -9,13 +9,11 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpserver.h"
+#include "netserver.h"
+#include "netsocket.h"
 
-#include "tcpsocket.h"
 #ifndef OD_NO_QT
 #include "qtcpservercomm.h"
-
-#include <QTcpSocket>
 #endif
 
 static int sockid = 0;
@@ -26,7 +24,7 @@ static int getNewID()
 }
 
 
-TcpServer::TcpServer()
+Network::Server::Server()
 #ifndef OD_NO_QT
     : qtcpserver_(new QTcpServer)
     , comm_(new QTcpServerComm(qtcpserver_,this))
@@ -39,7 +37,7 @@ TcpServer::TcpServer()
 { }
 
 
-TcpServer::~TcpServer()
+Network::Server::~Server()
 {
     if ( isListening() )
 	close();
@@ -51,7 +49,7 @@ TcpServer::~TcpServer()
 }
 
 
-bool TcpServer::listen( const char* host, int prt )
+bool Network::Server::listen( const char* host, int prt )
 {
 #ifndef OD_NO_QT
     return qtcpserver_->listen(
@@ -62,7 +60,7 @@ bool TcpServer::listen( const char* host, int prt )
 }
 
 
-bool TcpServer::isListening() const
+bool Network::Server::isListening() const
 {
 #ifndef OD_NO_QT
     return qtcpserver_->isListening();
@@ -71,7 +69,7 @@ bool TcpServer::isListening() const
 #endif
 }
 
-int TcpServer::port() const
+int Network::Server::port() const
 {
 #ifndef OD_NO_QT
     return qtcpserver_->serverPort();
@@ -80,14 +78,14 @@ int TcpServer::port() const
 #endif
 }
 
-void TcpServer::close()
+void Network::Server::close()
 {
 #ifndef OD_NO_QT
     qtcpserver_->close();
 #endif
 }
 
-const char* TcpServer::errorMsg() const
+const char* Network::Server::errorMsg() const
 {
 #ifndef OD_NO_QT
     errmsg_ = qtcpserver_->errorString().toLatin1().constData();
@@ -98,7 +96,7 @@ const char* TcpServer::errorMsg() const
 }
 
 
-bool TcpServer::hasPendingConnections() const
+bool Network::Server::hasPendingConnections() const
 {
 #ifndef OD_NO_QT
     return qtcpserver_->hasPendingConnections();
@@ -107,7 +105,7 @@ bool TcpServer::hasPendingConnections() const
 #endif
 }
 
-QTcpSocket* TcpServer::nextPendingConnection()
+QTcpSocket* Network::Server::nextPendingConnection()
 {
 #ifndef OD_NO_QT
     return qtcpserver_->nextPendingConnection();
@@ -117,14 +115,14 @@ QTcpSocket* TcpServer::nextPendingConnection()
 }
 
 
-void TcpServer::notifyNewConnection()
+void Network::Server::notifyNewConnection()
 {
     if ( !hasPendingConnections() )
 	return;
 
-    TcpSocket* tcpsocket = new TcpSocket( nextPendingConnection() );
-    tcpsocket->readyRead.notify( mCB(this,TcpServer,readyReadCB));
-    mAttachCB( tcpsocket->disconnected, TcpServer::disconnectCB);
+    Network::Socket* tcpsocket = new Network::Socket( nextPendingConnection() );
+    tcpsocket->readyRead.notify( mCB(this,Server,readyReadCB));
+    mAttachCB( tcpsocket->disconnected, Network::Server::disconnectCB);
     const int id = getNewID();
     sockets_ += tcpsocket;
     ids_ += id;
@@ -133,9 +131,9 @@ void TcpServer::notifyNewConnection()
 }
 
 
-void TcpServer::readyReadCB( CallBacker* cb )
+void Network::Server::readyReadCB( CallBacker* cb )
 {
-    mDynamicCastGet(TcpSocket*,socket,cb);
+    mDynamicCastGet(Network::Socket*,socket,cb);
     if ( !socket ) return;
 
     const int idx = sockets_.indexOf( socket );
@@ -146,12 +144,12 @@ void TcpServer::readyReadCB( CallBacker* cb )
 }
 
 
-void TcpServer::disconnectCB( CallBacker* cb )
+void Network::Server::disconnectCB( CallBacker* cb )
 {
-    mDynamicCastGet(TcpSocket*,socket,cb);
+    mDynamicCastGet(Network::Socket*,socket,cb);
     if ( !socket ) return;
 
-    //socket->readyRead.remove( mCB(this,TcpServer,readyReadCB) );
+    //socket->readyRead.remove( mCB(this,Server,readyReadCB) );
     const int idx = sockets_.indexOf( socket );
     if ( idx>=0 )
     {
@@ -163,37 +161,37 @@ void TcpServer::disconnectCB( CallBacker* cb )
 }
 
 
-void TcpServer::read( int id, BufferString& data ) const
+void Network::Server::read( int id, BufferString& data ) const
 {
-    const TcpSocket* socket = getSocket( id );
+    const Network::Socket* socket = getSocket( id );
     if ( !socket ) return;
 	socket->read( data );
 }
 
 
-void TcpServer::read( int id, IOPar& par ) const
+void Network::Server::read( int id, IOPar& par ) const
 {
-    const TcpSocket* socket = getSocket( id );
+    const Network::Socket* socket = getSocket( id );
     if ( !socket ) return;
 	socket->read( par );
 }
 
 
-int TcpServer::write( int id, const IOPar& par )
+int Network::Server::write( int id, const IOPar& par )
 {
-    TcpSocket* socket = getSocket( id );
+    Network::Socket* socket = getSocket( id );
     return socket ? socket->write( par ) : 0;
 }
 
 
-int TcpServer::write( int id, const char* str )
+int Network::Server::write( int id, const char* str )
 {
-    TcpSocket* socket = getSocket( id );
+    Network::Socket* socket = getSocket( id );
     return socket ? socket->write( FixedString(str) ) : 0;
 }
 
 
-TcpSocket* TcpServer::getSocket( int id )
+Network::Socket* Network::Server::getSocket( int id )
 {
     const int idx = ids_.indexOf( id );
     if ( idx<0 )
@@ -203,11 +201,11 @@ TcpSocket* TcpServer::getSocket( int id )
 }
 
 
-const TcpSocket* TcpServer::getSocket( int id ) const
-{ return const_cast<TcpServer*>( this )->getSocket( id ); }
+const Network::Socket* Network::Server::getSocket( int id ) const
+{ return const_cast<Server*>( this )->getSocket( id ); }
 
 
-bool TcpServer::waitForNewConnection( int msec )
+bool Network::Server::waitForNewConnection( int msec )
 {
 #ifndef OD_NO_QT
     return qtcpserver_->waitForNewConnection( msec );

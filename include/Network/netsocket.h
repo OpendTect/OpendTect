@@ -1,5 +1,5 @@
-#ifndef tcpsocket_h
-#define tcpsocket_h
+#ifndef netsocket_h
+#define netsocket_h
 
 /*+
 ________________________________________________________________________
@@ -15,19 +15,20 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "callback.h"
+#include "threadlock.h"
 #include "uistring.h"
 
-#include "threadlock.h"
+class BufferString;
+template <class T> class DataInterpreter;
+mFDQtclass(QTcpSocket)
+mFDQtclass(QTcpSocketComm)
+
 
 namespace Network
 {
-    class RequestPacket;
-}
 
-template <class T> class DataInterpreter;
-class QTcpSocket;
-class BufferString;
-class QTcpSocketComm;
+class RequestPacket;
+
 
 /*!Enables the connection and sending of binary and text data through
    a socket both with and without event-loops.
@@ -37,15 +38,16 @@ class QTcpSocketComm;
 
    Strings are transferred without trailing '\0', but with a leading integer
    for the size.
+
  */
 
-mExpClass(Network) TcpSocket : public CallBacker
-{ mODTextTranslationClass(TcpSocket);
+mExpClass(Network) Socket : public CallBacker
+{ mODTextTranslationClass(Socket);
 
 public:
-		TcpSocket(bool haveeventloop=true);
-		TcpSocket(QTcpSocket*,bool haveeventloop=true);
-		~TcpSocket();
+		Socket(bool haveeventloop=true);
+		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
+		~Socket();
 
     void	setTimeout(int ms) { timeout_ = ms; }
 
@@ -95,10 +97,10 @@ public:
     bool	readFloatArray(float*,od_int64) const;
     bool	readDoubleArray(double*,od_int64) const;
 
-    Notifier<TcpSocket> disconnected; //!< usually remote host terminates.
-    Notifier<TcpSocket> readyRead;    /*!<Note that object may or may not be
-					  locked, so you may not be able to
-					  read immediately */
+    Notifier<Socket> disconnected; //!< usually remote host terminates.
+    Notifier<Socket> readyRead;    /*!<Note that object may or may not be
+				      locked, so you may not be able to
+				      read immediately */
 
 private:
 
@@ -115,12 +117,15 @@ private:
     int				timeout_;
     bool			noeventloop_;
 
-    QTcpSocket*			qtcpsocket_;
+    mQtclass(QTcpSocket)*	qtcpsocket_;
     bool			ownssocket_;
 
-    QTcpSocketComm*		socketcomm_;
+    mQtclass(QTcpSocketComm)*	socketcomm_;
+
 };
 
 
-#endif
+} // namespace Network
 
+
+#endif

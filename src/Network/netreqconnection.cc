@@ -12,8 +12,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqconnection.h"
 
 #include "netreqpacket.h"
-#include "tcpsocket.h"
-#include "tcpserver.h"
+#include "netsocket.h"
+#include "netserver.h"
 #include "timefun.h"
 #include "ptrman.h"
 
@@ -24,7 +24,7 @@ RequestConnection::RequestConnection( const char* servername,
 				      unsigned short servport,
 				      bool haseventloop,
 				      int timeout )
-    : tcpsocket_( 0 )
+    : socket_( 0 )
     , ownssocket_( true )
     , servername_( servername )
     , serverport_( servport )
@@ -35,18 +35,18 @@ RequestConnection::RequestConnection( const char* servername,
 }
 
 
-RequestConnection::RequestConnection( TcpSocket* socket )
-    : tcpsocket_( socket )
+RequestConnection::RequestConnection( Network::Socket* sock )
+    : socket_( sock )
     , ownssocket_( false )
     , serverport_( mUdf(unsigned short) )
     , connectionClosed( this )
     , packetArrived( this )
 {
-    if ( !socket )
+    if ( !sock )
 	return;
 
-    mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
-    mAttachCB(tcpsocket_->readyRead,RequestConnection::dataArrivedCB);
+    mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
+    mAttachCB(socket_->readyRead,RequestConnection::dataArrivedCB);
 }
 
 
@@ -55,7 +55,7 @@ RequestConnection::~RequestConnection()
     detachAllNotifiers();
     deepErase( receivedpackets_ );
 
-    deleteAndZeroPtr( tcpsocket_, ownssocket_ );
+    deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
@@ -63,20 +63,20 @@ void RequestConnection::connectToHost( bool haseventloop, int timeout )
 {
     Threads::MutexLocker locker( lock_ );
 
-    if ( !tcpsocket_ )
-	tcpsocket_ = new TcpSocket( haseventloop );
+    if ( !socket_ )
+	socket_ = new Network::Socket( haseventloop );
 
     if ( timeout > 0 )
-	tcpsocket_->setTimeout( timeout );
+	socket_->setTimeout( timeout );
 
-    if ( tcpsocket_->connectToHost(servername_,serverport_) )
-	mAttachCB(tcpsocket_->disconnected,RequestConnection::connCloseCB);
+    if ( socket_->connectToHost(servername_,serverport_) )
+	mAttachCB(socket_->disconnected,RequestConnection::connCloseCB);
 }
 
 
 bool RequestConnection::isOK() const
 {
-    return tcpsocket_ && !tcpsocket_->isBad();
+    return socket_ && !socket_->isBad();
 }
 
 
@@ -84,29 +84,29 @@ void RequestConnection::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
 
-    deleteAndZeroPtr( tcpsocket_, ownssocket_ );
+    deleteAndZeroPtr( socket_, ownssocket_ );
 }
 
 
 bool RequestConnection::readFromSocket()
 {
-    while ( tcpsocket_ )
+    while ( socket_ )
     {
 	PtrMan<RequestPacket> nextreceived = new RequestPacket;
-	TcpSocket::ReadStatus readres = tcpsocket_->read( *nextreceived );
-	if ( readres==TcpSocket::ReadError )
+	Network::Socket::ReadStatus readres = socket_->read( *nextreceived );
+	if ( readres==Network::Socket::ReadError )
 	{
-	    tcpsocket_->disconnectFromHost();
-	    errmsg_ = tcpsocket_->errMsg();
+	    socket_->disconnectFromHost();
+	    errmsg_ = socket_->errMsg();
 	    if ( errmsg_.isEmpty() )
 		errmsg_ = tr("Error reading from socket");
 	    return false;
 	}
-	else if ( readres==TcpSocket::ReadOK )
+	else if ( readres==Network::Socket::ReadOK )
 	{
 	    if ( !nextreceived->isOK() )
 	    {
-		tcpsocket_->disconnectFromHost();
+		socket_->disconnectFromHost();
 		errmsg_ = tr("Garbled network packet received. Disconnected.");
 		return false;
 	    }
@@ -123,7 +123,7 @@ bool RequestConnection::readFromSocket()
 	    }
 	}
 
-	if ( !tcpsocket_->bytesAvailable() ) //Not sure this works
+	if ( !socket_->bytesAvailable() ) //Not sure this works
 	    break;
     }
 
@@ -135,7 +135,7 @@ bool RequestConnection::readFromSocket()
 bool RequestConnection::sendPacket( const RequestPacket& pkt,
 				    bool waitforfinish )
 {
-    if ( !isOK() || !pkt.isOK() || !tcpsocket_ )
+    if ( !isOK() || !pkt.isOK() || !socket_ )
 	return false;
 
     const od_int32 reqid = pkt.requestID();
@@ -152,7 +152,7 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 	}
     }
 
-    const bool result = tcpsocket_->write( pkt, waitforfinish );
+    const bool result = socket_->write( pkt, waitforfinish );
 
     if ( !result || pkt.isRequestEnd() )
 	requestEnded( pkt.requestID() );
@@ -257,14 +257,14 @@ void RequestConnection::dataArrivedCB( CallBacker* cb )
 
 RequestServer::RequestServer( unsigned short servport )
     : serverport_( servport )
-    , tcpserv_( new TcpServer )
+    , server_( new Network::Server )
     , newConnection( this )
 {
-    if ( !tcpserv_ )
+    if ( !server_ )
 	return;
 
-    mAttachCB( tcpserv_->newConnection, RequestServer::newConnectionCB );
-    if ( !tcpserv_->listen( 0, serverport_ ) )
+    mAttachCB( server_->newConnection, RequestServer::newConnectionCB );
+    if ( !server_->listen( 0, serverport_ ) )
     {
 	errmsg_ = tr("Cannot start listening on port %1").arg( serverport_ );
     }
@@ -276,13 +276,13 @@ RequestServer::~RequestServer()
     detachAllNotifiers();
 
     deepErase( pendingconns_ );
-    deleteAndZeroPtr( tcpserv_ );
+    deleteAndZeroPtr( server_ );
 }
 
 
 bool RequestServer::isOK() const
 {
-    return tcpserv_ && tcpserv_->isListening();
+    return server_ && server_->isListening();
 }
 
 
@@ -297,7 +297,7 @@ RequestConnection* RequestServer::pickupNewConnection()
 void RequestServer::newConnectionCB(CallBacker* cb)
 {
     mCBCapsuleUnpack(int,socketid,cb);
-    TcpSocket* sock = tcpserv_->getSocket(socketid);
+    Network::Socket* sock = server_->getSocket(socketid);
 
     if ( !sock )
 	return;

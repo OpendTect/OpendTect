@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "gendefs.h"
 
-class TcpSocket;
+namespace Network { class Socket; }
 
 
 /*!
@@ -28,18 +28,21 @@ mExpClass(MMProc) RemoteJobExec : public CallBacker
 public:
 			RemoteJobExec(const char*,const int);
 			~RemoteJobExec();
+
     bool		launchProc() const;
     void		addPar(const IOPar&);
 
 protected:
+
     void		ckeckConnection();
     void		uiErrorMsg(const char*);
 
-    TcpSocket&		socket_;
+    Network::Socket&	socket_;
     IOPar&		par_;
     bool		isconnected_;
     const char*		host_;
+
 };
 
-#endif
 
+#endif

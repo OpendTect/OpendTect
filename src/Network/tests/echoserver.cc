@@ -6,11 +6,9 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpsocket.h"
-
 #include "commandlineparser.h"
-#include "tcpserver.h"
-#include "tcpsocket.h"
+#include "netserver.h"
+#include "netsocket.h"
 #include "applicationdata.h"
 #include "genc.h"
 #include "od_ostream.h"
@@ -62,7 +60,7 @@ public:
 	lasttime_ = time( 0 );
 
 	mCBCapsuleUnpack( int, socketid, cb );
-	TcpSocket* socket = server_.getSocket( socketid );
+	Network::Socket* socket = server_.getSocket( socketid );
 
 	char data[1024];
 	while ( true )
@@ -77,7 +75,7 @@ public:
 	}
     }
 
-    TcpServer			server_;
+    Network::Server		server_;
     bool			close_;
     time_t			lasttime_;
     int				timeout_;

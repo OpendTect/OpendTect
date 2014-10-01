@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "od_iosfwd.h"
 
-class TcpServer;
+namespace Network { class Server; }
 
 /*!
 \brief Handles commands to be executed remotely on a different machine.
@@ -26,22 +26,23 @@ mExpClass(MMProc) RemCommHandler : public CallBacker
 {
 public:
 			RemCommHandler(int port);
-		   	~RemCommHandler();
+			~RemCommHandler();
 
-    void	   	listen() const; //!< Has to be called
+    void		listen() const; //!< Has to be called
 
 protected:
 
-    void	  	dataReceivedCB(CallBacker*);
+    void		dataReceivedCB(CallBacker*);
     bool		mkCommand(const IOPar&,BufferString&);
     void		uiErrorMsg(const char*);
-    od_ostream& 	createLogFile();
+    od_ostream&	createLogFile();
     void		writeLog(const char* msg);
-    od_ostream& 	logstrm_;
+    od_ostream&	logstrm_;
 
-    const int	   	port_;  
-    TcpServer&   	server_;
+    const int		port_;
+    Network::Server&	server_;
+
 };
 
-#endif
 
+#endif

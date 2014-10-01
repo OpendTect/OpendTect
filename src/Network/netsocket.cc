@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpsocket.h"
+#include "netsocket.h"
 
 #include "applicationdata.h"
 #include "iopar.h"
@@ -19,33 +19,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <limits.h>
 
 #ifndef OD_NO_QT
-#include <QTcpSocket>
 #include "qtcpsocketcomm.h"
 #endif
 
-/*
 
-   From the manual:
-
-   QAbstractSocket::UnconnectedState
-	0	The socket is not connected.
-   QAbstractSocket::HostLookupState
-	1	The socket is performing a host name lookup.
-   QAbstractSocket::ConnectingState
-	2	The socket has started establishing a connection.
-   QAbstractSocket::ConnectedState
-	3	A connection is established.
-   QAbstractSocket::BoundState
-	4	The socket is bound to an address and port.
-   QAbstractSocket::ClosingState
-	6	The socket is about to close (data may still be waiting to
-		be written).
-   QAbstractSocket::ListeningState
-	5	For internal use only.
-
-   */
-
-TcpSocket::TcpSocket( bool haveevloop )
+Network::Socket::Socket( bool haveevloop )
 #ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
 #else
@@ -64,7 +42,7 @@ TcpSocket::TcpSocket( bool haveevloop )
 }
 
 
-TcpSocket::TcpSocket( QTcpSocket* s, bool haveevloop )
+Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
 #ifndef OD_NO_QT
     : qtcpsocket_(s)
 #else
@@ -83,7 +61,7 @@ TcpSocket::TcpSocket( QTcpSocket* s, bool haveevloop )
 }
 
 
-TcpSocket::~TcpSocket()
+Network::Socket::~Socket()
 {
 #ifndef OD_NO_QT
     socketcomm_->disconnect();
@@ -93,7 +71,7 @@ TcpSocket::~TcpSocket()
 }
 
 
-bool TcpSocket::connectToHost( const char* host, int port, bool wait )
+bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 {
 #ifdef OD_NO_QT
     return false;
@@ -118,7 +96,7 @@ bool TcpSocket::connectToHost( const char* host, int port, bool wait )
 }
 
 
-bool TcpSocket::disconnectFromHost( bool wait )
+bool Network::Socket::disconnectFromHost( bool wait )
 {
     if ( noeventloop_ )
 	wait = true;
@@ -145,7 +123,7 @@ bool TcpSocket::disconnectFromHost( bool wait )
 }
 
 
-bool TcpSocket::isBad() const
+bool Network::Socket::isBad() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -157,7 +135,7 @@ bool TcpSocket::isBad() const
 }
 
 
-bool TcpSocket::isConnected() const
+bool Network::Socket::isConnected() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -167,7 +145,7 @@ bool TcpSocket::isConnected() const
 #endif
 }
 
-od_int64 TcpSocket::bytesAvailable() const
+od_int64 Network::Socket::bytesAvailable() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -177,7 +155,7 @@ od_int64 TcpSocket::bytesAvailable() const
 }
 
 
-void TcpSocket::abort()
+void Network::Socket::abort()
 {
 #ifndef OD_NO_QT
     qtcpsocket_->abort();
@@ -188,7 +166,7 @@ void TcpSocket::abort()
 static const od_int64 maxbuffersize = INT_MAX/2;
 
 
-bool TcpSocket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
+bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
 #ifndef OD_NO_QT
     const char* buf = (const char*) voidbuf;
@@ -242,7 +220,7 @@ bool TcpSocket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 }
 
 
-bool TcpSocket::waitForWrite( bool forall ) const
+bool Network::Socket::waitForWrite( bool forall ) const
 {
 #ifndef OD_NO_QT
     while ( qtcpsocket_->bytesToWrite() )
@@ -266,7 +244,7 @@ bool TcpSocket::waitForWrite( bool forall ) const
 }
 
 
-bool TcpSocket::write( const OD::String& str )
+bool Network::Socket::write( const OD::String& str )
 {
     Threads::Locker locker( lock_ );
 
@@ -275,7 +253,7 @@ bool TcpSocket::write( const OD::String& str )
 }
 
 
-bool TcpSocket::write( const IOPar& par )
+bool Network::Socket::write( const IOPar& par )
 {
     BufferString str;
     par.dumpPretty( str );
@@ -283,7 +261,7 @@ bool TcpSocket::write( const IOPar& par )
 }
 
 
-bool TcpSocket::write( const Network::RequestPacket& packet, bool waitfor )
+bool Network::Socket::write( const Network::RequestPacket& packet, bool waitfor )
 {
     if ( !packet.isOK() )
 	return false;
@@ -301,7 +279,7 @@ bool TcpSocket::write( const Network::RequestPacket& packet, bool waitfor )
 }
 
 
-TcpSocket::ReadStatus TcpSocket::readArray( void* voidbuf, od_int64 sz ) const
+Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf, od_int64 sz ) const
 {
 #ifndef OD_NO_QT
     char* buf = (char*) voidbuf;
@@ -345,16 +323,16 @@ TcpSocket::ReadStatus TcpSocket::readArray( void* voidbuf, od_int64 sz ) const
 
 
 #define mReadWriteArrayImpl( Type, tp ) \
-bool TcpSocket::write##Type##Array( const tp* arr, od_int64 sz,bool wait) \
+bool Network::Socket::write##Type##Array( const tp* arr, od_int64 sz,bool wait) \
 { return writeArray( (const void*) arr, sz*sizeof(tp), wait ); } \
 \
-bool TcpSocket::read##Type##Array( tp* arr, od_int64 sz ) const \
+bool Network::Socket::read##Type##Array( tp* arr, od_int64 sz ) const \
 { return readArray( (void*) arr, sz*sizeof(tp) ); } \
 \
-bool TcpSocket::write##Type( tp val ) \
+bool Network::Socket::write##Type( tp val ) \
 { return write##Type##Array( &val, 1 ); } \
 \
-bool TcpSocket::read##Type( tp& val ) const \
+bool Network::Socket::read##Type( tp& val ) const \
 { return read##Type##Array( &val, 1 ); }
 
 mReadWriteArrayImpl( Short, short );
@@ -363,7 +341,7 @@ mReadWriteArrayImpl( Int64, od_int64 );
 mReadWriteArrayImpl( Float, float );
 mReadWriteArrayImpl( Double, double );
 
-bool TcpSocket::read( BufferString& res ) const
+bool Network::Socket::read( BufferString& res ) const
 {
     int nrchars;
     if ( !readInt32( nrchars ) )
@@ -386,7 +364,7 @@ bool TcpSocket::read( BufferString& res ) const
 }
 
 
-bool TcpSocket::read( IOPar& res ) const
+bool Network::Socket::read( IOPar& res ) const
 {
     BufferString str;
     if ( !read( str ) )
@@ -397,7 +375,7 @@ bool TcpSocket::read( IOPar& res ) const
 }
 
 
-TcpSocket::ReadStatus TcpSocket::read( Network::RequestPacket& packet ) const
+Network::Socket::ReadStatus Network::Socket::read( Network::RequestPacket& packet ) const
 {
     Threads::Locker locker( lock_ );
 
@@ -440,7 +418,7 @@ TcpSocket::ReadStatus TcpSocket::read( Network::RequestPacket& packet ) const
 
 
 
-bool TcpSocket::waitForConnected() const
+bool Network::Socket::waitForConnected() const
 {
     if ( isConnected() )
 	return true;
@@ -467,7 +445,7 @@ bool TcpSocket::waitForConnected() const
 }
 
 
-bool TcpSocket::waitForNewData() const
+bool Network::Socket::waitForNewData() const
 {
 #ifndef OD_NO_QT
     while ( !qtcpsocket_->bytesAvailable() )

@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "oscommand.h"
 #include "systeminfo.h"
-#include "tcpserver.h"
+#include "netserver.h"
 #include "timefun.h"
 
 
@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 RemCommHandler::RemCommHandler( int port )
     : port_(port)
-    , server_(*new TcpServer)
+    , server_(*new Network::Server)
     , logstrm_(createLogFile())
 {
     server_.readyRead.notify( mCB(this,RemCommHandler,dataReceivedCB) );

@@ -19,13 +19,12 @@ ________________________________________________________________________
 #include "callback.h"
 #include "uistring.h"
 
-class TcpSocket;
-class TcpServer;
-
 
 namespace Network
 {
 
+class Socket;
+class Server;
 class RequestPacket;
 
 
@@ -52,7 +51,7 @@ public:
 					  bool haveeventloop=true,
 					  int connectiontimeout=-1);
 			//!<Initiates communications
-			RequestConnection(TcpSocket*);
+			RequestConnection(Socket*);
 			/*!<Socket does NOT become mine. Socket should be
 			    connected to whomever is my counterpart. */
 
@@ -73,7 +72,7 @@ public:
     static int		cTimeout()		{ return 2; }
     static int		cDisconnected()		{ return 3; }
 
-    TcpSocket*		tcpSocket()		{ return tcpsocket_; }
+    Socket*		socket()		{ return socket_; }
 
     CNotifier<RequestConnection,od_int32> packetArrived;
     Notifier<RequestConnection> connectionClosed;
@@ -91,7 +90,7 @@ private:
     ObjectSet<RequestPacket>	receivedpackets_;
 
     Threads::ConditionVar	lock_;
-    TcpSocket*			tcpsocket_;
+    Socket*			socket_;
     bool			ownssocket_;
 
     BufferString		servername_;
@@ -121,6 +120,7 @@ public:
 				~RequestServer();
 
     bool			isOK() const;
+    Server*			server()		{ return server_; }
 
     Notifier<RequestServer>	newConnection;
     RequestConnection*		pickupNewConnection();
@@ -138,7 +138,7 @@ private:
 
     Threads::Lock			lock_;
     unsigned short			serverport_;
-    TcpServer*				tcpserv_;
+    Server*				server_;
 };
 
 

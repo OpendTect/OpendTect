@@ -16,13 +16,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "oddirs.h"
 #include "strmprov.h"
-#include "tcpsocket.h"
+#include "netsocket.h"
 
 #define mErrRet( s ) { uiErrorMsg( s ); exit(0); }
 
 
 RemoteJobExec::RemoteJobExec( const char* host, const int port )
-    : socket_(*new TcpSocket)
+    : socket_(*new Network::Socket)
     , host_(host)
     , par_(*new IOPar)
     , isconnected_(false)

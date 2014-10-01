@@ -29,7 +29,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_ostream.h"
 #include "survinfo.h"
 #include "systeminfo.h"
-#include "tcpserver.h"
+#include "netserver.h"
 #include "timefun.h"
 
 #include "mmcommunicdefs.h"
@@ -126,14 +126,14 @@ JobIOHandler( int firstport )
     , usedport_(firstport)
     , ready_(false)
 {
-    serversocket_.readyRead.notify( mCB(this,JobIOHandler,socketCB) );
+    server_.readyRead.notify( mCB(this,JobIOHandler,socketCB) );
     listen( firstport_ );
 }
 
 virtual	~JobIOHandler()
 {
-    serversocket_.close();
-    serversocket_.readyRead.remove( mCB(this,JobIOHandler,socketCB) );
+    server_.close();
+    server_.readyRead.remove( mCB(this,JobIOHandler,socketCB) );
 }
 
     bool		ready() const	{ return ready_ && port() > 0; }
@@ -154,7 +154,7 @@ protected:
     char			getRespFor(int desc,const char* hostnm);
 
     bool*			exitreq_;
-    TcpServer			serversocket_;
+    Network::Server		server_;
     int				firstport_;
     int				usedport_;
     ObjQueue<StatusInfo>	statusqueue_;
@@ -168,15 +168,15 @@ void JobIOHandler::listen( int firstport, int maxtries )
     int currentport = firstport;
     for ( int idx=0; idx<maxtries; idx++, currentport++ )
     {
-	serversocket_.listen( System::localAddress(), currentport );
-	if ( serversocket_.isListening() )
+	server_.listen( System::localAddress(), currentport );
+	if ( server_.isListening() )
 	{
 	    usedport_ = currentport;
 	    ready_ = true;
 	    break;
 	}
 	else
-	    serversocket_.close();
+	    server_.close();
     }
 }
 
@@ -257,7 +257,7 @@ void JobIOHandler::socketCB( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,socketid,cb);
     BufferString data;
-    serversocket_.read( socketid, data );
+    server_.read( socketid, data );
     char tag=mCTRL_STATUS;
     int jobid=-1;
     int status=mSTAT_UNDEF;
@@ -303,11 +303,11 @@ void JobIOHandler::socketCB( CallBacker* cb )
 	    char resp[2];
 	    resp[0] = response;
 	    resp[1] = '\0';
-	    serversocket_.write( socketid, resp );
+	    server_.write( socketid, resp );
 	}
 	else
 	{
-	    errmsg = serversocket_.errorMsg();
+	    errmsg = server_.errorMsg();
 	    ErrMsg( errmsg );
 	}
     }

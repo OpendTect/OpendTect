@@ -6,7 +6,7 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpsocket.h"
+#include "netsocket.h"
 
 #include "applicationdata.h"
 #include "oscommand.h"
@@ -15,7 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "varlenarray.h"
 #include "limits.h"
 #include "odsysmem.h"
-#include "tcpserver.h"
 #include "testprog.h"
 #include "thread.h"
 
@@ -28,18 +27,18 @@ double randVal() { return gen.get(); }
 od_int64 nrdoubles;
 ArrPtrMan<double> doublewritearr, doublereadarr;
 
-#define mRunTcpTest( test, msg ) \
+#define mRunSockTest( test, msg ) \
     mRunStandardTestWithError( test, BufferString( prefix_, msg ), \
 			       connection.errMsg().getFullString()  )
 
 class TestRunner : public CallBacker
 {
 public:
-    bool	testTcpSocket();
+    bool	testNetSocket();
 
     void	testCallBack(CallBacker*)
     {
-	const bool testresult = testTcpSocket();
+	const bool testresult = testNetSocket();
 	if ( exitonfinish_ ) ApplicationData::exit( testresult ? 0 : 1 );
     }
 
@@ -52,9 +51,9 @@ public:
 };
 
 
-bool TestRunner::testTcpSocket()
+bool TestRunner::testNetSocket()
 {
-    TcpSocket connection( !noeventloop_ );
+    Network::Socket connection( !noeventloop_ );
     connection.setTimeout( 10000 );
 
     if ( !connection.connectToHost( "localhost", port_, true ) )
@@ -72,46 +71,46 @@ bool TestRunner::testTcpSocket()
 	connection.abort();
     }
 
-    mRunTcpTest(
+    mRunSockTest(
 	    !connection.connectToHost( "non_existing_host", 20000, true ),
 	    "Connect to non-existing host");
 
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.connectToHost( "localhost", port_, true ),
 	    "Connect to echo server");
 
     BufferString writebuf = "Hello world";
     const int writesize = writebuf.size()+1;
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.writeArray( writebuf.buf(), writesize, true ),
 	    "writeArray & wait to echo server" );
 
     char readbuf[1024];
 
-    mRunTcpTest( connection.readArray( readbuf, writesize ),
+    mRunSockTest( connection.readArray( readbuf, writesize ),
 		  "readArray after write & wait" );
 
-    mRunTcpTest( writebuf==readbuf,
+    mRunSockTest( writebuf==readbuf,
 		  "Returned data identical to sent data after write & wait");
 
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.writeArray( writebuf.buf(), writesize, false ),
 	    "writeArray & leave to echo server" );
 
-    mRunTcpTest( connection.readArray( readbuf, writesize ),
+    mRunSockTest( connection.readArray( readbuf, writesize ),
 		 "readArray after write & leave" );
 
-    mRunTcpTest( writebuf==readbuf,
+    mRunSockTest( writebuf==readbuf,
 		  "Returned data identical to sent data after write & leave");
 
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.writeArray( writebuf.buf(), writesize, true ) &&
 	    !connection.readArray( readbuf, writesize+1 ),
 	    "Reading more than available should timeout and fail" );
 
     BufferString readstring;
 
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.write( writebuf ) &&
 	    connection.read( readstring ) &&
 	    readstring == writebuf,
@@ -121,11 +120,11 @@ bool TestRunner::testTcpSocket()
     //because the buffers will overflow as we will not start reading
     //before everything is written.
 
-    mRunTcpTest(
+    mRunSockTest(
 	    connection.writeDoubleArray( doublewritearr, nrdoubles, false ),
 	    "Write large array" );
 
-    mRunTcpTest( connection.readDoubleArray( doublereadarr, nrdoubles ),
+    mRunSockTest( connection.readDoubleArray( doublereadarr, nrdoubles ),
 	    "Read large array" );
 
     bool readerror = false;
@@ -138,7 +137,7 @@ bool TestRunner::testTcpSocket()
 	}
     }
 
-    mRunTcpTest( !readerror, "Large array integrity" );
+    mRunSockTest( !readerror, "Large array integrity" );
 
     return true;
 }
@@ -182,7 +181,7 @@ int main(int argc, char** argv)
     memsetter.setValueFunc( &randVal );
     memsetter.execute();
 
-    if ( !runner.testTcpSocket() )
+    if ( !runner.testNetSocket() )
 	ExitProgram( 1 );
 
     //Now with a running event loop

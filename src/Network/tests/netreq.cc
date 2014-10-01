@@ -6,8 +6,6 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpsocket.h"
-
 #include "applicationdata.h"
 #include "oscommand.h"
 #include "ptrman.h"
