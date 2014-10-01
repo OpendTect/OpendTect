@@ -1490,6 +1490,16 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	mpeserv_->showSetupDlg( emid, sid );
 	visserv_->updateMPEToolbar();
     }
+    else if ( evid == uiVisPartServer::evShowSetupGroupOnTop() )
+    {
+	mDynamicCastGet( visSurvey::EMObjectDisplay*, emod,
+			 visserv_->getObject(visserv_->getSelObjectId()) );
+	if ( !emod )
+	    return false;
+
+	return mpeserv_->showSetupGroupOnTop( emod->getObjectID(),
+					      visserv_->getTopSetupGroupName());
+    }
     else if ( evid == uiVisPartServer::evPostponedLoadingData() )
 	mpeserv_->postponeLoadingCurVol();
     else if ( evid == uiVisPartServer::evLoadPostponedData() )

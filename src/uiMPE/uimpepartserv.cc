@@ -475,7 +475,8 @@ void uiMPEPartServer::adjustSeedBox()
 	if ( trackerseedbox_.isEmpty() )
 	{
 	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
-	    trackerseedbox_.zsamp_.start = trackerseedbox_.zsamp_.stop =(float)pos.z;
+	    trackerseedbox_.zsamp_.start = (float) pos.z;
+	    trackerseedbox_.zsamp_.stop  = (float) pos.z;
 	}
 	else
 	{
@@ -695,6 +696,17 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     tracker->applySetupAsDefault( sid );
     loadAttribData();
 
+    return true;
+}
+
+
+bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
+					   const char* grpnm )
+{
+    if ( emid<0 || emid!=trackercurrentobject_ || !setupgrp_ )
+	return false;
+
+    setupgrp_->showGroupOnTop( grpnm );
     return true;
 }
 

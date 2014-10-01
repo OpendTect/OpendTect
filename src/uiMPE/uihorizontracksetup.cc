@@ -784,4 +784,16 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 }
 
 
+void uiHorizonSetupGroup::showGroupOnTop( const char* grpnm )
+{
+    tabgrp_->setCurrentPage( grpnm );
+    mDynamicCastGet( uiDialog*, dlg, parent() );
+    if ( dlg && !dlg->isHidden() )
+    {
+	 dlg->showNormal();
+	 dlg->raise();
+    }
+}
+
+
 } //namespace MPE

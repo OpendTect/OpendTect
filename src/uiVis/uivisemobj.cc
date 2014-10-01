@@ -459,8 +459,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
                                                            : uiStrings::sShow();
 	mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_,
 		      !hastransform && seeds && seeds->size(), false );
-	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_,
-		      !visserv_->isTrackingSetupActive(), false );
+	mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
 	lockseedsmnuitem_.text =
 	    emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
 	    tr("Unlock") : uiStrings::sLock() ;
@@ -564,8 +563,11 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==seedpropmnuitem_.id )
     {
-	uiSeedPropDlg dlg( uiparent_, emobj );
-	dlg.go();
+	if ( !visserv_->showSetupGroupOnTop("Properties") )
+	{
+	    uiSeedPropDlg dlg( uiparent_, emobj );
+	    dlg.go();
+	}
 	menu->setIsHandled( true );
     }
     else if ( mnuid==lockseedsmnuitem_.id )

@@ -73,6 +73,8 @@ public:
 				{ bool b; return commitToTracker(b); }
     bool			commitToTracker(bool& fieldchange) const;
 
+    void			showGroupOnTop(const char* grpnm);
+
 protected:
 
     uiGroup*			createModeGroup();
