@@ -103,12 +103,16 @@ void ApplicationData::setApplicationName( const char* nm )
 #else //No QT
 ApplicationData::ApplicationData()
     : eventloopreceiver_( 0 )
+    , eventloopqueue_(*new CallBackSet)
 {
+    eventloopqueue_.ref();
 }
 
 
 ApplicationData::~ApplicationData()
-{ }
+{
+    eventloopqueue_.unRef();
+}
 
 
 int ApplicationData::exec()
