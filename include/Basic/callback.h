@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "basicmod.h"
 #include "sets.h"
 #include "threadlock.h"
+#include "refcount.h"
+#include "ptrman.h"
 
 /*!
   In any OO system callbacks to an unknown client must be possible. To be able
@@ -82,6 +84,8 @@ protected:
 
 };
 
+class RefCountCallBackSet;
+
 
 /*!
 \brief TypeSet of CallBacks with a few extras.
@@ -90,13 +94,14 @@ protected:
 mExpClass(Basic) CallBackSet : public TypeSet<CallBack>
 {
 public:
-		CallBackSet() : lock_(true)	{}
+		CallBackSet() : lock_(true), enabled_(true)	{}
 		CallBackSet( const CallBackSet& cbs )
 		    : TypeSet<CallBack>( cbs )
+		    , enabled_( cbs.enabled_ )
 		{}
 
     void	doCall(CallBacker*,const bool* enabledflag=0,
-			CallBacker* exclude=0);
+		       CallBacker* exclude=0);
 		/*!<\param enabledflag: if non-null, content will be checked
 		  between each call, caling will stop if false.
 		     \note Will lock in the apropriate moment. */
@@ -108,7 +113,34 @@ public:
     void	removeWith(StaticCallBackFunction);
 		//!<\note Should be locked before calling
 
-    mutable Threads::Lock   lock_;
+    bool	isEnabled() const	{ return enabled_; }
+    bool	enable( bool yn=true )	{ return doEnable(yn); }
+    bool	disable()		{ return doEnable(false); }
+
+    mutable Threads::Lock	lock_;
+private:
+    bool	doEnable( bool yn=true )
+		{
+		    bool ret = enabled_;
+		    enabled_ = yn;
+		    return ret;
+		}
+
+    bool			enabled_;
+    friend class NotifierAccess;
+};
+
+
+class RefCountCallBackSet : public CallBackSet
+{ mRefCountImplNoDestructor(RefCountCallBackSet);
+public:
+				RefCountCallBackSet() {}
+				RefCountCallBackSet(
+					const RefCountCallBackSet& b)
+				    : CallBackSet( b ) {}
+
+    RefCountCallBackSet&	operator=( const RefCountCallBackSet& b )
+				{ CallBackSet::operator=( b ); return *this; }
 };
 
 
@@ -118,6 +150,8 @@ public:
 
 mExpClass(Basic) NotifierAccess
 {
+protected:
+    RefMan<RefCountCallBackSet> rcbs_; //Keep it here to have it created first
 
     friend class	NotifyStopper;
     friend class	CallBacker;
@@ -135,9 +169,9 @@ public:
     bool		removeWith(CallBacker*,bool wait=true);
 			//!<\returns false only if wait and no lock could be got
 
-    inline bool 	isEnabled() const	{ return enabled_; }
-    inline bool 	enable( bool yn=true )	{ return doEnable(yn); }
-    inline bool 	disable()		{ return doEnable(false); }
+    inline bool		isEnabled() const	{ return cbs_.isEnabled(); }
+    inline bool		enable( bool yn=true )	{ return cbs_.doEnable(yn); }
+    inline bool		disable()		{ return cbs_.doEnable(false); }
 
     inline bool 	isEmpty() const 	{ return cbs_.isEmpty(); }
     bool		willCall(CallBacker*) const;
@@ -145,12 +179,14 @@ public:
 			     CallBacker. */
 
 
-    CallBackSet		cbs_;
+    CallBackSet&	cbs_;
     CallBacker*		cber_;
 
     bool		isShutdownSubscribed(CallBacker*) const;
 			//!<Only for debugging purposes, don't use
 protected:
+    static void		doTrigger(RefCountCallBackSet&,CallBacker* c,
+				  CallBacker* exclude );
     void		addShutdownSubscription(CallBacker*);
     bool		removeShutdownSubscription(CallBacker*, bool wait);
 			//!<\returns false only if wait and no lock could be got
@@ -158,15 +194,12 @@ protected:
 			/*!\returns previous status */
     inline bool		doEnable( bool yn=true )
 			{
-			    bool ret = enabled_;
-			    enabled_ = yn;
-			    return ret;
+			    return cbs_.doEnable( yn );
 			}
 
     ObjectSet<CallBacker>	shutdownsubscribers_;
     mutable Threads::Lock	shutdownsubscriberlock_;
-
-    bool			enabled_;
+    bool&			enabled_;
 };
 
 
@@ -225,7 +258,7 @@ public:
 			Notifier( T* c )			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
-			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
+			{ doTrigger( *rcbs_, c ? c : cber_, exclude); }
 };
 
 
@@ -368,11 +401,8 @@ public:
 
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
-			    if ( enabled_ )
-			    {
-				CBCapsule<C> caps( c, cb ? cb : cber_ );
-				cbs_.doCall( &caps, &enabled_ );
-			    }
+			    CBCapsule<C> caps( c, cb ? cb : cber_ );
+			    doTrigger( *rcbs_, &caps, 0 );
 			}
 };
 
