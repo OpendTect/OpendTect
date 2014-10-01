@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "compoundkey.h"
 #include "ioman.h"
+#include "objdisposer.h"
 #include "od_helpids.h"
 #include "stratreftree.h"
 #include "stratunitrepos.h"
@@ -25,7 +26,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uiobjdisposer.h"
 #include "uiparent.h"
 #include "uiselsimple.h"
 #include "uisplitter.h"
@@ -412,7 +412,7 @@ void uiStratTreeWin::forceCloseCB( CallBacker* )
     if ( stratwin )
 	stratwin->close();
 
-    uiOBJDISP()->go( uistratdisp_ );
+    OBJDISP()->go( uistratdisp_ );
 
     delete lvllist_;
     delete uitree_;

@@ -1,5 +1,5 @@
-#ifndef uiobjdisposer_h
-#define uiobjdisposer_h
+#ifndef objdisposer_h
+#define objdisposer_h
 
 /*+
 ________________________________________________________________________
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
+#include "basicmod.h"
 #include "callback.h"
 #include "sets.h"
 class Timer;
@@ -22,12 +22,12 @@ class Timer;
   The CallBack should have the object to be disposed of as CallBacker.
   Usage like:
 
-    nonmdldlg->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
- 
+    nonmdldlg->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
+
  */
 
-mExpClass(uiTools) uiObjDisposer : public CallBacker
-{ 	
+mExpClass(Basic) ObjDisposer : public CallBacker
+{
 public:
 
     void			go(CallBacker*);
@@ -37,14 +37,14 @@ protected:
     ObjectSet<Timer>		timers_;
     ObjectSet<CallBacker>	objs_;
 
-				uiObjDisposer();
+				ObjDisposer();
 
     void			doDel(CallBacker*);
-    mGlobal(uiTools) friend uiObjDisposer*	uiOBJDISP();
+    mGlobal(Basic) friend ObjDisposer*	OBJDISP();
 
 };
 
-mGlobal(uiTools) uiObjDisposer* uiOBJDISP();
+mGlobal(Basic) ObjDisposer* OBJDISP();
 
 
 #endif

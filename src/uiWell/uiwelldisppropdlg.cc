@@ -14,11 +14,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiwelldispprop.h"
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uiobjdisposer.h"
 #include "uitabstack.h"
 #include "uiseparator.h"
 
 #include "keystrs.h"
+#include "objdisposer.h"
 #include "welldata.h"
 #include "welldisp.h"
 #include "wellmarker.h"
@@ -178,7 +178,7 @@ void uiWellDispPropDlg::welldataDelNotify( CallBacker* )
 {
     windowClosed.trigger();
     wd_ = 0;
-    uiOBJDISP()->go( this );
+    OBJDISP()->go( this );
 }
 
 

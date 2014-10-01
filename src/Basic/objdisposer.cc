@@ -9,39 +9,39 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uiobjdisposer.h"
+#include "objdisposer.h"
 #include "ptrman.h"
 #include "timer.h"
 
 static ObjectSet<Timer> todeltimers;
 
 
-uiObjDisposer* uiOBJDISP()
+ObjDisposer* OBJDISP()
 {
-    mDefineStaticLocalObject( PtrMan<uiObjDisposer>, theinst, 
-			      = new uiObjDisposer );
+    mDefineStaticLocalObject( PtrMan<ObjDisposer>, theinst,
+			      = new ObjDisposer );
     return theinst;
 }
 
 
-uiObjDisposer::uiObjDisposer()
+ObjDisposer::ObjDisposer()
 {
 }
 
 
-void uiObjDisposer::go( CallBacker* obj )
+void ObjDisposer::go( CallBacker* obj )
 {
     if ( !obj ) return;
 
     objs_ += obj;
     Timer* newtimer = new Timer;
-    newtimer->tick.notify( mCB(this,uiObjDisposer,doDel) );
+    newtimer->tick.notify( mCB(this,ObjDisposer,doDel) );
     timers_ += newtimer;
     newtimer->start( 250, true );
 }
 
 
-void uiObjDisposer::doDel( CallBacker* in )
+void ObjDisposer::doDel( CallBacker* in )
 {
     deepErase( todeltimers );
     mDynamicCastGet(Timer*,tim,in)

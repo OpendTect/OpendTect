@@ -11,7 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivarwizard.h"
 #include "uivarwizarddlg.h"
-#include "uiobjdisposer.h"
+#include "objdisposer.h"
 
 
 #define mSetState(st) { state_ = st; nextAction(); return; }
@@ -27,7 +27,7 @@ uiVarWizard::uiVarWizard( uiParent* p )
 void uiVarWizard::closeDown()
 {
     processEnded.trigger();
-    uiOBJDISP()->go( this );
+    OBJDISP()->go( this );
 }
 
 

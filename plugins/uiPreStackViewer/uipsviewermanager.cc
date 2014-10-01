@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "uiamplspectrum.h"
-#include "uiobjdisposer.h"
 
 
 namespace PreStackView

@@ -205,14 +205,15 @@ void uiToolBar::setIcon( int id, const uiIcon& icon )
 }
 
 
-void uiToolBar::setButtonMenu( int id, uiMenu* mnu )
+void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
+			       uiToolButton::PopupMode mode )
 {
     mGetAction( , return );
     action->setMenu( mnu );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)
     if ( qtb )
-	qtb->setPopupMode( QToolButton::MenuButtonPopup );
+	qtb->setPopupMode( (QToolButton::ToolButtonPopupMode)mode );
 }
 
 

@@ -18,6 +18,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "objdisposer.h"
+#include "od_helpids.h"
 #include "od_iostream.h"
 #include "seistrc.h"
 #include "separstr.h"
@@ -45,7 +47,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimultiflatviewcontrol.h"
-#include "uiobjdisposer.h"
 #include "uimsg.h"
 #include "uisaveimagedlg.h"
 #include "uiselsimple.h"
@@ -62,7 +63,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 
-#include "od_helpids.h"
 
 mDefineInstanceCreatedNotifierAccess(uiStratLayerModel)
 
@@ -485,7 +485,7 @@ void uiStratLayerModel::initWin( CallBacker* cb )
     {
 	modtools_->display( false );
 	gentools_->display( false );
-	uiOBJDISP()->go( this );
+	OBJDISP()->go( this );
     }
     mTriggerInstanceCreatedNotifier();
 }

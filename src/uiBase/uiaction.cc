@@ -55,7 +55,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
     : mInit
 {
     init( txt );
-    triggered.notify( cb );
+    attachCB( triggered, cb );
 }
 
 
@@ -65,7 +65,7 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 {
     init( txt );
     setIcon( icon );
-    triggered.notify( cb );
+    attachCB( triggered, cb );
 }
 
 
@@ -75,17 +75,15 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 {
     init( txt );
     setIcon( iconfile );
-    triggered.notify( cb );
+    attachCB( triggered, cb );
 }
 
 
 uiAction::uiAction( const uiString& txt, const char* iconfile )
     : mInit
 {
-    FixedString pixmapfile( iconfile );
     init( txt );
-    if ( pixmapfile )
-	setIcon( uiIcon(pixmapfile) );
+    setIcon( iconfile );
 }
 
 
@@ -98,7 +96,7 @@ uiAction::uiAction( const MenuItem& itm )
     setChecked( itm.checked );
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
-	setIcon( uiIcon(itm.iconfnm) );
+	setIcon( itm.iconfnm );
 }
 
 
@@ -106,7 +104,6 @@ uiAction::~uiAction()
 {
     detachAllNotifiers();
 
-    delete msgr_;
     uiactionlist_ -= this;
 
     if ( menu_ )
@@ -119,6 +116,8 @@ uiAction::~uiAction()
 	menu_->setAction( 0 );
 	delete menu_;
     }
+
+    delete msgr_;
 }
 
 
@@ -274,7 +273,9 @@ void uiAction::translateCB( CallBacker* cb )
 
 void uiAction::setIcon( const char* file )
 {
-    setIcon( uiIcon(file) );
+    iconfile_ = file;
+    const uiIcon icon( iconfile_ );
+    qaction_->setIcon( icon.qicon() );
 }
 
 

@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uiobjdisposer.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivisisosurface.h"
@@ -37,6 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "keystrs.h"
 #include "mousecursor.h"
+#include "objdisposer.h"
 #include "oddirs.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -275,7 +275,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 				   su, 1, false );
 	dwin->statsDisplay()->setDataPackID( dpid, dmid );
 	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	dwin->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	dwin->show();
         menu->setIsHandled( true );
     }
@@ -286,7 +286,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	uiAmplSpectrum* asd = new uiAmplSpectrum(
 					applMgr()->applService().parent() );
 	asd->setDataPackID( dpid, dmid );
-	asd->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	asd->windowClosed.notify( mCB(OBJDISP(),ObjDisposer,go) );
 	asd->show();
 	menu->setIsHandled( true );
     }
@@ -297,7 +297,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0, 
+		uiDialog::Setup( "Iso value selection", 0,
                                 mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
