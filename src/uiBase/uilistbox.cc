@@ -642,35 +642,41 @@ void uiListBox::addItem( const uiString& text, const Color& col, int id )
 
 void uiListBox::addItems( const char** textList )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     const char** pt_cur = textList;
     scrollingblocked_ = true;
     while ( *pt_cur )
 	addItem( *pt_cur++ );
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
 void uiListBox::addItems( const BufferStringSet& strs )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
 void uiListBox::addItems( const uiStringSet& strs )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
@@ -864,7 +870,14 @@ void uiListBox::setCurrentItem( const char* txt )
 void uiListBox::setCurrentItem( int idx )
 {
     if ( !validIdx(idx) )
+    {
+	const int curidx = body_->currentRow();
+	if ( validIdx(curidx) )
+	    body_->item( curidx )->setSelected( false );
+
+	body_->setCurrentRow( -1 );
 	return;
+    }
 
     mBlockCmdRec;
 

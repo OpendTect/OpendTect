@@ -234,11 +234,8 @@ void uiIOObjSelGrp::mkWriteFlds()
     {
 	nmfld_->setText( nm );
 	const int listidx = listfld_->indexOf( nm );
-	if ( !ioobjids_.isEmpty() )
-	{
-	    int curitmidx = listidx < 0 ? 0 : listidx;
-	    listfld_->setCurrentItem( curitmidx );
-	}
+	if ( listidx >= 0 )
+	    listfld_->setCurrentItem( listidx );
     }
 }
 
@@ -358,9 +355,7 @@ void uiIOObjSelGrp::setCurrent( int curidx )
 {
     if ( curidx >= ioobjnms_.size() )
 	curidx = ioobjnms_.size() - 1;
-    else if ( curidx < 0 )
-	curidx = 0;
-    if ( !ioobjnms_.isEmpty() )
+    if ( ioobjnms_.validIdx(curidx) )
     {
 	listfld_->setCurrentItem( curidx );
 	selectionChanged.trigger();
@@ -477,7 +472,7 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 
 void uiIOObjSelGrp::setDefTranslator( const Translator* trl )
 {
-    if ( trl && wrtrselfld_ && *nmfld_->text() )
+    if ( trl && wrtrselfld_ )
 	wrtrselfld_->setTranslator( trl );
 }
 
@@ -609,7 +604,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 		dispnm += " <";
 	    dispnms_.add( dispnm );
 
-	    if ( isdef && curidx < 0 )
+	    if ( ctio_.ctxt.forread && isdef && curidx < 0 )
 		curidx = idx;
 	}
     }
@@ -704,34 +699,20 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
     if ( !ctio_.ctxt.forread )
     {
 	PtrMan<IOObj> ioobj = 0;
-	FixedString presetnm = ctio_.ioobj ? ctio_.ioobj->name()
-					   : nmfld_->text();
-	if ( presetnm.isEmpty() && !listfld_->isEmpty() )
-	{
-	    presetnm = listfld_->textOfItem( 0 );
-	    ioobj = IOM().get( *ioobjids_[0] );
-	    if ( ioobj )
-	    {
-		if ( listfld_->size() == 1 )
-		    nmfld_->setText( BufferString(ioobjnms_.get(0)," 2") );
-		else
-		    nmfld_->setText( ioobjnms_.get( 0 ) );
-	    }
-	}
+	if ( ctio_.ioobj )
+	    nmfld_->setText( ctio_.ioobj->name() );
 
+	FixedString presetnm = nmfld_->text();
 	if ( !presetnm.isEmpty() && listfld_->isPresent(presetnm) )
 	{
 	    listfld_->setCurrentItem( presetnm );
-	    if ( ctio_.ioobj )
-		nmfld_->setText( presetnm );
-	}
-
-	if ( wrtrselfld_ )
-	{
-	    if ( !ioobj )
-		ioobj = IOM().get( currentID() );
-	    if ( ioobj )
-		wrtrselfld_->use( *ioobj );
+	    if ( wrtrselfld_ )
+	    {
+		if ( !ioobj )
+		    ioobj = IOM().get( currentID() );
+		if ( ioobj )
+		    wrtrselfld_->use( *ioobj );
+	    }
 	}
     }
 
