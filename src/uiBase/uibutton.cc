@@ -14,7 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uiaction.h"
 #include "uibuttongroup.h"
-#include "uiicons.h"
+#include "uiicon.h"
 #include "uimain.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
@@ -163,6 +163,17 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
     mDynamicCastGet(uiButtonGroup*,butgrp,parnt)
     if ( butgrp )
 	butgrp->addButton( this );
+}
+
+
+void uiButton::setIcon( const char* iconnm )
+{
+    if ( !isMainThreadCurrent() )
+	return;
+
+    uiIcon icon( iconnm );
+    qButton()->setIcon( icon.qicon() );
+    updateIconSize();
 }
 
 
@@ -417,7 +428,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
     : uiButton( parnt, su.name_, &su.cb_,
-	        mkbody(parnt,ioPixmap(su.filename_),su.name_) )
+		mkbody(parnt,su.filename_,su.name_) )
     , mInitTBList
 {
     setToolTip( su.tooltip_ );
@@ -438,7 +449,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
 uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-	        mkbody(parnt,ioPixmap(fnm),tt) )
+		mkbody(parnt,fnm,tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -449,7 +460,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* fnm,
 uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 			    const uiString& tt, const CallBack& cb )
     : uiButton( parnt, tt, &cb,
-	        mkbody(parnt,ioPixmap(uiIcon::None()),tt) )
+		mkbody(parnt,"empty",tt) )
     , mInitTBList
 {
     mSetDefPrefSzs();
@@ -465,13 +476,12 @@ uiToolButton::~uiToolButton()
 }
 
 
-uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap& pm,
+uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const char* iconnm,
 					const uiString& txt)
 {
     tbbody_ = new uiToolButtonBody(*this,parnt,txt);
-    if ( pm.qpixmap() )
-	tbbody_->setIcon( QIcon(*pm.qpixmap()) );
-
+    uiIcon icon( iconnm );
+    tbbody_->setIcon( icon.qicon() );
     tbbody_->setIconSize( QSize(iconSize(),iconSize()) );
     return *tbbody_;
 }

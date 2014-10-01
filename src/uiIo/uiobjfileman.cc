@@ -75,7 +75,7 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     infofld_ = new uiTextEdit( infogrp_, "Object Info", true );
     infofld_->setPrefHeightInChar( cPrefHeight );
     infofld_->setStretch( 2, 2 );
-    uiToolButton* dummytb = new uiToolButton( infogrp_, uiIcon::None(),
+    uiToolButton* dummytb = new uiToolButton( infogrp_, "empty",
 					      "", CallBack() );
     dummytb->attach( rightTo, infofld_ );
     dummytb->display( false );

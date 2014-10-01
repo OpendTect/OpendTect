@@ -19,13 +19,16 @@ ________________________________________________________________________
 #include "uibaseobject.h"
 
 
+class i_ActionMessenger;
+class uiActionContainer;
+class uiIcon;
+class uiMenu;
 class ioPixmap;
 class MenuItem;
-class uiMenu;
-class uiActionContainer;
-class i_ActionMessenger;
-mFDQtclass(QAction);
-mFDQtclass(QMenu);
+
+mFDQtclass(QAction)
+mFDQtclass(QMenu)
+
 
 /*!Represents either a menu item, or a toolbar item that can be
    clicked by a user .*/
@@ -37,10 +40,10 @@ public:
 			uiAction(const uiString&);
 			uiAction(const uiString&,const CallBack&);
 			uiAction(const uiString&,const CallBack&,
-				 const ioPixmap&);
+				 const uiIcon&);
 			uiAction(const uiString&,const CallBack&,
-				 const char* pmfln);
-			uiAction(const uiString&,const char* pmfln);
+				 const char* icon_identifier);
+			uiAction(const uiString&,const char* icon_identifier);
 			uiAction(const MenuItem&);
 			uiAction(mQtclass(QAction*));
 			~uiAction();
@@ -64,8 +67,9 @@ public:
 
     void		setShortcut(const char*);
 
-    void		setIcon(const ioPixmap&);
-    void		setIcon(const char*);
+    void		setIcon(const char* identifier);
+    void		setIcon(const uiIcon&);
+    void		setPixmap(const ioPixmap&);
 
     void		setCheckable(bool);
     bool		isCheckable() const;
@@ -83,7 +87,7 @@ public:
     int			getID() const;
 			/*!<Only works if parent is set. */
 
-    mQtclass(QAction*)	qaction()		{ return qaction_; }
+    mQtclass(QAction*)		qaction()	{ return qaction_; }
     const mQtclass(QAction*)	qaction() const { return qaction_; }
 
     Notifier<uiAction>	toggled;
@@ -122,6 +126,11 @@ public:
     static void         removeCmdRecorder(const CallBack&);
     int  /* refnr */    beginCmdRecEvent(const char* msg=0);
     void                endCmdRecEvent(int refnr,const char* msg=0);
+
+    // deprecated
+			uiAction(const uiString&,const CallBack&,
+				 const ioPixmap&);
+    void		setIcon(const ioPixmap&);
 };
 
 /*!Represents a series of menu selections, from the top of a

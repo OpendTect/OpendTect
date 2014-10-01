@@ -50,6 +50,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uigraphicsscene.cc
 		uigraphicsviewbase.cc
 		uihelpview.cc
+		uiicon.cc
 		uilabel.cc
 		uilayout.cc
 		uilineedit.cc

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiaction.h"
 #include "i_qaction.h"
 
+#include "uiicon.h"
 #include "uimain.h"
 #include "uimenu.h"
 
@@ -55,17 +56,27 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb )
     : mInit
 {
     init( txt );
-    triggered.notify( cb );
+    attachCB( triggered, cb );
 }
 
 
 uiAction::uiAction( const uiString& txt, const CallBack& cb,
-		    const ioPixmap& icon )
+		    const uiIcon& icon )
     : mInit
 {
     init( txt );
     setIcon( icon );
-    triggered.notify( cb );
+    attachCB( triggered, cb );
+}
+
+
+uiAction::uiAction( const uiString& txt, const CallBack& cb,
+		    const ioPixmap& pm )
+    : mInit
+{
+    init( txt );
+    setPixmap( pm );
+    attachCB( triggered, cb );
 }
 
 
@@ -73,24 +84,18 @@ uiAction::uiAction( const uiString& txt, const CallBack& cb,
 		    const char* iconfile )
     : mInit
 {
-    FixedString pixmapfile( iconfile );
     init( txt );
-    if ( pixmapfile )
-	setIcon( ioPixmap(pixmapfile) );
-
-    triggered.notify( cb );
+    setIcon( iconfile );
+    attachCB( triggered, cb );
 }
 
 
 uiAction::uiAction( const uiString& txt, const char* iconfile )
     : mInit
 {
-    FixedString pixmapfile( iconfile );
     init( txt );
-    if ( pixmapfile )
-	setIcon( ioPixmap(pixmapfile) );
+    setIcon( iconfile );
 }
-
 
 
 uiAction::uiAction( const MenuItem& itm )
@@ -102,8 +107,9 @@ uiAction::uiAction( const MenuItem& itm )
     setChecked( itm.checked );
     setEnabled( itm.enabled );
     if ( !itm.iconfnm.isEmpty() )
-	setIcon( ioPixmap(itm.iconfnm) );
+	setIcon( itm.iconfnm );
 }
+
 
 uiAction::~uiAction()
 {
@@ -256,20 +262,14 @@ void uiAction::trigger(bool checked)
 
 void uiAction::reloadIcon()
 {
-    if ( iconfile_.isEmpty() )
+    if ( iconfile_.isEmpty() || iconfile_[0] == '[' )
 	return;
 
-    if ( iconfile_[0] == '[' )
+    const uiIcon icon( iconfile_ );
+    if ( icon.isEmpty() )
 	return;
 
-    FileMultiString fms( iconfile_ );
-    const int len = fms.size();
-    const BufferString fnm( fms[0] );
-    const ioPixmap pm( fnm.buf(), len > 1 ? fms[1].str() : 0 );
-    if ( pm.isEmpty() )
-	return;
-
-    qaction_->setIcon( *pm.qpixmap() );
+    qaction_->setIcon( icon.qicon() );
 }
 
 
@@ -281,18 +281,31 @@ void uiAction::translateCB( CallBacker* cb )
 }
 
 
-void uiAction::setIcon( const ioPixmap& pm )
-{
-    iconfile_ = pm.source();
-    qaction_->setIcon( *pm.qpixmap() );
-}
-
-
 void uiAction::setIcon( const char* file )
 {
-    setIcon( ioPixmap(file) );
+    iconfile_ = file;
+    const uiIcon icon( iconfile_ );
+    qaction_->setIcon( icon.qicon() );
 }
 
+
+void uiAction::setIcon( const uiIcon& icon )
+{
+    iconfile_ = icon.source();
+    qaction_->setIcon( icon.qicon() );
+}
+
+
+void uiAction::setPixmap( const ioPixmap& pm )
+{
+    iconfile_ = pm.source();
+    if ( pm.qpixmap() )
+	qaction_->setIcon( *pm.qpixmap() );
+}
+
+
+void uiAction::setIcon( const ioPixmap& pm )
+{ setPixmap(pm); }
 
 
 #define mSetGet(setfn,getfn) \
@@ -552,18 +565,18 @@ int uiActionContainer::insertAction( uiAction* action, int id,
 }
 
 
-int uiActionContainer::insertItem( uiMenu* pm )
+int uiActionContainer::insertItem( uiMenu* mnu )
 {
-    addMenu( pm, 0 );
-    uiAction* menuaction = findAction( pm );
+    addMenu( mnu, 0 );
+    uiAction* menuaction = findAction( mnu );
     return menuaction->getID();
 }
 
 
-uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
+uiMenu* uiActionContainer::addMenu( uiMenu* mnu, const uiMenu* before )
 {
-    uiAction* submenuitem = new uiAction( pm->text() );
-    submenuitem->setMenu( pm );
+    uiAction* submenuitem = new uiAction( mnu->text() );
+    submenuitem->setMenu( mnu );
 
     uiAction* beforeaction = 0;
     if ( before )
@@ -579,7 +592,7 @@ uiMenu* uiActionContainer::addMenu( uiMenu* pm, const uiMenu* before )
     }
 
     insertItem( submenuitem, -1, beforeaction );
-    return pm;
+    return mnu;
 }
 
 

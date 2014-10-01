@@ -27,13 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 mUseQtnamespace
 
-const char* uiIcon::save()		{ return "save"; }
-const char* uiIcon::saveAs()		{ return "saveas"; }
-const char* uiIcon::openObject()	{ return "openstorage"; }
-const char* uiIcon::newObject()		{ return "newstorage"; }
-const char* uiIcon::removeObject()	{ return "trashcan"; }
-const char* uiIcon::None()		{ return "-"; }
-
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
 {
     mDefineStaticLocalObject( ObjectSet<uiToolBar>, ret, );
@@ -200,7 +193,15 @@ void uiToolBar::setToggle( int id, bool yn )
 
 void uiToolBar::setIcon( int id, const char* fnm )
 {
-    setIcon( id, ioPixmap(fnm) );
+    mGetAction( , return );
+    action->setIcon( fnm );
+}
+
+
+void uiToolBar::setIcon( int id, const uiIcon& icon )
+{
+    mGetAction( , return );
+    action->setIcon( icon );
 }
 
 

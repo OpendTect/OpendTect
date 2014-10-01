@@ -301,7 +301,7 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputselbut_->setToolTip( "Select output" );
     toolbar_->addObject( outputselbut_ );
 
-    colorbut_ = new uiToolButton( toolbar_, uiIcon::None(), "Output color",
+    colorbut_ = new uiToolButton( toolbar_, "empty", "Output color",
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
@@ -331,27 +331,27 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
 
     toolbar_->addSeparator();
 
-    mAttachCB( visBase::DM().selMan().selnotifier, 
+    mAttachCB( visBase::DM().selMan().selnotifier,
 	       uiODFaultToolMan::treeItemSelCB );
-    mAttachCB( visBase::DM().selMan().deselnotifier, 
+    mAttachCB( visBase::DM().selMan().deselnotifier,
 	       uiODFaultToolMan::treeItemDeselCB );
-    mAttachCB( EM::EMM().addRemove, 
+    mAttachCB( EM::EMM().addRemove,
 	       uiODFaultToolMan::addRemoveEMObjCB );
-    mAttachCB( appl_.applMgr().visServer()->objectaddedremoved, 
+    mAttachCB( appl_.applMgr().visServer()->objectaddedremoved,
 	       uiODFaultToolMan::addRemoveVisObjCB );
-    mAttachCB( appl_.postFinalise(), 
+    mAttachCB( appl_.postFinalise(),
 	       uiODFaultToolMan::finaliseDoneCB );
-    mAttachCB( deseltimer_.tick, 
+    mAttachCB( deseltimer_.tick,
 	       uiODFaultToolMan::deselTimerCB );
-    mAttachCB( editreadytimer_.tick, 
+    mAttachCB( editreadytimer_.tick,
 	       uiODFaultToolMan::editReadyTimerCB );
-    mAttachCB( flashtimer_.tick, 
+    mAttachCB( flashtimer_.tick,
 	       uiODFaultToolMan::flashOutputTimerCB );
-    mAttachCB( EM::EMM().undo().undoredochange, 
+    mAttachCB( EM::EMM().undo().undoredochange,
 	       uiODFaultToolMan::updateToolbarCB );
-    mAttachCB( uiMain::keyboardEventHandler().keyPressed, 
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
 	       uiODFaultToolMan::keyPressedCB );
-    mAttachCB( uiMain::keyboardEventHandler().keyReleased, 
+    mAttachCB( uiMain::keyboardEventHandler().keyReleased,
 	       uiODFaultToolMan::keyReleasedCB );
 }
 
@@ -407,17 +407,17 @@ void uiODFaultToolMan::treeItemSelCB( CallBacker* cber )
 	processOutputName();
 	enableToolbar( true );
 
-	mAttachCBIfNotAttached( IOM().surveyChanged, 
+	mAttachCBIfNotAttached( IOM().surveyChanged,
 				uiODFaultToolMan::surveyChg );
 
 	if ( curfssd_ )
 	{
-	    mAttachCB( curfssd_->displaymodechange, 
+	    mAttachCB( curfssd_->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
 	if ( curfltd_ )
 	{
-	    mAttachCB( curfltd_->displaymodechange, 
+	    mAttachCB( curfltd_->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
     }
@@ -436,12 +436,12 @@ void uiODFaultToolMan::treeItemDeselCB( CallBacker* cber )
     {
 	if ( curfssd_ )
 	{
-	    mDetachCB( curfssd_->displaymodechange, 
+	    mDetachCB( curfssd_->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
 	if ( curfltd_ )
 	{
-	    mDetachCB( curfltd_->displaymodechange, 
+	    mDetachCB( curfltd_->displaymodechange,
 		       uiODFaultToolMan::displayModeChg );
 	}
 

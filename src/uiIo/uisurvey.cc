@@ -400,6 +400,7 @@ uiSurvey::uiSurvey( uiParent* p )
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiPushButton* datarootbut = new uiPushButton( topgrp,
 	tr("Survey Data Root"), false );
+    datarootbut->setIcon( "database" );
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 

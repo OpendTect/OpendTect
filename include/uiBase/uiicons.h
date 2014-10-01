@@ -12,25 +12,7 @@ ________________________________________________________________________
 
 -*/
 
-#include "uibasemod.h"
-#include "commondefs.h"
-
-class ioPixmap;
-
-namespace uiIcon
-{
-
-    mGlobal(uiBase) const char*		save();
-    mGlobal(uiBase) const char*		saveAs();
-    mGlobal(uiBase) const char*		openObject();
-    mGlobal(uiBase) const char*		newObject();
-    mGlobal(uiBase) const char*		removeObject();
-
-    mGlobal(uiBase) const char*		None();
-    				//!< Avoids pErrMsg
-
-};
-
+#include "uiicon.h"
 
 #endif
 

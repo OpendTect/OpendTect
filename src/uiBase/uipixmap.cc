@@ -70,18 +70,11 @@ ioPixmap::ioPixmap( const char* icnm, bool shortname )
     : qpixmap_(0)
     , srcname_(icnm)
 {
-    bool isnone = true;
-    if ( srcname_.isEmpty() )
-	{ pErrMsg("Empty icon name specified. "
-		    " (if this is intentional, use uiIcon::None())"); }
-
-    if ( srcname_ != uiIcon::None() )
-	isnone = false;
-    if ( isnone )
+    OD::IconFile icfile( icnm );
+    if ( !icfile.haveData() )
 	{ qpixmap_ = new QPixmap; return; }
 
-    OD::IconFile icfile( icnm );
-    qpixmap_ = new QPixmap( icfile.fullFileName(shortname).str(), 0 );
+    qpixmap_ = new QPixmap( icfile.fileNames().get(0).str(), 0 );
 }
 
 

@@ -70,6 +70,7 @@ public:
 
     void		setItemText(int,const uiString&);
     void		setPixmap(const ioPixmap&,int index);
+    void		setIcon(int index,const char* icon_identifier);
 
     void		setItemID(int index,int id);
     int			currentItemID() const;
