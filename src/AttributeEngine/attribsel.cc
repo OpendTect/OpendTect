@@ -77,6 +77,12 @@ void SelSpec::setZDomainKey( const Desc& desc )
 }
 
 
+bool SelSpec::isZTransformed() const
+{
+    return !zdomainkey_.isEmpty() && zdomainkey_!=ZDomain::SI().key();
+}
+
+
 void SelSpec::set( const Desc& desc )
 {
     isnla_ = false;

@@ -236,6 +236,8 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 	viewwin()->viewer(ivwr).setZAxisTransform( datatransform_ );
     }
 
+    if ( treetp_ ) treetp_->setZAxisTransform( zat );
+
     return true;
 }
 
@@ -481,28 +483,32 @@ DataPack::ID uiODViewer2D::getDataPackID( bool wva ) const
 
 DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
 {
-    const TrcKeyZSampling& cs =
-		slicepos_ ? slicepos_->getTrcKeyZSampling() : tkzs_;
-    if ( !cs.isFlat() ) return DataPack::cNoID();
+    const TrcKeyZSampling& tkzs = slicepos_ ? slicepos_->getTrcKeyZSampling()
+					    : tkzs_;
+    if ( !tkzs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
-    if ( zat && cs.nrZ()==1 )
+    const bool alreadytransformed = selspec.isZTransformed();
+    if ( zat && !alreadytransformed && tkzs.nrZ()==1 )
 	return createDataPackForTransformedZSlice( selspec );
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
-    const DataPack::ID dpid = attrserv->createOutput(cs,DataPack::cNoID());
-    return zat ? ZAxisTransformDataPack::transformDataPack(dpid,cs,*zat) : dpid;
+    const DataPack::ID dpid = attrserv->createOutput( tkzs, DataPack::cNoID() );
+    if ( !zat || alreadytransformed ) return dpid;
+
+    return ZAxisTransformDataPack::transformDataPack( dpid, tkzs, *zat );
 }
 
 
 DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 					const Attrib::SelSpec& selspec ) const
 {
-    if ( !slicepos_ || !hasZAxisTransform() ) return DataPack::cNoID();
+    if ( !slicepos_ || !hasZAxisTransform() || selspec.isZTransformed() )
+	return DataPack::cNoID();
 
-    const TrcKeyZSampling& cs = slicepos_->getTrcKeyZSampling();
-    if ( cs.nrZ() != 1 ) return DataPack::cNoID();
+    const TrcKeyZSampling& tkzs = slicepos_->getTrcKeyZSampling();
+    if ( tkzs.nrZ() != 1 ) return DataPack::cNoID();
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
@@ -511,7 +517,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	DPM(DataPackMgr::PointID()).addAndObtain(new DataPointSet(false,true));
 
     ZAxisTransformPointGenerator generator( *datatransform_ );
-    generator.setInput( cs );
+    generator.setInput( tkzs );
     generator.setOutputDPS( *data );
     generator.execute();
 
@@ -522,7 +528,7 @@ DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 	return DataPack::cNoID();
 
     const TypeSet<DataPack::ID> dpids = createDataPacksFromBIVSet(
-						&data->bivSet(), cs, userrefs );
+					      &data->bivSet(), tkzs, userrefs );
     return dpids.size() ? dpids[0] : DataPack::cNoID();
 }
 
