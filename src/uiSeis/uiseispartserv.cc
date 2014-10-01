@@ -148,78 +148,10 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
-class ManageSeisSubSel : public uiDialog
-{ mODTextTranslationClass(ManageSeisSubSel)
-public:
-ManageSeisSubSel( uiParent* p, bool has2d, bool has2dgathers,
-		  bool has3d, bool has3dgathers )
-    : uiDialog(p,Setup("Please specify",mNoDlgTitle,mNoHelpKey))
-{
-    uiLabel* lbl = new uiLabel( this, "Manage" );
-    choicefld_ = new uiCheckList( this, uiCheckList::OneOnly, OD::Vertical );
-    choicefld_->attach( rightOf, lbl );
-
-    if ( has2d )
-    {
-	choicefld_->addItem( tr("2D Seismics") );
-	optionidxs_ += 1;
-    }
-    if ( has2dgathers )
-    {
-	choicefld_->addItem( tr("2D Prestack") );
-	optionidxs_ += 3;
-    }
-    if ( has3d )
-    {
-	choicefld_->addItem( tr("3D Seismics") );
-	optionidxs_ += 0;
-    }
-    if ( has3dgathers )
-    {
-	choicefld_->addItem( tr("3D Prestack") );
-	optionidxs_ += 2;
-    }
-}
-
-
-int getSelOption() const
-{
-    const int selidx = choicefld_->firstChecked();
-    return optionidxs_.validIdx( selidx ) ? optionidxs_[selidx] : 0;
-}
-
-
-protected:
-
-    uiCheckList*	choicefld_;
-    TypeSet<int>	optionidxs_;
-};
-
-
-void uiSeisPartServer::manageSeismics()
-{
-    const bool has2d3d = SI().has2D() && SI().has3D();
-    BufferStringSet gnms; getStoredGathersList( false, gnms );
-    const bool has2dgathers = !gnms.isEmpty();
-    gnms.setEmpty(); getStoredGathersList( true, gnms );
-    const bool has3dgathers = !gnms.isEmpty();
-
-    if ( !has2d3d && !has2dgathers && !has3dgathers )
-	return manageSeismics( SI().has2D() ? 1 : 0 );
-
-    ManageSeisSubSel dlg( parent(), SI().has2D(), has2dgathers,
-			  SI().has3D(), has3dgathers );
-    if ( !dlg.go() ) return;
-
-    manageSeismics( dlg.getSelOption() );
-}
-
 #define mManageSeisDlg( dlgobj, dlgclss ) \
-    if ( !dlgobj ) \
-	dlgobj = new dlgclss( parent(), is2d ); \
-    else \
-	dlgobj->selGroup()->fullUpdate( -1 ); \
-    dlgobj->go();
+    delete dlgobj; \
+    dlgobj = new dlgclss( parent(), is2d ); \
+    dlgobj->show();
 
 void uiSeisPartServer::manageSeismics( int opt )
 {

@@ -906,7 +906,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 		       mCB(this,uiODMenuMgr,handleClick)), itm1 ); \
     popmnu->insertItem( new uiAction(txt2, \
 		       mCB(this,uiODMenuMgr,handleClick)), itm2 ); \
-    mantb_ ->setButtonMenu( mnuid, popmnu ); }
+    mantb_ ->setButtonMenu( mnuid, popmnu, uiToolButton::InstantPopup ); }
 
 #define mAddPopupMnu( mnu, txt, itm ) \
     mnu->insertItem( new uiAction(txt,mCB(this,uiODMenuMgr,handleClick)), itm );
@@ -938,7 +938,7 @@ void uiODMenuMgr::fillManTB()
 	mAddPopupMnu( seispopmnu, tr("3D Prestack Seismics"),
                       mManSeisPS3DMnuItm )
     }
-    mantb_->setButtonMenu( seisid, seispopmnu );
+    mantb_->setButtonMenu( seisid, seispopmnu, uiToolButton::InstantPopup );
 
     if ( SI().survDataType() != SurveyInfo::No2D )
 	mAddPopUp( tr("Horizon Menu"), tr("2D Horizons"),
@@ -1393,7 +1393,7 @@ void uiODMenuMgr::manHor( CallBacker* )
 
 void uiODMenuMgr::manSeis( CallBacker* )
 {
-    appl_.applMgr().seisServer()->manageSeismics();
+    appl_.applMgr().seisServer()->manageSeismics( !SI().has2D() ? 0 : 2 );
 }
 
 #define mDefManCBFn(typ) \
