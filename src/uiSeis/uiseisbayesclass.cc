@@ -18,15 +18,15 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
-#include "uiobjdisposer.h"
 #include "uitaskrunner.h"
+
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "od_helpids.h"
 #include "probdenfunc.h"
 #include "probdenfunctr.h"
-#include "od_helpids.h"
 
 #define mInpPDFsHelpID	mODHelpKey(mSeisBayesPDFInp)
 #define mGetNormHelpID	mODHelpKey(mSeisBayesNorm)
