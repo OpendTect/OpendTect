@@ -261,14 +261,14 @@ bool Network::Socket::write( const IOPar& par )
 }
 
 
-bool Network::Socket::write( const Network::RequestPacket& packet, bool waitfor )
+bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
 {
-    if ( !packet.isOK() )
+    if ( !pkt.isOK() )
 	return false;
 
     Threads::Locker locker( lock_ );
-    if ( !writeArray( packet.getRawHeader(), packet.headerSize(), true ) ||
-	   !writeArray( packet.payload(), packet.payloadSize(), true ) )
+    if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), true ) ||
+	   !writeArray( pkt.payload(), pkt.payloadSize(), true ) )
 	return false;
 
     if ( waitfor )
@@ -279,10 +279,11 @@ bool Network::Socket::write( const Network::RequestPacket& packet, bool waitfor 
 }
 
 
-Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf, od_int64 sz ) const
+Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
+							od_int64 sz ) const
 {
 #ifndef OD_NO_QT
-    char* buf = (char*) voidbuf;
+    char* buf = (char*)voidbuf;
 
     if ( !waitForConnected() )
 	return Timeout;
@@ -323,7 +324,7 @@ Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf, od_int64 
 
 
 #define mReadWriteArrayImpl( Type, tp ) \
-bool Network::Socket::write##Type##Array( const tp* arr, od_int64 sz,bool wait) \
+bool Network::Socket::write##Type##Array( const tp* arr,od_int64 sz,bool wait) \
 { return writeArray( (const void*) arr, sz*sizeof(tp), wait ); } \
 \
 bool Network::Socket::read##Type##Array( tp* arr, od_int64 sz ) const \
@@ -375,22 +376,23 @@ bool Network::Socket::read( IOPar& res ) const
 }
 
 
-Network::Socket::ReadStatus Network::Socket::read( Network::RequestPacket& packet ) const
+Network::Socket::ReadStatus Network::Socket::read(
+				Network::RequestPacket& pkt ) const
 {
     Threads::Locker locker( lock_ );
 
-    ReadStatus res = readArray( packet.getRawHeader(),
+    ReadStatus res = readArray( pkt.getRawHeader(),
 			       Network::RequestPacket::headerSize() );
     if ( res!=ReadOK )
 	return res;
 
-    if ( !packet.isOK() )
+    if ( !pkt.isOK() )
     {
 	errmsg_ = tr("Received packet is not OK");
 	return ReadError;
     }
 
-    const od_int32 payloadsize = packet.payloadSize();
+    const od_int32 payloadsize = pkt.payloadSize();
     if ( payloadsize > 0 )
     {
 	mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
@@ -410,7 +412,7 @@ Network::Socket::ReadStatus Network::Socket::read( Network::RequestPacket& packe
 	    return ReadError;
 	}
 
-	packet.setPayload( payload, payloadsize );
+	pkt.setPayload( payload, payloadsize );
     }
 
     return ReadOK;

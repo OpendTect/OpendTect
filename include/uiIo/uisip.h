@@ -54,6 +54,7 @@ public:
     virtual bool		getInfo(uiDialog*,TrcKeyZSampling&,
 					Coord crd[3])	= 0;
     virtual void		fillPar(IOPar&)		{}
+    virtual bool		isAvailable() const	{ return true; }
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }

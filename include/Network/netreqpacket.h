@@ -123,7 +123,7 @@ public:
     template <class T> void	getSet(TypeSet<T>&,int maxsz=-1) const;
     inline void			getSet(BufferStringSet&,int maxsz=-1) const;
 
-    inline void			move( int nrb ) const { curpos_ += nrb; }
+    inline void			move( int nrb ) const	{ curpos_ += nrb; }
     inline void			moveTo( int pos ) const	{ curpos_ = pos; }
 
 protected:
