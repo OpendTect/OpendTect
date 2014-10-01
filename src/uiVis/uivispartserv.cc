@@ -81,6 +81,7 @@ int uiVisPartServer::evColorTableChange()	    { return 17; }
 int uiVisPartServer::evLoadAttribDataInMPEServ()    { return 18; }
 int uiVisPartServer::evPostponedLoadingData()	    { return 19; }
 int uiVisPartServer::evFromMPEManStoreEMObject()    { return 20; }
+int uiVisPartServer::evShowSetupGroupOnTop()	    { return 21; }
 
 
 const char* uiVisPartServer::sKeyAppVel()	       { return "AppVel"; }
@@ -127,6 +128,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , objectaddedremoved(this)
     , selectionmode_( Polygon )
     , selectionmodechange(this)
+    , topsetupgroupname_( 0 )
 {
     changematerialmnuitem_.iconfnm = "disppars";
 
@@ -1518,6 +1520,18 @@ bool uiVisPartServer::sendShowSetupDlgEvent()
     eventmutex_.lock();
     return sendEvent( evShowSetupDlg() );
 }
+
+
+bool uiVisPartServer::showSetupGroupOnTop( const char* grpnm )
+{
+    eventmutex_.lock();
+    topsetupgroupname_ = grpnm;
+    return sendEvent( evShowSetupGroupOnTop() );
+}
+
+
+const char* uiVisPartServer::getTopSetupGroupName() const
+{ return topsetupgroupname_; }
 
 
 bool uiVisPartServer::sendPickingStatusChangeEvent()

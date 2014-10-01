@@ -354,6 +354,10 @@ public:
     static int			evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
 
+    static int			evShowSetupGroupOnTop();
+    bool			showSetupGroupOnTop(const char* grpnm);
+    const char*			getTopSetupGroupName() const;
+
     void			showMPEToolbar(bool yn=true);
     void			updateMPEToolbar();
     void			updateSeedConnectMode();
@@ -426,6 +430,7 @@ protected:
     BufferString		mouseposstr_;
 
     bool			tracksetupactive_;
+    const char*			topsetupgroupname_;
     bool			viewmode_;
     WorkMode			workmode_;
     bool			issolomode_;

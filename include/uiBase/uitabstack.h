@@ -47,6 +47,7 @@ public:
 
     void		setCurrentPage(int id);
     void		setCurrentPage(uiGroup*);
+    void		setCurrentPage(const char* grpnm);
 
     uiGroup*		currentPage() const;
     uiGroup* 		page(int idx) const;

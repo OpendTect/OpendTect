@@ -115,6 +115,8 @@ public:
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
     virtual bool	commitToTracker() const; 
 
+    virtual void	showGroupOnTop(const char* grpnm)	{}
+
     BufferString	helpref_;
 };
     

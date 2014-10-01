@@ -699,6 +699,17 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 }
 
 
+bool uiMPEPartServer::showSetupGroupOnTop( const EM::ObjectID& emid,
+					   const char* grpnm )
+{
+    if ( emid<0 || emid!=trackercurrentobject_ || !setupgrp_ )
+	return false;
+
+    setupgrp_->showGroupOnTop( grpnm );
+    return true;
+}
+
+
 #define mAskGoOnStr(setupavailable) \
     ( setupavailable ? \
 	"This object has saved tracker settings.\n" \

@@ -62,9 +62,11 @@ public:
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
 
-    bool			showSetupDlg( const EM::ObjectID&,
-	    				      const EM::SectionID&);
+    bool			showSetupDlg(const EM::ObjectID&,
+					     const EM::SectionID&);
     				/*!<\returns false if cancel was pressed. */
+    bool			showSetupGroupOnTop(const EM::ObjectID&,
+						    const char* grpnm);
     void			useSavedSetupDlg(const EM::ObjectID&,
 	    					 const EM::SectionID&);
 
