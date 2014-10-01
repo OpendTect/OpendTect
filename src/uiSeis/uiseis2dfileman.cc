@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseisbrowser.h"
 #include "uiseissel.h"
 #include "uisplitter.h"
+#include "uiseparator.h"
 #include "uitextedit.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
@@ -270,35 +271,59 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 		       mODHelpKey(mSeis2DFileManMergeDlgHelpID) ) )
     , objinf_(objinf)
 {
+    uiGroup* geomgrp = new uiGroup( this );
     BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
-    uiLabeledComboBox* lcb1 = new uiLabeledComboBox( this, lnms, "First line" );
-    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( this, lnms, "Add" );
+    uiLabeledComboBox* lcb1 =
+	new uiLabeledComboBox( geomgrp, lnms, "First line" );
+    uiLabeledComboBox* lcb2 = new uiLabeledComboBox( geomgrp, lnms, "Add" );
     lcb2->attach( alignedBelow, lcb1 );
     ln1fld_ = lcb1->box(); ln2fld_ = lcb2->box();
     ln1fld_->setCurrentItem( sellns.get(0) );
     ln2fld_->setCurrentItem( sellns.get(1) );
+    ln1fld_->selectionChanged.notify(
+	    mCB(this,uiSeis2DFileManMergeDlg,fillData2MergeCB) );
+    ln2fld_->selectionChanged.notify(
+	    mCB(this,uiSeis2DFileManMergeDlg,fillData2MergeCB) );
+
 
     const char* mrgopts[]
 	= { "Match trace numbers", "Match coordinates", "Bluntly append", 0 };
-    mrgoptfld_ = new uiGenInput( this, "Merge method",
+    mrgoptfld_ = new uiGenInput( geomgrp, "Merge method",
 				 StringListInpSpec(mrgopts) );
     mrgoptfld_->attach( alignedBelow, lcb2 );
     mrgoptfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
-    stckfld_ = new uiGenInput( this, "Duplicate positions",
-				BoolInpSpec(true,"Stack","Use first") );
-    stckfld_->attach( alignedBelow, mrgoptfld_ );
-    renumbfld_ = new uiGenInput( this, "Renumber; Start/step numbers",
+
+
+    renumbfld_ = new uiGenInput( geomgrp, "Renumber; Start/step numbers",
 				 IntInpSpec(1), IntInpSpec(1) );
     renumbfld_->setWithCheck( true );
     renumbfld_->setChecked( true );
-    renumbfld_->attach( alignedBelow, stckfld_ );
+    renumbfld_->attach( alignedBelow, mrgoptfld_ );
+
     double defsd = SI().crlDistance() / 2;
     if ( SI().xyInFeet() ) defsd *= mToFeetFactorD;
-    snapdistfld_ = new uiGenInput( this, "Snap distance", DoubleInpSpec(defsd));
+    snapdistfld_ =
+	new uiGenInput( geomgrp, "Snap distance", DoubleInpSpec(defsd) );
     snapdistfld_->attach( alignedBelow, renumbfld_ );
 
-    outfld_ = new uiGenInput( this, "New line name", StringInpSpec() );
+    outfld_ = new uiGenInput( geomgrp, "New line name", StringInpSpec() );
     outfld_->attach( alignedBelow, snapdistfld_ );
+
+    uiSeparator* horsep = new uiSeparator( this, "", OD::Vertical );
+    horsep->attach( stretchedRightTo, geomgrp );
+    uiGroup* datagrp = new uiGroup( this );
+    stckfld_ = new uiGenInput( datagrp, "Duplicate positions",
+			       BoolInpSpec(true,"Stack","Use first") );
+    datagrp->setHAlignObj( stckfld_->attachObj() );
+    datagrp->attach( rightTo, geomgrp );
+    datagrp->attach( ensureRightOf, horsep );
+
+    uiLabeledListBox* datalcb =
+	new uiLabeledListBox( datagrp, "Datas to merge", OD::ChooseAtLeastOne,
+			      uiLabeledListBox::LeftMid );
+    data2mergefld_ = datalcb->box();
+    datalcb->attach( alignedBelow, stckfld_ );
+
 
     postFinalise().notify( mCB(this,uiSeis2DFileManMergeDlg,initWin) );
 }
@@ -306,9 +331,29 @@ uiSeis2DFileManMergeDlg( uiParent* p, const uiSeisIOObjInfo& objinf,
 void initWin( CallBacker* )
 {
     optSel(0);
+    fillData2MergeCB( 0 );
     renumbfld_->valuechanged.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
     renumbfld_->checked.notify( mCB(this,uiSeis2DFileManMergeDlg,optSel) );
 }
+
+
+void fillData2MergeCB( CallBacker* )
+{
+    BufferStringSet l1dataset, l2dataset;
+    Seis2DDataSet::getDataSetsOnLine( ln1fld_->text(), l1dataset );
+    Seis2DDataSet::getDataSetsOnLine( ln2fld_->text(), l2dataset );
+    BufferStringSet commondataset;
+    for ( int l1idx=0; l1idx<l1dataset.size(); l1idx++ )
+    {
+	const char* l1nm = l1dataset.get(l1idx).buf();
+	if ( l2dataset.isPresent(l1nm) )
+	    commondataset.add( l1nm );
+    }
+
+    data2mergefld_->setEmpty();
+    data2mergefld_->addItems( commondataset );
+}
+
 
 void optSel( CallBacker* )
 {
@@ -325,11 +370,18 @@ bool acceptOK( CallBacker* )
     if ( !outnm || !*outnm )
 	mErrRet( "Please enter a name for the merged line" );
 
-    BufferStringSet lnms; objinf_.ioObjInfo().getLineNames( lnms );
-    if ( lnms.isPresent( outnm ) )
-	mErrRet( "Output line name already in Line Set" );
+    Pos::GeomID outgeomid = Survey::GM().getGeomID( outnm );
+    if ( outgeomid != Survey::GeometryManager::cUndefGeomID() )
+	mErrRet( "Geometry of same line name already present. "
+		 "If you want to overwrite, first remove the geometry "
+		 "via 'Manage>>Geometry 2D'" );
 
-    Seis2DLineMerger lmrgr( objinf_.ioObj()->key() );
+    BufferStringSet seldatanms;
+    data2mergefld_->getChosen( seldatanms );
+    if ( seldatanms.isEmpty() )
+	mErrRet( "No datas chosen to merge, please select a data." );
+
+    Seis2DLineMerger lmrgr( seldatanms );
     lmrgr.lnm1_ = ln1fld_->text();
     lmrgr.lnm2_ = ln2fld_->text();
     if ( lmrgr.lnm1_ == lmrgr.lnm2_ )
@@ -355,15 +407,19 @@ bool acceptOK( CallBacker* )
     }
 
     uiTaskRunner tr( this );
-    TaskRunner::execute( &tr, lmrgr );
-    // return tr.execute( lmrgr );
-    return false;
+    bool rettype = false;
+    if ( TaskRunner::execute(&tr,lmrgr) )
+	rettype = uiMSG().askGoOn( "Merge successfully completed."
+				   "Done with merging",
+				   "Want to merge more lines" );
+    return rettype;
 }
 
     const uiSeisIOObjInfo&	objinf_;
 
     uiComboBox*			ln1fld_;
     uiComboBox*			ln2fld_;
+    uiListBox*			data2mergefld_;
     uiGenInput*			mrgoptfld_;
     uiGenInput*			stckfld_;
     uiGenInput*			renumbfld_;
