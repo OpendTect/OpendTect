@@ -32,7 +32,7 @@ class uiDialog;
 
   The logic is:
 
-  * User gets list including your usrText()
+  * User gets list showing - if isAvailable() - your usrText() and icon
   * User fills in your dialog
   * On OK, getInfo is called
   * If getInfo returns true, then you can stuff your own things in the
@@ -59,6 +59,7 @@ public:
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }
     virtual bool		xyInFeet() const	{ return false; }
+    virtual const char*		iconName() const	{ return 0; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}

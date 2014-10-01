@@ -18,14 +18,16 @@ ________________________________________________________________________
 mExpClass(uiIo) ui2DSurvInfoProvider : public uiSurvInfoProvider
 { mODTextTranslationClass(ui2DSurvInfoProvider);
 public:
-    			ui2DSurvInfoProvider()
+			ui2DSurvInfoProvider()
 			    : xyft_(false)	{}
 
-    const char*		usrText() const		{ return "Set for 2D only"; }
-    uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char*	usrText() const		{ return "Set for 2D only"; }
+    virtual uiDialog*	dialog(uiParent*);
+    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char*	iconName() const
+					{ return "seismicline2dcollection"; }
 
-    bool		xyInFeet() const	{ return xyft_; }
+    virtual bool	xyInFeet() const	{ return xyft_; }
 
 protected:
 

@@ -115,6 +115,7 @@ public:
 				   int idx=-1,int id=-1);
     void		setPixmap(int,const Color&);
     void		setPixmap(int,const uiPixmap&);
+    void		setIcon(int,const char* icon_identifier);
     void		setColor(int,const Color&);
     Color		getColor(int) const;
 

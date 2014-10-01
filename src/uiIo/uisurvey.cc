@@ -193,6 +193,9 @@ public:
     bool		isOK();
     bool		acceptOK(CallBacker*);
 
+    ObjectSet<uiSurvInfoProvider> sips_;
+    int			sipidx_;
+
 protected:
 
     const BufferString	dataroot_;
@@ -201,8 +204,7 @@ protected:
     uiGenInput*		zistimefld_;
     uiGenInput*		zinfeetfld_;
     uiCheckList*	pol2dfld_;
-    uiComboBox*		sipfld_;
-    ObjectSet<uiSurvInfoProvider>& sips_;
+    uiListBox*		sipfld_;
 
     BufferString	sipName() const;
     BufferString	survName() const { return survnmfld_->text(); }
@@ -211,7 +213,7 @@ protected:
     bool		isTime() const	 { return zistimefld_->getBoolValue();}
     bool		isInFeet() const { return zinfeetfld_->getBoolValue();}
 
-    void		setSip(bool for2donly);
+    void		fillSipsFld(bool have2d,bool have3d);
 
 SurveyInfo::Pol2D pol2D() const
 {
@@ -222,7 +224,7 @@ SurveyInfo::Pol2D pol2D() const
 
 void pol2dChg( CallBacker* cb )
 {
-    setSip( has2D() && !has3D() );
+    fillSipsFld( has2D(), has3D() );
 }
 
 void zdomainChg( CallBacker* cb )
@@ -240,6 +242,7 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
+	, sipidx_(-1)
 {
     setOkText( uiStrings::sNext() );
 
@@ -247,29 +250,35 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     survnmfld_->setElemSzPol( uiObject::Wide );
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
-    pol2dfld_->setLabel( "Available data" );
+    pol2dfld_->setLabel( "Data to use" );
     pol2dfld_->addItem( uiStrings::s3D(true) ).addItem( uiStrings::s2D(true) );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
     pol2dfld_->attach( alignedBelow, survnmfld_ );
 
-    uiLabeledComboBox* siplcb = new uiLabeledComboBox( this, "Define by" );
-    siplcb->attach( alignedBelow, pol2dfld_ );
-    sipfld_ = siplcb->box();
+    for ( int idx=0; idx<sips_.size(); idx++ )
+    {
+	if ( !sips_[idx]->isAvailable() )
+	    { sips_.removeSingle( idx ); idx--; }
+    }
+    uiLabeledListBox* sipllb = new uiLabeledListBox( this, "Initial setup" );
+    sipllb->attach( alignedBelow, pol2dfld_ );
+    sipfld_ = sipllb->box();
+    sipfld_->setPrefHeightInChar( sips_.size() + 1 );
 
     zistimefld_ = new uiGenInput( this, "Z Domain",
 				  BoolInpSpec(true,uiStrings::sTime(),
                                               uiStrings::sDepth()));
     zistimefld_->valuechanged.notify(
 			mCB(this,uiStartNewSurveySetup,zdomainChg) );
-    zistimefld_->attach( alignedBelow, siplcb );
+    zistimefld_->attach( alignedBelow, sipllb );
 
     zinfeetfld_ = new uiGenInput( this, "Depth unit",
 				BoolInpSpec(true,"Meter","Feet") );
     zinfeetfld_->attach( alignedBelow, zistimefld_ );
     zinfeetfld_->display( false );
 
-    setSip( false );
+    fillSipsFld( true, true );
 }
 
 
@@ -288,19 +297,9 @@ bool uiStartNewSurveySetup::isOK()
 	mErrRet( errmsg )
     }
 
-    const int sipidx = sipfld_->currentItem();
-    if ( sipidx == sipfld_->size()-1 )
-	return true; // Manual selection.
-
-    if ( !sips_.validIdx(sipidx) )
-    {
-	pErrMsg( "Cannot use this geometry provider method" );
-	return false;
-    }
-
-    uiSurvInfoProvider* sip = sips_[sipidx];
-    if ( !sip )
-	mErrRet( "Cannot use this geometry provider method" )
+    sipidx_ = sipfld_->currentItem();
+    if ( !sips_.validIdx(sipidx_) )
+	sipidx_ = -1;
 
     return true;
 }
@@ -316,10 +315,7 @@ bool uiStartNewSurveySetup::acceptOK( CallBacker* cb )
     survinfo_.updateDirName();
     survinfo_.setSurvDataType( pol2D() );
     survinfo_.setZUnit( isTime(), isInFeet() );
-
-    const int sipidx = sipfld_->currentItem();
-    if ( sipidx < sipfld_->size() - 1 )
-	survinfo_.setSipName( sipName() );
+    survinfo_.setSipName( sipName() );
 
     return true;
 }
@@ -328,31 +324,44 @@ bool uiStartNewSurveySetup::acceptOK( CallBacker* cb )
 BufferString uiStartNewSurveySetup::sipName() const
 {
     const int sipidx = sipfld_->currentItem();
-    return sipidx == sipfld_->size()-1 ? "" : sipfld_->textOfItem( sipidx );
+    return sips_.validIdx(sipidx) ? sips_[sipidx]->usrText() : "";
 }
 
 
-void uiStartNewSurveySetup::setSip( bool for2donly )
+void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 {
+    int preferredsel = sipfld_->isEmpty() ? -1 : sipfld_->currentItem();
     sipfld_->setEmpty();
 
     const int nrprovs = sips_.size();
-    int preferedsel = nrprovs ? -1 : 0;
     for ( int idx=0; idx<nrprovs; idx++ )
     {
-	if ( !sips_.validIdx(idx) )
-	    continue;
+	uiSurvInfoProvider& sip = *sips_[idx];
+	mDynamicCastGet(const ui2DSurvInfoProvider*,sip2d,&sip);
 
-	mDynamicCastGet(const ui2DSurvInfoProvider*,sip,sips_[idx]);
-	if ( sip && for2donly && preferedsel == -1 )
-	    preferedsel = idx;
+	if ( preferredsel < 0 )
+	{
+	    if ( FixedString(sip.usrText()).contains("etrel") )
+		preferredsel = idx;
+	    else
+	    {
+		if ( sip2d && !have3d )
+		    preferredsel = idx;
+	    }
+	}
 
-	BufferString txt( sips_[idx]->usrText() );
-	txt += " ...";
-	sipfld_->addItem( txt );
+	sipfld_->addItem( sip.usrText() );
+	const char* icnm = sip.iconName();
+	if ( !icnm || !*icnm )
+	    icnm = "empty";
+	sipfld_->setIcon( idx, icnm );
+	if ( !have2d && sip2d )
+	    sipfld_->setItemSelectable( sipfld_->size()-1, false );
     }
-    sipfld_->addItem( "Manual selection" ); // always last
-    sipfld_->setCurrentItem( preferedsel );
+
+    sipfld_->addItem( "Enter by hand" ); // always last
+    sipfld_->setIcon( sipfld_->size()-1, "manualenter" );
+    sipfld_->setCurrentItem( preferredsel < 0 ? 0 : preferredsel );
 
     int maxlen = 0;
     for ( int idx=0; idx<sipfld_->size(); idx++ )
@@ -402,7 +411,8 @@ uiSurvey::uiSurvey( uiParent* p )
     uiGroup* topgrp = new uiGroup( this, "TopGroup" );
     uiPushButton* datarootbut =
 		new uiPushButton( topgrp, tr("Survey Data Root"), false );
-    datarootbut->setPixmap( "database" );
+
+    datarootbut->setIcon( "database" );
     datarootbut->activated.notify( mCB(this,uiSurvey,dataRootPushed) );
     datarootbut->attach( leftBorder );
 
@@ -486,10 +496,10 @@ void uiSurvey::fillLeftGroup( uiGroup* grp )
 	tr("Copy Survey"), mCB(this,uiSurvey,copyButPushed) );
     new uiToolButton( butgrp, "export",
 	tr("Compress survey as zip archive"),
-        mCB(this,uiSurvey,exportButPushed) );
+	mCB(this,uiSurvey,exportButPushed) );
     new uiToolButton( butgrp, "import",
 	tr("Extract survey from zip archive"),
-        mCB(this,uiSurvey,importButPushed) );
+	mCB(this,uiSurvey,importButPushed) );
     new uiToolButton( butgrp, "share",
 	tr("Share surveys through the OpendTect Seismic Repository"),
 	mSCB(osrbuttonCB) );

@@ -29,6 +29,7 @@ public:
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
     bool		xyInFeet() const	{ return xyinft_; }
+    virtual const char*	iconName() const	{ return "segy"; }
 
     IOPar*		getImportPars() const
 			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }

@@ -60,6 +60,7 @@ protected:
     const BufferString	rootdir_;
     bool		isnew_;
     IOPar*		impiop_;
+    ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
 
     uiGenInput*		survnmfld_;
@@ -129,12 +130,13 @@ mExpClass(uiIo) uiCopySurveySIP : public uiSurvInfoProvider
 public:
 			uiCopySurveySIP() {};
 
-    const char*		usrText() const	{ return "Copy from other survey"; }
-    uiDialog*		dialog(uiParent*);
-    bool		getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char*	usrText() const	{ return "Copy from other survey"; }
+    virtual uiDialog*	dialog(uiParent*);
+    virtual bool	getInfo(uiDialog*,TrcKeyZSampling&,Coord crd[3]);
+    virtual const char*	iconName() const	{ return "copyobj"; }
 
-    TDInfo		tdInfo() const { return tdinf_; }
-    bool		xyInFeet() const { return inft_; }
+    virtual TDInfo	tdInfo() const { return tdinf_; }
+    virtual bool	xyInFeet() const { return inft_; }
 
 
 protected:
