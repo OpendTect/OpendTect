@@ -92,7 +92,7 @@ public:
     virtual void	usePar(const IOPar&)		= 0;
 
     void		getDataPointSets(ObjectSet<DataPointSet>&) const;
-    const char*		prepareInputData(ObjectSet<DataPointSet>&);
+    uiString		prepareInputData(ObjectSet<DataPointSet>&);
 
     void		set2DEvent( bool is2d )		{ is2d_ = is2d; }
     bool		is2DEvent()			{ return is2d_; }

@@ -1613,7 +1613,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		iop.setName( "Attributes" );
 	}
 
-	const FixedString res = nlaserv_->prepareInputData( dpss );
+	const uiString res = nlaserv_->prepareInputData( dpss );
 	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
 

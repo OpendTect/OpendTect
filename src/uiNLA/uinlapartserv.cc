@@ -123,7 +123,7 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 
 
 class uiPrepNLAData : public uiDialog
-{
+{ mODTextTranslationClass(uiPrepNLAData);
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
@@ -223,12 +223,12 @@ bool acceptOK( CallBacker* )
 	rg_.sort();
 	bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
 	if ( bsetup_.nrptsperclss < 1 || mIsUdf(bsetup_.nrptsperclss) )
-	    mErrRet("Please enter a valid number of points per class")
+	    mErrRet(tr("Please enter a valid number of points per class"))
 	bsetup_.noiselvl = percnoisefld->getfValue();
 	if ( mIsUdf(bsetup_.noiselvl) )
 	    bsetup_.noiselvl = 0;
 	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
-	    mErrRet("Please enter a valid noise level")
+	    mErrRet(tr("Please enter a valid noise level"))
 	bsetup_.noiselvl *= 0.01;
     }
 
@@ -531,7 +531,7 @@ DataPointSet& uiNLAPartServer::gtDps() const
 }
 
 
-const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
+uiString uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
 
@@ -549,7 +549,7 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 		    { firstgooddps = iset; break; }
 	    }
 	    if ( firstgooddps == -1 )
-		mErrRet("No valid data found")
+		mErrRet(tr("No valid data found"))
 
 	    const PosVecDataSet& vds = dpss[firstgooddps]->dataSet();
 	    const int orgnrvals = vds.nrCols();
