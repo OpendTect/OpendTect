@@ -29,13 +29,13 @@ ________________________________________________________________________
 /*!Convenience function to delete and zero pointer. */
 
 template <class T>
-void deleteAndZeroPtr( T*& ptr )
-{ delete ptr; ptr = 0; }
+void deleteAndZeroPtr( T*& ptr, bool isowner=true )
+{ if ( isowner ) delete ptr; ptr = 0; }
 
 
 template <class T>
-void deleteAndZeroArrPtr( T*& ptr )
-{ delete [] ptr; ptr = 0; }
+void deleteAndZeroArrPtr( T*& ptr, bool isowner=true )
+{ if ( isowner ) delete [] ptr; ptr = 0; }
 
 
 /*! Base class for smart pointers. Don't use directly, use PtrMan, ArrPtrMan
@@ -46,13 +46,15 @@ mClass(Basic) PtrManBase
 {
 public:
 
-    inline bool			operator !() const	{ return !ptr_; }
+    inline bool		operator !() const	{ return !ptr_; }
 
-    inline T*			set(T* p, bool doerase=true);
-				//!<Returns old pointer if not erased
-    inline void			erase() { set( 0, true ); }
+    inline T*		set(T* p, bool doerase=true);
+			//!<Returns old pointer if not erased
+    inline T*		release() { return  set(0,false); }
+			//!<Returns pointer. I won't take care of it any longer
+    inline void		erase() { set( 0, true ); }
 
-    inline bool			setIfNull(T* p);
+    inline bool		setIfNull(T* p);
 
 protected:
 
@@ -77,6 +79,7 @@ public:
 			//!<Don't use
     inline		PtrMan(T* = 0);
     PtrMan<T>&		operator=( T* p );
+
     PtrMan<T>&		operator=(const PtrMan<T>&);
 			//!<Don't use
 			mImpPtrManPointerAccess( T )

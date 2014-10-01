@@ -13,6 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include <QTcpSocket>
+#include "netsocket.h"
 #include "tcpsocket.h"
 
 /*\brief QTcpSocket communication class
@@ -22,46 +23,77 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class QTcpSocketComm : public QObject 
+class QTcpSocketComm : public QObject
 {
     Q_OBJECT
-    friend class	TcpSocket;
+    friend class	Network::Socket;
+
+    void		disconnect() { socket_ = 0; }
 
 protected:
 
-QTcpSocketComm( QTcpSocket* qtcpsocket, TcpSocket* tcpsocket )
+QTcpSocketComm( QTcpSocket* qtcpsocket, Network::Socket* sock )
     : qtcpsocket_(qtcpsocket)
-    , tcpsocket_(tcpsocket)
+    , socket_(sock)
 {
-    connect( qtcpsocket, SIGNAL(connected()), this, SLOT(connected()) );
     connect( qtcpsocket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
-    connect( qtcpsocket, SIGNAL(hostFound()), this, SLOT(hostFound()) );
     connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
-    connect( qtcpsocket, SIGNAL(error(QAbstractSocket::SocketError)),
-	     this, SLOT(error()) );
-    connect( qtcpsocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)),
-	     this, SLOT(stateChanged()) );
 }
 
 private slots:
 
-void connected()
-{ tcpsocket_->connected.trigger( *tcpsocket_ ); }
-
 void disconnected()
-{ tcpsocket_->disconnected.trigger( *tcpsocket_ ); }
+{
+    if ( socket_ )
+	socket_->disconnected.trigger( *socket_ );
+}
 
-void hostFound()
-{ tcpsocket_->hostFound.trigger( *tcpsocket_ ); }
 
 void readyRead()
-{ tcpsocket_->readyRead.trigger( *tcpsocket_ ); }
+{
+    if ( socket_ )
+	socket_->readyRead.trigger( *socket_ );
+}
 
-void error()
-{ tcpsocket_->error.trigger( *tcpsocket_ ); }
+private:
 
-void stateChanged()
-{ tcpsocket_->stateChanged.trigger( *tcpsocket_ ); }
+    QTcpSocket*		qtcpsocket_;
+    Network::Socket*	socket_;
+
+};
+
+
+class OldQTcpSocketComm : public QObject
+{
+    Q_OBJECT
+    friend class	TcpSocket;
+
+    void		disconnect() { tcpsocket_ = 0; }
+
+protected:
+
+OldQTcpSocketComm( QTcpSocket* qtcpsocket, TcpSocket* tcpsocket )
+    : qtcpsocket_(qtcpsocket)
+    , tcpsocket_(tcpsocket)
+{
+    connect( qtcpsocket, SIGNAL(disconnected()), this, SLOT(disconnected()) );
+    connect( qtcpsocket, SIGNAL(readyRead()), this, SLOT(readyRead()) );
+}
+
+private slots:
+
+void disconnected()
+{
+    if ( tcpsocket_ )
+	tcpsocket_->disconnected.trigger( *tcpsocket_ );
+}
+
+
+void readyRead()
+{
+    if ( tcpsocket_ )
+	tcpsocket_->readyRead.trigger( *tcpsocket_ );
+}
 
 private:
 

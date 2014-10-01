@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "tcpconnection.h"
+#include "netsocket.h"
 
 #include "applicationdata.h"
 #include "iopar.h"
@@ -19,63 +19,59 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <limits.h>
 
 #ifndef OD_NO_QT
-#include <QTcpSocket>
+#include "qtcpsocketcomm.h"
 #endif
 
-/*
 
-   From the manual:
-
-   QAbstractSocket::UnconnectedState
-	0	The socket is not connected.
-   QAbstractSocket::HostLookupState
-	1	The socket is performing a host name lookup.
-   QAbstractSocket::ConnectingState
-	2	The socket has started establishing a connection.
-   QAbstractSocket::ConnectedState
-	3	A connection is established.
-   QAbstractSocket::BoundState
-	4	The socket is bound to an address and port.
-   QAbstractSocket::ClosingState
-	6	The socket is about to close (data may still be waiting to
-		be written).
-   QAbstractSocket::ListeningState
-	5	For internal use only.
-
-   */
-
-TcpConnection::TcpConnection( bool haveevloop )
+Network::Socket::Socket( bool haveevloop )
 #ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
 #else
     : qtcpsocket_(0)
 #endif
+    , socketcomm_( 0 )
     , timeout_( 30000 )
     , noeventloop_( !haveevloop )
-    , shortinterpreter_( 0 )
-    , od_int32interpreter_( 0 )
-    , od_int64interpreter_( 0 )
-    , floatinterpreter_( 0 )
-    , doubleinterpreter_( 0 )
-    , Closed(this)
-{
-}
-
-
-TcpConnection::~TcpConnection()
+    , disconnected( this )
+    , readyRead( this )
+    , ownssocket_( true )
 {
 #ifndef OD_NO_QT
-    delete qtcpsocket_;
+    socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
 #endif
-    deleteAndZeroPtr( shortinterpreter_ );
-    deleteAndZeroPtr( od_int32interpreter_ );
-    deleteAndZeroPtr( od_int64interpreter_ );
-    deleteAndZeroPtr( floatinterpreter_ );
-    deleteAndZeroPtr( doubleinterpreter_ );
 }
 
 
-bool TcpConnection::connectToHost( const char* host, int port, bool wait )
+Network::Socket::Socket( QTcpSocket* s, bool haveevloop )
+#ifndef OD_NO_QT
+    : qtcpsocket_(s)
+#else
+    : qtcpsocket_(0)
+#endif
+    , socketcomm_(0)
+    , timeout_( 30000 )
+    , noeventloop_( !haveevloop )
+    , disconnected( this )
+    , readyRead( this )
+    , ownssocket_( false )
+{
+#ifndef OD_NO_QT
+    socketcomm_ = new QTcpSocketComm( qtcpsocket_, this );
+#endif
+}
+
+
+Network::Socket::~Socket()
+{
+#ifndef OD_NO_QT
+    socketcomm_->disconnect();
+    socketcomm_->deleteLater();
+    if ( ownssocket_ ) qtcpsocket_->deleteLater();
+#endif
+}
+
+
+bool Network::Socket::connectToHost( const char* host, int port, bool wait )
 {
 #ifdef OD_NO_QT
     return false;
@@ -100,7 +96,7 @@ bool TcpConnection::connectToHost( const char* host, int port, bool wait )
 }
 
 
-bool TcpConnection::disconnectFromHost( bool wait )
+bool Network::Socket::disconnectFromHost( bool wait )
 {
     if ( noeventloop_ )
 	wait = true;
@@ -121,13 +117,13 @@ bool TcpConnection::disconnectFromHost( bool wait )
 #endif
 
     if ( res )
-	Closed.trigger();
+	disconnected.trigger();
 
     return res;
 }
 
 
-bool TcpConnection::isBad() const
+bool Network::Socket::isBad() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -139,7 +135,7 @@ bool TcpConnection::isBad() const
 }
 
 
-bool TcpConnection::isConnected() const
+bool Network::Socket::isConnected() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -149,7 +145,7 @@ bool TcpConnection::isConnected() const
 #endif
 }
 
-bool TcpConnection::anythingToRead() const
+od_int64 Network::Socket::bytesAvailable() const
 {
 #ifdef OD_NO_QT
     return false;
@@ -159,7 +155,7 @@ bool TcpConnection::anythingToRead() const
 }
 
 
-void TcpConnection::abort()
+void Network::Socket::abort()
 {
 #ifndef OD_NO_QT
     qtcpsocket_->abort();
@@ -170,7 +166,7 @@ void TcpConnection::abort()
 static const od_int64 maxbuffersize = INT_MAX/2;
 
 
-bool TcpConnection::writeArray( const void* voidbuf, od_int64 sz, bool wait )
+bool Network::Socket::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 {
 #ifndef OD_NO_QT
     const char* buf = (const char*) voidbuf;
@@ -224,7 +220,7 @@ bool TcpConnection::writeArray( const void* voidbuf, od_int64 sz, bool wait )
 }
 
 
-bool TcpConnection::waitForWrite( bool forall )
+bool Network::Socket::waitForWrite( bool forall ) const
 {
 #ifndef OD_NO_QT
     while ( qtcpsocket_->bytesToWrite() )
@@ -248,7 +244,7 @@ bool TcpConnection::waitForWrite( bool forall )
 }
 
 
-bool TcpConnection::write( const OD::String& str )
+bool Network::Socket::write( const OD::String& str )
 {
     Threads::Locker locker( lock_ );
 
@@ -257,51 +253,40 @@ bool TcpConnection::write( const OD::String& str )
 }
 
 
-bool TcpConnection::write( const Network::RequestPacket& packet )
+bool Network::Socket::write( const IOPar& par )
 {
-    if ( !packet.isOK() )
+    BufferString str;
+    par.dumpPretty( str );
+    return write( str );
+}
+
+
+bool Network::Socket::write( const Network::RequestPacket& pkt, bool waitfor )
+{
+    if ( !pkt.isOK() )
 	return false;
 
     Threads::Locker locker( lock_ );
-    return writeArray( packet.getRawHeader(), packet.headerSize(), true ) &&
-	   writeArray( packet.payload(), packet.payloadSize(), true );
+    if ( !writeArray( pkt.getRawHeader(), pkt.headerSize(), true ) ||
+	   !writeArray( pkt.payload(), pkt.payloadSize(), true ) )
+	return false;
 
-}
-
-
-template <class T>
-bool TcpConnection::writeArray( const DataInterpreter<T>* interpreter,
-				const T* arr, od_int64 sz, bool wait )
-{
-    const char* usedarr = (char*) const_cast<T*>(arr);
-    const od_int64 nrbytes = sz*sizeof(T);
-    ArrPtrMan<char> writearr = 0;
-
-    if ( interpreter )
+    if ( waitfor )
     {
-	writearr = new char[nrbytes];
-	if ( !writearr )
-	{
-	    errmsg_ = tr("Out of memory");
-	    return false;
-	}
-
-	for ( od_int64 idx=0; idx<sz; idx++ )
-	    interpreter->put( writearr, idx, arr[idx] );
-
-	usedarr = writearr;
+	//TODO implement
     }
-
-    return writeArray( usedarr, nrbytes, wait );
+    return true;
 }
 
-bool TcpConnection::readArray( void* voidbuf, od_int64 sz )
+
+Network::Socket::ReadStatus Network::Socket::readArray( void* voidbuf,
+							od_int64 sz ) const
 {
 #ifndef OD_NO_QT
-    char* buf = (char*) voidbuf;
+    char* buf = (char*)voidbuf;
 
     if ( !waitForConnected() )
-	return false;
+	return Timeout;
 
     Threads::Locker locker( lock_ );
 
@@ -317,7 +302,7 @@ bool TcpConnection::readArray( void* voidbuf, od_int64 sz )
 	if ( bytesread == -1 )
 	{
 	    errmsg_.setFrom( qtcpsocket_->errorString() );
-	    return false;
+	    return ReadError;
 	}
 
 	buf += bytesread;
@@ -326,47 +311,29 @@ bool TcpConnection::readArray( void* voidbuf, od_int64 sz )
 	if ( (!bytesread) || (bytestoread && noeventloop_) )
 	{
 	    if ( !waitForNewData() )
-		return false;
+		return Timeout;
 	}
     }
 
-    return true;
+    return ReadOK;
 
 #else
-    return false;
+    return ReadError;
 #endif
 }
 
 
-template <class T>
-bool TcpConnection::readArray( const DataInterpreter<T>* interpreter,
-			       T* arr, od_int64 sz )
-{
-    const od_int64 nrbytes = sz*sizeof(T);
-    if ( !readArray( (char*) arr, nrbytes ) )
-	return false;
-
-    if ( interpreter )
-    {
-	for ( od_int64 idx=0; idx<sz; idx++ )
-	    arr[idx] = interpreter->get( arr, idx );
-    }
-
-    return true;
-}
-
-
 #define mReadWriteArrayImpl( Type, tp ) \
-bool TcpConnection::write##Type##Array( const tp* arr, od_int64 sz,bool wait) \
-{ return writeArray<tp>( tp##interpreter_, arr, sz, wait ); } \
+bool Network::Socket::write##Type##Array( const tp* arr,od_int64 sz,bool wait) \
+{ return writeArray( (const void*) arr, sz*sizeof(tp), wait ); } \
 \
-bool TcpConnection::read##Type##Array( tp* arr, od_int64 sz ) \
-{ return readArray<tp>( tp##interpreter_, arr, sz ); } \
+bool Network::Socket::read##Type##Array( tp* arr, od_int64 sz ) const \
+{ return readArray( (void*) arr, sz*sizeof(tp) ); } \
 \
-bool TcpConnection::write##Type( tp val ) \
+bool Network::Socket::write##Type( tp val ) \
 { return write##Type##Array( &val, 1 ); } \
 \
-bool TcpConnection::read##Type( tp& val ) \
+bool Network::Socket::read##Type( tp& val ) const \
 { return read##Type##Array( &val, 1 ); }
 
 mReadWriteArrayImpl( Short, short );
@@ -375,7 +342,7 @@ mReadWriteArrayImpl( Int64, od_int64 );
 mReadWriteArrayImpl( Float, float );
 mReadWriteArrayImpl( Double, double );
 
-bool TcpConnection::read( BufferString& res )
+bool Network::Socket::read( BufferString& res ) const
 {
     int nrchars;
     if ( !readInt32( nrchars ) )
@@ -398,42 +365,62 @@ bool TcpConnection::read( BufferString& res )
 }
 
 
-bool TcpConnection::read( Network::RequestPacket& packet )
+bool Network::Socket::read( IOPar& res ) const
 {
-    Threads::Locker locker( lock_ );
-
-    if ( !readArray( packet.getRawHeader(),
-		     Network::RequestPacket::headerSize() ) )
+    BufferString str;
+    if ( !read( str ) )
 	return false;
 
-    if ( !packet.isOK() )
-    {
-	errmsg_ = tr("Received packet is not OK");
-	return false;
-    }
-
-    const od_int32 payloadsize = packet.payloadSize();
-    mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
-    packet.setPayload( payload );
-
-    if ( !payload )
-    {
-	errmsg_ = tr("Out of memory");
-	return false;
-    }
-
-    if ( !readArray( payload, payloadsize ) )
-    {
-	delete [] payload;
-	return false;
-    }
-
+    res.getFrom( str.buf() );
     return true;
 }
 
 
+Network::Socket::ReadStatus Network::Socket::read(
+				Network::RequestPacket& pkt ) const
+{
+    Threads::Locker locker( lock_ );
 
-bool TcpConnection::waitForConnected()
+    ReadStatus res = readArray( pkt.getRawHeader(),
+			       Network::RequestPacket::headerSize() );
+    if ( res!=ReadOK )
+	return res;
+
+    if ( !pkt.isOK() )
+    {
+	errmsg_ = tr("Received packet is not OK");
+	return ReadError;
+    }
+
+    const od_int32 payloadsize = pkt.payloadSize();
+    if ( payloadsize > 0 )
+    {
+	mDeclareAndTryAlloc( char*, payload, char[payloadsize] );
+
+	if ( !payload )
+	{
+	    errmsg_ = tr("Out of memory");
+	    return ReadError;
+	}
+
+
+	res = readArray( payload, payloadsize );
+
+	if ( res!=ReadOK )
+	{
+	    delete [] payload;
+	    return ReadError;
+	}
+
+	pkt.setPayload( payload, payloadsize );
+    }
+
+    return ReadOK;
+}
+
+
+
+bool Network::Socket::waitForConnected() const
 {
     if ( isConnected() )
 	return true;
@@ -460,7 +447,7 @@ bool TcpConnection::waitForConnected()
 }
 
 
-bool TcpConnection::waitForNewData()
+bool Network::Socket::waitForNewData() const
 {
 #ifndef OD_NO_QT
     while ( !qtcpsocket_->bytesAvailable() )

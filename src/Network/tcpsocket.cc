@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 TcpSocket::TcpSocket()
 #ifndef OD_NO_QT
     : qtcpsocket_(new QTcpSocket)
-    , comm_(new QTcpSocketComm(qtcpsocket_,this))
+    , comm_(new OldQTcpSocketComm(qtcpsocket_,this))
 #else
     : qtcpsocket_(0)
     , comm_(0)
@@ -40,7 +40,7 @@ TcpSocket::TcpSocket()
 TcpSocket::TcpSocket( QTcpSocket* qsocket, int id )
 #ifndef OD_NO_QT
     : qtcpsocket_(qsocket)
-    , comm_(new QTcpSocketComm(qtcpsocket_,this))
+    , comm_(new OldQTcpSocketComm(qtcpsocket_,this))
 #else
     : qtcpsocket_(0)
     , comm_(0)

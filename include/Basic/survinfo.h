@@ -225,7 +225,7 @@ public:
     static const char*	sKeyXRange();
     static const char*	sKeyYRange();
     static const char*	sKeyZRange();
-    static const char*	sKeyWSProjName();
+    static const char*	sKeyWSProjName(); // Deprecated, not present after 5.0.
     static const char*	sKeyXYInFt();
     static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType();
@@ -241,15 +241,10 @@ public:
     void		setSurvDataType( Pol2D typ )
 			{ survdatatype_ = typ; survdatatypeknown_ = true; }
     BufferString	sipName() const		{ return sipnm_; }
-    void		setSipName( BufferString sipnm )     { sipnm_ = sipnm; }
-
+    void		setSipName( BufferString sipnm ) { sipnm_ = sipnm; }
     const char*		comment() const		{ return comment_.buf(); }
 
-    const char*		getWSProjName() const	{ return wsprojnm_.buf(); }
-			// Password only in memory this session
-    const char*		getWSPwd() const	{ return wspwd_.buf(); }
-
-	// These fns are used by specialist classes. Know what you are doing!
+	// Following fns are used by specialist classes. Don't use casually.
 
 			SurveyInfo(const SurveyInfo&);
     SurveyInfo&		operator =(const SurveyInfo&);
@@ -271,6 +266,10 @@ public:
     void		gen3Pts();
     void		setComment( const char* s )	{ comment_ = s; }
 
+    // DEPRECATED:
+    // WS data will be removed after 5.0. Store what you need in pars().
+    const char*		getWSProjName() const	{ return wsprojnm_.buf(); }
+    const char*		getWSPwd() const	{ return wspwd_.buf(); }
     void		setWSProjName( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
     void		setWSPwd( const char* nm ) const
@@ -295,4 +294,3 @@ mExternC( Basic ) const char* GetSurveyName(void);
 
 
 #endif
-

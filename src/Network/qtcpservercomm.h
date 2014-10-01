@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include <QTcpServer>
 #include "tcpserver.h"
+#include "netserver.h"
 
 /*\brief QTcpServer communication class
 
@@ -22,14 +23,43 @@ ________________________________________________________________________
 
 QT_BEGIN_NAMESPACE
 
-class QTcpServerComm : public QObject 
+class QTcpServerComm : public QObject
+{
+    Q_OBJECT
+    friend class	Network::Server;
+
+protected:
+
+QTcpServerComm( QTcpServer* qtcpserver, Network::Server* serv )
+    : qtcpserver_(qtcpserver)
+    , server_(serv)
+{
+    connect( qtcpserver, SIGNAL(newConnection()), this, SLOT(newConnection()) );
+}
+
+private slots:
+
+void newConnection()
+{
+    server_->notifyNewConnection();
+}
+
+private:
+
+    QTcpServer*		qtcpserver_;
+    Network::Server*	server_;
+
+};
+
+
+class OldQTcpServerComm : public QObject
 {
     Q_OBJECT
     friend class	TcpServer;
 
 protected:
 
-QTcpServerComm( QTcpServer* qtcpserver, TcpServer* tcpserver )
+OldQTcpServerComm( QTcpServer* qtcpserver, TcpServer* tcpserver )
     : qtcpserver_(qtcpserver)
     , tcpserver_(tcpserver)
 {
@@ -39,7 +69,7 @@ QTcpServerComm( QTcpServer* qtcpserver, TcpServer* tcpserver )
 private slots:
 
 void newConnection()
-{ 
+{
     tcpserver_->notifyNewConnection();
 }
 

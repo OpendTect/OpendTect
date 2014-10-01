@@ -1,5 +1,5 @@
-#ifndef tcpconnection_h
-#define tcpconnection_h
+#ifndef netsocket_h
+#define netsocket_h
 
 /*+
 ________________________________________________________________________
@@ -15,18 +15,20 @@ ________________________________________________________________________
 
 #include "networkmod.h"
 #include "callback.h"
+#include "threadlock.h"
 #include "uistring.h"
 
-#include "threadlock.h"
+class BufferString;
+template <class T> class DataInterpreter;
+mFDQtclass(QTcpSocket)
+mFDQtclass(QTcpSocketComm)
+
 
 namespace Network
 {
-    class RequestPacket;
-}
 
-template <class T> class DataInterpreter;
-class QTcpSocket;
-class BufferString;
+class RequestPacket;
+
 
 /*!Enables the connection and sending of binary and text data through
    a socket both with and without event-loops.
@@ -39,13 +41,13 @@ class BufferString;
 
  */
 
-mExpClass(Network) TcpConnection : public CallBacker
-{ mODTextTranslationClass(TcpConnection);
+mExpClass(Network) Socket : public CallBacker
+{ mODTextTranslationClass(Socket);
 
 public:
-
-		TcpConnection(bool haveeventloop=true);
-		~TcpConnection();
+		Socket(bool haveeventloop=true);
+		Socket(mQtclass(QTcpSocket)*,bool haveeventloop=true);
+		~Socket();
 
     void	setTimeout(int ms) { timeout_ = ms; }
 
@@ -55,7 +57,7 @@ public:
 
     bool	isBad() const;
     bool	isConnected() const;
-    bool	anythingToRead() const;
+    od_int64	bytesAvailable() const;
     uiString	errMsg() const	{ return errmsg_; }
     void	abort();	//!<Just stops all pending operations.
 
@@ -65,10 +67,10 @@ public:
     bool	writeInt64(od_int64);
     bool	writeFloat(float);
     bool	writeDouble(double);
-    bool	write(const Network::RequestPacket&);
     bool	write(const OD::String&);
-    bool	write(const uiString&);
-    int		write(const IOPar&);
+    bool	write(const IOPar&);
+
+    bool	write(const Network::RequestPacket&,bool wait=false);
 
     bool	writeArray(const void*,od_int64,bool wait=false);
     bool	writeShortArray(const short*,od_int64,bool wait=false);
@@ -77,53 +79,53 @@ public:
     bool	writeFloatArray(const float*,od_int64,bool wait=false);
     bool	writeDoubleArray(const double*,od_int64,bool wait=false);
 
-    bool	readChar(char&);
-    bool	readShort(short&);
-    bool	readInt32(od_int32&);
-    bool	readInt64(od_int64&);
-    bool	readFloat(float&);
-    bool	readDouble(double&);
-    bool	read(BufferString&);
-    void	read(IOPar&) const;
-    bool	read(Network::RequestPacket&);
+    enum ReadStatus { ReadOK, Timeout, ReadError };
+    bool	readChar(char&) const;
+    bool	readShort(short&) const;
+    bool	readInt32(od_int32&) const;
+    bool	readInt64(od_int64&) const;
+    bool	readFloat(float&) const;
+    bool	readDouble(double&) const;
+    bool	read(BufferString&) const;
+    bool	read(IOPar&) const;
+    ReadStatus	read(Network::RequestPacket&) const;
 
-    bool	readArray(void*,od_int64);
-    bool	readShortArray(short*,od_int64);
-    bool	readInt32Array(od_int32*,od_int64);
-    bool	readInt64Array(od_int64*,od_int64);
-    bool	readFloatArray(float*,od_int64);
-    bool	readDoubleArray(double*,od_int64);
+    ReadStatus	readArray(void*,od_int64) const;
+    bool	readShortArray(short*,od_int64) const;
+    bool	readInt32Array(od_int32*,od_int64) const;
+    bool	readInt64Array(od_int64*,od_int64) const;
+    bool	readFloatArray(float*,od_int64) const;
+    bool	readDoubleArray(double*,od_int64) const;
 
-    Notifier<TcpConnection>	Closed; //!< usually remote host terminates.
+    Notifier<Socket> disconnected; //!< usually remote host terminates.
+    Notifier<Socket> readyRead;    /*!<Note that object may or may not be
+				      locked, so you may not be able to
+				      read immediately */
 
 private:
 
-    bool			waitForConnected();
+    bool			waitForConnected() const;
 				//!<\note Lock should be unlocked when calling
-    bool			waitForNewData();
+    bool			waitForNewData() const;
 				//!<\note Lock should be locked when calling
-    bool			waitForWrite(bool all);
+    bool			waitForWrite(bool all) const;
 				//!<\note Lock should be locked when calling
-
-    template <class T> bool	writeArray(const DataInterpreter<T>*,
-					   const T* arr,od_int64,bool wait);
-    template <class T> bool	readArray(const DataInterpreter<T>*,T*,
-					  od_int64);
 
     mutable uiString		errmsg_;
-    Threads::Lock		lock_;
-    QTcpSocket*			qtcpsocket_;
+    mutable Threads::Lock	lock_;
+
     int				timeout_;
     bool			noeventloop_;
 
-    DataInterpreter<short>*	shortinterpreter_;
-    DataInterpreter<od_int32>*	od_int32interpreter_;
-    DataInterpreter<od_int64>*	od_int64interpreter_;
-    DataInterpreter<float>*	floatinterpreter_;
-    DataInterpreter<double>*	doubleinterpreter_;
+    mQtclass(QTcpSocket)*	qtcpsocket_;
+    bool			ownssocket_;
+
+    mQtclass(QTcpSocketComm)*	socketcomm_;
 
 };
 
 
-#endif
+} // namespace Network
 
+
+#endif

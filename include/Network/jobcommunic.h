@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "genc.h"
 #include "callback.h"
 
-class Socket;
 class BatchProgram;
 class StreamData;
-class TcpSocket;
+namespace Network { class Socket; }
 
 #define mReturn( ret ) { \
     if ( ret ) { nrattempts_ = 0; return true; } \
@@ -92,11 +91,11 @@ protected:
     bool		stillok_;
     State		stat_;
     BufferString	errmsg_;
-    int		jobid_;
+    int			jobid_;
     bool		pausereq_;
     StreamData&		sdout_;
 
-    TcpSocket*		socket_;
+    Network::Socket*	socket_;
 
     bool		sendState_( State, bool isexit, bool immediate );
     bool		sendProgress_( int, bool immediate );
@@ -122,10 +121,10 @@ private:
 
     int			timestamp_;
     int			nrattempts_;
-    int		maxtries_;
-    int		socktimeout_;
+    int			maxtries_;
+    int			socktimeout_;
     int			failtimeout_;
-    int		min_time_between_update_;
+    int			min_time_between_update_;
     int			lastsucces_;
 };
 

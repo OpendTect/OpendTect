@@ -737,7 +737,9 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     if ( !dlg || !dlg->go() ) return;
 
     CubeSampling cs; Coord crd[3];
-    if ( !sip->getInfo(dlg,cs,crd) )
+    if ( sip->getInfo(dlg,cs,crd) )
+	sip->fillPar( si_.getPars() );
+    else
 	return;
 
     if ( sip->tdInfo() == uiSurvInfoProvider::Time )

@@ -1,13 +1,13 @@
-#ifndef tcpserver_h
-#define tcpserver_h
+#ifndef netserver_h
+#define netserver_h
 
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:        Nanne Hemstra
- Date:          March 2009
- RCS:           $Id$
+ Author:	Nanne Hemstra
+ Date:		March 2009
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -17,23 +17,22 @@ ________________________________________________________________________
 #include "callback.h"
 #include "bufstring.h"
 
-class QTcpServer;
-class OldQTcpServerComm;
-class QTcpSocket;
-class TcpSocket;
+mFDQtclass(QTcpSocket)
+mFDQtclass(QTcpServer)
+mFDQtclass(QTcpServerComm)
 
 
-/* This class is DEPRECATED. Will disappear after 5.0.
-   Use Network::Server instead. */
-
-
-mExpClass(Network) TcpServer : public CallBacker
+namespace Network
 {
-friend class OldQTcpServerComm;
 
+class Socket;
+
+
+mExpClass(Network) Server : public CallBacker
+{
 public:
-			TcpServer();
-			~TcpServer();
+			Server();
+			~Server();
 
     bool		listen(const char* host,int port=0);
 			//!<If host is 0, server will listen to any host
@@ -49,13 +48,13 @@ public:
     void		read(int id,IOPar&) const;
     const char*		errorMsg() const;
 
-    TcpSocket*		getSocket(int id);
-    const TcpSocket*	getSocket(int id) const;
+    Socket*		getSocket(int id);
+    const Socket*	getSocket(int id) const;
 
-    CNotifier<TcpServer,int>	newConnection;
-    CNotifier<TcpServer,int>	readyRead;
+    CNotifier<Server,int> newConnection;
+    CNotifier<Server,int> readyRead;
 
-    QTcpSocket*		nextPendingConnection();
+    mQtclass(QTcpSocket)* nextPendingConnection();
 			//!<Use when you want to access Qt object directly
 
     bool		waitForNewConnection(int msec);
@@ -68,12 +67,18 @@ protected:
     void		readyReadCB(CallBacker*);
     void		disconnectCB(CallBacker*);
 
-    QTcpServer*		 qtcpserver_;
-    OldQTcpServerComm*	 comm_;
+    mQtclass(QTcpServer)* qtcpserver_;
+    mQtclass(QTcpServerComm)* comm_;
     mutable BufferString errmsg_;
-    ObjectSet<TcpSocket> sockets_;
-    ObjectSet<TcpSocket> sockets2bdeleted_;
+    ObjectSet<Socket>	sockets_;
+    TypeSet<int>	ids_;
+    ObjectSet<Socket>	sockets2bdeleted_;
+
+    friend class	mQtclass(QTcpServerComm);
+
 };
 
-#endif
+} // namespace Network
 
+
+#endif

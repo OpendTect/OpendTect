@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "netreqpacket.h"
 #include "atomic.h"
 #include "bufstring.h"
-#include "fixedstring.h"
 #include "ptrman.h"
 
 
@@ -58,38 +57,40 @@ int Network::RequestPacket::setIsNewRequest()
 }
 
 
-void Network::RequestPacket::setIsRequestEnd( int reqid )
+od_int32 Network::RequestPacket::payloadSize() const
 {
-    setRequestID( reqid );
-    setSubID( cEndSubID() );
+    return mPayloadSize_;
 }
 
 
-od_int32 Network::RequestPacket::payloadSize() const
-{ return mPayloadSize_; }
-
-
 od_int32 Network::RequestPacket::requestID() const
-{ return mRequestID_; }
+{
+    return mRequestID_;
+}
 
 
 void Network::RequestPacket::setRequestID( od_int32 id )
-{ mRequestID_ = id; }
+{
+    mRequestID_ = id;
+}
 
 
 od_int16 Network::RequestPacket::subID() const
-{ return mSubID_; }
+{
+    return mSubID_;
+}
 
 
 void Network::RequestPacket::setSubID( od_int16 sid )
-{ mSubID_ = sid; }
-
-
-
-void Network::RequestPacket::setPayload( void* ptr )
 {
-    deleteAndZeroArrPtr(payload_);
-    payload_ = (char*) ptr;
+    mSubID_ = sid;
+}
+
+
+void* Network::RequestPacket::allocPayload( od_int32 size )
+{
+    mDeclareAndTryAlloc( char*, pl, char[size] );
+    return pl;
 }
 
 
@@ -97,7 +98,7 @@ void Network::RequestPacket::setPayload( void* ptr, od_int32 size )
 {
     deleteAndZeroArrPtr( payload_ );
 
-    payload_ = (char*) ptr;
+    payload_ = (char*)ptr;
     mPayloadSize_ = size;
 }
 
@@ -110,13 +111,13 @@ void Network::RequestPacket::setStringPayload( const char* str )
     else
     {
 	int newplsz = sz + sizeof(int);
-	mDeclareAndTryAlloc( char*, newpl, char[newplsz] );
+	void* newpl = allocPayload( newplsz );
 	if ( !newpl )
 	    newplsz = 0;
 	else
 	{
 	    *((int*)newpl) = sz;
-	    OD::memCopy( newpl+sizeof(int), str, sz );
+	    OD::memCopy( ((char*)newpl)+sizeof(int), str, sz );
 	}
 
 	setPayload( newpl, newplsz );
@@ -161,6 +162,28 @@ void Network::RequestPacket::getStringPayload( BufferString& str ) const
 
     str.setBufSize( nrchars+1 );
     char* cstr = str.getCStr();
-    OD::memCopy( cstr, payload_ + sizeof(int), nrchars );
-    *(cstr+nrchars) = '\0';
+    if ( cstr )
+    {
+	OD::memCopy( cstr, payload_ + sizeof(int), nrchars );
+	*(cstr+nrchars) = '\0';
+    }
+}
+
+
+void Network::RequestPacket::addErrMsg( BufferString& msg ) const
+{
+    if ( !isError() )
+    {
+	pErrMsg( "addErrMsg for non-error packet requested" );
+	return;
+    }
+
+    BufferString mymsg; getStringPayload( mymsg );
+    if ( mymsg.isEmpty() )
+    {
+	pErrMsg( "No error message in error packet" );
+	mymsg = "Unknown network error occurred";
+    }
+    msg.add( ":\n" ).add( mymsg );
+
 }

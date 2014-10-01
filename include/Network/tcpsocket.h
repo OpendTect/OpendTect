@@ -18,12 +18,16 @@ ________________________________________________________________________
 #include "bufstring.h"
 
 class QTcpSocket;
-class QTcpSocketComm;
+class OldQTcpSocketComm;
+
+
+/* This class is DEPRECATED. Will disappear after 5.0.
+   Use Network::Socket instead. */
 
 
 mExpClass(Network) TcpSocket : public CallBacker
 {
-friend class QTcpSocketComm;
+friend class OldQTcpSocketComm;
 
 public:
 				TcpSocket();
@@ -67,7 +71,7 @@ public:
 protected:
 
     QTcpSocket*			qtcpsocket_;
-    QTcpSocketComm*		comm_;
+    OldQTcpSocketComm*		comm_;
     mutable BufferString	errmsg_;
     const int			id_;
     bool			isownsocket_;

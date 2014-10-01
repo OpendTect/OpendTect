@@ -16,17 +16,18 @@ set ( OD_MODULE_SOURCES
 		cvsaccess.cc
 		issuereporter.cc
 		jobcommunic.cc
-		netreqcommunic.cc
+		netserver.cc
+		netsocket.cc
+		netreqconnection.cc
 		netreqpacket.cc
 		oddlsite.cc
 		odnetworkaccess.cc
 		odnetworkreply.cc
 		svnaccess.cc
 		systeminfo.cc
-		tcpconnection.cc
 		tcpserver.cc
 		tcpsocket.cc)
 set ( OD_TEST_PROGS networkaccess.cc )
-set ( OD_NIGHTLY_TEST_PROGS tcpconnection.cc )
-set ( OD_MODULE_PROGS od_ReportIssue.cc echoserver.cc )
+set ( OD_NIGHTLY_TEST_PROGS netreq.cc netsocket.cc echoserver.cc netreqechoserver.cc)
+set ( OD_MODULE_PROGS od_ReportIssue.cc )
 OD_INIT_MODULE()

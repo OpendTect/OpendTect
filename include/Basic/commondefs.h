@@ -214,7 +214,7 @@ namespace Threads
 
 #ifndef QT_NAMESPACE
 # define mFDQtclass(cls) class cls;
-# define mQtclass(cls) cls
+# define mQtclass(cls) ::cls
 # define mUseQtnamespace
 #else
 # define mFDQtclass(cls) namespace QT_NAMESPACE { class cls; }

@@ -29,7 +29,7 @@ static int getNewID()
 TcpServer::TcpServer()
 #ifndef OD_NO_QT
     : qtcpserver_(new QTcpServer)
-    , comm_(new QTcpServerComm(qtcpserver_,this))
+    , comm_(new OldQTcpServerComm(qtcpserver_,this))
 #else
     : qtcpserver_(0)
     , comm_(0)
