@@ -27,13 +27,20 @@ public:
 class NotifiedClass : public CallBacker
 {
 public:
-			NotifiedClass(NotifierAccess* a = 0 ) : nrhits_( 0 )
+			NotifiedClass(NotifierAccess* a = 0 )
+			    : nrhits_( 0 )
+			    , delete_on_cb_( 0 )
 			{
 			    if ( a ) mAttachCB( *a, NotifiedClass::callbackA);
 			}
 			~NotifiedClass() { detachAllNotifiers(); }
     void		callbackA(CallBacker*)
 			{
+			    if ( delete_on_cb_ )
+			    {
+				deleteAndZeroPtr( delete_on_cb_ );
+			    }
+
 			    nrhits_++;
 			}
     void		callbackB(CallBacker*)
@@ -42,6 +49,7 @@ public:
 			}
 
     Threads::Atomic<int>	nrhits_;
+    CallBacker*			delete_on_cb_;
 };
 
 
@@ -94,6 +102,21 @@ bool testNormalOp()
     notifier.notifier.trigger();
     mRunStandardTest( notified.nrhits_==5,
 		     "Removed notify-stopper on disabled notifier" );
+
+    return true;
+}
+
+
+bool testDeleteDuringTrigger()
+{
+    ClassWithNotifier* notifier = new ClassWithNotifier;
+    NotifierAccess* naccess = &notifier->notifier;
+    PtrMan<NotifiedClass> notified = new NotifiedClass( naccess );
+    notified->delete_on_cb_ = notifier;
+
+    notifier->notifier.trigger();
+    mRunStandardTest( notified->nrhits_==1, "Delete active notifier" );
+    //Test is dumb. Really if it does not crash, test is passed
 
     return true;
 }
@@ -419,6 +442,7 @@ int main( int argc, char** argv )
     mInitTestProg();
 
     if ( !testNormalOp()
+      || !testDeleteDuringTrigger()
       || !testAttach()
       || !testLateDetach()
       || !testEarlyDetach()
