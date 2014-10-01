@@ -31,7 +31,7 @@ public:
 
     enum Opt		{ MatchTrcNr, MatchCoords, SimpleAppend };
 
-    			Seis2DLineMerger(const MultiID&);
+    			Seis2DLineMerger(const BufferStringSet& datanms);
     			~Seis2DLineMerger();
 
     uiString		uiMessage() const	{ return msg_; }
@@ -40,7 +40,6 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     int			nextStep();
 
-    MultiID		lsID() const;
 
     Opt			opt_;
     BufferString	lnm1_;
@@ -53,8 +52,7 @@ public:
 
 protected:
 
-    SeisIOObjInfo&	oinf_;
-    Seis2DLineSet*	ls_;
+    Seis2DDataSet*	ds_;
     PosInfo::Line2DData& l2dd1_;
     PosInfo::Line2DData& l2dd2_;
     PosInfo::Line2DData& outl2dd_;
@@ -66,8 +64,9 @@ protected:
     BufferStringSet&	attrnms_;
     int			curattridx_;
     int			currentlyreading_;
-    int			lid1_, lid2_;
+    Pos::GeomID		lid1_, lid2_;
     bool		have1_, have2_;
+    Pos::GeomID		outgeomid_;
 
     uiString		msg_;
     uiString		nrdonemsg_;

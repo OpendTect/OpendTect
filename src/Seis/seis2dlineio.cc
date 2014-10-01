@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispacketinfo.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "bufstringset.h"
 #include "trckeyzsampling.h"
@@ -192,31 +193,38 @@ bool TwoDDataSeisTrcTranslator::initRead_()
 }
 
 
-Seis2DLineMerger::Seis2DLineMerger( const MultiID& lsky )
+#define mStdInit \
+    , fetcher_(0) \
+    , putter_(0) \
+    , outbuf_(*new SeisTrcBuf(false)) \
+    , tbuf1_(*new SeisTrcBuf(false)) \
+    , tbuf2_(*new SeisTrcBuf(false)) \
+    , l2dd1_(*new PosInfo::Line2DData) \
+    , l2dd2_(*new PosInfo::Line2DData) \
+    , outl2dd_(*new PosInfo::Line2DData) \
+    , attrnms_(*new BufferStringSet) \
+    , opt_(MatchTrcNr) \
+    , outgeomid_(Survey::GeometryManager::cUndefGeomID()) \
+    , numbering_(1,1) \
+    , renumber_(false) \
+    , stckdupl_(false) \
+    , snapdist_(0.01) \
+    , nrdone_(0) \
+    , totnr_(-1) \
+    , curattridx_(-1) \
+    , currentlyreading_(0) \
+    , msg_("Opening files") \
+    , nrdonemsg_("Files opened") 
+
+
+
+Seis2DLineMerger::Seis2DLineMerger( const BufferStringSet& attrnms )
     : Executor("Merging linens")
-    , oinf_(*new SeisIOObjInfo(lsky))
-    , ls_(0)
-    , fetcher_(0)
-    , putter_(0)
-    , outbuf_(*new SeisTrcBuf(false))
-    , tbuf1_(*new SeisTrcBuf(false))
-    , tbuf2_(*new SeisTrcBuf(false))
-    , l2dd1_(*new PosInfo::Line2DData)
-    , l2dd2_(*new PosInfo::Line2DData)
-    , outl2dd_(*new PosInfo::Line2DData)
-    , attrnms_(*new BufferStringSet)
-    , opt_(MatchTrcNr)
-    , numbering_(1,1)
-    , renumber_(false)
-    , stckdupl_(false)
-    , snapdist_(0.01)
-    , nrdone_(0)
-    , totnr_(-1)
-    , curattridx_(0)
-    , currentlyreading_(0)
-    , msg_("Opening files")
-    , nrdonemsg_("Files opened")
+    , ds_(0)
+    mStdInit
 {
+    for ( int atridx=0; atridx<attrnms.size(); atridx++ )
+	attrnms_.add( attrnms.get(atridx) );
 }
 
 
@@ -224,7 +232,7 @@ Seis2DLineMerger::~Seis2DLineMerger()
 {
     delete fetcher_;
     delete putter_;
-    delete ls_;
+    delete ds_;
     tbuf1_.deepErase();
     tbuf2_.deepErase();
     outbuf_.deepErase();
@@ -233,80 +241,63 @@ Seis2DLineMerger::~Seis2DLineMerger()
     delete &tbuf2_;
     delete &outbuf_;
     delete &attrnms_;
-    delete &oinf_;
 }
 
 
-MultiID Seis2DLineMerger::lsID() const
-{
-    return oinf_.isOK() ? oinf_.ioObj()->key() : MultiID();
-}
 
 
 bool Seis2DLineMerger::getLineID( const char* lnm, int& lid ) const
-{
-    lid = ls_->indexOf( LineKey(lnm,attrnms_.get(curattridx_)) );
-    if ( lid >= 0 )
-	return true;
-
-    lid = ls_->indexOf( LineKey(lnm) );
-    if ( lid < 0 )
-	lid = ls_->indexOfFirstOccurrence( lnm );
-    return false;
-}
+{ return true; }
 
 
 bool Seis2DLineMerger::nextAttr()
 {
-    have1_ = have2_ = false;
-    while ( !have1_ && !have2_ )
-    {
-	curattridx_++;
-	if ( curattridx_ >= attrnms_.size() )
-	    return false;
-
-	have1_ = getLineID( lnm1_, lid1_ );
-	have2_ = getLineID( lnm2_, lid2_ );
-    }
-
-    msg_ = uiString("Merging '%1'").arg( attrnms_.get(curattridx_) );
+    curattridx_++;
+    if ( !attrnms_.validIdx(curattridx_) )
+	return false;
+    SeisIOObjInfo seisdatainfo(  attrnms_.get(curattridx_).buf() );
+    delete ds_;
+    ds_ = new Seis2DDataSet( *seisdatainfo.ioObj() );
     currentlyreading_ = 0;
-    return nextFetcher();
+    return true;
 }
 
 
 
 #define mErrRet(s) \
     { \
-	msg_ = uiString( "%1 %2 (%3)").arg(s).arg( lnm ). \
-			arg(attrnms_.get(curattridx_) ); \
+	msg_ = s; \
 	return false; \
     }
 
 bool Seis2DLineMerger::nextFetcher()
 {
+    if ( !ds_ )
+	mErrRet("Cannot find the Data Set")
+    if ( ds_->nrLines() < 2 )
+	mErrRet("Cannot find 2 lines in Line Set");
     delete fetcher_; fetcher_ = 0;
     currentlyreading_++;
     if ( currentlyreading_ > 2 )
-	{ currentlyreading_ = 0; return true; }
+	return true;
 
-    const int lid = currentlyreading_ == 1 ? lid1_ : lid2_;
-    PosInfo::Line2DData& l2dd( currentlyreading_==1 ? l2dd1_ : l2dd2_ );
-    l2dd.setLineName( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
-    const char* lnm = l2dd.lineName().buf();
+    BufferString lnm( currentlyreading_ == 1 ? lnm1_ : lnm2_ );
+    Pos::GeomID lid = Survey::GM().getGeomID( lnm );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,
+		    Survey::GM().getGeometry(lid))
+    if ( !geom2d )
+	mErrRet( tr("Cannot find 2D Geometry of Line '%1'.").arg(lnm) )
+    const PosInfo::Line2DData& l2dd( geom2d->data() );
     SeisTrcBuf& tbuf = currentlyreading_==1 ? tbuf1_ : tbuf2_;
     tbuf.deepErase();
 
-    S2DPOS().setCurLineSet( ls_->name() );
-    if ( !S2DPOS().getGeometry(l2dd) )
-	mErrRet("Cannot open")
     nrdone_ = 0;
     totnr_ = l2dd.positions().size();
     if ( totnr_ < 0 )
-	mErrRet("No data in")
-    fetcher_ = ls_->lineFetcher( lid, tbuf, 1 );
+	mErrRet( tr("No data in %1").arg(geom2d->getName()) )
+    fetcher_ = ds_->lineFetcher( lid, tbuf, 1 );
     if ( !fetcher_ )
-	mErrRet("Cannot create a reader for")
+	mErrRet( tr("Cannot create a reader for %1.").arg(geom2d->getName()) )
 
     nrdonemsg_ = "Traces read";
     return true;
@@ -314,53 +305,32 @@ bool Seis2DLineMerger::nextFetcher()
 
 
 #undef mErrRet
-#define mErrRet(s) \
-{ if ( s.isSet() ) msg_ = s; return Executor::ErrorOccurred(); }
+#define mErrRet(s) { if ( s ) msg_ = s; return Executor::ErrorOccurred(); }
 
 int Seis2DLineMerger::nextStep()
 {
-    if ( !oinf_.isOK() )
-	mErrRet(tr("Cannot find the Line Set") )
-    else if ( ls_ )
-	return doWork();
-
-    if ( attrnms_.isEmpty() )
-    {
-	BufferStringSet attrnms2;
-	oinf_.getAttribNamesForLine( lnm1_, attrnms_ );
-	oinf_.getAttribNamesForLine( lnm2_, attrnms2 );
-	attrnms_.add( attrnms2, false );
-	if ( attrnms_.isEmpty() )
-	    mErrRet(tr("Cannot find any attributes for these lines"));
-    }
-    ls_ = new Seis2DLineSet( *oinf_.ioObj() );
-    if ( ls_->nrLines() < 2 )
-	mErrRet(tr("Cannot find 2 lines in Line Set"));
-
-    curattridx_ = -1;
-    msg_.setEmpty();
-    if ( !nextAttr() )
-    {
-	if ( msg_.isEmpty() )
-	    msg_ = tr("Cannot find any common attribute");
-	return ErrorOccurred();
-    }
-
-    return Executor::MoreToDo();
+    return doWork();
 }
 
 
 int Seis2DLineMerger::doWork()
 {
-    if ( fetcher_ )
+    if ( !currentlyreading_ && !nextAttr() )
+	    return Executor ::Finished();
+
+    if ( fetcher_ || !currentlyreading_ )
     {
+	if ( !currentlyreading_ )
+	    return nextFetcher() ? Executor::MoreToDo()
+				 : Executor::ErrorOccurred();
 	const int res = fetcher_->doStep();
 	if ( res < 0 )
 	    { msg_ = fetcher_->uiMessage(); return res; }
 	else if ( res == 1 )
 	    { nrdone_++; return Executor::MoreToDo(); }
 
-	return nextFetcher() ? Executor::MoreToDo() : Executor::ErrorOccurred();
+	return nextFetcher() ? Executor::MoreToDo()
+			     : Executor::ErrorOccurred();
     }
     else if ( putter_ )
     {
@@ -368,48 +338,57 @@ int Seis2DLineMerger::doWork()
 	{
 	    outbuf_.deepErase();
 	    if ( !putter_->close() )
-		mErrRet(putter_->errMsg())
+		mErrRet(putter_->errMsg().getOriginalString())
 	    delete putter_; putter_ = 0;
-#	    define mRetNextAttr \
-	    { \
-		if ( nextAttr() ) \
-		    return Executor::MoreToDo(); \
-		else \
-		{ \
-		    outl2dd_.setLineName( outlnm_ ); \
-		    PosInfo::POS2DAdmin().setGeometry( outl2dd_ ); \
-		    return Executor::Finished(); \
-		} \
-	    }
-	    mRetNextAttr;
+	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry(outgeomid_);
+	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+	    if ( !geom2d || !Survey::GMAdmin().write(*geom2d, msg_) )
+		return Executor::ErrorOccurred();
+	    currentlyreading_ = 0;
+	    return Executor::MoreToDo();
 	}
 
 	const SeisTrc& trc = *outbuf_.get( mCast(int,nrdone_) );
 	if ( !putter_->put(trc) )
-	    mErrRet(putter_->errMsg())
+	    mErrRet(putter_->errMsg().getOriginalString())
 
-	PosInfo::Line2DPos pos( trc.info().nr );
-	pos.coord_ = trc.info().coord;
-	outl2dd_.add( pos );
+	if ( !curattridx_ )
+	{
+	    PosInfo::Line2DPos pos( trc.info().nr );
+	    pos.coord_ = trc.info().coord;
+	    Survey::Geometry* geom = Survey::GMAdmin().getGeometry( outgeomid_);
+	    mDynamicCastGet(Survey::Geometry2D*,geom2d,geom);
+	    if ( !geom2d )
+		mErrRet( "Output 2D Geometry not written properly" );
+
+	    PosInfo::Line2DData& outl2dd = geom2d->dataAdmin();
+	    outl2dd.add( pos );
+	}
 	nrdone_++;
 	return Executor::MoreToDo();
     }
 
     if ( tbuf1_.isEmpty() && tbuf2_.isEmpty() )
-	mRetNextAttr;
+	mErrRet( "No input traces found" )
 
     mergeBufs();
-    if ( outbuf_.isEmpty() )
-	mRetNextAttr;
 
     nrdone_ = 0;
     totnr_ = outbuf_.size();
+    if ( outgeomid_ == Survey::GeometryManager::cUndefGeomID() )
+    {
+	PosInfo::Line2DData* newlinedata = new PosInfo::Line2DData( outlnm_ );
+	Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( newlinedata );
+	outgeomid_ = Survey::GMAdmin().addNewEntry( newgoem2d, msg_ );
+	if ( outgeomid_ == Survey::GeometryManager::cUndefGeomID() )
+	    return Executor::ErrorOccurred();
+    }
+    
     IOPar* lineiopar = new IOPar;
-    LineKey lk( outlnm_, attrnms_.get(curattridx_) );
-    lk.fillPar( *lineiopar, true );
-    putter_ = ls_->linePutter( lineiopar );
+    lineiopar->set( sKey::GeomID(), outgeomid_ );
+    putter_ = ds_->linePutter( lineiopar );
     if ( !putter_ )
-	mErrRet(tr("Cannot create writer for output line"));
+	mErrRet("Cannot create writer for output line");
 
     nrdonemsg_ = "Traces written";
     return Executor::MoreToDo();
