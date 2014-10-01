@@ -70,6 +70,7 @@ void uiPickPartServer::survChangedCB( CallBacker* )
 {
     delete imppsdlg_; imppsdlg_ = 0;
     delete exppsdlg_; exppsdlg_ = 0;
+    delete manpicksetsdlg_; manpicksetsdlg_ = 0;
 }
 
 

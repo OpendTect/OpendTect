@@ -358,7 +358,6 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
     delete emattrserv_; emattrserv_ = 0;
     delete volprocserv_; volprocserv_ = 0;
     delete mpeserv_; mpeserv_ = 0;
-    delete wellserv_; wellserv_ = 0;
     if ( appl_.sceneMgrAvailable() )
 	sceneMgr().cleanUp( false );
 }

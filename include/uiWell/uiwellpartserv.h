@@ -117,6 +117,7 @@ protected:
 						  const MultiID&);
     void			applyAll(CallBacker*);
     void			simpImp(CallBacker*);
+    void			survChangedCB(CallBacker*);
 
 };
 

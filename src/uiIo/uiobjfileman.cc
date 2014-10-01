@@ -54,6 +54,7 @@ uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 
 uiObjFileMan::~uiObjFileMan()
 {
+    detachAllNotifiers();
     delete curioobj_;
     delete &ctxt_;
 }
@@ -107,6 +108,8 @@ void uiObjFileMan::createDefaultUI( bool withreloc, bool withrm, bool multisel )
     sep->addGroup( listgrp_ );
     sep->addGroup( infogrp_ );
     sep->addGroup( notesgrp );
+    mAttachCB( IOM().entryAdded, uiObjFileMan::updateAddRemoveCB );
+    mAttachCB( IOM().entryRemoved, uiObjFileMan::updateAddRemoveCB );
 }
 
 
@@ -328,4 +331,10 @@ void uiObjFileMan::setPrefWidth( int width )
 {
     selgrp_->setPrefWidthInChar( mCast(float,width) );
     infofld_->setPrefWidthInChar( width );
+}
+
+
+void uiObjFileMan::updateAddRemoveCB( CallBacker* )
+{
+    selgrp_->fullUpdate( -1 );
 }

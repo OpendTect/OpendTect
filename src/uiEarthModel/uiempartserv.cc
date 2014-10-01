@@ -89,9 +89,6 @@ static const char* sKeyPreLoad()		{ return "PreLoad"; }
 int uiEMPartServer::evDisplayHorizon()		{ return 0; }
 int uiEMPartServer::evRemoveTreeObject()	{ return 1; }
 
-#define mErrRet(s) { uiString msg = tr("Cannot load '%1'").arg(s);\
-			uiMSG().error( msg ); return false; }
-
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -137,6 +134,11 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impfltdlg_; impfltdlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
+    delete man3dhordlg_; man3dhordlg_ = 0;
+    delete man2dhordlg_; man2dhordlg_ = 0;
+    delete ma3dfaultdlg_; ma3dfaultdlg_ = 0;
+    delete manfssdlg_; manfssdlg_ = 0;
+    delete manbodydlg_; manbodydlg_ = 0;
     deepErase( variodlgs_ );
 }
 
@@ -530,12 +532,6 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 }
 
 
-#define mMkMsg(s) \
-	uiString msg = tr("%1 '%2' %3.\nDo you want to save it?") \
-                     .arg(emobj->getTypeStr()) \
-	             .arg(emobj->name()) \
-                     .arg(s); \
-
 bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
 				    bool withcancel ) const
 {
@@ -547,7 +543,9 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid,
     if ( !ioobj && emobj->isEmpty() )
 	return true;
 
-    mMkMsg( tr("has changed") );
+    uiString msg = tr( "%1 '%2' has changed.\nDo you want to save it?" )
+		   .arg( emobj->getTypeStr() ).arg( emobj->name() );
+
     const int ret = uiMSG().askSave( msg, withcancel );
     if ( ret == 1 )
     {
@@ -1333,7 +1331,9 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get(mid);
 	BufferString nm = ioobj ? (const char*) ioobj->name()
 				: (const char*) mid;
-	mErrRet( nm );
+	uiString msg = tr( "Cannot load '%1'" ).arg( nm );
+	uiMSG().error( msg );
+	return false;
     }
 
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );

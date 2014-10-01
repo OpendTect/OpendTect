@@ -44,6 +44,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "arrayndimpl.h"
 #include "color.h"
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "ioobj.h"
 #include "multiid.h"
 #include "ptrman.h"
@@ -68,6 +69,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
     , isdisppropopened_(false)
     , manwelldlg_(0)
 {
+    IOM().surveyChanged.notify( mCB(this,uiWellPartServer,survChangedCB) );
 }
 
 
@@ -76,6 +78,12 @@ uiWellPartServer::~uiWellPartServer()
     delete rdmlinedlg_;
     Well::MGR().removeAll();
     delete manwelldlg_;
+}
+
+
+void uiWellPartServer::survChangedCB( CallBacker* )
+{
+    delete manwelldlg_; manwelldlg_ = 0;
 }
 
 
@@ -439,6 +447,9 @@ bool uiWellPartServer::storeWell( const TypeSet<Coord3>& coords,
 	mErrRet( wwr.errMsg() )
 
     mid = ctio->ioobj->key();
+    if ( manwelldlg_ )
+	manwelldlg_->selGroup()->fullUpdate( -1 );
+
     delete ctio->ioobj;
     return true;
 }
