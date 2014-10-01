@@ -172,9 +172,10 @@ public:
     const TypeSet<yT>& yVals() const		{ return y_; }
 
     InterpolType	interpolType() const	{ return itype_; }
-    bool		extrapolate() const	{ return extrapol_; }
+    ExtrapolType	extrapolateType() const { return extrapol_; }
+    bool		extrapolate() const	{ return extrapol_ != None; }
     void		setInterpolType( InterpolType t ) { itype_ = t; }
-    void		setExtrapolate( ExtrapolType yn ) { extrapol_ = yn; }
+    void		setExtrapolateType( ExtrapolType t ) { extrapol_ = t; }
     virtual yT		getNDValue( const xT* p ) const	{ return getValue(*p); }
 
 protected:
@@ -440,7 +441,10 @@ mYT BendPointBasedMathFunction<mXT,mYT>::snapVal( mXT x ) const
 {
     const int sz = x_.size();
     if ( sz < 1 ) return mUdf(mYT);
- 
+
+    if ( x < x_[0] || x > x_[sz-1] )
+	return outsideVal(x);
+
     const int baseidx = baseIdx( x );
 
     if ( baseidx < 0 )
