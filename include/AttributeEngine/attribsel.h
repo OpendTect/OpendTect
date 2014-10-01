@@ -93,6 +93,7 @@ public:
     bool		usePar(const IOPar&);
 
     bool		isStored() const;
+    bool		isZTransformed() const;
 
     static const DescID& cNoAttrib();
     static const DescID& cAttribNotSel();

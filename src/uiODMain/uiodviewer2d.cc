@@ -239,6 +239,8 @@ bool uiODViewer2D::setZAxisTransform( ZAxisTransform* zat )
 	viewwin()->viewer(ivwr).setZAxisTransform( datatransform_ );
     }
 
+    if ( treetp_ ) treetp_->setZAxisTransform( zat );
+
     return true;
 }
 
@@ -489,20 +491,24 @@ DataPack::ID uiODViewer2D::createDataPack( const Attrib::SelSpec& selspec )const
     if ( !cs.isFlat() ) return DataPack::cNoID();
 
     RefMan<ZAxisTransform> zat = getZAxisTransform();
-    if ( zat && cs.nrZ()==1 )
+    const bool alreadytransformed = selspec.isZTransformed();
+    if ( zat && !alreadytransformed && cs.nrZ()==1 )
 	return createDataPackForTransformedZSlice( selspec );
 
     uiAttribPartServer* attrserv = appl_.applMgr().attrServer();
     attrserv->setTargetSelSpec( selspec );
     const DataPack::ID dpid = attrserv->createOutput(cs,DataPack::cNoID());
-    return zat ? ZAxisTransformDataPack::transformDataPack(dpid,cs,*zat) : dpid;
+    if ( !zat || alreadytransformed ) return dpid;
+
+    return ZAxisTransformDataPack::transformDataPack( dpid, cs, *zat );
 }
 
 
 DataPack::ID uiODViewer2D::createDataPackForTransformedZSlice(
 					const Attrib::SelSpec& selspec ) const
 {
-    if ( !slicepos_ || !hasZAxisTransform() ) return DataPack::cNoID();
+    if ( !slicepos_ || !hasZAxisTransform() || selspec.isZTransformed() )
+	return DataPack::cNoID();
 
     const CubeSampling& cs = slicepos_->getCubeSampling();
     if ( cs.nrZ() != 1 ) return DataPack::cNoID();

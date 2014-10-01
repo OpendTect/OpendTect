@@ -20,6 +20,7 @@ class CubeSampling;
 class uiTreeView;
 class uiODApplMgr;
 class uiODViewer2D;
+class ZAxisTransform;
 
 namespace Attrib { class SelSpec; }
 
@@ -28,7 +29,9 @@ mExpClass(uiODMain) uiODVw2DTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODVw2DTreeItem)
 public:
     			uiODVw2DTreeItem(const char*);
-			~uiODVw2DTreeItem(){}
+			~uiODVw2DTreeItem();
+
+    bool		setZAxisTransform(ZAxisTransform*);
 
     void		updCubeSamling(const CubeSampling&,bool);
     void		updSelSpec(const Attrib::SelSpec*,bool wva);
@@ -44,12 +47,14 @@ protected:
     static uiString	sChangeSetup() { return tr("Change setup..."); }
 
     int				displayid_;
+    ZAxisTransform*		datatransform_;
 
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
     virtual void		updateCS(const CubeSampling&,bool)	{}
     virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
 				{}
+    virtual void		dataTransformCB(CallBacker*)		{}
 };
 
 
@@ -71,6 +76,8 @@ public:
     
     static const char*  	viewer2dptr();
     static const char*  	applmgrstr();
+
+    bool			setZAxisTransform(ZAxisTransform*);
 
     void			updCubeSamling(const CubeSampling&,bool);
     void			updSelSpec(const Attrib::SelSpec*,bool wva);
