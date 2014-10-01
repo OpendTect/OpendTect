@@ -145,6 +145,11 @@ void uiEMPartServer::survChangedCB( CallBacker* )
     delete impfltdlg_; impfltdlg_ = 0;
     delete exphordlg_; exphordlg_ = 0;
     delete expfltdlg_; expfltdlg_ = 0;
+    delete man3dhordlg_; man3dhordlg_ = 0;
+    delete man2dhordlg_; man2dhordlg_ = 0;
+    delete ma3dfaultdlg_; ma3dfaultdlg_ = 0;
+    delete manfssdlg_; manfssdlg_ = 0;
+    delete manbodydlg_; manbodydlg_ = 0;
     deepErase( variodlgs_ );
 }
 
@@ -924,7 +929,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
 
     storagekey = key;
     uiTaskRunner exdlg( parent() );
-    
+
     const bool ret = TaskRunner::execute( &exdlg, *exec );
     if ( ret && surface )
 	surface->saveDisplayPars();

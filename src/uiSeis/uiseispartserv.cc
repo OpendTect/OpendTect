@@ -82,6 +82,7 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
     SeisIOObjInfo::initDefault( sKey::Steering() );
+    IOM().surveyChanged.notify( mCB(this,uiSeisPartServer,survChangedCB) );
 }
 
 
@@ -92,6 +93,16 @@ uiSeisPartServer::~uiSeisPartServer()
     delete man2dprestkdlg_;
     delete man3dprestkdlg_;
     delete manwvltdlg_;
+}
+
+
+void uiSeisPartServer::survChangedCB( CallBacker* )
+{
+    delete man2dseisdlg_; man2dseisdlg_ = 0;
+    delete man3dseisdlg_; man3dseisdlg_ = 0;
+    delete man2dprestkdlg_; man2dprestkdlg_ = 0;
+    delete man3dprestkdlg_; man3dprestkdlg_ = 0;
+    delete manwvltdlg_; manwvltdlg_ = 0;
 }
 
 

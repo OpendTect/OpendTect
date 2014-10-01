@@ -78,6 +78,8 @@ public:
 protected:
 
     bool		ioSeis(int,bool);
+    void		survChangedCB(CallBacker*);
+
     uiSeisFileMan*	man2dseisdlg_;
     uiSeisFileMan*	man3dseisdlg_;
     uiSeisPreStackMan*	man2dprestkdlg_;

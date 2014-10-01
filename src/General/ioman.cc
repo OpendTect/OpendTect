@@ -49,6 +49,7 @@ IOMan::IOMan( const char* rd )
 	, lock_(Threads::Lock(false))
 	, newIODir(this)
 	, entryRemoved(this)
+	, entryAdded(this)
 	, surveyToBeChanged(this)
 	, surveyChanged(this)
 	, afterSurveyChange(this)
@@ -696,6 +697,8 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp, int translidx )
 	{
 	    ioobj->pars().merge( ctio.ctxt.toselect.require_ );
 	    dirptr_->addObj( (IOObj*)ioobj );
+	    CBCapsule<MultiID> caps( ioobj->key(), this );
+	    entryAdded.trigger( &caps );
 	}
     }
 
