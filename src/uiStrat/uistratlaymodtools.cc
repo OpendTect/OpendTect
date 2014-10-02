@@ -450,6 +450,12 @@ uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
     mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
     mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
     mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
+    mCreatePropSelFld( sat1, "Reference for Initial Saturation",
+		       PropertyRef::Volum, lblboxvs );
+    mCreatePropSelFld( sat2, "Reference for Final Saturation",
+		       PropertyRef::Volum, lblboxsat1 );
+    mCreatePropSelFld( porosity, "Reference for Porosity",
+		       PropertyRef::Volum, lblboxsat2 );
     const bool haspwave =
 	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
 	    proprefsel.find( PropertyRef::standardPVelAliasStr()) >= 0;
@@ -471,7 +477,8 @@ bool uiStratLayModFRPropSelector::isOK() const
 
 bool uiStratLayModFRPropSelector::needsDisplay() const
 {
-    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1 )
+    if ( vpfld_->size() ==2 && vsfld_->size() ==2 && denfld_->size() ==1
+	&& sat1fld_->size() == 1 )
 	return false;
 
     return vpfld_->size()>1 || vsfld_->size()>1 || denfld_->size()>1;
@@ -494,3 +501,23 @@ const char* uiStratLayModFRPropSelector::getSelDenName() const
 {
     return denfld_->text();
 }
+
+
+const char* uiStratLayModFRPropSelector::getSelSat1Name() const
+{
+    return sat1fld_->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelSat2Name() const
+{
+    return sat2fld_->text();
+}
+
+
+const char* uiStratLayModFRPropSelector::getSelPorName() const
+{
+    return porosityfld_->text();
+}
+
+
