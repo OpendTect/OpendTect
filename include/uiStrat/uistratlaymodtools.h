@@ -153,6 +153,10 @@ public:
     const char*		getSelVPName() const;
     const char*		getSelVSName() const;
     const char*		getSelDenName() const;
+    const char*		getSelSat1Name() const;
+    const char*		getSelSat2Name() const;
+    const char*		getSelPorName() const;
+
     const uiString&	errMsg() const	{ return errmsg_; }
 
 protected:
@@ -160,6 +164,9 @@ protected:
     uiComboBox*		vpfld_;
     uiComboBox*		vsfld_;
     uiComboBox*		denfld_;
+    uiComboBox*		sat1fld_;
+    uiComboBox*		sat2fld_;
+    uiComboBox*		porosityfld_;
     uiString		errmsg_;
 
 };
