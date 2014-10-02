@@ -24,6 +24,7 @@ uiProcSel::uiProcSel( uiParent* p, const char* lbl, const MultiID* mid,
 		      bool withedit )
     : uiGroup( p )
     , editbut_(0)
+    , selectionDone(this)
 {
     const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
     selfld_ = new uiIOObjSel( this, ctxt, lbl );
@@ -71,6 +72,8 @@ void uiProcSel::selDoneCB( CallBacker* cb )
 
     const IOObj* ioobj = selfld_->ioobj( true );
     editbut_->setText( ioobj ? "Edit ..." : "Create ..." );
+
+    selectionDone.trigger();
 }
 
 

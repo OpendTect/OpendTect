@@ -109,20 +109,24 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    MultiID inputmid;
-    if ( !pars().get(PreStack::ProcessManager::sKeyInputData(), inputmid ) )
+    PtrMan<IOObj> inputioobj = 0;
+    if ( procman->needsPreStackInput() )
     {
-	errorMsg("\nCannot read input id");
-	delete procman;
-	return false;
-    }
+	MultiID inputmid;
+	if ( !pars().get(PreStack::ProcessManager::sKeyInputData(), inputmid ) )
+	{
+	    errorMsg("\nCannot read input id");
+	    delete procman;
+	    return false;
+	}
 
-    PtrMan<IOObj> inputioobj = IOM().get( inputmid );
-    if ( !inputioobj )
-    {
-	errorMsg("\nCannot create input object");
-	delete procman;
-	return false;
+	inputioobj = IOM().get( inputmid );
+	if ( !inputioobj )
+	{
+	    errorMsg("\nCannot create input object");
+	    delete procman;
+	    return false;
+	}
     }
 
     MultiID outputmid;
@@ -141,61 +145,69 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
+    SeisPSReader* reader = 0;
     PtrMan<SeisPS3DReader> reader3d = 0;
     PtrMan<SeisPS2DReader> reader2d = 0;
 
     StepInterval<int> cdprange(0,0,1);
-
-    if ( geomtype==Seis::VolPS )
+    const bool needpsinput = procman->needsPreStackInput();
+    if ( needpsinput )
     {
-	reader3d = SPSIOPF().get3DReader( *inputioobj );
-	if ( reader3d && !hashorsampling )
+	if ( geomtype==Seis::VolPS )
 	{
-	    const PosInfo::CubeData& posdata = reader3d->posData();
-	    if ( posdata.size() )
+	    reader3d = SPSIOPF().get3DReader( *inputioobj );
+	    if ( reader3d && !hashorsampling )
 	    {
-		StepInterval<int> inlrg, crlrg;
-		posdata.getInlRange( inlrg );
-		posdata.getCrlRange( crlrg );
+		const PosInfo::CubeData& posdata = reader3d->posData();
+		if ( posdata.size() )
+		{
+		    StepInterval<int> inlrg, crlrg;
+		    posdata.getInlRange( inlrg );
+		    posdata.getCrlRange( crlrg );
 
-		horsampling.init();
-		horsampling.setInlRange( inlrg );
-		horsampling.setCrlRange( crlrg );
+		    horsampling.init();
+		    horsampling.setInlRange( inlrg );
+		    horsampling.setCrlRange( crlrg );
+		}
 	    }
-        }
 
-	progressmeter.setTotalNr( horsampling.totalNr() );
+	    progressmeter.setTotalNr( horsampling.totalNr() );
+	}
+	else
+	{
+	    reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
+	    if ( reader2d &&
+		!pars().get(PreStack::ProcessManager::sKeyCDPRange(), cdprange))
+	    {
+		const PosInfo::Line2DData& posdata = reader2d->posData();
+		for ( int idx=0; idx<posdata.positions().size(); idx++ )
+		{
+		    if ( !idx )
+			cdprange.start = cdprange.stop
+			    = posdata.positions()[idx].nr_;
+			else
+			    cdprange.include( posdata.positions()[idx].nr_ );
+		}
+	    }
+
+	    progressmeter.setTotalNr( cdprange.nrSteps()+1 );
+	}
+
+	if ( !reader3d && !reader2d )
+	{
+	    errorMsg("\nCannot create input reader");
+	    delete procman;
+	    return false;
+	}
+
+	reader = reader3d ? (SeisPSReader*) reader3d
+			  : (SeisPSReader*) reader2d;
     }
     else
     {
-	reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
-	if ( reader2d &&
-	    !pars().get( PreStack::ProcessManager::sKeyCDPRange(), cdprange ) )
-	{
-	    const PosInfo::Line2DData& posdata = reader2d->posData();
-	    for ( int idx=0; idx<posdata.positions().size(); idx++ )
-	    {
-		if ( !idx )
-		    cdprange.start = cdprange.stop
-			= posdata.positions()[idx].nr_;
-		else
-		    cdprange.include( posdata.positions()[idx].nr_ );
-	    }
-	}
-
-	progressmeter.setTotalNr( cdprange.nrSteps()+1 );
+	procman->getProcessor(0)->adjustPossibleCompArea( horsampling );
+	progressmeter.setTotalNr( horsampling.totalNr() );
     }
-
-    if ( !reader3d && !reader2d )
-    {
-	errorMsg("\nCannot create input reader");
-	delete procman;
-	return false;
-    }
-
-    SeisPSReader* reader = reader3d
-	? (SeisPSReader*) reader3d
-	: (SeisPSReader*) reader2d;
 
     PtrMan<SeisPSWriter> writer = geomtype==Seis::VolPS
 	? SPSIOPF().get3DWriter( *outputioobj )
@@ -254,7 +266,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mSetCommState(Working);
 	}
 
-	procman->reset();
+	procman->reset( false );
 	BinID relbid;
 
 	if ( !procman->prepareWork() )
@@ -298,7 +310,8 @@ bool BatchProgram::go( od_ostream& strm )
 			gather = new PreStack::Gather;
 		    }
 
-		    if ( !gather->readFrom(*inputioobj,*reader,inputbid,0) )
+		    if ( procman->needsPreStackInput() &&
+			 !gather->readFrom(*inputioobj,*reader,inputbid,0) )
 		    {
 			sparegather = gather;
 			gather = 0;
@@ -352,7 +365,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 		for ( int idx=0; idx<nrtraces; idx++ )
 		{
-		    trc.info().azimuth = gather->getAzimuth( idx );
+		    if ( needpsinput )
+			trc.info().azimuth = gather->getAzimuth( idx );
 		    trc.info().offset = gather->getOffset( idx );
 		    for ( int idy=0; idy<nrsamples; idy++ )
 			trc.set( idy, gather->data().get( idx, idy ), 0 );
@@ -370,7 +384,6 @@ bool BatchProgram::go( od_ostream& strm )
 
 	    ++progressmeter;
 	}
-
 
 	if ( geomtype==Seis::VolPS )
 	{

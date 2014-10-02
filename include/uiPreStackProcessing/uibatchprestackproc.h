@@ -38,6 +38,7 @@ protected:
     bool		fillPar();
     bool		prepareProcessing();
     void		outputNameChangeCB(CallBacker*);
+    void		setupSelCB(CallBacker*);
 
     uiProcSel*		chainsel_;
     uiSeisSel*		inputsel_;

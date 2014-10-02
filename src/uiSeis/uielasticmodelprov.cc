@@ -60,14 +60,14 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     pwctxt.forread = true;
     uiSeisSel::Setup pwsu( false, false );
     pwsu.seltxt( tr("P-wave Velocity cube") );
-    pwavefld_ = new uiVelSel( this, pwctxt, pwsu, false );
+    pwavefld_ = new uiVelSel( this, pwctxt, pwsu, true );
     pwavefld_->attach( alignedBelow, inpsourceacfld_ );
 
     IOObjContext swctxt = uiVelSel::ioContext();
     swctxt.forread = true;
     uiSeisSel::Setup swsu( false, false );
     swsu.seltxt( tr("S-wave Velocity cube") );
-    swavefld_ = new uiVelSel( this, swctxt, swsu, false );
+    swavefld_ = new uiVelSel( this, swctxt, swsu, true );
     swavefld_->attach( alignedBelow, pwavefld_ );
 
     IOObjContext aictxt =
@@ -134,10 +134,14 @@ bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 					   MultiID& aimid, MultiID& simid,
 					   MultiID& denmid ) const
 {
-    pwmid = pwavefld_->key();
-    swmid = swavefld_->key();
-    aimid = aifld_->key();
-    simid = sifld_->key();
+    pwmid = pwavefld_->attachObj()->isDisplayed() ? pwavefld_->key()
+						  : MultiID::udf();
+    swmid = swavefld_->attachObj()->isDisplayed() ? swavefld_->key()
+						 : MultiID::udf();
+    aimid = aifld_->attachObj()->isDisplayed() ? aifld_->key()
+					       : MultiID::udf();
+    simid = sifld_->attachObj()->isDisplayed() ? sifld_->key()
+					       : MultiID::udf();
 
     const bool isac = inptypefld_->getBoolValue();
     const bool needsi = !isac && inpsourceelfld_->getIntValue() == 1;

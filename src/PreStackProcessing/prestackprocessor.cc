@@ -45,7 +45,7 @@ const BinID& Processor::getOutputStepout() const
 { return outputstepout_; }
 
 
-bool Processor::reset()
+bool Processor::reset( bool force )
 {
     outputstepout_ = BinID(0,0);
 
@@ -133,7 +133,7 @@ bool Processor::prepareWork()
     for ( int idx=inputs_.size()-1; idx>=0; idx-- )
 	if ( inputs_[idx] ) { found = true; break; }
 
-    if ( !found )
+    if ( !found && usesPreStackInput() )
 	return false;
 
     freeArray( outputs_ );
@@ -211,10 +211,10 @@ ProcessManager::~ProcessManager()
 
 
 
-bool ProcessManager::reset()
+bool ProcessManager::reset( bool force )
 {
     for ( int idx=0; idx<processors_.size(); idx++ )
-	if ( !processors_[idx]->reset() )
+	if ( !processors_[idx]->reset(force) )
 	    return false;
 
     if ( !processors_.size() )
@@ -224,6 +224,12 @@ bool ProcessManager::reset()
     return processors_[processors_.size()-1]->setOutputInterest(
 	    						outputstepout, true );
 
+}
+
+
+bool ProcessManager::needsPreStackInput() const
+{
+    return processors_.size() ? processors_[0]->usesPreStackInput() : false;
 }
 
 

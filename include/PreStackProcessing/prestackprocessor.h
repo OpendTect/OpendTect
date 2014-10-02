@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
+#include "horsampling.h"
 #include "keystrs.h"
 #include "position.h"
 #include "sets.h"
@@ -38,7 +39,7 @@ mExpClass(PreStackProcessing) Processor : public ParallelTask
 public:
 				mDefineFactoryInClass( Processor, factory );
 
-    virtual bool		reset();
+    virtual bool		reset(bool force=true);
 
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
@@ -71,6 +72,7 @@ public:
 
     virtual			~Processor();
     virtual bool		usesPreStackInput() const	{ return true; }
+    virtual void		adjustPossibleCompArea(HorSampling&){return;}
 
 protected:
 				Processor( const char* nm );
@@ -144,6 +146,7 @@ public:
     int				nrProcessors() const;
     Processor*			getProcessor(int);
     const Processor*		getProcessor(int) const;
+    bool			needsPreStackInput() const;
 
 
     void			addProcessor(Processor*);
@@ -156,7 +159,7 @@ public:
     Notifier<ProcessManager>	setupChange;
 
 				//Runtime
-    bool			reset();
+    bool			reset(bool force=true);
 				//!<Call when you are about to process new data
     bool			prepareWork();
     BinID			getInputStepout() const;
