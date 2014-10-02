@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 #include "od_helpids.h"
@@ -169,4 +170,17 @@ void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     else
 	params += EvalParam( "Trace positions", Semblance::pos0Str(),
 			     Semblance::pos1Str() );
+}
+
+
+bool uiSemblanceAttrib::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
 }

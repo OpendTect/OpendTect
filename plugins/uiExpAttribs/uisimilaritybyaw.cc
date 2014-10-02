@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 
@@ -145,5 +146,18 @@ void uiSimilaritybyAW::steerTypeSel( CallBacker* )
 		steerfld_->clearInpField();
 	}
     }
+}
+
+
+bool uiSimilaritybyAW::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld_->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
 }
 

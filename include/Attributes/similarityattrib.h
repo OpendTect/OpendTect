@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "valseriesinterpol.h"
 #include "mathfunc.h"
 
+class DipBrowser;
+
 namespace Attrib
 {
     
@@ -31,7 +33,8 @@ If steering is enabled, it is up to the user to make sure that the steering
 goes to the same position as pos0 and pos1 respectively.
 
 <pre>
-%Similarity gate= pos0= pos1= stepout=1,1 extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
+%Similarity gate= pos0= pos1= stepout=1,1
+extension=[0|90|180|Cube|Cross|AllDir|Diagonal] steering=[Yes|No]
 
 Input:
 0	Data
@@ -85,7 +88,7 @@ public:
     void			prepPriorToBoundsCalc();
 
 protected:
-    				~Similarity() {}
+				~Similarity();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
     static void                 updateDefaults(Desc&);
@@ -131,6 +134,8 @@ protected:
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;
 
+    DipBrowser*			dipbrowser_;
+
     mExpClass(Attributes) SimiFunc : public FloatMathFunction
     {
     public:
@@ -161,6 +166,29 @@ protected:
 };
 
 } // namespace Attrib
+
+#include "factory.h"
+
+mExpClass(Attributes) DipBrowser
+{
+public:
+    mDefineFactoryInClass( DipBrowser, factory );
+
+    static DipBrowser*		createInstance(const char*);
+    virtual float		compDist( BinID bidfrom, BinID bidto,
+					 float inldist, float crldist ) const
+				{ return 0; }
+
+    virtual float		compZShift( float bases1, float curdip,
+					    float dist, float refstep ) const
+				{ return 0; }
+    virtual void		adjustParameters( float& curdip, float ddip,
+						  float simival, float& maxsimi,
+						  float& dipatmax ) const
+				{ return; }
+protected:
+};
+
 
 
 #endif

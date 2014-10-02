@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uispinbox.h"
 #include "uibutton.h"
+#include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 #include "od_helpids.h"
@@ -214,4 +215,17 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr(), VolStats::gateStr() );
     params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
+}
+
+
+bool uiVolumeStatisticsAttrib::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld_->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
 }

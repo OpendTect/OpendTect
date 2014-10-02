@@ -47,8 +47,9 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void                steerTypeSel(CallBacker*);
+    virtual bool	areUIParsOK();
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 #endif

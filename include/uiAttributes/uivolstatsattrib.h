@@ -60,7 +60,9 @@ protected:
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
 
-    			mDeclReqAttribUIFns
+    virtual bool	areUIParsOK();
+
+			mDeclReqAttribUIFns
 };
 
 #endif

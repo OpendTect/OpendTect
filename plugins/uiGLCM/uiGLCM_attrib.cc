@@ -471,3 +471,16 @@ void uiGLCM_attrib::determineMinMax( const SeisTrcBuf& bufs )
     checkAndSetSymmetric( range );
 	limitfld_->setValues( range.start, range.stop);
 }
+
+
+bool uiGLCM_attrib::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld_->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
+}

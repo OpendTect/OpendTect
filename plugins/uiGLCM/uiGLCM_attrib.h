@@ -32,13 +32,13 @@ public:
 protected:
 
     uiAttrSel*		inpfld_;
-    uiGenInput* 	attributefld_;
-    uiGenInput* 	numbergreyfld_;
-    uiGenInput* 	limitfld_;
-    uiGenInput* 	directfld_;
+    uiGenInput* attributefld_;
+    uiGenInput* numbergreyfld_;
+    uiGenInput* limitfld_;
+    uiGenInput* directfld_;
     uiStepOutSel*	stepoutfld_;
-    uiGenInput* 	samprangefld_;
-    uiGenInput* 	outputfld_;
+    uiGenInput* samprangefld_;
+    uiGenInput* outputfld_;
     uiSteeringSel*	steerfld_;
 
     void		GLCMattributeSel(CallBacker*);
@@ -56,6 +56,7 @@ protected:
     bool		getInput( Attrib::Desc&);
 
     void		steerTypeSel( CallBacker* );
+    virtual bool	areUIParsOK();
 
 			mDeclReqAttribUIFns
 };

@@ -57,21 +57,23 @@ protected:
     void		outSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+    virtual bool	areUIParsOK();
+
+			mDeclReqAttribUIFns
 
     mExpClass(uiAttributes) uiSimiSteeringSel : public uiSteeringSel
-    {                                                                           
-	public:                                                                     
+    {
+	public:
 			uiSimiSteeringSel(uiParent*,const Attrib::DescSet*,
 					  bool is2d);
-	   
-	    bool	willSteer() const;	
+
+	    bool	willSteer() const;
 	    bool	wantBrowseDip() const;
 	    int		browseDipIdxInList() const;
-				                                             
+
 	    Notifier<uiSimiSteeringSel>	typeSelected;
 
-	protected:                                                                  
+	protected:
 	    void	typeSel(CallBacker*);
     };
 

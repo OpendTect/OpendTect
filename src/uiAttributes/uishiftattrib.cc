@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 #include "od_helpids.h"
@@ -131,4 +132,17 @@ void uiShiftAttrib::steerTypeSel( CallBacker* )
 		steerfld_->clearInpField();
 	}
     }
+}
+
+
+bool uiShiftAttrib::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld_->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
 }

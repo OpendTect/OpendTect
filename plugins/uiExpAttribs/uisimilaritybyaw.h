@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Haibin Di
  Date:          August 2013
- RCS:           $Id$ 
+ RCS:		$Id$
  ________________________________________________________________________
 -*/
 
@@ -27,7 +27,7 @@ mExpClass(uiExpAttribs) uiSimilaritybyAW : public uiAttrDescEd
 {
 
 public:
-    			uiSimilaritybyAW(uiParent*,bool);
+			uiSimilaritybyAW(uiParent*,bool);
 
 protected:
 
@@ -35,11 +35,13 @@ protected:
 
     void		choiceSel(CallBacker*);
     void		steerTypeSel(CallBacker*);
- 
+
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+
+    virtual bool	areUIParsOK();
 
     uiAttrSel*		inputfld_;
     uiSteeringSel*	steerfld_;

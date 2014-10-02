@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 #include "uistepoutsel.h"
 #include "od_helpids.h"
 
@@ -192,6 +193,8 @@ bool uiSimilarityAttrib::setParameters( const Attrib::Desc& desc )
 		extfld_->setText(extstrs3d[extension]) )
     mIfGetFloat( Similarity::maxdipStr(), maxdip, maxdipfld_->setValue(maxdip));
     mIfGetFloat( Similarity::ddipStr(), ddip, deltadipfld_->setValue(ddip) );
+    mIfGetBool( Similarity::browsedipStr(), bdip,
+		steerfld_->setType( bdip ? steerfld_->browseDipIdxInList() :0));
 
     extSel(0);
     steerTypeSel(0);
@@ -326,31 +329,72 @@ void uiSimilarityAttrib::steerTypeSel(CallBacker*)
 uiSimilarityAttrib::uiSimiSteeringSel::uiSimiSteeringSel( uiParent* p,
 						    const Attrib::DescSet* dset,
 						    bool is2d )
-    : uiSteeringSel( p, dset, is2d, true, true )
+    : uiSteeringSel( p, dset, is2d, true, false )
     , typeSelected(this)
 {
+    const char* res = uiAF().attrNameOf( "Curvature" );
+    if ( !res )
+    {
+	BufferStringSet steertyps;
+	steertyps.add( "None" );
+	typfld_ = new uiGenInput( this, "Steering Data",
+				  StringListInpSpec(steertyps) );
+	typfld_->valuechanged.notify(
+		    mCB(this,uiSimilarityAttrib::uiSimiSteeringSel,typeSel));
+    }
+    else
+	createFields();
+
+    DataInpSpec* inpspec = const_cast<DataInpSpec*>(typfld_->dataInpSpec());
+    mDynamicCastGet(StringListInpSpec*,listspec,inpspec);
+    if ( !listspec ) return;
+
+    listspec->addString("Browse dip");
+//    typfld_->newSpec(listspec,0);
+    setHAlignObj( typfld_ );
 }
 
 
 void uiSimilarityAttrib::uiSimiSteeringSel::typeSel(CallBacker*)
 {
+    typeSelected.trigger();
     uiSteeringSel::typeSel(0);
 }
 
 
 bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
 {
-    return uiSteeringSel::willSteer();
+    if ( !typfld_ ) return false;
+
+    int typ = typfld_->getIntValue();
+    return typ && !wantBrowseDip();
 }
 
 
 bool uiSimilarityAttrib::uiSimiSteeringSel::wantBrowseDip() const
 {
-    return false;
+    if ( !typfld_ ) return false;
+
+    const int typ = typfld_->getIntValue();
+    return typ == browseDipIdxInList();
 }
 
 
 int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 {
-    return mUdf(int);
+    const char* hassteerplug = uiAF().attrNameOf( "Curvature" );
+    return hassteerplug ? withconstdir_ ? 4 : 3 : 1;
+}
+
+
+bool uiSimilarityAttrib::areUIParsOK()
+{
+    uiString errmsg;
+    if ( !steerfld_->areParsOK( errmsg ) )
+    {
+	uiMSG().error(errmsg);
+	return false;
+    }
+
+    return true;
 }

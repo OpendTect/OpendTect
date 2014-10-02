@@ -13,9 +13,10 @@ ________________________________________________________________________
 -*/
 
 #include "uiattributesmod.h"
-#include "uiseissel.h"
-#include "uiattrsel.h"
 #include "attribdescid.h"
+#include "uiattrsel.h"
+#include "uiseissel.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiLabel;
@@ -53,7 +54,7 @@ protected:
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
 mExpClass(uiAttributes) uiSteeringSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSteeringSel)
 public:
 				uiSteeringSel(uiParent*,
 					      const Attrib::DescSet*,bool is2d,
@@ -63,6 +64,7 @@ public:
 
     Attrib::DescID		descID();
 
+    bool			areParsOK(uiString&) const;
     virtual bool		willSteer() const;
     void			setDesc(const Attrib::Desc*);
     void			setDescSet(const Attrib::DescSet*);
@@ -74,6 +76,7 @@ public:
     Notifier<uiSteeringSel>	steertypeSelected_;
 
     static IOPar&		inpselhist;
+    static void			setLicAvailability(bool);
 
 protected:
 

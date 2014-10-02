@@ -40,7 +40,7 @@ protected:
     uiGenInput*		globalminfld_;
     uiGenInput*		globalmaxfld_;
 
-    void		analyseCB(CallBacker*); 
+    void		analyseCB(CallBacker*);
     bool		readInpAttrib(SeisTrcBuf&,const CubeSampling&,int,
 				      const LineKey&) const;
     void		calcAndSetMinMaxVal(const SeisTrcBuf&);
@@ -51,7 +51,10 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
     bool		getOutput(Attrib::Desc&);
-				mDeclReqAttribUIFns
+
+    virtual bool	areUIParsOK();
+
+    mDeclReqAttribUIFns
 };
 
 #endif

@@ -48,8 +48,9 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     void		extSel(CallBacker*);
+    virtual bool	areUIParsOK();
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 #endif

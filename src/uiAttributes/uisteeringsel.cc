@@ -35,6 +35,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace Attrib;
 
+static bool haslic = true;
+
 IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
@@ -51,14 +53,6 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     , steertypeSelected_(this)
 {
     if ( !doinit ) return;
-
-    const char* res = uiAF().attrNameOf( "Curvature" );
-    if ( !res )
-    {
-	nosteerlbl_ = new uiLabel( this, "<Steering unavailable>" );
-	setHAlignObj( nosteerlbl_ );
-	return;
-    }
 
     createFields();
 }
@@ -272,6 +266,27 @@ void uiSteeringSel::clearInpField()
 const char* uiSteeringSel::text() const
 {
     return inpfld_->getInput();
+}
+
+
+bool uiSteeringSel::areParsOK( uiString& errmsg ) const
+{
+    if ( !haslic )
+    {
+	errmsg = tr( "No license for DipSteering operations."
+		     "\nPlease consult Utilities-Plugins for more information."
+		     "\nWhen a license becomes available, "
+		     "re-start OpendTect.\n" );
+	return false;
+    }
+
+    return true;
+}
+
+
+void uiSteeringSel::setLicAvailability( bool yn )
+{
+    haslic = yn;
 }
 
 

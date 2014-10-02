@@ -149,6 +149,7 @@ const char* Similarity::extensionTypeStr( int type )
 Similarity::Similarity( Desc& desc )
     : Provider( desc )
     , dobrowsedip_( false )
+    , dipbrowser_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -170,6 +171,10 @@ Similarity::Similarity( Desc& desc )
 	maxdip_ = maxdip_/dipFactor();
 	mGetFloat( ddip_, ddipStr() );
 	ddip_ = ddip_/dipFactor();
+	dipbrowser_ = DipBrowser::createInstance(
+				DipBrowser::factory().getNames().nrItems()<1
+				? 0
+				: DipBrowser::factory().getNames().get(0) );
     }
 
     if ( extension_>=mExtensionCube )
@@ -201,6 +206,13 @@ Similarity::Similarity( Desc& desc )
     const float secdip = dosteer_ ? maxSecureDip() : maxdip_;
     desgate_ = Interval<float>( gate_.start-maxdist*secdip, 
 	    			gate_.stop+maxdist*secdip );
+}
+
+
+Similarity::~Similarity()
+{
+    if ( dipbrowser_)
+	delete dipbrowser_;
 }
 
 
@@ -382,14 +394,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		continue;
 
 	    float dist = 0;
-	    if ( dobrowsedip_ )
-	    {
-		float di = abs(trcpos_[idx1].inl() -
-			trcpos_[idx0].inl())*inlDist();
-		float dc = abs(trcpos_[idx1].crl() -
-			trcpos_[idx0].crl())*crlDist();
-		dist = Math::Sqrt( di*di + dc*dc );
-	    }
+	    if ( dobrowsedip_ && dipbrowser_ )
+		dist = dipbrowser_->compDist( trcpos_[idx0], trcpos_[idx1],
+				       inlDist(), crlDist() );
 
 	    float s0 = bases0;
 	    float s1 = bases1;
@@ -416,9 +423,9 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 			s1 = bases1 + serie1->value( steervalidx );
 		}
 
-		if ( dobrowsedip_ )
-		    s1 = bases1 + (curdip * dist)/refstep_;
-
+		if ( dobrowsedip_ && dipbrowser_ )
+		    s1 = dipbrowser_->compZShift( bases1, curdip,
+						  dist, refstep_ );
 
 		//make sure data extracted from input DataHolders is at exact z
 		float extras0 = mIsUdf(extrazfspos) ? 0 :
@@ -443,16 +450,10 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 
 		float simival = similarity( vals0, vals1, s0+extras0,
 					    s1+extras1, 1, gatesz,donormalize_);
-		
-		if ( dobrowsedip_ )
-		{
-		    curdip += ddip_;
-		    if ( simival > maxsimi )
-		    {
-			maxsimi = simival;
-			dipatmax = curdip;
-		    }
-		}
+
+		if ( dobrowsedip_ && dipbrowser_ )
+		    dipbrowser_->adjustParameters( curdip, ddip_, simival,
+						   maxsimi, dipatmax );
 		else
 		    stats += simival;
 
@@ -555,3 +556,14 @@ const Interval<float>* Similarity::desZMargin( int inp, int ) const
 
 
 }; //namespace
+
+//---------------------------Dip Browser-----------------------
+
+mImplFactory(DipBrowser,DipBrowser::factory)
+
+
+DipBrowser* DipBrowser::createInstance( const char* name )
+{
+    return factory().create( name );
+}
+
