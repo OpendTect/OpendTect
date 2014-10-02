@@ -272,7 +272,20 @@ static bool isCtrlPressed( QInputEvent& ev )
 void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 {
     sliderg_.include( newstop, false );
-    handle_.setChosen( sliderg_, !isclear );
+
+    Interval<int> rg = sliderg_;
+    rg.sort();
+    if ( rg.start<0 || rg.stop<0 )
+	return;
+
+    const bool hasautoscroll = hasAutoScroll();
+    if ( !hasautoscroll )
+	setAutoScroll( true );
+
+    for ( int idx=rg.start; idx<=rg.stop; idx++ )
+	item(idx)->setCheckState( !isclear ? Qt::Checked : Qt::Unchecked );
+
+    setAutoScroll( hasautoscroll );
 }
 
 
@@ -357,7 +370,6 @@ void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
     , rightclickmnu_(*new uiMenu(p)) \
     , alignment_(Alignment::Left) \
     , scrollingblocked_(false) \
-    , inburstchse_(false) \
     , allowduplicates_(true)
 
 #define mStdConstrEnd \
@@ -620,9 +632,13 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 	mStartScrolling;
     body_->addItem( text, mark, id );
     const int newidx = size() - 1;
-    body_->setCurrentRow( newidx );
+
     if ( !scrollingblocked_ )
+    {
+	body_->setCurrentRow( newidx );
 	mStopScrolling;
+    }
+
     initNewItem( newidx );
 }
 
@@ -661,6 +677,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
+
     scrollingblocked_ = false;
     if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
 	curidx = 0;
@@ -1009,7 +1026,7 @@ bool uiListBox::handleLongTabletPress()
 void uiListBox::disableRightClick( bool yn )
 {
     if ( yn )
-	rightButtonClicked.remove(  mCB(this,uiListBox,menuCB) );
+	rightButtonClicked.remove( mCB(this,uiListBox,menuCB) );
     else
 	rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
@@ -1225,7 +1242,7 @@ void uiListBox::setItemChecked( const char* nm, bool yn )
 
     const int idxof = indexOf( nm );
     if ( idxof >= 0 )
-	setItemChecked( indexOf( nm ), yn );
+	setItemChecked( indexOf(nm), yn );
 }
 
 
@@ -1246,15 +1263,21 @@ void uiListBox::setAllItemsChecked( bool yn )
 	return;
 
     scrollingblocked_ = true;
-    inburstchse_ = true;
+    const bool blockstate = body_->blockSignals( true );
     for ( int idx=0; idx<=lastchg; idx++ )
     {
 	uiListBoxItem* itm = body_->items_[idx];
-	if ( idx == lastchg )
-	    inburstchse_ = false;
 	if ( itm->ischecked_ != yn )
+	{
 	    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+	    itm->ischecked_ = yn;
+	}
     }
+
+    body_->blockSignals( blockstate );
+    selectionChanged.trigger();
+    itemChosen.trigger( -1 );
+
     scrollingblocked_ = false;
     setCurrentItem( selidx );
 }
@@ -1281,7 +1304,6 @@ int uiListBox::nrChecked() const
 	    res++;
     return res;
 }
-
 
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
