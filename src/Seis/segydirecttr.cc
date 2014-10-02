@@ -42,7 +42,11 @@ public:
 			{ return 0; }
     SeisPS2DReader*	make2DReader( const char* dirnm, const char* lnm ) const
 			{ return new SEGYDirect2DPSReader(dirnm,lnm); }
+    SeisPS2DReader*	make2DReader( const char* dirnm, Pos::GeomID gid ) const
+			{ return new SEGYDirect2DPSReader(dirnm,gid); }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
+			{ return 0; }
+    SeisPSWriter*	make2DWriter( const char* dirnm, Pos::GeomID ) const
 			{ return 0; }
 
     bool		getLineNames(const char*,BufferStringSet&) const;
@@ -174,6 +178,12 @@ bool SEGYDirect3DPSReader::getGather( const BinID& bid, SeisTrcBuf& tb ) const
 }
 
 
+
+SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, Pos::GeomID gid )
+    : SeisPS2DReader(gid)
+    , def_(*new SEGY::DirectDef(SEGY::DirectDef::get2DFileName(dirnm,gid)))
+{
+}
 
 SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
     : SeisPS2DReader(lnm)

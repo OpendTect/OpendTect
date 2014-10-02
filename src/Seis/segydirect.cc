@@ -485,15 +485,24 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 }
 
 
-const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
+const char* SEGY::DirectDef::get2DFileName( const char* dirnm,
+					    Pos::GeomID geomid )
 {
     mDeclStaticString( ret );
-    BufferString nm( unm );
-    nm.clean( BufferString::AllowDots );
-    FilePath fp( dirnm, nm );
+    FilePath fp( dirnm );
+    BufferString nm( fp.fileName(), "^", toString(geomid) );
+    fp.add( nm );
     fp.setExtension( "sgydef" );
     ret = fp.fullPath();
     return ret.buf();
+}
+
+
+const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
+{
+    Pos::GeomID geomid = Survey::GM().getGeomID( unm );
+    return geomid == Survey::GM().cUndefGeomID() ? 0 
+				: get2DFileName( dirnm, geomid );
 }
 
 

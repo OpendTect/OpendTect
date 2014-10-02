@@ -31,7 +31,6 @@ static const char* rcsID mUsedVar = "$Id$";
 static void convert2DPSData()
 {
     IOObjContext oldctxt( mIOObjContext(SeisPS2D) );
-    oldctxt.fixTranslator( "CBVS" );
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
     BufferStringSet lsnms;
@@ -44,7 +43,7 @@ static void convert2DPSData()
 	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
 	    continue;
 
-	const DirList flist( psdir, DirList::FilesOnly, "*.cbvs" );
+	const DirList flist( psdir, DirList::FilesOnly, "*.*" );
 	for ( int fidx=0; fidx<flist.size(); fidx++ )
 	{
 	    const FilePath fp( flist.fullPath(fidx) );
@@ -64,7 +63,7 @@ static void convert2DPSData()
 	    const BufferString newfnm( newfp.fileName(), "^",
 		    		       toString(geomid) );
 	    newfp.add( newfnm );
-	    newfp.setExtension( "cbvs" );
+	    newfp.setExtension( fp.extension() );
 	    File::rename( fp.fullPath().buf(), newfp.fullPath().buf() );
 	}
     }
