@@ -60,6 +60,7 @@ protected:
     const BufferString	rootdir_;
     bool		isnew_;
     IOPar*		impiop_;
+    ObjectSet<uiSurvInfoProvider> sips_;
     uiSurvInfoProvider*	lastsip_;
 
     uiGenInput*		survnmfld_;
@@ -132,6 +133,7 @@ public:
     const char*		usrText() const	{ return "Copy from other survey"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+    virtual const char* iconName() const	{ return "copyobj"; }
 
     TDInfo		tdInfo() const { return tdinf_; }
     bool		xyInFeet() const { return inft_; }

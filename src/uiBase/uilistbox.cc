@@ -710,6 +710,25 @@ void uiListBox::insertItem( const uiString& text, const Color& col,
 }
 
 
+void uiListBox::setItemSelectable( int index, bool yn )
+{
+    if ( index < 0 || index >= size() )
+	return;
+
+    QListWidgetItem* itm = body_->item( index );
+    Qt::ItemFlags flags = itm->flags();
+    bool issel = flags.testFlag( Qt::ItemIsEnabled );
+    if ( issel == yn )
+	return;
+
+    if ( yn )
+	flags &= Qt::ItemIsEnabled;
+    else
+	flags ^= Qt::ItemIsEnabled;;
+    itm->setFlags( flags );
+}
+
+
 void uiListBox::setPixmap( int index, const Color& col )
 {
     if ( index<0 || index>=size() || !body_->item(index) )
@@ -737,6 +756,17 @@ ioPixmap uiListBox::pixmap( int index ) const
     QIcon qicon = body_->item(index)->icon();
     return ioPixmap( qicon.pixmap(body_->iconSize()) );
 }
+
+
+void uiListBox::setIcon( int index, const char* iconnm )
+{
+    if ( index<0 || index>=body_->count() )
+	return;
+
+    uiIcon icon( iconnm );
+    body_->item(index)->setIcon( icon.qicon() );
+}
+
 
 
 void uiListBox::setColor( int index, const Color& col )
@@ -872,7 +902,14 @@ void uiListBox::setCurrentItem( const char* txt )
 void uiListBox::setCurrentItem( int idx )
 {
     if ( !validIdx(idx) )
+    {
+	const int curidx = body_->currentRow();
+	if ( validIdx(curidx) )
+	    body_->item( curidx )->setSelected( false );
+
+	body_->setCurrentRow( -1 );
 	return;
+    }
 
     mBlockCmdRec;
 

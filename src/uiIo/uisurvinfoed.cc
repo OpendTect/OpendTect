@@ -179,15 +179,14 @@ uiSurveyInfoEditor::~uiSurveyInfoEditor()
 
 void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
 {
-    const int nrprovs = survInfoProvs().size();
-    if ( nrprovs < 1 ) return;
-
-    int maxlen = 0;
-    for ( int idx=0; idx<nrprovs; idx++ )
+    sips_ = survInfoProvs();
+    for ( int idx=0; idx<sips_.size(); idx++ )
     {
-	const int len = FixedString( survInfoProvs()[idx]->usrText() ).size();
-	if ( len > maxlen ) maxlen = len;
+	if ( !sips_[idx]->isAvailable() )
+	    { sips_.removeSingle(idx); idx--; }
     }
+    const int nrprovs = sips_.size();
+    if ( nrprovs < 1 ) return;
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
 					    "Ranges/coordinate settings" );
@@ -197,21 +196,20 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     sipfld_->selectionChanged.notify( mCB(this,uiSurveyInfoEditor,sipCB) );
     for ( int idx=0; idx<nrprovs; idx++ )
     {
-	BufferString txt( survInfoProvs()[idx]->usrText() );
-	txt += " ...";
-	sipfld_->addItem( txt );
+	uiSurvInfoProvider& sip = *sips_[idx];
+	sipfld_->addItem( sip.usrText() );
+	const char* icnm = sip.iconName();
+	if ( icnm && *icnm )
+	    sipfld_->setIcon( sipfld_->size()-1, icnm );
     }
-    sipfld_->setPrefWidthInChar( maxlen + 1 );
     sipfld_->setCurrentItem( 0 );
 
     if ( !si_.sipName().isEmpty() )
     {
 	const BufferString sipnm = si_.sipName();
-	if ( !sipfld_->isPresent(sipnm) )
-	    return;
-
 	const int sipidx = sipfld_->indexOf( sipnm );
-	sipfld_->setCurrentItem( sipidx );
+	if ( sipidx >= 0 )
+	    sipfld_->setCurrentItem( sipidx );
     }
 
 }
@@ -732,7 +730,7 @@ void uiSurveyInfoEditor::sipCB( CallBacker* cb )
     sipfld_->setCurrentItem( 0 );
     delete impiop_; impiop_ = 0; lastsip_ = 0;
 
-    uiSurvInfoProvider* sip = survInfoProvs()[sipidx-1];
+    uiSurvInfoProvider* sip = sips_[sipidx-1];
     PtrMan<uiDialog> dlg = sip->dialog( this );
     if ( !dlg || !dlg->go() ) return;
 

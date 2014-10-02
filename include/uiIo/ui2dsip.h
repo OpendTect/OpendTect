@@ -24,6 +24,8 @@ public:
     const char*		usrText() const		{ return "Set for 2D only"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
+    virtual const char* iconName() const
+					{ return "seismicline2dcollection"; }
 
     bool		xyInFeet() const	{ return xyft_; }
 
