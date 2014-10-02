@@ -164,7 +164,8 @@ public:
     void		disableRightClick(bool yn);
 
     Notifier<uiListBox> selectionChanged;
-    CNotifier<uiListBox,int> itemChosen;
+    CNotifier<uiListBox,int> itemChosen; /*< if itmidx==-1, many items were
+						chosen at once */
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
@@ -173,7 +174,6 @@ public:
     void		offerReadWriteSelection( const CallBack& rcb,
 						 const CallBack& wcb )
 			{ retrievecb_ = rcb; savecb_ = wcb; }
-    bool		doingBurstChoosing() const	{ return inburstchse_; }
 
 private:
 
@@ -217,7 +217,11 @@ private:
     void		getCheckedItems(BufferStringSet&) const;
     void		getCheckedItems(TypeSet<int>&) const;
 
+public:
+    // deprecated
+    bool		doingBurstChoosing() const	{ return inburstchse_; }
 };
+
 
 
 mExpClass(uiBase) uiLabeledListBox : public uiGroup

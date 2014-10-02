@@ -747,9 +747,6 @@ void uiIOObjSelGrp::setInitial( CallBacker* )
 
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
-    if ( listfld_->doingBurstChoosing() )
-	return;
-
     PtrMan<IOObj> ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
     {
@@ -772,11 +769,9 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
 }
 
 
-void uiIOObjSelGrp::choiceChg( CallBacker* cb )
+void uiIOObjSelGrp::choiceChg( CallBacker* )
 {
-    if ( !listfld_->doingBurstChoosing() )
-	delete updStatusBarInfo( false );
-
+    delete updStatusBarInfo( false );
     itemChosen.trigger();
 }
 
