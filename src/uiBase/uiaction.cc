@@ -440,6 +440,12 @@ uiAction* uiActionContainer::findAction( const char* itmtxt )
 }
 
 
+uiAction* uiActionContainer::findAction( const uiString& itmtxt )
+{
+    return findAction( itmtxt.getFullString().buf() );
+}
+
+
 int uiActionContainer::getID( const uiAction* action ) const
 {
     int idx = actions_.indexOf( action );

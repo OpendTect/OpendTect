@@ -149,6 +149,8 @@ public:
 
     uiAction*			findAction(const uiActionSeparString&);
     uiAction*			findAction(const char* itmtxt);
+    uiAction*			findAction(const uiString& itmtxt);
+    				//!<The full string of the text will be used
     uiAction*			findAction(int id);
     uiAction*			findAction(const uiMenu*);
     uiAction*			findAction( const FixedString& fs )
