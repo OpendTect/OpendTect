@@ -270,7 +270,20 @@ static bool isCtrlPressed( QInputEvent& ev )
 void uiListBoxBody::handleSlideChange( int newstop, bool isclear )
 {
     sliderg_.include( newstop, false );
-    handle_.setChosen( sliderg_, !isclear );
+
+    Interval<int> rg = sliderg_;
+    rg.sort();
+    if ( rg.start<0 || rg.stop<0 )
+	return;
+
+    const bool hasautoscroll = hasAutoScroll();
+    if ( !hasautoscroll )
+	setAutoScroll( true );
+
+    for ( int idx=rg.start; idx<=rg.stop; idx++ )
+	item(idx)->setCheckState( !isclear ? Qt::Checked : Qt::Unchecked );
+
+    setAutoScroll( hasautoscroll );
 }
 
 
@@ -495,19 +508,19 @@ void uiListBox::menuCB( CallBacker* )
 
     const int nrchecked = nrChecked();
     if ( nrchecked < sz )
-	rightclickmnu_.insertItem( new uiAction("&Check all (Ctrl-A)"), 0 );
+	rightclickmnu_.insertItem( new uiAction("Check all (Ctrl-A)"), 0 );
     if ( nrchecked > 0 )
-	rightclickmnu_.insertItem( new uiAction("&Uncheck all (Ctrl-Z)"), 1 );
-    rightclickmnu_.insertItem( new uiAction("&Invert selection"), 2 );
+	rightclickmnu_.insertItem( new uiAction("Uncheck all (Ctrl-Z)"), 1 );
+    rightclickmnu_.insertItem( new uiAction("Invert selection"), 2 );
     const bool needretrieve = retrievecb_.willCall();
     const bool needsave = savecb_.willCall() && nrchecked > 0;
     if ( needretrieve || needsave )
     {
 	rightclickmnu_.insertSeparator();
 	if ( needretrieve )
-	    rightclickmnu_.insertItem( new uiAction("&Read selection"), 3 );
+	    rightclickmnu_.insertItem( new uiAction("Read selection"), 3 );
 	if ( needsave )
-	    rightclickmnu_.insertItem( new uiAction("&Save selection"), 4 );
+	    rightclickmnu_.insertItem( new uiAction("Save selection"), 4 );
     }
 
     const int res = rightclickmnu_.exec();
@@ -618,9 +631,13 @@ void uiListBox::addItem( const uiString& text, bool mark, int id )
 	mStartScrolling;
     body_->addItem( text, mark, id );
     const int newidx = size() - 1;
-    body_->setCurrentRow( newidx );
+
     if ( !scrollingblocked_ )
+    {
+	body_->setCurrentRow( newidx );
 	mStopScrolling;
+    }
+
     initNewItem( newidx );
 }
 
@@ -641,35 +658,42 @@ void uiListBox::addItem( const uiString& text, const Color& col, int id )
 
 void uiListBox::addItems( const char** textList )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     const char** pt_cur = textList;
     scrollingblocked_ = true;
     while ( *pt_cur )
 	addItem( *pt_cur++ );
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
 void uiListBox::addItems( const BufferStringSet& strs )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs.get(idx) );
+
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
 void uiListBox::addItems( const TypeSet<uiString>& strs )
 {
-    const int curidx = currentItem();
+    int curidx = currentItem();
     scrollingblocked_ = true;
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
     scrollingblocked_ = false;
-    setCurrentItem( curidx < 0 ? 0 : curidx );
+    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+	curidx = 0;
+    setCurrentItem( curidx );
 }
 
 
@@ -1010,7 +1034,7 @@ bool uiListBox::handleLongTabletPress()
 void uiListBox::disableRightClick( bool yn )
 {
     if ( yn )
-	rightButtonClicked.remove(  mCB(this,uiListBox,menuCB) );
+	rightButtonClicked.remove( mCB(this,uiListBox,menuCB) );
     else
 	rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
@@ -1226,7 +1250,7 @@ void uiListBox::setItemChecked( const char* nm, bool yn )
 
     const int idxof = indexOf( nm );
     if ( idxof >= 0 )
-	setItemChecked( indexOf( nm ), yn );
+	setItemChecked( indexOf(nm), yn );
 }
 
 
@@ -1247,15 +1271,23 @@ void uiListBox::setAllItemsChecked( bool yn )
 	return;
 
     scrollingblocked_ = true;
+    const bool blockstate = body_->blockSignals( true );
     inburstchse_ = true;
     for ( int idx=0; idx<=lastchg; idx++ )
     {
 	uiListBoxItem* itm = body_->items_[idx];
-	if ( idx == lastchg )
-	    inburstchse_ = false;
 	if ( itm->ischecked_ != yn )
+	{
 	    itm->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+	    itm->ischecked_ = yn;
+	}
     }
+
+    inburstchse_ = false;
+    body_->blockSignals( blockstate );
+    selectionChanged.trigger();
+    itemChosen.trigger( -1 );
+
     scrollingblocked_ = false;
     setCurrentItem( selidx );
 }
@@ -1282,7 +1314,6 @@ int uiListBox::nrChecked() const
 	    res++;
     return res;
 }
-
 
 
 void uiListBox::setCheckedItems( const BufferStringSet& itms )
