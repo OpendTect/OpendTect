@@ -146,7 +146,7 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
     if ( section_ )
 	reader_ = SPSIOPF().get3DReader( *ioobj_ );
     else if ( seis2d_ )
-	reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->name() );
+	reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->getGeomID() );
 
     if ( !reader_ )
 	return;
@@ -719,7 +719,7 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     }
 
      if ( ioobj_ && !reader_ )
-	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->name() );
+	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->getGeomID() );
 
     setTraceNr( trcnr );
     if ( trcnr_<0 ) return false;

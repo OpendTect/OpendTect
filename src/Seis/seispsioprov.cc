@@ -66,6 +66,17 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
 }
 
 
+bool SeisPSIOProviderFactory::getGeomIDs( const IOObj& ioobj,
+					  TypeSet<Pos::GeomID>& geomids ) const
+{
+    if ( provs_.isEmpty() ) return false;
+
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    return prov ? prov->getGeomIDs( ioobj.fullUserExpr(true), geomids )
+		: false;
+}
+
+
 bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
 					    BufferStringSet& linenms ) const
 {
@@ -85,6 +96,21 @@ SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
     SeisPS3DReader* reader =
 	prov ? prov->make3DReader( ioobj.fullUserExpr(true), inl ) : 0;
 
+    if ( reader )
+	reader->usePar( ioobj.pars() );
+
+    return reader;
+}
+
+
+SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
+						      Pos::GeomID geomid ) const
+{
+    if ( provs_.isEmpty() ) return 0;
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+
+    SeisPS2DReader* reader = prov ?
+	prov->make2DReader( ioobj.fullUserExpr(true), geomid ) : 0;
     if ( reader )
 	reader->usePar( ioobj.pars() );
 
@@ -113,6 +139,20 @@ SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
 	prov ? prov->make3DWriter( ioobj.fullUserExpr(false) ) : 0;
+    if ( writer )
+	writer->usePar( ioobj.pars() );
+
+    return writer;
+}
+
+
+SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
+						    Pos::GeomID geomid ) const
+{
+    if ( provs_.isEmpty() ) return 0;
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    SeisPSWriter* writer =
+	prov ? prov->make2DWriter( ioobj.fullUserExpr(false), geomid ) : 0;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 

@@ -8,6 +8,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "bufstringset.h"
+#include "dirlist.h"
 #include "executor.h"
 #include "file.h"
 #include "filepath.h"
@@ -16,14 +17,58 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posinfo2dsurv.h"
 #include "typeset.h"
 #include "seis2dline.h"
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
+#include "seispsioprov.h"
 #include "survgeom.h"
 #include "survinfo.h"
-
+#include <iostream>
 #define mCapChar "^"
+
+static void convert2DPSData()
+{
+    IOObjContext oldctxt( mIOObjContext(SeisPS2D) );
+    oldctxt.fixTranslator( "CBVS" );
+    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODirEntryList olddel( oldiodir, oldctxt );
+    BufferStringSet lsnms;
+    S2DPOS().getLineSets( lsnms );
+    for ( int idx=0; idx<olddel.size(); idx++ )
+    {
+	const IOObj* psobj = olddel[idx]->ioobj_;
+	if ( !psobj ) continue;
+	const FixedString psdir = psobj->fullUserExpr( true );
+	if ( psdir.isEmpty() || !File::isDirectory(psdir) )
+	    continue;
+
+	const DirList flist( psdir, DirList::FilesOnly, "*.cbvs" );
+	for ( int fidx=0; fidx<flist.size(); fidx++ )
+	{
+	    const FilePath fp( flist.fullPath(fidx) );
+	    const BufferString lnm = fp.baseName();
+	    if ( lnm.contains('^') )
+		continue;	//Already converted.
+
+	    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+	    int lsidx=0;
+	    while( geomid==Survey::GM().cUndefGeomID() && lsidx<lsnms.size() )
+		geomid = Survey::GM().getGeomID(lsnms.get(lsidx++), lnm.buf());
+
+	    if ( geomid==Survey::GM().cUndefGeomID() )
+		continue;
+
+	    FilePath newfp( psdir );
+	    const BufferString newfnm( newfp.fileName(), "^",
+		    		       toString(geomid) );
+	    newfp.add( newfnm );
+	    newfp.setExtension( "cbvs" );
+	    File::rename( fp.fullPath().buf(), newfp.fullPath().buf() );
+	}
+    }
+}
 
 
 static const char* getSurvDefAttrName()
@@ -117,23 +162,35 @@ protected:
 /* 0=No old 2D data, 1=First time conversion, 2=Incremental conversion. */
 mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 {
+    bool hasold2d = false;
+    bool has2dps = false;
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( "2D" );
     oldctxt.toselect.allownonuserselectable_ = true;
     const IODir oldiodir( oldctxt.getSelKey() );
     const IODirEntryList olddel( oldiodir, oldctxt );
-    if ( olddel.isEmpty() )
+    if ( !olddel.isEmpty() )
+	hasold2d = true;
+
+    IOObjContext psctxt( mIOObjContext(SeisPS2D) );
+    psctxt.fixTranslator( "CBVS" );
+    const IODir psiodir( psctxt.getSelKey() );
+    const IODirEntryList psdel( psiodir, psctxt );
+    if ( !psdel.isEmpty() )
+	has2dps = true;
+
+    if ( !hasold2d && !has2dps )
 	return 0;
 
     FilePath geom2dfp( IOM().rootDir(), "2DGeom", "idx.txt" );
-    if ( !File::exists(geom2dfp.fullPath()) )
+    if ( !has2dps && !File::exists(geom2dfp.fullPath()) )
 	return 3; //TODO: Pre 4.2 surveys, extract geometry from cbvs.
 
     IOObjContext newctxt( mIOObjContext(SeisTrc) );
     newctxt.toselect.allowtransls_ = "TwoD DataSet";
     const IODir newiodir( newctxt.getSelKey() );
     const IODirEntryList newdel( newiodir, newctxt );
-    return newdel.isEmpty() ? 1 : 2;
+    return hasold2d && newdel.isEmpty() ? 1 : 2;
 }
 
 mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
@@ -159,6 +216,7 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
     update2DSFilesAndAddToDelList( all2dsfiles, filestobedeleted );
     removeDuplicateData( filestobedeleted );
     deepErase( all2dseisiopars_ );
+    convert2DPSData();
     return;
 }
 

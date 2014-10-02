@@ -63,14 +63,21 @@ public:
 
     virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
 				{ return 0; }
+    virtual SeisPS2DReader*	make2DReader(const char*,Pos::GeomID) const
+				{ return 0; }
     virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
 				{ return 0; }
     virtual SeisPSWriter*	make3DWriter(const char*) const
+				{ return 0; }
+    virtual SeisPSWriter*	make2DWriter(const char*,Pos::GeomID) const
 				{ return 0; }
     virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
 				{ return 0; }
 
     FixedString			type() const		{ return type_.buf(); }
+    virtual bool		getGeomIDs(const char*,
+					   TypeSet<Pos::GeomID>&) const
+				{ return false; }
     virtual bool		getLineNames(const char*,BufferStringSet&) const
 				{ return false; }
 
@@ -99,14 +106,19 @@ public:
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
     SeisPS3DReader*		get3DReader(const IOObj&,int i=mUdf(int)) const;
-    SeisPS2DReader*		get2DReader(const IOObj&,const char* lnm) const;
     SeisPSWriter*		get3DWriter(const IOObj&) const;
-    SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
-
-    bool			getLineNames(const IOObj&,
-					     BufferStringSet&) const; // For 2D
     void			mk3DPostStackProxy(IOObj&);
 				//!< Adds entry to omf for post-stack access
+
+				//! For 2D
+    SeisPS2DReader*		get2DReader(const IOObj&,Pos::GeomID) const;
+    SeisPS2DReader*		get2DReader(const IOObj&,const char* lnm) const;
+    SeisPSWriter*		get2DWriter(const IOObj&,Pos::GeomID) const;
+    SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
+    bool			getGeomIDs(const IOObj&,
+					   TypeSet<Pos::GeomID>&) const;
+    bool			getLineNames(const IOObj&,
+					     BufferStringSet&) const;
 
 protected:
 

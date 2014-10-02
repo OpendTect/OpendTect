@@ -78,7 +78,7 @@ uiString SeisImporter::uiMessage() const
 	return errmsg_;
 
     if ( hndlmsg_.isEmpty() )
-	{ hndlmsg_ = tr("Importing from %1").arg(hndlmsg_).arg(rdr_->name()); }
+	{ hndlmsg_ = tr("Importing from %1").arg(rdr_->name()); }
     return hndlmsg_;
 }
 
@@ -355,7 +355,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 		rv = false;
 	    }
 	}
-	else if ( sortanal_ )
+	else if ( !sortanal_->errMsg().isEmpty() )
 	{
 	    errmsg_ = sortanal_->errMsg();
 	    rv = false;

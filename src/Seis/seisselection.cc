@@ -291,7 +291,8 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
     if ( tkzs_.hrg.start.crl() > rg.start ) tkzs_.hrg.start.crl() = rg.start;
     if ( tkzs_.hrg.stop.crl() < rg.stop ) tkzs_.hrg.stop.crl() = rg.stop;
     const Interval<float> zrg( sd.zRange() );
-    if ( tkzs_.zsamp_.start > rg.start ) tkzs_.zsamp_.start = mCast(float,rg.start);
+    if ( tkzs_.zsamp_.start > rg.start )
+	tkzs_.zsamp_.start = mCast(float,rg.start);
     if ( tkzs_.zsamp_.stop < rg.stop ) tkzs_.zsamp_.stop = mCast(float,rg.stop);
 }
 
@@ -320,7 +321,7 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 
 int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    if ( isall_ ) return tracesInSI();
+    if ( isall_ && !for2d ) return tracesInSI();
 
     TrcKeySampling hs( tkzs_.hrg );
     if ( step ) hs.step = *step;
