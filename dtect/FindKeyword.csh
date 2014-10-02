@@ -91,7 +91,15 @@ endif
 shift 
 
 if ( -e ${filename} ) then
-    cat ${filename} | sed '{:q;N;s/\n/ /g;t q}' | ${grepcommand} -q "${keyword}"
+    cat ${filename} | \
+	# Remove // comments \
+	sed 's/\/\/.*//' | \
+	# Make everything one line \
+	sed '{:q;N;s/\n/ /g;t q}' | \
+	# Remove /* */comments \
+	sed 's/\/\*.*\*\///' | \
+	#search for keyword \
+	${grepcommand} -q "${keyword}"
     if ( ${status} == 0 ) then
 	if ( "${exceptionfile}" != "" ) then
 	    ${grepcommand} -q ${filename} ${exceptionfile}
