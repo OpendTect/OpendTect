@@ -49,8 +49,6 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
-    virtual bool	areUIParsOK();
-
 			mDeclReqAttribUIFns
 };
 
