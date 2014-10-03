@@ -124,6 +124,13 @@ void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 
 void uiAttrDescEd::fillInp( uiSteeringSel* fld, Attrib::Desc& desc, int inp )
 {
+    uiString errmsg;
+    if ( !fld->areParsOK(errmsg) )
+    {
+	errmsg_ = errmsg.getFullString();
+	return;
+    }
+
     if ( inp >= desc.nrInputs() )
 	return;
 
@@ -285,8 +292,8 @@ const char* uiAttrDescEd::errMsgStr( Attrib::Desc* desc )
 	if ( !desc->isStored() || derrmsg != DescSet::storedIDErrStr() )
 	    errmsg_ = derrmsg;
 	else
-	{                                                                       
-	    errmsg_.set( "Cannot find stored data '" ).add( desc->userRef() ); 
+	{
+	    errmsg_.set( "Cannot find stored data '" ).add( desc->userRef() );
 	    errmsg_.add( ".\nData might have been deleted or corrupted"
 			 ".\nPlease select valid stored data as input." );
 	}
@@ -311,6 +318,9 @@ const char* uiAttrDescEd::commit( Attrib::Desc* editdesc )
     getInput( *editdesc );
     getOutput( *editdesc );
     editdesc->updateParams();	//needed after getInput to update inputs' params
+
+    if ( !errmsg_.isEmpty() )
+	return errmsg_.buf();
 
     return errMsgStr( editdesc );
 }

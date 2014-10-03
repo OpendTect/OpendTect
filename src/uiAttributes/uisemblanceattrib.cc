@@ -58,15 +58,15 @@ uiSemblanceAttrib::uiSemblanceAttrib( uiParent* p, bool is2d )
 
     gatefld = new uiGenInput( this, gateLabel(),
 			      FloatInpIntervalSpec().setName("Z start",0)
-			      			    .setName("Z stop",1) );
+						    .setName("Z stop",1) );
 
     gatefld->attach( alignedBelow, inpfld );
 
     extfld = new uiGenInput( this, "Extension",
-	    		     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
+			     StringListInpSpec( is2d_ ? extstrs2d : extstrs3d));
     extfld->valuechanged.notify( mCB(this,uiSemblanceAttrib,extSel) );
     extfld->attach( alignedBelow, gatefld );
-    
+
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Trace positions" ).allowneg( true );
     pos0fld = new uiStepOutSel( this, setup );
@@ -106,7 +106,7 @@ bool uiSemblanceAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     mIfGetFloatInterval( Semblance::gateStr(), gate, gatefld->setValue(gate) )
-    mIfGetBinID( Semblance::stepoutStr(), stepout, 
+    mIfGetBinID( Semblance::stepoutStr(), stepout,
 	         stepoutfld->setBinID(stepout) )
     mIfGetBinID( Semblance::pos0Str(), pos0, pos0fld->setBinID(pos0) )
     mIfGetBinID( Semblance::pos1Str(), pos1, pos1fld->setBinID(pos1) )
@@ -174,13 +174,4 @@ void uiSemblanceAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 
 bool uiSemblanceAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }

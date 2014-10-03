@@ -140,13 +140,4 @@ void uiPositionAttrib::steerTypeSel( CallBacker* )
 
 
 bool uiPositionAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }

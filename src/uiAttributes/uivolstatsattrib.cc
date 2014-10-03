@@ -63,7 +63,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     inpfld_ = createInpFld( is2d );
 
     gatefld_ = new uiGenInput( this, gateLabel(),
-	    		       FloatInpIntervalSpec().setName("Z start",0)
+			       FloatInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
@@ -121,14 +121,14 @@ bool uiVolumeStatisticsAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetBool( VolStats::allowEdgeEffStr(), edgeeff,
-	    	edgeeffectfld_->setChecked( edgeeff ) );
+		edgeeffectfld_->setChecked( edgeeff ) );
     mIfGetEnum( VolStats::optstackdirStr(), dir,
 	        stackdirfld_->setValue(dir) );
     mIfGetInt( VolStats::optstackstepStr(), stackstep,
 	       optstackstepfld_->box()->setValue(stackstep) );
 
     mIfGetFloatInterval( VolStats::gateStr(), gate,
-	    		 gatefld_->setValue(gate) );
+			 gatefld_->setValue(gate) );
     mIfGetBinID( VolStats::stepoutStr(), stepout,
 	         stepoutfld_->setBinID(stepout) );
     mIfGetEnum( VolStats::shapeStr(), shape,
@@ -219,13 +219,4 @@ void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 
 bool uiVolumeStatisticsAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld_->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }

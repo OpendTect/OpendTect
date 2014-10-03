@@ -396,15 +396,6 @@ void uiTextureAttrib::calcAndSetMinMaxVal( const SeisTrcBuf& bufs )
 
 
 bool uiTextureAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld_->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }
 
 

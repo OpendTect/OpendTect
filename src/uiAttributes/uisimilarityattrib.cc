@@ -366,7 +366,7 @@ bool uiSimilarityAttrib::uiSimiSteeringSel::willSteer() const
 {
     if ( !typfld_ ) return false;
 
-    int typ = typfld_->getIntValue();
+    const int typ = typfld_->getIntValue();
     return typ && !wantBrowseDip();
 }
 
@@ -388,13 +388,4 @@ int uiSimilarityAttrib::uiSimiSteeringSel::browseDipIdxInList() const
 
 
 bool uiSimilarityAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld_->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }

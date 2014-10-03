@@ -271,7 +271,8 @@ const char* uiSteeringSel::text() const
 
 bool uiSteeringSel::areParsOK( uiString& errmsg ) const
 {
-    if ( !haslic )
+    const bool usesteer = uiSteeringSel::willSteer();
+    if ( usesteer && !haslic )
     {
 	errmsg = tr( "No license for DipSteering operations."
 		     "\nPlease consult Utilities-Plugins for more information."

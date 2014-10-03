@@ -136,13 +136,4 @@ void uiShiftAttrib::steerTypeSel( CallBacker* )
 
 
 bool uiShiftAttrib::areUIParsOK()
-{
-    uiString errmsg;
-    if ( !steerfld_->areParsOK( errmsg ) )
-    {
-	uiMSG().error(errmsg);
-	return false;
-    }
-
-    return true;
-}
+{ return true; }
