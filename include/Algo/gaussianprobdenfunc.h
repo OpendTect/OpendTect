@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "bufstringset.h"
 template <class T> class Array2DMatrix;
+namespace Stats { class NormalRandGen; }
 
 
 inline float cMaxGaussianCC()		{ return 0.99999f; }
@@ -27,8 +28,7 @@ inline const char* sGaussianCCRangeErrMsg()
 	 "Maximum correlation is 0.99999."; }
 
 #define mDefGaussianProbDenFuncFns(nm) \
-				nm##ProbDenFunc( const nm##ProbDenFunc& fn ) \
-							{ *this = fn; } \
+				~nm##ProbDenFunc(); \
     nm##ProbDenFunc&		operator =(const nm##ProbDenFunc&); \
     virtual nm##ProbDenFunc*	clone() const \
 				{ return new nm##ProbDenFunc(*this); } \
@@ -40,6 +40,7 @@ inline const char* sGaussianCCRangeErrMsg()
     virtual bool		isEq(const ProbDenFunc&) const;
 
 
+
 /*!\brief One dimensional Gaussian PDF. */
 
 mExpClass(Algo) Gaussian1DProbDenFunc : public ProbDenFunc1D
@@ -47,7 +48,9 @@ mExpClass(Algo) Gaussian1DProbDenFunc : public ProbDenFunc1D
 public:
 
 			Gaussian1DProbDenFunc( float exp=0, float stdev=1 )
-			    : exp_(exp), std_(stdev)	{}
+			    : rgen_(0), exp_(exp), std_(stdev)	{}
+			Gaussian1DProbDenFunc(const Gaussian1DProbDenFunc& oth)
+			    : rgen_(0)	{ *this = oth; }
 
 			mDefGaussianProbDenFuncFns(Gaussian1D)
 
@@ -55,6 +58,8 @@ public:
     float		std_;
 
 protected:
+
+    mutable Stats::NormalRandGen* rgen_;
 
     virtual float	gtAvgPos() const		{ return exp_; }
     virtual float	gtVal(float) const;
@@ -71,6 +76,8 @@ public:
 
 			Gaussian2DProbDenFunc()
 			    : exp0_(0),exp1_(0), std0_(1), std1_(1), cc_(0) {}
+			Gaussian2DProbDenFunc(const Gaussian2DProbDenFunc& oth)
+			    : rgen0_(0), rgen1_(0)	{ *this = oth; }
 
 			mDefGaussianProbDenFuncFns(Gaussian2D)
 
@@ -82,6 +89,9 @@ public:
     float		cc_;
 
 protected:
+
+    mutable Stats::NormalRandGen* rgen0_;
+    mutable Stats::NormalRandGen* rgen1_;
 
     virtual float	gtVal(float,float) const;
     virtual void	drwRandPos(float&,float&) const;
@@ -96,8 +106,8 @@ mExpClass(Algo) GaussianNDProbDenFunc : public ProbDenFunc
 public:
 
 			GaussianNDProbDenFunc(int nrdims=3);
-			~GaussianNDProbDenFunc();
-
+			GaussianNDProbDenFunc(const GaussianNDProbDenFunc& oth)
+						{ *this = oth; }
 			mDefGaussianProbDenFuncFns(GaussianND)
 
     virtual int		nrDims() const		{ return vars_.size(); }
@@ -147,6 +157,7 @@ protected:
 
 
     ObjectSet<TypeSet<int> >	corrs4vars_;
+    mutable ObjectSet<Stats::NormalRandGen> rgens_;
     Array2DMatrix<float>*	cholesky_;
 
 };

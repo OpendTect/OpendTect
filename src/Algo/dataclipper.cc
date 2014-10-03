@@ -28,8 +28,7 @@ DataClipper::DataClipper()
     , approxstatsize_( 2000 )
     , absoluterg_( mUdf(float), -mUdf(float) )
 {
-    Stats::randGen().init();
-} 
+}
 
 
 void DataClipper::setApproxNrValues( od_int64 n, int statsz )
@@ -66,7 +65,7 @@ template <class T>
 class DataClipperDataInserter : public ParallelTask
 {
 public:
-    DataClipperDataInserter( const T& input, od_int64 sz, 
+    DataClipperDataInserter( const T& input, od_int64 sz,
 			     LargeValVec<float>& samples,
 			     Interval<float>& rg, float prob )
         : input_( input )
@@ -77,17 +76,17 @@ public:
     {
 	nrsamples_ = doall_ ? nrvals_ : mNINT64(sz * prob);
     }
-    
+
     od_int64 nrIterations() const
     { return nrsamples_; }
-    
+
     int minThreadSize() const { return 100000; }
-    
+
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	TypeSet<float> localsamples;
 	Interval<float> localrg( mUdf(float), -mUdf(float) );
-	
+
 	for ( od_int64 idx=start; idx<=stop; idx++ )
 	{
 	    float val;
@@ -102,11 +101,11 @@ public:
 		const od_int64 sampidx = mNINT64(rand);
 		val = input_[sampidx];
 	    }
-	    
-	    
+
+
 	    mAddValue( localsamples, localrg );
 	}
-	
+
 	if ( localsamples.size() )
 	{
 	    lock_.lock();
@@ -114,12 +113,12 @@ public:
 	    absoluterg_.include( localrg, false );
 	    lock_.unLock();
 	}
-	
+
 	return true;
     }
-    
+
 protected:
-    
+
     Threads::SpinLock	lock_;
     od_int64		nrsamples_;
     od_int64		nrvals_;
@@ -134,7 +133,7 @@ void DataClipper::putData( const float* vals, od_int64 nrvals )
 {
     DataClipperDataInserter<const float*> inserter( vals, nrvals,
 					samples_, absoluterg_,sampleprob_ );
-    
+
     inserter.execute();
 }
 
@@ -146,10 +145,10 @@ void DataClipper::putData( const ValueSeries<float>& vals, od_int64 nrvals )
 	putData( vals.arr(), nrvals );
 	return;
     }
-    
-    DataClipperDataInserter<const ValueSeries<float> > inserter( vals, nrvals, 
+
+    DataClipperDataInserter<const ValueSeries<float> > inserter( vals, nrvals,
 					samples_, absoluterg_, sampleprob_ );
-    
+
     inserter.execute();
 }
 
@@ -162,17 +161,17 @@ void DataClipper::putData( const ArrayND<float>& vals )
 	putData( *vals.getStorage(), nrvals );
 	return;
     }
-    
+
     ArrayNDValseriesAdapter<float> adapter( vals );
     if ( !adapter.isOK() )
 	{ pErrMsg("Problem with adapter"); return; }
-    
+
     putData( adapter, vals.info().getTotalSz() );
 }
 
 
 bool DataClipper::calculateRange( float cliprate, Interval<float>& range )
-				  
+
 {
     return calculateRange( cliprate, cliprate, range );
 }
@@ -229,7 +228,7 @@ bool DataClipper::calculateRange( float* vals, od_int64 nrvals,
 
 bool DataClipper::calculateRange( float lowcliprate, float highcliprate,
 				  Interval<float>& range )
-				  
+
 {
     const bool res = calculateRange( samples_.arr(), samples_.size(),
 	    lowcliprate, highcliprate, range );
@@ -274,27 +273,27 @@ bool DataClipper::getRange( float lowclip, float highclip,
 
     od_int64 nrvals = samples_.size();
     if ( !nrvals ) return false;
-    
+
     if ( mIsZero(lowclip, 1e-5 ) )
 	range.start = absoluterg_.start;
     else
     {
 	const od_int64 firstidx = mNINT64(lowclip*nrvals);
-	range.start = samples_.validIdx( firstidx) ? samples_[ firstidx ] 
+	range.start = samples_.validIdx( firstidx) ? samples_[ firstidx ]
 						   : samples_[ 0 ];
     }
-    
+
     if ( mIsZero( highclip, 1e-5 ) )
 	range.stop = absoluterg_.stop;
     else
     {
 	const od_int64 topnr = mNINT64(highclip*nrvals);
 	const od_int64 lastidx = nrvals-topnr-1;
-	
-	range.stop = samples_.validIdx( lastidx ) ? samples_[ lastidx ] 
+
+	range.stop = samples_.validIdx( lastidx ) ? samples_[ lastidx ]
 						  : samples_[ nrvals-1 ];
     }
-    
+
     return true;
 }
 
@@ -448,7 +447,7 @@ BufferString DataClipSampler::getClipRgStr( float pct ) const
 
     float maxabs = fabs( rg.start );
     if ( fabs(rg.stop) > maxabs ) maxabs = fabs( rg.stop );
-    if ( maxabs != 0 ) 
+    if ( maxabs != 0 )
     {
 	const float sc8 = 127 / maxabs;
 	const float sc16 = 32767 / maxabs;

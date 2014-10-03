@@ -23,8 +23,6 @@ mDefModInitFn(Algo)
 {
     mIfNotFirstTime( return );
 
-    Stats::randGen().init();
-
     WindowFunction::addAllStdClasses();
 
     InverseDistanceGridder2D::initClass();

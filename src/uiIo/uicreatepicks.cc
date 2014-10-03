@@ -179,7 +179,6 @@ Pick::Set* uiGenPosPicks::getPickSet() const
 {
     if ( dps_->isEmpty() ) return 0;
 
-    Stats::randGen().init();
     Pick::Set* ps = uiCreatePicks::getPickSet();
     const int dpssize = dps_->size();
     int size = maxnrpickfld_->getIntValue();

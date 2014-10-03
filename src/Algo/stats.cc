@@ -29,7 +29,7 @@ DefineNameSpaceEnumNames(Stats,Type,3,"Statistic type")
 DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 {
 	"Take Nearest Sample",
-	"Use Average", "Use Median", "Use RMS", "Use Most Frequent", 
+	"Use Average", "Use Median", "Use RMS", "Use Most Frequent",
 	0
 };
 
@@ -38,15 +38,29 @@ DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 #include <stdlib.h>
 
 
-Stats::RandGen::RandGen()
-    :seed_(0)		{}
-
-
-Stats::RandGen Stats::randGen()
+void initSeed( int seed )
 {
-    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr, 
-			      = new Stats::RandGen() );
-    return *rgptr;
+    mDefineStaticLocalObject( int, seed_, = 0 );
+
+    if ( seed == 0 )
+    {
+	if ( seed_ != 0 )
+	    return;
+
+	seed = (int)Time::getMilliSeconds();
+    }
+
+    seed_ = seed;
+
+#ifndef __win__
+    srand48( (long)seed_ );
+#endif
+}
+
+
+void Stats::RandomGenerator::init( int seed )
+{
+    initSeed( seed );
 }
 
 
@@ -58,7 +72,7 @@ Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 	{ needmostfreq_ = true; return *this; }
     else if ( t >= Stats::Min && t <= Stats::Extreme )
 	{ needextreme_ = true; return *this; }
-    else if ( t == Stats::Variance || t == Stats::StdDev 
+    else if ( t == Stats::Variance || t == Stats::StdDev
 	    || t == Stats::NormVariance )
 	{ needvariance_ = true; needsums_ = true; return *this; }
 
@@ -97,7 +111,22 @@ int Stats::CalcSetup::medianEvenHandling()
 }
 
 
-double Stats::RandGen::get()
+Stats::RandGen::RandGen()
+    : seed_(0)
+{
+    initSeed( 0 );
+}
+
+
+Stats::RandGen Stats::randGen()
+{
+    mDefineStaticLocalObject( PtrMan<Stats::RandGen>, rgptr,
+			      = new Stats::RandGen() );
+    return *rgptr;
+}
+
+
+double Stats::RandGen::get() const
 {
 #ifdef __win__
     unsigned int rand = 0;
@@ -111,7 +140,7 @@ double Stats::RandGen::get()
 }
 
 
-int Stats::RandGen::getInt()
+int Stats::RandGen::getInt() const
 {
 #ifdef __win__
     unsigned int rand = 0;
@@ -123,54 +152,7 @@ int Stats::RandGen::getInt()
 }
 
 
-
-void Stats::RandGen::init( int seed )
-{
-    if ( seed == 0 )
-    {
-	if ( seed_ != 0 )
-	    return;
-
-	seed = (int)Time::getMilliSeconds();
-    }
-
-    seed_ = seed;
-
-#ifndef __win__
-    srand48( (long)seed_ );
-#endif
-}
-
-
-double Stats::RandGen::getNormal( double ex, double sd )
-{
-    mDefineStaticLocalObject( int, iset, = 0 );
-    mDefineStaticLocalObject( double, gset, = 0 );
-    double fac, r, v1, v2;
-    double arg;
-
-    double retval = gset;
-    if ( !iset )
-    {
-        do 
-	{
-            v1 = 2.0*get() - 1.0;
-            v2 = 2.0*get() - 1.0;
-            r=v1*v1+v2*v2;
-        } while (r >= 1.0 || r <= 0.0);
-
-	arg = (double)(-2.0*log(r)/r);
-        fac = Math::Sqrt( arg );
-        gset = v1 * fac;
-        retval = v2 * fac;
-    }
-
-    iset = !iset;
-    return retval*sd + ex;
-}
-
-
-int Stats::RandGen::getIndex( int sz )
+int Stats::RandGen::getIndex( int sz ) const
 {
     if ( sz < 2 ) return 0;
 
@@ -182,7 +164,7 @@ int Stats::RandGen::getIndex( int sz )
 }
 
 
-int Stats::RandGen::getIndexFast( int sz, int seed )
+int Stats::RandGen::getIndexFast( int sz, int seed ) const
 {
     if ( sz < 2 ) return 0;
 
@@ -192,7 +174,7 @@ int Stats::RandGen::getIndexFast( int sz, int seed )
 }
 
 
-od_int64 Stats::RandGen::getIndex( od_int64 sz )
+od_int64 Stats::RandGen::getIndex( od_int64 sz ) const
 {
     if ( sz < 2 ) return 0;
 
@@ -204,13 +186,60 @@ od_int64 Stats::RandGen::getIndex( od_int64 sz )
 }
 
 
-od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed )
+od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed ) const
 {
     if ( sz < 2 ) return 0;
 
     const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
-    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u); 
+    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u);
     od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
     if ( randidx < 0 ) randidx = -randidx;
     return randidx % sz;
+}
+
+
+Stats::NormalRandGen::NormalRandGen()
+    : useothdrawn_(false)
+    , othdrawn_(0)
+{
+    initSeed( 0 );
+}
+
+
+double Stats::NormalRandGen::get() const
+{
+    double fac, r, v1, v2;
+    double arg;
+
+    double retval = othdrawn_;
+
+    if ( !useothdrawn_ )
+    {
+	do
+	{
+	    v1 = 2.0 * randGen().get() - 1.0;
+	    v2 = 2.0 * randGen().get() - 1.0;
+	    r= v1*v1 + v2*v2;
+	} while (r >= 1.0 || r <= 0.0);
+
+	arg = (double)(-2.0*log(r) / r);
+	fac = Math::Sqrt( arg );
+	othdrawn_ = v1 * fac;
+	retval = v2 * fac;
+    }
+
+    useothdrawn_ = !useothdrawn_;
+    return retval;
+}
+
+
+float Stats::NormalRandGen::get( float e, float s ) const
+{
+    return (float)(e + get() * s);
+}
+
+
+double Stats::NormalRandGen::get( double e, double s ) const
+{
+    return e + get() * s;
 }

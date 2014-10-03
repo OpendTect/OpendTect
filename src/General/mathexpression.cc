@@ -33,7 +33,8 @@ const ObjectSet<const Math::ExpressionOperatorDescGroup>&
     if ( ret ) return *ret;
     ret = new ManagedObjectSet<const Math::ExpressionOperatorDescGroup>;
 
-    Math::ExpressionOperatorDescGroup* grp = new Math::ExpressionOperatorDescGroup;
+    Math::ExpressionOperatorDescGroup* grp
+				= new Math::ExpressionOperatorDescGroup;
     grp->name_ = "Basic";
 
 #   define mAddDesc(s,d,i,n) \
@@ -424,12 +425,6 @@ double ExpressionAND::getValue() const
 }
 
 
-static int ensureRandInited()
-{
-    Stats::randGen().init();
-    return 0;
-}
-
 mMathExpressionClass( Random, 1 )
 double ExpressionRandom::getValue() const
 {
@@ -437,7 +432,6 @@ double ExpressionRandom::getValue() const
     if ( Values::isUdf(maxval) )
 	return mUdf(double);
 
-    mDefineStaticLocalObject( int, dum, mUnusedVar = ensureRandInited() );
     return ( double )( maxval * Stats::randGen().get() );
 }
 
@@ -449,8 +443,8 @@ double ExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(double);
 
-    mDefineStaticLocalObject( int, dum, mUnusedVar = ensureRandInited() );
-    return ( double ) Stats::randGen().getNormal(0,stdev);
+    mDefineStaticLocalObject( Stats::NormalRandGen, rg, );
+    return rg.get(0,stdev);
 }
 
 
@@ -1004,7 +998,8 @@ bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
 		&& !isalpha(str[idx-2]) )
 		continue;
 
-	    Math::Expression* inp1 = parse( curch == '+' ? str+idx+1 : str+idx );
+	    Math::Expression* inp1
+			= parse( curch == '+' ? str+idx+1 : str+idx );
 	    if ( !inp1 )
 		return true;
 	    str[idx] = '\0';

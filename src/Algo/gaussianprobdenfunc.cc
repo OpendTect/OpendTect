@@ -20,7 +20,27 @@ static const char* sKeyDimStats = "DimStats";
 static const char* sKeyCorr = "Corr";
 
 
+static inline float draw01Normal( const Stats::NormalRandGen& rgen )
+{
+    return (float)rgen.get();
+}
+
+static inline float draw01Correlated( const Stats::NormalRandGen& rgen,
+					float othdraw, float cc )
+{
+    const float draw = (float)rgen.get();
+    return cc * othdraw + Math::Sqrt(1 - cc*cc) * draw;
+}
+
+
 // 1D
+
+
+Gaussian1DProbDenFunc::~Gaussian1DProbDenFunc()
+{
+    delete rgen_;
+}
+
 
 Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
 					const Gaussian1DProbDenFunc& oth )
@@ -29,6 +49,8 @@ Gaussian1DProbDenFunc& Gaussian1DProbDenFunc::operator =(
     {
 	ProbDenFunc1D::copyFrom( oth );
 	exp_ = oth.exp_; std_ = oth.std_;
+	delete rgen_;
+	rgen_ = oth.rgen_ ? new Stats::NormalRandGen( *oth.rgen_ ) : 0;
     }
     return *this;
 }
@@ -63,7 +85,9 @@ float Gaussian1DProbDenFunc::gtVal( float pos ) const
 
 void Gaussian1DProbDenFunc::drwRandPos( float& pos ) const
 {
-    pos = (float)Stats::randGen().getNormal( exp_, std_ );
+    if ( !rgen_ )
+	rgen_ = new Stats::NormalRandGen;
+    pos = rgen_->get( exp_, std_ );
 }
 
 
@@ -80,6 +104,7 @@ bool Gaussian1DProbDenFunc::usePar( const IOPar& par )
     par.get( sKey::Average(), exp_ );
     par.get( sKey::StdDev(), std_ );
     par.get( IOPar::compKey(sKey::Name(),0), varnm_ );
+    delete rgen_; rgen_ = 0;
     return true;
 }
 
@@ -98,6 +123,12 @@ inline static float fromDistribPos( float v, float exp, float sd )
 
 // 2D
 
+Gaussian2DProbDenFunc::~Gaussian2DProbDenFunc()
+{
+    delete rgen0_; delete rgen1_;
+}
+
+
 Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
 					const Gaussian2DProbDenFunc& oth )
 {
@@ -107,6 +138,8 @@ Gaussian2DProbDenFunc& Gaussian2DProbDenFunc::operator =(
 	exp0_ = oth.exp0_; exp1_ = oth.exp1_;
 	std0_ = oth.std0_; std1_ = oth.std1_;
 	cc_ = oth.cc_;
+	rgen0_ = oth.rgen0_ ? new Stats::NormalRandGen( *oth.rgen0_ ) : 0;
+	rgen1_ = oth.rgen1_ ? new Stats::NormalRandGen( *oth.rgen1_ ) : 0;
     }
     return *this;
 }
@@ -149,6 +182,7 @@ bool Gaussian2DProbDenFunc::usePar( const IOPar& par )
     par.get( "Correlation", cc_ );
     par.get( IOPar::compKey(sKey::Name(),0), dim0nm_ );
     par.get( IOPar::compKey(sKey::Name(),1), dim1nm_ );
+    delete rgen0_; delete rgen1_; rgen0_ = rgen1_ = 0;
     return true;
 }
 
@@ -168,25 +202,16 @@ float Gaussian2DProbDenFunc::gtVal( float p0, float p1 ) const
 }
 
 
-static inline float draw01Normal()
-{
-    return (float)Stats::randGen().getNormal( 0, 1 );
-}
-
-
-static inline float draw01Correlated( float othdraw, float cc )
-{
-    const float draw = draw01Normal();
-    return cc * othdraw + Math::Sqrt(1 - cc*cc) * draw;
-}
-
-
 void Gaussian2DProbDenFunc::drwRandPos( float& p0, float& p1 ) const
 {
-    const float x0 = draw01Normal();
+    if ( !rgen0_ )
+	rgen0_ = new Stats::NormalRandGen;
+    const float x0 = draw01Normal( *rgen0_ );
     p0 = exp0_ + std0_ * x0;
 
-    const float x1 = draw01Correlated( x0, cc_ );
+    if ( !rgen1_ )
+	rgen1_ = new Stats::NormalRandGen;
+    const float x1 = draw01Correlated( *rgen1_, x0, cc_ );
     p1 = exp1_ + std1_ * x1;
 }
 
@@ -215,6 +240,7 @@ GaussianNDProbDenFunc& GaussianNDProbDenFunc::operator =(
 	setName( oth.name() );
 	vars_ = oth.vars_;
 	corrs_ = oth.corrs_;
+	deepCopy( rgens_, oth.rgens_ );
     }
     return *this;
 }
@@ -430,12 +456,17 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 {
     const int nrdims = nrDims();
     poss.setSize( nrdims, 0 );
+    if ( rgens_.isEmpty() )
+    {
+	for ( int idim=0; idim<nrdims; idim++ )
+	    rgens_ += new Stats::NormalRandGen;
+    }
 
     if ( cholesky_ )
     {
 	Array1DVector vec( nrdims );
 	for ( int idim=0; idim<nrdims; idim++ )
-	    vec.set( idim, draw01Normal() );
+	    vec.set( idim, draw01Normal( *rgens_[idim]) );
 	Array1DVector corrvec( nrdims );
 	cholesky_->getProduct( vec, corrvec );
 	for ( int idim=0; idim<nrdims; idim++ )
@@ -453,19 +484,20 @@ void GaussianNDProbDenFunc::drawRandomPos( TypeSet<float>& poss ) const
 		continue;
 	    else if ( !drawn[corr.idx0_] && !drawn[corr.idx1_] )
 	    {
-		poss[corr.idx0_] = draw01Normal();
+		poss[corr.idx0_] = draw01Normal( *rgens_[corr.idx0_] );
 		drawn[corr.idx0_] = true;
 	    }
 
 	    const int idx2draw = drawn[corr.idx0_] ? corr.idx1_ : corr.idx0_;
 	    const int idx2use = drawn[corr.idx0_] ? corr.idx0_ : corr.idx1_;
-	    poss[idx2draw] = draw01Correlated( poss[idx2use], corr.cc_ );
+	    poss[idx2draw] = draw01Correlated( *rgens_[idx2draw],
+					poss[idx2use], corr.cc_ );
 	    drawn[idx2draw] = true;
 	}
 
 	for ( int idim=0; idim<nrdims; idim++ )
 	    if ( !drawn[idim] )
-		poss[idim] = draw01Normal();
+		poss[idim] = draw01Normal( *rgens_[idim] );
     }
 
     for ( int idim=0; idim<vars_.size(); idim++ )
@@ -561,5 +593,6 @@ bool GaussianNDProbDenFunc::usePar( const IOPar& par )
 	corrs_ += corr;
     }
 
+    deepErase( rgens_ );
     return true;
 }

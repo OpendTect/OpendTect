@@ -65,8 +65,6 @@ int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    Stats::randGen().init();
-
     if ( !test2DPDF() )
 	ExitProgram( 1 );
 

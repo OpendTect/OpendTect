@@ -51,7 +51,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     fd_.bodyinfos_ += Table::TargetInfo::mkZPosition( false );
     if ( is2d_ )
 	fd_.bodyinfos_ += new Table::TargetInfo("Trace number", IntInpSpec() );
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                   mODHelpKey(mTableImpDataSelpvdsHelpID)  );
     dataselfld_->attach( alignedBelow, inpfld_ );
 
@@ -113,7 +113,6 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, od_istream& strm )
     crlgen_.step = SI().crlRange(true).stop - crlgen_.start;
     zgen_.start = SI().zRange(true).start;
     zgen_.step = SI().zRange(true).stop - zgen_.start;
-    Stats::randGen().init();
 }
 
 bool getLine()

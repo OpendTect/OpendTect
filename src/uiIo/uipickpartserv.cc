@@ -271,7 +271,6 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    Stats::randGen().init();
     selectlines_ = rp.linenms_;
     deepErase( selhorids_ );
     coords2d_.erase();
