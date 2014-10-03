@@ -114,8 +114,8 @@ public:
     bool			isAxisShown() const;
     void			setAnnotColor(const Color&);
     void			setAnnotationFont(const FontData&);
-    visBase::PolygonSelection*	getPolygonSelector() const;
-    visBase::SceneColTab*	getSceneColTab() const;
+    visBase::PolygonSelection*	getPolygonSelector();
+    visBase::SceneColTab*	getSceneColTab();
     void			notifyManipulatorMovement(float dh,float dv,
                                                           float df);
     void			toHomePos();

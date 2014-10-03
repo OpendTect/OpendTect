@@ -190,7 +190,7 @@ int ScaleBarDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::ScaleBar*,sb,group_->getObject(idx));
+	mDynamicCastGet(const visBase::ScaleBar*,sb,group_->getObject(idx));
 	if ( sb && evi.pickedobjids.isPresent(sb->id()) )
 	    return idx;
     }

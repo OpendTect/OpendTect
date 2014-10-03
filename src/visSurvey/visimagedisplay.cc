@@ -130,7 +130,7 @@ int ImageDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::ImageRect*,imagerect,group_->getObject(idx));
+	mDynamicCastGet(const visBase::ImageRect*,imagerect,group_->getObject(idx));
 	if ( imagerect && evi.pickedobjids.isPresent(imagerect->id()) )
 	    return idx;
     }

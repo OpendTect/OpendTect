@@ -661,12 +661,12 @@ void ui3DViewerBody::setAnnotationFont( const FontData& fd )
 }
 
 
-visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector() const
+visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector()
 {
     return polygonselection_;
 }
 
-visBase::SceneColTab* ui3DViewerBody::getSceneColTab() const
+visBase::SceneColTab* ui3DViewerBody::getSceneColTab()
 {
     return visscenecoltab_;
 }
@@ -1458,10 +1458,10 @@ ui3DViewer::WheelMode ui3DViewer::getWheelDisplayMode() const
 bool ui3DViewer::rotAxisShown() const
 { return osgbody_->isAxisShown(); }
 
-visBase::PolygonSelection* ui3DViewer::getPolygonSelector() const
+visBase::PolygonSelection* ui3DViewer::getPolygonSelector()
 { return osgbody_->getPolygonSelector(); }
 
-visBase::SceneColTab* ui3DViewer::getSceneColTab() const
+visBase::SceneColTab* ui3DViewer::getSceneColTab()
 { return osgbody_->getSceneColTab(); }
 
 void ui3DViewer::toggleCameraType()

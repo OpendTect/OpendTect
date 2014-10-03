@@ -49,7 +49,7 @@ public:
 			mCreateDataObj(MarkerSet);
     
     Coordinates*	getCoordinates()         { return coords_; }
-    Coordinates*	getCoordinates()  const  { return coords_; }
+    const Coordinates*	getCoordinates()  const  { return coords_; }
     Normals*		getNormals();
 
     void		setMaterial(visBase::Material*);

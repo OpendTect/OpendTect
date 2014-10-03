@@ -218,7 +218,7 @@ int ArrowDisplay::clickedMarkerIndex(const visBase::EventInfo& evi)const
 {
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet(visBase::Lines*,lines,group_->getObject(idx));
+	mDynamicCastGet(const visBase::Lines*,lines,group_->getObject(idx));
 	if ( lines && evi.pickedobjids.isPresent(lines->id()) )
 	    return idx;
     }

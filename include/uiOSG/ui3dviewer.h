@@ -96,8 +96,8 @@ public:
     void		getAllKeyBindings(BufferStringSet&);
     const char*		getCurrentKeyBindings() const;
 
-    visBase::PolygonSelection*	getPolygonSelector() const;
-    visBase::SceneColTab*	getSceneColTab() const;
+    visBase::PolygonSelection*	getPolygonSelector();
+    visBase::SceneColTab*	getSceneColTab();
     const osgViewer::View*	getOsgViewerMainView() const;
     const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
