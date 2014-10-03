@@ -108,7 +108,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 
 
 class uiWriteFlattenedCubeMaker : public Executor
-{
+{ mODTextTranslationClass(uiWriteFlattenedCubeMaker);
 public:
 
 uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
@@ -117,7 +117,7 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
     , rdr_(rdr)
     , wrr_(wrr)
     , pp_(pp)
-    , msg_("Creating cube")
+    , msg_(tr("Creating cube"))
     , nrdone_(0)
     , totnr_(mCast(int,pp.estNrPos()))
     , horzrg_(hz)
@@ -126,7 +126,7 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
 }
 
 uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return "Traces written"; }
+uiString uiNrDoneText() const	{ return tr("Traces written"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totnr_; }
 

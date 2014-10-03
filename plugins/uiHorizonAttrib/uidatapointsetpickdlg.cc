@@ -159,7 +159,7 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-	{ uiMSG().error("Selected data set is empty"); return; }
+    { uiMSG().error(tr("Selected data set is empty")); return; }
 
     Pick::Set* pickset = psd_->getSet();
     pickset->erase();

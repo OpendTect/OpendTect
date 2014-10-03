@@ -52,7 +52,7 @@ protected:
 
 
 mClass(uiHorizonAttrib) uiIsopachMakerBatch : public uiDialog
-{
+{ mODTextTranslationClass(uiIsopachMakerBatch);
 public:
 
 			uiIsopachMakerBatch(uiParent*);
@@ -68,7 +68,7 @@ protected:
 
 
 mClass(uiHorizonAttrib) uiIsopachMakerDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiIsopachMakerDlg);
 public:
 			uiIsopachMakerDlg(uiParent*,EM::ObjectID);
 			~uiIsopachMakerDlg();

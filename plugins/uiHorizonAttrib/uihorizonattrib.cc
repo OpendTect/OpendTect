@@ -145,7 +145,7 @@ void uiHorizonAttrib::horSel( CallBacker* )
     EM::IOObjInfo eminfo( horfld_->ioobj()->key() );
     if ( !eminfo.isOK() )
     {
-	BufferString msg( "Cannot read '", horfld_->ioobj()->name().buf(), "'");
+	uiString msg = tr("Cannot read '%1'").arg(horfld_->ioobj()->name());
 	uiMSG().error( msg );
 	return;
     }

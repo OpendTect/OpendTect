@@ -169,8 +169,8 @@ bool uiIsopachMakerBatch::fillPar()
     isoverwrite_ = false;
     if ( attrnms.isPresent( attrnm ) )
     {
-	BufferString errmsg = "Attribute name ";
-	errmsg.add( attrnm ).add( " already exists, Overwrite?" );
+	uiString errmsg = tr("Attribute name %1 already exists, Overwrite?")
+			.arg(attrnm);
 	if ( !uiMSG().askOverwrite(errmsg) )
 	    return false;
 
@@ -233,14 +233,14 @@ bool uiIsopachMakerDlg::doWork()
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( mid2, &taskrunner );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
-	mErrRet("Cannot load selected horizon")
+	mErrRet(tr("Cannot load selected horizon"))
     h2->ref();
 
     EM::ObjectID emidbase = EM::EMM().getObjectID( mid1 );
     EM::EMObject* emobjbase = EM::EMM().getObject( emidbase );
     mDynamicCastGet(EM::Horizon3D*,h1,emobjbase)
     if ( !h1 )
-	{ h2->unRef(); mErrRet("Cannot find base horizon") }
+    { h2->unRef(); mErrRet(tr("Cannot find base horizon")) }
 
     h1->ref();
 

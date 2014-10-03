@@ -58,7 +58,7 @@ mDefODPluginInfo(uiHorizonAttrib)
 
 
 class uiHorAttribPIMgr :  public CallBacker
-{
+{ mODTextTranslationClass(uiHorAttribPIMgr);
 public:
 			uiHorAttribPIMgr(uiODMain*);
 
@@ -153,7 +153,7 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     if ( !visserv->canAddAttrib(displayid) )
     {
-	uiMSG().error( "Cannot add extra attribute layers" );
+	uiMSG().error(tr("Cannot add extra attribute layers"));
 	return;
     }
 
@@ -245,7 +245,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 
     if ( !visserv->canAddAttrib(displayid) )
     {
-	uiMSG().error( "Cannot add extra attribute layers" );
+	uiMSG().error(tr("Cannot add extra attribute layers"));
 	return;
     }
 

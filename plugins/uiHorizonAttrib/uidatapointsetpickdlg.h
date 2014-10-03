@@ -25,7 +25,7 @@ namespace Pick { class SetMgr; }
 namespace visSurvey { class PickSetDisplay; }
 
 mClass(uiHorizonAttrib) uiDataPointSetPickDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiDataPointSetPickDlg);
 public:
 			uiDataPointSetPickDlg(uiParent*,int sceneid);
     virtual		~uiDataPointSetPickDlg();
@@ -64,7 +64,7 @@ protected:
 
 
 mClass(uiHorizonAttrib) uiEMDataPointSetPickDlg : public uiDataPointSetPickDlg
-{
+{ mODTextTranslationClass(uiEMDataPointSetPickDlg);
 public:
 			uiEMDataPointSetPickDlg(uiParent*,int sceneid,
 						EM::ObjectID);

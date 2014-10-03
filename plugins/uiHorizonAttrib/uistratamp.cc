@@ -203,8 +203,8 @@ bool uiStratAmpCalc::prepareProcessing()
     isoverwrite_ = false;
     if ( attrnms.isPresent( attribnm ) )
     {
-	BufferString errmsg = "Attribute name ";
-	errmsg.add( attribnm ).add( " already exists, Overwrite?" );
+	uiString errmsg = tr("Attribute name %1 already exists, Overwrite?")
+			.arg(attribnm);
 	if ( !uiMSG().askOverwrite(errmsg) )
 	    return false;
 	else

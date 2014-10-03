@@ -61,7 +61,7 @@ const char* uiContourTreeItem::sKeyZValue()	     { return "Z Values"; }
 
 
 class uiContourTreeItemContourData
-{
+{ mODTextTranslationClass(uiContourTreeItemContourData);
 public:
 
     TypeSet<Coord3>			   contourcoords_;
@@ -74,7 +74,7 @@ public:
 
 
 class uiContourTreeItemContourGenerator : public ParallelTask
-{
+{ mODTextTranslationClass(uiContourTreeItemContourGenerator);
 public:
 
 				uiContourTreeItemContourGenerator(
@@ -87,7 +87,7 @@ public:
     const TypeSet<double>&	getAreas() const { return areas_; }
 
     uiString			uiNrDoneText() const
-                                { return "Contours created"; }
+				{ return tr("Contours created"); }
 
 protected:
     bool	doPrepare(int);
@@ -394,7 +394,7 @@ void uiContourTreeItemContourGenerator::addContourLabel(
 
 
 class uiContourParsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiContourParsDlg);
 public:
 
 uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
@@ -496,7 +496,7 @@ void intvChanged( CallBacker* cb )
     if( invalidstep )
     {
 	intvfld_->setValue( contourintv_.step, 2 );
-	if( cb ) return uiMSG().error( "Invalid step value" );
+	if (cb) return uiMSG().error(tr("Invalid step value"));
     }
 
     intv = intvfld_->getFStepInterval();
@@ -776,19 +776,19 @@ void uiContourTreeItem::saveAreasAsCB(CallBacker*)
 
         if ( stream.isBad() )
         {
-            BufferString errmsg( "Could not save file");
+	    uiString errmsg = tr("Could not save file %1");
 
 	    if ( stream.errMsg().getFullString() )
                 stream.addErrMsgTo( errmsg );
             else
-                errmsg.add( "." );
+		errmsg.arg(".");
 
-            uiMSG().error( errmsg.buf() );
+	    uiMSG().error(errmsg);
         }
         else
         {
-            uiMSG().message( BufferString( "Area table saved as ",
-                                          dlg.fileName(), ".").buf());
+	    uiMSG().message(tr("Area table saved as %1.")
+			  .arg(dlg.fileName()));
         }
     }
 }
