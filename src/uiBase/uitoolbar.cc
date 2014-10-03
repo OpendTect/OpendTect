@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbar.h"
 
 #include "uiaction.h"
-#include "uitoolbutton.h"
 #include "uimainwin.h"
 #include "uiparentbody.h"
+#include "uitoolbutton.h"
 
 #include "bufstringset.h"
 #include "menuhandler.h"
@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "i_qtoolbar.h"
 
 mUseQtnamespace
+
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
 {
@@ -212,14 +213,15 @@ void uiToolBar::setIcon( int id, const ioPixmap& pm )
 }
 
 
-void uiToolBar::setButtonMenu( int id, uiMenu* mnu )
+void uiToolBar::setButtonMenu( int id, uiMenu* mnu,
+			       uiToolButton::PopupMode mode )
 {
     mGetAction( , return );
     action->setMenu( mnu );
     QWidget* qw = qtoolbar_->widgetForAction( action->qaction() );
     mDynamicCastGet(QToolButton*,qtb,qw)
     if ( qtb )
-	qtb->setPopupMode( QToolButton::MenuButtonPopup );
+	qtb->setPopupMode( (QToolButton::ToolButtonPopupMode)mode );
 }
 
 

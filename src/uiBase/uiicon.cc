@@ -25,7 +25,7 @@ const char* uiIcon::saveAs()		{ return "saveas"; }
 const char* uiIcon::openObject()	{ return "openstorage"; }
 const char* uiIcon::newObject()		{ return "newstorage"; }
 const char* uiIcon::removeObject()	{ return "trashcan"; }
-const char* uiIcon::None()		{ return ""; }
+const char* uiIcon::None()		{ return "empty"; }
 
 
 uiIcon::uiIcon()

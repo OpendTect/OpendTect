@@ -79,6 +79,14 @@ public:
 
     static int		ask2D3D(const char* txt,int res2d=2,int res3d=3,
 				int rescncl=0);
+    void		add2D3DToolButton(uiToolBar&,const char* iconnnm,
+				     const uiString& tooltip,
+				     const CallBack& cb2d,const CallBack& cb3d,
+				     int itmid2d=-1,int itmid3d=-1);
+    void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
+				     const uiString& menuitmtxt,
+				     const CallBack& cb2d,const CallBack& cb3d,
+				     int itmid2d=-1,int itmid3d=-1);
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;
@@ -153,6 +161,9 @@ protected:
     void		toggViewMode(CallBacker*);
     void		create2D3DMnu(uiMenu*,const uiString&,int,int,
 				      const char* pm=0);
+    void		add2D3DMenuItem(uiMenu&,const char* iconnnm,
+					const uiString& menuitmtxt,
+					int itmid2d=-1,int itmid3d=-1);
 
     uiAction*		stereooffitm_;
     uiAction*		stereoredcyanitm_;

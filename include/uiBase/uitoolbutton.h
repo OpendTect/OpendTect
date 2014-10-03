@@ -25,6 +25,7 @@ public:
 
     enum ArrowType		{ NoArrow,
 				  UpArrow, DownArrow, LeftArrow, RightArrow };
+    enum PopupMode		{ DelayedPopup, MenuButtonPopup, InstantPopup };
 
 				uiToolButton(uiParent*,
 					     const uiToolButtonSetup&);
@@ -45,7 +46,8 @@ public:
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
-    void			setMenu(uiMenu*); //!<Menu becomes mine
+    void			setMenu(uiMenu*,PopupMode=MenuButtonPopup);
+				//!<Menu becomes mine
 
     const uiMenu*		menu() const		{ return uimenu_; }
 
@@ -63,7 +65,6 @@ private:
     int				id_; // Used by toolbar
 
     uiMenu*			uimenu_;
-    mQtclass(QMenu*)		qmenu_;
 };
 
 

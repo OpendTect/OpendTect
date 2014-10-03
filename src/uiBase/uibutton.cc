@@ -21,6 +21,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "pixmap.h"
 #include "uitoolbar.h"
 
+#include "objdisposer.h"
 #include "odiconfile.h"
 #include "perthreadrepos.h"
 #include "settings.h"
@@ -424,7 +425,7 @@ uiButton* uiToolButtonSetup::getButton( uiParent* p, bool forcetb ) const
     if ( !tb ) setPrefWidth( prefVNrPics() );
 
 #define mInitTBList \
-    id_(-1), qmenu_(0), uimenu_(0)
+    id_(-1), uimenu_(0)
 
 uiToolButton::uiToolButton( uiParent* parnt, const uiToolButtonSetup& su )
     : uiButton( parnt, su.name_, &su.cb_,
@@ -471,7 +472,6 @@ uiToolButton::uiToolButton( uiParent* parnt, uiToolButton::ArrowType at,
 
 uiToolButton::~uiToolButton()
 {
-    delete qmenu_;
     delete uimenu_;
 }
 
@@ -530,29 +530,31 @@ void uiToolButton::setShortcut( const char* sc )
 }
 
 
-void uiToolButton::setMenu( uiMenu* mnu )
+void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 {
-    delete qmenu_; delete uimenu_;
-    uimenu_ = mnu;
-    qmenu_ = new QMenu;
+    const bool hasmenu = mnu && mnu->nrActions() > 0;
+    tbbody_->setMenu( hasmenu ? mnu->getQMenu() : 0 );
 
-    if ( !uimenu_ || uimenu_->nrActions() < 1 )
+    mDynamicCastGet(uiToolBar*,tb,parent())
+    if ( !tb )
     {
-	qmenu_->setVisible( false );
-	tbbody_->setPopupMode( QToolButton::DelayedPopup );
-		// ... without this, the menu still remains visible
-    }
-    else
-    {
-	for ( int idx=0; idx<mnu->nrActions(); idx++ )
+	if ( finalised() )
 	{
-	    QAction* qact =
-		     const_cast<QAction*>( mnu->actions()[idx]->qaction() );
-	    qmenu_->addAction( qact );
+	    QSize size = tbbody_->size();
+	    const int wdth = hasmenu ? 1.5*size.height() : size.height();
+	    size.setWidth( wdth );
+	    tbbody_->resize( size );
 	}
-	tbbody_->setPopupMode( QToolButton::MenuButtonPopup );
+	else
+	{
+	    const int wdth = hasmenu ? 1.5*prefVNrPics() : prefVNrPics();
+	    tbbody_->setPrefWidth( wdth );
+	}
     }
 
+    if ( !hasmenu ) mode = DelayedPopup;
+    tbbody_->setPopupMode( (QToolButton::ToolButtonPopupMode)mode );
 
-    tbbody_->setMenu( qmenu_ );
+    OBJDISP()->go( uimenu_ );
+    uimenu_ = mnu;
 }

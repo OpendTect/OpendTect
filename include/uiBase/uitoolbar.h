@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uiaction.h"
 #include "uiparent.h"
+#include "uitoolbutton.h"
 
 mFDQtclass(QAction)
 mFDQtclass(QToolBar)
@@ -23,8 +24,6 @@ mFDQtclass(QToolBar)
 class ioPixmap;
 class MenuItem;
 class uiObject;
-class uiToolButton;
-class uiToolButtonSetup;
 class i_ToolBarMessenger;
 class uiButton;
 
@@ -77,7 +76,8 @@ public:
 			/*!< Works on complete toolbar */
     bool		isSensitive() const;
 
-    void		setButtonMenu(int,uiMenu*);
+    void		setButtonMenu(int,uiMenu*,
+			 uiToolButton::PopupMode=uiToolButton::MenuButtonPopup);
 			//!<Menu will be owned by uiToolButton
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
