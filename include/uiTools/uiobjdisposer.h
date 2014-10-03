@@ -12,40 +12,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "uitoolsmod.h"
-#include "callback.h"
-#include "sets.h"
-class Timer;
+// Note: uiObjDisposer has been renamed to ObjDisposer and moved to Basic.
+//	 After 5.0 only ObjDisposer will be supported.
 
-/*!\brief Disposes after a couple of msecs to avoid all kinds of trouble.
+#include "objdisposer.h"
 
-  The CallBack should have the object to be disposed of as CallBacker.
-  Usage like:
-
-    nonmdldlg->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
- 
- */
-
-mExpClass(uiTools) uiObjDisposer : public CallBacker
-{ 	
-public:
-
-    void			go(CallBacker*);
-
-protected:
-
-    ObjectSet<Timer>		timers_;
-    ObjectSet<CallBacker>	objs_;
-
-				uiObjDisposer();
-
-    void			doDel(CallBacker*);
-    mGlobal(uiTools) friend uiObjDisposer*	uiOBJDISP();
-
-};
-
-mGlobal(uiTools) uiObjDisposer* uiOBJDISP();
-
+typedef ObjDisposer uiObjDisposer;
 
 #endif
 

@@ -56,7 +56,6 @@ SET( OD_MODULE_SOURCES
 	uimathexpressionvariable.cc
 	uimeasuredlg.cc
 	uinotsaveddlg.cc
-	uiobjdisposer.cc
 	uiobjectitemview.cc
 	uiobjectitemviewwin.cc
 	uiofferinfo.cc
