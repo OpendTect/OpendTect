@@ -174,6 +174,8 @@ mExpClass(Attributes) DipBrowser
 public:
     mDefineFactoryInClass( DipBrowser, factory );
 
+    virtual			~DipBrowser() {};
+
     static DipBrowser*		createInstance(const char*);
     virtual float		compDist( BinID bidfrom, BinID bidto,
 					 float inldist, float crldist ) const
