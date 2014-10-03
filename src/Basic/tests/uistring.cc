@@ -98,11 +98,35 @@ bool testQStringAssignment()
 }
 
 
+bool testOptionStrings()
+{
+    uiStringSet options;
+    options += "One";
+    options += "Two";
+    options += "Three";
+    options += "Four";
+
+    mRunStandardTest(
+	    options.createOptionString( true, -1, ' ').getFullString()==
+	              "One, Two, Three, and Four", "createOptionString and" );
+    mRunStandardTest(
+	    options.createOptionString( false, -1, ' ').getFullString()==
+	              "One, Two, Three, or Four", "createOptionString or" );
+
+    mRunStandardTest(
+	    options.createOptionString( false, 3, ' ').getFullString()==
+	              "One, Two, Three, ...", "createOptionString limited" );
+
+    return true;
+}
+
+
 int main( int argc, char** argv )
 {
     mInitTestProg();
 
-    if ( !testArg() || !testSharedData() || !testQStringAssignment() )
+    if ( !testArg() || !testSharedData() || !testQStringAssignment() ||
+	 !testOptionStrings() )
 	ExitProgram( 1 );
 
     ExitProgram( 0 );

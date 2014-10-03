@@ -514,10 +514,10 @@ bool uiString::operator==( const uiString& b ) const
 }
 
 
-uiString uiStringSet::createOptionString( bool use_and, char space ) const
+uiString uiStringSet::createOptionString( bool use_and, 
+       					  int maxnr, char space ) const
 {
     BufferString glue;
-
 
     const char* percentage = "%";
     uiStringSet arguments;
@@ -526,34 +526,41 @@ uiString uiStringSet::createOptionString( bool use_and, char space ) const
     arguments += spacestring;
     bool firsttime = true;
 
+    int nritems = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( (*this)[idx].isEmpty() )
 	    continue;
 
+	nritems++;
+	arguments += (*this)[idx];
 	if ( firsttime )
 	{
-            arguments += (*this)[idx];
 	    glue.add( percentage );
 	    glue.add( arguments.size() );
 
             firsttime = false;
-
-	    continue;
 	}
-
-	if ( idx==size()-1 )
+	else if ( idx==size()-1 )
 	{
 	    if ( size()==2 )
 		glue.add( use_and ? " and%1%" : " or%1%" );
 	    else
 		glue.add( use_and ? ", and%1%" : ", or%1%");
+
+	    glue.add( arguments.size() );
 	}
 	else
+	{
 	    glue.add(",%1%");
+	    glue.add( arguments.size() );
 
-        arguments += (*this)[idx];
-	glue.add( arguments.size() );
+	    if ( maxnr>1 && maxnr<=nritems )
+	    {
+		glue.add( ",%1..."); 
+		break;
+	    }
+	}
     }
 
     if ( glue.isEmpty() )
