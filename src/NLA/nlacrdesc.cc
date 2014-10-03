@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : June 2001
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "nlacrdesc.h"
@@ -113,7 +113,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	if ( !ioobj )
 	    return tr("Cannot find training data set specified");
 
-	mDeclStaticString( errmsg ); 
+	mDeclStaticString( errmsg );
 	PosVecDataSet vds;
 	if ( !vds.getFrom(ioobj->fullUserExpr(true),errmsg) )
 	    return errmsg.buf();
@@ -121,7 +121,7 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
 	    return tr("Invalid input data set specified");
 
 	ObjectSet<DataPointSet>& ncdpss
-	    		= const_cast<ObjectSet<DataPointSet>&>( dpss );
+			= const_cast<ObjectSet<DataPointSet>&>( dpss );
 	const bool is2d = dpss[0]->is2D();
 	const bool ismini = dpss[0]->isMinimal();
 	deepErase( ncdpss );
@@ -162,8 +162,6 @@ uiString NLACreationDesc::prepareData(const ObjectSet<DataPointSet>& dpss,
     }
 
     // Get the data into train and test set
-    Stats::randGen().init();
-
     // All the following to support non-random test set extraction
     const bool extractrand = ratiotst > -0.001;
     const float tstratio = ratiotst < 0 ? -ratiotst : ratiotst;

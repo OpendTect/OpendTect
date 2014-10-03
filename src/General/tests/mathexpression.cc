@@ -15,8 +15,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static void parsePassedExpr( const char* inp )
 {
-    Stats::randGen().init();
-
     if ( !inp || !*inp ) inp = "abs(x + idiv(y,z))";
     od_cout() << "Expression:\n" << inp << "\n\n";
     Math::ExpressionParser mep( inp );

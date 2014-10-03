@@ -258,7 +258,6 @@ void uiDataPointSetCrossPlotter::getRandRowids()
     }
 
     Stats::RandGen randgen;
-    randgen.init();
     for ( int idx=0; idx<2; idx++ )
     {
 	int rowcount =0;

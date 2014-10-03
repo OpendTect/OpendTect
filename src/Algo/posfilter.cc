@@ -58,7 +58,7 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D::~Filter2D()
 {
-    geomids_.erase(); 
+    geomids_.erase();
 }
 
 
@@ -91,7 +91,7 @@ void Pos::Filter2D::removeGeomID( int lidx )
 
 
 Pos::GeomID Pos::Filter2D::geomID( int lidx ) const
-{ return geomids_.validIdx(lidx) ? geomids_[lidx] 
+{ return geomids_.validIdx(lidx) ? geomids_[lidx]
 				 : Survey::GM().cUndefGeomID(); }
 
 
@@ -255,7 +255,6 @@ bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
 
 void Pos::RandomFilter::initStats()
 {
-    Stats::randGen().init();
     if ( passratio_ > 1 ) passratio_ /= 100;
 }
 
@@ -347,7 +346,7 @@ float Pos::Provider::estRatio( const Pos::Provider& prov ) const
 	mDynamicCastGet(const Pos::Provider3D*,prov3d,&prov);
 	if ( !prov3d ) return mUdf(float);
 	TrcKeyZSampling provcs( true ); prov3d->getTrcKeyZSampling( provcs );
-	float provnr = (float) provcs.hrg.totalNr(); 
+	float provnr = (float) provcs.hrg.totalNr();
 	provnr *= provcs.zsamp_.nrSteps() + 1;
 	return ( provnr / estNrPos() ) / estNrZPerPos();
     }

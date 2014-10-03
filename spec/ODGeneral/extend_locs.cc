@@ -33,7 +33,6 @@ int main( int argc, char** argv )
 	std::cout << "Using standard input." << std::endl;
     std::istream& instrm = *sdin.istrm;
 
-    Stats::RandGen::init();
 
     if ( !instrm )
     {

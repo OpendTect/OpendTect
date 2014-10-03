@@ -205,21 +205,28 @@ mDefMathFunc( Tan,   false, "", res=tan(num) );
 mDefMathFunc( Trunc, false, "", res=(num<0 ? ceil(num) : floor(num)) );
 
 
-#define mDefRandFunc( clss, funcall ) \
-\
-bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
-{ \
-    mCheckMaxArgs( 1, args, res ); \
-    mGetNumArg( 0, num, args, res ); \
-    if ( !args.size() ) \
-	num = 1.0; \
-\
-    res = mIsUdf(num) ? num : num*Stats::randGen().funcall; \
-    return true; \
+bool RandFunc::eval( const BufferStringSet& args, BufferString& res ) const
+{
+    mCheckMaxArgs( 1, args, res );
+    mGetNumArg( 0, num, args, res );
+    if ( !args.size() )
+	num = 1.0;
+
+    res = mIsUdf(num) ? num : num*Stats::randGen().get();
+    return true;
 }
 
-mDefRandFunc( Rand, get() );
-mDefRandFunc( RandG, getNormal(0,1) );
+bool RandGFunc::eval( const BufferStringSet& args, BufferString& res ) const
+{
+    mCheckMaxArgs( 1, args, res );
+    mGetNumArg( 0, num, args, res );
+    if ( !args.size() )
+	num = 1.0;
+
+    Stats::NormalRandGen rg;
+    res = mIsUdf(num) ? num : num*rg.get();
+    return true;
+}
 
 
 bool Atan2Func::eval( const BufferStringSet& args, BufferString& res ) const

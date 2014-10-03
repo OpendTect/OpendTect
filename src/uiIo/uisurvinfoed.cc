@@ -190,13 +190,6 @@ void uiSurveyInfoEditor::mkSIPFld( uiObject* att )
     const int nrprovs = sips_.size();
     if ( nrprovs < 1 ) return;
 
-    int maxlen = 0;
-    for ( int idx=0; idx<nrprovs; idx++ )
-    {
-	const int len = FixedString( sips_[idx]->usrText() ).size();
-	if ( len > maxlen ) maxlen = len;
-    }
-
     uiLabeledComboBox* lcb = new uiLabeledComboBox( topgrp_,
 					    tr("Ranges/coordinate settings") );
     lcb->attach( alignedBelow, att );

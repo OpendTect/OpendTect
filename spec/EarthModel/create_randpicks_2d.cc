@@ -36,11 +36,9 @@ static int doWork( int argc, char** argv )
     if ( argc < 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " lineset_id horizon_id nrpicks "
-	    	     "xyz_filename " << std::endl;
+		     "xyz_filename " << std::endl;
 	return 1;
     }
-
-    Stats::RandGen::init();
 
     const int nrpicks = toInt( argv[3] );
     BufferString fname( argv[4] );
@@ -110,7 +108,7 @@ static int doWork( int argc, char** argv )
     }
 
     outsd.close();
-    std::cerr << nrpicks << " positions written to " << fname.buf() 
+    std::cerr << nrpicks << " positions written to " << fname.buf()
 	      << std::endl;
 
     return 0;

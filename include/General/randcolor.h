@@ -17,7 +17,6 @@ ________________________________________________________________________
 
 inline Color getRandomColor( bool withtransp=false )
 {
-    Stats::randGen().init();
     return Color( (unsigned char) Stats::randGen().getIndex(255),
 	          (unsigned char) Stats::randGen().getIndex(255),
 		  (unsigned char) Stats::randGen().getIndex(255),
@@ -30,10 +29,7 @@ inline Color getRandStdDrawColor()
 {
     mDefineStaticLocalObject( int, curidx, = -1 );
     if ( curidx == -1 )
-    {
-	Stats::randGen().init();
 	curidx = Stats::randGen().getIndex( Color::nrStdDrawColors() );
-    }
     else
     {
 	curidx++;

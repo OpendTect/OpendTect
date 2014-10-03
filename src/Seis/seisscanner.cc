@@ -41,7 +41,6 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     valrg_.start = mUdf(float);
     nonnullsamplerg_.stop = 0;
     nonnullsamplerg_.start = invalidsamplebid_.inl() = mUdf(int);
-    Stats::randGen().init();
 }
 
 

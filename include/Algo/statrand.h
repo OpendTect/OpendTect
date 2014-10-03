@@ -18,42 +18,51 @@ ________________________________________________________________________
 namespace Stats
 {
 
-/*!
-\brief Random Generator
-*/
+/*!\brief Random Generator */
 
-mExpClass(Algo) RandGen
+mExpClass(Algo) RandomGenerator
+{
+public:
+
+    virtual		~RandomGenerator()	{}
+    virtual void	init(int seed);
+				// seed != 0 gives repeatable numbers
+
+    virtual double	get() const		= 0;	// returns in [0,1]
+
+};
+
+
+/*!\brief Uniform Random Generator */
+
+mExpClass(Algo) RandGen : public RandomGenerator
 {
 public:
 
 			RandGen();
 
-    void		init(int seed=0);
-    			//!< If no seed passed, will generate one if needed
-    double		get();
-    			//!< Uniform [0-1]
-    int			getInt();
-    			//!< Uniform int
-    double		getNormal(double expectation,double stdev);
-    			//!< Normally distributed
-    int	    		getIndex(int sz);
-    			//!< random index in the range [0,sz>
-    int			getIndexFast(int sz,int seed);
-    			//!< getIndex using a very simple random generator
-    od_int64		getIndex(od_int64 sz);
-    			//!< random index in the range [0,sz>
-    od_int64		getIndexFast(od_int64 sz,od_int64 seed);
-    			//!< getIndex using a very simple random generator
+    virtual double	get() const;
+			//!< Uniform [0-1]
+    int			getInt() const;
+			//!< Uniform int
+    int			getIndex(int sz) const;
+			//!< random index in the range [0,sz>
+    int			getIndexFast(int sz,int seed) const;
+			//!< getIndex using a very simple random generator
+    od_int64		getIndex(od_int64 sz) const;
+			//!< random index in the range [0,sz>
+    od_int64		getIndexFast(od_int64 sz,od_int64 seed) const;
+			//!< getIndex using a very simple random generator
 
     template <class T,class SzTp>
-    void		subselect(T*,SzTp sz,SzTp targetsz);
-    			//!< Does not preserve order.
-    			//!< Afterwards, the 'removed' values occupy
-    			//!< the indexes targetsz - maxsz-1
+    void		subselect(T*,SzTp sz,SzTp targetsz) const;
+			//!< Does not preserve order.
+			//!< Afterwards, the 'removed' values occupy
+			//!< the indexes targetsz - maxsz-1
     template <class T>
-    void		subselect(T&,od_int64 targetsz);
-    			//!< Does not preserve order
-    			//!< The removed items will really be erased
+    void		subselect(T&,od_int64 targetsz) const;
+			//!< Does not preserve order
+			//!< The removed items will really be erased
 
 private:
 
@@ -65,8 +74,26 @@ private:
 mGlobal(Algo) RandGen randGen();
 
 
+mExpClass(Algo) NormalRandGen : public RandomGenerator
+{
+public:
+
+			NormalRandGen();
+
+    virtual double	get() const;
+    float		get(float expect,float stdev) const;
+    double		get(double expect,double stdev) const;
+
+protected:
+
+    mutable bool	useothdrawn_;
+    mutable double	othdrawn_;
+
+};
+
+
 template <class T,class SzTp>
-inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz )
+inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz ) const
 {
     for ( SzTp idx=sz-1; idx>=targetsz; idx-- )
     {
@@ -78,7 +105,7 @@ inline void Stats::RandGen::subselect( T* arr, SzTp sz, SzTp targetsz )
 
 
 template <class ODSET>
-inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz )
+inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz ) const
 {
     typedef typename ODSET::size_type size_type;
     const size_type sz = ods.size();
@@ -96,5 +123,5 @@ inline void Stats::RandGen::subselect( ODSET& ods, od_int64 targetsz )
 
 }; // namespace Stats
 
-#endif
 
+#endif

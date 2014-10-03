@@ -268,7 +268,6 @@ void ArrayNDProbDenFunc::doScale( float fac )
 void ArrayNDProbDenFunc::prepRndDrw() const
 {
     fillCumBins();
-    Stats::randGen().init();
 }
 
 
