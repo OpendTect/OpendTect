@@ -242,7 +242,7 @@ int getNextRow()
 }
 
 
-void prepareForTransform( int rowidx, const char* linenm, 
+void prepareForTransform( int rowidx, const char* linenm,
     const StepInterval<int>& colrg )
 {
     Threads::MutexLocker lock( lock_ );
@@ -295,7 +295,7 @@ bool doWork( od_int64 start, od_int64 stop, int )
 
 	if ( zaxt_ )
 	    prepareForTransform( rowidx, linenm, colrg );
-	
+
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 pos = surf_->getKnot( rc );
@@ -436,18 +436,17 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     const EM::SectionID sid = emobject_->sectionID( idx );
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
 		    emobject_->sectionGeometry(sid));
-
     const LineRanges* lrgs = redo ? &linergs : lineranges;
     visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
 
     if ( volumeofinterestids_.isEmpty() )
 	volumeofinterestids_.setSize( linenames.size(), -1 );
-   
+
     if ( !rcs || !pl )
-	    return;
+	return;
 
     Horizon2DDisplayUpdater updater( rcs, lrgs, pl, ps,
-				     zaxistransform_, linenames, 
+				     zaxistransform_, linenames,
 				     volumeofinterestids_ );
     updater.execute();
 }
@@ -472,7 +471,7 @@ void Horizon2DDisplay::updateLinesOnSections(
 	return;
     }
 
-    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_);
+    mDynamicCastGet(const EM::Horizon2D*,h2d,emobject_)
     if ( !h2d ) return;
 
     LineRanges linergs;
@@ -502,6 +501,9 @@ void Horizon2DDisplay::updateLinesOnSections(
 		if ( hp0.distTo(sp0)>maxdist || hp1.distTo(sp1)>maxdist )
 		    continue;
 	    }
+
+	    if ( !seis2dlist[idx]->isPanelShown() )
+		trcrg = Interval<int>::udf();
 
 	    linergs.trcrgs[lnidx] += trcrg;
 	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
@@ -597,7 +599,6 @@ bool Horizon2DDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     if ( zaxistransform_ )
     {
 	zaxistransform_->ref();
-
 	if ( zaxistransform_->changeNotifier() )
 	    zaxistransform_->changeNotifier()->notify( cb );
     }

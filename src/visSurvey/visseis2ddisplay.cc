@@ -143,7 +143,11 @@ void Seis2DDisplay::setLineStyle( const LineStyle& ls )
 
 
 void Seis2DDisplay::showPanel( bool yn )
-{ panelstrip_->turnOn( yn ); }
+{
+    panelstrip_->turnOn( yn );
+    geomchanged_.trigger();
+}
+
 
 void Seis2DDisplay::showPolyLine( bool yn )
 { polyline_->turnOn( yn ); }
