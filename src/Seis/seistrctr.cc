@@ -553,7 +553,7 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, TrcKeyZSampling& cs,
     {
 	Conn* cnn = ioobj.getConn( Conn::Read );
 	if ( !cnn || !tr->initRead(cnn,Seis::PreScan) )
-	return false;
+	    return false;
 
 	const SeisPacketInfo& pinf = tr->packetInfo();
 	cs.hrg.set( pinf.inlrg, pinf.crlrg );
