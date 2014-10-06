@@ -29,10 +29,11 @@ public:
 
     uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
     EM::ObjectID	emObjectID() const	{ return emid_; }
+    int			reloadEMObject();	//Return new display id.
 
 protected:
-    			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
-    			~uiODEarthModelSurfaceTreeItem();
+			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
+			~uiODEarthModelSurfaceTreeItem();
 
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
@@ -71,11 +72,11 @@ protected:
 };
 
 
-mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem 
+mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
     : public uiODAttribTreeItem
 {
 public:
-    			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
+			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
 				       uiVisEMObject*,const char* parenttype);
 
     void		setDataPointSet(const DataPointSet&);
