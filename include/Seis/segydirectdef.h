@@ -69,6 +69,8 @@ public:
     static const char*	sKeyFloatDataChar();
 
     static const char*	get2DFileName(const char*,const char*);
+    static const char*	get2DFileName(const char*,Pos::GeomID);
+
 
     const PosInfo::CubeData&	cubeData() const { return cubedata_; }
     const PosInfo::Line2DData&	lineData() const { return linedata_; }

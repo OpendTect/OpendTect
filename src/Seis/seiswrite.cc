@@ -167,6 +167,9 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	    const Pos::GeomID geomid = mCurGeomID;
 	    const char* lnm = is2d_ ? Survey::GM().getName(geomid) : 0;
 	    pswriter_ = SPSIOPF().get2DWriter( *ioobj_, lnm );
+	    SamplingData<float> sd = trc.info().sampling;
+	    StepInterval<float> zrg( sd.start, 0, sd.step );
+	    if ( linedata_ ) linedata_->setZRange( zrg );
 	}
 	if ( !pswriter_ )
 	{
@@ -349,6 +352,13 @@ bool SeisTrcWriter::put( const SeisTrc& intrc )
 	{
 	    errmsg_ = pswriter_->errMsg();
 	    return false;
+	}
+
+	if ( is2d_ && linedata_ && linedata_->indexOf(trc->info().nr) < 0 )
+	{
+	    PosInfo::Line2DPos pos( trc->info().nr );
+	    pos.coord_ = trc->info().coord;
+	    linedata_->add( pos );
 	}
     }
     else if ( is2d_ )

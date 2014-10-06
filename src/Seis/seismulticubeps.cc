@@ -39,6 +39,10 @@ public:
 			{ return 0; }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return 0; }
+    SeisPS2DReader*	make2DReader( const char* dirnm, Pos::GeomID ) const
+			{ return 0; }
+    SeisPSWriter*	make2DWriter( const char* dirnm, Pos::GeomID ) const
+			{ return 0; }
 
     bool		getLineNames(const char*,BufferStringSet&) const
 			{ return false; }

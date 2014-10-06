@@ -90,6 +90,7 @@ mExpClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
 {
 public:
 
+			SEGYDirect2DPSReader(const char* dirnm,Pos::GeomID);
 			SEGYDirect2DPSReader(const char* dirnm,const char* lnm);
 			// Check errMsg() to see failure
 			~SEGYDirect2DPSReader();

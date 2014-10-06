@@ -320,7 +320,7 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 
 int Seis::RangeSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
-    if ( isall_ ) return tracesInSI();
+    if ( isall_ && !for2d ) return tracesInSI();
 
     HorSampling hs( cs_.hrg );
     if ( step ) hs.step = *step;

@@ -64,10 +64,11 @@ public:
 mExpClass(Seis) SeisPS2DReader : public SeisPSReader
 {
 public:
-    			SeisPS2DReader( const char* lnm )
-			    : lnm_(lnm)		{}
+			SeisPS2DReader(const char* lnm);
+			SeisPS2DReader(Pos::GeomID);
     bool		is2D() const		{ return true; }
     const char*		lineName() const	{ return lnm_.buf(); }
+    Pos::GeomID		geomID() const		{ return geomid_; }
 
     			// Cannot use name overloading: seems gcc prob
     SeisTrc*		getTrc( int trcnr, int nr=0 ) const
@@ -80,6 +81,7 @@ public:
 protected:
 
     BufferString	lnm_;
+    Pos::GeomID		geomid_;
 
 };
 

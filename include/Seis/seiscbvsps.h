@@ -41,6 +41,7 @@ public:
     virtual		~SeisCBVSPSIO();
     const char*		errMsg() const		{ return errmsg_.str(); }
 
+    BufferString	get2DFileName(Pos::GeomID) const;
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,
 					const Interval<int>* inlrg=0) const;
@@ -115,6 +116,7 @@ mExpClass(Seis) SeisCBVSPS2DReader : public SeisPS2DReader
 {
 public:
 
+			SeisCBVSPS2DReader(const char* dirnm,Pos::GeomID);
 			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
 			~SeisCBVSPS2DReader();
     const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
@@ -132,6 +134,7 @@ protected:
 
     PosInfo::Line2DData& posdata_;
 
+    void		init(Pos::GeomID);
 };
 
 
@@ -179,6 +182,7 @@ mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
 {
 public:
 
+			SeisCBVSPS2DWriter(const char* dirnm,Pos::GeomID);
 			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
     const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); }
 
@@ -194,6 +198,7 @@ protected:
 
     int			prevnr_;
     BufferString	lnm_;
+    Pos::GeomID		geomid_;
     bool		ensureTr(const SeisTrc&);
 
 };
