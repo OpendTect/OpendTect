@@ -57,6 +57,7 @@ protected:
     void		vwrAdded(CallBacker*);
     void		zoomCB(CallBacker*);
     void		wheelMoveCB(CallBacker*);
+    void		pinchZoomCB(CallBacker*);
 };
 
 #endif

@@ -173,6 +173,49 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 }
 
 
+void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
+{
+    mDynamicCastGet(GestureEventHandler*,evh,cb);
+    if ( !evh || evh->isHandled() )
+	return;
+
+    const GestureEvent* gevent = evh->getPinchEventInfo();
+    if ( !gevent )
+	return;
+
+    int vwridx = -1;
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if ( evh == &(vwrs_[idx]->rgbCanvas().gestureEventHandler()) )
+	{
+	    vwridx = idx;
+	    break;
+	}
+    }
+
+    if ( vwridx<0 ) return;
+    activevwr_ = vwrs_[vwridx];
+    const Geom::Size2D<double> cursz = activevwr_->curView().size();
+
+    const float scalefac = gevent->scale();
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+				cursz.height() * (1/scalefac) );
+    uiWorld2Ui w2ui;
+    activevwr_->getWorld2Ui( w2ui );
+    Geom::Point2D<double>& pos = w2ui.transform( gevent->pos() );
+
+    uiWorldRect br = activevwr_->boundingBox();
+    br.sortCorners();
+    const uiWorldRect wr = getNewWorldRect(pos,newsz,activevwr_->curView(),br);
+    vwrs_[vwridx]->setView( wr );
+
+    if ( gevent->getState() == GestureEvent::Finished )
+    	zoommgr_.add( newsz );
+    
+    zoomChanged.trigger();
+}
+
+
 void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
 {
     if ( !iszoomcoupled_ || !activeVwr() ) return;

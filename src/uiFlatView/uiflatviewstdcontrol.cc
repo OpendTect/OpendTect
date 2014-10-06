@@ -126,6 +126,11 @@ void uiFlatViewStdControl::finalPrepare()
 	    vwrs_[idx]->rgbCanvas().getNavigationMouseEventHandler();
 	mAttachCBIfNotAttached(
 		mevh.wheelMove, uiFlatViewStdControl::wheelMoveCB );
+	GestureEventHandler& pinchhandler =
+	    vwrs_[idx]->rgbCanvas().gestureEventHandler();
+	mAttachCBIfNotAttached( pinchhandler.pinchnotifier,
+				uiFlatViewStdControl::pinchZoomCB );
+
 	if ( withhanddrag_ )
 	{
 	    mAttachCBIfNotAttached(
@@ -181,6 +186,42 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
 	return;
 
     zoomCB( ev.angle()<0 ? zoominbut_ : zoomoutbut_ );
+}
+
+
+void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
+{
+    mDynamicCastGet(GestureEventHandler*,evh,cb);
+    if ( !evh || evh->isHandled() || vwrs_.isEmpty() )
+	return;
+
+    const GestureEvent* gevent = evh->getPinchEventInfo();
+    if ( !gevent )
+	return;
+   
+    const uiFlatViewer& vwr = *vwrs_[0];
+    const int vwridx = vwrs_.indexOf( &vwr );
+    if ( vwridx < 0 )
+	return;
+   
+    const Geom::Size2D<double> cursz = vwr.curView().size();
+    const float scalefac = gevent->scale();
+    Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
+				cursz.height() * (1/scalefac) );
+
+    uiWorld2Ui w2ui;
+    vwr.getWorld2Ui( w2ui );
+    Geom::Point2D<double>& pos = w2ui.transform( gevent->pos() );
+
+    uiWorldRect br = vwr.boundingBox();
+    br.sortCorners();
+    const uiWorldRect wr = getNewWorldRect(pos,newsz,vwr.curView(),br);
+    vwrs_[vwridx]->setView( wr );
+
+    if ( gevent->getState() == GestureEvent::Finished )
+    	zoommgr_.add( newsz );
+ 
+    zoomChanged.trigger();
 }
 
 
