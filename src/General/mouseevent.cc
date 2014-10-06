@@ -200,6 +200,7 @@ MouseCursorExchange::Info::Info( const Coord3& pos, float offset )
 {}
 
 
+//Gesture Events
 GestureEventHandler::GestureEventHandler()
     : pinchnotifier(this)
     , ishandled_(false)
@@ -210,7 +211,7 @@ GestureEventHandler::~GestureEventHandler()
 {}
 
 
-void GestureEventHandler::triggerPinchEvent( const GestureEventInfo& info )
+void GestureEventHandler::triggerPinchEvent( const GestureEvent& info )
 {
     ishandled_ = false;
     currentevent_ = &info;
@@ -219,7 +220,7 @@ void GestureEventHandler::triggerPinchEvent( const GestureEventInfo& info )
 }
 
 
-const GestureEventInfo*	GestureEventHandler::getPinchEventInfo() const
+const GestureEvent*	GestureEventHandler::getPinchEventInfo() const
 {
     return currentevent_;
 }

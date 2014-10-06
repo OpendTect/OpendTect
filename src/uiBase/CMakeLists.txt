@@ -59,6 +59,7 @@ SET(OD_MODULE_SOURCES     i_layout.cc
 		uimainwin.cc
 		uimdiarea.cc
 		uimenu.cc
+		uimouseeventblockerbygesture.cc
 		uimsg.cc
 		uiobj.cc
 		uiobjectstack.cc

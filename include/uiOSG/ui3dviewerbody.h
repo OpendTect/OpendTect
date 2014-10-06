@@ -39,6 +39,7 @@ namespace osgGeo { class TrackballManipulator; }
 class ui3DViewer;
 class TrackBallManipulatorMessenger;
 class KeyBindMan;
+class uiMouseEventBlockerByGestures;
 
 namespace osg
 {
@@ -177,6 +178,7 @@ protected:
     RefMan<visBase::DataObjectGroup>	hudscene_;
 
     uiEventFilter			eventfilter_;
+    uiMouseEventBlockerByGestures&	mouseeventblocker_;
     RefMan<visBase::Axes>		axes_;
     RefMan<visBase::PolygonSelection>	polygonselection_;
     TrackBallManipulatorMessenger*	manipmessenger_;

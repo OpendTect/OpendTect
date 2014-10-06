@@ -106,6 +106,7 @@ protected:
     virtual void	vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);
     virtual void	zoomCB(CallBacker*);
+    virtual void	pinchZoomCB(CallBacker*);
 
     virtual bool	handleUserClick(int vwridx);
 
