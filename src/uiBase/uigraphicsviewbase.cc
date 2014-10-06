@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "draw.h"
 #include "mouseevent.h"
 #include "uigraphicsscene.h"
+#include "uimouseeventblockerbygesture.h"
 #include "uiobjbody.h"
 
 #include <QApplication>
@@ -30,6 +31,26 @@ static const int cDefaultWidth  = 1;
 static const int cDefaultHeight = 1;
 
 
+class TouchSceneEventFilter : public QObject
+{
+public:
+
+bool eventFilter(QObject *obj, QEvent *event )
+{
+    if ( event->type()==QEvent::TouchBegin ||
+	event->type()==QEvent::TouchUpdate ||
+	event->type()==QEvent::TouchEnd )
+    {
+	event->accept();
+	return true;
+    }
+
+    return false;
+}
+
+};
+
+
 class uiGraphicsViewBody :
     public uiObjBodyImpl<uiGraphicsViewBase,QGraphicsView>
 {
@@ -43,7 +64,9 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     , startpos_(-1,-1)
     , handle_(hndle)
     , currentpinchscale_(0)
+    , mouseeventblocker_(*new uiMouseEventBlockerByGestures(1000))
 {
+    mouseeventblocker_.attachToQObj( this );
     setStretch( 2, 2 );
     setPrefWidth( cDefaultWidth );
     setPrefHeight( cDefaultHeight );
@@ -57,6 +80,7 @@ uiGraphicsViewBody( uiGraphicsViewBase& hndle, uiParent* p, const char* nm )
     delete &mousehandler_;
     delete &keyboardhandler_;
     delete &gestureeventhandler_;
+    delete &mouseeventblocker_;
 }
 
 MouseEventHandler& mouseEventHandler()
@@ -67,6 +91,7 @@ KeyboardEventHandler& keyboardEventHandler()
 
 GestureEventHandler& gestureEventHandler()
 { return gestureeventhandler_; }
+
 
 const uiPoint& getStartPos() const	{ return startpos_; }
 
@@ -80,6 +105,8 @@ protected:
     uiGraphicsViewBase&		handle_;
     float			currentpinchscale_;
 
+    uiMouseEventBlockerByGestures&   mouseeventblocker_;
+
     void			wheelEvent(QWheelEvent*);
     void			resizeEvent(QResizeEvent*);
     void			paintEvent(QPaintEvent*);
@@ -88,6 +115,7 @@ protected:
     void			mousePressEvent(QMouseEvent*);
     void			mouseDoubleClickEvent(QMouseEvent*);
     void			keyPressEvent(QKeyEvent*);
+    bool			viewportEvent(QEvent*);
     void			scrollContentsBy (int,int);
     bool			event(QEvent*);
     bool			gestureEvent(QGestureEvent*);
@@ -102,10 +130,22 @@ void uiGraphicsViewBody::mouseMoveEvent( QMouseEvent* ev )
 }
 
 
+bool uiGraphicsViewBody::viewportEvent( QEvent* ev )
+{
+    if ( mouseeventblocker_.updateFromEvent(ev) )
+    {
+	ev->accept();
+	return true;
+    }
+    else
+    {
+	return QGraphicsView::viewportEvent( ev );
+    }
+}
+
+
 void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 {
-    if ( !ev ) return;
-
     if ( ev->modifiers() == Qt::ControlModifier )
 	handle_.setCtrlPressed( true );
 
@@ -140,7 +180,9 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* ev )
 
 void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* ev )
 {
-    if ( !ev | handle_.isRubberBandingOn() ) return;
+    if ( !ev | handle_.isRubberBandingOn() )
+	return;
+
     if ( ev->button() == Qt::LeftButton )
     {
 	MouseEvent me( OD::LeftButton, ev->x(), ev->y() );
@@ -152,7 +194,6 @@ void uiGraphicsViewBody::mouseDoubleClickEvent( QMouseEvent* ev )
 
 void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* ev )
 {
-    if ( !ev ) return;
     if ( ev->button() == Qt::LeftButton )
     {
 	buttonstate_ = OD::LeftButton;
@@ -195,8 +236,6 @@ void uiGraphicsViewBody::paintEvent( QPaintEvent* ev )
 
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* ev )
 {
-    if ( !ev ) return;
-
     if ( handle_.scene_ )
     {
 	const int sceneborder = handle_.getSceneBorder();
@@ -263,8 +302,12 @@ void uiGraphicsViewBody::scrollContentsBy( int dx, int dy )
 
 bool uiGraphicsViewBody::event( QEvent* ev )
 {
+    if ( !ev )
+	return false;
+
     if ( ev->type() == QEvent::Gesture )
          return gestureEvent( static_cast<QGestureEvent*>( ev ) );
+    
     return QGraphicsView::event( ev );
 }
 
@@ -272,25 +315,37 @@ bool uiGraphicsViewBody::event( QEvent* ev )
 bool uiGraphicsViewBody::gestureEvent( QGestureEvent* ev )
 {
     if ( QPinchGesture* pinch =
-	    static_cast<QPinchGesture*>(ev->gesture(Qt::PinchGesture) ) )
+	    static_cast<QPinchGesture*>(ev->gesture(Qt::PinchGesture)) )
     {
-	QPinchGesture::ChangeFlags changeflags = pinch->changeFlags();
-	if ( changeflags & QPinchGesture::ScaleFactorChanged )
+	const QPointF qcenter = pinch->centerPoint();
+	const QPoint pinchcenter = qwidget()->mapFromGlobal(qcenter.toPoint());
+	GestureEvent gevent( mCast(int,pinchcenter.x()),
+			     mCast(int,pinchcenter.y()),
+			     mCast(float,pinch->scaleFactor()),
+			     mCast(float,pinch->rotationAngle()));
+
+	if ( pinch->state() == Qt::GestureStarted )
+	    gevent.setState( GestureEvent::Started );
+	else if ( pinch->state() == Qt::GestureUpdated )
 	{
-	    const QPointF qcenter = pinch->centerPoint();
-	    const GestureEventInfo evinfo( mCast(int,qcenter.x()),
-					   mCast(int,qcenter.y()),
-					   mCast(float,pinch->scaleFactor()),
-					   mCast(float,pinch->rotationAngle()));
-	    if ( mIsEqual(currentpinchscale_,evinfo.scale(),mDefEps) )
+	    gevent.setState( GestureEvent::Moving );
+	    if ( mIsEqual(gevent.scale(),1.0f,mDefEps) )
 		return false;
 
-	    currentpinchscale_ = evinfo.scale();
-	    gestureeventhandler_.triggerPinchEvent( evinfo );
-	    return true;
+	    if ( mIsEqual(currentpinchscale_,gevent.scale(),mDefEps) )
+		return false;
+
+	    currentpinchscale_ = gevent.scale();
 	}
+	else
+	    gevent.setState( GestureEvent::Finished );
+
+	gestureeventhandler_.triggerPinchEvent( gevent );
+	ev->accept();
+	return true;
     }
 
+    ev->accept();
     return false;
 }
 
@@ -458,6 +513,7 @@ void uiGraphicsViewBase::setScene( uiGraphicsScene& scn )
     scene_ = &scn;
     scene_->setSceneRect( sceneborder_, sceneborder_,
 			  width()-2*sceneborder_, height()-2*sceneborder_ );
+    scn.qGraphicsScene()->installEventFilter( new TouchSceneEventFilter );
     body_->setScene( scn.qGraphicsScene() );
 }
 

@@ -209,25 +209,30 @@ public:
     
 
 /*!\brief Stores event information from gesture event */
-mExpClass(General) GestureEventInfo
+mExpClass(General) GestureEvent
 {
 public:
-			    GestureEventInfo( int xx, int yy, 
-						float scl, float angl )
-			    : pos_(xx,yy),scale_(scl),angle_(angl)
+			    GestureEvent( int xx, int yy, float sc, float angl )
+			    : pos_(xx,yy),scale_(sc),angle_(angl)
 			    {}
-
+    
+        
     const Geom::Point2D<int>&	pos() const	    { return pos_; }
     int				x() const	    { return pos_.x; }
     int				y() const	    { return pos_.y; }
     float			scale() const	    { return scale_; }
     float			angle() const	    { return angle_; }
 
+    enum			State{ Started, Moving, Finished };
+    State			getState() const { return state_; }
+    void		        setState(State st) { state_ = st; }
+
 protected:
 
     Geom::Point2D<int>		pos_;
     float			scale_;
     float			angle_;
+    State			state_;
 };
 
 
@@ -266,9 +271,9 @@ public:
     
    
     void			triggerPinchEvent(
-					    const GestureEventInfo& pinchinfo);
+					    const GestureEvent& pinchevnt);
     //!<Only available during events
-    const GestureEventInfo*	getPinchEventInfo() const;
+    const GestureEvent*		getPinchEventInfo() const;
     bool			isHandled() const	{ return ishandled_; }
     void			setHandled(bool yn)	{ ishandled_ = yn; }
 
@@ -276,7 +281,7 @@ public:
 
 private:
 
-    const GestureEventInfo*	    currentevent_;
+    const GestureEvent*		    currentevent_;
     bool			    ishandled_;
 };
 

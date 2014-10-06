@@ -42,6 +42,7 @@ SET(OD_MODULE_SOURCES
 	uicursor.cc
 	uidate.cc
 	uidesktopservices.cc
+
 	uidial.cc
 	uidockwin.cc
 	uieventfilter.cc
@@ -63,6 +64,7 @@ SET(OD_MODULE_SOURCES
 	uimainwin.cc
 	uimdiarea.cc
 	uimenu.cc
+	uimouseeventblockerbygesture.cc
 	uimsg.cc
 	uiobj.cc
 	uiobjbody.cc

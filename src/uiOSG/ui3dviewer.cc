@@ -16,6 +16,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ui3dindirectviewer.h"
 #include "uirgbarray.h"
 #include "uimain.h"
+#include "uimouseeventblockerbygesture.h"
+
 
 #include <osgQt/GraphicsWindowQt>
 #include <osgViewer/View>
@@ -149,6 +151,7 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
 {
     osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
 
+    mouseeventblocker_.attachToQObj( glw );
     eventfilter_.attachToQObj( glw );
 
     graphicswin_ = new osgQt::GraphicsWindowQt( glw );
@@ -200,6 +203,7 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     , keybindman_( *new KeyBindMan )
     , stereooffset_( 0 )
     , wheeldisplaymode_((int)ui3DViewer::OnHover)
+    , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
