@@ -35,13 +35,13 @@ class TouchSceneEventFilter : public QObject
 {
 public:
 
-bool eventFilter(QObject *obj, QEvent *event )
+bool eventFilter(QObject* obj, QEvent* ev )
 {
-    if ( event->type()==QEvent::TouchBegin ||
-	event->type()==QEvent::TouchUpdate ||
-	event->type()==QEvent::TouchEnd )
+    if ( ev->type()==QEvent::TouchBegin ||
+	ev->type()==QEvent::TouchUpdate ||
+	ev->type()==QEvent::TouchEnd )
     {
-	event->accept();
+	ev->accept();
 	return true;
     }
 
