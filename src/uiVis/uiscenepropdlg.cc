@@ -50,13 +50,14 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , scene_(0)
     , separationdlg_(0)
 {
-    enableSaveButton( "Apply to all scenes");
+    enableSaveButton( "Apply to all" );
     setSaveButtonChecked( savestatus_ );
 
     if ( viewers_[curvwridx_] )
     {
 	oldbgcolor_ = viewers_[curvwridx_]->getBackgroundColor();
 	hadanimation_ = viewers_[curvwridx_]->isAnimationEnabled();
+	wheeldisplaymode_ = viewers_[curvwridx_]->getWheelDisplayMode();
 
 	mDynamicCast(visSurvey::Scene*, scene_, const_cast <visBase::Scene*>
 			(viewers_[curvwridx_]->getScene()));
@@ -139,6 +140,14 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     animationfld_->setChecked( hadanimation_ );
     animationfld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     animationfld_->attach( alignedBelow, ltbutton );
+
+    BufferStringSet modes;
+    modes.add( "Hide" ).add( "Always show" ).add( "Show on mouse hover" );
+    wheelmodefld_ = new uiGenInput( this, "Zoom/Rotate Wheels Display",
+				    StringListInpSpec(modes) );
+    wheelmodefld_->valuechanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    wheelmodefld_->setValue( wheeldisplaymode_ );
+    wheelmodefld_->attach( alignedBelow, animationfld_ );
 }
 
 
@@ -205,6 +214,8 @@ void uiScenePropertyDlg::updateCB( CallBacker* )
 	vwr->setBackgroundColor( bgcolfld_->color() );
 	vwr->setAnnotationColor( annotcolfld_->color() );
 	vwr->enableAnimation( animationfld_->isChecked() );
+	vwr->setWheelDisplayMode(
+		(ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
     }
 
     annotfld_->setSensitive( survboxfld_->isChecked() );
@@ -260,6 +271,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
 	vwr->setAnnotationColor( annotcolor_ );
 	vwr->setAnnotationFont( oldfont_ );
 	vwr->enableAnimation( hadanimation_ );
+	vwr->setWheelDisplayMode( wheeldisplaymode_ );
     }
 
     return true;
@@ -331,10 +343,11 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	    vwr->setBackgroundColor( bgcolfld_->color() );
 	    vwr->setAnnotationColor( annotcolfld_->color() );
 	    vwr->enableAnimation( animationfld_->isChecked() );
-	vwr->setAnnotationFont( scene->getAnnotFont() );
+	    vwr->setAnnotationFont( scene->getAnnotFont() );
+	    vwr->setWheelDisplayMode(
+			(ui3DViewer::WheelMode)wheelmodefld_->getIntValue() );
 	}
     }
 
     return true;
 }
-

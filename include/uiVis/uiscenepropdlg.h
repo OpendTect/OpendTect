@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
+#include "ui3dviewer.h"
 
 #include "color.h"
 #include "cubesampling.h"
@@ -20,9 +21,9 @@ ________________________________________________________________________
 
 class uiCheckBox;
 class uiColorInput;
-class ui3DViewer;
-class uiSlider;
+class uiGenInput;
 class uiGenInputDlg;
+class uiSlider;
 
 namespace visSurvey { class Scene; }
 
@@ -52,6 +53,7 @@ protected:
     bool			hadannotscale_;
     bool			hadannotgrid_;
     bool			hadanimation_;
+    ui3DViewer::WheelMode	wheeldisplaymode_;
     Color			oldbgcolor_;
     float			oldmarkersize_;
     Color			oldmarkercolor_;
@@ -72,6 +74,7 @@ protected:
     uiColorInput*		annotcolfld_;
     uiGenInputDlg*		separationdlg_;
     uiCheckBox*			animationfld_;
+    uiGenInput*			wheelmodefld_;
 };
 
 #endif

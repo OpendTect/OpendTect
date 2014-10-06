@@ -105,10 +105,13 @@ public:
     virtual void		reSizeEvent(CallBacker*);
     void			toggleViewMode(CallBacker*);
 
+    enum WheelMode		{ Never, Always, OnHover };
+    void			setWheelDisplayMode(WheelMode);
+    WheelMode			getWheelDisplayMode() const;
+
     void			setAnimationEnabled(bool) {} // OSG-TODO
     bool			isAnimationEnabled()	{ return true; }
     void			showRotAxis(bool);
-    void			showThumbWheels(bool);
     bool			isAxisShown() const;
     void			setAnnotColor(const Color&);
     void			setAnnotationFont(const FontData&);
@@ -166,6 +169,8 @@ protected:
     RefMan<visBase::ThumbWheel>		horthumbwheel_;
     RefMan<visBase::ThumbWheel>		verthumbwheel_;
     RefMan<visBase::ThumbWheel>		distancethumbwheel_;
+    int					wheeldisplaymode_;
+
     osg::Switch*			offscreenrenderswitch_;
     osgViewer::CompositeViewer*		compositeviewer_;
     osgViewer::View*			view_;

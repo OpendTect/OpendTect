@@ -23,7 +23,7 @@ class BufferStringSet;
 class FontData;
 class ui3DViewerBody;
 
-namespace visBase { class Scene; class PolygonSelection; class SceneColTab; };
+namespace visBase { class Scene; class PolygonSelection; class SceneColTab; }
 namespace osgViewer { class View; }
 
 mExpClass(uiOSG) ui3DViewer : public uiObject
@@ -60,7 +60,7 @@ public:
     void		align();
 
     enum StereoType	{ None, RedCyan, QuadBuffer };
-			DeclareEnumUtils(StereoType);
+			DeclareEnumUtils(StereoType)
     bool		setStereoType(StereoType);
     StereoType		getStereoType() const;
     void		setStereoOffset(float);
@@ -70,13 +70,17 @@ public:
     void		toHomePos();
     void		saveHomePos();
     void		showRotAxis(bool);
-    void		showThumbWheels(bool);
     void		setAnnotationColor(const Color&);
     Color		getAnnotationColor() const;
     void		setAnnotationFont(const FontData&);
     bool		rotAxisShown() const;
     void		toggleCameraType();
     bool		isCameraPerspective() const;
+
+    enum WheelMode	{ Never, Always, OnHover };
+			DeclareEnumUtils(WheelMode)
+    void		setWheelDisplayMode(WheelMode);
+    WheelMode		getWheelDisplayMode() const;
 
     void		setBackgroundColor(const Color&);
     Color		getBackgroundColor() const;
@@ -88,10 +92,6 @@ public:
     CNotifier<ui3DViewer,bool> pageupdown;
     CallBack*		vmcb;
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    void		savePropertySettings() const;
-
     void		setKeyBindings(const char* keybindname);
     void		getAllKeyBindings(BufferStringSet&);
     const char*		getCurrentKeyBindings() const;
@@ -101,7 +101,11 @@ public:
     const osgViewer::View*	getOsgViewerMainView() const;
     const osgViewer::View*	getOsgViewerHudView() const;
     void			setScenesPixelDensity(float dpi);
-    float			getScenesPixelDensity() const; 
+    float			getScenesPixelDensity() const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    void		savePropertySettings() const;
 
 private:
 
@@ -119,7 +123,6 @@ private:
     uiObjectBody&	mkBody(uiParent*,bool direct,const char*);
 
 };
-
 
 #endif
 

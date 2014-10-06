@@ -153,7 +153,7 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
-    if ( !filenameOK() ) 
+    if ( !filenameOK() )
 	return false;
 
     bool ret = false;
@@ -164,23 +164,24 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     const float scenesDPI =  vwr->getScenesPixelDensity();
     const float renderDPI =  dpifld_->box()->getValue();
-    
+
     const bool changedpi = scenesDPI != renderDPI;
 
     if ( changedpi )
         vwr->setScenesPixelDensity( renderDPI );
 
-    osgViewer::View* mainview = 
+    osgViewer::View* mainview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerMainView() );
 
-    osgViewer::View* hudview = 
+    osgViewer::View* hudview =
 	const_cast<osgViewer::View*>( vwr->getOsgViewerHudView() );
 
-    vwr->showThumbWheels( false );
+    ui3DViewer::WheelMode curmode = vwr->getWheelDisplayMode();
+    vwr->setWheelDisplayMode( ui3DViewer::Never );
     osg::ref_ptr<osg::Image> hudimage = offScreenRenderViewToImage( hudview );
-    vwr->showThumbWheels( true );
+    vwr->setWheelDisplayMode( curmode );
 
-    osg::ref_ptr<osg::Image> mainviewimage = 
+    osg::ref_ptr<osg::Image> mainviewimage =
 					offScreenRenderViewToImage( mainview );
 
     if ( changedpi )
@@ -195,7 +196,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 	flipImageVertical( mainviewimage );
 	ret = saveImages( mainviewimage, 0 );
     }
-    else 
+    else
     {
 	flipImageVertical( hudimage );
 	flipImageVertical( mainviewimage );
@@ -203,7 +204,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     }
 
     prevbuttonstate = saveButtonChecked();
-    if ( prevbuttonstate  )
+    if ( prevbuttonstate )
 	writeToSettings();
 
    return ret;
@@ -211,10 +212,10 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 }
 
 
-int uiPrintSceneDlg::validateImages(const osg::Image* mainimage, 
+int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 				    const osg::Image* hudimage)
 {
-    if ( !mainimage || !hasImageValidFormat(mainimage) ) 
+    if ( !mainimage || !hasImageValidFormat(mainimage) )
     {
 	uiMSG().error( " Image creation is failed. " );
 	return InvalidImages;
@@ -223,15 +224,15 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
     bool validsize (false);
     if ( hudimage && mainimage )
     {
-	validsize = mainimage->s() == hudimage->s() && 
-		    mainimage->t() == hudimage->t(); 
+	validsize = mainimage->s() == hudimage->s() &&
+		    mainimage->t() == hudimage->t();
 	if ( !validsize )
 	{
 	    pErrMsg("The size of main view image is different from hud image.");
 	    return OnlyMainViewImage;
 	}
     }
-    
+
     if ( !hudimage || !validsize || !hasImageValidFormat( hudimage) )
     {
 	uiMSG().warning(
@@ -244,9 +245,9 @@ int uiPrintSceneDlg::validateImages(const osg::Image* mainimage,
 
 
 bool uiPrintSceneDlg::saveImages( const osg::Image* mainimg,
-				  const osg::Image* hudimg ) 
+				  const osg::Image* hudimg )
 {
-    if ( !filenameOK() || !widthfld_ || !mainimg ) 
+    if ( !filenameOK() || !widthfld_ || !mainimg )
 	return false;
 
     FilePath filepath( fileinputfld_->fileName() );
@@ -281,12 +282,12 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 			     osgViewer::View* view )
 {
     osg::Image* outputimage = 0;
-    
+
     osgGeo::TiledOffScreenRenderer tileoffrenderer( view,
 	visBase::DataObject::getCommonViewer() );
-    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ), 
+    tileoffrenderer.setOutputSize( mNINT32( sizepix_.width() ),
 	mNINT32( sizepix_.height() ) );
-  
+
     tileoffrenderer.setOutputBackgroundTransparency( 0 );
 
     if ( tileoffrenderer.createOutput() )
@@ -294,7 +295,7 @@ osg::Image* uiPrintSceneDlg::offScreenRenderViewToImage(
 	const osg::Image* outimg = tileoffrenderer.getOutput();
 
 	if ( outimg )
-	    outputimage = (osg::Image*)outimg->clone( 
+	    outputimage = (osg::Image*)outimg->clone(
 	    osg::CopyOp::DEEP_COPY_ALL );
 
     }
@@ -307,8 +308,8 @@ bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image)
 {
     bool ret = true;
 
-    if ( ( image->getPixelFormat() != GL_RGBA && 
-	 image->getPixelFormat() !=GL_RGB ) || 
+    if ( ( image->getPixelFormat() != GL_RGBA &&
+	 image->getPixelFormat() !=GL_RGB ) ||
 	 !image->isDataContiguous() )
     {
 	pErrMsg( "Image is in the wrong format." ) ;
@@ -322,12 +323,12 @@ bool uiPrintSceneDlg::hasImageValidFormat(const osg::Image* image)
 void uiPrintSceneDlg::flipImageVertical(osg::Image* image)
 {
     if ( !image ) return;
-    
+
     if ( image->getOrigin()==osg::Image::BOTTOM_LEFT )
     {
 	image->flipVertical();
     }
-    
+
 }
 
 

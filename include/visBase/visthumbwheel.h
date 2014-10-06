@@ -37,6 +37,9 @@ public:
 
     void			setAnnotationColor(const Color&);
 
+    void			enableFadeInOut(bool);
+    bool			isFadeInOutEnabled() const;
+
     float			getAngle() const;
     void			setAngle(float angle,float rotationtime=0.0);
 				//!<angle in rad, rotation time in seconds
