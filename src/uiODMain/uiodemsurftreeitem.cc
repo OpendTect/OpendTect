@@ -2,8 +2,8 @@
 ___________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author: 	K. Tingdahl
- Date: 		Jul 2003
+ Author:	K. Tingdahl
+ Date:		Jul 2003
 ___________________________________________________________________
 
 -*/
@@ -241,6 +241,23 @@ void uiODEarthModelSurfaceTreeItem::createMenu( MenuHandler* menu, bool istb )
 }
 
 
+int uiODEarthModelSurfaceTreeItem::reloadEMObject()
+{
+    applMgr()->visServer()->removeObject( displayid_, sceneID() );
+    delete uivisemobj_; uivisemobj_ = 0;
+
+    uiEMPartServer* ems = applMgr()->EMServer();
+    const MultiID mid = ems->getStorageID(emid_);
+    if ( !ems->loadSurface(mid) )
+	return -1;
+
+    emid_ = applMgr()->EMServer()->getObjectID(mid);
+    uivisemobj_ = new uiVisEMObject(ODMainWin(),emid_,sceneID(),visserv_);
+    displayid_ = uivisemobj_->id();
+    return displayid_;
+}
+
+
 void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
@@ -316,19 +333,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==reloadmnuitem_.id )
     {
 	menu->setIsHandled(true);
-
-	const MultiID mid = ems->getStorageID(emid_);
-
-	applMgr()->visServer()->removeObject( displayid_, sceneID() );
-	delete uivisemobj_; uivisemobj_ = 0;
-
-	if ( !ems->loadSurface(mid) )
-	    return;
-
-	emid_ = applMgr()->EMServer()->getObjectID(mid);
-
-	uivisemobj_ = new uiVisEMObject(ODMainWin(),emid_,sceneID(),visserv_);
-	displayid_ = uivisemobj_->id();
+	reloadEMObject();
     }
     else if ( mnuid==enabletrackingmnuitem_.id )
     {
