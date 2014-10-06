@@ -191,7 +191,7 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* cb )
 
 void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
 {
-    mDynamicCastGet(GestureEventHandler*,evh,cb);
+    mDynamicCastGet(const GestureEventHandler*,evh,cb);
     if ( !evh || evh->isHandled() || vwrs_.isEmpty() )
 	return;
 
@@ -199,11 +199,7 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
     if ( !gevent )
 	return;
    
-    const uiFlatViewer& vwr = *vwrs_[0];
-    const int vwridx = vwrs_.indexOf( &vwr );
-    if ( vwridx < 0 )
-	return;
-   
+    uiFlatViewer& vwr = *vwrs_[0];
     const Geom::Size2D<double> cursz = vwr.curView().size();
     const float scalefac = gevent->scale();
     Geom::Size2D<double> newsz( cursz.width() * (1/scalefac), 
@@ -211,12 +207,12 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
 
     uiWorld2Ui w2ui;
     vwr.getWorld2Ui( w2ui );
-    Geom::Point2D<double>& pos = w2ui.transform( gevent->pos() );
+    Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
 
     uiWorldRect br = vwr.boundingBox();
     br.sortCorners();
     const uiWorldRect wr = getNewWorldRect(pos,newsz,vwr.curView(),br);
-    vwrs_[vwridx]->setView( wr );
+    vwr.setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
     	zoommgr_.add( newsz );

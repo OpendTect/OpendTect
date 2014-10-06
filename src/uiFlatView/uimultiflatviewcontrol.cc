@@ -175,7 +175,7 @@ void uiMultiFlatViewControl::zoomCB( CallBacker* but )
 
 void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
 {
-    mDynamicCastGet(GestureEventHandler*,evh,cb);
+    mDynamicCastGet(const GestureEventHandler*,evh,cb);
     if ( !evh || evh->isHandled() )
 	return;
 
@@ -202,7 +202,7 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
 				cursz.height() * (1/scalefac) );
     uiWorld2Ui w2ui;
     activevwr_->getWorld2Ui( w2ui );
-    Geom::Point2D<double>& pos = w2ui.transform( gevent->pos() );
+    Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
 
     uiWorldRect br = activevwr_->boundingBox();
     br.sortCorners();
@@ -210,7 +210,7 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
     vwrs_[vwridx]->setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
-    	zoommgr_.add( newsz );
+	zoommgr_.add( newsz, vwridx );
     
     zoomChanged.trigger();
 }
