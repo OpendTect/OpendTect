@@ -126,8 +126,11 @@ protected:
     bool		listcmdsflushed_;
 
     TypeSet<int>	chosenitems_;
+    TypeSet<int>	checkeditems_;
     TypeSet<int>	waschosenitems_;
+    TypeSet<int>	wascheckeditems_;
     TypeSet<int>	ischosenitems_;
+    TypeSet<int>	ischeckeditems_;
 
 mEndDeclComposerClass
 

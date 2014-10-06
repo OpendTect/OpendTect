@@ -209,7 +209,6 @@ private:
     void		setAllItemsChecked(bool);
     void		setItemChecked(int,bool);
     void		setItemChecked(const char*,bool);
-    bool		isItemChecked(int) const;
     bool		isItemChecked(const char*) const;
     int			nrChecked() const;
     void		setCheckedItems(const BufferStringSet&);
@@ -218,7 +217,10 @@ private:
     void		getCheckedItems(TypeSet<int>&) const;
 
 public:
-    // deprecated
+			//!To be called by CmdDriver only, not for casual use.
+    bool		isItemChecked(int) const;
+
+			// deprecated
     bool		doingBurstChoosing() const	{ return inburstchse_; }
 };
 
