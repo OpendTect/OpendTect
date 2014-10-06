@@ -20,11 +20,11 @@ ________________________________________________________________________
 # include "debug.h"
 #endif
 
-#define mImpPtrManPointerAccess( type ) \
-    inline type*		ptr() const		{ return this->ptr_; } \
-    inline			operator type*() const	{ return this->ptr_; } \
-    inline type*		operator ->() const	{ return this->ptr_; } \
-    inline type&		operator *() const	{ return *this->ptr_; }
+#define mImpPtrManPointerAccess( qual, type ) \
+    inline qual type*	ptr() qual		{ return this->ptr_; } \
+    inline		operator qual type*() qual { return this->ptr_; }\
+    inline qual type*	operator ->() qual	{ return this->ptr_; } \
+    inline qual type&	operator *() qual	{ return *this->ptr_; }
 
 /*!Convenience function to delete and zero pointer. */
 
@@ -82,7 +82,9 @@ public:
 
     PtrMan<T>&		operator=(const PtrMan<T>&);
 			//!<Don't use
-			mImpPtrManPointerAccess( T )
+			mImpPtrManPointerAccess( const, T )
+			mImpPtrManPointerAccess( , T )
+
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -101,7 +103,7 @@ public:
     ConstPtrMan<T>&	operator=(const T* p);
     ConstPtrMan<T>&	operator=(const ConstPtrMan<T>&);
 			//!<Don't use
-			mImpPtrManPointerAccess( const T )
+			mImpPtrManPointerAccess( const, T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -120,7 +122,8 @@ public:
     inline ArrPtrMan<T>&	operator=(const ArrPtrMan<T>& p );
 				//!<Don't use
 
-				mImpPtrManPointerAccess( T )
+				mImpPtrManPointerAccess( const, T )
+				mImpPtrManPointerAccess( , T )
 
 #ifdef __debug__
     T&				operator[](int);
@@ -150,7 +153,7 @@ public:
     ConstArrPtrMan<T>&	operator=(const T* p);
     ConstArrPtrMan<T>&	operator=(const ConstArrPtrMan<T>&);
 			//!< Will give linkerror if used
-			mImpPtrManPointerAccess( const T )
+			mImpPtrManPointerAccess( const, T )
 private:
 
     static void		deleteFunc( T* p )    { delete p; }
@@ -168,7 +171,8 @@ public:
     inline RefMan<T>&	operator=( T* p )
 			{ this->set( p, true ); return *this; }
     inline RefMan<T>&	operator=(const RefMan<T>&);
-			mImpPtrManPointerAccess( T )
+			mImpPtrManPointerAccess( const, T )
+			mImpPtrManPointerAccess( , T )
 
 private:
 
@@ -188,13 +192,15 @@ public:
     ConstRefMan<T>&		operator=(const T* p);
     inline ConstRefMan<T>&	operator=(const ConstRefMan<T>&);
 
-				mImpPtrManPointerAccess( const T )
+				mImpPtrManPointerAccess( const, T )
 
 private:
     static void		ref(T* p) { p->ref(); }
     static void		unRef(T* p) { if ( p ) p->unRef(); }
 
 };
+
+#undef mImpPtrManPointerAccess
 
 //Implementations below
 
@@ -405,7 +411,7 @@ ConstArrPtrMan<T>& ConstArrPtrMan<T>::operator=( const T* p )
 
 template <class T> inline
 RefMan<T>::RefMan( const RefMan<T>& p )
-    : PtrManBase<T>( ref, unRef, p.ptr() )
+    : PtrManBase<T>( ref, unRef, const_cast<T*>(p.ptr()) )
 {}
 
 
@@ -418,7 +424,7 @@ RefMan<T>::RefMan( T* p )
 template <class T> inline
 RefMan<T>& RefMan<T>::operator=( const RefMan<T>& p )
 {
-    this->set( p.ptr() );
+    this->set( const_cast<T*>(p.ptr()) );
     return *this;
 }
 
