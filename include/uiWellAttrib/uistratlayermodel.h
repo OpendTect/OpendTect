@@ -58,6 +58,9 @@ public:
     const char*				levelName() const; //!< null if none
     const StratSynth&			currentStratSynth() const;
     StratSynth&				currentStratSynth();
+    const StratSynth&			normalStratSynth() const;
+    const StratSynth&			editStratSynth() const;
+    bool				isEditUsed() const;
     const PropertyRefSelection&		modelProperties() const;
     const ObjectSet<const TimeDepthModel>& d2TModels() const;
     const Wavelet*			wavelet() const;

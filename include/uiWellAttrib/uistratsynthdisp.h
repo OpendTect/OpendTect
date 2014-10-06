@@ -57,6 +57,8 @@ public:
 			{ return *(!useed_ ? stratsynth_ : edstratsynth_); }
     inline const StratSynth& altSS() const
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
+    const StratSynth&	normalSS() const	{ return *stratsynth_; }
+    const StratSynth&	editSS() const		{ return *edstratsynth_; }
 
     const ObjectSet<SyntheticData>& getSynthetics() const;
     SyntheticData*	getCurrentSyntheticData(bool wva=true) const;
@@ -111,6 +113,7 @@ public:
     void		setForceUpdate( bool yn ) { forceupdate_ = yn; }
     bool		doForceUpdate() const	  { return forceupdate_; }
     void		setUseEdited( bool yn )	  { useed_ = yn; }
+    bool		isEditUsed() const	  { return useed_; }
     void		setDiffData();
     void		resetRelativeViewRect();
     void		setRelativeViewRect(const uiWorldRect& relwr);

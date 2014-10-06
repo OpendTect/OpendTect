@@ -807,6 +807,13 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     if ( !sd )
 	return 0;
 
+    if ( useed_ )
+    {
+	BufferString sdnm = sd->name();
+	sdnm += " after FR";
+	sd->setName( sdnm );
+    }
+
     sd->id_ = ++lastsyntheticid_;
 
     ObjectSet<TimeDepthModel> tmpd2ts;
@@ -871,13 +878,14 @@ public:
 StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
 		    const PostStackSyntheticData& sd,
 		    const Strat::LayerModel& lm,
-		    int& lastsynthid )
+		    int& lastsynthid, bool useed )
     : ParallelTask( "Creating Synthetics for Properties" )
     , synthetics_(synths)
     , sd_(sd)
     , lm_(lm)
     , lastsyntheticid_(lastsynthid)
     , isprepared_(false)
+    , useed_(useed)
 {
 }
 
@@ -960,7 +968,10 @@ bool doFinish( bool success )
     for ( int idx=0; idx<seisbufdps_.size(); idx++ )
     {
 	SeisTrcBufDataPack* dp = seisbufdps_[idx];
-	BufferString nm( "[", props[idx+1]->name(), "]" );
+	BufferString propnm = props[idx+1]->name();
+	if ( useed_ )
+	    propnm += " after FR";
+	BufferString nm( "[", propnm, "]" );
 	dp->setName( nm );
 	StratPropSyntheticData* prsd =
 		 new StratPropSyntheticData( sgp, *dp, *props[idx+1] );
@@ -1071,6 +1082,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     ObjectSet<SeisTrcBufDataPack>	seisbufdps_;
     int&				lastsyntheticid_;
     bool				isprepared_;
+    bool				useed_;
 
 };
 
@@ -1079,7 +1091,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 					  const Strat::LayerModel& lm )
 {
     StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
-					       lastsyntheticid_ );
+					       lastsyntheticid_, useed_ );
     TaskRunner::execute( tr_, propcreator );
 }
 
