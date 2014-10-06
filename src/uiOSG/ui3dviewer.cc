@@ -286,12 +286,15 @@ void ui3DViewerBody::setupHUD()
     mAttachCB( distancethumbwheel_->rotation,
                ui3DViewerBody::thumbWheelRotationCB);
 
+    FontData annotfontdata;
+    annotfontdata.setPointSize( 18 );
 
     if ( !axes_ )
     {
 	axes_ = visBase::Axes::create();
 	axes_->setSize( 5.0f, 55.0f );
 	axes_->setAnnotationTextSize( FontData::defaultPointSize() + 6 );
+	axes_->setAnnotationFont( annotfontdata );
 	hudscene_->addObject( axes_ );
 	if ( camera_ )
 	    axes_->setMasterCamera( camera_ );
@@ -308,10 +311,7 @@ void ui3DViewerBody::setupHUD()
     {
 	visscenecoltab_ = visBase::SceneColTab::create();
 	hudscene_->addObject( visscenecoltab_ );
-
-	FontData ftdata;
-	ftdata.setPointSize( 18 );
-	visscenecoltab_->setAnnotFont( ftdata );
+	visscenecoltab_->setAnnotFont( annotfontdata );
 	visscenecoltab_->turnOn( false );
 	visscenecoltab_->setPos( visBase::SceneColTab::Bottom );
     }
@@ -628,6 +628,13 @@ void ui3DViewerBody::setAnnotColor( const Color& col )
     horthumbwheel_->setAnnotationColor( col );
     verthumbwheel_->setAnnotationColor( col );
     distancethumbwheel_->setAnnotationColor( col );
+}
+
+
+void ui3DViewerBody::setAnnotationFont( const FontData& fd )
+{
+    visscenecoltab_->setAnnotFont( fd );
+    axes_->setAnnotationFont( fd );
 }
 
 
@@ -1292,6 +1299,12 @@ Color ui3DViewer::getAnnotationColor() const
 {
     mDynamicCastGet(const visSurvey::Scene*,survscene,getScene());
     return survscene ? survscene->getAnnotColor() : Color::White();
+}
+
+
+void ui3DViewer::setAnnotationFont( const FontData& fd )
+{
+    osgbody_->setAnnotationFont( fd );
 }
 
 

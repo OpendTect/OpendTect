@@ -156,6 +156,10 @@ void uiScenePropertyDlg::selAnnotFontCB( CallBacker* )
     FontData fontdata = scene_->getAnnotFont();
     if ( select( fontdata, this ) )
 	scene_->setAnnotFont( fontdata );
+
+    ui3DViewer* vwr = const_cast<ui3DViewer*> (viewers_[curvwridx_]);
+    if ( vwr )
+	vwr->setAnnotationFont( fontdata );
 }
 
 
@@ -254,6 +258,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     {
 	vwr->setBackgroundColor( oldbgcolor_ );
 	vwr->setAnnotationColor( annotcolor_ );
+	vwr->setAnnotationFont( oldfont_ );
 	vwr->enableAnimation( hadanimation_ );
     }
 
@@ -326,6 +331,7 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
 	    vwr->setBackgroundColor( bgcolfld_->color() );
 	    vwr->setAnnotationColor( annotcolfld_->color() );
 	    vwr->enableAnimation( animationfld_->isChecked() );
+	vwr->setAnnotationFont( scene->getAnnotFont() );
 	}
     }
 

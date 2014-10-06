@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "visdata.h"
 
-
+class FontData;
 namespace osgGeo{ class AxesNode; }
 
 namespace visBase
@@ -36,6 +36,7 @@ public:
     void			setSize(float rad, float len);
     void			setAnnotationColor(const Color&);
     void			setAnnotationTextSize(int);
+    void			setAnnotationFont(const FontData&);
     void			setMasterCamera(visBase::Camera*);
 
     virtual void		setPixelDensity(float dpi);

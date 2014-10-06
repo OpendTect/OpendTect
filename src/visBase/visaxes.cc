@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "color.h"
 #include "viscamera.h"
+#include "vistext.h"
 
 #include <osg/Camera>
 #include <osgGeo/AxesNode>
@@ -92,6 +93,15 @@ void Axes::setAnnotationTextSize( int size )
     const float sizefactor = pixeldensity_/getDefaultPixelDensity();
     axesnode_->setAnnotationTextSize(size*sizefactor);
     annottextsize_ = size;
+}
+
+
+void Axes::setAnnotationFont( const FontData& fd )
+{
+    osgText::Font* newfont = OsgFontCreator::create( fd );
+    axesnode_->setAnnotationFont( newfont );
+    setAnnotationTextSize( fd.pointSize() );
+    requestSingleRedraw();
 }
 
 
