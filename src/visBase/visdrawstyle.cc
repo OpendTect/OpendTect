@@ -62,6 +62,9 @@ float DrawStyle::getPointSize() const
 
 void DrawStyle::setLineStyle( const LineStyle& nls )
 {
+    if ( linestyle_ == nls )
+	return;
+
     linestyle_ = nls;
     updateLineStyle();
 }
@@ -69,6 +72,9 @@ void DrawStyle::setLineStyle( const LineStyle& nls )
 
 void DrawStyle::setLineWidth( int width )
 {
+    if ( linestyle_.width_ == width )
+	return;
+
     linestyle_.width_ = width;
     updateLineStyle();
 }    
@@ -112,6 +118,9 @@ void DrawStyle::updateLineStyle()
 
 void DrawStyle::setPixelDensity( float dpi )
 {
+    if ( dpi == pixeldensity_ )
+	return;
+
     pixeldensity_ = dpi;
     updateLineStyle();
 

@@ -378,12 +378,18 @@ bool EMObjectDisplay::showsPosAttrib(int attr) const
 
 const LineStyle* EMObjectDisplay::lineStyle() const
 {
+    if ( emobject_ )
+	drawstyle_->setLineStyle( emobject_->preferredLineStyle() );
     return &drawstyle_->lineStyle();
 }
 
 
 void EMObjectDisplay::setLineStyle( const LineStyle& ls )
-{ drawstyle_->setLineStyle(ls); }
+{ 
+    if ( emobject_ )
+	emobject_->setPreferredLineStyle( ls );
+    drawstyle_->setLineStyle(ls); 
+}
 
 
 bool EMObjectDisplay::hasColor() const

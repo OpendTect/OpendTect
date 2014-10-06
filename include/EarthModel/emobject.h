@@ -89,17 +89,13 @@ public:
 mExpClass(EarthModel) PosAttrib
 {
 public:
-    			PosAttrib()
-			    : style_(MarkerStyle3D::Cube,4,Color::White()) {}
+			PosAttrib(){}
 
     enum Type		{ PermanentControlNode, TemporaryControlNode,
 			  EdgeControlNode, TerminationNode, SeedNode };
 
     Type		type_;
     TypeSet<PosID>	posids_;
-
-    MarkerStyle3D	style_;
-
     bool		locked_;    
 };
 
@@ -142,6 +138,8 @@ public:
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&,
 						  bool addtohistory=false);
+    const LineStyle&		preferredLineStyle() const;
+    void			setPreferredLineStyle(const LineStyle&);
     void			setBurstAlert(bool yn);
     bool			hasBurstAlert() const;
 
@@ -233,8 +231,9 @@ public:
     uiString			errMsg() const;
     void			setErrMsg(const uiString& m) { errmsg_ = m; }
 
-    virtual bool		usePar( const IOPar& );
-    virtual void		fillPar( IOPar& ) const;
+    virtual bool		usePar(const IOPar&);
+    virtual void		fillPar(IOPar&) const;
+    void			saveDisplayPars() const;
 
     static int			sPermanentControlNode();
     static int			sTemporaryControlNode();
@@ -250,7 +249,9 @@ protected:
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete() const;
     void			posIDChangeCB(CallBacker*);
-
+    const MarkerStyle3D&	preferredMarkerStyle3D() const;
+    void			setPreferredMarkerStyle3D(const MarkerStyle3D&);
+    void			useDisplayPars(const IOPar&);
     BufferString		objname_;
     ObjectID			id_;
     MultiID			storageid_;
@@ -258,7 +259,8 @@ protected:
     uiString			errmsg_;
 
     Color&			preferredcolor_;
-
+    LineStyle&			preferredlinestyle_;
+    MarkerStyle3D&		preferredmarkerstyle_;
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
 
@@ -272,12 +274,10 @@ protected:
     bool			insideselremoval_;
     bool			selremoving_; 
 
-    static const char*		prefcolorstr();
     static const char*		nrposattrstr();
     static const char*		posattrprefixstr();
     static const char*		posattrsectionstr();
     static const char*		posattrposidstr();
-    static const char*		markerstylestr();
 };
 
 } // namespace EM
