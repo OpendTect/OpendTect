@@ -290,11 +290,10 @@ macro( init_destinationdir  PACKAGE_NAME )
 	endif()
     endif()
 
-    if( NOT EXISTS ${SOURCE_DIR}/packages )
-	    file( MAKE_DIRECTORY ${SOURCE_DIR}/packages )
+    if( NOT EXISTS ${PACKAGE_DIR} )
+	file( MAKE_DIRECTORY ${PACKAGE_DIR} )
     endif()
 
-    set( PACKAGE_DIR ${SOURCE_DIR}/packages )
     if( EXISTS ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
 	file( REMOVE_RECURSE ${PACKAGE_DIR}/${PACKAGE_FILENAME} )
     endif()
