@@ -28,7 +28,7 @@ static inline float draw01Normal( const Stats::NormalRandGen& rgen )
 static inline float draw01Correlated( const Stats::NormalRandGen& rgen,
 					float othdraw, float cc )
 {
-    const float draw = rgen.get();
+    const float draw = (float) rgen.get();
     return cc * othdraw + Math::Sqrt(1 - cc*cc) * draw;
 }
 
