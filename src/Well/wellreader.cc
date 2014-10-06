@@ -519,7 +519,7 @@ bool Well::odReader::getLog( const char* lognm ) const
 
 bool Well::odReader::getLogs() const
 {
-    bool rv = false;
+    bool rv = true;
     wd_.logs().setEmpty();
     for ( int idx=1;  ; idx++ )
     {
@@ -527,8 +527,7 @@ bool Well::odReader::getLogs() const
 
 	if ( !addLog(strm) )
 	    mErrStrmOper("read data",
-		    ErrMsg(errmsg_); errmsg_.setEmpty(); continue)
-	rv = true;
+		    ErrMsg(errmsg_); errmsg_.setEmpty(); rv = false; continue)
     }
 
     return rv;

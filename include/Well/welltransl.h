@@ -30,6 +30,7 @@ mExpClass(Well) WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
 			mDefEmptyTranslatorGroupConstructor(Well)
+    const char*		defExtension() const { return "well"; }
 };
 
 
