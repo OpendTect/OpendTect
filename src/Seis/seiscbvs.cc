@@ -101,6 +101,12 @@ void CBVSSeisTrcTranslator::destroyVars( int nrcomps )
 }
 
 
+bool CBVSSeisTrcTranslator::forRead() const
+{
+    return forread_;
+}
+
+
 void CBVSSeisTrcTranslator::setCoordPol( bool dowrite, bool intrailer )
 {
     if ( !dowrite )

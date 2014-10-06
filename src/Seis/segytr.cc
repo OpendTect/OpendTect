@@ -537,7 +537,7 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 
 bool SEGYSeisTrcTranslator::commitSelections_()
 {
-    const bool forread = conn_->forRead();
+    const bool forread = forRead();
     fileopts_.forread_ = forread;
     fileopts_.setGeomType( Seis::geomTypeOf( is_2d, is_prestack ) );
 

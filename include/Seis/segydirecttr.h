@@ -162,6 +162,7 @@ public:
     virtual bool	isUserSelectable( bool fr ) const { return true; }
     virtual Conn*	curConn();
     virtual BinID	curBinID() const;
+    virtual bool	forRead() const			{ return forread_; }
 
     virtual void	toSupported(DataCharacteristics&) const;
     virtual bool	write(const SeisTrc&); // no buffer/resort needed

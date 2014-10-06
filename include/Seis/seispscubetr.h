@@ -28,12 +28,13 @@ public:
 			SeisPSCubeSeisTrcTranslator(const char*,const char*);
 			~SeisPSCubeSeisTrcTranslator();
 
-    bool		readInfo(SeisTrcInfo&);
-    bool		read(SeisTrc&);
-    bool		skip(int);
+    virtual bool	readInfo(SeisTrcInfo&);
+    virtual bool	read(SeisTrc&);
+    virtual bool	skip(int);
+    virtual bool	forRead() const			{ return true; }
 
-    bool		supportsGoTo() const		{ return true; }
-    bool		goTo(const BinID&);
+    virtual bool	supportsGoTo() const		{ return true; }
+    virtual bool	goTo(const BinID&);
     virtual int		bytesOverheadPerTrace() const	{ return 52; }
 
     virtual bool	implRemove(const IOObj*) const	{ return false; }
@@ -42,7 +43,7 @@ public:
     virtual bool	implSetReadOnly(const IOObj*,bool) const
 							{ return false; }
 
-    const char*		connType() const;
+    virtual const char*	connType() const;
     virtual bool	isUserSelectable( bool fr ) const { return fr; }
 
 protected:
@@ -53,10 +54,10 @@ protected:
     BinID		curbinid_;
     bool		inforead_;
 
-    bool		initRead_();
-    bool		initWrite_(const SeisTrc&)
+    virtual bool	initRead_();
+    virtual bool	initWrite_(const SeisTrc&)
 			{ errmsg_ = tr( "No write to PS Cube" ); return false; }
-    bool		commitSelections_();
+    virtual bool	commitSelections_();
 
     bool		doRead(SeisTrc&,TypeSet<float>* offss=0);
     bool		toNext();

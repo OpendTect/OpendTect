@@ -41,6 +41,7 @@ public:
     bool		goTo(const BinID&);
     bool		toStart();
     virtual int		bytesOverheadPerTrace() const	{ return 52; }
+    virtual bool	forRead() const;
 
     virtual void	usePar(const IOPar&);
 

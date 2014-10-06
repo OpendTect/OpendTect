@@ -182,8 +182,6 @@ public:
 
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
-    virtual void	toSupported( DataCharacteristics& ) const {}
-			//!< change the input to a supported characteristic
 
     virtual void	usePar(const IOPar&);
 
@@ -264,10 +262,11 @@ protected:
     Pos::GeomID				geomid_;
     LineKey				curlinekey_;
 
+    virtual bool	forRead() const;
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);
 
-    bool		initConn(Conn*,bool forread);
+    bool		initConn(Conn*);
     void		setDataType( int icomp, int d )
 			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
 

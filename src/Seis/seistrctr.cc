@@ -140,8 +140,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 {
     cleanUp();
     read_mode = rm;
-    if ( !initConn(c,true)
-      || !initRead_() )
+    if ( !initConn(c) || !initRead_() )
     {
 	delete conn_; conn_ = 0;
 	return false;
@@ -164,8 +163,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     insd_ = outsd_ = trc.info().sampling;
 
-    if ( !initConn(c,false)
-      || !initWrite_( trc ) )
+    if ( !initConn(c) || !initWrite_( trc ) )
     {
 	delete conn_; conn_ = 0;
 	return false;
@@ -422,6 +420,12 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 }
 
 
+bool SeisTrcTranslator::forRead() const
+{
+    return conn_ ? conn_->forRead() : true;
+}
+
+
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 				 const char* nm, int dtype )
@@ -449,7 +453,7 @@ void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 }
 
 
-bool SeisTrcTranslator::initConn( Conn* c, bool forread )
+bool SeisTrcTranslator::initConn( Conn* c )
 {
     close(); errmsg_.setEmpty();
     if ( !c )
@@ -476,10 +480,8 @@ SeisTrc* SeisTrcTranslator::getEmpty()
     DataCharacteristics dc;
     if ( outcds_ )
 	dc = outcds_[0]->datachar;
-    else if ( tarcds_.size() && inpfor_ )
+    else if ( !tarcds_.isEmpty() && inpfor_ )
 	dc = tarcds_[selComp()]->datachar;
-    else
-	toSupported( dc );
 
     return new SeisTrc( 0, dc );
 }
