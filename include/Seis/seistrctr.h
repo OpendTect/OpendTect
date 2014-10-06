@@ -266,7 +266,6 @@ protected:
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);
 
-    bool		initConn(Conn*);
     void		setDataType( int icomp, int d )
 			{ cds_[icomp]->datatype = tarcds_[icomp]->datatype = d;}
 
@@ -301,6 +300,7 @@ private:
     int			prevnr_;
     int			lastinlwritten_;
 
+    bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
 
