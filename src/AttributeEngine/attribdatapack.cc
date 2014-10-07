@@ -506,6 +506,8 @@ void Flat2DDHDataPack::getCoordDataTable( const TypeSet<int>& trcnrs,
 	coords.setSize( tracerange_.nrSteps()+1, Coord::udf() );
 
     const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+    if ( !geometry ) return;
+
     for ( int idx=0; idx<trcnrs.size(); idx++ )
     {
 	if ( tracerange_.includes(trcnrs[idx],true) )
@@ -530,6 +532,8 @@ void Flat2DDHDataPack::setPosData()
 	float* pos = new float[nrpos];
 	pos[0] = 0;
 	const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+	if ( !geometry ) return;
+
 	Coord prevcrd = geometry->toCoord( geomid_, tracerange_.atIndex(0) );
 	for ( int idx=1; idx<nrpos; idx++ )
 	{
@@ -586,6 +590,7 @@ Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
     if ( i0 < 0 || usesingtrc_ ) i0 = 0;
     if ( i0 > tracerange_.nrSteps() ) i0 = tracerange_.nrSteps();
     const Survey::Geometry* geometry = Survey::GM().getGeometry( geomid_ );
+    if ( !geometry ) return Coord3::udf();
     return Coord3( geometry->toCoord(geomid_,tracerange_.atIndex(i0)),
 		   samplingdata_.atIndex(i1) );
 }
