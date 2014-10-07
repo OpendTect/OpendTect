@@ -111,7 +111,7 @@ protected:
     void		labelStoredStateNew();
 
     void		writeListSelect();
-    int		writeListSelect(bool differential,bool virtually=false);
+    int			writeListSelect(bool differential,bool virtually=false);
     void		writeListSelect(int firstidx,int lastidx,
 					int blockstate,bool clear);
     void		writeListButton();
@@ -121,15 +121,15 @@ protected:
     int			stagenr_;
     int			clickedidx_;
     bool		leftclicked_;
-    bool		ctrlclicked_;
+    bool		ctrlclicked_;		// obsolete
     bool		selchanged_;
     bool		listcmdsflushed_;
 
-    TypeSet<int>	chosenitems_;
+    TypeSet<int>	chosenitems_;		// renamed in od5.1
     TypeSet<int>	checkeditems_;
-    TypeSet<int>	waschosenitems_;
+    TypeSet<int>	waschosenitems_;	// obsolete
     TypeSet<int>	wascheckeditems_;
-    TypeSet<int>	ischosenitems_;
+    TypeSet<int>	ischosenitems_;		// renamed in od5.1
     TypeSet<int>	ischeckeditems_;
 
 mEndDeclComposerClass

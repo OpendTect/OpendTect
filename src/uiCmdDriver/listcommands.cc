@@ -172,13 +172,6 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 	   oldselitems += idx; \
     }
 
-#define mInitListSelection( selecteditems, curitmidx ) \
-\
-    actlist_.chooseAll(false); \
-    actlist_.setCurrentItem( curitmidx ); \
-    for ( int idx=0; idx<selecteditems.size(); idx++ ) \
-	actlist_.setChosen( selecteditems[idx], true ); \
-
 #define mHandleSelectionChangedEnd( oldselitems ) \
 \
     if ( notifierwasenabled ) \
@@ -186,7 +179,7 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 \
     for ( int idx=0; idx<actlist_.size(); idx++ ) \
     { \
-	if ( actlist_.isChosen(idx) == (!oldselitems.isPresent(idx)) ) \
+	if ( actlist_.isChosen(idx) != oldselitems.isPresent(idx) ) \
 	{ \
 	    actlist_.selectionChanged.trigger(); \
 	    break; \
@@ -195,10 +188,10 @@ ListActivator::ListActivator( const uiListBox& uilist, int itmidx,
 
 #define mHandleLeftRightClick() \
 { \
-    if ( actclicktags_.isPresent("Check") && \
-	 actlist_.isMultiChoice() ) \
+    if ( actclicktags_.isPresent("Check") && actlist_.isMultiChoice() ) \
     { \
-	actlist_.setChosen( actitmidx_, !actlist_.isChosen(actitmidx_) ); \
+	actlist_.setChosen( actitmidx_, !actlist_.isItemChecked(actitmidx_) ); \
+	actlist_.itemChosen.trigger( actitmidx_ ); \
     } \
     if ( actclicktags_.isPresent("Left") ) \
 	actlist_.leftButtonClicked.trigger(); \
@@ -213,18 +206,7 @@ void ListActivator::actCB( CallBacker* cb )
 	if ( actlist_.maxNrOfChoices()>0 )
 	{
 	    mHandleSelectionChangedBegin( oldselitems );
-	    mInitListSelection( oldselitems, actitmidx_ );
-	    const bool wasselected = oldselitems.isPresent(actitmidx_);
-
-	    if ( actclicktags_.isPresent("Ctrl") )
-		actlist_.setChosen( actitmidx_, !wasselected );
-	    else
-	    {
-		if ( !actclicktags_.isPresent("Right") || !wasselected )
-		    actlist_.chooseAll(false);
-		actlist_.setChosen( actitmidx_, true );
-	    }
-
+	    actlist_.setCurrentItem( actitmidx_ );
 	    mHandleSelectionChangedEnd( oldselitems );
 	}
 
@@ -262,12 +244,12 @@ bool ListButtonCmd::act( const char* parstr )
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
     mListButtonCheck( uilist, itemstr, itemidxs[0] );
 
-    mParOnOffPre("check-box", onoff, uilist->isChosen(itemidxs[0]), true);
+    mParOnOffPre("check-box", onoff, uilist->isItemChecked(itemidxs[0]), true);
 
     clicktags.add( "Check" );
     mActivate( List, Activator(*uilist, itemidxs[0], clicktags) );
 
-    mParOnOffPost( "check-box", onoff, uilist->isChosen(itemidxs[0]) );
+    mParOnOffPost( "check-box", onoff, uilist->isItemChecked(itemidxs[0]) );
     return true;
 }
 
@@ -278,7 +260,7 @@ static bool selectionEquals( const uiListBox& uilist,
     for ( int idx=0; idx<uilist.size(); idx++ )
     {
 	const bool tobeselected = selset.isPresent(idx);
-	if ( uilist.isChosen(idx) != tobeselected )
+	if ( uilist.isItemChecked(idx) != tobeselected )
 	    return false;
     }
     return true;
@@ -324,9 +306,9 @@ bool ListSelectCmd::act( const char* parstr )
 
 	if ( !onoff    && !specified )
 	    continue;
-	if ( onoff==-1 && (specified || !uilist->isChosen(idx)) )
+	if ( onoff==-1 && (specified || !uilist->isItemChecked(idx)) )
 	    continue;
-	if ( onoff==1  && !specified && !uilist->isChosen(idx)  )
+	if ( onoff==1  && !specified && !uilist->isItemChecked(idx)  )
 	    continue;
 
 	selset += idx;
@@ -369,8 +351,13 @@ void ListSelectActivator::actCB( CallBacker* cb )
     if ( maxselectable>0 && actselset_.size()<=maxselectable )
     {
 	mHandleSelectionChangedBegin( oldselitems );
+
+	actlist_.chooseAll(false);
 	const int curitmidx = actselset_.isEmpty() ? -1 : actselset_[0];
-	mInitListSelection( actselset_, curitmidx );
+	actlist_.setCurrentItem( curitmidx );
+	for ( int idx=0; idx<actselset_.size(); idx++ )
+	    actlist_.setChosen( actselset_[idx], true );
+
 	mHandleSelectionChangedEnd( oldselitems );
     }
 }
@@ -447,7 +434,7 @@ bool IsListButtonOnCmd::act( const char* parstr )
     mParListSelPre( "item", uilist, itemstr, itemnr, itemidxs, true );
     mListButtonCheck( uilist, itemstr, itemidxs[0] );
 
-    const int ison = uilist->isChosen(itemidxs[0]) ? 1 : 0;
+    const int ison = uilist->isItemChecked(itemidxs[0]) ? 1 : 0;
 
     mParIdentPost( identname, ison, parnext );
     return true;
@@ -676,7 +663,6 @@ void ListCmdComposer::reInit()
     selchanged_ = false;
     clickedidx_ = -1;
     leftclicked_ = false;
-    ctrlclicked_ = false;
     listcmdsflushed_ = false;
 }
 
@@ -704,25 +690,29 @@ void ListCmdComposer::updateInternalState()
 void ListCmdComposer::storeListState()
 {
     mGetListBox( uilist, );
-    chosenitems_.erase();
+    checkeditems_.erase();
 
     for ( int idx=0; idx<uilist->size(); idx++ )
     {
-	if ( uilist->isChosen(idx) )
-	    chosenitems_ += idx;
+	if ( uilist->isItemChecked(idx) )
+	    checkeditems_ += idx;
     }
+
+    if ( stagenr_ < 2 )
+	chosenitems_ = checkeditems_;
 }
 
 
 void ListCmdComposer::labelStoredStateOld()
 {
-    waschosenitems_ = chosenitems_;
+    wascheckeditems_ = checkeditems_;
 }
 
 
 void ListCmdComposer::labelStoredStateNew()
 {
     ischosenitems_ = chosenitems_;
+    ischeckeditems_ = checkeditems_;
 }
 
 
@@ -739,10 +729,6 @@ void ListCmdComposer::writeListSelect()
 	    labelStoredStateNew();
 	}
 
-	if ( stagenr_>1 && ischosenitems_.size()==1 &&
-			   mIsSet(ischosen,clickedidx_) )
-	    return;
-
 	const int nrifdifferential = writeListSelect( true, true );
 	const int nrifclearedfirst = writeListSelect( false, true );
 
@@ -757,29 +743,17 @@ void ListCmdComposer::writeListSelect()
 int ListCmdComposer::writeListSelect( bool differential, bool virtually )
 {
     mGetListBox( uilist, -1 );
-    int nrlistchosens = 0;
+    int nrlistselects = 0;
     int firstidx = mUdf(int);
     int lastidx = mUdf(int);
     int blockstate = mUdf(int);
 
     for ( int idx=0; idx<=uilist->size(); idx++ )
     {
-	const int oldstate = differential ? mIsSet(waschosen,idx) : 0;
+	const int oldstate = differential ? mIsSet(waschecked,idx) : 0;
 
-	int curstate = oldstate;
-	if ( idx == uilist->size() )
-	    curstate = mUdf(int);
-	else if ( idx != clickedidx_ )
-	    curstate = mIsSet( ischosen, idx );
-	else if ( !mIsSet(ischosen, idx) )
-	    curstate = 1;
-	else if ( leftclicked_ )
-	    curstate = 0;
-	else if ( !mIsUdf(firstidx) )
-	    curstate = blockstate;
-
-	if ( !virtually && idx==clickedidx_ )
-	    ctrlclicked_ = curstate != mIsSet(ischosen, idx);
+	const int curstate = idx==uilist->size() ? mUdf(int)
+						 : mIsSet(ischosen,idx);
 
 	if ( mIsUdf(firstidx) )
 	{
@@ -801,15 +775,15 @@ int ListCmdComposer::writeListSelect( bool differential, bool virtually )
 
 	    if ( !virtually )
 	    {
-		const bool clear = !differential && !nrlistchosens;
+		const bool clear = !differential && !nrlistselects;
 		writeListSelect( firstidx, lastidx, blockstate, clear );
 	    }
 
-	    nrlistchosens++;
+	    nrlistselects++;
 	    firstidx = mUdf(int);
 	}
     }
-    return nrlistchosens;
+    return nrlistselects;
 }
 
 
@@ -838,12 +812,12 @@ void ListCmdComposer::writeListSelect( int firstidx, int lastidx,
 
 #define mGetMouseTag( mousetag ) \
 \
-    BufferString mousetag = " "; \
-    if ( ctrlclicked_ ) \
-	mousetag += "Ctrl"; \
-    if ( stagenr_==3 || stagenr_==4 ) \
-	mousetag += "Double"; \
-    mousetag += leftclicked_ ? "Left" : "Right";
+    BufferString mousetag; \
+    if ( stagenr_ > 1 ) \
+    { \
+	mousetag += (stagenr_==3 || stagenr_==4) ? " Double" : " "; \
+	mousetag += leftclicked_ ? "Left" : "Right"; \
+    }
 
 
 void ListCmdComposer::writeListButton()
@@ -855,7 +829,7 @@ void ListCmdComposer::writeListButton()
     if ( mMatchCI(mousetag, " Left") )
 	mousetag.setEmpty();
 
-    const char* onoff = mIsSet(ischosen,clickedidx_) ? " On" : " Off";
+    const char* onoff = mIsSet(ischecked,clickedidx_) ? " On" : " Off";
 
     const CmdRecEvent& ev = *eventlist_[eventlist_.size()-1];
     insertWindowCaseExec( ev, casedep );
@@ -886,10 +860,14 @@ void ListCmdComposer::writeListMenu( const CmdRecEvent& menuevent )
 
 void ListCmdComposer::writeListClick()
 {
-    if ( stagenr_ < 2 )
+    mGetListBox( uilist, );
+
+    if ( stagenr_<2 && selchanged_ && ischeckeditems_.isEmpty() )
+	clickedidx_ = uilist->currentItem();
+
+    if ( clickedidx_ < 0 )
 	return;
 
-    mGetListBox( uilist, );
     mGetListItemName( uilist, clickedidx_, itemname, casedep );
     mGetMouseTag( mousetag );
 
@@ -963,7 +941,6 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
 		stagenr_ = 2;
 		clickedidx_ = itemidx;
 		leftclicked_ = notileft;
-		ctrlclicked_ = false;
 		storeListState();
 		labelStoredStateNew();
 	    }
@@ -998,8 +975,8 @@ bool ListCmdComposer::accept( const CmdRecEvent& ev )
     {
 	writeListSelect();
 
-	const bool listbutchange = mIsSet(ischosen,clickedidx_) !=
-				   mIsSet(waschosen,clickedidx_);
+	const bool listbutchange = mIsSet(ischecked,clickedidx_) !=
+				   mIsSet(ischosen,clickedidx_);
 
 	if ( ev.dynamicpopup_ )
 	{
