@@ -80,6 +80,16 @@ int uiToolBar::addButton( const char* fnm, const uiString& tt,
 }
 
 
+int uiToolBar::addButton( const char* fnm, const uiString& tt,
+			  const CallBack& cb, bool toggle, int id )
+{
+    uiAction* action = new uiAction( 0, cb, fnm );
+    action->setToolTip( tt );
+    action->setCheckable( toggle );
+    return insertAction( action, id );
+}
+
+
 int uiToolBar::addButton( const uiToolButtonSetup& su )
 {
     uiAction* action = new uiAction( su.name_, su.cb_, su.filename_ );

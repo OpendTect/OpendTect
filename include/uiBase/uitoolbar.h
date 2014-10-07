@@ -52,10 +52,12 @@ public:
 
     uiParent*		parent()			{ return parent_; }
 
-    int		addButton(const uiToolButtonSetup&);
-    int		addButton(const char* fnm,const uiString& tooltip,
+    int			addButton(const uiToolButtonSetup&);
+    int			addButton(const char* fnm,const uiString& tooltip,
 				  const CallBack& =CallBack(),
 				  bool toggle=false);
+    int			addButton(const char* fnm,const uiString& tooltip,
+				  const CallBack&,bool toggle,int id);
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
 

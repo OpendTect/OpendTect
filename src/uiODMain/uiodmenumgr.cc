@@ -817,9 +817,9 @@ void uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
 				     int itmid2d, int itmid3d )
 {
     if ( !SI().has2D() )
-	tb.addButton( iconnm, tt, cb3d );
+	tb.addButton( iconnm, tt, cb3d, false, itmid3d );
     else if ( !SI().has3D() )
-	tb.addButton( iconnm, tt, cb2d );
+	tb.addButton( iconnm, tt, cb2d, false, itmid2d );
     else
     {
 	const int butid = tb.addButton( iconnm, tt );
