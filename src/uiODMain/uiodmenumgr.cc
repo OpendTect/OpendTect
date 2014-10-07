@@ -230,7 +230,7 @@ void uiODMenuMgr::fillImportMenu()
     uiMenu* impseis = new uiMenu( &appl_, uiStrings::sSeismics(true) );
     uiMenu* imphor = new uiMenu( &appl_, uiStrings::sHorizon(true) );
     uiMenu* impfault = new uiMenu( &appl_, uiStrings::sFaults(true) );
-    uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaulStickSets") );
+    uiMenu* impfaultstick = new uiMenu( &appl_, tr("FaultStickSets") );
     uiMenu* impwell = new uiMenu( &appl_, uiStrings::sWells(true) );
     uiMenu* imppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
     uiMenu* impwvlt = new uiMenu( &appl_, tr("Wavelets") );
@@ -337,7 +337,7 @@ void uiODMenuMgr::fillExportMenu()
     uiMenu* expseis = new uiMenu( &appl_, uiStrings::sSeismics(true) );
     uiMenu* exphor = new uiMenu( &appl_, uiStrings::sHorizons(true) );
     uiMenu* expflt = new uiMenu( &appl_, uiStrings::sFaults(true) );
-    uiMenu* expfltss = new uiMenu( &appl_, tr("FaulStickSets") );
+    uiMenu* expfltss = new uiMenu( &appl_, tr("FaultStickSets") );
     uiMenu* expgeom2d = new uiMenu( &appl_, tr("Geometry 2D") );
     uiMenu* exppick = new uiMenu( &appl_, tr("PickSets/Polygons") );
     uiMenu* expwvlt = new uiMenu( &appl_, tr("Wavelets") );
@@ -945,7 +945,7 @@ void uiODMenuMgr::fillManTB()
                    tr("3D Horizons"),
 		   mManHor2DMnuItm, mManHor3DMnuItm, horid );
 
-    mAddPopUp( tr("Fault Menu"), uiStrings::sFaults(true),tr("FaulStickSets"),
+    mAddPopUp( tr("Fault Menu"), uiStrings::sFaults(true),tr("FaultStickSets"),
 	       mManFaultMnuItm, mManFaultStickMnuItm, fltid );
 }
 
