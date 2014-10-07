@@ -834,7 +834,7 @@ void uiListBox::sortItems( bool asc )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const int newidx = sortidxs[idx];
-	setMarked( newidx, chosen[idx] );
+	setMarked( newidx, mrkd[idx] );
 	setChosen( newidx, chosen[idx] );
     }
     delete [] sortidxs;
