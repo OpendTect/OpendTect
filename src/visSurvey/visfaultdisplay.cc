@@ -386,12 +386,6 @@ void FaultDisplay::updateSingleColor()
 
     activestickmarker_->getMaterial()->setColor( nontexturecol_ );
 
-    for ( int idx=0; idx<horintersections_.size(); idx++ )
-	horintersections_[idx]->getMaterial()->setColor( nontexturecol_ );
-
-    if ( stickdisplay_ && stickdisplay_->getMaterial() )
-	stickdisplay_->updateMaterialFrom( getMaterial() );
-
     channels_->turnOn( !usesinglecolor );
 
     const Color prevcol = getMaterial()->getColor();
@@ -404,6 +398,15 @@ void FaultDisplay::updateSingleColor()
     }
     else if ( !usesinglecolor )			// To update color column in
 	getMaterial()->change.trigger();	// tree if texture is shown
+
+    for( int idx = 0; idx<horintersections_.size(); idx++ )
+	horintersections_[idx]->getMaterial()->setColor( nontexturecol_ );
+
+    if( intersectiondisplay_ && intersectiondisplay_->getMaterial() )
+	intersectiondisplay_->updateMaterialFrom( getMaterial());
+
+    if( stickdisplay_ && stickdisplay_->getMaterial() )
+	stickdisplay_->updateMaterialFrom( getMaterial() );
 }
 
 
@@ -1418,18 +1421,17 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	    line->setMaterial(new visBase::Material);
 
 	line->getMaterial()->setColor( nontexturecol_ );
-	line->setDisplayTransformation( displaytransform_ );
 	line->setSelectable( false );
-	line->setRightHandSystem( righthandsystem_ );
-	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine,
-	    Geometry::PrimitiveSet::Lines );
+	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine3D,
+	    Geometry::PrimitiveSet::LineStrips );
+	line->setDisplayTransformation( displaytransform_ );
 
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = 0;
 	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
-	shape->display( false, false );
 	line->setSurface( shape );
+	shape->display( false, false );
 	shape->setSurface( fss );
 	const float zshift = (float) activehordisps[idx]->getTranslation().z;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
@@ -1437,6 +1439,7 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	it.setShape( *shape );
 	it.compute();
 
+	line->touch( true, false );
 	horintersections_ += line;
 	horshapes_ += shape;
 	horintersectids_ += activehorids[idx];

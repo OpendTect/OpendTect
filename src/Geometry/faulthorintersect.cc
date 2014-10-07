@@ -380,7 +380,7 @@ void FaultBinIDSurfaceIntersector::compute()
 	return;
     }
     
-    geo->removeAll( true );
+    geo->removeAll( false );
     Geometry::PrimitiveSet* idxps = geo->getCoordsPrimitiveSet();
 
     for ( int idx=0; idx<possize; idx++ )

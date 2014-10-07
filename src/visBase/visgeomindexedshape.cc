@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturechannels.h"
 #include "vistexturecoords.h"
 #include "vispolyline.h"
+#include "vispolygonoffset.h"
 
 #include <osg/Geometry>
 #include <osg/Geode>
@@ -338,7 +339,7 @@ bool GeomIndexedShape::touch( bool forall, bool createnew, TaskRunner* tr )
 	vtexshape_->addPrimitiveSet( idxgeom->getCoordsPrimitiveSet() );
 
 	if ( idxgeom->primitivetype_ == Geometry::IndexedGeometry::Lines &&
-	    geomshapetype_ > Triangle )
+	    (geomshapetype_==PolyLine || geomshapetype_==PolyLine3D) )
 	{
 	    vtexshape_->setLineStyle( linestyle_ );
 	}
@@ -492,6 +493,16 @@ void GeomIndexedShape::setGeometryShapeType( GeomShapeType shapetype,
     vtexshape_->ref();
     vtexshape_->setMaterial( singlematerial_ );
     vtexshape_->setPrimitiveType( pstype );
+    if( shapetype==PolyLine || shapetype==PolyLine3D )
+    {
+	visBase::PolygonOffset* offset = new visBase::PolygonOffset;
+	offset->setFactor( -1.0f );
+	offset->setUnits( 1.0f );
+
+	offset->setMode(
+	    visBase::PolygonOffset::Protected | visBase::PolygonOffset::On );
+	vtexshape_->addNodeState( offset );
+    }
     addChild( vtexshape_->osgNode() );
 
     geomshapetype_ = shapetype;
