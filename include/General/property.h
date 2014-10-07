@@ -43,7 +43,7 @@ public:
     inline const PropertyRef& ref() const		{ return ref_; }
     const char*		name() const;
 
-    virtual void	reset()				{}
+    virtual void	reset()			     { lastval_ = mUdf(float); }
     virtual bool	init(const PropertySet&) const	{ return true; }
 			    //!< clears 'memory' and makes property usable
     virtual uiString	errMsg() const			{ return 0; }
@@ -85,7 +85,7 @@ public:
 
     float		value( EvalOpts eo=EvalOpts() ) const
 			{
-			    return eo.isPrev() ? lastval_
+			    return eo.isPrev() || !mIsUdf(lastval_) ? lastval_
 				 : (lastval_ = gtVal(eo));
 			}
 

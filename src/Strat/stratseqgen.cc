@@ -505,6 +505,7 @@ bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
 
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
+	props_.prepareUsage();
 
     TypeSet<int> indexesofprsmath;
     TypeSet<int> correspondingidxinprops;
