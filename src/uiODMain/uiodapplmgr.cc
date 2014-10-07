@@ -1951,7 +1951,7 @@ void uiODApplMgr::saveDefColTab( int visid, int attrib )
 
 void uiODApplMgr::processPreStack( CallBacker* )
 { dispatcher_.processPreStack(); }
-void uiODApplMgr::processPreStack( bool is2d )
+void uiODApplMgr::launchPreStackProc( bool is2d )
 { dispatcher_.processPreStack( is2d ); }
 void uiODApplMgr::genAngleMuteFunction( CallBacker* )
 { dispatcher_.genAngleMuteFunction(); }

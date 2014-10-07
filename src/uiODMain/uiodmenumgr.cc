@@ -1221,8 +1221,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSeisOutMnuItm:	applMgr().createVol(SI().has2D(),false); break;
     case mSeisOut2DMnuItm:	applMgr().createVol(true,false); break;
     case mSeisOut3DMnuItm:	applMgr().createVol(false,false); break;
-    case mPSProc2DMnuItm:	applMgr().processPreStack(true); break;
-    case mPSProc3DMnuItm:	applMgr().processPreStack(false); break;
+    case mPSProc2DMnuItm:	applMgr().launchPreStackProc(true); break;
+    case mPSProc3DMnuItm:	applMgr().launchPreStackProc(false); break;
     case mCreateSurf2DMnuItm:	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm:	applMgr().createHorOutput(0,false); break;
     case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;

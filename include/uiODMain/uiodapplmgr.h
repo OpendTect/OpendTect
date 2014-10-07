@@ -98,7 +98,7 @@ public:
     void			startBatchJob();
     void			processTime2Depth(CallBacker* =0);
     void			processPreStack(CallBacker* =0);
-    void			processPreStack(bool is2d);
+    void			launchPreStackProc(bool is2d);
     void			createMultiCubeDS(CallBacker* =0);
     void			createMultiAttribVol(CallBacker*);
     void			processVelConv(CallBacker* =0);
