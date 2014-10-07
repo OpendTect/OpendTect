@@ -5,8 +5,8 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
-SET(OD_MODULE_SOURCES
+set( OD_MODULE_DEPS uiTools MMProc uiFlatView Geometry )
+set( OD_MODULE_SOURCES
 	dpsdensitycalc.cc
 	ui2dgeomman.cc
 	ui2dsip.cc
@@ -70,7 +70,10 @@ SET(OD_MODULE_SOURCES
 	uit2dconvsel.cc
 	inituiio.cc
 )
-SET( OD_MODULE_GUI_PROGS
-	od_BatchHosts.cc
-)
+
+set( OD_MODULE_GUI_PROGS od_BatchHosts.cc )
+if( WIN32 )
+    set(OD_od_BatchHosts_RESOURCE  resources/od_BatchHosts.rc )
+endif()
+
 OD_INIT_MODULE()
