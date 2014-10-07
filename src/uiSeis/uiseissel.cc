@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uiioobjselwritetransl.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uibutton.h"
@@ -495,6 +496,14 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
     uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
     dlg->usePar( dlgiopar_ );
+    uiIOObjSelGrp* selgrp = dlg->selGrp();
+    if ( selgrp )
+    {
+	selgrp->setConfirmOverwrite( false );
+	if ( wrtrselfld_ )
+	    selgrp->setDefTranslator( wrtrselfld_->selectedTranslator() );
+    }
+
     return dlg;
 }
 
