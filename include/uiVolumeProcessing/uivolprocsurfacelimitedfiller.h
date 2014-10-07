@@ -13,8 +13,9 @@ ________________________________________________________________________
 
 -*/
 
-#include "callback.h"
+#include "uivolumeprocessingmod.h"
 #include "uivolprocstepdlg.h"
+
 #include "volprocsurfacelimitedfiller.h"
 
 class uiGenInput;
@@ -27,16 +28,16 @@ class uiHorizonAuxDataSel;
 namespace VolProc
 {
 
-class SurfaceLimitedFiller;   
+class SurfaceLimitedFiller;
 
-mClass(uiVMB) uiSurfaceLimitedFiller : public uiStepDialog
-{ mODTextTranslationClass(uiSurfaceLimitedFiller);
+mClass(uiVolumeProcessing) uiSurfaceLimitedFiller : public uiStepDialog
+{ mODTextTranslationClass(uiSurfaceLimitedFiller)
 public:
     mDefaultFactoryInstanciationBase(
 	VolProc::SurfaceLimitedFiller::sFactoryKeyword(),
 	VolProc::SurfaceLimitedFiller::sFactoryDisplayName())
-	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance );
-    
+	mDefaultFactoryInitClassImpl( uiStepDialog, createInstance )
+
 protected:
 
     				uiSurfaceLimitedFiller(uiParent*,
@@ -51,7 +52,7 @@ protected:
     void			addSurfaceTableEntry(const IOObj&,
 						     bool isfault,char side);
     				/*Current row==surfaces size */
- 
+
     void			refDepthTypeChangeCB(CallBacker*);
     void			useStartValCB(CallBacker*);
     void			useGradientCB(CallBacker*);
@@ -72,7 +73,7 @@ protected:
     uiGenInput*			gradientfld_;
     uiGenInput*			gradienttypefld_;
     uiHorizonAuxDataSel*	gradgridfld_;
-    
+
     uiGenInput*			userefdepthfld_;
     uiGenInput*			refdepthfld_;
     uiIOObjSel*			refhorizonfld_;
