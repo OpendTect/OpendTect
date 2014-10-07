@@ -58,7 +58,7 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D::~Filter2D()
 {
-    geomids_.erase(); 
+    geomids_.erase();
 }
 
 
@@ -254,14 +254,13 @@ bool Pos::FilterSet2D::includes( int nr, float z, int lidx ) const
 
 void Pos::RandomFilter::initStats()
 {
-    Stats::randGen().init();
     if ( passratio_ > 1 ) passratio_ /= 100;
 }
 
 
 bool Pos::RandomFilter::drawRes() const
 {
-    return Stats::randGen().get() < passratio_;
+    return Stats::uniformRandGen().get() < passratio_;
 }
 
 

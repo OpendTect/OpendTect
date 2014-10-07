@@ -31,7 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 
 int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
-int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
+int uiPickPartServer::evGetHorInfo3D()	{ return 1; }
 int uiPickPartServer::evGetHorDef3D()	{ return 2; }
 int uiPickPartServer::evGetHorDef2D()	{ return 3; }
 int uiPickPartServer::evFillPickSet()	{ return 4; }
@@ -42,8 +42,8 @@ int uiPickPartServer::evGet2DLineDef()	{ return 6; }
 uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
 	, uiPickSetMgr(Pick::Mgr())
-    	, gendef_(2,true)
-    	, selhs_(true)
+	, gendef_(2,true)
+	, selhs_(true)
 	, ps_(0)
 {
 }
@@ -182,7 +182,6 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
-    Stats::randGen().init();
     setid_ = setids_[rp.lsetidx_];
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
@@ -209,7 +208,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	    for ( int ipos=0; ipos<posns.size(); ipos++ )
 		coords2d_ += posns[ipos].coord_;
 	}
-	
+
 	deepErase( linegeoms_ );
     }
 
@@ -218,10 +217,10 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 
     for ( int ipt=0; ipt<rp.nr_; ipt++ )
     {
-	const int posidx = Stats::randGen().getIndex( nrpos );
+	const int posidx = Stats::uniformRandGen().getIndex( nrpos );
 	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
-	float val = (float) ( zrg.start + 
-				  Stats::randGen().get() * zrg.width(false) ); 
+	float val = (float) ( zrg.start +
+			      Stats::uniformRandGen().get() * zrg.width(false));
 	ps += Pick::Location( coords2d_[posidx], val );
     }
 

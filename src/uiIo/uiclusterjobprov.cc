@@ -46,8 +46,7 @@ static BufferString getDefTempStorDir()
     BufferString stordir = "Proc_";
     stordir += HostData::localHostName();
     stordir += "_";
-    Stats::randGen().init();
-    stordir += Stats::randGen().getIndex(100000);
+    stordir += Stats::uniformRandGen().getIndex(100000);
     const FilePath fp( GetDataDir(), "Seismics", stordir );
     if ( !File::createDir(fp.fullPath()) )
 	return BufferString(File::getTempPath());
@@ -60,7 +59,7 @@ class ClusterJobCreator : public Executor
 {
 public:
 ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
-       		   const char* prognm )
+		   const char* prognm )
     : Executor("Job generator")
     , jobprov_(jobprov),dirnm_(dir),prognm_(prognm)
     , curidx_(0)
@@ -147,19 +146,19 @@ int nextStep()
 }
 
 protected:
-	
+
 	const InlineSplitJobDescProv&	jobprov_;
 	BufferString			dirnm_;
 	BufferString			prognm_;
-	int				curidx_;	
+	int				curidx_;
 
 };
 
 
 uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
-       				    const char* prognm, const char* parfnm )
+				    const char* prognm, const char* parfnm )
     : uiDialog(p,uiDialog::Setup("Cluster job generator","","101.2.2")
-	    		   .oktext("Continue"))
+			   .oktext("Continue"))
     , prognm_(prognm)
     , tempstordir_(getDefTempStorDir())
     , iopar_(*new IOPar(iop))
@@ -167,19 +166,19 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     jobprov_ = new InlineSplitJobDescProv( iop );
 
     nrinlfld_ = new uiGenInput( this, "No. of inlines per job",
-	    			IntInpSpec(1) );
+				IntInpSpec(1) );
     nrinlfld_->valuechanging.notify( mCB(this,uiClusterJobProv,nrJobsCB) );
-	
+
     nrjobsfld_ = new uiLabel( this, "Total no. of jobs: 0000" );
     nrjobsfld_->attach( alignedBelow, nrinlfld_ );
 
     parfilefld_ = new uiFileInput( this, "Par file",
-	    	uiFileInput::Setup(uiFileDialog::Gen,parfnm)
+		uiFileInput::Setup(uiFileDialog::Gen,parfnm)
 		.forread(false).filter("*.par;;").confirmoverwrite(false) );
     parfilefld_->attach( alignedBelow, nrjobsfld_ );
 
     tmpstordirfld_ = new uiFileInput( this, "Temporary storage directory",
-	   			      tempstordir_.buf() );
+				      tempstordir_.buf() );
     tmpstordirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     tmpstordirfld_->attach( alignedBelow, parfilefld_ );
 
@@ -191,12 +190,12 @@ uiClusterJobProv::uiClusterJobProv( uiParent* p, const IOPar& iop,
     if ( !File::isDirectory(fp.fullPath()) )
 	File::createDir( fp.fullPath() );
     scriptdirfld_ = new uiFileInput( this, "Storage directory for scripts",
-	   			     fp.fullPath() );
+				     fp.fullPath() );
     scriptdirfld_->setSelectMode( uiFileDialog::DirectoryOnly );
     scriptdirfld_->attach( alignedBelow, tmpstordirfld_ );
 
     cmdfld_ = new uiGenInput( this, "Cluster Processing command",
-	   		      StringInpSpec("srun") );
+			      StringInpSpec("srun") );
     cmdfld_->attach( alignedBelow, scriptdirfld_ );
 
     postFinalise().notify( mCB(this,uiClusterJobProv,nrJobsCB) );
@@ -307,7 +306,7 @@ const char* uiClusterJobProv::getOutPutIDKey() const
 MultiID uiClusterJobProv::getTmpID( const char* tmpdir ) const
 {
     CtxtIOObj ctio( IOObjContext(&TranslatorGroup::getGroup("Seismic Data",
-		    					     true)) );
+							     true)) );
     ctio.ctxt.stdseltype = IOObjContext::Seis;
     FilePath fp( tmpdir );
     BufferString objnm( "~" );

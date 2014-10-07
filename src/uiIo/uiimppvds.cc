@@ -53,7 +53,7 @@ uiImpPVDS::uiImpPVDS( uiParent* p, bool is2d )
     dataselfld_->attach( alignedBelow, inpfld_ );
 
     row1isdatafld_ = new uiGenInput( this, "First row contains",
-	    			BoolInpSpec(false,"Data","Column names") );
+				BoolInpSpec(false,"Data","Column names") );
     row1isdatafld_->attach( alignedBelow, dataselfld_ );
 
     IOObjContext ctxt( mIOObjContext(PosVecDataSet) );
@@ -111,7 +111,6 @@ uiImpPVDSAscio( const Table::FormatDesc& fd, std::istream& strm )
     crlgen_.step = SI().crlRange(true).stop - crlgen_.start;
     zgen_.start = SI().zRange(true).start;
     zgen_.step = SI().zRange(true).stop - zgen_.start;
-    Stats::randGen().init();
 }
 
 bool getLine()
@@ -152,14 +151,17 @@ bool getLine()
     }
     else
     {
-	double finl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
-	double fcrl = inlgen_.start + Stats::randGen().get() * inlgen_.step;
+	double finl = inlgen_.start +
+		      Stats::uniformRandGen().get() * inlgen_.step;
+	double fcrl = inlgen_.start +
+		      Stats::uniformRandGen().get() * inlgen_.step;
 	coord_ = SI().binID2Coord().transform( Coord(finl,fcrl) );
     }
     if ( fd_.bodyinfos_[1]->selection_.isInFile() )
 	z_ = getfValue( 2 );
     else
-	z_ = (float) ( zgen_.start + Stats::randGen().get() * zgen_.step );
+	z_ = (float) ( zgen_.start +
+		       Stats::uniformRandGen().get() * zgen_.step );
     if ( is2d_ && fd_.bodyinfos_[2]->selection_.isInFile() )
 	trcnr_ = getIntValue( 3 );
     else
@@ -246,7 +248,7 @@ bool uiImpPVDS::writeData( const DataPointSet& dps, const IOObj& ioobj )
     BufferString errmsg;
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool isok = dps.dataSet().putTo( ioobj.fullUserExpr(false), errmsg,
-	    				   false);
+					   false);
     MouseCursorManager::restoreOverride();
     if ( !isok )
 	mErrRet(errmsg)

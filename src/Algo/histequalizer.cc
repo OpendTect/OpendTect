@@ -50,9 +50,9 @@ void HistEqualizer::update()
     for ( int idx = 0; idx < segszs.size(); idx++ )
     {
 	int startidx = index;
-	int stopindex = startidx + segszs[idx] > datasz - 1 ? 
+	int stopindex = startidx + segszs[idx] > datasz - 1 ?
 			datasz - 1 : startidx + segszs[idx];
-	*histeqdatarg_ += Interval<float> ( datapts_[startidx], 
+	*histeqdatarg_ += Interval<float> ( datapts_[startidx],
 					    datapts_[stopindex]);
 	index = stopindex;
     }
@@ -111,7 +111,7 @@ void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
     {
 	if ( numberofb == 0 )
 	    break;
-	int idx = Stats::randGen().getIndex( nrseg_ );
+	int idx = Stats::uniformRandGen().getIndex( nrseg_ );
 	if ( segszs[idx] == bindexlength )
 	    continue;
 

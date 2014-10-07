@@ -52,7 +52,7 @@ bool Random::setTargetSelSpec( const Attrib::SelSpec& ss )
     const char* definition = ss.defString();
 
     BufferString attribname;
-    if ( !Attrib::Desc::getAttribName( definition, attribname ) || 
+    if ( !Attrib::Desc::getAttribName( definition, attribname ) ||
 	 strcmp(attribname.buf(), sAttribName()) )
 	return false;
 
@@ -62,7 +62,7 @@ bool Random::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 DataPack::ID Random::createAttrib( const CubeSampling& cs,
 				   DataPack::ID cacheid,
-       				   TaskRunner* tr)
+				   TaskRunner* tr)
 {
     const Attrib::DataCubes* dc = 0;
     const Attrib::DataCubes* output = createAttrib( cs, dc );
@@ -81,15 +81,13 @@ DataPack::ID Random::createAttrib( const CubeSampling& cs,
 
     Array3D<float>& array = datacubes->getCube( 0 );
 
-    Stats::RandGen::init();
-
     for ( int inlidx=0; inlidx<nrinlines; inlidx++ )
     {
 	for ( int crlidx=0; crlidx<nrcrlines; crlidx++ )
 	{
 	    for ( int zidx=0; zidx<nrz; zidx++ )
 	    {
-		array.set( inlidx, crlidx, zidx, Stats::RandGen::get() );
+		array.set( inlidx, crlidx, zidx, Stats::uniformRandGen::get() );
 	    }
 	}
     }
@@ -170,9 +168,9 @@ void RandomManager::createMenuCB( CallBacker* cb )
     }
 
     mAddMenuItem( menu, &addrandomattribmnuitem_,
-	    	  !islocked && so->canAddAttrib( 1 ), false );
+		  !islocked && so->canAddAttrib( 1 ), false );
 }
-    
+
 
 void RandomManager::handleMenuCB( CallBacker* cb )
 {

@@ -44,7 +44,7 @@ BinIDValueSet::BinIDValueSet( int nv, bool ad )
 
 
 BinIDValueSet::BinIDValueSet( const BinIDValueSet& s )
-    	: nrvals_(0)
+	: nrvals_(0)
 {
     *this = s;
 }
@@ -112,24 +112,24 @@ bool BinIDValueSet::append( const BinIDValueSet& bvs )
 }
 
 
-void BinIDValueSet::remove( const BinIDValueSet& removebids ) 
-{ 
-    BinIDValueSet::Pos pos; 
-	 
-    while ( removebids.next(pos, true ) ) 
-    { 
+void BinIDValueSet::remove( const BinIDValueSet& removebids )
+{
+    BinIDValueSet::Pos pos;
+
+    while ( removebids.next(pos, true ) )
+    {
 	//TODO: This loop can be optimized somewhat by reusing old pos,
 	//but let's play it safe for now.
-	const BinID bid = removebids.getBinID( pos ); 
-	BinIDValueSet::Pos removepos = findFirst( bid ); 
-					 
-	while ( removepos.j>=0 ) 
-	{ 
-	    remove( removepos ); 
-	    removepos = findFirst( bid ); 
-	} 
-    } 
-} 
+	const BinID bid = removebids.getBinID( pos );
+	BinIDValueSet::Pos removepos = findFirst( bid );
+
+	while ( removepos.j>=0 )
+	{
+	    remove( removepos );
+	    removepos = findFirst( bid );
+	}
+    }
+}
 
 
 void BinIDValueSet::randomSubselect( od_int64 maxsz )
@@ -145,7 +145,7 @@ void BinIDValueSet::randomSubselect( od_int64 maxsz )
 	{ setEmpty(); return; }
 
     const bool buildnew = ((od_int64)maxsz) < (orgsz / ((od_int64)2));
-    Stats::randGen().subselect( idxs, orgsz, maxsz );
+    Stats::uniformRandGen().subselect( idxs, orgsz, maxsz );
     TypeSet<Pos> poss;
     if ( buildnew )
     {
@@ -393,7 +393,7 @@ bool BinIDValueSet::next( BinIDValueSet::Pos& pos, bool skip_dup ) const
     else if ( pos.i >= inls_.size() )
 	{ pos.i = pos.j = -1; return false; }
     else if ( pos.j < 0 )
-    	{ pos.j = 0; return true; }
+	{ pos.j = 0; return true; }
 
     const TypeSet<int>& crls = getCrlSet(pos);
     if ( pos.j > crls.size()-2 )
@@ -448,7 +448,7 @@ bool BinIDValueSet::valid( const BinID& bid ) const
 
 
 void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs,
-       			 int maxnrvals ) const
+			 int maxnrvals ) const
 {
     if ( maxnrvals < 0 || maxnrvals > nrvals_ ) maxnrvals = nrvals_;
 
@@ -464,7 +464,7 @@ void BinIDValueSet::get( const Pos& pos, BinID& bid, float* vs,
 	}
     }
 
-    if ( vs ) 
+    if ( vs )
 	setToUdf(vs,maxnrvals);
 }
 
@@ -763,7 +763,7 @@ bool BinIDValueSet::insertVal( int validx )
 {
     if ( validx < 0 || validx >= nrvals_ )
 	return false;
-    
+
     const int oldnrvals = nrvals_;
     const_cast<int&>( nrvals_ ) = oldnrvals+1;
 
@@ -822,7 +822,7 @@ bool BinIDValueSet::setNrVals( int newnrvals, bool keepdata )
 		float* oldarr = oldvals->arr();
 		float* newarr = newvals->arr();
 		const int cpsz = (oldnrvals > nrvals_ ? nrvals_ : oldnrvals)
-		    		   * sizeof( float );
+				   * sizeof( float );
 		for ( int icrl=0; icrl<nrcrl; icrl++ )
 		    memcpy( newarr+icrl*nrvals_, oldarr+icrl*oldnrvals, cpsz );
 	    }
@@ -1237,7 +1237,7 @@ bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
     {
 	if ( getBinID(pos) != bidvals.binid )
 	    break;
-	
+
 	TypeSet<float> valofset;
 	get( pos, tmpbid, valofset );
 	if ( valofset.size() == bidvals.size() )
@@ -1252,7 +1252,7 @@ bool BinIDValueSet::areBinidValuesThere( const BinIDValues& bidvals ) const
 	}
 	next( pos );
     }
-    
+
     return found;
 }
 
@@ -1293,7 +1293,7 @@ int BinIDValueSet::nrDuplicateBinIDs() const
 		bid = getBinID( pos );
 		if ( prevbid != bid )
 		    break;
-	    }	
+	    }
 	}
 
 	if ( !pos.valid() )

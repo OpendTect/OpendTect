@@ -20,7 +20,7 @@ int main( int argc, char** argv )
     if ( argc != 3 )
     {
 	std::cerr << "Usage: " << argv[0] << " input_locs output_locs"
-	    	  << std::endl;
+		  << std::endl;
 	ExitProgram( 1 );
     }
     StreamProvider spin( argv[1] );
@@ -34,8 +34,6 @@ int main( int argc, char** argv )
 	std::cout << "Using standard input." << std::endl;
     std::istream& instrm = *sdin.istrm;
 
-    Stats::RandGen::init();
- 
     if ( !instrm )
     {
 	std::cerr << "Bad locations file" << std::endl;
@@ -59,19 +57,19 @@ int main( int argc, char** argv )
 	outstrm << bid.inl << '\t' << bid.crl << '\t' << timeval <<'\n';
 	bid.inl -= SI().inlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
+		<< timeval + (Stats::uniformRandGen::get()-.5)*20 <<'\n';
 	bid.inl += SI().inlStep();
 	bid.crl -= SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
+		<< timeval + (Stats::uniformRandGen::get()-.5)*20 <<'\n';
 	bid.inl += SI().inlStep();
 	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
+		<< timeval + (Stats::uniformRandGen::get()-.5)*20 <<'\n';
 	bid.inl -= SI().inlStep();
 	bid.crl += SI().crlStep();
 	outstrm << bid.inl << '\t' << bid.crl << '\t'
-		<< timeval + (Stats::RandGen::get()-.5)*20 <<'\n';
+		<< timeval + (Stats::uniformRandGen::get()-.5)*20 <<'\n';
     }
 
     sdin.close(); sdout.close();

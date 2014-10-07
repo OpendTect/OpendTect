@@ -104,7 +104,7 @@ class MathExpressionVariable : public MathExpression
 {
 public:
 				MathExpressionVariable( const char* str )
-				    : MathExpression( 0 )		
+				    : MathExpression( 0 )
 				    , str_( new char[strlen(str)+1] )
 				{ strcpy( str_, str ); addIfOK(str); }
 
@@ -133,7 +133,7 @@ public:
 
 
 protected:
-    float 			val_;
+    float			val_;
     char*			str_;
 };
 
@@ -156,7 +156,7 @@ public:
 				}
 
 protected:
-    float 			val_;
+    float			val_;
 };
 
 
@@ -409,12 +409,6 @@ float MathExpressionAND::getValue() const
 }
 
 
-static int ensureRandInited()
-{
-    Stats::randGen().init();
-    return 0;
-}
-
 mMathExpressionClass( Random, 1 )
 float MathExpressionRandom::getValue() const
 {
@@ -422,8 +416,7 @@ float MathExpressionRandom::getValue() const
     if ( Values::isUdf(maxval) )
 	return mUdf(float);
 
-    static int dum mUnusedVar = ensureRandInited();
-    return ( float )( maxval * Stats::randGen().get() );
+    return mCast( float, maxval * Stats::uniformRandGen().get() );
 }
 
 
@@ -434,8 +427,8 @@ float MathExpressionGaussRandom::getValue() const
     if ( Values::isUdf(stdev) )
 	return mUdf(float);
 
-    static int dum mUnusedVar = ensureRandInited();
-    return ( float ) Stats::randGen().getNormal(0,stdev);
+    mDefineStaticLocalObject( Stats::NormalRandGen, rg, );
+    return rg.get(0,stdev);
 }
 
 
@@ -568,7 +561,7 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 		addIfOK( str );
 	    }
 	}
-		
+
 	return true;
     }
 
@@ -853,8 +846,8 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 			delete inp1;
 			return 0;
 		    }
-		
-	
+
+
 		    MathExpression* res = new MathExpressionCondition;
 
 		    res->setInput( 0, inp0 );
@@ -900,11 +893,11 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 		return 0;
 	    }
 
-	    MathExpression* res = 0;	
+	    MathExpression* res = 0;
 
 	    if ( str[idx] == '&' )
 		res = new MathExpressionAND;
-	    else 
+	    else
 		res = new MathExpressionOR;
 
 	    res->setInput( 0, inp0 );
@@ -950,7 +943,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 		return 0;
 	    }
 
-	    MathExpression* res = 0;	
+	    MathExpression* res = 0;
 
 	    if ( str[idx] == '<' )
 	    {
@@ -1010,7 +1003,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 	    if ( !inp0 ) return 0;
 
 	    ArrPtrMan<char> arg1 = new char[len+1];
-	    // Always use the plus operator. 
+	    // Always use the plus operator.
 	    // So '20-4-5' becomes '20+-4+-5'
 	    if ( str[idx] == '+' )
 		strcpy( arg1, &str[idx+1] );
@@ -1124,7 +1117,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     mParseFunction( "sqrt", Sqrt )
     // exp(x) -> e^x
     mParseFunction( "exp", Exp )
-    
+
     // ln (Natural log)  &  log (10log)
     mParseFunction( "ln", NatLog )
     mParseFunction( "log", Log )
@@ -1141,7 +1134,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
     mParseFunction( "rand", Random )
     mParseFunction( "randg", GaussRandom )
 
-    if ( (!strncasecmp( str, "min(", 4 ) || 
+    if ( (!strncasecmp( str, "min(", 4 ) ||
 	  !strncasecmp( str, "max(", 4 ) ||
 	  !strncasecmp( str, "sum(", 4 ) ||
 	  !strncasecmp( str, "med(", 4 ) ||
@@ -1175,7 +1168,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 	    strncpy( arg, &str[prevstop+1], argumentstop[idx]-prevstop-1);
 	    arg[argumentstop[idx]-prevstop-1] = 0;
 	    prevstop = argumentstop[idx];
-	    
+
 	    MathExpression* inp = parse( arg );
 	    if ( !inp )
 	    {
@@ -1208,7 +1201,7 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 
 	return res;
     }
-	
+
 
     if ( !strcasecmp( input, "pi" ) )
 	return new MathExpressionConstant( M_PI );
@@ -1248,5 +1241,5 @@ MathExpression* MathExpressionParser::parse( const char* input ) const
 
     errmsg_ = "Cannot parse this:\n'";
     errmsg_ += input; errmsg_ += "'";
-    return 0;	
+    return 0;
 }

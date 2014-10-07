@@ -68,19 +68,20 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
 
 	geoms += geometry;
     }
-    
+
     const int nrlines = geoms.size();
     while ( rangesset->totalSize() < cNrRandPicks )
     {
-	const int lineidx = Stats::randGen().getIndex( nrlines );
+	const int lineidx = Stats::uniformRandGen().getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
 	const int nrcoords = geometry.positions().size();
-	const int crdidx = Stats::randGen().getIndex( nrcoords );
+	const int crdidx = Stats::uniformRandGen().getIndex( nrcoords );
 	const Coord& pos = geometry.positions()[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = (float) (geometry.zRange().start +
-			    Stats::randGen().get()*geometry.zRange().width());
+	const float zpos = mCast ( float, geometry.zRange().start +
+					  Stats::uniformRandGen().get() *
+					  geometry.zRange().width() );
 	rangesset->add( bid, zpos );
     }
 }
@@ -93,11 +94,14 @@ static void create3DRandPicks( BinIDValueSet* rangesset )
     {
 	StepInterval<int> irg = SI().inlRange( true );
 	StepInterval<int> crg = SI().crlRange( true );
-	bid.inl = mNINT32( irg.start + Stats::randGen().get() * irg.nrSteps() );
-	bid.crl = mNINT32( crg.start + Stats::randGen().get() * crg.nrSteps() );
+	bid.inl = mNINT32( irg.start +
+			   Stats::uniformRandGen().get() * irg.nrSteps() );
+	bid.crl = mNINT32( crg.start +
+			   Stats::uniformRandGen().get() * crg.nrSteps() );
 	SI().snap( bid );
-	const float z = (float) (SI().zRange(true).start
-	    	      + Stats::randGen().get() * SI().zRange(true).width());
+	const float z = mCast ( float, SI().zRange(true).start +
+				       Stats::uniformRandGen().get() *
+				       SI().zRange(true).width() );
 	rangesset->add( bid, z );
     }
 }
@@ -170,7 +174,7 @@ void calcFingParsObject::findLineSetID( MultiID& linesetid ) const
 	    else
 	    {
 		bool foundstored = false;
-		
+
 		while ( !foundstored )
 		{
 		    Desc* inpdsc = dsc->getInput(0);
@@ -216,8 +220,8 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     BinIDValueSet* valueset = posset_[0];
     BinIDValueSet* rangeset = posset_[1];
     TypeSet<float> vals( nrattribs, mUdf(float) );
-    TypeSet< Interval<float> > rgs( nrattribs, 
-	    			    Interval<float>(mUdf(float),mUdf(float)) );
+    TypeSet< Interval<float> > rgs( nrattribs,
+				    Interval<float>(mUdf(float),mUdf(float)) );
 
     if ( valueset->totalSize() == 1 )
     {
@@ -233,7 +237,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 				(statstype_ < (int)Stats::StdDev ? 0 : 1));
 			    //!< StdDev not used, so skip it
 	fillInStats( valueset, statsset, styp );
-	
+
 	for ( int idx=0; idx<nrattribs; idx++ )
 	    vals[idx] = (float) statsset[idx]->getValue(styp);
 
@@ -244,13 +248,13 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
     {
 	ObjectSet< Stats::RunCalc<float> > stats;
 	fillInStats( rangeset, stats, Stats::Min );
-	
+
 	for ( int idx=0; idx<nrattribs; idx++ )
 	    rgs[idx] = Interval<float>( stats[idx]->min(), stats[idx]->max());
 
 	deepErase( stats );
     }
-   
+
     saveValsAndRanges( vals, rgs );
 }
 
@@ -258,7 +262,7 @@ void calcFingParsObject::extractAndSaveValsAndRanges()
 EngineMan* calcFingParsObject::createEngineMan()
 {
     EngineMan* aem = new EngineMan;
-    
+
     TypeSet<SelSpec> attribspecs;
     for ( int idx=0; idx<reflist_->size(); idx++ )
     {
@@ -282,7 +286,7 @@ EngineMan* calcFingParsObject::createEngineMan()
 
 void calcFingParsObject::fillInStats( BinIDValueSet* bidvalset,
 			ObjectSet< Stats::RunCalc<float> >& statsset,
-       			Stats::Type styp ) const
+			Stats::Type styp ) const
 {
     const int nrattribs = reflist_->size();
     for ( int idx=0; idx<nrattribs; idx++ )

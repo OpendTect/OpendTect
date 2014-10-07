@@ -52,7 +52,7 @@ BufferString Function::createFactoryKey( const char* keyword )
 
 void Function::initStandardFunctions()
 {
-    static bool done = false;
+    mDefineStaticLocalObject( bool, done, (false) );
     if ( done ) return;
     done = true;
 
@@ -176,7 +176,7 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     if ( mIsUdf(num) ) \
     { \
 	res = num; \
-       	return true; \
+	return true; \
     } \
     if ( errcondition ) \
     { \
@@ -205,28 +205,35 @@ mDefMathFunc( Tan,   false, "", res=tan(num) );
 mDefMathFunc( Trunc, false, "", res=(num<0 ? ceil(num) : floor(num)) );
 
 
-#define mDefRandFunc( clss, funcall ) \
-\
-bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
-{ \
-    mCheckMaxArgs( 1, args, res ); \
-    mGetNumArg( 0, num, args, res ); \
-    if ( !args.size() ) \
-	num = 1.0; \
-\
-    res = mIsUdf(num) ? num : num*Stats::randGen().funcall; \
-    return true; \
+bool RandFunc::eval( const BufferStringSet& args, BufferString& res ) const
+{
+    mCheckMaxArgs( 1, args, res );
+    mGetNumArg( 0, num, args, res );
+    if ( !args.size() )
+	num = 1.0;
+
+    res = mIsUdf(num) ? num : num*Stats::uniformRandGen().get();
+    return true;
 }
 
-mDefRandFunc( Rand, get() );
-mDefRandFunc( RandG, getNormal(0,1) );
+bool RandGFunc::eval( const BufferStringSet& args, BufferString& res ) const
+{
+    mCheckMaxArgs( 1, args, res );
+    mGetNumArg( 0, num, args, res );
+    if ( !args.size() )
+	num = 1.0;
+
+    Stats::NormalRandGen rg;
+    res = mIsUdf(num) ? num : num*rg.get();
+    return true;
+}
 
 
 bool Atan2Func::eval( const BufferStringSet& args, BufferString& res ) const
 {
     mCheckNrArgs( 2, args, res );
-    mGetNumArg( 0, num0, args, res ); 
-    mGetNumArg( 1, num1, args, res ); 
+    mGetNumArg( 0, num0, args, res );
+    mGetNumArg( 1, num1, args, res );
 
     if ( !num0 && !num1 )
     {
@@ -370,7 +377,7 @@ bool StrSelFunc::eval( const BufferStringSet& args, BufferString& res ) const
 
     if ( args.size() != 3 )
 	stoppos = startpos;
-    
+
     const char* prefix = args.size()==3 ? "First character" : "Character";
     mCheckPosRange( prefix, startpos, len, args , res );
     mCheckPosRange( "Last character", stoppos, len, args , res );
@@ -425,7 +432,7 @@ bool SepStrSelFunc::eval( const BufferStringSet& args, BufferString& res ) const
 
     if ( args.size() != 3 )
 	stoppos = startpos;
-    
+
     const char* prefix = args.size()==3 ? "First substring" : "Substring";
     mCheckPosRange( prefix, startpos, len, args , res );
     mCheckPosRange( "Last substring", stoppos, len, args , res );

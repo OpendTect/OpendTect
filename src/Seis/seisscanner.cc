@@ -26,15 +26,15 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
-    	: Executor( "Scan seismic data" )
-    	, rdr_(*new SeisTrcReader(&ioobj))
+	: Executor( "Scan seismic data" )
+	, rdr_(*new SeisTrcReader(&ioobj))
 	, trc_(*new SeisTrc)
-    	, dtctor_(*new PosInfo::Detector(
+	, dtctor_(*new PosInfo::Detector(
 		    PosInfo::Detector::Setup(Seis::is2D(gt))
 			    .isps(Seis::isPS(gt)).reqsorting(true) ) )
 	, curmsg_("Scanning")
-    	, totalnr_(mtr < 0 ? -2 : mtr)
-    	, maxnrtrcs_(mtr)
+	, totalnr_(mtr < 0 ? -2 : mtr)
+	, maxnrtrcs_(mtr)
 	, nrnulltraces_(0)
 	, invalidsamplenr_(-1)
 {
@@ -42,7 +42,6 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     valrg_.start = mUdf(float);
     nonnullsamplerg_.stop = 0;
     nonnullsamplerg_.start = invalidsamplebid_.inl = mUdf(int);
-    Stats::randGen().init();
 }
 
 
@@ -188,7 +187,7 @@ const char* SeisScanner::getClipRgStr( float pct ) const
 
     float maxabs = fabs( vals[idx0] );
     if ( fabs( vals[idx1] ) > maxabs ) maxabs = fabs( vals[idx1] );
-    if ( maxabs != 0 ) 
+    if ( maxabs != 0 )
     {
 	const float sc8 = 127 / maxabs;
 	const float sc16 = 32767 / maxabs;

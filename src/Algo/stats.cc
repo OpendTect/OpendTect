@@ -31,7 +31,7 @@ DefineNameSpaceEnumNames(Stats,Type,3,"Statistic type")
 DefineNameSpaceEnumNames(Stats,UpscaleType,0,"Upscale type")
 {
 	"Take Nearest Sample",
-	"Use Average", "Use Median", "Use RMS", "Use Most Frequent", 
+	"Use Average", "Use Median", "Use RMS", "Use Most Frequent",
 	0
 };
 
@@ -62,7 +62,7 @@ Stats::CalcSetup& Stats::CalcSetup::require( Stats::Type t )
 	{ needmostfreq_ = true; return *this; }
     else if ( t >= Stats::Min && t <= Stats::Extreme )
 	{ needextreme_ = true; return *this; }
-    else if ( t == Stats::Variance || t == Stats::StdDev 
+    else if ( t == Stats::Variance || t == Stats::StdDev
 	    || t == Stats::NormVariance )
 	{ needvariance_ = true; needsums_ = true; return *this; }
 
@@ -77,7 +77,7 @@ static Threads::Lock medianhandlinglock;
 
 int Stats::CalcSetup::medianEvenHandling()
 {
-    Threads::Locker locker( medianhandlinglock ); 
+    Threads::Locker locker( medianhandlinglock );
     if ( medianhandling != -2 ) return medianhandling;
 
     if ( GetEnvVarYN("OD_EVEN_MEDIAN_AVERAGE") )
@@ -156,7 +156,7 @@ double Stats::RandGen::getNormal( double ex, double sd )
     double retval = gset;
     if ( !iset )
     {
-        do 
+        do
 	{
             v1 = 2.0*get() - 1.0;
             v2 = 2.0*get() - 1.0;
@@ -213,8 +213,172 @@ od_int64 Stats::RandGen::getIndexFast( od_int64 sz, od_int64 seed )
     if ( sz < 2 ) return 0;
 
     const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
-    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) + 1013904223u); 
+    const int randidx2 = mCast(int, 1664525u * (seed+0x12341234) +
+				    1013904223u);
     od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
     if ( randidx < 0 ) randidx = -randidx;
     return randidx % sz;
 }
+
+
+
+void initSeed( int seed )
+{
+    mDefineStaticLocalObject( int, seed_, = 0 );
+
+    if ( seed == 0 )
+    {
+	if ( seed_ != 0 )
+	    return;
+
+	seed = (int)Time::getMilliSeconds();
+    }
+
+    seed_ = seed;
+
+#ifndef __win__
+    srand48( (long)seed_ );
+#endif
+}
+
+
+void Stats::RandomGenerator::init( int seed )
+{
+    initSeed( seed );
+}
+
+
+Stats::UniformRandGen::UniformRandGen()
+    : seed_(0)
+{
+    initSeed( 0 );
+}
+
+
+Stats::UniformRandGen Stats::uniformRandGen()
+{
+    mDefineStaticLocalObject( PtrMan<Stats::UniformRandGen>, rgptr,
+			      = new Stats::UniformRandGen() );
+    return *rgptr;
+}
+
+
+double Stats::UniformRandGen::get() const
+{
+#ifdef __win__
+    unsigned int rand = 0;
+    rand_s( &rand );
+    double ret = rand;
+    ret /= UINT_MAX;
+    return ret;
+#else
+    return drand48();
+#endif
+}
+
+
+int Stats::UniformRandGen::getInt() const
+{
+#ifdef __win__
+    unsigned int rand = 0;
+    rand_s( &rand );
+    return *((int*)(&rand));
+#else
+    return (int) lrand48();
+#endif
+}
+
+
+int Stats::UniformRandGen::getIndex( int sz ) const
+{
+    if ( sz < 2 ) return 0;
+
+    int idx = (int)(sz * get());
+    if ( idx < 0 ) idx = 0;
+    if ( idx >= sz ) idx = sz-1;
+
+    return idx;
+}
+
+
+int Stats::UniformRandGen::getIndexFast( int sz, int seed ) const
+{
+    if ( sz < 2 ) return 0;
+
+    int randidx = 1664525u * seed + 1013904223u;
+    if ( randidx < 0 ) randidx = -randidx;
+    return randidx % sz;
+}
+
+
+od_int64 Stats::UniformRandGen::getIndex( od_int64 sz ) const
+{
+    if ( sz < 2 ) return 0;
+
+    od_int64 idx = (od_int64)(sz * get());
+    if ( idx < 0 ) idx = 0;
+    if ( idx >= sz ) idx = sz-1;
+
+    return idx;
+}
+
+
+od_int64 Stats::UniformRandGen::getIndexFast( od_int64 sz,
+					      od_int64 seed ) const
+{
+    if ( sz < 2 ) return 0;
+
+    const int randidx1 = mCast( int, 1664525u * seed + 1013904223u );
+    const int randidx2 = mCast(int, 1664525u * (seed + 0x12341234)
+				    + 1013904223u);
+    od_int64 randidx = (((od_int64)randidx1)<<32)|((od_int64)randidx2);
+    if ( randidx < 0 ) randidx = -randidx;
+    return randidx % sz;
+}
+
+
+
+Stats::NormalRandGen::NormalRandGen()
+    : useothdrawn_(false)
+      , othdrawn_(0)
+{
+    initSeed( 0 );
+}
+
+
+double Stats::NormalRandGen::get() const
+{
+    if ( useothdrawn_ )
+    {
+	useothdrawn_ = false;
+	return othdrawn_;
+    }
+
+    double v1, v2, r;
+    do
+    {
+	v1 = 2.0 * uniformRandGen().get() - 1.0;
+	v2 = 2.0 * uniformRandGen().get() - 1.0;
+	r  = v1*v1 + v2*v2;
+    } while (r < mDefEps || r > 1.0-mDefEps);
+
+    const double arg = -2.0 * log(r) / r;
+    const double fac = Math::Sqrt( arg );
+    othdrawn_ = v2 * fac;
+    useothdrawn_ = true;
+
+    return v1 * fac;
+}
+
+
+float Stats::NormalRandGen::get( float e, float s ) const
+{
+    return (float)(e + get() * s);
+}
+
+
+double Stats::NormalRandGen::get( double e, double s ) const
+{
+    return e + get() * s;
+}
+

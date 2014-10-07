@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
 	: uiDialog(p,Setup("DataPointSet demo","Data extraction parameters",
-		    	   mNoHelpID))
+			   mNoHelpID))
 	, dps_(0)
 	, dpsdispmgr_(dpsdispmgr)
 {
@@ -47,7 +47,7 @@ uiDPSDemo::uiDPSDemo( uiParent* p, DataPointSetDisplayMgr* dpsdispmgr )
     seisfld_->attach( alignedBelow, horfld_ );
 
     nrptsfld_ = new uiGenInput( this, "Number of points to extract",
-	    			IntInpSpec(10000) );
+				IntInpSpec(10000) );
     nrptsfld_->attach( alignedBelow, seisfld_ );
 }
 
@@ -119,7 +119,7 @@ bool uiDPSDemo::doWork( const IOObj& horioobj, const IOObj& seisioobj,
 #define mSectGeom(sect) (*hor.geometry().sectionGeometry(sect))
 
 bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
-       				 DataPointSet& dps )
+				 DataPointSet& dps )
 {
     // This is a bit complex - because we want to handle multiple horizon
     // sections.
@@ -135,7 +135,6 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
     if ( totnrnodes < 1 )
 	mErrRet( "Horizon is empty" )
 
-    Stats::randGen().init();
     bool needrandsel = nrpts < totnrnodes;
     const int actualnrpts = needrandsel ? nrpts : totnrnodes;
     const int maxnrunsuccessful = actualnrpts * 1000;
@@ -146,8 +145,8 @@ bool uiDPSDemo::getRandPositions( const EM::Horizon3D& hor, int nrpts,
 	if ( nrunsuccessful > maxnrunsuccessful )
 	    break;
 
-	int selnodenr = needrandsel ? Stats::randGen().getIndex( totnrnodes )
-	    			    : ipt;
+	int selnodenr = needrandsel
+		      ? Stats::uniformRandGen().getIndex( totnrnodes ) : ipt;
 	BinID bid; EM::SectionID selsect = 0;
 	for ( EM::SectionID isect=0; isect<nrsectnodes.size(); isect++ )
 	{

@@ -30,7 +30,7 @@ HorVariogramComputer::HorVariogramComputer( DataPointSet& dpset, int size,
     , variogramnms_( new BufferStringSet )
 {
     dataisok_ = compVarFromRange( dpset, size, cid, range, fold,
-	    			  errmsg, msgiserror );
+				  errmsg, msgiserror );
 }
 
 
@@ -110,10 +110,10 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		itested++;
     //              computer.add(itested);
 		if ( itested > fold*100 ) break;
-		int posinl1 = mininl +
-			    mNINT32((maxinl-mininl)*Stats::randGen().get());
-		int poscrl1 = mincrl +
-			    mNINT32((maxcrl-mincrl)*Stats::randGen().get());
+		int posinl1 = mininl + mNINT32((maxinl-mininl) *
+				       Stats::uniformRandGen().get());
+		int poscrl1 = mincrl + mNINT32((maxcrl-mincrl) *
+				       Stats::uniformRandGen().get());
 		BinID pos1 = BinID( posinl1, poscrl1 );
 		DataPointSet::RowID posval1 = dpset.findFirst(pos1);
 		if ( posval1<0 ) continue;
@@ -132,10 +132,10 @@ bool HorVariogramComputer::compVarFromRange( DataPointSet& dpset, int size,
 		double val1 = (double)dpset.getValues( posval1 )[cid-1];
 		double val2 = (double)dpset.getValues( posval2 )[cid-1];
 		double diffval = 0.5*(val2-val1)*(val2-val1);
-				
-		if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(diffval,mDefEps) ) 
+
+		if ( mIsUdf(val1) || mIsUdf(val2) || mIsZero(diffval,mDefEps) )
 		    continue;
-						
+
 		stats += diffval;
 		ifold++;
 	    }
@@ -263,7 +263,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 
 	for ( int idz = 0; idz<nrin-1; idz++ )
 	{
-	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) ) 
+	    if ( mIsZero( disorder[idz].md_ - disorder[idz+1].md_ , mDefEps ) )
 	    {
 		errmsg = "Data inappropriate for analysis.\n";
 		errmsg += "Please re-extract with Radius around wells = 0";
@@ -307,7 +307,7 @@ bool VertVariogramComputer::compVarFromRange( DataPointSet& dpset, int colid,
 		continue;
 	    }
 
-	    float reldist = ( float ) 
+	    float reldist = ( float )
 			    ( depth_out-dpset.z(disorder[previdx].rowid_) )/
 			    ( dpset.z(disorder[previdx+1].rowid_)-
 			      dpset.z(disorder[previdx].rowid_) );
