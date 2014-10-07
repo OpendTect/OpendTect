@@ -269,7 +269,7 @@ void Coordinates::setPos( int idx, const Coord3& pos )
 void Coordinates::setPosWithoutLock( int idx, const Coord3& pos,
 				     bool scenespace )
 {
-    if ( unusedcoords_.isPresent(idx) )
+    if( unusedcoords_.isPresent(idx) )
 	return;
 
     for ( int idy=mArrSize; idy<idx; idy++ )
@@ -351,36 +351,23 @@ void Coordinates::removeAfter( int idx )
 }
 
 
-void Coordinates::setAllZ( const float* vals, int sz, float zscale )
+void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 {
     if ( sz != mArrSize )
 	mGetOsgVec3Arr(osgcoords_)->resize( sz );
 
     float* zvals = mGetOsgArrPtr(float*,osgcoords_)+2;
     float* stopptr = zvals + sz*3;
-    if ( !mIsZero(zscale-1,1e-8) )
+    while ( zvals<stopptr )
     {
-	while ( zvals<stopptr )
-	{
-	    *zvals = *vals * zscale;
-	    zvals += 3;
-	    vals++;
-	}
-    }
-    else
-    {
-	while ( zvals<stopptr )
-	{
+	if ( dotransf && transformation_ )
+	    *zvals = *vals*transformation_->getScale().z+
+	    transformation_->getTranslation().z;
+	else
 	    *zvals = *vals;
-	    zvals += 3;
-	    vals++;
-	}
+	zvals += 3;
+	vals++;
     }
-
-    dirty();
-
-    change.trigger();
-
 }
 
 

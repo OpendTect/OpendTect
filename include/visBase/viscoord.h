@@ -80,7 +80,7 @@ public:
     void		removeAfter(int);
     void		setAllPositions(const Coord3& pos,int sz,int start);
 
-    void		setAllZ(const float*,int sz,float zscale=1);
+    void		setAllZ(const float*,int sz,bool dotransf);
 
     osg::Array*		osgArray() { return osgcoords_; }
     const osg::Array*	osgArray() const { return osgcoords_; }
