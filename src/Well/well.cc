@@ -34,7 +34,9 @@ int Well::Info::legacyLogWidthFactor()
    const int inlnr = SI().inlRange( true ).nrSteps() + 1;
    const int crlnr = SI().crlRange( true ).nrSteps() + 1;
    const float survfac = Math::Sqrt( (float)(crlnr*crlnr + inlnr*inlnr) );
-   return (int)survfac*43/1000; //hack 43 best factor based on F3_Demo
+   const int legacylogwidthfac = mNINT32(survfac*43/1000);
+   //hack 43 best factor based on F3_Demo
+   return legacylogwidthfac!=0 ? legacylogwidthfac : 1;
 }
 
 
