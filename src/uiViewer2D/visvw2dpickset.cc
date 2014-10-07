@@ -87,7 +87,7 @@ void VW2DPickSet::pickAddChgCB( CallBacker* cb )
     if ( !isselected_ || editor->getSelPtIdx().size() || editor->isSelActive() )
 	return;
 
-    FlatView::Point newpt = editor->getSelPtPos();
+    const FlatView::Point newpt = editor->getSelPtPos();
     const Coord3 crd = getCoord( newpt );
     if ( !crd.isDefined() )
 	return;
@@ -194,8 +194,8 @@ Coord3 VW2DPickSet::getCoord( const FlatView::Point& pt ) const
 	}
 
 	return ( cs.hrg.includes(bid) && cs.zrg.includes(z,false) ) ?
-	    Coord3( SI().transform(bid),
-		    zat->transformBack(BinIDValue(bid,z)) ) : Coord3::udf();
+	    Coord3( SI().transform(bid), zat ?
+		    zat->transformBack(BinIDValue(bid,z)) : z ) : Coord3::udf();
     }
 
     return Coord3::udf();
