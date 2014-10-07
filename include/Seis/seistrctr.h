@@ -182,6 +182,8 @@ public:
 
     virtual bool	inlCrlSorted() const		{ return true; }
     virtual int		bytesOverheadPerTrace() const	{ return 240; }
+
+    // Deprecated for base class: not used virtual.
     virtual void	toSupported( DataCharacteristics& ) const {}
 			//!< change the input to a supported characteristic
 
@@ -265,10 +267,11 @@ protected:
     Pos::GeomID				geomid;
     LineKey				curlinekey;
 
+    bool		forRead() const;
     void		addComp(const DataCharacteristics&,
 				const char* nm=0,int dtype=0);
 
-    bool		initConn(Conn*,bool forread);
+    bool		initConn(Conn*,bool forread); // DEPRECATED
     void		setDataType( int icomp, int d )
 			{ cds[icomp]->datatype = tarcds[icomp]->datatype = d;}
 
@@ -303,6 +306,7 @@ private:
     int			prevnr_;
     int			lastinlwritten_;
 
+    bool		initConn(Conn*);
     void		enforceBounds();
     bool		writeBlock();
 

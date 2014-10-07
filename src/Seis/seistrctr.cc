@@ -131,7 +131,7 @@ void SeisTrcTranslator::cleanUp()
 bool SeisTrcTranslator::close()
 {
     bool ret = true;
-    if ( conn && !conn->forRead() )
+    if ( !forRead() )
 	ret = writeBlock();
     delete conn; conn = 0;
     return ret;
@@ -142,8 +142,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
 {
     cleanUp();
     read_mode = rm;
-    if ( !initConn(c,true)
-      || !initRead_() )
+    if ( !initConn(c) || !initRead_() )
     {
 	delete conn; conn = 0;
 	return false;
@@ -166,8 +165,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
 
     insd = outsd = trc.info().sampling;
 
-    if ( !initConn(c,false)
-      || !initWrite_( trc ) )
+    if ( !initConn(c) || !initWrite_( trc ) )
     {
 	delete conn; conn = 0;
 	return false;
@@ -424,6 +422,12 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 }
 
 
+bool SeisTrcTranslator::forRead() const
+{
+    return conn ? conn->forRead() : true;
+}
+
+
 
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 				 const char* nm, int dtype )
@@ -460,6 +464,10 @@ const char* SeisTrcTranslator::errMsg() const
 
 bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 {
+    return initConn( c );
+}
+bool SeisTrcTranslator::initConn( Conn* c )
+{
     close(); errmsg_.setEmpty();
     if ( !c )
 	{ errmsg_ = "Translator: No connection established"; return false; }
@@ -485,10 +493,8 @@ SeisTrc* SeisTrcTranslator::getEmpty()
     DataCharacteristics dc;
     if ( outcds )
 	dc = outcds[0]->datachar;
-    else if ( tarcds.size() && inpfor_ )
+    else if ( !tarcds.isEmpty() && inpfor_ )
 	dc = tarcds[selComp()]->datachar;
-    else
-	toSupported( dc );
 
     return new SeisTrc( 0, dc );
 }
