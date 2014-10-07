@@ -12,6 +12,7 @@ set( OD_MODULE_SOURCES
 	velocitygridder.cc
 	volprocchain.cc
 	volprocattrib.cc
+	volprochorinterfiller.cc
 	volproclateralsmoother.cc
 	volprocsmoother.cc
 	volproctrans.cc

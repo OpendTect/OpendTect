@@ -12,6 +12,7 @@ SET(OD_MODULE_SOURCES
 	uivolprocattrib.cc
 	uivolprocchain.cc
 	uivolprocbatchsetup.cc
+	uivolprochorinterfiller.cc
 	uivolproclateralsmoother.cc
 	uivolprocbodyfiller.cc
 	uivolprocpartserv.cc
