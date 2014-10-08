@@ -32,7 +32,6 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
     mAttachCB( mousehandler_.movement, uiFlatViewThumbnail::mouseMoveCB );
 
     setPrefWidth( 45 ); setPrefHeight( 30 ); setStretch( 0, 0 );
-    setSceneBorder( -1 );
 }
 
 
