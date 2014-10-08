@@ -423,12 +423,12 @@ float MathExpressionRandom::getValue() const
 mMathExpressionClass( GaussRandom, 1 )
 float MathExpressionGaussRandom::getValue() const
 {
-    const double stdev = inputs_[0]->getValue();
+    const float stdev = mCast( float, inputs_[0]->getValue() );
     if ( Values::isUdf(stdev) )
 	return mUdf(float);
 
     mDefineStaticLocalObject( Stats::NormalRandGen, rg, );
-    return rg.get(0,stdev);
+    return rg.get(0.f,stdev);
 }
 
 
