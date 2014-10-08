@@ -83,6 +83,55 @@ const char* GetGCCVersion()
 }
 
 
+const char* GetMSVCVersion()
+{
+#ifndef __msvc__
+    return sKey::EmptyString();
+#else
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
+    ret.set( _MSC_VER );
+    return ret;
+#endif
+}
+
+
+const char* GetMSVCVersionStr()
+{
+#ifndef __msvc__
+    return sKey::EmptyString();
+#else
+    mDeclStaticString( ret );
+    if ( !ret.isEmpty() ) return ret.buf();
+
+# if ( _MSC_VER == 1800 )
+    ret = "Visual Studio 2013 - MSVC 12.0";
+# elif ( _MSC_VER == 1700 )
+    ret = "Visual Studio 2012 - MSVC 11.0";
+# elif ( _MSC_VER == 1600 )
+    ret = "Visual Studio 2010 - MSVC 10.0";
+# elif ( _MSC_VER == 1500 )
+    ret = "Visual Studio 2008 - MSVC 9.0";
+# elif ( _MSC_VER == 1400 )
+    ret = "Visual Studio 2005 - MSVC 8.0";
+# endif
+    return ret;
+#endif
+}
+
+
+const char* GetCompilerVersionStr()
+{
+    mDeclStaticString( ret );
+#ifdef __win__
+    ret = GetMSVCVersionStr();
+#else
+    ret.set( "GCC " ).add( GetGCCVersion() );
+#endif
+    return ret;
+}
+
+
 const char* GetQtVersion()
 {
     mDeclStaticString( ret );

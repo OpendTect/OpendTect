@@ -23,7 +23,10 @@ extern "C"
     mGlobal(Basic) const char* GetFullODVersion();
 }
 
-mGlobal(Basic) const char* GetGCCVersion();
+mGlobal(Basic) const char* GetGCCVersion(); // Unix
+mGlobal(Basic) const char* GetMSVCVersion(); // Windows
+mGlobal(Basic) const char* GetMSVCVersionStr(); // Windows
+mGlobal(Basic) const char* GetCompilerVersionStr();
 mGlobal(Basic) const char* GetQtVersion();
 
 void mGlobal(Basic) GetSpecificODVersion(const char* typ,BufferString&);
