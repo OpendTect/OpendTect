@@ -22,8 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodstdmenu.h"
 #include "uiproxydlg.h"
-#include "uiseispartserv.h"
 #include "uisettings.h"
+#include "uiseispartserv.h"
 #include "uitextfile.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -433,10 +433,10 @@ void uiODMenuMgr::fillManMenu()
 			"man_picks" );
     mInsertPixmapItem( manmnu_, tr("Probability Density Functions ..."),
 		 mManPDFMnuItm, "man_prdfs" );
-    create2D3DMnu( manmnu_, "Seismics", mManSeis2DMnuItm,
-                   mManSeis3DMnuItm, "man_seis" );
-    create2D3DMnu( manmnu_, "Seismics Prestack", mManSeisPS2DMnuItm,
-		   mManSeisPS3DMnuItm, "man_ps" );
+    add2D3DMenuItem( *manmnu_, "man_seis", tr("Seismics"), mManSeis2DMnuItm,
+                     mManSeis3DMnuItm );
+    add2D3DMenuItem( *manmnu_, "man_ps", tr("Seismics Prestack"),
+		     mManSeisPS2DMnuItm, mManSeisPS3DMnuItm );
     mInsertPixmapItem( manmnu_, tr("Sessions ..."), mManSessMnuItm, "empty" )
     mInsertPixmapItem( manmnu_, uiStrings::sStratigraphy(false),
                        mManStratMnuItm, "man_strat" )
@@ -445,28 +445,6 @@ void uiODMenuMgr::fillManMenu()
     mInsertPixmapItem( manmnu_, uiStrings::sWells(false),
 		       mManWellMnuItm, "man_wll" )
     manmnu_->insertSeparator();
-}
-
-
-void uiODMenuMgr::create2D3DMnu( uiMenu* itm, const uiString& title,
-				 int id2d, int id3d, const char* pmfnm )
-{
-    if ( SI().has2D() && SI().has3D() )
-    {
-	uiMenu* mnu = new uiMenu( &appl_, title, pmfnm );
-	mInsertItem( mnu, uiStrings::s2D(false), id2d );
-	mInsertItem( mnu, uiStrings::s3D(false), id3d );
-	itm->insertItem( mnu );
-    }
-    else
-    {
-	uiString titledots( title );
-	titledots.append( " ..." );
-	if ( SI().has2D() )
-	    mInsertPixmapItem( itm, titledots, id2d, pmfnm )
-	else if ( SI().has3D() )
-	    mInsertPixmapItem( itm, titledots, id3d, pmfnm )
-    }
 }
 
 
@@ -480,9 +458,8 @@ void uiODMenuMgr::fillProcMenu()
     uiMenu* attritm = new uiMenu( uiStrings::sAttributes(true) );
     csoitm->insertItem( attritm );
 
-    create2D3DMnu( attritm, tr("Single Attribute"),
-		   mSeisOut2DMnuItm, mSeisOut3DMnuItm,
-		   "seisout");
+    add2D3DMenuItem( *attritm, "seisout", tr("Single Attribute"),
+		     mSeisOut2DMnuItm, mSeisOut3DMnuItm );
     if ( SI().has3D() )
     {
 	attritm->insertItem(
@@ -493,10 +470,10 @@ void uiODMenuMgr::fillProcMenu()
 			mCB(&applMgr(),uiODApplMgr,createMultiCubeDS)) );
     }
 
-    create2D3DMnu( attritm, tr("Along Horizon"), mCompAlongHor2DMnuItm,
-		   mCompAlongHor3DMnuItm, "alonghor" );
-    create2D3DMnu( attritm, tr("Between Horizons"), mCompBetweenHor2DMnuItm,
-		   mCompBetweenHor3DMnuItm, "betweenhors" );
+    add2D3DMenuItem( *attritm, "alonghor", tr("Along Horizon"),
+		     mCompAlongHor2DMnuItm, mCompAlongHor3DMnuItm );
+    add2D3DMenuItem( *attritm, "betweenhors", tr("Between Horizons"),
+		     mCompBetweenHor2DMnuItm, mCompBetweenHor3DMnuItm );
 
 
 // 2D <-> 3D
@@ -504,8 +481,10 @@ void uiODMenuMgr::fillProcMenu()
     csoitm->insertItem( itm2d3d );
     if ( SI().has3D() )
     {
-	mInsertItem( itm2d3d, tr("Create 2D Grid ..."), mCreate2DFrom3DMnuItm );
-	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."), m2DFrom3DMnuItm );
+	mInsertItem( itm2d3d, tr("Create 2D From 3D ..."),
+		     mCreate2DFrom3DMnuItm );
+	mInsertItem( itm2d3d, tr("Extract 2D From 3D ..."),
+		     m2DFrom3DMnuItm );
     }
     if ( SI().has2D() )
     {
@@ -526,8 +505,8 @@ void uiODMenuMgr::fillProcMenu()
 			mCB(&applMgr(),uiODApplMgr,createCubeFromWells) ));
     }
 
-    create2D3DMnu( csoitm, "Prestack Processing",
-		   mPSProc2DMnuItm, mPSProc3DMnuItm );
+    add2D3DMenuItem( *csoitm, "empty", tr("Prestack Processing"),
+		     mPSProc2DMnuItm, mPSProc3DMnuItm );
 
     csoitm->insertItem( new uiAction(tr("Re-sort Scanned SEG-Y ..."),
 		    mCB(&applMgr(),uiODApplMgr,resortSEGY)) );
@@ -552,8 +531,8 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->insertItem( csoitm );
 
     uiMenu* grditm = new uiMenu( &appl_, tr("Create Horizon Output") );
-    create2D3DMnu( grditm, uiStrings::sAttributes(true), mCreateSurf2DMnuItm,
-		   mCreateSurf3DMnuItm, "ongrid" );
+    add2D3DMenuItem( *grditm, "ongrid", uiStrings::sAttributes(true),
+		     mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 
     mInsertItem( procmnu_, tr("(Re-)Start Batch Job ..."),
@@ -629,8 +608,8 @@ void uiODMenuMgr::fillSceneMenu()
 					  mCB(this,uiODMenuMgr,handleClick) );
     scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
 
-    create2D3DMnu( scenemnu_, "New [Horizon flattened]",
-		   mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm, 0 );
+    add2D3DMenuItem( *scenemnu_, "empty", tr("New [Horizon flattened]"),
+		     mAddHorFlat2DMnuItm, mAddHorFlat3DMnuItm );
     lastsceneitm_ = scenemnu_->insertSeparator();
 
     mInsertItem( scenemnu_, tr("Cascade"), mCascadeMnuItm );
@@ -846,43 +825,79 @@ void uiODMenuMgr::fillUtilMenu()
 }
 
 
+void uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
+				     const uiString& tt,
+				     const CallBack& cb2d, const CallBack& cb3d,
+				     int itmid2d, int itmid3d )
+{
+    if ( !SI().has2D() )
+	tb.addButton( iconnm, tt, cb3d, false, itmid3d );
+    else if ( !SI().has3D() )
+	tb.addButton( iconnm, tt, cb2d, false, itmid2d );
+    else
+    {
+	const int butid = tb.addButton( iconnm, tt );
+	uiMenu* popmnu = new uiMenu( tb.parent(), "Action" );
+	popmnu->insertItem( new uiAction(uiStrings::s2D(false),cb2d), itmid2d );
+	popmnu->insertItem( new uiAction(uiStrings::s3D(false),cb3d), itmid3d );
+	tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );
+    }
+}
+
+
+void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
+			       const uiString& itmtxt,
+			       const CallBack& cb2d, const CallBack& cb3d,
+			       int itmid2d, int itmid3d )
+{
+    if ( SI().has2D() && SI().has3D() )
+    {
+	uiMenu* mnu = new uiMenu( itmtxt, iconnm );
+	mnu->insertAction( new uiAction(uiStrings::s2D(false),cb2d), itmid2d );
+	mnu->insertAction( new uiAction(uiStrings::s3D(false),cb3d), itmid3d );
+	menu.addMenu( mnu );
+    }
+    else
+    {
+	uiString titledots( itmtxt );
+	titledots.append( " ..." );
+	if ( SI().has2D() )
+	    menu.insertAction( new uiAction(titledots,cb2d,iconnm), itmid2d );
+	else if ( SI().has3D() )
+	    menu.insertAction( new uiAction(titledots,cb3d,iconnm), itmid3d );
+    }
+}
+
+
+void uiODMenuMgr::add2D3DMenuItem( uiMenu& menu, const char* iconnm,
+				   const uiString& itmtxt,
+				   int itmid2d, int itmid3d )
+{
+    const CallBack cb = mCB(this,uiODMenuMgr,handleClick);
+    add2D3DMenuItem( menu, iconnm, itmtxt, cb, cb, itmid2d, itmid3d );
+}
+
+
+
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, txt, mCB(appman,uiODApplMgr,fn), togg )
 
 void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 {
     mAddTB(dtecttb_,"survey",tr("Survey setup"),false,manSurvCB);
+    add2D3DToolButton( *dtecttb_, "attributes", tr("Edit attributes"),
+		       mCB(appman,uiODApplMgr,editAttr2DCB),
+		       mCB(appman,uiODApplMgr,editAttr3DCB) );
+    add2D3DToolButton( *dtecttb_, "seisout", tr("Create seismic output"),
+		       mCB(appman,uiODApplMgr,seisOut2DCB),
+		       mCB(appman,uiODApplMgr,seisOut3DCB) );
 
-    SurveyInfo::Pol2D survtype = SI().survDataType();
-    if ( survtype == SurveyInfo::Only2D )
+    if ( SI().has3D() )
     {
-	mAddTB(dtecttb_,"attributes",tr("Edit attributes"),
-               false, editAttr2DCB);
-	mAddTB(dtecttb_,"out_2dlines",tr("Create seismic output"),
-	       false, seisOut2DCB);
-    }
-    else if ( survtype == SurveyInfo::No2D )
-    {
-	mAddTB( dtecttb_,"attributes",tr("Edit attributes"),
-               false, editAttr3DCB);
-	mAddTB( dtecttb_,"out_vol",tr("Create seismic output"),
-               false, seisOut3DCB);
 	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
 		tr("Volume Builder"),false,doVolProcCB);
     }
-    else
-    {
-	mAddTB(dtecttb_,"attributes_2d",tr("Edit 2D attributes"),false,
-	       editAttr2DCB);
-	mAddTB(dtecttb_,"attributes_3d",tr("Edit 3D attributes"),false,
-	       editAttr3DCB);
-	mAddTB(dtecttb_,"out_2dlines",tr("Create 2D seismic output"),false,
-	       seisOut2DCB);
-	mAddTB(dtecttb_,"out_vol",tr("Create 3D seismic output"),false,
-	       seisOut3DCB);
-	mAddTB( dtecttb_,VolProc::uiChain::pixmapFileName(),
-		tr("Volume Builder"),false,doVolProcCB);
-    }
+
     mAddTB(dtecttb_,"xplot_wells",tr("Cross-plot Attribute vs Well data"),
 	   false,doWellXPlot);
     mAddTB(dtecttb_,"xplot_attribs",

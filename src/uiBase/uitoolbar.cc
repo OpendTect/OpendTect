@@ -71,11 +71,12 @@ uiToolBar::~uiToolBar()
 
 
 int uiToolBar::addButton( const char* fnm, const uiString& tt,
-			  const CallBack& cb, bool toggle )
+			  const CallBack& cb, bool toggle, int id )
 {
-    uiToolButtonSetup su( fnm, tt, cb );
-    su.istoggle( toggle );
-    return addButton( su );
+    uiAction* action = new uiAction( 0, cb, fnm );
+    action->setToolTip( tt );
+    action->setCheckable( toggle );
+    return insertAction( action, id );
 }
 
 

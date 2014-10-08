@@ -55,7 +55,7 @@ public:
     int			addButton(const uiToolButtonSetup&);
     int			addButton(const char* fnm,const uiString& tooltip,
 				  const CallBack& =CallBack(),
-				  bool toggle=false);
+				  bool toggle=false,int id=-1);
     int			addButton(const MenuItem&);
     void		addObject(uiObject*);
 
