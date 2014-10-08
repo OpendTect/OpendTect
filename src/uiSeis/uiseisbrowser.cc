@@ -26,24 +26,17 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 #include "uitable.h"
 #include "uitaskrunner.h"
-#include "uitextedit.h"
 #include "uitoolbar.h"
 
 #include "cbvsreadmgr.h"
 #include "trckeyzsampling.h"
-#include "datainpspec.h"
 #include "datapack.h"
 #include "executor.h"
 #include "arrayndimpl.h"
 #include "filepath.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "oddirs.h"
-#include "ptrman.h"
 #include "ranges.h"
 #include "safefileio.h"
-#include "samplingdata.h"
 #include "seis2dline.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
@@ -52,13 +45,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
-#include "survinfo.h"
-#include "keystrs.h"
 #include "zdomain.h"
 #include "od_helpids.h"
-
-#include <iostream>
-
 
 
 class uiSeisBrowserInfoVwr : public uiAmplSpectrum
@@ -755,7 +743,6 @@ void uiSeisBrowser::dispTracesPush( CallBacker* )
     else
     {
 	uiSeisTrcBufViewer::Setup stbvsetup( uiStrings::sEmptyString() );
-	stbvsetup.withhanddrag(true);
 	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	trcbufvwr_->selectDispTypes( true, false );
 	trcbufvwr_->windowClosed.notify(

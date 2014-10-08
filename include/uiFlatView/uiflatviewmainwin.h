@@ -33,14 +33,12 @@ public:
 					    , nrviewers_(1)
 					    , nrstatusfields_(1)
 					    , deleteonclose_(delonclose)
-					    , withhanddrag_(false)
 					    , menubar_(false)		{}
 	mDefSetupMemb(uiString,wintitle)
 	mDefSetupMemb(int,nrviewers)
 	mDefSetupMemb(int,nrstatusfields)
 	mDefSetupMemb(bool,deleteonclose)
 	mDefSetupMemb(bool,menubar)
-	mDefSetupMemb(bool,withhanddrag)
     };
 
     			uiFlatViewMainWin(uiParent*,const Setup&);

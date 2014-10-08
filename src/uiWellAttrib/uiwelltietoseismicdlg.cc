@@ -62,7 +62,6 @@ const WellTie::Setup& uiTieWin::Setup() const
 uiTieWin::uiTieWin( uiParent* p, Server& wts )
 	: uiFlatViewMainWin(p,
                             uiFlatViewMainWin::Setup(uiStrings::sEmptyString())
-			    .withhanddrag(true)
 			    .deleteonclose(false))
 	, server_(wts)
 	, stretcher_(*new EventStretch(server_.pickMgr(),server_.d2TModelMgr()))

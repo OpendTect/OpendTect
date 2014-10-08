@@ -272,8 +272,7 @@ void uiODViewer2D::createViewWin( bool isvert, bool needslicepos )
     if ( !wantdock )
     {
 	uiFlatViewMainWin* fvmw = new uiFlatViewMainWin( &appl_,
-		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true)
-						  .withhanddrag(true) );
+		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(true) );
 	mAttachCB( fvmw->windowClosed, uiODViewer2D::winCloseCB );
 
 	if ( needslicepos )
