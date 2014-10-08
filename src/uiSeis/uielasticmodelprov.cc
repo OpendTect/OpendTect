@@ -134,10 +134,14 @@ bool uiElasticModelProvider::getInputMIDs( MultiID& pwmid, MultiID& swmid,
 					   MultiID& aimid, MultiID& simid,
 					   MultiID& denmid ) const
 {
-    pwmid = pwavefld_->key();
-    swmid = swavefld_->key();
-    aimid = aifld_->key();
-    simid = sifld_->key();
+    pwmid = pwavefld_->attachObj()->isDisplayed() ? pwavefld_->key()
+						  : MultiID::udf();
+    swmid = swavefld_->attachObj()->isDisplayed() ? swavefld_->key()
+						 : MultiID::udf();
+    aimid = aifld_->attachObj()->isDisplayed() ? aifld_->key()
+					       : MultiID::udf();
+    simid = sifld_->attachObj()->isDisplayed() ? sifld_->key()
+					       : MultiID::udf();
 
     const bool isac = inptypefld_->getBoolValue();
     const bool needsi = !isac && inpsourceelfld_->getIntValue() == 1;

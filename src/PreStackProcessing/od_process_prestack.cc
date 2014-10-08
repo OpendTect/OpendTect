@@ -7,28 +7,27 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchprog.h"
-
-#include "trckeysampling.h"
 #include "envvars.h"
-#include "prestackprocessor.h"
-#include "prestackprocessortransl.h"
+#include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "jobcommunic.h"
+#include "moddepmgr.h"
 #include "progressmeter.h"
 #include "posinfo.h"
 #include "posinfo2d.h"
-#include "flatposdata.h"
 #include "prestackgather.h"
+#include "prestackprocessor.h"
+#include "prestackprocessortransl.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seispsioprov.h"
 #include "seistrc.h"
 #include "seistype.h"
 #include "survinfo.h"
-#include "moddepmgr.h"
+#include "trckeysampling.h"
 
 #include <iostream>
 
@@ -152,7 +151,8 @@ bool BatchProgram::go( od_ostream& strm )
     PtrMan<SeisPS3DReader> reader3d = 0;
     PtrMan<SeisPS2DReader> reader2d = 0;
     StepInterval<int> cdprange(0,0,1);
-    if ( procman->needsPreStackInput() )
+    const bool needpsinput = procman->needsPreStackInput();
+    if ( needpsinput )
     {
 
 	if ( geomtype==Seis::VolPS )
@@ -205,6 +205,12 @@ bool BatchProgram::go( od_ostream& strm )
 	reader = reader3d ? (SeisPSReader*) reader3d
 	    		  : (SeisPSReader*) reader2d;
     }
+    else
+    {
+	procman->getProcessor(0)->adjustPossibleCompArea( trcsampling );
+	progressmeter.setTotalNr( trcsampling.totalNr() );
+    }
+
 
     PtrMan<SeisPSWriter> writer = geomtype==Seis::VolPS
 	? SPSIOPF().get3DWriter( *outputioobj )
@@ -263,7 +269,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    mSetCommState(Working);
 	}
 
-	procman->reset();
+	procman->reset( false );
 	BinID relbid;
 
 	if ( !procman->prepareWork() )
@@ -362,7 +368,8 @@ bool BatchProgram::go( od_ostream& strm )
 
 		for ( int idx=0; idx<nrtraces; idx++ )
 		{
-		    trc.info().azimuth = gather->getAzimuth( idx );
+		    if ( needpsinput )
+			trc.info().azimuth = gather->getAzimuth( idx );
 		    trc.info().offset = gather->getOffset( idx );
 		    for ( int idy=0; idy<nrsamples; idy++ )
 			trc.set( idy, gather->data().get( idx, idy ), 0 );

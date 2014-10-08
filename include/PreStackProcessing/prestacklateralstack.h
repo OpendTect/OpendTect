@@ -35,7 +35,7 @@ public:
 			LateralStack();
 			~LateralStack();
 
-    bool		reset();
+    bool		reset(bool force=true);
 
     bool		wantsInput(const BinID&) const;
     bool		setPattern(const BinID& stepout,bool cross);

@@ -44,11 +44,11 @@ LateralStack::~LateralStack()
 { }
 
 
-bool LateralStack::reset()
+bool LateralStack::reset( bool force )
 {
     inputstepout_ = BinID(0,0);
     freeArray( inputs_ );
-    return Processor::reset();
+    return Processor::reset( force );
 }
 
 
