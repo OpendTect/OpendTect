@@ -195,7 +195,6 @@ public:
 
     virtual bool	supportsGoTo() const		{ return false; }
     virtual bool	goTo(const BinID&)		{ return false; }
-    bool		minimalHdrs() const		{ return false; }
 
     virtual void	cleanUp();
 			//!< Prepare for new initialisation.

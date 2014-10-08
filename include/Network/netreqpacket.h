@@ -76,6 +76,7 @@ protected:
     static od_int16	cEndSubID()		{ return -4; }
     static od_int16	cErrorSubID()		{ return -8; }
 
+    friend class	PacketFiller;
     friend class	PacketInterpreter;
 
 public:
@@ -95,6 +96,45 @@ public:
 
     void*		getRawHeader()		{ return header_.int32s_; }
     const void*		getRawHeader() const	{ return header_.int32s_; }
+};
+
+
+/*\brief fills a packet's payload.
+
+  Use the sizeFor() functions to calculate the total payload size.
+
+*/
+
+mExpClass(Network) PacketFiller
+{
+public:
+			PacketFiller( RequestPacket& p, int startpos=0 )
+			    : pkt_(p)
+			    , curpos_(startpos)	{}
+
+#   define		mNPFSizeFor(v) Network::PacketFiller::sizeFor(v)
+#   define		mNPFSizeForArr(a,s) Network::PacketFiller::sizeFor(a,s)
+    template <class T>
+    static int		sizeFor(const T&);
+    template <class T>
+    static int		sizeFor(const T*,int nrelems);
+    static int		sizeFor(const char*);
+    static int		sizeFor(const OD::String&);
+    static int		sizeFor(const BufferStringSet&);
+
+    template <class T>
+	void		put(const T&) const;
+    template <class T>
+	void		put(const T*,int nrelems) const;
+    void		put(const char*) const;
+    void		put(const OD::String&) const;
+    void		put(const BufferStringSet&) const;
+
+protected:
+
+    RequestPacket&	pkt_;
+    mutable int		curpos_;
+
 };
 
 
@@ -126,6 +166,9 @@ public:
     inline void			move( int nrb ) const	{ curpos_ += nrb; }
     inline void			moveTo( int pos ) const	{ curpos_ = pos; }
 
+    template <class T> void	peek(T&) const;
+    inline int			peekInt() const;
+
 protected:
 
     const RequestPacket&	pkt_;
@@ -135,9 +178,87 @@ protected:
 
 
 template <class T>
-inline void PacketInterpreter::get( T& var ) const
+inline int PacketFiller::sizeFor( const T& var )
+{
+    return sizeof(T);
+}
+
+template <class T>
+inline int PacketFiller::sizeFor( const T* arr, int nrelems )
+{
+    return sizeof(int) + nrelems * sizeof(T);
+}
+
+inline int PacketFiller::sizeFor( const char* str )
+{
+    return sizeFor( FixedString(str) );
+}
+
+inline int PacketFiller::sizeFor( const OD::String& str )
+{
+    return sizeof(int) + str.size();
+}
+
+inline int PacketFiller::sizeFor( const BufferStringSet& bss )
+{
+    int ret = sizeof(int);
+    for ( int idx=0; idx<bss.size(); idx++ )
+	ret += sizeFor( bss.get(idx) );
+    return ret;
+}
+
+
+template <class T>
+inline void PacketFiller::put( const T& var ) const
+{
+    OD::memCopy( pkt_.payload_+curpos_, &var, sizeof(T) );
+    curpos_ += sizeof(T);
+}
+
+template <class T>
+inline void PacketFiller::put( const T* arr, int nrelems ) const
+{
+    put( nrelems );
+    if ( nrelems > 0 )
+	OD::memCopy( pkt_.payload_+curpos_, arr, sizeof(T) );
+    curpos_ += nrelems * sizeof(T);
+}
+
+inline void PacketFiller::put( const char* str ) const
+{
+    put( FixedString(str) );
+}
+
+inline void PacketFiller::put( const OD::String& str ) const
+{
+    const int sz = str.size();
+    put( sz );
+    OD::memCopy( pkt_.payload_+curpos_, str, sz );
+    curpos_ += sz;
+}
+
+inline void PacketFiller::put( const BufferStringSet& bss ) const
+{
+    const int sz = bss.size();
+    put( sz );
+    for ( int idx=0; idx<sz; idx++ )
+	put( bss.get(idx) );
+}
+
+
+
+
+template <class T>
+inline void PacketInterpreter::peek( T& var ) const
 {
     OD::memCopy( &var, pkt_.payload_+curpos_, sizeof(T) );
+}
+
+
+template <class T>
+inline void PacketInterpreter::get( T& var ) const
+{
+    peek( var );
     curpos_ += sizeof(T);
 }
 
@@ -159,6 +280,8 @@ inline void PacketInterpreter::get( BufferString& var ) const
     curpos_ += sz;
 }
 
+inline int PacketInterpreter::peekInt() const
+{ int ret = 0; peek(ret); return ret; }
 inline int PacketInterpreter::getInt() const
 { int ret = 0; get(ret); return ret; }
 inline float PacketInterpreter::getFloat() const

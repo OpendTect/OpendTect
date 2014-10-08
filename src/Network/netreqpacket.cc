@@ -27,7 +27,7 @@ Network::RequestPacket::RequestPacket( od_int32 payloadsize )
     : payload_( 0 )
 {
     setPayload( 0, payloadsize );
-    setSubID( 0 );
+    setSubID( cMoreSubID() );
     setRequestID( -1 );
 }
 

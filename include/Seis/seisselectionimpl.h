@@ -40,10 +40,10 @@ public:
 			RangeSelData(const RangeSelData&);
 			~RangeSelData();
     RangeSelData&	operator =( const RangeSelData& rsd )
-    						{ copyFrom(rsd); return *this; }
+						{ copyFrom(rsd); return *this; }
 
     TrcKeyZSampling&	cubeSampling()		{ return tkzs_; }
-    const TrcKeyZSampling&	cubeSampling() const	{ return tkzs_; }
+    const TrcKeyZSampling& cubeSampling() const	{ return tkzs_; }
 
     SelData*		clone() const	{ return new RangeSelData(*this); }
     virtual void	copyFrom(const SelData&);
@@ -86,9 +86,9 @@ public:
 			TableSelData(const TableSelData&);
 			~TableSelData();
     TableSelData&	operator =( const TableSelData& tsd )
-    						{ copyFrom(tsd); return *this; }
+						{ copyFrom(tsd); return *this; }
 
-    BinIDValueSet&	binidValueSet() 	{ return bvs_; }
+    BinIDValueSet&	binidValueSet()	{ return bvs_; }
     const BinIDValueSet& binidValueSet() const	{ return bvs_; }
     Interval<float>	extraZ() const		{ return extraz_; }
 
@@ -142,7 +142,7 @@ public:
 			PolySelData(const PolySelData&);
 			~PolySelData();
     PolySelData&	operator =( const PolySelData& tsd )
-    						{ copyFrom(tsd); return *this; }
+						{ copyFrom(tsd); return *this; }
 
     SelData*		clone() const	{ return new PolySelData(*this); }
     virtual void	copyFrom(const SelData&);
@@ -153,7 +153,7 @@ public:
     bool		setCrlRange(Interval<int>)	{ return false; }
     Interval<float>	zRange() const;
     bool		setZRange( Interval<float> zrg )
-    			{ zrg_ = zrg; return true; }
+			{ zrg_ = zrg; return true; }
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
