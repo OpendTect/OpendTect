@@ -179,7 +179,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     else
     {
 	iter.setSampling( tkzs_.hrg );
-	iter.setNextPos( tkzs_.hrg.atIndex( start ) );
+	iter.setNextPos( tkzs_.hrg.trcKeyAt( start ) );
 	iter.next( curbid );
     }
 

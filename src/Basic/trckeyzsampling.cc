@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : somewhere around 1999
 -*/
- 
+
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "trckeyzsampling.h"
@@ -29,7 +29,7 @@ TrcKeySampling::TrcKeySampling( const TrcKeySampling& tks )
     : start( start_ )
     , stop( stop_ )
     , step( step_ )
-{ 
+{
     *this = tks;
 }
 
@@ -385,13 +385,13 @@ int TrcKeySampling::nrLines() const
 {
     if ( (mIsUdf(start_.lineNr()) && mIsUdf(stop_.lineNr())) )
 	return 0;
-    
+
     if ( !step_.lineNr() )
 	return 0;
 
     if ( start_.lineNr()==stop_.lineNr() )
 	return 1;
-    
+
     int ret = inlIdx( stop_.lineNr() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
@@ -401,13 +401,13 @@ int TrcKeySampling::nrTrcs() const
 {
     if ( (mIsUdf(start_.trcNr()) && mIsUdf(stop_.trcNr())) )
 	return 0;
-    
+
     if ( !step_.trcNr() )
 	return 0;
 
     if ( start_.trcNr()==stop_.trcNr() )
 	return 1;
-    
+
     int ret = crlIdx( stop_.trcNr() );
     return ret < 0 ? 1 - ret : ret + 1;
 }
@@ -721,7 +721,7 @@ bool TrcKeyZSampling::getIntersection( const TrcKeyZSampling& tkzs,
 		       zsamp2.start, zsamp2.stop, zsamp2.step,
 		       out.zsamp_.start, out.zsamp_.stop, out.zsamp_.step );
 }
-    
+
 
 bool TrcKeyZSampling::isFlat() const
 {
@@ -753,7 +753,7 @@ void TrcKeyZSampling::getDefaultNormal( Coord3& ret ) const
 	ret = Coord3( SI().binID2Coord().crlDir(), 0 );
     else
 	ret = Coord3( 0, 0, 1 );
-} 
+}
 
 
 od_int64 TrcKeyZSampling::totalNr() const
@@ -920,7 +920,7 @@ bool TrcKeyZSampling::operator==( const TrcKeyZSampling& tkzs ) const
 
        return true;
    }
-   
+
    return false;
 }
 
@@ -979,7 +979,7 @@ void TrcKeySamplingIterator::reset()
 bool TrcKeySamplingIterator::next( TrcKey& tk ) const
 {
     const od_int64 mypos = curpos_++;
-    if ( mypos>=totalnr_ )
+    if ( mypos<0 || mypos>=totalnr_ )
 	return false;
 
     tk = tks_.atIndex( mypos );
@@ -990,7 +990,7 @@ bool TrcKeySamplingIterator::next( TrcKey& tk ) const
 bool TrcKeySamplingIterator::next( BinID& res ) const
 {
     const od_int64 mypos = curpos_++;
-    if ( mypos>=totalnr_ )
+    if ( mypos<0 || mypos>=totalnr_ )
 	return false;
 
     res = tks_.atIndex( mypos );
