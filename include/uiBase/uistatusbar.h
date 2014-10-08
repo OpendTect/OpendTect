@@ -21,6 +21,7 @@ ________________________________________________________________________
 mFDQtclass(QStatusBar)
 class uiStatusBarBody;
 class uiMainWin;
+class uiObject;
 
 
 mExpClass(uiBase) uiStatusBar : public uiBaseObject
@@ -31,14 +32,15 @@ mExpClass(uiBase) uiStatusBar : public uiBaseObject
 public:
 			~uiStatusBar();
 
-    int 		addMsgFld(const uiString& lbltxt=0,
+    int		addMsgFld(const uiString& lbltxt=0,
 				  const uiString& tooltip =0,
 				  Alignment::HPos al=Alignment::Left,
 				  int stretch=1);
 
-    int 		addMsgFld(const uiString& tooltip,
+    int		addMsgFld(const uiString& tooltip,
 				  Alignment::HPos al=Alignment::Left,
 				  int stretch=1);
+    bool		addObject(uiObject*);
 
     void		setToolTip(int,const uiString&);
     void		setTxtAlign(int,Alignment::HPos);
@@ -63,4 +65,3 @@ private:
 
 
 #endif
-
