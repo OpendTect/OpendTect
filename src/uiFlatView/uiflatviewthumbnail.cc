@@ -32,6 +32,7 @@ uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
     mAttachCB( mousehandler_.movement, uiFlatViewThumbnail::mouseMoveCB );
 
     setPrefWidth( 45 ); setPrefHeight( 30 ); setStretch( 0, 0 );
+    setSceneBorder( -1 );
 }
 
 
@@ -170,10 +171,11 @@ void uiFlatViewThumbnail::updateWorldRect()
     feedbackwr_->translate( curwpt-startwpt );
     mousedownpt_ = curpt;
 
-    Geom::Point2D<double> oldcentre = wr.centre();
-    Geom::Size2D<double> size = wr.size();
-    *feedbackwr_ = viewer_.control()->getNewWorldRect(
-			    oldcentre, size, *feedbackwr_, br );
+    *feedbackwr_ = viewer_.control()->getZoomOrPanRect(
+	    		feedbackwr_->centre(), wr.size(), *feedbackwr_, br );
+    const FlatView::Appearance& app = viewer_.appearance();
+    feedbackwr_->sortCorners( !app.annot_.x1_.reversed_,
+	    		       app.annot_.x2_.reversed_ );
     meh.setHandled( true );
     draw();
 }

@@ -145,49 +145,19 @@ bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
 }
 
 
-uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& mousepos,
-						Geom::Size2D<double>& newsz,
-						const uiWorldRect& cv,
-						const uiWorldRect& bb ) const
-{
-    const bool havezoom = haveZoom( cv.size(), newsz );
-    const bool havepan = havePan( mousepos, cv.centre(), cv.size() );
-    if ( !havezoom && !havepan ) return cv;
-
-    uiWorldRect wr( havepan && havezoom
-		? getZoomAndPanRect(mousepos,newsz,cv,bb)
-		: getZoomOrPanRect(mousepos,newsz,cv,bb) );
-
-    if ( cv.left() > cv.right() ) wr.swapHor();
-    if ( cv.bottom() > cv.top() ) wr.swapVer();
-    return wr;
-}
-
-
 uiTabStackDlg* uiFlatViewControl::propDialog()
 { return propdlg_; }
 
 
-void uiFlatViewControl::setNewView( Geom::Point2D<double>& mousepos,
-				    Geom::Size2D<double>& sz )
+void uiFlatViewControl::setNewView( Geom::Point2D<double> mousepos,
+				    Geom::Size2D<double> sz )
 {
-    uiWorldRect br = vwrs_[0]->boundingBox();
-    br.sortCorners();
-    const uiWorldRect wr = getNewWorldRect(mousepos,sz,vwrs_[0]->curView(),br);
-    vwrs_[0]->setView( wr );
+    uiFlatViewer* vwr = vwrs_[0];
+    const uiWorldRect wr = getZoomOrPanRect( mousepos, sz, vwr->curView(),
+	    				     vwr->boundingBox() );
+    vwr->setView( wr );
     zoommgr_.add( sz );
-
     zoomChanged.trigger();
-}
-
-
-uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double>mousepos,
-						  Geom::Size2D<double> newsz,
-						  const uiWorldRect& view,
-						  const uiWorldRect& bbox )
-{
-    //TODO we should have a different policy for requests outside
-    return getZoomOrPanRect( mousepos, newsz, view, bbox );
 }
 
 
@@ -244,14 +214,11 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
     uiWorld2Ui w2u;
     vwr->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
-    Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
-    uiWorldRect bb = vwr->boundingBox();
 
-    wr = getZoomOrPanRect( centre, newsz, wr, bb );
+    wr = getZoomOrPanRect( wr.centre(), newsz, wr, vwr->boundingBox() );
     vwr->setView( wr );
     zoommgr_.add( newsz );
-
     zoomChanged.trigger();
 }
 
@@ -304,16 +271,7 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
     ConstDataPackRef<FlatDataPack> fdp = vwr.obtainPack( true, true );
-
-    BufferString cat( "General" );
-    if ( fdp )
-    {
-	cat = fdp->category();
-	if ( category_.isEmpty() )
-	    category_ = cat;
-    }
-
-    vwr.storeDefaults( cat );
+    vwr.storeDefaults( fdp ? fdp->category() : "General" );
 }
 
 
@@ -337,10 +295,6 @@ int uiFlatViewControl::getViewerIdx( const MouseEventHandler* meh,bool ofscene )
 
     return -1;
 }
-
-
-uiRect uiFlatViewControl::getViewRect( const uiFlatViewer* vwr )
-{ return vwr->getViewRect(); }
 
 
 void uiFlatViewControl::mouseMoveCB( CallBacker* cb )

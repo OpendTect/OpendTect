@@ -125,7 +125,6 @@ bool uiGatherDisplay::displaysAnnotation() const
 { return displayannotation_; }
 
 
-
 void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
 {
     if ( yn==fixedoffset_ &&
@@ -149,11 +148,7 @@ void uiGatherDisplay::setFixedOffsetRange( bool yn, const Interval<float>& rg )
     updateViewRange( newbbox );
 
     if ( viewer_->control() )
-    {
-	Geom::Point2D<double> centre = newbbox.centre();
-	Geom::Size2D<double> newsz = newbbox.size();
-	viewer_->control()->setNewView( centre, newsz );
-    }
+	viewer_->control()->setNewView( newbbox.centre(), newbbox.size() );
 }
 
 

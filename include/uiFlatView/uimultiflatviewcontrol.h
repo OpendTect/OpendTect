@@ -25,8 +25,8 @@ public:
     			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
     			~uiMultiFlatViewControl();
 
-    void                setNewView(Geom::Point2D<double>& centre,
-	                                       Geom::Size2D<double>& sizes);
+    void                setNewView(Geom::Point2D<double> centre,
+	    			   Geom::Size2D<double> size);
 
     uiToolBar*		getToolBar(int idx) { return toolbars_[idx]; }
 

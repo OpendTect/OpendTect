@@ -57,17 +57,15 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 }
 
 
-void uiMultiFlatViewControl::setNewView(Geom::Point2D<double>& centre,
-					Geom::Size2D<double>& sz)
+void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> centre,
+					Geom::Size2D<double> sz)
 {
     if ( !activevwr_ ) return;
 
-    uiWorldRect br = activevwr_->boundingBox();
-    br.sortCorners();
-    const uiWorldRect wr = getNewWorldRect(centre,sz,activevwr_->curView(),br); 
+    const uiWorldRect wr = getZoomOrPanRect( centre, sz, activevwr_->curView(),
+	    				     activevwr_->boundingBox() );
     zoommgr_.add( sz, vwrs_.indexOf(activevwr_) );
     activevwr_->setView( wr );
-
     zoomChanged.trigger();
 }
 
@@ -120,13 +118,12 @@ void uiMultiFlatViewControl::rubBandCB( CallBacker* cb )
     uiWorld2Ui w2u;
     activevwr_->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> newsz = wr.size();
-    uiWorldRect bb = activevwr_->boundingBox();
 
-    wr = getZoomOrPanRect( centre, newsz, wr, bb );
+    const Geom::Size2D<double> newsz = wr.size();
+    wr = getZoomOrPanRect( wr.centre(), newsz, wr, activevwr_->boundingBox() );
     activevwr_->setView( wr );
     zoommgr_.add( newsz, vwrs_.indexOf(activevwr_) );
+
     zoomChanged.trigger();
 }
 
@@ -204,9 +201,8 @@ void uiMultiFlatViewControl::pinchZoomCB( CallBacker* cb )
     activevwr_->getWorld2Ui( w2ui );
     Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
 
-    uiWorldRect br = activevwr_->boundingBox();
-    br.sortCorners();
-    const uiWorldRect wr = getNewWorldRect(pos,newsz,activevwr_->curView(),br);
+    const uiWorldRect wr = getZoomOrPanRect( pos, newsz, activevwr_->curView(),
+	    				     activevwr_->boundingBox());
     vwrs_[vwridx]->setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )

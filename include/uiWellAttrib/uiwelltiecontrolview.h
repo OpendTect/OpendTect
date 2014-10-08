@@ -33,9 +33,8 @@ public:
 					uiFlatViewer*,Server&);
 			~uiControlView(){};
 
-    void		setNewView(Geom::Point2D<double>& centre,
-				   Geom::Size2D<double>& size );
-    bool		isZoomAtStart() const;
+    void		setNewView(Geom::Point2D<double> centre,
+				   Geom::Size2D<double> size );
     void		setEditOn(bool);
     void		setSelView(bool isnewsel = true, bool viewall=false );
 

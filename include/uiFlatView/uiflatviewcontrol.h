@@ -37,8 +37,8 @@ public:
 
     TypeSet<uiWorldRect>getBoundingBoxes() const;
     			//!< Returns bounding boxes of all viewers.
-    virtual void	setNewView(Geom::Point2D<double>& mousepos,
-				   Geom::Size2D<double>& newsize);
+    virtual void	setNewView(Geom::Point2D<double> mousepos,
+				   Geom::Size2D<double> newsize);
 			/*!< Pass centre instead of mousepos if there is no
 			MouseEvent. Retains uiWorldRect's LR/TB swapping while
 			changing the input to the actual new values. */
@@ -51,36 +51,21 @@ public:
     static bool		haveZoom(Geom::Size2D<double> oldsz,
 				 Geom::Size2D<double> newsz);
 
-    void		setCategory( const char* cat )	{ category_ = cat; }
-    			//!< Set the display pars defaults' `category`
-   			//!< Needed if the main viewer uses no data pack
-    const char*		category() const;
-    			//!< If not set, returns data pack's category()
-
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
     Notifier<uiFlatViewControl>  zoomChanged;
 
-    uiRect			getViewRect(const uiFlatViewer*);
-    static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>mousepos,
-						  Geom::Size2D<double> newsz,
-						  const uiWorldRect& view,
-						  const uiWorldRect& bbox);
     static uiWorldRect		getZoomOrPanRect(Geom::Point2D<double> mousepos,
 						 Geom::Size2D<double> newsz,
 						 const uiWorldRect& view,
 						 const uiWorldRect& bbox);
 				/*!< If size of view and newsz differ,
 				zooms in/out the uiWorldRect represented by
-				view. Returns the resulting uiWorldRect after
-				shifting it such that it falls inside the
-				bounding box.*/
-    uiWorldRect			getNewWorldRect(Geom::Point2D<double>& mousepos,
-						Geom::Size2D<double>& newsz,
-						const uiWorldRect& view,
-						const uiWorldRect& bbox) const;
-				/*!< Pass centre instead of mousepos if there
-  				  is no MouseEvent.*/
+				view (current). Returns the resulting
+				uiWorldRect after shifting it such that it falls
+				inside the bounding box. Pass centre instead of
+				mousepos if there is no MouseEvent. In case of
+				panning, pass the view after translation. */
     uiTabStackDlg*		propDialog();
     const FlatView::ZoomMgr&	zoomMgr() const { return zoommgr_; }
 
@@ -92,7 +77,6 @@ protected:
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
     bool		withhanddrag_;
-    BufferString	category_;
     IOPar		infopars_;
 
     uiFlatViewPropDlg*  propdlg_;

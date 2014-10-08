@@ -163,32 +163,26 @@ void uiControlView::setSelView( bool isnewsel, bool viewall )
     wr.setTopBottom( zrg );
     Interval<double> xrg( bbox.left(), bbox.right());
     wr.setLeftRight( xrg );
-    Geom::Point2D<double> centre = wr.centre();
-    Geom::Size2D<double> newsz = wr.size();
 
-    wr = getZoomOrPanRect( centre, newsz, wr, bbox );
+    const Geom::Size2D<double> newsz = wr.size();
+    wr = getZoomOrPanRect( wr.centre(), newsz, wr, bbox );
     vwr_.setView( wr );
     zoommgr_.add( newsz );
     zoomChanged.trigger();
 }
 
 
-void uiControlView::setNewView( Geom::Point2D<double>& centre,
-				Geom::Size2D<double>& sz )
+void uiControlView::setNewView( Geom::Point2D<double> centre,
+				Geom::Size2D<double> sz )
 {
-    uiWorldRect br = vwr_.boundingBox(); br.sortCorners();
-    uiWorldRect wr = getNewWorldRect( centre, sz, vwr_.curView(), br );
+    const uiWorldRect br = vwr_.boundingBox();
+    uiWorldRect wr = getZoomOrPanRect( centre, sz, vwr_.curView(), br );
 
     const Interval<double> xrg( br.left(), br.right());
     wr.setLeftRight( xrg ); vwr_.setView( wr );
     curview_ = wr; zoommgr_.add( sz );
-
     zoomChanged.trigger();
 }
-
-
-bool uiControlView::isZoomAtStart() const
-{ return zoommgr_.atStart(); }
 
 
 void uiControlView::setEditOn( bool yn )

@@ -209,9 +209,8 @@ void uiFlatViewStdControl::pinchZoomCB( CallBacker* cb )
     vwr.getWorld2Ui( w2ui );
     Geom::Point2D<double> pos = w2ui.transform( gevent->pos() );
 
-    uiWorldRect br = vwr.boundingBox();
-    br.sortCorners();
-    const uiWorldRect wr = getNewWorldRect(pos,newsz,vwr.curView(),br);
+    const uiWorldRect wr = getZoomOrPanRect( pos, newsz, vwr.curView(),
+	    				     vwr.boundingBox() );
     vwr.setView( wr );
 
     if ( gevent->getState() == GestureEvent::Finished )
@@ -291,11 +290,8 @@ void uiFlatViewStdControl::handDragging( CallBacker* cb )
     uiWorldRect newwr( mousedownwr_ );
     newwr.translate( startwpt-curwpt );
 
-    uiWorldRect bb = vwr->boundingBox();
-    Geom::Point2D<double> oldcentre = vwr->curView().centre();
-    Geom::Size2D<double> size = newwr.size();
-    newwr = getNewWorldRect( oldcentre, size, newwr, bb );
-
+    newwr = getZoomOrPanRect( newwr.centre(), newwr.size(), newwr,
+	    		      vwr->boundingBox() );
     vwr->setView( newwr );
 }
 
