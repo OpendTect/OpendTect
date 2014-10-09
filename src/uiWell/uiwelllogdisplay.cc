@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
 				    const uiWellLogDisplay::Setup& s )
     : uiWellDahDisplay::DahObjData( scn, isfirst, s )
-    , unitmeas_(0)
     , logSet(this)
 {
     disp_.color_ = Color::stdDrawColor( isfirst ? 0 : 1 );

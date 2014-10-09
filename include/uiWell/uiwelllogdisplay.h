@@ -16,16 +16,9 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "uiwelldahdisplay.h"
 #include "uidialog.h"
-#include "uiaxishandler.h"
-#include "draw.h"
 
-class uiTextItem;
-class uiLineItem;
 class uiPolyLineItem;
 class uiPolygonItem;
-class uiGraphicsScene;
-class UnitOfMeasure;
-
 namespace Well { class Log; }
 
 /*!
@@ -47,7 +40,6 @@ public:
 
 	void		getInfoForDah(float,BufferString&) const;
 
-	const UnitOfMeasure* unitmeas_;
 	Well::DisplayProperties::Log disp_;
 
 	Notifier<uiWellLogDisplay::LogData> logSet;
@@ -58,7 +50,6 @@ public:
 
 	virtual void	copySetupFrom( const LogData& ld )
 			{
-			    unitmeas_ = ld.unitmeas_;
 			    xrev_ = ld.xrev_;
 			    disp_ = ld.disp_;
 			}
