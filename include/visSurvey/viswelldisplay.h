@@ -131,6 +131,7 @@ public:
     void			showKnownPositions();
     void                        restoreDispProp();
     Well::Data*			getWD() const;
+    bool			needsConversionToTime() const;
 
     bool			allowsPicks() const	{ return true; }
 

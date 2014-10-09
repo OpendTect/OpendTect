@@ -326,6 +326,11 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     return true;
 }
 
+bool WellDisplay::needsConversionToTime() const
+{
+    return zistime_ && !scene_->zDomainInfo().def_.isDepth();
+}
+
 
 void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
@@ -338,12 +343,13 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 	return;
 
     PtrMan<Well::Track> ttrack = 0;
-    if ( zistime_ )
+    if ( needsConversionToTime() )
     {
 	mTryAlloc( ttrack, Well::Track( wd->track() ) );
 	ttrack->toTime( *d2t , wd->track() );
     }
-    const Well::Track& track = zistime_ ? *ttrack : wd->track();
+
+    const Well::Track& track = needsConversionToTime() ? *ttrack : wd->track();
 
     Coord3 pt;
     for ( int idx=0; idx<track.size(); idx++ )
@@ -376,7 +382,7 @@ void WellDisplay::updateMarkers( CallBacker* )
 	Coord3 pos = wd->track().getPos( wellmarker->dah() );
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
-	if ( zistime_ )
+	if ( needsConversionToTime() )
 	    pos.z = wd->d2TModel()->getTime( wellmarker->dah(), wd->track() );
 
 	if ( mIsUdf( pos.z ) )
@@ -469,7 +475,7 @@ void WellDisplay::setLogData( visBase::Well::LogParams& lp, bool isfilled )
 	if ( pos.isUdf() )
 	    continue;
 
-	if ( zistime_ )
+	if ( needsConversionToTime() )
 	    pos.z = wd->d2TModel()->getTime( dah, wd->track() );
 
 	if ( mIsUdf(pos.z) )
@@ -902,7 +908,6 @@ void WellDisplay::addKnownPos()
 	markerset_->addPos( wcoords[idx] );
     }
 }
-
 
 
 void WellDisplay::setDisplayTransformForPicks( const mVisTrans* newtr )
