@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidatapointsetcrossplot.h"
-#include "uiprogressbar.h"
 #include "uimainwin.h"
 
 class uiColorTableToolBar;
