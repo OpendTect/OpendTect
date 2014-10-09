@@ -14,15 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "coltabsequence.h"
-#include "mouseevent.h"
-#include "dataclipper.h"
-#include "survinfo.h"
-#include "unitofmeasure.h"
 #include "welllog.h"
-#include "wellmarker.h"
-#include "welld2tmodel.h"
-
-#include <iostream>
 
 
 uiWellLogDisplay::LogData::LogData( uiGraphicsScene& scn, bool isfirst,
@@ -199,10 +191,7 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 	ld.curvepolyitms_ += pli;
 	Color color = ld.disp_.seiscolor_;
 	pli->setFillColor( color );
-	LineStyle ls;
-	ls.width_ = 1;
-	ls.color_ = color;
-	pli->setPenStyle( ls );
+	pli->setPenStyle( LineStyle(LineStyle::Solid,1,color) );
 	pli->setZValue( 1 );
     }
     deepErase( pts );
@@ -401,7 +390,6 @@ void uiWellLogDispDlg::logSetCB( CallBacker* )
     {
 	if ( !l1->name().isEqual(l2->name()) )
 	    capt.add( " & ").add( l2->name() );
-
     }
 
     BufferString str;
