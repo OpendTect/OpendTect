@@ -39,7 +39,7 @@ namespace Network
 mExpClass(Network) RequestPacket
 {
 public:
-			RequestPacket(od_int32 payloadsize=-1);
+			RequestPacket(od_int32 payloadsize=0);
 			~RequestPacket();
 
     od_int32		requestID() const;
@@ -159,8 +159,9 @@ public:
     inline double		getDouble() const;
     inline BufferString		getString() const;
 
-    template <class T> void	getArr(T*,int maxsz) const;
-    template <class T> void	getSet(TypeSet<T>&,int maxsz=-1) const;
+    template <class T> void	getArr(T*,int maxsz,bool rawmode=false) const;
+    template <class T> void	getSet(TypeSet<T>&,int maxsz=-1,
+					bool rawmode=false) const;
     inline void			getSet(BufferStringSet&,int maxsz=-1) const;
 
     inline void			move( int nrb ) const	{ curpos_ += nrb; }
@@ -292,9 +293,11 @@ inline BufferString PacketInterpreter::getString() const
 { BufferString ret; get(ret); return ret; }
 
 template <class T>
-inline void PacketInterpreter::getArr( T* arr, int maxsz ) const
+inline void PacketInterpreter::getArr( T* arr, int maxsz, bool rawmode ) const
 {
-    int arrsz; get( arrsz );
+    int arrsz = maxsz;
+    if ( !rawmode )
+	get( arrsz );
     int sz = arrsz;
     if ( sz > maxsz )
 	sz = maxsz;
@@ -306,9 +309,12 @@ inline void PacketInterpreter::getArr( T* arr, int maxsz ) const
 }
 
 template <class T>
-inline void PacketInterpreter::getSet( TypeSet<T>& ts, int maxsz) const
+inline void PacketInterpreter::getSet( TypeSet<T>& ts, int maxsz,
+					bool rawmode ) const
 {
-    int arrsz; get( arrsz );
+    int arrsz;
+    if ( !rawmode )
+	get( arrsz );
     int sz = arrsz;
     if ( maxsz >= 0 && sz > maxsz )
 	sz = maxsz;
