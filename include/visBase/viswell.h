@@ -202,6 +202,9 @@ public:
     static const char*		logwidthstr();
 
 protected:
+
+    void			transformZIfNeeded(Coord3&) const;
+
 				~Well();
     PolyLine*			track_;
     MarkerSet*			markerset_;

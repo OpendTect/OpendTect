@@ -187,6 +187,15 @@ void Well::setZAxisTransform( ZAxisTransform* zat, TaskRunner* )
 }
 
 
+void Well::transformZIfNeeded( Coord3& crd ) const
+{
+   if ( !zaxistransform_ ) return;
+   const FixedString ztransformkey( zaxistransform_->toZDomainKey() );
+   if ( ztransformkey == ZDomain::sKeyDepth() ) return;
+   crd.z = zaxistransform_->transform( crd );
+}
+
+
 void Well::setPixelDensity(float dpi)
 {
     DataObject::setPixelDensity( dpi );
@@ -223,8 +232,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	    continue;
 
 	Coord3 crd = pts[idx];
-	if ( zaxistransform_ )
-	    crd.z = zaxistransform_->transform( crd );
+	transformZIfNeeded( crd );
 
 	if ( !crd.isDefined() )
 	    continue;
@@ -297,11 +305,8 @@ void Well::setWellName( const TrackParams& tp )
     Coord3 crdtop = *tp.toppos_;
     Coord3 crdbot = *tp.botpos_;
 
-    if ( zaxistransform_ )
-    {
-	crdtop.z = zaxistransform_->transform( crdtop );
-	crdbot.z = zaxistransform_->transform( crdbot );
-    }
+    transformZIfNeeded( crdtop );
+    transformZIfNeeded( crdbot );
 
     updateText( welltoptxt_->text(0),tp.isdispabove_ ? 
 		uiString( tp.name_ ) : uiString::emptyString(), &crdtop,
@@ -377,8 +382,7 @@ void Well::setMarkerSetParams( const MarkerParams& mp )
 void Well::addMarker( const MarkerParams& mp )
 {
     Coord3 markerpos = *mp.pos_;
-    if ( zaxistransform_ )
-	  markerpos.z = zaxistransform_->transform( markerpos );
+    transformZIfNeeded( markerpos );
     if ( mIsUdf(markerpos.z) )
 	  return;
 
@@ -607,8 +611,7 @@ Coord3 Well::getPos( const TypeSet<Coord3Value>& crdvals, int idx ) const
     mGetCoordVal(cv,crdvals,idx);
 
     Coord3 crd = cv.first;
-    if ( zaxistransform_ )
-	crd.z = zaxistransform_->transform( crd );
+    transformZIfNeeded( crd );
     if ( mIsUdf(crd.z) )
 	return crd;
 
