@@ -190,26 +190,12 @@ bool TrimStatics::doPilotTraceOutput( od_int64 start, od_int64 stop )
 
 bool TrimStatics::doShiftOutput( od_int64 start, od_int64 stop )
 {
-    Gather* output = outputs_[0];
-    const int nrz = output->data().info().getSize( Gather::zDim() );
-
-    for ( int ido=mCast(int,start); ido<=stop; ido++, addToNrDone(1) )
-    {
-    }
-
     return true;
 }
 
 
 bool TrimStatics::doTrimStaticsOutput( od_int64 start, od_int64 stop )
 {
-    Gather* output = outputs_[0];
-    const int nrz = output->data().info().getSize( Gather::zDim() );
-
-    for ( int ido=mCast(int,start); ido<=stop; ido++, addToNrDone(1) )
-    {
-    }
-
     return true;
 }
 
