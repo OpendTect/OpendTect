@@ -39,11 +39,11 @@ static const char* rcsID mUsedVar = "$Id$";
 SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
 	, outer(mUndefPtr(TrcKeySampling))
-    	, fetcher(0)
-    	, psrdr_(0)
-    	, tbuf_(0)
-    	, pscditer_(0)
-    	, selcomp_(-1)
+	, fetcher(0)
+	, psrdr_(0)
+	, tbuf_(0)
+	, pscditer_(0)
+	, selcomp_(-1)
 {
     init();
     if ( ioobj_ )
@@ -55,11 +55,11 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 SeisTrcReader::SeisTrcReader( const char* fname )
 	: SeisStoreAccess(fname,false,false)
 	, outer(mUndefPtr(TrcKeySampling))
-    	, fetcher(0)
-    	, psrdr_(0)
+	, fetcher(0)
+	, psrdr_(0)
 	, pscditer_(0)
-    	, tbuf_(0)
-    	, selcomp_(-1)
+	, tbuf_(0)
+	, selcomp_(-1)
 {
     init();
 }
@@ -134,24 +134,26 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
 
 
-void SeisTrcReader::startWork()
+bool SeisTrcReader::startWork()
 {
     outer = 0;
     if ( psioprov_ )
     {
 	if ( !psrdr_ && !prepareWork(Seis::Prod) )
-	    { pErrMsg("Huh"); return; }
+	    { pErrMsg("Huh"); return false; }
 
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if ( !pscditer_->next(curpsbid_) )
-	    { errmsg_ = "Prestack Data storage is empty"; return; }
+	    { errmsg_ = "Prestack Data storage is empty"; return false; }
 	pscditer_->reset();
-	return;
+	return true;
     }
     else if ( is2d_ )
-	{ tbuf_ = new SeisTrcBuf( false ); return; }
+	{ tbuf_ = new SeisTrcBuf( false ); return true; }
 
-    if ( !trl_ ) return;
+    // 3D cubes from here
+    if ( !trl_ )
+	return false;
 
     SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
@@ -173,7 +175,9 @@ void SeisTrcReader::startWork()
     }
 
     if ( !sttrl.commitSelections() )
-	{ errmsg_ = sttrl.errMsg(); return; }
+	{ errmsg_ = sttrl.errMsg(); return false; }
+
+    return true;
 }
 
 
@@ -269,8 +273,8 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 {
     if ( !prepared && !prepareWork(readmode) )
 	return -1;
-    else if ( outer == mUndefPtr(TrcKeySampling) )
-	startWork();
+    else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
+	return -1;
 
     if ( is2d_ )
 	return get2D(ti);
@@ -366,8 +370,9 @@ bool SeisTrcReader::get( SeisTrc& trc )
     needskip = false;
     if ( !prepared && !prepareWork(readmode) )
 	return false;
-    else if ( outer == mUndefPtr(TrcKeySampling) )
-	startWork();
+    else if ( outer == mUndefPtr(TrcKeySampling) && !startWork() )
+	return false;
+
     if ( is2d_ )
 	return get2D(trc);
     if ( psioprov_ )
@@ -486,7 +491,7 @@ GeomIDProvider* SeisTrcReader::geomIDProvider() const
 bool SeisTrcReader::mkNextFetcher()
 {
     curlineidx++; tbuf_->deepErase();
-    Pos::GeomID geomid( seldata_ ? seldata_->geomID() 
+    Pos::GeomID geomid( seldata_ ? seldata_->geomID()
 				 : Survey::GM().cUndefGeomID() );
     const bool islinesel = geomid != Survey::GM().cUndefGeomID();
     const bool istable = seldata_ && seldata_->type() == Seis::Table;
@@ -500,7 +505,7 @@ bool SeisTrcReader::mkNextFetcher()
 	    mDynamicCastGet(Seis::TableSelData*,tsd,seldata_)
 	    while ( !dataset_->haveMatch(curlineidx,tsd->binidValueSet()) )
 	    {
-	    	curlineidx++;
+		curlineidx++;
 		if ( curlineidx >= nrlines )
 		    return false;
 	    }
@@ -771,7 +776,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 		&& seldata_->geomID() != dataset_->geomID(iln) )
 		continue;
 
-	    Pos::GeomID geomid = seldata_ ? seldata_->geomID() 
+	    Pos::GeomID geomid = seldata_ ? seldata_->geomID()
 					  : dataset_->geomID( iln );
 	    PosInfo::Line2DData l2dd( Survey::GM().getName(geomid) );
 	    if ( !S2DPOS().getGeometry(l2dd) )

@@ -51,10 +51,10 @@ public:
 			~SeisTrcReader();
 
     void		forceFloatData( bool yn=true )	{ forcefloats = yn; }
-    			//!< Only effective if called before prepareWork()
+			//!< Only effective if called before prepareWork()
     bool		prepareWork(Seis::ReadMode rm=Seis::Prod);
-    			//!< After this, you can set stuff on the translator
-    			//!< If not called, will be done automatically
+			//!< After this, you can set stuff on the translator
+			//!< If not called, will be done automatically
 
     int			get(SeisTrcInfo&);
 			/*!< -1 = Error. errMsg() will return a message.
@@ -75,12 +75,12 @@ public:
 
     bool		isPrepared() const		{ return prepared; }
     Seis::Bounds*	getBounds() const;
-    			//!< use after prepareWork(). If not avail: survinfo
+			//!< use after prepareWork(). If not avail: survinfo
     void		setComponent( int ic )		{ selcomp_ = ic; }
-    			//!< use before startWork()
-    			//!< -1 (default) is all components
+			//!< use before startWork()
+			//!< -1 (default) is all components
 
-    			// 2D only
+			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
     StepInterval<int>	curTrcNrRange() const		{ return curtrcnrrg; }
     Pos::GeomID		geomID() const;
@@ -115,7 +115,7 @@ protected:
     bool		ensureCurLineAttribOK(const BufferString&);
 
     bool		isMultiConn() const;
-    void		startWork();
+    bool		startWork();
 
     int			getPS(SeisTrcInfo&);
     bool		getPS(SeisTrc&);
@@ -126,10 +126,10 @@ protected:
     bool		readNext2D();
 
     Seis::Bounds*	get3DBounds(const StepInterval<int>&,
-	    			    const StepInterval<int>&,
+				    const StepInterval<int>&,
 				    const StepInterval<float>&) const;
     bool		initBounds2D(const PosInfo::Line2DData&,
-	    			     Seis::Bounds2D&) const;
+				     Seis::Bounds2D&) const;
 
 };
 
