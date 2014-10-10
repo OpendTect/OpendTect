@@ -154,10 +154,10 @@ bool RequestConnection::sendPacket( const RequestPacket& pkt,
 
     const bool result = socket_->write( pkt, waitforfinish );
 
-    if ( !result || pkt.isRequestEnd() )
+    if ( !result )
 	requestEnded( pkt.requestID() );
 
-    return true;
+    return result;
 }
 
 
