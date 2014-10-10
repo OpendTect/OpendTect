@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include <iostream>
 
+using namespace PreStack;
 
 #define mDestroyWorkers \
 { delete procman; procman = 0; writer = 0; }
@@ -55,10 +56,10 @@ bool BatchProgram::go( od_ostream& strm )
     const bool hastrcsampling = trcsampling.usePar( pars() );
 
     BufferString linekey;
-    pars().get( PreStack::ProcessManager::sKeyLineKey(), linekey );
+    pars().get( ProcessManager::sKeyLineKey(), linekey );
 
     Seis::GeomType geomtype;
-    if ( !Seis::getFromPar( pars(), geomtype ) )
+    if ( !Seis::getFromPar(pars(),geomtype) )
     {
 	errorMsg("\nCannot read geometry type");
 	return false;
@@ -71,7 +72,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     MultiID setupmid;
-    if ( !pars().get( PreStack::ProcessManager::sKeySetup(), setupmid ) )
+    if ( !pars().get(ProcessManager::sKeySetup(),setupmid) )
     {
 	errorMsg( "\nCannot read setup" );
 	return false;
@@ -84,9 +85,7 @@ bool BatchProgram::go( od_ostream& strm )
 	return false;
     }
 
-    mDeclareAndTryAlloc( PreStack::ProcessManager*, procman,
-			 PreStack::ProcessManager );
-
+    ProcessManager* procman = new ProcessManager;
     if ( !procman )
     {
 	errorMsg( "Cannot create processor");
@@ -94,8 +93,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj,
-					    errmsg ) )
+    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj,errmsg) )
     {
 	errorMsg( errmsg.getOriginalString() );
 	//TODO use tr when changing errorMsg type
@@ -115,7 +113,7 @@ bool BatchProgram::go( od_ostream& strm )
     if ( procman->needsPreStackInput() )
     {
 	MultiID inputmid;
-	if ( !pars().get(PreStack::ProcessManager::sKeyInputData(), inputmid ) )
+	if ( !pars().get(ProcessManager::sKeyInputData(),inputmid) )
 	{
 	    errorMsg("\nCannot read input id");
 	    delete procman;
@@ -132,7 +130,7 @@ bool BatchProgram::go( od_ostream& strm )
     }
 
     MultiID outputmid;
-    if ( !pars().get( PreStack::ProcessManager::sKeyOutputData(), outputmid ) )
+    if ( !pars().get(ProcessManager::sKeyOutputData(),outputmid) )
     {
 	errorMsg("\nCannot read output id");
 	delete procman;
@@ -154,10 +152,10 @@ bool BatchProgram::go( od_ostream& strm )
     const bool needpsinput = procman->needsPreStackInput();
     if ( needpsinput )
     {
-
 	if ( geomtype==Seis::VolPS )
 	{
 	    reader3d = SPSIOPF().get3DReader( *inputioobj );
+	    reader = (SeisPSReader*)reader3d;
 	    if ( reader3d && !hastrcsampling )
 	    {
 		const PosInfo::CubeData& posdata = reader3d->posData();
@@ -178,15 +176,16 @@ bool BatchProgram::go( od_ostream& strm )
 	else
 	{
 	    reader2d = SPSIOPF().get2DReader( *inputioobj, linekey.buf() );
+	    reader = (SeisPSReader*)reader2d;
 	    if ( reader2d &&
-		!pars().get(PreStack::ProcessManager::sKeyCDPRange(), cdprange))
+		 !pars().get(ProcessManager::sKeyCDPRange(),cdprange) )
 	    {
 		const PosInfo::Line2DData& posdata = reader2d->posData();
 		for ( int idx=0; idx<posdata.positions().size(); idx++ )
 		{
 		    if ( !idx )
 			cdprange.start = cdprange.stop
-			    = posdata.positions()[idx].nr_;
+				       = posdata.positions()[idx].nr_;
 		    else
 			cdprange.include( posdata.positions()[idx].nr_ );
 		}
@@ -195,15 +194,12 @@ bool BatchProgram::go( od_ostream& strm )
 	    progressmeter.setTotalNr( cdprange.nrSteps()+1 );
 	}
 
-	if ( !reader3d && !reader2d )
+	if ( !reader )
 	{
 	    errorMsg("\nCannot create input reader");
 	    delete procman;
 	    return false;
 	}
-
-	reader = reader3d ? (SeisPSReader*) reader3d
-	    		  : (SeisPSReader*) reader2d;
     }
     else
     {
@@ -247,7 +243,7 @@ bool BatchProgram::go( od_ostream& strm )
 
     mSetCommState(Working);
 
-    ObjectSet<PreStack::Gather> gathers;
+    ObjectSet<Gather> gathers;
     gathers.allowNull( true );
     TypeSet<BinID> bids;
 
@@ -282,20 +278,20 @@ bool BatchProgram::go( od_ostream& strm )
 	const BinID stepout = procman->getInputStepout();
 
 	int nrfound = 0;
-	PreStack::Gather* sparegather = 0;
+	Gather* sparegather = 0;
 	for ( relbid.inl()=-stepout.inl(); relbid.inl()<=stepout.inl();
 					   relbid.inl()++ )
 	{
 	    for ( relbid.crl()=-stepout.crl(); relbid.crl()<=stepout.crl();
 					       relbid.crl()++)
 	    {
-		if ( !procman->wantsInput( relbid ) )
+		if ( !procman->wantsInput(relbid) )
 		    continue;
 
 		const BinID inputbid( curbid.inl()+relbid.inl()*step.inl(),
 				      curbid.crl()+relbid.crl()*step.crl() );
 
-		PreStack::Gather* gather = 0;
+		Gather* gather = 0;
 		const int bufidx = bids.indexOf( inputbid );
 		if ( bufidx!=-1 )
 		{
@@ -310,7 +306,7 @@ bool BatchProgram::go( od_ostream& strm )
 		    }
 		    else
 		    {
-			gather = new PreStack::Gather;
+			gather = new Gather;
 		    }
 
 		    if ( procman->needsPreStackInput() &&
@@ -340,15 +336,15 @@ bool BatchProgram::go( od_ostream& strm )
 	{
 	    const DataPack* dp =
 		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
-	    mDynamicCastGet( const PreStack::Gather*, gather, dp );
+	    mDynamicCastGet( const Gather*, gather, dp );
 	    if ( gather )
 	    {
 		const int nrtraces =
-		    gather->size( !PreStack::Gather::offsetDim() );
+		    gather->size( !Gather::offsetDim() );
 		const int nrsamples =
-		    gather->size( PreStack::Gather::offsetDim() );
+		    gather->size( Gather::offsetDim() );
 		const StepInterval<double> zrg =
-		    gather->posData().range( PreStack::Gather::offsetDim() );
+		    gather->posData().range( Gather::offsetDim() );
 		SeisTrc trc( nrsamples );
 		trc.info().sampling.start = (float) zrg.start;
 		trc.info().sampling.step = (float) zrg.step;
@@ -357,7 +353,7 @@ bool BatchProgram::go( od_ostream& strm )
 		{
 		    trc.info().nr = curbid.crl();
 		    PosInfo::Line2DPos linepos;
-		    if ( reader2d->posData().getPos( curbid.crl(), linepos ) )
+		    if ( reader2d->posData().getPos(curbid.crl(),linepos) )
 			trc.info().coord = linepos.coord_;
 		}
 		else

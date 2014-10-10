@@ -22,9 +22,9 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "multiid.h"
 
+class uiButton;
 class uiListBox;
 class IOObj;
-class uiButton;
 
 namespace PreStack
 {
@@ -52,8 +52,10 @@ protected:
     void			updateList();
     void			updateButtons();
     bool			hasPropDialog(int) const;
-    void			showPropDialog(int);
+    bool			showPropDialog(int);
+    bool			showPropDialog(Processor&);
     void			factoryClickCB(CallBacker*);
+    void			factoryDoubleClickCB(CallBacker*);
     void			processorClickCB(CallBacker*);
     void			processorDoubleClickCB(CallBacker*);
     void			addCB(CallBacker*);

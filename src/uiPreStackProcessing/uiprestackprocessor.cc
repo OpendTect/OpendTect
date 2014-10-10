@@ -46,6 +46,8 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     factorylist_->setHSzPol( uiObject::Wide );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
+    factorylist_->doubleClicked.notify(
+	    mCB(this,uiProcessorManager,factoryDoubleClickCB) );
     factorylist_->attach( ensureBelow, label );
 
     addprocessorbutton_ = new uiToolButton( this, uiToolButton::RightArrow,
@@ -149,7 +151,7 @@ void uiProcessorManager::updateButtons()
 }
 
 
-bool uiProcessorManager::hasPropDialog(int idx) const
+bool uiProcessorManager::hasPropDialog( int idx ) const
 {
     const Processor* proc = manager_.getProcessor(idx);
     if ( !proc ) return false;
@@ -158,23 +160,23 @@ bool uiProcessorManager::hasPropDialog(int idx) const
 }
 
 
-void uiProcessorManager::showPropDialog( int idx )
+bool uiProcessorManager::showPropDialog( int idx )
 {
     Processor* proc = manager_.getProcessor(idx);
-    if ( !proc ) return;
+    return proc ? showPropDialog( *proc ) : false;
+}
 
-    PtrMan<uiDialog> dlg = uiPSPD().create( proc->name(), this, proc );
 
-    if ( !dlg ) return;
+bool uiProcessorManager::showPropDialog( Processor& proc )
+{
+    PtrMan<uiDialog> dlg = uiPSPD().create( proc.name(), this, &proc );
+    if ( !dlg || !dlg->go() ) return false;
 
-    if ( dlg->go() )
-    {
-	change.trigger();
-	manager_.notifyChange();
-	changed_ = true;
-	updateButtons();
-    }
-
+    change.trigger();
+    manager_.notifyChange();
+    changed_ = true;
+    updateButtons();
+    return true;
 }
 
 
@@ -183,9 +185,13 @@ void uiProcessorManager::factoryClickCB( CallBacker* )
     if ( factorylist_->firstChosen()==-1 )
 	return;
 
-    processorlist_->chooseAll(false);
+    processorlist_->chooseAll( false );
     updateButtons();
 }
+
+
+void uiProcessorManager::factoryDoubleClickCB( CallBacker* cb )
+{ addCB( cb ); }
 
 
 void uiProcessorManager::processorClickCB( CallBacker* )
@@ -219,7 +225,15 @@ void uiProcessorManager::addCB( CallBacker* )
 
     manager_.addProcessor( proc );
     updateList();
-    processorlist_->chooseAll(false);
+    if ( !showPropDialog(*proc) )
+    {
+	const int idx = manager_.indexOf( proc );
+	manager_.removeProcessor( idx );
+	updateList();
+	return;
+    }
+
+    processorlist_->chooseAll( false );
     change.trigger();
     changed_ = true;
     updateButtons();
@@ -366,4 +380,4 @@ bool uiProcessorManager::doSave( const IOObj& ioobj )
     return true;
 }
 
-}; //namespace
+} // namespace PreStack

@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "prestackeventtransl.h"
 #include "prestackmutedeftransl.h"
 #include "prestackprocessortransl.h"
+#include "prestacktrimstatics.h"
 
 mDefModInitFn(PreStackProcessing)
 {
@@ -34,4 +35,5 @@ mDefModInitFn(PreStackProcessing)
     PreStack::AGC::initClass();
     PreStack::LateralStack::initClass();
     PreStack::AngleMute::initClass();
+    PreStack::TrimStatics::initClass();
 }

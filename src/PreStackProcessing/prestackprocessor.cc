@@ -346,6 +346,12 @@ void ProcessManager::removeAllProcessors()
 }
 
 
+int ProcessManager::indexOf( const Processor* proc ) const
+{
+    return proc ? processors_.indexOf( proc ) : -1;
+}
+
+
 Processor* ProcessManager::getProcessor( int idx )
 { return processors_[idx]; }
 

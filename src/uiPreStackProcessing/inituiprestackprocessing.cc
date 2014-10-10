@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiprestacklateralstack.h"
 #include "uiprestackanglemute.h"
 #include "uiprestackmmjobdispatch.h"
+#include "uiprestacktrimstatics.h"
 
 mDefModInitFn(uiPreStackProcessing)
 {
@@ -25,6 +26,7 @@ mDefModInitFn(uiPreStackProcessing)
     PreStack::uiMute::initClass();
     PreStack::uiLateralStack::initClass();
     PreStack::uiAngleMute::initClass();
+    PreStack::uiTrimStatics::initClass();
 
     Batch::MMJobDispatcher::addDef( new Batch::PreStackMMProgDef );
 }

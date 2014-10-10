@@ -80,7 +80,7 @@ protected:
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);
     static void			freeArray(ObjectSet<Gather>&);
-    virtual void		retainRelBID( const BinID& ) {};
+    virtual void		retainRelBID( const BinID& ) {}
 
     BinID			outputstepout_;
     ObjectSet<Gather>		outputs_;
@@ -152,6 +152,7 @@ public:
     void			addProcessor(Processor*);
     void			removeProcessor(int);
     void			swapProcessors(int,int);
+    int				indexOf(const Processor*) const;
 
     void			removeAllProcessors();
 
@@ -219,8 +220,6 @@ protected:
     } \
 }
 
-
-} // namespace PreStackProcessing
+} // namespace PreStack
 
 #endif
-
