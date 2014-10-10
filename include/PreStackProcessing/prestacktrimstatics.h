@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "prestackprocessor.h"
 #include "multiid.h"
 
-class Muter;
+template <class T> class Array1D;
 
 namespace PreStack
 {
