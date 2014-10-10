@@ -63,7 +63,7 @@ ________________________________________________________________________
 #define		mGridLinesDlgHelpID				0x05000003
 #define		mPropertiesDlgHelpID			        0x05000004
 #define		mScenePropertyDlgHelpID				0x05000005
-#define		mColorBarDialog					0x05000006
+#define mColorBarDialog 0x5000006
 #define		mZScaleDlgHelpID				0x05000007
 #define		mPSViewerSettingDlgHelpID			0x05000008
 #define		mPrintSceneDlgHelpID			        0x05000009
@@ -286,7 +286,7 @@ ________________________________________________________________________
 #define		HorizonModifyDlgHelpID			        0x10402003
 #define		mFaultStickSetsManageHelpID			0x10402004
 #define		mFaultsManageHelpID				0x10402005
-#define		mCopySurface3DHelpID			        0x10402006
+#define mCopySurface3DHelpID 0x10402006
 #define		mCopySurface2DHelpID			        0x10402007
 #define		mCopySurfaceStickSetsHelpID		        0x10402008
 #define		mCopySurfaceFaultsHelpID			0x10402009
