@@ -45,7 +45,7 @@ public:
     od_int32		requestID() const;
     bool		isNewRequest() const { return subID()==cBeginSubID(); }
     bool		isRequestEnd() const { return subID()<cMoreSubID(); }
-    bool		isError() const	     { return subID()==cErrorSubID(); }
+    bool		isError() const      { return subID()==cErrorSubID(); }
     od_int32		payloadSize() const;
     const void*		payload() const;
     void		getStringPayload(BufferString&) const;
@@ -111,7 +111,7 @@ mExpClass(Network) PacketFiller
 public:
 			PacketFiller( RequestPacket& p, int startpos=0 )
 			    : pkt_(p)
-			    , curpos_(startpos)	{}
+			    , curpos_(startpos) {}
 
 #   define		mNPFSizeFor(v) Network::PacketFiller::sizeFor(v)
 #   define		mNPFSizeForArr(a,s) Network::PacketFiller::sizeFor(a,s)
@@ -154,7 +154,7 @@ public:
 				PacketInterpreter( const RequestPacket& p,
 						 int startpos=0 )
 				    : pkt_(p)
-				    , curpos_(startpos)	{}
+				    , curpos_(startpos) {}
 
     template <class T> void	get(T&) const;
     inline int			getInt() const;
@@ -168,7 +168,7 @@ public:
     inline void			getSet(BufferStringSet&,int maxsz=-1) const;
 
     inline void			move( int nrb ) const	{ curpos_ += nrb; }
-    inline void			moveTo( int pos ) const	{ curpos_ = pos; }
+    inline void			moveTo( int pos ) const { curpos_ = pos; }
     template <class T> void	peek(T&) const;
     inline int			peekInt() const;
     void			getBytes(void*,int nrbytes) const;
