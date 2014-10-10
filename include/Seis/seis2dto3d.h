@@ -86,6 +86,7 @@ protected:
     HorSampling				hs_;
 
     void		clear();
+    void		doWork(bool,int);
     void		doPrepare();
     void		setUpData();
     void		setFinalTrcs();

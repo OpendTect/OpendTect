@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "bufstring.h"
 #include "dataclipper.h"
 #include "fftfilter.h"
+#include "hiddenparam.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -42,7 +43,7 @@ const char* Seis2DTo3D::sKeyStepout()	{ return "Inl-Crl Stepout"; }
 const char* Seis2DTo3D::sKeyReUse()	{ return "Re-use existing"; }
 const char* Seis2DTo3D::sKeyMaxVel()	{ return "Maximum Velocity"; }
 
-
+HiddenParam<Seis2DTo3D,HorSampling> seisbufhs( false );
 
 Seis2DTo3D::Seis2DTo3D()
     : Executor("Generating a 3D cube from a 2DDataSet")
@@ -50,7 +51,7 @@ Seis2DTo3D::Seis2DTo3D()
     , outioobj_(0)
     , cs_(true)
     , read_(false)
-    , seisbuf_(*new SeisTrcBuf(false))
+    , seisbuf_(*new SeisTrcBuf(true))
     , nrdone_(0)
     , sc_(0)
     , wrr_(0)
@@ -58,15 +59,19 @@ Seis2DTo3D::Seis2DTo3D()
     , maxvel_(mUdf(float))
     , inlstep_(0)
     , crlstep_(0)
-{}
+    , reusetrcs_(false)
+{
+    HorSampling hs( false );
+    seisbufhs.setParam( this, hs );
+}
 
 
 Seis2DTo3D::~Seis2DTo3D()
 {
     seisbuf_.erase();
-    delete wrr_; wrr_ = 0;
-    if ( !nearesttrace_ && sc_ )
-	delete sc_; sc_ = 0;
+    delete wrr_;
+    delete sc_;
+    delete outioobj_;
 }
 
 
@@ -162,14 +167,18 @@ bool Seis2DTo3D::read()
     Interval<int> crlrg( cs_.hrg.crlRange().start - crlstep_,
 			 cs_.hrg.crlRange().stop + crlstep_ );
     SeisTrcBuf tmpbuf(false);
+    seisbuf_.erase();
+    HorSampling bufhs( false );
     for ( int iline=0; iline<lnms.size(); iline++)
     {
 	const int lsidx = ds_->indexOf( lnms.get(iline) );
 	if ( lsidx < 0 )
 	    continue;
 
-	Executor* lf = ds_->lineFetcher( lsidx, tmpbuf );
-	lf->execute();
+	PtrMan<Executor> lf = ds_->lineFetcher( lsidx, tmpbuf );
+	if ( !lf || !lf->execute() )
+	    continue;
+
 	for ( int idx=tmpbuf.size()-1; idx>=0; idx-- )
 	{
 	    const SeisTrc& intrc = *tmpbuf.get( idx );
@@ -190,11 +199,13 @@ bool Seis2DTo3D::read()
 		    trc->set( isamp, intrc.getValue(z,icomp), icomp );
 	    }
 	    seisbuf_.add( trc );
+	    bufhs.include( bid );
 	}
 
 	tmpbuf.erase();
     }
 
+    seisbufhs.setParam( this, bufhs );
     if ( seisbuf_.isEmpty() )
 	return true;
 
@@ -217,7 +228,7 @@ int Seis2DTo3D::nextStep()
     if ( !hsit_.next(curbid_) )
 	{ writeTmpTrcs(); return Finished(); }
 
-    if ( !SI().includes( curbid_, 0, true ) )
+    if ( !SI().sampling(false).hrg.includes(curbid_) )
 	return MoreToDo();
 
     if ( nrdone_ == 0 )
@@ -291,13 +302,20 @@ bool Seis2DTo3D::doWorkFFT()
     if ( !outioobj_ )
 	mErrRet("Internal: No output is set")
 
-    SeisTrcReader rdr( outioobj_ );
     SeisTrcBuf outtrcbuf(false);
-    SeisBufReader sbrdr( rdr, outtrcbuf );
-    sbrdr.execute();
+    if ( reusetrcs_ )
+    {
+	SeisTrcReader rdr( outioobj_ );
+	SeisBufReader sbrdr( rdr, outtrcbuf );
+	sbrdr.execute();
+    }
+
+
+    const HorSampling& bufhs = seisbufhs.getParam( this );
     while ( localhsit.next(binid) )
     {
-	const int idtrc = seisbuf_.find( binid	);
+	const bool hasbid = bufhs.includes( binid );
+	const int idtrc = hasbid ? seisbuf_.find(binid) : -1;
 	if ( idtrc >= 0 )
 	    trcs += seisbuf_.get( idtrc );
 	else if ( reusetrcs_ && !tmpseisbuf_.isEmpty() )
@@ -322,28 +340,30 @@ bool Seis2DTo3D::doWorkFFT()
     Interval<int> wincrlrg( crl-crlstep_/2, crl+crlstep_/2);
     wininlrg.limitTo( SI().inlRange(true) );
     wincrlrg.limitTo( SI().crlRange(true) );
-    HorSampling winhrg; winhrg.set( cs_.hrg.inlRange(), cs_.hrg.crlRange() );
+    HorSampling winhrg;
+    winhrg.set( wininlrg, wincrlrg );
     winhrg.step = BinID(SI().inlRange(true).step,SI().crlRange(true).step);
     ObjectSet<SeisTrc> outtrcs;
     interpol_.getOutTrcs( outtrcs, winhrg );
 
-    if ( outtrcs.isEmpty() )
+    for ( int idx=0; sc_ && idx<outtrcs.size(); idx ++ )
+	sc_->scaleTrace( *outtrcs[idx] );
+
+    if ( reusetrcs_ && outtrcs.isEmpty() )
     {
 	BinID bid;
 	HorSamplingIterator hsit( winhrg );
-	while ( hsit.next( bid ) )
+	while ( hsit.next(bid) )
 	{
-	    SeisTrc* trc = new SeisTrc( seisbuf_.get( 0 )->size() );
-	    trc->info().sampling = seisbuf_.get( 0 )->info().sampling;
+	    SeisTrc* trc = new SeisTrc( seisbuf_.get(0)->size() );
+	    trc->info().sampling = seisbuf_.get(0)->info().sampling;
 	    trc->info().binid = bid;
+	    outtrcs += trc;
 	}
     }
 
     for ( int idx=0; idx<outtrcs.size(); idx ++ )
-    {
-	sc_->scaleTrace( *outtrcs[idx] );
 	tmpseisbuf_.add( outtrcs[idx] );
-    }
 
     return true;
 }
@@ -467,7 +487,58 @@ void SeisInterpol::doPrepare()
 }
 
 
-#define mDefThreshold ( (float)(nriter_-nrdone_-1)/ (float)nriter_ )
+void SeisInterpol::doWork( bool docomputemax, int poscutfreq )
+{
+    const float threshold = (float)(nriter_-nrdone_-1)/ (float)nriter_;
+    for ( int idx=0; idx<szx_; idx++ )
+    {
+	for ( int idy=0; idy<szy_; idy++ )
+	{
+	    for ( int idz=0; idz<szz_; idz++ )
+	    {
+		float real = trcarr_->get(idx,idy,idz).real();
+		float imag = trcarr_->get(idx,idy,idz).imag();
+		float xfac; float yfac; float zfac;
+		xfac = yfac = zfac = 0;
+		if ( idz < poscutfreq || idz > szz_-poscutfreq )
+		    zfac = 1;
+
+		float dipangle; float revdipangle;
+		dipangle = revdipangle = 0;
+		if ( idx < szx_/2 )
+		{
+		    dipangle = atan( idy/(float)idx );
+		    revdipangle = atan( (szy_-idy-1)/(float)(idx) );
+		}
+		else
+		{
+		    dipangle = atan( idy/(float)(szx_-idx-1) );
+		    revdipangle = atan( (szy_-idy-1)/(float)(szx_-idx-1) );
+		}
+
+		if ( dipangle > M_PI_4f && revdipangle > M_PI_4f )
+		    { xfac = yfac = 1; }
+
+		real *= xfac*yfac*zfac; imag *= xfac*yfac*zfac;
+		float mod = real*real + imag*imag;
+		if ( docomputemax )
+		{
+		    mod = real*real + imag*imag;
+		    if ( mod > max_ )
+			max_ = mod;
+		}
+		else
+		{
+		    if ( mod < max_*threshold )
+			{ real = imag = 0; }
+		    trcarr_->set(idx,idy,idz,float_complex(real,imag));
+		}
+	    }
+	}
+    }
+}
+
+
 #define mDoTransform(tf,isstraight,arr) \
 {\
     tf->setInputInfo( arr->info() );\
@@ -507,55 +578,10 @@ int SeisInterpol::nextStep()
     const float fmax = mCast(float, maxvel_ / ( 2.f*mindist*sin( M_PIf/6.f ) ));
     const int poscutfreq = mCast(int, fmax/df );
 
-#define mDoLoopWork( docomputemax )\
-    for ( int idx=0; idx<szx_; idx++ )\
-    {\
-	for ( int idy=0; idy<szy_; idy++ )\
-	{\
-	    for ( int idz=0; idz<szz_; idz++ )\
-	    {\
-		float real = trcarr_->get(idx,idy,idz).real();\
-		float imag = trcarr_->get(idx,idy,idz).imag();\
-		float xfac; float yfac; float zfac;\
-		xfac = yfac = zfac = 0;\
-		if ( idz < poscutfreq || idz > szz_-poscutfreq )\
-		    zfac = 1;\
-		float dipangle; float revdipangle;\
-		dipangle = revdipangle = 0;\
-		if ( idx < szx_/2 )\
-		{\
-		    dipangle = atan( idy/(float)idx );\
-		    revdipangle = atan( (szy_-idy-1)/(float)(idx) );\
-		}\
-		else\
-		{\
-		    dipangle = atan( idy/(float)(szx_-idx-1) );\
-		    revdipangle = atan( (szy_-idy-1)/(float)(szx_-idx-1) );\
-		}\
-		if ( dipangle > M_PI_4f && revdipangle > M_PI_4f )\
-		    { xfac = yfac = 1; }\
-		real *= xfac*yfac*zfac; imag *= xfac*yfac*zfac;\
-		float mod = real*real + imag*imag;\
-		if ( docomputemax )\
-		{\
-		    mod = real*real + imag*imag;\
-		    if ( mod > max_ )\
-			max_ = mod;\
-		}\
-		else\
-		{\
-		    if ( mod < max_*mDefThreshold )\
-			{ real = imag = 0; }\
-		    trcarr_->set(idx,idy,idz,float_complex(real,imag));\
-		}\
-	    }\
-	}\
-    }
-
     if ( nrdone_ == 0 )
-	{ mDoLoopWork( true ) }
+	doWork( true, poscutfreq );
 
-    mDoLoopWork( false )
+    doWork( false, poscutfreq );
     mDoTransform( fft_, false, trcarr_ );
 
     nrdone_++;
