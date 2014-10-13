@@ -23,9 +23,10 @@ class uiToolButton;
 mExpClass(uiEarthModel) uiEMPreLoadDlg : public uiDialog
 { mODTextTranslationClass(uiEMPreLoadDlg);
 public:
-			uiEMPreLoadDlg(uiParent*,const Setup&);
 
 protected:
+			uiEMPreLoadDlg(uiParent*,const Setup&);
+
     virtual void	unloadPushCB(CallBacker*)		=0;
     virtual void	selCB(CallBacker*)			=0;
 
