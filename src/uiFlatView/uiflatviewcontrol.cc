@@ -126,25 +126,6 @@ void uiFlatViewControl::dataChangeCB( CallBacker* cb )
 }
 
 
-bool uiFlatViewControl::havePan(
-	Geom::Point2D<double> oldcentre, Geom::Point2D<double> newcentre,
-	Geom::Size2D<double> sz )
-{
-    const Geom::Point2D<double> eps( sz.width()*1e-6, sz.height()*1e-6 );
-    return !mIsZero(oldcentre.x-newcentre.x,eps.x)
-	|| !mIsZero(oldcentre.y-newcentre.y,eps.y);
-}
-
-
-bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
-				  Geom::Size2D<double> newsz )
-{
-    const Geom::Point2D<double> eps( oldsz.width()*1e-6, oldsz.height()*1e-6 );
-    return !mIsZero(oldsz.width()-newsz.width(),eps.x)
-	|| !mIsZero(oldsz.height()-newsz.height(),eps.y);
-}
-
-
 uiTabStackDlg* uiFlatViewControl::propDialog()
 { return propdlg_; }
 

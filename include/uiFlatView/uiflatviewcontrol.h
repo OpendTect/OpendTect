@@ -45,12 +45,6 @@ public:
     virtual void	flip(bool hor);
     			//!< reverses uiWorldRect's LR or TB swapping
 
-    static bool		havePan(Geom::Point2D<double> oldcentre,
-	    			Geom::Point2D<double> newcentre,
-				Geom::Size2D<double> sz);
-    static bool		haveZoom(Geom::Size2D<double> oldsz,
-				 Geom::Size2D<double> newsz);
-
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
     Notifier<uiFlatViewControl>  zoomChanged;
