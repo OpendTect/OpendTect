@@ -479,7 +479,58 @@ void SeisInterpol::doPrepare()
 }
 
 
-#define mDefThreshold ( (float)(nriter_-nrdone_-1)/ (float)nriter_ )
+void SeisInterpol::doWork( bool docomputemax, int poscutfreq )
+{
+    const float threshold = (float)(nriter_-nrdone_-1)/ (float)nriter_;
+    for ( int idx=0; idx<szx_; idx++ )
+    {
+	for ( int idy=0; idy<szy_; idy++ )
+	{
+	    for ( int idz=0; idz<szz_; idz++ )
+	    {
+		float real = trcarr_->get(idx,idy,idz).real();
+		float imag = trcarr_->get(idx,idy,idz).imag();
+		float xfac; float yfac; float zfac;
+		xfac = yfac = zfac = 0;
+		if ( idz < poscutfreq || idz > szz_-poscutfreq )
+		    zfac = 1;
+
+		float dipangle; float revdipangle;
+		dipangle = revdipangle = 0;
+		if ( idx < szx_/2 )
+		{
+		    dipangle = atan( idy/(float)idx );
+		    revdipangle = atan( (szy_-idy-1)/(float)(idx) );
+		}
+		else
+		{
+		    dipangle = atan( idy/(float)(szx_-idx-1) );
+		    revdipangle = atan( (szy_-idy-1)/(float)(szx_-idx-1) );
+		}
+
+		if ( dipangle > M_PI_4f && revdipangle > M_PI_4f )
+		    { xfac = yfac = 1; }
+
+		real *= xfac*yfac*zfac; imag *= xfac*yfac*zfac;
+		float mod = real*real + imag*imag;
+		if ( docomputemax )
+		{
+		    mod = real*real + imag*imag;
+		    if ( mod > max_ )
+			max_ = mod;
+		}
+		else
+		{
+		    if ( mod < max_*threshold )
+			{ real = imag = 0; }
+		    trcarr_->set(idx,idy,idz,float_complex(real,imag));
+		}
+	    }
+	}
+    }
+}
+
+
 #define mDoTransform(tf,isstraight,arr) \
 {\
     tf->setInputInfo( arr->info() );\
@@ -519,55 +570,10 @@ int SeisInterpol::nextStep()
     const float fmax = mCast(float, maxvel_ / ( 2.f*mindist*sin( M_PIf/6.f ) ));
     const int poscutfreq = mCast(int, fmax/df );
 
-#define mDoLoopWork( docomputemax )\
-    for ( int idx=0; idx<szx_; idx++ )\
-    {\
-	for ( int idy=0; idy<szy_; idy++ )\
-	{\
-	    for ( int idz=0; idz<szz_; idz++ )\
-	    {\
-		float real = trcarr_->get(idx,idy,idz).real();\
-		float imag = trcarr_->get(idx,idy,idz).imag();\
-		float xfac; float yfac; float zfac;\
-		xfac = yfac = zfac = 0;\
-		if ( idz < poscutfreq || idz > szz_-poscutfreq )\
-		    zfac = 1;\
-		float dipangle; float revdipangle;\
-		dipangle = revdipangle = 0;\
-		if ( idx < szx_/2 )\
-		{\
-		    dipangle = atan( idy/(float)idx );\
-		    revdipangle = atan( (szy_-idy-1)/(float)(idx) );\
-		}\
-		else\
-		{\
-		    dipangle = atan( idy/(float)(szx_-idx-1) );\
-		    revdipangle = atan( (szy_-idy-1)/(float)(szx_-idx-1) );\
-		}\
-		if ( dipangle > M_PI_4f && revdipangle > M_PI_4f )\
-		    { xfac = yfac = 1; }\
-		real *= xfac*yfac*zfac; imag *= xfac*yfac*zfac;\
-		float mod = real*real + imag*imag;\
-		if ( docomputemax )\
-		{\
-		    mod = real*real + imag*imag;\
-		    if ( mod > max_ )\
-			max_ = mod;\
-		}\
-		else\
-		{\
-		    if ( mod < max_*mDefThreshold )\
-			{ real = imag = 0; }\
-		    trcarr_->set(idx,idy,idz,float_complex(real,imag));\
-		}\
-	    }\
-	}\
-    }
-
     if ( nrdone_ == 0 )
-	{ mDoLoopWork( true ) }
+	doWork( true, poscutfreq );
 
-    mDoLoopWork( false )
+    doWork( false, poscutfreq );
     mDoTransform( fft_, false, trcarr_ );
 
     nrdone_++;
