@@ -98,6 +98,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	, form_(*new Math::Formula(true,getSpecVars()))
 	, wellids_(wllids)
 	, formfld_(0)
+	, nmfld_(0)
 	, havenew_(false)
 {
     if ( wellids_.isEmpty() )
@@ -394,7 +395,7 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     else if ( !formfld_->updateForm() )
 	return false;
 
-    const BufferString newnm = nmfld_->text();
+    const BufferString newnm = nmfld_ ? nmfld_->text() : "";
     if ( newnm.isEmpty() )
 	mErrRet(tr("Please provide a name for the new log"))
     if ( lognms_.isPresent(newnm) || superwls_.getLog(newnm) )
@@ -657,12 +658,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
 
 void uiWellLogCalc::setOutputLogName( const char* nm )
-{
-    nmfld_->setText( nm );
-}
+{ if ( nmfld_ ) nmfld_->setText( nm ); }
 
 
 const char* uiWellLogCalc::getOutputLogName() const
-{
-    return nmfld_->text();
-}
+{ return nmfld_ ? nmfld_->text() : 0; }
