@@ -63,8 +63,9 @@ static const char* fileprot = "file://";
 static void initHelpSystem( const char* context )
 {
     FilePath subpath( context, mHtmlFileName );
-    FilePath basefile = mGetUserDocDir();
+    FilePath basefile = GetDocFileDir( "" );
     basefile.add( subpath.fullPath() );
+    BufferString str( basefile.fullPath() );
 
     BufferString url;
 
@@ -86,7 +87,7 @@ static void initHelpSystem( const char* context )
 
 void FlareHelpProvider::initODHelp()
 {
-    initHelpSystem( "od" );
+    initHelpSystem( "od_userdoc" );
     initHelpSystem( "appman" );
 }
 

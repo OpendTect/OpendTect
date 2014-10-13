@@ -448,45 +448,21 @@ endmacro( download_packages )
 
 macro( create_docpackages PACKAGE_NAME )
     if( WIN32 )
-	message( FATAL_ERROR "Documentation packages will create only on Linux ans Mac" )
-    else()
 	if( ${PACKAGE_NAME} STREQUAL "doc" )
-	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt )
-		file( RENAME ${CMAKE_INSTALL_PREFIX}/doc/base/LinkFileTable.txt
-			     ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt )
-	    endif()
-
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/SysAdm
-			     ${DESTINATION_DIR}/doc/SysAdm )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Scripts
-			     ${DESTINATION_DIR}/doc/Scripts )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/workflows
-			     ${DESTINATION_DIR}/doc/User/workflows )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/base
-			     ${DESTINATION_DIR}/doc/User/base )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/base
-			     ${DESTINATION_DIR}/doc/Credits/base )
+			     ${CMAKE_INSTALL_PREFIX}/doc/od_userdoc
+			     ${DESTINATION_DIR}/doc/od_userdoc )
 	elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/Credits/dgb
-			     ${DESTINATION_DIR}/doc/Credits/dgb )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			     ${CMAKE_INSTALL_PREFIX}/doc/dgb
-			     ${DESTINATION_DIR}/doc/User/dgb )
+			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_userdoc
+			     ${DESTINATION_DIR}/doc/dgb_userdoc )
 	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/doc/flexnet* )
 	    foreach( FIL ${FILES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
 	    endforeach()
-	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt )
-		file( RENAME ${CMAKE_INSTALL_PREFIX}/doc/dgb/LinkFileTable.txt
-			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt )
-	    endif()
-	elseif( ${PACKAGE_NAME} STREQUAL "classdoc" )
+	endif()
+    else()
+	if( ${PACKAGE_NAME} STREQUAL "classdoc" )
 	    if( EXISTS ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				 ${CMAKE_INSTALL_PREFIX}/doc/Programmer/Generated
