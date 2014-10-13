@@ -98,6 +98,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
 	, form_(*new Math::Formula(true,getSpecVars()))
 	, wellids_(wllids)
 	, formfld_(0)
+	, nmfld_(0)
 	, havenew_(false)
 {
     if ( wellids_.isEmpty() )
@@ -655,12 +656,8 @@ bool uiWellLogCalc::calcLog( Well::Log& wlout,
 
 
 void uiWellLogCalc::setOutputLogName( const char* nm )
-{
-    nmfld_->setText( nm );
-}
+{ if ( nmfld_ ) nmfld_->setText( nm ); }
 
 
 const char* uiWellLogCalc::getOutputLogName() const
-{
-    return nmfld_->text();
-}
+{ return nmfld_ ? nmfld_->text() : 0; }
