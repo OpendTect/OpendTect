@@ -49,7 +49,7 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg(p,uiDialog::Setup("Horizon Pre-load Manager",
 				       mNoDlgTitle,
-                                       mODHelpKey(mSeisPreLoadMgrHelpID) ))
+				       mODHelpKey(mHorizonPreLoadDlgHelpID) ))
 {
     setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );
@@ -140,7 +140,7 @@ void uiHorizonPreLoadDlg::unloadPushCB( CallBacker* )
     if ( selhornms.isEmpty() )
 	return;
 
-    uiString msg( "Unload selected horizon(s)'?\n" 
+    uiString msg( "Unload selected horizon(s)'?\n"
                   "(This will not delete the object(s) from disk)" );
     if ( !uiMSG().askGoOn( msg ) )
 	return;
@@ -250,10 +250,10 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     const BufferString fnm( hordlg.ioObj()->fullUserExpr(true) );
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	{ 
-            uiMSG().message(tr("Cannot open output file:\n%1")
-                          .arg(fnm)); return; 
-        }
+    {
+	uiMSG().message(tr("Cannot open output file:\n%1").arg(fnm));
+	return;
+    }
 
     IOPar par;
     EM::HorizonPreLoader& hpl = EM::HPreL();
@@ -272,8 +272,8 @@ void uiHorizonPreLoadDlg::savePushCB( CallBacker* )
     ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
     {
-	uiMSG().message(tr("Cannot write to output file:\n%1")
-                      .arg(fnm)); return;
+	uiMSG().message(tr("Cannot write to output file:\n%1").arg(fnm));
+	return;
     }
 
     par.putTo( astrm );

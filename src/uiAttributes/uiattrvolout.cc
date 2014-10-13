@@ -57,8 +57,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg()  { return "Maximum Inline Range"; }
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
 			    bool multioutput,
 			    const NLAModel* n, const MultiID& id )
-    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,
-                       mODHelpKey(mAttrVolOutHelpID) ))
+    : uiDialog(p,Setup(uiStrings::sEmptyString(),mNoDlgTitle,mNoHelpKey))
     , subselpar_(*new IOPar)
     , sel_(*new Attrib::CurrentSel)
     , ads_(*new Attrib::DescSet(ad))
@@ -74,6 +73,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const Attrib::DescSet& ad,
     setCaption( is2d ? tr("Create Data Attribute") :
        ( multioutput ? tr("Create Multi-attribute Output")
 		     : tr("Create Volume Attribute")) );
+
+    setHelpKey( is2d ? mODHelpKey(mAttrVolOut2DHelpID)
+		     : mODHelpKey(mAttrVolOutHelpID) );
 
     uiAttrSelData attrdata( ads_, false );
     attrdata.nlamodel_ = nlamodel_;

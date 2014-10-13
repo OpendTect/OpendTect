@@ -432,6 +432,7 @@ void uiODApplMgrDispatcher::openXPlot()
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( par_, ctio );
+    seldlg.setHelpKey( mODHelpKey(mOpenCossplotHelpID) );
     if ( !seldlg.go() || !seldlg.ioObj() ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );

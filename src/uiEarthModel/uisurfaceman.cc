@@ -34,10 +34,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibodyoperatordlg.h"
 #include "uibodyregiondlg.h"
 #include "uicolor.h"
-#include "uiimpbodycaldlg.h"
 #include "uigeninputdlg.h"
 #include "uihorizonmergedlg.h"
 #include "uihorizonrelations.h"
+#include "uiimpbodycaldlg.h"
 #include "uilistbox.h"
 #include "uiioobjmanip.h"
 #include "uiioobjselgrp.h"
@@ -109,7 +109,7 @@ static HelpKey getHelpID( uiSurfaceMan::Type typ )
 case uiSurfaceMan::Hor2D:	return mODHelpKey(mSurface2DManHelpID);
 case uiSurfaceMan::StickSet:	return mODHelpKey(mFaultStickSetsManageHelpID);
 case uiSurfaceMan::Flt3D:	return mODHelpKey(mFaultsManageHelpID);
-case uiSurfaceMan::Body:	return mODHelpKey(mCopySurface3DHelpID);
+case uiSurfaceMan::Body:	return mODHelpKey(mBodyManHelpID);
 default:			return mODHelpKey(mSurfaceManHelpID);
     }
 }
