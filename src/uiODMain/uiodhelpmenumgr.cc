@@ -41,20 +41,26 @@ static BufferString getAdminURL()
     return fp.add("base").add("index.htm").fullPath();
 }
 
+static BufferString getSupportURL()
+{ return "http://dgbes.com/index.php/support"; }
+
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
-	: helpmnu_( mm->helpMnu() )
-	, mnumgr_( mm )
+    : helpmnu_( mm->helpMnu() )
+    , mnumgr_( mm )
 {
-    mInsertItem( helpmnu_, tr("User documentation"), mUserDocMnuItm, "F1" );
+    uiMenu* docmnu = new uiMenu( tr("Documentation") );
+    helpmnu_->addMenu( docmnu );
+    mInsertItem( docmnu, tr("OpendTect ..."), mUserDocMnuItm, "F1" );
 
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( helpmnu_, tr("Programmer ..."), mProgrammerMnuItm, 0 );
+	mInsertItem( docmnu, tr("Programmer ..."), mProgrammerMnuItm, 0 );
 
     BufferString adminurl = getAdminURL();
     if ( File::exists(adminurl) )
-	mInsertItem( helpmnu_, tr("Admin ..."), mAdminMnuItm, 0 );
+	mInsertItem( docmnu, tr("Admin ..."), mAdminMnuItm, 0 );
 
+    mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
 }
 
@@ -62,7 +68,6 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 uiODHelpMenuMgr::~uiODHelpMenuMgr()
 {
 }
-
 
 
 void uiODHelpMenuMgr::handle( int id )
@@ -76,6 +81,10 @@ void uiODHelpMenuMgr::handle( int id )
 	case mProgrammerMnuItm:
 	{
 	    HelpProvider::provideHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0));
+	} break;
+	case mSupportMnuItm:
+	{
+	    uiDesktopServices::openUrl( getSupportURL() );
 	} break;
 	case mAboutMnuItm:
 	{
@@ -99,8 +108,8 @@ BufferString uiODHelpMenuMgr::getAboutString()
        .add( "revision " ).add( mSVN_VERSION ).add( "<br><br>" );
 
     str.add( "Based on Qt " ).add( GetQtVersion() )
-       .add( ", OSG " ).add( GetOSGVersion() )
-       .add( ", GCC " ).add( GetGCCVersion() ).add( "<br><br>" );
+       .add( ", OSG " ).add( GetOSGVersion() ).add( ",<br>" )
+       .add( GetCompilerVersionStr() ).add( "<br><br>" );
 
     str.add( mCOPYRIGHT_STRING ).add( "<br>" )
        .add( "OpendTect is released under a triple licensing scheme. "

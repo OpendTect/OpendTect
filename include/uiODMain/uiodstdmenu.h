@@ -224,10 +224,11 @@ ________________________________________________________________________
 /* 'Help' menu */
 
 #define mHelpMnuBase		(mHelpMnu + 100)
-#define mAdminMnuItm		(mHelpMnuBase + 1)
-#define mProgrammerMnuItm	(mHelpMnuBase + 2)
-#define mAboutMnuItm		(mHelpMnuBase + 3)
-#define mUserDocMnuItm		(mHelpMnuBase + 4)
+#define mUserDocMnuItm		(mHelpMnuBase + 1)
+#define mAdminMnuItm		(mHelpMnuBase + 2)
+#define mProgrammerMnuItm	(mHelpMnuBase + 3)
+#define mAboutMnuItm		(mHelpMnuBase + 4)
+#define mSupportMnuItm		(mHelpMnuBase + 5)
 
 
 
