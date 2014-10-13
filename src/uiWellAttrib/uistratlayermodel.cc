@@ -459,6 +459,24 @@ const StratSynth& uiStratLayerModel::currentStratSynth() const
 }
 
 
+const StratSynth& uiStratLayerModel::normalStratSynth() const
+{
+    return synthdisp_->normalSS();
+}
+
+
+const StratSynth& uiStratLayerModel::editStratSynth() const
+{
+    return synthdisp_->editSS();
+}
+
+
+bool uiStratLayerModel::isEditUsed() const
+{
+    return synthdisp_->isEditUsed();
+}
+
+
 const PropertyRefSelection& uiStratLayerModel::modelProperties() const
 {
     return synthdisp_->modelPropertyRefs();

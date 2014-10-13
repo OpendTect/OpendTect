@@ -1094,6 +1094,14 @@ void uiStratSynthDisp::updateFields()
 
 void uiStratSynthDisp::showFRResults()
 {
+    const int wvacuritm = wvadatalist_->currentItem();
+    const int vdcuritm = vddatalist_->currentItem();
+    updateSyntheticList( true );
+    updateSyntheticList( false );
+    if ( wvadatalist_->size() <= 1 )
+	return;
+    wvadatalist_->setCurrentItem( wvacuritm );
+    vddatalist_->setCurrentItem( vdcuritm );
     setCurrentSynthetic( true );
     setCurrentSynthetic( false );
     displaySynthetic( currentwvasynthetic_ );
@@ -1118,6 +1126,8 @@ void uiStratSynthDisp::doModelChange()
     curSS().clearInfoMsg();
     updateSyntheticList( true );
     updateSyntheticList( false );
+    if ( wvadatalist_->size() <= 1 )
+	return;
     wvadatalist_->setCurrentItem( 1 );
     vddatalist_->setCurrentItem( 1 );
     setCurrentSynthetic( true );
@@ -1207,6 +1217,8 @@ void uiStratSynthDisp::syntheticRemoved( CallBacker* cb )
     synthsChanged.trigger();
     updateSyntheticList( true );
     updateSyntheticList( false );
+    if ( wvadatalist_->size() <= 1 )
+	return;
     wvadatalist_->setCurrentItem( 1 );
     vddatalist_->setCurrentItem( 1 );
     setCurrentSynthetic( true );
