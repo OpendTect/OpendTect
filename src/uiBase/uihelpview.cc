@@ -58,7 +58,7 @@ HelpProvider* FlareHelpProvider::createInstance()
 #define mHtmlFileName	"Default.htm"
 #define mBaseUrl	"http://www.opendtect.org/"
 
-static const char* fileprot = "file://";
+static const char* fileprot = "file:///";
 
 static void initHelpSystem( const char* context )
 {
@@ -72,7 +72,7 @@ static void initHelpSystem( const char* context )
     if ( File::exists(basefile.fullPath() ) )
     {
 	url = fileprot;
-	url += basefile.fullPath(FilePath::Unix,true);
+	url += basefile.fullPath();
     }
     else
     {
