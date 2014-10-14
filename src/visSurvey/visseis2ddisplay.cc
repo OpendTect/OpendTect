@@ -296,7 +296,6 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 
     const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
 			    maxtrcnrrg_.limitValue(trcrg.stop) );
-
     if ( !rg.width() )
 	return;
 
@@ -776,16 +775,21 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setTraceNrRange( getTraceNrRange() );
     s2dd->setResolution( getResolution(), tr );
     s2dd->setGeomID( geomid_ );
+    s2dd->setZAxisTransform( datatransform_, tr );
+    s2dd->showPanel( panelstrip_->isOn() );
+
+    while ( nrAttribs() > s2dd->nrAttribs() )
+	s2dd->addAttrib();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( idx )
-	    s2dd->addAttrib();
-
-	s2dd->setSelSpec( idx, *getSelSpec(idx) );
-
-	if ( getCache( idx ) )
-	    s2dd->setData( idx, *getCache( idx ), tr );
+	const Attrib::SelSpec* selspec = getSelSpec( idx );
+	if ( selspec ) s2dd->setSelSpec( idx, *selspec );
+	s2dd->setDataPackID( idx, getDataPackID(idx), tr );
+	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
+	if ( mappersetup ) s2dd->setColTabMapperSetup( idx, *mappersetup, tr );
+	const ColTab::Sequence* colseq = getColTabSequence( idx );
+	if ( colseq ) s2dd->setColTabSequence( idx, *colseq, tr );
     }
 
     return s2dd;

@@ -577,7 +577,10 @@ void RandomTrackDisplay::dataTransformCB( CallBacker* )
     for ( int idx=0; idx<cache_.size(); idx++ )
     {
 	if ( cache_[idx] )
+	{
+	    createDisplayDataPacks( idx );
 	    setTraceData( idx, *cache_[idx], 0 );
+	}
     }
 }
 
@@ -641,6 +644,7 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
     ConstDataPackRef<Attrib::FlatRdmTrcsDataPack>rdmtrcsdp = dpm.obtain( dpid );
+    if ( !rdmtrcsdp ) return;
 
     TypeSet<BinID> path;
     getDataTraceBids( path );
@@ -1081,14 +1085,27 @@ bool RandomTrackDisplay::isGeometryLocked() const
 SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
 {
     RandomTrackDisplay* rtd = new RandomTrackDisplay;
-
     rtd->setDepthInterval( getDataTraceRange() );
     TypeSet<BinID> positions;
     for ( int idx=0; idx<nrKnots(); idx++ )
 	positions += getKnotPos( idx );
     rtd->setKnotPositions( positions );
-
     rtd->lockGeometry( isGeometryLocked() );
+    rtd->setZAxisTransform( datatransform_, tr );
+
+    while ( nrAttribs() > rtd->nrAttribs() )
+	rtd->addAttrib();
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	const Attrib::SelSpec* selspec = getSelSpec( idx );
+	if ( selspec ) rtd->setSelSpec( idx, *selspec );
+	rtd->setDataPackID( idx, getDataPackID(idx), tr );
+	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
+	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, tr );
+	const ColTab::Sequence* colseq = getColTabSequence( idx );
+	if ( colseq ) rtd->setColTabSequence( idx, *colseq, tr );
+    }
 
     return rtd;
 }
