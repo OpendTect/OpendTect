@@ -214,6 +214,10 @@ public:
 			// Not for casual use
     static void		programActiveWindow(uiMainWin*);
     static uiMainWin*	programmedActiveWindow();
+
+    NotifierAccess*	runScriptRequest();
+    void		runScript(const char* filename);
+    const char*		getScriptToRun() const;
 };
 
 #endif

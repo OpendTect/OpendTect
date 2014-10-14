@@ -75,6 +75,8 @@ protected:
     bool			surveyautoexec_;
     int				scriptidx_;
     BufferString		cmdlogname_;
+
+    void			runScriptCB(CallBacker*);
 };
 
 

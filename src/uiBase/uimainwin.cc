@@ -974,6 +974,28 @@ void uiMainWin::programActiveWindow( uiMainWin* mw )
 uiMainWin* uiMainWin::programmedActiveWindow()
 { return programmedactivewin_; }
 
+
+static Threads::Mutex runscriptmutex_;
+static Notifier<uiMainWin> runScriptNotifier(0);
+static BufferString scripttorun_;
+
+
+NotifierAccess* uiMainWin::runScriptRequest()
+{ return &runScriptNotifier; }
+
+void uiMainWin::runScript( const char* filename )
+{
+    runscriptmutex_.lock();
+    scripttorun_ = filename;
+    runScriptNotifier.trigger( this );
+    runscriptmutex_.unLock();
+}
+
+
+const char* uiMainWin::getScriptToRun() const
+{ return scripttorun_; }
+
+
 uiMainWin* uiMainWin::activeWindow()
 {
     if ( programmedactivewin_ )
