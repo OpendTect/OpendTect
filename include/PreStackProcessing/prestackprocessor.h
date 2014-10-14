@@ -73,6 +73,7 @@ public:
     virtual			~Processor();
     virtual bool		usesPreStackInput() const	{ return true; }
     virtual void		adjustPossibleCompArea(TrcKeySampling&){return;}
+    virtual void		retainCurBID( const BinID& ) {};
 
 protected:
 				Processor( const char* nm );
@@ -80,7 +81,6 @@ protected:
     static int			getRelBidOffset(const BinID& relbid,
 						const BinID& stepout);
     static void			freeArray(ObjectSet<Gather>&);
-    virtual void		retainRelBID( const BinID& ) {}
 
     BinID			outputstepout_;
     ObjectSet<Gather>		outputs_;
