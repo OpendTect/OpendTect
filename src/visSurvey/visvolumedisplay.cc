@@ -357,7 +357,8 @@ void VolumeDisplay::draggerStartCB( CallBacker* )
 void VolumeDisplay::draggerMoveCB( CallBacker* )
 {
     CubeSampling cs = getCubeSampling(true,true,0);
-    cs.snapToSurvey();
+    if ( scene_ )
+	cs.limitTo( scene_->getCubeSampling() );
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
@@ -532,8 +533,8 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& desiredcs,
 
     if ( dragmode )
 	cs.limitTo( texturecs_ );
-    else
-	cs.snapToSurvey();
+    else if ( scene_ )
+	cs.limitTo( scene_->getCubeSampling() );
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
