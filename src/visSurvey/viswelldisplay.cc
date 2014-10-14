@@ -328,7 +328,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 
 bool WellDisplay::needsConversionToTime() const
 {
-    return zistime_ && !scene_->zDomainInfo().def_.isDepth();
+    return zistime_ && ( scene_ && !scene_->zDomainInfo().def_.isDepth() );
 }
 
 
