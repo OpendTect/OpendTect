@@ -333,6 +333,9 @@ bool BatchProgram::go( od_ostream& strm )
 
 	delete sparegather;
 
+	if ( !needpsinput )
+	    procman->getProcessor(0)->retainCurBID( curbid );
+
 	if ( nrfound && procman->process() )
 	{
 	    const DataPack* dp =

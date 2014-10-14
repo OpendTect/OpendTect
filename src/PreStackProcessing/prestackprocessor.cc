@@ -61,6 +61,13 @@ bool Processor::reset( bool force )
 }
 
 
+//to circumvent ABI freeze limitations
+void Processor::retainCurBID( const BinID& bid )
+{
+	return retainRelBID( bid );
+}
+
+
 bool Processor::wantsInput( const BinID& bid ) const
 { 
     const int offset=getRelBidOffset( bid, outputstepout_ );
@@ -69,12 +76,6 @@ bool Processor::wantsInput( const BinID& bid ) const
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
-    if ( !usesPreStackInput() )
-    {
-	retainRelBID( relbid );
-	return;
-    }
-
     Gather* input = 0;
     mObtainDataPack( input, Gather*, DataPackMgr::FlatID(), id );
 

@@ -73,6 +73,7 @@ public:
     virtual			~Processor();
     virtual bool		usesPreStackInput() const	{ return true; }
     virtual void		adjustPossibleCompArea(HorSampling&){return;}
+	void			retainCurBID( const BinID& );
 
 protected:
 				Processor( const char* nm );
