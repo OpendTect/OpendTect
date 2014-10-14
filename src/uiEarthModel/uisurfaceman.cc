@@ -110,7 +110,7 @@ static HelpKey getHelpID( uiSurfaceMan::Type typ )
 case uiSurfaceMan::Hor2D:	return mODHelpKey(mSurface2DManHelpID);
 case uiSurfaceMan::StickSet:	return mODHelpKey(mFaultStickSetsManageHelpID);
 case uiSurfaceMan::Flt3D:	return mODHelpKey(mFaultsManageHelpID);
-case uiSurfaceMan::Body:	return mODHelpKey(mCopySurface3DHelpID);
+case uiSurfaceMan::Body:	return mODHelpKey(mBodyManHelpID);
 default:			return mODHelpKey(mSurfaceManHelpID);
     }
 }

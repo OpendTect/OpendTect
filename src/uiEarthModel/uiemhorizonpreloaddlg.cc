@@ -49,7 +49,7 @@ uiEMPreLoadDlg::uiEMPreLoadDlg( uiParent* p, const Setup& s )
 uiHorizonPreLoadDlg::uiHorizonPreLoadDlg( uiParent* p )
     : uiEMPreLoadDlg(p,uiDialog::Setup("Horizon Pre-load Manager",
 				       mNoDlgTitle,
-                                       mODHelpKey(mSeisPreLoadMgrHelpID) ))
+				       mODHelpKey(mHorizonPreLoadDlgHelpID) ))
 {
     setCtrlStyle( CloseOnly );
     listfld_ = new uiListBox( this, "Loaded entries", OD::ChooseAtLeastOne );

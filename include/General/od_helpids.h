@@ -63,7 +63,7 @@ ________________________________________________________________________
 #define		mGridLinesDlgHelpID				0x05000003
 #define		mPropertiesDlgHelpID			        0x05000004
 #define		mScenePropertyDlgHelpID				0x05000005
-#define mColorBarDialog 0x5000006
+#define		mColorBarDialog					0x05000006
 #define		mZScaleDlgHelpID				0x05000007
 #define		mPSViewerSettingDlgHelpID			0x05000008
 #define		mPrintSceneDlgHelpID			        0x05000009
@@ -86,6 +86,7 @@ ________________________________________________________________________
 #define		mODEditAttribColorDlgHelpID			0x05001005
 // Visualization Sessions 03
 #define		mODMainAutoSessionDlgHelpID			0x05003001
+#define		mSessionManHelpID				0x05003002
 //Flat_displays 51
 // Flat_displays Display 00
 #define		mFlatViewStdControlHelpID			0x05100000
@@ -137,6 +138,7 @@ ________________________________________________________________________
 #define		mRestartBatchDialogHelpID			0x10102001
 #define		mClusterJobProvHelpID			        0x10102002
 #define		mMultOutSelHelpID				0x10102003
+#define		mAttrVolOut2DHelpID				0x10102004
 // Attributes Utilities 03
 #define		mAttrSetManHelpID				0x10103000
 #define		mEvaluateDlgHelpID				0x10103001
@@ -269,6 +271,7 @@ ________________________________________________________________________
 #define		mHorizonShiftDialogHelpID			0x10400015
 #define		mBulkHorizonImportHelpID			0x10400016
 #define		mHorizonSettingsHelpID				0x10400017
+#define		mHorizonPreLoadDlgHelpID			0x10400018
 // Surfaces Faults 01
 #define		mImportFaultHelpID				0x10401000
 #define		mExportFaultHelpID				0x10401001
@@ -286,11 +289,12 @@ ________________________________________________________________________
 #define		HorizonModifyDlgHelpID			        0x10402003
 #define		mFaultStickSetsManageHelpID			0x10402004
 #define		mFaultsManageHelpID				0x10402005
-#define mCopySurface3DHelpID 0x10402006
+#define		mCopySurface3DHelpID				0x10402006
 #define		mCopySurface2DHelpID			        0x10402007
 #define		mCopySurfaceStickSetsHelpID		        0x10402008
 #define		mCopySurfaceFaultsHelpID			0x10402009
 #define		mHorizonMergeDlgHelpID			        0x10402010
+#define		mBodyManHelpID					0x10402011
 // Surfaces Display 03
 #define		mMultiSurfaceReadDlgHelpID			0x10403000
 #define		mWriteSurfaceDlgHelpID			        0x10403001
@@ -418,6 +422,7 @@ ________________________________________________________________________
 #define		mDPSSelectednessDlgHelpID			0x11100011
 #define		mVariogramDlgHelpID				0x11100012
 #define		mVariogramDisplayHelpID				0x11100013
+#define		mOpenCossplotHelpID				0x11100014
 // Crossplots Extraction 01
 #define		mAttribCrossPlotHelpID			        0x11101000
 #define		mWellAttribCrossPlotHelpID			0x11101001
