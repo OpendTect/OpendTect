@@ -26,8 +26,8 @@ static Threads::Atomic<int> curreqid_;
 Network::RequestPacket::RequestPacket( od_int32 payloadsize )
     : payload_( 0 )
 {
-    setPayload( 0, payloadsize );
-    setSubID( 0 );
+    setPayload( allocPayload(payloadsize), payloadsize );
+    setSubID( cMoreSubID() );
     setRequestID( -1 );
 }
 
@@ -89,6 +89,9 @@ void Network::RequestPacket::setSubID( od_int16 sid )
 
 void* Network::RequestPacket::allocPayload( od_int32 size )
 {
+    if ( size < 1 )
+	return 0;
+
     mDeclareAndTryAlloc( char*, pl, char[size] );
     return pl;
 }
@@ -99,7 +102,7 @@ void Network::RequestPacket::setPayload( void* ptr, od_int32 size )
     deleteAndZeroArrPtr( payload_ );
 
     payload_ = (char*)ptr;
-    mPayloadSize_ = size;
+    mPayloadSize_ = payload_ ? size : 0;
 }
 
 

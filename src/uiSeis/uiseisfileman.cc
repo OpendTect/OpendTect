@@ -54,7 +54,7 @@ mDefineInstanceCreatedNotifierAccess(uiSeisFileMan)
                        mODHelpKey(mSeisFileMan3DHelpID)
 uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
     :uiObjFileMan(p,uiDialog::Setup(mCapt,mNoDlgTitle,mHelpID)
-				    .nrstatusflds(1).modal(false),
+				   .nrstatusflds(1).modal(false),
 		   SeisTrcTranslatorGroup::ioContext())
     , is2d_(is2d)
     , browsebut_(0)
@@ -126,9 +126,7 @@ void uiSeisFileMan::ownSelChg()
 	    but->setToolTip( tr(tt) ); \
 	} \
 	else \
-	{ \
 	    but->setToolTip( deftt ); \
-	} \
     }
 
 void uiSeisFileMan::setToolButtonProperties()
@@ -146,15 +144,20 @@ void uiSeisFileMan::setToolButtonProperties()
 	const bool enabbrowse = curimplexists_ && !mIsOfTranslType(SEGYDirect);
 	browsebut_->setSensitive( enabbrowse );
 	mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
-		       "Browse/edit selected cube");
+			"Browse/edit selected cube");
     }
 
     if ( mergecubesbut_ )
     {
 	BufferStringSet selcubenms;
 	selgrp_->getChosen( selcubenms );
-	mSetButToolTip(mergecubesbut_,"Merge ",selcubenms.getDispString(2),"",
-		       "Merge cubes");
+	if ( selcubenms.size() > 1 )
+	{
+	    mSetButToolTip(mergecubesbut_,"Merge ",
+			   selcubenms.getDispString(2),"", "Merge cubes");
+	}
+	else
+	    mergecubesbut_->setToolTip( "Merge cubes" );
     }
 
     if ( man2dlines_ )
@@ -176,11 +179,11 @@ void uiSeisFileMan::setToolButtonProperties()
 	attribbut_->setSensitive( curioobj_ );
 	if ( curioobj_ )
 	{
-	    FilePath fp( curioobj_->fullUserExpr() );
-	    fp.setExtension( "proc" );
-	    attribbut_->setSensitive( File::exists(fp.fullPath()) );
-	    mSetButToolTip(attribbut_,"Show AttributeSet for",cursel,"",
-			   "Show AttributeSet");
+	     FilePath fp( curioobj_->fullUserExpr() );
+	     fp.setExtension( "proc" );
+	     attribbut_->setSensitive( File::exists(fp.fullPath()) );
+	     mSetButToolTip(attribbut_,"Show AttributeSet for ",cursel,"",
+			    "Show AttributeSet");
 	}
 	else
 	    attribbut_->setToolTip( "Show AttributeSet" );
@@ -217,11 +220,11 @@ void uiSeisFileMan::mkFileInfo()
     {
 	if ( oinf.getRanges(cs) )
 	{
-	    txt = "";
+	    txt.setEmpty();
 	    if ( !mIsUdf(cs.hrg.stop.inl()) )
-	    { txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
+		{ txt.add(sKey::Inline()) mAddRangeTxt(inl()); }
 	    if ( !mIsUdf(cs.hrg.stop.crl()) )
-	    { txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
+		{ txt.addNewLine().add(sKey::Crossline()) mAddRangeTxt(crl()); }
 	    float area = SI().getArea( cs.hrg.inlRange(), cs.hrg.crlRange() );
 	    txt.add("\nArea: ").add( getAreaString( area, true, 0 ) );
 
@@ -232,51 +235,52 @@ void uiSeisFileMan::mkFileInfo()
 	}
     }
 
-    if ( curioobj_->pars().size() )
+    if ( !curioobj_->pars().isEmpty() )
     {
-	if ( curioobj_->pars().hasKey("Type") )
-	{ txt += "\nType: "; txt += curioobj_->pars().find( "Type" ); }
+	const IOPar& pars = curioobj_->pars();
+	FixedString parstr = pars.find( "Type" );
+	if ( !parstr.isEmpty() )
+	    txt.add( "\nType: " ).add( parstr );
 
-	const char* optstr = "Optimized direction";
-	if ( curioobj_->pars().hasKey(optstr) )
-	{ txt += "\nOptimized direction: ";
-	    txt += curioobj_->pars().find(optstr); }
-	if ( curioobj_->pars().isTrue("Is Velocity") )
+	parstr = pars.find( "Optimized direction" );
+	if ( !parstr.isEmpty() )
+	    txt.add( "\nOptimized direction: " ).add( parstr );
+	if ( pars.isTrue("Is Velocity") )
 	{
 	    Interval<float> topvavg, botvavg;
 	    txt += "\nVelocity Type: ";
-	    const char* typstr = curioobj_->pars().find( "Velocity Type" );
-	    txt += typstr ? typstr : "<unknown>";
+	    parstr = pars.find( "Velocity Type" );
+	    txt += parstr.isEmpty() ? "<unknown>" : parstr.str();
 
-	    if (curioobj_->pars().get(VelocityStretcher::sKeyTopVavg(),topvavg)
-	    && curioobj_->pars().get(VelocityStretcher::sKeyBotVavg(),botvavg))
+	    if ( pars.get(VelocityStretcher::sKeyTopVavg(),topvavg)
+	      && pars.get(VelocityStretcher::sKeyBotVavg(),botvavg))
 	    {
-		StepInterval<float> rg;
-		StepInterval<float> zrg = SI().zRange(true);
+		const StepInterval<float> sizrg = SI().zRange(true);
+		StepInterval<float> dispzrg;
 
 		if ( SI().zIsTime() )
 		{
-		    rg.start = zrg.start * topvavg.start / 2;
-		    rg.stop = zrg.stop * botvavg.stop / 2;
-		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-		    txt += "\nDepth Range ";
-		    txt += ZDomain::Depth().unitStr(true);
+		    dispzrg.start = sizrg.start * topvavg.start / 2;
+		    dispzrg.stop = sizrg.stop * botvavg.stop / 2;
+		    dispzrg.step = (dispzrg.stop-dispzrg.start)
+					/ sizrg.nrSteps();
+		    txt.add( "\nDepth Range " )
+			.add( ZDomain::Depth().unitStr(true) );
 		}
 
 		else
 		{
-		    rg.start = 2 * zrg.start / topvavg.stop;
-		    rg.stop = 2 * zrg.stop / botvavg.start;
-		    rg.step = (rg.stop-rg.start) / zrg.nrSteps();
-		    rg.scale( mCast( float, ZDomain::Time().userFactor() ) );
-		    txt += "\nTime Range ";
-		    txt += ZDomain::Time().unitStr(true);
+		    dispzrg.start = 2 * sizrg.start / topvavg.stop;
+		    dispzrg.stop = 2 * sizrg.stop / botvavg.start;
+		    dispzrg.step = (dispzrg.stop-dispzrg.start)
+					/ sizrg.nrSteps();
+		    dispzrg.scale( (float)ZDomain::Time().userFactor() );
+		    txt.add( "\nTime Range " )
+			.add( ZDomain::Time().unitStr(true) );
 		}
 
-		txt += ": ";
-		txt += rg.start;
-		txt += " - ";
-		txt += rg.stop;
+		txt.add( ": " ).add( dispzrg.start )
+		    .add( " - " ).add( dispzrg.stop );
 	    }
 	}
     }
@@ -291,19 +295,20 @@ void uiSeisFileMan::mkFileInfo()
 		*tri->readMgr()->info().compinfo_[0];
 	    const DataCharacteristics::UserType ut = bci.datachar.userType();
 	    BufferString etxt = DataCharacteristics::getUserTypeString(ut);
-	    txt += "\nStorage: "; txt += etxt.buf() + 4;
+	    txt.add( "\nStorage: " ).add( etxt.buf() + 4 );
 	}
 	delete tri;
     }
 
     const int nrcomp = oinf.nrComponents();
     if ( nrcomp > 1 )
-	{ txt += "\nNumber of components: "; txt += nrcomp; }
+	txt.add( "\nNumber of components: " ).add( nrcomp );
 
 
     } // if ( oinf.isOK() )
 
-    if ( txt.isEmpty() ) txt = "<Empty>";
+    if ( txt.isEmpty() )
+	txt = "<Empty>\n";
     txt.add( "\n" ).add( getFileInfo() );
 
     setInfo( txt );
