@@ -54,6 +54,7 @@ protected:
     void			beforeSurveyChg(CallBacker*);
     void			afterSurveyChg(CallBacker*);
     void			stopRecordingCB(CallBacker*);
+    void			runScriptCB(CallBacker*);
 
     void                	closeDlg(CallBacker*);
     void			keyPressedCB(CallBacker*);

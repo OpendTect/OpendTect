@@ -61,32 +61,26 @@ uiCmdDriverMgr::uiCmdDriverMgr( bool fullodmode )
 
     commandLineParsing();
 
-    IOM().surveyToBeChanged.notify( mCB(this,uiCmdDriverMgr,beforeSurveyChg) );
-    IOM().afterSurveyChange.notify( mCB(this,uiCmdDriverMgr,afterSurveyChg) );
-    applwin_.windowClosed.notify( mCB(this,uiCmdDriverMgr,closeDlg) );
-    uiMain::keyboardEventHandler().keyPressed.notify(
-				mCB(this,uiCmdDriverMgr,keyPressedCB) );
-    drv_->executeFinished.notify( mCB(this,uiCmdDriverMgr,executeFinishedCB) );
+    mAttachCB( IOM().surveyToBeChanged, uiCmdDriverMgr::beforeSurveyChg );
+    mAttachCB( IOM().afterSurveyChange, uiCmdDriverMgr::afterSurveyChg );
+    mAttachCB( applwin_.windowClosed, uiCmdDriverMgr::closeDlg );
+    mAttachCB( applwin_.runScriptRequest, uiCmdDriverMgr::runScriptCB );
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	       uiCmdDriverMgr::keyPressedCB );
+    mAttachCB( drv_->executeFinished, uiCmdDriverMgr::executeFinishedCB );
 
     if ( !applwin_.finalised() )
     {
-	applwin_.postFinalise().notify(mCB(this,uiCmdDriverMgr,delayedStartCB));
-	tim_->tick.notify( mCB(this,uiCmdDriverMgr,timerCB) );
+	mAttachCB( applwin_.postFinalise(), uiCmdDriverMgr::delayedStartCB );
+	mAttachCB( tim_->tick, uiCmdDriverMgr::timerCB );
     }
 }
 
 
 uiCmdDriverMgr::~uiCmdDriverMgr()
 {
+    detachAllNotifiers();
     closeDlg(0);
-
-    IOM().surveyToBeChanged.remove( mCB(this,uiCmdDriverMgr,beforeSurveyChg) );
-    IOM().afterSurveyChange.remove( mCB(this,uiCmdDriverMgr,afterSurveyChg) );
-    applwin_.windowClosed.remove( mCB(this,uiCmdDriverMgr,closeDlg) );
-    uiMain::keyboardEventHandler().keyPressed.remove(
-				mCB(this,uiCmdDriverMgr,keyPressedCB) );
-
-    applwin_.postFinalise().remove( mCB(this,uiCmdDriverMgr,delayedStartCB) );
 
     delete tim_;
     delete rec_;
@@ -357,6 +351,23 @@ void uiCmdDriverMgr::stopRecordingCB( CallBacker* cb )
 	rec_->stop( cb );
     if ( historec_ )
 	historec_->stop( cb );
+}
+
+
+void uiCmdDriverMgr::runScriptCB( CallBacker* )
+{
+    if ( !File::exists(applwin_.getScriptToRun()) )
+	return;
+
+    if ( !drv_->nowExecuting() )
+    {
+	if ( !cmddlg_ || cmddlg_->isHidden() )
+	    scriptidx_--;		// Hide afterwards if not shown now.
+
+	getCmdDlg()->popUp();
+    }
+
+    getCmdDlg()->autoStartGo( applwin_.getScriptToRun() );
 }
 
 

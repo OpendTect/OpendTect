@@ -185,6 +185,10 @@ public:
     Notifier<uiMainWin> afterPopup;
     void		copyToClipBoard();
 
+    Notifier<uiMainWin> runScriptRequest;
+    void		runScript(const char* filename);
+    const char*		getScriptToRun() const;
+
 protected:
 
     virtual bool	closeOK()	{return true;}//!< confirm window close
@@ -209,6 +213,8 @@ protected:
     uiString		caption_;
     uiString		uniquecaption_;
     int			languagedirtycount_;
+
+    BufferString	scripttorun_;
 
 public:
 			// Not for casual use

@@ -721,6 +721,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
+    , runScriptRequest(this)
     , caption_(setup.caption_)
     , afterpopuptimer_(0)
     , languagedirtycount_( TrMgr().dirtyCount() )
@@ -747,6 +748,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const uiString& cpt,
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
+    , runScriptRequest(this)
     , caption_(cpt)
     , afterpopuptimer_(0)
     , languagedirtycount_( TrMgr().dirtyCount() )
@@ -772,6 +774,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , activatedone(this)
     , ctrlCPressed(this)
     , afterPopup(this)
+    , runScriptRequest(this)
     , caption_(nm)
     , afterpopuptimer_(0)
 {
@@ -975,6 +978,18 @@ void uiMainWin::programActiveWindow( uiMainWin* mw )
 
 uiMainWin* uiMainWin::programmedActiveWindow()
 { return programmedactivewin_; }
+
+
+void uiMainWin::runScript( const char* filename )
+{
+    scripttorun_ = filename;
+    runScriptRequest.trigger();
+}
+
+
+const char* uiMainWin::getScriptToRun() const
+{ return scripttorun_; }
+
 
 uiMainWin* uiMainWin::activeWindow()
 {
