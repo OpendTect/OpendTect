@@ -59,7 +59,7 @@ namespace visSurvey {
 
 const char* VolumeDisplay::sKeyVolumeID()	{ return "Cube ID"; }
 const char* VolumeDisplay::sKeyVolRen()		{ return "Volren"; }
-const char* VolumeDisplay::sKeyInline()		{ return "Inline"; } 
+const char* VolumeDisplay::sKeyInline()		{ return "Inline"; }
 const char* VolumeDisplay::sKeyCrossLine()	{ return "Crossline"; }
 const char* VolumeDisplay::sKeyTime()		{ return "Z-slice"; }
 
@@ -298,7 +298,7 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
     else
     {
 	const TrcKeyZSampling& csin = scene_ ? scene_->getTrcKeyZSampling()
-	    				  : getTrcKeyZSampling( 0 );
+					  : getTrcKeyZSampling( 0 );
 	TrcKeyZSampling cs = getInitTrcKeyZSampling( csin );
 	setTrcKeyZSampling( cs );
     }
@@ -357,7 +357,8 @@ void VolumeDisplay::draggerStartCB( CallBacker* )
 void VolumeDisplay::draggerMoveCB( CallBacker* )
 {
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
-    cs.snapToSurvey();
+    if ( scene_ )
+	cs.limitTo( scene_->getTrcKeyZSampling() );
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
@@ -396,8 +397,8 @@ int VolumeDisplay::addSlice( int dim )
     mAttachCB( slice->motion, VolumeDisplay::sliceMoving );
     slices_ += slice;
 
-    slice->setName( dim==cTimeSlice() ? sKeyTime() : 
-	    	   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
+    slice->setName( dim==cTimeSlice() ? sKeyTime() :
+		   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
 
     addChild( slice->osgNode() );
     const TrcKeyZSampling cs = getTrcKeyZSampling( 0 );
@@ -489,7 +490,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     isosurface->ref();
     isosurface->setRightHandSystem( righthandsystem_ );
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
-	    		 MarchingCubesSurface() );
+			 MarchingCubesSurface() );
     isosurface->setSurface( *surface, tr );
     isosurface->setName( "Iso surface" );
 
@@ -498,8 +499,8 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     setting.isovalue_ = defaultIsoValue();
     isosurfsettings_ += setting;
 
-    if ( updateisosurface )   
-       	updateIsoSurface( isosurfaces_.size()-1, tr );
+    if ( updateisosurface )
+	updateIsoSurface( isosurfaces_.size()-1, tr );
 
     //add before the volume transform
     addChild( isosurface->osgNode() );
@@ -532,8 +533,8 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 
     if ( dragmode )
 	cs.limitTo( texturecs_ );
-    else
-	cs.snapToSurvey();
+    else if ( scene_ )
+	cs.limitTo( scene_->getTrcKeyZSampling() );
 
     const Coord3 center( (cs.hrg.start.inl() + cs.hrg.stop.inl())/2.0,
 			 (cs.hrg.start.crl() + cs.hrg.stop.crl())/2.0,
@@ -622,7 +623,7 @@ float VolumeDisplay::isoValue( const mVisMCSurf* mcd ) const
 }
 
 
-void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv, 
+void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv,
 				 TaskRunner* tr )
 {
     const int idx = isosurfaces_.indexOf( mcd );
@@ -634,7 +635,7 @@ void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv,
 }
 
 
-mVisMCSurf* VolumeDisplay::getIsoSurface( int idx ) 
+mVisMCSurf* VolumeDisplay::getIsoSurface( int idx )
 { return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
 
 
@@ -657,7 +658,7 @@ void VolumeDisplay::setFullMode( const mVisMCSurf* mcd, bool full )
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 )
 	return;
-    
+
     isosurfsettings_[idx].mode_ = full ? 1 : 0;
 }
 
@@ -687,7 +688,7 @@ MultiID  VolumeDisplay::getSeedsID( const mVisMCSurf* mcd ) const
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
 	return MultiID();
-    
+
     return isosurfsettings_[idx].seedsid_;
 }
 
@@ -726,7 +727,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 
     Array3DImpl<float> newarr( data.info() );
     Array3DFloodfill<float> ff( data, isosurfsettings_[idx].isovalue_,
-	    isosurfsettings_[idx].seedsaboveisoval_, newarr );    
+	    isosurfsettings_[idx].seedsaboveisoval_, newarr );
     ff.useInputValue( true );
 
     TrcKeyZSampling cs = getTrcKeyZSampling(true,true,0);
@@ -747,13 +748,13 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     if ( isosurfsettings_[idx].seedsaboveisoval_ )
     {
 	const float outsideval = 1;
-    	const float threshold = isosurfsettings_[idx].isovalue_;
-    	float* newdata = newarr.getData();
-    	if ( newdata )
-    	{
+	const float threshold = isosurfsettings_[idx].isovalue_;
+	float* newdata = newarr.getData();
+	if ( newdata )
+	{
             for ( od_int64 idy=newarr.info().getTotalSz()-1; idy>=0; idy-- )
-		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval 
-		    				    : threshold - newdata[idy];
+		newdata[idy] = mIsUdf(newdata[idy]) ? outsideval
+						    : threshold - newdata[idy];
 	}
         else if ( newarr.getStorage() )
         {
@@ -767,13 +768,13 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
             }
 
         }
-    	else
-    	{
-    	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
+	else
+	{
+	    for ( int id0=0; id0<newarr.info().getSize(0); id0++ )
             {
-    		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
+		for ( int idy=0; idy<newarr.info().getSize(1); idy++ )
                 {
-    		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
+		    for ( int idz=0; idz<newarr.info().getSize(2); idz++ )
 		    {
 			float val = newarr.get(id0,idy,idz);
 			val = mIsUdf(val) ? outsideval : threshold-val;
@@ -781,7 +782,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 		    }
                 }
             }
-    	}
+	}
     }
 
     const float threshold = isosurfsettings_[idx].seedsaboveisoval_
@@ -802,12 +803,12 @@ int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
 
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
-    if ( !cache_ || !cache_->getCube(0).isOK() || 
+    if ( !cache_ || !cache_->getCube(0).isOK() ||
 	 mIsUdf(isosurfsettings_[idx].isovalue_) )
 	isosurfaces_[idx]->getSurface()->removeAll();
     else
     {
-	isosurfaces_[idx]->getSurface()->removeAll(); 
+	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->setBoxBoundary(
 		mCast(float,cache_->cubeSampling().hrg.inlRange().stop),
 		mCast(float,cache_->cubeSampling().hrg.crlRange().stop),
@@ -817,7 +818,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		SamplingData<float>((float) (cache_->z0_*cache_->zstep_),
 					    (float) (cache_->zstep_) ) );
 	if ( isosurfsettings_[idx].mode_ )
-    	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
 		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );
 	else
 	{
@@ -892,7 +893,7 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
     info += ", Crl: ";
     info += cs.hrg.start.crl(); info += "-"; info += cs.hrg.stop.crl();
     info += ", ";
-    
+
     float zstart = cs.zsamp_.start;
     float zstop = cs.zsamp_.stop;
 
@@ -904,9 +905,9 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 	zstop *= scene_->zDomainInfo().userFactor();
 
 	const float eps = 1e-6;
-	if ( fabs(zstart-mNINT32(zstart)) < fabs(eps*zstart) ) 
+	if ( fabs(zstart-mNINT32(zstart)) < fabs(eps*zstart) )
 	    zstart = mCast(float,mNINT32(zstart));
-	if ( fabs(zstop-mNINT32(zstop)) < fabs(eps*zstop) ) 
+	if ( fabs(zstop-mNINT32(zstop)) < fabs(eps*zstop) )
 	    zstop = mCast(float,mNINT32(zstop));
     }
 
@@ -931,7 +932,7 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     float slicepos = slice->getPosition();
     slicepos *= (float) -voltrans_->getScale()[dim];
 
-    float pos;    
+    float pos;
     if ( dim == 2 )
     {
 	slicepos += (float) voltrans_->getTranslation()[0];
@@ -952,14 +953,14 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 }
 
 
-void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice, 
+void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
 					const TrcKeyZSampling& cs )
 {
     if ( !slice ) return;
 
     const int dim = slice->getDim();
     float pos = 0;
-    Interval<float> rg; 
+    Interval<float> rg;
     int nrslices = 0;
     slice->getSliceInfo( nrslices, rg );
     if ( dim == 2 )
@@ -1039,7 +1040,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
 
 bool VolumeDisplay::setDataVolume( int attrib,
 				   const Attrib::DataCubes* attribdata,
-       				   TaskRunner* tr )
+				   TaskRunner* tr )
 {
     if ( attrib || !attribdata )
 	return false;
@@ -1067,7 +1068,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
 	usedarray = datatransformer_->getOutput( true );
 	if ( !usedarray )
-	{ 
+	{
 	    pErrMsg( "No output from transform" );
 	    return false;
 	}
@@ -1128,8 +1129,9 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
-TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos, bool displayspace,
-					     int attrib ) const
+TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
+						   bool displayspace,
+						   int attrib ) const
 {
     TrcKeyZSampling res;
     if ( manippos )
@@ -1294,11 +1296,11 @@ VolumeDisplay::IsosurfaceSetting::IsosurfaceSetting()
 }
 
 
-bool VolumeDisplay::IsosurfaceSetting::operator==( 
+bool VolumeDisplay::IsosurfaceSetting::operator==(
 	const IsosurfaceSetting& ns ) const
 {
     return mode_==ns.mode_ && seedsaboveisoval_==ns.seedsaboveisoval_ &&
-	   seedsid_==ns.seedsid_ && 
+	   seedsid_==ns.seedsid_ &&
 	   mIsEqual(isovalue_, ns.isovalue_, (isovalue_+ns.isovalue_)/2000 );
 }
 
@@ -1320,7 +1322,7 @@ bool VolumeDisplay::canSetColTabSequence() const
 
 
 void VolumeDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq,
-       					TaskRunner* tr )
+					TaskRunner* tr )
 {
     scalarfield_->setColTabSequence( seq, tr );
     updateIsoSurfColor();
@@ -1335,7 +1337,7 @@ const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 
 void VolumeDisplay::setColTabMapperSetup( int attrib,
 					  const ColTab::MapperSetup& ms,
-       					  TaskRunner* tr )
+					  TaskRunner* tr )
 {
     scalarfield_->setColTabMapperSetup( ms, tr );
     updateIsoSurfColor();
@@ -1351,7 +1353,7 @@ const ColTab::MapperSetup* VolumeDisplay::getColTabMapperSetup( int, int ) const
 bool VolumeDisplay::turnOn( bool yn )
 {
     onoffstatus_ = yn;
-    
+
     return VisualObjectImpl::turnOn( isAttribEnabled( 0 ) && yn );
 }
 
@@ -1464,17 +1466,17 @@ bool VolumeDisplay::usePar( const IOPar& par )
 	    bool status = true;
 	    par.getYN( str, status );
 	    isosurfaces_[idx]->turnOn( status );
-	    
+
 	    str = sKeySurfMode(); str += idx;
 	    int smode;
 	    par.get( str, smode );
 	    isosurfsettings_[idx].mode_ = mCast( char, smode );
-	    
+
 	    str = sKeySeedsAboveIsov(); str += idx;
 	    int aboveisov;
 	    par.get( str, aboveisov );
 	    isosurfsettings_[idx].seedsaboveisoval_ = mCast( char, aboveisov );
-    
+
 	    str = sKeySeedsMid(); str += idx;
 	    MultiID mid;
 	    par.get( str, mid );
@@ -1510,16 +1512,18 @@ visBase::OrthogonalSlice* VolumeDisplay::getSelectedSlice() const
 	if ( slices_[idx]->isSelected() )
 	    return const_cast<visBase::OrthogonalSlice*>( slices_[idx] );
     }
+
     return 0;
 }
 
 
-TrcKeyZSampling VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
+TrcKeyZSampling
+	VolumeDisplay::sliceSampling(visBase::OrthogonalSlice* slice) const
 {
     TrcKeyZSampling cs(false);
-    if ( !slice ) return cs; 
+    if ( !slice ) return cs;
     cs = getTrcKeyZSampling(false,true,0);
-    float pos = slicePosition( slice ); 
+    float pos = slicePosition( slice );
     if ( slice->getDim() == cTimeSlice() )
 	cs.zsamp_.limitTo( Interval<float>( pos, pos ) );
     else if ( slice->getDim() == cCrossLine() )
