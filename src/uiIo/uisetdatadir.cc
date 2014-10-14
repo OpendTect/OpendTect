@@ -190,6 +190,9 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	if ( !File::isDirectory(datadir) )
 	    mErrRet( "A file (not a directory) with this name already exists" )
 
+	if ( !File::isWritable(datadir) )
+	    mErrRet( "Selected directory is not writable" )
+
 	if ( File::exists(omffnm) )
 	{
 	    // must be a survey directory (see IOMan::isValidDataRoot())
