@@ -39,6 +39,9 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+    DataPack::FullID	getInputDPID() const;
+    DataPack::FullID	getInputDPID(int inpidx) const;
+    void		updateNonSpecInputs();
 
     void		formSel(CallBacker*);
     void		inpSel(CallBacker*);
