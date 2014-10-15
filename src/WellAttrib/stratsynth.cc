@@ -60,6 +60,7 @@ static const char* sKeyRayPar()		{ return "Ray Parameter"; }
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
+static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
@@ -79,7 +80,11 @@ SynthGenParams::SynthGenParams()
     anglerg_ = sDefaultAngleRange;
     const BufferStringSet& facnms = RayTracer1D::factory().getNames();
     if ( !facnms.isEmpty() )
-	raypars_.set( sKey::Type(), facnms.get(0) );
+    {
+	const int advidx = facnms.indexOf( sKeyAdvancedRayTracer() );
+	FixedString facnm( advidx>=0 ? facnms.get(advidx) : facnms.get(0) );
+	raypars_.set( sKey::Type(), facnm );
+    }
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
 }
