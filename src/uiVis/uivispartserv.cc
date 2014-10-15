@@ -1936,6 +1936,14 @@ void uiVisPartServer::updateManipulatorStatus( visBase::DataObject* dobj,
     if ( !so )
 	return;
 
+    mDynamicCastGet( visSurvey::MPEDisplay*, mpedisp, so );
+    if ( mpedisp )
+    {
+	// Tells the tracker box not to hide in view mode
+	mpedisp->setPickable( workmode_==uiVisPartServer::Interactive );
+	return;
+    }
+
     const bool showmanipulator =  !so->isLocked() && 
 	workmode_==uiVisPartServer::Interactive && 
 	isselected;
