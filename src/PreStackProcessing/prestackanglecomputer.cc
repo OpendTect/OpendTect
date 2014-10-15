@@ -316,9 +316,9 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 				    PointBasedMathFunction::ExtraPolGradient );
 
 	if ( offsets[ofsidx] )
-	    anglevals[ofsidx]->add( 0, M_PI_2 );
+	    anglevals[ofsidx]->add( 0.f, M_PI_2f );
 	else
-	    anglevals[ofsidx]->add( 0, 0 );
+	    anglevals[ofsidx]->add( 0.f, 0.f );
 
 	float depth = mCast( float, -1.0 * SI().seismicReferenceDatum() );
 	for ( int layeridx=0; layeridx<curem.size(); layeridx++ )
@@ -362,13 +362,17 @@ Gather* AngleComputer::computeAngleData()
 	    iopar.set( sKey::Type(), VrmsRayTracer1D::sFactoryKeyword() );
 	    BufferString errormsg;
 	    raytracer_ = RayTracer1D::createInstance( iopar, errormsg );
+	    if ( !errormsg.isEmpty() )
+		return 0;
 	}
 
 	raytracer_->setup().doreflectivity( false );
-	raytracer_->setModel( curElasticModel() );
 	TypeSet<float> offsets;
 	outputsampling_.getPositions( true, offsets );
 	raytracer_->setOffsets( offsets );
+	if ( !raytracer_->setNewModel(curElasticModel()) )
+	    return 0;
+
 	if ( !raytracer_->execute() )
 	    return 0;
     }

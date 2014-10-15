@@ -44,7 +44,7 @@ public:
 			    : pdown_( true )
 			    , pup_( true )
 			    , doreflectivity_(true) {}
-	virtual 	~Setup()	{}
+	virtual ~Setup()	{}
 
 	mDefSetupMemb(bool,pdown);
 	mDefSetupMemb(bool,pup);
@@ -57,7 +57,8 @@ public:
     virtual RayTracer1D::Setup&	setup()		= 0;
     virtual const RayTracer1D::Setup& setup() const	= 0;
 
-    void		setModel(const ElasticModel&);
+    void		setModel(const ElasticModel& modl ) {setNewModel(modl);}
+    bool		setNewModel(const ElasticModel&);
     const ElasticModel&	getModel() const	{ return model_; }
 			// model top depth must be TWT = 0ms
 			/*!<Note, if either p-wave or s-wave are undef,

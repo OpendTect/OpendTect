@@ -107,104 +107,13 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 }
 
 
-void RayTracer1D::setModel( const ElasticModel& lys )
-{
-    model_ = lys;
-
-    for ( int idx=model_.size()-1; idx>=0; idx-- )
-    {
-	ElasticLayer& lay = model_[idx];
-	if ( (mIsUdf(lay.vel_) && mIsUdf(lay.svel_))
-		|| ( mIsUdf(lay.den_) && setup().doreflectivity_ ) )
-	    model_.removeSingle( idx );
-    }
-}
-
-
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
-{ 
+{
     offsets_ = offsets;
     if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
     {
 	for ( int idx=0; idx<offsets_.size(); idx++ )
 	    offsets_[idx] *= mToFeetFactorF;
-    }
-}
-
-
-void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
-{ 
-    offsets = offsets_;
-    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
-    {
-	for ( int idx=0; idx<offsets.size(); idx++ )
-	    offsets[idx] *= mFromFeetFactorF;
-    }
-}
-
-
-od_int64 RayTracer1D::nrIterations() const
-{ return model_.size(); }
-
-
-#define mStdAVelReplacementFactor 0.348
-#define mStdBVelReplacementFactor -0.959
-#define mVelMin 100
-bool RayTracer1D::doPrepare( int nrthreads )
-{
-    depths_.erase();
-    velmax_.erase();
-
-    const int sz = model_.size();
-
-    //See if we can find zero-offset
-    bool found = false;
-    for ( int idx=0; idx<offsets_.size(); idx++ )
-    {
-	if ( mIsZero(offsets_[idx],1e-3) )
-	{
-	    found = true;
-	    break;
-	}
-    }
-    if ( !found )
-	offsets_ += 0;
-
-    if ( sz < 1 )
-    {
-	errmsg_.set( sz ? "Model has only one layer" : "Model is empty" )
-	       .add( ", cannot do raytracing." );
-	return false;
-    }
-
-    const float p2safac = mStdAVelReplacementFactor;
-    const float p2sbfac = mStdBVelReplacementFactor;
-    for ( int idx=0; idx<sz; idx++ )
-    {
-	ElasticLayer& layer = model_[idx];
-	float& pvel = layer.vel_;
-	float& svel = layer.svel_;
-
-	if ( mIsUdf( pvel ) && !mIsUdf( svel ) )
-	{
-	    pvel = p2safac
-	        ? Math::Sqrt( (svel*svel-p2sbfac)/p2safac )
-	        : mUdf(float);
-	}
-	else if ( mIsUdf( svel ) && !mIsUdf( pvel ) )
-	{
-	    svel = Math::Sqrt( p2safac*pvel*pvel + p2sbfac );
-	}
-	if ( pvel < mVelMin )
-	    pvel = mVelMin;
-    }
-    const int layersize = mCast( int, nrIterations() );
-
-    for ( int idx=0; idx<layersize; idx++ )
-    {
-	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
-	               : model_[idx].thickness_;
-	velmax_ += model_[idx].vel_;
     }
 
     const int offsetsz = offsets_.size();
@@ -216,7 +125,81 @@ bool RayTracer1D::doPrepare( int nrthreads )
     offsetpermutation_.erase();
     for ( int idx=0; idx<offsetsz; idx++ )
 	offsetpermutation_ += offsetidx.indexOf( idx );
+}
 
+
+void RayTracer1D::getOffsets( TypeSet<float>& offsets ) const
+{
+    offsets = offsets_;
+    if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
+    {
+	for ( int idx=0; idx<offsets.size(); idx++ )
+	    offsets[idx] *= mFromFeetFactorF;
+    }
+}
+
+
+bool RayTracer1D::setNewModel( const ElasticModel& lys )
+{
+    if ( offsets_.isEmpty() )
+    {
+	errmsg_ = "Internal: Offsets must be set before the model";
+	errmsg_.addNewLine().add( "Cannot do raytracing." );
+	return false;
+    }
+
+    //Zero-offset: Vs is not required, density not either if !doreflectivity_
+    bool zerooffsetonly = true;
+    for ( int idx=0; idx<offsets_.size(); idx++ )
+    {
+	if ( !mIsZero(offsets_[idx],1e-3f) )
+	{
+	    zerooffsetonly = false;
+	    break;
+	}
+    }
+
+    model_ = lys;
+    int firsterror = -1;
+    model_.checkAndClean( firsterror, setup().doreflectivity_, !zerooffsetonly);
+
+    if ( model_.size() == 1 )
+	errmsg_ = "Model has only one layer";
+    else if ( model_.isEmpty() )
+	errmsg_ = "Model is empty";
+    else if ( firsterror != -1 )
+	errmsg_.set( "Model has invalid values on layer: " ).add(firsterror+1);
+
+    return model_.size() > 1;
+}
+
+
+od_int64 RayTracer1D::nrIterations() const
+{ return model_.size(); }
+
+
+bool RayTracer1D::doPrepare( int nrthreads )
+{
+    if ( model_.size() < 2  )
+    {
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "Invalid model";
+
+	errmsg_.add( "Cannot do raytracing." );
+	return false;
+    }
+
+    const int layersize = mCast( int, nrIterations() );
+    depths_.erase();
+    velmax_.erase();
+    for ( int idx=0; idx<layersize; idx++ )
+    {
+	depths_ += idx ? depths_[idx-1] + model_[idx].thickness_
+	               : model_[idx].thickness_;
+	velmax_ += model_[idx].vel_;
+    }
+
+    const int offsetsz = offsets_.size();
     if ( !sini_ )
 	sini_ = new Array2DImpl<float>( layersize, offsetsz );
     else
