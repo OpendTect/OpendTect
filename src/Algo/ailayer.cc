@@ -125,7 +125,7 @@ bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
     if ( onlyinvalid && mIsValidVel(svel_) )
 	return true;
 
-    svel_ = 0.8619 * vel_ + -1172;
+    svel_ = mCast( float, 0.8619 * (double)vel_ -1172. );
     return mIsValidVel( svel_ );
 }
 

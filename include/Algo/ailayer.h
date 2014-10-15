@@ -21,10 +21,10 @@ ________________________________________________________________________
 
 template <class T> class Array2DImpl;
 
-mGlobal(Algo) static inline float cMinLayerThickness()	{ return 1e-4f; }
-mGlobal(Algo) static inline Interval<float> validThicknessRange();
-mGlobal(Algo) static inline Interval<float> validDensityRange();
-mGlobal(Algo) static inline Interval<float> validVelocityRange();
+mGlobal(Algo) inline float cMinLayerThickness() { return 1e-4f; }
+mGlobal(Algo) inline const Interval<float> validThicknessRange();
+mGlobal(Algo) inline const Interval<float> validDensityRange();
+mGlobal(Algo) inline const Interval<float> validVelocityRange();
 
 
 /*!
@@ -186,13 +186,13 @@ protected:
 
 };
 
-inline Interval<float> validThicknessRange()
+inline const Interval<float> validThicknessRange()
 { return Interval<float> ( cMinLayerThickness(), mUdf(float) ); }
 
-inline Interval<float> validDensityRange()
+inline const Interval<float> validDensityRange()
 { return Interval<float> ( 100.f, 10000.f ); }
 
-inline Interval<float> validVelocityRange()
+inline const Interval<float> validVelocityRange()
 { return Interval<float> ( 10.f, 10000.f ); }
 
 #endif
