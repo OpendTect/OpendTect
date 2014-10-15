@@ -340,10 +340,11 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
 
     EventInfo* foremostinfo = new EventInfo( eventinfo );
 
+    const double eps = 1e-6;
     if ( !isactivepickevent && !mIsUdf(passiveinfo.pickdepth) )
     {
 	if ( mIsUdf(activeinfo.pickdepth) ||
-	     passiveinfo.pickdepth <= activeinfo.pickdepth )
+	     passiveinfo.pickdepth <= activeinfo.pickdepth*(1.0+eps) )
 	{
 	    *foremostinfo = passiveinfo;
 	}
@@ -352,7 +353,7 @@ bool EventCatchHandler::handle( const osgGA::GUIEventAdapter& ea,
     if ( isactivepickevent && !mIsUdf(activeinfo.pickdepth) )
     {
 	if ( mIsUdf(passiveinfo.pickdepth) ||
-	     activeinfo.pickdepth <= passiveinfo.pickdepth )
+	     activeinfo.pickdepth <= passiveinfo.pickdepth*(1.0+eps) )
 	{
 	    *foremostinfo = activeinfo;
 	}
