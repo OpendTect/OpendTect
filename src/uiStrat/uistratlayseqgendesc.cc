@@ -212,7 +212,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 			workrect_.width(), workrect_.height() );
     putTopDepthToScreen();
 
-    if ( desc_.isEmpty() )
+    if ( editdesc_.isEmpty() )
     {
 	if ( !emptyitm_ )
 	{
@@ -232,7 +232,7 @@ void uiExtLayerSequenceGenDesc::reDraw( CallBacker* )
 
 void uiExtLayerSequenceGenDesc::putTopDepthToScreen()
 {
-    float topz = desc_.startDepth();
+    float topz = editdesc_.startDepth();
     if ( zinft_ ) topz *= mToFeetFactorF;
     topdepthfld_->setValue( topz );
 }
@@ -242,7 +242,7 @@ void uiExtLayerSequenceGenDesc::getTopDepthFromScreen()
 {
     float topz = topdepthfld_->getfValue();
     if ( zinft_ ) topz *= mFromFeetFactorF;
-    desc_.setStartDepth( topz );
+    editdesc_.setStartDepth( topz );
 }
 
 
@@ -254,7 +254,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 
     const MouseEvent& mev = mevh.event();
     const bool isright = OD::rightMouseButton( mev.buttonState() );
-    const bool isempty = desc_.isEmpty();
+    const bool isempty = editdesc_.isEmpty();
     const bool needhandle = isempty || (dbl && !isright) || (!dbl && isright);
     if ( !needhandle )
 	return;
@@ -263,7 +263,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
     mevh.setHandled( true );
     if ( workrect_.isOutside(clickpos_) )
 	return;
-    if ( (isempty || desc_.propSelection().size() < 2) && !selProps() )
+    if ( (isempty || editdesc_.propSelection().size() < 2) && !selProps() )
 	return;
 
     int mnuid = dbl ? 0 : (isempty ? 1 : -1);
@@ -273,7 +273,7 @@ void uiExtLayerSequenceGenDesc::hndlClick( CallBacker* cb, bool dbl )
 	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
 	mnu.insertItem( new uiAction("Add Above ..."), 1 );
 	mnu.insertItem( new uiAction("Add Below ..."), 2 );
-	if ( desc_.size() > 1 )
+	if ( editdesc_.size() > 1 )
 	{
 	    mnu.insertSeparator();
 	    mnu.insertItem( new uiAction(uiStrings::sRemove(true)), 3 );
