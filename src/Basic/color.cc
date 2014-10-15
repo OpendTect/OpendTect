@@ -288,6 +288,7 @@ void Color::setStdStr( const char* str )
     if ( len < 6 )
 	return;
 
+    if ( isnorm ) str++;
     unsigned char r_ = getCompFromStrPart( str );
     unsigned char g_ = len > 2 ? getCompFromStrPart(str+2) : 255;
     unsigned char b_ = len > 4 ? getCompFromStrPart(str+4) : 255;
