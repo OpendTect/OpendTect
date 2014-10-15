@@ -457,14 +457,14 @@ SyntheticData* StratSynth::generateSD()
 #define mCreateDesc() \
 mDynamicCastGet(PreStackSyntheticData*,presd,sd); \
 if ( !presd ) return 0; \
-BufferString dpidstr( "#" ); \
+BufferString dpidstring( "#" ); \
 SeparString fullidstr( toString(DataPackMgr::CubeID()), '.' ); \
 const PreStack::GatherSetDataPack& gdp = presd->preStackPack(); \
 fullidstr.add( toString(gdp.id()) ); \
-dpidstr.add( fullidstr.buf() ); \
+dpidstring.add( fullidstr.buf() ); \
 Attrib::Desc* psdesc = \
     Attrib::PF().createDescCopy(Attrib::PSAttrib::attribName()); \
-mSetString(Attrib::StorageProvider::keyStr(),dpidstr.buf()); \
+mSetString(Attrib::StorageProvider::keyStr(),dpidstring.buf()); \
 mSetFloat( Attrib::PSAttrib::offStartStr(), \
 	   presd->offsetRange().start ); \
 mSetFloat( Attrib::PSAttrib::offStopStr(), \
@@ -706,9 +706,9 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     BufferString capt( "Generating ", synthgenpar.name_ );
     synthgen.setName( capt.buf() );
     synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
     const IOPar& raypars = synthgenpar.raypars_;
     synthgen.usePar( raypars );
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
     int maxsz = 0;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
@@ -1113,16 +1113,15 @@ const char* StratSynth::infoMsg() const
 }
 
 
-#define mValidDensityRange( val ) \
-(mIsUdf(val) || (val>100 && val<10000))
-#define mValidWaveRange( val ) \
-(mIsUdf(val) || (val>10 && val<10000))
-
-#define mAddValToMsg( var, isdens ) \
-infomsg_ += "( sample value "; \
-infomsg_ += var; \
-infomsg_ += isdens ? "kg/m3" : "m/s"; \
-infomsg_ += ") \n";
+#define mAddValToMsg( doprint, propnm, var, isdens ) \
+{ \
+    if ( doprint && infomsg_.isEmpty() ) \
+    { \
+	msg.add( "'" ).add( propnm ).add( "'" ); \
+	msg.add( " ( sample value: " ).add( var ).addSpace(); \
+	msg.add( isdens ? "kg/m3" : "m/s" ).add( ") \n" ); \
+    } \
+}
 
 bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 				     TypeSet<ElasticModel>& aimodels )
@@ -1134,116 +1133,58 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	ElasticModel& aimodel = aimodels[midx];
 	if ( aimodel.isEmpty() ) continue;
 
-	Array1DImpl<float> densvals( aimodel.size() );
-	Array1DImpl<float> velvals( aimodel.size() );
-	Array1DImpl<float> svelvals( aimodel.size() );
-	densvals.setAll( mUdf(float) );
-	velvals.setAll( mUdf(float) );
-	svelvals.setAll( mUdf(float) );
-	int invaliddenscount = 0;
-	int invalidvelcount = 0;
-	int invalidsvelcount = 0;
-	for ( int idx=0; idx<aimodel.size(); idx++ )
+	ElasticModel tmpmodel( aimodel );
+	int erroridx = -1;
+	tmpmodel.checkAndClean( erroridx, true, true, false );
+	if ( tmpmodel.isEmpty() )
 	{
-	    const ElasticLayer& layer = aimodel[idx];
-	    densvals.set( idx, layer.den_ );
-	    velvals.set( idx, layer.vel_ );
-	    svelvals.set( idx, layer.svel_ );
-	    if ( !mValidDensityRange(layer.den_) ||
-		 !mValidWaveRange(layer.vel_) ||
-		 !mValidWaveRange(layer.svel_) )
-	    {
-		if ( !mValidDensityRange(layer.den_) )
-		{
-		    invaliddenscount++;
-		    densvals.set( idx, mUdf(float) );
-		}
-		if ( !mValidWaveRange(layer.vel_) )
-		{
-		    invalidvelcount++;
-		    velvals.set( idx, mUdf(float) );
-		}
-		if ( !mValidWaveRange(layer.svel_) )
-		{
-		    invalidsvelcount++;
-		    svelvals.set( idx, mUdf(float) );
-		}
-
-		if ( infomsg_.isEmpty() )
-		{
-		    infomsg_ += "Layer model contains invalid values of "
-				"following properties :\n";
-		    if ( !mValidDensityRange(layer.den_) )
-		    {
-			infomsg_ += "'Density'";
-			mAddValToMsg( layer.den_, true );
-		    }
-		    if ( !mValidWaveRange(layer.vel_) )
-		    {
-			infomsg_ += "'P-Wave'";
-			mAddValToMsg( layer.vel_, false );
-		    }
-		    if ( !mValidWaveRange(layer.svel_) )
-		    {
-			infomsg_ += "'S-Wave'";
-			mAddValToMsg( layer.svel_, false );
-		    }
-
-		    infomsg_ += "First occurence found in layer '";
-		    infomsg_ += seq.layers()[idx]->name();
-		    infomsg_ += "' of pseudo well number ";
-		    infomsg_ += midx+1;
-		    infomsg_ += ". Invalid values will be interpolated";
-		}
-
-	    }
-	}
-
-	if ( invalidsvelcount>=aimodel.size() ||
-	     invalidvelcount>=aimodel.size() ||
-	     invaliddenscount>=aimodel.size() )
-	{
-	    const ElasticLayer& layer = aimodel[0];
-	    uiString props;
-	    if ( invaliddenscount>=aimodel.size() )
-	    {
-		props.append( "'Density' ");
-		mAddValToMsg( layer.den_, true );
-	    }
-	    if ( invalidvelcount>=aimodel.size() )
-	    {
-		props.append("'Pwave Velocity' ");
-		mAddValToMsg( layer.vel_, false );
-	    }
-	    if ( invalidsvelcount>=aimodel.size() )
-	    {
-		props.append( "'Swave Velocity' ");
-		mAddValToMsg( layer.svel_, false );
-	    }
-
-	    errmsg_ = uiString("Cannot generate elastic model as all the "
-		    "values of the properties %1 are invalid. Probably units "
-		    "are not set correctly.").arg( props );
+	    errmsg_ = uiString( "Cannot generate elastic model as the "
+				"thicknesses/Pwave velocity values are invalid."
+				" Probably units are not set correctly." );
 	    return false;
 	}
-
-	LinearArray1DInterpol interpol;
-	interpol.setExtrapol( true );
-	interpol.setFillWithExtremes( true );
-	interpol.setArray( densvals );
-	interpol.execute();
-	interpol.setArray( velvals );
-	interpol.execute();
-	interpol.setArray( svelvals );
-	interpol.execute();
-
-	for ( int idx=0; idx<aimodel.size(); idx++ )
+	else if ( erroridx != -1 )
 	{
-	    ElasticLayer& layer = aimodel[idx];
-	    layer.den_ = densvals.get( idx );
-	    layer.vel_ = velvals.get( idx );
-	    layer.svel_ = svelvals.get( idx );
+	    bool needinterpolatedvel = false;
+	    bool needinterpoltedden = false;
+	    bool needinterpolatedsvel = false;
+	    BufferString msg;
+	    for ( int idx=erroridx; idx<aimodel.size(); idx++ )
+	    {
+		const ElasticLayer& layer = aimodel[idx];
+		const bool needinfo = msg.isEmpty();
+		if ( !layer.isValidVel() )
+		{
+		    needinterpolatedvel = true;
+		    mAddValToMsg( needinfo, "P-wave", layer.vel_, false );
+		}
+		if ( !layer.isValidDen() )
+		{
+		    needinterpoltedden = true;
+		    mAddValToMsg( needinfo, "Density", layer.den_, true );
+		}
+		if ( !layer.isValidVs() )
+		{
+		    needinterpolatedsvel = true;
+		    mAddValToMsg( needinfo, "S-wave", layer.svel_, false );
+		}
+	    }
+
+	    if ( infomsg_.isEmpty() )
+	    {
+		infomsg_ = "Layer model contains invalid values of the "
+			   "following properties:\n";
+		infomsg_.add( msg ).add( "First occurence found in layer '" );
+		infomsg_.add( seq.layers()[erroridx]->name() );
+		infomsg_.add( "' of pseudo well number ").add(midx+1).add("\n");
+		infomsg_.add( "Invalid values will be interpolated." );
+		infomsg_.add( "The resulting synthetics may be incorrect" );
+	    }
+
+	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,
+				 needinterpolatedsvel );
 	}
+
 	aimodel.mergeSameLayers();
 	aimodel.upscale( 5.0f );
     }

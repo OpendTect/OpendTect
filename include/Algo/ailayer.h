@@ -15,8 +15,17 @@ ________________________________________________________________________
 #include "algomod.h"
 #include "gendefs.h"
 #include "math.h"
+#include "ranges.h"
 #include "survinfo.h"
 #include "typeset.h"
+
+template <class T> class Array2DImpl;
+
+mGlobal(Algo) static inline float cMinLayerThickness()	{ return 1e-4f; }
+mGlobal(Algo) static inline Interval<float> validThicknessRange();
+mGlobal(Algo) static inline Interval<float> validDensityRange();
+mGlobal(Algo) static inline Interval<float> validVelocityRange();
+
 
 /*!
 \brief Acoustic Impedance layer.
@@ -36,10 +45,15 @@ public:
 
     bool	operator ==( const AILayer& p ) const
 		{ return thickness_ == p.thickness_; }
-    
+
     float	thickness_, vel_, den_;
     float	getAI() const;
-    
+    bool	isOK(bool dodencheck=true) const;
+    bool	isValidVel() const;
+    bool	isValidDen() const;
+
+		//Compute Den from Gardner
+    bool	fillDenWithVp(bool onlyinvalid);
 
 };
 
@@ -71,6 +85,12 @@ public:
 
     float	svel_;
     float	getSI() const;
+
+    bool	isOK(bool dodencheck=true,bool dosvelcheck=true) const;
+    bool	isValidVs() const;
+
+		//Compute Vs from Castagna
+    bool	fillVsWithVp(bool onlyinvalid);
 };
 
 
@@ -79,7 +99,28 @@ mExpClass(Algo) ElasticModel : public TypeSet<ElasticLayer>
 {
 public:
 
-		/*! ensures a model does not have layers below a given thickness
+		/*! Checks if all layers have valid property values
+		    returns index of first invalid layer */
+
+    int		isOK(bool dodencheck=true,bool dosvelcheck=true) const;
+
+		/*! Get one of the properties */
+
+    bool	getValues(bool isden,bool issvel,TypeSet<float>&) const;
+
+		/*! Get several properties, in the order vel - den - svel */
+
+    bool	getValues(bool vel,bool den,bool svel,
+			  Array2DImpl<float>&) const;
+
+    void	checkAndClean(int& firsterroridx,bool dodencheck=true,
+			      bool dosvelcheck=true,bool onlyinvalid=false);
+
+		/*! Replaces all undefined or invalid values */
+
+    void	interpolate(bool dovp,bool doden,bool dovs);
+
+		/*! Ensures a model does not have layers below a given thickness
 		  last layer may not comply though */
 
     void	upscale(float maxthickness);
@@ -94,7 +135,7 @@ public:
 
     void	setMaxThickness(float maxthickness);
 
-    		/*! Merged consecutive layers with same properties. */
+		/*! Merged consecutive layers with same properties. */
 
     void	mergeSameLayers();
 
@@ -108,16 +149,16 @@ public:
 		/*! compute an upscaled elastic layer from an elastic model
 		  using simple weighted averaging.
 		  The thickness of the input and output remains constant.
-		  returns false if the input model contain not a single valid
-		  input layer */
+		  returns false if the input model does not contain a single
+		  valid input layer */
 
     bool	getUpscaledByThicknessAvg(ElasticLayer& outlay) const;
 
 		/* computes an upscaled elastic layer from an elastic model
 		   using backus upscaling method. The thickness of the input and
 		   output remains constant.
-		   returns false if the input model contain not a single valid
-		   input layer
+		   returns false if the input model does not contain a single
+		   valid input layer
 		   \param theta Incidence angle in radians */
 
     bool	getUpscaledBackus(ElasticLayer& outlay,float theta=0.) const;
@@ -129,8 +170,30 @@ public:
     bool	createFromAI(const StepInterval<float>& zrange,const float* ai,
 			     const float* si =0,const float* den =0);
 
+protected:
+
+		/*! Computes first derivative of the elastic properties
+		    May also return the input values */
+    bool	getRatioValues(bool vel,bool den,bool svel,
+			       Array2DImpl<float>& ratiovals,
+			       Array2DImpl<float>* vals=0) const;
+
+		/* Gives layer index distributions of similar properties */
+
+    bool	doBlocking(float threshold,bool pvelonly,
+			   TypeSet<Interval<int> >& blocks) const;
+
 
 };
+
+inline Interval<float> validThicknessRange()
+{ return Interval<float> ( cMinLayerThickness(), mUdf(float) ); }
+
+inline Interval<float> validDensityRange()
+{ return Interval<float> ( 100.f, 10000.f ); }
+
+inline Interval<float> validVelocityRange()
+{ return Interval<float> ( 10.f, 10000.f ); }
 
 #endif
 

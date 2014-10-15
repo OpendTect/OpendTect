@@ -12,20 +12,20 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "raytracerrunner.h"
 
-RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims, 
+RayTracerRunner::RayTracerRunner( const TypeSet<ElasticModel>& aims,
 				  const IOPar& raypars )
     : aimodels_(aims)
-    , raypar_(raypars)		
+    , raypar_(raypars)
 {
 }
 
 
-RayTracerRunner::RayTracerRunner( const IOPar& raypars ) 
-    : raypar_(raypars)		
+RayTracerRunner::RayTracerRunner( const IOPar& raypars )
+    : raypar_(raypars)
 {}
 
 
-RayTracerRunner::~RayTracerRunner() 
+RayTracerRunner::~RayTracerRunner()
 { deepErase( raytracers_ );}
 
 
@@ -59,22 +59,42 @@ bool RayTracerRunner::prepareRayTracers()
     if ( RayTracer1D::factory().getNames().isEmpty() )
 	return false;
 
-    uiString errmsg;
+    uiString initerrmsg;
+    uiString modelerrmsg;
     totalnr_ = 0;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
     {
-	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, errmsg );
+	RayTracer1D* rt1d = RayTracer1D::createInstance( raypar_, initerrmsg );
 	if ( !rt1d )
 	{
-	    rt1d = RayTracer1D::factory().create( 
+	    rt1d = RayTracer1D::factory().create(
 		    *RayTracer1D::factory().getNames()[0] );
 	    rt1d->usePar( raypar_ );
 	}
 
-	rt1d->setModel( aimodels_[idx] );
+	if ( !rt1d->setModel(aimodels_[idx]) )
+	{
+	    if ( modelerrmsg.isEmpty() )
+	    {
+		modelerrmsg = tr("Wrong input for raytracing on model: %1")
+			    .arg(idx);
+		modelerrmsg.append( rt1d->errMsg(), true );
+	    }
+
+	    delete rt1d;
+	    continue;
+	}
+
 	totalnr_ += rt1d->totalNr();
 	raytracers_ += rt1d;
     }
+
+    uiString errmsg;
+    if ( initerrmsg.isSet() )
+	errmsg = initerrmsg;
+
+    if ( modelerrmsg.isSet() )
+	errmsg.append( modelerrmsg, initerrmsg.isSet() );
 
     if ( raytracers_.isEmpty() && !errmsg.isEmpty() )
 	mErrRet( errmsg );
@@ -127,7 +147,7 @@ bool RayTracerRunner::doWork( od_int64 start, od_int64 stop, int thread )
     for ( int idx=startmdlidx; idx<=stopmdlidx; idx++ )
     {
 	const ElasticModel& aim = aimodels_[idx];
-	if ( aim.isEmpty() ) 
+	if ( aim.isEmpty() )
 	    continue;
 
 	RayTracer1D* rt1d = raytracers_[idx];

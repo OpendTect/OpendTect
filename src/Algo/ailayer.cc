@@ -10,19 +10,23 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "ailayer.h"
+#include "arrayndimpl.h"
 #include "math2.h"
+#include "mathfunc.h"
 #include "ranges.h"
 
 
-#define mDefEpsf 1e-3f
-#define mIsValid(val) ( !mIsUdf(val) && val > mDefEpsF )
+#define mIsValidThickness(val) \
+( !mIsUdf(val) && validThicknessRange().includes(val,false) )
+#define mIsValidDen(val) ( validDensityRange().includes(val,false) )
+#define mIsValidVel(val) ( validVelocityRange().includes(val,false) )
 
 
 AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
     : thickness_(thkness)
     , den_(den)
 {
-    const bool hasdensity = mIsValid( den );
+    const bool hasdensity = mIsValidDen( den );
     //compute vel_ using Gardner's equation vel = (den/a)^(1/(1+b))
     //with default values for C0 and C1 respectively 310 and 0.25
     vel_ = hasdensity ? ai / den : Math::PowerOf( ai/310.f, 0.8f );
@@ -36,16 +40,39 @@ AILayer::AILayer( float thkness, float ai, float den, bool needcompthkness )
 
 float AILayer::getAI() const
 {
-    return mIsValid(vel_) && mIsValid(den_) ? vel_ * den_ : mUdf(float);
+    return mIsValidVel(vel_) && mIsValidDen(den_) ? vel_ * den_ : mUdf(float);
 }
 
 
-ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
-			    bool needcompthkness )
-    : AILayer( thkness, ai, den, needcompthkness )
+bool AILayer::isOK( bool dodencheck ) const
 {
-    svel_ = si / den_;
+    if ( !mIsValidThickness(thickness_) )
+	return false;
+
+    if ( !mIsValidVel(vel_) )
+	return false;
+
+    return dodencheck ? mIsValidDen(den_) : true;
 }
+
+
+bool AILayer::isValidVel() const
+{ return mIsValidVel(vel_); }
+
+
+bool AILayer::isValidDen() const
+{ return mIsValidDen(den_); }
+
+
+bool AILayer::fillDenWithVp( bool onlyinvalid )
+{
+    if ( onlyinvalid && mIsValidDen(den_) )
+	return true;
+
+    den_ = mCast( float, 310. * Math::PowerOf( (double)vel_, 0.25 ) );
+    return mIsValidDen( den_ );
+}
+
 
 
 float getLayerDepth( const AIModel& mod, int layer )
@@ -58,15 +85,142 @@ float getLayerDepth( const AIModel& mod, int layer )
 }
 
 
+
+ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
+			    bool needcompthkness )
+    : AILayer( thkness, ai, den, needcompthkness )
+{
+    svel_ = si / den_;
+}
+
+
 float ElasticLayer::getSI() const
 {
-    return mIsValid(svel_) && mIsValid(den_) ? svel_ * den_ : mUdf(float);
+    return mIsValidVel(svel_) && mIsValidDen(den_) ? svel_ * den_ : mUdf(float);
+}
+
+
+bool ElasticLayer::isOK( bool dodencheck, bool dosvelcheck ) const
+{
+    if ( !mIsValidThickness(thickness_) )
+	return false;
+
+    if ( !mIsValidVel(vel_) )
+	return false;
+
+    if ( ( dodencheck && !mIsValidDen(den_) ) ||
+	 ( dosvelcheck && !mIsValidVel(svel_) ) )
+	return false;
+
+    return true;
+}
+
+
+bool ElasticLayer::isValidVs() const
+{ return mIsValidVel(svel_); }
+
+
+bool ElasticLayer::fillVsWithVp( bool onlyinvalid )
+{
+    if ( onlyinvalid && mIsValidVel(svel_) )
+	return true;
+
+    svel_ = 0.8619 * vel_ + -1172;
+    return mIsValidVel( svel_ );
+}
+
+
+
+int ElasticModel::isOK( bool dodencheck, bool dosvelcheck ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const ElasticLayer& lay = (*this)[idx];
+	if ( !lay.isOK(dodencheck,dosvelcheck) )
+	    return idx;
+    }
+
+    return -1;
+}
+
+#define mRmLay(idx) \
+{ \
+    firsterroridx = idx; \
+    removeSingle( idx ); \
+    continue; \
+}
+
+void ElasticModel::checkAndClean( int& firsterroridx, bool dodencheck,
+				  bool dosvelcheck, bool onlyinvalid )
+{
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	ElasticLayer& lay = (*this)[idx];
+	if ( !lay.isOK(false,false) )
+	    mRmLay(idx)
+
+	if ( dodencheck && !lay.isValidDen() )
+	{
+	    if ( !lay.fillDenWithVp(onlyinvalid) )
+	    {
+		mRmLay(idx)
+		continue;
+	    }
+	}
+
+	if ( dosvelcheck && !lay.isValidVs() )
+	{
+	    if ( !lay.fillVsWithVp(onlyinvalid) )
+		mRmLay(idx)
+	}
+    }
+}
+
+
+void ElasticModel::interpolate( bool dovp, bool doden, bool dovs )
+{
+    BoolTypeSet dointerpolate;
+    dointerpolate += dovp;
+    dointerpolate += doden;
+    dointerpolate += dovs;
+
+    for ( int iprop=0; iprop<dointerpolate.size(); iprop++ )
+    {
+	if ( !dointerpolate[iprop] )
+	    continue;
+
+	BendPointBasedMathFunction<float,float> data;
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const ElasticLayer& layer = (*this)[idx];
+	    float val = mUdf(float);
+	    if ( iprop == 0 && mIsValidVel(layer.vel_) )
+		val = layer.vel_;
+	    else if ( iprop == 1 && mIsValidDen(layer.den_) )
+		val = layer.den_;
+	    else if ( iprop == 2 && mIsValidVel(layer.svel_) )
+		val = layer.svel_;
+
+	    if ( !mIsUdf(val) )
+		data.add( (float)idx, val );
+	}
+	if ( !data.size() )
+	    continue;
+
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    ElasticLayer& layer = (*this)[idx];
+	    float& val = iprop==0 ? layer.vel_
+				  : ( iprop==1 ? layer.den_ : layer.svel_ );
+	    val = data.getValue( (float)idx );
+	}
+    }
 }
 
 
 void ElasticModel::upscale( float maxthickness )
 {
-    if ( isEmpty() || maxthickness < mDefEpsf )
+    if ( isEmpty() || maxthickness < cMinLayerThickness() )
 	return;
 
     const ElasticModel orgmodl = *this;
@@ -80,10 +234,10 @@ void ElasticModel::upscale( float maxthickness )
 	ElasticLayer curlayer = orgmodl[lidx];
 	float thickness = curlayer.thickness_;
 	const float pvel = curlayer.vel_;
-	if ( !mIsValid(thickness) || !mIsValid(pvel) )
+	if ( !mIsValidThickness(thickness) || !mIsValidVel(pvel) )
 	    continue;
 
-	if ( thickness > maxthickness-mDefEpsf )
+	if ( thickness > maxthickness-cMinLayerThickness() )
 	{
 	    if ( !curmodel.isEmpty() )
 	    {
@@ -99,7 +253,8 @@ void ElasticModel::upscale( float maxthickness )
 	    continue;
 	}
 
-	const bool lastlay = totthickness+thickness > maxthickness-mDefEpsf;
+	const bool lastlay = totthickness + thickness >
+			     maxthickness - cMinLayerThickness();
 	const float thicknesstoadd = lastlay ? maxthickness - totthickness
 					     : thickness;
 	totthickness += thicknesstoadd;
@@ -117,14 +272,14 @@ void ElasticModel::upscale( float maxthickness )
 
 	    totthickness = thickness;
 	    curmodel.setEmpty();
-	    if ( thickness>mDefEpsf )
+	    if ( thickness > cMinLayerThickness() )
 	    {
 		curlayer.thickness_ = thickness;
 		curmodel += curlayer;
 	    }
 	}
     }
-    if ( totthickness>mDefEpsf && !curmodel.isEmpty() )
+    if ( totthickness > cMinLayerThickness() && !curmodel.isEmpty() )
 	if ( curmodel.getUpscaledBackus(newlayer) )
 	    *this += newlayer;
 }
@@ -158,176 +313,29 @@ void ElasticModel::upscaleByN( int nbblock )
 }
 
 
-#define mAddBlock( block ) \
-    if ( !blocks.isEmpty() && block.start<blocks[0].start ) \
-	blocks.insert( 0, block ); \
-    else \
-	blocks += block
-
-
 void ElasticModel::block( float relthreshold, bool pvelonly )
 {
-    if ( isEmpty() || relthreshold < 0 || relthreshold > 1 )
+    if ( isEmpty() || relthreshold < mDefEpsF || relthreshold > 1.f-mDefEpsF )
+	return;
+
+    TypeSet<Interval<int> > blocks;
+    if ( !doBlocking(relthreshold,pvelonly,blocks) )
 	return;
 
     const ElasticModel orgmodl = *this;
     setEmpty();
-    const int modelsize = orgmodl.size();
-
-#define mVal(comp,lidx) values[comp*modelsize+lidx]
-
-    TypeSet<float> values( modelsize, mUdf(float) );
-    for ( int lidx=0; lidx<modelsize; lidx++ )
-    {
-	const float pvel = orgmodl[lidx].vel_;
-	values[lidx] = pvel;
-	if ( !mIsValid(pvel) )
-	    return;
-    }
-
-    int nrcomp = 1;
-    if ( !pvelonly )
-    {
-	bool dodensity = true;
-	TypeSet<float> denvals( modelsize, mUdf(float) );
-	for ( int lidx=0; lidx<modelsize; lidx++ )
-	{
-	    const float den = orgmodl[lidx].den_;
-	    denvals += den;
-	    if ( !mIsValid(den) )
-	    {
-		dodensity = false;
-		break;
-	    }
-	}
-
-	if ( dodensity )
-	{
-	    values.append( denvals );
-	    nrcomp++;
-	}
-
-	bool dosvel = true;
-	TypeSet<float> svals( modelsize, mUdf(float) );
-	for ( int lidx=0; lidx<modelsize; lidx++ )
-	{
-	    const float svel = orgmodl[lidx].svel_;
-	    svals[lidx] = svel;
-	    if ( !mIsValid(svel) )
-	    {
-		dosvel = false;
-		break;
-	    }
-	}
-	if ( dosvel )
-	{
-	    values.append( svals );
-	    nrcomp++;
-	}
-    }
-
-#define mValRatio(comp,lidx) valuesratio[comp*modelsize+lidx]
-
-    TypeSet<float> valuesratio = values;
-    for ( int icomp=0; icomp<nrcomp; icomp++ )
-    {
-	mValRatio( icomp, 0 ) = 0;
-	const float* compvals = &values[icomp*modelsize];
-	float prevval = *compvals;
-	for ( int lidx=1; lidx<modelsize; lidx++ )
-	{
-	    const float curval = compvals[lidx];
-	    mValRatio( icomp, lidx) = curval < prevval
-				    ? prevval / curval - 1.f
-				    : curval / prevval - 1.f;
-	    prevval = curval;
-	}
-    }
-
-    TypeSet<Interval<int> > investigationqueue;
-    investigationqueue += Interval<int>( 0, modelsize-1 );
-    TypeSet<Interval<int> > blocks;
-
-    while ( investigationqueue.size() )
-    {
-	Interval<int> curblock = investigationqueue.pop();
-
-	while ( true )
-	{
-	    const int width = curblock.width();
-	    if ( width==0 )
-	    {
-		mAddBlock( curblock );
-		break;
-	    }
-
-	    TypeSet<int> bendpoints;
-	    const int lastblock = curblock.start + width;
-	    TypeSet<float> firstval( nrcomp, mUdf(float) );
-	    TypeSet< Interval<float> > valranges;
-	    float maxvalratio = 0;
-	    for ( int icomp=0; icomp<nrcomp; icomp++ )
-	    {
-		firstval[icomp] = mVal( icomp, curblock.start );
-		Interval<float> valrange(  firstval[icomp],  firstval[icomp] );
-		valranges += valrange;
-	    }
-
-	    for ( int lidx=curblock.start+1; lidx<=lastblock; lidx++ )
-	    {
-		for ( int icomp=0; icomp<nrcomp; icomp++ )
-		{
-		    const float curval = mVal( icomp, lidx );
-		    valranges[icomp].include( curval );
-
-		    const float valratio = mValRatio( icomp, lidx );
-		    if ( valratio >= maxvalratio )
-		    {
-			if ( !mIsEqual(valratio,maxvalratio,1e-5f) )
-			    bendpoints.erase();
-
-			bendpoints += lidx;
-			maxvalratio = valratio;
-		    }
-		}
-	    }
-
-	    if ( maxvalratio<=relthreshold )
-	    {
-		mAddBlock( curblock );
-		break;
-	    }
-
-	    int bendpoint = curblock.center();
-	    if ( bendpoints.isEmpty() )
-	    {
-		pFreeFnErrMsg("Should never happen", "ElasticModel::block");
-	    }
-	    else if ( bendpoints.size()==1 )
-	    {
-		bendpoint = bendpoints[0];
-	    }
-	    else
-	    {
-		const int middle = bendpoints.size()/2;
-		bendpoint = bendpoints[middle];
-	    }
-
-	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
-	    curblock = Interval<int>( bendpoint, curblock.stop );
-	}
-    }
-
     for ( int lidx=0; lidx<blocks.size(); lidx++ )
     {
 	ElasticModel blockmdl;
-	ElasticLayer outlay( mUdf(float),mUdf(float),mUdf(float),mUdf(float) );
 	const Interval<int> curblock = blocks[lidx];
 	for ( int lidy=curblock.start; lidy<=curblock.stop; lidy++ )
 	    blockmdl += orgmodl[lidy];
 
-	if ( blockmdl.getUpscaledBackus(outlay) )
-	    *this += outlay;
+	ElasticLayer outlay( mUdf(float),mUdf(float),mUdf(float),mUdf(float) );
+	if ( !blockmdl.getUpscaledBackus(outlay) )
+	    continue;
+
+	*this += outlay;
     }
 }
 
@@ -352,34 +360,49 @@ bool ElasticModel::getUpscaledByThicknessAvg( ElasticLayer& outlay ) const
 	const float layinden = curlayer.den_;
 	const float layinsvel = curlayer.svel_;
 
-	if ( !mIsValid(ldz) || !mIsValid(layinvelp) )
+	if ( !mIsValidThickness(ldz) || !mIsValidVel(layinvelp) )
 	    continue;
 
 	totthickness += ldz;
 	sonp += ldz / layinvelp;
 	velpthickness += ldz;
 
-	if ( mIsValid(layinden) )
+	if ( mIsValidDen(layinden) )
 	{
 	    den += layinden * ldz;
 	    denthickness += ldz;
 	}
 
-	if ( mIsValid(layinsvel) )
+	if ( mIsValidVel(layinsvel) )
 	{
 	    sson += ldz / layinsvel;
 	    svelthickness += ldz;
 	}
     }
 
-    if ( totthickness<mDefEpsF || velpthickness<mDefEpsF || sonp<1e-6f )
+    if ( totthickness<mDefEpsF || velpthickness<mDefEpsF || sonp<mDefEpsF )
+	return false;
+
+    const float velfinal = velpthickness / sonp;
+    if ( !mIsValidVel(velfinal) )
 	return false;
 
     outlay.thickness_ = totthickness;
-    outlay.vel_ = velpthickness / sonp;
-    outlay.den_ = !mIsValid(denthickness) ? mUdf(float) : den / denthickness;
-    outlay.svel_ = !mIsValid(svelthickness) || !mIsValid(sson)
-		 ? mUdf(float): svelthickness / sson;
+    outlay.vel_ = velfinal;
+    if ( !mIsValidThickness(denthickness) || denthickness < mDefEpsF )
+	outlay.den_ = mUdf(float);
+    else
+    {
+	const float denfinal = den / denthickness;
+	outlay.den_ = mIsValidDen(denfinal) ? denfinal : mUdf(float);
+    }
+    if ( !mIsValidThickness(svelthickness) || svelthickness < mDefEpsF )
+	outlay.svel_ = mUdf(float);
+    else
+    {
+	const float svelfinal = svelthickness / sson;
+	outlay.svel_ = mIsValidVel(svelfinal) ? svelfinal : mUdf(float);
+    }
 
     return true;
 }
@@ -404,9 +427,9 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 	const float layinvelp = curlayer.vel_;
 	const float layinden = curlayer.den_;
 	const float layinsvel = curlayer.svel_;
+	ElasticLayer tmplay( ldz, layinvelp, layinsvel, layinden );
 
-	if ( !mIsValid(ldz) || !mIsValid(layinvelp) ||
-	     !mIsValid(layinden) || !mIsValid(layinsvel) )
+	if ( !tmplay.isOK() )
 	    continue;
 
 	totthickness += ldz;
@@ -466,7 +489,7 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 
 void ElasticModel::setMaxThickness( float maxthickness )
 {
-    if ( isEmpty() || maxthickness < mDefEpsf )
+    if ( isEmpty() || maxthickness < cMinLayerThickness() )
 	return;
 
     const ElasticModel orgmodl = *this;
@@ -476,12 +499,12 @@ void ElasticModel::setMaxThickness( float maxthickness )
     for ( int lidx=0; lidx<initialsz; lidx++ )
     {
 	const float thickness = orgmodl[lidx].thickness_;
-	if ( !mIsValid(thickness) )
+	if ( !mIsValidThickness(thickness) )
 	    continue;
 
 	ElasticLayer newlayer = orgmodl[lidx];
 	nbinsert = 1;
-	if ( thickness > maxthickness-mDefEpsf )
+	if ( thickness > maxthickness - cMinLayerThickness() )
 	{
 	    nbinsert = mCast( int, thickness/maxthickness ) + 1;
 	    newlayer.thickness_ /= (float)nbinsert;
@@ -506,9 +529,9 @@ void ElasticModel::mergeSameLayers()
     for ( int lidx=1; lidx<initialsz; lidx++ )
     {
 	const ElasticLayer& curlayer = orgmodl[lidx];
-	if ( mIsEqual(curlayer.vel_,prevlayer.vel_,mDefEpsf) &&
-	     mIsEqual(curlayer.den_,prevlayer.den_,mDefEpsf) &&
-	     mIsEqual(curlayer.svel_,prevlayer.svel_,mDefEpsf) )
+	if ( mIsEqual(curlayer.vel_,prevlayer.vel_,mDefEpsF) &&
+	     mIsEqual(curlayer.den_,prevlayer.den_,mDefEpsF) &&
+	     mIsEqual(curlayer.svel_,prevlayer.svel_,mDefEpsF) )
 	{
 	    if ( havemerges == false ) totthickness = prevlayer.thickness_;
 	    havemerges = true;
@@ -627,3 +650,203 @@ bool ElasticModel::createFromAI( const StepInterval<float>& zrange,
     return true;
 }
 
+
+bool ElasticModel::getValues( bool isden, bool issvel,
+			      TypeSet<float>& vals ) const
+{
+    const int sz = size();
+    vals.setEmpty();
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const ElasticLayer& layer = (*this)[idx];
+	const float val = isden ? layer.den_
+				: ( issvel ? layer.svel_ : layer.vel_ );
+	const bool isvalid = isden ? mIsValidDen(val) : mIsValidVel(val);
+	if ( !isvalid )
+	    return false;
+
+	vals += val;
+    }
+
+    return true;
+}
+
+#define mGetVals(dofill,isden,issvel,data) \
+{ \
+    if ( dofill ) \
+    { \
+	if ( !getValues(isden,issvel,data) ) \
+		return false; \
+	icomp++; \
+    } \
+}
+
+#define mFillArr(dofill,data) \
+{ \
+    if ( dofill ) \
+    { \
+	for ( int idx=0; idx<sz; idx++ ) \
+		vals.set( icomp, idx, data[idx] ); \
+	icomp++; \
+    } \
+}
+
+bool ElasticModel::getValues( bool vel, bool den, bool svel,
+			      Array2DImpl<float>& vals) const
+{
+    const int sz = size();
+    TypeSet<float> velvals, denvals, svelvals;
+
+    int icomp = 0;
+    mGetVals(vel,false,false,velvals);
+    mGetVals(den,true,false,denvals);
+    mGetVals(svel,false,true,svelvals);
+
+    if ( !vals.setSize(icomp,sz) )
+	return false;
+
+    icomp = 0;
+    mFillArr(vel,velvals);
+    mFillArr(den,denvals);
+    mFillArr(svel,svelvals);
+
+    return true;
+}
+
+#define mRet(act) \
+{ \
+    if ( !hasvals ) delete vals; \
+    act; \
+}
+
+bool ElasticModel::getRatioValues( bool vel, bool den, bool svel,
+				   Array2DImpl<float>& ratiovals,
+				   Array2DImpl<float>* vals ) const
+{
+    const int sz = size();
+    bool hasvals = vals;
+    if ( !hasvals )
+	vals = new Array2DImpl<float> ( 1, sz );
+
+    if ( !getValues(vel,den,svel,*vals) )
+	mRet(return false)
+
+    const int nrcomp = vals->info().getSize( 0 );
+    if ( nrcomp == 0 || !ratiovals.setSize(nrcomp,sz) )
+	mRet(return false)
+
+    for ( int icomp=0; icomp<nrcomp; icomp++ )
+    {
+	float prevval = vals->get( icomp, 0 );
+	ratiovals.set( icomp, 0, 0.f );
+	for ( int idx=1; idx<sz; idx++ )
+	{
+	    const float curval = vals->get( icomp, idx );
+	    const float val = curval < prevval
+			    ? prevval / curval - 1.f
+			    : curval / prevval - 1.f;
+	    ratiovals.set( icomp, idx, val );
+	    prevval = curval;
+	}
+    }
+
+    mRet(return true)
+
+}
+
+
+#define mAddBlock( block ) \
+    if ( !blocks.isEmpty() && block.start<blocks[0].start ) \
+	blocks.insert( 0, block ); \
+    else \
+	blocks += block
+
+
+bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
+			       TypeSet<Interval<int> >& blocks ) const
+{
+    blocks.setEmpty();
+
+    Array2DImpl<float> vals( 1, size() );
+    Array2DImpl<float> ratiovals( 1, size() );
+    if ( !getRatioValues(true,!pvelonly,!pvelonly,ratiovals,&vals) )
+	return false;
+
+    const int nrcomp = vals.info().getSize( 0 );
+    const int modelsize = vals.info().getSize( 1 );
+
+    TypeSet<Interval<int> > investigationqueue;
+    investigationqueue += Interval<int>( 0, modelsize-1 );
+    while ( investigationqueue.size() )
+    {
+	Interval<int> curblock = investigationqueue.pop();
+
+	while ( true )
+	{
+	    const int width = curblock.width();
+	    if ( width==0 )
+	    {
+		mAddBlock( curblock );
+		break;
+	    }
+
+	    TypeSet<int> bendpoints;
+	    const int lastblock = curblock.start + width;
+	    TypeSet<float> firstval( nrcomp, mUdf(float) );
+	    TypeSet< Interval<float> > valranges;
+	    float maxvalratio = 0;
+	    for ( int icomp=0; icomp<nrcomp; icomp++ )
+	    {
+		firstval[icomp] = vals.get( icomp, curblock.start );
+		Interval<float> valrange(  firstval[icomp],  firstval[icomp] );
+		valranges += valrange;
+	    }
+
+	    for ( int lidx=curblock.start+1; lidx<=lastblock; lidx++ )
+	    {
+		for ( int icomp=0; icomp<nrcomp; icomp++ )
+		{
+		    const float curval = vals.get( icomp, lidx );
+		    valranges[icomp].include( curval );
+
+		    const float valratio = ratiovals.get( icomp, lidx );
+		    if ( valratio >= maxvalratio )
+		    {
+			if ( !mIsEqual(valratio,maxvalratio,1e-5f) )
+			    bendpoints.erase();
+
+			bendpoints += lidx;
+			maxvalratio = valratio;
+		    }
+		}
+	    }
+
+	    if ( maxvalratio<=relthreshold )
+	    {
+		mAddBlock( curblock );
+		break;
+	    }
+
+	    int bendpoint = curblock.center();
+	    if ( bendpoints.isEmpty() )
+	    {
+		pFreeFnErrMsg("Should never happen", "ElasticModel::block");
+	    }
+	    else if ( bendpoints.size()==1 )
+	    {
+		bendpoint = bendpoints[0];
+	    }
+	    else
+	    {
+		const int middle = bendpoints.size()/2;
+		bendpoint = bendpoints[middle];
+	    }
+
+	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
+	    curblock = Interval<int>( bendpoint, curblock.stop );
+	}
+    }
+
+    return !blocks.isEmpty() && ( blocks.size() < modelsize );
+}
