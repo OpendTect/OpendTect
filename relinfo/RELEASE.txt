@@ -1,6 +1,15 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0p: October 16, 2014
+ * Fix for crash while closing OpendTect
+ * Fix for Gaussian distribution drawing
+ * Fix for slice step value change after creating new polygon body
+ * Fix for wrongly shown error message for saving tracking setup file of newly
+   created horizons
+ * Fix for Depth attribute refresh issues in Horizon/Fault/Body displays
+ * Fix for crash while scanning SEGY files
+
 v4.6.0o: September 11, 2014
  * Fix for crash while creating 3D Cube from 2D
  * Fix for crash while creating seismic attribute
@@ -29,7 +38,7 @@ v4.6.0n: August 18, 2014
  * Fix for updating horizon selection list after deleting horizon
  * Fix for memory not being released while aborting volume pre-load
  * Prevented adding of empty column with better error message handling in
-   corss-polt window
+   cross-plot window
 
 v4.6.0m: July 10, 2014
  * Fix for crash importing same horizon which is displayed
