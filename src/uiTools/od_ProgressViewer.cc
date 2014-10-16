@@ -21,17 +21,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
-#include "od_helpids.h"
-#include "helpview.h"
 
 #include "commandlineparser.h"
 #include "filepath.h"
-#include "progressmeter.h"
-#include "varlenarray.h"
+#include "helpview.h"
+#include "moddepmgr.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 #include "od_istream.h"
+#include "progressmeter.h"
 #include "sighndl.h"
 #include "timer.h"
+#include "varlenarray.h"
 
 #include <iostream>
 
@@ -250,6 +251,7 @@ void uiProgressViewer::saveFn( CallBacker* )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiBase" );
 
     CommandLineParser cl( argc, argv );
     cl.setKeyHasValue( "pid" );
