@@ -92,7 +92,7 @@ void uiODHelpMenuMgr::handle( int id )
 	} break;
 	default:
 	{
-	    HelpProvider::provideHelp( HelpKey("od", 0) );
+	    HelpProvider::provideHelp( HelpKey("od",0) );
 	}
     }
 }
