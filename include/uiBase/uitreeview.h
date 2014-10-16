@@ -319,8 +319,11 @@ protected:
     mQtclass(QTreeWidgetItem*)	qtreeitem_;
 
     void			init(const Setup&);
-    uiStringSet		texts_;
-    uiStringSet		tooltips_;
+    void			updateFlags();
+    bool			updateToolTip(int column);
+
+    uiStringSet			texts_;
+    uiStringSet			tooltips_;
 
     bool			isselectable_;
     bool			iseditable_;
@@ -328,10 +331,7 @@ protected:
     bool			isdropenabled_;
     bool			ischeckable_;
     bool			isenabled_;
-    void			updateFlags();
     bool			checked_;
-
-    bool			updateToolTip(int column);
 };
 
 #endif
