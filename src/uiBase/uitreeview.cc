@@ -705,9 +705,15 @@ void uiTreeView::translateText()
 
 #define mTreeViewBlockCmdRec	CmdRecStopper cmdrecstopper(treeView());
 
+#define mInitVars \
+    , isselectable_(true), isenabled_(true) \
+    , iseditable_(false), isdragenabled_(false), isdropenabled_(false) \
+    , ischeckable_(false), checked_(false)
+
 uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
+    mInitVars
 {
     qtreeitem_ = new QTreeWidgetItem( p ? p->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -718,6 +724,7 @@ uiTreeViewItem::uiTreeViewItem( uiTreeView* p, const Setup& setup )
 uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
     : stateChanged(this)
     , keyPressed(this)
+    mInitVars
 {
     qtreeitem_ = new QTreeWidgetItem( p ? p->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -727,22 +734,19 @@ uiTreeViewItem::uiTreeViewItem( uiTreeViewItem* p, const Setup& setup )
 
 void uiTreeViewItem::init( const Setup& setup )
 {
-    if ( setup.after_ )
-	moveItem( setup.after_ );
-    if ( setup.pixmap_ )
-	setPixmap( 0, *setup.pixmap_ );
-
-    isselectable_ = isenabled_ = true;
-    iseditable_ = isdragenabled_ = isdropenabled_ = false;
     ischeckable_ = setup.type_ == uiTreeViewItem::CheckBox;
     updateFlags();
 
-    checked_ = false;
     if ( ischeckable_ )
     {
 	setChecked( setup.setcheck_ );
 	checked_ = setup.setcheck_;
     }
+
+    if ( setup.after_ )
+	moveItem( setup.after_ );
+    if ( setup.pixmap_ )
+	setPixmap( 0, *setup.pixmap_ );
 
     if ( setup.labels_.size() )
     {
@@ -996,6 +1000,8 @@ bool uiTreeViewItem::isCheckable() const
 
 void uiTreeViewItem::setChecked( bool yn, bool trigger )
 {
+    if ( !ischeckable_ ) return;
+
     mTreeViewBlockCmdRec;
     NotifyStopper ns( stateChanged );
     if ( trigger ) ns.restore();
