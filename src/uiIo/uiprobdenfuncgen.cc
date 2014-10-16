@@ -223,6 +223,10 @@ void uiProbDenFuncGenSampled::rgChg( CallBacker* cb )
     const int dimidx = rgflds_.indexOf( ginp );
     if ( dimidx < 0 )
 	{ pErrMsg("Huh? dimidx<0"); return; }
+
+    if ( !isGauss() )
+	return;
+
     uiGenInput* stdfld = expstdflds_[dimidx];
     if ( !stdfld->isUndef(0) )
 	return;
@@ -266,12 +270,6 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	if ( dimnms_.get(idim).isEmpty() )
 	    mErrRet(tr("Please enter a name for each variable"))
 
-	float exp = expstdflds_[idim]->getfValue(0);
-	float stdev = expstdflds_[idim]->getfValue(1);
-	if ( mIsUdf(exp) || mIsUdf(stdev) )
-	    mErrRet(tr("Please fill all expectations and standard deviations"))
-	exps_ += exp; stds_ += stdev;
-
 	Interval<float> rg;
 	rg.start = rgflds_[idim]->getfValue(0);
 	rg.stop = rgflds_[idim]->getfValue(1);
@@ -279,6 +277,15 @@ bool uiProbDenFuncGenSampled::getFromScreen()
 	    mErrRet(tr("Please fill all variable ranges"))
 	rg.sort();
 	rgs_ += rg;
+
+	if ( !isGauss() )
+	    continue;
+
+	float exp = expstdflds_[idim]->getfValue(0);
+	float stdev = expstdflds_[idim]->getfValue(1);
+	if ( mIsUdf(exp) || mIsUdf(stdev) )
+	    mErrRet(tr("Please fill all expectations and standard deviations"))
+	exps_ += exp; stds_ += stdev;
 
 	if ( idim == 1 )
 	    mGetCCValue( 0 )
@@ -309,10 +316,15 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
     ProbDenFunc* ret = 0;
     if ( nrdims_ == 1 )
     {
-	Gaussian1DProbDenFunc gpdf( exps_[0], stds_[0] );
 	Sampled1DProbDenFunc* spdf = new Sampled1DProbDenFunc;
 	spdf->bins_.setSize( nrbins_ );
 	mSetSD( sd_, rgs_[0] );
+	spdf->setDimName( 0, dimnms_.get(0) );
+	spdf->getData().setAll( mUdf(float) );
+	if ( !isGauss() )
+	    return spdf;
+
+	Gaussian1DProbDenFunc gpdf( exps_[0], stds_[0] );
 	for ( int idx=0; idx<nrbins_; idx++ )
 	{
 	    const float pos = spdf->sd_.atIndex( idx );
@@ -320,20 +332,26 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 	    spdf->bins_.set( idx, val );
 	    rc.addValue( val );
 	}
-	spdf->setDimName( 0, dimnms_.get(0) );
+
 	ret = spdf;
     }
     else if ( nrdims_ == 2 )
     {
+	Sampled2DProbDenFunc* spdf = new Sampled2DProbDenFunc;
+	spdf->bins_.setSize( nrbins_, nrbins_ );
+	mSetSD( sd0_, rgs_[0] );
+	mSetSD( sd1_, rgs_[1] );
+	spdf->setDimName( 0, dimnms_.get(0) );
+	spdf->setDimName( 1, dimnms_.get(1) );
+	spdf->getData().setAll( mUdf(float) );
+	if ( !isGauss() )
+	    return spdf;
+	
 	Gaussian2DProbDenFunc gpdf;
 	gpdf.exp0_ = exps_[0]; gpdf.std0_ = stds_[0];
 	gpdf.exp1_ = exps_[1]; gpdf.std1_ = stds_[1];
 	gpdf.cc_ = ccs_[0];
 
-	Sampled2DProbDenFunc* spdf = new Sampled2DProbDenFunc;
-	spdf->bins_.setSize( nrbins_, nrbins_ );
-	mSetSD( sd0_, rgs_[0] );
-	mSetSD( sd1_, rgs_[1] );
 	for ( int i0=0; i0<nrbins_; i0++ )
 	{
 	    const float p0 = spdf->sd0_.atIndex( i0 );
@@ -345,12 +363,22 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 		rc.addValue( val );
 	    }
 	}
-	spdf->setDimName( 0, dimnms_.get(0) );
-	spdf->setDimName( 1, dimnms_.get(1) );
+
 	ret = spdf;
     }
     else
     {
+	SampledNDProbDenFunc* spdf = new SampledNDProbDenFunc( 3 );
+	const TypeSet<int> szs( 3, nrbins_ );
+	spdf->bins_.setSize( szs.arr() );
+	mSetSD( sds_[0], rgs_[0] );
+	mSetSD( sds_[1], rgs_[1] );
+	mSetSD( sds_[2], rgs_[2] );
+	spdf->dimnms_ = dimnms_;
+	spdf->getData().setAll( mUdf(float) );
+	if ( !isGauss() )
+	    return spdf;
+
 	GaussianNDProbDenFunc gpdf( 3 );
 	for ( int idim=0; idim<nrdims_; idim++ )
 	    gpdf.vars_[idim] = GaussianNDProbDenFunc::VarDef( dimnms_.get(idim),
@@ -358,13 +386,6 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 1, ccs_[0] );
 	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 0, 2, ccs_[1] );
 	gpdf.corrs_ += GaussianNDProbDenFunc::Corr( 1, 2, ccs_[2] );
-
-	SampledNDProbDenFunc* spdf = new SampledNDProbDenFunc( 3 );
-	const TypeSet<int> szs( 3, nrbins_ );
-	spdf->bins_.setSize( szs.arr() );
-	mSetSD( sds_[0], rgs_[0] );
-	mSetSD( sds_[1], rgs_[1] );
-	mSetSD( sds_[2], rgs_[2] );
 
 	TypeSet<float> poss( 3, 0.0f );
 	TypeSet<int> idxs( 3, 0 );
@@ -384,7 +405,6 @@ ProbDenFunc* uiProbDenFuncGenSampled::getPDF() const
 	    }
 	}
 
-	spdf->dimnms_ = dimnms_;
 	ret = spdf;
     }
 
