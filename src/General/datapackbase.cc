@@ -39,20 +39,20 @@ public:
 	delete mdp_.xyrotarr2d_;
 	mdp_.xyrotarr2d_ = new Array2DImpl<float>( length+1, width+1 );
 
-	StepInterval<double> tmpirg( mdp_.posdata_.range(true) );
-	StepInterval<double> tmpcrg( mdp_.posdata_.range(false) );
+	const StepInterval<double> tmpirg( mdp_.posdata_.range(true) );
+	const StepInterval<double> tmpcrg( mdp_.posdata_.range(false) );
 	hsamp_.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
 		    (int)tmpirg.step),
 		StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
 		    (int)tmpcrg.step) );
-	Coord spt1 = SI().transform(
-				BinID(hsamp_.start_.inl(),hsamp_.start_.crl()) );
-	Coord spt2 = SI().transform(
-				BinID(hsamp_.start_.inl(),hsamp_.stop.crl()) );
-	Coord spt3 = SI().transform(
-				BinID(hsamp_.stop.inl(),hsamp_.start_.crl()) );
-	Coord spt4 = SI().transform(
-				BinID(hsamp_.stop.inl(),hsamp_.stop.crl()) );
+	const Coord spt1 =
+	    SI().transform( BinID(hsamp_.start_.inl(),hsamp_.start_.crl()) );
+	const Coord spt2 =
+	    SI().transform( BinID(hsamp_.start_.inl(),hsamp_.stop_.crl()) );
+	const Coord spt3 =
+	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.start_.crl()) );
+	const Coord spt4 =
+	    SI().transform( BinID(hsamp_.stop_.inl(),hsamp_.stop_.crl()) );
 	startpt_ = Coord( mMIN( mMIN(spt1.x, spt2.x), mMIN(spt3.x, spt4.x) ),
 		mMIN( mMIN(spt1.y, spt2.y), mMIN(spt3.y, spt4.y) ) );
 	stoppt_ = Coord( mMAX( mMAX(spt1.x, spt2.x), mMAX(spt3.x, spt4.x) ),
@@ -77,7 +77,7 @@ public:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
 	int startpos[2];
-	if ( !mdp_.xyrotarr2d_->info().getArrayPos( start, startpos ) )
+	if ( !mdp_.xyrotarr2d_->info().getArrayPos(start,startpos) )
 	    return false;
 
 	ArrayNDIter iter( mdp_.xyrotarr2d_->info() );
@@ -89,25 +89,25 @@ public:
 		idx++, iter.next(), addToNrDone(1) )
 	{
 	    const int* curpos = iter.getPos();
-	    Coord coord( startpt_.x + curpos[0] * xstep_,
-			 startpt_.y + curpos[1] * ystep_ );
+	    const Coord coord( startpt_.x+curpos[0]*xstep_,
+			       startpt_.y+curpos[1]*ystep_ );
 	    float val = mUdf(float );
-	    BinID approxbid = SI().transform(coord);
-	    if ( hsamp_.includes( approxbid ) )
+	    const BinID approxbid = SI().transform( coord );
+	    if ( hsamp_.includes(approxbid) )
 	    {
-		Coord approxcoord = SI().transform( approxbid );
-		float diffx = ( float ) (( coord.x - approxcoord.x ) / xstep_);
-		float diffy = ( float ) (( coord.y - approxcoord.y ) / ystep_);
+		const Coord approxcoord = SI().transform( approxbid );
+		float diffx = (float) ((coord.x-approxcoord.x) / xstep_);
+		float diffy = (float) ((coord.y-approxcoord.y) / ystep_);
 		toreach00.inl() = diffx>=0 ? 0 : -1;
 		toreach00.crl() = diffy>=0 ? 0 : -1;
-		int id0v00 = (approxbid.inl() - hsamp_.start_.inl()) /
+		const int id0v00 = (approxbid.inl() - hsamp_.start_.inl()) /
 			hsamp_.step_.inl() + toreach00.inl();
-		int id1v00 = (approxbid.crl() - hsamp_.start_.crl())/
+		const int id1v00 = (approxbid.crl() - hsamp_.start_.crl())/
 			hsamp_.step_.crl() + toreach00.crl();
-		float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
-		float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
-		float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
-		float val11 = mdp_.getValAtIdx( id0v00+1, id1v00+1 );
+		const float val00 = mdp_.getValAtIdx( id0v00, id1v00 );
+		const float val01 = mdp_.getValAtIdx( id0v00 , id1v00+1 );
+		const float val10 = mdp_.getValAtIdx( id0v00+1, id1v00 );
+		const float val11 = mdp_.getValAtIdx( id0v00+1, id1v00+1 );
 		if ( diffx<0 ) diffx = 1 + diffx;
 		if ( diffy<0 ) diffy = 1 + diffy;
 		val = Interpolate::linearReg2DWithUdf( val00, val01, val10,
@@ -131,12 +131,16 @@ protected:
 };
 
 
+
+// PointDataPack
 Coord PointDataPack::coord( int idx ) const
 {
     return SI().transform( binID(idx) );
 }
 
 
+
+// FlatDataPack
 FlatDataPack::FlatDataPack( const char* cat, Array2D<float>* arr )
     : DataPack(cat)
     , arr2d_(arr ? arr : new Array2DImpl<float>(1,1))
@@ -214,9 +218,9 @@ void FlatDataPack::dumpInfo( IOPar& iop ) const
 
     const FlatPosData& pd = posData();
     iop.set( "Positions.Dim0", pd.range(true).start, pd.range(true).stop,
-	    		       pd.range(true).step );
+			       pd.range(true).step );
     iop.set( "Positions.Dim1", pd.range(false).start, pd.range(false).stop,
-	    		       pd.range(false).step );
+			       pd.range(false).step );
     iop.setYN( "Positions.Irregular", pd.isIrregular() );
     if ( sz0 < 1 || sz1 < 1 ) return;
 
@@ -233,6 +237,8 @@ int FlatDataPack::size( bool dim0 ) const
 }
 
 
+
+// MapDataPack
 MapDataPack::MapDataPack( const char* cat, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
     , isposcoord_(false)
@@ -359,6 +365,36 @@ const char* MapDataPack::dimName( bool dim0 ) const
 }
 
 
+
+// VolumeDataPack
+VolumeDataPack::VolumeDataPack( const char* categry,
+				Array3D<float>* arr )
+    : DataPack( categry )
+    , arr3d_(arr ? arr : new Array3DImpl<float>(0,0,0))
+{}
+
+
+VolumeDataPack::VolumeDataPack( const char* cat )
+    : DataPack(cat)
+    , arr3d_(0)
+{}
+
+
+VolumeDataPack::~VolumeDataPack()
+{ delete arr3d_; }
+
+
+float VolumeDataPack::nrKBytes() const
+{
+    float ret = size(0) * kbfac;
+    return size( 1 ) * ret * size( 2 );
+}
+
+
+int VolumeDataPack::size( char dim ) const
+{ return arr3d_ ? arr3d_->info().getSize( dim ) : 0; }
+
+
 Array3D<float>& VolumeDataPack::data()
 { return *arr3d_; }
 
@@ -387,40 +423,10 @@ void VolumeDataPack::dumpInfo( IOPar& par ) const
 }
 
 
-VolumeDataPack::VolumeDataPack( const char* categry,
-				Array3D<float>* arr )
-    : DataPack( categry )
-    , arr3d_(arr ? arr : new Array3DImpl<float>(0,0,0))
-{}
 
-
-
-VolumeDataPack::VolumeDataPack( const char* cat )
-    : DataPack(cat)
-    , arr3d_(0)
-{}
-
-
-float VolumeDataPack::nrKBytes() const
-{
-    float ret = size(0) * kbfac;
-    return size( 1 ) * ret * size( 2 );
-}
-
-
-VolumeDataPack::~VolumeDataPack()
-{ delete arr3d_; }
-
-
-int VolumeDataPack::size( char dim ) const
-{ return arr3d_ ? arr3d_->info().getSize( dim ) : 0; }
-
-
-
-
-
+// CubeDataPack
 CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
-    : VolumeDataPack(cat)
+    : VolumeDataPack(cat,arr)
     , tkzs_(*new TrcKeyZSampling(true))
 {
     init();
@@ -439,15 +445,16 @@ CubeDataPack::CubeDataPack( const char* cat )
 void CubeDataPack::init()
 {
     if ( !arr3d_ ) return;
-    tkzs_.hrg.stop.inl() = tkzs_.hrg.start.inl() + (size(0)-1) * tkzs_.hrg.step.inl();
-    tkzs_.hrg.stop.crl() = tkzs_.hrg.start.crl() + (size(1)-1) * tkzs_.hrg.step.crl();
+    tkzs_.hrg.stop.inl() =
+	tkzs_.hrg.start.inl() + (size(0)-1) * tkzs_.hrg.step.inl();
+    tkzs_.hrg.stop.crl() =
+	tkzs_.hrg.start.crl() + (size(1)-1) * tkzs_.hrg.step.crl();
     tkzs_.zsamp_.stop = tkzs_.zsamp_.start + (size(2)-1) * tkzs_.zsamp_.step;
 }
 
 
 CubeDataPack::~CubeDataPack()
 {
-    delete arr3d_;
     delete &tkzs_;
 }
 
@@ -467,9 +474,9 @@ void CubeDataPack::dumpInfo( IOPar& iop ) const
     VolumeDataPack::dumpInfo( iop );
 
     const TrcKeyZSampling& cs = sampling();
-    iop.set( "Positions.inl()", cs.hrg.start.inl(), cs.hrg.stop.inl(),
-	    		      cs.hrg.step.inl() );
-    iop.set( "Positions.crl()", cs.hrg.start.crl(), cs.hrg.stop.crl(),
-	    		      cs.hrg.step.crl() );
+    iop.set( "Positions.inl", cs.hrg.start.inl(), cs.hrg.stop.inl(),
+			      cs.hrg.step.inl() );
+    iop.set( "Positions.crl", cs.hrg.start.crl(), cs.hrg.stop.crl(),
+			      cs.hrg.step.crl() );
     iop.set( "Positions.z", cs.zsamp_.start, cs.zsamp_.stop, cs.zsamp_.step );
 }

@@ -37,13 +37,13 @@ public:
     virtual int			trcNr(int) const		{ return 0; }
 
     virtual bool		simpleCoords() const		{ return true; }
-    				//!< If true, coords are always SI().tranform(b)
+				//!< If true, coords are always SI().tranform(b)
     virtual bool		isOrdered() const		{ return false;}
-    				//!< If yes, one can draw a line between the pts
+				//!< If yes, one can draw a line between the pts
 
 protected:
 
-    				PointDataPack( const char* categry )
+				PointDataPack( const char* categry )
 				    : DataPack( categry )	{}
 
 };
@@ -57,7 +57,7 @@ protected:
 mExpClass(General) FlatDataPack : public DataPack
 {
 public:
-    				FlatDataPack(const char* categry,
+				FlatDataPack(const char* categry,
 					     Array2D<float>*);
 				//!< Array2D become mine (of course)
 				FlatDataPack(const FlatDataPack&);
@@ -66,23 +66,23 @@ public:
     virtual Array2D<float>&	data()			{ return *arr2d_; }
     const Array2D<float>&	data() const
 				{ return const_cast<FlatDataPack*>(this)
-				    			->data(); }
+							->data(); }
 
     virtual FlatPosData&	posData()		{ return posdata_; }
     const FlatPosData&		posData() const
 				{ return const_cast<FlatDataPack*>(this)
-				    			->posData(); }
+							->posData(); }
     virtual const char*		dimName( bool dim0 ) const
 				{ return dim0 ? "X1" : "X2"; }
 
     virtual Coord3		getCoord(int,int) const;
-    				//!< int,int = Array2D position
-    				//!< if not overloaded, returns posData() (z=0)
+				//!< int,int = Array2D position
+				//!< if not overloaded, returns posData() (z=0)
 
     virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
     virtual void		getAltDim0Keys(BufferStringSet&) const	{}
-    				//!< First one is 'default'
+				//!< First one is 'default'
     virtual double		getAltDim0Value(int ikey,int idim0) const;
     virtual bool		isAltDim0InInt(const char* key) const
 				{ return false; }
@@ -90,13 +90,13 @@ public:
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const {}
 
     virtual float		nrKBytes() const;
-    virtual void       		dumpInfo(IOPar&) const;
+    virtual void		dumpInfo(IOPar&) const;
 
     virtual int			size(bool dim0) const;
 
 protected:
 
-    				FlatDataPack(const char* category);
+				FlatDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
 
@@ -110,12 +110,13 @@ private:
 };
 
 
+
 /*!\brief DataPack for 2D data to be plotted on a Map. */
 
 mExpClass(General) MapDataPack : public FlatDataPack
 {
 public:
-    				MapDataPack(const char* cat,
+				MapDataPack(const char* cat,
 					    Array2D<float>*);
 				~MapDataPack();
 
@@ -125,24 +126,24 @@ public:
     void			setDimNames(const char*,const char*,bool forxy);
     const char*			dimName( bool dim0 ) const;
 
-    				//!< Alternatively, it can be in Inl/Crl
+				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const	{ return isposcoord_; }
     void			setPosCoord(bool yn);
-    				//!< int,int = Array2D position
+				//!< int,int = Array2D position
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
     void			setProps(StepInterval<double> inlrg,
-	    				 StepInterval<double> crlrg,
+					 StepInterval<double> crlrg,
 					 bool,BufferStringSet*);
     void			initXYRotArray(TaskRunner* = 0 );
 
     void			setRange( StepInterval<double> dim0rg,
-	    				  StepInterval<double> dim1rg,
+					  StepInterval<double> dim1rg,
 					  bool forxy );
 
 protected:
 
     float			getValAtIdx(int,int) const;
-    friend class 		MapDataPackXYRotater;
+    friend class		MapDataPackXYRotater;
 
     Array2D<float>*		xyrotarr2d_;
     FlatPosData&		xyrotposdata_;
@@ -153,8 +154,7 @@ protected:
 
 
 
-/*!\brief DataPack for volume data, where the dims correspond to
-          inl/crl/z . */
+/*!\brief DataPack for volume data. */
 
 mExpClass(General) VolumeDataPack : public DataPack
 {
@@ -167,21 +167,22 @@ public:
     virtual double		getPos(char dim,int idx) const;
     int				size(char dim) const;
     virtual float		nrKBytes() const;
-    virtual void       		dumpInfo(IOPar&) const;
+    virtual void		dumpInfo(IOPar&) const;
 
 
 protected:
-    				VolumeDataPack(const char* categry,
+				VolumeDataPack(const char* categry,
 					     Array3D<float>*);
 				//!< Array3D become mine (of course)
 				~VolumeDataPack();
 
-    				VolumeDataPack(const char* category);
+				VolumeDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
 
     Array3D<float>*		arr3d_;
 };
+
 
 /*!\brief DataPack for volume data, where the dims correspond to
           inl/crl/z .
@@ -190,22 +191,22 @@ protected:
 mExpClass(General) CubeDataPack : public VolumeDataPack
 {
 public:
-    				CubeDataPack(const char* categry,
+				CubeDataPack(const char* categry,
 					     Array3D<float>*);
-				//!< Array2D become mine (of course)
+				//!< Array3D become mine (of course)
 				~CubeDataPack();
 
     TrcKeyZSampling&		sampling()		{ return tkzs_; }
-    const TrcKeyZSampling&		sampling() const	{ return tkzs_; }
+    const TrcKeyZSampling&	sampling() const	{ return tkzs_; }
     virtual void		getAuxInfo(int,int,int,IOPar&) const {}
-    				//!< int,int,int = Array3D position
+				//!< int,int,int = Array3D position
     Coord3			getCoord(int,int,int) const;
-    				//!< int,int,int = Array3D position
-    void       			dumpInfo(IOPar&) const;
+				//!< int,int,int = Array3D position
+    void			dumpInfo(IOPar&) const;
 
 protected:
 
-    				CubeDataPack(const char* category);
+				CubeDataPack(const char* category);
 				//!< For this you have to overload data()
 				//!< and the destructor
 
@@ -216,7 +217,6 @@ private:
     void			init();
 
 };
-
 
 #endif
 
