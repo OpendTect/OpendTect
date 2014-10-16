@@ -1299,7 +1299,12 @@ void StratSynth::trimTraces( SeisTrcBuf& tbuf,
 	newtrc->reSize( trc->size()-startidx, false );
 	newtrc->setStartPos( trc->samplePos(startidx) );
 	for ( int sampidx=startidx; sampidx<trc->size(); sampidx++ )
-	    newtrc->set( sampidx-startidx, trc->get(sampidx,0), 0 );
+	{
+	    const float trcval =
+		sampidx<0 || sampidx>=trc->size()-1 ? mUdf(float)
+						    : trc->get(sampidx,0);
+	    newtrc->set( sampidx-startidx, trcval, 0 );
+	}
 	delete tbuf.replace( idx, newtrc );
     }
 }
