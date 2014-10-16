@@ -22,8 +22,8 @@ const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
 void Well::LogSet::getNames( BufferStringSet& nms ) const
 {
-    for ( int idx=0; idx<logs.size(); idx++ )
-	nms.add( logs[idx]->name() );
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	nms.add( logs_[idx]->name() );
 }
 
 
@@ -32,7 +32,7 @@ void Well::LogSet::add( Well::Log* wl )
     if ( !wl ) return;
     if ( getLog(wl->name()) ) return;
 
-    logs += wl;
+    logs_ += wl;
     updateDahIntv( *wl );
 }
 
@@ -41,33 +41,33 @@ void Well::LogSet::updateDahIntv( const Well::Log& wl )
 {
     if ( wl.isEmpty() ) return;
 
-    if ( mIsUdf(dahintv.start) )
-	{ dahintv.start = wl.dah(0); dahintv.stop = wl.dah(wl.size()-1); }
+    if ( mIsUdf(dahintv_.start) )
+	{ dahintv_.start = wl.dah(0); dahintv_.stop = wl.dah(wl.size()-1); }
     else
     {
-	if ( dahintv.start > wl.dah(0) )
-	    dahintv.start = wl.dah(0);
-	if ( dahintv.stop < wl.dah(wl.size()-1) )
-	    dahintv.stop = wl.dah(wl.size()-1);
+	if ( dahintv_.start > wl.dah(0) )
+	    dahintv_.start = wl.dah(0);
+	if ( dahintv_.stop < wl.dah(wl.size()-1) )
+	    dahintv_.stop = wl.dah(wl.size()-1);
     }
 }
 
 
 void Well::LogSet::updateDahIntvs()
 {
-    for ( int idx=0; idx<logs.size(); idx++ )
+    for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	logs[idx]->ensureAscZ();
-	updateDahIntv( *logs[idx] );
+	logs_[idx]->ensureAscZ();
+	updateDahIntv( *logs_[idx] );
     }
 }
 
 
 int Well::LogSet::indexOf( const char* nm ) const
 {
-    for ( int idx=0; idx<logs.size(); idx++ )
+    for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	const Log& l = *logs[idx];
+	const Log& l = *logs_[idx];
 	if ( l.name() == nm )
 	    return idx;
     }
@@ -77,9 +77,9 @@ int Well::LogSet::indexOf( const char* nm ) const
 
 Well::Log* Well::LogSet::remove( int logidx )
 {
-    Log* log = logs[logidx]; logs -= log;
-    ObjectSet<Well::Log> tmp( logs );
-    logs.erase(); init();
+    Log* log = logs_[logidx]; logs_ -= log;
+    ObjectSet<Well::Log> tmp( logs_ );
+    logs_.erase(); init();
     for ( int idx=0; idx<tmp.size(); idx++ )
 	add( tmp[idx] );
     return log;
@@ -88,14 +88,14 @@ Well::Log* Well::LogSet::remove( int logidx )
 
 void Well::LogSet::setEmpty()
 {
-    deepErase( logs );
+    deepErase( logs_ );
 }
 
 
 void Well::LogSet::removeTopBottomUdfs()
 {
-    for ( int idx=0; idx<logs.size(); idx++ )
-	logs[idx]->removeTopBottomUdfs();
+    for ( int idx=0; idx<logs_.size(); idx++ )
+	logs_[idx]->removeTopBottomUdfs();
 }
 
 
@@ -106,9 +106,9 @@ TypeSet<int> Well::LogSet::getSuitable( PropertyRef::StdType ptype,
     if ( arealt )
 	arealt->setEmpty();
 
-    for ( int idx=0; idx<logs.size(); idx++ )
+    for ( int idx=0; idx<logs_.size(); idx++ )
     {
-	const char* loguomlbl = logs[idx]->unitMeasLabel();
+	const char* loguomlbl = logs_[idx]->unitMeasLabel();
 	const UnitOfMeasure* loguom = UnitOfMeasure::getGuessed( loguomlbl );
 	bool isalt = false;
 	bool isok = !loguom || ptype == PropertyRef::Other
