@@ -113,13 +113,10 @@ void Vw2DHorizon2D::draw()
 	ConstDataPackRef<Attrib::Flat2DDHDataPack> dp2ddh =
 				    vwr.obtainPack( true, true );
 	if ( !dp2ddh ) continue;
-
 	if ( horeds_[ivwr] )
 	    horeds_[ivwr]->setMouseEventHandler(
 		&vwr.rgbCanvas().scene().getMouseEventHandler() );
-	const CubeSampling cs = dp2ddh->dataarray() ?
-		dp2ddh->dataarray()->cubesampling_ : CubeSampling(false);
-	horeds_[ivwr]->setCubeSampling( cs );
+	horeds_[ivwr]->setCubeSampling( dp2ddh->getCubeSampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
 	horeds_[ivwr]->setGeomID( geomid_ );
