@@ -76,7 +76,7 @@ void ElasticModel::upscale( float maxthickness )
 
 	const bool lastlay = totthickness+thickness > maxthickness-mDefEpsf;
 	const float thicknesstoadd = lastlay ? maxthickness - totthickness
-	    				     : thickness;
+					     : thickness;
 	totthickness += thicknesstoadd;
 	if ( lastlay )
 	{
@@ -168,14 +168,14 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 	for ( int lidx=0; lidx<modelsize; lidx++ )
 	{
 	    const float den = orgmodl[lidx].den_;
-	    denvals += den;
+	    denvals[lidx] = den;
 	    if ( !mIsValid(den) )
 	    {
 		dodensity = false;
 		break;
 	    }
 	}
-	
+
 	if ( dodensity )
 	{
 	    values.append( denvals );
@@ -222,11 +222,11 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
     TypeSet<Interval<int> > investigationqueue;
     investigationqueue += Interval<int>( 0, modelsize-1 );
     TypeSet<Interval<int> > blocks;
-    
+
     while ( investigationqueue.size() )
     {
 	Interval<int> curblock = investigationqueue.pop();
-	
+
 	while ( true )
 	{
 	    const int width = curblock.width();
@@ -235,7 +235,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		mAddBlock( curblock );
 		break;
 	    }
-	    
+
 	    TypeSet<int> bendpoints;
 	    const int lastblock = curblock.start + width;
 	    TypeSet<float> firstval( nrcomp, mUdf(float) );
@@ -272,7 +272,7 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		mAddBlock( curblock );
 		break;
 	    }
-	    
+
 	    int bendpoint = curblock.center();
 	    if ( bendpoints.isEmpty() )
 	    {
@@ -287,12 +287,12 @@ void ElasticModel::block( float relthreshold, bool pvelonly )
 		const int middle = bendpoints.size()/2;
 		bendpoint = bendpoints[middle];
 	    }
-	    
+
 	    investigationqueue += Interval<int>( curblock.start, bendpoint-1);
 	    curblock = Interval<int>( bendpoint, curblock.stop );
 	}
     }
-    
+
     for ( int lidx=0; lidx<blocks.size(); lidx++ )
     {
 	ElasticModel blockmdl;
@@ -379,7 +379,7 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 	const float layinvelp = curlayer.vel_;
 	const float layinden = curlayer.den_;
 	const float layinsvel = curlayer.svel_;
-	
+
 	if ( !mIsValid(ldz) || !mIsValid(layinvelp) ||
 	     !mIsValid(layinden) || !mIsValid(layinsvel) )
 	    continue;
@@ -426,7 +426,7 @@ bool ElasticModel::getUpscaledBackus( ElasticLayer& outlay, float theta ) const
 
     const float mm = c11 * s2 + c33 * c2 + c44;
     const float mn = Math::Sqrt( ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 ) *
-	    			 ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 )
+				 ( ( c11 - c44 ) * s2 - ( c33 - c44 ) * c2 )
 				 + ( c13 + c44 ) *
 				   ( c13 + c44 ) * s22 );
     const float mp2 = ( mm + mn ) / 2.f;
