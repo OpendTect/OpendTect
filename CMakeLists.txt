@@ -16,8 +16,12 @@ set( OpendTect_VERSION_MAJOR 5 )
 set( OpendTect_VERSION_MINOR 0 )
 set( OpendTect_VERSION_DETAIL 0 )
 #Default patch value
-if ( NOT DEFINED OpendTect_VERSION_PATCH OR OpendTect_VERSION_PATCH STREQUAL "" )
-    set( OpendTect_VERSION_PATCH a )
+if ( NOT DEFINED OpendTect_VERSION_PATCH )
+    set( OpendTect_VERSION_PATCH test )
+endif()
+
+if ( NOT DEFINED OpendTect_FULL_VERSION )
+    set( OpendTect_FULL_VERSION ${OpendTect_VERSION_MAJOR}.${OpendTect_VERSION_MINOR}.${OpendTect_VERSION_DETAIL}${OpendTect_VERSION_PATCH} )
 endif()
 
 PROJECT( "OpendTect-${OpendTect_VERSION_MAJOR}_${OpendTect_VERSION_MINOR}" )

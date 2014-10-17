@@ -200,19 +200,6 @@ if ( ${OD_PLFSUBDIR} STREQUAL "lux64" OR ${OD_PLFSUBDIR} STREQUAL "lux32" )
     endif()
 endif()
 
-add_custom_target( docpackages ${CMAKE_COMMAND}
-        -DOpendTect_VERSION_MAJOR=${OpendTect_VERSION_MAJOR}
-        -DOpendTect_VERSION_MINOR=${OpendTect_VERSION_MINOR}
-        -DOpendTect_VERSION_DETAIL=${OpendTect_VERSION_DETAIL}
-        -DOpendTect_VERSION_PATCH=${OpendTect_VERSION_PATCH}
-        -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-        -DOD_PLFSUBDIR=${OD_PLFSUBDIR}
-	-DSOURCE_DIR=${CMAKE_SOURCE_DIR}
-	-DBINARY_DIR=${CMAKE_BINARY_DIR}
-	-P ${CMAKE_SOURCE_DIR}/CMakeModules/packagescripts/ODMakeDocPackages.cmake
-         COMMENT "Preparing doc packages" )
-
-
 # Build information
 include ( ODSubversion )
 
