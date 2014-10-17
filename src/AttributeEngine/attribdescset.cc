@@ -407,13 +407,14 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 	bstr += ptr;
 	defstring = bstr;
     }
-    if ( attribname == "Math" && odversion<340 )
-	handleOldMathExpression( descpar, defstring );
+    if ( attribname == "Math" && odversion<500 )
+	handleOldMathExpression( descpar, defstring, odversion );
 }
 
 
 void DescSet::handleOldMathExpression( IOPar& descpar,
-				       BufferString& defstring ) const
+				       BufferString& defstring,
+				       int odversion ) const
 {
     RefMan<Desc> tmpdesc = PF().createDescCopy("Math");
     if ( !tmpdesc || !tmpdesc->parseDefStr(defstring.buf()) ) return;
@@ -423,43 +424,61 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
     PtrMan<Math::Expression> formula = mep.parse();
     if ( !formula ) return;
 
-    TypeSet<int> oldinputs;
-    TypeSet<int> correctinputs;
-    int inputidx = 0;
-    while( true )
+    if ( odversion<340 )
     {
-	int inpid;
-	const char* key = IOPar::compKey( inputPrefixStr(), inputidx );
-	if ( !descpar.get(key,inpid) ) break;
-	oldinputs += inpid;
-	inputidx++;
+	TypeSet<int> oldinputs;
+	TypeSet<int> correctinputs;
+	int inputidx = 0;
+	while( true )
+	{
+	    int inpid;
+	    const char* key = IOPar::compKey( inputPrefixStr(), inputidx );
+	    if ( !descpar.get(key,inpid) ) break;
+	    oldinputs += inpid;
+	    inputidx++;
+	}
+
+	for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
+	{
+	    if ( Math::ExpressionParser::varTypeOf( formula->uniqueVarName(idx))
+		    != Math::Expression::Variable ) continue;
+
+	    const BufferString varnm( formula->uniqueVarName(idx) );
+	    const char* ptr = varnm.buf();
+	    while ( *ptr && !isdigit(*ptr) )
+		ptr++;
+
+	    int varxidx = toInt( ptr );
+	    if ( varxidx >= oldinputs.size() )
+	    {
+		const_cast<DescSet*>(this)->errmsg_ =
+					tr("Cannot use old Math expression");
+		return;
+	    }
+	    correctinputs += oldinputs[varxidx];
+	}
+
+	for ( int idx=0; idx<correctinputs.size(); idx++ )
+	{
+	    const char* key = IOPar::compKey( inputPrefixStr(), idx );
+	    descpar.set( key, correctinputs[idx] );
+	}
     }
 
     for ( int idx=0; idx<formula->nrUniqueVarNames(); idx++ )
     {
-	if ( Math::ExpressionParser::varTypeOf( formula->uniqueVarName(idx) )
-		!= Math::Expression::Variable ) continue;
+	BufferString varnm ( formula->uniqueVarName(idx) );
 
-	const BufferString varnm( formula->uniqueVarName(idx) );
-	const char* ptr = varnm.buf();
-	while ( *ptr && !isdigit(*ptr) )
-	    ptr++;
-
-	int varxidx = toInt( ptr );
-	if ( varxidx >= oldinputs.size() )
+	if ( varnm == BufferString("DZ") || varnm == BufferString("Inl" )
+	  || varnm == BufferString("Crl") || varnm == BufferString("XCoord" )
+	  || varnm == BufferString("YCoord") || varnm == BufferString("Z" ) )
 	{
-	    const_cast<DescSet*>(this)->errmsg_ =
-					tr("Cannot use old Math expression");
-	    return;
+	    BufferString alternativenm ( varnm, "Input" );
+	    defstring.replace( varnm.buf(), alternativenm.buf() );
 	}
-	correctinputs += oldinputs[varxidx];
     }
 
-    for ( int idx=0; idx<correctinputs.size(); idx++ )
-    {
-	const char* key = IOPar::compKey( inputPrefixStr(), idx );
-	descpar.set( key, correctinputs[idx] );
-    }
+
 }
 
 

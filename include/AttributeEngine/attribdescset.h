@@ -120,7 +120,7 @@ public:
     void 		handleStorageOldFormat(IOPar&);
     void 		handleOldAttributes(BufferString&,IOPar&,BufferString&,
 	    				    int) const;
-    void		handleOldMathExpression(IOPar&,BufferString&) const;
+    void		handleOldMathExpression(IOPar&,BufferString&,int) const;
     void		handleReferenceInput(Desc*);
 
     			//!<will prepare strings for each desc, format :
