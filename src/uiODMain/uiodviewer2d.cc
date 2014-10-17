@@ -195,10 +195,7 @@ void uiODViewer2D::setDataPack( DataPack::ID packid, bool wva, bool isnew )
     for ( int ivwr=0; ivwr<viewwin()->nrViewers(); ivwr++ )
     {
 	uiFlatViewer& vwr = viewwin()->viewer(ivwr);
-	FlatView::DataDispPars& ddp = vwr.appearance().ddpars_;
-	(wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
-
-	TypeSet<DataPack::ID> ids = vwr.availablePacks();
+	const TypeSet<DataPack::ID> ids = vwr.availablePacks();
 	if ( ids.isPresent(packid) )
 	{ vwr.usePack( wva, packid, isnew ); continue; }
 
