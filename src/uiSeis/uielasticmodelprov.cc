@@ -89,16 +89,18 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
     IOObjContext denctxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
     denctxt.forread = true;
-    densityfld_ = new uiSeisSel( this, denctxt, uiSeisSel::Setup(is2d,false) );
+    uiSeisSel::Setup su1( is2d, false );
+    su1.seltxt( tr("Density") );
+    densityfld_ = new uiSeisSel( this, denctxt, su1 );
     densityfld_->attach( alignedBelow, sifld_ );
 
     IOObjContext optdenctxt =
 		uiSeisSel::ioContext( is2d?Seis::Line:Seis::Vol, true );
     optdenctxt.forread = true;
-    uiSeisSel::Setup su( is2d, false );
-    su.optional_= true;
-    su.seltxt( tr("Density") );
-    optdensityfld_ = new uiSeisSel( this, optdenctxt, su );
+    uiSeisSel::Setup su2( is2d, false );
+    su2.optional_= true;
+    su2.seltxt( tr("Density") );
+    optdensityfld_ = new uiSeisSel( this, optdenctxt, su2 );
     optdensityfld_->attach( alignedBelow, sifld_ );
 
     inpTypeSel(0);
