@@ -75,7 +75,8 @@ mExpClass(Algo) Gaussian2DProbDenFunc : public ProbDenFunc2D
 public:
 
 			Gaussian2DProbDenFunc()
-			    : exp0_(0),exp1_(0), std0_(1), std1_(1), cc_(0) {}
+			    : rgen0_(0),rgen1_(0)
+			    , exp0_(0),exp1_(0), std0_(1), std1_(1), cc_(0) {}
 			Gaussian2DProbDenFunc(const Gaussian2DProbDenFunc& oth)
 			    : rgen0_(0), rgen1_(0)	{ *this = oth; }
 
