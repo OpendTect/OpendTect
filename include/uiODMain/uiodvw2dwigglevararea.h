@@ -45,8 +45,15 @@ protected:
     void                        createSelMenu(MenuItem&);
     bool			handleSelMenu(int mnuid);
 
+    DataPack::ID		createDataPack(Attrib::SelSpec&,
+					       const BufferString& attribnm="",
+					       const bool steering=false,
+					       const bool stored=false);
+    void			useStoredDispPars(const Attrib::SelSpec&);
+
     void			checkCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
+    void			dataTransformCB(CallBacker*);
     void                        createMenuCB(CallBacker*);
     void                        handleMenuCB(CallBacker*);
 };
