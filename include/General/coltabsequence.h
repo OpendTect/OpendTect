@@ -56,6 +56,7 @@ public:
 
     Color		color(float pos) const; //!< 0 <= pos <= 1
 
+    inline bool		isEmpty() const		{ return x_.isEmpty(); }
     inline int		size() const		{ return x_.size(); }
     inline float	position( int idx ) const { return x_[idx]; }
     inline unsigned char r( int idx ) const	{ return r_[idx]; }
