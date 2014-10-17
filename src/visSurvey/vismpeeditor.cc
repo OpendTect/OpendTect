@@ -395,6 +395,9 @@ bool MPEEditor::clickCB( CallBacker* cb )
 
 EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
 {
+    if ( path.isEmpty() )
+	return EM::PosID::udf();
+
     for ( int idx=draggers_.size()-1; idx>=0; idx-- )
     {
 	if ( path.indexOf(draggers_[idx]->id()) != -1 )
