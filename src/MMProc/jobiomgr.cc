@@ -560,7 +560,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
     cmd.addFlag( "-masterport", iohdlr_.port() );
     cmd.addFlag( "-jobid", ji.descnr_ );
     FilePath parfp( iopfp );
-    cmd.addFilePath( parfp, FilePath::Windows );
+    cmd.addFilePath( parfp, machine.pathStyle() );
 
 #else
     cmd.addWoSpc( GetExecScript(remote) );

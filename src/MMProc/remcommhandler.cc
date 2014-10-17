@@ -72,14 +72,18 @@ void RemCommHandler::dataReceivedCB( CallBacker* cb )
 
 bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 {
-    BufferString procnm, hostnm, portnm, survnm, dataroot, parfile, jobid;
+    BufferString procnm, hostnm, portnm, survnm, dataroot;
+    BufferString orgparfile, parfile, jobid;
     const int parsz = par.size();
     bool res;
     if ( parsz <= 2 )
     {
-	res = par.get( "Proc Name", procnm ) && par.get( "Par File", parfile );
+	res = par.get( "Proc Name", procnm ) && par.get( "Par File", orgparfile );
+#ifdef __win__
+	parfile.add( "\"" ).add( orgparfile ).add( "\"" );
+#endif
 	cmd = procnm;
-	cmd.add( " \" " ).add( parfile ).add( "\"" );
+	cmd.add( " " ).add( parfile );
 	return res; 
     }
     else
@@ -88,16 +92,18 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 	par.get( "Host Name", hostnm ) &&
 	par.get( "Port Name", portnm ) &&
 	par.get( "Job ID", jobid ) &&
-	par.get( "Par File", parfile );
+	par.get( "Par File", orgparfile );
+#ifdef __win__
+	parfile.add( "\"" ).add( orgparfile ).add( "\"" );
+#endif
     }
 
     if ( !res ) return false;
-
     cmd = procnm;
     cmd.add( " -masterhost " ).add( hostnm )
        .add( " -masterport " ).add( portnm )
        .add( " -jobid " ).add( jobid )
-       .add( " \" " ).add( parfile ).add( "\"" );
+       .add( " " ).add( parfile );
 
     return true;
 }

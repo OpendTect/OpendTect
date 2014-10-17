@@ -27,8 +27,8 @@ RemoteJobExec::RemoteJobExec( const char* host, const int port )
     , par_(*new IOPar)
     , isconnected_(false)
 {
-    socket_.connectToHost( host_, port );
     socket_.connected.notify( mCB(this,RemoteJobExec,connectedCB) ); 
+    socket_.connectToHost( host_, port );
     socket_.waitForConnected( 2000 );
     ckeckConnection();
 }
