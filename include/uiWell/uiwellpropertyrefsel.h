@@ -81,6 +81,8 @@ public:
     int			size() const	{ return propflds_.size(); }
 
     bool		setAvailableLogs(const Well::LogSet&);
+    bool		setAvailableLogsDetailed(const Well::LogSet&,
+					 BufferStringSet& notokpropnms);
     void		setLog(const PropertyRef::StdType,const char*,
 				bool check,const UnitOfMeasure*, int idx);
     bool		getLog(const PropertyRef::StdType,BufferString&,
