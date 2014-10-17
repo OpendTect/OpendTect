@@ -1036,6 +1036,9 @@ bool FaultStickSetDisplay::displayedOnlyAtSections() const
 
 void FaultStickSetDisplay::setStickSelectMode( bool yn )
 {
+    if ( yn==stickselectmode_ )
+	return;
+
     stickselectmode_ = yn;
     ctrldown_ = false;
 
