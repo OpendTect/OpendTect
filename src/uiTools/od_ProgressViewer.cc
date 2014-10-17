@@ -21,17 +21,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uistatusbar.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
-#include "od_helpids.h"
-#include "helpview.h"
 
 #include "commandlineparser.h"
 #include "filepath.h"
-#include "progressmeter.h"
-#include "varlenarray.h"
+#include "helpview.h"
+#include "moddepmgr.h"
 #include "oddirs.h"
+#include "od_helpids.h"
 #include "od_istream.h"
+#include "progressmeter.h"
 #include "sighndl.h"
 #include "timer.h"
+#include "varlenarray.h"
 
 #include <iostream>
 
@@ -94,7 +95,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     tb_ = new uiToolBar( this, "ToolBar" );
     quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit : sQuitOnly,
 			    quitFn );
-    mAddButton( "saveflow", "Save text to a file", saveFn );
+    mAddButton( "save", "Save text to a file", saveFn );
     mAddButton( "contexthelp", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
@@ -250,6 +251,7 @@ void uiProgressViewer::saveFn( CallBacker* )
 int main( int argc, char** argv )
 {
     SetProgramArgs( argc, argv );
+    OD::ModDeps().ensureLoaded( "uiBase" );
 
     CommandLineParser cl( argc, argv );
     cl.setKeyHasValue( "pid" );

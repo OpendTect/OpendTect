@@ -60,16 +60,16 @@ HelpProvider* FlareHelpProvider::createInstance()
 
 static const char* fileprot = "file:///";
 
-static void initHelpSystem( const char* context )
+static void initHelpSystem( const char* context, const char* path )
 {
-    FilePath subpath( context, mHtmlFileName );
+    FilePath subpath( path, mHtmlFileName );
     FilePath basefile = GetDocFileDir( "" );
     basefile.add( subpath.fullPath() );
     BufferString str( basefile.fullPath() );
 
     BufferString url;
 
-    if ( File::exists(basefile.fullPath() ) )
+    if ( File::exists(basefile.fullPath()) )
     {
 	url = fileprot;
 	url += basefile.fullPath();
@@ -78,7 +78,7 @@ static void initHelpSystem( const char* context )
     {
 	url = mBaseUrl;
 	url.add( toString(mODVersion) );
-	url.add( "/doc/User/" ).add( subpath.fullPath( FilePath::Unix ) );
+	url.add( "/doc/" ).add( subpath.fullPath(FilePath::Unix) );
     }
 
     FlareHelpProvider::initClass( context, url.str() );
@@ -87,15 +87,14 @@ static void initHelpSystem( const char* context )
 
 void FlareHelpProvider::initODHelp()
 {
-    initHelpSystem( "od_userdoc" );
-    initHelpSystem( "appman" );
+    initHelpSystem( "od", "od_userdoc" );
+    initHelpSystem( "appman", "appmandoc" );
 }
 
 
 void DevDocHelp::initClass()
 {
-    HelpProvider::factory().addCreator( createInstance,
-					sKeyFactoryName() );
+    HelpProvider::factory().addCreator( createInstance, sKeyFactoryName() );
 }
 
 
