@@ -134,7 +134,7 @@ bool SynthGenBase::getOutSamplingFromModel(
 	    if ( !spike.isDefined() )
 		continue;
 
-	    const float twt = usenmo ? spike.correctedtime_ : spike.time_;
+	    const float twt = spike.time( usenmo );
 	    sampling.include( twt, false );
 	    if ( usenmo )
 		break;
@@ -148,7 +148,7 @@ bool SynthGenBase::getOutSamplingFromModel(
 	    if ( !spike.isDefined() )
 		continue;
 
-	    const float twt = usenmo ? spike.correctedtime_ : spike.time_;
+	    const float twt = spike.time( usenmo );
 	    sampling.include( twt, false );
 	    break;
 	}
@@ -389,7 +389,7 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	{
 	    //check for crossing events
 	    const ReflectivitySpike& spikeabove = (*refmodel_)[idx-1];
-	    if ( spike.time_<spikeabove.time_ )
+	    if ( spike.time_ < spikeabove.time_ )
 	    {
 		mutelevel = mMAX(spike.correctedtime_, mutelevel );
 	    }
@@ -399,8 +399,8 @@ bool SynthGenerator::doNMOStretch(const ValueSeries<float>& input, int insz,
 	stretchfunc.add( spike.correctedtime_, spike.time_ );
     }
 
-    if ( firsttime>0 )
-	stretchfunc.add( 0, 0 );
+    if ( firsttime > 0.f )
+	stretchfunc.add( 0.f, 0.f );
 
     outtrc_.info().sampling.indexOnOrAfter( mutelevel );
 
