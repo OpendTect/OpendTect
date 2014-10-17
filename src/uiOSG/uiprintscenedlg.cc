@@ -153,8 +153,17 @@ void uiPrintSceneDlg::sceneSel( CallBacker* )
 }
 
 
+#define m32BitSizeLimit 4294967294UL  //4GB osg image size limitation
 bool uiPrintSceneDlg::acceptOK( CallBacker* )
 {
+    const od_int64 size = mNINT64(sizepix_.width()*sizepix_.height())*4 ;
+    if( size>m32BitSizeLimit )
+    {
+	pErrMsg( "The output image size is too big, please reduce image size\
+		  or resolution" );
+	return false;
+    }
+    
     if ( !filenameOK() )
 	return false;
 
