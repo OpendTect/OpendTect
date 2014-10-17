@@ -116,7 +116,7 @@ bool ReflectivitySampler::doWork( od_int64 start, od_int64 stop, int threadidx )
 	if ( !spike.isDefined() )
 	    continue;
 
-	const float time = usenmotime_ ? spike.correctedtime_ : spike.time_ ;
+	const float time = spike.time( usenmotime_ );
 	if ( !outsampling_.includes(time,false) )
 	    continue;
 

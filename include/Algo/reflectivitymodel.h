@@ -24,14 +24,15 @@ ________________________________________________________________________
 mClass(Algo) ReflectivitySpike
 {
 public:
-    			ReflectivitySpike()
+			ReflectivitySpike()
 			    : reflectivity_( mUdf(float), mUdf(float) )
 			    , time_( mUdf(float) )
 			    , correctedtime_( mUdf(float) )
 			    , depth_( mUdf(float) )
 			{}
-    
+
     inline bool		isDefined() const;
+    inline float	time(bool isnmo=true) const;
 
     inline bool		operator==(const ReflectivitySpike& s) const;
     inline bool		operator!=(const ReflectivitySpike& s) const;
@@ -67,6 +68,12 @@ inline bool ReflectivitySpike::isDefined() const
 {
     return !mIsUdf(reflectivity_) && !mIsUdf(time_) &&
 	   !mIsUdf(correctedtime_) && !mIsUdf(depth_);
+}
+
+
+inline float ReflectivitySpike::time( bool isnmo ) const
+{
+    return isnmo ? correctedtime_ : time_;
 }
 
 #endif
