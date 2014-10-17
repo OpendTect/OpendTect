@@ -1618,7 +1618,9 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int stopidx = 0;
     int jumpstart = 0;
 
-    TypeSet<Coord3> curline;
+    Geometry::IndexedPrimitiveSet* primitiveset =
+	Geometry::IndexedPrimitiveSet::create( false );
+
     TypeSet<int> idxps;
     while ( true )
     {
@@ -1682,14 +1684,16 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		    continue;
 		}
 	    }
-	    mAddLinePrimitiveSet();
 	}
 
 	jumpstart = 1;
     }
 
-    mAddLinePrimitiveSet();
-
+    if( idxps.size()>1 )
+    {
+	primitiveset->append( idxps.arr(),idxps.size() );
+	line->addPrimitiveSet( primitiveset );
+    }
 }
 
 
