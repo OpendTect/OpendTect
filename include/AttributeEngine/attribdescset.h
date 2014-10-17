@@ -123,7 +123,10 @@ public:
     void 		handleStorageOldFormat(IOPar&);
     void 		handleOldAttributes(BufferString&,IOPar&,BufferString&,
 	    				    int) const;
+			//not used kept because of ABI freeze
     void		handleOldMathExpression(IOPar&,BufferString&) const;
+    void		handleOldMathExpressionv50(IOPar&,
+						   BufferString&,int) const;
     void		handleReferenceInput(Desc*);
 
     			//!<will prepare strings for each desc, format :
