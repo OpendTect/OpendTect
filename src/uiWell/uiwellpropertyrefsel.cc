@@ -265,13 +265,18 @@ void uiWellPropSel::updateSelCB( CallBacker* c )
 }
 
 
-bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs  )
+bool uiWellPropSel::setAvailableLogs( const Well::LogSet& logs,
+				      BufferStringSet& notokpropnms  )
 {
     bool allok = true;
+    notokpropnms.erase();
     for ( int iprop=0; iprop<propflds_.size(); iprop++ )
     {
 	if ( !propflds_[iprop]->setAvailableLogs(logs) )
+	{
+	    notokpropnms.add( propflds_[iprop]->normPropRef().name() );
 	    allok = false;
+	}
     }
     return allok;
 }

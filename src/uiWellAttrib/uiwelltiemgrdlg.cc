@@ -228,13 +228,16 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 
     wd_->tobedeleted.notify( mCB(this,uiTieWinMGRDlg,wellToBeDeleted) );
     logsfld_->wellid_ = wellid;
-    if ( !logsfld_->setAvailableLogs(wd_->logs()) )
+    BufferStringSet notokpropnms;
+    if ( !logsfld_->setAvailableLogs(wd_->logs(),notokpropnms) )
     {
 	if ( cb )
 	{
-	    BufferString errmsg = "This well has no valid log to use as input";
-	    errmsg += "\n";
-	    errmsg += "Use well manager to either import or create your logs";
+	    BufferString logstr( notokpropnms.size()>1 ? "logs " : "log " );
+	    BufferString errmsg( "No valid ", logstr.buf()," found for" );
+	    errmsg.add( notokpropnms.getDispString() );
+	    errmsg += ". Create missing "; errmsg += logstr.buf();
+	    errmsg += " here or import through well manager";
 	    uiMSG().error( errmsg );
 	}
 
