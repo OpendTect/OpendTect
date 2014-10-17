@@ -69,8 +69,11 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
     if ( parsz <= 2 )
     {
 	res = par.get( "Proc Name", procnm ) && par.get( "Par File", parfile );
+#ifdef __win__
+        parfile.quote('\"');
+#endif
 	cmd = procnm;
-	cmd.add( " \" " ).add( parfile ).add( "\"" );
+	cmd.add( " " ).add( parfile );
 	return res;
     }
     else
@@ -80,15 +83,18 @@ bool RemCommHandler::mkCommand( const IOPar& par, BufferString& cmd )
 	par.get( "Port Name", portnm ) &&
 	par.get( "Job ID", jobid ) &&
 	par.get( "Par File", parfile );
+#ifdef __win__
+	parfile.quote('\"');
+#endif
     }
 
     if ( !res ) return false;
-
+    
     cmd = procnm;
     cmd.add( " -masterhost " ).add( hostnm )
        .add( " -masterport " ).add( portnm )
        .add( " -jobid " ).add( jobid )
-       .add( " \" " ).add( parfile ).add( "\"" );
+       .add( " " ).add( parfile );
 
     return true;
 }
