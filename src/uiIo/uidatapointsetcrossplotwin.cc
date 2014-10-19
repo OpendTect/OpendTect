@@ -645,7 +645,8 @@ void uiDataPointSetCrossPlotWin::setGrpColors()
 	ctseq.setColor( 0, coly1.r(), coly1.g(), coly1.b() );
 	ctseq.setColor( 1, coly2.r(), coly2.g(), coly2.b() );
 	ctseq.setNrSegments( 2 );
-	uiPixmap pixmap( ctseq, 20, 20, true );
+	uiPixmap pixmap( 20, 20 );
+	pixmap.fill( ctseq, true );
 	if ( grpfld_ )
 	    grpfld_->setPixmap( idx+1, pixmap );
     }

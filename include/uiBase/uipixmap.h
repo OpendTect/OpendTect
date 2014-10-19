@@ -41,7 +41,6 @@ public:
 			uiPixmap(const uiRGBArray&);
 			uiPixmap(const char* xpm[]);
 			uiPixmap(const mQtclass(QPixmap&));
-			uiPixmap(const ColTab::Sequence&,int w,int h,bool hor);
 			uiPixmap(const uiPixmap&);
 
     virtual		~uiPixmap();
@@ -52,6 +51,7 @@ public:
     const mQtclass(QPixmap*) qpixmap() const	{ return qpixmap_; }
 
     void		fill(const Color&);
+    void		fill(const ColTab::Sequence&,bool hor);
 
     int			width() const;
     int			height() const;

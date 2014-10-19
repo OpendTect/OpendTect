@@ -75,9 +75,6 @@ protected:
     void		displayMiniCtab();
     void		removePickSetCB(CallBacker*);
 
-    int 		cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
-    
     Pick::SetMgr&	picksetmgr_;
     Pick::Set&		pickset_;
     VW2DPickSet*	vw2dpickset_;

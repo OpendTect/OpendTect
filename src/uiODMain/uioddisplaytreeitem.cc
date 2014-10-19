@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
+#include "uiicon.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
@@ -19,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
 #include "uiodvolproctreeitem.h"
-#include "uipixmap.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
@@ -186,13 +186,8 @@ void uiODDisplayTreeItem::updateCheckStatus()
 
 void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
 {
-    PtrMan<uiPixmap> pixmap = 0;
-    if ( islocked )
-	pixmap = new uiPixmap( "lock_small" );
-    else
-	pixmap = new uiPixmap();
-
-    uitreeviewitem_->setPixmap( 0, *pixmap );
+    const char* iconname = islocked ? "lock_small" : uiIcon::None();
+    uitreeviewitem_->setIcon( 0, iconname );
 
     lockmnuitem_.text = getLockMenuText();
     lockmnuitem_.iconfnm = islocked ? "unlock" : "lock_small";
@@ -217,16 +212,9 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 	    return;
 	}
 
-	PtrMan<uiPixmap> pixmap = 0;
 	if ( so->hasColor() )
-	{
-	    pixmap = new uiPixmap( uiODDataTreeItem::cPixmapWidth(),
-				   uiODDataTreeItem::cPixmapHeight() );
-	    pixmap->fill( so->getColor() );
-	}
-
-	if ( pixmap ) uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
-						 *pixmap );
+	    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(),
+					so->getColor() );
     }
 
     uiTreeItem::updateColumnText( col );

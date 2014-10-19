@@ -9,9 +9,10 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "uicolor.h"
+
 #include "uibody.h"
 #include "uibutton.h"
-#include "uicolor.h"
 #include "uicombobox.h"
 #include "uilabel.h"
 #include "uimain.h"
@@ -20,11 +21,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uipixmap.h"
 #include "uispinbox.h"
 
-#include "coltabsequence.h"
-
+#include <QApplication>
 #include <QColorDialog>
 #include <QLabel>
-#include <QApplication>
 
 mUseQtnamespace
 
@@ -168,11 +167,9 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	TypeSet<Color> colors = Color::descriptionCenters();
 	for ( int idx=0; idx<colors.size(); idx++ )
 	{
-	    ColTab::Sequence ctseq;
-	    Color col = colors[idx];
-	    ctseq.setColor( 0, col.r(), col.g(), col.b() );
-	    ctseq.setColor( 1, col.r(), col.g(), col.b() );
-	    descfld_->setPixmap( idx, uiPixmap(ctseq,15,10,true) );
+	    uiPixmap pm( 15, 10 );
+	    pm.fill( colors[idx] );
+	    descfld_->setPixmap( idx, pm );
 	}
 
 	if ( lsb )

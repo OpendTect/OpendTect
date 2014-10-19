@@ -32,9 +32,6 @@ public:
     bool                	select();
     bool                        showSubMenu();
 
-    static int			cPixmapWidth()			{ return 16; }
-    static int			cPixmapHeight()			{ return 10; }
-
 protected:
 
     bool			init();

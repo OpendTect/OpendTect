@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 #include "uipossubsel.h"
 #include "uisellinest.h"
 #include "uitaskrunner.h"

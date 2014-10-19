@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uipixmap.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 
@@ -208,9 +207,7 @@ void uiODVW2DVariableDensityTreeItem::displayMiniCtab(
 	return;
     }
 
-    PtrMan<uiPixmap> pixmap = new uiPixmap( *seq, cPixmapWidth(),
-					    cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *seq );
 }
 
 

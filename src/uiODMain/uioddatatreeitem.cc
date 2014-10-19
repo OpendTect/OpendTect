@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uiodviewer2dmgr.h"
-#include "uipixmap.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
 #include "uitreeview.h"
@@ -458,7 +457,5 @@ void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 	return;
     }
 
-    PtrMan<uiPixmap> pixmap = new uiPixmap( *seq, cPixmapWidth(),
-					    cPixmapHeight(), true );
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
 }

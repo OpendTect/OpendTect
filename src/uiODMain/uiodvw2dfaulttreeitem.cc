@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
-#include "uipixmap.h"
 #include "uitreeview.h"
 #include "uistrings.h"
 
@@ -179,10 +178,8 @@ void uiODVw2DFaultTreeItem::displayMiniCtab()
     if ( !emobj ) return;
 
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-
-    PtrMan<uiPixmap> pixmap = new uiPixmap( cPixmapWidth(), cPixmapHeight() );
-    pixmap->fill( emobj->preferredColor() );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
+				emobj->preferredColor() );
 }
 
 

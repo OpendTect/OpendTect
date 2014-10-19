@@ -18,7 +18,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiodmain.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uipixmap.h"
 #include "uitaskrunner.h"
 #include "uitreeview.h"
 #include "uiviscoltabed.h"
@@ -114,9 +113,6 @@ const char* uiODPSEventsParentTreeItem::parentType() const
 
 
 // uiODPSEventsTreeItem
-
-#define mPixmapWidth	16
-#define mPixmapHeight	10
 
 uiODPSEventsTreeItem::uiODPSEventsTreeItem( const MultiID& key,
 					    const char* eventname )
@@ -277,9 +273,8 @@ void uiODPSEventsTreeItem::displayMiniColTab()
 	return;
 
     const ColTab::Sequence* seq = eventdisplay_->getColTabSequence();
-    if ( !seq )
-	return;
-    uiPixmap pixmap( *seq, mPixmapWidth, mPixmapHeight, true );
-    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), pixmap );
+    if ( !seq ) return;
+
+    uitreeviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *seq );
 }
 

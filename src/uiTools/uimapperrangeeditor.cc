@@ -187,7 +187,8 @@ void uiMapperRangeEditor::drawPixmaps()
     leftcoltab_->setPixmap( leftpixmap );
     leftcoltab_->setOffset( datastartpix, disph-pmh-1 );
 
-    uiPixmap centerpixmap( ctseq, stoppix_-startpix_, pmh, true );
+    uiPixmap centerpixmap( stoppix_-startpix_, pmh );
+    centerpixmap.fill( ctseq, true );
     centercoltab_->setPixmap( centerpixmap );
     centercoltab_->setOffset( startpix_, disph-pmh-1 );
 

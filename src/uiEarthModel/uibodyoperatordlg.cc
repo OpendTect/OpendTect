@@ -144,19 +144,19 @@ void uiBodyOperatorDlg::displayAction( char item, int curidx )
     {
 	listinfo_[curidx].act_ = sKeyIntSect();
 	tree_->selectedItem()->setText( tr("Intersection"), 1 );
-	tree_->selectedItem()->setPixmap( 1, "set_intersect" );
+	tree_->selectedItem()->setIcon( 1, "set_intersect" );
     }
     else if ( item==sKeyMinus() )
     {
 	listinfo_[curidx].act_ = sKeyMinus();
 	tree_->selectedItem()->setText( tr("Difference"), 1 );
-	tree_->selectedItem()->setPixmap( 1, "set_minus" );
+	tree_->selectedItem()->setIcon( 1, "set_minus" );
     }
     else
     {
 	listinfo_[curidx].act_ = sKeyUnion();
 	tree_->selectedItem()->setText( tr("Union"), 1 );
-	tree_->selectedItem()->setPixmap( 1, "set_union" );
+	tree_->selectedItem()->setIcon( 1, "set_union" );
     }
 }
 
@@ -204,7 +204,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	    listinfo_[curidx].defined_ = false;
 
 	    tree_->selectedItem()->setText( uiStrings::sEmptyString(), 1 );
-	    tree_->selectedItem()->setPixmap( 1, "empty" );
+	    tree_->selectedItem()->setIcon( 1, "empty" );
 	}
 
 	itemClick( cb );

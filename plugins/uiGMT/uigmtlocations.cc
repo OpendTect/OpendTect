@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigmtsymbolpars.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 
 
 int uiGMTLocationsGrp::factoryid_ = -1;

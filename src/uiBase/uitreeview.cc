@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uitreeview.h"
 
+#include "uiicon.h"
 #include "uimain.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
@@ -746,8 +747,8 @@ void uiTreeViewItem::init( const Setup& setup )
 
     if ( setup.after_ )
 	moveItem( setup.after_ );
-    if ( setup.pixmap_ )
-	setPixmap( 0, *setup.pixmap_ );
+    if ( !setup.iconname_.isEmpty() )
+	setIcon( 0, setup.iconname_ );
 
     if ( setup.labels_.size() )
     {
@@ -808,10 +809,36 @@ void uiTreeViewItem::translateText()
 }
 
 
+void uiTreeViewItem::setIcon( int column, const char* iconname )
+{
+    mTreeViewBlockCmdRec;
+    uiIcon icon( iconname );
+    qItem()->setIcon( column, icon.qicon() );
+}
+
+
 void uiTreeViewItem::setPixmap( int column, const uiPixmap& pm )
 {
     mTreeViewBlockCmdRec;
     qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
+}
+
+
+void uiTreeViewItem::setPixmap( int column, const Color& col,
+				int width, int height )
+{
+    uiPixmap pm( width, height );
+    pm.fill( col );
+    setPixmap( column, pm );
+}
+
+
+void uiTreeViewItem::setPixmap( int column, const ColTab::Sequence& seq,
+				int width, int height )
+{
+    uiPixmap pm( width, height );
+    pm.fill( seq, true );
+    setPixmap( column, pm );
 }
 
 
@@ -1084,5 +1111,3 @@ uiTreeViewItem* uiTreeViewItem::itemFor( QTreeWidgetItem* itm )
 
 const uiTreeViewItem* uiTreeViewItem::itemFor( const QTreeWidgetItem* itm )
 { return odqtobjects_.getODObject( *itm ); }
-
-

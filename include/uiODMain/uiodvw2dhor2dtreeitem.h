@@ -75,8 +75,6 @@ protected:
     void		mouseReleaseInVwrCB(CallBacker*);
     void		displayMiniCtab();
 
-    int			cPixmapWidth()				{ return 16; }
-    int			cPixmapHeight()				{ return 10; }
     void		emobjChangeCB(CallBacker*);
 
     EM::ObjectID	emid_;

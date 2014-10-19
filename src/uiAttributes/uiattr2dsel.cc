@@ -40,7 +40,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uipixmap.h"
 
 using namespace Attrib;
 

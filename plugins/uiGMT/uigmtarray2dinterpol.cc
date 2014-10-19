@@ -13,12 +13,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigmtarray2dinterpol.h"
 
 #include "uiarray2dinterpol.h"
-#include "uibutton.h"
 #include "uigeninput.h"
 #include "uigmtinfodlg.h"
 #include "uilabel.h"
 #include "uimsg.h"
-#include "uipixmap.h"
+#include "uitoolbutton.h"
 
 #include "commondefs.h"
 #include "envvars.h"
@@ -53,9 +52,8 @@ uiArray2DInterpol* uiGMTSurfaceGrid::create( uiParent* p )
     uiString msg = tr( "To use this GMT algorithm you need to install GMT." \
 	    	       "\nClick on GMT-button for more information" ); \
     uiLabel* lbl = new uiLabel( this, msg ); \
-    uiPushButton* gmtbut = new uiPushButton( this, "", "gmt_logo", \
-	    				mCB(this,classname,function), true ); \
-    gmtbut->setToolTip( "GMT info" ); \
+    uiButton* gmtbut = new uiToolButton( this, "gmt_logo", tr("GMT info"), \
+	    				mCB(this,classname,function) ); \
     gmtbut->attach( alignedBelow, lbl ); \
     setHAlignObj( lbl ); \
 }

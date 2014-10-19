@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "uiodviewer2dmgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
-#include "uipixmap.h"
 #include "uisetpickdirs.h"
 #include "uistrings.h"
 #include "uitreeview.h"
@@ -142,10 +141,8 @@ void uiODVw2DPickSetTreeItem::displayChangedCB( CallBacker* )
 void uiODVw2DPickSetTreeItem::displayMiniCtab()
 {
     uiTreeItem::updateColumnText( uiODViewer2DMgr::cColorColumn() );
-
-    PtrMan<uiPixmap> pixmap = new uiPixmap( cPixmapWidth(), cPixmapHeight() );
-    pixmap->fill( pickset_.disp_.color_ );
-    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(), *pixmap );
+    uitreeviewitem_->setPixmap( uiODViewer2DMgr::cColorColumn(),
+				pickset_.disp_.color_ );
 }
 
 

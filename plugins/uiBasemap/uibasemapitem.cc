@@ -22,7 +22,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
-#include "uipixmap.h"
 #include "uistrings.h"
 #include "uitreeview.h"
 
@@ -278,7 +277,7 @@ bool uiBasemapTreeItem::init()
 
     const uiBasemapItem* itm = BMM().getBasemapItem( familyid_ );
     const char* iconnm = itm ? itm->iconName() : 0;
-    uitreeviewitem_->setPixmap( 0, uiPixmap(iconnm) );
+    uitreeviewitem_->setIcon( 0, iconnm );
     return true;
 }
 

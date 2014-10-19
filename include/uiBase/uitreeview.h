@@ -23,9 +23,11 @@ mFDQtclass(QTreeWidget)
 mFDQtclass(QTreeWidgetItem)
 mFDQtclass(QString)
 mFDQtclass(QStringList)
+
+class uiPixmap;
 class uiTreeViewBody;
 class uiTreeViewItem;
-class uiPixmap;
+namespace ColTab { class Sequence; }
 
 mExpClass(uiBase) uiTreeView : public uiObject
 {
@@ -202,13 +204,12 @@ public:
 				       bool setchecked=true )
 				: type_(tp)
 				, after_(0)
-				, pixmap_(0)
 				, setcheck_(setchecked)
 				{ label( txt ); }
 
 	mDefSetupMemb(uiTreeViewItem::Type,type)
 	mDefSetupMemb(uiTreeViewItem*,after)
-	mDefSetupMemb(const uiPixmap*,pixmap)
+	mDefSetupMemb(BufferString,iconname)
 	mDefSetupMemb(bool,setcheck)
 	uiStringSet		labels_;
 
@@ -261,7 +262,12 @@ public:
 
     const char*		text( int column=0 ) const;
 
+    void		setIcon(int column,const char* iconname);
     void		setPixmap(int column,const uiPixmap&);
+    void		setPixmap(int column,const Color&,
+				  int width=16,int height=10);
+    void		setPixmap(int column,const ColTab::Sequence&,
+				  int width=16,int height=10);
 
     virtual const char* key(int,bool) const		{ return 0; }
     virtual int		compare( uiTreeViewItem*,int column,bool) const

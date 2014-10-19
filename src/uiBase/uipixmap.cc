@@ -82,49 +82,6 @@ uiPixmap::uiPixmap( const char* icnm )
 }
 
 
-uiPixmap::uiPixmap( const ColTab::Sequence& ctabin, int w, int h, bool hor )
-    : qpixmap_(0)
-    , srcname_("[colortable]")
-{
-    bool validsz = true;
-    if ( w < 2 ) { w = 1; validsz = false; }
-    if ( h < 2 ) { h = 1; validsz = false; }
-
-    if ( ctabin.size() == 0 || !validsz )
-    {
-        qpixmap_ = new QPixmap( w, h );
-        qpixmap_->fill( QColor(0,0,0,0) );
-	return;
-    }
-
-    uiRGBArray rgbarr( false );
-    rgbarr.setSize( w, h );
-    if ( hor )
-    {
-	ColTab::IndexedLookUpTable table( ctabin, w );
-	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
-	{
-	    const Color color = table.colorForIndex( idx1 );
-	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
-		rgbarr.set( idx1, idx2, color );
-	}
-    }
-    else // vertical colorbar
-    {
-	ColTab::IndexedLookUpTable table( ctabin, h );
-	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
-	{
-	    const Color color = table.colorForIndex( idx1 );
-	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
-		rgbarr.set( idx2, idx1, color );
-	}
-    }
-
-    qpixmap_ = new QPixmap;
-    convertFromRGBArray( rgbarr );
-}
-
-
 uiPixmap::~uiPixmap()
 {
     delete qpixmap_;
@@ -150,6 +107,44 @@ bool uiPixmap::isEmpty() const
 
 void uiPixmap::fill( const Color& col )
 { qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
+
+
+void uiPixmap::fill( const ColTab::Sequence& seq, bool hor )
+{
+    srcname_ = "[colortable]";
+
+    const bool validsz = width()>=2 && height()>=2;
+    if ( seq.isEmpty() || !validsz )
+    {
+        qpixmap_->fill( QColor(0,0,0,0) );
+	return;
+    }
+
+    uiRGBArray rgbarr( false );
+    rgbarr.setSize( width(), height() );
+    if ( hor )
+    {
+	ColTab::IndexedLookUpTable table( seq, width() );
+	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
+	{
+	    const Color color = table.colorForIndex( idx1 );
+	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
+		rgbarr.set( idx1, idx2, color );
+	}
+    }
+    else // vertical colorbar
+    {
+	ColTab::IndexedLookUpTable table( seq, height() );
+	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
+	{
+	    const Color color = table.colorForIndex( idx1 );
+	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
+		rgbarr.set( idx2, idx1, color );
+	}
+    }
+
+    convertFromRGBArray( rgbarr );
+}
 
 
 bool uiPixmap::save( const char* fnm, const char* fmt, int quality ) const
