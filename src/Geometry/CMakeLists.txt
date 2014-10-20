@@ -7,6 +7,7 @@
 
 SET(OD_MODULE_DEPS General )
 SET(OD_MODULE_SOURCES
+		arraytesselator.cc
 		binidsurface.cc
 		cubicbeziercurve.cc
 		cubicbeziersurface.cc
