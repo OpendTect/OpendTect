@@ -71,42 +71,42 @@ public:
     virtual void		setBaseMap(BaseMap*);
     virtual Coord3		getNormal(const Coord3& pos) const
 				{ return Coord3::udf(); }
-    				/*!<Position and Normal are both in
+				/*!<Position and Normal are both in
 				    displayspace. */
     virtual float		calcDist(const Coord3& pos) const
 				{ return mUdf(float); }
-    				/*<\Calculates distance between pick and 
+				/*<\Calculates distance between pick and
 				    object.
 				    \note The distance is in display space.
 				    \param pos Position to be checked in
-				     	   displayspace.
+					   displayspace.
 				 \ */
     virtual float		maxDist() const		{ return sDefMaxDist();}
-    				/*<\Returns maximum allowed distance between 
+				/*<\Returns maximum allowed distance between
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
     virtual bool		allowsPicks() const	{ return false; }
-    				/*<\Returns whether picks can be created 
+				/*<\Returns whether picks can be created
 				    on object. */
-    virtual bool		isPicking() const 	{ return false; }
-    				/*<\Returns true if object is in a mode
+    virtual bool		isPicking() const	{ return false; }
+				/*<\Returns true if object is in a mode
 				    where clicking on other objects are
 				    handled by object itself, and not passed
 				    on to selection manager .*/
     virtual void		getPickingMessage( BufferString& msg ) const
-    				{ msg = "Picking"; }
+				{ msg = "Picking"; }
 
     virtual void		snapToTracePos(Coord3&)	const {}
-    				//<\Snaps coordinate to a trace position
+				//<\Snaps coordinate to a trace position
 
     virtual NotifierAccess*	getMovementNotifier()	{ return 0; }
-    				/*!<Gives access to a notifier that is triggered
+				/*!<Gives access to a notifier that is triggered
 				    when object is moved or modified. */
 
     virtual void		otherObjectsMoved(
-	    			    const ObjectSet<const SurveyObject>&,
+				    const ObjectSet<const SurveyObject>&,
 				    int whichobj ) {}
-    				/*!< If other objects are moved, removed or
+				/*!< If other objects are moved, removed or
 				     added in the scene, this function is
 				     called. \note that it only notifies on
 				     objects that return something on
@@ -116,7 +116,7 @@ public:
 
     virtual void		setTranslation(const Coord3&) {}
     virtual Coord3		getTranslation() const
-    				{ return Coord3(0,0,0); }
+				{ return Coord3(0,0,0); }
 
     virtual void		getChildren( TypeSet<int>& ) const	{}
 
@@ -135,28 +135,28 @@ public:
     virtual NotifierAccess*	getManipulationNotifier()	{ return 0; }
 
     virtual bool		allowMaterialEdit() const	{ return false;}
-    				/*!\note Modification of color should be done
-				  	 with setMaterial on
+				/*!\note Modification of color should be done
+					 with setMaterial on
 					 visBase::VisualObject */
 
     virtual const LineStyle*	lineStyle() const { return 0; }
-    				/*!<If the linestyle can be set, a non-zero
+				/*!<If the linestyle can be set, a non-zero
 				    pointer should be return. */
     virtual void		setLineStyle(const LineStyle&) {}
     virtual void		getLineWidthBounds(int& min,int& max);
     virtual bool		hasSpecificLineColor() const { return false; }
-    				/*!<Specifies wether setLineStyle takes
+				/*!<Specifies wether setLineStyle takes
 				    regard to the color of the linestyle. */
 
     virtual bool		hasColor() const	{ return false;}
     virtual bool		usesColor() const	{ return hasColor(); }
     virtual void		setColor(Color)		{}
-    virtual Color		getColor() const		
-    				{ return Color::DgbColor(); }
+    virtual Color		getColor() const
+				{ return Color::DgbColor(); }
 
     virtual void		setAnnotColor(Color)			{}
-    virtual Color		getAnnotColor() const		
-    				{ return Color::DgbColor(); }
+    virtual Color		getAnnotColor() const
+				{ return Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
     virtual BufferString	getResolutionName(int) const;
@@ -170,21 +170,21 @@ public:
 				{ return false; }
 
     enum AttribFormat		{ None, Cube, Traces, RandomPos, OtherFormat };
-    				/*!\enum AttribFormat
+				/*!\enum AttribFormat
 					 Specifies how the object wants it's
 					 attrib data delivered.
 				   \var None
-				   	This object does not handle attribdata.
+					This object does not handle attribdata.
 				   \var	Cube
-				   	This object wants attribdata as 
+					This object wants attribdata as
 					DataCubes.
 				   \var	Traces
-				   	This object wants a set of traces.
-    				   \var RandomPos
-				        This object wants a table with 
+					This object wants a set of traces.
+				   \var RandomPos
+					This object wants a table with
 					array positions.
-    				   \var OtherFormat
-				   	This object wants attribdata of a
+				   \var OtherFormat
+					This object wants attribdata of a
 					different kind. */
 
     virtual AttribFormat	getAttributeFormat(int attrib=-1) const;
@@ -195,37 +195,37 @@ public:
     virtual bool		canRemoveAttrib() const;
     virtual bool		removeAttrib(int attrib)   { return false; }
     virtual bool		swapAttribs(int a0,int a1) { return false; }
-    virtual void		setAttribTransparency(int,unsigned char) {}	
+    virtual void		setAttribTransparency(int,unsigned char) {}
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
-	    						   int version=0) const;
+							   int version=0) const;
     void			getChannelName(int,BufferString&) const;
-    				//!<\returns "Layer 0", or "Red", "Green" ...
+				//!<\returns "Layer 0", or "Red", "Green" ...
     virtual void		setColTabMapperSetup(int,
 				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
     virtual bool		canSetColTabSequence() const	{ return false;}
     virtual void		setColTabSequence(int,const ColTab::Sequence&,
-	    					  TaskRunner*);
+						  TaskRunner*);
     virtual bool		canHandleColTabSeqTrans(int) const;
-    
-    virtual void		enableTextureInterpolation(bool)	{}
-    virtual bool		textureInterpolationEnabled() const 
-    				{ return true; }
-    virtual bool		canEnableTextureInterpolation() const
-    				{ return false; }
 
-    virtual bool 		isAngle(int attrib) const	 {return false;}
+    virtual void		enableTextureInterpolation(bool)	{}
+    virtual bool		textureInterpolationEnabled() const
+				{ return true; }
+    virtual bool		canEnableTextureInterpolation() const
+				{ return false; }
+
+    virtual bool		isAngle(int attrib) const	 {return false;}
     virtual void		setAngleFlag(int attrib,bool yn)	{}
     virtual void		enableAttrib(int attrib,bool yn)	{}
     virtual bool		isAttribEnabled(int attrib) const {return true;}
     virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
-    
+
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
 
     virtual void		removeSelection(const Selector<Coord3>&,
-	    					TaskRunner*) {}
+						TaskRunner*) {}
     virtual bool		canRemoveSelection() const	{ return false;}
 
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
@@ -243,51 +243,51 @@ public:
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
     virtual void		getMousePosInfo(const visBase::EventInfo&,
-	    					IOPar&) const	{}
+						IOPar&) const	{}
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
 
-    				/*!<Returns a mouse cursor that will
+				/*!<Returns a mouse cursor that will
 				    be used if this object under the
 				    mouse in Act mode. */
-				    
+
     virtual void		getObjectInfo(BufferString&) const	{}
 
-    				// Data via DataPacks
+				// Data via DataPacks
     virtual bool		setDataPackID(int attrib,DataPack::ID,
-	    				      TaskRunner*)
-    				{ return false; }
+					      TaskRunner*)
+				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
     virtual DataPack::ID	getDisplayedDataPackID(int attrib) const
 				{ return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
     virtual void		createAndDispDataPack(int, const DataPointSet*,
-	    					      TaskRunner*){}
-   
-   				//Volume data 
+						      TaskRunner*){}
+
+				//Volume data
     virtual CubeSampling	getCubeSampling( int attrib ) const
 				{ CubeSampling cs; return cs; }
-    				/*!<\returns the volume in world survey
+				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*,
+					      const Attrib::DataCubes*,
 					      TaskRunner*)
 				{ return false; }
     virtual const Attrib::DataCubes* getCacheVolume(int attr) const {return 0;}
 
-    				//Trace-data
+				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
-    				{ return Interval<float>(0,0); }
+				{ return Interval<float>(0,0); }
     virtual void		setTraceData(int attrib,SeisTrcBuf&,
-	    				     TaskRunner*);
+					     TaskRunner*);
 				// Random pos
 				/*!< Every position is put in the DataPointSet
 				  no matter which original patch it belongs to*/
     virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
     virtual void		getRandomPosCache(int attrib,
-	    					  DataPointSet&) const	{}
+						  DataPointSet&) const	{}
     virtual void		setRandomPosData( int attrib,
-	    					  const DataPointSet*,
+						  const DataPointSet*,
 						  TaskRunner*)	{}
     virtual void		readAuxData()				{}
 
@@ -301,7 +301,7 @@ public:
     virtual bool		alreadyTransformed(int attrib) const;
 
     virtual void		annotateNextUpdateStage(bool yn);
-    				/*!<Annotation to enumerate distinguishable
+				/*!<Annotation to enumerate distinguishable
 				    stages in an update sequence. False resets
 				    updatestagenr_ to zero. For example:
 				    <code>
@@ -320,21 +320,21 @@ public:
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotifier()	{ return 0; }
-    virtual void	 	fillPar(IOPar&) const;
+    virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
-    virtual bool		isInlCrl() const	    	{ return false;}
-    
+    virtual bool		isInlCrl() const		{ return false;}
+
     static float		sDefMaxDist();
-	
+
 				//Old
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }
 
-    				//Current
+				//Current
     static const char*		sKeySequence()	{ return "Sequence"; }
     static const char*		sKeyMapper()	{ return "Mapper"; }
     static const char*		sKeyTextTrans()	{ return "Trans"; }
@@ -352,8 +352,10 @@ public:
     bool			getSaveInSessionsFlag() const
 				{ return saveinsessionsflag_; }
 
+    bool			attribsEnabled() const;
+
 protected:
-    				SurveyObject();
+				SurveyObject();
 				~SurveyObject();
 
     bool			isAnyAttribEnabled() const;
