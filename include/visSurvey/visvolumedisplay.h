@@ -128,8 +128,9 @@ public:
     float			getValue(const Coord3&) const;
 
     TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
-    TrcKeyZSampling		getTrcKeyZSampling(bool manippos,bool displayspace,
-	    					int attrib) const;
+    TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
+						   bool displayspace,
+						   int attrib) const;
     void			setTrcKeyZSampling(const TrcKeyZSampling&,
 	    					bool dragmode=false);
     bool			setDataVolume(int attrib,
@@ -245,10 +246,6 @@ protected:
     void			updateRanges(bool updateic,bool updatez);
     void			updateMouseCursorCB(CallBacker*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
-
-    void			triggerSel() { updateMouseCursorCB( 0 ); }
-    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
-
 
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;

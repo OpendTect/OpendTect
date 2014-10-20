@@ -193,8 +193,6 @@ protected:
     void			swapCache(int,int);
     void			emptyCache(int);
     bool			hasCache(int) const;
-    void			triggerSel();
-    void			triggerDeSel();
 
     TrcKeyZSampling		snapPosition(const TrcKeyZSampling&) const;
     void			setUpdateStageTextureTransform();

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiobjbody.h"
 
+#include "mousecursor.h"
 #include "refcount.h"
 #include "visosg.h"
 #include "uieventfilter.h"
@@ -58,6 +59,8 @@ namespace osgViewer { class View; }
 
 mClass(uiOSG) ui3DViewerBody : public uiObjectBody
 {
+    friend class TrackBallManipulatorMessenger;
+
 public:
 			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
     virtual		~ui3DViewerBody();
@@ -117,8 +120,7 @@ public:
     void			setAnnotationFont(const FontData&);
     visBase::PolygonSelection*	getPolygonSelector();
     visBase::SceneColTab*	getSceneColTab();
-    void			notifyManipulatorMovement(float dh,float dv,
-                                                          float df);
+
     void			toHomePos();
     void			saveHomePos();
     bool			isHomePosEmpty() { return homepos_.isEmpty(); }
@@ -138,10 +140,22 @@ public:
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
 protected:
+
+    enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,
+					  HoverCursor };
+    virtual void			setViewModeCursor( ViewModeCursor );
+
+    virtual void			updateActModeCursor();
+    void				mouseCursorChg(CallBacker*);
+    MouseCursor				actmodecursor_;
+
+    void				notifyManipulatorMovement(
+						    float dh,float dv,float df);
     void				setupTouch();
     void				setupHUD();
     void				setupView();
     void				qtEventCB(CallBacker*);
+    void				setFocusCB(CallBacker*);
     void				handleGestureEvent(QGestureEvent*);
     static osgViewer::CompositeViewer*	getCompositeViewer();
 

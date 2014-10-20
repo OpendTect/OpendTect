@@ -604,10 +604,10 @@ void VolumeDisplay::updateDraggerLimits( bool dragmode )
 }
 
 
-float VolumeDisplay::getValue( const Coord3& pos_ ) const
+float VolumeDisplay::getValue( const Coord3& pos ) const
 {
     if ( !cache_ ) return mUdf(float);
-    const BinIDValue bidv( SI().transform(pos_), (float) pos_.z );
+    const BinIDValue bidv( SI().transform(pos), (float) pos.z );
     float val;
     if ( !cache_->getValue(0,bidv,&val,false) )
 	return mUdf(float);
@@ -905,9 +905,9 @@ void VolumeDisplay::getObjectInfo( BufferString& info ) const
 	zstop *= scene_->zDomainInfo().userFactor();
 
 	const float eps = 1e-6;
-	if ( fabs(zstart-mNINT32(zstart)) < fabs(eps*zstart) )
+	if ( fabs(zstart-mNINT32(zstart)) < mMAX(eps,fabs(eps*zstart)) )
 	    zstart = mCast(float,mNINT32(zstart));
-	if ( fabs(zstop-mNINT32(zstop)) < fabs(eps*zstop) )
+	if ( fabs(zstop-mNINT32(zstop)) < mMAX(eps,fabs(eps*zstop)) )
 	    zstop = mCast(float,mNINT32(zstop));
     }
 
@@ -1268,23 +1268,11 @@ bool VolumeDisplay::isSelected() const
 
 void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
 {
-    char newstatus = 1; // 1=pan, 2=tabs
-    if ( cb )
-    {
-	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
-	    newstatus = 0;
-	else
-	{
-	    //TODO determine if tabs
-	}
-    }
-
-    if ( !isSelected() || !isOn() || isLocked() )
-	newstatus = 0;
-
-    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
-    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::SizeAll;
+    if ( !isManipulatorShown() || !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+	initAdaptiveMouseCursor( cb, id(),
+		    boxdragger_->getPlaneTransDragKeys(false), mousecursor_ );
 }
 
 

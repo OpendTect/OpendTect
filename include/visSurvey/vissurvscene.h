@@ -99,7 +99,7 @@ public:
     virtual void		removeObject(int idx);
 
     void			setTrcKeyZSampling(const TrcKeyZSampling&);
-    const TrcKeyZSampling&		getTrcKeyZSampling() const		{ return tkzs_; }
+    const TrcKeyZSampling&	getTrcKeyZSampling() const { return tkzs_; }
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
     void			showAnnotScale(bool);
@@ -122,6 +122,7 @@ public:
     void			setSceneColTab(visBase::SceneColTab*);
 
     Notifier<Scene>		mouseposchange;
+    Notifier<Scene>		mousecursorchange;
     Notifier<Scene>		sceneboundingboxupdated;
     Coord3			getMousePos(bool xyt) const;
 				/*! If not xyt it is inlcrlt */
@@ -200,6 +201,7 @@ protected:
     void			mouseMoveCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
     void			updateBaseMapCursor(const Coord&);
+    void			mouseCursorCB(CallBacker*);
     static const Color&		cDefaultMarkerColor();
 
     RefMan<visBase::Transformation>	tempzstretchtrans_;

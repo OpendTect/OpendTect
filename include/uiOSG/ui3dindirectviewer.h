@@ -29,7 +29,6 @@ public:
     const QWidget*              qwidget_() const;
 
 protected:
-    void			updateActModeCursor();
     osgViewer::GraphicsWindow&	getGraphicsWindow();
     osg::GraphicsContext*       getGraphicsContext();
 

@@ -28,6 +28,7 @@ ________________________________________________________________________
 
 class BaseMap;
 class BaseMapObject;
+
 class DataPointSet;
 class LineStyle;
 class NotifierAccess;
@@ -250,6 +251,7 @@ public:
     				/*!<Returns a mouse cursor that will
 				    be used if this object under the
 				    mouse in Act mode. */
+    virtual void		updateMouseCursorCB(CallBacker*)	{};
 
     virtual void		getObjectInfo(BufferString&) const	{}
 
@@ -356,6 +358,10 @@ protected:
 				~SurveyObject();
 
     bool			isAnyAttribEnabled() const;
+
+    void			initAdaptiveMouseCursor(CallBacker* eventcb,
+						int objid,int inplanedragkeys,
+						MouseCursor&);
 
     static int			cValNameOffset()	{ return 12; }
 

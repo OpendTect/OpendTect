@@ -52,7 +52,7 @@ MPEDisplay::MPEDisplay()
     , curtextureas_(*new Attrib::SelSpec())
 {
     boxdragger_->ref();
-    boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
+    mAttachCB( boxdragger_->finished, MPEDisplay::boxDraggerFinishCB );
     boxdragger_->setBoxTransparency( 0.7 );
     addChild( boxdragger_->osgNode() );
     showBoxDragger( false );
@@ -64,7 +64,7 @@ MPEDisplay::MPEDisplay()
 
     addSlice( cInLine(), false );
 
-    engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
+    mAttachCB( engine_.activevolumechange, MPEDisplay::updateBoxPosition );
 
     updateBoxPosition( 0 );
 
@@ -86,9 +86,8 @@ MPEDisplay::MPEDisplay()
 
 MPEDisplay::~MPEDisplay()
 {
-    engine_.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
-
     setSceneEventCatcher( 0 );
+    detachAllNotifiers();
 
     DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     if ( volumecache_ )
@@ -103,7 +102,6 @@ MPEDisplay::~MPEDisplay()
 
     setZAxisTransform( 0, 0 );
 
-    boxdragger_->finished.remove( mCB(this,MPEDisplay,boxDraggerFinishCB) );
     boxdragger_->unRef();
 
     delete &as_;
@@ -353,8 +351,10 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 {
     if ( sceneeventcatcher_ )
     {
-	sceneeventcatcher_->eventhappened.remove(
-					mCB(this,MPEDisplay,mouseClickCB) );
+	mDetachCB( sceneeventcatcher_->eventhappened,
+		   MPEDisplay::mouseClickCB );
+	mDetachCB( sceneeventcatcher_->eventhappened,
+		   MPEDisplay::updateMouseCursorCB );
 	sceneeventcatcher_->unRef();
     }
 
@@ -363,8 +363,35 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
     if ( sceneeventcatcher_ )
     {
 	sceneeventcatcher_->ref();
-	sceneeventcatcher_->eventhappened.notify(
-	    mCB(this,MPEDisplay,mouseClickCB) );
+	mAttachCB( sceneeventcatcher_->eventhappened,
+		   MPEDisplay::mouseClickCB );
+	mAttachCB( sceneeventcatcher_->eventhappened,
+		   MPEDisplay::updateMouseCursorCB );
+    }
+}
+
+
+void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    if ( !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+    {
+	initAdaptiveMouseCursor( cb, id(),
+		    boxdragger_->getPlaneTransDragKeys(false), mousecursor_ );
+	if ( cb )
+	{
+	    // Check for tracker plane
+	    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	    if ( !slices_.isEmpty() &&
+		 eventinfo.pickedobjids.isPresent(slices_[0]->id()) )
+	    {
+		if ( !slices_[0]->isPickingEnabled() )
+		    mousecursor_.shape_ = MouseCursor::PointingHand;
+		else
+		    mousecursor_.shape_ = MouseCursor::NotSet;
+	    }
+	}
     }
 }
 
@@ -548,13 +575,12 @@ void MPEDisplay::freezeBoxPosition( bool yn )
 {
     if ( yn )
     {
-	engine_.activevolumechange.remove(
-				   mCB(this,MPEDisplay,updateBoxPosition) );
+	mDetachCB( engine_.activevolumechange, MPEDisplay::updateBoxPosition );
     }
     else
     {
-	engine_.activevolumechange.notifyIfNotNotified(
-				   mCB(this,MPEDisplay,updateBoxPosition) );
+	mAttachCBIfNotAttached( engine_.activevolumechange,
+				MPEDisplay::updateBoxPosition );
     }
 }
 
@@ -1015,7 +1041,7 @@ int MPEDisplay::addSlice( int dim, bool show )
     slice->setDisplayTransformation( displaytrans_ );
     slice->turnOn( show );
     // slice->setMaterial(0);
-    slice->motion.notify( mCB(this,MPEDisplay,sliceMoving) );
+    mAttachCB( slice->motion, MPEDisplay::sliceMoving );
     slices_ += slice;
     setSliceDimension( slices_.size()-1, dim );
 
@@ -1232,9 +1258,7 @@ bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		    mCB(this,MPEDisplay,dataTransformCB) );
+	mDetachCB(datatransform_->changeNotifier(),MPEDisplay::dataTransformCB);
 	datatransform_->unRef();
 	datatransform_ = 0;
     }
@@ -1245,9 +1269,7 @@ bool MPEDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* tr )
     {
 	datatransform_->ref();
 	updateRanges( false, !haddatatransform );
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		    mCB(this,MPEDisplay,dataTransformCB) );
+	mAttachCB(datatransform_->changeNotifier(),MPEDisplay::dataTransformCB);
     }
 
     return true;

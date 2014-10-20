@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
+#include "visevent.h"
 #include "visflatviewer.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
@@ -70,6 +71,7 @@ PreStackDisplay::PreStackDisplay()
     , reader_( 0 )
     , ioobj_( 0 )
     , movefinished_(this)
+    , eventcatcher_( 0 )
 {
     setMaterial( 0 );
 
@@ -81,49 +83,65 @@ PreStackDisplay::PreStackDisplay()
     flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
     flatviewer_->getMaterial()->setAmbience( 0.8 );
     flatviewer_->appearance().ddpars_.vd_.mappersetup_.symmidval_ = 0;
-    flatviewer_->dataChanged.notify( mCB(this,PreStackDisplay,dataChangedCB) );
+    mAttachCB( flatviewer_->dataChanged, PreStackDisplay::dataChangedCB );
     addChild( flatviewer_->osgNode() );
 
     planedragger_->ref();
     planedragger_->removeScaleTabs();
-    planedragger_->motion.notify( mCB(this,PreStackDisplay,draggerMotion) );
-    planedragger_->finished.notify( mCB(this,PreStackDisplay,finishedCB) );
+    mAttachCB( planedragger_->motion, PreStackDisplay::draggerMotion );
+    mAttachCB( planedragger_->finished, PreStackDisplay::finishedCB );
     addChild( planedragger_->osgNode() );
 }
 
 
 PreStackDisplay::~PreStackDisplay()
 {
-    flatviewer_->dataChanged.remove( mCB(this,PreStackDisplay,dataChangedCB) );
+    setSceneEventCatcher( 0 );
+    detachAllNotifiers();
+
     flatviewer_->unRef();
 
     if ( planedragger_ )
-    {
-	planedragger_->motion.remove(
-	    mCB(this,PreStackDisplay,draggerMotion) );
-	planedragger_->finished.remove(
-	    mCB(this,PreStackDisplay,finishedCB) );
 	planedragger_->unRef();
-    }
 
     if ( section_ )
-    {
-	section_->getMovementNotifier()->remove(
-		mCB(this,PreStackDisplay,sectionMovedCB) );
 	section_->unRef();
-    }
 
     if ( seis2d_ )
-    {
-	if ( seis2d_->getMovementNotifier() )
-	    seis2d_->getMovementNotifier()->remove(
-		    mCB(this,PreStackDisplay,seis2DMovedCB) );
 	seis2d_->unRef();
-    }
 
     delete reader_;
     delete ioobj_;
     delete &preprocmgr_;
+}
+
+
+void PreStackDisplay::setSceneEventCatcher( visBase::EventCatcher* evcatcher )
+{
+    if ( eventcatcher_ )
+    {
+	mDetachCB( eventcatcher_->eventhappened,
+		   PreStackDisplay::updateMouseCursorCB );
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = evcatcher;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->ref();
+	mAttachCB( eventcatcher_->eventhappened,
+		   PreStackDisplay::updateMouseCursorCB );
+    }
+}
+
+
+void PreStackDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    if ( !planedragger_ || !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+	initAdaptiveMouseCursor( cb, id(), mUdf(int), mousecursor_ );
 }
 
 
@@ -151,13 +169,17 @@ void PreStackDisplay::setMultiID( const MultiID& mid )
     if ( !reader_ )
 	return;
 
-    if ( seis2d_ && seis2d_->getMovementNotifier() )
-	seis2d_->getMovementNotifier()->notify(
-		mCB(this,PreStackDisplay,seis2DMovedCB) );
+    if ( seis2d_ )
+    {
+	mAttachCB( seis2d_->getMovementNotifier(),
+		   PreStackDisplay::seis2DMovedCB );
+    }
 
-    if ( section_ && section_->getMovementNotifier() )
-	section_->getMovementNotifier()->notify(
-		mCB(this,PreStackDisplay,sectionMovedCB) );
+    if ( section_ )
+    {
+	mAttachCB( section_->getMovementNotifier(),
+		   PreStackDisplay::sectionMovedCB );
+    }
 }
 
 
@@ -569,9 +591,8 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
 {
     if ( section_ )
     {
-	if ( section_->getMovementNotifier() )
-	    section_->getMovementNotifier()->remove(
-		    mCB( this, PreStackDisplay, sectionMovedCB ) );
+	mDetachCB( section_->getMovementNotifier(),
+		   PreStackDisplay::sectionMovedCB );
 	section_->unRef();
     }
 
@@ -598,9 +619,7 @@ void PreStackDisplay::setSectionDisplay( PlaneDataDisplay* pdd )
     if ( section_->getOrientation() == OD::ZSlice )
 	return;
 
-    if ( section_->getMovementNotifier() )
-	section_->getMovementNotifier()->notify(
-		mCB( this, PreStackDisplay, sectionMovedCB ) );
+    mAttachCB(section_->getMovementNotifier(), PreStackDisplay::sectionMovedCB);
 }
 
 
@@ -692,18 +711,16 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     if ( planedragger_ )
     {
 	removeChild( planedragger_->osgNode() );
-	planedragger_->motion.remove( mCB(this,PreStackDisplay,draggerMotion) );
-	planedragger_->finished.remove( mCB(this,PreStackDisplay,finishedCB) );
+	mDetachCB( planedragger_->motion, PreStackDisplay::draggerMotion );
+	mDetachCB( planedragger_->finished, PreStackDisplay::finishedCB );
 	planedragger_->unRef();
 	planedragger_ = 0;
     }
 
     if ( seis2d_ )
     {
-	if ( seis2d_->getMovementNotifier() )
-	    seis2d_->getMovementNotifier()->remove(
-		    mCB(this,PreStackDisplay,seis2DMovedCB) );
-
+	mDetachCB( seis2d_->getMovementNotifier(),
+		   PreStackDisplay::seis2DMovedCB );
 	seis2d_->unRef();
     }
 
@@ -730,9 +747,7 @@ bool PreStackDisplay::setSeis2DDisplay( Seis2DDisplay* s2d, int trcnr )
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
 	    seis2d_->getCoord(trcnr_) );
 
-    if ( seis2d_->getMovementNotifier() )
-	seis2d_->getMovementNotifier()->notify(
-		    mCB(this,PreStackDisplay,seis2DMovedCB) );
+    mAttachCB( seis2d_->getMovementNotifier(), PreStackDisplay::seis2DMovedCB );
 
     return updateData();
 }

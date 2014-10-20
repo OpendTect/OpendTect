@@ -66,6 +66,7 @@ Scene::Scene()
     , annot_(0)
     , markerset_(0)
     , mouseposchange(this)
+    , mousecursorchange(this)
     , sceneboundingboxupdated(this)
     , mouseposval_(0)
     , mouseposstr_("")
@@ -84,7 +85,10 @@ Scene::Scene()
     , usepar_( false )
     , scenecoltab_(0)
 {
-    events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
+    mAttachCB( events_.eventhappened, Scene::mouseMoveCB );
+    mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
+    mAttachCB( events_.nothandled, Scene::mouseCursorCB );
+
     setCameraAmbientLight( 1 );
     setup();
 
@@ -174,14 +178,14 @@ deleteAndZeroPtr( coordselector_ )
 
 Scene::~Scene()
 {
+    detachAllNotifiers();
+
     if ( basemap_ && basemapcursor_ )
     {
 	basemap_->removeObject( basemapcursor_ );
 	delete basemapcursor_;
 	basemapcursor_ = 0;
     }
-
-    events_.eventhappened.remove( mCB(this,Scene,mouseMoveCB) );
 
     if ( datatransform_ ) datatransform_->unRef();
 
@@ -190,13 +194,8 @@ Scene::~Scene()
 	mDynamicCastGet(visBase::VisualObject*,vo,getObject(idx));
 	mDynamicCastGet(SurveyObject*,so,getObject(idx));
 	if ( vo ) vo->setSceneEventCatcher( 0 );
-
-	if ( !so ) continue;
-
-	if ( so->getMovementNotifier() )
-	    so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
-	so->setScene( 0 );
-   }
+	if ( so ) so->setScene( 0 );
+    }
 
     mRemoveSelector;
     delete &infopar_;
@@ -396,8 +395,7 @@ void Scene::addObject( visBase::DataObject* obj )
     if ( so )
     {
 	so->set3DSurvGeom( SI().get3DGeometry(true) );
-	if ( so->getMovementNotifier() )
-	    so->getMovementNotifier()->notify( mCB(this,Scene,objectMoved));
+	mAttachCB( so->getMovementNotifier(), Scene::objectMoved );
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
@@ -419,7 +417,6 @@ void Scene::addObject( visBase::DataObject* obj )
 	objectMoved( obj );
 
     sceneboundingboxupdated.trigger();
-
 }
 
 
@@ -428,8 +425,8 @@ void Scene::removeObject( int idx )
     mousecursor_ = 0;
     DataObject* obj = getObject( idx );
     mDynamicCastGet(SurveyObject*,so,obj)
-    if ( so && so->getMovementNotifier() )
-	so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
+    if ( so )
+	mDetachCB( so->getMovementNotifier(), Scene::objectMoved );
 
     if ( idx<tempzstretchtrans_->size() )
 	tempzstretchtrans_->removeObject( idx );
@@ -627,10 +624,6 @@ BufferString Scene::getMousePosString() const
 { return mouseposstr_; }
 
 
-const MouseCursor* Scene::getMouseCursor() const
-{ return mousecursor_; }
-
-
 void Scene::objectMoved( CallBacker* cb )
 {
     ObjectSet<const SurveyObject> activeobjects;
@@ -696,7 +689,6 @@ void Scene::mouseMoveCB( CallBacker* cb )
 			mouseposval_ = newmouseposval;
 		}
 
-		mousecursor_ = so->getMouseCursor();
 		break;
 	    }
 	}
@@ -704,6 +696,32 @@ void Scene::mouseMoveCB( CallBacker* cb )
 
     mouseposchange.trigger();
 }
+
+
+void Scene::mouseCursorCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    mousecursor_ = 0;
+
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	DataObject* pickedobj =
+			visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	mDynamicCastGet( SurveyObject*, so, pickedobj );
+	if ( so )
+	{
+	    so->updateMouseCursorCB( cb );
+	    mousecursor_ = so->getMouseCursor();
+	    break;
+	}
+    }
+
+    mousecursorchange.trigger();
+}
+
+
+const MouseCursor* Scene::getMouseCursor() const
+{ return mousecursor_; }
 
 
 void Scene::setBaseMap( BaseMap* bm )

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
@@ -91,6 +92,8 @@ public:
     bool            canSetColTabSequence() const;
     void            setColTabSequence(int,const ColTab::Sequence&,
 	                              TaskRunner*);
+
+    const MouseCursor*	 getMouseCursor() const { return &mousecursor_; }
 
     void	    getMousePosInfo( const visBase::EventInfo& ei,
 				     IOPar& iop ) const
@@ -205,6 +208,7 @@ protected:
    
     // callback from user
     void		mouseClickCB(CallBacker*);
+    void		updateMouseCursorCB(CallBacker*);
     
     // other callbacks
     void		dataTransformCB(CallBacker*);
@@ -216,6 +220,7 @@ protected:
     MPE::Engine&		engine_;
     visBase::BoxDragger*	boxdragger_;
     visBase::EventCatcher*	sceneeventcatcher_;    
+    MouseCursor			mousecursor_;
     Notifier<MPEDisplay>	movement;    
     Attrib::SelSpec&		as_;
     bool			manipulated_;

@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
@@ -92,6 +93,8 @@ public:
     void			setWidth(float width);
     BinID			getBinID() const { return bid_; }
     virtual MultiID		getMultiID() const { return mid_; }
+
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     virtual void		getMousePosInfo( const visBase::EventInfo& ei,
 						 IOPar& iop ) const
 				{ SurveyObject::getMousePosInfo(ei,iop); }
@@ -117,6 +120,8 @@ public:
 protected:
 				~PreStackDisplay();
     void			setDisplayTransformation(const mVisTrans*);
+    void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			updateMouseCursorCB(CallBacker*);
     void			dataChangedCB(CallBacker*);
     void			sectionMovedCB(CallBacker*);
     void			seis2DMovedCB(CallBacker*);
@@ -129,6 +134,8 @@ protected:
 
     BinID			bid_;
     BinID			draggerpos_;
+    visBase::EventCatcher*	eventcatcher_;
+    MouseCursor			mousecursor_;
     visBase::DepthTabPlaneDragger*	planedragger_;
     visBase::FlatViewer*	flatviewer_;
     PreStack::ProcessManager&	preprocmgr_;

@@ -32,9 +32,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "iopar.h"
 #include "keybindings.h"
+#include "keyboardevent.h"
 #include "keystrs.h"
 #include "math2.h"
-#include "uicursor.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -97,13 +97,28 @@ public:
     {}
     void	operator() (osg::Node* node, osg::NodeVisitor* nv )
     {
-        if ( viewerbody_ && nv )
+	if ( nv && viewerbody_ && viewerbody_->isViewMode() )
         {
             osgGeo::TrackballEventNodeVisitor* tnv =
                 (osgGeo::TrackballEventNodeVisitor*) nv;
 
-            viewerbody_->notifyManipulatorMovement(
-               tnv->_deltahorangle, tnv->_deltavertangle, tnv->_distfactor );
+	    if (tnv->_eventType==osgGeo::TrackballEventNodeVisitor::RotateStart)
+		viewerbody_->setViewModeCursor( ui3DViewerBody::RotateCursor );
+	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::PanStart )
+		viewerbody_->setViewModeCursor( ui3DViewerBody::PanCursor );
+	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::ZoomStart )
+		viewerbody_->setViewModeCursor( ui3DViewerBody::ZoomCursor );
+	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStart )
+		viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
+	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::MoveStop )
+		viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
+
+	    if ( tnv->_eventType==osgGeo::TrackballEventNodeVisitor::Moving )
+	    {
+		viewerbody_->notifyManipulatorMovement( tnv->_deltahorangle,
+							tnv->_deltavertangle,
+							tnv->_distfactor );
+	    }
         }
     }
     void	detach() { viewerbody_ = 0; }
@@ -130,15 +145,9 @@ public:
 				{ return uiSize(200,200); }
 
 protected:
-    void			updateActModeCursor();
+
     osgViewer::GraphicsWindow&	getGraphicsWindow(){return *graphicswin_.get();}
     osg::GraphicsContext*	getGraphicsContext(){return graphicswin_.get();}
-
-    bool			mousebutdown_;
-    float			zoomfactor_;
-
-    //visBase::CameraInfo*	camerainfo_;
-    MouseCursor			actmodecursor_;
 
     osg::ref_ptr<osgQt::GraphicsWindowQt>	graphicswin_;
 };
@@ -146,8 +155,6 @@ protected:
 
 uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     : ui3DViewerBody( hndl, parnt )
-    , mousebutdown_(false)
-    , zoomfactor_( 1 )
 {
     osgQt::GLWidget* glw = new osgQt::GLWidget( parnt->pbody()->managewidg() );
 
@@ -162,25 +169,9 @@ uiDirectViewBody::uiDirectViewBody( ui3DViewer& hndl, uiParent* parnt )
     setupTouch();
 }
 
+
 const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
 { return graphicswin_->getGLWidget(); }
-
-
-void uiDirectViewBody::updateActModeCursor()
-{
-    /*
-    if ( isViewing() )
-	return;
-
-    if ( !isCursorEnabled() )
-	return;
-
-    QCursor qcursor;
-    uiCursorManager::fillQCursor( actmodecursor_, qcursor );
-
-    getGLWidget()->setCursor( qcursor );
-    */
-}
 
 
 //--------------------------------------------------------------------------
@@ -215,6 +206,9 @@ ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
     eventfilter_.addEventType( uiEventFilter::Gesture );
 
     mAttachCB( eventfilter_.eventhappened, ui3DViewerBody::qtEventCB );
+
+    mAttachCB( uiMain::keyboardEventHandler().keyPressed,
+	       ui3DViewerBody::setFocusCB );
 }
 
 
@@ -670,16 +664,17 @@ visBase::PolygonSelection* ui3DViewerBody::getPolygonSelector()
     return polygonselection_;
 }
 
+
 visBase::SceneColTab* ui3DViewerBody::getSceneColTab()
 {
     return visscenecoltab_;
 }
 
+
 void ui3DViewerBody::qtEventCB( CallBacker* )
 {
 #if OSG_VERSION_LESS_THAN(3,3,0)
-    if ( eventfilter_.getCurrentEventType()==
-	uiEventFilter::Gesture )
+    if ( eventfilter_.getCurrentEventType()== uiEventFilter::Gesture )
     {
 	QGestureEvent* gestureevent =
 	    static_cast<QGestureEvent*> ( eventfilter_.getCurrentEvent() );
@@ -692,7 +687,8 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
     {
 	reSizeEvent( 0 );
     }
-    else
+
+    if ( eventfilter_.getCurrentEventType() == uiEventFilter::KeyPress )
     {
 	const QKeyEvent* keyevent =
 	    (const QKeyEvent*) eventfilter_.getCurrentEvent();
@@ -703,6 +699,18 @@ void ui3DViewerBody::qtEventCB( CallBacker* )
 	    handle_.pageupdown.trigger( true );
 	if ( keyevent->key()==Qt::Key_PageDown )
 	    handle_.pageupdown.trigger( false );
+    }
+}
+
+
+void ui3DViewerBody::setFocusCB( CallBacker* )
+{
+    // Need focus to show mod key dependent act-mode cursors
+    const KeyboardEvent& kbe = uiMain::keyboardEventHandler().event();
+    if ( kbe.key_==OD::Shift || kbe.key_==OD::Control || kbe.key_==OD::Alt )
+    {
+	if ( !qwidget()->hasFocus() && qwidget()->underMouse() )
+	    qwidget()->setFocus();
     }
 }
 
@@ -744,8 +752,26 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
     if ( scene_ )
 	scene_->setPickable( !yn );
 
+    setViewModeCursor( HoverCursor );
+
+    if ( trigger )
+	handle_.viewmodechanged.trigger( handle_ );
+}
+
+
+void ui3DViewerBody::setViewModeCursor( ViewModeCursor viewmodecursor )
+{
     MouseCursor cursor;
-    if ( yn )
+
+    if ( !isViewMode() )
+	cursor.shape_ = MouseCursor::Arrow;
+    else if ( viewmodecursor == HoverCursor )
+	cursor.shape_ = MouseCursor::PointingHand;
+    else if ( viewmodecursor == PanCursor )
+	cursor.shape_ = MouseCursor::SizeAll;
+    else if ( viewmodecursor == ZoomCursor )
+	cursor.shape_ = MouseCursor::SizeVer;
+    else // RotateCursor
     {
 	cursor.shape_ = MouseCursor::Bitmap;
 
@@ -758,17 +784,10 @@ void ui3DViewerBody::setViewMode( bool yn, bool trigger )
 	cursor.hoty_ = ROTATE_HOT_Y;
 
     }
-    else
-    {
-	cursor.shape_ = MouseCursor::Arrow;
-    }
 
     mQtclass(QCursor) qcursor;
     uiCursorManager::fillQCursor( cursor, qcursor );
     qwidget()->setCursor( qcursor );
-
-    if ( trigger )
-	handle_.viewmodechanged.trigger( handle_ );
 }
 
 
@@ -786,6 +805,12 @@ Coord3 ui3DViewerBody::getCameraPosition() const
 
 void ui3DViewerBody::setSceneID( int sceneid )
 {
+    if ( scene_ )
+    {
+	mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
+	mDetachCB(survscene->mousecursorchange, ui3DViewerBody::mouseCursorChg);
+    }
+
     visBase::DataObject* obj = visBase::DM().getObject( sceneid );
     mDynamicCastGet(visBase::Scene*,newscene,obj)
     if ( !newscene ) return;
@@ -793,13 +818,48 @@ void ui3DViewerBody::setSceneID( int sceneid )
     offscreenrenderswitch_->removeChildren(0,
 			    offscreenrenderswitch_->getNumChildren());
     offscreenrenderswitch_->addChild( newscene->osgNode() );
-    scene_ = newscene;
 
-    mDynamicCastGet(visSurvey::Scene*, survscene, scene_.ptr() );
+    scene_ = newscene;
+    mDynamicCastGet( visSurvey::Scene*, survscene, scene_.ptr() );
+    mAttachCB( survscene->mousecursorchange, ui3DViewerBody::mouseCursorChg );
+
     if ( survscene )
 	setAnnotColor( survscene->getAnnotColor() );
 
     if ( camera_ ) newscene->setCamera( camera_ );
+}
+
+
+void ui3DViewerBody::mouseCursorChg( CallBacker* )
+{
+    updateActModeCursor();
+}
+
+
+void ui3DViewerBody::updateActModeCursor()
+{
+    if ( isViewMode() )
+	return;
+
+    mDynamicCastGet( const visSurvey::Scene*, survscene, scene_.ptr() );
+    if ( survscene )
+    {
+	MouseCursor newcursor;
+	const MouseCursor* mousecursor = survscene->getMouseCursor();
+	if ( mousecursor && mousecursor->shape_!=MouseCursor::NotSet )
+	    newcursor = *mousecursor;
+	else
+	    newcursor.shape_ = MouseCursor::Arrow;
+
+	if ( newcursor != actmodecursor_ )
+	{
+	    actmodecursor_ = newcursor;
+
+	    QCursor qcursor;
+	    uiCursorManager::fillQCursor( actmodecursor_, qcursor );
+	    qwidget()->setCursor( qcursor );
+	}
+    }
 }
 
 
