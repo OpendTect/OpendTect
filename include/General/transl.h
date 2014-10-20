@@ -168,13 +168,10 @@ protected:
 #define mImplTranslatorInitClass( spec, clss, usrnm ) \
 { \
     if ( !TranslatorGroup::hasGroup( #clss , false ) )\
-    { \
-	pFreeFnErrMsg( #clss "TranslatorGroup::initClass() is missing", "" ); \
 	clss##TranslatorGroup::initClass(); \
-    } \
 \
     spec##clss##Translator* tr = new spec##clss##Translator( #spec, usrnm ); \
-    TranslatorGroup::getGroup( #clss, false).add( tr ); \
+    TranslatorGroup::getGroup(#clss,false).add( tr ); \
 }
 
 #define mImplTranslatorGroupTheInst( clss, usrnm ) \
