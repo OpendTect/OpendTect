@@ -373,6 +373,12 @@ protected:
     BufferString		survname_; //Only from IOPar
     bool			saveinsessionsflag_;
 
+    void		initAdaptiveMouseCursor(CallBacker* eventcb,
+						int objid,int inplanedragkeys,
+						MouseCursor&);
+
+public:
+    virtual void	updateMouseCursorCB(CallBacker*)	{};
 };
 
 } // namespace visSurvey

@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
@@ -264,6 +265,10 @@ protected:
     static const char*		sKeyCrossLine()	{ return "Crossline"; }
     static const char*		sKeyTime()	{ return "Time"; }
 
+    void			updateMouseCursorCB(CallBacker*);
+
+public:
+    const MouseCursor*		getMouseCursor() const;
 };
 
 }; // namespace visSurvey

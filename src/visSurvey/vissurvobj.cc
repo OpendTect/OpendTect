@@ -10,9 +10,11 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "attribsel.h"
 #include "basemap.h"
+#include "mousecursor.h"
 #include "survinfo.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "visevent.h"
 #include "vistexturechannel2rgba.h"
 #include "visobject.h"
 #include "iopar.h"
@@ -314,7 +316,7 @@ const visBase::TextureChannel2RGBA*
 }
     
     
-void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
+void SurveyObject::getChannelName( int idx, BufferString& res ) const
 {
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
     if ( !tc2rgba )
@@ -324,7 +326,7 @@ void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
 }
 
 
-bool visSurvey::SurveyObject::isAnyAttribEnabled() const
+bool SurveyObject::isAnyAttribEnabled() const
 {
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -333,6 +335,36 @@ bool visSurvey::SurveyObject::isAnyAttribEnabled() const
     }
 
     return false;
+}
+
+
+void SurveyObject::initAdaptiveMouseCursor( CallBacker* eventcb,
+					    int objid, int inplanedragkeys,
+					    MouseCursor& mousecursor )
+{
+    mousecursor.shape_ = MouseCursor::NotSet;
+
+    if ( eventcb )
+    {
+	mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, eventcb );
+	if ( eventinfo.pickedobjids.isPresent(objid) )
+	{
+	    unsigned int buttonstate = (unsigned int) eventinfo.buttonstate_;
+	    buttonstate &= OD::ShiftButton | OD::ControlButton | OD::AltButton;
+
+	    if ( eventinfo.type==visBase::Keyboard && !eventinfo.pressed )
+	    {
+		buttonstate -= eventinfo.key==OD::Shift ? OD::ShiftButton :
+			       eventinfo.key==OD::Control ? OD::ControlButton :
+			       eventinfo.key==OD::Alt ? OD::AltButton : 0;
+	    }
+
+	    if ( buttonstate == inplanedragkeys )
+		mousecursor.shape_ = MouseCursor::SizeAll;
+	    else
+		mousecursor.shape_ = MouseCursor::PointingHand;
+	}
+    }
 }
 
 

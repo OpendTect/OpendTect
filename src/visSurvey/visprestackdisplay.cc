@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
+#include "visevent.h"
 #include "visflatviewer.h"
 #include "vismaterial.h"
 #include "visplanedatadisplay.h"
@@ -124,6 +125,22 @@ PreStackDisplay::~PreStackDisplay()
     delete reader_;
     delete ioobj_;
     delete preprocmgr_;
+}
+
+
+// Binary compatibility: updated and called for one PrestackDisplay at a time
+static MouseCursor mousecursor_;
+
+const MouseCursor* PreStackDisplay::getMouseCursor() const
+{ return &mousecursor_; }
+
+
+void PreStackDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    if ( !planedragger_ || !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+	initAdaptiveMouseCursor( cb, id(), mUdf(int), mousecursor_ );
 }
 
 

@@ -246,9 +246,10 @@ protected:
     void			updateMouseCursorCB(CallBacker*);
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
-    void			triggerSel() { updateMouseCursorCB( 0 ); }
-    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
-
+    void			triggerSel()	// obsolete
+				{ visBase::VisualObjectImpl::triggerSel(); }
+    void			triggerDeSel()	// obsolete
+				{ visBase::VisualObjectImpl::triggerDeSel(); }
 
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;

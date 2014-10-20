@@ -252,6 +252,11 @@ protected:
     static const char*		sKeyAppAllowShading();
     static const char*		sKeyTopImageID();
     static const char*		sKeyBotImageID();
+
+    void			mouseCursorCB(CallBacker*);
+
+public:
+    NotifierAccess*		mouseCursorChange();
 };
 
 } // namespace visSurvey

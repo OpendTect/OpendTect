@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiobjbody.h"
 
+#include "mousecursor.h"
 #include "refcount.h"
 #include "visosg.h"
 #include "uieventfilter.h"
@@ -58,6 +59,8 @@ namespace osgViewer { class View; }
 
 mClass(uiOSG) ui3DViewerBody : public uiObjectBody
 {
+    friend class TrackBallManipulatorMessenger;
+
 public:
 			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
     virtual		~ui3DViewerBody();
@@ -192,6 +195,14 @@ protected:
     RefMan<visBase::SceneColTab>	visscenecoltab_;
 
     KeyBindMan&				keybindman_;
+
+    enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,
+					  HoverCursor };
+
+    virtual void			setViewModeCursor( ViewModeCursor );
+    virtual void			updateActModeCursor();
+    void				mouseCursorChg(CallBacker*);
+    void				setFocusCB(CallBacker*);
 };
 
 #endif

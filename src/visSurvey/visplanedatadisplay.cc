@@ -632,14 +632,12 @@ bool PlaneDataDisplay::hasCache( int attrib ) const
 
 void PlaneDataDisplay::triggerSel()
 {
-    updateMouseCursorCB( 0 );
     visBase::VisualObject::triggerSel();
 }
 
 
 void PlaneDataDisplay::triggerDeSel()
 {
-    updateMouseCursorCB( 0 );
     visBase::VisualObject::triggerDeSel();
 }
 
@@ -1189,28 +1187,11 @@ void PlaneDataDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 
 void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 {
-    char newstatus = 1; // 1= zdrag, 2=pan
-    if ( cb )
-    {
-	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( !eventinfo.pickedobjids.isPresent(id()) )
-	    newstatus = 0;
-	else
-	{
-	    const unsigned int buttonstate =
-		(unsigned int) eventinfo.buttonstate_;
-
-	    if ( buttonstate==dragger_->getTransDragKeys(false) )
-		newstatus = 2;
-	}
-    }
-
     if ( !isManipulatorShown() || !isOn() || isLocked() )
-	newstatus = 0;
-
-    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
-    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::PointingHand;
-    else mousecursor_.shape_ = MouseCursor::SizeAll;
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+	initAdaptiveMouseCursor( cb, id(), dragger_->getTransDragKeys(false),
+				 mousecursor_ );
 }
 
 

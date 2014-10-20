@@ -369,6 +369,41 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 }
 
 
+// Binary compatibility: updated and next called for one MPEDisplay at a time
+static MouseCursor mousecursor_;
+
+const MouseCursor* MPEDisplay::getMouseCursor() const
+{
+    return &mousecursor_;
+}
+
+
+void MPEDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    if ( !isOn() || isLocked() )
+	mousecursor_.shape_ = MouseCursor::NotSet;
+    else
+    {
+	initAdaptiveMouseCursor( cb, id(),
+		boxdragger_->getPlaneTransDragKeys(false), mousecursor_ );
+
+	 if ( cb )
+	 {
+	     // Check for tracker plane
+	     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	     if ( !slices_.isEmpty() &&
+		  eventinfo.pickedobjids.isPresent(slices_[0]->id()) )
+	     {
+		 if ( !slices_[0]->isPickingEnabled() )
+		     mousecursor_.shape_ = MouseCursor::PointingHand;
+		 else
+		     mousecursor_.shape_ = MouseCursor::NotSet;
+	     }
+	 }
+    }
+}
+
+
 void MPEDisplay::boxDraggerFinishCB(CallBacker*)
 {
     manipulated_ = true;

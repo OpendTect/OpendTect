@@ -85,6 +85,9 @@ Scene::Scene()
     , scenecoltab_(0)
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
+    mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
+    mAttachCB( events_.nothandled, Scene::mouseCursorCB );
+
     setCameraAmbientLight( 1 );
     setup();
 
@@ -201,6 +204,8 @@ Scene::~Scene()
     mRemoveSelector;
     delete &infopar_;
     delete zdomaininfo_;
+
+    detachAllNotifiers();
 }
 
 
@@ -696,13 +701,42 @@ void Scene::mouseMoveCB( CallBacker* cb )
 			mouseposval_ = newmouseposval;
 		}
 
-		mousecursor_ = so->getMouseCursor();
 		break;
 	    }
 	}
     }
 
     mouseposchange.trigger();
+}
+
+
+// Binary compatibility: subscriber will verify which scene is calling
+static CNotifier<Scene,char> mouseCursorNotifier(0);
+
+NotifierAccess* Scene::mouseCursorChange()
+{ return &mouseCursorNotifier; }
+
+
+void Scene::mouseCursorCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const visBase::EventInfo&, eventinfo, cb );
+    mousecursor_ = 0;
+
+    for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
+    {
+	DataObject* pickedobj =
+	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+
+	mDynamicCastGet( SurveyObject*, so, pickedobj );
+	if ( so )
+	{
+	    so->updateMouseCursorCB( cb );
+	    mousecursor_ = so->getMouseCursor();
+	    break;
+	}
+    }
+
+    mouseCursorNotifier.trigger( 0, this );
 }
 
 

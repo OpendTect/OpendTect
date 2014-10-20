@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 -*/
 
+#include "mousecursor.h"
 #include "vissurveymod.h"
 #include "vissurvobj.h"
 #include "visobject.h"
@@ -153,6 +154,12 @@ protected:
     SeisPSReader*		reader_;
     IOObj*			ioobj_;
     Notifier<PreStackDisplay>	movefinished_;
+
+    void			updateMouseCursorCB(CallBacker*);
+
+public:
+    const MouseCursor*		getMouseCursor() const;
+
 };
 
 } // namespace visSurvey
