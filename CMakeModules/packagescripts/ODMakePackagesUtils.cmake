@@ -176,14 +176,11 @@ macro( create_basepackages PACKAGE_NAME )
 	file( REMOVE_RECURSE ${DESTINATION_DIR}/Contents )
    endif()
    if( NOT EXISTS ${DESTINATION_DIR}/doc )
-	file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc ${DESTINATION_DIR}/doc/User
+	file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
 			     ${DESTINATION_DIR}/doc/ReleaseInfo)
    endif()
 
     if( ${PACKAGE_NAME} STREQUAL "basedata" )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_INSTALL_PREFIX}/doc/about.html
-			${DESTINATION_DIR}/doc )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			${CMAKE_INSTALL_PREFIX}/doc/system_requirements.html
 			${DESTINATION_DIR}/doc )
@@ -205,17 +202,6 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-#install WindowLinkTable.txt
-       file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/base )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/doc/User/base/WindowLinkTable.txt
-				${DESTINATION_DIR}/doc/User/base/WindowLinkTable.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_INSTALL_PREFIX}/doc/User/base/.mnuinfo
-				${DESTINATION_DIR}/doc/User/base/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-			        ${CMAKE_INSTALL_PREFIX}/doc/od_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/base/LinkFileTable.txt )
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -232,17 +218,6 @@ macro( create_basepackages PACKAGE_NAME )
 			     ${DESTINATION_DIR}/data/${LIB} )
 	  endif()
        endforeach()
-#install WindowLinkTable.txt
-       file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc/User/dgb )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_WindowLinkTable.txt
-				${DESTINATION_DIR}/doc/User/dgb/WindowLinkTable.txt )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy
-			        ${CMAKE_INSTALL_PREFIX}/doc/dgb_.mnuinfo
-				${DESTINATION_DIR}/doc/User/dgb/.mnuinfo )
-       execute_process( COMMAND ${CMAKE_COMMAND} -E copy 
-				${CMAKE_INSTALL_PREFIX}/doc/dgb_LinkFileTable.txt
-				${DESTINATION_DIR}/doc/User/dgb/LinkFileTable.txt )
    endif()
 
     zippackage( ${PACKAGE_FILENAME} ${REL_DIR} ${PACKAGE_DIR} )
