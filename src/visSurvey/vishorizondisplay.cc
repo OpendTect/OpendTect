@@ -1591,7 +1591,6 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
     int stopidx = 0; 
     int jumpstart = 0;
 
-    TypeSet<Coord3> curline;
     while ( true )
     {
 	startidx = stopidx;
@@ -1652,13 +1651,11 @@ void HorizonDisplay::drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 		    continue;
 		}
 	    }
-	    mEndLine; 
 	}
 	
 	jumpstart = 1;
     }
 
-    mEndLine; 
 }
 
 
