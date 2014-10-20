@@ -25,9 +25,9 @@ namespace visBase
 class SetOrGetCoordinates: public ParallelTask
 {
 public:
-    SetOrGetCoordinates(Coordinates* p, const od_int64 size,
-		       const TypeSet<Coord3>* inpositions = 0,
-		       TypeSet<Coord3>* outpositions= 0 );
+    SetOrGetCoordinates(Coordinates* p, const od_int64 size, 	
+		       const Coord3* inpositions = 0,
+		       TypeSet<Coord3>* outpositions= 0,int startidx=0);
     od_int64	totalNr() const { return totalnrcoords_; }
     void	setWithSingleCoord(const Coord3 coord)
 		{singlecoord_ = coord;setwithsinglecoord_ = true;}
@@ -39,25 +39,29 @@ protected:
 private:
     Coordinates*		coordinates_;
     TypeSet<Coord3>*		outpositions_;
-    const TypeSet<Coord3>*	inpositions_;
+    const Coord3*		inpositions_;
     Threads::Atomic<od_int64>	totalnrcoords_;
     Coord3			singlecoord_;
     bool			setwithsinglecoord_;
+    const int			startidx_;
 };
 
 
-SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p,
-					const od_int64 size,
-					const TypeSet<Coord3>* inpositions,
-					TypeSet<Coord3>* outpositions )
+SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p, const od_int64 size,
+					  const Coord3* inpositions,
+					  TypeSet<Coord3>* outpositions,
+					  int startidx )
     : coordinates_( p )
     , totalnrcoords_( size )
     , inpositions_( inpositions )
     , outpositions_( outpositions )
     , setwithsinglecoord_( false )
     , singlecoord_( Coord3( 0,0,0 ) )
+    , startidx_( startidx )
 {
     if ( outpositions ) outpositions->setSize( size, Coord3::udf() );
+    if ( (startidx_+size)>= p->size() )
+	mGetOsgVec3Arr(p->osgArray())->resize( startidx_+size );
 }
 
 
@@ -71,13 +75,14 @@ bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
 	if ( inpositions_ )
 	{
 	 if ( !setwithsinglecoord_ )
-	    coordinates_->setPosWithoutLock( idx, (*inpositions_)[idx], false );
+	    coordinates_->setPosWithoutLock( 
+	    startidx_+idx, inpositions_[idx], false );
 	 else
-	    coordinates_->setPosWithoutLock( idx, singlecoord_, false );
+	    coordinates_->setPosWithoutLock( startidx_+idx,singlecoord_,false );
 	}
 	else
 	{
-	    (*outpositions_)[idx] = coordinates_->getPos( idx );
+	    (*outpositions_)[idx] = coordinates_->getPos( startidx_+ idx );
 	}
     }
     return true;
@@ -119,8 +124,6 @@ void Coordinates::copyFrom( const Coordinates& nc )
 void Coordinates::setDisplayTransformation( const mVisTrans* nt )
 {
     if ( nt==transformation_ ) return;
-
-    Threads::MutexLocker lock( mutex_ );
     TypeSet<Coord3> worldpos;
     worldpos.setSize( mArrSize );
     getPositions(worldpos);
@@ -373,6 +376,8 @@ void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 
 void Coordinates::getPositions(TypeSet<Coord3>& res) const
 {
+    Threads::MutexLocker lock(mutex_);
+
     SetOrGetCoordinates getcoordinates( const_cast<Coordinates*>(this),
 	mArrSize, 0, &res );
     
@@ -380,26 +385,31 @@ void Coordinates::getPositions(TypeSet<Coord3>& res) const
 }
 
 
-void Coordinates::setPositions( const TypeSet<Coord3>& pos)
+void Coordinates::setPositions( const TypeSet<Coord3>& pos )
 {
-    SetOrGetCoordinates setcoordinates( this, pos.size(), &pos, 0 );
-    setcoordinates.execute();
-    change.trigger();
+    setPositions( pos.arr(), pos.size(), 0 );
 }
 
 
 void Coordinates::setPositions( const Coord3* pos, int sz, int start,
 				bool scenespace )
 {
+    if ( sz==0 ) return;
+
     Threads::MutexLocker lock( mutex_ );
 
-    for ( int idx=0; idx<sz; idx++ )
-	setPosWithoutLock(idx+start, pos[idx], scenespace );
+    SetOrGetCoordinates setcoordinates( this, sz, pos, 0, start );
+    setcoordinates.execute();
+
+    change.trigger();
+
 }
 
 
 void Coordinates::setAllPositions( const Coord3& pos, int sz, int start )
 {
+    Threads::MutexLocker lock( mutex_ );
+
     SetOrGetCoordinates setcoordinates( this,sz,0 );
     setcoordinates.setWithSingleCoord( pos );
 
