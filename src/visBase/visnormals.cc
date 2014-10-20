@@ -105,7 +105,14 @@ void Normals::setNormal( int idx, const Vector3& n )
 	unusednormals_ += idy;
 	osgnormals->push_back( osg::Vec3f(mUdf(float),mUdf(float),mUdf(float)));
     }
-    (*osgnormals)[idx] = osgnormal;
+    const Coord3 oldnormal = Conv::to<Coord3>((*osgnormals)[idx]);
+    const Coord3 newnormal = Conv::to<Coord3>(osgnormal);
+   
+    if ( oldnormal.isDefined() && newnormal.isDefined() )
+	(*osgnormals)[idx] = 
+	    osg::Vec3f( Conv::to<osg::Vec3>((oldnormal+newnormal)/2) );
+    else
+	(*osgnormals)[idx] = osgnormal;
 }
 
 
@@ -224,6 +231,43 @@ void Normals::setAll( const float* vals, int coord3sz )
 		        vals[nrnormals*3+2] );
 	nrnormals++;
     }
+}
+
+
+void Normals::setAll( const Coord3* coords, int nmsz )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
+    if ( nmsz!=nrNormals() )
+	osgnormals->resize( nmsz );
+
+    int nrnormals( 0 );
+    while ( nrnormals< nmsz )
+    {
+	( *osgnormals )[nrnormals] =
+	    osg::Vec3f( Conv::to<osg::Vec3>(coords[nrnormals]) );
+	nrnormals++;
+    }
+}
+
+
+void Normals::setAll( const Coord3& coord, int nmsz )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
+    if ( nmsz!=nrNormals() )
+	osgnormals->resize( nmsz );
+
+    int nrnormals( 0 );
+    while ( nrnormals< nmsz )
+    {
+	( *osgnormals )[nrnormals] =
+	    osg::Vec3f( Conv::to<osg::Vec3>(coord) );
+	nrnormals++;
+    }
+
 }
 
 
