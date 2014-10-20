@@ -66,7 +66,6 @@ public:
     static void			initClass();
     bool			read(ObjectSet<Geometry>&,TaskRunner*) const;
 
-
 };
 
 

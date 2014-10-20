@@ -406,9 +406,18 @@ bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
     deepUnRef( geometries_ );
     ensureSIPresent();
     hasduplnms_ = hasDuplicateLineNames();
-    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
-				        .create(sKey::TwoD());
+    PtrMan<GeometryReader> geomreader =
+			GeometryReader::factory().create(sKey::TwoD());
     return geomreader ? geomreader->read( geometries_, taskrunner ) : false;
+}
+
+
+bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
+{
+    PtrMan<GeometryReader> geomreader =
+			GeometryReader::factory().create(sKey::TwoD());
+    return geomreader ? geomreader->read( geometries_, taskrunner )
+		      : false;
 }
 
 

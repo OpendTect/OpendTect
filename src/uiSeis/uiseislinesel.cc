@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 static void getGMList( BufferStringSet& lnms, TypeSet<Pos::GeomID>& gids )
 {
+    Survey::GMAdmin().updateGeometries( 0 );
     Survey::GM().getList( lnms, gids, true );
     for ( int idx=gids.size()-1; idx>=0; idx-- )
     {
