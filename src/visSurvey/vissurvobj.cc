@@ -308,13 +308,13 @@ bool SurveyObject::usePar( const IOPar& par )
     
     
 const visBase::TextureChannel2RGBA*
-	visSurvey::SurveyObject::getChannels2RGBA() const
+	SurveyObject::getChannels2RGBA() const
 {
     return const_cast<visSurvey::SurveyObject*>(this)->getChannels2RGBA();
 }
     
     
-void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
+void SurveyObject::getChannelName( int idx, BufferString& res ) const
 {
     const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
     if ( !tc2rgba )
@@ -324,7 +324,7 @@ void visSurvey::SurveyObject::getChannelName( int idx, BufferString& res ) const
 }
 
 
-bool visSurvey::SurveyObject::isAnyAttribEnabled() const
+bool SurveyObject::isAnyAttribEnabled() const
 {
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -335,6 +335,9 @@ bool visSurvey::SurveyObject::isAnyAttribEnabled() const
     return false;
 }
 
+
+bool SurveyObject::attribsEnabled() const
+{ return isAnyAttribEnabled(); }
 
 }; // namespace visSurvey
 

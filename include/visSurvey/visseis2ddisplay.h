@@ -91,6 +91,9 @@ public:
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
+    void			enableAttrib(int attrib,bool yn);
+    bool			hasSingleColorFallback() const	{ return true; }
+
     void			showPanel(bool yn);
     bool			isPanelShown() const;
     void			showPolyLine(bool yn);

@@ -88,7 +88,7 @@ public:
     virtual bool		allowsPicks() const	{ return false; }
     				/*<\Returns whether picks can be created 
 				    on object. */
-    virtual bool		isPicking() const 	{ return false; }
+    virtual bool		isPicking() const	{ return false; }
     				/*<\Returns true if object is in a mode
 				    where clicking on other objects are
 				    handled by object itself, and not passed
@@ -215,7 +215,7 @@ public:
     virtual bool		canEnableTextureInterpolation() const
     				{ return false; }
 
-    virtual bool 		isAngle(int attrib) const	 {return false;}
+    virtual bool		isAngle(int attrib) const	 {return false;}
     virtual void		setAngleFlag(int attrib,bool yn)	{}
     virtual void		enableAttrib(int attrib,bool yn)	{}
     virtual bool		isAttribEnabled(int attrib) const {return true;}
@@ -320,14 +320,14 @@ public:
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotifier()	{ return 0; }
-    virtual void	 	fillPar(IOPar&) const;
+    virtual void		fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
-    virtual bool		isInlCrl() const	    	{ return false;}
+    virtual bool		isInlCrl() const	{ return false;}
     
     static float		sDefMaxDist();
 	
@@ -351,6 +351,8 @@ public:
 				{ saveinsessionsflag_ = yn; }
     bool			getSaveInSessionsFlag() const
 				{ return saveinsessionsflag_; }
+
+    bool			attribsEnabled() const;
 
 protected:
     				SurveyObject();

@@ -159,6 +159,13 @@ bool Seis2DDisplay::isPolyLineShown() const
 { return polyline_->isOn(); }
 
 
+void Seis2DDisplay::enableAttrib( int attrib, bool yn )
+{
+    MultiTextureSurveyObject::enableAttrib( attrib, yn );
+    geomchanged_.trigger();
+}
+
+
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
