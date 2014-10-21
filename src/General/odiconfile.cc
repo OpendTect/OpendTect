@@ -64,6 +64,7 @@ void OD::IconFile::set( const char* inp )
 	char* pngptr = lastOcc( inpstr.getCStr(), sFileNameEnd );
 	if ( pngptr ) *pngptr = '\0';
 	setName( inpstr );
+	identifier = inpstr;
     }
 
     if ( findIcons(identifier,false) )
