@@ -53,6 +53,8 @@ void Vw2DHorizon2D::setEditors()
 	    horeds_ += 0;
 	    continue;
 	}
+	else
+	    geomid_ = dp2ddh->getGeomID();
 
 	MPE::HorizonFlatViewEditor2D* hored =
 	    new MPE::HorizonFlatViewEditor2D(
@@ -119,7 +121,7 @@ void Vw2DHorizon2D::draw()
 	horeds_[ivwr]->setCubeSampling( dp2ddh->getCubeSampling() );
 	horeds_[ivwr]->setSelSpec( wvaselspec_, true );
 	horeds_[ivwr]->setSelSpec( vdselspec_, false );
-	horeds_[ivwr]->setGeomID( geomid_ );
+	horeds_[ivwr]->setGeomID( dp2ddh->getGeomID() );
 	dp2ddh->getPosDataTable( horeds_[ivwr]->getPaintingCanvTrcNos(),
 			  horeds_[ivwr]->getPaintingCanDistances() );
 	horeds_[ivwr]->paint();
