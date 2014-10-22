@@ -440,10 +440,11 @@ mExternC(Basic) void SetProgramArgs( int newargc, char** newargv )
 # else
     insertInPath( "LD_LIBRARY_PATH", execdir.buf(), ":" );
 # endif
-#endif
-
     // Set this so that scripts run from the program have it available
     SetEnvVar( "DTECT_APPL", GetSoftwareDir(true) );
+#endif
+
+    
 }
 
 
