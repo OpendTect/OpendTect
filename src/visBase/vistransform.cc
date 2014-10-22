@@ -200,11 +200,11 @@ void Transformation::setAbsoluteReferenceFrame()
 }
 
 
-#define mDeclTransType( func, tp, mat, post ) \
-void Transformation::func( tp& inp ) const \
-{ inp = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+#define mDeclTransType( func, tp, mat, post, postproc ) \
+void Transformation::func( tp& to ) const \
+{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(to) ) post ); postproc; } \
 void Transformation::func( const tp& inp, tp& to ) const \
-{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); postproc; } \
 void Transformation::func( const Transformation* tr, const tp& inp, tp& to ) \
 { \
     if ( tr ) tr->func( inp, to ); \
@@ -213,15 +213,20 @@ void Transformation::func( const Transformation* tr, const tp& inp, tp& to ) \
 
 
 #define mDeclTrans( tp ) \
-mDeclTransType( transform, tp, getMatrix, ) \
-mDeclTransType( transformBack, tp, getInverseMatrix, ) \
-mDeclTransType( transformDir, tp, getMatrix, -node_->getMatrix().getTrans() ) \
+mDeclTransType( transform, tp, getMatrix, , ) \
+mDeclTransType( transformBack, tp, getInverseMatrix, , ) \
+mDeclTransType( transformDir, tp, getMatrix, -node_->getMatrix().getTrans() ,) \
 mDeclTransType( transformBackDir, tp, getInverseMatrix, \
-		-node_->getInverseMatrix().getTrans() ) \
+		-node_->getInverseMatrix().getTrans(),	) \
+mDeclTransType( transformSize, tp, getMatrix, -node_->getMatrix().getTrans(), \
+		to[0] = fabs(to[0]); to[1] = fabs(to[1]); to[2] = fabs(to[2])) \
+mDeclTransType( transformBackSize, tp, getInverseMatrix, \
+		-node_->getInverseMatrix().getTrans(), \
+		to[0] = fabs(to[0]); to[1] = fabs(to[1]); to[2] = fabs(to[2])) \
 mDeclTransType( transformNormal, tp, getInverseMatrix, \
-		-node_->getInverseMatrix().getTrans() ) \
+		-node_->getInverseMatrix().getTrans(),	) \
 mDeclTransType( transformBackNormal, tp, getMatrix, \
-		-node_->getMatrix().getTrans() )
+		-node_->getMatrix().getTrans(),  )
 
 #define mToOsgVec( inp ) inp
 #define mFromOsgVec( inp ) inp
@@ -240,9 +245,9 @@ mDeclTrans( Coord3 )
 #undef mToOsgVec
 #undef mFromOsgVec
 
-#define mDeclConvTransType( func, frtp, totp, mat, post ) \
+#define mDeclConvTransType( func, frtp, totp, mat, post, postproc ) \
 void Transformation::func( const frtp& inp, totp& to ) const \
-{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); } \
+{ to = mFromOsgVec( node_->mat().preMult( mToOsgVec(inp) ) post ); postproc; } \
 void Transformation::func( const Transformation* tr, const frtp& inp, \
 			   totp& to ) \
 { \
@@ -252,16 +257,22 @@ void Transformation::func( const Transformation* tr, const frtp& inp, \
 
 
 #define mDeclConvTrans( frtp, totp ) \
-mDeclConvTransType( transform, frtp, totp, getMatrix, ) \
-mDeclConvTransType( transformBack, frtp, totp, getInverseMatrix, ) \
+mDeclConvTransType( transform, frtp, totp, getMatrix, , ) \
+mDeclConvTransType( transformBack, frtp, totp, getInverseMatrix, , ) \
 mDeclConvTransType( transformDir, frtp, totp, getMatrix, \
-		    -node_->getMatrix().getTrans() ) \
+		    -node_->getMatrix().getTrans(),  ) \
 mDeclConvTransType( transformBackDir, frtp, totp, getInverseMatrix, \
-		    -node_->getInverseMatrix().getTrans() ) \
+		    -node_->getInverseMatrix().getTrans(),  ) \
+mDeclConvTransType( transformSize, frtp, totp, getMatrix, \
+	    -node_->getMatrix().getTrans(), \
+	    to[0] = fabs(to[0]); to[1] = fabs(to[1]); to[2] = fabs(to[2])) \
+mDeclConvTransType( transformBackSize, frtp, totp, getInverseMatrix, \
+	    -node_->getInverseMatrix().getTrans(), \
+	    to[0] = fabs(to[0]); to[1] = fabs(to[1]); to[2] = fabs(to[2])) \
 mDeclConvTransType( transformNormal, frtp, totp, getInverseMatrix, \
-		    -node_->getInverseMatrix().getTrans() ) \
+		    -node_->getInverseMatrix().getTrans(),  ) \
 mDeclConvTransType( transformBackNormal, frtp, totp, getMatrix, \
-		    -node_->getMatrix().getTrans() )
+		    -node_->getMatrix().getTrans(),  )
 
 #define mToOsgVec( inp ) inp
 #define mFromOsgVec( inp ) Conv::to<Coord3>( inp )
