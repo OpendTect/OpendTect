@@ -41,7 +41,7 @@ public:
     void			clear();
     int				nextID(int previd) const;
     void			removeCoord(int);
-    const bool			isEmpty() const { return size()==0; }
+    bool			isEmpty() const { return size()==0; }
 
     osg::Array*			osgArray()		{ return osgcoords_; }
     const osg::Array*		osgArray() const	{ return osgcoords_; }
