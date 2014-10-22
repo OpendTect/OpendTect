@@ -62,6 +62,7 @@ GeomIndexedShape::GeomIndexedShape()
     singlematerial_->setColorMode( visBase::Material::Off );
     coltabmaterial_->setColorMode( visBase::Material::Diffuse );
     vtexshape_->setPrimitiveType( Geometry::PrimitiveSet::Triangles );
+    vtexshape_->enableCoordinatesChangedCB( false );
 
     setRenderMode( RenderBothSides );
 

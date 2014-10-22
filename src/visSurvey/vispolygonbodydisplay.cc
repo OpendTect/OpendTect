@@ -233,10 +233,13 @@ bool PolygonBodyDisplay::setEMID( const EM::ObjectID& emid )
     {
 	bodydisplay_ = visBase::GeomIndexedShape::create();
 	bodydisplay_->ref();
-	bodydisplay_->setGeometryShapeType(visBase::GeomIndexedShape::Triangle);
+	bodydisplay_->setGeometryShapeType( visBase::GeomIndexedShape::Triangle,
+	    Geometry::PrimitiveSet::Triangles );
 	bodydisplay_->setDisplayTransformation( displaytransform_ );
 	bodydisplay_->setMaterial( 0 );
 	bodydisplay_->setSelectable( false );
+	bodydisplay_->setNormalBindType(visBase::VertexShape::BIND_PER_VERTEX);
+	bodydisplay_->useOsgNormal( true );
 	addChild( bodydisplay_->osgNode() );
     }
 

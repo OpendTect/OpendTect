@@ -442,7 +442,11 @@ void VertexShape::dirtyCoordinates()
     osggeom_->dirtyDisplayList();
     osggeom_->dirtyBound();
     if ( useosgsmoothnormal_ )
+    {
 	osgUtil::SmoothingVisitor::smooth( *osggeom_ );
+	osggeom_->setNormalBinding(
+	    osg::Geometry::AttributeBinding(normalbindtype_) );
+    }
 }
 
 
@@ -502,6 +506,7 @@ void VertexShape::materialChangeCB( CallBacker* )
 	ss->removeAttribute( osg::StateAttribute::BLENDFUNC );
 	ss->setRenderingHint( osg::StateSet::OPAQUE_BIN );
     }
+    requestSingleRedraw();
 }
 
 

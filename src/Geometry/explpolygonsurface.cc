@@ -139,16 +139,8 @@ bool ExplPolygonSurface::updateBodyDisplay()
     if ( sampsz<3 || surface_->nrPolygons()<2 )
 	return true;
 
-    Geometry::IndexedPrimitiveSet* idxps =
-	(Geometry::IndexedPrimitiveSet*)bodytriangle_->getCoordsPrimitiveSet();
-
-    if ( !idxps ) return false;
-
     if ( sampsz==3 )
     {
-	idxps->setEmpty();
-	//addToTrianglePrimitiveSet(
-	//    bodytriangle_->getCoordsPrimitiveSet(), 0, 1, 2 );
 	TypeSet<int> smpidxs;
 	for ( int idx = 0; idx<3; idx ++)
 	    smpidxs += idx;
@@ -176,11 +168,6 @@ bool ExplPolygonSurface::updateBodyDisplay()
     sampleindices_.erase();
     tetrahedratree_->getSurfaceTriangles( sampleindices_ );
     
-    //TypeSet<Coord3> normals;
-    //
-    //tetrahedratree_->getSurfaceTrianglesAndNormals( sampleindices_, normals );
-
-
     const int nrindices = sampleindices_.size();
     TypeSet<int> invalidknots;
     for ( int idx=0; idx<pts.size(); idx++ )
@@ -198,8 +185,6 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	normallist_->set( idx, Coord3( 0 , 0 , 0 ) );
     }
    
-    idxps->setEmpty();
-
     bool allvalid = !invalidknots.size();
     for ( int idx=0; idx<nrindices/3; idx++ )
     {
@@ -212,14 +197,10 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	for ( int triangleidx = 3*idx; triangleidx < (3*idx+3); triangleidx++)
 	{
 	    triangleidxs += sampleindices_[triangleidx];
-	   // normallist_->set( triangleidx, normals[idx] );
 	}
-	    //addToTrianglePrimitiveSet(
-	    //bodytriangle_->getCoordsPrimitiveSet(), ,
-	    //sampleindices_[3*idx+1], sampleindices_[3*idx+2] );
 	bodytriangle_->appendCoordIndices( triangleidxs );
-	calcNormals( idx, sampleindices_[3*idx],sampleindices_[3*idx+1],
-	    sampleindices_[3*idx+2] );
+	//calcNormals( idx, sampleindices_[3*idx],sampleindices_[3*idx+1],
+	//    sampleindices_[3*idx+2] );
     }
 
     bodytriangle_->ischanged_ = true;
@@ -227,7 +208,8 @@ bool ExplPolygonSurface::updateBodyDisplay()
 }
 
 
-
+// below function is not used for the time being. It will be used in the
+// future once we figure out the vertex order from Tetrahedralator
 void ExplPolygonSurface::calcNormals( int nrtriangles,
     int idx1, int idx2, int idx3 )
 {
@@ -413,7 +395,7 @@ void ExplPolygonSurface::updateGeometries()
     }
     else if ( !bodytriangle_ && displaybody_ )
     {
-	bodytriangle_ = new IndexedGeometry( IndexedGeometry::TriangleStrip,
+	bodytriangle_ = new IndexedGeometry( IndexedGeometry::Triangles,
 					     coordlist_, normallist_, 0 );
 
 	addToGeometries( bodytriangle_ );
