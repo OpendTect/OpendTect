@@ -67,7 +67,7 @@ public:
 			{ return !(*this==cb); }
 
     inline bool		willCall() const
-			{ return obj_ && (fn_ || sfn_); }
+			{ return (obj_ && fn_) || sfn_; }
     void		doCall(CallBacker*);
 
     inline CallBacker*			cbObj()			{ return obj_; }
