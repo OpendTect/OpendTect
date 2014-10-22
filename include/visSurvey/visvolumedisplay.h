@@ -284,6 +284,9 @@ protected:
     static const char*		sKeySurfMode();
     static const char*		sKeySeedsMid();
     static const char*		sKeySeedsAboveIsov();
+
+public:
+    void updateMouseCursorPublicCB(CallBacker* cb) { updateMouseCursorCB(cb); }
 };
 
 } // namespace visSurvey

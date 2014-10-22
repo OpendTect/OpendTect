@@ -235,6 +235,9 @@ protected:
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyResolution()  { return "Resolution"; }
     static const char*		sKeyGridLinesID() { return "GridLines ID"; }
+
+public:
+    void updateMouseCursorPublicCB(CallBacker* cb) { updateMouseCursorCB(cb); }
 };
 
 } // namespace visSurvey

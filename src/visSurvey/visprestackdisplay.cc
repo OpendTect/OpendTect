@@ -131,7 +131,7 @@ PreStackDisplay::~PreStackDisplay()
 // Binary compatibility: updated and called for one PrestackDisplay at a time
 static MouseCursor mousecursor_;
 
-const MouseCursor* PreStackDisplay::getMouseCursor() const
+const MouseCursor* PreStackDisplay::getMouseCursorNonVirtual() const
 { return &mousecursor_; }
 
 

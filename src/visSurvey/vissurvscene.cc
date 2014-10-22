@@ -36,6 +36,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "zaxistransform.h"
 #include "zdomain.h"
 
+#include "visplanedatadisplay.h"
+#include "visvolumedisplay.h"
+#include "vismpe.h"
+#include "visprestackdisplay.h"
+
 
 mCreateFactoryEntry( visSurvey::Scene );
 
@@ -727,11 +732,35 @@ void Scene::mouseCursorCB( CallBacker* cb )
 	DataObject* pickedobj =
 	    visBase::DM().getObject(eventinfo.pickedobjids[idx]);
 
-	mDynamicCastGet( SurveyObject*, so, pickedobj );
-	if ( so )
+	mDynamicCastGet( PlaneDataDisplay*, pdd, pickedobj );
+	if ( pdd )
 	{
-	    so->updateMouseCursorCB( cb );
-	    mousecursor_ = so->getMouseCursor();
+	    pdd->updateMouseCursorPublicCB( cb );
+	    mousecursor_ = ((SurveyObject*) pdd)->getMouseCursor();
+	    break;
+	}
+
+	mDynamicCastGet( VolumeDisplay*, vd, pickedobj );
+	if ( vd )
+	{
+	    vd->updateMouseCursorPublicCB( cb );
+	    mousecursor_ = ((SurveyObject*) vd)->getMouseCursor();
+	    break;
+	}
+
+	mDynamicCastGet( MPEDisplay*, mped, pickedobj );
+	if ( mped )
+	{
+	    mped->updateMouseCursorCB( cb );
+	    mousecursor_ = mped->getMouseCursorNonVirtual();
+	    break;
+	}
+
+	mDynamicCastGet( PreStackDisplay*, psd, pickedobj );
+	if ( psd )
+	{
+	    psd->updateMouseCursorCB( cb );
+	    mousecursor_ = psd->getMouseCursorNonVirtual();
 	    break;
 	}
     }

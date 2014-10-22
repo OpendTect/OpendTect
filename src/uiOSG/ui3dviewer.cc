@@ -161,6 +161,9 @@ protected:
     MouseCursor			actmodecursor_;
 
     osg::ref_ptr<osgQt::GraphicsWindowQt>	graphicswin_;
+
+public:
+    void updateActModeCursorPublic()		{ updateActModeCursor(); }
 };
 
 
@@ -870,16 +873,13 @@ void ui3DViewerBody::setSceneID( int sceneid )
 
 void ui3DViewerBody::mouseCursorChg( CallBacker* cb )
 {
-
     mCBCapsuleUnpackWithCaller( char, mUnusedVar dummy, caller, cb );
     if ( scene_ == caller )
-	updateActModeCursor();
-}
-
-
-void ui3DViewerBody::updateActModeCursor()
-{
-    // Code from uiDirectViewBody::updateActModeCursor() moves here in OD5.1
+    {
+	mDynamicCastGet( uiDirectViewBody*, dvb, this );
+	if ( dvb )
+	    dvb->updateActModeCursorPublic();
+    }
 }
 
 

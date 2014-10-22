@@ -199,8 +199,7 @@ protected:
     enum ViewModeCursor			{ RotateCursor, PanCursor, ZoomCursor,
 					  HoverCursor };
 
-    virtual void			setViewModeCursor( ViewModeCursor );
-    virtual void			updateActModeCursor();
+    void				setViewModeCursor( ViewModeCursor );
     void				mouseCursorChg(CallBacker*);
     void				setFocusCB(CallBacker*);
 };

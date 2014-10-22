@@ -378,9 +378,6 @@ protected:
     void		initAdaptiveMouseCursor(CallBacker* eventcb,
 						int objid,int inplanedragkeys,
 						MouseCursor&);
-
-public:
-    virtual void	updateMouseCursorCB(CallBacker*)	{};
 };
 
 } // namespace visSurvey

@@ -155,10 +155,9 @@ protected:
     IOObj*			ioobj_;
     Notifier<PreStackDisplay>	movefinished_;
 
-    void			updateMouseCursorCB(CallBacker*);
-
 public:
-    const MouseCursor*		getMouseCursor() const;
+    void			updateMouseCursorCB(CallBacker*);
+    const MouseCursor*		getMouseCursorNonVirtual() const;
 
 };
 

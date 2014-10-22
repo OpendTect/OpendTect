@@ -265,10 +265,9 @@ protected:
     static const char*		sKeyCrossLine()	{ return "Crossline"; }
     static const char*		sKeyTime()	{ return "Time"; }
 
-    void			updateMouseCursorCB(CallBacker*);
-
 public:
-    const MouseCursor*		getMouseCursor() const;
+    void			updateMouseCursorCB(CallBacker*);
+    const MouseCursor*		getMouseCursorNonVirtual() const;
 };
 
 }; // namespace visSurvey

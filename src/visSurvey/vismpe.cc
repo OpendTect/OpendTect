@@ -372,7 +372,7 @@ void MPEDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 // Binary compatibility: updated and next called for one MPEDisplay at a time
 static MouseCursor mousecursor_;
 
-const MouseCursor* MPEDisplay::getMouseCursor() const
+const MouseCursor* MPEDisplay::getMouseCursorNonVirtual() const
 {
     return &mousecursor_;
 }
