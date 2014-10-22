@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seismerge.h"
+#include "seisbounds.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seistrc.h"
@@ -44,17 +45,27 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     if ( iops.size() == 1 )
 	{ errmsg_ = "One single entry to merge: Please use copy"; return; }
 
+    StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<iops.size(); idx++ )
     {
 	SeisTrcReader* newrdr = new SeisTrcReader;
-	rdrs_ += newrdr;
 	newrdr->usePar( *iops[idx] );
 	if ( !newrdr->prepareWork() )
 	{
 	    errmsg_ = newrdr->errMsg();
-	    deepErase( rdrs_ );
-	    return;
+	    delete newrdr;
+	    continue;
 	}
+
+	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
+	if ( rgs ) zrg.include( rgs->getZRange(), false );
+	rdrs_ += newrdr;
+    }
+
+    if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
+    {
+	sd_.start = zrg.start; sd_.step = zrg.step;
+	nrsamps_ = zrg.nrSteps() + 1;
     }
 
     wrr_ = new SeisTrcWriter( 0 );
@@ -89,6 +100,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
 
     FilePath fp( iop.find(sKey::TmpStor()) );
     DirList dlist( fp.fullPath(), DirList::FilesOnly );
+    StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<dlist.size(); idx++ )
     {
 	SeisTrcReader* newrdr = new SeisTrcReader( dlist.fullPath(idx) );
@@ -99,7 +111,15 @@ SeisMerger::SeisMerger( const IOPar& iop )
 	    continue;
 	}
 
+	PtrMan<Seis::Bounds> rgs = newrdr->getBounds();
+	if ( rgs ) zrg.include( rgs->getZRange(), false );
 	rdrs_ += newrdr;
+    }
+
+    if ( !mIsUdf(zrg.start) && !mIsUdf(zrg.start) )
+    {
+	sd_.start = zrg.start; sd_.step = zrg.step;
+	nrsamps_ = zrg.nrSteps() + 1;
     }
 
     PtrMan<IOPar> outiop = iop.subselect( sKey::Output() );
