@@ -86,7 +86,6 @@ public:
     const osg::Array*	osgArray() const { return osgcoords_; }
 
     void		setEmpty();
-    const bool		isEmpty() const { return size()==0; }
     void		dirty() const;
 
 protected:
@@ -108,6 +107,10 @@ protected:
     
     osg::Array*			osgcoords_;
     friend class	 SetOrGetCoordinates;
+
+public:
+    bool		isEmpty() const { return size()==0; }
+
 };
 
     
