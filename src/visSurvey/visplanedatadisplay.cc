@@ -172,6 +172,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     dragger_->setTransDragKeys( false, buttonkey );
 
     init();
+    showManipulator( dragger_->isOn() );
 }
 
 

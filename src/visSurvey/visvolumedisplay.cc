@@ -148,6 +148,8 @@ VolumeDisplay::VolumeDisplay()
     mSettUse( getYN, "dTect.MouseInteraction", sKeyInDepthVolResize(),
 	      useindepthtransforresize );
     boxdragger_->useInDepthTranslationForResize( useindepthtransforresize );
+
+    showManipulator( boxdragger_->isOn() );
 }
 
 
