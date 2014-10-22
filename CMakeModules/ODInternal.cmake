@@ -219,3 +219,5 @@ if ( NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}" )
 			    PATTERN "*.ico" PATTERN "*.rc" PATTERN "*.txt"
 			    PATTERN ".svn" EXCLUDE PATTERN CMakeFiles EXCLUDE )
 endif()
+
+install( FILES ${CMAKE_BINARY_DIR}/doc/Programmer/index.html DESTINATION doc/Programmer/ )

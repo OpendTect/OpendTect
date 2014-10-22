@@ -116,6 +116,11 @@ macro ( create_package PACKAGE_NAME )
 	     endforeach()
 	endforeach()
 
+	if( UNIX )
+	    file( MAKE_DIRECTORY ${DESTINATION_DIR}/doc
+				 ${DESTINATION_DIR}/doc/Programmer)
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_INSTALL_PREFIX}/doc/Programmer/index.html ${DESTINATION_DIR}/doc/Programmer )
+	endif()
 	if( WIN32 )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 				     ${CMAKE_INSTALL_PREFIX}/rsm
