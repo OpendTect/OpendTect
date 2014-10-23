@@ -19,10 +19,8 @@ class SeisSingleTraceProc;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
-class uiScaler;
 class uiSeisSel;
 class uiSeisTransfer;
-class uiSeis2DMultiLineSel;
 class uiLabeledComboBox;
 
 /*!\brief Actually imports or just transfers data through selection */
@@ -73,23 +71,4 @@ private:
 };
 
 
-mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
-{
-public:
-
-			uiSeisCopyLineSet(uiParent*,const IOObj*);
-protected:
-
-    uiSeisSel*		inpfld_;
-    uiSeis2DMultiLineSel* subselfld_;
-    uiScaler*		scalefld_;
-    uiSeisSel*		outpfld_;
-
-    void		inpSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
-};
-
-
 #endif
-

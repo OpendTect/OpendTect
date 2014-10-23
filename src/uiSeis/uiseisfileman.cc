@@ -40,6 +40,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
 #include "uiseiscbvsimp.h"
+#include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
 #include "uiseis2dfileman.h"
 #include "uiseis2dgeom.h"
@@ -376,9 +377,11 @@ void uiSeisFileMan::man2DPush( CallBacker* )
 
 void uiSeisFileMan::copyPush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
+    if ( !curioobj_ )
+	return;
 
     const MultiID key( curioobj_->key() );
+    bool needrefresh = false;
     if ( is2d_ )
     {
 	uiSeisCopyLineSet dlg2d( this, curioobj_ );
@@ -387,13 +390,20 @@ void uiSeisFileMan::copyPush( CallBacker* )
     else
     {
 	mDynamicCastGet(const IOStream*,iostrm,curioobj_)
-	if ( !iostrm ) { pErrMsg("IOObj not IOStream"); return; }
-
-	uiSeisImpCBVS dlg( this, iostrm );
-	dlg.go();
+	if ( iostrm )
+	{
+	    uiSeisImpCBVS dlg( this, iostrm );
+	    needrefresh = dlg.go();
+	}
+	else
+	{
+	    uiSeisCopyCube dlg( this, curioobj_ );
+	    needrefresh = dlg.go();
+	}
     }
 
-    selgrp_->fullUpdate( key );
+    if ( needrefresh )
+	selgrp_->fullUpdate( key );
 }
 
 

@@ -21,15 +21,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "scaler.h"
-#include "seiscbvs.h"
 #include "seisread.h"
+#include "seiscbvs.h"
 #include "seisselection.h"
-#include "seisselectionimpl.h"
 #include "seissingtrcproc.h"
 #include "seistrc.h"
-#include "seistrcprop.h"
-#include "seiswrite.h"
 #include "survinfo.h"
 #include "veldesc.h"
 #include "velocitycalc.h"
@@ -40,13 +36,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uiscaler.h"
 #include "uiseisioobjinfo.h"
-#include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uiseistransf.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
+
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup(tr("Import CBVS cube"),
@@ -416,191 +411,4 @@ void uiSeisImpCBVS::procToBeDoneCB( CallBacker* c )
 
     for ( int idx=0; idx<sizeout; idx++ )
 	trc.set( idx, vout[idx], compnr );
-}
-
-
-class Seis2DCopier : public Executor
-{
-public:
-Seis2DCopier( const IOObj* inobj, const IOObj* outobj, const IOPar& par )
-    : Executor("Copying 2D Seismic Data")
-    , lineidx_(-1)
-    , inobj_(inobj),outobj_(outobj)
-    , rdr_(0),wrr_(0)
-    , doscale_(false)
-{
-    PtrMan<IOPar> lspar = par.subselect( "Line" );
-    if ( !lspar ) return;
-
-    for ( int idx=0; idx<1024; idx++ )
-    {
-	PtrMan<IOPar> linepar = lspar->subselect( idx );
-	if ( !linepar )
-	    break;
-
-	Pos::GeomID geomid = Survey::GeometryManager::cUndefGeomID();
-	if ( !linepar->get(sKey::GeomID(),geomid) )
-	    continue;
-
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-	if ( !linepar->get(sKey::TrcRange(),trcrg) ||
-		!linepar->get(sKey::ZRange(),zrg))
-	    continue;
-
-	selgeomids_ += geomid;
-	trcrgs_ += trcrg;
-	zrgs_ += zrg;
-    }
-
-    FixedString scalestr = par.find( sKey::Scale() );
-    if ( scalestr )
-    {
-	doscale_ = true;
-	scaler_.fromString( scalestr );
-    }
-}
-
-
-~Seis2DCopier()
-{
-    delete rdr_; delete wrr_;
-}
-
-
-bool initNextLine()
-{
-    delete rdr_; delete wrr_;
-    rdr_ = 0; wrr_ = 0;
-    if ( inobj_ )
-	rdr_ = new SeisTrcReader( inobj_ );
-
-    if ( outobj_ )
-	wrr_ = new SeisTrcWriter( outobj_ );
-
-    if ( !rdr_ || !wrr_ )
-	return false;
-
-    lineidx_++;
-    if ( lineidx_ >= selgeomids_.size() || lineidx_ >= trcrgs_.size() )
-	return false;
-
-    sd_.cubeSampling().hrg.setCrlRange( trcrgs_[lineidx_] );
-    sd_.cubeSampling().zsamp_ = zrgs_[lineidx_];
-    sd_.setGeomID( selgeomids_[lineidx_] );
-    rdr_->setSelData( sd_.clone() );
-    Seis::SelData* wrrsd = sd_.clone();
-    wrrsd->setIsAll( true );
-    wrr_->setSelData( wrrsd );
-    rdr_->prepareWork();
-    return true;
-}
-
-
-od_int64 totalNr() const
-{
-    od_int64 nr = 0;
-    for ( int idx=0; idx<trcrgs_.size(); idx++ )
-	nr += ( trcrgs_[idx].nrSteps() + 1 );
-
-    return nr;
-}
-
-
-od_int64 nrDone() const
-{ return nrdone_; }
-
-uiString uiNrDoneText() const
-{ return "No. of traces copied"; }
-
-protected:
-
-    const IOObj*		inobj_;
-    const IOObj*		outobj_;
-    SeisTrcReader*		rdr_;
-    SeisTrcWriter*		wrr_;
-    Seis::RangeSelData		sd_;
-
-    TypeSet<Pos::GeomID>	selgeomids_;
-    TypeSet<StepInterval<int> > trcrgs_;
-    TypeSet<StepInterval<float> > zrgs_;
-    LinScaler			scaler_;
-    bool			doscale_;
-    int				lineidx_;
-    int				nrdone_;
-
-int nextStep()
-{
-    if ( lineidx_ < 0 && !initNextLine() )
-	return ErrorOccurred();
-
-    SeisTrc trc;
-    const int res = rdr_->get( trc.info() );
-    if ( res < 0 ) return ErrorOccurred();
-    if ( res == 0 ) return initNextLine() ? MoreToDo() : Finished();
-
-    if ( !rdr_->get(trc) )
-	return ErrorOccurred();
-
-    if ( doscale_ )
-    {
-	SeisTrcPropChg stpc( trc );
-	stpc.scale( (float) scaler_.factor, (float) scaler_.constant );
-    }
-
-    if ( !wrr_->put(trc) )
-	return ErrorOccurred();
-
-    nrdone_++;
-    return MoreToDo();
-}
-
-
-};
-
-
-uiSeisCopyLineSet::uiSeisCopyLineSet( uiParent* p, const IOObj* obj )
-    : uiDialog(p,Setup("Copy 2D Seismic Data",uiStrings::sEmptyString(),
-                       mODHelpKey(mSeisCopyLineSetHelpID) ))
-{
-    IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
-    inpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
-    inpfld_->selectionDone.notify( mCB(this,uiSeisCopyLineSet,inpSel) );
-
-    subselfld_ = new uiSeis2DMultiLineSel( this, "Select Lines to copy", true );
-    subselfld_->attach( alignedBelow, inpfld_ );
-    if ( obj )
-    {
-	inpfld_->setInput( obj->key() );
-	subselfld_->setInput( obj->key() );
-    }
-
-    scalefld_ = new uiScaler( this, "Scale values", true );
-    scalefld_->attach( alignedBelow, subselfld_ );
-
-    ioctxt.forread = false;
-    outpfld_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(Seis::Line) );
-    outpfld_->attach( alignedBelow, scalefld_ );
-}
-
-
-void uiSeisCopyLineSet::inpSel( CallBacker* )
-{
-    if ( inpfld_->ioobj(true) )
-	subselfld_->setInput( inpfld_->key() );
-}
-
-
-bool uiSeisCopyLineSet::acceptOK( CallBacker* )
-{
-    IOPar par;
-    subselfld_->fillPar( par );
-    Scaler* scaler = scalefld_->getScaler();
-    if ( scaler )
-	par.set( sKey::Scale(), scaler->toString() );
-
-    Seis2DCopier exec( inpfld_->ioobj(), outpfld_->ioobj(), par );
-    uiTaskRunner dlg( this );
-
-    return TaskRunner::execute( &dlg, exec );
 }
