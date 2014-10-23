@@ -284,6 +284,7 @@ void uiAttrSelDlg::createSelectionFields()
     filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
     compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
     compfld_->attach( rightTo, filtfld_ );
+    compfld_->display( false );
 
     if ( haveattribs )
     {
@@ -347,10 +348,7 @@ void uiAttrSelDlg::selDone( CallBacker* c )
     }
 
     const bool isstoreddata = seltyp==0 || seltyp==1;
-    const bool issteerdata = seltyp==1;
     filtfld_->display( isstoreddata );
-    compfld_->display( issteerdata );
-
     cubeSel(0);
 }
 
@@ -424,10 +422,16 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     BufferStringSet compnms;
     transl->getComponentNames( compnms );
     compfld_->box()->setEmpty();
-    compfld_->box()->addItem( "ALL" );
+
+    const bool hascomps = compnms.size()>1;
+    compfld_->display( hascomps );
+    if ( !hascomps ) return;
+
+    const bool issteerdata = seltyp==1;
+    if ( !issteerdata )
+	compfld_->box()->addItem( "ALL" );
 
     compfld_->box()->addItems( compnms );
-    compfld_->display( compnms.size()>2 );
 }
 
 
