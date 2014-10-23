@@ -382,16 +382,19 @@ void HorTilesCreatorAndUpdator::updateTilesAutoResolution(
 void HorTilesCreatorAndUpdator::updateTilesPrimitiveSets()
 {
     const int tilesz = horsection_->tiles_.info().getTotalSz();
-    if ( !tilesz ) return;
 
-    HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
-    Threads::MutexLocker updatemutex( updatelock_ );
-    // below process takes some time
-    for ( int idx=0; idx<tilesz; idx++ )
+    if ( tilesz )
     {
-	if ( tileptrs[idx] )
-	    tileptrs[idx]->updatePrimitiveSets();
+	HorizonSectionTile** tileptrs = horsection_->tiles_.getData();
+	Threads::MutexLocker updatemutex( updatelock_ );
+	// below process takes some time
+	for ( int idx=0; idx<tilesz; idx++ )
+	{
+	    if ( tileptrs[idx] )
+		tileptrs[idx]->updatePrimitiveSets();
+	}
     }
+
     horsection_->setUpdateVar( horsection_->forceupdate_, false );
 }
 

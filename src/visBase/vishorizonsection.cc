@@ -84,6 +84,9 @@ void HorizonSection::NodeCallbackHandler::operator()( osg::Node* node,
     }
     else if( nv->getVisitorType()==osg::NodeVisitor::CULL_VISITOR )
     {
+	if ( hrsection_->tiles_.info().getTotalSz()==0 )
+	    return;
+
 	osgUtil::CullVisitor* cv = dynamic_cast<osgUtil::CullVisitor*>(nv);
 	const osg::Vec3 projectiondirection = getProjectionDirection( cv );
 
