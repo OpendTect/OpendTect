@@ -33,6 +33,8 @@ mDefTransType( transform, tp ); \
 mDefTransType( transformBack, tp ); \
 mDefTransType( transformDir, tp ); \
 mDefTransType( transformBackDir, tp ); \
+mDefTransType( transformSize, tp ); \
+mDefTransType( transformBackSize, tp ); \
 mDefTransType( transformNormal, tp ); \
 mDefTransType( transformBackNormal, tp );
 
@@ -46,6 +48,8 @@ mDefConvTransType( transform, frtp, totp ); \
 mDefConvTransType( transformBack, frtp, totp ); \
 mDefConvTransType( transformDir, frtp, totp ); \
 mDefConvTransType( transformBackDir, frtp, totp ); \
+mDefConvTransType( transformSize, frtp, totp ); \
+mDefConvTransType( transformBackSize, frtp, totp ); \
 mDefConvTransType( transformNormal, frtp, totp ); \
 mDefConvTransType( transformBackNormal, frtp, totp );
 
