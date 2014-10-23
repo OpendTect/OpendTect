@@ -168,7 +168,6 @@ public:
 			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;
     Interval<float>	getDataTraceRange(int id) const;
-    void		setTraceData(int id,int attrib,SeisTrcBuf&);
 
 			// See visSurvey::SurfaceDisplay for details
     void		getRandomPos(int visid,DataPointSet&) const;

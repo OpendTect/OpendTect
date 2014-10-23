@@ -74,15 +74,6 @@ public:
     virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
-    void			setTraceData(int attrib,
-					     const Attrib::Data2DArray&,
-					     TaskRunner*);
-    virtual void		setTraceData( int attrib, SeisTrcBuf& tb,
-					     TaskRunner* tr )
-				{ SurveyObject::setTraceData(attrib,tb,tr); }
-    const Attrib::Data2DArray*	getCache(int attrib) const;
-    void			updateDataFromCache(TaskRunner*);
-
     bool			allowsPicks() const		{ return true; }
     bool			allowMaterialEdit() const	{ return true; }
     bool			hasColor() const		{ return true; }
@@ -182,8 +173,7 @@ protected:
     void			updatePanelStripZRange();
 
     void			updateLineNamePos();
-    void			setData(int attrib,const Attrib::Data2DArray&,
-					TaskRunner*);
+    void			updateChannels(int attrib);
     void			createDisplayDataPacks(int attrib);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
@@ -196,7 +186,6 @@ protected:
     visBase::DrawStyle*		polylineds_;
     visBase::TexturePanelStrip* panelstrip_;
 
-    ObjectSet<const Attrib::Data2DArray> cache_;
     TypeSet<DataPack::ID>	datapackids_;
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
     MultiID			datasetid_;

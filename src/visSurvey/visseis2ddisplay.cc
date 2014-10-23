@@ -61,7 +61,6 @@ Seis2DDisplay::Seis2DDisplay()
     , pixeldensity_( getDefaultPixelDensity() )
 {
     geometry_.setZRange( StepInterval<float>(mUdf(float),mUdf(float),1) );
-    cache_.allowNull();
 
     polyline_->ref();
     polyline_->setMaterial( new visBase::Material );
@@ -101,7 +100,6 @@ Seis2DDisplay::~Seis2DDisplay()
     delete &geometry_;
 
     if ( transformation_ ) transformation_->unRef();
-    deepUnRef( cache_ );
 
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
@@ -240,7 +238,8 @@ void Seis2DDisplay::setZRange( const StepInterval<float>& nzrg )
     const StepInterval<float> maxzrg = getMaxZRange( true );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
-    const bool hasdata = !cache_.isEmpty() && cache_[0];
+    const bool hasdata = !datapackids_.isEmpty() &&
+			 datapackids_[0]!=DataPack::cNoID();
     if ( hasdata && trcdisplayinfo_.zrg_.isEqual(zrg,mDefEps) )
 	return;
 
@@ -296,7 +295,6 @@ void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 
     const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
 			    maxtrcnrrg_.limitValue(trcrg.stop) );
-
     if ( !rg.width() )
 	return;
 
@@ -351,6 +349,8 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !dp2d )
     {
 	dpman.release( dpid );
+	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, tr );
+	channels_->turnOn( false );
 	return false;
     }
 
@@ -359,7 +359,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpman.release( oldid );
 
     createDisplayDataPacks( attrib );
-    setTraceData( attrib, *dp2d->dataarray(), tr );
+    updateChannels( attrib );
     return true;
 }
 
@@ -379,7 +379,8 @@ void Seis2DDisplay::setDisplayDataPackIDs( int attrib,
 
 DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 {
-    return datapackids_[attrib];
+    return datapackids_.validIdx(attrib) ? datapackids_[attrib]
+					 : DataPack::cNoID();
 }
 
 
@@ -392,37 +393,18 @@ DataPack::ID Seis2DDisplay::getDisplayedDataPackID( int attrib ) const
 }
 
 
-void Seis2DDisplay::setTraceData( int attrib,
-				  const Attrib::Data2DArray& dataset,
-				  TaskRunner* tr )
+void Seis2DDisplay::updateChannels( int attrib )
 {
-    setData( attrib, dataset, tr );
-    if ( cache_[attrib] ) cache_[attrib]->unRef();
-
-    cache_.replace( attrib, &dataset );
-    cache_[attrib]->ref();
-}
-
-
-const Attrib::Data2DArray* Seis2DDisplay::getCache( int attrib ) const
-{ return cache_[attrib]; }
-
-
-void Seis2DDisplay::setData( int attrib,
-			     const Attrib::Data2DArray& data2dh,
-			     TaskRunner* tr )
-{
-    if ( data2dh.isEmpty() )
-    {
-	channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, tr );
-	channels_->turnOn( false );
-	return;
-    }
+    DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
+    const DataPack::ID dpid = getDataPackID( attrib );
+    ConstDataPackRef<Flat2DDHDataPack> dp2ddh = dpm.obtain( dpid );
+    if ( !dp2ddh ) return;
 
     const TypeSet<DataPack::ID> dpids = *dispdatapackids_[attrib];
     const int nrseries = dpids.size();
     channels_->setNrVersions( attrib, nrseries );
 
+    const Data2DArray& data2dh = *dp2ddh->dataarray();
     const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
 
     Array2DSlice<float> slice2d( *data2dh.dataset_ );
@@ -436,11 +418,9 @@ void Seis2DDisplay::setData( int attrib,
 	slice2d.setPos( 0, seriesidx );
 	slice2d.init();
 
-	DataPackRef<Flat2DDHDataPack> dp2ddh =
-	    DPM(DataPackMgr::FlatID()).obtain( dpids[seriesidx] );
-
+	DataPackRef<Flat2DDHDataPack> dp2d = dpm.obtain( dpids[seriesidx] );
 	PtrMan<Array2D<float> > tmparr = 0;
-	Array2D<float>* usedarr = &dp2ddh->data();
+	Array2D<float>* usedarr = &dp2d->data();
 
 	if ( alreadyTransformed(attrib) || !datatransform_ )
 	{
@@ -572,13 +552,13 @@ void Seis2DDisplay::setData( int attrib,
 		Array2DReSampler<float,float> resampler(
 				sourcearr2d, *stor, sz0, sz1, true );
 		resampler.setInterpolate( true );
-		TaskRunner::execute( tr, resampler );
+		TaskRunner::execute( 0, resampler );
 	    }
 	}
 
 	channels_->setSize( attrib, 1, sz0, sz1 );
-	channels_->setUnMappedVSData(attrib, seriesidx, stor,
-			ownsstor ? OD::TakeOverPtr : OD::UsePtr, tr);
+	channels_->setUnMappedVSData( attrib, seriesidx, stor,
+			ownsstor ? OD::TakeOverPtr : OD::UsePtr, 0 );
     }
 
     channels_->turnOn( true );
@@ -774,16 +754,21 @@ SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
     s2dd->setTraceNrRange( getTraceNrRange() );
     s2dd->setResolution( getResolution(), tr );
     s2dd->setGeomID( geomid_ );
+    s2dd->setZAxisTransform( datatransform_, tr );
+    s2dd->showPanel( panelstrip_->isOn() );
+
+    while ( nrAttribs() > s2dd->nrAttribs() )
+	s2dd->addAttrib();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( idx )
-	    s2dd->addAttrib();
-
-	s2dd->setSelSpec( idx, *getSelSpec(idx) );
-
-	if ( getCache( idx ) )
-	    s2dd->setData( idx, *getCache( idx ), tr );
+	const Attrib::SelSpec* selspec = getSelSpec( idx );
+	if ( selspec ) s2dd->setSelSpec( idx, *selspec );
+	s2dd->setDataPackID( idx, getDataPackID(idx), tr );
+	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
+	if ( mappersetup ) s2dd->setColTabMapperSetup( idx, *mappersetup, tr );
+	const ColTab::Sequence* colseq = getColTabSequence( idx );
+	if ( colseq ) s2dd->setColTabSequence( idx, *colseq, tr );
     }
 
     return s2dd;
@@ -870,7 +855,9 @@ void Seis2DDisplay::setResolution( int res, TaskRunner* tr )
 	return;
 
     resolution_ = res;
-    updateDataFromCache( tr );
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	updateChannels( idx );
+
     updatePanelStripPath();
     updatePanelStripZRange();
 }
@@ -882,17 +869,13 @@ SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat( int ) const
 
 void Seis2DDisplay::addCache()
 {
-    cache_ += 0;
-    datapackids_ += -1;
+    datapackids_ += DataPack::cNoID();
     dispdatapackids_ += new TypeSet<DataPack::ID>;
 }
 
 
 void Seis2DDisplay::removeCache( int attrib )
 {
-    if ( cache_[attrib] ) cache_[attrib]->unRef();
-    cache_.removeSingle( attrib );
-
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
@@ -905,7 +888,6 @@ void Seis2DDisplay::removeCache( int attrib )
 
 void Seis2DDisplay::swapCache( int a0, int a1 )
 {
-    cache_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
     dispdatapackids_.swap( a0, a1 );
 }
@@ -913,10 +895,6 @@ void Seis2DDisplay::swapCache( int a0, int a1 )
 
 void Seis2DDisplay::emptyCache( int attrib )
 {
-    if ( cache_[attrib] )
-	cache_[attrib]->unRef();
-
-    cache_.replace( attrib, 0 );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
@@ -931,13 +909,8 @@ void Seis2DDisplay::emptyCache( int attrib )
 
 
 bool Seis2DDisplay::hasCache( int attrib ) const
-{ return cache_[attrib] && cache_[attrib]->nrTraces(); }
-
-
-void Seis2DDisplay::updateDataFromCache( TaskRunner* tr )
 {
-    for ( int idx=nrAttribs()-1; idx>=0; idx-- )
-	if ( cache_[idx] ) setData( idx, *cache_[idx], tr );
+    return datapackids_[attrib] != DataPack::cNoID();
 }
 
 
@@ -980,7 +953,7 @@ void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 bool Seis2DDisplay::getCacheValue( int attrib, int version,
 				    const Coord3& pos, float& res ) const
 {
-    if ( attrib>=cache_.size() || !cache_[attrib] )
+    if ( !datapackids_.validIdx(attrib) )
 	return false;
 
     int trcidx = -1;
@@ -988,18 +961,21 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     if ( !getNearestTrace(pos, trcidx, mindist) )
 	return false;
 
+    ConstDataPackRef<Attrib::Flat2DDHDataPack> dp2ddh =
+		DPM(DataPackMgr::FlatID()).obtain( datapackids_[attrib] );
+    if ( !dp2ddh ) return false;
+    const Data2DArray* dataarray = dp2ddh->dataarray();
+    ObjectSet<SeisTrcInfo> trcinfoset = dataarray->trcinfoset_;
     const int trcnr = geometry_.positions()[trcidx].nr_;
-    for ( int idx=0; idx<cache_[attrib]->trcinfoset_.size(); idx++ )
+    for ( int idx=0; idx<trcinfoset.size(); idx++ )
     {
-	if ( cache_[attrib]->trcinfoset_[idx]->nr != trcnr )
+	if ( trcinfoset[idx]->nr != trcnr )
 	    continue;
 
-	const int sampidx =
-	    cache_[attrib]->trcinfoset_[idx]->sampling.nearestIndex( pos.z );
-	if ( cache_[attrib]->dataset_->info().validPos( version, idx, sampidx ))
+	const int sampidx = trcinfoset[idx]->sampling.nearestIndex( pos.z );
+	if ( dataarray->dataset_->info().validPos( version, idx, sampidx ))
 	{
-	    res = cache_[attrib]->dataset_->get( version, idx, sampidx );
-
+	    res = dataarray->dataset_->get( version, idx, sampidx );
 	    //TODO: validSeriesIdx ??
 	    return true;
 	}
@@ -1210,9 +1186,10 @@ void Seis2DDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
     for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
 	createDisplayDataPacks( idx );
-
-    updateDataFromCache( 0 );
+	updateChannels( idx );
+    }
 }
 
 

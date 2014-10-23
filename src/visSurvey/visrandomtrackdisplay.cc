@@ -136,7 +136,6 @@ RandomTrackDisplay::~RandomTrackDisplay()
     removeChild( markerset_->osgNode() );
     markerset_->unRef();
 
-    deepErase( cache_ );
     DataPackMgr& dpm = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpm.release( datapackids_[idx] );
@@ -221,14 +220,8 @@ void RandomTrackDisplay::setResolution( int res, TaskRunner* tr )
 	return;
 
     resolution_ = res;
-
-    for ( int idx=0; idx<cache_.size(); idx++ )
-    {
-	if ( !cache_[idx] || !cache_[idx]->size() )
-	    continue;
-
-	setData( idx, *cache_[idx] );
-    }
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+	updateChannels( idx );
 
     updatePanelStripPath();
     setPanelStripZRange( panelstrip_->getZRange() );
@@ -274,10 +267,7 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 	else
 	{
 	    for ( int idx=0; idx<nrAttribs(); idx++ )
-	    {
-		if ( cache_[idx] )
-		    setData( idx, *cache_[idx] );
-	    }
+		updateChannels( idx );
 	    updatePanelStripPath();
 	}
 
@@ -478,8 +468,8 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     if ( !dprdm )
     {
 	dpman.release( dpid );
-	SeisTrcBuf trcbuf( false );
-	setTraceData( attrib, trcbuf, tr );
+	channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
+	channels_->turnOn( false );
 	return false;
     }
 
@@ -488,8 +478,7 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
     dpman.release( oldid );
 
     createDisplayDataPacks( attrib );
-    SeisTrcBuf tmpbuf( dprdm->seisBuf() );
-    setTraceData( attrib, tmpbuf, tr );
+    updateChannels( attrib );
     return true;
 }
 
@@ -519,22 +508,6 @@ DataPack::ID RandomTrackDisplay::getDisplayedDataPackID( int attrib ) const
     const TypeSet<DataPack::ID>& dpids = *dispdatapackids_[attrib];
     const int curversion = channels_->currentVersion(attrib);
     return dpids.validIdx(curversion) ? dpids[curversion] : DataPack::cNoID();
-}
-
-
-void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf,
-					TaskRunner* )
-{
-    setData( attrib, trcbuf );
-
-    if ( !cache_[attrib] )
-	cache_.replace( attrib, new SeisTrcBuf(false) );
-
-    cache_[attrib]->deepErase();
-    cache_[attrib]->stealTracesFrom( trcbuf );
-
-    //TODO Find other means of reseting ismanip_
-    //ismanip_ = false;
 }
 
 
@@ -573,10 +546,10 @@ bool RandomTrackDisplay::setZAxisTransform( ZAxisTransform* zat, TaskRunner* t )
 void RandomTrackDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
-    for ( int idx=0; idx<cache_.size(); idx++ )
+    for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( cache_[idx] )
-	    setTraceData( idx, *cache_[idx], 0 );
+	createDisplayDataPacks( idx );
+	updateChannels( idx );
     }
 }
 
@@ -594,16 +567,8 @@ void RandomTrackDisplay::updateRanges(bool resetinlcrl, bool resetz )
 }
 
 
-void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
+void RandomTrackDisplay::updateChannels( int attrib )
 {
-    const int nrtrcs = trcbuf.size();
-    if ( !nrtrcs )
-    {
-	channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
-	channels_->turnOn( false );
-	return;
-    }
-
     const TypeSet<DataPack::ID> dpids = *dispdatapackids_[attrib];
     const int nrversions = dpids.size();
     channels_->setNrVersions( attrib, nrversions );
@@ -618,16 +583,16 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	const int sz1 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
 	channels_->setSize( attrib, 1, sz0, sz1 );
 
-	if ( resolution_==0 )
-	    channels_->setUnMappedData(attrib,sidx,array.getData(),
-					OD::CopyPtr,0);
+	if ( resolution_ == 0 )
+	    channels_->setUnMappedData( attrib, sidx, array.getData(),
+					OD::CopyPtr, 0 );
 	else
 	{
 	    mDeclareAndTryAlloc( float*, arr, float[sz0*sz1] );
 	    Array2DReSampler<float,float> resampler( array,arr,sz0,sz1,true );
 	    resampler.setInterpolate( true );
 	    resampler.execute();
-	    channels_->setUnMappedData(attrib,sidx,arr,OD::TakeOverPtr,0);
+	    channels_->setUnMappedData( attrib, sidx, arr, OD::TakeOverPtr, 0 );
 	}
     }
 
@@ -640,6 +605,7 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
     ConstDataPackRef<Attrib::FlatRdmTrcsDataPack>rdmtrcsdp = dpm.obtain( dpid );
+    if ( !rdmtrcsdp ) return;
 
     TypeSet<BinID> path;
     getDataTraceBids( path );
@@ -939,19 +905,6 @@ void RandomTrackDisplay::knotMoved( CallBacker* cb )
 }
 
 
-void RandomTrackDisplay::knotNrChanged( CallBacker* )
-{
-    ismanip_ = true;
-    for ( int idx=0; idx<cache_.size(); idx++ )
-    {
-	if ( !cache_[idx] || !cache_[idx]->size() )
-	    continue;
-
-	setData( idx, *cache_[idx] );
-    }
-}
-
-
 bool RandomTrackDisplay::checkPosition( const BinID& binid ) const
 {
     const TrcKeySampling& hs = SI().sampling(true).hrg;
@@ -1080,14 +1033,27 @@ bool RandomTrackDisplay::isGeometryLocked() const
 SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
 {
     RandomTrackDisplay* rtd = new RandomTrackDisplay;
-
     rtd->setDepthInterval( getDataTraceRange() );
     TypeSet<BinID> positions;
     for ( int idx=0; idx<nrKnots(); idx++ )
 	positions += getKnotPos( idx );
     rtd->setKnotPositions( positions );
-
     rtd->lockGeometry( isGeometryLocked() );
+    rtd->setZAxisTransform( datatransform_, tr );
+
+    while ( nrAttribs() > rtd->nrAttribs() )
+	rtd->addAttrib();
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	const Attrib::SelSpec* selspec = getSelSpec( idx );
+	if ( selspec ) rtd->setSelSpec( idx, *selspec );
+	rtd->setDataPackID( idx, getDataPackID(idx), tr );
+	const ColTab::MapperSetup* mappersetup = getColTabMapperSetup( idx );
+	if ( mappersetup ) rtd->setColTabMapperSetup( idx, *mappersetup, tr );
+	const ColTab::Sequence* colseq = getColTabSequence( idx );
+	if ( colseq ) rtd->setColTabSequence( idx, *colseq, tr );
+    }
 
     return rtd;
 }
@@ -1157,18 +1123,23 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
     { \
 	bid.inl() = reqbid.inl() + step.inl() * (inladd); \
 	bid.crl() = reqbid.crl() + step.crl() * (crladd); \
-	trcidx = cache_[attrib]->find( bid ); \
+	trcidx = seisbuf.find( bid ); \
     }
 
 
 bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 					const Coord3& pos,float& val ) const
 {
-    if ( !cache_[attrib] )
+    if ( !datapackids_.validIdx(attrib) )
 	return false;
 
-    BinID reqbid( SI().transform(pos) );
-    int trcidx = cache_[attrib]->find( reqbid );
+    ConstDataPackRef<Attrib::FlatRdmTrcsDataPack> dprdm =
+		DPM(DataPackMgr::FlatID()).obtain( datapackids_[attrib] );
+    if ( !dprdm ) return false;
+    // TODO: Use version.
+    const SeisTrcBuf& seisbuf = dprdm->seisBuf();
+    const BinID reqbid( SI().transform(pos) );
+    int trcidx = seisbuf.find( reqbid );
     if ( trcidx<0 )
     {
 	const BinID step( SI().inlStep(), SI().crlStep() );
@@ -1183,11 +1154,13 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 
     if ( trcidx<0 ) return false;
 
-    const SeisTrc& trc = *cache_[attrib]->get( trcidx );
-    const int sampidx = trc.nearestSample( (float) pos.z );
-    if ( sampidx>=0 && sampidx<trc.size() )
+    const SeisTrc* trc = seisbuf.get( trcidx );
+    if ( !trc ) return false;
+
+    const int sampidx = trc->nearestSample( (float) pos.z );
+    if ( sampidx>=0 && sampidx<trc->size() )
     {
-	val = trc.get( sampidx, 0 );
+	val = trc->get( sampidx, 0 );
 	return true;
     }
 
@@ -1199,17 +1172,13 @@ bool RandomTrackDisplay::getCacheValue( int attrib,int version,
 
 void RandomTrackDisplay::addCache()
 {
-    cache_.allowNull();
-    cache_ += 0;
-    datapackids_ += -1;
+    datapackids_ += DataPack::cNoID();
     dispdatapackids_ += new TypeSet<DataPack::ID>;
 }
 
 
 void RandomTrackDisplay::removeCache( int attrib )
 {
-    delete cache_.removeSingle( attrib );
-
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.removeSingle( attrib );
 
@@ -1222,7 +1191,6 @@ void RandomTrackDisplay::removeCache( int attrib )
 
 void RandomTrackDisplay::swapCache( int a0, int a1 )
 {
-    cache_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
     dispdatapackids_.swap( a0, a1 );
 }
@@ -1230,9 +1198,6 @@ void RandomTrackDisplay::swapCache( int a0, int a1 )
 
 void RandomTrackDisplay::emptyCache( int attrib )
 {
-    if ( cache_[attrib] ) delete cache_[attrib];
-	cache_.replace( attrib, 0 );
-
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 
@@ -1248,13 +1213,7 @@ void RandomTrackDisplay::emptyCache( int attrib )
 
 bool RandomTrackDisplay::hasCache( int attrib ) const
 {
-    return cache_[attrib];
-}
-
-
-const SeisTrcBuf* RandomTrackDisplay::getCache( int attrib ) const
-{
-    return (attrib<0 || attrib>=cache_.size() ) ? 0 : cache_[attrib];
+    return datapackids_[attrib] != DataPack::cNoID();
 }
 
 

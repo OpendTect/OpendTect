@@ -91,10 +91,6 @@ void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)
 {}
 
 
-void SurveyObject::setTraceData( int, SeisTrcBuf& trcs, TaskRunner* )
-{ trcs.deepErase(); }
-
-
 BufferString SurveyObject::getResolutionName( int res ) const
 {
     if ( res == 0 ) return "Standard";

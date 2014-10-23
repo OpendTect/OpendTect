@@ -79,7 +79,6 @@ public:
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
-    void			setTraceData(int,SeisTrcBuf&,TaskRunner*);
     TypeSet<Coord>		getTrueCoords() const;
 
     bool                        setDataPackID(int attrib,DataPack::ID,
@@ -141,7 +140,6 @@ public:
 
     bool			canBDispOn2DViewer() const	{ return true; }
     TypeSet<BinID>*             getPath()		{ return &trcspath_; }
-    const SeisTrcBuf*		getCache(int attrib) const;
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
     
@@ -178,7 +176,7 @@ protected:
     void			getDataTraceBids(TypeSet<BinID>&,
 	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
-    void			setData( int attrib, const SeisTrcBuf& );
+    void			updateChannels(int attrib);
     void			createDisplayDataPacks(int attrib);
 
     void			setKnotPos(int,const BinID&,bool check);
@@ -187,7 +185,6 @@ protected:
     bool			checkPosition(const BinID&) const;
 
     void			knotMoved(CallBacker*);
-    void			knotNrChanged(CallBacker*);
     void			pickCB(CallBacker*);
     bool			checkValidPick(const visBase::EventInfo&,
 					       const Coord3& pos) const;
@@ -209,7 +206,6 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
 
     ObjectSet<TypeSet<DataPack::ID> >	dispdatapackids_;
-    ObjectSet<SeisTrcBuf>		cache_;
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;
     TypeSet<BinID>		trcspath_;

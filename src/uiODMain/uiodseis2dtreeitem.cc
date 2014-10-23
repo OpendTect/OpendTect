@@ -1001,7 +1001,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     cs.zsamp_.setFrom( s2d->getZRange(alreadytransformed) );
 
     const DataPack::ID dpid =
-	applMgr()->attrServer()->create2DOutput(cs,s2d->getGeomID(),taskrunner);
+	attrserv->create2DOutput( cs, s2d->getGeomID(), taskrunner );
     if ( dpid == DataPack::cNoID() )
 	return false;
 

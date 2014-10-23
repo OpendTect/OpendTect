@@ -1189,9 +1189,9 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 {
     PlaneDataDisplay* pdd = new PlaneDataDisplay();
-
     pdd->setOrientation( orientation_ );
     pdd->setTrcKeyZSampling( getTrcKeyZSampling(false,true,0) );
+    pdd->setZAxisTransform( datatransform_, tr );
 
     while ( nrAttribs() > pdd->nrAttribs() )
 	pdd->addAttrib();

@@ -846,17 +846,6 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 }
 
 
-void uiVisPartServer::setTraceData( int id, int attrib, SeisTrcBuf& data )
-{
-    MouseCursorChanger cursorlock( MouseCursor::Wait );
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so )
-	so->setTraceData( attrib, data, 0 );
-    else
-	data.deepErase();
-}
-
-
 Coord3 uiVisPartServer::getMousePos(bool xyt) const
 { return xyt ? xytmousepos_ : inlcrlmousepos_; }
 

@@ -279,11 +279,10 @@ public:
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
     				{ return Interval<float>(0,0); }
-    virtual void		setTraceData(int attrib,SeisTrcBuf&,
-	    				     TaskRunner*);
-				// Random pos
-				/*!< Every position is put in the DataPointSet
-				  no matter which original patch it belongs to*/
+
+				/*! Random pos: Every position is put in the
+				  DataPointSet no matter which original patch
+				  it belongs to*/
     virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
     virtual void		getRandomPosCache(int attrib,
 	    					  DataPointSet&) const	{}
@@ -324,8 +323,6 @@ public:
     virtual void	 	fillPar(IOPar&) const;
     virtual bool		usePar(const IOPar&);
 
-    //TODO: as for now: vertical viewer is the only one available,
-    //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const	    	{ return false;}
