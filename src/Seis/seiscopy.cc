@@ -90,6 +90,7 @@ bool SeisLineSetCopier::initNextLine()
     seldata_.cubeSampling().zsamp_ = zrgs_[lineidx_];
     seldata_.setGeomID( selgeomids_[lineidx_] );
     rdr_->setSelData( seldata_.clone() );
+    wrr_->setSelData( seldata_.clone() );
     if ( !rdr_->prepareWork() )
 	{ msg_ = rdr_->errMsg(); return false; }
 
