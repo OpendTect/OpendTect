@@ -30,7 +30,7 @@ namespace MPE
 class uiEMHorizonEditorSetting : public uiDialog
 {
 public:
-    		uiEMHorizonEditorSetting( uiParent*, HorizonEditor* );
+		uiEMHorizonEditorSetting( uiParent*, HorizonEditor* );
 
 protected:
     bool	acceptOK(CallBacker*);
@@ -44,8 +44,7 @@ protected:
 
 uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 						    HorizonEditor* he )
-    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings",
-                                   mODHelpKey(mEMHorizonEditorSettingHelpID) ))
+    : uiDialog( p, uiDialog::Setup("Horizon Editor","Settings",mNoHelpKey))
     , editor( he )
 {
     horshapefld = new uiGenInput( this, "Horizontal shape",
@@ -124,7 +123,7 @@ void uiEMHorizonEditor::createNodeMenus(CallBacker* cb)
 void uiEMHorizonEditor::handleNodeMenus(CallBacker* cb)
 {
     uiEMObjectEditor::handleNodeMenus(cb);
-    
+
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( MenuHandler*, menu, caller );
     if ( mnuid==-1 || menu->isHandled() )
@@ -152,7 +151,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
     //const EM::SectionID sid = interactionline.getSection();
 
     mAddMenuItem( menu, &removenodesmnuitem,
-	    	  interactionline.isClosed() ||
+		  interactionline.isClosed() ||
 		  editor->closeInteractionLine(false), false );
     return;
 
@@ -171,7 +170,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	 mainline->getSegment( interactionline.last() )!=-1 )
     {
 	noneonedge = true;
-    
+
 	for ( int idx=1; idx<interactionline.size()-1; idx++ )
 	{
 	    const EM::PosID posid( interactionline.getSurface().id(), sid,
@@ -179,7 +178,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	    if ( surface->geometry.isAtEdge(posid) )
 		noneonedge = false;
 	}
-    
+
 	int dummy;
 	bool dummybool;
 	canstop = canMakeStopLine(*lineset, interactionline, dummy, dummybool);
@@ -230,7 +229,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	part2cut->copyNodesFrom( &interactionlineseg, false );
 
 	EM::EdgeLineSet* lineset2 =
-	    surface.edgelinesets.getEdgeLineSet(newsection,false); 
+	    surface.edgelinesets.getEdgeLineSet(newsection,false);
 	    const int mainlineidx2 = lineset2->getMainLine();
 	EM::EdgeLine* mainline2 = lineset2->getLine(mainlineidx2);
 	if ( !mainline2 )
@@ -258,7 +257,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     }
     */
     if ( mnuid==removenodesmnuitem.id )
-    { 
+    {
 	handled = true;
 
 	if ( !interactionline.isClosed() )
@@ -266,7 +265,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 
 	if ( !interactionline.isClosed() )
 	    return;
-		
+
 	const RowCol step = hor3d->geometry().step();
 	const bool rightturn = interactionline.isHole();
 	EM::PosID pid( hor3d->id() );
@@ -283,10 +282,10 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	}
 
 	TypeSet<EM::PosID> nodestoremove;
-	for ( RowCol rc(start.row(),0); rc.row()<=stop.row(); 
+	for ( RowCol rc(start.row(),0); rc.row()<=stop.row();
              rc.row()+=step.row() )
 	{
-	    for ( rc.col()=start.col(); rc.col()<=stop.col(); 
+	    for ( rc.col()=start.col(); rc.col()<=stop.col();
                  rc.col()+=step.col() )
 	    {
 		pid.setSubID( rc.toInt64() );

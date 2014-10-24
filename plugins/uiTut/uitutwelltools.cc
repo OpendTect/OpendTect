@@ -28,25 +28,24 @@ static const char* rcsID mUsedVar = "$Id$";
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
-	: uiDialog( p, Setup( "Log Smoothing",
-			      "Specify parameters for smoothing",
-			      mODHelpKey(mStorePicksHelpID) ) )
+	: uiDialog(p,Setup("Log Smoothing","Specify parameters for smoothing",
+			   mNoHelpKey))
 	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid))
 {
     if ( !wd_ )
 	return;
     wd_->tobedeleted.notify( mCB(this,uiTutWellTools,wellToBeDeleted) );
-    const Well::LogSet& logs = wd_->logs(); 
+    const Well::LogSet& logs = wd_->logs();
     inplogfld_ = new uiLabeledListBox( this, "Select Input Log" );
     inplogfld_->box()->setHSzPol( uiObject::Wide );
     for ( int idx=0; idx<logs.size(); idx++ )
 	inplogfld_->box()->addItem( logs.getLog(idx).name() );
-    inplogfld_->box()->selectionChanged.notify( 
-	    			mCB(this,uiTutWellTools,inpchg) );
+    inplogfld_->box()->selectionChanged.notify(
+				mCB(this,uiTutWellTools,inpchg) );
 
     outplogfld_ = new uiGenInput( this, "Specify Output Log name",
-	    			StringInpSpec( "" ) );
+				StringInpSpec( "" ) );
     outplogfld_->setElemSzPol( uiObject::Wide );
     outplogfld_->attach( alignedBelow, inplogfld_ );
 
