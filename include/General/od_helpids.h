@@ -99,7 +99,6 @@ ________________________________________________________________________
 #define		mViewer2DMainWindisplayAngleHelpID	        0x05101003
 //Attributes 101
 // Attributes Definition 00
-#define	        mCoherencyAttrib			        0x10100000
 #define		mConvolveAttribHelpID			        0x10100001
 #define		mDipFilterAttribHelpID			        0x10100002
 #define		mEnergyAttribHelpID				0x10100003
@@ -162,7 +161,6 @@ ________________________________________________________________________
 #define		mSeisPreLoadMgrSel2DHelpID			0x10300014
 #define		mSEGYExpdoWorkHelpID			        0x10300015
 #define		mDZTImporterHelpID				0x10300016
-#define		mSeisFmtScaleDlgHelpID			        0x10300017
 #define		mSEGYFileManipHelpID			        0x10300019
 #define		mSEGYBinHdrEdDlgHelpID			        0x10300020
 #define		mSEGYFileManipHdrCalcEdHelpID		        0x10300021
@@ -258,7 +256,6 @@ ________________________________________________________________________
 #define		mExportHorizonHelpID			        0x10400001
 #define		mImportHorAttribHelpID			        0x10400002
 #define		mChangeSurfaceDlgHelpID				0x10400003
-#define		mEMHorizonEditorSettingHelpID		        0x10400004
 #define		mHor3DFrom2DDlgHelpID			        0x10400005
 #define		mArr2DFilterParsDlgHelpID			0x10400007
 #define		mTableImpDataSel3DSurfacesHelpID		0x10400008
@@ -318,7 +315,6 @@ ________________________________________________________________________
 #define		mFetchPicksHelpID				0x10500000
 #define		mImpPickSetHelpID			        0x10500001
 #define		mExpPickSetHelpID			        0x10500002
-#define		mStorePicksHelpID				0x10500003
 #define		mMergePickSetsHelpID			        0x10500004
 #define		mTableImpDataSelpicksHelpID		        0x10500005
 #define		mPickSetManHelpID				0x10500006
