@@ -40,15 +40,9 @@ void uiTabStackDlg::selChange( CallBacker* )
 
 HelpKey uiTabStackDlg::helpKey() const
 {
-    const HelpKey& helpkey = uiDialog::helpKey();
-    if ( !helpkey.isEmpty() )
-	return helpkey;
-
-    mDynamicCastGet( const uiDlgGroup*, grp, tabstack_->currentPage() );
-    if ( grp && !grp->helpKey().isEmpty() )
-	return grp->helpKey();
-
-    return helpkey;
+    mDynamicCastGet(const uiDlgGroup*,grp,tabstack_->currentPage())
+    return grp && !grp->helpKey().isEmpty()
+		? grp->helpKey() : uiDialog::helpKey();
 }
 
 
