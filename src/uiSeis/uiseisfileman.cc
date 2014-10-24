@@ -39,7 +39,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimergeseis.h"
 #include "uiseispsman.h"
 #include "uiseisbrowser.h"
-#include "uiseiscbvsimp.h"
 #include "uiseiscopy.h"
 #include "uiseisioobjinfo.h"
 #include "uiseis2dfileman.h"
@@ -385,21 +384,12 @@ void uiSeisFileMan::copyPush( CallBacker* )
     if ( is2d_ )
     {
 	uiSeisCopyLineSet dlg2d( this, curioobj_ );
-	dlg2d.go();
+	needrefresh = dlg2d.go();
     }
     else
     {
-	mDynamicCastGet(const IOStream*,iostrm,curioobj_)
-	if ( iostrm )
-	{
-	    uiSeisImpCBVS dlg( this, iostrm );
-	    needrefresh = dlg.go();
-	}
-	else
-	{
-	    uiSeisCopyCube dlg( this, curioobj_ );
-	    needrefresh = dlg.go();
-	}
+	uiSeisCopyCube dlg( this, curioobj_ );
+	needrefresh = dlg.go();
     }
 
     if ( needrefresh )

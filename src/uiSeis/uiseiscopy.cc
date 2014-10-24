@@ -14,11 +14,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiscopy.h"
 #include "keystrs.h"
 #include "scaler.h"
+#include "ioman.h"
+#include "zdomain.h"
+#include "seissingtrcproc.h"
 
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "uiseislinesel.h"
+#include "uiseistransf.h"
 #include "uiscaler.h"
+#include "uicombobox.h"
 #include "uitaskrunner.h"
 #include "od_helpids.h"
 
@@ -26,21 +31,81 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
-	: uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mTODOHelpKey))
+    , ismc_(false)
 {
     setCtrlStyle( RunAndClose );
-    new uiLabel( this, "TODO: implement" );
+
+    IOObjContext inctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
+    uiSeisSel::Setup sssu( Seis::Vol );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+
+    inpfld_ = new uiSeisSel( this, inctxt, sssu );
+    inpfld_->selectionDone.notify( mCB(this,uiSeisCopyCube,inpSel) );
+
+    compfld_ = new uiLabeledComboBox( this, tr("Component(s)") );
+    compfld_->attach( alignedBelow, inpfld_ );
+
+    uiSeisTransfer::Setup sts( Seis::Vol );
+    if ( startobj )
+    {
+	inpfld_->setInput( startobj->key() );
+	SeisIOObjInfo oinf( *startobj );
+	sts.zdomkey_ = oinf.zDomainDef().key();
+	if ( sts.zdomkey_ != ZDomain::SI().key() )
+	    inpfld_->setSensitive( false );
+    }
+    sts.withnullfill(true).withstep(true).onlyrange(false).fornewentry(true);
+    transffld_ = new uiSeisTransfer( this, sts );
+    transffld_->attach( alignedBelow, compfld_ );
+
+    IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
+    outfld_ = new uiSeisSel( this, outctxt, sssu );
+    outfld_->attach( alignedBelow, transffld_ );
+
+    postFinalise().notify( mCB(this,uiSeisCopyCube,inpSel) );
 }
 
 
-uiSeisCopyCube::~uiSeisCopyCube()
+void uiSeisCopyCube::inpSel( CallBacker* cb )
 {
+    const IOObj* inioobj = inpfld_->ioobj( true );
+    ismc_ = false;
+    if ( !inioobj )
+	return;
+
+    transffld_->updateFrom( *inioobj );
+
+    SeisIOObjInfo oinf( *inioobj );
+    ismc_ = oinf.isOK() && oinf.nrComponents() > 1;
+    if ( ismc_ )
+    {
+	BufferStringSet cnms; oinf.getComponentNames( cnms );
+	compfld_->box()->setEmpty();
+	compfld_->box()->addItem( "<All>" );
+	compfld_->box()->addItems( cnms );
+    }
+    compfld_->display( ismc_ );
 }
 
 
 bool uiSeisCopyCube::acceptOK( CallBacker* )
 {
-    return true;
+    const IOObj* inioobj = inpfld_->ioobj();
+    if ( !inioobj )
+	return false;
+    const IOObj* outioobj = outfld_->ioobj();
+    if ( !outioobj )
+	return false;
+
+    outioobj->pars().merge( inioobj->pars() );
+    IOM().commitChanges( *outioobj );
+
+    Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", "" );
+    mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
+    SeisCubeCopier copier( stp );
+    uiTaskRunner taskrunner( this );
+    return taskrunner.execute( copier );
 }
 
 
@@ -92,6 +157,6 @@ bool uiSeisCopyLineSet::acceptOK( CallBacker* )
 	return false;
 
     SeisLineSetCopier copier( *inioobj, *outioobj, par );
-    uiTaskRunner dlg( this );
-    return TaskRunner::execute( &dlg, copier );
+    uiTaskRunner taskrunner( this );
+    return taskrunner.execute( copier );;
 }

@@ -52,8 +52,6 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	, modefld_(0)
 	, sstp_(0)
 {
-    setCtrlStyle( RunAndClose );
-
     init( false );
     modeSel(0);
 }
@@ -68,8 +66,6 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	, modefld_(0)
 	, sstp_(0)
 {
-    setCtrlStyle( RunAndClose );
-
     init( true );
     oinpSel(0);
 }
@@ -77,6 +73,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 
 void uiSeisImpCBVS::init( bool fromioobj )
 {
+    setCtrlStyle( RunAndClose );
+
     finpfld_ = 0; modefld_ = typefld_ = 0; oinpfld_ = 0; convertfld_ = 0;
     compfld_ = 0;
     ismc_ = false;

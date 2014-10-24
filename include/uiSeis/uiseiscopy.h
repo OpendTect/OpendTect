@@ -18,6 +18,8 @@ class IOObj;
 class uiSeisSel;
 class uiScaler;
 class uiSeis2DMultiLineSel;
+class uiLabeledComboBox;
+class uiSeisTransfer;
 
 
 /*!\brief UI for copying cubes */
@@ -27,11 +29,17 @@ mExpClass(uiSeis) uiSeisCopyCube : public uiDialog
 public:
 
 			uiSeisCopyCube(uiParent*,const IOObj*);
-			~uiSeisCopyCube();
 
 protected:
 
-    IOObj*		outioobj_;
+    uiSeisSel*		inpfld_;
+    uiLabeledComboBox*	compfld_;
+    uiSeisTransfer*	transffld_;
+    uiSeisSel*		outfld_;
+
+    bool		ismc_;
+
+    void		inpSel(CallBacker*);
 
     bool		acceptOK(CallBacker*);
 

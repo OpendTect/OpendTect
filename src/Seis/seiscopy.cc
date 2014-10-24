@@ -11,20 +11,96 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seistrcprop.h"
+#include "seissingtrcproc.h"
 #include "seisselectionimpl.h"
 #include "scaler.h"
 #include "survgeom.h"
 #include "ioobj.h"
 
+static const uiString sNrTrcsCopied = "Number of traces copied";
+
+
+SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
+				const IOPar& par )
+    : Executor("Copying 3D Cube")
+    , stp_(new SeisSingleTraceProc(&inobj,&outobj,"Cube copier",&par))
+{
+    init();
+}
+
+
+SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp )
+    : Executor("Copying 3D Cube")
+    , stp_(tp)
+{
+    init();
+}
+
+
+void SeisCubeCopier::init()
+{
+    if ( !stp_->reader(0) )
+    {
+	errmsg_ = stp_->uiMessage();
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "Input cube is unreadable";
+	delete stp_; stp_ = 0;
+    }
+    if ( !stp_->writer() )
+    {
+	errmsg_ = stp_->uiMessage();
+	if ( errmsg_.isEmpty() )
+	    errmsg_ = "Cannot write to output cube";
+	delete stp_; stp_ = 0;
+    }
+}
+
+
+SeisCubeCopier::~SeisCubeCopier()
+{
+    delete stp_;
+}
+
+
+uiString SeisCubeCopier::uiNrDoneText() const
+{
+    return sNrTrcsCopied;
+}
+
+
+od_int64 SeisCubeCopier::totalNr() const
+{
+    return stp_ ? stp_->totalNr() : -1;
+}
+
+
+od_int64 SeisCubeCopier::nrDone() const
+{
+    return stp_ ? stp_->nrDone() : 0;
+}
+
+
+uiString SeisCubeCopier::uiMessage() const
+{
+    return stp_ ? stp_->uiMessage() : errmsg_;
+}
+
+
+int SeisCubeCopier::nextStep()
+{
+    return stp_ ? stp_->doStep() : ErrorOccurred();
+}
+
 
 SeisLineSetCopier::SeisLineSetCopier( const IOObj& inobj, const IOObj& outobj,
 			    const IOPar& par )
     : Executor("Copying 2D Seismic Data")
-    , lineidx_(-1)
     , inioobj_(*inobj.clone())
     , outioobj_(*outobj.clone())
-    , rdr_(0),wrr_(0)
+    , rdr_(0)
+    , wrr_(0)
     , seldata_(*new Seis::RangeSelData)
+    , lineidx_(-1)
     , scaler_(0)
     , totalnr_(0)
     , nrdone_(0)
@@ -100,7 +176,7 @@ bool SeisLineSetCopier::initNextLine()
 
 uiString SeisLineSetCopier::uiNrDoneText() const
 {
-    return "Number of traces copied";
+    return sNrTrcsCopied;
 }
 
 

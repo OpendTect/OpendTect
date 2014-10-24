@@ -17,40 +17,40 @@ ________________________________________________________________________
 #include "executor.h"
 
 class IOObj;
+class Scaler;
 class SeisTrcReader;
 class SeisTrcWriter;
-class Scaler;
+class SeisSingleTraceProc;
 namespace Seis { class RangeSelData; }
 
 
-/*!\brief Copies cubes. TODO */
+/*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
+  	to a SeisSingleTraceProc. */
 
 mExpClass(Seis) SeisCubeCopier : public Executor
 {
 public:
 
+				SeisCubeCopier(const IOObj& inobj,
+					    const IOObj& outobj,const IOPar&);
+				SeisCubeCopier(SeisSingleTraceProc*);
+						//!< trcproc becomes mine
+				~SeisCubeCopier();
 
-			SeisCubeCopier(const IOObj& inobj,const IOObj& outobj,
-					const IOPar&);
-
-			~SeisCubeCopier();
-
-    od_int64		totalNr() const		{ return totalnr_; }
-    od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const;
-    int			nextStep();
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
+    uiString			uiMessage() const;
+    uiString			uiNrDoneText() const;
+    int				nextStep();
 
 protected:
 
-    const IOObj&		inioobj_;
-    const IOObj&		outioobj_;
-    SeisTrcReader*		rdr_;
-    SeisTrcWriter*		wrr_;
-    uiString			msg_;
+    SeisSingleTraceProc*	stp_;
+    uiString			errmsg_;
 
-    od_int64			nrdone_;
-    od_int64			totalnr_;
+private:
+
+    void			init();
 
 };
 
