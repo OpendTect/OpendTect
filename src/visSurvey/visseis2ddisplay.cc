@@ -157,6 +157,13 @@ bool Seis2DDisplay::isPolyLineShown() const
 { return polyline_->isOn(); }
 
 
+void Seis2DDisplay::enableAttrib( int attrib, bool yn )
+{
+    MultiTextureSurveyObject::enableAttrib( attrib, yn );
+    geomchanged_.trigger();
+}
+
+
 void Seis2DDisplay::setGeomID( Pos::GeomID geomid )
 {
     geomid_ = geomid;
@@ -443,7 +450,7 @@ void Seis2DDisplay::updateChannels( int attrib )
 		for ( int crlidx=0; crlidx<trcdisplayinfo_.size_; crlidx++ )
 		{
 		    const int trcnr =
-				trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
+			trcdisplayinfo_.alltrcnrs_[crlidx+startidx];
 		    const int trcidx = data2dh.indexOf( trcnr );
 		    const float* trcptr = slice2d.getData();
 		    const ValueSeries<float>* stor = slice2d.getStorage();

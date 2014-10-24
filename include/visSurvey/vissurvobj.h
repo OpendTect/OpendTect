@@ -221,6 +221,7 @@ public:
     virtual void		setAngleFlag(int attrib,bool yn)	{}
     virtual void		enableAttrib(int attrib,bool yn)	{}
     virtual bool		isAttribEnabled(int attrib) const {return true;}
+    bool			isAnyAttribEnabled() const;
     virtual bool		hasSingleColorFallback() const { return false; }
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
 
@@ -353,8 +354,6 @@ public:
 protected:
     				SurveyObject();
 				~SurveyObject();
-
-    bool			isAnyAttribEnabled() const;
 
     void			initAdaptiveMouseCursor(CallBacker* eventcb,
 						int objid,int inplanedragkeys,

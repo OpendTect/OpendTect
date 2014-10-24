@@ -208,7 +208,7 @@ public:
 Horizon2DDisplayUpdater( const Geometry::RowColSurface* rcs,
 		const Horizon2DDisplay::LineRanges* lr,
 		visBase::VertexShape* shape, visBase::PointSet* points,
-		ZAxisTransform* zaxt, const BufferStringSet& linenames, 
+		ZAxisTransform* zaxt, const BufferStringSet& linenames,
 		TypeSet<int>& volumeofinterestids)
     : surf_( rcs )
     , lines_( shape )
@@ -331,6 +331,8 @@ void sendPositions( TypeSet<Coord3>& positions )
 
     if ( positions.size()==1 )
     {
+	if ( !positions[0].isDefined() )
+	    return;
 	points_->addPoint( positions[0] );
     }
     else
@@ -346,6 +348,8 @@ void sendPositions( TypeSet<Coord3>& positions )
 	    for ( int idy=0; idy<nrbendpoints; idy++ )
 	    {
 		const Coord3& pos = positions[ bendpoints[idy] ];
+		if ( !pos.isDefined() )
+		    continue;
 		lines_->getCoordinates()->setPos( crdidx_, pos );
 		indices += crdidx_++;
 	    }
@@ -434,7 +438,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 		    emobject_->sectionGeometry(sid));
     const LineRanges* lrgs = redo ? &linergs : lineranges;
     visBase::PolyLine3D* pl = lines_.validIdx(idx) ? lines_[idx] : 0;
-    
+
     if ( volumeofinterestids_.isEmpty() )
 	volumeofinterestids_.setSize( linenames.size(), -1 );
 
@@ -498,7 +502,8 @@ void Horizon2DDisplay::updateLinesOnSections(
 		    continue;
 	    }
 
-	    if ( !seis2dlist[idx]->isPanelShown() )
+	    if ( !seis2dlist[idx]->isPanelShown() ||
+		 !seis2dlist[idx]->isAnyAttribEnabled() )
 		trcrg = Interval<int>::udf();
 
 	    linergs.trcrgs[lnidx] += trcrg;
