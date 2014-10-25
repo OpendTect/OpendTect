@@ -50,7 +50,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uisegyread.h"
 #include "uisegyresortdlg.h"
 #include "uisegysip.h"
-#include "uiseiscbvsimp.h"
+#include "uiseisimportcbvs.h"
 #include "uiseiscbvsimpfromothersurv.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
@@ -112,7 +112,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
     if ( opt == 0 )
-	dlg = new uiSeisImpCBVS( parent() );
+	dlg = new uiSeisImportCBVS( parent() );
     else if ( opt == 9 )
 	dlg = new uiSeisImpCBVSFromOtherSurveyDlg( parent() );
     else if ( opt < 5 )

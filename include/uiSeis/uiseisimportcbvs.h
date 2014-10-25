@@ -1,5 +1,5 @@
-#ifndef uiseiscbvsimp_h
-#define uiseiscbvsimp_h
+#ifndef uiseisimportcbvs_h
+#define uiseisimportcbvs_h
 /*+
 ________________________________________________________________________
 
@@ -24,12 +24,12 @@ class uiLabeledComboBox;
 
 /*!\brief Imports or links to a CBVS file */
 
-mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
-{ mODTextTranslationClass(uiSeisImpCBVS);
+mExpClass(uiSeis) uiSeisImportCBVS : public uiDialog
+{ mODTextTranslationClass(uiSeisImportCBVS);
 public:
 
-			uiSeisImpCBVS(uiParent*);
-			~uiSeisImpCBVS();
+			uiSeisImportCBVS(uiParent*);
+			~uiSeisImportCBVS();
 
     const IOObj*	newIOObj() const	{ return outioobj_; }
 

@@ -37,11 +37,11 @@ SET(OD_MODULE_SOURCES
 	uiseis2dto3d.cc
 	uiseisbayesclass.cc
 	uiseisbrowser.cc
-	uiseiscbvsimp.cc
 	uiseiscbvsimpfromothersurv.cc
 	uiseiscopy.cc
 	uiseisfileman.cc
 	uiseisfmtscale.cc
+	uiseisimportcbvs.cc
 	uiseisioobjinfo.cc
 	uiseisiosimple.cc
 	uiseislinesel.cc

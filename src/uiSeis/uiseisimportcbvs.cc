@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-#include "uiseiscbvsimp.h"
+#include "uiseisimportcbvs.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"
@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
+uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
     : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
 		       mODHelpKey(mSeisImpCBVSHelpID) ))
     , outioobj_(0)
@@ -50,7 +50,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
     uiFileInput::Setup fisu( uiFileDialog::Gen );
     fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
     inpfld_ = new uiFileInput( this, "(First) CBVS file name", fisu );
-    inpfld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,inpSel) );
+    inpfld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
 
     StringListInpSpec spec;
     spec.addString( "Input data cube" );
@@ -58,13 +58,13 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
     spec.addString( "Steering cube" );
     typefld_ = new uiGenInput( this, tr("Cube type"), spec );
     typefld_->attach( alignedBelow, inpfld_ );
-    typefld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,typeChg) );
+    typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
 
     modefld_ = new uiGenInput( this, tr("Import mode"),
 			       BoolInpSpec( false, tr("Copy the data"),
 						   tr("Use in-place") ) );
     modefld_->attach( alignedBelow, typefld_ );
-    modefld_->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
+    modefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
 
     uiSeisTransfer::Setup sts( Seis::Vol );
     sts.withnullfill(false).withstep(true).onlyrange(false)
@@ -81,18 +81,18 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 
-    postFinalise().notify( mCB(this,uiSeisImpCBVS,typeChg) );
-    postFinalise().notify( mCB(this,uiSeisImpCBVS,modeSel) );
+    postFinalise().notify( mCB(this,uiSeisImportCBVS,typeChg) );
+    postFinalise().notify( mCB(this,uiSeisImportCBVS,modeSel) );
 }
 
 
-uiSeisImpCBVS::~uiSeisImpCBVS()
+uiSeisImportCBVS::~uiSeisImportCBVS()
 {
     delete outioobj_;
 }
 
 
-IOObj* uiSeisImpCBVS::getInpIOObj( const char* inp ) const
+IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
 {
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( mTranslGroupName(SeisTrc) );
@@ -103,19 +103,19 @@ IOObj* uiSeisImpCBVS::getInpIOObj( const char* inp ) const
 }
 
 
-void uiSeisImpCBVS::modeSel( CallBacker* )
+void uiSeisImportCBVS::modeSel( CallBacker* )
 {
     transffld_->display( modefld_->getBoolValue() );
 }
 
 
-void uiSeisImpCBVS::typeChg( CallBacker* )
+void uiSeisImportCBVS::typeChg( CallBacker* )
 {
     transffld_->setSteering( typefld_->getIntValue() == 2 );
 }
 
 
-void uiSeisImpCBVS::inpSel( CallBacker* )
+void uiSeisImportCBVS::inpSel( CallBacker* )
 {
     BufferString inp = inpfld_->text();
     if ( inp.isEmpty() )
@@ -138,7 +138,7 @@ void uiSeisImpCBVS::inpSel( CallBacker* )
 
 #define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
 
-bool uiSeisImpCBVS::acceptOK( CallBacker* )
+bool uiSeisImportCBVS::acceptOK( CallBacker* )
 {
     const IOObj* selioobj = outfld_->ioobj();
     if ( !selioobj )
