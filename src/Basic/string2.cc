@@ -127,6 +127,19 @@ static void cleanupMantissa( char* ptrdot, char* ptrend )
 }
 
 
+static bool isZeroInt( const char* start, const char* end )
+{
+    while ( start != end )
+    {
+	if ( *start != '0' && *start != '-' && *start != '+' )
+	    return false;
+	else
+	    start++;
+    }
+    return true;
+}
+
+
 static int findUglyRoundOff( char* str )
 {
     char* ptrdot = firstOcc( str, '.' );
@@ -141,29 +154,53 @@ static int findUglyRoundOff( char* str )
 	    ptrend = ptrdot + FixedString(ptrdot).size();
     }
 
-    const int matchstrsz = 3; // length of below "000" and "999" strings
-    if ( ptrend - ptrdot < matchstrsz )
-	return -1;
+    char* decstartptr = ptrdot + 1;
+    if ( isZeroInt(str,ptrdot) )
+    {
+	while ( *decstartptr && *decstartptr == '0' )
+	    decstartptr++;
+	if ( !*decstartptr )
+	    return -1;
+    }
 
-    char* ptr = ptrdot + 1;
-    while ( *ptr == '0' )
-	ptr++;
-    if ( !*ptr || ptrend - ptr < matchstrsz )
-	return -1;
-
-    ptr++;
-    char* hit = firstOcc( ptr, "000" );
+    char* hit = firstOcc( decstartptr, "000" );
     if ( !hit )
     {
-	hit = firstOcc( ptr, "999" );
+	hit = firstOcc( decstartptr, "999" );
 	if ( !hit )
 	    return -1;
     }
+
+    if ( hit > ptrend )
+	return -1;
 
     int nrdec = int( hit - ptrdot );
     if ( *hit == '9' ) nrdec--;
     if ( nrdec < 0 ) nrdec = 0;
     return nrdec;
+}
+
+
+static void enforceNrDecimals( char* str, int nrdec )
+{
+    char* ptrdot = firstOcc( str, '.' );
+    if ( !ptrdot )
+	return; // huh?
+
+    char* ptrend = firstOcc( ptrdot, 'e' );
+    if ( !ptrend )
+    {
+	ptrend = firstOcc( ptrdot, 'E' );
+	if ( !ptrend )
+	    ptrend = ptrdot + FixedString(ptrdot).size();
+    }
+
+    int actualnrdec = ptrend - (ptrdot + 1);
+    while ( actualnrdec > nrdec )
+    {
+	rmSingleCharFromString( ptrdot + 1 + nrdec );
+	actualnrdec--;
+    }
 }
 
 
@@ -251,6 +288,7 @@ static const char* getStringFromFPNumber( T inpval )
     {
 	const BufferString newfmt( "%.", nrdec, fmtend );
 	sprintf( isneg ? str+1 : str, newfmt.buf(), val );
+	enforceNrDecimals( str, nrdec );
     }
 
     finalCleanupNumberString( str );
