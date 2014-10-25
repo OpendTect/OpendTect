@@ -47,16 +47,16 @@ public:
     virtual		~SeisSingleTraceProc();
 
     void		skipCurTrc()		{ skipcurtrc_ = true; }
-    			//!< will also be checked after processing CB
+			//!< will also be checked after processing CB
 
     const SeisTrcReader* reader(int idx=0) const
-    			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
+			{ return rdrset_.size()>idx ? rdrset_[idx] : 0; }
     const SeisTrcWriter* writer() const		 { return wrr_; }
     SeisTrc&		getTrace()		 { return *worktrc_; }
     const SeisTrc&	getInputTrace()		 { return intrc_; }
 
     void		setTracesPerStep( int n ) { trcsperstep_ = n; }
-    			//!< default is 10
+			//!< default is 10
 
     uiString		uiMessage() const;
     uiString		uiNrDoneText() const;
@@ -69,7 +69,7 @@ public:
     void		setTotalNrIfUnknown( int nr )
 			{ if ( totnr_ < 0 ) totnr_ = nr; }
     void		setScaler(Scaler*);
-    			//!< Scaler becomes mine.
+			//!< Scaler becomes mine.
     void		setResampler(SeisResampler*);
     void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
     void		fillNullTraces( bool yn=true )	{ fillnull_ = yn; }
@@ -78,8 +78,10 @@ public:
 				 const IOPar*,const char*);
     void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
 
-    Notifier<SeisSingleTraceProc>		traceselected_;
-    Notifier<SeisSingleTraceProc>		proctobedone_;
+    Notifier<SeisSingleTraceProc> traceselected_;
+    Notifier<SeisSingleTraceProc> proctobedone_;
+
+    const Scaler*	scaler() const		{ return scaler_; }
 
 protected:
 
@@ -103,7 +105,7 @@ protected:
     bool		is3d_;
     bool		fillnull_;
     BinID		fillbid_;
-    TrcKeySampling		fillhs_;
+    TrcKeySampling	fillhs_;
     SeisTrc*		filltrc_;
     bool		extendtrctosi_;
 

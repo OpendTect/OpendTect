@@ -25,15 +25,17 @@ namespace Seis { class RangeSelData; }
 
 
 /*!\brief Copies cubes. The IOPar constructor wants an IOPar as you would pass
-  	to a SeisSingleTraceProc. */
+	to a SeisSingleTraceProc. */
 
 mExpClass(Seis) SeisCubeCopier : public Executor
 {
 public:
 
 				SeisCubeCopier(const IOObj& inobj,
-					    const IOObj& outobj,const IOPar&);
-				SeisCubeCopier(SeisSingleTraceProc*);
+					    const IOObj& outobj,const IOPar&,
+					    int compnr=-1);
+				SeisCubeCopier(SeisSingleTraceProc*,
+						int compnr=-1);
 						//!< trcproc becomes mine
 				~SeisCubeCopier();
 
@@ -47,6 +49,10 @@ protected:
 
     SeisSingleTraceProc*	stp_;
     uiString			errmsg_;
+    int				compnr_;
+    int				veltype_;
+
+    void			doProc(CallBacker*);
 
 private:
 

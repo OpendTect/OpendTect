@@ -16,22 +16,47 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "survgeom.h"
 #include "ioobj.h"
+#include "veldesc.h"
+#include "velocitycalc.h"
 
 static const uiString sNrTrcsCopied = "Number of traces copied";
 
 
+#define mNoVelocity 0
+#define mVelocityIntv 1
+#define mVelocityRMS 2
+#define mVelocityAvg 3
+
+
+static int getVelType( const IOPar& iop )
+{
+    if ( !iop.isTrue(VelocityDesc::sKeyIsVelocity()) )
+	return mNoVelocity;
+
+    const FixedString typestr = iop.find( VelocityDesc::sKeyVelocityType() );
+    if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::RMS] )
+	return mVelocityRMS;
+    else if ( typestr == VelocityDesc::TypeNames()[VelocityDesc::Avg] )
+	return mVelocityAvg;
+
+    return mVelocityIntv;
+}
+
+
 SeisCubeCopier::SeisCubeCopier( const IOObj& inobj, const IOObj& outobj,
-				const IOPar& par )
+				const IOPar& par, int compnr )
     : Executor("Copying 3D Cube")
     , stp_(new SeisSingleTraceProc(&inobj,&outobj,"Cube copier",&par))
+    , compnr_(compnr)
 {
     init();
 }
 
 
-SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp )
+SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp, int compnr )
     : Executor("Copying 3D Cube")
     , stp_(tp)
+    , compnr_(compnr)
 {
     init();
 }
@@ -39,6 +64,14 @@ SeisCubeCopier::SeisCubeCopier( SeisSingleTraceProc* tp )
 
 void SeisCubeCopier::init()
 {
+    veltype_ = mNoVelocity;
+    if ( !stp_ )
+	return;
+
+    const SeisTrcWriter* wrr = stp_->writer();
+    if ( wrr && wrr->ioObj() )
+	veltype_ = getVelType( wrr->ioObj()->pars() );
+
     if ( !stp_->reader(0) )
     {
 	errmsg_ = stp_->uiMessage();
@@ -53,6 +86,9 @@ void SeisCubeCopier::init()
 	    errmsg_ = "Cannot write to output cube";
 	delete stp_; stp_ = 0;
     }
+
+    if ( stp_ && (compnr_>=0 || veltype_>0) )
+	stp_->proctobedone_.notify( mCB(this,SeisCubeCopier,doProc) );
 }
 
 
@@ -89,6 +125,64 @@ uiString SeisCubeCopier::uiMessage() const
 int SeisCubeCopier::nextStep()
 {
     return stp_ ? stp_->doStep() : ErrorOccurred();
+}
+
+
+void SeisCubeCopier::doProc( CallBacker* )
+{
+    SeisTrc& trc = stp_->getTrace();
+    const int trcsz = trc.size();
+
+    if ( veltype_ > 0 )
+    {
+	mAllocVarLenArr( float, vout, trcsz );
+	if ( !mIsVarLenArrOK(vout) )
+	    return;
+
+	const SeisTrc& intrc = stp_->getInputTrace();
+	TypeSet<float> timevals;
+	const int sizein = intrc.size();
+	const SamplingData<float>& sdin = intrc.info().sampling;
+	for ( int idx=0; idx<sizein; idx++ )
+	    timevals += sdin.atIndex( idx );
+
+	const int nrcomps = trc.nrComponents();
+	const SamplingData<double> sdout = trc.info().sampling;
+	const float* tin = timevals.arr();
+	const Scaler* scaler = stp_->scaler();
+
+	for ( int icomp=0; icomp<nrcomps; icomp++ )
+	{
+	    TypeSet<float> trcvals;
+	    for ( int idx=0; idx<sizein; idx++ )
+		trcvals += intrc.get( idx, icomp );
+
+	    const float* vin = trcvals.arr();
+	    if ( veltype_ == mVelocityIntv )
+		sampleVint( vin, tin, sizein, sdout, vout, trcsz );
+	    else if ( veltype_ == mVelocityRMS )
+		sampleVrms( vin, 0, 0, tin, sizein, sdout, vout, trcsz );
+	    else if ( veltype_ == mVelocityAvg )
+		sampleVavg( vin, tin, sizein, sdout, vout, trcsz );
+
+	    for ( int idx=0; idx<trcsz; idx++ )
+	    {
+		float trcval = vout[idx];
+		if ( scaler )
+		    trcval = (float)scaler->scale( trcval );
+		trc.set( idx, trcval, icomp );
+	    }
+	}
+    }
+
+    if ( compnr_ >= 0 )
+    {
+	SeisTrc tmp( trc );
+	while ( trc.nrComponents() > 1 )
+	    trc.data().delComponent( 0 );
+	for ( int idx=0; idx<trcsz; idx++ )
+	    trc.set( idx, tmp.get(idx,compnr_), 0 );
+    }
 }
 
 

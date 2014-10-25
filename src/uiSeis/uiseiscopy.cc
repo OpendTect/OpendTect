@@ -101,9 +101,10 @@ bool uiSeisCopyCube::acceptOK( CallBacker* )
     outioobj->pars().merge( inioobj->pars() );
     IOM().commitChanges( *outioobj );
 
+    int compnr = ismc_ ? compfld_->box()->currentItem()-1 : -1;
     Executor* exec = transffld_->getTrcProc( *inioobj, *outioobj, "", "" );
     mDynamicCastGet(SeisSingleTraceProc*,stp,exec)
-    SeisCubeCopier copier( stp );
+    SeisCubeCopier copier( stp, compnr );
     uiTaskRunner taskrunner( this );
     return taskrunner.execute( copier );
 }

@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class IOObj;
-class SeisSingleTraceProc;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
@@ -23,50 +22,36 @@ class uiSeisSel;
 class uiSeisTransfer;
 class uiLabeledComboBox;
 
-/*!\brief Actually imports or just transfers data through selection */
+/*!\brief Imports or links to a CBVS file */
 
 mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
 { mODTextTranslationClass(uiSeisImpCBVS);
 public:
 
-			uiSeisImpCBVS(uiParent*);		//!< From file
-			uiSeisImpCBVS(uiParent*,const IOObj*);	//!< From entry
+			uiSeisImpCBVS(uiParent*);
 			~uiSeisImpCBVS();
+
+    const IOObj*	newIOObj() const	{ return outioobj_; }
 
 protected:
 
-    IOObj*		initialinpioobj_;
     IOObj*		outioobj_;
-    BufferString	tmpid_;
+    const BufferString	tmpid_;
 
     uiGenInput*		typefld_;
     uiGenInput*		modefld_;
-    uiCheckBox*		convertfld_;
     uiSeisTransfer*	transffld_;
-    uiFileInput*	finpfld_;
-    uiSeisSel*		oinpfld_;
+    uiFileInput*	inpfld_;
     uiSeisSel*		outfld_;
-    uiLabeledComboBox*	compfld_;
 
-    void		finpSel(CallBacker*);
-    void		oinpSel(CallBacker*);
+    void		inpSel(CallBacker*);
     void		modeSel(CallBacker*);
     void		typeChg(CallBacker*);
-    void		convertSel(CallBacker*);
 
-    IOObj*		getfInpIOObj(const char*) const;
-    void		getOutputName(BufferString&) const;
+    IOObj*		getInpIOObj(const char*) const;
 
     bool		acceptOK(CallBacker*);
     void		procToBeDoneCB(CallBacker*);
-
-    SeisSingleTraceProc* sstp_;
-
-    bool		ismc_;
-
-private:
-
-    void		init(bool);
 
 };
 
