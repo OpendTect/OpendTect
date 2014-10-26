@@ -1,5 +1,5 @@
-#ifndef mathfunc_H
-#define mathfunc_H
+#ifndef mathfunc_h
+#define mathfunc_h
 
 /*+
 ________________________________________________________________________
@@ -40,7 +40,7 @@ template <class RT,class PT>
 mClass(Algo) MathFunctionND
 {
 public:
-    virtual	~MathFunctionND() {}
+    virtual		~MathFunctionND() {}
 
     virtual RT		getNDValue(const PT*) const		= 0;
     virtual int		getNrDim() const 			= 0;

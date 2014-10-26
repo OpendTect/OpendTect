@@ -174,7 +174,4 @@ protected:
     Coord			center_;
 };
 
-
-
 #endif
-

@@ -130,6 +130,4 @@ T AxisLayout<T>::findEnd( T datastop ) const
     return sd_.start + (rev ? -wdth : wdth);
 }
 
-
 #endif
-

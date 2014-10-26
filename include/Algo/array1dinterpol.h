@@ -26,32 +26,31 @@ template <class T> class Array1D;
 mExpClass(Algo) Array1DInterpol : public Executor
 {
 public:
-    virtual			~Array1DInterpol();
+    virtual		~Array1DInterpol();
 
-    void			setMaxGapSize(float);
-    float			getMaxGapSize() const;
+    void		setMaxGapSize(float);
+    float		getMaxGapSize() const;
 
-    void			setArray(Array1D<float>&);
+    void		setArray(Array1D<float>&);
 
-    od_int64			nrDone() const 		{ return nrdone_; }
-    od_int64			nrIterations() const;
-    void			setExtrapol( bool yn )
-				{ doextrapol_ = yn; }
-    void			setFillWithExtremes( bool yn )
-				{ fillwithextremes_ = yn; }
-    void			reset();
+    od_int64		nrDone() const 		{ return nrdone_; }
+    od_int64		nrIterations() const;
+    void		setExtrapol( bool yn )	{ doextrapol_ = yn; }
+    void		setFillWithExtremes( bool yn )
+			{ fillwithextremes_ = yn; }
+    void		reset();
 
 protected:
-				Array1DInterpol();
-    uiString			uiNrDoneText() const
-    				{ return "Points interpolated "; }
+			Array1DInterpol();
+    uiString		uiNrDoneText() const
+    			{ return "Points interpolated "; }
+
     Array1D<float>*	arr_;
     bool		arrstarted_;
     bool		doextrapol_;
     bool		fillwithextremes_; //extrapolate with last valid values
     int			maxgapsize_;
     unsigned int	nrdone_;
-
 };
 
 
@@ -62,10 +61,10 @@ protected:
 mExpClass(Algo) LinearArray1DInterpol : public Array1DInterpol
 {
 public:
-    				LinearArray1DInterpol();
+    			LinearArray1DInterpol();
 protected:
-    int				nextStep();
-    void			extrapolate(bool start);
+    int			nextStep();
+    void		extrapolate(bool start);
 };
 
 
@@ -76,13 +75,11 @@ protected:
 mExpClass(Algo) PolyArray1DInterpol : public Array1DInterpol
 {
 public:
-    				PolyArray1DInterpol();
+    			PolyArray1DInterpol();
 protected:
-    int				nextStep();
-    bool			getPositions(int pos,TypeSet<float>& posidxs);
-    void			extrapolate(bool start);
+    int			nextStep();
+    bool		getPositions(int pos,TypeSet<float>& posidxs);
+    void		extrapolate(bool start);
 };
 
-
 #endif
-

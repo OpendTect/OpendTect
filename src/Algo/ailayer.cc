@@ -85,6 +85,18 @@ float getLayerDepth( const AIModel& mod, int layer )
 }
 
 
+// ElasticLayer
+ElasticLayer::ElasticLayer( float thkness, float pvel, float svel, float den )
+    : AILayer(thkness,pvel,den)
+    , svel_(svel)
+{}
+
+
+ElasticLayer::ElasticLayer( const AILayer& ailayer )
+    : AILayer(ailayer)
+    , svel_(mUdf(float))
+{}
+
 
 ElasticLayer::ElasticLayer( float thkness, float ai, float si, float den,
 			    bool needcompthkness )

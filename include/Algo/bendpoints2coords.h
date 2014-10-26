@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Bert
  Date:		Dec 2009
- RCS:		$Id: bendpoints2coords.h 32104 2013-10-23 20:11:53Z kristofer.tingdahl@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 */
@@ -31,7 +31,6 @@ ________________________________________________________________________
 mExpClass(Algo) BendPoints2Coords
 {
 public:
-
     			BendPoints2Coords(const TypeSet<Coord>&,
 					  const int* ids=0);
 			BendPoints2Coords(od_istream&); //!< 'table' file
@@ -52,6 +51,4 @@ protected:
     void		getIndexes(float,Interval<int>&) const;
 };
 
-
 #endif
-

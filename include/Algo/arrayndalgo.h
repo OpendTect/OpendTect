@@ -347,8 +347,8 @@ protected:
 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
-		      float p0, float p1, float p2,
-		      bool posperiodic = false )
+			     float p0, float p1, float p2,
+			     bool posperiodic = false )
 {
     const Array3DInfo& size = array.info();
     int intpos0 = mNINT32( p0 );
@@ -511,13 +511,12 @@ inline T Array3DInterpolate( const Array3D<T>& array,
             array.get( lastpos0  , lastpos1   , nextpos2  ),
             array.get( lastpos0  , lastpos1   , lastpos2  ),
 	    dist0, dist1, dist2 );
-} 
+}
 
 
 template <class T>
 inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
-		   const TypeSet<int>& copypos,
-		   bool srcperiodic=false )
+			 const TypeSet<int>& copypos, bool srcperiodic=false )
 {
     const ArrayNDInfo& destsz = dest.info(); 
     const ArrayNDInfo& srcsz = src.info(); 
@@ -551,13 +550,12 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
     } while ( destposition.next() );
 
     return true;
-}    
+}
 
 
 template <class T>
 inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
-		   int p0, int p1, int p2,
-		   bool srcperiodic=false )
+			 int p0, int p1, int p2, bool srcperiodic=false )
 {
     const ArrayNDInfo& destsz = dest.info(); 
     const ArrayNDInfo& srcsz = src.info(); 
@@ -598,10 +596,11 @@ inline bool Array3DCopy( Array3D<T>& dest, const Array3D<T>& src,
     return true;
 }    
 
+
 template <class T>
 inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
-		   const TypeSet<int>& pastepos,
-		   bool destperiodic=false )
+			  const TypeSet<int>& pastepos,
+			  bool destperiodic=false )
 {
     const ArrayNDInfo& destsz = dest.info(); 
     const ArrayNDInfo& srcsz = src.info(); 
@@ -642,7 +641,7 @@ inline bool ArrayNDPaste( ArrayND<T>& dest, const ArrayND<T>& src,
 
 template <class T>
 inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
-		   int p0, int p1, bool destperiodic=false )
+			  int p0, int p1, bool destperiodic=false )
 {
     const ArrayNDInfo& destsz = dest.info(); 
     const ArrayNDInfo& srcsz = src.info(); 
@@ -680,8 +679,8 @@ inline bool Array2DPaste( Array2D<T>& dest, const Array2D<T>& src,
 
 template <class T>
 inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
-		   int p0, int p1, int p2,
-		   bool destperiodic=false )
+			  int p0, int p1, int p2,
+			  bool destperiodic=false )
 {
     const ArrayNDInfo& destsz = dest.info(); 
     const ArrayNDInfo& srcsz = src.info(); 
@@ -722,6 +721,4 @@ inline bool Array3DPaste( Array3D<T>& dest, const Array3D<T>& src,
     return true;
 }
 
-
 #endif
-

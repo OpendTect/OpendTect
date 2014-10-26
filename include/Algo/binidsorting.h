@@ -25,7 +25,7 @@ ________________________________________________________________________
 */
 
 mExpClass(Algo) BinIDSorting
-{ mODTextTranslationClass(BinIDSorting);
+{ mODTextTranslationClass(BinIDSorting)
 public:
     			BinIDSorting( bool is2d )
 			    : is2d_(is2d), state_(0)	{}
@@ -66,7 +66,7 @@ protected:
 */
 
 mExpClass(Algo) BinIDSortingAnalyser
-{ mODTextTranslationClass(BinIDSortingAnalyser);
+{ mODTextTranslationClass(BinIDSortingAnalyser)
 public:
     			BinIDSortingAnalyser(bool is2d);
 
@@ -86,6 +86,4 @@ protected:
 
 };
 
-
 #endif
-

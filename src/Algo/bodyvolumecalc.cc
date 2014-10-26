@@ -39,6 +39,10 @@ od_int64 BodyVolumeCalculator::nrIterations() const
 { return arr_.info().getSize(2)-1; }
 
 
+uiString BodyVolumeCalculator::uiMessage() const
+{ return tr("Computing volume"); }
+
+
 bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( mIsUdf(unitvol_) || mIsUdf(threshold_) )
@@ -164,4 +168,3 @@ bool BodyVolumeCalculator::doWork( od_int64 start, od_int64 stop, int threadid )
     volsum_ += unitvol_*nrunits;
     return true;
 }
-

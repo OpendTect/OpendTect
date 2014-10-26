@@ -316,5 +316,4 @@ inline bool Array2DMatrix<fT>::getCholesky( Array2DMatrix& out ) const
     return true;
 }
 
-
 #endif

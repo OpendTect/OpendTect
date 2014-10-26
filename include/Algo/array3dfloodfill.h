@@ -1,7 +1,6 @@
 #ifndef array3dfloodfill_h
 #define array3dfloodfill_h
 
-
 /*+
 ________________________________________________________________________
 
@@ -54,10 +53,10 @@ public:
     void		setOutsideValue(T val);
 			/*!<If udf, uDf(T) will be set. Must be set if use
 			    Marchingcubes. */
-    void		setInsideValue(T val)	{ insideval_ = val; }
+    void		setInsideValue( T val )		{ insideval_ = val; }
 			/*!<If udf, input value will be used. */
-    void		useInputValue(bool yn)	{ useinputval_ = yn; }
-    void		use6Neighbors(bool yn)	{ use6neighbors_ = yn; }
+    void		useInputValue( bool yn )	{ useinputval_ = yn; }
+    void		use6Neighbors( bool yn )	{ use6neighbors_ = yn; }
 			/*<The true, we use 6 neighbors, otherwise, use 26. */
 
     void		addSeed(int,int,int);
@@ -66,7 +65,6 @@ public:
 
     int			maxNrThreads() const	{ return compartments_.size(); }
     od_int64		nrIterations() const{return input_.info().getTotalSz();}
-
 
 protected:
 
@@ -125,23 +123,23 @@ protected:
 template <class T> inline
 Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 				       bool max, Array3D<T>& output )
-    : input_( input )
-    , output_( output )
-    , threshold_( threshold )
-    , aboveisovalue_( max )
-    , insideval_( mUdf(T) )
-    , use6neighbors_( true )
-    , useinputval_( true )
-    , sz0_( input.info().getSize(0) )
-    , sz1_( input.info().getSize(1) )
-    , sz2_( input.info().getSize(2) )
-    , isdefined_( 0 )
-    , nrcomp0_( 0 )
-    , nrcomp1_( 0 )
-    , nrcomp2_( 0 )
-    , compsz0_( 0 )
-    , compsz1_( 0 )
-    , compsz2_( 0 )
+    : input_(input)
+    , output_(output)
+    , threshold_(threshold)
+    , aboveisovalue_(max)
+    , insideval_(mUdf(T))
+    , use6neighbors_(true)
+    , useinputval_(true)
+    , sz0_(input.info().getSize(0))
+    , sz1_(input.info().getSize(1))
+    , sz2_(input.info().getSize(2))
+    , isdefined_(0)
+    , nrcomp0_(0)
+    , nrcomp1_(0)
+    , nrcomp2_(0)
+    , compsz0_(0)
+    , compsz1_(0)
+    , compsz2_(0)
 {
     isdefined_ = new Array3DImpl<bool>( sz0_, sz1_, sz2_ );
     OD::memZero( isdefined_->getData(), sizeof(bool)*sz0_*sz1_*sz2_ );
@@ -356,6 +354,5 @@ bool Array3DFloodfill<T>::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
-
 
 #endif

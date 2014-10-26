@@ -64,7 +64,7 @@ public:
     virtual uiString		infoMsg() const		{ return 0; }
 
     mExpClass(Algo) ArrayAccess
-    { mODTextTranslationClass(ArrayAccess);
+    {
     public:
 	virtual			~ArrayAccess()				{}
 	virtual void		set(od_int64 target, const od_int64* sources,
@@ -97,6 +97,7 @@ public:
 
 protected:
 		Array2DInterpol();
+
     bool	doPrepare(int);
     void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
 			       TaskRunner*) const;
@@ -122,17 +123,17 @@ protected:
 		    from shouldinterpol. */
 
 
-    Array2D<float>*	arr_;
-    ArrayAccess*	arrsetter_;
-    float		rowstep_;
-    float		colstep_;
-    int			nrrows_;
-    int			nrcols_;
-    int			nrcells_;
-    RowCol		origin_;
+    Array2D<float>*		arr_;
+    ArrayAccess*		arrsetter_;
+    float			rowstep_;
+    float			colstep_;
+    int				nrrows_;
+    int				nrcols_;
+    int				nrcells_;
+    RowCol			origin_;
 
-    FillType		filltype_;
-    float		maxholesize_;
+    FillType			filltype_;
+    float			maxholesize_;
 
     const Array2D<bool>*	mask_;
     bool			maskismine_;
@@ -140,6 +141,4 @@ protected:
     Stats::CalcSetup*		statsetup_;
 };
 
-
 #endif
-

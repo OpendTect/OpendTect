@@ -13,10 +13,11 @@ ________________________________________________________________________
 @$
 */
 
-#include "math.h"
-#include "string.h"
 #include "arrayndimpl.h"
 #include "typeset.h"
+
+#include <math.h>
+
 #define TINY 1.0e-20
 
 /*!
@@ -29,19 +30,19 @@ template <class T>
 mClass(Algo) LinSolver
 {
 public:
-    				LinSolver( const Array2D<T>& A );
-    				~LinSolver( );
+				LinSolver(const Array2D<T>& A);
+    				~LinSolver();
     
-    bool			ready() const { return ready_; }
-    int				size() const { return n; }
+    bool			ready() const	{ return ready_; }
+    int				size() const	{ return n_; }
 
-    void			apply( const T* b, T* x ) const;
+    void			apply(const T* b,T* x) const;
 
 protected:
-    Array2DImpl<T>		croutsmatrix;
-    int*			croutsidx;
-    int				n;
-    bool			parity;
+    Array2DImpl<T>		croutsmatrix_;
+    int*			croutsidx_;
+    int				n_;
+    bool			parity_;
     bool			ready_;
 
 }; 
@@ -49,25 +50,25 @@ protected:
 
 template <class T> inline
 LinSolver<T>::LinSolver( const Array2D<T>& A )
-    : croutsmatrix ( A )
-    , croutsidx ( new int[A.info().getSize(0)] )
-    , n ( A.info().getSize(0) )
-    , ready_( false )
-    , parity( true )
+    : croutsmatrix_(A)
+    , croutsidx_(new int[A.info().getSize(0)])
+    , n_(A.info().getSize(0))
+    , ready_(false)
+    , parity_(true)
 {
     if ( A.info().getSize(0) != A.info().getSize(1) )
 	return;
 
     int imax = mUdf(int);
 
-    TypeSet<T> vv( n, 0 );
+    TypeSet<T> vv( n_, 0 );
 
-    for ( int i=0; i<n; i++ )
+    for ( int i=0; i<n_; i++ )
     {
 	T big=0;
-	for ( int j=0; j<n; j++ )
+	for ( int j=0; j<n_; j++ )
 	{
-	    T temp = fabs( croutsmatrix.get(i,j) );
+	    T temp = fabs( croutsmatrix_.get(i,j) );
 	    if ( temp > big)
 		big=temp;
 	}
@@ -81,27 +82,27 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 	vv[i]=1.0f/big;
     }
 
-    for ( int j=0; j<n; j++)
+    for ( int j=0; j<n_; j++)
     {
 	for (int i=0; i<j; i++ )
 	{
-	    T sum=croutsmatrix.get(i,j);
+	    T sum=croutsmatrix_.get(i,j);
 	    for ( int k=0; k<i; k++ )
-		sum -=  croutsmatrix.get(i,k) * croutsmatrix.get(k,j);
+		sum -=  croutsmatrix_.get(i,k) * croutsmatrix_.get(k,j);
 
-	    croutsmatrix.set(i,j,sum);
+	    croutsmatrix_.set(i,j,sum);
 	}
 
 	T big=0.0;
-	for ( int i=j; i<n; i++ )
+	for ( int i=j; i<n_; i++ )
 	{
-	    T sum=croutsmatrix.get(i,j);
+	    T sum=croutsmatrix_.get(i,j);
 	    for ( int k=0; k<j; k++ )
 	    {
-		sum -=  croutsmatrix.get(i,k)*croutsmatrix.get(k,j);
+		sum -=  croutsmatrix_.get(i,k)*croutsmatrix_.get(k,j);
 	    }
 
-	    croutsmatrix.set(i,j,sum);
+	    croutsmatrix_.set(i,j,sum);
 
 	    T dum = vv[i]*fabs(sum);
 
@@ -115,28 +116,28 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 
 	if ( j != imax )
 	{
-	    for ( int k=0; k<n; k++ )
+	    for ( int k=0; k<n_; k++ )
 	    {
-		T dum=croutsmatrix.get(imax,k);
-		croutsmatrix.set(imax,k,croutsmatrix.get(j,k));
-		croutsmatrix.set(j,k,dum);
+		T dum=croutsmatrix_.get(imax,k);
+		croutsmatrix_.set(imax,k,croutsmatrix_.get(j,k));
+		croutsmatrix_.set(j,k,dum);
 	    }
 
-	    parity = !parity;
+	    parity_ = !parity_;
 	    vv[imax]=vv[j];
 	}
 
-	croutsidx[j]=imax;
+	croutsidx_[j]=imax;
 
-	if ( mIsZero(croutsmatrix.get(j,j),mDefEps) )
-	    croutsmatrix.set(j,j,TINY);
+	if ( mIsZero(croutsmatrix_.get(j,j),mDefEps) )
+	    croutsmatrix_.set(j,j,TINY);
 
-	if ( j != n-1 )
+	if ( j != n_-1 )
 	{
-	    T dum=1.0f/(croutsmatrix.get(j,j));
+	    T dum=1.0f/(croutsmatrix_.get(j,j));
 
-	    for ( int i=j+1; i<n; i++ )
-		croutsmatrix.set(i,j,dum * croutsmatrix.get(i,j));
+	    for ( int i=j+1; i<n_; i++ )
+		croutsmatrix_.set(i,j,dum * croutsmatrix_.get(i,j));
 	}
     }
 
@@ -150,21 +151,21 @@ LinSolver<T>::LinSolver( const Array2D<T>& A )
 template <class T> inline
 LinSolver<T>::~LinSolver( )
 {   
-    delete [] croutsidx;
+    delete [] croutsidx_;
 }
 
 
 template <class T> inline
 void LinSolver<T>::apply( const T* b, T* x ) const
 {
-    for ( int idx=0; idx<n; idx++ )
+    for ( int idx=0; idx<n_; idx++ )
 	x[idx] = b[idx];
 
     int ii=-1;
     
-    for ( int i=0; i<n; i++ )
+    for ( int i=0; i<n_; i++ )
     {
-	int ip=croutsidx[i];
+	int ip=croutsidx_[i];
 	T sum=x[ip];
 	x[ip]=x[i];
 
@@ -172,7 +173,7 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 	{
 	    for ( int j=ii; j<=i-1; j++ )
 	    {
-		sum -= croutsmatrix.get(i,j)*x[j];
+		sum -= croutsmatrix_.get(i,j)*x[j];
 	    }
 	}
 	else if ( !mIsZero(sum,mDefEps) )
@@ -181,13 +182,13 @@ void LinSolver<T>::apply( const T* b, T* x ) const
 	x[i]=sum;
     }
 
-    for ( int i=n-1; i>=0; i-- )
+    for ( int i=n_-1; i>=0; i-- )
     {
 	T sum=x[i];
-	for ( int j=i+1; j<n; j++ )
-	    sum -= croutsmatrix.get(i,j)*x[j];
+	for ( int j=i+1; j<n_; j++ )
+	    sum -= croutsmatrix_.get(i,j)*x[j];
 
-	x[i]=sum/croutsmatrix.get(i,i);
+	x[i]=sum/croutsmatrix_.get(i,i);
     }
 
 }

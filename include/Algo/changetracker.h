@@ -26,15 +26,15 @@ mClass(Algo) ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )
-			: chgd(c), chgid(0)		{}
+			: chgd_(c), chgid_(0)		{}
 			ChangeTracker( bool& c )
-			: chgd(&c), chgid(0)		{}
+			: chgd_(&c), chgid_(0)		{}
 			ChangeTracker( unsigned int& c )
-			: chgid(&c), chgd(0)		{}
+			: chgid_(&c), chgd_(0)		{}
 			ChangeTracker( unsigned int* c )
-			: chgid(c), chgd(0)		{}
+			: chgid_(c), chgd_(0)		{}
 			ChangeTracker( bool& c, unsigned int& ci )
-			: chgd(&c), chgid(&ci)		{}
+			: chgd_(&c), chgid_(&ci)	{}
 
 			//! returns wether this value is changed
     template <class T,class U>
@@ -47,29 +47,29 @@ public:
     inline bool		set(const char*&,const char*&);
 
     bool		isChanged() const
-			{ return chgd ? *chgd : (bool)(chgid ? *chgid : 0); }
+			{ return chgd_ ? *chgd_ : (bool)(chgid_ ? *chgid_ : 0);}
     unsigned int	changeId() const
-			{ return chgid ? *chgid : (chgd ? (*chgd?1:0) : 0); }
+			{ return chgid_ ? *chgid_ : (chgd_ ? (*chgd_?1:0) : 0);}
     inline void		setChanged(bool yn=true);
     void		setChangeId( unsigned int c )
-			{ if ( chgid ) *chgid = c; }
+			{ if ( chgid_ ) *chgid_ = c; }
 
-    bool		hasBoolVar() const		{ return chgd; }
-    bool		hasIntVar() const		{ return chgid; }
-    const bool&		boolVar() const			{ return *chgd; }
+    bool		hasBoolVar() const		{ return chgd_; }
+    bool		hasIntVar() const		{ return chgid_; }
+    const bool&		boolVar() const			{ return *chgd_; }
 			//!< Don't call if !hasBoolVar()
-    const unsigned int&	intVar() const			{ return *chgid; }
+    const unsigned int&	intVar() const			{ return *chgid_; }
 			//!< Don't call if !hasIntVar()
 
-    void		setVar( bool* m )		{ chgd = m; }
-    void		setVar( bool& m )		{ chgd = &m; }
-    void		setVar( unsigned int* m )	{ chgid = m; }
-    void		setVar( unsigned int& m )	{ chgid = &m; }
+    void		setVar( bool* m )		{ chgd_ = m; }
+    void		setVar( bool& m )		{ chgd_ = &m; }
+    void		setVar( unsigned int* m )	{ chgid_ = m; }
+    void		setVar( unsigned int& m )	{ chgid_ = &m; }
 
 protected:
 
-    bool*		chgd;
-    unsigned int*	chgid;
+    bool*		chgd_;
+    unsigned int*	chgid_;
 
 };
 
@@ -92,10 +92,10 @@ protected:
 
 inline void ChangeTracker::setChanged( bool ischgd )
 {
-    if ( chgd )
-	{ if ( !*chgd ) *chgd = ischgd; }
-    else if ( chgid )
-	{ if ( ischgd ) (*chgid)++; }
+    if ( chgd_ )
+	{ if ( !*chgd_ ) *chgd_ = ischgd; }
+    else if ( chgid_ )
+	{ if ( ischgd ) (*chgid_)++; }
 }
 
 
