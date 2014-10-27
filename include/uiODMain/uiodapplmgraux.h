@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 class DataPointSet;
 class IOObj;
