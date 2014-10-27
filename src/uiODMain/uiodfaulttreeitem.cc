@@ -684,6 +684,19 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     uiODAttribTreeItem::createMenu( menu, istb );
     if ( istb ) return;
 
+    bool enablefaultdata = false;
+#ifdef __debug__
+    enablefaultdata = true;
+#endif
+    if ( !enablefaultdata )
+    {
+	mResetMenuItem( &loadsurfacedatamnuitem_ );
+	mResetMenuItem( &depthattribmnuitem_ );
+	mResetMenuItem( &savesurfacedatamnuitem_ );
+	mResetMenuItem( &algomnuitem_ );
+	return;
+    }
+
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     const bool islocked = visserv->isLocked( displayID() );
@@ -697,18 +710,16 @@ void uiODFaultSurfaceDataTreeItem::createMenu( MenuHandler* menu, bool istb )
     itmtxt += nrsurfdata; itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
 
-    //TODO: enable menus when they are ready
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 	    false && !islocked && nrsurfdata>0, false );
 
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 	    as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() );
 
-    /*TODO: save surfacedata
     const bool enabsave = changed_ ||
-	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
-	 as->id()!=Attrib::SelSpec::cAttribNotSel() );
-    mAddMenuItem( menu, &savesurfacedatamnuitem_, false && enabsave, false );*/
+	    (as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
+	     as->id()!=Attrib::SelSpec::cAttribNotSel() );
+    mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, false, false );
 }
 
