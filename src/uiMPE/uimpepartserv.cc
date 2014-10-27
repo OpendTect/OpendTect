@@ -261,7 +261,7 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 	{
 	    seedpicker->blockSeedPick( true );
 	    uiMSG().error( tr("Tracking Setup has different attribute"
-			   " than your seeds") );
+			      " than your seeds") );
 	    return;
 	}
 
@@ -391,8 +391,8 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 
     if ( !seedhasbeenpicked_ )
     {
-	BufferString str( "No seeds have been picked. "
-			  "Do you want to continue with horizon tracking?" );
+	uiString str = tr("No seeds have been picked. "
+			  "Do you want to continue with horizon tracking?");
 	const bool res = uiMSG().askContinue( str );
 	if ( !res )
 	{
@@ -1260,10 +1260,11 @@ void uiMPEPartServer::saveUnsaveEMObject()
 
 	if ( EM::EMM().getMultiID(objid).isEmpty() )
 	{
-	    BufferString msg = EM::EMM().getObject(objid)->getTypeStr();
-	    msg.add( " " ).add( EM::EMM().getObject( objid )->name() );
-	    msg += " is not saved.\n Click 'Save' to save ";
-	    msg += " to disk or\n click 'Remove' to remove permanently. ";
+	    uiString msg = tr("%1 is not saved.\n Click 'Save' to save %2"
+			      " to disk or\n click 'Remove' to remove "
+			      "permanently. ")
+			 .arg(EM::EMM().getObject(objid)->getTypeStr())
+			 .arg(EM::EMM().getObject( objid )->name());
 
 	    if ( uiMSG().askGoOn(msg, uiStrings::sSave(true), 
                                  uiStrings::sRemove(true)) )

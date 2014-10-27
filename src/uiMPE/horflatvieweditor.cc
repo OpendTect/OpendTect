@@ -326,8 +326,8 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	      (spk.getSeedConnectMode()!=spk.DrawBetweenSeeds) )
 	{
 	    uiMSG().error( tr("Saved setup has different attribute. \n"
-			   "Either change setup attribute or change\n"
-			   "display attribute you want to track on") );
+			      "Either change setup attribute or change\n"
+			      "display attribute you want to track on") );
 	    return false;
 	}
     }
@@ -339,18 +339,16 @@ bool HorizonFlatViewEditor::checkSanity( EMTracker& tracker,
 	    pickinvd = false;
 	else if ( spk.getSeedConnectMode() !=spk.DrawBetweenSeeds )
 	{
-	    BufferString warnmsg( "Setup suggests tracking is done on " );
-	    if ( vdselspec_ && pickinvd )
-		warnmsg += vdselspec_->userRef();
-	    else if ( wvaselspec_ && !pickinvd )
-		warnmsg += wvaselspec_->userRef();
-	    warnmsg += "\n but what you see is ";
-	    warnmsg += newatsel.userRef();
-	    warnmsg += ".\n\n To continue seeds picking either\n";
-	    warnmsg += "change displayed attribute or\n";
-	    warnmsg += "change input data in Tracking Setup";
+	  uiString warnmsg = tr("Setup suggests tracking is done on %1\n"
+				"but what you see is %2.\n\n"
+				"To continue seeds picking either\n"
+				"change displayed attribute or\n"
+				"change input data in Tracking Setup")
+			   .arg(vdselspec_ && pickinvd ? vdselspec_->userRef()
+						       : wvaselspec_->userRef())
+			   .arg(newatsel.userRef());
 
-	    uiMSG().error( warnmsg.buf() );
+	    uiMSG().error( warnmsg );
 	    return false;
 	}
     }

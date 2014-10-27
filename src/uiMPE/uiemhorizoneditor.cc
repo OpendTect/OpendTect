@@ -28,7 +28,7 @@ namespace MPE
 
 
 class uiEMHorizonEditorSetting : public uiDialog
-{
+{ mODTextTranslationClass(uiEMHorizonEditorSetting);
 public:
     		uiEMHorizonEditorSetting( uiParent*, HorizonEditor* );
 
@@ -73,9 +73,8 @@ bool uiEMHorizonEditorSetting::acceptOK(CallBacker*)
     const Interval<int> range( 0,25 );
     if ( !range.includes(rc.row(),false) || !range.includes(rc.col(),false) )
     {
-	BufferString msg = "Allowed size is 0 to ";
-	msg += range.stop;
-	msg += ".";
+	uiString msg = tr("Allowed size is 0 to %1.")
+		     .arg(range.stop);
 	uiMSG().error(msg);
 	return false;
     }
