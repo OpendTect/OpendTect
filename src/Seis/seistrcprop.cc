@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "simpnumer.h"
 #include "timeser.h"
+#include "scaler.h"
 #include <math.h>
 #include <float.h>
 
@@ -130,6 +131,12 @@ mEndCompLoop
 
 void SeisTrcPropChg::scale( float fac, float shft )
 {
+    return scale( LinScaler(fac,shft) );
+}
+
+
+void SeisTrcPropChg::scale( const Scaler& sclr )
+{
     mChkSize();
 
 mStartCompLoop
@@ -140,7 +147,7 @@ mStartCompLoop
 	if ( mIsUdf(val) )
 	    continue;
 
-	mtrc().set( idx, shft + fac * val, icomp );
+	mtrc().set( idx, (float)sclr.scale(val), icomp );
     }
 
 mEndCompLoop

@@ -39,8 +39,10 @@ SET(OD_MODULE_SOURCES
 	uiseisbrowser.cc
 	uiseiscbvsimp.cc
 	uiseiscbvsimpfromothersurv.cc
+	uiseiscopy.cc
 	uiseisfileman.cc
 	uiseisfmtscale.cc
+	uiseisimportcbvs.cc
 	uiseisioobjinfo.cc
 	uiseisiosimple.cc
 	uiseislinesel.cc

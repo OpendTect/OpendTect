@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "valseriesevent.h"
 class SeisTrc;
+class Scaler;
 #define mFlValSerEv ValueSeriesEvent<float,float>
+
 
 /*!\brief calculates properties of a trace component */
 
@@ -46,6 +48,7 @@ protected:
 
 };
 
+
 /*!\brief changes properties of one or all trace components.
   Component -1 (the default) changes all components.
  */
@@ -58,6 +61,7 @@ public:
 
     void	stack(const SeisTrc&,bool alongref=false,float wght=1);
     void	scale(float fac,float shft=0);
+    void	scale(const Scaler&);
     void	normalize(bool aroundzero);
     void	corrNormalize();
     void	removeDC();

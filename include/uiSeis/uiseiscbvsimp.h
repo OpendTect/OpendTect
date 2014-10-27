@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "uiseiscopy.h"
 
 class IOObj;
 class SeisSingleTraceProc;
@@ -25,7 +26,9 @@ class uiSeisTransfer;
 class uiSeis2DMultiLineSel;
 class uiLabeledComboBox;
 
-/*!\brief Actually imports or just transfers data through selection */
+/*!\brief DEPRECATED: will disappear after 5.0. Use either uiSeisCopyCube or
+  uiSeisImportCBVS instead. */
+
 
 mExpClass(uiSeis) uiSeisImpCBVS : public uiDialog
 {
@@ -73,23 +76,4 @@ private:
 };
 
 
-mExpClass(uiSeis) uiSeisCopyLineSet : public uiDialog
-{
-public:
-			uiSeisCopyLineSet(uiParent*,const IOObj*);
-
-protected:
-
-    uiSeisSel*		inpfld_;
-    uiSeis2DMultiLineSel* subselfld_;
-    uiScaler*		scalefld_;
-    uiSeisSel*		outpfld_;
-
-    void		inpSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
-};
-
-
 #endif
-

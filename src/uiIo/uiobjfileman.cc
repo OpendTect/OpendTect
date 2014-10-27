@@ -284,11 +284,11 @@ BufferString uiObjFileMan::getFileInfo()
 
     const bool isdir = File::isDirectory( curioobj_->fullUserExpr() );
     mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
-	if ( !conn && !isdir )
+    if ( !conn && !isdir )
     {
 	const BufferString conntyp( curioobj_->connType() );
 	if ( conntyp != StreamConn::sType() )
-	    txt.add( "From " ).add( conntyp ).add( " data store." );
+	    txt.add( "Data from: " ).add( conntyp );
 	else
 	    txt = "<empty>";
 	txt += "\n\n";

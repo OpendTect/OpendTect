@@ -1,0 +1,222 @@
+/*+
+________________________________________________________________________
+
+ (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
+ Author:	Bert Bril
+ Date:		Jun 2002
+________________________________________________________________________
+
+-*/
+static const char* rcsID mUsedVar = "$Id$";
+
+#include "uiseisimportcbvs.h"
+
+#include "ctxtioobj.h"
+#include "ioman.h"
+#include "iostrm.h"
+#include "keystrs.h"
+#include "oddirs.h"
+#include "ptrman.h"
+#include "seisread.h"
+#include "seiscbvs.h"
+#include "seisselection.h"
+#include "seissingtrcproc.h"
+#include "seistrc.h"
+#include "survinfo.h"
+#include "veldesc.h"
+#include "velocitycalc.h"
+#include "zdomain.h"
+#include "filepath.h"
+
+#include "uicombobox.h"
+#include "uifileinput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uiseisioobjinfo.h"
+#include "uiseissel.h"
+#include "uiseistransf.h"
+#include "uitaskrunner.h"
+#include "od_helpids.h"
+
+
+uiSeisImportCBVS::uiSeisImportCBVS( uiParent* p )
+    : uiDialog(p,Setup(tr("Import CBVS cube"),mNoDlgTitle,
+		       mODHelpKey(mSeisImpCBVSHelpID) ))
+    , outioobj_(0)
+    , tmpid_("100010.",IOObj::tmpID())
+{
+    setCtrlStyle( RunAndClose );
+
+    uiFileInput::Setup fisu( uiFileDialog::Gen );
+    fisu.filter("CBVS (*.cbvs)").defseldir( GetBaseDataDir() );
+    inpfld_ = new uiFileInput( this, "(First) CBVS file name", fisu );
+    inpfld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,inpSel) );
+
+    StringListInpSpec spec;
+    spec.addString( "Input data cube" );
+    spec.addString( "Generated attribute cube" );
+    spec.addString( "Steering cube" );
+    typefld_ = new uiGenInput( this, tr("Cube type"), spec );
+    typefld_->attach( alignedBelow, inpfld_ );
+    typefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,typeChg) );
+
+    modefld_ = new uiGenInput( this, tr("Import mode"),
+			       BoolInpSpec( false, tr("Copy the data"),
+						   tr("Use in-place") ) );
+    modefld_->attach( alignedBelow, typefld_ );
+    modefld_->valuechanged.notify( mCB(this,uiSeisImportCBVS,modeSel) );
+
+    uiSeisTransfer::Setup sts( Seis::Vol );
+    sts.withnullfill(false).withstep(true).onlyrange(false)
+				.fornewentry(true);
+    transffld_ = new uiSeisTransfer( this, sts );
+    transffld_->attach( alignedBelow, modefld_ );
+
+    uiSeisSel::Setup sssu( Seis::Vol );
+    sssu.steerpol( uiSeisSel::Setup::InclSteer );
+    sssu.enabotherdomain( true );
+    IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
+    outctxt.fixTranslator( CBVSSeisTrcTranslator::translKey() );
+    IOM().to( outctxt.getSelKey() );
+    outfld_ = new uiSeisSel( this, outctxt, sssu );
+    outfld_->attach( alignedBelow, transffld_ );
+
+    postFinalise().notify( mCB(this,uiSeisImportCBVS,typeChg) );
+    postFinalise().notify( mCB(this,uiSeisImportCBVS,modeSel) );
+}
+
+
+uiSeisImportCBVS::~uiSeisImportCBVS()
+{
+    delete outioobj_;
+}
+
+
+IOObj* uiSeisImportCBVS::getInpIOObj( const char* inp ) const
+{
+    IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
+    iostrm->setGroup( mTranslGroupName(SeisTrc) );
+    iostrm->setTranslator( CBVSSeisTrcTranslator::translKey() );
+    iostrm->setDirName( "Seismics" );
+    iostrm->setFileName( inp );
+    return iostrm;
+}
+
+
+void uiSeisImportCBVS::modeSel( CallBacker* )
+{
+    transffld_->display( modefld_->getBoolValue() );
+}
+
+
+void uiSeisImportCBVS::typeChg( CallBacker* )
+{
+    transffld_->setSteering( typefld_->getIntValue() == 2 );
+}
+
+
+void uiSeisImportCBVS::inpSel( CallBacker* )
+{
+    BufferString inp = inpfld_->text();
+    if ( inp.isEmpty() )
+	return;
+
+    if ( !File::isEmpty(inp) )
+    {
+	PtrMan<IOObj> ioobj = getInpIOObj( inp );
+	transffld_->updateFrom( *ioobj );
+    }
+
+    FilePath fp( inp );
+    fp.setExtension( 0 );
+    inp = fp.fileName();
+    inp.replace( '_', ' ' );
+
+    outfld_->setInputText( inp );
+}
+
+
+#define rmTmpIOObj() IOM().permRemove( MultiID(tmpid_.buf()) );
+
+bool uiSeisImportCBVS::acceptOK( CallBacker* )
+{
+    const IOObj* selioobj = outfld_->ioobj();
+    if ( !selioobj )
+	return false;
+
+    outioobj_ = selioobj->clone();
+    mDynamicCastGet(IOStream*,iostrm,outioobj_);
+    const bool dolink = modefld_ && !modefld_->getBoolValue();
+
+    BufferString fname = inpfld_->text();
+    if ( !fname.str() )
+    {
+	uiMSG().error( tr("Please select the input filename") );
+	return false;
+    }
+
+    if ( dolink )
+    {
+	if ( iostrm )
+	{
+		// Check if it's under the survey dir, then make path relative
+	    FilePath inputfile( fname );
+	    inputfile.makeCanonical();
+	    FilePath seismicsdir( iostrm->fullDirName() );
+	    seismicsdir.makeCanonical();
+	    if ( inputfile.makeRelativeTo( seismicsdir ) )
+		fname = inputfile.fullPath();
+	}
+    }
+
+    const int seltyp = typefld_->getIntValue();
+    if ( seltyp == 0 )
+	outioobj_->pars().removeWithKey( "Type" );
+    else
+	outioobj_->pars().set( sKey::Type(), seltyp == 1 ?
+				    sKey::Attribute() : sKey::Steering() );
+
+    outioobj_->setTranslator( CBVSSeisTrcTranslator::translKey() );
+    PtrMan<IOObj> inioobj = 0;
+    if ( dolink )
+	iostrm->setFileName( fname );
+    else
+    {
+	inioobj = getInpIOObj( fname );
+	if ( !IOM().commitChanges(*inioobj) )
+	{
+	    uiMSG().error( tr("Cannot add entry to object manager (input)") );
+	    return false;
+	}
+    }
+
+    if ( !IOM().commitChanges(*outioobj_) )
+    {
+	uiMSG().error( tr("Cannot add entry to object manager"
+			  "\nSee log file for details") );
+	return false;
+    }
+
+    if ( dolink )
+    {
+	uiMSG().message( tr("Import successful") );
+	return false;
+    }
+
+    uiSeisIOObjInfo ioobjinfo( *outioobj_, true );
+    if ( !ioobjinfo.checkSpaceLeft(transffld_->spaceInfo()) )
+	{ rmTmpIOObj(); return false; }
+
+    PtrMan<Executor> exec = transffld_->getTrcProc( *inioobj,
+		    *outioobj_, "Importing CBVS seismic cube", "Loading data" );
+    if ( !exec )
+	{ rmTmpIOObj(); return false; }
+
+    uiTaskRunner dlg( this );
+    const bool allok = dlg.execute( *exec ) ;
+    if ( allok && !ioobjinfo.is2D() )
+	ioobjinfo.provideUserInfo();
+
+    rmTmpIOObj();
+    return allok;
+}
