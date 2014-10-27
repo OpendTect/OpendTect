@@ -186,7 +186,7 @@ void uiFaultStickTransferDlg::colorModeChg( CallBacker* )
 
 
 class FaultStickTransferUndoEvent : public UndoEvent
-{
+{ mODTextTranslationClass(FaultStickTransferUndoEvent);
 public:
     FaultStickTransferUndoEvent( bool copy, bool saved )
 	: copy_( copy )
@@ -199,7 +199,7 @@ public:
     bool unDo()
     {
 	if ( saved_ )
-	    uiMSG().message( "Will not undo saving the output file!" );
+	    uiMSG().message( tr("Will not undo saving the output file!") );
 	return true;
     }
 
@@ -241,10 +241,10 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     , curemid_(-1)
 {
     toolbar_ = new uiToolBar( &appl_, "Fault stick control",uiToolBar::Bottom);
-    editbutidx_ = toolbar_->addButton( "editsticks", "Edit sticks",
+    editbutidx_ = toolbar_->addButton( "editsticks", tr("Edit sticks"),
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
-    selbutidx_ = toolbar_->addButton( "selectsticks", "Select sticks",
+    selbutidx_ = toolbar_->addButton( "selectsticks", tr("Select sticks"),
 				mCB(this,uiODFaultToolMan,editSelectToggleCB),
 				true );
     toolbar_->addSeparator();
@@ -301,26 +301,26 @@ uiODFaultToolMan::uiODFaultToolMan( uiODMain& appl )
     outputselbut_ = new uiPushButton( toolbar_, uiStrings::sSelect(true),
 				mCB(this,uiODFaultToolMan,selectOutputCB),
 				false );
-    outputselbut_->setToolTip( "Select output" );
+    outputselbut_->setToolTip( tr("Select output") );
     toolbar_->addObject( outputselbut_ );
 
-    colorbut_ = new uiToolButton( toolbar_, "empty", "Output color",
+    colorbut_ = new uiToolButton( toolbar_, "empty", tr("Output color"),
 				mCB(this,uiODFaultToolMan,colorPressedCB) );
     colorbut_->setToolTip( colorbut_->name() );
     toolbar_->addObject( colorbut_ );
 
-    settingsbutidx_ = toolbar_->addButton( "tools", "More transfer settings",
+    settingsbutidx_ = toolbar_->addButton("tools", tr("More transfer settings"),
 				mCB(this,uiODFaultToolMan,settingsToggleCB),
 				true );
 
-    gobutidx_ = toolbar_->addButton( "gobutton", "Transfer selected sticks",
+    gobutidx_ = toolbar_->addButton( "gobutton", tr("Transfer selected sticks"),
 				mCB(this,uiODFaultToolMan,transferSticksCB),
 				false );
 
     toolbar_->addSeparator();
 
     removalbutidx_ = toolbar_->addButton( "removesticks",
-				"Remove selected sticks",
+				tr("Remove selected sticks"),
 				mCB(this,uiODFaultToolMan,stickRemovalCB),
 				false );
     toolbar_->addSeparator();
@@ -798,7 +798,7 @@ void uiODFaultToolMan::colorPressedCB( CallBacker* cb )
 
 void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 {
-    colorbut_->setToolTip( "Output color [user-defined]" );
+    colorbut_->setToolTip( tr("Output color [user-defined]") );
 
     if ( cb )
     {
@@ -809,7 +809,7 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
     else if ( randomColor() )
     {
 	colorbutcolor_ = randomcolor_;
-	colorbut_->setToolTip( "Output color [random]" );
+	colorbut_->setToolTip( tr("Output color [random]") );
     }
     else
     {
@@ -836,9 +836,9 @@ void uiODFaultToolMan::outputColorChg( CallBacker* cb )
 		if ( emobj || iopar.get(sKey::Color(),curcolor) )
 		{
 		    colorbutcolor_ = curcolor;
-		    colorbut_->setToolTip( currentColor() ?
-					   "Output color [current]" :
-					   "Output color [predecessor]" );
+		    colorbut_->setToolTip( 
+			currentColor() ? tr("Output color [current]")
+				       : tr("Output color [predecessor]") );
 		}
 	    }
 	}
@@ -923,7 +923,7 @@ void uiODFaultToolMan::stickRemovalCB( CallBacker* )
 
     if ( !srcfault->geometry().nrSelectedSticks() )
     {
-	uiMSG().error( "No selected fault stick(s) to remove" );
+	uiMSG().error( tr("No selected fault stick(s) to remove") );
 	return;
     }
 
@@ -949,7 +949,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
     const int oldnrselected = srcfault->geometry().nrSelectedSticks();
     if ( !oldnrselected )
     {
-	uiMSG().error( "No selected fault stick(s) to transfer" );
+	uiMSG().error( tr("No selected fault stick(s) to transfer") );
 	return;
     }
 
@@ -966,12 +966,12 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     if ( destfault == srcfault )
     {
-	uiMSG().error( "No use to transfer selected sticks to myself" );
+	uiMSG().error( tr("No use to transfer selected sticks to myself") );
 	return;
     }
 
     if ( flashcolor_==Color(255,0,0) &&
-	 !uiMSG().question("Ignore output name warning?") ) return;
+	 !uiMSG().question(tr("Ignore output name warning?")) ) return;
 
     mDynamicCastGet( EM::Fault3D*, destf3d, destfault );
     RefMan<EM::EMObject> tmpemobj = EM::FaultStickSet::create(EM::EMM());
@@ -1044,7 +1044,7 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 	PtrMan<Executor> executor = destfault->saver();
 	saved = executor->execute();
 	if ( !saved )
-	    uiMSG().error( "Cannot save output object" );
+	    uiMSG().error( tr("Cannot save output object") );
     }
 
     afterTransferUpdate();
@@ -1054,8 +1054,9 @@ void uiODFaultToolMan::transferSticksCB( CallBacker* )
 
     if ( newnrselected )
     {
-	uiMSG().message( "Output object could not incorporate ",
-		     toString(newnrselected), " of the selected sticks!" );
+	uiMSG().message(tr("Output object could not incorporate %1"
+			   " of the selected sticks!")
+		      .arg(newnrselected));
     }
 }
 
@@ -1368,7 +1369,7 @@ void uiODFaultToolMan::undoCB( CallBacker* )
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().unDo( 1, true  ) )
-	uiMSG().error("Could not undo everything.");
+	uiMSG().error(tr("Could not undo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
 }
@@ -1379,7 +1380,7 @@ void uiODFaultToolMan::redoCB( CallBacker* )
     MouseCursorChanger mcc( MouseCursor::Wait );
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().reDo( 1, true  ) )
-	uiMSG().error("Could not redo everything.");
+	uiMSG().error(tr("Could not redo everything."));
     EM::EMM().burstAlertToAll( false );
     updateToolbarCB( 0 );
 }

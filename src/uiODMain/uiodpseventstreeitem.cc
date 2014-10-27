@@ -80,7 +80,7 @@ bool uiODPSEventsParentTreeItem::loadPSEvent( MultiID& key,
     key = dlg.chosenID();
     if ( key.isEmpty() || eventname.isEmpty() )
     {
-	BufferString errmsg = "Failed to load prestack event";
+	uiString errmsg = tr("Failed to load prestack event");
 	uiMSG().error( errmsg );
 	return false;
     }

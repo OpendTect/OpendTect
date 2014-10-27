@@ -41,7 +41,7 @@ public:
 
 
 mExpClass(uiODMain) uiODPickSetTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODPickSetTreeItem);
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);
     			~uiODPickSetTreeItem();

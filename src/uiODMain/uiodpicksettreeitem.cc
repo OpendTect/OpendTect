@@ -231,11 +231,11 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
     , storemnuitem_(uiStrings::sSave(true))
     , storeasmnuitem_(uiStrings::sSaveAs(true))
-    , dirmnuitem_("Set directions ...")
-    , onlyatsectmnuitem_("Only at sections")
+    , dirmnuitem_(tr("Set directions ..."))
+    , onlyatsectmnuitem_(tr("Only at sections"))
     , propertymnuitem_(uiStrings::sProperties( false ))
-    , closepolyitem_("Close Polygon")
-    , convertbodymnuitem_( "Convert to body" )
+    , closepolyitem_(tr("Close Polygon"))
+    , convertbodymnuitem_( tr("Convert to body") )
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
@@ -438,9 +438,9 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     if ( setidx < 0 || !Pick::Mgr().isChanged(setidx) )
 	return true;
 
-    BufferString warnstr = "This pickset has changed since the last save.\n"
-			   "Do you want to save it?";
-    const int retval = uiMSG().askSave( warnstr.buf(), withcancel );
+    uiString warnstr = tr("This pickset has changed since the last save.\n"
+			  "Do you want to save it?");
+    const int retval = uiMSG().askSave( warnstr, withcancel );
     if ( retval == 0 )
 	return true;
     else if ( retval == -1 )

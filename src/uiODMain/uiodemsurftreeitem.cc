@@ -398,8 +398,8 @@ void uiODEarthModelSurfaceTreeItem::saveCB( CallBacker* cb )
     {
 	const bool res = uiMSG().askSave(
 		tr("Geometry has been changed. Saved 'Horizon Data' is\n"
-		"not valid anymore and will be removed now.\n"
-		"Continue saving?") );
+		   "not valid anymore and will be removed now.\n"
+		   "Continue saving?") );
 	if ( !res )
 	    return;
     }
@@ -428,14 +428,14 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
 							uiVisEMObject* uv,
 							const char* parenttype )
     : uiODAttribTreeItem( parenttype )
-    , depthattribmnuitem_("Z values")
-    , savesurfacedatamnuitem_("Save as Horizon Data ...")
-    , loadsurfacedatamnuitem_("Horizon Data ...")
+    , depthattribmnuitem_(tr("Z values"))
+    , savesurfacedatamnuitem_(tr("Save as Horizon Data ..."))
+    , loadsurfacedatamnuitem_(tr("Horizon Data ..."))
     , algomnuitem_(uiStrings::sTools())
-    , filtermnuitem_("Filtering ...")
-    , fillholesmnuitem_("Gridding ...")
-    , horvariogrammnuitem_("Variogram ...")
-    , attr2geommnuitm_("Set Z values ...")
+    , filtermnuitem_(tr("Filtering ..."))
+    , fillholesmnuitem_(tr("Gridding ..."))
+    , horvariogrammnuitem_(tr("Variogram ..."))
+    , attr2geommnuitm_(tr("Set Z values ..."))
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
@@ -554,8 +554,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	if ( !as || as->id().asInt()!=Attrib::SelSpec::cOtherAttrib().asInt() )
 	{
-	   uiMSG().error("This algorithm can only be applied on 'Horizon Data'."
-			 "\nPlease save attribute first" );
+	   uiMSG().error(tr("This algorithm can only be applied on "
+			    "'Horizon Data'.\nPlease save attribute first"));
 	    return;
 	}
 

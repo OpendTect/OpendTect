@@ -191,7 +191,7 @@ bool uiODMain::ensureGoodDataDir()
 	if ( !dlg.go() )
 	{
 	    if ( uiMSG().askGoOn( tr("Without a valid data root, OpendTect "
-			"cannot start.\nDo you wish to exit?") ) )
+				     "cannot start.\nDo you wish to exit?") ) )
 		return false;
 	}
 	else if ( uiSetDataDir::setRootDataDir(this,dlg.selectedDir()) )
@@ -216,7 +216,7 @@ bool uiODMain::ensureGoodSurveySetup()
 	while ( !uiODApplMgr::manageSurvey() )
 	{
 	    if ( uiMSG().askGoOn( tr("Without a valid survey, OpendTect "
-			"cannot start.\nDo you wish to exit?") ) )
+				     "cannot start.\nDo you wish to exit?") ) )
 		return false;
 	}
     }
@@ -350,7 +350,7 @@ void uiODMain::saveSession()
     if ( !ctio ) { delete ctio; return; }
     ODSession sess; cursession_ = &sess;
     if ( !updateSession() ) mDelCtioRet()
-    BufferString bs;
+    uiString bs;
     if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
 	{ uiMSG().error( bs ); mDelCtioRet() }
 
@@ -447,7 +447,7 @@ void uiODMain::autoSession()
 
 void uiODMain::restoreSession( const IOObj* ioobj )
 {
-    ODSession sess; BufferString bs;
+    ODSession sess; uiString bs;
     if ( !ODSessionTranslator::retrieve(sess,ioobj,bs) )
 	{ uiMSG().error( bs ); return; }
 
@@ -524,7 +524,7 @@ void uiODMain::doRestoreSession()
     {
 	MouseCursorManager::restoreOverride();
 	uiMSG().error( tr("An error occurred while reading session file.\n"
-		       "A new scene will be launched") );
+		          "A new scene will be launched") );
 	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
@@ -629,7 +629,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
     {
 	askedanything = true;
 	int res = uiMSG().askSave( tr("Current attribute set has changed.\n"
-				   "Store the changes now?") );
+				      "Store the changes now?") );
 	if ( res == 1 )
 	    applmgr_->attrServer()->saveSet( is2d );
 	else if ( res == -1 )

@@ -415,7 +415,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 		    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add FaultStickSets to this scene" );
+	uiMSG().message( tr("Cannot add FaultStickSets to this scene") );
 	return false;
     }
 
@@ -426,7 +426,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	uiMenu* dispmnu = new uiMenu( getUiParent(), "Display all" );
+	uiMenu* dispmnu = new uiMenu( getUiParent(), tr("Display all") );
 	dispmnu->insertItem( new uiAction(tr("In full")), mDispInFull );
 	dispmnu->insertItem( new uiAction(tr("Only at sections")),
 			     mDispAtSect );
@@ -669,10 +669,10 @@ void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 uiODFaultSurfaceDataTreeItem::uiODFaultSurfaceDataTreeItem( EM::ObjectID objid,
 	uiVisEMObject* uv, const char* parenttype )
     : uiODAttribTreeItem(parenttype)
-    , depthattribmnuitem_("Z values")
-    , savesurfacedatamnuitem_("Save as Fault Data ...")
-    , loadsurfacedatamnuitem_("Fault Data ...")
-    , algomnuitem_("Smooth")
+    , depthattribmnuitem_(tr("Z values"))
+    , savesurfacedatamnuitem_(tr("Save as Fault Data ..."))
+    , loadsurfacedatamnuitem_(tr("Fault Data ..."))
+    , algomnuitem_(tr("Smooth"))
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)

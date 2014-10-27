@@ -68,9 +68,9 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     {
 	if ( nrChildren()>0 && !visSurvey::VolumeDisplay::canUseVolRenShading())
 	{
-	    uiMSG().message( tr("Can only display one volume per scene if one "
-			     "does not enable volume rendering to use OpenGL "
-			     "shading in the 'Look and Feel' settings.") );
+	    uiMSG().message(tr("Can only display one volume per scene if one "
+			       "does not enable volume rendering to use OpenGL "
+			       "shading in the 'Look and Feel' settings."));
 	}
 	else
 	    addChild( new uiODVolrenTreeItem(-1), false );
@@ -117,9 +117,9 @@ const char* uiODVolrenTreeItemFactory::getName()
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     : addmnuitem_(uiStrings::sAdd(true))
     , statisticsmnuitem_(uiStrings::sHistogram(false))
-    , amplspectrummnuitem_( "Amplitude Spectrum ...")
-    , positionmnuitem_("Position ...")
-    , addisosurfacemnuitem_("Iso surface")
+    , amplspectrummnuitem_( tr("Amplitude Spectrum ..."))
+    , positionmnuitem_(tr("Position ..."))
+    , addisosurfacemnuitem_(tr("Iso surface"))
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 {
@@ -297,7 +297,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
-		uiDialog::Setup( "Iso value selection", 0,
+		uiDialog::Setup( tr("Iso value selection"), 0,
                                 mODHelpKey(mVolrenTreeItemHelpID) ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
@@ -342,7 +342,7 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
     : resetisosurfacemnuitem_(uiStrings::sSettings(true))
-    , convertisotobodymnuitem_("Convert to body")
+    , convertisotobodymnuitem_(tr("Convert to body"))
 { displayid_ = displayid; }
 
 
@@ -501,7 +501,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(parent_->selectionKey()));
 
 	uiSingleGroupDlg dlg( getUiParent(),
-		uiDialog::Setup( "Iso value selection", 0, mNoHelpKey ) );
+		uiDialog::Setup( tr("Iso value selection"), 0, mNoHelpKey ) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd) );
 	dlg.go();
 	updateColumnText(1);

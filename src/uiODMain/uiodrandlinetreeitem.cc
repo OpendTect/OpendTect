@@ -49,7 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiRandomLinePolyLineDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiRandomLinePolyLineDlg);
 public:
 uiRandomLinePolyLineDlg(uiParent* p, visSurvey::RandomTrackDisplay* rtd )
     : uiDialog(p,Setup("Create Random Line from Polyline",
@@ -81,7 +81,8 @@ bool acceptOK( CallBacker* )
 {
     if ( !rtd_->createFromPolyLine() )
     {
-	uiMSG().error("Please select at least two points on TimeSlice/Horizon");
+	uiMSG().error(tr("Please select at least two points"
+			 " on TimeSlice/Horizon"));
 	return false;
     }
     rtd_->setPolyLineMode( false );
@@ -334,11 +335,11 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
-    , editnodesmnuitem_("Edit nodes ...")
-    , insertnodemnuitem_("Insert node")
+    , editnodesmnuitem_(tr("Edit nodes ..."))
+    , insertnodemnuitem_(tr("Insert node"))
     , saveasmnuitem_(uiStrings::sSaveAs(false))
-    , saveas2dmnuitem_("Save As 2D ...")
-    , create2dgridmnuitem_("Create 2D Grid ...")
+    , saveas2dmnuitem_(tr("Save As 2D ..."))
+    , create2dgridmnuitem_(tr("Create 2D Grid ..."))
 {
     editnodesmnuitem_.iconfnm = "orientation64";
     saveasmnuitem_.iconfnm = "saveas";

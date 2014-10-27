@@ -445,7 +445,7 @@ void uiODApplMgrDispatcher::openXPlot()
     if ( !rv )
     { uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-    { uiMSG().error("Selected data set is empty"); return; }
+    { uiMSG().error(tr("Selected data set is empty")); return; }
 
     DataPointSet* newdps = new DataPointSet( pvds, false );
     newdps->setName( seldlg.ioObj()->name() );
@@ -462,12 +462,12 @@ void uiODApplMgrDispatcher::openXPlot()
 void uiODApplMgrDispatcher::startInstMgr()
 {
 #ifndef __win__
-    BufferString msg( "If you make changes to the application,"
-	    "\nplease restart OpendTect for the changes to take effect." );
+    uiString msg = tr("If you make changes to the application,\nplease "
+		      "restart OpendTect for the changes to take effect.");
 #else
-    BufferString msg( "Please close OpendTect application and all other "
+    uiString msg = tr("Please close OpendTect application and all other "
 		      "OpendTect processes before proceeding for"
-		      " installation/update" );
+		      " installation/update");
 #endif
     uiMSG().message( msg );
     ODInst::startInstManagement();

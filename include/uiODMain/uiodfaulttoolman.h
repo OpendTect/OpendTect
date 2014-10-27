@@ -47,7 +47,7 @@ public:
 				  Current, ExistsUserDef,
 				  SingleUserDef };
     mExpClass(uiODMain) Setup
-    {
+    { mODTextTranslationClass(Setup);
     public:			Setup()
 				    : displayifnot_( true )
 				    , saveifdisplayed_( true )
@@ -88,7 +88,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODFaultToolMan : public CallBacker
-{
+{ mODTextTranslationClass(uiODFaultToolMan);
 public:
     				uiODFaultToolMan(uiODMain&);
 				~uiODFaultToolMan();

@@ -237,7 +237,7 @@ bool uiODWellTreeItem::init()
 	if ( !wd->setMultiID(mid) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
-	    uiMSG().error("Could not load well");
+	    uiMSG().error(tr("Could not load well"));
 	    return false;
 	}
     }
@@ -411,9 +411,9 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded( bool withcancel )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     if ( wd->hasChanged() )
     {
-	BufferString warnstr = "This well has changed since the last save.\n";
-	warnstr += "Do you want to save it?";
-	int retval = uiMSG().askSave( warnstr.buf(), withcancel );
+	uiString warnstr = tr("This well has changed since the last save.\n"
+			      "Do you want to save it?");
+	int retval = uiMSG().askSave( warnstr, withcancel );
 	if ( !retval ) return true;
 	else if ( retval == -1 ) return false;
 	else

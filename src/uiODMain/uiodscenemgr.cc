@@ -533,7 +533,7 @@ void uiODSceneMgr::setKeyBindings()
 
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
     inpspec->setText( scenes_[0]->sovwr_->getCurrentKeyBindings(), 0 );
-    uiGenInputDlg dlg( &appl_, "Select Mouse Controls", "Select", inpspec );
+    uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"), "Select", inpspec );
     dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
     if ( dlg.go() )
 	mDoAllScenes(sovwr_,setKeyBindings,dlg.text());
@@ -727,7 +727,7 @@ int uiODSceneMgr::askSelectScene() const
 	return sceneids.isEmpty() ? -1 : sceneids[0];
 
     StringListInpSpec* inpspec = new StringListInpSpec( scenenms );
-    uiGenInputDlg dlg( &appl_, "Choose scene", "", inpspec );
+    uiGenInputDlg dlg( &appl_, tr("Choose scene"), "", inpspec );
     const int selidx = dlg.go() ? dlg.getIntValue() : -1;
     return sceneids.validIdx(selidx) ? sceneids[selidx] : -1;
 }

@@ -40,7 +40,7 @@ public:
 
 
 mExpClass(uiODMain) uiODFaultTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODFaultTreeItem);
 public:
     			uiODFaultTreeItem(int,bool dummy);
     			uiODFaultTreeItem(const EM::ObjectID&);
@@ -85,7 +85,7 @@ mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItemFactory 
     : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODFaultStickSetTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -95,7 +95,7 @@ public:
 
 
 mExpClass(uiODMain) uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODFaultStickSetTreeItem);
 public:
     			uiODFaultStickSetTreeItem(int,bool dummy);
     			uiODFaultStickSetTreeItem(const EM::ObjectID&);
@@ -128,7 +128,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODFaultSurfaceDataTreeItem : public uiODAttribTreeItem
-{
+{ mODTextTranslationClass(uiODFaultSurfaceDataTreeItem);
 public:
     			uiODFaultSurfaceDataTreeItem(EM::ObjectID,
 				uiVisEMObject*,const char* parenttype);

@@ -24,7 +24,7 @@ mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 
 
 mExpClass(uiODMain) uiODHorizonTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(uiODHorizonTreeItemFactory)
+{ mODTextTranslationClass(uiODHorizonTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -34,7 +34,7 @@ public:
 
 
 mExpClass(uiODMain) uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
-{
+{ mODTextTranslationClass(uiODHorizonTreeItem);
 public:
 			uiODHorizonTreeItem(int visid,bool rgba,
 					    bool atsect,bool dummy);
@@ -76,7 +76,7 @@ mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton \
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODHorizon2DTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -86,7 +86,7 @@ public:
 
 
 mExpClass(uiODMain) uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
-{
+{ mODTextTranslationClass(uiODHorizon2DTreeItem);
 public:
 			uiODHorizon2DTreeItem(int visid,bool dummy);
 			uiODHorizon2DTreeItem(const EM::ObjectID&);

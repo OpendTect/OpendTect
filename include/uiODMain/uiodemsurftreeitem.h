@@ -74,7 +74,7 @@ protected:
 
 mExpClass(uiODMain) uiODEarthModelSurfaceDataTreeItem
     : public uiODAttribTreeItem
-{
+{ mODTextTranslationClass(uiODEarthModelSurfaceDataTreeItem);
 public:
 			uiODEarthModelSurfaceDataTreeItem(EM::ObjectID,
 				       uiVisEMObject*,const char* parenttype);

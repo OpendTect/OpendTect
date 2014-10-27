@@ -302,10 +302,10 @@ bool uiODLine2DParentTreeItem::loadDefaultData()
     PtrMan<IOObj> ioobj = IOM().get( MultiID(midstr) );
     if ( midstr.isEmpty() || !ioobj )
     {
-	BufferString msg( "No or no valid default 2D data found."
-	    "You can set default 2D data in the 'Manage Seismics' "
-	    "window. Do you want to go there now? "
-	    "On 'No' only the projection line will be shown" );
+	uiString msg = tr("No or no valid default 2D data found."
+			  "You can set default 2D data in the 'Manage "
+			  "Seismics' window. Do you want to go there now? "
+			  "On 'No' only the projection line will be shown" );
 	const bool tomanage = uiMSG().askGoOn( msg );
 	if ( tomanage )
 	{
@@ -367,7 +367,7 @@ bool uiODLine2DParentTreeItem::selectLoadAttribute(
 	    const Attrib::Desc* desc = ds->getDesc(dlg.getSelDescID());
 	    if ( !desc )
 	    {
-		uiMSG().error("Selected attribute is not available");
+		uiMSG().error(tr("Selected attribute is not available"));
 		return true;
 	    }
 
@@ -411,10 +411,10 @@ uiTreeItem*
 
 
 uiOD2DLineTreeItem::uiOD2DLineTreeItem( Pos::GeomID geomid, int displayid )
-    : linenmitm_("Show linename")
-    , panelitm_("Show 2D plane")
-    , polylineitm_("Show line geometry")
-    , positionitm_("Position ...")
+    : linenmitm_(tr("Show linename"))
+    , panelitm_(tr("Show 2D plane"))
+    , polylineitm_(tr("Show line geometry"))
+    , positionitm_(tr("Position ..."))
     , geomid_(geomid)
 {
     name_ = Survey::GM().getName( geomid );
@@ -471,10 +471,10 @@ bool uiOD2DLineTreeItem::init()
     if ( newdisplay && (geom2d->data().positions().size() > 300000000 ||
 			geom2d->data().zRange().nrSteps() > 299999999) )
     {
-	BufferString msg = "Either trace size or z size is beyond max display";
-	msg += " size of 3 X 10 e8. You can right click the line name to ";
-	msg += "change position range to view part of the data.";
-	uiMSG().warning( msg );
+       uiString msg = tr("Either trace size or z size is beyond max display "
+			 "size of 3 X 10 e8. You can right click the line name "
+			 "to change position range to view part of the data.");
+       uiMSG().warning( msg );
     }
 
     s2d->setGeometry( geom2d->data() );
@@ -681,7 +681,7 @@ void uiOD2DLineTreeItem::getNewData( CallBacker* cb )
 	    Attrib::ExtAttrFact().create( 0, as, false );
 	if ( !calc )
 	{
-	    uiMSG().error( "Attribute cannot be created" );
+	    uiMSG().error( tr("Attribute cannot be created") );
 	    return;
 	}
 
@@ -776,10 +776,10 @@ void uiOD2DLineTreeItem::removeAttrib( const char* attribnm )
 
 uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
-    , attrnoneitm_("None")
-    , storeditm_("Stored 2D data")
-    , steeringitm_("Steering 2D data")
-    , zattritm_("ZDomain Atrrib 2D data")
+    , attrnoneitm_(tr("None"))
+    , storeditm_(tr("Stored 2D data"))
+    , steeringitm_(tr("Steering 2D data"))
+    , zattritm_(tr("ZDomain Atrrib 2D data"))
 {}
 
 

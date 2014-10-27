@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Pick { class Set; }
 
 mExpClass(uiODMain) uiODAnnotParentTreeItem : public uiTreeItem
-{
+{ mODTextTranslationClass(uiODAnnotParentTreeItem);
 public:
 			uiODAnnotParentTreeItem();
 			~uiODAnnotParentTreeItem();
@@ -35,7 +35,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODAnnotTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODAnnotTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
     static const char*	getName()      
@@ -46,7 +46,7 @@ public:
 
 
 mExpClass(uiODMain) uiODAnnotTreeItem : public uiODTreeItem
-{
+{ mODTextTranslationClass(uiODAnnotTreeItem);
     typedef uiODTreeItem  inheritedClass;
 public:
     				uiODAnnotTreeItem(const char*);

@@ -40,7 +40,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODWellTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODWellTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
@@ -49,7 +49,7 @@ public:
 
 
 mExpClass(uiODMain) uiODWellTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODWellTreeItem);
 public:
     			uiODWellTreeItem( int );
     			uiODWellTreeItem( const MultiID& mid );

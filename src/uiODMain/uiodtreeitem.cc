@@ -172,8 +172,9 @@ void uiODTreeItem::handleStandardItems( int mnuid )
 
     if ( mnuid==103 )
     {
-	const BufferString msg( "All ", name(),
-	    " items will be removed from the tree.\nDo you want to continue?");
+	const uiString msg = tr("All %1 items will be removed from the tree."
+				"\nDo you want to continue?")
+			   .arg(name());
 	if ( !uiMSG().askRemove(msg) ) return;
 
 	while ( children_.size() )
@@ -236,9 +237,9 @@ uiODSceneTreeItem::uiODSceneTreeItem( const char* nm, int id )
     , displayid_(id)
     , menu_(0)
     , propitem_(uiStrings::sProperties( false ))
-    , imageitem_("Top/Bottom image ...")
-    , coltabitem_("Scene color bar ...")
-    , dumpivitem_("Export scene ...")
+    , imageitem_(tr("Top/Bottom image ..."))
+    , coltabitem_(tr("Scene color bar ..."))
+    , dumpivitem_(tr("Export scene ..."))
 {
     propitem_.iconfnm = "disppars";
 }

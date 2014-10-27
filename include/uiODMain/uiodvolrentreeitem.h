@@ -35,7 +35,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODVolrenTreeItemFactory : public uiODTreeItemFactory
-{
+{ mODTextTranslationClass(uiODVolrenTreeItemFactory);
 public:
     const char*		name() const   { return getName(); }
     static const char*	getName();
@@ -45,7 +45,7 @@ public:
 
 
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODVolrenTreeItem);
 public:
 			uiODVolrenTreeItem(int displayid_=-1);
     bool		showSubMenu();
@@ -75,7 +75,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODVolrenSubTreeItem);
 public:
 			uiODVolrenSubTreeItem(int displayid);
 

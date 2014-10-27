@@ -46,7 +46,7 @@ public:
 
 
 mExpClass(uiODMain) uiODRandomLineTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiODRandomLineTreeItem);
 public:
     enum Type		{ Default, Empty, RGBA };
     			uiODRandomLineTreeItem(int displayid,Type tp=Empty);

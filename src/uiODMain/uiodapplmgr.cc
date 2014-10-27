@@ -239,8 +239,8 @@ bool uiODApplMgr::Convert_OD4_Data_To_OD5()
 	if ( !res )
 	{
 	    uiMSG().message( tr("Please note that you can copy the survey "
-			"using 'Copy Survey' tool in the "
-			"'Survey Setup and Selection' window.") );
+				"using 'Copy Survey' tool in the "
+				"'Survey Setup and Selection' window.") );
 
 	    return false;
 	}
@@ -614,8 +614,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 			    Attrib::ExtAttrFact().create( 0, myas, false );
 		if ( !calc )
 		{
-		    BufferString errstr( "Selected attribute '", myas.userRef(),
-			 "'\nis not present in the set and cannot be created" );
+		    uiString errstr(tr("Selected attribute '%1'\nis not present"
+				       " in the set and cannot be created")
+				  .arg(myas.userRef()));
 		    uiMSG().error( errstr );
 		    return false;
 		}
@@ -664,13 +665,14 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 			if ( !(mIsEqual(step0,newstep0,(newstep0+step0)*5E-4)
 			    && mIsEqual(step1,newstep1,(newstep1+step1)*5E-4)) )
 			{
-			    BufferString msg = fdp->name();
-			    msg += " has different stepout as the loaded ones.";
-			    msg += " Do you want to continue? If continue,";
-			    msg += " all the attributes will be resampled to";
-			    msg +=" the minimum stepout.";
-			    if ( !uiMSG().askGoOn( msg.buf(),
-					"Yes, load it","No, not now") )
+			    uiString msg = tr("%1 has different stepout as the "
+					      "loaded ones. Do you want to "
+					      "continue? If continue, all the "
+					      "attributes will be resampled to"
+					      " the minimum stepout.")
+					 .arg(fdp->name());
+			    if ( !uiMSG().askGoOn( msg, tr("Yes, load it"),
+						   tr("No, not now")) )
 			    {
 				dpman.release( newid );
 				return false;

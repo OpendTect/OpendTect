@@ -795,22 +795,22 @@ void uiODMenuMgr::fillUtilMenu()
 	const ODInst::AutoInstType ait = ODInst::getAutoInstType();
 	const bool aitfixed = ODInst::autoInstTypeIsFixed();
 	if ( !aitfixed || ait == ODInst::UseManager || ait == ODInst::FullAuto )
-	    mInsertItem( installmnu_, "OpendTect Installation Manager ...",
+	    mInsertItem( installmnu_, tr("OpendTect Installation Manager ..."),
 			 mInstMgrMnuItem );
 	if ( !aitfixed )
-	    mInsertItem( installmnu_, "Auto-update policy ...",
+	    mInsertItem( installmnu_, tr("Auto-update policy ..."),
 			 mInstAutoUpdPolMnuItm );
-	mInsertItem( installmnu_, "Connection Settings ...",
+	mInsertItem( installmnu_, tr("Connection Settings ..."),
 		     mInstConnSettsMnuItm );
 	installmnu_->insertSeparator();
     }
 
-    mInsertItem( installmnu_, "Plugins ...", mPluginsMnuItm );
-    mInsertItem( installmnu_, "Setup Batch Processing ...", mSetupBatchItm );
+    mInsertItem( installmnu_, tr("Plugins ..."), mPluginsMnuItm );
+    mInsertItem( installmnu_, tr("Setup Batch Processing ..."), mSetupBatchItm);
 
     const char* lmfnm = od_ostream::logStream().fileName();
     if ( lmfnm && *lmfnm )
-	mInsertItem( utilmnu_, "Show log file ...", mShwLogFileMnuItm );
+	mInsertItem( utilmnu_, tr("Show log file ..."), mShwLogFileMnuItm );
 #ifdef __debug__
     const bool enabdpdump = true;
 #else
@@ -818,8 +818,8 @@ void uiODMenuMgr::fillUtilMenu()
 #endif
     if ( enabdpdump )
     {
-	mInsertItem( toolsmnu_, "Data pack dump ...", mDumpDataPacksMnuItm);
-	mInsertItem( toolsmnu_, "Display memory info ...",
+	mInsertItem( toolsmnu_, tr("Data pack dump ..."), mDumpDataPacksMnuItm);
+	mInsertItem( toolsmnu_, tr("Display memory info ..."),
                      mDisplayMemoryMnuItm);
     }
 }
@@ -929,16 +929,16 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 void uiODMenuMgr::fillManTB()
 {
     const int seisid =
-	mAddTB(mantb_,"man_seis","Manage Seismic data",false,manSeis);
+	mAddTB(mantb_,"man_seis",tr("Manage Seismic data"),false,manSeis);
     const int horid =
-	mAddTB(mantb_,"man_hor","Manage Horizons",false,manHor);
+	mAddTB(mantb_,"man_hor",tr("Manage Horizons"),false,manHor);
     const int fltid =
-	mAddTB(mantb_,"man_flt","Manage Faults",false,manFlt);
-    mAddTB(mantb_,"man_wll","Manage Well data",false,manWll);
-    mAddTB(mantb_,"man_picks","Manage PickSets/Polygons",false,manPick);
-    mAddTB(mantb_,"man_body","Manage Bodies/Regions",false,manBody);
-    mAddTB(mantb_,"man_wvlt","Manage Wavelets",false,manWvlt);
-    mAddTB(mantb_,"man_strat","Manage Stratigraphy",false,manStrat);
+	mAddTB(mantb_,"man_flt",tr("Manage Faults"),false,manFlt);
+    mAddTB(mantb_,"man_wll",tr("Manage Well data"),false,manWll);
+    mAddTB(mantb_,"man_picks",tr("Manage PickSets/Polygons"),false,manPick);
+    mAddTB(mantb_,"man_body",tr("Manage Bodies/Regions"),false,manBody);
+    mAddTB(mantb_,"man_wvlt",tr("Manage Wavelets"),false,manWvlt);
+    mAddTB(mantb_,"man_strat",tr("Manage Stratigraphy"),false,manStrat);
 
     uiMenu* seispopmnu = new uiMenu( &appl_, tr("Seismics Menu") );
     if ( SI().has2D() )
@@ -992,10 +992,10 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
                               separateviewbuttons);
     if ( !separateviewbuttons )
     {
-	viewselectid_ = cointb_->addButton( "cube_inl","View In-line",
+	viewselectid_ = cointb_->addButton( "cube_inl",tr("View In-line"),
 				mCB(this,uiODMenuMgr,handleViewClick), false );
 
-	uiMenu* vwmnu = new uiMenu( &appl_, "View Menu" );
+	uiMenu* vwmnu = new uiMenu( &appl_, tr("View Menu") );
 	mAddMnuItm( vwmnu, tr("View In-line"),
                     handleViewClick, "cube_inl", 0 );
 	mAddMnuItm( vwmnu, tr("View Cross-line"), handleViewClick,

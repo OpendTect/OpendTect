@@ -234,10 +234,10 @@ bool uiODPlaneDataTreeItem::getDefaultDescID( Attrib::DescID& descid )
     if ( descid.isValid() && ads )
 	return true;
 
-    BufferString msg( "No or no valid default volume found."
-	"You can set a default volume in the 'Manage Seismics' "
-	"window. Do you want to go there now? "
-	"On 'No' an empty plane will be added" );
+    uiString msg = tr("No or no valid default volume found."
+		      "You can set a default volume in the 'Manage Seismics' "
+		      "window. Do you want to go there now? "
+		      "On 'No' an empty plane will be added");
     const bool tomanage = uiMSG().askGoOn( msg );
     if ( tomanage )
     {

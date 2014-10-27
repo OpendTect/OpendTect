@@ -21,7 +21,7 @@ ________________________________________________________________________
 /*!\brief dTect session save/restore */
 
 mExpClass(uiODMain) ODSession
-{
+{ mODTextTranslationClass(ODSession);
 public:
 			ODSession();
     virtual		~ODSession()		{}
@@ -90,7 +90,7 @@ public:
 
 
 mExpClass(uiODMain) ODSessionTranslator : public Translator
-{
+{ mODTextTranslationClass(ODSessionTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(ODSession)
 
@@ -100,10 +100,10 @@ public:
 			//!< returns err msg or null on success
     virtual const char*	warningMsg() const		{ return ""; }
 
-    static bool		retrieve(ODSession&,const IOObj*,BufferString&);
+    static bool		retrieve(ODSession&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
-    static bool		store(const ODSession&,const IOObj*,BufferString&);
+    static bool		store(const ODSession&,const IOObj*,uiString&);
 			//!< BufferString has errmsg, if any
 			//!< If true returned, errmsg contains warnings
 
@@ -136,7 +136,7 @@ Session manager
 */
 
 mExpClass(uiODMain) uiSessionMan : public uiObjFileMan
-{
+{ mODTextTranslationClass(ODSessionTranslator);
 public:
 				uiSessionMan(uiParent*);
 				~uiSessionMan();

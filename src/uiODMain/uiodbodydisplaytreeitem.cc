@@ -139,10 +139,10 @@ void uiODBodyDisplayParentTreeItem::loadBodies()
 	if ( majorversion>4 || (majorversion==4 && minorversion>2) )
 	    continue;
 
-	BufferString msg("The geobody '", ioobj->name() );
-	msg.add( "' is made in OpendTect V" ).add( astream.version() )
-	    .add( ", do you want to convert it to current version?" );
-	if ( !uiMSG().askGoOn(msg.buf()) )
+	uiString msg = tr("The geobody '%1' is made in OpendTect V%2, "
+			  "do you want to convert it to current version?")
+		     .arg(ioobj->name()).arg(astream.version());
+	if ( !uiMSG().askGoOn(msg) )
 	    continue;
 
 	uiImplicitBodyValueSwitchDlg dlg( getUiParent(), ioobj );

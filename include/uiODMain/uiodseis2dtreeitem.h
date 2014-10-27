@@ -35,7 +35,7 @@ mDefineItem( Line2DParent, TreeItem, TreeTop,
 	     mMenuOnAnyButton )
 
 mExpClass(uiODMain) Line2DTreeItemFactory : public uiODTreeItemFactory
-{ mODTextTranslationClass(Line2DTreeItemFactory)
+{ mODTextTranslationClass(Line2DTreeItemFactory);
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
@@ -45,7 +45,7 @@ public:
 
 
 mExpClass(uiODMain) uiOD2DLineTreeItem : public uiODDisplayTreeItem
-{
+{ mODTextTranslationClass(uiOD2DLineTreeItem);
 public:
 			uiOD2DLineTreeItem(Pos::GeomID,int displayid=-1);
 
@@ -80,7 +80,7 @@ private:
 
 
 mExpClass(uiODMain) uiOD2DLineSetAttribItem : public uiODAttribTreeItem
-{
+{ mODTextTranslationClass(uiOD2DLineSetAttribItem);
 public:
 			uiOD2DLineSetAttribItem(const char* parenttype);
     bool		displayStoredData(const char*,int component,

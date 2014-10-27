@@ -42,7 +42,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODTreeTop : public uiTreeTopItem
-{
+{ mODTextTranslationClass(uiODTreeTop);
 public:
 			uiODTreeTop(ui3DViewer*,uiTreeView*,
 				    uiODApplMgr*,uiTreeFactorySet*);
@@ -73,7 +73,7 @@ protected:
 
 
 mExpClass(uiODMain) uiODTreeItemFactory : public uiTreeItemFactory
-{
+{ mODTextTranslationClass(uiODTreeItemFactory);
 public:
 
     virtual uiTreeItem*	createForVis(int visid,uiTreeItem*) const

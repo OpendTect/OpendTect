@@ -225,34 +225,42 @@ mDefSimpleTranslatorioContext(ODSession,Misc)
 
 
 bool ODSessionTranslator::retrieve( ODSession& session,
-				    const IOObj* ioobj, BufferString& err )
+				    const IOObj* ioobj, uiString& err )
 {
-    if ( !ioobj ) { err = "Cannot find object in data base"; return false; }
-    PtrMan<ODSessionTranslator> tr =
+    if ( !ioobj ) { err = tr("Cannot find object in data base"); return false; }
+    PtrMan<ODSessionTranslator> trans =
 		dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
-    if ( !tr ) { err = "Selected object is not an Session"; return false; }
+    if ( !trans ) 
+    { err = tr("Selected object is not an Session"); return false; }
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
-	{ err = "Cannot open "; err += ioobj->fullUserExpr(true); return false;}
-    err = tr->read( session, *conn );
+	{ 
+	err = tr("Cannot open %1").arg(ioobj->fullUserExpr(true)); return false;
+	}
+    err = trans->read( session, *conn );
     bool rv = err.isEmpty();
-    if ( rv ) err = tr->warningMsg();
+    if ( rv ) err = trans->warningMsg();
     return rv;
 }
 
 
 bool ODSessionTranslator::store( const ODSession& session,
-				 const IOObj* ioobj, BufferString& err )
+				 const IOObj* ioobj, uiString& err )
 {
-    if ( !ioobj ) { err = "No object to store set in data base"; return false; }
-    PtrMan<ODSessionTranslator> tr
+    if ( !ioobj ) 
+    { err = tr("No object to store set in data base"); return false; }
+    PtrMan<ODSessionTranslator> trans
 	 = dynamic_cast<ODSessionTranslator*>(ioobj->createTranslator());
-    if ( !tr )
-	{ err = "Selected object is not an OpendTect Session"; return false; }
+    if ( !trans )
+	{ 
+	err = tr("Selected object is not an OpendTect Session"); return false;
+	}
     PtrMan<Conn> conn = ioobj->getConn( Conn::Write );
     if ( !conn )
-    { err = "Cannot open "; err += ioobj->fullUserExpr(false); return false; }
-    err = tr->write( session, *conn );
+    { 
+       err = tr("Cannot open %1").arg(ioobj->fullUserExpr(false)); return false;
+    }
+    err = trans->write( session, *conn );
     return err.isEmpty();
 }
 

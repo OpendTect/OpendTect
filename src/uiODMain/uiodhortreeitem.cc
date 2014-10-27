@@ -277,15 +277,15 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int visid, bool rgba, bool atsect,
 
 void uiODHorizonTreeItem::initMenuItems()
 {
-    hordatamnuitem_.text = "Horizon Data";
+    hordatamnuitem_.text = tr("Horizon Data");
     algomnuitem_.text = uiStrings::sTools();
-    workflowsmnuitem_.text = "Workflows";
-    positionmnuitem_.text = "Position ...";
+    workflowsmnuitem_.text = tr("Workflows");
+    positionmnuitem_.text = tr("Position ...");
     shiftmnuitem_.text = uiStrings::sShift(false);
-    fillholesmnuitem_.text = "Gridding ...";
-    filterhormnuitem_.text = "Filtering ...";
-    snapeventmnuitem_.text = "Snapping ...";
-    geom2attrmnuitem_.text = "Store Z as Attribute ...";
+    fillholesmnuitem_.text = tr("Gridding ...");
+    filterhormnuitem_.text = tr("Filtering ...");
+    snapeventmnuitem_.text = tr("Snapping ...");
+    geom2attrmnuitem_.text = tr("Store Z as Attribute ...");
 }
 
 
@@ -707,10 +707,10 @@ uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( int id, bool )
 void uiODHorizon2DTreeItem::initMenuItems()
 {
     algomnuitem_.text = uiStrings::sTools();
-    workflowsmnuitem_.text = "Workflows";
-    derive3dhormnuitem_.text = "Derive 3D horizon ...";
-    snapeventmnuitem_.text = "Snapping ...";
-    interpolatemnuitem_.text = "Interpolate ...";
+    workflowsmnuitem_.text = tr("Workflows");
+    derive3dhormnuitem_.text = tr("Derive 3D horizon ...");
+    snapeventmnuitem_.text = tr("Snapping ...");
+    interpolatemnuitem_.text = tr("Interpolate ...");
 }
 
 

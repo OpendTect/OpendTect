@@ -215,7 +215,7 @@ bool uiODAnnotTreeItem::showSubMenu()
 		    applMgr()->visServer()->getObject(sceneID()));
     if ( scene && scene->getZAxisTransform() )
     {
-	uiMSG().message( "Cannot add Annotations to this scene (yet)" );
+	uiMSG().message( tr("Cannot add Annotations to this scene (yet)") );
 	return false;
     }
 
@@ -242,8 +242,9 @@ bool uiODAnnotTreeItem::showSubMenu()
 	    if ( !txt || !*txt ) continue;
 
 	    if ( uiODAnnotSubItem::doesNameExist( txt ) &&
-	         !uiMSG().askOverwrite("An object with that name already"
-			" exists.\nDo you wish to overwrite it?" ) )
+	         !uiMSG().askOverwrite(
+		 tr("An object with that name already"
+		    " exists.\nDo you wish to overwrite it?")))
 		continue;
 
 	    MultiID mid;
@@ -327,9 +328,9 @@ void uiODAnnotSubItem::prepareForShutdown()
     const int setidx = mgr.indexOf( *set_ );
     if ( mgr.isChanged(setidx) )
     {
-	BufferString msg = "The annotation group ";
-	msg += name();
-	msg += " is not saved.\n\nDo you want to save it?";
+	uiString msg = tr("The annotation group %1"
+			  " is not saved.\n\nDo you want to save it?")
+		     .arg(name());
 	if ( uiMSG().askSave(msg,false) )
 	    store();
     }
