@@ -128,6 +128,8 @@ protected:
 	    			const Strat::LayerModel&);
     SyntheticData* 	generateSD();
     SyntheticData* 	generateSD( const SynthGenParams&);
+    bool		runSynthGen(Seis::RaySynthGenerator&,
+				    const SynthGenParams&);
     SyntheticData*	createAngleStack(SyntheticData* sd,
 	    				 const CubeSampling&,
 					 const SynthGenParams&);
@@ -135,6 +137,8 @@ protected:
 	    				 const CubeSampling&,
 					 const SynthGenParams&,
 					 const Seis::RaySynthGenerator&);
+			// Seis::RaySynthGenerator& is no more used,
+			// kept for ABI compatibility
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
 };
 

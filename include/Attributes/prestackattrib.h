@@ -88,6 +88,7 @@ public:
 
     void                updateCSIfNeeded(CubeSampling&) const;
     void		setAngleComp(PreStack::AngleComputer*);
+    void		setAngleData(DataPack::ID);
 
 protected:
 
