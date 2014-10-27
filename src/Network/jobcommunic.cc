@@ -11,18 +11,21 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "debug.h"
 #include "envvars.h"
+#include "hiddenparam.h"
 #include "hostdata.h"
 #include "oddirs.h"
 #include "separstr.h"
 #include "strmdata.h"
 #include "systeminfo.h"
 #include "netsocket.h"
+#include "tcpsocket.h"
 #include "timefun.h"
 #include "msgh.h"
 
 #include <iostream>
 #include "mmcommunicdefs.h"
 
+static HiddenParam<JobCommunic,TcpSocket*> tcpsocket_( 0 );
 
 JobCommunic::JobCommunic( const char* host, int port, int jid,
 			  StreamData& sout )
@@ -39,10 +42,12 @@ JobCommunic::JobCommunic( const char* host, int port, int jid,
     , jobid_( jid )
     , sdout_( sout )
     , lastsucces_( Time::getMilliSeconds() )
+    , socket_(0)
 {
-    socket_ = new Network::Socket( false );
-    socket_->setTimeout( 2000 );
-    socket_->connectToHost( masterhost_, masterport_ );
+    TcpSocket* socket = new TcpSocket(); 
+    socket->connectToHost( masterhost_, masterport_ );
+    socket->waitForConnected( -1 );
+    tcpsocket_.setParam( this, socket );
 }
 
 
@@ -132,12 +137,19 @@ bool JobCommunic::sendMsg( char tag , int status, const char* msg )
     tagstr[2] = '\0';
     BufferString buf( tagstr );
     buf += statstr;
-    socket_->write( buf );
+    TcpSocket* socket = tcpsocket_.getParam( this );
+    if ( !socket )
+    {
+	setErrMsg( "Failed to get a socket" );
+	return false;
+    }
+    socket->write( buf );
 
     char masterinfo;
     BufferString errbuf;
     BufferString inp;
-    socket_->read( inp );
+    socket->waitForReadyRead( 2000 );
+    socket->read( inp );
     masterinfo = inp[0];
     bool ret = !inp.isEmpty();
     if ( !ret )
@@ -200,5 +212,7 @@ void JobCommunic::alarmHndl(CallBacker*)
 
 void JobCommunic::disConnect()
 {
-    socket_->disconnectFromHost();
+    TcpSocket* socket = tcpsocket_.getParam( this );
+    if ( socket )
+	socket->disconnectFromHost();
 }
