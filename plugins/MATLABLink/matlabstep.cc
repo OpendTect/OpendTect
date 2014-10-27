@@ -34,7 +34,7 @@ namespace VolProc
 {
 
 class MatlabTask : public ParallelTask
-{
+{ mODTextTranslationClass(MatlabTask)
 public:
 MatlabTask( MatlabStep& step )
     : step_(step)
