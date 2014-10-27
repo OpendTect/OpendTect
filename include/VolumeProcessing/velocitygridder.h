@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "veldesc.h"
 
 class Gridder2D;
+class InterpolationLayerModel;
 namespace Vel
 {
     class Function;
@@ -32,14 +33,15 @@ namespace VolProc
 \brief VolProc::Step for velocity gridding.
 */
 
-mExpClass(VolumeProcessing) VelGriddingStep : public VolProc::Step
-{ mODTextTranslationClass(VelGriddingStep);
+mExpClass(VolumeProcessing) VelGriddingStep : public Step
+{ mODTextTranslationClass(VelGriddingStep)
 public:
+			mDefaultFactoryInstantiation( Step,
+				VelGriddingStep,
+				"Gridding","Velocity gridder");
+
 			VelGriddingStep();
     			~VelGriddingStep();
-
-			mDefaultFactoryInstantiation( VolProc::Step,
-				VelGriddingStep, "Gridding","Velocity gridder");
 
     const VelocityDesc* getVelDesc() const;
 
@@ -49,15 +51,18 @@ public:
     void		setGridder(Gridder2D*); //becomes mine
     const Gridder2D*	getGridder() const;
 
-    bool		needsInput() const;
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void		setLayerModel(InterpolationLayerModel*);
+    const InterpolationLayerModel* getLayerModel() const;
 
+    bool		needsInput() const;
     void		releaseData();
     bool		canInputAndOutputBeSame() const	{ return true; }
     bool		needsFullVolume() const		{ return true;}
-    
+
     uiString		errMsg() const		{ return errmsg_; }
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
@@ -72,13 +77,12 @@ protected:
     void				removeOldFunctions();
     static VolProc::Step*		create(VolProc::Chain&);
 
+    InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
     uiString				errmsg_;
 };
 
-
-}; //namespace
+} // namespace VolProc
 
 #endif
-

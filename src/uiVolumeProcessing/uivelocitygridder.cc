@@ -8,27 +8,29 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uivelocitygridder.h"
 
-#include "uiselectvelocityfunction.h"
-#include "uigridder2d.h"
-#include "uigeninput.h"
 #include "gridder2d.h"
-#include "uilabel.h"
-#include "uivolprocchain.h"
-#include "velocitygridder.h"
 #include "velocityfunction.h"
+#include "velocitygridder.h"
 #include "volprocchain.h"
+
+#include "uigeninput.h"
+#include "uigridder2d.h"
+#include "uiinterpollayermodel.h"
+#include "uilabel.h"
+#include "uiselectvelocityfunction.h"
+#include "uivolprocchain.h"
+
 #include "od_helpids.h"
 
 namespace VolProc
 {
 
-uiStepDialog* uiVelocityGridder::createInstance( uiParent* p,
-						 VolProc::Step* ro )
+uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, Step* ro )
 {
-    mDynamicCastGet( VelGriddingStep*, gridop, ro );
+    mDynamicCastGet(VelGriddingStep*,gridop,ro);
     if ( !gridop ) return 0;
 
-    return new uiVelocityGridder(p,gridop);
+    return new uiVelocityGridder( p, gridop );
 }
 
 
@@ -38,7 +40,10 @@ uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
 {
     setHelpKey( mODHelpKey(mVelocityGridderHelpID) );
 
+    layermodelfld_ = new uiInterpolationLayerModel( this );
+
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
+    griddersel_->attach( alignedBelow, layermodelfld_ );
 
     uiLabel* label = new uiLabel( this, tr("Velocity sources") );
     label->attach( alignedBelow, griddersel_ );
@@ -68,12 +73,10 @@ void uiVelocityGridder::sourceChangeCB( CallBacker* )
 {
     if ( namenotset_ && velfuncsel_->getVelSources().size()==1 )
     {
-	namefld_->valuechanged.remove(mCB(this,uiVelocityGridder,nameChangeCB));
+	NotifyStopper ns( namefld_->valuechanged );
 	namefld_->setText( velfuncsel_->getVelSources()[0]->userName() );
-	namefld_->valuechanged.notify(mCB(this,uiVelocityGridder,nameChangeCB));
     }
 }
-
 
 
 bool uiVelocityGridder::acceptOK( CallBacker* cb )
@@ -89,5 +92,4 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
     return true;
 }
 
-
-}; //namespace
+} // namespace VolProc

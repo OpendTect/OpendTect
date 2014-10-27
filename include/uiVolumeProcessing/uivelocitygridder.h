@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "velocitygridder.h"
 
 class uiGridder2DSel;
-namespace VolProc { class Step; }
+class uiInterpolationLayerModel;
 namespace Vel { class uiFunctionSel; }
 
 
@@ -45,6 +45,7 @@ protected:
     void			nameChangeCB(CallBacker*);
     void			sourceChangeCB(CallBacker*);
 
+    uiInterpolationLayerModel*	layermodelfld_;
     uiGridder2DSel*		griddersel_;
     Vel::uiFunctionSel*		velfuncsel_;
     VelGriddingStep*		operation_;

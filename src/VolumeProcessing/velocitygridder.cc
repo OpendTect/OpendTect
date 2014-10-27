@@ -12,16 +12,19 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "attribdatacubes.h"
 #include "binidvalset.h"
 #include "gridder2d.h"
+#include "interpollayermodel.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "paralleltask.h"
 #include "progressmeter.h"
 #include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
-#include "paralleltask.h"
+
 
 namespace VolProc
 {
+
 class VelGriddingStepTask;
 
 
@@ -108,6 +111,7 @@ protected:
 };
 
 
+// VelGriddingStepTask
 VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
     : nrdone_( 0 )
     , remainingbids_( 0, false )
@@ -201,7 +205,7 @@ int VelGriddingStepTask::nextStep()
 }
 
 
-
+// VelGriddingFromFuncTask
 VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingStepTask& task )
     : task_( task )
     , velfuncsource_( 0 )
@@ -272,7 +276,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
     {
 	const BinID bid = task_.getNextBid();
 
-	if ( !func->moveTo( bid ) )
+	if ( !func->moveTo(bid) )
 	    continue;
 
 	const int inlidx = output->inlsampling_.nearestIndex( bid.inl() );
@@ -297,7 +301,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 }
 
 
-
+// VelGriddingFromVolumeTask
 VelGriddingFromVolumeTask::VelGriddingFromVolumeTask(VelGriddingStepTask& task )
     : task_( task )
     , completedbids_( 0, false )
@@ -325,8 +329,6 @@ bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
 	    return false;
 	}
 
-	//gridder->setGridArea(
-
 	gridders_ += gridder;
     }
 
@@ -349,7 +351,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
     {
 	const BinID bid = task_.getNextBid();
 	const Coord coord = SI().transform( bid );
-	if ( !gridder->setGridPoint( coord ) )
+	if ( !gridder->setGridPoint(coord) )
 	    continue;
 
 	if ( !gridder->init() )
@@ -425,9 +427,13 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 }
 
 
+// VelGriddingStep
+static const char* sKeyLayerModel()	{ return "Layer Model"; }
+
 VelGriddingStep::VelGriddingStep()
-    : gridder_( 0 )
-{ }
+    : gridder_(0)
+    , layermodel_(0)
+{}
 
 
 VelGriddingStep::~VelGriddingStep()
@@ -440,8 +446,8 @@ void VelGriddingStep::releaseData()
 {
     Step::releaseData();
     deepUnRef( sources_ );
-    delete gridder_;
-    gridder_ = 0;
+    delete gridder_; gridder_ = 0;
+    delete layermodel_; layermodel_ = 0;
 }
 
 
@@ -451,6 +457,10 @@ void VelGriddingStep::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
     sources_ = nvfs;
     deepRef( sources_ );
 }
+
+
+const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
+{ return sources_; }
 
 
 void VelGriddingStep::setGridder( Gridder2D* gridder )
@@ -464,8 +474,15 @@ const Gridder2D* VelGriddingStep::getGridder() const
 { return gridder_; }
 
 
-const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
-{ return sources_; }
+void VelGriddingStep::setLayerModel( InterpolationLayerModel* mdl )
+{
+    delete layermodel_;
+    layermodel_ = mdl;
+}
+
+
+const InterpolationLayerModel* VelGriddingStep::getLayerModel() const
+{ return layermodel_; }
 
 
 bool VelGriddingStep::needsInput() const
@@ -522,6 +539,13 @@ void VelGriddingStep::fillPar( IOPar& par ) const
 	gridder_->fillPar( gridpar );
 	gridpar.set( sKey::Name(), gridder_->factoryKeyword() );
 	par.mergeComp( gridpar, sKeyGridder() );
+    }
+
+    if ( layermodel_ )
+    {
+	IOPar lmpar;
+	layermodel_->fillPar( lmpar );
+	par.mergeComp( lmpar, sKeyLayerModel() );
     }
 }
 
@@ -598,7 +622,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	if ( !gridder )
 	    return false;
 
-	if ( !gridder->usePar( *velgridpar ) )
+	if ( !gridder->usePar(*velgridpar) )
 	{
 	    delete gridder;
 	    return false;
@@ -615,8 +639,18 @@ bool VelGriddingStep::usePar( const IOPar& par )
 
     setGridder( gridder );
 
+    delete layermodel_; layermodel_ = 0;
+    PtrMan<IOPar> lmpar = par.subselect( sKeyLayerModel() );
+    if ( lmpar )
+    {
+	BufferString nm;
+	lmpar->get( sKey::Name(), nm );
+	layermodel_ = InterpolationLayerModel::factory().create( nm );
+	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
+	{ delete layermodel_; layermodel_ = 0; }
+    }
+
     return true;
 }
 
-
-}; //Namespace
+} // namespace VolProc
