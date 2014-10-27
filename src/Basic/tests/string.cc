@@ -214,6 +214,11 @@ static bool testLimFToStringFns()
     mDefVarDef( float, f3, 1.234567e-8f );
     mDefVarDef( float, f4, -1.234567e-8f );
     mDefVarDef( float, f5, -123456.78f );
+    mDefVarDef( float, f6, 820.00006104f );
+    mDefVarDef( float, f7, .0006104f );
+    mDefVarDef( float, f8, +000.0006104f );
+    mDefVarDef( float, f9, 0.00061040035f );
+    mDefVarDef( float, f10, 0.000610400035f );
     mDefVarDef( double, d1, 0.123456789 );
     mDefVarDef( double, d2, 0.123456789e10 );
     mDefVarDef( double, d3, 1.23456789e-8 );
@@ -226,6 +231,13 @@ static bool testLimFToStringFns()
     mPrNumb(f3,6); mPrNumb(f3,8); mPrNumb(f3,10); mPrNumb(f3,12);
     mPrNumb(f4,6); mPrNumb(f4,8); mPrNumb(f4,10); mPrNumb(f4,12);
     mPrNumb(f5,6); mPrNumb(f5,8); mPrNumb(f5,10); mPrNumb(f5,12);
+    mPrNumb(f6,6); mPrNumb(f6,8); mPrNumb(f6,10); mPrNumb(f6,12);
+    mPrNumb(f7,6); mPrNumb(f7,8); mPrNumb(f7,10); mPrNumb(f7,12);
+    mPrNumb(f8,6); mPrNumb(f8,8); mPrNumb(f8,10); mPrNumb(f8,12);
+    mPrNumb(f9,6); mPrNumb(f9,8); mPrNumb(f9,10); mPrNumb(f9,12);
+    mPrNumb(f9,13); mPrNumb(f9,14);
+    mPrNumb(f10,6); mPrNumb(f10,8); mPrNumb(f10,10); mPrNumb(f10,12);
+    mPrNumb(f10,13); mPrNumb(f10,14);
     mPrNumb(d1,6); mPrNumb(d1,8); mPrNumb(d1,10); mPrNumb(d1,12);
     mPrNumb(d2,6); mPrNumb(d2,8); mPrNumb(d2,10); mPrNumb(d2,12);
     mPrNumb(d3,6); mPrNumb(d3,8); mPrNumb(d3,10); mPrNumb(d3,12);
