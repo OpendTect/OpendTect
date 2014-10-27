@@ -34,12 +34,6 @@ static const char* rcsID mUsedVar = "$Id$";
     itm->setShortcut( sc ); \
 }
 
-static BufferString getAdminURL()
-{
-    FilePath fp;
-    fp = mGetSysAdmDocDir();
-    return fp.add("base").add("index.htm").fullPath();
-}
 
 static BufferString getSupportURL()
 { return "http://dgbes.com/index.php/support"; }
@@ -51,14 +45,13 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 {
     uiMenu* docmnu = new uiMenu( tr("Documentation") );
     helpmnu_->addMenu( docmnu );
-    mInsertItem( docmnu, tr("OpendTect ..."), mUserDocMnuItm, "F1" );
+    mInsertItem( docmnu, tr("OpendTect"), mUserDocMnuItm, "F1" );
 
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( docmnu, tr("Programmer ..."), mProgrammerMnuItm, 0 );
+	mInsertItem( docmnu, tr("Programmer"), mProgrammerMnuItm, 0 );
 
-    BufferString adminurl = getAdminURL();
-    if ( File::exists(adminurl) )
-	mInsertItem( docmnu, tr("Admin ..."), mAdminMnuItm, 0 );
+    if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
+	mInsertItem( docmnu, tr("Admin"), mAdminMnuItm, 0 );
 
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
@@ -76,7 +69,7 @@ void uiODHelpMenuMgr::handle( int id )
     {
 	case mAdminMnuItm:
 	{
-	    uiDesktopServices::openUrl( getAdminURL().buf() );
+	    HelpProvider::provideHelp( HelpKey("appman",0) );
 	} break;
 	case mProgrammerMnuItm:
 	{

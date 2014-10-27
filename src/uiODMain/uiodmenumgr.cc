@@ -115,6 +115,15 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
 }
 
 
+uiMenu* uiODMenuMgr::docMnu()
+{
+    if ( !helpmnu_ ) return 0;
+
+    uiAction* docaction = helpmnu_->findAction( "Documentation" );
+    return docaction ? docaction->getMenu() : 0;
+}
+
+
 uiMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
 {
     return at == uiODApplMgr::Imp ? impmnu_ :

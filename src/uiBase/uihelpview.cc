@@ -89,7 +89,7 @@ void FlareHelpProvider::initHelpSystem( const char* context,
 void FlareHelpProvider::initODHelp()
 {
     initHelpSystem( "od", "od_userdoc" );
-    initHelpSystem( "appman", "appmandoc" );
+//    initHelpSystem( "appman", "appmandoc" );
 }
 
 
