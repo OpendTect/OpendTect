@@ -363,7 +363,7 @@ bool uiScalingAttrib::areUIParsOK()
 
 
 class uiSelectPositionDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSelectPositionDlg);
 public:
 
     enum DataType		{ Stored2D=0, Stored3D=1, DataPack2D=2,
@@ -467,7 +467,8 @@ bool acceptOK( CallBacker* )
 {
     if ( !nrtrcfld_->dataInpSpec()->isInsideLimits() )
     {
-	uiMSG().error("Number of traces specified is more than in the dataset");
+	uiMSG().error(tr("Number of traces specified is "
+			 "more than in the dataset"));
 	return false;
     }
 

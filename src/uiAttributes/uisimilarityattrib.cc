@@ -96,7 +96,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     pos0fld_ = new uiStepOutSel( this, setup );
     pos0fld_->setFieldNames( "Trc1 Inl", "Trc1 Crl" );
     pos0fld_->attach( alignedBelow, extfld_ );
-    setup.seltxt( tr("&") );
+    setup.seltxt( "&" );
     pos1fld_ = new uiStepOutSel( this, setup );
     pos1fld_->setFieldNames( "Trc2 Inl", "Trc2 Crl" );
     pos1fld_->attach( rightOf, pos0fld_ );

@@ -70,7 +70,7 @@ mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp())
 
 
 class uiFPAdvancedDlg: public uiDialog
-{
+{ mODTextTranslationClass(uiFPAdvancedDlg);
     public:
 			uiFPAdvancedDlg(uiParent*,calcFingParsObject*,
 					const BufferStringSet&);
@@ -91,7 +91,7 @@ class uiFPAdvancedDlg: public uiDialog
 
     calcFingParsObject& calcobj_;
     CtxtIOObj&          ctio_;
-    BufferString        errmsg_;
+    uiString		errmsg_;
 };
 
 
@@ -512,7 +512,7 @@ void uiFingerPrintAttrib::getAdvancedPush(CallBacker*)
 
 void uiFingerPrintAttrib::calcPush(CallBacker*)
 {
-    BufferString errmsg;
+    uiString errmsg;
     BinIDValueSet* valuesset = createValuesBinIDSet( errmsg );
     if ( calcobj_->getRgRefType()==1 && calcobj_->getRgRefPick().isEmpty() )
     {
@@ -545,7 +545,7 @@ void uiFingerPrintAttrib::calcPush(CallBacker*)
 
 
 BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
-						BufferString& errmsg ) const
+						uiString& errmsg ) const
 {
     if ( refgrp_->selectedId() == 1 )
     {
@@ -730,7 +730,7 @@ void uiFPAdvancedDlg::rangeSel( CallBacker* )
 
 
 #define mRetIfErr \
-    if ( errmsg_.size() )\
+    if ( !errmsg_.isEmpty() )\
     {\
 	uiMSG().error( errmsg_ );\
 	return;\
@@ -739,7 +739,7 @@ void uiFPAdvancedDlg::rangeSel( CallBacker* )
 void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 {
     mRetIfErr;
-    errmsg_.empty();
+    errmsg_.setEmpty();
     const int refgrpval = rangesgrp_->selectedId();
     calcobj_.setRgRefType( refgrpval );
 
@@ -749,8 +749,8 @@ void uiFPAdvancedDlg::calcPush( CallBacker* cb )
 	const IOObj* ioobj = picksetfld_->ioobj(true);
 	if ( !ioobj )
 	{
-	    errmsg_ = "Please choose the pickset from which\n";
-	    errmsg_ += "the ranges will be computed";
+	    errmsg_ = tr("Please choose the pickset from which\n"
+			 "the ranges will be computed");
 	    mRetIfErr;
 	}
 	calcobj_.setRgRefPick( ioobj->key().buf() );
@@ -808,7 +808,7 @@ bool uiFPAdvancedDlg::acceptOK( CallBacker* cb )
 
     if ( rangesgrp_->selectedId() == 0 && ranges.size()< valflds_.size() )
     {
-	uiMSG().error("Please fill in all Min/Max values");
+	uiMSG().error(tr("Please fill in all Min/Max values"));
 	return false;
     }
 

@@ -58,7 +58,7 @@ protected:
 
 
 mExpClass(uiAttributes) uiAutoAttrSetOpen : public uiDialog
-{
+{ mODTextTranslationClass(uiAutoAttrSetOpen);
 public:
 				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,
 							BufferStringSet&);

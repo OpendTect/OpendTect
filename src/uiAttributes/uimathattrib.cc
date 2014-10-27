@@ -64,10 +64,6 @@ uiMathAttrib::~uiMathAttrib()
 }
 
 
-#define mErrRet(msg,retval) \
-{ uiMSG().error( "Could not parse this equation" ); return retval; }
-
-
 void uiMathAttrib::formSel( CallBacker* )
 {
     updateNonSpecInputs();

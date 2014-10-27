@@ -144,10 +144,10 @@ bool uiTextureAttrib::getParameters( Desc& desc )
     const float globalmax = globalmaxfld_->getfValue();
     if ( mIsEqual( globalmin, globalmax, 1e-3 ))
     {
-	BufferString errstr =
-	"Minimum and Maximum values cannot be the same.\n";
-	errstr += "Values represent the clipping range of the input.";
-	uiMSG().error( errstr.buf() );
+	uiString errstr =
+	    tr("Minimum and Maximum values cannot be the same.\n"
+	       "Values represent the clipping range of the input.");
+	uiMSG().error(errstr);
 	return false;
     }
 
@@ -191,7 +191,7 @@ void uiTextureAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 
 
 class uiSubSelForAnalysis : public uiDialog
-{
+{ mODTextTranslationClass(uiSubSelForAnalysis);
 public:
 uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     : uiDialog(p,uiDialog::Setup("Select data for analysis",
@@ -231,7 +231,7 @@ bool acceptOK(CallBacker*)
 {
     if ( nrtrcfld_->getIntValue()< 1 )
     {
-	uiMSG().error( "Select at least one trace" );
+	uiMSG().error(tr("Select at least one trace"));
 	return false;
     }
 

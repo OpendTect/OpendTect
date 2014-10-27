@@ -241,9 +241,9 @@ void uiSpecDecompAttrib::checkOutValSnapped() const
     const float freq = getOutputValue( freqidx );
     if ( oldfreq>0.5 && oldfreq!=freq )
     {
-	BufferString wmsg = "Chosen output frequency \n";
-	wmsg += "does not fit with frequency step \n";
-	wmsg += "and will be snapped to nearest suitable frequency";
+	uiString wmsg = tr("Chosen output frequency \n"
+			   "does not fit with frequency step \n"
+			   "and will be snapped to nearest suitable frequency");
 	uiMSG().warning( wmsg );
     }
 }

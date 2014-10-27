@@ -249,12 +249,11 @@ bool uiAttrVolOut::prepareProcessing()
 	    outputnm.replace( '|', '_' );
 	    if( nroccuer )
 	    {
-		BufferString msg( "Invalid charactor  '|' " );
-		msg.add( " found in output name. " )
-		   .add( "It will be renamed to: '" )
-		   .add( outputnm.buf() ).add("'." )
-		   .add( "\nDo you want to continue?" );
-		if( !uiMSG().askGoOn( msg.buf() ) )
+		uiString msg = tr("Invalid charactor '|' "
+				  " found in output name. "
+				  "It will be renamed to: '%1'"
+				  "\nDo you want to continue?")
+			     .arg(outputnm.buf());
 		    return false;
 	    }
 
@@ -275,8 +274,8 @@ bool uiAttrVolOut::prepareProcessing()
 		 (singline && lnms.isPresent(lnm)) )
 	    {
 		const bool rv = uiMSG().askGoOn(
-		    "Output attribute already exists.", uiStrings::sOverwrite(),
-                    uiStrings::sCancel() );
+		    tr("Output attribute already exists."),
+		       uiStrings::sOverwrite(), uiStrings::sCancel());
 		if ( !rv ) return false;
 	    }
 	}

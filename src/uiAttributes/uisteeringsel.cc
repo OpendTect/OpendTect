@@ -216,7 +216,7 @@ DescID uiSteeringSel::descID()
     const DescID crldipid = inpfld_->crlDipID();
     if ( !inldipid.isValid() || !crldipid.isValid() )
     {
-	uiMSG().error( "Selected Steering input is not valid" );
+	uiMSG().error(tr("Selected Steering input is not valid"));
 	return DescID::undef();
     }
 

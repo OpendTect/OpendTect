@@ -73,7 +73,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
-    BinIDValueSet*	createValuesBinIDSet(BufferString&) const;
+    BinIDValueSet*	createValuesBinIDSet(uiString&) const;
     BinID		get2DRefPos() const;
 
     PickRetriever*	pickretriever_;

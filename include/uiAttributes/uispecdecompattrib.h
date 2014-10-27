@@ -94,7 +94,7 @@ protected:
 
 
 mClass(uiAttributes) uiSpecDecompPanel	: public uiAttribPanel
-{
+{ mODTextTranslationClass(uiSpecDecompPanel);
 public:
     				uiSpecDecompPanel( uiParent* p )
 				    : uiAttribPanel( p )		{};

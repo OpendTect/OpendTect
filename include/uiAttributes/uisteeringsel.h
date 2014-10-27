@@ -53,7 +53,7 @@ protected:
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
 mExpClass(uiAttributes) uiSteeringSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSteeringSel);
 public:
 				uiSteeringSel(uiParent*,
 					      const Attrib::DescSet*,bool is2d,

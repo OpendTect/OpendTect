@@ -487,9 +487,10 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	    : descset->getStoredID( ioobjkey, attrdata_.compnr_, true );
 	if ( needattrmatch && !attrdata_.attribid_.isValid() )
 	{
-	    BufferString msg( "Could not find the seismic data " );
-	    msg += attrdata_.attribid_ == DescID::undef() ? "in object manager"
-							  : "on disk";
+	    uiString msg = tr("Could not find the seismic data %1")
+			 .arg(attrdata_.attribid_ == DescID::undef()
+			 ? tr("in object manager")
+			 : tr("on disk"));
 	    uiMSG().error( msg );
 	    return false;
 	}

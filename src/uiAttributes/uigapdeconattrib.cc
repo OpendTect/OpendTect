@@ -51,7 +51,10 @@ class uiGDPositionDlg: public uiDialog
     void                popUpPosDlg();
     const TrcKeyZSampling&	getTrcKeyZSampling();
     Pos::GeomID		getGeomID() const;
-    void		setPrefCS(TrcKeyZSampling* prefcs)	{ prefcs_ = prefcs; }
+    void		setPrefCS(TrcKeyZSampling* prefcs)	
+			{ 
+			    prefcs_ = prefcs; 
+			}
 
     uiGenInput*		inlcrlfld_;
     uiLabeledComboBox*	linesfld_;
@@ -542,18 +545,18 @@ void uiGapDeconAttrib::fillInGDDescParams( Desc* newdesc )
 
 void uiGapDeconAttrib::qCPush( CallBacker* cb )
 {
-    BufferString errmsg;
-    if ( mIsUdf(gatefld_->getFInterval().start) ||
-	 mIsUdf(gatefld_->getFInterval().stop) )
-	errmsg = "Please fill in the 'Correlation window' field";
-    else if ( inpfld_->attribID() == DescID::undef() )
-	errmsg = "Please fill in the input data";
-    else if ( mIsUdf(lagfld_->getIntValue()) )
-	errmsg = "Please fill in the 'Lag size' field";
-    else if ( mIsUdf(gapfld_->getIntValue()) )
-	errmsg = "Please fill in the 'Gap size' field";
+    uiString errmsg;
+    if (mIsUdf(gatefld_->getFInterval().start) ||
+	mIsUdf(gatefld_->getFInterval().stop))
+	errmsg = tr("Please fill in the 'Correlation window' field");
+    else if (inpfld_->attribID() == DescID::undef())
+	errmsg = tr("Please fill in the input data");
+    else if (mIsUdf(lagfld_->getIntValue()))
+	errmsg = tr("Please fill in the 'Lag size' field");
+    else if (mIsUdf(gapfld_->getIntValue()))
+	errmsg = tr("Please fill in the 'Gap size' field");
 
-    if ( errmsg.size() )
+    if (errmsg.isSet())
     {
 	uiMSG().error( errmsg );
 	return;

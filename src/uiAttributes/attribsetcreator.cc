@@ -226,7 +226,7 @@ bool AttributeSetCreator::create()
     const int nrdescs = attrset->size();
     if ( !attrset || nrdescs < 1 )
     {
-	uiMSG().error( tr("The attributes cannot be converted") );
+	uiMSG().error(tr("The attributes cannot be converted"));
 	return false;
     }
 
@@ -342,7 +342,7 @@ Desc* AttributeSetCreator::getDesc( const char* extdesc )
     BufferString attribname;
     if ( !Desc::getAttribName(defstr,attribname) )
     {
-	uiMSG().error( tr("Cannot find attribute name") );
+	uiMSG().error(tr("Cannot find attribute name"));
 	return 0;
     }
 

@@ -226,7 +226,7 @@ imaginary part.
 */
 
 mExpClass(uiAttributes) uiImagAttrSel : public uiAttrSel
-{
+{ mODTextTranslationClass(uiImagAttrSel);
 public:
 			uiImagAttrSel( uiParent* p, const char* txt,
 					const uiAttrSelData& asd )
