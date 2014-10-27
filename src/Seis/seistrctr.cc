@@ -187,8 +187,6 @@ bool SeisTrcTranslator::commitSelections()
 	if ( !mIsEqual(selzrg.start,sizrg.start,1e-8)
 	  || !mIsEqual(selzrg.stop,sizrg.stop,1e-8) )
 	{
-// Does not work for Z-axis transformed scenes. Is it required?
-//	    SI().snapZ( selzrg.start, -1 ); SI().snapZ( selzrg.stop, 1 );
 	    outsd_.start = selzrg.start;
 	    const float fnrsteps = (selzrg.stop-selzrg.start) / outsd_.step;
 	    outnrsamples_ = mNINT32(fnrsteps) + 1;

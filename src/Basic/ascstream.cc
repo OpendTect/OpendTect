@@ -109,7 +109,7 @@ void ascostream::putKeyword( const char* keyword, bool withsep )
 
 bool ascostream::put( const char* keyword, const char* value )
 {
-    putKeyword( keyword, (bool)value );
+    putKeyword( keyword, true );
     mChckStrm(return false)
 
     if ( value )
