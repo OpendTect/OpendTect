@@ -58,7 +58,7 @@ public:
 
 protected:
 
-    ObjectSet<ModDep>	deps_;
+    ManagedObjectSet<ModDep>	deps_;
 
     mutable BufferStringSet		loadedmods_;
     mutable ObjectSet<SharedLibAccess>	shlibaccs_;
