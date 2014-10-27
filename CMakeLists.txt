@@ -66,7 +66,6 @@ set( OD_PLUGINS
 	HorizonAttrib
 	Madagascar
 	MadagascarAttribs
-	MATLABLink
 	Tut
 	VoxelConnectivityFilter
 	uiDPSDemo
@@ -80,7 +79,6 @@ set( OD_PLUGINS
 	uiImpGPR
 	uiMadagascar
 	uiMadagascarAttribs
-	uiMATLABLink
 	uiTut
 	uiTutMadagascar
 	uiVoxelConnectivityFilter
