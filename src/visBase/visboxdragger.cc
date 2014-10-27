@@ -211,7 +211,8 @@ BoxDragger::BoxDragger()
     , changed( this )
     , finished( this )
     , osgcallbackhandler_( 0 )
-    , osgboxdragger_( setOsgNode( new osgGeo::TabBoxDragger(12.0) ) )
+    , osgboxdragger_( setOsgNode(
+		new osgGeo::TabBoxDragger(12.0,!SI().isClockWise()) ) )
     , useindepthtransforresize_( false )
 {
     osgboxdragger_->setupDefaultGeometry();
