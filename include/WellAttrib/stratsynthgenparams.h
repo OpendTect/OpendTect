@@ -38,6 +38,7 @@ mStruct(WellAttrib) SynthGenParams
     			//!<Create name from wvlt and raypars
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+    void		setDefaultValues();
 
 bool operator==( const SynthGenParams& gp )
 { return isPreStack()==gp.isPreStack() && wvltnm_==gp.wvltnm_ &&

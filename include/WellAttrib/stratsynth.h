@@ -128,13 +128,14 @@ protected:
 	    			const Strat::LayerModel&);
     SyntheticData* 	generateSD();
     SyntheticData* 	generateSD( const SynthGenParams&);
-    SyntheticData*	createAngleStack(SyntheticData* sd,
+    bool		runSynthGen(Seis::RaySynthGenerator&,
+				    const SynthGenParams&);
+    SyntheticData*	createAngleStack(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
-    SyntheticData*	createAVOGradient(SyntheticData* sd,
+    SyntheticData*	createAVOGradient(const SyntheticData& sd,
 					 const TrcKeyZSampling&,
-					 const SynthGenParams&,
-					 const Seis::RaySynthGenerator&);
+					 const SynthGenParams&);
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
 };
 

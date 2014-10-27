@@ -88,6 +88,7 @@ public:
 
     void		updateCSIfNeeded(TrcKeyZSampling&) const;
     void		setAngleComp(PreStack::AngleComputer*);
+    void		setAngleData(DataPack::ID);
 
 protected:
 
@@ -113,6 +114,7 @@ protected:
     PreStack::PropCalc*		propcalc_;
     PreStack::PropCalc::Setup	setup_;
     PreStack::AngleComputer*    anglecomp_;
+    bool			angleisset_;
 
     MultiID			preprocid_;
     int				dataidx_;

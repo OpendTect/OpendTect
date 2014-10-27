@@ -22,6 +22,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "reflectivitymodel.h"
 #include "samplfunc.h"
 #include "seistrc.h"
+#include "seisbuf.h"
 #include "seistrcprop.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -916,4 +917,42 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
     return trc;
 }
 
+
+void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
+{
+    for ( int imdl=0; imdl<raymodels_.size(); imdl++ )
+    {
+	const int crlstep = SI().crlStep();
+	const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
+			  SI().crlRange(false).stop + crlstep );
+	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+	ObjectSet<SeisTrc> trcs; raymodels_[imdl]->getTraces( trcs, true );
+	for ( int idx=0; idx<trcs.size(); idx++ )
+	{
+	    SeisTrc* trc = trcs[idx];
+	    trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
+	    trc->info().nr = imdl+1;
+	    trc->info().coord = SI().transform( trc->info().binid );
+	    tbuf->add( trc );
+	}
+	seisbufs += tbuf;
+    }
+}
+
+
+void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )	
+{
+    seisbuf.erase();
+    const int crlstep = SI().crlStep();
+    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
+		      SI().crlRange(false).stop + crlstep );
+    for ( int imdl=0; imdl<raymodels_.size(); imdl++ )
+    {
+	SeisTrc* trc = const_cast<SeisTrc*> (raymodels_[imdl]->stackedTrc());
+	trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
+	trc->info().nr = imdl+1;
+	trc->info().coord = SI().transform( trc->info().binid );
+	seisbuf.add( trc );
+    }
+}
 } // namespace Seis
