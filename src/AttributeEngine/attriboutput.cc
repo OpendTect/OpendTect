@@ -426,7 +426,7 @@ bool SeisTrcStorOutput::doInit()
 
 	if ( auxpars_ )
 	{
-	    writer_->lineAuxPars().merge( *auxpars_ );
+	    writer_->auxPars().merge( *auxpars_ );
 	    delete auxpars_; auxpars_ = 0;
 	}
     }
@@ -1038,7 +1038,7 @@ bool Trc2DVarZStorOutput::doInit()
 
 	if ( auxpars_ )
 	{
-	    writer_->lineAuxPars().merge( *auxpars_ );
+	    writer_->auxPars().merge( *auxpars_ );
 	    delete auxpars_; auxpars_ = 0;
 	}
     }

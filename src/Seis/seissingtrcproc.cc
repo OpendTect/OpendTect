@@ -137,6 +137,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    wrrkey_ = wrioobj->key();
 	if ( ioobjs.size() == 1 )
 	    wrr_->setCrFrom( ioobjs[0]->fullUserExpr() );
+	if ( iops.size() == 1 )
+	    wrr_->auxPars() = *iops[0];
     }
     currentobj_ = 0;
 
@@ -167,6 +169,8 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    {
 		totnr_ = rdr_->selData()->expectedNrTraces( !is3d );
 		szdone = true;
+		if ( nrobjs_ == 1 )
+		    wrr_->setSelData( rdr_->selData()->clone() );
 	    }
 	    else if ( !is3d )
 	    {

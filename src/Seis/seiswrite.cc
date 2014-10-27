@@ -37,7 +37,7 @@ const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 	: SeisStoreAccess(ioob)
-	, lineauxiopar_(*new IOPar)
+	, auxpars_(*new IOPar)
 	, gidp_(l)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
@@ -49,7 +49,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const GeomIDProvider* l )
 
 SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is_2d, bool isps )
 	: SeisStoreAccess(fnm,is_2d,isps)
-	, lineauxiopar_(*new IOPar)
+	, auxpars_(*new IOPar)
 	, gidp_(0)
 	, worktrc_(*new SeisTrc)
 	, makewrready_(true)
@@ -73,7 +73,7 @@ SeisTrcWriter::~SeisTrcWriter()
 {
     close();
     delete linedata_;
-    delete &lineauxiopar_;
+    delete &auxpars_;
     delete &worktrc_;
 }
 
@@ -282,7 +282,7 @@ bool SeisTrcWriter::next2DLine()
     if ( !datatype_.isEmpty() )
 	lineiopar->set( sKey::DataType(), datatype_.buf() );
 
-    lineiopar->merge( lineauxiopar_ );
+    lineiopar->merge( auxpars_ );
     putter_ = dataset_->linePutter( lineiopar );
 
     if ( !putter_ )
