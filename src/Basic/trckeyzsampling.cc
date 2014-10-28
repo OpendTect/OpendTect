@@ -363,7 +363,7 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 	pars.get( sKey::StepCrl(), step_.trcNr() );
     }
 
-    if ( !pars.get( sKey::SurvID(), survid_ ) )
+    if ( !pars.get( sKey::SurveyID(), survid_ ) )
     {
 	survid_ = Survey::GM().default3DSurvID();
     }
@@ -380,7 +380,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
     pars.set( sKey::LastCrl(), stop_.trcNr() );
     pars.set( sKey::StepInl(), step_.lineNr() );
     pars.set( sKey::StepCrl(), step_.trcNr() );
-    pars.set( sKey::SurvID(), survid_ );
+    pars.set( sKey::SurveyID(), survid_ );
 }
 
 
