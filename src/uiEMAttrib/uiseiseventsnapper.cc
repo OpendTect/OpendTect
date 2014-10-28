@@ -170,9 +170,9 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* cb )
 	    if ( !newhor2d )
 		return false;
 
-	    Seis2DLineSetEventSnapper snapper( hor2d, newhor2d,
-		    Seis2DLineSetEventSnapper::Setup(eventfld_->getIntValue()+1,
-						     rg) );
+	    SeisEventSnapper2D::Setup su(
+		    seisioobj, eventfld_->getIntValue()+1, rg );
+	    SeisEventSnapper2D snapper( hor2d, newhor2d, su );
 
 	    uiTaskRunner dlg( this );
 	    if ( !TaskRunner::execute( &dlg, snapper ) )

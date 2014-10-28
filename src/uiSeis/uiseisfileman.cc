@@ -78,12 +78,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p, bool is2d )
 						    : "Copy cube",
 				    mCB(this,uiSeisFileMan,copyPush) );
     if ( is2d )
-    {
 	man2dlines_ = manipgrp->addButton( "man2d", "Manage lines",
 					   mCB(this,uiSeisFileMan,man2DPush) );
-	dumpgeombut_ = manipgrp->addButton( "dumpgeom", "Dump geometry",
-					   mCB(this,uiSeisFileMan,dump2DPush) );
-    }
     else
     {
 	mergecubesbut_ = manipgrp->addButton( "mergeseis",
@@ -165,13 +161,6 @@ void uiSeisFileMan::setToolButtonProperties()
 	man2dlines_->setSensitive( !cursel.isEmpty() );
 	mSetButToolTip(man2dlines_,"Manage 2D lines in '",cursel,"'",
 		       "Manage lines");
-    }
-
-    if ( dumpgeombut_ )
-    {
-	dumpgeombut_->setSensitive( !cursel.isEmpty() );
-	mSetButToolTip(dumpgeombut_,"Dump '",cursel,"' line geometries",
-		       "Dump geometry");
     }
 
     if ( attribbut_ )

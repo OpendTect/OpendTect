@@ -64,6 +64,36 @@ protected:
 \brief ExecutorGroup to snap 2D seismic line set event.
 */
 
+mExpClass(EMAttrib) SeisEventSnapper2D : public ExecutorGroup
+{
+public:
+
+    mExpClass(EMAttrib) Setup
+    {
+    public:
+				Setup(const IOObj* obj,int typ,
+				      const Interval<float>& gt)
+				    : seisioobj_(obj)
+				    , type_(typ)
+				    , gate_(gt) {}
+	mDefSetupMemb(const IOObj*,seisioobj)
+	mDefSetupMemb(int,type)
+	mDefSetupMemb(Interval<float>,gate)
+    };
+				SeisEventSnapper2D(const EM::Horizon2D*,
+					EM::Horizon2D*,const Setup&);
+				~SeisEventSnapper2D();
+protected:
+    int				type_;
+    Interval<float>		gate_;
+    const EM::Horizon2D*	orghor_;
+    EM::Horizon2D*		newhor_;
+    EM::Hor2DSeisLineIterator*	hor2diterator_;
+};
+
+
+// deprecated , do not use
+
 mExpClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
 {
 public:

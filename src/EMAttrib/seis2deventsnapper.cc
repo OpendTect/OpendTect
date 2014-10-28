@@ -63,6 +63,35 @@ int Seis2DEventSnapper::nextStep()
 }
 
 
+SeisEventSnapper2D::SeisEventSnapper2D( const EM::Horizon2D* hor,
+					EM::Horizon2D* newhor,const Setup& su )
+    : ExecutorGroup("Seis Lineset Iterator", true)
+    , orghor_(hor)
+    , newhor_(newhor)
+    , type_(su.type_)
+    , gate_(su.gate_)
+{
+    hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
+    while ( hor2diterator_->next() )
+    {
+	Pos::GeomID lineid = Survey::GM().getGeomID(hor2diterator_->lineName());
+	if ( lineid == Survey::GeometryManager::cUndefGeomID() )
+	    continue;
+	Seis2DEventSnapper::Setup setup( su.seisioobj_, lineid, gate_ );
+	Seis2DEventSnapper* snapper =
+	    new Seis2DEventSnapper( *orghor_, *newhor_, setup );
+	snapper->setEvent( VSEvent::Type(type_) );
+	add( snapper );
+    }
+}
+
+
+SeisEventSnapper2D::~SeisEventSnapper2D()
+{
+    delete hor2diterator_;
+}
+
+
 Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
 					EM::Horizon2D* newhor,const Setup& su )
     : ExecutorGroup("Seis Lineset Iterator", true)
