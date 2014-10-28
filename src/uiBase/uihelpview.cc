@@ -60,7 +60,8 @@ HelpProvider* FlareHelpProvider::createInstance()
 
 static const char* fileprot = "file:///";
 
-static void initHelpSystem( const char* context, const char* path )
+void FlareHelpProvider::initHelpSystem( const char* context,
+					const char* path )
 {
     FilePath subpath( path, mHtmlFileName );
     FilePath basefile = GetDocFileDir( "" );
@@ -88,7 +89,7 @@ static void initHelpSystem( const char* context, const char* path )
 void FlareHelpProvider::initODHelp()
 {
     initHelpSystem( "od", "od_userdoc" );
-    initHelpSystem( "appman", "appmandoc" );
+//    initHelpSystem( "appman", "appmandoc" );
 }
 
 

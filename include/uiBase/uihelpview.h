@@ -32,6 +32,11 @@ private:
     void			provideHelp(const char*) const;
     bool			hasHelp(const char*) const { return true; }
     BufferString		baseurl_;
+
+public:
+				//Internal to dGB
+    static void			initHelpSystem(const char* context,
+	    				       const char* path);
 };
 
 
