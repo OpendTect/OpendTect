@@ -5,20 +5,25 @@
 #	RCS:		$Id$
 #_______________________________________________________________________________
 
-SET( OD_MODULE_DEPS VolumeProcessing )
-SET( OD_IS_PLUGIN yes )
-SET( OD_MODULE_SOURCES
+set( MATLAB_DIR "" CACHE PATH "Directory containing MATLAB-SDK" )
+
+if ( NOT MATLAB_DIR STREQUAL "" )
+
+    set( OD_MODULE_DEPS VolumeProcessing )
+    set( OD_IS_PLUGIN yes )
+    set( OD_MODULE_SOURCES
+	matlabarray.cc
 	matlablibmgr.cc
 	matlablinkpi.cc
 	matlabstep.cc
-)
+    )
 
-IF( DEFINED ENV{MATLABDIR} )
-    LIST( APPEND OD_MODULE_SOURCES matlabarray.cc )
-    LIST( APPEND OD_MODULE_INCLUDESYSPATH $ENV{MATLABDIR}/extern/include )
-    LIST( APPEND OD_MODULE_EXTERNAL_LIBS $ENV{MATLABDIR}/bin/glnxa64/libmx.so )
-    ADD_DEFINITIONS( -DHAS_MATLAB )
-ENDIF()
+    list( APPEND OD_MODULE_INCLUDESYSPATH ${MATLAB_DIR}/extern/include )
+    list( APPEND OD_MODULE_EXTERNAL_LIBS ${MATLAB_DIR}/bin/glnxa64/libmx.so ${MATLAB_DIR}/bin/glnxa64/libmwmclmcr.so )
+    add_definitions( -DHAS_MATLAB )
 
-SET( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
-OD_INIT_MODULE()
+    set( OD_PLUGIN_ALO_EXEC ${OD_VOLUME_EXECS} )
+
+    OD_INIT_MODULE()
+
+endif()

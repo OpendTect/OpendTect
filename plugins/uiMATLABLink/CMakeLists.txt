@@ -5,11 +5,15 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
-SET(OD_MODULE_DEPS uiODMain MATLABLink )
-SET(OD_IS_PLUGIN yes)
-SET(OD_MODULE_SOURCES
+if ( NOT MATLAB_DIR STREQUAL "" )
+
+    SET(OD_MODULE_DEPS uiODMain MATLABLink )
+    SET(OD_IS_PLUGIN yes)
+    SET(OD_MODULE_SOURCES
 	uimatlablinkpi.cc
 	uimatlabstep.cc
-)
-SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
-OD_INIT_MODULE()
+    )
+    SET( OD_PLUGIN_ALO_EXEC ${OD_MAIN_EXEC} )
+    OD_INIT_MODULE()
+
+endif()
