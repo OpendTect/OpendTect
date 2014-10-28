@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "menuhandler.h"
 #include "multiid.h"
+#include "uistring.h"
 
 class uiVisPartServer;
 class uiFlatViewMainWin;

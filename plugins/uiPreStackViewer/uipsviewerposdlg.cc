@@ -157,10 +157,8 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		newpos.crl() = location;
 	    else
 	    {
-		BufferString msg = "The cross-line should be between ";
-		msg += crlrg.start;
-		msg += " and ";
-		msg += crlrg.stop;
+		uiString msg = tr("The cross-line should be between %1 and %2")
+			     .arg(crlrg.start).arg(crlrg.stop);
 		uiMSG().error( msg );
 		return false;
 	    }
@@ -175,10 +173,8 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 		newpos.inl() = location;
 	    else
 	    {
-		BufferString msg = "The in-line should be between ";
-		msg += inlrg.start;
-		msg += " and ";
-		msg += inlrg.stop;
+		uiString msg = tr("The in-line should be between %1 and %2")
+			     .arg(inlrg.start).arg(inlrg.stop);
 		uiMSG().error( msg );
 		return false;
 	    }
@@ -198,10 +194,8 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
 	if ( !trcrg.includes(location, true) )
 	{
-	    BufferString msg = "The trace number should be between ";
-	    msg += trcrg.start;
-	    msg += " and ";
-	    msg += trcrg.stop;
+	    uiString msg = tr("The trace number should be between %1 and %2")
+			 .arg(trcrg.start).arg(trcrg.stop);
 	    uiMSG().error( msg );
 	    return false;
 	}
