@@ -84,7 +84,9 @@ void RequestConnection::connCloseCB( CallBacker* )
 {
     connectionClosed.trigger();
 
-    deleteAndZeroPtr( socket_, ownssocket_ );
+    // deleteAndZeroPtr( socket_, ownssocket_ );
+    // The socket_ will often contain a very bad pointer
+    socket_ = 0;
 }
 
 
