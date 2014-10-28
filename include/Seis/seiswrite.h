@@ -20,6 +20,10 @@ do that separately. If you want to do some component and range selections
 using the SeisTrcTranslator (3D only), you must do that before prepareWork
 is done.
 
+The auxPars() can be use for line or cube pars that may be of interest. For 2D,
+there can be aux pars for the line, for 3D it is used to give a hint for the
+output cube's setup and extent.
+
 */
 
 #include "seismod.h"
@@ -53,6 +57,7 @@ public:
 
     bool		isMultiComp() const;
     bool		isMultiConn() const;
+    IOPar&		auxPars()			{ return lineauxiopar_;}
 
     void		writeBluntly( bool yn=true )	{ makewrready_ = !yn; }
 
@@ -71,6 +76,7 @@ public:
     void		setAttrib( const char* a )	{ attribnm_ = a; }
 				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar_;}
+				// DEPRECATED, use auxPars()
     void		setDataType( const char* dt )	{ datatype_ = dt; }
 
     static const char*	sKeyWriteBluntly();
@@ -105,7 +111,7 @@ protected:
     BufferString	attribnm_;
     Seis2DLinePutter*	putter_;
     PosInfo::Line2DData* linedata_;
-    IOPar&		lineauxiopar_;
+    IOPar&		lineauxiopar_; // will be renamed to auxpars_ after 5.0
     Pos::GeomID		prevgeomid_;
     const GeomIDProvider* gidp_;
     BufferString	datatype_;
