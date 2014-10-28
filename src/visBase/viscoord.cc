@@ -27,7 +27,8 @@ class SetOrGetCoordinates: public ParallelTask
 public:
     SetOrGetCoordinates(Coordinates* p, const od_int64 size, 	
 		       const Coord3* inpositions = 0,
-		       TypeSet<Coord3>* outpositions= 0,int startidx=0);
+		       TypeSet<Coord3>* outpositions= 0,int startidx=0,
+		       bool scenespace = false );
     od_int64	totalNr() const { return totalnrcoords_; }
     void	setWithSingleCoord(const Coord3 coord)
 		{singlecoord_ = coord;setwithsinglecoord_ = true;}
@@ -44,13 +45,14 @@ private:
     Coord3			singlecoord_;
     bool			setwithsinglecoord_;
     const int			startidx_;
+    bool			scenespace_; 
 };
 
 
 SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p, const od_int64 size,
 					  const Coord3* inpositions,
 					  TypeSet<Coord3>* outpositions,
-					  int startidx )
+					  int startidx, bool scenespace  )
     : coordinates_( p )
     , totalnrcoords_( size )
     , inpositions_( inpositions )
@@ -58,6 +60,7 @@ SetOrGetCoordinates::SetOrGetCoordinates( Coordinates* p, const od_int64 size,
     , setwithsinglecoord_( false )
     , singlecoord_( Coord3( 0,0,0 ) )
     , startidx_( startidx )
+    , scenespace_( scenespace )
 {
     if ( outpositions ) outpositions->setSize( size, Coord3::udf() );
     if ( (startidx_+size)>= p->size() )
@@ -74,11 +77,11 @@ bool SetOrGetCoordinates::doWork(od_int64 start,od_int64 stop,int)
     {
 	if ( inpositions_ )
 	{
-	 if ( !setwithsinglecoord_ )
-	    coordinates_->setPosWithoutLock( 
-	    startidx_+idx, inpositions_[idx], false );
-	 else
-	    coordinates_->setPosWithoutLock( startidx_+idx,singlecoord_,false );
+	    const Coord3& pos = setwithsinglecoord_ ? 
+			       singlecoord_ : inpositions_[idx];
+
+	    coordinates_->setPosWithoutLock( startidx_+idx, 
+					     pos, scenespace_ );
 	}
 	else
 	{
@@ -264,7 +267,7 @@ bool Coordinates::isDefined( int idx ) const
 void Coordinates::setPos( int idx, const Coord3& pos )
 {
     Threads::MutexLocker lock( mutex_ );
-    setPosWithoutLock(idx,pos,false);
+    setPosWithoutLock( idx, pos,false );
     change.trigger();
 }
 
@@ -398,7 +401,7 @@ void Coordinates::setPositions( const Coord3* pos, int sz, int start,
 
     Threads::MutexLocker lock( mutex_ );
 
-    SetOrGetCoordinates setcoordinates( this, sz, pos, 0, start );
+    SetOrGetCoordinates setcoordinates( this, sz, pos, 0, start, scenespace );
     setcoordinates.execute();
 
     change.trigger();
