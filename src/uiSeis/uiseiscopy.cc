@@ -31,12 +31,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 
 uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
-    : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Copy cube"),mNoDlgTitle,mODHelpKey(mSeisCopyHelpID)))
     , ismc_(false)
 {
     setCtrlStyle( RunAndClose );
 
-    IOObjContext inctxt( uiSeisSel::ioContext( Seis::Vol, true ) );
+    IOObjContext inctxt( uiSeisSel::ioContext(Seis::Vol,true) );
     uiSeisSel::Setup sssu( Seis::Vol );
     sssu.steerpol( uiSeisSel::Setup::InclSteer );
 
@@ -59,7 +59,7 @@ uiSeisCopyCube::uiSeisCopyCube( uiParent* p, const IOObj* startobj )
     transffld_ = new uiSeisTransfer( this, sts );
     transffld_->attach( alignedBelow, compfld_ );
 
-    IOObjContext outctxt( uiSeisSel::ioContext( Seis::Vol, false ) );
+    IOObjContext outctxt( uiSeisSel::ioContext(Seis::Vol,false) );
     outfld_ = new uiSeisSel( this, outctxt, sssu );
     outfld_->attach( alignedBelow, transffld_ );
 

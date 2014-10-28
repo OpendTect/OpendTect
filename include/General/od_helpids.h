@@ -169,7 +169,7 @@ ________________________________________________________________________
 #define		mSeisImpCBVSFromOtherSurveyDlgHelpID	        0x10300022
 // Seismics Manage 01
 #define		mSeisFileMan3DHelpID			        0x10301000
-#define		mSeisImpCBVSCopyHelpID			        0x10301001
+#define		mSeisCopyHelpID					0x10301001
 #define		mMergeSeisHelpID				0x10301002
 #define		mSeis2DManHelpID				0x10301003
 #define		mSeisDump2DGeomHelpID			        0x10301004
