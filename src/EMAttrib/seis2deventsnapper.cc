@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 
 
-Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
+Seis2DLineEventSnapper::Seis2DLineEventSnapper( const EM::Horizon2D& orghor,
 					EM::Horizon2D& newhor, const Setup& su )
     : SeisEventSnapper(su.gate_)
     , orghor_(orghor)
@@ -34,13 +34,13 @@ Seis2DEventSnapper::Seis2DEventSnapper( const EM::Horizon2D& orghor,
 }
 
 
-Seis2DEventSnapper::~Seis2DEventSnapper()
+Seis2DLineEventSnapper::~Seis2DLineEventSnapper()
 {
     delete seisrdr_;
 }
 
 
-int Seis2DEventSnapper::nextStep()
+int Seis2DLineEventSnapper::nextStep()
 {
     //TODO: Support multiple sections
 
@@ -63,7 +63,7 @@ int Seis2DEventSnapper::nextStep()
 }
 
 
-Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
+SeisEventSnapper2D::SeisEventSnapper2D( const EM::Horizon2D* hor,
 					EM::Horizon2D* newhor,const Setup& su )
     : ExecutorGroup("Seis Lineset Iterator", true)
     , orghor_(hor)
@@ -72,21 +72,21 @@ Seis2DLineSetEventSnapper::Seis2DLineSetEventSnapper( const EM::Horizon2D* hor,
     , gate_(su.gate_)
 {
     hor2diterator_ = new EM::Hor2DSeisLineIterator( *hor );
-    /*while ( hor2diterator_->next() )
+    while ( hor2diterator_->next() )
     {
-	const int lineid = hor2diterator_->lineSetIndex( attribnm_ );
-	const LineKey& lk = hor2diterator_->lineSet()->lineKey( lineid );
-	const IOObj* ioobj = IOM().get( hor2diterator_->lineSetKey() );
-	Seis2DEventSnapper* snapper =
-	    new Seis2DEventSnapper( *orghor_, *newhor_,
-		    		    Seis2DEventSnapper::Setup(ioobj,lk,gate_) );
+	Pos::GeomID lineid = Survey::GM().getGeomID(hor2diterator_->lineName());
+	if ( lineid == Survey::GeometryManager::cUndefGeomID() )
+	    continue;
+	Seis2DLineEventSnapper::Setup setup( su.seisioobj_, lineid, gate_ );
+	Seis2DLineEventSnapper* snapper =
+	    new Seis2DLineEventSnapper( *orghor_, *newhor_, setup );
 	snapper->setEvent( VSEvent::Type(type_) );
 	add( snapper );
-    }*/
+    }
 }
 
 
-Seis2DLineSetEventSnapper::~Seis2DLineSetEventSnapper()
+SeisEventSnapper2D::~SeisEventSnapper2D()
 {
     delete hor2diterator_;
 }

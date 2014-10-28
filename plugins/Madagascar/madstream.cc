@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 #include "od_iostream.h"
 #include <iostream>
@@ -346,21 +347,24 @@ void MadStream::fillHeaderParsFromSeis()
 	const int lidx = dset.indexOf( seldata->geomID() );
 	if (lidx < 0) mErrRet(tr("2D Line not found"));
 
-	PosInfo::Line2DData geom( Survey::GM().getName(seldata->geomID()) );
-	if ( !S2DPOS().getGeometry(geom) )
-	    mErrRet(tr("Line geometry not available"));
+	const Survey::Geometry* geom =
+	    Survey::GM().getGeometry( seldata->geomID() );
+	mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
+	if ( !geom2d )
+	    mErrRet( "Line geometry not available" );
+	PosInfo::Line2DData l2dd = geom2d->data();
 
 	if ( !seldata->isAll() )
 	{
-	    geom.limitTo( seldata->crlRange() );
-	    StepInterval<float> gzrg( geom.zRange() );
+	    l2dd.limitTo( seldata->crlRange() );
+	    StepInterval<float> gzrg( l2dd.zRange() );
 	    gzrg.limitTo( seldata->zRange() );
-	    geom.setZRange( gzrg );
+	    l2dd.setZRange( gzrg );
 	}
 
-	nrtrcs = geom.positions().size();
-	zrg = geom.zRange();
-	mWriteToPosFile( geom )
+	nrtrcs = l2dd.positions().size();
+	zrg = l2dd.zRange();
+	mWriteToPosFile( l2dd )
     }
     else
     {

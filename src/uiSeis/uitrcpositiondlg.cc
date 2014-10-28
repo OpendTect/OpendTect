@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "position.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "posinfo2dsurv.h"
 
 #include "uicombobox.h"
@@ -228,10 +229,13 @@ bool uiTrcPositionDlg::getSelLineGeom( PosInfo::Line2DData& l2ddata )
     const IOObj* obj = objinfo.ioObj();
     if ( !obj ) return false;
 
-    S2DPOS().setCurLineSet( obj->name() );
     const char* sellnm = linesfld_->box()->text();
-    l2ddata.setLineName( sellnm );
-    return S2DPOS().getGeometry( l2ddata ) ? true : false;
+    const Survey::Geometry* geom = Survey::GM().getGeometry( sellnm );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
+    if ( !geom2d )
+	return false;
+    l2ddata = geom2d->data();
+    return true;
 }
 
 

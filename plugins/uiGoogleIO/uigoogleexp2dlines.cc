@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "strmprov.h"
 #include "draw.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
 #include "posinfo2dsurv.h"
@@ -130,9 +131,11 @@ void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );
-    PosInfo::Line2DData l2dd( lnm );
-    if ( iln < 0 || !S2DPOS().getGeometry(l2dd) )
+    const Survey::Geometry* geom = Survey::GM().getGeometry( lnm );
+    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom)
+    if ( iln < 0 || !geom2d )
 	return;
+    PosInfo::Line2DData l2dd = geom2d->data();
     const int nrposns = l2dd.positions().size();
     if ( nrposns < 2 )
 	return;

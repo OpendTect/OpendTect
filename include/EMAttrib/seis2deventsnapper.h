@@ -28,7 +28,7 @@ class IOObj;
 \brief SeisEventSnapper for 2D.
 */
 
-mExpClass(EMAttrib) Seis2DEventSnapper : public SeisEventSnapper
+mExpClass(EMAttrib) Seis2DLineEventSnapper : public SeisEventSnapper
 {
 public:
 
@@ -44,10 +44,10 @@ public:
 	mDefSetupMemb(Pos::GeomID,geomid)
 	mDefSetupMemb(Interval<float>,gate)
     };
-				Seis2DEventSnapper(const EM::Horizon2D&,
+				Seis2DLineEventSnapper(const EM::Horizon2D&,
 					   EM::Horizon2D&,
-					   const Seis2DEventSnapper::Setup&);
-				~Seis2DEventSnapper();
+					  const Seis2DLineEventSnapper::Setup&);
+				~Seis2DLineEventSnapper();
 
 protected:
     virtual int			nextStep();
@@ -64,23 +64,25 @@ protected:
 \brief ExecutorGroup to snap 2D seismic line set event.
 */
 
-mExpClass(EMAttrib) Seis2DLineSetEventSnapper : public ExecutorGroup
+mExpClass(EMAttrib) SeisEventSnapper2D : public ExecutorGroup
 {
 public:
 
     mExpClass(EMAttrib) Setup
     {
     public:
-				Setup(int typ,
+				Setup(const IOObj* ioobj,int typ,
 				      const Interval<float>& gt)
-				    : type_(typ)
+				    : seisioobj_(ioobj)
+				    , type_(typ)
 				    , gate_(gt) {}
+	mDefSetupMemb(const IOObj*,seisioobj)
 	mDefSetupMemb(int,type)
 	mDefSetupMemb(Interval<float>,gate)
     };
-				Seis2DLineSetEventSnapper(const EM::Horizon2D*,
+				SeisEventSnapper2D(const EM::Horizon2D*,
 					EM::Horizon2D*,const Setup&);
-				~Seis2DLineSetEventSnapper();
+				~SeisEventSnapper2D();
 protected:
     int				type_;
     Interval<float>		gate_;
