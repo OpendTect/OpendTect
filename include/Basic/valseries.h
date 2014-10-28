@@ -143,11 +143,7 @@ protected:
 
 #undef mImplArr
 
-#ifdef __is32bits__
-#define mChunkSize	0x20000000
-#else
-#define mChunkSize	0x800000000
-#endif
+#define mChunkSize	(__is32bits__ ? 0x20000000 : 0x800000000)
 
 
 /*!

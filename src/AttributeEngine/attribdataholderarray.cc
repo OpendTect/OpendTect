@@ -146,10 +146,98 @@ void DataHolderArray::getAll( float* ptr ) const
 }
 
 
-void DataHolderArray::getAll( ValueSeries<float>& vs ) const
+void DataHolderArray::getAll( ValueSeries<float>& outvs ) const
 {
-    ArrayND<float>::getAll( vs );
+    float* outptr = outvs.arr();
+    if ( outptr )
+    {
+	getAll( outptr );
+	return;
+    }
+
+    od_int64 outidx = 0;
+    if( type_==0 )
+    {
+	const int nrseries = info_.getSize( 0 );
+	const int nrdataholders = info_.getSize( 1 );
+	const int nrsamples = info_.getSize( 2 );
+	TypeSet<int> valididxs = dh_[0]->validSeriesIdx();
+
+	for( int seridx = 0; seridx<nrseries; seridx++ )
+	{
+	    const int sidx = valididxs[seridx];
+	    for( int dhidx = 0; dhidx<nrdataholders; dhidx++ )
+	    {
+		const ValueSeries<float>* srcvs = dh_[dhidx]->series( sidx );
+		const float* srcptr = srcvs ? srcvs->arr() : 0;
+		if( srcptr )
+		{
+		    for ( int idx=0; idx<nrsamples; idx++ )
+		    {
+			outvs.setValue( outidx, srcptr[idx] );
+			outidx++;
+		    }
+		}
+		else if ( srcvs )
+		{
+		    for( int idx = 0; idx<nrsamples; idx++)
+		    {
+			outvs.setValue( outidx, srcvs->value(idx) );
+			outidx++;
+		    }
+		}
+		else
+		{
+		    for( int idx = 0; idx<nrsamples; idx++ )
+		    {
+			outvs.setValue(outidx, mUdf(float) );
+			outidx++;
+		    }
+		}
+	    }
+	}
+    }
+    else
+    {
+	const int sz0 = info_.getSize( 0 );
+	const int sz1 = info_.getSize( 1 );
+	const int sz2 = info_.getSize( 2 );
+	for( int i0 = 0; i0<sz0; i0++ )
+	{
+	    for( int i1 = 0; i1<sz1; i1++ )
+	    {
+		const int dhidx = ( i0*sz1 ) + i1;
+		const ValueSeries<float>* srcvs = 
+		    dh_[dhidx]->series( seriesidx_ );
+		const float* srcptr = srcvs ? srcvs->arr() : 0;
+
+		if( srcptr )
+		{
+		    for( int idx = 0; idx<sz2; idx++ )
+		    {
+			outvs.setValue( outidx,srcptr[idx] );
+			outidx++;
+		    }
+		}
+		else if( srcvs )
+		{
+		    for( int idx = 0; idx<sz2; idx++ )
+		    {
+			outvs.setValue( outidx,srcvs->value(idx) );
+			outidx++;
+		    }
+		}
+		else
+		{
+		    for( int idx = 0; idx<sz2; idx++ )
+		    {
+			outvs.setValue( outidx,mUdf(float) );
+			outidx++;
+		    }
+		}
+	    }
+	}
+    }
 }
-
-
+ 
 } // namespace Attrib
