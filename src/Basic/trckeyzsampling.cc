@@ -150,6 +150,10 @@ bool TrcKeySampling::includes( const TrcKeySampling& tks,
 
 void TrcKeySampling::includeLine( Pos::LineID lid )
 {
+#ifdef __debug__
+    if ( mIsUdf(survid_) )
+	pErrMsg("survid_ is not set");
+#endif
     if ( mIsUdf(start_.lineNr()) || mIsUdf(stop_.lineNr()) || nrLines()<1 )
 	start_.lineNr() = stop_.lineNr() = lid;
     else
@@ -162,6 +166,11 @@ void TrcKeySampling::includeLine( Pos::LineID lid )
 
 void TrcKeySampling::includeTrc( Pos::TraceID trcid )
 {
+#ifdef __debug__
+    if ( mIsUdf(survid_) )
+	pErrMsg("survid_ is not set");
+#endif
+
     if ( mIsUdf(start_.trcNr()) || mIsUdf(stop_.trcNr()) || nrTrcs()<1 )
 	start_.trcNr() = stop_.trcNr() = trcid;
     else
@@ -176,14 +185,14 @@ void TrcKeySampling::include( const TrcKeySampling& tks, bool ignoresteps )
 {
     if ( ignoresteps )
     {
-	include( tks.start_ );
-	include( tks.stop_ );
+	include( TrcKey( tks.survid_, tks.start_) );
+	include( TrcKey( tks.survid_, tks.stop_ ) );
 	return;
     }
 
     TrcKeySampling temp( *this );
-    temp.include( tks.start_ );
-    temp.include( tks.stop_ );
+    temp.include( TrcKey( tks.survid_, tks.start_) );
+    temp.include( TrcKey( tks.survid_, tks.stop_ ) );
 
 #define mHandleIC( ic ) \
     const int newstart_##ic = temp.start_.ic(); \
@@ -215,8 +224,7 @@ void TrcKeySampling::get( Interval<int>& inlrg, Interval<int>& crlrg ) const
 
 bool TrcKeySampling::isDefined() const
 {
-    return !mIsUdf(survid_) &&
-	   !mIsUdf(start_.lineNr()) && !mIsUdf(start_.trcNr()) &&
+    return !mIsUdf(start_.lineNr()) && !mIsUdf(start_.trcNr()) &&
 	   !mIsUdf(stop_.lineNr()) && !mIsUdf(stop_.trcNr()) &&
 	   !mIsUdf(step_.lineNr()) && !mIsUdf(step_.trcNr());
 }
@@ -355,6 +363,11 @@ bool TrcKeySampling::usePar( const IOPar& pars )
 	pars.get( sKey::StepCrl(), step_.trcNr() );
     }
 
+    if ( !pars.get( sKey::SurvID(), survid_ ) )
+    {
+	survid_ = Survey::GM().default3DSurvID();
+    }
+
     return inlok && crlok;
 }
 
@@ -367,6 +380,7 @@ void TrcKeySampling::fillPar( IOPar& pars ) const
     pars.set( sKey::LastCrl(), stop_.trcNr() );
     pars.set( sKey::StepInl(), step_.lineNr() );
     pars.set( sKey::StepCrl(), step_.trcNr() );
+    pars.set( sKey::SurvID(), survid_ );
 }
 
 
@@ -637,6 +651,11 @@ TrcKey TrcKeySampling::trcKeyAt( od_int64 globalidx ) const
 
 void TrcKeySampling::include( const TrcKey& trckey )
 {
+    if ( mIsUdf(survid_) ) survid_ = trckey.survID();
+#ifdef __debug__
+    else if ( survid_!=trckey.survID() )
+	pErrMsg("SurvID should be the same");
+#endif
     includeLine( trckey.lineNr() );
     includeTrc( trckey.trcNr() );
 }
