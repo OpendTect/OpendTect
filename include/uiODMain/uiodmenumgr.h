@@ -52,6 +52,7 @@ public:
     uiMenu*		viewMnu()		{ return viewmnu_; }
     uiMenu*		utilMnu()		{ return utilmnu_; }
     uiMenu*		helpMnu()		{ return helpmnu_; }
+    uiMenu*		docMnu();
     uiMenu*		settMnu()		{ return settmnu_; }
     uiMenu*		toolsMnu()		{ return toolsmnu_; }
     uiMenu*		installMnu()		{ return installmnu_; }
