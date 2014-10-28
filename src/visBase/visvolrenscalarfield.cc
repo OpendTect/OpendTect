@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "genc.h"
 #include "iopar.h"
-#include "survinfo.h"
 #include "vismaterial.h"
 #include "valseries.h"
 #include "visdataman.h"
@@ -150,9 +149,6 @@ static osg::Matrix getLocatorMatrix( const Coord3& trans, const Coord3& rotvec,
     mat *= osg::Matrix::rotate(
 			osg::Quat(rotangle,Conv::to<osg::Vec3d>(rotvec)) );
     mat *= osg::Matrix::translate( Conv::to<osg::Vec3d>(trans) );
-
-    if ( !SI().isClockWise() )
-	mat *= osg::Matrix::translate( osg::Vec3d(0.0,0.0,fabs(scale.x)) );
 
     return mat;
 }
