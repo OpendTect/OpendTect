@@ -52,7 +52,7 @@ void uiAxisData::renewAxis( const uiString& newcaption, uiGraphicsScene* scene,
 {
     stop();
     defaxsu_.width_ = width;
-    defaxsu_.height_ = height; 
+    defaxsu_.height_ = height;
     delete axis_;
     axis_ = new uiAxisHandler( scene, defaxsu_ );
     axis_->setCaption( newcaption );
@@ -82,7 +82,7 @@ void uiAxisData::handleAutoScale( const Stats::RunCalc<float>& rc )
     }
 
     AxisLayout<float> al( rg_ );
-    axis_->setRange( StepInterval<float>( al.sd_.start, al.stop_, al.sd_.step));
+    axis_->setRange( al.getSampling() );
     needautoscale_ = false;
 }
 
@@ -94,7 +94,7 @@ void uiAxisData::handleAutoScale( const DataClipper& dtclip )
 
     dtclip.getRange( autoscalepars_.clipratio_, rg_ );
     AxisLayout<float> al( rg_ );
-    axis_->setRange( StepInterval<float>( al.sd_.start, al.stop_, al.sd_.step));
+    axis_->setRange( al.getSampling() );
     needautoscale_ = false;
 }
 

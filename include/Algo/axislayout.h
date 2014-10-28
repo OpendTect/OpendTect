@@ -32,6 +32,7 @@ public:
 			    : annotinint_(yn)
 			    { setDataRange(dr); }
     void		setDataRange(const Interval<T>&);
+    StepInterval<T>	getSampling() const;
 
     SamplingData<T>	sd_;
     T			stop_;
@@ -50,6 +51,11 @@ public:
 			// Returns 'modulo' end with this sd_ and stop_
     T			findEnd(T datastop) const;
 };
+
+
+template <class T> inline
+StepInterval<T> AxisLayout<T>::getSampling() const
+{ return StepInterval<T>( sd_.start, stop_, sd_.step ); }
 
 
 template <class T> inline
