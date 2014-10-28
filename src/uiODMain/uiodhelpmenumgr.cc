@@ -43,15 +43,15 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     : helpmnu_( mm->helpMnu() )
     , mnumgr_( mm )
 {
-    uiMenu* docmnu = new uiMenu( tr("Documentation") );
-    helpmnu_->addMenu( docmnu );
-    mInsertItem( docmnu, tr("OpendTect"), mUserDocMnuItm, "F1" );
+    docmnu_ = new uiMenu( tr("Documentation") );
+    helpmnu_->addMenu( docmnu_ );
+    mInsertItem( docmnu_, tr("OpendTect"), mUserDocMnuItm, "F1" );
 
     if ( HelpProvider::hasHelp(HelpKey(DevDocHelp::sKeyFactoryName(),0)))
-	mInsertItem( docmnu, tr("Programmer"), mProgrammerMnuItm, 0 );
+	mInsertItem( docmnu_, tr("Programmer"), mProgrammerMnuItm, 0 );
 
     if ( HelpProvider::hasHelp(HelpKey("appman",0)) )
-	mInsertItem( docmnu, tr("Admin"), mAdminMnuItm, 0 );
+	mInsertItem( docmnu_, tr("Admin"), mAdminMnuItm, 0 );
 
     mInsertItem( helpmnu_, tr("Online Support"), mSupportMnuItm, 0 );
     mInsertItem( helpmnu_, tr("About"), mAboutMnuItm, 0)
@@ -61,6 +61,10 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 uiODHelpMenuMgr::~uiODHelpMenuMgr()
 {
 }
+
+
+uiMenu* uiODHelpMenuMgr::getDocMenu()
+{ return docmnu_; }
 
 
 void uiODHelpMenuMgr::handle( int id )

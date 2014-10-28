@@ -22,12 +22,13 @@ class uiMenu;
 /*!\brief The OpendTect help menu manager */
 
 mExpClass(uiODMain) uiODHelpMenuMgr
-{ mODTextTranslationClass(uiODHelpMenuMgr);
+{ mODTextTranslationClass(uiODHelpMenuMgr)
 public:
 			uiODHelpMenuMgr(uiODMenuMgr*);
 			~uiODHelpMenuMgr();
 
     void		handle(int);
+    uiMenu*		getDocMenu();
 
 protected:
 
@@ -35,6 +36,7 @@ protected:
 
     uiODMenuMgr*	mnumgr_;
     uiMenu*		helpmnu_;
+    uiMenu*		docmnu_;
 };
 
 #endif
