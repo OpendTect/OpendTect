@@ -636,7 +636,8 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
     SubItem::handleMenuCB( cb );
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->isHandled() || menu->menuID()!=displayID() )
+
+    if ( !menu || menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
     if ( mnuid==changetextmnuitem_.id )
