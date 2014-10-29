@@ -20,11 +20,11 @@ namespace Vel
 {
 
 Function::Function( FunctionSource& vfs )
-    : source_( vfs )
-    , cache_( 0 )
-    , desiredrg_( SI().zRange(true).start, SI().zRange(true).stop,
-	          SI().zRange(true).step )
-    , bid_( mUdf(int),mUdf(int) )
+    : source_(vfs)
+    , cache_(0)
+    , desiredrg_(SI().zRange(true).start,SI().zRange(true).stop,
+	         SI().zRange(true).step)
+    , bid_(mUdf(int),mUdf(int))
 {
     source_.ref();
 }
@@ -70,7 +70,7 @@ void Function::setDesiredZRange( const StepInterval<float>& n )
 { desiredrg_ = n; }
 
 
-float Function::getVelocity( float z )const
+float Function::getVelocity( float z ) const
 {
     Threads::Locker cachelckr( cachelock_ );
     if ( !cache_ )
@@ -134,7 +134,7 @@ BufferString FunctionSource::userName() const
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( ioobj )
 	return ioobj->name();
-    
+
     return BufferString( factoryKeyword() );
 }
 
@@ -149,7 +149,7 @@ void FunctionSource::refFunction( const Function* func )
 	functions_ += const_cast<Function*>( func );
 	refcounts_ += 0;
     }
-    
+
     refcounts_[idx]++;
 }
 
@@ -183,8 +183,8 @@ const char* FunctionSource::errMsg() const
 { return errmsg_.str(); }
 
 
-void FunctionSource::getSurroundingPositions( const BinID& bid, 
-						      BinIDValueSet& bids) const
+void FunctionSource::getSurroundingPositions( const BinID& bid,
+					      BinIDValueSet& bids) const
 {
     BinIDValueSet mybids( 0, false );
     getAvailablePositions( mybids );
@@ -212,7 +212,7 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
 
     Threads::Locker lckr( lock_ );
     Function* tmpfunc = 0;
-    int idx = findFunction( bid );  
+    int idx = findFunction( bid );
     if ( idx==-1 )
     {
  	tmpfunc = createFunction( bid );
@@ -228,13 +228,12 @@ ConstRefMan<Function> FunctionSource::getFunction( const BinID& bid )
        	refcounts_[idx]++;
     }
     lckr.unlockNow();
-    
+
     ConstRefMan<Function> res = tmpfunc;
     tmpfunc->unRef();
-    
+
     return res;
 }
 
-
-}; //namespace
+} // namespace Vel
 

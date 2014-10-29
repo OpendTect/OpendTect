@@ -34,7 +34,7 @@ namespace Vel
 
 class FunctionSource;
 
-/*!Velocity versus depth for one location. The source of information is 
+/*!Velocity versus depth for one location. The source of information is
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
@@ -44,7 +44,7 @@ public:
     void			ref() const;
     void			unRef() const;
     void			unRefNoDelete() const;
-    
+
 				Function(FunctionSource&);
     const FunctionSource&	getSource() const 	{ return source_; }
 
@@ -59,7 +59,7 @@ public:
     virtual StepInterval<float>	getAvailableZ() const			= 0;
     void			setDesiredZRange(const StepInterval<float>&);
     const StepInterval<float>&	getDesiredZ() const;
-    
+
 protected:
     virtual 			~Function();
 
@@ -83,9 +83,10 @@ private:
    can create Functions at certian BinID locations. */
 
 mExpClass(Velocity) FunctionSource : public CallBacker
-{ mRefCountImplNoDestructor(FunctionSource);
+{ mRefCountImplNoDestructor(FunctionSource)
 public:
-    mDefineFactory1ParamInClass( FunctionSource, const MultiID&, factory );
+				mDefineFactory1ParamInClass(
+					FunctionSource,const MultiID&,factory)
 
     virtual BufferString	userName() const;
     virtual const VelocityDesc&	getDesc() const				= 0;
@@ -124,8 +125,6 @@ protected:
     Threads::Lock			lock_;
 };
 
-}; //namespace
-
+} // namespace Vel
 
 #endif
-

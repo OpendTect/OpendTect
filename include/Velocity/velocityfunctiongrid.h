@@ -46,7 +46,7 @@ public:
 
 protected:
     			~GriddedFunction();
-    friend		class GriddedSource;			
+    friend		class GriddedSource;
 
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
@@ -108,8 +108,6 @@ protected:
     TypeSet<Coord>			gridsourcecoords_;	//Filtered
 };
 
-
-}; //namespace
+} // namespace Vel
 
 #endif
-

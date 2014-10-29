@@ -49,7 +49,8 @@ protected:
 mExpClass(Velocity) StoredFunctionSource : public FunctionSource
 {
 public:
-    mDefaultFactoryInstanciationBase( "StoredVelFunc", sFactoryKeyword());
+				mDefaultFactoryInstanciationBase(
+					"StoredVelFunc", sFactoryKeyword() );
 
     				StoredFunctionSource();
     static IOObjContext&	ioContext();
@@ -61,7 +62,7 @@ public:
     bool                        store(const MultiID&);
 
     StoredFunction*            	createFunction(const BinID&);
-   
+
     void			getAvailablePositions(BinIDValueSet&) const;
     bool			getVel(const BinID&,TypeSet<float>& zvals,
 	                               TypeSet<float>& vel);
@@ -78,14 +79,12 @@ protected:
 
     static FunctionSource* 	create(const MultiID&);
 				~StoredFunctionSource();
-    
+
     BinIDValueSet		veldata_;
     bool                        zit_;
     VelocityDesc                desc_;
 };
 
-}; // namespace
-
+} // namespace Vel
 
 #endif
-

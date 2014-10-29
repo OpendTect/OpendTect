@@ -72,8 +72,6 @@ protected:
     VelocityDesc	veldesc_;
 };
 
-
-}; //namespace
+} // namespace Vel
 
 #endif
-

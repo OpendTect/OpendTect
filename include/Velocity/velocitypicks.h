@@ -55,13 +55,13 @@ public:
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
 mExpClass(Velocity) Picks : public CallBacker
-{ mRefCountImpl(Picks);
+{ mRefCountImpl(Picks)
 public:
     			Picks();
     			Picks(bool zit);
 
     enum PickType	{ RMO, RMS, Delta, Epsilon, Eta };
-     			DeclareEnumUtils(PickType);
+     			DeclareEnumUtils(PickType)
     PickType		pickType() const;
     void		setPickType( PickType, bool resetcolor );
     const char*		zDomain() const;
@@ -223,7 +223,6 @@ protected:
 
 mGlobal(Velocity) PicksMgr& VPM();
 
-}; //namespace
+} // namespace Vel
 
 #endif
-

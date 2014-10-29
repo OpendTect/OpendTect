@@ -82,6 +82,6 @@ protected:
     BinID	oldbid_;
 };
 
-}; //namespace
+} // namespace Vel
 
 #endif

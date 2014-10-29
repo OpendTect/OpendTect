@@ -61,8 +61,10 @@ protected:
 mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
 {
 public:
-    mDefaultFactoryInstanciationBase( "Velocity volume", sFactoryKeyword() );
+				mDefaultFactoryInstanciationBase(
+					"Velocity volume", sFactoryKeyword() );
     				VolumeFunctionSource();
+
     const VelocityDesc&		getDesc() const 	{ return desc_; }
 
     bool			zIsTime() const;
@@ -77,9 +79,9 @@ public:
     static const char*		sKeyZIsTime() { return "Z is Time"; }
 
 protected:
-    static FunctionSource* create(const MultiID&);
+    static FunctionSource*	create(const MultiID&);
     				~VolumeFunctionSource();
-   
+
     SeisTrcReader*		getReader();
 
     ObjectSet<SeisTrcReader>	velreader_;
@@ -90,8 +92,6 @@ protected:
     VelocityDesc		desc_;
 };
 
-
-}; //namespace
+} // namespace Vel
 
 #endif
-
