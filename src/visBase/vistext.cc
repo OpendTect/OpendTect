@@ -122,12 +122,24 @@ void Text::setText( const uiString& newtext )
 
 void Text::setJustification( Justification just )
 {
-    if ( just==Center )
+    if ( just == Center )
 	osgtext_->setAlignment(osgText::TextBase::CENTER_CENTER );
-    else if ( just==Left )
+    else if ( just == Left )
 	osgtext_->setAlignment( osgText::TextBase::LEFT_CENTER );
-    else
+    else if ( just == Right )
 	osgtext_->setAlignment( osgText::TextBase::RIGHT_CENTER );
+    else if ( just == Top )
+	osgtext_->setAlignment( osgText::TextBase::CENTER_TOP );
+    else if ( just == Bottom )
+	osgtext_->setAlignment( osgText::TextBase::CENTER_BOTTOM );
+    else if ( just == TopLeft )
+	osgtext_->setAlignment( osgText::TextBase::LEFT_TOP );
+    else if ( just == TopRight )
+	osgtext_->setAlignment( osgText::TextBase::RIGHT_TOP );
+    else if ( just == BottomLeft )
+	osgtext_->setAlignment( osgText::TextBase::LEFT_BOTTOM );
+    else if ( just == BottomRight )
+	osgtext_->setAlignment( osgText::TextBase::RIGHT_BOTTOM );
 }
 
 

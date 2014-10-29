@@ -32,18 +32,14 @@ mExpClass(visBase) Text
 public:
 				Text();
 				~Text();
-    enum			Justification { Left, Right, Center };
-    enum			CharacterSizeMode { 
-				Object, Screen, ObjectWithScreenMaximum };
-    enum			AxisAlignment {	XY, 	
-						ReversedXY, 	
-						XZ, 	
-						ReversedXZ, 	
-						YZ, 	
-						ReversedYZ, 	
-						OnScreen, 	
-						User
-					        };
+
+    enum Justification		{ Left, Right, Center, Top, Bottom,
+				  TopLeft, TopRight, BottomLeft, BottomRight };
+
+    enum CharacterSizeMode	{ Object, Screen, ObjectWithScreenMaximum };
+
+    enum AxisAlignment		{ XY, ReversedXY, XZ, ReversedXZ,	
+				  YZ, ReversedYZ, OnScreen, User };
 
     void			setPosition(const osg::Vec3f&);
     void			setPosition(const Coord3&,
