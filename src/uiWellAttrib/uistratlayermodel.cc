@@ -783,6 +783,7 @@ bool uiStratLayerModel::openGenDesc()
 
     mDynamicCastGet(uiMultiFlatViewControl*,mfvc,synthdisp_->control());
     if ( mfvc ) mfvc->reInitZooms();
+    synthdisp_->setSavedViewRect();
     setWinTitle();
     return true;
 }

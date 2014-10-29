@@ -52,6 +52,7 @@ static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
+static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
@@ -85,6 +86,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , isbrinefilled_(true)
     , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
+    , savedzoomwr_(mUdf(double),0,0,0)
 {
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
@@ -881,6 +883,15 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 }
 
 
+void uiStratSynthDisp::setSavedViewRect()
+{
+    if ( mIsUdf(savedzoomwr_.left()) )
+	return;
+    setAbsoluteViewRect( savedzoomwr_ );
+    setZoomView( relzoomwr_ );
+}
+
+
 void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
 				       SeisTrcBuf& tbuf ) const
 {
@@ -1364,6 +1375,14 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 				 nr_nonproprefsynths-1) );
     }
 
+    savedzoomwr_ = curView( false );
+    TypeSet<double> startviewareapts;
+    startviewareapts.setSize( 4 );
+    startviewareapts[0] = savedzoomwr_.left();
+    startviewareapts[1] = savedzoomwr_.top();
+    startviewareapts[2] = savedzoomwr_.right();
+    startviewareapts[3] = savedzoomwr_.bottom();
+    stratsynthpar.set( sKeyViewArea(), startviewareapts );
     stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
     par.removeWithKey( sKeySynthetics() );
     par.mergeComp( stratsynthpar, sKeySynthetics() );
@@ -1454,6 +1473,15 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	int snaplvl = 0;
 	stratsynthpar->get( sKeySnapLevel(), snaplvl );
 	levelsnapselfld_->setCurrentItem( snaplvl );
+	TypeSet<double> startviewareapts;
+	if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
+	     startviewareapts.size() == 4 )
+	{
+	    savedzoomwr_.setLeft( startviewareapts[0] );
+	    savedzoomwr_.setTop( startviewareapts[1] );
+	    savedzoomwr_.setRight( startviewareapts[2] );
+	    savedzoomwr_.setBottom( startviewareapts[3] );
+	}
     }
 
     return true;

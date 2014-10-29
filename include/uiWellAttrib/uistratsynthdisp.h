@@ -116,6 +116,7 @@ public:
     void		resetRelativeViewRect();
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
+    void		setSavedViewRect();
 
 protected:
 
@@ -124,6 +125,7 @@ protected:
     StratSynth*		edstratsynth_;
     const Strat::LayerModelProvider& lmp_;
     uiWorldRect		relzoomwr_;
+    mutable uiWorldRect	savedzoomwr_;
     int			selectedtrace_;
     int			dispeach_;
     float		dispskipz_;
