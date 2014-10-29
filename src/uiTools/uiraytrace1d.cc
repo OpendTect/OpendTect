@@ -121,6 +121,21 @@ uiRayTracer1D* uiRayTracerSel::current()
 }
 
 
+bool uiRayTracerSel::setCurrentType( const char* typestr )
+{
+    for ( int grpidx=0; grpidx<grps_.size(); grpidx++ )
+    {
+	if ( grps_[grpidx]->name() == typestr )
+	{
+	    raytracerselfld_->box()->setCurrentItem( grpidx );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 bool uiRayTracerSel::setCurrent( int selidx )
 {
     if ( !grps_.validIdx(selidx) ) return false;

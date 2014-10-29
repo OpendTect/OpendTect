@@ -282,6 +282,12 @@ void PSAttrib::fillSmootheningPar( IOPar& iopar )
 }
 
 
+void PSAttrib::setAngleData( DataPack::ID angledpid )
+{
+    propcalc_->setAngleData( angledpid );
+}
+
+
 void PSAttrib::setAngleComp( PreStack::AngleComputer* ac )
 {
     if ( anglecomp_ ) anglecomp_->unRef();
@@ -310,6 +316,8 @@ bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool PSAttrib::getAngleInputData()
 {
+    if ( propcalc_->hasAngleData() )
+	return true;
     const PreStack::Gather* gather = propcalc_->getGather();
     if ( !gather || !anglecomp_ )
 	return false;
@@ -384,7 +392,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 	    return false;
 
 	propcalc_->setGather( preprocessor_->getOutput() );
-	if ( anglecomp_ && !getAngleInputData() )
+	if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	    return false;
 
 	return true;
@@ -430,7 +438,7 @@ bool PSAttrib::getInputData( const BinID& relpos, int zintv )
     }
 
     propcalc_->setGather( curgatherid );
-    if ( anglecomp_ && !getAngleInputData() )
+    if ( !propcalc_->hasAngleData() && anglecomp_ && !getAngleInputData() )
 	return false;
 
     return true;

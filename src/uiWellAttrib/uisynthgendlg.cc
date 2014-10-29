@@ -251,10 +251,11 @@ void uiSynthGenDlg::typeChg( CallBacker* )
 {
     updateFieldSensitivity();
     stratsynth_.genParams().synthtype_ =
-	(SynthGenParams::SynthType)typefld_->currentItem();
-    stratsynth_.genParams().raypars_.setEmpty();
-    if ( typefld_->currentItem()==1 )
-	rtsel_->setCurrent( 0 );
+	SynthGenParams::parseEnumSynthType( typefld_->text() );
+    stratsynth_.genParams().setDefaultValues();
+    BufferString raypartype;
+    stratsynth_.genParams().raypars_.get( sKey::Type(), raypartype );
+    rtsel_->setCurrentType( raypartype );
     rtsel_->fillPar( stratsynth_.genParams().raypars_ );
     putToScreen();
     BufferString nm;

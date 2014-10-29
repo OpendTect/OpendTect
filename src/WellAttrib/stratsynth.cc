@@ -63,6 +63,8 @@ static const char* sKeyRayPar()			{ return "Ray Parameter"; }
 static const char* sKeyDispPar()		{ return "Display Parameter"; }
 static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
+static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
+static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
@@ -72,10 +74,23 @@ DefineEnumNames(SynthGenParams,SynthType,0,"Synthetic Type")
 SynthGenParams::SynthGenParams()
 {
     synthtype_ = PreStack;	//init to avoid nasty crash in generateSD!
+    setDefaultValues();
+}
+
+void SynthGenParams::setDefaultValues()
+{
     anglerg_ = sDefaultAngleRange;
-    const BufferStringSet& facnms = RayTracer1D::factory().getNames( false );
+    raypars_.setEmpty();
+    BufferString defrayparstr =
+	synthtype_==ZeroOffset ? sKeySimpleRayTracer()
+			       : sKeyAdvancedRayTracer();
+    const BufferStringSet& facnms = RayTracer1D::factory().getNames();
     if ( !facnms.isEmpty() )
-	raypars_.set( sKey::Type(), facnms.get(0) );
+    {
+	const int typeidx = facnms.indexOf( defrayparstr );
+	FixedString facnm( typeidx>=0 ? facnms.get(typeidx) : facnms.get(0) );
+	raypars_.set( sKey::Type(), facnm );
+    }
 
     RayTracer1D::setIOParsToZeroOffset( raypars_ );
 }
@@ -139,6 +154,14 @@ void SynthGenParams::usePar( const IOPar& par )
 
 void SynthGenParams::createName( BufferString& nm ) const
 {
+    if ( synthtype_==SynthGenParams::AngleStack ||
+	 synthtype_==SynthGenParams::AVOGradient )
+    {
+	nm = SynthGenParams::toString( synthtype_ );
+	nm += " ["; nm += anglerg_.start; nm += ",";
+	nm += anglerg_.stop; nm += "] degrees";
+	return;
+    }
     nm = wvltnm_;
     TypeSet<float> offset;
     raypars_.get( RayTracer1D::sKeyOffset(), offset );
@@ -149,7 +172,13 @@ void SynthGenParams::createName( BufferString& nm ) const
 	nm += "Offset ";
 	nm += ::toString( offset[0] );
 	if ( offsz > 1 )
+	{
 	    nm += "-"; nm += offset[offsz-1];
+	    bool nmocorrected = true;
+	    if ( raypars_.getYN(Seis::SynthGenBase::sKeyNMO(),nmocorrected) &&
+		 !nmocorrected )
+		nm += " uncorrected";
+	}
     }
 }
 
@@ -520,14 +549,18 @@ Interval<float> zrg( cs.zrg ); \
 PtrMan<Attrib::Processor> proc = \
     aem->createTrcSelOutput( errmsg_, bidvals, *dptrcbufs, 0, &zrg); \
 if ( !proc || !proc->getProvider() ) \
-    mErrRet( errmsg_, delete sd; return 0 ) ; \
+    mErrRet( errmsg_, return 0 ) ; \
 proc->getProvider()->setDesiredVolume( cs ); \
-proc->getProvider()->setPossibleVolume( cs );
+proc->getProvider()->setPossibleVolume( cs ); \
+mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
+if ( !psattr ) \
+    mErrRet( proc->message(), return 0 ) ; \
+psattr->setAngleData( presd->angleData().id() );
 
 
 #define mCreateSeisBuf() \
 if ( !TaskRunner::execute(tr_,*proc) ) \
-    mErrRet( proc->message(), delete sd; return 0 ) ; \
+    mErrRet( proc->message(), return 0 ) ; \
 const int crlstep = SI().crlStep(); \
 const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
 		  SI().crlRange(false).stop + crlstep ); \
@@ -539,7 +572,6 @@ for ( int trcidx=0; trcidx<dptrcbufs->size(); trcidx++ ) \
 SeisTrcBufDataPack* angledp = \
     new SeisTrcBufDataPack( dptrcbufs, Seis::Line, \
 			    SeisTrcInfo::TrcNr, synthgenpar.name_ ); \
-delete sd;
 
 SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
 					     const CubeSampling& cs,
@@ -552,22 +584,6 @@ SyntheticData* StratSynth::createAVOGradient( SyntheticData* sd,
     mSetEnum(Attrib::PSAttrib::lsqtypeStr(), PreStack::PropCalc::Coeff );
 
     mSetProc();
-    mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider());
-    if ( !psattr )
-	mErrRet( proc->message(), delete sd; return 0 ) ;
-    PreStack::ModelBasedAngleComputer* anglecomp =
-	new PreStack::ModelBasedAngleComputer;
-    anglecomp->setFFTSmoother( 10.f, 15.f );
-    const ObjectSet<RayTracer1D>& rts = sg.rayTracers();
-    for ( int idx=0; idx<rts.size(); idx++ )
-    {
-	const PreStack::Gather* gather = gathers[idx];
-	const TraceID trcid( gather->getBinID() );
-	anglecomp->setRayTracer( rts[idx], trcid );
-    }
-
-    psattr->setAngleComp( anglecomp );
-
     mCreateSeisBuf();
     return new AVOGradSyntheticData( synthgenpar, *angledp );
 }
@@ -706,6 +722,21 @@ bool StratSynth::createElasticModels()
 }
 
 
+
+bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
+			      const SynthGenParams& synthgenpar )
+{
+    BufferString capt( "Generating ", synthgenpar.name_ );
+    synthgen.setName( capt.buf() );
+    synthgen.setWavelet( wvlt_, OD::UsePtr );
+    const IOPar& raypars = synthgenpar.raypars_;
+    synthgen.usePar( raypars );
+    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
+
+    return TaskRunner::execute( tr_, synthgen );
+}
+
+
 SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 {
     errmsg_.setEmpty();
@@ -716,79 +747,71 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	return 0;
     }
 
+    const bool ispsbased =
+	synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
+	synthgenpar.synthtype_ == SynthGenParams::AVOGradient;
+
     Seis::RaySynthGenerator synthgen( aimodels_ );
-    BufferString capt( "Generating ", synthgenpar.name_ );
-    synthgen.setName( capt.buf() );
-    synthgen.setWavelet( wvlt_, OD::UsePtr );
-    synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
-    const IOPar& raypars = synthgenpar.raypars_;
-    synthgen.usePar( raypars );
-
-    int maxsz = 0;
-    for ( int idx=0; idx<aimodels_.size(); idx++ )
-	maxsz = mMAX( aimodels_[idx].size(), maxsz );
-
-    if ( maxsz == 0 )
-	return 0;
-
-    if ( maxsz == 1 )
-	mErrRet( "Model has only one layer, please add another layer.",
-		return 0; );
-
-    if ( !TaskRunner::execute( tr_, synthgen) )
-	return 0;
-
-    const int crlstep = SI().crlStep();
-    const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
-		      SI().crlRange(false).stop + crlstep );
-
-    ObjectSet<SeisTrcBuf> tbufs;
-    CubeSampling cs( false );
-    for ( int imdl=0; imdl<layMod().size(); imdl++ )
+    if ( !ispsbased )
     {
-	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
-	ObjectSet<SeisTrc> trcs; rm.getTraces( trcs, true );
-	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-	for ( int idx=0; idx<trcs.size(); idx++ )
-	{
-	    SeisTrc* trc = trcs[idx];
-	    trc->info().binid = BinID( bid0.inl, bid0.crl + imdl * crlstep );
-	    trc->info().nr = imdl+1;
-	    cs.hrg.include( trc->info().binid );
-	    if ( !trc->isEmpty() )
-	    {
-		SamplingData<float> sd = trc->info().sampling;
-		StepInterval<float> zrg( sd.start,
-					 sd.start+(sd.step*trc->size()),
-					 sd.step );
-		cs.zrg.include( zrg, false );
-	    }
-
-	    trc->info().coord = SI().transform( trc->info().binid );
-	    tbuf->add( trc );
-	}
-	tbufs += tbuf;
+	if ( !runSynthGen(synthgen,synthgenpar) )
+	    return 0;
     }
 
     SyntheticData* sd = 0;
-    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack ||
-	 synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
-	 synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
+    if ( synthgenpar.synthtype_ == SynthGenParams::PreStack || ispsbased )
     {
-	ObjectSet<PreStack::Gather> gatherset;
-	while ( tbufs.size() )
+	ObjectSet<SeisTrcBuf> tbufs;
+	synthgen.getTraces( tbufs );
+	CubeSampling cs( false );
+	for ( int bufidx=0; bufidx<tbufs.size(); bufidx++ )
 	{
-	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	    PreStack::Gather* gather = new PreStack::Gather();
-	    if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
-		{ delete gather; continue; }
+	    const SeisTrcBuf* tbuf = tbufs[bufidx];
+	    for ( int trcidx=0; trcidx<tbuf->size(); trcidx++ )
+	    {
+		const SeisTrc* trc = tbuf->get( trcidx );
+		cs.hrg.include( trc->info().binid );
+		if ( !trc->isEmpty() )
+		{
+		    SamplingData<float> rg = trc->info().sampling;
+		    StepInterval<float> zrg( rg.start,
+					     rg.start+(rg.step*trc->size()),
+					     rg.step );
+		    cs.zrg.include( zrg, false );
+		}
+	    }
+	}
+	if ( !ispsbased )
+	{
+	    ObjectSet<PreStack::Gather> gatherset;
+	    while ( tbufs.size() )
+	    {
+		PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
+		PreStack::Gather* gather = new PreStack::Gather();
+		if ( !gather->setFromTrcBuf( *tbuf, 0 ) )
+		    { delete gather; continue; }
 
-	    gatherset += gather;
+		gatherset += gather;
+	    }
+
+	    PreStack::GatherSetDataPack* dp =
+		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
+	    sd = new PreStackSyntheticData( synthgenpar, *dp );
+	}
+	else
+	{
+	    BufferString inputsdnm( synthgenpar.inpsynthnm_ );
+	    sd = getSynthetic( inputsdnm );
+	    if ( !sd )
+		mErrRet( " input prestack synthetic data not found.", return 0 )
+	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
+	    {
+		const TimeDepthModel* d2t = sd->d2tmodels_[idx];
+		cs.zrg.include( d2t->getTime(0), false );
+		cs.zrg.include( d2t->getLastTime(), false );
+	    }
 	}
 
-	PreStack::GatherSetDataPack* dp =
-	    new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
-	sd = new PreStackSyntheticData( synthgenpar, *dp );
 
 	if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
 	    sd = createAngleStack( sd, cs, synthgenpar );
@@ -804,22 +827,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
     {
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
-	while ( tbufs.size() )
-	{
-	    PtrMan<SeisTrcBuf> tbuf = tbufs.removeSingle( 0 );
-	    SeisTrcPropChg stpc( *tbuf->get( 0 ) );
-	    while ( tbuf->size() > 1 )
-	    {
-		SeisTrc* trc = tbuf->remove( tbuf->size()-1 );
-		stpc.stack( *trc );
-		delete trc;
-	    }
-
-	    SeisTrc* stackedtrc = new SeisTrc( stpc.trace() );
-	    dptrcbuf->add( stackedtrc );
-	}
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *dptrcbuf, Seis::Line,
-				   SeisTrcInfo::TrcNr, synthgenpar.name_ );
+	synthgen.getStackedTraces( *dptrcbuf );
+	SeisTrcBufDataPack* dp =
+	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
+				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
 	sd = new PostStackSyntheticData( synthgenpar, *dp );
     }
 
@@ -831,10 +842,18 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     ObjectSet<TimeDepthModel> tmpd2ts;
     for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
     {
-	Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
-	rm.getD2T( tmpd2ts, true );
-	if ( tmpd2ts.isEmpty() )
-	    continue;
+	if ( !ispsbased )
+	{
+	    Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
+	    rm.getD2T( tmpd2ts, true );
+	    if ( tmpd2ts.isEmpty() )
+		continue;
+	}
+	else
+	{
+	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
+		tmpd2ts += new TimeDepthModel( *sd->d2tmodels_[idx] );
+	}
 
 	adjustD2TModels( tmpd2ts );
 	while ( tmpd2ts.size() )
@@ -929,10 +948,10 @@ bool doPrepare( int nrthreads )
     const PropertyRefSelection& props = lm_.propertyRefs();
     for ( int iprop=1; iprop<props.size(); iprop++ )
     {
+	SeisTrcBuf* trcbuf = new SeisTrcBuf( sd_.postStackPack().trcBuf() );
 	SeisTrcBufDataPack* seisbuf =
-	    new SeisTrcBufDataPack( sd_.postStackPack() );
-	SeisTrcBuf* trcbuf = new SeisTrcBuf( seisbuf->trcBuf() );
-	seisbuf->setBuffer( trcbuf, Seis::Line, SeisTrcInfo::TrcNr );
+	    new SeisTrcBufDataPack( trcbuf, Seis::Line, SeisTrcInfo::TrcNr,
+				    props[iprop]->name() );
 	seisbufdps_ += seisbuf;
     }
 

@@ -124,6 +124,8 @@ protected:
 	    			const Strat::LayerModel&);
     SyntheticData* 	generateSD();
     SyntheticData* 	generateSD( const SynthGenParams&);
+    bool		runSynthGen(Seis::RaySynthGenerator&,
+				    const SynthGenParams&);
     SyntheticData*	createAngleStack(SyntheticData* sd,
 	    				 const CubeSampling&,
 					 const SynthGenParams&);

@@ -74,6 +74,7 @@ public:
     const Setup&	setup() const			{ return setup_; }
     const Gather*	getGather() const               { return gather_; }
 
+    bool		hasAngleData() const		{ return angledata_; }
     void		setGather(DataPack::ID);
     void		setAngleData(DataPack::ID);
 			/*!< Only used if AngleA0 or AngleCoeff. If not set,

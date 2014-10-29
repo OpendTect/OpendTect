@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 class RayTracer1D;
 class SeisTrc;
+class SeisTrcBuf;
 class TimeDepthModel;
 class TaskRunner;
 class RayTracerRunner;
@@ -253,6 +254,8 @@ public:
     const Interval<float>&	raySampling() const { return raysampling_; }
     const ObjectSet<RayTracer1D>& rayTracers() const;
     const TypeSet<ElasticModel>& elasticModels() const	{ return aimodels_; }
+    void		getTraces(ObjectSet<SeisTrcBuf>&);
+    void		getStackedTraces(SeisTrcBuf&);
 
 protected:
     RayTracerRunner*		rtr_;

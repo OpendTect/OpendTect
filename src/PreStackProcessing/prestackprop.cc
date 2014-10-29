@@ -127,7 +127,11 @@ void PropCalc::setAngleData( DataPack::ID id )
     mDynamicCastGet( Gather*, angledata, dp );
 
     if ( angledata )
+    {
+	if ( angledata_ )
+	    DPM(DataPackMgr::FlatID()).release( angledata_->id() );
 	angledata_ = angledata;
+    }
     else
 	DPM(DataPackMgr::FlatID()).release( id );
 }

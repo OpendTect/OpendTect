@@ -468,8 +468,8 @@ void uiStratSynthDisp::setCurrentWavelet()
     SyntheticData* wvasd = curSS().getSynthetic( wvadatalist_->text() );
     SyntheticData* vdsd = curSS().getSynthetic( vddatalist_->text() );
     if ( !vdsd && !wvasd ) return;
-    FixedString wvasynthnm( wvasd ? wvasd->name() : "" );
-    FixedString vdsynthnm( vdsd ? vdsd->name() : "" );
+    const BufferString wvasynthnm( wvasd ? wvasd->name() : "" );
+    const BufferString vdsynthnm( vdsd ? vdsd->name() : "" );
 
     if ( wvasd )
     {
