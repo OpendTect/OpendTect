@@ -40,7 +40,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; }
 /*! \brief Base group for Surface input and output */
 
 mExpClass(uiEarthModel) uiIOSurface : public uiGroup
-{ mODTextTranslationClass(uiIOSurface);
+{ mODTextTranslationClass(uiIOSurface)
 public:
 			~uiIOSurface();
 
@@ -136,7 +136,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiSurfaceRead : public uiIOSurface
-{ mODTextTranslationClass(uiSurfaceRead);
+{ mODTextTranslationClass(uiSurfaceRead)
 public:
     mExpClass(uiEarthModel) Setup
     {
@@ -173,7 +173,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiHorizonParSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiHorizonParSel);
+{ mODTextTranslationClass(uiHorizonParSel)
 public:
 				uiHorizonParSel(uiParent*,bool is2d,
 						bool withclear=false);
@@ -183,7 +183,7 @@ public:
     const TypeSet<MultiID>&	getSelected() const;
 
     void			fillPar(IOPar&) const;
-    void			usePar(const IOPar&);
+    bool			usePar(const IOPar&);
 
     BufferString		getSummary() const;
 
@@ -198,7 +198,7 @@ protected:
 
 
 mExpClass(uiEarthModel) uiFaultParSel : public uiCompoundParSel
-{ mODTextTranslationClass(uiFaultParSel);
+{ mODTextTranslationClass(uiFaultParSel)
 public:
 				uiFaultParSel(uiParent*,bool is2d,
 					      bool use_act_option=false);

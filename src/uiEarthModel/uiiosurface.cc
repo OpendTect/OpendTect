@@ -585,7 +585,7 @@ void uiHorizonParSel::fillPar( IOPar& par ) const
 }
 
 
-void uiHorizonParSel::usePar( const IOPar& par )
+bool uiHorizonParSel::usePar( const IOPar& par )
 {
     TypeSet<MultiID> mids;
     MultiID mid;
@@ -599,6 +599,7 @@ void uiHorizonParSel::usePar( const IOPar& par )
 
     setSelected( mids );
     updateSummary();
+    return true;
 }
 
 
