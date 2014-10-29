@@ -118,6 +118,7 @@ public:
     void		resetRelativeViewRect();
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
+    void		setSavedViewRect();
 
 protected:
 

@@ -45,6 +45,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "velocitycalc.h"
 #include "wavelet.h"
 
+#include "hiddenparam.h"
 
 static const int cMarkerSize = 6;
 
@@ -52,7 +53,11 @@ static const char* sKeySnapLevel()	{ return "Snap Level"; }
 static const char* sKeyNrSynthetics()	{ return "Nr of Synthetics"; }
 static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
+static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
+
+static HiddenParam<uiStratSynthDisp,uiWorldRect> savedzoomwrs(
+	uiWorldRect(mUdf(double),0,0,0) );
 
 uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 				    const Strat::LayerModelProvider& lmp )
@@ -86,6 +91,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     , taskrunner_( new uiTaskRunner(this) )
     , relzoomwr_(0,0,1,1)
 {
+    savedzoomwrs.setParam( this, uiWorldRect(mUdf(double),0,0,0) );
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
 
@@ -198,6 +204,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
 
 uiStratSynthDisp::~uiStratSynthDisp()
 {
+    savedzoomwrs.removeParam( this );
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
@@ -889,6 +896,16 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 }
 
 
+void uiStratSynthDisp::setSavedViewRect()
+{
+    uiWorldRect savedzoomwr_ = savedzoomwrs.getParam( this );
+    if ( mIsUdf(savedzoomwr_.left()) )
+	return;
+    setAbsoluteViewRect( savedzoomwr_ );
+    setZoomView( relzoomwr_ );
+}
+
+
 void uiStratSynthDisp::reSampleTraces( const SyntheticData* sd,
 				       SeisTrcBuf& tbuf ) const
 {
@@ -1372,6 +1389,15 @@ void uiStratSynthDisp::fillPar( IOPar& par, const StratSynth* stratsynth ) const
 				 nr_nonproprefsynths-1) );
     }
 
+    uiWorldRect savedzoomwr_ = savedzoomwrs.getParam( this );
+    savedzoomwr_ = curView( false );
+    TypeSet<double> startviewareapts;
+    startviewareapts.setSize( 4 );
+    startviewareapts[0] = savedzoomwr_.left();
+    startviewareapts[1] = savedzoomwr_.top();
+    startviewareapts[2] = savedzoomwr_.right();
+    startviewareapts[3] = savedzoomwr_.bottom();
+    stratsynthpar.set( sKeyViewArea(), startviewareapts );
     stratsynthpar.set( sKeyNrSynthetics(), nr_nonproprefsynths );
     par.removeWithKey( sKeySynthetics() );
     par.mergeComp( stratsynthpar, sKeySynthetics() );
@@ -1462,6 +1488,17 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	int snaplvl = 0;
 	stratsynthpar->get( sKeySnapLevel(), snaplvl );
 	levelsnapselfld_->setCurrentItem( snaplvl );
+	TypeSet<double> startviewareapts;
+	if ( stratsynthpar->get(sKeyViewArea(),startviewareapts) &&
+	     startviewareapts.size() == 4 )
+	{
+	    uiWorldRect savedzoomwr_ = savedzoomwrs.getParam( this );
+	    savedzoomwr_.setLeft( startviewareapts[0] );
+	    savedzoomwr_.setTop( startviewareapts[1] );
+	    savedzoomwr_.setRight( startviewareapts[2] );
+	    savedzoomwr_.setBottom( startviewareapts[3] );
+	    savedzoomwrs.setParam( this, savedzoomwr_ );
+	}
     }
 
     return true;
