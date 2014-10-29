@@ -56,6 +56,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 static const int cMinNrNodesForLbl = 25;
+static const int cMaxNrDiplayedLabels = 1000;
+
 const char* uiContourTreeItem::sKeyContourDefString(){return "Contour Display";}
 const char* uiContourTreeItem::sKeyZValue()	     { return "Z Values"; }
 
@@ -68,6 +70,7 @@ public:
     TypeSet< Interval<int> >		   contourcoordrgs_;
     ObjectSet<Geometry::RangePrimitiveSet> contourprimitivesets_;
     TypeSet<Coord3>			   labelpositions_;
+    TypeSet<int>			   labelcontourlen_;
     TypeSet<BufferString>		   labels_;
     TypeSet<Interval<int> >		   labelranges_;
 };
@@ -85,15 +88,13 @@ public:
 
     visBase::Text2*		getLabels() { return labels_; }
     const TypeSet<double>&	getAreas() const { return areas_; }
-
-    uiString			uiNrDoneText() const
-				{ return tr("Contours created"); }
+    uiString			uiNrDoneText() const;
 
 protected:
     bool	doPrepare(int);
     bool	doWork(od_int64 start, od_int64 stop, int);
     bool	doFinish(bool success);
-    od_int64	nrIterations() const { return nrcontours_; }
+    od_int64	nrIterations() const;
 
 private:
 
@@ -108,6 +109,7 @@ private:
 			  Interval<int>& coordsrg) const;
     void addContourData(uiContourTreeItemContourData&);
     void addContourLabel(const Coord3& pos, const char* lbl);
+    float getHorizonZValue(int rowidx,int colidx) const;
 
     int						nrcontours_;
     Threads::Atomic<od_int64>			totalnrshapes_;
@@ -126,6 +128,8 @@ private:
     const ZAxisTransform*	ztransform_;
     const mVisTrans*		displaytrans_;
     TypeSet<double>		areas_;
+
+    bool			isfinishing_;
 };
 
 
@@ -136,10 +140,26 @@ uiContourTreeItemContourGenerator::uiContourTreeItemContourGenerator(
     , field_( field )
     , zfactor_( 0 )
     , labels_( 0 )
+    , isfinishing_( false )
 {
     totalnrshapes_ = nrcontours_;
     areas_.setSize( nrcontours_ );
     setName( "Generating contours" );
+}
+
+
+uiString uiContourTreeItemContourGenerator::uiNrDoneText() const
+{
+    return isfinishing_ ? tr("Contour elements added")
+			: tr("Contours computed");
+}
+
+
+od_int64 uiContourTreeItemContourGenerator::nrIterations() const
+{
+    return !isfinishing_ ? nrcontours_
+			 : contourdata_.contourprimitivesets_.size() +
+					contourdata_.labelpositions_.size();
 }
 
 
@@ -214,10 +234,11 @@ bool uiContourTreeItemContourGenerator::doWork(od_int64 start,od_int64 stop,int)
 void uiContourTreeItemContourGenerator::addContourData(
 	 uiContourTreeItemContourData& newcontourdata )
 {
-    const int contourcoordsz =  contourdata_.contourcoords_.size();
+    const int contourcoordsz = contourdata_.contourcoords_.size();
     const Interval<int> lastcoordidxrg ( contourcoordsz, contourcoordsz-1 );
     contourdata_.contourcoords_.append( newcontourdata.contourcoords_);
     contourdata_.labelpositions_.append( newcontourdata.labelpositions_ );
+    contourdata_.labelcontourlen_.append( newcontourdata.labelcontourlen_ );
     contourdata_.labels_.append( newcontourdata.labels_ );
 
     for ( int idx=0; idx<newcontourdata.contourcoordrgs_.size(); idx++ )
@@ -232,7 +253,7 @@ void uiContourTreeItemContourGenerator::addContourData(
     {
 	const int lastlblidx =
 	    contourdata_.labelranges_[contourdata_.labelranges_.size()-1].stop;
-	for ( int idx = 0; idx< newcontourdata.labelranges_.size(); idx++ )
+	for ( int idx=0; idx<newcontourdata.labelranges_.size(); idx++ )
 	    newcontourdata.labelranges_[idx] +=
 	    Interval<int>(lastlblidx,lastlblidx);
     }
@@ -281,6 +302,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 		const int lastvrtxidx = contourdata.contourcoords_.size() - 1;
 		const Coord3 lblpos = contourdata.contourcoords_[lastvrtxidx];
 		contourdata.labelpositions_.add( lblpos );
+		contourdata.labelcontourlen_.add( curcontour.size() );
 		lblpositionrg.stop++;
 	    }
 	}
@@ -295,7 +317,7 @@ bool uiContourTreeItemContourGenerator::generateContours( int contouridx,
 	    uicitem_->attrnm_==uiContourTreeItem::sKeyZValue()
 	    ? (contourval+uicitem_->zshift_) * zfactor_ : contourval;
 	contourdata.labelranges_.add( lblpositionrg );
-	contourdata.labels_.add( toString( (int)labelval ) );
+	contourdata.labels_.add( toString(labelval) );
     }
 
     return true;
@@ -313,23 +335,56 @@ void uiContourTreeItemContourGenerator::makeContourClose(
 }
 
 
+float uiContourTreeItemContourGenerator::getHorizonZValue( int rowidx,
+							   int colidx ) const
+{
+    const BinID bid( rowrg_.atIndex(rowidx), colrg_.atIndex(colidx) );
+    float zval = hor3d_ ? hor3d_->getZ(bid) : mUdf(float);
+
+    if ( ztransform_ && !mIsUdf(zval) )
+	ztransform_->transform( bid, SamplingData<float>(zval,1), 1, &zval );
+
+    return zval;
+}
+
+
 bool uiContourTreeItemContourGenerator::addDisplayCoord(
-    const ODPolygon<float>& inputcountour, int vrtxidx,
+    const ODPolygon<float>& inputcontour, int vrtxidx,
     uiContourTreeItemContourData& contourdata,
     int& lastvrtxidx ) const
 {
-    const Geom::Point2D<float> vrtx = inputcountour.getVertex( vrtxidx );
-    const BinID bidnearestvrtx( rowrg_.snap(vrtx.x), colrg_.snap(vrtx.y) );
-    float zval = hor3d_->getZ( bidnearestvrtx );
-    if ( ztransform_ )
-	ztransform_->transform( bidnearestvrtx,
-				SamplingData<float>(zval,1), 1, &zval );
-    if ( mIsUdf(zval) )
-	return false;
+    const Geom::Point2D<float> vrtx = inputcontour.getVertex( vrtxidx );
+
+    const float rowfidx = rowrg_.getfIndex( vrtx.x );
+    const float colfidx = colrg_.getfIndex( vrtx.y );
+    int rowidx = mMAX( 0, (int) rowfidx );
+    int colidx = mMAX( 0, (int) colfidx );
+    const float rowfrac = rowfidx - rowidx;
+    const float colfrac = colfidx - colidx;
+
+    const float z0 = getHorizonZValue( rowidx, colidx );
+
+    // Contour algorithms is known to produce vertices on grid-lines only.
+    float frac = colfrac;
+    if ( fabs(0.5-rowfrac) < fabs(0.5-colfrac) )
+    {
+	frac = rowfrac;
+	rowidx++;
+    }
+    else
+	colidx++;
+
+    const float z1 = getHorizonZValue( rowidx, colidx );
 
     Coord3 vrtxcoord;
-    vrtxcoord.coord() = SI().binID2Coord().transform( bidnearestvrtx );
-    vrtxcoord.z = zval + uicitem_->zshift_;
+    vrtxcoord.coord() = SI().binID2Coord().transform( Coord(vrtx.x,vrtx.y) );
+
+    vrtxcoord.z = mIsUdf(z0) ? z1 : (mIsUdf(z1) ? z0 : (1.0-frac)*z0+frac*z1);
+    if ( mIsUdf(vrtxcoord.z) )
+	return false;
+
+    vrtxcoord.z += uicitem_->zshift_;
+
     visBase::Transformation::transform( displaytrans_, vrtxcoord, vrtxcoord );
     contourdata.contourcoords_.add( vrtxcoord );
     lastvrtxidx++;
@@ -339,12 +394,16 @@ bool uiContourTreeItemContourGenerator::addDisplayCoord(
 
 bool uiContourTreeItemContourGenerator::doFinish( bool success )
 {
+    resetNrDone();
+    isfinishing_ = true;
+
     if ( !success ) return false;
 
     if ( labels_ ) labels_->unRef();
     labels_ = visBase::Text2::create();
     labels_->ref();
     labels_->setDisplayTransformation( displaytrans_ );
+    labels_->setPickable( false, false );
 
     uicitem_->lines_->getCoordinates()->setPositions(
 		      contourdata_.contourcoords_.arr(),
@@ -359,14 +418,32 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 	    return false;
     }
 
-    for (int lbrgidx = 0 ; lbrgidx<contourdata_.labelranges_.size(); lbrgidx++)
+    float contourlenthreshold = 0.0;
+    const int nrlabels = contourdata_.labelcontourlen_.size();
+    if ( nrlabels >= cMaxNrDiplayedLabels )
+    {
+	// Approximation assuming uniform distribution yields order N algorithm
+	float totalcontourlen = 0.0;
+	for ( int idx=0; idx<nrlabels; idx++ )
+	    totalcontourlen += contourdata_.labelcontourlen_[idx];
+
+	const float mean = totalcontourlen / nrlabels;
+	const float frac = (float) cMaxNrDiplayedLabels / (float) nrlabels;
+	const int offset = cMinNrNodesForLbl;
+	contourlenthreshold = offset + 2*(mean-offset)*(1.0-frac);
+    }
+
+    for ( int lbrgidx=0; lbrgidx<contourdata_.labelranges_.size(); lbrgidx++ )
     {
 	const Interval<int> lbldata( contourdata_.labelranges_[lbrgidx] );
-	const od_int64 stoplblidx = contourdata_.labelranges_[lbrgidx].stop;
-
-	for ( int ipos=lbldata.start; ipos<stoplblidx; ipos++ )
-	      addContourLabel(
-           contourdata_.labelpositions_[ipos], contourdata_.labels_[lbrgidx] );
+	for ( int ipos=lbldata.start; ipos<lbldata.stop; ipos++ )
+	{
+	    if ( contourdata_.labelcontourlen_[ipos] > contourlenthreshold )
+	    {
+		addContourLabel( contourdata_.labelpositions_[ipos],
+				 contourdata_.labels_[lbrgidx] );
+	    }
+	}
 
 	addToNrDone( 1 );
 	if ( !shouldContinue() )
@@ -386,9 +463,12 @@ void uiContourTreeItemContourGenerator::addContourLabel(
     visBase::Text* label = labels_->text( idx );
     if ( label )
     {
-	label->setText( lbl );
+	BufferString labelonpole( lbl );
+	labelonpole += "\n|";
+	label->setText( labelonpole );
+	label->setJustification( visBase::Text::BottomLeft );
 	label->setPosition( pos, true );
-	label->setFontData( FontData( 18 ), labels_->getPixelDensity() );
+	label->setFontData( FontData(18), labels_->getPixelDensity() );
     }
 }
 
@@ -925,6 +1005,7 @@ bool uiContourTreeItem::createPolyLines()
 
     if ( ( lines_ = visBase::PolyLine::create() ) == 0 ) return false;
     lines_->ref();
+    lines_->setPickable( false, false );
 
     applMgr()->visServer()->addObject( lines_, sceneID(), false );
 
