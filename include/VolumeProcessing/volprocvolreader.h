@@ -31,8 +31,9 @@ the read volume.
 mExpClass(VolumeProcessing) VolumeReader : public Step
 {
 public:
-			mDefaultFactoryInstantiation( Step, VolumeReader,
-				"VolumeReader", "Input Volume" );
+			mDefaultFactoryInstantiation(
+				Step, VolumeReader,
+				"VolumeReader", "Input Volume" )
 			~VolumeReader();
 
     bool		needsInput() const		{ return false;}

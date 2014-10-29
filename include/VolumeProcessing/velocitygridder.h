@@ -33,15 +33,15 @@ namespace VolProc
 \brief VolProc::Step for velocity gridding.
 */
 
-mExpClass(VolumeProcessing) VelGriddingStep : public Step
-{ mODTextTranslationClass(VelGriddingStep)
+mExpClass(VolumeProcessing) VelocityGridder : public Step
+{ mODTextTranslationClass(VelocityGridder)
 public:
-			mDefaultFactoryInstantiation( Step,
-				VelGriddingStep,
-				"Gridding","Velocity gridder");
+			mDefaultFactoryInstantiation(
+				Step, VelocityGridder,
+				"Gridding", "Velocity gridder" )
 
-			VelGriddingStep();
-    			~VelGriddingStep();
+			VelocityGridder();
+    			~VelocityGridder();
 
     const VelocityDesc* getVelDesc() const;
 
@@ -51,7 +51,7 @@ public:
     void		setGridder(Gridder2D*); //becomes mine
     const Gridder2D*	getGridder() const;
 
-    void		setLayerModel(InterpolationLayerModel*);
+    void		setLayerModel(InterpolationLayerModel*); //becomes mine
     const InterpolationLayerModel* getLayerModel() const;
 
     bool		needsInput() const;
@@ -72,10 +72,6 @@ public:
 protected:
 
     Task*				createTask();
-
-    int					addFunction(const BinID&,int);
-    void				removeOldFunctions();
-    static VolProc::Step*		create(VolProc::Chain&);
 
     InterpolationLayerModel*		layermodel_;
     Gridder2D*				gridder_;

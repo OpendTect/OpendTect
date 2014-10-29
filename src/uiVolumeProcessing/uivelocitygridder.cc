@@ -27,20 +27,21 @@ namespace VolProc
 
 uiStepDialog* uiVelocityGridder::createInstance( uiParent* p, Step* ro )
 {
-    mDynamicCastGet(VelGriddingStep*,gridop,ro);
+    mDynamicCastGet(VelocityGridder*,gridop,ro);
     if ( !gridop ) return 0;
 
     return new uiVelocityGridder( p, gridop );
 }
 
 
-uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
-    : uiStepDialog( p, VelGriddingStep::sFactoryDisplayName(), ro )
+uiVelocityGridder::uiVelocityGridder( uiParent* p, VelocityGridder* ro )
+    : uiStepDialog( p, VelocityGridder::sFactoryDisplayName(), ro )
     , operation_( ro )
 {
     setHelpKey( mODHelpKey(mVelocityGridderHelpID) );
 
     layermodelfld_ = new uiInterpolationLayerModel( this );
+    layermodelfld_->setModel( ro->getLayerModel() );
 
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
     griddersel_->attach( alignedBelow, layermodelfld_ );
@@ -88,6 +89,7 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
 
     operation_->setSources( velfuncsel_->getVelSources() );
     operation_->setGridder( griddersel_->getSel()->clone() );
+    operation_->setLayerModel( layermodelfld_->getModel() );
 
     return true;
 }

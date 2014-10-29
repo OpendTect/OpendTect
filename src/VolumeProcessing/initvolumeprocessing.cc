@@ -36,7 +36,7 @@ mDefModInitFn(VolumeProcessing)
     VolProc::BodyFiller::initClass();
     VolProc::HorInterFiller::initClass();
     VolProc::SurfaceLimitedFiller::initClass();
-    VolProc::VelGriddingStep::initClass();
+    VolProc::VelocityGridder::initClass();
     VolProc::VolumeReader::initClass();
     VolProc::WellLogInterpolator::initClass();
 

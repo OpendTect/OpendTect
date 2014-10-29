@@ -36,6 +36,10 @@ bool uiInterpolationLayerModelGrp::fillPar( IOPar& par ) const
 }
 
 
+bool uiInterpolationLayerModelGrp::usePar( const IOPar& )
+{ return true; }
+
+
 // uiZSliceInterpolationModel
 uiZSliceInterpolationModel::uiZSliceInterpolationModel( uiParent* p )
     : uiInterpolationLayerModelGrp(p)
@@ -50,6 +54,11 @@ bool uiZSliceInterpolationModel::fillPar( IOPar& par ) const
 
     return true;
 }
+
+
+bool uiZSliceInterpolationModel::usePar( const IOPar& par )
+{ return uiInterpolationLayerModelGrp::usePar( par ); }
+
 
 
 // uiInterpolationLayerModel
@@ -85,6 +94,27 @@ void uiInterpolationLayerModel::selCB( CallBacker* )
 {
     for ( int idx=0; idx<grps_.size(); idx++ )
 	grps_[idx]->display( layermodelfld_->getIntValue()==idx );
+}
+
+
+void uiInterpolationLayerModel::setModel( const InterpolationLayerModel* mdl )
+{
+    if ( !mdl ) return;
+
+    const FixedString mdlnm = mdl->factoryKeyword();
+    for ( int idx=0; idx<grps_.size(); idx++ )
+    {
+	if ( mdlnm != grps_[idx]->factoryKeyword() )
+	{
+	    grps_[idx]->display( false );
+	    continue;
+	}
+
+	layermodelfld_->setValue( idx );
+	grps_[idx]->display( true );
+	IOPar pars; mdl->fillPar( pars );
+	grps_[idx]->usePar( pars );
+    }
 }
 
 

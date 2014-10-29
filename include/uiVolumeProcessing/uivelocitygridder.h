@@ -25,18 +25,16 @@ namespace Vel { class uiFunctionSel; }
 namespace VolProc
 {
 
-class VelGriddingStep;
-
 mExpClass(uiVolumeProcessing) uiVelocityGridder : public uiStepDialog
 { mODTextTranslationClass(uiVelocityGridder)
 public:
 		mDefaultFactoryInstanciationBase(
-		    VolProc::VelGriddingStep::sFactoryKeyword(),
-		    VolProc::VelGriddingStep::sFactoryDisplayName())
+		    VolProc::VelocityGridder::sFactoryKeyword(),
+		    VolProc::VelocityGridder::sFactoryDisplayName())
 		    mDefaultFactoryInitClassImpl(uiStepDialog,createInstance)
 
 protected:
-				uiVelocityGridder(uiParent*,VelGriddingStep*);
+				uiVelocityGridder(uiParent*,VelocityGridder*);
 
     bool			acceptOK(CallBacker*);
     static uiStepDialog*	createInstance(uiParent*,VolProc::Step*);
@@ -48,7 +46,7 @@ protected:
     uiInterpolationLayerModel*	layermodelfld_;
     uiGridder2DSel*		griddersel_;
     Vel::uiFunctionSel*		velfuncsel_;
-    VelGriddingStep*		operation_;
+    VelocityGridder*		operation_;
 
     bool			namenotset_;
 };

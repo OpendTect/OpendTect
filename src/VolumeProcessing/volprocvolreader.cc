@@ -32,7 +32,6 @@ Task* VolumeReader::createTask()
     if ( !output || !ioobj )
 	return 0;
 
-
     TypeSet<int> components( 1, 0 );
     ObjectSet<Array3D<float> > arrays;
     arrays += &output->getCube(0);
@@ -67,5 +66,4 @@ bool VolumeReader::usePar( const IOPar& pars )
     return setVolumeID( mid );
 }
 
-
-}; //namespace
+} // namespace VolProc

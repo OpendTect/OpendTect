@@ -29,6 +29,7 @@ public:
 				uiParent*,factory)
 
     virtual bool	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
 
 protected:
 			uiInterpolationLayerModelGrp(uiParent*);
@@ -46,6 +47,7 @@ public:
 				"ZSlices","Z Slices")
 
     bool		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 			uiZSliceInterpolationModel(uiParent*);
@@ -58,6 +60,7 @@ public:
 			uiInterpolationLayerModel(uiParent*);
 
     InterpolationLayerModel* getModel();
+    void		setModel(const InterpolationLayerModel*);
 
 protected:
     void		selCB(CallBacker*);

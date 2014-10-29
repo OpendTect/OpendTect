@@ -25,13 +25,13 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace VolProc
 {
 
-class VelGriddingStepTask;
+class VelGriddingTask;
 
 
 class VelGriddingFromFuncTask : public ParallelTask
 {
 public:
-			VelGriddingFromFuncTask( VelGriddingStepTask& );
+			VelGriddingFromFuncTask( VelGriddingTask& );
 			~VelGriddingFromFuncTask();
 
     bool		isOK() const;
@@ -45,7 +45,7 @@ public:
 protected:
     ObjectSet<Vel::Function>	velfuncs_;
     Vel::GriddedSource*		velfuncsource_;
-    VelGriddingStepTask&	task_;
+    VelGriddingTask&	task_;
 
     Threads::Mutex		lock_;
     BinIDValueSet		completedbids_;
@@ -55,7 +55,7 @@ protected:
 class VelGriddingFromVolumeTask : public ParallelTask
 {
 public:
-			VelGriddingFromVolumeTask( VelGriddingStepTask& );
+			VelGriddingFromVolumeTask( VelGriddingTask& );
 			~VelGriddingFromVolumeTask();
 
     od_int64		nrIterations() const;
@@ -70,14 +70,14 @@ protected:
     BinIDValueSet		completedbids_;
 
     ObjectSet<Gridder2D>	gridders_;
-    VelGriddingStepTask&	task_;
+    VelGriddingTask&	task_;
 };
 
 
-class VelGriddingStepTask : public SequentialTask
+class VelGriddingTask : public SequentialTask
 {
 public:
-				VelGriddingStepTask(VelGriddingStep&);
+				VelGriddingTask(VelocityGridder&);
     int				nextStep();
 
     BinID			getNextBid();
@@ -87,7 +87,7 @@ public:
     od_int64			totalNr() const       { return totalnr_; }
     uiString			uiNrDoneText() const  { return "CDPs gridded"; }
 
-    VelGriddingStep&		getStep()	      { return step_; }
+    VelocityGridder&		getStep()	      { return step_; }
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
@@ -106,13 +106,13 @@ protected:
     TypeSet<Coord>		definedpts_;
     TypeSet<BinIDValueSet::SPos> definedpos_;
 
-    VelGriddingStep&		step_;
+    VelocityGridder&		step_;
     od_int64			totalnr_;
 };
 
 
-// VelGriddingStepTask
-VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
+// VelGriddingTask
+VelGriddingTask::VelGriddingTask( VelocityGridder& step )
     : nrdone_( 0 )
     , remainingbids_( 0, false )
     , definedbids_( 0, false )
@@ -130,7 +130,7 @@ VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
 }
 
 
-bool VelGriddingStepTask::report1Done()
+bool VelGriddingTask::report1Done()
 {
     if ( progressmeter_ )
 	++(*progressmeter_);
@@ -142,14 +142,14 @@ bool VelGriddingStepTask::report1Done()
 }
 
 
-od_int64 VelGriddingStepTask::nrDone() const
+od_int64 VelGriddingTask::nrDone() const
 {
     Threads::MutexLocker lock( lock_ );
     return nrdone_;
 }
 
 
-BinID VelGriddingStepTask::getNextBid()
+BinID VelGriddingTask::getNextBid()
 {
     Threads::MutexLocker lock( lock_ );
     if ( !remainingbids_.next(curpos_) )
@@ -162,7 +162,7 @@ BinID VelGriddingStepTask::getNextBid()
 }
 
 
-int VelGriddingStepTask::nextStep()
+int VelGriddingTask::nextStep()
 {
     curpos_ = BinIDValueSet::SPos(-1,-1);
 
@@ -206,7 +206,7 @@ int VelGriddingStepTask::nextStep()
 
 
 // VelGriddingFromFuncTask
-VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingStepTask& task )
+VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingTask& task )
     : task_( task )
     , velfuncsource_( 0 )
     , completedbids_( 0, false )
@@ -302,7 +302,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
 
 
 // VelGriddingFromVolumeTask
-VelGriddingFromVolumeTask::VelGriddingFromVolumeTask(VelGriddingStepTask& task )
+VelGriddingFromVolumeTask::VelGriddingFromVolumeTask(VelGriddingTask& task )
     : task_( task )
     , completedbids_( 0, false )
 {}
@@ -427,22 +427,22 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
 }
 
 
-// VelGriddingStep
+// VelocityGridder
 static const char* sKeyLayerModel()	{ return "Layer Model"; }
 
-VelGriddingStep::VelGriddingStep()
+VelocityGridder::VelocityGridder()
     : gridder_(0)
     , layermodel_(0)
 {}
 
 
-VelGriddingStep::~VelGriddingStep()
+VelocityGridder::~VelocityGridder()
 {
     releaseData();
 }
 
 
-void VelGriddingStep::releaseData()
+void VelocityGridder::releaseData()
 {
     Step::releaseData();
     deepUnRef( sources_ );
@@ -451,7 +451,7 @@ void VelGriddingStep::releaseData()
 }
 
 
-void VelGriddingStep::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
+void VelocityGridder::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
 {
     deepUnRef( sources_ );
     sources_ = nvfs;
@@ -459,37 +459,37 @@ void VelGriddingStep::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
 }
 
 
-const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
+const ObjectSet<Vel::FunctionSource>& VelocityGridder::getSources() const
 { return sources_; }
 
 
-void VelGriddingStep::setGridder( Gridder2D* gridder )
+void VelocityGridder::setGridder( Gridder2D* gridder )
 {
     delete gridder_;
     gridder_ = gridder;
 }
 
 
-const Gridder2D* VelGriddingStep::getGridder() const
+const Gridder2D* VelocityGridder::getGridder() const
 { return gridder_; }
 
 
-void VelGriddingStep::setLayerModel( InterpolationLayerModel* mdl )
+void VelocityGridder::setLayerModel( InterpolationLayerModel* mdl )
 {
     delete layermodel_;
     layermodel_ = mdl;
 }
 
 
-const InterpolationLayerModel* VelGriddingStep::getLayerModel() const
+const InterpolationLayerModel* VelocityGridder::getLayerModel() const
 { return layermodel_; }
 
 
-bool VelGriddingStep::needsInput() const
+bool VelocityGridder::needsInput() const
 { return false; }
 
 
-const VelocityDesc* VelGriddingStep::getVelDesc() const
+const VelocityDesc* VelocityGridder::getVelDesc() const
 {
     const int nrsources = sources_.size();
     if ( !nrsources )
@@ -507,17 +507,11 @@ const VelocityDesc* VelGriddingStep::getVelDesc() const
 }
 
 
-
-Task* VelGriddingStep::createTask()
-{
-    if ( !gridder_ )
-	return 0;
-
-    return new VelGriddingStepTask( *this );
-}
+Task* VelocityGridder::createTask()
+{ return gridder_ ? new VelGriddingTask( *this ) : 0; }
 
 
-void VelGriddingStep::fillPar( IOPar& par ) const
+void VelocityGridder::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
 
@@ -550,7 +544,7 @@ void VelGriddingStep::fillPar( IOPar& par ) const
 }
 
 
-bool VelGriddingStep::usePar( const IOPar& par )
+bool VelocityGridder::usePar( const IOPar& par )
 {
     if ( !Step::usePar( par ) )
 	return false;
@@ -574,14 +568,14 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	}
 
 	BufferString sourcetype;
-	if ( !sourcepar->get( sKeyType(), sourcetype ) )
+	if ( !sourcepar->get(sKeyType(),sourcetype) )
 	{
 	    errmsg_ = parseerror;
 	    return false;
 	}
 
 	MultiID mid;
-	if ( !sourcepar->get( sKeyID(), mid ) )
+	if ( !sourcepar->get(sKeyID(),mid) )
 	{
 	    errmsg_ = parseerror;
 	    return false;
@@ -599,7 +593,7 @@ bool VelGriddingStep::usePar( const IOPar& par )
 
 	source->ref();
 
-	if ( !source->usePar( *sourcepar ) )
+	if ( !source->usePar(*sourcepar) )
 	{
 	    errmsg_ = tr("Cannot parse velocity source's paramters (%1).")
 			.arg( sourcetype.buf() );
