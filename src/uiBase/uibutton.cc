@@ -535,13 +535,15 @@ void uiToolButton::setMenu( uiMenu* mnu, PopupMode mode )
 	if ( finalised() )
 	{
 	    QSize size = tbbody_->size();
-	    const int wdth = hasmenu ? 1.5*size.height() : size.height();
+	    const int wdth =
+		hasmenu ? mCast(int,1.5*size.height()) : size.height();
 	    size.setWidth( wdth );
 	    tbbody_->resize( size );
 	}
 	else
 	{
-	    const int wdth = hasmenu ? 1.5*prefVNrPics() : prefVNrPics();
+	    const int wdth =
+		hasmenu ? mCast(int,1.5*prefVNrPics()) : prefVNrPics();
 	    tbbody_->setPrefWidth( wdth );
 	}
     }
