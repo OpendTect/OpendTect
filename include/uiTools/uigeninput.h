@@ -31,7 +31,7 @@ class UserInputObj;
 
 /*! \brief General Input Element
 
-The General Input line consists of a number of input elements, 
+The General Input line consists of a number of input elements,
 optionally accompanied with either a label or a checkbox.
 
 The uiGeninput is constructed with a number of DataInpSpec's, which determine
@@ -59,7 +59,7 @@ mExpClass(uiTools) uiGenInput : public uiGroup
 {
 public:
 			uiGenInput( uiParent* p, const uiString& disptxt
-				  , const char* inputStr=0 ); 
+				  , const char* inputStr=0 );
 
 			uiGenInput( uiParent* p, const uiString& disptxt,
 			    const DataInpSpec& );
@@ -77,16 +77,16 @@ public:
 
 /*! \brief gives access to the actual spec of an input field.
 
-When the uiGenInput is being finalised, the actual input fields are 
+When the uiGenInput is being finalised, the actual input fields are
 constructed. The fields make a clone of their input spec,
 which are used for range checking, etc.
 
-The purpose of this is to be able to store the actual current spec's, 
-instead of the intial specs, which might have been updated with newSpec(). 
+The purpose of this is to be able to store the actual current spec's,
+instead of the intial specs, which might have been updated with newSpec().
 For example, limits might have been set/changed.
 
 \sa  bool newSpec(DataInpSpec* nw, int nr)
- 
+
 */
     const DataInpSpec*	dataInpSpec(int nr=0) const;
 
@@ -102,7 +102,7 @@ Returns true, if changes are accepted.
 
     bool		isUndef( int nr=0 ) const;
 
-#undef mDeclArgs    
+#undef mDeclArgs
 #define mDeclArgs(type)	int nr=0, type undefVal=mUdf(type)
 
     const char*		text( mDeclArgs(const char*) ) const;
@@ -162,7 +162,7 @@ Returns true, if changes are accepted.
     float		getOffset( mDeclArgs(float) ) const;
 
 
-#undef mDeclArgs    
+#undef mDeclArgs
 
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);
@@ -195,9 +195,9 @@ Returns true, if changes are accepted.
     void		setEmpty(int nr=-1);
 
 			//! returns 0 if not finalised.
-    UserInputObj*	element(int idx); 
+    UserInputObj*	element(int idx);
     uiObject*		rightObj();			//!< for attaching
-    int			nrElements() const; 
+    int			nrElements() const;
     void		setElemSzPol( uiObject::SzPolicy p )	{ elemszpol_=p;}
     uiObject::SzPolicy	elemSzPol() const		{ return elemszpol_; }
     void		setToolTip(const uiString&,int ielem=0);
@@ -205,16 +205,16 @@ Returns true, if changes are accepted.
     virtual const uiString&	titleText();
     virtual void		setTitleText(const uiString&);
 
-    void 		setChecked(bool yn);
+    void		setChecked(bool yn);
     bool		isChecked();
     bool		isCheckable()
 			{ return cbox_ ? true : false; }
 
-    virtual bool 	isSingleLine() const		{ return true; }
+    virtual bool	isSingleLine() const		{ return true; }
 
     void		setWithCheck( bool yn=true )	{ withchk_ = yn; }
-    void		setWithSelect( bool yn=true ) 
-			{ selText_ = yn ? "&Select" : "" ; }
+    void		setWithSelect( bool yn=true )
+			{ selText_ = yn ? "Select" : "" ; }
 
     void		setNrDecimals(int nrdec,int fldnr=0);
 
@@ -235,7 +235,7 @@ protected:
 
     uiLabel*		labl_;
     uiString		titletext_;
-    uiCheckBox* 	cbox_;
+    uiCheckBox* cbox_;
     uiPushButton*	selbut_;
 
                         //! Select is pressed. Calls virtual doSelect
@@ -244,7 +244,7 @@ protected:
     virtual void	doSelect(CallBacker*)   {}
     void		doClear(CallBacker*);
 
-    void 		checkBoxSel(CallBacker*);
+    void		checkBoxSel(CallBacker*);
 
 			//! DataInpField factory
     uiGenInputInputFld&	createInpFld(const DataInpSpec&);
@@ -266,7 +266,7 @@ private:
 
     uiObject::SzPolicy	elemszpol_;
 
-    DataInpSpec* 	getInputSpecAndIndex(const int,int&) const;
+    DataInpSpec*	getInputSpecAndIndex(const int,int&) const;
     uiGenInputInputFld*	getInputFldAndIndex(const int,int&) const;
 
 };

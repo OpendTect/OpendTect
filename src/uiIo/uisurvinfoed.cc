@@ -109,7 +109,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
 #ifdef __win__
     pathfld_->setSensitive( false );
 #else
-    uiButton* pathbut = new uiPushButton( topgrp_, "&Select", false );
+    uiButton* pathbut = new uiPushButton( topgrp_, "Select", false );
     pathbut->attach( rightOf, pathfld_ );
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif

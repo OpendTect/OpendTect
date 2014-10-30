@@ -57,7 +57,7 @@ public:
 
 uiStratSynthOutSel( uiParent* p, const char* seltxt,
 		    const BufferStringSet& nms )
-    : uiCheckedCompoundParSel( p, seltxt, false, "&Select" )
+    : uiCheckedCompoundParSel( p, seltxt, false, "Select" )
     , nms_(nms)
     , nm_(seltxt)
 {
