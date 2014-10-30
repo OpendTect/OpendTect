@@ -315,23 +315,36 @@ int uiSpinBox::minValue() const
 float uiSpinBox::minFValue() const
 { return (float)body_->minimum(); }
 
+
 void uiSpinBox::setMaxValue( int val )
 {
     mBlockCmdRec;
-    body_->setMaximum( val );
+    const double maxval = mIsUdf(val) ? mUdf(double) : mCast(double,val);
+    body_->setMaximum( maxval );
 }
+
 
 void uiSpinBox::setMaxValue( float val )
 {
     mBlockCmdRec;
-    body_->setMaximum( val );
+    const double maxval = mIsUdf(val) ? mUdf(double) : mCast(double,val);
+    body_->setMaximum( maxval );
 }
 
+
 int uiSpinBox::maxValue() const
-{ return mNINT32(body_->maximum()); }
+{
+    const double maxval = body_->maximum();
+    return mIsUdf(maxval) ? mUdf(int) : mNINT32(maxval);
+}
+
 
 float uiSpinBox::maxFValue() const
-{ return (float)body_->maximum(); }
+{
+    const double maxval = body_->maximum();
+    return mIsUdf(maxval) ? mUdf(float) : mCast(float,maxval);
+}
+
 
 int uiSpinBox::step() const
 { return mNINT32(body_->singleStep()); }
