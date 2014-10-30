@@ -25,98 +25,102 @@ mUseQtnamespace
 class uiStatusBarBody : public uiBodyImpl<uiStatusBar,QStatusBar>
 {
 friend class		uiStatusBar;
+
 public:
-                        uiStatusBarBody( uiStatusBar& hndl,
-					 uiMainWin* parnt, const char* nm,
-					 QStatusBar& sb)
-			    : uiBodyImpl<uiStatusBar,QStatusBar>
-				( hndl, parnt, sb )
-			{}
+uiStatusBarBody( uiStatusBar& hndl, uiMainWin* parnt, const char* nm,
+		 QStatusBar& sb)
+: uiBodyImpl<uiStatusBar,QStatusBar>( hndl, parnt, sb )
+{}
 
-    int			size() const
-			{ return qthing()->children().size(); }
 
-    void		message( const uiString& msg, int idx, int msecs )
-			{
-			    if ( msgs_.validIdx(idx) && msgs_[idx] )
-				    msgs_[idx]->setText(msg.getQtString());
-			    else if ( !msg.isEmpty() )
-				qthing()->showMessage( msg.getQtString(),
-						       msecs<0?0:msecs );
-			    else
-				qthing()->clearMessage();
-			}
+int size() const
+{ return qthing()->children().size(); }
 
-    void		setBGColor( int idx, const Color& col )
-			{
-			    QWidget* widget = 0;
-			    if ( msgs_.validIdx(idx) && msgs_[idx] )
-				    widget = msgs_[idx];
-			    else
-				widget = qthing();
 
-			    const QColor qcol(col.r(),col.g(),
-							col.b());
-			    QPalette palette;
-			    palette.setColor( widget->backgroundRole(), qcol );
-			    widget->setPalette(palette);
-			}
+void message( const uiString& msg, int idx, int msecs )
+{
+    if ( msgs_.validIdx(idx) && msgs_[idx] )
+	msgs_[idx]->setText(msg.getQtString());
+    else if ( !msg.isEmpty() )
+	qthing()->showMessage( msg.getQtString(), msecs<0?0:msecs );
+    else
+	qthing()->clearMessage();
+}
 
-    Color		getBGColor( int idx )
-			{
-			    const QWidget* widget = 0;
-			    if ( msgs_.validIdx(idx) && msgs_[idx] )
-				widget = msgs_[idx];
-			    else
-				widget = qthing();
 
-			    const QBrush& qbr =
-				widget->palette().brush(
-						     widget->backgroundRole() );
-			    const QColor& qc = qbr.color();
-			    return Color( qc.red(), qc.green(), qc.blue() );
-			}
+void setBGColor( int idx, const Color& col )
+{
+    QWidget* widget = 0;
+    if ( msgs_.validIdx(idx) && msgs_[idx] )
+	widget = msgs_[idx];
+    else
+	widget = qthing();
 
-    int		addMsgFld( const uiString& lbltxt, int stretch )
-			{
-			    QLabel* lbl = new QLabel( lbltxt.getQtString() );
-			    int idx = msgs_.size();
-			    msgs_ += lbl;
+    const QColor qcol( col.r(),col.g(), col.b() );
+    QPalette palette;
+    palette.setColor( widget->backgroundRole(), qcol );
+    widget->setPalette( palette );
+}
 
-			    if ( !lbltxt.isEmpty() )
-			    {
-				QLabel* txtlbl =
-					new QLabel( lbltxt.getQtString() );
-				lbl->setBuddy( txtlbl );
 
-				qthing()->addWidget( txtlbl );
-				txtlbl->setFrameStyle(QFrame::NoFrame);
-			    }
+Color getBGColor( int idx )
+{
+    const QWidget* widget = 0;
+    if ( msgs_.validIdx(idx) && msgs_[idx] )
+	widget = msgs_[idx];
+    else
+	widget = qthing();
 
-			    qthing()->addWidget( lbl, stretch );
-			    return idx;
-			}
+    const QBrush& qbr = widget->palette().brush( widget->backgroundRole() );
+    const QColor& qc = qbr.color();
+    return Color( qc.red(), qc.green(), qc.blue() );
+}
 
-    void		addWidget( QWidget* qw )
-			{
-			    qthing()->addWidget( qw );
-			}
 
-    void		repaint()
-			    {
-				qthing()->repaint();
-				for( int idx=0; idx<msgs_.size(); idx++)
-				    if (msgs_[idx]) msgs_[idx]->repaint();
-			     }
+int addMsgFld( const uiString& lbltxt, int stretch )
+{
+    QLabel* lbl = new QLabel( lbltxt.getQtString() );
+    int idx = msgs_.size();
+    msgs_ += lbl;
+
+    if ( !lbltxt.isEmpty() )
+    {
+	QLabel* txtlbl = new QLabel( lbltxt.getQtString() );
+	lbl->setBuddy( txtlbl );
+
+	qthing()->addWidget( txtlbl );
+	txtlbl->setFrameStyle(QFrame::NoFrame);
+    }
+
+    qthing()->addWidget( lbl, stretch );
+    return idx;
+}
+
+
+void addWidget( QWidget* qw )
+{ qthing()->addWidget( qw ); }
+
+
+void repaint()
+{
+    if ( !isMainThreadCurrent() )
+	return;
+
+    qthing()->repaint();
+    for( int idx=0; idx<msgs_.size(); idx++)
+	if (msgs_[idx]) msgs_[idx]->repaint();
+}
+
 
 protected:
 
-    virtual const QWidget*	managewidg_() const
-							{ return qwidget(); }
+virtual const QWidget*	managewidg_() const
+{ return qwidget(); }
 
-    ObjectSet<QLabel>		msgs_;
+ObjectSet<QLabel>		msgs_;
 
 };
+
 
 
 uiStatusBar::uiStatusBar( uiMainWin* parnt, const char* nm, QStatusBar& sb )
