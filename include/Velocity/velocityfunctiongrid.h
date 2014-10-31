@@ -33,79 +33,79 @@ class GriddedSource;
 mExpClass(Velocity) GriddedFunction : public Function
 {
 public:
-			GriddedFunction(GriddedSource&);
+				GriddedFunction(GriddedSource&);
 
-    StepInterval<float>	getAvailableZ() const;
-    bool		moveTo(const BinID&);
-    bool		fetchSources();
+    StepInterval<float>		getAvailableZ() const;
+    bool			moveTo(const BinID&);
+    bool			fetchSources();
 
-    bool		isInfluencedBy(const BinID&) const;
+    bool			isInfluencedBy(const BinID&) const;
 
-    void		setGridder(const Gridder2D&); //!<I will clone
-    Gridder2D*		getGridder() { return gridder_; }
+    void			setGridder(const Gridder2D&); //!<I will clone
+    Gridder2D*			getGridder() { return gridder_; }
 
 protected:
-    			~GriddedFunction();
-    friend		class GriddedSource;
+				~GriddedFunction();
+    friend			class GriddedSource;
 
-    bool		computeVelocity(float z0, float dz, int nr,
+    bool			computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
-    ConstRefMan<Function> getInputFunction(const BinID& bid,int& source);
+    ConstRefMan<Function>	getInputFunction(const BinID& bid,int& source);
 
-    ObjectSet<const Function>		velocityfunctions_;
-    TypeSet<int>			sources_;
+    ObjectSet<const Function>	velocityfunctions_;
+    TypeSet<int>		sources_;
 
-    Gridder2D*				gridder_;
+    Gridder2D*			gridder_;
 
-    mutable TypeSet<float>		gridvalues_;
+    mutable TypeSet<float>	gridvalues_;
 };
 
 
 mExpClass(Velocity) GriddedSource : public FunctionSource
 {
 public:
-    			GriddedSource();
-    const VelocityDesc&	getDesc() const;
-    const char*		factoryKeyword() const { return sType(); }
-    static const char*	sType() { return "GridVelocity"; }
+				GriddedSource();
+    const VelocityDesc&		getDesc() const;
+    const char*			factoryKeyword() const { return sType(); }
+    static const char*		sType() { return "GridVelocity"; }
 
-    const Gridder2D*	getGridder() const;
-    void		setGridder(Gridder2D*); //!<Becomes mine
+    const Gridder2D*		getGridder() const;
+    void			setGridder(Gridder2D*); //!<Becomes mine
 
-    void		setSource(ObjectSet<FunctionSource>&);
-    void		setSource(const TypeSet<MultiID>&);
-    void		getSources(TypeSet<MultiID>&) const;
+    void			setSource(ObjectSet<FunctionSource>&);
+    void			setSource(const TypeSet<MultiID>&);
+    void			getSources(TypeSet<MultiID>&) const;
 
     const ObjectSet<FunctionSource>&	getSources() const;
 
-    NotifierAccess*	changeNotifier() { return &notifier_; }
-    BinID		changeBinID() const { return changebid_; }
+    NotifierAccess*		changeNotifier() { return &notifier_; }
+    BinID			changeBinID() const { return changebid_; }
 
-    GriddedFunction*	createFunction();
+    GriddedFunction*		createFunction();
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
-    friend		class GriddedFunction;
-    GriddedFunction*	createFunction(const BinID&);
-    			~GriddedSource();
-    bool		initGridder();
-    static const char*	sKeyGridder() { return "Gridder"; }
+    friend			class GriddedFunction;
+    GriddedFunction*		createFunction(const BinID&);
+				~GriddedSource();
+    bool			initGridder();
+    static const char*		sKeyGridder() { return "Gridder"; }
 
-    void		sourceChangeCB(CallBacker*);
+    void			sourceChangeCB(CallBacker*);
 
-    ObjectSet<FunctionSource>		datasources_;
+    ObjectSet<FunctionSource>	datasources_;
 
-    Notifier<GriddedSource>		notifier_;
-    BinID				changebid_;
-    Gridder2D*				gridder_;
-    bool				gridderinited_;
+    Notifier<GriddedSource>	notifier_;
+    BinID			changebid_;
+    Gridder2D*			gridder_;
+    bool			gridderinited_;
 
-    BinIDValueSet			sourcepos_;		//All sources
+    BinIDValueSet		sourcepos_;		//All sources
 
-    TypeSet<BinID>			gridsourcebids_;	//Filtered
-    TypeSet<Coord>			gridsourcecoords_;	//Filtered
+    TypeSet<BinID>		gridsourcebids_;	//Filtered
+    TypeSet<Coord>		gridsourcecoords_;	//Filtered
 };
 
 } // namespace Vel
