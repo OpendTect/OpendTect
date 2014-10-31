@@ -73,20 +73,15 @@ protected:
 
     bool			needsave_;
     bool			ispicking_;
+    bool			hasedited_;
 
     ObjectSet<Well::MarkerSet>	orgmarkerssets_;
     ObjectSet<Well::MarkerSet>	markerssets_;
-    uiGenInput*			modefld_;
 
     uiListBox*			mrklist_;
     ObjectSet<Well::Marker>	tmplist_;
     TypeSet<Color>		colors_;
 
-    bool 			hasedited_;
-    bool 			ismarkerhit_;
-    bool 			ispressed_;
-    
-    void			allowMarkersManagement(bool yn);
     virtual void		addNewMrkrList();
     virtual void		editMrkrList();
     virtual bool		removeMrkrFromList();
@@ -114,8 +109,10 @@ mExpClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
 {
 public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);
+				~uiWellDispCtrlEditMarkerDlg();
 
     void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+    void			askForSavingEditedChanges();
 
 protected:
 
@@ -128,17 +125,11 @@ protected:
     void			editMrkrList();
     bool			removeMrkrFromList();
 
-    void 			activateSensors(bool yn);
-    void 			activateSensors(uiWellDisplayControl&,
-						    Well::Data&,bool);
-
     void			triggerWDsMarkerChanged();
     bool			acceptOK(CallBacker*);
-    void			editDlgClosedCB(CallBacker*);
     void			handleUsrClickCB(CallBacker*);
     void			handleCtrlChangeCB(CallBacker*);
     bool			rejectOK(CallBacker*);
-    void			posChgCB(CallBacker*);
 };
 
 
