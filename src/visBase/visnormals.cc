@@ -147,6 +147,42 @@ int Normals::nextID( int previd ) const
 }
 
 
+void Normals::setAll( const Coord3* coords, int nmsz )
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
+    if ( nmsz!=nrNormals() )
+	 osgnormals->resize( nmsz );
+
+    int nrnormals( 0 );
+    while ( nrnormals< nmsz )
+    {
+	( *osgnormals )[nrnormals] =
+	   osg::Vec3f( Conv::to<osg::Vec3>(coords[nrnormals]) );
+	 nrnormals++;
+     }
+}
+
+
+void Normals::setAll( const Coord3& coord, int nmsz )
+{
+     Threads::MutexLocker lock( mutex_ );
+
+     osg::Vec3Array* osgnormals = mGetOsgVec3Arr( osgnormals_ );
+     if ( nmsz!=nrNormals() )
+	  osgnormals->resize( nmsz );
+
+     int nrnormals( 0 );
+     while ( nrnormals< nmsz )
+     {
+	( *osgnormals )[nrnormals] =
+	    osg::Vec3f( Conv::to<osg::Vec3>(coord) );
+	nrnormals++;
+     }
+
+}
+
 int Normals::addNormal( const Vector3& n )
 {
 

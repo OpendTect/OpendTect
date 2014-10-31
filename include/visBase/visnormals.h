@@ -50,6 +50,12 @@ public:
     void		setAll(const float* vals,int nmsz);
     			//!<vals are transformed, ordered in x,y,z.
 
+    void		setAll(const Coord3* coords,int nmsz);
+			//!<coords are transformed.
+
+    void		setAll(const Coord3& coord,int nmsz);
+			//!<set all normals as coord.
+
     void		setDisplayTransformation(const mVisTrans* nt);
     const mVisTrans*	getDisplayTransformation() const
     			{ return transformation_; }
