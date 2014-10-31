@@ -83,8 +83,6 @@ void TextureCoords::setCoord( int idx, const Coord& pos )
 	return;
 
     Threads::Locker locker( lock_, Threads::Locker::WriteLock );
-    int sz = mGetOsgVec2Arr(osgcoords_)->size();
-
     setPosWithoutLock( idx, pos );
 
 }
