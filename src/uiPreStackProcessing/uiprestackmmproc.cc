@@ -71,7 +71,7 @@ bool uiPreStackMMProc::initWork( bool retry )
 	mErrRet(tr("Key for input data store missing in job specification") )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(inpidstr) );
     if ( !ioobj )
-	mErrRet( BufferString("Cannot find data store with ID: ",inpidstr) )
+	mErrRet(tr("Cannot find data store with ID: %1").arg(inpidstr)) 
 
     PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
     if ( !rdr )

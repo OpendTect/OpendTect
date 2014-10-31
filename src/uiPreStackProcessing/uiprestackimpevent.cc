@@ -48,7 +48,7 @@ uiEventImport::uiEventImport( uiParent* p )
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread = false;
-    outputfld_ = new uiIOObjSel( this, ctxt, "Prestack Events" );
+    outputfld_ = new uiIOObjSel( this, ctxt, tr("Prestack Events") );
     outputfld_->attach( alignedBelow, dataselfld_ );
 }
 

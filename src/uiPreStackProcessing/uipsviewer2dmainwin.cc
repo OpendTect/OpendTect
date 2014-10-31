@@ -93,7 +93,7 @@ void uiViewer2DMainWin::dataDlgPushed( CallBacker* )
 
 
 class uiPSPreProcessingDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiPSPreProcessingDlg);
 public:
 uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
 		      const CallBack& cb )
@@ -122,8 +122,8 @@ bool applyCB( CallBacker* )
     if ( preprocgrp_->isChanged() )
     {
 	 const int ret =
-	     uiMSG().askSave("Current settings are not saved.\n"
-			     "Do you want to save them?");
+	     uiMSG().askSave(tr("Current settings are not saved.\n"
+			        "Do you want to save them?"));
 	 if ( ret==-1 )
 	     return false;
 	 else if ( ret==1 )
@@ -372,17 +372,17 @@ void uiViewer2DMainWin::displayInfo( CallBacker* cb )
 
 
 class uiPSMultiPropDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiPSMultiPropDlg);
 public:
 uiPSMultiPropDlg( uiParent* p, ObjectSet<uiFlatViewer>& vwrs,
 		     const CallBack& cb )
-    : uiDialog(p,uiDialog::Setup("Set properties for data",
+    : uiDialog(p,uiDialog::Setup(tr("Set properties for data"),
                                  uiStrings::sEmptyString(),mNoHelpKey))
     , vwrs_(vwrs)
     , cb_(cb)
 {
     uiLabeledComboBox* lblcb =
-	new uiLabeledComboBox( this, "Select gather" );
+	new uiLabeledComboBox( this, tr("Select gather") );
     datasetcb_ = lblcb->box();
     datasetcb_->selectionChanged.notify(
 	    mCB(this,uiPSMultiPropDlg,gatherChanged) );
@@ -757,7 +757,8 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl, is2d_, nm);
+    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl, 
+		   is2d_, nm);
 }
 
 

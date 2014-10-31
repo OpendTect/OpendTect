@@ -34,7 +34,7 @@ uiEventExport::uiEventExport( uiParent* p, const MultiID* mid )
 
     IOObjContext ctxt( PSEventTranslatorGroup::ioContext() );
     ctxt.forread = true;
-    eventsel_ = new uiIOObjSel( this, ctxt, "Prestack Events" );
+    eventsel_ = new uiIOObjSel( this, ctxt, tr("Prestack Events") );
     if ( mid )
 	eventsel_->setInput( *mid );
 

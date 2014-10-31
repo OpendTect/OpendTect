@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 #include "rowcol.h"
-
+#include "uistring.h"
 #include "uiprestackprocessingmod.h"
 #include "uislicesel.h"
 
@@ -88,7 +88,7 @@ protected:
 };
 
 mExpClass(uiPreStackProcessing) uiViewer2DPosDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiViewer2DPosDlg);
 public:
 				uiViewer2DPosDlg(uiParent*,bool is2d,
 						const TrcKeyZSampling&,
@@ -116,7 +116,7 @@ protected:
 
 
 mExpClass(uiPreStackProcessing) uiViewer2DSelDataDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiViewer2DSelDataDlg);
 public: 	
 			    uiViewer2DSelDataDlg(uiParent*,
 				    const BufferStringSet&,BufferStringSet&);

@@ -305,10 +305,10 @@ void uiAngleCompAdvParsDlg::finaliseCB( CallBacker* )
     if ( isformute_ )
 	return;
 
-    freqf3fld_->setToolTip( "Frequency where the cosine tapering window starts:"
-			    " Amplitude=input" );
-    freqf4fld_->setToolTip( "Frequency where the cosine tapering window stops:"
-			    " Amplitude=0" );
+    freqf3fld_->setToolTip(tr("Frequency where the cosine tapering "
+			      "window starts: Amplitude=input"));
+    freqf4fld_->setToolTip(tr("Frequency where the cosine tapering "
+			      "window stops: Amplitude=0"));
     smoothTypeSel(0);
 }
 
@@ -329,7 +329,7 @@ uiDialog* uiAngleMute::create( uiParent* p, Processor* sgp )
 
 
 uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
-    : uiDialog( p, uiDialog::Setup("AngleMute setup",mNoDlgTitle,
+    : uiDialog( p, uiDialog::Setup(tr("AngleMute setup"),mNoDlgTitle,
                                     mODHelpKey(mAngleMuteHelpID) ) )
     , processor_( rt )
 {
@@ -338,12 +338,12 @@ uiAngleMute::uiAngleMute( uiParent* p, AngleMute* rt )
     uiSeparator* sep = new uiSeparator( this, "Sep" );
     sep->attach( stretchedBelow, anglecompgrp_ );
 
-    topfld_ = new uiGenInput( this, "Mute type",
-	    BoolInpSpec(!processor_->params().tail_,"Outer","Inner") );
+    topfld_ = new uiGenInput( this, tr("Mute type"),
+	    BoolInpSpec(!processor_->params().tail_,tr("Outer"),tr("Inner")) );
     topfld_->attach( ensureBelow, sep );
     topfld_->attach( centeredBelow, anglecompgrp_ );
 
-    taperlenfld_ = new uiGenInput( this, "Taper length (samples)",
+    taperlenfld_ = new uiGenInput( this, tr("Taper length (samples)"),
 	    FloatInpSpec(processor_->params().taperlen_) );
     taperlenfld_->attach( alignedBelow, topfld_ );
 }

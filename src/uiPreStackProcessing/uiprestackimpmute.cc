@@ -60,7 +60,7 @@ uiImportMute::uiImportMute( uiParent* p )
     dataselfld_->attach( alignedBelow, inlcrlfld_ );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Mute Definition" );
+    outfld_ = new uiIOObjSel( this, ctio_, tr("Mute Definition") );
     outfld_->attach( alignedBelow, dataselfld_ );
 
     postFinalise().notify( mCB(this,uiImportMute,formatSel) );
@@ -144,7 +144,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 	//should be part of another revision
     }
 
-    uiMSG().message( "Import finished successfully" );
+    uiMSG().message( tr("Import finished successfully") );
     return false;
 }
 

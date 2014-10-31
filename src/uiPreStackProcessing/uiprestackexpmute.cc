@@ -75,7 +75,7 @@ bool uiExportMute::writeAscii()
     if ( !sdo.usable() )
     {
 	sdo.close();
-	mErrRet( "Cannot open output file" );
+	mErrRet( tr("Cannot open output file") );
     }
 
     const bool isxy = coordfld_->getBoolValue();

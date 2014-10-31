@@ -41,7 +41,8 @@ uiViewer2DPosDlg::uiViewer2DPosDlg( uiParent* p, bool is2d,
     , is2d_(is2d)
 {
     uiSliceSel::Type tp = is2d ? uiSliceSel::TwoD :
-	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl : uiSliceSel::Crl;
+	cs.defaultDir()==TrcKeyZSampling::Inl ? uiSliceSel::Inl 
+					      : uiSliceSel::Crl;
     setCtrlStyle( RunAndClose );
 
     sliceselfld_ = new uiGatherPosSliceSel( this, tp, gathernms, issynthetic );
@@ -98,10 +99,10 @@ uiGatherPosSliceSel::uiGatherPosSliceSel( uiParent* p, uiSliceSel::Type tp,
   , issynthetic_(issynthetic)
 {
     setStretch( 2, 2 );
-    BufferString msg( "Dynamic " );
+    uiString msg = tr( "Dynamic %1 %2" );
     const char* linetxt = isinl_ ? is2d_ ? "Trace" : "Xline" : "Inline";
-    msg += linetxt;
-    msg += is2d_ ? " Number" : " Range";
+    msg.arg(linetxt);
+    msg.arg(is2d_ ? tr(" Number") : tr(" Range"));
     if ( issynthetic )
     {
 	inl0fld_->display( false, true );
@@ -446,9 +447,9 @@ void uiGatherPosSliceSel::resetDispGatherInfos()
 uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
 					    const BufferStringSet& gnms,
 						  BufferStringSet& selgnms )
-    : uiDialog(p,uiDialog::Setup("Select gather data",
-				"Add PS Gather",
-                                mODHelpKey(mViewer2DSelDataDlgHelpID) ))
+    : uiDialog(p,uiDialog::Setup(tr("Select gather data"),
+				 tr("Add PS Gather"),
+                                 mODHelpKey(mViewer2DSelDataDlgHelpID) ))
     , selgathers_(selgnms)
 {
     allgatherfld_ = new uiListBox( this, "Available gathers",
@@ -462,12 +463,12 @@ uiViewer2DSelDataDlg::uiViewer2DSelDataDlg( uiParent* p,
     uiLabel* sellbl = new uiLabel( this, uiStrings::sSelect(true) );
     CallBack cb = mCB(this,uiViewer2DSelDataDlg,selButPush);
     toselect_ = new uiToolButton( this, uiToolButton::RightArrow,
-				"Move right", cb );
+				  tr("Move right"), cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->attach( centeredRightOf, allgatherfld_ );
     toselect_->setHSzPol( uiObject::Undef );
     fromselect_ = new uiToolButton( this, uiToolButton::LeftArrow,
-				"Move left", cb );
+				    tr("Move left"), cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selgatherfld_->attach( centeredRightOf, toselect_ );
@@ -510,7 +511,7 @@ bool uiViewer2DSelDataDlg::acceptOK( CallBacker* )
 {
     if ( selgatherfld_->isEmpty() )
     {
-	uiMSG().error( "Please select at least one dataset" );
+	uiMSG().error( tr("Please select at least one dataset") );
 	return false;
     }
     selgathers_.erase();

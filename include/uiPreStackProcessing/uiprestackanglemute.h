@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "prestackanglemute.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiLabel;
@@ -58,7 +59,7 @@ protected:
 
 
 mExpClass(uiPreStackProcessing) uiAngleCompAdvParsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAngleCompAdvParsDlg);
 public:
 			uiAngleCompAdvParsDlg(uiParent*,
 					      PreStack::AngleCompParams&,
@@ -95,7 +96,7 @@ protected :
 
 
 mExpClass(uiPreStackProcessing) uiAngleMute : public uiDialog
-{
+{ mODTextTranslationClass(uiAngleMute);
 public:
 
     static void		initClass();
