@@ -23,10 +23,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uiwelllogdisplay.h"
 
-#include "keyboardevent.h"
 #include "mouseevent.h"
 #include "randcolor.h"
-#include "survinfo.h"
 #include "sorting.h"
 #include "stratlevel.h"
 #include "welld2tmodel.h"
@@ -127,6 +125,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
 
 uiDispEditMarkerDlg::~uiDispEditMarkerDlg()
 {
+    detachAllNotifiers();
     deepErase( tmplist_ );
     deepErase( orgmarkerssets_ );
 }
@@ -205,6 +204,7 @@ void uiDispEditMarkerDlg::removeMarker( int idset, const char* nm )
 bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
 {
     needsave_ = hasedited_;
+    hasedited_ = false;
     return true;
 }
 
@@ -212,19 +212,7 @@ bool uiDispEditMarkerDlg::acceptOK( CallBacker* )
 bool uiDispEditMarkerDlg::rejectOK( CallBacker* )
 {
     needsave_ = false;
-    if ( hasedited_ )
-    {
-	BufferString msg = "Some markers have been edited. \n";
-	msg += "Do you want to save those changes? ";
-	if ( !uiMSG().askGoOn( msg ) )
-	{
-	    for ( int idx=0; idx<markerssets_.size(); idx++ )
-		*markerssets_[idx] = *orgmarkerssets_[idx];
-	    return true;
-	}
-	else
-	    return false;
-    }
+    hasedited_ = false;
     return true;
 }
 
@@ -348,11 +336,8 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 {
     uiMenu mnu( this, "Action" );
-
-    const bool nomrkr = mrklist_->isEmpty();
-
     mnu.insertItem( new uiAction(tr("Add &New ...")), 0 );
-    if ( !nomrkr )
+    if ( !mrklist_->isEmpty() )
     {
 	mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 1 );
 	mnu.insertItem( new uiAction(uiStrings::sRemove(false)), 2 );
@@ -377,8 +362,8 @@ void uiDispEditMarkerDlg::listRClickCB( CallBacker* )
 
 void uiDispEditMarkerDlg::fillMarkerList( CallBacker* )
 {
-    const char* selnm = mrklist_->nrChosen() ? mrklist_->getText() : 0;
-
+    const BufferString selnm = mrklist_->nrChosen() ? mrklist_->getText()
+						    : sKey::EmptyString().buf();
     if ( mrklist_->size() ) mrklist_->setEmpty();
     BufferStringSet mrknms; TypeSet<Color> mrkcols; TypeSet<float> dahs;
 
@@ -420,11 +405,12 @@ if ( mrknms.addIfNew( mrk.name() ) )\
 	mrk->setColor( getRandStdDrawColor() );
 	tmplist_ += mrk;
     }
+
     if ( isPicking() )
     {
 	const int selidx = mrklist_->indexOf( selnm );
-	if ( selidx < mrklist_->size() && selidx >= 0 )
-	mrklist_->setCurrentItem( selidx );
+	if ( mrklist_->validIdx(selidx) )
+	    mrklist_->setCurrentItem( selidx );
     }
 }
 
@@ -452,8 +438,6 @@ uiWellDispCtrlEditMarkerDlg::uiWellDispCtrlEditMarkerDlg( uiParent* p )
 
 void uiWellDispCtrlEditMarkerDlg::editDlgClosedCB( CallBacker* )
 {
-    for ( int idx=0; idx<ctrls_.size(); idx++ )
-	activateSensors( *ctrls_[idx], *wds_[idx], false );
 }
 
 
@@ -463,7 +447,10 @@ void uiWellDispCtrlEditMarkerDlg::addWellCtrl( uiWellDisplayControl& ctrl,
     ctrls_ += &ctrl;
     wds_ += &wd;
     addMarkerSet( wd.markers() );
-    activateSensors( ctrl, wd, true );
+
+    mAttachCB( ctrl.posChanged,uiWellDispCtrlEditMarkerDlg::handleCtrlChangeCB);
+    mAttachCB( ctrl.mousePressed,uiWellDispCtrlEditMarkerDlg::handleUsrClickCB);
+    mAttachCB( wd.markerschanged, uiWellDispCtrlEditMarkerDlg::fillMarkerList );
 }
 
 
@@ -553,24 +540,42 @@ void uiWellDispCtrlEditMarkerDlg::handleUsrClickCB( CallBacker* )
 
 bool uiWellDispCtrlEditMarkerDlg::acceptOK( CallBacker* )
 {
+    needsave_ = hasedited_;
     if ( hasedited_ )
     {
 	triggerWDsMarkerChanged();
+	hasedited_ = false;
     }
 
-    needsave_ = hasedited_;
     return true;
 }
 
 
-bool uiWellDispCtrlEditMarkerDlg::rejectOK( CallBacker* cb )
+bool uiWellDispCtrlEditMarkerDlg::rejectOK( CallBacker* )
 {
     needsave_ = false;
-    if ( hasedited_ && uiDispEditMarkerDlg::rejectOK( cb ) )
-    {
-	triggerWDsMarkerChanged();
-    }
+    if ( hasedited_ )
+	askForSavingEditedChanges();
     return true;
+}
+
+
+void uiWellDispCtrlEditMarkerDlg::askForSavingEditedChanges()
+{
+    if ( !hasedited_ ) return;
+
+    BufferString msg = "Some markers have been edited. \n";
+    msg += "Do you want to save those changes? ";
+    if ( uiMSG().askGoOn( msg ) )
+	needsave_ = true;
+    else
+    {
+	for ( int idx=0; idx<markerssets_.size(); idx++ )
+	    *markerssets_[idx] = *orgmarkerssets_[idx];
+    }
+
+    triggerWDsMarkerChanged();
+    hasedited_ = false;
 }
 
 

@@ -116,6 +116,7 @@ public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);
 
     void 			addWellCtrl(uiWellDisplayControl&,Well::Data&);
+    void			askForSavingEditedChanges();
 
 protected:
 

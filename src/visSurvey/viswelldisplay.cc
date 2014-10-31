@@ -364,6 +364,7 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 
 void WellDisplay::updateMarkers( CallBacker* )
 {
+    if ( !well_ ) return;
     well_->removeAllMarkers();
     mGetWD(return);
 
