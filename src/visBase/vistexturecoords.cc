@@ -44,6 +44,16 @@ TextureCoords::~TextureCoords()
 }
 
 
+void TextureCoords::copyFrom( const TextureCoords& tc )
+{
+    Threads::Locker locker( lock_ );
+
+    *mGetOsgVec2Arr(osgcoords_) = *mGetOsgVec2Arr(tc.osgcoords_);
+
+    nrfreecoords_ = tc.nrfreecoords_;
+}
+
+
 int TextureCoords::size( bool includedeleted ) const
 {
     Threads::Locker locker( lock_ );
@@ -58,6 +68,15 @@ void TextureCoords::setCoord( int idx, const Coord3& pos )
 }
 
 
+void TextureCoords::setPositions( const Coord* pos, int sz, int start )
+{
+    Threads::Locker locker( lock_,Threads::Locker::WriteLock );
+
+    for( int idx=0; idx<sz; idx++ )
+	 setPosWithoutLock( idx+start, pos[idx] );
+}
+
+
 void TextureCoords::setCoord( int idx, const Coord& pos )
 {
     if ( idx<0 )
@@ -66,17 +85,27 @@ void TextureCoords::setCoord( int idx, const Coord& pos )
     Threads::Locker locker( lock_, Threads::Locker::WriteLock );
     int sz = mGetOsgVec2Arr(osgcoords_)->size();
 
-    while ( idx >= sz )
+    setPosWithoutLock( idx, pos );
+
+}
+
+
+void TextureCoords::setPosWithoutLock( int idx,const Coord& pos )
+{
+    int sz = mGetOsgVec2Arr(osgcoords_)->size();
+
+    while(idx >= sz)
     {
 	mGetOsgVec2Arr(osgcoords_)->push_back( mFreeOsgVec2 );
 	nrfreecoords_++;
 	sz++;
     }
 
-    if ( mIsFreeIdx(idx) )
+    if( mIsFreeIdx(idx) )
 	nrfreecoords_--;
 
-    (*mGetOsgVec2Arr(osgcoords_))[idx] = Conv::to<osg::Vec2>( pos );
+    ( *mGetOsgVec2Arr(osgcoords_) )[idx] = Conv::to<osg::Vec2>( pos );
+
 }
 
 

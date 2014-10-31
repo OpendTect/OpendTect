@@ -21,8 +21,6 @@ ________________________________________________________________________
 #include "visosg.h"
 
 
-class SoCoordinate3;
-class SoGroup;
 class UTMPosition;
 
 namespace Geometry { class PosIdHolder; }
@@ -80,12 +78,13 @@ public:
     void		removeAfter(int);
     void		setAllPositions(const Coord3& pos,int sz,int start);
 
-    void		setAllZ(const float*,int sz,float zscale=1);
+    void		setAllZ(const float*,int sz,bool dotransf);
 
     osg::Array*		osgArray() { return osgcoords_; }
     const osg::Array*	osgArray() const { return osgcoords_; }
 
     void		setEmpty();
+    bool		isEmpty() const { return size()==0; }
     void		dirty() const;
 
 protected:
