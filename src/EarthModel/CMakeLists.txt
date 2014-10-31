@@ -39,6 +39,7 @@ SET(OD_MODULE_SOURCES
 		empolygonbody.cc
 		emposid.cc
 		emrandlinegen.cc
+		emregion.cc
 		emrowcoliterator.cc
 		emsurface.cc
 		emsurfaceauxdata.cc
