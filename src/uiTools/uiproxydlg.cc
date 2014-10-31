@@ -139,5 +139,6 @@ bool uiProxyDlg::acceptOK( CallBacker* )
 	return false;
     }
 
+    Network::setHttpProxyFromSettings();
     return true;
 }
