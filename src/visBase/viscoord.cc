@@ -359,6 +359,7 @@ void Coordinates::removeAfter( int idx )
 
 void Coordinates::setAllZ( const float* vals, int sz, bool dotransf )
 {
+    Threads::MutexLocker lock( mutex_ );
     if ( sz != mArrSize )
 	mGetOsgVec3Arr(osgcoords_)->resize( sz );
 
