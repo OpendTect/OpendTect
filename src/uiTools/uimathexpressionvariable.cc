@@ -108,7 +108,7 @@ void uiMathExpressionVariable::updateInpNms( bool sub )
     inpfld->addItems( nms );
     inpfld->setCurrentItem( curseltxt );
     if ( sub )
-	inpfld->display( !nms.isEmpty() );
+	inpfld->display( !nms.isEmpty() && !isconst_ && isactive_ );
 }
 
 
@@ -172,13 +172,17 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
     varnm_ = varnm;
     specidx_ = specvars_.getIndexOf( varnm );
 
-    updateInpNms( true ); updateInpNms( false );
+    if ( !isconst )
+    {
+	updateInpNms( true );
+	updateInpNms( false );
+    }
 
     BufferString lbltxt;
     bool issens = true;
     if ( isconst_ )
 	constfld_->setTitleText( BufferString("Value for '",varnm_,"'") );
-    if ( specidx_ < 0 )
+    else if ( specidx_ < 0 )
 	inplbl_->setText( BufferString("For '", varnm_,"' use") );
     else
     {

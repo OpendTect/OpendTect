@@ -194,11 +194,13 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	TypeSet<double> inpvals;
+	int nrconstsandspecsfound = 0;
 	for ( int inpidx=0; inpidx<formula_->nrInputs(); inpidx++ )
 	{
 	    if ( formula_->isConst(inpidx) )
 	    {
 		inpvals += formula_->getConstVal( inpidx );
+		nrconstsandspecsfound ++;
 		continue;
 	    }
 
@@ -214,14 +216,18 @@ bool Attrib::Mathematics::computeData( const DataHolder& output,
 					(z0+idx)*refstep_*zFactor() ); break;
 	    }
 	    if ( specidx >=0 )
+	    {
+		nrconstsandspecsfound ++;
 		continue;
+	    }
 
 	    const TypeSet<int>& reqshifts = formula_->getShifts( inpidx );
 	    for ( int ishft=0; ishft<reqshifts.size(); ishft++ )
 	    {
-		const Attrib::DataHolder* inpdh = inputdata_[inpidx];
+		const int inpdataidx = inpidx-nrconstsandspecsfound;
+		const Attrib::DataHolder* inpdh = inputdata_[inpdataidx];
 		inpvals += inpdh ? mCast( double, getInputValue( *inpdh,
-						  inputidxs_[inpidx],
+						  inputidxs_[inpdataidx],
 						  idx+reqshifts[ishft],z0 ) ) 
 				 : mUdf(double);
 	    }

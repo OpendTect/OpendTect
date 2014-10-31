@@ -229,7 +229,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		if ( !form_.isConst(varinpidx) && !form_.isSpec(varinpidx) )
 		{
 		    form_.setInputDef( varinpidx, refstr );
-		    formfld_->inpFld(idx)->selectInput( refstr.buf() );
+		    formfld_->inpFld(varinpidx)->selectInput( refstr.buf() );
 		    varinplastidx = varinpidx+1;
 
 		    MultiID mid = inpdsc->getStoredID( false ).buf();
@@ -243,7 +243,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 			seisinfo.getComponentNames( nms );
 			nms.insertAt( new BufferString("ALL"), 0 );
 			formfld_->setNonSpecSubInputs( nms, varinpidx );
-			formfld_->inpFld(idx)->selectSubInput(
+			formfld_->inpFld(varinpidx)->selectSubInput(
 						inpdsc->selectedOutput()+1 );
 		    }
 
