@@ -353,7 +353,7 @@ bool Seis2DTo3D::doWorkFFT()
     {
 	BinID bid;
 	HorSamplingIterator hsit( winhrg );
-	while ( hsit.next(bid) )
+	while ( hsit.next(bid) && seisbuf_.get(0) )
 	{
 	    SeisTrc* trc = new SeisTrc( seisbuf_.get(0)->size() );
 	    trc->info().sampling = seisbuf_.get(0)->info().sampling;
