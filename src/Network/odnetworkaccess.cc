@@ -486,7 +486,13 @@ void Network::setHttpProxyFromSettings()
     Settings& setts = Settings::common();
     bool useproxy = false;
     setts.getYN( Network::sKeyUseProxy(), useproxy );
-    if ( !useproxy ) return;
+    if ( !useproxy )
+    {
+	QNetworkProxy proxy;
+	proxy.setType( QNetworkProxy::NoProxy );
+	QNetworkProxy::setApplicationProxy( proxy );
+	return;
+    }
 
     BufferString host;
     setts.get( Network::sKeyProxyHost(), host );
@@ -527,7 +533,7 @@ void Network::setHttpProxy( const char* hostname, int port, bool auth,
 	proxy.setPassword( password );
     }
 
-    QNetworkProxy::setApplicationProxy(proxy);
+    QNetworkProxy::setApplicationProxy( proxy );
 #endif
 }
 
@@ -537,7 +543,10 @@ QNetworkAccessManager& ODNA()
 {
     mDefineStaticLocalObject( QNetworkAccessManager*, odna, = 0 );
     if ( !odna )
+    {
 	odna = new QNetworkAccessManager();
+	Network::setHttpProxyFromSettings();
+    }
 
     return *odna;
 }
