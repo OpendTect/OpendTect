@@ -16,9 +16,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uispinbox.h"
 
 #include "datainpspec.h"
+#include <limits.h>
 
 
-uiGenInputInputFld::uiGenInputInputFld( uiGenInput* p, const DataInpSpec& dis ) 
+uiGenInputInputFld::uiGenInputInputFld( uiGenInput* p, const DataInpSpec& dis )
     : spec_(*dis.clone())
     , p_( p )
 {
@@ -45,11 +46,11 @@ uiObject* uiGenInputInputFld::elemObj( int idx )
 bool uiGenInputInputFld::isUndef( int idx ) const
 {
     return mIsUdf(text(idx));
-} 
+}
 
 
 const char* uiGenInputInputFld::text( int idx ) const
-{ 
+{
     const UserInputObj* obj = element( idx );
     const char* ret = obj ? obj->text() : 0;
     return ret ? ret : mUdf(const char*);
@@ -115,11 +116,11 @@ void uiGenInputInputFld::display( bool yn, int elemidx )
 	if ( obj )
 	    obj->display( yn );
     }
-} 
+}
 
 
 bool uiGenInputInputFld::isReadOnly( int idx ) const
-{ 
+{
     const UserInputObj* obj = element( idx );
     return obj && obj->isReadOnly();
 }
@@ -133,7 +134,7 @@ void uiGenInputInputFld::setReadOnly( bool yn, int idx )
 
 
 void uiGenInputInputFld::setSensitive( bool yn, int elemidx )
-{ 
+{
     if ( elemidx < 0 )
 	{ mDoAllElemObjs(setSensitive(yn)) }
     else
@@ -155,7 +156,7 @@ bool uiGenInputInputFld::update( const DataInpSpec& nw )
 
 
 void uiGenInputInputFld::updateSpec()
-{ 
+{
     for( int idx=0; idx<nElems()&&element(idx); idx++ )
     spec_.setText( element(idx)->text(), idx );
 }
@@ -180,9 +181,9 @@ void uiGenInputInputFld::updateReqNotify(CallBacker*)
 
 
 bool uiGenInputInputFld::update_( const DataInpSpec& nw )
-{ 
-    return nElems() == 1 && element(0) ? element(0)->update(nw) : false; 
-} 
+{
+    return nElems() == 1 && element(0) ? element(0)->update(nw) : false;
+}
 
 
 void uiGenInputInputFld::init()
@@ -236,7 +237,7 @@ uiGenInputBoolFld::uiGenInputBoolFld(uiParent* p, const DataInpSpec& spec,
 	{ pErrMsg("huh?"); init( p, "Y", "N", true ); }
     else
     {
-	init( p, spc->trueFalseTxt(true), 
+	init( p, spc->trueFalseTxt(true),
 		spc->trueFalseTxt(false), spc->getBoolValue() );
 	if ( rb1_ && spec.name(0) ) rb1_->setName( spec.name(0) );
 	if ( rb2_ && spec.name(1) ) rb2_->setName( spec.name(1) );
@@ -248,8 +249,8 @@ const char* uiGenInputBoolFld::text() const
 { return yn_ ? truetxt_.getFullString() : falsetxt_.getFullString(); }
 
 
-void uiGenInputBoolFld::setText( const char* t )	
-{  
+void uiGenInputBoolFld::setText( const char* t )
+{
     bool newval;
     if ( truetxt_.getFullString() == t ) newval = true;
     else if ( falsetxt_.getFullString()==t ) newval = false;
@@ -267,16 +268,16 @@ void uiGenInputBoolFld::init( uiParent* p, const uiString& truetext,
     yn_ = yn;
 
     if ( truetxt_.isEmpty()  || falsetxt_.isEmpty() )
-    { 
-	checkbox_ = new uiCheckBox( p, (truetxt_.isEmpty()) ? 
+    {
+	checkbox_ = new uiCheckBox( p, (truetxt_.isEmpty()) ?
 				(const char*) name() : truetxt_ );
 	checkbox_->activated.notify( mCB(this,uiGenInputBoolFld,selected) );
 	setvalue_( yn );
-	return; 
+	return;
     }
 
     // we have two labelTxt()'s, so we'll make radio buttons
-    uiGroup* grp_ = new uiGroup( p, name() ); 
+    uiGroup* grp_ = new uiGroup( p, name() );
     butgrp_ = grp_->mainObject();
 
     rb1_ = new uiRadioButton( grp_, truetxt_ );
@@ -319,7 +320,7 @@ void uiGenInputBoolFld::selected(CallBacker* cber)
     else if( cber == checkbox_ ){ newyn = checkbox_->isChecked(); }
     else return;
 
-    if ( newyn != yn_ )		
+    if ( newyn != yn_ )
     {
 	setvalue_( newyn );
 	valueChanged.trigger(*this);
@@ -335,8 +336,8 @@ void uiGenInputBoolFld::setvalue_( bool b )
     if ( !rb1_ || !rb2_ )
 	{ pErrMsg("Huh?"); return; }
 
-    rb1_->setChecked(yn_); 
-    rb2_->setChecked(!yn_); 
+    rb1_->setChecked( yn_ );
+    rb2_->setChecked( !yn_ );
 }
 
 
@@ -347,8 +348,8 @@ void uiGenInputBoolFld::setReadOnly( bool ro )
     if ( !rb1_ || !rb2_ )
 	{ pErrMsg("Huh?"); return; }
 
-    rb1_->setSensitive(!ro); 
-    rb2_->setSensitive(!ro); 
+    rb1_->setSensitive(!ro);
+    rb2_->setSensitive(!ro);
 }
 
 
@@ -359,7 +360,7 @@ bool uiGenInputBoolFld::isReadOnly() const
     if ( !rb1_ || !rb2_ )
     	{ pErrMsg("Huh?"); return false; }
 
-    return !rb1_->sensitive() && !rb2_->sensitive(); 
+    return !rb1_->sensitive() && !rb2_->sensitive();
 }
 
 
@@ -407,6 +408,10 @@ void uiGenInputIntFld::setToolTip( const uiString& tt )
 int uiGenInputIntFld::getvalue_() const
 { return uiSpinBox::getValue(); }
 
+
+static bool isNotSet( int val )
+{ return mIsUdf(val) || val == INT_MAX; }
+
 void uiGenInputIntFld::setvalue_( int val )
 {
     if ( !mIsUdf(val) )
@@ -415,11 +420,11 @@ void uiGenInputIntFld::setvalue_( int val )
 	return;
     }
 
-    if ( mIsUdf(-minValue()) && mIsUdf(maxValue()) )
+    if ( isNotSet(-minValue()) && isNotSet(maxValue()) )
 	val = 0;
-    else if ( mIsUdf(-minValue()) )
+    else if ( isNotSet(-minValue()) )
 	val = maxValue();
-    else if ( mIsUdf(maxValue()) )
+    else if ( isNotSet(maxValue()) )
 	val = minValue();
     uiSpinBox::setValue( val );
 }
