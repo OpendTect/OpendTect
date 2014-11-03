@@ -359,8 +359,10 @@ void uiFlatViewer::addAuxData( FlatView::AuxData* a )
 	return;
     }
 
-    uiad->getDisplay()->setZValue( auxDataZVal() );
-    worldgroup_->add( uiad->getDisplay() );
+    uiGraphicsItemGroup* graphicsitemgrp = uiad->getDisplay();
+    if ( !graphicsitemgrp ) return;
+    graphicsitemgrp->setZValue( auxDataZVal() );
+    worldgroup_->add( graphicsitemgrp );
     uiad->setViewer( this );
     auxdata_ += uiad;
 }
