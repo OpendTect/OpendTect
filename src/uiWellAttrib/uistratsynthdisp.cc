@@ -58,6 +58,8 @@ static const char* sKeyNone()		{ return "None"; }
 
 static HiddenParam< uiStratSynthDisp, uiWorldRect > curviewwr(
 	uiWorldRect(mUdf(double),mUdf(double),mUdf(double),mUdf(double)) );
+static HiddenParam< uiStratSynthDisp, uiWorldRect > savedviewwr(
+	uiWorldRect(mUdf(double),mUdf(double),mUdf(double),mUdf(double)) );
 static HiddenParam< uiStratSynthDisp, Notifier<uiStratSynthDisp>* >
 	disppropchanged( 0 );
 
@@ -96,6 +98,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     disppropchanged.setParam( this, dispnot );
     uiWorldRect wr( mUdf(double), 0, 0,0 );
     curviewwr.setParam( this, wr );
+    savedviewwr.setParam( this, wr );
     stratsynth_->setTaskRunner( taskrunner_ );
     edstratsynth_->setTaskRunner( taskrunner_ );
 
@@ -212,6 +215,7 @@ uiStratSynthDisp::~uiStratSynthDisp()
     disppropchanged.removeParam( this );
     delete notifier;
     curviewwr.removeParam( this );
+    savedviewwr.removeParam( this );
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
@@ -846,6 +850,15 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 }
 
 
+void uiStratSynthDisp::setSavedViewRect()
+{
+    uiWorldRect savedviewwr_ = savedviewwr.getParam( this );
+    if ( mIsUdf(savedviewwr_.left()) )
+	return;
+    setZoomView( savedviewwr_ );
+}
+
+
 void uiStratSynthDisp::reSampleTraces( SeisTrcBuf& tbuf ) const
 {
     reSampleTraces( currentwvasynthetic_, tbuf );
@@ -1471,6 +1484,7 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	wr.setBottom( startviewareapts[3] );
     }
     curviewwr.setParam( this, wr );
+    savedviewwr.setParam( this, wr );
 
     if ( !curSS().nrSynthetics() )
     {

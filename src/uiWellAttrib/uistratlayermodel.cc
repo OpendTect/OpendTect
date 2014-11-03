@@ -773,6 +773,7 @@ bool uiStratLayerModel::openGenDesc()
     }
     
     //Before calculation
+    synthdisp_->setSavedViewRect();
     gentools_->usePar( desc_.getWorkBenchParams() );
     setWinTitle();
     return true;
