@@ -565,7 +565,7 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     PtrMan<SeisTrcBuf> scaletbuf = tbuf.clone();
     curSS().getLevelTimes( *scaletbuf, currentwvasynthetic_->d2tmodels_ );
     uiSynthToRealScale dlg( this, is2d, *scaletbuf, wvltfld_->getID(),
-	    		    levelname );
+			    levelname );
     if ( dlg.go() )
     {
 	MultiID mid( dlg.selWvltID() );
@@ -1493,7 +1493,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	return false;
     }
 
-    curSS().generateOtherQuantities();
+    if ( GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
+	curSS().generateOtherQuantities();
+
     if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
 	setDiffData();
 
