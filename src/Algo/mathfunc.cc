@@ -45,6 +45,7 @@ int PointBasedMathFunction::baseIdx( float x ) const
 void PointBasedMathFunction::add( float x, float y )
 {
     if ( mIsUdf(x) ) return;
+    if ( x_.isPresent(x) ) return;
 
     const int baseidx = baseIdx( x );
     x_ += x; y_ += y;
