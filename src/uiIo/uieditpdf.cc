@@ -123,7 +123,8 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
     mkTable( grp );
     tabstack_->addTab( grp, "Values" );
     tabstack_->selChange().notify( mCB(this,uiEditSampledProbDenFunc,tabChg) );
-    putValsToScreen();
+
+    updateUI();
 }
 
 
@@ -456,6 +457,17 @@ void uiEditSampledProbDenFunc::updateUI()
     putValsToScreen();
     if ( vwwinnd_ || vwwin1d_ )
 	viewPDF( 0 );
+
+    mDynamicCastGet(uiDialog*,dlg,parent())
+    if ( !dlg ) return;
+
+    mDeclArrNDPDF;
+    if ( !andpdf ) return;
+
+    BufferString title = editable_ ? "Edit " : "Browse ";
+    title.add( "'" ).add( pdf_.name() ).add( "'" );
+    mAddDim2Str( title );
+    dlg->setTitleText( title );
 }
 
 
@@ -599,7 +611,7 @@ void uiEditGaussianProbDenFunc::mkCorrTabFlds( uiGroup* ccgrp )
 	lbl->attach( centeredAbove, ccfld_ );
 
 	const CallBack cb( mCB(this,uiEditGaussianProbDenFunc,addSetPush) );
-	addsetbut_ = new uiPushButton( ccgrp, "&Add", cb, true );
+	addsetbut_ = new uiPushButton( ccgrp, "Add", cb, true );
 	addsetbut_->attach( centeredBelow, topgrp );
 	ccfld_->updateRequested.notify( cb );
     }
@@ -715,7 +727,7 @@ void uiEditGaussianProbDenFunc::varSel( CallBacker* cb )
 
     const int icorr = findCorr();
     addsetbut_->setText( var1fld_->currentItem() == var2fld_->currentItem()
-	    ? "-" : (icorr < 0 ? "&Add" : "&Set") );
+	    ? "-" : (icorr < 0 ? "Add" : "Set") );
 }
 
 
