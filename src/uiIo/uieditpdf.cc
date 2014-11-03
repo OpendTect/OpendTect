@@ -123,7 +123,8 @@ uiEditSampledProbDenFunc::uiEditSampledProbDenFunc( uiParent* p,
     mkTable( grp );
     tabstack_->addTab( grp, "Values" );
     tabstack_->selChange().notify( mCB(this,uiEditSampledProbDenFunc,tabChg) );
-    putValsToScreen();
+
+    updateUI();
 }
 
 
@@ -456,6 +457,17 @@ void uiEditSampledProbDenFunc::updateUI()
     putValsToScreen();
     if ( vwwinnd_ || vwwin1d_ )
 	viewPDF( 0 );
+
+    mDynamicCastGet(uiDialog*,dlg,parent())
+    if ( !dlg ) return;
+
+    mDeclArrNDPDF;
+    if ( !andpdf ) return;
+
+    BufferString title = editable_ ? "Edit " : "Browse ";
+    title.add( "'" ).add( pdf_.name() ).add( "'" );
+    mAddDim2Str( title );
+    dlg->setTitleText( title );
 }
 
 
