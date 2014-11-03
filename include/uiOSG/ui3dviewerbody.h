@@ -173,7 +173,8 @@ protected:
 						     const osg::Vec3f&,bool);
 
     void				thumbWheelRotationCB(CallBacker*);
-
+    void				enableThumbWheelHandling(bool yn,
+					    const visBase::ThumbWheel* tw=0);
 
     ui3DViewer&				handle_;
     IOPar&				printpar_;
