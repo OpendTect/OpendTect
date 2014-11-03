@@ -95,13 +95,30 @@ public:
     TrackBallManipulatorMessenger( ui3DViewerBody* t )
         : viewerbody_( t )
     {}
-    void	operator() (osg::Node* node, osg::NodeVisitor* nv )
-    {
-	if ( nv && viewerbody_ && viewerbody_->isViewMode() )
-        {
-            osgGeo::TrackballEventNodeVisitor* tnv =
-                (osgGeo::TrackballEventNodeVisitor*) nv;
 
+    void	operator()(osg::Node*,osg::NodeVisitor*);
+
+    void	detach() { viewerbody_ = 0; }
+
+protected:
+    TrackBallManipulatorMessenger()
+    {
+
+    }
+    ui3DViewerBody*	viewerbody_;
+};
+
+
+void TrackBallManipulatorMessenger::operator()( osg::Node* node,
+						osg::NodeVisitor* nv )
+{
+    if ( nv && viewerbody_ )
+    {
+	osgGeo::TrackballEventNodeVisitor* tnv =
+				    (osgGeo::TrackballEventNodeVisitor*) nv;
+
+	if ( viewerbody_->isViewMode() )
+	{
 	    if ( tnv->eventType() ==
 			    osgGeo::TrackballEventNodeVisitor::RotateStart )
 		viewerbody_->setViewModeCursor( ui3DViewerBody::RotateCursor );
@@ -117,25 +134,16 @@ public:
 	    if ( tnv->eventType() ==
 			    osgGeo::TrackballEventNodeVisitor::MoveStop )
 		viewerbody_->setViewModeCursor( ui3DViewerBody::HoverCursor );
+	}
 
-	    if ( tnv->eventType()==osgGeo::TrackballEventNodeVisitor::Moving )
-	    {
-		viewerbody_->notifyManipulatorMovement( tnv->_deltahorangle,
-							tnv->_deltavertangle,
-							tnv->_distfactor );
-	    }
-        }
+	if ( tnv->eventType()==osgGeo::TrackballEventNodeVisitor::Moving )
+	{
+	    viewerbody_->notifyManipulatorMovement( tnv->_deltahorangle,
+						    tnv->_deltavertangle,
+						    tnv->_distfactor );
+	}
     }
-    void	detach() { viewerbody_ = 0; }
-
-protected:
-    TrackBallManipulatorMessenger()
-    {
-
-    }
-    ui3DViewerBody*	viewerbody_;
-};
-
+}
 
 
 class uiDirectViewBody : public ui3DViewerBody
@@ -428,19 +436,41 @@ void ui3DViewerBody::setupView()
     if ( polygonselection_ )
 	polygonselection_->setMasterCamera( camera_ );
 
-    osgGeo::ThumbWheelEventHandler* handler= new osgGeo::ThumbWheelEventHandler;
-
-    handler->addThumbWheel(
-		(osgGeo::ThumbWheel*) horthumbwheel_->osgNode(true) );
-    handler->addThumbWheel(
-		 (osgGeo::ThumbWheel*) verthumbwheel_->osgNode(true) );
-    handler->addThumbWheel(
-		 (osgGeo::ThumbWheel*) distancethumbwheel_->osgNode(true) );
-
-    view_->getSceneData()->addEventCallback( handler );
+    view_->getSceneData()->addEventCallback(new osgGeo::ThumbWheelEventHandler);
+    enableThumbWheelHandling( true );
 
     // Camera projection must be initialized before computing home position
     reSizeEvent( 0 );
+}
+
+
+void ui3DViewerBody::enableThumbWheelHandling( bool yn,
+					       const visBase::ThumbWheel* tw )
+{
+    if ( !tw ) // set all
+    {
+	enableThumbWheelHandling( yn, horthumbwheel_ );
+	enableThumbWheelHandling( yn, verthumbwheel_ );
+	enableThumbWheelHandling( yn, distancethumbwheel_ );
+    }
+    else if ( view_ && view_->getSceneData() )
+    {
+	osgGeo::ThumbWheelEventHandler* handler = 0;
+	osg::NodeCallback* nodecb = view_->getSceneData()->getEventCallback();
+	while ( nodecb && !handler )
+	{
+	    handler = dynamic_cast<osgGeo::ThumbWheelEventHandler*>( nodecb );
+	    nodecb = nodecb->getNestedCallback();
+	}
+
+	if ( handler )
+	{
+	    osgGeo::ThumbWheel* osgtw = (osgGeo::ThumbWheel*) tw->osgNode(true);
+	    handler->removeThumbWheel( osgtw );
+	    if ( yn )
+		handler->addThumbWheel( osgtw );
+	}
+    }
 }
 
 
@@ -620,7 +650,7 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
 
 void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
 {
-    mCBCapsuleUnpackWithCaller(float, deltaangle, caller, cb );
+    mCBCapsuleUnpackWithCaller( float, deltaangle, caller, cb );
     if ( caller==horthumbwheel_ )
     {
 	uiRotate( deltaangle, true );
@@ -635,7 +665,6 @@ void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
 	static_cast<osgGeo::TrackballManipulator*>(
                                                 view_->getCameraManipulator() );
 	manip->changeDistance( -deltaangle/M_PI );
-
     }
 }
 
@@ -664,6 +693,7 @@ void ui3DViewerBody::setWheelDisplayMode( WheelMode mode )
     horthumbwheel_->turnOn( doshow );
     verthumbwheel_->turnOn( doshow );
     distancethumbwheel_->turnOn( doshow );
+    enableThumbWheelHandling( doshow );
 
     const bool enablefadeinout = mode==OnHover;
     horthumbwheel_->enableFadeInOut( enablefadeinout );

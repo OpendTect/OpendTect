@@ -163,7 +163,6 @@ protected:
 
     void				thumbWheelRotationCB(CallBacker*);
 
-
     ui3DViewer&				handle_;
     IOPar&				printpar_;
 
@@ -202,6 +201,8 @@ protected:
     void				setViewModeCursor( ViewModeCursor );
     void				mouseCursorChg(CallBacker*);
     void				setFocusCB(CallBacker*);
+    void				enableThumbWheelHandling(bool yn,
+					    const visBase::ThumbWheel* tw=0);
 };
 
 #endif
