@@ -105,6 +105,8 @@ protected:
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
 				//!< returns whether layermodel has changed
+public:
+    void		clearDispPars()		{ lmdisppars_.erase(); }
 
 };
 

@@ -55,6 +55,8 @@ static const char* sKeySyntheticNr()	{ return "Synthetics Nr"; }
 static const char* sKeySynthetics()	{ return "Synthetics"; }
 static const char* sKeyViewArea()	{ return "Start View Area"; }
 static const char* sKeyNone()		{ return "None"; }
+static const char* sKeyRainbow()	{ return "Rainbow"; }
+static const char* sKeySeismics()	{ return "Seismics"; }
 
 static HiddenParam<uiStratSynthDisp,uiWorldRect> savedzoomwrs(
 	uiWorldRect(mUdf(double),0,0,0) );
@@ -404,6 +406,12 @@ void uiStratSynthDisp::resetRelativeViewRect()
 }
 
 
+void uiStratSynthDisp::updateRelativeViewRect()
+{
+    setAbsoluteViewRect( curView(false) );
+}
+
+
 void uiStratSynthDisp::setZoomView( const uiWorldRect& relwr )
 {
     relzoomwr_ = relwr;
@@ -745,6 +753,13 @@ void uiStratSynthDisp::modelChanged()
 }
 
 
+void uiStratSynthDisp::reDisplayPostStackSynthetic( bool wva )
+{
+    displayPostStackSynthetic( wva ? currentwvasynthetic_ : currentvdsynthetic_,
+			       wva );
+}
+
+
 void uiStratSynthDisp::displaySynthetic( const SyntheticData* sd )
 {
     displayPostStackSynthetic( sd );
@@ -876,6 +891,10 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	mapper.autosym0_ = true;
 	mapper.type_ = ColTab::MapperSetup::Auto;
 	mapper.symmidval_ = prsd ? mUdf(float) : 0.0f;
+	if ( sd->dispPars().ctab_.isEmpty() )
+	    dispsd->dispPars().ctab_ =
+		vwr_->appearance().ddpars_.vd_.ctab_ = prsd ? sKeyRainbow()
+							    : sKeySeismics();
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
@@ -884,6 +903,8 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
 	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
 	 mIsEqual(relzoomwr_.height(),1.0,1e-3) )
 	vwr_->setViewToBoundingBox();
+    else
+	setRelativeViewRect( relzoomwr_ );
 
     if ( rgnotsaved )
     {
@@ -988,7 +1009,7 @@ void uiStratSynthDisp::setPreStackMapper()
 	vdmapper.symmidval_ = mUdf(float);
 	vdmapper.type_ = ColTab::MapperSetup::Fixed;
 	vdmapper.range_ = Interval<float>(0,60);
-	vwr.appearance().ddpars_.vd_.ctab_ = "Rainbow";
+	vwr.appearance().ddpars_.vd_.ctab_ = sKeyRainbow();
 	ColTab::MapperSetup& wvamapper =
 	    vwr.appearance().ddpars_.wva_.mappersetup_;
 	wvamapper.cliprate_ = Interval<float>(0.0,0.0);
@@ -1117,6 +1138,24 @@ void uiStratSynthDisp::updateFields()
 }
 
 
+void uiStratSynthDisp::copySyntheticDispPars()
+{
+    for ( int sidx=0; sidx<curSS().nrSynthetics(); sidx++ )
+    {
+	SyntheticData* cursd = curSS().getSyntheticByIdx( sidx );
+	BufferString sdnm( cursd->name() );
+	if ( useed_ )
+	    sdnm.remove( StratSynth::sKeyFRNameSuffix() );
+	else
+	    sdnm += StratSynth::sKeyFRNameSuffix();
+
+	const SyntheticData* altsd = altSS().getSynthetic( sdnm );
+	if ( !altsd ) continue;
+	cursd->dispPars() = altsd->dispPars();
+    }
+}
+
+
 void uiStratSynthDisp::showFRResults()
 {
     const int wvacuritm = wvadatalist_->currentItem();
@@ -1125,6 +1164,7 @@ void uiStratSynthDisp::showFRResults()
     updateSyntheticList( false );
     if ( wvadatalist_->size() <= 1 )
 	return;
+    copySyntheticDispPars();
     wvadatalist_->setCurrentItem( wvacuritm );
     vddatalist_->setCurrentItem( vdcuritm );
     setCurrentSynthetic( true );

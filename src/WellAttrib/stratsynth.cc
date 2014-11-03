@@ -62,7 +62,6 @@ static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
-static const char* sKeyFRNameSuffix()		{ return " after FR"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
@@ -307,7 +306,18 @@ SyntheticData* StratSynth::addSynthetic()
 {
     SyntheticData* sd = generateSD();
     if ( sd )
-	synthetics_ += sd;
+    {
+	int propidx = 0;
+	while ( propidx<synthetics_.size() )
+	{
+	    if ( synthetics_[propidx]->synthType() ==
+		 SynthGenParams::StratProp )
+		break;
+	    propidx++;
+	}
+	synthetics_.insertAt( sd, propidx );
+    }
+
     return sd;
 }
 
@@ -992,7 +1002,7 @@ bool doFinish( bool success )
 	SeisTrcBufDataPack* dp = seisbufdps_[idx];
 	BufferString propnm = props[idx+1]->name();
 	if ( useed_ )
-	    propnm += sKeyFRNameSuffix();
+	    propnm += StratSynth::sKeyFRNameSuffix();
 	BufferString nm( "[", propnm, "]" );
 	dp->setName( nm );
 	StratPropSyntheticData* prsd =

@@ -140,6 +140,8 @@ protected:
 			// Seis::RaySynthGenerator& is no more used,
 			// kept for ABI compatibility
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
+public:
+    static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
 };
 
 #endif

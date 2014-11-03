@@ -201,6 +201,12 @@ protected:
     void		syntheticChanged(CallBacker*);
     void		selPreStackDataCB(CallBacker*);
     void		preStackWinClosedCB(CallBacker*);
+
+    void		copySyntheticDispPars();
+
+public:
+    void		updateRelativeViewRect();
+    void		reDisplayPostStackSynthetic(bool wva=true);
 };
 
 
