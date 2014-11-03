@@ -62,7 +62,6 @@ static const char* sKeyInput()			{ return "Input Synthetic"; }
 static const char* sKeyAngleRange()		{ return "Angle Range"; }
 static const char* sKeyAdvancedRayTracer()	{ return "FullRayTracer"; }
 static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
-static const char* sKeyFRNameSuffix()		{ return " after FR"; }
 #define sDefaultAngleRange Interval<float>( 0.0f, 30.0f )
 
 
@@ -163,8 +162,8 @@ void SynthGenParams::createName( BufferString& nm ) const
 	 synthtype_==SynthGenParams::AVOGradient )
     {
 	nm = SynthGenParams::toString( synthtype_ );
-	nm += " [ "; nm += anglerg_.start; nm += ", ";
-	nm += anglerg_.stop; nm += " ] degree";
+	nm += " ["; nm += anglerg_.start; nm += ",";
+	nm += anglerg_.stop; nm += "] degrees";
 	return;
     }
     nm = wvltnm_;
@@ -307,7 +306,18 @@ SyntheticData* StratSynth::addSynthetic()
 {
     SyntheticData* sd = generateSD();
     if ( sd )
-	synthetics_ += sd;
+    {
+	int propidx = 0;
+	while ( propidx<synthetics_.size() )
+	{
+	    if ( synthetics_[propidx]->synthType() ==
+		 SynthGenParams::StratProp )
+		break;
+	    propidx++;
+	}
+	synthetics_.insertAt( sd, propidx );
+    }
+
     return sd;
 }
 
@@ -525,7 +535,11 @@ PtrMan<Attrib::Processor> proc = \
 if ( !proc || !proc->getProvider() ) \
     mErrRet( errmsg, return 0 ) ; \
 proc->getProvider()->setDesiredVolume( cs ); \
-proc->getProvider()->setPossibleVolume( cs );
+proc->getProvider()->setPossibleVolume( cs ); \
+mDynamicCastGet(Attrib::PSAttrib*,psattr,proc->getProvider()); \
+if ( !psattr ) \
+    mErrRet( proc->uiMessage(), return 0 ) ; \
+psattr->setAngleData( presd.angleData().id() );
 
 
 #define mCreateSeisBuf() \
@@ -987,7 +1001,7 @@ bool doFinish( bool success )
 	SeisTrcBufDataPack* dp = seisbufdps_[idx];
 	BufferString propnm = props[idx+1]->name();
 	if ( useed_ )
-	    propnm += sKeyFRNameSuffix();
+	    propnm += StratSynth::sKeyFRNameSuffix();
 	BufferString nm( "[", propnm, "]" );
 	dp->setName( nm );
 	StratPropSyntheticData* prsd =

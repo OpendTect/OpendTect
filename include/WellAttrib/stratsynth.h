@@ -101,6 +101,8 @@ public:
     uiString		errMsg() const;
     const char* 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
+    
+    static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
 
 protected:
 

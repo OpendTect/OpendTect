@@ -74,6 +74,7 @@ public:
 	    				  const PropertyRef*,int) const;
     bool		setPropDispPars(const LMPropSpecificDispPars&);
     bool		getCurPropDispPars(LMPropSpecificDispPars&) const;
+    void		clearDispPars()		{ lmdisppars_.erase(); }
 
     Notifier<uiStratLayerModelDisp> sequenceSelected;
     Notifier<uiStratLayerModelDisp> genNewModelNeeded;

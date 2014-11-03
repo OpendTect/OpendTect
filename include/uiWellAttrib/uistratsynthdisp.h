@@ -93,6 +93,7 @@ public:
     void		modelChanged();
     bool		haveUserScaleWavelet();
     void		displaySynthetic(const SyntheticData*);
+    void		reDisplayPostStackSynthetic(bool wva=true);
     void		cleanSynthetics();
     float		centralTrcShift() const;
     void		setCurrentSynthetic(bool wva);
@@ -114,6 +115,7 @@ public:
     bool		isEditUsed() const	  { return useed_; }
     void		setDiffData();
     void		resetRelativeViewRect();
+    void		updateRelativeViewRect();
     void		setRelativeViewRect(const uiWorldRect& relwr);
     const uiWorldRect&	getRelativeViewRect() const	{ return relzoomwr_; }
     void		setSavedViewRect();
@@ -171,6 +173,7 @@ protected:
     void		updateFields();
     void		updateSynthetic(const char* nm,bool wva);
     void		updateSyntheticList(bool wva);
+    void		copySyntheticDispPars();
     inline StratSynth&	altSS()
 			{ return *(useed_ ? stratsynth_ : edstratsynth_); }
 

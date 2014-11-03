@@ -341,11 +341,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 
     modtools_ = new uiStratLayModEditTools( botgrp );
     gentools_ = new uiStratGenDescTools( gengrp );
+
+    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
     moddisp_ = seqdisp_->getLayModDisp( *modtools_, lmp_, opt );
     if ( !moddisp_ )
 	return;
-
-    synthdisp_ = new uiStratSynthDisp( topgrp, lmp_ );
     analtb_ = new uiToolBar( this, "Analysis toolbar", uiToolBar::Right );
     uiToolButtonSetup tbsu( "xplot", "Attributes vs model properties",
 			    mCB(this,uiStratLayerModel,xPlotReq) );
@@ -355,7 +355,11 @@ uiStratLayerModel::uiStratLayerModel( uiParent* p, const char* edtyp, int opt )
 		mCB(this,uiStratLayerModel,syntheticsChangedCB) );
     analtb_->addButton( tbsu );
     mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
-    if ( vwr ) synthdisp_->addViewerToControl( *vwr );
+    if ( vwr )
+    {
+	synthdisp_->addViewerToControl( *vwr );
+	vwr->viewChanged.notify( mCB(this,uiStratLayerModel,lmViewChangedCB) );
+    }
 
     modtools_->attach( ensureBelow, moddisp_ );
     gentools_->attach( ensureBelow, seqdisp_->outerObj() );
@@ -531,6 +535,12 @@ void uiStratLayerModel::mkSynthChg( CallBacker* cb )
     synthdisp_->setAutoUpdate( automksynth_ );
     if ( automksynth_ )
 	handleNewModel();
+}
+
+
+void uiStratLayerModel::lmViewChangedCB( CallBacker* )
+{
+    synthdisp_->updateRelativeViewRect();
 }
 
 
@@ -756,6 +766,7 @@ bool uiStratLayerModel::openGenDesc()
     if ( !rv )
 	return false;
 
+    moddisp_->clearDispPars();
     seqdisp_->setNeedSave( false );
     lmp_.setEmpty();
 
@@ -809,7 +820,10 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
     LMPropSpecificDispPars lmpropdp;
     if ( !moddisp_->getCurPropDispPars(lmpropdp) )
 	return;
-    BufferString propnm( "[", lmpropdp.propnm_.buf(), "]" );
+    BufferString lmpropsdnm( lmpropdp.propnm_.buf() );
+    if ( isEditUsed() )
+	lmpropsdnm += StratSynth::sKeyFRNameSuffix();
+    const BufferString propnm( "[", lmpropsdnm.buf(), "]" );
     SyntheticData* sd = synthdisp_->getSyntheticData( propnm );
     if ( !sd ) return;
     sd->dispPars().vdmapper_ = lmpropdp.mapper_;
@@ -819,7 +833,7 @@ void uiStratLayerModel::lmDispParsChangedCB( CallBacker* )
     SyntheticData* wvasd = synthdisp_->getCurrentSyntheticData( true );
     if ( (vdsd && propnm == vdsd->name()) ||
 	 (wvasd && propnm == wvasd->name()) )
-	synthdisp_->modelChanged();
+	synthdisp_->reDisplayPostStackSynthetic( false );
 }
 
 
@@ -847,6 +861,9 @@ void uiStratLayerModel::synthDispParsChangedCB( CallBacker* )
     BufferString sdnm( vdsd->name() );
     if ( !getCleanSyntheticName(sdnm) )
 	return;
+
+    if ( isEditUsed() )
+	sdnm.remove( StratSynth::sKeyFRNameSuffix() );
 
     LMPropSpecificDispPars vddisppars( sdnm );
     vddisppars.mapper_ = vdsd->dispPars().vdmapper_;
