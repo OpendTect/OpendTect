@@ -1517,7 +1517,9 @@ bool uiStratSynthDisp::usePar( const IOPar& par )
 	return false;
     }
 
-    curSS().generateOtherQuantities();
+    if ( GetEnvVarYN("DTECT_STRAT_MAKE_PROPERTYTRACES",true) )
+	curSS().generateOtherQuantities();
+
     if ( useed_ && GetEnvVarYN("USE_FR_DIFF",false) )
 	setDiffData();
 
