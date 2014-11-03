@@ -385,6 +385,7 @@ template <class mXT, class mYT> inline
 void BendPointBasedMathFunction<mXT,mYT>::add( mXT x, mYT y )
 {
     if ( mIsUdf(x) ) return;
+    if ( x_.isPresent(x) ) return;
 
     const int baseidx = baseIdx( x );
     x_ += x; y_ += y;
