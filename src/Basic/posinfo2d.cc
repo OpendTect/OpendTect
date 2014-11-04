@@ -335,7 +335,8 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 {
     max = 0;
     median = 0;
-    if ( S2DPOS().readDistBetwTrcsStats( lnm_, max, median ) )
+    if ( S2DPOS().readDistBetwTrcsStats( lnm_, max, median )
+	 && !mIsZero(median, 1e-3) )
 	return;
 
     double maxsq = 0;
@@ -346,7 +347,7 @@ void PosInfo::Line2DData::compDistBetwTrcsStats( float& max,
 	const double distsq =
 			posns[pidx].coord_.sqDistTo( posns[pidx-1].coord_ );
 
-	if ( !mIsUdf(distsq) )
+	if ( !mIsUdf(distsq) && !mIsZero(distsq, 1e-3) )
 	{
 	    if ( distsq > maxsq )
 		maxsq = distsq;
