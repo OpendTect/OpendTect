@@ -317,7 +317,12 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* ev )
     const bool didslide = sliderg_.start>=0 && sliderg_.start != sliderg_.stop;
     sliderg_.start = -1;
     if ( didslide )
+    {
 	handle_.selectionChanged.trigger();
+	handle_.buttonstate_ = OD::NoButton;
+	if ( ev ) ev->accept();
+	return;
+    }
 
     if ( !ev ) return;
 
