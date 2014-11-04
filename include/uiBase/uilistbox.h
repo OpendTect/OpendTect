@@ -160,6 +160,7 @@ public:
     void		scrollToBottom();
     bool		handleLongTabletPress();
     void		disableRightClick(bool yn);
+    void		blockScrolling(bool yn) { scrollingblocked_ = yn; }
 
     Notifier<uiListBox> selectionChanged;
     CNotifier<uiListBox,int> itemChosen; /*< if itmidx==-1, many items were
