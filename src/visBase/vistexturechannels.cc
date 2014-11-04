@@ -848,6 +848,8 @@ bool TextureChannels::setMappedData( int channel, int version,
 
 bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 {
+    const int oldnrtexturebands = nrTextureBands();
+
     if ( tc2rgba_ )
     {
 	tc2rgba_->setChannels( 0 );
@@ -862,7 +864,12 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 	tc2rgba_->ref();
 
 	for ( int channel=0; channel<nrChannels(); channel++ )
+	{
+	    if ( oldnrtexturebands != nrTextureBands() )
+		reMapData( channel, true, 0 );
+
 	    update( channel );
+	}
     }
 
     return true;
