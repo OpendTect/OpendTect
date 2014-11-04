@@ -26,7 +26,6 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "uiflatviewwin.h"
 #include "uiflatviewer.h"
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
@@ -55,7 +54,6 @@ VW2DPickSet::VW2DPickSet( const EM::ObjectID& picksetidx, uiFlatViewWin* win,
 	viewers_[idx]->addAuxData( picks_[idx] );
 	viewers_[idx]->appearance().annot_.editable_ = false;
 	mAttachCB( viewers_[idx]->dataChanged, VW2DPickSet::dataChangedCB );
-	mAttachCB( viewers_[idx]->viewChanged, VW2DPickSet::dataChangedCB );
 
 	auxids_ += editors_[idx]->addAuxData( picks_[idx], true );
 	editors_[idx]->enableEdit( auxids_[idx], true, true, true );
