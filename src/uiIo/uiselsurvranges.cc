@@ -65,6 +65,9 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 	limitrg = *inplimitrg;
     if ( !othdom_ && limitrg.step > sizrg.step )
 	limitrg.step = sizrg.step;
+
+    if ( mIsZero(limitrg.step,mDefEpsF) )
+	limitrg.step = 1.0f;
     limitrg.scale( zfac );
 
     const int nrdecimals = cansnap_ ? 0 : 2;
