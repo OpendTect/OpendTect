@@ -772,9 +772,6 @@ bool uiCreate2DGrid::fillPar()
 	uiMSG().warning( tr("You need to change survey type to 'Both 2D and 3D'"
 			    " in survey setup to display the 2D lines") );
 
-    uiMSG().message( tr("Created lines will only reflect in OpendTect "
-			"after restarting the application") );
-
     return true;
 }
 

@@ -65,7 +65,8 @@ public:
 				{ return new GeometryReader2D; }
     static void			initClass();
     bool			read(ObjectSet<Geometry>&,TaskRunner*) const;
-
+    bool			updateGeometries(ObjectSet<Geometry>&,
+						 TaskRunner*) const;
 
 };
 

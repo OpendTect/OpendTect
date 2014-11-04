@@ -108,14 +108,16 @@ Pos::GeomID Seis2DDataSet::geomID( const char* filename ) const
 {
     FilePath fp( filename );
     BufferString fnm( fp.fileName() );
-    int cidx = 0;
-    while ( cidx < fnm.size() && fnm[cidx] != '^')
-	cidx++;
-    int pointidx = cidx;
-    while ( pointidx < fnm.size() && fnm[pointidx] != '.')
-	pointidx++;
-    fnm[pointidx] = '\0';
-    BufferString strgeomid( fnm + cidx+1 );
+    char* capptr = fnm.find( '^' );
+    if ( !capptr )
+	return Survey::GM().cUndefGeomID();
+
+    BufferString strgeomid( ++capptr );
+    char* dotptr = strgeomid.find( '.' );
+    if ( !dotptr )
+	return Survey::GM().cUndefGeomID();
+
+    *dotptr = '\0';
     return strgeomid.toInt();
 }
 
@@ -151,19 +153,20 @@ void Seis2DDataSet::readDir()
 	if ( !ext.isEqual( "cbvs" ) )
 	    continue;
 
-	IOPar* newpar = new IOPar;
-	newpar->set( sKey::FileName(), filepath.fileName() );
-	filepath.setExtension("");
-	BufferString filenm( filepath.fileName() );
-	int cidx = 0;
-	while ( cidx < filenm.size() && filenm[cidx] != '^')
-	    cidx++;
-
-	if ( !cidx || cidx >= filenm.size() )
+	const BufferString filenm = filepath.fileName();
+	BufferString basenm( filepath.baseName() );
+	char* capptr = basenm.find( '^' );
+	if ( !capptr )
 	    continue;
 
-	BufferString strgeomid( filenm.buf()+cidx+1 );
+	BufferString strgeomid( ++capptr );
 	Pos::GeomID geomid = strgeomid.toInt();
+	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
+	if ( !geom )
+	    continue;
+
+	IOPar* newpar = new IOPar;
+	newpar->set( sKey::FileName(), filepath.fileName() );
 	newpar->set( sKey::GeomID(), geomid );
 	pars_ += newpar;
     }

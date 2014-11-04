@@ -146,7 +146,7 @@ public:
     Geometry*			getGeometry(Geometry::ID);
     bool			write(Geometry&,uiString&);
     Geometry::ID		addNewEntry(Geometry*,uiString&);
-				// returns new GeomID.
+				/*! Returns new GeomID. */
     bool			removeGeometry(Geometry::ID);
 
     Geometry::ID		getGeomID(const char* lsm,
@@ -155,6 +155,7 @@ public:
 				    od4 geometries to od5 geometries */
     bool			fetchFrom2DGeom(uiString& errmsg);
 				//converts od4 geometries to od5 geometries.
+    bool			updateGeometries(TaskRunner*);
 };
 
 
@@ -172,6 +173,8 @@ public:
 			mDefineFactoryInClass(GeometryReader,factory);
 
     virtual bool	read(ObjectSet<Geometry>&,TaskRunner*) const
+							{ return true; }
+    virtual bool	updateGeometries(ObjectSet<Geometry>&,TaskRunner*) const
 							{ return true; }
 };
 

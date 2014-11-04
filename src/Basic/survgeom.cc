@@ -429,6 +429,15 @@ bool GeometryManager::fillGeometries( TaskRunner* taskrunner )
 }
 
 
+bool GeometryManager::updateGeometries( TaskRunner* taskrunner )
+{
+    PtrMan<GeometryReader> geomreader = GeometryReader::factory()
+					.create(sKey::TwoD());
+    return geomreader ? geomreader->updateGeometries( geometries_, taskrunner )
+		      : false;
+}
+
+
 bool GeometryManager::getList( BufferStringSet& names,
 			       TypeSet<Geometry::ID>& geomids, bool is2d ) const
 {
