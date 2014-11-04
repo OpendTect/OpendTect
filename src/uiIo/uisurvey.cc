@@ -1079,8 +1079,8 @@ void uiSurvey::putToScreen()
 
 	    const float inldist = si.inlDistance(), crldist = si.crlDistance();
 
-	    bininfo.add( toString(inldist,2) ).add( "/" )
-		   .add( toString(crldist,2) );
+	    bininfo.add( toString(inldist,2) ).add( "/" );
+	    bininfo.add( toString(crldist,2) );
 	    float area = (float) ( si.getArea(false) * 1e-6 ); //in km2
 	    if ( si.xyInFeet() )
 		area /= 2.590; // square miles
