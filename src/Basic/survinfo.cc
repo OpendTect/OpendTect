@@ -739,7 +739,7 @@ const char* SurveyInfo::getXYUnitString( bool wb ) const
 
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
-    zdef_ = istime ? ZDomain::Time() : zdef_ = ZDomain::Depth();
+    zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
     depthsinfeet_ = infeet;
 }
 
@@ -956,7 +956,8 @@ bool SurveyInfo::write( const char* basedir ) const
 				fms += tkzs_.hrg.step.crl();
     astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += tkzs_.zsamp_.start; fms += tkzs_.zsamp_.stop;
-    fms += tkzs_.zsamp_.step; fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
+    fms += tkzs_.zsamp_.step;
+    fms += zIsTime() ? "T" : ( depthsinfeet_ ? "F" : "D" );
     astream.put( sKeyZRange(), fms );
 
     writeSpecLines( astream );
