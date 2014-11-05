@@ -303,7 +303,7 @@ static float getSurveyRotation()
     const float survngle = getSurveyRotation();
     if ( set_->disp_.markertype_ == MarkerStyle3D::Arrow )
     {
-	const float phi = SI().isClockWise() ? survngle + loc.dir_.phi
+	const float phi = SI().isRightHandSystem() ? survngle + loc.dir_.phi
 					     : survngle - loc.dir_.phi;
 	const Quaternion azimuth( Coord3(0,0,1), phi );
 	const Quaternion dip( Coord3(0,1,0), loc.dir_.theta );
@@ -317,7 +317,9 @@ static float getSurveyRotation()
     const float inldepth = (loc.inlDip()*cDipFactor()) * zscale;
     const float crldepth = (loc.crlDip()*cDipFactor()) * zscale;
         
-    const float inlangle = atan( (SI().isClockWise() ? -inldepth : inldepth) );
+    const float inlangle = atan( (SI().isRightHandSystem()
+			? -inldepth
+			: inldepth) );
     const float crlangle = atan( crldepth );
 
     const Quaternion inlrot( Coord3(1,0,0), inlangle );

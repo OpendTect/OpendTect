@@ -54,9 +54,11 @@ public:
     float		inlDistance() const;
     float		crlDistance() const;
 
-    bool		isClockWise() const;
+    bool		isRightHandSystem() const;
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
+    bool		isClockWise() const { return isRightHandSystem(); }
+			/*!< Legacy, will be removed. */
 
     const ZDomain::Def&	zDomain() const		{ return zdomain_; }
 

@@ -122,7 +122,7 @@ void SceneTransformManager::computeICRotationTransform(
     const double mat22 = x[1];
     const double mat24 = x[2];
 
-    const int sign = sg.isClockWise() ? -1 : 1;
+    const int sign = sg.isRightHandSystem() ? -1 : 1;
 
     rotation->setA(	mat11,	mat12,	0,	mat14,
 			mat21,	mat22,	0,	mat24,

@@ -91,6 +91,7 @@ set( OD_PLUGINS
 	uiBasemap
 )
 
+
 set( OD_SPECPROGS ODSeis visBase )
 OD_CREATE_DEVEL_PACKAGE_DEFINITION()
 

@@ -273,7 +273,7 @@ void Scene::updateTransforms( const TrcKeyZSampling& cs )
 
 bool Scene::isRightHandSystem() const
 {
-    return SI().isClockWise();
+    return SI().isRightHandSystem();
 }
 
 

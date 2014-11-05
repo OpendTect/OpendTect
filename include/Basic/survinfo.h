@@ -200,7 +200,9 @@ public:
     const Pos::IdxPair2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
     const LatLong2Coord& latlong2Coord() const	{ return ll2c_; }
-    bool		isClockWise() const;
+    bool		isClockWise() const { return isRightHandSystem(); }
+			//!<Don't use. Will be removed
+    bool		isRightHandSystem() const;
 			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
     float		angleXInl() const;

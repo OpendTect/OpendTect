@@ -83,7 +83,7 @@ bool Survey::Geometry3D::includes( int line, int tracenr ) const
 }
 
 
-bool Survey::Geometry3D::isClockWise() const
+bool Survey::Geometry3D::isRightHandSystem() const
 {
     const double xinl = b2c_.getTransform(true).b;
     const double xcrl = b2c_.getTransform(true).c;
@@ -918,8 +918,8 @@ void SurveyInfo::putTr( const Pos::IdxPair2Coord::DirTransform& tr,
 }
 
 
-bool SurveyInfo::isClockWise() const
-{ return get3DGeometry(false)->isClockWise(); }
+bool SurveyInfo::isRightHandSystem() const
+{ return get3DGeometry(false)->isRightHandSystem(); }
 
 
 bool SurveyInfo::write( const char* basedir ) const

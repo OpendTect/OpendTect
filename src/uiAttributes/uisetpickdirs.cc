@@ -338,7 +338,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
     const float angN = mCast(float, Math::Atan2( xcrl, ycrl ) );
 
     float phi;
-    if ( SI().isClockWise() )
+    if ( SI().isRightHandSystem() )
 	phi = angN - azi;
     else
 	phi = azi + angN;
