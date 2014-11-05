@@ -707,7 +707,7 @@ const char* SurveyInfo::getXYUnitString( bool wb ) const
 
 void SurveyInfo::setZUnit( bool istime, bool infeet )
 {
-    zdef_ = istime ? ZDomain::Time() : zdef_ = ZDomain::Depth();
+    zdef_ = istime ? ZDomain::Time() : ZDomain::Depth();
     depthsinfeet_ = infeet;
 }
 

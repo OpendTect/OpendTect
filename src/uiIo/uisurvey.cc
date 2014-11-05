@@ -210,7 +210,7 @@ protected:
     bool		has3D() const	 { return pol2dfld_->isChecked(0); }
     bool		has2D() const	 { return pol2dfld_->isChecked(1); }
     bool		isTime() const	 { return zistimefld_->getBoolValue();}
-    bool		isInFeet() const { return zinfeetfld_->getBoolValue();}
+    bool		isInFeet() const { return !zinfeetfld_->getBoolValue();}
 
     void		fillSipsFld(bool have2d,bool have3d);
 
@@ -272,11 +272,11 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
     zistimefld_->attach( alignedBelow, sipllb );
 
     zinfeetfld_ = new uiGenInput( this, "Depth unit",
-				BoolInpSpec(true,"Meter","Feet") );
+				  BoolInpSpec(true,"Meter","Feet") );
     zinfeetfld_->attach( alignedBelow, zistimefld_ );
-    zinfeetfld_->display( false );
+    zinfeetfld_->display( !isTime() );
 
-    fillSipsFld( true, true );
+    fillSipsFld( has2D(), has3D() );
 }
 
 
