@@ -42,7 +42,7 @@ bool testDownloadToBuffer()
     if ( !Network::downloadToBuffer( url, db, err ) )
 	returnError
 
-    if ( db->size() != 23 )
+    if ( db->size() != 43 )
     {
 	err.add( "Downloaded file is corrupt. File size did not match." );
 	returnError
