@@ -64,6 +64,8 @@ static const char* sKeyChildID()	{ return "ID"; }
 static const char* sKeyNrChild()	{ return "Number of Child"; }
 static const char* childfix()		{ return "Child"; }
 static const char* sKeyMarkerColor()	{ return "Marker color"; }
+static const char* sKeyTopImage()	{ return "TopImage"; }
+static const char* sKeyBottomImage()	{ return "BottomImage"; }
 
 
 Scene::Scene()
@@ -1013,8 +1015,14 @@ void Scene::fillPar( IOPar& par ) const
     }
 
     par.set( sKey::Scale(), zscale_ );
-    par.set( sKeyTopImageID(), topimg_->id() );
-    par.set( sKeyBotImageID(), botimg_->id() );
+    IOPar topimgpar;
+    IOPar botimgpar;
+    topimgpar.set( sKeyTopImageID(), topimg_->id() );
+    topimg_->fillPar( topimgpar );
+    par.mergeComp( topimgpar, sKeyTopImage() );
+    botimgpar.set( sKeyBotImageID(), botimg_->id() );
+    botimg_->fillPar( botimgpar );
+    par.mergeComp( botimgpar, sKeyBottomImage() );
 
     int nrchilds( 0 );
     for ( int idx=0;  idx<size(); idx++ )
@@ -1150,6 +1158,14 @@ bool Scene::usePar( const IOPar& par )
 
 	survobj->doUnRef();
     }
+
+    PtrMan<IOPar> topimgpar = par.subselect( sKeyTopImage() );
+    if ( topimgpar && topimg_ )
+	topimg_->turnOn( topimg_->usePar(*topimgpar) );
+
+    PtrMan<IOPar> botimgpar = par.subselect( sKeyBottomImage() );
+    if( botimgpar && botimg_ )
+	botimg_->turnOn( botimg_->usePar(*botimgpar) );
 
     par.getYN( sKeyShowColTab(), ctshownusepar_ );
 

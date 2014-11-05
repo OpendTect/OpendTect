@@ -32,6 +32,7 @@ namespace visBase
     const char* TopBotImage::sKeyTopLeftCoord()     { return "TopLeft"; }
     const char*	TopBotImage::sKeyBottomRightCoord() { return "BotRight"; } 
     const char*	TopBotImage::sKeyFileNameStr()      { return sKey::FileName(); }
+    const char*	TopBotImage::sKeyTransparencyStr()  { return "Transparency"; }
 
 TopBotImage::TopBotImage()
     : VisualObjectImpl(true)
@@ -90,7 +91,9 @@ void TopBotImage::setDisplayTransformation( const mVisTrans* trans )
 
 
 void TopBotImage::setTransparency( float val )
-{ getMaterial()->setTransparency( val ); }
+{ 
+    getMaterial()->setTransparency( val ); 
+}
 
 
 float TopBotImage::getTransparency() const
@@ -146,6 +149,7 @@ void TopBotImage::fillPar( IOPar& iopar ) const
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
     iopar.set( sKeyFileNameStr(), filenm_  );
+    iopar.set( sKeyTransparencyStr(), getTransparency() );
 }
 
 
@@ -153,12 +157,15 @@ bool TopBotImage::usePar( const IOPar& iopar )
 {
     Coord3 ltpos;
     Coord3 brpos;
+    float transparency = 0;
     iopar.get( sKeyTopLeftCoord(), ltpos );
     iopar.get( sKeyBottomRightCoord(), brpos );
     iopar.get( sKeyFileNameStr(), filenm_  );
+    iopar.get( sKeyTransparencyStr(), transparency );
    
     setPos( ltpos, brpos );  
     setRGBImageFromFile( filenm_ );
+    setTransparency( transparency );
     return true;
 }
 
