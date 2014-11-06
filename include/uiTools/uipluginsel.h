@@ -33,6 +33,7 @@ public:
 
 protected:
 
+    void			makeGlobalProductList();
     void			makeProductList(
 					const ObjectSet<PluginManager::Data>&);
     void			createUI();
