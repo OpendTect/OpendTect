@@ -54,12 +54,14 @@ struct PluginInfo
     enum LicenseType{ GPL, COMMERCIAL };
 
     PluginInfo(const char* dispname, const char* prodnm, const char* creator,
-               const char* version, const char* text, LicenseType lt=GPL )
+               const char* version, const char* text,
+	       int pval=-1, LicenseType lt=GPL )
         : dispname_(dispname)
 	, productname_(prodnm)
         , creator_(creator)
         , version_(version)
         , text_(text)
+	, posval_(pval)
 	, lictype_(lt)
     {}
    
@@ -68,7 +70,9 @@ struct PluginInfo
     const char*	creator_;
     const char*	version_;
     const char*	text_;
+    int		posval_;
     LicenseType lictype_;
+    
 };
 
 /* } -- for the extern "C" */

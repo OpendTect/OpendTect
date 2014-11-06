@@ -20,17 +20,24 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "odver.h"
 #include "od_helpids.h"
+#include "sorting.h"
 #include "odlogo24x24.xpm"
 
 #include <math.h>
 
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
+static const char* getCreatorShortName( const BufferString& creatornm )
+{
+    return creatornm == "dGB Earth Sciences" ? "(dGB)" : "";
+}
+
 
 struct PluginProduct
 {
     BufferString	    productname_;
     BufferString	    creator_;
     BufferStringSet	    libs_;
+    int			    posval_;
 };
 
 
@@ -51,7 +58,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
-
+    sort();
     createUI();
 }
 
@@ -82,6 +89,7 @@ void uiPluginSel::makeProductList(
 		product = new PluginProduct();
 		product->productname_ = data.info_->productname_;
 		product->creator_ = data.info_->creator_;
+		product->posval_ = data.info_->posval_;
 		product->libs_.add( PIM().moduleName(data.name_) );
 		products_ += product;
 	    }
@@ -89,10 +97,33 @@ void uiPluginSel::makeProductList(
 		products_[prodidx]->libs_.addIfNew(
 				PIM().moduleName(data.name_) );
 
-	    const int strsz = prodnm.size();
+	    const int strsz = prodnm.size() + 6;
 	    maxpluginname_ = maxpluginname_ < strsz ? strsz : maxpluginname_;
 	}
     }
+}
+
+
+void uiPluginSel::sort()
+{
+    TypeSet<int> unsortedindices;
+    TypeSet<int> sortedindices;
+    for( int idx=0; idx<products_.size(); idx++ )
+    {
+	sortedindices += idx; 
+	unsortedindices  += products_[idx]->posval_;
+    }
+
+    sort_coupled( unsortedindices.arr(),
+		  sortedindices.arr(),
+		  sortedindices.size() );
+
+    ObjectSet<PluginProduct> sortedproducts;
+    for ( int idx=sortedindices.size()-1; idx>=0; idx-- )
+	sortedproducts += products_[sortedindices[idx]];
+
+    products_.setEmpty();
+    products_ = sortedproducts;
 }
 
 
@@ -111,11 +142,14 @@ void uiPluginSel::createUI()
     for ( int idx=0; idx<nrproducts; idx++ )
     {
 	const PluginProduct& pprod = *products_[idx];
-	uiCheckBox* cb = new uiCheckBox( grp, pprod.productname_ );
+	const BufferString label( pprod.productname_, " ",
+					getCreatorShortName(pprod.creator_) );
+	uiCheckBox* cb = new uiCheckBox( grp, label );
 	if ( !pprod.creator_.isEmpty() )
 	    cb->setToolTip( BufferString("a ",pprod.creator_, " plugin") );
-	cb->setPrefWidthInChar( maxpluginname_+5.f );
+	cb->setPrefWidthInChar( maxpluginname_+6.f );
 	cb->setChecked( true );
+	cb->setStretch( 2, 0 ); 
 	cbs_ += cb;
 
 	if ( idx < nrrows )
