@@ -13,16 +13,53 @@ ________________________________________________________________________
 -*/
 
 #include "generalmod.h"
+
+#include "bufstringset.h"
 #include "datapack.h"
 #include "position.h"
 #include "samplingdata.h"
+#include "trckeyzsampling.h"
+
 template <class T> class Array2D;
 template <class T> class Array3D;
 
-class FlatPosData;
-class TrcKeyZSampling;
+class BinDataDesc;
 class BufferStringSet;
+class FlatPosData;
 class TaskRunner;
+namespace ZDomain { class Info; }
+
+
+mExpClass(General) SampledDataPack : public DataPack
+{
+public:
+				SampledDataPack(const char* cat);
+				~SampledDataPack();
+
+    void			setSampling(const TrcKeyZSampling&);
+    const TrcKeyZSampling&	sampling() const;
+
+    bool			add(const BinDataDesc*,const char* nm);
+
+    int				nrComponents() const;
+    const Array3D<float>&	data(int component=0) const;
+    Array3D<float>&		data(int component=0);
+
+    void			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const;
+
+    float			nrKBytes() const;
+
+protected:
+
+    ObjectSet<Array3D<float> >	arrays_;
+    BufferStringSet		componentnames_;
+
+    TrcKeyZSampling		sampling_;
+    ZDomain::Info*		zdominfo_;
+};
+
+
 
 /*!\brief DataPack for point data. */
 
@@ -154,7 +191,8 @@ protected:
 
 
 
-/*!\brief DataPack for volume data. */
+/*!\brief DataPack for volume data, where the dims correspond to
+          inl/crl/z . */
 
 mExpClass(General) VolumeDataPack : public DataPack
 {
@@ -193,7 +231,7 @@ mExpClass(General) CubeDataPack : public VolumeDataPack
 public:
 				CubeDataPack(const char* categry,
 					     Array3D<float>*);
-				//!< Array3D become mine (of course)
+				//!< Array2D become mine (of course)
 				~CubeDataPack();
 
     TrcKeyZSampling&		sampling()		{ return tkzs_; }
@@ -219,4 +257,3 @@ private:
 };
 
 #endif
-

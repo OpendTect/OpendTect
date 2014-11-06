@@ -7,18 +7,111 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "datapackbase.h"
+
 #include "arrayndimpl.h"
+#include "bindatadesc.h"
+#include "bufstringset.h"
+#include "convmemvalseries.h"
 #include "flatposdata.h"
-#include "trckeyzsampling.h"
 #include "interpol2d.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "survinfo.h"
 #include "separstr.h"
-#include "bufstringset.h"
+#include "survinfo.h"
+#include "trckeyzsampling.h"
+
 #include <math.h>
 
 
+
+SampledDataPack::SampledDataPack( const char* cat )
+    : DataPack(cat)
+    , zdominfo_(new ZDomain::Info(ZDomain::SI()))
+{
+    sampling_.init( false );
+}
+
+
+SampledDataPack::~SampledDataPack()
+{
+    deepErase( arrays_ );
+}
+
+
+void SampledDataPack::setSampling( const TrcKeyZSampling& tkzs )
+{ sampling_ = tkzs; }
+
+const TrcKeyZSampling& SampledDataPack::sampling() const
+{ return sampling_; }
+
+
+bool SampledDataPack::add( const BinDataDesc* desc, const char* nm )
+{
+    if ( !sampling_.isDefined() )
+	return false;
+
+    const int sz0 = sampling_.nrLines();
+    const int sz1 = sampling_.nrTrcs();
+    const int sz2 = sampling_.nrZ();
+    float dummy; const BinDataDesc floatdesc( dummy );
+    Array3DImpl<float>* arr = 0;
+    if ( !desc || (*desc)==floatdesc )
+    {
+	arr = new Array3DImpl<float>( sz0, sz1, sz2 );
+	if ( !arr->isOK() )
+	{
+	    delete arr;
+	    return false;
+	}
+    }
+    else
+    {
+	 arr = new Array3DImpl<float>( 0, 0, 0 );
+	 ConvMemValueSeries<float>* stor =
+				new ConvMemValueSeries<float>(0,*desc);
+	 arr->setStorage( stor );
+	 arr->setSize( sz0, sz1, sz2 );
+	 if ( !stor->storArr() )
+	 {
+	     delete arr;
+	     return false;
+	 }
+    }
+
+    arrays_ += arr;
+    componentnames_.add( nm );
+    return true;
+}
+
+
+int SampledDataPack::nrComponents() const
+{ return arrays_.size(); }
+
+const Array3D<float>& SampledDataPack::data( int component ) const
+{ return *arrays_[component]; }
+
+Array3D<float>& SampledDataPack::data( int component )
+{ return *arrays_[component]; }
+
+
+void SampledDataPack::setZDomain( const ZDomain::Info& zinf )
+{
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( zinf );
+}
+
+
+const ZDomain::Info& SampledDataPack::zDomain() const
+{ return *zdominfo_; }
+
+
+float SampledDataPack::nrKBytes() const
+{
+    return sampling_.totalNr(); // * desc->nrBytes();
+}
+
+
+// MapDataPackXYRotater
 class MapDataPackXYRotater : public ParallelTask
 {
 public:
