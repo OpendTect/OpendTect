@@ -35,9 +35,9 @@ float InterpolationLayerModel::getInterpolatedZ( const BinID& bid,
     const int idx0 = mNINT32( floor(layeridx) );
     const int idx1 = mNINT32( ceil(layeridx) );
     const float z0 = getZ( bid, idx0 );
-    const float z1 = getZ( bid, idx1 );
     if ( idx1==idx0 ) return z0;
 
+    const float z1 = getZ( bid, idx1 );
     return z0 + (z1-z0)*(layeridx-idx0);
 }
 
