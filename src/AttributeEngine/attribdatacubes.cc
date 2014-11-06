@@ -29,10 +29,15 @@ DataCubes::DataCubes()
 
 
 DataCubes::~DataCubes()
-{ deepErase( cubes_ ); }
+{
+    for ( int idx=0; idx<cubes_.size(); idx++ )
+    {
+	if ( manage_[idx] ) delete cubes_[idx];
+    }
+}
 
 
-bool DataCubes::addCube( const  BinDataDesc* desc )
+bool DataCubes::addCube( const BinDataDesc* desc )
 {
     float dummy;
     const BinDataDesc floatdesc( dummy );
@@ -50,7 +55,7 @@ bool DataCubes::addCube( const  BinDataDesc* desc )
     {
 	 arr = new Array3DImpl<float>( 0, 0, 0 );
 	 ConvMemValueSeries<float>* stor
-	     			= new ConvMemValueSeries<float>(0,*desc);
+				= new ConvMemValueSeries<float>(0,*desc);
 	 arr->setStorage( stor );
 	 arr->setSize( inlsz_, crlsz_, zsz_ );
 	 if ( !stor->storArr() )
@@ -59,8 +64,9 @@ bool DataCubes::addCube( const  BinDataDesc* desc )
 	     return false;
 	 }
     }
-	
+
     cubes_ += arr;
+    manage_ += true;
     return true;
 }
 
@@ -73,12 +79,21 @@ bool DataCubes::addCube( float val, const BinDataDesc* t )
     setValue( cubes_.size()-1, val );
     return true;
 }
-    
+
+
+bool DataCubes::addCube( Array3DImpl<float>& arr3d, bool manage )
+{
+    cubes_ += &arr3d;
+    manage_ += manage;
+    return true;
+}
+
 
 void DataCubes::removeCube( int idx )
 {
-    delete cubes_[idx];
-    cubes_.removeSingle(idx);
+    if ( manage_[idx] )
+	delete cubes_[idx];
+    cubes_.removeSingle( idx );
 }
 
 
@@ -232,4 +247,4 @@ TrcKeyZSampling DataCubes::cubeSampling() const
 }
 
 
-}; // namespace Attrib
+} // namespace Attrib
