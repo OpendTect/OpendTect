@@ -81,13 +81,14 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p, const uiAmplSpectrum::Setup& setup)
                                                 false );
     exportbut->activated.notify( mCB(this,uiAmplSpectrum,exportCB) );
     exportbut->attach( rightAlignedBelow, disp_ );
+    exportbut->attach( ensureBelow, dispparamgrp_ );
 
     if ( !setup_.iscepstrum_ )
     {
 	uiPushButton* cepbut = new uiPushButton( this,tr("Display cepstrum"),
                                                  false);
 	cepbut->activated.notify( mCB(this,uiAmplSpectrum,ceptrumCB) );
-	cepbut->attach( rightAlignedBelow, exportbut );
+	cepbut->attach( leftOf, exportbut );
     }
 }
 
