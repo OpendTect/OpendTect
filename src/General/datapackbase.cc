@@ -107,7 +107,7 @@ const ZDomain::Info& SampledDataPack::zDomain() const
 
 float SampledDataPack::nrKBytes() const
 {
-    return sampling_.totalNr(); // * desc->nrBytes();
+    return mCast(float,sampling_.totalNr()); // * desc->nrBytes();
 }
 
 
