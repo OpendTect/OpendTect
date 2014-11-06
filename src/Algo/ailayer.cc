@@ -850,3 +850,19 @@ bool ElasticModel::doBlocking( float relthreshold, bool pvelonly,
 
     return !blocks.isEmpty() && ( blocks.size() < modelsize );
 }
+
+
+float ElasticModel::getLayerDepth( int ilayer ) const
+{
+    float depth = 0;
+    if ( ilayer >= size() )
+	ilayer = size();
+
+    for ( int idx=0; idx<ilayer; idx++ )
+	depth += (*this)[idx].thickness_;
+
+    if ( ilayer < size() )
+	depth += (*this)[ilayer].thickness_ / 2.f;
+
+    return depth;
+}

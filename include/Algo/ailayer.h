@@ -170,6 +170,11 @@ public:
     bool	createFromAI(const StepInterval<float>& zrange,const float* ai,
 			     const float* si =0,const float* den =0);
 
+		/* Return depth of the middle of the layer */
+
+    float	getLayerDepth(int layerix) const;
+
+
 protected:
 
 		/*! Computes first derivative of the elastic properties

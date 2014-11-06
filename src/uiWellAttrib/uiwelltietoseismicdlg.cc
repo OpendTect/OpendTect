@@ -152,6 +152,9 @@ void uiTieWin::doWork( CallBacker* cb )
 	if ( !server_.extractSeismics() )
 	    { uiMSG().error( server_.errMSG() ); }
 
+    if ( server_.warnMsg() )
+	uiMSG().warning( server_.warnMsg() );
+
     getDispParams();
     reDrawAll(0);
     drawer_->enableCtrlNotifiers( true );

@@ -40,9 +40,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltied2tmodelmanager.h"
 #include "welltiepickset.h"
 
+#include "hiddenparam.h"
+
 namespace WellTie
 {
 
+static HiddenParam< Server,BufferString* > welltieserverwarnmsg_( 0 );
 
 void DispParams::fillPar( IOPar& iop ) const
 {
@@ -157,8 +160,6 @@ void Data::computeExtractionRange()
 }
 
 
-
-
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 				BufferString& errms, TaskRunner& tr )
 {
@@ -215,7 +216,6 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	}
     }
 }
-
 
 
 void HorizonMgr::matchHorWithMarkers( TypeSet<PosCouple>& pcs,
@@ -349,6 +349,7 @@ bool DataWriter::removeLogs( const Well::LogSet& logset ) const
 Server::Server( const WellTie::Setup& wts )
     : wellid_(wts.wellid_)
 {
+    welltieserverwarnmsg_.setParam( this, new BufferString() );
     wdmgr_ = new WellDataMgr( wts.wellid_  );
     mAttachCB( wdmgr_->datadeleted_, Server::wellDataDel );
 
@@ -377,6 +378,20 @@ Server::~Server()
     delete pickmgr_;
     delete data_;
     delete wdmgr_;
+
+    BufferString* warnmsg = welltieserverwarnmsg_.getParam(this);
+    welltieserverwarnmsg_.removeParam( this );
+    delete warnmsg;
+}
+
+const char* Server::warnMsg() const
+{ return welltieserverwarnmsg_.getParam(this)->str(); }
+
+
+void Server::setWarning( const BufferString& msg ) const
+{
+    BufferString* warnmsg = welltieserverwarnmsg_.getParam( this );
+    *warnmsg = msg;
 }
 
 
@@ -397,6 +412,8 @@ bool Server::computeSynthetics( const Wavelet& wvlt )
     if ( !dataplayer_->computeSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -408,6 +425,8 @@ bool Server::extractSeismics()
 
     if ( !dataplayer_->extractSeismics() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -421,6 +440,8 @@ bool Server::updateSynthetics( const Wavelet& wvlt )
     if ( !dataplayer_->doFastSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -432,6 +453,8 @@ bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -445,6 +468,8 @@ bool Server::computeCrossCorrelation()
     if ( !dataplayer_->computeCrossCorrelation() )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -456,6 +481,8 @@ bool Server::computeEstimatedWavelet( int newsz )
 
     if ( !dataplayer_->computeEstimatedWavelet( newsz ) )
 	{ errmsg_ = dataplayer_->errMSG(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -503,6 +530,15 @@ void Server::updateExtractionRange()
 	return;
 
     data_->computeExtractionRange();
+}
+
+
+void Server::handleDataPlayerWarning() const
+{
+    if ( !dataplayer_ || !dataplayer_->warnMsg() )
+	return;
+
+    setWarning( dataplayer_->warnMsg() );
 }
 
 }; //namespace WellTie

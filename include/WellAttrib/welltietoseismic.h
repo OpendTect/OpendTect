@@ -34,7 +34,7 @@ public:
 			DataPlayer(Data&,const MultiID&,const LineKey* lk=0);
 			~DataPlayer();
 
-    bool 		computeSynthetics(const Wavelet&);
+    bool		computeSynthetics(const Wavelet&);
     bool		extractSeismics();
     bool		doFastSynthetics(const Wavelet&);
     bool		isOKSynthetic() const;
@@ -45,23 +45,25 @@ public:
     bool		computeCrossCorrelation();
     bool		computeEstimatedWavelet(int newsz);
     void		setCrossCorrZrg( const Interval<float>& zrg )
-    								{ zrg_ = zrg; }
+								{ zrg_ = zrg; }
 
     uiString		errMSG() const		{ return errmsg_; }
-   
+    const char*		warnMsg() const;
+
 protected:
 
     bool		setAIModel();
     bool		doFullSynthetics(const Wavelet&);
     bool		copyDataToLogSet();
-    bool		processLog(const Well::Log*,Well::Log&,const char*); 
+    bool		processLog(const Well::Log*,Well::Log&,const char*);
     void		createLog(const char*nm,float* dah,float* vals,int sz);
     bool		checkCrossCorrInps();
-    			//!< check input synt/seis and zrg
+			//!< check input synt/seis and zrg
     bool		extractWvf(bool issynt);
     bool		extractReflectivity();
+    void		setWarning(const BufferString&) const;
 
-    ElasticModel 	aimodel_;
+    ElasticModel	aimodel_;
     ReflectivityModel	refmodel_;
     Data&		data_;
     const MultiID&	seisid_;

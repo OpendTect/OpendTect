@@ -260,6 +260,7 @@ public :
     const Data&			data() const	{ return *data_; }
 
     uiString			errMSG() const	{ return errmsg_; }
+    const char*			warnMsg() const;
 
     bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
@@ -288,6 +289,8 @@ protected :
     uiString			errmsg_;
 
     void			wellDataDel( CallBacker* );
+    void			setWarning(const BufferString&) const;
+    void			handleDataPlayerWarning() const;
 };
 
 }; //namespace WellTie

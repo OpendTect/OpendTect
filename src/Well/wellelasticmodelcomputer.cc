@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellelasticmodelcomputer.h"
 
 #include "survinfo.h"
+#include "unitofmeasure.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellextractdata.h"
@@ -19,13 +20,18 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welllogset.h"
 #include "welltrack.h"
 
+#include "hiddenparam.h"
 
 namespace Well
 {
 
+static HiddenParam< ElasticModelComputer,BufferString* >
+						emodelcomputerwarnmsg_( 0 );
+
 Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd )
     : wd_(wd)
 {
+    emodelcomputerwarnmsg_.setParam( this, new BufferString() );
     init();
 }
 
@@ -36,6 +42,7 @@ Well::ElasticModelComputer::ElasticModelComputer( const Well::Data& wd,
 						  const Well::Log* svel )
     : wd_(wd)
 {
+    emodelcomputerwarnmsg_.setParam( this, new BufferString() );
     init();
     setLogs( vel, den, svel );
 }
@@ -49,6 +56,21 @@ Well::ElasticModelComputer::~ElasticModelComputer()
 	delete ls_;
     if ( lsnearest_ )
 	delete lsnearest_;
+
+    BufferString* warnmsg = emodelcomputerwarnmsg_.getParam(this);
+    emodelcomputerwarnmsg_.removeParam( this );
+    delete warnmsg;
+}
+
+
+const char* ElasticModelComputer::warnMsg() const
+{ return emodelcomputerwarnmsg_.getParam(this)->str(); }
+
+
+void ElasticModelComputer::setWarning( const BufferString& msg ) const
+{
+    BufferString* warnmsg = emodelcomputerwarnmsg_.getParam( this );
+    *warnmsg = msg;
 }
 
 
@@ -159,21 +181,34 @@ bool Well::ElasticModelComputer::computeFromLogs()
     emodel_.erase();
     const int nrsteps = ls_->nrZSamples();
     const float dz = !zrgistime_ ? zstep_ * convfact : zstep_ / 2.f;
+    int erroridx = -1;
     for ( int idl=0; idl<nrsteps; idl++ )
     {
 	const float velp = getVelp( idl );
 	const float den = getDensity( idl );
 	const float svel = getSVel( idl );
 	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
-	if ( mIsUdf(thickness) )
-	    mErrRet( "Undefined thickness in LogSampler" )
-
 	ElasticLayer layer( thickness, velp, svel, den );
+	if ( !layer.isOK(true,false) && erroridx == -1 )
+	    erroridx = idl;
+
 	emodel_ += layer;
     }
 
     if ( emodel_.isEmpty() )
 	mErrRet( "Returning empty elastic model" )
+
+    if ( erroridx != -1 )
+    {
+	float depth = emodel_.getLayerDepth( erroridx );
+	depth = UnitOfMeasure::surveyDefDepthUnit()->userValue( depth );
+	emodel_.interpolate( true, true, false );
+	BufferString wnmsg( "Invalid log values found.\n" );
+	wnmsg.add( "First occurences at depth: " ).add( toString(depth,2) );
+	wnmsg.add( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+	wnmsg.add( "\nInvalid values will be interpolated." );
+	setWarning( wnmsg );
+    }
 
     float startdepth = zrange_.start;
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();

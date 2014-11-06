@@ -32,9 +32,14 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltiegeocalculator.h"
 #include "welltrack.h"
 
+#include "hiddenparam.h"
+
 
 namespace WellTie
 {
+
+static HiddenParam< DataPlayer,BufferString* > welltiedataplayerwarnmsg_( 0 );
+
 #define mErrRet(msg) { \
     if ( !errmsg_.isEmpty() ) { errmsg_.append( ". "); errmsg_.append( msg ); }\
     else errmsg_ = msg;\
@@ -48,6 +53,7 @@ DataPlayer::DataPlayer( Data& data, const MultiID& seisid, const LineKey* lk )
     , syntarr_(0)
     , refarr_(0)
 {
+    welltiedataplayerwarnmsg_.setParam( this, new BufferString() );
     zrg_.set( mUdf(float), mUdf(float) );
 }
 
@@ -62,6 +68,21 @@ DataPlayer::~DataPlayer()
 
     if ( seisarr_ )
 	delete [] seisarr_;
+
+    BufferString* warnmsg = welltiedataplayerwarnmsg_.getParam(this);
+    welltiedataplayerwarnmsg_.removeParam( this );
+    delete warnmsg;
+}
+
+
+const char* DataPlayer::warnMsg() const
+{ return welltiedataplayerwarnmsg_.getParam(this)->str(); }
+
+
+void DataPlayer::setWarning( const BufferString& msg ) const
+{
+    BufferString* warnmsg = welltiedataplayerwarnmsg_.getParam( this );
+    *warnmsg = msg;
 }
 
 
@@ -447,7 +468,13 @@ bool DataPlayer::setAIModel()
     emodelcomputer.setDenLog( *pcdenlog );
     emodelcomputer.setZrange( data_.getModelRange(), true );
     emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
-    emodelcomputer.computeFromLogs();
+    FixedString doeditmsg( "\nPlease consider editing your logs." );
+    if ( !emodelcomputer.computeFromLogs() )
+	mErrRet( BufferString( emodelcomputer.errMsg(), doeditmsg ) )
+
+    if ( emodelcomputer.warnMsg() )
+	setWarning( BufferString( emodelcomputer.warnMsg(), doeditmsg ) );
+
     aimodel_ = emodelcomputer.elasticModel();
 
     return true;
