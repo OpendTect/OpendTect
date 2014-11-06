@@ -13,10 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "stattype.h"
+
+#include "datapack.h"
 #include "enums.h"
 #include "ranges.h"
-#include "datapack.h"
+#include "stattype.h"
 
 class SeisPSReader;
 
@@ -83,11 +84,10 @@ public:
     float		getVal(int sampnr) const;
     float		getVal(float z) const;
 
-    static float	getVal( const PropCalc::Setup& su,
-			        TypeSet<float>& vals, TypeSet<float>& offs );
+    static float	getVal(const PropCalc::Setup& su,
+			       TypeSet<float>& vals,TypeSet<float>& offs);
 
 protected:
-
 
     void		removeGather();
 
@@ -99,8 +99,6 @@ protected:
     Setup		setup_;
 };
 
-}; //Namespace
-
+} // namespace PreStack
 
 #endif
-

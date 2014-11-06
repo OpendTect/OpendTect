@@ -14,11 +14,12 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
+#include "mathfunc.h"
+#include "multiid.h"
 #include "namedobj.h"
 #include "position.h"
 #include "samplingdata.h"
-#include "multiid.h"
-#include "mathfunc.h"
 
 
 namespace PreStack
@@ -34,6 +35,7 @@ public:
 					MuteDef(const char* nm=0);
 					MuteDef(const MuteDef&);
 					~MuteDef();
+
     MuteDef&				operator=(const MuteDef&);
 
     int					size() const;
@@ -44,7 +46,7 @@ public:
     const BinID&			getPos(int idx) const;
 
     void				add(PointBasedMathFunction*,
-	    				    const BinID& pos );
+	    				    const BinID& pos);
     					//!<Function becomes mine.
     void				remove(int idx);
     float				value(float offs,const BinID&) const;
@@ -58,7 +60,6 @@ public:
 
     bool				isChanged() const { return ischanged_; }
     void				setChanged(bool yn) { ischanged_=yn; }
-
 
     void				setReferenceHorizon(const MultiID&);
     const MultiID&			getReferenceHorizon() const;
@@ -74,8 +75,6 @@ protected:
     void				getAllZVals(TypeSet<float>&) const;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-

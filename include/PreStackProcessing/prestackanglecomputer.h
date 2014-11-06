@@ -44,7 +44,7 @@ public:
 				AngleComputer();
 
     enum smoothingType		{ None, MovingAverage, FFTFilter };
-				DeclareEnumUtils(smoothingType);
+				DeclareEnumUtils(smoothingType)
 
     virtual Gather*		computeAngles() = 0;
     virtual bool		isOK() const = 0;
@@ -59,14 +59,14 @@ public:
 				        BufferString win=HanningWindow::sName(),
 					float param=0.95);
     void			setFFTSmoother(float freqf3,float freqf4);
-    void			setSmoothingPars(const IOPar& iopar);
+    void			setSmoothingPars(const IOPar&);
 
-    static const char*		sKeySmoothType() { return "Smoothing type"; }
-    static const char*		sKeyWinFunc() { return "Window function"; }
-    static const char*		sKeyWinParam() { return "Window parameter"; }
-    static const char*		sKeyWinLen() { return "Window length"; }
-    static const char*		sKeyFreqF3() { return "F3 freq"; }
-    static const char*		sKeyFreqF4() { return "F4 freq"; }
+    static const char*		sKeySmoothType();
+    static const char*		sKeyWinFunc();
+    static const char*		sKeyWinParam();
+    static const char*		sKeyWinLen();
+    static const char*		sKeyFreqF3();
+    static const char*		sKeyFreqF4();
 
 protected:
 
@@ -92,6 +92,8 @@ protected:
     TrcKey			trckey_;
 };
 
+
+
 /*!
 \brief Computes angles for PreStack::Gather from velocity model.
 */
@@ -115,6 +117,8 @@ protected:
     Vel::FunctionSource*	velsource_;
 };
 
+
+
 /*!
 \brief Computes angles for PreStack::Gather from ElasticModel.
 */
@@ -133,6 +137,7 @@ public:
 						 const TrcKey& tk )
 				    : rt_(rt), em_(0), trckey_(tk) {}
 				~ModelTool()	{ delete em_; }
+
 	const RayTracer1D*	rayTracer() const { return rt_; }
 	const ElasticModel&	elasticModel() const;
 	const TrcKey&		trcKey() const	{ return trckey_; }
@@ -143,19 +148,19 @@ public:
 	const RayTracer1D*	rt_;
 	TrcKey			trckey_;
     };
+
 				ModelBasedAngleComputer();
-				
-    void			setElasticModel(const TrcKey&,
-	    					bool doblock,
-						bool pvelonly,
-	   					ElasticModel& em);
-    void			setRayTracer(const RayTracer1D* rt,
+
+    void			setElasticModel(const TrcKey&,bool doblock,
+						bool pvelonly,ElasticModel&);
+    void			setRayTracer(const RayTracer1D*,
 	    				     const TrcKey&);
 
     bool			isOK() const
 				{ return curElasticModel().size(); }
 
     Gather*			computeAngles();
+
 protected:
 
     const ElasticModel&		curElasticModel() const;
@@ -164,7 +169,6 @@ protected:
     ObjectSet<ModelTool>	tools_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif

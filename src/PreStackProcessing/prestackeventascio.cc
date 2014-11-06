@@ -10,24 +10,26 @@ ________________________________________________________________________
 -*/
 
 #include "prestackeventascio.h"
+
+#include "binidvalue.h"
 #include "executor.h"
 #include "file.h"
 #include "od_iostream.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
-#include "binidvalue.h"
+
 
 namespace PreStack
 {
 
 EventExporter::EventExporter( od_ostream& strm, EventManager& events )
-    : strm_( strm )
-    , events_( events )
-    , tks_( true )
-    , nrdone_( 0 )
-    , fileidx_( 0 )
-    , locations_( 0, false )
-    , message_( "" )
+    : strm_(strm)
+    , events_(events)
+    , tks_(true)
+    , nrdone_(0)
+    , fileidx_(0)
+    , locations_(0,false)
+    , message_("")
 {
     events_.ref();
     events_.getLocations( locations_ );
@@ -95,7 +97,7 @@ int EventExporter::nextStep()
 		continue;
 
 	    float inldip = 0, crldip = 0;
-	    events_.getDip( BinIDValue( bid, event.pick_[0]), event.horid_,
+	    events_.getDip( BinIDValue(bid,event.pick_[0]), event.horid_,
 			    inldip, crldip );
 
 	    for ( int pickidx=0; pickidx<event.sz_; pickidx++ )
@@ -123,6 +125,8 @@ int EventExporter::nextStep()
 }
 
 
+
+// EventImporter
 EventImporter::EventImporter( const char* filenm, const Table::FormatDesc& fd,
 			      EventManager& evmgr )
     : evmgr_(evmgr)
@@ -192,7 +196,16 @@ int EventImporter::nextStep()
 
 
 
-Table::FormatDesc* EventAscIO::getDesc() 
+// EventAscIO
+EventAscIO::EventAscIO( const Table::FormatDesc& fd, od_istream& strm )
+    : Table::AscIO(fd)
+    , udfval_(mUdf(float))
+    , finishedreadingheader_(false)
+    , strm_(strm)
+{}
+
+
+Table::FormatDesc* EventAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PreStack Event" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",

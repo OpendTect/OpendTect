@@ -10,14 +10,21 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "prestackmuteasciio.h"
+
+#include "od_istream.h"
 #include "prestackmutedef.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
-#include "od_istream.h"
 
 namespace PreStack
 {
+
+MuteAscIO::MuteAscIO( const Table::FormatDesc& fd, od_istream& stm )
+    : Table::AscIO(fd)
+    , strm_(stm)
+{}
+
 
 Table::FormatDesc* MuteAscIO::getDesc()
 {
@@ -97,7 +104,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, bool extrapol,
 
 
 bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
-			    PointBasedMathFunction::InterpolType iptype)
+			    PointBasedMathFunction::InterpolType iptype )
 {
     
     if ( mutedef.indexOf(binid) < 0 )
@@ -115,8 +122,7 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	mutedef.getFn( mutedef.indexOf(binid)).add( getfValue(0), 
-						    getfValue(1) );
+	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(0), getfValue(1) );
     }
 
     return true;

@@ -13,11 +13,11 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
+
 #include "paralleltask.h"
+#include "prestackanglemute.h"
 #include "ranges.h"
 #include "trckeysampling.h"
-#include "prestackanglemute.h"
 #include "threadlock.h"
 
 class TrcKeySampling;
@@ -45,21 +45,22 @@ public:
 	MultiID			outputmutemid_;
 	TrcKeySampling		tks_;
     };
+
     static const char*		sKeyMuteDefID() { return "Mute Def"; }
 
-    void	fillPar(IOPar&) const;
-    bool	usePar(const IOPar&);
+    od_int64			nrIterations() const;
+    bool			doPrepare(int);
+    bool			doWork(od_int64 start,od_int64 stop,int);
+    bool			doFinish(bool success);
 
-    od_int64		nrIterations() const;
-    bool		doPrepare(int);
-    bool		doWork(od_int64 start, od_int64 stop,int);
-    bool		doFinish(bool success);
+    uiString			uiMessage() const;
+    uiString			errMsg() const		{ return errmsg_; }
 
-    uiString		uiMessage() const { return "Computing mutes..."; }
-    uiString		errMsg() const		{ return errmsg_; }
-
-    AngleMuteCompPars&	params();
+    AngleMuteCompPars&		params();
     const AngleMuteCompPars&	params() const;
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 
@@ -68,7 +69,7 @@ protected:
     Threads::Lock		lock_;
 };
 
-}
+} // namespace PreStack
 
 #endif
 

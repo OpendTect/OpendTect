@@ -46,11 +46,10 @@ public:
     bool		setOutputInterest(const BinID& relbid,bool);
 
     bool		prepareWork();
+    uiString		errMsg() const		{ return errmsg_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    uiString		errMsg() const		{ return errmsg_; }
-
 
 protected:
     bool		isInPattern(const BinID&) const;
@@ -72,4 +71,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

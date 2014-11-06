@@ -14,9 +14,9 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "prestackprocessingmod.h"
-#include "prestackprocessor.h"
+
 #include "iopar.h"
+#include "prestackprocessor.h"
 #include "samplingdata.h"
 
 class ElasticLayer;
@@ -45,31 +45,30 @@ public:
     IOPar			smoothingpar_;
 };
 
+
 mExpClass(PreStackProcessing) AngleMuteBase 
 {
 public:
-
-    virtual void	fillPar(IOPar&) const;
-    virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyRayTracer()		{ return "Raytracer"; }	
     static const char*	sKeyVelVolumeID()	{ return "Velocity vol-mid"; }
     static const char*  sKeyMuteCutoff()	{ return "Mute cutoff"; }
 
+    virtual void	fillPar(IOPar&) const;
+    virtual bool	usePar(const IOPar&);
+
 protected:
     			AngleMuteBase();
     			~AngleMuteBase();
 
-    AngleCompParams*		params_;
-
-    Vel::VolumeFunctionSource*	velsource_;
-
-    bool	setVelocityFunction();
-    bool	getLayers(const BinID&,ElasticModel&,
+    bool		setVelocityFunction();
+    bool		getLayers(const BinID&,ElasticModel&,
 	    			SamplingData<float>&,int resamplesz=-1);
-    float	getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
+    float		getOffsetMuteLayer(const RayTracer1D&,int,int,bool,
 				int startlayer=0,bool belowcutoff=true) const;
 
+    AngleCompParams*	params_;
+    Vel::VolumeFunctionSource*	velsource_;
     ObjectSet<RayTracerRunner>	rtrunners_;
 };
 
@@ -82,7 +81,7 @@ mExpClass(PreStackProcessing) AngleMute : public Processor, public AngleMuteBase
 {
 public:
     			mDefaultFactoryInstantiation(Processor,
-				AngleMute,"AngleMute", "Angle Mute" );
+				AngleMute,"AngleMute", "Angle Mute" )
 
 			AngleMute();
 			~AngleMute();
@@ -97,18 +96,19 @@ public:
 	bool 		tail_;
 	float 		taperlen_;			    
     };
-    static const char*  sKeyTaperLength()	{ return "Taper lenght"; }
-    static const char*  sKeyIsTail()		{ return "Mute tail"; }
 
     bool		doPrepare(int nrthreads);
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
 
     uiString		errMsg() const		{ return errmsg_; }
 
     AngleMutePars&	 params();
     const AngleMutePars& params() const;
+
+    static const char*  sKeyTaperLength()	{ return "Taper lenght"; }
+    static const char*  sKeyIsTail()		{ return "Mute tail"; }
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 
@@ -120,9 +120,6 @@ protected:
     ObjectSet<Muter>	muters_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-
-

@@ -33,16 +33,15 @@ AngleCompParams::AngleCompParams()
     , anglerange_(0,30)
     , velvolmid_(MultiID::udf())
 {
-    smoothingpar_.set( PreStack::AngleComputer::sKeySmoothType(),
-		       PreStack::AngleComputer::FFTFilter );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF3(), 10.0f );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyFreqF4(), 15.0f );
+    smoothingpar_.set( AngleComputer::sKeySmoothType(),
+		       AngleComputer::FFTFilter );
+    smoothingpar_.set( AngleComputer::sKeyFreqF3(), 10.0f );
+    smoothingpar_.set( AngleComputer::sKeyFreqF4(), 15.0f );
     // defaults for other types:
-    smoothingpar_.set( PreStack::AngleComputer::sKeyWinFunc(),
-		       HanningWindow::sName() );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyWinLen(),
+    smoothingpar_.set( AngleComputer::sKeyWinFunc(), HanningWindow::sName() );
+    smoothingpar_.set( AngleComputer::sKeyWinLen(),
 		       100.0f/SI().zDomain().userFactor() );
-    smoothingpar_.set( PreStack::AngleComputer::sKeyWinParam(), 0.95f );
+    smoothingpar_.set( AngleComputer::sKeyWinParam(), 0.95f );
 
     RayTracer1D::Setup setup;
     setup.doreflectivity( false );
@@ -81,10 +80,9 @@ AngleMuteBase::~AngleMuteBase()
 
 void AngleMuteBase::fillPar( IOPar& par ) const
 {
-    PtrMan <IOObj> ioobj = IOM().get( params_->velvolmid_ );
+    PtrMan<IOObj> ioobj = IOM().get( params_->velvolmid_ );
     if ( ioobj ) par.set( sKeyVelVolumeID(), params_->velvolmid_ );
 
-    IOPar rtracepar;
     par.merge( params_->raypar_ );
     par.set( sKeyMuteCutoff(), params_->mutecutoff_ );
 }
@@ -103,10 +101,8 @@ bool AngleMuteBase::usePar( const IOPar& par  )
 bool AngleMuteBase::setVelocityFunction()
 {
     const MultiID& mid = params_->velvolmid_;
-
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj )
-       return false;
+    if ( !ioobj ) return false;
 
     velsource_->setFrom( mid );
     return true;
@@ -177,8 +173,8 @@ bool AngleMuteBase::getLayers( const BinID& bid, ElasticModel& model,
 
 
 float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
-					int ioff, bool tail, int startlayer,
-					bool belowcutoff ) const
+					 int ioff, bool tail, int startlayer,
+					 bool belowcutoff ) const
 {
     float mutelayer = mUdf(float);
     const float cutoffsin = (float) sin( params_->mutecutoff_ * M_PI / 180 );
@@ -243,7 +239,7 @@ float AngleMuteBase::getOffsetMuteLayer( const RayTracer1D& rt, int nrlayers,
 
 
 AngleMute::AngleMute()
-    : Processor( sFactoryKeyword() )
+    : Processor(sFactoryKeyword())
 {
     params_ = new AngleMutePars();
 }

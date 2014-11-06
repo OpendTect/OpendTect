@@ -34,6 +34,12 @@ DefineEnumNames(AngleComputer,smoothingType,0,"Smoothing Type")
 	0
 };
 
+const char* AngleComputer::sKeySmoothType()	{ return "Smoothing type"; }
+const char* AngleComputer::sKeyWinFunc()	{ return "Window function"; }
+const char* AngleComputer::sKeyWinParam()	{ return "Window parameter"; }
+const char* AngleComputer::sKeyWinLen()		{ return "Window length"; }
+const char* AngleComputer::sKeyFreqF3()		{ return "F3 freq"; }
+const char* AngleComputer::sKeyFreqF4()		{ return "F4 freq"; }
 
 static const float deftimestep = 0.004f;
 static const float maxtwttime = 100.0f;
@@ -69,33 +75,33 @@ void AngleComputer::setRayTracer( const IOPar& raypar )
 void AngleComputer::setSmoothingPars( const IOPar& smpar )
 {
     int smoothtype = 0;
-    smpar.get( PreStack::AngleComputer::sKeySmoothType(), smoothtype );
+    smpar.get( AngleComputer::sKeySmoothType(), smoothtype );
 
-    if ( smoothtype == PreStack::AngleComputer::None )
+    if ( smoothtype == AngleComputer::None )
 	setNoSmoother();
 
-    else if ( smoothtype == PreStack::AngleComputer::MovingAverage )
+    else if ( smoothtype == AngleComputer::MovingAverage )
     {
 	float winlength;
-	smpar.get( PreStack::AngleComputer::sKeyWinLen(), winlength );
+	smpar.get( sKeyWinLen(), winlength );
 	BufferString winfunc;
-	smpar.get( PreStack::AngleComputer::sKeyWinFunc(), winfunc );
+	smpar.get( sKeyWinFunc(), winfunc );
 	if ( winfunc == CosTaperWindow::sName() )
 	{
 	    float param;
-	    smpar.get( PreStack::AngleComputer::sKeyWinParam(), param );
+	    smpar.get( sKeyWinParam(), param );
 	    setMovingAverageSmoother( winlength, winfunc, param );
 	}
 	else
 	    setMovingAverageSmoother( winlength, winfunc );
     }
 
-    else if ( smoothtype == PreStack::AngleComputer::FFTFilter )
+    else if ( smoothtype == AngleComputer::FFTFilter )
     {
 	float freqf3;
-	smpar.get( PreStack::AngleComputer::sKeyFreqF3(), freqf3 );
+	smpar.get( sKeyFreqF3(), freqf3 );
 	float freqf4;
-	smpar.get( PreStack::AngleComputer::sKeyFreqF4(), freqf4 );
+	smpar.get( sKeyFreqF4(), freqf4 );
 	setFFTSmoother( freqf3, freqf4 );
     }
 }
@@ -144,15 +150,15 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
     TimeDepthModel td;
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
     {
-	PointBasedMathFunction anglevals( PointBasedMathFunction::Linear,
-					  PointBasedMathFunction::EndVal );
-
 	rt->getTDModel( ofsidx, td );
 	if ( !td.isOK() )
 	{
 	    arr1doutput = arr1doutput + zsize;
 	    continue;
 	}
+
+	PointBasedMathFunction anglevals( PointBasedMathFunction::Linear,
+					  PointBasedMathFunction::EndVal );
 
 	float layertwt = 0, prevlayertwt = mUdf(float);
 	for ( int zidx=0; zidx<zsize; zidx++ )
@@ -205,8 +211,8 @@ void AngleComputer::fftDepthSmooth(::FFTFilter& filter,
 }
 
 
-void AngleComputer::fftTimeSmooth(::FFTFilter& filter,
-				  Array2D<float>& angledata )
+void AngleComputer::fftTimeSmooth( ::FFTFilter& filter,
+				   Array2D<float>& angledata )
 {
     const StepInterval<double> zrange = outputsampling_.range( false );
     const int zsize = zrange.nrSteps() + 1;
@@ -273,8 +279,7 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
     const int zsize = outputsampling_.nrPts( false );
     const float zstep = mCast( float, outputsampling_.range( false ).step );
     const int filtersz = !mIsUdf(smoothinglength)
-		       ? mNINT32( smoothinglength/zstep )
-		       : mUdf(int);
+		? mNINT32( smoothinglength/zstep ) : mUdf(int);
 
     Smoother1D<float> sm;
     mAllocVarLenArr( float, arr1dinput, zsize );
@@ -295,9 +300,7 @@ void AngleComputer::averageSmooth( Array2D<float>& angledata )
 bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 {
     const RayTracer1D* rt = curRayTracer();
-    const ElasticModel& curem = curElasticModel();
-    if ( !rt )
-	return false;
+    if ( !rt ) return false;
 
     TypeSet<float> offsets;
     outputsampling_.getPositions( true, offsets );
@@ -307,6 +310,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
     const StepInterval<double> outputzrg = outputsampling_.range( false );
     ManagedObjectSet<PointBasedMathFunction> anglevals;
 
+    const ElasticModel& curem = curElasticModel();
     TimeDepthModel td;
     rt->getTDModel( 0, td );
     for ( int ofsidx=0; ofsidx<offsetsize; ofsidx++ )
@@ -351,7 +355,7 @@ bool AngleComputer::fillandInterpArray( Array2D<float>& angledata )
 
 Gather* AngleComputer::computeAngleData()
 {
-    PreStack::Gather* gather = new PreStack::Gather( outputsampling_ );
+    Gather* gather = new Gather( outputsampling_ );
     Array2D<float>& angledata = gather->data();
 
     if ( needsraytracing_ )
@@ -392,6 +396,8 @@ Gather* AngleComputer::computeAngleData()
 }
 
 
+
+// VelocityBasedAngleComputer
 VelocityBasedAngleComputer::VelocityBasedAngleComputer()
     : velsource_( 0 )
 {}
@@ -465,8 +471,10 @@ Gather* VelocityBasedAngleComputer::computeAngles()
 }
 
 
-const ElasticModel& ModelBasedAngleComputer::ModelTool
-					   ::elasticModel() const
+
+// ModelBasedAngleComputer
+const ElasticModel&
+	ModelBasedAngleComputer::ModelTool::elasticModel() const
 { return rt_ ? rt_->getModel() : *em_; }
 
 

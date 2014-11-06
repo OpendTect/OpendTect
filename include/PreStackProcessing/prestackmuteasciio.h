@@ -15,8 +15,8 @@ ________________________________________________________________________
 
 
 #include "prestackprocessingmod.h"
-#include "tableascio.h"
 #include "mathfunc.h"
+#include "tableascio.h"
 
 namespace Table { class FormatDesc; }
 
@@ -32,10 +32,8 @@ class MuteDef;
 mExpClass(PreStackProcessing) MuteAscIO : public Table::AscIO
 {
 public:
-				MuteAscIO( const Table::FormatDesc& fd,
-				       	   od_istream& stm )
-				    : Table::AscIO(fd)
-		 		    , strm_(stm)		{}
+				MuteAscIO(const Table::FormatDesc&,od_istream&);
+
    static Table::FormatDesc*	getDesc();
    static void 			updateDesc(Table::FormatDesc&,bool haveposinfo);
 
@@ -43,10 +41,11 @@ public:
    bool				isXY() const;
    bool				getMuteDef(MuteDef&,bool extrapol=true, 
 					   PointBasedMathFunction::InterpolType=
-					   PointBasedMathFunction::Linear);
+						PointBasedMathFunction::Linear);
    bool				getMuteDef(MuteDef&,const BinID&,
 	   				   bool extrapol=true,
-	   				   PointBasedMathFunction::InterpolType=					   PointBasedMathFunction::Linear);
+	   				   PointBasedMathFunction::InterpolType=
+						PointBasedMathFunction::Linear);
 
 protected:
 	
@@ -57,4 +56,3 @@ protected:
 } // namespace PreStack
 
 #endif
-

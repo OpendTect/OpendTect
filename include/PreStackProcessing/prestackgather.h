@@ -15,16 +15,16 @@ ________________________________________________________________________
 
 #include "prestackprocessingmod.h"
 #include "arrayndimpl.h"
-#include "multiid.h"
-#include "position.h"
-#include "offsetazimuth.h"
-#include "samplingdata.h"
 #include "datapackbase.h"
+#include "multiid.h"
+#include "offsetazimuth.h"
+#include "position.h"
+#include "samplingdata.h"
 
 class IOObj;
 class SeisPSReader;
-class SeisTrcBuf;
 class SeisTrc;
+class SeisTrcBuf;
 
 namespace PreStack
 {
@@ -34,7 +34,7 @@ namespace PreStack
 */
 
 mExpClass(PreStackProcessing) Gather : public FlatDataPack
-{ mODTextTranslationClass(Gather);
+{ mODTextTranslationClass(Gather)
 public:
 				Gather();
 				Gather(const Gather&);
@@ -43,10 +43,10 @@ public:
 
     bool			is3D() const { return linename_.isEmpty(); }
 
-    bool			readFrom(const MultiID&, const BinID&,
+    bool			readFrom(const MultiID&,const BinID&,
 	    				 int component=0,
 					 uiString* errmsg=0);
-    bool			readFrom(const IOObj&, const BinID&,
+    bool			readFrom(const IOObj&,const BinID&,
 	    				 int component=0,
 					 uiString* errmsg=0);
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
@@ -117,7 +117,7 @@ public:
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyStaticsID();
     
-    void			getAzimuths(TypeSet<float>& azimuths ) const
+    void			getAzimuths( TypeSet<float>& azimuths ) const
 				{ azimuths = azimuths_; }
     void			setAzimuths( const TypeSet<float>& azimuths )
 				{ azimuths_ = azimuths; }
@@ -173,7 +173,6 @@ protected:
     ObjectSet<Gather>		gathers_;
 };
 
-}; //namespace
+} // namespace PreStack
 
 #endif
-

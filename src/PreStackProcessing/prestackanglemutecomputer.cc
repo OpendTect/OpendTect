@@ -32,6 +32,16 @@ AngleMuteComputer::AngleMuteComputer()
 }
 
 
+AngleMuteComputer::~AngleMuteComputer()
+{
+    delete &outputmute_;
+}
+
+
+uiString AngleMuteComputer::uiMessage() const
+{ return "Computing mute"; }
+
+
 void AngleMuteComputer::fillPar( IOPar& par ) const
 {
     AngleMuteBase::fillPar( par );
@@ -43,12 +53,6 @@ bool AngleMuteComputer::usePar( const IOPar& par )
 {
     par.get( sKeyMuteDefID(), params().outputmutemid_ );
     return AngleMuteBase::usePar( par );
-}
-
-
-AngleMuteComputer::~AngleMuteComputer()
-{
-    delete &outputmute_;
 }
 
 
@@ -184,4 +188,4 @@ AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params()
 const AngleMuteComputer::AngleMuteCompPars& AngleMuteComputer::params() const
 { return static_cast<AngleMuteComputer::AngleMuteCompPars&>(*params_); }
 
-} //PreStack
+} // namespace PreStack

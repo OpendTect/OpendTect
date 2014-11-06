@@ -14,8 +14,8 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
-#include "ranges.h"
 #include "prestackprocessor.h"
+#include "ranges.h"
 
 namespace PreStack
 {
@@ -45,8 +45,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
-    static const char*		sKeyWindow()		{ return "Window"; }
-    static const char*		sKeyMuteFraction()	{return "Mutefraction";}
+    static const char*		sKeyWindow();
+    static const char*		sKeyMuteFraction();
 
 protected:
     bool			doWork(od_int64,od_int64,int);

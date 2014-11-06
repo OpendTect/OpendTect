@@ -40,8 +40,6 @@ public:
 
     bool		prepareWork();
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
     uiString		errMsg() const		{ return errmsg_; }
 
     static const char*	sTaperLength()		{ return "Taper Length";}
@@ -56,23 +54,26 @@ public:
     bool		setMuteDefID(const MultiID&);
     void		setEmptyMute();
     void		setTailMute(bool yn=true);
-    void		setTaperLength(float l);
+    void		setTaperLength(float);
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
 
-    MuteDef&			def_;
-    Muter*			muter_;
-    MultiID			id_;
-    uiString			errmsg_;
+    MuteDef&		def_;
+    Muter*		muter_;
+    MultiID		id_;
+    uiString		errmsg_;
 
-    od_int64			nrIterations() const { return outidx_.size(); }
-    bool			doWork(od_int64,od_int64,int);
+    od_int64		nrIterations() const { return outidx_.size(); }
+    bool		doWork(od_int64,od_int64,int);
 
-    bool			tail_;
-    float			taperlen_;
+    bool		tail_;
+    float		taperlen_;
 
-    TypeSet<int>		outidx_;
-    TypeSet<int>		offsets_;
+    TypeSet<int>	outidx_;
+    TypeSet<int>	offsets_;
 };
 
 } // namespace PreStack

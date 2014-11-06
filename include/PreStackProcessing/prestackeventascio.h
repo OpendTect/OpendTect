@@ -13,12 +13,12 @@ ________________________________________________________________________
 -*/
 
 #include "prestackprocessingmod.h"
+
 #include "binidvalset.h"
-#include "task.h"
-#include "trckeysampling.h"
 #include "prestackevents.h"
 #include "tableascio.h"
-#include "binidvalset.h"
+#include "task.h"
+#include "trckeysampling.h"
 
 namespace Table { class FormatDesc; }
 
@@ -48,7 +48,8 @@ mExpClass(PreStackProcessing) EventExporter : public SequentialTask
 public:
     			EventExporter(od_ostream& strm,EventManager&);
     			~EventExporter();
-    void		setHRange(const TrcKeySampling& hrg);
+
+    void		setHRange(const TrcKeySampling&);
 
     od_int64		nrDone() const	{ return nrdone_; }
     od_int64		totalNr() const	{ return locations_.totalSize(); }
@@ -61,7 +62,7 @@ protected:
 
     od_ostream&			strm_;
     EventManager&		events_;
-    TrcKeySampling			tks_;
+    TrcKeySampling		tks_;
 
     BinIDValueSet		locations_;
     BinIDValueSet::SPos		pos_;
@@ -79,12 +80,8 @@ protected:
 mExpClass(PreStackProcessing) EventAscIO : public Table::AscIO
 { mODTextTranslationClass(EventAscIO);
 public:
-    				EventAscIO( const Table::FormatDesc& fd,
-						od_istream& strm )
-				    : Table::AscIO(fd)
-				    , udfval_(mUdf(float))
-				    , finishedreadingheader_(false)
-				    , strm_(strm)      		    {}
+				EventAscIO(const Table::FormatDesc&,
+					   od_istream&);
 
     static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&);
@@ -134,8 +131,6 @@ protected:
     int				lasthorid_;
 };
 
-
 } // namespace PreStack
 
 #endif
-

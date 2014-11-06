@@ -29,19 +29,20 @@ mExpClass(PreStackProcessing) Stack : public Processor
 {
 public:
 				mDefaultFactoryInstantiation( Processor, Stack,
-					"Stack", sFactoryKeyword() );
+					"Stack", sFactoryKeyword() )
 
  				Stack();
     				~Stack();
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
     uiString			errMsg() const		{ return errmsg_; }
 
     void			setOffsetRange(const Interval<float>*);
 				//!<Null pointer means all offsets
     const Interval<float>*	getOffsetRange() const;
 				//!<Null pointer means all offsets
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
     static const char*		sKeyOffsetRange() { return "Offset Range"; }
@@ -52,8 +53,6 @@ protected:
     Interval<float>*		offsetrg_;
 };
 
-
-}; //namespace
+} // namespace PreStack
 
 #endif
-

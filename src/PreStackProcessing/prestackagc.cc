@@ -13,21 +13,26 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "flatposdata.h"
 #include "iopar.h"
 #include "prestackgather.h"
-#include "varlenarray.h"
 #include "survinfo.h"
+#include "varlenarray.h"
 
+namespace PreStack
+{
 
-PreStack::AGC::AGC()
-    : Processor( sFactoryKeyword() )
-    , window_( -100, 100 )
-    , mutefraction_( 0 )
-    , totalnr_( -1 )
+const char* AGC::sKeyWindow()		{ return "Window"; }
+const char* AGC::sKeyMuteFraction()	{ return "Mutefraction"; }
+
+AGC::AGC()
+    : Processor(sFactoryKeyword())
+    , window_(-100,100)
+    , mutefraction_(0)
+    , totalnr_(-1)
 {}
 
 
-bool PreStack::AGC::prepareWork()
+bool AGC::prepareWork()
 {
-    totalnr_ = mCast( int, inputs_.size()*nrIterations() );
+    totalnr_ = mCast(int,inputs_.size()*nrIterations());
 
     if ( !Processor::prepareWork() )
 	return false;
@@ -48,36 +53,30 @@ bool PreStack::AGC::prepareWork()
 }
 
 
-void PreStack::AGC::setWindow( const Interval<float>& iv )
+void AGC::setWindow( const Interval<float>& iv )
 { window_ = iv; }
 
-
-const Interval<float>& PreStack::AGC::getWindow() const
+const Interval<float>& AGC::getWindow() const
 { return window_; }
 
+void AGC::getWindowUnit( BufferString& buf, bool parens ) const
+{ buf = SI().getZUnitString( parens ); }
 
-void PreStack::AGC::getWindowUnit( BufferString& buf, bool parens ) const
-{
-    buf = SI().getZUnitString( parens );
-}
-
-
-void PreStack::AGC::setLowEnergyMute( float iv )
+void AGC::setLowEnergyMute( float iv )
 { mutefraction_ = iv; }
 
-
-float PreStack::AGC::getLowEnergyMute() const
+float AGC::getLowEnergyMute() const
 { return mutefraction_; }
 
 
-void PreStack::AGC::fillPar( IOPar& par ) const
+void AGC::fillPar( IOPar& par ) const
 {
     par.set( sKeyWindow(), window_ );
     par.set( sKeyMuteFraction(), mutefraction_ );
 }
 
 
-bool PreStack::AGC::usePar( const IOPar& par )
+bool AGC::usePar( const IOPar& par )
 {
     par.get( sKeyWindow(), window_ );
     par.get( sKeyMuteFraction(), mutefraction_ );
@@ -85,7 +84,7 @@ bool PreStack::AGC::usePar( const IOPar& par )
 }
 
 
-bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
+bool AGC::doWork( od_int64 start, od_int64 stop, int )
 {
     ::AGC<float> agc;
     agc.setMuteFraction( mutefraction_ );
@@ -105,14 +104,13 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
 	Array1DSlice<float> outputtrace( output->data() );
 	outputtrace.setDimMap( 0, Gather::zDim() );
 
-	const int lastoffset = input->size( Gather::offsetDim()==0 ) -1;
+	const int lastoffset = input->size( Gather::offsetDim()==0 ) - 1;
 
 	const int curstop = mCast( int, mMIN(lastoffset,stop) );
 	for ( int offsetidx=mCast(int,start); offsetidx<=curstop; offsetidx++ )
 	{
 	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
 	    outputtrace.setPos( Gather::offsetDim(), offsetidx );
-
 	    if ( !inputtrace.init() || !outputtrace.init() )
 		continue;
 
@@ -124,3 +122,5 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
 
     return true;
 }
+
+} // namespace PreStack
