@@ -9,10 +9,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisparallelreader.h"
 
 #include "arrayndimpl.h"
-#include "trckeyzsampling.h"
 #include "binidvalset.h"
 #include "cbvsreadmgr.h"
+#include "datapackbase.h"
 #include "ioobj.h"
+#include "samplingdata.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
@@ -21,6 +22,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
+#include "threadwork.h"
+#include "trckeyzsampling.h"
 
 namespace Seis
 {
@@ -179,7 +182,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     else
     {
 	iter.setSampling( tkzs_.hrg );
-	iter.setNextPos( tkzs_.hrg.trcKeyAt( start ) );
+	iter.setNextPos( tkzs_.hrg.trcKeyAt(start) );
 	iter.next( curbid );
     }
 
@@ -396,5 +399,93 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
 
 bool ParallelReader2D::doFinish( bool success )
 { return success; }
+
+
+
+// SequentialReader
+class ArrayFiller : public SequentialTask
+{
+public:
+ArrayFiller( SampledDataPack& dp, SeisTrc& trc )
+    : dp_(dp)
+    , trc_(trc)
+{}
+
+
+~ArrayFiller()
+{ delete &trc_; }
+
+int nextStep()
+{
+    const int idx0 = dp_.sampling().hsamp_.lineIdx( trc_.info().binid.inl() );
+    const int idx1 = dp_.sampling().hsamp_.trcIdx( trc_.info().binid.crl() );
+    for ( int cidx=0; cidx<trc_.nrComponents(); cidx++ )
+    {
+	Array3D<float>& arr = dp_.data(cidx);
+	for ( int zidx=0; zidx<trc_.size(); zidx++ )
+	{
+	    arr.set( idx0, idx1, zidx, trc_.get(zidx,cidx) );
+	}
+    }
+
+    return Finished();
+}
+
+protected:
+
+    SampledDataPack&	dp_;
+    SeisTrc&		trc_;
+};
+
+
+SequentialReader::SequentialReader( const IOObj& ioobj,
+				    const TypeSet<int>& comps,
+				    const TrcKeyZSampling& tkzs )
+    : Executor("Reader")
+    , tkzs_(tkzs)
+    , dp_(new SampledDataPack(0))
+    , components_(comps)
+{
+    queueid_ = Threads::WorkManager::twm().addQueue(
+				Threads::WorkManager::MultiThread,
+				"SequentialReader" );
+    mDynamicCast(CBVSSeisTrcTranslator*,trl_,ioobj.createTranslator())
+    sd_ = new Seis::RangeSelData( tkzs );
+    trl_->setSelData( sd_ );
+    trl_->initRead( ioobj.getConn(Conn::Read) );
+
+    nrdone_ = 0;
+    totalnr_ = tkzs_.hsamp_.totalNr();
+
+    dp_->setSampling( tkzs );
+    for ( int idx=0; idx<comps.size(); idx++ )
+	dp_->add( 0, "" );
+}
+
+
+SequentialReader::~SequentialReader()
+{
+    delete trl_;
+
+    Threads::WorkManager::twm().removeQueue( queueid_, false );
+}
+
+
+int SequentialReader::nextStep()
+{
+    SeisTrc* trc = new SeisTrc;
+    if ( !trl_->readInfo(trc->info()) )
+	return Finished();
+
+    if ( !trl_->read(*trc) )
+	return ErrorOccurred();
+
+    Task* task = new ArrayFiller( *dp_, *trc );
+    Threads::WorkManager::twm().addWork(
+	Threads::Work(*task,true), 0, queueid_, false, false, true );
+
+    nrdone_++;
+    return MoreToDo();
+}
 
 } // namespace Seis

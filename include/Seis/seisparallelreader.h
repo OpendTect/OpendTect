@@ -12,14 +12,17 @@ ________________________________________________________________________
 */
 
 #include "seismod.h"
-#include "trckeyzsampling.h"
+
+#include "executor.h"
 #include "fixedstring.h"
-#include "sets.h"
 #include "paralleltask.h"
+#include "sets.h"
+#include "trckeyzsampling.h"
 
 class BinIDValueSet;
-class TrcKeyZSampling;
+class CBVSSeisTrcTranslator;
 class IOObj;
+class SampledDataPack;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -27,6 +30,8 @@ template <class T> class Array3D;
 
 namespace Seis
 {
+
+class SelData;
 
 /*!Reads a 3D Seismic volume in parallel into an Array3D<float> or
    into a BinIDValueSet */
@@ -115,7 +120,38 @@ protected:
     uiString			errmsg_;
 };
 
+
+mExpClass(Seis) SequentialReader : public Executor
+{
+public:
+			SequentialReader(const IOObj&,
+					 const TypeSet<int>& components,
+					 const TrcKeyZSampling&);
+			~SequentialReader();
+
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Traces read"; }
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
+    int			nextStep();
+
+protected:
+
+    CBVSSeisTrcTranslator*	trl_;
+    Seis::SelData*		sd_;
+    TrcKeyZSampling		tkzs_;
+    SampledDataPack*		dp_;
+    TypeSet<int>		components_;
+    Interval<int>		samprg_;
+    unsigned char**		blockbufs_;
+
+    int				queueid_;
+
+    od_int64			totalnr_;
+    od_int64			nrdone_;
+    uiString			msg_;
+};
+
 } // namespace Seis
 
 #endif
-
