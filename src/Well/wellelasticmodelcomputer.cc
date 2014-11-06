@@ -61,7 +61,8 @@ Well::ElasticModelComputer::~ElasticModelComputer()
 bool Well::ElasticModelComputer::setVelLog( const Well::Log& log )
 {
     if ( inplogs_.size() != 0 )
-	mErrRet( "Velocity log must be set first. Another log was set first" );
+	mErrRet( tr("Internal: Velocity log must be set first. "
+		    "Another log was set first" ) );
 
     inplogs_ += &log;
 
@@ -72,7 +73,7 @@ bool Well::ElasticModelComputer::setVelLog( const Well::Log& log )
 bool Well::ElasticModelComputer::setDenLog( const Well::Log& log )
 {
     if ( inplogs_.size() != 1 )
-	mErrRet( "Velocity log must be set first." );
+	mErrRet( tr("Internal: Velocity log must be set first.") );
 
     inplogs_ += &log;
 
@@ -83,7 +84,7 @@ bool Well::ElasticModelComputer::setDenLog( const Well::Log& log )
 bool Well::ElasticModelComputer::setSVelLog( const Well::Log& log )
 {
     if ( inplogs_.size() != 2 )
-	mErrRet( "Velocity and density logs must be set first." );
+	mErrRet( tr("Internal:Velocity and density logs must be set first." ) );
 
     inplogs_ += &log;
 
@@ -139,19 +140,19 @@ void Well::ElasticModelComputer::init()
 bool Well::ElasticModelComputer::computeFromLogs()
 {
     if ( !inplogs_.size() )
-	mErrRet( "No input logs provided" )
+	mErrRet( tr("Internal: No input logs provided") )
 
     if ( !getLogUnits() )
 	return false;
 
     if ( zrange_.isUdf() || mIsUdf(zstep_) )
-	mErrRet( "Please set the extraction range" )
+	mErrRet( tr("Please set the extraction range") )
 
     zrange_.start += zstep_ / 2.f;
     zrange_.stop -= zstep_ / 2.f;
 
     if ( !extractLogs() )
-	mErrRet( "Cannot extract logs" )
+	mErrRet( tr("Cannot extract logs") )
 
     const float convfact = SI().zDomain().isDepth() && SI().depthsInFeet()
 			 ? mFromFeetFactorF : 1.0f;
@@ -159,21 +160,35 @@ bool Well::ElasticModelComputer::computeFromLogs()
     emodel_.erase();
     const int nrsteps = ls_->nrZSamples();
     const float dz = !zrgistime_ ? zstep_ * convfact : zstep_ / 2.f;
+    int erroridx = -1;
     for ( int idl=0; idl<nrsteps; idl++ )
     {
 	const float velp = getVelp( idl );
 	const float den = getDensity( idl );
 	const float svel = getSVel( idl );
 	const float thickness = !zrgistime_ ? dz : ls_->getThickness( idl );
-	if ( mIsUdf(thickness) )
-	    mErrRet( "Undefined thickness in LogSampler" )
-
 	ElasticLayer layer( thickness, velp, svel, den );
+	if ( !layer.isOK(true,false) && erroridx == -1 )
+	    erroridx = idl;
+
 	emodel_ += layer;
     }
 
     if ( emodel_.isEmpty() )
-	mErrRet( "Returning empty elastic model" )
+	mErrRet( tr("Returning empty elastic model") )
+
+    if ( erroridx != -1 )
+    {
+	float depth = emodel_.getLayerDepth( erroridx );
+	depth = UnitOfMeasure::surveyDefDepthUnit()->userValue( depth );
+	emodel_.interpolate( true, true, false );
+
+	warnmsg_ = tr("Invalid log values found.\n"
+		      "First occurences at depth: %1%2\n"
+		      "Invalid values will be interpolated.")
+		  .arg( toString(depth,2) )
+		  .arg( UnitOfMeasure::surveyDefDepthUnitAnnot(true,false) );
+    }
 
     float startdepth = zrange_.start;
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
@@ -193,12 +208,12 @@ bool Well::ElasticModelComputer::computeFromLogs()
 bool Well::ElasticModelComputer::getLogUnits()
 {
     if ( inplogs_.isEmpty() )
-	mErrRet( "No logs in log set yet" )
+	mErrRet( tr("Internal: No logs in log set yet") )
 
     for ( int idx=0; idx<inplogs_.size(); idx++ )
     {
 	if ( !inplogs_.validIdx(idx) )
-	    mErrRet( "Error reading log in log set" );
+	    mErrRet( tr("Internal: Error reading log in log set") );
 
 	uomset_ += inplogs_[idx] ? inplogs_[idx]->unitOfMeasure() : 0;
     }
@@ -213,12 +228,12 @@ bool Well::ElasticModelComputer::getLogUnits()
 bool Well::ElasticModelComputer::extractLogs()
 {
     if ( !wd_.d2TModel() )
-	mErrRet( "Well has no valid time-depth model" )
+	mErrRet( tr("Well has no valid time-depth model") )
 
     const float srddepth = -1.f * (float)SI().seismicReferenceDatum();
     if ( (!zrgistime_ && zrange_.start < srddepth) ||
 	  (zrgistime_ && zrange_.start < 0.f) )
-	mErrRet( "Extraction interval should not start above SRD" )
+	mErrRet( tr("Extraction interval should not start above SRD") )
 
     const Interval<float> zrange = zrange_;
 
@@ -231,7 +246,7 @@ bool Well::ElasticModelComputer::extractLogs()
 				       Stats::TakeNearest, inplogs_ );
 
     if ( !ls_ || !lsnearest_ )
-	mErrRet( "Could not initialize log sampler" );
+	mErrRet( tr("Internal: Could not initialize log sampler") );
 
     if ( !ls_->execute() )
 	mErrRet( ls_->errMsg() )

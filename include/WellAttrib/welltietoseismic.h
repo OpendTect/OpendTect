@@ -48,6 +48,7 @@ public:
 								{ zrg_ = zrg; }
 
     const uiString&	errMsg() const		{ return errmsg_; }
+    const uiString&	warnMsg() const		{ return warnmsg_; }
 
 protected:
 
@@ -72,6 +73,7 @@ protected:
     float*		seisarr_; //!< waveform for cross-correlation
 
     uiString		errmsg_;
+    uiString		warnmsg_;
 };
 
 };//namespace WellTie

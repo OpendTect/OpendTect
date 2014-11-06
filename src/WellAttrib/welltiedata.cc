@@ -397,6 +397,8 @@ bool Server::computeSynthetics( const Wavelet& wvlt )
     if ( !dataplayer_->computeSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -408,6 +410,8 @@ bool Server::extractSeismics()
 
     if ( !dataplayer_->extractSeismics() )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -421,6 +425,8 @@ bool Server::updateSynthetics( const Wavelet& wvlt )
     if ( !dataplayer_->doFastSynthetics(wvlt) )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -432,6 +438,8 @@ bool Server::computeAdditionalInfo( const Interval<float>& zrg )
 
     if ( !dataplayer_->computeAdditionalInfo( zrg ) )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -445,6 +453,8 @@ bool Server::computeCrossCorrelation()
     if ( !dataplayer_->computeCrossCorrelation() )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
 
+    handleDataPlayerWarning();
+
     return true;
 }
 
@@ -456,6 +466,8 @@ bool Server::computeEstimatedWavelet( int newsz )
 
     if ( !dataplayer_->computeEstimatedWavelet( newsz ) )
 	{ errmsg_ = dataplayer_->errMsg(); return false; }
+
+    handleDataPlayerWarning();
 
     return true;
 }
@@ -503,6 +515,15 @@ void Server::updateExtractionRange()
 	return;
 
     data_->computeExtractionRange();
+}
+
+
+void Server::handleDataPlayerWarning() const
+{
+    if ( !dataplayer_ || dataplayer_->warnMsg().isEmpty() )
+	return;
+
+    warnmsg_ = dataplayer_->warnMsg();
 }
 
 }; //namespace WellTie

@@ -152,6 +152,9 @@ void uiTieWin::doWork( CallBacker* cb )
 	if ( !server_.extractSeismics() )
 	    { uiMSG().error( server_.errMsg() ); }
 
+    if ( server_.warnMsg().isSet() )
+	uiMSG().warning( server_.warnMsg() );
+
     getDispParams();
     reDrawAll(0);
     drawer_->enableCtrlNotifiers( true );
@@ -233,7 +236,7 @@ void uiTieWin::drawFields()
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
-    uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(), 
+    uiPushButton* helpbut = new uiPushButton( this, uiStrings::sHelp(),
 			mCB(this,uiTieWin,provideWinHelp), true );
     helpbut->attach( rightOf, infobut );
     helpbut->attach( ensureBelow, horSepar );
@@ -534,7 +537,7 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 #define mMinWvltLength	20
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
-	: uiDialog(p,uiDialog::Setup("Cross-checking parameters", 
+	: uiDialog(p,uiDialog::Setup("Cross-checking parameters",
                                      uiStrings::sEmptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
                                      .modal(false))

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ailayer.h"
 #include "bufstringset.h"
 #include "ranges.h"
+#include "uistring.h"
 #include "unitofmeasure.h"
 
 namespace Well
@@ -25,31 +26,35 @@ class Log;
 class LogSampler;
 
 /*!
-\brief Extraction of an ElasticModel from Well::Data either from the time-depth model or from at least a velocity Log.
+\brief Extraction of an ElasticModel from Well::Data either from the time-depth
+model or from at least a velocity Log.
 */
 
 mExpClass(Well) ElasticModelComputer
-{
+{ mODTextTranslationClass(ElasticModelComputer);
 public :
-    			ElasticModelComputer(const Well::Data&);
+			ElasticModelComputer(const Well::Data&);
 			ElasticModelComputer(const Well::Data&,
-			       		     const Well::Log& vel,
+					     const Well::Log& vel,
 					     const Well::Log* den=0,
 					     const Well::Log* svel=0);
 			~ElasticModelComputer();
+
+    const uiString&	errMsg() const		{ return errmsg_; }
+    const uiString&	warnMsg() const		{ return warnmsg_; }
 
     bool		setVelLog(const Well::Log&);
     bool		setDenLog(const Well::Log&);
     bool		setSVelLog(const Well::Log&);
     void		setLogs(const Well::Log& vel, const Well::Log* den=0,
-	    			const Well::Log* svel=0);
+				const Well::Log* svel=0);
     void		setZrange(const Interval<float>&, bool istime);
     void		setExtractionPars(float step, bool intime);
 
     bool		computeFromLogs();
 			/*!<\set at least the velocity log before */
     bool		computeFromDTModel();
-    			/*!<\logs won't be used - not yet implemented */
+			/*!<\logs won't be used - not yet implemented */
     const ElasticModel&	elasticModel() const	{ return emodel_; }
 
 
@@ -60,7 +65,7 @@ protected:
     bool		extractLogs();
     float		getLogVal(int logidx, int sampidx) const;
     float		getVelp(int) const;
-    float 		getDensity(int) const;
+    float		getDensity(int) const;
     float		getSVel(int) const;
 
     ElasticModel	emodel_;
@@ -76,7 +81,8 @@ protected:
     Well::LogSampler*	ls_;
     Well::LogSampler*	lsnearest_;
 
-    BufferString	errmsg_;
+    uiString		errmsg_;
+    uiString		warnmsg_;
 
 };
 

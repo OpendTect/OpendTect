@@ -451,7 +451,13 @@ bool DataPlayer::setAIModel()
     emodelcomputer.setDenLog( *pcdenlog );
     emodelcomputer.setZrange( data_.getModelRange(), true );
     emodelcomputer.setExtractionPars( data_.getModelRange().step, true );
-    emodelcomputer.computeFromLogs();
+    uiString doeditmsg( tr("Please consider editing your logs.") );
+    if ( !emodelcomputer.computeFromLogs() )
+	mErrRet( uiString( emodelcomputer.errMsg() ).append(doeditmsg,true) )
+
+    if ( emodelcomputer.warnMsg().isSet() )
+	warnmsg_ = uiString( emodelcomputer.warnMsg() ).append(doeditmsg,true);
+
     aimodel_ = emodelcomputer.elasticModel();
 
     return true;
@@ -475,7 +481,7 @@ bool DataPlayer::doFullSynthetics( const Wavelet& wvlt )
     gen.usePar( par );
     TaskRunner* taskrunner = data_.trunner_;
     if ( !TaskRunner::execute(taskrunner,gen) )
-	mErrRet( tr( "Cannot create synthetic: %1" ).arg (gen.errMsg() ) )
+	mErrRet( tr("Cannot create synthetic: %1").arg (gen.errMsg() ) )
 
     Seis::RaySynthGenerator::RayModel& rm = gen.result( 0 );
     ObjectSet<const ReflectivityModel> refmodels;
@@ -497,7 +503,7 @@ bool DataPlayer::copyDataToLogSet()
     errmsg_.setEmpty();
 
     if ( aimodel_.isEmpty() )
-	mErrRet( tr( "Internal: No data found" ) )
+	mErrRet( tr("Internal: No data found") )
 
     data_.logset_.setEmpty();
     const StepInterval<float> dahrg = data_.getDahRange();

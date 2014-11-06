@@ -238,7 +238,7 @@ protected:
 
 
 mExpClass(WellAttrib) Server : public CallBacker
-{
+{ mODTextTranslationClass(Server);
 public :
 				Server(const WellTie::Setup&);
 				~Server();
@@ -255,8 +255,9 @@ public :
     DataWriter&			dataWriter()	{ return *datawriter_; }
     const Data&			data() const	{ return *data_; }
 
-    bool			isOK() const { return errmsg_.isEmpty(); }
+    bool			isOK() const	{ return errmsg_.isEmpty(); }
     const uiString&		errMsg() const	{ return errmsg_; }
+    const uiString&		warnMsg() const { return warnmsg_; }
 
     bool			computeSynthetics(const Wavelet&);
     bool			extractSeismics();
@@ -270,8 +271,8 @@ public :
     bool			doSeismic() const;
     void			updateExtractionRange();
 
-    void			setTaskRunner( TaskRunner* tr )
-				{ data_->trunner_ = tr; }
+    void			setTaskRunner( TaskRunner* taskrun )
+				{ data_->trunner_ = taskrun; }
 protected :
     PickSetMgr*			pickmgr_;
     WellDataMgr*		wdmgr_;
@@ -283,8 +284,10 @@ protected :
     const MultiID&		wellid_;
 
     uiString			errmsg_;
+    mutable uiString		warnmsg_;
 
     void			wellDataDel( CallBacker* );
+    void			handleDataPlayerWarning() const;
 };
 
 }; //namespace WellTie
