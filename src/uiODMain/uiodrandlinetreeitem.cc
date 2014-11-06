@@ -335,7 +335,7 @@ void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id, Type tp )
     : type_(tp)
-    , editnodesmnuitem_(tr("Edit nodes ..."))
+    , editnodesmnuitem_(tr("Position ..."))
     , insertnodemnuitem_(tr("Insert node"))
     , saveasmnuitem_(uiStrings::sSaveAs(false))
     , saveas2dmnuitem_(tr("Save As 2D ..."))
