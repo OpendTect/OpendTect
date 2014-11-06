@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "interpollayermodel.h"
 
 #include "iopar.h"
+#include <cmath>
 
 // InterpolationLayerModel
 mImplFactory( InterpolationLayerModel, InterpolationLayerModel::factory )
@@ -28,6 +29,20 @@ void InterpolationLayerModel::fillPar( IOPar& par ) const
 { par.set( sKeyModelType(), factoryKeyword() ); }
 
 
+float InterpolationLayerModel::getInterpolatedZ( const BinID& bid,
+						 float layeridx ) const
+{
+    const int idx0 = mNINT32( floor(layeridx) );
+    const int idx1 = mNINT32( ceil(layeridx) );
+    const float z0 = getZ( bid, idx0 );
+    const float z1 = getZ( bid, idx1 );
+    if ( idx1==idx0 ) return z0;
+
+    return z0 + (z1-z0)*(layeridx-idx0);
+}
+
+
+
 // ZSliceInterpolationModel
 void ZSliceInterpolationModel::setTrcKeyZSampling( const TrcKeyZSampling& cs )
 { tkzs_ = cs; }
@@ -40,6 +55,7 @@ bool ZSliceInterpolationModel::hasPosition( const BinID& bid ) const
 
 float ZSliceInterpolationModel::getZ( const BinID& bid, int layer ) const
 { return hasPosition( bid ) ? tkzs_.zsamp_.atIndex( layer ) : mUdf(float); }
+
 
 void ZSliceInterpolationModel::getAllZ( const BinID& bid,
 					TypeSet<float>& zvals ) const

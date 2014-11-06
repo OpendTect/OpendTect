@@ -28,6 +28,7 @@ public:
 
     virtual int		nrLayers() const				= 0;
     virtual float	getZ(const BinID&,int layer) const		= 0;
+    virtual float	getInterpolatedZ(const BinID&,float layer) const;
     virtual float	getLayerIndex(const BinID&,float z) const	= 0;
     virtual void	getAllZ(const BinID&,TypeSet<float>&) const	= 0;
     virtual bool	hasPosition(const BinID&) const			= 0;

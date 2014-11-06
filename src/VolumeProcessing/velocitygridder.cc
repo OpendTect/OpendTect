@@ -31,14 +31,14 @@ class VelGriddingTask;
 class VelGriddingFromFuncTask : public ParallelTask
 {
 public:
-			VelGriddingFromFuncTask( VelGriddingTask& );
-			~VelGriddingFromFuncTask();
+				VelGriddingFromFuncTask(VelGriddingTask&);
+				~VelGriddingFromFuncTask();
 
-    bool		isOK() const;
+    bool			isOK() const;
 
-    od_int64		nrIterations() const;
-    bool		doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const;
+    bool			doPrepare(int);
+    bool			doWork(od_int64,od_int64,int);
 
     const BinIDValueSet&	completedBids() const { return completedbids_; }
 
@@ -55,12 +55,12 @@ protected:
 class VelGriddingFromVolumeTask : public ParallelTask
 {
 public:
-			VelGriddingFromVolumeTask( VelGriddingTask& );
-			~VelGriddingFromVolumeTask();
+				VelGriddingFromVolumeTask(VelGriddingTask&);
+				~VelGriddingFromVolumeTask();
 
-    od_int64		nrIterations() const;
-    bool		doPrepare(int);
-    bool		doWork(od_int64,od_int64,int);
+    od_int64			nrIterations() const;
+    bool			doPrepare(int);
+    bool			doWork(od_int64,od_int64,int);
 
     const BinIDValueSet&	completedBids() const { return completedbids_; }
 
@@ -70,7 +70,7 @@ protected:
     BinIDValueSet		completedbids_;
 
     ObjectSet<Gridder2D>	gridders_;
-    VelGriddingTask&	task_;
+    VelGriddingTask&		task_;
 };
 
 
@@ -218,6 +218,7 @@ VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingTask& task )
 	velfuncsource_->setSource( const_cast<ObjectSet<Vel::FunctionSource>&>(
 		    task_.getStep().getSources()) );
 	velfuncsource_->setGridder( task_.getStep().getGridder()->clone() );
+	velfuncsource_->setLayerModel( task_.getStep().getLayerModel() );
     }
 }
 
@@ -508,7 +509,12 @@ const VelocityDesc* VelocityGridder::getVelDesc() const
 
 
 Task* VelocityGridder::createTask()
-{ return gridder_ ? new VelGriddingTask( *this ) : 0; }
+{
+    if ( !gridder_ ) return 0;
+
+    if ( layermodel_ ) layermodel_->prepare( 0 );
+    return new VelGriddingTask( *this );
+}
 
 
 void VelocityGridder::fillPar( IOPar& par ) const
@@ -638,7 +644,7 @@ bool VelocityGridder::usePar( const IOPar& par )
     if ( lmpar )
     {
 	BufferString nm;
-	lmpar->get( sKey::Name(), nm );
+	lmpar->get( sKey::Type(), nm );
 	layermodel_ = InterpolationLayerModel::factory().create( nm );
 	if ( !layermodel_ || !layermodel_->usePar(*lmpar) )
 	{ delete layermodel_; layermodel_ = 0; }

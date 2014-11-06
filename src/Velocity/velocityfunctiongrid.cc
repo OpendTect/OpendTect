@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "binidvalset.h"
 #include "trckeyzsampling.h"
 #include "gridder2d.h"
+#include "interpollayermodel.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
@@ -21,9 +22,11 @@ namespace Vel
 
 
 GriddedFunction::GriddedFunction( GriddedSource& source )
-    : Function( source )
-    , gridder_( 0 )
+    : Function(source)
+    , gridder_(0)
+    , layermodel_(0)
 {}
+
 
 GriddedFunction::~GriddedFunction()
 {
@@ -145,6 +148,10 @@ void GriddedFunction::setGridder( const Gridder2D& ng )
 }
 
 
+void GriddedFunction::setLayerModel( const InterpolationLayerModel* mdl )
+{ layermodel_ = mdl; }
+
+
 ConstRefMan<Function>
 GriddedFunction::getInputFunction( const BinID& bid, int& funcsource )
 {
@@ -198,6 +205,14 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	    continue;
 	}
 
+	const float layeridx = layermodel_ ?
+		layermodel_->getLayerIndex( bid_, z ) : mUdf(float);
+	if ( mIsUdf(layeridx) )
+	{
+	    res[idx] = mUdf(float);
+	    continue;
+	}
+
 	TypeSet<int> undefpos;
 	int nrnull = 0;
 
@@ -207,7 +222,10 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 	const TypeSet<int>& usedpoints = gridder_->usedValues();
 	for ( int idy=usedpoints.size()-1; idy>=0; idy-- )
 	{
-	    const float value = velocityfunctions_[idy]->getVelocity( z );
+	    const Function* func = velocityfunctions_[idy];
+	    const float zval = layermodel_ && !mIsUdf(layeridx) ?
+		layermodel_->getInterpolatedZ( func->getBinID(), layeridx ) : z;
+	    const float value = func->getVelocity( zval );
 	    if ( doinverse && mIsZero(value,1e-3) )
 	    {
 		undefpos += usedpoints[idy];
@@ -259,11 +277,13 @@ bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 }
 
 
+// GriddedSource
 GriddedSource::GriddedSource()
-    : notifier_( this )
-    , gridder_( new TriangulatedGridder2D )
-    , sourcepos_( 0, false )
-    , gridderinited_( false )
+    : notifier_(this)
+    , gridder_(new TriangulatedGridder2D)
+    , sourcepos_(0,false)
+    , gridderinited_(false)
+    , layermodel_(0)
 { initGridder(); }
 
 
@@ -532,10 +552,15 @@ const ObjectSet<FunctionSource>& GriddedSource::getSources() const
 { return datasources_; }
 
 
+void GriddedSource::setLayerModel( const InterpolationLayerModel* mdl )
+{ layermodel_ = mdl; }
+
+
 GriddedFunction* GriddedSource::createFunction()
 {
     GriddedFunction* res = new GriddedFunction( *this );
     if ( gridder_ ) res->setGridder( *gridder_ );
+    if ( layermodel_ ) res->setLayerModel( layermodel_ );
     return res;
 }
 

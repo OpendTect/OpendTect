@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class BinIDValueSet;
 class Gridder2D;
+class InterpolationLayerModel;
 
 namespace Vel
 {
@@ -43,6 +44,7 @@ public:
 
     void			setGridder(const Gridder2D&); //!<I will clone
     Gridder2D*			getGridder() { return gridder_; }
+    void			setLayerModel(const InterpolationLayerModel*);
 
 protected:
 				~GriddedFunction();
@@ -56,6 +58,7 @@ protected:
     TypeSet<int>		sources_;
 
     Gridder2D*			gridder_;
+    const InterpolationLayerModel* layermodel_;
 
     mutable TypeSet<float>	gridvalues_;
 };
@@ -75,6 +78,8 @@ public:
     void			setSource(ObjectSet<FunctionSource>&);
     void			setSource(const TypeSet<MultiID>&);
     void			getSources(TypeSet<MultiID>&) const;
+
+    void			setLayerModel(const InterpolationLayerModel*);
 
     const ObjectSet<FunctionSource>&	getSources() const;
 
@@ -101,6 +106,7 @@ protected:
     BinID			changebid_;
     Gridder2D*			gridder_;
     bool			gridderinited_;
+    const InterpolationLayerModel* layermodel_;
 
     BinIDValueSet		sourcepos_;		//All sources
 
