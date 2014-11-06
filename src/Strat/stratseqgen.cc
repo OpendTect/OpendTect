@@ -51,7 +51,10 @@ void Strat::LayerModelGenerator::reset()
     if ( desc_.prepareGenerate() )
 	msg_ = "Generating layer sequences";
     else
+    {
 	msg_ = desc_.errMsg();
+	seqnr_ = -1;
+    }
 }
 
 
