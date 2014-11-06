@@ -137,18 +137,16 @@ void VolumeRenderScalarField::enableTextureInterpolation( bool yn )
 }
 
 
-/* Modified code from OpenSceneGraph/examples/osgvolume/osgvolume.cpp:
-   Flipped signs of y and z dimensions. */
+/* Modified code from OpenSceneGraph/examples/osgvolume/osgvolume.cpp */
 
 static osg::Matrix getLocatorMatrix( const Coord3& trans, const Coord3& rotvec,
 				     double rotangle, const Coord3& scale )
 {
-    Coord3 fabsscale( fabs(scale.x), -fabs(scale.y), -fabs(scale.z) );
-
-    osg::Matrix mat = osg::Matrix::scale( Conv::to<osg::Vec3d>(fabsscale) );
+    osg::Matrix mat = osg::Matrix::scale( Conv::to<osg::Vec3d>(scale) );
     mat *= osg::Matrix::rotate(
 			osg::Quat(rotangle,Conv::to<osg::Vec3d>(rotvec)) );
     mat *= osg::Matrix::translate( Conv::to<osg::Vec3d>(trans) );
+
     return mat;
 }
 
@@ -158,16 +156,13 @@ void VolumeRenderScalarField::setTexVolumeTransform( const Coord3& trans,
 				    const Coord3& scale )
 {
     osg::Matrix mat = getLocatorMatrix( trans, rotvec, rotangle, scale );
+    if ( !isRightHandSystem() )
+    {
+	mat.preMult( osg::Matrix::scale(-1.0, 1.0, 1.0) );
+	mat.preMult( osg::Matrix::translate(-1.0, 0.0, 0.0) );
+    }
 
-    mat.preMult( osg::Matrix::scale( scale.x<0.0 ? -1.0 : 1.0,
-				     scale.y>0.0 ? -1.0 : 1.0,
-				     scale.z>0.0 ? -1.0 : 1.0 ) );
-
-    mat.preMult( osg::Matrix::translate( scale.x<0.0 ? -1.0 : 0.0,
-					 scale.y>0.0 ? -1.0 : 0.0,
-					 scale.z>0.0 ? -1.0 : 0.0) );
-
-    osgimagelayer_->setLocator( new osgVolume::Locator( mat) );
+    osgimagelayer_->setLocator( new osgVolume::Locator(mat) );
 }
 
 

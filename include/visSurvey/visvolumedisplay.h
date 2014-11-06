@@ -206,7 +206,6 @@ protected:
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     void			setScene(Scene*);
 
-    visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
     visBase::VolumeRenderScalarField*		scalarfield_;
 /* OSG_TODO: Replace VolrenDisplay with OSG equivalent

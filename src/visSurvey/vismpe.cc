@@ -1281,6 +1281,12 @@ const ZAxisTransform* MPEDisplay::getZAxisTransform() const
     return datatransform_;
 }
 
+void MPEDisplay::setRightHandSystem( bool yn )
+{
+    visBase::VisualObjectImpl::setRightHandSystem( yn );
+    boxdragger_->setRightHandSystem( yn );
+}
+
 
 void MPEDisplay::dataTransformCB( CallBacker* )
 {

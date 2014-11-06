@@ -130,6 +130,8 @@ public:
 	
     bool		setZAxisTransform(ZAxisTransform*,TaskRunner*);
     const ZAxisTransform*	getZAxisTransform() const;
+
+    void		setRightHandSystem(bool yn);
    
     bool		setDataVolume(int attrib,const Attrib::CubeDataPack*,
 	    				TaskRunner*);

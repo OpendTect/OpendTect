@@ -288,7 +288,7 @@ void DepthTabPlaneDragger::setOsgMatrix( const Coord3& worldscale,
 	mat.makeRotate( osg::Vec3(0,1,0), osg::Vec3(0,0,1) );
 
     osg::Vec3d scale, trans;
-    mVisTrans::transformDir( transform_, worldscale, scale );
+    mVisTrans::transformSize( transform_, worldscale, scale );
     mVisTrans::transform( transform_, worldtrans, trans );
 
     mat *= osg::Matrix::scale( scale );
@@ -341,10 +341,8 @@ void DepthTabPlaneDragger::setSize( const Coord3& scale, bool alldims )
 Coord3 DepthTabPlaneDragger::size() const
 {
     Coord3 scale;
-    mVisTrans::transformBackDir( transform_,
-				 osgdragger_->getMatrix().getScale(), scale );
-
-    scale.x = fabs(scale.x); scale.y = fabs(scale.y); scale.z = fabs(scale.z);
+    mVisTrans::transformBackSize( transform_,
+				  osgdragger_->getMatrix().getScale(), scale );
     return scale;
 }
 

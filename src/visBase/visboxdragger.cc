@@ -14,7 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "ranges.h"
 #include "iopar.h"
-#include "survinfo.h"
 #include "mouseevent.h"
 
 #include <osg/CullFace>
@@ -91,11 +90,14 @@ bool BoxDraggerCallbackHandler::receive(
 	Coord3 center = dragger_.center();
 	if ( translatedinline )
 	{
+	    // transform box displacement into push/pull of manipulated plane
+	    Coord3 displacement = center - initialcenter_;
 	    if ( dragger_.osgboxdragger_->getEventHandlingTabPlaneIdx()%2 )
-		scale -= center - initialcenter_;
-	    else
-		scale += center - initialcenter_;
+		displacement = -displacement;
+	    if ( !dragger_.isRightHandSystem() )
+		displacement.z = -displacement.z;
 
+	    scale += displacement;
 	    center = 0.5 * (initialcenter_+center);
 	}
 
@@ -206,7 +208,8 @@ void BoxDraggerCallbackHandler::constrain( Coord3 center, Coord3 scale,
 
 
 BoxDragger::BoxDragger()
-    : started( this )
+    : VisualObjectImpl( false )
+    , started( this )
     , motion( this )
     , changed( this )
     , finished( this )
@@ -271,7 +274,7 @@ void BoxDragger::setOsgMatrix( const Coord3& worldscale,
 			       const Coord3& worldtrans )
 {
     osg::Vec3d scale, trans;
-    mVisTrans::transformDir( transform_, worldscale, scale );
+    mVisTrans::transformSize( transform_, worldscale, scale );
     mVisTrans::transform( transform_, worldtrans, trans );
 
     osg::Matrix mat;
@@ -344,11 +347,9 @@ void BoxDragger::setWidth( const Coord3& scale )
 Coord3 BoxDragger::width() const
 {
     Coord3 scale;
-    mVisTrans::transformBackDir( transform_,
-				 osgboxdragger_->getMatrix().getScale(),
-				 scale );
-
-    scale.x = fabs(scale.x); scale.y = fabs(scale.y); scale.z = fabs(scale.z);
+    mVisTrans::transformBackSize( transform_,
+				  osgboxdragger_->getMatrix().getScale(),
+				  scale );
     return scale;
 }
 

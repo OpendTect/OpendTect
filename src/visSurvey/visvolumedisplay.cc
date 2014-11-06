@@ -102,7 +102,6 @@ VolumeDisplay::VolumeDisplay()
     , cache_(0)
     , cacheid_(DataPack::cNoID())
     , boxMoving(this)
-    , voltrans_(mVisTrans::create())
     , datatransform_(0)
     , datatransformer_(0)
     , csfromsession_(true)
@@ -118,8 +117,6 @@ VolumeDisplay::VolumeDisplay()
     mAttachCB( boxdragger_->finished, VolumeDisplay::draggerFinishCB );
 
     updateRanges( true, true );
-
-    voltrans_->ref();
 
     scalarfield_ = visBase::VolumeRenderScalarField::create();
     scalarfield_->ref();
@@ -168,7 +165,6 @@ VolumeDisplay::~VolumeDisplay()
 	removeChild( children[idx] );
 
     boxdragger_->unRef();
-    voltrans_->unRef();
     scalarfield_->unRef();
 
     setZAxisTransform( 0,0 );
@@ -271,6 +267,7 @@ const ZAxisTransform* VolumeDisplay::getZAxisTransform() const
 void VolumeDisplay::setRightHandSystem( bool yn )
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
+    boxdragger_->setRightHandSystem( yn );
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	isosurfaces_[idx]->setRightHandSystem( yn );
 }
@@ -523,7 +520,7 @@ int VolumeDisplay::volRenID() const
     Coord3 trans( center ); \
     mVisTrans::transform( displaytrans_, trans ); \
     Coord3 scale( width ); \
-    mVisTrans::transformDir( displaytrans_, scale ); \
+    mVisTrans::transformSize( displaytrans_, scale ); \
     trans += 0.5 * scale; \
     scale = Coord3( scale.z, -scale.y, -scale.x ); \
     scalarfield_->set##name##Transform( trans, Coord3(0,1,0), M_PI_2, scale );
@@ -553,8 +550,6 @@ void VolumeDisplay::setTrcKeyZSampling( const TrcKeyZSampling& desiredcs,
 
     if ( dragmode )
 	return;
-
-    voltrans_->setMatrix( trans, Coord3(0,1,0), M_PI_2, scale );
 
     mSetVolumeTransform( TexVolume, center, width+step, textrans, texscale );
     texturecs_ = cs;
@@ -932,22 +927,22 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
     if ( !slice ) return 0;
     const int dim = slice->getDim();
     float slicepos = slice->getPosition();
-    slicepos *= (float) -voltrans_->getScale()[dim];
+//    slicepos *= (float) -voltrans_->getScale()[dim];
 
     float pos;
     if ( dim == 2 )
     {
-	slicepos += (float) voltrans_->getTranslation()[0];
+//	slicepos += (float) voltrans_->getTranslation()[0];
 	pos = mCast( float, SI().inlRange(true).snap(slicepos) );
     }
     else if ( dim == 1 )
     {
-	slicepos += (float) voltrans_->getTranslation()[1];
+//	slicepos += (float) voltrans_->getTranslation()[1];
 	pos = mCast( float, SI().crlRange(true).snap(slicepos) );
     }
     else
     {
-	slicepos += (float) voltrans_->getTranslation()[2];
+//	slicepos += (float) voltrans_->getTranslation()[2];
 	pos = slicepos;
     }
 
@@ -972,8 +967,8 @@ void VolumeDisplay::setSlicePosition( visBase::OrthogonalSlice* slice,
     else
 	pos = (float)cs.zsamp_.start;
 
-    pos -= (float) voltrans_->getTranslation()[2-dim];
-    pos /= (float) -voltrans_->getScale()[dim];
+//    pos -= (float) voltrans_->getTranslation()[2-dim];
+//    pos /= (float) -voltrans_->getScale()[dim];
 
     float slicenr =  nrslices ? (pos-rg.start)*nrslices/rg.width() : 0;
     float draggerpos = slicenr /(nrslices-1) *rg.width() + rg.start;
@@ -1135,7 +1130,7 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 						   bool displayspace,
 						   int attrib ) const
 {
-    TrcKeyZSampling res;
+    TrcKeyZSampling res = texturecs_;
     if ( manippos )
     {
 	Coord3 center = boxdragger_->center();
@@ -1151,21 +1146,6 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 
 	res.zsamp_.start = (float) ( center.z - width.z/2 );
 	res.zsamp_.stop = (float) ( center.z + width.z/2 );
-    }
-    else
-    {
-	Coord3 scale = voltrans_->getScale();
-	scale = Coord3( scale.z, scale.y, -scale.x );
-	Coord3 transl = voltrans_->getTranslation();
-	mVisTrans::transformBackDir( displaytrans_, scale );
-	mVisTrans::transformBack( displaytrans_, transl );
-
-	res.hrg.start = BinID( mNINT32(transl.x+scale.x),
-			      mNINT32(transl.y+scale.y) );
-	res.hrg.stop = BinID( mNINT32(transl.x), mNINT32(transl.y) );
-	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-	res.zsamp_.start = float( transl.z+scale.z );
-	res.zsamp_.stop = float( transl.z );
     }
 
     const bool alreadytf = alreadyTransformed( attrib );
