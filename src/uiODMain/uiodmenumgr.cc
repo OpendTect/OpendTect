@@ -41,6 +41,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "odinst.h"
 #include "odsysmem.h"
+#include "odver.h"
 #include "settings.h"
 #include "od_ostream.h"
 #include "survinfo.h"
@@ -780,7 +781,11 @@ void uiODMenuMgr::fillUtilMenu()
 
     mInsertItem( toolsmnu_, "Batch programs ...", mBatchProgMnuItm );
     mInsertItem( toolsmnu_, "Position conversion ...", mPosconvMnuItm );
-    mInsertItem( toolsmnu_, "Create Plugin Devel. Env. ...", mCrDevEnvMnuItm );
+    BufferString develverstr;
+    GetSpecificODVersion( "devel", develverstr );
+    if ( !develverstr.isEmpty() )
+	mInsertItem( toolsmnu_, "Create Plugin Devel. Env. ...",
+		     mCrDevEnvMnuItm );
 
     installmnu_ = new uiMenu( &appl_, "Installation" );
     utilmnu_->insertItem( installmnu_ );
