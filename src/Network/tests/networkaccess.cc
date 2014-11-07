@@ -43,7 +43,7 @@ bool testDownloadToBuffer()
     mRunStandardTestWithError( Network::downloadToBuffer( url, db, err ),
 		      "Download to buffer", err.getFullString() );
 
-    mRunStandardTest( db->size()==23,
+    mRunStandardTest( db->size()==43,
 		      "Download to buffer size" );
 
     return true;
