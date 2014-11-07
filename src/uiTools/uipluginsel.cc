@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "sorting.h"
 #include "odlogo24x24.xpm"
 
 #include <math.h>
@@ -28,7 +27,8 @@ static const char* rcsID mUsedVar = "$Id$";
 const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 static const char* getCreatorShortName( const BufferString& creatornm )
 {
-    return creatornm == "dGB Earth Sciences" ? "(dGB)" : "";
+    return creatornm == "dGB Earth Sciences" ? "(dGB)"
+			: creatornm == "SITFAL" ? "(SITFAL)" : "";
 }
 
 
@@ -55,10 +55,9 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
-
+    makeGlobalProductList();
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
-    sort();
     createUI();
 }
 
@@ -69,10 +68,41 @@ uiPluginSel::~uiPluginSel()
 }
 
 
+void uiPluginSel::makeGlobalProductList()
+{
+
+#define mAddProduct(nm,crnm,posval) \
+    product = new PluginProduct(); \
+		product->productname_ = nm; \
+		product->creator_ = crnm; \
+		product->posval_ = posval; \
+		products_ += product; \
+
+    PluginProduct* product = 0;
+    mAddProduct( "Dip Steering", "dGB Earth Sciences", 1 );
+    mAddProduct( "HorizonCube", "dGB Earth Sciences", 2 );
+    mAddProduct( "Sequence Stratigraphic Interpretation System - SSIS",
+				   "dGB Earth Sciences", 3 );
+    mAddProduct( "Neural Networks", "dGB Earth Sciences", 4 );
+    mAddProduct( "Well Correlation Panel - WCP", "dGB Earth Sciences", 5 );
+    mAddProduct( "Fluid Contact Finder", "dGB Earth Sciences", 6 );
+    mAddProduct( "Velocity Model Building - VMB", "dGB Earth Sciences", 7 );
+    mAddProduct( "SynthRock", "dGB Earth Sciences", 8 );
+    mAddProduct( "Seismic Coloured Inversion (ARK CLS)", "ARK CLS", 9 );
+    mAddProduct( "Seismic Spectral Blueing (ARK CLS)", "ARK CLS", 10);
+    mAddProduct( "Seismic Feature Enhancement (ARK CLS)", "ARK CLS", 11 );
+    mAddProduct( "Seismic Net Pay (ARK CLS)", "ARK CLS", 12);
+    mAddProduct( "MPSI (Earthworks & ARK CLS)", "Earthworks & ARK CLS", 13 );
+    mAddProduct( "Multi-Volume Seismic Enhancement (ARK CLS)", "ARK CLS", 14 );
+    mAddProduct( "Workstation Access (ARK CLS)", "ARK CLS", 15 );
+    mAddProduct( "CLAS Computer Log Analysis Software", "SITFAL", 16 );
+    mAddProduct( "XField (ARKeX)", "ARKeX", 17 );
+}
+
+
 void uiPluginSel::makeProductList(
 				const ObjectSet<PluginManager::Data>& pimdata )
 {
-    PluginProduct* product = 0;
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	const PluginManager::Data& data = *pimdata[idx];
@@ -84,12 +114,11 @@ void uiPluginSel::makeProductList(
 		continue;
 
 	    const int prodidx = getProductIndex( data.info_->productname_ );
-	    if ( !product || prodidx<0 )
+	    if ( prodidx<0 )
 	    {
-		product = new PluginProduct();
+		PluginProduct* product = new PluginProduct();
 		product->productname_ = data.info_->productname_;
 		product->creator_ = data.info_->creator_;
-		product->posval_ = data.info_->posval_;
 		product->libs_.add( PIM().moduleName(data.name_) );
 		products_ += product;
 	    }
@@ -101,29 +130,13 @@ void uiPluginSel::makeProductList(
 	    maxpluginname_ = maxpluginname_ < strsz ? strsz : maxpluginname_;
 	}
     }
-}
 
-
-void uiPluginSel::sort()
-{
-    TypeSet<int> unsortedindices;
-    TypeSet<int> sortedindices;
-    for( int idx=0; idx<products_.size(); idx++ )
+    for ( int idx=products_.size()-1; idx>=0; idx-- )
     {
-	sortedindices += idx; 
-	unsortedindices  += products_[idx]->posval_;
+	const PluginProduct* product = products_[idx];
+	if ( product->libs_.isEmpty() )
+	    products_.removeSingle( idx );
     }
-
-    sort_coupled( unsortedindices.arr(),
-		  sortedindices.arr(),
-		  sortedindices.size() );
-
-    ObjectSet<PluginProduct> sortedproducts;
-    for ( int idx=sortedindices.size()-1; idx>=0; idx-- )
-	sortedproducts += products_[sortedindices[idx]];
-
-    products_.setEmpty();
-    products_ = sortedproducts;
 }
 
 
@@ -132,10 +145,7 @@ void uiPluginSel::createUI()
     uiLabel* lbl = new uiLabel( this, tr("Please select the plugins to load"));
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
-    grp->attach( ensureBelow, lbl );
-    lbl = new uiLabel( this, "OD logo" );
-    lbl->setPixmap( uiPixmap(od_logo_24x24) );
-    lbl->attach( rightBorder );
+    grp->attach( centeredBelow, lbl );
 
     const int nrproducts = products_.size();
     const int nrrows = nrproducts % 2 == 0 ? (nrproducts/2) : (nrproducts/2)+1;

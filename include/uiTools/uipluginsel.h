@@ -33,10 +33,10 @@ public:
 
 protected:
 
+    void			makeGlobalProductList();
     void			makeProductList(
 					const ObjectSet<PluginManager::Data>&);
     void			createUI();
-    void			sort();
     int				getProductIndex(const char* prodnm) const;
     int				getProductIndexForLib(const char* libnm) const;
 
@@ -45,7 +45,6 @@ protected:
     int				maxpluginname_;
     ObjectSet<uiCheckBox>	cbs_;
     ObjectSet<PluginProduct>	products_;
-   
 };
 
 #endif
