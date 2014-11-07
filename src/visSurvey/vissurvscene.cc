@@ -971,14 +971,22 @@ void Scene::fillPar( IOPar& par ) const
 
     par.set( sKey::Scale(), zscale_ );
 
-    IOPar topimgpar;
-    IOPar botimgpar;
-    topimgpar.set( sKeyTopImageID(), topimg_->id() );
-    topimg_->fillPar( topimgpar );
-    par.mergeComp( topimgpar, sKeyTopImage() );
-    botimgpar.set( sKeyBotImageID(), botimg_->id() );
-    botimg_->fillPar( botimgpar );
-    par.mergeComp( botimgpar, sKeyBottomImage() );
+    
+    if ( topimg_->isOn() )
+    {
+	IOPar topimgpar;
+	topimgpar.set( sKeyTopImageID(), topimg_->id() );
+	topimg_->fillPar( topimgpar );
+	par.mergeComp( topimgpar, sKeyTopImage() );
+    }
+
+    if ( botimg_->isOn() )
+    {
+	IOPar botimgpar;
+	botimgpar.set( sKeyBotImageID(), botimg_->id() );
+	botimg_->fillPar( botimgpar );
+	par.mergeComp( botimgpar, sKeyBottomImage() );
+    }
 
     int nrchilds( 0 );
     for ( int idx=0;  idx<size(); idx++ )
