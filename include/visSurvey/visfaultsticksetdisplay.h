@@ -193,7 +193,7 @@ protected:
 	const EM::SectionID	sid_;
 	int 			firstrow_;
 	TypeSet<int>		firstcols_;
-	TypeSet<TypeSet<unsigned int>> knotsstatus_;
+	TypeSet< TypeSet<unsigned int> > knotsstatus_;
     };
 
     ObjectSet<SectionKnotsStatus> sectionknotsstatus_;
