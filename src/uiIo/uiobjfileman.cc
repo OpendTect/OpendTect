@@ -9,7 +9,6 @@ ________________________________________________________________________
 -*/
 static const char* rcsID mUsedVar = "$Id$";
 
-
 #include "uiobjfileman.h"
 
 #include "uiioobjmanip.h"
@@ -25,18 +24,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "keystrs.h"
+#include "od_iostream.h"
 #include "streamconn.h"
-#include "strmprov.h"
 #include "survinfo.h"
 #include "systeminfo.h"
-#include "transl.h"
-
 
 static const int cPrefHeight = 10;
 static const int cPrefWidth = 75;
-
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
 			    const IOObjContext& ctxt )
@@ -127,15 +121,23 @@ static BufferString getFileName( const IOObj& ioobj )
 void uiObjFileMan::saveNotes( CallBacker* )
 {
     BufferString txt = notesfld_->text();
-    if ( !curioobj_ || txt.isEmpty() )
+    if ( !curioobj_ )
 	return;
 
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeOStream();
-    if ( !sd.usable() )
+    const BufferString filename = getFileName( *curioobj_ );
+    if ( txt.isEmpty() )
+    {
+	if ( File::exists(filename) )
+	    File::remove( filename );
+
+	return;
+    }
+
+    od_ostream ostrm( filename );
+    if ( !ostrm.isOK() )
 	return;
 
-    *sd.ostrm << txt << '\n';
-    sd.close();
+    ostrm << txt << '\n';
 }
 
 
@@ -143,27 +145,19 @@ void uiObjFileMan::readNotes()
 {
     if ( !curioobj_ )
     {
-	notesfld_->setText( "" );
+	notesfld_->setText( sKey::EmptyString() );
 	return;
     }
 
-    StreamData sd = StreamProvider( getFileName(*curioobj_) ).makeIStream();
-    if ( !sd.usable() )
+    od_istream istrm( getFileName(*curioobj_) );
+    if ( !istrm.isOK() )
     {
-	notesfld_->setText( "" );
+	notesfld_->setText( sKey::EmptyString() );
 	return;
     }
 
     BufferString note;
-    char buf[1024];
-    while ( sd.istrm->getline(buf,1024) )
-    {
-	if ( !note.isEmpty() )
-	    note += "\n";
-	note += buf;
-    }
-
-    sd.close();
+    istrm.getAll( note );
     notesfld_->setText( note );
 }
 
