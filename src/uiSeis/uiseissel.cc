@@ -152,11 +152,11 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !compfld_ )
 	return;
 
-    const IOObjContext& ctxt = selgrp_->getCtxtIOObj().ctxt;
-    if ( !ctxt.forread )
+    const CtxtIOObj& ctxtobj = selgrp_->getCtxtIOObj();
+    if ( !ctxtobj.ctxt.forread )
 	return;
 
-    const IOObj* ioobj = ioObj(); // do NOT call this function when for write
+    const IOObj* ioobj = ctxtobj.ioobj;
     if ( !ioobj )
 	return;
 
