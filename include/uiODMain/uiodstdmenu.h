@@ -184,7 +184,6 @@ ________________________________________________________________________
 /* "View' menu */
 
 #define mWorkAreaMnuItm		(mViewMnu + 10)
-#define mBaseMapMnuItm		(mViewMnu + 11)
 #define mZScaleMnuItm		(mViewMnu + 20)
 
 #define mViewStereoMnu		(mViewMnu + 100)

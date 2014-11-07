@@ -147,7 +147,7 @@ WellDisplay::~WellDisplay()
 
 
 BaseMapObject* WellDisplay::createBaseMapObject()
-{ return new WellDisplayBaseMapObject( this ); }
+{ return 0; /*new WellDisplayBaseMapObject( this );*/ }
 
 
 void WellDisplay::welldataDelNotify( CallBacker* )

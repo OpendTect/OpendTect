@@ -67,7 +67,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiselsimple.h"
 #include "uishortcuts.h"
 #include "uistrattreewin.h"
-#include "uisurvmap.h"
 #include "uiveldesc.h"
 #include "uivelocityfunctionimp.h"
 #include "uivisdatapointsetdisplaymgr.h"
@@ -110,24 +109,7 @@ void uiODApplMgrDispatcher::survChg( bool before )
 {
     if ( before )
     {
-	if ( convposdlg_ )
-	{ delete convposdlg_; convposdlg_ = 0; }
-
-	TypeSet<int> sceneids;
-	am_.visserv_->getChildIds( -1, sceneids );
-	for ( int idx=0; idx<sceneids.size(); idx++ )
-	{
-	    mDynamicCastGet(visSurvey::Scene*,scene,
-			    am_.visserv_->getObject(sceneids[idx]) );
-	    if ( scene ) scene->setBaseMap( 0 );
-	}
-
-	if ( basemapdlg_ )
-	{
-	    delete basemapdlg_;
-	    basemapdlg_ = 0;
-	    basemap_ = 0;
-	}
+	delete convposdlg_; convposdlg_ = 0;
     }
 
     deepErase( uidpsset_ );
@@ -399,31 +381,6 @@ void uiODApplMgrDispatcher::posConversion()
 void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
 {
     convposdlg_ = 0;
-}
-
-
-void uiODApplMgrDispatcher::showBaseMap()
-{
-    if ( !basemapdlg_ )
-    {
-	const int sceneid = am_.sceneMgr().askSelectScene();
-	mDynamicCastGet(visSurvey::Scene*,scene,
-			am_.visserv_->getObject(sceneid) );
-	if ( !scene ) return;
-
-	basemapdlg_ = new uiDialog( par_, uiDialog::Setup("Base Map", 0,
-                                                          mNoHelpKey) );
-	basemapdlg_->setModal( false );
-	basemapdlg_->setCtrlStyle( uiDialog::CloseOnly );
-	basemap_ = new uiSurveyMap( basemapdlg_ );
-	basemap_->setPrefHeight( 250 );
-	basemap_->setPrefWidth( 250 );
-	basemap_->setSurveyInfo( &SI() );
-	scene->setBaseMap( basemap_ );
-    }
-
-    basemapdlg_->show();
-    basemapdlg_->raise();
 }
 
 

@@ -22,7 +22,6 @@ class uiConvertPos;
 class uiDataPointSet;
 class uiDialog;
 class uiODApplMgr;
-class uiSurveyMap;
 class uiVelSel;
 
 namespace Attrib { class SelSpec; }
@@ -52,7 +51,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 
 			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
 			    : am_(a), par_(p), convposdlg_(0)
-			    , basemap_(0), basemapdlg_(0)
 			    {}
 
     void		survChg(bool);
@@ -75,10 +73,6 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
     void		setAutoUpdatePol();
     void		openXPlot();
     void		createCubeFromWells();
-
-    void		showBaseMap();
-    uiSurveyMap*	basemap_;
-    uiDialog*		basemapdlg_;
 
     void		posDlgClose(CallBacker*);
     uiConvertPos*	convposdlg_;

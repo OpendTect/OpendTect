@@ -22,6 +22,7 @@ class uiSurveyMap;
 class uiToolBar;
 class uiToolButton;
 class uiTreeView;
+class BaseMap;
 class MouseCursorExchange;
 
 mClass(uiBasemap) uiBasemapWin : public uiMainWin
@@ -31,6 +32,7 @@ public:
 			~uiBasemapWin();
 
     void		setMouseCursorExchange(MouseCursorExchange*);
+    BaseMap*		getBasemap();
 
 private:
 

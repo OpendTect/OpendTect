@@ -111,7 +111,6 @@ public:
     void			create3DFrom2D()	{ process2D3D(2); }
 
     // View menu operations
-    void			showBaseMap();
     void			setWorkingArea();
     void			setZStretch();
     void			setStereoOffset();

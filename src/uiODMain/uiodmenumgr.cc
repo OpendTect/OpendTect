@@ -678,9 +678,6 @@ void uiODMenuMgr::updateSceneMenu()
 void uiODMenuMgr::fillViewMenu()
 {
     viewmnu_->clear();
-#ifdef __debug__
-    mInsertItem( viewmnu_, tr("Base Map ..."), mBaseMapMnuItm );
-#endif
     mInsertItem( viewmnu_, tr("Work area ..."), mWorkAreaMnuItm );
     mInsertItem( viewmnu_, tr("Z-scale ..."), mZScaleMnuItm );
     uiMenu* stereoitm = new uiMenu( &appl_, tr("Stereo viewing") );
@@ -1278,7 +1275,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileHorMnuItm:	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm:	sceneMgr().tileVertical(); break;
     case mScenePropMnuItm:	sceneMgr().setSceneProperties(); break;
-    case mBaseMapMnuItm:	applMgr().showBaseMap(); break;
     case mWorkAreaMnuItm:	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm:		applMgr().setZStretch(); break;
     case mBatchProgMnuItm:	applMgr().batchProgs(); break;

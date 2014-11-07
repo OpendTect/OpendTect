@@ -210,6 +210,10 @@ void uiBasemapWin::mouseMoveCB( CallBacker* )
 }
 
 
+BaseMap* uiBasemapWin::getBasemap()
+{ return basemapview_; }
+
+
 bool uiBasemapWin::closeOK()
 {
     saveSettings();

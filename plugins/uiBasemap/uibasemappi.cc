@@ -18,9 +18,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uimenu.h"
 #include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
 #include "uitoolbar.h"
 
+#include "ioman.h"
 #include "odplugin.h"
+#include "vissurvscene.h"
 
 
 mDefODPluginInfo(uiBasemap)
@@ -47,6 +50,7 @@ public:
     void		updateToolBar(CallBacker*);
     void		updateMenu(CallBacker*);
     void		showCB(CallBacker*);
+    void		surveyChangeCB(CallBacker*);
 };
 
 
@@ -58,6 +62,9 @@ uiBasemapMgr::uiBasemapMgr( uiODMain* a )
 		mCB(this,uiBasemapMgr,updateToolBar) );
     appl_->menuMgr().dTectMnuChanged.notify(
 		mCB(this,uiBasemapMgr,updateMenu) );
+
+    IOM().surveyToBeChanged.notify(
+		mCB(this,uiBasemapMgr,surveyChangeCB) );
     updateToolBar(0);
     updateMenu(0);
 }
@@ -85,12 +92,31 @@ void uiBasemapMgr::updateMenu( CallBacker* )
 }
 
 
+void uiBasemapMgr::surveyChangeCB( CallBacker* )
+{
+    TypeSet<int> sceneids;
+    appl_->applMgr().visServer()->getChildIds( -1, sceneids );
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	mDynamicCastGet(visSurvey::Scene*,scene,
+			appl_->applMgr().visServer()->getObject(sceneids[idx]))
+	if ( scene ) scene->setBaseMap( 0 );
+    }
+}
+
+
 void uiBasemapMgr::showCB( CallBacker* )
 {
     if ( !dlg_ )
     {
+	const int sceneid = appl_->sceneMgr().askSelectScene();
+	mDynamicCastGet(visSurvey::Scene*,scene,
+			appl_->applMgr().visServer()->getObject(sceneid))
+
 	dlg_ = new uiBasemapWin( appl_ );
 	dlg_->setMouseCursorExchange( &appl_->applMgr().mouseCursorExchange() );
+
+	if ( scene ) scene->setBaseMap( dlg_->getBasemap() );
     }
 
     dlg_->show();

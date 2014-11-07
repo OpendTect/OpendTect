@@ -534,12 +534,6 @@ void uiODApplMgr::addHorFlatScene( bool is2d )
 }
 
 
-void uiODApplMgr::showBaseMap()
-{
-    dispatcher_.showBaseMap();
-}
-
-
 void uiODApplMgr::setWorkingArea()
 {
     if ( visserv_->setWorkingArea() )
