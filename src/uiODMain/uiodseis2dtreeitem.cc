@@ -618,6 +618,8 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	    }
 	    s2d->annotateNextUpdateStage( false );
 	}
+
+	updateColumnText(0);
     }
 }
 
