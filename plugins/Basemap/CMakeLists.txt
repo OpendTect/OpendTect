@@ -10,6 +10,7 @@ SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	basemappi.cc
 	basemapgeom2d.cc
+	basemapgrid.cc
 	basemappickset.cc
 	basemappolygon.cc
 	basemaprandomline.cc

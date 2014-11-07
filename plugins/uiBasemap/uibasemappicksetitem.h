@@ -18,7 +18,7 @@ ________________________________________________________________________
 mExpClass(uiBasemap) uiBasemapPickSetGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapPickSetGroup(uiParent*);
+			uiBasemapPickSetGroup(uiParent*,bool isadd);
 			~uiBasemapPickSetGroup();
 
     bool		acceptOK();
@@ -59,7 +59,7 @@ public:
 				sFactoryKeyword())
 
     const char*		iconName() const;
-    uiBasemapGroup*	createGroup(uiParent*);
+    uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

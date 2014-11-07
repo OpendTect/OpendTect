@@ -88,7 +88,7 @@ void uiBasemapWin::initTree()
 
 #define mDefBut(tb,but,fnm,cbnm,tt) \
     but = new uiToolButton(tb,fnm,tt,mCB(this,uiBasemapWin,cbnm) ); \
-    vwtoolbar_->addButton( but );
+    tb->addButton( but );
 
 void uiBasemapWin::initToolBars()
 {
@@ -101,7 +101,8 @@ void uiBasemapWin::initToolBars()
 
     itemtoolbar_ = new uiToolBar( this, "Basemap Items" );
     CallBack cb = mCB(this,uiBasemapWin,iconClickCB);
-    const ObjectSet<uiBasemapItem> itms = BMM().items();
+    const ObjectSet<uiBasemapItem>& itms = BMM().items();
+
     for ( int idx=0; idx<itms.size(); idx++ )
     {
 	const uiBasemapItem* itm = itms[idx];
@@ -118,7 +119,6 @@ void uiBasemapWin::initToolBars()
 
 void uiBasemapWin::viewCB( CallBacker* )
 {
-    if ( !viewbut_ ) return;
     pickmode_ = !pickmode_;
 
     updateViewMode();
@@ -145,6 +145,8 @@ void uiBasemapWin::removeCB( CallBacker* )
 		tr("All selected items will be removed from the basemap")) )
 	return;
 
+    // removeSelectedItems() needs to be improved because the objects,
+    // when deleted, are still showed up on screen
     tree_->removeSelectedItems();
 }
 
@@ -193,9 +195,10 @@ void uiBasemapWin::mouseMoveCB( CallBacker* )
 
     const BinID bid = SI().transform( crd );
     BufferString istr;
+    const BufferString xstr = toString( crd.x, 0 );
+    const BufferString ystr = toString( crd.y, 0 );
     istr.add( bid.inl() ).add( "/" ).add( bid.crl() ).add( " (" )
-	.add( toString(crd.x,0) ).add( " , " )
-	.add( toString(crd.y,0) ).add( ")" );
+	.add( xstr.buf() ).add( " , " ).add( ystr.buf() ).add( ")" );
     toStatusBar( istr, 0 );
 
     const FixedString itmnm = basemapview_->nameOfItemAt( ev.pos() );

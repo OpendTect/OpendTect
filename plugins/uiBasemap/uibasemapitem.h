@@ -64,6 +64,7 @@ protected:
     virtual uiObject*	lastObject()		{ return 0; }
 
     uiGenInput*		namefld_;
+    BufferString	defaultname_;
 };
 
 
@@ -77,7 +78,8 @@ public:
     virtual bool	usePar(const IOPar&);
 
 protected:
-			uiBasemapIOObjGroup(uiParent*,const IOObjContext&);
+			uiBasemapIOObjGroup(uiParent*,const IOObjContext&,
+					    bool isadd);
 
     virtual uiObject*	lastObject();
     void		selChg(CallBacker*);
@@ -133,9 +135,9 @@ public:
 
     int			ID() const		{ return id_; }
 
-    virtual const char*		iconName() const		= 0;
-    virtual uiBasemapGroup*	createGroup(uiParent*)		= 0;
-    virtual uiBasemapTreeItem*	createTreeItem(const char*)	= 0;
+    virtual const char*		iconName() const		      = 0;
+    virtual uiBasemapGroup*	createGroup(uiParent*,bool)	      = 0;
+    virtual uiBasemapTreeItem*	createTreeItem(const char*)	      = 0;
 
 protected:
 			uiBasemapItem();

@@ -10,6 +10,7 @@ SET(OD_IS_PLUGIN yes)
 SET(OD_MODULE_SOURCES
 	uibasemappi.cc
 	uibasemapgeom2ditem.cc
+	uibasemapgriditem.cc
 	uibasemapitem.cc
 	uibasemappicksetitem.cc
 	uibasemappolygonitem.cc

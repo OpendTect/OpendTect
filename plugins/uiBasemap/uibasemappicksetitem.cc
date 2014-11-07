@@ -32,8 +32,8 @@ static IOObjContext getIOObjContext()
 
 
 // uiBasemapPickSetGroup
-uiBasemapPickSetGroup::uiBasemapPickSetGroup( uiParent* p )
-    : uiBasemapIOObjGroup(p,getIOObjContext())
+uiBasemapPickSetGroup::uiBasemapPickSetGroup( uiParent* p, bool isadd )
+    : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
     addNameField();
 }
@@ -69,8 +69,8 @@ bool uiBasemapPickSetGroup::usePar( const IOPar& par )
 const char* uiBasemapPickSetItem::iconName() const
 { return "picks"; }
 
-uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p )
-{ return new uiBasemapPickSetGroup( p ); }
+uiBasemapGroup* uiBasemapPickSetItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapPickSetGroup( p, isadd ); }
 
 uiBasemapTreeItem* uiBasemapPickSetItem::createTreeItem( const char* nm )
 { return new uiBasemapPickSetTreeItem( nm ); }

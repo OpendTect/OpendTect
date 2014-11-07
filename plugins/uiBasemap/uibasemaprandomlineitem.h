@@ -18,7 +18,7 @@ ________________________________________________________________________
 mExpClass(uiBasemap) uiBasemapRandomLineGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapRandomLineGroup(uiParent*);
+			uiBasemapRandomLineGroup(uiParent*,bool isadd);
 			~uiBasemapRandomLineGroup();
 
     bool		acceptOK();
@@ -59,7 +59,7 @@ public:
 				sFactoryKeyword())
 
     const char*		iconName() const;
-    uiBasemapGroup*	createGroup(uiParent*);
+    uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

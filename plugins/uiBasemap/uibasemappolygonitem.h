@@ -18,7 +18,7 @@ ________________________________________________________________________
 mExpClass(uiBasemap) uiBasemapPolygonGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapPolygonGroup(uiParent*);
+			uiBasemapPolygonGroup(uiParent*,bool isadd);
 			~uiBasemapPolygonGroup();
 
     bool		acceptOK();
@@ -59,7 +59,7 @@ public:
 				sFactoryKeyword())
 
     const char*		iconName() const;
-    uiBasemapGroup*	createGroup(uiParent*);
+    uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 

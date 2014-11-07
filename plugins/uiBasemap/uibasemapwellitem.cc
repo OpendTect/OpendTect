@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 
 // uiBasemapWellGroup
-uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p )
-    : uiBasemapIOObjGroup(p,mIOObjContext(Well))
+uiBasemapWellGroup::uiBasemapWellGroup( uiParent* p, bool isadd )
+    : uiBasemapIOObjGroup(p,mIOObjContext(Well), isadd)
 {
     addNameField();
 }
@@ -61,8 +61,8 @@ bool uiBasemapWellGroup::usePar( const IOPar& par )
 const char* uiBasemapWellItem::iconName() const
 { return "well"; }
 
-uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p )
-{ return new uiBasemapWellGroup( p ); }
+uiBasemapGroup* uiBasemapWellItem::createGroup( uiParent* p,bool isadd )
+{ return new uiBasemapWellGroup( p, isadd ); }
 
 uiBasemapTreeItem* uiBasemapWellItem::createTreeItem( const char* nm )
 { return new uiBasemapWellTreeItem( nm ); }

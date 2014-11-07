@@ -49,6 +49,7 @@ const char* uiBasemapGroup::sKeyItem()		{ return "Item"; }
 uiBasemapGroup::uiBasemapGroup( uiParent* p )
     : uiGroup(p)
     , namefld_(0)
+    , defaultname_("<Name of Basemap Item>")
 {
 }
 
@@ -67,11 +68,16 @@ void uiBasemapGroup::addNameField()
 
 
 void uiBasemapGroup::setItemName( const char* nm )
-{ if ( namefld_ ) namefld_->setText( nm ); }
+{
+    if ( namefld_ )
+	namefld_->setText( nm );
+    else
+	defaultname_ = nm;
+}
 
 
 const char* uiBasemapGroup::itemName() const
-{ return namefld_ ? namefld_->text() : ""; }
+{ return namefld_ ? namefld_->text() : defaultname_.buf(); }
 
 HelpKey uiBasemapGroup::getHelpKey() const
 { return HelpKey::emptyHelpKey(); }
@@ -79,24 +85,22 @@ HelpKey uiBasemapGroup::getHelpKey() const
 
 bool uiBasemapGroup::fillPar( IOPar& par ) const
 {
-    if ( !namefld_ ) return true;
-
-    par.set( sKey::Name(), namefld_->text() );
+    par.set( sKey::Name(), itemName() );
     return true;
 }
 
 
 bool uiBasemapGroup::usePar( const IOPar& par )
 {
-    if ( namefld_ )
-	namefld_->setText( par.find(sKey::Name()) );
-
+    setItemName( par.find(sKey::Name()) );
     return true;
 }
 
 
 bool uiBasemapGroup::acceptOK()
 {
+    if ( !namefld_ ) return true;
+
     const FixedString nm = namefld_->text();
     if ( nm.isEmpty() )
     {
@@ -110,17 +114,21 @@ bool uiBasemapGroup::acceptOK()
 
 
 // uiBasemapIOObjGroup
-uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt)
+uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
+					  bool isadd)
     : uiBasemapGroup(p)
 {
     ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
 				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
     ioobjfld_->selectionChanged.notify( mCB(this,uiBasemapIOObjGroup,selChg) );
 
+    if ( isadd )
+    {
     typefld_ = new uiGenInput( this, "Add items",
 	BoolInpSpec(true,"as group","individually") );
     typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
     typefld_->attach( alignedBelow, ioobjfld_ );
+    }
 }
 
 
@@ -137,10 +145,7 @@ void uiBasemapIOObjGroup::selChg( CallBacker* )
 {
     const int nrsel = ioobjfld_->nrChosen();
     if ( nrsel==1 )
-    {
-	PtrMan<IOObj> ioobj = IOM().get( ioobjfld_->currentID() );
-	setItemName( ioobj ? ioobj->name().buf() : "" );
-    }
+	setItemName( IOM().nameOf(ioobjfld_->currentID()) );
     else
     {
 	BufferString typestr = ioobjfld_->getContext().trgroup->userName();
@@ -201,8 +206,6 @@ bool uiBasemapIOObjGroup::usePar( const IOPar& par )
     int nrobjs = 0;
     par.get( sKeyNrObjs(), nrobjs );
 
-    typefld_->display( nrobjs==0 );
-
     TypeSet<MultiID> mids( nrobjs, MultiID::udf() );
     for ( int idx=0; idx<nrobjs; idx++ )
 	par.get( IOPar::compKey(sKey::ID(),idx), mids[idx] );
@@ -218,11 +221,11 @@ bool uiBasemapIOObjGroup::usePar( const IOPar& par )
 class uiBasemapGroupDlg : public uiDialog
 {
 public:
-uiBasemapGroupDlg( uiParent* p, uiBasemapItem& itm )
+uiBasemapGroupDlg( uiParent* p, uiBasemapItem& itm, bool isadd )
     : uiDialog(p,Setup("Select Basemap parameters",mNoDlgTitle,mNoHelpKey))
     , grp_(0)
 {
-    grp_ = itm.createGroup( this );
+    grp_ = itm.createGroup( this, isadd );
     setHelpKey( grp_->getHelpKey() );
 }
 
@@ -378,7 +381,7 @@ void uiBasemapManager::add( int itemid )
     uiBasemapItem* itm = getBasemapItem( itemid );
     if ( !itm ) return;
 
-    uiBasemapGroupDlg dlg( basemap_, *itm );
+    uiBasemapGroupDlg dlg( basemap_, *itm, true );
     if ( !dlg.go() )
 	return;
 
@@ -417,7 +420,7 @@ void uiBasemapManager::edit( int itemid, int treeitemid )
     uiBasemapTreeItem* treeitm = getBasemapTreeItem( treeitemid );
     if ( !treeitm ) return;
 
-    uiBasemapGroupDlg dlg( basemap_, *itm );
+    uiBasemapGroupDlg dlg( basemap_, *itm, false );
     dlg.usePar( treeitm->pars() );
     if ( !dlg.go() )
 	return;

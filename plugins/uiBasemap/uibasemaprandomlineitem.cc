@@ -24,8 +24,8 @@ ________________________________________________________________________
 
 
 // uiBasemapRandomLineGroup
-uiBasemapRandomLineGroup::uiBasemapRandomLineGroup( uiParent* p )
-    : uiBasemapIOObjGroup(p,mIOObjContext(RandomLineSet))
+uiBasemapRandomLineGroup::uiBasemapRandomLineGroup( uiParent* p, bool isadd )
+    : uiBasemapIOObjGroup(p,mIOObjContext(RandomLineSet),isadd)
 {
     addNameField();
 }
@@ -61,8 +61,8 @@ bool uiBasemapRandomLineGroup::usePar( const IOPar& par )
 const char* uiBasemapRandomLineItem::iconName() const
 { return "randomline"; }
 
-uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p )
-{ return new uiBasemapRandomLineGroup( p ); }
+uiBasemapGroup* uiBasemapRandomLineItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapRandomLineGroup( p, isadd ); }
 
 uiBasemapTreeItem* uiBasemapRandomLineItem::createTreeItem( const char* nm )
 { return new uiBasemapRandomLineTreeItem( nm ); }

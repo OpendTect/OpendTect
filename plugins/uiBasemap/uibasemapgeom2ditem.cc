@@ -33,8 +33,8 @@ static IOObjContext getIOObjContext()
 
 
 // uiBasemapGeom2DGroup
-uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p )
-    : uiBasemapIOObjGroup(p,getIOObjContext())
+uiBasemapGeom2DGroup::uiBasemapGeom2DGroup( uiParent* p, bool isadd )
+    : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
     addNameField();
 }
@@ -70,8 +70,8 @@ bool uiBasemapGeom2DGroup::usePar( const IOPar& par )
 const char* uiBasemapGeom2DItem::iconName() const
 { return "geom2d"; }
 
-uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p )
-{ return new uiBasemapGeom2DGroup( p ); }
+uiBasemapGroup* uiBasemapGeom2DItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapGeom2DGroup( p, isadd ); }
 
 uiBasemapTreeItem* uiBasemapGeom2DItem::createTreeItem( const char* nm )
 { return new uiBasemapGeom2DTreeItem( nm ); }

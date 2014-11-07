@@ -32,8 +32,8 @@ static IOObjContext getIOObjContext()
 
 
 // uiBasemapPolygonGroup
-uiBasemapPolygonGroup::uiBasemapPolygonGroup( uiParent* p )
-    : uiBasemapIOObjGroup(p,getIOObjContext())
+uiBasemapPolygonGroup::uiBasemapPolygonGroup( uiParent* p, bool isadd )
+    : uiBasemapIOObjGroup(p,getIOObjContext(),isadd)
 {
     addNameField();
 }
@@ -69,8 +69,8 @@ bool uiBasemapPolygonGroup::usePar( const IOPar& par )
 const char* uiBasemapPolygonItem::iconName() const
 { return "polygon"; }
 
-uiBasemapGroup* uiBasemapPolygonItem::createGroup( uiParent* p )
-{ return new uiBasemapPolygonGroup( p ); }
+uiBasemapGroup* uiBasemapPolygonItem::createGroup( uiParent* p, bool isadd )
+{ return new uiBasemapPolygonGroup( p, isadd ); }
 
 uiBasemapTreeItem* uiBasemapPolygonItem::createTreeItem( const char* nm )
 { return new uiBasemapPolygonTreeItem( nm ); }

@@ -33,9 +33,10 @@ public:
     void		updateGeometry();
 
     int			nrShapes() const;
-    const char*		getShapeName(int) const;
-    void		getPoints(int,TypeSet<Coord>&) const;
-    const LineStyle*	getLineStyle(int) const	{ return &ls_; }
+    const char*		getShapeName(int shapeidx) const;
+    void		getPoints(int shapeidx,TypeSet<Coord>&) const;
+    const LineStyle*	getLineStyle(int shapeidx) const
+			{ return &ls_; }
 
 protected:
     LineStyle		ls_;

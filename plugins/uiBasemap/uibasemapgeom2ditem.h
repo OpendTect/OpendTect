@@ -18,7 +18,7 @@ ________________________________________________________________________
 mExpClass(uiBasemap) uiBasemapGeom2DGroup : public uiBasemapIOObjGroup
 {
 public:
-			uiBasemapGeom2DGroup(uiParent*);
+			uiBasemapGeom2DGroup(uiParent*,bool isadd);
 			~uiBasemapGeom2DGroup();
 
     bool		acceptOK();
@@ -59,7 +59,7 @@ public:
 				sFactoryKeyword())
 
     const char*		iconName() const;
-    uiBasemapGroup*	createGroup(uiParent*);
+    uiBasemapGroup*	createGroup(uiParent*,bool isadd);
     uiBasemapTreeItem*	createTreeItem(const char*);
 };
 
