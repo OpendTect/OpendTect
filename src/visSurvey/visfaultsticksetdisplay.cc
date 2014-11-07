@@ -1158,8 +1158,8 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	for ( rc.col()=colrg.start; rc.col()<=colrg.stop; rc.col()+=colrg.step )
 	{
 	    Coord3 curpos = fss.getKnot(rc);
-	    const BinID id = SI().transform( Coord(curpos.x,curpos.y) );
-	    if ( !zrg.includes(curpos.z,false) || !tks.hsamp_.includes(id) )
+	    const BinID bid = SI().transform( Coord(curpos.x,curpos.y) );
+	    if ( !zrg.includes(curpos.z,false) || !tks.hsamp_.includes(bid) )
 	    {
 		sksts->hideKnot( rc, displayonlyatsections_ );
 		continue;
