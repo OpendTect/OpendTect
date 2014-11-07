@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "separstr.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "odlogo24x24.xpm"
 
 #include <math.h>
 
