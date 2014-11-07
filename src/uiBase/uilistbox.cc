@@ -669,7 +669,7 @@ void uiListBox::addItems( const char** textList )
     while ( *pt_cur )
 	addItem( *pt_cur++ );
     scrollingblocked_ = false;
-    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+    if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
 }
@@ -683,7 +683,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
 	addItem( strs.get(idx) );
 
     scrollingblocked_ = false;
-    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+    if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
 }
@@ -696,7 +696,7 @@ void uiListBox::addItems( const TypeSet<uiString>& strs )
     for ( int idx=0; idx<strs.size(); idx++ )
 	addItem( strs[idx] );
     scrollingblocked_ = false;
-    if ( choicemode_ == OD::ChooseAtLeastOne && curidx < 0 )
+    if ( choicemode_ != OD::ChooseNone && curidx < 0 )
 	curidx = 0;
     setCurrentItem( curidx );
 }
