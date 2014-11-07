@@ -112,15 +112,17 @@ void GridObject::getPoints( int shapeidx, TypeSet<Coord>& pts ) const
 	if ( shapeisinlx )
 	{
 	    const StepInterval<int> crlrg = SI().crlRange(false);
-	    pt1 = BinID( inlxgrid_.atIndex(shapeidx), crlrg.start );
-	    pt2 = BinID( inlxgrid_.atIndex(shapeidx), crlrg.stop  );
+	    const int inl = mCast(int,inlxgrid_.atIndex(shapeidx));
+	    pt1 = BinID( inl, crlrg.start );
+	    pt2 = BinID( inl, crlrg.stop  );
 	}
 	else
 	{
-	    const int crly = shapeidx - nrinlx_;
 	    const StepInterval<int> inlrg = SI().inlRange(false);
-	    pt1 = BinID( inlrg.start, crlygrid_.atIndex(crly) );
-	    pt2 = BinID( inlrg.stop, crlygrid_.atIndex(crly) );
+	    const int crly = shapeidx - nrinlx_;
+	    const int crl = mCast(int,crlygrid_.atIndex(crly));
+	    pt1 = BinID( inlrg.start, crl );
+	    pt2 = BinID( inlrg.stop, crl );
 	}
 	pts.add( SI().transform(pt1) );
 	pts.add( SI().transform(pt2) );
