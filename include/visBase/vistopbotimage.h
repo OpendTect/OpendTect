@@ -61,6 +61,7 @@ protected:
     static const char*		sKeyTopLeftCoord();
     static const char*		sKeyBottomRightCoord();
     static const char*		sKeyFileNameStr();
+    static const char*		sKeyTransparencyStr();
 
     int					layerid_;
     osgGeo::LayeredTexture*		laytex_;
