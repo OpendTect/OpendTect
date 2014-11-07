@@ -50,7 +50,7 @@ OsgColorArrayUpdator::OsgColorArrayUpdator( Material* p, const od_int64 size )
 bool OsgColorArrayUpdator::doPrepare(int)
 {
     if ( material_->osgcolorarray_->getNumElements()<totalnrcolors_ )
-	return false;
+	material_->osgcolorarray_->resizeArray( totalnrcolors_ );
 
     return true;
 }
