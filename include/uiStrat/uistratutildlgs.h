@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "stratunitref.h"
 #include "uilistbox.h"
+#include "uistring.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -31,7 +32,7 @@ namespace Strat { class Lithology; }
 /*!\brief Displays a dialog to create/edit a new stratigraphic unit */
 
 mExpClass(uiStrat) uiStratLithoBox : public uiListBox
-{
+{ mODTextTranslationClass(uiStratLithoBox);
 public:
     			uiStratLithoBox(uiParent*);
     			~uiStratLithoBox();
@@ -42,7 +43,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratUnitEditDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratUnitEditDlg);
 public:
 			uiStratUnitEditDlg(uiParent*,Strat::NodeUnitRef&);
 
@@ -71,7 +72,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratLithoDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratLithoDlg);
 public:
 
 			uiStratLithoDlg(uiParent*);
@@ -102,7 +103,7 @@ protected:
 /*!\brief Displays a Table to create new units from an existing one */
 
 mExpClass(uiStrat) uiStratUnitDivideDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratUnitDivideDlg);
 public:
 				uiStratUnitDivideDlg(uiParent*,
 						const Strat::LeavedUnitRef&);
@@ -112,7 +113,7 @@ public:
 protected :
 
     mExpClass(uiStrat) uiDivideTable : public uiTable
-    {
+    { mODTextTranslationClass(uiDivideTable);
 	public: 	
 				uiDivideTable(uiParent* p,
 						const uiTable::Setup& s)
@@ -127,7 +128,7 @@ protected :
     const Strat::LeavedUnitRef& rootunit_;
 
     bool			areTimesOK(ObjectSet<Strat::LeavedUnitRef>&,
-					   BufferString&) const;
+					   uiString&) const;
 
     void			addUnitToTable(int,const Strat::LeavedUnitRef&);
     void			mouseClick(CallBacker*);
@@ -140,7 +141,7 @@ protected :
 /*!\brief Displays a dialog to create new lithology */
 
 mExpClass(uiStrat) uiStratLevelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratLevelDlg);
 public:
 
     uiStratLevelDlg(uiParent*);
@@ -156,7 +157,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratLinkLvlUnitDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratLinkLvlUnitDlg);
 public:
 
     			uiStratLinkLvlUnitDlg(uiParent*,Strat::LeavedUnitRef&);
@@ -175,7 +176,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratContentsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiStratContentsDlg);
 public:
 			uiStratContentsDlg(uiParent*);
      bool		anyChg() const		{ return anychg_; }

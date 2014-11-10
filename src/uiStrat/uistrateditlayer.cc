@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
 			const Strat::LayerSequence& ls, bool editable )
     : uiDialog(p,Setup(tr("Layer properties"),
-		    BufferString("Layer: '",lay.name(),"'"),
+		       tr("Layer: '%1'").arg(lay.name()),
                        mODHelpKey(mStratEditLayerHelpID) ))
     , editable_(editable)
     , lay_(lay)
@@ -42,7 +42,8 @@ uiStratEditLayer::uiStratEditLayer( uiParent* p, Strat::Layer& lay,
     lithfld_->setReadOnly();
     const bool depthinft = SI().depthsInFeet();
     float dpth = lay_.zTop(); if ( depthinft ) dpth *= mToFeetFactorF;
-    const BufferString thtxt( "Top depth (", depthinft ? "ft)" : "m)" );
+    const uiString thtxt(tr("Top depth (%1").arg( depthinft ? tr("ft)") 
+							    : tr("m)")));
     topfld_ = new uiGenInput( this, thtxt, FloatInpSpec(dpth) );
     topfld_->attach( alignedBelow, lithfld_ );
     topfld_->setReadOnly();
@@ -99,12 +100,12 @@ bool uiStratEditLayer::getFromScreen( bool emituierrs )
 	if ( ival >= valflds_.size() )
 	    break;
 	const float val = valflds_[ival]->getValue();
-	BufferString msg;
+	uiString msg;
 	if ( mIsUdf(val) )
-	    msg.add( "Please enter a value for " )
-		.add( valflds_[ival]->propName() );
+	    msg =  tr("Please enter a value for %1") 
+		 .arg( valflds_[ival]->propName() );
 	else if ( ival == 0 && val <= 0 )
-	    msg = "Please set the thickness to a positive number";
+	    msg = tr("Please set the thickness to a positive number");
 	if ( !msg.isEmpty() )
 	    { if ( emituierrs ) uiMSG().error( msg ); return false; }
 

@@ -100,7 +100,7 @@ void uiStratLvlList::addCB( CallBacker* )
 void uiStratLvlList::removeCB( CallBacker* )
 {
     mCheckLocked; mCheckEmptyList;
-    BufferString msg( "This will remove the selected marker." );
+    uiString msg = tr("This will remove the selected marker.");
     if ( !uiMSG().askRemove(msg) ) return;
 
     Strat::LevelSet& levelset = Strat::eLVLS();
@@ -116,8 +116,8 @@ void uiStratLvlList::removeCB( CallBacker* )
 void uiStratLvlList::removeAllCB( CallBacker* )
 {
     mCheckLocked; mCheckEmptyList;
-    BufferString msg( "This will remove all the markers present in the list,"
-		      " do you want to continue ?" );
+    uiString msg = tr("This will remove all the markers present in the list,"
+		      " do you want to continue ?");
     if ( !uiMSG().askRemove(msg) ) return;
 
     Strat::LevelSet& levelset = Strat::eLVLS();

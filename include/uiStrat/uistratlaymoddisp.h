@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "uistratmod.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class PropertyRef;
 class uiGraphicsScene;

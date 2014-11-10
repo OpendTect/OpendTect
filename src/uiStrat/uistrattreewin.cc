@@ -99,8 +99,9 @@ void uiStratTreeWin::setNewRT()
     Strat::RefTree::getStdNames( opts );
 
     const bool nortpresent = RT().isEmpty();
-    BufferString dlgmsg( "Stratigraphy: " );
-    dlgmsg += nortpresent ? "select initial" : "select new";
+    uiString dlgmsg = tr("Stratigraphy: %1")
+		    .arg(nortpresent ? tr("select initial") 
+				     : tr("select new"));
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
     if ( nortpresent )
@@ -265,8 +266,8 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 
 void uiStratTreeWin::newCB( CallBacker* )
 {
-    BufferString msg( "This will overwrite the current tree. \n" );
-    msg += "Your work will be lost. Continue anyway ?";
+    uiString msg = tr("This will overwrite the current tree. \n"
+		      "Your work will be lost. Continue anyway ?");
     if ( RT().isEmpty() || uiMSG().askGoOn( msg ) )
 	setNewRT();
 }

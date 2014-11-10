@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uistratmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uistring.h"
+
 class uiComboBox;
 class uiLabel;
 class uiSpinBox;
@@ -55,7 +57,7 @@ protected:
 
 
 mExpClass(uiStrat) uiStratLayModEditTools : public uiGroup
-{
+{ mODTextTranslationClass(uiStratLayModEditTools);
 public:
 
 		uiStratLayModEditTools(uiParent*);

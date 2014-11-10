@@ -136,7 +136,7 @@ void uiStratLayerModelDisp::displayFRText()
 
 
 class uiStratLayerModelDispIO : public uiDialog
-{
+{ mODTextTranslationClass(uiStratLayerModelDispIO);
 public:
 
 static const char* sKeyUseEach()	{ return "Use Each"; }
@@ -147,7 +147,7 @@ static const char* sKeyPreserveMath()	{ return "Preserve Math formulas"; }
 
 uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 			 bool doread )
-    : uiDialog( p, Setup(doread ? "Read dumped models" : "Dump models",
+    : uiDialog( p, Setup(doread ? tr("Read dumped models") : tr("Dump models"),
 		mNoDlgTitle,mTODOHelpKey) )
     , doreplacefld_(0)
     , eachfld_(0)
@@ -173,7 +173,8 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
 	eachfld_ = new uiGenInput( this, sKeyUseEach(), val );
 	eachfld_->attach( alignedBelow, filefld_ );
 
-	doreplacefld_ = new uiGenInput( this, "Clear existing model before add",
+	doreplacefld_ = new uiGenInput( this, 
+					tr("Clear existing model before add"),
 					BoolInpSpec(true) );
 	doreplacefld_->attach( alignedBelow, eachfld_ );
 
@@ -186,7 +187,7 @@ uiStratLayerModelDispIO( uiParent* p, const Strat::LayerModel& lm, IOPar& pars,
     }
     else
     {
-	presmathfld_ = new uiGenInput( this, "Preserve Math Formulas",
+	presmathfld_ = new uiGenInput( this, tr("Preserve Math Formulas"),
 				       BoolInpSpec(true) );
 	presmathfld_->attach( alignedBelow, filefld_ );
     }
@@ -261,24 +262,24 @@ bool acceptOK( CallBacker* )
     if ( fnm_.isEmpty() )
     {
 	if ( !filefld_->fileName() )
-	    mErrRet( "Please provide a file name" )
+	    mErrRet(tr("Please provide a file name"))
 
 	fnm_ = filefld_->fileName();
     }
 
     if ( doread_ && !File::exists(fnm_) )
-	mErrRet( "Input file does not exist" )
+	mErrRet(tr("Input file does not exist"))
 
     if ( doread_ )
     {
 	od_istream strm( fnm_ );
 	if ( !strm.isOK() )
-	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor read") )
+	    mErrRet(tr("Cannot open:\n%1\nfor read").arg(fnm_))
 
 	Strat::LayerModel newlm;
 	if ( !newlm.read(strm) )
-	    mErrRet( "Cannot read layer model from file.\nDetails may be "
-			"in the log file ('Utilities-Show log file')" )
+	    mErrRet(tr("Cannot read layer model from file.\nDetails may be "
+		       "in the log file ('Utilities-Show log file')"))
 
 	const int each = eachfld_->getIntValue();
 	Strat::LayerModel& lm = const_cast<Strat::LayerModel&>( lm_ );
@@ -292,10 +293,10 @@ bool acceptOK( CallBacker* )
     {
 	od_ostream strm( fnm_ );
 	if ( !strm.isOK() )
-	    mErrRet( BufferString("Cannot open:\n",fnm_,"\nfor write") )
+	    mErrRet(tr("Cannot open:\n%1\nfor write").arg(fnm_))
 
 	if ( !lm_.write(strm,0,presmathfld_->getBoolValue()) )
-	    mErrRet( "Unknown error during write ..." )
+	    mErrRet(tr("Unknown error during write ..."))
     }
 
     fillPar();

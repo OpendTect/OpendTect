@@ -489,7 +489,7 @@ int uiBasicLayerSequenceGenDesc::curUnitIdx()
 
 
 class uiSimpPropertyEd : public uiGroup
-{
+{ mODTextTranslationClass(uiSimpPropertyEd);
 public:
 
 uiSimpPropertyEd( uiParent* p, const Property& prop )
@@ -498,7 +498,7 @@ uiSimpPropertyEd( uiParent* p, const Property& prop )
     const PropertyRef& pr = prop.ref();
 
     const char* opts[] = { "Value", "Range", 0 };
-    typfld_ = new uiComboBox( this, opts, BufferString(pr.name(), " type") );
+    typfld_ = new uiComboBox(this, opts, BufferString(pr.name(), tr(" type")));
     typfld_->selectionChanged.notify( mCB(this,uiSimpPropertyEd,updDisp) );
     typfld_->setHSzPol( uiObject::Small );
     prelbl_ = new uiLabel( this, pr.name(), typfld_ );
@@ -614,15 +614,15 @@ bool setProp( PropertySet& props, int idx )
 
 
 class uiSingleLayerGeneratorEd : public uiDialog
-{
+{ mODTextTranslationClass(uiSingleLayerGeneratorEd);
 public:
 
 uiSingleLayerGeneratorEd( uiParent* p, Strat::LayerGenerator* inpun,
 			  const Strat::RefTree& rt,
 			  const PropertyRefSelection& proprefs,
 			  const Strat::SingleLayerGenerator* nearun=0 )
-    : uiDialog(p,uiDialog::Setup(inpun?"Edit layer":"Create layer",
-				"Define layer generation",
+    : uiDialog(p,uiDialog::Setup(inpun ? tr("Edit layer") : tr("Create layer"),
+				 tr("Define layer generation"),
                                  mODHelpKey(mSingleLayerGeneratorEdHelpID) ))
     , inpun_(inpun)
     , rt_(rt)
@@ -724,14 +724,15 @@ bool acceptOK( CallBacker* )
 	if ( fld && !fld->setProp(workprops_,idx) )
 	{
 	    const Property& prop = workprops_.get(idx);
-	    uiMSG().error( "Please fill the values for '", prop.name(), "'" );
+	    uiMSG().error(tr("Please fill the values for '%1'")
+			.arg(prop.name()));
 	    return false;
 	}
     }
 
     const Strat::UnitRef* ur = unfld_->firstChosen();
     if ( !ur || !ur->isLeaf() )
-	{ uiMSG().error( "Please select the layer" ); return false; }
+	{ uiMSG().error(tr("Please select the layer")); return false; }
 
     edun_->setUnit( static_cast<const Strat::LeafUnitRef*>(ur) );
     edun_->properties() = workprops_;

@@ -124,11 +124,11 @@ void uiStratDisplay::createDispParamGrp()
 
 
 class uiColViewerDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiColViewerDlg);
 public :
     uiColViewerDlg( uiParent* p, uiStratDrawer& drawer, StratDispData& ad )
-	: uiDialog(p,uiDialog::Setup("View Columns",uiStrings::sEmptyString(),
-                                     mNoHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("View Columns"),
+				     uiStrings::sEmptyString(), mNoHelpKey))
 	, drawer_(drawer)
 	, data_(ad)
     {
@@ -611,9 +611,9 @@ uiStratViewControl::uiStratViewControl( uiGraphicsView& v, Setup& su )
 	if ( mw )
 	    mw->addToolBar( tb_ );
     }
-    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode")
+    mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
+    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode"))
 
     viewer_.getKeyboardEventHandler().keyPressed.notify(
 				mCB(this,uiStratViewControl,keyPressed) );

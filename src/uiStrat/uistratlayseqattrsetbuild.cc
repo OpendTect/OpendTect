@@ -72,10 +72,10 @@ bool uiStratLaySeqAttribSetBuild::handleUnsaved()
 {
     if ( !anychg_ && !usrchg_ ) return true;
 
-    const int res = uiMSG().question( "Well Attribute Set not saved.\n"
-	                              "Do you want to save it now?",
-                                      "Yes (store)", "No (discard)",
-                                      uiStrings::sCancel() );
+    const int res = uiMSG().question(tr("Well Attribute Set not saved.\n"
+	                                "Do you want to save it now?"),
+                                     tr("Yes (store)"), tr("No (discard)"),
+                                        uiStrings::sCancel() );
     if ( res == 0 ) return true;
     if ( res == -1 ) return false;
 
@@ -170,8 +170,9 @@ bool uiStratLaySeqAttribSetBuild::ioReq( bool forsave )
 
     if ( !rv )
     {
-	uiMSG().error( "Error during ",
-		forsave ? "write to output" : "read from input ", " file" );
+	uiMSG().error(tr("Error during %1 file")
+		    .arg(forsave ? tr("write to output") 
+				 : tr("read from input ")));
 	return false;
     }
 

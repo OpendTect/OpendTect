@@ -127,24 +127,24 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 {
     uiGroup* leftgrp = new uiGroup( this, "Left group" );
     propfld_ = new uiComboBox( leftgrp, "Display property" );
-    propfld_->setToolTip( "Displayed property" );
+    propfld_->setToolTip( tr("Displayed property") );
     propfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selPropCB) );
 
     lvlfld_ = new uiComboBox( leftgrp, "Level" );
-    lvlfld_->setToolTip( "Selected stratigraphic level" );
+    lvlfld_->setToolTip( tr("Selected stratigraphic level") );
     lvlfld_->attach( rightOf, propfld_ );
     lvlfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selLevelCB) );
 
     contfld_ = new uiComboBox( leftgrp, "Content" );
-    contfld_->setToolTip( "Marked content" );
+    contfld_->setToolTip( tr("Marked content") );
     contfld_->attach( rightOf, lvlfld_ );
     contfld_->setHSzPol( uiObject::Small );
     contfld_->selectionChanged.notify(
 				mCB(this,uiStratLayModEditTools,selContentCB));
 
-    eachlbl_ = new uiLabel( leftgrp, "each" );
+    eachlbl_ = new uiLabel( leftgrp, tr("each") );
     eachlbl_->attach( rightOf, contfld_ );
     eachfld_ = new uiSpinBox( leftgrp, 0, "DispEach" );
     eachfld_->setInterval( 1, 1000 );
@@ -154,24 +154,24 @@ uiStratLayModEditTools::uiStratLayModEditTools( uiParent* p )
 
     uiGroup* rightgrp = new uiGroup( this, "Right group" );
     mksynthtb_ = new uiToolButton( rightgrp, "autogensynth",
-			"Automatically create synthetics when on",
+			tr("Automatically create synthetics when on"),
 			mCB(this,uiStratLayModEditTools,mkSynthCB) );
     mksynthtb_->setToggleButton( true );
     mksynthtb_->setOn( true );
     flattenedtb_ = new uiToolButton( rightgrp, "flattenseis",
-			"Show flattened when on",
+			tr("Show flattened when on"),
 			mCB(this,uiStratLayModEditTools,showFlatCB) );
     flattenedtb_->setToggleButton( true );
     flattenedtb_->setOn( false );
     flattenedtb_->attach( leftOf, mksynthtb_ );
     lithtb_ = new uiToolButton( rightgrp, "lithologies",
-			"Show lithology colors when on",
+			tr("Show lithology colors when on"),
 			mCB(this,uiStratLayModEditTools,dispLithCB) );
     lithtb_->setToggleButton( true );
     lithtb_->setOn( true );
     lithtb_->attach( leftOf, flattenedtb_ );
     zoomtb_ = new uiToolButton( rightgrp, "toggzooming",
-			"Do not zoom into models when on",
+			tr("Do not zoom into models when on"),
 			mCB(this,uiStratLayModEditTools,dispZoomedCB) );
     zoomtb_->setToggleButton( true );
     zoomtb_->setOn( false );
@@ -441,21 +441,21 @@ bool uiStratLayModEditTools::usePar( const IOPar& par )
 
 uiStratLayModFRPropSelector::uiStratLayModFRPropSelector( uiParent* p,
 					const PropertyRefSelection& proprefsel)
-	: uiDialog(p,uiDialog::Setup("Property Selector",
-				     "There are multiple properties referenced"
-				     " with the same type. \n"
-				     "Please specify which one to use as: ",
+	: uiDialog(p,uiDialog::Setup(tr("Property Selector"),
+				     tr("There are multiple properties "
+				        "referenced with the same type. \n"
+				        "Please specify which one to use as: "),
 		     mODHelpKey(mStratSynthLayerModFRPPropSelectorHelpID) ) )
 {
-    mCreatePropSelFld( den, "Reference for Density", PropertyRef::Den, 0 );
-    mCreatePropSelFld( vp, "Reference for Vp", PropertyRef::Vel, lblboxden );
-    mCreatePropSelFld( vs, "Reference for Vs", PropertyRef::Vel, lblboxvp );
-    mCreatePropSelFld( sat1, "Reference for Initial Saturation",
-		       PropertyRef::Volum, lblboxvs );
-    mCreatePropSelFld( sat2, "Reference for Final Saturation",
-		       PropertyRef::Volum, lblboxsat1 );
-    mCreatePropSelFld( porosity, "Reference for Porosity",
-		       PropertyRef::Volum, lblboxsat2 );
+    mCreatePropSelFld(den, tr("Reference for Density"), PropertyRef::Den, 0);
+    mCreatePropSelFld(vp, tr("Reference for Vp"), PropertyRef::Vel, lblboxden);
+    mCreatePropSelFld(vs, tr("Reference for Vs"), PropertyRef::Vel, lblboxvp);
+    mCreatePropSelFld(sat1, tr("Reference for Initial Saturation"),
+		       PropertyRef::Volum, lblboxvs);
+    mCreatePropSelFld(sat2, tr("Reference for Final Saturation"),
+		       PropertyRef::Volum, lblboxsat1);
+    mCreatePropSelFld(porosity, tr("Reference for Porosity"),
+		       PropertyRef::Volum, lblboxsat2);
     const bool haspwave =
 	    proprefsel.find(PropertyRef::standardPVelStr()) >=0 ||
 	    proprefsel.find( PropertyRef::standardPVelAliasStr()) >= 0;

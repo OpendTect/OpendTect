@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "geometry.h"
 #include "uistratdispdata.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiGraphicsScene;
@@ -156,7 +157,7 @@ protected :
 
 
 mExpClass(uiStrat) uiStratViewControl : public CallBacker
-{
+{ mODTextTranslationClass(uiStratViewControl);
 public:
 
     struct Setup
