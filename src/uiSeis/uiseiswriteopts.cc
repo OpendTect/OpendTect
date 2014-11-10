@@ -29,12 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 uiCBVSVolOpts::uiCBVSVolOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSVolTranslInstance)
 {
-    stortypfld_ = new uiGenInput( this, "Storage",
+    stortypfld_ = new uiGenInput( this, tr("Storage"),
 		StringListInpSpec(DataCharacteristics::UserTypeNames()) );
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
 
     optimdirfld_ =
-		new uiCheckBox( this, "Optimize for horizontal slice access" );
+		new uiCheckBox(this, 
+			       tr("Optimize for horizontal slice access"));
     optimdirfld_->attach( alignedBelow, stortypfld_ );
 
     setHAlignObj( stortypfld_ );
@@ -73,7 +74,7 @@ void uiCBVSVolOpts::initClass()
 uiCBVSPS3DOpts::uiCBVSPS3DOpts( uiParent* p )
     : uiIOObjTranslatorWriteOpts(p,mCBVSPS3DTranslInstance)
 {
-    stortypfld_ = new uiGenInput( this, "Storage",
+    stortypfld_ = new uiGenInput( this, tr("Storage"),
 		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
     stortypfld_->setValue( (int)DataCharacteristics::Auto );
     setHAlignObj( stortypfld_ );

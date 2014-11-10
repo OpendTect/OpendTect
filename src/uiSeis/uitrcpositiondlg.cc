@@ -138,7 +138,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const DataPack::FullID& dpfid )
 	}
 
 	TrcKeyZSampling cs = cdp->sampling();
-	BufferString str = "Compute attribute at position:";
+	uiString str = tr("Compute attribute at position:");
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
 	crlfld_->attach( rightTo, inlfld_ );
@@ -171,7 +171,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
 	BufferStringSet linenames;
 	uiSeisIOObjInfo objinfo( mid );
 	objinfo.ioObjInfo().getLineNames( linenames );
-	BufferString str = "Compute attribute on line:";
+	uiString str = tr("Compute attribute on line:");
 	linesfld_ = new uiLabeledComboBox( this, str );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );
@@ -184,7 +184,7 @@ uiTrcPositionDlg::uiTrcPositionDlg( uiParent* p, const TrcKeyZSampling& cs,
     }
     else
     {
-	BufferString str = "Compute attribute at position:";
+	uiString str = tr("Compute attribute at position:");
 	inlfld_ = new uiLabeledSpinBox( this, str );
 	crlfld_ = new uiSpinBox( this );
 	crlfld_->attach( rightTo, inlfld_ );
@@ -255,8 +255,8 @@ void uiTrcPositionDlg::pickRetrievedCB( CallBacker* )
 	PosInfo::Line2DPos l2dpos;
 	if ( !line2d.getPos( crd, l2dpos, SI().crlDistance() ) )
 	{
-	    BufferString msg( "Please pick trace on line:",
-			      linesfld_->box()->text() );
+	    uiString msg = tr("Please pick trace on line:%1")
+			 .arg(linesfld_->box()->text());
 	    uiMSG().message( msg );
 	    return;
 	}

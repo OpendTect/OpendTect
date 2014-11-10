@@ -52,8 +52,8 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 
     if ( !setup_.fornewentry_ )
     {
-	trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
-					BoolInpSpec(false) );
+	trcgrowfld_ = new uiGenInput(this, tr("Adjust Z range to survey range"),
+					BoolInpSpec(false));
 	trcgrowfld_->attach( alignedBelow, scalefld_ );
     }
 

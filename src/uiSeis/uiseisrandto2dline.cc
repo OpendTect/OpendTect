@@ -37,7 +37,7 @@ uiSeisRandTo2DBase::uiSeisRandTo2DBase( uiParent* p, bool rdlsel )
     if ( rdlsel )
     {
 	rdlfld_ = new uiIOObjSel( this, mIOObjContext(RandomLineSet),
-				  "Input RandomLine" );
+				  tr("Input RandomLine") );
 	rdlfld_->selectionDone.notify( mCB(this,uiSeisRandTo2DBase,selCB) );
     }
 
@@ -98,7 +98,8 @@ bool uiSeisRandTo2DBase::getRandomLineGeom( Geometry::RandomLineSet& geom) const
 
 uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 					      const Geometry::RandomLine* rln )
-    : uiDialog(p,uiDialog::Setup("Save as 2D line",uiStrings::sEmptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("Save as 2D line"),
+				 uiStrings::sEmptyString(),
                                  mODHelpKey(mSeisRandTo2DLineDlgHelpID) ))
     , rdlgeom_(rln)
 {
@@ -107,7 +108,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
     linenmfld_ = new uiSeis2DLineNameSel( this, false );
     linenmfld_->attach( alignedBelow, basegrp_ );
 
-    trcnrfld_ = new uiGenInput( this, "First Trace Nr", IntInpSpec(1) );
+    trcnrfld_ = new uiGenInput( this, tr("First Trace Nr"), IntInpSpec(1) );
     trcnrfld_->attach( alignedBelow, linenmfld_ );
 }
 
@@ -141,7 +142,7 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	uiString msg = tr("The 2D Line '%1' already exists. If you overwrite "
 			  "its geometry, all the associated data will be "
 			  "affected. Do you still want to overwrite?")
-			.arg(linenm);
+		     .arg(linenm);
 	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
 

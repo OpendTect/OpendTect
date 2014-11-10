@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiioobjselwritetransl.h"
+#include "uistring.h"
 
 class uiCheckBox;
 class uiGenInput;
@@ -20,7 +21,7 @@ class uiSEGYFilePars;
 
 
 mExpClass(uiSeis) uiCBVSVolOpts : public uiIOObjTranslatorWriteOpts
-{
+{ mODTextTranslationClass(uiCBVSVolOpts);
 public:
 
 			uiCBVSVolOpts(uiParent*);
@@ -36,7 +37,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSEGYDirectVolOpts : public uiIOObjTranslatorWriteOpts
-{
+{ mODTextTranslationClass(uiSEGYDirectVolOpts);
 public:
 
 			uiSEGYDirectVolOpts(uiParent*);
@@ -51,7 +52,7 @@ protected:
 
 
 mExpClass(uiSeis) uiCBVSPS3DOpts : public uiIOObjTranslatorWriteOpts
-{
+{ mODTextTranslationClass(uiCBVSPS3DOpts);
 public:
 
 			uiCBVSPS3DOpts(uiParent*);
@@ -66,7 +67,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSEGYDirectPS3DOpts : public uiIOObjTranslatorWriteOpts
-{
+{ mODTextTranslationClass(uiSEGYDirectPS3DOpts);
 public:
 
 			uiSEGYDirectPS3DOpts(uiParent*);

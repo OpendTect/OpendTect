@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 #include "mathfunc.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class Wavelet;
@@ -44,7 +45,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltGen : public uiSeisWvltCreate
-{
+{ mODTextTranslationClass(uiSeisWvltGen);
 public:
 			uiSeisWvltGen(uiParent*);
 			~uiSeisWvltGen(){};
@@ -61,11 +62,11 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltMerge : public uiSeisWvltCreate
-{
+{ mODTextTranslationClass(uiSeisWvltMerge);
 public:
 
     mExpClass(uiSeis) WvltMathFunction : public FloatMathFunction
-    {
+    { mODTextTranslationClass(WvltMathFunction);
     public:
 			WvltMathFunction(const Wavelet*);
 

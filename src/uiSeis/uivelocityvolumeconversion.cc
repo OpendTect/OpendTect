@@ -124,7 +124,7 @@ bool Vel::uiBatchVolumeConversion::fillPar()
 	 inputveldesc.type_!=VelocityDesc::RMS )
     {
 	uiMSG().error(tr("Only RMS, Avg or Interval"
-                      " velcities can be converted"));
+			 " velcities can be converted"));
 	return false;
     }
 

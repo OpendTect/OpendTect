@@ -141,12 +141,12 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 
     SeisIOObjInfo ioinf( *ioobj );
     if ( !ioinf.isOK() )
-	{ infofld_->setText("Internal error: IOObj not OK"); return; }
+	{ infofld_->setText(tr("Internal error: IOObj not OK")); return; }
     const Seis::GeomType gt = ioinf.geomType();
     BufferStringSet fnms;
     StreamProvider::getPreLoadedFileNames( ky.buf(), fnms );
     if ( fnms.isEmpty() )
-	{ infofld_->setText("No files"); return; }
+	{ infofld_->setText(tr("No files")); return; }
 
     BufferString disptxt( "Data type: " ); disptxt += Seis::nameOf( gt );
 
@@ -246,7 +246,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     if ( StreamProvider::isPreLoaded(id,true) )
     {
 	if ( !uiMSG().askGoOn(tr("This cube is already pre-loaded.\n"
-			      "Do you want to re-load?")) )
+				 "Do you want to re-load?")) )
 	    return;
 	spl.unLoad();
     }
@@ -264,17 +264,18 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
 
 class uiSeisPreLoadMgrSel2D : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisPreLoadMgrSel2D);
 public:
 
 uiSeisPreLoadMgrSel2D( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Preload selection","Select 2D Dataset",
+    : uiDialog(p,uiDialog::Setup(tr("Preload selection"),
+				 tr("Select 2D Dataset"),
 				 mODHelpKey(mSeisPreLoadMgrSel2DHelpID) ))
 {
     IOObjContext ioctxt = uiSeisSel::ioContext( Seis::Line, true );
     dssel_ = new uiSeisSel( this, ioctxt, uiSeisSel::Setup(true,false) );
     dssel_->selectionDone.notify( mCB(this,uiSeisPreLoadMgrSel2D,dsSel) );
-    uiLabeledListBox* lllb = new uiLabeledListBox( this, "Line(s)",
+    uiLabeledListBox* lllb = new uiLabeledListBox( this, tr("Line(s)"),
 				 OD::ChooseAtLeastOne,
 				 uiLabeledListBox::AboveMid );
     lllb->attach( alignedBelow, dssel_ );
@@ -307,7 +308,7 @@ bool acceptOK( CallBacker* )
     linesel_->getChosen(lnms_);
     if ( lnms_.isEmpty() )
     {
-	uiMSG().error( "Please select one or more lines" );
+	uiMSG().error( tr("Please select one or more lines") );
 	return false;
     }
 
@@ -369,14 +370,15 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
 
 class uiSeisPreLoadMgrPS2DSel : public uiIOObjSelDlg
-{
+{ mODTextTranslationClass(uiSeisPreLoadMgrPS2DSel);
 public:
 
 uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
-    : uiIOObjSelDlg( p, ctio, "Select data store" )
+    : uiIOObjSelDlg( p, ctio, tr("Select data store") )
 {
     setCaption( "Pre-load data" );
-    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), "Line(s) to load",
+    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), 
+						  tr("Line(s) to load"),
 			  OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     lnmsfld_ = llb->box();
     llb->attach( rightOf, selGrp()->getTopGroup() );
@@ -400,14 +402,14 @@ bool acceptOK( CallBacker* )
 {
     if ( !ioObj() )
     {
-	uiMSG().error( "Please select a 2D Prestack Data Store" );
+	uiMSG().error( tr("Please select a 2D Prestack Data Store") );
 	return false;
     }
     lnms_.erase();
     lnmsfld_->getChosen( lnms_ );
     if ( lnms_.isEmpty() )
     {
-	uiMSG().error( "Please select one or more lines" );
+	uiMSG().error( tr("Please select one or more lines") );
 	return false;
     }
 
@@ -448,9 +450,9 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     const int selidx = listfld_->currentItem();
     if ( selidx < 0 ) return;
 
-    BufferString msg( "Unload '" );
-    msg += listfld_->textOfItem( selidx );
-    msg += "'?\n(This will not delete the object from disk)";
+    uiString msg = tr("Unload '%1'?\n(This will not delete "
+		      "the object from disk)")
+		 .arg(listfld_->textOfItem( selidx ));
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
@@ -482,7 +484,7 @@ void uiSeisPreLoadMgr::openPush( CallBacker* )
     delete ctio.ioobj;
     od_istream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( BufferString("Cannot open input file:\n",fnm) )
+	mErrRet( tr("Cannot open input file:\n%1").arg(fnm) )
 
     ascistream astrm( strm,true );
     IOPar iop( astrm );
@@ -508,7 +510,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
     delete ctio.ioobj;
     od_ostream strm( fnm );
     if ( !strm.isOK() )
-	mErrRet( BufferString("Cannot open output file:\n",fnm) )
+	mErrRet( tr("Cannot open output file:\n%1").arg(fnm) )
 
     IOPar alliop;
     for ( int iobj=0; iobj<ids_.size(); iobj++ )
@@ -521,6 +523,6 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 
     ascostream astrm( strm );
     if ( !astrm.putHeader("Pre-loads") )
-	mErrRet( BufferString("Cannot write to output file:\n",fnm) )
+	mErrRet( tr("Cannot write to output file:\n%1").arg(fnm) )
     alliop.putTo( astrm );
 }

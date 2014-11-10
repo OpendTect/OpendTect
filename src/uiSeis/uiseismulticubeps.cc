@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 class uiSeisMultiCubePSEntry
-{
+{ mODTextTranslationClass(uiSeisMultiCubePSEntry);
 public:
 	uiSeisMultiCubePSEntry( IOObj* i )
 	    : ioobj_(i), comp_(0)	{}
@@ -330,7 +330,7 @@ bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 				offsfld_->getfValue(1) );
     if ( offset.isUdf() )
     {
-	uiMSG().error( "Please provide values for the offset start/step" );
+	uiMSG().error( tr("Please provide values for the offset start/step") );
 	return false;
     }
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class IOObj;
 class uiGenInput;
@@ -25,7 +26,7 @@ class uiSeis2DLineNameSel;
 namespace Geometry { class RandomLine; class RandomLineSet; }
 
 mExpClass(uiSeis) uiSeisRandTo2DBase : public uiGroup
-{
+{ mODTextTranslationClass(uiSeisRandTo2DBase);
 public:
     			uiSeisRandTo2DBase(uiParent*,bool rdlsel);
 			~uiSeisRandTo2DBase();

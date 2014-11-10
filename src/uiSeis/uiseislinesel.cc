@@ -357,7 +357,7 @@ void uiSeis2DLineSel::selPush( CallBacker* )
 
     const TypeSet<int> curselidxs = selidxs_;
     uiDialog dlg( this,
-		  uiDialog::Setup("Line selection",mNoDlgTitle,mNoHelpKey) );
+		  uiDialog::Setup(tr("Line selection"),mNoDlgTitle,mNoHelpKey));
     uiSeis2DLineChoose* lchfld = new uiSeis2DLineChoose( &dlg,
 		    ismultisel_ ? OD::ChooseAtLeastOne : OD::ChooseOnlyOne,
 		    lnms_, geomids_ );
@@ -406,7 +406,7 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     , forread_(forread)
     , nameChanged(this)
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Line name" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("Line name") );
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
     if ( !forread_ ) fld_->addItem( "" );
@@ -491,7 +491,7 @@ void uiSeis2DLineNameSel::setDataSet( const MultiID& ky )
 
 
 class uiSeis2DMultiLineSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeis2DMultiLineSelDlg);
 public:
 			uiSeis2DMultiLineSelDlg(uiParent*,
 				const TypeSet<Pos::GeomID>& geomids,
@@ -542,14 +542,14 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 				const TypeSet<StepInterval<int> >& maxtrcrgs,
 				const TypeSet<StepInterval<float> >& maxzrgs,
 				bool withz, bool withstep )
-    : uiDialog( p, uiDialog::Setup("Select 2D Lines",mNoDlgTitle,
+    : uiDialog( p, uiDialog::Setup(tr("Select 2D Lines"),mNoDlgTitle,
                                     mODHelpKey(mSeis2DMultiLineSelDlgHelpID) ) )
     , maxtrcrgs_(maxtrcrgs), maxzrgs_(maxzrgs)
     , trcrgs_(maxtrcrgs), zrgs_(maxzrgs)
     , zrgfld_(0)
 {
-    uiLabeledListBox* llb = new uiLabeledListBox( this, lnms, "Select Lines",
-						  OD::ChooseAtLeastOne );
+    uiLabeledListBox* llb = new uiLabeledListBox(this, lnms, tr("Select Lines"),
+						 OD::ChooseAtLeastOne );
     lnmsfld_ = llb->box();
     lnmsfld_->selectionChanged.notify(
 		mCB(this,uiSeis2DMultiLineSelDlg,lineSel) );
@@ -569,7 +569,7 @@ uiSeis2DMultiLineSelDlg::uiSeis2DMultiLineSelDlg( uiParent* p,
 		mCB(this,uiSeis2DMultiLineSelDlg,zRgChanged) );
 	zrgfld_->attach( alignedBelow, trcrgfld_ );
 
-	uiPushButton* allbut = new uiPushButton( this, "Apply to all lines",
+	uiPushButton* allbut = new uiPushButton( this, tr("Apply to all lines"),
 		mCB(this,uiSeis2DMultiLineSelDlg,applyZRgToAllCB), true );
 	allbut->attach( rightOf, zrgfld_ );
     }

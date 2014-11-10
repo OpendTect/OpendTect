@@ -54,7 +54,7 @@ bool uiSeisIOObjInfo::provideUserInfo() const
     if ( !conn || !trans->initRead(conn) )
     {
 	if ( doerrs )
-	    uiMSG().error( "No output cube produced" );
+	    uiMSG().error( tr("No output cube produced") );
 	return false;
     }
 
@@ -84,7 +84,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	if ( fsysname == "FAT32" )
 	{
 	    uiMSG().error( tr("Target directory has a FAT32 File System.\n"
-			   "Files larger than 4GB are not supported") );
+			      "Files larger than 4GB are not supported") );
 	    return false;
 	}
     }
@@ -94,23 +94,22 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     {
 	if ( !doerrs ) return false;
 	if ( !uiMSG().askContinue( tr("The output disk seems to be full.\n"
-				"Do you want to continue?") ) )
+				      "Do you want to continue?") ) )
 	    return false;
     }
     else if ( szmb > avszmb )
     {
 	if ( !doerrs ) return false;
-	BufferString msg( "The new cube size may exceed the space "
-			   "available on disk:\n" );
-	if ( avszmb == 0 )
-	    msg = "The disk seems to be full!";
-	else
-	{
-	    msg += "\nEstimated size: "; msg += szmb;
-	    msg += " MB\nAvailable on disk: "; msg += avszmb;
-	    msg += " MB";
-	}
-	msg += "\nDo you want to continue?";
+	uiString msg = tr( "The new cube size may exceed the space "
+			   "available on disk:\n%1\nDo you want to continue?" );
+
+	uiString explanationmsg = avszmb == 0 ? tr("The disk seems to be full!")
+					      : tr("\nEstimated size: %1 MB\n"
+						   "Available on disk: %2 MB")
+					      .arg(szmb).arg(avszmb);
+	
+	msg.arg(explanationmsg);
+	
 	if ( !uiMSG().askContinue( msg ) )
 	    return false;
     }

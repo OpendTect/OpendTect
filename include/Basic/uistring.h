@@ -192,7 +192,7 @@ public:
 
 
 mExpClass(Basic) uiStringSet : public TypeSet<uiString>
-{
+{ mODTextTranslationClass(uiStringSet);
 public:
 		uiStringSet()				{}
 		uiStringSet(const uiStringSet& sl) : TypeSet<uiString>(sl)  {}

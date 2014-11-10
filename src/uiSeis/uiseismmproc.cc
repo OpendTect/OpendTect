@@ -100,19 +100,20 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& iop )
     setCancelText( uiStrings::sEmptyString() );
 
     if ( parfnm_.isEmpty() )
-	mRetInvJobSpec( tr("Invalid job specification file pass."
-		"\nMissing 'File name' key.") )
+	mRetInvJobSpec(tr("Invalid job specification file pass."
+			  "\nMissing 'File name' key."))
 
     const char* idres = jobpars_.find( SeisJobExecProv::outputKey(jobpars_) );
     if ( !idres )
-	mRetInvJobSpec( "Cannot find the output ID in the job specification."
-	"\nThis may mean the job is not fit for Multi-Job/Machine execution" )
+	mRetInvJobSpec(tr("Cannot find the output ID in the job specification."
+			  "\nThis may mean the job is not fit for "
+			  "Multi-Job/Machine execution") )
 
     const MultiID outid( idres );
     outioobjinfo_ = new uiSeisIOObjInfo( outid );
     if ( !outioobjinfo_->isOK() )
-	mRetInvJobSpec( BufferString("Cannot find output cube (", idres,
-			") in object management." ) );
+	mRetInvJobSpec(tr("Cannot find output cube (%1) in object management.")
+		     .arg(idres));
 
     nrinlperjob_ = InlineSplitJobDescProv::defaultNrInlPerJob();
     jobpars_.get( "Nr of Inlines per Job", nrinlperjob_ );

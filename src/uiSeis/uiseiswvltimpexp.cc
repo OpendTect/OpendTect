@@ -135,7 +135,7 @@ MultiID uiSeisWvltImp::selKey() const
 
 // uiSeisWvltExp
 uiSeisWvltExp::uiSeisWvltExp( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Wavelet",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Export Wavelet"),mNoDlgTitle,
                                  mODHelpKey(mSeisWvltImpHelpID) ))
 {
     setOkText( uiStrings::sExport() );

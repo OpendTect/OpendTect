@@ -68,12 +68,12 @@ MultiID uiSeisWvltCreate::storeKey() const
 
 
 uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
-    : uiSeisWvltCreate(p,uiDialog::Setup("Create Wavelet",
-				 "Specify wavelet creation parameters",
+    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Create Wavelet"),
+				 tr("Specify wavelet creation parameters"),
 				 mODHelpKey(mSeisWvltManCrWvltHelpID) ))
 {
-    isrickfld_ = new uiGenInput( this, "Wavelet type",
-				BoolInpSpec(true,"Ricker","Sinc") );
+    isrickfld_ = new uiGenInput( this, tr("Wavelet type"),
+				BoolInpSpec(true,tr("Ricker"),tr("Sinc")) );
 
     const float sisr = SI().zStep();
     float deffrq = 0.1f / sisr; int ideffr = mNINT32(deffrq);
@@ -89,7 +89,7 @@ uiSeisWvltGen::uiSeisWvltGen( uiParent* p )
     srfld_ = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld_->attach( alignedBelow, freqfld_ );
 
-    peakamplfld_ = new uiGenInput( this, "Peak amplitude", FloatInpSpec(1) );
+    peakamplfld_ = new uiGenInput(this, tr("Peak amplitude"), FloatInpSpec(1));
     peakamplfld_->attach( alignedBelow, srfld_ );
    
     wvltfld_->attach( alignedBelow, peakamplfld_ );
@@ -103,11 +103,11 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
     const float freq = freqfld_->getfValue();
 
     if ( mIsUdf(sr) || sr <= 0 )
-	mErrRet( "The sample interval is not valid" )
+	mErrRet( tr("The sample interval is not valid") )
     else if ( peakampl == 0 )
-	mErrRet( "The peak amplitude must be non-zero" )
+	mErrRet( tr("The peak amplitude must be non-zero") )
     else if ( mIsUdf(freq) || freq <= 0 )
-	mErrRet( "The frequency must be positive" )
+	mErrRet( tr("The frequency must be positive") )
 
     const float realsr = sr / SI().zDomain().userFactor();
     Wavelet wvlt( isrickfld_->getBoolValue(), freq, realsr, peakampl );
@@ -119,20 +119,20 @@ bool uiSeisWvltGen::acceptOK( CallBacker* )
 
 static const char* centernms[] = { "maximum amplitude", "maximum Energy", 0 };
 uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
-    : uiSeisWvltCreate(p,uiDialog::Setup("Merge Wavelets",
-				 "Select two ore more wavelets to be stacked",
+    : uiSeisWvltCreate(p,uiDialog::Setup(tr("Merge Wavelets"),
+			tr("Select two ore more wavelets to be stacked"),
 				 mODHelpKey(mSeisWvltMergeHelpID) ))
     , maxwvltsize_(0)					      
     , stackedwvlt_(0)					      
     , curwvltnm_(curwvltnm)
 {
-    normalizefld_ = new uiCheckBox( this, "Normalize wavelets" );
+    normalizefld_ = new uiCheckBox( this, tr("Normalize wavelets") );
     normalizefld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
-    centerfld_ = new uiCheckBox( this, "Center wavelets" );
+    centerfld_ = new uiCheckBox( this, tr("Center wavelets") );
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,centerChged) );
     centerfld_->activated.notify( mCB(this,uiSeisWvltMerge,reloadAll) );
     centerfld_->attach( rightOf, normalizefld_ );
-    centerchoicefld_ = new uiLabeledComboBox( this, "at" );
+    centerchoicefld_ = new uiLabeledComboBox( this, tr("at") );
     centerchoicefld_->box()->addItems( centernms );
     centerchoicefld_->box()->selectionChanged.notify( 
 	    				mCB(this,uiSeisWvltMerge,reloadAll) );
@@ -144,7 +144,7 @@ uiSeisWvltMerge::uiSeisWvltMerge( uiParent* p, const char* curwvltnm )
     constructDrawer( true );
     reloadFunctions();
 
-    wvltfld_->setLabelText("Save stacked wavelet");
+    wvltfld_->setLabelText(tr("Save stacked wavelet"));
     wvltfld_->setSensitive( false );
 
     for ( int idx=0; idx<wvltdrawer_.size(); idx++ )
@@ -256,7 +256,7 @@ void uiSeisWvltMerge::constructDrawer( bool isnormalized )
     uiFunctionDrawer::Setup su; su.name_ = "Wavelet Stacking";
     su.funcrg_ = xaxrg;
     su.xaxrg_ = xaxrg;		 su.yaxrg_ = yaxrg;
-    su.xaxcaption_ = "time (s)"; su.yaxcaption_ = "Amplitude";
+    su.xaxcaption_ = tr("time (s)"); su.yaxcaption_ = tr("Amplitude");
 
     wvltdrawer_ += new uiFuncSelDraw( this, su );
 }
@@ -272,7 +272,7 @@ void uiSeisWvltMerge::reloadWvlts()
     const IODir iodir( ctio_.ctxt.getSelKey() );
     const IODirEntryList del( iodir, ctio_.ctxt );
     if ( del.size() < 2 ) 
-    { uiMSG().error( "not enough wavelets available" ); return; }
+    { uiMSG().error( tr("not enough wavelets available") ); return; }
 
     for ( int delidx=0; delidx<del.size(); delidx++ )
     {
@@ -379,7 +379,7 @@ void uiSeisWvltMerge::centerChged( CallBacker* )
 bool uiSeisWvltMerge::acceptOK( CallBacker* )
 {
     if ( !stackedwvlt_ )
-	mErrRet( "there is no stacked wavelet to be saved" );
+	mErrRet( tr("there is no stacked wavelet to be saved") );
     return putWvlt( *stackedwvlt_ );
 }
 

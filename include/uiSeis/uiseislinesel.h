@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
-
+#include "uistring.h"
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "multiid.h"
@@ -37,7 +37,7 @@ class IOObj;
 
 
 mExpClass(uiSeis) uiSeis2DLineChoose : public uiGroup
-{
+{ mODTextTranslationClass(uiSeis2DLineChoose);
 public:
 
 			uiSeis2DLineChoose(uiParent*,
@@ -117,7 +117,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeis2DLineNameSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSeis2DLineNameSel);
 public:
 
 			uiSeis2DLineNameSel(uiParent*,bool forread);
@@ -146,7 +146,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeis2DMultiLineSel : public uiSeis2DLineSel
-{
+{ mODTextTranslationClass(uiSeis2DMultiLineSel);
 public:
 			uiSeis2DMultiLineSel(uiParent*,const char* text=0,
 					  bool withz=false,bool withstep=false);

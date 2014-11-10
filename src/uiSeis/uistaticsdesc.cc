@@ -31,7 +31,7 @@ uiStaticsDesc::uiStaticsDesc( uiParent* p, const StaticsDesc* sd )
 {
     IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();    
     ctxt.forread = true;
-    horfld_ = new uiIOObjSel( this, ctxt, "Statics elevation" );
+    horfld_ = new uiIOObjSel( this, ctxt, tr("Statics elevation") );
     horfld_->selectionDone.notify( mCB(this,uiStaticsDesc,updateFlds));
 
     useconstantvelfld_ = new uiGenInput( this, tr("Use constant velocity"),

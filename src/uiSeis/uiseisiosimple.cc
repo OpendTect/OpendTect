@@ -510,7 +510,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    if ( nrcpi == 0 || crldeffld_->isUndef(2) )
 	    {
 		uiMSG().error( tr("Please define the number"
-                               " of Xlines per Inline"));
+				  " of Xlines per Inline"));
 		return false;
 	    }
 	    data().nrcrlperinl_ = nrcpi;
@@ -532,7 +532,8 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	if ( !subselfld_->isAll() )
 	{
 	    TrcKeyZSampling cs;
-	    subselfld_->getSampling( cs.hrg ); subselfld_->getZRange( cs.zsamp_ );
+	    subselfld_->getSampling( cs.hrg ); 
+	    subselfld_->getZRange( cs.zsamp_ );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
     }
@@ -541,7 +542,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     uiTaskRunner dlg( this );
     const bool res = TaskRunner::execute( &dlg, sios ) && !ismulticomp;
     if ( res )
-	uiMSG().message( "Data successfully ",
-			 isimp_ ? "imported." : "exported." );
+	uiMSG().message(tr("Data successfully %1")
+		      .arg(isimp_ ? tr("imported.") : tr("exported.")));
     return false;
 }

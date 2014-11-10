@@ -37,7 +37,7 @@ uiSeisWaveletSel::uiSeisWaveletSel( uiParent* p, const char* seltxt,
 
     if ( withextract )
     {
-	uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
+	uiPushButton* crwvltbut = new uiPushButton( this, tr("Extract"),
 				mCB(this,uiSeisWaveletSel,extractCB), false );
 	crwvltbut->attach( rightOf, lastfld );
 	lastfld = crwvltbut;

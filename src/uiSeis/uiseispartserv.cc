@@ -233,7 +233,7 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 {
     selids.erase();
 
-    uiDialog::Setup dsu( "Select 2D Lines", mNoDlgTitle,
+    uiDialog::Setup dsu( tr("Select 2D Lines"), mNoDlgTitle,
 			 mODHelpKey(mSeisPartServerselect2DLinesHelpID) );
     uiDialog dlg( parent(), dsu );
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
@@ -244,7 +244,7 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 	   .add( "Load default data" )
 	   .add( "Select attribute" );
     uiGenInput* optfld =
-	new uiGenInput( &dlg, "On OK", StringListInpSpec(options) );
+	new uiGenInput( &dlg, tr("On OK"), StringListInpSpec(options) );
     optfld->attach( alignedBelow, lchfld );
     cursorchgr.restore();
     if ( !dlg.go() )

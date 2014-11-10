@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "ranges.h"
 #include "sets.h"
+#include "uistring.h"
 
 class IOObj;
 class TrcKeySampling;
@@ -36,7 +37,7 @@ class uiSeis2DLineNameSel;
 
 
 mExpClass(uiSeis) uiSeisSubSel : public uiGroup
-{
+{ mODTextTranslationClass(uiSeisSubSel);
 public:
 
     static uiSeisSubSel* get(uiParent*,const Seis::SelSetup&);
@@ -72,7 +73,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeis3DSubSel : public uiSeisSubSel
-{
+{ mODTextTranslationClass(uiSeis3DSubSel);
 public:
 
     			uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
@@ -84,7 +85,7 @@ public:
 
 
 mExpClass(uiSeis) uiSeis2DSubSel : public uiSeisSubSel
-{
+{ mODTextTranslationClass(uiSeis2DSubSel);
 public:
 
 			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);

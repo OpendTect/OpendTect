@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSeisFmtScaleData
-{
+{ mODTextTranslationClass(uiSeisFmtScaleData);
 public:
 
 uiSeisFmtScaleData() : stor_(0), sclr_(0), optim_(false), trcgrow_(false) {}
@@ -55,19 +55,19 @@ Scaler* getScaler() const
 
 
 class uiSeisFmtScaleDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisFmtScaleDlg);
 public:
 
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 		   bool fixedfmtscl, bool withext )
-    : uiDialog(p,uiDialog::Setup("Format / Scaling",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Format / Scaling"),mNoDlgTitle,
 				 mODHelpKey(mSeisFmtScaleDlgHelpID) ))
     , optimfld_(0)
     , trcgrowfld_(0)
     , data_(d)
     , gt_(gt)
 {
-    stortypfld_ = new uiGenInput( this, "Storage",
+    stortypfld_ = new uiGenInput( this, tr("Storage"),
 		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
     stortypfld_->setValue( data_.stor_ );
     if ( fixedfmtscl )
@@ -82,15 +82,15 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
 
     if ( withext )
     {
-	trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
-				      BoolInpSpec(false) );
+	trcgrowfld_ = new uiGenInput(this, tr("Adjust Z range to survey range"),
+				     BoolInpSpec(false));
 	trcgrowfld_->attach( alignedBelow, scalefld_ );
     }
 
     if ( Seis::is3D(gt) && !Seis::isPS(gt_) )
     {
-	optimfld_ = new uiGenInput( this, "Optimize horizontal slice access",
-				   BoolInpSpec(true) );
+	optimfld_ = new uiGenInput(this, tr("Optimize horizontal slice access"),
+				   BoolInpSpec(true));
 	optimfld_->setValue( data_.optim_ );
 	if ( trcgrowfld_ )
 	    optimfld_->attach( alignedBelow, trcgrowfld_ );
@@ -119,7 +119,7 @@ bool acceptOK( CallBacker* )
 
 
 class uiSeisFmtScaleComp : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiSeisFmtScaleComp);
 public:
 
 uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, bool ffs, bool we )

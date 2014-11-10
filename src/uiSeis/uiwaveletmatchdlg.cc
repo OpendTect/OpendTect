@@ -30,7 +30,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
 
     IOObjContext ctxt( mIOObjContext(Wavelet) );
     ctxt.forread = false;
-    outwvltfld_ = new uiIOObjSel( this, ctxt, "Output Wavelet" );
+    outwvltfld_ = new uiIOObjSel( this, ctxt, tr("Output Wavelet") );
     outwvltfld_->attach( alignedBelow, wvlt1fld_ );
 }
 
@@ -80,7 +80,7 @@ bool uiWaveletMatchDlg::acceptOK( CallBacker* )
     const bool res = wvlt.put( outioobj );
     if ( !res )
     {
-	uiMSG().error( "Cannot store new wavelet" );
+	uiMSG().error( tr("Cannot store new wavelet") );
 	return false;
     }
 

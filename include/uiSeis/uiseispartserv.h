@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uiapplserv.h"
 #include "multiid.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class TrcKeyZSampling;
@@ -34,7 +35,7 @@ namespace Geometry { class RandomLine; }
 */
 
 mExpClass(uiSeis) uiSeisPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiSeisPartServer);
 public:
 			uiSeisPartServer(uiApplService&);
 			~uiSeisPartServer();

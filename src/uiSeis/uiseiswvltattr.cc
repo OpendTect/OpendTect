@@ -63,9 +63,9 @@ uiSeisWvltSliderDlg::~uiSeisWvltSliderDlg()
 uiSeisWvltRotDlg::uiSeisWvltRotDlg( uiParent* p, Wavelet& wvlt )
     : uiSeisWvltSliderDlg(p,wvlt)
 {
-    setCaption( "Phase rotation Slider" );
+    setCaption( tr("Phase rotation Slider") );
     uiSlider::Setup su;
-    su.lbl_ = "Rotate phase (degrees)";
+    su.lbl_ = tr("Rotate phase (degrees)");
     su.isvertical_ = true;
     su.sldrsize_ = 250;
     su.withedit_ = true;
@@ -103,10 +103,10 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     , wvltsz_(wvlt.size())
     , freqvals_(new Array1DImpl<float>(mPadSz))
 {
-    setCaption( "Taper Wavelet" );
+    setCaption( tr("Taper Wavelet") );
     setHelpKey( mODHelpKey(mSeisWvltTaperDlgHelpID) );
     uiSlider::Setup su;
-    su.lbl_ = "Taper Wavelet (%)";
+    su.lbl_ = tr("Taper Wavelet (%)");
     su.sldrsize_ = 220;
     su.withedit_ = true;
     su.isvertical_ = false;
@@ -114,7 +114,7 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     StepInterval<float> sintv( 0, 100, 1 );
     constructSlider( su, sintv );
 
-    mutefld_ = new uiCheckBox( this, "mute zero frequency" );
+    mutefld_ = new uiCheckBox( this, tr("mute zero frequency") );
     mutefld_->setChecked();
     mutefld_->attach( rightOf, sliderfld_ );
     mutefld_->activated.notify( mCB( this, uiSeisWvltTaperDlg, act )  );
@@ -125,26 +125,26 @@ uiSeisWvltTaperDlg::uiSeisWvltTaperDlg( uiParent* p, Wavelet& wvlt )
     uiFuncTaperDisp::Setup s;
     bool istime = SI().zIsTime();
     s.datasz_ = istime ? (int) ( 0.5/SI().zStep() ) : 100;
-    s.xaxcaption_ = istime ? "Time (s)" : "Depth (m)";
-    s.yaxcaption_ = "Taper Amplitude";
+    s.xaxcaption_ = istime ? tr("Time (s)") : tr("Depth (m)");
+    s.yaxcaption_ = tr("Taper Amplitude");
 
     timedrawer_ = new uiFuncTaperDisp( this, s );
     s.leftrg_ = Interval<float> ( 0, mCast(float,s.datasz_/6) );
     s.rightrg_ = Interval<float> ( mCast(float,s.datasz_-1),
 				   mCast(float,s.datasz_) );
     s.is2sided_ = true;
-    s.xaxcaption_ = istime ? "Frequency (Hz)" : "Wavenumber(/m)";
-    s.yaxcaption_ = "Gain (dB)";
+    s.xaxcaption_ = istime ? tr("Frequency (Hz)") : tr("Wavenumber(/m)");
+    s.yaxcaption_ = tr("Gain (dB)");
     s.fillbelowy2_ = true;
     s.drawliney_ = false;
     freqdrawer_ = new uiFuncTaperDisp( this, s );
     freqdrawer_->attach( ensureBelow, timedrawer_ );
     freqdrawer_->taperChanged.notify(mCB(this,uiSeisWvltTaperDlg,act) );
 
-    typefld_ = new uiGenInput( this, "Taper",
+    typefld_ = new uiGenInput( this, tr("Taper"),
 		    BoolInpSpec(true, istime ? uiStrings::sTime() 
                                              : uiStrings::sDepth(),
-                                               "Frequency"));
+                                               tr("Frequency")));
     typefld_->valuechanged.notify( mCB(this,uiSeisWvltTaperDlg,typeChoice) );
     typefld_->attach( centeredAbove, timedrawer_ );
 
@@ -292,19 +292,20 @@ void uiWaveletDispProp::addAttrDisp( int attridx )
 {
     uiFunctionDisplay::Setup fdsu;
     attrarrays_ += new Array1DImpl<float>( wvltsz_ );
-    uiString xname = SI().zIsTime() ? "Frequency (Hz)" : "Wavenumber (/m)";
-    uiString yname = "Amplitude";
+    uiString xname = SI().zIsTime() ? tr("Frequency (Hz)") 
+				    : tr("Wavenumber (/m)");
+    uiString yname = tr("Amplitude");
     fdsu.ywidth_ = 2;
 
     if ( attridx == 0 )
-	xname = SI().zIsTime() ? "Time (s)" : "Depth (m)";
+	xname = SI().zIsTime() ? tr("Time (s)") : tr("Depth (m)");
     else if ( attridx == 1 )
     {
 	fdsu.fillbelow( true );
 	attrarrays_[attridx]->setSize( mPadSz );
     }
     else if ( attridx == 2 )
-	yname =  "Phase (degrees)";
+	yname =  tr("Phase (degrees)");
 
     attrdisps_ += new uiFunctionDisplay( this, fdsu );
     if ( attridx )

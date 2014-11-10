@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "uislider.h"
+#include "uistring.h"
 
 class ArrayNDWindow;
 class Wavelet;
@@ -28,7 +29,7 @@ class WaveletAttrib;
 template <class T> class Array1DImpl;
 
 mExpClass(uiSeis) uiSeisWvltSliderDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisWvltSliderDlg);
 public:
 				~uiSeisWvltSliderDlg();
 
@@ -50,7 +51,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltRotDlg : public uiSeisWvltSliderDlg
-{
+{ mODTextTranslationClass(uiSeisWvltRotDlg);
 public:
 				uiSeisWvltRotDlg(uiParent*,Wavelet&);
 protected:
@@ -60,7 +61,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisWvltTaperDlg : public uiSeisWvltSliderDlg
-{
+{ mODTextTranslationClass(uiSeisWvltTaperDlg);
 public:
 				uiSeisWvltTaperDlg(uiParent*,Wavelet&);
 				~uiSeisWvltTaperDlg();
@@ -91,7 +92,7 @@ protected:
 
 
 mExpClass(uiSeis) uiWaveletDispProp : public uiGroup
-{
+{ mODTextTranslationClass(uiWaveletDispProp);
 public:
 
 				uiWaveletDispProp(uiParent*,const Wavelet&);
@@ -117,7 +118,7 @@ private:
 
 
 mExpClass(uiSeis) uiWaveletDispPropDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWaveletDispPropDlg);
 public:
 				uiWaveletDispPropDlg(uiParent*,const Wavelet&);
 				~uiWaveletDispPropDlg();
