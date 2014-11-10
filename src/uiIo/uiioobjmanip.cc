@@ -227,12 +227,12 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
     mDynamicCastGet(uiMainWin*,mw,subj_.obj_->mainwin())
     uiMsgMainWinSetter mws( mw );
 
-    PtrMan<Translator> tr = firstioobj->createTranslator();
+    PtrMan<Translator> trans = firstioobj->createTranslator();
     bool chgd = false;
     if ( isreloc )
-	chgd = relocEntry( *firstioobj, tr );
+	chgd = relocEntry( *firstioobj, trans );
     else if ( isrename )
-	chgd = renameEntry( *firstioobj, tr );
+	chgd = renameEntry( *firstioobj, trans );
     else
     {
 	ObjectSet<IOObj> ioobjs;
@@ -241,10 +241,10 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 
 	if ( issetro )
 	{
-	    const bool isro = tr ? tr->implReadOnly(firstioobj)
-				 : firstioobj->implReadOnly();
+	    const bool isro = trans ? trans->implReadOnly(firstioobj)
+				    : firstioobj->implReadOnly();
 	    for ( int idx=0; idx<ioobjs.size(); idx++ )
-		readonlyEntry( *ioobjs[idx], tr, !isro );
+		readonlyEntry( *ioobjs[idx], trans, !isro );
 	}
 	else if ( isremove )
 	{
