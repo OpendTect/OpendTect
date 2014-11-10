@@ -96,7 +96,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , drawy2userdefpolyline_(false)
     , drawy2_(false)
     , timer_(*new Timer())
-    , trmsg_("Calculating Density" )
+    , trmsg_(tr("Calculating Density"))
 {
     setup_.showy1userdefpolyline(false).showy2userdefpolyline(false);
 
@@ -169,7 +169,7 @@ void uiDataPointSetCrossPlotter::reSizeDrawCB( CallBacker* )
     sely2items_ = 0;
     if ( isdensityplot_ )
     {
-	trmsg_ = "Calculating Density";
+	trmsg_ = tr("Calculating Density");
 	timer_.start( 1200, true );
 	return;
     }
@@ -283,7 +283,7 @@ void uiDataPointSetCrossPlotter::deleteSelections()
     uidps_.setUnsavedChg( true );
     if ( isdensityplot_ )
     {
-	trmsg_ = "Deleting Selected Points";
+	trmsg_ = tr("Deleting Selected Points");
 	drawDensityPlot( true );
     }
     else
@@ -1605,7 +1605,8 @@ int uiDataPointSetCrossPlotter::calcDensity( Array2D<float>* data, bool chgdps,
 		     uiWorldRect((double)arrarea_.left(),(double)arrarea_.top(),
 				 (double)arrarea_.right(),
 				 (double)arrarea_.bottom()) );
-    DensityCalc densitycalc( uidps_, data, x_, yad, selgrpset_, trmsg_.buf() );
+    DensityCalc densitycalc(uidps_, data, x_, yad, selgrpset_,
+			    trmsg_.getFullString());
     densitycalc.setWorld2Ui( w2ui );
     densitycalc.setMathObj( mathobj_ );
     densitycalc.setModifiedColIds( modcolidxs_ );

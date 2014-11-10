@@ -277,8 +277,8 @@ void uiMMBatchJobDispatcher::startWork( CallBacker* )
 
 #define mRetFullFail \
 { \
-    if (uiMSG().askGoOn(tr("Do you want to (try to) remove all temporary data?"\
-		 "If you don't, you may be able to re-start the job later")) ) \
+    if (uiMSG().askGoOn("Do you want to (try to) remove all temporary data?"\
+		 "If you don't, you may be able to re-start the job later") ) \
 	removeTempResults(); \
     return; \
 }
@@ -757,15 +757,15 @@ bool uiMMBatchJobDispatcher::rejectOK( CallBacker* )
     {
 	if ( jobrunner_->jobsDone() > 0 || jobrunner_->jobsInProgress() > 0 )
 	{
-	    BufferString msg = "This will stop all processing!";
+	    uiString msg = tr("This will stop all processing!");
 	    if ( !haveTmpProcFiles() )
 	    {
-		msg += "\n\nDo you want to do this?";
+		msg.arg("\n\nDo you want to do this?");
 		res = uiMSG().askGoOn( msg ) ? 0 : -1;
 	    }
 	    else
 	    {
-		msg += "\n\nDo you want to remove already processed data?";
+		msg.arg("\n\nDo you want to remove already processed data?");
 		res = uiMSG().askRemove( msg, true );
 	    }
 	}

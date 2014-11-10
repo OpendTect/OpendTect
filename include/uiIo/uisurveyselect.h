@@ -54,7 +54,7 @@ protected:
 
 
 mExpClass(uiIo) uiSurveySelect : public uiIOSelect
-{
+{ mODTextTranslationClass(uiSurveySelect);
 public:
 			uiSurveySelect(uiParent*,bool forread,
 				       bool needvalidrootdir,

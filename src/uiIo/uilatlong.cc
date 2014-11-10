@@ -24,7 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiLatLongDMSInp : public uiGroup
-{
+{ mODTextTranslationClass(uiLatLongDMSInp);
 public:
 			uiLatLongDMSInp(uiParent*,bool lat);
 
@@ -222,31 +222,33 @@ bool uiLatLong2CoordDlg::acceptOK( CallBacker* )
     LatLong ll; latlngfld_->get( ll );
     const Coord crd = coordfld_->getCoord();
     if ( mIsUdf(ll.lat_) || mIsUdf(ll.lng_) || mIsUdf(crd.x) || mIsUdf(crd.y) )
-	mErrRet("Please fill all fields")
-    if ( ll.lat_ > 90 || ll.lat_ < -90 )
-	mErrRet("Latitude must be between -90 and 90")
-    if ( ll.lng_ > 180 || ll.lng_ < -180 )
-	mErrRet("Longitude must be between -180 and 180")
+	mErrRet(tr("Please fill all fields"))
+	if (ll.lat_ > 90 || ll.lat_ < -90)
+	mErrRet(tr("Latitude must be between -90 and 90"))
+	    if (ll.lng_ > 180 || ll.lng_ < -180)
+	mErrRet(tr("Longitude must be between -180 and 180"))
     if ( !si_->isReasonable(crd) )
     {
 	if ( !uiMSG().askContinue(
-		    "The coordinate seems to be far away from the survey."
-		    "\nContinue?") )
+	    tr("The coordinate seems to be far away from the survey."
+	       "\nContinue?")))
 	    return false;
     }
 
     ll2c_.set( ll, crd );
     if ( !ll2c_.isOK() )
     {
-	uiMSG().error( "Sorry, your Lat/Long definition has a problem" );
+	uiMSG().error(tr("Sorry, your Lat/Long definition has a problem"));
 	return false;
     }
 
     si_->getLatlong2Coord() = ll2c_;
     if ( !si_->write() )
     {
-	uiMSG().error( "Could not write the definitions to your '.survey' file"
-		    "\nThe definition will work this OpendTect session only" );
+	uiMSG().error(tr("Could not write the definitions "
+			 "to your '.survey' file"
+			 "\nThe definition will work this "
+			 "OpendTect session only"));
 	return false;
     }
 

@@ -192,9 +192,9 @@ bool uiEditSampledProbDenFunc::getNamesFromScreen()
     {
 	const BufferString newnm( nmflds_[idim]->text() );
 	if ( newnm.isEmpty() )
-	    mErrRet("Please enter all dimension names")
-	if ( nms.isPresent(newnm) )
-	    mErrRet("No duplicate dimension names allowed")
+	    mErrRet(tr("Please enter all dimension names"))
+	    if (nms.isPresent(newnm))
+	    mErrRet(tr("No duplicate dimension names allowed"))
 	if ( newnm != pdf_.dimName(idim) )
 	{
 	    pdf_.setDimName( idim, nmflds_[idim]->text() );
@@ -241,7 +241,7 @@ bool uiEditSampledProbDenFunc::getValsFromScreen( bool* chgd )
 	    BufferString tbltxt = tbl_->text( RowCol(irow,icol) );
 	    tbltxt.trimBlanks();
 	    if ( tbltxt.isEmpty() )
-		mErrRet("Please fill all cells - or use 'Cancel'")
+		mErrRet(tr("Please fill all cells - or use 'Cancel'"))
 
 	    idxs[0] = nrdims_ == 1 ? rowidx : icol;
 	    const float tblval = tbltxt.toFloat();
@@ -754,7 +754,7 @@ void uiEditGaussianProbDenFunc::addSetPush( CallBacker* )
     if ( mIsUdf(cc) )
 	return;
     else if ( cc == 0 )
-	{ uiMSG().error( "A zero correlation is not a correlation" ); return; }
+    { uiMSG().error(tr("A zero correlation is not a correlation")); return; }
 
     int icorr = findCorr();
     if ( icorr >= 0 )
@@ -794,13 +794,13 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 	const float exp = expflds_[idim]->getfValue();
 	const float stdev = stdflds_[idim]->getfValue();
 	if ( nm.isEmpty() )
-	    mErrRet("Please enter a name for all dimensions")
-	else if ( varnms.isPresent(nm) )
-	    mErrRet("Please enter different names for all dimensions")
-	if ( mIsUdf(exp) || mIsUdf(stdev) )
-	    mErrRet("Please enter all distribution values")
-	if ( stdev == 0 )
-	    mErrRet("Standard deviations cannot be zero")
+	    mErrRet(tr("Please enter a name for all dimensions"))
+	else if (varnms.isPresent(nm))
+	    mErrRet(tr("Please enter different names for all dimensions"))
+	if (mIsUdf(exp) || mIsUdf(stdev))
+	    mErrRet(tr("Please enter all distribution values"))
+	    if (stdev == 0)
+	    mErrRet(tr("Standard deviations cannot be zero"))
 	varnms.add( nm );
 
 	if ( pdfnd_ )
@@ -822,8 +822,9 @@ bool uiEditGaussianProbDenFunc::commitChanges()
 	tabChg( 0 );
 	const char* uncorr = pdfnd_->firstUncorrelated();
 	if ( uncorr && *uncorr && !uiMSG().askGoOn(
-		BufferString( "Variable '", uncorr, "' is not correlated."
-			"\nDo you wish to leave uncorrelated variables?") ) )
+	    tr("Variable '%1' is not correlated."
+	       "\nDo you wish to leave uncorrelated variables?")
+	  .arg(uncorr)))
 	    return false;
     }
     else if ( pdf2d_ )

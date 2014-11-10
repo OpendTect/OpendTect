@@ -40,7 +40,7 @@ struct uiDPSCPScalingTabAxFlds
 
 
 class uiDPSCPScalingTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiDPSCPScalingTab);
 public:
 
 uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -155,7 +155,8 @@ bool acceptOK()
 	    float cr = axflds.percclipfld_->getfValue() * 0.01f;
 	    if ( cr < 0 || cr > 1 )
 	    {
-		uiMSG().error("Clipping percentage must be between 0 and 100");
+		uiMSG().error(tr("Clipping percentage must "
+				 "be between 0 and 100"));
 		return false;
 	    }
 	    asp.clipratio_ = cr;
@@ -248,7 +249,7 @@ bool acceptOK()
 
 
 class uiDPSUserDefTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiDPSUserDefTab);
 public:
 
 uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -392,20 +393,19 @@ bool parseExp( CallBacker* cb )
 	}
 	else if ( !mathexpr.isEmpty() )
 	{
-	    msg_ = "Expression for Y";
-	    msg_ += isy1 ? "1" : "2";
-	    msg_ += " is invalid.";
+	    msg_ = tr("Expression for Y%1 is invalid.")
+		 .arg(isy1 ? "1" : "2");
 	    uiMSG().error( msg() );
 	    chkbox->setChecked( false );
 	}
 	return false;
     }
 
+    chkbox->setChecked(false);
     if ( mathobj->nrVariables() > 1 )
     {
-	msg_ = "Expression for Y";
-	msg_ += isy1 ? "1" : "2";
-	msg_ += " contains more than one variable.";
+	msg_ = tr("Expression for Y%1 contains more than one variable.")
+	     .arg(isy1 ? "1" : "2");
 	uiMSG().error( msg() );
 	chkbox->setChecked( false );
 	return false;
@@ -564,17 +564,15 @@ void computePts( bool isy2 )
 
     if ( pts.size() == 0 )
     {
-	msg_ = "Y"; msg_ += isy2 ? 2 : 1;
-	msg_ += " cannot be plotted.";
+	msg_ = tr("Y%1 cannot be plotted").arg(isy2 ? 2 : 1);
 	uiMSG().error( msg() );
 	return;
     }
 
     if ( !vert.axis_->range().includes(curvyvalrg) )
     {
-	msg_ = "Y"; msg_ += isy2 ? 2 : 1;
-	msg_ += " goes beyond the autoscaled range. ";
-	msg_ += "Do you want to rescale?";
+	msg_ = tr("Y%1 goes beyond the autoscaled range. "
+		  "Do you want to rescale?").arg(isy2 ? 2 : 1);
 
 	if ( uiMSG().askGoOn(msg_) )
 	{
@@ -711,13 +709,13 @@ bool acceptOK()
     BufferString			mathexprstring1_;
     Math::Expression*			mathobj_;
     Math::Expression*			mathobj1_;
-    const char*		msg() const  { return msg_.str(); }
-    mutable BufferString	msg_;
+    uiString		msg() const  { return msg_; }
+    mutable uiString	msg_;
 };
 
 
 class uiDPSCPDisplayPropTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiDPSCPDisplayPropTab);
 public:
 
 uiDPSCPDisplayPropTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -762,7 +760,7 @@ bool acceptOK()
 {
     if ( sizefld_->getIntValue() <= 0 )
     {
-	uiMSG().error( "Cannot put negative size for size." );
+	uiMSG().error(tr("Cannot put negative size for size."));
 	return false;
     }
 
@@ -792,7 +790,7 @@ bool acceptOK()
 
 
 class uiDPSDensPlotSetTab : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiDPSDensPlotSetTab);
 public:
 
 uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
@@ -802,8 +800,9 @@ uiDPSDensPlotSetTab( uiDataPointSetCrossPlotterPropDlg* p )
     Settings& setts = Settings::common();
     if ( !setts.get(sKeyMinDPPts(),minptsfordensity_) )
 	minptsfordensity_ = cMinPtsForDensity;
-    BufferString msg( "Current Number of Points (including undefined values) ");
-    msg += plotter_.totalNrItems();
+    uiString msg = tr("Current Number of Points "
+		      "(including undefined values) %1")
+		 .arg(plotter_.totalNrItems());
     uiLabel* lbl = new uiLabel( this, msg );
 
     const int cellsize = plotter_.cellSize();
@@ -887,7 +886,7 @@ bool acceptOK()
 
     if ( cellsizefld_->getIntValue() <= 0 )
     {
-	uiMSG().error( "Cannot have a cellsize less than 1" );
+	uiMSG().error(tr("Cannot have a cellsize less than 1"));
 	return false;
     }
 

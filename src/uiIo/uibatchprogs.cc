@@ -353,7 +353,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     OS::MachineCommand mc( BufferString(prognm," ",args) );
     OS::CommandLauncher cl( mc );
     if ( !cl.execute( execpars ) )
-	uiMSG().error( "Could not execute command:\n", mc.command() );
+	uiMSG().error(tr("Could not execute command:\n%1").arg(mc.command()));
 
     return false;
 }

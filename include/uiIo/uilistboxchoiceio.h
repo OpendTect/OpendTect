@@ -33,7 +33,7 @@ class CtxtIOObj;
  */
 
 mExpClass(uiIo) uiListBoxChoiceIO : public CallBacker
-{
+{ mODTextTranslationClass(uiListBoxChoiceIO);
 public:
 
 			uiListBoxChoiceIO(uiListBox&,const char* omftypekey);

@@ -422,9 +422,9 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     const BufferString fnmout = FilePath(outpath).add(outdirnm).fullPath();
     if ( File::exists(fnmout) )
     {
-	BufferString msg( "Cannot copy " ); msg += fnmin;
-	msg += " to "; msg += fnmout;
-	msg += "\nbecause target directory exists";
+	uiString msg = tr("Cannot copy %1 to %2"
+			  "\nbecause target directory exists")
+		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -433,9 +433,9 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
     MouseCursorManager::restoreOverride();
     if ( !File::exists(fnmout) )
     {
-	BufferString msg( "Copy " ); msg += fnmin;
-	msg += " to "; msg += fnmout; msg += " failed\n"
-	    "See startup window for details";
+	uiString msg = tr("Copy %1 to %2 failed\n"
+			  "See startup window for details")
+		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -451,18 +451,18 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
     const BufferString fnmout = FilePath(path).add(outdirnm).fullPath();
     if ( File::exists(fnmout) )
     {
-	BufferString msg( "Cannot rename " ); msg += fnmin;
-	msg += " to "; msg += fnmout;
-	msg += "\nbecause target directory exists";
+	uiString msg = tr("Cannot rename %1 to %2"
+			  "\nbecause target directory exists")
+		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
     File::rename( fnmin, fnmout );
     if ( !File::exists(fnmout) )
     {
-	BufferString msg( "Rename " ); msg += fnmin;
-	msg += " to "; msg += fnmout; msg += " failed\n"
-	    "See startup window for details";
+	uiString msg = tr("Rename %1 to %2 failed\n"
+			  "See startup window for details")
+		     .arg(fnmin).arg(fnmout);
 	uiMSG().error( msg );
 	return false;
     }
@@ -603,8 +603,8 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     {
 	if ( !File::createLink(newdir,linkpos) )
 	{
-	    BufferString msg( "Cannot create link from \n" );
-	    msg += newdir; msg += " to \n"; msg += linkpos;
+	    uiString msg = tr("Cannot create link from \n%1 to \n%2")
+			 .arg(newdir).arg(linkpos);
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -655,11 +655,14 @@ bool uiSurveyInfoEditor::setRanges()
     const int curzunititem = zunitfld_->currentItem();
     si_.setZUnit( curzunititem == 0, curzunititem == 2 );
     cs.zsamp_ = zfld_->getFStepInterval();
-    if ( mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop) || mIsUdf(cs.zsamp_.step) )
+    if (mIsUdf(cs.zsamp_.start) || mIsUdf(cs.zsamp_.stop)
+				|| mIsUdf(cs.zsamp_.step))
 	mErrRet(tr("Please enter the Z Range"))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
-	{ cs.zsamp_.start *= zfac; cs.zsamp_.stop *= zfac; cs.zsamp_.step *= zfac; }
+    { 
+	cs.zsamp_.start *= zfac; cs.zsamp_.stop *= zfac; cs.zsamp_.step *= zfac;
+    }
     if ( mIsZero(cs.zsamp_.step,1e-8) )
 	cs.zsamp_.step = si_.zIsTime() ? 0.004f : 1;
     cs.normalise();
@@ -883,7 +886,7 @@ uiDialog* uiCopySurveySIP::dialog( uiParent* p )
 }
 
 
-bool uiCopySurveySIP::getInfo( uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3] )
+bool uiCopySurveySIP::getInfo(uiDialog* dlg, TrcKeyZSampling& cs, Coord crd[3])
 {
     tdinf_ = Uknown;
     inft_ = false;

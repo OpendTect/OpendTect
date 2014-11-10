@@ -20,7 +20,7 @@ class uiLatLongInp;
 
 
 mExpClass(uiIo) uiLatLong2CoordDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiLatLong2CoordDlg);
 public:
 			uiLatLong2CoordDlg(uiParent*,const LatLong2Coord&,
 					   const SurveyInfo* si=0);

@@ -31,7 +31,7 @@ namespace Pick { class Set; }
 /*! \brief Dialog for creating (a) pick set(s) */
 
 mExpClass(uiIo) RandLocGenPars
-{
+{ mODTextTranslationClass(RandLocGenPars);
 public:
 
 			RandLocGenPars()
@@ -49,7 +49,7 @@ public:
 
 
 mExpClass(uiIo) uiCreatePicks : public uiDialog 
-{
+{ mODTextTranslationClass(uiCreatePicks);
 public:
 			uiCreatePicks(uiParent*,bool aspolygon=false,
 				      bool addstdfields=true);
@@ -71,7 +71,7 @@ protected:
 
 
 mExpClass(uiIo) uiGenPosPicks : public uiCreatePicks
-{
+{ mODTextTranslationClass(uiGenPosPicks);
 public:
     			uiGenPosPicks(uiParent*);
 			~uiGenPosPicks();
@@ -90,7 +90,7 @@ protected:
 
 
 mExpClass(uiIo) uiGenRandPicks2D : public uiCreatePicks
-{
+{ mODTextTranslationClass(uiGenRandPicks2D);
 public:
 
     			uiGenRandPicks2D(uiParent*,const BufferStringSet&,

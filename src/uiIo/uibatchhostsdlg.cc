@@ -274,13 +274,13 @@ void uiBatchHostsDlg::rmHostCB( CallBacker* )
 
     const int row = table_->currentRow();
     const BufferString hostname = table_->text( RowCol(row,1) );
-    BufferString msgtxt;
+    uiString msgtxt;
     if ( !hostname.isEmpty() )
-	msgtxt.set( "Host " ).add( hostname );
+	msgtxt = tr( "Host %1" ).arg( hostname );
     else
-	msgtxt.set( table_->rowLabel(row) );
+	msgtxt = ( table_->rowLabel(row) );
 
-    const BufferString msg( msgtxt, " will be removed from this list" );
+    const uiString msg(tr("%1 will be removed from this list").arg(msgtxt));
     const bool res = uiMSG().askContinue( msg );
     if ( !res ) return;
 
@@ -479,8 +479,8 @@ bool uiBatchHostsDlg::acceptOK( CallBacker* )
 	hostdatalist_.writeHostFile( hostdatalist_.getBatchHostsFilename() );
     if ( !res )
     {
-	uiMSG().error( "Could not write BatchHosts file. "
-		       "Please check file permissions." );
+	uiMSG().error(tr("Could not write BatchHosts file. "
+			 "Please check file permissions."));
 	return false;
     }
 

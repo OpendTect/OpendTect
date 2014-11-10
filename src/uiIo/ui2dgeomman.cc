@@ -58,7 +58,7 @@ ui2DGeomManageDlg::~ui2DGeomManageDlg()
 //-----------Manage Line Geometry-----------------
 
 class uiManageLineGeomDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiManageLineGeomDlg);
 public:
 
 uiManageLineGeomDlg( uiParent* p, const char* linenm )
@@ -76,7 +76,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 		    Survey::GM().getGeometry(linenm) )
     if ( !geom2d )
     {
-	uiMSG().error( "Cannot find geometry for ", linenm );
+	uiMSG().error(tr("Cannot find geometry for %1").arg(linenm));
 	return;
     }
 
@@ -104,7 +104,7 @@ uiManageLineGeomDlg( uiParent* p, const char* linenm )
 //---------- Import New Geomtery ----------------
 
 class uiGeom2DImpDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiGeom2DImpDlg);
 public:
 
 uiGeom2DImpDlg( uiParent* p, const char* linenm )
@@ -122,7 +122,7 @@ uiGeom2DImpDlg( uiParent* p, const char* linenm )
 bool acceptOK( CallBacker* )
 {
     if ( File::isEmpty(geom2dinfld_->fileName()) )
-	{ uiMSG().error( "Invalid input file" ); return false; }
+    { uiMSG().error(tr("Invalid input file")); return false; }
     return true;
 }
 
@@ -141,12 +141,12 @@ void impLineGeom( CallBacker* )
     {
 	od_istream strm( filenm );
 	if ( !strm.isOK() )
-	    { uiMSG().error( "Cannot open input file" ); return; }
+	{ uiMSG().error(tr("Cannot open input file")); return; }
 
 	PosInfo::Line2DData geom( linenm_ );
 	Geom2dAscIO geomascio( dlg.dataselfld_->desc(), strm );
 	if ( !geomascio.getData( geom ) )
-	    uiMSG().error( "Failed to convert into compatible data" );
+	    uiMSG().error(tr("Failed to convert into compatible data"));
 
 	table_->clearTable();
 	fillTable( geom );
@@ -169,8 +169,8 @@ void fillTable( const PosInfo::Line2DData& geom )
 
 bool acceptOK( CallBacker* )
 {
-    if ( !uiMSG().askGoOn("Do you really want to change the geometry?\n"
-			  "This will affect all associated data.") )
+    if (!uiMSG().askGoOn(tr("Do you really want to change the geometry?\n"
+			    "This will affect all associated data.")))
 	return false;
 
     Pos::GeomID geomid = Survey::GM().getGeomID( linenm_ );
@@ -237,12 +237,12 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     if ( !curioobj_ ) return;
 
     const bool docont = uiMSG().askContinue(
-	"All selected 2D geometries will be deleted.\n"
-	"This will invalidate all other data associated with this geometry" );
+       tr("All selected 2D geometries will be deleted.\n"
+	  "This will invalidate all other data associated with this geometry"));
     if ( !docont ) return;
 
     MouseCursorChanger chgr( MouseCursor::Wait );
-    BufferStringSet msgs;
+    uiStringSet msgs;
     TypeSet<MultiID> selids;
     selgrp_->getChosen( selids );
     for ( int idx=0; idx<selids.size(); idx++ )
@@ -258,7 +258,7 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
 
 	if ( !fullImplRemove(*ioobj) )
 	{
-	    msgs.add( BufferString("Cannot remove ",lnm) );
+	    msgs += tr("Cannot remove %1").arg(lnm);
 	    continue;
 	}
 
@@ -284,5 +284,5 @@ void ui2DGeomManageDlg::lineRemoveCB( CallBacker* )
     selgrp_->fullUpdate( MultiID::udf() );
 
     if ( !msgs.isEmpty() )
-	uiMSG().errorWithDetails( msgs );
+	uiMSG().errorWithDetails(msgs);
 }

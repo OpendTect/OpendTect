@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 mClass(uiIo) DPSDensityCalcND : public ParallelTask
-{
+{ mODTextTranslationClass(DPSDensityCalcND);
 public:
 
     struct AxisParam

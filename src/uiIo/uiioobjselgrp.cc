@@ -41,7 +41,7 @@ static const MultiID udfmid( "-1" );
 
 
 class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
-{
+{ mODTextTranslationClass(uiIOObjSelGrpManipSubj);
 public:
 
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
@@ -401,15 +401,16 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	{
 	    ctio_.setObj( 0 );
 	    if ( sz > 0 )
-		uiMSG().error( "Please select the ", mObjTypeName,
-			       "or press Cancel" );
+		uiMSG().error(tr("Please select the %1 or press Cancel"
+				 "or press Cancel").arg(mObjTypeName));
 	    return false;
 	}
 	PtrMan<IOObj> ioobj = getIOObj( curitm );
 	if ( !ioobj )
 	{
-	    uiMSG().error( "Internal error: "
-		"Cannot retrieve ", mObjTypeName, " details from data store" );
+	    uiMSG().error(tr("Internal error: "
+			     "Cannot retrieve %1 details from data store")
+			.arg(mObjTypeName));
 	    IOM().to( MultiID(0) );
 	    fullUpdate( -1 );
 	    return false;
@@ -434,8 +435,9 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	if ( wrtrselfld_ && !wrtrselfld_->isEmpty()
 	    && !wrtrselfld_->hasSelectedTranslator(*ioobj) )
 	{
-	    uiMSG().error( "Sorry, can not change the storage type."
-	       "\nIf you are sure, please remove the existing object first" );
+	    uiMSG().error(tr("Sorry, can not change the storage type."
+			     "\nIf you are sure, please remove the existing "
+			     "object first"));
 	    return false;
 	}
 
@@ -444,12 +446,12 @@ bool uiIOObjSelGrp::updateCtxtIOObj()
 	    bool allok = true;
 	    if ( ioobj->implReadOnly() )
 	    {
-		uiMSG().error( "Chosen ", mObjTypeName, " is read-only" );
+		uiMSG().error(tr("Chosen %1 is read-only").arg(mObjTypeName));
 		allok = false;
 	    }
 	    else if ( setup_.confirmoverwrite_ && !asked2overwrite_ )
 		allok = uiMSG().askOverwrite(
-			BufferString("Overwrite existing ",mObjTypeName,"?") );
+		tr("Overwrite existing %1?").arg(mObjTypeName));
 
 	    if ( !allok )
 		{ asked2overwrite_ = false; return false; }
@@ -644,7 +646,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     }
     if ( !ioobj )
     {
-	uiMSG().error( "Cannot create ", mObjTypeName, " with this name" );
+	uiMSG().error(tr("Cannot create %1 with this name").arg(mObjTypeName));
 	return false;
     }
 

@@ -57,7 +57,7 @@ static BufferString getDefTempStorDir()
 
 
 class ClusterJobCreator : public Executor
-{
+{ mODTextTranslationClass(ClusterJobCreator);
 public:
 ClusterJobCreator( const InlineSplitJobDescProv& jobprov, const char* dir,
 		   const char* prognm )
@@ -78,7 +78,7 @@ od_int64 nrDone() const
 { return curidx_; }
 
 uiString uiNrDoneText() const
-{ return "Nr jobs created"; }
+{ return tr("Nr jobs created"); }
 
 od_int64 totalNr() const
 { return jobprov_.nrJobs(); }
@@ -270,9 +270,9 @@ bool uiClusterJobProv::acceptOK( CallBacker* )
     if ( !createJobScripts(scriptdir.buf()) )
 	mErrRet(tr("Failed to split jobs"))
 
-    BufferString msg = "Job scripts";
-    msg += " have been created successfully. Execute now?";
-    if ( uiMSG().askGoOn(msg.buf()) )
+	uiString msg = tr("Job scripts"
+			  " have been created successfully. Execute now?");
+    if (uiMSG().askGoOn(msg))
     {
 
 	BufferString comm( "@" );

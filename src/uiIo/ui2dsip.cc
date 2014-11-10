@@ -85,16 +85,16 @@ bool acceptOK( CallBacker* )
 {
     const float grdsp = grdspfld_->getfValue();
     if ( mIsUdf(grdsp) )
-	mErrRet( "Invalid grid spacing" )
-    if ( grdsp < 0 )
-	mErrRet( "Grid spacing should be strictly positive" )
-    if ( grdsp < 0.1 )
-	mErrRet("Grid spacing should be > 0.1")
+	mErrRet(tr("Invalid grid spacing"))
+	if (grdsp < 0)
+	mErrRet(tr("Grid spacing should be strictly positive"))
+	    if (grdsp < 0.1)
+	mErrRet(tr("Grid spacing should be > 0.1"))
 
     const Coord c0( xrgfld_->getdValue(0), yrgfld_->getdValue(0) );
     const Coord c1( xrgfld_->getdValue(1), yrgfld_->getdValue(1) );
     if ( mIsUdf(c0) || mIsUdf(c1) )
-	mErrRet( "Invalid input coordinates" )
+	mErrRet(tr("Invalid input coordinates"))
 
     const bool zintime = SI().zDomain().isTime();
     const bool zinft = SI().depthsInFeet();
@@ -109,13 +109,13 @@ bool acceptOK( CallBacker* )
 	srfld_->setValue( defsr );
 
     if ( zmaxfld_->getfValue() < 0 )
-	mErrRet( "Z Max should be strictly positive" )
+	mErrRet(tr("Z Max should be strictly positive"))
 
-    if ( srfld_->getfValue() < 0 )
-	mErrRet( "The default sampling rate should be strictly positive" )
+	if (srfld_->getfValue() < 0)
+	mErrRet(tr("The default sampling rate should be strictly positive"))
 
-    if ( zmaxfld_->getfValue() < srfld_->getfValue() )
-	mErrRet( "Z Max should be larger than the sampling rate" )
+	    if (zmaxfld_->getfValue() < srfld_->getfValue())
+	mErrRet(tr("Z Max should be larger than the sampling rate"))
 
     return true;
 }

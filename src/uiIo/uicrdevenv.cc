@@ -87,8 +87,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     BufferString swdir = GetSoftwareDir(0);
     if ( !isOK(swdir) )
     {
-	uiMSG().error( "No source code found. Please download\n"
-		       "and install development package first");
+	uiMSG().error(tr("No source code found. Please download\n"
+			 "and install development package first"));
 	return;
     }
 
@@ -99,12 +99,14 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( File::exists(oldworkdir.fullPath()) )
     {
-	BufferString msg = "Your current work directory (";
-	msg += oldworkdir.fullPath();
-	msg += oldok ?  ") seems to be a valid work directory.\n" :
-			") does not seem to be a valid work directory.\n";
-	msg += "Do you want to completely remove the existing directory\n"
-	       "and create a new work directory there?";
+	uiString msg = tr("Your current work directory (%1) %2 to be "
+			  "a valid work directory.\n"
+			  "Do you want to completely remove "
+			  "the existing directory "
+			  "and create a new work directory there?")
+		     .arg(oldworkdir.fullPath())
+		     .arg(oldok ? tr("seems")
+				: tr("does not seem"));
 
 	if ( uiMSG().askGoOn(msg) )
 	{
@@ -126,7 +128,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	worksubdirm = dlg.workdirfld->text();
 
 	if ( !File::isDirectory(basedirnm) )
-	    mErrRet( "Invalid directory selected" )
+	    mErrRet(tr("Invalid directory selected"))
 
 	workdirnm = FilePath( basedirnm ).add( worksubdirm ).fullPath();
     }
@@ -135,23 +137,22 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
     if ( File::exists(workdirnm) )
     {
-	BufferString msg;
+	uiString msg;
 	const bool isdir= File::isDirectory( workdirnm );
 
 	if ( isdir )
 	{
-	    msg = "The directory you selected (";
-	    msg += workdirnm;
-	    msg += ")\nalready exists.\n\n";
+	    msg = tr("The directory you selected (%1)\nalready exists.\n\n")
+		.arg(workdirnm);
 	}
 	else
 	{
-	    msg = "You selected a file.\n\n";
+	    msg = tr("You selected a file.\n\n");
 	}
 
-	msg += "Do you want to completely remove the existing ";
-	msg += isdir ? "directory\n" : "file\n";
-	msg += "and create a new work directory there?";
+	msg.arg("Do you want to completely remove the existing %1"
+		"and create a new work directory there?")
+	    .arg(isdir ? tr("directory\n") : tr("file\n"));
 
 	if ( !uiMSG().askRemove(msg) )
 	    return;
@@ -161,8 +162,8 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 
     if ( !File::createDir( workdirnm ) )
-	mErrRet( "Cannot create the new directory.\n"
-		 "Please check if you have the required write permissions" )
+	mErrRet(tr("Cannot create the new directory.\n"
+		   "Please check if you have the required write permissions"))
 
     const char* docmsg =
 	"The OpendTect window will FREEZE during this process\n"
@@ -199,7 +200,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     BufferString cmakefile =
 			FilePath(workdirnm).add("CMakeLists.txt").fullPath();
     if ( !File::exists(cmakefile) )
-	mErrRet( "Creation seems to have failed" )
+	mErrRet(tr("Creation seems to have failed"))
     else
 	uiMSG().message( tr("Creation seems to have succeeded.") );
 }
@@ -230,8 +231,8 @@ bool uiCrDevEnv::acceptOK( CallBacker* )
 	if ( workdir.contains( "Program Files" )
 	  || workdir.contains( "program files" )
 	  || workdir.contains( "PROGRAM FILES" ) )
-	    mErrRet( tr("Please do not use 'Program Files'.\n"
-		     "Instead, a directory like 'My Documents' would be OK.") )
+	  mErrRet(tr("Please do not use 'Program Files'.\n"
+		     "Instead, a directory like 'My Documents' would be OK."))
 #endif
     }
 

@@ -205,20 +205,22 @@ bool uiSetDataDir::setRootDataDir( uiParent* par, const char* inpdatadir )
 	offerunzipsurv = true;
 	if ( !DirList(datadir).isEmpty() )
 	{
-	    BufferString msg( "The target directory:\n", datadir,
-		    "\nis not an OpendTect Data Root directory."
-		    "\nIt already contains files though."
-		    "\nDo you want to convert this directory into an "
-		    "OpendTect Data Root directory?"
-		    "\n(this process will not remove the existing files)" );
+	    uiString msg = tr("The target directory:\n%1"
+		"\nis not an OpendTect Data Root directory."
+		"\nIt already contains files though."
+		"\nDo you want to convert this directory into an "
+		"OpendTect Data Root directory?"
+		"\n(this process will not remove the existing files)")
+		.arg(datadir);
 	    if ( !uiMSG().askGoOn( msg ) )
 		return false;
 	}
 
 	File::copy( stdomf, omffnm );
 	if ( !File::exists(omffnm) )
-	    mErrRet( BufferString("Could not convert the directory.\n"
-	     "Most probably you have no write permissions for:\n",datadir) )
+	    mErrRet(tr("Could not convert the directory.\n"
+		       "Most probably you have no write permissions for:\n%1")
+		  .arg(datadir))
 
 	break;
     }

@@ -58,7 +58,7 @@ const char* uiSrchProcFiles::fileName() const
 
 #define mRet(s) \
 { \
-    if ( s ) uiMSG().error(s); \
+    if ( s.isSet() ) uiMSG().error(s); \
     toStatusBar(""); \
     return; \
 }
@@ -77,7 +77,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     const BufferString dirnm( dirfld->text() );
     DirList dl( dirnm, DirList::FilesOnly, msk.isEmpty() ? 0 : msk.buf() );
     if ( dl.size() == 0 )
-	mRet( "No matching files found" )
+	mRet(tr("No matching files found"))
 
     BufferStringSet fnms;
     for ( int idx=0; idx<dl.size(); idx++ )
@@ -91,7 +91,7 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     }
 
     if ( fnms.size() < 1 )
-	mRet( "Target data not found in files" )
+	mRet(tr("Target data not found in files"))
     int sel = 0;
     if ( fnms.size() > 1 )
     {
@@ -100,12 +100,12 @@ void uiSrchProcFiles::srchDir( CallBacker* )
 	sflsu.dlgtitle( tr("Pick one of the matches") );
 	uiSelectFromList dlg( this, sflsu );
 	if ( !dlg.go() || dlg.selection() < 0 )
-	    mRet(0)
+	    mRet(uiStrings::sEmptyString())
 	sel = dlg.selection();
     }
 
     fnamefld->setText( fnms.get(sel) );
-    mRet(0)
+    mRet(uiStrings::sEmptyString())
 }
 
 

@@ -163,9 +163,9 @@ bool uiMathFormula::checkValidNrInputs() const
 {
     if ( form_.nrInputs() > inpflds_.size() )
     {
-	BufferString msg( "Sorry, the expression contains ", form_.nrInputs(),
-			  " inputs.\nThe maximum number is " );
-	msg.add( inpflds_.size() ).add( "." );
+	uiString msg = tr("Sorry, the expression contains %1"
+			  " inputs.\nThe maximum number is %2")
+		     .arg(form_.nrInputs()).arg(inpflds_.size());
 	uiMSG().error( msg );
 	return false;
     }
@@ -232,7 +232,7 @@ bool uiMathFormula::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 
     if ( isbad )
     {
-	uiMSG().error( BufferString("Invalid expression:\n",form_.errMsg()));
+	uiMSG().error(tr("Invalid expression:\n%1").arg(form_.errMsg()));
 	return false;
     }
 
@@ -349,7 +349,7 @@ void uiMathFormula::formUnitSetCB( CallBacker* )
 
 
 class uiMathFormulaEdRec : public uiDialog
-{
+{ mODTextTranslationClass(uiMathFormulaEdRec);
 public:
 
 uiMathFormulaEdRec( uiParent* p, Math::Formula& form, const char* s_if_2 )
@@ -374,7 +374,7 @@ bool acceptOK( CallBacker* )
     {
 	const double val = inpflds_[idx]->getdValue();
 	if ( mIsUdf(val) )
-	    { uiMSG().error( "Please specify all values" ); return false; }
+	{ uiMSG().error(tr("Please specify all values")); return false;	}
 	form_.recStartVals()[idx] = val;
     }
     return true;

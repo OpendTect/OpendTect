@@ -30,7 +30,7 @@ CrossPlot manager
 */
 
 mExpClass(uiIo) DPSMergerProp 
-{
+{ mODTextTranslationClass(DPSMergerProp);
 public:
     				DPSMergerProp( const MultiID& id, int mid,
 					       int sid )
@@ -88,7 +88,7 @@ protected:
 
 
 mExpClass(uiIo) DPSMerger : public Executor
-{
+{ mODTextTranslationClass(DPSMerger);
 public:
     				DPSMerger(const DPSMergerProp&);
     
@@ -115,7 +115,7 @@ protected:
 
 
 mExpClass(uiIo) uiDataPointSetMerger : public uiDialog
-{
+{ mODTextTranslationClass(uiDataPointSetMerger);
 public:
     				uiDataPointSetMerger(uiParent*,DataPointSet*,
 						     DataPointSet*);

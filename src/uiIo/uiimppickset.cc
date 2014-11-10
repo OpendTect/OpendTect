@@ -262,11 +262,10 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
     bool ret = import_ ? doImport() : doExport();
     if ( !ret ) return false;
 
-    BufferString msg( "Pickset successfully ",
-		      import_ ? "imported" : "exported" );
-    msg.addNewLine().add( "Do you want to " )
-        .add(import_ ? "import" : "export")
-       .add( " more PickSets?" );
+    uiString msg = tr("Pickset successfully %1\n"
+		      "Do you want to %2 more PickSets?")
+		 .arg(import_ ? tr("imported") : tr("exported"))
+		 .arg(import_ ? tr("import") : tr("export"));
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }
 

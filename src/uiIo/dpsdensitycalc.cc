@@ -31,7 +31,7 @@ DPSDensityCalcND::DPSDensityCalcND( const DataPointSet& dps,
 
 
 uiString DPSDensityCalcND::uiNrDoneText() const
-{ return "Points done"; }
+{ return tr("Points done"); }
 
 od_int64 DPSDensityCalcND::nrIterations() const
 { return dps_.size(); }

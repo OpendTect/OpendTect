@@ -45,7 +45,7 @@ namespace Math { class Expression; }
 */
 
 mExpClass(uiIo) uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
-{
+{ mODTextTranslationClass(uiDataPointSetCrossPlotter);
 public:
 
     struct Setup
@@ -92,7 +92,7 @@ public:
 
     //!< Only use if you know what you're doing
     mExpClass(uiIo) AxisData :	public uiAxisData
-    {
+    { mODTextTranslationClass(AxisData);
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,
 					 uiRect::Side);
@@ -280,7 +280,7 @@ protected:
     Setup			setup_;
     Math::Expression*		mathobj_;
     BufferString		mathobjstr_;
-    BufferString		trmsg_;
+    uiString			trmsg_;
 
     uiPolygonItem*		selectionpolygonitem_;
     uiRectItem*			selectionrectitem_;

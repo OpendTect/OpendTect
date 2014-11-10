@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiBuildPROPS : public uiBuildListFromList
-{
+{ mODTextTranslationClass(uiBuildPROPS);
 public:
 			uiBuildPROPS(uiParent*,PropertyRefSet&,bool);
 
@@ -84,7 +84,7 @@ const char* uiBuildPROPS::avFromDef( const char* nm ) const
 
 
 class uiEditPropRef : public uiDialog
-{
+{ mODTextTranslationClass(uiEditPropRef);
 public:
 
 			uiEditPropRef(uiParent*,PropertyRef&,bool,bool);
@@ -246,11 +246,11 @@ bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
     if ( newnm.isEmpty() || !isalpha(newnm[0]) || newnm.size() < 2 )
-	mErrRet("Please enter a valid name");
+	mErrRet(tr("Please enter a valid name"));
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();
     if ( isfund && definitionstr.isEmpty() )
-	mErrRet("Please un-check the 'Fixed Definition' - or provide one");
+	mErrRet(tr("Please un-check the 'Fixed Definition' - or provide one"));
 
     pr_.setName( newnm );
     SeparString ss( aliasfld_->text() ); const int nral = ss.size();

@@ -603,13 +603,13 @@ void uiDataPointSet::selYCol( CallBacker* )
     {
 	if ( dps_.nrActive()*2 > minptsfordensity )
 	{
-	    BufferString msg( "DataPoint set too large. Percentage of points "
-			      "displayed should be modified to give better "
-			      "performance. Do you want to change 'Plot each' "
-			      "or do you want to continue with no Y2 ?" );
+	    uiString msg(tr("DataPoint set too large. Percentage of points "
+			    "displayed should be modified to give better "
+			    "performance. Do you want to change 'Plot each' "
+			    "or do you want to continue with no Y2 ?"));
 
-	    if ( uiMSG().askGoOn(msg,"Change % Data displayed",
-				 "Continue with no Y2") )
+	    if (uiMSG().askGoOn(msg, tr("Change % Data displayed"),
+				tr("Continue with no Y2")))
 	    {
 		plotpercentage_ =
 		    (float)100 / (float)(1+dps_.nrActive()*2/minptsfordensity);
@@ -697,7 +697,7 @@ void uiDataPointSet::rowClicked( CallBacker* cb )
 
 
 class uiSelectPosDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSelectPosDlg);
 public:
 uiSelectPosDlg( uiParent* p, const BufferStringSet& grpnames )
     : uiDialog( p, uiDialog::Setup("Select Position for new row",
@@ -741,7 +741,7 @@ bool acceptOK( CallBacker* )
 				    : SI().isReasonable(posinpfld_->getBinID());
     if (!isreasonable )
     {
-	uiMSG().error( "Position entered is not valid." );
+	uiMSG().error(tr("Position entered is not valid."));
 	return false;
     }
     if ( seltypefld_->getBoolValue() )
@@ -876,12 +876,11 @@ void uiDataPointSet::showStatusMsg( CallBacker* )
 {
     if ( !xplotwin_ || !&xplotwin_->plotter() )
 	return;
-    BufferString msg( "Y Selected: ", xplotwin_->plotter().nrYSels() );
-    if ( xplotwin_->plotter().isY2Shown() )
-    {
-	msg += "; Y2 Selected: ";
-	msg += xplotwin_->plotter().nrY2Sels();
-    }
+    uiString msg = tr("Y Selected: %1%2")
+		 .arg(xplotwin_->plotter().nrYSels())
+		 .arg(xplotwin_->plotter().isY2Shown()
+		 ? tr("; Y2 Selected: %1").arg(xplotwin_->plotter().nrY2Sels())
+		 : uiString::emptyString());
     xplotwin_->statusBar()->message( msg, 1 );
 }
 
@@ -1354,7 +1353,7 @@ void uiDataPointSet::retrieve( CallBacker* )
 
 
 class uiDataPointSetSave : public uiDialog
-{
+{ mODTextTranslationClass(uiDataPointSetSave);
 public:
 
 uiDataPointSetSave( uiParent* p, const char* typ )
@@ -1401,12 +1400,12 @@ bool acceptOK( CallBacker* )
     {
 	fname_ = txtfld_->fileName();
 	if ( fname_.isEmpty() )
-	    mErrRet("Please select the output file name")
+	    mErrRet(tr("Please select the output file name"))
     }
     else
     {
 	if ( !selgrp_->updateCtxtIOObj() )
-	    mErrRet("Please enter a name for the output")
+	    mErrRet(tr("Please enter a name for the output"))
 	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
 	if ( !type_.isEmpty() )
 	{
@@ -1556,12 +1555,12 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	    tbl_->selectedRanges();
 	if ( tablerange.size()>1 )
 	{
-	     if ( !uiMSG().askGoOn( tr("Only selected rows will be removed"
-			      "\nThose rows falling in the same range"
-			      "\nbut not displayed as only certain"
-			      "\npercentage of data is displayed will not"
-			      "\nbe removed."
-			      "\nDo you want to go ahead with removal?") ) )
+	    if (!uiMSG().askGoOn(tr("Only selected rows will be removed"
+				    "\nThose rows falling in the same range"
+				    "\nbut not displayed as only certain"
+				    "\npercentage of data is displayed "
+				    "will not\nbe removed.\nDo you want "
+				    "to go ahead with removal?")))
 		 return;
 	}
 	else
@@ -1601,10 +1600,10 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	dps_.dataChanged();
     if ( nrrem < 1 )
     {
-	uiMSG().message( tr("Please select the row(s) you want to remove."
-			 "\nby clicking on the row label(s)."
-			 "\nYou can select multiple rows by dragging,"
-			 "\nor by holding down the shift key when clicking.") );
+       uiMSG().message(tr("Please select the row(s) you want to remove."
+			  "\nby clicking on the row label(s)."
+			  "\nYou can select multiple rows by dragging,"
+			  "\nor by holding down the shift key when clicking."));
 	return;
     }
 
@@ -1735,13 +1734,16 @@ void uiDataPointSet::removeColumn( CallBacker* )
 	return uiMSG().error(tr("Cannot remove this column"));
     if ( tcolid == xcol_ || tcolid == ycol_ || tcolid == y2col_ )
     {
-	BufferString msg( "This column is selected as data for " );
-	bool sel = false;
-	if ( tcolid == xcol_ ) { msg += "X"; sel = true; }
-	if ( tcolid == ycol_ )	{ if ( sel ) msg += ", "; msg += "Y"; sel=true;}
-	if ( tcolid == y2col_ ) { if ( sel ) msg += " and "; msg += "Y2"; }
-	msg += " axis for the crossplot. Removing the column will unselect it.";
-	msg += " Do you really want to remove this column?";
+	uiStringSet options;
+	if (tcolid == xcol_) options += uiString("X");
+	if (tcolid == ycol_) options += uiString("Y");
+	if (tcolid == y2col_) options += uiString("Y2");
+
+	uiString msg = tr("This column is selected as data for %1 "
+			  "axis for the crossplot. Removing the column "
+			  "will unselect it. Do you really "
+			  "want to remove this column?")
+		     .arg(options.createOptionString(true));
 
 	if ( !uiMSG().askGoOn(msg) )
 	    return;

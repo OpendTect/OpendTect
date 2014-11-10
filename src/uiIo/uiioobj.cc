@@ -26,28 +26,29 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     const bool isoutside = !ioobj_.isInCurrentSurvey();
     if ( !silent_ )
     {
-	BufferString mess = "Remove ";
-	if ( !rmentry ) mess += "existing ";
-	mess += "data file(s), at\n'";
-	if ( !ioobj_.isSubdir() )
+	uiString mess = tr("Remove %1data file(s) at\n'%2'%3")
+		      .arg(!rmentry ? tr("existing ") 
+				    : uiString::emptyString());
+
+	if (!ioobj_.isSubdir())
 	{
-	    mess += ioobj_.fullUserExpr(true);
-	    mess += "'?";
-	    mess += isoutside ? "\nFile not in current survey.\n"
-				"Specify what you would like to remove" : "";
+	    mess.arg(ioobj_.fullUserExpr(true));
+	    mess.arg(isoutside ? tr("\nFile not in current survey.\n"
+				    "Specify what you would like to remove") 
+			       : uiString::emptyString());
 	}
 	else
 	{
-	    BufferString fullexpr( ioobj_.fullUserExpr(true) );
-	    mess += FilePath(fullexpr).fileName();
-	    mess += "'\n- and everything in it! - ?";
+	    BufferString fullexpr(ioobj_.fullUserExpr(true));
+	    mess.arg(FilePath(fullexpr).fileName());
+	    mess.arg(tr("\n- and everything in it! - ?"));
 	}
 
 	if ( isoutside )
 	{
-	    const int resp = uiMSG().question( mess, "Remove file", 
-					       "Remove link", "Cancel",
-					       "Remove data" );
+	    const int resp = uiMSG().question(mess, tr("Remove file"),
+					      tr("Remove link"), tr("Cancel"),
+					      tr("Remove data"));
 	    if ( resp < 0 )
 		return false;
 	    dorm = resp;
@@ -64,8 +65,8 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     {
 	if ( !silent_ )
 	{
-	    BufferString mess = "Could not remove data file(s).\n";
-	    mess += "Remove entry from list anyway?";
+	    uiString mess = tr("Could not remove data file(s).\n"
+			       "Remove entry from list anyway?");
 	    if ( !uiMSG().askRemove(mess) )
 		return false;
 	}
@@ -99,8 +100,7 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
 
     if ( warnifexist )
     {
-	BufferString msg( "Overwrite existing '" );
-	msg += nm; msg += "'?";
+	uiString msg = tr("Overwrite existing '%1'?").arg(nm);
 	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
     }

@@ -42,8 +42,8 @@ uiDPSSelectednessDlg::uiDPSSelectednessDlg( uiParent* p,
     setCaption( capt );
     setHelpKey( mODHelpKey(mDPSSelectednessDlgHelpID) );
 
-    BufferString msg( "A new column will be added with selectedness values.\n"
-	    	      "Specify the name of the new column." );
+    uiString msg = tr("A new column will be added with selectedness values.\n"
+		      "Specify the name of the new column.");
     uiLabel* msglbl = new uiLabel( this, msg );
     msglbl->attach( alignedAbove, nmfld_ );
  

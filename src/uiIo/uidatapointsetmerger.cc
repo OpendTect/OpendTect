@@ -379,12 +379,12 @@ bool uiDataPointSetMerger::acceptOK( CallBacker* )
     {
 	if ( mIsUdf(distfld_->getfValue()) || distfld_->getfValue()<0 )
 	{
-	    uiMSG().error( "Choose a proper horizontal search radius" );
+	    uiMSG().error(tr("Choose a proper horizontal search radius"));
 	    return false;
 	}
 	else if ( mIsUdf(zgatefld_->getfValue()) || zgatefld_->getfValue()<0 )
 	{
-	    uiMSG().error( "Choose a proper vertical search radius" );
+	    uiMSG().error(tr("Choose a proper vertical search radius"));
 	    return false;
 	}
     }

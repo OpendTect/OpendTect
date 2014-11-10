@@ -47,7 +47,7 @@ protected:
 
 
 mExpClass(uiIo) uiStartBatchJobDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiStartBatchJobDialog);
 public:
 
 				uiStartBatchJobDialog(uiParent*);

@@ -24,7 +24,7 @@ It returns an IOObj* after successful go().
 */
 
 mExpClass(uiIo) uiIOObj
-{
+{ mODTextTranslationClass(uiIOObj);
 public:
 				uiIOObj( IOObj& i, bool silent=false )
 				    : ioobj_(i), silent_(silent)	{}

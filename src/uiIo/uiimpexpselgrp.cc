@@ -44,7 +44,7 @@ static const char* sKeyIdxFileName()	{ return "index.txt"; }
 
 
 class SGSelGrpManager
-{
+{ mODTextTranslationClass(SGSelGrpManager);
 
 public:
 
@@ -126,9 +126,9 @@ bool createBaseDir()
     {
 	if  ( !File::createDir(basefp_.fullPath()) )
 	{
-	    BufferString msg( "Cannot create " );
-	    msg += sKeySelGrp();
-	    msg += "for cross-plot selections. Check write permissions";
+	    uiString msg = tr("Cannot create %1 for cross-plot "
+			      "selections. Check write permissions")
+			 .arg(sKeySelGrp());
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -143,8 +143,8 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     SafeFileIO sfio( FilePath(basefp_,sKeyIdxFileName()).fullPath(), true );
     if ( !sfio.open(false) )
     {
-	uiMSG().error("Cannot open Cross-plot Selection index.txt "
-		      "file for write");
+	uiMSG().error(tr("Cannot open Cross-plot Selection index.txt "
+			 "file for write"));
 	return false;
     }
 
@@ -159,7 +159,7 @@ bool setSelGrpSetNames( const BufferStringSet& nms )
     else
     {
 	sfio.closeFail();
-	const uiString errmsg = uiString(
+	const uiString errmsg = tr(
 		"Error writing Cross-plot Selection index file.\n%1")
 		    .arg( sfio.ostrm().errMsg() );
 	uiMSG().error( errmsg );
@@ -296,7 +296,7 @@ void uiSGSelGrp::delSelGrps( CallBacker* )
 
 
 class uiRenameDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiRenameDlg);
 public:
 
 uiRenameDlg( uiParent* p, const char* nm )
@@ -381,7 +381,7 @@ SelGrpImporter::SelGrpImporter( const char* fnm )
 {
     sd_ = StreamProvider( fnm ).makeIStream();
     if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open specified file"; return; }
+    { errmsg_ = tr("Cannot open specified file"); return; }
 }
 
 
@@ -402,7 +402,7 @@ ObjectSet<SelectionGrp> SelGrpImporter::getSelections()
 
     if ( !astrm.isOfFileType(sKeyFileType) )
     {
-	errmsg_ = "File type does not match with Cross-plot Selection";
+	errmsg_ = tr("File type does not match with Cross-plot Selection");
 	return selgrpset;
     }
 
@@ -438,7 +438,7 @@ SelGrpExporter::SelGrpExporter( const char* fnm )
 {
     sd_ = StreamProvider( fnm ).makeOStream();
     if ( !sd_.usable() )
-	{ errmsg_ = "Cannot open specified file to write"; return; }
+    { errmsg_ = tr("Cannot open specified file to write"); return; }
 }
 
 SelGrpExporter::~SelGrpExporter()
@@ -456,7 +456,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
     ascostream astrm( strm );
 
     if ( !selgrps.size() )
-	{ errmsg_ = "No selections found"; return false; }
+    { errmsg_ = tr("No selections found"); return false; }
 
     IOPar selectionpar;
     selectionpar.set( IOPar::compKey(sKey::Attribute(),"X"), xname );
@@ -479,7 +479,7 @@ bool SelGrpExporter::putSelections( const ObjectSet<SelectionGrp>& selgrps,
     selectionpar.write( astrm.stream(), sKeyFileType );
     const bool ret = astrm.isOK();
     if ( !ret )
-	errmsg_ = "Error during write";
+	errmsg_ = tr("Error during write");
     sd_.close();
     return ret;
 }
@@ -670,7 +670,7 @@ void uiReadSelGrp::selectedCB( CallBacker* )
 {
     if ( !inpfld_->isOK() )
     {
-	uiMSG().error( "Selected Selection-Group set is corrupted" );
+	uiMSG().error(tr("Selected Selection-Group set is corrupted"));
 	return;
     }
 
@@ -877,19 +877,19 @@ bool uiReadSelGrp::adjustSelectionGrps()
     mGetAxisVals;
     if ( xaxis<0 || (yaxis<0 && y2axis<0) )
     {
-	uiMSG().error( "Can't import selection group" );
+	uiMSG().error(tr("Can't import selection group"));
 	return false;
     }
 
     if ( xaxis==yaxis || yaxis==y2axis || y2axis==xaxis )
     {
-	uiMSG().error( "Same parameter chosen for different axis" );
+	uiMSG().error(tr("Same parameter chosen for different axis"));
 	return false;
     }
 
     if ( yaxis < 0 && !plotter_.axisHandler(2) )
     {
-	uiMSG().error( "Choose axis properly" );
+	uiMSG().error(tr("Choose axis properly"));
 	return false;
     }
 
@@ -943,8 +943,8 @@ bool uiReadSelGrp::adjustSelectionGrps()
     }
 
     if ( selimportfailed )
-	uiMSG().message( "Some selectionareas could not be imported \n"
-			 "as they fall outside the value ranges of the plot" );
+	uiMSG().message(tr("Some selectionareas could not be imported \nas "
+			   "they fall outside the value ranges of the plot"));
 
     return true;
 }
@@ -987,14 +987,14 @@ bool uiExpSelectionArea::acceptOK( CallBacker* )
 {
     if ( !outfld_->isOK() )
     {
-	uiMSG().error( "Please select an ouput name" );
+	uiMSG().error(tr("Please select an ouput name"));
 	return false;
     }
 
     if ( File::exists(outfld_->selGrpFileNm()) )
     {
-	if ( !uiMSG().askOverwrite("Selected selections already present, "
-				   "Do you want to overwrite?") )
+	if (!uiMSG().askOverwrite(tr("Selected selections already present, "
+				     "Do you want to overwrite?")))
 	    return false;
     }
 

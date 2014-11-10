@@ -43,7 +43,7 @@ class uiIOObjSelWriteTranslator;
 
 
 mExpClass(uiIo) uiIOObjSelGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiIOObjSelGrp);
 public:
 
     mExpClass(uiIo) Setup

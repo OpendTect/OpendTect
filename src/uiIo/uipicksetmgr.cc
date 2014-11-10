@@ -67,10 +67,10 @@ IOObj* uiPickSetMgr::getSetIOObj( const Pick::Set& ps ) const
     IOObj* ioobj = IOM().get( setmgr_.id(setidx) );
     if ( !ioobj )
     {
-	BufferString msg( "The PickSet '" );
-	msg += ps.name();
-	msg += "' no longer has an entry in the data store.\n"
-	       "Please use 'Save As' to store this set.";
+	uiString msg = tr("The PickSet '%1' no longer has "
+			  "an entry in the data store.\n"
+			  "Please use 'Save As' to store this set.")
+		     .arg(ps.name());
 	uiMSG().warning( msg );
     }
     return ioobj;
@@ -150,7 +150,7 @@ bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 
 
 class uiMergePickSets : public uiDialog
-{
+{ mODTextTranslationClass(uiMergePickSets);
 public:
 
 uiMergePickSets( uiParent* p, MultiID& mid )
@@ -179,9 +179,9 @@ bool acceptOK( CallBacker* )
 {
     nrsel = selfld->nrChosen();
     if ( nrsel < 2 )
-	{ uiMSG().error( "Please select at least two sets" ); return false; }
-    else if ( !outfld->commitInput() )
-	{ uiMSG().error( "Cannot create the output set" ); return false; }
+    { uiMSG().error(tr("Please select at least two sets")); return false; }
+    else if (!outfld->commitInput())
+    { uiMSG().error(tr("Cannot create the output set")); return false; }
 
     if ( ctioout_.ioobj )
 	mid_ = ctioout_.ioobj->key();

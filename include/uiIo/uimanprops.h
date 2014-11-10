@@ -56,7 +56,7 @@ protected:
  */
 
 mExpClass(uiIo) uiSelectPropRefs : public uiDialog
-{
+{ mODTextTranslationClass(uiSelectPropRefs);
 public:
 
 			uiSelectPropRefs(uiParent*,PropertyRefSelection&,

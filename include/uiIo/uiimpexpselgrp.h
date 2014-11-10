@@ -66,7 +66,7 @@ protected:
 
 
 mExpClass(uiIo) uiSGSelGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiSGSelGrp);
 public:
 				uiSGSelGrp(uiParent*,bool forread);
 
@@ -110,20 +110,20 @@ protected:
 
 
 mExpClass(uiIo) SelGrpImporter
-{
+{ mODTextTranslationClass(uiIo);
 public:
 				SelGrpImporter(const char*);
 				~SelGrpImporter();
 
     ObjectSet<SelectionGrp>	getSelections();
-    const OD::String&		errMsg()		{ return errmsg_; }
+    const uiString&		errMsg()		{ return errmsg_; }
     const OD::String&		xName()			{ return xname_; }
     const OD::String&		yName()			{ return yname_; }
     const OD::String&		y2Name()		{ return y2name_; }
 
 protected:
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     BufferString		xname_;
     BufferString		yname_;
     BufferString		y2name_;
@@ -133,7 +133,7 @@ protected:
 
 
 mExpClass(uiIo) SelGrpExporter
-{
+{ mODTextTranslationClass(SelGrpExporter);
 public:
 				SelGrpExporter(const char* fnm);
 				~SelGrpExporter();
@@ -141,18 +141,18 @@ public:
 					      const char* xnm,
 					      const char* ynm,
 					      const char* y2nm);
-    const OD::String&		errMsg() const		{ return errmsg_; }
+    const uiString&		errMsg() const		{ return errmsg_; }
 
 protected:
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
     StreamData			sd_;
 
 };
 
 
 mExpClass(uiIo) uiReadSelGrp : public uiDialog
-{
+{ mODTextTranslationClass(uiReadSelGrp);
 public:
 			uiReadSelGrp(uiParent*,uiDataPointSetCrossPlotter&);
 
@@ -192,7 +192,7 @@ protected:
 
 
 mExpClass(uiIo) uiExpSelectionArea : public uiDialog
-{
+{ mODTextTranslationClass(uiExpSelectionArea);
 public:
 
 	mExpClass(uiIo) Setup

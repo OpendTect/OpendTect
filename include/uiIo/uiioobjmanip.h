@@ -24,7 +24,7 @@ class BufferStringSet;
 
 
 mExpClass(uiIo) uiManipButGrp : public uiButtonGroup
-{
+{ mODTextTranslationClass(uiManipButGrp);
 public:
 			uiManipButGrp(uiParent* p)
 			    : uiButtonGroup(p,"ManipButtons",OD::Vertical)
@@ -60,7 +60,7 @@ class uiIOObjManipGroup;
 
 
 mExpClass(uiIo) uiIOObjManipGroupSubj : public CallBacker
-{
+{ mODTextTranslationClass(uiIOObjManipGroupSubj);
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
 				    : obj_(o), grp_(0)		{}
@@ -82,7 +82,7 @@ public:
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
 mExpClass(uiIo) uiIOObjManipGroup : public uiManipButGrp
-{
+{ mODTextTranslationClass(uiIOObjManipGroup);
 public:
 			uiIOObjManipGroup(uiIOObjManipGroupSubj&,
 					  bool havereloc,

@@ -21,7 +21,7 @@ ________________________________________________________________________
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
 mExpClass(uiIo) uiPosProvGroup : public uiPosFiltGroup
-{
+{ mODTextTranslationClass(uiPosProvGroup);
 public:
 
     struct Setup : public uiPosFiltGroup::Setup

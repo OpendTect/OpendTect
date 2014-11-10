@@ -60,8 +60,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static const char*	sZipFileMask = "ZIP files (*.zip *.ZIP)";
-#define mErrRetVoid(s)	{ if ( s ) uiMSG().error(s); return; }
-#define mErrRet(s)	{ if ( s ) uiMSG().error(s); return false; }
+#define mErrRetVoid(s)	{ if ( s.isSet() ) uiMSG().error(s); return; }
+#define mErrRet(s)	{ if ( s.isSet() ) uiMSG().error(s); return false; }
 
 static int sMapWidth = 300;
 static int sMapHeight = 300;
@@ -115,7 +115,7 @@ static BufferString getTrueDir( const char* dn )
 
 
 class uiNewSurveyByCopy : public uiDialog
-{
+{ mODTextTranslationClass(uiNewSurveyByCopy);
 
 public:
 
@@ -147,8 +147,8 @@ bool copySurv()
 {
     if ( File::exists(newdirnm_) )
     {
-        uiMSG().error( BufferString( "A survey '", newdirnm_,
-		    "' already exists.\nYou will have to remove it first" ) );
+        uiMSG().error(tr("A survey '%1' already exists.\n"
+			 "You will have to remove it first").arg(newdirnm_));
         return false;
     }
 
@@ -156,7 +156,7 @@ bool copySurv()
     const BufferString fromdir = getTrueDir( inpdirnm_ );
     PtrMan<Executor> copier = File::getRecursiveCopier( fromdir, newdirnm_ );
     if ( !taskrunner.execute(*copier) )
-	{ uiMSG().error( "Cannot copy the survey data" ); return false; }
+	{ uiMSG().error(tr("Cannot copy the survey data")); return false; }
 
     File::makeWritable( newdirnm_, true, true );
     return true;
@@ -166,7 +166,7 @@ bool acceptOK( CallBacker* )
 {
     if ( !inpsurveyfld_->getFullSurveyPath( inpdirnm_ ) ||
 	 !newsurveyfld_->getFullSurveyPath( newdirnm_) )
-	mErrRet( "No Valid or Empty Input" )
+	mErrRet(tr("No Valid or Empty Input"))
 
     return copySurv();
 }
@@ -184,7 +184,7 @@ bool acceptOK( CallBacker* )
 
 
 class uiStartNewSurveySetup : public uiDialog
-{
+{ mODTextTranslationClass(uiStartNewSurveySetup);
 
 public:
 			uiStartNewSurveySetup(uiParent*,const char*,
@@ -237,8 +237,8 @@ void zdomainChg( CallBacker* cb )
 
 uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 					      SurveyInfo& survinfo )
-	: uiDialog(p,uiDialog::Setup("Create New Survey",
-		    "Specify new survey parameters",mTODOHelpKey))
+	: uiDialog(p,uiDialog::Setup(tr("Create New Survey"),
+		    tr("Specify new survey parameters"),mTODOHelpKey))
 	, survinfo_(survinfo)
 	, dataroot_(dataroot)
 	, sips_(uiSurveyInfoEditor::survInfoProvs())
@@ -246,11 +246,11 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 {
     setOkText( uiStrings::sNext() );
 
-    survnmfld_ = new uiGenInput( this, "Survey name" );
+    survnmfld_ = new uiGenInput( this, tr("Survey name") );
     survnmfld_->setElemSzPol( uiObject::Wide );
 
     pol2dfld_ = new uiCheckList( this, uiCheckList::OneMinimum, OD::Horizontal);
-    pol2dfld_->setLabel( "Data to use" );
+    pol2dfld_->setLabel( tr("Available data") );
     pol2dfld_->addItem( uiStrings::s3D(true) ).addItem( uiStrings::s2D(true) );
     pol2dfld_->setChecked( 0, true ).setChecked( 1, true );
     pol2dfld_->changed.notify( mCB(this,uiStartNewSurveySetup,pol2dChg) );
@@ -261,20 +261,20 @@ uiStartNewSurveySetup::uiStartNewSurveySetup(uiParent* p, const char* dataroot,
 	if ( !sips_[idx]->isAvailable() )
 	    { sips_.removeSingle( idx ); idx--; }
     }
-    uiLabeledListBox* sipllb = new uiLabeledListBox( this, "Initial setup" );
+    uiLabeledListBox* sipllb = new uiLabeledListBox(this, tr("Initial setup"));
     sipllb->attach( alignedBelow, pol2dfld_ );
     sipfld_ = sipllb->box();
     sipfld_->setPrefHeightInChar( sips_.size() + 1 );
 
-    zistimefld_ = new uiGenInput( this, "Z Domain",
+    zistimefld_ = new uiGenInput( this, tr("Z Domain"),
 				  BoolInpSpec(true,uiStrings::sTime(),
                                               uiStrings::sDepth()));
     zistimefld_->valuechanged.notify(
 			mCB(this,uiStartNewSurveySetup,zdomainChg) );
     zistimefld_->attach( alignedBelow, sipllb );
 
-    zinfeetfld_ = new uiGenInput( this, "Depth unit",
-				  BoolInpSpec(true,"Meter","Feet") );
+    zinfeetfld_ = new uiGenInput( this, tr("Depth unit"),
+				BoolInpSpec(true,tr("Meter"),tr("Feet")) );
     zinfeetfld_->attach( alignedBelow, zistimefld_ );
     zinfeetfld_->display( !isTime() );
 
@@ -286,14 +286,15 @@ bool uiStartNewSurveySetup::isOK()
 {
     BufferString survnm = survName();
     if ( survnm.isEmpty() )
-	mErrRet( "Please enter a new survey name" )
+	mErrRet(tr("Please enter a new survey name"))
 
     survnm.clean( BufferString::AllowDots );
     const BufferString storagedir = FilePath(dataroot_).add(survnm).fullPath();
     if ( File::exists(storagedir) )
     {
-	BufferString errmsg( "A survey called ", survnm, " already exists\n" );
-	errmsg.add( "Please remove it first or use another survey name" );
+	uiString errmsg = tr("A survey called %1 already exists\nPlease "
+			     "remove it first or use another survey name")
+			.arg(survnm);
 	mErrRet( errmsg )
     }
 
@@ -359,7 +360,7 @@ void uiStartNewSurveySetup::fillSipsFld( bool have2d, bool have3d )
 	    sipfld_->setItemSelectable( sipfld_->size()-1, false );
     }
 
-    sipfld_->addItem( "Enter by hand" ); // always last
+    sipfld_->addItem( tr("Enter by hand") ); // always last
     sipfld_->setIcon( sipfld_->size()-1, "manualenter" );
     sipfld_->setCurrentItem( preferredsel < 0 ? 0 : preferredsel );
 
@@ -549,8 +550,9 @@ bool uiSurvey::rootDirWritable() const
 {
     if ( !File::isWritable(dataroot_) )
     {
-	BufferString msg( "Cannot create new survey in\n",dataroot_,
-			  ".\nDirectory is write protected.");
+	uiString msg = tr("Cannot create new survey in\n"
+			  "%1.\nDirectory is write protected.")
+	    .arg(dataroot_);
 	uiMSG().error( msg );
 	return false;
     }
@@ -585,11 +587,10 @@ bool uiSurvey::survTypeOKForUser( bool is2d )
     const bool dowarn = (is2d && !SI().has2D()) || (!is2d && !SI().has3D());
     if ( !dowarn ) return true;
 
-    BufferString warnmsg( "Your survey is set up as '" );
-    warnmsg += is2d ? "3-D only'.\nTo be able to actually use 2-D"
-		    : "2-D only'.\nTo be able to actually use 3-D";
-    warnmsg += " data\nyou will have to change the survey setup.";
-    warnmsg += "\n\nDo you wish to continue?";
+ uiString warnmsg = tr("Your survey is set up as '%1 data\nyou will have to "
+		       "change the survey setup.\n\nDo you wish to continue?")
+		  .arg(is2d ? tr("3-D only'.\nTo be able to actually use 2-D")
+			    : tr("2-D only'.\nTo be able to actually use 3-D"));
 
     return uiMSG().askContinue( warnmsg );
 }
@@ -612,7 +613,7 @@ bool uiSurvey::acceptOK( CallBacker* )
 {
     if ( !dirfld_ ) mRetExitWin
     if ( dirfld_->isEmpty() )
-	mErrRet("Please create a survey (or press Cancel)")
+	mErrRet(tr("Please create a survey (or press Cancel)"))
 
     const BufferString selsurv( selectedSurveyName() );
     const bool samedataroot = dataroot_ == orgdataroot_;
@@ -620,13 +621,13 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     // Step 1: write local changes
     if ( !writeSurvInfoFileIfCommentChanged() )
-	mErrRet(0)
+	mErrRet(uiStrings::sEmptyString())
     if ( samedataroot && samesurvey && !parschanged_ )
 	mRetExitWin
 
     // Step 2: write default/current survey file
     if ( !writeSettingsSurveyFile() )
-	mErrRet(0)
+	mErrRet(uiStrings::sEmptyString())
 
     // Step 3: record data root preference
     if ( !samedataroot )
@@ -689,8 +690,8 @@ bool uiSurvey::acceptOK( CallBacker* )
 bool uiSurvey::rejectOK( CallBacker* )
 {
     if ( cursurvremoved_ )
-	mErrRet( "You have removed the current survey ...\n"
-		   "You *have to* select a survey now!" )
+	mErrRet(tr("You have removed the current survey ...\n"
+		   "You *have to* select a survey now!"))
 
     mRetExitWin
 }
@@ -732,8 +733,8 @@ void uiSurvey::newButPushed( CallBacker* )
     SurveyInfo* newsurvinfo = SurveyInfo::read( fp.fullPath() );
     if ( !newsurvinfo )
     {
-	BufferString errmsg( "Cannot read software default survey\n" );
-	errmsg.add( "Try to reinstall the OpendTect package" );
+	uiString errmsg = tr("Cannot read software default survey\n" 
+			     "Try to reinstall the OpendTect package");
 	mErrRetVoid( errmsg )
     }
 
@@ -748,7 +749,7 @@ void uiSurvey::newButPushed( CallBacker* )
 		mGetSetupFileName(SurveyInfo::sKeyBasicSurveyName()),0,
 				  dataroot_,orgdirname) )
 	{ delete newsurvinfo;
-	    mErrRetVoid( "Cannot make a copy of the default survey" ); }
+	    mErrRetVoid( tr("Cannot make a copy of the default survey") ); }
 
     setCurrentSurvInfo( newsurvinfo, false );
 
@@ -780,16 +781,15 @@ void uiSurvey::rmButPushed( CallBacker* )
     const BufferString seldirnm = FilePath(dataroot_).add(selnm).fullPath();
     const BufferString truedirnm = getTrueDir( seldirnm );
 
-    BufferString msg( "This will remove the entire survey directory:\n\t" );
-    msg += selnm;
-    msg += "\nFull path: "; msg += truedirnm;
+    uiString msg = tr("This will remove the entire survey directory:\n\t%1"
+		      "\nFull path: %2").arg(selnm).arg(truedirnm);
     if ( !uiMSG().askRemove( msg ) ) return;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     const bool rmisok = File::remove( truedirnm );
     MouseCursorManager::restoreOverride();
     if ( !rmisok )
-	uiMSG().error( BufferString( truedirnm, "\nnot removed properly" ));
+	uiMSG().error(tr("%1\nnot removed properly").arg(truedirnm));
 
     if ( seldirnm != truedirnm ) // must have been a link
 	if ( !File::remove(seldirnm) )
@@ -823,7 +823,7 @@ void uiSurvey::copyButPushed( CallBacker* )
 
     setCurrentSurvInfo( SurveyInfo::read(dlg.newdirnm_) );
     if ( !cursurvinfo_ )
-	mErrRetVoid( "Could not read the copied survey" )
+	mErrRetVoid(tr("Could not read the copied survey"))
 
     cursurvinfo_->setName( FilePath(dlg.newdirnm_).fileName() );
     cursurvinfo_->updateDirName();
@@ -875,7 +875,7 @@ void uiSurvey::exportButPushed( CallBacker* )
     FilePath exportzippath( fnmfld->fileName() );
     BufferString zipext = exportzippath.extension();
     if ( zipext != "zip" )
-	mErrRetVoid( "Please add .zip extension to the file name" )
+	mErrRetVoid(tr("Please add .zip extension to the file name"))
 
     uiSurvey_ZipDirectory( this, survnm, exportzippath.fullPath() );
 }
@@ -922,7 +922,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 	uiLatLong2CoordDlg dlg( this, cursurvinfo_->latlong2Coord(),
 					cursurvinfo_ );
 	if ( dlg.go() && !cursurvinfo_->write() )
-	    mErrRetVoid( "Could not write the setup" )
+	    mErrRetVoid(tr("Could not write the setup"))
     }
     else
     {
@@ -965,22 +965,22 @@ bool uiSurvey::writeSettingsSurveyFile()
 
     BufferString seltxt( selectedSurveyName() );
     if ( seltxt.isEmpty() )
-	mErrRet( "Survey folder name cannot be empty" )
+	mErrRet(tr("Survey folder name cannot be empty"))
 
     if ( !File::exists(FilePath(dataroot_,seltxt).fullPath()) )
-	mErrRet( "Survey directory does not exist anymore" )
+	mErrRet(tr("Survey directory does not exist anymore"))
 
     const char* survfnm = SurveyInfo::surveyFileName();
     if ( !survfnm )
-	mErrRet( "Internal error: cannot construct last-survey-filename" )
+	mErrRet(tr("Internal error: cannot construct last-survey-filename"))
 
     od_ostream strm( survfnm );
     if ( !strm.isOK() )
-	mErrRet( BufferString("Cannot open ",survfnm," for write") )
+	mErrRet(tr("Cannot open %1 for write").arg(survfnm))
 
     strm << seltxt;
     if ( !strm.isOK() )
-	mErrRet( BufferString("Error writing to ",survfnm) )
+	mErrRet( tr("Error writing to %1").arg(survfnm) )
 
     return true;
 }
@@ -997,7 +997,7 @@ void uiSurvey::readSurvInfoFromFile()
 	newsi = SurveyInfo::read( fname );
 	if ( !newsi )
 	    uiMSG().warning(
-		    BufferString("Cannot read survey setup file: ",fname) );
+		    tr("Cannot read survey setup file: %1").arg(fname) );
     }
 
     if ( newsi )
@@ -1126,7 +1126,7 @@ bool uiSurvey::writeSurvInfoFileIfCommentChanged()
 
     cursurvinfo_->setComment( notesfld_->text() );
     if ( !cursurvinfo_->write( dataroot_ ) )
-	mErrRet( "Failed to write survey info.\nNo changes committed." )
+	mErrRet(tr("Failed to write survey info.\nNo changes committed."))
 
     return true;
 }

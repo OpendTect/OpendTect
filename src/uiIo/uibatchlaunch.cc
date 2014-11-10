@@ -217,7 +217,7 @@ void uiStartBatchJobDialog::rmFile( CallBacker* )
 
     const OD::String& fnm( filenames_.get(selidx) );
     if ( !File::remove(fnm) )
-	{ uiMSG().error( "Could not remove job file" ); return; }
+    { uiMSG().error(tr("Could not remove job file")); return; }
 
     jobsfld_->removeItem( selidx );
     filenames_.removeSingle( selidx );
@@ -253,11 +253,11 @@ bool uiStartBatchJobDialog::acceptOK( CallBacker* )
     {
 	const int selidx = jobsfld_->currentItem();
 	if ( selidx >= 0 )
-	    uiMSG().error( "Cannot run selected job" );
+	    uiMSG().error(tr("Cannot run selected job"));
 	else if ( jobsfld_->isEmpty() )
 	    return true;
 	else
-	    uiMSG().error( "Please select a job to run" );
+	    uiMSG().error(tr("Please select a job to run"));
 	return false;
     }
 

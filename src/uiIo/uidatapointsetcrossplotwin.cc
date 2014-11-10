@@ -522,11 +522,11 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 
     if ( estpts > minptsfordensity_ && !plotter_.isADensityPlot() )
     {
-	BufferString msg( "It is a time consuming process & might freeze the ",
-			  "application due to large dataset size. " );
-	msg += "Do you want to go ahead with normal plot or have a ";
-	msg += "density plot which would be faster ?";
-	msg += "\nNote: Density plot cannot have Y2 axis";
+	uiString msg = tr("It is a time consuming process & might freeze the "
+			  "application due to large dataset size. "
+			  "Do you want to go ahead with normal plot or have a "
+			  "density plot which would be faster ?"
+			  "\nNote: Density plot cannot have Y2 axis");
 	const int res =
 	    uiMSG().askGoOnAfter( msg, uiStrings::sCancel(), "Normal Plot",
                                   "Density Plot");

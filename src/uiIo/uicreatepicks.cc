@@ -156,10 +156,10 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
 
     if ( size>50000 )
     {
-	BufferString msg( "PickSet would contain " );
-	msg += dpssize;
-	msg += " points which might consume unexpected time & memory.";
-	msg += "Do you want to continue?";
+	uiString msg = tr("PickSet would contain %1 "
+			  "points which might consume unexpected time & memory."
+			  "Do you want to continue?")
+		     .arg(dpssize);
 	if ( !uiMSG().askGoOn(msg) )
 	{
 	    mRestorCursor();
@@ -169,7 +169,7 @@ bool uiGenPosPicks::acceptOK( CallBacker* c )
     }
 
     if ( dps_->isEmpty() )
-	{ delete dps_; dps_ = 0; mErrRet("No matching locations found") }
+    { delete dps_; dps_ = 0; mErrRet(tr("No matching locations found")) }
 
     return true;
 }
@@ -322,9 +322,9 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
     if ( choice )
     {
 	if ( selstr==horselfld_->box()->text() )
-	    mErrRet( "Please Select a valid horizon" );
-	if ( choice==2 && selstr==horsel2fld_->text() )
-	    mErrRet( "Please Select a valid second horizon" );
+	    mErrRet(tr("Please Select a valid horizon"));
+	if (choice == 2 && selstr == horsel2fld_->text())
+	    mErrRet(tr("Please Select a valid second horizon"));
     }
     else
     {
@@ -333,7 +333,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* c )
 	survzrg.scale( mCast(float,SI().zDomain().userFactor()) );
 	if ( !survzrg.includes(zrg.start,false) ||
 		!survzrg.includes(zrg.stop,false) )
-		mErrRet( "Please Enter a valid Z Range" );
+		mErrRet(tr("Please Enter a valid Z Range"));
     }
 
     mkRandPars();

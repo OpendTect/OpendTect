@@ -266,7 +266,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 }
 
 
-bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
+bool uiIOObjManipGroup::renameEntry(IOObj& ioobj, Translator* trans)
 {
     BufferString titl( "Rename '" );
     titl += ioobj.name(); titl += "'";
@@ -278,7 +278,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
     if ( subj_.names().isPresent(newnm) )
     {
 	if ( newnm != ioobj.name() )
-	    uiMSG().error( "Name already in use" );
+	    uiMSG().error(tr("Name already in use"));
 	return false;
     }
     else
@@ -286,8 +286,8 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 	IOObj* lioobj = IOM().getLocal( newnm, ioobj.group() );
 	if ( lioobj )
 	{
-	    BufferString msg( "This name is already used by a ",
-				lioobj->translator(), " object" );
+	    uiString msg = tr("This name is already used by a %1 object")
+			 .arg(lioobj->translator());
 	    delete lioobj;
 	    uiMSG().error( msg );
 	    return false;
@@ -306,8 +306,8 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 	    IOStream chiostrm;
 	    chiostrm.copyFrom( iostrm );
 	    FilePath fp( iostrm->fileName() );
-	    if ( tr )
-		chiostrm.setExt( tr->defExtension() );
+	    if (trans)
+		chiostrm.setExt(trans->defExtension());
 
 	    BufferString cleannm( chiostrm.name() );
 	    cleannm.clean( BufferString::NoFileSeps );
@@ -320,7 +320,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 	    chiostrm.setFileName( fp.fullPath() );
 
 	    const bool newfnm = chiostrm.fileName()!=iostrm->fileName();
-	    if ( newfnm && !doReloc(tr,*iostrm,chiostrm) )
+	    if (newfnm && !doReloc(trans, *iostrm, chiostrm))
 	    {
 		if ( newnm.contains('/') || newnm.contains('\\') )
 		{
@@ -331,7 +331,7 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 		    fp.setFileName( deffp.fileName() );
 		    chiostrm.setFileName( fp.fullPath() );
 		    chiostrm.setName( iostrm->name() );
-		    if ( !doReloc(tr,*iostrm,chiostrm) )
+		    if (!doReloc(trans, *iostrm, chiostrm))
 			return false;
 		}
 	    }
@@ -347,18 +347,19 @@ bool uiIOObjManipGroup::renameEntry( IOObj& ioobj, Translator* tr )
 
 bool uiIOObjManipGroup::rmEntry( IOObj& ioobj )
 {
-    PtrMan<Translator> tr = ioobj.createTranslator();
-    const bool exists = tr ? tr->implExists(&ioobj,true)
-			   : ioobj.implExists(true);
-    const bool readonly = tr ? tr->implReadOnly(&ioobj) : ioobj.implReadOnly();
-    bool shldrm = tr ? !tr->implManagesObjects(&ioobj)
-		     : !ioobj.implManagesObjects();
+    PtrMan<Translator> trans = ioobj.createTranslator();
+    const bool exists = trans ? trans->implExists(&ioobj, true)
+			      : ioobj.implExists(true);
+    const bool readonly = trans ? trans->implReadOnly(&ioobj)
+				: ioobj.implReadOnly();
+    bool shldrm = trans ? !trans->implManagesObjects(&ioobj)
+		        : !ioobj.implManagesObjects();
     if ( exists && readonly && shldrm )
     {
-	BufferString msg( "'", ioobj.name(), "' " );
-	msg.add( "is not writable; the actual data will not be removed." )
-	   .addNewLine()
-	   .add( "The entry will only disappear from the list.\nContinue?" );
+	uiString msg = tr("'%1'is not writable; the actual data "
+			  "will not be removed.\nThe entry will only "
+			  "disappear from the list.\nContinue?")
+		     .arg(ioobj.name());
 	if ( !uiMSG().askContinue(msg) )
 	    return false;
 	shldrm = false;
@@ -374,14 +375,14 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     if ( !ioobjs.size() )
 	return false;
 
-    BufferString info( "Do you really want to remove the following objects"
-			" from the database permanently?" );
-    info.addNewLine();
-    BufferStringSet selnms;
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-	selnms.add( ioobjs[idx]->name() );
+    uiString info = tr("Do you really want to remove the following objects"
+		       " from the database permanently?\n%1");
 
-    info.add( selnms.getDispString( 10 ) );
+    uiStringSet selnms;
+    for (int idx = 0; idx<ioobjs.size(); idx++)
+	selnms += ioobjs[idx]->name();
+
+    info.arg(selnms.createOptionString(true, 10));
     if ( !uiMSG().askRemove( info ) )
 	return false;
 
@@ -392,7 +393,7 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
 }
 
 
-bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* tr )
+bool uiIOObjManipGroup::relocEntry(IOObj& ioobj, Translator* trans)
 {
     mDynamicCastGet(IOStream&,iostrm,ioobj)
     BufferString caption( "New file location for '" );
@@ -414,11 +415,11 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* tr )
     chiostrm.copyFrom( &iostrm );
     const char* newdir = dlg.fileName();
     if ( !File::isDirectory(newdir) )
-    { uiMSG().error( "Selected path is not a directory" ); return false; }
+    { uiMSG().error(tr("Selected path is not a directory")); return false; }
 
     FilePath fp( oldfnm ); fp.setPath( newdir );
     chiostrm.setFileName( fp.fullPath() );
-    if ( !doReloc(tr,iostrm,chiostrm) )
+    if (!doReloc(trans, iostrm, chiostrm))
 	return false;
 
     IOM().commitChanges( ioobj );
@@ -426,24 +427,24 @@ bool uiIOObjManipGroup::relocEntry( IOObj& ioobj, Translator* tr )
 }
 
 
-bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* tr,
+bool uiIOObjManipGroup::readonlyEntry(IOObj& ioobj, Translator* trans,
 				       bool set2ro )
 {
-    const bool exists = tr ? tr->implExists(&ioobj,true)
-			   : ioobj.implExists(true);
+    const bool exists = trans ? trans->implExists(&ioobj, true)
+			      : ioobj.implExists(true);
     if ( !exists )
 	return false;
 
-    const bool oldreadonly = tr ? tr->implReadOnly(&ioobj)
-				: ioobj.implReadOnly();
+    const bool oldreadonly = trans ? trans->implReadOnly(&ioobj)
+				   : ioobj.implReadOnly();
     bool newreadonly = set2ro;
     if ( oldreadonly == newreadonly )
 	return false;
 
-    if ( tr )
+    if (trans)
     {
-	tr->implSetReadOnly( &ioobj, newreadonly );
-	newreadonly = tr->implReadOnly( &ioobj );
+	trans->implSetReadOnly(&ioobj, newreadonly);
+	newreadonly = trans->implReadOnly(&ioobj);
     }
     else
     {
@@ -452,37 +453,37 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj& ioobj, Translator* tr,
     }
 
     if ( oldreadonly == newreadonly )
-	uiMSG().warning( "Could not change the read-only status" );
+	uiMSG().warning(tr("Could not change the read-only status"));
 
     selChg();
     return false;
 }
 
 
-bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
+bool uiIOObjManipGroup::doReloc(Translator* trans, IOStream& iostrm,
 				 IOStream& chiostrm )
 {
-    const bool oldimplexist = tr ? tr->implExists(&iostrm,true)
-				 : iostrm.implExists(true);
+    const bool oldimplexist = trans ? trans->implExists(&iostrm, true)
+				    : iostrm.implExists(true);
     BufferString newfname( chiostrm.getExpandedName(true) );
 
     bool succeeded = true;
     if ( oldimplexist )
     {
-	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
-				     : chiostrm.implExists(true);
+	const bool newimplexist = trans ? trans->implExists(&chiostrm, true)
+				        : chiostrm.implExists(true);
 	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false,true) )
 	    return false;
 
 	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );
-	succeeded = tr  ? tr->implRename( &iostrm, newfname, &cb )
-			: iostrm.implRename( newfname, &cb );
+	succeeded = trans ? trans->implRename(&iostrm, newfname, &cb)
+			  : iostrm.implRename( newfname, &cb );
     }
 
     if ( succeeded )
 	iostrm.setFileName( newfname );
     else
-	uiMSG().error( "Relocation failed" );
+	uiMSG().error(tr("Relocation failed"));
     return succeeded;
 }
 

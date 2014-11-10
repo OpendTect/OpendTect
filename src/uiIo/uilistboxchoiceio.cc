@@ -63,7 +63,7 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
-	const BufferString msg( "Cannot open : ", fnm, " for read" );
+	const uiString msg = tr("Cannot open : %1 for read").arg(fnm);
 	uiMSG().error( msg );
 	return;
     }
@@ -71,8 +71,8 @@ void uiListBoxChoiceIO::readReqCB( CallBacker* )
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType( mCtioObjTypeName() ) )
     {
-	const BufferString msg( fnm, " has the wrong file type: ",
-				astrm.fileType() );
+	const uiString msg = tr("%1 has the wrong file type: %2")
+			   .arg(fnm).arg(astrm.fileType());
 	uiMSG().error( msg );
 	return;
     }
@@ -99,7 +99,7 @@ void uiListBoxChoiceIO::storeReqCB( CallBacker* )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	uiMSG().error( BufferString("Cannot open : ", fnm, " for write") );
+	uiMSG().error(tr("Cannot open : %1 for write").arg(fnm));
 	return;
     }
 
