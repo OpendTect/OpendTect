@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "gendefs.h"
+#include "uistring.h"
 class IOObj;
 class CtxtIOObj;
 
