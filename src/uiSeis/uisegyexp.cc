@@ -55,23 +55,23 @@ static const char* txtheadtxt =
 "\n- You can only define 40 lines of 80 characters";
 
 class uiSEGYExpTxtHeaderDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYExpTxtHeaderDlg);
 public:
 
 uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
-    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,
+    : uiDialog(p,Setup(tr("Define SEG-Y Text Header"),txtheadtxt,
                         mODHelpKey(mSEGYExpTxtHeaderDlgHelpID) ))
     , hdr_(hdr)
     , autogen_(ag)
 {
     const CallBack cb( mCB(this,uiSEGYExpTxtHeaderDlg,agSel) );
-    autogenfld_ = new uiGenInput( this, "Automatically generate",
+    autogenfld_ = new uiGenInput( this, tr("Automatically generate"),
 				  BoolInpSpec(false) );
     autogenfld_->valuechanged.notify( cb );
-    uiToolButton* wtb = new uiToolButton( this, "save", "Write to file",
+    uiToolButton* wtb = new uiToolButton( this, "save", tr("Write to file"),
 			    mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
     wtb->attach( rightBorder );
-    uiToolButton* rtb = new uiToolButton( this, "open", "Read file",
+    uiToolButton* rtb = new uiToolButton( this, "open", tr("Read file"),
 			    mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
     rtb->attach( leftOf, wtb );
 
@@ -100,7 +100,7 @@ void readPush( CallBacker* )
 
     StreamData sd( StreamProvider(dlg.fileName()).makeIStream() );
     if ( !sd.usable() )
-	{ uiMSG().error("Cannot open file"); return; }
+	{ uiMSG().error(tr("Cannot open file")); return; }
 
     SEGY::TxtHeader txthdr;
     sd.istrm->read( (char*)txthdr.txt_, SegyTxtHeaderLength );
@@ -118,13 +118,13 @@ void writePush( CallBacker* )
 
     fp.set( dlg.fileName() );
     if ( !File::isWritable(fp.pathOnly()) )
-	{ uiMSG().error("Cannot write to this directory"); return; }
+	{ uiMSG().error(tr("Cannot write to this directory")); return; }
     const BufferString fnm( fp.fullPath() );
     if ( File::exists(fnm) && !File::isWritable(fnm) )
-	{ uiMSG().error("Cannot write to this file"); return; }
+	{ uiMSG().error(tr("Cannot write to this file")); return; }
 
     if ( !edfld_->saveToFile(fnm,80,false) )
-	{ uiMSG().error("Failed to write to this file"); return; }
+	{ uiMSG().error(tr("Failed to write to this file")); return; }
 }
 
 bool acceptOK( CallBacker* )
@@ -144,7 +144,7 @@ bool acceptOK( CallBacker* )
 };
 
 class uiSEGYExpTxtHeader : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiSEGYExpTxtHeader);
 public:
 
 uiSEGYExpTxtHeader( uiSEGYExp* se )
@@ -258,12 +258,12 @@ void uiSEGYExp::batchChg( CallBacker* )
 
 
 class uiSEGYExpMore : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYExpMore);
 public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
-	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
-				     "Specify file details",
+	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-export"),
+				     tr("Specify file details"),
                                      mODHelpKey(mSEGYExpMoreHelpID) ))
 	, inioobj_(ii)
 	, outioobj_(oi)
@@ -276,7 +276,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi )
     BufferString setupnm( "Exp " );
     setupnm += uiSEGYFileSpec::sKeyLineNmToken();
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Lines to export",
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Lines to export"),
 						    OD::ChooseAtLeastOne );
     lnmsfld_ = llb->box();
     SeisIOObjInfo sii( inioobj_ );
@@ -308,15 +308,15 @@ bool acceptOK( CallBacker* )
 	File::createDir( dirnm );
     if ( !File::isDirectory(dirnm) || !File::isWritable(dirnm) )
     {
-	uiMSG().error( "Directory provided not usable" );
+	uiMSG().error( tr("Directory provided not usable") );
 	return false;
     }
     fnm = fp.fullPath();
     if ( !fnm.contains(uiSEGYFileSpec::sKeyLineNmToken()) )
     {
-	BufferString msg( "The file name has to contain at least one '" );
-	msg += uiSEGYFileSpec::sKeyLineNmToken(); msg += "'\n";
-	msg += "That will then be replaced by the line name";
+	uiString msg = tr("The file name has to contain at least one '%1'\n"
+			  "That will then be replaced by the line name")
+		     .arg(uiSEGYFileSpec::sKeyLineNmToken());
 	uiMSG().error( msg );
 	return false;
     }
@@ -344,7 +344,7 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
     if ( !res )
     {
 	nofails = false;
-	if ( !islast && !uiMSG().askContinue("Continue with next?") )
+	if ( !islast && !uiMSG().askContinue(tr("Continue with next?")) )
 	    return false;
     }
     return true;
@@ -360,7 +360,7 @@ bool doExp( const FilePath& fp )
     }
     if ( lnms.size() < 1 )
     {
-	uiMSG().error( "Please select lines to export" );
+	uiMSG().error( tr("Please select lines to export") );
 	return false;
     }
 
@@ -445,7 +445,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     }
 
     if ( needinfo )
-	uiMSG().message( "Successful export of:\n", sfs.fname_ );
+	uiMSG().message( tr("Successful export of:\n%1").arg(sfs.fname_) );
 
     selcomp_ = -1;
     return false;

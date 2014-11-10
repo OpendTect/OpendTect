@@ -73,7 +73,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
     fnmfld_->valuechanged.notify( mCB(this,uiSEGYFileSpec,fileSel) );
     if ( forread_ )
     {
-	manipbut_ = new uiPushButton( this, "Manipulate",
+	manipbut_ = new uiPushButton( this, tr("Manipulate"),
 			  mCB(this,uiSEGYFileSpec,manipFile), false );
 	manipbut_->attach( rightOf, fnmfld_ );
 	manipbut_->setSensitive( false );
@@ -86,7 +86,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
 	inpspec.setName( "File number stop", 1 );
 	inpspec.setName( "File number step", 2 );
 	inpspec.setValue( StepInterval<int>(1,2,1) );
-	multifld_ = new uiGenInput( this, "Multiple files; Numbers", inpspec );
+	multifld_ = new uiGenInput( this, tr("Multiple files; Numbers"),
+				    inpspec );
 	multifld_->setWithCheck( true ); multifld_->setChecked( false );
 	multifld_->attach( alignedBelow, fnmfld_ );
     }
@@ -121,17 +122,17 @@ bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
     if ( !perm )
     {
 	if ( spec.fname_.isEmpty() )
-	    mErrRet("No file name specified")
+	    mErrRet(tr("No file name specified"))
 
 	if ( forread_ )
 	{
 	    if ( spec.isMultiFile() )
 	    {
 		if ( !spec.fname_.contains('*') )
-		    mErrRet("Please put a wildcard ('*') in the file name")
+		    mErrRet(tr("Please put a wildcard ('*') in the file name"))
 	    }
 	    else if ( !File::exists(spec.fname_) )
-		mErrRet("Selected input file does not exist")
+		mErrRet(tr("Selected input file does not exist"))
 	}
     }
 
@@ -336,7 +337,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop,
 				      iop, SEGY::FilePars::sKeyNrSamples(),
 				      false, true );
 
-    fmtfld_ = new uiGenInput( grp, "SEG-Y 'format'",
+    fmtfld_ = new uiGenInput( grp, tr("SEG-Y 'format'"),
 		StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
     if ( nrsamplesfld_ )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
@@ -435,7 +436,7 @@ void uiSEGYFilePars::setBytesSwapped( bool full, bool data )
 //--- class for building the file opts UI ----
 
 class uiSEGYFOByteSpec : public uiGroup
-{
+{ mODTextTranslationClass(uiSEGYFOByteSpec);
 public:
 
 uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
@@ -467,7 +468,7 @@ uiSEGYFOByteSpec( uiParent* p, SEGY::HdrEntry& he, bool wsz, const IOPar& iop,
     if ( wsz )
     {
 	BoolInpSpec bszspec( !he_.small_, "4", "2" );
-	issmallfld_ = new uiCheckBox( this, " 2 bytes" );
+	issmallfld_ = new uiCheckBox( this, tr(" 2 bytes") );
 	issmallfld_->attach( rightOf, bytefld_ );
     }
 
@@ -555,8 +556,8 @@ bool getVals()
     const int bytesz = byteSize();
     if ( bytenr+bytesz >= 115 && bytenr < 119 )
     {
-	uiMSG().error( "Bytes 115-118 (number of samples and sample rate)\n"
-			"must never be redefined" );
+	uiMSG().error( tr("Bytes 115-118 (number of samples and sample rate)\n"
+			  "must never be redefined") );
 	return false;
     }
 
@@ -776,8 +777,9 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar& iop )
     {
 	int icopt = 0;
 	iop.get( SEGY::FileReadOpts::sKeyICOpt(), icopt );
-	posfld_ = new uiGenInput( grp, "Base positioning on",
-		    BoolInpSpec(icopt>=0,"Inline/Crossline","Coordinates") );
+	posfld_ = new uiGenInput( grp, tr("Base positioning on"),
+		    BoolInpSpec(icopt>=0,tr("Inline/Crossline"),
+				tr("Coordinates")) );
 	posfld_->attach( alignedBelow, crldeffld_ );
     }
 }
@@ -796,13 +798,14 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 	else
 	{
 	    havecoordsinhdrfld_ = new uiGenInput( grp,
-		    "Header contains coordinates", BoolInpSpec(true) );
+		    tr("Header contains coordinates"), BoolInpSpec(true) );
 	    havecoordsinhdrfld_->attach( alignedBelow, trnrdeffld_ );
 	    havecoordsinhdrfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
 	    xcoorddeffld_->attach( alignedBelow, havecoordsinhdrfld_ );
-	    readcoordsfld_ = new uiGenInput( grp, "Coordinate source",
-			     BoolInpSpec(false,"'Nr X Y' file","Generate") );
+	    readcoordsfld_ = new uiGenInput( grp, tr("Coordinate source"),
+			     BoolInpSpec(false,tr("'Nr X Y' file"),
+					 tr("Generate")) );
 	    readcoordsfld_->attach( alignedBelow, havecoordsinhdrfld_ );
 	    readcoordsfld_->valuechanged.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
@@ -810,16 +813,16 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar& iop )
 			uiFileInput::Setup(uiFileDialog::Gen)
 			.forread(forread_) );
 	    coordsfnmfld_->attach( alignedBelow, readcoordsfld_ );
-	    coordsextfld_ = new uiGenInput( grp, "Extension",
+	    coordsextfld_ = new uiGenInput( grp, tr("Extension"),
 					    StringInpSpec("crd") );
 	    coordsextfld_->attach( alignedBelow, readcoordsfld_ );
-	    coordsspecfnmbox_ = new uiCheckBox( grp, "Specify file" );
+	    coordsspecfnmbox_ = new uiCheckBox( grp, tr("Specify file") );
 	    coordsspecfnmbox_->setChecked( true );
 	    coordsspecfnmbox_->attach( leftOf, coordsextfld_ );
 	    coordsspecfnmbox_->activated.notify(
 					mCB(this,uiSEGYFileOpts,crdChk) );
 
-	    coordsstartfld_ = new uiGenInput( grp, "Start coordinate",
+	    coordsstartfld_ = new uiGenInput( grp, tr("Start coordinate"),
 					DoubleInpSpec(), DoubleInpSpec() );
 	    coordsstartfld_->attach( alignedBelow, readcoordsfld_ );
 	    coordsstartfld_->setElemSzPol( uiObject::Small );
@@ -861,7 +864,7 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar& iop )
 	grp->setHAlignObj( trnrdeffld_ );
     }
 
-    if ( ts_ ) ts_->addTab( grp, "Locations" );
+    if ( ts_ ) ts_->addTab( grp, tr("Locations") );
     return grp;
 }
 
@@ -874,7 +877,7 @@ uiGroup* uiSEGYFileOpts::mkCoordGrp( const IOPar& iop )
     mkCoordFlds( grp, iop );
     grp->setHAlignObj( xcoorddeffld_ );
 
-    if ( ts_ ) ts_->addTab( grp, "Coordinates" );
+    if ( ts_ ) ts_->addTab( grp, tr("Coordinates") );
     return grp;
 }
 
@@ -898,7 +901,7 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar& iop )
     sampleratefld_->attach( alignedBelow, timeshiftfld_ );
 
     grp->setHAlignObj( scalcofld_ );
-    if ( ts_ ) ts_->addTab( grp, "Overrules" );
+    if ( ts_ ) ts_->addTab( grp, tr("Overrules") );
     return grp;
 }
 
@@ -911,7 +914,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 	"In file", "From src/rcv coordinates", "Not present", 0 };
     if ( forread_ )
     {
-	psposfld_ = new uiGenInput( grp, "Offsets/azimuths",
+	psposfld_ = new uiGenInput( grp, tr("Offsets/azimuths"),
 				    StringListInpSpec(choices) );
 	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
     }
@@ -923,19 +926,19 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar& iop )
 
     if ( forread_ )
     {
-	ensurepsxylbl_ = new uiLabel( grp,"Please be sure that the fields\n"
+	ensurepsxylbl_ = new uiLabel( grp,tr("Please be sure that the fields\n"
 			"at bytes 73, 77 (source) and 81, 85 (receiver)\n"
-		       "actually contain the right coordinates" );
+		       "actually contain the right coordinates") );
 	ensurepsxylbl_->attach( ensureBelow, psposfld_ );
 
 	const float inldist = SI().inlDistance();
-	regoffsfld_ = new uiGenInput( grp, "Set offsets to: start/step",
+	regoffsfld_ = new uiGenInput( grp, tr("Set offsets to: start/step"),
 			    IntInpSpec(0), IntInpSpec(mNINT32(inldist)) );
 	regoffsfld_->attach( alignedBelow, psposfld_ );
     }
 
     grp->setHAlignObj( offsdeffld_ );
-    if ( ts_ ) ts_->addTab( grp, "Offset/Azimuth" );
+    if ( ts_ ) ts_->addTab( grp, tr("Offset/Azimuth") );
     return grp;
 }
 

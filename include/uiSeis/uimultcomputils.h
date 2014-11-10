@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uicompoundparsel.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class LineKey;
 class uiGenInput;
@@ -41,7 +42,7 @@ protected:
 /*!\brief CompoundParSel to capture and sum up the user-selected components */
 
 mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiMultCompSel);
     public:
 			uiMultCompSel(uiParent*);
 			~uiMultCompSel();
@@ -57,7 +58,7 @@ mExpClass(uiSeis) uiMultCompSel : public uiCompoundParSel
     void		prepareDlg();
 
     mExpClass(uiSeis) MCompDlg : public uiDialog
-    {
+    { mODTextTranslationClass(MCompDlg);
 	public:
 	    			MCompDlg(uiParent*,const BufferStringSet&);
 

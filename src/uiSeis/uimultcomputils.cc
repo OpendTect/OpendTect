@@ -119,15 +119,15 @@ BufferString uiMultCompSel::getSummary() const
 
 
 uiMultCompSel::MCompDlg::MCompDlg( uiParent* p, const BufferStringSet& names )
-    : uiDialog( p, uiDialog::Setup("Components selection dialog",
-				   "",mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Components selection dialog"),
+				   uiStrings::sEmptyString(),mNoHelpKey) )
 {
-    useallfld_ = new uiGenInput( this, "Components to use:",
+    useallfld_ = new uiGenInput( this, tr("Components to use:"),
 				 BoolInpSpec( true, uiStrings::sAll(),
-                                 "Subselection" ) );
+                                 tr("Subselection") ) );
     useallfld_->valuechanged.notify( mCB(this,uiMultCompSel::MCompDlg,selChg));
 
-    outlistfld_ = new uiLabeledListBox( this, names, "Available components",
+    outlistfld_ = new uiLabeledListBox( this, names, tr("Available components"),
 			   OD::ChooseAtLeastOne, uiLabeledListBox::AboveMid );
     outlistfld_->attach( ensureBelow, useallfld_ );
 }

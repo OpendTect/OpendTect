@@ -43,11 +43,11 @@ static const od_int64 cFileHeaderSize = SegyTxtHeaderLength+SegyBinHeaderLength;
 
 
 class uiSEGYBinHdrEdDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYBinHdrEdDlg);
 public:
 
 uiSEGYBinHdrEdDlg( uiParent* p, SEGY::BinHeader& h )
-    : uiDialog(p,Setup("SEG-Y Binary Header",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("SEG-Y Binary Header"),mNoDlgTitle,
                         mODHelpKey(mSEGYBinHdrEdDlgHelpID) ))
     , hdr_(h)
     , def_(SEGY::BinHeader::hdrDef())
@@ -102,25 +102,23 @@ bool acceptOK( CallBacker* )
 
     const int ns = tbl_->getIntValue( RowCol(SEGY::BinHeader::EntryNs(),1) );
     if ( ns < 1 )
-	mErrRet("The 'hns' entry (number of samples) must be > 0")
+	mErrRet(tr("The 'hns' entry (number of samples) must be > 0"))
 
     const short fmt = (short)tbl_->getIntValue(
 				RowCol(SEGY::BinHeader::EntryFmt(),1) );
     if ( !SEGY::BinHeader::isValidFormat(fmt) )
-	mErrRet("The 'format' entry must be 1,3,5 or 8 (see row tooltip).\n")
+	mErrRet(tr("The 'format' entry must be 1,3,5 "
+		   "or 8 (see row tooltip).\n"))
 
     const int orgfmtbts = SEGY::BinHeader::formatBytes(orgfmt_);
     const int fmtbts = SEGY::BinHeader::formatBytes(fmt);
     if ( orgns_ * orgfmtbts != ns * fmtbts )
     {
-	BufferString msg( "You have changed the number of bytes per trace:\n" );
-	msg	.add( "\nWas: format=" ).add( orgfmt_ )
-		.add( " hns=" ).add( orgns_ )
-		.add( " => " ).add( orgns_ * orgfmtbts ).add( " b/trc" )
-		.add( "\nNow: format=" ).add( fmt )
-		.add( " hns=" ).add( ns )
-		.add( " => " ).add( ns * fmtbts ).add( " b/trc" );
-	msg += "\n\nContinue?";
+	uiString msg = tr("You have changed the number of bytes per trace:\n"
+			  "\nWas: format= %1 hns= %2 => %3 b/trc"
+			  "\nNow: format= %4 hns= %5 => %6 b/trc\n\nContinue?")
+		     .arg(orgfmt_).arg(orgns_).arg(orgns_ * orgfmtbts)
+		     .arg(fmt).arg(ns).arg(ns * fmtbts);
 	if ( !uiMSG().askGoOn(msg,true) )
 	    return false;
     }
@@ -148,7 +146,7 @@ bool acceptOK( CallBacker* )
 
 
 class uiSEGYBinHdrEd : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiSEGYBinHdrEd);
 public:
 
 uiSEGYBinHdrEd( uiParent* p, SEGY::BinHeader& h )
@@ -332,12 +330,16 @@ bool uiSEGYFileManip::openInpFile()
 	{ errmsg_ = "Cannot open input file"; return false; }
 
     if ( !strm().getBin( txthdr_.txt_, SegyTxtHeaderLength ) )
-	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-	            "Cannot fully read the text header"; return false; }
+	{ 
+	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
+	          "Cannot fully read the text header"; return false;
+	}
     char buf[SegyBinHeaderLength];
     if ( !strm().getBin( buf, SegyBinHeaderLength ) )
-	{ errmsg_ = "Input file is too small to be a SEG-Y file:\n"
-		    "Cannot read full binary header"; return false; }
+	{ 
+	errmsg_ = "Input file is too small to be a SEG-Y file:\n"
+		  "Cannot read full binary header"; return false; 
+    }
 
     txthdr_.setAscii();
     binhdr_.setInput( buf );
@@ -420,18 +422,19 @@ void uiSEGYFileManip::selChg( CallBacker* )
 }
 
 class uiSEGYFileManipHdrCalcEd : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYFileManipHdrCalcEd);
 public:
 
 uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
-    : uiDialog( p, Setup("Header Calculation",cs.indexOf(hc.he_.name()) < 0 ?
-	                 "Add header calculation":"Edit header calculation",
+    : uiDialog(p,Setup(tr("Header Calculation"),cs.indexOf(hc.he_.name()) < 0
+		     ? tr("Add header calculation")
+		     : tr("Edit header calculation"),
                           mODHelpKey(mSEGYFileManipHdrCalcEdHelpID) ) )
     , hc_(hc)
     , calcset_(cs)
 {
     const CallBack cb( mCB(this,uiSEGYFileManipHdrCalcEd,insTxt) );
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Available",
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Available"),
 			    OD::ChooseOnlyOne, uiLabeledListBox::AboveMid );
     hdrfld_ = llb->box();
     hdrfld_->addItem( calcset_.trcIdxEntry().name() );
@@ -448,8 +451,8 @@ uiSEGYFileManipHdrCalcEd( uiParent* p, SEGY::HdrCalc& hc, SEGY::HdrCalcSet& cs )
     formfld_->attach( rightOf, addbut );
     formfld_->setHSzPol( uiObject::WideVar );
     formfld_->returnPressed.notify(mCB(this,uiSEGYFileManipHdrCalcEd,acceptOK));
-    uiLabel* lbl = new uiLabel( this,
-			BufferString("Formula for '",hc_.he_.name(),"'") );
+    uiLabel* lbl = new uiLabel(this, tr("Formula for '%1'")
+				   .arg(hc_.he_.name()));
     lbl->attach( centeredBelow, formfld_ );
 }
 
@@ -468,7 +471,7 @@ bool acceptOK( CallBacker* )
 {
     const char* txt = formfld_->text();
     if ( !txt || !*txt )
-	mErrRet("Please enter a formula")
+	mErrRet(tr("Please enter a formula"))
 
     const SEGY::HdrEntry& he = hc_.he_;
     const int hidx = calcset_.indexOf( he.name() );
@@ -571,8 +574,8 @@ void uiSEGYFileManip::saveReq( CallBacker* )
 
     calcset_.setName( dlg.text() );
     if ( !calcset_.storeInSettings() )
-	uiMSG().error( "Could not write to the user settings file:\n",
-		    GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile()) );
+	uiMSG().error(tr("Could not write to the user settings file:\n%1")
+		 .arg(GetSettingsFileName(SEGY::HdrCalcSet::sKeySettsFile())));
 }
 
 
@@ -613,7 +616,7 @@ void uiSEGYFileManip::rowClck( CallBacker* cb )
 
 
 class uiSEGYFileManipDataExtracter : public Executor
-{
+{ mODTextTranslationClass(uiSEGYFileManipDataExtracter);
 public:
 
 uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
@@ -632,7 +635,7 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     if ( !plotall )
     {
 	DataInpSpec* spec = new IntInpIntervalSpec( trcrg_ );
-	uiGenInputDlg dlg( p, "Specify range", "Trace range to plot", spec );
+	uiGenInputDlg dlg(p, tr("Specify range"), "Trace range to plot", spec);
 	if ( !dlg.go() )
 	    { totalnr_ = -1; return; }
 	trcrg_ = dlg.getFld(0)->getIInterval();
@@ -651,8 +654,8 @@ uiSEGYFileManipDataExtracter( uiSEGYFileManip* p, const TypeSet<int>& sel,
     deepErase( data_ );
 }
 
-uiString uiMessage() const	{ return "Collecting data"; }
-uiString uiNrDoneText() const	{ return "Traces scanned"; }
+uiString uiMessage() const	{ return tr("Collecting data"); }
+uiString uiNrDoneText() const	{ return tr("Traces scanned"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 
@@ -706,7 +709,7 @@ void uiSEGYFileManip::plotReq( CallBacker* cb )
     if ( de.data_[0]->size() < 2 )
 	return;
 
-    uiMainWin::Setup su( "Header value plot" );
+    uiMainWin::Setup su( tr("Header value plot") );
     su.withmenubar( false ).deleteonclose( true );
     for ( int idx=0; idx<de.data_.size(); idx++ )
     {

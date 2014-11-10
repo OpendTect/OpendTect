@@ -99,18 +99,16 @@ bool uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns,
 {
     if ( warns.isEmpty() ) return true;
 
-    BufferString msg( "The operation was successful, but there " );
-    msg.add( warns.size() > 1 ? "were warnings" : "was a warning" ).add(":");
+    uiString msg = tr("The operation was successful, but there %1:")
+    .arg( warns.size() > 1 ? tr("were warnings") : tr("was a warning") );
+
     for ( int idx=0; idx<warns.size(); idx++ )
-    {
-	msg += "\n\n";
-	msg += warns.get( idx );
-    }
+    { msg.append("\n\n%1").arg(warns.get(idx)); }
 
     if ( !withstop )
 	{ uiMSG().warning( msg ); return true; }
 
-    msg += "\n\nContinue?";
+    msg.append("\n\nContinue?");
     return uiMSG().askContinue( msg );
 }
 

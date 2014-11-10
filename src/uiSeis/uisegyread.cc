@@ -165,7 +165,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
     uiParent* parnt = rddlg;
     if ( !parnt ) parnt = defdlg;
     PtrMan<CtxtIOObj> ctio = getCtio( false );
-    uiIOObjSelDlg dlg( parnt, *ctio, "New SEG-Y setup" );
+    uiIOObjSelDlg dlg( parnt, *ctio, tr("New SEG-Y setup") );
     dlg.setModal( true );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
@@ -197,7 +197,7 @@ void uiSEGYRead::readReq( CallBacker* cb )
     }
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
-    uiIOObjSelDlg dlg( parnt, *ctio, "Select SEG-Y setup" );
+    uiIOObjSelDlg dlg( parnt, *ctio, tr("Select SEG-Y setup") );
     dlg.setModal( true );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
@@ -214,11 +214,11 @@ void uiSEGYRead::readReq( CallBacker* cb )
 
 
 class uiSEGYReadPreScanner : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYReadPreScanner);
 public:
 
 uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
-    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,
+    : uiDialog(p,uiDialog::Setup(tr("SEG-Y Scan"),0,
                                  mODHelpKey(mSEGYReadPreScannerHelpID) ))
     , pars_(pars)
     , geom_(gt)
@@ -226,7 +226,7 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     , res_(false)
     , rep_("SEG-Y scan report")
 {
-    nrtrcsfld_ = new uiGenInput( this, "Limit to number of traces",
+    nrtrcsfld_ = new uiGenInput( this, tr("Limit to number of traces"),
 				 IntInpSpec(1000) );
     nrtrcsfld_->setWithCheck( true );
     nrtrcsfld_->setChecked( true );
@@ -261,7 +261,7 @@ bool acceptOK( CallBacker* )
     res_ = true;
     if ( scanner_->fileDataSet().isEmpty() )
     {
-	uiMSG().error( "No traces found" );
+	uiMSG().error( tr("No traces found") );
 	return false;
     }
 
@@ -331,11 +331,11 @@ static const char* rev1txts[] =
 };
 
 class uiSEGYReadRev1Question : public uiVarWizardDlg
-{
+{ mODTextTranslationClass(uiSEGYReadRev1Question);
 public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
-    : uiVarWizardDlg(p,Setup("Determine SEG-Y revision",rev1info,
+    : uiVarWizardDlg(p,Setup(tr("Determine SEG-Y revision"),rev1info,
                              mODHelpKey(mSEGYReadRev1QuestionHelpID) ),
 				iop,Middle)
     , initialpol_(pol)
@@ -344,7 +344,7 @@ uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d, IOPar& iop )
     choicefld_->addItems( BufferStringSet(rev1txts) )
 		.setChecked( pol-1, true );
 
-    dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
+    dontaskfld_ = new uiCheckBox( this, tr("Don't ask again for this survey") );
     dontaskfld_->attach( ensureBelow, choicefld_ );
     dontaskfld_->attach( rightBorder );
 }
@@ -452,9 +452,9 @@ void uiSEGYRead::setupScan()
     uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
     if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
 	uiMSG().warning(
-	"Scanning a 2D file can provide valuable info on your survey.\n"
-	"But to actually set up your survey, you need to use\n"
-	"'Set for 2D only'\nIn the survey setup window.\n" );
+	tr("Scanning a 2D file can provide valuable info on your survey.\n"
+	   "But to actually set up your survey, you need to use\n"
+	   "'Set for 2D only'\nIn the survey setup window.\n") );
     scandlg_ = new uiSEGYScanDlg( parent_, su, pars_,
 				  setup_.purpose_ == SurvSetup );
     scandlg_->mSetreadReqCB();
@@ -470,7 +470,7 @@ void uiSEGYRead::setupImport()
         return;
 
     uiSEGYImpDlg::Setup su( geom_ );
-    su.rev( rev_ ).modal(false).wintitle("Import SEG-Y");
+    su.rev( rev_ ).modal(false).wintitle(tr("Import SEG-Y"));
     impdlg_ = new uiSEGYImpDlg( parent_, su, pars_ );
     impdlg_->mSetreadReqCB();
     impdlg_->mSetwriteReqCB();

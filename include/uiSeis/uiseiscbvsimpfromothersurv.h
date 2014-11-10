@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "fourier.h"
 #include "position.h"
-
+#include "uistring.h"
 
 class ArrayNDWindow;
 class CBVSSeisTrcTranslator;
@@ -44,9 +44,9 @@ public:
 			SeisImpCBVSFromOtherSurvey(const IOObj&);
 			~SeisImpCBVSFromOtherSurvey();
 
-    uiString		uiMessage() const	{ return "Importing CBVS"; }
+    uiString		uiMessage() const	{ return tr("Importing CBVS"); }
     od_int64		nrDone() const          { return nrdone_; }
-    uiString		uiNrDoneText() const	  { return "Traces handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces handled"); }
     od_int64		totalNr() const		{ return totnr_; }
     int		nextStep();
 
@@ -106,7 +106,7 @@ protected:
 
 
 mExpClass(uiSeis) uiSeisImpCBVSFromOtherSurveyDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisImpCBVSFromOtherSurveyDlg);
 public:
 
 			uiSeisImpCBVSFromOtherSurveyDlg(uiParent*);

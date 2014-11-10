@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uivarwizard.h"
 #include "seistype.h"
 #include "multiid.h"
+#include "uistring.h"
+
 class IOObj;
 class CtxtIOObj;
 namespace SEGY { class Scanner; }
@@ -29,7 +31,7 @@ class uiSEGYReadRev1Question;
 /*!\brief 'Server' for SEG-Y Reading */
 
 mExpClass(uiSeis) uiSEGYRead : public uiVarWizard
-{
+{ mODTextTranslationClass(uiSEGYRead);
 public:
 
     enum Purpose	{ Import, SurvSetup, DirectDef };

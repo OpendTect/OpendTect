@@ -299,7 +299,7 @@ void uiClusterProc::progressCB( CallBacker* )
 
 
 #define mErrRet(s) { msg = s; return false; }
-bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
+bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* trans,
 				 BufferString& msg, bool withdelete )
 {
     MultiID key;
@@ -317,7 +317,7 @@ bool uiClusterProc::mergeOutput( const IOPar& pars, TaskRunner* tr,
     if ( !exec )
 	return false;
 
-    if ( !TaskRunner::execute( tr, *exec ) )
+    if ( !TaskRunner::execute( trans, *exec ) )
 	mErrRet("Failed to merge output data")
     else
 	msg = "Finished merging output data";

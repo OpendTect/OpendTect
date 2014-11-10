@@ -30,7 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSEGYSIPMgrDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSEGYSIPMgrDlg);
 public:
 
 uiSEGYSIPMgrDlg( uiSEGYSurvInfoProvider* sip, uiParent* p,
@@ -38,8 +38,9 @@ uiSEGYSIPMgrDlg( uiSEGYSurvInfoProvider* sip, uiParent* p,
     : uiDialog(p,su)
     , sip_(sip)
 {
-    new uiLabel( this, "To be able to scan your data\n"
-	    "You must define the specific properties of your SEG-Y file(s)" );
+    new uiLabel(this, tr("To be able to scan your data\n"
+			 "You must define the specific properties "
+			 "of your SEG-Y file(s)"));
     afterPopup.notify( mCB(this,uiSEGYSIPMgrDlg,start) );
 }
 
@@ -64,7 +65,7 @@ void atEnd( CallBacker* )
 
 uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 {
-    uiDialog::Setup su( "Survey setup (SEG-Y)", mNoDlgTitle, mNoHelpKey );
+    uiDialog::Setup su( tr("Survey setup (SEG-Y)"), mNoDlgTitle, mNoHelpKey );
     su.oktext(uiStrings::sEmptyString()).canceltext(uiStrings::sEmptyString());
     xyinft_ = false;
     return new uiSEGYSIPMgrDlg( this, p, su );

@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "segyfiledef.h"
+#include "uistring.h"
+
 class Timer;
 class SeisTrc;
 class uiTable;

@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "multiid.h"
 #include "elasticpropsel.h"
-
+#include "uistring.h"
 #include "uigroup.h"
 #include "uidialog.h"
 
@@ -62,7 +62,7 @@ protected:
     Math::Expression*		expr_;
 
     mExpClass(uiSeis) uiSelInpGrp : public uiGroup
-    {
+    { mODTextTranslationClass(uiSelInpGrp);
     public:
 			uiSelInpGrp(uiParent*,const BufferStringSet&,int);
 
@@ -98,7 +98,7 @@ protected:
 
 
 mExpClass(uiSeis) uiElasticPropSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiElasticPropSelDlg);
 public:
 				uiElasticPropSelDlg(uiParent*,
 					const PropertyRefSelection&,

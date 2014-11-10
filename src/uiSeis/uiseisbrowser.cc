@@ -438,11 +438,12 @@ void uiSeisBrowser::fillTableColumn( const SeisTrc& trc, int colidx )
 
 
 class uiSeisBrowserGoToDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSeisBrowserGoToDlg);
 public:
 
 uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
-    : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position",
+    : uiDialog( p, uiDialog::Setup(tr("Reposition"),
+				   tr("Specify a new position"),
 				   mNoHelpKey) )
 {
     PositionInpSpec inpspec(
@@ -456,7 +457,7 @@ bool acceptOK( CallBacker* )
     pos_ = posfld_->getBinID();
     if ( !SI().isReasonable(pos_) )
     {
-	uiMSG().error( "Please specify a valid position" );
+	uiMSG().error( tr("Please specify a valid position") );
 	return false;
     }
 
@@ -608,7 +609,8 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 	return true;
 
     const int res =
-	uiMSG().askSave( "Do you want to save the changes permanently?", true );
+	uiMSG().askSave(tr("Do you want to save the changes permanently?"),
+			true);
     if ( res == 1 )
 	return storeChgdData();
 
@@ -617,7 +619,7 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 
 
 class uiSeisBrowseWriter : public Executor
-{
+{ mODTextTranslationClass(uiSeisBrowseWriter);
 public:
 
 uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
@@ -629,7 +631,7 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
     , is2d_(is2d)
     , tbufchgdtrcs_(tbuf)
     , trc_(*new SeisTrc())
-    , msg_("Initialising")
+    , msg_(tr("Initialising"))
 {
     PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
     const FilePath fp( ioobj->fullUserExpr(true) );
@@ -666,25 +668,25 @@ bool init()
     }
     if ( !safeio_->open(false) )
     {
-	uiMSG().error( "Unable to open the file" );
+	uiMSG().error( tr("Unable to open the file") );
 	return false;
     }
     StreamConn* conno = new StreamConn( safeio_->ostrm() );
     if ( !tro_->initWrite( conno, *tbufchgdtrcs_.first()) )
     {
-	uiMSG().error( "Unable to write" );
+	uiMSG().error( tr("Unable to write") );
 	return false;
     }
     if ( !tri_->readInfo(trc_.info()) || !tri_->read(trc_) )
-	{ uiMSG().error( "Input cube is empty" ); return false; }
-    msg_ = "Writing";
+	{ uiMSG().error( tr("Input cube is empty") ); return false; }
+    msg_ = tr("Writing");
     return true;
 }
 
     od_int64		totalNr() const		{ return totalnr_; }
     od_int64		nrDone() const          { return nrdone_; }
     uiString		uiMessage() const	{ return msg_; }
-    uiString		uiNrDoneText() const	{ return "Traces done"; }
+    uiString		uiNrDoneText() const	{ return tr("Traces done"); }
 
 protected:
 

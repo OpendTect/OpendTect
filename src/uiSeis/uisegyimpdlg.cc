@@ -126,8 +126,8 @@ class uiSEGYImpSimilarDlg : public uiDialog
 public:
 
 uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio )
-	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
-				     "Specify file details",
+	: uiDialog(p,uiDialog::Setup(tr("2D SEG-Y multi-import"),
+				     tr("Specify file details"),
                                      mODHelpKey(mSEGYImpSimilarDlgHelpID) ))
 	, inioobj_(iio)
 	, outioobj_(oio)
@@ -162,9 +162,9 @@ bool acceptOK( CallBacker* )
     fnm = fp.fullPath();
     if ( !fnm.contains(uiSEGYFileSpec::sKeyLineNmToken()) )
     {
-	uiString msg( tr("The file name has to contain at least one '%1")
-			.arg( uiSEGYFileSpec::sKeyLineNmToken() ) );
-	msg.append( "'\n That will then become the line name" );
+	uiString msg = tr("The file name has to contain at least one '%1'\n"
+			  "That will then become the line name")
+		     .arg( uiSEGYFileSpec::sKeyLineNmToken());
 	uiMSG().error( msg );
 	return false;
     }
@@ -311,8 +311,8 @@ bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 
 	retval = impFile( *useinioobj, *outioobj, lnm );
 	if ( is2d && retval )
-	    uiMSG().message( tr("Successfully loaded %1").
-			     arg(useinioobj->fullUserExpr()) );
+	    uiMSG().message(tr("Successfully loaded %1")
+			  .arg(useinioobj->fullUserExpr()));
     }
     else
     {

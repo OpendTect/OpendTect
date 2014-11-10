@@ -95,12 +95,12 @@ void uiSeisBayesClass::doPart()
 
 
 class uiSeisBayesPDFInp : public uiVarWizardDlg
-{
+{ mODTextTranslationClass(uiSeisBayesPDFInp);
 public:
 
 uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- PDFs"),
-				"[1] Specify PDF input",
+				tr("[1] Specify PDF input"),
 				 mODHelpKey(mSeisBayesPDFInpHelpID) ),
                                  pars,Start)
     , nrdisp_(1)
@@ -112,14 +112,15 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
     const CallBack pushcb = mCB(this,uiSeisBayesPDFInp,butPush);
     for ( int idx=0; idx<cMaxNrPDFs; idx++ )
     {
-	uiIOObjSel* fld = new uiIOObjSel( this, ctxt,
-				BufferString("Input PDF ",idx+1) );
+	uiIOObjSel* fld = new uiIOObjSel(this, ctxt,
+					 tr("Input PDF ").arg(idx+1));
 	if ( idx == 0 )
 	    rmbuts_ += 0;
 	else
 	{
 	    fld->attach( alignedBelow, flds_[idx-1] );
-	    uiButton* rmbut = new uiPushButton( this, "<- Less", pushcb, true);
+	    uiButton* rmbut = new uiPushButton( this, tr("<- Less"), 
+						pushcb, true);
 	    rmbut->attach( rightAlignedBelow, fld );
 	    rmbuts_ += rmbut;
 	}
@@ -127,7 +128,8 @@ uiSeisBayesPDFInp( uiParent* p, IOPar& pars )
 	    addbuts_ += 0;
 	else
 	{
-	    uiButton* addbut = new uiPushButton( this, "More ->", pushcb,true);
+	    uiButton* addbut = new uiPushButton( this, tr("More ->"),
+						 pushcb,true);
 	    addbut->attach( leftAlignedBelow, fld );
 	    addbuts_ += addbut;
 	}
@@ -195,8 +197,8 @@ bool acceptOK( CallBacker* )
 	    delete pdf;
 	    if ( !iscompat )
 	    {
-		uiMSG().error( BufferString( "'", ioobj->name(),
-			    "'\nis not compatible with the first" ) );
+		uiMSG().error(tr("'%1'\nis not compatible with the first")
+			    .arg(ioobj->name()));
 		return false;
 	    }
 	}
@@ -235,12 +237,12 @@ void uiSeisBayesClass::inpPDFsGot( CallBacker* )
 
 
 class uiSeisBayesNorm : public uiVarWizardDlg
-{
+{ mODTextTranslationClass(uiSeisBayesNorm);
 public:
 
 uiSeisBayesNorm( uiParent* p, IOPar& pars )
     : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Scaling"),
-			"[2] Normalization/Scaling",
+			tr("[2] Normalization/Scaling"),
 			 mODHelpKey(mSeisBayesNormHelpID) ), pars, Middle )
     , is2d_(*pars[sKey::Type()] == '2')
     , prenormfld_(0)
@@ -258,12 +260,13 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     if ( nrpdfs_ > 1 )
     {
 	const bool dopre = !pars_.isFalse( SeisBayesClass::sKeyPreNorm() );
-	prenormfld_ = new uiGenInput( this, "Normalize Input PDFs",
+	prenormfld_ = new uiGenInput( this, tr("Normalize Input PDFs"),
 					    BoolInpSpec(dopre) );
     }
 
-    useglobfld_ = new uiGenInput( this, "A priori weights",
-				  BoolInpSpec(false,"Constant","Variable") );
+    useglobfld_ = new uiGenInput( this, tr("A priori weights"),
+				  BoolInpSpec(false,tr("Constant"),
+				  tr("Variable")) );
     if ( prenormfld_ )
 	useglobfld_->attach( alignedBelow, prenormfld_ );
 
@@ -302,7 +305,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     if ( prenormfld_ )
     {
 	const bool dopost = !pars_.isFalse( SeisBayesClass::sKeyPostNorm() );
-	postnormfld_ = new uiGenInput( this, "Normalise output",
+	postnormfld_ = new uiGenInput( this, tr("Normalise output"),
 					    BoolInpSpec(dopost) );
 	postnormfld_->attach( alignedBelow, alobj );
     }
@@ -350,7 +353,7 @@ bool getFromScreen( bool permissive )
 	    if ( scl <= 0 )
 	    {
 		if ( permissive ) continue;
-		mErrRet("Please enter only valid scales (> 0)")
+		mErrRet(tr("Please enter only valid scales (> 0)"))
 	    }
 	    if ( mIsUdf(scl) ) scl = 1;
 	    pars_.set( mGetSeisBayesPreScaleKey(idx), scl );
@@ -408,9 +411,10 @@ class uiSeisBayesSeisInp : public uiVarWizardDlg
 public:
 
 uiSeisBayesSeisInp( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Seismics"),
-			tr("[3] Specify Seismic input"),
-			 mODHelpKey(mSeisBayesSeisInpHelpID) ), pars,Middle)
+    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Seismics").arg(sKeyBayesClss),
+					tr("[3] Specify Seismic input"),
+					mODHelpKey(mSeisBayesSeisInpHelpID) ), 
+					pars,Middle)
     , lsfld_(0)
     , is2d_(*pars[sKey::Type()] == '2')
 {
@@ -499,9 +503,10 @@ class uiSeisBayesOut : public uiVarWizardDlg
 public:
 
 uiSeisBayesOut( uiParent* p, IOPar& pars )
-    : uiVarWizardDlg(p,uiDialog::Setup(BufferString(sKeyBayesClss,"- Output"),
-		    tr("[4] Select and specify output"),
-                    mODHelpKey(mSeisBayesOutHelpID) ), pars,DoWork)
+    : uiVarWizardDlg(p, uiDialog::Setup(tr("%1- Output").arg(sKeyBayesClss),
+					tr("[4] Select and specify output"),
+					mODHelpKey(mSeisBayesOutHelpID) ), 
+					pars,DoWork)
     , is2d_(*pars[sKey::Type()] == '2')
     , haveclass_(true)
 {

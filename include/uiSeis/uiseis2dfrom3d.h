@@ -14,12 +14,13 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class uiSeisSel;
 class uiSeis2DSubSel;
 
 mExpClass(uiSeis) uiSeis2DFrom3D : public uiDialog
-{
+{ mODTextTranslationClass(uiSeis2DFrom3D);
 public:
 			uiSeis2DFrom3D(uiParent*);
 			~uiSeis2DFrom3D();

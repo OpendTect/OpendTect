@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiseismod.h"
 #include "uidialog.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class IOObj;
@@ -75,7 +76,7 @@ protected:
 
 
 mExpClass(uiSeis) uiPreStackCopyDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiPreStackCopyDlg);
 public:
 
     			uiPreStackCopyDlg(uiParent*,const MultiID&);

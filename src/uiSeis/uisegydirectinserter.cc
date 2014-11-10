@@ -31,7 +31,7 @@ uiToolButtonSetup* uiSEGYDirectVolInserter::getButtonSetup() const
 {
     uiSEGYDirectVolInserter* self = const_cast<uiSEGYDirectVolInserter*>(this);
     uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
-	    uiString( "Scan a SEG-Y file" ),
+						    tr("Scan a SEG-Y file"),
 	    mCB(self,uiSEGYDirectVolInserter,startScan), "SEG-Y" );
     return ret;
 }

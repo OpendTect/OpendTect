@@ -227,7 +227,7 @@ void uiElasticPropSelGrp::getMathExpr()
 
     if ( !expr_ )
 	uiMSG().warning(
-	BufferString("The provided expression cannot be used:\n",mep.errMsg()));
+	tr("The provided expression cannot be used:\n%1").arg(mep.errMsg()));
 }
 
 
@@ -310,8 +310,9 @@ static const char** props = ElasticFormula::TypeNames();
 uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 					const PropertyRefSelection& prs,
 					ElasticPropSelection& elsel )
-    : uiDialog(p,uiDialog::Setup("Elastic Model",
-		"Specify how to obtain density and p-wave and s-wave velocities"
+    : uiDialog(p,uiDialog::Setup(tr("Elastic Model"),
+	       tr("Specify how to obtain density and "
+		  "p-wave and s-wave velocities")
 		,mODHelpKey(mElasticPropSelDlgHelpID) ))
     , ctio_(*mMkCtxtIOObj(ElasticPropSelection))
     , elpropsel_(elsel)
@@ -325,7 +326,7 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
 	orgpropnms_.addIfNew( ref->name() );
     }
     if ( orgpropnms_.isEmpty() )
-	mErrRet( "No property found", return );
+	mErrRet( tr("No property found"), return );
     propnms_ = orgpropnms_;
 
     ts_ = new uiTabStack( this, "Property selection tab stack" );
@@ -348,10 +349,10 @@ uiElasticPropSelDlg::uiElasticPropSelDlg( uiParent* p,
     uiGroup* gengrp = new uiGroup( this, "buttons" );
     gengrp->attach( ensureBelow, ts_ );
     uiToolButton* opentb = new uiToolButton( gengrp, "open",
-				"Open stored property selection",
+				tr("Open stored property selection"),
 				mCB(this,uiElasticPropSelDlg,openPropSelCB) );
     uiToolButton* stb = new uiToolButton( gengrp, "save",
-				"Save property selection",
+				tr("Save property selection"),
 				mCB(this,uiElasticPropSelDlg,savePropSelCB) );
     stb->attach( rightOf, opentb );
 
@@ -378,13 +379,13 @@ bool uiElasticPropSelDlg::screenSelectionChanged( CallBacker* )
 
 	BufferString quantitynm( propflds_[idx]->quantityName() );
 	if ( quantitynm.isEmpty() )
-	    mErrRet( "Please select a name for the new quantity",
+	    mErrRet( tr("Please select a name for the new quantity"),
 			ts_->setCurrentPage(idx); return false; )
 	else if( propnms_.isPresent( quantitynm.buf() ) )
 	{
-	    BufferString msg( quantitynm.buf() );
-	    msg += " already exists";
-	    msg += ", please select another name for this property";
+	    uiString msg = tr("%1 already exists, please select "
+			      "another name for this property")
+			 .arg(quantitynm.buf());
 	    mErrRet( msg, ts_->setCurrentPage(idx); return false; )
 	}
 
@@ -450,9 +451,9 @@ bool uiElasticPropSelDlg::doStore( const IOObj& ioobj )
     StreamData sd( StreamProvider(fnm).makeOStream() );
     bool rv = false;
     if ( !sd.usable() )
-	uiMSG().error( "Cannot open output file" );
+	uiMSG().error( tr("Cannot open output file") );
     else if ( !elpropsel_.put(&ioobj) )
-	uiMSG().error( "Cann not write file" );
+	uiMSG().error( tr("Cann not write file") );
     else
 	rv = true;
 
@@ -474,11 +475,12 @@ bool uiElasticPropSelDlg::openPropSel()
     const BufferString fnm( ctio_.ioobj->fullUserExpr(true) );
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
-	mErrRet( "Cannot open input file", return false; )
+	mErrRet( tr("Cannot open input file"), return false; )
     sd.close();
 
     if ( !doRead( ctio_.ioobj->key() ) )
-	mErrRet( "Unable to read elastic property selection", return false; );
+	mErrRet( tr("Unable to read elastic property selection"), 
+		 return false; );
     return true;
 }
 

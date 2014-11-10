@@ -78,7 +78,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     stackfld_ = new uiGenInput( this, tr("Duplicate traces"),
 				BoolInpSpec(true,tr("Stack"),tr("Use first")) );
     stackfld_->valuechanged.notify( mCB(this,uiPreStackMergeDlg,stackSel) );
-    outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
+    outpfld_ = new uiIOObjSel( this, outctio_, tr("Output Data Store") );
     uiPosSubSel::Setup psssu( false, false );
     psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
 	 .withstep( false );
@@ -294,13 +294,14 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 
 
 uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
-    : uiDialog(p,uiDialog::Setup("Copy Prestack Data",uiStrings::sEmptyString(),
+    : uiDialog(p,uiDialog::Setup(tr("Copy Prestack Data"),
+				 uiStrings::sEmptyString(),
                                  mODHelpKey(mPreStackCopyDlgHelpID) ))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {
     inctio_.setObj( key );
-    inpfld_ = new uiIOObjSel( this, inctio_, "Input Data Store" );
+    inpfld_ = new uiIOObjSel( this, inctio_, tr("Input Data Store") );
     inpfld_->selectionDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
     uiPosSubSel::Setup psssu( false, true );
@@ -309,13 +310,13 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     subselfld_ = new uiPosSubSel( this, psssu );
     subselfld_->attach( alignedBelow, inpfld_ );
 
-    BufferString offsetrangestr ( "Offset range ", SI().getXYUnitString() );
+    uiString offsetrangestr (tr("Offset range %1").arg(SI().getXYUnitString()));
     offsrgfld_ = new uiGenInput( this, offsetrangestr,
 				 FloatInpSpec(0), FloatInpSpec() );
     offsrgfld_->attach( alignedBelow, subselfld_ );
 
     outctio_.ctxt.forread = false;
-    outpfld_ = new uiIOObjSel( this, outctio_, "Output Data Store" );
+    outpfld_ = new uiIOObjSel( this, outctio_, tr("Output Data Store") );
     outpfld_->attach( alignedBelow, offsrgfld_ );
     postFinalise().notify( mCB(this,uiPreStackCopyDlg,objSel) );
 }
@@ -350,14 +351,14 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 {
     if ( !inpfld_->commitInput() )
     {
-	uiMSG().error( "Please select the input data store" );
+	uiMSG().error( tr("Please select the input data store") );
 	return false;
     }
 
     if ( !outpfld_->commitInput() )
     {
 	if ( outpfld_->isEmpty() )
-	    uiMSG().error( "Please enter an output data store name" );
+	    uiMSG().error( tr("Please enter an output data store name") );
 	return false;
     }
 

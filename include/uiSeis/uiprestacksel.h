@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class uiIOSelect;
@@ -43,7 +44,7 @@ protected:
 
 
 mExpClass(uiSeis) uiPreStackSel : public uiGroup
-{
+{ mODTextTranslationClass(uiPreStackSel);
 public:
 
 			uiPreStackSel(uiParent*,bool is2d);

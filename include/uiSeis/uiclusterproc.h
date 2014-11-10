@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class DirList;
 class TaskRunner;

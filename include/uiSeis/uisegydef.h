@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uisegyread.h"
 #include "segyfiledef.h"
+#include "uistring.h"
+
 class IOObj;
 class uiLabel;
 class uiButton;
@@ -29,7 +31,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 /*!\brief base class for specification of SEG-Y file stuff */
 
 mExpClass(uiSeis) uiSEGYDefGroup : public uiGroup
-{
+{ mODTextTranslationClass(uiSEGYDefGroup);
 public:
 			uiSEGYDefGroup( uiParent* p, const char* grpnm,
 					bool forread )
@@ -52,10 +54,10 @@ protected:
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
 mExpClass(uiSeis) uiSEGYFileSpec : public uiSEGYDefGroup
-{
+{ mODTextTranslationClass(uiSEGYFileSpec);
 public:
     mExpClass(uiSeis) Setup
-    {
+    { 
     public:
 			Setup( bool needmulti )
 			    : forread_(true)
@@ -112,7 +114,7 @@ protected:
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
 mExpClass(uiSeis) uiSEGYFilePars : public uiSEGYDefGroup
-{
+{ mODTextTranslationClass(uiSEGYFilePars);
 public:
 			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0,
 					bool withiobuts=true);
@@ -151,7 +153,7 @@ protected:
 class uiSEGYFOByteSpec;
 
 mExpClass(uiSeis) uiSEGYFileOpts : public uiSEGYDefGroup
-{
+{ mODTextTranslationClass(uiSEGYFileOpts);
 public:
 
     mExpClass(uiSeis) Setup

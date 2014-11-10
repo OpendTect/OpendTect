@@ -80,7 +80,7 @@ uiFreqTaperDlg::~uiFreqTaperDlg()
 
 
 class uiFreqTaperSelLineDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiFreqTaperSelLineDlg);
 public:
 
 uiFreqTaperSelLineDlg( uiParent* p, const SeisIOObjInfo& objinfo )
@@ -230,7 +230,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
     varinpfld_->valuechanged.notify( mCB(this, uiFreqTaperGrp, taperChged) );
     varinpfld_->setElemSzPol( uiObject::Small );
 
-    inffreqfld_ = new uiGenInput( this, "Start/Stop frequency(Hz)",
+    inffreqfld_ = new uiGenInput( this, tr("Start/Stop frequency(Hz)"),
 				    FloatInpSpec().setName("Min frequency") );
     inffreqfld_->valuechanged.notify( mCB( this, uiFreqTaperGrp, freqChanged));
     inffreqfld_->attach( rightOf, varinpfld_ );
@@ -240,7 +240,7 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
 				    .withedit(false)
 				    .sldrsize(180)
 				    .isvertical(false),
-				    "slider" );
+				    "slider");
     sliderfld_->setInterval( hasmin_ ? mMinRg : mMaxRg );
     sliderfld_->attach( rightOf, inffreqfld_ );
     sliderfld_->valueChanged.notify(
@@ -255,8 +255,8 @@ uiFreqTaperGrp::uiFreqTaperGrp( uiParent* p,
 
     if ( hasmin_ && hasmax_ )
     {
-	freqinpfld_ = new uiGenInput( this, uiStrings::sView(),BoolInpSpec(true,
-					"Min frequency", "Max frequency") );
+	freqinpfld_ = new uiGenInput(this, uiStrings::sView(),BoolInpSpec(true,
+				     tr("Min frequency"), tr("Max frequency")));
 	freqinpfld_->valuechanged.notify(
 			mCB(this,uiFreqTaperGrp,freqChoiceChged) );
 	freqinpfld_->attach( centeredBelow, inffreqfld_ );

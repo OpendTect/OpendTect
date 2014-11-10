@@ -13,12 +13,13 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uiioobjinserter.h"
+#include "uistring.h"
 
 class uiSEGYRead;
 
 
 mExpClass(uiSeis) uiSEGYDirectVolInserter : public uiIOObjInserter
-{
+{ mODTextTranslationClass(uiSEGYDirectVolInserter);
 public:
 
 				uiSEGYDirectVolInserter();

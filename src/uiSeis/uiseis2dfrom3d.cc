@@ -23,7 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiSeis2DFrom3D::uiSeis2DFrom3D( uiParent* p )
-    : uiDialog(p,Setup("Extract 2D data from 3D",mNoDlgTitle,
+    : uiDialog(p,Setup(tr("Extract 2D data from 3D"),mNoDlgTitle,
 		       mODHelpKey(mSeis2DExtractFrom3DHelpID)))
 {
     data3dfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Vol,true),
@@ -67,7 +67,7 @@ bool uiSeis2DFrom3D::acceptOK( CallBacker* )
     subselfld_->selectedGeomIDs( geomids );
     if ( geomids.isEmpty() )
     {
-	uiMSG().error( "Please select at least one line" );
+	uiMSG().error( tr("Please select at least one line") );
 	return false;
     }
 

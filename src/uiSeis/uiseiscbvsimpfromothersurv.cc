@@ -37,14 +37,14 @@ static const char* rcsID mUsedVar = "$Id$";
 static const char* interpols[] = { "Sinc interpolation", "Nearest trace", 0 };
 
 uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
-    : uiDialog(p,Setup("Import CBVS cube from other survey",
-			"Specify import parameters",
-                        mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
+    : uiDialog(p,Setup(tr("Import CBVS cube from other survey"),
+		       tr("Specify import parameters"),
+                       mODHelpKey(mSeisImpCBVSFromOtherSurveyDlgHelpID) ))
     , import_(0)
 {
     setCtrlStyle( RunAndClose );
 
-    finpfld_ = new uiGenInput( this, "CBVS file name" );
+    finpfld_ = new uiGenInput( this, tr("CBVS file name") );
     finpfld_->setReadOnly();
     CallBack cb = mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,cubeSel);
     uiPushButton* selbut = new uiPushButton( this, uiStrings::sSelect(false),
@@ -57,14 +57,14 @@ uiSeisImpCBVSFromOtherSurveyDlg::uiSeisImpCBVSFromOtherSurveyDlg( uiParent* p )
     uiSeparator* sep1 = new uiSeparator( this, "sep" );
     sep1->attach( stretchedBelow, subselfld_ );
 
-    interpfld_ = new uiGenInput( this, "Interpolation",
+    interpfld_ = new uiGenInput( this, tr("Interpolation"),
 			    BoolInpSpec( true, interpols[0], interpols[1] ) );
     interpfld_->valuechanged.notify(
 		mCB(this,uiSeisImpCBVSFromOtherSurveyDlg,interpSelDone) );
     interpfld_->attach( ensureBelow, sep1 );
     interpfld_->attach( alignedBelow, subselfld_ );
 
-    cellsizefld_ = new uiLabeledSpinBox( this, "Lateral stepout (Inl/Crl)" );
+    cellsizefld_ = new uiLabeledSpinBox(this, tr("Lateral stepout (Inl/Crl)"));
     cellsizefld_->attach( alignedBelow, interpfld_ );
     cellsizefld_->box()->setInterval( 2, 12, 2 );
     cellsizefld_->box()->setValue( 8 );
@@ -114,7 +114,7 @@ void uiSeisImpCBVSFromOtherSurveyDlg::cubeSel( CallBacker* )
 bool uiSeisImpCBVSFromOtherSurveyDlg::acceptOK( CallBacker* )
 {
     if ( !import_ )
-	mErrRet( "No valid input, please select a new input file" )
+	mErrRet( tr("No valid input, please select a new input file") )
 
     const IOObj* outioobj = outfld_->ioobj();
     if ( !outioobj )
@@ -171,7 +171,8 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
     olddata_.tkzs_.hrg.step  = BinID( geom.step.inl(), geom.step.crl() );
     data_.hsit_ = new TrcKeySamplingIterator( olddata_.tkzs_.hrg );
     olddata_.tkzs_.zsamp_ = info.sd_.interval( info.nrsamples_ );
-    data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_; data_.tkzs_.zsamp_.step = SI().zStep();
+    data_.tkzs_.zsamp_ = olddata_.tkzs_.zsamp_; 
+    data_.tkzs_.zsamp_.step = SI().zStep();
 
     BinID bid;
     while ( data_.hsit_->next( bid ) )
@@ -179,8 +180,8 @@ bool SeisImpCBVSFromOtherSurvey::prepareRead( const char* fulluserexp )
 
     if ( !SI().isInside(data_.tkzs_.hrg.start,true)
 	&& !SI().isInside(data_.tkzs_.hrg.stop,true) )
-	mErrRet( tr("The selected cube has no coordinates "
-		 "matching the current survey.") )
+	mErrRet(tr("The selected cube has no coordinates "
+		   "matching the current survey.") )
 
     int step = olddata_.tkzs_.hrg.step.inl();
     int padx = (int)( getInlXlnDist(b2c,true,step ) /SI().inlDistance() )+1;

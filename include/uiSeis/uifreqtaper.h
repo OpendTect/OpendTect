@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "arrayndalgo.h"
 #include <arrayndimpl.h>
+#include "uistring.h"
 
 class uiGenInput;
 class uiFuncTaperDisp;
@@ -139,7 +140,7 @@ protected:
 
 
 mExpClass(uiSeis) uiFreqTaperGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiFreqTaperGrp);
 
 public:
 			uiFreqTaperGrp(uiParent*,
@@ -212,7 +213,7 @@ protected:
 
 
 mExpClass(uiSeis) uiFreqTaperSel : public uiWindowFunctionSel
-{
+{ mODTextTranslationClass(uiFreqTaperSel);
 public:
 			uiFreqTaperSel(uiParent*,const Setup&,
 						const FreqTaperSetup&);
