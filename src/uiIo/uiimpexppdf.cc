@@ -57,12 +57,12 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     varnmsfld_->attach( alignedBelow, inpfld_ );
 
     uiGroup* grp = new uiGroup( this, "Output PDF sampling" );
-    xrgfld_ = new uiGenInput( grp, tr("Output var1 range"), 
+    xrgfld_ = new uiGenInput( grp, tr("Output var1 range"),
                               FloatInpIntervalSpec());
     xnrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     xnrbinfld_->setElemSzPol( uiObject::Small );
     xnrbinfld_->attach( rightOf, xrgfld_ );
-    yrgfld_ = new uiGenInput( grp, tr("Output var2 range"), 
+    yrgfld_ = new uiGenInput( grp, tr("Output var2 range"),
                               FloatInpIntervalSpec());
     ynrbinfld_ = new uiGenInput( grp, tr("Nr of Bins"), IntInpSpec(10,1) );
     ynrbinfld_->setElemSzPol( uiObject::Small );
@@ -70,15 +70,29 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
     ynrbinfld_->attach( rightOf, yrgfld_ );
     grp->setHAlignObj( xrgfld_ );
     grp->attach( alignedBelow, varnmsfld_ );
-    uiToolButton* extendbut = new uiToolButton( this, "extendpdf",
+    extendbut_ = new uiToolButton( this, "extendpdf",
 	    tr("Extend one row/col outward"), mCB(this,uiImpRokDocPDF,extPDF) );
-    extendbut->attach( centeredRightOf, grp );
+    extendbut_->attach( centeredRightOf, grp );
 
     IOObjContext ioobjctxt = mIOObjContext(ProbDenFunc);
     ioobjctxt.forread = false;
     outputfld_ = new uiIOObjSel( this, ioobjctxt );
     outputfld_->setLabelText( tr("Output PDF") );
     outputfld_->attach( alignedBelow, grp );
+
+    setDisplayedFields( false, false );
+}
+
+
+void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
+{
+    varnmsfld_->displayField( dim1, -1, 0 );
+    varnmsfld_->displayField( dim2, -1, 1 );
+    extendbut_->display( dim1 || dim2 );
+    xrgfld_->display( dim1 );
+    xnrbinfld_->display( dim1 );
+    yrgfld_->display( dim2 );
+    ynrbinfld_->display( dim2 );
 }
 
 
@@ -91,24 +105,91 @@ RokDocImporter( const char* fnm )
 {
 }
 
-Sampled2DProbDenFunc* getPDF()
-{
-    if ( !strm_.isOK() )
-	{ errmsg_ = tr("Cannot open input file"); return 0; }
 
-    BufferString word; int wordnr = 0; int nrdims = 2;
-    while ( strm_.getWord(word) )
+#define mRewindStream(errmsg) \
+{ \
+    strm_.setPosition( 0 ); \
+    if ( !strm_.isOK() ) \
+    { errmsg_ = errmsg; return 0; } \
+}
+
+int getNrDims()
+{
+    mRewindStream(tr("Cannot open input file"))
+
+    int nrdims = 0;
+    ascistream astrm( strm_, false );
+    while ( !astrm.next().atEOS() )
     {
-	wordnr++;
-	if ( wordnr == 4 )
-	    nrdims = word[0] - '0';
+	if ( astrm.hasKeyword(sKeyXLogType) || astrm.hasKeyword(sKeyYLogType) )
+	    nrdims++;
     }
-    if ( nrdims != 2 )
+
+    if ( nrdims != 1 && nrdims != 2 )
     {
-	errmsg_ = tr("Can only handle 2D PDFs. Dimension found: %1")
-		.arg(nrdims);
+	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: ").arg( nrdims );
 	return 0;
     }
+
+    return nrdims;
+}
+
+
+Sampled1DProbDenFunc* get1DPDF()
+{
+    mRewindStream(tr("Cannot open input file"))
+
+    BufferString varnm("X");
+    SamplingData<float> sd(0,1);
+    int nr = -1;
+    bool cols_are_0 = true;
+    ascistream astrm( strm_, false );
+    while ( !astrm.next().atEOS() )
+    {
+	if ( astrm.hasKeyword(sKeyXLogType) )
+	    varnm = astrm.value();
+	else if ( astrm.hasKeyword(sKeyXBinMin) )
+	    sd.start = astrm.getFValue();
+	else if ( astrm.hasKeyword(sKeyXBinWidth) )
+	    sd.step = astrm.getFValue();
+	else if ( astrm.hasKeyword(sKeyXNoBins) )
+	    nr = astrm.getIValue();
+	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstXBin) )
+	    { cols_are_0 = true; break; }
+    }
+
+    if ( nr < 0 )
+    {
+	errmsg_ = tr("Could not find size for X variable");
+	return 0;
+    }
+
+    Array1DImpl<float> a1d( nr );
+
+    const int nrcols = cols_are_0 ? nr : 1;
+    const int nrrows = cols_are_0 ? 1 : nr;
+
+    float val = 0;
+    for ( int irow=0; irow<nrrows; irow++ )
+    {
+	for ( int icol=0; icol<nrcols; icol++ )
+	{
+	    strm_ >> val;
+	    a1d.set( cols_are_0 ? icol : irow, val );
+	}
+    }
+    strm_.close();
+
+    Sampled1DProbDenFunc* pdf = new Sampled1DProbDenFunc( a1d );
+    pdf->setDimName( 0, varnm );
+    pdf->sd_ = sd;
+    return pdf;
+}
+
+
+Sampled2DProbDenFunc* get2DPDF()
+{
+    mRewindStream(tr("Cannot open input file"))
 
     BufferString dim0nm("X"), dim1nm("Y");
     SamplingData<float> sd0(0,1), sd1(0,1);
@@ -117,22 +198,22 @@ Sampled2DProbDenFunc* getPDF()
     ascistream astrm( strm_, false );
     while ( !astrm.next().atEOS() )
     {
-	if ( astrm.hasKeyword(sKeyXNoBins) )
-	    nr0 = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyYNoBins) )
-	    nr1 = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyXLogType) )
+	if ( astrm.hasKeyword(sKeyXLogType) )
 	    dim0nm = astrm.value();
-	else if ( astrm.hasKeyword(sKeyYLogType) )
-	    dim1nm = astrm.value();
 	else if ( astrm.hasKeyword(sKeyXBinMin) )
 	    sd0.start = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyXBinWidth) )
 	    sd0.step = astrm.getFValue();
+	else if ( astrm.hasKeyword(sKeyXNoBins) )
+	    nr0 = astrm.getIValue();
+	else if ( astrm.hasKeyword(sKeyYLogType) )
+	    dim1nm = astrm.value();
 	else if ( astrm.hasKeyword(sKeyYBinMin) )
 	    sd1.start = astrm.getFValue();
 	else if ( astrm.hasKeyword(sKeyYBinWidth) )
 	    sd1.step = astrm.getFValue();
+	else if ( astrm.hasKeyword(sKeyYNoBins) )
+	    nr1 = astrm.getIValue();
 	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstXBin) )
 	    { cols_are_0 = true; break; }
 	else if ( FixedString(astrm.keyWord()).startsWith(sKeyFirstYBin) )
@@ -150,12 +231,13 @@ Sampled2DProbDenFunc* getPDF()
     const int nrcols = cols_are_0 ? nr0 : nr1;
     const int nrrows = cols_are_0 ? nr1 : nr0;
 
+    float val = 0;
     for ( int irow=0; irow<nrrows; irow++ )
     {
 	const int rowsdidx = nrrows - irow - 1;
 	for ( int icol=0; icol<nrcols; icol++ )
 	{
-	    float val = 0; strm_ >> val;
+	    strm_ >> val;
 	    a2d.set( cols_are_0 ? icol : rowsdidx,
 		     cols_are_0 ? rowsdidx : icol, val );
 	}
@@ -173,52 +255,86 @@ Sampled2DProbDenFunc* getPDF()
 
 };
 
+#define mInitPDFRead(msg,act) \
+{ \
+    const int nrdims = imp.getNrDims(); \
+    if ( nrdims != 1 && nrdims != 2 ) \
+    { uiMSG().error( msg ); act; } \
+\
+    if ( nrdims == 1 ) \
+	pdf = imp.get1DPDF(); \
+    else \
+	pdf = imp.get2DPDF(); \
+\
+    if ( !pdf ) \
+    { uiMSG().error( imp.errmsg_ ); act; } \
+}
+
+#define mCastPDF(pdfa,pdfb,pdf,act) \
+{ \
+    mDynamicCast(Sampled1DProbDenFunc*,pdfa,pdf) \
+    mDynamicCast(Sampled2DProbDenFunc*,pdfb,pdf) \
+    if ( !pdfa && !pdfb ) \
+	act; \
+}
 
 void uiImpRokDocPDF::selChg( CallBacker* )
 {
     RokDocImporter imp( inpfld_->fileName() );
-    Sampled2DProbDenFunc* pdf = imp.getPDF();
-    if ( !pdf ) return;
+    ArrayNDProbDenFunc* pdf = 0;
+    mInitPDFRead(tr("Can only import 1D and 2D sampled PDFs"),return)
 
-    varnmsfld_->setText( pdf->dim0nm_, 0 );
-    varnmsfld_->setText( pdf->dim1nm_, 1 );
+    Sampled1DProbDenFunc* pdf1d = 0;
+    Sampled2DProbDenFunc* pdf2d = 0;
+    mCastPDF(pdf1d,pdf2d,pdf,return)
 
-    int sz = pdf->size( 0 );
-    xnrbinfld_->setValue( sz );
-    xrgfld_->setValue( pdf->sd0_.start, 0 );
-    xrgfld_->setValue( pdf->sd0_.start + (sz-1)*pdf->sd0_.step, 1 );
-    sz = pdf->size( 1 );
-    ynrbinfld_->setValue( sz );
-    yrgfld_->setValue( pdf->sd1_.start, 0 );
-    yrgfld_->setValue( pdf->sd1_.start + (sz-1)*pdf->sd1_.step, 1 );
+    const SamplingData<float> sdx = pdf1d ? pdf1d->sd_ : pdf2d->sd0_;
+
+    varnmsfld_->setText( pdf1d ? pdf1d->varnm_ : pdf2d->dim0nm_, 0 );
+    const int szx = pdf->size( 0 );
+    xrgfld_->setValue( sdx.start, 0 );
+    xrgfld_->setValue( sdx.atIndex( szx-1 ), 1 );
+    xnrbinfld_->setValue( szx );
+
+    if ( pdf2d )
+    {
+	varnmsfld_->setText( pdf2d->dim1nm_, 1 );
+	const int szy = pdf2d->size( 1 );
+	yrgfld_->setValue( pdf2d->sd1_.start, 0 );
+	yrgfld_->setValue( pdf2d->sd1_.atIndex( szy-1 ), 1 );
+	ynrbinfld_->setValue( szy );
+    }
+
+    setDisplayedFields( pdf1d || pdf2d, pdf2d );
 
     delete pdf;
 }
 
 
 static bool getPDFFldRes( uiGenInput* rgfld, uiGenInput* szfld,
-			  StepInterval<float>& rg, int& sz )
+			  StepInterval<float>& rg )
 {
-    rg = rgfld->getFInterval(); sz = szfld->getIntValue();
+    rg = rgfld->getFInterval();
+    const int sz = szfld->getIntValue();
+    if ( mIsUdf(sz) )
+	return false;
 
-    const bool res = !mIsUdf(rg.start) && !mIsUdf(rg.stop)
-		  && rg.start != rg.stop
-		  && sz > 1 && !mIsUdf(sz);
-    if ( res )
-	rg.step = (rg.stop - rg.start) / (sz - 1);
+    rg.step = sz == 1 ? mUdf(float) : rg.width() / (sz - 1);
 
-    return res;
+    return !rg.isUdf() || sz == 1;
 }
 
 
 static void extPDFFlds( uiGenInput* rgfld, uiGenInput* szfld )
 {
-    StepInterval<float> rg; int sz;
-    if ( !getPDFFldRes(rgfld,szfld,rg,sz) ) return;
+    StepInterval<float> rg;
+    if ( !getPDFFldRes(rgfld,szfld,rg) ) return;
 
-    rg.start -= rg.step; rg.stop += rg.step; sz += 2;
+    if ( mIsUdf(rg.step) ) return;
 
-    rgfld->setValue( rg ); szfld->setValue( sz );
+    rg.start -= rg.step; rg.stop += rg.step;
+
+    rgfld->setValue( rg ); szfld->setValue( rg.nrSteps() + 1 );
 }
 
 
@@ -229,36 +345,68 @@ void uiImpRokDocPDF::extPDF( CallBacker* )
 }
 
 
-Sampled2DProbDenFunc* uiImpRokDocPDF::getAdjustedPDF( Sampled2DProbDenFunc* in )
+ArrayNDProbDenFunc* uiImpRokDocPDF::getAdjustedPDF(
+						ArrayNDProbDenFunc* in ) const
 {
-    StepInterval<float> xrg; int xsz; StepInterval<float> yrg; int ysz;
-    if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg,xsz)
-      || !getPDFFldRes(yrgfld_,ynrbinfld_,yrg,ysz) )
-	{ delete in; return 0; }
+    Sampled1DProbDenFunc* inpdf1d = 0;
+    Sampled2DProbDenFunc*inpdf2d = 0;
+    mCastPDF(inpdf1d,inpdf2d,in,return 0)
 
+    StepInterval<float> xrg, yrg;
+    if ( !getPDFFldRes(xrgfld_,xnrbinfld_,xrg) ||
+	 ( inpdf2d && !getPDFFldRes(yrgfld_,ynrbinfld_,yrg) ) )
+    { uiMSG().error("Invalid output range/size"); return 0; }
+
+    const int xsz = xrg.nrSteps() + 1;
+    const int ysz = inpdf2d ? yrg.nrSteps() + 1 : 1;
+    Array1DImpl<float> a1d( xsz );
     Array2DImpl<float> a2d( xsz, ysz );
-    for ( int ix=0; ix<xsz; ix++ )
+    const bool pdfis1d = inpdf1d || ysz == 1;
+    for ( int idx=0; idx<xsz; idx++ )
     {
-	const float x = xrg.start + ix * xrg.step;
-	for ( int iy=0; iy<ysz; iy++ )
+	const float xval = xrg.atIndex( idx );
+	if ( pdfis1d )
 	{
-	    const float y = yrg.start + iy * yrg.step;
-	    a2d.set( ix, iy, in->value( x, y ) );
+	    const float val = inpdf1d ? inpdf1d->value( xval )
+				      : inpdf2d->value( xval, 0 );
+	    a1d.set( idx, val );
+	    continue;
+	}
+
+	for ( int idy=0; idy<ysz; idy++ )
+	{
+	    const float yval = yrg.atIndex( idy );
+	    a2d.set( idx, idy, inpdf2d->value( xval, yval ) );
 	}
     }
 
-    Sampled2DProbDenFunc* newpdf = new Sampled2DProbDenFunc( a2d );
-    newpdf->sd0_.start = xrg.start; newpdf->sd0_.step = xrg.step;
-    newpdf->sd1_.start = yrg.start; newpdf->sd1_.step = yrg.step;
+    delete in; in = 0;
+    ArrayNDProbDenFunc* newpdf = 0;
+    if ( pdfis1d )
+    {
+	newpdf = new Sampled1DProbDenFunc( a1d );
+	Sampled1DProbDenFunc* newpdf1d = 0;
+	mDynamicCast(Sampled1DProbDenFunc*,newpdf1d,newpdf)
+	if ( !newpdf1d )
+	    return 0;
 
-    newpdf->dim0nm_ = varnmsfld_->text( 0 );
-    newpdf->dim1nm_ = varnmsfld_->text( 1 );
-    if ( newpdf->dim0nm_.isEmpty() )
-	newpdf->dim0nm_ = in->dim0nm_;
-    if ( newpdf->dim1nm_.isEmpty() )
-	newpdf->dim1nm_ = in->dim1nm_;
+	newpdf1d->varnm_ = varnmsfld_->text( 0 );
+	newpdf1d->sd_ = SamplingData<float>( xrg );
+	return newpdf;
+    }
 
-    delete in; return newpdf;
+    newpdf = new Sampled2DProbDenFunc( a2d );
+    Sampled2DProbDenFunc* newpdf2d = 0;
+    mDynamicCast(Sampled2DProbDenFunc*,newpdf2d,newpdf)
+    if ( !newpdf2d )
+	return 0;
+
+    newpdf2d->dim0nm_ = varnmsfld_->text( 0 );
+    newpdf2d->dim1nm_ = varnmsfld_->text( 1 );
+    newpdf2d->sd0_ = SamplingData<float>( xrg );
+    newpdf2d->sd1_ = SamplingData<float>( yrg );
+
+    return newpdf;
 }
 
 
@@ -267,26 +415,34 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
     const IOObj* pdfioobj = outputfld_->ioobj();
     if ( !pdfioobj ) return false;
 
+    if ( !varnmsfld_->text(0) || !varnmsfld_->text(1) )
+    { uiMSG().error( tr("Please enter a variable name") ); return false; }
+
     RokDocImporter imp( inpfld_->fileName() );
-    Sampled2DProbDenFunc* pdf = imp.getPDF();
-    if ( !pdf )
-	{ uiMSG().error(imp.errmsg_); return false; }
+    ArrayNDProbDenFunc* pdf = 0;
+    mInitPDFRead(tr("Can only import 1D and 2D sampled PDFs"),return false)
 
     pdf = getAdjustedPDF( pdf );
     if ( !pdf )
-	{ uiMSG().error(tr("Invalid output X and/or Y range/size")); 
-          return false; }
+	return false;
+
+    Sampled1DProbDenFunc* pdf1d = 0;
+    Sampled2DProbDenFunc* pdf2d = 0;
+    mCastPDF(pdf1d,pdf2d,pdf,return false)
 
     uiString errmsg;
-    if ( !ProbDenFuncTranslator::write(*pdf,*pdfioobj,&errmsg) )
-	{ uiMSG().error(errmsg); delete pdf; return false; }
+    if ( ( pdf1d && !ProbDenFuncTranslator::write(*pdf1d,*pdfioobj,&errmsg) ) ||
+	 ( pdf2d && !ProbDenFuncTranslator::write(*pdf2d,*pdfioobj,&errmsg) ) )
+    { uiMSG().error(errmsg); delete pdf; return false; }
 
-    uiString msg = tr( "Imported %1 x %2 PDF." )
-		 .arg( pdf->size(0) ).arg( pdf->size(1) );
+    uiString msg( tr("Imported %1x%2 PDF." ) );
+    msg.arg( pdf->size(0) ).arg( pdf2d ? pdf2d->size(1) : 1 );
     uiMSG().message( msg );
+
     delete pdf;
     return false;
 }
+
 
 
 uiExpRokDocPDF::uiExpRokDocPDF( uiParent* p )
@@ -317,7 +473,46 @@ RokDocExporter( const char* fnm )
 {
 }
 
-bool putPDF( const Sampled2DProbDenFunc& pdf )
+
+bool put1DPDF( const Sampled1DProbDenFunc& pdf )
+{
+    if ( !strm_.isOK() )
+	{ errmsg_ = tr("Cannot open output file"); return false; }
+
+    strm_ << "Probability Density Function 1D \"" << pdf.name()
+	 << "\" output by OpendTect " << GetFullODVersion()
+	 << " on " << Time::getDateTimeString() << "\n\n";
+
+    const int nrx = pdf.size( 0 );
+
+    strm_ << "X Log Type        : " << pdf.dimName(0) << '\n';
+    strm_ << "X Mid Bin Minimum : " << pdf.sd_.start << '\n';
+    strm_ << "X Bin Width       : " << pdf.sd_.step << '\n';
+    strm_ << "X No of Bins      : " << nrx << "\n\n";
+
+    static const char* twentyspaces = "                    ";
+
+    for ( int idx=0; idx<nrx; idx++ )
+	strm_ << BufferString("X Bin ",idx,twentyspaces);
+
+    strm_ << '\n';
+
+    for ( int idx=0; idx<nrx; idx++ )
+    {
+	BufferString txt; txt += pdf.bins_.get(idx);
+	const int len = txt.size();
+	txt += len < 20 ? twentyspaces + len : " ";
+	strm_ << txt;
+    }
+
+    if ( !strm_.isOK() )
+    { errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+
+    return errmsg_.isEmpty();
+}
+
+
+bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 {
     if ( !strm_.isOK() )
 	{ errmsg_ = tr("Cannot open output file"); return false; }
@@ -328,15 +523,17 @@ bool putPDF( const Sampled2DProbDenFunc& pdf )
 
     const int nrx = pdf.size( 0 );
     const int nry = pdf.size( 1 );
+    const float xwidth = nrx == 1 ? 0.f : pdf.sd0_.step;
+    const float ywidth = nry == 1 ? 0.f : pdf.sd1_.step;
 
     strm_ << "X Log Type        : " << pdf.dimName(0) << '\n';
     strm_ << "X Mid Bin Minimum : " << pdf.sd0_.start << '\n';
-    strm_ << "X Bin Width       : " << pdf.sd0_.step << '\n';
+    strm_ << "X Bin Width       : " << xwidth << '\n';
     strm_ << "X No of Bins      : " << nrx << "\n\n";
 
     strm_ << "Y Log Type        : " << pdf.dimName(1) << '\n';
     strm_ << "Y Mid Bin Minimum : " << pdf.sd1_.start << '\n';
-    strm_ << "Y Bin Width       : " << pdf.sd1_.step << '\n';
+    strm_ << "Y Bin Width       : " << ywidth << '\n';
     strm_ << "Y No of Bins      : " << nry << "\n\n";
 
     const char* twentyspaces = "                    ";
@@ -376,14 +573,19 @@ bool uiExpRokDocPDF::acceptOK( CallBacker* )
     if ( !pdf )
 	{ uiMSG().error(errmsg); return false; }
 
-    mDynamicCastGet(Sampled2DProbDenFunc*,spdf,pdf)
-    if ( !spdf )
-	{ uiMSG().error(tr("Can only export 2D sampled PDFs")); delete pdf;
-	    return false; }
+    mDynamicCastGet(Sampled1DProbDenFunc*,s1dpdf,pdf)
+    mDynamicCastGet(Sampled2DProbDenFunc*,s2dpdf,pdf)
+    if ( !s1dpdf && !s2dpdf )
+    {
+	uiMSG().error(tr("Can only export 1D and 2D sampled PDFs"));
+	delete pdf;
+	return false;
+    }
 
     RokDocExporter exp( outfld_->fileName() );
-    if ( !exp.putPDF(*spdf) )
-	{ uiMSG().error(exp.errmsg_); delete pdf; return false; }
+    if ( ( s1dpdf && !exp.put1DPDF(*s1dpdf) ) ||
+	 ( s2dpdf && !exp.put2DPDF(*s2dpdf) ) )
+    { uiMSG().error(exp.errmsg_); delete pdf; return false; }
 
     delete pdf;
     uiMSG().message( tr("Output file created") );

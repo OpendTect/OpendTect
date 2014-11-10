@@ -17,6 +17,9 @@ ________________________________________________________________________
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiToolButton;
+class ArrayNDProbDenFunc;
+class Sampled1DProbDenFunc;
 class Sampled2DProbDenFunc;
 
 /*! \brief Dialog for RokDoc PDF Import
@@ -36,13 +39,16 @@ protected:
     uiGenInput*		xnrbinfld_;
     uiGenInput*		yrgfld_;
     uiGenInput*		ynrbinfld_;
+    uiToolButton*	extendbut_;
     uiIOObjSel*		outputfld_;
 
     void		selChg(CallBacker*);
     void		extPDF(CallBacker*);
 
-    Sampled2DProbDenFunc* getAdjustedPDF(Sampled2DProbDenFunc*);
     bool		acceptOK(CallBacker*);
+
+    ArrayNDProbDenFunc* getAdjustedPDF(ArrayNDProbDenFunc*) const;
+    void		setDisplayedFields(bool dim1,bool dim2);
 
 };
 
