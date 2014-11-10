@@ -150,10 +150,12 @@ bool TrcKeySampling::includes( const TrcKeySampling& tks,
 
 void TrcKeySampling::includeLine( Pos::LineID lid )
 {
+    /*
 #ifdef __debug__
     if ( mIsUdf(survid_) )
 	pErrMsg("survid_ is not set");
 #endif
+    */
     if ( mIsUdf(start_.lineNr()) || mIsUdf(stop_.lineNr()) || nrLines()<1 )
 	start_.lineNr() = stop_.lineNr() = lid;
     else
@@ -166,10 +168,12 @@ void TrcKeySampling::includeLine( Pos::LineID lid )
 
 void TrcKeySampling::includeTrc( Pos::TraceID trcid )
 {
+    /*
 #ifdef __debug__
     if ( mIsUdf(survid_) )
 	pErrMsg("survid_ is not set");
 #endif
+    */
 
     if ( mIsUdf(start_.trcNr()) || mIsUdf(stop_.trcNr()) || nrTrcs()<1 )
 	start_.trcNr() = stop_.trcNr() = trcid;
