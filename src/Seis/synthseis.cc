@@ -654,24 +654,38 @@ void MultiTraceSynthGenerator::getSampledReflectivities(
 
 
 
-RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>& ems )
+RaySynthGenerator::RaySynthGenerator( const TypeSet<ElasticModel>* ems,
+				      bool ownrms )
     : forcerefltimes_(false)
     , rtr_( 0 )
     , raytracingdone_( false )
+    , ownraymodels_( ownrms )
+    , raymodels_( 0 )
     , aimodels_( ems )
+{}
+
+
+RaySynthGenerator::RaySynthGenerator( ObjectSet<RayModel>* rms )
+    : forcerefltimes_(false)
+    , rtr_( 0 )
+    , raytracingdone_( true )
+    , ownraymodels_( false )
+    , aimodels_( 0 )
+    , raymodels_( rms )
 {}
 
 
 RaySynthGenerator::~RaySynthGenerator()
 {
     delete rtr_;
-    deepErase( raymodels_ );
+    if ( ownraymodels_ && raymodels_ )
+	deepErase( *raymodels_ );
 }
 
 
 od_int64 RaySynthGenerator::nrIterations() const
 {
-    return aimodels_.size();
+    return aimodels_ ? aimodels_->size() : raymodels_->size();
 }
 
 
@@ -681,29 +695,34 @@ const ObjectSet<RayTracer1D>& RaySynthGenerator::rayTracers() const
 
 bool RaySynthGenerator::doPrepare( int )
 {
-    deepErase( raymodels_ );
+    if ( ownraymodels_ && raymodels_ )
+	deepErase( *raymodels_ );
 
-    if ( aimodels_.isEmpty() )
+    if ( aimodels_ && aimodels_->isEmpty() )
 	mErrRet( "No AI model found", false );
 
     if ( offsets_.isEmpty() )
 	offsets_ += 0;
 
-    rtr_ = new RayTracerRunner( aimodels_, raysetup_ );
-    message_ = "Raytracing";
-    if ( !rtr_->execute() )
-	mErrRet( rtr_->errMsg(), false );
-
-    raytracingdone_ = true;
-    const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
-    for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
+    if ( !raymodels_ )
     {
-	const RayTracer1D* rt1d = rt1ds[idx];
-	RayModel* rm = new RayModel( *rt1d, offsets_.size(), applynmo_ );
-	raymodels_.insertAt( rm, 0 );
+	raymodels_ = new ObjectSet<RayModel>();
+	rtr_ = new RayTracerRunner( *aimodels_, raysetup_ );
+	message_ = "Raytracing";
+	if ( !rtr_->execute() )
+	    mErrRet( rtr_->errMsg(), false );
 
-	if ( forcerefltimes_ )
-	    rm->forceReflTimes( forcedrefltimes_ );
+	raytracingdone_ = true;
+	const ObjectSet<RayTracer1D>& rt1ds = rtr_->rayTracers();
+	for ( int idx=rt1ds.size()-1; idx>=0; idx-- )
+	{
+	    const RayTracer1D* rt1d = rt1ds[idx];
+	    RayModel* rm = new RayModel( *rt1d, offsets_.size(), applynmo_ );
+	    raymodels_->insertAt( rm, 0 );
+
+	    if ( forcerefltimes_ )
+		rm->forceReflTimes( forcedrefltimes_ );
+	}
     }
 
     ObjectSet<const ReflectivityModel> models;
@@ -723,13 +742,14 @@ bool RaySynthGenerator::doPrepare( int )
 
 bool RaySynthGenerator::doWork( od_int64 start, od_int64 stop, int )
 {
+    if ( !raymodels_ ) return false;
     IOPar par; fillPar( par );
     for ( int idx=mCast(int,start); idx<=stop; idx++, addToNrDone(1) )
     {
 	if ( !shouldContinue() )
 	    return false;
 
-	RayModel& rm = *raymodels_[idx];
+	RayModel& rm = *(*raymodels_)[idx];
 	deepErase( rm.outtrcs_ );
 
 	rm.sampledrefs_.erase();
@@ -800,8 +820,7 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
 	}
 
 	refmodels_ += refmodel;
-	if ( idx==0 || !isnmocoorected )
-	    t2dmodels_ += t2dm;
+	t2dmodels_ += t2dm;
     }
 }
 
@@ -841,16 +860,16 @@ void RaySynthGenerator::forceReflTimes( const StepInterval<float>& si)
 
 void RaySynthGenerator::getAllRefls( ObjectSet<const ReflectivityModel>& refs )
 {
-    if ( raymodels_.isEmpty() ) return;
+    if ( !raymodels_ || raymodels_->isEmpty() ) return;
 
     refs.setEmpty();
-    for ( int imod=0; imod<raymodels_.size(); imod++ )
+    for ( int imod=0; imod<raymodels_->size(); imod++ )
     {
-	if ( !raymodels_[imod] )
+	if ( !(*raymodels_)[imod] )
 	    continue;
 
 	ObjectSet<const ReflectivityModel> curraymodel;
-	raymodels_[imod]->getRefs( curraymodel, false );
+	(*raymodels_)[imod]->getRefs( curraymodel, false );
 	refs.append( curraymodel  );
     }
 }
@@ -870,16 +889,17 @@ void RaySynthGenerator::RayModel::getTraces(
 
 
 void RaySynthGenerator::RayModel::getRefs(
-			ObjectSet<const ReflectivityModel>& trcs, bool steal )
+			ObjectSet<const ReflectivityModel>& refmodels,
+			bool steal )
 {
-    mGet( refmodels_, trcs, steal );
+    mGet( refmodels_, refmodels, steal );
 }
 
 
 void RaySynthGenerator::RayModel::getD2T(
-			ObjectSet<TimeDepthModel>& trcs, bool steal )
+			ObjectSet<TimeDepthModel>& tdmodels, bool steal )
 {
-    mGet( t2dmodels_, trcs, steal );
+    mGet( t2dmodels_, tdmodels, steal );
 }
 
 
@@ -920,13 +940,15 @@ const SeisTrc* RaySynthGenerator::RayModel::stackedTrc() const
 
 void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 {
-    for ( int imdl=0; imdl<raymodels_.size(); imdl++ )
+    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+
+    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
 	const int crlstep = SI().crlStep();
 	const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 			  SI().crlRange(false).stop + crlstep );
 	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-	ObjectSet<SeisTrc> trcs; raymodels_[imdl]->getTraces( trcs, true );
+	ObjectSet<SeisTrc> trcs; (*raymodels_)[imdl]->getTraces( trcs, true );
 	for ( int idx=0; idx<trcs.size(); idx++ )
 	{
 	    SeisTrc* trc = trcs[idx];
@@ -942,13 +964,15 @@ void RaySynthGenerator::getTraces( ObjectSet<SeisTrcBuf>& seisbufs )
 
 void RaySynthGenerator::getStackedTraces( SeisTrcBuf& seisbuf )	
 {
+    if ( !raymodels_ || raymodels_->isEmpty() ) return;
+
     seisbuf.erase();
     const int crlstep = SI().crlStep();
     const BinID bid0( SI().inlRange(false).stop + SI().inlStep(),
 		      SI().crlRange(false).stop + crlstep );
-    for ( int imdl=0; imdl<raymodels_.size(); imdl++ )
+    for ( int imdl=0; imdl<raymodels_->size(); imdl++ )
     {
-	SeisTrc* trc = const_cast<SeisTrc*> (raymodels_[imdl]->stackedTrc());
+	SeisTrc* trc = const_cast<SeisTrc*> ((*raymodels_)[imdl]->stackedTrc());
 	trc->info().binid = BinID( bid0.inl(), bid0.crl() + imdl*crlstep );
 	trc->info().nr = imdl+1;
 	trc->info().coord = SI().transform( trc->info().binid );

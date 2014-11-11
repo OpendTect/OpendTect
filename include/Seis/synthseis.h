@@ -200,21 +200,6 @@ protected:
 mExpClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase
 {
 public:
-			RaySynthGenerator(const TypeSet<ElasticModel>& ems );
-			~RaySynthGenerator();
-
-    void		reset() { resetNrDone(); message_ = ""; }
-
-    //input
-    void		fillPar(IOPar& raypars) const;
-    bool		usePar(const IOPar& raypars);
-    void		forceReflTimes(const StepInterval<float>&);
-
-    //available after initialization
-    void		getAllRefls(ObjectSet<const ReflectivityModel>&);
-
-    uiString		uiMessage() const
-			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
 
     mStruct(Seis) RayModel
     {
@@ -240,12 +225,32 @@ public:
 
     };
 
+			RaySynthGenerator(const TypeSet<ElasticModel>*,
+					  bool ownrms=true);
+			RaySynthGenerator(ObjectSet<RayModel>*);
+			~RaySynthGenerator();
+
+    void		reset() { resetNrDone(); message_ = ""; }
+
+    //input
+    void		fillPar(IOPar& raypars) const;
+    bool		usePar(const IOPar& raypars);
+    void		forceReflTimes(const StepInterval<float>&);
+
+    //available after initialization
+    void		getAllRefls(ObjectSet<const ReflectivityModel>&);
+
+    uiString		uiMessage() const
+			{ return errmsg_.isEmpty() ? message_ : errmsg_; }
+
+
     //available after execution
-    RayModel&		result(int id)		{ return *raymodels_[id]; }
-    const RayModel&	result(int id) const	{ return *raymodels_[id]; }
+    RayModel&		result(int id)		{ return *(*raymodels_)[id]; }
+    const RayModel&	result(int id) const	{ return *(*raymodels_)[id]; }
+    ObjectSet<RayModel>* rayModels()		{ return raymodels_; }
 
     const ObjectSet<RayTracer1D>& rayTracers() const;
-    const TypeSet<ElasticModel>& elasticModels() const	{ return aimodels_; }
+    const TypeSet<ElasticModel>& elasticModels() const	{ return *aimodels_; }
     void		getTraces(ObjectSet<SeisTrcBuf>&);
     void		getStackedTraces(SeisTrcBuf&);
 
@@ -258,11 +263,12 @@ protected:
     bool                        doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
 
+    bool			ownraymodels_;
     BufferString		message_;
-    const TypeSet<ElasticModel>& aimodels_;
+    const TypeSet<ElasticModel>* aimodels_;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;
-    ObjectSet<RayModel>		raymodels_;
+    ObjectSet<RayModel>*	raymodels_;
 
     StepInterval<float>		forcedrefltimes_;
     bool			forcerefltimes_;

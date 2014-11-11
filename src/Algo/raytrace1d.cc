@@ -100,6 +100,18 @@ void RayTracer1D::fillPar( IOPar& par ) const
 }
 
 
+bool RayTracer1D::hasSameParams( const RayTracer1D& rt ) const
+{
+    TypeSet<float> rtoffsets;
+    rt.getOffsets( rtoffsets );
+    BufferString rtkeyword = rt.factoryKeyword();
+    return rtkeyword==factoryKeyword() && setup().pdown_==rt.setup().pdown_ &&
+	   setup().pup_==rt.setup().pup_ &&
+	   setup().doreflectivity_==rt.setup().doreflectivity_ && 
+	   offsets_==rtoffsets;
+}
+
+
 void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 {
     TypeSet<float> emptyset; emptyset += 0;
@@ -110,6 +122,7 @@ void RayTracer1D::setIOParsToZeroOffset( IOPar& par )
 void RayTracer1D::setOffsets( const TypeSet<float>& offsets )
 {
     offsets_ = offsets;
+    sort( offsets_ );
     if ( SI().zDomain().isDepth() && SI().depthsInFeet() )
     {
 	for ( int idx=0; idx<offsets_.size(); idx++ )

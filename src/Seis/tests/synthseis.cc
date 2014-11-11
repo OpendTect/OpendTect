@@ -192,7 +192,7 @@ bool BatchProgram::go( od_ostream& strm )
 	    return false;
 
 	const float scal = wav->get( wav->centerSample() );
-	Seis::RaySynthGenerator synthgen( models );
+	Seis::RaySynthGenerator synthgen( &models );
 	synthgen.setWavelet( wav, OD::UsePtr );
 	synthgen.enableFourierDomain( true );
 

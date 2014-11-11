@@ -16,8 +16,10 @@ ________________________________________________________________________
 #include "syntheticdata.h"
 #include "ailayer.h"
 #include "elasticpropsel.h"
+#include "synthseis.h"
 #include "valseriesevent.h"
 
+namespace PreStack {  class GatherSetDataPack; }
 class SeisTrcBuf;
 class TaskRunner;
 class Wavelet;
@@ -31,6 +33,25 @@ namespace Strat
     class Level;
 }
 namespace Seis { class RaySynthGenerator; }
+
+typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
+typedef ObjectSet<SynthRayModel> RayModelSet;
+
+mExpClass(WellAttrib) SynthRayModelManager 
+{
+public:
+    ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
+    void			addRayModelSet(ObjectSet<SynthRayModel>*,
+					       const SyntheticData*);
+    void			removeRayModelSet(const IOPar&);
+    void			clearRayModels();
+    bool			haveSameRM(const IOPar& par1,
+	    				   const IOPar& par2) const;
+protected:
+    ObjectSet<RayModelSet>	raymodels_;
+    TypeSet<IOPar>		synthraypars_;
+};
+
 
 
 mExpClass(WellAttrib) StratSynth
@@ -96,6 +117,8 @@ public:
 				   const ObjectSet<const TimeDepthModel>&,
 				   float zskip) const;
     void		decimateTraces(SeisTrcBuf&,int fac) const;
+    void		clearRayModels()
+    			{ synthrmmgr_.clearRayModels(); }
 
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     uiString		errMsg() const;
@@ -119,8 +142,10 @@ protected:
     uiString			errmsg_;
     BufferString		infomsg_;
     TaskRunner*			tr_;
+    SynthRayModelManager	synthrmmgr_;
 
     const Strat::LayerModel&	layMod() const;
+    bool		canRayModelsBeRemoved(const IOPar& raypar) const;
     bool		fillElasticModel(const Strat::LayerModel&,
 					 ElasticModel&,int seqidx);
     bool		adjustElasticModel(const Strat::LayerModel&,
@@ -139,6 +164,11 @@ protected:
 					 const TrcKeyZSampling&,
 					 const SynthGenParams&);
     void		adjustD2TModels(ObjectSet<TimeDepthModel>&) const;
+    void		putD2TModelsInSD(SyntheticData&,
+	    				 ObjectSet<SynthRayModel>&);
+
+    const PreStack::GatherSetDataPack*	getRelevantAngleData(
+	    					const IOPar& raypar) const;
 };
 
 #endif

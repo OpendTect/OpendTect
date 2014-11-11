@@ -48,7 +48,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statruncalc.h"
 #include "stratlayermodel.h"
 #include "stratlayersequence.h"
-#include "synthseis.h"
 #include "unitofmeasure.h"
 #include "timeser.h"
 #include "wavelet.h"
@@ -276,6 +275,7 @@ void StratSynth::setWavelet( const Wavelet* wvlt )
 void StratSynth::clearSynthetics()
 {
     deepErase( synthetics_ );
+    clearRayModels();
 }
 
 
@@ -287,13 +287,49 @@ void StratSynth::clearSynthetics()
     act;\
 }
 
+
+bool StratSynth::canRayModelsBeRemoved( const IOPar& sdraypar ) const
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	SynthGenParams sdsgp;
+	synthetics_[idx]->fillGenParams( sdsgp );
+	if ( synthrmmgr_.haveSameRM(sdraypar,sdsgp.raypars_) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+const PreStack::GatherSetDataPack* StratSynth::getRelevantAngleData(
+					const IOPar& sdraypar ) const
+{
+    for ( int idx=0; idx<synthetics_.size(); idx++ )
+    {
+	const SyntheticData* sd = synthetics_[idx];
+	mDynamicCastGet(const PreStackSyntheticData*,presd,sd);
+	if ( !presd ) continue;
+	SynthGenParams sgp;
+	sd->fillGenParams( sgp );
+	if ( synthrmmgr_.haveSameRM(sgp.raypars_,sdraypar) )
+	    return &presd->angleData();
+    }
+    return 0;
+}
+
+
 bool StratSynth::removeSynthetic( const char* nm )
 {
     for ( int idx=0; idx<synthetics_.size(); idx++ )
     {
 	if ( synthetics_[idx]->name() == nm )
 	{
-	    delete synthetics_.removeSingle( idx );
+	    SyntheticData* sd = synthetics_.removeSingle( idx );
+	    SynthGenParams sgp;
+	    sd->fillGenParams( sgp );
+	    if ( canRayModelsBeRemoved(sgp.raypars_) )
+		synthrmmgr_.removeRayModelSet( sgp.raypars_ );
 	    return true;
 	}
     }
@@ -742,38 +778,26 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	synthgenpar.synthtype_ == SynthGenParams::AngleStack ||
 	synthgenpar.synthtype_ == SynthGenParams::AVOGradient;
 
-    Seis::RaySynthGenerator synthgen( aimodels_ );
+    ObjectSet<SynthRayModel>* rms =
+	synthrmmgr_.getRayModelSet( synthgenpar.raypars_ );
+    PtrMan<Seis::RaySynthGenerator> synthgen = 0;
+    if ( rms )
+	synthgen = new Seis::RaySynthGenerator( rms );
+    else
+	synthgen = new Seis::RaySynthGenerator( &aimodels_, false );
     if ( !ispsbased )
     {
-	if ( !runSynthGen(synthgen,synthgenpar) )
+	if ( !runSynthGen(*synthgen,synthgenpar) )
 	    return 0;
     }
 
     SyntheticData* sd = 0;
     if ( synthgenpar.synthtype_ == SynthGenParams::PreStack || ispsbased )
     {
-	ObjectSet<SeisTrcBuf> tbufs;
-	synthgen.getTraces( tbufs );
-	CubeSampling cs( false );
-	for ( int bufidx=0; bufidx<tbufs.size(); bufidx++ )
-	{
-	    const SeisTrcBuf* tbuf = tbufs[bufidx];
-	    for ( int trcidx=0; trcidx<tbuf->size(); trcidx++ )
-	    {
-		const SeisTrc* trc = tbuf->get( trcidx );
-		cs.hrg.include( trc->info().binid );
-		if ( !trc->isEmpty() )
-		{
-		    SamplingData<float> rg = trc->info().sampling;
-		    StepInterval<float> zrg( rg.start,
-					     rg.start+(rg.step*trc->size()),
-					     rg.step );
-		    cs.zrg.include( zrg, false );
-		}
-	    }
-	}
 	if ( !ispsbased )
 	{
+	    ObjectSet<SeisTrcBuf> tbufs;
+	    synthgen->getTraces( tbufs );
 	    ObjectSet<PreStack::Gather> gatherset;
 	    while ( tbufs.size() )
 	    {
@@ -788,6 +812,16 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    PreStack::GatherSetDataPack* dp =
 		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
+	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
+	    if ( rms )
+	    {
+		const PreStack::GatherSetDataPack* anglegather =
+		    getRelevantAngleData( synthgenpar.raypars_ );
+		if ( anglegather )
+		    presd->setAngleData( *anglegather );
+	    }
+	    else
+		presd->createAngleData( synthgen->rayTracers(), aimodels_ );
 	}
 	else
 	{
@@ -797,30 +831,23 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    sd = getSynthetic( inputsdnm );
 	    if ( !sd )
 		mErrRet( " input prestack synthetic data not found.", return 0 )
+	    CubeSampling cs( false );
 	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel* d2t = sd->d2tmodels_[idx];
 		cs.zsamp_.include( d2t->getFirstTime(), false );
 		cs.zsamp_.include( d2t->getLastTime(), false );
 	    }
-	}
-
-
-	if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
-	    sd = createAngleStack( *sd, cs, synthgenpar );
-	else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
-	    sd = createAVOGradient( *sd, cs, synthgenpar );
-	else
-	{
-	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
-	    presd->createAngleData( synthgen.rayTracers(),
-				    aimodels_ );
+	    if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
+		sd = createAngleStack( *sd, cs, synthgenpar );
+	    else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
+		sd = createAVOGradient( *sd, cs, synthgenpar );
 	}
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
     {
 	SeisTrcBuf* dptrcbuf = new SeisTrcBuf( true );
-	synthgen.getStackedTraces( *dptrcbuf );
+	synthgen->getStackedTraces( *dptrcbuf );
 	SeisTrcBufDataPack* dp =
 	    new SeisTrcBufDataPack( dptrcbuf, Seis::Line,
 				    SeisTrcInfo::TrcNr, synthgenpar.name_ );
@@ -838,29 +865,41 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     }
 
     sd->id_ = ++lastsyntheticid_;
-
-    ObjectSet<TimeDepthModel> tmpd2ts;
-    for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
+    if ( !rms )
     {
-	if ( !ispsbased )
-	{
-	    Seis::RaySynthGenerator::RayModel& rm = synthgen.result( imdl );
-	    rm.getD2T( tmpd2ts, true );
-	    if ( tmpd2ts.isEmpty() )
-		continue;
-	}
-	else
-	{
-	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
-		tmpd2ts += new TimeDepthModel( *sd->d2tmodels_[idx] );
-	}
-
-	adjustD2TModels( tmpd2ts );
-	while ( tmpd2ts.size() )
-	    sd->d2tmodels_ += tmpd2ts.removeSingle(0);
+	rms = synthgen->rayModels();
+	synthrmmgr_.addRayModelSet( rms, sd );
     }
 
+    putD2TModelsInSD( *sd, *rms );
     return sd;
+}
+
+void StratSynth::putD2TModelsInSD( SyntheticData& sd,
+				   ObjectSet<SynthRayModel>& rms )
+{
+    for ( int imdl=0; imdl<aimodels_.size(); imdl++ )
+    {
+	Seis::RaySynthGenerator::RayModel* rm = rms[imdl];
+	if ( !rm ) continue;
+	ObjectSet<TimeDepthModel> tmpd2ts, sdd2ts;
+	rm->getD2T( tmpd2ts, false );
+	deepCopy( sdd2ts, tmpd2ts );
+	adjustD2TModels( sdd2ts );
+	sdd2ts.allowNull( true );
+	sd.d2tmodels_ += sdd2ts.removeSingle( 0 );
+	if ( sd.isPS() )
+	{
+	    mDynamicCastGet(const PreStackSyntheticData&,presd,sd);
+	    if ( !presd.isNMOCorrected() )
+	    {
+		while( sdd2ts.size() )
+		    sd.d2tmodels_ += sdd2ts.removeSingle( 0 );
+	    }
+	}
+
+	deepErase( sdd2ts );
+    }
 }
 
 
@@ -1478,12 +1517,7 @@ PreStackSyntheticData::~PreStackSyntheticData()
     for ( int idx=0; idx<gathers.size(); idx++ )
 	DPM(DataPackMgr::FlatID()).release( gathers[idx] );
     if ( angledp_ )
-    {
-	ObjectSet<PreStack::Gather>& anglegathers = angledp_->getGathers();
-	for ( int idx=0; idx<anglegathers.size(); idx++ )
-	    DPM(DataPackMgr::FlatID()).release( anglegathers[idx] );
 	DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
-    }
 }
 
 
@@ -1518,6 +1552,17 @@ void PreStackSyntheticData::convertAngleDataToDegrees(
 }
 
 
+void PreStackSyntheticData::setAngleData(
+	const PreStack::GatherSetDataPack& angledp )
+{
+    if ( angledp_ )
+	DPM( DataPackMgr::CubeID() ).release( angledp_->id() );
+
+    angledp_ = new PreStack::GatherSetDataPack( name(), angledp.getGathers() );
+    DPM( DataPackMgr::CubeID() ).addAndObtain( angledp_ );
+}
+
+
 void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 					     const TypeSet<ElasticModel>& ems )
 {
@@ -1544,7 +1589,6 @@ void PreStackSyntheticData::createAngleData( const ObjectSet<RayTracer1D>& rts,
 	anglegather->setName( angledpnm );
 	anglegather->setBinID( gather->getBinID() );
 	anglegathers += anglegather;
-	DPM(DataPackMgr::FlatID()).addAndObtain( anglegather );
     }
 
     angledp_ = new PreStack::GatherSetDataPack( name(), anglegathers );
@@ -1675,4 +1719,68 @@ void SyntheticData::fillDispPar( IOPar& par ) const
 void SyntheticData::useDispPar( const IOPar& par )
 {
     disppars_.usePar( par );
+}
+
+
+bool SynthRayModelManager::haveSameRM( const IOPar& par1,
+				       const IOPar& par2 ) const
+{
+    uiString msg;
+    PtrMan<RayTracer1D> rt1d1 = RayTracer1D::createInstance( par1, msg );
+    PtrMan<RayTracer1D> rt1d2 = RayTracer1D::createInstance( par2, msg );
+    if ( !rt1d1 || !rt1d2 )
+	return false;
+    return rt1d1->hasSameParams( *rt1d2 );
+}
+
+
+void SynthRayModelManager::removeRayModelSet( const IOPar& raypar )
+{
+    for ( int sidx=0; sidx<synthraypars_.size(); sidx++ )
+    {
+	IOPar synthrapar = synthraypars_[sidx];
+	if ( haveSameRM(raypar,synthrapar) )
+	{
+	    synthraypars_.removeSingle( sidx );
+	    RayModelSet* rms = raymodels_.removeSingle( sidx );
+	    deepErase( *rms );
+	}
+    }
+}
+
+
+ObjectSet<SynthRayModel>* SynthRayModelManager::getRayModelSet(
+				const IOPar& raypar ) 
+{
+    for ( int sidx=0; sidx<synthraypars_.size(); sidx++ )
+    {
+	const IOPar& synthrapar = synthraypars_[sidx];
+	if ( haveSameRM(raypar,synthrapar) )
+	    return raymodels_[sidx];
+    }
+
+    return 0;
+}
+
+
+void SynthRayModelManager::clearRayModels()
+{
+    while ( raymodels_.size() )
+    {
+	RayModelSet* rms = raymodels_.removeSingle( 0 );
+	deepErase( *rms );
+    }
+    synthraypars_.erase();
+}
+
+
+void SynthRayModelManager::addRayModelSet(
+	ObjectSet<SynthRayModel>* rms, const SyntheticData* sd )
+{
+    if ( raymodels_.isPresent(rms) )
+	return;
+    SynthGenParams sgp;
+    sd->fillGenParams( sgp );
+    synthraypars_ += sgp.raypars_;
+    raymodels_ += rms;
 }

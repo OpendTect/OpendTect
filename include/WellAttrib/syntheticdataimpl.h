@@ -108,6 +108,8 @@ public:
     SynthGenParams::SynthType		synthType() const
 					{ return SynthGenParams::PreStack; }
 
+    void				setAngleData(
+	    				    const PreStack::GatherSetDataPack&);
     void				createAngleData(
 						const ObjectSet<RayTracer1D>&,
 						const TypeSet<ElasticModel>&);
