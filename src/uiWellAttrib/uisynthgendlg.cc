@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "syntheticdataimpl.h"
 
 
+static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
 #define mErrRet(s,act) \
 { uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
 
@@ -273,7 +274,7 @@ void uiSynthGenDlg::putToScreen()
     const bool isps = genparams.isPreStack();
     typefld_->setCurrentItem( (int)genparams.synthtype_ );
     if ( genparams.synthtype_ == SynthGenParams::ZeroOffset )
-	rtsel_->setCurrent( 0 );
+	rtsel_->setCurrentType( sKeySimpleRayTracer() );
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
 	 genparams.synthtype_ == SynthGenParams::AVOGradient )
