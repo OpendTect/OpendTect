@@ -1074,6 +1074,7 @@ void uiStratSynthDisp::updateFields()
 
     prestackgrp_->setSensitive( pssd && pssd->hasOffset() );
     datagrp_->setSensitive( currentwvasynthetic_ );
+    scalebut_->setSensitive( !pssd );
 }
 
 

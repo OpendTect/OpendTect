@@ -761,28 +761,10 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
     SyntheticData* sd = 0;
     if ( synthgenpar.synthtype_ == SynthGenParams::PreStack || ispsbased )
     {
-	ObjectSet<SeisTrcBuf> tbufs;
-	synthgen.getTraces( tbufs );
-	CubeSampling cs( false );
-	for ( int bufidx=0; bufidx<tbufs.size(); bufidx++ )
-	{
-	    const SeisTrcBuf* tbuf = tbufs[bufidx];
-	    for ( int trcidx=0; trcidx<tbuf->size(); trcidx++ )
-	    {
-		const SeisTrc* trc = tbuf->get( trcidx );
-		cs.hrg.include( trc->info().binid );
-		if ( !trc->isEmpty() )
-		{
-		    SamplingData<float> rg = trc->info().sampling;
-		    StepInterval<float> zrg( rg.start,
-					     rg.start+(rg.step*trc->size()),
-					     rg.step );
-		    cs.zrg.include( zrg, false );
-		}
-	    }
-	}
 	if ( !ispsbased )
 	{
+	    ObjectSet<SeisTrcBuf> tbufs;
+	    synthgen.getTraces( tbufs );
 	    ObjectSet<PreStack::Gather> gatherset;
 	    while ( tbufs.size() )
 	    {
@@ -797,31 +779,26 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	    PreStack::GatherSetDataPack* dp =
 		new PreStack::GatherSetDataPack( synthgenpar.name_, gatherset );
 	    sd = new PreStackSyntheticData( synthgenpar, *dp );
+	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
+	    presd->createAngleData( synthgen.rayTracers(),
+				    aimodels_ );
 	}
 	else
 	{
-	    BufferString inputsdnm( synthgenpar.inpsynthnm_ );
-	    sd = getSynthetic( inputsdnm );
+	    sd = getSynthetic( synthgenpar.inpsynthnm_ );
 	    if ( !sd )
 		mErrRet( " input prestack synthetic data not found.", return 0 )
+	    CubeSampling cs( false );
 	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
 	    {
 		const TimeDepthModel* d2t = sd->d2tmodels_[idx];
 		cs.zrg.include( d2t->getTime(0), false );
 		cs.zrg.include( d2t->getLastTime(), false );
 	    }
-	}
-
-
-	if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
-	    sd = createAngleStack( sd, cs, synthgenpar );
-	else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
-	    sd = createAVOGradient( sd, cs, synthgenpar, synthgen );
-	else
-	{
-	    mDynamicCastGet(PreStackSyntheticData*,presd,sd);
-	    presd->createAngleData( synthgen.rayTracers(),
-				    aimodels_ );
+	    if ( synthgenpar.synthtype_ == SynthGenParams::AngleStack )
+		sd = createAngleStack( sd, cs, synthgenpar );
+	    else if ( synthgenpar.synthtype_ == SynthGenParams::AVOGradient )
+		sd = createAVOGradient( sd, cs, synthgenpar, synthgen );
 	}
     }
     else if ( synthgenpar.synthtype_ == SynthGenParams::ZeroOffset )
@@ -851,8 +828,15 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 	}
 	else
 	{
-	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
-		tmpd2ts += new TimeDepthModel( *sd->d2tmodels_[idx] );
+	    const SyntheticData* inputsd =
+		getSynthetic( synthgenpar.inpsynthnm_  );
+	    mDynamicCastGet(const PreStackSyntheticData*,presd,inputsd)
+	    if ( !presd ) return 0;
+	    StepInterval<float> offsrg( presd->offsetRange() );
+	    offsrg.step = presd->offsetRangeStep();
+	    const int offsskipidx = offsrg.nrSteps()+1;
+	    for ( int idx=0; idx<inputsd->d2tmodels_.size(); idx+=offsskipidx )
+		tmpd2ts += new TimeDepthModel( *inputsd->d2tmodels_[idx] );
 	}
 
 	adjustD2TModels( tmpd2ts );
