@@ -802,6 +802,8 @@ RaySynthGenerator::RayModel::RayModel( const RayTracer1D& rt1d, int nroffsets,
 	refmodels_ += refmodel;
 	if ( idx==0 || !isnmocoorected )
 	    t2dmodels_ += t2dm;
+	else
+	    delete t2dm;
     }
 }
 
