@@ -433,10 +433,14 @@ macro( create_docpackages PACKAGE_NAME )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/od_userdoc
 			     ${DESTINATION_DIR}/doc/od_userdoc )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E remove
+		    ${DESTINATION_DIR}/doc/od_userdoc/Data/Search.xml )
 	elseif( ${PACKAGE_NAME} STREQUAL "dgbdoc" )
 	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
 			     ${CMAKE_INSTALL_PREFIX}/doc/dgb_userdoc
 			     ${DESTINATION_DIR}/doc/dgb_userdoc )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E remove
+		    ${DESTINATION_DIR}/doc/dgb_userdoc/Data/Search.xml )
 	    file( GLOB FILES ${CMAKE_INSTALL_PREFIX}/doc/flexnet* )
 	    foreach( FIL ${FILES} )
 		execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${FIL} ${DESTINATION_DIR}/doc )
