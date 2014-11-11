@@ -175,6 +175,28 @@ protected:
 
     ObjectSet<StickIntersectPoint> stickintersectpoints_;
 
+public:
+    struct SectionKnotsStatus
+    {
+	SectionKnotsStatus(EM::SectionID sid)
+	    : firstrow_(0)
+	    ,sid_(sid)
+	{}
+	void addUdfRow(int,int,int);
+	bool insertStickKnotStatus(int,int);
+	bool removeStickKnotStatus(int);
+	bool insertKnotStatus(const RowCol&);
+	bool removeKnotStatus(const RowCol&);
+	bool hideKnot(const RowCol&,bool);
+	bool isKnotHidden(const RowCol&)const;
+
+	const EM::SectionID	sid_;
+	int firstrow_;
+	TypeSet<int>	firstcols_;
+	TypeSet< TypeSet<unsigned int> > knotsstatus_;
+    };
+protected:
+    SectionKnotsStatus*	getSectionKnotsStatus(EM::SectionID)const;
 };
 
 } // namespace VisSurvey
