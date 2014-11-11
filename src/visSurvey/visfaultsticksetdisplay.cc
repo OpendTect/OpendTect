@@ -1180,8 +1180,6 @@ bool FaultStickSetDisplay::coincidesWithPlane(
 	{
 	    Coord3 curpos = fss.getKnot(rc);
 	    const BinID bid = SI().transform( Coord(curpos.x,curpos.y) );
-	    const int innr = bid.inl();
-	    const int crlnr = bid.crl();
 	    if ( !zrg.includes(curpos.z,false) 
 		 || !cs.hrg.inlRange().includes(bid.inl(),false) 
 		 || !cs.hrg.crlRange().includes(bid.crl(),false) )
