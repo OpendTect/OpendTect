@@ -50,7 +50,7 @@ OsgColorArrayUpdator::OsgColorArrayUpdator( Material* p, const od_int64 size )
 bool OsgColorArrayUpdator::doPrepare(int)
 {
     if ( material_->osgcolorarray_->getNumElements()<totalnrcolors_ )
-	return false;
+	material_->osgcolorarray_->resizeArray( totalnrcolors_ );
 
     return true;
 }
@@ -259,9 +259,8 @@ void Material::setAllTransparencies( float n )
 void Material::setTransparencies( float n, const Interval<int>& range )
 {
     mGetWriteLock( lckr );
-    setMinNrOfMaterials( range.stop, false );
-
-    for ( int idx=range.start; idx<=range.stop; idx++ )
+    setMinNrOfMaterials(range.stop, false );
+    for ( int idx = range.start; idx<=range.stop; idx++ )
 	transparency_[idx] = n;
 
     synchronizingOsgColorArray();
