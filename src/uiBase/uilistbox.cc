@@ -490,7 +490,11 @@ void uiListBox::setNotSelectable()
 
 
 #define mSetChecked(idx,yn) \
-    body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked )
+{ \
+    QListWidgetItem* item = body_->item( idx ); \
+    if ( item ) \
+	item->setCheckState( yn ? Qt::Checked : Qt::Unchecked ); \
+}
 
 
 void uiListBox::updateFields2ChoiceMode()
