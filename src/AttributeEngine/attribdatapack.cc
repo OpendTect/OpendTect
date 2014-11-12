@@ -631,12 +631,15 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 					  const TypeSet<BinID>* path )
     : Flat2DDataPack(did)
-    , samplingdata_(sb.get(0)->info().sampling)
     , path_(0)
 {
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
-
+    
+    const SeisTrc* firsttrc = sb.get( 0 );
+    if ( firsttrc )
+	samplingdata_.set( firsttrc->info().sampling );
+    
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
 

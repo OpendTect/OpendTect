@@ -605,7 +605,8 @@ void RandomTrackDisplay::createDisplayDataPacks( int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
     ConstDataPackRef<Attrib::FlatRdmTrcsDataPack>rdmtrcsdp = dpm.obtain( dpid );
-    if ( !rdmtrcsdp ) return;
+    if ( !rdmtrcsdp || rdmtrcsdp->seisBuf().isEmpty() ) 
+	return;
 
     TypeSet<BinID> path;
     getDataTraceBids( path );

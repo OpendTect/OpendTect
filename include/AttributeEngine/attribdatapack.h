@@ -247,7 +247,7 @@ protected:
     void		setPosData(const TypeSet<BinID>*);
     void		fill2DArray(const TypeSet<BinID>*);
 
-    const SamplingData<float>	samplingdata_;
+    SamplingData<float>		samplingdata_;
     TypeSet<BinID>*		path_;
 };
 
