@@ -91,6 +91,12 @@ void TopBotImage::setDisplayTransformation( const mVisTrans* trans )
 }
 
 
+const mVisTrans* TopBotImage::getDisplayTransformation() const
+{
+    return trans_;
+}
+
+
 void TopBotImage::setTransparency( float val )
 { getMaterial()->setTransparency( val ); }
 
