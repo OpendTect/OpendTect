@@ -268,10 +268,16 @@ void Scene::updateTransforms( const CubeSampling& cs )
 	for ( int idx=0; idx<tempzstretchtrans_->size(); idx++ )
 	{
 	    visBase::DataObject* dobj = tempzstretchtrans_->getObject( idx );
-	    if ( dobj->getDisplayTransformation()==utm2disptransform_ )
+	    mDynamicCastGet(const visBase::TopBotImage*,img,dobj);
+	    const mVisTrans* trans = img
+		? img->getDisplayTransformWorkaround()
+		: dobj->getDisplayTransformation();
+	    if ( trans==utm2disptransform_ )
 	    {
 		dobj->setDisplayTransformation( newutm2disptransform );
 	    }
+
+
 	}
     }
 

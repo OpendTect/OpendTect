@@ -46,6 +46,9 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    const mVisTrans*		getDisplayTransformWorkaround() const;
+				//!<Workaround to keep ABI compatibility.
+				//!<Don't use
 protected:
     				~TopBotImage();
 
