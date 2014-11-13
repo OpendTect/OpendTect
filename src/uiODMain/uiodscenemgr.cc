@@ -1052,7 +1052,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	itm = new uiODFaultStickSetTreeItem(emid);
     else if ( type=="RandomPosBody" )
 	itm = new uiODBodyDisplayTreeItem(emid);
-    else if ( type=="MCBody" )
+    else if ( type=="MC" )
 	itm = new uiODBodyDisplayTreeItem(emid);
     else
 	return -1;
