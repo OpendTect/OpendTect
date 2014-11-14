@@ -65,9 +65,10 @@ public:
 				DataHolder();
 	    
     bool			is2D() const		{ return is2d_; }
-    void			setTrcKeyZSampling(const TrcKeyZSampling cs)
-							{ tkzs_ = cs; }
-    TrcKeyZSampling		getTrcKeyZSampling() const	{ return tkzs_; }
+    void			setTrcKeyZSampling(const TrcKeyZSampling tkzs)
+				{ tkzs_ = tkzs; }
+    TrcKeyZSampling		getTrcKeyZSampling() const
+				{ return tkzs_; }
     void			set3DData(const Attrib::DataCubes* dc);
     const Attrib::DataCubes*	get3DData() const	{ return dcdata_; }
     void			set2DData(const Attrib::Data2DArray* d2h);
@@ -75,6 +76,7 @@ public:
     int				nrCubes() const;
 
 protected:
+
     TrcKeyZSampling		tkzs_;
     const Attrib::DataCubes*	dcdata_;
     const Attrib::Data2DArray*	d2dhdata_;
@@ -168,7 +170,7 @@ public:
     bool		isSelSpecSame(const Attrib::SelSpec& setupss,
 	    			      const Attrib::SelSpec& clickedss) const;
 
-    void		updateFlatCubesContainer(const TrcKeyZSampling& cs,
+    void		updateFlatCubesContainer(const TrcKeyZSampling& tkzs,
 	    					 const int idx,bool);
 			/*!< add = true, remove = false. */
     ObjectSet<TrcKeyZSampling>* getTrackedFlatCubes(const int idx) const;

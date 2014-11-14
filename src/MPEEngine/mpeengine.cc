@@ -175,7 +175,8 @@ void Engine::setActiveVolume( const TrcKeyZSampling& nav )
 	    SI().crlRange(true).snap(
 		(ncs.hrg.start.crl()+ncs.hrg.stop.crl())/2);
     else
-	ncs.zsamp_.start = ncs.zsamp_.stop = SI().zRange(true).snap(ncs.zsamp_.center());
+	ncs.zsamp_.start = ncs.zsamp_.stop =
+	    SI().zRange(true).snap(ncs.zsamp_.center());
 
     ntp.setTrackMode( trackPlane().getTrackMode() );
     setTrackPlane( ntp, false );
@@ -564,7 +565,7 @@ const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
-	dh->setTrcKeyZSampling( dp2d->dataarray()->cubesampling_ );
+	dh->setTrcKeyZSampling( dp2d->getTrcKeyZSampling() );
 	dh->set2DData( dp2d->dataarray() );
     }
 

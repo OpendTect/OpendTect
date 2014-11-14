@@ -340,21 +340,8 @@ bool HorizonFlatViewEditor2D::checkSanity( EMTracker& tracker,
 			: 0;
 
     Attrib::SelSpec newatsel;
-
     if ( trackedatsel )
-    {
 	newatsel = *trackedatsel;
-
-	if ( trackedatsel->isStored() )
-	{
-	    LineKey lk( trackedatsel->userRef() );
-	    if ( lk.attrName().isEmpty() )
-		lk.setAttrName( LineKey::sKeyDefAttrib() );
-	    newatsel.setUserRef( lk.attrName().isEmpty()
-				 ? LineKey::sKeyDefAttrib()
-				 : lk.attrName().buf() );
-	}
-    }
 
     if ( spk.nrSeeds() < 1 )
     {
