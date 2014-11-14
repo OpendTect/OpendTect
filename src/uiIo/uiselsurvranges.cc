@@ -130,10 +130,13 @@ if ( mIsUdf(rg.start) || mIsUdf(rg.stop) ) \
     newrg = rg; \
 else \
 { \
+    const double eps = 1e-4; \
+    if ( mIsZero(limit.step,eps) ) \
+	limit.step = 1; \
+\
     const double realstartdif = double(rg.start) - double(limit.start); \
     const double realstartidx = realstartdif / double(limit.step); \
     const double realstepfac = double(rg.step) / double(limit.step); \
-    const double eps = 1e-4; \
     const bool useoldstep = !mIsZero(realstartidx-mNINT32(realstartidx),eps) ||\
 			    !mIsZero(realstepfac-mNINT32(realstepfac),eps); \
     const int stepfac = useoldstep ? 1 : mNINT32(realstepfac); \
@@ -162,7 +165,7 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
     StepInterval<float> zrg( inpzrg );
     zrg.scale( mCast(float,zddef_.userFactor()) );
 
-    const StepInterval<float> limitrg = startfld_->getFInterval();
+    StepInterval<float> limitrg = startfld_->getFInterval();
     StepInterval<float> newzrg;
     mAdaptRangeToLimits( zrg, limitrg, newzrg );
 
@@ -346,7 +349,7 @@ StepInterval<int> uiSelNrRange::getRange() const
 
 void uiSelNrRange::setRange( const StepInterval<int>& rg )
 {
-    const StepInterval<int> limitrg = startfld_->getInterval();
+    StepInterval<int> limitrg = startfld_->getInterval();
     StepInterval<int> newrg;
     mAdaptRangeToLimits( rg, limitrg, newrg );
 
