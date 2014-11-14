@@ -564,7 +564,7 @@ const DataHolder* Engine::obtainAttribCache( DataPack::ID datapackid )
     mDynamicCastGet(const Attrib::Flat2DDHDataPack*,dp2d,datapack);
     if ( dp2d )
     {
-	dh->setCubeSampling( dp2d->dataarray()->cubesampling_ );
+	dh->setCubeSampling( dp2d->getCubeSampling() );
 	dh->set2DData( dp2d->dataarray() );
     }
 
