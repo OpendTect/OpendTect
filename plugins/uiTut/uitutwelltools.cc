@@ -112,8 +112,9 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	const Well::Log& newlog = logset.getLog( logset.size()-1 );
 	if ( !wtr.putLog(newlog) )
 	{
-	    BufferString errmsg( "Could not write log: ", newlog.name(),
-				 "\n Check write permissions." );
+	    uiString errmsg = tr("Could not write log: %1"
+				 "\n Check write permissions.")
+			    .arg(newlog.name());
 	    mErrRet( errmsg )
 	}
     }

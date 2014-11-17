@@ -68,8 +68,8 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 
     // Parameters for change sample rate
 
-    newsdfld_ = new uiGenInput( this, BufferString("New sampling ",
-				SI().getZUnitString()), FloatInpSpec(),
+    newsdfld_ = new uiGenInput( this, tr("New sampling ")
+				    .arg(SI().getZUnitString()), FloatInpSpec(),
 				FloatInpSpec() );
     newsdfld_->attach( alignedBelow, actionfld_ );
 

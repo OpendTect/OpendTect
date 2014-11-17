@@ -37,11 +37,11 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     taskfld_->valuechanged.notify( mCB(this,uiTutHorTools,choiceSel) );
 
     IOObjContext ctxt = mIOObjContext(EMHorizon3D);
-    inpfld_ = new uiIOObjSel( this, ctxt, "Input Horizon" );
+    inpfld_ = new uiIOObjSel( this, ctxt, tr("Input Horizon") );
     inpfld_->attach( alignedBelow, taskfld_ );
 
     // For thickness calculation
-    inpfld2_ = new uiIOObjSel( this, ctxt, "Bottom Horizon" );
+    inpfld2_ = new uiIOObjSel( this, ctxt, tr("Bottom Horizon") );
     inpfld2_->attach( alignedBelow, inpfld_ );
 
     selfld_= new uiGenInput( this, tr("Add Result as an Attribute to "),
@@ -55,7 +55,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 
     // For smoothing
     ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
+    outfld_ = new uiIOObjSel( this, ctxt, tr("Output Horizon") );
     outfld_->attach( alignedBelow, inpfld_ );
 
     strengthfld_ = new uiGenInput( this, tr("Filter Strength"),
@@ -106,9 +106,9 @@ bool uiTutHorTools::checkAttribName() const
     if ( attridx < 0 )
 	return true;
 
-    BufferString msg( "This surface already has an attribute called:\n" );
-    msg += sd.valnames.get(attridx);
-    msg += "\nDo you wish to overwrite this data?";
+    uiString msg = tr("This surface already has an attribute called:\n%1"
+		      "\nDo you wish to overwrite this data?")
+		 .arg(sd.valnames.get(attridx));
     return uiMSG().askOverwrite( msg );
 }
 
