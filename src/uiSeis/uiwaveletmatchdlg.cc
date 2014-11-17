@@ -16,17 +16,36 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wavelet.h"
 #include "waveletattrib.h"
 
+#include "uifunctiondisplay.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseiswvltsel.h"
+
+
+static const int sDispWidth = 150;
+static const int sDispHeight = 150;
 
 uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup(tr("Match Wavelets"),mNoDlgTitle,mNoHelpKey))
     , wvltid_(MultiID::udf())
 {
+    uiFunctionDisplay::Setup fds;
+    fds.canvasheight(sDispHeight).canvaswidth(sDispWidth);
+    wvlt0disp_ = new uiFunctionDisplay( this, fds );
+
+    wvlt1disp_ = new uiFunctionDisplay( this, fds );
+    wvlt1disp_->attach( rightTo, wvlt0disp_ );
+    wvlt1disp_->attach( heightSameAs, wvlt0disp_ );
+
+    wvltoutdisp_ = new uiFunctionDisplay( this, fds );
+    wvltoutdisp_->attach( rightTo, wvlt1disp_ );
+    wvltoutdisp_->attach( heightSameAs, wvlt1disp_ );
+
     wvlt0fld_ = new uiSeisWaveletSel( this, "Source Wavelet", true, false );
+    wvlt0fld_->attach( alignedBelow, wvlt0disp_ );
     wvlt1fld_ = new uiSeisWaveletSel( this, "Target Wavelet", true, false );
-    wvlt1fld_->attach( alignedBelow, wvlt0fld_ );
+    wvlt1fld_->attach( alignedBelow,  wvlt0fld_ );
 
     IOObjContext ctxt( mIOObjContext(Wavelet) );
     ctxt.forread = false;

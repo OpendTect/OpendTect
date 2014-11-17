@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "uidialog.h"
 
+class uiFunctionDisplay;
+class uiGenInput;
 class uiIOObjSel;
 class uiSeisWaveletSel;
 
@@ -30,9 +32,14 @@ protected:
 
     bool		acceptOK(CallBacker*);
 
+    uiFunctionDisplay*	wvlt0disp_;
+    uiFunctionDisplay*	wvlt1disp_;
+    uiFunctionDisplay*	wvltoutdisp_;
+
     uiSeisWaveletSel*	wvlt0fld_;
     uiSeisWaveletSel*	wvlt1fld_;
     uiIOObjSel*		outwvltfld_;
+    uiGenInput*		operszfld_;
 
     MultiID		wvltid_;
 };
