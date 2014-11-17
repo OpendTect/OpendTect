@@ -1,6 +1,13 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0q: November 17, 2014
+ * Fix for merging seismic cubes using merge tool in Manage 3D seismics window
+ * Fix for crash in annotation text
+ * Fix for crash while exporting seismic 3D simple file
+ * Fix for crash while importing Horizon
+ * Fix for crash while creating random line from wells
+
 v4.6.0p: October 16, 2014
  * Fix for crash while closing OpendTect
  * Fix for Gaussian distribution drawing
