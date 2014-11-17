@@ -578,6 +578,8 @@ void RandomTrackDisplay::updateChannels( int attrib )
     {
 	DataPackRef<Attrib::FlatRdmTrcsDataPack> dprdm =
 		DPM(DataPackMgr::FlatID()).obtain( dpids[sidx] );
+	if ( !dprdm ) continue;
+
 	const Array2D<float>& array = dprdm->data();
 	const int sz0 = 1 + (array.info().getSize(0)-1) * (resolution_+1);
 	const int sz1 = 1 + (array.info().getSize(1)-1) * (resolution_+1);
@@ -1208,7 +1210,7 @@ void RandomTrackDisplay::emptyCache( int attrib )
     dispdatapackids_[attrib]->setAll( DataPack::cNoID() );
 
     channels_->setNrVersions( attrib, 1 );
-    channels_->setUnMappedVSData( attrib, 0, 0, OD::UsePtr, 0 );
+    channels_->setUnMappedData( attrib, 0, 0, OD::CopyPtr, 0 );
 }
 
 

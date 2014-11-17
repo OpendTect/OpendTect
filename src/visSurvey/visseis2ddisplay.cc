@@ -426,6 +426,7 @@ void Seis2DDisplay::updateChannels( int attrib )
 	slice2d.init();
 
 	DataPackRef<Flat2DDHDataPack> dp2d = dpm.obtain( dpids[seriesidx] );
+	if ( !dp2d ) continue;
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = &dp2d->data();
 
@@ -577,7 +578,8 @@ void Seis2DDisplay::createDisplayDataPacks( int attrib )
     DataPackMgr& dpm = DPM(DataPackMgr::FlatID());
     const DataPack::ID dpid = getDataPackID( attrib );
     ConstDataPackRef<Flat2DDHDataPack> dp2ddh = dpm.obtain( dpid );
-    if ( !dp2ddh ) return;
+    if ( !dp2ddh || !dp2ddh->dataarray() || dp2ddh->dataarray()->isEmpty() )
+	return;
 
     const Attrib::Data2DArray& data2dh = *dp2ddh->dataarray();
     Array2DSlice<float> slice2d( *data2dh.dataset_ );
