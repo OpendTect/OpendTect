@@ -174,7 +174,7 @@ void uiFunctionSel::colorChanged(CallBacker*)
 
 
 uiAddFunction::uiAddFunction( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Add velocity function source",0,
+    : uiDialog( p, uiDialog::Setup(tr("Add velocity function source"),0,
 				   mODHelpKey(mAddFunctionHelpID) ) )
     , typesel_( 0 )
 {
@@ -226,7 +226,7 @@ bool uiAddFunction::acceptOK(CallBacker*)
 
 
 uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
-    : uiDialog( p, uiDialog::Setup("Edit velocity functions",0,
+    : uiDialog( p, uiDialog::Setup(tr("Edit velocity functions"),0,
 				   mODHelpKey(mEditFunctionHelpID) ) )
     , dlggrp_( 0 )
 {

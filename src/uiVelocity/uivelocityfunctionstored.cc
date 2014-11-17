@@ -102,9 +102,9 @@ bool uiStoredFunction::acceptOK()
 
     if ( !source_->load( ioobj->key() ) )
     {
-	BufferString errmsg = "Cannot load ";
-	errmsg += ioobj->name();
-	uiMSG().error( errmsg.buf() );
+	uiString errmsg = tr("Cannot load %1")
+			.arg(ioobj->name());
+	uiMSG().error( errmsg );
 	return false;
     }
 

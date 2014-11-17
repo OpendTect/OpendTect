@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class uiListBox;
 class uiColorInput;
@@ -64,7 +65,7 @@ protected:
 
 //!Base class for velocity function settings
 mExpClass(uiVelocity) uiFunctionSettings : public uiGroup
-{
+{ mODTextTranslationClass(uiFunctionSettings);
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
 				 FunctionSource*, factory );
@@ -79,7 +80,7 @@ public:
 
 
 mExpClass(uiVelocity) uiAddFunction : public uiDialog
-{
+{ mODTextTranslationClass(uiAddFunction);
 public:
     				uiAddFunction( uiParent* );
     FunctionSource*		getSource();
@@ -93,7 +94,7 @@ public:
 
 
 mExpClass(uiVelocity) uiEditFunction : public uiDialog
-{
+{ mODTextTranslationClass(uiEditFunction);
 public:
     				uiEditFunction( uiParent*,
 						FunctionSource* );

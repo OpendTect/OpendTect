@@ -67,7 +67,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     sep->attach( alignedBelow, dataselfld_ );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Velocity" );
+    outfld_ = new uiIOObjSel( this, ctio_, tr("Output Velocity") );
     outfld_->attach( alignedBelow, dataselfld_ );
     outfld_->attach( ensureBelow, sep );
 

@@ -85,7 +85,7 @@ bool uiTutODMad::acceptOK( CallBacker* )
 void uiTutODMad::createAndDisplay2DViewer()
 {
     uiFlatViewMainWin* fvwin = new uiFlatViewMainWin( 0,
-		    uiFlatViewMainWin::Setup("Madagascar data",true) );
+		    uiFlatViewMainWin::Setup(tr("Madagascar data"),true) );
     uiFlatViewer& vwr = fvwin->viewer();
     bool dowiggles = dowigglesfld_->getBoolValue();
     vwr.setPack( dowiggles, bufdtpack_->id(), true );
