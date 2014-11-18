@@ -42,15 +42,29 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     wvltoutdisp_->attach( rightTo, wvlt1disp_ );
     wvltoutdisp_->attach( heightSameAs, wvlt1disp_ );
 
-    wvlt0fld_ = new uiSeisWaveletSel( this, "Source Wavelet", true, false );
+    wvlt0fld_ = new uiWaveletSel( this, true, "Source Wavelet" );
     wvlt0fld_->attach( alignedBelow, wvlt0disp_ );
-    wvlt1fld_ = new uiSeisWaveletSel( this, "Target Wavelet", true, false );
+    wvlt0fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
+    wvlt1fld_ = new uiWaveletSel( this, true, "Target Wavelet" );
     wvlt1fld_->attach( alignedBelow,  wvlt0fld_ );
+    wvlt1fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
 
-    IOObjContext ctxt( mIOObjContext(Wavelet) );
-    ctxt.forread = false;
-    outwvltfld_ = new uiIOObjSel( this, ctxt, tr("Output Wavelet") );
+    outwvltfld_ = new uiWaveletSel( this, false, tr("Output Wavelet") );
     outwvltfld_->attach( alignedBelow, wvlt1fld_ );
+}
+
+
+void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiWaveletSel*,inpfld,cb)
+    if ( !inpfld ) return;
+
+    PtrMan<Wavelet> wvlt = inpfld->getWavelet();
+    if ( !wvlt ) return;
+
+    wvlt->
+    uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
+    fd->setVals();
 }
 
 

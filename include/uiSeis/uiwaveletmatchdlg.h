@@ -18,8 +18,7 @@ ________________________________________________________________________
 
 class uiFunctionDisplay;
 class uiGenInput;
-class uiIOObjSel;
-class uiSeisWaveletSel;
+class uiWaveletSel;
 
 mExpClass(uiSeis) uiWaveletMatchDlg : public uiDialog
 { mODTextTranslationClass(uiWaveletMatchDlg)
@@ -30,18 +29,24 @@ public:
 
 protected:
 
+    void		inpSelCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
     uiFunctionDisplay*	wvlt0disp_;
     uiFunctionDisplay*	wvlt1disp_;
     uiFunctionDisplay*	wvltoutdisp_;
 
-    uiSeisWaveletSel*	wvlt0fld_;
-    uiSeisWaveletSel*	wvlt1fld_;
-    uiIOObjSel*		outwvltfld_;
-    uiGenInput*		operszfld_;
+    uiWaveletSel*	wvlt0fld_;
+    uiWaveletSel*	wvlt1fld_;
+    uiWaveletSel*	outwvltfld_;
+    uiGenInput*		filterszfld_;
 
     MultiID		wvltid_;
+
+    uiFunctionDisplay*	wvlt0disp_;
+    uiFunctionDisplay*	wvlt1disp_;
+    uiFunctionDisplay*	outdisp_;
+
 };
 
 #endif

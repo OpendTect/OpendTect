@@ -192,3 +192,19 @@ void uiSeisWaveletSel::rebuildList()
 	nmfld_->setCurrentItem( newidx );
     nmfld_->selectionChanged.enable();
 }
+
+
+// uiWaveletSel
+#define mSelTxt seltxt && *seltxt ? \
+	seltxt : ( forread ? "Input Wavelet" : "Output Wavelet" )
+
+uiWaveletSel::uiWaveletSel( uiParent* p, bool forread, const char* seltxt )
+    : uiIOObjSel(p,mIOObjContext(Wavelet),mSelTxt)
+{ setForRead( forread ); }
+
+
+Wavelet* uiWaveletSel::getWavelet() const
+{
+    const IOObj* ioobj = ioobj();
+    return ioobj ? Wavelet::get( ioobj ) : 0;
+}

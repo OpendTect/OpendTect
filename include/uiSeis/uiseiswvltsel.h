@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiseismod.h"
 #include "uigroup.h"
+#include "uiioobjsel.h"
 #include "bufstringset.h"
 
 class Wavelet;
@@ -54,6 +55,15 @@ protected:
     void		startMan(CallBacker*);
     void		selChg(CallBacker*);
 
+};
+
+
+mExpClass(uiSeis) uiWaveletSel : public uiIOObjSel
+{ mODTextTranslationClass(uiWaveletSel)
+public:
+			uiWaveletSel(uiParent*,bool forread,
+				     const char* lbltxt=0);
+    Wavelet*		getWavelet() const;
 };
 
 #endif
