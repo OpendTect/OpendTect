@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uisysadmmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 class uiODSysAdm;
 class uiListBox;
 class uiTextEdit;

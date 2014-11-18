@@ -68,10 +68,10 @@ uiODSysAdm::uiODSysAdm( uiParent* p )
 
     if ( !swwritable_ && !aswritable_ )
     {
-	BufferString msg( "You have no write access to:\n" );
-	msg += swwritable_;
-	if ( haveas_ )
-	    msg += "\nnor to:"; msg += asdir_;
+	uiString addonstr = haveas_ ? tr("\nnor to:%1").arg(asdir_)
+				    : uiString::emptyString();
+	uiString msg = tr("You have no write access to:\n%1%2")
+		     .arg(swwritable_).arg(addonstr);
 	new uiLabel( this, msg );
 	setCtrlStyle( CloseOnly );
 	return;
