@@ -205,6 +205,9 @@ uiWaveletSel::uiWaveletSel( uiParent* p, bool forread, const char* seltxt )
 
 Wavelet* uiWaveletSel::getWavelet() const
 {
+/*
     const IOObj* ioobj = ioobj();
     return ioobj ? Wavelet::get( ioobj ) : 0;
+    */
+    return 0;
 }

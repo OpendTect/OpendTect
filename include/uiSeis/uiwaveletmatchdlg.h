@@ -42,11 +42,6 @@ protected:
     uiGenInput*		filterszfld_;
 
     MultiID		wvltid_;
-
-    uiFunctionDisplay*	wvlt0disp_;
-    uiFunctionDisplay*	wvlt1disp_;
-    uiFunctionDisplay*	outdisp_;
-
 };
 
 #endif

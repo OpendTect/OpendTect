@@ -49,7 +49,7 @@ uiWaveletMatchDlg::uiWaveletMatchDlg( uiParent* p )
     wvlt1fld_->attach( alignedBelow,  wvlt0fld_ );
     wvlt1fld_->selectionDone.notify( mCB(this,uiWaveletMatchDlg,inpSelCB) );
 
-    outwvltfld_ = new uiWaveletSel( this, false, tr("Output Wavelet") );
+    outwvltfld_ = new uiWaveletSel( this, false, "Output Wavelet" );
     outwvltfld_->attach( alignedBelow, wvlt1fld_ );
 }
 
@@ -62,9 +62,7 @@ void uiWaveletMatchDlg::inpSelCB( CallBacker* cb )
     PtrMan<Wavelet> wvlt = inpfld->getWavelet();
     if ( !wvlt ) return;
 
-    wvlt->
-    uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
-    fd->setVals();
+//    uiFunctionDisplay* fd = inpfld==wvlt0fld_ ? wvlt0disp_ : wvlt1disp_;
 }
 
 
