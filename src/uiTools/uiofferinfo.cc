@@ -31,7 +31,7 @@ void uiOfferInfoWin::setText( const char* txt )
 
 
 uiOfferInfo::uiOfferInfo( uiParent* p, bool setinsens )
-	: uiToolButton(p,"info","View info",mCB(this,uiOfferInfo,infoReq) )
+	: uiToolButton(p,"info",tr("View info"),mCB(this,uiOfferInfo,infoReq) )
 	, insens_(setinsens)
 	, infowin_(0)
 	, caption_("Information")

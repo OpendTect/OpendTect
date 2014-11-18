@@ -59,7 +59,7 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     , leave_(false)
 {
     if ( pos_ == End )
-	setOkText( "Finish" );
+	setOkText( tr("Finish") );
     else if ( pos_ == DoWork )
 	setOkText( uiStrings::sGo() );
     else
@@ -68,7 +68,7 @@ uiVarWizardDlg::uiVarWizardDlg( uiParent* p, const uiDialog::Setup& su,
     if ( pos_ == Start )
 	setCancelText( uiStrings::sCancel() );
     else
-	setCancelText( "< Back" );
+	setCancelText( tr("< Back") );
 }
 
 

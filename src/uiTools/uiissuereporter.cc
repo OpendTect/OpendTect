@@ -111,11 +111,11 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 		outfile.closeFail();
 	}
 		
-	const BufferString msg(
-		"The report could not be sent automatically.\n"
-		"You can still send it manually by e-mail.\n"
-		"Please send the file:\n\n", filename_ ,
-		"\n\nto support@opendtect.org." );
+	uiString msg = tr("The report could not be sent automatically.\n"
+			  "You can still send it manually by e-mail.\n"
+			  "Please send the file:\n\n%1"
+			  "\n\nto support@opendtect.org.")
+		     .arg(filename_);
 	uiMSG().error( msg );
     }
 

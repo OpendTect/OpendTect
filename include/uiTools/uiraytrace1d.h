@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "raytrace1d.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiLabeledComboBox;
@@ -66,7 +67,7 @@ protected:
 
 
 mExpClass(uiTools) uiVrmsRayTracer1D : public uiRayTracer1D
-{
+{ mODTextTranslationClass(uiVrmsRayTracer1D);
 public:
 			uiVrmsRayTracer1D(uiParent*,
 					const uiRayTracer1D::Setup&);
@@ -79,7 +80,7 @@ public:
 
 
 mExpClass(uiTools) uiRayTracerSel : public uiGroup
-{
+{ mODTextTranslationClass(uiRayTracerSel);
 public:
     			uiRayTracerSel(uiParent*,const uiRayTracer1D::Setup&);
 

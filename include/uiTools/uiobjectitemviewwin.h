@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiobjectitemview.h"
 #include "scaler.h"
+#include "uistring.h"
 
 class uiCheckBox;
 class uiObjectItem;
@@ -119,7 +120,7 @@ protected:
 
 
 mExpClass(uiTools) uiObjectItemViewInfoBar : public uiObjectItemView
-{
+{ mODTextTranslationClass(uiObjectItemViewInfoBar);
 public:
 
 			uiObjectItemViewInfoBar(uiParent*);
@@ -144,7 +145,7 @@ protected:
 
 
 mExpClass(uiTools) uiObjectItemViewControl : public uiGroup
-{
+{ mODTextTranslationClass(uiObjectItemViewControl);
 public :
 			uiObjectItemViewControl(uiObjectItemView&);
 
@@ -167,7 +168,7 @@ protected:
 
 
 mExpClass(uiTools) uiObjectItemViewAxisPainter : public CallBacker
-{
+{ mODTextTranslationClass(uiObjectItemViewAxisPainter);
 public:
 			uiObjectItemViewAxisPainter(uiObjectItemView&);
 

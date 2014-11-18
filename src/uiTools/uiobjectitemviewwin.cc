@@ -460,7 +460,7 @@ uiObjectItemViewControl::uiObjectItemViewControl( uiObjectItemView& mw )
 
 void uiObjectItemViewControl::setToolButtons()
 {
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
+    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode (Esc)"));
 }
 
 

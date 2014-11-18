@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "arrayndalgo.h"
 #include "arrayndimpl.h"
+#include "uistring.h"
 
 class uiAxisHandler;
 class uiGenInput;
@@ -41,7 +42,7 @@ class WindowFunction;
 /*!brief Displays a mathfunction. */
 
 mExpClass(uiTools) uiFunctionDrawer : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiFunctionDrawer);
 
 public:
     mStruct(uiTools) Setup
@@ -103,7 +104,7 @@ protected:
 
 
 mExpClass(uiTools) uiFuncSelDraw : public uiGroup
-{
+{ mODTextTranslationClass(uiFuncSelDraw);
 public:
 
 			uiFuncSelDraw(uiParent*,const uiFunctionDrawer::Setup&);
@@ -137,7 +138,7 @@ protected:
 
 /*!brief Displays a windowfunction. */
 mExpClass(uiTools) uiWindowFuncSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWindowFuncSelDlg);
 public:
 
 			uiWindowFuncSelDlg(uiParent*,const char*,float);

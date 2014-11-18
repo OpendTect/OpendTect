@@ -155,7 +155,7 @@ void uiPluginSel::createUI()
 					getCreatorShortName(pprod.creator_) );
 	uiCheckBox* cb = new uiCheckBox( grp, label );
 	if ( !pprod.creator_.isEmpty() )
-	    cb->setToolTip( BufferString("a ",pprod.creator_, " plugin") );
+	    cb->setToolTip( tr("a %1 plugin").arg(pprod.creator_) );
 	cb->setPrefWidthInChar( maxpluginname_+6.f );
 	cb->setChecked( true );
 	cb->setStretch( 2, 0 ); 

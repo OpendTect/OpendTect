@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "uigraphicsview.h"
+#include "uistring.h"
 
 namespace ColTab{ class Sequence; }
 class MouseEventHandler;
@@ -47,7 +48,7 @@ protected:
 
 
 mExpClass(uiTools) uiColTabMarkerCanvas : public uiGraphicsView
-{
+{ mODTextTranslationClass(uiColTabMarkerCanvas);
 public:
 				uiColTabMarkerCanvas(uiParent*,
 						     ColTab::Sequence&);

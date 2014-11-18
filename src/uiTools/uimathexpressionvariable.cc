@@ -61,7 +61,7 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
 			    mCB(this,uiMathExpressionVariable,subInpChg) );
     }
 
-    constfld_ = new uiGenInput( inpgrp_, "Value for 'c0'", FloatInpSpec() );
+    constfld_ = new uiGenInput( inpgrp_, tr("Value for 'c0'"), FloatInpSpec() );
     constfld_->attach( alignedWith, inpfld_ );
 
     if ( withunit )
@@ -178,15 +178,15 @@ void uiMathExpressionVariable::setVariable( const char* varnm, bool isconst )
 	updateInpNms( false );
     }
 
-    BufferString lbltxt;
+    uiString lbltxt;
     bool issens = true;
     if ( isconst_ )
-	constfld_->setTitleText( BufferString("Value for '",varnm_,"'") );
+	constfld_->setTitleText( tr("Value for '%1'").arg(varnm_) );
     else if ( specidx_ < 0 )
-	inplbl_->setText( BufferString("For '", varnm_,"' use") );
+	inplbl_->setText( tr("For '%1' use").arg(varnm_) );
     else
     {
-	inplbl_->setText( BufferString("'",varnm_,"' filled with") );
+	inplbl_->setText(tr("'%1' filled with").arg(varnm_));
 	inpfld_->setCurrentItem( specvars_.dispName(specidx_) );
 	issens = false;
 	if ( unfld_ && specvars_.hasUnits(specidx_) )

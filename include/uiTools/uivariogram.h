@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 template <class T> class Array2D;
 class BufferStringSet;
@@ -22,7 +23,7 @@ class uiSlider;
 class uiSpinBox;
 
 mExpClass(uiTools) uiVariogramDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiVariogramDlg);
 public:
 
 				uiVariogramDlg(uiParent*,bool);
@@ -42,7 +43,7 @@ protected:
 
 
 mExpClass(uiTools) uiVariogramDisplay: public uiDialog
-{
+{ mODTextTranslationClass(uiVariogramDisplay);
 public:
 				uiVariogramDisplay(uiParent*,Array2D<float>*,
 						   Array2D<float>*,

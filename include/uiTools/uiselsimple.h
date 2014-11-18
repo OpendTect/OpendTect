@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class uiGroup;
 class uiListBox;
@@ -77,7 +78,7 @@ private:
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
 mExpClass(uiTools) uiGetObjectName : public uiDialog
-{
+{ mODTextTranslationClass(uiGetObjectName);
 public:
 
     mExpClass(uiTools) Setup : public uiDialog::Setup
@@ -119,7 +120,7 @@ protected:
 /*!\brief Get an action from a series of possibilities from user */
 
 mExpClass(uiTools) uiGetChoice : public uiDialog
-{
+{ mODTextTranslationClass(uiGetChoice);
 public:
 
 			uiGetChoice(uiParent*,const char* question=0,

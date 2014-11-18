@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uimainwin.h"
 #include "uitoolbutton.h"
+#include "uistring.h"
 class uiTextBrowser;
 
 
@@ -28,7 +29,7 @@ class uiTextBrowser;
  */
 
 mExpClass(uiTools) uiOfferInfoWin : public uiMainWin
-{
+{ mODTextTranslationClass(uiOfferInfoWin);
 public:
 
 			uiOfferInfoWin(uiParent*,const char* captn,
@@ -50,7 +51,7 @@ public:
 
 
 mExpClass(uiTools) uiOfferInfo : public uiToolButton
-{
+{ mODTextTranslationClass(uiOfferInfo);
 public:
 
 			uiOfferInfo(uiParent*,bool setinsens=true);

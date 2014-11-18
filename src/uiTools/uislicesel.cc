@@ -73,7 +73,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
     if ( isvol_ )
     {
 	uiToolButton* fullbut = new uiToolButton( this, "exttofullsurv",
-					"Set ranges to full survey",
+					tr("Set ranges to full survey"),
 					mCB(this,uiSliceSel,fullPush) );
 	fullbut->attach( rightTo, inl1fld_ );
     }
@@ -137,11 +137,11 @@ void uiSliceSel::setBoxValues( uiSpinBox* box, const StepInterval<int>& intv,
 
 
 class uiSliceScroll : public uiDialog
-{
+{ mODTextTranslationClass(uiSliceScroll);
 public:
 
 uiSliceScroll( uiSliceSel* ss )
-	: uiDialog(ss,uiDialog::Setup("Scrolling",getTitle(ss),
+	: uiDialog(ss,uiDialog::Setup(tr("Scrolling"),getTitle(ss),
                                         mODHelpKey(mSliceScrollHelpID) )
 				      .modal(false))
 	, slcsel_(ss)
@@ -169,26 +169,27 @@ uiSliceScroll( uiSliceSel* ss )
 	maxstep = mNINT32(zrg);
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
-    stepfld_ = new uiLabeledSpinBox( this, "Scroll step" );
+    stepfld_ = new uiLabeledSpinBox( this, tr("Scroll step") );
     stepfld_->box()->setMinValue( !ss->dogeomcheck_ ? -1 : -maxstep );
     stepfld_->box()->setMaxValue( !ss->dogeomcheck_ ? 1 : maxstep );
     stepfld_->box()->setStep( !ss->dogeomcheck_ ? 1 : step );
     stepfld_->box()->setValue( !ss->dogeomcheck_ ? 1 : step );
 
-    typfld_ = new uiLabeledComboBox( this, "Control" );
+    typfld_ = new uiLabeledComboBox( this, tr("Control") );
     typfld_->box()->addItem( uiStrings::sManual() );
-    typfld_->box()->addItem( "Auto" );
+    typfld_->box()->addItem( tr("Auto") );
     typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
     typfld_->attach( alignedBelow, stepfld_ );
 
     ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld_ );
-    backbut = new uiPushButton( this, "<< Step Back", true );
+    backbut = new uiPushButton( this, tr("<< Step Back"), true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 
-    dtfld_ = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(2));
+    dtfld_ = new uiGenInput( this, tr("Time between updates (s)"), 
+			     FloatInpSpec(2));
     dtfld_->attach( alignedBelow, ctrlbut );
 
     postFinalise().notify( mCB(this,uiSliceScroll,typSel) );
@@ -579,8 +580,8 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const TrcKeyZSampling& curcs,
 			const TrcKeyZSampling& maxcs,
 			const CallBack& acb, uiSliceSel::Type type,
 			const ZDomain::Info& zdominfo )
-    : uiDialog(p,uiDialog::Setup("Positioning",
-				 "Specify the element's position",
+    : uiDialog(p,uiDialog::Setup(tr("Positioning"),
+				 tr("Specify the element's position"),
                                  mODHelpKey(mSliceSelHelpID) )
 		 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
@@ -600,7 +601,7 @@ bool uiSliceSelDlg::acceptOK( CallBacker* )
 
 // uiLinePosSelDlg
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Select line position",
+    : uiDialog( p, uiDialog::Setup(tr("Select line position"),
 				   mNoDlgTitle,mNoHelpKey) )
     , prefcs_(0)
     , is2d_(true)
@@ -610,14 +611,14 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p )
     BufferStringSet linenames;
     TypeSet<Pos::GeomID> geomids;
     Survey::GM().getList( linenames, geomids, true );
-    linesfld_ = new uiGenInput( this, "Compute on line:",
+    linesfld_ = new uiGenInput( this, tr("Compute on line:"),
 				StringListInpSpec(linenames) );
     setOkText( uiStrings::sNext() );
 }
 
 
 uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
-    : uiDialog( p, uiDialog::Setup("Select line position",
+    : uiDialog( p, uiDialog::Setup(tr("Select line position"),
 				   mNoDlgTitle,mNoHelpKey) )
     , tkzs_( cs )
     , prefcs_(0)
@@ -625,7 +626,7 @@ uiLinePosSelDlg::uiLinePosSelDlg( uiParent* p, const TrcKeyZSampling& cs )
     , linesfld_(0)
     , posdlg_(0)
 {
-    inlcrlfld_ = new uiGenInput( this, "Compute on:",
+    inlcrlfld_ = new uiGenInput( this, tr("Compute on:"),
 			BoolInpSpec(true,sKey::Inline(),sKey::Crossline()) );
     setOkText( uiStrings::sNext() );
 }

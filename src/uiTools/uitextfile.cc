@@ -60,7 +60,7 @@ void uiTextFile::valChg( CallBacker* )
 
 
 class uiTableExpHandler : public Table::ExportHandler
-{
+{ mODTextTranslationClass(uiTableExpHandler);
 public:
 
 uiTableExpHandler( uiTable* t, int ml )
@@ -288,7 +288,8 @@ void uiTextFileDlg::init( const uiTextFileDlg::Setup& dlgsetup,
 					  mCB(this,uiTextFileDlg,saveAs)) );
     }
 
-    filemnu->insertItem( new uiAction("Quit",mCB(this,uiTextFileDlg,dismiss)));
+    filemnu->insertItem( new uiAction(tr("Quit"),
+			 mCB(this,uiTextFileDlg,dismiss)));
     menuBar()->insertItem( filemnu );
 }
 
@@ -314,7 +315,7 @@ void uiTextFileDlg::fileNmChgd( CallBacker* )
 void uiTextFileDlg::open( CallBacker* )
 {
     uiFileDialog dlg( this, uiFileDialog::ExistingFile,
-		      editor_->fileName(), "", "Select file" );
+		      editor_->fileName(), "", tr("Select file") );
     if ( dlg.go() )
 	editor_->open( dlg.fileName() );
 }
@@ -329,7 +330,7 @@ void uiTextFileDlg::save( CallBacker* )
 void uiTextFileDlg::saveAs( CallBacker* )
 {
     uiFileDialog dlg( this, uiFileDialog::AnyFile,
-		      editor_->fileName(), "", "Select new file name" );
+		      editor_->fileName(), "", tr("Select new file name") );
     if ( dlg.go() )
 	editor_->saveAs( dlg.fileName() );
 }

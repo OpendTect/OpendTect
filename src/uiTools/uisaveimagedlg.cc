@@ -387,15 +387,11 @@ bool uiSaveImageDlg::filenameOK() const
 	return false;
     }
 
-    if ( File::exists(filename) )
+    if (File::exists(filename) && !File::isWritable(filename))
     {
-	BufferString msg = "The file "; msg += filename;
-	if ( !File::isWritable(filename) )
-	{
-	    msg += " is not writable";
+	uiString msg = tr("The file %1 is not writable").arg(filename);
 	    uiMSG().error(msg);
-	    return false;
-	}
+	    return false;	
     }
 
     return true;

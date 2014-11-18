@@ -37,8 +37,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 uiVariogramDlg::uiVariogramDlg( uiParent* p, bool isvert )
-    : uiDialog(p,uiDialog::Setup("Semi-variogram parameters",
-				 "Specify semi-variogram parameters",
+    : uiDialog(p,uiDialog::Setup(tr("Semi-variogram parameters"),
+				 tr("Specify semi-variogram parameters"),
 				 mODHelpKey(mVariogramDlgHelpID) ) )
 {
     const int dxmin = SI().inlDistance() <= SI().crlDistance() ?
@@ -125,7 +125,8 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
 					 Array2D<float>* axes,
 					 BufferStringSet* labels,
 					 int maxrg, bool ishor )
-	: uiDialog(p,uiDialog::Setup("Variogram analysis","Variogram analysis",
+	: uiDialog(p,uiDialog::Setup(tr("Variogram analysis"),
+				     tr("Variogram analysis"),
 				     mODHelpKey(mVariogramDisplayHelpID) )
                                      .modal(false))
 	, maxrg_(maxrg)
@@ -138,7 +139,7 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     setCtrlStyle( CloseOnly );
     const CallBack chgCBfld ( mCB(this,uiVariogramDisplay,fieldChangedCB) );
     const CallBack chgCBlbl ( mCB(this,uiVariogramDisplay,labelChangedCB) );
-    sillfld_ = new uiSlider( this, uiSlider::Setup("sill")
+    sillfld_ = new uiSlider( this, uiSlider::Setup(tr("sill"))
 					.withedit(true).nrdec(3).logscale(false)
 					.isvertical(true), "sill slider" );
     sillfld_->display( true );
@@ -156,10 +157,10 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     BufferString xnmstr = "Lag distance ";
     xnmstr += ishor ? SI().getXYUnitString() : "(ms)";
     disp_->xAxis()->setCaption( xnmstr.buf() );
-    disp_->yAxis(false)->setCaption( "Normalized Variance" );
+    disp_->yAxis(false)->setCaption( tr("Normalized Variance") );
     disp_->attach( rightOf, sillfld_ );
 
-    rangefld_ = new uiSlider( this, uiSlider::Setup("range").withedit(true).
+    rangefld_ = new uiSlider( this, uiSlider::Setup(tr("range")).withedit(true).
 						    nrdec(1).logscale(false),
 				   "range slider" );
     rangefld_->attach( centeredBelow, disp_ );
@@ -167,12 +168,12 @@ uiVariogramDisplay::uiVariogramDisplay ( uiParent* p, Array2D<float>* data,
     rangefld_->display( true );
     rangefld_->valueChanged.notify( chgCBfld );
 
-    typefld_ = new uiGenInput( this, "Variogram model",
+    typefld_ = new uiGenInput( this, tr("Variogram model"),
 			     StringListInpSpec(typestrs) );
     typefld_->valuechanged.notify( chgCBfld );
     typefld_->attach( alignedBelow, rangefld_ );
 
-    BufferString lblnmstr = ishor ? "Direction:" : "Source:";
+    uiString lblnmstr = ishor ? tr("Direction:") : tr("Source:");
     labelfld_ = new uiGenInput( this, lblnmstr,
 				StringListInpSpec(*labels) );
     labelfld_->valuechanged.notify( chgCBlbl );

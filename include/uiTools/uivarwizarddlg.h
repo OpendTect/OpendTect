@@ -14,12 +14,13 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 
 /*!\brief Dialog in flexible wizard series. */
 
 mExpClass(uiTools) uiVarWizardDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiVarWizardDlg);
 public:
 
     enum Position	{ Start, Middle, End, DoWork };

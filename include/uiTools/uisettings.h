@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uidlggroup.h"
 #include "factory.h"
+#include "uistring.h"
 
 class Settings;
 class uiComboBox;
@@ -25,7 +26,7 @@ class uiTable;
 
 
 mExpClass(uiTools) uiSettings : public uiDialog
-{ mODTextTranslationClass(uiSettings)
+{ mODTextTranslationClass(uiSettings);
 public:
 			uiSettings(uiParent*,const char* titl,
 				   const char* settskey=0);
@@ -57,7 +58,7 @@ protected:
 
 
 mExpClass(uiTools) uiSettingsGroup : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiSettingsGroup);
 public:
 			mDefineFactory2ParamInClass(uiSettingsGroup,
 						    uiParent*,Settings&,
@@ -86,7 +87,7 @@ protected:
 
 
 mExpClass(uiTools) uiSettingsDlg : public uiTabStackDlg
-{
+{ mODTextTranslationClass(uiSettingsDlg);
 public:
 			uiSettingsDlg(uiParent*);
 			~uiSettingsDlg();
@@ -106,7 +107,7 @@ protected:
 
 
 mExpClass(uiTools) uiGeneralSettingsGroup : public uiSettingsGroup
-{
+{ mODTextTranslationClass(uiGeneralSettingsGroup);
 public:
 			mDefaultFactoryInstantiation2Param(
 				uiSettingsGroup,
@@ -133,7 +134,7 @@ protected:
 
 
 mExpClass(uiTools) uiVisSettingsGroup : public uiSettingsGroup
-{
+{ mODTextTranslationClass(uiVisSettingsGroup);
 public:
 			mDefaultFactoryInstantiation2Param(
 				uiSettingsGroup,

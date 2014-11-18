@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigroup.h"
 #include "iopar.h"
+#include "uistring.h"
 
 class HelpKey;
 class uiGenInput;

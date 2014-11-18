@@ -38,7 +38,9 @@ public:
 
     void			setApplyCB(const CallBack&);
 
-    const TrcKeyZSampling&		getTrcKeyZSampling() const	{ return tkzs_; }
+    const TrcKeyZSampling&		getTrcKeyZSampling() const { 
+								   return tkzs_;
+								   }
     virtual void		setTrcKeyZSampling(const TrcKeyZSampling&);
     void			setMaxTrcKeyZSampling(const TrcKeyZSampling&);
     void			enableApplyButton(bool);
@@ -87,7 +89,7 @@ protected:
 
 
 mExpClass(uiTools) uiSliceSelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSliceSelDlg);
 public:
 				uiSliceSelDlg(uiParent*,
 					      const TrcKeyZSampling& csin,
@@ -112,7 +114,7 @@ protected:
 
 
 mExpClass(uiTools) uiLinePosSelDlg: public uiDialog
-{
+{ mODTextTranslationClass(uiLinePosSelDlg);
 public:
 			uiLinePosSelDlg(uiParent*);
 			uiLinePosSelDlg(uiParent*,const TrcKeyZSampling&);
@@ -120,7 +122,9 @@ public:
 
     const TrcKeyZSampling&	getTrcKeyZSampling() const;
     const char*		getLineName() const;
-    void		setPrefCS(TrcKeyZSampling* prefcs)	{ prefcs_ = prefcs; }
+    void		setPrefCS(TrcKeyZSampling* prefcs) { 
+							    prefcs_ = prefcs;
+							   }
 
 protected:
     bool		acceptOK(CallBacker*);

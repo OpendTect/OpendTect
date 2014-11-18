@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "iopar.h"
+#include "uistring.h"
 class uiParent;
 class uiVarWizardDlg;
 
@@ -25,7 +26,7 @@ class uiVarWizardDlg;
  */
 
 mExpClass(uiTools) uiVarWizard : public CallBacker
-{
+{ mODTextTranslationClass(uiVarWizard);
 public:
 
 			uiVarWizard(uiParent*);

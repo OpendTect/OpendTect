@@ -273,7 +273,7 @@ const char* uiFuncSelDraw::getCurrentListName() const
 
 uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* winname,
 					float variable )
-    : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Window/Taper display"),0,mNoHelpKey) )
     , variable_(variable)
     , funcdrawer_(0)
 {

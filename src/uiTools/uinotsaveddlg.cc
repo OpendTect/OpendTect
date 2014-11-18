@@ -35,7 +35,7 @@ public:
 
 
 class uiNotSavedDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiNotSavedDlg);
 public:
     uiNotSavedDlg(uiParent* p, NotSavedPrompter& prompter, bool withcancel,
 	          const char* actiontype )
@@ -68,7 +68,7 @@ public:
 
     void	reportSuccessfullSave()
     {
-	buttons_[activebutton_]->setText( "Saved" );
+	buttons_[activebutton_]->setText( tr("Saved") );
 	buttons_[activebutton_]->setSensitive( false );
     }
     void	buttonCB(CallBacker* cb)

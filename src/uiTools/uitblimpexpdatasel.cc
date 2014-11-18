@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiTableTargetInfoEd : public uiGroup
-{
+{ mODTextTranslationClass(uiTableTargetInfoEd);
 public:
 
 uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
@@ -61,9 +61,9 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( ishdr_ && choicegrp_ )
     {
 	specfld_ = new uiComboBox( choicegrp_, "provide/read" );
-	specfld_->addItem( "provide" );
-	specfld_->addItem( "keyword" );
-	specfld_->addItem( "fixed" );
+	specfld_->addItem( tr("provide") );
+	specfld_->addItem( tr("keyword") );
+	specfld_->addItem( tr("fixed") );
 	specfld_->setPrefWidthInChar( mChoiceBoxWidth );
 	specfld_->selectionChanged.notify( boxcb );
 	specfld_->setCurrentItem( tinf_.selection_.isKeyworded(0) ? 1
@@ -265,8 +265,8 @@ bool commit()
 	    {
 		if ( !*kwinps[idx]->text() )
 		{
-		    errmsg_ = "Missing keyword for ";
-		    errmsg_ += tinf_.form(formnr).name();
+		    errmsg_ = tr("Missing keyword for %1")
+			    .arg(tinf_.form(formnr).name());
 		    return false;
 		}
 	    }
@@ -278,8 +278,8 @@ bool commit()
 	    {
 		if ( colinps[idx]->isUndef() )
 		{
-		    errmsg_ = "Value missing for ";
-		    errmsg_ += tinf_.form(formnr).name();
+		    errmsg_ = tr("Value missing for %1")
+			    .arg(tinf_.form(formnr).name());
 		    return false;
 		}
 	    }
@@ -314,14 +314,14 @@ bool commit()
 		kw = (*kwinps)[idx]->text();
 	    if ( mIsUdf(rc.row()) || (!iskw && mIsUdf(rc.col())) )
 	    {
-		errmsg_ = "Missing position in the file for ";
-		errmsg_ += tinf_.form(formnr).name();
+		errmsg_ = tr("Missing position in the file for %1")
+			.arg(tinf_.form(formnr).name());
 		return false;
 	    }
 	    else if ( iskw && kw.isEmpty() )
 	    {
-		errmsg_ = "Missing header keyword for ";
-		errmsg_ += tinf_.form(formnr).name();
+		errmsg_ = tr("Missing header keyword for %1")
+			.arg(tinf_.form(formnr).name());
 		return false;
 	    }
 	    rc.row()--; rc.col()--; // Users tend to start at 1
@@ -337,7 +337,7 @@ bool commit()
     Table::TargetInfo&			tinf_;
     bool				ishdr_;
     int					nrhdrlns_;
-    BufferString			errmsg_;
+    uiString				errmsg_;
 
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
@@ -363,7 +363,7 @@ uiGroup* uiTableTargetInfoEd::choicegrp_ = 0;
 
 
 class uiTableFormatDescFldsEd : public uiDialog
-{
+{ mODTextTranslationClass(uiTableFormatDescFldsEd);
 public:
 
 				uiTableFormatDescFldsEd(uiTableImpDataSel*,
@@ -399,10 +399,11 @@ protected:
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 						  const HelpKey& helpkey )
-	: uiDialog(ds,uiDialog::Setup("Format definition",
-				      "Specify necessary information",helpkey)
+	: uiDialog(ds,uiDialog::Setup(tr("Format definition"),
+				      tr("Specify necessary information"),
+				      helpkey)
 		      .savebutton(true).savebutispush(true)
-		      .savetext("Save format"))
+		      .savetext(tr("Save format")))
 	, ds_(*ds)
 	, fd_(ds->desc())
 	, hdrinpgrp_(0)
@@ -420,7 +421,7 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     if ( !lastelm_ ) return;
 
     eobfld_ = new uiGenInput( lastelm_->attachObj()->parent(),
-			      "Stop reading at",
+			      tr("Stop reading at"),
 			      StringInpSpec(fd_.eobtoken_) );
     eobfld_->setWithCheck( true );
     eobfld_->setChecked( fd_.haveEOBToken() );
@@ -436,7 +437,7 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 void uiTableFormatDescFldsEd::initSaveButton( CallBacker* cb )
 {
     uiButton* but = button( uiDialog::SAVE );
-    but->setToolTip ( "Save Format" );
+    but->setToolTip ( tr("Save Format") );
     if ( but )
 	but->activated.notify( mCB(this,uiTableFormatDescFldsEd,saveFmt) );
 }
@@ -522,10 +523,10 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
     Table::FFR().getFormats( fd_.name(), nms );
     nms.sort();
 
-    uiGetObjectName::Setup listsetup( "Save format", nms );
-    listsetup.inptxt( "Name for format" )
+    uiGetObjectName::Setup listsetup( tr("Save format"), nms );
+    listsetup.inptxt( tr("Name for format") )
 	     .deflt( ds_.fmtname_ )
-	     .dlgtitle( "Enter a name for the format" );
+	     .dlgtitle( tr("Enter a name for the format") );
     uiGetObjectName dlg( this, listsetup );
     const char* strs[] = { "All surveys",
 			   "This survey only",
@@ -541,7 +542,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+3);
 	Table::FFR().set( fd_.name(), fmtnm, newiop, src );
 	if ( !Table::FFR().write(src) )
-	    uiMSG().error( "Cannot write format" );
+	    uiMSG().error( tr("Cannot write format") );
 	else
 	{
 	    ds_.storediop_.setEmpty(); fd_.fillPar( ds_.storediop_ );
@@ -552,7 +553,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 
 
 class uiTableFmtDescFldsParSel : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiTableFmtDescFldsParSel);
 public:
 
 uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const HelpKey& helpkey )
@@ -612,7 +613,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
     const CallBack hdrchgcb = mCB(this,uiTableImpDataSel,hdrChg);
-    hdrtypefld_ = new uiGenInput( this, "File header",
+    hdrtypefld_ = new uiGenInput( this, tr("File header"),
 				  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
 
@@ -674,7 +675,7 @@ void uiTableImpDataSel::openFmt( CallBacker* )
     }
     avfmts.sort();
 
-    uiSelectFromList::Setup listsetup( "Retrieve data format", avfmts );
+    uiSelectFromList::Setup listsetup( tr("Retrieve data format"), avfmts );
     listsetup.dlgtitle( tr("Select a format to retrieve") );
     uiSelectFromList dlg( this, listsetup );
     if ( !dlg.go() || dlg.selection() < 0 )

@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "file.h"
+#include "uistring.h"
 class uiTextEdit;
 class uiTextBrowser;
 class uiTable;
 
 
 mExpClass(uiTools) uiTextFile : public CallBacker
-{
+{ mODTextTranslationClass(uiTextFile);
 public:
 
     typedef File::ViewPars Setup;
@@ -75,7 +76,7 @@ protected:
 
 
 mExpClass(uiTools) uiTextFileDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiTextFileDlg);
 public:
 
     mExpClass(uiTools) Setup : public uiDialog::Setup

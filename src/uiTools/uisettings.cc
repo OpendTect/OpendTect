@@ -181,7 +181,7 @@ bool uiSettings::commitSetts( const IOPar& iop )
     setts.IOPar::operator =( iop );
     if ( !setts.write(false) )
     {
-	uiMSG().error( "Cannot write ", setts.name() );
+	uiMSG().error( tr("Cannot write %1").arg(setts.name()) );
 	return false;
     }
     return true;
@@ -301,29 +301,29 @@ mUpdateSettings( const OD::String&, set )
 
 // uiGeneralSettingsGroup
 uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,"General",setts)
+    : uiSettingsGroup(p,tr("General"),setts)
     , iconsz_(theiconsz < 0 ? uiObject::iconSize() : theiconsz)
     , vertcoltab_(true)
     , showinlprogress_(true)
     , showcrlprogress_(true)
 {
-    iconszfld_ = new uiGenInput( this, "Icon Size",
+    iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
 
     setts_.getYN( mCBarKey, vertcoltab_ );
-    colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
-		BoolInpSpec(vertcoltab_,"Vertical","Horizontal") );
+    colbarhvfld_ = new uiGenInput( this, tr("Color bar orientation"),
+		BoolInpSpec(vertcoltab_,tr("Vertical"),tr("Horizontal")) );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
     setts_.getYN( mShowInlProgress, showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this,
-	    "Show progress when loading stored data on in-lines",
+	    tr("Show progress when loading stored data on in-lines"),
 	    BoolInpSpec(showinlprogress_) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
     setts_.getYN( mShowCrlProgress, showcrlprogress_ );
     showcrlprogressfld_ = new uiGenInput( this,
-	    "Show progress when loading stored data on cross-lines",
+	    tr("Show progress when loading stored data on cross-lines"),
 	    BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
 }
@@ -370,24 +370,24 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     , usevolshaders_(true)
 {
     setts_.getYN( mUseSurfShaders, usesurfshaders_ );
-    usesurfshadersfld_ = new uiGenInput( this,
-					 "Use OpenGL shading when available",
-					 BoolInpSpec(usesurfshaders_) );
+    usesurfshadersfld_ = new uiGenInput(this,
+					tr("Use OpenGL shading when available"),
+					BoolInpSpec(usesurfshaders_) );
     usesurfshadersfld_->valuechanged.notify(
 				mCB(this,uiVisSettingsGroup,shadersChange) );
     setts_.getYN( mUseVolShaders, usevolshaders_ );
-    usevolshadersfld_ = new uiGenInput( this, "Also for volume rendering?",
+    usevolshadersfld_ = new uiGenInput( this, tr("Also for volume rendering?"),
 					BoolInpSpec(usevolshaders_) );
     usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
 
     setts_.get( mTextureResFactor, textureresfactor_ );
     uiLabeledComboBox* lcb =
-	new uiLabeledComboBox( this, "Default texture resolution" );
+	new uiLabeledComboBox( this, tr("Default texture resolution") );
     lcb->attach( alignedBelow, usevolshadersfld_ );
     textureresfactorfld_ = lcb->box();
-    textureresfactorfld_->addItem( "Standard" );
-    textureresfactorfld_->addItem( "Higher" );
-    textureresfactorfld_->addItem( "Highest" );
+    textureresfactorfld_->addItem( tr("Standard") );
+    textureresfactorfld_->addItem( tr("Higher") );
+    textureresfactorfld_->addItem( tr("Highest") );
 
     int selection = 0;
 
@@ -398,7 +398,7 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
     if ( envvar && isdigit(*envvar) )
     {
-	textureresfactorfld_->addItem( "System default" );
+	textureresfactorfld_->addItem( tr("System default") );
 	if ( textureresfactor_ == -1 )
 	    selection = 3;
     }
@@ -443,7 +443,7 @@ void uiVisSettingsGroup::shadersChange( CallBacker* )
 
 // uiSettingsDlg
 uiSettingsDlg::uiSettingsDlg( uiParent* p )
-    : uiTabStackDlg(p,uiDialog::Setup("OpendTect Settings",mNoDlgTitle,
+    : uiTabStackDlg(p,uiDialog::Setup(tr("OpendTect Settings"),mNoDlgTitle,
 				      mODHelpKey(mLooknFeelSettingsHelpID)))
     , setts_(Settings::common())
     , changed_(false)
@@ -479,7 +479,7 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
 
     if ( changed_ && !setts_.write() )
     {
-	uiMSG().error( "Cannot write settings" );
+	uiMSG().error( tr("Cannot write settings") );
 	return false;
     }
 
