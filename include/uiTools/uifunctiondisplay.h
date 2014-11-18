@@ -15,14 +15,16 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uigraphicsview.h"
 #include "draw.h"
-class uiGraphicsScene;
-class uiGraphicsItem;
+
 class uiAxisHandler;
-class uiRectItem;
+class uiGraphicsItem;
+class uiGraphicsItemGroup;
+class uiGraphicsScene;
 class uiLineItem;
 class uiPolygonItem;
 class uiPolyLineItem;
-class uiGraphicsItemGroup;
+class uiRectItem;
+class uiTextItem;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
 
@@ -34,7 +36,7 @@ class uiGraphicsItemGroup;
  */
 
 mExpClass(uiTools) uiFunctionDisplay : public uiGraphicsView
-{ mODTextTranslationClass(uiFunctionDisplay);
+{ mODTextTranslationClass(uiFunctionDisplay)
 public:
 
     struct Setup
@@ -137,6 +139,7 @@ public:
 				uiFunctionDisplay(uiParent*,const Setup&);
 				~uiFunctionDisplay();
 
+    void			setTitle(const uiString&);
     void			setVals(const float* xvals,
 	    				const float* yvals,int sz);
     void			setVals(const Interval<float>&,
@@ -194,6 +197,8 @@ protected:
     uiLineItem*			ymarklineitem_;
     uiLineItem*			xmarkline2item_;
     uiLineItem*			ymarkline2item_;
+    uiTextItem*			titleitem_;
+
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
     TypeSet<float>		y2xvals_;

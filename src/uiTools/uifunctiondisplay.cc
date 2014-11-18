@@ -42,6 +42,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , xmarkline2item_(0)
     , ymarkline2item_(0)
     , borderrectitem_(0)
+    , titleitem_(0)
     , pointSelected(this)
     , pointChanged(this)
     , mousedown_(false)
@@ -112,6 +113,7 @@ void uiFunctionDisplay::cleanUp()
     ymarkeritems_ = y2markeritems_ = 0;
     xmarklineitem_ = ymarklineitem_ = xmarkline2item_ = ymarkline2item_ = 0;
     ypolyitem_ = y2polyitem_ = 0;
+    delete titleitem_; titleitem_ = 0;
 }
 
 
@@ -122,6 +124,19 @@ void uiFunctionDisplay::reSized( CallBacker* )
 
 void uiFunctionDisplay::saveImageAs( CallBacker* )
 {
+}
+
+
+void uiFunctionDisplay::setTitle( const uiString& title )
+{
+    if ( !titleitem_ )
+    {
+	titleitem_ = scene().addItem( new uiTextItem() );
+	titleitem_->setPos( uiPoint(width()/2,0) );
+	titleitem_->setZValue( 2 );
+    }
+
+    titleitem_->setText( title );
 }
 
 
@@ -522,9 +537,12 @@ void uiFunctionDisplay::drawBorder()
 
 void uiFunctionDisplay::draw()
 {
-    if ( yvals_.isEmpty() ) return;
-    const bool havey2 = !y2xvals_.isEmpty();
+    if ( titleitem_ )
+	titleitem_->setPos( uiPoint(width()/2,0) );
 
+    if ( yvals_.isEmpty() ) return;
+
+    const bool havey2 = !y2xvals_.isEmpty();
     setUpAxis( havey2 );
 
     TypeSet<uiPoint> yptlist, y2ptlist;
@@ -539,6 +557,7 @@ void uiFunctionDisplay::draw()
 	drawMarker(y2ptlist,true);
     else if ( y2markeritems_ )
 	y2markeritems_->setVisible( false );
+
     drawBorder();
     drawMarkLines();
 }
