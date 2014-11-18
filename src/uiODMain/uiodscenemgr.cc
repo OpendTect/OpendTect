@@ -194,7 +194,8 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     scn.mdiwin_->setTitle( title );
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display( true );
-    scn.sovwr_->setAnnotationFont( visscene->getAnnotFont() );
+    scn.sovwr_->setAnnotationFont( visscene ? visscene->getAnnotFont()
+					    : FontData() );
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.mdiwin_->display( true, false, maximized );
