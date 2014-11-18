@@ -103,7 +103,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 
 void uiMPEMan::addButtons()
 {
-    mAddButton( "tools", showSettingsCB, "Settings", false );
+    mAddButton( "tools", showSettingsCB, tr("Settings"), false );
 
     seedconmodefld = new uiComboBox( toolbar, "Seed connect mode" );
     seedconmodefld->setToolTip( tr("Seed connect mode") );
@@ -163,7 +163,7 @@ void uiMPEMan::addButtons()
 
     polyselectidx =  mAddButton( "polygonselect", selectionMode,
 				 tr("Polygon Selection mode"), true );
-    uiMenu* polymnu = new uiMenu( toolbar, "PolyMenu" );
+    uiMenu* polymnu = new uiMenu( toolbar, tr("PolyMenu") );
     mAddMnuItm( polymnu,uiStrings::sPolygon(), handleToolClick, "polygonselect",
                 0 );
     mAddMnuItm( polymnu,uiStrings::sRectangle(),handleToolClick,
@@ -269,11 +269,11 @@ void uiMPEMan::seedClick( CallBacker* )
 	    uiMSG().error( tr("3D tracking cannot handle picks on 2D lines.") );
 	else if ( randomdisp )
 	    uiMSG().error( emobj->getTypeStr(),
-			   "Tracking cannot handle picks on random lines." );
+			   tr("Tracking cannot handle picks on random lines."));
 	else if ( clickcatcher->info().getObjCS().nrZ()==1 &&
 		  !clickcatcher->info().getObjCS().isEmpty() )
 	    uiMSG().error( emobj->getTypeStr(),
-			   "Tracking cannot handle picks on time slices." );
+			   tr("Tracking cannot handle picks on time slices.") );
 	mSeedClickReturn();
     }
 
@@ -314,9 +314,9 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( chanceoferror )
 	    {
-		uiMSG().error( tr("Saved setup has different attribute. \n"
-			       "Either change setup attribute or change\n"
-			       "display attribute you want to track on") );
+		uiMSG().error(tr("Saved setup has different attribute. \n"
+			         "Either change setup attribute or change\n"
+			         "display attribute you want to track on"));
 		mSeedClickReturn();
 	    }
 	}
@@ -336,14 +336,14 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	    if ( chanceoferror )
 	    {
-		BufferString warnmsg( "Setup suggests tracking is done on: '",
-				      trackedatsel->userRef(), "'\n" );
-		warnmsg.add( "but what you see is: '" )
-		       .add( clickedas->userRef() ).add( "'.\n" )
-		       .add( "To continue seed picking either " )
-		       .add( "change displayed attribute or\n" )
-		       .add( "change input data in Tracking Setup." );
-		uiMSG().error( warnmsg.buf() );
+		uiString warnmsg = tr("Setup suggests tracking is done on: "
+				      "'%1'\nbut what you see is: '%2'.\n"
+				      "To continue seed picking either "
+				      "change displayed attribute or\n"
+				      "change input data in Tracking Setup.")
+				 .arg(trackedatsel->userRef())
+				 .arg(clickedas->userRef());
+		uiMSG().error( warnmsg );
 		mSeedClickReturn();
 	    }
 	}
@@ -389,8 +389,8 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	if ( !clickedas || !h2dsp || !h2dsp->canAddSeed(*clickedas) )
 	{
-	    uiMSG().error( tr("2D tracking requires attribute from setup "
-			   "to be displayed") );
+	    uiMSG().error(tr("2D tracking requires attribute from setup "
+			     "to be displayed"));
 	    mSeedClickReturn();
 	}
 	if ( datapackid > DataPack::cNoID() )
@@ -793,16 +793,16 @@ void uiMPEMan::showCubeCB( CallBacker* )
 
 
 class uiSetCubePosDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSetCubePosDlg);
 public:
 uiSetCubePosDlg( uiParent* p, const TrcKeyZSampling& cs )
-    : uiDialog(p,uiDialog::Setup("Set Cube Position",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Set Cube Position"),mNoDlgTitle,
                                     mTODOHelpKey))
 {
     selfld_ = new uiSelSubvol( this, false );
     selfld_->setSampling( cs );
     fullbut_ = new uiToolButton( this, "exttofullsurv",
-				"Set ranges to full survey",
+				tr("Set ranges to full survey"),
 				 mCB(this,uiSetCubePosDlg,fullPush) );
     fullbut_->attach( rightOf, selfld_ );
 }
@@ -1065,7 +1065,7 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 		    addItem( typ##SeedPicker::seedConModeText(idx,true) ); \
 	} \
 	if ( typ##SeedPicker::nrSeedConnectModes()<=0 ) \
-	    seedconmodefld->addItem(tr("No seed mode")); \
+	    seedconmodefld->addItem("No seed mode"); \
     }
 
 
@@ -1314,7 +1314,7 @@ void uiMPEMan::workAreaChgCB( CallBacker* )
 
 
 class uiPropertiesDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiPropertiesDialog);
 public:
 				uiPropertiesDialog(uiMPEMan*);
 
@@ -1341,7 +1341,8 @@ protected:
 
 uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     : uiDialog( mpeman->getToolBar(),
-	    uiDialog::Setup("QC display properties",uiStrings::sEmptyString(),
+	    uiDialog::Setup(tr("QC display properties"),
+			    uiStrings::sEmptyString(),
                             mNoHelpKey).modal(false))
     , mpeman_(mpeman)
 {
@@ -1357,10 +1358,10 @@ uiPropertiesDialog::uiPropertiesDialog( uiMPEMan* mpeman )
     coltbl_->mapperChange().notify( mCB(this,uiPropertiesDialog,
 					colMapperChange) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "QC Attribute",
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tr("QC Attribute"),
 						    "QC Attribute" );
     attribfld_ = lcb->box();
-    attribfld_->setToolTip( "QC Attribute" );
+    attribfld_->setToolTip( tr("QC Attribute") );
     attribfld_->selectionChanged.notify( mCB(mpeman_,uiMPEMan,attribSel) );
     lcb->attach( leftAlignedBelow, coltabgrp );
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uivismod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 namespace visSurvey { class SurveyObject; }
 namespace ColTab { class Sequence; class MapperSetup; }
@@ -22,7 +23,7 @@ class uiColorTable;
 
 
 mExpClass(uiVis) uiVisColTabEd : public CallBacker
-{
+{ mODTextTranslationClass(uiVisColTabEd);
 public:
     				uiVisColTabEd(uiColorTable&);
 				~uiVisColTabEd();
@@ -73,7 +74,7 @@ protected:
 
 
 mExpClass(uiVis) uiColorBarDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiColorBarDialog);
 public:
     				uiColorBarDialog(uiParent*,const char* title);
 

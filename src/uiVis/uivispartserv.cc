@@ -294,8 +294,9 @@ bool uiVisPartServer::clickablesInScene( const char* trackertype,
 	}
     }
 
-    uiMSG().warning("The scene does not yet contain any object on which seeds\n"
-		    "for a '", trackertype, "' can be picked." );
+    uiMSG().warning(tr("The scene does not yet contain any object "
+		       "on which seeds\nfor a '%1' can be picked.")
+		  .arg(trackertype));
     return false;
 }
 
@@ -1288,15 +1289,15 @@ void uiVisPartServer::toHome( CallBacker* )
 
 
 class uiWorkAreaDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWorkAreaDlg);
 public:
 uiWorkAreaDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Set work volume",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Set work volume"),mNoDlgTitle,
                                     mODHelpKey(mWorkAreaDlgHelpID) ) )
 {
     selfld_ = new uiSelSubvol( this, false );
     fullbut_ = new uiToolButton( this, "exttofullsurv",
-				"Set ranges to full survey",
+				tr("Set ranges to full survey"),
 				 mCB(this,uiWorkAreaDlg,fullPush) );
     fullbut_->attach( rightOf, selfld_ );
 }
@@ -1665,12 +1666,11 @@ void uiVisPartServer::removeSelection()
 	    if ( !so ) continue;
 	    if ( so->canRemoveSelection() )
 	    {
-		BufferString msg = "Are you sure you want to \n"
-		    "remove selected part of ";
-		msg += getObjectName( selobjectid );
-		msg += "?";
+		uiString msg = tr("Are you sure you want to \n"
+				  "remove selected part of %1?")
+			     .arg(getObjectName( selobjectid ));
 
-		if ( uiMSG().askContinue(msg.buf()) )
+		if ( uiMSG().askContinue(msg) )
 		{
 		    uiTaskRunner taskrunner( appserv().parent() );
 		    so->removeSelection( *sel, &taskrunner );

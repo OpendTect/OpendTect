@@ -23,12 +23,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSurvTopBotImageGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiSurvTopBotImageGrp);
 public:
 
 uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 			const StepInterval<float>& zrng )
-    : uiGroup(p,istop?"Top img grp":"Bot img grp")
+    : uiGroup(p, istop ? "Top img grp" : "Bot img grp")
     , dlg_(p)
     , istop_(istop)
     , img_(p->scene_->getTopBotImage(istop))
@@ -44,7 +44,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 #define mAddCoordchgCB( notif ) \
      mAttachCB( notif, uiSurvTopBotImageGrp::coordChg );
 
-    uiSlider::Setup slsu( "Vertical position (Z)" );
+    uiSlider::Setup slsu( tr("Vertical position (Z)") );
     slsu.withedit( true );
     slsu.isvertical( true );
     slsu.sldrsize( 100 );
@@ -58,12 +58,12 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
 
     const Coord mincrd = SI().minCoord(true);
     const Coord maxcrd = SI().maxCoord(true);
-    tlfld_ = new uiGenInput( this, "NorthWest (TopLeft) Coordinate",
+    tlfld_ = new uiGenInput( this, tr("NorthWest (TopLeft) Coordinate"),
 			     PositionInpSpec(Coord(mincrd.x,maxcrd.y)) );
     tlfld_->attach( leftAlignedBelow, fnmfld_ );
     mAddCoordchgCB( tlfld_->valuechanged );
 
-    brfld_ = new uiGenInput( this, "SouthEast (BottomRight) Coordinate",
+    brfld_ = new uiGenInput( this, tr("SouthEast (BottomRight) Coordinate"),
 			     PositionInpSpec(Coord(maxcrd.x,mincrd.y)) );
     brfld_->attach( alignedBelow, tlfld_ );
     mAddCoordchgCB( brfld_->valuechanged );

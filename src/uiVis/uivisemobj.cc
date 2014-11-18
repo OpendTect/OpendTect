@@ -541,7 +541,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesectionnamemnuitem_.id )
     {
 	StringInpSpec* spec = new StringInpSpec( emobj->sectionName(sid) );
-	uiGenInputDlg dlg(uiparent_,"Change section-name", "Name", spec);
+	uiGenInputDlg dlg(uiparent_,tr("Change section-name"), "Name", spec);
 	while ( dlg.go() )
 	{
 	    if ( emobj->setSectionName(sid,dlg.text(), true ) )
@@ -796,7 +796,7 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
 
     resolution_ = 0;
     setts.get( sKeyHorizonRes, resolution_ );
-    resolutionfld_ = new uiGenInput( this, "Default Resolution",
+    resolutionfld_ = new uiGenInput( this, tr("Default Resolution"),
 				     StringListInpSpec(sResolutionNames) );
     resolutionfld_->setValue( resolution_ );
 
@@ -805,7 +805,7 @@ uiHorizonSettings::uiHorizonSettings( uiParent* p, Settings& setts )
     coltabfld_ = new uiColorTableGroup( this, ColTab::Sequence(coltabnm_) );
     coltabfld_->attach( alignedBelow, resolutionfld_ );
 
-    uiLabel* lbl = new uiLabel( this, "Default Colortable" );
+    uiLabel* lbl = new uiLabel( this, tr("Default Colortable") );
     lbl->attach( leftOf, coltabfld_ );
 }
 

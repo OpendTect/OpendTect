@@ -32,7 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 // uiPropertiesDlg
 uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
-    : uiTabStackDlg(p,uiDialog::Setup("Display properties",
+    : uiTabStackDlg(p,uiDialog::Setup(tr("Display properties"),
 				      mNoDlgTitle, 
                                       mODHelpKey(mPropertiesDlgHelpID) ))
     , survobj_(so)
@@ -69,11 +69,11 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
 
 // uiLineStyleGrp
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
-    : uiDlgGroup(p,"Line style")
+    : uiDlgGroup(p,tr("Line style"))
     , survobj_(so)
     , backup_(*so->lineStyle())
 {
-    uiSelLineStyle::Setup lssu( "Line style" );
+    uiSelLineStyle::Setup lssu( tr("Line style") );
     lssu.drawstyle(false).color(so->hasSpecificLineColor());
     field_ = new uiSelLineStyle( this, backup_, lssu );
       // TODO: include drawstyle after properly implementing all line styles.
@@ -104,7 +104,7 @@ bool uiLineStyleGrp::rejectOK( CallBacker* )
 // uiTextureInterpolateGrp
 uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 						  visSurvey::SurveyObject* so )
-    : uiDlgGroup(p,"Texture")
+    : uiDlgGroup(p,tr("Texture"))
     , survobj_(so)
 {
     if ( !so || !so->canEnableTextureInterpolation() )
@@ -112,8 +112,8 @@ uiTextureInterpolateGrp::uiTextureInterpolateGrp( uiParent* p,
 
     const bool intpenabled = so->textureInterpolationEnabled();
 
-    textclasssify_ = new uiGenInput( this, "Data:   ",
-	    BoolInpSpec(intpenabled,"Interpolation","Classification") );
+    textclasssify_ = new uiGenInput( this, tr("Data:   "),
+	    BoolInpSpec(intpenabled,tr("Interpolation"),tr("Classification")) );
     textclasssify_->valuechanged.notify(
 	    mCB(this,uiTextureInterpolateGrp,chgIntpCB) );
 }

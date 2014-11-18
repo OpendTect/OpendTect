@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uivismod.h"
 #include "uidialog.h"
 #include "ui3dviewer.h"
-
+#include "uistring.h"
 #include "color.h"
 #include "trckeyzsampling.h"
 #include "fontdata.h"

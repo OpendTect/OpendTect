@@ -68,7 +68,7 @@ uiVisDataPointSetDisplayMgr::~uiVisDataPointSetDisplayMgr()
 
 
 class uiSetSizeDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSetSizeDlg);
 public:
 uiSetSizeDlg( uiParent * p, visSurvey::PointSetDisplay* disp )
     : uiDialog( p, uiDialog::Setup("Set size of points", 0, mNoHelpKey) )
@@ -132,16 +132,18 @@ void uiVisDataPointSetDisplayMgr::createMenuCB( CallBacker* cb )
 
 
 class uiCreateBodyDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiCreateBodyDlg);
 public:
 uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
-    : uiDialog(p,uiDialog::Setup("Body Creation","Create new Body",mNoHelpKey))
+    : uiDialog(p,uiDialog::Setup("Body Creation",tr("Create new Body"),
+				 mNoHelpKey))
     , selfld_( 0 )
     , rgfld_( 0 )
 {
     if ( dispprop.showSelected() )
     {
-	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,"Selection Group");
+	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,
+						       tr("Selection Group"));
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
@@ -156,7 +158,7 @@ uiCreateBodyDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     }
     else
     {
-	rgfld_ = new uiGenInput( this, "Create body from value range",
+	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
 				 FloatInpIntervalSpec(false) );
 	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
     }
@@ -177,7 +179,7 @@ Interval<float> getValRange() const
 
 
 class uiCreatePicksDlg : public uiCreatePicks
-{
+{ mODTextTranslationClass(uiCreatePicksDlg);
 public:
 
 uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
@@ -187,7 +189,8 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
 {
     if ( dispprop.showSelected() )
     {
-	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,"Selection Group");
+	uiLabeledComboBox* cbx = new uiLabeledComboBox(this,
+						       tr("Selection Group"));
 	selfld_ = cbx->box();
 	BufferStringSet selgrpnms = dispprop.selGrpNames();
 	TypeSet<Color> selgrpcols = dispprop.selGrpColors();
@@ -204,7 +207,7 @@ uiCreatePicksDlg( uiParent* p, const DataPointSetDisplayProp& dispprop )
     }
     else
     {
-	rgfld_ = new uiGenInput( this, "Create body from value range",
+	rgfld_ = new uiGenInput( this, tr("Create body from value range"),
 				 FloatInpIntervalSpec(false) );
 	rgfld_->setValue( dispprop.colMapperSetUp().range_ );
 	addStdFields( rgfld_->attachObj() );

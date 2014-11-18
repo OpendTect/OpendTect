@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uidlggroup.h"
 #include "draw.h"
+#include "uistring.h"
 
 class uiColorInput;
 class uiGenInput;
@@ -60,7 +61,7 @@ protected:
 
 
 mExpClass(uiVis) uiLineStyleGrp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiLineStyleGrp);
 public:
     				uiLineStyleGrp(uiParent*,
 					       visSurvey::SurveyObject*);
@@ -79,7 +80,7 @@ protected:
 
 
 mExpClass(uiVis) uiTextureInterpolateGrp : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiTextureInterpolateGrp);
 public:
 				uiTextureInterpolateGrp(uiParent*,
 					visSurvey::SurveyObject*);
@@ -92,7 +93,7 @@ protected:
 
 
 mExpClass(uiVis) uiPropertiesDlg : public uiTabStackDlg
-{
+{ mODTextTranslationClass(uiPropertiesDlg);
 public:
 				uiPropertiesDlg(uiParent*,
 						visSurvey::SurveyObject*);

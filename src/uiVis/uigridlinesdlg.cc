@@ -62,7 +62,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     LineStyle lst;
     pdd->gridlines()->getLineStyle( lst );
 
-    lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
+    lsfld_ = new uiSelLineStyle( this, lst, tr("Line style") );
     if ( zfld_ )
     {
 	zfld_->attach( leftAlignedBelow, inlfld_ ? inlspacingfld_
@@ -72,14 +72,14 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     else
 	lsfld_->attach( alignedBelow, crlspacingfld_ );
 
-    BufferString allmsg("Apply to all loaded ");
+    uiString allmsg = tr("Apply to all loaded %1");
     if ( OD::InlineSlice == pdd_->getOrientation() )
-	allmsg += "inlines";
+	allmsg.arg(tr("inlines"));
     else if ( OD::CrosslineSlice == pdd_->getOrientation() )
-	allmsg += "crosslines";
+	allmsg.arg(tr("crosslines"));
     else
-	allmsg += "z slices";
-    applyallfld_ = new uiCheckBox( this, allmsg.buf() );
+	allmsg.arg(tr("z slices"));
+    applyallfld_ = new uiCheckBox( this, allmsg );
     applyallfld_->setChecked( true );
     applyallfld_->attach( alignedBelow, lsfld_ );
 
@@ -172,7 +172,8 @@ void uiGridLinesDlg::setParameters()
     {
 	zfld_->setChecked( pdd_->gridlines()->areZlinesShown() );
 	zspacingfld_->setValue(
-		StepInterval<int>(mNINT32(cs.zsamp_.start),mNINT32(cs.zsamp_.stop),
+		StepInterval<int>(mNINT32(cs.zsamp_.start),
+				  mNINT32(cs.zsamp_.stop),
 				  mNINT32(cs.zsamp_.step)) );
     }
 

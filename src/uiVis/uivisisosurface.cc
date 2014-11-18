@@ -50,7 +50,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     modefld_->valuechanged.notify( 
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
     
-    seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), "Seeds" );
+    seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), tr("Seeds") );
     seedselfld_->setForRead( true );
     MultiID mid = vd->getSeedsID( isosurface );
     if ( !mid.isEmpty() )

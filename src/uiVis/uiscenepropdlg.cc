@@ -98,11 +98,11 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
 
-    uiPushButton* scalebut = new uiPushButton(this, "Set",
+    uiPushButton* scalebut = new uiPushButton(this, tr("Set"),
 			mCB(this,uiScenePropertyDlg,setAnnotScaleCB), false);
     scalebut->attach( rightOf, annotscalefld_ );
 
-    annotgridfld_ = new uiCheckBox( this, "Annotation grid" );
+    annotgridfld_ = new uiCheckBox( this, tr("Annotation grid") );
     annotgridfld_->setChecked( hadannotgrid_ );
     annotgridfld_->attach( alignedBelow, annotscalefld_ );
     annotgridfld_->activated.notify(mCB(this,uiScenePropertyDlg,updateCB) );
@@ -292,7 +292,7 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 		new FloatInpSpec( scene_->getPolygonOffset()->getUnits() ));
 
 	separationdlg_ =
-	    new uiGenInputDlg( this, "Line/Surface separation", entries );
+	    new uiGenInputDlg( this, tr("Line/Surface separation"), entries );
 	separationdlg_->setHelpKey(
             mODHelpKey(mScenePropertyDlgLineSurfSepHelpID) );
     }
@@ -316,7 +316,7 @@ void uiScenePropertyDlg::setOffsetCB( CallBacker* )
 	}
 
 	uiMSG().error(tr("Both Factor and Units must be defined and "
-		      "more than 1.") );
+			 "more than 1.") );
     }
 }
 

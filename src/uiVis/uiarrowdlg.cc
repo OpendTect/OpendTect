@@ -22,7 +22,7 @@ static const char* arrowtypes[] = { "Top", "Bottom", "Both", 0 };
 
 
 uiArrowDialog::uiArrowDialog( uiParent* p )
-    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Arrow properties"),mNoDlgTitle,mTODOHelpKey))
     , propertyChange(this)
 {
     setCancelText(0);
