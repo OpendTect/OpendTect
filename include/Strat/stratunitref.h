@@ -68,6 +68,8 @@ public:
     NodeUnitRef*	upNode(int skip=0);
     const NodeUnitRef*	upNode( int skip=0 ) const
     			{ return ((UnitRef*)this)->upNode( skip ); }
+    void		setUpNode(NodeUnitRef* newpar)
+			{ upnode_ = newpar; }
     NodeUnitRef*	topNode();
     const NodeUnitRef*	topNode() const;
     RefTree&		refTree(); // is the topNode
