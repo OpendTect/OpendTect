@@ -251,6 +251,7 @@ void uiStratRefTree::insertSubUnit( uiTreeViewItem* lvit )
 	    for ( int iref=parun->nrRefs()-1; iref>=0; iref-- )
 		removeUnit( lvit->getChild( iref ) );
 	    parun = replaceUnit( *parun, false );
+	    tmpun.setUpNode( 0 );
 	}
 	if ( parun )
 	{
