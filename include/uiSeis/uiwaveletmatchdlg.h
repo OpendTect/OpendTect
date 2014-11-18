@@ -30,7 +30,9 @@ public:
 protected:
 
     void		inpSelCB(CallBacker*);
+    void		filterSzCB(CallBacker*);
     bool		acceptOK(CallBacker*);
+    bool		calcFilter();
 
     uiFunctionDisplay*	wvlt0disp_;
     uiFunctionDisplay*	wvlt1disp_;
@@ -38,7 +40,7 @@ protected:
 
     uiWaveletSel*	wvlt0fld_;
     uiWaveletSel*	wvlt1fld_;
-    uiWaveletSel*	outwvltfld_;
+    uiWaveletSel*	wvltoutfld_;
     uiGenInput*		filterszfld_;
 
     MultiID		wvltid_;

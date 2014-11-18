@@ -200,14 +200,14 @@ void uiSeisWaveletSel::rebuildList()
 
 uiWaveletSel::uiWaveletSel( uiParent* p, bool forread, const char* seltxt )
     : uiIOObjSel(p,mIOObjContext(Wavelet),mSelTxt)
-{ setForRead( forread ); }
+{
+    setForRead( forread );
+    fillEntries();
+}
 
 
 Wavelet* uiWaveletSel::getWavelet() const
 {
-/*
-    const IOObj* ioobj = ioobj();
-    return ioobj ? Wavelet::get( ioobj ) : 0;
-    */
-    return 0;
+    const IOObj* selioobj = ioobj();
+    return selioobj ? Wavelet::get( selioobj ) : 0;
 }
