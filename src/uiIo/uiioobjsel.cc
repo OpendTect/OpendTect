@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ctxtioobj.h"
 #include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "linekey.h"
@@ -251,6 +252,24 @@ void uiIOObjSel::fillDefault()
 {
     if ( setup_.filldef_ && !workctio_.ioobj && workctio_.ctxt.forread )
 	workctio_.fillDefault();
+}
+
+
+void uiIOObjSel::fillEntries()
+{
+    if ( !inctio_.ctxt.forread )
+	return;
+
+    const IODir iodir ( inctio_.ctxt.getSelKey() );
+    IODirEntryList del( iodir, inctio_.ctxt );
+    BufferStringSet keys;
+    for ( int idx=0; idx<del.size(); idx++ )
+    {
+	const IOObj* obj = del[idx]->ioobj_;
+	if ( obj ) keys.add( obj->key().buf() );
+    }
+
+    addToHistory( keys );
 }
 
 

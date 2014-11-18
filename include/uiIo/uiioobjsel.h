@@ -70,6 +70,7 @@ public:
     virtual void	usePar(const IOPar&);
     void		usePar(const IOPar&,const char* baseky);
 
+    void		fillEntries(); //!< only if forread
     void		setForRead(bool);
     void		setConfirmOverwrite( bool yn )
 					{ setup_.confirmoverwr_ = yn; }
