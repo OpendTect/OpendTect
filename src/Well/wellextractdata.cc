@@ -1072,16 +1072,9 @@ bool Well::LogSampler::doPrepare( int thread )
     Interval<float> dahrg;
     mGetDah( dahrg.start, zrg_.start, zrgisintime_ )
     mGetDah( dahrg.stop, zrg_.stop, zrgisintime_ )
-    bool rgstartabovekb = dahrg.start+1e-2f < track_.dahRange().start;
-    bool rgstopbelowtd = dahrg.stop-1e-2f > track_.dahRange().stop;
-    if ( dahrg.isUdf() || rgstartabovekb || rgstopbelowtd )
+    dahrg.limitTo( track_.dahRange() );
+    if ( dahrg.isUdf() )
     {
-	if ( rgstartabovekb )
-	    mErrRet( "Cannot extract data above well head" )
-
-	if ( rgstopbelowtd )
-	    mErrRet( "Cannot extract data below TD" )
-
 	mErrRet( "Wrong extraction boundaries" )
     }
 
