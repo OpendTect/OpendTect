@@ -461,9 +461,9 @@ uiArray2DInterpol* uiExtensionArray2DInterpol::create( uiParent* p )
 
 
 uiExtensionArray2DInterpol::uiExtensionArray2DInterpol(uiParent* p)
-    : uiArray2DInterpol( p, "Extension" )
+    : uiArray2DInterpol( p, tr("Extension") )
 {
-    nrstepsfld_ = new uiGenInput( this, "Number of steps", IntInpSpec(20) );
+    nrstepsfld_ = new uiGenInput( this, tr("Number of steps"), IntInpSpec(20) );
     setHAlignObj( nrstepsfld_ );
 }
 
@@ -476,7 +476,7 @@ bool uiExtensionArray2DInterpol::acceptOK()
 {
     if ( nrstepsfld_->getIntValue()<1 )
     {
-	uiMSG().error( "Nr steps must be > 0." );	
+	uiMSG().error( tr("Nr steps must be > 0.") );	
 	return false;
     }
 
@@ -493,17 +493,17 @@ bool uiExtensionArray2DInterpol::acceptOK()
 
 uiInvDistInterpolPars::uiInvDistInterpolPars( uiParent* p, bool cornersfirst,
 					      int stepsz, int nrsteps )
-    : uiDialog(p,Setup("Inverse distance - parameters",
-		       "Inverse distance with search radius",
+    : uiDialog(p,Setup(tr("Inverse distance - parameters"),
+		       tr("Inverse distance with search radius"),
                        mODHelpKey(mInverseDistanceArray2DInterpolHelpID) ) )
 {
-    cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
+    cornersfirstfld_ = new  uiGenInput( this, tr("Compute corners first"),
 					BoolInpSpec(cornersfirst) );
 
-    stepsizefld_ = new uiGenInput( this, "Step size", IntInpSpec(stepsz) );
+    stepsizefld_ = new uiGenInput( this, tr("Step size"), IntInpSpec(stepsz) );
     stepsizefld_->attach( alignedBelow, cornersfirstfld_ );
 
-    nrstepsfld_ = new uiGenInput( this, "[Nr steps]", IntInpSpec(nrsteps) );
+    nrstepsfld_ = new uiGenInput( this, tr("[Nr steps]"), IntInpSpec(nrsteps) );
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
 }
 
@@ -523,12 +523,12 @@ bool uiInvDistInterpolPars::acceptOK( CallBacker* )
 
     if ( mIsUdf(stepsize) || stepsize<1 )
     {
-	uiMSG().error( "Step size must set and > 0. In doubt, use 1." );
+	uiMSG().error( tr("Step size must set and > 0. In doubt, use 1.") );
 	return false;
     }
     if ( (!mIsUdf(nrsteps) && nrsteps<1 ) )
     {
-	uiMSG().error( "Nr steps must be > 0. In doubt, leave empty." );
+	uiMSG().error( tr("Nr steps must be > 0. In doubt, leave empty.") );
 	return false;
     }
 

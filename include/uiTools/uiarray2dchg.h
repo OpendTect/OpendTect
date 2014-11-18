@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "array2dfilter.h"
 #include "uigroup.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiStepOutSel;
@@ -38,7 +39,7 @@ protected:
 
 
 mExpClass(uiTools) uiArr2DFilterParsDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiArr2DFilterParsDlg);
 public:
 
 			uiArr2DFilterParsDlg(uiParent*,

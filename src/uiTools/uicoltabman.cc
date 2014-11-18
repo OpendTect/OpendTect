@@ -256,12 +256,12 @@ void uiColorTableMan::removeCB( CallBacker* )
     }
 
     const char* ctnm = ctab_.name();
-    BufferString msg( selstatus_ == sKeyEdited ? "Edited colortable '"
-					       : "Own made colortable '" );
-    msg += ctnm; msg += "' will be removed";
-    if ( selstatus_ == sKeyEdited )
-	msg += "\nand replaced by the default";
-    msg += ".\n"; msg += "Do you wish to continue?";
+    uiString msg(tr("%1 '%2' will be removed\n%3.\n Do you wish to continue?")
+	       .arg(selstatus_ == sKeyEdited ? tr("Edited colortable") 
+					     : tr("Own made colortable"))
+	       .arg(ctnm).arg(selstatus_ == sKeyEdited 
+					 ? tr("and replaced by the default\n")
+					 : uiStrings::sEmptyString()));
     if ( !uiMSG().askRemove( msg ) )
 	return;
 
@@ -297,7 +297,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
     BufferString newname = ctab_.name();
     if ( saveas )
     {
-	uiGenInputDlg dlg( this, "Colortable name", "Name",
+	uiGenInputDlg dlg( this, tr("Colortable name"), "Name",
 			   new StringInpSpec(newname) );
 	if ( !dlg.go() ) return false;
 	newname = dlg.text();
@@ -308,7 +308,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 
     const int newidx = ColTab::SM().indexOf( newname );
 
-    BufferString msg;
+    uiString msg;
     if ( newidx<0 )
 	newctab.setType( ColTab::Sequence::User );
     else
@@ -316,21 +316,21 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	ColTab::Sequence::Type tp = ColTab::SM().get(newidx)->type();
 	if ( tp == ColTab::Sequence::System )
 	{
-	    msg += "The default colortable will be replaced.\n"
-		   "Do you wish to continue?\n"
-		   "(Default colortable can be recovered by "
-		       "removing the edited one)";
+	    msg = tr("The default colortable will be replaced.\n"
+		     "Do you wish to continue?\n"
+		     "(Default colortable can be recovered by "
+		     "removing the edited one)");
 	    newctab.setType( ColTab::Sequence::Edited );
 	}
 	else if ( tp == ColTab::Sequence::User )
 	{
-	    msg += "Your own made colortable will be replaced\n"
-		   "Do you wish to continue?";
+	    msg = tr("Your own made colortable will be replaced\n"
+		     "Do you wish to continue?");
 	}
 	else if ( tp == ColTab::Sequence::Edited )
 	{
-	    msg += "The Edited colortable will be replaced\n"
-		   "Do you wish to continue?";
+	    msg = tr("The Edited colortable will be replaced\n"
+		     "Do you wish to continue?");
 	}
     }
 

@@ -82,8 +82,9 @@ void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 		bid = SI().transform(c);
 	    else
 	    {
-		BufferString msg( "Position ", bid.toString() );
-		msg += " is probably wrong.\nDo you wish to discard it?";
+		uiString msg = tr("Position %1 is probably wrong.\n"
+				  "Do you wish to discard it?")
+			     .arg(bid.toString());
 		if ( uiMSG().askGoOn(msg) )
 		{
 		    table_->removeRow( idx );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uitoolsmod.h"
 #include "uidialog.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 class uiColorInput;
 class uiColorTableCanvas;

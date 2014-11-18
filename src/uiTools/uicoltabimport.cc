@@ -109,8 +109,8 @@ void uiColTabImport::usrSel( CallBacker* )
     FilePath fp( dirfld_->fileName() );
     if ( !File::exists(fp.fullPath()) )
     {
-	uiMSG().error( "Please select an existing ",
-		       fromuser ? "directory" : "file" );
+	uiMSG().error(tr("Please select an existing %1")
+		    .arg(fromuser ? tr("directory") : tr("file")));
 	return;
     }
 
@@ -211,9 +211,9 @@ bool uiColTabImport::acceptOK( CallBacker* )
 	const int seqidx = ColTab::SM().indexOf( seq.name() );
 	if ( seqidx >= 0 )
 	{
-	    BufferString msg( "User colortable '" );
-	    msg += seq.name();
-	    msg += "' will replace the existing.\nOverwrite?";
+	    uiString msg = tr("User colortable '%1' " 
+			      "will replace the existing.\nOverwrite?")
+			 .arg(seq.name());
 	    doset = uiMSG().askOverwrite( msg );
 	}
 

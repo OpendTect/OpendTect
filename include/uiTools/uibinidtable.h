@@ -14,12 +14,13 @@
 
 #include "uitoolsmod.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiTable;
 
 mExpClass(uiTools) uiBinIDTable : public uiGroup
-{
+{ mODTextTranslationClass(uiBinIDTable);
 public:
 			uiBinIDTable(uiParent*,bool withz);
 

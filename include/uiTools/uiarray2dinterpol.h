@@ -66,7 +66,7 @@ protected:
 
 
 mExpClass(uiTools) uiArray2DInterpol : public uiDlgGroup
-{
+{ mODTextTranslationClass(uiArray2DInterpol);
 public:
     virtual void	setValuesFrom(const Array2DInterpol&)		{}
     			//*!Dose only work if provided object is of 'your' type.
@@ -87,7 +87,7 @@ protected:
 
 
 mExpClass(uiTools) uiInvDistInterpolPars : public uiDialog
-{
+{ mODTextTranslationClass(uiInvDistInterpolPars);
 public:
 
 			uiInvDistInterpolPars(uiParent* p,bool cornersfirst,
@@ -162,7 +162,7 @@ protected:
 
 
 mExpClass(uiTools) uiExtensionArray2DInterpol : public uiArray2DInterpol
-{
+{ mODTextTranslationClass(uiExtensionArray2DInterpol);
 public:
 
     				uiExtensionArray2DInterpol(uiParent*);

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uitoolbar.h"
 #include "flatview.h"
+#include "uistring.h"
 
 class uiAutoRangeClipDlg;
 class uiColorTableCanvas;
@@ -27,7 +28,7 @@ class uiLineEdit;
 namespace ColTab { class Sequence; class MapperSetup; }
 
 mExpClass(uiTools) uiColorTableSel : public uiComboBox
-{
+{ mODTextTranslationClass(uiColorTableSel);
 public:
 			uiColorTableSel(uiParent*,const char* nm);
 			~uiColorTableSel();
@@ -43,7 +44,7 @@ protected:
 
 
 mExpClass(uiTools) uiColorTable : public CallBacker
-{
+{ mODTextTranslationClass(uiColorTable);
 public:
     virtual		~uiColorTable();
     void		createFields(uiParent*,bool vert,bool withminmax);
@@ -111,7 +112,7 @@ protected:
 
 
 mExpClass(uiTools) uiColorTableGroup : public uiGroup , public uiColorTable
-{
+{ mODTextTranslationClass(uiColorTableGroup);
 public:
 			uiColorTableGroup(uiParent*,const ColTab::Sequence&,
 					  bool vertical=false,
@@ -128,7 +129,7 @@ protected:
 
 
 mExpClass(uiTools) uiColorTableToolBar : public uiToolBar , public uiColorTable
-{
+{ mODTextTranslationClass(uiColorTableToolBar);
 public:
 			uiColorTableToolBar(uiParent*,const ColTab::Sequence&,
 					    bool newline=false);

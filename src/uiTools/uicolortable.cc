@@ -26,12 +26,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiAutoRangeClipDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAutoRangeClipDlg);
 public:
 
 uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
 		    Notifier<uiColorTable>& nf )
-    : uiDialog(p,uiDialog::Setup("Ranges/Clipping",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Ranges/Clipping"),mNoDlgTitle,
 				 mODHelpKey(mAutoRangeClipDlgHelpID) )
                                  .modal(false))
     , ms_(ms)
@@ -40,25 +40,25 @@ uiAutoRangeClipDlg( uiParent* p, ColTab::MapperSetup& ms,
     showAlwaysOnTop();
     setOkCancelText( uiStrings::sApply(), uiStrings::sClose() );
 
-    doclipfld = new uiGenInput( this, "Auto-set scale ranges",
+    doclipfld = new uiGenInput( this, tr("Auto-set scale ranges"),
 				BoolInpSpec(true) );
     doclipfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,clipPush) );
 
-    clipfld = new uiGenInput( this, "Percentage clipped",
+    clipfld = new uiGenInput( this, tr("Percentage clipped"),
 			      FloatInpIntervalSpec() );
     clipfld->setElemSzPol( uiObject::Small );
     clipfld->attach( alignedBelow, doclipfld );
 
-    autosymfld = new uiGenInput( this, "Auto detect symmetry",
+    autosymfld = new uiGenInput( this, tr("Auto detect symmetry"),
 				 BoolInpSpec(true) );
     autosymfld->attach( alignedBelow, clipfld );
     autosymfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,autoSymPush));
 
-    symfld = new uiGenInput( this, "Set symmetrical", BoolInpSpec(true) );
+    symfld = new uiGenInput( this, tr("Set symmetrical"), BoolInpSpec(true) );
     symfld->attach( alignedBelow, autosymfld );
     symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
 
-    midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
+    midvalfld = new uiGenInput( this, tr("Symmetrical Mid Value"),
 				FloatInpSpec() );
     midvalfld->setElemSzPol( uiObject::Small );
     midvalfld->attach( alignedBelow, symfld );
@@ -411,13 +411,13 @@ void uiColorTable::canvasClick( CallBacker* )
 	itm->setChecked( mapsetup_.flipseq_ );
     }
     if ( enabclipdlg_ && hasmapper )
-	mnu->insertItem( new uiAction("Ranges/Clipping ...",
+	mnu->insertItem( new uiAction(tr("Ranges/Clipping ..."),
 	    mCB(this,uiColorTable,editScaling)), 1 );
     if ( enabmanage_ && hasseq )
     {
-	mnu->insertItem( new uiAction("Manage ...",
+	mnu->insertItem( new uiAction(tr("Manage ..."),
 	    mCB(this,uiColorTable,doManage)), 2 );
-	mnu->insertItem( new uiAction("Set as default",
+	mnu->insertItem( new uiAction(tr("Set as default"),
 	    mCB(this,uiColorTable,setAsDefault)), 3 );
     }
 

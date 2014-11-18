@@ -307,13 +307,13 @@ static const float cPrioBound = 19.0f; // happens to be UNIX choice
 
 
 class uiSingleBatchJobDispatcherPars : public uiDialog
-{
+{ mODTextTranslationClass(uiSingleBatchJobDispatcherPars);
 public:
 
 uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 				Batch::JobSpec& js )
-    : uiDialog(p,Setup("Batch execution parameters", BufferString(
-		    "Options for '",js.prognm_,"' program"),
+    : uiDialog(p,Setup(tr("Batch execution parameters"), 
+		       tr("Options for '%1' program").arg(js.prognm_),
 			mTODOHelpKey))
     , sjd_(sjd)
     , execpars_(js.execpars_)
@@ -325,13 +325,13 @@ uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
     hdl.fill( hnms, false );
     if ( hnms.size() > 1 )
     {
-	remhostfld_ = new uiGenInput( this, "Execute remote",
+	remhostfld_ = new uiGenInput( this, tr("Execute remote"),
 				      StringListInpSpec(hnms) );
 	remhostfld_->setWithCheck( true );
 	remhostfld_->setChecked( false );
     }
 
-    uiSlider::Setup ssu( "Job Priority (if available)" );
+    uiSlider::Setup ssu( tr("Job Priority (if available)") );
     ssu.withedit( true );
     priofld_ = new uiSlider( this, ssu );
     if ( remhostfld_ )
