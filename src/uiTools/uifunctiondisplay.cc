@@ -132,6 +132,7 @@ void uiFunctionDisplay::setTitle( const uiString& title )
     if ( !titleitem_ )
     {
 	titleitem_ = scene().addItem( new uiTextItem() );
+	titleitem_->setAlignment( Alignment(Alignment::HCenter,Alignment::Top));
 	titleitem_->setPos( uiPoint(width()/2,0) );
 	titleitem_->setZValue( 2 );
     }
