@@ -460,8 +460,16 @@ void uiWellMan::defD2T( bool chkshot )
 void uiWellMan::logTools( CallBacker* )
 {
     BufferStringSet wellnms, lognms;
-    selGroup()->getListField()->getChosen( wellnms );
     logsfld_->getChosen( lognms );
+    TypeSet<MultiID> chosnmids;
+    selGroup()->getChosen( chosnmids );
+    for ( int midx=0; midx<chosnmids.size(); midx ++ )
+    {
+	const IOObj* ioobj = IOM().get( chosnmids[midx] );
+	if ( ioobj )
+	    wellnms.add( ioobj->name() );
+    }
+
     uiWellLogToolWinMgr tooldlg( this, &wellnms, &lognms );
     tooldlg.go();
 }
