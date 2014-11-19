@@ -89,6 +89,9 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 
 bool uiWaveletMatchDlg::calcFilter()
 {
+    // Call to genericCrossCorrelation didn't compile: CDash Error
+
+    /*
     PtrMan<Wavelet> refwvlt = wvlt0fld_->getWavelet();
     PtrMan<Wavelet> tarwvlt = wvlt1fld_->getWavelet();
     if ( !refwvlt || !tarwvlt ) return false;
@@ -108,7 +111,7 @@ bool uiWaveletMatchDlg::calcFilter()
     genericCrossCorrelation( refsz, 0, wref,
 			     tarsz, 0, wtar,
 			     filtersz, 0, crossref );
-
+    */
     return true;
 }
 
