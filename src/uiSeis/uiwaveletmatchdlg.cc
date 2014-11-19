@@ -87,6 +87,7 @@ void uiWaveletMatchDlg::filterSzCB( CallBacker* )
 }
 
 
+/*
 static void solveSymToeplitzsystem( int systdim, float* r, float* g,
 				    float* f, float* a)
 {
@@ -119,7 +120,7 @@ static void solveSymToeplitzsystem( int systdim, float* r, float* g,
 	    a[j-i] = bot;
 	}
 
-	/* use a and v above to get f[i], i = 0,1,2,...,j */
+	// use a and v above to get f[i], i = 0,1,2,...,j
 
 	float w; int i;
 	for ( i=0,w=0; i<j; i++ )
@@ -130,6 +131,7 @@ static void solveSymToeplitzsystem( int systdim, float* r, float* g,
 	    f[i] -= coef*a[j-i];
     }
 }
+*/
 
 
 bool uiWaveletMatchDlg::calcFilter()
