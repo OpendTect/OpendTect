@@ -79,7 +79,7 @@ void SceneColTab::setLegendColor( const Color& col )
 
 void SceneColTab::setAnnotFont( const FontData& fd )
 {
-    mScalarBarType::TextProperties tp;
+    mScalarBarType::TextProperties tp =  mScalarBar->getTextProperties();
     const float sizefactor = pixeldensity_/getDefaultPixelDensity();
     tp._font = OsgFontCreator::create( fd );
     tp._characterSize = fd.pointSize()*sizefactor;
