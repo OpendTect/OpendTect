@@ -274,6 +274,8 @@ void uiWellMan::setToolButtonProperties()
 		   "Rename selected log");
     mSetButToolTip(loguombut_,"View/edit '",logsfld_->getText(),
 		   "' unit of measure","View/edit unit of measure");
+    mSetButToolTip(logedbut_,"Edit '",logsfld_->getText(),"'",
+		   "Edit selected log" );
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
     if ( nrchosenlogs )
