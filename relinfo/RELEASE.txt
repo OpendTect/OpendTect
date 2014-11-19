@@ -1,5 +1,35 @@
-OpendTect V4.6.x : Release info
+OpendTect V5.0.x : Release info
 
-In general, all fixes in the stable 4.4 are also applied in the 4.6 releases.
+In general, all fixes in the stable 4.6 are also applied in the 5.0 releases.
 
 ----
+v5.0.2: November 17, 2014
+ * Fix for crash while tracking 2D horizon
+ * Fix for displaying contours on 3D horizon
+ * Fix for displaying of volume attribute data
+ * Fix for calculating mathematics attribute with constants
+ * A Few fixes for Zoom wheel
+ * Fix for color-blended horizons
+ * Fix for setting up new survey manually
+ * Fix for saving and restoring top/bottom image in sessions
+ * Added warning messages if the input logs for synthetic-to-seismic matching
+   have incorrect values
+ * Fix for crash while creating 3D cube from 2d data
+ * Fix for wrong bin size displayed in survey selection window
+ * Fix for default value of center sample while importing a wavelet
+ * Fix for crash while importing Horizon
+ * Fix for crash while displaying well log attributes
+
+v5.0.1: October 28, 2014
+ * Visualization is based on OpenSceneGraph (a different graphics library)
+ * Rework of the 2D geometry
+ * All batch processing can be restarted
+ * Attributes on pre-stack gathers
+ * Improved horizon-based painter
+ * F-K plots on slices
+ * Re-worked mathematics expressions
+ * Directional texture attributes - Plugin from Joanneum Institute
+ * Improved setup for distributed computing
+ * Improved handling multi-component / pre-stack interaction
+ * Documentation in MadCap Flare: HTML5 output, Context-Sensitive Help, fully
+   searchable index and permanently visible TOC
