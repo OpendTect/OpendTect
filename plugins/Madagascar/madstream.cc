@@ -519,7 +519,7 @@ void MadStream::fillHeaderParsFromStream()
 	    char c;
 	    istrm_->get( c );
 	    if ( c == '\n' ) { linebuf[idx] = '\0'; break; }
-	    else if ( !isspace(c) )
+	    else if ( !iswspace(c) )
 		linebuf[idx++] = c;
 
 	    if ( c==sKeyRSFEndOfHeader[nullcount] )

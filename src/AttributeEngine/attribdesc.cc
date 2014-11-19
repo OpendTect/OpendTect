@@ -596,7 +596,7 @@ bool Desc::getAttribName( const char* inpdefstr, BufferString& res )
 	return false;
     char* stopptr = startptr;
     mSkipNonBlanks( stopptr );
-    if ( isspace(*stopptr) ) *stopptr = '\0';
+    if ( iswspace(*stopptr) ) *stopptr = '\0';
     res = startptr;
     return true;
 }
@@ -709,7 +709,7 @@ void Desc::getKeysVals( const char* ds, BufferStringSet& keys,
 
 	char* ptrkey = ptrval;
 	*ptrval++ = '\0';
-	while ( ptrkey != still2scan && !isspace(*ptrkey) )
+	while ( ptrkey != still2scan && !iswspace(*ptrkey) )
 	    ptrkey--;
 	mSkipBlanks(ptrkey);
 

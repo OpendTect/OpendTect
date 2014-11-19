@@ -333,7 +333,7 @@ void removeTrailingBlanks( char* str )
     if ( !str || ! *str ) return;
 
     char* endptr = str + strlen(str) - 1;
-    while( isspace(*endptr) )
+    while( iswspace(*endptr) )
     {
 	*endptr = '\0';
 	if ( str == endptr ) break;
@@ -612,7 +612,7 @@ const char* getNextWord( const char* strptr, char* wordbuf )
     if ( !strptr || !*strptr ) return strptr;
 
     mSkipBlanks( strptr );
-    while ( *strptr && !isspace(*strptr) )
+    while ( *strptr && !iswspace(*strptr) )
 	*wordbuf++ = *strptr++;
     *wordbuf = '\0';
 
@@ -876,7 +876,7 @@ static float_complex float_complexFromString( const char* str,
     pendptr = (char**)(&str);
     BufferString fcstr;
     char buf[1024+1]; int bufidx = 0;
-    while ( **pendptr && !isspace(**pendptr) )
+    while ( **pendptr && !iswspace(**pendptr) )
     {
 	buf[bufidx] = **pendptr;
 	(*pendptr)++;

@@ -36,12 +36,12 @@ static void getInt( int& i )
     {
 	ptr = buf;
 	std::cin.getline( ptr, 80 );
-	while ( *ptr && isspace(*ptr) ) ptr++;
+	while ( *ptr && iswspace(*ptr) ) ptr++;
     }
     while ( ! *ptr );
 
     char* endptr = ptr + 1;
-    while ( *endptr && !isspace(*endptr) ) endptr++;
+    while ( *endptr && !iswspace(*endptr) ) endptr++;
     *endptr = '\0';
     i = toInt( ptr );
 }

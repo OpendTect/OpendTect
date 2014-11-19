@@ -122,7 +122,7 @@ void uiStoredAttribReplacer::getStoredIds( const IOPar& iopar )
 
 	    equalpos = stridx+1;
 	    spacepos = stridx+2;
-	    while ( spacepos<len && !isspace(defstring[spacepos]) )
+	    while ( spacepos<len && !iswspace(defstring[spacepos]) )
 		spacepos++;
 	    mAllocVarLenArr( char, storagestr, spacepos-equalpos+1 );
 	    strncpy( storagestr, &defstring[equalpos], spacepos-equalpos);
@@ -168,7 +168,7 @@ static bool hasSpace( const char* txt )
 {
     const int sz = strlen( txt );
     for ( int idx=0; idx<sz; idx++ )
-	if ( isspace(txt[idx]) )
+	if ( iswspace(txt[idx]) )
 	    return true;
 
     return false;

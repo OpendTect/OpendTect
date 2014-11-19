@@ -63,7 +63,7 @@ const char* ExprInterpreter::process( const char* exprstr, BufferString& val,
     if ( *endptr && isargument )
 	mErrRet( endptr, "~Expect valid operator, comma or right parenthesis" );
 
-    if ( *endptr && !isargument && !isspace(*endptr) )
+    if ( *endptr && !isargument && !iswspace(*endptr) )
 	mErrRet( endptr, "~Expect valid operator or white space" );
 
     setBreakPrefix( endptr, parsedexpr_ );

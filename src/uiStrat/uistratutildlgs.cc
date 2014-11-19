@@ -131,7 +131,7 @@ void uiStratUnitEditDlg::getFromScreen()
     char* ptr = buf;\
     while ( *ptr )\
     {\
-	if ( isspace(*ptr) || (*ptr) == '.' )\
+	if ( iswspace(*ptr) || (*ptr) == '.' )\
 	    *ptr = '_';\
 	if ( (*ptr) == '>' || (*ptr) == '<')\
 	    strnm = "Name contains strange characters !";\

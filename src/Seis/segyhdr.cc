@@ -270,7 +270,7 @@ void SEGY::TxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
     if ( endpos > cTxtHeadCharsPerLine ) endpos = cTxtHeadCharsPerLine;
     int maxcharnr = (line-1)*cTxtHeadCharsPerLine + endpos;
 
-    while ( isspace(txt_[charnr]) && charnr < maxcharnr ) charnr++;
+    while ( iswspace(txt_[charnr]) && charnr < maxcharnr ) charnr++;
     while ( charnr < maxcharnr ) *str++ = txt_[charnr++];
     *str = '\0';
     removeTrailingBlanks( str );

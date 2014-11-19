@@ -102,7 +102,7 @@ bool CommandLineParser::isKey( int idx ) const
 	return false;
 
     if ( arg.size()>2 && arg.buf()[0]=='-' && arg.buf()[1]=='-' &&
-	 !isspace(arg.buf()[2]) )
+	 !iswspace(arg.buf()[2]) )
     {
 	return true;
     }
@@ -110,7 +110,7 @@ bool CommandLineParser::isKey( int idx ) const
     if ( arg.buf()[0]=='-' )
     {
 	const char nextchar = arg.buf()[1];
-	if ( !isspace(nextchar) && nextchar!='.' && !isdigit(nextchar) )
+	if ( !iswspace(nextchar) && nextchar!='.' && !isdigit(nextchar) )
 	{
 	    return true;
 	}

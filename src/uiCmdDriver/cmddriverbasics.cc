@@ -209,7 +209,7 @@ const char* StringProcessor::parseIdentifier( BufferString& name ) const
 
 bool StringProcessor::convertToInt( int* val ) const
 {
-    if ( !constptr_ || isspace(*constptr_) )
+    if ( !constptr_ || iswspace(*constptr_) )
 	return false;
 
     BufferString unescapedstr( constptr_ );
@@ -239,7 +239,7 @@ bool StringProcessor::convertToDouble( double* val ) const
 	return true;
     }
 
-    if ( !constptr_ || isspace(*constptr_) )
+    if ( !constptr_ || iswspace(*constptr_) )
 	return false;
 
     BufferString unescapedstr( constptr_ );
@@ -333,7 +333,7 @@ char StringProcessor::preParseProcedure( FileMultiString& keyfms,
 	}
 	else if ( stagenr == 3 )
 	{
-	    if ( isspace(*endptr) )
+	    if ( iswspace(*endptr) )
 		mAddToFMS( parfms, startptr, endptr, false );
 	}
 
@@ -521,10 +521,10 @@ void StringProcessor::removeExtraSpace()
 
     while ( *readptr )
     {
-	if ( isspace(*readptr) )
+	if ( iswspace(*readptr) )
 	{
 	    readptr++;
-	    if ( !isspace(*readptr) && writeptr!=bufstr_->buf() && *readptr )
+	    if ( !iswspace(*readptr) && writeptr!=bufstr_->buf() && *readptr )
 		*writeptr++ = ' ';
 	    continue;
 	}
@@ -556,7 +556,7 @@ void StringProcessor::removeTrailingDots()
     while ( ptr != bufstr_->buf() )
     {
 	ptr--;
-	if ( *ptr!='.' && !isspace(*ptr) )
+	if ( *ptr!='.' && !iswspace(*ptr) )
 	    return;
 
 	*ptr = '\0';
