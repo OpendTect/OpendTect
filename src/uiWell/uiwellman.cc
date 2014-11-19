@@ -263,6 +263,8 @@ void uiWellMan::setToolButtonProperties()
 		   "Remove selected log(s)");
     mSetButToolTip(logexpbut_,"Export ",lognms.getDispString(3),"",
 		   "Export log(s)");
+    mSetButToolTip(logedbut_,"Edit '",logsfld_->getText(),"'",
+		   "Edit selected log" );
 
     const int nrchosenwls = selGroup()->getListField()->nrChosen();
     const int maxnrchosen = nrchosenwls*nrchosenlogs;

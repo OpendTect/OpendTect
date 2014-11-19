@@ -545,6 +545,8 @@ uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
     , changed_(false)
     , valueChanged(this)
 {
+    BufferString dlgcaption( "Edit '", log.name(), "' log" );
+    setCaption( dlgcaption );
     uiTable::Setup ts( log_.size(), 2 );
     table_ = new uiTable( this, ts, "Well log table" );
     table_->valueChanged.notify( mCB(this,uiWellLogEditor,valChgCB) );
