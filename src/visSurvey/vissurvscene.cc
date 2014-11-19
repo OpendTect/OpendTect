@@ -800,8 +800,6 @@ const ZAxisTransform* Scene::getZAxisTransform() const
 
 void Scene::setMarkerPos( const Coord3& coord, int sceneid )
 {
-    updateBaseMapCursor( coord );
-
     Coord3 displaypos = coord;
     if ( sceneid==id() )
 	displaypos = Coord3::udf();
@@ -835,43 +833,6 @@ void Scene::setMarkerPos( const Coord3& coord, int sceneid )
     markerset_->clearMarkers();
     markerset_->addPos( displaypos );
     markerset_->turnOn( true );
-}
-
-
-void Scene::updateBaseMapCursor( const Coord& coord )
-{
-    if ( !basemap_ )
-	return;
-
-    const bool defined = coord.isDefined();
-
-    if ( defined && !basemapcursor_ )
-    {
-	basemapcursor_ = new BaseMapMarkers;
-	basemapcursor_->setMarkerStyle(0,
-		MarkerStyle2D(MarkerStyle2D::Target,5) );
-    }
-
-    if ( !basemapcursor_ )
-	return;
-
-    Threads::Locker lckr( basemapcursor_->lock_,
-			  Threads::Locker::DontWaitForLock );
-
-    if ( lckr.isLocked() )
-    {
-	if ( !defined )
-	    basemapcursor_->positions().erase();
-	else if ( basemapcursor_->positions().isEmpty() )
-		basemapcursor_->positions() += coord;
-	else
-	    basemapcursor_->positions()[0] = coord;
-
-	lckr.unlockNow();
-	basemapcursor_->updateGeometry();
-    }
-
-	basemap_->addObject( basemapcursor_ );
 }
 
 
@@ -971,7 +932,7 @@ void Scene::fillPar( IOPar& par ) const
 
     par.set( sKey::Scale(), zscale_ );
 
-    
+
     if ( topimg_->isOn() )
     {
 	IOPar topimgpar;

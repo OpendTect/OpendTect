@@ -200,7 +200,6 @@ protected:
     void			updateTransforms(const TrcKeyZSampling&);
     void			mouseMoveCB(CallBacker*);
     visBase::MarkerSet*		createMarkerSet() const;
-    void			updateBaseMapCursor(const Coord&);
     void			mouseCursorCB(CallBacker*);
     static const Color&		cDefaultMarkerColor();
 
