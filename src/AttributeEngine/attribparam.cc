@@ -216,7 +216,7 @@ void EnumParam::fillDefStr( BufferString& res ) const
     const char* ptr = val.buf();
     while ( *ptr )
     {
-	if ( isspace(*ptr) )
+	if ( iswspace(*ptr) )
 	    { usequotes = true; break; }
 	ptr++;
     }
@@ -269,7 +269,7 @@ bool StringParam::getCompositeValue( BufferString& res ) const
     bool havespace = false;
     for ( ; *ptr; ptr++ )
     {
-	if ( isspace(*ptr) )
+	if ( iswspace(*ptr) )
 	    { havespace = true; break; }
     }
 

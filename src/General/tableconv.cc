@@ -187,7 +187,7 @@ Table::ImportHandler::State Table::WSImportHandler::add( char c )
 	addToCol( '\0' );
 	return EndRow;
     }
-    else if ( !indoubqstring_ && !insingqstring_ && isspace(c) )
+    else if ( !indoubqstring_ && !insingqstring_ && iswspace(c) )
     {
 	if ( *col_.buf() )
 	{

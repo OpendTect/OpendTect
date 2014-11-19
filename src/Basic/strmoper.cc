@@ -160,7 +160,7 @@ bool StrmOper::skipWhiteSpace( std::istream& strm )
     {
 	if ( !peekChar(strm,ch) )
 	    return false;
-	if ( isspace(ch) )
+	if ( iswspace(ch) )
 	    strm.ignore( 1 );
 	else
 	    break;
@@ -206,7 +206,7 @@ bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
 	bs->setEmpty();
 
     char ch = ' ';
-    while ( isspace(ch) )
+    while ( iswspace(ch) )
     {
 	if ( !readChar(strm,ch,allownl) )
 	    return false;
@@ -225,7 +225,7 @@ bool StrmOper::readWord( std::istream& strm, bool allownl, BufferString* bs )
 
     while ( readChar(strm,ch,allownl) )
     {
-	if ( quotechar == '\0' ? isspace(ch) : ch == quotechar )
+	if ( quotechar == '\0' ? iswspace(ch) : ch == quotechar )
 	    break;
 
 	if ( bs )

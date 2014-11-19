@@ -155,7 +155,7 @@ const char* OS::MachineCommand::extractHostName( const char* str,
 
 #else
 
-    while ( *ptr && !isspace(*ptr) && *ptr != ':' )
+    while ( *ptr && !iswspace(*ptr) && *ptr != ':' )
 	ptr++;
 
     if ( *ptr == ':' )

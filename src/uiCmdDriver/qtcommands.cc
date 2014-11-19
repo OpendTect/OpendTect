@@ -38,7 +38,7 @@ void SetColorActivator::actCB( CallBacker* )
 \
     const char* parnext; \
     double num##val = strtod( parstr, const_cast<char**>(&parnext) ); \
-    if ( parnext!=parstr && *parnext && !isspace(*parnext) ) \
+    if ( parnext!=parstr && *parnext && !iswspace(*parnext) ) \
         parnext = parstr; \
 \
     if ( (parnext==parstr && !(optional)) || num##val<0 || num##val>255 ) \

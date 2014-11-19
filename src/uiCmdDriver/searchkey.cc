@@ -78,7 +78,7 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
 	{
 	    if ( *keyptr == *scriptedwildcard )
 		nrwildcards++;
-	    else if ( !isspace(*keyptr) && *keyptr!='.' )
+	    else if ( !iswspace(*keyptr) && *keyptr!='.' )
 		return false;
 
 	    keyptr++;
@@ -108,7 +108,7 @@ bool SearchKey::isMatch( const char* keyptr, const char* nameptr,
     for ( int nameoffset=0; nameoffset<=FixedString(nameptr).size();
 	    nameoffset++ )
     {
-	const int keyoffset = isspace(*(keyptr+1)) &&
+	const int keyoffset = iswspace(*(keyptr+1)) &&
 			      nameptr+nameoffset==orgnameptr ? 2 : 1;
 
 	if ( isMatch(keyptr+keyoffset, nameptr+nameoffset, orgnameptr) )

@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "plftypes.h"
 #include "commondefs.h"
 #include <ctype.h>
+#include <wctype.h>
 namespace OD { class String; }
 
 mGlobal(Basic) const char* toString(od_int32);
@@ -67,11 +68,11 @@ inline int toInt( const char* s, int defval=0 )
 
 /*!\brief Advances given pointer to first non-whitespace */
 #define mSkipBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
+    { if ( ptr ) { while ( *(ptr) && iswspace(*(ptr)) ) (ptr)++; } }
 
 /*!\brief Advances given pointer to first whitespace  */
 #define mSkipNonBlanks(ptr) \
-    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
+    { if ( ptr ) { while ( *(ptr) && !iswspace(*(ptr)) ) (ptr)++; } }
 
 /*!\brief Advances to first whitespace and removes trailing whitespace */
 #define mTrimBlanks(ptr) \

@@ -297,7 +297,7 @@ mDefCharFunc( IsAlNum, isalnum );
 mDefCharFunc( IsAlpha, isalpha );
 mDefCharFunc( IsDigit, isdigit );
 mDefCharFunc( IsLower, islower );
-mDefCharFunc( IsSpace, isspace );
+mDefCharFunc( IsSpace, iswspace );
 mDefCharFunc( IsUpper, isupper );
 
 

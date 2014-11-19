@@ -36,7 +36,7 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     char* retptr = ret.getCStr();
     *retptr = '\0';
     if ( wantprog )
-	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++;
+	while ( *cmd && !iswspace(*cmd) ) *retptr++ = *cmd++;
     else
     {
 	mSkipNonBlanks( cmd );

@@ -527,7 +527,7 @@ protected:
     else \
 	clicktags.add( clicktags.isEmpty() ? defaulttag : "Left" ); \
 \
-    if ( *parnext && !isspace(*parnext) ) \
+    if ( *parnext && !iswspace(*parnext) ) \
 	parnext = parstr; \
 
 
