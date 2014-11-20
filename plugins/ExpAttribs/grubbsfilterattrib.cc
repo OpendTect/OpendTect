@@ -205,7 +205,11 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 
 	const DataHolder* data = inputdata_[nrtraces/2];
 	const float traceval = getInputValue(*data,dataidx_,(int)idx,z0);
-	float grubbsval = (float) ( (traceval - rc.average())/rc.stdDev() );
+	double stdev = rc.stdDev();
+	if ( mIsZero(stdev,mDefEps) )
+	    stdev = 1;
+
+	float grubbsval = (float) ( (traceval - rc.average())/stdev );
 	const bool positive = grubbsval > 0;
 	grubbsval = fabs( grubbsval );
 	float newval = traceval;
@@ -215,17 +219,19 @@ bool GrubbsFilter::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    switch ( type_ ) 
 	    { 
-		case GrubbsFilter::Average:	newval = (float) rc.average(); break;
-		case GrubbsFilter::Median:	newval = rc.median(); break;
+		case GrubbsFilter::Average:	newval = (float) rc.average(); 
+		    break;
+		case GrubbsFilter::Median:	newval = rc.median(); 
+		    break;
 		case GrubbsFilter::Threshold: 
-		    newval = (float) ((cogrubbsval_ * rc.stdDev())+rc.average()); 
+		    newval = (float)((cogrubbsval_ * stdev)+rc.average());
 		    newval = positive ? newval * 1 : newval * -1;
 		    break;
 		case GrubbsFilter::Interpolate:
 		    for ( int arridx=0; arridx<vals.info().getSize(0); arridx++)
 		    {
 			float arrval = vals.get( arridx );
-			grubbsval = (float) fabs((arrval - rc.average())/rc.stdDev());
+			grubbsval = (float) fabs((arrval - rc.average())/stdev);
 			if ( grubbsval > cogrubbsval_ )
 			    vals.set( arridx, mUdf(float) );
 		    }
