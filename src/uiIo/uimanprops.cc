@@ -244,7 +244,7 @@ void uiEditPropRef::definitionChecked( CallBacker* )
 bool uiEditPropRef::acceptOK( CallBacker* )
 {
     const BufferString newnm( namefld_->text() );
-    if ( newnm.isEmpty() || !isalpha(newnm[0]) || newnm.size() < 2 )
+    if ( newnm.isEmpty() || !iswalpha(newnm[0]) || newnm.size() < 2 )
 	mErrRet("Please enter a valid name");
     const BufferString definitionstr( definitionfld_->text() );
     const bool isfund = definitionfld_->isChecked();

@@ -199,7 +199,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    firstchar = ptr+1;
 	}
 	mSkipBlanks( firstchar );
-	if ( !*firstchar || (*firstchar != '-' && !isdigit(*firstchar) ) )
+	if ( !*firstchar || (*firstchar != '-' && !iswdigit(*firstchar) ) )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );

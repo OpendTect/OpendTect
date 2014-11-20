@@ -106,7 +106,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
 		else
 		{
 		    if ( colnr == 1 && ( FixedString(wordbuf)=="in:"
-				    || isdigit(wordbuf[0]) || wordbuf[0] == '+'
+				    || iswdigit(wordbuf[0]) || wordbuf[0] == '+'
 				    || wordbuf[1] == '-' || wordbuf[2] == '.' ))
 			mErrRet( "Invalid LAS-like file" )
 

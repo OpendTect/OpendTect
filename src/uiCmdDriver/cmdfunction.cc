@@ -293,9 +293,9 @@ bool clss##Func::eval( const BufferStringSet& args, BufferString& res ) const \
     return true; \
 }
 
-mDefCharFunc( IsAlNum, isalnum );
-mDefCharFunc( IsAlpha, isalpha );
-mDefCharFunc( IsDigit, isdigit );
+mDefCharFunc( IsAlNum, iswalnum );
+mDefCharFunc( IsAlpha, iswalpha );
+mDefCharFunc( IsDigit, iswdigit );
 mDefCharFunc( IsLower, islower );
 mDefCharFunc( IsSpace, iswspace );
 mDefCharFunc( IsUpper, isupper );

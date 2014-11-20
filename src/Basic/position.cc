@@ -240,7 +240,7 @@ bool Coord3::fromString( const char* str )
 
     const char* endptr = str + fs.size();
 
-    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
 	str++;
 
     char* numendptr;
@@ -248,13 +248,13 @@ bool Coord3::fromString( const char* str )
     if ( str==numendptr ) return false;
 
     str = numendptr;
-    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
 	str++;
     y = strtod( str, &numendptr );
     if ( str==numendptr ) return false;
 
     str = numendptr;
-    while ( !isdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
+    while ( !iswdigit(*str) && *str!='+' && *str!='-' && str!=endptr )
 	str++;
     z = strtod( str, &numendptr );
     if ( str==numendptr ) return false;

@@ -371,7 +371,7 @@ bool isNumberString( const char* str, bool int_only )
 {
     if ( !str || !*str )
 	return false;
-    bool curisdigit = isdigit(*str);
+    bool curisdigit = iswdigit(*str);
     if ( !*(str+1) )
 	return curisdigit;
 
@@ -386,7 +386,7 @@ bool isNumberString( const char* str, bool int_only )
     str++;
     bool eseen = false;
     bool previsdigit = curisdigit;
-    curisdigit = isdigit(*str);
+    curisdigit = iswdigit(*str);
     if ( !curisdigit )
     {
 	dotseen = *str == '.';
@@ -405,7 +405,7 @@ bool isNumberString( const char* str, bool int_only )
     str++;
     while ( *str )
     {
-	if ( !isdigit(*str) )
+	if ( !iswdigit(*str) )
 	{
 	    if ( (*str == 'e' || *str == 'E') )
 	    {
@@ -438,7 +438,7 @@ bool isAlphaNumString( const char* str, bool allowspace )
     if ( !str || !*str )
 	return false;
 
-#define mCheckChar (isalnum(*str) || (allowspace && *str==' '))
+#define mCheckChar (iswalnum(*str) || (allowspace && *str==' '))
     while ( *str )
     {
 	if ( !mCheckChar )
@@ -459,7 +459,7 @@ void cleanupString( char* str, bool spaceallow, bool fsepallow, bool dotallow )
 
     while ( *str )
     {
-	if ( !isalnum(*str) )
+	if ( !iswalnum(*str) )
 	{
 	    bool dorepl = true;
 	    switch ( *str )

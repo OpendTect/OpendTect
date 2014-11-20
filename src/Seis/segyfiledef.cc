@@ -269,7 +269,7 @@ const char* SEGY::FilePars::nameOfFmt( int fmt, bool forread )
 
 int SEGY::FilePars::fmtOf( const char* str, bool forread )
 {
-    if ( !str || !*str || !isdigit(*str) )
+    if ( !str || !*str || !iswdigit(*str) )
 	return forread ? 0 : 1;
 
     return (int)(*str - '0');

@@ -704,7 +704,7 @@ static int removeSerialNumber( BufferString& objname )
     char* lastptr = objname.getCStr() + objname.size() - 1;
     char* ptr = lastptr;
 
-    while ( ptr>=objname.buf() && isdigit(*ptr) )
+    while ( ptr>=objname.buf() && iswdigit(*ptr) )
 	ptr--;
 
     if ( ptr<objname.buf() || *ptr!='_' )

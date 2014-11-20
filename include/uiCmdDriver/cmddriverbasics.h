@@ -71,7 +71,7 @@ namespace CmdDrive
     mDressString( name, context, false );
 
 
-#define mIsSymbol(chr) ( !isalnum(chr) && !iswspace(chr) )
+#define mIsSymbol(chr) ( !iswalnum(chr) && !iswspace(chr) )
 
 
 #define mGetColorString( color, isvalid, colorstr ) \

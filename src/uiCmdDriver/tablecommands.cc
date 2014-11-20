@@ -195,7 +195,7 @@ RowCol TableCmd::singleSelected( const uiTable* uitable ) const
     } \
     else if ( mMatchCI(tagstr,"Cell") ) \
 	tabletag = CellTag; \
-    else if ( !isalpha(tagstr[0]) ) \
+    else if ( !iswalpha(tagstr[0]) ) \
 	parnext = parstr; \
     else \
     { \
@@ -344,7 +344,8 @@ bool TableFillCmd::act( const char* parstr )
     const RowCol rc = tag==RowTag ? RowCol(itemrcs1[0].row(),itemrcs2[0].col())
 				  : itemrcs1[0];
     if ( uitable->isTableReadOnly() ||
-	 uitable->isRowReadOnly(rc.row()) || uitable->isColumnReadOnly(rc.col()) )
+	 uitable->isRowReadOnly(rc.row()) || 
+	 uitable->isColumnReadOnly(rc.col()) )
     {
 	mWinErrStrm << "Table cell is read-only" << od_endl;
 	return false;
@@ -366,8 +367,9 @@ TableFillActivator::TableFillActivator( const uiTable& uitable,
 
 void TableFillActivator::actCB( CallBacker* cb )
 {
-    if ( actrc_.row()>=0 && actrc_.row()<acttable_.nrRows() && actrc_.col()>=0 &&
-	 actrc_.col()<acttable_.nrCols() && !acttable_.isTableReadOnly() &&
+    if ( actrc_.row()>=0 && actrc_.row()<acttable_.nrRows() && 
+	 actrc_.col()>=0 && actrc_.col()<acttable_.nrCols() && 
+	 !acttable_.isTableReadOnly() &&
 	 !acttable_.isRowReadOnly(actrc_.row()) &&
 	 !acttable_.isColumnReadOnly(actrc_.col()) )
     {
@@ -501,7 +503,8 @@ bool TableSelectCmd::act( const char* parstr )
 				   ( tag2==RowTag  ? itemrcs12[0].col() :
 						     itemrcs11[0].col() );
 
-		const int lastrow = tag2==ColHead ? nrrows-1 : itemrcs21[0].row();
+		const int lastrow = tag2==ColHead ? nrrows-1 
+						  : itemrcs21[0].row();
 		const int lastcol = tag2==RowHead ? nrcols-1 :
 				  ( tag2==RowTag  ? itemrcs22[0].col() :
 						    itemrcs21[0].col() );
@@ -848,7 +851,8 @@ bool GetTableRowCmd::act( const char* parstr )
     const BufferString text = uitable->isLeftHeaderHidden() || rc.row()<0 ? "" :
 			      mHdrText( uitable, rowLabel, rc.row() );
 
-    mGetColorString(uitable->getHeaderBackground(rc.col(),true), true, colorstr);
+    mGetColorString(uitable->getHeaderBackground(rc.col(),true), 
+		    true, colorstr);
     mParForm( answer, form, text, countRows(uitable,rc.row()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -882,7 +886,8 @@ bool GetTableColCmd::act( const char* parstr )
     const BufferString text = uitable->isTopHeaderHidden() || rc.col()<0 ? "" :
 			      mHdrText( uitable, columnLabel, rc.col() );
 
-    mGetColorString(uitable->getHeaderBackground(rc.col(),false), true, colorstr);
+    mGetColorString(uitable->getHeaderBackground(rc.col(),false), 
+		    true, colorstr);
     mParForm( answer, form, text, countRows(uitable,rc.col()) );
     mParExtraForm( answer, form, Colour, colorstr );
     mParEscIdentPost( identname, answer, parnext, form!=Colour );
@@ -1405,7 +1410,8 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 	    int lastcol = rc0.col();
 
 	    RowCol rc1;
-	    for ( rc1.col()=rc0.col()+1; rc1.col()<uitable->nrCols(); rc1.col()++ )
+	    for ( rc1.col()=rc0.col()+1; rc1.col()<uitable->nrCols(); 
+		  rc1.col()++ )
 	    {
 		bool excludecurcol = false;
 		bool includecurcol = false;
@@ -1422,7 +1428,8 @@ int TableCmdComposer::writeTableSelect( bool differential, bool virtually )
 		if ( includecurcol )
 		    lastcol = rc1.col();
 
-		for ( rc1.row()=lastrow+1; rc1.row()<=bottommargin; rc1.row()++ )
+		for ( rc1.row()=lastrow+1; rc1.row()<=bottommargin; 
+		      rc1.row()++ )
 		{
 		    mInitStatesInLoop( oldstate1, curstate1, rc1 );
 		    if ( curstate1 != blockstate  )

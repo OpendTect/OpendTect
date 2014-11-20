@@ -201,7 +201,7 @@ const uiTreeViewItem* TreeCmd::singleSelected( const uiTreeView& uilview ) const
 \
     if ( mMatchCI(tagstr,"PathCol") ) \
 	pathcol = true; \
-    else if ( !isalpha(tagstr[0]) ) \
+    else if ( !iswalpha(tagstr[0]) ) \
 	parnext = parstr;
 
 #define mParTreeTag( parstr, parnext, pathcol ) \
