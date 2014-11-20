@@ -36,7 +36,7 @@ uiWellLogInterpolator::uiWellLogInterpolator( uiParent* p,
 
     const char* ext[] = { "None", "By top/bottom values only",
 			  "By parallel to top/base", 0 };
-    extensfld_ = new uiGenInput( this, "Vertical Extension",
+    extensfld_ = new uiGenInput( this, tr("Vertical Extension"),
 	    StringListInpSpec(ext) );
     extensfld_->setText( ext[hwi.extensionMethod()] );
     extensfld_->attach( alignedBelow, layermodelfld_ );

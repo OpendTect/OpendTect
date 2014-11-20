@@ -53,11 +53,11 @@ void uiVolProcPartServer::doVolProc( const MultiID* mid )
 	if ( !VolProcessingTranslator::retrieve( *volprocchain_, ioobj,
 		errmsg ) )
 	{
-	    FileMultiString fms( "Cannot read volume builder setup" );
+	    uiString fms( tr("Cannot read volume builder setup") );
 	    if ( errmsg.buf() )
-		fms += errmsg;
+		fms.append(errmsg);
 
-	    uiMSG().error( fms.buf() );
+	    uiMSG().error( fms );
 	    volprocchain_->unRef();
 	    volprocchain_ = new VolProc::Chain;
 	    volprocchain_->ref();

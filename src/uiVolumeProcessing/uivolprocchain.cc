@@ -42,7 +42,7 @@ mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiStepDialog::factory );
 
 // uiStepDialog
 uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
-    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mNoHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Edit step"),stepnm,mNoHelpKey) )
     , step_(step)
     , multiinpfld_(0)
 {
@@ -119,7 +119,8 @@ void uiStepDialog::addNameFld( uiObject* alignobj, bool leftalign )
 	sep->attach( stretchedBelow, alignobj );
     }
 
-    namefld_ = new uiGenInput( this, "Name for this step", step_->userName() );
+    namefld_ = new uiGenInput( this, tr("Name for this step"), 
+			       step_->userName() );
     namefld_->setElemSzPol( uiObject::Wide );
     if ( alignobj )
     {
@@ -174,7 +175,7 @@ bool uiStepDialog::acceptOK( CallBacker* )
     const BufferString nm( namefld_->text() );
     if ( nm.isEmpty() )
     {
-	uiMSG().error( "Please enter a name for this step" );
+	uiMSG().error( tr("Please enter a name for this step") );
 	return false;
     }
 
@@ -257,7 +258,7 @@ uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
     ctxt.forread = false;
 
-    objfld_ = new uiIOObjSel( this, ctxt, "On OK, store As" );
+    objfld_ = new uiIOObjSel( this, ctxt, tr("On OK, store As") );
     objfld_->setInput( chain_.storageID() );
     objfld_->setConfirmOverwrite( false );
     objfld_->attach( alignedBelow, flowgrp );

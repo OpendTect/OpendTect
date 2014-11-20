@@ -40,7 +40,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 
     IOObjContext ctxt = mIOObjContext( EMBody );
     ctxt.forread = true;
-    uinputselfld_ = new uiIOObjSel( this, ctxt, "Input Body" );
+    uinputselfld_ = new uiIOObjSel( this, ctxt, tr("Input Body") );
     uinputselfld_->selectionDone.notify( mCB(this,uiBodyFiller,bodySel) );
     if ( mp )
 	uinputselfld_->setInput( mp->getSurfaceID() );
@@ -50,7 +50,7 @@ uiBodyFiller::uiBodyFiller( uiParent* p, BodyFiller* mp )
 	    BoolInpSpec( showinside, uiStrings::sValue(), tr("Transparent") ) );
     useinsidefld_->attach( alignedBelow, uinputselfld_ );
     useinsidefld_->valuechanged.notify( mCB(this,uiBodyFiller,updateFlds) );
-    insidevaluefld_ = new uiGenInput( this, "Inside-Value",
+    insidevaluefld_ = new uiGenInput( this, tr("Inside-Value"),
 	    FloatInpSpec( showinside ? mp->getInsideValue() : -2000 ) );
     insidevaluefld_->attach( alignedBelow, useinsidefld_ );
     

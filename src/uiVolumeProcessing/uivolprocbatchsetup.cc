@@ -39,7 +39,7 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
     setupcontext.forread = true;
     setupsel_ = new uiIOObjSel( this, setupcontext,
-	   			"Volume Builder setup" );
+	   			tr("Volume Builder setup") );
     if ( initialsetup )
 	setupsel_->setInput( *initialsetup );
     setupsel_->selectionDone.notify( mCB(this,uiBatchSetup,setupSelCB) );

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uivolumeprocessingmod.h"
 #include "uiattrdesced.h"
+#include "uistring.h"
 
 namespace Attrib { class Desc; };
 
@@ -22,7 +23,7 @@ class uiIOObjSel;
 /*! \brief VolumeProcessing Attribute ui */
 
 mExpClass(uiVolumeProcessing) uiVolProcAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiVolProcAttrib);
 public:
 			uiVolProcAttrib(uiParent*,bool);
 

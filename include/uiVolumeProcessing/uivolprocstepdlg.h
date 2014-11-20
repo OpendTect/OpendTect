@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uivolumeprocessingmod.h"
 #include "uidialog.h"
 #include "factory.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class uiGenInput;
@@ -28,7 +29,7 @@ namespace VolProc
 class Step;
 
 mExpClass(uiVolumeProcessing) uiStepDialog : public uiDialog
-{
+{ mODTextTranslationClass(uiStepDialog);
 public:
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 

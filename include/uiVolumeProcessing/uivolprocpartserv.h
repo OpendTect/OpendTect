@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uivolumeprocessingmod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 class IOObj;
 class MultiID;
@@ -24,7 +25,7 @@ namespace VolProc { class Chain; class uiChain; }
 */
 
 mExpClass(uiVolumeProcessing) uiVolProcPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiVolProcPartServer);
 public:
 			uiVolProcPartServer(uiApplService&);
 			~uiVolProcPartServer();
