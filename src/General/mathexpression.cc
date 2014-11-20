@@ -722,7 +722,7 @@ Math::Expression::VarType Math::ExpressionParser::varTypeOf( const char* varnm )
       || vnm.isEqual("out",CaseInsensitive) )
 	return Math::Expression::Recursive;
 
-    if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && isdigit(vnm[1]) )
+    if ( vnm.size() > 1 && (vnm[0]=='c' || vnm[0]=='C') && iswdigit(vnm[1]) )
 	return Math::Expression::Constant;
 
     return Math::Expression::Variable;
@@ -736,7 +736,7 @@ int Math::ExpressionParser::constIdxOf( const char* varstr )
 
     const BufferString varnm( varNameOf( varstr ) );
     const char* ptr = varnm.buf();
-    while ( *ptr && !isdigit(*ptr) )
+    while ( *ptr && !iswdigit(*ptr) )
 	ptr++;
 
     return toInt( ptr );
@@ -995,7 +995,7 @@ bool Math::ExpressionParser::findPlusAndMinus( char* str, int len,
 		|| prevch == '^' || prevch == '[' )
 		continue;
 	    if ( idx > 1 && (prevch == 'e' || prevch == 'E')
-		&& !isalpha(str[idx-2]) )
+		&& !iswalpha(str[idx-2]) )
 		continue;
 
 	    Math::Expression* inp1
@@ -1225,7 +1225,7 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 
 	if ( distfromopeningbracket < 0 )
 	{
-	    isok = idx == 0 ? isalpha( str[idx] ) : isalnum( str[idx] );
+	    isok = idx == 0 ? iswalpha( str[idx] ) : iswalnum( str[idx] );
 	    if ( !isok && str[idx] == '_' )
 		isok = true;
 	    if ( !isok )
@@ -1238,7 +1238,7 @@ bool Math::ExpressionParser::findVariable( char* str, int len,
 	}
 	else
 	{
-	    isok = isdigit( str[idx] );
+	    isok = iswdigit( str[idx] );
 	    if ( !isok )
 	    {
 		if ( distfromopeningbracket == 0 )

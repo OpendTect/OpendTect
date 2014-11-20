@@ -598,12 +598,12 @@ IOObj* IOMan::getFromPar( const IOPar& par, const char* bky,
 
 bool IOMan::isKey( const char* ky ) const
 {
-    if ( !ky || !*ky || !isdigit(*ky) ) return false;
+    if ( !ky || !*ky || !iswdigit(*ky) ) return false;
 
     bool digitseen = false;
     while ( *ky )
     {
-	if ( isdigit(*ky) )
+	if ( iswdigit(*ky) )
 	    digitseen = true;
 	else if ( *ky == '|' )
 	    return digitseen;

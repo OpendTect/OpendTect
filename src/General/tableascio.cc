@@ -739,7 +739,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     if ( isNumberString(sval,flg) )
 	return sval;
 
-    while ( *sval && !isdigit(*sval) && *sval != '.' && *sval != '-' )
+    while ( *sval && !iswdigit(*sval) && *sval != '.' && *sval != '-' )
 	sval++;
     if ( !*sval ) return 0;
     if ( isNumberString(sval,flg) )
@@ -749,7 +749,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
     bufstr = sval;
     sval = bufstr.buf();
     char* ptr = bufstr.getCStr() + bufstr.size() - 1;
-    while ( ptr>sval && !isdigit(*ptr) && *ptr != '.' )
+    while ( ptr>sval && !iswdigit(*ptr) && *ptr != '.' )
 	ptr--;
     *(ptr+1) = '\0';
     return isNumberString(sval,flg) ? sval : 0;

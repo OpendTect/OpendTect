@@ -445,7 +445,7 @@ void DescSet::handleOldMathExpression( IOPar& descpar,
 
 	    const BufferString varnm( formula->uniqueVarName(idx) );
 	    const char* ptr = varnm.buf();
-	    while ( *ptr && !isdigit(*ptr) )
+	    while ( *ptr && !iswdigit(*ptr) )
 		ptr++;
 
 	    int varxidx = toInt( ptr );

@@ -65,7 +65,7 @@ FlatViewer::FlatViewer()
     {
 	// get default resolution from environment variable
 	const char* envvar = GetEnvVar("OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-	if ( envvar && isdigit(*envvar) )
+	if ( envvar && iswdigit(*envvar) )
 	    resolution_ = toInt( envvar );
     }
 

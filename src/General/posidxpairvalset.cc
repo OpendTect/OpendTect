@@ -199,7 +199,7 @@ bool Pos::IdxPairValueSet::getFrom( od_istream& strm, GeomID gid )
 	    firstchar = ptr+1;
 	}
 	mSkipBlanks( firstchar );
-	if ( !*firstchar || (*firstchar != '-' && !isdigit(*firstchar) ) )
+	if ( !*firstchar || (*firstchar != '-' && !iswdigit(*firstchar) ) )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );
@@ -973,7 +973,8 @@ void Pos::IdxPairValueSet::removeRange( int valnr, const Interval<float>& rg,
 }
 
 
-void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg, bool removeinside )
+void Pos::IdxPairValueSet::remove( const TrcKeySampling& hrg, 
+				   bool removeinside )
 {
     const StepInterval<IdxType> frstrg = hrg.inlRange();
     const StepInterval<IdxType> scndrg = hrg.crlRange();

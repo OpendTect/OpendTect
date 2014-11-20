@@ -434,7 +434,7 @@ bool DateInfo::fromString( const char* inp )
     setUdf(); if ( !inp || !*inp ) return false;
     SeparString ss( inp, '-' );
     const char* dayptr = ss[0];
-    if ( !isdigit(*dayptr) ) return false;
+    if ( !iswdigit(*dayptr) ) return false;
 
     days_ = toInt( dayptr );
     if ( days_ > 0 ) days_--;
@@ -494,7 +494,7 @@ bool DateInfo::fromNumString( const char* inp, bool yrfirst )
 
 #define mGetV(nr) \
     const char* ptr##nr = ss[nr]; \
-    if ( !ptr##nr || !isdigit(*ptr##nr) ) { delete ssptr; return false; } \
+    if ( !ptr##nr || !iswdigit(*ptr##nr) ) { delete ssptr; return false; } \
     const int v##nr = toInt( ptr##nr )
 
     mGetV(0); mGetV(1); mGetV(2);

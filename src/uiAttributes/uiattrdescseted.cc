@@ -823,7 +823,7 @@ void uiAttribDescSetEd::updateCurDescEd()
 
 bool uiAttribDescSetEd::validName( const char* newnm ) const
 {
-    if ( !isalnum(newnm[0]) )
+    if ( !iswalnum(newnm[0]) )
 	mErrRetFalse(tr("Please start attribute name with a letter or number"));
 
     if ( firstOcc(newnm,'!') || firstOcc(newnm,':') || firstOcc(newnm,';') ||

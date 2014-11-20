@@ -166,8 +166,8 @@ int SeisCBVSPSIO::getInlNr( const char* filenm )
     FilePath fp( filenm );
     BufferString fnm( fp.fileName() );
     char* ptr = fnm.getCStr();
-    while ( *ptr && !isdigit(*ptr) ) ptr++;
-    while ( *ptr && isdigit(*ptr) ) ptr++;
+    while ( *ptr && !iswdigit(*ptr) ) ptr++;
+    while ( *ptr && iswdigit(*ptr) ) ptr++;
     *ptr = '\0';
     return fnm.isEmpty() ? -1 : fnm.toInt();
 }

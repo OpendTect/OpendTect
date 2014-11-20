@@ -197,10 +197,10 @@ const char* StringProcessor::parseIdentifier( BufferString& name ) const
     mSkipBlanks( ptr );
     mUnscope( ptr, unscopedptr );
 
-    if ( !isalpha(*unscopedptr) )
+    if ( !iswalpha(*unscopedptr) )
 	return 0;
 
-    while ( ptr<unscopedptr || isalnum(*ptr) || *ptr=='_' )
+    while ( ptr<unscopedptr || iswalnum(*ptr) || *ptr=='_' )
 	mAddCharToBufStr( name, *ptr++ );
 
     return ptr;

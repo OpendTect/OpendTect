@@ -396,7 +396,7 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
 
     // add the System default option if the environment variable is set
     const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-    if ( envvar && isdigit(*envvar) )
+    if ( envvar && iswdigit(*envvar) )
     {
 	textureresfactorfld_->addItem( tr("System default") );
 	if ( textureresfactor_ == -1 )

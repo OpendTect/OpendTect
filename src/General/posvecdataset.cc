@@ -65,7 +65,7 @@ void DataColDef::getFrom( const char* s )
 	if ( sz > 2 )
 	{
 	    const char* lastpart = fms.from(2);
-	    if ( isdigit(*lastpart) )
+	    if ( iswdigit(*lastpart) )
 		ref_ = fms.from( 1 );
 	    else
 		unit_ = UoMR().get( lastpart );

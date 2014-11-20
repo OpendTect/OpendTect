@@ -304,7 +304,7 @@ static bool filterIncludesExt( const char* fltr, const char* ext )
 	    fltptr++;
 	    if ( *extptr == '\0' )
 	    {
-		if ( !isalnum(*fltptr) )
+		if ( !iswalnum(*fltptr) )
 		    return true;
 		break;
 	    }

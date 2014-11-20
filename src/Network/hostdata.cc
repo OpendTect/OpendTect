@@ -162,7 +162,7 @@ void HostData::init( const char* nm )
     while ( ptr++ && *ptr )
     {
 	mSkipBlanks(ptr)
-	if ( !isdigit(*ptr) && * ptr != '.' )
+	if ( !iswdigit(*ptr) && * ptr != '.' )
 	    is_ip_adrr = false;
     }
 
