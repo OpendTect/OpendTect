@@ -58,6 +58,7 @@ public:
     inline bool		isZero( int icomp=0 ) const
 			{ return icomp >= nrcomp_ || data_[icomp]->isZero(); }
 
+    bool		isValidComp(int icomp=0) const;
     float		getValue(int isamp,int icomp=0) const;
     void		setValue(int isamp,float,int icomp=0);
 
