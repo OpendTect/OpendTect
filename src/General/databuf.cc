@@ -192,9 +192,15 @@ void TraceData::copyFrom( const TraceData& td, int icfrom, int icto )
 }
 
 
+bool TraceData::isValidComp( int icomp ) const 
+{
+    return ( icomp>=0 && icomp<nrcomp_ && data_[icomp]->isOk() );
+}
+
+
 float TraceData::getValue( int isamp, int icomp ) const
 {
-    if ( icomp >= nrcomp_ )
+    if ( !isValidComp(icomp) )
 	{ pErrMsg("Component does not exist"); return 0.f; }
     return interp_[icomp]->get( data_[icomp]->data(), isamp );
 }
@@ -202,7 +208,7 @@ float TraceData::getValue( int isamp, int icomp ) const
 
 void TraceData::setValue( int isamp, float v, int icomp )
 {
-    if ( icomp >= nrcomp_ )
+    if ( !isValidComp(icomp) )
 	{ pErrMsg("Component does not exist"); }
     else
 	interp_[icomp]->put( data_[icomp]->data(), isamp, v );
