@@ -19,8 +19,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiflatviewmainwin.h"
 #include "uiflatviewslicepos.h"
 #include "uilabel.h"
-#include "uimultiflatviewcontrol.h"
 #include "uimsg.h"
+#include "uimultiflatviewcontrol.h"
 #include "uipsviewer2dmainwin.h"
 #include "uispinbox.h"
 #include "uitaskrunner.h"
@@ -193,6 +193,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     fvsu.withedit(false).withthumbnail(false).withcoltabed(false)
 	.tba((int)uiToolBar::Right ).withflip(false).withsnapshot(false);
     control_ = new uiMultiFlatViewControl( *vwr_, fvsu );
+    control_->setViewerType( vwr_, true );
 
     displayPostStackSynthetic( currentwvasynthetic_, true );
     displayPostStackSynthetic( currentvdsynthetic_, false );
@@ -212,7 +213,10 @@ uiStratSynthDisp::~uiStratSynthDisp()
 void uiStratSynthDisp::addViewerToControl( uiFlatViewer& vwr )
 {
     if ( control_ )
+    {
 	control_->addViewer( vwr );
+	control_->setViewerType( &vwr, false );
+    }
 }
 
 
@@ -886,6 +890,7 @@ void uiStratSynthDisp::displayPostStackSynthetic( const SyntheticData* sd,
     }
 
     vwr_->setPack( wva, dp->id(), !hadpack );
+    control_->setD2TModels( *d2tmodels_ );
     NotifyStopper notstop( vwr_->viewChanged );
     if ( mIsZero(relzoomwr_.left(),1e-3) &&
 	 mIsEqual(relzoomwr_.width(),1.0,1e-3) &&
@@ -1337,7 +1342,6 @@ void uiStratSynthDisp::wvDataSetSel( CallBacker* )
     setCurrentSynthetic( true );
     updateFields();
     displayPostStackSynthetic( currentwvasynthetic_, true );
-    //TODO check if it works doModelChange();
 }
 
 

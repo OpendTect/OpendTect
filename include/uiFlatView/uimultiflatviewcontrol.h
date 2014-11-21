@@ -14,13 +14,30 @@ ________________________________________________________________________
 #include "uiflatviewmod.h"
 #include "uiflatviewstdcontrol.h"
 #include "flatview.h"
+#include "velocitycalc.h"
 
 /*!
 \brief A control for flatviewers with different zoom properties and settings.
 */
 
+mExpClass(uiFlatView) MFVCViewManager
+{
+public:
+    void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
+			{ d2tmodels_ = d2t; }
+    void		setViewerType(const uiFlatViewer* vwr,bool isintime);
+    bool		getViewRect(const uiFlatViewer* activevwr,
+	    			    const uiFlatViewer* curvwr,
+				    uiWorldRect&) const;
+protected:
+    BoolTypeSet					zintimeflags_;
+    ObjectSet<const TimeDepthModel>		d2tmodels_;
+    ObjectSet<const uiFlatViewer>		vwrs_;
+};
+
+
 mExpClass(uiFlatView) uiMultiFlatViewControl : public uiFlatViewStdControl
-{ mODTextTranslationClass(uiMultiFlatViewControl);
+{ mODTextTranslationClass(uiMultiFlatViewControl)
 public:
     			uiMultiFlatViewControl(uiFlatViewer&,const Setup&);
     			~uiMultiFlatViewControl();
@@ -35,6 +52,10 @@ public:
 
     void		setZoomCoupled( bool yn ) { iszoomcoupled_ = yn; }
     void		setDrawZoomBoxes( bool yn ) { drawzoomboxes_ = yn; }
+    void		setViewerType( const uiFlatViewer* vwr, bool isintime )
+			{ viewmgr_.setViewerType( vwr, isintime ); }
+    void		setD2TModels(const ObjectSet<const TimeDepthModel>& d2t)
+			{ viewmgr_.setD2TModels( d2t ); }
 
     void		reInitZooms();
 
@@ -43,6 +64,7 @@ protected:
     ObjectSet<uiToolBar> toolbars_;
     ObjectSet<uiToolButton> parsbuts_;
     ObjectSet<FlatView::AuxData> zoomboxes_;
+    MFVCViewManager	viewmgr_;
 
     bool		handleUserClick(int vwridx);
     bool		iszoomcoupled_;
