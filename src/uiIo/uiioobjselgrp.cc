@@ -613,6 +613,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 
     fillListBox();
     setCurrent( curidx );
+    selChg( 0 );
 }
 
 
@@ -732,16 +733,20 @@ void uiIOObjSelGrp::selChg( CallBacker* cb )
     PtrMan<IOObj> ioobj = updStatusBarInfo( true );
     if ( mkdefbut_ )
     {
-	const bool enab = ioobj && ioobj->implExists(true);
+	mkdefbut_->setSensitive( listfld_->size() );
 	const bool isdef = ioobj && IOObj::isSurveyDefault( ioobj->key() );
-	mkdefbut_->setSensitive( enab && !isdef );
-	if ( enab && !isdef )
+	if ( ioobj && !isdef )
 	{
 	    BufferString tt( "Set '", ioobj->name(), "' as default" );
 	    mkdefbut_->setToolTip( tt );
 	}
+	else if ( isdef )
+	{
+	    BufferString deftt( "'",ioobj->name(), "' is default object" );
+	    mkdefbut_->setToolTip( deftt );
+	}
 	else
-	    mkdefbut_->setToolTip( uiStrings::sEmptyString() );
+	    mkdefbut_->setToolTip( "Set as dafault" );
     }
 
     if ( wrtrselfld_ && ioobj )
