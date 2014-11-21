@@ -19,10 +19,107 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uirgbarraycanvas.h"
 #include "uiworld2ui.h"
 
+#include "hiddenparam.h"
 #include "flatviewzoommgr.h"
 #include "scaler.h"
 #include "mouseevent.h"
 #include "pixmap.h"
+#include "survinfo.h"
+
+
+
+void MFVCViewManager::setViewerType( const uiFlatViewer* vwr, bool isintime )
+{
+    const int vwridx = vwrs_.indexOf( vwr );
+    if ( vwridx<0 )
+    {
+	vwrs_ += vwr;
+	zintimeflags_ += BoolTypeSetType( isintime );
+	return;
+    }
+    zintimeflags_[vwridx] = isintime;
+}
+
+
+bool MFVCViewManager::getViewRect( const uiFlatViewer* activevwr,
+				   const uiFlatViewer* curvwr,
+				   uiWorldRect& viewwr ) const
+{
+    const int activevwridx = vwrs_.indexOf( activevwr );
+    const int curvwridx = vwrs_.indexOf( curvwr );
+    if ( !vwrs_.validIdx(curvwridx) || !vwrs_.validIdx(activevwridx) ||
+	 activevwridx<0 )
+	return false;
+    const uiWorldRect& wr = activevwr->curView();
+    if ( d2tmodels_.isEmpty() )
+    {
+	const uiWorldRect& masterbbox = activevwr->boundingBox();
+	const uiWorldRect bbox = vwrs_[curvwridx]->boundingBox();
+	LinScaler sclr( masterbbox.left(), bbox.left(),
+			masterbbox.right(), bbox.right() );
+	LinScaler sctb( masterbbox.top(), bbox.top(),
+			masterbbox.bottom(), bbox.bottom() );
+	viewwr = uiWorldRect( sclr.scale(wr.left()), sctb.scale(wr.top()),
+			      sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
+    }
+    else
+    {
+	if ( !zintimeflags_.validIdx(curvwridx) ||
+	     !zintimeflags_.validIdx(activevwridx) )
+	    return false;
+	const bool isactiveintime = zintimeflags_[activevwridx];
+	const bool iscurintime = zintimeflags_[curvwridx];
+	if ( isactiveintime == iscurintime )
+	{
+	    viewwr = wr;
+	    return true;
+	}
+	viewwr.setLeft( wr.left() );
+	viewwr.setRight( wr.right() );
+
+	if ( isactiveintime )
+	{
+	    Interval<float> timerg( mCast(float,wr.top()),
+				    mCast(float,wr.bottom()) );
+	    Interval<double> depthrg( d2tmodels_[0]->getDepth(timerg.start),
+				      d2tmodels_[0]->getDepth(timerg.stop) );
+	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
+	    {
+		const TimeDepthModel& d2t = *d2tmodels_[idx];
+		Interval<double> curdepthrg( d2t.getDepth(timerg.start),
+					     d2t.getDepth(timerg.stop) );
+		if ( !curdepthrg.isUdf() )
+		    depthrg.include( curdepthrg );
+	    }
+
+	    depthrg.shift( SI().seismicReferenceDatum() );
+	    viewwr.setTop( depthrg.start );
+	    viewwr.setBottom( depthrg.stop );
+	}
+	else
+	{
+	    Interval<float> depthrg( mCast(float,wr.top()),
+				     mCast(float,wr.bottom()) );
+	    Interval<double> timerg( d2tmodels_[0]->getTime(depthrg.start),
+				      d2tmodels_[0]->getTime(depthrg.stop) );
+	    for ( int idx=1; idx<d2tmodels_.size(); idx++ )
+	    {
+		const TimeDepthModel& d2t = *d2tmodels_[idx];
+		Interval<double> curtimerg( d2t.getTime(depthrg.start),
+					     d2t.getTime(depthrg.stop) );
+		if ( !curtimerg.isUdf() )
+		    timerg.include( curtimerg );
+	    }
+
+	    viewwr.setTop( timerg.start );
+	    viewwr.setBottom( timerg.stop );
+	}
+    }
+
+    return true;
+}
+
+static HiddenParam<uiMultiFlatViewControl,MFVCViewManager*> viewmgrs( 0 );
 
 uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 				    const uiFlatViewStdControl::Setup& setup )
@@ -31,6 +128,9 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
     , drawzoomboxes_(false)			  
     , activevwr_(0)  
 {
+    MFVCViewManager* viewmgr = new MFVCViewManager;
+    viewmgrs.setParam( this, viewmgr );
+    setViewerType( &vwr, true );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomBoxesCB );
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::setZoomAreasCB );
     parsbuts_ += parsbut_;
@@ -41,6 +141,9 @@ uiMultiFlatViewControl::uiMultiFlatViewControl( uiFlatViewer& vwr,
 uiMultiFlatViewControl::~uiMultiFlatViewControl()
 {
     detachAllNotifiers();
+    MFVCViewManager* viewmgr = viewmgrs.getParam( this );
+    viewmgrs.removeParam( this );
+    delete viewmgr;
 }
 
 
@@ -51,6 +154,21 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 
     activevwr_ = vwrs_[vwridx];
     return true;
+}
+
+
+
+void uiMultiFlatViewControl::setViewerType( const uiFlatViewer* vwr,
+					    bool isintime )
+{
+    viewmgrs.getParam(this)->setViewerType( vwr, isintime );
+}
+
+
+void uiMultiFlatViewControl::setD2TModels(
+				const ObjectSet<const TimeDepthModel>& d2t )
+{
+    viewmgrs.getParam(this)->setD2TModels( d2t );
 }
 
 
@@ -94,6 +212,7 @@ void uiMultiFlatViewControl::vwrAdded( CallBacker* )
     mAttachCB( vwr.viewChanged, uiMultiFlatViewControl::vwChgCB );
 
     reInitZooms();
+    setViewerType( &vwr, true );
 }
 
 
@@ -222,25 +341,16 @@ void uiMultiFlatViewControl::setZoomAreasCB( CallBacker* cb )
     if ( !vwrs_.isPresent(vwr) ) return;
     activevwr_ = vwr;
 
-    const uiWorldRect& masterbbox = activeVwr()->boundingBox();
-    const uiWorldRect& wr = activeVwr()->curView();
     bool havezoom = false;
-
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	if ( vwrs_[idx] == activeVwr() )
 	    continue;
 
-	const uiWorldRect bbox = vwrs_[idx]->boundingBox();
-	const uiWorldRect oldwr = vwrs_[idx]->curView();
-	LinScaler sclr( masterbbox.left(), bbox.left(),
-		        masterbbox.right(), bbox.right() );
-	LinScaler sctb( masterbbox.top(), bbox.top(),
-		        masterbbox.bottom(), bbox.bottom() );
-	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
-			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
-	if ( haveZoom(oldwr.size(),newwr.size()) )
-	    { zoommgr_.add( newwr.size(), idx ); havezoom = true; }
+	uiWorldRect newwr;
+	if ( !viewmgrs.getParam(this)->getViewRect(activeVwr(),vwrs_[idx],
+						   newwr) )
+	    continue;
 
 	NotifyStopper ns( vwrs_[idx]->viewChanged );
 	vwrs_[idx]->setView( newwr );
@@ -278,7 +388,8 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 
     const uiWorldRect& masterbbox = activeVwr()->boundingBox();
     const uiWorldRect& wr = activeVwr()->curView();
-
+    if ( wr == masterbbox )
+	return;
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	FlatView::AuxData* ad = vwrs_[idx]->createAuxData( "Zoom box" );
@@ -287,16 +398,13 @@ void uiMultiFlatViewControl::setZoomBoxesCB( CallBacker* cb )
 	ad->linestyle_ = LineStyle( LineStyle::Dash, 3, Color::Black() );
 	ad->zvalue_ = uiFlatViewer::annotZVal();
 
-	if ( vwrs_[idx] == activeVwr() || wr == masterbbox )
+	if ( vwrs_[idx] == activeVwr() )
 	    continue;
 
-	const uiWorldRect& bbox = vwrs_[idx]->boundingBox();
-	LinScaler sclr( masterbbox.left(), bbox.left(),
-		        masterbbox.right(), bbox.right() );
-	LinScaler sctb( masterbbox.top(), bbox.top(),
-		        masterbbox.bottom(), bbox.bottom() );
-	uiWorldRect newwr( sclr.scale(wr.left()), sctb.scale(wr.top()),
-			   sclr.scale(wr.right()), sctb.scale(wr.bottom()) );
+	uiWorldRect newwr;
+	if ( !viewmgrs.getParam(this)->getViewRect(activeVwr(),vwrs_[idx],
+						   newwr) )
+	    continue;
 	ad->poly_ += newwr.topLeft(); 
 	ad->poly_ += newwr.topRight();
 	ad->poly_ += newwr.bottomRight();
