@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "trckeyzsampling.h"
+#include "valseries.h"
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -30,23 +31,62 @@ class TaskRunner;
 namespace ZDomain { class Info; }
 
 
-mExpClass(General) SampledDataPack : public DataPack
+mExpClass(General) TrcKeyDataPack : public DataPack
 {
 public:
-				SampledDataPack(const char* cat);
-				~SampledDataPack();
+				~TrcKeyDataPack();
+    virtual od_int64		nrTrcs() const				= 0;
+    virtual TrcKey		getTrcKey(od_int64 globaltrcidx)	= 0;
+    virtual od_int64		getGlobalIdx(const TrcKey&) const	= 0;
+
+    virtual bool		addComponent(const BinDataDesc*,
+					     const char* nm)		= 0;
+
+    virtual int			nrComponents() const			= 0;
+    virtual const char*		getComponentName(int comp=0) const	= 0;
+
+    virtual const OffsetValueSeries<float> getTrcData(int comp,
+					    od_int64 globaltrcidx) const = 0;
+    virtual const StepInterval<float>	getZInterval(od_int64 gidx) const = 0;
+
+    void			setZDomain(const ZDomain::Info&);
+    const ZDomain::Info&	zDomain() const;
+
+    void			setScale(int comp,const SamplingData<float>&);
+    const SamplingData<float>&	getScale(int comp) const;
+
+protected:
+					TrcKeyDataPack(const char*);
+    TypeSet<SamplingData<float> >	scales_;
+    ZDomain::Info*			zdominfo_;
+};
+
+
+mExpClass(General) SampledAttribDataPack : public TrcKeyDataPack
+{
+public:
+				SampledAttribDataPack(const char* cat);
+				~SampledAttribDataPack();
+
+    od_int64			nrTrcs() const;
+    TrcKey			getTrcKey(od_int64 globaltrcidx);
+    od_int64			getGlobalIdx(const TrcKey& tk) const;
+    const OffsetValueSeries<float> getTrcData(int comp,
+					    od_int64 globaltrcidx) const;
+
+    const StepInterval<float>	getZInterval(od_int64 gidx) const;
 
     void			setSampling(const TrcKeyZSampling&);
     const TrcKeyZSampling&	sampling() const;
 
-    bool			add(const BinDataDesc*,const char* nm);
+    bool			addComponent(const BinDataDesc*,
+					     const char* nm);
 
     int				nrComponents() const;
+    const char*			getComponentName(int comp=0) const;
+
     const Array3D<float>&	data(int component=0) const;
     Array3D<float>&		data(int component=0);
-
-    void			setZDomain(const ZDomain::Info&);
-    const ZDomain::Info&	zDomain() const;
 
     float			nrKBytes() const;
 
@@ -56,7 +96,6 @@ protected:
     BufferStringSet		componentnames_;
 
     TrcKeyZSampling		sampling_;
-    ZDomain::Info*		zdominfo_;
 };
 
 

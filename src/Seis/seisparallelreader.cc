@@ -406,7 +406,7 @@ bool ParallelReader2D::doFinish( bool success )
 class ArrayFiller : public SequentialTask
 {
 public:
-ArrayFiller( SampledDataPack& dp, SeisTrc& trc )
+ArrayFiller( SampledAttribDataPack& dp, SeisTrc& trc )
     : dp_(dp)
     , trc_(trc)
 {}
@@ -433,8 +433,8 @@ int nextStep()
 
 protected:
 
-    SampledDataPack&	dp_;
-    SeisTrc&		trc_;
+    SampledAttribDataPack&	dp_;
+    SeisTrc&			trc_;
 };
 
 
@@ -443,7 +443,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 				    const TrcKeyZSampling& tkzs )
     : Executor("Reader")
     , tkzs_(tkzs)
-    , dp_(new SampledDataPack(0))
+    , dp_(new SampledAttribDataPack(0))
     , components_(comps)
 {
     queueid_ = Threads::WorkManager::twm().addQueue(
@@ -459,7 +459,7 @@ SequentialReader::SequentialReader( const IOObj& ioobj,
 
     dp_->setSampling( tkzs );
     for ( int idx=0; idx<comps.size(); idx++ )
-	dp_->add( 0, "" );
+	dp_->addComponent( 0, "" );
 }
 
 

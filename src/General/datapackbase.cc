@@ -23,29 +23,74 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <math.h>
 
 
-
-SampledDataPack::SampledDataPack( const char* cat )
+TrcKeyDataPack::TrcKeyDataPack( const char* cat )
     : DataPack(cat)
     , zdominfo_(new ZDomain::Info(ZDomain::SI()))
+{}
+
+
+TrcKeyDataPack::~TrcKeyDataPack()
+{
+    deleteAndZeroPtr( zdominfo_ );
+}
+
+
+void TrcKeyDataPack::setZDomain( const ZDomain::Info& zinf )
+{
+    delete zdominfo_;
+    zdominfo_ = new ZDomain::Info( zinf );
+}
+
+
+const ZDomain::Info& TrcKeyDataPack::zDomain() const
+{ return *zdominfo_; }
+
+
+SampledAttribDataPack::SampledAttribDataPack( const char* cat )
+    : TrcKeyDataPack(cat)
 {
     sampling_.init( false );
 }
 
+od_int64 SampledAttribDataPack::nrTrcs() const
+{ return sampling_.hsamp_.totalNr(); }
 
-SampledDataPack::~SampledDataPack()
+
+TrcKey SampledAttribDataPack::getTrcKey(od_int64 globaltrcidx)
+{ return sampling_.hsamp_.trcKeyAt(globaltrcidx); }
+
+
+od_int64 SampledAttribDataPack::getGlobalIdx(const TrcKey& tk) const
+{ return sampling_.hsamp_.globalIdx(tk); }
+
+
+const OffsetValueSeries<float>
+SampledAttribDataPack::getTrcData(int comp, od_int64 globaltrcidx) const
+{
+    return OffsetValueSeries<float>( *arrays_[comp]->getStorage(),
+			 globaltrcidx*arrays_[comp]->info().getSize(2) );
+}
+
+
+const StepInterval<float> SampledAttribDataPack::getZInterval( od_int64 ) const
+{ return sampling_.zsamp_; }
+
+
+SampledAttribDataPack::~SampledAttribDataPack()
 {
     deepErase( arrays_ );
 }
 
 
-void SampledDataPack::setSampling( const TrcKeyZSampling& tkzs )
+void SampledAttribDataPack::setSampling( const TrcKeyZSampling& tkzs )
 { sampling_ = tkzs; }
 
-const TrcKeyZSampling& SampledDataPack::sampling() const
+const TrcKeyZSampling& SampledAttribDataPack::sampling() const
 { return sampling_; }
 
 
-bool SampledDataPack::add( const BinDataDesc* desc, const char* nm )
+bool SampledAttribDataPack::addComponent( const BinDataDesc* desc,
+					  const char* nm )
 {
     if ( !sampling_.isDefined() )
 	return false;
@@ -84,28 +129,25 @@ bool SampledDataPack::add( const BinDataDesc* desc, const char* nm )
 }
 
 
-int SampledDataPack::nrComponents() const
+int SampledAttribDataPack::nrComponents() const
 { return arrays_.size(); }
 
-const Array3D<float>& SampledDataPack::data( int component ) const
-{ return *arrays_[component]; }
 
-Array3D<float>& SampledDataPack::data( int component )
-{ return *arrays_[component]; }
-
-
-void SampledDataPack::setZDomain( const ZDomain::Info& zinf )
+const char* SampledAttribDataPack::getComponentName( int component ) const
 {
-    delete zdominfo_;
-    zdominfo_ = new ZDomain::Info( zinf );
+    return componentnames_.validIdx(component)
+	? componentnames_[component]->buf()
+	: 0;
 }
 
+const Array3D<float>& SampledAttribDataPack::data( int component ) const
+{ return *arrays_[component]; }
 
-const ZDomain::Info& SampledDataPack::zDomain() const
-{ return *zdominfo_; }
+Array3D<float>& SampledAttribDataPack::data( int component )
+{ return *arrays_[component]; }
 
 
-float SampledDataPack::nrKBytes() const
+float SampledAttribDataPack::nrKBytes() const
 {
     return mCast(float,sampling_.totalNr()); // * desc->nrBytes();
 }

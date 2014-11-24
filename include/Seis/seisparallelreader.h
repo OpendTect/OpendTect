@@ -22,7 +22,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class CBVSSeisTrcTranslator;
 class IOObj;
-class SampledDataPack;
+class SampledAttribDataPack;
 
 template <class T> class Array2D;
 template <class T> class Array3D;
@@ -140,7 +140,7 @@ protected:
     CBVSSeisTrcTranslator*	trl_;
     Seis::SelData*		sd_;
     TrcKeyZSampling		tkzs_;
-    SampledDataPack*		dp_;
+    SampledAttribDataPack*	dp_;
     TypeSet<int>		components_;
     Interval<int>		samprg_;
     unsigned char**		blockbufs_;
