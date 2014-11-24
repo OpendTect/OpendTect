@@ -243,12 +243,15 @@ void uiWellMarkersDispProperties::getSelNames()
 void uiWellMarkersDispProperties::setSelNames()
 {
     NotifyStopper ns( displaymarkersfld_->itemChosen );
+    TypeSet<int> chosenitms;
     for ( int idx=0; idx<displaymarkersfld_->size(); idx ++ )
     {
 	BufferString mrknm = displaymarkersfld_->textOfItem(idx);
 	const bool ispresent = mrkprops().selmarkernms_.isPresent( mrknm );
-	displaymarkersfld_->setChosen( idx, ispresent );
+	if ( ispresent ) chosenitms += idx;
     }
+
+    displaymarkersfld_->setChosen( chosenitms );
 }
 
 
