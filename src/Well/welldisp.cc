@@ -26,7 +26,6 @@ static const char* sKeyMarkerSingleColor = "Single Marker Color";
 static const char* sKeyMarkerSelected = "Selected Markers";
 static const char* sKeyLeftColor = "Left Log Color";
 static const char* sKeyLeftSize = "Left Log Size";
-static const char* sKeyLeftStyle = "Left Log Style";
 static const char* sKeyLeftLeftFill = "Left Fill Left Log";
 static const char* sKeyLeftRightFill = "Right Fill Left Log";
 static const char* sKeyLeftSingleCol = "Left Single Fill Color";
@@ -45,7 +44,6 @@ static const char* sKeyLeftColTabFlipped = "Left Log Color Table Flipped";
 static const char* sKeyLeftScale = "Left Log scale";
 static const char* sKeyRightColor = "Right Log Color";
 static const char* sKeyRightSize = "Right Log Size";
-static const char* sKeyRightStyle = "Right Log Style";
 static const char* sKeyRightLeftFill = "Left Fill Right Log";
 static const char* sKeyRightRightFill = "Right Fill Right Log";
 static const char* sKeyRightSingleCol = "Right Single Fill Color";
@@ -231,7 +229,6 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftRightFill), isrightfill_ );
     iop.getYN(IOPar::compKey(subjectName(),sKeyLeftRevertRange),islogreverted_);
     iop.get( IOPar::compKey(subjectName(),sKeyLeftCliprate), cliprate_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyLeftStyle), iswelllog_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftSingleCol), issinglecol_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyLeftDataRange), isdatarange_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftRepeatLog), repeat_ );
@@ -263,7 +260,6 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
     iop.getYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),
               islogreverted_);
     iop.get( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
-    iop.getYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightSingleCol), issinglecol_ );
     iop.getYN( IOPar::compKey(subjectName(),sKeyRightDataRange), isdatarange_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightRepeatLog), repeat_ );
@@ -293,7 +289,6 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftRightFill), isrightfill_ );
     iop.setYN(IOPar::compKey(subjectName(),sKeyLeftRevertRange),islogreverted_);
     iop.set( IOPar::compKey(subjectName(),sKeyLeftCliprate), cliprate_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyLeftStyle), iswelllog_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftSingleCol), issinglecol_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyLeftDataRange), isdatarange_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftRepeatLog), repeat_ );
@@ -325,7 +320,6 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
     iop.setYN(IOPar::compKey(subjectName(),sKeyRightRevertRange),
               islogreverted_);
     iop.set( IOPar::compKey(subjectName(),sKeyRightCliprate), cliprate_ );
-    iop.setYN( IOPar::compKey(subjectName(),sKeyRightStyle), iswelllog_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightSingleCol), issinglecol_ );
     iop.setYN( IOPar::compKey(subjectName(),sKeyRightDataRange), isdatarange_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightRepeatLog), repeat_ );

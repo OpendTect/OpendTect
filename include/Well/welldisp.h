@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "survinfo.h"
 
-
 #include "bufstringset.h"
 
 
@@ -136,7 +135,6 @@ public:
 			    , islogarithmic_(false)
 			    , islogreverted_(false)
 			    , issinglecol_(false)
-			    , iswelllog_(true)
 			    , name_("none")
 		            , logwidth_(250 *
 				((int)(SI().xyInFeet() ? mToFeetFactorF:1)))
@@ -153,7 +151,6 @@ public:
 
 	BufferString	name_;
 	BufferString	fillname_;
-	bool		iswelllog_;
 	float           cliprate_;
 	Interval<float> range_;
 	Interval<float> fillrange_;

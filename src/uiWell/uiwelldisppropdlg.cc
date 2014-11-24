@@ -51,14 +51,11 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
-		uiWellDispProperties::Setup( "Line thickness", "Line color"),
-		props.logs_[0]->left_, &(wd_->logs()) );
-    wlp1->disableLogWidth( is2d );
+		uiWellDispProperties::Setup("Line thickness","Line color")
+		.onlyfor2ddisplay(is2d),props.logs_[0]->left_,&(wd_->logs()) );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
-		uiWellDispProperties::Setup( "Line thickness", "Line color"),
-		props.logs_[0]->right_, &(wd_->logs()) );
-    wlp2->disableLogWidth( is2d );
-
+		uiWellDispProperties::Setup("Line thickness","Line color")
+		.onlyfor2ddisplay(is2d),props.logs_[0]->right_,&(wd_->logs()) );
     propflds_ += wlp1;
     propflds_ += wlp2;
 

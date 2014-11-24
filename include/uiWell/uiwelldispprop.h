@@ -13,12 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiwellmod.h"
-#include "bufstringset.h"
-#include "multiid.h"
-#include "ranges.h"
-#include "sets.h"
 #include "uigroup.h"
-#include "uistring.h"
 #include "welldisp.h"
 
 class uiCheckBox;
@@ -50,9 +45,11 @@ public:
 	    Setup( const uiString& sztxt=uiString::emptyString(),
 		   const uiString& coltxt=uiString::emptyString() )
 		: mysztxt_(!sztxt.isEmpty() ? sztxt : "Line thickness")
-		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")	{}
+		, mycoltxt_(!coltxt.isEmpty() ? coltxt : "Line color")
+		, onlyfor2ddisplay_(false) {}
 	    mDefSetupMemb(uiString,mysztxt)
 	    mDefSetupMemb(uiString,mycoltxt)
+	    mDefSetupMemb(bool,onlyfor2ddisplay)
     };
 
 			uiWellDispProperties(uiParent*,const Setup&,
@@ -76,7 +73,7 @@ protected:
     void		propChg(CallBacker*);
     uiColorInput*	colfld_;
     uiLabeledSpinBox*	szfld_;
-
+    Setup		setup_;
 };
 
 
@@ -161,8 +158,6 @@ public:
 
     void		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
-    void		disableSeisStyle(bool);
-    void		disableLogWidth(bool);
 
 protected:
 
@@ -174,7 +169,6 @@ protected:
     void		setTubeSel();
     void		setWellLogSel();
     void		isStyleChanged(CallBacker*);
-    void		recoverProp();
     void		choiceSel(CallBacker*);
     void		setRangeFields(Interval<float>&);
     void		setFillRangeFields(Interval<float>&);
