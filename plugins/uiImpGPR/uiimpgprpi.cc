@@ -18,7 +18,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitaskrunner.h"
 
 #include "dztimporter.h"
+#include "posinfo2d.h"
 #include "survinfo.h"
+#include "survgeom2d.h"
 #include "od_istream.h"
 #include "filepath.h"
 #include "odplugin.h"
@@ -71,7 +73,7 @@ void uiImpGPRMgr::updMnu( CallBacker* )
 
 
 class uiDZTImporter : public uiDialog
-{
+{ mODTextTranslationClass(uiDZTImporter)
 public:
 
 uiDZTImporter( uiParent* p )
@@ -141,6 +143,31 @@ bool acceptOK( CallBacker* )
     const BufferString lnm( lnmfld_->text() );
     if ( lnm.isEmpty() ) mErrRet("Please enter the output line name")
 
+    Pos::GeomID geomid = Survey::GM().getGeomID( lnm );
+    if (  geomid != Survey::GeometryManager::cUndefGeomID() )
+    {
+	uiString msg =
+	    tr("The 2D Line '%1' already exists. If you overwrite "
+	       "its geometry, all the associated data will be "
+	       "affected. Do you still want to overwrite?").arg(lnm);
+	if ( !uiMSG().askOverwrite(msg) )
+	    return false;
+	mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			 Survey::GMAdmin().getGeometry(geomid) );
+	if ( !geom2d ) return false;
+	geom2d->dataAdmin().setEmpty();
+	geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom = new Survey::Geometry2D;
+	newgeom->dataAdmin().setLineName( lnm );
+	uiString msg;
+	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    mErrRet( msg );
+    }
+
     const IOObj* ioobj = outfld_->ioobj();
     if ( !ioobj ) return false;
 
@@ -152,8 +179,8 @@ bool acceptOK( CallBacker* )
     importer.fh_.cstep_.y = stepposfld_->getfValue(1);
     importer.zfac_ = zfacfld_->getfValue();
 
-    uiTaskRunner tr( this );
-    return TaskRunner::execute( &tr, importer );
+    uiTaskRunner uitr( this );
+    return TaskRunner::execute( &uitr, importer );
 }
 
     uiFileInput*	inpfld_;

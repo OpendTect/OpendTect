@@ -159,6 +159,8 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 	newgeom->dataAdmin().setLineName( linenm );
 	uiString msg;
 	geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+	    mErrRet( msg );
     }
 
     const IOObj* inobj = basegrp_->getInputIOObj();

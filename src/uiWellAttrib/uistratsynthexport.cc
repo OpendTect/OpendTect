@@ -415,16 +415,36 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	}
     }
 
-    create2DGeometry( ptlist, linegeom );
-    Survey::Geometry2D* newgoem2d = new Survey::Geometry2D( &linegeom );
-    newgoem2d->ref();
-    uiString errmsg;
     Survey::Geometry::ID newgeomid =
-	Survey::GMAdmin().addNewEntry( newgoem2d, errmsg );
-    newgoem2d->unRef();
-    if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
-	mErrRet(errmsg,false)
-
+	Survey::GM().getGeomID( linegeom.lineName() );
+    if ( newgeomid != Survey::GeometryManager::cUndefGeomID() )
+    {
+	uiString msg =
+	    tr("The 2D Line '%1' already exists. If you overwrite "
+	       "its geometry, all the associated data will be "
+	       "affected. Do you still want to overwrite?")
+	    .arg(linegeom.lineName());
+	if ( !uiMSG().askOverwrite(msg) )
+	    return false;
+	mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			 Survey::GMAdmin().getGeometry(newgeomid) );
+	if ( !geom2d ) return false;
+	geom2d->dataAdmin().setEmpty();
+	geom2d->touch();
+    }
+    else
+    {
+	Survey::Geometry2D* newgeom = new Survey::Geometry2D;
+	newgeom->dataAdmin().setLineName( linegeom.lineName() );
+	uiString msg;
+	newgeomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	if ( newgeomid == Survey::GeometryManager::cUndefGeomID() )
+	{
+	    uiMSG().error( msg );
+	    return false;
+	}
+    }
+    create2DGeometry( ptlist, linegeom );
     return true;
 }
 
@@ -554,16 +574,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	mErrRet( "No line name specified", false );
     }
 
-    const Survey::Geometry* geom = Survey::GM().getGeometry( linenm );
-    if ( selType() != Existing && geom )
-    {
-	getExpObjs();
-	mErrRet( "Line name already exists. If you want to overwrite \n"
-		 "the geometry of the existing line , you have to remove \n"
-		 "it from 'Survey>>Manage>>Geometry2D'", false )
-    }
-
-    PosInfo::Line2DData* linegeom = new PosInfo::Line2DData( linenm );
+    PtrMan<PosInfo::Line2DData> linegeom = new PosInfo::Line2DData( linenm );
     if ( !getGeometry(*linegeom) )
     {
 	getExpObjs();

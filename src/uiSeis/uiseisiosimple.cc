@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seisselection.h"
 #include "seisresampler.h"
+#include "survgeom2d.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "ioobj.h"
@@ -430,7 +431,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File::exists(fnm) )
-	mErrRet("Input file does not exist or is unreadable")
+	mErrRet(tr("Input file does not exist or is unreadable"))
     const IOObj* ioobj = seisfld_->ioobj( true );
     if ( !ioobj )
 	return false;
@@ -444,7 +445,32 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	else
 	    linenm = lnmfld_->getInput();
 	if ( linenm.isEmpty() )
-	    mErrRet( "Please enter a line name" )
+	    mErrRet( tr("Please enter a line name") )
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	if (  geomid != Survey::GeometryManager::cUndefGeomID() )
+	{
+	    uiString msg =
+		tr("The 2D Line '%1' already exists. If you overwrite "
+		   "its geometry, all the associated data will be "
+		   "affected. Do you still want to overwrite?")
+		.arg(linenm);
+	    if ( !uiMSG().askOverwrite(msg) )
+		return false;
+	    mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			     Survey::GMAdmin().getGeometry(geomid) );
+	    if ( !geom2d ) return false;
+	    geom2d->dataAdmin().setEmpty();
+	    geom2d->touch();
+	}
+	else
+	{
+	    Survey::Geometry2D* newgeom = new Survey::Geometry2D;
+	    newgeom->dataAdmin().setLineName( linenm );
+	    uiString msg;
+	    geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+		mErrRet( msg );
+	}
 	data().linekey_.setLineName( linenm );
     }
 
