@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seisselection.h"
 #include "seisresampler.h"
+#include "survgeom2d.h"
 #include "ctxtioobj.h"
 #include "trckeyzsampling.h"
 #include "ioobj.h"
@@ -448,6 +449,31 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    linenm = lnmfld_->getInput();
 	if ( linenm.isEmpty() )
 	    mErrRet( tr("Please enter a line name") )
+	Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
+	if (  geomid != Survey::GeometryManager::cUndefGeomID() )
+	{
+	    uiString msg =
+		tr("The 2D Line '%1' already exists. If you overwrite "
+		   "its geometry, all the associated data will be "
+		   "affected. Do you still want to overwrite?")
+		.arg(linenm);
+	    if ( !uiMSG().askOverwrite(msg) )
+		return false;
+	    mDynamicCastGet( Survey::Geometry2D*, geom2d,
+			     Survey::GMAdmin().getGeometry(geomid) );
+	    if ( !geom2d ) return false;
+	    geom2d->dataAdmin().setEmpty();
+	    geom2d->touch();
+	}
+	else
+	{
+	    PosInfo::Line2DData* l2d = new PosInfo::Line2DData( linenm );
+	    Survey::Geometry2D* newgeom = new Survey::Geometry2D( l2d );
+	    uiString msg;
+	    geomid = Survey::GMAdmin().addNewEntry( newgeom, msg );
+	    if ( geomid == Survey::GeometryManager::cUndefGeomID() )
+		mErrRet( msg );
+	}
 	data().linekey_.setLineName( linenm );
     }
 

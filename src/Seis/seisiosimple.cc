@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisresampler.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
+#include "survgeom.h"
 #include "oddirs.h"
 #include "od_iostream.h"
 #include "ascbinstream.h"
@@ -173,13 +174,13 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     if ( !errmsg_.isEmpty() )
 	return;
 
+    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     if ( !data_.linekey_.isEmpty() )
     {
-	data_.subselpars_.set( sKey::LineKey(), data_.linekey_ );
-	data_.subselpars_.set( sKey::Attribute(), data_.linekey_.attrName());
-	    // Needed because attrnm can disappear from line key
+	Pos::GeomID geomid  =
+	    Survey::GM().getGeomID( data_.linekey_.lineName() );
+	seldata->setGeomID( geomid );
     }
-    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     sa->setSelData( seldata );
 
     BufferString errmsg;
