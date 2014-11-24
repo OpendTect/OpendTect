@@ -53,11 +53,11 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
 		uiWellDispProperties::Setup( "Line thickness", "Line color"),
 		props.logs_[0]->left_, &(wd_->logs()) );
-    wlp1->disableLogWidth( is2d );
+    wlp1->setOnly2DDisplay( is2d );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
 		uiWellDispProperties::Setup( "Line thickness", "Line color"),
 		props.logs_[0]->right_, &(wd_->logs()) );
-    wlp2->disableLogWidth( is2d );
+    wlp2->setOnly2DDisplay( is2d );
 
     propflds_ += wlp1;
     propflds_ += wlp2;

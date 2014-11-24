@@ -98,12 +98,14 @@ void uiWellLogDisplay::draw()
 {
     uiWellDahDisplay::draw();
 
-    if ( logData().disp_.iswelllog_ )
+    int style = logData(true).disp_.style_;
+    if ( style==0 || style==2 )
 	drawFilledCurve( true );
     else
 	drawSeismicCurve( true );
 
-    if ( logData(false).disp_.iswelllog_ )
+    style = logData(false).disp_.style_;
+    if ( style==0 || style==2 )
 	drawFilledCurve( false );
     else
 	drawSeismicCurve( false );
@@ -138,8 +140,6 @@ void uiWellLogDisplay::drawSeismicCurve( bool first )
 {
     uiWellLogDisplay::LogData& ld = logData(first);
     deepErase( ld.curvepolyitms_ );
-
-    if ( ld.disp_.iswelllog_ ) return;
 
     const float rgstop = ld.xax_.range().stop;
     const float rgstart = ld.xax_.range().start;

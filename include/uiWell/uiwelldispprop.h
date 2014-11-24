@@ -161,6 +161,7 @@ public:
 
     void		resetProps(Well::DisplayProperties::Log&);
     void		setLogSet(const Well::LogSet*);
+    void		setOnly2DDisplay(bool yn);
     void		disableSeisStyle(bool);
     void		disableLogWidth(bool);
 

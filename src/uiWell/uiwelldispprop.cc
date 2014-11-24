@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "hiddenparam.h"
 
 static int fontsizefactor = 10;
 static int deflogwidth = 250;
@@ -323,13 +324,18 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 }
 
 
+HiddenParam< uiWellLogDispProperties, bool* >		only2ddisplay_( 0 );
+
+
 uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 				const uiWellDispProperties::Setup& su,
 				Well::DisplayProperties::Log& lp,
 				const Well::LogSet* wl)
     : uiWellDispProperties(p,su,lp)
 {
-
+    bool* only2ddisplay = new bool;
+    *only2ddisplay = false;
+    only2ddisplay_.setParam(this,only2ddisplay);
     stylefld_ = new uiCheckList( this, uiCheckList::OneOnly, OD::Horizontal );
     stylefld_->addItem( tr("Well log") )
 	      .addItem( tr("Seismic") )
@@ -494,6 +500,8 @@ void uiWellLogDispProperties::doPutToScreen()
     NotifyStopper nsl( logarithmfld_->activated );
     NotifyStopper nsrev( revertlogfld_->activated );
     NotifyStopper nsslf( logfilltypefld_->box()->selectionChanged );
+    NotifyStopper nsstylefld( stylefld_->changed );
+    NotifyStopper nssliderfld( logwidthslider_->valueChanged );
 
     revertlogfld_->setChecked( logprops().islogreverted_ );
     logsfld_->box()->setText( logprops().name_ );
@@ -502,7 +510,6 @@ void uiWellLogDispProperties::doPutToScreen()
     filllogsfld_->box()-> setText( logprops().fillname_ );
 
     stylefld_->setChecked( logprops().style_, true );
-
     logarithmfld_->setChecked( logprops().islogarithmic_ );
     coltablistfld_->setCurrent( logprops().seqname_ );
     flipcoltabfld_->setChecked( logprops().iscoltabflipped_ );
@@ -521,6 +528,7 @@ void uiWellLogDispProperties::doPutToScreen()
 	cliprangefld_->setValue( true );
 	clipratefld_->setValue( 0.0 );
     }
+
     logwidthslider_->setValue( logprops().logwidth_ );
   
     if (logprops().style_ != 1 )
@@ -528,9 +536,9 @@ void uiWellLogDispProperties::doPutToScreen()
     else
 	seiscolorfld_->setColor( logprops().seiscolor_ );
 
-    logsfld_->box()->setText( logprops().name_ );
-
     logSel( 0 );
+    isStyleChanged( 0 );
+    choiceSel( 0 );
 }
 
 
@@ -570,7 +578,8 @@ void uiWellLogDispProperties::doGetFromScreen()
 
     deflogwidth = logprops().logwidth_  = (int)logwidthslider_->getValue();
 
-    if ( curwelllogproperty_ && curwelllogproperty_ != this )
+    if ( !(*only2ddisplay_.getParam(this)) && curwelllogproperty_ &&
+	    curwelllogproperty_!=this )
     {
 	if ( curwelllogproperty_->logprops().style_ == 2 || 
 	     ( curwelllogproperty_->logprops().style_ != 2 && 
@@ -596,7 +605,7 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
     singlfillcolfld_->display( isfilled && iswelllogortube );
     coltablistfld_->display( iswelllogortube &&  isfilled && !issinglecol );
     seiscolorfld_->display( !iswelllogortube );
-    fillcolorfld_->display( (issinglecol && isfilled) );
+    fillcolorfld_->display( iswelllogortube && issinglecol && isfilled );
     filllogsfld_->display( iswelllogortube &&  isfilled && !issinglecol );
     colorrangefld_->display( iswelllogortube &&  isfilled && !issinglecol );
     flipcoltabfld_->display( isfilled && iswelllogortube && !issinglecol );
@@ -623,6 +632,18 @@ void uiWellLogDispProperties::disableLogDisplays()
     logfilltypefld_->display( false );
 }
 
+
+void uiWellLogDispProperties::setOnly2DDisplay( bool yn )
+{
+    *only2ddisplay_.getParam(this) = yn;
+    if ( !yn ) return;
+    lblr_->display( false );
+    repeatfld_->display( false );
+    lblo_->display( false );
+    logwidthslider_->display( false );
+}
+
+
 void uiWellLogDispProperties::isRepeatSel( CallBacker* )
 {
     const bool iswelllog = stylefld_->isChecked( 0 );
@@ -634,10 +655,12 @@ void uiWellLogDispProperties::isRepeatSel( CallBacker* )
 void uiWellLogDispProperties::setSeismicSel()
 {
     setStyleSensitive( true );
-    lblr_->display( true );
-    lblo_->display( true );
+    bool& only2ddisplay = *only2ddisplay_.getParam(this);
+    lblr_->display( !only2ddisplay );
+    lblo_->display( !only2ddisplay );
     colfld_->display( true );
     szfld_->display( true );
+    logwidthslider_->display( !only2ddisplay );
     repeatfld_->setValue(1);
     isFilledSel(0);
 }
@@ -657,7 +680,7 @@ void uiWellLogDispProperties::setWellLogSel()
     colorrangefld_->display( true );
     flipcoltabfld_->display( true );
     revertlogfld_->display( true );
-    logwidthslider_->display( true );
+    logwidthslider_->display( !(*only2ddisplay_.getParam(this)) );
     colfld_->display( true );
     szfld_->display( true );
     isFilledSel(0);
@@ -667,7 +690,6 @@ void uiWellLogDispProperties::setWellLogSel()
 void uiWellLogDispProperties::setTubeSel()
 {
     setWellLogSel();
-    szfld_->setSensitive( false );
 }
 
 
@@ -682,9 +704,6 @@ void uiWellLogDispProperties::setStyleSensitive( bool yn )
 
 void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 {
-    seiscolorfld_->setColor( Color::White() );
-    fillcolorfld_->setColor( Color::White() );
-
     disableLogDisplays();
 
     const int style = logprops().style_;
@@ -747,7 +766,6 @@ void uiWellLogDispProperties::selNone()
     singlfillcolfld_->setChecked( false );
     coltablistfld_->setCurrent( logprops().seqname_ );
     logwidthslider_->setValue( deflogwidth );
-    setStyleSensitive( false );
 }
 
 
@@ -768,6 +786,7 @@ void uiWellLogDispProperties::setFldSensitive( bool yn )
     singlfillcolfld_->setSensitive( yn );
     coltablistfld_->setSensitive( yn );
     filllogsfld_->setSensitive(yn);
+    flipcoltabfld_->setSensitive( yn );
     logarithmfld_->setSensitive(yn);
     logwidthslider_->setSensitive(yn);
     logfilltypefld_->setSensitive(yn);
