@@ -207,7 +207,7 @@ bool Seis2DTo3D::read()
 
     seisbufhs.setParam( this, bufhs );
     if ( seisbuf_.isEmpty() )
-	return true;
+	return false;
 
     hsit_.setSampling( cs_.hrg );
 
@@ -258,6 +258,7 @@ int Seis2DTo3D::nextStep()
 
 void Seis2DTo3D::doWorkNearest()
 {
+    if ( seisbuf_.isEmpty() ) return;
     od_int64 mindist = mUdf(od_int64);
     const SeisTrc* nearesttrc = 0;
     for( int idx=0; idx<seisbuf_.size(); idx++ )
