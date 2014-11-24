@@ -5,13 +5,21 @@
 #	RCS :		$Id$
 #_______________________________________________________________________________
 
+add_custom_command( OUTPUT od_helpids.h
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids.h
+                    ${CMAKE_BINARY_DIR}/include/General/od_helpids.h )
+
+#Force the copy of od_helpids.h before building General
+set ( OD_MODULE_SOURCES od_helpids.h )
+
 set ( OD_MODULE_DEPS Algo )
 if ( NOT DEFINED WIN32 )
     set ( OD_TEST_PROGS ibmformat.cc )
 endif()
 list ( APPEND OD_TEST_PROGS mathexpression.cc mathformula.cc )
 set( OD_NIGHTLY_TEST_PROGS zip.cc )
-set ( OD_MODULE_SOURCES array2dbitmap.cc
+list ( APPEND OD_MODULE_SOURCES array2dbitmap.cc
 	    basemap.cc
 	    batchjobdispatch.cc
 	    beachballdata.cc
