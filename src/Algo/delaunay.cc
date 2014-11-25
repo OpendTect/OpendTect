@@ -373,6 +373,9 @@ char DAGTriangleTree::searchFurther( const Coord& pt, int& ti0,
     {
 	mMultiThread( trianglelock_.readLock() );
 
+	if ( !triangles_.validIdx(ti0) )
+	    return cError();
+
 	if (  !triangles_[ti0].hasChildren() )
 	{
 	    mMultiThread( trianglelock_.readUnLock() );
@@ -591,7 +594,8 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
 }
 
 
-void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s, 				TypeSet<int>& tis )
+void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
+					 TypeSet<int>& tis )
 {
     int start = 0;
     while ( v0s.size()>start )
