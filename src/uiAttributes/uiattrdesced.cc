@@ -104,7 +104,7 @@ void uiAttrDescEd::setDataPackInp( const TypeSet<DataPack::FullID>& ids )
 
 void uiAttrDescEd::fillInp( uiAttrSel* fld, Attrib::Desc& desc, int inp )
 {
-    if ( inp >= desc.nrInputs() )
+    if ( inp >= desc.nrInputs() || !desc.descSet() )
 	return;
 
     fld->processInput();
