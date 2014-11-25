@@ -381,6 +381,9 @@ char DAGTriangleTree::searchFurther( const Coord& pt, int& ti0,
     {
 	mMultiThread( trianglelock_.readLock() );
 
+	if ( !triangles_.validIdx(ti0) )
+	    return cError();
+
 	if (  !triangles_[ti0].hasChildren() )
 	{
 	    mMultiThread( trianglelock_.readUnLock() );
