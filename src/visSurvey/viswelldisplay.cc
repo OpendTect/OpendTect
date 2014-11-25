@@ -812,7 +812,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		    markerset_->removeMarker( mousepressid_ );
 		    pseudotrack_->removePoint( mousepressid_ );
 		    TypeSet<Coord3> wcoords;
-		    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+		    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
 		    {
 			wcoords += pseudotrack_->pos(idx);
 			wcoords[idx].z /= zfactor;
@@ -872,7 +872,7 @@ void WellDisplay::addPick( Coord3 pos )
 	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y),
 					       (float) (pos.z * zfactor)  );
-	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	for ( int idx=0; idx<pseudotrack_->size(); idx++ )
 	{
 	    wcoords += pseudotrack_->pos(idx);
 	    wcoords[idx].z /= zfactor;
@@ -896,7 +896,7 @@ void WellDisplay::addKnownPos()
     TypeSet<Coord3> wcoords;
     if ( pseudotrack_ )
     {
-	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+	for ( int idx=0; idx<pseudotrack_->size(); idx++ )
 	    wcoords += pseudotrack_->pos(idx);
 
 	well_->setTrack( wcoords );
@@ -904,7 +904,7 @@ void WellDisplay::addKnownPos()
 	changed_.trigger();
     }
 
-    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
     {
 	markerset_->addPos( wcoords[idx] );
     }
@@ -979,7 +979,7 @@ void WellDisplay::showKnownPositions()
     if ( zistime_ )
 	pseudotrack_->toTime( *d2t, wd->track() );
 
-    if ( pseudotrack_->nrPoints() <= 0 )
+    if ( pseudotrack_->isEmpty() )
 	return;
 
     addKnownPos();
@@ -991,7 +991,7 @@ TypeSet<Coord3> WellDisplay::getWellCoords() const
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 
     TypeSet<Coord3> coords;
-    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
+    for ( int idx=0; idx<pseudotrack_->size(); idx++ )
     {
 	coords += pseudotrack_->pos(idx);
 	coords[idx].z /= zfactor;

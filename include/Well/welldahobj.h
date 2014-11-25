@@ -45,8 +45,8 @@ public:
     virtual void	setEmpty()
 			{ dah_.erase(); eraseAux(); }
     inline bool		isEmpty() const			{ return size() == 0; }
-    Interval<float>	dahRange() const
-    			{ return size() ? Interval<float>(dah(0),dah(size()-1)) 					: Interval<float>(0,0); }
+    Interval<float>	dahRange() const;
+			//!< returns (0, 0) for empty dah_
 
     float		dahStep(bool min_else_average) const;
 

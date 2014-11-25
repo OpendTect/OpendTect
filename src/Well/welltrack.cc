@@ -24,27 +24,29 @@ Well::Track& Well::Track::operator =( const Track& t )
 }
 
 
-const Interval<float> Well::Track::zRange() const
+bool Well::Track::isEmpty() const
 {
-    const int nrpts = nrPoints();
-    if ( nrpts < 1 )
-	return Interval<float>( 0., 0. );
-
-    const float zstart = value( 0 );
-    const float zstop = value( nrpts-1 );
-    return Interval<float> ( zstart, zstop );
+    return dah_.isEmpty() || pos_.isEmpty();
 }
 
 
-const Interval<float> Well::Track::dahRange() const
+float Well::Track::getKbElev() const
 {
-    const int nrpts = nrPoints();
-    if ( nrpts < 1 )
-	return Interval<float>( 0., 0. );
+    if ( isEmpty() )
+	return 0;
 
-    const float dahstart = dah_[0];
-    const float dahstop = dah_[ nrpts-1 ];
-    return Interval<float>( dahstart, dahstop );
+    return dah_[0] - value(0);
+}
+
+
+const Interval<float> Well::Track::zRange() const
+{
+    if ( isEmpty() )
+	return Interval<float>( 0, 0 );
+
+    const float zstart = mCast(float,pos_.first().z);
+    const float zstop = mCast(float,pos_.last().z);
+    return Interval<float> ( zstart, zstop );
 }
 
 

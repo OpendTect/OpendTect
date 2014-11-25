@@ -89,8 +89,7 @@ Data::Data( const Setup& wts, Well::Data& wdata )
     const Well::Track& track = wdata.track();
     const Well::D2TModel* d2t = wdata.d2TModel();
     float stoptime = SI().zRange(true).stop;
-    const int nrtrackpts = track.nrPoints();
-    const float td = track.dah(nrtrackpts-1);
+    const float td = track.td();
     float tdtime = d2t->getTime( td, track );
     if ( !mIsUdf(tdtime) && tdtime > stoptime )
 	stoptime = mCast( float, mNINT32(tdtime/cDefSeisSr())*cDefSeisSr() );

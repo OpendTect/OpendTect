@@ -143,7 +143,7 @@ bool uiWellTrackDlg::fillTable( CallBacker* )
 {
     RowCol curcell( tbl_->currentCell() );
 
-    const int sz = track_.nrPoints();
+    const int sz = track_.size();
     int newsz = sz + nremptyrows;
     if ( newsz < 8 ) newsz = 8;
     tbl_->setNrRows( newsz );
@@ -360,7 +360,7 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	track_.addPoint( newc, mCast(float,newc.z), dahval );
     }
 
-    if ( track_.nrPoints() > 1 )
+    if ( track_.size() > 1 )
     {
 	wd_.info().surfacecoord = track_.pos(0);
 	fillSetFields();
@@ -503,9 +503,9 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
     if ( !updNow( 0 ) )
 	return false;
 
-    const int nrpts = track_.nrPoints();
+    const int nrpts = track_.size();
     if ( nrpts < 2 ) return false;
-    const int orgnrpts = orgtrack_->nrPoints();
+    const int orgnrpts = orgtrack_->size();
     bool dahchg = nrpts != orgnrpts;
     if ( !dahchg )
     {
@@ -770,7 +770,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
     tbl_->setColumnReadOnly( getVintCol(), false );
     const Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    const int tracksz = wd_.track().nrPoints();
+    const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 )
 	return;
 
@@ -887,7 +887,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     NotifyStopper ns( tbl_->valueChanged );
     const Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    const int tracksz = wd_.track().nrPoints();
+    const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
@@ -1027,7 +1027,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     NotifyStopper ns( tbl_->valueChanged );
     const Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    const int tracksz = wd_.track().nrPoints();
+    const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
@@ -1092,7 +1092,7 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     tbl_->setColumnReadOnly( getVintCol(), false );
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    const int tracksz = wd_.track().nrPoints();
+    const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"
@@ -1347,7 +1347,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
-    const int tracksz = wd_.track().nrPoints();
+    const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
 	BufferString errmsg = tracksz<2 ? "Invalid track"

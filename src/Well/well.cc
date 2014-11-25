@@ -48,6 +48,15 @@ int Well::DahObj::indexOf( float dh ) const
 }
 
 
+Interval<float>	Well::DahObj::dahRange() const
+{
+    if ( isEmpty() )
+	return Interval<float>( 0, 0 );
+
+    return Interval<float>( dah_.first(), dah_.last() );
+}
+
+
 float Well::DahObj::dahStep( bool ismin ) const
 {
     const int sz = dah_.size();
