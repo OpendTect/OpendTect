@@ -27,7 +27,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 
 
+#include <QApplication>
 #include <QCheckBox>
+#include <QEvent>
 #include <QMenu>
 #include <QPushButton>
 #include <QRadioButton>
@@ -72,6 +74,18 @@ virtual int nrTxtLines() const
 };
 
 
+class IconUpdateEvent : public QEvent
+{
+public:
+IconUpdateEvent( const char* iconnm )
+    : QEvent(QEvent::User)
+    , iconnm_(iconnm)
+{}
+
+BufferString iconnm_;
+};
+
+
 //! Wrapper around QButtons.
 /*!
     Extends each QButton class <ButT> with a i_ButMessenger, which connects
@@ -103,6 +117,14 @@ void resizeEvent( QResizeEvent* ev )
     QAbstractButton::resizeEvent( ev );
 }
 
+
+void customEvent( QEvent* ev )
+{
+    mDynamicCastGet(IconUpdateEvent*,iue,ev)
+    if ( !iue ) return;
+
+    handle_.setIcon( iue->iconnm_ );
+}
 
 
 
@@ -170,7 +192,10 @@ uiButton::uiButton( uiParent* parnt, const uiString& nm, const CallBack* cb,
 void uiButton::setIcon( const char* iconnm )
 {
     if ( !isMainThreadCurrent() )
+    {
+	QApplication::postEvent( qButton(), new IconUpdateEvent(iconnm) );
 	return;
+    }
 
     uiIcon icon( iconnm );
     qButton()->setIcon( icon.qicon() );
