@@ -46,9 +46,8 @@ uiSeisRandTo2DBase::uiSeisRandTo2DBase( uiParent* p, bool rdlsel )
     inpfld_->selectionDone.notify( mCB(this,uiSeisRandTo2DBase,selCB) );
     if ( rdlfld_ ) inpfld_->attach( alignedBelow, rdlfld_ );
 
-    IOObjContext ctxt2d( mIOObjContext(SeisTrc) );
-    ctxt2d.forread = false;
-    outpfld_ = new uiSeisSel( this, ctxt2d, uiSeisSel::Setup(Seis::Line) );
+    outpfld_ = new uiSeisSel( this, uiSeisSel::ioContext(Seis::Line,false),
+				    uiSeisSel::Setup(true,false) );
     outpfld_->setConfirmOverwrite( false );
     outpfld_->attach( alignedBelow, inpfld_ );
     setHAlignObj( outpfld_ );
