@@ -382,7 +382,8 @@ bool uiAttrTrcSelOut::fillPar()
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
-    seissubselfld_->fillPar( *subselpar );
+    if ( !seissubselfld_->fillPar(*subselpar) )
+	return false;
 
     TrcKeySampling horsamp; horsamp.usePar( *subselpar );
     if ( horsamp.isEmpty() )
