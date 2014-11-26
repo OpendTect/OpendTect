@@ -137,19 +137,20 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     info += "  MD:";
     const uiWellDahDisplay::Data& zdata = seldisp_->zData();
     const bool zinft = zdata.dispzinft_ && zdata.zistime_;
-    const float dispdepth = zinft ? mToFeetFactorF*dah_ : dah_;
     const FixedString depthunitstr = getDistUnitString(zinft,false);
-    info += toString( dispdepth, 2 );
+    info += toString( zinft ? mToFeetFactorF*dah_ : dah_, 2 );
     info += depthunitstr;
 
     const Well::Track* track = zdata.track();
     if ( track )
     {
 	info += "  TVD:";
-	info += toString( track->getPos(dah_).z+track->getKbElev(), 2 );
+	const float tvdss = mCast(float,track->getPos(dah_).z);
+	const float tvd = track->getKbElev() + tvdss;
+	info += toString( zinft ? mToFeetFactorF*tvd : tvd, 2 );
 	info += depthunitstr;
 	info += "  TVDSS:";
-	info += toString( track->getPos(dah_).z, 2 );
+	info += toString( zinft ? mToFeetFactorF*tvdss : tvdss, 2 );
 	info += depthunitstr;
     }
 
