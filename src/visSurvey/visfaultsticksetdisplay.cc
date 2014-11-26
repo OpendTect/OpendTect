@@ -957,6 +957,9 @@ void FaultStickSetDisplay::stickSelectCB( CallBacker* cb )
 
 void FaultStickSetDisplay::setActiveStick( const EM::PosID& pid )
 {
+    if ( !viseditor_ )
+	return;
+
     const bool allowactivestick = viseditor_->isOn() && !pid.isUdf();
     const int sticknr = allowactivestick ? pid.getRowCol().row() : mUdf(int);
 
