@@ -48,7 +48,7 @@ VolumeConverter::VolumeConverter( const IOObj& input, const IOObj& output,
     {
 	delete reader_;
 	reader_ = 0;
-	errmsg_ = "Cannot read input";
+	errmsg_ = tr("Cannot read input");
 	return;
     }
 
@@ -102,12 +102,12 @@ bool VolumeConverter::doFinish( bool res )
 
 bool VolumeConverter::doPrepare( int nrthreads )
 {
-    if ( errmsg_ )
+    if ( errmsg_.getFullString() )
 	return false;
 
     if ( !input_ || !output_ )
     {
-	errmsg_ = "Either input or output cannot be found";
+	errmsg_ = tr("Either input or output cannot be found");
 	return false;
     }
 
@@ -116,13 +116,13 @@ bool VolumeConverter::doPrepare( int nrthreads )
 
     if ( !GetVelocityTag( *input_, velinpdesc_ ) )
     {
-	errmsg_ = "Cannot read velocity information on input.";
+	errmsg_ = tr("Cannot read velocity information on input.");
 	return false;
     }
 
     if ( !SetVelocityTag( *output_, veloutpdesc_ ) )
     {
-	errmsg_ = "Cannot write velocity information on output";
+	errmsg_ = tr("Cannot write velocity information on output");
 	return false;
     }
 
@@ -134,8 +134,8 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	 veloutpdesc_.type_ != VelocityDesc::Avg ) ||
 	 velinpdesc_.type_ == veloutpdesc_.type_ )
     {
-	errmsg_ = "Input/output velocities are not interval, RMS, or Avg "
-	           "or are identical.";
+	errmsg_ = tr("Input/output velocities are not interval, RMS, or Avg "
+	             "or are identical.");
 	return false;
     }
 
@@ -148,7 +148,7 @@ bool VolumeConverter::doPrepare( int nrthreads )
 	{
 	    delete reader_;
 	    reader_ = 0;
-	    errmsg_ = "Cannot read input";
+	    errmsg_ = tr("Cannot read input");
 	    return false;
 	}
 
@@ -208,7 +208,7 @@ bool VolumeConverter::doWork( od_int64, od_int64, int threadidx )
 		mTryAlloc(interptr,float[trc.size()]);
 		if ( !interptr )
 		{
-		    errmsg_ = "Not enough memory";
+		    errmsg_ = tr("Not enough memory");
 		    delete outputtrc;
 		    outputtrc = 0;
 		    return false;
@@ -285,7 +285,7 @@ char VolumeConverter::getNewTrace( SeisTrc& trc, int threadidx )
     }
 
     if ( res==-1 )
-	errmsg_ = "Cannot read input";
+	errmsg_ = tr("Cannot read input");
 
     delete reader_;
     reader_ = 0;

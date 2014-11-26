@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "paralleltask.h"
 #include "veldesc.h"
+#include "uistring.h"
 
 class IOObj;
 class SeisTrc;
@@ -32,7 +33,7 @@ namespace Vel
    with eather Vrms or Vint. */
 
 mExpClass(Velocity) VolumeConverter : public ParallelTask
-{
+{ mODTextTranslationClass(VolumeConverter);
 public:
 				VolumeConverter(const IOObj& input,
 						const IOObj& output,
@@ -40,7 +41,7 @@ public:
 						const VelocityDesc& outdesc);
 				~VolumeConverter();
 
-    const char*			errMsg() const { return errmsg_.str(); }
+    uiString			errMsg() const { return errmsg_; }
 
     static const char*		sKeyInput();
     static const char*		sKeyOutput();
@@ -60,7 +61,7 @@ protected:
     VelocityDesc		velinpdesc_;
     VelocityDesc		veloutpdesc_;
     TrcKeySampling			tks_;
-    FixedString			errmsg_;
+    uiString			errmsg_;
 
     SeisTrcReader*		reader_;
     SeisTrcWriter*		writer_;

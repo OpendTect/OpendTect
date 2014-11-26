@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "thread.h"
 #include "velocityfunction.h"
 #include "velocitycalc.h"
+#include "uistring.h"
 
 
 class BinIDValueSet;
@@ -32,7 +33,7 @@ class VolumeFunctionSource;
 /*!VelocityFunction that gets its information from a Velocity Volume. */
 
 mExpClass(Velocity) VolumeFunction : public Function
-{
+{ mODTextTranslationClass(VolumeFunction);
 public:
 			VolumeFunction(VolumeFunctionSource&);
     bool		moveTo(const BinID&);
@@ -59,7 +60,7 @@ protected:
 
 
 mExpClass(Velocity) VolumeFunctionSource : public FunctionSource
-{
+{ mODTextTranslationClass(VolumeFunctionSource);
 public:
 				mDefaultFactoryInstanciationBase(
 					"Velocity volume", sFactoryKeyword() );
