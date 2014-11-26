@@ -146,10 +146,12 @@ void uiWellDisplayControl::getPosInfo( BufferString& info ) const
     if ( tr )
     {
 	info += "  TVD:";
-	info += toString( tr->getPos(depth_).z+tr->getKbElev() );
+	const float tvdss = mCast(float,tr->getPos(depth_).z);
+	const float tvd = tr->getKbElev() + tvdss;
+	info += toString( zinft ? mToFeetFactorF*tvd : tvd );
 	info += depthunitstr; 
 	info += "  TVDSS:";
-	info += toString( tr->getPos(depth_).z );
+	info += toString( zinft ? mToFeetFactorF*tvdss : tvdss );
 	info += depthunitstr;
     }
 
