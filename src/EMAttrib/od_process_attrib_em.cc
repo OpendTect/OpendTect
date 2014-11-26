@@ -507,6 +507,9 @@ bool BatchProgram::go( od_ostream& strm )
 	    int lidx = 0;
 	    while ( true )
 	    {
+		if ( !mmprocrange )
+		    mErrRetNoProc( "Invalid Output Range" );
+
 		PtrMan<IOPar> linepar = mmprocrange->subselect(
 					IOPar::compKey(sKey::Line(),lidx++) );
 		if ( !linepar )
