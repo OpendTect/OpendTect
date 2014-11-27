@@ -18,17 +18,16 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odnetworkreply.h"
 #include "od_ostream.h"
 #include "od_istream.h"
-#ifndef OD_NO_QT
-#include "qnetworkaccessconn.h"
-#endif
-#include "settings.h"
 #include "separstr.h"
+#include "settings.h"
 
 
 #ifndef OD_NO_QT
-#include <QByteArray>
-#include <QEventLoop>
-#include <QNetworkProxy>
+# include "qnetworkaccessconn.h"
+
+# include <QByteArray>
+# include <QEventLoop>
+# include <QNetworkProxy>
 #endif
 
 
@@ -488,9 +487,11 @@ void Network::setHttpProxyFromSettings()
     setts.getYN( Network::sKeyUseProxy(), useproxy );
     if ( !useproxy )
     {
+#ifndef OD_NO_QT
 	QNetworkProxy proxy;
 	proxy.setType( QNetworkProxy::NoProxy );
 	QNetworkProxy::setApplicationProxy( proxy );
+#endif
 	return;
     }
 
