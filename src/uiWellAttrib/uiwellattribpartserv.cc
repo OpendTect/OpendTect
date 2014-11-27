@@ -11,32 +11,33 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "uiwellattribpartserv.h"
-#include "wellman.h"
-#include "nlamodel.h"
-#include "attribdescset.h"
+
+#include "uichecklist.h"
 #include "uicreateattriblogdlg.h"
 #include "uicreatelogcubedlg.h"
+#include "uimsg.h"
+#include "uisegyread.h"
 #include "uiwellattribxplot.h"
 #include "uiwellimpsegyvsp.h"
 #include "uiwelltiemgrdlg.h"
-#include "uisegyread.h"
-#include "uichecklist.h"
 
+#include "attribdescset.h"
 #include "datapointset.h"
-#include "ptrman.h"
 #include "ioman.h"
+#include "nlamodel.h"
+#include "ptrman.h"
 #include "randcolor.h"
 #include "welldata.h"
-#include "welllogset.h"
 #include "welllog.h"
+#include "welllogset.h"
+#include "wellman.h"
 #include "welltiesetup.h"
-#include "uimsg.h"
 
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , attrset(new Attrib::DescSet(false)) //Default, set afterwards
-    , nlamodel(0)
+    , attrset_(new Attrib::DescSet(false)) //Default, set afterwards
+    , nlamodel_(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
     , dpsdispmgr_(0)
@@ -51,42 +52,55 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
 
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
-    delete attrset;
-    delete xplotwin2d_;
-    delete xplotwin3d_;
+    cleanUp();
 }
 
 
 
 void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
 {
-    delete xplotwin2d_; xplotwin2d_=0;
-    delete xplotwin3d_; xplotwin3d_=0;
+    cleanUp();
+}
+
+
+void uiWellAttribPartServer::cleanUp()
+{
+    delete attrset_; attrset_ = 0;
+    delete xplotwin2d_; xplotwin2d_ = 0;
+    delete xplotwin3d_; xplotwin3d_ = 0;
+
+    if ( welltiedlg_ )
+    {
+	welltiedlg_->windowClosed.remove(
+		mCB(this,uiWellAttribPartServer,closeWellTieDlg) );
+	welltiedlg_->delWins();
+	delete welltiedlg_; welltiedlg_ = 0;
+    }
 }
 
 
 void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
 {
-    delete attrset;
-    attrset = new Attrib::DescSet( ads );
+    delete attrset_;
+    attrset_ = new Attrib::DescSet( ads );
 }
 
 
 void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
 {
-    nlamodel = mdl;
+    nlamodel_ = mdl;
 }
 
 
 void uiWellAttribPartServer::doXPlot()
 {
-    const bool is2d = attrset->is2D();
+    const bool is2d = attrset_->is2D();
 
     uiWellAttribCrossPlot*& xplotwin = is2d ? xplotwin2d_ : xplotwin3d_;
     if ( !xplotwin )
-	xplotwin = new uiWellAttribCrossPlot( parent(), attrset );
+	xplotwin = new uiWellAttribCrossPlot( parent(), attrset_ );
     else
-	xplotwin->setDescSet( attrset );
+	xplotwin->setDescSet( attrset_ );
 
     xplotwin->setDisplayMgr( dpsdispmgr_ );
     xplotwin->show();
@@ -228,8 +242,8 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
 
 bool uiWellAttribPartServer::createAttribLog( const BufferStringSet& wellnames )
 {
-    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset,
-			      nlamodel, wellnames.size() == 1 );
+    uiCreateAttribLogDlg dlg( appserv().parent(), wellnames, attrset_,
+			      nlamodel_, wellnames.size() == 1 );
     return dlg.go();
 }
 

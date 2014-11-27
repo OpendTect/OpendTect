@@ -19,15 +19,15 @@ class BufferStringSet;
 class DataPointSet;
 class DataPointSetDisplayMgr;
 class NLAModel;
-class uiWellAttribCrossPlot;
 class uiSEGYRead;
+class uiWellAttribCrossPlot;
 
 namespace Attrib { class DescSet; }
 namespace WellTie { class uiTieWinMGRDlg; }
 
 /*!
 \ingroup uiWellAttrib
-\brief Part Server for Wellsi
+\brief Part Server for Wells
 */
 
 mExpClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
@@ -38,7 +38,7 @@ public:
 
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
-    const NLAModel*		getNLAModel()		{ return nlamodel;}
+    const NLAModel*		getNLAModel()		{ return nlamodel_;}
 
     const char*			name() const		{ return "Wells"; }
 
@@ -56,8 +56,8 @@ public:
 
 protected:
 
-    Attrib::DescSet*		attrset;
-    const NLAModel*		nlamodel;
+    Attrib::DescSet*		attrset_;
+    const NLAModel*		nlamodel_;
     bool			welltiedlgopened_;
     uiSEGYRead*			cursegyread_;
 
@@ -71,7 +71,8 @@ protected:
     void                        segyToolEnded(CallBacker*);
     bool			launchSEGYWiz(IOPar*,int);
 
+private:
+    void			cleanUp();
 };
 
 #endif
-
