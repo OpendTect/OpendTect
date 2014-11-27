@@ -62,15 +62,15 @@ protected:
     uiPropertiesDialog*		propdlg_;
     bool			showtexture_;
 
-    uiToolBar*			toolbar;
+    uiToolBar*			toolbar_;
 
-    uiVisPartServer*		visserv;
+    uiVisPartServer*		visserv_;
 
-    visSurvey::MPEClickCatcher*	clickcatcher;
-    int				clickablesceneid;
+    visSurvey::MPEClickCatcher*	clickcatcher_;
+    int				clickablesceneid_;
 
-    uiComboBox*			seedconmodefld;
-    uiSpinBox*			nrstepsbox;
+    uiComboBox*			seedconmodefld_;
+    uiSpinBox*			nrstepsbox_;
 
     void			boxDraggerStatusChangeCB(CallBacker*);
     void			showCubeCB(CallBacker*);
@@ -126,27 +126,28 @@ protected:
     void			seedClick(CallBacker*);
     void			updateClickCatcher();
 
-    int				seedidx;
-    int				clrtabidx;
-    int				moveplaneidx;
-    int				showcubeidx, displayidx;
-    int				mouseeraseridx;
-    int				undoidx, redoidx;
-    int				trackforwardidx, trackbackwardidx;
-    int				trackwithseedonlyidx;
-    int				trackinvolidx;
-    int 			polyselectidx;
-    int				removeinpolygon;
-    int				displayatsectionidx;
-    int				retrackallinx;
-    bool			trackerwasonbeforemouseerase;
+    int				seedidx_;
+    int				clrtabidx_;
+    int				moveplaneidx_;
+    int				showcubeidx_, displayidx_;
+    int				mouseeraseridx_;
+    int				undoidx_, redoidx_;
+    int				trackforwardidx_, trackbackwardidx_;
+    int				trackwithseedonlyidx_;
+    int				trackinvolidx_;
+    int 			polyselectidx_;
+    int				removeinpolygonidx_;
+    int				displayatsectionidx_;
+    int				retrackallidx_;
+    int				saveidx_;
+    bool			trackerwasonbeforemouseerase_;
 
-    bool			seedpickwason;
-    bool			polyselstoppedseedpick;
-    bool			mpeintropending;
+    bool			seedpickwason_;
+    bool			polyselstoppedseedpick_;
+    bool			mpeintropending_;
 
-    MPE::TrackPlane		oldtrackplane;
-    TrcKeyZSampling		oldactivevol;
+    MPE::TrackPlane		oldtrackplane_;
+    TrcKeyZSampling		oldactivevol_;
 
     static const char*		sKeyNoAttrib() { return "No attribute"; }
 };
