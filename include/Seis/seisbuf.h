@@ -22,7 +22,7 @@ class SeisPacketInfo;
 
 
 /*!\brief set of seismic traces.
-  
+
 By default, the traces are not managed, but can be destroyed with deepErase().
 buffer in which the traces are somehow related.
 */
@@ -49,6 +49,8 @@ public:
 
     inline int		size() const		{ return trcs_.size(); }
     inline bool		isEmpty() const		{ return trcs_.isEmpty(); }
+    inline bool		validIdx( od_int64 idx ) const
+			{ return trcs_.validIdx(idx); }
     void		insert(SeisTrc*,int atidx=0);
     inline SeisTrc*	replace( int idx, SeisTrc* t )
     						{ return trcs_.replace(idx,t); }
@@ -57,24 +59,24 @@ public:
 
     int			find(const BinID&,bool is2d=false) const;
     int			find(const SeisTrc*,bool is2d=false) const;
-    inline SeisTrc*	get( int idx )		
+    inline SeisTrc*	get( int idx )
 			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
-    inline const SeisTrc* get( int idx ) const	
+    inline const SeisTrc* get( int idx ) const
 			{ return trcs_.validIdx(idx) ? trcs_[idx] : 0; }
     inline void		remove( SeisTrc* t )	{ if ( t ) trcs_ -= t;  }
     inline SeisTrc*	remove( int idx )
-			{ 
+			{
 			    if ( !trcs_.validIdx(idx) )
 				return 0;
-			    
-			    SeisTrc* t = trcs_[idx]; 
+
+			    SeisTrc* t = trcs_[idx];
 			    if (t) trcs_-=t; return t;
 			 }
 
-    SeisTrc*		first()		{ return isEmpty()?0:get(0); }
-    const SeisTrc*	first() const	{ return isEmpty()?0:get(0); }
-    SeisTrc*		last()		{ return isEmpty()?0:get(size()-1); }
-    const SeisTrc*	last() const	{ return isEmpty()?0:get(size()-1); }
+    SeisTrc*		first()		{ return trcs_.first(); }
+    const SeisTrc*	first() const	{ return trcs_.first(); }
+    SeisTrc*		last()		{ return trcs_.last(); }
+    const SeisTrc*	last() const	{ return trcs_.last(); }
 
     void		revert(); // last becomes first
     void		fill(SeisPacketInfo&) const;

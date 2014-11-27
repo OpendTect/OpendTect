@@ -30,6 +30,8 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace Attrib
 {
 
+// DataPackCommon
+
 static const FixedString sAttribute2D()	{ return "Attribute2D"; }
 
 const char* DataPackCommon::categoryStr( bool vertical, bool is2d )
@@ -51,6 +53,7 @@ void DataPackCommon::dumpInfo( IOPar& iop ) const
 }
 
 
+// Flat3DDataPack
 Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
@@ -349,6 +352,7 @@ void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 }
 
 
+// Flat2DDataPack
 Flat2DDataPack::Flat2DDataPack( DescID did )
     : ::FlatDataPack(categoryStr(true,true))
     , DataPackCommon(did)
@@ -386,6 +390,7 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 }
 
 
+// Flat2DDHDataPack
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
 				    const Pos::GeomID& geomid,
 				    bool usesingtrc, int component )
@@ -572,7 +577,17 @@ double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     int trcinfoidx = usesingtrc_ ? 0 : i0;
-    if ( !dataholderarr_ || !dataholderarr_->trcinfoset_.validIdx(trcinfoidx) )
+    if ( !dataholderarr_ )
+    {
+	const Coord3 crd = getCoord( i0, i1 );
+	iop.set( "X-coordinate", crd.x );
+	iop.set( "Y-coordinate", crd.y );
+	iop.set( "Z-Coord", crd.z*SI().zDomain().userFactor() );
+	iop.set( sKey::TraceNr(), tracerange_.atIndex(i0) );
+	return;
+    }
+
+    if (  !dataholderarr_->trcinfoset_.validIdx(trcinfoidx) )
 	return;
 
     const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
@@ -592,6 +607,7 @@ Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 }
 
 
+// CubeDataPack
 CubeDataPack::CubeDataPack( DescID did, const DataCubes& dc, int ci )
     : ::CubeDataPack(categoryStr(false))
     , DataPackCommon(did)
@@ -628,6 +644,7 @@ void CubeDataPack::getAuxInfo( int, int, int, IOPar& ) const
 }
 
 
+// FlatRdmTrcsDataPack
 FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 					  const TypeSet<BinID>* path )
     : Flat2DDataPack(did)
@@ -635,11 +652,11 @@ FlatRdmTrcsDataPack::FlatRdmTrcsDataPack( DescID did, const SeisTrcBuf& sb,
 {
     if ( path )
 	path_ = new TypeSet<BinID>(*path);
-    
+
     const SeisTrc* firsttrc = sb.get( 0 );
     if ( firsttrc )
 	samplingdata_.set( firsttrc->info().sampling );
-    
+
     seisbuf_ = new SeisTrcBuf( true );
     sb.copyInto(*seisbuf_);
 
@@ -729,7 +746,24 @@ double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 
 void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    if ( !seisbuf_ || i0<0 || i0>=seisbuf_->size() ) return;
+    if ( !seisbuf_ )
+    {
+	if ( path_ && path_->validIdx(i0) )
+	{
+	    iop.set( "In-line", (*path_)[i0].lineNr() );
+	    iop.set( "Cross-line", (*path_)[i0].trcNr() );
+	}
+
+	const Coord3 crd = getCoord( i0, i1 );
+	iop.set( "X-coordinate", crd.x );
+	iop.set( "Y-coordinate", crd.y );
+	iop.set( "Z-Coord", crd.z*SI().zDomain().userFactor() );
+	return;
+    }
+
+    if ( !seisbuf_->validIdx(i0) )
+	return;
+
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
     iop.set( "Z-Coord", ti.samplePos(i1)*SI().zDomain().userFactor() );
