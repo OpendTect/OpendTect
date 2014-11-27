@@ -76,10 +76,12 @@ bool uiExp2DGeom::acceptOK( CallBacker* )
 	{
 	    const PosInfo::Line2DPos& pos = allpos[pidx];
 	    outstr.setEmpty();
+	    const BufferString xcrdstr = toString(pos.coord_.x,2);
+	    const BufferString ycrdstr = toString(pos.coord_.y,2);
 	    outstr.add( data2d.lineName() ).addTab()
 		  .add( pos.nr_ ).addTab()
-		  .add( toString(pos.coord_.x,2) ).addTab()
-		  .add( toString(pos.coord_.y,2) );
+		  .add( xcrdstr.buf() ).addTab()
+		  .add( ycrdstr.buf() );
 	    strm << outstr.buf() << '\n';
 	}
     }
