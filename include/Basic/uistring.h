@@ -87,81 +87,75 @@ mTextTranslationClass( clss, uiString::sODLocalizationApplication() )
 mExpClass(Basic) uiString
 { mODTextTranslationClass(uiString);
 public:
-		uiString(const uiString&);
-		/*!<\note Does not copy data, will use the same
-		  underlying data structure (reference
-		  counted). */
-		uiString(const char* original = 0);
+
+		uiString(const uiString&);	//!< no copy, ref counted
+		uiString(const char* inp=0);
 		uiString(const OD::String&);
 		~uiString();
 
-    bool	isSet() const { return !isEmpty(); }
+    bool	isSet() const			{ return !isEmpty(); }
     bool	isEmpty() const;
     void	setEmpty();
-    bool	operator!() const { return isEmpty(); }
+    bool	operator!() const		{ return isEmpty(); }
 
-    uiString&	operator=(const uiString&);
-		/*!<\note Does not copy data, will use the same
-				 underlying data structure (reference
-				 counted). */
+    uiString&	operator=(const uiString&);	//!< no copy, ref counted
     uiString&	operator=(const char*);
     uiString&	operator=(const OD::String&);
+    bool	operator>(const uiString& b) const;
+    bool	operator<(const uiString& b) const;
 
+    static const uiString& emptyString()	{ return emptystring_; }
+
+
+	/*! uiStrings should only be manipulated using the arg() functions.
+	    These replace the next %N (e.g. %1) with the provided argument. */
     template <class T>
     uiString&	arg(const T& var);
-    		/*!<Replaces the %N (e.g. %1) with the lowest N with the
-		    provided string. */
     uiString&	arg(const uiString&);
-    		/*!<Replaces the %N (e.g. %1) with the lowest N with the
-		    provided string. */
 
+	/*! append() functions are used to concatenate entire sentences.
+	    Otherwise you'll be in trouble because you will not know in what
+	    order args end up after translation.
+	    'withnewline' will only add one if the first string is not empty. */
     uiString&	append(const char*, bool withnewline=false);
-		/*!Appends string with provided string. In most cases, use arg
-		   to allow translator to change ordering.
-		   \param withnewline will add a newline character before the
-			  appended string if current string is not empty.*/
     uiString&	append(const OD::String&, bool withnewline=false);
-		/*!Appends string with provided string. In most cases, use arg
-		   to allow translator to change ordering.
-		   \param withnewline will add a newline character before the
-			  appended string if current string is not empty.*/
     uiString&	append(const uiString&, bool withnewline=false);
-		/*!Appends string with provided string. In most cases, use arg
-		   to allow translator to change ordering.
-		   \param withnewline will add a newline character before the
-			  appended string if current string is not empty.*/
 
-    const OD::String&		getFullString() const;
-				/*!<Constructs the result from the original
-				    string and the arguments,
-				    without translation. \Note that
-				    result is in a thread-safe static buffer, so
-				    copy the result before calling again.*/
-    const char*			getOriginalString() const;
-    const mQtclass(QString)&	getQtString() const;
-    wchar_t*			createWCharString() const;
-				/*!<Result becomes owners and should be
-				    deleted using the [] operator. */
 
-    static const char*		sODLocalizationApplication() { return "od"; }
+    /*! Results: */
+    const OD::String&	getFullString() const;
+				/*!< Full string, *without* translation
+				    result is in a thread-safe static buffer,
+				    so copy the result before calling again. */
+    wchar_t*		createWCharString() const;
+				/*!< The translation. Result becomes owner's and
+				    should be deleted using the [] operator. */
+    const char*		getOriginalString() const;
+    const mQtclass(QString)& getQtString() const;
 
-    static const uiString&	emptyString()	{ return emptystring_; }
-    
+private:
+
+#ifdef __debug__
+    char*	str_;		//!< Contains getFullString() for easy debugging
+#endif
+
+    friend class		uiStringData;
+    uiStringData*		data_;
+    mutable Threads::Lock	datalock_;	//!< Protects data_ variable
+    static const uiString	emptystring_;
+
+public:
+
+		//Only for expert users
+
     bool	operator==(const uiString& b) const;
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	operator!=(const uiString& b) const { return !(*this==b); }
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
-    bool	operator>(const uiString& b) const;
-    bool	operator<(const uiString& b) const;
 
-private:
-    friend class		uiStringData;
-    uiStringData*		data_;
-    mutable Threads::Lock	datalock_;
-    				//!<Protects data_ variable
-    static const uiString	emptystring_;
-public:
-		//Only for expert users
+
+    static const char*	sODLocalizationApplication() { return "od"; }
+
     void	makeIndependent();
 		//!<If data is shared, I'll get an own copy
 		uiString(const char* original,
@@ -183,10 +177,10 @@ public:
                 */
 
     bool	translate(const mQtclass(QTranslator)&,
-	    		  mQtclass(QString)&) const;
+			  mQtclass(QString)&) const;
 		//!<Returns true if the translation succeeded
 
-    static uiString	getOrderString(int);
+    static uiString getOrderString(int);
 		//Returns 1st, 2nd, 3rd
 };
 
@@ -195,12 +189,12 @@ mExpClass(Basic) uiStringSet : public TypeSet<uiString>
 { mODTextTranslationClass(uiStringSet);
 public:
 		uiStringSet()				{}
-		uiStringSet(const uiStringSet& sl) : TypeSet<uiString>(sl)  {}
-		uiStringSet(const uiString& s)
-		{ add( s ); }
+		uiStringSet( const uiStringSet& sl )
+		    : TypeSet<uiString>(sl)		{}
+		uiStringSet( const uiString& s )	{ add( s ); }
 
     uiString	createOptionString(bool use_and=true,int maxnritems=-1,
-	    			   char space = ' ') const;
+				   char space = ' ') const;
 		//!<Returns a string with "option1, option2, and/or option 3"
 
 };
@@ -209,9 +203,9 @@ public:
 template <class T> inline
 uiString& uiString::arg( const T& var )
 {
-    uiString thearg( toString( var ) );
+    uiString thearg( toString(var) );
     return arg( thearg );
 }
 
-#endif
 
+#endif

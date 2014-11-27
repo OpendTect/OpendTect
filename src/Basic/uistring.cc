@@ -28,6 +28,26 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mDirty (-1)
 
+#ifndef __debug__
+
+# define mSetDBGStr /* nothing */
+
+#else
+
+static char* getNewDebugStr( char* strvar, const OD::String& newstr )
+{
+    delete [] strvar;
+    const od_int64 newsz = newstr.size();
+    strvar = new char [ newsz + 1 ];
+    OD::memCopy( strvar, newstr.str(), newsz );
+    strvar[newsz] = '\0';
+    return strvar;
+}
+
+# define mSetDBGStr str_ = getNewDebugStr( str_, getFullString() )
+
+#endif
+
 const uiString uiString::emptystring_( sKey::EmptyString() );
 
 class uiStringData
@@ -199,13 +219,18 @@ bool uiStringData::fillQString( QString& res,
 }
 
 
+#ifndef __debug__
+# define mInitImpl(var,acts) var->ref(); acts
+#else
+# define mInitImpl(var,acts) str_ = 0; var->ref(); acts; mSetDBGStr
+#endif
+
 
 uiString::uiString( const char* str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
-    data_->ref();
-    *this = str;
+    mInitImpl( data_, *this = str );
 }
 
 
@@ -216,7 +241,7 @@ uiString::uiString( const char* originaltext, const char* context,
 			      disambiguation, pluralnr ))
     , datalock_( true )
 {
-    data_->ref();
+    mInitImpl( data_, );
 }
 
 
@@ -224,7 +249,7 @@ uiString::uiString( const uiString& str )
     : data_( str.data_ )
     , datalock_( true )
 {
-    data_->ref();
+    mInitImpl( data_, );
 }
 
 
@@ -232,8 +257,7 @@ uiString::uiString( const OD::String& str )
     : data_( new uiStringData( 0, 0, 0, 0, -1 ) )
     , datalock_( true )
 {
-    data_->ref();
-    *this = str;
+    mInitImpl( data_, *this = str );
 }
 
 
@@ -269,7 +293,7 @@ const char* uiString::getOriginalString() const
 {
     Threads::Locker datalocker( datalock_ );
     Threads::Locker contentlocker( data_->contentlock_ );
-    /* This is safe as if anyone else changes originalstring,
+    /* This is safe because if anyone else changes originalstring,
        it should be made independent, and we can live with our
        own copy. */
     return data_->originalstring_;
@@ -352,6 +376,7 @@ void uiString::setFrom( const QString& qstr )
     makeIndependent();
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->setFrom( qstr );
+    mSetDBGStr;
 }
 
 
@@ -367,6 +392,7 @@ uiString& uiString::operator=( const char* str )
     makeIndependent();
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->set( str );
+    mSetDBGStr;
     return *this;
 }
 
@@ -402,6 +428,7 @@ uiString& uiString::arg( const uiString& newarg )
     Threads::Locker contentlocker( data_->contentlock_ );
     data_->arguments_ += newarg;
     data_->dirtycount_ = mDirty;
+    mSetDBGStr;
     return *this;
 }
 
@@ -422,6 +449,7 @@ uiString& uiString::append( const uiString& txt, bool withnewline )
 
     *this = uiString( withnewline ? "%1\n%2" : "%1%2").arg( self ).arg( txt );
 
+    mSetDBGStr;
     return *this;
 }
 
@@ -495,6 +523,7 @@ void uiString::makeIndependent()
     data_->ref();
 
     data_->setFrom( *olddata );
+    mSetDBGStr;
 }
 
 
@@ -514,8 +543,8 @@ bool uiString::operator==( const uiString& b ) const
 }
 
 
-uiString uiStringSet::createOptionString( bool use_and, 
-       					  int maxnr, char space ) const
+uiString uiStringSet::createOptionString( bool use_and,
+					  int maxnr, char space ) const
 {
     BufferString glue;
 
@@ -557,7 +586,7 @@ uiString uiStringSet::createOptionString( bool use_and,
 
 	    if ( maxnr>1 && maxnr<=nritems )
 	    {
-		glue.add( ",%1..."); 
+		glue.add( ",%1...");
 		break;
 	    }
 	}
