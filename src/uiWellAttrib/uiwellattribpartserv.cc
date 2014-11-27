@@ -51,17 +51,30 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
 
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
-    delete attrset;
-    delete xplotwin2d_;
-    delete xplotwin3d_;
+    cleanUp();
 }
 
 
 
 void uiWellAttribPartServer::surveyChangedCB( CallBacker* )
 {
-    delete xplotwin2d_; xplotwin2d_=0;
-    delete xplotwin3d_; xplotwin3d_=0;
+    cleanUp();
+}
+
+
+void uiWellAttribPartServer::cleanUp()
+{
+    delete attrset; attrset = 0;
+    delete xplotwin2d_; xplotwin2d_ = 0;
+    delete xplotwin3d_; xplotwin3d_ = 0;
+
+    if ( welltiedlg_ )
+    {
+	welltiedlg_->windowClosed.remove(
+		mCB(this,uiWellAttribPartServer,closeWellTieDlg) );
+	welltiedlg_->delWins();
+	delete welltiedlg_; welltiedlg_ = 0;
+    }
 }
 
 

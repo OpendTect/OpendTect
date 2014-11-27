@@ -27,7 +27,7 @@ namespace WellTie { class uiTieWinMGRDlg; }
 
 /*!
 \ingroup uiWellAttrib
-\brief Part Server for Wellsi
+\brief Part Server for Wells
 */
 
 mExpClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
@@ -71,6 +71,8 @@ protected:
     void                        segyToolEnded(CallBacker*);
     bool			launchSEGYWiz(IOPar*,int);
 
+private:
+    void			cleanUp();
 };
 
 #endif
