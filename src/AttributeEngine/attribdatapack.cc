@@ -576,7 +576,17 @@ double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     int trcinfoidx = usesingtrc_ ? 0 : i0;
-    if ( !dataholderarr_ || !dataholderarr_->trcinfoset_.validIdx(trcinfoidx) )
+    if ( !dataholderarr_ )
+    {
+	const Coord3 crd = getCoord( i0, i1 );
+	iop.set( "X-coordinate", crd.x );
+	iop.set( "Y-coordinate", crd.y );
+	iop.set( "Z-Coord", crd.z*SI().zDomain().userFactor() );
+	iop.set( sKey::TraceNr(), tracerange_.atIndex(i0) );
+	return;
+    }
+
+    if (  !dataholderarr_->trcinfoset_.validIdx(trcinfoidx) )
 	return;
 
     const SeisTrcInfo& ti = *dataholderarr_->trcinfoset_[ trcinfoidx ];
@@ -734,8 +744,24 @@ double FlatRdmTrcsDataPack::getAltDim0Value( int ikey, int i0 ) const
 
 void FlatRdmTrcsDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    if ( !seisbuf_ || i0 < 0 || i0 >= seisbuf_->size() )
+    if ( !seisbuf_ )
+    {
+	if ( path_ && path_->validIdx(i0) )
+	{
+	    iop.set( "In-line", (*path_)[i0].lineNr() );
+	    iop.set( "Cross-line", (*path_)[i0].trcNr() );
+	}
+
+	const Coord3 crd = getCoord( i0, i1 );
+	iop.set( "X-coordinate", crd.x );
+	iop.set( "Y-coordinate", crd.y );
+	iop.set( "Z-Coord", crd.z*SI().zDomain().userFactor() );
 	return;
+    }
+
+    if ( !seisbuf_->validIdx(i0) )
+	return;
+
     const SeisTrcInfo& ti = seisbuf_->get(i0)->info();
     ti.getInterestingFlds( Seis::Line, iop );
     iop.set( "Z-Coord", ti.samplePos(i1)*SI().zDomain().userFactor() );
