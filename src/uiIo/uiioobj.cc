@@ -26,37 +26,38 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     const bool isoutside = !ioobj_.isInCurrentSurvey();
     if ( !silent_ )
     {
-	uiString mess = tr("Remove %1data file(s) at\n'%2'%3")
-		      .arg(!rmentry ? tr("existing ") 
-				    : uiString::emptyString());
-
-	if (!ioobj_.isSubdir())
+	uiString mess;
+	if ( !ioobj_.isSubdir() )
 	{
-	    mess.arg(ioobj_.fullUserExpr(true));
-	    mess.arg(isoutside ? tr("\nFile not in current survey.\n"
-				    "Specify what you would like to remove") 
-			       : uiString::emptyString());
+	    mess = tr("Remove '%1'%2");
+	    mess.arg( ioobj_.name() );
+	    mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
+				     "Specify what you would like to remove")
+				: "?" );
 	}
 	else
 	{
-	    BufferString fullexpr(ioobj_.fullUserExpr(true));
-	    mess.arg(FilePath(fullexpr).fileName());
-	    mess.arg(tr("\n- and everything in it! - ?"));
+	    mess = tr("Remove '%1' with folder\n'%2'%3");
+	    mess.arg( ioobj_.name() );
+	    mess.arg( ioobj_.fullUserExpr(true) );
+	    mess.arg( tr("\n- and everything in it! - ?") );
 	}
 
 	if ( isoutside )
 	{
-	    const int resp = uiMSG().question(mess, tr("Remove file"),
-					      tr("Remove link"), tr("Cancel"),
-					      tr("Remove data"));
+	    const int resp = uiMSG().question( mess, tr("Remove file"),
+					       tr("Remove link"), tr("Cancel"),
+					       tr("Remove data") );
 	    if ( resp < 0 )
 		return false;
+
 	    dorm = resp;
 	}
 	else if ( doconfirm && !uiMSG().askRemove(mess) )
 	{
 	    if ( mustrm )
 		return false;
+
 	    dorm = false;
 	}
     }

@@ -375,14 +375,14 @@ bool uiIOObjManipGroup::rmEntries( ObjectSet<IOObj>& ioobjs )
     if ( !ioobjs.size() )
 	return false;
 
-    uiString info = tr("Do you really want to remove the following objects"
+    uiString info = tr("Remove the following objects"
 		       " from the database permanently?\n%1");
 
     uiStringSet selnms;
     for (int idx = 0; idx<ioobjs.size(); idx++)
 	selnms += ioobjs[idx]->name();
 
-    info.arg(selnms.createOptionString(true, 10));
+    info.arg( selnms.createOptionString(true,10,'\n') );
     if ( !uiMSG().askRemove( info ) )
 	return false;
 
