@@ -10,6 +10,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uibasemapgeom2ditem.h"
 #include "uibasemapgriditem.h"
+#include "uibasemapoutlineitem.h"
 #include "uibasemappicksetitem.h"
 #include "uibasemappolygonitem.h"
 #include "uibasemaprandomlineitem.h"
@@ -136,6 +137,7 @@ mDefODInitPlugin(uiBasemap)
     uiBasemapPickSetItem::initClass();
     uiBasemapPolygonItem::initClass();
     uiBasemapGridItem::initClass();
+    uiBasemapOutlineItem::initClass();
 
     return 0;
 }

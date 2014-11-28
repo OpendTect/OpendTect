@@ -11,6 +11,7 @@ SET(OD_MODULE_SOURCES
 	basemappi.cc
 	basemapgeom2d.cc
 	basemapgrid.cc
+	basemapoutline.cc
 	basemappickset.cc
 	basemappolygon.cc
 	basemaprandomline.cc
