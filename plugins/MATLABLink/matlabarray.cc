@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndinfo.h"
 #include "task.h"
+#include "varlenarray.h"
 
 ArrayNDCopier::ArrayNDCopier( const ArrayND<float>& arrnd )
     : arrnd_(arrnd)
@@ -36,11 +37,12 @@ bool ArrayNDCopier::init( bool managemxarr )
     totalnr_ = arrnd_.info().getTotalSz();
 
     const int nrdim = arrnd_.info().getNDim();
-    mwSize dims[nrdim];
+    mAllocVarLenArr( mwSize, dims, nrdim );
     for ( int idx=0; idx<nrdim; idx++ )
 	dims[idx] = arrnd_.info().getSize( nrdim-1-idx );
 
-    mxarr_ = mxCreateNumericArray( nrdim, dims, mxDOUBLE_CLASS, mxREAL );
+    mxarr_ = mxCreateNumericArray( nrdim, mVarLenArr(dims),
+				   mxDOUBLE_CLASS, mxREAL );
     managemxarr_ = managemxarr;
 
     return true;
@@ -50,12 +52,13 @@ bool ArrayNDCopier::init( bool managemxarr )
 bool ArrayNDCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
     const int nrdim = arrnd_.info().getNDim();
-    int pos[nrdim];
+    mAllocVarLenArr( int, pos, nrdim );
     double* mxarrptr = mxGetPr( mxarr_ );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
-	arrnd_.info().getArrayPos( idx, pos );
-	mxarrptr[idx] = mCast(double,arrnd_.getND(pos));
+	arrnd_.info().getArrayPos( idx, mVarLenArr(pos) );
+	const float fval = arrnd_.getND( mVarLenArr(pos) );
+	mxarrptr[idx] = mCast(double,fval);
     }
 
     return true;
@@ -90,14 +93,13 @@ bool mxArrayCopier::init()
 
 bool mxArrayCopier::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    // TODO: what if dimensions don't match?
     double* mxarrptr = mxGetPr( &mxarr_ );
     const int nrdim = arrnd_.info().getNDim();
-    int pos[nrdim];
+    mAllocVarLenArr( int, pos, nrdim );
     for ( int idx=mCast(int,start); idx<=stop; idx++ )
     {
-	arrnd_.info().getArrayPos( idx, pos );
-	arrnd_.setND( pos, mCast(float,mxarrptr[idx]) );
+	arrnd_.info().getArrayPos( idx, mVarLenArr(pos) );
+	arrnd_.setND( mVarLenArr(pos), mCast(float,mxarrptr[idx]) );
     }
 
     return true;
