@@ -90,6 +90,8 @@ public:
 
     float		getTransparency(int idx=0) const;
 
+    void		rescaleTransparency(float bendpower);
+
     int			usePar(const IOPar&);
     void		fillPar(IOPar&) const;
 
@@ -117,6 +119,7 @@ private:
 			//!Assumes object is write-locked
     void		removeOsgColor(int);
 			//!Assumes object is write-locked
+    float		getRescaledTransparency(int) const;
 
     static const char*	sKeyColor();
     static const char*	sKeyAmbience();
@@ -144,6 +147,7 @@ private:
     TypeSet<float>		transparency_;
     osg::Array*			osgcolorarray_;
     ObjectSet<osg::Geometry>	attachedgeoms_;
+    float			transparencybendpower_;
 };
 
 } // namespace visBase

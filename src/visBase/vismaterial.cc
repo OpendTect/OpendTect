@@ -90,6 +90,7 @@ Material::Material()
     , shininess_( 0 )
     , change( this )
     , colorbindtype_( 1 )
+    , transparencybendpower_ ( 1.0 )
 {
     material_->ref();
     setColorMode( Off );
@@ -314,27 +315,45 @@ mSetGetProperty( float, EmmIntensity, emmissiveintensity_ );
 mSetGetProperty( float, Shininess, shininess_ );
 
 
+void Material::rescaleTransparency( float bendpower )
+{
+    transparencybendpower_ = fabs( bendpower );
+}
+
+
+float Material::getRescaledTransparency( int idx ) const
+{
+    if ( !transparency_.validIdx(idx) )
+	return 1.0;
+
+    if ( transparencybendpower_ == 1.0 )
+	return transparency_[idx];
+
+    return pow( transparency_[idx], transparencybendpower_ );
+}
+
+
 #define mGetOsgCol( col, fac, transp ) \
     osg::Vec4( col.r()*fac/255, col.g()*fac/255, col.b()*fac/255, 1.0-transp )
-
 
 void Material::updateOsgColor( int idx )
 {
     if ( !osgcolorarray_ || idx > (*mGetOsgVec4Arr(osgcolorarray_)).size() )
 	return;
 
-    const osg::Vec4 diffuse =
-	mGetOsgCol( colors_[idx], diffuseintensity_[idx], transparency_[idx] );
+    const osg::Vec4 diffuse = mGetOsgCol( colors_[idx], diffuseintensity_[idx],
+					  getRescaledTransparency(idx) );
 
     if ( !idx )
     {
+	const float transparency0 = getRescaledTransparency( 0 );
 
 	material_->setAmbient( osg::Material::FRONT_AND_BACK,
-		mGetOsgCol(colors_[0],ambience_,transparency_[0]) );
+		mGetOsgCol(colors_[0],ambience_,transparency0) );
 	material_->setSpecular( osg::Material::FRONT_AND_BACK,
-		mGetOsgCol(colors_[0],specularintensity_,transparency_[0]) );
+		mGetOsgCol(colors_[0],specularintensity_,transparency0) );
 	material_->setEmission( osg::Material::FRONT_AND_BACK,
-		mGetOsgCol(colors_[0],emmissiveintensity_,transparency_[0]) );
+		mGetOsgCol(colors_[0],emmissiveintensity_,transparency0) );
 
 	material_->setShininess(osg::Material::FRONT_AND_BACK, shininess_ );
 	material_->setDiffuse(osg::Material::FRONT_AND_BACK, diffuse );
