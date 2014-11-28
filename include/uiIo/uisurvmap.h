@@ -50,7 +50,7 @@ mExpClass(uiIo) uiNorthArrowObject : public uiBaseMapObject
 public:
     			uiNorthArrowObject(BaseMapObject*,bool);
 
-    const char*		getType() const		{ return "NorthArrow"; }
+    const char*		getType() const { return "NorthArrow"; }
 
     void		update();
     void		setSurveyInfo(const SurveyInfo*);
@@ -68,18 +68,53 @@ protected:
 };
 
 
+mExpClass(uiIo) uiMapScaleObject : public uiBaseMapObject
+{
+public:
+			uiMapScaleObject(BaseMapObject*);
+
+    inline const char*	getType() const { return "MapScale"; }
+
+    void		update();
+    void		setSurveyInfo(const SurveyInfo*);
+
+    inline float	getScaleLen() const { return scalelen_; }
+    inline LineStyle&	getScaleStyle() const { return scalestyle_; }
+
+    void		setScaleLen(const float);
+    void		setScaleStyle(const LineStyle&);
+protected:
+    float		scalelen_;
+    LineStyle&		scalestyle_;
+    uiLineItem*		scaleline_;
+    uiLineItem*		leftcornerline_;
+    uiLineItem*		rightcornerline_;
+    uiTextItem*		scalelabelorigin_;
+    uiTextItem*		scalelabelend_;
+
+    const SurveyInfo*	survinfo_;
+
+    void		setVisibility(bool);
+
+};
+
+
 mExpClass(uiIo) uiSurveyMap : public uiBaseMap
 {
 public:
 			uiSurveyMap(uiParent*,bool withtitle=true,
-				    bool withnortharrow=false);
+				    bool withnortharrow=false,
+				    bool withmapscale=false);
 
     void		setSurveyInfo(const SurveyInfo*);
 
-protected:
+    uiMapScaleObject*	getMapScale()	const { return mapscale_; }
+    uiNorthArrowObject* getNorthArrow() const { return northarrow_; }
 
-    uiSurveyBoxObject*	survbox_;
+protected:
+    uiMapScaleObject*	mapscale_;
     uiNorthArrowObject*	northarrow_;
+    uiSurveyBoxObject*	survbox_;
     uiTextItem*		title_;
 
     const SurveyInfo*	survinfo_;

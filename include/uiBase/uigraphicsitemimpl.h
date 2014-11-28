@@ -123,6 +123,8 @@ public:
     void		setLine(float x1,float y1,float x2,float y2);
     void		setLine(const Geom::Point2D<float>&,
 				const Geom::Point2D<float>&);
+    void		setLine(const Geom::Point2D<float>& centerpos,
+				float dx1,float dy1,float dx2,float dy2);
     uiRect		lineRect() const;
 
 protected:

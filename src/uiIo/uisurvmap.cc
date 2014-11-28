@@ -212,10 +212,115 @@ void uiNorthArrowObject::update()
 }
 
 
-uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle, bool withnortharrow )
+uiMapScaleObject::uiMapScaleObject( BaseMapObject* bmo )
+    : uiBaseMapObject(bmo)
+    , scalestyle_(*new LineStyle(LineStyle::Solid,1,Color::Black()))
+{
+    scalelen_ = 0.05 * ( SI().maxCoord(false).x - SI().minCoord(false).x );
+    scalelen_ = 100 * mCast(int,scalelen_ / 100);
+
+    scaleline_ = new uiLineItem;
+    itemgrp_.add( scaleline_ );
+
+    leftcornerline_ = new uiLineItem;
+    itemgrp_.add( leftcornerline_ );
+
+    rightcornerline_ = new uiLineItem;
+    itemgrp_.add( rightcornerline_ );
+
+    mDeclAlignment( txtalign, HCenter, Top );
+
+    scalelabelorigin_ = new uiTextItem;
+    scalelabelorigin_->setAlignment( txtalign );
+    itemgrp_.add( scalelabelorigin_ );
+
+    scalelabelend_ = new uiTextItem;
+    scalelabelend_->setAlignment( txtalign );
+    itemgrp_.add( scalelabelend_ );
+}
+
+
+void uiMapScaleObject::setSurveyInfo( const SurveyInfo* si )
+{
+    survinfo_ = si;
+}
+
+
+void uiMapScaleObject::setVisibility( bool yn )
+{
+    itemGrp().setVisible( yn );
+}
+
+
+void uiMapScaleObject::update()
+{
+    if ( !survinfo_ || !transform_ )
+	{ setVisibility( false ); return; }
+
+    const float worldscalelen = scalelen_;
+    const int sideoffs = 30;
+    const int scalecornerlen = 2;
+
+    float worldxmin, worldxmax;
+    transform_->getWorldXRange( worldxmin, worldxmax );
+
+    float worldymin, worldymax;
+    transform_->getWorldYRange( worldymin, worldymax );
+
+    const int xmax = transform_->toUiX( worldxmax );
+    const int ymin = transform_->toUiY( worldymin );
+
+    const float worldref = worldxmax - worldscalelen;
+    const float uiscalelen = xmax - transform_->toUiX( worldref );
+
+    const int lastx = xmax - 1 - sideoffs;
+    const int firsty = ymin - 1;
+
+    const Geom::Point2D<float> origin( lastx - uiscalelen, firsty );
+    const Geom::Point2D<float> end( lastx, firsty );
+    scaleline_->setLine( origin, end );
+    scaleline_->setPenStyle( scalestyle_ );
+
+    leftcornerline_->setLine( origin , 0.0f, scalecornerlen,
+				       0.0f, scalecornerlen );
+    leftcornerline_->setPenStyle( scalestyle_ );
+
+    rightcornerline_->setLine( end , 0.0f, scalecornerlen,
+				     0.0f, scalecornerlen );
+    rightcornerline_->setPenStyle( scalestyle_ );
+
+    BufferString label_origin = "0";
+    BufferString label_end; label_end.set( worldscalelen, 0 );
+    label_end += survinfo_->getXYUnitString( false );
+
+    scalelabelorigin_->setPos( origin );
+    scalelabelorigin_->setText( label_origin );
+
+    scalelabelend_->setPos( end );
+    scalelabelend_->setText( label_end );
+
+    setVisibility( true );
+}
+
+
+void uiMapScaleObject::setScaleLen( const float scalelen )
+{
+    scalelen_ = scalelen;
+    update();
+}
+
+void uiMapScaleObject::setScaleStyle( const LineStyle& ls )
+{
+    scalestyle_ = ls;
+    update();
+}
+
+uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle,
+			  bool withnortharrow, bool withmapscale )
     : uiBaseMap(p)
     , survbox_(0)
     , northarrow_(0)
+    , mapscale_(0)
     , survinfo_(0)
     , title_(0)
 {
@@ -228,8 +333,14 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle, bool withnortharrow )
 
     if ( withnortharrow )
     {
-	northarrow_ = new uiNorthArrowObject( 0, true );
+	northarrow_ = new uiNorthArrowObject( 0, false );
 	addObject( northarrow_ );
+    }
+
+    if ( withmapscale )
+    {
+	mapscale_ = new uiMapScaleObject( 0 );
+	addObject( mapscale_ );
     }
 
     if ( withtitle )
@@ -237,7 +348,8 @@ uiSurveyMap::uiSurveyMap( uiParent* p, bool withtitle, bool withnortharrow )
 	title_ = view_.scene().addItem(
 		new uiTextItem(uiPoint(10,10),"Survey name",txtalign) );
 	title_->setPenColor( Color::Black() );
-	title_->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
+	title_->setFont(
+		FontList().get(FontData::key(FontData::GraphicsLarge)) );
     }
 }
 
@@ -250,6 +362,8 @@ void uiSurveyMap::setSurveyInfo( const SurveyInfo* si )
 	survbox_->setSurveyInfo( survinfo_ );
     if ( northarrow_ )
 	northarrow_->setSurveyInfo( survinfo_ );
+    if ( mapscale_ )
+	mapscale_->setSurveyInfo( survinfo_ );
     if ( title_ )
 	title_->setVisible( survinfo_ );
 

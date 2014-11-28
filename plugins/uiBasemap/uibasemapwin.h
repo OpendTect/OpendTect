@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uimainwin.h"
 
+class uiBaseMapTBMgr;
 class uiBasemapTreeTop;
 class uiDockWin;
 class uiSurveyMap;
@@ -39,26 +40,17 @@ private:
     void		initWin(CallBacker*);
     void		initView();
     void		initTree();
-    void		initToolBars();
-    void		viewCB(CallBacker*);
-    void		removeCB(CallBacker*);
-    void		iconClickCB(CallBacker*);
+
     void		mouseCursorExchangeCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
-    void		updateViewMode();
     bool		closeOK();
 
     uiSurveyMap*	basemapview_;
-    uiToolBar*		vwtoolbar_;
-    uiToolBar*		itemtoolbar_;
+    uiBaseMapTBMgr*	tbmgr_;
     uiDockWin*		treedw_;
     uiTreeView*		tree_;
     uiBasemapTreeTop*	topitem_;
     MouseCursorExchange* mousecursorexchange_;
-
-    bool		pickmode_;
-    uiToolButton*	viewbut_;
-    uiToolButton*	removebut_;
 
     TypeSet<int>	ids_;
 };

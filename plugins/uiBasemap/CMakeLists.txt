@@ -15,6 +15,7 @@ SET(OD_MODULE_SOURCES
 	uibasemappicksetitem.cc
 	uibasemappolygonitem.cc
 	uibasemaprandomlineitem.cc
+	uibasemaptbmgr.cc
 	uibasemapwellitem.cc
 	uibasemapwin.cc
 )

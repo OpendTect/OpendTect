@@ -241,6 +241,13 @@ void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
 }
 
 
+void uiLineItem::setLine( const Geom::Point2D<float>& centerpos,
+	      float dx1, float dy1, float dx2, float dy2 )
+{
+    setLine( centerpos.x - dx1, centerpos.y + dy1,
+	     centerpos.x + dx2, centerpos.y - dy2 );
+}
+
 
 uiRect uiLineItem::lineRect() const
 {
