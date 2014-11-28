@@ -40,11 +40,9 @@ public:
     Color		levelColor() const		{ return lvlcol_; }
     bool&		fillLayerBoxes()		{ return fillmdls_; }
     bool&		useLithColors()			{ return uselithcols_; }
-    uiBaseObject*	getViewer();
 
 protected:
 
-    uiFlatViewer&	vwr_;
     uiTextItem*		emptyitm_;
     uiRectItem*		zoomboxitm_;
     uiGraphicsItemSet&	logblcklineitms_;
@@ -69,18 +67,19 @@ protected:
     bool		allcontents_;
     Interval<float>	vrg_;
 
-    uiGraphicsScene&	scene() const;
     void		doDraw();
     void		eraseAll();
-    void		reDrawCB(CallBacker*);
-    void		reDrawSeqCB(CallBacker*);
-    void		reDrawLevelsCB(CallBacker*);
-    void		usrClicked(CallBacker*);
-    void		mouseMoved(CallBacker*);
-    void		doubleClicked(CallBacker*);
+    void		selPropChgCB(CallBacker*);
+    void		selContentChgCB(CallBacker*);
+    void		selLevelChgCB(CallBacker*);
+    void		dispLithChgCB(CallBacker*);
+    void		dispEachChgCB(CallBacker*);
     void		dispZoomedChgCB(CallBacker*);
-    int			getClickedModelNr() const;
+    void		reDrawAll();
+    void		reDrawSeq();
+    void		reDrawLevels();
     void		getBounds();
+    void		handleClick(bool dble);
     void		handleRightClick(int);
     void		drawLevels(); // deprecated
     virtual void	drawSelectedSequence();

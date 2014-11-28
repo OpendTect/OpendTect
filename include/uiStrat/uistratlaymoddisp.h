@@ -21,6 +21,7 @@ class PropertyRef;
 class uiGraphicsScene;
 class uiStratLayModEditTools;
 class uiTextItem;
+class uiFlatViewer;
 namespace Strat { class LayerModel; class LayerModelProvider; class Layer; }
 
 /*!
@@ -62,7 +63,7 @@ public:
     int			selectedSequence() const	{ return selseqidx_; }
     void		selectSequence(int seqidx);
 
-    virtual uiBaseObject* getViewer() { return 0; }
+    uiFlatViewer*	getViewer() { return &vwr_; }
     bool		isFlattened() const		{ return flattened_; }
     void		setFlattened(bool yn,bool trigger=true);
     bool		isFluidReplOn() const		{ return fluidreplon_; }
@@ -86,6 +87,7 @@ public:
 
 protected:
 
+    uiFlatViewer&	vwr_;
     const Strat::LayerModelProvider& lmp_;
     uiStratLayModEditTools& tools_;
     uiTextItem*		frtxtitm_;
@@ -99,12 +101,23 @@ protected:
     IOPar		dumppars_;
 
     bool		haveAnyZoom() const;
-    virtual uiGraphicsScene& scene() const		= 0;		
+    uiGraphicsScene&	scene() const;
     void		displayFRText();
     virtual void	drawSelectedSequence()		= 0;
 
+    int			getClickedModelNr() const;
+    void		mouseMoved(CallBacker*);
+    void		doubleClicked(CallBacker*);
+    void		usrClicked(CallBacker*);
+    virtual void	selPropChgCB(CallBacker*)	= 0;
+    virtual void	dispLithChgCB(CallBacker*)	= 0;
+    virtual void	selContentChgCB(CallBacker*)	= 0;
+    virtual void	selLevelChgCB(CallBacker*)	= 0;
+    virtual void	dispEachChgCB(CallBacker*)	= 0;
+    virtual void	dispZoomedChgCB(CallBacker*)	= 0;
     bool		doLayerModelIO(bool);
     virtual void	doLevelChg()			= 0;
+    virtual void	handleClick(bool dble)		= 0;
     				//!< returns whether layermodel has changed
 
 };

@@ -105,6 +105,7 @@ public:
     void		fillPar(IOPar&) const;
     void		fillPar(IOPar&,bool) const;
     bool		usePar(const IOPar&);
+    void		makeInfoMsg(BufferString& msg,IOPar&);
 
     void		showFRResults();
     void		setBrineFilled( bool yn ) { isbrinefilled_ = yn; }

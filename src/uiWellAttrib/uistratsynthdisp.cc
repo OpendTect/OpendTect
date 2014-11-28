@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "envvars.h"
 #include "stratsynth.h"
 #include "stratsynthlevel.h"
+#include "stratlith.h"
 #include "syntheticdataimpl.h"
 #include "flatviewzoommgr.h"
 #include "flatposdata.h"
@@ -207,6 +208,86 @@ uiStratSynthDisp::~uiStratSynthDisp()
     delete stratsynth_;
     delete edstratsynth_;
     delete d2tmodels_;
+}
+
+
+void uiStratSynthDisp::makeInfoMsg( BufferString& mesg, IOPar& pars )
+{
+    FixedString valstr = pars.find( sKey::TraceNr() );
+    int modelidx = 0;
+    if ( valstr.isEmpty() )
+	return;
+    modelidx = toInt(valstr)-1;
+    mesg.add("Model Number:").add( valstr );
+    valstr = pars.find( "Z" );
+    if ( !valstr ) valstr = pars.find( "Z-Coord" );
+    float zval = mUdf(float);
+    if ( valstr && *valstr )
+    {
+	mesg.addTab().add( "Depth : " );
+	zval = toFloat( valstr );
+	mesg.add( toString(zval) ).add( SI().getZUnitString() );
+	zval /= SI().showZ2UserFactor();
+    }
+
+    if ( mIsUdf(zval) || layerModel().size()<=modelidx || modelidx<0 )
+	return;
+    if ( d2tmodels_->validIdx(modelidx) )
+    {
+	const float depth = (*d2tmodels_)[modelidx]->getDepth( zval );
+	const Strat::LayerSequence& curseq = layerModel().sequence( modelidx );
+	for ( int lidx=0; lidx<curseq.size(); lidx++ )
+	{
+	    const Strat::Layer* layer = curseq.layers()[lidx];
+	    if ( layer->zTop()<=depth && layer->zBot()>depth )
+	    {
+		mesg.addTab().add( "Layer : " ).add( layer->name() );
+		mesg.add( " Lithology : ").add( layer->lithology().name() );
+		if ( !layer->content().isUnspecified() )
+		    mesg.add( " Content : ").add( layer->content().name() );
+		break;
+	    }
+	}
+    }
+
+    mesg.addTab();
+    int nrinfos = 0;
+#define mAddSep() if ( nrinfos++ ) mesg += ";\t";
+
+    FixedString vdstr = pars.find( "Variable density data" );
+    FixedString wvastr = pars.find( "Wiggle/VA data" );
+    FixedString vdvalstr = pars.find( "VD Value" );
+    FixedString wvavalstr = pars.find( "WVA Value" );
+    const bool issame = vdstr && wvastr && vdstr==wvastr;
+    if ( vdvalstr )
+    {
+	mAddSep();
+	if ( issame )
+	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
+	else
+	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
+	float val = *vdvalstr ? vdvalstr.toFloat() : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
+	mesg += " ("; mesg += vdstr; mesg += ")";
+    }
+    if ( wvavalstr && !issame )
+    {
+	mAddSep();
+	float val = *wvavalstr ? wvavalstr.toFloat() : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
+	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
+	mesg += " ("; mesg += wvastr; mesg += ")";
+    }
+
+    float val;
+    if ( pars.get(sKey::Offset(),val) )
+    {
+	if ( SI().xyInFeet() )
+	    val *= mToFeetFactorF;
+
+	mAddSep(); mesg += "Offs="; mesg += val;
+	mesg += " "; mesg += SI().getXYUnitString();
+    }
 }
 
 

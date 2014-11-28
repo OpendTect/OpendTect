@@ -55,6 +55,7 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , lmp_(lmp)
     , zrg_(0,1)
     , selseqidx_(-1)
+    , vwr_(* new uiFlatViewer(this))
     , flattened_(false)
     , fluidreplon_(false)
     , frtxtitm_(0)
@@ -66,11 +67,49 @@ uiStratLayerModelDisp::uiStratLayerModelDisp( uiStratLayModEditTools& t,
     , infoChanged(this)
     , dispPropChanged(this)
 {
+    vwr_.setInitialSize( uiSize(600,250) );
+    vwr_.setStretch( 2, 2 );
+    vwr_.disableStatusBarUpdate();
+    FlatView::Appearance& app = vwr_.appearance();
+    app.setGeoDefaults( true );
+    app.setDarkBG( false );
+    app.annot_.title_.setEmpty();
+    app.annot_.x1_.showAll( true );
+    app.annot_.x2_.showAll( true );
+    app.annot_.x1_.name_ = "Model Nr";
+    app.annot_.x2_.name_ = SI().depthsInFeet() ? "Depth (ft)" : "Depth (m)";
+    app.ddpars_.wva_.allowuserchange_ = false;
+    app.ddpars_.wva_.allowuserchangedata_ = false;
+    app.ddpars_.vd_.allowuserchangedata_ = false;
+    app.annot_.x1_.showannot_ = true;
+    app.annot_.x1_.showgridlines_ = false;
+    app.annot_.x1_.annotinint_ = true;
+    app.annot_.x2_.showannot_ = true;
+    app.annot_.x2_.showgridlines_ = true;
+    app.annot_.allowuserchangereversedaxis_ = false;
+
+    vwr_.rgbCanvas().getMouseEventHandler().buttonReleased.notify(
+			mCB(this,uiStratLayerModelDisp,usrClicked) );
+    vwr_.rgbCanvas().getMouseEventHandler().doubleClick.notify(
+			mCB(this,uiStratLayerModelDisp,doubleClicked) );
+    vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
+			mCB(this,uiStratLayerModelDisp,mouseMoved) );
+#   define mSetCB(notifnm) tools_.notifnm.notify( \
+	mCB(this,uiStratLayerModelDisp,notifnm##CB)  )
+
+    mSetCB( selPropChg ); mSetCB( dispLithChg ); mSetCB( selContentChg );
+    mSetCB( selLevelChg ); mSetCB( dispEachChg ); mSetCB( dispZoomedChg );
 }
 
 
 uiStratLayerModelDisp::~uiStratLayerModelDisp()
 {
+}
+
+
+uiGraphicsScene& uiStratLayerModelDisp::scene() const
+{
+    return const_cast<uiStratLayerModelDisp*>(this)->vwr_.rgbCanvas().scene();
 }
 
 
@@ -379,6 +418,83 @@ bool uiStratLayerModelDisp::setPropDispPars(const LMPropSpecificDispPars& pars)
 }
 
 
+int uiStratLayerModelDisp::getClickedModelNr() const
+{
+    MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
+    if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
+	return -1;
+    const MouseEvent& mev = mevh.event();
+    uiWorld2Ui w2ui;
+    vwr_.getWorld2Ui( w2ui );
+    const float xsel = w2ui.toWorldX( mev.pos().x );
+    int selidx = (int)(ceil( xsel )) - 1;
+    if ( selidx < 0 || selidx > layerModel().size() )
+	selidx = -1;
+    return selidx;
+}
+
+
+void uiStratLayerModelDisp::mouseMoved( CallBacker* )
+{
+    IOPar statusbarmsg;
+    const int selseq = getClickedModelNr();
+    statusbarmsg.set( "Model Number", selseq );
+    const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
+    uiWorld2Ui w2ui;
+    vwr_.getWorld2Ui( w2ui );
+    float depth = w2ui.toWorldY( mev.pos().y );
+    if ( !Math::IsNormalNumber(depth) )
+    {
+	mDefineStaticLocalObject( bool, havewarned, = false );
+	if ( !havewarned )
+	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
+	depth = 0;
+    }
+
+    BufferString depthstr( toString(depth) );
+    depthstr += SI().getZUnitString();
+    statusbarmsg.set( "Depth", depthstr );
+
+    if ( selseq >0 && selseq<=layerModel().size() )
+    {
+	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
+	const float lvldpth = lvldpths_[selseq-1];
+	for ( int ilay=0; ilay<seq.size(); ilay++ )
+	{
+	    const Strat::Layer& lay = *seq.layers()[ilay];
+	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
+	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
+	    if ( depth >= z0 && depth<= z1 )
+	    {
+		const int disppropidx = tools_.selPropIdx();
+		const PropertyRef* pr = seq.propertyRefs()[disppropidx];
+		const float val = getLayerPropValue(lay,pr,disppropidx);
+		statusbarmsg.set( "Layer", lay.name() );
+		statusbarmsg.set( "Lithology", lay.lithology().name() );
+		statusbarmsg.set( pr->name(), val );
+		if ( !lay.content().isUnspecified() )
+		    statusbarmsg.set( "Content", lay.content().name() );
+		break;
+	    }
+	}
+    }
+    infoChanged.trigger( statusbarmsg, this );
+}
+
+
+void uiStratLayerModelDisp::usrClicked( CallBacker* )
+{
+    handleClick( false );
+}
+
+
+void uiStratLayerModelDisp::doubleClicked( CallBacker* )
+{
+    handleClick( true );
+}
+
+
+
 //=========================================================================>>
 
 
@@ -399,57 +515,16 @@ uiStratSimpleLayerModelDisp::uiStratSimpleLayerModelDisp(
     , lvlitms_(*new uiGraphicsItemSet)
     , contitms_(*new uiGraphicsItemSet)
     , selseqitm_(0)
-    , vwr_(* new uiFlatViewer(this))
     , selseqad_(0)
     , selectedlevel_(-1)
     , selectedcontent_(0)
     , allcontents_(false)
 {
-    vwr_.setInitialSize( uiSize(600,250) );
-    vwr_.setStretch( 2, 2 );
-    vwr_.disableStatusBarUpdate();
-    FlatView::Appearance& app = vwr_.appearance();
-    app.setGeoDefaults( true );
-    app.setDarkBG( false );
-    app.annot_.title_.setEmpty();
-    app.annot_.x1_.showAll( true );
-    app.annot_.x2_.showAll( true );
-    app.annot_.x1_.name_ = "Model Nr";
-    app.annot_.x2_.name_ = SI().depthsInFeet() ? "Depth (ft)" : "Depth (m)";
-    app.ddpars_.wva_.allowuserchange_ = false;
-    app.ddpars_.wva_.allowuserchangedata_ = false;
-    app.ddpars_.vd_.allowuserchangedata_ = false;
-    app.annot_.x1_.showannot_ = true;
-    app.annot_.x1_.showgridlines_ = false;
-    app.annot_.x1_.annotinint_ = true;
-    app.annot_.x2_.showannot_ = true;
-    app.annot_.x2_.showgridlines_ = true;
-    app.ddpars_.show( false, false );
-    app.annot_.allowuserchangereversedaxis_ = false;
-
+    vwr_.appearance().ddpars_.show( false, false );
     emptydp_ = new FlatDataPack( "Layer Model", new Array2DImpl<float>(0,0) );
     DPM( DataPackMgr::FlatID() ).addAndObtain( emptydp_ );
     vwr_.setPack( true, emptydp_->id() );
     vwr_.setPack( false, emptydp_->id() );
-    vwr_.rgbCanvas().getMouseEventHandler().buttonReleased.notify(
-			mCB(this,uiStratSimpleLayerModelDisp,usrClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().doubleClick.notify(
-			mCB(this,uiStratSimpleLayerModelDisp,doubleClicked) );
-    vwr_.rgbCanvas().getMouseEventHandler().movement.notify(
-			mCB(this,uiStratSimpleLayerModelDisp,mouseMoved) );
-
-    const CallBack redrawcb( mCB(this,uiStratSimpleLayerModelDisp,reDrawCB) );
-    const CallBack redrawseqcb(
-	    mCB(this,uiStratSimpleLayerModelDisp,reDrawSeqCB) );
-    const CallBack redrawlvlcb(
-	    mCB(this,uiStratSimpleLayerModelDisp,reDrawLevelsCB) );
-    tools_.selPropChg.notify( redrawseqcb );
-    tools_.dispLithChg.notify( redrawseqcb );
-    tools_.selContentChg.notify( redrawseqcb );
-    tools_.selLevelChg.notify( redrawlvlcb );
-    tools_.dispEachChg.notify( redrawcb );
-    tools_.dispZoomedChg.notify(
-	    mCB(this,uiStratSimpleLayerModelDisp,dispZoomedChgCB) );
 }
 
 
@@ -479,81 +554,35 @@ void uiStratSimpleLayerModelDisp::eraseAll()
 }
 
 
-uiBaseObject* uiStratSimpleLayerModelDisp::getViewer()
-{ return &vwr_; }
+
+void uiStratSimpleLayerModelDisp::selPropChgCB( CallBacker* )
+{ reDrawSeq(); }
 
 
-uiGraphicsScene& uiStratSimpleLayerModelDisp::scene() const
-{
-    return const_cast<uiStratSimpleLayerModelDisp*>(this)->
-					vwr_.rgbCanvas().scene();
-}
+void uiStratSimpleLayerModelDisp::dispLithChgCB( CallBacker* )
+{ reDrawSeq(); }
 
 
-int uiStratSimpleLayerModelDisp::getClickedModelNr() const
-{
-    MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    if ( layerModel().isEmpty() || !mevh.hasEvent() || mevh.isHandled() )
-	return -1;
-    const MouseEvent& mev = mevh.event();
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    const float xsel = w2ui.toWorldX( mev.pos().x );
-    int selidx = (int)(ceil( xsel )) - 1;
-    if ( selidx < 0 || selidx > layerModel().size() )
-	selidx = -1;
-    return selidx;
-}
+void uiStratSimpleLayerModelDisp::selContentChgCB( CallBacker* )
+{ reDrawSeq(); }
 
 
-void uiStratSimpleLayerModelDisp::mouseMoved( CallBacker* )
-{
-    IOPar statusbarmsg;
-    const int selseq = getClickedModelNr();
-    statusbarmsg.set( "Model Number", selseq );
-    const MouseEvent& mev = vwr_.rgbCanvas().getMouseEventHandler().event();
-    uiWorld2Ui w2ui;
-    vwr_.getWorld2Ui( w2ui );
-    float depth = w2ui.toWorldY( mev.pos().y );
-    if ( !Math::IsNormalNumber(depth) )
-    {
-	mDefineStaticLocalObject( bool, havewarned, = false );
-	if ( !havewarned )
-	    { havewarned = true; pErrMsg("Invalid number from axis handler"); }
-	depth = 0;
-    }
-
-    statusbarmsg.set( "Depth", depth );
-
-    if ( selseq >0 && selseq<=layerModel().size() )
-    {
-	const Strat::LayerSequence& seq = layerModel().sequence( selseq-1 );
-	const float lvldpth = lvldpths_[selseq-1];
-	for ( int ilay=0; ilay<seq.size(); ilay++ )
-	{
-	    const Strat::Layer& lay = *seq.layers()[ilay];
-	    float z0 = lay.zTop(); if ( flattened_ ) z0 -= lvldpth;
-	    float z1 = lay.zBot(); if ( flattened_ ) z1 -= lvldpth;
-	    if ( depth >= z0 && depth<= z1 )
-	    {
-		const PropertyRef* pr = seq.propertyRefs()[dispprop_];
-		const float val = getLayerPropValue(lay,pr,dispprop_);
-		statusbarmsg.set( pr->name(), val );
-		break;
-	    }
-	}
-    }
-    infoChanged.trigger( statusbarmsg, this );
-}
+void uiStratSimpleLayerModelDisp::selLevelChgCB( CallBacker* )
+{ reDrawLevels(); }
 
 
-void uiStratSimpleLayerModelDisp::usrClicked( CallBacker* )
+void uiStratSimpleLayerModelDisp::dispEachChgCB( CallBacker* )
+{ reDrawAll(); }
+
+
+void uiStratSimpleLayerModelDisp::handleClick( bool dbl )
 {
     const int selidx = getClickedModelNr()-1;
     if ( selidx < 0 ) return;
 
     MouseEventHandler& mevh = vwr_.rgbCanvas().getMouseEventHandler();
-    if ( OD::rightMouseButton(mevh.event().buttonState() ) )
+    const bool isright = OD::rightMouseButton( mevh.event().buttonState() );
+    if ( dbl || isright )
 	handleRightClick(selidx);
     else
     {
@@ -670,19 +699,9 @@ void uiStratSimpleLayerModelDisp::removeLayers( Strat::LayerSequence& seq,
 }
 
 
-void uiStratSimpleLayerModelDisp::doubleClicked( CallBacker* )
-{
-    const int selidx = getClickedModelNr()-1;
-    if ( selidx < 0 ) return;
-
-    // Should we do something else than edit?
-    handleRightClick(selidx);
-}
-
-
 void uiStratSimpleLayerModelDisp::forceRedispAll( bool modeledited )
 {
-    reDrawCB( 0 );
+    reDrawAll();
     if ( modeledited )
 	modelEdited.trigger();
 }
@@ -699,7 +718,7 @@ void uiStratSimpleLayerModelDisp::dispZoomedChgCB( CallBacker* )
 }
 
 
-void uiStratSimpleLayerModelDisp::reDrawLevelsCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::reDrawLevels()
 {
     if ( flattened_ )
     {
@@ -713,7 +732,7 @@ void uiStratSimpleLayerModelDisp::reDrawLevelsCB( CallBacker* )
 }
 
 
-void uiStratSimpleLayerModelDisp::reDrawSeqCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::reDrawSeq()
 {
     getBounds();
     updateLayerAuxData();
@@ -721,7 +740,7 @@ void uiStratSimpleLayerModelDisp::reDrawSeqCB( CallBacker* )
 }
 
 
-void uiStratSimpleLayerModelDisp::reDrawCB( CallBacker* )
+void uiStratSimpleLayerModelDisp::reDrawAll()
 {
     layerModel().prepareUse();
     if ( layerModel().isEmpty() )
@@ -1063,7 +1082,7 @@ void uiStratSimpleLayerModelDisp::drawLevels()
 
 
 void uiStratSimpleLayerModelDisp::doLevelChg()
-{ reDrawCB( 0 ); }
+{ reDrawAll(); }
 
 
 void uiStratSimpleLayerModelDisp::drawSelectedSequence()

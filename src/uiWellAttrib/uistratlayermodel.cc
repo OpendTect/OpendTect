@@ -634,9 +634,8 @@ void uiStratLayerModel::wvltChg( CallBacker* cb )
 
 void uiStratLayerModel::modDispRangeChanged( CallBacker* )
 {
-    mDynamicCastGet( uiFlatViewer*,vwr,moddisp_->getViewer());
-    if ( vwr )
-	synthdisp_->setZDataRange( vwr->getSelDataRange( false ) , true );
+    synthdisp_->setZDataRange( moddisp_->getViewer()->getSelDataRange(false) ,
+			       true );
 }
 
 
@@ -1152,9 +1151,9 @@ void uiStratLayerModel::infoChanged( CallBacker* cb )
     mDynamicCastGet(uiStratLayerModelDisp*,moddisp,caller);
     if ( !moddisp )
     {
-	BufferString mesg;
-	uiFlatViewWin::makeInfoMsg( mesg, pars );
-	statusBar()->message( mesg.buf() );
+	BufferString msg;
+	synthdisp_->makeInfoMsg( msg, pars );
+	statusBar()->message( msg.buf() );
     }
     else
     {
