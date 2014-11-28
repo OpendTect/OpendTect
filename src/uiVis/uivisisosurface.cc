@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	visBase::MarchingCubesSurface* isosurface,
-	visSurvey::VolumeDisplay* vd )
+	visSurvey::VolumeDisplay* vd, int attrib )
     : uiDlgGroup( p, tr("Iso surface threshold") )
     , isosurfacedisplay_( isosurface )
     , initiallineitem_( 0 )
@@ -66,8 +66,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     aboveisovaluefld_->attach( alignedBelow, seedselfld_ );
     
     TypeSet<float> histogram;
-    if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
-    const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( 0 );
+    if ( vd->getHistogram(attrib) ) histogram = *vd->getHistogram(attrib);
+    const ColTab::MapperSetup* ms = vd->getColTabMapperSetup( attrib );
     const Interval<float> rg = ms->range_;
 
     uiStatsDisplay::Setup su; su.withtext(false);

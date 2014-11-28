@@ -914,6 +914,7 @@ uiTreeView* uiODSceneMgr::getTree( int sceneid )
 
 void uiODSceneMgr::setItemInfo( int id )
 {
+    mDoAllScenes(itemmanager_,updateColumnText,cNameColumn());
     mDoAllScenes(itemmanager_,updateColumnText,cColorColumn());
     appl_.statusBar()->message( uiStrings::sEmptyString(), mPosField );
     appl_.statusBar()->message( uiStrings::sEmptyString(), mValueField );

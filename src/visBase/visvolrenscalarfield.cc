@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vismaterial.h"
 #include "valseries.h"
 #include "visdataman.h"
+#include "visrgbatexturechannel2rgba.h"
 #include "od_ostream.h"
 
 #include "ostream"
@@ -36,27 +37,70 @@ namespace visBase
 
 #define mNrColors 256
 
+#define mTransparencyBendPower (100.0/255.0)
+/* By nature the cloud-like transparancy of volumes tends to be responsive
+   for the highest transparancies only. This setting at least guarantees that
+   all discrete values of the transparency byte will be adressed at the high
+   side of the transparency range after mapping the 1-100 UI slider scale. */
 
-VolumeRenderScalarField::VolumeRenderScalarField()
-//    : dummytexture_( 255 )
-    : indexcache_( 0 )
-    , ownsindexcache_( true )
-    , datacache_( 0 )
-    , ownsdatacache_( true )
-    , sz0_( 1 )
+
+VolumeRenderScalarField::AttribData::AttribData()
+    : sz0_( 1 )
     , sz1_( 1 )
     , sz2_( 1 )
-//    , blendcolor_( Color::White() )
-    , material_( 0 )
+    , indexcache_( 0 )
+    , indexcachestep_( 0 )
+    , ownsindexcache_( false )
+    , datacache_( 0 )
+    , ownsdatacache_( false )
+{}
+
+
+VolumeRenderScalarField::AttribData::~AttribData()
+{
+    if ( ownsindexcache_ && indexcache_ )
+	delete [] indexcache_;
+
+    if ( ownsdatacache_ && datacache_ )
+	delete datacache_;
+}
+
+
+od_int64 VolumeRenderScalarField::AttribData::totalSz() const
+{
+    return sz0_ * sz1_ * sz2_;
+}
+
+
+bool VolumeRenderScalarField::AttribData::isInVolumeCache() const
+{
+    return indexcachestep_==4;
+}
+
+
+#define mCheckAttribStore( attr ) \
+    if ( attr<0 || attr>3 ) \
+	return; \
+    while ( !attribs_.validIdx(attr) ) \
+	attribs_ += new AttribData();
+
+
+VolumeRenderScalarField::VolumeRenderScalarField()
+    : material_( 0 )
+    , channels2rgba_( 0 )
+    , isrgba_( false )
     , useshading_( true )
-    , sequence_( ColTab::Sequence( ColTab::defSeqName() ) )
+    , raytt_( 0 )
     , osgvoltile_( new osgVolume::VolumeTile() )
     , osgvolume_( new osgVolume::Volume() )
     , osgvolroot_( new osg::Switch() )
     , osgimagelayer_( new osgVolume::ImageLayer() )
     , osgvoldata_( new osg::Image() )
     , osgtransfunc_( new osg::TransferFunction1D() )
+    , osgtransprop_( new osgVolume::TransparencyProperty(1.0) )
 {
+    attribs_ += new AttribData();	// Need at least one for dummy returns
+
     setOsgNode( osgvolroot_ );
     osgvolroot_->ref();
     osgvoltile_->ref();
@@ -76,8 +120,6 @@ VolumeRenderScalarField::VolumeRenderScalarField()
 			new osgVolume::SampleDensityProperty( 0.005 );
     osgVolume::SampleDensityWhenMovingProperty* movingsampledensity =
 			new osgVolume::SampleDensityWhenMovingProperty( 0.005 );
-    osgVolume::TransparencyProperty* transparency =
-			new osgVolume::TransparencyProperty( 1.0 );
 //    osgVolume::IsoSurfaceProperty* isosurface =
 //			new osgVolume::IsoSurfaceProperty( 0.99 );
 
@@ -89,7 +131,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     compprop->addProperty( alpha );
     compprop->addProperty( sampledensity );
     compprop->addProperty( movingsampledensity );
-    compprop->addProperty( transparency );
+    compprop->addProperty( osgtransprop_ );
 
     compprop->addProperty( transferfunction );
 //    compprop->addProperty( isosurface );
@@ -102,8 +144,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
 
 VolumeRenderScalarField::~VolumeRenderScalarField()
 {
-    if ( ownsindexcache_ ) delete [] indexcache_;
-    if ( ownsdatacache_ ) delete datacache_;
+    deepErase( attribs_ );
 
     osgvolroot_->unref();
     osgvoltile_->unref();
@@ -113,6 +154,35 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
     osgtransfunc_->unref();
 
     setMaterial( 0 );
+    setChannels2RGBA( 0 );
+}
+
+
+void VolumeRenderScalarField::setChannels2RGBA(
+					visBase::TextureChannel2RGBA* tc2rgba )
+{
+    if ( channels2rgba_ )
+	channels2rgba_->unRef();
+
+    channels2rgba_ = tc2rgba;
+
+    if ( channels2rgba_ )
+	channels2rgba_->ref();
+
+    mDynamicCast( visBase::RGBATextureChannel2RGBA*, isrgba_, channels2rgba_ );
+    updateFragShaderType();
+}
+
+
+TextureChannel2RGBA* VolumeRenderScalarField::getChannels2RGBA()
+{
+    return channels2rgba_;
+}
+
+
+const TextureChannel2RGBA* VolumeRenderScalarField::getChannels2RGBA() const
+{
+    return channels2rgba_;
 }
 
 
@@ -183,20 +253,31 @@ void VolumeRenderScalarField::useShading( bool yn )
 
     if ( yn )
     {
-	osgGeo::RayTracedTechnique* rtt = new osgGeo::RayTracedTechnique;
-	rtt->setCustomShader( osg::Shader::FRAGMENT,
-			      rtt->volumeTfFragDepthCode() );
-	osgvoltile_->setVolumeTechnique( rtt );
+	raytt_ = new osgGeo::RayTracedTechnique( true );
+	updateFragShaderType();
+	osgvoltile_->setVolumeTechnique( raytt_ );
     }
     else
+    {
 	osgvoltile_->setVolumeTechnique( new osgGeo::FixedFunctionTechnique );
+	raytt_ = 0;
+    }
 
     useshading_ = yn;
     updateVolumeSlicing();
+    updateTransparencyRescaling();
+}
 
-//    Does this have an equivalent in OSG?
-//    if ( !useshading_ )
-//	SetEnvVar( "CVR_DISABLE_PALETTED_FRAGPROG", "1" );
+
+void VolumeRenderScalarField::updateFragShaderType()
+{
+    if ( raytt_ )
+    {
+	if ( isrgba_ )
+	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::RGBA );
+	else
+	    raytt_->setFragShaderType( osgGeo::RayTracedTechnique::ColTab );
+    }
 }
 
 
@@ -204,8 +285,18 @@ void VolumeRenderScalarField::updateVolumeSlicing()
 {
     mDynamicCastGet( osgGeo::FixedFunctionTechnique*, fft,
 		     osgvoltile_->getVolumeTechnique() );
-    if ( fft )
-	fft->setNumSlices( 8*mMAX(sz0_,mMAX(sz1_,sz2_)) );     // Empirical
+    if ( !fft )
+	return;
+
+    int maxlen = 1;
+    for ( int idx=0; idx<attribs_.size(); idx++ )
+    {
+	maxlen = mMAX( attribs_[idx]->sz0_,
+		       mMAX( attribs_[idx]->sz1_,
+			     mMAX( attribs_[idx]->sz2_, maxlen ) ) );
+    }
+
+    fft->setNumSlices( 8*maxlen );     // Empirical
 }
 
 
@@ -214,71 +305,59 @@ bool VolumeRenderScalarField::turnOn( bool yn )
     const bool wason = isOn();
     osgvolroot_->setValue( 0, yn );
     return wason;
-/*
-    if ( !voldata_ ) return false;
-    const bool wason = isOn();
-     if ( !yn )
-	 voldata_->setVolumeData( SbVec3s(1,1,1),
-			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
-     else if ( indexcache_ )
-	 voldata_->setVolumeData( SbVec3s(sz2_,sz1_,sz0_),
-				 indexcache_, SoVolumeData::UNSIGNED_BYTE );
-    return wason;
-*/
 }
 
 
 bool VolumeRenderScalarField::isOn() const
 {
     return osgvolroot_->getValue(0);
-/*
-    if ( !voldata_ )
-	return false;
-
-    SbVec3s size;
-    void* ptr;
-    SoVolumeData::DataType dt;
-    return voldata_->getVolumeData(size,ptr,dt) && ptr==indexcache_;
-*/
 }
 
 
-void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
+void VolumeRenderScalarField::setScalarField( int attr,
+					      const Array3D<float>* sc,
 					      bool mine, TaskRunner* tr )
 {
+    mCheckAttribStore( attr );
+
     if ( !sc )
     {
-	turnOn( false );
-	if ( ownsdatacache_ ) delete datacache_;
-	datacache_ = 0;
+	if ( attribs_[attr]->ownsdatacache_ )
+	    delete attribs_[attr]->datacache_;
+	attribs_[attr]->datacache_ = 0;
+	attribs_[attr]->ownsdatacache_ = false;
 	return;
     }
 
-    const bool isresize = sc->info().getSize(0)!=sz0_ ||
-			  sc->info().getSize(1)!=sz1_ ||
-			  sc->info().getSize(2)!=sz2_;
+    const bool isresize = sc->info().getSize(0)!=attribs_[attr]->sz0_ ||
+			  sc->info().getSize(1)!=attribs_[attr]->sz1_ ||
+			  sc->info().getSize(2)!=attribs_[attr]->sz2_;
 
     const od_int64 totalsz = sc->info().getTotalSz();
 
     bool doset = false;
     if ( isresize )
     {
-	sz0_ = sc->info().getSize( 0 );
-	sz1_ = sc->info().getSize( 1 );
-	sz2_ = sc->info().getSize( 2 );
+	attribs_[attr]->sz0_ = sc->info().getSize( 0 );
+	attribs_[attr]->sz1_ = sc->info().getSize( 1 );
+	attribs_[attr]->sz2_ = sc->info().getSize( 2 );
 	doset = true;
 
-	if ( ownsindexcache_ ) delete [] indexcache_;
-	indexcache_ = 0;
+	if ( attribs_[attr]->ownsindexcache_ )
+	    delete [] attribs_[attr]->indexcache_;
+	attribs_[attr]->indexcache_ = 0;
+	attribs_[attr]->indexcachestep_ = 0;
+	attribs_[attr]->ownsindexcache_ = false;
 
 	updateVolumeSlicing();
     }
 
-    if ( ownsdatacache_ ) delete datacache_;
+    if ( attribs_[attr]->ownsdatacache_ )
+	delete attribs_[attr]->datacache_;
 
-    ownsdatacache_ = mine;
-    datacache_ = sc->getStorage();
-    if ( !datacache_ || !datacache_->arr() )
+    attribs_[attr]->ownsdatacache_ = mine;
+    attribs_[attr]->datacache_ = sc->getStorage();
+    if ( !attribs_[attr]->datacache_ || !attribs_[attr]->datacache_->arr() )
     {
 	MultiArrayValueSeries<float,float>* myvalser =
 	    new MultiArrayValueSeries<float,float>( totalsz );
@@ -288,189 +367,192 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
 	{
 	    sc->getAll( *myvalser );
 
-	    datacache_ = myvalser;
-	    ownsdatacache_ = true;
+	    attribs_[attr]->datacache_ = myvalser;
+	    attribs_[attr]->ownsdatacache_ = true;
 	}
     }
 
     //TODO: if 8-bit data & some flags, use data itself
-    if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	//mapper_.setData( datacache_, totalsz, tr );
-	clipData( tr );
+    if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+//	attribs_[attr]->mapper_.setData(attribs_[attr]->datacache_,totalsz,tr);
+	clipData( attr, tr );
 
-    makeIndices( doset, tr );
+    makeIndices( attr, doset, tr );
 }
 
 
-void VolumeRenderScalarField::setColTabSequence( const ColTab::Sequence& s,
-						 TaskRunner* tr )
+const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper( int attr )
 {
-    sequence_ = s;
-    makeColorTables();
+    return attribs_[attribs_.validIdx(attr) ? attr : 0]->mapper_;
 }
 
 
-const ColTab::Mapper& VolumeRenderScalarField::getColTabMapper()
-{ return mapper_; }
-
-
-const ColTab::Sequence& VolumeRenderScalarField::getColTabSequence()
-{ return sequence_; }
-
-
-void VolumeRenderScalarField::setColTabMapperSetup( const ColTab::MapperSetup&
-	ms, TaskRunner* tr )
+void VolumeRenderScalarField::setColTabMapperSetup( int attr,
+				const ColTab::MapperSetup& ms, TaskRunner* tr )
 {
-    if ( mapper_.setup_ == ms )
+    mCheckAttribStore( attr );
+
+    if ( attribs_[attr]->mapper_.setup_ == ms )
 	return;
 
-//    const bool autoscalechange = mapper_.setup_.type_ != ms.type_;
+//    const bool autoscalechange =
+//	attribs_[attr]->mapper_.setup_.type_ != ms.type_;
 
-    mapper_.setup_ = ms;
+    attribs_[attr]->mapper_.setup_ = ms;
 
     /*if ( autoscalechange )
-	mapper_.setup_.triggerAutoscaleChange();
+	attribs_[attr]->mapper_.setup_.triggerAutoscaleChange();
     else
-	mapper_.setup_.triggerRangeChange();*/
+	attribs_[attr]->mapper_.setup_.triggerRangeChange();*/
 
-    if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData( tr );
+    if ( attribs_[attr]->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	clipData( attr, tr );
 
-    makeIndices( false, tr );
-}
-
-/*
-void VolumeRenderScalarField::setBlendColor( const Color& col )
-{
-    blendcolor_ = col;
-    makeColorTables();
+    makeIndices( attr, false, tr );
 }
 
 
-const Color& VolumeRenderScalarField::getBlendColor() const
-{ return blendcolor_; }
-*/
-
-const TypeSet<float>& VolumeRenderScalarField::getHistogram() const
-{ return histogram_; }
-
-
-/*
-SoNode* VolumeRenderScalarField::gtInvntrNode()
+const TypeSet<float>& VolumeRenderScalarField::getHistogram( int attr ) const
 {
-    if ( !voldata_ )
-    {
-	voldata_ = new SoVolumeData;
-	root_->addChild( voldata_ );
-
-	setVolumeSize( Interval<float>(-0.5,0.5), Interval<float>(-0.5,0.5),
-		       Interval<float>(-0.5,0.5) );
-	voldata_->setVolumeData( SbVec3s(1,1,1),
-			    &dummytexture_, SoVolumeData::UNSIGNED_BYTE );
-	if ( GetEnvVarYN("DTECT_VOLREN_NO_PALETTED_TEXTURE") )
-	    voldata_->usePalettedTexture = FALSE;
-
-	transferfunc_ = new SoTransferFunction;
-	makeColorTables();
-
-	root_->addChild( transferfunc_ );
-    }
-
-    return root_;
+    return attribs_[attribs_.validIdx(attr) ? attr : 0]->histogram_;
 }
-*/
 
-void VolumeRenderScalarField::clipData( TaskRunner* tr )
+
+void VolumeRenderScalarField::clipData( int attr, TaskRunner* tr )
 {
-    if ( !datacache_ )
+    mCheckAttribStore( attr );
+
+    if ( !attribs_[attr]->datacache_ )
 	return;
 
-    const od_int64 totalsz = sz0_*sz1_*sz2_;
-    mapper_.setData( datacache_, totalsz, tr );
-    mapper_.setup_.triggerRangeChange();
+    attribs_[attr]->mapper_.setData( attribs_[attr]->datacache_,
+				     attribs_[attr]->totalSz(), tr );
+    attribs_[attr]->mapper_.setup_.triggerRangeChange();
 }
 
 
-void VolumeRenderScalarField::makeColorTables()
+void VolumeRenderScalarField::makeColorTables( int attr )
 {
+    mCheckAttribStore( attr );
+
+    const ColTab::Sequence* sequence =
+		getChannels2RGBA() ? getChannels2RGBA()->getSequence(attr) : 0;
+
+    if ( !sequence || isrgba_ )
+	return;
+
     osg::TransferFunction1D::ColorMap colmap;
     for ( int idx=0; idx<mNrColors-1; idx++ )
     {
-	const Color col = sequence_.color( float(idx)/(mNrColors-2) );
-	colmap[ float(idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
+	const float idxfrac = mCast(float,idx) / (mNrColors-2);
+	const Color col = sequence->color( idxfrac );
+	colmap[ mCast(float,idx)/(mNrColors-1) ] = Conv::to<osg::Vec4>( col );
     }
 
-    colmap[ 1.0 ] = Conv::to<osg::Vec4>( sequence_.undefColor() );
+    colmap[1.0] = Conv::to<osg::Vec4>( sequence->undefColor() );
     osgtransfunc_->assign( colmap );
 
     if ( !useshading_ )
-	makeIndices( false, 0 );
-
-/*
-    if ( !transferfunc_ )
-	return;
-
-    const float redfactor = (float) blendcolor_.r()/(255*255);
-    const float greenfactor = (float) blendcolor_.g()/(255*255);
-    const float bluefactor = (float) blendcolor_.b()/(255*255);
-    const float opacityfactor = (float) (255-blendcolor_.t())/(255*255);
-
-    const bool didnotify = transferfunc_->colorMap.enableNotify( false );
-    int cti = 0;
-
-    // Fill up positions 0 to 253 with the color of defined values and
-    // positions 254 (and 255) with undef color (this is a workaround for a
-    // bug in SIMVoleon - it does not take in color at position mNrColors-1
-    // (that is, at 255)).
-
-    for ( int idx=0; idx<mNrColors-2; idx++ )
-    {
-	const float relval = ((float) idx)/(mNrColors-2);
-	const ::Color col = sequence_.color( relval );
-	transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
-	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
-	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
-    }
-
-    const ::Color col = sequence_.undefColor();
-
-    for ( char count=0; count<2; count++ )
-    {
-        transferfunc_->colorMap.set1Value( cti++, col.r()*redfactor );
-	transferfunc_->colorMap.set1Value( cti++, col.g()*greenfactor );
-	transferfunc_->colorMap.set1Value( cti++, col.b()*bluefactor );
-	transferfunc_->colorMap.set1Value( cti++, 1.0f-col.t()*opacityfactor );
-    }
-
-    transferfunc_->predefColorMap = SoTransferFunction::NONE;
-
-    transferfunc_->colorMap.enableNotify(didnotify);
-    transferfunc_->colorMap.touch();
-    */
+	makeIndices( attr, false, 0 );
 }
 
 
-void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
+// May be parallelized if necessary
+#define mStepwiseDataIteration( operation ) \
+    while ( (nrbytes--) > 0 ) \
+	{ operation; destptr += deststep; srcptr += srcstep; }
+
+static void copyDataStepwise( od_int64 nrbytes,
+			      unsigned char* srcptr, int srcstep,
+			      unsigned char* destptr, int deststep,
+			      bool mutual=false )
 {
-    if ( !datacache_ )
+    if ( mutual )
+	mStepwiseDataIteration( Swap(*destptr,*srcptr) )
+    else
+	mStepwiseDataIteration( *destptr=*srcptr )
+}
+
+
+static void addDataStepwise( od_int64 nrbytes,
+			     unsigned char* srcptr, int srcstep,
+			     unsigned char* destptr, int deststep )
+{
+    mStepwiseDataIteration( *destptr+=*srcptr )
+}
+
+
+void VolumeRenderScalarField::setDefaultRGBAValue( int channel )
+{
+    if ( channel>=0 && channel<=3 && osgvoldata_->data() )
+    {
+	unsigned char channeldefault = mRounded( unsigned char,
+	    255.0 * osgGeo::RayTracedTechnique::getChannelDefaults()[channel] );
+
+	copyDataStepwise( osgvoldata_->getTotalSizeInBytes()/4,
+			  &channeldefault, 0, osgvoldata_->data()+channel, 4 );
+
+	osgvoldata_->dirty();
+    }
+}
+
+
+void VolumeRenderScalarField::makeIndices( int attr, bool doset, TaskRunner* tr)
+{
+    mCheckAttribStore( attr );
+
+    if ( !attribs_[attr]->datacache_ )
 	return;
 
-    const od_int64 totalsz = sz0_*sz1_*sz2_;
+    const od_int64 totalsz = attribs_[attr]->totalSz();
 
-    if ( !indexcache_ )
+    if ( !useshading_ || isrgba_ )
     {
-	indexcache_ = new unsigned char[totalsz];
-	ownsindexcache_ = true;
+	if ( attribs_[attr]->sz2_!=osgvoldata_->s() ||
+	     attribs_[attr]->sz1_!=osgvoldata_->t() ||
+	     attribs_[attr]->sz0_!=osgvoldata_->r() )
+	{
+	    osgvoldata_->allocateImage( attribs_[attr]->sz2_,
+					attribs_[attr]->sz1_,
+					attribs_[attr]->sz0_,
+					GL_RGBA, GL_UNSIGNED_BYTE );
+	    if ( isrgba_ && !useshading_ )
+	    {
+		for ( int channel=0; channel<4; channel++ )
+		    setDefaultRGBAValue( channel );
+	    }
+	}
     }
+
+    const bool attribenabled = getChannels2RGBA() &&
+			       getChannels2RGBA()->isEnabled(attr);
+
+    const bool usevolcache = isrgba_ && (useshading_ || attribenabled);
+
+    if ( !attribs_[attr]->indexcache_ )
+    {
+	const int offset = raytt_ ? raytt_->getSourceChannel(attr) : attr;
+	attribs_[attr]->indexcache_ = usevolcache ? osgvoldata_->data()+offset
+						  : new unsigned char[totalsz];
+	attribs_[attr]->indexcachestep_ = usevolcache ? 4 : 1;
+	attribs_[attr]->ownsindexcache_ = !usevolcache;
+    }
+
+    if ( usevolcache && !attribenabled )
+	setDefaultRGBAValue( attr );
 
     // Reverse the index order, because osgVolume turns out to perform well
     // for one sense of the coordinate system only, and OD uses the other. A
     // transform in visSurvey::VolumeDisplay does the geometrical mirroring.
-        ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-         mNrColors-1, *datacache_, indexcache_+totalsz-1, -1 );
-//    ColTab::MapperTask<unsigned char> indexer( mapper_, totalsz,
-//				    mNrColors-1, *datacache_, indexcache_ );
+    ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
+	totalsz, mNrColors-1, *attribs_[attr]->datacache_,
+	attribs_[attr]->indexcache_+(totalsz-1)*attribs_[attr]->indexcachestep_,
+	-attribs_[attr]->indexcachestep_ );
+/*
+    ColTab::MapperTask<unsigned char> indexer( attribs_[attr]->mapper_,
+	totalsz, mNrColors-1, *attribs_[attr]->datacache_,
+	attribs_[attr]->indexcache_, attribs_[attr]->indexcachestep_ );
+*/
 
     if ( tr ? !tr->execute(indexer) : !indexer.execute() )
 	return;
@@ -485,25 +567,26 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 
     if ( max )
     {
-	histogram_.setSize( mNrColors-1, 0 );
+	attribs_[attr]->histogram_.setSize( mNrColors-1, 0 );
 	for ( int idx=mNrColors-2; idx>=0; idx-- )
-	    histogram_[idx] = (float) histogram[idx]/max;
+	    attribs_[attr]->histogram_[idx] = (float) histogram[idx] / max;
     }
 
-    if ( !useshading_ )
+    unsigned char one = 1;
+    if ( isrgba_ && attr!=3 )
     {
-	if ( sz2_!=osgvoldata_->s() || sz1_!=osgvoldata_->t() ||
-	     sz0_!=osgvoldata_->r() )
-	{
-	    osgvoldata_->allocateImage( sz2_, sz1_, sz0_, GL_RGBA,
-					GL_UNSIGNED_BYTE );
-	}
+	// wrap indices by 1 to move RGBA undef color to default Vec4(0,0,0,1)
+	addDataStepwise( totalsz, &one, 0, attribs_[attr]->indexcache_,
+			 attribs_[attr]->indexcachestep_ );
+    }
 
+    if ( !useshading_ && !isrgba_ )
+    {
 	unsigned char coltab[1024];
 	for ( int idx=0; idx<=255; idx++ )
 	{
-	    const Color col =
-		Conv::to<Color>( osgtransfunc_->getColor(float(idx)/255) );
+	    const Color col = Conv::to<Color>(
+			    osgtransfunc_->getColor( mCast(float,idx)/255 ) );
 	    coltab[4*idx+0] = col.r();
 	    coltab[4*idx+1] = col.g();
 	    coltab[4*idx+2] = col.b();
@@ -511,23 +594,111 @@ void VolumeRenderScalarField::makeIndices( bool doset, TaskRunner* tr )
 	}
 
 	unsigned char* ptr = osgvoldata_->data();
-	const int nrvoxels = sz2_ * sz1_ * sz0_;
-
-	for ( int idx=0; idx<nrvoxels; idx++ )
+	for ( od_int64 idx=0; idx<totalsz; idx++ )
 	{
-	    OD::memCopy( ptr , coltab+4*indexcache_[idx], 4 );
+	    OD::memCopy( ptr , coltab+4*attribs_[attr]->indexcache_[idx], 4 );
 	    ptr += 4;
 	}
     }
-    else if ( doset )
+    else if ( doset && !isrgba_ )
     {
-	osgvoldata_->setImage( sz2_, sz1_, sz0_, GL_LUMINANCE, GL_LUMINANCE,
-		GL_UNSIGNED_BYTE, indexcache_, osg::Image::NO_DELETE, 1 );
+	osgvoldata_->setImage( attribs_[attr]->sz2_, attribs_[attr]->sz1_,
+			       attribs_[attr]->sz0_, GL_LUMINANCE, GL_LUMINANCE,
+			       GL_UNSIGNED_BYTE, attribs_[attr]->indexcache_,
+			       osg::Image::NO_DELETE, 1 );
     }
     else
 	osgvoldata_->dirty();
 
     osgvoltile_->setDirty( true );
+}
+
+
+void VolumeRenderScalarField::enableAttrib( int attr, bool yn )
+{
+    mCheckAttribStore( attr );
+
+    if ( raytt_ )
+    {
+	raytt_->enableDestChannel( attr, yn );
+    }
+    else if ( isrgba_ && osgvoldata_->data() && attribs_[attr]->indexcache_ &&
+	      yn!=attribs_[attr]->isInVolumeCache() )
+    {
+	const od_int64 totalsz = attribs_[attr]->totalSz();
+	const int deststep = yn ? 4 : 1;
+	unsigned char* destptr = yn ? osgvoldata_->data()+attr
+				    : new unsigned char[totalsz];
+
+	copyDataStepwise( totalsz, attribs_[attr]->indexcache_,
+			  attribs_[attr]->indexcachestep_, destptr, deststep );
+	if ( yn )
+	    delete [] attribs_[attr]->indexcache_;
+	else
+	    setDefaultRGBAValue( attr );
+
+	attribs_[attr]->indexcache_ = destptr;
+	attribs_[attr]->indexcachestep_ = deststep;
+	attribs_[attr]->ownsindexcache_ = !yn;
+
+	osgvoldata_->dirty();
+    }
+}
+
+
+void VolumeRenderScalarField::swapAttribs( int attr0, int attr1 )
+{
+    if ( attr0 == attr1 )
+	return;
+
+    mCheckAttribStore( attr0 );
+    mCheckAttribStore( attr1 );
+    attribs_.swap( attr0, attr1 );
+
+    if ( raytt_ )
+    {
+	const int sourcechannel0 = raytt_->getSourceChannel( attr0 );
+	const int sourcechannel1 = raytt_->getSourceChannel( attr1 );
+	raytt_->setSourceChannel( attr0, sourcechannel1 );
+	raytt_->setSourceChannel( attr1, sourcechannel0 );
+	return;
+    }
+
+    if ( attribs_[attr0]->isInVolumeCache() )
+	Swap( attr0, attr1 );
+    else if ( !attribs_[attr1]->isInVolumeCache() )
+	return;
+
+    const bool swapvoldata = attribs_[attr0]->isInVolumeCache();
+
+    copyDataStepwise( osgvoldata_->getTotalSizeInBytes()/4,
+		      osgvoldata_->data()+attr0, 4,
+		      osgvoldata_->data()+attr1, 4, swapvoldata );
+
+    attribs_[attr1]->indexcache_ = osgvoldata_->data() + attr1;
+
+    if ( swapvoldata )
+	attribs_[attr0]->indexcache_ = osgvoldata_->data() + attr0;
+    else
+	setDefaultRGBAValue( attr0 );
+
+    osgvoldata_->dirty();
+}
+
+
+void VolumeRenderScalarField::setAttribTransparency( int attr,
+						     unsigned char trans )
+{
+    const float rescaledtrans = pow( mCast(float,trans)/255.0,
+				     mTransparencyBendPower );
+    osgtransprop_->setValue( 1.0 - rescaledtrans );
+
+    /* As long as only single layer textures are supported, setting OSG's
+    transparency property will do. The FixedFunctionTechnique ignores this
+    property. However, its material properties transparency already provides
+    the same cloud-like effect as a result of its multi-plane implementation.
+    That material properties transparency provides a much "thinner" effect
+    for the projective implementation of the RayTracingTechnique. */
 }
 
 
@@ -554,6 +725,17 @@ void VolumeRenderScalarField::setMaterial( Material* newmat )
 
     osgvolume_->getStateSet()->setAttribute( attr,
 					    osg::StateAttribute::OVERRIDE );
+    updateTransparencyRescaling();
+}
+
+
+void VolumeRenderScalarField::updateTransparencyRescaling()
+{
+    if ( material_ )
+    {
+	const float bendpower = useshading_ ? 1.0 : mTransparencyBendPower;
+	material_->rescaleTransparency( bendpower );
+    }
 }
 
 
@@ -587,10 +769,10 @@ static float hton_float(float value)
 }
 
 
-
-const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
+const char* VolumeRenderScalarField::writeVolumeFile( int attr,
+						      od_ostream& strm ) const
 {
-    if ( !indexcache_ )
+    if ( !attribs_.validIdx(attr) || !attribs_[attr]->indexcache_ )
 	return "Nothing to write";
 
     const char* writeerr = "Cannot write to stream";
@@ -604,16 +786,28 @@ const char* VolumeRenderScalarField::writeVolumeFile( od_ostream& strm ) const
 	hton_float(0.0f), hton_float(0.0f), hton_float(0.0f)
       };
 
-    vh.width = hton_uint32(sz2_);
-    vh.height = hton_uint32(sz1_);
-    vh.images = hton_uint32(sz0_);
+    vh.width = hton_uint32( attribs_[attr]->sz2_ );
+    vh.height = hton_uint32( attribs_[attr]->sz1_ );
+    vh.images = hton_uint32( attribs_[attr]->sz0_ );
     vh.bits_per_voxel = hton_uint32(8);
 
     if ( strm.addBin(vh).isBad() )
 	return writeerr;
 
-    const od_int64 totalsz = sz0_*sz1_*sz2_;
-    if ( !strm.addBin( indexcache_, totalsz ) )
+    const unsigned char* indexcacheptr = attribs_[attr]->indexcache_;
+    const int indexcachestep = attribs_[attr]->indexcachestep_;
+
+    if ( indexcachestep!=1 )
+    {
+	for ( int count=attribs_[attr]->totalSz(); count>0; count-- )
+	{
+	    if ( !strm.addBin(indexcacheptr,1) )
+		return writeerr;
+
+	    indexcacheptr += indexcachestep;
+	}
+    }
+    else if ( !strm.addBin(indexcacheptr,attribs_[attr]->totalSz()) )
 	return writeerr;
 
     return 0;

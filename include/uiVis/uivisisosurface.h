@@ -35,7 +35,7 @@ mExpClass(uiVis) uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
 			visBase::MarchingCubesSurface*,
-			visSurvey::VolumeDisplay*);
+			visSurvey::VolumeDisplay*, int attrib);
 		~uiVisIsoSurfaceThresholdDlg();
 
     bool	acceptOK();

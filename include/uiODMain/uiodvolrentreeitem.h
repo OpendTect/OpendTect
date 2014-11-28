@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiodmainmod.h"
 #include "uioddisplaytreeitem.h"
+#include "uiodattribtreeitem.h"
 
 mExpClass(uiODMain) uiODVolrenParentTreeItem : public uiTreeItem
 { mODTextTranslationClass(uiODVolrenParentTreeItem);
@@ -47,7 +48,7 @@ public:
 mExpClass(uiODMain) uiODVolrenTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenTreeItem);
 public:
-			uiODVolrenTreeItem(int displayid_=-1);
+			uiODVolrenTreeItem(int displayid_=-1,bool rgba=false);
     bool		showSubMenu();
 
 protected:
@@ -57,16 +58,25 @@ protected:
     uiODDataTreeItem*	createAttribItem( const Attrib::SelSpec* ) const;
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
-    bool		anyButtonClick(uiTreeViewItem*);
 
     bool		isExpandable() const		{ return true; }
     const char*		parentType() const;
 
-    bool		hasVolume() const;
-
-    MenuItem		selattrmnuitem_;
-    MenuItem            colsettingsmnuitem_;
     MenuItem		positionmnuitem_;
+    bool		rgba_;
+};
+
+
+mExpClass(uiODMain) uiODVolrenAttribTreeItem : public uiODAttribTreeItem
+{ mODTextTranslationClass(uiODVolrenAttribTreeItem);
+public:
+			uiODVolrenAttribTreeItem(const char* parenttype);
+protected:
+
+    void		createMenu(MenuHandler*,bool istb);
+    void		handleMenuCB(CallBacker*);
+    bool		hasTransparencyMenu() const;
+
     MenuItem            statisticsmnuitem_;
     MenuItem            amplspectrummnuitem_;
     MenuItem		addmnuitem_;
@@ -74,24 +84,26 @@ protected:
 };
 
 
+
 mExpClass(uiODMain) uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 { mODTextTranslationClass(uiODVolrenSubTreeItem);
 public:
 			uiODVolrenSubTreeItem(int displayid);
 
-    bool		isVolume() const;
     bool		isIsoSurface() const;
     void		updateColumnText(int col);
 
 protected:
 			~uiODVolrenSubTreeItem();
 
+    int			getParentDisplayID() const;
+    int			getParentAttribNr() const;
+
     virtual void	createMenu(MenuHandler*,bool istb);
     void		handleMenuCB(CallBacker*);
     void		posChangeCB(CallBacker*);
     void		selChgCB(CallBacker*);
 
-    bool		anyButtonClick(uiTreeViewItem*);
     bool		init();
     const char*		parentType() const;
 

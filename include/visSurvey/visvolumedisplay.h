@@ -36,6 +36,7 @@ namespace visBase
     class BoxDragger;
     class VolumeRenderScalarField;
     class OrthogonalSlice;
+    class TextureChannel2RGBA;
 }
 
 
@@ -45,7 +46,7 @@ namespace visSurvey
 class Scene;
 
 mExpClass(visSurvey) VolumeDisplay : public visBase::VisualObjectImpl,
-		      public SurveyObject
+				     public SurveyObject
 {
 public:
 				VolumeDisplay();
@@ -119,13 +120,30 @@ public:
     const TypeSet<float>* 	getHistogram(int attrib) const;
     void			setSelSpec(int attrib,const Attrib::SelSpec&);
 
+    bool			canHaveMultipleAttribs() const { return true; }
+    int				nrAttribs() const;
+    bool			canAddAttrib(int nrattribstoadd=1) const;
+    bool			addAttrib();
+    bool			canRemoveAttrib() const;
+    bool			removeAttrib(int attrib);
+    bool			swapAttribs(int attrib0,int attrib1);
+    void			enableAttrib(int attrib,bool yn);
+    bool			isAttribEnabled(int attrib) const;
+    void			setAttribTransparency(int attrib,unsigned char);
+    unsigned char		getAttribTransparency(int attrib) const;
+
+    bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
+
+    visBase::TextureChannel2RGBA*	getChannels2RGBA();
+    const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
+
     float			slicePosition(visBase::OrthogonalSlice*) const;
     void			setSlicePosition(visBase::OrthogonalSlice*,
 						    const TrcKeyZSampling&);
     TrcKeyZSampling 		sliceSampling(visBase::OrthogonalSlice*) const;
     visBase::OrthogonalSlice* 	getSelectedSlice() const;
 
-    float			getValue(const Coord3&) const;
+    float			getValue(int attrib,const Coord3&) const;
 
     TrcKeyZSampling		getTrcKeyZSampling(int attrib) const;
     TrcKeyZSampling		getTrcKeyZSampling(bool manippos,
@@ -150,13 +168,15 @@ public:
 	    			     		Coord3&,BufferString& val,
 	    					BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
+    void			getTreeObjectInfo(BufferString&) const;
 
-    const ColTab::MapperSetup*	getColTabMapperSetup(int,int v=0) const;
-    void			setColTabMapperSetup(int,
+    const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+						     int version=0) const;
+    void			setColTabMapperSetup(int attrib,
 					const ColTab::MapperSetup&,TaskRunner*);
-    const ColTab::Sequence*	getColTabSequence(int) const;
-    void			setColTabSequence(int,const ColTab::Sequence&,
-	    				TaskRunner*);
+    const ColTab::Sequence*	getColTabSequence(int attrib) const;
+    void			setColTabSequence(int attrib,
+					const ColTab::Sequence&,TaskRunner*);
     bool			canSetColTabSequence() const;
 
     void			setMaterial(visBase::Material*);
@@ -178,7 +198,7 @@ public:
     virtual bool		usePar(const IOPar&);
     const char*			errMsg() const { return errmsg_.str(); }
 
-    bool			writeVolume( const char* filenm ) const;
+    bool			writeVolume(int attrib,const char* fnm) const;
 
     void			setDisplayTransformation(const mVisTrans*);
 
@@ -205,9 +225,11 @@ protected:
     bool			isSelected() const;
     const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     void			setScene(Scene*);
+    void			updateAttribEnabling();
 
     visBase::BoxDragger*			boxdragger_;
     visBase::VolumeRenderScalarField*		scalarfield_;
+    visBase::TextureChannel2RGBA*		texchannel2rgba_;
 /* OSG_TODO: Replace VolrenDisplay with OSG equivalent
     visBase::VolrenDisplay*			volren_;
 */
@@ -249,9 +271,18 @@ protected:
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;
 
-    DataPack::ID		cacheid_;
-    const Attrib::DataCubes*	cache_;
-    Attrib::SelSpec&		as_;
+    struct AttribData
+    {
+					AttribData();
+					~AttribData();
+
+	Attrib::SelSpec&		as_;
+	DataPack::ID			cacheid_;
+	const Attrib::DataCubes*	cache_;
+    };
+
+    ObjectSet<AttribData>	attribs_;
+
     BufferString		sliceposition_;
     BufferString		slicename_;
     TrcKeyZSampling		csfromsession_;
