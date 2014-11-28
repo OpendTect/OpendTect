@@ -27,20 +27,18 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     if ( !silent_ )
     {
 	BufferString mess = "Remove ";
-	if ( !rmentry ) mess += "existing ";
-	mess += "data file(s), at\n'";
 	if ( !ioobj_.isSubdir() )
 	{
-	    mess += ioobj_.fullUserExpr(true);
-	    mess += "'?";
+	    mess.add( "'" ).add( ioobj_.name() ).add( "'?" );
 	    mess += isoutside ? "\nFile not in current survey.\n"
 				"Specify what you would like to remove" : "";
 	}
 	else
 	{
+	    mess.add( "'" ).add( ioobj_.name() ).add( "' with folder\n" );
 	    BufferString fullexpr( ioobj_.fullUserExpr(true) );
-	    mess += FilePath(fullexpr).fileName();
-	    mess += "'\n- and everything in it! - ?";
+	    mess += ioobj_.fullUserExpr(true);
+	    mess += "\n- and everything in it! - ?";
 	}
 
 	if ( isoutside )
@@ -50,12 +48,14 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 					       "Remove data" );
 	    if ( resp < 0 )
 		return false;
+
 	    dorm = resp;
 	}
 	else if ( doconfirm && !uiMSG().askRemove(mess) )
 	{
 	    if ( mustrm )
 		return false;
+
 	    dorm = false;
 	}
     }
