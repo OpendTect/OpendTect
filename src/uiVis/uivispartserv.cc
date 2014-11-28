@@ -1412,7 +1412,7 @@ void uiVisPartServer::calculateAllAttribs()
 	    visBase::DataObject* dobj = visBase::DM().getObject( childid );
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
 	    if ( !so ) continue;
-	    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+	    for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
 		calculateAttrib( childid, attrib, false, true );
 	}
     }
@@ -1763,7 +1763,7 @@ bool uiVisPartServer::calcManipulatedAttribs( int id )
     so->acceptManipulation();
     so->annotateNextUpdateStage( true );
 
-    for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
+    for ( int attrib=0; attrib<so->nrAttribs(); attrib++ )
 	calculateAttrib( id, attrib, false );
 
     so->annotateNextUpdateStage( false );

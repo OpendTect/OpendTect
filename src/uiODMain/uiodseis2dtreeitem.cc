@@ -610,7 +610,7 @@ void uiOD2DLineTreeItem::handleMenuCB( CallBacker* cb )
 	if ( s2d->getUpdateStageNr() )
 	{
 	    s2d->annotateNextUpdateStage( true );
-	    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
+	    for ( int idx=0; idx<s2d->nrAttribs(); idx++ )
 	    {
 		if ( s2d->getSelSpec(idx)
 		  && s2d->getSelSpec(idx)->id().isValid() )
@@ -733,7 +733,7 @@ void uiOD2DLineTreeItem::setZRange( const Interval<float> newzrg )
     s2d->annotateNextUpdateStage( true );
     s2d->setZRange( newzrg );
     s2d->annotateNextUpdateStage( true );
-    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
+    for ( int idx=0; idx<s2d->nrAttribs(); idx++ )
     {
 	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id().isValid() )
 	    visserv_->calculateAttrib( displayid_, idx, false );

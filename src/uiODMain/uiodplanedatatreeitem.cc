@@ -418,7 +418,7 @@ void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const TrcKeyZSampling& cs )
     pdd->setTrcKeyZSampling( cs );
     pdd->resetManipulation();
     pdd->annotateNextUpdateStage( true );
-    for ( int attrib=visserv_->getNrAttribs(displayid_)-1; attrib>=0; attrib--)
+    for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++ )
 	visserv_->calculateAttrib( displayid_, attrib, false );
     pdd->annotateNextUpdateStage( false );
 
