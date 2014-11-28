@@ -122,23 +122,22 @@ uiMarkerDlg::~uiMarkerDlg()
 
 void uiMarkerDlg::getColLabels( BufferStringSet& lbls ) const
 {
-    bool zinfeet = false;
-    if ( unitfld_ )
-	zinfeet = unitfld_->isChecked();
+    const bool zinfeet = unitfld_ ? unitfld_->isChecked()
+				  : SI().depthsInFeet();
 
     lbls.add( sKeyName() );
     BufferString curlbl;
 
     curlbl = sKeyMD();
-    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    curlbl.add( getDistUnitString(zinfeet,false) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVD();
-    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    curlbl.add( getDistUnitString(zinfeet,false) );
     lbls.add( curlbl );
 
     curlbl = sKeyTVDSS();
-    curlbl.add( "(" ).add( getDistUnitString(zinfeet,false) ).add( ")" );
+    curlbl.add( getDistUnitString(zinfeet,false) );
     lbls.add( curlbl );
 
     lbls.add( sKeyColor() );
