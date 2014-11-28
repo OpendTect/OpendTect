@@ -243,6 +243,9 @@ void uiFileInput::examineFile( CallBacker* )
 	    cmd += " --table --maxlines 250";
 	else
 	    cmd += " --maxlines 5000";
+#ifdef __mac__
+	cmd += " --nofork ";
+#endif
 
 	if ( examstyle_ == Setup::Log )
 	    cmd += " --log";
