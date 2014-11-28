@@ -46,6 +46,8 @@ HiddenParam< FaultStickSetDisplay,EM::SectionID > secionid_( 0 );
 HiddenParam< FaultStickSetDisplay,
    ObjectSet<FaultStickSetDisplay::SectionKnotsStatus>* >sectionknotsstatus_(0);
 
+HiddenParam<FaultStickSetDisplay,char> hideallknots_( true );
+
 
 const char* FaultStickSetDisplay::sKeyEarthModelID()	{ return "EM ID"; }
 const char* FaultStickSetDisplay::sKeyDisplayOnlyAtSections()
@@ -205,6 +207,8 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , displayonlyatsections_(false)
     , stickselectmode_(false)
 {
+    hideallknots_.setParam( this, true );
+
     sticks_->ref();
     stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
     stickdrawstyle_->ref();
@@ -285,6 +289,8 @@ FaultStickSetDisplay::~FaultStickSetDisplay()
     deepErase( *secknotsstatus );
     sectionknotsstatus_.removeParam( this );
     delete secknotsstatus;
+
+    hideallknots_.removeParam( this );
 
 }
 
@@ -369,6 +375,8 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 
     if ( !emfss_->name().isEmpty() )
 	setName( emfss_->name() );
+
+    hideallknots_.setParam( this, !emfss_->isEmpty() );
 
     if ( !viseditor_ )
     {
@@ -502,7 +510,8 @@ void FaultStickSetDisplay::updateEditPids()
 
     editpids_.erase();
 
-    for ( int sidx=0; !stickselectmode_ && sidx<emfss_->nrSections(); sidx++ )
+    const bool displayknots = !areAllKnotsHidden() && !stickselectmode_;
+    for ( int sidx=0; displayknots && sidx<emfss_->nrSections(); sidx++ )
     {
 	EM::SectionID sid = emfss_->sectionID( sidx );
 	const SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
@@ -1408,7 +1417,9 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	markerset->setScreenSize( mDefaultMarkerSize );
     }
 
-    int groupidx = (!showmanipulator_ || !stickselectmode_)  ? 2 : 0;
+    const bool displayknots = !areAllKnotsHidden() && showmanipulator_
+						   && stickselectmode_;
+    int groupidx = displayknots ? 0 : 2;
 
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
@@ -1424,7 +1435,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
     knotmarkersets_[groupidx]->forceRedraw( true );
 
-    if ( !showmanipulator_ || !stickselectmode_ )
+    if ( !displayknots )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
@@ -1530,6 +1541,20 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
     for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
         knotmarkersets_[idx]->setPixelDensity( dpi );
 
+}
+
+
+bool FaultStickSetDisplay::areAllKnotsHidden() const
+{ return hideallknots_.getParam( this ); }
+
+
+void FaultStickSetDisplay::hideAllKnots( bool yn )
+{
+    if ( areAllKnotsHidden() != yn )
+    {
+	hideallknots_.setParam( this, yn );
+	updateAll();
+    }
 }
 
 

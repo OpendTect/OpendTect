@@ -195,6 +195,10 @@ public:
 	TypeSet<int>	firstcols_;
 	TypeSet< TypeSet<unsigned int> > knotsstatus_;
     };
+
+    void			hideAllKnots(bool yn);
+    bool			areAllKnotsHidden() const;
+
 protected:
     SectionKnotsStatus*	getSectionKnotsStatus(EM::SectionID)const;
 };
