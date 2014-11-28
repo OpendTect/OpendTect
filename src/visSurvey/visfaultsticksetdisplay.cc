@@ -199,6 +199,7 @@ FaultStickSetDisplay::FaultStickSetDisplay()
     , showmanipulator_(false)
     , displayonlyatsections_(false)
     , stickselectmode_(false)
+    , hideallknots_( true )
 {
     sticks_->ref();
     stickdrawstyle_ = sticks_->addNodeState( new visBase::DrawStyle );
@@ -352,6 +353,8 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
     if ( !emfss_->name().isEmpty() )
 	setName( emfss_->name() );
 
+    hideallknots_ = !emfss_->isEmpty();
+
     if ( !viseditor_ )
     {
 	viseditor_ = MPEEditor::create();
@@ -373,7 +376,6 @@ bool FaultStickSetDisplay::setEMID( const EM::ObjectID& emid )
 	fsseditor_->ref();
 	fsseditor_->setEditIDs( &editpids_ );
     }
-
 
     viseditor_->setEditor( fsseditor_ );
 
@@ -480,7 +482,8 @@ void FaultStickSetDisplay::updateEditPids()
 
     editpids_.erase();
 
-    for ( int sidx=0; !stickselectmode_ && sidx<emfss_->nrSections(); sidx++ )
+    const bool displayknots = !hideallknots_ && !stickselectmode_;
+    for ( int sidx=0; displayknots && sidx<emfss_->nrSections(); sidx++ )
     {
 	EM::SectionID sid = emfss_->sectionID( sidx );
 	const SectionKnotsStatus* sksts = getSectionKnotsStatus( sid );
@@ -1387,7 +1390,9 @@ void FaultStickSetDisplay::updateKnotMarkers()
 	markerset->setScreenSize( mDefaultMarkerSize );
     }
 
-    int groupidx = (!showmanipulator_ || !stickselectmode_)  ? 2 : 0;
+    const bool displayknots = !hideallknots_ && showmanipulator_
+					     && stickselectmode_;
+    int groupidx = displayknots ? 0 : 2;
 
     for ( int idx=0; idx<stickintersectpoints_.size(); idx++ )
     {
@@ -1403,7 +1408,7 @@ void FaultStickSetDisplay::updateKnotMarkers()
 
     knotmarkersets_[groupidx]->forceRedraw( true );
 
-    if ( !showmanipulator_ || !stickselectmode_ )
+    if ( !displayknots )
 	return;
 
     PtrMan<EM::EMObjectIterator> iter = emfss_->geometry().createIterator(-1);
@@ -1507,7 +1512,21 @@ void FaultStickSetDisplay::setPixelDensity( float dpi )
     
     for ( int idx =0; idx<knotmarkersets_.size(); idx++ )
         knotmarkersets_[idx]->setPixelDensity( dpi );
-
 }
+
+
+bool FaultStickSetDisplay::areAllKnotsHidden() const
+{ return hideallknots_; }
+
+
+void FaultStickSetDisplay::hideAllKnots( bool yn )
+{
+    if ( hideallknots_ != yn )
+    {
+	hideallknots_ = yn;
+	updateAll();
+    }
+}
+
 
 } // namespace visSurvey

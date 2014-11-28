@@ -568,11 +568,19 @@ void uiODFaultToolMan::showSettings( bool yn )
 
 
 bool uiODFaultToolMan::areSticksAccessible() const
-{ return curfssd_ || ( curfltd_ && curfltd_->areSticksDisplayed() ); }
+{
+    if ( curfssd_ )
+	return !curfssd_->areAllKnotsHidden();
+
+    return curfltd_ && curfltd_->areSticksDisplayed();
+}
 
 
 void uiODFaultToolMan::enableStickAccess( bool yn )
 {
+    if ( curfssd_ && curfssd_->areAllKnotsHidden()==yn )
+	curfssd_->hideAllKnots( !yn );
+
     if ( curfltd_ && curfltd_->areSticksDisplayed()!=yn )
 	curfltd_->display( yn, !yn || curfltd_->arePanelsDisplayed() );
 }
@@ -603,6 +611,9 @@ void uiODFaultToolMan::editSelectToggleCB( CallBacker* cb )
 	else
 	    toolbar_->turnOn( selectmode_ ? selbutidx_ : editbutidx_, false );
     }
+
+    if ( areSticksAccessible() )
+	appl_.applMgr().visServer()->setViewMode( false );
 
     if ( curfssd_ )
 	curfssd_->setStickSelectMode( selectmode_ );

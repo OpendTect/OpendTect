@@ -64,6 +64,9 @@ public:
     const LineStyle*		lineStyle() const;
     void			setLineStyle(const LineStyle&);
 
+    void			hideAllKnots(bool yn);
+    bool			areAllKnotsHidden() const;
+
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
 
@@ -165,6 +168,8 @@ protected:
     bool			stickselectmode_;
 
     bool			ctrldown_;
+
+    bool			hideallknots_;
 
     ObjectSet<visBase::MarkerSet>  knotmarkersets_;
     struct StickIntersectPoint
