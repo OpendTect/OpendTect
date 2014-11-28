@@ -25,6 +25,7 @@ ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
     : proc_( 0 )
+    , proctransparency_( 0.0 )
 {
     if ( !sequences_ )
     {
@@ -51,6 +52,9 @@ RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
 	sequences_[3].setTransparency( Geom::Point2D<float>(1,255) );
 	sequences_[3].setName( "Transparency" );
     }
+
+    for ( int idx=0; idx<=3; idx++ )
+	enabled_ += idx!=3;
 }
 
 
@@ -107,45 +111,64 @@ void RGBATextureChannel2RGBA::notifyChannelInsert( int channel )
     {
 	const int layerid = (*channels_->getOsgIDs(idx))[0];
 	proc_->setDataLayerID( idx, layerid );
+	setEnabled( idx, enabled_[idx] );
     }
+
+    setTransparency( proctransparency_ );
 }
 
 
 void RGBATextureChannel2RGBA::swapChannels( int ch0, int ch1 )
 {
-    if ( proc_ && ch0>=0 && ch0<=3 && ch1>=0 && ch1<=3 )
+    if ( ch0>=0 && ch0<=3 && ch1>=0 && ch1<=3 )
     {
-	const int tmp = proc_->getDataLayerID( ch0 );
-	proc_->setDataLayerID( ch0, proc_->getDataLayerID(ch1) );
-	proc_->setDataLayerID( ch1, tmp );
+	const bool wason0 = isEnabled( ch0 );
+	setEnabled( ch0, isEnabled(ch1) );
+	setEnabled( ch1, wason0 );
+
+	if ( proc_ )
+	{
+	    const int oldid0 = proc_->getDataLayerID( ch0 );
+	    proc_->setDataLayerID( ch0, proc_->getDataLayerID(ch1) );
+	    proc_->setDataLayerID( ch1, oldid0 );
+	}
     }
 }
 
 
 void RGBATextureChannel2RGBA::setEnabled( int channel, bool yn )
 {
-    if ( proc_ )
-	proc_->turnOn( channel, yn );
+    if ( enabled_.validIdx(channel) )
+    {
+	enabled_[channel] = yn;
+
+	if ( proc_ )
+	    proc_->turnOn( channel, yn );
+    }
 }
 
 
 bool RGBATextureChannel2RGBA::isEnabled( int channel ) const
 {
-    return proc_ ? proc_->isOn(channel) : false;
+    if ( enabled_.validIdx(channel) )
+	return enabled_[channel];
+
+    return false;
 }
 
 
 void RGBATextureChannel2RGBA::setTransparency( unsigned char transparency )
 {
-     if ( proc_ )
-	 proc_->setOpacity( 1.0f - float(transparency)/255.0f );
+    proctransparency_ = transparency;
+
+    if ( proc_ )
+	proc_->setOpacity( 1.0f - mCast(float,transparency)/255.0f );
 }
 
 
 unsigned char RGBATextureChannel2RGBA::getTransparency() const
 {
-    const float opacity = proc_ ? proc_->getOpacity() : 0.0f;
-    return mRounded( unsigned char, (1.0f-opacity)*255 );
+    return proctransparency_;
 }
 
 

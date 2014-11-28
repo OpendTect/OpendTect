@@ -55,6 +55,9 @@ protected:
 
     void			notifyChannelInsert(int ch);
 
+    BoolTypeSet			enabled_;
+    unsigned char		proctransparency_;
+
     static ArrPtrMan<ColTab::Sequence>	sequences_;
 
     osgGeo::RGBALayerProcess*	proc_;
