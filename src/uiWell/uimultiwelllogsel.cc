@@ -532,7 +532,7 @@ void uiMultiWellLogSel::getSelWellIDs( TypeSet<MultiID>& mids ) const
     {
 	mids.add( wellobjs_[0]->key() );
     }
-    else
+    else if ( wellsfld_ )
     {
 	for ( int idx=0; idx<wellsfld_->size(); idx++ )
 	{
