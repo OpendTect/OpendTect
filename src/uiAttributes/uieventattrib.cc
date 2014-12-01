@@ -68,22 +68,18 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     evtypefld->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld->display(false);
     
-    tonextlblfld = new uiLabel( this,
-	    		tr("Compute distance between 2 consecutive events") );
-    tonextlblfld->attach( leftAlignedBelow, evtypefld );
-
-    outampfld = new uiGenInput( this, uiStrings::sEmptyString(),
+    outampfld = new uiGenInput( this, tr("Compute"),
 	       BoolInpSpec(true,
-                           tr("Compute distance between 2 consecutive events"),
-		           tr("Output Amplitude")));
+                           tr("Distance between 2 consecutive events"),
+		           tr("Output Amplitude")) );
     outampfld->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
-    outampfld->attach( leftAlignedBelow, evtypefld );
+    outampfld->attach( alignedBelow, evtypefld );
 
     tonextfld = new uiGenInput( this, tr("starting from"),
 	    			BoolInpSpec(true,tr("Top"),
                                             uiStrings::sBottom()) );
-    tonextfld->attach( centeredBelow, tonextlblfld );
-    tonextfld->display(false);
+    tonextfld->attach( alignedBelow, outampfld );
+    tonextfld->display( false );
     
     outpfld = new uiGenInput( this, uiStrings::sOutput(), 
                               StringListInpSpec(outpstrs) );
@@ -104,27 +100,29 @@ void uiEventAttrib::isSingleSel( CallBacker* )
     const bool issingle = issinglefld-> getBoolValue();
     const int val = evtypefld-> getIntValue();
     const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
+    if ( iszc ) outampfld->setValue( true );
     const bool outamp = !outampfld-> getBoolValue();
     evtypefld->display( !issingle );
-    tonextlblfld->display( iszc );
     tonextfld->display( !issingle && val != 6 && val != 7 && !outamp );
     gatefld->display( !issingle && ( val == 6 || val == 7 ) );
     outpfld->display( issingle );
-    outampfld->display( !issingle && !iszc );
+    outampfld->display( !issingle );
+    outampfld->setSensitive( !iszc );
 }
 
 
 void uiEventAttrib::isGateSel( CallBacker* )
 {
-    const int val = evtypefld-> getIntValue();
+    const int val = evtypefld->getIntValue();
     const bool issingle = issinglefld-> getBoolValue();
     const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
     const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
+    if ( iszc ) outampfld->setValue( true );
     const bool outamp = !outampfld-> getBoolValue();
     gatefld->display( tgdisplay && !issingle );
     tonextfld->display( !tgdisplay && !issingle && !outamp );
-    tonextlblfld->display( iszc );
-    outampfld->display( !issingle && !iszc );
+    outampfld->display( !issingle );
+    outampfld->setSensitive( !iszc );
 }
 
 
