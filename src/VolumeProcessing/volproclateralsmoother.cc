@@ -23,7 +23,7 @@ namespace VolProc
 
 
 class LateralSmootherTask : public ParallelTask
-{
+{ mODTextTranslationClass(LateralSmootherTask);
 public:
 LateralSmootherTask(const Array3D<float>& input,
 	int i0, int i1, int i2,
@@ -58,8 +58,8 @@ LateralSmootherTask(const Array3D<float>& input,
 
 od_int64	nrIterations() const {return i2samples_.width()+1; }
 od_int64	totalNr() const { return totalsz_; }
-uiString	uiMessage() const { return "Smothing laterally"; }
-uiString	uiNrDoneText() const { return "Samples processed"; }
+uiString	uiMessage() const { return tr("Smothing laterally"); }
+uiString	uiNrDoneText() const { return tr("Samples processed"); }
 bool		doPrepare(int nrthreads) { domt_ = nrthreads==1; return true; }
 
 private:

@@ -67,10 +67,10 @@ void VolProcAttrib::prepareForComputeData()
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = "Cannot read processing setup.";
+	errmsg_ = tr("Cannot read processing setup.");
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.append(uiString(" Reason given: %1").arg( errmsg ) );
+	    errmsg_.append(tr(" Reason given: %1").arg( errmsg ) );
 	}
 
 	return;
@@ -87,7 +87,7 @@ void VolProcAttrib::prepareForComputeData()
 			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
     if ( !executor_->setCalculationScope(cs.hrg,zrg) )
     {
-	errmsg_ = "Cannot calculate at this location";
+	errmsg_ = tr("Cannot calculate at this location");
 	return;
     }
 
@@ -96,7 +96,7 @@ void VolProcAttrib::prepareForComputeData()
 	if ( !executor_->errMsg().isEmpty() )
 	    errmsg_ = executor_->errMsg();
 	else
-	    errmsg_ = "Error while calculating.";
+	    errmsg_ = tr("Error while calculating.");
     }
 }
 
@@ -176,7 +176,7 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     PtrMan<IOObj>  ioobj = IOM().get( mid );
     if ( !ioobj )
     {
-	errmsg_ = "Cannot find the processing setup.";
+	errmsg_ = tr("Cannot find the processing setup.");
 	return false;
     }
 
@@ -187,10 +187,10 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     {
 	chain_->unRef();
 	chain_ = 0;
-	errmsg_ = "Cannot read processing setup.";
+	errmsg_ = tr("Cannot read processing setup.");
 	if ( !errmsg.isEmpty() )
 	{
-	    errmsg_.append( uiString( " Reason given: %1").arg( errmsg ) );
+	    errmsg_.append( tr( " Reason given: %1").arg( errmsg ) );
 	}
 
 	return false;
@@ -208,7 +208,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 {
     if ( !chain_ || !chain_->nrSteps() )
     {
-	errmsg_ = "There are no steps in the processing chain.";
+	errmsg_ = tr("There are no steps in the processing chain.");
 	return DataPack::cNoID();
     }
 
@@ -221,7 +221,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 			   mNINT32(cs.zsamp_.step/geometryzrg.step) );
     if ( !executor.setCalculationScope(cs.hrg,zrg) )
     {
-	errmsg_ = "Cannot calculate at this location";
+	errmsg_ = tr("Cannot calculate at this location");
 	return DataPack::cNoID();
     }
 
@@ -230,13 +230,13 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const TrcKeyZSampling& cs,
 	if ( !executor.errMsg().isEmpty() )
 	    errmsg_ = executor.errMsg();
 	else
-	    errmsg_ = "Error while calculating.";
+	    errmsg_ = tr("Error while calculating.");
     }
 
     ConstRefMan<Attrib::DataCubes> datacubes = executor.getOutput();
     if ( !datacubes || datacubes->nrCubes()==0 )
     {
-	errmsg_ = "No output produced";
+	errmsg_ = tr("No output produced");
 	return DataPack::cNoID();
     }
 

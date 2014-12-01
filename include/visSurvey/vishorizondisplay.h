@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "factory.h"
+#include "uistring.h"
 
 namespace ColTab{ class Sequence; class MapperSetup; }
 namespace visBase
@@ -34,7 +35,7 @@ namespace visSurvey
 
 
 mExpClass(visSurvey) HorizonDisplay : public EMObjectDisplay
-{
+{ mODTextTranslationClass(HorizonDisplay);
 public:
 				HorizonDisplay();
 				mDefaultFactoryInstantiation(

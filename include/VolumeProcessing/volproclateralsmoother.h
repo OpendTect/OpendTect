@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "volprocchain.h"
 #include "array2dfilter.h"
+#include "uistring.h"
 
 template <class T> class Smoother3D;
 
@@ -28,7 +29,7 @@ namespace VolProc
 */
   
 mExpClass(VolumeProcessing) LateralSmoother : public Step
-{
+{ mODTextTranslationClass(LateralSmoother);
 public:
     mDefaultFactoryInstantiation( VolProc::Step,
 	    LateralSmoother, "LateralSmoother", "Lateral Smoother" );

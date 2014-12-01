@@ -19,12 +19,12 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "externalattrib.h"
 #include "multiid.h"
-
+#include "uistring.h"
 
 namespace VolProc { class Chain; class ChainExecutor; }
 
 mExpClass(VolumeProcessing) VolProcAttrib : public Attrib::Provider
-{
+{ mODTextTranslationClass(VolProcAttrib);
 public:
     static void		initClass();
 
@@ -59,7 +59,7 @@ namespace VolProc
 
 mExpClass(VolumeProcessing) ExternalAttribCalculator
 					: public Attrib::ExtAttribCalc
-{
+{ mODTextTranslationClass(ExternalAttribCalculator);
 public:
     static void		initClass();
 			ExternalAttribCalculator();
@@ -80,8 +80,8 @@ public:
     virtual bool	createAttrib( const BinIDValueSet& b, SeisTrcBuf& tb,
 				      TaskRunner* tr )
 			{ return Attrib::ExtAttribCalc::createAttrib(b,tb,tr); }
-    virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, const LineKey& l,
-					TaskRunner* tr )
+    virtual DataPack::ID createAttrib( const TrcKeyZSampling& cs, 
+				       const LineKey& l, TaskRunner* tr )
 			{ return Attrib::ExtAttribCalc::createAttrib(cs,l,tr); }
 
 protected:
