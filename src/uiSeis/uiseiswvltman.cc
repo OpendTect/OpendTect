@@ -260,11 +260,11 @@ void uiSeisWvltMan::dispProperties( CallBacker* )
 
 
 #define mRet(s) \
-	{ ctio.setObj(0); delete &ctio; if ( s ) uiMSG().error(s); return; }
+	{ ctio.setObj(0); if ( s ) uiMSG().error(s); return; }
 
 void uiSeisWvltMan::getFromOtherSurvey( CallBacker* )
 {
-    CtxtIOObj& ctio = *mMkCtxtIOObj(Wavelet);
+    CtxtIOObj ctio( mIOObjContext(Wavelet) );
     ctio.ctxt.forread = true;
 
     uiSelObjFromOtherSurvey dlg( this, ctio );
