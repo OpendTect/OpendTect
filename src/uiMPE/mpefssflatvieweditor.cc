@@ -146,7 +146,6 @@ void FaultStickSetFlatViewEditor::drawFault()
 
 void FaultStickSetFlatViewEditor::enablePainting( bool yn )
 {
-    fsspainter_->enableKnots( yn );
     fsspainter_->enableLine( yn );
 }
 

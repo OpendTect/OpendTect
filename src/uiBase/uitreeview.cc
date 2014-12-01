@@ -1000,7 +1000,8 @@ bool uiTreeViewItem::isCheckable() const
 
 void uiTreeViewItem::setChecked( bool yn, bool trigger )
 {
-    if ( !ischeckable_ ) return;
+    if ( checked_==yn || !ischeckable_ )
+	return;
 
     mTreeViewBlockCmdRec;
     NotifyStopper ns( stateChanged );

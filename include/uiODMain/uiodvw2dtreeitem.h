@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class CubeSampling;
 class uiTreeView;
+class uiMenu;
 class uiODApplMgr;
 class uiODViewer2D;
 class ZAxisTransform;
@@ -51,10 +52,17 @@ protected:
 
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
+
+    void			insertStdSubMenu(uiMenu&);
+    bool			handleStdSubMenu(int menuid);
+
     virtual void		updateCS(const CubeSampling&,bool)	{}
     virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
 				{}
     virtual void		dataTransformCB(CallBacker*)		{}
+    void			showAllChildren();
+    void			hideAllChildren();
+    void			removeAllChildren();
 };
 
 

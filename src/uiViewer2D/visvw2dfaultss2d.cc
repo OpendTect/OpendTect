@@ -23,8 +23,11 @@ ________________________________________________________________________
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
+#include "hiddenparam.h"
 
 mCreateVw2DFactoryEntry( VW2DFaultSS2D );
+
+HiddenParam< VW2DFaultSS2D, bool* >		fss2dknotenabled_( 0 );
 
 VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* win,
 			const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
@@ -32,6 +35,7 @@ VW2DFaultSS2D::VW2DFaultSS2D( const EM::ObjectID& oid, uiFlatViewWin* win,
     , deselted_( this )
     , fsseditor_(0)
 {
+    fss2dknotenabled_.setParam(this,new bool(false));
     fsseds_.allowNull();
     if ( oid >= 0 )
 	setEditors();
@@ -80,6 +84,9 @@ VW2DFaultSS2D::~VW2DFaultSS2D()
 	fsseditor_->unRef();
 	MPE::engine().removeEditor( emid_ );
     }
+
+    delete fss2dknotenabled_.getParam(this);
+    fss2dknotenabled_.removeParam(this);
 }
 
 
@@ -113,7 +120,10 @@ void VW2DFaultSS2D::enablePainting( bool yn )
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( fsseds_[ivwr] )
+	{
 	    fsseds_[ivwr]->enablePainting( yn );
+	    fsseds_[ivwr]->enableKnots( *fss2dknotenabled_.getParam(this) );
+	}
     }
 }
 
@@ -132,6 +142,7 @@ void VW2DFaultSS2D::selected()
 	    else
 		fsseds_[ivwr]->setMouseEventHandler( 0 );
 	    fsseds_[ivwr]->enableKnots( iseditable );
+	    *fss2dknotenabled_.getParam(this) = iseditable;
 	}
     }
 }
@@ -148,5 +159,6 @@ void VW2DFaultSS2D::triggerDeSel()
 	}
     }
 
+    *fss2dknotenabled_.getParam(this) = false;
     deselted_.trigger();
 }

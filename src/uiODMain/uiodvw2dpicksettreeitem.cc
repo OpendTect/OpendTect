@@ -52,39 +52,44 @@ bool uiODVw2DPickSetParentTreeItem::showSubMenu()
     uiMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiAction(sNew()), 0 );
     mnu.insertItem( new uiAction(sLoad()), 1 );
+    insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
 
 
 bool uiODVw2DPickSetParentTreeItem::handleSubMenu( int menuid )
 {
+    handleStdSubMenu( menuid );
+
     if ( menuid == 0  )
 	return applMgr()->pickServer()->createEmptySet( false );
     else if ( menuid == 1 )
     {
 	TypeSet<MultiID> mids;
-	const bool res = applMgr()->pickServer()->loadSets( mids, false );
-	for ( int idx=0; !res && idx<mids.size(); idx++ )
+	if ( !applMgr()->pickServer()->loadSets(mids,false) )
+	    return false;
+
+	for ( int idx=0; idx<mids.size(); idx++ )
 	{
-	    Pick::Set& ps = picksetmgr_.get( mids[idx] );
+	    const int index = picksetmgr_.indexOf( mids[idx] );
+	    if ( index < 0 ) continue;
+	    Pick::Set& ps = picksetmgr_.get( index );
 	    pickSetAdded( &ps );
 	}
-
-	return res;
     }
 
-    return false;
+    return true;
 }
 
 
 void uiODVw2DPickSetParentTreeItem::pickSetAdded( CallBacker* cb )
 {
     mDynamicCastGet(Pick::Set*,ps,cb);
-    if ( ps )
-    {
-	const int picksetidx = picksetmgr_.indexOf(*ps);
-	addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
-    }
+    if ( !ps || findChild(ps->name()) )
+	return;
+
+    const int picksetidx = picksetmgr_.indexOf(*ps);
+    addChld( new uiODVw2DPickSetTreeItem(picksetidx), false, false);
 }
 
 
@@ -95,21 +100,17 @@ uiODVw2DPickSetTreeItem::uiODVw2DPickSetTreeItem( int picksetid )
     , vw2dpickset_(0)
     , setidx_(-1)
 {
-    picksetmgr_.setToBeRemoved.notify(
-	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
-    picksetmgr_.setDispChanged.notify(
-	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
+    mAttachCB( picksetmgr_.setToBeRemoved,
+	       uiODVw2DPickSetTreeItem::removePickSetCB );
+    mAttachCB( picksetmgr_.setDispChanged,
+	       uiODVw2DPickSetTreeItem::displayChangedCB );
 }
 
 
 uiODVw2DPickSetTreeItem::~uiODVw2DPickSetTreeItem()
 {
-    picksetmgr_.setToBeRemoved.remove(
-	mCB(this,uiODVw2DPickSetTreeItem,removePickSetCB) );
+    detachAllNotifiers();
     viewer2D()->dataMgr()->removeObject( vw2dpickset_ );
-    checkStatusChange()->remove( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
-    picksetmgr_.setDispChanged.remove(
-	mCB(this,uiODVw2DPickSetTreeItem,displayChangedCB) );
 }
 
 
@@ -119,7 +120,7 @@ bool uiODVw2DPickSetTreeItem::init()
     uitreeviewitem_->setCheckable(true);
     uitreeviewitem_->setChecked( true );
     displayMiniCtab();
-    checkStatusChange()->notify( mCB(this,uiODVw2DPickSetTreeItem,checkCB) );
+    mAttachCB( checkStatusChange(), uiODVw2DPickSetTreeItem::checkCB );
     if ( !vw2dpickset_ )
     {
 	vw2dpickset_ = VW2DPickSet::create( picksetmgr_.indexOf(pickset_),

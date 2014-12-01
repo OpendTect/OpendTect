@@ -24,10 +24,12 @@ ________________________________________________________________________
 #include "uiflatauxdataeditor.h"
 #include "uigraphicsscene.h"
 #include "uirgbarraycanvas.h"
+#include "hiddenparam.h"
 
 
 mCreateVw2DFactoryEntry( VW2DFault );
 
+HiddenParam< VW2DFault, bool* >		knotenabled_( 0 );
 
 VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
 		    const ObjectSet<uiFlatViewAuxDataEditor>& auxdataeds )
@@ -35,6 +37,7 @@ VW2DFault::VW2DFault( const EM::ObjectID& oid, uiFlatViewWin* win,
     , deselted_( this )
     , f3deditor_(0)
 {
+    knotenabled_.setParam(this,new bool(false));
     faulteds_.allowNull();
     if ( oid >= 0 )
 	setEditors();
@@ -85,6 +88,9 @@ VW2DFault::~VW2DFault()
 	f3deditor_->unRef();
 	MPE::engine().removeEditor( emid_ );
     }
+
+    delete knotenabled_.getParam(this);
+    knotenabled_.removeParam(this);
 }
 
 
@@ -133,7 +139,10 @@ void VW2DFault::enablePainting( bool yn )
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( faulteds_[ivwr] )
+	{
 	    faulteds_[ivwr]->enablePainting( yn );
+	    faulteds_[ivwr]->enableKnots( *knotenabled_.getParam(this) );
+	}
     }
 }
 
@@ -152,6 +161,7 @@ void VW2DFault::selected()
 	    else
 		faulteds_[ivwr]->setMouseEventHandler( 0 );
 	    faulteds_[ivwr]->enableKnots( iseditable );
+	    *knotenabled_.getParam(this) = iseditable;
 	}
     }
 }
@@ -168,5 +178,6 @@ void VW2DFault::triggerDeSel()
 	}
     }
 
+    *knotenabled_.getParam(this) = false;
     deselted_.trigger();
 }

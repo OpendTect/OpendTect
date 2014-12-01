@@ -145,7 +145,6 @@ void Fault3DFlatViewEditor::drawFault()
 
 void Fault3DFlatViewEditor::enablePainting( bool yn )
 {
-    f3dpainter_->enableKnots( yn );
     f3dpainter_->enableLine( yn );
 }
 
