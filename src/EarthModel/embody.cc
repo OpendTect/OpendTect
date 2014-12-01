@@ -80,7 +80,7 @@ const IOObjContext& Body::getBodyContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
 
-}; //end namespace
+} // namespace EM
 
 
 /*False: already converted; True: need conversion. */
