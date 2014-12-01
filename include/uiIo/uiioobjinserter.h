@@ -19,7 +19,12 @@ ________________________________________________________________________
 class uiToolButtonSetup;
 
 
-/*!\brief inserts a new (external) object into the OD data store */
+/*!\brief inserts a new object into the OD data store.
+
+The initial idea is to use it for external objects that are not imported. In
+time though, they could make 'import' menus (almost) obsolete.
+
+ */
 
 mExpClass(uiIo) uiIOObjInserter : public CallBacker
 {
@@ -30,8 +35,13 @@ public:
 			    , transl_(trl)		{}
     virtual		~uiIOObjInserter()		{}
 
-    mDefineFactoryInClasswKW( uiIOObjInserter, factory,
-				transl_.getDisplayName() )
+    mDefineFactoryInClasswKW( uiIOObjInserter, factory, factoryName() )
+
+    const char*		name() const	    { return transl_.userName(); }
+    const char*		factoryName() const { return transl_.getDisplayName(); }
+
+    static bool		allDisabled();
+    bool		isDisabled() const;
 
     static bool		isPresent(const TranslatorGroup&);
     static bool		isPresent( const Translator& t )

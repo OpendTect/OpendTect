@@ -253,6 +253,9 @@ void uiIOObjSelGrp::mkManipulators()
 	    mCB(this,uiIOObjSelGrp,makeDefaultCB) );
     }
 
+    if ( uiIOObjInserter::allDisabled() )
+	return;
+
     if ( !ctio_.ctxt.forread
       || !uiIOObjInserter::isPresent(*ctio_.ctxt.trgroup) )
 	return;
@@ -262,7 +265,7 @@ void uiIOObjSelGrp::mkManipulators()
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter )
+	if ( !inserter || inserter->isDisabled() )
 	    continue;
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
