@@ -19,34 +19,36 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 #ifdef __win__
-#include "shlobj.h"
+# include "shlobj.h"
 #endif
 
 extern "C" 
 {
     mGlobal(Basic) const char*	getCleanUnxPath( const char* path );
-    mGlobal(Basic) const char* getCleanWinPath( const char* path );
-    mGlobal(Basic) const char* GetSpecialFolderLocation(int csidl);
- } //extern "C"
+    mGlobal(Basic) const char*	getCleanWinPath( const char* path );
+    mGlobal(Basic) const char*	GetSpecialFolderLocation(int csidl);
+}
 
 #ifdef __win__
 
 mGlobal(Basic) bool		winCopy(const char* from,const char* to,
-					bool isfile, bool ismove=false);
-mGlobal(Basic) bool		winRemoveDir( const char* dirnm );
+					bool isfile,bool ismove=false);
+mGlobal(Basic) bool		winRemoveDir(const char* dirnm);
 
 
 mGlobal(Basic) bool		executeWinProg(const char* comm,
-				    const char* parm, const char* runin=0);
+					       const char* parm,
+					       const char* runin=0);
+mGlobal(Basic) bool		execShellCmd(const char* comm,const char* parm,
+					     const char* runin );
+mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
+					 bool inbg,const char* runin);
+
 mGlobal(Basic) unsigned int	getWinVersion();
 mGlobal(Basic) const char*	getFullWinVersion();
-mGlobal(Basic) bool		execShellCmd(const char* comm,const char* parm,
-				    const char* runin );
-mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
-				    bool inbg, const char* runin );
-
 mGlobal(Basic) const char*	getCygDir();
-
+mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
+						  BufferString& errmsg);
 
 
 /*

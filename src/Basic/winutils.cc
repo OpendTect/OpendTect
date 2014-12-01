@@ -9,12 +9,14 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "winutils.h"
+
 #include "bufstring.h"
+#include "debug.h"
 #include "envvars.h"
 #include "file.h"
-#include "debug.h"
-#include "string2.h"
 #include "perthreadrepos.h"
+#include "string2.h"
+
 #ifdef __win_
 # include <windows.h>
 # include <shlobj.h>
@@ -24,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 # include <regstr.h>
 # include <winreg.h>
 
-#include <iostream>
+# include <iostream>
 
 #endif
 
@@ -322,16 +324,53 @@ bool execProc( const char* comm, bool inconsole, bool inbg, const char* runin )
 
 bool executeWinProg( const char* comm, const char* parm, const char* runin )
 {
-	 if ( !comm || !*comm ) return false;
-	 unsigned int winversion = getWinVersion();
-	 if ( winversion < 6 )
-	 {
-	     BufferString com( comm, " " );
-	     com += parm;
-	     return execProc( com, true, true, runin );
-	 }
-	 return execShellCmd( comm, parm, runin );
+     if ( !comm || !*comm ) return false;
+
+     unsigned int winversion = getWinVersion();
+     if ( winversion < 6 )
+     {
+	 BufferString com( comm, " " );
+	 com += parm;
+	 return execProc( com, true, true, runin );
+     }
+
+     return execShellCmd( comm, parm, runin );
 }
+
+
+static bool getDefaultApplication( const char* filetype,
+				   BufferString& cmd, BufferString& errmsg )
+{
+    cmd = errmsg = "";
+
+    HKEY handle;
+    LONG res = 0;
+    const BufferString subkey( filetype, "\\Shell\\Open\\Command" );
+    res = RegOpenKeyEx( HKEY_CLASSES_ROOT, subkey.buf(), 0, KEY_READ, &handle );
+    if ( res != ERROR_SUCCESS )
+    {
+	errmsg = "Cannot open registry";
+	return false;
+    }
+
+    CHAR value[512];
+    DWORD bufsz = sizeof( value );
+    res = RegQueryValueEx( handle, NULL, NULL, NULL, (LPBYTE)value, &bufsz );
+    if ( res != ERROR_SUCCESS )
+    {
+	errmsg =  "Cannot query registry for default browser";
+	return false;
+    }
+
+    cmd = value;
+    RegCloseKey( handle );
+    return true;
+}
+
+
+bool getDefaultBrowser( BufferString& cmd, BufferString& errmsg )
+{ return getDefaultApplication( "HTTP", cmd, errmsg ); }
+
 
 #endif // __win__
 
