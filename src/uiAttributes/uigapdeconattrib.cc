@@ -51,9 +51,9 @@ class uiGDPositionDlg: public uiDialog
     void                popUpPosDlg();
     const TrcKeyZSampling&	getTrcKeyZSampling();
     Pos::GeomID		getGeomID() const;
-    void		setPrefCS(TrcKeyZSampling* prefcs)	
-			{ 
-			    prefcs_ = prefcs; 
+    void		setPrefCS(TrcKeyZSampling* prefcs)
+			{
+			    prefcs_ = prefcs;
 			}
 
     uiGenInput*		inlcrlfld_;
@@ -94,7 +94,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     gapfld_ = new uiGenInput( this, gapstr, FloatInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
 
-    noiselvlfld_ = new uiGenInput( this, tr("Random noise added"), 
+    noiselvlfld_ = new uiGenInput( this, tr("Random noise added"),
                                   IntInpSpec() );
     noiselvlfld_->attach( alignedBelow, gapfld_ );
     uiLabel* percentlbl = new uiLabel( this, "%" );
@@ -124,12 +124,27 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
+
+    postFinalise().notify( mCB(this,uiGapDeconAttrib,finaliseCB) );
 }
 
 
 uiGapDeconAttrib::~uiGapDeconAttrib()
 {
     delete acorrview_;
+}
+
+
+void uiGapDeconAttrib::finaliseCB( CallBacker* )
+{
+    uiString lagtt = tr("Lag size:\nWindow length within the auto-correlation "
+			"function that is unaffected by the filter.\n"
+			"This window contains the wavelet-shape information.");
+    uiString gaptt = tr("Gap size:\nWindow length in the auto-correlation "
+			"function that the filter aims to blank.\nThis window "
+			"contains repetitive (multiple) information.");
+    lagfld_->setToolTip( lagtt );
+    gapfld_->setToolTip( gaptt );
 }
 
 
@@ -255,7 +270,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
     {
 	uiMSG().error(tr("Please, first, fill in the Input Data\n"
                          "and the Correlation window fields"));
-	
+
 	return;
     }
 
