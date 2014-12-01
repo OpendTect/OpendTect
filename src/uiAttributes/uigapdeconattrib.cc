@@ -120,12 +120,27 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     qcbut_->attach( alignedBelow, isoutzerophasefld_ );
 
     setHAlignObj( gatefld_ );
+
+    postFinalise().notify( mCB(this,uiGapDeconAttrib,finaliseCB) );
 }
 
 
 uiGapDeconAttrib::~uiGapDeconAttrib()
 {
     delete acorrview_;
+}
+
+
+void uiGapDeconAttrib::finaliseCB( CallBacker* )
+{
+    uiString lagtt = tr("Lag size:\nWindow length within the auto-correlation "
+			"function that is unaffected by the filter.\n"
+			"This window contains the wavelet-shape information.");
+    uiString gaptt = tr("Gap size:\nWindow length in the auto-correlation "
+			"function that the filter aims to blank.\nThis window "
+			"contains repetitive (multiple) information.");
+    lagfld_->setToolTip( lagtt );
+    gapfld_->setToolTip( gaptt );
 }
 
 

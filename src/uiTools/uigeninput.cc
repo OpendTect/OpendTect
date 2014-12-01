@@ -741,9 +741,7 @@ void uiGenInput::setToolTip( const uiString& tt, int ielem )
 {
     UserInputObj* elem = element( ielem );
     if ( elem )
-	elem->setToolTip( tt.getFullString() );
-
-    //TODO: Repleace with real tt.
+	elem->setToolTip( tt );
 }
 
 

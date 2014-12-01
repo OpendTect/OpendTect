@@ -30,7 +30,7 @@ class GapDeconACorrView;
 /*! \brief GapDecon Attribute description editor */
 
 mClass(uiAttributes) uiGapDeconAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiGapDeconAttrib);
 public:
 
 			uiGapDeconAttrib(uiParent*,bool);
@@ -63,6 +63,7 @@ protected:
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
 
+    void		finaliseCB(CallBacker*);
     void                examPush(CallBacker*);
     void                qCPush(CallBacker*);
     void                mixSel(CallBacker*);
