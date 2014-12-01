@@ -634,7 +634,7 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
-    if ( as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
+    if ( as && as->id().asInt()==Attrib::SelSpec::cNoAttrib().asInt() )
 	return BufferString("Z values");
 
     return uiODAttribTreeItem::createDisplayName();
