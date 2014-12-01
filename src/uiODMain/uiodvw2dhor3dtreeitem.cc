@@ -55,14 +55,16 @@ bool uiODVw2DHor3DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(false)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad(true)), 1 );
-    handleSubMenu( mnu.exec() );
-    return true;
+    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
+    insertStdSubMenu( mnu );
+    return handleSubMenu( mnu.exec() );
 }
 
 
 bool uiODVw2DHor3DParentTreeItem::handleSubMenu( int mnuid )
 {
+    handleStdSubMenu( mnuid );
+
     if ( mnuid == 0 )
     {
 	uiMPEPartServer* mps = applMgr()->mpeServer();

@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "uiodvw2dtreeitem.h"
 #include "uiodviewer2d.h"
 #include "uiodviewer2dmgr.h"
+#include "uimenu.h"
+#include "uimsg.h"
 #include "zaxistransform.h"
 
 const char* uiODVw2DTreeTop::viewer2dptr() 		{ return "Viewer2D"; }
@@ -134,6 +136,10 @@ void uiODVw2DTreeTop::removeFactoryCB( CallBacker* cb )
 }
 
 
+#define mShowAllItemsMenuID 21
+#define mHideAllItemsMenuID 31
+#define mRemoveAllItemsMenuID 41
+
 uiODVw2DTreeItem::uiODVw2DTreeItem( const char* name__ )
     : uiTreeItem( name__ )
     , displayid_(-1)
@@ -170,6 +176,33 @@ bool uiODVw2DTreeItem::setZAxisTransform( ZAxisTransform* zat )
 }
 
 
+void uiODVw2DTreeItem::insertStdSubMenu( uiMenu& menu )
+{
+    if ( children_.size() > 1 )
+    {
+	menu.insertSeparator();
+	menu.insertItem(
+		new uiAction(tr("Show all items")), mShowAllItemsMenuID );
+	menu.insertItem(
+		new uiAction(tr("Hide all items")), mHideAllItemsMenuID );
+	menu.insertItem(
+		new uiAction(tr("Remove all items")), mRemoveAllItemsMenuID );
+    }
+}
+
+
+bool uiODVw2DTreeItem::handleStdSubMenu( int menuid )
+{
+    if ( menuid == mShowAllItemsMenuID )
+	showAllChildren();
+    else if ( menuid == mHideAllItemsMenuID )
+	hideAllChildren();
+    else if ( menuid == mRemoveAllItemsMenuID )
+	removeAllChildren();
+    return true;
+}
+
+
 void uiODVw2DTreeItem::updCubeSamling( const TrcKeyZSampling& cs, bool update )
 {
     for ( int idx=0; idx<nrChildren(); idx++ )
@@ -191,6 +224,31 @@ void uiODVw2DTreeItem::updSelSpec(const Attrib::SelSpec* selspec, bool wva )
     }
 
     updateSelSpec( selspec, wva );
+}
+
+
+void uiODVw2DTreeItem::showAllChildren()
+{
+    for ( int idx=children_.size()-1; idx>=0; idx-- )
+	children_[idx]->setChecked( true, true );
+}
+
+
+void uiODVw2DTreeItem::hideAllChildren()
+{
+    for ( int idx=children_.size()-1; idx>=0; idx-- )
+	children_[idx]->setChecked( false, true );
+}
+
+
+void uiODVw2DTreeItem::removeAllChildren()
+{
+    const uiString msg = tr("All %1 items will be removed from the tree."
+			    "\nDo you want to continue?").arg(name());
+    if ( !uiMSG().askRemove(msg) ) return;
+
+    for ( int idx=children_.size()-1; idx>=0; idx-- )
+	removeChild( children_[idx] );
 }
 
 

@@ -43,7 +43,7 @@ public:
     void                setPath(const TypeSet<BinID>*);
     void                setFlatPosData(const FlatPosData*);
     void		drawFault();
-    void		enablePainting(bool);
+    void		enableLine(bool);
     void		enableKnots(bool);
 
 protected:

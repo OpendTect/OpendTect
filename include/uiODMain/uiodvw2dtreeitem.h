@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class TrcKeyZSampling;
 class uiTreeView;
+class uiMenu;
 class uiODApplMgr;
 class uiODViewer2D;
 class ZAxisTransform;
@@ -51,10 +52,17 @@ protected:
 
     uiODApplMgr*		applMgr();
     uiODViewer2D*		viewer2D();
+
+    virtual void		insertStdSubMenu(uiMenu&);
+    virtual bool		handleStdSubMenu(int menuid);
+
     virtual void		updateCS(const TrcKeyZSampling&,bool)	{}
     virtual void		updateSelSpec(const Attrib::SelSpec*,bool wva)
 				{}
     virtual void		dataTransformCB(CallBacker*)		{}
+    virtual void		showAllChildren();
+    virtual void		hideAllChildren();
+    virtual void		removeAllChildren();
 };
 
 

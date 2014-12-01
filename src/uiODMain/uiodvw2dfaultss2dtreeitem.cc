@@ -47,13 +47,16 @@ bool uiODVw2DFaultSS2DParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad(true)), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
+    insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
 
 
 bool uiODVw2DFaultSS2DParentTreeItem::handleSubMenu( int mnuid )
 {
+    handleStdSubMenu( mnuid );
+
     if ( mnuid == 0 )
     {
 	RefMan<EM::EMObject> emo =

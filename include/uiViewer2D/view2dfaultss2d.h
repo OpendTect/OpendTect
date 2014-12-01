@@ -45,7 +45,8 @@ protected:
     void		triggerDeSel();
     void		setEditors();
 
-    Pos::GeomID	geomid_;
+    Pos::GeomID		geomid_;
+    bool		knotenabled_;
 
     MPE::FaultStickSetEditor*	fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;

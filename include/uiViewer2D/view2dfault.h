@@ -32,7 +32,8 @@ public:
 			     mCreateVw2DDataObj(VW2DFault,id,fvw,eds);
 			~VW2DFault();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&,bool upd=false);
+    void		setTrcKeyZSampling(
+				const TrcKeyZSampling&,bool upd=false);
 
     void		draw();
     void		enablePainting(bool yn);
@@ -45,6 +46,7 @@ protected:
     void		triggerDeSel();
     void		setEditors();
 
+    bool		knotenabled_;
     MPE::FaultEditor*	f3deditor_;
     ObjectSet<MPE::Fault3DFlatViewEditor> faulteds_;
     Notifier<VW2DFault>		deselted_;

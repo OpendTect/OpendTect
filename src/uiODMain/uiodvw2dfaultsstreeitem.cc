@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "view2dfaultss3d.h"
 #include "view2ddataman.h"
 
+
 uiODVw2DFaultSSParentTreeItem::uiODVw2DFaultSSParentTreeItem()
     : uiODVw2DTreeItem( "FaultStickSet" )
 {
@@ -46,13 +47,16 @@ bool uiODVw2DFaultSSParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sNew(true)), 0 );
-    mnu.insertItem( new uiAction(uiStrings::sLoad(true)), 1 );
+    mnu.insertItem( new uiAction(uiStrings::sLoad(false)), 1 );
+    insertStdSubMenu( mnu );
     return handleSubMenu( mnu.exec() );
 }
 
 
 bool uiODVw2DFaultSSParentTreeItem::handleSubMenu( int mnuid )
 {
+    handleStdSubMenu( mnuid );
+
     if ( mnuid == 0 )
     {
 	RefMan<EM::EMObject> emo =

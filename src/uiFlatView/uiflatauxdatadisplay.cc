@@ -201,6 +201,7 @@ void uiAuxDataDisplay::updateCB( CallBacker* cb )
 	item->setPenColor( style.color_, true );
 	item->setFillColor( style.color_ );
 	item->setPos( poly_[idx] );
+	item->setVisible( true );
     }
 
     if ( !name_.isEmpty() && !mIsUdf(namepos_) )

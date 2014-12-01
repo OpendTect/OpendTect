@@ -32,7 +32,8 @@ public:
 			    mCreateVw2DDataObj(VW2DFaultSS3D,id,win,ed);
 			~VW2DFaultSS3D();
 
-    void		setTrcKeyZSampling(const TrcKeyZSampling&, bool upd=false );
+    void		setTrcKeyZSampling(
+				const TrcKeyZSampling&, bool upd=false );
 
     void		draw();
     void		enablePainting(bool yn);
@@ -45,6 +46,7 @@ protected:
     void			triggerDeSel();
     void			setEditors();
 
+    bool			knotenabled_;
     MPE::FaultStickSetEditor*   fsseditor_;
     ObjectSet<MPE::FaultStickSetFlatViewEditor> fsseds_;
     Notifier<VW2DFaultSS3D>	deselted_;

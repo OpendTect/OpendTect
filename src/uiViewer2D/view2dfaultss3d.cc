@@ -33,6 +33,7 @@ VW2DFaultSS3D::VW2DFaultSS3D( const EM::ObjectID& oid, uiFlatViewWin* win,
     : Vw2DEMDataObject(oid,win,auxdataeds)
     , deselted_( this )
     , fsseditor_(0)
+    , knotenabled_(false)
 {
     fsseds_.allowNull();
     if ( oid >= 0)
@@ -110,7 +111,7 @@ void VW2DFaultSS3D::draw()
 	if ( fsseds_[ivwr] )
 	{
 	    if ( dp3d )
-		fsseds_[ivwr]->setTrcKeyZSampling( dp3d->cube().cubeSampling() );
+		fsseds_[ivwr]->setTrcKeyZSampling(dp3d->cube().cubeSampling());
 
 	    if ( dprdm )
 	    {
@@ -132,7 +133,10 @@ void VW2DFaultSS3D::enablePainting( bool yn )
     for ( int ivwr=0; ivwr<viewerwin_->nrViewers(); ivwr++ )
     {
 	if ( fsseds_[ivwr] )
-	    fsseds_[ivwr]->enablePainting( yn );
+	{
+	    fsseds_[ivwr]->enableLine( yn );
+	    fsseds_[ivwr]->enableKnots( knotenabled_ );
+	}
     }
 }
 
@@ -151,6 +155,7 @@ void VW2DFaultSS3D::selected()
 	    else
 		fsseds_[ivwr]->setMouseEventHandler( 0 );
 	    fsseds_[ivwr]->enableKnots( iseditable );
+	    knotenabled_ = iseditable;
 	}
     }
 }
@@ -166,5 +171,7 @@ void VW2DFaultSS3D::triggerDeSel()
 	    fsseds_[ivwr]->enableKnots( false );
 	}
     }
+
+    knotenabled_ = false;
     deselted_.trigger();
 }

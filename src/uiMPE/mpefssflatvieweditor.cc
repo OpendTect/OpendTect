@@ -117,7 +117,7 @@ void FaultStickSetFlatViewEditor::setMouseEventHandler( MouseEventHandler* meh )
 }
 
 
-void FaultStickSetFlatViewEditor::setTrcKeyZSampling( const TrcKeyZSampling& cs )
+void FaultStickSetFlatViewEditor::setTrcKeyZSampling(const TrcKeyZSampling& cs)
 {
     EM::FaultStickSetFlatViewEditor::setTrcKeyZSampling( cs );
     fsspainter_->setTrcKeyZSampling( cs, true );
@@ -144,9 +144,8 @@ void FaultStickSetFlatViewEditor::drawFault()
 }
 
 
-void FaultStickSetFlatViewEditor::enablePainting( bool yn )
+void FaultStickSetFlatViewEditor::enableLine( bool yn )
 {
-    fsspainter_->enableKnots( yn );
     fsspainter_->enableLine( yn );
 }
 
@@ -273,7 +272,8 @@ void FaultStickSetFlatViewEditor::seedMovementFinishedCB( CallBacker* cb )
     const IndexInfo ix = pd.indexInfo( true, pos.x );
     const IndexInfo iy = pd.indexInfo( false, pos.y );
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : pos.y;
+    coord3.z = (!tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+						      : pos.y;
 
     EM::ObjectID emid = fsspainter_->getFaultSSID();
     if ( emid == -1 ) return; 
@@ -320,7 +320,8 @@ bool FaultStickSetFlatViewEditor::getMousePosInfo(
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
     worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : wp.y;
+    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+							 : wp.y;
 
     if ( trcnr )
     {

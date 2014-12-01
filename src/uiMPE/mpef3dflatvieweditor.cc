@@ -143,9 +143,8 @@ void Fault3DFlatViewEditor::drawFault()
 }
 
 
-void Fault3DFlatViewEditor::enablePainting( bool yn )
+void Fault3DFlatViewEditor::enableLine( bool yn )
 {
-    f3dpainter_->enableKnots( yn );
     f3dpainter_->enableLine( yn );
 }
 
@@ -233,7 +232,8 @@ void Fault3DFlatViewEditor::seedMovementFinishedCB( CallBacker* )
     const IndexInfo ix = pd.indexInfo( true, pos.x );
     const IndexInfo iy = pd.indexInfo( false, pos.y );
     Coord3 coord3 = dp->getCoord( ix.nearest_, iy.nearest_ );
-    coord3.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : pos.y;
+    coord3.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+						       : pos.y;
 
     EM::ObjectID emid = f3dpainter_->getFaultID();
     if ( emid == -1 ) return; 
@@ -283,7 +283,8 @@ bool Fault3DFlatViewEditor::getMousePosInfo(
     ix = pd.indexInfo( true, wp.x );
     iy = pd.indexInfo( false, wp.y );
     worldpos = dp->getCoord( ix.nearest_, iy.nearest_ );
-    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start : wp.y;
+    worldpos.z = ( !tkzs_.isEmpty() && tkzs_.nrZ() == 1) ? tkzs_.zsamp_.start
+							 : wp.y;
     return true;
 }
 
