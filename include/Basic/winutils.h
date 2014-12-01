@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 
 #ifdef __win__
-#include "shlobj.h"
+# include "shlobj.h"
 #endif
 
 extern "C" 
@@ -46,7 +46,8 @@ mGlobal(Basic) bool		execProc(const char* comm,bool inconsole,
 				    bool inbg, const char* runin );
 
 mGlobal(Basic) const char*	getCygDir();
-
+mGlobal(Basic) bool		getDefaultBrowser(BufferString& cmd,
+						  BufferString& errmsg);
 
 
 /*
