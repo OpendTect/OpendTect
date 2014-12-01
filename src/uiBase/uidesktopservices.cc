@@ -40,6 +40,8 @@ static const char* sKeyLDLibPath =
 
 static bool openLocalFragmentedUrl( const QUrl& qurl )
 {
+    BufferString odcmd;
+
 #ifdef __win__
 
     BufferString browser, errmsg;
@@ -55,7 +57,26 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
     if ( index != -1 )
 	command.replace( index, 2, qurl.toString() );
 
-    BufferString odcmd; odcmd.set( command );
+    odcmd.set( command );
+
+#elif defined( __lux__ )
+    int res = system( "pidof -s gnome-session" );
+    if ( res==0 )
+	odcmd.set( "gnome-open" );
+
+    res = system( "pidof -s ksmserver" );
+    if ( res==0 )
+	odcmd.set( "kfmclient exec" );
+
+    if ( odcmd.isEmpty() )
+	return false;
+
+    odcmd.addSpace().add( qurl.toString() );
+
+#elif defined( __mac__ )
+    return false;
+#endif
+
     if ( DBG::isOn(DBG_IO) )
 	DBG::message( BufferString("Local command: ",odcmd) );
     const bool execres = OS::ExecCommand( odcmd.buf() );
@@ -67,12 +88,6 @@ static bool openLocalFragmentedUrl( const QUrl& qurl )
     }
 
     return true;
-
-#elif defined( __lux__ )
-    return false;
-#elif defined( __mac__ )
-    return false;
-#endif
 }
 
 
