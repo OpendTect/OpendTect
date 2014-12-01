@@ -97,11 +97,7 @@ void* uiODApplService::getObject( const uiApplPartServer* ps, int evid )
 
 uiParent* uiODApplService::parent() const
 {
-    uiParent* res = uiMainWin::activeWindow();
-    if ( !res )
-	res = par_;
-
-    return res;
+    return par_;
 }
 
 
