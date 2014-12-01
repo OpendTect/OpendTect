@@ -25,7 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 
 #define mSldUnits 250
-#define mMaxObjectSize 10 //6 x object size
+#define mMaxObjectSize 50 //30 x object size
 #define mScrollBarSize mainviewer_->scrollBarSize(false).width()-2
 
 uiObjectItemViewWin::uiObjectItemViewWin(uiParent* p, const Setup& su)
@@ -333,15 +333,18 @@ void uiObjectItemViewWin::usePar( const IOPar& iop )
 }
 
 
-#define mMinSelWidth 50
+#define mMinSelWidth 10
+#define mMinSelHeight 10
+
 void uiObjectItemViewWin::rubBandCB( CallBacker* )
 {
     const uiRect* selrect = mainviewer_->getSelectedArea();
-    if ( !selrect || selrect->width() < mMinSelWidth ) return;
+    if ( !selrect ) return;
 
     const int selwidth = selrect->width();
     const int selheight = selrect->height();
-    if ( selwidth<=0 || selheight<=0 ) return;
+    if ( selwidth<mMinSelWidth || selheight<mMinSelHeight )
+	return;
 
     const uiRect viewrect = mainviewer_->getViewArea();
     const int viewwidth = viewrect.width();
