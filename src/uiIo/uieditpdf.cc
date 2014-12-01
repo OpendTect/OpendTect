@@ -376,6 +376,7 @@ void uiEditSampledProbDenFunc::viewPDF( CallBacker* )
 	dp->posData().setRange( false, rg );
 	DPM( DataPackMgr::FlatID() ).add( dp );
 
+	vwwinnd_->viewer().clearAllPacks();
 	vwwinnd_->viewer().setPack( false, dp->id() );
 	vwwinnd_->viewer().setViewToBoundingBox();
 	vwwinnd_->start();
