@@ -514,6 +514,7 @@ static uiSeisSel::Setup mkSeisSelSetupForSteering( bool is2d, bool forread,
 {
     uiSeisSel::Setup sssu( is2d, false );
     sssu.wantSteering().seltxt( txt );
+    sssu.withwriteopts( false );
     return sssu;
 }
 
