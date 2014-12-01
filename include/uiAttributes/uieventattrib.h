@@ -30,13 +30,13 @@ public:
 
 protected:
 
-    uiAttrSel*          inpfld;
-    uiGenInput*         issinglefld;
-    uiGenInput*         tonextfld;
-    uiGenInput*		outpfld;
-    uiGenInput*		evtypefld;
-    uiGenInput*		gatefld;
-    uiGenInput*		outampfld;
+    uiAttrSel*		inpfld_;
+    uiGenInput*		issinglefld_;
+    uiGenInput*		tonextfld_;
+    uiGenInput*		outpfld_;
+    uiGenInput*		evtypefld_;
+    uiGenInput*		gatefld_;
+    uiGenInput*		outampfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -47,12 +47,10 @@ protected:
     bool		getOutput(Attrib::Desc&);
 
     void		isSingleSel(CallBacker*);
-    void                isGateSel(CallBacker*);
-    void                outAmpSel(CallBacker*);
+    void		isGateSel(CallBacker*);
+    void		outAmpSel(CallBacker*);
 
 			mDeclReqAttribUIFns
 };
 
-
 #endif
-

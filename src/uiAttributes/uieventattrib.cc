@@ -43,7 +43,7 @@ static const char* outpstrs[] =
     "Peakedness",
     "Steepness",
     "Asymmetry",
-    0	
+    0
 };
 
 
@@ -52,87 +52,84 @@ mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp())
 
 uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
         : uiAttrDescEd(p,is2d, mODHelpKey(mEventAttribHelpID) )
-	  
+
 {
-    inpfld = createInpFld( is2d );
+    inpfld_ = createInpFld( is2d );
 
-    issinglefld = new uiGenInput( this, uiStrings::sUse(),
-			BoolInpSpec(true,tr("Single event"),
-                                    tr("Multiple events")) );
-    issinglefld->attach( alignedBelow, inpfld );
-    issinglefld->valuechanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
+    issinglefld_ = new uiGenInput( this, uiStrings::sUse(),
+		BoolInpSpec(true,tr("Single event"),tr("Multiple events")) );
+    issinglefld_->attach( alignedBelow, inpfld_ );
+    issinglefld_->valuechanged.notify( mCB(this,uiEventAttrib,isSingleSel) );
 
-    evtypefld = new uiGenInput( this, tr("Event type"),
-				StringListInpSpec(evtypestrs) );
-    evtypefld->attach( alignedBelow, issinglefld );
-    evtypefld->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
-    evtypefld->display(false);
-    
-    outampfld = new uiGenInput( this, tr("Compute"),
-	       BoolInpSpec(true,
-                           tr("Distance between 2 consecutive events"),
-		           tr("Output Amplitude")) );
-    outampfld->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
-    outampfld->attach( alignedBelow, evtypefld );
+    evtypefld_ = new uiGenInput( this, tr("Event type"),
+				 StringListInpSpec(evtypestrs) );
+    evtypefld_->attach( alignedBelow, issinglefld_ );
+    evtypefld_->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
+    evtypefld_->display( false );
 
-    tonextfld = new uiGenInput( this, tr("starting from"),
-	    			BoolInpSpec(true,tr("Top"),
-                                            uiStrings::sBottom()) );
-    tonextfld->attach( alignedBelow, outampfld );
-    tonextfld->display( false );
-    
-    outpfld = new uiGenInput( this, uiStrings::sOutput(), 
-                              StringListInpSpec(outpstrs) );
-    outpfld->attach( alignedBelow, issinglefld);
+    outampfld_ = new uiGenInput( this, tr("Compute"),
+		BoolInpSpec(true, tr("Distance between 2 consecutive events"),
+				  tr("Output Amplitude")) );
+    outampfld_->valuechanged.notify( mCB(this,uiEventAttrib,outAmpSel) );
+    outampfld_->attach( alignedBelow, evtypefld_ );
 
-    gatefld = new uiGenInput( this, gateLabel(),
-	    		      FloatInpIntervalSpec().setName("Z start",0)
-			      			    .setName("Z stop",1) );
-    gatefld->attach( alignedBelow, tonextfld);
-    gatefld->display(false);
+    tonextfld_ = new uiGenInput( this, tr("starting from"),
+		BoolInpSpec(true,tr("Top"), uiStrings::sBottom()) );
+    tonextfld_->attach( alignedBelow, outampfld_ );
+    tonextfld_->display( false );
 
-    setHAlignObj( issinglefld );
+    outpfld_ = new uiGenInput( this, uiStrings::sOutput(),
+			       StringListInpSpec(outpstrs) );
+    outpfld_->attach( alignedBelow, issinglefld_);
+
+    gatefld_ = new uiGenInput( this, gateLabel(),
+		FloatInpIntervalSpec().setName("Z start",0)
+				      .setName("Z stop",1) );
+    gatefld_->attach( alignedBelow, tonextfld_);
+    gatefld_->display( false );
+
+    setHAlignObj( issinglefld_ );
 }
 
 
 void uiEventAttrib::isSingleSel( CallBacker* )
 {
-    const bool issingle = issinglefld-> getBoolValue();
-    const int val = evtypefld-> getIntValue();
+    const bool issingle = issinglefld_-> getBoolValue();
+    const int val = evtypefld_-> getIntValue();
     const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
-    if ( iszc ) outampfld->setValue( true );
-    const bool outamp = !outampfld-> getBoolValue();
-    evtypefld->display( !issingle );
-    tonextfld->display( !issingle && val != 6 && val != 7 && !outamp );
-    gatefld->display( !issingle && ( val == 6 || val == 7 ) );
-    outpfld->display( issingle );
-    outampfld->display( !issingle );
-    outampfld->setSensitive( !iszc );
+    if ( iszc ) outampfld_->setValue( true );
+    const bool outamp = !outampfld_-> getBoolValue();
+    evtypefld_->display( !issingle );
+    tonextfld_->display( !issingle && val != 6 && val != 7 && !outamp );
+    gatefld_->display( !issingle && ( val == 6 || val == 7 ) );
+    outpfld_->display( issingle );
+    outampfld_->display( !issingle );
+    outampfld_->setSensitive( !iszc );
 }
 
 
 void uiEventAttrib::isGateSel( CallBacker* )
 {
-    const int val = evtypefld->getIntValue();
-    const bool issingle = issinglefld-> getBoolValue();
+    const int val = evtypefld_->getIntValue();
+    const bool issingle = issinglefld_-> getBoolValue();
     const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
     const bool iszc = !issingle && ( val==3 || val==4 || val==5 );
-    if ( iszc ) outampfld->setValue( true );
-    const bool outamp = !outampfld-> getBoolValue();
-    gatefld->display( tgdisplay && !issingle );
-    tonextfld->display( !tgdisplay && !issingle && !outamp );
-    outampfld->display( !issingle );
-    outampfld->setSensitive( !iszc );
+    if ( iszc ) outampfld_->setValue( true );
+    const bool outamp = !outampfld_-> getBoolValue();
+    gatefld_->display( tgdisplay && !issingle );
+    tonextfld_->display( !tgdisplay && !issingle && !outamp );
+    outampfld_->display( !issingle );
+    outampfld_->setSensitive( !iszc );
 }
 
 
 void uiEventAttrib::outAmpSel( CallBacker* )
 {
-    const int val = evtypefld-> getIntValue();
-    const bool issingle = issinglefld-> getBoolValue();
+    const int val = evtypefld_-> getIntValue();
+    const bool issingle = issinglefld_-> getBoolValue();
     const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
-    const bool outamp = !outampfld-> getBoolValue();
-    tonextfld->display( !tgdisplay && !issingle && !outamp );
+    const bool outamp = !outampfld_-> getBoolValue();
+    tonextfld_->display( !tgdisplay && !issingle && !outamp );
 }
 
 
@@ -141,16 +138,16 @@ bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
     if ( desc.attribName() != Attrib::Event::attribName() )
 	return false;
 
-    mIfGetBool( Attrib::Event::issingleeventStr(), issingleevent, 
-	        issinglefld->setValue(issingleevent) );
+    mIfGetBool( Attrib::Event::issingleeventStr(), issingleevent,
+	        issinglefld_->setValue(issingleevent) );
     mIfGetBool( Attrib::Event::tonextStr(), tonext,
-		tonextfld->setValue(tonext) );
+		tonextfld_->setValue(tonext) );
     mIfGetBool( Attrib::Event::outampStr(), outamp,
-		outampfld->setValue(!outamp) );
-    mIfGetInt( Attrib::Event::eventTypeStr(), eventtype, 
-	        evtypefld->setValue(eventtype) );
+		outampfld_->setValue(!outamp) );
+    mIfGetInt( Attrib::Event::eventTypeStr(), eventtype,
+	        evtypefld_->setValue(eventtype) );
     mIfGetFloatInterval( Attrib::Event::gateStr(), gate,
-			 gatefld->setValue(gate) );
+			 gatefld_->setValue(gate) );
 
     isSingleSel(0);
     isGateSel(0);
@@ -162,14 +159,14 @@ bool uiEventAttrib::setParameters( const Attrib::Desc& desc )
 
 bool uiEventAttrib::setInput( const Attrib::Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
     return true;
 }
 
 
 bool uiEventAttrib::setOutput( const Attrib::Desc& desc )
 {
-    outpfld->setValue( desc.selectedOutput() );
+    outpfld_->setValue( desc.selectedOutput() );
     return true;
 }
 
@@ -179,11 +176,11 @@ bool uiEventAttrib::getParameters( Attrib::Desc& desc )
     if ( desc.attribName() != Attrib::Event::attribName() )
 	return false;
 
-    mSetBool( Attrib::Event::issingleeventStr(), issinglefld->getBoolValue() );
-    mSetBool( Attrib::Event::tonextStr(), tonextfld->getBoolValue() );
-    mSetBool( Attrib::Event::outampStr(), !outampfld->getBoolValue() );
-    mSetInt( Attrib::Event::eventTypeStr(), evtypefld->getIntValue() );
-    mSetFloatInterval( Attrib::Event::gateStr(), gatefld->getFInterval() );
+    mSetBool( Attrib::Event::issingleeventStr(), issinglefld_->getBoolValue() );
+    mSetBool( Attrib::Event::tonextStr(), tonextfld_->getBoolValue() );
+    mSetBool( Attrib::Event::outampStr(), !outampfld_->getBoolValue() );
+    mSetInt( Attrib::Event::eventTypeStr(), evtypefld_->getIntValue() );
+    mSetFloatInterval( Attrib::Event::gateStr(), gatefld_->getFInterval() );
 
     return true;
 }
@@ -191,15 +188,15 @@ bool uiEventAttrib::getParameters( Attrib::Desc& desc )
 
 bool uiEventAttrib::getInput( Attrib::Desc& desc )
 {
-    inpfld->processInput();
-    fillInp( inpfld, desc, 0 );
+    inpfld_->processInput();
+    fillInp( inpfld_, desc, 0 );
     return true;
 }
 
 
 bool uiEventAttrib::getOutput( Attrib::Desc& desc )
 {
-    const int outp = issinglefld->getBoolValue() ? outpfld->getIntValue() : 0;
+    const int outp = issinglefld_->getBoolValue() ? outpfld_->getIntValue() : 0;
     fillOutput( desc, outp );
     return true;
 }
