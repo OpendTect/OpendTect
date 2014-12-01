@@ -111,6 +111,7 @@ protected:
     uiPushButton*	examinebut_;
 
     virtual void	doSelect(CallBacker*);
+    void		inputChg(CallBacker*);
     void		examineFile(CallBacker*);
     void		isFinalised(CallBacker*);
 };

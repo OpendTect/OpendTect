@@ -84,6 +84,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 	selmode_ = uiFileDialog::DirectoryOnly;
     }
 
+    valuechanging.notify( mCB(this,uiFileInput,inputChg) );
     postFinalise().notify( mCB(this,uiFileInput,isFinalised) );
 }
 
@@ -114,7 +115,10 @@ uiFileInput::~uiFileInput()
 void uiFileInput::isFinalised( CallBacker* )
 {
     if ( examinebut_ )
+    {
 	examinebut_->attach( rightOf, selbut_ );
+	enableExamine( File::exists(fileName()) );
+    }
 }
 
 
@@ -156,6 +160,12 @@ void uiFileInput::enableExamine( bool yn )
 
 void uiFileInput::setDefaultExtension( const char* ext )
 { defaultext_ = ext; }
+
+
+void uiFileInput::inputChg( CallBacker* )
+{
+    enableExamine( File::exists(fileName()) );
+}
 
 
 void uiFileInput::doSelect( CallBacker* )
