@@ -28,24 +28,31 @@ mClass(Algo) AxisLayout
 {
 public:
 			// Have layout calculated
-			AxisLayout( const Interval<T>& dr, bool yn=false )
-			    : annotinint_(yn)
-			    { setDataRange(dr); }
+			AxisLayout( const Interval<T>& dr, bool asint=false,
+				    bool inside=false )
+			    : annotinint_(asint)
+			    , annotinsiderg_(inside)
+			{ setDataRange( dr ); }
+
     void		setDataRange(const Interval<T>&);
     StepInterval<T>	getSampling() const;
 
     SamplingData<T>	sd_;
     T			stop_;
     bool		annotinint_;
+    bool		annotinsiderg_;
 
-				// Init with explicit layout
+			// Init with explicit layout
 			AxisLayout( T start=0, T st_op=1,
 				    T step=1 )
 			    : sd_(start,step), stop_(st_op)
+			    , annotinsiderg_(false)
 			    , annotinint_(false)	{}
+
 			AxisLayout( const StepInterval<T>& rg )
 			    : sd_(rg.start,rg.step)
 			    , stop_(rg.stop)
+			    , annotinsiderg_(false)
 			    , annotinint_(false)    {}
 
 			// Returns 'modulo' end with this sd_ and stop_
@@ -103,10 +110,19 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 
     if ( wdth > 1e-30 )
     {
-	const T fidx = (T) ( rev
-	    ? ceil( intv.stop / sd_.step + 1e-6 )
-	    : floor( intv.start / sd_.step + 1e-6 ) );
-	sd_.start = mNINT32( fidx ) * sd_.step;
+	double idx0 = 0;
+	if ( annotinsiderg_ )
+	{
+	    idx0 = rev ? floor(intv.stop / sd_.step + 1e-6)
+		       : ceil(intv.start / sd_.step + 1e-6);
+	}
+	else
+	{
+	    idx0 = rev ? ceil(intv.stop / sd_.step + 1e-6)
+		       : floor(intv.start / sd_.step + 1e-6);
+	}
+
+	sd_.start = mNINT32( idx0 ) * sd_.step;
     }
     if ( rev ) sd_.step = -sd_.step;
 
@@ -129,10 +145,11 @@ T AxisLayout<T>::findEnd( T datastop ) const
     if ( worksd.start + 10000 * worksd.step < datastop )
 	return datastop;
 
-    T pos = (T) ( ceil( (datastop-worksd.start) / worksd.step - 1e-6 ) );
-    if ( pos < .5 ) pos = 1;
-    T wdth = mNINT32(pos) * worksd.step;
-
+    const double dnrsteps = double(datastop-worksd.start)/worksd.step - 1e-6;
+    int nrsteps =
+	mNINT32( (annotinsiderg_ ? floor(dnrsteps) : ceil(dnrsteps)) );
+    if ( nrsteps < 1 ) nrsteps = 1;
+    T wdth = nrsteps * worksd.step;
     return sd_.start + (rev ? -wdth : wdth);
 }
 

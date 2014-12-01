@@ -134,8 +134,7 @@ void uiBasemapGridGroup::setParameters()
 {
     if ( defaultname_ == sKeyInlCrl() )
     {
-	AxisLayout<int> al;
-	al.setDataRange( SI().inlRange(false) );
+	AxisLayout<int> al( SI().inlRange(false), true, true );
 	inlxspacingfld_->setValue( al.getSampling() );
 
 	al.setDataRange( SI().crlRange(false) );
@@ -143,15 +142,14 @@ void uiBasemapGridGroup::setParameters()
     }
     else
     {
-	AxisLayout<double> al;
 	double min = SI().minCoord( false ).x;
 	double max = SI().maxCoord( false ).x;
-	al.setDataRange( StepInterval<double>( min, max, 0.1*(max-min) ) );
+	AxisLayout<double> al( Interval<double>(min,max), false, true );
 	inlxspacingfld_->setValue( al.getSampling() );
 
 	min = SI().minCoord( false ).y;
 	max = SI().maxCoord( false ).y;
-	al.setDataRange( StepInterval<double>( min, max, 0.1*(max-min) ) );
+	al.setDataRange( Interval<double>(min,max) );
 	crlyspacingfld_->setValue( al.getSampling() );
     }
 }
