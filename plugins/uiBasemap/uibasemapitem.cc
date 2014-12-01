@@ -117,6 +117,7 @@ bool uiBasemapGroup::acceptOK()
 uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
 					  bool isadd)
     : uiBasemapGroup(p)
+    , typefld_(0)
 {
     ioobjfld_ = new uiIOObjSelGrp( this, ctxt,
 				   uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );
@@ -124,10 +125,10 @@ uiBasemapIOObjGroup::uiBasemapIOObjGroup( uiParent* p, const IOObjContext& ctxt,
 
     if ( isadd )
     {
-    typefld_ = new uiGenInput( this, "Add items",
-	BoolInpSpec(true,"as group","individually") );
-    typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
-    typefld_->attach( alignedBelow, ioobjfld_ );
+	typefld_ = new uiGenInput( this, "Add items",
+	    BoolInpSpec(true,"as group","individually") );
+	typefld_->valuechanged.notify( mCB(this,uiBasemapIOObjGroup,typeChg) );
+	typefld_->attach( alignedBelow, ioobjfld_ );
     }
 }
 
@@ -138,7 +139,7 @@ uiBasemapIOObjGroup::~uiBasemapIOObjGroup()
 
 
 uiObject* uiBasemapIOObjGroup::lastObject()
-{ return typefld_->attachObj(); }
+{ return typefld_ ? typefld_->attachObj() : ioobjfld_->attachObj(); }
 
 
 void uiBasemapIOObjGroup::selChg( CallBacker* )
@@ -156,7 +157,10 @@ void uiBasemapIOObjGroup::selChg( CallBacker* )
 
 
 void uiBasemapIOObjGroup::typeChg( CallBacker* )
-{ if ( namefld_ ) namefld_->setSensitive( typefld_->getBoolValue() ); }
+{
+    if ( !namefld_ ) return;
+    namefld_->setSensitive( typefld_ ? typefld_->getBoolValue() : true );
+}
 
 
 bool uiBasemapIOObjGroup::acceptOK()
@@ -173,7 +177,7 @@ bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
     TypeSet<MultiID> mids;
     ioobjfld_->getChosen( mids );
     const int nrsel = mids.size();
-    const bool addasgroup = typefld_->getBoolValue() || nrsel==1;
+    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
 
     const int nritems = addasgroup ? 1 : nrsel;
     const int nrobjsperitem = addasgroup ? nrsel : 1;
