@@ -19,7 +19,6 @@ namespace Attrib { class Desc; }
 
 class uiAttrSel;
 class uiGenInput;
-class uiLabel;
 
 /*! \brief Event Attributes description editor */
 
@@ -38,7 +37,6 @@ protected:
     uiGenInput*		evtypefld;
     uiGenInput*		gatefld;
     uiGenInput*		outampfld;
-    uiLabel*		tonextlblfld;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -52,7 +50,7 @@ protected:
     void                isGateSel(CallBacker*);
     void                outAmpSel(CallBacker*);
 
-    			mDeclReqAttribUIFns
+			mDeclReqAttribUIFns
 };
 
 
