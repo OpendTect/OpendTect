@@ -160,7 +160,7 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
     scenes_ += &scn;
     vwridx_++;
     BufferString vwrnm( "Viewer Scene ", vwridx_ );
-    scn.sovwr_->setName( vwrnm );
+    scn.vwr3d_->setName( vwrnm );
     return scn;
 }
 
@@ -171,24 +171,24 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
     mDynamicCastGet(visSurvey::Scene*,visscene,visServ().getObject(sceneid));
-    if ( visscene && scn.sovwr_->getPolygonSelector() )
-	visscene->setPolygonSelector( scn.sovwr_->getPolygonSelector() );
-    if ( visscene && scn.sovwr_->getSceneColTab() )
-	visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
+    if ( visscene && scn.vwr3d_->getPolygonSelector() )
+	visscene->setPolygonSelector( scn.vwr3d_->getPolygonSelector() );
+    if ( visscene && scn.vwr3d_->getSceneColTab() )
+	visscene->setSceneColTab( scn.vwr3d_->getSceneColTab() );
     if ( visscene )
 	mAttachCB(
 	visscene->sceneboundingboxupdated,uiODSceneMgr::newSceneUpdated );
 
-    scn.sovwr_->setSceneID( sceneid );
+    scn.vwr3d_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
     scn.mdiwin_->setTitle( title );
     visServ().setObjectName( sceneid, title );
-    scn.sovwr_->display( true );
-    scn.sovwr_->setAnnotationFont( visscene ? visscene->getAnnotFont()
+    scn.vwr3d_->display( true );
+    scn.vwr3d_->setAnnotationFont( visscene ? visscene->getAnnotFont()
 					    : FontData() );
-    scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-    scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
+    scn.vwr3d_->viewmodechanged.notify( mWSMCB(viewModeChg) );
+    scn.vwr3d_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.mdiwin_->display( true, false, maximized );
     actMode(0);
     treeToBeAdded.trigger( sceneid );
@@ -196,23 +196,23 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
     if ( scenes_.size()>1 && scenes_[0] )
     {
-	scn.sovwr_->setStereoType( scenes_[0]->sovwr_->getStereoType() );
-	scn.sovwr_->setStereoOffset(
-		scenes_[0]->sovwr_->getStereoOffset() );
-	scn.sovwr_->showRotAxis( scenes_[0]->sovwr_->rotAxisShown() );
-	if ( !scenes_[0]->sovwr_->isCameraPerspective() )
-	    scn.sovwr_->toggleCameraType();
+	scn.vwr3d_->setStereoType( scenes_[0]->vwr3d_->getStereoType() );
+	scn.vwr3d_->setStereoOffset(
+		scenes_[0]->vwr3d_->getStereoOffset() );
+	scn.vwr3d_->showRotAxis( scenes_[0]->vwr3d_->rotAxisShown() );
+	if ( !scenes_[0]->vwr3d_->isCameraPerspective() )
+	    scn.vwr3d_->toggleCameraType();
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
     }
     else if ( scenes_[0] )
     {
-	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
+	const bool isperspective = scenes_[0]->vwr3d_->isCameraPerspective();
 	if ( appl_.menuMgrAvailable() )
 	{
 	    appl_.menuMgr().setCameraPixmap( isperspective );
 	    appl_.menuMgr().updateAxisMode( true );
 	}
-	scn.sovwr_->showRotAxis( true );
+	scn.vwr3d_->showRotAxis( true );
     }
 
     if ( name ) setSceneName( sceneid, name );
@@ -226,13 +226,13 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 
 void uiODSceneMgr::newSceneUpdated( CallBacker* cb )
 {
-    if ( scenes_.size() >0 && scenes_.last()->sovwr_ )
+    if ( scenes_.size() >0 && scenes_.last()->vwr3d_ )
     {
-	scenes_.last()->sovwr_->viewAll( false );
+	scenes_.last()->vwr3d_->viewAll( false );
 	tiletimer_->start( 10,true );
 
 	visBase::DataObject* obj =
-	    visBase::DM().getObject( scenes_.last()->sovwr_->sceneID() );
+	    visBase::DM().getObject( scenes_.last()->vwr3d_->sceneID() );
 
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
@@ -316,7 +316,7 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	IOPar iop;
-	scenes_[idx]->sovwr_->fillPar( iop );
+	scenes_[idx]->vwr3d_->fillPar( iop );
 	iopar.mergeComp( iop, toString(idx) );
     }
 }
@@ -334,22 +334,22 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	}
 
 	Scene& scn = mkNewScene();
-	if ( !scn.sovwr_->usePar(*scenepar) )
+	if ( !scn.vwr3d_->usePar(*scenepar) )
 	{
 	    removeScene( scn );
 	    continue;
 	}
 
 	visBase::DataObject* obj =
-	    visBase::DM().getObject( scn.sovwr_->sceneID() );
+	    visBase::DM().getObject( scn.vwr3d_->sceneID() );
 	mDynamicCastGet( visSurvey::Scene*,visscene,obj );
 
 	if ( visscene )
 	{
-	    if ( scn.sovwr_->getPolygonSelector() )
-		visscene->setPolygonSelector(scn.sovwr_->getPolygonSelector());
-	    if ( scn.sovwr_->getSceneColTab() )
-		visscene->setSceneColTab( scn.sovwr_->getSceneColTab() );
+	    if ( scn.vwr3d_->getPolygonSelector() )
+		visscene->setPolygonSelector(scn.vwr3d_->getPolygonSelector());
+	    if ( scn.vwr3d_->getSceneColTab() )
+		visscene->setSceneColTab( scn.vwr3d_->getSceneColTab() );
 	}
 
 	visServ().displaySceneColorbar( visServ().sceneColorbarDisplayed() );
@@ -358,15 +358,15 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	BufferString title( scenestr );
 	title += vwridx_;
 	scn.mdiwin_->setTitle( title );
-	visServ().setObjectName( scn.sovwr_->sceneID(), title );
+	visServ().setObjectName( scn.vwr3d_->sceneID(), title );
 
-	scn.sovwr_->display( true );
-	scn.sovwr_->showRotAxis( true );
-	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
-	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
+	scn.vwr3d_->display( true );
+	scn.vwr3d_->showRotAxis( true );
+	scn.vwr3d_->viewmodechanged.notify( mWSMCB(viewModeChg) );
+	scn.vwr3d_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.mdiwin_->display( true, false );
 
-	treeToBeAdded.trigger( scn.sovwr_->sceneID() );
+	treeToBeAdded.trigger( scn.vwr3d_->sceneID() );
 	initTree( scn, vwridx_ );
     }
 
@@ -413,14 +413,14 @@ void uiODSceneMgr::viewModeChg( CallBacker* cb )
 {
     if ( scenes_.isEmpty() ) return;
 
-    mDynamicCastGet(ui3DViewer*,sovwr_,cb)
-    if ( sovwr_ ) setToViewMode( sovwr_->isViewMode() );
+    mDynamicCastGet(ui3DViewer*,vwr3d_,cb)
+    if ( vwr3d_ ) setToViewMode( vwr3d_->isViewMode() );
 }
 
 
 void uiODSceneMgr::setToViewMode( bool yn )
 {
-    mDoAllScenes(sovwr_,setViewMode,yn);
+    mDoAllScenes(vwr3d_,setViewMode,yn);
     visServ().setViewMode( yn , false );
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
@@ -431,16 +431,16 @@ void uiODSceneMgr::setToViewMode( bool yn )
 
 
 bool uiODSceneMgr::inViewMode() const
-{ return scenes_.isEmpty() ? false : scenes_[0]->sovwr_->isViewMode(); }
+{ return scenes_.isEmpty() ? false : scenes_[0]->vwr3d_->isViewMode(); }
 
 
 void uiODSceneMgr::setToWorkMode( uiVisPartServer::WorkMode wm )
 {
     bool yn = ( wm == uiVisPartServer::View ) ? true : false;
 
-    mDoAllScenes(sovwr_,setViewMode,yn);
+    mDoAllScenes(vwr3d_,setViewMode,yn);
     visServ().setWorkMode( wm , false );
-    if ( appl_.menuMgrAvailable() ) 
+    if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().updateViewMode( yn );
 
     updateStatusBar();
@@ -530,20 +530,20 @@ void uiODSceneMgr::setKeyBindings()
     if ( scenes_.isEmpty() ) return;
 
     BufferStringSet keyset;
-    scenes_[0]->sovwr_->getAllKeyBindings( keyset );
+    scenes_[0]->vwr3d_->getAllKeyBindings( keyset );
 
     StringListInpSpec* inpspec = new StringListInpSpec( keyset );
-    inpspec->setText( scenes_[0]->sovwr_->getCurrentKeyBindings(), 0 );
+    inpspec->setText( scenes_[0]->vwr3d_->getCurrentKeyBindings(), 0 );
     uiGenInputDlg dlg( &appl_, tr("Select Mouse Controls"), "Select", inpspec );
     dlg.setHelpKey(mODHelpKey(mODSceneMgrsetKeyBindingsHelpID) );
     if ( dlg.go() )
-	mDoAllScenes(sovwr_,setKeyBindings,dlg.text());
+	mDoAllScenes(vwr3d_,setKeyBindings,dlg.text());
 }
 
 
 int uiODSceneMgr::getStereoType() const
 {
-    return scenes_.size() ? (int)scenes_[0]->sovwr_->getStereoType() : 0;
+    return scenes_.size() ? (int)scenes_[0]->vwr3d_->getStereoType() : 0;
 }
 
 
@@ -556,17 +556,17 @@ void uiODSceneMgr::setStereoType( int type )
 			    " officially supported. Use at own risk") );
 
     ui3DViewer::StereoType stereotype = (ui3DViewer::StereoType)type;
-    const float stereooffset = scenes_[0]->sovwr_->getStereoOffset();
+    const float stereooffset = scenes_[0]->vwr3d_->getStereoOffset();
     for ( int ids=0; ids<scenes_.size(); ids++ )
     {
-	ui3DViewer& sovwr_ = *scenes_[ids]->sovwr_;
-	if ( !sovwr_.setStereoType(stereotype) )
+	ui3DViewer& vwr3d_ = *scenes_[ids]->vwr3d_;
+	if ( !vwr3d_.setStereoType(stereotype) )
 	{
 	    uiMSG().error( tr("No support for this type of stereo rendering") );
 	    return;
 	}
 	if ( type )
-	    sovwr_.setStereoOffset( stereooffset );
+	    vwr3d_.setStereoOffset( stereooffset );
     }
 
     if ( type>0 )
@@ -591,39 +591,39 @@ void uiODSceneMgr::layoutScenes()
 
 
 void uiODSceneMgr::toHomePos( CallBacker* )
-{ mDoAllScenes(sovwr_,toHomePos,); }
+{ mDoAllScenes(vwr3d_,toHomePos,); }
 void uiODSceneMgr::saveHomePos( CallBacker* )
-{ mDoAllScenes(sovwr_,saveHomePos,); }
+{ mDoAllScenes(vwr3d_,saveHomePos,); }
 void uiODSceneMgr::viewAll( CallBacker* )
-{ mDoAllScenes(sovwr_,viewAll,); }
+{ mDoAllScenes(vwr3d_,viewAll,); }
 void uiODSceneMgr::align( CallBacker* )
-{ mDoAllScenes(sovwr_,align,); }
+{ mDoAllScenes(vwr3d_,align,); }
 
 void uiODSceneMgr::viewX( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::X); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::X); }
 void uiODSceneMgr::viewY( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Y); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Y); }
 void uiODSceneMgr::viewZ( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Z); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Z); }
 void uiODSceneMgr::viewInl( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Inl); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Inl); }
 void uiODSceneMgr::viewCrl( CallBacker* )
-{ mDoAllScenes(sovwr_,viewPlane,ui3DViewer::Crl); }
+{ mDoAllScenes(vwr3d_,viewPlane,ui3DViewer::Crl); }
 
 void uiODSceneMgr::setViewSelectMode( int md )
 {
-    mDoAllScenes(sovwr_,viewPlane,(ui3DViewer::PlaneType)md);
+    mDoAllScenes(vwr3d_,viewPlane,(ui3DViewer::PlaneType)md);
 }
 
 
 void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
     mDynamicCastGet(const uiAction*,act,cb)
-    mDoAllScenes(sovwr_,showRotAxis,act?act->isChecked():false);
+    mDoAllScenes(vwr3d_,showRotAxis,act?act->isChecked():false);
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
-	scenes_[idx]->sovwr_->setAnnotationColor( col );
+	scenes_[idx]->vwr3d_->setAnnotationColor( col );
     }
 }
 
@@ -707,7 +707,7 @@ void uiODSceneMgr::switchCameraType( CallBacker* )
     ObjectSet<ui3DViewer> vwrs;
     getSoViewers( vwrs );
     if ( vwrs.isEmpty() ) return;
-    mDoAllScenes(sovwr_,toggleCameraType,);
+    mDoAllScenes(vwr3d_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
     if ( appl_.menuMgrAvailable() )
 	appl_.menuMgr().setCameraPixmap( isperspective );
@@ -738,21 +738,21 @@ void uiODSceneMgr::getSoViewers( ObjectSet<ui3DViewer>& vwrs )
 {
     vwrs.erase();
     for ( int idx=0; idx<scenes_.size(); idx++ )
-	vwrs += scenes_[idx]->sovwr_;
+	vwrs += scenes_[idx]->vwr3d_;
 }
 
 
 const ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
 {
     const Scene* scene = getScene( sceneid );
-    return scene ? scene->sovwr_ : 0;
+    return scene ? scene->vwr3d_ : 0;
 }
 
 
 ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid )
 {
     const Scene* scene = getScene( sceneid );
-    return scene ? scene->sovwr_ : 0;
+    return scene ? scene->vwr3d_ : 0;
 }
 
 
@@ -833,10 +833,10 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv_->addColumns( labels );
     scn.lv_->setFixedColumnWidth( cColorColumn(), 40 );
 
-    scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
+    scn.itemmanager_ = new uiODTreeTop( scn.vwr3d_, scn.lv_, &applMgr(), tifs_);
     uiODSceneTreeItem* sceneitm =
 	new uiODSceneTreeItem( scn.mdiwin_->getTitle().getFullString(),
-			       scn.sovwr_->sceneID() );
+			       scn.vwr3d_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
 
     TypeSet<int> idxs;
@@ -886,7 +886,7 @@ void uiODSceneMgr::rebuildTrees()
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	const int sceneid = scene.sovwr_->sceneID();
+	const int sceneid = scene.vwr3d_->sceneID();
 	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
 
 	for ( int idy=0; idy<visids.size(); idy++ )
@@ -1183,23 +1183,23 @@ uiODSceneMgr::Scene::Scene( uiMdiArea* mdiarea )
         : lv_(0)
 	, dw_(0)
 	, mdiwin_(0)
-        , sovwr_(0)
+        , vwr3d_(0)
 	, itemmanager_(0)
 {
     if ( !mdiarea ) return;
 
     mdiwin_ = new uiMdiAreaWindow();
     mdiwin_->setIcon( scene_xpm_data );
-    sovwr_ = new ui3DViewer( mdiwin_, true );
-    sovwr_->setPrefWidth( 400 );
-    sovwr_->setPrefHeight( 400 );
+    vwr3d_ = new ui3DViewer( mdiwin_, true );
+    vwr3d_->setPrefWidth( 400 );
+    vwr3d_->setPrefHeight( 400 );
     mdiarea->addWindow( mdiwin_ );
 }
 
 
 uiODSceneMgr::Scene::~Scene()
 {
-    delete sovwr_;
+    delete vwr3d_;
     delete itemmanager_;
     delete dw_;
 }

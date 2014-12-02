@@ -177,7 +177,7 @@ protected:
 	uiDockWin*		dw_;
 	uiTreeView*		lv_;
 	uiMdiAreaWindow*	mdiwin_;
-	ui3DViewer*		sovwr_;
+	ui3DViewer*		vwr3d_;
 	uiODTreeTop*		itemmanager_;
     };
 
