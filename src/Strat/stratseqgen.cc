@@ -174,6 +174,12 @@ bool Strat::LayerSequenceGenDesc::getFrom( od_istream& strm )
 	    { lg->setGenDesc( this ); *this += lg; }
     }
 
+    if ( isEmpty() )
+    {
+	errmsg_ = tr( "Empty description : no valid units found" );
+	return false;
+    }
+
     propsel_.erase();
     for ( int idx=0; idx<size(); idx++ )
     {
