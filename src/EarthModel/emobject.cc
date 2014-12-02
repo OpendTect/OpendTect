@@ -36,6 +36,7 @@ const char* EMObject::posattrsectionstr()   { return " Section"; }
 const char* EMObject::posattrposidstr()	    { return " SubID"; }
 const char* EMObject::nrposattrstr()	    { return "Nr Pos Attribs"; }
 
+
 EMObject::EMObject( EMManager& emm )
     : manager_( emm )
     , change( this )
@@ -47,7 +48,7 @@ EMObject::EMObject( EMManager& emm )
     , burstalertcount_( 0 )
     , insideselremoval_( false )
     , selremoving_( false )
-    , preferredlinestyle_( *new LineStyle )
+    , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
     , preferredmarkerstyle_(
       *new MarkerStyle3D( MarkerStyle3D::Cube, 4, Color::White() ) )
 {
@@ -243,8 +244,6 @@ void EMObject::setPreferredColor( const Color& col, bool addtoundo )
     cbdata.event = EMObjectCallbackData::PrefColorChange;
     change.trigger( cbdata );
 
-    IOPar colpar;
-    colpar.set( sKey::Color(), col );
     saveDisplayPars();
 }
 
@@ -450,7 +449,6 @@ void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms )
     change.trigger( cbdata );
     changed_ = true;
 }
-
 
 
 const MarkerStyle3D& EMObject::preferredMarkerStyle3D() const
@@ -673,6 +671,7 @@ void EMObject::useDisplayPars( const IOPar& par )
 	setPreferredMarkerStyle3D( mkst );
     }
 }
+
 
 bool EMObject::usePar( const IOPar& par )
 {
