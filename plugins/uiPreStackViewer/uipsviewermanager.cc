@@ -357,7 +357,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->flatViewer()->setResolution( res );
 
     //set viewer angle.
-    const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
+    const ui3DViewer*  sovwr = ODMainWin()->sceneMgr().get3DViewer( sceneid );
     Coord3 campos = sovwr->getCameraPosition();
 	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
     const BinID dir0 = SI().transform(campos)-SI().transform(pickedpos);

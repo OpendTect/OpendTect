@@ -103,9 +103,9 @@ public:
     void			dWheelMoved(CallBacker*);
 
     int				askSelectScene() const; // returns sceneid
-    const ui3DViewer*		getSoViewer(int sceneid) const;
-    ui3DViewer*			getSoViewer(int sceneid);
-    void			getSoViewers(ObjectSet<ui3DViewer>&);
+    const ui3DViewer*		get3DViewer(int sceneid) const;
+    ui3DViewer*			get3DViewer(int sceneid);
+    void			get3DViewers(ObjectSet<ui3DViewer>&);
     void			getSceneNames(BufferStringSet&,int& act) const;
     void			setActiveScene(const char* scenenm);
     void			getActiveSceneName(BufferString&) const;

@@ -460,7 +460,7 @@ void uiODApplMgr::createMultiAttribVol( CallBacker* )
 void uiODApplMgr::setStereoOffset()
 {
     ObjectSet<ui3DViewer> vwrs;
-    sceneMgr().getSoViewers( vwrs );
+    sceneMgr().get3DViewers( vwrs );
     uiStereoDlg dlg( &appl_, vwrs );
     dlg.go();
 }

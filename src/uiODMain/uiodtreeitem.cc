@@ -328,7 +328,7 @@ void uiODSceneTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==propitem_.id )
     {
 	ObjectSet<ui3DViewer> viewers;
-	ODMainWin()->sceneMgr().getSoViewers( viewers );
+	ODMainWin()->sceneMgr().get3DViewers( viewers );
 	uiScenePropertyDlg dlg( getUiParent(), viewers,
 				viewers.indexOf(viewer()) );
 	dlg.go();

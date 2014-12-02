@@ -371,7 +371,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
     }
 
     ObjectSet<ui3DViewer> vwrs;
-    getSoViewers( vwrs );
+    get3DViewers( vwrs );
     if ( appl_.menuMgrAvailable() && !vwrs.isEmpty() && vwrs[0] )
     {
 	const bool isperspective = vwrs[0]->isCameraPerspective();
@@ -387,7 +387,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 void uiODSceneMgr::setSceneProperties()
 {
     ObjectSet<ui3DViewer> vwrs;
-    getSoViewers( vwrs );
+    get3DViewers( vwrs );
     if ( vwrs.isEmpty() )
     {
 	uiMSG().error( tr("No scenes available") );
@@ -398,7 +398,7 @@ void uiODSceneMgr::setSceneProperties()
     if ( vwrs.size() > 1 )
     {
 	const int sceneid = askSelectScene();
-	const ui3DViewer* vwr = getSoViewer( sceneid );
+	const ui3DViewer* vwr = get3DViewer( sceneid );
 	if ( !vwr ) return;
 
 	curvwridx = vwrs.indexOf( vwr );
@@ -669,7 +669,7 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
     {
 
 	ObjectSet<ui3DViewer> viewers;
-	getSoViewers( viewers );
+	get3DViewers( viewers );
 	if ( viewers.size() == 0 ) return;
 
 	uiPrintSceneDlg printdlg( &appl_, viewers );
@@ -705,7 +705,7 @@ void uiODSceneMgr::soloMode( CallBacker* )
 void uiODSceneMgr::switchCameraType( CallBacker* )
 {
     ObjectSet<ui3DViewer> vwrs;
-    getSoViewers( vwrs );
+    get3DViewers( vwrs );
     if ( vwrs.isEmpty() ) return;
     mDoAllScenes(vwr3d_,toggleCameraType,);
     const bool isperspective = vwrs[0]->isCameraPerspective();
@@ -734,7 +734,7 @@ int uiODSceneMgr::askSelectScene() const
 }
 
 
-void uiODSceneMgr::getSoViewers( ObjectSet<ui3DViewer>& vwrs )
+void uiODSceneMgr::get3DViewers( ObjectSet<ui3DViewer>& vwrs )
 {
     vwrs.erase();
     for ( int idx=0; idx<scenes_.size(); idx++ )
@@ -742,14 +742,14 @@ void uiODSceneMgr::getSoViewers( ObjectSet<ui3DViewer>& vwrs )
 }
 
 
-const ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
+const ui3DViewer* uiODSceneMgr::get3DViewer( int sceneid ) const
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
 }
 
 
-ui3DViewer* uiODSceneMgr::getSoViewer( int sceneid )
+ui3DViewer* uiODSceneMgr::get3DViewer( int sceneid )
 {
     const Scene* scene = getScene( sceneid );
     return scene ? scene->vwr3d_ : 0;
