@@ -48,7 +48,7 @@ EMObject::EMObject( EMManager& emm )
     , burstalertcount_( 0 )
     , insideselremoval_( false )
     , selremoving_( false )
-    , preferredlinestyle_( *new LineStyle )
+    , preferredlinestyle_( *new LineStyle(LineStyle::Solid,3) )
     , preferredmarkerstyle_(
       *new MarkerStyle3D( MarkerStyle3D::Cube, 4, Color::White() ) )
 {
@@ -90,9 +90,7 @@ void EMObject::setNewName()
 { setName("<New EM Object>"); }
 
 void EMObject::setMultiID( const MultiID& mid )
-{ 
-    storageid_ = mid; 
-}
+{ storageid_ = mid; }
 
 
 int EMObject::sectionIndex( const SectionID& sid ) const
