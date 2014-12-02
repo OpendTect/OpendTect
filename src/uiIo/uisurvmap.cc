@@ -216,8 +216,8 @@ uiMapScaleObject::uiMapScaleObject( BaseMapObject* bmo )
     : uiBaseMapObject(bmo)
     , scalestyle_(*new LineStyle(LineStyle::Solid,1,Color::Black()))
 {
-    scalelen_ = 0.05 * ( SI().maxCoord(false).x - SI().minCoord(false).x );
-    scalelen_ = 100 * mCast(int,scalelen_ / 100);
+    scalelen_ = 0.05f * float(SI().maxCoord(false).x-SI().minCoord(false).x);
+    scalelen_ = mCast(float,100 * mCast(int,scalelen_ / 100));
 
     scaleline_ = new uiLineItem;
     itemgrp_.add( scaleline_ );
@@ -271,22 +271,22 @@ void uiMapScaleObject::update()
     const int ymin = transform_->toUiY( worldymin );
 
     const float worldref = worldxmax - worldscalelen;
-    const float uiscalelen = xmax - transform_->toUiX( worldref );
+    const int uiscalelen = xmax - transform_->toUiX( worldref );
 
     const int lastx = xmax - 1 - sideoffs;
     const int firsty = ymin - 1;
 
-    const Geom::Point2D<float> origin( lastx - uiscalelen, firsty );
-    const Geom::Point2D<float> end( lastx, firsty );
+    const Geom::Point2D<int> origin( lastx-uiscalelen, firsty );
+    const Geom::Point2D<int> end( lastx, firsty );
     scaleline_->setLine( origin, end );
     scaleline_->setPenStyle( scalestyle_ );
 
-    leftcornerline_->setLine( origin , 0.0f, scalecornerlen,
-				       0.0f, scalecornerlen );
+    leftcornerline_->setLine( origin, 0, scalecornerlen,
+				      0, scalecornerlen );
     leftcornerline_->setPenStyle( scalestyle_ );
 
-    rightcornerline_->setLine( end , 0.0f, scalecornerlen,
-				     0.0f, scalecornerlen );
+    rightcornerline_->setLine( end, 0, scalecornerlen,
+				    0, scalecornerlen );
     rightcornerline_->setPenStyle( scalestyle_ );
 
     BufferString label_origin = "0";

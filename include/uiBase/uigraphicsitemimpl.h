@@ -125,6 +125,8 @@ public:
 				const Geom::Point2D<float>&);
     void		setLine(const Geom::Point2D<float>& centerpos,
 				float dx1,float dy1,float dx2,float dy2);
+    void		setLine(const Geom::Point2D<int>& centerpos,
+				int dx1,int dy1,int dx2,int dy2);
     uiRect		lineRect() const;
 
 protected:

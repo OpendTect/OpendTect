@@ -249,6 +249,14 @@ void uiLineItem::setLine( const Geom::Point2D<float>& centerpos,
 }
 
 
+void uiLineItem::setLine( const Geom::Point2D<int>& centerpos,
+	      int dx1, int dy1, int dx2, int dy2 )
+{
+    setLine( centerpos.x-dx1, centerpos.y+dy1,
+	     centerpos.x+dx2, centerpos.y-dy2 );
+}
+
+
 uiRect uiLineItem::lineRect() const
 {
     QLineF qline = qlineitem_->line();
