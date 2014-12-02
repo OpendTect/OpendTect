@@ -1682,13 +1682,22 @@ void uiDialogBody::initChildren()
 
 uiObject* uiDialogBody::createChildren()
 {
+    const bool addicons = Settings::common().isTrue("Ui.Icons.Dialog" );
+#   define mAddIcon(but,nm) if ( addicons ) but->setIcon(nm)
+
     if ( !setup_.oktext_.isEmpty() )
+    {
 	okbut_ = new uiPushButton( centralwidget_,
 				   setup_.oktext_.getFullString(), true );
+	mAddIcon( okbut_, "checkgreen" );
+    }
 	//TODO: Replace with oktext_ when button can hadle that
     if ( !setup_.canceltext_.isEmpty() )
+    {
 	cnclbut_ = new uiPushButton( centralwidget_,
 				    setup_.canceltext_.getFullString(), true );
+	mAddIcon( cnclbut_, "cancel" );
+    }
 	//TODO: Replace with canceltext_ when button can hadle that
     if ( setup_.applybutton_ )
     {
@@ -1696,6 +1705,7 @@ uiObject* uiDialogBody::createChildren()
 	    new uiPushButton( centralwidget_, setup_.applytext_.getFullString(),
 			      true );
 	applybut_->activated.notify( mCB(this,uiDialogBody,applyCB) );
+	mAddIcon( applybut_, "apply" );
     }
 
     if ( setup_.savebutton_ && !setup_.savetext_.isEmpty() )
@@ -1708,6 +1718,7 @@ uiObject* uiDialogBody::createChildren()
 	{
 	    savebutcb_ = new uiCheckBox( centralwidget_, setup_.savetext_ );
 	    savebutcb_->setChecked( setup_.savechecked_ );
+	    mAddIcon( savebutcb_, "save" );
 	}
     }
     mDynamicCastGet( uiDialog&, dlg, handle_ );
@@ -1736,6 +1747,7 @@ uiObject* uiDialogBody::createChildren()
 		new uiPushButton( centralwidget_, uiStrings::sHelp(), true );
 	    helpbut_->setToolTip( helptooltip );
 	    helpbut_->activated.notify( mCB(this,uiDialogBody,provideHelp) );
+	    mAddIcon( helpbut_, "help" );
 	}
     }
 

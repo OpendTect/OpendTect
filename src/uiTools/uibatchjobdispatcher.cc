@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "batchjobdispatch.h"
 #include "hostdata.h"
+#include "settings.h"
 
 #include "uigeninput.h"
 #include "uidialog.h"
@@ -107,6 +108,8 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	optsbut_->attach( rightOf, attachobj );
     else
 	setHAlignObj( optsbut_ );
+    if ( Settings::common().isTrue("Ui.Icons.Options" ) )
+	optsbut_->setIcon( "options" );
 
     postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
 }
@@ -312,7 +315,7 @@ public:
 
 uiSingleBatchJobDispatcherPars( uiParent* p, Batch::SingleJobDispatcher& sjd,
 				Batch::JobSpec& js )
-    : uiDialog(p,Setup(tr("Batch execution parameters"), 
+    : uiDialog(p,Setup(tr("Batch execution parameters"),
 		       tr("Options for '%1' program").arg(js.prognm_),
 			mTODOHelpKey))
     , sjd_(sjd)

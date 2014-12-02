@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "binidvalue.h"
 #include "undefval.h"
+#include "settings.h"
 
 
 //! maps a uiGenInput's idx to a field- and sub-idx
@@ -640,6 +641,8 @@ void uiGenInput::doFinalise( CallBacker* )
 	selbut_->setName( BufferString(selText_.getFullString()," ",name()) );
 	selbut_->activated.notify( mCB(this,uiGenInput,doSelect_) );
 	selbut_->attach( rightOf, lastElem );
+	if ( Settings::common().isTrue("Ui.Icons.Selecting" ) )
+	    selbut_->setIcon( "selectfromlist" );
     }
 
     deepErase( inputs_ ); // have been copied to fields.

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uicompoundparsel.h"
 #include "uigeninput.h"
 #include "uibutton.h"
+#include "settings.h"
 
 
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
@@ -27,6 +28,9 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
     selbut_->setName( BufferString(buttxt," ",seltxt).buf() );
     selbut_->activated.notify( mCB(this,uiCompoundParSel,doSel) );
     selbut_->attach( rightOf, txtfld_ );
+    if ( FixedString(buttxt) == "Select"
+      && Settings::common().isTrue("Ui.Icons.Selecting" ) )
+	selbut_->setIcon( "selectfromlist" );
 
     setHAlignObj( txtfld_ );
     setHCenterObj( txtfld_ );

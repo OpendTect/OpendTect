@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "file.h"
 #include "keystrs.h"
+#include "settings.h"
 
 IOPar& uiIOFileSelect::ixtablehistory()
 { return *new IOPar("IXTable selection history"); }
@@ -75,6 +76,8 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     butnm += su.seltxt_.getFullString();
     selbut_->setName( butnm.buf() );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
+    if ( Settings::common().isTrue("Ui.Icons.Selecting" ) )
+	selbut_->setIcon( "selectfromlist" );
 
     setHAlignObj( inp_ );
     setHCenterObj( inp_ );

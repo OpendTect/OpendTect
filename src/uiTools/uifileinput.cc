@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "oddirs.h"
 #include "oscommand.h"
 #include "perthreadrepos.h"
+#include "settings.h"
 
 
 uiFileInput::Setup::Setup( const char* filenm )
@@ -77,6 +78,8 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
 	examinebut_ = new uiPushButton( this, buttxt,
 			    mCB(this,uiFileInput,examineFile), false );
 	examinebut_->setName( BufferString(buttxt," ",txt) );
+	if ( Settings::common().isTrue("Ui.Icons.Selecting" ) )
+	    examinebut_->setIcon( "examine" );
     }
     if ( setup.directories_ )
     {
