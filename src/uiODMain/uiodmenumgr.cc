@@ -801,11 +801,10 @@ void uiODMenuMgr::fillUtilMenu()
 	if ( !aitfixed )
 	    mInsertItem( installmnu_, "Auto-update policy ...",
 			 mInstAutoUpdPolMnuItm );
-	mInsertItem( installmnu_, "Connection Settings ...",
-		     mInstConnSettsMnuItm );
 	installmnu_->insertSeparator();
     }
-
+    
+    mInsertItem( installmnu_, "Connection Settings ...", mInstConnSettsMnuItm );
     mInsertItem( installmnu_, "Plugins ...", mPluginsMnuItm );
     mInsertItem( installmnu_, "Setup Batch Processing ...", mSetupBatchItm );
 
