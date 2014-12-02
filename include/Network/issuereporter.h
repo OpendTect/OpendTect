@@ -34,6 +34,7 @@ public:
     const OD::String&		getReport() const   { return report_; }
 
     bool			send();
+    const char*			filePath() const    { return crashreportpath_; }
     uiString			errMsg() const	    { return errmsg_; }
 
     bool			parseCommandLine();

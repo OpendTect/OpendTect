@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiproxydlg.h"
 #include "safefileio.h"
 
 #include "fstream"
@@ -50,7 +51,13 @@ uiIssueReporterDlg::uiIssueReporterDlg( uiParent* p )
     emailfld_ = new uiGenInput( usrinpgrp, tr("[E-mail address]") );
     emailfld_->attach( alignedBelow, commentfld_ );
     emailfld_->setStretch( 2, 1 );
-
+    
+    uiButton* proxybut = new uiPushButton( usrinpgrp, tr("Proxy settings"), 
+					   false );
+    proxybut->setIcon( "proxysettings" );
+    proxybut->activated.notify( mCB(this,uiIssueReporterDlg,proxySetCB) );
+    proxybut->attach( rightOf, emailfld_ );
+    
     usrinpgrp->setHAlignObj( emailfld_ );
     usrinpgrp->attach( alignedBelow, lblgrp );
 
@@ -70,6 +77,26 @@ void uiIssueReporterDlg::viewReportCB( CallBacker* )
     dlg.setCancelText( 0 );
     dlg.go();
 }
+
+
+void uiIssueReporterDlg::proxySetCB( CallBacker* )
+{
+    uiProxyDlg dlg( this );
+    dlg.setHelpKey( mNoHelpKey );
+    dlg.go();
+}
+
+
+void uiIssueReporterDlg::setButSensitive( bool yn )
+{
+    uiButton* okbut = button( OK );
+    uiButton* cancelbut = button( CANCEL );
+    if ( okbut )
+	okbut->setSensitive( yn );
+
+    if ( cancelbut )
+	cancelbut->setSensitive( yn );
+}
 	       
 
 
@@ -83,15 +110,10 @@ void uiIssueReporterDlg::getReport( BufferString& res ) const
 
 bool uiIssueReporterDlg::acceptOK(CallBacker *)
 {
-    uiButton* okbut = button( OK );
-    uiButton* cancelbut = button( CANCEL );
-    if ( okbut )
-	okbut->setSensitive( false );
-
-    if ( cancelbut )
-	cancelbut->setSensitive( false );
-
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    setButSensitive( false );
+
+    bool res = false;
     BufferString report; getReport( report );
     reporter_.getReport() = report;
 
@@ -100,6 +122,7 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 		"\n\nThank you for your contribution to OpendTect!") );
     else
     {
+	filename_ = reporter_.filePath();
 	SafeFileIO outfile( filename_, false );
 	if ( outfile.open( false ) )
 	{
@@ -110,14 +133,21 @@ bool uiIssueReporterDlg::acceptOK(CallBacker *)
 	    else
 		outfile.closeFail();
 	}
-		
+
+	cursorchanger.restore();
 	uiString msg = tr("The report could not be sent automatically.\n"
 			  "You can still send it manually by e-mail.\n"
 			  "Please send the file:\n\n%1"
 			  "\n\nto support@opendtect.org.")
 		     .arg(filename_);
-	uiMSG().error( msg );
+
+	msg.append( tr("\n\nWould you like to retry sending the report using "
+	            "different proxy settings?") );
+	res = uiMSG().askGoOn( msg );
+	if ( res )
+	    proxySetCB( 0 );
     }
 
-    return true;
+    setButSensitive( true );
+    return !res;
 }

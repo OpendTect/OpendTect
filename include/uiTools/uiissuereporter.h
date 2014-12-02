@@ -35,8 +35,10 @@ public:
 protected:
     
     void			viewReportCB(CallBacker*);
+    void			proxySetCB(CallBacker*);
     
     bool			acceptOK(CallBacker*);
+    void			setButSensitive(bool);
     void			getReport(BufferString&) const;
     
     uiTextEdit*			commentfld_;
