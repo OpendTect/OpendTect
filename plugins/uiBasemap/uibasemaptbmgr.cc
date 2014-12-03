@@ -123,7 +123,7 @@ uiBarSettingsDialog( uiParent* p, uiMapScaleObject& ms )
     scalelen_ = msobj_.getScaleLen();
 
     const double mv = SI().maxCoord(false).x - SI().minCoord(false).x;
-    maxscalelen_ = 100 * mCast(int, mv/100);
+    maxscalelen_ = mCast(float,100 * mCast(int,mv/100));
 
     const BufferString lbl( "Scale Size ", SI().getXYUnitString() );
     scalelenfld_ = new uiGenInput( this, lbl, FloatInpSpec(scalelen_) );
