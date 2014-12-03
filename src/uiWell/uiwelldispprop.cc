@@ -656,7 +656,6 @@ void uiWellLogDispProperties::setSeismicSel()
     colfld_->display( true );
     szfld_->display( true );
     logwidthslider_->display( !only2ddisplay );
-    repeatfld_->setValue(1);
     isFilledSel(0);
 }
 
