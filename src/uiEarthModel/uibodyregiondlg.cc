@@ -664,8 +664,7 @@ uiBodyRegionDlg::uiBodyRegionDlg( uiParent* p )
     removebutton_->attach( alignedBelow, addfltbutton_ );
     removebutton_->setSensitive( false );
 
-    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output name" );
-    outputfld_->setForRead( false );
+    outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
     outputfld_->attach( alignedBelow, table_ );
 }
 

@@ -199,9 +199,8 @@ void uiSeisWaveletSel::rebuildList()
 	seltxt : ( forread ? "Input Wavelet" : "Output Wavelet" )
 
 uiWaveletSel::uiWaveletSel( uiParent* p, bool forread, const char* seltxt )
-    : uiIOObjSel(p,mIOObjContext(Wavelet),mSelTxt)
+    : uiIOObjSel(p,mRWIOObjContext(Wavelet,forread),mSelTxt)
 {
-    setForRead( forread );
     fillEntries();
 }
 
