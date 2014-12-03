@@ -527,10 +527,10 @@ macro ( INCLUDE_RELMAN_DATA )
 	    message( "Failed to include defs and odinst_images directories in basedata package" )
 	endif()
 
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${RELMANDIR}/defs ${DESTINATION_DIR}/relinfo/defs)
-
-	execute_process( COMMAND ${CMAKE_COMMAND} -E copy_directory
-			 ${RELMANDIR}/odinst_images ${DESTINATION_DIR}/relinfo/odinst_images)
+	file( GLOB FILES ${RELMANDIR}/odinst_images/*.png )
+	foreach( PNGFILE ${FILES} )
+	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${PNGFILE}
+			     ${DESTINATION_DIR}/data/icons.Default )
+	endforeach()
     endif()
 endmacro()
