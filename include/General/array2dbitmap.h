@@ -129,10 +129,7 @@ public:
     			{ (dim ? dim1rg_ : dim0rg_) = r; }	//!< 'zooming'
     inline const Interval<float>& dimRange( int dim ) const
     			{ return dim ? dim1rg_ : dim0rg_; }
-    inline float	avgDist( int dim ) const
-    			{ return dim ? dim1avgdist_ : dim0avgdist_; }
-    inline float	dimEps( int dim ) const
-			{ return 1e-6f * avgDist(dim); }
+    inline float	dim0MedianDist() const	{ return dim0mediandist_; }
 
     void		setBitMapSizes(int,int) const;
     inline int		nrXPix() const		{ return nrxpix_; }
@@ -161,8 +158,7 @@ protected:
 
     Interval<float>	dim0rg_;
     Interval<float>	dim1rg_;
-    float		dim0avgdist_;
-    float		dim1avgdist_;
+    float		dim0mediandist_;
 
     // Vars for current bitmap
     int			nrxpix_;

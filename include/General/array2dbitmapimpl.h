@@ -60,7 +60,7 @@ public:
     WVAA2DBitMapGenPars&	wvapars()		{ return gtPars(); }
     const WVAA2DBitMapGenPars&	wvapars() const		{ return gtPars(); }
 
-    int				dim0SubSampling() const;
+    int				dim0SubSampling(int nrdisptrcs) const;
 
 protected:
 
@@ -73,8 +73,9 @@ protected:
 					const WVAA2DBitMapGenerator&);
 				//!< Not implemented to prevent usage
 				//!< Copy the pars instead
-    void			doFill();
+    Interval<int>		getDispTrcIdxs() const;
 
+    void			doFill();
     void			drawTrace(int);
     void			drawVal(int,int,float,float,float,float);
 };
@@ -104,7 +105,8 @@ mStruct(General) VDA2DBitMapGenPars : public A2DBitMapGenPars
 \brief Variable density drawing on A2DBitMap.
 */
 
-mExpClass(General) VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
+mExpClass(General) VDA2DBitMapGenerator :
+			public A2DBitMapGenerator, ParallelTask
 {
 public:
 

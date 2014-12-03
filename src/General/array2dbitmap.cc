@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 #include "interpol2d.h"
 #include "statrand.h"
+#include "statruncalc.h"
 #include "envvars.h"
 #include <math.h>
 #include <iostream>
@@ -73,6 +74,7 @@ A2DBitMapPosSetup::A2DBitMapPosSetup( const Array2DInfo& i, float* p )
 	, dim0rg_(0,0)
 	, dim1rg_(0,0)
 	, dim0pos_(0)
+	, dim0mediandist_(1.0f)
 {
     setDim0Positions( p );
     setDim1Positions( 0.f, (float)szdim1_-1 );
@@ -103,18 +105,24 @@ void A2DBitMapPosSetup::setDim0Positions( float* p )
     for ( int idx=1; idx<szdim0_; idx++ )
 	posbounds.include( dim0pos_[idx] );
 
-    dim0avgdist_ = 1;
     if ( dim0pos_[0] != dim0pos_[szdim0_-1] )
     {
-	float totdist = 0;
+	TypeSet<float> dists;
 	for ( int idx=1; idx<szdim0_; idx++ )
-	    totdist += fabs(dim0pos_[idx] - dim0pos_[idx-1]);
-	dim0avgdist_ = totdist / (szdim0_ - 1);
+	    dists += fabs(dim0pos_[idx] - dim0pos_[idx-1]);
+
+	if ( !dists.isEmpty() )
+	{
+	    Stats::RunCalc<float> runcalc(
+		    Stats::CalcSetup().require(Stats::Median) );
+	    runcalc.addValues( dists.size(), dists.arr() );
+	    dim0mediandist_ = runcalc.median();
+	}
     }
 
     posbounds.sort();
-    dim0rg_.start = posbounds.start - dim0avgdist_ * 0.5f;
-    dim0rg_.stop = posbounds.stop + dim0avgdist_ * 0.5f;
+    dim0rg_.start = posbounds.start - dim0mediandist_ * 0.5f;
+    dim0rg_.stop = posbounds.stop + dim0mediandist_ * 0.5f;
 }
 
 
@@ -122,9 +130,9 @@ void A2DBitMapPosSetup::setDim1Positions( float start, float stop )
 {
     dim1pos_.start = start; dim1pos_.stop = stop;
     dim1pos_.sort();
-    dim1avgdist_ = szdim1_ > 1 ? dim1pos_.width() / (szdim1_ - 1) : 1;
-    dim1rg_.start = dim1pos_.start - dim1avgdist_ * 0.5f;
-    dim1rg_.stop = dim1pos_.stop + dim1avgdist_ * 0.5f;
+    const float dim1avgdist = szdim1_>1 ? dim1pos_.width() / (szdim1_ - 1) : 1;
+    dim1rg_.start = dim1pos_.start - dim1avgdist * 0.5f;
+    dim1rg_.stop = dim1pos_.stop + dim1avgdist * 0.5f;
 }
 
 
@@ -260,9 +268,22 @@ WVAA2DBitMapGenerator::WVAA2DBitMapGenerator( const A2DBitMapInpData& d,
 }
 
 
-int WVAA2DBitMapGenerator::dim0SubSampling() const
+Interval<int> WVAA2DBitMapGenerator::getDispTrcIdxs() const
 {
-    const float nrpixperdim0 = setup_.availableXPix() / ((float)szdim0_);
+    Interval<float> dim0rg = setup_.dimRange( 0 );
+    dim0rg.widen( mNINT32(1 + wvapars().overlap_) * setup_.dim0MedianDist() );
+
+    Interval<int> disptrcs( mUdf(int), -mUdf(int) );
+    for ( int idim0=0; idim0<szdim0_; idim0++ )
+	if ( dim0rg.includes(dim0pos_[idim0],true) )
+	    disptrcs.include( idim0, false );
+    return disptrcs;
+}
+
+
+int WVAA2DBitMapGenerator::dim0SubSampling( int nrdisptrcs ) const
+{
+    const float nrpixperdim0 = setup_.availableXPix() / mCast(float,nrdisptrcs);
     float fret = gtPars().minpixperdim0_ / nrpixperdim0;
     const int ret = mNINT32( fret );
     return ret < 2 ? 1 : ret;
@@ -271,13 +292,16 @@ int WVAA2DBitMapGenerator::dim0SubSampling() const
 
 void WVAA2DBitMapGenerator::doFill()
 {
-    const int dispeach = dim0SubSampling();
-    stripwidth_ = (1 + wvapars().overlap_) * dispeach * setup_.avgDist(0);
+    const Interval<int> trcidxs = getDispTrcIdxs();
+    const int dispeach = dim0SubSampling( trcidxs.width()+1 );
+    stripwidth_ = (1 + wvapars().overlap_) * dispeach * setup_.dim0MedianDist();
 
-    for ( int idim0=0; idim0<szdim0_; idim0+=dispeach )
+    for ( int idx=0; idx<=trcidxs.width(); idx++ )
     {
-	if ( setup_.isInside(0,dim0pos_[idim0]) )
-	    drawTrace( idim0 );
+	const int idim0 = trcidxs.atIndex( idx, dispeach );
+	if ( idim0 > trcidxs.stop )
+	    break;
+	drawTrace( idim0 );
     }
 }
 
@@ -411,16 +435,16 @@ VDA2DBitMapGenerator::VDA2DBitMapGenerator( const A2DBitMapInpData& d,
 
 void VDA2DBitMapGenerator::doFill()
 {
-    const float avgdim0dist = setup_.avgDist( 0 );
-    strippixs_ = avgdim0dist * setup_.getPixPerDim(0);
+    const float mediandim0dist = setup_.dim0MedianDist();
+    strippixs_ = mediandim0dist * setup_.getPixPerDim(0);
 
     stripstodraw_.erase();
 
     for ( int idim0=0; idim0<szdim0_; idim0++ )
     {
 	float pos2chk = dim0pos_[idim0];
-	if ( pos2chk < dim0rg_.start ) pos2chk += avgdim0dist*.5f;
-	if ( pos2chk > dim0rg_.stop ) pos2chk -= avgdim0dist*.5f;
+	if ( pos2chk < dim0rg_.start ) pos2chk += mediandim0dist*.5f;
+	if ( pos2chk > dim0rg_.stop ) pos2chk -= mediandim0dist*.5f;
 
 	if ( setup_.isInside(0,pos2chk) )
 	    stripstodraw_ += idim0;
