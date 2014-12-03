@@ -305,10 +305,10 @@ void uiIOObjSel::fillEntries()
 }
 
 
-void uiIOObjSel::setForRead( bool yn )
+IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
 {
-    inctio_.ctxt.forread = workctio_.ctxt.forread = yn;
-    fillDefault();
+    ctxt.forread = false;
+    return ctxt;
 }
 
 
