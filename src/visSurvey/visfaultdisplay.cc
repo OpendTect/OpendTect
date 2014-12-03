@@ -155,8 +155,11 @@ FaultDisplay::~FaultDisplay()
     delete explicitsticks_;
     delete explicitintersections_;
 
-    emfault_->unRef();
-    emfault_ = 0;
+    if ( emfault_ )
+    {
+	emfault_->unRef();
+	emfault_ = 0;
+    }
 
     if ( displaytransform_ ) displaytransform_->unRef();
 
@@ -266,7 +269,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
-	   visBase::GeomIndexedShape::PolyLine3D,Geometry::PrimitiveSet::Lines);
+		visBase::GeomIndexedShape::PolyLine3D,
+		Geometry::PrimitiveSet::Lines );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
     }
@@ -279,7 +283,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	if ( !stickdisplay_->getMaterial() )
 	    stickdisplay_->setMaterial( new visBase::Material );
 	stickdisplay_->setSelectable( false );
-	stickdisplay_->setGeometryShapeType( 
+	stickdisplay_->setGeometryShapeType(
 	    visBase::GeomIndexedShape::PolyLine3D,
 	    Geometry::PrimitiveSet::LineStrips );
 	addChild( stickdisplay_->osgNode() );
@@ -399,13 +403,13 @@ void FaultDisplay::updateSingleColor()
     else if ( !usesinglecolor )			// To update color column in
 	getMaterial()->change.trigger();	// tree if texture is shown
 
-    for( int idx = 0; idx<horintersections_.size(); idx++ )
+    for ( int idx = 0; idx<horintersections_.size(); idx++ )
 	horintersections_[idx]->getMaterial()->setColor( nontexturecol_ );
 
-    if( intersectiondisplay_ && intersectiondisplay_->getMaterial() )
-	intersectiondisplay_->updateMaterialFrom( getMaterial());
+    if ( intersectiondisplay_ && intersectiondisplay_->getMaterial() )
+	intersectiondisplay_->updateMaterialFrom( getMaterial() );
 
-    if( stickdisplay_ && stickdisplay_->getMaterial() )
+    if ( stickdisplay_ && stickdisplay_->getMaterial() )
 	stickdisplay_->updateMaterialFrom( getMaterial() );
 }
 
@@ -534,7 +538,7 @@ void FaultDisplay::updateStickDisplay()
 	setLineRadius( stickdisplay_ );
 
 	bool dodisplay = areSticksDisplayed();
-	if ( arePanelsDisplayedInFull() && emfault_->nrSections() )
+	if ( arePanelsDisplayedInFull() && emfault_ && emfault_->nrSections() )
 	{
 	    const EM::SectionID sid = emfault_->sectionID( 0 );
 	    if ( emfault_->geometry().nrSticks(sid) == 1 )
@@ -1265,7 +1269,10 @@ void FaultDisplay::showSelectedSurfaceData()
 
 
 const BufferStringSet* FaultDisplay::selectedSurfaceDataNames() const
-{ return emfault_->auxData() ? &emfault_->auxData()->selectedNames() : 0; }
+{
+    return emfault_ && emfault_->auxData()
+	? &emfault_->auxData()->selectedNames() : 0;
+}
 
 
 const Array2D<float>* FaultDisplay::getTextureData( int attrib )
@@ -1425,7 +1432,6 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	line->setGeometryShapeType( visBase::GeomIndexedShape::PolyLine3D,
 	    Geometry::PrimitiveSet::LineStrips );
 	line->setDisplayTransformation( displaytransform_ );
-
 	addChild( line->osgNode() );
 	line->turnOn( false );
 	Geometry::ExplFaultStickSurface* shape = 0;
@@ -1632,7 +1638,6 @@ void FaultDisplay::updateEditorMarkers()
     for ( int idx = 0; idx < knotersets.size(); idx++ )\
 	knotersets[ idx ]->forceRedraw( true );\
 
-
 void FaultDisplay::updateKnotMarkers()
 {
     if ( !emfault_ || (viseditor_ && viseditor_->sower().moreToSow()) )
@@ -1690,7 +1695,7 @@ void FaultDisplay::updateKnotMarkers()
 	groupidx = fs->isStickSelected( sticknr ) ? 1 : 0;
 	const MarkerStyle3D& style = emfault_->getPosAttrMarkerStyle(0);
 	knotmarkersets_[groupidx]->setMarkerStyle( style );
-	knotmarkersets_[groupidx]->addPos( emfault_->getPos( pid ),false );
+	knotmarkersets_[groupidx]->addPos( emfault_->getPos( pid ), false );
     }
     mForceDrawMarkerSet( knotmarkersets_ );
 }
