@@ -152,9 +152,12 @@ FaultDisplay::~FaultDisplay()
     delete explicitsticks_;
     delete explicitintersections_;
 
-    emfault_->unRef();
-    emfault_ = 0;
- 
+    if ( emfault_ )
+    {
+	emfault_->unRef();
+	emfault_ = 0;
+    }
+
     if ( displaytransform_ ) displaytransform_->unRef();
 
     activestickmarker_->unRef();
@@ -263,7 +266,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setGeometryShapeType(
-	 visBase::GeomIndexedShape::PolyLine3D,Geometry::PrimitiveSet::Lines );
+		visBase::GeomIndexedShape::PolyLine3D,
+		Geometry::PrimitiveSet::Lines );
 	addChild( intersectiondisplay_->osgNode() );
 	intersectiondisplay_->turnOn( false );
     }
@@ -399,13 +403,11 @@ void FaultDisplay::updateSingleColor()
     for ( int idx = 0; idx<horintersections_.size(); idx++ )
 	horintersections_[idx]->getMaterial()->setColor( nontexturecol_ );
 
-    if ( intersectiondisplay_  && intersectiondisplay_->getMaterial() )
+    if ( intersectiondisplay_ && intersectiondisplay_->getMaterial() )
 	intersectiondisplay_->updateMaterialFrom( getMaterial() );
 
     if ( stickdisplay_ && stickdisplay_->getMaterial() )
 	stickdisplay_->updateMaterialFrom( getMaterial() );
-
-
 }
 
 
@@ -535,7 +537,7 @@ void FaultDisplay::updateStickDisplay()
 	setLineRadius( stickdisplay_ );
 
 	bool dodisplay = areSticksDisplayed();
-	if ( arePanelsDisplayedInFull() && emfault_->nrSections() )
+	if ( arePanelsDisplayedInFull() && emfault_ && emfault_->nrSections() )
 	{
 	    const EM::SectionID sid = emfault_->sectionID( 0 );
 	    if ( emfault_->geometry().nrSticks(sid) == 1 )
@@ -1226,7 +1228,10 @@ void FaultDisplay::showSelectedSurfaceData()
 
 
 const BufferStringSet* FaultDisplay::selectedSurfaceDataNames() const
-{ return emfault_->auxData() ? &emfault_->auxData()->selectedNames() : 0; }
+{
+    return emfault_ && emfault_->auxData()
+	? &emfault_->auxData()->selectedNames() : 0;
+}
 
 
 const Array2D<float>* FaultDisplay::getTextureData( int attrib )
@@ -1391,14 +1396,14 @@ void FaultDisplay::updateHorizonIntersections( int whichobj,
 	Geometry::ExplFaultStickSurface* shape = 0;
 	mTryAlloc( shape, Geometry::ExplFaultStickSurface(0,mZScale()) );
 	line->setSurface( shape );
-	shape->display( false,false );
+	shape->display( false, false );
 	shape->setSurface( fss );
 	const float zshift = (float) activehordisps[idx]->getTranslation().z;
 	Geometry::FaultBinIDSurfaceIntersector it( zshift, *surf,
 		*explicitpanels_, *shape->coordList() );
 	it.setShape( *shape );
 	it.compute();
-	
+
 	line->touch( true, false );
 	horintersections_ += line;
 	horshapes_ += shape;
@@ -1586,6 +1591,7 @@ void FaultDisplay::updateEditorMarkers()
 	viseditor_->turnOnMarker( pid, !fs->isStickHidden(sticknr) );
     }
 }
+
 
 #define mForceDrawMarkerSet( knotersets )\
     for ( int idx = 0; idx < knotersets.size(); idx++ )\
@@ -1914,4 +1920,5 @@ void FaultDisplay::enableAttrib( int attrib, bool yn )
 }
 
 
-}; // namespace visSurvey
+} // namespace visSurvey
+
