@@ -452,8 +452,6 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 		mCB(this,uiWellLogDispProperties,updateFillRange) );
     logfilltypefld_->box()->selectionChanged.notify(
 		mCB(this,uiWellLogDispProperties,isFilledSel));
-    repeatfld_->valueChanging.notify(
-		mCB(this,uiWellLogDispProperties,isRepeatSel) );
     singlfillcolfld_->activated.notify(
 		mCB(this,uiWellLogDispProperties,isFilledSel) );
 
@@ -610,14 +608,6 @@ void uiWellLogDispProperties::disableLogDisplays()
 }
 
 
-void uiWellLogDispProperties::isRepeatSel( CallBacker* )
-{
-    const bool iswelllog = stylefld_->isChecked( 0 );
-    if ( iswelllog )
-	repeatfld_-> setValue( 1 );
-}
-
-
 void uiWellLogDispProperties::setSeismicSel()
 {
     setStyleSensitive( true );
@@ -626,7 +616,6 @@ void uiWellLogDispProperties::setSeismicSel()
     colfld_->display( true );
     szfld_->display( true );
     logwidthslider_->display( !setup_.onlyfor2ddisplay_ );
-    repeatfld_->setValue(1);
     isFilledSel(0);
 }
 

@@ -164,7 +164,6 @@ protected:
     void		doPutToScreen();
     void		doGetFromScreen();
     void                isFilledSel(CallBacker*);
-    void		isRepeatSel(CallBacker*);
     void		setSeismicSel();
     void		setTubeSel();
     void		setWellLogSel();
