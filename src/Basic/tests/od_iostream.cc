@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "ptrman.h"
 #include "strmprov.h"
+#include "thread.h"
 
 static const BufferString tmpfnm( FilePath::getTempName("txt") );
 
@@ -60,7 +61,7 @@ bool testPipeInput()
     FixedString message = "OpendTect rules";
     const BufferString command( "@echo ", message );
     StreamData streamdata = StreamProvider( command ).makeIStream();
-    mRunStandardTest( streamdata.istrm,  "Creation of standard stream");
+    mRunStandardTest( streamdata.istrm,  "Creation of standard input stream");
     PtrMan<od_istream> istream = new od_istream(streamdata.istrm);
 
     BufferString streaminput;
@@ -68,6 +69,52 @@ bool testPipeInput()
     mRunStandardTest( streaminput==message, "Pipe content check" );
 
     return true;
+}
+
+
+bool testPipeOutput()
+{
+    FixedString message = "OpendTect rules";
+
+    BufferString command = "@";
+#ifdef __win__
+    command.add( "echo" );
+#else
+    command.add( "cat" );
+#endif
+
+    command.add( " > " ).add( tmpfnm );
+    StreamProvider prov( command );
+    StreamData ostreamdata = prov.makeOStream();
+    mRunStandardTest( ostreamdata.ostrm,  "Creation of standard output stream");
+    PtrMan<od_ostream> ostream = new od_ostream(ostreamdata.ostrm);
+
+    *ostream << message;
+    ostream->close();
+
+    ostream = 0; //Deletes everything
+    Threads::sleep( 1 );
+
+    od_istream istream( tmpfnm );
+    mRunStandardTest( istream.isOK(), "Opening temporary file");
+    BufferString streaminput;
+
+    istream.getAll( streaminput );
+    istream.close();
+    File::remove( tmpfnm );
+
+    mRunStandardTest( streaminput==message, "Pipe content check" );
+
+    return true;
+}
+
+
+int doExit( int retval )
+{
+    if ( File::exists( tmpfnm ) )
+	File::remove( tmpfnm );
+
+    return ExitProgram( retval );
 }
 
 
@@ -83,7 +130,7 @@ int main( int argc, char** argv )
     isok = tstfn(); \
     File::remove( tmpfnm ); \
     if ( !isok ) \
-	ExitProgram( 1 )
+	doExit( 1 )
 
     mDoTest(strm1,"123 44.5",testIfNumberIsNormal);
     mDoTest(strm2,"\t\n123\t\t44.5\n\n",testIfNumberIsNormal);
@@ -94,7 +141,16 @@ int main( int argc, char** argv )
     mDoTest(strm7,"\n123\n \n",testOnlyIntRead);
 
     if ( !testPipeInput() )
-	ExitProgram( 1 );
+	doExit( 1 );
 
-    return ExitProgram( 0 );
+    if ( !testPipeOutput() )
+    {
+	if ( File::exists( tmpfnm ) )
+	    File::remove( tmpfnm );
+
+	doExit( 1 );
+    }
+
+
+    return doExit( 0 );
 }
