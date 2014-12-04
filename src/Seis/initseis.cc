@@ -34,6 +34,13 @@ defineTranslator(SeisPSCube,SeisTrc,"PS Cube");
 mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisTrc,Seis)
 
+#define sKeySeisTrc2DTranslatorGroup "2D Seismic Data"
+defineTranslatorGroup(SeisTrc2D,sKeySeisTrc2DTranslatorGroup);
+defineTranslator(CBVS,SeisTrc2D,"CBVS");
+
+mDefSimpleTranslatorSelector(SeisTrc2D,sKeySeisTrc2DTranslatorGroup)
+mDefSimpleTranslatorioContext(SeisTrc2D,Seis)
+
 mDefModInitFn(Seis)
 {
     mIfNotFirstTime( return );
@@ -41,6 +48,7 @@ mDefModInitFn(Seis)
     SeisPacketInfo::initClass();
 
     SeisTrcTranslatorGroup::initClass();
+    SeisTrc2DTranslatorGroup::initClass();
     SeisPS3DTranslatorGroup::initClass();
     SeisPS2DTranslatorGroup::initClass();
     WaveletTranslatorGroup::initClass();
@@ -51,6 +59,7 @@ mDefModInitFn(Seis)
     CBVSSeisTrcTranslator::initClass();
     TwoDSeisTrcTranslator::initClass();
     TwoDDataSeisTrcTranslator::initClass();
+    CBVSSeisTrc2DTranslator::initClass();
     SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
     SEGYDirectSeisPS3DTranslator::initClass();

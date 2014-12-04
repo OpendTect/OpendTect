@@ -29,6 +29,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "sorting.h"
 
+
+const char*
+SeisTrc2DTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
+{ return IOPar::compKey( sKey::Default(), sKeyDefault() ); }
+
+
 class Seis2DLineIOProviderSet : public ObjectSet<Seis2DLineIOProvider>
 {
 public:
@@ -109,7 +115,8 @@ bool TwoDSeisTrcTranslator::initRead_()
     errmsg_ = lset.getTrcKeyZSampling( cs, curlinekey_ );
 
     insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
-    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) / cs.zsamp_.step + 1.5);
+    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
+			  cs.zsamp_.step + 1.5);
     pinfo_.inlrg.start = cs.hrg.start.inl();
     pinfo_.inlrg.stop = cs.hrg.stop.inl();
     pinfo_.inlrg.step = cs.hrg.step.inl();
@@ -120,7 +127,7 @@ bool TwoDSeisTrcTranslator::initRead_()
 }
 
 
-bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -138,7 +145,7 @@ bool TwoDDataSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
+bool CBVSSeisTrc2DTranslator::implRename( const IOObj* ioobj,
 				    const char* newnm,const CallBack* cb ) const
 {
     if ( !ioobj )
@@ -159,7 +166,7 @@ bool TwoDDataSeisTrcTranslator::implRename( const IOObj* ioobj,
 }
 
 
-bool TwoDDataSeisTrcTranslator::initRead_()
+bool CBVSSeisTrc2DTranslator::initRead_()
 {
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
@@ -182,7 +189,8 @@ bool TwoDDataSeisTrcTranslator::initRead_()
     TrcKeyZSampling cs( true );
 
     insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
-    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) / cs.zsamp_.step + 1.5);
+    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
+			  cs.zsamp_.step + 1.5);
     pinfo_.inlrg.start = cs.hrg.start.inl();
     pinfo_.inlrg.stop = cs.hrg.stop.inl();
     pinfo_.inlrg.step = cs.hrg.step.inl();

@@ -15,7 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seis2ddata.h"
-#include "seis2dline.h"
+#include "seis2dlineio.h"
 #include "seispsioprov.h"
 #include "seisselectionimpl.h"
 #include "seisbuf.h"
@@ -52,9 +52,9 @@ SeisStoreAccess::SeisStoreAccess( const char* fnm, bool isps, bool is_2d )
 	, psioprov_(0)
 {
     IOStream iostrm( "_tmp_SeisStoreAccess", toString(IOObj::tmpID()) );
-    iostrm.setGroup( !isps ? mTranslGroupName(SeisTrc)
-		   : (is2d_ ? mTranslGroupName(SeisPS2D)
-		   :	     mTranslGroupName(SeisPS3D)) );
+    iostrm.setGroup( !isps ?
+	   ( is2d_ ? mTranslGroupName(SeisTrc2D) : mTranslGroupName(SeisTrc) )
+	 : ( is2d_ ? mTranslGroupName(SeisPS2D) : mTranslGroupName(SeisPS3D)) );
     iostrm.setTranslator( CBVSSeisTrcTranslator::translKey() );
     iostrm.setFileName( fnm && *fnm ? fnm : StreamProvider::sStdIO() );
     setIOObj( &iostrm );

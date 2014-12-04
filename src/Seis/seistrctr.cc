@@ -94,8 +94,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
-    const bool trok = *ioobj.group() == 'T' || *ioobj.translator() == 'T' ||
-	(isPS(ioobj) && *ioobj.group()=='2');
+    const bool trok = *ioobj.group() == '2';
     return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D() );
 }
 
@@ -108,7 +107,7 @@ bool SeisTrcTranslator::isPS( const IOObj& ioobj )
 
 bool SeisTrcTranslator::isLineSet( const IOObj& ioobj )
 {
-    return *ioobj.group() == '2' || *ioobj.translator() == '2';
+    return *ioobj.translator() == '2';
 }
 
 

@@ -520,7 +520,8 @@ StepInterval<float> Seis::Bounds3D::getZRange() const
 void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
 {
     mn = SI().transform( BinID(tkzs_.hrg.start.inl(),tkzs_.hrg.start.crl()) );
-    Coord c = SI().transform( BinID(tkzs_.hrg.stop.inl(),tkzs_.hrg.start.crl()) );
+    Coord c = SI().transform( BinID(tkzs_.hrg.stop.inl(),
+				    tkzs_.hrg.start.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
     c = SI().transform( BinID(tkzs_.hrg.stop.inl(),tkzs_.hrg.stop.crl()) );
     if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
@@ -540,20 +541,14 @@ Seis::Bounds2D::Bounds2D()
 
 IOObjContext* Seis::getIOObjContext( Seis::GeomType gt, bool forread )
 {
-    IOObjContext* ret = new IOObjContext( Seis::isPS(gt) ? (Seis::is2D(gt)
-		     ? mIOObjContext(SeisPS2D) : mIOObjContext(SeisPS3D) )
-		     : mIOObjContext(SeisTrc) );
+    IOObjContext* ret = new IOObjContext( Seis::isPS(gt) ?
+	 (Seis::is2D(gt) ? mIOObjContext(SeisPS2D) : mIOObjContext(SeisPS3D))
+       : (Seis::is2D(gt) ? mIOObjContext(SeisTrc2D) : mIOObjContext(SeisTrc)) );
     ret->forread = forread;
     if ( gt == Seis::Line )
-    {
-	ret->fixTranslator( TwoDDataSeisTrcTranslator::translKey() );
-	ret->toselect.allownonuserselectable_ = true;
-    }
+	ret->deftransl = CBVSSeisTrc2DTranslator::translKey();
     else if ( gt == Seis::Vol )
-    {
 	ret->deftransl = CBVSSeisTrcTranslator::translKey();
-	ret->toselect.allowtransls_ = "[^T][^w][^o]*";
-    }
     else if ( gt == Seis::VolPS )
 	ret->deftransl = CBVSSeisPS3DTranslator::translKey();
     else

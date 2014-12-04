@@ -68,7 +68,7 @@ static void adaptCtxt4Steering( const IOObjContext& ct,
     {
 	ctxt.toselect.require_.set( sKey::Type(), sKey::Steering() );
 	ctxt.fixTranslator(
-		Seis::is2D(su.geom_) ? TwoDDataSeisTrcTranslator::translKey()
+		Seis::is2D(su.geom_) ? CBVSSeisTrc2DTranslator::translKey()
 				     : CBVSSeisTrcTranslator::translKey() );
     }
 }
@@ -337,7 +337,7 @@ IOObj* uiSeisSel::createEntry( const char* nm )
     if ( !iostrm )
 	return newctio.ioobj;
 
-    iostrm->setTranslator( TwoDDataSeisTrcTranslator::translKey() );
+    iostrm->setTranslator( CBVSSeisTrc2DTranslator::translKey() );
     return iostrm;
 }
 

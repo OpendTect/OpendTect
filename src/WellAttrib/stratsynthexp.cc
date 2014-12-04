@@ -98,8 +98,8 @@ bool StratSynthExporter::prepareWriter()
     }
     else
     {
-	ctxt = mMkCtxtIOObj( SeisTrc );
-	ctxt->ctxt.deftransl = TwoDDataSeisTrcTranslator::translKey();
+	ctxt = mMkCtxtIOObj( SeisTrc2D );
+	ctxt->ctxt.deftransl = CBVSSeisTrc2DTranslator::translKey();
     }
 
     ctxt->setName( synthnm.buf() );

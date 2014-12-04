@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seis2ddata.h"
+#include "seis2dlineio.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seispreload.h"
@@ -204,7 +205,7 @@ void uiSeisPartServer::manageWavelets()
 
 bool uiSeisPartServer::select2DSeis( MultiID& mid )
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc2D);
     uiSeisSel::Setup setup(Seis::Line);
     uiSeisSelDlg dlg( parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;

@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uigmt2dlines.h"
 
-#include "ctxtioobj.h"
 #include "draw.h"
 #include "gmtpar.h"
 #include "ioman.h"
@@ -43,7 +42,6 @@ uiGMTOverlayGrp* uiGMT2DLinesGrp::createInstance( uiParent* p )
 
 uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"2D Lines")
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
 {
     namefld_ = new uiGenInput( this, uiStrings::sName(), StringInpSpec() );
     lineselfld_ = new uiSeis2DLineSel( this, true );
@@ -78,7 +76,6 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 
 uiGMT2DLinesGrp::~uiGMT2DLinesGrp()
 {
-    delete &ctio_;
 }
 
 

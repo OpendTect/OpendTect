@@ -99,7 +99,8 @@ void SeisIOObjInfo::setType()
 	isps = true;
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
 
-    if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) )
+    if ( !isps && ioobj_->group()!=mTranslGroupName(SeisTrc) &&
+	    ioobj_->group()!=mTranslGroupName(SeisTrc2D) )
 	{ bad_ = true; return; }
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
@@ -542,7 +543,7 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 	}
 	else
 	{
-	    if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T') )
+	    if ( !(*ioobj.group() == '2') )
 		continue;
 
 	    Seis2DDataSet dset( ioobj );
@@ -564,8 +565,8 @@ void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T')
-	  || SeisTrcTranslator::isPS(ioobj) ) continue;
+	if ( *ioobj.group() != '2' || SeisTrcTranslator::isPS(ioobj) )
+	    continue;
 
 	if ( !o2d.zdomky_.isEmpty() )
 	{

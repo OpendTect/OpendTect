@@ -22,6 +22,19 @@ class SeisTrcBuf;
 namespace PosInfo	{ class Line2DData; }
 namespace Seis		{ class SelData; }
 
+
+/*!\brief TranslatorGroup for 2D Seismic Data */
+
+mExpClass(Seis) SeisTrc2DTranslatorGroup : public TranslatorGroup
+{				isTranslatorGroup(SeisTrc2D)
+public:
+			mDefEmptyTranslatorGroupConstructor(SeisTrc2D)
+
+    static const char*	sKeyDefault()	{ return "2D Cube"; }
+    const char*		getSurveyDefaultKey(const IOObj*) const;
+};
+
+
 /*!\brief interface for object that writes 2D seismic data */
 
 mExpClass(Seis) Seis2DLinePutter
@@ -104,12 +117,24 @@ public:
 };
 
 
+/*!\brief Dummy old translator used during conversion only */
 mExpClass(Seis) TwoDDataSeisTrcTranslator : public SeisTrcTranslator
 { mODTextTranslationClass(TwoDDataSeisTrcTranslator);
   isTranslator(TwoDData,SeisTrc)
 public:
 			TwoDDataSeisTrcTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)      {}
+
+};
+
+
+/*!\brief CBVS translator for 2D Seismics */
+mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrcTranslator
+{ mODTextTranslationClass(CBVSSeisTrc2DTranslator);
+  isTranslator(CBVS,SeisTrc2D)
+public:
+			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
+			: SeisTrcTranslator(s1,s2)	{}
 
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }

@@ -14,7 +14,6 @@ ________________________________________________________________________
 
 #include "uigmtoverlay.h"
 
-class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
 class uiSeis2DLineSel;
@@ -39,8 +38,6 @@ protected:
 
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
-
-    CtxtIOObj&		ctio_;
 
     uiSeis2DLineSel*	lineselfld_;
     uiGenInput*		namefld_;
