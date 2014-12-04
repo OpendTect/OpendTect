@@ -198,7 +198,7 @@ const Interval<float>* VolStatsBase::reqZMargin( int inp, int ) const
 
 const Interval<float>* VolStatsBase::desZMargin( int inp, int ) const
 {     
-    if ( inp || (!desgate_.start && !desgate_.stop)  ) return 0;
+    if ( !desgate_.start && !desgate_.stop) return 0;
     
     return &desgate_;
 }
