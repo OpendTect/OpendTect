@@ -14,11 +14,15 @@ ________________________________________________________________________
 
 #include "uitoolsmod.h"
 #include "uidialog.h"
+#include "uitreeview.h"
 #include "plugins.h"
 #include "bufstringset.h"
 
+class uiButton;
 class uiCheckBox;
+class uiTreeView;
 struct PluginProduct;
+
 
 mExpClass(uiTools) uiPluginSel : public uiDialog
 {mODTextTranslationClass(uiPluginSel);
@@ -33,18 +37,18 @@ public:
 
 protected:
 
-    void			makeGlobalProductList();
+    void			readPackageList();
     void			makeProductList(
 					const ObjectSet<PluginManager::Data>&);
     void			createUI();
     int				getProductIndex(const char* prodnm) const;
-    int				getProductIndexForLib(const char* libnm) const;
+    bool			isVendorSelected(const char*) const;
 
     bool			acceptOK(CallBacker*);
 
-    int				maxpluginname_;
-    ObjectSet<uiCheckBox>	cbs_;
     ObjectSet<PluginProduct>	products_;
+    BufferStringSet		vendors_;
+    uiTreeView*			treefld_;
 };
 
 #endif
