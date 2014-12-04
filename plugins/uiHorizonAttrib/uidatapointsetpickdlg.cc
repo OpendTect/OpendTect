@@ -82,6 +82,7 @@ uiDataPointSetPickDlg::~uiDataPointSetPickDlg()
 {
     visBase::DM().selMan().selnotifier.remove(
 			mCB(this,uiDataPointSetPickDlg,objSelCB) );
+    if ( psd_ ) cleanUp();
 }
 
 
@@ -99,11 +100,17 @@ void uiDataPointSetPickDlg::cleanUp()
 
     visBase::DataObject* obj = visBase::DM().getObject( sceneid_ );
     mDynamicCastGet(visSurvey::Scene*,scene,obj)
-    if ( scene )
+    if ( scene && psd_ )
     {
 	const int objidx = scene->getFirstIdx( psd_->id() );
 	scene->removeObject( objidx );
+	psd_->unRef();
+	psd_ = 0;
     }
+
+    picksetmgr_.locationChanged.remove(
+			mCB(this,uiDataPointSetPickDlg,locChgCB) );
+    picksetmgr_.setChanged.remove( mCB(this,uiDataPointSetPickDlg,pickCB) );
 }
 
 
@@ -118,6 +125,7 @@ static MultiID getMultiID( int sceneid )
 void uiDataPointSetPickDlg::initPickSet()
 {
     psd_ = new visSurvey::PickSetDisplay();
+    psd_->ref();
 
     Pick::Set* ps = new Pick::Set( "DPS picks" );
     ps->disp_.color_ = Color( 255, 0, 0 );
@@ -136,6 +144,8 @@ void uiDataPointSetPickDlg::initPickSet()
 
 void uiDataPointSetPickDlg::pickModeCB( CallBacker* )
 {
+    if ( !psd_ ) return;
+
     if ( tb_->isOn(pickbutid_) )
 	visBase::DM().selMan().select( psd_->id() );
     else
@@ -159,9 +169,11 @@ void uiDataPointSetPickDlg::openCB( CallBacker* )
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
-	{ uiMSG().error("Selected data set is empty"); return; }
+    { uiMSG().error("Selected data set is empty"); return; }
 
-    Pick::Set* pickset = psd_->getSet();
+    Pick::Set* pickset = psd_ ? psd_->getSet() : 0;
+    if ( !pickset ) return;
+
     pickset->erase();
     DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
 					     dps_.isMinimal() );
@@ -224,7 +236,7 @@ void uiDataPointSetPickDlg::valChgCB( CallBacker* )
     dps_.setValue( 0, row, val );
     dps_.dataChanged();
 
-    Pick::Set* set = psd_->getSet();
+    Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set ) return;
 
     const DataPointSet::Pos pos( dps_.pos(row) );
@@ -256,7 +268,7 @@ void uiDataPointSetPickDlg::rowClickCB( CallBacker* cb )
 void uiDataPointSetPickDlg::locChgCB( CallBacker* cb )
 {
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb)
-    if ( !cd || cd->set_ != psd_->getSet() )
+    if ( !cd || !psd_ || (cd->set_ != psd_->getSet()) )
 	return;
 
     if ( cd->ev_ == Pick::SetMgr::ChangeData::Added )
@@ -297,7 +309,7 @@ void uiDataPointSetPickDlg::updateButtons()
 void uiDataPointSetPickDlg::updateDPS()
 {
     dps_.clearData();
-    const Pick::Set* set = psd_->getSet();
+    const Pick::Set* set = psd_ ? psd_->getSet() : 0;
     if ( !set )
     {
 	dps_.dataChanged();
