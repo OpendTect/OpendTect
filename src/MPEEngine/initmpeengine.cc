@@ -12,7 +12,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "moddepmgr.h"
 #include "faulteditor.h"
 #include "faultstickseteditor.h"
-#include "faulttracker.h"
 #include "horizoneditor.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
@@ -27,7 +26,7 @@ mDefModInitFn(MPEEngine)
 
     MPESetupTranslatorGroup::initClass();
     dgbMPESetupTranslator::initClass();
-    
+
     MPE::FaultEditor::initClass();
     MPE::FaultStickSetEditor::initClass();
     MPE::HorizonEditor::initClass();

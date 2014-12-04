@@ -11,12 +11,8 @@ SET(OD_MODULE_SOURCES
 		autotracker.cc
 		emeditor.cc
 		emtracker.cc
-		faultadjuster.cc
 		faulteditor.cc
-		faultextender.cc
-		faultseedpicker.cc
 		faultstickseteditor.cc
-		faulttracker.cc
 		horizon2dextender.cc
 		horizon2dselector.cc
 		horizon2dseedpicker.cc
