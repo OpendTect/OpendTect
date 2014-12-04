@@ -24,8 +24,8 @@ namespace visBase
 ArrPtrMan<ColTab::Sequence> RGBATextureChannel2RGBA::sequences_ = 0;
 
 RGBATextureChannel2RGBA::RGBATextureChannel2RGBA()
-    : proc_( 0 )
-    , proctransparency_( 0.0 )
+    : proc_(0)
+    , proctransparency_(0)
 {
     if ( !sequences_ )
     {
@@ -84,7 +84,7 @@ void RGBATextureChannel2RGBA::getChannelName( int channel,
 	    res.setEmpty();
 	    break;
     }
-    
+
     if ( !res.isEmpty() )
 	res += " layer";
 }
