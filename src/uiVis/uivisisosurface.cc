@@ -51,7 +51,6 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
     
     seedselfld_ = new uiIOObjSel( this, *mMkCtxtIOObj(PickSet), "Seeds" );
-    seedselfld_->setForRead( true );
     MultiID mid = vd->getSeedsID( isosurface );
     if ( !mid.isEmpty() )
     	seedselfld_->setInput( mid );

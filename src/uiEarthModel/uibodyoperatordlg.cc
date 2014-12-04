@@ -103,8 +103,7 @@ uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p )
     oprselfld_->box()->selectionChanged.notify(
 	    mCB(this,uiBodyOperatorDlg,oprSel) );
 
-    outputfld_ = new uiIOObjSel( lgrp, mIOObjContext(EMBody), "Output Body" );
-    outputfld_->setForRead( false );
+    outputfld_ = new uiIOObjSel( lgrp, mWriteIOObjContext(EMBody) );
     outputfld_->setHSzPol( uiObject::MedVar );
     outputfld_->attach( leftAlignedBelow, tree_ );
 
@@ -414,12 +413,10 @@ uiImplicitBodyValueSwitchDlg::uiImplicitBodyValueSwitchDlg( uiParent* p,
     setCtrlStyle( RunAndClose );
 
     inputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Input body" );
-    inputfld_->setForRead( true );
     if ( ioobj )
 	inputfld_->setInput( *ioobj );
 
-    outputfld_ = new uiIOObjSel( this, mIOObjContext(EMBody), "Output body" );
-    outputfld_->setForRead( false );
+    outputfld_ = new uiIOObjSel( this, mWriteIOObjContext(EMBody) );
     outputfld_->attach( alignedBelow, inputfld_ );
 }
 

@@ -74,7 +74,6 @@ public:
     virtual void	usePar(const IOPar&);
     void		usePar(const IOPar&,const char* baseky);
 
-    void		setForRead(bool);
     void		setConfirmOverwrite( bool yn )
 					{ setup_.confirmoverwr_ = yn; }
     void		setHelpKey(const HelpKey& helpkey) { helpkey_=helpkey; }
@@ -89,6 +88,11 @@ public:
 
     virtual MultiID	validKey() const; //!< no side-effects
     virtual uiObject*	endObj(bool left);
+
+    static IOObjContext getWriteIOObjCtxt(IOObjContext);
+
+    // DEPRECATED FUNCTION: will go after 5.0
+    void		setForRead(bool);
 
 protected:
 
@@ -147,5 +151,10 @@ default).
 };
 
 
-#endif
+#define mWriteIOObjContext(clss) \
+    uiIOObjSel::getWriteIOObjCtxt(mIOObjContext(clss))
+#define mRWIOObjContext(clss,forread) \
+    (forread ? mIOObjContext(clss) : mWriteIOObjContext(clss))
 
+
+#endif

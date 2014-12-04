@@ -27,6 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uitoolbutton.h"
 #include "od_helpids.h"
+#include "settings.h"
 
 
 mImplFactory(uiIOObjInserter,uiIOObjInserter::factory);
@@ -40,6 +41,33 @@ bool uiIOObjInserter::isPresent( const TranslatorGroup& grp )
 	    return true;
 
     return false;
+}
+
+
+static int getDisabledInserters( BufferStringSet& sel )
+{
+    Settings::common().get( "Ui.Inserters.Enable", sel );
+    if ( sel.isEmpty() || sel.get(0) == sKey::All() )
+	return 1;
+    return sel.get(0) == sKey::None() ? -1 : 0;
+}
+
+
+bool uiIOObjInserter::allDisabled()
+{
+    BufferStringSet dum;
+    return getDisabledInserters(dum) == -1;
+}
+
+
+bool uiIOObjInserter::isDisabled() const
+{
+    BufferStringSet enabled;
+    const int res = getDisabledInserters( enabled );
+    if ( res != 0 )
+	return res < 0;
+
+    return !enabled.isPresent( name() );
 }
 
 
@@ -219,13 +247,17 @@ void uiIOObjSel::init()
 
 void uiIOObjSel::addInserters()
 {
+    if ( uiIOObjInserter::allDisabled() )
+	return;
+
     const ObjectSet<const Translator>& tpls
 			= workctio_.ctxt.trgroup->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
 	uiIOObjInserter* inserter = uiIOObjInserter::create( *tpls[idx] );
-	if ( !inserter )
+	if ( !inserter || inserter->isDisabled() )
 	    continue;
+
 	uiToolButtonSetup* tbsu = inserter->getButtonSetup();
 	if ( !tbsu )
 	    { delete inserter; continue; }
@@ -270,10 +302,18 @@ void uiIOObjSel::fillDefault()
 }
 
 
+// DEPRECATED function (gone after 5.0)
 void uiIOObjSel::setForRead( bool yn )
 {
     inctio_.ctxt.forread = workctio_.ctxt.forread = yn;
     fillDefault();
+}
+
+
+IOObjContext uiIOObjSel::getWriteIOObjCtxt( IOObjContext ctxt )
+{
+    ctxt.forread = false;
+    return ctxt;
 }
 
 

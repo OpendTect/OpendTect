@@ -26,9 +26,11 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mSelTxt seltxt && *seltxt ? seltxt \
 				  : ( forread ? "Input Well" : "Output Well" )
 
+
 uiWellSel::uiWellSel( uiParent* p, bool forread, const char* seltxt )
-    : uiIOObjSel(p,mIOObjContext(Well),mSelTxt)
-{ setForRead( forread ); }
+    : uiIOObjSel(p,mRWIOObjContext(Well,forread),mSelTxt)
+{
+}
 
 
 
