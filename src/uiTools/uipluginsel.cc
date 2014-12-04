@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "ascstream.h"
 #include "file.h"
+#include "filepath.h"
 #include "oddirs.h"
 #include "plugins.h"
 #include "settings.h"
@@ -77,9 +78,9 @@ public:
 
 
 
-uiVendorTreeItem::uiVendorTreeItem( uiTreeView* parent,
+uiVendorTreeItem::uiVendorTreeItem( uiTreeView* p,
 				    const char* vendorname, bool issel )
-    : uiTreeViewItem(parent,Setup(uiString(vendorname)).
+    : uiTreeViewItem(p,Setup(uiString(vendorname)).
 				    type(uiTreeViewItem::CheckBox))
 {
     setChecked( issel, true );
@@ -110,10 +111,9 @@ protected:
 };
 
 
-uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* parent,
+uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* p,
 					PluginProduct& prod )
-    : uiTreeViewItem(parent,
-		    Setup(uiString(prod.productname_))
+    : uiTreeViewItem(p, Setup(uiString(prod.productname_))
 		    .iconname(prod.iconnm_).type(uiTreeViewItem::CheckBox))
     , product_(prod)
 {
