@@ -152,9 +152,10 @@ bool uiSeisPartServer::exportSeis( int opt )
 #define mManageSeisDlg( dlgobj, dlgclss ) \
     delete dlgobj; \
     dlgobj = new dlgclss( parent(), is2d ); \
+    dlgobj->setModal( modal ); \
     dlgobj->show();
 
-void uiSeisPartServer::manageSeismics( int opt )
+void uiSeisPartServer::manageSeismics( int opt, bool modal )
 {
     const bool is2d = opt == 1 || opt == 3;
     switch( opt )

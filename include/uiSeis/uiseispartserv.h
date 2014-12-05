@@ -67,7 +67,7 @@ public:
     void		processVelConv() const;
     void		createMultiCubeDataStore() const;
 
-    void		manageSeismics(int opt);
+    void		manageSeismics(int opt,bool modal=false);
     void		managePreLoad();
     void		importWavelets();
     void		exportWavelets();
