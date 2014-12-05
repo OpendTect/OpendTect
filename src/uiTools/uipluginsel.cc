@@ -221,14 +221,14 @@ void uiPluginSel::createUI()
 {
     uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
     grp->setFrame( true );
-    
+
     uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
     uiPixmap pm("banner.png");
     uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
-    banner->setStretch( 2, 2 );
-     
+    banner->setStretch( 2, 0 );
+
     treefld_ = new uiTreeView( grp, "Plugin tree" );
     treefld_->setStretch( 2, 2 );
     treefld_->showHeader( false );
@@ -300,6 +300,6 @@ bool uiPluginSel::isVendorSelected( const char* vendnm ) const
 	    && products_[idx]->isselected_ )
 	    return true;
     }
-	
+
     return false;
 }
