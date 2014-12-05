@@ -102,21 +102,22 @@ bool uiDesktopServices::openUrl( const char* url )
 	DBG::message( msg );
     }
 
-    bool res = false;
-    if ( qurl.hasFragment() && qurl.isLocalFile() )
-    {
-	res = openLocalFragmentedUrl( qurl );
-	if ( res ) return true;
-    }
-
     const BufferString syslibpath( GetEnvVar(sKeySysLibPath) );
     const BufferString odenvlibpath( sKeyLDLibPath ? GetEnvVar(sKeyLDLibPath)
 						   : 0 );
-    if ( odenvlibpath.isEmpty() )
-	return QDesktopServices::openUrl( qurl );
+    const bool needlibpathtrick = !odenvlibpath.isEmpty();
+    if ( needlibpathtrick )
+	SetEnvVar( sKeyLDLibPath, syslibpath.buf() );
 
-    SetEnvVar( sKeyLDLibPath, syslibpath.buf() );
-    res = QDesktopServices::openUrl( qurl );
-    SetEnvVar( sKeyLDLibPath, odenvlibpath.buf() );
+    bool res = false;
+    if ( qurl.hasFragment() && qurl.isLocalFile() )
+	res = openLocalFragmentedUrl( qurl );
+
+    if ( !res )
+	res = QDesktopServices::openUrl( qurl );
+
+    if ( needlibpathtrick )
+	SetEnvVar( sKeyLDLibPath, odenvlibpath.buf() );
+
     return res;
 }
