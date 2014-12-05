@@ -29,7 +29,7 @@ public:
 
     bool runTest( bool sendkill )
     {
-	Network::RequestConnection conn( hostname_, port_ );
+	Network::RequestConnection conn( hostname_, (unsigned short)port_ );
 	mAttachCB( conn.packetArrived, Tester::packetArrivedCB );
 
 	Network::RequestPacket packet;

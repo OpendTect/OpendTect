@@ -419,7 +419,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 	    return false;
     }
 
-    float contourlenthreshold = 0.0;
+    float contourlenthreshold = 0.f;
     const int nrlabels = contourdata_.labelcontourlen_.size();
     if ( nrlabels >= cMaxNrDiplayedLabels )
     {
@@ -431,7 +431,7 @@ bool uiContourTreeItemContourGenerator::doFinish( bool success )
 	const float mean = totalcontourlen / nrlabels;
 	const float frac = (float) cMaxNrDiplayedLabels / (float) nrlabels;
 	const int offset = cMinNrNodesForLbl;
-	contourlenthreshold = offset + 2*(mean-offset)*(1.0-frac);
+	contourlenthreshold = offset + 2.f*(mean-offset)*(1.f-frac);
     }
 
     for ( int lbrgidx=0; lbrgidx<contourdata_.labelranges_.size(); lbrgidx++ )
