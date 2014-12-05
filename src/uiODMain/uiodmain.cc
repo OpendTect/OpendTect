@@ -93,11 +93,11 @@ int ODMain( int argc, char** argv )
     manODMainWin( odmain );
 
     bool dodlg = true;
-    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
+    Settings::common().getYN( uiProductSel::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && pimdata.size() )
     {
-	uiPluginSel dlg( odmain );
+	uiProductSel dlg( odmain );
 	if ( dlg.nrPlugins() && !dlg.go() )
 	    return 1;
     }
