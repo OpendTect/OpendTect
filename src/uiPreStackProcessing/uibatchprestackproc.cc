@@ -80,13 +80,13 @@ void uiBatchProcSetup::setupSelCB( CallBacker* )
     if ( !setupioobj )
 	return;
 
-    mDeclareAndTryAlloc( PreStack::ProcessManager*, procman,
-	    		 PreStack::ProcessManager );
+    mDeclareAndTryAlloc(PreStack::ProcessManager*,procman,
+			PreStack::ProcessManager);
     if ( !procman )
 	return;
 
     uiString errmsg;
-    if ( !PreStackProcTranslator::retrieve( *procman, setupioobj, errmsg ) )
+    if ( !PreStackProcTranslator::retrieve(*procman,setupioobj,errmsg) )
     {
 	delete procman;
 	return;
@@ -108,20 +108,20 @@ bool uiBatchProcSetup::prepareProcessing()
 
     if ( !ioobj )
     {
-	uiMSG().error(tr("Please select a processing setup"));
+	uiMSG().error( tr("Please select a processing setup") );
 	return false;
     }
 
     if ( inputsel_->attachObj()->isDisplayed() && !inputsel_->commitInput() )
     {
-	uiMSG().error(tr("Please select an input volume"));
+	uiMSG().error( tr("Please select an input volume") );
 	return false;
     }
 
     if ( !outputsel_->commitInput() )
     {
 	if ( outputsel_->isEmpty() )
-	    uiMSG().error(tr("Please enter an output name"));
+	    uiMSG().error( tr("Please enter an output name") );
 	return false;
     }
 
