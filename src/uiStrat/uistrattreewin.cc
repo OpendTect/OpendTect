@@ -52,10 +52,7 @@ static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
-    {
-	uiMain& app = uiMain::theMain();
-	stratwin = new uiStratTreeWin( app.topLevel() );
-    }
+	stratwin = new uiStratTreeWin( 0 );
 
     return *stratwin;
 }
