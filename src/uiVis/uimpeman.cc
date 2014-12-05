@@ -152,11 +152,11 @@ void uiMPEMan::addButtons()
     trackforwardidx_ = mAddButton( "prevpos", moveBackward,
 				  tr("Move QC plane backward (key: '[')"),
                                   false );
-    toolbar_->setShortcut(trackforwardidx_,"[");
+    toolbar_->setShortcut( trackforwardidx_, "[" );
     trackbackwardidx_ = mAddButton( "nextpos", moveForward,
 				   tr("Move QC plane forward (key: ']')"),
                                    false );
-    toolbar_->setShortcut(trackbackwardidx_,"]");
+    toolbar_->setShortcut( trackbackwardidx_, "]" );
     clrtabidx_ = mAddButton( "colorbar", setColorbarCB,
 			    tr("Set QC plane colortable"), false );
     toolbar_->addSeparator();
@@ -171,11 +171,13 @@ void uiMPEMan::addButtons()
     toolbar_->setButtonMenu( polyselectidx_, polymnu );
 
     removeinpolygonidx_ = mAddButton( "trashcan", removeInPolygon,
-				  tr(" Remove PolySelection"), false );
+				  tr("Remove PolySelection"), false );
     toolbar_->addSeparator();
 
-    undoidx_ = mAddButton( "undo", undoPush, uiStrings::sUndo(), false );
-    redoidx_ = mAddButton( "redo", redoPush, uiStrings::sRedo(), false );
+    undoidx_ = mAddButton( "undo", undoPush, tr("Undo (Ctrl+Z)"), false );
+    redoidx_ = mAddButton( "redo", redoPush, tr("Redo (Ctrl+Y)"), false );
+    toolbar_->setShortcut( undoidx_, "Ctrl+Z" );
+    toolbar_->setShortcut( redoidx_, "Ctrl+Y" );
 
     toolbar_->addSeparator();
     saveidx_ = mAddButton( "save", savePush, uiStrings::sSave(true), false );
@@ -1788,5 +1790,10 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     if ( seedpicker &&
 	    !(visserv_->isTrackingSetupActive() && (seedpicker->nrSeeds()<1)) )
 	toolbar_->setSensitive( true );
+
+    //Save button
+    const EM::EMObject* emobj =
+	tracker ? EM::EMM().getObject( tracker->objectID() ) : 0;
+    toolbar_->setSensitive( saveidx_, emobj && emobj->isChanged() );
 }
 
