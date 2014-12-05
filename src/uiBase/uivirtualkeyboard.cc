@@ -57,7 +57,8 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     wintitle += inputobj_.name(); wintitle += "]";
     setCaption( wintitle );
 
-    uiPixmap pixmap( mGetSetupFileName("virtualkeyboard") );
+    const BufferString pmfnm = mGetSetupFileName( "virtualkeyboard.png" );
+    uiPixmap pixmap( pmfnm.buf() );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
 
@@ -114,10 +115,9 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle,
-        mNINT32(4*keyboardscale_) );
+    const MarkerStyle2D ms( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
-    uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
+    uiMarkerItem* led = new uiMarkerItem( point, ms );
     led->setFillColor( color );
     led->setZValue( 1 );
     leds_->add( led );
