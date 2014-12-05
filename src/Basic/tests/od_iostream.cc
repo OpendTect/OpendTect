@@ -78,7 +78,7 @@ bool testPipeOutput()
 
     BufferString command = "@";
 #ifdef __win__
-    command.add( "echo" );
+    command.add( "more" );
 #else
     command.add( "cat" );
 #endif
@@ -142,7 +142,7 @@ int main( int argc, char** argv )
 
     if ( !testPipeInput() )
 	doExit( 1 );
-
+#ifndef __win__
     if ( !testPipeOutput() )
     {
 	if ( File::exists( tmpfnm ) )
@@ -150,6 +150,7 @@ int main( int argc, char** argv )
 
 	doExit( 1 );
     }
+#endif
 
 
     return doExit( 0 );
