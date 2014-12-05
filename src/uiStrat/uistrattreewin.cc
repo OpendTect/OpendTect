@@ -52,10 +52,7 @@ static uiStratTreeWin* stratwin = 0;
 const uiStratTreeWin& StratTWin()
 {
     if ( !stratwin )
-    {
-	uiMain& app = uiMain::theMain();
-	stratwin = new uiStratTreeWin( app.topLevel() );
-    }
+	stratwin = new uiStratTreeWin( 0 );
 
     return *stratwin;
 }
@@ -100,7 +97,7 @@ void uiStratTreeWin::setNewRT()
 
     const bool nortpresent = RT().isEmpty();
     uiString dlgmsg = tr("Stratigraphy: %1")
-		    .arg(nortpresent ? tr("select initial") 
+		    .arg(nortpresent ? tr("select initial")
 				     : tr("select new"));
     uiSelectFromList::Setup su( dlgmsg, opts );
     uiSelectFromList dlg( this, su );
