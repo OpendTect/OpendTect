@@ -185,6 +185,7 @@ mGlobal(Seis) int OD_Get_2D_Data_Conversion_Status()
 {
     bool hasold2d = false;
     bool has2dps = false;
+    convertSeis2DTranslators();
     IOObjContext oldctxt( mIOObjContext(SeisTrc) );
     oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
     oldctxt.toselect.allownonuserselectable_ = true;
@@ -237,7 +238,6 @@ void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
     update2DSFilesAndAddToDelList( all2dsfiles, filestobedeleted );
     removeDuplicateData( filestobedeleted );
     deepErase( all2dseisiopars_ );
-    convertSeis2DTranslators();
     convert2DPSData();
     return;
 }
