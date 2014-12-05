@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "statrand.h"
 #include "survinfo.h"
 #include "systeminfo.h"
+#include "settings.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -158,6 +159,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(), true);
     applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( alignedBelow, crdgrp_ );
+    if ( Settings::common().isTrue("Ui.Icons.Dialog") )
+	applybut->setIcon( "apply" );
 
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->attach( rightTo, applybut );
@@ -660,7 +663,7 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet(tr("Please enter the Z Range"))
     const float zfac = 1.f / si_.zDomain().userFactor();
     if ( !mIsEqual(zfac,1,0.0001) )
-    { 
+    {
 	cs.zsamp_.start *= zfac; cs.zsamp_.stop *= zfac; cs.zsamp_.step *= zfac;
     }
     if ( mIsZero(cs.zsamp_.step,1e-8) )
