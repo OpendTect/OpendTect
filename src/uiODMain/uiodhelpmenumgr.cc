@@ -36,7 +36,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 static BufferString getSupportURL()
-{ return "http://dgbes.com/index.php/support"; }
+{ return "http://opendtect.org/index.php/support"; }
 
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
