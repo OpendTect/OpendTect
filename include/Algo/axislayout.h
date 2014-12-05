@@ -108,6 +108,9 @@ void AxisLayout<T>::setDataRange( const Interval<T>& dr )
 	sd_.step = (T)istep;
     }
 
+    if ( mIsZero(sd_.step,mDefEps) )
+	sd_.step = 1;
+
     if ( wdth > 1e-30 )
     {
 	double idx0 = 0;
