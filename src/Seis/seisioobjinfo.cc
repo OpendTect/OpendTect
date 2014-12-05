@@ -7,30 +7,32 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seisioobjinfo.h"
+
+#include "bufstringset.h"
+#include "cbvsreadmgr.h"
+#include "conn.h"
+#include "globexpr.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "keystrs.h"
+#include "linekey.h"
+#include "ptrman.h"
 #include "seis2ddata.h"
+#include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
 #include "seiscbvs2dlinegetter.h"
 #include "seispsioprov.h"
 #include "seisread.h"
-#include "seisbuf.h"
-#include "seistrc.h"
 #include "seisselection.h"
+#include "seistrc.h"
 #include "seistrctr.h"
-#include "ptrman.h"
-#include "globexpr.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "iopar.h"
-#include "conn.h"
-#include "linekey.h"
 #include "survinfo.h"
 #include "trckeyzsampling.h"
-#include "bufstringset.h"
-#include "linekey.h"
-#include "keystrs.h"
 #include "zdomain.h"
+
 
 #define mGoToSeisDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )
@@ -646,4 +648,15 @@ void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 	    *linenames += lnms;
 	}
     }
+}
+
+
+bool SeisIOObjInfo::isFullyRectAndRegular() const
+{
+    PtrMan<Translator> trl = ioobj_->createTranslator();
+    mDynamicCastGet(CBVSSeisTrcTranslator*,cbvstrl,trl.ptr())
+    if ( !cbvstrl || !cbvstrl->readMgr() ) return false;
+
+    const CBVSInfo& info = cbvstrl->readMgr()->info();
+    return info.geom_.fullyrectandreg;
 }

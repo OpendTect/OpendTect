@@ -11,7 +11,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
- 
+
 #include "seismod.h"
 #include "seismod.h"
 #include "samplingdata.h"
@@ -62,6 +62,7 @@ public:
     bool		getDefSpaceInfo(SpaceInfo&) const;
     int			expectedMBs(const SpaceInfo&) const;
     bool		getRanges(TrcKeyZSampling&) const;
+    bool		isFullyRectAndRegular() const; // Only CBVS
     bool		getBPS(int&,int icomp) const;
     			//!< max bytes per sample, component -1 => add all
 
@@ -110,7 +111,7 @@ public:
     			//!< Function useful in attribute environments
     			//!< The 'MultiID' must be IOObj_ID
 
-			
+
     //!< Do not use these functions. Will be removed shortly.
     void		getAttribNames( BufferStringSet& b,
 					Opts2D o2d=Opts2D() ) const
