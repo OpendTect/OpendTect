@@ -46,7 +46,6 @@ public:
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);
     void		setOnlyAtSectionsDisplay(bool);
-    uiMenuHandler&	getNodeMenu() { return nodemenu_; }
 
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
@@ -61,22 +60,9 @@ public:
 
 protected:
     void		setUpConnections();
-    void		connectEditor();
     void		addToToolBarCB(CallBacker*);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
-
-    void		interactionLineRightClick(CallBacker*);
-    void		createInteractionLineMenuCB(CallBacker*) {}
-    void		handleInteractionLineMenuCB(CallBacker*) {}
-
-    void		edgeLineRightClick(CallBacker*);
-    void		createEdgeLineMenuCB(CallBacker*);
-    void		handleEdgeLineMenuCB(CallBacker*);
-
-    void		nodeRightClick(CallBacker*);
-    void		createNodeMenuCB(CallBacker*);
-    void		handleNodeMenuCB(CallBacker*);
 
     visSurvey::EMObjectDisplay*		getDisplay();
     const visSurvey::EMObjectDisplay*	getDisplay() const;
@@ -85,14 +71,9 @@ protected:
     uiParent*		uiparent_;
     uiVisPartServer*	visserv_;
 
-    uiMenuHandler&	nodemenu_;
-    uiMenuHandler&	edgelinemenu_;
-    uiMenuHandler&	interactionlinemenu_;
-
     int			displayid_;
 
     MenuItem		singlecolmnuitem_;
-    MenuItem		editmnuitem_;
     MenuItem		removesectionmnuitem_;
     MenuItem		seedsmenuitem_;
     MenuItem		showseedsmnuitem_;
@@ -105,9 +86,6 @@ protected:
     MenuItem		showbothmnuitem_;
     MenuItem		showsurfacegridmnuitem_;
     MenuItem		changesectionnamemnuitem_;
-
-    MenuItem		makepermnodemnuitem_;
-    MenuItem		removecontrolnodemnuitem_;
 };
 
 

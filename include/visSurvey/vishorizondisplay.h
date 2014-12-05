@@ -155,9 +155,6 @@ public:
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
 
-    void			setEdgeLineRadius(float);
-    float			getEdgeLineRadius() const;
-
     bool			setChannels2RGBA(visBase::TextureChannel2RGBA*);
     visBase::TextureChannel2RGBA* getChannels2RGBA();
     const visBase::TextureChannel2RGBA* getChannels2RGBA() const;
@@ -199,10 +196,7 @@ protected:
     void			removeSectionDisplay(const EM::SectionID&);
     visBase::VisualObject*	createSection(const EM::SectionID&) const;
     bool			addSection(const EM::SectionID&,TaskRunner*);
-    bool			addEdgeLineDisplay(const EM::SectionID&);
     void			emChangeCB(CallBacker*);
-    void			emEdgeLineChangeCB(CallBacker*);
-    void			edgeLineRightClickCB(CallBacker*);
     void			updateIntersectionLines(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
@@ -230,8 +224,6 @@ protected:
     bool				allowshading_;
     mVisTrans*				translation_;
 
-    ObjectSet<EdgeLineSetDisplay>	edgelinedisplays_;
-
     ObjectSet<visBase::HorizonSection> sections_;
     TypeSet<EM::SectionID>		sids_;
 
@@ -252,7 +244,6 @@ protected:
     bool				usestexture_;
     char				resolution_;
     int					curtextureidx_;
-    float				edgelineradius_;
 
     bool				displayintersectionlines_;
 
@@ -273,7 +264,6 @@ protected:
     static const char*			sKeyTexture();
     static const char*			sKeyShift();
     static const char*			sKeyResolution();
-    static const char*			sKeyEdgeLineRadius();
     static const char*			sKeyRowRange();
     static const char*			sKeyColRange();
     static const char*			sKeyIntersectLineMaterialID();

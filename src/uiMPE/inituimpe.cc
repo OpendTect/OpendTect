@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 #include "moddepmgr.h"
-#include "uiemhorizoneditor.h"
 #include "uihorizontracksetup.h"
 
 
@@ -19,7 +18,6 @@ mDefModInitFn(uiMPE)
 {
     mIfNotFirstTime( return );
 
-    MPE::uiEMHorizonEditor::initClass();
     MPE::uiBaseHorizonSetupGroup::initClass();
 }
 

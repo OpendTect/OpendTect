@@ -14,33 +14,6 @@ static const char* rcsID mUsedVar = "$Id$";
 namespace MPE
 {
 
-
-uiEMEditor::uiEMEditor(uiParent* p )
-    : parent ( p )
-    , node( -1, -1, -1 )
-{}
-
-
-uiEMEditor::~uiEMEditor() {}
-   
-
-
-void uiEMEditorFactory::addFactory( uiEMEditorCreationFunc f ) { funcs += f; }
-
-
-uiEMEditor* uiEMEditorFactory::create( uiParent* p, MPE::ObjectEditor* e ) const
-{
-    for ( int idx=0; idx<funcs.size(); idx++ )
-    {
-	uiEMEditor* res = funcs[idx](p,e);
-	if ( res ) return res;
-    }
-
-    return 0;
-}
-
-
-
 uiSetupGroup::uiSetupGroup( uiParent* p, const char* ref )
     : uiGroup( p, "Tracking Setup" )
     , helpref_(ref)
@@ -68,7 +41,7 @@ uiSetupGroup* uiSetupGroupFactory::create( const char* name, uiParent* p,
 {
     int idx = names_.indexOf( name );
     if ( idx == -1 ) return 0;
-	
+
     uiSetupGroup* res = funcs[idx](p,typestr,ads);
     if ( res ) return res;
 
@@ -82,4 +55,4 @@ uiMPEEngine& uiMPE()
     return uiengine;
 }
 
-};
+} // namespace MPE

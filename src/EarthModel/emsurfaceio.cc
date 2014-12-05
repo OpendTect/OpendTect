@@ -12,9 +12,9 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfaceio.h"
 
 #include "arrayndimpl.h"
+#include "ascstream.h"
 #include "binidsurface.h"
 #include "color.h"
-#include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
 #include "emfaultstickset.h"
@@ -22,28 +22,27 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "empolygonbody.h"
-#include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceedgeline.h"
+#include "emsurfacegeometry.h"
 #include "emsurfauxdataio.h"
 #include "file.h"
-#include "parametricsurface.h"
-#include "ioobj.h"
+#include "filepath.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
+#include "od_iostream.h"
+#include "parametricsurface.h"
 #include "ptrman.h"
 #include "separstr.h"
 #include "streamconn.h"
 #include "survgeom2d.h"
-#include "od_iostream.h"
 #include "survinfo.h"
-#include "filepath.h"
+
 #include <limits.h>
 
 
 namespace EM
 {
-
 
 const char* dgbSurfaceReader::sKeyFloatDataChar() { return "Data char"; }
 
@@ -873,7 +872,7 @@ int dgbSurfaceReader::nextStep()
 			     Survey::GM().getGeometry(geomid) );
 	    if ( !geom2d  )
 	    {
-		msg_ = tr("Cannot find 2D line associated " 
+		msg_ = tr("Cannot find 2D line associated "
                           "with the 2D horizon.");
 		return ErrorOccurred();
 	    }
@@ -1682,8 +1681,8 @@ int dgbSurfaceWriter::nextStep()
     {
 	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
-	    { 
-                msg_ = tr("Cannot open output surface file"); 
+	    {
+		msg_ = tr("Cannot open output surface file");
                 return ErrorOccurred();
             }
 	od_ostream& strm = conn_->oStream();

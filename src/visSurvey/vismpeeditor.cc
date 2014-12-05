@@ -10,20 +10,17 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "emeditor.h"
 #include "emsurface.h"
-#include "emsurfaceedgeline.h"
 #include "emsurfacegeometry.h"
 #include "math2.h"
 #include "visdatagroup.h"
 #include "visdragger.h"
 #include "visevent.h"
-#include "vishingeline.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vissower.h"
 #include "vistransform.h"
 
-mCreateFactoryEntry( visSurvey::MPEEditor );
-
+mCreateFactoryEntry( visSurvey::MPEEditor )
 
 namespace visSurvey
 {
@@ -35,8 +32,6 @@ MPEEditor::MPEEditor()
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , markersize_( 3 )
-    , interactionlinedisplay_( 0 )
-    , interactionLineRightClick( this )
     , activedragger_( EM::PosID::udf() )
     , activenodematerial_( 0 )
     , nodematerial_( 0 )
@@ -59,15 +54,6 @@ MPEEditor::MPEEditor()
 
 MPEEditor::~MPEEditor()
 {
-    if ( interactionlinedisplay_ )
-    {
-	if ( interactionlinedisplay_->rightClicked() )
-	    interactionlinedisplay_->rightClicked()->remove(
-		mCB( this,MPEEditor,interactionLineRightClickCB));
-	interactionlinedisplay_->unRef();
-    }
-
-
     setEditor( (MPE::ObjectEditor*) 0 );
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
@@ -351,10 +337,6 @@ void MPEEditor::updateNodePos( int idx, const Coord3& pos )
 }
 
 
-void MPEEditor::interactionLineRightClickCB( CallBacker* )
-{ interactionLineRightClick.trigger(); }
-
-
 bool MPEEditor::clickCB( CallBacker* cb )
 {
     if ( eventcatcher_->isHandled() || !isOn() )
@@ -436,7 +418,7 @@ void MPEEditor::dragStop( CallBacker* cb )
 {
     if ( emeditor_ )
     {
-	const int idx = draggers_.indexOf( (visBase::Dragger*) cb );
+	const int idx = draggers_.indexOf( (visBase::Dragger*)cb );
         NotifyStopper cbstop( draggers_[idx]->motion );
 	draggers_[idx]->setPos( emeditor_->getPosition( activedragger_ ) );
 	emeditor_->finishEdit();
@@ -453,62 +435,10 @@ EM::PosID MPEEditor::getActiveDragger() const
 
 void MPEEditor::setActiveDragger( const EM::PosID& pid )
 {
-    if ( emeditor_ ) emeditor_->restartInteractionLine(pid);
-
     if ( activedragger_==pid )
 	return;
 
-/*
-    int idx = posids_.indexOf(activedragger);
-    if ( idx!=-1 )
-	draggermarkers_[idx]->setMaterial( nodematerial );
-	*/
-
     activedragger_ = pid;
-/*
-    idx = posids_.indexOf(activedragger);
-    if ( idx!=-1 )
-	draggermarkers_[idx]->setMaterial( activenodematerial );
-	*/
 }
 
-
-void MPEEditor::setupInteractionLineDisplay()
-{
-    const EM::EdgeLineSet* edgelineset = emeditor_
-	? emeditor_->getInteractionLine() : 0;
-
-    if ( !edgelineset )
-	return;
-
-    if ( !interactionlinedisplay_ )
-    {
-	interactionlinedisplay_ = EdgeLineSetDisplay::create();
-	interactionlinedisplay_->setDisplayTransformation( transformation_ );
-	interactionlinedisplay_->ref();
-	interactionlinedisplay_->setConnect(true);
-	interactionlinedisplay_->setShowDefault(true);
-	interactionlinedisplay_->getMaterial()->setColor(Color(255,255,0),0);
-
-	addChild( interactionlinedisplay_->osgNode() );
-	if ( interactionlinedisplay_->rightClicked() )
-	    interactionlinedisplay_->rightClicked()->notify(
-		mCB( this,MPEEditor,interactionLineRightClickCB));
-    }
-
-    interactionlinedisplay_->setEdgeLineSet(edgelineset);
-}
-
-
-void MPEEditor::extendInteractionLine( const EM::PosID& pid )
-{
-    setupInteractionLineDisplay();
-    if ( !interactionlinedisplay_ || activedragger_.subID()==-1 )
-	return;
-
-    emeditor_->interactionLineInteraction(pid);
-}
-
-
-
-}; //namespace
+} // namespace visSurvey

@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceedgeline.h"
 #include "emsurfacetr.h"
 #include "emundo.h"
 #include "executor.h"
@@ -283,7 +282,6 @@ Horizon3D::Horizon3D( EMManager& man )
     : Horizon(man)
     , geometry_( *this )
     , auxdata( *new SurfaceAuxData(*this) )
-    , edgelinesets( *new EdgeLineManager(*this) )
 {
     geometry_.addSection( "", false );
 }
@@ -292,7 +290,6 @@ Horizon3D::Horizon3D( EMManager& man )
 Horizon3D::~Horizon3D()
 {
     delete &auxdata;
-    delete &edgelinesets;
 }
 
 
@@ -301,7 +298,6 @@ void Horizon3D::removeAll()
     Surface::removeAll();
     geometry_.removeAll();
     auxdata.removeAll();
-    edgelinesets.removeAll();
 }
 
 
@@ -310,7 +306,6 @@ void Horizon3D::fillPar( IOPar& par ) const
     Surface::fillPar( par );
     Horizon::fillPar( par );
     auxdata.fillPar( par );
-    edgelinesets.fillPar( par );
 }
 
 
@@ -318,7 +313,6 @@ bool Horizon3D::usePar( const IOPar& par )
 {
     return Surface::usePar( par ) &&
 	auxdata.usePar( par ) &&
-	edgelinesets.usePar( par ) &&
 	Horizon::usePar( par );
 }
 
@@ -589,7 +583,6 @@ bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
     if ( !sids_.isPresent(sid) ) return false;
 
-    ((Horizon3D&) surface_).edgelinesets.removeSection( sid );
     ((Horizon3D&) surface_).auxdata.removeSection( sid );
     return SurfaceGeometry::removeSection( sid, addtoundo );
 }
@@ -598,9 +591,6 @@ bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
 SectionID Horizon3DGeometry::cloneSection( const SectionID& sid )
 {
     const SectionID res = SurfaceGeometry::cloneSection(sid);
-    if ( res!=-1 )
-	((Horizon3D&) surface_).edgelinesets.cloneEdgeLineSet( sid, res );
-
     return res;
 }
 

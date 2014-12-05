@@ -1,6 +1,6 @@
 #ifndef emeditor_h
 #define emeditor_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -22,8 +22,8 @@ ________________________________________________________________________
 
 class BufferStringSet;
 
-namespace EM { class EMObject; class EdgeLineSet; };
-namespace Geometry { class ElementEditor; };
+namespace EM { class EMObject; }
+namespace Geometry { class ElementEditor; }
 
 namespace MPE
 {
@@ -47,7 +47,7 @@ be moved, and in what manner.
 mExpClass(MPEEngine) ObjectEditor : public CallBacker
 { mRefCountImpl( ObjectEditor );
 public:
-    			ObjectEditor( EM::EMObject& );
+			ObjectEditor(EM::EMObject&);
 
     const EM::EMObject&	emObject() const	{ return emobject; }
 
@@ -106,28 +106,6 @@ public:
 				    but when new edit positions are avaliable
 				    or editpositions has been removed */
 
-    void			restartInteractionLine( const EM::PosID& );
-    				/*!<\note Object does only have one line. If
-					the provided sectionID differs from the
-				 	existing line's, the sectionID of the
-				 	existing line will be changed. */
-
-    bool			closeInteractionLine( bool doit = true );
-    				/*!<If doit is false, no change will be done
-				    and the return status indicates wether it
-				    can be done. */
-    bool			interactionLineInteraction( const EM::PosID&,
-	    						    bool doit = true );
-    				/*!<If pos is on the line, but not on the first
-				    node, it will be cut off at that location.
-				    If it is not on the line, or on the first
-				    node, the line will be extended to pos.
-				    If doit is false, no change will be done
-				    and the return status indicates wether it
-				    can be done. */
-				    
-    const EM::EdgeLineSet*	getInteractionLine() const;
-
     static void			enableNodeCloning(bool yn=true);
 
 protected:
@@ -148,17 +126,16 @@ protected:
 					    along and their corresponding
 					    factors. */
 
-    virtual void			cloneMovingNode()		{};
+    virtual void			cloneMovingNode()		{}
 
     EM::EMObject&			emobject;
     EM::PosID				movingnode;
-    EM::EdgeLineSet*			interactionline;
     Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
     TypeSet<EM::PosID>			alongmovingnodes;
     TypeSet<Coord3>			alongmovingnodesstart;
     TypeSet<float>			alongmovingnodesfactors;
-    
+
     int					nrusers;
 
 private:
@@ -170,11 +147,9 @@ private:
     bool				snapafteredit;
 };
 
-
 mDefineFactory1Param( MPEEngine, ObjectEditor, EM::EMObject&, EditorFactory );
 
-
-};
+} // namespace MPE
 
 #endif
 

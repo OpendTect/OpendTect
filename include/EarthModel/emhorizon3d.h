@@ -141,7 +141,6 @@ public:
 				{ return tr("3D Horizon"); }
 
     SurfaceAuxData&		auxdata;
-    EdgeLineManager&		edgelinesets;
 
 protected:
     void			fillPar(IOPar&) const;

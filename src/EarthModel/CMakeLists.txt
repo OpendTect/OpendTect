@@ -43,8 +43,6 @@ SET(OD_MODULE_SOURCES
 		emrowcoliterator.cc
 		emsurface.cc
 		emsurfaceauxdata.cc
-		emsurfaceedgeline.cc
-		emsurfaceedgelineimpl.cc
 		emsurfacegeometry.cc
 		emsurfaceio.cc
 		emsurfaceposprov.cc

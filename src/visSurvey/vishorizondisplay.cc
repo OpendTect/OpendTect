@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfaceedgeline.h"
 #include "isocontourtracer.h"
 #include "settings.h"
 #include "survinfo.h"
@@ -28,7 +27,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "callback.h"
 
 #include "visevent.h"
-#include "vishingeline.h"
 #include "vismarkerset.h"
 #include "vismaterial.h"
 #include "vismpe.h"
@@ -52,7 +50,6 @@ namespace visSurvey
 const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
 const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
 const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
-const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
 const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
 const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
 const char* HorizonDisplay::sKeySurfaceGrid()	{ return "SurfaceGrid"; }
@@ -68,7 +65,6 @@ HorizonDisplay::HorizonDisplay()
     , curtextureidx_( 0 )
     , usestexture_( true )
     , translation_( 0 )
-    , edgelineradius_( 3.5 )
     , validtexture_( false )
     , resolution_( 0 )
     , allowshading_( true )
@@ -176,9 +172,6 @@ void HorizonDisplay::setDisplayTransformation( const mVisTrans* nt )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setDisplayTransformation(transformation_);
 
-    for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
-	edgelinedisplays_[idx]->setDisplayTransformation(transformation_);
-
     for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setDisplayTransformation(transformation_);
 
@@ -238,9 +231,6 @@ void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
 	    sections_[idx]->setRightHandSystem( scene_->isRightHandSystem() );
     }
 
-    for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
-	edgelinedisplays_[idx]->setSceneEventCatcher( ec );
-
     for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	intersectionlines_[idx]->setSceneEventCatcher( ec );
 
@@ -288,10 +278,6 @@ EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
 }
 
 
-void HorizonDisplay::edgeLineRightClickCB( CallBacker* )
-{}
-
-
 void HorizonDisplay::removeEMStuff()
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
@@ -313,36 +299,13 @@ void HorizonDisplay::removeEMStuff()
 	intersectionlinevoi_.removeSingle(0);
     }
 
-    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    if ( emhorizon )
-	emhorizon->edgelinesets.addremovenotify.remove(
-			mCB(this,HorizonDisplay,emEdgeLineChangeCB ));
-
-    while ( !edgelinedisplays_.isEmpty() )
-    {
-	EdgeLineSetDisplay* elsd = edgelinedisplays_[0];
-	edgelinedisplays_ -= elsd;
-	elsd->rightClicked()->remove(
-		 mCB(this,HorizonDisplay,edgeLineRightClickCB) );
-	removeChild( elsd->osgNode() );
-	elsd->unRef();
-    }
-
     EMObjectDisplay::removeEMStuff();
 }
 
 
-bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trans )
+bool HorizonDisplay::setEMObject( const EM::ObjectID& newid, TaskRunner* trnr )
 {
-    if ( !EMObjectDisplay::setEMObject( newid, trans ) )
-	return false;
-
-    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    if ( emhorizon )
-	emhorizon->edgelinesets.addremovenotify.notify(
-		mCB(this,HorizonDisplay,emEdgeLineChangeCB) );
-
-    return true;
+    return EMObjectDisplay::setEMObject( newid, trnr );
 }
 
 
@@ -376,44 +339,6 @@ void HorizonDisplay::updateFromMPE()
     if ( geometryRowRange().nrSteps()<=1 || geometryColRange().nrSteps()<=1 )
 	setResolution( 0, 0 ); //Automatic resolution
     EMObjectDisplay::updateFromMPE();
-}
-
-
-bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
-{
-    mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    EM::EdgeLineSet* els = emhorizon
-	? emhorizon->edgelinesets.getEdgeLineSet(sid,false) : 0;
-
-    if ( els )
-    {
-	bool found = false;
-	for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
-	{
-	    if ( edgelinedisplays_[idx]->getEdgeLineSet()==els )
-	    {
-		found = true;
-		break;
-	    }
-	}
-
-	if ( !found )
-	{
-	    visSurvey::EdgeLineSetDisplay* elsd =
-		visSurvey::EdgeLineSetDisplay::create();
-	    elsd->ref();
-	    elsd->setConnect(true);
-	    elsd->setEdgeLineSet(els);
-	    elsd->setRadius(edgelineradius_);
-	    addChild( elsd->osgNode() );
-	    elsd->setDisplayTransformation(transformation_);
-	    elsd->rightClicked()->notify(
-		    mCB(this,HorizonDisplay,edgeLineRightClickCB));
-	    edgelinedisplays_ += elsd;
-	}
-    }
-
-    return true;
 }
 
 
@@ -944,18 +869,6 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 }
 
 
-void HorizonDisplay::setEdgeLineRadius(float nr)
-{
-    edgelineradius_ = nr;
-    for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
-	edgelinedisplays_[idx]->setRadius(nr);
-}
-
-
-float HorizonDisplay::getEdgeLineRadius() const
-{ return edgelineradius_; }
-
-
 void HorizonDisplay::setSectionDisplayRestore( bool yn )
 {
     oldsectionids_.erase();
@@ -1050,7 +963,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
 
     displaysSurfaceGrid( displaysurfacegrid_ );
 
-    return addEdgeLineDisplay( sid );
+    return true;
 }
 
 
@@ -1128,34 +1041,6 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 
     updateSingleColor();
 
-}
-
-
-void HorizonDisplay::emEdgeLineChangeCB( CallBacker* cb )
-{
-    mCBCapsuleUnpack(EM::SectionID,section,cb);
-
-    mDynamicCastGet(const EM::Horizon3D*,horizon3d,emobject_);
-    if ( !horizon3d ) return;
-
-    if ( horizon3d->edgelinesets.getEdgeLineSet( section, false ) )
-	 addEdgeLineDisplay(section);
-    else
-    {
-	for ( int idx=0; idx<edgelinedisplays_.size(); idx++ )
-	{
-	    if (edgelinedisplays_[idx]->getEdgeLineSet()->getSection()==section)
-	    {
-		EdgeLineSetDisplay* elsd = edgelinedisplays_[idx--];
-		edgelinedisplays_ -= elsd;
-		elsd->rightClicked()->remove(
-			 mCB( this, HorizonDisplay, edgeLineRightClickCB ));
-		removeChild( elsd->osgNode() );
-		elsd->unRef();
-		break;
-	    }
-	}
-    }
 }
 
 

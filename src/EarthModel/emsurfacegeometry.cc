@@ -17,7 +17,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
 
-#include "emsurfaceedgeline.h"
 #include "undo.h"
 #include "emmanager.h"
 #include "parametricsurface.h"

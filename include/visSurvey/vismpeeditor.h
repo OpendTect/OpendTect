@@ -20,8 +20,7 @@ ________________________________________________________________________
 #include "vissower.h"
 
 
-namespace MPE { class ObjectEditor; };
-namespace EM { class EdgeLineSet; }
+namespace MPE { class ObjectEditor; }
 
 namespace visBase
 {
@@ -36,7 +35,6 @@ class PolyLine;
 
 namespace visSurvey
 {
-class EdgeLineSetDisplay;
 class Sower;
 
 /*!\brief
@@ -67,11 +65,6 @@ public:
     int				getRightClickNode() const;
     EM::PosID			getNodePosID(int idx) const;
 
-    Notifier<MPEEditor>		interactionLineRightClick;
-    int				interactionLineID() const;
-				/*!<\returns the visual id of the line, or -1
-				     if it does not exist. */
-
     bool			mouseClick( const EM::PosID&, bool shift,
 					    bool alt, bool ctrl );
     				/*!<Notify the object that someone
@@ -96,9 +89,10 @@ public:
 
     Sower&			sower()			{ return *sower_; }
 
-			
+
 protected:
     				~MPEEditor();
+
     void			changeNumNodes( CallBacker* );
     void			nodeMovement( CallBacker* );
     void			dragStart( CallBacker* );
@@ -108,8 +102,6 @@ protected:
     void			removeDragger( int );
     void			addDragger( const EM::PosID& );
     void			setActiveDragger( const EM::PosID& );
-
-    void			interactionLineRightClickCB( CallBacker* );
 
     int				rightclicknode_;
 
@@ -130,16 +122,10 @@ protected:
     bool			draggerinmotion_;
     bool			isdragging_;
 
-    EdgeLineSetDisplay*		interactionlinedisplay_;
-    void			setupInteractionLineDisplay();
-    void			extendInteractionLine(const EM::PosID&);
-
     Sower*			sower_;
 };
 
-
-
-};
+} // namespace visSurvey
 
 #endif
 

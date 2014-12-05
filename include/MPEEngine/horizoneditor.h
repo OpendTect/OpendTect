@@ -1,6 +1,6 @@
 #ifndef horizoneditor_h
 #define horizoneditor_h
-                                                                                
+
 /*+
 ________________________________________________________________________
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 
-namespace EM { class Horizon3D; class Horizon2D; };
+namespace EM { class Horizon3D; class Horizon2D; }
 
 namespace MPE
 {
@@ -33,34 +33,10 @@ public:
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
 
-    
     void			getEditIDs(TypeSet<EM::PosID>&) const;
-    bool			addEditID( const EM::PosID& );
-    bool			removeEditID( const EM::PosID& );
-
-    bool			boxEditArea() const { return horbox; }
-    void			setBoxEditArea( bool nb ) { horbox=nb; }
-
-    const RowCol&		getEditArea() const { return editarea; }
-    void			setEditArea( const RowCol& rc ) { editarea=rc; }
-
-    const BufferStringSet*	getAlongMovingStyleNames() const;
-    int				getAlongMovingStyle() const { return vertstyle;}
-    void			setAlongMovingStyle( int nv ) { vertstyle=nv; }
 
 protected:
-    virtual			~HorizonEditor();
-    void			getAlongMovingNodes( const EM::PosID&,
-	    					     TypeSet<EM::PosID>&,
-	                                             TypeSet<float>*) const;
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
-    void			emChangeCB( CallBacker* );
-
-    BufferStringSet		vertstylenames;
-
-    RowCol			editarea;
-    bool			horbox;
-    int				vertstyle;
 };
 
 
@@ -80,7 +56,7 @@ protected:
 };
 
 
-}; // namespace MPE
+} // namespace MPE
 
 #endif
 

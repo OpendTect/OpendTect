@@ -25,67 +25,13 @@ ________________________________________________________________________
 
 class uiParent;
 
-namespace Attrib { class DescSet; };
+namespace Attrib { class DescSet; }
 
 
 namespace MPE
 {
 
-class ObjectEditor;
 class SectionTracker;
-
-/*!
-\brief Interface for the ui interaction with MPE::ObjectEditor.
-Object is implemented in separate classes inheriting uiEMEditor that
-can be created by:
-
-\code
-    PtrMan<uiEMEditor> uieditor =
-    	MPE::uiMPE().editorfact.create( uiparent, editor );
-\endcode
-*/
-
-mExpClass(uiMPE) uiEMEditor : public CallBacker
-{
-public:
-    			uiEMEditor(uiParent*);
-    virtual		~uiEMEditor();
-    virtual void	setActiveNode( const EM::PosID& n ) { node=n; }
-    virtual void	createNodeMenus(CallBacker*) {}
-    virtual void	handleNodeMenus(CallBacker*) {}
-    virtual void	createInteractionLineMenus(CallBacker*) {}
-    virtual void	handleInteractionLineMenus(CallBacker*) {}
-
-protected:
-    EM::PosID		node;
-    uiParent*		parent;
-};
-
-
-/*! Factory function that can produce a MPE::uiEMEditor* given a 
-    uiParent* and a MPE::ObjectEditor*. \note that the function should
-    return a zero pointer if the MPE::ObjectEditor* is of the wrong kind. */
-
-
-typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
-
-/*! Factory that is able to create MPE::uiEMEditor objects given a uiParent*
-    and a MPE::ObjectEditor*. Each class that wants to be able to procuce
-    instances of itself must register itself with the addFactory startup. */
-
-mExpClass(uiMPE) uiEMEditorFactory
-{
-public:
-    void		addFactory( uiEMEditorCreationFunc f );
-    uiEMEditor*		create( uiParent*, MPE::ObjectEditor* e ) const;
-			/*!<Iterates through all added factory functions
-			    until one of the returns a non-zero pointer. */
-
-protected:
-    TypeSet<uiEMEditorCreationFunc>	funcs;
-
-};
-
 
 /*! Interface to track-setup groups. Implementations can be retrieved through
     MPE::uiSetupGroupFactory. */
@@ -113,18 +59,18 @@ public:
     virtual NotifierAccess*	similartyChangeNotifier()	{ return 0; }
 
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
-    virtual bool	commitToTracker() const; 
+    virtual bool	commitToTracker() const;
 
     virtual void	showGroupOnTop(const char* grpnm)	{}
 
     BufferString	helpref_;
 };
-    
 
-/*! Factory function that can produce a MPE::uiSetupGroup* given a 
+
+/*! Factory function that can produce a MPE::uiSetupGroup* given a
     uiParent* and an Attrib::DescSet*. */
 
-typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,	
+typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
 					       const Attrib::DescSet*);
 
 /*! Factory that is able to create MPE::uiSetupGroup* given a uiParent*,
@@ -154,10 +100,9 @@ protected:
 */
 
 
-mExpClass(uiMPE) uiMPEEngine 
+mExpClass(uiMPE) uiMPEEngine
 {
 public:
-    uiEMEditorFactory		editorfact;
     uiSetupGroupFactory		setupgrpfact;
 };
 
@@ -169,7 +114,7 @@ public:
 */
 mGlobal(uiMPE) uiMPEEngine& uiMPE();
 
-};
+} // namespace MPE
 
 #endif
 
