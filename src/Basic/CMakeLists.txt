@@ -77,6 +77,7 @@ set( OD_MODULE_SOURCES
 	posinfo2dsurv.cc
 	position.cc
 	progressmeter.cc
+	qstreambuf.cc
 	repos.cc
 	rowcol.cc
 	safefileio.cc
