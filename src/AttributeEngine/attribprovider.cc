@@ -1257,7 +1257,7 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
     }
     
     if ( !desiredvolume_ )
-	return false;
+	const_cast<Provider*>(this)->desiredvolume_ = new CubeSampling(res);
 
     res = *desiredvolume_;
 
@@ -1311,11 +1311,7 @@ void Provider::updateInputReqs( int inp )
     CubeSampling inputcs;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
-	if ( !outputinterest_[out] ) continue;
-
-	bool isstored = inputs_[inp] ? inputs_[inp]->desc_.isStored() : false;
-	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
-	    inputs_[inp]->setDesiredVolume( inputcs );
+	if ( !outputinterest_[out] || !inputs_[inp] ) continue;
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);
@@ -1327,12 +1323,9 @@ void Provider::updateInputReqs( int inp )
 	    stepout.crl() = mMAX(stepout.crl(),des->crl() );
 	}
 
-	if ( inputs_[inp] )
-	{
-	    inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) + 
-		    			   reqbufferstepout_, true );
-	    inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
-	}
+	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) +
+				       reqbufferstepout_, true );
+	inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
     }
 }
 
