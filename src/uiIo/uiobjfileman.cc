@@ -25,9 +25,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "file.h"
 #include "filepath.h"
 #include "ioman.h"
+#include "iostrm.h"
 #include "od_iostream.h"
-#include "streamconn.h"
-#include "survinfo.h"
 #include "systeminfo.h"
 
 static const int cPrefHeight = 10;
@@ -114,9 +113,30 @@ void uiObjFileMan::finaliseStartCB( CallBacker* )
 }
 
 
-static BufferString getFileName( const IOObj& ioobj )
+static const IOStream* getIOStream( const IOObj& ioobj )
 {
-    FilePath fp( ioobj.fullUserExpr() );
+    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+    return iostrm;
+}
+
+
+static bool isIOStream( const IOObj& ioobj )
+{
+    return getIOStream( ioobj );
+}
+
+
+
+static BufferString getNotesFileName( const IOObj& ioobj )
+{
+    BufferString fnm( ioobj.fullUserExpr() );
+    FilePath fp( fnm );
+    if ( !fp.isAbsolute() )
+    {
+	fnm.clean( BufferString::NoSpecialChars );
+	fp.set( IOM().rootDir() ); fp.add( ioobj.dirName() );
+	fp.add( fnm );
+    }
     fp.setExtension( "note" );
     return fp.fullPath();
 }
@@ -128,7 +148,7 @@ void uiObjFileMan::saveNotes( CallBacker* )
     if ( !curioobj_ )
 	return;
 
-    const BufferString filename = getFileName( *curioobj_ );
+    const BufferString filename = getNotesFileName( *curioobj_ );
     if ( txt.isEmpty() )
     {
 	if ( File::exists(filename) )
@@ -153,7 +173,7 @@ void uiObjFileMan::readNotes()
 	return;
     }
 
-    od_istream istrm( getFileName(*curioobj_) );
+    od_istream istrm( getNotesFileName(*curioobj_) );
     if ( !istrm.isOK() )
     {
 	notesfld_->setText( sKey::EmptyString() );
@@ -189,15 +209,17 @@ void uiObjFileMan::selChg( CallBacker* cb )
 
 od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
+    nrfiles = 0;
     BufferString actualfilenm = File::isLink(filenm) ? File::linkTarget(filenm)
 						     : filenm;
     if ( !File::exists(actualfilenm.buf()) )
 	return 0;
 
+    // File exists ...
+    nrfiles = 1;
     od_int64 ret = File::getKbSize( actualfilenm.buf() );
     if ( !File::isDirectory(actualfilenm) )
     {
-	nrfiles = 1;
 	FilePath dirnm( actualfilenm );
 	dirnm.setExtension( "" );
 	if ( !File::isDirectory(dirnm.fullPath()) )
@@ -206,12 +228,13 @@ od_int64 uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 	actualfilenm = dirnm.fullPath();
     }
 
+    // It's a directory ...
     BufferStringSet filelist;
     File::makeRecursiveFileList( actualfilenm.buf(), filelist, true );
-    for ( int idx=0; idx<filelist.size(); idx++ )
+    nrfiles = filelist.size();
+    for ( int idx=0; idx<nrfiles; idx++ )
 	ret += File::getKbSize( filelist.get(idx) );
 
-    nrfiles += filelist.size();
     return ret;
 }
 
@@ -256,61 +279,58 @@ BufferString uiObjFileMan::getFileInfo()
     if ( !curioobj_ )
 	return txt;
 
-    const bool isdir = File::isDirectory( curioobj_->fullUserExpr() );
-    mDynamicCastGet(StreamConn*,conn,curioobj_->getConn(Conn::Read))
-    if ( !conn && !isdir )
-    {
-	const BufferString conntyp( curioobj_->connType() );
-	if ( conntyp != StreamConn::sType() )
-	    txt.add( "Data from: " ).add( conntyp );
-	else
-	    txt = "<empty>";
-	txt += "\n\n";
-    }
+    const bool isstrm = isIOStream( *curioobj_ );
+    const BufferString fname = curioobj_->fullUserExpr();
+    const bool isdir = isstrm && File::isDirectory( fname );
+    if ( !isstrm )
+	txt.add( "Data source: " ).add( curioobj_->connType() );
     else
     {
-	BufferString fname( isdir ? curioobj_->fullUserExpr()
-				  : conn->fileName() );
-	FilePath fp( fname );
 	int nrfiles = 0;
-	const od_int64 totsz = getFileSize( fname, nrfiles );
+	const IOStream* iostrm = getIOStream( *curioobj_ );
+	if ( iostrm->isMulti() )
+	    nrfiles = iostrm->fileNumbers().nrSteps() + 1;
 
-	txt += "Location: "; txt += fp.pathOnly();
-	txt += isdir ? "\nDirectory name: " : "\nFile name: ";
-	txt += fp.fileName();
-	txt += "\nSize on disk: "; txt += File::getFileSizeString( totsz );
-	if ( nrfiles > 1 )
-	    { txt += "\nNumber of files: "; txt += nrfiles; }
-	BufferString timestr; getTimeStamp( fname, timestr );
-	if ( !timestr.isEmpty() ) { txt += "\nLast modified: ";txt += timestr; }
-	int txtsz = txt.size()-1;
-	if ( txt[ txtsz ] != '\n' ) txt += "\n";
-	if ( conn )
+	const od_int64 totsz = getFileSize( fname, nrfiles );
+	const BufferString fileszstr( File::getFileSizeString( totsz ) );
+	if ( isdir )
 	{
-	    conn->close();
-	    delete conn;
+	    txt.add( "\nDirectory name: " ).add( fname );
+	    txt.add( "\nTotal size on disk: " ).add( fileszstr );
+	    txt.add( "\nNumber of files: " ).add( nrfiles );
 	}
+	else
+	{
+	    FilePath fp( fname );
+	    txt.add( "\nFile name: " ).add( fp.fileName() );
+	    txt.add( "\nLocation: " ).add( fp.pathOnly() );
+	    txt.add( "\nSize: " ).add( fileszstr );
+	}
+	BufferString timestr; getTimeStamp( fname, timestr );
+	if ( !timestr.isEmpty() )
+	    txt.add( "\nLast modified: " ).add( timestr );
     }
+    txt.add( "\n" );
 
     BufferString crspec;
     curioobj_->pars().get( sKey::CrBy(), crspec );
     if ( crspec.isEmpty() )
 	curioobj_->pars().get( "User", crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "Created by: " ).add( crspec ).add( "\n" );
+	txt.add( "\nCreated by: " ).add( crspec );
 
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrAt(), crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "Created at: " ).add( crspec ).add( "\n" );
+	txt.add( "\nCreated at: " ).add( crspec );
 
     crspec.setEmpty();
     curioobj_->pars().get( sKey::CrFrom(), crspec );
     if ( !crspec.isEmpty() )
-	txt.add( "Created from: " ).add( crspec ).add( "\n" );
+	txt.add( "\nCreated from: " ).add( crspec );
 
-    txt.add( "Object ID: " ).add( curioobj_->key() ).add( "\n" );
-    txt.add( "Storage type: " ).add( curioobj_->translator() ).add( "\n" );
+    txt.add( "\nStorage type: " ).add( curioobj_->translator() );
+    txt.add( "\nObject ID: " ).add( curioobj_->key() );
     return txt;
 }
 

@@ -112,7 +112,7 @@ void uiSeisPreStackMan::mkFileInfo()
 	    BufferStringSet nms;
 	    SPSIOPF().getLineNames( *curioobj_, nms );
 	    txt.set( "Line" ).add( nms.size() != 1 ? "s: " : ": " )
-		.add( nms.getDispString(3,false) ).add( "\n\n" );
+		.add( nms.getDispString(3,false) );
 	}
 	else
 	{
@@ -130,7 +130,7 @@ void uiSeisPreStackMan::mkFileInfo()
 	    if ( cd.haveCrlStepInfo() )
 		{ txt.add( " [" ).add( rg.step ).add( "]" ); }
 	}
-	txt.add("\n");
+	txt.add( "\n" );
 
 	TrcKeyZSampling cs;
 	if ( objinf.getRanges(cs) )

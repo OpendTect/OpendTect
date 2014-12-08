@@ -23,53 +23,56 @@ static const char* rcsID mUsedVar = "$Id$";
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 {
     bool dorm = true;
-    const bool isoutside = !ioobj_.isInCurrentSurvey();
-    if ( !silent_ )
+    if ( !ioobj_.implManagesObjects() )
     {
-	uiString mess;
-	if ( !ioobj_.isSubdir() )
-	{
-	    mess = tr("Remove '%1'%2");
-	    mess.arg( ioobj_.name() );
-	    mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
-				     "Specify what you would like to remove")
-				: "?" );
-	}
-	else
-	{
-	    mess = tr("Remove '%1' with folder\n'%2'%3");
-	    mess.arg( ioobj_.name() );
-	    mess.arg( ioobj_.fullUserExpr(true) );
-	    mess.arg( tr("\n- and everything in it! - ?") );
-	}
-
-	if ( isoutside )
-	{
-	    const int resp = uiMSG().question( mess, tr("Remove file"),
-					       tr("Remove link"), tr("Cancel"),
-					       tr("Remove data") );
-	    if ( resp < 0 )
-		return false;
-
-	    dorm = resp;
-	}
-	else if ( doconfirm && !uiMSG().askRemove(mess) )
-	{
-	    if ( mustrm )
-		return false;
-
-	    dorm = false;
-	}
-    }
-
-    if ( dorm && !fullImplRemove(ioobj_) )
-    {
+	const bool isoutside = !ioobj_.isInCurrentSurvey();
 	if ( !silent_ )
 	{
-	    uiString mess = tr("Could not remove data file(s).\n"
-			       "Remove entry from list anyway?");
-	    if ( !uiMSG().askRemove(mess) )
-		return false;
+	    uiString mess;
+	    if ( !ioobj_.isSubdir() )
+	    {
+		mess = tr("Remove '%1'%2");
+		mess.arg( ioobj_.name() );
+		mess.arg( isoutside ? tr("\nFile is not in current survey.\n"
+				     "Specify what you would like to remove")
+				    : "?" );
+	    }
+	    else
+	    {
+		mess = tr("Remove '%1' with folder\n'%2'%3");
+		mess.arg( ioobj_.name() );
+		mess.arg( ioobj_.fullUserExpr(true) );
+		mess.arg( tr("\n- and everything in it! - ?") );
+	    }
+
+	    if ( isoutside )
+	    {
+		const int resp = uiMSG().question( mess, tr("Remove file"),
+					       tr("Remove link"), tr("Cancel"),
+					       tr("Remove data") );
+		if ( resp < 0 )
+		    return false;
+
+		dorm = resp;
+	    }
+	    else if ( doconfirm && !uiMSG().askRemove(mess) )
+	    {
+		if ( mustrm )
+		    return false;
+
+		dorm = false;
+	    }
+	}
+
+	if ( dorm && !fullImplRemove(ioobj_) )
+	{
+	    if ( !silent_ )
+	    {
+		uiString mess = tr("Could not remove data file(s).\n"
+				   "Remove entry from list anyway?");
+		if ( !uiMSG().askRemove(mess) )
+		    return false;
+	    }
 	}
     }
 
