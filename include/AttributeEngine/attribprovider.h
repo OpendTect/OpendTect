@@ -169,7 +169,7 @@ public:
    				//!<which inputs are not treated as normal
     				//!<input cubes and thus not delivering
     				//!<adequate cs automaticly
-    virtual void		updateCSIfNeeded(TrcKeyZSampling&) const	{}
+    virtual void		updateCSIfNeeded(TrcKeyZSampling&) const {}
     virtual bool		compDistBetwTrcsStats(bool force=false);
     float			getApplicableCrlDist(bool) const;
     virtual float		getDistBetwTrcs(bool,
@@ -239,7 +239,7 @@ protected:
     virtual BinDataDesc		getOutputFormat(int output) const;
     virtual bool		doNotReUseDH() const		{ return false;}
 
-    bool			computeDesInputCube(int inp,int out,
+    void			computeDesInputCube(int inp,int out,
 						    TrcKeyZSampling&,
 						    bool usestepout=true) const;
     				/*!<The system uses the margin and stepout

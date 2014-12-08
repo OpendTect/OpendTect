@@ -386,12 +386,11 @@ void Provider::setDesiredVolume( const TrcKeyZSampling& ndv )
 	if ( !inputs_[idx] ) continue;
 	for ( int idy=0; idy<outputinterest_.size(); idy++ )
 	{
-	    if ( outputinterest_[idy]<1 ) continue;
+	    if ( outputinterest_[idy]<1 || !inputs_[idx] ) continue;
 
-	    bool isstored = inputs_[idx] ? inputs_[idx]->desc_.isStored() 
-					 : false;
-	    if ( computeDesInputCube( idx, idy, inputcs, !isstored ) )
-		inputs_[idx]->setDesiredVolume( inputcs );
+	    bool isstored = inputs_[idx]->desc_.isStored();
+	    computeDesInputCube( idx, idy, inputcs, !isstored );
+	    inputs_[idx]->setDesiredVolume( inputcs );
 	}
     }
 }
@@ -454,7 +453,9 @@ bool Provider::getPossibleVolume( int output, TrcKeyZSampling& res )
 	    
 	    for ( int idy=0; idy<inputoutput.size(); idy++ )
 	    {
-		if ( !computeDesInputCube(inp, out, inputcs, true)) continue;
+		if ( !inputs_[inp] ) continue;
+
+		computeDesInputCube(inp, out, inputcs, true);
 		if ( !inputs_[inp]->getPossibleVolume( idy, inputcs ) ) 
 		    continue;
 
@@ -1236,8 +1237,8 @@ void Provider::updateStorageReqs( bool all )
 }
 
 
-bool Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
-					bool usestepout ) const
+void Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
+				    bool usestepout ) const
 {
     //Be careful if usestepout=true with des and req stepouts
     if ( seldata_ && seldata_->type() == Seis::Table )
@@ -1258,7 +1259,7 @@ bool Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
     }
     
     if ( !desiredvolume_ )
-	return false;
+	const_cast<Provider*>(this)->desiredvolume_ = new TrcKeyZSampling(res);
 
     res = *desiredvolume_;
 
@@ -1295,8 +1296,6 @@ bool Provider::computeDesInputCube( int inp, int out, TrcKeyZSampling& res,
     
     res.zsamp_.start += zrg.start;
     res.zsamp_.stop += zrg.stop;
-
-    return true;
 }
 
 
@@ -1312,11 +1311,7 @@ void Provider::updateInputReqs( int inp )
     TrcKeyZSampling inputcs;
     for ( int out=0; out<outputinterest_.size(); out++ )
     {
-	if ( !outputinterest_[out] ) continue;
-
-	bool isstored = inputs_[inp] ? inputs_[inp]->desc_.isStored() : false;
-	if ( computeDesInputCube( inp, out, inputcs, !isstored ) )
-	    inputs_[inp]->setDesiredVolume( inputcs );
+	if ( !outputinterest_[out] || !inputs_[inp] ) continue;
 
 	BinID stepout(0,0);
 	const BinID* req = reqStepout(inp,out);
@@ -1328,12 +1323,9 @@ void Provider::updateInputReqs( int inp )
 	    stepout.crl() = mMAX(stepout.crl(),des->crl() );
 	}
 
-	if ( inputs_[inp] )
-	{
-	    inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) + 
-		    			   reqbufferstepout_, true );
-	    inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
-	}
+	inputs_[inp]->setReqBufStepout( ( req ? *req : BinID(0,0) ) +
+				       reqbufferstepout_, true );
+	inputs_[inp]->setDesBufStepout( stepout+desbufferstepout_ );
     }
 }
 
