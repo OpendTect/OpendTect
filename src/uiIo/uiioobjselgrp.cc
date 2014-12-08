@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uitoolbutton.h"
 #include "uimsg.h"
 #include "uistrings.h"
+#include "settings.h"
 #include "od_helpids.h"
 
 #define mObjTypeName ctio_.ctxt.objectTypeName()
@@ -154,6 +155,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
 void uiIOObjSelGrp::init( const uiString& seltxt )
 {
+    iconnms_.allowNull( true );
     ctio_.ctxt.fillTrGroup();
     nmfld_ = 0; wrtrselfld_ = 0;
     manipgrpsubj = 0; mkdefbut_ = 0; asked2overwrite_ = false;
@@ -578,42 +580,54 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     if ( !nmflt.isEmpty() && nmflt != "*" )
 	del.fill( iodir, nmflt );
 
+    static const bool icsel_
+		= Settings::common().isTrue( "Ui.Icons.ObjSel" );
     ioobjnms_.erase();
     dispnms_.erase();
+    iconnms_.erase();
     deepErase( ioobjids_ );
     for ( int idx=0; idx<del.size(); idx++ )
     {
 	const IOObj* ioobj = del[idx]->ioobj_;
+
+	// 'uiIOObjEntryInfo'
+	BufferString dispnm( del[idx]->name() );
+	BufferString ioobjnm;
+	MultiID objid( udfmid );
+	const char* icnm = 0;
+
 	if ( !ioobj )
-	{
-	    BufferString nm = del[idx]->name();
-	    nm.trimBlanks();
-	    dispnms_.add( nm );
-	    ioobjnms_.add( nm );
-	    ioobjids_ += new MultiID( udfmid );
-	}
+	    ioobjnm = dispnm;
 	else
 	{
-	    const MultiID ky( del[idx]->ioobj_->key() );
-	    ioobjids_ += new MultiID( ky );
-	    ioobjnms_.add( ioobj->name() );
-	    BufferString dispnm;
-	    const bool isdef = IOObj::isSurveyDefault(ky);
-	    const bool ispl = StreamProvider::isPreLoaded(ky.buf(),true);
-	    if ( isdef )
-		dispnm += "> ";
-	    if ( ispl )
-		dispnm += "/ ";
+	    objid = del[idx]->ioobj_->key();
+	    const bool isdef = IOObj::isSurveyDefault( objid );
+	    const bool ispl = StreamProvider::isPreLoaded( objid.buf(), true );
+
+	    dispnm.setEmpty();
+	    if ( isdef ) dispnm += "> ";
+	    if ( ispl ) dispnm += "/ ";
 	    dispnm += ioobj->name();
-	    if ( ispl )
-		dispnm += " \\";
-	    if ( isdef )
-		dispnm += " <";
-	    dispnms_.add( dispnm );
+	    if ( ispl ) dispnm += " \\";
+	    if ( isdef ) dispnm += " <";
 
 	    if ( ctio_.ctxt.forread && isdef && curidx < 0 )
 		curidx = idx;
+
+	    if ( icsel_ )
+	    {
+		PtrMan<Translator> transl = ioobj->createTranslator();
+		if ( transl )
+		    icnm = transl->iconName();
+	    }
 	}
+
+	//TODO cleaner is to put this into one object: uiIOObjEntryInfo
+	ioobjids_ += new MultiID( objid );
+	ioobjnms_.add( ioobjnm );
+	dispnms_.add( dispnm );
+	if ( icsel_ )
+	    iconnms_ += icnm;
     }
 
     fillListBox();
@@ -629,6 +643,12 @@ void uiIOObjSelGrp::fillListBox()
 
     listfld_->setEmpty();
     listfld_->addItems( dispnms_ );
+    for ( int idx=0; idx<iconnms_.size(); idx++ )
+    {
+	const char* icnm = iconnms_[idx];
+	if ( !icnm ) icnm = "empty";
+	listfld_->setIcon( idx, icnm );
+    }
 
     selectionChanged.trigger();
 }

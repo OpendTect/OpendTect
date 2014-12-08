@@ -140,6 +140,7 @@ protected:
     BufferStringSet	dispnms_;
     BufferString	surveydefaultsubsel_;
     bool		asked2overwrite_;
+    ObjectSet<const char> iconnms_;
 
     uiListBox*		listfld_;
     uiGenInput*		nmfld_;
