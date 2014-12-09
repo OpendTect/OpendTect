@@ -89,9 +89,15 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 
 void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
 {
-    varnmsfld_->displayField( dim1, -1, 0 );
-    varnmsfld_->displayField( dim2, -1, 1 );
-    rokdocimpextendbut_.getParam( this )->display( dim1 || dim2 );
+    const bool doshow = dim1 || dim2;
+    varnmsfld_->display( doshow );
+    if ( doshow )
+    {
+	varnmsfld_->displayField( dim1, -1, 0 );
+	varnmsfld_->displayField( dim2, -1, 1 );
+    }
+
+    rokdocimpextendbut_.getParam( this )->display( doshow );
     xrgfld_->display( dim1 );
     xnrbinfld_->display( dim1 );
     yrgfld_->display( dim2 );
@@ -109,16 +115,16 @@ RokDocImporter( const char* fnm )
 }
 
 
-#define mRewindStream() \
+#define mRewindStream(msg) \
 { \
     strm_.setPosition( 0 ); \
     if ( !strm_.isOK() ) \
-    { errmsg_ = "Cannot open input file"; return 0; } \
+    { errmsg_.set( msg ); strm_.addErrMsgTo( errmsg_ ); return 0; } \
 }
 
 int getNrDims()
 {
-    mRewindStream()
+    mRewindStream( "Cannot open input file to determine nr of dimensions" )
 
     int nrdims = 0;
     ascistream astrm( strm_, false );
@@ -141,7 +147,7 @@ int getNrDims()
 
 Sampled1DProbDenFunc* get1DPDF()
 {
-    mRewindStream()
+    mRewindStream( "Cannot open input file to import 1D PDF data" )
 
     BufferString varnm("X");
     SamplingData<float> sd(0,1);
@@ -193,7 +199,7 @@ Sampled1DProbDenFunc* get1DPDF()
 
 Sampled2DProbDenFunc* get2DPDF()
 {
-    mRewindStream()
+    mRewindStream( "Cannot open input file to import 2D PDF data" )
 
     BufferString dim0nm("X"), dim1nm("Y");
     SamplingData<float> sd0(0,1), sd1(0,1);
@@ -546,6 +552,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
 
     if ( !strm_.isOK() )
 	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+
     return errmsg_.isEmpty();
 }
 
@@ -593,6 +600,7 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
 
     if ( !strm_.isOK() )
 	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+
     return errmsg_.isEmpty();
 }
 
