@@ -528,6 +528,8 @@ void PickSetDisplay::setDisplayTransformation( const mVisTrans* newtr )
 	bodydisplay_->setDisplayTransformation( newtr );
     if ( markerset_ )
 	markerset_->setDisplayTransformation( newtr );
+    if ( polyline_ )
+	polyline_->setDisplayTransformation( newtr );
 }
 
 
