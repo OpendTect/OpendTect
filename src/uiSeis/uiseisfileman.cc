@@ -137,7 +137,7 @@ void uiSeisFileMan::setToolButtonProperties()
 		   is2d_ ? "Copy dataset" : "Copy cube");
     if ( browsebut_ )
     {
-	const bool enabbrowse = curimplexists_ && !mIsOfTranslType(SEGYDirect);
+	const bool enabbrowse = curimplexists_ && mIsOfTranslType(CBVS);
 	browsebut_->setSensitive( enabbrowse );
 	mSetButToolTip(browsebut_,"Browse/edit '",cursel,"'",
 			"Browse/edit selected cube");
@@ -297,7 +297,7 @@ void uiSeisFileMan::mkFileInfo()
     } // if ( oinf.isOK() )
 
     if ( txt.isEmpty() )
-	txt = "<Empty>\n";
+	txt = "<No specific info available>\n";
     txt.add( "\n" ).add( getFileInfo() );
 
     setInfo( txt );

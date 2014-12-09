@@ -184,7 +184,7 @@ void uiIOObjSelGrp::mkTopFlds( const uiString& seltxt )
     else
     {
 	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt,
-							setup_.choicemode_ );
+				setup_.choicemode_, uiLabeledListBox::LeftTop );
 	listfld_ = llb->box();
 	lfatt = llb->attachObj();
     }
@@ -260,7 +260,8 @@ void uiIOObjSelGrp::mkManipulators()
       || !uiIOObjInserter::isPresent(*ctio_.ctxt.trgroup) )
 	return;
 
-    uiGroup* insbutgrp = new uiGroup( topgrp_, "IOObj insert buttons" );
+    uiGroup* insbutgrp = new uiGroup( listfld_->parent(),
+					"IOObj insert buttons" );
     const ObjectSet<const Translator>& tpls = ctio_.ctxt.trgroup->templates();
     for ( int idx=0; idx<tpls.size(); idx++ )
     {
@@ -281,6 +282,7 @@ void uiIOObjSelGrp::mkManipulators()
 	inserter->objectInserted.notify( mCB(this,uiIOObjSelGrp,objInserted) );
 	inserters_ += inserter;
     }
+
     insbutgrp->attach( centeredLeftOf, listfld_ );
 }
 

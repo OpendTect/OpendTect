@@ -727,26 +727,25 @@ void uiWellMan::exportLogs( CallBacker* )
 }
 
 
-void uiWellMan::mkFileInfo()
-{
-    if ( !curioobj_ )
-    {
-	setInfo( "" );
-	return;
-    }
-
-    Well::Data curwd( curioobj_->name() ) ;
-    const Well::Reader currdr( *curioobj_, curwd );
-    if( !currdr.getInfo() )
-	{ setInfo( "" ); return; }
-
-    const Well::Info& info = curwd.info();
-    const Well::Track& track = curwd.track();
-
-    BufferString txt;
 #define mAddWellInfo(key,str) \
     if ( !str.isEmpty() ) \
     { txt += key; txt += ": "; txt += str; txt += "\n"; }
+
+
+void uiWellMan::mkFileInfo()
+{
+    if ( !curioobj_ )
+	{ setInfo( "" ); return; }
+
+    Well::Data curwd( curioobj_->name() ) ;
+    const Well::Reader currdr( *curioobj_, curwd );
+    BufferString txt;
+
+    if ( currdr.getInfo() )
+    {
+
+    const Well::Info& info = curwd.info();
+    const Well::Track& track = curwd.track();
 
     const BufferString posstr( info.surfacecoord.toString(), " ",
 		SI().transform(info.surfacecoord).toString() );
@@ -813,7 +812,12 @@ void uiWellMan::mkFileInfo()
     mAddWellInfo(Well::Info::sKeystate(),info.state)
     mAddWellInfo(Well::Info::sKeycounty(),info.county)
 
-    txt += getFileInfo();
+    if ( txt.isEmpty() )
+	txt.set( "<No specific info available>\n" );
+
+    } // if ( currdr.getInfo() )
+
+    txt.add( getFileInfo() );
     setInfo( txt );
 }
 
