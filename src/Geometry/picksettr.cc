@@ -29,12 +29,7 @@ mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
 
 int PickSetTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector("Locations directory",key) ) return 1;
-
-    return 0;
+    return defaultSelector( theInst().userName(), key );
 }
 
 
