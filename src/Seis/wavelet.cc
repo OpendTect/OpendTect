@@ -528,12 +528,7 @@ const float* WaveletValueSeries::arr() const
 
 int WaveletTranslatorGroup::selector( const char* key )
 {
-    int retval = defaultSelector( theInst().userName(), key );
-    if ( retval ) return retval;
-
-    if ( defaultSelector("Wavelet directory",key)
-      || defaultSelector("Seismic directory",key) ) return 1;
-    return 0;
+    return defaultSelector( theInst().userName(), key );
 }
 
 mDefSimpleTranslatorioContext(Wavelet,Seis)
