@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "filepath.h"
 #include "file.h"
 #include "uidesktopservices.h"
+#include "odinst.h"
 #include "odversion.h"
 #include "odnetworkaccess.h"
 #include "keystrs.h"
@@ -101,23 +102,18 @@ void DevDocHelp::initClass()
 
 BufferString DevDocHelp::getUrl() const
 {
-    FilePath basefile = mGetProgrammerDocDir();
-    basefile.add( "index.html" );
-
-    if ( File::exists( basefile.fullPath()) )
-	return BufferString( fileprot, basefile.fullPath(FilePath::Unix) );
-
-    BufferString url = "http://www.opendtect.org/";
-    url.add( toString(mODVersion) );
-    url.add( "/doc/Programmer/index.html" );
-
-    BufferString networkmsg;
-    mDefineStaticLocalObject( bool, isonline, = Network::ping(url,networkmsg) );
-
-    if ( !isonline )
+    const BufferString classpkgver( ODInst::getPkgVersion("classdoc") );
+    const bool foundclspkg = !classpkgver.isEmpty() &&
+			     !classpkgver.find( "error" );
+    if ( !foundclspkg )
 	return BufferString( sKey::EmptyString() );
 
-    return url;
+    FilePath basefile = mGetProgrammerDocDir();
+    basefile.add( "index.html" );
+    if (!File::exists( basefile.fullPath()) )
+	return BufferString( sKey::EmptyString() );
+
+    return BufferString( fileprot, basefile.fullPath(FilePath::Unix) );
 }
 
 
