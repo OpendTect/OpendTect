@@ -109,13 +109,12 @@ public:
 RokDocImporter( const char* fnm )
     : strm_(fnm)
 {
-    strm_.setNoClose();
 }
 
 
 #define mRewindStream(msg) \
 { \
-    strm_.setPosition( 0 ); \
+    strm_.reOpen(); \
     if ( !strm_.isOK() ) \
     { errmsg_ =  msg; strm_.addErrMsgTo( errmsg_ ); return 0; } \
 }
