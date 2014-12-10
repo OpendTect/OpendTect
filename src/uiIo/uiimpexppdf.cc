@@ -115,16 +115,14 @@ RokDocImporter( const char* fnm )
 }
 
 
-#define mRewindStream(msg) \
-{ \
-    strm_.setPosition( 0 ); \
-    if ( !strm_.isOK() ) \
-    { errmsg_.set( msg ); strm_.addErrMsgTo( errmsg_ ); return 0; } \
-}
-
 int getNrDims()
 {
-    mRewindStream( "Cannot open input file to determine nr of dimensions" )
+    if ( !strm_.isOK() ) \
+    {
+	errmsg_.set( "Cannot open input file to determine nr of dimensions" );
+	strm_.addErrMsgTo( errmsg_ );
+	return 0;
+    }
 
     int nrdims = 0;
     ascistream astrm( strm_, false );
@@ -142,6 +140,14 @@ int getNrDims()
     }
 
     return nrdims;
+}
+
+// reOpen needed after problem with setPostion( 0 ) in RELEASE mode
+#define mRewindStream(msg) \
+{ \
+    strm_.reOpen(); \
+    if ( !strm_.isOK() ) \
+    { errmsg_.set( msg ); strm_.addErrMsgTo( errmsg_ ); return 0; } \
 }
 
 
@@ -268,8 +274,8 @@ Sampled2DProbDenFunc* get2DPDF()
 #define mInitPDFRead(act) \
 { \
     const int nrdims = imp.getNrDims(); \
-    if ( nrdims != 1 && nrdims != 2 ) \
-    { uiMSG().error( "Can only import 1D and 2D sampled PDFs" ); act; } \
+    if ( nrdims == 0 ) \
+    { uiMSG().error( imp.errmsg_ ); act; } \
 \
     if ( nrdims == 1 ) \
 	pdf = imp.get1DPDF(); \
