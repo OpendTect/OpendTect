@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "horizon2dscanner.h"
 #include "ioman.h"
 #include "randcolor.h"
-#include "seis2dline.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"

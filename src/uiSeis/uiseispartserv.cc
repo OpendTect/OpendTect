@@ -222,14 +222,6 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid )
     Seis2DDataSet dataset( *ioobj );
 
 
-void uiSeisPartServer::get2DDataSetName( const MultiID& mid,
-					 BufferString& setname )
-{
-    mGet2DDataSet(;)
-    setname = dataset.name();
-}
-
-
 bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 				      int& action )
 {
@@ -258,13 +250,6 @@ bool uiSeisPartServer::select2DLines( TypeSet<Pos::GeomID>& selids,
 }
 
 
-void uiSeisPartServer::get2DLineInfo( TypeSet<Pos::GeomID>& geomids,
-				      BufferStringSet& linenames )
-{
-    Survey::GM().getList( linenames, geomids, true );
-}
-
-
 void uiSeisPartServer::get2DStoredAttribs( const char* linenm,
 					   BufferStringSet& datasets,
 					   int steerpol )
@@ -283,9 +268,9 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
     if ( lidx < 0 ) return false;
 
     StepInterval<int> trcrg;
-    dataset.getRanges( lidx, trcrg, cs.zsamp_ );
+    dataset.getRanges( dataset.geomID(lidx), trcrg, cs.zsamp_ );
     cs.hrg.setCrlRange( trcrg );
-    PtrMan<Executor> exec = dataset.lineFetcher( lidx, buf );
+    PtrMan<Executor> exec = dataset.lineFetcher( dataset.geomID(lidx), buf );
     uiTaskRunner dlg( parent() );
     return TaskRunner::execute( &dlg, *exec );
 }

@@ -354,8 +354,8 @@ bool ParallelReader2D::doWork( od_int64 start, od_int64 stop, int threadid )
     const int lidx = dataset.indexOf( geomid_ );
     if ( lidx<0 ) return false;
 
-    const IOPar& iopar = dataset.getInfo( lidx );
-    const char* fnm = SeisCBVS2DLineIOProvider::getFileName( iopar );
+    const char* fnm = SeisCBVS2DLineIOProvider::getFileName( *ioobj,
+							dataset.geomID(lidx) );
     PtrMan<CBVSSeisTrcTranslator> trl =
 	CBVSSeisTrcTranslator::make( fnm, false, true );
     if ( !trl ) return false;

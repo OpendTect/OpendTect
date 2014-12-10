@@ -422,9 +422,9 @@ void createSelFields( DataType type )
     
     if ( type==uiSelectPositionDlg::Stored2D )
     {
-	SeisIOObjInfo objinfo( mid_ );
+	SeisIOObjInfo seisinfo( mid_ );
 	BufferStringSet linenames;
-	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
+	seisinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this, "Gain Analyisis on line:" );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );

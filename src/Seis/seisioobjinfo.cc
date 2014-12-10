@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "conn.h"
 #include "globexpr.h"
 #include "iodir.h"
+#include "iodirentry.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -37,7 +38,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mGoToSeisDir() \
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )
 
-#define mGetLineSet(nm,rv) \
+#define mGetDataSet(nm,rv) \
     if ( !isOK() || !is2D() || isPS() ) return rv; \
  \
     PtrMan<Seis2DDataSet> nm \
@@ -134,17 +135,17 @@ bool SeisIOObjInfo::getDefSpaceInfo( SpaceInfo& spinf ) const
 
     if ( Seis::is2D(geomtype_) )
     {
-	mGetLineSet(lset,false);
+	mGetDataSet(dset,false);
 	StepInterval<int> trcrg; StepInterval<float> zrg;
-	BufferStringSet seen;
+	TypeSet<Pos::GeomID> seen;
 	spinf.expectednrtrcs = 0;
-	for ( int idx=0; idx<lset->nrLines(); idx++ )
+	for ( int idx=0; idx<dset->nrLines(); idx++ )
 	{
-	    const char* lnm = lset->lineName( idx );
-	    if ( !seen.isPresent(lnm) )
+	    const Pos::GeomID geomid = dset->geomID( idx );
+	    if ( !seen.isPresent(geomid) )
 	    {
-		seen.add( lnm );
-		lset->getRanges( idx, trcrg, zrg );
+		seen.add( geomid );
+		dset->getRanges( geomid, trcrg, zrg );
 		spinf.expectednrtrcs += trcrg.nrSteps() + 1;
 	    }
 	}
@@ -308,7 +309,7 @@ bool SeisIOObjInfo::getBPS( int& bps, int icomp ) const
 
 
 void SeisIOObjInfo::getNms( BufferStringSet& bss,
-			    const SeisIOObjInfo::Opts2D& o2d, bool attr ) const
+			    const SeisIOObjInfo::Opts2D& o2d ) const
 {
     if ( !isOK() )
 	return;
@@ -348,31 +349,6 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss,
 }
 
 
-void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
-			    const SeisIOObjInfo::Opts2D& o2d, bool l4a ) const
-{
-    if ( !nm || !*nm ) return;
-
-    mGetLineSet(dset,);
-    mGetZDomainGE;
-    const BufferString target( nm );
-    for ( int idx=0; idx<dset->nrLines(); idx++ )
-    {
-	const char* lnm = dset->lineName( idx );
-	const char* requested = lnm;
-	const char* listadd = lnm;
-
-	if ( target == requested )
-	{
-	    mChkOpts;
-	    bss.addIfNew( listadd );
-	}
-    }
-
-    bss.sort();
-}
-
-
 bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
 			       StepInterval<int>& trcrg,
 			       StepInterval<float>& zrg ) const
@@ -380,14 +356,7 @@ bool SeisIOObjInfo::getRanges( const Pos::GeomID geomid,
     mChk(false);
     PtrMan<Seis2DDataSet> dataset =
 				new Seis2DDataSet( *ioobj_ );
-    if ( dataset->nrLines() == 0 )
-	return false;
-
-    const int lidx = dataset->indexOf( geomid );
-    if ( lidx < 0 )
-	return false;
-
-    return dataset->getRanges( lidx, trcrg, zrg );
+    return dataset->getRanges( geomid, trcrg, zrg );
 }
 
 
@@ -499,7 +468,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	int lidx = dataset->indexOf( geomid );
 	if ( lidx < 0 ) lidx = 0;
 	SeisTrcBuf tbuf( true );
-	Executor* ex = dataset->lineFetcher( lidx, tbuf, 1 );
+	Executor* ex = dataset->lineFetcher( dataset->geomID(lidx), tbuf, 1 );
 	if ( ex ) ex->doStep();
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
@@ -529,6 +498,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 
 bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 {
+    const char* linenm = Survey::GM().getName( geomid );
     const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
     const IODir iodir( mid );
     const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
@@ -537,7 +507,6 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 	const IOObj& ioobj = *ioobjs[idx];
 	if ( SeisTrcTranslator::isPS(ioobj) )
 	{
-	    const char* linenm = Survey::GM().getName( geomid );
 	    BufferStringSet linenames;
 	    SPSIOPF().getLineNames( ioobj, linenames );
 	    if ( linenames.isPresent(linenm) )
@@ -549,7 +518,7 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 		continue;
 
 	    Seis2DDataSet dset( ioobj );
-	    if ( dset.indexOf(geomid) >= 0 )
+	    if ( dset.isPresent(geomid) )
 		return true;
 	}
     }
@@ -559,94 +528,44 @@ bool SeisIOObjInfo::hasData( Pos::GeomID geomid )
 
 
 void SeisIOObjInfo::getDataSetNamesForLine( const char* lnm,
-					BufferStringSet& datasets, Opts2D o2d )
+					    BufferStringSet& datasets,
+					    Opts2D o2d )
+{ getDataSetNamesForLine( Survey::GM().getGeomID(lnm), datasets, o2d ); }
+
+void SeisIOObjInfo::getDataSetNamesForLine( Pos::GeomID geomid,
+					    BufferStringSet& datasets,
+					    Opts2D o2d )
 {
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
-    const IODir iodir( mid );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    if ( geomid == mUdfGeomID )
+	return;
+
+    IOObjContext ctxt( mIOObjContext(SeisTrc2D) );
+    const IODir iodir( ctxt.getSelKey() );
+    const IODirEntryList del( iodir, ctxt );
+    for ( int idx=0; idx<del.size(); idx++ )
     {
-	const IOObj& ioobj = *ioobjs[idx];
-	if ( *ioobj.group() != '2' || SeisTrcTranslator::isPS(ioobj) )
+	const IOObj* ioobj = del[idx]->ioobj_;
+	if ( !ioobj )
 	    continue;
 
 	if ( !o2d.zdomky_.isEmpty() )
 	{
-	    const FixedString zdomkey = ioobj.pars().find( ZDomain::sKey() );
+	    const FixedString zdomkey = ioobj->pars().find( ZDomain::sKey() );
 	    if ( o2d.zdomky_ != zdomkey )
 		continue;
 	}
 
 	if ( o2d.steerpol_ != 2 )
 	{
-	    const FixedString dt = ioobj.pars().find( sKey::Type() );
+	    const FixedString dt = ioobj->pars().find( sKey::Type() );
 	    const bool issteering = dt==sKey::Steering();
 	    const bool wantsteering = o2d.steerpol_ == 1;
 	    if ( issteering != wantsteering ) continue;
 	}
 
-	SeisIOObjInfo ibjinfo( ioobj );
-	BufferStringSet lnms;
-	ibjinfo.getLineNames( lnms );
-	if ( !lnm || lnms.isPresent(lnm) )
-	    datasets.add( ioobj.name() );
-    }
-}
-
-
-void SeisIOObjInfo::get2DDataSetInfo( BufferStringSet& datasets,
-				      TypeSet<MultiID>* setids,
-				      TypeSet<BufferStringSet>* linenames )
-{
-    datasets.erase();
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
-    const IODir iodir( mid );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	const IOObj& ioobj = *ioobjs[idx];
-	if ( !(*ioobj.group() == 'T' || *ioobj.translator() == 'T')
-	  || SeisTrcTranslator::isPS(ioobj) ) continue;
-
-	datasets.add( ioobj.name() );
-	if ( setids )
-	    *setids += ioobj.key();
-
-	if ( linenames )
-	{
-	    SeisIOObjInfo oinf( ioobj );
-	    BufferStringSet lnms;
-	    oinf.getLineNames( lnms );
-	    *linenames += lnms;
-	}
-    }
-}
-
-
-void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
-				   TypeSet<MultiID>* setids,
-				   TypeSet<BufferStringSet>* linenames )
-{
-    const MultiID mid ( IOObjContext::getStdDirData(IOObjContext::Seis)->id );
-    const IODir iodir( mid );
-    const ObjectSet<IOObj>& ioobjs = iodir.getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	const IOObj& ioobj = *ioobjs[idx];
-	if ( !(*ioobj.group() == '2' || *ioobj.translator() == '2')
-	  || SeisTrcTranslator::isPS(ioobj) ) continue;
-
-	linesets.add( ioobj.name() );
-	if ( setids )
-	    *setids += ioobj.key();
-
-	if ( linenames )
-	{
-	    SeisIOObjInfo oinf( ioobj );
-	    BufferStringSet lnms;
-	    oinf.getLineNames( lnms );
-	    *linenames += lnms;
-	}
+	Seis2DDataSet ds( *ioobj );
+	if ( ds.isPresent(geomid) )
+	    datasets.add( ioobj->name() );
     }
 }
 

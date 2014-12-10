@@ -28,14 +28,14 @@ public:
     				Hor2DFrom3DCreatorGrp(const EM::Horizon3D&,
 						      EM::Horizon2D&);
 				~Hor2DFrom3DCreatorGrp();
+
    void				init(const TypeSet<Pos::GeomID>&);
 
-   void				init(const BufferStringSet&,const char*);
-   				//TODO: Remove once the one above is deployed.
-
 protected:
+
     const EM::Horizon3D&	hor3d_;
     EM::Horizon2D&		hor2d_;
+
 };
 
 
@@ -55,13 +55,14 @@ public:
     virtual od_int64		totalNr() const		{ return totalnr_; }
 
 protected:
+
     const EM::Horizon3D&	hor3d_;
     EM::Horizon2D&		hor2d_;
     int				nrdone_;
     int				totalnr_;
     Pos::GeomID			geomid_;
     
-    PosInfo::Line2DData		posdata_;
+    const Survey::Geometry2D*	geom2d_;
 };
 
 #endif

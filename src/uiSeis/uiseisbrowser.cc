@@ -37,10 +37,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "ranges.h"
 #include "safefileio.h"
-#include "seis2dline.h"
 #include "seis2ddata.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seisinfo.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
@@ -175,18 +175,17 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& su )
 
     if ( is2d_ )
     {
-	Seis2DDataSet seis2ddataset( *ioobj );
-	const int index = seis2ddataset.indexOf( su.linekey_ );
+	Seis2DDataSet ds( *ioobj );
+	const int index = ds.indexOf( su.linekey_ );
 	if ( index < 0 )
 	    return false;
 
-	const IOPar& par = seis2ddataset.getInfo( index );
-	FilePath fp( seis2ddataset.fileName() );
-	fp.add( par.find(sKey::FileName()) );
-	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
+	const OD::String& fnm = SeisCBVS2DLineIOProvider::getFileName( *ioobj,
+							ds.geomID(index) );
+	tr_ = CBVSSeisTrcTranslator::make( fnm, false,
 					   Seis::is2D(su.geom_), &emsg );
 
-	const FixedString datatype = seis2ddataset.dataType(); 
+	const FixedString datatype = ds.dataType();
 	if ( datatype == sKey::Steering() )
 	    compnr_ = 1;
     }

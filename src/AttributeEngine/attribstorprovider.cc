@@ -30,6 +30,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbounds.h"
 #include "seisbufadapters.h"
 #include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seiscubeprov.h"
 #include "seisioobjinfo.h"
 #include "seispacketinfo.h"
@@ -248,7 +249,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 		if ( lineidx> -1 )
 		{
 		    StepInterval<int> trcrg; StepInterval<float> zrg;
-		    if ( dset->getRanges( lineidx, trcrg, zrg ) )
+		    if ( dset->getRanges( dset->geomID(lineidx), trcrg, zrg ) )
 		    {
 			if ( foundone )
 			{
@@ -272,7 +273,7 @@ bool StorageProvider::checkInpAndParsAtStart()
 	    storedvolume_.hrg.start.inl() = storedvolume_.hrg.stop.inl()
 					  = lineidx;
 	    StepInterval<int> trcrg; StepInterval<float> zrg;
-	    if ( !dset->getRanges( lineidx, trcrg, zrg ) )
+	    if ( !dset->getRanges( dset->geomID(lineidx), trcrg, zrg ) )
 		mErrRet(tr("Cannot get needed trace range from 2D line set"))
 	    else
 	    {
@@ -391,7 +392,8 @@ void StorageProvider::registerNewPosInfo( SeisTrc* trc, const BinID& startpos,
 {\
     if ( res.hrg.step.dir>1 )\
     {\
-	float remain = ( possiblevolume_->hsamp_.start_.dir - res.hrg.start.dir ) %\
+	float remain =\
+		( possiblevolume_->hsamp_.start_.dir - res.hrg.start.dir ) %\
 			res.hrg.step.dir;\
 	if ( !mIsZero( remain, 1e-3 ) )\
 	    res.hrg.start.dir = possiblevolume_->hsamp_.start_.dir + \
@@ -516,17 +518,17 @@ bool StorageProvider::setMSCProvSelData()
 
     TrcKeyZSampling cs;
     cs.hrg.start.inl() =
-	    desiredvolume_->hsamp_.start_.inl() < storedvolume_.hrg.start.inl() ?
-	    storedvolume_.hrg.start.inl() : desiredvolume_->hsamp_.start_.inl();
+	desiredvolume_->hsamp_.start_.inl() < storedvolume_.hrg.start.inl() ?
+	storedvolume_.hrg.start.inl() : desiredvolume_->hsamp_.start_.inl();
     cs.hrg.stop.inl() =
-	    desiredvolume_->hsamp_.stop.inl() > storedvolume_.hrg.stop.inl() ?
-	    storedvolume_.hrg.stop.inl() : desiredvolume_->hsamp_.stop.inl();
+	desiredvolume_->hsamp_.stop.inl() > storedvolume_.hrg.stop.inl() ?
+	storedvolume_.hrg.stop.inl() : desiredvolume_->hsamp_.stop.inl();
     cs.hrg.stop.crl() =
-	    desiredvolume_->hsamp_.stop.crl() > storedvolume_.hrg.stop.crl() ?
-	    storedvolume_.hrg.stop.crl() : desiredvolume_->hsamp_.stop.crl();
+	desiredvolume_->hsamp_.stop.crl() > storedvolume_.hrg.stop.crl() ?
+	storedvolume_.hrg.stop.crl() : desiredvolume_->hsamp_.stop.crl();
     cs.hrg.start.crl() =
-	    desiredvolume_->hsamp_.start_.crl() < storedvolume_.hrg.start.crl() ?
-	    storedvolume_.hrg.start.crl() : desiredvolume_->hsamp_.start_.crl();
+	desiredvolume_->hsamp_.start_.crl() < storedvolume_.hrg.start.crl() ?
+	storedvolume_.hrg.start.crl() : desiredvolume_->hsamp_.start_.crl();
     cs.zsamp_.start = desiredvolume_->zrg.start < storedvolume_.zsamp_.start ?
 		    storedvolume_.zsamp_.start : desiredvolume_->zrg.start;
     cs.zsamp_.stop = desiredvolume_->zrg.stop > storedvolume_.zsamp_.stop ?
@@ -586,11 +588,10 @@ bool StorageProvider::set2DRangeSelData()
     if ( geomid_ != Survey::GeometryManager::cUndefGeomID() )
     {
 	seldata->setGeomID( geomid_ );
-	int idx = dset->indexOf( geomid_ );
-	StepInterval<float> lsetzrg; StepInterval<int> trcrg;
-	if ( idx >= 0 && dset->getRanges(idx,trcrg,lsetzrg) )
+	StepInterval<float> dszrg; StepInterval<int> trcrg;
+	if ( dset->getRanges(geomid_,trcrg,dszrg) )
 	{
-	    if ( !checkDesiredTrcRgOK(trcrg,lsetzrg) )
+	    if ( !checkDesiredTrcRgOK(trcrg,dszrg) )
 		return false;
 	    Interval<int> rg( 0, 0 );
 	    seldata->setInlRange( rg );
@@ -600,10 +601,10 @@ bool StorageProvider::set2DRangeSelData()
 			trcrg.stop : desiredvolume_->hsamp_.stop.crl();
 	    seldata->setCrlRange( rg );
 	    Interval<float> zrg;
-	    zrg.start = desiredvolume_->zrg.start < lsetzrg.start ?
-			lsetzrg.start : desiredvolume_->zrg.start;
-	    zrg.stop = desiredvolume_->zrg.stop > lsetzrg.stop ?
-			lsetzrg.stop : desiredvolume_->zrg.stop;
+	    zrg.start = desiredvolume_->zrg.start < dszrg.start ?
+			dszrg.start : desiredvolume_->zrg.start;
+	    zrg.stop = desiredvolume_->zrg.stop > dszrg.stop ?
+			dszrg.stop : desiredvolume_->zrg.stop;
 	    seldata->setZRange( zrg );
 	}
 	reader.setSelData( seldata );
@@ -614,15 +615,6 @@ bool StorageProvider::set2DRangeSelData()
     return true;
 }
 
-
-#define mInitErrMsg() \
-    errmsg_ = tr("'%1' contains no data in selected area:\n") \
-	    .arg( desc_.userRef() ); \
-
-#define mAdd2ErrMsg(varwrong,s,start,stop) \
-    if ( varwrong ) \
-	errmsg_.append( tr( "%1 range is: %2-%3\n") \
-		      .arg( s ).arg( start ).arg( stop ) ); \
 
 bool StorageProvider::checkDesiredVolumeOK()
 {
@@ -638,18 +630,28 @@ bool StorageProvider::checkDesiredVolumeOK()
     const bool zwrong =
 	desiredvolume_->zrg.start > storedvolume_.zsamp_.stop
      || desiredvolume_->zrg.stop < storedvolume_.zsamp_.start;
-    const float zstepratio = desiredvolume_->zrg.step / storedvolume_.zsamp_.step;
+    const float zstepratio =
+		desiredvolume_->zrg.step / storedvolume_.zsamp_.step;
     const bool zstepwrong = zstepratio > 100 || zstepratio < 0.01;
 
     if ( !inlwrong && !crlwrong && !zwrong && !zstepwrong )
 	return true;
 
-    mInitErrMsg();
-    mAdd2ErrMsg(inlwrong,"Inline",
-		storedvolume_.hrg.start.inl(),storedvolume_.hrg.stop.inl())
-    mAdd2ErrMsg(crlwrong,"Crossline",
-		storedvolume_.hrg.start.crl(),storedvolume_.hrg.stop.crl())
-    mAdd2ErrMsg(zwrong,"Z",storedvolume_.zsamp_.start,storedvolume_.zsamp_.stop)
+    errmsg_ = tr("'%1' contains no data in selected area:\n")
+		.arg( desc_.userRef() );
+
+    if ( inlwrong )
+	errmsg_.append( tr( "Inline range is: %1-%2\n")
+		      .arg( storedvolume_.hrg.start.inl() )
+		      .arg( storedvolume_.hrg.stop.inl() ) );
+    if ( crlwrong )
+	errmsg_.append( tr( "Crossline range is: %1-%2\n")
+		      .arg( storedvolume_.hrg.start.crl() )
+		      .arg( storedvolume_.hrg.stop.crl() ) );
+    if ( zwrong )
+	errmsg_.append( tr( "Z range is: %1-%2\n")
+		      .arg( storedvolume_.zsamp_.start )
+		      .arg( storedvolume_.zsamp_.stop ) );
     if ( zstepwrong )
 	errmsg_ = tr("Z-Step is not correct. The maximum resampling allowed"
                      " is a factor 100. Probably the data belongs to a"
@@ -678,9 +680,14 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
     if ( !trcrgwrong && !zwrong )
 	return true;
 
-    mInitErrMsg();
-    mAdd2ErrMsg(trcrgwrong,"Trace",trcrg.start,trcrg.stop)
-    mAdd2ErrMsg(zwrong,"Z",zrg.start,zrg.stop)
+    errmsg_ = tr("'%1' contains no data in selected area:\n")
+		.arg( desc_.userRef() );
+    if ( trcrgwrong )
+	errmsg_.append( tr( "Trace range is: %1-%2\n")
+		      .arg( trcrg.start ).arg( trcrg.stop ) );
+    if ( zwrong )
+	errmsg_.append( tr( "Z range is: %1-%2\n")
+		      .arg( zrg.start ).arg( zrg.stop ) );
     return false;
 }
 
@@ -840,10 +847,9 @@ void StorageProvider::adjust2DLineStoredVolume()
     if ( !reader.is2D() ) return;
 
     const Seis2DDataSet* dset = reader.dataSet();
-    const int idx = dset->indexOf( geomid_ );
     StepInterval<int> trcrg;
     StepInterval<float> zrg;
-    if ( idx >= 0 && dset->getRanges(idx,trcrg,zrg) )
+    if ( dset->getRanges(geomid_,trcrg,zrg) )
     {
 	storedvolume_.hrg.start.crl() = trcrg.start;
 	storedvolume_.hrg.stop.crl() = trcrg.stop;
@@ -972,34 +978,14 @@ bool StorageProvider::useInterTrcDist() const
 
     if ( getDesc().is2D() )
     {
-	const LineKey lk( desc_.getValParam(keyStr())->getStringValue(0) );
-	const BufferString attrnm = lk.attrName();
-	const MultiID key( lk.lineName() );
-	PtrMan<IOObj> ioobj = IOM().get( key );
-	SeisTrcReader rdr( ioobj );
-	if ( rdr.ioObj() && rdr.dataSet() )
+	BufferStringSet compnms;
+	getCompNames( compnms );
+	if ( compnms.size()>=2
+		&& compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
 	{
-	    int lineidx = rdr.dataSet()->indexOf( geomid_ );
-	    if ( lineidx<0 ) return false;
-	    IOPar linepars = rdr.dataSet()->getInfo( lineidx );
-	    FixedString fname = linepars.find( sKey::FileName() );
-	    FilePath fp( fname );
-	    if ( !fp.isAbsolute() )
-	        fp.setPath( IOObjContext::getDataDirName( IOObjContext::Seis) );
-	    PtrMan<CBVSSeisTrcTranslator> tmptransl =
-		    CBVSSeisTrcTranslator::make( fp.fullPath(), true, true, 0 );
-	    if ( !tmptransl )
-	        return false;
-
-	    BufferStringSet compnms;
-	    tmptransl->getComponentNames( compnms );
-	    if ( compnms.size()>=2
-		    && compnms.get(1)== BufferString(Desc::sKeyLineDipComp()) )
-	    {
-		const_cast<Attrib::StorageProvider*>(this)
-						      ->useintertrcdist_ = true;
-		return useintertrcdist_;
-	    }
+	    const_cast<Attrib::StorageProvider*>(this)
+						  ->useintertrcdist_ = true;
+	    return useintertrcdist_;
 	}
     }
 

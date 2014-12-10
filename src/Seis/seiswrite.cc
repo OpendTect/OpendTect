@@ -20,7 +20,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
-#include "seis2dline.h"
 #include "seis2dlineio.h"
 #include "separstr.h"
 #include "survgeom2d.h"
@@ -276,14 +275,7 @@ bool SeisTrcWriter::next2DLine()
     prevgeomid_ = geomid;
     delete putter_;
 
-    IOPar* lineiopar = new IOPar;
-    lineiopar->set( sKey::GeomID(), geomid );
-
-    if ( !datatype_.isEmpty() )
-	lineiopar->set( sKey::DataType(), datatype_.buf() );
-
-    lineiopar->merge( auxpars_ );
-    putter_ = dataset_->linePutter( lineiopar );
+    putter_ = dataset_->linePutter( geomid );
 
     if ( !putter_ )
     {

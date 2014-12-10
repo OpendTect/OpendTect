@@ -131,7 +131,7 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 
 	StepInterval<int> trcrg;
 	StepInterval<float> zrg;
-	const bool hasrg = dataset_->getRanges( lineidx, trcrg, zrg );
+	const bool hasrg = dataset_->getRanges( geomid, trcrg, zrg );
 
 	PosInfo::Line2DData l2dd;
 	const Survey::Geometry* geom = Survey::GM().getGeometry( geomid );
@@ -176,13 +176,14 @@ void uiSeis2DFileMan::lineSel( CallBacker* )
 	    txt += "\nCBVS file might be corrupt or missing.\n";
 	}
 
-	SeisIOObjInfo sobinf( objinfo_->ioObj() );
+	const IOObj& ioobj = *objinfo_->ioObj();
+	SeisIOObjInfo sobinf( ioobj );
 	const int nrcomp = sobinf.nrComponents( geomid );
 	if ( nrcomp > 1 )
 	    { txt += "\nNumber of components: "; txt += nrcomp; }
 
-	const IOPar& iopar = dataset_->getInfo( lineidx );
-	BufferString fname( SeisCBVS2DLineIOProvider::getFileName(iopar) );
+	BufferString fname = SeisCBVS2DLineIOProvider::getFileName( ioobj,
+								    geomid );
 	FilePath fp( fname );
 
 	txt += "\nLocation: "; txt += fp.pathOnly();

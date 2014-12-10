@@ -109,8 +109,6 @@ mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
     NotifierAccess*	colorTableSeqChange();
     void		useDefColTab(int,int);
     void		saveDefColTab(int,int);
-    bool		set2DDataFileName(int visid,const Attrib::SelSpec*,
-				      const IOObj&,FilePath&);
 
     uiODApplMgr&	am_;
     uiParent*		par_;

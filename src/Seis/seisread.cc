@@ -10,7 +10,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisread.h"
 #include "seispsread.h"
 #include "seistrctr.h"
-#include "seis2dline.h"
 #include "seis2ddata.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -530,7 +529,7 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     StepInterval<float> zrg;
-    dataset_->getRanges( curlineidx, curtrcnrrg, zrg );
+    dataset_->getRanges( dataset_->geomID(curlineidx), curtrcnrrg, zrg );
     if ( seldata_ && !seldata_->isAll() && seldata_->type() == Seis::Range )
     {
 	if ( seldata_->crlRange().start > curtrcnrrg.start )
@@ -540,7 +539,8 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     prev_inl = mUdf(int);
-    fetcher = dataset_->lineFetcher( curlineidx, *tbuf_, 1, seldata_ );
+    fetcher = dataset_->lineFetcher( dataset_->geomID(curlineidx),
+				     *tbuf_, 1, seldata_ );
     nrfetchers++;
     return fetcher;
 }
@@ -700,8 +700,10 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
     mChkRg(crl)
 
     const Interval<float> zrng( seldata_->zRange() );
-    if ( b3d->tkzs_.zsamp_.start < zrng.start ) b3d->tkzs_.zsamp_.start = zrng.start;
-    if ( b3d->tkzs_.zsamp_.stop > zrng.stop ) b3d->tkzs_.zsamp_.stop = zrng.stop;
+    if ( b3d->tkzs_.zsamp_.start < zrng.start )
+	b3d->tkzs_.zsamp_.start = zrng.start;
+    if ( b3d->tkzs_.zsamp_.stop > zrng.stop )
+	b3d->tkzs_.zsamp_.stop = zrng.stop;
 
     return b3d;
 }

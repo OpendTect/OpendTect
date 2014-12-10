@@ -13,7 +13,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "emhor2dseisiter.h"
 #include "emhorizon2d.h"
-#include "seis2dline.h"
 #include "seistrc.h"
 #include "ioobj.h"
 #include "ioman.h"

@@ -7,6 +7,7 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 
+#include "ascstream.h"
 #include "bufstringset.h"
 #include "dirlist.h"
 #include "executor.h"
@@ -19,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "posinfo2dsurv.h"
 #include "typeset.h"
-#include "seis2dline.h"
+#include "safefileio.h"
 #include "seiscbvs2d.h"
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
@@ -167,7 +168,7 @@ protected:
     void		    fillIOParsFrom2DSFile(const ObjectSet<IOObj>&);
     void		    getCBVSFilePaths(BufferStringSet&);
     bool		    copyData(BufferStringSet&,uiString&,TaskRunner*);
-    void		    update2DSFilesAndAddToDelList(
+    bool		    update2DSFilesAndAddToDelList(
 						    ObjectSet<IOObj>& ioobjlist,
 						    BufferStringSet&);
     void		    removeDuplicateData(BufferStringSet&);
@@ -224,35 +225,46 @@ mGlobal(Seis) void OD_Convert_2DLineSets_To_2DDataSets( uiString& errmsg,
 
 
 OD_2DLineSetTo2DDataSetConverter::~OD_2DLineSetTo2DDataSetConverter()
-{}
+{
+    deepErase( all2dseisiopars_ );
+}
+
 
 void OD_2DLineSetTo2DDataSetConverter::doConversion( uiString& errmsg,
 						     TaskRunner* taskrnr )
 {
+    convert2DPSData();
     ObjectSet<IOObj> all2dsfiles;
     makeListOfLineSets( all2dsfiles );
     fillIOParsFrom2DSFile( all2dsfiles );
     BufferStringSet filepathsofold2ddata, filestobedeleted;
     getCBVSFilePaths( filepathsofold2ddata );
-    copyData( filepathsofold2ddata, errmsg, taskrnr );
-    update2DSFilesAndAddToDelList( all2dsfiles, filestobedeleted );
+    if ( !copyData(filepathsofold2ddata,errmsg,taskrnr) ||
+	    !update2DSFilesAndAddToDelList(all2dsfiles,filestobedeleted) )
+    {
+	errmsg = tr( "Failed to update 2D database. Most probably"
+		     " the survey or its 'Seismics' folder is not writable" );
+	return;
+    }
+
     removeDuplicateData( filestobedeleted );
-    deepErase( all2dseisiopars_ );
-    convert2DPSData();
-    return;
 }
 
 
 void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets( 
 						   ObjectSet<IOObj>& ioobjlist )
 {
-    BufferStringSet lsnms; TypeSet<MultiID> lsids;
-    SeisIOObjInfo::get2DLineInfo( lsnms, &lsids );
-    if ( lsnms.isEmpty() ) return;
+    IOObjContext oldctxt( mIOObjContext(SeisTrc) );
+    oldctxt.fixTranslator( TwoDSeisTrcTranslator::translKey() );
+    oldctxt.toselect.allownonuserselectable_ = true;
+    const IODir oldiodir( oldctxt.getSelKey() );
+    const IODirEntryList olddel( oldiodir, oldctxt );
+    if ( olddel.isEmpty() )
+	return;
 
-    for ( int idx=0; idx<lsids.size(); idx++ )
+    for ( int idx=0; idx<olddel.size(); idx++ )
     {
-	IOObj* ioobj = IOM().get( lsids[idx] );
+	IOObj* ioobj = olddel[idx]->ioobj_ ? olddel[idx]->ioobj_->clone() : 0;
 	if ( !ioobj ) continue;
 	ioobjlist += ioobj;
 	ObjectSet<IOPar>* obset = new ObjectSet<IOPar>();
@@ -262,23 +274,56 @@ void OD_2DLineSetTo2DDataSetConverter::makeListOfLineSets(
     return;
 }
 
+static const char* sKeyLSFileType = "2D Line Group Data";
+static void read2DSFile( const IOObj& lsobj, ObjectSet<IOPar>& pars )
+{
+    SafeFileIO sfio( lsobj.fullUserExpr(), true );
+    if ( !sfio.open(true) )
+	return;
+
+    ascistream astrm( sfio.istrm(), true );
+    if ( !astrm.isOfFileType(sKeyLSFileType) )
+    {
+	sfio.closeSuccess( false );
+	return;
+    }
+
+    while ( !atEndOfSection(astrm.next()) )
+    {}
+
+    while ( astrm.type() != ascistream::EndOfFile )
+    {
+	IOPar* newpar = new IOPar;
+	while ( !atEndOfSection(astrm.next()) )
+	{
+	    if ( astrm.hasKeyword(sKey::Name()) )
+	    {
+		newpar->setName( astrm.value() );
+		newpar->set( sKey::GeomID(),
+			Survey::GM().getGeomID(lsobj.name(),astrm.value()) );
+	    }
+	    else if ( !astrm.hasValue("") )
+		newpar->set( astrm.keyWord(), astrm.value() );
+	}
+
+	if ( newpar->size() < 2 )
+	{
+	    delete newpar;
+	    continue;
+	}
+
+	pars += newpar;
+    }
+
+    sfio.closeSuccess( false );
+}
+
 
 void OD_2DLineSetTo2DDataSetConverter::fillIOParsFrom2DSFile(
 					    const ObjectSet<IOObj>& ioobjlist )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
-    {
-	const Seis2DLineSet lineset( *ioobjlist[idx] );
-	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
-	{
-	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
-	    iop->add( sKey::GeomID(), Survey::GM().getGeomID(lineset.name(),
-						lineset.lineName(lineidx)) );
-	    *all2dseisiopars_[idx] += iop;
-	}
-    }
-
-    return;
+	read2DSFile( *ioobjlist[idx], *all2dseisiopars_[idx] );
 }
 
 
@@ -288,7 +333,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     const IOObjContext& iocontext = mIOObjContext(SeisTrc2D);
     if ( !IOM().to(iocontext.getSelKey()) ) return BufferString::empty();
     CtxtIOObj ctio( iocontext );
-    ctio.ctxt.deftransl.add( CBVSSeisTrc2DTranslator::translKey() );
+    ctio.ctxt.deftransl = CBVSSeisTrc2DTranslator::translKey();
     if ( iop.find(sKey::DataType()) )
     {
 	BufferString datatype, zdomain;
@@ -303,7 +348,7 @@ BufferString OD_2DLineSetTo2DDataSetConverter::getAttrFolderPath(
     ctio.ctxt.setName( attribnm );
     if ( ctio.fillObj() == 0 ) return BufferString::empty();
     IOObj* ioobj = ctio.ioobj;
-    if ( ioobj->translator() != ctio.ctxt.deftransl )
+    if ( ioobj->group() != mTranslGroupName(SeisTrc2D) )
     {
 	BufferString nm = ioobj->name();
 	nm.add( "[2D]" );
@@ -331,8 +376,13 @@ void OD_2DLineSetTo2DDataSetConverter::getCBVSFilePaths(
     for ( int idx=0; idx<all2dseisiopars_.size(); idx++ )
     {
 	for ( int lineidx=0; lineidx<all2dseisiopars_[idx]->size(); lineidx++ )
-	    filepaths.add( SeisCBVS2DLineIOProvider::getFileName(
-				    *(*all2dseisiopars_[idx])[lineidx],false) );
+	{
+	    BufferString fnm;
+	    (*all2dseisiopars_[idx])[lineidx]->get( sKey::FileName(), fnm );
+	    FilePath oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	    oldfp.add( fnm );
+	    filepaths.add( oldfp.fullPath() );
+	}
     }
 
     return;
@@ -385,51 +435,85 @@ bool OD_2DLineSetTo2DDataSetConverter::copyData( BufferStringSet& oldfilepaths,
     return res;
 }
 
+static bool write2DSFile( const IOObj& lsobj, const ObjectSet<IOPar>& pars )
+{
+    SafeFileIO sfio( lsobj.fullUserExpr(), true );
+    if ( !sfio.open(false,true) )
+	return false;
 
-void OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList( 
+    ascostream astrm( sfio.ostrm() );
+    if ( !astrm.putHeader(sKeyLSFileType) )
+    {
+	sfio.closeSuccess( false );
+	return false;
+    }
+
+    astrm.put( sKey::Name(), lsobj.name() );
+    astrm.put( sKey::Type(), CBVSSeisTrc2DTranslator::translKey() );
+    astrm.put( "Number of lines", pars.size() );
+    astrm.newParagraph();
+
+    for ( int ipar=0; ipar<pars.size(); ipar++ )
+    {
+	const IOPar& iopar = *pars[ipar];
+	astrm.put( sKey::Name(), iopar.name() );
+	for ( int idx=0; idx<iopar.size(); idx++ )
+	{
+	    const char* val = iopar.getValue(idx);
+	    if ( !val || !*val ) continue;
+	    astrm.put( iopar.getKey(idx), iopar.getValue(idx) );
+	}
+
+	astrm.newParagraph();
+    }
+
+    sfio.closeSuccess();
+    return true;
+}
+
+
+bool OD_2DLineSetTo2DDataSetConverter::update2DSFilesAndAddToDelList(
 		ObjectSet<IOObj>& ioobjlist,BufferStringSet& filestobedeleted )
 {
     for ( int idx=0; idx<ioobjlist.size(); idx++ )
     {
-	Seis2DLineSet lineset( *ioobjlist[idx] );
-	for ( int lineidx=0; lineidx<lineset.nrLines(); lineidx++ )
+	ObjectSet<IOPar>& lspars = *all2dseisiopars_[idx];
+	for ( int lineidx=0; lineidx<lspars.size(); lineidx++ )
 	{
-	    IOPar* iop = new IOPar( lineset.getInfo(lineidx) );
+	    IOPar& iop = *lspars[lineidx];
 	    BufferString fnm;
-	    iop->get( sKey::FileName(), fnm );
-	    FilePath oldfnm( fnm );
-	    BufferString oldfullfnm( SeisCBVS2DLineIOProvider::getFileName(
-								*iop,false) );
+	    iop.get( sKey::FileName(), fnm );
+	    FilePath oldfp( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	    oldfp.add( fnm );
+	    const BufferString oldfullfnm( oldfp.fullPath() );
 	    BufferString attrname;
-	    (*all2dseisiopars_[idx])[lineidx]->get(sKey::Attribute(), attrname);
+	    iop.get(sKey::Attribute(), attrname);
 	    if ( attrname.isEmpty() ) attrname = "Seis";
 	    attrname.clean( BufferString::AllowDots );
-	    FilePath newfnm( attrname );
-	    newfnm.add( BufferString(attrname)
-		    .add(mCapChar)
-		    .add( Survey::GM().getGeomID(lineset.name(),
-						 lineset.lineName(lineidx)) ) );
-	    newfnm.setExtension( oldfnm.extension() );
-	    iop->set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
-	    BufferString newfullfnm( SeisCBVS2DLineIOProvider::getFileName(
-									*iop) );
-	    if ( newfullfnm == oldfullfnm )
+	    BufferString newfile( attrname );
+	    newfile.add(mCapChar)
+		   .add( Survey::GM().getGeomID(ioobjlist[idx]->name(),
+						iop.name()) );
+	    FilePath newfp( IOObjContext::getDataDirName(IOObjContext::Seis),
+			    attrname, newfile );
+	    newfp.setExtension( oldfp.extension() );
+	    const BufferString newfullfnm = newfp.fullPath();
+	    if ( newfullfnm == oldfullfnm || !File::exists(newfullfnm.buf()) )
 		continue;
 
-	    if ( File::exists(newfullfnm.buf()) )
-	    {
-		Seis2DLinePutter* ret = lineset.linePutter( iop );
-		if ( ret )
-		{
-		    delete ret;
-		    if ( File::exists(oldfullfnm) )
-			filestobedeleted.add( oldfullfnm );
-		}
-	    }
+	    FilePath newfnm( attrname );
+	    newfnm.add( newfile );
+	    newfnm.setExtension( oldfp.extension() );
+	    iop.set( sKey::FileName(), newfnm.fullPath(FilePath::Unix) );
+	    if ( File::exists(oldfullfnm) )
+		filestobedeleted.add( oldfullfnm );
 	}
+
+	if ( !write2DSFile(*ioobjlist[idx],lspars) )
+	    return false;
     }
 
-    return;
+    return true;
 }
 
 
@@ -443,7 +527,5 @@ void OD_2DLineSetTo2DDataSetConverter::removeDuplicateData(
 	fp.setExtension( "par" );
 	File::remove( fp.fullPath() );
     }
-
-    return;
 }
 

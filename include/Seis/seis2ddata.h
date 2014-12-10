@@ -43,61 +43,64 @@ public:
 			Seis2DDataSet(const Seis2DDataSet&);
 
     virtual		~Seis2DDataSet();
-    Seis2DDataSet&	operator=(const Seis2DDataSet&);
     void		setReadOnly( bool yn=true )	{ readonly_ = yn; }
 
+    const char*		dataType() const		{ return datatype_; }
     const char*		fileName() const		{ return fname_; }
     const char*		type() const;
-    int 		nrLines() const 		{ return pars_.size(); }
-    const IOPar&	getInfo( int idx ) const	{ return *pars_[idx]; }
-    bool		isEmpty(int) const;
-    const char*		lineName(int) const;
+    int			nrLines() const
+			{ return geomids_.size(); }
+    bool		isEmpty() const;
+
     Pos::GeomID		geomID(int) const;
-    Pos::GeomID		geomID(const char* filename) const;
-    int			indexOf(const char* linename) const;
+    const char*		lineName(int) const;
     int			indexOf(Pos::GeomID) const;
-    const char* 	dataType() const		{ return datatype_; }
+    int			indexOf(const char* linename) const;
+    bool		isPresent(Pos::GeomID) const;
+    bool		isPresent(const char* linename) const;
+    bool		isEmpty(Pos::GeomID) const;
+
+    void		getGeomIDs(TypeSet<Pos::GeomID>&) const;
     void		getLineNames(BufferStringSet&) const;
 
-    Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
+    Executor*		lineFetcher(Pos::GeomID,SeisTrcBuf&,
+				    int nrtrcsperstep=10,
 				    const Seis::SelData* sd=0) const;
 				//!< May return null
-    Seis2DLinePutter*	linePutter(IOPar*);
+    Seis2DLinePutter*	linePutter(Pos::GeomID);
 				//!< May return null.
 				//!< will return replacer if geomid exists
-    bool		addLineFrom(Seis2DDataSet&,const char* lnm,
-				    const char* datatype=0);
 
-    bool		getTxtInfo(int,BufferString& uinfo,
+    bool		getTxtInfo(Pos::GeomID,BufferString& uinfo,
 				   BufferString& stdinfo) const;
-    bool		getRanges(int,StepInterval<int>& trcrg,
+    bool		getRanges(Pos::GeomID,StepInterval<int>& trcrg,
 				  StepInterval<float>& zrg) const;
     bool		haveMatch(int,const BinIDValueSet&) const;
 
-    bool		renameFiles(const char*);
+    bool		rename(const char*);
     bool		remove(Pos::GeomID);
 				//!< Also removes from disk
 
     static void		getDataSetsOnLine(const char* lnm,
 					      BufferStringSet& ds);
-    static void		getDataSetsOnLine(const Pos::GeomID geomid,
-					      BufferStringSet& ds);
+    static void		getDataSetsOnLine(Pos::GeomID geomid,
+					  BufferStringSet& ds);
 
 protected:
 
-    Seis2DLineIOProvider*   liop_;
+    IOObj&		ioobj_;
     BufferString	fname_;
-    ObjectSet<IOPar>	pars_;
-    const IOPar&	ioobjpars_;
-    BufferString	datatype_; // can probably go
+    BufferString	datatype_;
     bool		readonly_;
 
-    void		init(const char*);
-    void		readDir();
+    Seis2DLineIOProvider*	liop_;
+    TypeSet<Pos::GeomID>	geomids_;
+
+    void		init();
 
 private:
 
-    bool		getGeometry(int,PosInfo::Line2DData&) const;
+    bool		getGeometry(Pos::GeomID,PosInfo::Line2DData&) const;
 };
 
 #endif

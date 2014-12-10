@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seiswrite.h"
 #include "seispsioprov.h"
 #include "seispswrite.h"
-#include "seis2dline.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seispacketinfo.h"

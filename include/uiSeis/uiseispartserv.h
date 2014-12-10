@@ -49,9 +49,6 @@ public:
 
     bool		select2DSeis(MultiID&);
     bool		select2DLines(TypeSet<Pos::GeomID>&,int& action);
-    static void		get2DDataSetName(const MultiID&,BufferString&);
-    static void		get2DLineInfo(TypeSet<Pos::GeomID>&,
-				      BufferStringSet&);
     static void		get2DStoredAttribs(const char* linenm,
 				       BufferStringSet& attribs,int steerpol=2);
     void		get2DZdomainAttribs(const char* linenm,

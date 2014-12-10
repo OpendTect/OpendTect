@@ -62,25 +62,22 @@ public:
 
     virtual		~Seis2DLineIOProvider()			{}
 
-    virtual bool	isUsable(const IOPar&) const		{ return true; }
+    virtual bool	isEmpty(const IOObj&,Pos::GeomID) const		= 0;
+    virtual bool	getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const
+									= 0;
+    virtual bool	getGeometry(const IOObj&,Pos::GeomID,
+				    PosInfo::Line2DData&) const		= 0;
+    virtual Executor*	getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
+				   const Seis::SelData* sd=0)		= 0;
+    virtual Seis2DLinePutter* getPutter(const IOObj&,Pos::GeomID)	= 0;
 
-    virtual bool	isEmpty(const IOPar&) const		= 0;
-    virtual bool	getGeometry(const IOPar&,
-				    PosInfo::Line2DData&) const	= 0;
-    virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,int,
-				   const Seis::SelData* sd=0)	= 0;
-    virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;
-    virtual Seis2DLinePutter* getAdder(IOPar&,const IOPar* prev,
-					const char* lgrpnm)	= 0;
-
-    virtual bool	getTxtInfo(const IOPar&,BufferString&,
+    virtual bool	getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
 				   BufferString&) const		{ return false;}
-    virtual bool	getRanges(const IOPar&,StepInterval<int>&,
+    virtual bool	getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
 				   StepInterval<float>&) const	{ return false;}
 
-    static const char*	sKeyLineNr;
-
-    virtual void	removeImpl(const IOPar&) const		= 0;
+    virtual bool	removeImpl(const IOObj&,Pos::GeomID) const	= 0;
+    virtual bool	renameImpl(const IOObj&,const char*) const	= 0;
 
     const char*		type() const			{ return type_.buf(); }
 
@@ -128,12 +125,11 @@ public:
 };
 
 
-/*!\brief CBVS translator for 2D Seismics */
-mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrcTranslator
-{ mODTextTranslationClass(CBVSSeisTrc2DTranslator);
-  isTranslator(CBVS,SeisTrc2D)
+/*!\brief Base translator for 2D Seismics */
+mExpClass(Seis) SeisTrc2DTranslator : public SeisTrcTranslator
+{ mODTextTranslationClass(SeisTrc2DTranslator);
 public:
-			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
+			SeisTrc2DTranslator(const char* s1,const char* s2)
 			: SeisTrcTranslator(s1,s2)	{}
 
     bool		initRead_();		//!< supporting getRanges()
@@ -147,6 +143,16 @@ public:
 
 };
 
+
+/*!\brief CBVS translator for 2D Seismics */
+mExpClass(Seis) CBVSSeisTrc2DTranslator : public SeisTrc2DTranslator
+{ mODTextTranslationClass(CBVSSeisTrc2DTranslator);
+  isTranslator(CBVS,SeisTrc2D)
+public:
+			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
+			: SeisTrc2DTranslator(s1,s2)	{}
+
+};
 
 #endif
 

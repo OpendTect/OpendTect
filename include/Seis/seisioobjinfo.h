@@ -70,7 +70,7 @@ public:
 					    Survey::GM().cUndefGeomID()) const;
     void		getComponentNames(BufferStringSet&,
 					  Pos::GeomID geomid=
-					    Survey::GM().cUndefGeomID()) const;
+					  Survey::GM().cUndefGeomID()) const;
 
     mStruct(Seis) Opts2D
     {
@@ -86,7 +86,7 @@ public:
     // 2D only
     void		getLineNames( BufferStringSet& b,
 	    			      Opts2D o2d=Opts2D() ) const
-				{ getNms(b,o2d,false); }
+				{ getNms(b,o2d); }
     bool		getRanges(const Pos::GeomID geomid,
 				  StepInterval<int>& trcrg,
 	    			  StepInterval<float>& zrg) const;
@@ -97,33 +97,15 @@ public:
     static void		setDefault(const MultiID&,const char* type=0);
 
     static bool		hasData(Pos::GeomID);
+    static void		getDataSetNamesForLine( Pos::GeomID geomid,
+						BufferStringSet& b,
+						Opts2D o2d=Opts2D() );
     static void		getDataSetNamesForLine( const char* nm,
 						BufferStringSet& b,
 						Opts2D o2d=Opts2D() );
-    static void		get2DDataSetInfo(BufferStringSet& datasets,
-	    				 TypeSet<MultiID>* setids=0,
-					 TypeSet<BufferStringSet>* linenames=0);
-
-    static void		get2DLineInfo(BufferStringSet& linesets,
-	    			      TypeSet<MultiID>* setids=0,
-				      TypeSet<BufferStringSet>* linenames=0);
     static void		getCompNames(const MultiID&,BufferStringSet&);
     			//!< Function useful in attribute environments
     			//!< The 'MultiID' must be IOObj_ID
-
-
-    //!< Do not use these functions. Will be removed shortly.
-    void		getAttribNames( BufferStringSet& b,
-					Opts2D o2d=Opts2D() ) const
-				{ getNms(b,o2d,true); }
-    void		getAttribNamesForLine( const char* nm,
-						BufferStringSet& b,
-						Opts2D o2d=Opts2D() ) const
-				{ getNmsSubSel(nm,b,o2d,false); }
-    void		getLineNamesWithAttrib( const char* nm,
-	    				       BufferStringSet& b,
-					       Opts2D o2d=Opts2D() ) const
-				{ getNmsSubSel(nm,b,o2d,true); }
 
 protected:
 
@@ -133,9 +115,7 @@ protected:
 
     void		setType();
 
-    void		getNms(BufferStringSet&,const Opts2D&,bool) const;
-    void		getNmsSubSel(const char*,BufferStringSet&,const Opts2D&,
-	    			     bool) const;
+    void		getNms(BufferStringSet&,const Opts2D&) const;
     int			getComponentInfo(Pos::GeomID,BufferStringSet*) const;
 
 };

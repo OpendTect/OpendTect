@@ -110,24 +110,15 @@ bool uiGoogleExport2DSeis::acceptOK( CallBacker* )
     wrr.writeIconStyles( 0, 0, ins );
 
     getFinalSelectedLineNames();
-    const uiSeisIOObjInfo& oinf( *s2dfm_->objinfo_ );
     for ( int idx=0; idx<sellnms_.size(); idx++ )
-    {
-	BufferStringSet attrnms;
-	oinf.ioObjInfo().getAttribNamesForLine( sellnms_.get(idx), attrnms );
-	if ( attrnms.isEmpty() ) continue;
-	int iattr = attrnms.indexOf( LineKey::sKeyDefAttrib() );
-	if ( iattr < 0 ) iattr = 0;
-	addLine( wrr, sellnms_.get(idx), iattr );
-    }
+	addLine( wrr, sellnms_.get(idx) );
 
     wrr.close();
     return true;
 }
 
 
-void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm,
-				    int iattr )
+void uiGoogleExport2DSeis::addLine( ODGoogle::XMLWriter& wrr, const char* lnm )
 {
     const Seis2DDataSet& dset( *s2dfm_->dataset_ );
     const int iln = dset.indexOf( lnm );

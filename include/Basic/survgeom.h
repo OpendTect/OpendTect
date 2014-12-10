@@ -195,8 +195,9 @@ public:
 
 };
 
-
 } //namespace Survey
 
+#define mUdfGeomID Survey::GeometryManager::cUndefGeomID()
+//To cut the long story short.
 
 #endif

@@ -41,7 +41,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisjobexecprov.h"
 #include "seistrc.h"
 #include "seiswrite.h"
-#include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "survgeom2d.h"
@@ -318,9 +317,6 @@ bool BatchProgram::go( od_ostream& strm )
 	if ( ismaxstepout || clParser().isPresent( "validate" ) )
 	    return attribSetQuery( strm, pars(), ismaxstepout );
     }
-
-    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
-				  SeisJobExecProv::sKeyWorkLS() );
 
     BufferString type;
     pars().get( IOPar::compKey( sKey::Output(), sKey::Type() ), type );

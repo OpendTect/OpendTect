@@ -28,30 +28,28 @@ public:
 
 			SeisCBVS2DLineIOProvider();
 
-    bool		isUsable(const IOPar&) const;
-    bool		isEmpty(const IOPar&) const;
+    bool		isEmpty(const IOObj&,Pos::GeomID) const;
 
-    bool		getGeometry(const IOPar&,PosInfo::Line2DData&) const;
-    Executor*		getFetcher(const IOPar&,SeisTrcBuf&,int,
+    bool		getGeomIDs(const IOObj&,TypeSet<Pos::GeomID>&) const;
+    bool		getGeometry(const IOObj&,Pos::GeomID,
+				    PosInfo::Line2DData&) const;
+    Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
 	    			   const Seis::SelData* sd=0);
-    Seis2DLinePutter*	getReplacer(const IOPar&);
-    Seis2DLinePutter*	getAdder(IOPar&,const IOPar*,const char*);
+    Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
 
-    bool		getTxtInfo(const IOPar&,BufferString&,
+    bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
 	    			   BufferString&) const;
-    bool		getRanges(const IOPar&,StepInterval<int>&,
+    bool		getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
 	    			  StepInterval<float>&) const;
 
-    void		removeImpl(const IOPar&) const;
+    bool		removeImpl(const IOObj&,Pos::GeomID) const;
+    bool		renameImpl(const IOObj&,const char*) const;
+
+    static const OD::String&	getFileName(const IOObj&,Pos::GeomID);
 
 private:
 
     static int		factid_;
-
-public:
-
-    static const char*	getFileName(const IOPar& iop,bool newfmt=true);
-
 };
 
 
@@ -59,7 +57,7 @@ mExpClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
 { mODTextTranslationClass(SeisCBVS2DLinePutter);
 public:
 
-			SeisCBVS2DLinePutter(const char*,const IOPar&);
+			SeisCBVS2DLinePutter(const IOObj&,Pos::GeomID);
 			~SeisCBVS2DLinePutter();
 
     uiString		errMsg() const			{ return errmsg_;}

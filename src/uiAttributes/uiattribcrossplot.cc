@@ -29,7 +29,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "posfilterset.h"
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
-#include "seis2dline.h"
 #include "posinfo2dsurv.h"
 
 #include "mousecursor.h"

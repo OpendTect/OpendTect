@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "segyhdr.h"
-#include "seis2dline.h"
 #include "seisioobjinfo.h"
 #include "seisimporter.h"
 #include "seisread.h"

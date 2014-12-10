@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ptrman.h"
 #include "scaler.h"
 #include "seis2ddata.h"
-#include "seis2dline.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
 #include "seisjobexecprov.h"
@@ -152,9 +151,7 @@ bool Seis2DTo3D::read()
     if ( !inioobj_ ) return false;
 
     Seis2DDataSet ds( *inioobj_ );
-    BufferStringSet lnms;
-    ds.getLineNames( lnms );
-    if ( lnms.isEmpty() )
+    if ( ds.isEmpty() )
 	mErrRet( tr("Input dataset has no lines") )
 
     Interval<int> inlrg( tkzs_.hrg.inlRange().start - inlstep_,
@@ -164,13 +161,9 @@ bool Seis2DTo3D::read()
     SeisTrcBuf tmpbuf(false);
     seisbuf_.erase();
     seisbuftks_.init( false );
-    for ( int iline=0; iline<lnms.size(); iline++)
+    for ( int iline=0; iline<ds.nrLines(); iline++)
     {
-	const int lsidx = ds.indexOf( lnms.get(iline) );
-	if ( lsidx < 0 )
-	    continue;
-
-	PtrMan<Executor> lf = ds.lineFetcher( lsidx, tmpbuf );
+	PtrMan<Executor> lf = ds.lineFetcher( ds.geomID(iline), tmpbuf );
 	if ( !lf || !lf->execute() )
 	    continue;
 

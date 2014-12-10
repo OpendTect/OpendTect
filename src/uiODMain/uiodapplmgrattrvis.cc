@@ -19,7 +19,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
-#include "seis2dline.h"
 #include "survinfo.h"
 #include "zdomain.h"
 
@@ -246,29 +245,6 @@ NotifierAccess* uiODApplMgrAttrVisHandler::colorTableSeqChange()
 }
 
 
-bool uiODApplMgrAttrVisHandler::set2DDataFileName(
-		    int visid, const Attrib::SelSpec* as,
-		    const IOObj& ioobj, FilePath& fp )
-{
-    mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d,
-		     am_.visserv_->getObject( visid ) );
-    if ( !s2d )
-	return false;
-
-    const char* linenm = s2d->getLineName();
-    LineKey lk( linenm, as->userRef() );
-    Seis2DLineSet seis2dlnset( ioobj );
-    const int lineidx = seis2dlnset.indexOf( lk );
-    if ( lineidx < 0 )
-	return false;
-    const IOPar par2d = seis2dlnset.getInfo( lineidx );
-    BufferString fnm;
-    par2d.get( "File name", fnm );
-    fp.setFileName( fnm );
-    return true;
-}
-
-
 void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
 {
     if ( am_.appl_.isRestoringSession() ) return;
@@ -292,9 +268,6 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     if ( ioobj )
     {
     	FilePath fp( ioobj->fullUserExpr(true) );
-    	if ( as->is2D() && !set2DDataFileName(visid,as,*ioobj,fp) )
-    	    return;
-
     	fp.setExtension( "par" );
     	if ( iop.read( fp.fullPath(), sKey::Pars()) && !iop.isEmpty() )
     	{
@@ -330,30 +303,8 @@ void uiODApplMgrAttrVisHandler::saveDefColTab( int visid, int attrib )
 		am_.visserv_->getColTabSequence( visid, attrib );
     const ColTab::MapperSetup* mapper =
 		am_.visserv_->getColTabMapperSetup( visid, attrib );
-    if ( !as->is2D() )
-    {
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	mSetPar;
-    }
-    else
-    {
-	Seis2DLineSet seis2dlnset( *ioobj );
-	BufferStringSet linenames;
-	seis2dlnset.getLineNamesWithAttrib( linenames, as->userRef() );
-	for ( int lidx=0; lidx<linenames.size(); lidx++ )
-	{
-	    LineKey lk( linenames.get(lidx), as->userRef() );
-	    const int lineidx = seis2dlnset.indexOf( lk );
-	    if ( lineidx < 0 )
-		continue;
-	    const IOPar par2d = seis2dlnset.getInfo( lineidx );
-	    BufferString fnm;
-	    par2d.get( "File name", fnm );
-	    FilePath fp( ioobj->fullUserExpr(true) );
-	    fp.setFileName( fnm );
-	    fp.setExtension( "par" );
-	    mSetPar;
-	}
-    }
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "par" );
+    mSetPar;
 }

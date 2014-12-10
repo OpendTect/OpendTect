@@ -21,7 +21,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrc.h"
 #include "seisselection.h"
 #include "seisresampler.h"
-#include "seis2dline.h"
 #include "trckeyzsampling.h"
 #include "survinfo.h"
 #include "ptrman.h"

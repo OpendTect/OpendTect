@@ -23,7 +23,6 @@ SET(OD_MODULE_SOURCES
 	segyresorter.cc
 	segyscanner.cc
 	segytr.cc
-	seis2dline.cc
 	seis2ddata.cc
 	seis2ddatafmtconverter.cc
 	seis2dlineio.cc
@@ -37,7 +36,6 @@ SET(OD_MODULE_SOURCES
 	seiscubeprov.cc
 	seiscube2linedata.cc
 	seiseventsnapper.cc
-	seisgeometryfrom2dlines.cc
 	seisimpbpsif.cc
 	seisimporter.cc
 	seisimpps.cc

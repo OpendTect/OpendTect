@@ -23,7 +23,6 @@ class Conn;
 class IOObj;
 class Translator;
 class Seis2DDataSet;
-class Seis2DLineSet;
 class SeisPSIOProvider;
 class SeisTrcTranslator;
 namespace Seis		{ class SelData; }
@@ -73,8 +72,6 @@ public:
     SeisTrcTranslator*	seisTranslator()		{ return strl(); }
     const SeisTrcTranslator* seisTranslator() const	{ return strl(); }
     // 2D only
-    Seis2DLineSet*	lineSet()			{ return lset_; }
-    const Seis2DLineSet* lineSet() const		{ return lset_; }
     Seis2DDataSet*	dataSet()			{ return dataset_; }
     const Seis2DDataSet* dataSet() const		{ return dataset_; }
 
@@ -92,7 +89,6 @@ protected:
     bool			is2d_;
     int				nrtrcs_;
     Translator*			trl_;
-    Seis2DLineSet*		lset_;
     Seis2DDataSet*		dataset_;
     Seis::SelData*		seldata_;
     const SeisPSIOProvider*	psioprov_;

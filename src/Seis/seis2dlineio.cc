@@ -7,7 +7,6 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "seis2dlineio.h"
-#include "seis2dline.h"
 #include "seis2ddata.h"
 #include "seis2dlinemerge.h"
 #include "seisselection.h"
@@ -54,15 +53,6 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
-    Seis2DLineSet lg( fnm );
-    const int nrlines = lg.nrLines();
-    BufferStringSet nms;
-    for ( int iln=0; iln<nrlines; iln++ )
-	nms.add( lg.lineKey(iln) );
-    for ( int iln=0; iln<nrlines; iln++ )
-	lg.remove( nms.get(iln) );
-    nms.erase();
-
     BufferString bakfnm( fnm ); bakfnm += ".bak";
     if ( File::exists(bakfnm) )
 	File::remove( bakfnm );
@@ -82,10 +72,6 @@ bool TwoDSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
 
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
-    Seis2DLineSet ls( *ioobj );
-    if ( ls.rename(ioobj->name()) && !ls.renameFiles(ioobj->name()) )
-	return false;
-
     PosInfo::POS2DAdmin().renameLineSet( oldname, ioobj->name() );
     implSetReadOnly( ioobj, isro );
 
@@ -103,31 +89,11 @@ bool TwoDSeisTrcTranslator::initRead_()
     if ( !File::exists(fnm) )
 	{ errmsg_ = tr( "%1 does not exist" ).arg( fnm ); return false; }
 
-    Seis2DLineSet lset( fnm );
-    if ( lset.nrLines() < 1 )
-	{ errmsg_ = tr( "Line set is empty" ); return false; }
-    lset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
-    addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
-
-    if ( !curlinekey_.lineName().isEmpty() && lset.indexOf(curlinekey_) < 0 )
-	{ errmsg_ = tr("Cannot find line key in line set"); return false; }
-    TrcKeyZSampling cs( true );
-    errmsg_ = lset.getTrcKeyZSampling( cs, curlinekey_ );
-
-    insd_.start = cs.zsamp_.start; insd_.step = cs.zsamp_.step;
-    innrsamples_ = (int)((cs.zsamp_.stop-cs.zsamp_.start) /
-			  cs.zsamp_.step + 1.5);
-    pinfo_.inlrg.start = cs.hrg.start.inl();
-    pinfo_.inlrg.stop = cs.hrg.stop.inl();
-    pinfo_.inlrg.step = cs.hrg.step.inl();
-    pinfo_.crlrg.step = cs.hrg.step.crl();
-    pinfo_.crlrg.start = cs.hrg.start.crl();
-    pinfo_.crlrg.stop = cs.hrg.stop.crl();
     return true;
 }
 
 
-bool CBVSSeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
+bool SeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return true;
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -145,7 +111,7 @@ bool CBVSSeisTrc2DTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-bool CBVSSeisTrc2DTranslator::implRename( const IOObj* ioobj,
+bool SeisTrc2DTranslator::implRename( const IOObj* ioobj,
 				    const char* newnm,const CallBack* cb ) const
 {
     if ( !ioobj )
@@ -157,7 +123,7 @@ bool CBVSSeisTrc2DTranslator::implRename( const IOObj* ioobj,
     const bool isro = implReadOnly( ioobj );
     BufferString oldname( oldioobj->name() );
     Seis2DDataSet ds( *ioobj );
-    if ( !ds.renameFiles(FilePath(newnm).fileName()) )
+    if ( !ds.rename(FilePath(newnm).fileName()) )
 	return false;
 
     implSetReadOnly( ioobj, isro );
@@ -166,7 +132,7 @@ bool CBVSSeisTrc2DTranslator::implRename( const IOObj* ioobj,
 }
 
 
-bool CBVSSeisTrc2DTranslator::initRead_()
+bool SeisTrc2DTranslator::initRead_()
 {
     errmsg_.setEmpty();
     PtrMan<IOObj> ioobj = IOM().get( conn_ ? conn_->linkedTo() : MultiID() );
@@ -178,7 +144,7 @@ bool CBVSSeisTrc2DTranslator::initRead_()
     Seis2DDataSet dset( *ioobj );
     if ( dset.nrLines() < 1 )
 	{ errmsg_ = tr("Data set is empty"); return false; }
-    dset.getTxtInfo( 0, pinfo_.usrinfo, pinfo_.stdinfo );
+    dset.getTxtInfo( dset.geomID(0), pinfo_.usrinfo, pinfo_.stdinfo );
     addComp( DataCharacteristics(), pinfo_.stdinfo, Seis::UnknowData );
 
     if ( seldata_ )
@@ -394,7 +360,7 @@ int Seis2DLineMerger::doWork()
     
     IOPar* lineiopar = new IOPar;
     lineiopar->set( sKey::GeomID(), outgeomid_ );
-    putter_ = ds_->linePutter( lineiopar );
+    putter_ = ds_->linePutter( outgeomid_ );
     if ( !putter_ )
 	mErrRet("Cannot create writer for output line");
 

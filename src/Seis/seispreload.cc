@@ -59,8 +59,8 @@ void Seis::PreLoader::getLineNames( BufferStringSet& lks ) const
     const int nrlns = ds.nrLines();
     for ( int iln=0; iln<nrlns; iln++ )
     {
-	const char* fnm =
-	    	SeisCBVS2DLineIOProvider::getFileName( ds.getInfo(iln) );
+	const char* fnm = SeisCBVS2DLineIOProvider::getFileName( *ioobj,
+							ds.geomID(iln) );
 	if ( fnms.isPresent(fnm) )
 	    lks.add( ds.lineName(iln) );
     }
@@ -119,7 +119,8 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms ) const
 	if ( !lnms.isPresent(lnm) )
 	    continue;
 
-	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ds.getInfo(iln)) );
+	fnms.add( SeisCBVS2DLineIOProvider::getFileName(*ioobj,
+							ds.geomID(iln)) );
     }
 
     return fnms.isEmpty() ? true
@@ -140,7 +141,8 @@ bool Seis::PreLoader::loadLines() const
 
     BufferStringSet fnms;
     for ( int iln=0; iln<nrlns; iln++ )
-	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ds.getInfo(iln)) );
+	fnms.add( SeisCBVS2DLineIOProvider::getFileName(*ioobj,
+							ds.geomID(iln)) );
 
     return fnms.isEmpty() ? true
 	 : StreamProvider::preLoad( fnms, trunnr, id_.buf() );

@@ -35,7 +35,7 @@ protected:
 
 			mDecluiGoogleExpStd;
 
-    void		addLine(ODGoogle::XMLWriter&,const char*,int);
+    void		addLine(ODGoogle::XMLWriter&,const char*);
     void		getInitialSelectedLineNames();
     void		getFinalSelectedLineNames();
 

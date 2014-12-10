@@ -25,10 +25,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "keystrs.h"
 #include "multiid.h"
 #include "randomlinegeom.h"
+#include "seis2ddata.h"
 #include "seisrandlineto2d.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
-#include "seis2dline.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "separstr.h"
@@ -374,19 +374,17 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
     BufferString prefix;
     par.get( Horizon2DGridCreator::sKeyPrefix(), prefix );
 
-    MultiID lsid;
-    par.get( Horizon2DGridCreator::sKeySeisID(), lsid );
-    PtrMan<IOObj> lsioobj = IOM().get( lsid );
-    if ( !lsioobj ) return false;
+    MultiID dsid;
+    par.get( Horizon2DGridCreator::sKeySeisID(), dsid );
+    PtrMan<IOObj> dsioobj = IOM().get( dsid );
+    if ( !dsioobj ) return false;
 
-    BufferStringSet linenames;
-    Seis2DLineSet seislineset( *lsioobj );
-    for ( int idx=0; idx<seislineset.nrLines(); idx++ )
-	linenames.add( seislineset.lineName(idx) );
-
+    TypeSet<Pos::GeomID> geomids;
+    Seis2DDataSet ds( *dsioobj );
+    ds.getGeomIDs( geomids );
     BufferStringSet horids;
-    par.get( Horizon2DGridCreator::sKeyInputIDs(), horids );
 
+    par.get( Horizon2DGridCreator::sKeyInputIDs(), horids );
     EM::EMManager& em = EM::EMM();
     for ( int idx=0; idx<horids.size(); idx++ )
     {
@@ -406,7 +404,7 @@ bool Horizon2DGridCreator::init( const IOPar& par, TaskRunner* taskrunner )
 	horizons_ += horizon2d;
 	Hor2DFrom3DCreatorGrp* creator =
 	    new Hor2DFrom3DCreatorGrp( *horizon3d, *horizon2d );
-	creator->init( linenames, lsioobj->name() );
+	creator->init( geomids );
 	add( creator );
 	horizon3d->unRef();
     }

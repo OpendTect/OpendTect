@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "samplingdata.h"
 class SeisTrcBuf;
 class SeisIOObjInfo;
-class Seis2DLineSet;
 class BufferStringSet;
 class Seis2DLinePutter;
 namespace PosInfo { class Line2DData; }

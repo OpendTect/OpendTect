@@ -207,7 +207,7 @@ uiSubSelForAnalysis( uiParent* p,const MultiID& mid, bool is2d,const char* anm )
     {
 	SeisIOObjInfo objinfo( mid );
 	BufferStringSet linenames;
-	objinfo.getLineNamesWithAttrib( attribnm_, linenames );
+	objinfo.getLineNames( linenames );
 	linesfld_ = new uiLabeledComboBox( this, "Analysis on line:" );
 	for ( int idx=0; idx<linenames.size(); idx++ )
 	    linesfld_->box()->addItem( linenames.get(idx) );

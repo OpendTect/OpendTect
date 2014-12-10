@@ -46,7 +46,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seismulticubeps.h"
 #include "seisselection.h"
 #include "seistrc.h"
-#include "seis2dline.h"
 #include "survinfo.h"
 #include "od_helpids.h"
 
