@@ -24,7 +24,6 @@ namespace visBase
 {
 class DataObject;
 class SelectionManager;
-class Factory;
 
 /*!\brief */
 
