@@ -3,7 +3,7 @@ OpendTect V5.0.x : Release info
 In general, all fixes in the stable 4.6 are also applied in the 5.0 releases.
 
 ----
-v5.0.3: December 04, 2014
+v5.0.3: December 11, 2014
  * Fix for crash while tracking 2D horizon
  * Fix for crash while copying wavelet from another survey
  * Fix for crash while creating seismic output between 2D Horizons
