@@ -100,7 +100,7 @@ public:
 
     const char*			errMsg() const { return errmsg_.str(); }
     
-    static const char*		sKeyTC2RGBA();
+    static const char*		sKeyTC2RGBA();	// obsolete
 protected:
 
     				MultiTextureSurveyObject();

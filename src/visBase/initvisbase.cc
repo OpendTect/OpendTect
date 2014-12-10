@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "settings.h"
 #include "visshape.h"
 #include "indexedshape.h"
+#include "visrgbatexturechannel2rgba.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osg/Notify>
@@ -35,4 +36,7 @@ mDefModInitFn(visBase)
 
     Geometry::PrimitiveSetCreator::setCreator(
 				    new visBase::PrimitiveSetCreator );
+
+    visBase::ColTabTextureChannel2RGBA::initClass();
+    visBase::RGBATextureChannel2RGBA::initClass();
 }

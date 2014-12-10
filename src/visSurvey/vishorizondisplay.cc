@@ -1024,6 +1024,12 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
     }
     else // initialize texture handler newly created by horizon section
     {
+	if ( !sections_.size() && channel2rgba_ )
+	{
+	    surf->setChannels2RGBA( channel2rgba_ );
+	    EMObjectDisplay::setChannels2RGBA( 0 );
+	}
+
 	while ( surf->nrChannels()<nrAttribs() )
 	    surf->addChannel();
 
@@ -1032,12 +1038,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 	    surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
 	    surf->setColTabSequence( idx, coltabsequences_[idx] );
 	    surf->getChannels2RGBA()->setEnabled( idx, enabled_[idx] );
-	}
-
-	if ( !sections_.size() && channel2rgba_ )
-	{
-	    surf->setChannels2RGBA( channel2rgba_ );
-	    EMObjectDisplay::setChannels2RGBA( 0 );
 	}
 
 	surf->getChannels2RGBA()->allowShading( allowshading_ );
@@ -2131,17 +2131,6 @@ void HorizonDisplay::fillPar( IOPar& par ) const
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
     par.set( sKeySurfaceGrid(), displaysSurfaceGrid() );
-
-    /* TODO: Implement something here
-    const visBase::TextureChannel2RGBA* tc2rgba = getChannels2RGBA();
-    mDynamicCastGet(const visBase::ColTabTextureChannel2RGBA*,cttc2rgba,tc2rgba)
-    if ( tc2rgba && !cttc2rgba )
-    {
-	const int ctid = tc2rgba->id();
-	par.set( MultiTextureSurveyObject::sKeyTC2RGBA(), ctid );
-	saveids += ctid;
-    }
-     */
 
     for ( int channel=as_.size()-1; channel>=0; channel-- )
     {

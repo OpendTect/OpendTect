@@ -217,6 +217,9 @@ void SurveyObject::fillPar( IOPar& par ) const
     }
 
     par.set( sKeyNrAttribs(), nrattribs );
+
+    if ( getChannels2RGBA() )
+	par.set( sKeyTC2RGBA(), getChannels2RGBA()->getClassName() );
 }
 
 
@@ -227,19 +230,16 @@ bool SurveyObject::usePar( const IOPar& par )
 
     par.get( sKeySurvey(), survname_ );
 
-    int tc2rgbaid;
-    if ( par.get( sKeyTC2RGBA(), tc2rgbaid ) )
+    BufferString tc2rgbatype;
+    if ( par.get(sKeyTC2RGBA(),tc2rgbatype) )
     {
-	RefMan<visBase::DataObject> dataobj =
-	    visBase::DM().getObject( tc2rgbaid );
-	if ( !dataobj )
-	    return 0;
-
-	mDynamicCastGet(visBase::TextureChannel2RGBA*, tc2rgba, dataobj.ptr() );
-	if ( tc2rgba )
+	if ( !getChannels2RGBA() ||
+	     FixedString(tc2rgbatype) != getChannels2RGBA()->getClassName() )
 	{
-	    if ( !setChannels2RGBA( tc2rgba ) )
-		return false;
+	    mDynamicCastGet( visBase::TextureChannel2RGBA*, tc2rgba,
+			visBase::DataManager::factory().create(tc2rgbatype) )
+	    if ( tc2rgba )
+		setChannels2RGBA( tc2rgba );
 	}
     }
 
