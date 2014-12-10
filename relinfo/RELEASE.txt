@@ -3,8 +3,39 @@ OpendTect V5.0.x : Release info
 In general, all fixes in the stable 4.6 are also applied in the 5.0 releases.
 
 ----
-v5.0.2: November 17, 2014
+v5.0.3: December 11, 2014
  * Fix for crash while tracking 2D horizon
+ * Fix for crash while copying wavelet from another survey
+ * Fix for crash while creating seismic output between 2D Horizons
+   when no line has been selected by the user
+ * Fix for crash while restoring session with Faultsticksets
+ * Fix for import of RokDoc Probability Density Function when one of the two
+   dimensions is equal to 1. Now such function are imported as 1D functions
+ * Fix for display of Faults and Faultsticksets using 'Only at sections'
+   option not honouring the Z range of the section
+ * Fix for distorted vertical position of Top/Bottom images while changing
+   Z-scale of the scene
+ * Fix for displaying certain types of Geobodies
+ * Fix for color bar annotation color not getting updated immediately after
+   changing it in scene properties window
+ * Made simple file import of 2D Seismics work again
+ * Fix for wrong unit displayed in the table header of Edit Well Markers
+   window while toggling 'Z in feet'
+ * Enabled displaying of X,Y,Z and trace number on status bar
+   in 2D viewer for 2D data
+ * Fix for X coordinate values duplicated as Y coordinates while
+   exporting 2D Geometry
+ * Fix for jumping scroll bar of the Marker list while checking/unchecking
+   markers in the well display properties window
+ * Made 'Examine' button work in Import windows on MAC platform
+ * Fix for 'Pick' mode not getting automatically turned on after adding a new
+   FaultStickSet to the tree
+ * Fix for a 3D cube entry being created in the database while saving a Random
+   line as a 2D line
+ * Implemented 'Show all', 'Hide all' and 'Remove all' options for
+   items in 2D viewer
+
+v5.0.2: November 17, 2014
  * Fix for displaying contours on 3D horizon
  * Fix for displaying of volume attribute data
  * Fix for calculating mathematics attribute with constants
