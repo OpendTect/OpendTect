@@ -86,9 +86,15 @@ uiImpRokDocPDF::uiImpRokDocPDF( uiParent* p )
 
 void uiImpRokDocPDF::setDisplayedFields( bool dim1, bool dim2 )
 {
-    varnmsfld_->displayField( dim1, -1, 0 );
-    varnmsfld_->displayField( dim2, -1, 1 );
-    extendbut_->display( dim1 || dim2 );
+    const bool doshow = dim1 || dim2;
+    varnmsfld_->display( doshow );
+    if ( doshow )
+    {
+	varnmsfld_->displayField( dim1, -1, 0 );
+	varnmsfld_->displayField( dim2, -1, 1 );
+    }
+
+    extendbut_->display( doshow );
     xrgfld_->display( dim1 );
     xnrbinfld_->display( dim1 );
     yrgfld_->display( dim2 );
@@ -103,19 +109,20 @@ public:
 RokDocImporter( const char* fnm )
     : strm_(fnm)
 {
+    strm_.setNoClose();
 }
 
 
-#define mRewindStream(errmsg) \
+#define mRewindStream(msg) \
 { \
     strm_.setPosition( 0 ); \
     if ( !strm_.isOK() ) \
-    { errmsg_ = errmsg; return 0; } \
+    { errmsg_ =  msg; strm_.addErrMsgTo( errmsg_ ); return 0; } \
 }
 
 int getNrDims()
 {
-    mRewindStream(tr("Cannot open input file"))
+    mRewindStream( tr("Cannot open input file to determine nr of dimensions") )
 
     int nrdims = 0;
     ascistream astrm( strm_, false );
@@ -127,7 +134,8 @@ int getNrDims()
 
     if ( nrdims != 1 && nrdims != 2 )
     {
-	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: ").arg( nrdims );
+	errmsg_ = tr("Can only handle 1D and 2D PDFs. Dimension found: ")
+		     .arg( nrdims );
 	return 0;
     }
 
@@ -137,7 +145,7 @@ int getNrDims()
 
 Sampled1DProbDenFunc* get1DPDF()
 {
-    mRewindStream(tr("Cannot open input file"))
+    mRewindStream(tr("Cannot open input file to import 1D PDF data"))
 
     BufferString varnm("X");
     SamplingData<float> sd(0,1);
@@ -189,7 +197,7 @@ Sampled1DProbDenFunc* get1DPDF()
 
 Sampled2DProbDenFunc* get2DPDF()
 {
-    mRewindStream(tr("Cannot open input file"))
+    mRewindStream(tr("Cannot open input file to import 2D PDF data"))
 
     BufferString dim0nm("X"), dim1nm("Y");
     SamplingData<float> sd0(0,1), sd1(0,1);
@@ -255,11 +263,11 @@ Sampled2DProbDenFunc* get2DPDF()
 
 };
 
-#define mInitPDFRead(msg,act) \
+#define mInitPDFRead(act) \
 { \
     const int nrdims = imp.getNrDims(); \
-    if ( nrdims != 1 && nrdims != 2 ) \
-    { uiMSG().error( msg ); act; } \
+    if ( nrdims == 0 ) \
+    { uiMSG().error( imp.errmsg_ ); act; } \
 \
     if ( nrdims == 1 ) \
 	pdf = imp.get1DPDF(); \
@@ -282,7 +290,7 @@ void uiImpRokDocPDF::selChg( CallBacker* )
 {
     RokDocImporter imp( inpfld_->fileName() );
     ArrayNDProbDenFunc* pdf = 0;
-    mInitPDFRead(tr("Can only import 1D and 2D sampled PDFs"),return)
+    mInitPDFRead(return)
 
     Sampled1DProbDenFunc* pdf1d = 0;
     Sampled2DProbDenFunc* pdf2d = 0;
@@ -420,7 +428,7 @@ bool uiImpRokDocPDF::acceptOK( CallBacker* )
 
     RokDocImporter imp( inpfld_->fileName() );
     ArrayNDProbDenFunc* pdf = 0;
-    mInitPDFRead(tr("Can only import 1D and 2D sampled PDFs"),return false)
+    mInitPDFRead(return false)
 
     pdf = getAdjustedPDF( pdf );
     if ( !pdf )
@@ -506,7 +514,7 @@ bool put1DPDF( const Sampled1DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-    { errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
 
     return errmsg_.isEmpty();
 }
@@ -554,7 +562,8 @@ bool put2DPDF( const Sampled2DProbDenFunc& pdf )
     }
 
     if ( !strm_.isOK() )
-	{ errmsg_ = tr("Error during write"); strm_.addErrMsgTo( errmsg_ ); }
+	{ errmsg_ = "Error during write"; strm_.addErrMsgTo( errmsg_ ); }
+
     return errmsg_.isEmpty();
 }
 
