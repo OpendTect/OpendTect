@@ -21,7 +21,6 @@ static const char* rcsID = "$Id$";
 #include "ioman.h"
 #include "posinfo.h"
 #include "ptrman.h"
-#include "seis2dline.h"
 #include "statrand.h"
 #include "strmprov.h"
 #include "survinfo.h"

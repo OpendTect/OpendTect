@@ -26,7 +26,6 @@ static const char* rcsID = "$Id$";
 #include "plugins.h"
 #include "position.h"
 #include "ranges.h"
-#include "seis2dline.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seiszaxisstretcher.h"
