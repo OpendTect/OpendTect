@@ -112,16 +112,14 @@ RokDocImporter( const char* fnm )
 }
 
 
-#define mRewindStream(msg) \
-{ \
-    strm_.reOpen(); \
-    if ( !strm_.isOK() ) \
-    { errmsg_ =  msg; strm_.addErrMsgTo( errmsg_ ); return 0; } \
-}
-
 int getNrDims()
 {
-    mRewindStream( tr("Cannot open input file to determine nr of dimensions") )
+    if ( !strm_.isOK() ) \
+    {
+	errmsg_.set( tr("Cannot open input file to determine nr of dimensions") );
+	strm_.addErrMsgTo( errmsg_ );
+	return 0;
+    }
 
     int nrdims = 0;
     ascistream astrm( strm_, false );
@@ -139,6 +137,14 @@ int getNrDims()
     }
 
     return nrdims;
+}
+
+// reOpen needed after problem with setPostion( 0 ) in RELEASE mode
+#define mRewindStream(msg) \
+{ \
+    strm_.reOpen(); \
+    if ( !strm_.isOK() ) \
+    { errmsg_.set( msg ); strm_.addErrMsgTo( errmsg_ ); return 0; } \
 }
 
 
