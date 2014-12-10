@@ -20,6 +20,39 @@ ________________________________________________________________________
 class uiCheckBox;
 struct PluginProduct;
 
+class uiTreeView;
+struct PluginProduct;
+
+
+mExpClass(uiTools) uiProductSel : public uiDialog
+{mODTextTranslationClass(uiPluginSel);
+public:
+				uiProductSel(uiParent*);
+				~uiProductSel();
+
+    int				nrPlugins() const { return products_.size(); }
+
+
+    static const char*		sKeyDoAtStartup();
+
+protected:
+
+    void			readPackageList();
+    void			makeProductList(
+					const ObjectSet<PluginManager::Data>&);
+    void			createUI();
+    int				getProductIndex(const char* prodnm) const;
+    bool			isVendorSelected(const char*) const;
+
+    bool			acceptOK(CallBacker*);
+
+    ObjectSet<PluginProduct>	products_;
+    BufferStringSet		vendors_;
+    uiTreeView*			treefld_;
+};
+
+
+//Deprecated
 mExpClass(uiTools) uiPluginSel : public uiDialog
 {mODTextTranslationClass(uiPluginSel);
 public:
