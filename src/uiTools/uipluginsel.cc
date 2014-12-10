@@ -231,6 +231,7 @@ void uiProductSel::createUI()
     uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
+    banner->setStretch( 2, 0 ); 
      
     treefld_ = new uiTreeView( grp, "Plugin tree" );
     treefld_->setStretch( 2, 2 );
