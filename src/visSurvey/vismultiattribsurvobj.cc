@@ -30,7 +30,7 @@ const char* MultiTextureSurveyObject::sKeyResolution()	{ return "Resolution"; }
 const char* MultiTextureSurveyObject::sKeyTextTrans()	{ return "Trans"; }
 const char* MultiTextureSurveyObject::sKeySequence()	{ return "Sequence"; }
 const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
-const char* MultiTextureSurveyObject::sKeyTC2RGBA()	{ return "TC2RGBA"; }
+
 
 MultiTextureSurveyObject::MultiTextureSurveyObject()
     : VisualObjectImpl(true)
@@ -484,16 +484,6 @@ void MultiTextureSurveyObject::fillPar( IOPar& par ) const
 	key += attrib;
 	par.mergeComp( attribpar, key );
     }
-
-    /*
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-                     channels_ ? channels_->getChannels2RGBA() : 0 );
-    if ( !cttc2rgba && channels_ )
-    {
-	par.set( sKeyTC2RGBA(), channels_->getChannels2RGBA()->id() );
-	saveids += channels_->getChannels2RGBA()->id();
-    }
-     */
 
     par.set( sKeyNrAttribs(), as_.size() );
 

@@ -207,23 +207,24 @@ private:
 }								\
 								\
 private:							\
-    static visBase::DataObject* createInternal();		\
+    static visBase::DataObject* createInternal()		\
+				{ return new clss; }		\
     clss& 			operator =(const clss&);	\
     				clss(const clss&);		\
 public:								\
                         	clss();                        	\
-    static void			initClass() {}			\
+    static void			initClass();			\
     static const char*		getStaticClassName();		\
-								\
     virtual const char*		getClassName() const
 
 
 #define mCreateFactoryEntry( clss )				\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
-{ return clss::getStaticClassName(); }
-
-
+{ return clss::getStaticClassName(); }				\
+void clss::initClass()						\
+{ visBase::DataManager::factory().addCreator(			\
+		    createInternal, getStaticClassName() ); }
 
 
 

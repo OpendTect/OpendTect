@@ -99,8 +99,7 @@ public:
 				{ return channels_; }
 
     const char*			errMsg() const { return errmsg_.str(); }
-    
-    static const char*		sKeyTC2RGBA();
+
 protected:
 
     				MultiTextureSurveyObject();
