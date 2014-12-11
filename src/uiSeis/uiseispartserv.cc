@@ -146,11 +146,10 @@ bool uiSeisPartServer::exportSeis( int opt )
 { return ioSeis( opt, false ); }
 
 
-#define mManageSeisDlg( dlgobj, dlgclss ) \
-    if ( !dlgobj ) \
-	dlgobj = new dlgclss( parent(), is2d ); \
-    else \
-	dlgobj->selGroup()->fullUpdate( -1 ); \
+#define mManageSeisDlg( dlgobj, dlgclss, modal ) \
+    delete dlgobj; \
+    dlgobj = new dlgclss( parent(), is2d ); \
+    dlgobj->setModal( modal ); \
     dlgobj->go();
 
 void uiSeisPartServer::manageSeismics( int opt )
@@ -158,16 +157,34 @@ void uiSeisPartServer::manageSeismics( int opt )
     const bool is2d = opt == 1 || opt == 3;
     switch( opt )
     {
-	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan);
+	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan,false);
 		break;
-	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan);
+	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan,false);
 		break;
-	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan);
+	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan,false);
 		break;
-	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan);
+	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan,false);
 		break;
     }
 }
+
+
+void uiSeisPartServer::manageSeismicsModal( int opt )
+{
+    const bool is2d = opt == 1 || opt == 3;
+    switch( opt )
+    {
+	case 0: mManageSeisDlg(man3dseisdlg_,uiSeisFileMan,true);
+		break;
+	case 1: mManageSeisDlg(man2dseisdlg_,uiSeisFileMan,true);
+		break;
+	case 2: mManageSeisDlg(man3dprestkdlg_,uiSeisPreStackMan,true);
+		break;
+	case 3: mManageSeisDlg(man2dprestkdlg_,uiSeisPreStackMan,true);
+		break;
+    }
+}
+
 
 
 void uiSeisPartServer::managePreLoad()
