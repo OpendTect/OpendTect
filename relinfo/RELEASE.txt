@@ -1,6 +1,16 @@
 OpendTect V4.6.x : Release info
 
 ----
+v4.6.0r: December 11, 2014
+ * Fix for crash while clicking on 'Edit markers' tool when well track is
+   empty
+ * Fix for alignment of well headers in scene
+ * Made 'Examine' button work in Import windows on MAC platform
+ * Fix for wrong unit displayed in the table header of Edit Well Markers
+   window while toggling 'Z in feet'
+ * Fix for import of RokDoc Probability Density Function when one of the two
+   dimensions is equal to 1. Now such function are imported as 1D functions
+
 v4.6.0q: November 17, 2014
  * Fix for merging seismic cubes using merge tool in Manage 3D seismics window
  * Fix for crash in annotation text
