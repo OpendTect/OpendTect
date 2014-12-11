@@ -132,6 +132,9 @@ bool processPixelOnStick( int stickidx, int knotpos, Coord3& pos )
     Geometry::PrimitiveSet* geomidxps =
 	explsurf_.sticks_[stickidx]->getCoordsPrimitiveSet();
 
+    if ( !geomidxps || !explsurf_.coordlist_ )
+	return false;
+
     if ( nrknots==1 )
     {
 	if ( knotpos==knotcoords[0] )
