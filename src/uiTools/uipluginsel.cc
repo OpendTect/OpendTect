@@ -184,6 +184,7 @@ void uiProductSel::makeProductList(
 {
     BufferStringSet dontloadlist;
     PIM().getNotLoadedByUser( dontloadlist );
+    vendors_.add( "dGB Earth Sciences" );
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	const PluginManager::Data& data = *pimdata[idx];
