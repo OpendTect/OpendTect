@@ -484,6 +484,7 @@ od_int64 DataUploader::totalNr() const
 
 void Network::setHttpProxyFromSettings()
 {
+#ifndef OD_NO_QT
     Settings& setts = Settings::common();
     bool useproxy = false;
     setts.getYN( Network::sKeyUseProxy(), useproxy );
@@ -517,6 +518,7 @@ void Network::setHttpProxyFromSettings()
     }
     else
 	Network::setHttpProxy( host, port );
+#endif
 }
 
 
