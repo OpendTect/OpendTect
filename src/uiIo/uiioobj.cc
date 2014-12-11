@@ -16,6 +16,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "ioman.h"
 #include "iodir.h"
 #include "ioobj.h"
+#include "survinfo.h"
 #include "transl.h"
 #include "filepath.h"
 
@@ -75,7 +76,20 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
     }
 
     if ( rmentry )
-	IOM().permRemove( ioobj_.key() );
+    {
+	const bool removed = IOM().permRemove( ioobj_.key() );
+	if ( removed )
+	{
+	    if ( IOObj::isSurveyDefault(ioobj_.key()) )
+	    {
+		PtrMan<Translator> tr = ioobj_.createTranslator();
+		CompoundKey defaultkey(
+				   tr->group()->getSurveyDefaultKey(&ioobj_) );
+		SI().getPars().removeWithKey( defaultkey.buf() );
+		SI().savePars();
+	    }
+	}
+    }
 
     return true;
 }
