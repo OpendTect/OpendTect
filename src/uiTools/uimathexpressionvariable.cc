@@ -229,6 +229,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
     else if ( specidx_ < 0 )
     {
 	BufferString inpdef( form.inputDef(varidx_) );
+	inpfld_->setText( inpdef.buf() );
 	selectInput( inpdef.isEmpty() ? varnm.buf() : inpdef.buf() );
     }
     else if ( unfld_ )
