@@ -31,6 +31,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 			bool dogeomcheck )
     : uiGroup(p,"Slice Selection")
     , inl0fld_(0)
+    , inl1fld_(0)
     , applycb_(0)
     , scrolldlg_(0)
     , scrollbut_(0)
