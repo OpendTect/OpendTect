@@ -34,6 +34,7 @@ v5.0.3: December 11, 2014
    line as a 2D line
  * Implemented 'Show all', 'Hide all' and 'Remove all' options for
    items in 2D viewer
+ * Fix for selecting default cube from 'Manage 3D Seismics' window
 
 v5.0.2: November 17, 2014
  * Fix for displaying contours on 3D horizon
