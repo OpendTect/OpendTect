@@ -44,14 +44,14 @@ uiMathExpressionVariable::uiMathExpressionVariable( uiParent* p,
     , inpSel(this)
     , subInpSel(this)
 {
-    inpgrp_ = new uiGroup( this, "Input group" ); 
+    inpgrp_ = new uiGroup( this, "Input group" );
     inpfld_ = new uiComboBox( inpgrp_, BufferString("input ",varidx_+1) );
     const BufferString lblstr( "For input number ", varidx_+1, " use" );
     inplbl_ = new uiLabel( inpgrp_, lblstr, inpfld_ );
     inplbl_->setPrefWidthInChar( 35 );
     inplbl_->setAlignment( Alignment::Right );
     inpfld_->selectionChanged.notify(
-	    		mCB(this,uiMathExpressionVariable,inpChg) );
+			mCB(this,uiMathExpressionVariable,inpChg) );
 
     if ( withsub )
     {
@@ -229,6 +229,7 @@ void uiMathExpressionVariable::use( const Math::Formula& form )
     else if ( specidx_ < 0 )
     {
 	BufferString inpdef( form.inputDef(varidx_) );
+	inpfld_->setText( inpdef.buf() );
 	selectInput( inpdef.isEmpty() ? varnm.buf() : inpdef.buf() );
     }
     else if ( unfld_ )
@@ -242,7 +243,11 @@ void uiMathExpressionVariable::selectInput( const char* inpnm, bool exact )
 {
     if ( !inpnm ) inpnm = "";
     if ( inpfld_->isEmpty() )
-	{ isconst_ = true; updateDisp(); return; }
+    {
+	isconst_ = true;
+	updateDisp();
+	return;
+    }
 
     isconst_ = false;
     updateDisp();

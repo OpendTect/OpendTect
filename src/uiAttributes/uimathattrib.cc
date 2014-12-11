@@ -204,6 +204,9 @@ void uiMathAttrib::updateNonSpecInputs()
 
 bool uiMathAttrib::setInput( const Desc& desc )
 {
+    if ( dpfids_.isEmpty() && !ads_ )
+	setDescSet( desc.descSet() );
+
     updateNonSpecInputs();
     int varinplastidx = 0;
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
@@ -229,7 +232,7 @@ bool uiMathAttrib::setInput( const Desc& desc )
 		if ( !form_.isConst(varinpidx) && !form_.isSpec(varinpidx) )
 		{
 		    form_.setInputDef( varinpidx, refstr );
-		    formfld_->inpFld(varinpidx)->selectInput( refstr.buf() );
+		    formfld_->inpFld(varinpidx)->use( form_ );
 		    varinplastidx = varinpidx+1;
 
 		    MultiID mid = inpdsc->getStoredID( false ).buf();
