@@ -67,6 +67,7 @@ public:
     void		createMultiCubeDataStore() const;
 
     void		manageSeismics(int opt);
+    void		manageSeismicsModal(int opt);
     void		managePreLoad();
     void		importWavelets();
     void		exportWavelets();
