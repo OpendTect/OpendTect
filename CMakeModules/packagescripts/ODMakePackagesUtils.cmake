@@ -208,7 +208,6 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-	INCLUDE_RELMAN_DATA()
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
