@@ -53,12 +53,12 @@ static const char* getVendorName( const char* creatorname )
     const FixedString crnm( creatorname );
     if ( crnm == "dGB Earth Sciences" )
 	return "dgb";
-    if ( crnm == "ARK CLS" )
+    if ( crnm == "ARK CLS Ltd" || crnm == "ARK CLS Limited"  )
 	return "arkcls";
     if ( crnm == "Earthworks & ARK CLS" )
 	return "earthworks";
-    if ( crnm == "ARKeX" )
-	return crnm;
+    if ( crnm == "ARKeX Ltd" )
+	return "arkex";
 
     return "sitfal";
 }
@@ -184,6 +184,7 @@ void uiProductSel::makeProductList(
 {
     BufferStringSet dontloadlist;
     PIM().getNotLoadedByUser( dontloadlist );
+    vendors_.add( "dGB Earth Sciences" );
     for ( int idx=0; idx<pimdata.size(); idx++ )
     {
 	const PluginManager::Data& data = *pimdata[idx];
@@ -231,7 +232,8 @@ void uiProductSel::createUI()
     uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
     banner->scene().addItem( pmitem );
     banner->setPrefHeight( pm.height() );
-     
+    banner->setStretch( 2, 0 );
+
     treefld_ = new uiTreeView( grp, "Plugin tree" );
     treefld_->setStretch( 2, 2 );
     treefld_->showHeader( false );
