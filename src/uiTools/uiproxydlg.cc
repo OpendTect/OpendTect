@@ -39,7 +39,7 @@ uiProxyDlg::uiProxyDlg( uiParent* p )
     portfld_->box()->setInterval( 1, 65535 );
 
     authenticationfld_ =
-	new uiCheckBox( this, tr("Use uthentication") );
+	new uiCheckBox( this, tr("Use authentication") );
     authenticationfld_->activated.notify( 
 				    mCB(this,uiProxyDlg,useProxyCB) );
     authenticationfld_->attach( alignedBelow, hostfld_ );
