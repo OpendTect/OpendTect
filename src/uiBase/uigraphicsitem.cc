@@ -270,6 +270,12 @@ void uiGraphicsItem::setFillPattern( const FillPattern& inpfp )
 }
 
 
+void uiGraphicsItem::setTransparency( float transparency )
+{
+    qgraphicsitem_->setOpacity( 1.0f - transparency );
+}
+
+
 void uiGraphicsItem::setCursor( const MouseCursor& cursor )
 {
     QCursor qcursor;

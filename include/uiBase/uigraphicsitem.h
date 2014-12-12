@@ -62,6 +62,12 @@ public:
     virtual void	setPenColor(const Color&,bool withalpha=false);
     virtual void	setFillColor(const Color&,bool withalpha=false);
     virtual void	setFillPattern(const FillPattern&);
+    virtual void	setTransparency(float);
+			/*!< To set the overall transparency of graphics item.
+			 Passed value should be between 0 and 1. If the item
+			 contains colors with some transparency, resultant
+			 transparency of the color will be an effective value
+			 of both transparencies. */
 
     void		setCursor(const MouseCursor&);
     void		setToolTip(const uiString&);
