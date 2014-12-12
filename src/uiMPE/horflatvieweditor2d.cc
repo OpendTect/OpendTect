@@ -599,12 +599,18 @@ void HorizonFlatViewEditor2D::removePosCB( CallBacker* )
 
     for ( int ids=0; ids<selectedids.size(); ids++ )
     {
-	bid.inl() = hor2d->geometry().lineIndex( geomid_ );
+	const FlatView::AuxData* auxdata = getAuxData(selectedids[ids]);
+	if ( !auxdata || !auxdata->poly_.validIdx(selectedidxs[ids]) )
+	    continue;
 
-	int posidx = horpainter_->getDistances().indexOf(
-				mCast( float, getAuxData(selectedids[ids])->
-				poly_[selectedidxs[ids]].x ) );
-	bid.crl() = horpainter_->getTrcNos()[posidx];
+	const int posidx = horpainter_->getDistances().indexOf(
+			mCast(float,auxdata->poly_[selectedidxs[ids]].x) );
+	const TypeSet<int>& trcnrs = horpainter_->getTrcNos();
+	if ( !trcnrs.validIdx(posidx) )
+	    continue;
+
+	bid.inl() = hor2d->geometry().lineIndex( geomid_ );
+	bid.crl() = trcnrs[posidx];
 
 	EM::PosID posid( emid_, getSectionID(selectedids[ids]), bid.toInt64() );
 	emobj->unSetPos( posid, false );
