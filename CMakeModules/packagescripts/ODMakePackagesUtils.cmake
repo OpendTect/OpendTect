@@ -208,7 +208,6 @@ macro( create_basepackages PACKAGE_NAME )
 	execute_process( COMMAND ${CMAKE_COMMAND} -E copy
 			 ${CMAKE_INSTALL_PREFIX}/relinfo/README.txt
 			 ${DESTINATION_DIR}/relinfo )
-	INCLUDE_RELMAN_DATA()
    endif()
    if( ${PACKAGE_NAME} STREQUAL "dgbbasedata" )
        execute_process( COMMAND ${CMAKE_COMMAND} -E copy
@@ -517,20 +516,3 @@ if( UNIX )
 
 endif()
 endmacro() #OD_GENERATE_BREAKPAD_SYMBOLS
-
-macro ( INCLUDE_RELMAN_DATA )
-    if( UNIX )
-	if ( NOT DEFINED RELMANDIR )
-	    message ( "${RELMANDIR} not defined" )
-	endif()
-	if ( NOT EXISTS ${RELMANDIR} )
-	    message( "Failed to include defs and odinst_images directories in basedata package" )
-	endif()
-
-	file( GLOB FILES ${RELMANDIR}/odinst_images/*.png )
-	foreach( PNGFILE ${FILES} )
-	    execute_process( COMMAND ${CMAKE_COMMAND} -E copy ${PNGFILE}
-			     ${DESTINATION_DIR}/data/icons.Default )
-	endforeach()
-    endif()
-endmacro()
