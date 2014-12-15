@@ -1679,7 +1679,8 @@ int dgbSurfaceWriter::nextStep()
 {
     if ( !nrdone_ )
     {
-	conn_ = fulluserexpr_ ? new StreamConn(fulluserexpr_,Conn::Write) : 0;
+	conn_ = !fulluserexpr_.isEmpty() ? 
+		    new StreamConn(fulluserexpr_,Conn::Write) : 0;
 	if ( !conn_ )
 	    {
 		msg_ = tr("Cannot open output surface file");

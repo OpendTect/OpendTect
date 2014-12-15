@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 ascbinostream::ascbinostream( od_ostream& strm, bool bin )
     mImplConstr( strm, false )
 ascbinostream::ascbinostream( od_ostream* strm, bool bin )
-    mImplConstr( strm ? *strm : od_ostream::nullStream(), true )
+    mImplConstr( strm ? *strm : od_ostream::nullStream(), strm )
 ascbinostream::~ascbinostream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascbinostream::isOK() const
@@ -59,7 +59,7 @@ ascbinostream& ascbinostream::addBin( const void* buf, od_stream_Count nrbytes )
 ascbinistream::ascbinistream( od_istream& strm, bool bin )
     mImplConstr( strm, false )
 ascbinistream::ascbinistream( od_istream* strm, bool bin )
-    mImplConstr( strm ? *strm : od_istream::nullStream(), true )
+    mImplConstr( strm ? *strm : od_istream::nullStream(), strm )
 ascbinistream::~ascbinistream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascbinistream::isOK() const

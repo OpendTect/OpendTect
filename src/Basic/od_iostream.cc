@@ -361,7 +361,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
     if ( forread )
     {
 	if ( !fnm || !*fnm )
-	    return &od_istream::nullStream();
+	    return new od_istream( od_istream::nullStream() );
 
 	ret = new od_istream( fnm );
 	if ( !ret )
@@ -376,7 +376,7 @@ od_stream* od_stream::create( const char* fnm, bool forread,
     else
     {
 	if ( !fnm || !*fnm )
-	    return &od_ostream::nullStream();
+	    return new od_ostream( od_ostream::nullStream() );
 
 	ret = new od_ostream( fnm );
 	if ( !ret )

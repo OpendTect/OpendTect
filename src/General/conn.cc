@@ -106,14 +106,20 @@ void StreamConn::setFileName( const char* nm, bool forread )
     if ( forread )
     {
 	if ( !nm || !*nm )
+	{
 	    strm_ = &od_istream::nullStream();
+	    mine_ = false;
+	}
 	else
 	    strm_ = new od_istream( nm );
     }
     else
     {
 	if ( !nm || !*nm )
+	{
 	    strm_ = &od_ostream::nullStream();
+	    mine_ = false;
+	}
 	else
 	    strm_ = new od_ostream( nm );
     }

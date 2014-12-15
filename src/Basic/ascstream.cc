@@ -61,7 +61,7 @@ extern "C" void SetProjectVersionName( const char* s )
 ascostream::ascostream( od_ostream& strm )
     mImplConstr( strm, false )
 ascostream::ascostream( od_ostream* strm )
-    mImplConstr( strm ? *strm : od_ostream::nullStream(), true )
+    mImplConstr( strm ? *strm : od_ostream::nullStream(), strm )
 ascostream::~ascostream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascostream::isOK() const
@@ -235,7 +235,7 @@ mDeclPut4Fn(putYN,bool)
 ascistream::ascistream( od_istream& strm, bool rdhead )
     mImplConstr( strm, false )
 ascistream::ascistream( od_istream* strm, bool rdhead )
-    mImplConstr( strm ? *strm : od_istream::nullStream(), true )
+    mImplConstr( strm ? *strm : od_istream::nullStream(), strm )
 ascistream::~ascistream()
     { if ( strmmine_ ) delete &strm_; }
 bool ascistream::isOK() const
