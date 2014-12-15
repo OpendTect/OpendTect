@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiflatviewer.h"
 #include "welltiedata.h"
+#include "uistring.h"
 
 class SeisTrc;
 class SeisTrcBuf;
@@ -101,7 +102,7 @@ protected:
 
 
 mExpClass(uiWellAttrib) uiCrossCorrView : uiGroup
-{
+{ mODTextTranslationClass(uiCrossCorrView);
 public:
 
 				uiCrossCorrView(uiParent*,const Data&);

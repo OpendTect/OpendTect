@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uistring.h"
 
 class CtxtIOObj;
 class Wavelet;
@@ -57,7 +58,7 @@ protected:
 
 
 mClass(uiWellAttrib) uiWavelet : public uiGroup
-{
+{ mODTextTranslationClass(uiWavelet);
 
 public: 
     				uiWavelet(uiParent*,Wavelet*,bool);

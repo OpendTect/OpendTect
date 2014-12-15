@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class DataPointSetDisplayMgr;
 
@@ -23,7 +24,7 @@ namespace Attrib { class DescSet; }
 
 
 mExpClass(uiWellAttrib) uiWellAttribCrossPlot : public uiDialog
-{
+{ mODTextTranslationClass(uiWellAttribCrossPlot);
 public:
 					uiWellAttribCrossPlot(uiParent*,
 						const Attrib::DescSet*);

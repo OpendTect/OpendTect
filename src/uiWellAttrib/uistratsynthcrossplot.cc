@@ -49,14 +49,17 @@ static const char* rcsID mUsedVar = "$Id$";
 uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 			const Strat::LayerModel& lm,
 			const ObjectSet<SyntheticData>& synths )
-    : uiDialog(p,Setup("Layer model/synthetics cross-plotting",
+    : uiDialog(p,Setup(tr("Layer model/synthetics cross-plotting"),
 			mNoDlgTitle, mODHelpKey(mStratSynthCrossplotHelpID) ))
     , lm_(lm)
     , synthdatas_(synths)
 {
     if ( lm.isEmpty() )
-	{ errmsg_ = "Input model is empty."
-	    "\nYou need to generate layer models."; return; }
+	{ 
+	errmsg_ = tr("Input model is empty.\n"
+		     "You need to generate layer models.");
+	return; 
+	}
 
     TypeSet<DataPack::FullID> fids, psfids;
     for ( int idx=0; idx<synths.size(); idx++ )
@@ -68,8 +71,11 @@ uiStratSynthCrossplot::uiStratSynthCrossplot( uiParent* p,
 	    fids += sd.datapackid_;
     }
     if ( fids.isEmpty() && psfids.isEmpty() )
-	{ errmsg_ = "Missing or invalid 'datapacks'."
-	    "\nMost likely, no synthetics are available."; return; }
+	{ 
+	errmsg_ = tr("Missing or invalid 'datapacks'."
+		     "\nMost likely, no synthetics are available."); 
+	return; 
+	}
 
     uiAttribDescSetBuild::Setup bsu( true );
     bsu.showdepthonlyattrs(false).showusingtrcpos(true).showps( psfids.size() );
@@ -206,16 +212,16 @@ DataPointSet* uiStratSynthCrossplot::getData( const Attrib::DescSet& seisattrs,
     dps->dataChanged();
 
     if ( dps->isEmpty() )
-	mErrRet( "No positions for data extraction" )
+	mErrRet( tr("No positions for data extraction") )
 
     if ( !seisattrs.isEmpty() && !extractSeisAttribs(*dps,seisattrs) )
-	mErrRet( "Could not extract any seismic attribute" )
+	mErrRet( tr("Could not extract any seismic attribute") )
 
     if ( !seqattrs.isEmpty() && !extractLayerAttribs(*dps,seqattrs,stoplvl) )
-	mErrRet( "Could not extract any layer attribute" );
+	mErrRet( tr("Could not extract any layer attribute") );
 
     if ( !extractModelNr(*dps) )
-	uiMSG().warning( "Could not extract the model numbers" );
+	uiMSG().warning( tr("Could not extract the model numbers") );
 
     return dps;
 }
@@ -228,7 +234,7 @@ void uiStratSynthCrossplot::fillPosFromZSampling( DataPointSet& dps,
 					       const Interval<float>& extrwin )
 {
     if ( mIsUdf(step) )
-	uiMSG().error( "No valid step provided for data extraction");
+	uiMSG().error( tr("No valid step provided for data extraction"));
 
     const float halfstep = step / 2.f;
     const int trcnr = trcinfo.nr;

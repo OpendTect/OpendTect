@@ -83,7 +83,8 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     : uiGroup(p,"Create LogCube output specification Group")
     , savewllnmfld_(0)
 {
-    repeatfld_ = new uiLabeledSpinBox( this,"Duplicate trace around the track");
+    repeatfld_ = new uiLabeledSpinBox( this,
+				       tr("Duplicate trace around the track"));
     repeatfld_->box()->setInterval( 0, 20, 1 );
     repeatfld_->box()->setValue( 1 );
 
@@ -93,7 +94,7 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     uiGroup* outputgrp = new uiGroup( this, "Output name group" );
     outputgrp->attach( ensureBelow, sep );
 
-    uiLabel* savelbl = new uiLabel( outputgrp, "Output name" );
+    uiLabel* savelbl = new uiLabel( outputgrp, tr("Output name") );
     savepostfix_ = new uiGenInput( outputgrp, "with postfix", "log cube" );
     savepostfix_->setWithCheck( true );
     savepostfix_->setChecked( true );
@@ -102,7 +103,7 @@ uiCreateLogCubeOutputSel::uiCreateLogCubeOutputSel( uiParent* p, bool withwllnm)
     if ( !withwllnm )
 	return;
 
-    savewllnmfld_ = new uiCheckBox( outputgrp, "with well name" );
+    savewllnmfld_ = new uiCheckBox( outputgrp, tr("with well name") );
     savewllnmfld_->setChecked( true );
     savewllnmfld_->attach( rightOf, savepostfix_ );
 }

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "stratseisevent.h"
+#include "uistring.h"
 class uiCheckBox;
 class uiGenInput;
 class uiLabel;
@@ -22,7 +23,7 @@ class uiStratLevelSel;
 
 
 mExpClass(uiWellAttrib) uiStratSeisEvent : public uiGroup
-{
+{ mODTextTranslationClass(uiStratSeisEvent);
 public:
 
     mExpClass(uiWellAttrib) Setup

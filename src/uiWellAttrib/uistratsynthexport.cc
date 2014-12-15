@@ -52,7 +52,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiStratSynthOutSel : public uiCheckedCompoundParSel
-{
+{ mODTextTranslationClass(uiStratSynthOutSel);
 public:
 
 uiStratSynthOutSel( uiParent* p, const char* seltxt,
@@ -122,14 +122,15 @@ virtual BufferString getSummary() const
 
 
 uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
-    : uiDialog(p,uiDialog::Setup("Save synthetic seismics and horizons",
+    : uiDialog(p,uiDialog::Setup(tr("Save synthetic seismics and horizons"),
 				 getWinTitle(ss),
                                  mODHelpKey(mStratSynthExportHelpID) ) )
     , ss_(ss)
     , randlinesel_(0)
 {
-    crnewfld_ = new uiGenInput( this, "2D Line",
-			     BoolInpSpec(true,"Create New","Use existing") );
+    crnewfld_ = new uiGenInput( this, tr("2D Line"),
+			     BoolInpSpec(true,tr("Create New"),
+					 tr("Use existing")) );
     crnewfld_->valuechanged.notify( mCB(this,uiStratSynthExport,crNewChg) );
 
 
@@ -165,14 +166,16 @@ uiStratSynthExport::uiStratSynthExport( uiParent* p, const StratSynth& ss )
     selgrp->setHAlignObj( poststcksel_ );
     selgrp->attach( alignedBelow, geomgrp_ );
 
-    uiLabel* lbl = new uiLabel( this, "Output object names will be generated."
-		"\nYou can specify an optional prefix and postfix for each:" );
+    uiLabel* lbl = new uiLabel( this, tr("Output object names will "
+					 "be generated.\nYou can specify "
+					 "an optional prefix and postfix "
+					 "for each:") );
     lbl->attach( ensureBelow, selgrp );
     lbl->setAlignment( Alignment::Left );
-    prefxfld_ = new uiGenInput( this, "Prefix" );
+    prefxfld_ = new uiGenInput( this, tr("Prefix") );
     prefxfld_->attach( alignedBelow, selgrp );
     prefxfld_->attach( ensureBelow, lbl );
-    postfxfld_ = new uiGenInput( this, "Postfix" );
+    postfxfld_ = new uiGenInput( this, tr("Postfix") );
     postfxfld_->attach( rightOf, prefxfld_ );
 
     postFinalise().notify( mCB(this,uiStratSynthExport,crNewChg) );
@@ -198,7 +201,7 @@ void uiStratSynthExport::fillGeomGroup()
     const bool haverl = SI().has3D();
     if ( haverl )
 	inpspec.addString( "Random Line" );
-    geomsel_ = new uiGenInput( geomgrp_, "Geometry for line", inpspec );
+    geomsel_ = new uiGenInput( geomgrp_, tr("Geometry for line"), inpspec );
     geomsel_->valuechanged.notify( mCB(this,uiStratSynthExport,geomSel) );
     geomgrp_->setHAlignObj( geomsel_ );
 
@@ -208,12 +211,12 @@ void uiStratSynthExport::fillGeomGroup()
     BinID stopbid( SI().inlRange(true).snappedCenter(),
 		   SI().crlRange(true).stop );
     Coord stopcoord = SI().transform( stopbid );
-    coord0fld_ = new uiGenInput( geomgrp_, "Coordinates: from",
+    coord0fld_ = new uiGenInput( geomgrp_, tr("Coordinates: from"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord0fld_->attach( alignedBelow, geomsel_ );
     coord0fld_->setValue( startcoord.x, 0 );
     coord0fld_->setValue( startcoord.y, 1 );
-    coord1fld_ = new uiGenInput( geomgrp_, "to",
+    coord1fld_ = new uiGenInput( geomgrp_, tr("to"),
 					DoubleInpSpec(), DoubleInpSpec() );
     coord1fld_->attach( alignedBelow, coord0fld_ );
     coord1fld_->setValue( stopcoord.x, 0 );
@@ -356,7 +359,8 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		Survey::GM().getGeometry( linegeom.lineName() );
 	    mDynamicCastGet(const Survey::Geometry2D*,geom2d,geom);
 	    if ( !geom2d )
-		mErrRet("Could not find the geometry of specified line",false)
+		mErrRet(tr("Could not find the geometry of specified line"),
+			false)
 	    linegeom = geom2d->data();
 	    return true;
 	}
@@ -370,7 +374,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	{
 	    const IOObj* picksetobj = picksetsel_->ioobj();
 	    if ( !picksetobj )
-		mErrRet( "No pickset selected", false )
+		mErrRet( tr("No pickset selected"), false )
 	    Pick::Set pickset;
 	    if ( Pick::Mgr().indexOf(picksetobj->key())>0 )
 		pickset = Pick::Mgr().get( picksetobj->key() );
@@ -389,7 +393,7 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 	{
 	    const IOObj* randlineobj = randlinesel_->ioobj();
 	    if ( !randlineobj )
-		mErrRet( "No random line selected", false )
+		mErrRet( tr("No random line selected"), false )
 	    Geometry::RandomLineSet lset;
 	    BufferString errmsg;
 	    if ( !RandomLineSetTranslator::retrieve(lset,randlineobj,errmsg) )
@@ -400,11 +404,11 @@ bool uiStratSynthExport::getGeometry( PosInfo::Line2DData& linegeom )
 		linenames.add( lines[idx]->name() );
 	    int selitem = 0;
 	    if ( linenames.isEmpty() )
-		mErrRet( "Random line appears to be empty", false )
+		mErrRet( tr("Random line appears to be empty"), false )
 	    else if ( linenames.size()>1 )
 	    {
 		uiSelectFromList seldlg( this,
-			uiSelectFromList::Setup("Random lines",linenames) );
+			uiSelectFromList::Setup(tr("Random lines"),linenames) );
 		selitem = seldlg.selection();
 	    }
 
@@ -472,9 +476,9 @@ bool uiStratSynthExport::createHor2Ds()
     EM::EMManager& em = EM::EMM();
     const bool createnew = crnewfld_->getBoolValue();
     if ( createnew && (presds_.isEmpty() && postsds_.isEmpty()) )
-	mErrRet( "Cannot create horizon without a geometry. Select any "
-		 "synthetic data to create a new geometry or use existing "
-		 "2D line", false );
+	mErrRet(tr("Cannot create horizon without a geometry. Select any "
+		   "synthetic data to create a new geometry or use existing "
+		   "2D line"), false);
     const char* linenm = createnew ? newlinenmfld_->text()
 				   : existlinenmsel_->getInput();
     const Pos::GeomID geomid = Survey::GM().getGeomID( linenm );
@@ -554,16 +558,16 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     if ( presds_.isEmpty() && postsds_.isEmpty() && sslvls_.isEmpty() )
     {
 	getExpObjs();
-	mErrRet( "Nothing selected for export", false );
+	mErrRet( tr("Nothing selected for export"), false );
     }
 
     const bool useexisting = selType()==uiStratSynthExport::Existing;
     if ( !useexisting && postsds_.isEmpty() )
     {
 	getExpObjs();
-	mErrRet( "No post stack selected. Since a new geometry will be created "
-		 "you need to select atleast one post stack data to "
-		 "create a 2D line geometry.", false );
+	mErrRet(tr("No post stack selected. Since a new geometry will be "
+		   "created you need to select atleast one post stack data to "
+		   "create a 2D line geometry."), false);
     }
 
     BufferString linenm =
@@ -572,7 +576,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     if ( linenm.isEmpty() )
     {
 	getExpObjs();
-	mErrRet( "No line name specified", false );
+	mErrRet( tr("No line name specified"), false );
     }
 
     PtrMan<PosInfo::Line2DData> linegeom = new PosInfo::Line2DData( linenm );
@@ -595,9 +599,9 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
     }
 
     if ( linegeom->positions().size() < synthmodelsz )
-	uiMSG().warning( "The geometry of the line could not accomodate \n"
-			 "all the traces from the synthetics. Some of the \n"
-			 "end traces will be clipped" );
+	uiMSG().warning(tr("The geometry of the line could not accomodate \n"
+			   "all the traces from the synthetics. Some of the \n"
+			   "end traces will be clipped"));
     SeparString prepostfix;
     prepostfix.add( prefxfld_->text() );
     prepostfix.add( postfxfld_->text() );
@@ -610,7 +614,7 @@ bool uiStratSynthExport::acceptOK( CallBacker* )
 	return false;
     createHor2Ds();
     if ( !SI().has2D() )
-	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
-			 " in survey setup to display the 2D line" );
+	uiMSG().warning(tr("You need to change survey type to 'Both 2D and 3D'"
+			   " in survey setup to display the 2D line"));
     return true;
 }

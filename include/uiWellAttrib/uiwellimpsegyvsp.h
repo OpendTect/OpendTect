@@ -17,6 +17,7 @@
 #include "iopar.h"
 #include "samplingdata.h"
 #include "bufstringset.h"
+#include "uistring.h"
 class uiSEGYVSPBasicPars;
 class uiGenInput;
 class uiCheckBox;
@@ -27,7 +28,7 @@ class CtxtIOObj;
 
 
 mExpClass(uiWellAttrib) uiWellImportSEGYVSP : public uiDialog
-{
+{ mODTextTranslationClass(uiWellImportSEGYVSP);
 public:
 			uiWellImportSEGYVSP(uiParent*);
 			~uiWellImportSEGYVSP();

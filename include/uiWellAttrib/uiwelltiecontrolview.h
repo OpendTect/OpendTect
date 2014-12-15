@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uiflatviewstdcontrol.h"
+#include "uistring.h"
 
 class uiFlatViewer;
 class uiToolBar;
@@ -27,7 +28,7 @@ class uiMrkDispDlg;
 class Server;
 
 mExpClass(uiWellAttrib) uiControlView : public uiFlatViewStdControl
-{
+{ mODTextTranslationClass(uiControlView);
 public:
 			uiControlView(uiParent*,uiToolBar*,
 					uiFlatViewer*,Server&);

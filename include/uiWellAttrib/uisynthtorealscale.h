@@ -14,7 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
-
+#include "uistring.h"
 #include "trckeysampling.h"
 #include "multiid.h"
 
@@ -39,7 +39,7 @@ namespace Strat { class SeisEvent; }
  */
 
 mExpClass(uiWellAttrib) uiSynthToRealScale : public uiDialog
-{ 	
+{ mODTextTranslationClass(uiSynthToRealScale);
 public:
 
 			uiSynthToRealScale(uiParent*,bool is2d,

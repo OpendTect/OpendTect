@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uiflatviewmainwin.h"
 #include "bufstringset.h"
+#include "uistring.h"
 
 class Wavelet;
 class uiGroup;
@@ -44,7 +45,7 @@ namespace WellTie
     class uiWaveletView;
 
 mExpClass(uiWellAttrib) uiTieWin : public uiFlatViewMainWin
-{
+{ mODTextTranslationClass(uiTieWin);
 public:
 
 				uiTieWin(uiParent*,WellTie::Server&);
@@ -126,7 +127,7 @@ protected:
 
 
 mExpClass(uiWellAttrib) uiInfoDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiInfoDlg);
 public:		
     		
 				uiInfoDlg(uiParent*,Server&);

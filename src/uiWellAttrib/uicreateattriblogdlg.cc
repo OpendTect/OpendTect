@@ -172,7 +172,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	    mErrRet( errmsg )
 
 	PtrMan<IOObj> ioobj = IOM().get( wd->multiID() );
-	if ( !ioobj ) mErrRet("Cannot find well in object manager")
+	if ( !ioobj ) mErrRet(tr("Cannot find well in object manager"))
 
 	Well::Writer wtr( *ioobj, *wd );
 
@@ -208,8 +208,8 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     sellogidx_ = wd->logs().indexOf( datasetup_.lognm_ );
     if ( sellogidx_ >= 0 )
     {
-	BufferString msg( "Log: '" ); msg += datasetup_.lognm_;
-	msg += "' is already present.\nDo you wish to overwrite this log?";
+	uiString msg = tr("Log: '%1' is already present.\nDo you wish to "
+			  "overwrite this log?").arg(datasetup_.lognm_);
 	if ( !uiMSG().askOverwrite(msg) ) return false;
     }
 

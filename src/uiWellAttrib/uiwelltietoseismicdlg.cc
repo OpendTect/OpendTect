@@ -123,18 +123,18 @@ void uiTieWin::usePar( const IOPar& par )
 
 void uiTieWin::displayUserMsg( CallBacker* )
 {
-    BufferString msg = "To correlate synthetic to seismic, ";
-    msg += "choose your tracking mode, ";
-    msg += "pick one or more synthetic events ";
-    msg += "and link them with the seismic events. ";
-    msg += "Each synthetic event must be coupled with a seismic event. ";
-    msg += "Once you are satisfied with the picking, push the ";
-    msg += "'Apply Changes' button to compute a new depth/time model ";
-    msg += "and to re-extract the data.\n";
-    msg += "Repeat the picking operation if needed.\n";
-    msg += "To cross-check your operation, press the 'Display additional ";
-    msg += "information' button.\n\n";
-    msg += "Press 'OK/Save' to store your new depth/time model.";
+    uiString msg = tr("To correlate synthetic to seismic, "
+		      "choose your tracking mode, "
+		      "pick one or more synthetic events "
+		      "and link them with the seismic events. "
+		      "Each synthetic event must be coupled with a seismic "
+		      "event. Once you are satisfied with the picking, push "
+		      "the 'Apply Changes' button to compute a new depth/time "
+		      "model and to re-extract the data.\n"
+		      "Repeat the picking operation if needed.\n"
+		      "To cross-check your operation, press the 'Display "
+		      "additional information' button.\n\n"
+		      "Press 'OK/Save' to store your new depth/time model.");
 
     uiMSG().message( msg );
 }
@@ -187,9 +187,9 @@ void uiTieWin::reDrawAll( CallBacker* )
 void uiTieWin::addToolBarTools()
 {
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
-    mAddButton( "z2t", editD2TPushed, "View/Edit Model" );
-    mAddButton( "save", saveDataPushed, "Save Data" );
-    mAddButton( "snapshot", snapshotCB, "Get snapshot" );
+    mAddButton( "z2t", editD2TPushed, tr("View/Edit Model") );
+    mAddButton( "save", saveDataPushed, tr("Save Data") );
+    mAddButton( "snapshot", snapshotCB, tr("Get snapshot") );
 }
 
 
@@ -227,12 +227,12 @@ void uiTieWin::drawFields()
     horSepar->attach( stretchedBelow, disppropgrp );
     horSepar->attach( ensureBelow, vwrtaskgrp );
 
-    uiPushButton* okbut = new uiPushButton( this, "Ok/Save",
+    uiPushButton* okbut = new uiPushButton( this, tr("Ok/Save"),
 			mCB(this,uiTieWin,acceptOK), true );
     okbut->attach( leftBorder, 80 );
     okbut->attach( ensureBelow, horSepar );
 
-    uiPushButton* infobut = new uiPushButton( this, "Info",
+    uiPushButton* infobut = new uiPushButton( this, tr("Info"),
 			mCB(this,uiTieWin,displayUserMsg), false );
     infobut->attach( hCentered );
     infobut->attach( ensureBelow, horSepar );
@@ -266,7 +266,7 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     eventtypefld_->box()->selectionChanged.
 	notify(mCB(this,uiTieWin,eventTypeChg));
 
-    applybut_ = new uiPushButton( taskgrp, "Apply Changes",
+    applybut_ = new uiPushButton( taskgrp, tr("Apply Changes"),
 	   mCB(this,uiTieWin,applyPushed), true );
     applybut_->setSensitive( false );
     applybut_->attach( rightOf, eventtypefld_ );
@@ -276,21 +276,22 @@ void uiTieWin::createViewerTaskFields( uiGroup* taskgrp )
     undobut_->attach( rightOf, applybut_ );
     undobut_->setSensitive( false );
 
-    clearpicksbut_ = new uiPushButton( taskgrp, "Clear picks",
+    clearpicksbut_ = new uiPushButton( taskgrp, tr("Clear picks"),
 	   mCB(this,uiTieWin,clearPicks), true );
     clearpicksbut_->setSensitive( false );
     clearpicksbut_->attach( rightOf, undobut_ );
 
-    clearlastpicksbut_ = new uiPushButton( taskgrp, "Clear last pick",
+    clearlastpicksbut_ = new uiPushButton( taskgrp, tr("Clear last pick"),
 	   mCB(this,uiTieWin,clearLastPick), true );
     clearlastpicksbut_->setSensitive( false );
     clearlastpicksbut_->attach( rightOf, clearpicksbut_ );
 
-    matchhormrksbut_ = new uiPushButton( taskgrp,"Match markers and horizons",
+    matchhormrksbut_ = new uiPushButton( taskgrp,
+					 tr("Match markers and horizons"),
 		       mCB(this,uiTieWin,matchHorMrks), true );
     matchhormrksbut_->attach( rightBorder );
 
-    infobut_ = new uiPushButton( taskgrp, "Display additional information",
+    infobut_ = new uiPushButton( taskgrp, tr("Display additional information"),
 	               mCB(this,uiTieWin,infoPushed), false );
     infobut_->attach( ensureBelow, applybut_ );
     infobut_->attach( leftOf, matchhormrksbut_ );
@@ -302,8 +303,8 @@ void uiTieWin::createDispPropFields( uiGroup* dispgrp )
     mGetWD(return);
     dispgrp->setHSpacing( 50 );
 
-    zinftfld_ = new uiCheckBox( dispgrp, "Z in feet" );
-    zintimefld_ = new uiCheckBox( dispgrp, "Z in time" );
+    zinftfld_ = new uiCheckBox( dispgrp, tr("Z in feet") );
+    zintimefld_ = new uiCheckBox( dispgrp, tr("Z in time") );
     zintimefld_ ->attach( alignedAbove, zinftfld_ );
 
     putDispParams();
@@ -344,10 +345,9 @@ void uiTieWin::infoPushed( CallBacker* )
     {
 	if ( !server_.hasSynthetic() || !server_.hasSeismic() )
 	{
-	    BufferString errmsg = "No ";
-	    errmsg += server_.hasSeismic() ? "synthetic" : "seismic";
-	    errmsg += " data extracted\n";
-	    errmsg += "Cannot go further";
+	    uiString errmsg = tr("No %1 data extracted\nCannot go further")
+			    .arg(server_.hasSeismic() ? tr("synthetic") 
+						      : tr("seismic"));
 	    uiMSG().error( errmsg );
 	    return;
 	}
@@ -435,7 +435,7 @@ void uiTieWin::checkIfPick( CallBacker* )
 bool uiTieWin::undoPushed( CallBacker* cb )
 {
     if ( !server_.d2TModelMgr().undo() )
-	mErrRetYN( "Cannot go back to previous model" );
+	mErrRetYN( tr("Cannot go back to previous model") );
 
     server_.updateExtractionRange();
     doWork( cb );
@@ -455,9 +455,9 @@ bool uiTieWin::matchHorMrks( CallBacker* )
     PickSetMgr& pmgr = server_.pickMgr();
     mGetWD(return false)
     if ( !wd || !wd->markers().size() )
-	mErrRetYN( "No Well marker found" )
+	mErrRetYN( tr("No Well marker found") )
 
-    BufferString msg("No horizon loaded, do you want to load some ?");
+    uiString msg = tr("No horizon loaded, do you want to load some ?");
     const Data& data = server_.data();
     if ( !data.horizons_.size() )
     {
@@ -468,14 +468,14 @@ bool uiTieWin::matchHorMrks( CallBacker* )
     pmgr.clearAllPicks();
     uiDialog matchdlg( this, uiDialog::Setup(uiStrings::sSettings(true),"",
                                              mNoHelpKey) );
-    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, "Match same",
+    uiGenInput* matchinpfld = new uiGenInput( &matchdlg, tr("Match same"),
 				BoolInpSpec(true,uiStrings::sName(),
-                                            "Regional marker") );
+                                            tr("Regional marker")) );
     matchdlg.go();
     TypeSet<HorizonMgr::PosCouple> pcs;
     server_.horizonMgr().matchHorWithMarkers( pcs, matchinpfld->getBoolValue());
     if ( pcs.isEmpty() )
-	mErrRetYN( "No match between markers and horizons" )
+	mErrRetYN( tr("No match between markers and horizons") )
     for ( int idx=0; idx<pcs.size(); idx ++ )
     {
 	pmgr.addPick( pcs[idx].z1_, true );
@@ -500,14 +500,14 @@ bool uiTieWin::rejectOK( CallBacker* )
 
 bool uiTieWin::acceptOK( CallBacker* )
 {
-    BufferString errmsg = "This will overwrite your depth/time model, ";
-    errmsg += "do you want to continue?";
+    uiString errmsg = tr("This will overwrite your depth/time model, "
+			 "do you want to continue?");
     if ( uiMSG().askOverwrite(errmsg) )
     {
 	drawer_->enableCtrlNotifiers( false );
 	close();
 	if ( !server_.d2TModelMgr().commitToWD() )
-	    mErrRetYN("Cannot write new depth/time model")
+	    mErrRetYN(tr("Cannot write new depth/time model"))
 
 	if ( Well::MGR().isLoaded( server_.wellID() ) )
 	    Well::MGR().reload( server_.wellID() );
@@ -537,7 +537,7 @@ static const char* sKeyStopMrkrName = "Stop Marker Name";
 #define mMinWvltLength	20
 
 uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
-	: uiDialog(p,uiDialog::Setup("Cross-checking parameters",
+	: uiDialog(p,uiDialog::Setup(tr("Cross-checking parameters"),
                                      uiStrings::sEmptyString(),
 				     mODHelpKey(mWellTieInfoDlgHelpID) )
                                      .modal(false))
@@ -566,7 +566,8 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     const int initwvltsz = data_.initwvlt_.size() - 1;
     const int maxwvltsz = mNINT32( server_.data().getTraceRange().width() *
 				   SI().zDomain().userFactor() );
-    estwvltlengthfld_ = new uiGenInput(wvltgrp,"Estimated wavelet length (ms)",
+    estwvltlengthfld_ = new uiGenInput(wvltgrp,
+				       tr("Estimated wavelet length (ms)"),
 	IntInpSpec(initwvltsz,mMinWvltLength,maxwvltsz) );
     estwvltlengthfld_->attach( leftAlignedBelow, wvltscaler_ );
     estwvltlengthfld_->setElemSzPol( uiObject::Small );
@@ -588,7 +589,7 @@ uiInfoDlg::uiInfoDlg( uiParent* p, Server& server )
     horSepar->attach( ensureBelow, markergrp );
 
     const char* choice[] = { "Markers", "Times", "Depths (MD)", 0 };
-    choicefld_ = new uiGenInput( markergrp, "Compute Data between",
+    choicefld_ = new uiGenInput( markergrp, tr("Compute Data between"),
 					StringListInpSpec(choice) );
     choicefld_->valuechanged.notify( mCB(this,uiInfoDlg,zrgChanged) );
 
@@ -705,7 +706,7 @@ void uiInfoDlg::putToScreen()
     {
 	mGetWD(return)
 	if ( !wd || !wd->markers().size() )
-	    mErrRet( "No Well marker found" )
+	    mErrRet( tr("No Well marker found") )
 
 	const Well::Marker* topmarkr = wd->markers().getByName( startmrknm_ );
 	const Well::Marker* basemarkr = wd->markers().getByName( stopmrknm_ );
@@ -716,7 +717,7 @@ void uiInfoDlg::putToScreen()
 		if ( !startmrknm_.startsWith(
 				  Well::ZRangeSelector::sKeyDataStart()) )
 		    uiMSG().warning(
-			    "Top marker from setup could not be retrieved." );
+			   tr("Top marker from setup could not be retrieved."));
 
 		zrangeflds_[selidx_]->setValue( 0, 0 );
 	    }
@@ -726,7 +727,7 @@ void uiInfoDlg::putToScreen()
 		if ( !stopmrknm_.startsWith(
 				  Well::ZRangeSelector::sKeyDataEnd()) )
 		    uiMSG().warning(
-			    "Base marker from setup could not be retrieved." );
+			  tr("Base marker from setup could not be retrieved."));
 
 		zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	    }
@@ -734,7 +735,7 @@ void uiInfoDlg::putToScreen()
 	else if( topmarkr->dah() >= basemarkr->dah() )
 	{
 	    uiMSG().warning(
-		    "Inconsistency between top/base marker from setup." );
+		    tr("Inconsistency between top/base marker from setup."));
 	    zrangeflds_[selidx_]->setValue( 0, 0 );
 	    zrangeflds_[selidx_]->setValue( lastmarkeridx, 1 );
 	}
@@ -754,7 +755,7 @@ void uiInfoDlg::putToScreen()
 	if ( zrg.width(false) < (float)mMinWvltLength )
 	{
 	    uiMSG().warning(
-		    "Invalid correlation gate from setup. Resetting." );
+		    tr("Invalid correlation gate from setup. Resetting."));
 	    selidx_ = mMarkerFldIdx;
 	    choicefld_->setValue( selidx_ );
 	    zrangeflds_[selidx_]->setValue( 0, 0 );
@@ -816,7 +817,7 @@ void uiInfoDlg::zrgChanged( CallBacker* )
 
     zrg_.limitTo( data_.getTraceRange() );
     if ( zrg_.isRev() )
-	mErrRet( "Top marker must be above base marker." )
+	mErrRet( tr("Top marker must be above base marker.") )
     server_.setCrossCorrZrg( zrg_ );
     needNewEstimatedWvlt(0);
 
@@ -840,8 +841,8 @@ void uiInfoDlg::crossCorrelationChanged( CallBacker* )
     {
 	if ( !mIsUdf(scaler) )
 	{
-	    BufferString scalerfld = "Synthetic to seismic scaler: ";
-	    scalerfld += scaler;
+	    uiString scalerfld = tr("Synthetic to seismic scaler: %1")
+			       .arg(scaler);
 	    wvltscaler_->setText( scalerfld );
 	}
 	else
@@ -893,20 +894,20 @@ bool uiInfoDlg::updateZrg()
 	{
 	    dahrg = selectedchoice->getFInterval();
 	    if ( dahrg.isRev() )
-		mErrRetYN( "Top marker must be above base marker." )
+		mErrRetYN( tr("Top marker must be above base marker.") )
 
 	    if ( zrginft_ )
 		dahrg.scale( mFromFeetFactorF );
 	}
 
 	if ( !wd->track().dahRange().includes(dahrg) )
-	    mErrRetYN( "Selected interval is larger than the track.")
+	    mErrRetYN( tr("Selected interval is larger than the track."))
 
 	md2TI( dahrg, timerg, true )
     }
 
     if ( timerg.isUdf() || dahrg.isUdf() )
-	mErrRetYN( "Selected interval is incorrect." )
+	mErrRetYN( tr("Selected interval is incorrect.") )
 
     const StepInterval<float> reflrg = data_.getReflRange();
     timerg.start = mMAX( timerg.start, reflrg.start );
@@ -916,9 +917,8 @@ bool uiInfoDlg::updateZrg()
     timerg.stop = (float) mNINT32( timerg.stop / reflstep ) * reflstep;
     if ( timerg.width() < (float)mMinWvltLength / SI().zDomain().userFactor() )
     {
-	BufferString errmsg = "The selected interval length must be at least ";
-	errmsg += mMinWvltLength;
-	errmsg += "ms.";
+	uiString errmsg = tr("The selected interval length must be "
+			     "at least %1ms").arg(mMinWvltLength);
 	mErrRetYN( errmsg )
     }
 
@@ -957,14 +957,14 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     mGetWD(return false)
     const Interval<int> mintv = zrangeflds_[mMarkerFldIdx]->getIInterval();
     if ( mintv.start >= mintv.stop )
-	mErrRetYN( "Top marker must be above base marker." )
+	mErrRetYN( tr("Top marker must be above base marker.") )
 
     const Well::Marker* topmarkr =
 		wd->markers().getByName( zrangeflds_[mMarkerFldIdx]->text(0) );
     if ( !topmarkr && mintv.start )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue(0,0);
-	uiMSG().warning( "Cannot not find the top marker in the well." );
+	uiMSG().warning( tr("Cannot not find the top marker in the well.") );
     }
 
     const Well::Marker* botmarkr =
@@ -973,7 +973,7 @@ bool uiInfoDlg::getMarkerDepths( Interval<float>& zrg )
     if ( !botmarkr && mintv.stop != lastmarkeridx )
     {
 	zrangeflds_[mMarkerFldIdx]->setValue( lastmarkeridx, 1 );
-	uiMSG().warning( "Cannot not find the base marker in the well." );
+	uiMSG().warning( tr("Cannot not find the base marker in the well.") );
     }
 
     zrg.start = topmarkr ? topmarkr->dah() : data_.getDahRange().start;
@@ -991,9 +991,8 @@ bool uiInfoDlg::computeNewWavelet()
     const int reqwvltlgthsz = estwvltlengthfld_->getIntValue();
     if ( reqwvltlgthsz < mMinWvltLength )
     {
-	BufferString errmsg = "The wavelet length must be at least ";
-	errmsg += mMinWvltLength;
-	errmsg += "ms";
+	uiString errmsg = tr("The wavelet length must be at least %1ms")
+			.arg(mMinWvltLength);
 	mErrRetYN( errmsg )
     }
 

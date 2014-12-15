@@ -427,8 +427,8 @@ uiCrossCorrView::uiCrossCorrView( uiParent* p, const Data& d )
     fdsu.border_.setRight( 0 );
     fdsu.epsaroundzero_ = 1e-3;
     disp_ = new uiFunctionDisplay( this, fdsu );
-    disp_->xAxis()->setCaption( "Lags (ms)" );
-    disp_->yAxis(false)->setCaption( "Coefficient" );
+    disp_->xAxis()->setCaption( tr("Lags (ms)") );
+    disp_->yAxis(false)->setCaption( tr("Coefficient") );
     lbl_ = new uiLabel( this,"" );
     lbl_->attach( centeredAbove, disp_ );
 }
@@ -464,8 +464,7 @@ void uiCrossCorrView::draw()
 	yvals += fabs(val)>1 ? 0 : val;
     }
     disp_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
-    BufferString corrbuf = "Cross-Correlation Coefficient: ";
-    corrbuf += coeff_;
+    uiString corrbuf = tr("Cross-Correlation Coefficient: %1").arg(coeff_);
     lbl_->setPrefWidthInChar(50);
     lbl_->setText( corrbuf );
 }

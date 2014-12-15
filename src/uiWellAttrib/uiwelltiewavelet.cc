@@ -122,11 +122,11 @@ uiWavelet::uiWavelet( uiParent* p, Wavelet* wvlt, bool isactive )
 	    mCB(this,uiWavelet,dispProperties) );
     wvltbuts_[0]->attach( alignedBelow, viewer_ );
 
-    wvltbuts_ += new uiToolButton( this, "phase", "Rotate phase",
+    wvltbuts_ += new uiToolButton( this, "phase", tr("Rotate phase"),
 	    mCB(this,uiWavelet,rotatePhase) );
     wvltbuts_[1]->attach( rightOf, wvltbuts_[0] );
 
-    wvltbuts_ += new uiToolButton( this, "wavelet_taper", "Taper Wavelet",
+    wvltbuts_ += new uiToolButton( this, "wavelet_taper", tr("Taper Wavelet"),
 	    mCB(this,uiWavelet,taper) );
     wvltbuts_[2]->attach( rightOf, wvltbuts_[1] );
 

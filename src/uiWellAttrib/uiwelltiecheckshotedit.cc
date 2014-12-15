@@ -75,8 +75,8 @@ int uiCheckShotEdit::DriftCurve::indexOfCurrentPoint(float dh,float val) const
 
 
 uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server ) 
-    : uiDialog(p,uiDialog::Setup("Apply Checkshot correction",
-		"Edit depth/time model based on checkshot",
+    : uiDialog(p,uiDialog::Setup(tr("Apply Checkshot correction"),
+		tr("Edit depth/time model based on checkshot"),
 		mODHelpKey(mCheckShotEditHelpID) ).nrstatusflds(1))
     , server_(server)					     
     , wd_(*server.wd())   
@@ -88,7 +88,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     , movingpointidx_(-1)  
 {
     if ( !tkzs_ )
-	mErrRet( "No checkshot provided", return );
+	mErrRet( tr("No checkshot provided"), return );
 
     orgcs_ = new Well::D2TModel( *tkzs_ );
     tkzs_->setName( "CheckShot Curve" );
@@ -101,7 +101,7 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     d2tdisplay_ = new uiWellDahDisplay( this, dsu );
     dsu.symetricalxaxis_ = true;
     driftdisplay_ = new uiWellDahDisplay( this, dsu );
-    driftdisplay_->setToolTip( "Pick to edit drift curve");
+    driftdisplay_->setToolTip( tr("Pick to edit drift curve"));
 
     uiWellDahDisplay::Data data;
     data.wd_ = &wd_;
@@ -121,9 +121,9 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
 #define mAddButton(pm,func,tip) \
 	toolbar_->addButton( pm, tip, mCB(this,uiCheckShotEdit,func) )
     toolbar_ = new uiToolBar( this, "Well Tie Control", uiToolBar::Right );
-    mAddButton( "z2t", editCSPushed, "View/Edit Model" );
+    mAddButton( "z2t", editCSPushed, tr("View/Edit Model") );
     toolbar_->addSeparator();
-    editbut_ = new uiToolButton( toolbar_, "seedpickmode","Edit mode",
+    editbut_ = new uiToolButton( toolbar_, "seedpickmode",tr("Edit mode"),
 				mCB(this,uiCheckShotEdit,editCB) );
     toolbar_->addButton( editbut_ );
     editbut_->setToggleButton( true );
@@ -144,17 +144,17 @@ uiCheckShotEdit::uiCheckShotEdit(uiParent* p, Server& server )
     control_->mousePressed.notify( mCB(this,uiCheckShotEdit,mousePressedCB));
     control_->mouseReleased.notify( mCB(this,uiCheckShotEdit,mouseReleasedCB));
 
-    viewcorrd2t_ = new uiCheckBox( this, "View corrected Depth/Time model");
+    viewcorrd2t_ = new uiCheckBox( this, tr("View corrected Depth/Time model"));
     viewcorrd2t_->attach( alignedBelow, d2tdisplay_ );
     viewcorrd2t_->attach( ensureBelow, driftdisplay_ );
     viewcorrd2t_->setChecked( true );
 
     uiLabeledComboBox* lbl = new uiLabeledComboBox( this, 
-				    "Compute Depth/Time model from: " );
+				    tr("Compute Depth/Time model from: ") );
     driftchoicefld_ = lbl->box();
     lbl->attach( ensureBelow, viewcorrd2t_ );
-    driftchoicefld_->addItem( "Original drift curve" );
-    driftchoicefld_->addItem( "User defined drift curve" );
+    driftchoicefld_->addItem( tr("Original drift curve") );
+    driftchoicefld_->addItem( tr("User defined drift curve") );
 
     CallBack applycb( mCB(this,uiCheckShotEdit,applyCB) );
     driftchoicefld_->selectionChanged.notify( applycb );
@@ -392,7 +392,8 @@ void uiCheckShotEdit::applyCB( CallBacker* )
 bool uiCheckShotEdit::acceptOK( CallBacker* )
 {
     if ( !d2t_ || d2t_->size() < 2)
-	mErrRet("Depth/time model is too small and won't be saved",return false)
+	mErrRet(tr("Depth/time model is too small and won't be saved"),
+		return false)
 
     server_.d2TModelMgr().setAsCurrent( new Well::D2TModel( *d2t_ ) );
 

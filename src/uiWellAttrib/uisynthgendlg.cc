@@ -31,7 +31,7 @@ static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
 { uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
 
 uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
-    : uiDialog(p,uiDialog::Setup("Specify Synthetic Parameters",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Specify Synthetic Parameters"),mNoDlgTitle,
 				 mODHelpKey(mRayTrcParamsDlgHelpID) )
                                  .modal(false))
     , stratsynth_(gp)
@@ -40,16 +40,16 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     , synthChanged(this)
 {
     setOkText( uiStrings::sApply() );
-    setCancelText( "Dismiss" );
+    setCancelText( tr("Dismiss") );
     uiGroup* syntlistgrp = new uiGroup( this, "Synthetics List" );
     uiLabeledListBox* llb =
-	new uiLabeledListBox( syntlistgrp, "Synthetics", OD::ChooseOnlyOne,
+	new uiLabeledListBox( syntlistgrp, tr("Synthetics"), OD::ChooseOnlyOne,
 			      uiLabeledListBox::AboveMid );
     synthnmlb_ = llb->box();
     synthnmlb_->selectionChanged.notify(
 	    mCB(this,uiSynthGenDlg,changeSyntheticsCB) );
     uiPushButton* rembut =
-	new uiPushButton( syntlistgrp, "Remove selected",
+	new uiPushButton( syntlistgrp, tr("Remove selected"),
 			  mCB(this,uiSynthGenDlg,removeSyntheticsCB), true );
     rembut->attach( leftAlignedBelow, llb );
 
@@ -62,17 +62,17 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
 	types.indexOf( SynthGenParams::toString(SynthGenParams::StratProp) );
     types.removeSingle( stratpropidx );
     uiLabeledComboBox* lblcbx =
-	new uiLabeledComboBox( toppargrp, types, "Synthetic type" );
+	new uiLabeledComboBox( toppargrp, types, tr("Synthetic type") );
     typefld_ = lblcbx->box();
     typefld_->selectionChanged.notify( mCB(this,uiSynthGenDlg,typeChg) );
 
-    psselfld_ = new uiLabeledComboBox( toppargrp, "Input PreStack" );
+    psselfld_ = new uiLabeledComboBox( toppargrp, tr("Input PreStack") );
     psselfld_->attach( alignedBelow, lblcbx );
 
     FloatInpIntervalSpec finpspec(false);
     finpspec.setLimits( Interval<float>(0,90) );
     finpspec.setDefaultValue( Interval<float>(0,30) );
-    angleinpfld_ = new uiGenInput( toppargrp, "Angle Range", finpspec );
+    angleinpfld_ = new uiGenInput( toppargrp, tr("Angle Range"), finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
 
     uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
@@ -97,7 +97,7 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     namefld_ = new uiGenInput( botpargrp, uiStrings::sName() );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
 
-    gennewbut_ = new uiPushButton( botpargrp, "Add as new", true );
+    gennewbut_ = new uiPushButton( botpargrp, tr("Add as new"), true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
     gennewbut_->attach( alignedBelow, namefld_ );
 
@@ -180,10 +180,10 @@ void uiSynthGenDlg::parsChanged( CallBacker* )
 void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 {
     if ( synthnmlb_->size()==1 )
-	{ uiMSG().error( "Cannot remove all synthetics" ); return; }
+	{ uiMSG().error( tr("Cannot remove all synthetics") ); return; }
     const int selidx = synthnmlb_->currentItem();
     if ( selidx<0 )
-	return uiMSG().error( "No synthetic selected" );
+	return uiMSG().error( tr("No synthetic selected") );
 
     SynthGenParams cursgp = stratsynth_.genParams();
     int nrofzerooffs = 0;
@@ -203,10 +203,11 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 	      sgp.synthtype_ == SynthGenParams::AVOGradient) &&
 	     sgp.inpsynthnm_ == cursgp.name_ )
 	{
-	    BufferString msg( sgp.name_.buf(), "will also be removed as "
-					       "it is dependent on ",
-			      cursgp.name_.buf() );
-	    msg += "Do you want to remove the synthetics?";
+	    uiString msg = tr("%1will also be removed as "
+			      "it is dependent on %2"
+			      "Do you want to remove the synthetics?")
+			 .arg(sgp.name_.buf())
+			 .arg(cursgp.name_.buf() );
 	    if ( !uiMSG().askGoOn(msg) )
 		return;
 	    const BufferString synthname( sgp.name_ );
@@ -218,8 +219,9 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 
     if ( cursgp.synthtype_ == SynthGenParams::ZeroOffset && nrofzerooffs<=1 )
     {
-	BufferString msg( "Cannot remove ", cursgp.name_.buf(),
-			  " as there should be atleast one 0 offset synthetic");
+	uiString msg = tr("Cannot remove %1 as there should be "
+			  "at least one 0 offset synthetic")
+		     .arg(cursgp.name_.buf());
 	return uiMSG().error( msg );
     }
 
@@ -419,9 +421,9 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
 
     if ( synthnmlb_->isPresent(stratsynth_.genParams().name_) )
     {
-	BufferString msg( "Synthectic data of name '" );
-	msg += stratsynth_.genParams().name_;
-	msg += "' is already present. Please choose a different name";
+	uiString msg = tr("Synthectic data of name '%1' is already present. "
+			  "Please choose a different name" )
+		     .arg(stratsynth_.genParams().name_);
 	uiMSG().error( msg );
 	return false;
     }
@@ -432,7 +434,7 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
 
 
 class uiSynthCorrAdvancedDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSynthCorrAdvancedDlg);
     public:
 				uiSynthCorrAdvancedDlg(uiParent*);
 
@@ -449,7 +451,7 @@ uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
     : uiGroup( p, "Synth corrections parameters" )
     , nmoparsChanged_(this)
 {
-    nmofld_ = new uiGenInput( this, "Apply NMO corrections",
+    nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
 			      BoolInpSpec(true) );
     mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::parsChanged);
     nmofld_->setValue( true );
@@ -503,14 +505,15 @@ void uiSynthCorrectionsGrp::setValues( bool donmo, float mutelen,
 
 
 uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Synthetic Corrections advanced options",
-		"Specify advanced options", mTODOHelpKey) )
+    : uiDialog( p, uiDialog::Setup(tr("Synthetic Corrections advanced options"),
+		tr("Specify advanced options"), mTODOHelpKey) )
 {
     FloatInpSpec inpspec;
     inpspec.setLimits( Interval<float>(1,500) );
-    stretchmutelimitfld_ = new uiGenInput(this, "Stretch mute (%)", inpspec );
+    stretchmutelimitfld_ = new uiGenInput(this, tr("Stretch mute (%)"), 
+					  inpspec );
 
-    mutelenfld_ = new uiGenInput( this, "Mute taper-length (ms)",
+    mutelenfld_ = new uiGenInput( this, tr("Mute taper-length (ms)"),
 				  FloatInpSpec() );
     mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
 }

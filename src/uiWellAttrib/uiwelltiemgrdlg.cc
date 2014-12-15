@@ -55,8 +55,8 @@ namespace WellTie
 {
 
 uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
-	: uiDialog(p,uiDialog::Setup("Tie Well To Seismics",
-		"Select Data to tie Well to Seismic",
+	: uiDialog(p,uiDialog::Setup(tr("Tie Well To Seismics"),
+		tr("Select Data to tie Well to Seismic"),
                 mODHelpKey(mWellTiMgrDlemgHelpID) )
 		.savebutton(true)
 		.savechecked(false)
@@ -96,7 +96,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
 	BufferStringSet seistypes;
 	seistypes.add( Seis::nameOf(Seis::Line) );
 	seistypes.add( Seis::nameOf(Seis::Vol) );
-	typefld_ = new uiGenInput( seisgrp, "Seismic",
+	typefld_ = new uiGenInput( seisgrp, tr("Seismic"),
 				   StringListInpSpec( seistypes ) );
 	typefld_->setValue( true );
 	typefld_->valuechanged.notify( mCB(this,uiTieWinMGRDlg,typeSelChg) );
@@ -156,7 +156,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     logsfld_ = new uiWellPropSel( logsgrp, elpropsel_ );
     logsfld_->logCreated.notify( wllselcb );
 
-    used2tmbox_ = new uiCheckBox( logsgrp, "Use existing depth/time model");
+    used2tmbox_ = new uiCheckBox( logsgrp, tr("Use existing depth/time model"));
     used2tmbox_->activated.notify( mCB(this, uiTieWinMGRDlg, d2TSelChg ) );
     used2tmbox_->attach( alignedBelow, logsfld_ );
 
@@ -172,7 +172,7 @@ uiTieWinMGRDlg::uiTieWinMGRDlg( uiParent* p, WellTie::Setup& wtsetup )
     wvltfld_ = new uiSeisWaveletSel( this, "Reference wavelet" );
     wvltfld_->attach( alignedBelow, wellfld_ );
     wvltfld_->attach( ensureBelow, sep );
-    uiPushButton* crwvltbut = new uiPushButton( this, "Extract",
+    uiPushButton* crwvltbut = new uiPushButton( this, tr("Extract"),
 				mCB(this,uiTieWinMGRDlg,extrWvlt), false );
     crwvltbut->attach( rightOf, wvltfld_ );
 
@@ -234,10 +234,11 @@ void uiTieWinMGRDlg::wellSelChg( CallBacker* cb )
 	if ( cb )
 	{
 	    BufferString logstr( notokpropnms.size()>1 ? "logs " : "log " );
-	    BufferString errmsg( "No valid ", logstr.buf()," found for" );
-	    errmsg.add( notokpropnms.getDispString() );
-	    errmsg += ". Create missing "; errmsg += logstr.buf();
-	    errmsg += " here or import through well manager";
+	    uiString errmsg = tr("No valid %1 found for%2. Create missing %3"
+				 " here or import through well manager")
+			    .arg(logstr.buf())
+			    .arg(notokpropnms.getDispString())
+			    .arg(logstr.buf());
 	    uiMSG().error( errmsg );
 	}
 
@@ -349,12 +350,11 @@ bool uiTieWinMGRDlg::getSeismicInSetup()
 	const bool surveyhastype = idinsetupis2d ? SI().has2D() : SI().has3D();
 	if ( !surveyhastype )
 	{
-	    BufferString errmsg;
-	    errmsg  = "Stored setup contains seismic of another type\n";
-	    errmsg += "than the survey.\n";
-	    errmsg += "Change the survey type to 2D/3D.\n";
-	    errmsg += "Or select a new dataset.";
-	    mErrRet( errmsg );
+	    uiString errmsg  = tr("Stored setup contains seismic of another "
+				  "type\nthan the survey.\n"
+				  "Change the survey type to 2D/3D.\n"
+				  "Or select a new dataset.");
+	    mErrRet( errmsg.getFullString() );
 	}
 
 	if ( typefld_ )
@@ -402,10 +402,10 @@ bool uiTieWinMGRDlg::getVelLogInSetup() const
 	Well::Log* vp = wd_->logs().getLog( wtsetup_.vellognm_ );
 	if ( !vp )
 	{
-	    BufferString errmsg = "Cannot retrieve the velocity log ";
-	    errmsg += wtsetup_.vellognm_;
-	    errmsg += " stored in the setup.";
-	    mErrRet( errmsg );
+	    uiString errmsg = tr("Cannot retrieve the velocity log %1"
+				 " stored in the setup.")
+			    .arg(wtsetup_.vellognm_);
+	    mErrRet( errmsg.getFullString() );
 	}
 
 	const UnitOfMeasure* velpuom = vp->unitOfMeasure();
@@ -427,10 +427,10 @@ bool uiTieWinMGRDlg::getDenLogInSetup() const
 	Well::Log* den = wd_->logs().getLog( wtsetup_.denlognm_ );
 	if ( !den )
 	{
-	    BufferString errmsg = "Cannot retrieve the density log ";
-	    errmsg += wtsetup_.denlognm_;
-	    errmsg += " stored in the setup.";
-	    mErrRet( errmsg );
+	    uiString errmsg = tr("Cannot retrieve the density log %1"
+				 " stored in the setup.")
+			    .arg(wtsetup_.denlognm_);
+	    mErrRet( errmsg.getFullString() );
 	}
 
 	const UnitOfMeasure* denuom = den->unitOfMeasure();
@@ -448,7 +448,7 @@ void uiTieWinMGRDlg::saveWellTieSetup( const MultiID& key,
 {
     WellTie::Writer wtr( Well::odIO::getMainFileName(key) );
     if ( !wtr.putWellTieSetup( wts ) )
-	uiMSG().error( "Could not write parameters" );
+	uiMSG().error( tr("Could not write parameters") );
 }
 
 

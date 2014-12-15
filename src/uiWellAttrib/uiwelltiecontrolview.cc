@@ -64,16 +64,16 @@ uiControlView::uiControlView( uiParent* p, uiToolBar* tb,
     else
 	tb_->display(false);
     toolbar_->addSeparator();
-    mDefBut(parsbut_,"2ddisppars",parsCB,"Set display parameters");
-    mDefBut(zoominbut_,"zoomforward",zoomCB,"Zoom in");
-    mDefBut(zoomoutbut_,"zoombackward",zoomCB,"Zoom out");
-    mDefBut(manipdrawbut_,"altpick",stateCB,"Switch view mode (Esc)");
-    mDefBut(editbut_,"seedpickmode",editCB,"Pick mode (P)");
+    mDefBut(parsbut_,"2ddisppars",parsCB,tr("Set display parameters"));
+    mDefBut(zoominbut_,"zoomforward",zoomCB,tr("Zoom in"));
+    mDefBut(zoomoutbut_,"zoombackward",zoomCB,tr("Zoom out"));
+    mDefBut(manipdrawbut_,"altpick",stateCB,tr("Switch view mode (Esc)"));
+    mDefBut(editbut_,"seedpickmode",editCB,tr("Pick mode (P)"));
 
     toolbar_->addSeparator();
-    mDefBut(horbut_,"loadhoronseis",loadHorizons,"Load Horizon(s)");
+    mDefBut(horbut_,"loadhoronseis",loadHorizons,tr("Load Horizon(s)"));
     mDefBut(hormrkdispbut_,"drawhoronseis",dispHorMrks,
-						"Marker display properties");
+	    tr("Marker display properties"));
     editbut_->setToggleButton( true );
 
     vwr_.rgbCanvas().getKeyboardEventHandler().keyPressed.notify(
@@ -109,7 +109,10 @@ bool uiControlView::checkIfInside( double xpos, double zpos )
     const Interval<double> xrg( bbox.left(), bbox.right() ),
 			   zrg( bbox.bottom(), bbox.top() );
     if ( !xrg.includes( xpos, false ) || !zrg.includes( zpos, false ) )
-	{ mErrRet("Please select your pick inside the work area",return false);}
+	{ 
+	mErrRet(tr("Please select your pick inside the work area"),
+	    return false);
+	}
     return true;
 }
 
@@ -193,11 +196,11 @@ void uiControlView::setEditOn( bool yn )
 
 
 class uiMrkDispDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiMrkDispDlg);
 public :
 
     uiMrkDispDlg( uiParent* p, DispParams& pms )
-	: uiDialog(p,uiDialog::Setup("Display Markers/Horizons",
+	: uiDialog(p,uiDialog::Setup(tr("Display Markers/Horizons"),
                                      uiStrings::sEmptyString(),mNoHelpKey)
 		.modal(false))
 	, pms_(pms)
@@ -205,20 +208,20 @@ public :
     {
 	setCtrlStyle( CloseOnly );
 	uiGroup* topgrp = new uiGroup( this, "top group" );
-	dispmrkfld_ = new uiCheckBox( topgrp, "display markers");
+	dispmrkfld_ = new uiCheckBox( topgrp, tr("display markers"));
 	dispmrkfld_->setChecked( pms_.isvwrmarkerdisp_ );
 	dispmrkfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
-	disphorfld_ = new uiCheckBox( topgrp, "display horizons");
+	disphorfld_ = new uiCheckBox( topgrp, tr("display horizons"));
 	disphorfld_->setChecked( pms_.isvwrhordisp_ );
 	disphorfld_->activated.notify( mCB(this,uiMrkDispDlg,dispChged) );
 	disphorfld_->attach( alignedBelow, dispmrkfld_ );
 
-	dispmrkfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
+	dispmrkfullnamefld_ = new uiCheckBox( topgrp, tr("display full name") );
 	dispmrkfullnamefld_->setChecked(
 	pms_.isvwrmarkerdisp_ && pms_.dispmrkfullnames_ );
 	dispmrkfullnamefld_->activated.notify(mCB(this,uiMrkDispDlg,dispChged));
 	dispmrkfullnamefld_->attach( rightOf, dispmrkfld_ );
-	disphorfullnamefld_ = new uiCheckBox( topgrp, "display full name" );
+	disphorfullnamefld_ = new uiCheckBox( topgrp, tr("display full name") );
 	disphorfullnamefld_->attach( rightOf, disphorfld_ );
 	disphorfullnamefld_->setChecked(
 			    pms_.isvwrhordisp_ && pms_.disphorfullnames_ );

@@ -73,7 +73,7 @@ const char* uiStratLayerModel::sKeyModeler2Use()
 
 
 class uiStratLayerModelManager : public CallBacker
-{
+{ mODTextTranslationClass(uiStratLayerModelManager);
 public:
 
 uiStratLayerModelManager()
@@ -131,12 +131,13 @@ void startCB( CallBacker* cb )
 
     if ( givechoice )
     {
-	uiSelectFromList::Setup sflsu( "Select modeling type", usrnms );
+	uiSelectFromList::Setup sflsu( tr("Select modeling type"), usrnms );
 	sflsu.current( defmodnr < 0 ? nms.size()-1 : defmodnr );
 	uiSelectFromList dlg( par, sflsu );
 	uiCheckList* defpol = new uiCheckList( &dlg, uiCheckList::Chain1st,
 						OD::Horizontal );
-	defpol->addItem( "Set as default" ).addItem( "Always use this type" );
+	defpol->addItem( tr("Set as default") )
+	       .addItem( tr("Always use this type") );
 	defpol->setChecked( 0, defmodnr >= 0 );
 	defpol->attach( centeredBelow, dlg.selFld() );
 	if ( !dlg.go() ) return;
@@ -176,7 +177,7 @@ bool haveExistingDlg()
 {
     if ( dlg_ )
     {
-	uiMSG().error( "Please exit your other layer modeling window first" );
+	uiMSG().error(tr("Please exit your other layer modeling window first"));
 	dlg_->raise();
 	return true;
     }
@@ -196,7 +197,7 @@ void doLayerModel( uiParent* p, const char* modnm, int opt )
 void addToTreeWin()
 {
     uiToolButtonSetup* su = new uiToolButtonSetup( "stratlayermodeling",
-			    "Start layer/synthetics modeling",
+			    tr("Start layer/synthetics modeling"),
 			    mCB(this,uiStratLayerModelManager,startCB) );
     uiStratTreeWin::addTool( su );
 }
@@ -234,7 +235,7 @@ void uiStratLayerModel::doLayerModel( const char* modnm, int opt )
 
 
 class uiStratLayerModelLMProvider : public Strat::LayerModelProvider
-{
+{ mODTextTranslationClass(uiStratLayerModelLMProvider);
 public:
 
 uiStratLayerModelLMProvider()
@@ -617,7 +618,7 @@ void uiStratLayerModel::xPlotReq( CallBacker* )
     if ( !synthdisp_->getSynthetics().size() ) return;
 
     uiStratSynthCrossplot dlg( this, layerModel(),synthdisp_->getSynthetics());
-    if ( dlg.errMsg() )
+    if ( dlg.errMsg().isEmpty() )
 	{ uiMSG().error( dlg.errMsg() ); return; }
     const char* lvlnm = modtools_->selLevel();
     if ( lvlnm && *lvlnm ) dlg.setRefLevel( lvlnm );

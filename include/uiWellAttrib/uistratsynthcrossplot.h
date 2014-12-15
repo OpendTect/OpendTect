@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uidialog.h"
 #include "datapack.h"
+#include "uistring.h"
 
 class SeisTrcInfo;
 class SeisTrcBuf;
@@ -33,7 +34,7 @@ namespace PreStack { class GatherSetDataPack; }
 /*!\brief Dialog specifying what to crossplot */
 
 mExpClass(uiWellAttrib) uiStratSynthCrossplot : public uiDialog
-{
+{ mODTextTranslationClass(uiStratSynthCrossplot);
 public:
 				uiStratSynthCrossplot(uiParent*,
 				    const Strat::LayerModel&,
@@ -41,8 +42,8 @@ public:
 				~uiStratSynthCrossplot();
 
     void			setRefLevel(const char*);
-    const char* 		errMsg() const
-				{ return errmsg_.isEmpty() ? 0 : errmsg_.buf();}
+    uiString	 		errMsg() const
+				{ return errmsg_.isEmpty() ? 0 : errmsg_;}
 
 protected:
 
@@ -55,7 +56,7 @@ protected:
     uiStratLaySeqAttribSetBuild* layseqattrfld_;
     uiStratSeisEvent*		evfld_;
 
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     DataPointSet*		getData(const Attrib::DescSet&,
 					const Strat::LaySeqAttribSet&,

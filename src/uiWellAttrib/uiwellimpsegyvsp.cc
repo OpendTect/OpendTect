@@ -46,7 +46,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 class uiSEGYVSPBasicPars : public uiCompoundParSel
-{
+{ mODTextTranslationClass(uiSEGYVSPBasicPars);
 public:
 
 uiSEGYVSPBasicPars( uiWellImportSEGYVSP* p )
@@ -102,7 +102,7 @@ void readParsReq( CallBacker* cb )
     PtrMan<CtxtIOObj> ctio = uiSEGYRead::getCtio( true, Seis::Line );
     ctio->ctxt.toselect.require_.setEmpty();
     ctio->ctxt.toselect.dontallow_.setEmpty();
-    uiIOObjSelDlg dlg( dd, *ctio, "Select SEG-Y setup" );
+    uiIOObjSelDlg dlg( dd, *ctio, tr("Select SEG-Y setup") );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
 
@@ -122,7 +122,7 @@ BufferString getSummary() const
 
 
 uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Zero-offset VSP",
+    : uiDialog(p,uiDialog::Setup(tr("Import Zero-offset VSP"),
 				 mNoDlgTitle,
 				 mODHelpKey(mWellImpSegyVspHelpID) ) )
     , istimefld_(0)
@@ -139,7 +139,7 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
     uiGenInput* uigi;
     if ( zist )
     {
-	istimefld_ = uigi = new uiGenInput( this, "Data is in ",
+	istimefld_ = uigi = new uiGenInput( this, tr("Data is in "),
 				     BoolInpSpec(true,uiStrings::sTime(),
                                                  uiStrings::sDepth()) );
 	istimefld_->valuechanged.notify(
@@ -152,45 +152,46 @@ uiWellImportSEGYVSP::uiWellImportSEGYVSP( uiParent* p )
 	BufferStringSet unnms;
 	for ( int idx=0; idx<uns.size(); idx++ )
 	    unnms.add( uns[idx]->name() );
-	unitfld_ = uigi = new uiGenInput( this, "Input sampling is in",
+	unitfld_ = uigi = new uiGenInput( this, tr("Input sampling is in"),
 				   StringListInpSpec(unnms) );
     }
     uigi->attach( alignedBelow, bparsfld_ );
-    inpinftfld_ = new uiCheckBox( this, "Feet" );
+    inpinftfld_ = new uiCheckBox( this, tr("Feet") );
     if ( definft ) inpinftfld_->setChecked( true );
     inpinftfld_->attach( rightOf, uigi );
-    inpistvdfld_ = new uiCheckBox( this, "TVDSS" );
+    inpistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
     inpistvdfld_->attach( rightOf, inpinftfld_ );
 
     const FloatInpIntervalSpec fspec( false );
     inpsampfld_ = new uiGenInput( this,
-			"Overrule SEG-Y Sampling (start/step)", fspec );
+			tr("Overrule SEG-Y Sampling (start/step)"), fspec );
     inpsampfld_->attach( alignedBelow, uigi );
     inpsampfld_->setWithCheck( true );
 
     uiSeparator* sep = new uiSeparator( this, "hor sep", OD::Horizontal, false);
     sep->attach( stretchedBelow, inpsampfld_ );
 
-    wellfld_ = new uiIOObjSel( this, mIOObjContext(Well), "Add to Well" );
+    wellfld_ = new uiIOObjSel( this, mIOObjContext(Well), tr("Add to Well") );
     wellfld_->attach( alignedBelow, inpsampfld_ );
     wellfld_->attach( ensureBelow, sep );
     wellfld_->selectionDone.notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Output log name" );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, 
+						    tr("Output log name") );
     lcb->attach( alignedBelow, wellfld_ );
     lognmfld_ = lcb->box();
     lognmfld_->setReadOnly( false );
     lognmfld_->setText( "VSP" );
 
     const FloatInpIntervalSpec fispec( false );
-    outzrgfld_ = new uiGenInput( this, "Limit output interval", fispec );
+    outzrgfld_ = new uiGenInput( this, tr("Limit output interval"), fispec );
     outzrgfld_->attach( alignedBelow, lcb );
     outzrgfld_->setWithCheck( true );
     outzrgfld_->checked.notify( mCB(this,uiWellImportSEGYVSP,outSampChk) );
-    outinftfld_ = new uiCheckBox( this, "Feet" );
+    outinftfld_ = new uiCheckBox( this, tr("Feet") );
     if ( definft ) outinftfld_->setChecked( true );
     outinftfld_->attach( rightOf, outzrgfld_ );
-    outistvdfld_ = new uiCheckBox( this, "TVDSS" );
+    outistvdfld_ = new uiCheckBox( this, tr("TVDSS") );
     outistvdfld_->attach( rightOf, outinftfld_ );
 
     postFinalise().notify( mCB(this,uiWellImportSEGYVSP,wllSel) );
@@ -268,12 +269,12 @@ void uiWellImportSEGYVSP::outSampChk( CallBacker* )
 bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 {
     if ( bparsfld_->fnm_.isEmpty() || sgypars_.isEmpty() )
-	mErrRet("Please define the input SEG-Y")
+	mErrRet(tr("Please define the input SEG-Y"))
     if ( !wellfld_->ioobj() )
-	mErrRet("Please select the output well")
+	mErrRet(tr("Please select the output well"))
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )
-	mErrRet("Please enter a valid name for the new log")
+	mErrRet(tr("Please enter a valid name for the new log"))
 
     SamplingData<float> inpsamp( mUdf(float), mUdf(float) );
     Interval<float> outzrg( mUdf(float), mUdf(float) );
@@ -303,7 +304,7 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
     if ( !mIsUdf(inpsamp.step) ) trc.info().sampling.step = inpsamp.step;
 
     if ( createLog(trc,outzrg,lognm) )
-	uiMSG().message( BufferString(lognm.buf()," created and saved") );
+	uiMSG().message(tr("%1 created and saved").arg(lognm.buf()));
     return false;
 }
 
@@ -336,9 +337,9 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 
     Well::Data* wd = Well::MGR().get( ioobj->key() );
     if ( !wd )
-	mErrRet("Cannot load the selected well")
+	mErrRet(tr("Cannot load the selected well"))
     if ( !isdpth_ && !wd->d2TModel() )
-	mErrRet("Selected well has no Depth vs Time model")
+	mErrRet(tr("Selected well has no Depth vs Time model"))
 
     const Well::Track& track = wd->track();
     int wlidx = wd->logs().indexOf( lognm );

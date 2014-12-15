@@ -40,8 +40,8 @@ namespace WellTie
 {
 
 uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
-    : uiDialog( p, uiDialog::Setup("Save current data",
-		"Check the items to be saved",
+    : uiDialog( p, uiDialog::Setup(tr("Save current data"),
+		tr("Check the items to be saved"),
                 mODHelpKey(mWellTieSaveDataDlgHelpID) ) )
     , dataserver_(wdserv)
 {
@@ -49,7 +49,7 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     const Data& data = dataserver_.data();
 
     uiGroup* loggrp = new uiGroup( this, "Log parameters" );
-    logchk_ = new uiCheckBox( loggrp, "Log(s)" );
+    logchk_ = new uiCheckBox( loggrp, tr("Log(s)") );
     logchk_->activated.notify( mCB(this,uiSaveDataDlg,saveLogsSelCB) );
 
     BufferStringSet lognms;
@@ -61,7 +61,8 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     logsfld_->attach( alignedBelow, logchk_ );
 
     saveasfld_ = new uiGenInput( loggrp, uiStrings::sSaveAs(true),
-				BoolInpSpec( true, "Log", "Seismic cube") );
+				BoolInpSpec( true, tr("Log"), 
+					     tr("Seismic cube")) );
     saveasfld_->attach( alignedBelow, logsfld_ );
     saveasfld_->valuechanged.notify(
 			mCB(this,uiSaveDataDlg,changeLogUIOutput) );
@@ -76,18 +77,18 @@ uiSaveDataDlg::uiSaveDataDlg(uiParent* p, Server& wdserv )
     uiGroup* wvltgrp = new uiGroup( this, "Wavelet parameters" );
     wvltgrp->attach( ensureBelow, horSepar );
 
-    wvltchk_ = new uiCheckBox( wvltgrp, "Wavelet" );
+    wvltchk_ = new uiCheckBox( wvltgrp, tr("Wavelet") );
     wvltchk_->activated.notify( mCB(this,uiSaveDataDlg,saveWvltSelCB) );
 
     IOObjContext ctxt = mIOObjContext(Wavelet);
     ctxt.forread = false;
-    uiIOObjSel::Setup su( "Initial wavelet" ); su.optional( true );
+    uiIOObjSel::Setup su( tr("Initial wavelet") ); su.optional( true );
 
     initwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
     initwvltsel_->setInputText( data.initwvlt_.name() );
     initwvltsel_->attach( alignedBelow, wvltchk_ );
 
-    su.seltxt_ = "Estimated wavelet";
+    su.seltxt_ = tr("Estimated wavelet");
     estimatedwvltsel_ = new uiIOObjSel( wvltgrp, ctxt, su );
     estimatedwvltsel_->setInputText( data.estimatedwvlt_.name() );
     estimatedwvltsel_->attach( alignedBelow, initwvltsel_ );

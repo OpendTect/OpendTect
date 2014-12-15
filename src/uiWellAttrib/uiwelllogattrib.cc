@@ -39,12 +39,12 @@ uiWellLogAttrib::uiWellLogAttrib( uiParent* p, bool is2d )
     wellfld_ = new uiWellSel( this, true );
     wellfld_->selectionDone.notify( mCB(this,uiWellLogAttrib,selDone) );
 
-    uiLabeledListBox* llb = new uiLabeledListBox( this, "Select Log" );
+    uiLabeledListBox* llb = new uiLabeledListBox( this, tr("Select Log") );
     llb->setStretch( 1, 1 );
     logsfld_ = llb->box();
     llb->attach( alignedBelow, wellfld_ );
 
-    sampfld_ = new uiGenInput( this, "Log resampling method",
+    sampfld_ = new uiGenInput( this, tr("Log resampling method"),
 			       StringListInpSpec(Stats::UpscaleTypeNames()) );
     sampfld_->setValue( Stats::UseAvg );
     sampfld_->attach( alignedBelow, llb );

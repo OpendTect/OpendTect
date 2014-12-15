@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "welldahobj.h"
 #include "undo.h"
+#include "uistring.h"
 
 namespace Well { class D2TModel; class Data; class DahObj;}
 class uiWellDahDisplay;
@@ -32,7 +33,7 @@ namespace WellTie
     class Server;
 
 mExpClass(uiWellAttrib) DahObjUndoEvent : public UndoEvent
-{
+{ mODTextTranslationClass(DahObjUndoEvent);
 public:
     			DahObjUndoEvent( float dah, float val, 
 					Well::DahObj&, bool isadd);
@@ -51,7 +52,7 @@ protected:
 
 
 mExpClass(uiWellAttrib) uiCheckShotEdit : public uiDialog
-{
+{ mODTextTranslationClass(uiCheckShotEdit);
 public:
 				uiCheckShotEdit(uiParent*,Server&);
 				~uiCheckShotEdit();

@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 namespace Well { class Data; }
 
@@ -37,7 +38,7 @@ namespace WellTie
     class uiTieWin;
 
 mExpClass(uiWellAttrib) uiTieWinMGRDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiTieWinMGRDlg);
 
 public:
 			uiTieWinMGRDlg(uiParent*,WellTie::Setup&);

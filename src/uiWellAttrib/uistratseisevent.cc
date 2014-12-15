@@ -37,7 +37,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 
     BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.removeSingle(0);
-    evfld_ = new uiGenInput( this, "Snap synthetics to event",
+    evfld_ = new uiGenInput( this, tr("Snap synthetics to event"),
 				StringListInpSpec(eventnms) );
     evfld_->setWithCheck( true );
     evfld_->checked.notify( mCB(this,uiStratSeisEvent,evSnapCheck) );
@@ -45,7 +45,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     if ( levelfld_ ) evfld_->attach( alignedBelow, levelfld_ );
     evfld_->setElemSzPol( uiObject::Medium );
     setHAlignObj( evfld_ );
-    snapoffsfld_ = new uiGenInput( this, "Offset (ms)", FloatInpSpec(0) );
+    snapoffsfld_ = new uiGenInput( this, tr("Offset (ms)"), FloatInpSpec(0) );
     snapoffsfld_->attach( rightOf, evfld_ );
     snapoffsfld_->setElemSzPol( uiObject::Small );
     snapoffsfld_->setSensitive( false );
@@ -53,9 +53,8 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
     if ( setup_.withextrwin_ )
     {
 	const float defstep = SI().zIsTime() ? SI().zStep()/mToSecFactorF : 4;
-	extrwinfld_ = new uiGenInput( this,
-				      BufferString("Extraction window ",
-				      SI().getZUnitString()),
+	extrwinfld_ = new uiGenInput( this, tr("Extraction window %1")
+					  .arg(SI().getZUnitString()),
 				  FloatInpIntervalSpec(Interval<float>(0,0)) );
 	extrwinfld_->attach( alignedBelow, evfld_ );
 
@@ -71,12 +70,13 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 					 mCB(this,uiStratSeisEvent,stepSelCB) );
 	    usestepfld_->attach( rightOf, extrwinfld_ );
 
-	    nosteplbl_ = new uiLabel( this, "Layer-based" );
+	    nosteplbl_ = new uiLabel( this, tr("Layer-based") );
 	    nosteplbl_->display( false );
 	    nosteplbl_->attach( rightOf, usestepfld_ );
 	}
 
-	extrstepfld_ = new uiGenInput( this, "Step", FloatInpSpec(defstep) );
+	extrstepfld_ = new uiGenInput( this, tr("Step"), 
+				       FloatInpSpec(defstep) );
 	extrstepfld_->setElemSzPol( uiObject::Small );
 	if ( usestepfld_ )
 	    extrstepfld_->attach( rightOf, usestepfld_ );
@@ -89,7 +89,7 @@ uiStratSeisEvent::uiStratSeisEvent( uiParent* p,
 	BufferStringSet lvlnms; Strat::LVLS().getNames( lvlnms );
 	if ( !lvlnms.isEmpty() )
 	{
-	    uptolvlfld_ = new uiGenInput( this, "Stop at",
+	    uptolvlfld_ = new uiGenInput( this, tr("Stop at"),
 					  StringListInpSpec(lvlnms) );
 	    uptolvlfld_->setText( lvlnms.get(lvlnms.size()-1).buf() );
 	    uptolvlfld_->setWithCheck( true );

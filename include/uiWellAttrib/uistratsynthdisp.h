@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiwellattribmod.h"
 #include "uigroup.h"
 #include "uiflatviewslicepos.h"
+#include "uistring.h"
 
 class TimeDepthModel;
 class SeisTrcBuf;
@@ -40,7 +41,7 @@ namespace PreStackView { class uiSyntheticViewer2DMainWin; }
 
 
 mExpClass(uiWellAttrib) uiStratSynthDisp : public uiGroup
-{
+{ mODTextTranslationClass(uiStratSynthDisp);
 public:
 
 			uiStratSynthDisp(uiParent*,
@@ -208,7 +209,7 @@ protected:
 
 
 mExpClass(uiWellAttrib) uiSynthSlicePos : public uiGroup
-{
+{ mODTextTranslationClass(uiSynthSlicePos);
 public:
 			uiSynthSlicePos(uiParent*,const char* lbltxt);
 

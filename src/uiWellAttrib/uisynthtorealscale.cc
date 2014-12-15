@@ -51,7 +51,7 @@ static const char* sKeyRMSVals = "[Amplitude RMS values]";
 { uiMSG().error(s); return; }\
 
 class uiSynthToRealScaleStatsDisp : public uiGroup
-{
+{ mODTextTranslationClass(uiSynthToRealScaleStatsDisp);
 public:
 
 uiSynthToRealScaleStatsDisp( uiParent* p, const char* nm, bool left )
@@ -134,7 +134,8 @@ void drawMarkerLine( float val )
 uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 					const SeisTrcBuf& tb,
 					const MultiID& wid, const char* lvlnm )
-    : uiDialog(p,Setup("Scale synthetics","Determine scaling for synthetics",
+    : uiDialog(p,Setup(tr("Scale synthetics"),
+		       tr("Determine scaling for synthetics"),
 			mODHelpKey(mSynthToRealScaleHelpID) ))
     , seisev_(*new Strat::SeisEvent)
     , is2d_(is2d)
@@ -163,13 +164,13 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
 			      sssu );
 
     const IOObjContext horctxt( mIOObjContext(EMHorizon3D) );
-    uiIOObjSel::Setup horsu( BufferString("Horizon for '",lvlnm,"'") );
+    uiIOObjSel::Setup horsu( tr("Horizon for '%1'").arg(lvlnm));
     horfld_ = new uiIOObjSel( this, horctxt, horsu );
     horfld_->attach( alignedBelow, seisfld_ );
 
     IOObjContext polyctxt( mIOObjContext(PickSet) );
     polyctxt.toselect.require_.set( sKey::Type(), sKey::Polygon() );
-    uiIOObjSel::Setup polysu( "Within Polygon" ); polysu.optional( true );
+    uiIOObjSel::Setup polysu( tr("Within Polygon") ); polysu.optional( true );
     polyfld_ = new uiIOObjSel( this, polyctxt, polysu );
     polyfld_->attach( alignedBelow, horfld_ );
 
@@ -178,7 +179,7 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     evfld_ = new uiStratSeisEvent( this, ssesu );
     evfld_->attach( alignedBelow, polyfld_ );
 
-    uiPushButton* gobut = new uiPushButton( this, "Extract amplitudes",
+    uiPushButton* gobut = new uiPushButton( this, tr("Extract amplitudes"),
 				mCB(this,uiSynthToRealScale,goPush), true );
     gobut->attach( alignedBelow, evfld_ );
 
@@ -205,11 +206,11 @@ uiSynthToRealScale::uiSynthToRealScale( uiParent* p, bool is2d,
     finalscalefld_ = new uiGenInput( this, uiStrings::sEmptyString(), 
                                      FloatInpSpec() );
     finalscalefld_->attach( centeredBelow, statsgrp );
-    new uiLabel( this, "Scaling factor", finalscalefld_ );
+    new uiLabel( this, tr("Scaling factor"), finalscalefld_ );
 
     IOObjContext wvltctxt( mIOObjContext(Wavelet) );
     wvltctxt.forread = false;
-    wvltfld_ = new uiIOObjSel( this, wvltctxt, "Save scaled Wavelet as" );
+    wvltfld_ = new uiIOObjSel( this, wvltctxt, tr("Save scaled Wavelet as") );
     wvltfld_->attach( alignedBelow, finalscalefld_ );
 
     postFinalise().notify( mCB(this,uiSynthToRealScale,initWin) );
@@ -335,13 +336,13 @@ void uiSynthToRealScale::updSynthStats()
 
 
 class uiSynthToRealScaleRealStatCollector : public Executor
-{
+{ mODTextTranslationClass(uiSynthToRealScaleRealStatCollector);
 public:
 uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
     : Executor( "Collect Amplitudes" )
     , dlg_(d)
     , rdr_(r)
-    , msg_("Collecting")
+    , msg_(tr("Collecting"))
     , nrdone_(0)
     , totalnr_(-1)
     , seldata_(0)
@@ -360,7 +361,7 @@ uiSynthToRealScaleRealStatCollector( uiSynthToRealScale& d, SeisTrcReader& r )
 }
 
 uiString uiMessage() const	{ return msg_; }
-uiString uiNrDoneText() const	{ return "Traces handled"; }
+uiString uiNrDoneText() const	{ return tr("Traces handled"); }
 od_int64 nrDone() const		{ return nrdone_; }
 od_int64 totalNr() const	{ return totalnr_; }
 
@@ -462,7 +463,7 @@ void uiSynthToRealScale::updRealStats()
 
     SeisTrcReader rdr( seisfld_->ioobj() );
     if ( !rdr.prepareWork() )
-	mErrRet( "Error opening input seismic data" );
+	mErrRet( tr("Error opening input seismic data") );
 
     uiSynthToRealScaleRealStatCollector coll( *this, rdr );
     if ( !TaskRunner::execute( &taskrunner, coll ) )
@@ -483,7 +484,7 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
 
     const float scalefac = finalscalefld_->getfValue();
     if ( mIsUdf(scalefac) )
-	{ uiMSG().error( "Please enter the scale factor" ); return false; }
+	{ uiMSG().error(tr("Please enter the scale factor")); return false; }
 
     const IOObj* ioobj = wvltfld_->ioobj();
     if ( !ioobj )
@@ -494,16 +495,16 @@ bool uiSynthToRealScale::acceptOK( CallBacker* )
     delete inpioobj;
     if ( !wvlt )
     {
-	uiMSG().error( "Cannot save scaled wavelet because:\nThe "
-		"original wavelet cannot be read." );
+	uiMSG().error(tr("Cannot save scaled wavelet because:\nThe "
+			 "original wavelet cannot be read."));
 	delete ioobj; return false;
     }
 
     wvlt->transform( 0, scalefac );
     if ( !wvlt->put(ioobj) )
     {
-	uiMSG().error( "Cannot write scaled Wavelet.\n"
-			"Please check file permissions" );
+	uiMSG().error(tr("Cannot write scaled Wavelet.\n"
+			 "Please check file permissions"));
 	delete ioobj; return false;
     }
     delete wvlt;

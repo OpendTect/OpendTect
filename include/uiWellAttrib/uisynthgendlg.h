@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class StratSynth;
 
@@ -30,7 +31,7 @@ class uiSeisWaveletSel;
 class uiSynthCorrectionsGrp;
 
 mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiSynthGenDlg);
 public:
 				uiSynthGenDlg(uiParent*,StratSynth&);
 
@@ -78,7 +79,7 @@ protected:
 class uiSynthCorrAdvancedDlg;
 
 mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiSynthCorrectionsGrp);
 public:
 				uiSynthCorrectionsGrp(uiParent*);
 

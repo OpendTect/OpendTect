@@ -100,14 +100,14 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     topgrp_->setStretch( 2, 0 );
 
     uiLabeledComboBox* datalblcbx =
-	new uiLabeledComboBox( topgrp_, "Wiggle View", "" );
+	new uiLabeledComboBox( topgrp_, tr("Wiggle View"), "" );
     wvadatalist_ = datalblcbx->box();
     wvadatalist_->selectionChanged.notify(
 	    mCB(this,uiStratSynthDisp,wvDataSetSel) );
     wvadatalist_->setHSzPol( uiObject::Wide );
 
     uiToolButton* edbut = new uiToolButton( topgrp_, "edit",
-				"Add/Edit Synthetic DataSet",
+				tr("Add/Edit Synthetic DataSet"),
 				mCB(this,uiStratSynthDisp,addEditSynth) );
 
     edbut->attach( leftOf, datalblcbx );
@@ -117,7 +117,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     dataselgrp->attach( ensureRightOf, topgrp_ );
 
     uiLabeledComboBox* prdatalblcbx =
-	new uiLabeledComboBox( dataselgrp, "Variable Density View", "" );
+	new uiLabeledComboBox( dataselgrp, tr("Variable Density View"), "" );
     vddatalist_ = prdatalblcbx->box();
     vddatalist_->selectionChanged.notify(
 	    mCB(this,uiStratSynthDisp,vdDataSetSel) );
@@ -125,7 +125,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     prdatalblcbx->attach( leftBorder );
 
     uiToolButton* expbut = new uiToolButton( prdatalblcbx, "export",
-				"Export Synthetic DataSet(s)",
+				tr("Export Synthetic DataSet(s)"),
 				mCB(this,uiStratSynthDisp,exportSynth) );
     expbut->attach( rightOf, vddatalist_ );
 
@@ -136,7 +136,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     datagrp_->setStretch( 2, 0 );
 
     uiToolButton* layertb = new uiToolButton( datagrp_, "defraytraceprops",
-				    "Specify input for synthetic creation",
+				    tr("Specify input for synthetic creation"),
 				    mCB(this,uiStratSynthDisp,layerPropsPush));
 
     wvltfld_ = new uiSeisWaveletSel( datagrp_ );
@@ -145,12 +145,12 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     wvltfld_->attach( rightOf, layertb );
     curSS().setWavelet( wvltfld_->getWavelet() );
 
-    scalebut_ = new uiPushButton( datagrp_, "Scale", false );
+    scalebut_ = new uiPushButton( datagrp_, tr("Scale"), false );
     scalebut_->activated.notify( mCB(this,uiStratSynthDisp,scalePush) );
     scalebut_->attach( rightOf, wvltfld_ );
 
     uiLabeledComboBox* lvlsnapcbx =
-	new uiLabeledComboBox( datagrp_, "Snap level" );
+	new uiLabeledComboBox( datagrp_, tr("Snap level") );
     levelsnapselfld_ = lvlsnapcbx->box();
     lvlsnapcbx->attach( rightOf, scalebut_ );
     lvlsnapcbx->setStretch( 2, 0 );
@@ -165,7 +165,7 @@ uiStratSynthDisp::uiStratSynthDisp( uiParent* p,
     offsetposfld_->positionChg.notify( mCB(this,uiStratSynthDisp,offsetChged));
 
     prestackbut_ = new uiToolButton( prestackgrp_, "nonmocorr64",
-				"View Offset Direction",
+				tr("View Offset Direction"),
 				mCB(this,uiStratSynthDisp,viewPreStackPush) );
     prestackbut_->attach( rightOf, offsetposfld_);
 
@@ -651,10 +651,10 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 
     if ( !currentwvasynthetic_ )
     {
-	uiMSG().error( "Please select a synthetic data in wiggle display. "
-		       "The scaling tool compares the amplitudes of the "
-		       "synthetic data at the selected Stratigraphic Level "
-		       "to real amplitudes along a horizon" );
+	uiMSG().error(tr("Please select a synthetic data in wiggle display. "
+		         "The scaling tool compares the amplitudes of the "
+		         "synthetic data at the selected Stratigraphic Level "
+		         "to real amplitudes along a horizon"));
 	return false;
     }
 
@@ -663,8 +663,8 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
     const SeisTrcBuf& tbuf = pssd->postStackPack().trcBuf();
     if ( tbuf.isEmpty() )
     {
-	uiMSG().error( "Synthetic seismic has no trace. "
-		       "Please regenerate the synthetic." );
+	uiMSG().error(tr("Synthetic seismic has no trace. "
+		         "Please regenerate the synthetic."));
 	return false;
     }
     BufferString levelname;
@@ -672,18 +672,18 @@ bool uiStratSynthDisp::haveUserScaleWavelet()
 	levelname = curSS().getLevel()->name();
     if ( levelname.isEmpty() || levelname.startsWith( "--" ) )
     {
-	uiMSG().error( "Please select a Stratigraphic Level.\n"
-		"The scaling tool compares the amplitudes there\n"
-		"to real amplitudes along a horizon" );
+	uiMSG().error(tr("Please select a Stratigraphic Level.\n"
+			 "The scaling tool compares the amplitudes there\n"
+			 "to real amplitudes along a horizon"));
 	return false;
     }
 
     bool is2d = SI().has2D();
     if ( is2d && SI().has3D() )
     {
-	int res = uiMSG().question( "Type of seismic data to use", 
-                                    uiStrings::s2D(true), uiStrings::s3D(true),
-				    uiStrings::sCancel(), "Specify geometry" );
+	int res = uiMSG().question(tr("Type of seismic data to use"), 
+                                  uiStrings::s2D(true), uiStrings::s3D(true),
+				  uiStrings::sCancel(), tr("Specify geometry"));
 	if ( res < 0 ) return false;
 	is2d = res == 1;
     }
@@ -1388,7 +1388,7 @@ void uiStratSynthDisp::addEditSynth( CallBacker* )
 void uiStratSynthDisp::exportSynth( CallBacker* )
 {
     if ( layerModel().isEmpty() )
-	mErrRet( uiString("No valid layer model present"), return )
+	mErrRet( tr("No valid layer model present"), return )
     uiStratSynthExport dlg( this, curSS() );
     dlg.go();
 }
@@ -1686,10 +1686,10 @@ uiSynthSlicePos::uiSynthSlicePos( uiParent* p, const char* lbltxt )
     slicestepbox_ = new uiSpinBox( this, 0, "Slice step" );
     slicestepbox_->attach( rightOf, steplabel );
 
-    prevbut_ = new uiToolButton( this, "prevpos", "Previous position",
+    prevbut_ = new uiToolButton( this, "prevpos", tr("Previous position"),
 				mCB(this,uiSynthSlicePos,prevCB) );
     prevbut_->attach( rightOf, slicestepbox_ );
-    nextbut_ = new uiToolButton( this, "nextpos", "Next position",
+    nextbut_ = new uiToolButton( this, "nextpos", tr("Next position"),
 				 mCB(this,uiSynthSlicePos,nextCB) );
     nextbut_->attach( rightOf, prevbut_ );
 }

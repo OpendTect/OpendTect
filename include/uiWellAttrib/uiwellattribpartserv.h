@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uiapplserv.h"
+#include "uistring.h"
 
 class BufferStringSet;
 class DataPointSet;
@@ -31,7 +32,7 @@ namespace WellTie { class uiTieWinMGRDlg; }
 */
 
 mExpClass(uiWellAttrib) uiWellAttribPartServer : public uiApplPartServer
-{
+{ mODTextTranslationClass(uiWellAttribPartServer);
 public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();

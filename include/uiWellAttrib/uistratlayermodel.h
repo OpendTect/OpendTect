@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uimainwin.h"
+#include "uistring.h"
 class CtxtIOObj;
 class Wavelet;
 class SeisTrcBuf;
@@ -34,7 +35,7 @@ namespace Strat { class LayerModel; class LayerSequenceGenDesc; }
 
 
 mExpClass(uiWellAttrib) uiStratLayerModel : public uiMainWin
-{
+{ mODTextTranslationClass(uiStratLayerModel);
 public:
 
 				uiStratLayerModel(uiParent*,

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellattribmod.h"
 #include "uiattrdesced.h"
+#include "uistring.h"
 
 class uiGenInput;
 class uiListBox;
@@ -24,7 +25,7 @@ namespace Attrib { class Desc; }
 /*! \brief Energy Attribute ui */
 
 mExpClass(uiWellAttrib) uiWellLogAttrib : public uiAttrDescEd
-{
+{ mODTextTranslationClass(uiWellLogAttrib);
 public:
 
 			uiWellLogAttrib(uiParent*,bool);
