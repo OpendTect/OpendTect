@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "welltransl.h"
 #include "wellodwriter.h"
 #include "uigeninput.h"
+#include "uistrings.h"
 
 #define mODWellTranslInstance mTranslTemplInstance(Well,od)
 
@@ -25,7 +26,7 @@ uiODWellWriteOpts::uiODWellWriteOpts( uiParent* p )
 {
     mSettUse(getYN,"dTect.Well logs","Binary format",defbinwrite_);
     wrlogbinfld_ = new uiGenInput( this, "Well log storage",
-		 BoolInpSpec(defbinwrite_,"Binary","Ascii") );
+		 BoolInpSpec(defbinwrite_,"Binary",uiStrings::sASCII(true)) );
 
     setHAlignObj( wrlogbinfld_ );
 }
