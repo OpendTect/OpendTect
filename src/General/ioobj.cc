@@ -1,3 +1,4 @@
+
 /*+
  * (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  * AUTHOR   : A.H. Bril
@@ -112,12 +113,6 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
     fms = astream.value();
     BufferString trlnm( fms[0] );
     BufferString objtyp( fms[1] );
-
-    // Hack to support the changes in Translator/group names for 2D Seismics
-    // coming up post v5.0.
-    if ( groupnm == "2D Seismic Data" && trlnm == "CBVS" )
-    { groupnm = "Seismic Data"; trlnm = "TwoD DataSet"; }
-
     if ( objtyp.isEmpty() )
     {
 	TranslatorGroup& grp = TranslatorGroup::getGroup( groupnm, true );
@@ -503,3 +498,4 @@ const char* IOX::dirName() const
     delete ioobj;
     return dirnm_;
 }
+
