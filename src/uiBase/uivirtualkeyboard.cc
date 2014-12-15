@@ -56,7 +56,8 @@ uiVirtualKeyboard::uiVirtualKeyboard( uiObject& inpobj, int x, int y )
     wintitle += inputobj_.name(); wintitle += "]";
     setCaption( wintitle );
 
-    ioPixmap pixmap( mGetSetupFileName("virtualkeyboard") );
+    const BufferString pmfnm = mGetSetupFileName( "virtualkeyboard.png" );
+    ioPixmap pixmap( pmfnm.buf() );
     const float keyboardwidth = keyboardscale_ * pixmap.width();
     const float keyboardheight = keyboardscale_ * pixmap.height();
 
@@ -113,9 +114,9 @@ bool uiVirtualKeyboard::enterPressed() const
 
 void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 {
-    MarkerStyle2D markerstyle( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
+    const MarkerStyle2D ms( MarkerStyle2D::Circle, mNINT32(4*keyboardscale_) );
     uiPoint point( mNINT32(x*keyboardscale_), mNINT32(y*keyboardscale_) );
-    uiMarkerItem* led = new uiMarkerItem( point, markerstyle );
+    uiMarkerItem* led = new uiMarkerItem( point, ms );
     led->setFillColor( color );
     led->setZValue( 1 );
     leds_->add( led );
@@ -123,7 +124,7 @@ void uiVirtualKeyboard::addLed( float x, float y, const Color& color )
 }
 
 
-void uiVirtualKeyboard::updateLeds() 
+void uiVirtualKeyboard::updateLeds()
 {
     const int sz = leds_->size();
 
@@ -225,14 +226,14 @@ static char mousePress2Key( int x, int y, bool caps, bool shift )
 void uiVirtualKeyboard::clickCB( CallBacker* )
 {
     const MouseEvent& ev = viewbase_->scene().getMouseEventHandler().event();
-    
+
 
     const bool shiftstatus = (shiftlock_!=shift_) != ev.rightButton();
 
     char str[2]; str[1] = '\0';
-    str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ), 
-	    		     mNINT32( ev.y()/keyboardscale_ ),
-			     capslock_, shiftstatus ); 
+    str[0] = mousePress2Key( mNINT32( ev.x()/keyboardscale_ ),
+			     mNINT32( ev.y()/keyboardscale_ ),
+			     capslock_, shiftstatus );
     restoreSelection();
 
     if ( str[0] == CapsLock )
