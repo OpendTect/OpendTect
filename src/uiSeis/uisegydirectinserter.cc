@@ -11,6 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uisegydirectinserter.h"
 #include "segydirecttr.h"
+#include "seis2dlineio.h"
 #include "uitoolbutton.h"
 #include "uisegyread.h"
 #include "uibutton.h"
@@ -67,4 +68,57 @@ void uiSEGYDirectVolInserter::initClass()
 {
     factory().addCreator( create,
 			  mSEGYDirectVolTranslInstance.getDisplayName() );
+}
+
+
+
+#define mSEGYDirect2DTranslInstance mTranslTemplInstance(SeisTrc2D,SEGYDirect)
+
+
+uiSEGYDirect2DInserter::uiSEGYDirect2DInserter()
+    : uiIOObjInserter(mSEGYDirect2DTranslInstance)
+{
+}
+
+
+uiToolButtonSetup* uiSEGYDirect2DInserter::getButtonSetup() const
+{
+    uiSEGYDirect2DInserter* self = const_cast<uiSEGYDirect2DInserter*>(this);
+    uiToolButtonSetup* ret = new uiToolButtonSetup( "segydirect_ins",
+						    tr("Scan a SEG-Y file"),
+	    mCB(self,uiSEGYDirect2DInserter,startScan), "SEG-Y" );
+    return ret;
+}
+
+
+void uiSEGYDirect2DInserter::startScan( CallBacker* cb )
+{
+    mDynamicCastGet(uiButton*,but,cb)
+    uiParent* par = 0;
+    if ( but ) par = but->mainwin();
+    if ( !par )
+    { pErrMsg(BufferString("Unexpected null: ",but?"but":"par")); }
+
+    uiSEGYRead::Setup srsu( uiSEGYRead::DirectDef );
+    srsu.geoms_.erase(); srsu.geoms_ += Seis::Line;
+    segyread_ = new uiSEGYRead( but->parent(), srsu );
+    mAttachCB( segyread_->processEnded, uiSEGYDirect2DInserter::scanComplete );
+}
+
+
+void uiSEGYDirect2DInserter::scanComplete( CallBacker* )
+{
+    if ( segyread_->state() != uiVarWizard::cFinished() )
+	return;
+
+    const MultiID outky( segyread_->outputID() );
+    CBCapsule<MultiID> caps( outky, this );
+    objectInserted.trigger( &caps );
+}
+
+
+void uiSEGYDirect2DInserter::initClass()
+{
+    factory().addCreator( create,
+			  mSEGYDirect2DTranslInstance.getDisplayName() );
 }

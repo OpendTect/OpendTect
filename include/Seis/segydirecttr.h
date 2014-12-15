@@ -180,6 +180,8 @@ public:
     virtual bool	goTo(const BinID&);
     virtual uiString	errMsg() const	{ return SeisTrcTranslator::errMsg(); }
 
+    static SEGYSeisTrcTranslator* createTranslator(const SEGY::DirectDef& def,
+						   int filenr);
 protected:
 
     bool		commitSelections_();

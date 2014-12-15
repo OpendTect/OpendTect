@@ -984,7 +984,6 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
     const Attrib::DescSet* ds = Attrib::DSHolder().getDescSet( true, true );
     if ( !ds ) return false;
     myas.setRefFromID( *ds );
-    myas.setUserRef( attribnm ); // Why is this necessary?
     const Attrib::Desc* targetdesc = ds->getDesc( attribid );
     if ( !targetdesc ) return false;
 

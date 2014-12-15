@@ -14,6 +14,7 @@ SET(OD_MODULE_SOURCES
 	initseis.cc
 	offsetazimuth.cc
 	segydirect.cc
+	segydirect2d.cc
 	segydirecttr.cc
 	segyfiledata.cc
 	segyfiledef.cc

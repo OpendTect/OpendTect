@@ -160,6 +160,8 @@ public:
     SeisPacketInfo&		packetInfo()		{ return pinfo_; }
     const Seis::SelData*	selData() const		{ return seldata_; }
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds_; }
+    const ObjectSet<TargetComponentData>& componentInfo() const
+				{ return tarcds_; }
     const SamplingData<float>&	inpSD() const		{ return insd_; }
     int				inpNrSamples() const	{ return innrsamples_; }
     const SamplingData<float>&	outSD() const		{ return outsd_; }

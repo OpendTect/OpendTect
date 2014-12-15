@@ -174,7 +174,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 	Batch::JobSpec& js = batchfld_->jobSpec();
 	js.pars_.merge( pars_ );
 	js.pars_.set( sKey::Output(), outfld_->key(true) );
-	js.pars_.set( sKey::LineName(), lnm );
+	if ( lnmfld_ )
+	    js.pars_.set( sKey::GeomID(), lnmfld_->geomID() );
 	return batchfld_->start();
     }
 

@@ -37,6 +37,7 @@ mDefSimpleTranslatorioContext(SeisTrc,Seis)
 #define sKeySeisTrc2DTranslatorGroup "2D Seismic Data"
 defineTranslatorGroup(SeisTrc2D,sKeySeisTrc2DTranslatorGroup);
 defineTranslator(CBVS,SeisTrc2D,"CBVS");
+defineTranslator(SEGYDirect,SeisTrc2D,"SEGYDirect");
 
 mDefSimpleTranslatorSelector(SeisTrc2D,sKeySeisTrc2DTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisTrc2D,Seis)
@@ -62,6 +63,7 @@ mDefModInitFn(Seis)
     CBVSSeisTrc2DTranslator::initClass();
     SEGYSeisTrcTranslator::initClass();
     SEGYDirectSeisTrcTranslator::initClass();
+    SEGYDirectSeisTrc2DTranslator::initClass();
     SEGYDirectSeisPS3DTranslator::initClass();
     SEGYDirectSeisPS2DTranslator::initClass();
     SeisPSCubeSeisTrcTranslator::initClass();

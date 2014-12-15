@@ -119,7 +119,7 @@ public:
 protected:
 
     IOObj*		ioobj_;
-    BufferString	linename_;
+    Pos::GeomID		geomid_;
 
     Scanner*		scanner_;
     uiString		msg_;

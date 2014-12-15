@@ -74,8 +74,8 @@ bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
 int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 
 
-static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
-						int filenr )
+SEGYSeisTrcTranslator* SEGYDirectSeisTrcTranslator::createTranslator(
+					const SEGY::DirectDef& def, int filenr )
 {
     const FixedString filename = def.fileName( filenr );
     if ( !filename )
@@ -126,7 +126,7 @@ bool SEGYDirect3DPSReader::goTo( int filenr, int trcidx ) const
     if ( filenr != curfilenr_ )
     {
 	delete tr_;
-	tr_ = createTranslator( def_, filenr );
+	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
     return tr_ && tr_->goToTrace( trcidx );
@@ -214,7 +214,7 @@ bool SEGYDirect2DPSReader::goTo( int filenr, int trcidx ) const
     if ( filenr != curfilenr_ )
     {
 	delete tr_;
-	tr_ = createTranslator( def_, filenr );
+	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( def_, filenr );
 	curfilenr_ = filenr;
     }
 
@@ -434,7 +434,7 @@ bool SEGYDirectSeisTrcTranslator::positionTranslator()
     {
 	curfilenr_ = fdsidx.filenr_;
 	delete tr_;
-	tr_ = createTranslator( *def_, curfilenr_ );
+	tr_ = SEGYDirectSeisTrcTranslator::createTranslator( *def_, curfilenr_);
     }
 
     return tr_ && tr_->goToTrace( mCast(int,fdsidx.trcidx_) );

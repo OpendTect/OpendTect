@@ -29,6 +29,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "sorting.h"
 
 
+Seis2DLineGetter::Seis2DLineGetter( SeisTrcBuf& trcbuf, int trcsperstep,
+				    const Seis::SelData& sd )
+    : Executor("Reading 2D Traces")
+    , tbuf_(trcbuf)
+    , seldata_(sd.clone())
+{}
+
 const char*
 SeisTrc2DTranslatorGroup::getSurveyDefaultKey(const IOObj* ioobj) const
 { return IOPar::compKey( sKey::Default(), sKeyDefault() ); }

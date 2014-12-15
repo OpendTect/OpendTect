@@ -14,10 +14,10 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "seistrctr.h"
+#include "executor.h"
 #include "uistring.h"
 
 class SeisTrc;
-class Executor;
 class SeisTrcBuf;
 namespace PosInfo	{ class Line2DData; }
 namespace Seis		{ class SelData; }
@@ -52,6 +52,32 @@ public:
 
 };
 
+
+/*!\brief interface for object that reads 2D seismic data */
+
+mExpClass(Seis) Seis2DLineGetter : public Executor
+{
+public:
+			Seis2DLineGetter(SeisTrcBuf&,int trcsperstep,
+					 const Seis::SelData&);
+    virtual		~Seis2DLineGetter()	{}
+
+    uiString		uiMessage() const	{ return msg_; }
+    uiString		uiNrDoneText() const	{ return "Traces read"; }
+
+    virtual od_int64	nrDone() const			= 0;
+    virtual od_int64	totalNr() const			= 0;
+
+    virtual const SeisTrcTranslator*	translator() const	{ return 0; }
+
+protected:
+
+    virtual int		nextStep()			= 0;
+
+    SeisTrcBuf&		tbuf_;
+    uiString		msg_;
+    Seis::SelData*	seldata_;
+};
 
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
@@ -152,7 +178,22 @@ public:
 			CBVSSeisTrc2DTranslator(const char* s1,const char* s2)
 			: SeisTrc2DTranslator(s1,s2)	{}
 
+    bool		isUserSelectable(bool) const	{ return true; }
 };
+
+/*!\brief SEGYDirect translator for 2D Seismics */
+mExpClass(Seis) SEGYDirectSeisTrc2DTranslator : public SeisTrc2DTranslator
+{ mODTextTranslationClass(SEGYDirectSeisTrc2DTranslator);
+  isTranslator(SEGYDirect,SeisTrc2D)
+public:
+			SEGYDirectSeisTrc2DTranslator(const char* s1,
+						      const char* s2)
+			: SeisTrc2DTranslator(s1,s2)	{}
+
+    virtual bool	isUserSelectable(bool fr) const { return fr; }
+    virtual const char* iconName() const		{ return "segy"; }
+};
+
 
 #endif
 

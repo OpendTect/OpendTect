@@ -24,7 +24,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seiscbvs2d.h"
-#include "seiscbvs2dlinegetter.h"
 #include "seispsioprov.h"
 #include "seisread.h"
 #include "seisselection.h"
@@ -473,7 +472,7 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	ret = tbuf.isEmpty() ? 0 : tbuf.get(0)->nrComponents();
 	if ( nms )
 	{
-	    mDynamicCastGet(SeisCBVS2DLineGetter*,lg,ex)
+	    mDynamicCastGet(Seis2DLineGetter*,lg,ex)
 	    if ( !lg )
 	    {
 		for ( int icomp=0; icomp<ret; icomp++ )
@@ -481,11 +480,13 @@ int SeisIOObjInfo::getComponentInfo( Pos::GeomID geomid,
 	    }
 	    else
 	    {
-		ret = lg->tr_ ? lg->tr_->componentInfo().size() : 0;
+		ret = lg->translator() ?
+		      lg->translator()->componentInfo().size() : 0;
 		if ( nms )
 		{
 		    for ( int icomp=0; icomp<ret; icomp++ )
-			nms->add( lg->tr_->componentInfo()[icomp]->name() );
+			nms->add(
+			    lg->translator()->componentInfo()[icomp]->name() );
 		}
 	    }
 	}

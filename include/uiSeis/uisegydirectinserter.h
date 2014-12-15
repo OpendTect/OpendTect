@@ -40,4 +40,26 @@ protected:
 };
 
 
+mExpClass(uiSeis) uiSEGYDirect2DInserter : public uiIOObjInserter
+{ mODTextTranslationClass(uiSEGYDirect2DInserter);
+public:
+
+				uiSEGYDirect2DInserter();
+
+    virtual uiToolButtonSetup*	getButtonSetup() const;
+    static uiIOObjInserter*	create()
+				{ return new uiSEGYDirect2DInserter; }
+
+    static void			initClass();
+
+protected:
+
+    uiSEGYRead*		segyread_;
+
+    void		startScan(CallBacker*);
+    void		scanComplete(CallBacker*);
+
+};
+
+
 #endif

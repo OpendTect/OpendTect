@@ -514,16 +514,24 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     , ioobj_( IOM().get( mid ) )
     , isvol_(isvol)
     , is2d_(is2d)
+    , geomid_(mUdfGeomID)
     , scanner_(0)
 {
     if ( !ioobj_ )
 	{ msg_ = "Cannot find output object"; return; }
-    linename_ = segypar.find( sKey::LineName() );
-    if ( is2d && linename_.isEmpty() )
-	{ delete ioobj_; ioobj_ = 0; msg_ = "Line name not specified"; return; }
+    if ( is2d && !segypar.get(sKey::GeomID(),geomid_) )
+    {
+	const FixedString linename = segypar.find( sKey::LineName() );
+	if ( linename )
+	    geomid_ = Survey::GM().getGeomID( linename );
+    }
 
-    scanner_ = new SEGY::Scanner( sgyfile, is2d_ ? Seis::LinePS :
-				 (isvol_ ? Seis::Vol : Seis::VolPS), segypar );
+    if ( is2d && geomid_ == mUdfGeomID )
+    { delete ioobj_; ioobj_ = 0; msg_ = "2D Line ID not specified"; return; }
+
+    scanner_ = new SEGY::Scanner( sgyfile,
+			is2d_ ? (isvol_ ? Seis::Line : Seis::LinePS) :
+				(isvol_ ? Seis::Vol : Seis::VolPS), segypar );
 }
 
 SEGY::FileIndexer::~FileIndexer()
@@ -573,7 +581,7 @@ int SEGY::FileIndexer::nextStep()
 		return ErrorOccurred();
 	    }
 
-	    outfile = SEGY::DirectDef::get2DFileName( outfile, linename_ );
+	    outfile = SEGY::DirectDef::get2DFileName( outfile, geomid_ );
 	}
 
 	if ( File::exists(outfile) && !File::isWritable(outfile) )

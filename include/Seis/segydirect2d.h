@@ -1,12 +1,12 @@
-#ifndef seiscbvs2d_h
-#define seiscbvs2d_h
+#ifndef segydirect2d_h
+#define segydirect2d_h
 
 /*+
 ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
- Author:	A.H. Bril
- Date:		June 2004
+ Author:	Raman Singh
+ Date:		Dec 2014
  RCS:		$Id$
 ________________________________________________________________________
 
@@ -17,16 +17,16 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class SeisTrc;
-class CBVSSeisTrcTranslator;
+class SEGYSeisTrcTranslator;
 
 namespace PosInfo { class Line2DData; }
 
 
-mExpClass(Seis) SeisCBVS2DLineIOProvider : public Seis2DLineIOProvider
+mExpClass(Seis) SEGYDirect2DLineIOProvider : public Seis2DLineIOProvider
 {
 public:
 
-			SeisCBVS2DLineIOProvider();
+			SEGYDirect2DLineIOProvider();
 
     bool		isEmpty(const IOObj&,Pos::GeomID) const;
 
@@ -34,13 +34,13 @@ public:
     bool		getGeometry(const IOObj&,Pos::GeomID,
 				    PosInfo::Line2DData&) const;
     Executor*		getFetcher(const IOObj&,Pos::GeomID,SeisTrcBuf&,int,
-	    			   const Seis::SelData* sd=0);
+				   const Seis::SelData* sd=0);
     Seis2DLinePutter*	getPutter(const IOObj& obj,Pos::GeomID);
 
     bool		getTxtInfo(const IOObj&,Pos::GeomID,BufferString&,
-	    			   BufferString&) const;
+				   BufferString&) const;
     bool		getRanges(const IOObj&,Pos::GeomID,StepInterval<int>&,
-	    			  StepInterval<float>&) const;
+				  StepInterval<float>&) const;
 
     bool		removeImpl(const IOObj&,Pos::GeomID) const;
     bool		renameImpl(const IOObj&,const char*) const;
@@ -53,35 +53,35 @@ private:
 };
 
 
-mExpClass(Seis) SeisCBVS2DLinePutter : public Seis2DLinePutter
-{ mODTextTranslationClass(SeisCBVS2DLinePutter);
+mExpClass(Seis) SEGYDirect2DLinePutter : public Seis2DLinePutter
+{ mODTextTranslationClass(SEGYDirect2DLinePutter);
 public:
 
-			SeisCBVS2DLinePutter(const IOObj&,Pos::GeomID);
-			~SeisCBVS2DLinePutter();
+			SEGYDirect2DLinePutter(const IOObj&,Pos::GeomID);
+			~SEGYDirect2DLinePutter();
 
     uiString		errMsg() const			{ return errmsg_;}
     int			nrWritten() const		{ return nrwr_; }
     bool		put(const SeisTrc&);
     bool		close();
 
-    int                 		nrwr_;
-    BufferString        		fname_;
+    int					nrwr_;
+    BufferString			fname_;
     uiString				errmsg_;
-    CBVSSeisTrcTranslator*		tr_;
-    BinID               		bid_;
+    SEGYSeisTrcTranslator*		tr_;
+    BinID				bid_;
     DataCharacteristics::UserType	preseldt_;
 
 };
 
 
-class SeisCBVS2DLineGetter : public Seis2DLineGetter
+class SEGYDirect2DLineGetter : public Seis2DLineGetter
 {
 public:
-			SeisCBVS2DLineGetter(const char* fnm,SeisTrcBuf&,
+			SEGYDirect2DLineGetter(const char* fnm,SeisTrcBuf&,
 					     int trcsperstep,
 					     const Seis::SelData&);
-			~SeisCBVS2DLineGetter();
+			~SEGYDirect2DLineGetter();
 
     od_int64		nrDone() const		{ return curnr_; }
     od_int64		totalNr() const		{ return totnr_; }
@@ -96,12 +96,9 @@ protected:
     int				curnr_;
     int				totnr_;
     BufferString		fname_;
-    CBVSSeisTrcTranslator*	tr_;
-    int				trcstep_;
-    const int			linenr_;
+    SEGYSeisTrcTranslator*	tr_;
     const int			trcsperstep_;
 
 };
 
 #endif
-
