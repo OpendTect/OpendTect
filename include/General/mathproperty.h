@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "generalmod.h"
 #include "property.h"
+#include "uistring.h"
 class UnitOfMeasure;
 namespace Math { class Formula; class SpecVarSet; }
 
@@ -29,7 +30,7 @@ namespace Math { class Formula; class SpecVarSet; }
  */
 
 mExpClass(General) MathProperty : public Property
-{
+{ mODTextTranslationClass(Property)
 public:
 			MathProperty(const PropertyRef&,const char* def=0);
 			MathProperty(const MathProperty&);
@@ -44,8 +45,9 @@ public:
 			//!< Must be done for all inputs after each setDef()
 
     virtual bool	init(const PropertySet&) const;
-    virtual uiString	errMsg() const		{ return errmsg_.buf(); }
+    virtual uiString	errMsg() const		{ return errmsg_; }
     virtual bool	dependsOn(const Property&) const;
+    bool		hasCyclicalDependency(BufferStringSet& inputnms) const;
 
     mDefPropertyFns(MathProperty,"Math");
 
@@ -64,7 +66,7 @@ protected:
 
     Math::Formula&		form_;
     mutable ObjectSet<const Property> inps_;
-    mutable BufferString	errmsg_;
+    mutable uiString	errmsg_;
     mutable BufferString	fulldef_;
 
     void			setPreV5Def(const char*);

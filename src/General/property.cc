@@ -202,10 +202,40 @@ MathProperty::~MathProperty()
 }
 
 
+bool MathProperty::hasCyclicalDependency( BufferStringSet& inputnms ) const
+{
+    for ( int iinp=0; iinp<inps_.size(); iinp++ )
+    {
+	const Property* inpprop = inps_[iinp];
+	mDynamicCastGet(const MathProperty*,mathprop,inpprop)
+	if ( !mathprop ) continue;
+	BufferString mathpropnm( mathprop->name() );
+	if ( inputnms.isPresent(mathpropnm) )
+	{
+	    errmsg_ =
+		tr ( "Input '%1' is dependent on itself" ).arg( mathpropnm );
+	    return true;
+	}
+	inputnms.add( mathpropnm );
+	if (mathprop->hasCyclicalDependency(inputnms) )
+	{
+	    errmsg_ =
+		tr ( "Input '%1' is dependent on itself" ).arg( mathpropnm );
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
 bool MathProperty::init( const PropertySet& ps ) const
 {
     if ( !form_.isOK() )
-	{ errmsg_.set( "No valid definition for " ).add(name()); return false; }
+    {
+	errmsg_ = tr( "No valid definition for '%1'" ).arg( name() );
+	return false;
+    }
 
     const int nrinps = form_.nrInputs();
     inps_.erase();
@@ -220,17 +250,10 @@ bool MathProperty::init( const PropertySet& ps ) const
 	    prop = ps.find( inpnm );
 	    if ( !prop )
 	    {
-		errmsg_ = "Missing input or dependency loop for '";
-		errmsg_.add(name()).add("': '").add(inpnm).add("'");
+		errmsg_ =
+		    tr( "Missing input '%1' for '%2'" ).arg(name()).arg(inpnm);
 		return false;
 	    }
-	}
-
-	if ( prop && dependsOn(*prop) )
-	{
-	    errmsg_ = "Cyclic dependency loop for '";
-	    errmsg_.add(name()).add("': '").add(prop->name()).add("'");
-	    return false;
 	}
 
 	inps_ += prop;
@@ -582,11 +605,26 @@ bool PropertySet::prepareUsage() const
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( !props_[idx]->init(*this) )
-	    { errmsg_ = props_[idx]->errMsg(); return false; }
+	{
+	    errmsg_ = props_[idx]->errMsg();
+	    return false;
+	}
 
 	Property* propedit = const_cast<Property*>(props_[idx]);
 	if ( propedit )
 	    propedit->reset();
+    }
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	mDynamicCastGet(const MathProperty*,mathprop,props_[idx]);
+	if ( !mathprop ) continue;
+	BufferStringSet inputnms;
+	if ( mathprop->hasCyclicalDependency(inputnms) )
+	{
+	    errmsg_ = props_[idx]->errMsg();
+	    return false;
+	}
     }
     return true;
 }
