@@ -31,11 +31,13 @@ mExpClass(uiOSG) ui3DViewer : public uiObject
 friend class		ui3DViewerBody;
 
 public:
-
-                        ui3DViewer(uiParent*,
+			ui3DViewer(uiParent*,
 				bool direct,
 				const char* nm="ui3DViewer");
 			~ui3DViewer();
+
+    void		setMapView(bool yn);
+    bool		isMapView() const;
 
     void		setSceneID(int);
     visBase::Scene*	getScene();

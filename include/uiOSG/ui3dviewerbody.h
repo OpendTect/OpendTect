@@ -62,10 +62,10 @@ mClass(uiOSG) ui3DViewerBody : public uiObjectBody
     friend class TrackBallManipulatorMessenger;
 
 public:
-			ui3DViewerBody( ui3DViewer& h, uiParent* parnt );
-    virtual		~ui3DViewerBody();
+				ui3DViewerBody(ui3DViewer&,uiParent*);
+    virtual			~ui3DViewerBody();
 
-    void			viewAll( bool animate );
+    void			viewAll(bool animate);
 
     void			setSceneID(int);
     visBase::Scene*		getScene()		{ return scene_; }
@@ -137,6 +137,9 @@ public:
     void			setStereoOffset(float);
     float			getStereoOffset() const;
 
+    void			setMapView(bool yn);
+    bool			isMapView() const	{ return mapview_; }
+
     KeyBindMan&			keyBindMan()		{ return keybindman_; }
 
 protected:
@@ -207,6 +210,8 @@ protected:
     RefMan<visBase::SceneColTab>	visscenecoltab_;
 
     KeyBindMan&				keybindman_;
+
+    bool				mapview_;
 };
 
 #endif

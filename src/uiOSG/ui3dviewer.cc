@@ -186,23 +186,24 @@ const mQtclass(QWidget)* uiDirectViewBody::qwidget_() const
 
 
 ui3DViewerBody::ui3DViewerBody( ui3DViewer& h, uiParent* parnt )
-    : uiObjectBody( parnt, 0 )
-    , handle_( h )
+    : uiObjectBody(parnt,0)
+    , handle_(h)
     , printpar_(*new IOPar)
-    , offscreenrenderswitch_( new osg::Switch )
-    , offscreenrenderhudswitch_( new osg::Switch )
-    , hudview_( 0 )
-    , hudscene_( 0 )
-    , viewport_( new osg::Viewport )
-    , compositeviewer_( 0 )
-    , axes_( 0 )
-    , polygonselection_( 0 )
-    , visscenecoltab_( 0 )
-    , manipmessenger_( new TrackBallManipulatorMessenger( this ) )
-    , keybindman_( *new KeyBindMan )
-    , stereooffset_( 0 )
+    , offscreenrenderswitch_(new osg::Switch)
+    , offscreenrenderhudswitch_(new osg::Switch)
+    , hudview_(0)
+    , hudscene_(0)
+    , viewport_(new osg::Viewport)
+    , compositeviewer_(0)
+    , axes_(0)
+    , polygonselection_(0)
+    , visscenecoltab_(0)
+    , manipmessenger_(new TrackBallManipulatorMessenger(this))
+    , keybindman_(*new KeyBindMan)
+    , stereooffset_(0)
     , wheeldisplaymode_((int)ui3DViewer::OnHover)
     , mouseeventblocker_(*new uiMouseEventBlockerByGestures(500))
+    , mapview_(false)
 {
     manipmessenger_->ref();
     offscreenrenderswitch_->ref();
@@ -606,7 +607,7 @@ void ui3DViewerBody::reSizeEvent(CallBacker*)
 }
 
 
-void ui3DViewerBody::thumbWheelRotationCB(CallBacker* cb )
+void ui3DViewerBody::thumbWheelRotationCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( float, deltaangle, caller, cb );
     if ( caller==horthumbwheel_ )
@@ -1067,13 +1068,15 @@ bool ui3DViewerBody::isCameraOrthographic() const
 
 void ui3DViewerBody::toggleCameraType()
 {
+    if ( mapview_ ) return;
+
     osgGeo::TrackballManipulator* manip =
 	static_cast<osgGeo::TrackballManipulator*>(
 	view_->getCameraManipulator() );
 
     if ( !manip ) return;
 
-    manip->setProjectionAsPerspective(  !manip->isCameraPerspective() );
+    manip->setProjectionAsPerspective( !manip->isCameraPerspective() );
 
     requestRedraw();
 }
@@ -1248,9 +1251,8 @@ bool ui3DViewerBody::useCameraPos( const IOPar& par )
 
 
 void ui3DViewerBody::toHomePos()
-{
-    useCameraPos( homepos_ );
-}
+{ useCameraPos( homepos_ ); }
+
 
 void ui3DViewerBody::saveHomePos()
 {
@@ -1275,6 +1277,7 @@ void ui3DViewerBody::setScenesPixelDensity( float dpi )
 	hudscene_->setPixelDensity( dpi );
     requestRedraw();
 }
+
 
 bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
 {
@@ -1302,9 +1305,7 @@ bool ui3DViewerBody::setStereoType( ui3DViewerBody::StereoType st )
 
 
 ui3DViewerBody::StereoType ui3DViewerBody::getStereoType() const
-{
-    return stereotype_;
-}
+{ return stereotype_; }
 
 
 void ui3DViewerBody::setStereoOffset( float offset )
@@ -1317,14 +1318,44 @@ void ui3DViewerBody::setStereoOffset( float offset )
 
 
 float ui3DViewerBody::getStereoOffset() const
+{ return stereooffset_; }
+
+
+void ui3DViewerBody::setMapView( bool yn )
 {
-    return stereooffset_;
+    if ( !yn ) return;
+    // TODO: For now only an enable is supported.
+    // Is a disable needed?
+
+    mapview_ = yn;
+    horthumbwheel_->turnOn( false );
+    verthumbwheel_->turnOn( false );
+    enableThumbWheelHandling( false, horthumbwheel_ );
+    enableThumbWheelHandling( false, verthumbwheel_ );
+
+    osgGeo::TrackballManipulator* manip =
+	static_cast<osgGeo::TrackballManipulator*>(
+	view_->getCameraManipulator() );
+    if ( manip )
+    {
+	manip->setProjectionAsPerspective( false );
+	manip->setRotateMouseButton( osgGeo::TrackballManipulator::NoButton );
+	manip->useLeftMouseButtonForAllMovement( false );
+    }
+
+    viewPlaneYZ();
+    setBackgroundColor( Color::White() );
+    setAnnotColor( Color::Black() );
+    mDynamicCastGet(visSurvey::Scene*,survscene,scene_.ptr())
+    if ( survscene ) survscene->setAnnotColor( Color::Black() );
+    requestRedraw();
 }
+
 
 //------------------------------------------------------------------------------
 
 ui3DViewer::ui3DViewer( uiParent* parnt, bool direct, const char* nm )
-    : uiObject(parnt,nm,mkBody(parnt, direct, nm) )
+    : uiObject(parnt,nm,mkBody(parnt,direct,nm))
     , destroyed(this)
     , viewmodechanged(this)
     , pageupdown(this)
@@ -1373,6 +1404,14 @@ uiObjectBody& ui3DViewer::mkBody( uiParent* parnt, bool direct, const char* nm )
 
     return *osgbody_;
 }
+
+
+void ui3DViewer::setMapView( bool yn )
+{ osgbody_->setMapView( yn ); }
+
+bool ui3DViewer::isMapView() const
+{ return osgbody_->isMapView(); }
+
 
 void ui3DViewer::viewAll( bool animate )
 {
@@ -1452,14 +1491,16 @@ const char* ui3DViewer::getCurrentKeyBindings() const
 
 void ui3DViewer::viewPlane( PlaneType type )
 {
+    if ( isMapView() ) return;
+
     switch ( type )
     {
-	    case X: osgbody_->viewPlaneX(); break;
-	    case Y: osgbody_->viewPlaneN(); break;
-	    case Z: osgbody_->viewPlaneZ(); break;
-	    case Inl: osgbody_->viewPlaneInl(); break;
-	    case Crl: osgbody_->viewPlaneCrl(); break;
-	    case YZ:osgbody_->viewPlaneYZ(); break;
+	case X: osgbody_->viewPlaneX(); break;
+	case Y: osgbody_->viewPlaneN(); break;
+	case Z: osgbody_->viewPlaneZ(); break;
+	case Inl: osgbody_->viewPlaneInl(); break;
+	case Crl: osgbody_->viewPlaneCrl(); break;
+	case YZ:osgbody_->viewPlaneYZ(); break;
     }
 }
 
@@ -1506,6 +1547,7 @@ void ui3DViewer::setViewMode( bool yn )
 {
     if ( yn==isViewMode() )
 	return;
+
     osgbody_->setViewMode( yn, false );
 }
 

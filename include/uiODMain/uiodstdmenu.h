@@ -170,9 +170,10 @@ ________________________________________________________________________
 /* 'Scenes' menu */
 
 #define mAddSceneMnuItm		(mWinMnu + 10)
-#define mAddTmeDepthMnuItm	(mWinMnu + 11)
-#define mAddHorFlat2DMnuItm	(mWinMnu + 12)
-#define mAddHorFlat3DMnuItm	(mWinMnu + 13)
+#define mAddMapSceneMnuItm	(mWinMnu + 11)
+#define mAddTmeDepthMnuItm	(mWinMnu + 12)
+#define mAddHorFlat2DMnuItm	(mWinMnu + 13)
+#define mAddHorFlat3DMnuItm	(mWinMnu + 14)
 #define mCascadeMnuItm		(mWinMnu + 20)
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)

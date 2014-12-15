@@ -609,6 +609,7 @@ void uiODMenuMgr::fillSceneMenu()
 {
     scenemnu_->clear();
     mInsertItem( scenemnu_, uiStrings::sNew(true), mAddSceneMnuItm );
+    mInsertItem( scenemnu_, tr("New Map View"), mAddMapSceneMnuItm );
 
     addtimedepthsceneitm_ = new uiAction( "Dummy",
 					  mCB(this,uiODMenuMgr,handleClick) );
@@ -809,7 +810,7 @@ void uiODMenuMgr::fillUtilMenu()
 	installmnu_->insertSeparator();
     }
 
-    mInsertItem( installmnu_, tr("Connection Settings ..."), 
+    mInsertItem( installmnu_, tr("Connection Settings ..."),
 	         mInstConnSettsMnuItm );
     mInsertItem( installmnu_, tr("Plugins ..."), mPluginsMnuItm );
     mInsertItem( installmnu_, tr("Setup Batch Processing ..."), mSetupBatchItm);
@@ -1288,6 +1289,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mShwLogFileMnuItm:	showLogFile(); break;
     case mSettMouseMnuItm:	sceneMgr().setKeyBindings(); break;
 
+    case mAddMapSceneMnuItm: {
+	sceneMgr().tile();
+	const int sceneid = sceneMgr().addScene( true, 0, "Map View" );
+	ui3DViewer* vwr = sceneMgr().get3DViewer( sceneid );
+	if ( vwr ) vwr->setMapView( true );
+    } break;
     case mInstConnSettsMnuItm: {
 	uiProxyDlg dlg( &appl_ ); dlg.go(); } break;
 
