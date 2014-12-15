@@ -24,6 +24,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiproxydlg.h"
 #include "uisettings.h"
 #include "uiseispartserv.h"
+#include "uistrings.h"
 #include "uitextfile.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
@@ -842,7 +843,7 @@ void uiODMenuMgr::add2D3DToolButton( uiToolBar& tb, const char* iconnm,
     else
     {
 	const int butid = tb.addButton( iconnm, tt );
-	uiMenu* popmnu = new uiMenu( tb.parent(), "Action" );
+	uiMenu* popmnu = new uiMenu( tb.parent(), uiStrings::sAction() );
 	popmnu->insertItem( new uiAction(uiStrings::s2D(false),cb2d), itmid2d );
 	popmnu->insertItem( new uiAction(uiStrings::s3D(false),cb3d), itmid3d );
 	tb.setButtonMenu( butid, popmnu, uiToolButton::InstantPopup );

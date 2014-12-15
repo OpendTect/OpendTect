@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "uipixmap.h"
+#include "uistrings.h"
 #include "uivirtualkeyboard.h"
 
 #include "bufstringset.h"
@@ -1060,7 +1061,7 @@ void uiTable::popupMenu( CallBacker* )
 	return;
     }
 
-    uiMenu* mnu = new uiMenu( parent(), "Action" );
+    uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
     BufferString itmtxt;
 
     const RowCol cur = notifiedCell();

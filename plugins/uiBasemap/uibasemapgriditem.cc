@@ -308,7 +308,7 @@ bool uiBasemapGridTreeItem::usePar( const IOPar& par )
 
 bool uiBasemapGridTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
     const int mnuid = mnu.exec();
     return handleSubMenu( mnuid );

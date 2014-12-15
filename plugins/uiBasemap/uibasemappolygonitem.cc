@@ -122,7 +122,7 @@ bool uiBasemapPolygonTreeItem::usePar( const IOPar& par )
 
 bool uiBasemapPolygonTreeItem::showSubMenu()
 {
-    uiMenu mnu( getUiParent(), "Action" );
+    uiMenu mnu( getUiParent(), uiStrings::sAction() );
     mnu.insertItem( new uiAction(uiStrings::sEdit(false)), 0 );
     mnu.insertItem( new uiAction("Show in 3D"), 1 );
     const int mnuid = mnu.exec();
