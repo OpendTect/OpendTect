@@ -10,309 +10,33 @@ ________________________________________________________________________
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "uipluginsel.h"
-#include "uigraphicsviewbase.h"
-#include "uigraphicsitemimpl.h"
-#include "uigraphicsscene.h"
 #include "uibutton.h"
 #include "uigroup.h"
 #include "uilabel.h"
-#include "uipixmap.h"
-#include "uitreeview.h"
-
-#include "ascstream.h"
-#include "file.h"
-#include "filepath.h"
-#include "oddirs.h"
 #include "plugins.h"
 #include "settings.h"
 #include "separstr.h"
-#include "strmdata.h"
-#include "strmoper.h"
-#include "strmprov.h"
 #include "odver.h"
 #include "od_helpids.h"
-#include "od_strstream.h"
 
+#include <math.h>
 
+const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
+static const char* getCreatorShortName( const BufferString& creatornm )
+{
+    return creatornm == "dGB Earth Sciences" ? "(dGB)"
+			: creatornm == "SITFAL" ? "(SITFAL)" : "";
+}
 
-const char* uiProductSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
 struct PluginProduct
 {
     BufferString	    productname_;
     BufferString	    creator_;
     BufferStringSet	    libs_;
-    BufferString	    pckgnm_;
-    BufferString	    iconnm_;
-    bool		    isselected_;
+    int			    posval_;
 };
 
-
-static const char* getVendorName( const char* creatorname )
-{
-    const FixedString crnm( creatorname );
-    if ( crnm == "dGB Earth Sciences" )
-	return "dgb";
-    if ( crnm == "ARK CLS Ltd" || crnm == "ARK CLS Limited"  )
-	return "arkcls";
-    if ( crnm == "Earthworks & ARK CLS" )
-	return "earthworks";
-    if ( crnm == "ARKeX Ltd" )
-	return "arkex";
-
-    return "sitfal";
-}
-
-
-static BufferString getTrueProductName( BufferString prodnm )
-{
-    prodnm.replace( '(', '\0' );
-    return prodnm;
-}
-
-
-class uiVendorTreeItem : public uiTreeViewItem
-{
-public:
-			uiVendorTreeItem(uiTreeView*,const char*,bool);
- void			checkCB(CallBacker*);
-};
-
-
-
-uiVendorTreeItem::uiVendorTreeItem( uiTreeView* parnt,
-				    const char* vendorname, bool issel )
-    : uiTreeViewItem(parnt,Setup(uiString(vendorname)).
-				    type(uiTreeViewItem::CheckBox))
-{
-    setChecked( issel, true );
-    mAttachCB( stateChanged, uiVendorTreeItem::checkCB );
-}
-
-
-void uiVendorTreeItem::checkCB( CallBacker* )
-{
-    const bool ischecked = isChecked();
-    for ( int idx=0; idx<nrChildren(); idx++ )
-    {
-	getChild( idx )->setChecked( ischecked );
-	getChild( idx )->stateChanged.trigger();
-    }
-}
-
-
-class uiProductTreeItem : public uiTreeViewItem
-{
-public:
-			    uiProductTreeItem(uiTreeViewItem*,PluginProduct&);
-
-protected:
-
-    void		    checkCB(CallBacker*);
-    PluginProduct&	    product_;
-};
-
-
-uiProductTreeItem::uiProductTreeItem( uiTreeViewItem* parnt,
-					PluginProduct& prod )
-    : uiTreeViewItem(parnt,
-		    Setup(uiString(prod.productname_))
-		    .type(uiTreeViewItem::CheckBox))
-    , product_(prod)
-{
-    setPixmap( 0, ioPixmap(prod.iconnm_) );
-    setChecked( prod.isselected_, true );
-    mAttachCB( stateChanged, uiProductTreeItem::checkCB );
-}
-
-
-void uiProductTreeItem::checkCB( CallBacker* )
-{
-    product_.isselected_ = isChecked();
-    parent()->setChecked( parent()->isChecked() );
-}
-
-
-uiProductSel::uiProductSel( uiParent* p )
-	: uiDialog(p,Setup("",mNoDlgTitle,
-                            mODHelpKey(mPluginSelHelpID) )
-			.savebutton(true)
-			.savetext(tr("Show this dialog at startup")))
-{
-    BufferString titl( "OpendTect V" );
-    titl += GetFullODVersion(); titl +=
-			  tr(": Candidate auto-loaded plugins").getFullString();
-    setCaption( tr(titl) );
-
-    setOkText( tr("Start OpendTect") );
-    setSaveButtonChecked( true );
-    readPackageList();
-    const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
-    makeProductList( pimdata );
-    createUI();
-}
-
-
-uiProductSel::~uiProductSel()
-{
-    deepErase( products_ );
-}
-
-
-void uiProductSel::readPackageList()
-{
-    const FilePath prodlistfp( GetSoftwareDir(true), "data", "prodlist.txt" );
-    StreamData prodlistsd(
-			StreamProvider(prodlistfp.fullPath()).makeIStream() );
-    od_istream istrm( prodlistsd.istrm );
-    while ( istrm.isOK() )
-    {
-	BufferString line;
-	StrmOper::readLine( *prodlistsd.istrm, &line );
-	FileMultiString sepline( line );
-	PluginProduct* product = new PluginProduct;
-	product->productname_ = sepline[0];
-	product->pckgnm_ = sepline[1];
-	product->iconnm_ = BufferString( product->pckgnm_, ".png" );
-	products_ += product;
-    }
-}
-
-
-void uiProductSel::makeProductList(
-				const ObjectSet<PluginManager::Data>& pimdata )
-{
-    BufferStringSet dontloadlist;
-    PIM().getNotLoadedByUser( dontloadlist );
-    vendors_.add( "dGB Earth Sciences" );
-    for ( int idx=0; idx<pimdata.size(); idx++ )
-    {
-	const PluginManager::Data& data = *pimdata[idx];
-	if ( data.sla_ && data.sla_->isOK() )
-	{
-	    const FixedString prodnm = data.info_->productname_;
-	    const bool isodprod = prodnm.isEmpty() || prodnm == "OpendTect";
-	    if ( data.info_->lictype_ != PluginInfo::COMMERCIAL || isodprod )
-		continue;
-
-	    const int prodidx = getProductIndex(
-				getTrueProductName(data.info_->productname_) );
-	    const char* modulenm = PIM().moduleName(data.name_);
-	    vendors_.addIfNew( data.info_->creator_ );
-	    if ( prodidx<0 )
-	    {
-		PluginProduct* product = new PluginProduct();
-		product->productname_ =
-		    getTrueProductName( data.info_->productname_ );
-		product->creator_ = data.info_->creator_;
-		product->libs_.add( modulenm );
-		product->isselected_ = !dontloadlist.isPresent( modulenm );
-		products_ += product;
-	    }
-	    else
-	    {
-		products_[prodidx]->libs_.addIfNew( modulenm );
-		products_[prodidx]->creator_ = data.info_->creator_;
-		products_[prodidx]->libs_.add( modulenm );
-		products_[prodidx]->isselected_ =
-					!dontloadlist.isPresent( modulenm );
-	    }
-	}
-    }
-}
-
-
-void uiProductSel::createUI()
-{
-    uiGroup* grp = new uiGroup( this, "OpendTect plugins to load" );
-    grp->setFrame( true );
-    
-    uiGraphicsViewBase* banner = new uiGraphicsViewBase( grp, "OpendTect" );
-    uiPixmap pm("banner.png");
-    uiPixmapItem* pmitem = new uiPixmapItem( uiPixmap(pm) );
-    banner->scene().addItem( pmitem );
-    banner->setPrefHeight( pm.height() );
-    banner->setStretch( 2, 0 );
-
-    treefld_ = new uiTreeView( grp, "Plugin tree" );
-    treefld_->setStretch( 2, 2 );
-    treefld_->showHeader( false );
-    treefld_->attach( alignedBelow, banner );
-    float height = 0.0f;
-    for ( int idv=0; idv<vendors_.size(); idv++ )
-    {
-	const FixedString vendorname = vendors_[idv]->buf();
-	uiVendorTreeItem* venditem =
-	    new uiVendorTreeItem( treefld_, vendorname,
-					       isVendorSelected(vendorname)  );
-	const BufferString iconfnm( getVendorName(vendorname), ".png" );
-	venditem->setPixmap( 0, ioPixmap(iconfnm) );
-	height++;
-	for ( int idx=0; idx< products_.size(); idx++ )
-	{
-	    PluginProduct& pprod = *products_[idx];
-	    if ( vendorname != pprod.creator_ )
-		continue;
-	    uiProductTreeItem* item = new uiProductTreeItem( venditem, pprod );
-	    item->setPixmap( 0, uiPixmap(pprod.iconnm_) );
-	    height++;
-	}
-    }
-
-    treefld_->expandAll();
-    treefld_->setPrefHeightInChar( height*0.9f );
-}
-
-
-bool uiProductSel::acceptOK( CallBacker* )
-{
-    FileMultiString dontloadlist;
-    for ( int idx=0; idx<products_.size(); idx++ )
-    {
-	const PluginProduct& pprod = *products_[idx];
-	if ( !pprod.isselected_ )
-	{
-	    for( int idp=0; idp<pprod.libs_.size(); idp++ )
-		dontloadlist += pprod.libs_.get(idp);
-	}
-    }
-
-    Settings::common().setYN( sKeyDoAtStartup(), saveButtonChecked() );
-    Settings::common().set( PluginManager::sKeyDontLoad(), dontloadlist.rep() );
-    Settings::common().write();
-
-    return true;
-}
-
-
-int uiProductSel::getProductIndex( const char* prodnm ) const
-{
-    for ( int idx=0; idx<products_.size(); idx++ )
-    {
-	if ( products_[idx]->productname_ == prodnm )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-bool uiProductSel::isVendorSelected( const char* vendnm ) const
-{
-    for ( int idx=0; idx<products_.size(); idx++ )
-    {
-	if ( products_[idx]->creator_ == vendnm
-	    && products_[idx]->isselected_ )
-	    return true;
-    }
-	
-    return false;
-}
-
-
-//uiPluginSel - Deprecated
-
-const char* uiPluginSel::sKeyDoAtStartup() { return "dTect.Select Plugins"; }
 
 uiPluginSel::uiPluginSel( uiParent* p )
 	: uiDialog(p,Setup("",mNoDlgTitle,
@@ -328,6 +52,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
 
     setOkText( tr("Start OpendTect") );
     setSaveButtonChecked( true );
+    makeGlobalProductList();
     const ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     makeProductList( pimdata );
     createUI();
@@ -342,6 +67,33 @@ uiPluginSel::~uiPluginSel()
 
 void uiPluginSel::makeGlobalProductList()
 {
+
+#define mAddProduct(nm,crnm,posval) \
+    product = new PluginProduct(); \
+		product->productname_ = nm; \
+		product->creator_ = crnm; \
+		product->posval_ = posval; \
+		products_ += product; \
+
+    PluginProduct* product = 0;
+    mAddProduct( "Dip Steering", "dGB Earth Sciences", 1 );
+    mAddProduct( "HorizonCube", "dGB Earth Sciences", 2 );
+    mAddProduct( "Sequence Stratigraphic Interpretation System",
+				   "dGB Earth Sciences", 3 );
+    mAddProduct( "Neural Networks", "dGB Earth Sciences", 4 );
+    mAddProduct( "Well Correlation Panel", "dGB Earth Sciences", 5 );
+    mAddProduct( "Fluid Contact Finder", "dGB Earth Sciences", 6 );
+    mAddProduct( "Velocity Model Building", "dGB Earth Sciences", 7 );
+    mAddProduct( "SynthRock", "dGB Earth Sciences", 8 );
+    mAddProduct( "Seismic Coloured Inversion (ARK CLS)", "ARK CLS", 9 );
+    mAddProduct( "Seismic Spectral Blueing (ARK CLS)", "ARK CLS", 10);
+    mAddProduct( "Seismic Feature Enhancement (ARK CLS)", "ARK CLS", 11 );
+    mAddProduct( "Seismic Net Pay (ARK CLS)", "ARK CLS", 12);
+    mAddProduct( "MPSI (Earthworks & ARK CLS)", "Earthworks & ARK CLS", 13 );
+    mAddProduct( "Multi-Volume Seismic Enhancement (ARK CLS)", "ARK CLS", 14 );
+    mAddProduct( "Workstation Access (ARK CLS)", "ARK CLS", 15 );
+    mAddProduct( "CLAS Computer Log Analysis Software", "SITFAL", 16 );
+    mAddProduct( "XField (ARKeX)", "ARKeX", 17 );
 }
 
 
@@ -397,7 +149,8 @@ void uiPluginSel::createUI()
     for ( int idx=0; idx<nrproducts; idx++ )
     {
 	const PluginProduct& pprod = *products_[idx];
-	const BufferString label( pprod.productname_, " ", pprod.creator_ );
+	const BufferString label( pprod.productname_, " ",
+					getCreatorShortName(pprod.creator_) );
 	uiCheckBox* cb = new uiCheckBox( grp, label );
 	if ( !pprod.creator_.isEmpty() )
 	    cb->setToolTip( BufferString("a ",pprod.creator_, " plugin") );
@@ -470,3 +223,4 @@ int uiPluginSel::getProductIndexForLib( const char* libnm ) const
 
     return -1;
 }
+
