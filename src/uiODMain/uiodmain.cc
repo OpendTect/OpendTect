@@ -1,3 +1,4 @@
+
 /*+
 ________________________________________________________________________
 
@@ -93,11 +94,11 @@ int ODMain( int argc, char** argv )
     manODMainWin( odmain );
 
     bool dodlg = true;
-    Settings::common().getYN( uiProductSel::sKeyDoAtStartup(), dodlg );
+    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && pimdata.size() )
     {
-	uiProductSel dlg( odmain );
+	uiPluginSel dlg( odmain );
 	if ( dlg.nrPlugins() && !dlg.go() )
 	    return 1;
     }
@@ -706,3 +707,4 @@ void uiODMain::exit()
 
     uiapp_.exit(0);
 }
+
