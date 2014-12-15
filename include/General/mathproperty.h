@@ -69,6 +69,8 @@ protected:
 
     void			setPreV5Def(const char*);
 
+public:
+    bool		hasCyclicalDependency(BufferStringSet& inputnms) const;
 };
 
 
