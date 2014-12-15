@@ -61,7 +61,9 @@ public:
     const char*			writeVolumeFile(int attr,od_ostream&) const;
 				//!<\returns 0 on success, otherwise errmsg
 
-    void			useShading(bool yn);
+    static bool			isShadingSupported();
+    void			allowShading(bool yn);
+    bool			usesShading() const;
 
     bool			turnOn(bool);
     bool			isOn() const;

@@ -57,7 +57,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "odver.h"
 #include "plugins.h"
 #include "ptrman.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "survgeom.h"
 #include "survinfo.h"
 #include "timer.h"
@@ -224,9 +224,6 @@ bool uiODMain::ensureGoodSurveySetup()
     return true;
 }
 
-#define mCBarKey	"dTect.ColorBar"
-#define mHVKey		"show vertical"
-#define mTopKey		"show on top"
 
 bool uiODMain::buildUI()
 {
@@ -235,22 +232,13 @@ bool uiODMain::buildUI()
     menumgr_ = new uiODMenuMgr( this );
     menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
-    const char* s = GetEnvVar( "DTECT_CBAR_POS" );
-    bool isvert = s && (*s == 'v' || *s == 'V');
-    if ( !s )
+    const char* envvar = GetEnvVar( "DTECT_CBAR_POS" );
+    bool isvert = envvar && (*envvar == 'v' || *envvar == 'V');
+    const char* vertcolbarkey = SettingsAccess::sKeyColorBarVertical();
+    if ( !envvar && !Settings::common().getYN(vertcolbarkey,isvert) )
     {
-	PtrMan<IOPar> iopar = Settings::common().subselect( mCBarKey );
-	if ( !iopar ) iopar = new IOPar;
-
-	bool insettings = false;
-	insettings |= iopar->getYN( mHVKey, isvert );
-
-	if ( !insettings )
-	{
-	    iopar->setYN( mHVKey, isvert );
-	    Settings::common().mergeComp( *iopar, mCBarKey );
-	    Settings::common().write();
-	}
+	Settings::common().setYN( vertcolbarkey, isvert );
+	Settings::common().write();
     }
 
     if ( isvert )

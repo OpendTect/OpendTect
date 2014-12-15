@@ -49,7 +49,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "survinfo.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "zdomain.h"
 
 #include "uiattrdesced.h"
@@ -654,8 +654,10 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 	{ uiMSG().error(errmsg); return 0; }
     bool showinlprogress = true;
     bool showcrlprogress = true;
-    Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
-    Settings::common().getYN( "dTect.Show crl progress", showcrlprogress );
+    Settings::common().getYN( SettingsAccess::sKeyShowInlProgress(),
+			      showinlprogress );
+    Settings::common().getYN( SettingsAccess::sKeyShowCrlProgress(),
+			      showcrlprogress );
 
     const bool isstored =
 	targetdesc && targetdesc->isStored() && !targetspecs_[0].isNLA();

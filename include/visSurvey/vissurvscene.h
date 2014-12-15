@@ -185,6 +185,8 @@ public:
     float			getMarkerSize() const;
     const Color&		getMarkerColor() const;
     void			setMarkerColor(const Color&);
+
+    void			createTopBotImage(bool istop);
     visBase::TopBotImage*	getTopBotImage(bool istop);
 
     void			fillPar(IOPar&) const;
@@ -236,7 +238,6 @@ protected:
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
 
-    bool			userwantsshading_; //from settings
     TrcKeyZSampling		tkzs_;
     TrcKeyZSampling		annotscale_;
 

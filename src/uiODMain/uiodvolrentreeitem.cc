@@ -39,7 +39,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mousecursor.h"
 #include "objdisposer.h"
 #include "oddirs.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "od_helpids.h"
@@ -63,6 +63,33 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 {}
 
 
+bool uiODVolrenParentTreeItem::canAddVolumeToScene()
+{
+    if ( SettingsAccess().doesUserWantShading(true) &&
+	 visSurvey::VolumeDisplay::canUseVolRenShading() )
+	return true;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet( uiODDisplayTreeItem*, itm, getChild(idx) );
+	const int displayid = itm ? itm->displayID() : -1;
+	mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
+		    ODMainWin()->applMgr().visServer()->getObject(displayid) );
+
+	if ( vd && !vd->usesShading() )
+	{
+	    uiMSG().message(
+		tr( "Can only display one fixed-function volume per scene.\n"
+		    "If available, enabling OpenGL shading for volumes\n"
+		    "in the 'Look and Feel' settings may help." ) );
+
+	    return false;
+	}
+    }
+    return true;
+}
+
+
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), uiStrings::sAction() );
@@ -71,13 +98,7 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mAddIdx || mnuid==mAddCBIdx )
     {
-	if ( nrChildren()>0 && !visSurvey::VolumeDisplay::canUseVolRenShading())
-	{
-	    uiMSG().message(tr("Can only display one volume per scene if one "
-			       "does not enable volume rendering to use OpenGL "
-			       "shading in the 'Look and Feel' settings."));
-	}
-	else
+	if ( canAddVolumeToScene() )
 	    addChild( new uiODVolrenTreeItem(-1,mnuid==mAddCBIdx), false );
     }
 
@@ -367,7 +388,7 @@ bool uiODVolrenAttribTreeItem::hasTransparencyMenu() const
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
 		ODMainWin()->applMgr().visServer()->getObject(displayID()) );
 
-    return vd && vd->canUseVolRenShading();
+    return vd && vd->usesShading();
 }
 
 

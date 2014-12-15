@@ -31,6 +31,7 @@ public:
 
 protected:
     bool		init();
+    bool		canAddVolumeToScene();
     const char*		parentType() const;
 };
 

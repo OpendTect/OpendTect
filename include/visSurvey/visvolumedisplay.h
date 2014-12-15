@@ -186,6 +186,8 @@ public:
     visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 
     static bool			canUseVolRenShading();
+    void			allowShading(bool yn);
+    bool			usesShading() const;
 
     void			getChildren(TypeSet<int>&) const;
 

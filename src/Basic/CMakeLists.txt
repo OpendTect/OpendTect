@@ -83,6 +83,7 @@ set( OD_MODULE_SOURCES
 	safefileio.cc
 	separstr.cc
 	settings.cc
+	settingsaccess.cc
 	sighndl.cc
 	string2.cc
 	strmoper.cc

@@ -139,6 +139,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     osgimagelayer_->addProperty( compprop );
 
     enableTextureInterpolation( true );
+    allowShading( useshading_ );
 }
 
 
@@ -246,8 +247,17 @@ void VolumeRenderScalarField::setROIVolumeTransform( const Coord3& trans,
 }
 
 
-void VolumeRenderScalarField::useShading( bool yn )
+bool VolumeRenderScalarField::isShadingSupported()
 {
+    return osgGeo::RayTracedTechnique::isShadingSupported();
+}
+
+
+void VolumeRenderScalarField::allowShading( bool yn )
+{
+    if ( yn && !isShadingSupported() )
+	yn = false;
+
     if ( useshading_==yn && osgvoltile_->getVolumeTechnique() )
 	return;
 
@@ -266,6 +276,12 @@ void VolumeRenderScalarField::useShading( bool yn )
     useshading_ = yn;
     updateVolumeSlicing();
     updateTransparencyRescaling();
+}
+
+
+bool VolumeRenderScalarField::usesShading() const
+{
+    return useshading_;
 }
 
 

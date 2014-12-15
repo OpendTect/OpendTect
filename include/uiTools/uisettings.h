@@ -67,6 +67,7 @@ public:
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
+    bool		needsRenewal() const	{ return needsrenewal_; }
     const char*		errMsg() const;
 
 protected:
@@ -83,6 +84,7 @@ protected:
     Settings&		setts_;
     bool		changed_;
     bool		needsrestart_;
+    bool		needsrenewal_;
 };
 
 
@@ -94,6 +96,7 @@ public:
 
     bool		isChanged() const	{ return changed_; }
     bool		needsRestart() const	{ return needsrestart_; }
+    bool		needsRenewal() const	{ return needsrenewal_; }
 
 protected:
 
@@ -103,6 +106,7 @@ protected:
     Settings&		setts_;
     bool		changed_;
     bool		needsrestart_;
+    bool		needsrenewal_;
 };
 
 
@@ -148,14 +152,12 @@ public:
 
 protected:
 
-    void		shadersChange(CallBacker*);
-
     uiComboBox*		textureresfactorfld_;
     uiGenInput*		usesurfshadersfld_;
     uiGenInput*		usevolshadersfld_;
 
-		  // -1: system default, 0 - standard, 1 - higher, 2 - highest
-    int			textureresfactor_;
+			//0=standard, 1=higher, 2=highest, 3=system default
+    int			textureresindex_;
     bool		usesurfshaders_;
     bool		usevolshaders_;
 };

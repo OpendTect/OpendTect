@@ -1296,8 +1296,11 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( !dlg.go() ) return;
 
 	if ( dlg.needsRestart() )
-	    uiMSG().message(tr("Your new settings will become active\nthe next "
-			       "time OpendTect is started."));
+	    uiMSG().message(tr("Your new settings will become active\n"
+			       "the next time OpendTect is started."));
+	else if ( dlg.needsRenewal() )
+	    uiMSG().message(tr("Your new settings will become active\n"
+			       "only for newly launched objects."));
     } break;
 
     case mDumpDataPacksMnuItm: {

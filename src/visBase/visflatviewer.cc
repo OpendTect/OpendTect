@@ -27,7 +27,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistexturerect.h"
 #include "vistexturechannel2rgba.h"
 #include "envvars.h"
-#include "settings.h"
+#include "settingsaccess.h"
 
 
 mCreateFactoryEntry( visBase::FlatViewer );
@@ -45,32 +45,8 @@ FlatViewer::FlatViewer()
     , x1gridlines_( PolyLine::create() )
     , x2gridlines_( PolyLine::create() )
     , gridlinematerial_( new Material )
-    , resolution_( 0 )
 {
-    int resolutionfromsettings;
-
-    // try getting default resolution from settings
-    bool success = Settings::common().get(
-	    "dTect.Default texture resolution factor", resolutionfromsettings );
-
-    if ( success )
-    {
-	if ( resolutionfromsettings >= 0 && resolutionfromsettings <= 2 )
-	    resolution_ = resolutionfromsettings;
-	else if ( resolutionfromsettings == -1 )
-	    success = false;
-    }
-
-    if ( !success )
-    {
-	// get default resolution from environment variable
-	const char* envvar = GetEnvVar("OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-	if ( envvar && iswdigit(*envvar) )
-	    resolution_ = toInt( envvar );
-    }
-
-    if ( resolution_ >= nrResolutions() )
-	resolution_ = nrResolutions()-1;
+    resolution_ = SettingsAccess().getDefaultTexResFactor( nrResolutions() );
 
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );

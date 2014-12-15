@@ -39,7 +39,7 @@ uiSurvTopBotImageGrp( uiSurvTopBotImageDlg* p, bool istop,
     fnmfld_->setWithCheck( true );
     fnmfld_->valuechanged.notify( mCB(this,uiSurvTopBotImageGrp,newFile) );
     mAttachCB( fnmfld_->checked,uiSurvTopBotImageGrp::onOff );
-    fnmfld_->setChecked( img_->isOn() );
+    fnmfld_->setChecked( img_ && img_->isOn() );
 
 #define mAddCoordchgCB( notif ) \
      mAttachCB( notif, uiSurvTopBotImageGrp::coordChg );
@@ -94,18 +94,15 @@ void finalisedCB( CallBacker* cb )
 
 void fillCurrent()
 {
-    fnmfld_->setChecked( img_->isOn() );
-    const BufferString imgnm = img_->getImageFilename();
-    fnmfld_->setFileName( imgnm );
-    if( img_->isOn() || !imgnm.isEmpty() )
+    if ( img_ )
     {
+	fnmfld_->setChecked( img_->isOn() );
+	fnmfld_->setFileName( img_->getImageFilename() );
 	tlfld_->setValue( img_->topLeft() );
 	brfld_->setValue( img_->bottomRight() );
 	transpfld_->setValue( img_->getTransparency()*100 );
 	zposfld_->setValue( mCast(float,img_->topLeft().z) );
     }
-
-    coordChg( 0 );
 }
 
 void newFile( CallBacker* )
@@ -116,6 +113,14 @@ void newFile( CallBacker* )
 void onOff( CallBacker* cb  )
 {
     const bool ison = fnmfld_->isChecked();
+
+    if ( !img_ && ison )
+    {
+	dlg_->scene_->createTopBotImage( istop_ );
+	img_ = dlg_->scene_->getTopBotImage( istop_ );
+	coordChg( 0 );
+    }
+
     dlg_->setOn( istop_, ison );
     tlfld_->display( ison );
     brfld_->display( ison );
@@ -173,24 +178,28 @@ uiSurvTopBotImageDlg::uiSurvTopBotImageDlg( uiParent* p,
 
 void uiSurvTopBotImageDlg::newFile( bool istop, const char* fnm )
 {
-    scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
+    if ( scene_->getTopBotImage(istop) )
+	scene_->getTopBotImage(istop)->setRGBImageFromFile( fnm );
 }
 
 
 void uiSurvTopBotImageDlg::setOn( bool istop, bool ison )
 {
-    scene_->getTopBotImage(istop)->turnOn( ison );
+    if ( scene_->getTopBotImage(istop) )
+	scene_->getTopBotImage(istop)->turnOn( ison );
 }
 
 
 void uiSurvTopBotImageDlg::setCoord( bool istop, const Coord3& tl,
 						 const Coord3& br  )
 {
-    scene_->getTopBotImage(istop)->setPos( tl, br );
+    if ( scene_->getTopBotImage(istop) )
+	scene_->getTopBotImage(istop)->setPos( tl, br );
 }
 
 
 void uiSurvTopBotImageDlg::setTransparency( bool istop, float val )
 {
-    scene_->getTopBotImage(istop)->setTransparency( val );
+    if ( scene_->getTopBotImage(istop) )
+	scene_->getTopBotImage(istop)->setTransparency( val );
 }

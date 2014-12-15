@@ -143,7 +143,6 @@ VolumeDisplay::VolumeDisplay()
     getMaterial()->setDiffIntensity( 0.8 );
     mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
     scalarfield_->setMaterial( getMaterial() );
-    scalarfield_->useShading( canUseVolRenShading() );
 
     TrcKeyZSampling sics = SI().sampling( true );
     TrcKeyZSampling cs = getInitTrcKeyZSampling( sics );
@@ -1613,7 +1612,19 @@ void VolumeDisplay::enableTextureInterpolation( bool yn )
 
 
 bool VolumeDisplay::canUseVolRenShading()
-{ return !Settings::common().isFalse("dTect.Use volume shaders"); }
+{
+    return visBase::VolumeRenderScalarField::isShadingSupported();
+}
+
+
+void VolumeDisplay::allowShading( bool yn )
+{
+    scalarfield_->allowShading( yn );
+}
+
+
+bool VolumeDisplay::usesShading() const
+{ return scalarfield_->usesShading(); }
 
 
 bool VolumeDisplay::canAddAttrib( int nr ) const

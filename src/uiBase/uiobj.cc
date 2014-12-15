@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimain.h"
 
 #include "color.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "timer.h"
 #include "perthreadrepos.h"
 
@@ -607,7 +607,7 @@ int uiObject::nm##Size() \
     return sz; \
 }
 
-mDefSzFn(icon,"dTect.Icons.size",32)
+mDefSzFn(icon,SettingsAccess::sKeyIcons(),32)
 mDefSzFn(baseFld,"dTect.Field.size",10)
 
 

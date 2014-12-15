@@ -17,11 +17,12 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 #include "posimpexppars.h"
 #include "ptrman.h"
-#include "settings.h"
+#include "settingsaccess.h"
 #include "survinfo.h"
 
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uitable.h"
 
@@ -251,14 +252,6 @@ bool uiSettings::acceptOK( CallBacker* )
 
 
 static int theiconsz = -1;
-// TODO: Move these keys to a header file in Basic
-#define mIconsKey		"dTect.Icons"
-#define mCBarKey		"dTect.ColorBar.show vertical"
-#define mShowInlProgress	"dTect.Show inl progress"
-#define mShowCrlProgress	"dTect.Show crl progress"
-#define mTextureResFactor	"dTect.Default texture resolution factor"
-#define mUseSurfShaders		"dTect.Use surface shaders"
-#define mUseVolShaders		"dTect.Use volume shaders"
 
 
 mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
@@ -270,6 +263,7 @@ uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
     , setts_(setts)
     , changed_(false)
     , needsrestart_(false)
+    , needsrenewal_(false)
 {
 }
 
@@ -310,18 +304,18 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
 
-    setts_.getYN( mCBarKey, vertcoltab_ );
+    setts_.getYN( SettingsAccess::sKeyColorBarVertical(), vertcoltab_ );
     colbarhvfld_ = new uiGenInput( this, tr("Color bar orientation"),
 		BoolInpSpec(vertcoltab_,tr("Vertical"),tr("Horizontal")) );
     colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
-    setts_.getYN( mShowInlProgress, showinlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this,
 	    tr("Show progress when loading stored data on in-lines"),
 	    BoolInpSpec(showinlprogress_) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
-    setts_.getYN( mShowCrlProgress, showcrlprogress_ );
+    setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
     showcrlprogressfld_ = new uiGenInput( this,
 	    tr("Show progress when loading stored data on cross-lines"),
 	    BoolInpSpec(showcrlprogress_) );
@@ -340,23 +334,24 @@ bool uiGeneralSettingsGroup::acceptOK()
 
     if ( newiconsz != iconsz_ )
     {
-	IOPar* iopar = setts_.subselect( mIconsKey );
+	IOPar* iopar = setts_.subselect( SettingsAccess::sKeyIcons() );
 	if ( !iopar ) iopar = new IOPar;
 	iopar->set( "size", newiconsz );
-	setts_.mergeComp( *iopar, mIconsKey );
+	setts_.mergeComp( *iopar, SettingsAccess::sKeyIcons() );
 	changed_ = true;
 	needsrestart_ = true;
 	delete iopar;
 	theiconsz = newiconsz;
     }
 
-    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(), mCBarKey );
+    updateSettings( vertcoltab_, colbarhvfld_->getBoolValue(),
+		    SettingsAccess::sKeyColorBarVertical() );
     if ( changed_ ) needsrestart_ = true;
 
     updateSettings( showinlprogress_, showinlprogressfld_->getBoolValue(),
-		    mShowInlProgress );
+		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
-		    mShowCrlProgress );
+		    SettingsAccess::sKeyShowCrlProgress() );
 
     return true;
 }
@@ -365,22 +360,22 @@ bool uiGeneralSettingsGroup::acceptOK()
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     : uiSettingsGroup(p,"Visualisation",setts)
-    , textureresfactor_(0)
+    , textureresindex_(0)
     , usesurfshaders_(true)
     , usevolshaders_(true)
 {
-    setts_.getYN( mUseSurfShaders, usesurfshaders_ );
-    usesurfshadersfld_ = new uiGenInput(this,
-					tr("Use OpenGL shading when available"),
-					BoolInpSpec(usesurfshaders_) );
-    usesurfshadersfld_->valuechanged.notify(
-				mCB(this,uiVisSettingsGroup,shadersChange) );
-    setts_.getYN( mUseVolShaders, usevolshaders_ );
-    usevolshadersfld_ = new uiGenInput( this, tr("Also for volume rendering?"),
-					BoolInpSpec(usevolshaders_) );
-    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
+    uiLabel* shadinglbl = new uiLabel( this,
+				tr("Use OpenGL shading when available:") );
+    setts_.getYN( SettingsAccess::sKeyUseSurfShaders(), usesurfshaders_ );
+    usesurfshadersfld_ = new uiGenInput( this, tr("for surface rendering"),
+					 BoolInpSpec(usesurfshaders_) );
+    usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
 
-    setts_.get( mTextureResFactor, textureresfactor_ );
+    setts_.getYN( SettingsAccess::sKeyUseVolShaders(), usevolshaders_ );
+    usevolshadersfld_ = new uiGenInput( this, tr("for volume rendering"),
+					BoolInpSpec(usevolshaders_) );
+    usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
+
     uiLabeledComboBox* lcb =
 	new uiLabeledComboBox( this, tr("Default texture resolution") );
     lcb->attach( alignedBelow, usevolshadersfld_ );
@@ -389,55 +384,34 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     textureresfactorfld_->addItem( tr("Higher") );
     textureresfactorfld_->addItem( tr("Highest") );
 
-    int selection = 0;
-
-    if ( textureresfactor_ >= 0 && textureresfactor_ <= 2 )
-	    selection = textureresfactor_;
-
-    // add the System default option if the environment variable is set
-    const char* envvar = GetEnvVar( "OD_DEFAULT_TEXTURE_RESOLUTION_FACTOR" );
-    if ( envvar && iswdigit(*envvar) )
-    {
+    if ( SettingsAccess::systemHasDefaultTexResFactor() )
 	textureresfactorfld_->addItem( tr("System default") );
-	if ( textureresfactor_ == -1 )
-	    selection = 3;
-    }
 
-    textureresfactorfld_->setCurrentItem( selection );
-
-    shadersChange(0);
+    textureresindex_ = SettingsAccess(setts_).getDefaultTexResAsIndex( 3 );
+    textureresfactorfld_->setCurrentItem( textureresindex_ );
 }
 
 
 bool uiVisSettingsGroup::acceptOK()
 {
     const bool usesurfshaders = usesurfshadersfld_->getBoolValue();
-    updateSettings( usesurfshaders_, usesurfshaders, mUseSurfShaders );
+    updateSettings( usesurfshaders_, usesurfshaders,
+		    SettingsAccess::sKeyUseSurfShaders() );
+    const bool usevolshaders = usevolshadersfld_->getBoolValue();
+    updateSettings( usevolshaders_, usevolshaders,
+		    SettingsAccess::sKeyUseVolShaders() );
 
-    const bool usevolshaders = usesurfshaders &&
-			       usevolshadersfld_->getBoolValue();
-    updateSettings( usevolshaders_, usevolshaders, mUseVolShaders );
-
-    bool textureresfacchanged = false;
-    // track this change separately as this will be applied with immediate
-    // effect, unlike other settings
-    int val = ( textureresfactorfld_->currentItem() == 3 ) ? -1 :
-		textureresfactorfld_->currentItem();
-    if ( textureresfactor_ != val )
+    const int idx = textureresfactorfld_->currentItem();
+    if ( textureresindex_ != idx )
     {
-	textureresfacchanged = true;
-	setts_.set( mTextureResFactor, val );
+	changed_ = true;
+	SettingsAccess(setts_).setDefaultTexResAsIndex( idx, 3 );
     }
 
-    if ( textureresfacchanged ) changed_ = true;
+    if ( changed_ )
+	needsrenewal_ = true;
 
     return true;
-}
-
-
-void uiVisSettingsGroup::shadersChange( CallBacker* )
-{
-    usevolshadersfld_->setSensitive( usesurfshadersfld_->getBoolValue() );
 }
 
 
@@ -448,6 +422,7 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     , setts_(Settings::common())
     , changed_(false)
     , needsrestart_(false)
+    , needsrenewal_(false)
 {
     const BufferStringSet& nms = uiSettingsGroup::factory().getNames();
     for ( int idx=0; idx<nms.size(); idx++ )
@@ -484,8 +459,12 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
     }
 
     needsrestart_ = false;
+    needsrenewal_ = false;
     for ( int idx=0; idx<grps_.size(); idx++ )
+    {
 	needsrestart_ = needsrestart_ || grps_[idx]->needsRestart();
+	needsrenewal_ = needsrenewal_ || grps_[idx]->needsRenewal();
+    }
 
     return true;
 }

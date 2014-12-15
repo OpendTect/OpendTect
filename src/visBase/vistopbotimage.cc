@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "iopar.h"
 #include "keystrs.h"
 #include "odimage.h"
+#include "settingsaccess.h"
 
 #include <osgGeo/TexturePlane>
 #include <osgGeo/LayeredTexture>
@@ -45,6 +46,7 @@ TopBotImage::TopBotImage()
     texplane_->ref();
     layerid_ = laytex_->addDataLayer();
     laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
+    laytex_->allowShaders( SettingsAccess().doesUserWantShading(false) );
     texplane_->setLayeredTexture( laytex_ );
     addChild( texplane_ );
 
@@ -151,6 +153,8 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
 
 void TopBotImage::fillPar( IOPar& iopar ) const
 {
+    VisualObjectImpl::fillPar( iopar );
+
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
     iopar.set( sKeyFileNameStr(), filenm_  );
@@ -160,6 +164,8 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 
 bool TopBotImage::usePar( const IOPar& iopar )
 {
+    VisualObjectImpl::usePar( iopar );
+
     Coord3 ltpos;
     Coord3 brpos;
     float transparency = 0;
