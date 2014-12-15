@@ -261,7 +261,7 @@ bool uiSynthToRealScale::getEvent()
 }
 
 
-bool uiSynthToRealScale::getHorData( TaskRunner& tr )
+bool uiSynthToRealScale::getHorData( TaskRunner& taskr )
 {
     delete polygon_; polygon_ = 0;
     if ( horizon_ )
@@ -279,7 +279,8 @@ bool uiSynthToRealScale::getHorData( TaskRunner& tr )
 
     const IOObj* ioobj = horfld_->ioobj();
     if ( !ioobj ) return false;
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), &tr );
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ioobj->key(), 
+							  &taskr );
     mDynamicCastGet(EM::Horizon3D*,hor,emobj);
     if ( !hor ) return false;
     horizon_ = hor;

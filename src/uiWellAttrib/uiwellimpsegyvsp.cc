@@ -86,11 +86,11 @@ void selPush( CallBacker* )
 	return;
     }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr->translator())
-    if ( !tr ) return;
+    mDynamicCastGet(SEGYSeisTrcTranslator*,trans,rdr->translator())
+    if ( !trans ) return;
 
     SeisTrc trc;
-    if ( !tr->read(trc) ) return;
+    if ( !trans->read(trc) ) return;
     imp_.use( trc );
 }
 
@@ -311,15 +311,15 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 
 bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
 {
-    PtrMan<SEGYSeisTrcTranslator> tr = SEGYSeisTrcTranslator::getInstance();
-    tr->usePar( sgypars_ );
+    PtrMan<SEGYSeisTrcTranslator> trans = SEGYSeisTrcTranslator::getInstance();
+    trans->usePar( sgypars_ );
     SEGY::FileSpec fs; fs.usePar( sgypars_ );
     PtrMan<IOObj> ioobj = fs.getIOObj();
-    if ( !tr->initRead( ioobj->getConn(Conn::Read), Seis::Scan ) )
-	mErrRet(tr->errMsg())
+    if ( !trans->initRead( ioobj->getConn(Conn::Read), Seis::Scan ) )
+	mErrRet(trans->errMsg())
 
-    if ( !tr->read(trc) )
-	mErrRet(tr->errMsg())
+    if ( !trans->read(trc) )
+	mErrRet(trans->errMsg())
 
     return true;
 }
