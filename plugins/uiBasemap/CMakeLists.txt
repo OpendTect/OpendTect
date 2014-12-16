@@ -11,8 +11,8 @@ SET(OD_MODULE_SOURCES
 	uibasemappi.cc
 	uibasemapgeom2ditem.cc
 	uibasemapgriditem.cc
-	uibasemapoutlineitem.cc
 	uibasemapitem.cc
+	uibasemapoutlineitem.cc
 	uibasemappicksetitem.cc
 	uibasemappolygonitem.cc
 	uibasemaprandomlineitem.cc

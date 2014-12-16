@@ -6,7 +6,6 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Henrique Mageste
  Date:		October 2014
- RCS:		$Id$
 ________________________________________________________________________
 
 -*/
@@ -317,7 +316,7 @@ bool uiBasemapGridTreeItem::showSubMenu()
 
 bool uiBasemapGridTreeItem::handleSubMenu( int mnuid )
 {
-    if ( mnuid==0 ) // executes the Edit call
+    if ( mnuid==0 )
 	BMM().edit( getFamilyID(), ID() );
     else
 	return false;

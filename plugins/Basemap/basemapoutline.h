@@ -6,7 +6,7 @@ ________________________________________________________________________
 
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:	Henrique Mageste
- Date:		November 2014
+ Date:		December 2014
  RCS:		$Id$
 ________________________________________________________________________
 
@@ -14,11 +14,11 @@ ________________________________________________________________________
 
 #include "basemapmod.h"
 #include "basemap.h"
-#include "draw.h"
 #include "multiid.h"
-#include "posinfo2d.h"
 
-//namespace Seis { class Data; }
+template <class T> class ODPolygon;
+class LineStyle;
+class TrcKeySampling;
 
 namespace Basemap
 {
@@ -36,13 +36,17 @@ public:
 
     int			nrShapes() const;
     const char*		getShapeName(int shapeidx) const;
-    void		getPoints(int shapeidx, TypeSet<Coord>&) const;
+    void		getPoints(int shapeidx,TypeSet<Coord>&) const;
     const LineStyle*	getLineStyle(int shapeidx) const
 			{ return &ls_;}
 
 protected:
+    LineStyle&		ls_;
     MultiID		seismid_;
-    LineStyle		ls_;
+    ObjectSet< ODPolygon<float> >    polygons_;
+    TrcKeySampling&	seisarea_;
+
+    bool		extractPolygons();
 };
 
 } // namespace Basemap

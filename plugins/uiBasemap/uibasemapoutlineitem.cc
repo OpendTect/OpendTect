@@ -1,5 +1,3 @@
-#include "uibasemapoutlineitem.h"
-
 /*+
 ________________________________________________________________________
 
@@ -13,6 +11,8 @@ ________________________________________________________________________
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "uibasemapoutlineitem.h"
+
 #include "basemapoutline.h"
 
 #include "uimenu.h"
@@ -20,7 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seistrctr.h"
 
 uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
-    : uiBasemapIOObjGroup(p,mIOObjContext(SeisTrc), isadd)
+    : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true), isadd)
 {
     addNameField();
 }
@@ -33,8 +33,7 @@ uiBasemapOutlineGroup::~uiBasemapOutlineGroup()
 
 bool uiBasemapOutlineGroup::acceptOK()
 {
-    const bool res = uiBasemapGroup::acceptOK();
-
+    const bool res = uiBasemapIOObjGroup::acceptOK();
     return res;
 }
 
@@ -42,14 +41,12 @@ bool uiBasemapOutlineGroup::acceptOK()
 bool uiBasemapOutlineGroup::fillPar(IOPar& par) const
 {
     const bool res = uiBasemapIOObjGroup::fillPar( par );
-
     return res;
 }
 
 
 bool uiBasemapOutlineGroup::usePar(const IOPar& par)
 {
-    //sets the window when it pops up again
     const bool res = uiBasemapIOObjGroup::usePar( par );
     return res;
 }
@@ -90,18 +87,18 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 	if ( !par.get(IOPar::compKey(sKey::ID(),idx),mid) )
 	    continue;
 
-//	if ( basemapobjs_.validIdx(idx) )
-//	{
-//	    mDynamicCastGet(Basemap::OutlineObject*,obj,basemapobjs_[idx])
-//	    if ( obj ) obj->setMultiID( mid );
-//	}
-//	else
-//	{
-//	    Basemap::OutlineObject* obj =
-//		new Basemap::OutlineObject( mid );
-//	    addBasemapObject( *obj );
-//	    obj->updateGeometry();
-//	}
+	if ( basemapobjs_.validIdx(idx) )
+	{
+	    mDynamicCastGet(Basemap::OutlineObject*,obj,basemapobjs_[idx])
+	    if ( obj ) obj->setMultiID( mid );
+	}
+	else
+	{
+	    Basemap::OutlineObject* obj =
+		new Basemap::OutlineObject( mid );
+	    addBasemapObject( *obj );
+	    obj->updateGeometry();
+	}
     }
 
     return true;

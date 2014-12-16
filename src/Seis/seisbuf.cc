@@ -630,7 +630,7 @@ int SeisBufReader::nextStep()
     if ( res > 1 ) return Executor::MoreToDo();
     if ( res == 0 ) return Executor::Finished();
 
-    if ( res < 0 || !rdr_.get(*newtrc) )
+    if ( res<0 || !rdr_.get(*newtrc) )
     { msg_ = rdr_.errMsg(); return Executor::ErrorOccurred(); }
 
     buf_.add( newtrc );

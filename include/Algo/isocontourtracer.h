@@ -33,7 +33,7 @@ public:
 	    		    const StepInterval<int>& ysamp);
     void	selectRectROI(const Interval<int>& xintv,
 			      const Interval<int>& yintv);
-    void	selectPolyROI(const ODPolygon<float>*); 
+    void	selectPolyROI(const ODPolygon<float>*);
 
     void	setBendPointsOnly(float eps);
     void	setMinNrVertices(int);
@@ -45,11 +45,11 @@ public:
 
 protected:
 
-    void			findCrossings( Array3DImpl<float>& crossings,
-	   				       float z ) const;
+    void			findCrossings(Array3DImpl<float>& crossings,
+					      float z) const;
 
     void			traceContours(Array3DImpl<float>& crossings,
-		    			      ObjectSet<ODPolygon<float> >&,
+					      ObjectSet<ODPolygon<float> >&,
 					      bool closedonly) const;
 
     void			addVertex(ODPolygon<float>& contour,

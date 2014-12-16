@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uibasemapitem.h"
 
 
-namespace visSurvey { class PlaneDataDisplay; }
 class uiCheckBox;
 class uiSelLineStyle;
 
