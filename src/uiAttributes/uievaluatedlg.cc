@@ -38,7 +38,8 @@ static const char* sKeyIncr = "Increment";
 #define mGetValParFromGroup( T, str, desc )\
 {\
     mDescGetConstParamGroup(T,str,desc,parstr1_);\
-    valpar1 = &(ValParam&)(*str)[pgidx_];\
+    if ( str ) \
+	valpar1 = &(ValParam&)(*str)[pgidx_];\
 }
 
 AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
@@ -73,6 +74,7 @@ AttribParamGroup::AttribParamGroup( uiParent* p, const uiAttrDescEd& ade,
 	mGetValParFromGroup(FloatParam,fpset,(*ade.curDesc()));
 	if ( !valpar1 ) mGetValParFromGroup( IntParam, ipset, (*ade.curDesc()));
 	if ( !valpar1 ) mGetValParFromGroup(ZGateParam,zgpset,(*ade.curDesc()));
+	if ( !valpar1 ) mGetValParFromGroup(DoubleParam,dpset,(*ade.curDesc()));
 //	if ( !valpar1 ) mGetValParFromGroup(BinIDParam,bpset,(*ade.curDesc()));
     }
 
@@ -110,6 +112,7 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     mDynamicCastGet(const BinIDParam*,bidpar,param);
     mDynamicCastGet(const FloatParam*,fpar,param);
     mDynamicCastGet(const IntParam*,ipar,param);
+    mDynamicCastGet(const DoubleParam*,dpar,param);
 
     if ( gatepar )
     {
@@ -145,6 +148,12 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
 	const int step = ipar->limits() ? ipar->limits()->step : 1;
 	incrspec = new IntInpSpec( step );
     }
+    else if ( dpar )
+    {
+	initspec = new DoubleInpSpec( dpar->getfValue() );
+	const float step = dpar->limits() ? dpar->limits()->step : 1;
+	incrspec = new DoubleInpSpec( step );
+    }
 }
 
 
@@ -163,6 +172,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	mGetValParFromGroup( FloatParam, fparamset, desc );
 	if ( !valpar1 ) mGetValParFromGroup( IntParam, iparamset, desc );
 	if ( !valpar1 ) mGetValParFromGroup( ZGateParam, zgparamset, desc );
+	if ( !valpar1 ) mGetValParFromGroup( DoubleParam, dpset, desc );
 //	if ( !valpar1 ) mGetValParFromGroup( BinIDParam, bidparamset, desc );
     }
 
@@ -170,6 +180,7 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
     mDynamicCastGet(BinIDParam*,bidpar,valpar1)
     mDynamicCastGet(FloatParam*,fpar,valpar1)
     mDynamicCastGet(IntParam*,ipar,valpar1)
+    mDynamicCastGet(DoubleParam*,dpar,valpar1)
 
     if ( gatepar )
     {
@@ -231,6 +242,12 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	mCreateLabel1(val)
 	ipar->setValue( val );
     }
+    else if ( dpar )
+    {
+	const double val = initfld->getdValue() + idx * incrfld->getdValue();
+	mCreateLabel1(val)
+	dpar->setValue( val );
+    }
     else
 	return;
 }
@@ -240,10 +257,11 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 {
     if ( !evaloutput_ ) return;
 
-    float step = desced_.getOutputValue( 0 );
-    if ( mIsZero(step,mDefEps) ) step = desced_.getOutputValue( 1 );
+    double step = mCast( double, desced_.getOutputValue( 0 ) );
+    if ( mIsZero(step,mDefEps) )
+	step = mCast( double, desced_.getOutputValue( 1 ) );
 
-    const float val = initfld->getfValue() + idx*step;
+    const double val = initfld->getdValue() + idx*step;
     desc.selectOutput( desced_.getOutputIdx(val) );
     mCreateLabel1( val );
 }
