@@ -945,19 +945,23 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     BufferString linename( Survey::GM().getName(s2d->getGeomID()) );
     BufferStringSet lnms;
-    const SeisIOObjInfo objinfo( attribnm );
-    SeisIOObjInfo::Opts2D opts2d; opts2d.zdomky_ = "*";
-    objinfo.getLineNames( lnms, opts2d );
-    if ( !lnms.isPresent(linename) || !objinfo.ioObj() )
+    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() );
+    PtrMan<IOObj> seis2dobj = IOM().getLocal( attribnm,
+					      mTranslGroupName(SeisTrc) );
+    if ( !seis2dobj ) return false;
+
+    const Seis2DDataSet seis2ddata( *seis2dobj );
+    seis2ddata.getLineNames( lnms );
+    if ( !lnms.isPresent(linename) )
 	return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    const LineKey lk( objinfo.ioObj()->key() );
+    const LineKey lk( seis2dobj->key() );
     //First time to ensure all components are available
     Attrib::DescID attribid = attrserv->getStoredID( lk, true );
 
     BufferStringSet complist;
-    SeisIOObjInfo::getCompNames( objinfo.ioObj()->key(), complist );
+    SeisIOObjInfo::getCompNames( seis2dobj->key(), complist );
     if ( complist.size()>1 && component<0 )
     {
 	if ( ( !selcomps.size() &&
