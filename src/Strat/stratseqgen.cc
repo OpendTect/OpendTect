@@ -367,6 +367,7 @@ Strat::LayerGenerator* Strat::SingleLayerGenerator::createClone() const
     return newlaygen;
 }
 
+
 const char* Strat::SingleLayerGenerator::name() const
 {
     mDeclStaticString( ret ); ret = unit().fullCode();
@@ -508,13 +509,13 @@ bool Strat::SingleLayerGenerator::reset() const
 
 
 bool Strat::SingleLayerGenerator::genMaterial( Strat::LayerSequence& seq,
-						Property::EvalOpts eo ) const
+					       Property::EvalOpts eo ) const
 {
     const PropertyRefSelection& prs = seq.propertyRefs();
 
     Layer* newlay = new Layer( unit() );
     newlay->setContent( content() );
-	props_.prepareUsage();
+    const_cast<PropertySet*>(&props_)->resetMemory();
 
     TypeSet<int> indexesofprsmath;
     TypeSet<int> correspondingidxinprops;

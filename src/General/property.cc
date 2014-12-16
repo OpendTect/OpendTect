@@ -69,6 +69,13 @@ Property* Property::get( const IOPar& iop )
 }
 
 
+bool Property::init(const PropertySet&) const
+{
+    const_cast<Property*>(this)->reset();
+    return true;
+}
+
+
 //------- ValueProperty ----------
 
 
@@ -258,6 +265,8 @@ bool MathProperty::init( const PropertySet& ps ) const
 
 	inps_ += prop;
     }
+
+    const_cast<MathProperty*>(this)->reset();
 
     return true;
 }
@@ -605,14 +614,7 @@ bool PropertySet::prepareUsage() const
     for ( int idx=0; idx<size(); idx++ )
     {
 	if ( !props_[idx]->init(*this) )
-	{
-	    errmsg_ = props_[idx]->errMsg();
-	    return false;
-	}
-
-	Property* propedit = const_cast<Property*>(props_[idx]);
-	if ( propedit )
-	    propedit->reset();
+	    { errmsg_ = props_[idx]->errMsg(); return false; }
     }
 
     for ( int idx=0; idx<size(); idx++ )
@@ -627,6 +629,13 @@ bool PropertySet::prepareUsage() const
 	}
     }
     return true;
+}
+
+
+void PropertySet::resetMemory()
+{
+    for ( int idx=0; idx<size(); idx++ )
+	props_[idx]->reset();
 }
 
 

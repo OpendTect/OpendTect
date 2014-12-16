@@ -44,7 +44,7 @@ public:
     const char*		name() const;
 
     virtual void	reset()			     { lastval_ = mUdf(float); }
-    virtual bool	init(const PropertySet&) const	{ return true; }
+    virtual bool	init(const PropertySet&) const;
 			    //!< clears 'memory' and makes property usable
     virtual uiString	errMsg() const			{ return 0; }
 
@@ -137,6 +137,7 @@ public:
     void		erase()			{ deepErase(props_); }
 
     bool		prepareUsage() const;	//!< init()'s all Properties
+    void		resetMemory();
     inline uiString	errMsg() const		{ return errmsg_; }
 
 
