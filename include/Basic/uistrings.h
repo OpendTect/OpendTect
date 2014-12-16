@@ -30,12 +30,14 @@ public:
     static uiString sAll()		{ return tr("All"); }
     static uiString sAnalysis()		{ return tr("Analysis"); }
     static uiString sApply()		{ return tr("Apply"); }
+    static uiString sApply(bool)	{ return sApply(); }
     static uiString sASCII(bool immediate);
     static uiString sAttribute()	{ return tr("Attribute"); }
     static uiString sAttributes(bool immediate);
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
+    static uiString sCancel(bool)	{ return sCancel(); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
@@ -46,12 +48,15 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
+    static uiString sExamine()		{ return tr("Examine"); }
+    static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }
     static uiString sFaults(bool immediate);
     static uiString sFile()	        { return tr("File"); }
     static uiString sGo()	        { return tr("Go"); }
     static uiString sHelp()		{ return tr("Help"); }
+    static uiString sHelp(bool)		{ return sHelp(); }
     static uiString sHide()		{ return tr("Hide"); }
     static uiString sHistogram(bool immediate);
     static uiString sHorizon(bool immediate);
@@ -71,8 +76,11 @@ public:
     static uiString sNo()		{ return tr("No"); }
     static uiString sNone()		{ return tr("None"); }
     static uiString sOk()		{ return tr("OK"); }
+    static uiString sOk(bool)		{ return sOk(); }
     static uiString sOpen(bool immediate);
     static uiString sOperator()		{ return tr("Operator"); }
+    static uiString sOptions()		{ return tr("Options"); }
+    static uiString sOptions(bool)	{ return sOptions(); }
     static uiString sOutput()           { return tr("Output"); }
     static uiString sOverwrite()        { return tr("Overwrite"); }
     static uiString sPause()            { return tr("Pause"); }

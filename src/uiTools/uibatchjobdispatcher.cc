@@ -71,14 +71,14 @@ void uiBatchJobDispatcherSel::init( bool optional )
     if ( uidispatchers_.isEmpty() )
 	{ pErrMsg("Huh? No dispatcher launchers at all"); return; }
 
-    BufferString optionsbuttxt( "Options" );
+    const char* optionsbuttxt = "Options";
     const CallBack fldchkcb( mCB(this,uiBatchJobDispatcherSel,fldChck) );
     uiObject* attachobj = 0;
     const bool onlyonechoice = uidispatchers_.size() == 1;
     if ( onlyonechoice )
     {
 	if ( !optional )
-	    optionsbuttxt.set( "Execution Options" );
+	    optionsbuttxt = "Execution Options";
 	else
 	{
 	    dobatchbox_ = new uiCheckBox( this, tr("Execute in Batch") );
@@ -102,14 +102,13 @@ void uiBatchJobDispatcherSel::init( bool optional )
 	attachobj = selfld_->attachObj();
     }
 
-    optsbut_ = new uiPushButton( this, optionsbuttxt,
-		    mCB(this,uiBatchJobDispatcherSel,optsPush), false );
+    optsbut_ = uiButton::getStd( this, uiButton::Options,
+		mCB(this,uiBatchJobDispatcherSel,optsPush), false,
+		optionsbuttxt );
     if ( attachobj )
 	optsbut_->attach( rightOf, attachobj );
     else
 	setHAlignObj( optsbut_ );
-    if ( Settings::common().isTrue("Ui.Icons.Options" ) )
-	optsbut_->setIcon( "options" );
 
     postFinalise().notify( mCB(this,uiBatchJobDispatcherSel,initFlds) );
 }

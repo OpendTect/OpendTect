@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uifiledlg.h"
 #include "file.h"
 
-class uiPushButton;
+class uiButton;
 class BufferStringSet;
 
 /*! \brief A file-name input.
@@ -108,7 +108,7 @@ protected:
     uiFileDialog::Mode  selmode_;
     uiFileDialog::Type  filedlgtype_;
 
-    uiPushButton*	examinebut_;
+    uiButton*		examinebut_;
 
     virtual void	doSelect(CallBacker*);
     void		inputChg(CallBacker*);

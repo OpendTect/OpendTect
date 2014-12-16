@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiGenInput;
-class uiPushButton;
+class uiButton;
 class uiCheckBox;
 
 
@@ -48,7 +48,7 @@ protected:
     void			updSummary(CallBacker*);
 
     uiGenInput*			txtfld_;
-    uiPushButton*		selbut_;
+    uiButton*			selbut_;
 
 };
 

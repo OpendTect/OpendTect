@@ -156,11 +156,9 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si,
     trgrp_->attach( alignedBelow, rangegrp_ );
     trgrp_->attach( ensureBelow, coordset );
 
-    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(), true);
-    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
+    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+			    mCB(this,uiSurveyInfoEditor,appButPushed), true );
     applybut->attach( alignedBelow, crdgrp_ );
-    if ( Settings::common().isTrue("Ui.Icons.Dialog") )
-	applybut->setIcon( "apply" );
 
     xyinftfld_ = new uiCheckBox( this, tr("Coordinates are in feet") );
     xyinftfld_->attach( rightTo, applybut );

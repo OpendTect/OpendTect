@@ -20,6 +20,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uiobjbody.h"
 #include "uipixmap.h"
 #include "uitoolbar.h"
+#include "uistrings.h"
 
 #include "objdisposer.h"
 #include "odiconfile.h"
@@ -235,6 +236,73 @@ void uiButton::translateText()
     uiObject::translateText();
     qButton()->setText( text_.getQtString() );
 }
+
+
+static uiButton* crStd( uiParent* p, uiButton::StdType typ,
+	const CallBack& cb, bool immediate, const uiString* buttxt )
+{
+    uiString txt = uiStrings::sEmptyString();
+    uiString tt = uiStrings::sEmptyString();
+#   define mGetDefs(typ,icnm) \
+    case uiButton::typ: { \
+    if ( !buttxt ) \
+	txt = uiStrings::s##typ( false ); \
+    else \
+    { \
+	txt = *buttxt; \
+	tt = uiStrings::s##typ( immediate ); \
+    } \
+    icid = #icnm; \
+    break; }
+
+    const char* icid = 0;
+    switch( typ )
+    {
+	mGetDefs(Select,selectfromlist)
+	mGetDefs(Apply,apply)
+	mGetDefs(Save,save)
+	mGetDefs(Edit,edit)
+	mGetDefs(Examine,examine)
+	mGetDefs(Options,options)
+	mGetDefs(Settings,options)
+	mGetDefs(Properties,options)
+	mGetDefs(Help,help)
+	mGetDefs(Ok,checkgreen)
+	mGetDefs(Cancel,cancel)
+    }
+
+    uiButton* ret = 0;
+    if ( txt.isEmpty() )
+	ret = new uiToolButton( p, icid, tt, cb );
+    else
+    {
+	ret = new uiPushButton( p, txt, cb, immediate );
+	static bool pbics = Settings::common().isTrue( "Ui.Icons.PushButtons" );
+	if ( pbics )
+	    ret->setIcon( icid );
+    }
+
+    return ret;
+}
+
+uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
+	const CallBack& cb, bool immediate, const uiString& buttxt )
+{
+    return crStd( p, typ, cb, immediate, &buttxt );
+}
+
+uiButton* uiButton::getStd( uiParent* p, uiButton::StdType typ,
+	const CallBack& cb, bool immediate, const char* txt )
+{
+    if ( txt )
+    {
+	const uiString buttxt( txt );
+	return crStd( p, typ, cb, immediate, &buttxt );
+    }
+
+    return crStd( p, typ, cb, immediate, 0 );
+}
+
 
 
 QAbstractButton* uiButton::qButton()

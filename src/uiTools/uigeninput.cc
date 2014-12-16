@@ -637,12 +637,10 @@ void uiGenInput::doFinalise( CallBacker* )
 
     if ( !selText_.isEmpty() )
     {
-	selbut_ = new uiPushButton( this, selText_, false );
-	selbut_->setName( BufferString(selText_.getFullString()," ",name()) );
-	selbut_->activated.notify( mCB(this,uiGenInput,doSelect_) );
+	selbut_ = uiButton::getStd( this, uiButton::Select,
+				    mCB(this,uiGenInput,doSelect_), false );
+	selbut_->setName( BufferString("Select ",name()) );
 	selbut_->attach( rightOf, lastElem );
-	if ( Settings::common().isTrue("Ui.Icons.Selecting" ) )
-	    selbut_->setIcon( "selectfromlist" );
     }
 
     deepErase( inputs_ ); // have been copied to fields.

@@ -71,13 +71,16 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	lbl_->setAlignment( Alignment::Right );
     }
 
-    selbut_ = new uiPushButton( this, su.buttontxt_, false );
+    const CallBack selcb( mCB(this,uiIOSelect,doSel) );
+    if ( su.buttontxt_.isEmpty()
+      || su.buttontxt_.getFullString()
+		== uiStrings::sSelect(true).getFullString() )
+	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
+    else
+	selbut_ = new uiPushButton( this, su.buttontxt_, selcb, false );
     BufferString butnm( su.buttontxt_.getFullString(), " " );
     butnm += su.seltxt_.getFullString();
     selbut_->setName( butnm.buf() );
-    selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
-    if ( Settings::common().isTrue("Ui.Icons.Selecting" ) )
-	selbut_->setIcon( "selectfromlist" );
 
     setHAlignObj( inp_ );
     setHCenterObj( inp_ );

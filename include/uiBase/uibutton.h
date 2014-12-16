@@ -51,6 +51,14 @@ public:
 			//! Not for casual use
     mQtclass(QAbstractButton*)	qButton();
 
+    enum StdType	{ Select, Apply, Save, Edit, Examine,
+			  Options, Settings, Properties,
+			  Help, Ok, Cancel };
+    static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
+				const char* nonstd_text=0);
+    static uiButton*	getStd(uiParent*,StdType,const CallBack&,bool immediate,
+				const uiString& nonstd_text);
+
 protected:
 
     uiString		text_;

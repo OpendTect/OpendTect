@@ -24,13 +24,13 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
     txtfld_->setReadOnly( true );
 
     const char* buttxt = btxt ? btxt : "Select";
-    selbut_ = new uiPushButton( this, buttxt, false );
-    selbut_->setName( BufferString(buttxt," ",seltxt).buf() );
-    selbut_->activated.notify( mCB(this,uiCompoundParSel,doSel) );
+    const CallBack selcb( mCB(this,uiCompoundParSel,doSel) );
+    if ( FixedString(buttxt) == "Select" )
+	selbut_ = uiButton::getStd( this, uiButton::Select, selcb, false );
+    else
+	selbut_ = new uiPushButton( this, buttxt, selcb, false );
     selbut_->attach( rightOf, txtfld_ );
-    if ( FixedString(buttxt) == "Select"
-      && Settings::common().isTrue("Ui.Icons.Selecting" ) )
-	selbut_->setIcon( "selectfromlist" );
+    selbut_->setName( BufferString(buttxt," ",seltxt).buf() );
 
     setHAlignObj( txtfld_ );
     setHCenterObj( txtfld_ );

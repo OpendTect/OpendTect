@@ -21,6 +21,7 @@ ________________________________________________________________________
 class uiSeisSel;
 class uiStaticsDesc;
 class uiZRangeInput;
+class uiPushButton;
 class VelocityStretcher;
 
 /*!Group that allows the user to edit VelocityDesc information. */
@@ -38,7 +39,7 @@ public:
 	mDefSetupMemb(VelocityDesc,desc)
     };
 
-    				uiVelocityDesc(uiParent*,const Setup* s=0);
+				uiVelocityDesc(uiParent*,const Setup* s=0);
 
     bool			get(VelocityDesc&,bool displayerrors) const;
     void			set(const VelocityDesc&);
@@ -60,16 +61,16 @@ protected:
 mExpClass(uiSeis) uiVelocityDescDlg : public uiDialog
 { mODTextTranslationClass(uiVelocityDescDlg)
 public:
-    			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
+			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
 					  const uiVelocityDesc::Setup* s=0);
 			~uiVelocityDescDlg();
 
     IOObj*		getSelection() const;
-   			//!<returned object must be managed by caller
-    Interval<float>	getVelocityTopRange() const	
-    			{ return toprange_; }
-    Interval<float>	getVelocityBottomRange() const	
-    			{ return bottomrange_; }
+			//!<returned object must be managed by caller
+    Interval<float>	getVelocityTopRange() const
+			{ return toprange_; }
+    Interval<float>	getVelocityBottomRange() const
+			{ return bottomrange_; }
 
 protected:
 
@@ -92,13 +93,13 @@ protected:
 mExpClass(uiSeis) uiVelSel : public uiSeisSel
 {
 public:
-    				uiVelSel(uiParent*,const IOObjContext&,
+				uiVelSel(uiParent*,const IOObjContext&,
 					 const uiSeisSel::Setup&,
 					 bool iseditbutton=true);
 
     void			setInput(const MultiID&);
     static const IOObjContext&	ioContext();
-    
+
     Interval<float>		getVelocityTopRange() const	{ return trg_; }
     Interval<float>		getVelocityBottomRange() const	{ return brg_; }
     Notifier<uiVelSel>		velrgchanged;
