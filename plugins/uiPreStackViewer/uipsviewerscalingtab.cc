@@ -34,9 +34,8 @@ uiViewer3DScalingTab::uiViewer3DScalingTab( uiParent* p,
     , savedefault_( false )
     , mgr_( mgr )
 {
-    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
-    applybut_->activated.notify(
-	    mCB(this,uiViewer3DScalingTab,applyButPushedCB) );
+    applybut_ = uiButton::getStd( this, uiButton::Apply,
+		   mCB(this,uiViewer3DScalingTab,applyButPushedCB), true );
     applybut_->attach( alignedBelow, lastcommonfld_ );
 
     mDynamicCastGet(visBase::FlatViewer*,vwr,&vwr_);

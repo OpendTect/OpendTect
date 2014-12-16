@@ -89,9 +89,8 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     offsgridrangelbl_ = new uiLabel( this, SI().getXYUnitString(true) );
     offsgridrangelbl_->attach( rightOf, offsgridrangefld_ );
 
-    applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
-    applybut_->activated.notify(
-		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB) );
+    applybut_ = uiButton::getStd( this, uiButton::Apply,
+		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB), true );
     applybut_->attach( alignedBelow, offsgridrangefld_ );
 
     if ( mIsUdf(manuzsampl_.start) || mIsUdf(manuzsampl_.step) )

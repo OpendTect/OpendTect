@@ -315,7 +315,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     if ( hasy2_ )
     {
 	selaxisfld_ =
-	    new uiGenInput( this, uiStrings::sEmptyString(), 
+	    new uiGenInput( this, uiStrings::sEmptyString(),
                             BoolInpSpec( true,"Draw Y1","Draw Y2" ) );
 	selaxisfld_->attach( rightTo, drawlinefld_ );
 	selaxisfld_->valuechanged.notify(
@@ -912,7 +912,7 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), 
+	: uiTabStackDlg( p->parent(),
                          uiDialog::Setup(uiStrings::sSettings(true),0,
                          mODHelpKey(mDataPointSetCrossPlotterPropDlgHelpID))
 			 .modal(false) )
@@ -931,7 +931,7 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     densplottab_ = new uiDPSDensPlotSetTab( this );
     addGroup( densplottab_ );
 
-    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
+    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
 	    mCB(this,uiDataPointSetCrossPlotterPropDlg,doApply), true );
     applybut->attach( centeredBelow, tabObject() );
 }

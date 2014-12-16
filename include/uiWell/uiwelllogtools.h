@@ -26,7 +26,7 @@ class uiMultiWellLogSel;
 class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
-class uiPushButton;
+class uiButton;
 class uiSpinBox;
 class uiTable;
 class uiWellLogDisplay;
@@ -86,9 +86,9 @@ protected:
     uiLabeledComboBox*		replacespikefld_;
     uiGenInput*			replacespikevalfld_;
     uiFreqFilterSelFreq*	freqfld_;
-    uiPushButton*		applybut_;
-    uiPushButton*               okbut_;
-    uiPushButton*               cancelbut_;
+    uiButton*			applybut_;
+    uiButton*			okbut_;
+    uiButton*			cancelbut_;
     Interval<float>		zdisplayrg_;
 
     ObjectSet<LogData>		logdatas_;

@@ -207,7 +207,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     actionfld_->selectionChanged.notify(mCB(this,uiWellLogToolWin,actionSelCB));
 
     CallBack cb( mCB( this, uiWellLogToolWin, applyPushedCB ) );
-    applybut_ = new uiPushButton( actiongrp, uiStrings::sApply(), cb, true );
+    applybut_ = uiButton::getStd( actiongrp, uiButton::Apply, cb, true );
     applybut_->attach( rightOf, llc );
 
     freqfld_ = new uiFreqFilterSelFreq( actiongrp );
@@ -239,7 +239,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     uiSeparator* horSepar = new uiSeparator( this );
     horSepar->attach( stretchedBelow, actiongrp );
 
-    okbut_ = new uiPushButton( this, uiStrings::sOk(),
+    okbut_ = uiButton::getStd( this, uiButton::Ok,
 				mCB(this,uiWellLogToolWin,acceptOK), true );
     okbut_->attach( leftBorder, 20 );
     okbut_->attach( ensureBelow, horSepar );
@@ -258,7 +258,7 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     overwritefld_->activated.notify( mCB(this,uiWellLogToolWin,overWriteCB) );
     overwritefld_->setStretch( 0, 0 );
 
-    uiPushButton* cancelbut = new uiPushButton( this, uiStrings::sCancel(),
+    uiButton* cancelbut = uiButton::getStd( this, uiButton::Cancel,
 				mCB(this,uiWellLogToolWin,rejectOK), true );
     cancelbut->attach( rightBorder, 20 );
     cancelbut->attach( ensureBelow, horSepar );

@@ -58,8 +58,8 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type, const ZDomain::Info& zi,
 
     if ( !isvol_ && !is2d_ )
     {
-	applybut_ = new uiPushButton( this, uiStrings::sApply(), true );
-	applybut_->activated.notify( mCB(this,uiSliceSel,applyPush) );
+	applybut_ = uiButton::getStd( this, uiButton::Apply,
+				    mCB(this,uiSliceSel,applyPush), true );
 	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
 	applybut_->attach( alignedBelow, z0fld_ );
 	applybut_->display( false );
@@ -188,7 +188,7 @@ uiSliceScroll( uiSliceSel* ss )
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 
-    dtfld_ = new uiGenInput( this, tr("Time between updates (s)"), 
+    dtfld_ = new uiGenInput( this, tr("Time between updates (s)"),
 			     FloatInpSpec(2));
     dtfld_->attach( alignedBelow, ctrlbut );
 
@@ -648,7 +648,7 @@ bool uiLinePosSelDlg::acceptOK( CallBacker* )
 bool uiLinePosSelDlg::selectPos2D()
 {
     mDynamicCastGet( const Survey::Geometry2D*, geom2d,
-	    	     Survey::GM().getGeometry(linesfld_->text()) );
+		     Survey::GM().getGeometry(linesfld_->text()) );
     if ( !geom2d ) return false;
 
     TrcKeyZSampling inputcs = tkzs_;

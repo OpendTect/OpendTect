@@ -54,7 +54,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
     y3propselfld_->selectionChanged.notify(
 	    mCB(this,uiDPSOverlayPropDlg,attribChanged) );
-    
+
 
     uiLabeledComboBox* y4lblcbx = 0;
     if ( plotter_.isY2Shown() )
@@ -64,7 +64,7 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	y4coltabfld_->enableManage( false );
 	y4coltabfld_->attach( alignedBelow, y3lblcbx );
 	y4lblcbx =
-	    new uiLabeledComboBox( this, colnames, 
+	    new uiLabeledComboBox( this, colnames,
                                    tr("Overlay Y2 Attribute"), "");
 	y4lblcbx->attach( alignedBelow, y4coltabfld_ );
 	y4propselfld_ = y4lblcbx->box();
@@ -77,17 +77,17 @@ uiDPSOverlayPropDlg::uiDPSOverlayPropDlg( uiParent* p,
 	}
 	else
 	    y4propselfld_->setCurrentItem( 0 );
-    
+
 	y4coltabfld_->scaleChanged.notify(
 	    mCB(this,uiDPSOverlayPropDlg,scaleChanged) );
 	y4propselfld_->selectionChanged.notify(
 		mCB(this,uiDPSOverlayPropDlg,attribChanged) );
     }
 
-    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(),
+    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
 	    mCB(this,uiDPSOverlayPropDlg,doApply), true );
     applybut->attach( centeredBelow, plotter_.isY2Shown() ? y4lblcbx
-	    						  : y3lblcbx );
+							  : y3lblcbx );
 }
 
 
@@ -110,7 +110,7 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 {
     if ( y3propselfld_->currentItem() )
     {
-	y3coltabfld_->commitInput(); 
+	y3coltabfld_->commitInput();
 	plotter_.setOverlayY1Cols( colids_[y3propselfld_->currentItem()] );
 	plotter_.setOverlayY1AttSeq( y3coltabfld_->colTabSeq() );
 	plotter_.setOverlayY1AttMapr( y3coltabfld_->colTabMapperSetup() );
@@ -122,10 +122,10 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 	plotter_.setOverlayY1Cols( mUdf(int) );
 	plotter_.setShowY3( false );
     }
-    
+
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
-	y4coltabfld_->commitInput(); 
+	y4coltabfld_->commitInput();
 	plotter_.setOverlayY2Cols( colids_[y4propselfld_->currentItem()] );
 	plotter_.setOverlayY2AttSeq( y4coltabfld_->colTabSeq() );
 	plotter_.setOverlayY2AttMapr( y4coltabfld_->colTabMapperSetup() );
@@ -137,7 +137,7 @@ bool uiDPSOverlayPropDlg::acceptOK( CallBacker* )
 	plotter_.setOverlayY2Cols( mUdf(int) );
 	if ( plotter_.isY2Shown() && y4propselfld_ )
 	    y4coltabfld_->setInterval( Interval<float>(0,1) );
-	
+
 	plotter_.setShowY4( false );
     }
 
@@ -166,7 +166,7 @@ void uiDPSOverlayPropDlg::attribChanged( CallBacker* )
 	y3coltabfld_->setInterval( Interval<float>(0,1) );
 	plotter_.setShowY3( false );
     }
-   
+
     if ( plotter_.isY2Shown() && y4propselfld_->currentItem() )
     {
 	ColTab::MapperSetup prevmsu = y4coltabfld_->colTabMapperSetup();

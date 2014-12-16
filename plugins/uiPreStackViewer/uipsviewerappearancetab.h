@@ -3,7 +3,7 @@
 
 /*+
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          May 2008
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiColorTableGroup;
 class uiLabel;
-class uiPushButton;
+class uiButton;
 class uiGenInput;
 namespace visBase { class FlatViewer; };
 namespace visSurvey { class PreStackDisplay; }
@@ -25,14 +25,14 @@ namespace visSurvey { class PreStackDisplay; }
 namespace PreStackView
 {
 
-class uiViewer3DMgr; 
+class uiViewer3DMgr;
 
-mClass(uiPreStackViewer) uiViewer3DAppearanceTab : public uiDlgGroup 
+mClass(uiPreStackViewer) uiViewer3DAppearanceTab : public uiDlgGroup
 { mODTextTranslationClass(uiViewer3DAppearanceTab);
 public:
 				uiViewer3DAppearanceTab(uiParent*,
 						 visSurvey::PreStackDisplay&,
-  						 uiViewer3DMgr&);
+						 uiViewer3DMgr&);
 				~uiViewer3DAppearanceTab();
 
     bool			acceptOK();
@@ -49,21 +49,21 @@ protected:
     void			updateColTab(CallBacker*);
     void			updateOffsFlds(CallBacker*);
     void			updateFlds(uiGenInput* gridfld,
-	    				   uiGenInput* autofld,
+					   uiGenInput* autofld,
 					   uiGenInput* rgfld,
 					   uiLabel* lblfld,bool x1);
-    
-    uiColorTableGroup*       	uicoltab_;
-    uiLabel*            	uicoltablbl_; 
-    uiLabel*            	zgridrangelbl_; 
-    uiLabel*            	offsgridrangelbl_; 
-    uiGenInput*            	zgridfld_; 
-    uiGenInput*            	zgridautofld_; 
-    uiGenInput*            	zgridrangefld_; 
-    uiGenInput*            	offsgridfld_; 
-    uiGenInput*            	offsgridautofld_; 
-    uiGenInput*            	offsgridrangefld_; 
-    uiPushButton*		applybut_;
+
+    uiColorTableGroup*	uicoltab_;
+    uiLabel*	uicoltablbl_;
+    uiLabel*	zgridrangelbl_;
+    uiLabel*	offsgridrangelbl_;
+    uiGenInput*	zgridfld_;
+    uiGenInput*	zgridautofld_;
+    uiGenInput*	zgridrangefld_;
+    uiGenInput*	offsgridfld_;
+    uiGenInput*	offsgridautofld_;
+    uiGenInput*	offsgridrangefld_;
+    uiButton*			applybut_;
     uiViewer3DMgr&		mgr_;
     visBase::FlatViewer*	vwr_;
     bool			applyall_;

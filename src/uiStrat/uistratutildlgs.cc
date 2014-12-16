@@ -54,7 +54,7 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 
     const Strat::NodeUnitRef* upnode = unit.upNode();
     Interval<float> limitrg = upnode ? upnode->timeRange() : unit.timeRange();
-    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this, 
+    uiLabeledSpinBox* lblbox1 = new uiLabeledSpinBox( this,
 						      tr("Time range (My)"));
     agestartfld_ = lblbox1->box();
     agestartfld_->setNrDecimals( 3 );
@@ -82,9 +82,8 @@ uiStratUnitEditDlg::uiStratUnitEditDlg( uiParent* p, Strat::NodeUnitRef& unit )
 	lbl->attach( leftOf, unitlithfld_ );
 
 	const CallBack cb( mCB(this,uiStratUnitEditDlg,selLithCB) );
-	uiPushButton* sellithbut = new uiPushButton( this,
-                                                     uiStrings::sEdit(true),
-				uiPixmap("edit"), cb, false );
+	uiButton* sellithbut = uiButton::getStd( this, uiButton::Edit,
+						    cb, false );
 	sellithbut->attach( rightTo, unitlithfld_ );
 
 	lithids_.erase();

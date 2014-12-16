@@ -246,7 +246,7 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 #   define mGetDefs(typ,icnm) \
     case uiButton::typ: { \
     if ( !buttxt ) \
-	txt = uiStrings::s##typ( false ); \
+	txt = uiStrings::s##typ( true ); \
     else \
     { \
 	txt = *buttxt; \
@@ -261,6 +261,7 @@ static uiButton* crStd( uiParent* p, uiButton::StdType typ,
 	mGetDefs(Select,selectfromlist)
 	mGetDefs(Apply,apply)
 	mGetDefs(Save,save)
+	mGetDefs(SaveAs,saveas)
 	mGetDefs(Edit,edit)
 	mGetDefs(Examine,examine)
 	mGetDefs(Options,options)

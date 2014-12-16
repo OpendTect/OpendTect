@@ -512,9 +512,9 @@ uiContourParsDlg( uiParent* p, const char* attrnm, const Interval<float>& rg,
     intvfld_->valuechanged.notify( mCB(this,uiContourParsDlg,intvChanged) );
     intvfld_->attach( leftAlignedBelow, lbl );
 
-    uiPushButton* applybut = new uiPushButton( this, uiStrings::sApply(), true);
+    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+				mCB(this,uiContourParsDlg,applyCB), true);
     applybut->attach( rightTo, intvfld_ );
-    applybut->activated.notify( mCB(this,uiContourParsDlg,applyCB) );
 
     uiSelLineStyle::Setup lssu; lssu.drawstyle(false);
     lsfld_ = new uiSelLineStyle( this, ls, lssu );
@@ -805,7 +805,7 @@ void uiContourTreeItem::handleMenuCB( CallBacker* cb )
             table->setText( RowCol(idx,1), toString( areas[idx] ) );
         }
 
-        uiPushButton* button = new uiPushButton( &dlg, uiStrings::sSaveAs(true),
+        uiButton* button = uiButton::getStd( &dlg, uiButton::SaveAs,
                              mCB(this,uiContourTreeItem,saveAreasAsCB), true );
         button->attach( leftAlignedBelow, table );
 

@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidlggroup.h"
 
-class uiPushButton;
+class uiButton;
 
 namespace PreStack { class uiProcessorManager; }
 namespace visSurvey { class PreStackDisplay; }
@@ -38,7 +38,7 @@ public:
     bool			applyToAll()		{ return applyall_; }
 
 protected:
-    
+
     bool				applyButPushedCB(CallBacker*);
     void				processorChangeCB(CallBacker*);
 
@@ -46,7 +46,7 @@ protected:
     uiViewer3DMgr&			mgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;
 
-    uiPushButton*			applybut_;    
+    uiButton*				applybut_;
     bool				applyall_;
 };
 

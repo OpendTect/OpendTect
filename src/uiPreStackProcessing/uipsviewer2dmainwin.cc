@@ -102,9 +102,8 @@ uiPSPreProcessingDlg( uiParent* p, PreStack::ProcessManager& ppmgr,
     , cb_(cb)
 {
     preprocgrp_ = new PreStack::uiProcessorManager( this, ppmgr );
-    uiPushButton* applybut =
-	new uiPushButton( this, uiStrings::sApply(),
-                          mCB(this,uiPSPreProcessingDlg,applyCB), true );
+    uiButton* applybut = uiButton::getStd( this, uiButton::Apply,
+			    mCB(this,uiPSPreProcessingDlg,applyCB), true );
     applybut->attach( alignedBelow, preprocgrp_ );
 }
 
@@ -757,7 +756,7 @@ void uiStoredViewer2DMainWin::setGatherInfo( uiGatherDisplayInfoHeader* info,
 {
     PtrMan<IOObj> ioobj = IOM().get( ginfo.mid_ );
     BufferString nm = ioobj ? ioobj->name().buf() : "";
-    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl, 
+    info->setData( ginfo.bid_, tkzs_.defaultDir()==TrcKeyZSampling::Inl,
 		   is2d_, nm);
 }
 

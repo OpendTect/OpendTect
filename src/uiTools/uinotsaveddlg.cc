@@ -55,10 +55,9 @@ public:
 	    uiLabel* label =
 		new uiLabel( this, prompter_.objects_[idx]->string_ );
 
-	    uiPushButton* curbutton = new uiPushButton( this, 
-                                        uiStrings::sSave(true),
-		    mCB(this,uiNotSavedDlg,buttonCB),
-		    prompter_.objects_[idx]->issaveas_ );
+	    uiButton* curbutton = uiButton::getStd( this, uiButton::Save,
+					mCB(this,uiNotSavedDlg,buttonCB),
+					prompter_.objects_[idx]->issaveas_ );
 	    curbutton->attach( rightOf, label );
 
 	    if ( idx ) curbutton->attach( alignedBelow, buttons_[idx-1] );
@@ -73,7 +72,7 @@ public:
     }
     void	buttonCB(CallBacker* cb)
     {
-	activebutton_ = buttons_.indexOf( (uiPushButton*) cb );
+	activebutton_ = buttons_.indexOf( (uiButton*)cb );
 	prompter_.objects_[activebutton_]->cb_.doCall( &prompter_ );
     }
 
@@ -92,9 +91,10 @@ public:
 
 
 protected:
-    int					activebutton_;
-    ObjectSet<uiPushButton>		buttons_;
-    NotSavedPrompter&			prompter_;
+    int				activebutton_;
+    ObjectSet<uiButton>		buttons_;
+    NotSavedPrompter&		prompter_;
+
 };
 
 

@@ -3,7 +3,7 @@
 
 /*+
 ________________________________________________________________________
- 
+
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Yuancheng Liu
  Date:          May 2008
@@ -14,20 +14,20 @@ ________________________________________________________________________
 
 #include "uiflatviewproptabs.h"
 
-class uiPushButton;
+class uiButton;
 namespace visSurvey { class PreStackDisplay; }
 
 namespace PreStackView
 {
 
-class uiViewer3DMgr; 
+class uiViewer3DMgr;
 
 mClass(uiPreStackViewer) uiViewer3DScalingTab : public uiFlatViewDataDispPropTab
 { mODTextTranslationClass(uiViewer3DScalingTab);
 public:
 				uiViewer3DScalingTab(uiParent*,
 						 visSurvey::PreStackDisplay&,
-  						 uiViewer3DMgr&);
+						 uiViewer3DMgr&);
 				~uiViewer3DScalingTab();
 
     virtual void		putToScreen();
@@ -44,13 +44,13 @@ protected:
     bool			applyButPushedCB(CallBacker*);
     bool			settingCheck();
 
-    virtual BufferString 	dataName() const;
-    void                	dispSel(CallBacker*);
+    virtual BufferString	dataName() const;
+    void	dispSel(CallBacker*);
     void			dispChgCB(CallBacker*);
     virtual void		handleFieldDisplay(bool) {}
     FlatView::DataDispPars::Common& commonPars();
-    
-    uiPushButton*		applybut_;
+
+    uiButton*			applybut_;
     uiViewer3DMgr&		mgr_;
     bool			applyall_;
     bool			savedefault_;
