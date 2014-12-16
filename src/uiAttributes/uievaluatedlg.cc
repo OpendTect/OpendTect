@@ -151,7 +151,8 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     else if ( dpar )
     {
 	initspec = new DoubleInpSpec( dpar->getfValue() );
-	const float step = dpar->limits() ? dpar->limits()->step : 1;
+	const float step = dpar->limits()
+			? mCast(float,dpar->limits()->step) : 1.0f;
 	incrspec = new DoubleInpSpec( step );
     }
 }
@@ -262,7 +263,7 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 	step = mCast( double, desced_.getOutputValue( 1 ) );
 
     const double val = initfld->getdValue() + idx*step;
-    desc.selectOutput( desced_.getOutputIdx(val) );
+    desc.selectOutput( desced_.getOutputIdx( mCast(float,val)) );
     mCreateLabel1( val );
 }
 
