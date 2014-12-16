@@ -84,13 +84,19 @@ bool OutlineObject::extractPolygons()
 	ODPolygon<float>* polygon = new ODPolygon<float>();
 	polygon->setClosed( false );
 
-	const Coord& startpoint = SI().transform(tkzs.hrg.start_);
-	const Coord& stoppoint = SI().transform(tkzs.hrg.stop_);
+	const Coord& startpt = SI().transform(tkzs.hrg.start_);
+	const Coord& stoppt = SI().transform(tkzs.hrg.stop_);
 
-	polygon->insert( 0, Geom::Point2D<float>(startpoint.x,startpoint.y) );
-	polygon->insert( 1, Geom::Point2D<float>(stoppoint.x,startpoint.y) );
-	polygon->insert( 2, Geom::Point2D<float>(stoppoint.x,stoppoint.y) );
-	polygon->insert( 3, Geom::Point2D<float>(startpoint.x,stoppoint.y) );
+	typedef Geom::Point2D<float> Point;
+
+	polygon->insert( 0, Point(mCast(float,startpt.x),
+				  mCast(float,startpt.y)) );
+	polygon->insert( 1, Point(mCast(float,stoppt.x),
+				  mCast(float,startpt.y)) );
+	polygon->insert( 2, Point(mCast(float,stoppt.x),
+				  mCast(float,stoppt.y)) );
+	polygon->insert( 3, Point(mCast(float,startpt.x),
+				  mCast(float,stoppt.y)) );
 
 	polygons_.insertAt( polygon, 0 );
 	return true;
