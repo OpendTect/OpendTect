@@ -19,7 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "survinfo.h"
 #include "transl.h"
 #include "filepath.h"
-
+#include "uistrings.h"
 
 bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 {
@@ -49,8 +49,9 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm, bool doconfirm )
 	    if ( isoutside )
 	    {
 		const int resp = uiMSG().question( mess, tr("Remove file"),
-					       tr("Remove link"), tr("Cancel"),
-					       tr("Remove data") );
+						   tr("Remove link"), 
+						   uiStrings::sCancel(),
+					           tr("Remove data") );
 		if ( resp < 0 )
 		    return false;
 

@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigraphicsview.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uiworld2ui.h"
 
 #include "arrayndimpl.h"
@@ -131,7 +132,7 @@ float uiFKSpectrum::getMaxValue() const
 static void updateTB( uiToolButton& tb, bool quietmode )
 {
     tb.setIcon( quietmode ? "pick" : "stop" );
-    tb.setToolTip( quietmode ? "Set velocity" : "Cancel" );
+    tb.setToolTip( quietmode ? "Set velocity" : uiStrings::sCancel() );
 }
 
 
