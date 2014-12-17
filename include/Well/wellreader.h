@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "ranges.h"
 #include "bufstring.h"
+#include "uistring.h"
 class IOObj;
 class BufferStringSet;
 
@@ -28,7 +29,7 @@ class ReadAccess;
 /*!\brief Reads Well::Data from any data store */
 
 mExpClass(Well) Reader
-{
+{ mODTextTranslationClass(Reader);
 public:
 
 			Reader(const MultiID&,Data&);

@@ -24,10 +24,12 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 
-#define mErrRet(m) errmsg+=m; errmsg+="from well "; \
-		   errmsg+=wd.name(); return false;
-bool AttribLogCreator::doWork( Well::Data& wd, BufferString& errmsg )
+#define mErrRet(m) errmsg.append(m); return false;
+
+
+bool AttribLogCreator::doWork( Well::Data& wd, uiString& errmsg )
 {
+    uiString msg = tr("%1 from well %2");
     Attrib::EngineMan aem;
     aem.setAttribSet( setup_.attrib_ );
     aem.setNLAModel( setup_.nlamodel_ );
@@ -40,13 +42,22 @@ bool AttribLogCreator::doWork( Well::Data& wd, BufferString& errmsg )
 
     AttribLogExtractor ale( wd );
     if ( !ale.fillPositions(dahrg) )
-    { mErrRet( "No positions extracted " ) }
+    { 
+	msg.arg(tr("No positions extracted ").arg(wd.name()));
+	mErrRet(msg)
+    }
 
     if ( !ale.extractData( aem, setup_.tr_ ) )
-    { mErrRet( "No data extracted" ) }
+    { 
+	msg.arg(tr("No data extracted").arg(wd.name()));
+	mErrRet(msg) 
+    }
 
     if ( !createLog( wd, ale ) )
-    { mErrRet( "Unable to create Log" ) }
+    {
+	msg.arg(tr("Unable to create Log").arg(wd.name()));
+	mErrRet(msg)
+    }
 
     return true;
 }

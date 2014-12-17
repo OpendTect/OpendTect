@@ -143,13 +143,13 @@ int Well::InfoCollector::nextStep()
 
 
 #define mErrRet(msg) { if ( errmsg ) *errmsg = msg; return false; }
-bool Well::ZRangeSelector::isOK( BufferString* errmsg ) const
+bool Well::ZRangeSelector::isOK( uiString* errmsg ) const
 {
     const bool usemrkr = zselection_ == Markers;
     if ( ( usemrkr && topmrkr_.isEqual(botmrkr_)
 		&& mIsEqual(above_,below_,SI().zStep()) )
 		    || ( !usemrkr && fixedzrg_.width() < SI().zStep()) )
-	mErrRet( "Top distance is equal to bottom distance" );
+	mErrRet( tr("Top distance is equal to bottom distance") );
 
     return true;
 }
@@ -395,10 +395,10 @@ void Well::ExtractParams::setEmpty()
 }
 
 
-bool Well::ExtractParams::isOK( BufferString* errmsg ) const
+bool Well::ExtractParams::isOK( uiString* errmsg ) const
 {
     if ( !mIsUdf( zstep_ ) && zstep_ < 0 )
-	 mErrRet( "Please Enter a valid step value" );
+	 mErrRet( tr("Please Enter a valid step value") );
 
     return ZRangeSelector::isOK( errmsg );
 }
@@ -467,7 +467,7 @@ int Well::TrackSampler::nextStep()
 
     if ( lognms_.isEmpty() )
     {
-	errmsg_ = "No well logs specified";
+	errmsg_ = tr("No well logs specified");
 	return Executor::ErrorOccurred();
     }
 
@@ -656,7 +656,10 @@ int Well::LogDataExtracter::nextStep()
     if ( curid_ >= ids_.size() )
 	return 0;
     if ( msg_.isEmpty() )
-    { msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo(); }
+    { 
+	msg_ = tr("Extracting '%1'").arg(lognm_); 
+        return MoreToDo(); 
+    }
 
     IOObj* ioobj = 0;
     if ( dpss_.size() <= curid_ ) mRetNext()
@@ -1055,19 +1058,20 @@ od_int64 Well::LogSampler::nrIterations() const
 
 #undef mErrRet
 #define mErrRet(msg) { errmsg_ = msg; return false; }
+
 bool Well::LogSampler::doPrepare( int thread )
 {
     if ( !nrIterations() )
-	mErrRet( "No log found" )
+	mErrRet( tr("No log found"))
 
     if ( zrg_.isUdf() )
-	mErrRet( "No valid range specified" )
+	mErrRet( tr("No valid range specified") )
 
     if ( mIsUdf(zstep_) )
-	mErrRet( "No valid step specified" )
+	mErrRet( tr("No valid step specified") )
 
     if ( ( extrintime_ || zrgisintime_ ) && !d2t_ )
-	mErrRet( "No valid depth/time model found" )
+	mErrRet( tr("No valid depth/time model found") )
 
     Interval<float> dahrg;
     mGetDah( dahrg.start, zrg_.start, zrgisintime_ )
@@ -1075,7 +1079,7 @@ bool Well::LogSampler::doPrepare( int thread )
     dahrg.limitTo( track_.dahRange() );
     if ( dahrg.isUdf() )
     {
-	mErrRet( "Wrong extraction boundaries" )
+	mErrRet( tr("Wrong extraction boundaries") )
     }
 
     if ( extrintime_ != zrgisintime_ )
@@ -1126,7 +1130,7 @@ bool Well::LogSampler::doWork( od_int64 start, od_int64 stop, int nrthreads )
 	    return false;
 
 	if ( !doLog( idx ) )
-	    { errmsg_ = "One or several logs could not be extracted"; }
+	    { errmsg_ = tr("One or several logs could not be extracted"); }
 
 	addToNrDone( 1 );
     }

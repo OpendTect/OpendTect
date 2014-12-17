@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "elasticpropsel.h"
 #include "synthseis.h"
 #include "valseriesevent.h"
+#include "uistring.h"
 
 namespace PreStack {  class GatherSetDataPack; }
 class SeisTrcBuf;
@@ -38,7 +39,7 @@ typedef Seis::RaySynthGenerator::RayModel SynthRayModel;
 typedef ObjectSet<SynthRayModel> RayModelSet;
 
 mExpClass(WellAttrib) SynthRayModelManager 
-{
+{ mODTextTranslationClass(SynthRayModelManager);
 public:
     ObjectSet<SynthRayModel>*	getRayModelSet(const IOPar&);
     void			addRayModelSet(ObjectSet<SynthRayModel>*,
@@ -55,7 +56,7 @@ protected:
 
 
 mExpClass(WellAttrib) StratSynth
-{
+{ mODTextTranslationClass(StratSynth);
 public:
     				StratSynth(const Strat::LayerModelProvider&,
 					   bool useed);
@@ -122,7 +123,7 @@ public:
 
     void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
     uiString		errMsg() const;
-    const char* 	infoMsg() const;
+    uiString	 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
     
     static const char*	sKeyFRNameSuffix()	{ return " after FR"; }
@@ -140,7 +141,7 @@ protected:
     const Wavelet*		wvlt_;
 
     uiString			errmsg_;
-    BufferString		infomsg_;
+    uiString			infomsg_;
     TaskRunner*			tr_;
     SynthRayModelManager	synthrmmgr_;
 

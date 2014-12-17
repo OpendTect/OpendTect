@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "wellattribmod.h"
 #include "executor.h"
 #include "position.h"
+#include "uistring.h"
 
 class TrcKeyZSampling;
 class IOObj;
@@ -27,7 +28,7 @@ namespace WellTie
 {
 
 mExpClass(WellAttrib) SeismicExtractor : public Executor
-{
+{ mODTextTranslationClass(SeismicExtractor);
 public:
 			SeismicExtractor(const IOObj&);
 			~SeismicExtractor();

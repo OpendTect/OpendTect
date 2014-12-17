@@ -188,7 +188,7 @@ const char* Well::LASImporter::getLogInfo( od_istream& strm,
     if ( convs_.isEmpty() )
 	mErrRet( "Could not find any valid log in file" )
     if ( lfi.depthcolnr < 0 )
-	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')" )
+	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')") 
 
     lfi.revz = lfi.zrg.start > lfi.zrg.stop;
     lfi.zrg.sort();

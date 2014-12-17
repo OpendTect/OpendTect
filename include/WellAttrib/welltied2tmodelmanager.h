@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "namedobj.h"
+#include "uistring.h"
 
 namespace Well
 {
@@ -33,7 +34,7 @@ class Setup;
 */
 
 mExpClass(WellAttrib) D2TModelMgr
-{
+{ mODTextTranslationClass(D2TModelMgr);
 public:
 			D2TModelMgr(Well::Data&,DataWriter&,const Setup&);
 			~D2TModelMgr();
@@ -49,8 +50,8 @@ public:
     void 		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
 
-    const char* 	errMsg() const 
-    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    uiString 	errMsg() const 
+    			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
 
 protected:
 
@@ -60,7 +61,7 @@ protected:
     Well::D2TModel* 	prvd2t_;
     Well::D2TModel* 	orgd2t_;
 
-    BufferString 	errmsg_;
+    uiString 		errmsg_;
 
     DataWriter&		datawriter_;
     bool		emptyoninit_;

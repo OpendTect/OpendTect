@@ -38,7 +38,7 @@ namespace WellTie
     class PickSetMgr;
 
 mExpClass(WellAttrib) DispParams
-{
+{ mODTextTranslationClass(DispParams);
 public:
 			    DispParams()
 			    : ismarkerdisp_(true)
@@ -79,7 +79,7 @@ public:
 
 
 mExpClass(WellAttrib) Marker
-{
+{ mODTextTranslationClass(Marker);
 public:
 			    Marker(float z)
 				: zpos_(z)
@@ -98,7 +98,7 @@ public:
 
 
 mExpClass(WellAttrib) PickData
-{
+{ mODTextTranslationClass(PickData);
 public:
     TypeSet<Marker>		synthpicks_;
     TypeSet<Marker>		seispicks_;
@@ -106,7 +106,7 @@ public:
 
 
 mExpClass(WellAttrib) Data
-{
+{ mODTextTranslationClass(Data);
 public :
 				Data(const Setup&,Well::Data& wd);
 				~Data();
@@ -166,7 +166,7 @@ protected:
 
 
 mExpClass(WellAttrib) WellDataMgr : public CallBacker
-{
+{ mODTextTranslationClass(WellDataMgr);
 public:
 				WellDataMgr(const MultiID&);
 				~WellDataMgr();
@@ -185,7 +185,7 @@ protected:
 
 
 mExpClass(WellAttrib) DataWriter
-{
+{ mODTextTranslationClass(DataWriter);
 public:
 				DataWriter(Well::Data&,const MultiID&);
 				~DataWriter();
@@ -209,7 +209,7 @@ protected:
 
 
 mExpClass(WellAttrib) HorizonMgr
-{
+{ mODTextTranslationClass(HorizonMgr);
 public:
 				HorizonMgr(TypeSet<Marker>& hor)
 				   : wd_(0)
@@ -226,7 +226,7 @@ public:
     void			matchHorWithMarkers(TypeSet<PosCouple>&,
 							bool bynames) const;
     void			setUpHorizons(const TypeSet<MultiID>&,
-						  BufferString&,TaskRunner&);
+						  uiString&,TaskRunner&);
     void			setWD( const Well::Data* wd)
 				{ wd_ = wd; }
 

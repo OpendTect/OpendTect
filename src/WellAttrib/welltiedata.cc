@@ -159,7 +159,7 @@ void Data::computeExtractionRange()
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
-				BufferString& errms, TaskRunner& taskrunner )
+				uiString& errms, TaskRunner& taskrunner )
 {
     horizons_.erase();
     if ( !wd_ ) return;
@@ -169,7 +169,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	PtrMan<IOObj> ioobj = IOM().get( horids[idx] );
 	if ( !ioobj )
 	{
-	    errms += "Cannot get database entry for selected horizon";
+	    errms.append(tr("Cannot get database entry for "
+			    "selected horizon"));
 	    return;
 	}
 
@@ -192,9 +193,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    }
 	    else
 	    {
-		errms += "Cannot load ";
-		errms += ioobj->name();
-		errms += ".";
+		uiString errms = tr("Cannot load %1.")
+			       .arg(ioobj->name());
 		return;
 	    }
 	}

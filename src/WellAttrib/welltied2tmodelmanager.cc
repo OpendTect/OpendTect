@@ -41,7 +41,8 @@ D2TModelMgr::D2TModelMgr( Well::Data& wd, DataWriter& dwr, const Setup& wts )
 			? wd.d2TModel()
 			: gc.getModelFromVelLog( wd, wts.vellognm_ );
     if ( !d2t )
-	errmsg_ = "Cannot generate depth/time model. Check your velocity log";
+	errmsg_ = tr("Cannot generate depth/time model. Check your "
+		     "velocity log");
 
     if ( wts.corrtype_ == Setup::Automatic && wd_->haveCheckShotModel() )
 	CheckShotCorr::calibrate( *wd.checkShotModel(), *d2t );

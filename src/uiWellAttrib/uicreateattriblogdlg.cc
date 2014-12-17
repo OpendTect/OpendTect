@@ -145,7 +145,7 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	selwells.add( wellnames_.get(0) );
 
 
-    BufferString errmsg;
+    uiString errmsg;
     if ( !datasetup_.extractparams_->isOK( &errmsg ) )
 	mErrRet( errmsg );
 
@@ -179,8 +179,8 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	const Well::Log& newlog = wd->logs().getLog(sellogidx_);
 	if ( !wtr.putLog(newlog) )
 	{
-	    errmsg = "Cannot write log '"; errmsg += newlog.name();
-	    errmsg += "'.\nCheck the permissions of the *.wll file";
+	    errmsg = tr("Cannot write log '%1'.\nCheck the permissions "
+			"of the *.wll file").arg(newlog.name());
 	    uiMSG().error( errmsg );
 	    return false;
 	}

@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "wellattribmod.h"
 #include "executor.h"
+#include "uistring.h"
 
 class IOObj;
 class SeparString;
@@ -24,7 +25,7 @@ namespace PosInfo { class Line2DData; }
 
 
 mExpClass(WellAttrib) StratSynthExporter : public Executor
-{
+{ mODTextTranslationClass(StratSynthExporter);
 public:
     				StratSynthExporter(
 				    const ObjectSet<const SyntheticData>& sds,

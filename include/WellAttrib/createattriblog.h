@@ -14,6 +14,7 @@
 #include "wellattribmod.h"
 #include "binidvalset.h"
 #include "bufstring.h"
+#include "uistring.h"
 
 namespace Attrib { class DescSet; class SelSpec; class EngineMan; }
 namespace Well { class Data; class ExtractParams; }
@@ -21,7 +22,7 @@ class NLAModel;
 class TaskRunner;
 
 mExpClass(WellAttrib) AttribLogExtractor
-{
+{ mODTextTranslationClass(AttribLogExtractor);
 public:
 				AttribLogExtractor(const Well::Data& wd)
 				    : wd_(&wd)
@@ -47,7 +48,7 @@ protected:
 
 
 mExpClass(WellAttrib) AttribLogCreator
-{
+{ mODTextTranslationClass(AttribLogCreator);
 public:
 
     mExpClass(WellAttrib) Setup
@@ -77,7 +78,7 @@ public:
 				    {}
 				~AttribLogCreator() {}
 
-    bool			doWork(Well::Data&,BufferString&);
+    bool			doWork(Well::Data&,uiString&);
 
 protected:
 
@@ -86,7 +87,8 @@ protected:
     int&			sellogidx_;
 
     bool                        extractData(BinIDValueSet&);
-    bool                        createLog(Well::Data&,const AttribLogExtractor&);
+    bool                        createLog(Well::Data&,
+					  const AttribLogExtractor&);
 
 };
 

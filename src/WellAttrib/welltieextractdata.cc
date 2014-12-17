@@ -62,7 +62,7 @@ void SeismicExtractor::setInterval( const StepInterval<float>& itv )
 bool SeismicExtractor::collectTracesAroundPath()
 {
     if ( bidset_.isEmpty() )
-	mErrRet( "No position extracted from well track" );
+	mErrRet( tr("No position extracted from well track") );
 
     const bool seisid2D = rdr_->is2D();
     if ( seisid2D )

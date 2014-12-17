@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "stattype.h"
 #include "survinfo.h"
+#include "uistring.h"
 
 class DataPointSet;
 class IODirEntryList;
@@ -44,7 +45,7 @@ class MarkerSet;
 */
 
 mExpClass(Well) ZRangeSelector
-{
+{ mODTextTranslationClass(ZRangeSelector);
 public :
 			ZRangeSelector() { setEmpty(); }
 			ZRangeSelector(const ZRangeSelector&);
@@ -69,7 +70,7 @@ public :
     virtual void	fillPar(IOPar&) const;
 
     virtual void	setEmpty();
-    virtual bool	isOK(BufferString* errmsg=0) const;
+    virtual bool	isOK(uiString* errmsg=0) const;
 
     //set
     void		setTopMarker(const char* nm,float offset)
@@ -118,7 +119,7 @@ protected:
 */
 
 mExpClass(Well) ExtractParams : public ZRangeSelector
-{
+{ mODTextTranslationClass(ExtractParams);
 public:
 			ExtractParams() { setEmpty(); }
 			ExtractParams(const ExtractParams&);
@@ -127,7 +128,7 @@ public:
     void		fillPar(IOPar&) const;
 
     void		setEmpty();
-    bool		isOK(BufferString* errmsg=0) const;
+    bool		isOK(uiString* errmsg=0) const;
 
     static const char*	sKeySamplePol();
     static const char*	sKeyZExtractInTime();
@@ -144,7 +145,7 @@ public:
 */
 
 mExpClass(Well) InfoCollector : public ::Executor
-{
+{ mODTextTranslationClass(InfoCollector);
 public:
 
 			InfoCollector(bool wellloginfo=true,
@@ -192,7 +193,7 @@ new rows with the positions along the track.
 */
 
 mExpClass(Well) TrackSampler : public ::Executor
-{
+{ mODTextTranslationClass(TrackSampler);
 public:
 
 			TrackSampler(const BufferStringSet& ioobjids,
@@ -215,8 +216,8 @@ public:
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
-    const char*	errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    uiString		errMsg() const
+			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss_; }
@@ -234,7 +235,7 @@ protected:
     const bool			zistime_;
     Interval<float>		zrg_;
     int				dahcolnr_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
 
     void		getData(const Data&,DataPointSet&);
     bool		getPos(const Data&,float,BinIDValue&,int&,
@@ -250,7 +251,7 @@ DataPointSet.
 */
 
 mExpClass(Well) LogDataExtracter : public ::Executor
-{
+{ mODTextTranslationClass(LogDataExtracter);
 public:
 
 			LogDataExtracter(const BufferStringSet& ioobjids,
@@ -264,8 +265,8 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    uiString	uiMessage() const   { return msg_.buf(); }
-    uiString	uiNrDoneText() const { return "Wells handled"; }
+    uiString		uiMessage() const   { return msg_; }
+    uiString		uiNrDoneText() const { return "Wells handled"; }
     od_int64		nrDone() const	   { return curid_; }
     od_int64		totalNr() const	   { return ids_.size(); }
 
@@ -280,7 +281,7 @@ protected:
     ObjectSet<DataPointSet>&	dpss_;
     int				curid_;
     const bool			zistime_;
-    BufferString		msg_;
+    uiString			msg_;
 
     void		getData(DataPointSet&,const Data&,const Track&);
     void		getGenTrackData(DataPointSet&,const Track&,const Log&,
@@ -297,7 +298,7 @@ protected:
 */
 
 mExpClass(Well) SimpleTrackSampler : public Executor
-{
+{ mODTextTranslationClass(SimpleTrackSampler);
 public:
 			SimpleTrackSampler(const Well::Track&,
 					  const Well::D2TModel*,
@@ -338,7 +339,7 @@ or dah axis.
 */
 
 mExpClass(Well) LogSampler : public ParallelTask
-{
+{ mODTextTranslationClass(LogSampler);
 public:
 			LogSampler(const Well::Data& wd,
 				const Well::ExtractParams&,
@@ -366,8 +367,8 @@ public:
     float		getThickness(int idz) const;
 			//!< Vertical thickness of a sample, not along hole
 
-    const char*		errMsg() const
-			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    uiString		errMsg() const
+			{ return errmsg_.isEmpty() ? 0 : errmsg_; }
 
     int		nrZSamples() const;
     Interval<float>	zRange() const 	{ return zrg_; } //can be in time
@@ -391,7 +392,7 @@ protected:
     bool			zrgisintime_;
     ObjectSet<const Well::Log>	logset_;
     Array2DImpl<float>*		data_;
-    BufferString		errmsg_;
+    uiString			errmsg_;
     Stats::UpscaleType		samppol_;
 };
 

@@ -1255,7 +1255,7 @@ void uiStratSynthDisp::doModelChange()
 
     if ( !curSS().errMsg().isEmpty() )
 	mErrRet( curSS().errMsg(), return )
-    if ( curSS().infoMsg() )
+    if ( curSS().infoMsg().isSet() )
     {
 	uiMsgMainWinSetter mws( mainwin() );
 	uiMSG().warning( curSS().infoMsg() );

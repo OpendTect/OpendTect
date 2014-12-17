@@ -623,7 +623,7 @@ SyntheticData* StratSynth::createAngleStack( const SyntheticData& sd,
 
 
 class ElasticModelCreator : public ParallelTask
-{
+{ mODTextTranslationClass(ElasticModelCreator);
 public:
 ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
     : ParallelTask( "Elastic Model Generator" )
@@ -637,12 +637,12 @@ ElasticModelCreator( const Strat::LayerModel& lm, TypeSet<ElasticModel>& ems )
 uiString uiMessage() const
 {
     if ( errmsg_.isEmpty() )
-	return "Generating elastic model";
+	return tr("Generating elastic model");
     else
 	return errmsg_.buf();
 }
 
-uiString uiNrDoneText() const	{ return "Models done"; }
+uiString uiNrDoneText() const	{ return tr("Models done"); }
 
 protected :
 
@@ -770,7 +770,7 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 
     if ( layMod().isEmpty() )
     {
-	errmsg_ = "Empty layer model.";
+	errmsg_ = tr("Empty layer model.");
 	return 0;
     }
 
@@ -830,7 +830,8 @@ SyntheticData* StratSynth::generateSD( const SynthGenParams& synthgenpar )
 		inputsdnm += sKeyFRNameSuffix();
 	    sd = getSynthetic( inputsdnm );
 	    if ( !sd )
-		mErrRet( " input prestack synthetic data not found.", return 0 )
+		mErrRet( tr(" input prestack synthetic data not found."), 
+			 return 0 )
 	    CubeSampling cs( false );
 	    for ( int idx=0; idx<sd->d2tmodels_.size(); idx++ )
 	    {
@@ -942,7 +943,7 @@ void StratSynth::generateOtherQuantities()
 
 
 mClass(WellAttrib) StratPropSyntheticDataCreator : public ParallelTask
-{
+{ mODTextTranslationClass(StratPropSyntheticDataCreator);
 
 public:
 StratPropSyntheticDataCreator( ObjectSet<SyntheticData>& synths,
@@ -966,12 +967,12 @@ od_int64 nrIterations() const
 
 uiString uiMessage() const
 {
-    return !isprepared_ ? "Preparing Models" : "Calculating";
+    return !isprepared_ ? tr("Preparing Models") : tr("Calculating");
 }
 
 uiString uiNrDoneText() const
 {
-    return "Models done";
+    return tr("Models done");
 }
 
 
@@ -1172,9 +1173,9 @@ uiString StratSynth::errMsg() const
 }
 
 
-const char* StratSynth::infoMsg() const
+uiString StratSynth::infoMsg() const
 {
-    return infomsg_.isEmpty() ? 0 : infomsg_.buf();
+    return infomsg_.isEmpty() ? 0 : infomsg_;
 }
 
 
@@ -1203,9 +1204,9 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 	tmpmodel.checkAndClean( erroridx, true, true, false );
 	if ( tmpmodel.isEmpty() )
 	{
-	    errmsg_ = uiString( "Cannot generate elastic model as the "
-				"thicknesses/Pwave velocity values are invalid."
-				" Probably units are not set correctly." );
+	    errmsg_ = tr("Cannot generate elastic model as the "
+			 "thicknesses/Pwave velocity values are invalid."
+			 " Probably units are not set correctly." );
 	    return false;
 	}
 	else if ( erroridx != -1 )
@@ -1237,13 +1238,15 @@ bool StratSynth::adjustElasticModel( const Strat::LayerModel& lm,
 
 	    if ( infomsg_.isEmpty() )
 	    {
-		infomsg_ = "Layer model contains invalid values of the "
-			   "following properties:\n";
-		infomsg_.add( msg ).add( "First occurence found in layer '" );
-		infomsg_.add( seq.layers()[erroridx]->name() );
-		infomsg_.add( "' of pseudo well number ").add(midx+1).add("\n");
-		infomsg_.add( "Invalid values will be interpolated." );
-		infomsg_.add( "The resulting synthetics may be incorrect" );
+		infomsg_ = tr("Layer model contains invalid values of the "
+			      "following properties:\n%1"
+			      "First occurence found in layer '%2' " 
+			      "of pseudo well number %3\n"
+			      "Invalid values will be interpolated."
+			      "The resulting synthetics may be incorrect")
+			 .arg(msg)
+			 .arg(seq.layers()[erroridx]->name())
+			 .arg(midx + 1);
 	    }
 
 	    aimodel.interpolate( needinterpolatedvel, needinterpoltedden,

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "tableascio.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 namespace Table { class FormatDesc; }
 class UnitOfMeasure;
@@ -35,7 +36,7 @@ class MarkerSet;
 */
 
 mExpClass(Well) LASImporter
-{
+{ mODTextTranslationClass(LASImporter);
 public:
 
 			LASImporter( Data& d ) : wd_(&d), useconvs_(false)   {}
@@ -96,7 +97,7 @@ protected:
 */
 
 mExpClass(Well) TrackAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(TrackAscIO);
 public:
     				TrackAscIO( const Table::FormatDesc& fd,
 					   od_istream& strm )
@@ -118,7 +119,7 @@ protected:
 */
 
 mExpClass(Well) D2TModelAscIO : public Table::AscIO
-{   
+{ mODTextTranslationClass(D2TModelAscIO);
     public:
 				D2TModelAscIO( const Table::FormatDesc& fd )
 				: Table::AscIO(fd)          {}
@@ -137,7 +138,7 @@ mExpClass(Well) D2TModelAscIO : public Table::AscIO
 */
 
 mExpClass(Well) MarkerSetAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(MarkerSetAscIO);
 public:
     			MarkerSetAscIO( const Table::FormatDesc& fd )
 			    : Table::AscIO(fd)		{}
@@ -154,7 +155,7 @@ public:
 */
 
 mExpClass(Well) BulkTrackAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(BulkTrackAscIO);
 public:
 			BulkTrackAscIO(const Table::FormatDesc&,od_istream&);
 
@@ -174,7 +175,7 @@ protected:
 */
 
 mExpClass(Well) BulkMarkerAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(BulkMarkerAscIO);
 public:
 			BulkMarkerAscIO(const Table::FormatDesc&,od_istream&);
 
@@ -195,7 +196,7 @@ protected:
 */
 
 mExpClass(Well) BulkD2TModelAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(BulkD2TModelAscIO);
 public:
 			BulkD2TModelAscIO(const Table::FormatDesc&,
 					  od_istream&);
