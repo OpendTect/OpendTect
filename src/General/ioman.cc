@@ -822,9 +822,9 @@ bool SurveyDataTreePreparer::prepSurv()
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
-    IOM().toRoot();
-    if ( IOM().isBad() )
+    if ( !IOM().toRoot() || IOM().isBad() )
 	{ errmsg_ = "Can't go to root of survey"; return false; }
+
     IODir* topdir = IOM().dirptr_;
     if ( !topdir->main() || topdir->main()->name() == "Appl dir" )
 	return true;
