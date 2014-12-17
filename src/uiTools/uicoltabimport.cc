@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uipixmap.h"
+#include "uistrings.h"
 
 #include "coltabsequence.h"
 #include "file.h"
@@ -110,7 +111,7 @@ void uiColTabImport::usrSel( CallBacker* )
     if ( !File::exists(fp.fullPath()) )
     {
 	uiMSG().error(tr("Please select an existing %1")
-		    .arg(fromuser ? tr("directory") : tr("file")));
+		    .arg(fromuser ? tr("directory") : uiStrings::sFile()));
 	return;
     }
 

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uibutton.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
+#include "uistrings.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -304,7 +305,7 @@ bool uiMadIOSelDlg::getInp()
     {
 	const BufferString fnm( madfld_->fileName() );
 	if ( fnm.isEmpty() || (isinp_ && !File::exists(fnm)) )
-	    mErrRet("file")
+	    mErrRet(uiStrings::sFile())
     }
     else if ( !isNone() )
     {
