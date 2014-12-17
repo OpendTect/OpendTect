@@ -580,8 +580,8 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     if ( !nmflt.isEmpty() && nmflt != "*" )
 	del.fill( iodir, nmflt );
 
-    static const bool icsel_
-		= Settings::common().isTrue( "Ui.Icons.ObjSel" );
+    mDefineStaticLocalObject( const bool, icsel_,
+			      = Settings::common().isTrue("Ui.Icons.ObjSel") );
     ioobjnms_.erase();
     dispnms_.erase();
     iconnms_.erase();
