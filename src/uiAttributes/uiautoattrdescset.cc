@@ -31,6 +31,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uiattrdescseted.h"
 #include "od_helpids.h"
 
@@ -122,7 +123,8 @@ bool uiAutoAttrSelDlg::acceptOK( CallBacker* )
             bs = tr("Attribute Set %1 is fo type %2 "
 		    "Please select another attribute set")
 	       .arg(ctio_.ioobj->name())
-	       .arg(attrset.is2D() ? "2D" : "3D");
+	       .arg(attrset.is2D() ? uiStrings::s2D(true) 
+				   : uiStrings::s3D(true));
 	uiMSG().error( bs );
 	return false;
     }
