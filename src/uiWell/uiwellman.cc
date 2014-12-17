@@ -426,7 +426,7 @@ void uiWellMan::defD2T( bool chkshot )
     else if ( !mIsEqual(oldreplvel,wd->info().replvel,1e-2f) &&
 	      !wtr.putInfoAndTrack() )
     {
-	if ( !errmsg.isEmpty() );
+	if ( !errmsg.isEmpty() )
 	errmsg.append(tr("\nCannot write new replacement velocity to disk"));
 	wd->info().replvel = oldreplvel;
     }
