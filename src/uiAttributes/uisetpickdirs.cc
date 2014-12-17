@@ -130,7 +130,7 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
     if ( usesteering_ && !*steerfld_->getInput() )
-	mErrRet( tr("Please, select Steering Cube") )
+	mErrRet( tr("Please, select SteeringCube") )
     if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
 	mErrRet( tr("Please, select input attribute(s) for Phi and Theta") )
 
@@ -224,7 +224,7 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 	    steerfld_->setDescSet( createdset_ );
 
 	const DescID inldipid = steerfld_->inlDipID();
-	if ( !inldipid.isValid() ) mErrRet( tr("Cannot read Steering Cube") )
+	if ( !inldipid.isValid() ) mErrRet( tr("Cannot read SteeringCube") )
 
 	ids += inldipid;
 	ids += steerfld_->crlDipID();

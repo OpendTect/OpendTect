@@ -96,7 +96,7 @@ static const char* getMenuText( bool is2d, bool issteering, bool endmenu )
     if ( is2d )
 	menutext = issteering ? "Steering 2D Data" : "Stored 2D Data";
     else
-	menutext = issteering ? "Steering Cubes" : "Stored Cubes";
+	menutext = issteering ? "SteeringCubes" : "Stored Cubes";
 
     if ( endmenu ) menutext.add( " ..." );
 
