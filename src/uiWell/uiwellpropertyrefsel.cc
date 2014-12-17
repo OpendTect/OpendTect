@@ -219,10 +219,10 @@ uiWellPropSel::uiWellPropSel( uiParent* p, const PropertyRefSelection& prs )
     for ( int idx=0; idx<propflds_.size(); idx ++ )
     {
 	uiToolButton* createbut = new uiToolButton( this, "newlog",
-		"Create a log from other logs",
+		tr("Create a log from other logs"),
 		mCB(this,uiWellPropSel,createLogPushed) );
 	uiToolButton* viewbut = new uiToolButton( this, "view_log",
-		"View log", mCB(this,uiWellPropSel,viewLogPushed) );
+		tr("View log"), mCB(this,uiWellPropSel,viewLogPushed) );
 	if ( idx )
 	    createbut->attach( ensureBelow, createbuts_[idx-1] );
 	for ( int idotherpr=0; idotherpr<propflds_.size(); idotherpr++ )
@@ -288,8 +288,8 @@ bool uiWellPropSel::isOK() const
     {
 	if ( FixedString(propflds_[idx]->logName()) == sKeyPlsSel )
 	{
-	    uiMSG().error( BufferString("Please create/select a log for ",
-					propflds_[idx]->normPropRef().name()) );
+	    uiMSG().error(tr("Please create/select a log for %1")
+			.arg(propflds_[idx]->normPropRef().name()));
 	    return false;
 	}
     }

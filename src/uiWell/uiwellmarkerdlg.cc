@@ -390,11 +390,11 @@ void uiMarkerDlg::updateFromLevel( int irow, uiStratLevelSel* levelsel )
 
 
 class uiReadMarkerFile : public uiDialog
-{
+{ mODTextTranslationClass(uiReadMarkerFile);
 public:
 
 uiReadMarkerFile( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Markers",mNoDlgTitle,
+    : uiDialog(p,uiDialog::Setup(tr("Import Markers"),mNoDlgTitle,
                                  mODHelpKey(mReadMarkerFileHelpID) ))
     , fd_(*Well::MarkerSetAscIO::getDesc())
 {
@@ -407,8 +407,8 @@ uiReadMarkerFile( uiParent* p )
                       mODHelpKey(mTableImpDataSelmarkersHelpID) );
     dataselfld_->attach( alignedBelow, fnmfld_ );
 
-    replfld_ = new uiGenInput( this, "Existing markers (if any)",
-			      BoolInpSpec(true,"Replace","Keep") );
+    replfld_ = new uiGenInput( this, tr("Existing markers (if any)"),
+			      BoolInpSpec(true,tr("Replace"),tr("Keep")) );
     replfld_->attach( alignedBelow, dataselfld_ );
 }
 
@@ -421,7 +421,7 @@ bool acceptOK( CallBacker* )
 {
     fnm_ = fnmfld_->fileName();
     if ( File::isEmpty(fnm_) )
-	{ uiMSG().error( "Invalid input file" ); return false; }
+	{ uiMSG().error( tr("Invalid input file") ); return false; }
 
     if ( !dataselfld_->commit() )
 	return false;
@@ -463,7 +463,7 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 {
     deepErase( markers );
     BufferStringSet markernms;
-    BufferString errmsg;
+    uiString errmsg;
     const float zfac = zFactor();
     for ( int rowidx=0; rowidx<table_->nrRows(); rowidx++ )
     {
@@ -477,9 +477,9 @@ bool uiMarkerDlg::getMarkerSet( Well::MarkerSet& markers ) const
 
 	if ( !markernms.addIfNew(markernm) )
 	{
-	    errmsg = "Marker name '";
-	    errmsg.add( markernm ).add( "' is present several times," )
-	          .add( " please make sure it is unique" );
+	    errmsg = tr("Marker name '%1' is present several times,"
+			" please make sure it is unique")
+		   .arg(markernm);
 	    uiMSG().error( errmsg );
 	    return false;
 	}
@@ -505,19 +505,19 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
     Interval<float> dahrg( track_.dahRange() );
     const float zfac = zFactor();
     dahrg.scale( zFactor() );
-    BufferString errmsg;
+    uiString errmsg;
     for ( int midx=0; midx<markers.size(); midx++ )
     {
 	const float val = markers[midx]->dah() * zfac;
 	if ( !dahrg.includes(val,true) )
-	    errmsg.add( "'" ).add( markers[midx]->name() ).add( "' " );
+	    errmsg = tr("'%1'%2").arg(markers[midx]->name());
     }
 
     if ( !errmsg.isEmpty() )
     {
-      errmsg.add( "depth value(s) is/are out of well track range [" )
-	    .add( dahrg.start ).add( "-" ).add( dahrg.stop ).add( "]. " )
-	    .add ( "Press Abort if you want to re-enter the depth." );
+	errmsg.arg(tr("depth value(s) is/are out of well track range [%1-%2]. "
+		      "Press Abort if you want to re-enter the depth.")
+		 .arg(dahrg.start).arg(dahrg.stop));
       const bool res = uiMSG().askContinue( errmsg );
       if ( !res ) return false;
     }
@@ -527,11 +527,11 @@ bool uiMarkerDlg::acceptOK( CallBacker* )
 
 
 class uiMarkersList : public uiDialog
-{
+{ mODTextTranslationClass(uiMarkersList);
 public:
 
 uiMarkersList( uiParent* p, const Well::MarkerSet& mset )
-	: uiDialog( p,uiDialog::Setup( "Markers List", "Select markers",
+	: uiDialog( p,uiDialog::Setup( tr("Markers List"), tr("Select markers"),
 					mNoHelpKey) )
 {
     list_ = new uiListBox( this, "Markers" );
@@ -571,23 +571,23 @@ bool uiMarkerDlg::setAsRegMarkersCB( CallBacker* )
     }
 
     Strat::LevelSet& lvls = Strat::eLVLS();
-    BufferString msg;
+    uiString msg;
     int mid = 0;
     for ( int idx=0; idx<selitems.size(); idx++ )
     {
 	const int selidx = selitems[idx];
 	if ( lvls.isPresent(mset[selidx]->name()) )
 	{
-	    msg.add( "'" ).add( mset[selidx]->name() ).add( "' ");
+	    msg = tr( "'%1' %2" ).arg( mset[selidx]->name() );
 	    mid++;
 	}
     }
 
     if ( !msg.isEmpty() )
     {
-	msg.add( mid > 1 ? "are " : "is " );
-	msg.add( "already set as regional marker(s)." );
-	msg.add( "Press Continue to update properties." );
+	msg.arg(tr("%1already set as regional marker(s)." 
+		   "Press Continue to update properties.")
+	      .arg(mid > 1 ? tr("are ") : tr("is ")));
 	const bool res = uiMSG().askContinue( msg );
 	if ( !res ) return false;
     }
@@ -626,8 +626,8 @@ void uiMarkerDlg::exportCB( CallBacker* )
     od_ostream strm( fdlg.fileName() );
     if ( !strm.isOK() )
     {
-	BufferString msg( "Cannot open '", fdlg.fileName(), "' for write" );
-	strm.addErrMsgTo( msg );
+	BufferString msg("Cannot open '", fdlg.fileName(), "' for write");
+	strm.addErrMsgTo(msg);
 	return;
     }
 
@@ -722,12 +722,13 @@ bool uiMarkerDlg::updateMarkerDepths( int rowidx, bool md2tvdss )
     Interval<float> trckrg( md2tvdss ? track_.dahRange() : track_.zRange() );
     if ( !trckrg.includes(inval,true) )
     {
-	BufferString errmsg( "The entered depth " );
-	errmsg.add( inval * zfac ).add( " is outside of track range\n" );
-	errmsg.add( "[" ).add( trckrg.start * zfac ).add( ", ");
-	errmsg.add( trckrg.stop * zfac ).add( "] " );
-	errmsg.add( !unitfld_->isChecked() ? "m" : "ft" );
-	errmsg.add( md2tvdss ? sKeyMD() : istvd ? sKeyTVD() : sKeyTVDSS() );
+	uiString errmsg = tr("The entered depth %1 is outside of "
+			     "track range\n[%2, %3] %4%5")
+			.arg( inval * zfac ).arg( trckrg.start * zfac )
+			.arg( trckrg.stop * zfac )
+			.arg( !unitfld_->isChecked() ? "m" : "ft" )
+			.arg( md2tvdss ? sKeyMD() : istvd ? sKeyTVD() 
+							  : sKeyTVDSS() );
 	Well::Marker* marker = getMarker( row, true );
 	uiMSG().error( errmsg );
 	if ( marker )

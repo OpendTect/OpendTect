@@ -34,7 +34,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #define mErrRet(msg,act) { uiMSG().error( msg ); act; }
 uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
-    : uiDialog(p,uiDialog::Setup(edit ? "Edit Marker": "Add Marker",
+    : uiDialog(p,uiDialog::Setup(edit ? tr("Edit Marker"): tr("Add Marker"),
 					mNoDlgTitle,mNoHelpKey))
     , marker_(mrk)
 {
@@ -46,7 +46,7 @@ uiAddEditMrkrDlg::uiAddEditMrkrDlg( uiParent* p, Well::Marker& mrk, bool edit )
     colorfld_ = new uiColorInput( this, csu, "Color" );
     colorfld_->attach( alignedBelow, namefld_ );
 
-    stratmrkfld_ = new uiCheckBox( this, "Set as regional marker" );
+    stratmrkfld_ = new uiCheckBox( this, tr("Set as regional marker") );
     stratmrkfld_->attach( rightOf, colorfld_ );
     stratmrkfld_->setChecked( true );
 
@@ -58,7 +58,7 @@ bool uiAddEditMrkrDlg::acceptOK( CallBacker* )
 {
     BufferString nm = namefld_->text();
     if ( nm.isEmpty() )
-	mErrRet( "Please specify a marker name", return false );
+	mErrRet( tr("Please specify a marker name"), return false );
 
     marker_.setName( nm );
     marker_.setColor( colorfld_->color() );
@@ -86,7 +86,7 @@ void uiAddEditMrkrDlg::putToScreen()
 
 
 uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Edit Markers Dialog",
+    : uiDialog(p,uiDialog::Setup(tr("Edit Markers Dialog"),
 		                 mNoDlgTitle, mODHelpKey(
 				     mDispEditMarkerDlgHelpID) )
                                 .modal(false))
@@ -96,7 +96,7 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     , ispicking_(true)
     , pickmodechanged(this)
 {
-    setOkText( "Ok/Save" );
+    setOkText( tr("Ok/Save") );
 
     mrklist_ = new uiListBox( this, "Markers" );
     mrklist_->rightButtonClicked.notify(
@@ -107,19 +107,19 @@ uiDispEditMarkerDlg::uiDispEditMarkerDlg( uiParent* p )
     toolgrp_->attach( rightOf, mrklist_ );
     CallBack butcb( mCB(this,uiDispEditMarkerDlg,buttonPushedCB) );
     pickbut_ = new uiToolButton( toolgrp_, "seedpickmode",
-	"Pick marker on display", mCB(this,uiDispEditMarkerDlg,modeChg) );
+	tr("Pick marker on display"), mCB(this,uiDispEditMarkerDlg,modeChg) );
     pickbut_->setToggleButton( true );
     pickbut_->setOn( true );
 
     uiSeparator* modesep = new uiSeparator( toolgrp_, "Mode Sep" );
     modesep->attach( stretchedBelow, pickbut_ );
 
-    addbut_ = new uiToolButton( toolgrp_, "plus", "Add Marker", butcb );
+    addbut_ = new uiToolButton( toolgrp_, "plus", tr("Add Marker"), butcb );
     addbut_->attach( ensureBelow, modesep );
     addbut_->attach( alignedBelow, pickbut_ );
-    editbut_ = new uiToolButton( toolgrp_, "edit", "Edit Marker", butcb );
+    editbut_ = new uiToolButton( toolgrp_, "edit", tr("Edit Marker"), butcb );
     editbut_->attach( alignedBelow, addbut_ );
-    rembut_ = new uiToolButton(toolgrp_, "trashcan", "Remove Marker", butcb);
+    rembut_ = new uiToolButton(toolgrp_, "trashcan", tr("Remove Marker"),butcb);
     rembut_->attach( alignedBelow, editbut_ );
 }
 
@@ -167,7 +167,7 @@ void uiDispEditMarkerDlg::addMoveMarker( int iset, float dah, const char* nm )
 	ObjectSet<Well::Marker> mrks;
 	getMarkerFromAll( mrks, nm );
 	if ( mrks.isEmpty() )
-	    mErrRet( "No marker found", return );
+	    mErrRet( tr("No marker found"), return );
 
 	mrk = new Well::Marker( *mrks[0] );
 	mrk->setDah( dah );
@@ -245,7 +245,7 @@ void uiDispEditMarkerDlg::editMrkrList()
     ObjectSet<Well::Marker> mrks;
     getMarkerFromAll( mrks, mrknm );
     if ( mrks.isEmpty() )
-	mErrRet( "No marker found", return );
+	mErrRet( tr("No marker found"), return );
 
     Well::Marker* mrk = new Well::Marker( *mrks[0] );
     uiAddEditMrkrDlg dlg( this, *mrk, true );
@@ -300,10 +300,10 @@ bool uiDispEditMarkerDlg::removeMrkrFromList()
 	}
     }
 
-    BufferString msg = "This will remove ";
-		 msg += mrknm;
-		 msg += " from all the wells \n ";
-		 msg += "Do you want to continue ? ";
+    uiString msg = tr("This will remove %1"
+		      " from all the wells \n "
+		      "Do you want to continue ? ")
+		 .arg(mrknm);
 
     if ( uiMSG().askContinue( msg ) )
     {
@@ -525,8 +525,8 @@ void uiWellDispCtrlEditMarkerDlg::askForSavingEditedChanges()
 {
     if ( !hasedited_ ) return;
 
-    BufferString msg = "Some markers have been edited. \n";
-    msg += "Do you want to save those changes? ";
+    uiString msg = tr("Some markers have been edited. \n"
+		      "Do you want to save those changes? ");
     if ( uiMSG().askGoOn( msg ) )
 	needsave_ = true;
     else

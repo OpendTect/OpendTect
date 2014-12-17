@@ -223,7 +223,8 @@ void uiWellPartServer::saveWellDispProps(const Well::Data& w,const MultiID& key)
 {
     Well::Writer wr( key, w );
     if ( !wr.putDispProps() )
-	uiMSG().error( "Could not write display properties for \n", w.name() );
+	uiMSG().error(tr("Could not write display properties for \n%1")
+		    .arg(w.name()));
 }
 
 
@@ -292,12 +293,13 @@ void uiWellPartServer::manageWells()
 
 
 class uiWellRockPhysLauncher : public uiDialog
-{
+{ mODTextTranslationClass(uiWellRockPhysLauncher);
 public:
 
 uiWellRockPhysLauncher( uiParent* p )
-    : uiDialog( p, Setup("Rock Physics - Well Logs",
-		"Select one or more wells to add well logs to",mTODOHelpKey) )
+    : uiDialog( p, Setup(tr("Rock Physics - Well Logs"),
+		tr("Select one or more wells to add well logs to"),
+		mTODOHelpKey) )
 {
     selgrp_ = new uiIOObjSelGrp( this, mIOObjContext(Well),
 			uiIOObjSelGrp::Setup(OD::ChooseAtLeastOne) );

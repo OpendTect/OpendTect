@@ -159,11 +159,12 @@ bool getLine()
 
 
 class uiSimpleMultiWellCreateReadData : public uiDialog
-{
+{ mODTextTranslationClass(uiSimpleMultiWellCreateReadData);
 public:
 
 uiSimpleMultiWellCreateReadData( uiSimpleMultiWellCreate& p )
-    : uiDialog(&p,uiDialog::Setup("Multi-well creation","Create multiple wells",
+    : uiDialog(&p,uiDialog::Setup(tr("Multi-well creation"),
+				  "Create multiple wells",
 		            mODHelpKey(mSimpleMultiWellCreateReadDataHelpID)))
     , par_(p)
     , fd_("Simple multi-welldata")
@@ -252,8 +253,8 @@ bool uiSimpleMultiWellCreate::createWell( const uiSMWCData& wcd,
     Well::Writer wr( ioobj, wd );
     if ( !wr.put() )
     {
-	BufferString msg( "Cannot write data for '" );
-	msg.add( wcd.nm_ ).add( "':\n" ).add( wr.errMsg() );
+	uiString msg = tr( "Cannot write data for '%1':\n%2" )
+		     .arg( wcd.nm_ ).arg( wr.errMsg() );
 	uiMSG().error( msg );
 	return false;
     }
@@ -295,8 +296,8 @@ bool uiSimpleMultiWellCreate::getWellCreateData( int irow, const char* wellnm,
     wcd.coord_.y = tbl_->getdValue( RowCol(irow,2) );
     if ( mIsUdf(wcd.coord_.x) || mIsUdf(wcd.coord_.y) )
     {
-	uiMSG().message(BufferString("No full coordinate for ", wellnm,
-				     "\nWell not created") );
+	uiMSG().message(tr("No full coordinate for %1"
+			   "\nWell not created").arg(wellnm));
 	return false;
     }
 

@@ -73,7 +73,7 @@ uiWellZRangeSelector::uiWellZRangeSelector( uiParent* p, const Setup& s )
     StringListInpSpec slis; const bool istime = SI().zIsTime();
     for ( int idx=0; idx<zchoiceset.size(); idx++ )
     {
-	uiString msg( "Start / stop %1" );
+	uiString msg = tr( "Start / stop %1" );
 	msg.arg( units[idx] );
 	uiGenInput* newgeninp = 0; uiWellMarkerSel* newmarksel = 0;
 	if ( idx == 0 )
@@ -249,7 +249,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( SI().zIsTime() && s.withextractintime_ )
     {
-	zistimefld_ = new uiCheckBox( this, "Extract in time" );
+	zistimefld_ = new uiCheckBox( this, tr("Extract in time") );
 	zistimefld_->attach( rightOf, zchoicefld_ );
 	zistimefld_->activated.notify( cb );
     }
@@ -287,7 +287,7 @@ uiWellExtractParams::uiWellExtractParams( uiParent* p, const Setup& s )
 
     if ( s.withsampling_ )
     {
-	sampfld_ = new uiGenInput( this, "Log resampling method",
+	sampfld_ = new uiGenInput( this, tr("Log resampling method"),
 				StringListInpSpec(Stats::UpscaleTypeNames()) );
 	sampfld_->setValue( Stats::UseAvg );
 	sampfld_->valuechanged.notify( cb );

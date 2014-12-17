@@ -349,8 +349,9 @@ void uiWellSelGrp::ptsSel( CallBacker* cb )
 
 
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
-    : uiDialog(p,uiDialog::Setup("Create Random line",
-				 "Select wells to set up the random line path",
+    : uiDialog(p,uiDialog::Setup(tr("Create Random line"),
+				 tr("Select wells to set up the "
+			            "random line path"),
 				 mODHelpKey(mWell2RandomLineDlgHelpID) )
                                  .modal(false))
     , wellserv_(ws)
@@ -374,8 +375,8 @@ uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
 
 void uiWell2RandomLineDlg::createFields()
 {
-    BufferString txt( "Extend outward (" );
-    txt += SI().xyInFeet() ? "ft)" : "m)";
+    uiString txt = tr("Extend outward (%1" )
+		 .arg(SI().xyInFeet() ? tr("ft)") : tr("m)"));
     float defdist = 100 * SI().inlDistance();
     extendfld_ = new uiGenInput(this,txt,FloatInpSpec((float)mNINT32(defdist)));
     extendfld_->setWithCheck( true );
@@ -384,13 +385,14 @@ void uiWell2RandomLineDlg::createFields()
     uiSeparator* sep = new uiSeparator( this, "Hor sep" );
     sep->attach( stretchedBelow, extendfld_ );
 
-    outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
+    outfld_ = new uiIOObjSel( this, outctio_, tr("Output Random line(s)") );
     if ( wellserv_ )
     {
 	CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
-	previewbutton_ = new uiPushButton( this, "Preview", cb, true );
+	previewbutton_ = new uiPushButton( this, tr("Preview"), cb, true );
 	previewbutton_->attach( ensureBelow, sep );
-	dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+	dispfld_ = new uiCheckBox( this, 
+				   tr("Display Random Line on creation") );
 	dispfld_->setChecked( true );
     }
 }
@@ -474,7 +476,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     if ( !outfld_->commitInput() || !outctio_.ioobj )
     {
 	if ( outfld_->isEmpty() )
-	    uiMSG().error( "Please specify the output" );
+	    uiMSG().error( tr("Please specify the output") );
 	return false;
     }
 
@@ -482,7 +484,7 @@ bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
     TypeSet<Coord> wellcoord; getCoordinates( wellcoord );
     if ( wellcoord.size() < 2 )
     {
-	uiMSG().error( "Please define at least two points" );
+	uiMSG().error( tr("Please define at least two points") );
 	return false;
     }
 

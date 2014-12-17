@@ -175,8 +175,8 @@ class uiWellImportAscOptDlg : public uiDialog
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
-    : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
-				 "Advanced and Optional",
+    : uiDialog(p,uiDialog::Setup(tr("Import well: Advanced/Optional"),
+				 tr("Advanced and Optional"),
                                  mODHelpKey(mWellImpPptDlgHelpID)))
     , uwia_(p)
     , zun_(UnitOfMeasure::surveyDefDepthUnit())
@@ -187,7 +187,8 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     if ( !mIsZero(info.surfacecoord.x,0.1) )
 	possu.coord_ = info.surfacecoord;
     coordfld = new uiGenInput( this,
-	"Surface coordinate (if different from first coordinate in track file)",
+	tr("Surface coordinate (if different from first "
+	   "coordinate in track file)"),
 	PositionInpSpec(possu).setName( "X", 0 ).setName( "Y", 1 ) );
 
     const bool zinfeet = SI().depthsInFeet();
@@ -212,17 +213,19 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
     uiSeparator* horsep = new uiSeparator( this );
     horsep->attach( stretchedBelow, gdelevfld );
 
-    idfld = new uiGenInput( this, "Well ID (UWI)", StringInpSpec(info.uwid) );
+    idfld = new uiGenInput( this, tr("Well ID (UWI)"), 
+			    StringInpSpec(info.uwid) );
     idfld->attach( alignedBelow, gdelevfld );
 
     operfld = new uiGenInput( this, uiStrings::sOperator(),
                               StringInpSpec(info.oper) );
     operfld->attach( alignedBelow, idfld );
 
-    statefld = new uiGenInput( this, "State", StringInpSpec(info.state) );
+    statefld = new uiGenInput( this, tr("State"), StringInpSpec(info.state) );
     statefld->attach( alignedBelow, operfld );
 
-    countyfld = new uiGenInput( this, "County", StringInpSpec(info.county) );
+    countyfld = new uiGenInput( this, tr("County"), 
+				StringInpSpec(info.county) );
     countyfld->attach( rightTo, statefld );
 }
 

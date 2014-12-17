@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiwellmod.h"
 #include "menuhandler.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class uiCheckBox;
 class uiColorInput;
@@ -29,7 +30,7 @@ namespace Well { class Marker; class MarkerSet; class Data; }
 
 
 mExpClass(uiWell) uiAddEditMrkrDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiAddEditMrkrDlg);
 public :
     				uiAddEditMrkrDlg(uiParent*,Well::Marker&,
 							bool edit);
@@ -106,7 +107,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellDispCtrlEditMarkerDlg : public uiDispEditMarkerDlg
-{
+{ mODTextTranslationClass(uiWellDispCtrlEditMarkerDlg);
 public:
 				uiWellDispCtrlEditMarkerDlg(uiParent*);
 				~uiWellDispCtrlEditMarkerDlg();

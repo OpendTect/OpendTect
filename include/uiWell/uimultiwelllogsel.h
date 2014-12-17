@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "wellmarker.h"
 #include "wellextractdata.h"
+#include "uistring.h"
 
 class IOObj;
 class uiCheckBox;
@@ -85,7 +86,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellExtractParams : public uiWellZRangeSelector
-{
+{ mODTextTranslationClass(uiWellExtractParams);
 public:
     mExpClass(uiWell) Setup : public uiWellZRangeSelector::Setup
     {
@@ -131,7 +132,7 @@ protected:
 
 
 mExpClass(uiWell) uiMultiWellLogSel : public uiWellExtractParams
-{
+{ mODTextTranslationClass(uiMultiWellLogSel);
 public:
 			uiMultiWellLogSel(uiParent*,const Setup&,
 					  const BufferStringSet* wellnms=0,

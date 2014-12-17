@@ -124,14 +124,15 @@ void uiBulkTrackImport::readFile( od_istream& istrm )
 }
 
 
-void uiBulkTrackImport::addD2T( BufferString& errmsg )
+void uiBulkTrackImport::addD2T( uiString& errmsg )
 {
     if ( !SI().zIsTime() ) return;
 
     const float vel = velocityfld_->getfValue();
     if ( vel<=0 || mIsUdf(vel) )
     {
-	errmsg ="Please enter a positive velocity for generating the D2T model";
+	errmsg = tr("Please enter a positive velocity "
+		    "for generating the D2T model");
 	return;
     }
 
@@ -169,22 +170,22 @@ void uiBulkTrackImport::write( uiStringSet& errors )
 	if ( !ioobj )
 	{
 	    errors.add(
-		BufferString("Cannot create Database entry for: ",wd->name()) );
+		tr("Cannot create Database entry for: %1").arg(wd->name()) );
 	    continue;
 	}
 
 	Well::Writer ww( *ioobj, *wd );
 	if ( !ww.put() )
 	{
-	    BufferString msg( "Cannot create ", wd->name(), ": " );
-	    msg.add( ww.errMsg() );
+	    uiString msg = tr("Cannot create %1: %2").arg(wd->name())
+			 .arg(ww.errMsg());
 	    errors.add( msg );
 	}
     }
 }
 
 
-#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiBulkTrackImport::acceptOK( CallBacker* )
 {
@@ -200,7 +201,7 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 	return false;
 
     readFile( strm );
-    BufferString errmsg;
+    uiString errmsg;
     addD2T( errmsg );
     if ( !errmsg.isEmpty() )
 	mErrRet( errmsg );
@@ -222,18 +223,18 @@ bool uiBulkTrackImport::acceptOK( CallBacker* )
 
 // uiBulkLogImport
 uiBulkLogImport::uiBulkLogImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Logs",
+    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Logs"),
 		 mNoDlgTitle, mODHelpKey(mBulkLogImportHelpID) ))
 {
     inpfld_ = new uiFileInput( this, "Input LAS files",	uiFileInput::Setup() );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
 
-    istvdfld_ = new uiGenInput( this, "Depth values are",
-		    BoolInpSpec(false,"TVDSS","MD") );
+    istvdfld_ = new uiGenInput( this, tr("Depth values are"),
+		    BoolInpSpec(false,tr("TVDSS"),tr("MD")) );
     istvdfld_->attach( alignedBelow, inpfld_ );
 
     const float defundefval = -999.25;
-    udffld_ = new uiGenInput( this, "Undefined value in logs",
+    udffld_ = new uiGenInput( this, tr("Undefined value in logs"),
 		    FloatInpSpec(defundefval));
     udffld_->attach( alignedBelow, istvdfld_ );
 }
@@ -249,7 +250,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
     inpfld_->getFileNames( filenms );
     if ( filenms.isEmpty() )
     {
-	uiMSG().error( "Please select at least one file" );
+	uiMSG().error( tr("Please select at least one file") );
 	return false;
     }
 
@@ -271,7 +272,7 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	const IOObj* ioobj = findIOObj( info.wellnm, info.uwi );
 	if ( !ioobj )
 	{
-	    errors.add( BufferString(fnm,": Cannot find ",info.wellnm) );
+	    errors.add(tr("%1: Cannot find %2").arg(fnm).arg(info.wellnm));
 	    continue;
 	}
 
@@ -279,8 +280,8 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 	Well::Data* wd = Well::MGR().get( ioobj->key() );
 	if ( !wd )
 	{
-	    errors.add( BufferString(info.wellnm,
-			": Cannot find well information in database") );
+	    errors.add(tr("%1: Cannot find well information in database")
+		     .arg(info.wellnm));
 	    continue;
 	}
 
@@ -297,19 +298,19 @@ bool uiBulkLogImport::acceptOK( CallBacker* )
 
     if ( errors.isEmpty() )
     {
-	uiMSG().message( "All logs imported succesfully" );
+	uiMSG().message( tr("All logs imported succesfully") );
 	return true;
     }
 
     uiMSG().errorWithDetails( errors,
-		"Could not import all LAS files (See details)" );
+		tr("Could not import all LAS files (See details)") );
     return false;
 }
 
 
 // uiBulkMarkerImport
 uiBulkMarkerImport::uiBulkMarkerImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Multi-Well Import: Markers",
+    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: Markers"),
 		 mNoDlgTitle, mODHelpKey(mBulkMarkerImportHelpID) ))
     , fd_(BulkMarkerAscIO::getDesc())
 {
@@ -357,7 +358,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	const PtrMan<IOObj> ioobj = findIOObj( wellnm, wellnm );
 	if ( !ioobj )
 	{
-	    errors.add( BufferString("Cannot find ",wellnm," in database") );
+	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
 	    continue;
 	}
 
@@ -365,7 +366,7 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 	Data* wd = MGR().get( ioobj->key() );
 	if ( !wd )
 	{
-	    errors.add( BufferString(wellnm,": Cannot load well") );
+	    errors.add(tr("%1: Cannot load well").arg(wellnm));
 	    continue;
 	}
 
@@ -395,12 +396,12 @@ bool uiBulkMarkerImport::acceptOK( CallBacker* )
 
     if ( errors.isEmpty() )
     {
-	uiMSG().message( "All markers imported succesfully" );
+	uiMSG().message( tr("All markers imported succesfully") );
 	return true;
     }
 
     uiMSG().errorWithDetails( errors,
-		"Could not import all marker files (See details)" );
+		tr("Could not import all marker files (See details)") );
     return false;
 }
 
@@ -442,7 +443,7 @@ D2TModelData( const char* wellnm )
 
 // uiBulkD2TModelImport
 uiBulkD2TModelImport::uiBulkD2TModelImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Multi-Well Import: D2TModel",
+    : uiDialog(p,uiDialog::Setup(tr("Multi-Well Import: D2TModel"),
 				 mNoDlgTitle,mTODOHelpKey))
     , fd_(BulkD2TModelAscIO::getDesc())
 {
@@ -487,7 +488,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	const IOObj* ioobj = findIOObj( wellnm, wellnm );
 	if ( !ioobj )
 	{
-	    errors.add( BufferString("Cannot find ",wellnm," in database") );
+	    errors.add( tr("Cannot find %1 in database").arg(wellnm) );
 	    continue;
 	}
 
@@ -495,7 +496,7 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 	Data* wd = MGR().get( ioobj->key() );
 	if ( !wd )
 	{
-	    errors.add( BufferString(wellnm,": Cannot load well") );
+	    errors.add(tr("%1: Cannot load well").arg(wellnm));
 	    continue;
 	}
 
@@ -516,12 +517,12 @@ bool uiBulkD2TModelImport::acceptOK( CallBacker* )
 
     if ( errors.isEmpty() )
     {
-	uiMSG().message( "All models imported succesfully" );
+	uiMSG().message( tr("All models imported succesfully") );
 	return true;
     }
 
     uiMSG().errorWithDetails( errors,
-		"Could not import all model files (See details)" );
+		tr("Could not import all model files (See details)") );
     return false;
 }
 

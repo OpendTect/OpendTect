@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "ranges.h"
 #include "position.h"
+#include "uistring.h"
 
 class uiButtonGroup;
 class uiCheckBox;
@@ -87,7 +88,7 @@ protected:
 
 
 mExpClass(uiWell) uiD2TModelDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiD2TModelDlg);
 public:
 			uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
 			~uiD2TModelDlg();
@@ -137,7 +138,7 @@ protected:
 class uiColorInput;
 
 mExpClass(uiWell) uiNewWellDlg : public uiGetObjectName
-{
+{ mODTextTranslationClass(uiNewWellDlg);
 public:
 			uiNewWellDlg(uiParent*);
 			~uiNewWellDlg();
@@ -159,7 +160,7 @@ protected:
 /* brief edit the logs's unit of measure */
 
 mExpClass(uiWell) uiWellLogUOMDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogUOMDlg);
 public:
 			uiWellLogUOMDlg(uiParent*,ObjectSet<Well::LogSet> wls,
 					const BufferStringSet wellnms,

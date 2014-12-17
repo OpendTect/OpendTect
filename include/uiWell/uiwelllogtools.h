@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 #include "multiid.h"
+#include "uistring.h"
 
 class uiCheckBox;
 class uiComboBox;
@@ -107,7 +108,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellLogToolWinMgr : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogToolWinMgr);
 public:
 			uiWellLogToolWinMgr(uiParent*,
 					    const BufferStringSet* welllnms=0,
@@ -122,7 +123,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellLogEditor : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogEditor);
 public:
 			uiWellLogEditor(uiParent*,Well::Log&);
 			~uiWellLogEditor();

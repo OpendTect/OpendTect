@@ -410,11 +410,11 @@ void uiWellMan::defD2T( bool chkshot )
     uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() ) return;
 
-    BufferString errmsg;
+    uiString errmsg;
     Well::Writer wtr( curmid, *wd );
     if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
     {
-	errmsg.add( "Cannot write new model to disk" );
+	errmsg = tr("Cannot write new model to disk");
 	if ( chkshot )
 	    wd->setCheckShotModel( origd2t );
 	else
@@ -426,8 +426,8 @@ void uiWellMan::defD2T( bool chkshot )
     else if ( !mIsEqual(oldreplvel,wd->info().replvel,1e-2f) &&
 	      !wtr.putInfoAndTrack() )
     {
-	if ( !errmsg.isEmpty() ) errmsg.addNewLine();
-	errmsg.add( "Cannot write new replacement velocity to disk" );
+	if ( !errmsg.isEmpty() );
+	errmsg.append(tr("\nCannot write new replacement velocity to disk"));
 	wd->info().replvel = oldreplvel;
     }
 
@@ -515,14 +515,14 @@ void uiWellMan::editLogPush( CallBacker* )
     if ( curwds_.isEmpty() || currdrs_.isEmpty() ) return;
     const int selidx = logsfld_->firstChosen();
     if ( selidx < 0 )
-	mErrRet("No log selected")
+	mErrRet(tr("No log selected"))
 
     currdrs_[0]->getLogs();
     const char* lognm = logsfld_->textOfItem( selidx );
     Well::LogSet& wls = curwds_[0]->logs();
     const int curlogidx = wls.indexOf( lognm );
     if ( curlogidx < 0 )
-	mErrRet( "Cannot read selected log" )
+	mErrRet(tr("Cannot read selected log"))
 
     Well::Log& wl = wls.getLog( curlogidx );
     uiWellLogEditor dlg( this, wl );
@@ -583,22 +583,27 @@ void uiWellMan::wellsChgd()
 }
 
 
-#define mEnsureLogSelected() \
+#define mEnsureLogSelected(msgtxt) \
     if ( logsfld_->isEmpty() ) return; \
     const int nrsel = logsfld_->nrChosen(); \
     if ( nrsel < 1 ) \
-	mErrRet(tr("No log selected"))
+	mErrRet(msgtxt)
 
-#define mGetWL() \
+#define mGetWL(msgtxt2) \
     currdrs_[0]->getLogs(); \
     const Well::LogSet& wls = curwds_[0]->logs(); \
     const char* lognm = logsfld_->textOfItem( logsfld_->firstChosen() ); \
     const Well::Log* wl = wls.getLog( lognm ); \
     if ( !wl ) \
-	mErrRet( tr("Cannot read selected log") )
+	mErrRet( msgtxt2 )
+
+
 
 void uiWellMan::viewLogPush( CallBacker* )
 {
+    mEnsureLogSelected(tr("No log selected"))
+	mGetWL(tr("Cannot read selected log"))
+
     BufferStringSet lognms;
     logsfld_->getChosen( lognms );
     const int maxnrchosen = curwds_.size()*lognms.size();
@@ -637,7 +642,7 @@ void uiWellMan::viewLogPush( CallBacker* )
 
 void uiWellMan::renameLogPush( CallBacker* )
 {
-    mEnsureLogSelected();
+    mEnsureLogSelected(tr("No log selected"));
     BufferString lognm( logsfld_->getText() );
     const BufferString titl( "Rename '",lognm, "'" );
     uiGenInputDlg dlg( this, titl, "New name", new StringInpSpec(lognm) );
@@ -660,11 +665,11 @@ void uiWellMan::renameLogPush( CallBacker* )
 
 void uiWellMan::removeLogPush( CallBacker* )
 {
-    mEnsureLogSelected();
+    mEnsureLogSelected(tr("No log selected"));
 
-    BufferString msg;
-    msg = nrsel  == 1 ? "This log " : "These logs ";
-    msg += "will be removed from disk.\nDo you wish to continue?";
+    uiString msg;
+    msg = tr("%1will be removed from disk.\nDo you wish to continue?")
+	.arg(nrsel == 1 ? tr("This log ") : tr("These logs "));
     if ( !uiMSG().askRemove(msg) )
 	return;
 
@@ -688,7 +693,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 
 void uiWellMan::exportLogs( CallBacker* )
 {
-    mEnsureLogSelected();
+    mEnsureLogSelected(tr("No log selected"));
 
     BufferStringSet sellogs; logsfld_->getChosen( sellogs );
 

@@ -28,7 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #define mDelNot wd_->tobedeleted
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
-	: uiDialog(p,uiDialog::Setup("Well display properties",mNoDlgTitle,
+	: uiDialog(p,uiDialog::Setup(tr("Well display properties"),mNoDlgTitle,
 				     mODHelpKey(mWellDispPropDlgHelpID) )
 		     .savebutton(true)
 		     .savechecked(false)
@@ -51,11 +51,12 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
 
     uiWellLogDispProperties* wlp1 = new uiWellLogDispProperties( tgs[0],
-		uiWellDispProperties::Setup("Line thickness","Line color")
-		.onlyfor2ddisplay(is2d),props.logs_[0]->left_,&(wd_->logs()) );
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2d), props.logs_[0]->left_, &(wd_->logs()) );
     uiWellLogDispProperties* wlp2 = new uiWellLogDispProperties( tgs[1],
-		uiWellDispProperties::Setup("Line thickness","Line color")
-		.onlyfor2ddisplay(is2d),props.logs_[0]->right_,&(wd_->logs()) );
+	uiWellDispProperties::Setup( tr("Line thickness"), tr("Line color"))
+	.onlyfor2ddisplay(is2d), props.logs_[0]->right_, &(wd_->logs()) );
+
     propflds_ += wlp1;
     propflds_ += wlp2;
 
@@ -64,7 +65,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	allmarkernms.add( wd_->markers()[idx]->name() );
 
     propflds_ += new uiWellMarkersDispProperties( tgs[2],
-	uiWellDispProperties::Setup( "Marker size", "Marker color" )
+	uiWellDispProperties::Setup( tr("Marker size"), tr("Marker color") )
 	, props.markers_, allmarkernms, is2d );
 
     if ( !is2d )
@@ -77,15 +78,17 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data* d, bool is2d )
 	mAttachCB( propflds_[idx]->propChanged, uiWellDispPropDlg::propChg );
 	if ( sKey::Log() == propflds_[idx]->props().subjectName() )
 	{
-	    ts_->addTab( tgs[idx], foundlog ? is2d ? "Log 2" : "Right Log"
-					    : is2d ? "Log 1" : "Left Log" );
+	    ts_->addTab( tgs[idx], foundlog ? is2d ? tr("Log 2") 
+						   : tr("Right Log")
+					    : is2d ? tr("Log 1") 
+						   : tr("Left Log") );
 	    foundlog = true;
 	}
 	else
 	    ts_->addTab( tgs[idx], propflds_[idx]->props().subjectName() );
     }
 
-    uiPushButton* applbut = new uiPushButton( this, "Apply to all wells",
+    uiPushButton* applbut = new uiPushButton( this, tr("Apply to all wells"),
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
 

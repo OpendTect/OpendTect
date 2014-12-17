@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class IOObj;
 class uiGenInput;
@@ -53,7 +54,7 @@ protected:
 /*!\brief Dialog for writing logs to an ASCII file */
 
 mExpClass(uiWell) uiExportLogs : public uiDialog
-{
+{ mODTextTranslationClass(uiExportLogs);
 public:
 			uiExportLogs(uiParent*,
 				const ObjectSet<Well::Data>&,

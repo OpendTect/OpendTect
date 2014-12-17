@@ -9,6 +9,7 @@
 
 #include "uiwellmod.h"
 #include "uidialog.h"
+#include "uistring.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -29,7 +30,7 @@ public:
 protected:
 
     void		readFile(od_istream&);
-    void		addD2T(BufferString&);
+    void		addD2T(uiString&);
     void		write(uiStringSet&);
     bool		acceptOK(CallBacker*);
 
@@ -43,7 +44,7 @@ protected:
 
 
 mExpClass(uiWell) uiBulkLogImport : public uiDialog
-{
+{ mODTextTranslationClass(uiBulkLogImport);
 public:
 			uiBulkLogImport(uiParent*);
 			~uiBulkLogImport();
@@ -59,7 +60,7 @@ protected:
 
 
 mExpClass(uiWell) uiBulkMarkerImport : public uiDialog
-{
+{ mODTextTranslationClass(uiBulkMarkerImport);
 public:
 			uiBulkMarkerImport(uiParent*);
 			~uiBulkMarkerImport();
@@ -77,7 +78,7 @@ protected:
 
 
 mExpClass(uiWell) uiBulkD2TModelImport : public uiDialog
-{
+{ mODTextTranslationClass(uiBulkD2TModelImport);
 public:
 			uiBulkD2TModelImport(uiParent*);
 			~uiBulkD2TModelImport();

@@ -83,11 +83,12 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
     {
 	if ( velfld_->isUndef() )
-	    mErrRet( "Please enter the velocity for generating the D2T model" )
+	    mErrRet( tr("Please enter the velocity for "
+			"generating the D2T model") )
     }
 
     if ( wd.track().isEmpty() )
-	mErrRet( "Cannot generate D2Time model without track" )
+	mErrRet( tr("Cannot generate D2Time model without track") )
 
     if ( cksh )
 	wd.setCheckShotModel( new Well::D2TModel );
@@ -96,7 +97,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
     Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
     if ( !&d2t )
-	mErrRet( "D2Time model not set properly" )
+	mErrRet( tr("D2Time model not set properly") )
 
     if ( filefld_->isCheckable() && !filefld_->isChecked() )
     {
@@ -112,10 +113,10 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	const char* fname = filefld_->fileName();
 	od_istream strm( fname );
 	if ( !strm.isOK() )
-	    mErrRet( "Could not open input file" )
+	    mErrRet( tr("Could not open input file") )
 
 	if ( !dataselfld_->commit() )
-	    mErrRet( "Please specify data format" )
+	    mErrRet( tr("Please specify data format") )
 
 	d2t.setName( fname );
 	Well::D2TModelAscIO aio( fd_ );
@@ -133,7 +134,7 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     }
 
     if ( d2t.size() < 2 )
-	mErrRet( "Cannot import time-depth model" )
+	mErrRet( tr("Cannot import time-depth model") )
 
     d2t.deInterpolate();
     return true;

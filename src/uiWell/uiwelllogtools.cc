@@ -47,7 +47,7 @@ static const char* rcsID mUsedVar = "$Id$";
 uiWellLogToolWinMgr::uiWellLogToolWinMgr( uiParent* p,
 					  const BufferStringSet* welllnms,
 					  const BufferStringSet* lognms )
-	: uiDialog(p,Setup("Select Well(s) and Log(s) for Editing",
+	: uiDialog(p,Setup(tr("Select Well(s) and Log(s) for Editing"),
 		     mNoDlgTitle,mODHelpKey(mWellLogToolWinMgrHelpID)))
 {
     setOkText( uiStrings::sContinue() );
@@ -62,7 +62,7 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 {
     BufferStringSet wellids; welllogselfld_->getSelWellIDs( wellids );
     BufferStringSet wellnms; welllogselfld_->getSelWellNames( wellnms );
-    if ( wellids.isEmpty() ) mErrRet( "Please select at least one well" )
+    if ( wellids.isEmpty() ) mErrRet( tr("Please select at least one well") )
 
     ObjectSet<uiWellLogToolWin::LogData> logdatas;
     for ( int idx=0; idx<wellids.size(); idx++ )
@@ -86,7 +86,8 @@ bool uiWellLogToolWinMgr::acceptOK( CallBacker* )
 	logdatas += ldata;
     }
     if ( logdatas.isEmpty() )
-	mErrRet("Please select at least one valid log for the selected well(s)")
+	mErrRet(tr("Please select at least one valid "
+		   "log for the selected well(s)"))
 
     uiWellLogToolWin* win = new uiWellLogToolWin( this, logdatas );
     win->show();
@@ -227,7 +228,8 @@ uiWellLogToolWin::uiWellLogToolWin( uiParent* p, ObjectSet<LogData>& logs )
     thresholdfld_->box()->setNrDecimals( 2 );
 
     const char* spk[] = {"Undefined values","Interpolated values","Specify",0};
-    replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,"Replace spikes by");
+    replacespikefld_ = new uiLabeledComboBox(actiongrp,spk,
+					     tr("Replace spikes by"));
     replacespikefld_->box()->selectionChanged.notify(
 				mCB(this,uiWellLogToolWin,handleSpikeSelCB) );
     replacespikefld_->attach( alignedBelow, spbgt );
@@ -451,7 +453,7 @@ void uiWellLogToolWin::applyPushedCB( CallBacker* )
 		{
 		    if ( freqrg.isRev() )
 			mAddErrMsg( "Taper start frequency must be larger"
-				    " than stop frequency", wllnm )
+				       " than stop frequency", wllnm )
 
 		    filter.setBandPass( freqrg.start, freqrg.stop );
 		}
@@ -540,7 +542,7 @@ void uiWellLogToolWin::displayLogs()
 
 // uiWellLogEditor
 uiWellLogEditor::uiWellLogEditor( uiParent* p, Well::Log& log )
-    : uiDialog(p,Setup("Edit Well log",mNoDlgTitle,mTODOHelpKey))
+    : uiDialog(p,Setup(tr("Edit Well log"),mNoDlgTitle,mTODOHelpKey))
     , log_(log)
     , changed_(false)
     , valueChanged(this)

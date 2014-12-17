@@ -79,7 +79,7 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
     tbl_->setPrefWidth( 500 );
     tbl_->setPrefHeight( 400 );
 
-    zinftfld_ = new uiCheckBox( this, "Z in Feet" );
+    zinftfld_ = new uiCheckBox( this, tr("Z in Feet") );
     zinftfld_->setChecked( SI().depthsInFeet() );
     zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillTable ) );
     zinftfld_->activated.notify( mCB( this,uiWellTrackDlg,fillSetFields ) );
@@ -192,7 +192,7 @@ void uiWellTrackDlg::fillSetFields( CallBacker* )
     wellheadxfld_->setTitleText( BufferString("X", coordlbl) );
     wellheadyfld_->setTitleText( BufferString("Y", coordlbl) );
     kbelevfld_->setTitleText(
-			BufferString("Reference Datum Elevation ", depthunit) );
+			tr("Reference Datum Elevation %1").arg(depthunit) );
 
     const Coord wellhead = wd_.info().surfacecoord;
     if ( !mIsUdf(wellhead.x) )
@@ -259,11 +259,11 @@ void uiWellTrackDlg::setMD( int row, float md )
 
 
 class uiWellTrackReadDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiWellTrackReadDlg);
 public:
 
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
-	: uiDialog(p,uiDialog::Setup("Import New Well Track",mNoDlgTitle,
+	: uiDialog(p,uiDialog::Setup(tr("Import New Well Track"),mNoDlgTitle,
                                      mODHelpKey(mWellTrackReadDlgHelpID)))
 	, track_(track)
 {
@@ -281,7 +281,7 @@ bool acceptOK( CallBacker* )
     track_.setEmpty();
     fnm_ = wtinfld_->fileName();
     if ( File::isEmpty(fnm_.buf()) )
-	{ uiMSG().error( "Invalid input file" ); return false; }
+	{ uiMSG().error( tr("Invalid input file") ); return false; }
     return true;
 }
 
@@ -344,8 +344,9 @@ bool uiWellTrackDlg::updNow( CallBacker* )
 	const Coord3 newc( xval, yval, zval );
 	if ( !SI().isReasonable(newc) )
 	{
-	    BufferString msg( "Found undefined values in row ", idx+1, "." );
-	    msg.add( "Please enter valid values" );
+	    uiString msg = tr("Found undefined values in row %1. "
+			      "Please enter valid values")
+			 .arg(idx + 1);
 	    uiMSG().message( msg );
 	    return false;
 	}
@@ -520,13 +521,13 @@ bool uiWellTrackDlg::acceptOK( CallBacker* )
 
     if ( dahchg )
     {
-	BufferString msg( "You have changed at least one MD value.\nMarkers" );
+	uiString msg = tr("You have changed at least one MD value.\nMarkers%1"
+			  " are based on the old MD values.\n. "
+			  "They may therefore become invalid.\n\nContinue?");
 	if ( SI().zIsTime() )
-	    msg += ", logs, T/D and checkshot models";
+	    msg.arg(tr(", logs, T/D and checkshot models"));
 	else
-	    msg += " and logs";
-	msg += " are based on the old MD values.\n"
-	       "They may therefore become invalid.\n\nContinue?";
+	    msg.arg(tr(" and logs"));
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
     }
@@ -551,8 +552,7 @@ void uiWellTrackDlg::exportCB( CallBacker* )
     od_ostream strm( fdlg.fileName() );
     if ( !strm.isOK() )
     {
-	uiMSG().error( BufferString( "Cannot open '", fdlg.fileName(),
-				     "' for write" ) );
+	uiMSG().error( tr( "Cannot open '%1' for write").arg(fdlg.fileName()) );
 	return;
     }
 
@@ -628,12 +628,12 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 	    "Interval velocity above this control point (read-only)" );
     tbl_->setPrefWidth( 700 );
 
-    timefld_ = new uiCheckBox( this, " Time is TWT" );
+    timefld_ = new uiCheckBox( this, tr(" Time is TWT") );
     timefld_->setChecked( true );
     timefld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
     timefld_->attach( rightAlignedBelow, tbl_ );
 
-    unitfld_ = new uiCheckBox( this, " Z in feet" );
+    unitfld_ = new uiCheckBox( this, tr(" Z in feet") );
     unitfld_->setChecked( SI().depthsInFeet() );
     unitfld_->activated.notify( mCB(this,uiD2TModelDlg,fillTable) );
     unitfld_->attach( rightAlignedBelow, timefld_ );
@@ -642,15 +642,15 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     if ( !cksh_ )
     {
 	actbutgrp = new uiGroup( this, "Action buttons" );
-	uiButton* updbut = new uiPushButton( actbutgrp, "Update display",
+	uiButton* updbut = new uiPushButton( actbutgrp, tr("Update display"),
 				       mCB(this,uiD2TModelDlg,updNow), true );
 
-	replvelfld_ = new uiGenInput( actbutgrp, "Replacement velocity",
+	replvelfld_ = new uiGenInput( actbutgrp, tr("Replacement velocity"),
 				      FloatInpSpec(mUdf(float)) );
 	replvelfld_->attach( ensureBelow, updbut );
 	replvelfld_->updateRequested.notify(
 					mCB(this,uiD2TModelDlg,updReplVelNow) );
-	updbut = new uiPushButton( actbutgrp, "Set",
+	updbut = new uiPushButton( actbutgrp, tr("Set"),
 			  mCB(this,uiD2TModelDlg,updReplVelNow), true );
 	updbut->attach( rightOf, replvelfld_ );
 
@@ -776,7 +776,7 @@ void uiD2TModelDlg::fillTable( CallBacker* )
 
     if ( tracksz<2 )
     {
-	uiMSG().error( "Invalid track" );
+	uiMSG().error( tr("Invalid track") );
 	return;
     }
 
@@ -859,7 +859,7 @@ void uiD2TModelDlg::dtpointRemovedCB( CallBacker* )
     Well::D2TModel* d2t = mD2TModel;
     if ( !d2t || d2t->size()<3 )
     {
-	uiMSG().error("Invalid time-depth model");
+	uiMSG().error(tr("Invalid time-depth model"));
 	return;
     }
 
@@ -890,8 +890,8 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
-	BufferString errmsg = tracksz<2 ? "Invalid track"
-					: "Invalid time-depth model";
+	uiString errmsg = tracksz<2 ? tr("Invalid track")
+				    : tr("Invalid time-depth model");
 	mErrRet(errmsg)
     }
 
@@ -932,7 +932,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     const RowCol rcin(row,incol);
     if ( mIsUdf(tbl_->getfValue(rcin)) )
     {
-	uiMSG().error( "Please enter a valid number" );
+	uiMSG().error( tr("Please enter a valid number") );
 	if ( !newrow )
 	    tbl_->setValue( rcin, oldval * zfac );
 
@@ -965,23 +965,21 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     else if ( inistvdsd ) lbl = sKeyTVDSD();
     else if ( inistvdss ) lbl = sKeyTVDSS();
 
-    BufferString errmsg = "The entered ";
+    uiString errmsg = tr("The entered %1");
     if ( !zrange.includes(inval,true) )
     {
-	errmsg.add( lbl ).add( " value " ).add( inval * zfac );
-	errmsg.add( " is outside of track range\n" );
-	errmsg.add( "[" ).add( zrange.start * zfac );
-	errmsg.add( ", " ).add( zrange.stop * zfac ).add( "]" );
-	errmsg.add( getDistUnitString(unitfld_->isChecked(),false) );
-	errmsg.add( " (" ).add( lbl ).add( ")" );
+	errmsg.arg(tr("%1 value %2 is outside of track range\n[%3, %4]%5 (%6)")
+	      .arg(lbl).arg(inval * zfac).arg(zrange.start * zfac)
+	      .arg(zrange.stop * zfac)
+	      .arg(getDistUnitString(unitfld_->isChecked(), false)).arg(lbl));
 	tbl_->setValue( rcin, !newrow ? oldval * zfac : mUdf(float) );
 	mErrRet(errmsg)
     }
 
     if ( !tblrg.includes(inval,true) )
     {
-	errmsg.add( lbl ).add( " is not between " );
-	errmsg.add( "the depths of the previous and next control points" );
+	errmsg.arg(tr("%1 is not between the depths of the previous and "
+		      "next control points").arg(lbl));	
 	tbl_->setValue( rcin, !newrow ? oldval * zfac : mUdf(float) );
 	mErrRet(errmsg)
     }
@@ -1030,8 +1028,8 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
-	BufferString errmsg = tracksz<2 ? "Invalid track"
-					: "Invalid time-depth model";
+	uiString errmsg = tracksz<2 ? tr("Invalid track")
+				    : tr("Invalid time-depth model");
 	mErrRet(errmsg)
     }
 
@@ -1041,7 +1039,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
     const float twtfac = timefld_->isChecked() ? 1000.f : 500.f;
     if ( mIsUdf(tbl_->getfValue(rcin)) )
     {
-	uiMSG().error( "Please enter a valid number" );
+	uiMSG().error( tr("Please enter a valid number") );
 	if ( !newrow )
 	    tbl_->setValue( rcin, oldval * twtfac );
 
@@ -1065,8 +1063,8 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
 	 !mIsUdf(getPreviousCompleteRowIdx(row)) &&
 	 !mIsUdf(getNextCompleteRowIdx(row)) )
     {
-	BufferString errmsg( "The entered time is not between " );
-	errmsg.add( "the times of the previous and next control points" );
+	uiString errmsg = tr("The entered time is not between the times " 
+			     "of the previous and next control points" );
 	tbl_->setValue( rcin, !newrow ? oldval * twtfac : mUdf(float) );
 	mErrRet(errmsg)
     }
@@ -1095,8 +1093,8 @@ bool uiD2TModelDlg::updateDtpoint( int row, float oldval )
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
-	BufferString errmsg = tracksz<2 ? "Invalid track"
-					: "Invalid time-depth model";
+	uiString errmsg = tracksz<2 ? tr("Invalid track")
+				    : tr("Invalid time-depth model");
 	mErrRet(errmsg)
     }
 
@@ -1146,7 +1144,7 @@ bool uiD2TModelDlg::rowIsIncomplete( int row ) const
 {
     Well::D2TModel* d2t = mD2TModel;
     if ( !d2t || d2t->size()<2 )
-	mErrRet( "Invalid time-depth model" )
+	mErrRet( tr("Invalid time-depth model") )
 
     if ( row >= d2t->size() )
 	return true;
@@ -1185,7 +1183,7 @@ int uiD2TModelDlg::getNextCompleteRowIdx( int row ) const
 
 
 class uiD2TModelReadDlg : public uiDialog
-{
+{ mODTextTranslationClass(uiD2TModelReadDlg);
 public:
 
 uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
@@ -1249,9 +1247,9 @@ void uiD2TModelDlg::expData( CallBacker* )
     Well::D2TModel* d2t = mD2TModel;
     getModel( *d2t );
     if ( d2t->size() < 2 )
-	{ uiMSG().error( "No valid data entered" ); return; }
+	{ uiMSG().error( tr("No valid data entered") ); return; }
 
-    uiFileDialog dlg( this, false, 0, 0, "Filename for export" );
+    uiFileDialog dlg( this, false, 0, 0, tr("Filename for export") );
     dlg.setDirectory( GetDataDir() );
     if ( !dlg.go() )
 	return;
@@ -1260,7 +1258,7 @@ void uiD2TModelDlg::expData( CallBacker* )
     od_ostream strm( fnm );
     if ( !strm.isOK() )
     {
-	uiMSG().error( BufferString("Cannot open '", fnm, "' for write") );
+	uiMSG().error( tr("Cannot open '%1' for write").arg(fnm) );
 	return;
     }
 
@@ -1315,7 +1313,7 @@ bool uiD2TModelDlg::getFromScreen()
     getModel( *d2t );
 
     if ( d2t->size() < 2 )
-	mErrRet( "Please define at least two control points." )
+	mErrRet( tr("Please define at least two control points.") )
 
     return true;
 }
@@ -1336,7 +1334,7 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     float replvel = replvelfld_->getfValue();
     if ( mIsUdf(replvel) || replvel < 0.001f )
     {
-	uiMSG().error( "Please enter a valid replacement velocity" );
+	uiMSG().error( tr("Please enter a valid replacement velocity") );
 	replvelfld_->setValue( !unitfld_->isChecked() ? wd_.info().replvel
 			       : wd_.info().replvel * mToFeetFactorF );
 	return;
@@ -1350,8 +1348,8 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
-	BufferString errmsg = tracksz<2 ? "Invalid track"
-					: "Invalid time-depth model";
+	uiString errmsg = tracksz<2 ? tr("Invalid track")
+				    : tr("Invalid time-depth model");
 	uiMSG().error( errmsg );
 	return;
     }
@@ -1443,8 +1441,8 @@ bool uiD2TModelDlg::acceptOK( CallBacker* )
 //============================================================================
 
 uiNewWellDlg::uiNewWellDlg( uiParent* p )
-        : uiGetObjectName(p,uiGetObjectName::Setup("New Well",mkWellNms())
-				.inptxt("New well name") )
+        : uiGetObjectName(p,uiGetObjectName::Setup(tr("New Well"),mkWellNms())
+				.inptxt(tr("New well name")) )
 {
     setHelpKey( mODHelpKey(mNewWellTrackDlgHelpID) );
     colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
@@ -1479,11 +1477,11 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
 {
     BufferString newnm( text() );
     if ( newnm.trimBlanks().isEmpty() )
-	mErrRet( "Please enter a name" )
+	mErrRet( tr("Please enter a name") )
 
     if ( nms_->isPresent(newnm) )
-	mErrRet( "Please specify a new name.\n"
-		 "Wells can be removed in 'Manage wells'" )
+	mErrRet( tr("Please specify a new name.\n"
+		    "Wells can be removed in 'Manage wells'") )
 
     name_ = newnm;
     return true;
@@ -1503,7 +1501,7 @@ static const char* collbls[] = { "Well name","Log name",
 uiWellLogUOMDlg::uiWellLogUOMDlg( uiParent* p, ObjectSet<Well::LogSet> wls,
 				  const BufferStringSet wellnms,
 				  const BufferStringSet lognms )
-    : uiDialog(p,uiDialog::Setup("Set units of measure for logs",
+    : uiDialog(p,uiDialog::Setup(tr("Set units of measure for logs"),
 				 mNoDlgTitle,mNoHelpKey))
 {
     fillTable( wls, wellnms, lognms );
@@ -1566,7 +1564,7 @@ bool uiWellLogUOMDlg::setUoMValues()
     const int logssz = logs_.size();
     if ( !logssz || logssz!=uominfotbl_->nrRows() )
     {
-	uiMSG().message( "No logs found." );
+	uiMSG().message( tr("No logs found.") );
 	return false;
     }
 

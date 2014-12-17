@@ -124,7 +124,7 @@ uiWellLogCalc::uiWellLogCalc( uiParent* p, const TypeSet<MultiID>& wllids,
     const CallBack formunitcb( mCB(this,uiWellLogCalc,formUnitSel) );
     const CallBack inpselcb( mCB(this,uiWellLogCalc,inpSel) );
 
-    uiMathFormula::Setup mfsu( "Formula (like 'den / son')" );
+    uiMathFormula::Setup mfsu( tr("Formula (like 'den / son')") );
     mfsu.stortype_ = "Log calculation";
     formfld_ = new uiMathFormula( this, form_, mfsu );
     formfld_->addInpViewIcon( "view_log", "Display this log",
@@ -251,12 +251,12 @@ bool uiWellLogCalc::useForm( const TypeSet<PropertyRef::StdType>* inputtypes )
 
 
 class uiWellLogCalcRockPhys : public uiDialog
-{
+{ mODTextTranslationClass(uiWellLogCalcRockPhys);
 public:
 
 uiWellLogCalcRockPhys( uiParent* p )
-    : uiDialog(p, uiDialog::Setup("Rock Physics",
-				 "Use a rock physics formula",
+    : uiDialog(p, uiDialog::Setup(tr("Rock Physics"),
+				  "Use a rock physics formula",
                                   mODHelpKey(mWellLogCalcRockPhysHelpID) ))
 { formgrp_ = new uiRockPhysForm( this ); }
 
@@ -414,12 +414,12 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
     {
 	PtrMan<IOObj> ioobj = IOM().get( wellids_[iwell] );
 	if ( !ioobj )
-	    mErrContinue( BufferString("Cannot find ",wellids_[iwell]) )
+	    mErrContinue( tr("Cannot find %1").arg(wellids_[iwell]) )
 
 	Well::Data wd;
 	Well::Reader rdr( *ioobj, wd );
 	if ( !rdr.getLogs() )
-	    mErrContinue( BufferString("Cannot read logs for ",ioobj->name()) )
+	    mErrContinue( tr("Cannot read logs for %1").arg(ioobj->name()) )
 
 	Well::LogSet& wls = wd.logs();
 	TypeSet<InpData> inpdatas;
@@ -427,13 +427,13 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 	    continue;
 
 	if ( SI().zIsTime() && !rdr.getD2T() )
-	    mErrContinue( BufferString("Cannot read Time-Depth model for ",
-					ioobj->name()) )
+	    mErrContinue( tr("Cannot read Time-Depth model for %1")
+			.arg(ioobj->name()) )
 
 	Well::Log* newwl = new Well::Log( newnm );
 	wls.add( newwl );
 	if ( !calcLog(*newwl,inpdatas,wd.track(),wd.d2TModel()) )
-	    mErrContinue( BufferString("Cannot compute log for ",ioobj->name()))
+	    mErrContinue( tr("Cannot compute log for %1").arg(ioobj->name()))
 
 	const UnitOfMeasure* outun = outunfld_->getUnit();
 	if ( outun )
@@ -454,8 +454,8 @@ bool uiWellLogCalc::acceptOK( CallBacker* )
 
 	Well::Writer wtr( *ioobj, wd );
 	if ( !wtr.putLog(*newwl) )
-	    mErrContinue( BufferString("Cannot write new log for ",
-			  ioobj->name()) )
+	    mErrContinue( tr("Cannot write new log for %1")
+			.arg(ioobj->name()) )
 
 	successfulonce = true;
     }
@@ -479,8 +479,8 @@ bool uiWellLogCalc::getInpDatas( Well::LogSet& wls,
 	    InpData inpd; inpd.isconst_ = true;
 	    inpd.constval_ = (float)form_.getConstVal( iinp );
 	    if ( mIsUdf(inpd.constval_) )
-		mErrRet(BufferString("Please enter a value for ",
-					form_.variableName(iinp)))
+		mErrRet(tr("Please enter a value for %1")
+		      .arg(form_.variableName(iinp)))
 	    inpdatas += inpd;
 	    continue;
 	}

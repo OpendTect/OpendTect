@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "welllogset.h"
 #include "uigroup.h"
 #include "uiwellmod.h"
+#include "uistring.h"
 
 class PropertyRef;
 class UnitOfMeasure;
@@ -30,7 +31,7 @@ namespace Well { class LogSet; }
 
 
 mExpClass(uiWell) uiWellSinglePropSel : public uiGroup
-{
+{ mODTextTranslationClass(uiWellSinglePropSel);
 public:
 			uiWellSinglePropSel(uiParent*,const PropertyRef&,
 					const PropertyRef* alternatepr=0);
@@ -74,7 +75,7 @@ protected:
 
 
 mExpClass(uiWell) uiWellPropSel : public uiGroup
-{
+{ mODTextTranslationClass(uiWellPropSel);
 public:
 
 			uiWellPropSel(uiParent*,const PropertyRefSelection&);

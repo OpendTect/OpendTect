@@ -173,12 +173,13 @@ bool uiImportLogsDlg::acceptOK( CallBacker* )
     if ( nrexisting > 0 )
     {
 	const bool issingle = nrexisting == 1;
-	BufferString msg( "Existing log", issingle ? ":" : "s:\n",
-			  existlogs.getDispString() );
-	msg.add( "\nalready exist" ).add( issingle ? "" : "s" )
-	    .add( " and will not be loaded.\n\nPlease remove " )
-	    .add( issingle ? "it" : "these" )
-	    .add( " from the existing logs before import." );
+	uiString msg = tr("Existing log%1%2\nalready exist%3 and will not "
+			  "be loaded.\n\nPlease remove %4 from the existing "
+			  "logs before import.")
+		     .arg(issingle ? ":" : tr("s:\n"))
+		     .arg(existlogs.getDispString())
+		     .arg(issingle ? tr("s") : "" )
+		     .arg(issingle ? tr("it") : tr("these"));
 	if ( lognms.isEmpty() )
 	    mErrRet( msg )
 	uiMSG().warning( msg );
@@ -236,7 +237,7 @@ static BufferString getDlgTitle( const ObjectSet<Well::Data>& wds,
 
 uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
 			  const BufferStringSet& logsel )
-    : uiDialog(p,uiDialog::Setup("Export Well logs",getDlgTitle(wds,logsel),
+    : uiDialog(p,uiDialog::Setup(tr("Export Well logs"),getDlgTitle(wds,logsel),
 				 mODHelpKey(mExportLogsHelpID)))
     , wds_(wds)
     , logsel_(logsel)
@@ -247,17 +248,17 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     zrangefld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec(true) );
     setDefaultRange( zinft );
 
-    typefld_ = new uiGenInput( this, "Output format",
+    typefld_ = new uiGenInput( this, tr("Output format"),
 			      StringListInpSpec(exptypes) );
     typefld_->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld_->attach( alignedBelow, zrangefld_ );
 
     zunitgrp_ = new uiButtonGroup( this, "Z-unit buttons", OD::Horizontal );
     zunitgrp_->attach( alignedBelow, typefld_ );
-    uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
+    uiLabel* zlbl = new uiLabel( this, tr("Output Z-unit") );
     zlbl->attach( leftOf, zunitgrp_ );
-    new uiRadioButton( zunitgrp_, "meter" );
-    new uiRadioButton( zunitgrp_, "feet" );
+    new uiRadioButton( zunitgrp_, tr("meter") );
+    new uiRadioButton( zunitgrp_, tr("feet") );
     bool have2dtmodel = true;
     for ( int idwell=0; idwell<wds_.size(); idwell++ )
     {
@@ -266,8 +267,8 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     }
     if ( SI().zIsTime() && have2dtmodel)
     {
-	new uiRadioButton( zunitgrp_, "sec" );
-	new uiRadioButton( zunitgrp_, "msec" );
+	new uiRadioButton( zunitgrp_, tr("sec") );
+	new uiRadioButton( zunitgrp_, tr("msec") );
     }
     zunitgrp_->selectButton( zinft );
 
@@ -280,7 +281,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const ObjectSet<Well::Data>& wds,
     if ( multiwells )
     {
 	outfld_->setFileName( IOM().rootDir() );
-	multiwellsnamefld_ = new uiGenInput( this, "File name suffix" );
+	multiwellsnamefld_ = new uiGenInput( this, tr("File name suffix") );
 	multiwellsnamefld_->attach( alignedBelow, outfld_ );
 	multiwellsnamefld_->setText( "logs.txt" );
     }
@@ -329,16 +330,16 @@ bool uiExportLogs::acceptOK( CallBacker* )
 {
     BufferString fname = outfld_->fileName();
     if ( fname.isEmpty() )
-	 mErrRet( "Please select valid entry for the output" );
+	 mErrRet( tr("Please select valid entry for the output") );
 
     BufferStringSet fnames;
     if ( wds_.size() > 1 )
     {
 	if ( !File::isDirectory(fname) )
-	    mErrRet( "Please enter a valid (existing) location" )
+	    mErrRet( tr("Please enter a valid (existing) location") )
 	BufferString suffix = multiwellsnamefld_->text();
 	if ( suffix.isEmpty() )
-	    mErrRet( "Please enter a valid file name" )
+	    mErrRet( tr("Please enter a valid file name") )
 
 	for ( int idx=0; idx<wds_.size(); idx++ )
 	{
@@ -356,7 +357,7 @@ bool uiExportLogs::acceptOK( CallBacker* )
 	od_ostream strm( fnm );
 	if ( !strm.isOK() )
 	{
-	    BufferString msg( "Cannot open output file ", fnm );
+	    uiString msg = tr("Cannot open output file %1").arg(fnm);
 	    strm.addErrMsgTo( msg );
 	    mErrRet( msg );
 	}
@@ -405,7 +406,8 @@ void uiExportLogs::writeLogs( od_ostream& strm, const Well::Data& wd )
     const bool intime = insec || inmsec;
     if ( intime && !wd.d2TModel() )
     {
-	uiMSG().error( "No depth-time model found, cannot export with time" );
+	uiMSG().error( tr("No depth-time model found, "
+			  "cannot export with time") );
 	return;
     }
 
