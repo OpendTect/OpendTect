@@ -13,6 +13,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "msgh.h"
 #include "winutils.h"
 #include "fixedstring.h"
+#include "oddirs.h"
 #include <time.h>
 #include <string.h>
 
@@ -288,6 +289,20 @@ BufferString FilePath::baseName() const
     if ( !*ptr ) return ret;
     *ptr++ = '\0';
     return ret;
+}
+
+
+BufferString FilePath::getTimeStampFileName( const char* ext )
+{
+    BufferString tsfnm;
+    BufferString datestr = Time::getDateTimeString();
+    datestr.replace( ", ", "-" );
+    datestr.replace( ':', '.' );
+    datestr.replace( ' ', '_' );
+    tsfnm += datestr.buf();
+    tsfnm += ext;
+
+    return tsfnm;
 }
 
 

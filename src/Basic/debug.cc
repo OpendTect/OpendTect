@@ -321,15 +321,11 @@ Export_Basic od_ostream& logMsgStrm()
 		const char* odusr = GetSoftwareUser();
 		if ( odusr && *odusr )
 		    { fnm += "_"; fnm += odusr; }
-		BufferString datestr = Time::getDateTimeString();
-		datestr.replace( ", ", "-" );
-		datestr.replace( ':', '.' );
-		datestr.replace( ' ', '_' );
-		fnm += "_"; fnm += datestr.buf();
-		fnm += ".txt";
+		fnm += "_";
+		fp.add( fnm.add(FilePath::getTimeStampFileName(".txt")) );
 
-		fp.add( fnm );
 		BufferString logmsgfnm = fp.fullPath();
+
 		strm = new od_ostream( logmsgfnm );
 		if ( !strm->isOK() )
 		{

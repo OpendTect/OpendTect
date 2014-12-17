@@ -85,6 +85,7 @@ public:
     static BufferString	getTempDir();
     static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path, Style fmt);
+    static BufferString getTimeStampFileName(const char*ext=0);
 
     static const char*	dirSep(Style);
     static const char*	sPrefSep;
