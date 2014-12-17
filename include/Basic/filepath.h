@@ -98,6 +98,8 @@ protected:
     void		addPart(const char*);
     void		compress(int sl=0);
     void		trueDirIfLink();
+public:
+    static BufferString getTimeStampFileName(const char*ext=0);
 };
 
 

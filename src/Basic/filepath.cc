@@ -291,6 +291,20 @@ BufferString FilePath::baseName() const
 }
 
 
+BufferString FilePath::getTimeStampFileName( const char* ext )
+{
+    BufferString tsfnm;
+    BufferString datestr = Time::getDateTimeString();
+    datestr.replace( ", ", "-" );
+    datestr.replace( ':', '.' );
+    datestr.replace( ' ', '_' );
+    tsfnm += datestr.buf();
+    tsfnm += ext;
+
+    return tsfnm;
+}
+
+
 BufferString FilePath::pathOnly() const
 { return dirUpTo(lvls_.size()-2); }
 
