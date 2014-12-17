@@ -665,7 +665,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 {
     if ( !desiredvolume_ )
     {
-	errmsg_ = tr("internal error, '%1' "" has no desired volume\n")
+	errmsg_ = tr("internal error, '%1' has no desired volume\n")
 		.arg( desc_.userRef() );
 	return false;
     }

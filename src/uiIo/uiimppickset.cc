@@ -18,6 +18,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimsg.h"
 #include "uipickpartserv.h"
 #include "uiseparator.h"
+#include "uistrings.h"
 #include "uitblimpexpdatasel.h"
 
 #include "ctxtioobj.h"
@@ -265,7 +266,7 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
     uiString msg = tr("Pickset successfully %1\n"
 		      "Do you want to %2 more PickSets?")
 		 .arg(import_ ? tr("imported") : tr("exported"))
-		 .arg(import_ ? tr("import") : tr("export"));
+		 .arg(import_ ? tr("import") : uiStrings::sExport());
     return !uiMSG().askGoOn( msg, uiStrings::sYes(), tr("No, close window") );
 }
 

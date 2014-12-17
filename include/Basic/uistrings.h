@@ -37,7 +37,6 @@ public:
     static uiString sBottom()		{ return tr("Bottom"); }
     static uiString sCalculate()	{ return tr("Calculate"); }
     static uiString sCancel()		{ return tr("Cancel"); }
-    static uiString sCancel(bool)	{ return sCancel(); }
     static uiString sClose()		{ return tr("Close"); }
     static uiString sColor()		{ return tr("Color"); }
     static uiString sColorTable(bool immediate);
@@ -48,8 +47,6 @@ public:
     static uiString sDisplay()		{ return tr("Display"); }
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
-    static uiString sExamine()		{ return tr("Examine"); }
-    static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }
     static uiString sFaults(bool immediate);
