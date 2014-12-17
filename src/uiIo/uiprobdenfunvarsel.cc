@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uicombobox.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uistrings.h"
 #include <math.h>
 
 uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
@@ -22,7 +23,8 @@ uiPrDenFunVarSel::uiPrDenFunVarSel( uiParent* p,const DataColInfo& colinfos )
     , attrSelChanged( this )
 {
     uiLabeledComboBox* cbx =
-	new uiLabeledComboBox( this, colinfos_.colnms_, tr("Attribute") );
+	new uiLabeledComboBox( this, colinfos_.colnms_, 
+			       uiStrings::sAttribute() );
     attrsel_ = cbx->box();
     attrsel_->selectionChanged.notify(
 	    mCB(this,uiPrDenFunVarSel,attrChanged) );
