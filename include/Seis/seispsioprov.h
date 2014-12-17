@@ -13,7 +13,7 @@ ________________________________________________________________________
 -*/
 
 #include "seismod.h"
-
+#include "uistring.h"
 #include "manobjectset.h"
 #include "transl.h"
 #include "bufstring.h"
@@ -53,7 +53,7 @@ class IOObj;
  */
 
 mExpClass(Seis) SeisPSIOProvider
-{
+{ mODTextTranslationClass(SeisPSIOProvider);
 public:
 
     virtual			~SeisPSIOProvider()	{}
@@ -95,7 +95,7 @@ protected:
 
 
 mExpClass(Seis) SeisPSIOProviderFactory
-{
+{ mODTextTranslationClass(SeisPSIOProviderFactory);
 public:
 
     int				add( SeisPSIOProvider* prov )
@@ -140,7 +140,7 @@ public:
 
 
 mExpClass(Seis) SeisPS3DTranslator : public Translator
-{
+{ mODTextTranslationClass(SeisPS3DTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 
@@ -165,7 +165,7 @@ public:
 
 
 mExpClass(Seis) SeisPS2DTranslator : public Translator
-{
+{ mODTextTranslationClass(SeisPS2DTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
 };

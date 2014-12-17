@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "executor.h"
+#include "uistring.h"
 
 namespace Fourier { class CC; }
 class IOObj;
@@ -23,7 +24,7 @@ class Wavelet;
 template <class T> class Array1DImpl;
 
 mExpClass(Seis) WaveletExtractor : public Executor
-{
+{ mODTextTranslationClass(WaveletExtractor);
 public:
 				WaveletExtractor(const IOObj&,int wvltsize);
 				~WaveletExtractor();
@@ -70,7 +71,7 @@ protected:
     int				nrdone_;
     bool			isbetweenhor_;
     od_int64			totalnr_;
-    BufferString		msg_;
+    uiString			msg_;
 };
 
 #endif

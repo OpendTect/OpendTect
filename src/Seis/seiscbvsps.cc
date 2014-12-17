@@ -202,7 +202,7 @@ bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 
     if ( bss.isEmpty() )
     {
-	errmsg_ = "No matching files found in data store";
+	errmsg_ = tr("No matching files found in data store");
 	return false;
     }
     return true;
@@ -296,7 +296,7 @@ bool SeisCBVSPSIO::goTo( int crlnr, int nr ) const
     if ( !tr_->goTo( BinID(crlnr,nr+1) ) )
     {
 	if ( !tr_->goTo( BinID(crlnr,1) ) )
-	    { errmsg_ = "Crossline not present"; return false; }
+	{ errmsg_ = tr("Crossline not present"); return false; }
 	for ( int idx=1; idx<nr; idx++ )
 	{
 	    if ( !tr_->goTo( BinID(crlnr,idx+1) ) )
@@ -313,7 +313,7 @@ bool SeisCBVSPSIO::prepGather( int crlnr, SeisTrcBuf& gath ) const
 
     gath.deepErase(); gath.setIsOwner( true );
     if ( !tr_->goTo( BinID(crlnr,1) ) )
-	{ errmsg_ = "Trace number not present"; return false; }
+    { errmsg_ = tr("Trace number not present"); return false; }
     return true;
 }
 

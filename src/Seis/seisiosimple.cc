@@ -251,7 +251,7 @@ void SeisIOSimple::startImpRead()
 	binstrm.get( data_.sd_.start ).get( data_.sd_.step )
 	       .get( data_.nrsamples_ );
 	if ( !strm_->isOK() )
-	    { errmsg_ = "Input file contains no data"; return; }
+	{ errmsg_ = "Input file contains no data"; return; }
 	if ( zistm_ )
 	    { data_.sd_.start *= .001; data_.sd_.step *= .001; }
     }
@@ -267,7 +267,7 @@ uiString SeisIOSimple::uiMessage() const
     if ( importer_ )
 	return importer_->uiMessage();
 
-    return errmsg_.isEmpty() ? "Handling traces" : errmsg_;
+    return errmsg_.isEmpty() ? tr("Handling traces") : errmsg_;
 }
 
 
@@ -285,7 +285,7 @@ od_int64 SeisIOSimple::totalNr() const
 
 uiString SeisIOSimple::uiNrDoneText() const
 {
-    return importer_ ? importer_->uiNrDoneText() : "Traces written";
+    return importer_ ? importer_->uiNrDoneText() : tr("Traces written");
 }
 
 

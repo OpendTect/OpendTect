@@ -95,7 +95,7 @@ const Interval<float>& Time2DepthStretcher::getVavgRg( bool top ) const
 bool Time2DepthStretcher::isOK() const
 {
     if ( !TimeDepthConverter::isVelocityDescUseable( veldesc_, velintime_ ) )
-	{ errmsg_ = "Provided velocity is not usable"; return false; }
+    { errmsg_ = tr("Provided velocity is not usable"); return false; }
 
     return true;
 }
@@ -186,7 +186,7 @@ void Time2DepthStretcher::removeVolumeOfInterest( int id )
 
 
 class TimeDepthDataLoader : public SequentialTask
-{
+{ mODTextTranslationClass(TimeDepthDataLoader);
 public:
 		TimeDepthDataLoader( Array3D<float>& arr,
 				    SeisTrcReader& reader,
@@ -210,8 +210,8 @@ protected:
     od_int64            totalNr() const
 			{ return readcs_.hrg.nrCrl()*readcs_.hrg.nrInl(); }
     od_int64            nrDone() const { return nrdone_; }
-    uiString		uiMessage() const { return "Reading velocity model"; };
-    uiString		uiNrDoneText() const { return "Position read"; }
+    uiString	uiMessage() const { return tr("Reading velocity model"); };
+    uiString	uiNrDoneText() const { return tr("Position read"); }
 
     int                 nextStep()
     {
@@ -728,7 +728,7 @@ VelocityModelScanner::VelocityModelScanner( const IOObj& input,
 					    const VelocityDesc& vd )
     : obj_( input )
     , vd_( vd )
-    , msg_( "Velocity cube scanning " )
+    , msg_(tr("Velocity cube scanning "))
     , startavgvel_( -1, -1 )
     , stopavgvel_( -1, -1 )
     , subsel_( true )
@@ -760,7 +760,7 @@ int VelocityModelScanner::nextStep()
     {
 	if ( startavgvel_.start<0 || stopavgvel_.start<0 )
 	{
-	    msg_ = "Velocity volume is not defined for the selected type.";
+	    msg_ = tr("Velocity volume is not defined for the selected type.");
 	    return ErrorOccurred();
 	}
 	
@@ -770,7 +770,7 @@ int VelocityModelScanner::nextStep()
     mDynamicCastGet( SeisTrcTranslator*, veltranslator, reader_->translator() );
     if ( !veltranslator || !veltranslator->supportsGoTo() )
     {
-	msg_ = "Cannot read velocity volume";
+	msg_ = tr("Cannot read velocity volume");
 	return ErrorOccurred();
     }
 

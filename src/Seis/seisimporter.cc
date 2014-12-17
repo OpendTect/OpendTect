@@ -91,7 +91,7 @@ od_int64 SeisImporter::nrDone() const
 
 uiString SeisImporter::uiNrDoneText() const
 {
-    return state_ == ReadBuf ? "Traces read" : "Traces written";
+    return state_ == ReadBuf ? tr("Traces read") : tr("Traces written");
 }
 
 
@@ -250,7 +250,7 @@ int SeisImporter::readIntoBuf()
 	delete trc;
 	if ( nrread_ == 0 )
 	{
-	    errmsg_ = "No valid traces in input";
+	    errmsg_ = tr("No valid traces in input");
 	    return Executor::ErrorOccurred();
 	}
 
@@ -290,7 +290,8 @@ int SeisImporter::readIntoBuf()
 	    }
 	    if ( nreq > 999 )
 	    {
-		errmsg_ = "Input contains too many (1000+) identical positions";
+		errmsg_ = tr("Input contains too many (1000+) "
+			     "identical positions");
 		return Executor::ErrorOccurred();
 	    }
 	}

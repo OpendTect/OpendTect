@@ -201,13 +201,13 @@ int SEGY::Scanner::readNext()
 
 int SEGY::Scanner::openNext()
 {
-    msg_ = "Scanning";
+    msg_ = tr("Scanning");
     curfidx_++;
     if ( curfidx_ >= fnms_.size() )
     {
 	if ( fnms_.isEmpty() )
 	{
-	    msg_ = "No valid file found";
+	    msg_ = tr("No valid file found");
 	    return finish( false );
 	}
 	return finish( true );
@@ -277,9 +277,10 @@ void SEGY::Scanner::initFileData()
 	fds_.setAuxData( geom_, *tr_ );
     else if ( tr_->inpNrSamples() != fds_.getTrcSz() )
     {
-	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
-	emsg += "(must be same as first file: ";
-	emsg += fds_.getTrcSz(); emsg += ")";
+	uiString emsg = tr("Wrong #samples: %1"
+			   "(must be same as first file: %2)")
+		      .arg(tr_->inpNrSamples())
+		      .arg(fds_.getTrcSz());
 	addFailed( tr_->errMsg() );
 	return;
     }

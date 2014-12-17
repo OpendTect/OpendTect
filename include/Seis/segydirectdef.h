@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "executor.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 
 class IOObj;
 namespace Seis { class PosIndexer; }
@@ -32,7 +33,7 @@ class PosKeyList;
 
 
 mExpClass(Seis) DirectDef
-{
+{ mODTextTranslationClass(DirectDef);
 public:
 
     			DirectDef();			//!< Create empty
@@ -59,7 +60,7 @@ public:
 			    remainder of the file */
 
     const FileDataSet&	fileDataSet() const	{ return *fds_; }
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
 
     static const char*	sKeyDirectDef();
     static const char*	sKeyFileType();
@@ -88,7 +89,7 @@ protected:
     SEGY::PosKeyList*	keylist_;
     Seis::PosIndexer*	indexer_;
 
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     od_ostream*		outstream_;
     od_stream_Pos	offsetstart_;

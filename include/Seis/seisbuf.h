@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seisinfo.h"
 #include "executor.h"
+#include "uistring.h"
 class SeisTrc;
 class SeisTrcReader;
 class SeisPacketInfo;
@@ -28,7 +29,7 @@ buffer in which the traces are somehow related.
 */
 
 mExpClass(Seis) SeisTrcBuf
-{
+{ mODTextTranslationClass(SeisTrcBuf);
 public:
 
 			SeisTrcBuf( bool ownr )
@@ -106,7 +107,7 @@ protected:
 
 
 mExpClass(Seis) SeisBufReader : public Executor
-{
+{ mODTextTranslationClass(SeisBufReader);
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
 

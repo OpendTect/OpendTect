@@ -475,7 +475,7 @@ bool acceptOK( CallBacker* )
 
     const SEGY::HdrEntry& he = hc_.he_;
     const int hidx = calcset_.indexOf( he.name() );
-    bool setok = false; BufferString emsg;
+    bool setok = false; uiString emsg;
     if ( hidx >= 0 )
 	setok = calcset_.set( hidx, txt, &emsg );
     else

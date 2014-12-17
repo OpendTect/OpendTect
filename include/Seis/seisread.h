@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seisstor.h"
 #include "seistype.h"
 #include "linekey.h"
+#include "uistring.h"
 class SeisTrc;
 class Executor;
 class TrcKeySampling;
@@ -40,7 +41,7 @@ Note: 2D Prestack data cannot (yet) be read via this class.
 */
 
 mExpClass(Seis) SeisTrcReader : public SeisStoreAccess
-{
+{ mODTextTranslationClass(SeisTrcReader);
 public:
 
 			SeisTrcReader(const IOObj* =0);

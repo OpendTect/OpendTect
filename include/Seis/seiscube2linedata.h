@@ -14,6 +14,7 @@ ________________________________________________________________________
  
 #include "seismod.h"
 #include "executor.h"
+#include "uistring.h"
 
 class IOObj;
 class Seis2DDataSet;
@@ -24,7 +25,7 @@ namespace Survey { class Geometry2D; }
 /*!\brief Extracts 2D data from 3D Cube */
 
 mExpClass(Seis) Seis2DFrom3DExtractor : public Executor
-{
+{ mODTextTranslationClass(Seis2DFrom3DExtractor);
 public:
 			Seis2DFrom3DExtractor(const IOObj& cubein,
 					      const IOObj& lsout,

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "seistype.h"
 #include "dataclipper.h"
+#include "uistring.h"
 class IOObj;
 class SeisTrc;
 class TrcKeyZSampling;
@@ -29,7 +30,7 @@ namespace PosInfo { class Detector; }
 
 
 mExpClass(Seis) SeisScanner : public Executor
-{
+{ mODTextTranslationClass(SeisScanner);
 public:
 
     			SeisScanner(const IOObj&,Seis::GeomType,

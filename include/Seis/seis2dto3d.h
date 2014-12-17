@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "fourier.h"
 #include "binid.h"
 #include "seisbuf.h"
+#include "uistring.h"
 
 class IOObj;
 class Seis2DDataSet;
@@ -46,7 +47,10 @@ public:
 			{ return  errmsg_.isEmpty() ? tr( "interpolating" )
 						    : errmsg_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{return "Number of iterations";}
+    uiString		uiNrDoneText() const	
+						{
+					return tr("Number of iterations");
+						}
     od_int64		totalNr() const		{ return nriter_; }
     int			nextStep();
 
@@ -110,7 +114,7 @@ public:
 			{ return errmsg_.isEmpty() ? tr("interpolating")
 						   : errmsg_; }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{return "Done";}
+    uiString		uiNrDoneText() const	{ return tr("Done"); }
     od_int64		totalNr() const;
     int			nextStep();
 
@@ -170,7 +174,7 @@ protected:
 
 
 mExpClass(Seis) SeisScaler
-{
+{ mODTextTranslationClass(SeisScaler);
 public:
 			SeisScaler(const SeisTrcBuf&);
 

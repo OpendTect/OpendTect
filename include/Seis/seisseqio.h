@@ -29,7 +29,7 @@ class Bounds;
 /*!\brief Base class for Seismic Sequential IO classes */
 
 mExpClass(Seis) SeqIO
-{
+{ mODTextTranslationClass(SeqIO);
 public:
 
     virtual const char*	type() const			= 0;
@@ -50,7 +50,7 @@ protected:
 /*!\brief Base class for Seismic Sequential input classes */
 
 mExpClass(Seis) SeqInp : public SeqIO
-{
+{ mODTextTranslationClass(SeqInp);
 public:
 
     virtual bool	get(SeisTrc&) const		= 0;
@@ -79,7 +79,7 @@ protected:
 
 
 mExpClass(Seis) ODSeqInp : public SeqInp
-{
+{ mODTextTranslationClass(ODSeqInp);
 public:
 
     			ODSeqInp();
@@ -115,7 +115,7 @@ protected:
 /*!\brief Base class for Seismic Sequential output classes */
 
 mExpClass(Seis) SeqOut : public SeqIO
-{
+{ mODTextTranslationClass(SeqOut);
 public:
 
     virtual bool	put(const SeisTrc&)		= 0;
@@ -136,7 +136,7 @@ public:
  */
 
 mExpClass(Seis) ODSeqOut : public SeqOut
-{
+{ mODTextTranslationClass(ODSeqOut);
 public:
 
     			ODSeqOut() : wrr_(0)	{}

@@ -83,7 +83,7 @@ protected:
 	  Only interesting if you want to add your own 2D data I/O. */
 
 mExpClass(Seis) Seis2DLineIOProvider
-{
+{ mODTextTranslationClass(Seis2DLineIOProvider);
 public:
 
     virtual		~Seis2DLineIOProvider()			{}

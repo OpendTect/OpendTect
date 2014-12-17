@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "bufstringset.h"
 #include "segyfiledef.h"
+#include "uistring.h"
 class SeisTrc;
 class DataClipSampler;
 class SEGYSeisTrcTranslator;
@@ -45,7 +46,7 @@ public:
     void		collectInfoPerTrace( bool yn )	{ notrcinfo_ = !yn; }
 
     int			nextStep();
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     od_int64		nrDone() const		{ return nrdone_; }
     od_int64		totalNr() const;
     uiString		uiNrDoneText() const	{ return "Traces scanned"; }
@@ -79,7 +80,7 @@ protected:
 
     SeisTrc&		trc_;
     int			curfidx_;
-    BufferString	msg_;
+    uiString		msg_;
     od_int64		nrdone_;
     mutable od_int64	totnr_;
     PosInfo::Detector&	dtctor_;

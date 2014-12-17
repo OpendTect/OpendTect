@@ -36,7 +36,7 @@ WaveletExtractor::WaveletExtractor( const IOObj& ioobj, int wvltsize )
     , nrdone_(0)
     , fft_( Fourier::CC::createDefault() )
     , totalnr_(0)
-    , msg_("Extracting wavelet")
+    , msg_(tr("Extracting wavelet"))
     , wvlt_(*new Wavelet)
     , lineidx_(-1)
     , paramval_( mUdf(float) )
@@ -133,11 +133,11 @@ bool WaveletExtractor::getNextLine()
 
 
 uiString WaveletExtractor::uiNrDoneText() const
-{ return "Traces Processed"; }
+{ return tr("Traces Processed"); }
 
 
 uiString WaveletExtractor::uiMessage() const
-{ return msg_.buf(); }
+{ return msg_; }
 
 
 int WaveletExtractor::nextStep()
@@ -147,7 +147,7 @@ int WaveletExtractor::nextStep()
 
     if ( res == -1 )
     {
-	msg_ = "Error reading input data";
+	msg_ = tr("Error reading input data");
 	return ErrorOccurred();
     }
 
@@ -313,7 +313,7 @@ void WaveletExtractor::normalisation( Array1DImpl<float>& normal )
 bool WaveletExtractor::finish( int nrusedtrcs )
 {
     if ( nrusedtrcs == 0 )
-    { msg_ = "No valid traces read"; return false; }
+    { msg_ = tr("No valid traces read"); return false; }
 
     float * stackedarr = wvlt_.samples();
     stackedarr[0] = 0;
@@ -321,7 +321,7 @@ bool WaveletExtractor::finish( int nrusedtrcs )
 	stackedarr[i] = Math::Sqrt( stackedarr[i] / nrusedtrcs );
 
     if ( !doWaveletIFFT() || !rotateWavelet() || !taperWavelet() )
-    { msg_ = "Failed to generate wavelet"; return false; }
+    { msg_ = tr("Failed to generate wavelet"); return false; }
 
    return true;
 }

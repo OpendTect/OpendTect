@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "binidvalset.h"
 #include "randomlinegeom.h"
+#include "uistring.h"
 
 class IOObj;
 class od_ostream;
@@ -28,7 +29,7 @@ namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
 mExpClass(Seis) SeisRandLineTo2D : public Executor
-{
+{ mODTextTranslationClass(SeisRandLineTo2D);
 public:
     			SeisRandLineTo2D(const IOObj&,const IOObj&,
 					 const Pos::GeomID, int trcinit,
@@ -60,7 +61,7 @@ private:
 
 
 mExpClass(Seis) SeisRandLineTo2DGrid
-{
+{ mODTextTranslationClass(SeisRandLineTo2DGrid);
 public:
     			SeisRandLineTo2DGrid(const IOPar&,od_ostream&);
 

@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "trckeyzsampling.h"
+#include "uistring.h"
 class IOObj;
 class Scaler;
 class SeisTrc;
@@ -33,7 +34,7 @@ taken.
 */
 
 mExpClass(Seis) SeisSingleTraceProc : public Executor
-{
+{ mODTextTranslationClass(SeisSingleTraceProc);
 public:
 
 			SeisSingleTraceProc(const IOObj* in,const IOObj* out,

@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "seismod.h"
 #include "zaxistransform.h"
-
+#include "uistring.h"
 #include "trckeyzsampling.h"
 #include "datapack.h"
 #include "multidimstorage.h"
@@ -30,7 +30,7 @@ template <class T> class ValueSeries;
 
 
 mExpClass(Seis) VelocityStretcher : public ZAxisTransform
-{
+{ mODTextTranslationClass(VelocityStretcher);
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
 
@@ -50,7 +50,7 @@ protected:
    velocity model on disk. */
 
 mExpClass(Seis) Time2DepthStretcher : public VelocityStretcher
-{
+{ mODTextTranslationClass(Time2DepthStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Time2DepthStretcher,
 	    			  "VelocityT2D", sFactoryKeyword() );
@@ -108,7 +108,7 @@ protected:
 
 
 mExpClass(Seis) Depth2TimeStretcher : public VelocityStretcher
-{
+{ mODTextTranslationClass(Depth2TimeStretcher);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, Depth2TimeStretcher,
 	    			  "VelocityD2T", sFactoryKeyword() );
@@ -144,16 +144,19 @@ protected:
 /*! Scans a velocity model for minimum top/bottom average velocity. */
 
 mExpClass(Seis) VelocityModelScanner : public SequentialTask
-{
+{ mODTextTranslationClass(VelocityModelScanner);
 public:
     			VelocityModelScanner(const IOObj&,
 				const VelocityDesc&);
 			~VelocityModelScanner();
 
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     od_int64		totalNr() const		{ return subsel_.totalNr(); }
     od_int64		nrDone() const		{ return nrdone_; }
-    uiString		uiNrDoneText() const	{ return "Position scanned";}
+    uiString		uiNrDoneText() const	
+						{
+						return tr("Position scanned");
+						}
 
     const Interval<float>&	getTopVAvg() const	{ return startavgvel_; }
     const Interval<float>&	getBotVAvg() const	{ return stopavgvel_; }
@@ -162,9 +165,9 @@ public:
 
 protected:
 
-    BufferString		msg_;
-    TrcKeySampling			subsel_;
-    TrcKeySamplingIterator		hsiter_;
+    uiString			msg_;
+    TrcKeySampling		subsel_;
+    TrcKeySamplingIterator	hsiter_;
     bool			definedv0_;
     bool			definedv1_;
     bool			zistime_;
@@ -181,7 +184,7 @@ protected:
 
 
 mExpClass(Seis) LinearVelTransform : public ZAxisTransform
-{
+{ mODTextTranslationClass(LinearVelTransform);
 public:
     bool			usePar(const IOPar&);
     void			fillPar(IOPar&) const;
@@ -205,7 +208,7 @@ protected:
 
 
 mExpClass(Seis) LinearT2DTransform : public LinearVelTransform
-{
+{ mODTextTranslationClass(LinearT2DTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
 	    			  "LinearT2D", "Linear velocity" );
@@ -228,7 +231,7 @@ public:
 
 
 mExpClass(Seis) LinearD2TTransform : public LinearVelTransform
-{
+{ mODTextTranslationClass(LinearD2TTransform);
 public:
     mDefaultFactoryInstantiation( ZAxisTransform, LinearT2DTransform,
 	    			  "LinearD2T", "Linear velocity" );

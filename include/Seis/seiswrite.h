@@ -30,6 +30,7 @@ output cube's setup and extent.
 #include "seisstor.h"
 #include "fixedstring.h"
 #include "linekey.h"
+#include "uistring.h"
 class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;

@@ -41,9 +41,9 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, nrsamps_(-1)
 {
     if ( iops.isEmpty() )
-	{ errmsg_ = "Nothing to merge"; return; }
-    if ( iops.size() == 1 )
-	{ errmsg_ = "One single entry to merge: Please use copy"; return; }
+    { errmsg_ = tr("Nothing to merge"); return; }
+    if (iops.size() == 1)
+    { errmsg_ = tr("One single entry to merge: Please use copy"); return; }
 
     StepInterval<float> zrg( mUdf(float), -mUdf(float), SI().zStep() );
     for ( int idx=0; idx<iops.size(); idx++ )
@@ -96,7 +96,7 @@ SeisMerger::SeisMerger( const IOPar& iop )
     	, nrsamps_(-1)
 {
     if ( iop.isEmpty() )
-	{ errmsg_ = "Nothing to merge"; return; }
+    { errmsg_ = tr("Nothing to merge"); return; }
 
     FilePath fp( iop.find(sKey::TmpStor()) );
     DirList dlist( fp.fullPath(), DirList::FilesOnly );
@@ -154,7 +154,7 @@ SeisMerger::~SeisMerger()
 
 uiString SeisMerger::uiMessage() const
 {
-    return errmsg_.isEmpty() ? errmsg_ : "Handling traces";
+    return errmsg_.isEmpty() ? errmsg_ : tr("Handling traces");
 }
 
 

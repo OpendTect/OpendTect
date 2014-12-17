@@ -265,7 +265,7 @@ bool Seis::ODSeqInp::usePar( const IOPar& iop )
 	return rdr_;
     }
 
-    errmsg_ = "TODO: create PS Reader from IOPar";
+    errmsg_ = tr("TODO: create PS Reader from IOPar");
     return false;
 }
 
@@ -280,7 +280,7 @@ void Seis::ODSeqInp::fillPar( IOPar& iop ) const
 bool Seis::ODSeqInp::get( SeisTrc& trc ) const
 {
     if ( !rdr_ && !psrdr_ )
-	{ errmsg_ = "No reader available"; return false; }
+    { errmsg_ = tr("No reader available"); return false; }
 
     if ( rdr_ )
     {

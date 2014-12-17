@@ -12,7 +12,7 @@ ________________________________________________________________________
 */
 
 #include "seismod.h"
-
+#include "uistring.h"
 #include "executor.h"
 #include "fixedstring.h"
 #include "paralleltask.h"

@@ -31,7 +31,7 @@ namespace Seis		{ class SelData; }
 /*!\brief base class for seis reader and writer. */
 
 mExpClass(Seis) SeisStoreAccess
-{
+{ mODTextTranslationClass(SeisStoreAccess);
 public:
 
     virtual		~SeisStoreAccess();

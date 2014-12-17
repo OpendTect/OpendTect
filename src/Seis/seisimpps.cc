@@ -138,11 +138,17 @@ bool SeisPSImpDataMgr::writeGather()
     {
 	IOObj* ioobj = IOM().get( wrid_ );
 	if ( !ioobj )
-	    { errmsg_ = "Output data store not in object mgr"; return false; }
+	{
+	    errmsg_ = tr("Output data store not in object mgr");
+	    return false;
+	}
 	wrr_ = new SeisTrcWriter( ioobj );
 	delete ioobj;
 	if ( !wrr_ )
-	    { errmsg_ = "Cannot write to this data store type"; return false; }
+	{
+	    errmsg_ = tr("Cannot write to this data store type");
+	    return false;
+	}
 	wrsampnms = true;
     }
 

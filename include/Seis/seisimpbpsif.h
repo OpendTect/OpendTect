@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 #include "executor.h"
+#include "uistring.h"
 class SeisTrc;
 class SeisPSImpDataMgr;
 
@@ -63,7 +64,7 @@ Notes:
 */
 
 mExpClass(Seis) SeisImpBPSIF : public Executor
-{
+{ mODTextTranslationClass(SeisImpBPSIF);
 public:
 
     			SeisImpBPSIF(const char* filenm,const MultiID&);
@@ -72,7 +73,7 @@ public:
 
     uiString		uiMessage() const;
     od_int64		nrDone() const		{ return nrshots_; }
-    uiString		uiNrDoneText() const	{ return "Shots handled"; }
+    uiString		uiNrDoneText() const	{ return tr("Shots handled"); }
     int			nextStep();
 
     int			nrFiles() const		{ return fnames_.size(); }
@@ -101,7 +102,7 @@ protected:
     BufferStringSet	shotattrs_;
     BufferStringSet	rcvattrs_;
     SeisPSImpDataMgr&	datamgr_;
-    mutable BufferString errmsg_;
+    mutable uiString	errmsg_;
 
     bool		open(const char*);
     bool		openNext();

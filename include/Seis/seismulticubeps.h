@@ -15,13 +15,14 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "seispsread.h"
 #include "seispsioprov.h"
+#include "uistring.h"
 class SeisTrcReader;
 
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
 
 mExpClass(Seis) MultiCubeSeisPSReader : public SeisPS3DReader
-{
+{ mODTextTranslationClass(MultiCubeSeisPSReader);
 public:
 
 			MultiCubeSeisPSReader(const char* fnm);

@@ -67,7 +67,7 @@ bool SEGY::HdrCalcSet::add( const char* dispstr )
 
 
 Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
-					BufferString* emsg ) const
+					  uiString* emsg ) const
 {
     Math::ExpressionParser mep( def );
     Math::Expression* me = mep.parse();
@@ -87,11 +87,10 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
 	{
 	    if ( emsg )
 	    {
-		*emsg = "'";
-		emsg->add( varnm ).add( "' is a ")
-		    .add( vt == Math::Expression::Constant
-			? "named constant" : "recursive expression" )
-		    .add( "\nThese are not supported." );
+		*emsg = tr("'%1' is a %2.\nThese are not supported.")
+		      .arg(varnm)
+		      .arg(vt == Math::Expression::Constant
+		      ? tr("named constant") : tr("recursive expression"));
 	    }
 	    delete me; return 0;
 	}
@@ -105,8 +104,8 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
 	    {
 		if ( emsg )
 		{
-		    *emsg = " Found variable: '";
-		    emsg->add( varnm ).add( "', which is not a header field");
+		    *emsg = tr(" Found variable: '%1', which is not "
+			       "a header field").arg(varnm);
 		}
 		delete me; return 0;
 	    }
@@ -119,7 +118,7 @@ Math::Expression* SEGY::HdrCalcSet::gtME( const char* def, TypeSet<int>& heidxs,
 
 
 bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
-			    BufferString* emsg )
+			    uiString* emsg )
 {
     TypeSet<int>* heidxs = new TypeSet<int>;
     Math::Expression* me = gtME( def, *heidxs, emsg );
@@ -133,7 +132,7 @@ bool SEGY::HdrCalcSet::add( const SEGY::HdrEntry& he, const char* def,
 }
 
 
-bool SEGY::HdrCalcSet::set( int heidx, const char* def, BufferString* emsg )
+bool SEGY::HdrCalcSet::set( int heidx, const char* def, uiString* emsg )
 {
     if ( heidx >= size() )
 	return false;
@@ -188,7 +187,7 @@ void SEGY::HdrCalcSet::apply( void* buf, bool needswap ) const
 #define mSEGYFileHdrSize 3600
 
 class SEGYHdrCalcSetapplier : public Executor
-{
+{ mODTextTranslationClass(SEGYHdrCalcSetapplier);
 public:
 
 SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
@@ -200,7 +199,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
     , outstrm_(os)
     , bptrc_(dbpt+240)
     , nrdone_(-1)
-    , msg_("Handling traces")
+    , msg_(tr("Handling traces"))
     , needswap_(bh ? bh->isSwapped() : false)
 {
     totalnr_ = inpstrm_.endPosition();
@@ -208,7 +207,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 
     buf_ = new unsigned char [bptrc_>mSEGYFileHdrSize?bptrc_:mSEGYFileHdrSize];
     if ( !inpstrm_.getBin(buf_,mSEGYFileHdrSize) )
-	msg_ = "Cannot read file headers";
+	msg_ = tr("Cannot read file headers");
     else
     {
 	if ( th )
@@ -221,7 +220,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 	}
 
 	if ( !outstrm_.addBin(buf_,mSEGYFileHdrSize) )
-	    msg_ = "Cannot write to output file";
+	    msg_ = tr("Cannot write to output file");
 	else
 	    nrdone_ = 0;
     }
@@ -231,7 +230,7 @@ SEGYHdrCalcSetapplier( const SEGY::HdrCalcSet& cs,
 }
 
 uiString uiMessage() const		{ return msg_; }
-uiString uiNrDoneText() const		{ return "Traces handled"; }
+uiString uiNrDoneText() const		{ return tr("Traces handled"); }
 od_int64 nrDone() const			{ return nrdone_; }
 od_int64 totalNr() const		{ return totalnr_; }
 
@@ -245,16 +244,16 @@ int nextStep()
 
     if ( !inpstrm_.getBin(buf_,bptrc_) )
     {
-	msg_ = "Unexpected early end of input file encountered";
+	msg_ = tr("Unexpected early end of input file encountered");
 	return ErrorOccurred();
     }
     tkzs_.apply( buf_, needswap_ );
     if ( !outstrm_.addBin(buf_,bptrc_) )
     {
-	msg_ = "Cannot write to output file.";
-	msg_.add( "\nWrote " ).add( nrdone_ )
-	.add( " traces.\nTotal: " ).add( totalnr_ )
-	.add( " available in input file" );
+	msg_ = tr("Cannot write to output file."
+		  "\nWrote %1 traces.\nTotal: %2"
+		  " available in input file")
+	     .arg(nrdone_).arg(totalnr_);
 	return ErrorOccurred();
     }
 
@@ -270,7 +269,7 @@ int nextStep()
     const unsigned int	bptrc_;
     unsigned char*	buf_;
     bool		needswap_;
-    BufferString	msg_;
+    uiString		msg_;
 
 };
 

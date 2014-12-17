@@ -26,7 +26,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	, dostack_(dostack)
 	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
 	, offsrg_(0,mUdf(float))
-	, msg_("Handling gathers")
+	, msg_(tr("Handling gathers"))
 	, totnr_(-1)
 	, nrdone_(0)
 {
@@ -66,7 +66,7 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 	}
     }
     if ( readers_.isEmpty() )
-	{ msg_ = "No valid inputs specified"; return; }
+    { msg_ = tr("No valid inputs specified"); return; }
 
     totnr_ = mCast( int, sd_ ? sd_->expectedNrTraces() : cs.hrg.totalNr() );
     iter_ = new TrcKeySamplingIterator( cs.hrg );
@@ -74,7 +74,10 @@ SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
 
     writer_ = new SeisTrcWriter( &out );
     if ( !writer_ )
-	{ deepErase(readers_); msg_ = "Cannot create output writer"; return; }
+    {
+	deepErase(readers_); msg_ = tr("Cannot create output writer");
+	return;
+    }
 }
 
 

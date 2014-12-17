@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "samplingdata.h"
+#include "uistring.h"
 class SeisTrcBuf;
 class SeisIOObjInfo;
 class BufferStringSet;

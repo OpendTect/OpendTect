@@ -50,7 +50,7 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
     }
 
     if ( fnames_.isEmpty() )
-	{ errmsg_ = "No valid input file specified"; return; }
+    { errmsg_ = tr("No valid input file specified"); return; }
 }
 
 
@@ -89,7 +89,10 @@ bool SeisImpBPSIF::openNext()
 
 
 #define mErrRet(s) \
-	{ errmsg_ = fnames_.get(curfileidx_); errmsg_ += s; return false; }
+	{ \
+	    errmsg_ = s; \
+	    return false; \
+	} \
 
 
 bool SeisImpBPSIF::readFileHeader()
@@ -137,7 +140,8 @@ bool SeisImpBPSIF::readFileHeader()
     }
 
     if ( shotattrs_.isEmpty() && rcvattrs_.isEmpty() )
-	mErrRet(" does not contain any attribute data")
+	mErrRet(tr("%1 does not contain any attribute data")
+	      .arg(fnames_.get(curfileidx_)))
 
     BufferStringSet sampnms( shotattrs_ );
     sampnms.add( rcvattrs_, true );
@@ -161,8 +165,9 @@ void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 
 uiString SeisImpBPSIF::uiMessage() const
 {
-    if ( !errmsg_.isEmpty() ) return errmsg_.buf();
-    return datamgr_.needWrite() ? "Writing to data store" : "Reading traces";
+    if (!errmsg_.isEmpty()) return errmsg_;
+    return datamgr_.needWrite() ? tr("Writing to data store")
+				: tr("Reading traces");
 }
 
 

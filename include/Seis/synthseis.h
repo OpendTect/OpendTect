@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "paralleltask.h"
 #include "threadlock.h"
+#include "uistring.h"
 
 class RayTracer1D;
 class SeisTrc;
@@ -48,7 +49,7 @@ namespace Seis
 
 
 mExpClass(Seis) SynthGenBase
-{
+{ mODTextTranslationClass(SynthGenBase);
 public:
 
     virtual bool	setWavelet(const Wavelet*,OD::PtrPolicy pol);
@@ -103,7 +104,7 @@ protected:
 
 
 mExpClass(Seis) SynthGenerator : public SynthGenBase
-{
+{ mODTextTranslationClass(SynthGenerator);
 public:
     mDefineFactoryInClass( SynthGenerator, factory );
 
@@ -165,7 +166,7 @@ protected:
 
 mExpClass(Seis) MultiTraceSynthGenerator : public ParallelTask,
 					   public SynthGenBase
-{
+{ mODTextTranslationClass(MultiTraceSynthGenerator);
 public:
 				MultiTraceSynthGenerator();
 				~MultiTraceSynthGenerator();
@@ -198,7 +199,7 @@ protected:
 
 
 mExpClass(Seis) RaySynthGenerator : public ParallelTask, public SynthGenBase
-{
+{ mODTextTranslationClass(RaySynthGenerator);
 public:
 
     mStruct(Seis) RayModel
@@ -264,7 +265,7 @@ protected:
     bool			doWork(od_int64,od_int64,int);
 
     bool			ownraymodels_;
-    BufferString		message_;
+    uiString			message_;
     const TypeSet<ElasticModel>* aimodels_;
     TypeSet<float>		offsets_;
     IOPar			raysetup_;

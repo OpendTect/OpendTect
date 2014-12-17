@@ -93,7 +93,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 {
     if ( !ioobj_ )
     {
-	errmsg_ = "Info for input seismic data not found in Object Manager";
+	errmsg_ = tr("Info for input seismic data not found in Object Manager");
 	return false;
     }
     else if ( psioprov_ )
@@ -101,15 +101,16 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 	const char* fnm = ioobj_->fullUserExpr(Conn::Read);
 	if ( is2d_ )
 	{
-	    errmsg_ = "SeisTrcReader cannot read from 2D Prestack Data store";
+	    errmsg_ = tr("SeisTrcReader cannot read from "
+			 "2D Prestack Data store");
 	    return false;
 	}
 	psrdr_ = psioprov_->make3DReader( fnm );
     }
     if ( (is2d_ && !dataset_) || (!is2d_ && !trl_) || (psioprov_ && !psrdr_) )
     {
-	errmsg_ = uiString("No data interpreter available for '%1'").
-			arg( ioobj_->name() );
+	errmsg_ = tr("No data interpreter available for '%1'")
+		.arg(ioobj_->name());
 	return false;
     }
 
@@ -120,8 +121,8 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     Conn* conn = openFirst();
     if ( !conn )
     {
-	errmsg_ = uiString("Cannot open data files for '%1'").
-			arg( ioobj_->name());
+	errmsg_ = tr("Cannot open data files for '%1'")
+		.arg(ioobj_->name());
 	return false;
     }
 
@@ -142,8 +143,11 @@ bool SeisTrcReader::startWork()
 	    { pErrMsg("Huh"); return false; }
 
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
-	if ( !pscditer_->next(curpsbid_) )
-	    { errmsg_ = "Prestack Data storage is empty"; return false; }
+	if (!pscditer_->next(curpsbid_))
+	{ 
+	    errmsg_ = tr("Prestack Data storage is empty"); 
+	    return false; 
+	}
 	pscditer_->reset();
 	return true;
     }
@@ -222,8 +226,8 @@ bool SeisTrcReader::initRead( Conn* conn )
     mDynamicCastGet(SeisTrcTranslator*,sttrl,trl_)
     if ( !sttrl )
     {
-	errmsg_ =  uiString("%1 found where seismic cube was expected").
-			arg( trl_->userName() );
+	errmsg_ = tr("%1 found where seismic cube was expected")
+		.arg(trl_->userName());
 	cleanUp(); return false;
     }
 
@@ -523,7 +527,7 @@ bool SeisTrcReader::mkNextFetcher()
 	}
 	if ( !found )
 	{
-	    errmsg_ = "Data not available for the selected line";
+	    errmsg_ = tr("Data not available for the selected line");
 	    return false;
 	}
     }

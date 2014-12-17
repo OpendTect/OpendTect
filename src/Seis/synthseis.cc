@@ -63,7 +63,7 @@ bool SynthGenBase::setWavelet( const Wavelet* wvlt, OD::PtrPolicy pol )
     if ( waveletismine_ )
 	{ delete wavelet_; wavelet_ = 0; }
     if ( !wvlt )
-	mErrRet( "No valid wavelet given", false );
+	mErrRet(tr("No valid wavelet given"), false);
     if ( pol != OD::CopyPtr )
 	wavelet_ = wvlt;
     else
@@ -123,7 +123,8 @@ bool SynthGenBase::getOutSamplingFromModel(
     }
 
     if ( wavelet_->samplePositions().width(false) < outputsr )
-	mErrRet("Wavelet length must be larger than output sampling rate",false)
+	mErrRet(tr("Wavelet length must be larger than output sampling rate"),
+		false)
 
     sampling.set( mUdf(float), -mUdf(float), outputsr );
     for ( int imod=0; imod<models.size(); imod++ )
@@ -156,7 +157,7 @@ bool SynthGenBase::getOutSamplingFromModel(
     }
 
     if ( sampling.isUdf() )
-	mErrRet("Cannot determine trace size from model(s)", false)
+	mErrRet(tr("Cannot determine trace size from model(s)"), false)
 
     sampling.scale( 1.f / outputsr );
     sampling.start = mIsEqual( (float)mNINT32(sampling.start), sampling.start,
@@ -255,14 +256,15 @@ int SynthGenerator::nextStep()
 {
     // Sanity checks
     if ( !wavelet_ )
-	mErrRet( "Cannot make synthetics without wavelet", mErrOccRet );
+	mErrRet(tr("Cannot make synthetics without wavelet"), mErrOccRet);
     const int wvltsz = wavelet_->size();
-    if ( wvltsz < 2 )
-	mErrRet( "Wavelet is too short - at minimum 3 samples are required",
-		 mErrOccRet );
+    if (wvltsz < 2)
+	mErrRet(tr("Wavelet is too short - at minimum 3 samples are required"),
+	mErrOccRet);
 
-    if ( !refmodel_ )
-	mErrRet("Cannot make synthetics without reflectivity model",mErrOccRet);
+    if (!refmodel_)
+	mErrRet(tr("Cannot make synthetics without reflectivity model"),
+	mErrOccRet);
 
     if ( convolvesize_ == 0 )
 	return setConvolveSize();
@@ -285,7 +287,7 @@ int SynthGenerator::setConvolveSize()
 	ObjectSet<const ReflectivityModel> mod;
 	mod += refmodel_;
 	if ( !SynthGenBase::getOutSamplingFromModel(mod,cursampling) )
-	    mErrRet( "Cannot determine trace size from model", mErrOccRet )
+	    mErrRet(tr("Cannot determine trace size from model"), mErrOccRet)
 
 	cursampling.start = outputsampling_.start;
     }
@@ -332,7 +334,7 @@ int SynthGenerator::genFreqWavelet()
     if ( !fft->run(true) )
     {
 	freqwavelet_.erase();
-	mErrRet( "Error running FFT for the wavelet spectrum", mErrOccRet );
+	mErrRet(tr("Error running FFT for the wavelet spectrum"), mErrOccRet);
     }
 
     return mMoreToDoRet;
@@ -441,18 +443,18 @@ bool SynthGenerator::doFFTConvolve( ValueSeries<float>& res, int outsz )
 {
     PtrMan<Fourier::CC> fft = Fourier::CC::createDefault();
     if ( !fft )
-	mErrRet( "Cannot allocate memory for FFT", false )
+	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-    mAllocLargeVarLenArr( float_complex, cres, convolvesize_ );
+	mAllocLargeVarLenArr(float_complex, cres, convolvesize_);
     if ( !cres )
-	mErrRet( "Cannot allocate memory for FFT", false )
+	mErrRet(tr("Cannot allocate memory for FFT"), false)
 
-    for ( int idx=0; idx<convolvesize_; idx++ )
-	cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
+	for (int idx = 0; idx<convolvesize_; idx++)
+	    cres[idx] = freqreflectivities_[idx] * freqwavelet_[idx];
 
-    mPrepFFT( fft, cres, false, convolvesize_ );
+    mPrepFFT(fft, cres, false, convolvesize_);
     if ( !fft->run(true) )
-	mErrRet( "Cannot run FFT for convolution", false )
+	mErrRet(tr("Cannot run FFT for convolution"), false)
 
     sortOutput( cres, res, outsz );
 
@@ -699,7 +701,7 @@ bool RaySynthGenerator::doPrepare( int )
 	deepErase( *raymodels_ );
 
     if ( aimodels_ && aimodels_->isEmpty() )
-	mErrRet( "No AI model found", false );
+	mErrRet(tr("No AI model found"), false);
 
     if ( offsets_.isEmpty() )
 	offsets_ += 0;
@@ -708,7 +710,7 @@ bool RaySynthGenerator::doPrepare( int )
     {
 	raymodels_ = new ObjectSet<RayModel>();
 	rtr_ = new RayTracerRunner( *aimodels_, raysetup_ );
-	message_ = "Raytracing";
+	message_ = tr("Raytracing");
 	if ( !rtr_->execute() )
 	    mErrRet( rtr_->errMsg(), false );
 
@@ -734,7 +736,7 @@ bool RaySynthGenerator::doPrepare( int )
     outputsampling_.include( cursampling, false );
     outputsampling_.step = cursampling.step;
 
-    message_ = "Generating synthetics";
+    message_ = tr("Generating synthetics");
 
     return true;
 }
@@ -797,7 +799,7 @@ od_int64 RaySynthGenerator::nrDone() const
 
 uiString RaySynthGenerator::uiNrDoneText() const
 {
-    return !raytracingdone_ && rtr_ ? "Layers done" : "Models done";
+    return !raytracingdone_ && rtr_ ? tr("Layers done") : tr("Models done");
 }
 
 

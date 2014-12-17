@@ -32,7 +32,7 @@ class FileDataSet;
 
 
 mExpClass(Seis) DirectReader
-{
+{ mODTextTranslationClass(DirectReader);
 public:
 
 					DirectReader()
@@ -58,7 +58,7 @@ protected:
 
 mExpClass(Seis) SEGYDirect3DPSReader : public ::SeisPS3DReader
 			    , public SEGY::DirectReader
-{
+{ mODTextTranslationClass(SEGYDirect3DPSReader);
 public:
 
 			SEGYDirect3DPSReader(const char* fnm);
@@ -89,7 +89,7 @@ protected:
 
 mExpClass(Seis) SEGYDirect2DPSReader : public SeisPS2DReader
 			    , public SEGY::DirectReader
-{
+{ mODTextTranslationClass(SEGYDirect2DPSReader);
 public:
 
 			SEGYDirect2DPSReader(const char* dirnm,Pos::GeomID);

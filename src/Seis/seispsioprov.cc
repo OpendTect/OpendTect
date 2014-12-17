@@ -273,11 +273,14 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     {
 	mDynamicCastGet(StreamConn*,sconn,conn_->conn())
 	if ( !sconn )
-	    { errmsg_ = "Wrong connection from Object Manager"; return false; }
+	{
+	    errmsg_ = tr("Wrong connection from Object Manager");
+	    return false;
+	}
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
     }
     conn_->close();
-    errmsg_ = psrdr_ ? psrdr_->errMsg() : "Cannot find PS data store type";
+    errmsg_ = psrdr_ ? psrdr_->errMsg() : tr("Cannot find PS data store type");
     if ( !errmsg_.isEmpty() )
 	return false;
 

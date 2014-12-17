@@ -81,7 +81,7 @@ int Seis2DFrom3DExtractor::goToNextLine()
     mDynamicCast( const Survey::Geometry2D*, curgeom2d_,
 		  Survey::GM().getGeometry(geomids_[curlineidx_]) );
     if ( !curgeom2d_ )
-	mErrRet( "Line geometry not available" )
+	mErrRet(tr("Line geometry not available"))
 
     curtrcidx_ = 0;
     const GeomIDProvider* gip = wrr_.geomIDProvider();

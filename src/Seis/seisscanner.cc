@@ -31,7 +31,7 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
 	, dtctor_(*new PosInfo::Detector(
 		    PosInfo::Detector::Setup(Seis::is2D(gt))
 			    .isps(Seis::isPS(gt)).reqsorting(true) ) )
-	, curmsg_("Scanning")
+	, curmsg_(tr("Scanning"))
 	, totalnr_(mtr < 0 ? -2 : mtr)
 	, maxnrtrcs_(mtr)
 	, nrnulltraces_(0)
@@ -60,7 +60,7 @@ uiString SeisScanner::uiMessage() const
 
 uiString SeisScanner::uiNrDoneText() const
 {
-    return "Traces handled";
+    return tr("Traces handled");
 }
 
 
@@ -219,24 +219,26 @@ int SeisScanner::nextStep()
     if ( res < 1 )
     {
 	dtctor_.finish();
-	curmsg_ = "Done";
+	curmsg_ = tr("Done");
 	if ( res != 0 )
 	{
 	    uiString posmsg;
 	    if ( dtctor_.nrPositions(false) == 0 )
-		posmsg = "opening file";
+		posmsg = tr("opening file");
 	    else
 	    {
 		const BinID& bid( dtctor_.lastPosition().binid_ );
 		if ( dtctor_.is2D() )
-		    { posmsg = uiString("trace number %1")
-					.arg( toString(bid.crl()) ); }
+		{
+		    posmsg = tr("trace number %1")
+			   .arg(toString(bid.crl()));
+		}
 		else
 		    { posmsg = bid.toString(); }
 	    }
 
-	    curmsg_ = uiString( "Error during read of trace header after %1")
-				.arg( posmsg );
+	    curmsg_ = tr("Error during read of trace header after %1")
+		    .arg( posmsg );
 
 	}
 	wrapUp();
@@ -252,10 +254,10 @@ int SeisScanner::nextStep()
 	const BinID& bid( trc_.info().binid );
 	uiString posmsg;
 	if ( dtctor_.is2D() )
-	    { posmsg = uiString( "trace number %1").arg( toString(bid.crl()) );}
+	{ posmsg = tr("trace number %1").arg(toString(bid.crl())); }
 	else
 	    { posmsg = bid.toString(); }
-	curmsg_ = uiString("Error during read of trace data at %1").arg(posmsg);
+	curmsg_ = tr("Error during read of trace data at %1").arg(posmsg);
 	wrapUp();
 	return Executor::ErrorOccurred();
     }

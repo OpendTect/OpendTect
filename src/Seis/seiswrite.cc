@@ -17,6 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seispscubetr.h"
 #include "seispswrite.h"
 #include "seisselection.h"
+#include "seisstor.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "seis2ddata.h"
@@ -129,19 +130,21 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 {
     if ( !ioobj_ )
     {
-	errmsg_ = "Info for output seismic data not found in Object Manager";
+	errmsg_ = tr("Info for output seismic data "
+		     "not found in Object Manager");
 	return false;
     }
 
     if ( !psioprov_ && !is2d_ && !trl_ )
     {
-	errmsg_ = uiString("No data storer available for '%1'")
-		      .arg( ioobj_->name() );
+	errmsg_ = tr("No data storer available for '%1'")
+		.arg( ioobj_->name() );
 	return false;
     }
     if ( is2d_ && !gidp_ && ( !seldata_ || (seldata_->geomID() < 0) ) )
     {
-	errmsg_ = "Internal: 2D seismic can only be stored if line key known";
+	errmsg_ = tr("Internal: 2D seismic can only "
+		     "be stored if line key known");
 	return false;
     }
 
@@ -172,7 +175,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	}
 	if ( !pswriter_ )
 	{
-	    errmsg_ = "Cannot open Data store for write";
+	    errmsg_ = tr("Cannot open Data store for write");
 	    return false;
 	}
 
@@ -206,7 +209,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 Conn* SeisTrcWriter::crConn( int inl, bool first )
 {
     if ( !ioobj_ )
-	{ errmsg_ = "No data from object manager"; return 0; }
+    { errmsg_ = tr("No data from object manager"); return 0; }
 
     if ( isMultiConn() )
     {
@@ -222,8 +225,8 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
     if ( !conn || conn->isBad() || !trl_ )
     {
-	errmsg_ = uiString( "Cannot write to %1")
-		      .arg( ioobj_->fullUserExpr(false) );
+	errmsg_ = tr("Cannot write to %1")
+		.arg( ioobj_->fullUserExpr(false) );
 	delete conn;
 	return false;
     }
@@ -268,7 +271,7 @@ bool SeisTrcWriter::next2DLine()
     BufferString lnm = Survey::GM().getName( geomid );
     if ( lnm.isEmpty() )
     {
-	errmsg_ = "Invalid 2D Geometry";
+	errmsg_ = tr("Invalid 2D Geometry");
 	return false;
     }
 
@@ -279,7 +282,7 @@ bool SeisTrcWriter::next2DLine()
 
     if ( !putter_ )
     {
-	errmsg_ = "Cannot create 2D line writer";
+	errmsg_ = tr("Cannot create 2D line writer");
 	return false;
     }
 
@@ -443,7 +446,7 @@ bool SeisSequentialWriter::announceTrace( const BinID& bid )
     if ( bid.inl()<latestbid_.inl() ||
 	    (bid.inl()==latestbid_.inl() && bid.crl()<latestbid_.crl() ) )
     {
-	errmsg_ = "Announced trace is out of sequence";
+	errmsg_ = tr("Announced trace is out of sequence");
 	return false;
     }
 

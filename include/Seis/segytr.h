@@ -19,6 +19,7 @@ Translators for SEGY files traces.
 #include "seistrctr.h"
 #include "tracedata.h"
 #include "strmdata.h"
+#include "uistring.h"
 
 class LinScaler;
 class BendPoints2Coords;
@@ -104,7 +105,7 @@ protected:
     virtual bool	writeTapeHeader();
     virtual void	fillHeaderBuf(const SeisTrc&);
     void		selectWriteDataChar(DataCharacteristics&) const;
-    void		fillErrMsg(const uiString&,bool);
+    void		fillErrMsg(const uiString&, bool);
     bool		noErrMsg();
 
     DataCharacteristics	getDataChar(int) const;

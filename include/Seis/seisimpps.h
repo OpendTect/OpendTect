@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "multiid.h"
 #include "executor.h"
+#include "uistring.h"
 class SeisTrc;
 class SeisTrcWriter;
 class SeisPSImpLineBuf;
@@ -34,7 +35,7 @@ class SeisPSImpLineBuf;
 
 
 mExpClass(Seis) SeisPSImpDataMgr
-{
+{ mODTextTranslationClass(SeisPSImpDataMgr);
 public:
 
     			SeisPSImpDataMgr(const MultiID& pswrid);
@@ -52,7 +53,7 @@ public:
     void		setSampleNames( const BufferStringSet& bss )
 						{ samplenms_ = bss; }
 
-    const char*		errMsg() const		{ return errmsg_.str(); }
+    uiString		errMsg() const		{ return errmsg_; }
     const SeisTrcWriter* trcWriter() const	{ return wrr_; }
     bool		constGatherSize() const	{ return gathersize_ > 0; }
 
@@ -66,7 +67,7 @@ protected:
     BufferStringSet		samplenms_;
 
     int				gathersize_;
-    mutable BufferString	errmsg_;
+    mutable uiString		errmsg_;
 
     void			updateStatus(int);
 };

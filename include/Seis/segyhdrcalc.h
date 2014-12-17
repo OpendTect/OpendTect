@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "segyhdrdef.h"
 #include "typeset.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 class Executor;
 class BufferStringSet;
 namespace Math { class Expression; }
@@ -28,7 +29,7 @@ class BinHeader;
 class TxtHeader;
 
 mExpClass(Seis) HdrCalc
-{
+{ mODTextTranslationClass(HdrCalc);
 public:
 
 			HdrCalc( const HdrEntry& he, const char* def )
@@ -45,7 +46,7 @@ public:
 
 mExpClass(Seis) HdrCalcSet : public ObjectSet<HdrCalc>
 		  , public NamedObject
-{
+{ mODTextTranslationClass(HdrCalcSet);
 public:
 				HdrCalcSet(const HdrDef&);
 				~HdrCalcSet();
@@ -55,9 +56,9 @@ public:
     int				indexOf(const char* entrynm) const;
     int				indexOf( const HdrCalc* he ) const
 				{ return ObjectSet<HdrCalc>::indexOf(he); }
-    bool			set(int,const char* def,BufferString* emsg=0);
+    bool			set(int,const char* def,uiString* emsg=0);
     bool			add(const HdrEntry&,const char* def,
-				    BufferString* emsg=0);
+				    uiString* emsg=0);
     bool			add(const char* dispstr);
     void			discard(int);
     void			setEmpty();
@@ -84,7 +85,7 @@ protected:
     mutable int			seqnr_;
 
     Math::Expression*		gtME(const char*,TypeSet<int>&,
-				     BufferString*) const;
+				     uiString*) const;
 
 };
 

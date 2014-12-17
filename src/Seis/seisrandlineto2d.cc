@@ -200,10 +200,10 @@ int SeisRandLineTo2D::nextStep()
 
 
 uiString SeisRandLineTo2D::uiMessage() const
-{ return "Writing traces..."; }
+{ return tr("Writing traces..."); }
 
 uiString SeisRandLineTo2D::uiNrDoneText() const
-{ return "Traces written"; }
+{ return tr("Traces written"); }
 
 od_int64 SeisRandLineTo2D::nrDone() const
 { return nrdone_; }

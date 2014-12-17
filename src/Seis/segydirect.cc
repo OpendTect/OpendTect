@@ -221,22 +221,22 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     od_istream strm( fnm );
     if ( !strm.isOK() )
     {
-	BufferString msg( "Cannot open '",fnm,"':\n");
-	msg.add( strm.errMsg().getFullString() );
+	BufferString msg("Cannot open '", fnm, "':\n");
+	msg.add(strm.errMsg().getFullString());
 	mErrRet( msg )
     }
 
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(sKeyFileType()) )
-	mErrRet(BufferString("Input file '",fnm,"' has wrong file type"))
+	mErrRet(BufferString("Input file '", fnm, "' has wrong file type"))
 
     IOPar iop1; iop1.getFrom( astrm );
     int version = 1;
     iop1.get( sKey::Version(), version );
     if ( version<1 || version>2 )
     {
-	mErrRet(BufferString("Input file '",fnm,
-			"' is written by a later version of OpendTect" ) );
+	mErrRet(BufferString("Input file '", fnm,
+			     "' is written by a later version of OpendTect"));
     }
     if ( version==1 )
     {
@@ -356,7 +356,7 @@ bool SEGY::DirectDef::writeHeadersToFile( const char* fnm )
     outstream_ = new od_ostream( fnm );
     if ( !outstream_->isOK() )
     {
-	BufferString msg( "Cannot open '", fnm, "' for write" );
+	BufferString msg("Cannot open '", fnm, "' for write");
 	outstream_->addErrMsgTo( msg );
 	delete outstream_; outstream_ = 0;
 	mErrRet( msg );
@@ -518,7 +518,7 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     , scanner_(0)
 {
     if ( !ioobj_ )
-	{ msg_ = "Cannot find output object"; return; }
+    { msg_ = tr("Cannot find output object"); return; }
     if ( is2d && !segypar.get(sKey::GeomID(),geomid_) )
     {
 	const FixedString linename = segypar.find( sKey::LineName() );
@@ -527,7 +527,10 @@ SEGY::FileIndexer::FileIndexer( const MultiID& mid, bool isvol,
     }
 
     if ( is2d && geomid_ == mUdfGeomID )
-    { delete ioobj_; ioobj_ = 0; msg_ = "2D Line ID not specified"; return; }
+    { 
+	delete ioobj_; ioobj_ = 0; msg_ = tr("2D Line ID not specified");
+	return; 
+    }
 
     scanner_ = new SEGY::Scanner( sgyfile,
 			is2d_ ? (isvol_ ? Seis::Line : Seis::LinePS) :
@@ -560,7 +563,7 @@ int SEGY::FileIndexer::nextStep()
     {
 	BufferString outfile = ioobj_->fullUserExpr( false );
 	if ( outfile.isEmpty() )
-	    { msg_ = "Output filename empty"; return ErrorOccurred(); }
+	{ msg_ = tr("Output filename empty"); return ErrorOccurred(); }
 
 	if ( is2d_ )
 	{
@@ -590,7 +593,7 @@ int SEGY::FileIndexer::nextStep()
 	    return ErrorOccurred();
 	}
 
-	msg_ = "Setting up output indexing";
+	msg_ = tr("Setting up output indexing");
 	directdef_ = new SEGY::DirectDef;
 	directdef_->setData( scanner_->fileDataSet() );
 	if ( is2d_ )
@@ -616,7 +619,7 @@ int SEGY::FileIndexer::nextStep()
 	if ( !fds.nrFiles() )
 	{
 	    IOM().permRemove( ioobj_->key() );
-	    msg_ = "No files scanned";
+	    msg_ = tr("No files scanned");
 	    return ErrorOccurred();
 	}
 
@@ -624,15 +627,15 @@ int SEGY::FileIndexer::nextStep()
 	{
 	    IOM().permRemove( ioobj_->key() );
 	    msg_ = fds.nrFiles() > 1
-		? "No traces found in any of the files"
-		: "No traces found in file";
+		? tr("No traces found in any of the files")
+		: tr("No traces found in file");
 
 	    return ErrorOccurred();
 	}
 
 	if ( !directdef_->writeFootersToFile() )
 	{
-	    msg_ = "Cannot complete file output";
+	    msg_ = tr("Cannot complete file output");
 	    return ErrorOccurred();
 	}
 
@@ -657,4 +660,4 @@ od_int64 SEGY::FileIndexer::totalNr() const
 
 
 uiString SEGY::FileIndexer::uiNrDoneText() const
-{ return "Traces scanned"; }
+{ return tr("Traces scanned"); }

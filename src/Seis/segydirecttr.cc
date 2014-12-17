@@ -324,7 +324,7 @@ bool SEGYDirectSeisTrcTranslator::initRead_()
 
     delete strmconn; conn_ = 0;
     def_ = new SEGY::DirectDef( segydeffilename_ );
-    if ( def_->errMsg() && *def_->errMsg() )
+    if (def_->errMsg().isSet())
 	{ errmsg_ = def_->errMsg(); return false; }
     else if ( def_->isEmpty() )
 	{ errmsg_ = tr("Empty input file"); return false; }

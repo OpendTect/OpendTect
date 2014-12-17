@@ -70,7 +70,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 
     if ( objset.isEmpty() )
     {
-	curmsg_ = "No input specified";
+	curmsg_ = tr("No input specified");
 	return;
     }
 
@@ -100,7 +100,7 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
     deepErase( rdrset_ );
     if ( !in )
     {
-	curmsg_ = "Cannot find input seismic data object";
+	curmsg_ = tr("Cannot find input seismic data object");
 	return;
     }
 
@@ -148,14 +148,14 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	SeisTrcReader* rdr_ = new SeisTrcReader( ioobjs[idx] );
 	if ( !rdr_->ioObj() )
 	{
-	    curmsg_ = "Cannot find read object";
+	    curmsg_ = tr("Cannot find read object");
 	    delete rdr_;
 	    return false;
 	}
 	const bool is3d = !rdr_->is2D() && !wrr_->is2D();
 	if ( wrr_ && is3d && wrr_->ioObj()->key() == rdr_->ioObj()->key() )
 	{
-	    curmsg_ = "Input and output are the same.";
+	    curmsg_ = tr("Input and output are the same.");
 	    delete rdr_;
 	    return false;
 	}
@@ -263,7 +263,7 @@ uiString SeisSingleTraceProc::uiMessage() const
 		{ ret = uiString("'%1'").arg( toString(geomid) ); }
 	}
 
-	return uiString( "Handling %1").arg( ret );
+	return tr("Handling %1").arg(ret);
     }
 
     return 0;
@@ -276,7 +276,7 @@ od_int64 SeisSingleTraceProc::nrDone() const
 
 uiString SeisSingleTraceProc::uiNrDoneText() const
 {
-    return "Traces handled";
+    return tr("Traces handled");
 }
 
 

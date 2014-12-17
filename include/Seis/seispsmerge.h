@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seismod.h"
 #include "executor.h"
 #include "trckeyzsampling.h"
+#include "uistring.h"
 class IOObj;
 class SeisTrc;
 class SeisTrcBuf;
@@ -32,7 +33,7 @@ namespace Seis { class SelData; }
 */
 
 mExpClass(Seis) SeisPSMerger : public Executor
-{
+{ mODTextTranslationClass(SeisPSMerger);
 public:
 			SeisPSMerger(const ObjectSet<IOObj>& in,
 				     const IOObj& out, bool dostack,
@@ -42,7 +43,7 @@ public:
     void		setOffsetRange( float r0, float r1 )
 			{ offsrg_.start = r0; offsrg_.stop = r1; }
 
-    uiString		uiMessage() const	{ return msg_.buf(); }
+    uiString		uiMessage() const	{ return msg_; }
     uiString		uiNrDoneText() const	{ return "Gathers written"; }
     virtual od_int64	nrDone() const		{ return nrdone_; }
     virtual od_int64	totalNr() const		{ return totnr_; }
@@ -59,7 +60,7 @@ protected:
     SeisTrcWriter*		writer_;
 
     bool		dostack_;
-    BufferString	msg_;
+    uiString		msg_;
     int			totnr_;
     int			nrdone_;
 

@@ -149,7 +149,7 @@ protected:
 
 mExpClass(Seis) SeisCBVSPS3DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
-{
+{ mODTextTranslationClass(SeisCBVSPS3DWriter);
 public:
 
 			SeisCBVSPS3DWriter(const char* dirnm);
@@ -181,7 +181,7 @@ protected:
 
 mExpClass(Seis) SeisCBVSPS2DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
-{
+{ mODTextTranslationClass(SeisCBVSPS2DWriter);
 public:
 
 			SeisCBVSPS2DWriter(const char* dirnm,Pos::GeomID);

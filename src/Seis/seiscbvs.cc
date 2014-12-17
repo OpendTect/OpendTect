@@ -132,18 +132,21 @@ void CBVSSeisTrcTranslator::set2D( bool yn )
 bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
 {
     if ( !conn_ )
-	{ errmsg_ = "Cannot open CBVS file"; return false; }
+    { errmsg_ = tr("Cannot open CBVS file"); return false; }
 
     PtrMan<IOObj> ioobj = IOM().get( conn_->linkedTo() );
     mDynamicCastGet(const IOStream*,iostrm,ioobj.ptr())
     if ( ioobj && !iostrm )
-	{ errmsg_ = "Object manager provides wrong type"; return false; }
+    { errmsg_ = tr("Object manager provides wrong type"); return false; }
 
     if ( !ioobj || iostrm->multiConn() )
     {
 	mDynamicCastGet(StreamConn*,strmconn,conn_)
 	if ( !strmconn )
-	    { errmsg_ = "Wrong connection from Object Manager"; return false; }
+	{
+	    errmsg_ = tr("Wrong connection from Object Manager");
+	    return false;
+	}
 	fnm = strmconn->fileName();
 	return true;
     }
@@ -230,7 +233,11 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	cs.zsamp_.stop = outsd_.start + (outnrsamples_-1) * outsd_.step;
 
 	if ( !rdmgr_->pruneReaders( cs ) )
-	    { errmsg_ = "Input contains no relevant data"; return false; }
+	    if (!rdmgr_->pruneReaders(cs))
+	    {
+	    errmsg_ = tr("Input contains no relevant data"); 
+	    return false;
+	    }
     }
 
     const int nrcomps = nrSelComps();
@@ -248,7 +255,11 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 	    nbts = outcds_[iselc]->datachar.nrBytes();
 
 	blockbufs_[iselc] = new unsigned char [ nbts * bufsz ];
-	if ( !blockbufs_[iselc] ) { errmsg_ = "Out of memory"; return false; }
+	if (!blockbufs_[iselc])
+	{ 
+	    errmsg_ = tr("Out of memory"); 
+	    return false; 
+	}
     }
 
     compsel_ = new bool [tarcds_.size()];

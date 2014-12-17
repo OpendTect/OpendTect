@@ -14,6 +14,7 @@
 #include "executor.h"
 #include "seistype.h"
 #include "od_iosfwd.h"
+#include "uistring.h"
 class Scaler;
 class SeisTrc;
 class LineKey;
@@ -25,7 +26,7 @@ namespace Seis { class SelData; }
 
 
 mExpClass(Seis) SeisIOSimple : public Executor
-{
+{ mODTextTranslationClass(SeisIOSimple);
 public:
 
     mExpClass(Seis) Data

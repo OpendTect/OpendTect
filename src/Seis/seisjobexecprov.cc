@@ -66,7 +66,7 @@ SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
     FixedString res = iopar_.find( seisoutkey_ );
     IOObj* outioobj = IOM().get( res );
     if ( !outioobj )
-	errmsg_ = "Cannot find specified output seismic ID";
+	errmsg_ = tr("Cannot find specified output seismic ID");
     else
     {
 	seisoutid_ = outioobj->key();
@@ -158,7 +158,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     }
     else if ( !File::createDir(tmpstordir) )
     {
-	errmsg_ = "Cannot create data directory in Temporary storage dir";
+	errmsg_ = tr("Cannot create data directory in Temporary storage dir");
 	return 0;
     }
 
@@ -184,7 +184,7 @@ JobRunner* SeisJobExecProv::getRunner( int nrinlperjob )
     if ( jdp && jdp->nrJobs() == 0 )
     {
 	delete jdp; jdp = 0;
-	errmsg_ = "No lines to process";
+	errmsg_ = tr("No lines to process");
     }
 
     if ( jdp )
@@ -269,7 +269,7 @@ MultiID SeisJobExecProv::tempStorID() const
     ctio_.setName( objnm );
     IOM().getEntry( ctio_ );
     if ( !ctio_.ioobj )
-	errmsg_ = "Cannot create temporary object for seismics";
+	errmsg_ = tr("Cannot create temporary object for seismics");
     else
     {
 	ret = ctio_.ioobj->key();

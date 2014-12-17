@@ -615,7 +615,7 @@ SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
     , rdr_(rdr)
     , buf_(buf)
     , totnr_(-1)
-    , msg_("Reading traces")
+    , msg_(tr("Reading traces"))
 {
     if ( rdr.selData() && !rdr.selData()->isAll() )
 	totnr_ = rdr.selData()->expectedNrTraces( rdr.is2D() );

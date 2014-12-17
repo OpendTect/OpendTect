@@ -19,13 +19,14 @@ ________________________________________________________________________
 #include "transl.h"
 #include "tableascio.h"
 #include "valseries.h"
+#include "uistring.h"
 class Conn;
 class IOObj;
 template <class T> class ValueSeriesInterpolator;
 
 
 mExpClass(Seis) Wavelet : public NamedObject
-{
+{ mODTextTranslationClass(Wavelet);
 public:
 			Wavelet(const char* nm=0);
 			Wavelet(bool ricker_else_sinc,float fpeak,
@@ -106,7 +107,7 @@ protected:
 */
 
 mExpClass(Seis) WaveletValueSeries : public ValueSeries<float>
-{
+{ mODTextTranslationClass(WaveletValueSeries);
 public:
 
 		WaveletValueSeries( const Wavelet& wv )
@@ -133,7 +134,7 @@ protected:
 
 
 mExpClass(Seis) WaveletFunction : public FloatMathFunction
-{
+{ mODTextTranslationClass(WaveletFunction);
 public:
 		WaveletFunction(const Wavelet& wv)
 		    : wv_(wv)
@@ -160,7 +161,7 @@ public:
 };
 
 mExpClass(Seis) WaveletTranslator : public Translator
-{
+{ mODTextTranslationClass(WaveletTranslator);
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
 
@@ -183,7 +184,7 @@ public:
 
 
 mExpClass(Seis) WaveletAscIO : public Table::AscIO
-{
+{ mODTextTranslationClass(WaveletAscIO);
 public:
 				WaveletAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)		{}

@@ -74,11 +74,11 @@ ParallelReader::~ParallelReader()
 
 
 uiString ParallelReader::uiNrDoneText() const
-{ return "Traces read"; }
+{ return tr("Traces read"); }
 
 
 uiString ParallelReader::uiMessage() const
-{ return errmsg_.isEmpty() ? "Reading" : errmsg_; }
+{ return errmsg_.isEmpty() ? tr("Reading") : errmsg_; }
 
 
 bool ParallelReader::doPrepare( int nrthreads )
@@ -148,7 +148,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
     PtrMan<SeisTrcReader> reader = new SeisTrcReader( ioobj );
     if ( !reader )
     {
-	errmsg_ = "Cannot open storage";
+	errmsg_ = tr("Cannot open storage");
 	return false;
     }
 
@@ -164,7 +164,7 @@ bool ParallelReader::doWork( od_int64 start, od_int64 stop, int threadid )
 
     if ( !translator || !translator->supportsGoTo() )
     {
-	errmsg_ = "Storage does not support random access";
+	errmsg_ = tr("Storage does not support random access");
 	return false;
     }
 
