@@ -90,7 +90,7 @@ void Well::DahObj::deInterpolate()
 {
     TypeSet<Coord> dahsc;
     dahsc.setCapacity( dah_.size(), false );
-    for ( int idx=0; idx<dahsc.size(); idx++ )
+    for ( int idx=0; idx<dah_.size(); idx++ )
     {
 	dahsc += Coord( dah_[idx]*0.001, value( idx ) );
 	// gives them about same dimension
