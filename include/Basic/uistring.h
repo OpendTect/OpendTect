@@ -152,7 +152,9 @@ public:
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
     bool	operator!=(const uiString& b) const { return !(*this==b); }
 		//!<Don't use, will force crash. Only here to keep TypeSet happy
-
+    inline bool	isEqualTo( const uiString& oth ) const
+		{ return getFullString() == oth.getFullString(); }
+		//!<Do use, but only if unavoidable
 
     static const char*	sODLocalizationApplication() { return "od"; }
 
