@@ -16,21 +16,22 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uigroup.h"
 #include "datainpspec.h"
+#include "uistring.h"
 class uiGenInput;
 
 /*!\brief specifies how to get input from user - for uiGenInputDlg */
 
 mExpClass(uiTools) uiGenInputDlgEntry
-{
+{ mODTextTranslationClass(uiGenInputDlgEntry);
 public:
-    			uiGenInputDlgEntry( const char* t,
+    			uiGenInputDlgEntry( uiString t,
 					    DataInpSpec* s )
 			    //!< DataInpSpec becomes mine
 			: txt(t), spec(s?s:new StringInpSpec)
 			, allowundef(false)			{}
 			~uiGenInputDlgEntry()			{ delete spec; }
 
-    BufferString	txt;
+    uiString		txt;
     DataInpSpec*	spec;
     bool		allowundef;
 
@@ -38,10 +39,10 @@ public:
 
 
 mExpClass(uiTools) uiGenInputGrp : public uiGroup
-{
+{ mODTextTranslationClass(uiGenInputGrp);
 public:
 			uiGenInputGrp(uiParent*,const char* grpname,
-					const char* fldtxt,DataInpSpec* s=0);
+					uiString fldtxt,DataInpSpec* s=0);
 			    //!< DataInpSpec becomes mine
 			uiGenInputGrp(uiParent*,const char* grpname,
 				      ObjectSet<uiGenInputDlgEntry>*);
@@ -80,10 +81,10 @@ private:
 /*!\brief dialog with only uiGenInputs */
 
 mExpClass(uiTools) uiGenInputDlg : public uiDialog
-{ 	
+{ mODTextTranslationClass(uiGenInputDlg);
 public:
 			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
-					const char* fldtxt,DataInpSpec* s=0);
+					uiString fldtxt,DataInpSpec* s=0);
 			    //!< DataInpSpec becomes mine
 			uiGenInputDlg(uiParent*,const uiString& dlgtitle,
 				      ObjectSet<uiGenInputDlgEntry>*);

@@ -17,7 +17,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 
 uiGenInputGrp::uiGenInputGrp( uiParent* p, const char* grpname,
-			      const char* fldtxt, DataInpSpec* spec )
+			      uiString fldtxt, DataInpSpec* spec )
 	: uiGroup(p,grpname)
 	, entries(new ObjectSet<uiGenInputDlgEntry>)
 {
@@ -89,8 +89,8 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 	uiGenInputDlgEntry& entry = *((*entries)[idx]);
 	if ( !entry.allowundef && flds[idx]->isUndef() )
 	{
-	    BufferString msg = "Please enter a value for '";
-	    msg += entry.txt; msg += "'";
+	    uiString msg = tr("Please enter a value for '%1'")
+			 .arg(entry.txt);
 	    uiMSG().error( msg );
 	    return false;
 	}
@@ -102,7 +102,7 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const uiString&  dlgtitle,
-			      const char* fldtxt, DataInpSpec* spec )
+			      uiString fldtxt, DataInpSpec* spec )
 	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpKey))
 {
     group = new uiGenInputGrp( this, dlgtitle.getFullString(), fldtxt, spec );
