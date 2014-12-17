@@ -241,7 +241,7 @@ StratSynth::StratSynth( const Strat::LayerModelProvider& lmp, bool useed )
     : lmp_(lmp)
     , useed_(useed)
     , level_(0)
-    , tr_(0)
+    , taskr_(0)
     , wvlt_(0)
     , lastsyntheticid_(0)
 {
@@ -579,7 +579,7 @@ psattr->setAngleData( presd.angleData().id() );
 
 
 #define mCreateSeisBuf() \
-if ( !TaskRunner::execute(tr_,*proc) ) \
+if ( !TaskRunner::execute(taskr_,*proc) ) \
     mErrRet( proc->uiMessage(), return 0 ) ; \
 const int crlstep = SI().crlStep(); \
 const BinID bid0( SI().inlRange(false).stop + SI().inlStep(), \
@@ -729,7 +729,7 @@ bool StratSynth::createElasticModels()
 	return false;
 
     ElasticModelCreator emcr( layMod(), aimodels_ );
-    if ( !TaskRunner::execute(tr_,emcr) )
+    if ( !TaskRunner::execute(taskr_,emcr) )
 	return false;
     bool modelsvalid = false;
     for ( int idx=0; idx<aimodels_.size(); idx++ )
@@ -760,7 +760,7 @@ bool StratSynth::runSynthGen( Seis::RaySynthGenerator& synthgen,
     synthgen.usePar( raypars );
     synthgen.enableFourierDomain( !GetEnvVarYN("DTECT_CONVOLVE_USETIME") );
 
-    return TaskRunner::execute( tr_, synthgen );
+    return TaskRunner::execute( taskr_, synthgen );
 }
 
 
@@ -1163,7 +1163,7 @@ void StratSynth::generateOtherQuantities( const PostStackSyntheticData& sd,
 {
     StratPropSyntheticDataCreator propcreator( synthetics_, sd, lm,
 					       lastsyntheticid_, useed_ );
-    TaskRunner::execute( tr_, propcreator );
+    TaskRunner::execute( taskr_, propcreator );
 }
 
 

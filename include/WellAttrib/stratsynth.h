@@ -121,7 +121,7 @@ public:
     void		clearRayModels()
     			{ synthrmmgr_.clearRayModels(); }
 
-    void		setTaskRunner(TaskRunner* tr) { tr_ = tr; }
+    void		setTaskRunner(TaskRunner* taskr) { taskr_ = taskr; }
     uiString		errMsg() const;
     uiString	 	infoMsg() const;
     void		clearInfoMsg()	{ infomsg_.setEmpty(); }
@@ -142,7 +142,7 @@ protected:
 
     uiString			errmsg_;
     uiString			infomsg_;
-    TaskRunner*			tr_;
+    TaskRunner*			taskr_;
     SynthRayModelManager	synthrmmgr_;
 
     const Strat::LayerModel&	layMod() const;

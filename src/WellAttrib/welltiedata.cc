@@ -159,7 +159,7 @@ void Data::computeExtractionRange()
 
 
 void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
-				uiString& errms, TaskRunner& taskrunner )
+				uiString& errms, TaskRunner& taskr )
 {
     horizons_.erase();
     if ( !wd_ ) return;
@@ -183,7 +183,7 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    PtrMan<Executor> exec = em.objectLoader( horids[idx] );
 	    if ( exec )
 	    {
-		if ( TaskRunner::execute( &taskrunner, *exec ) )
+		if ( TaskRunner::execute( &taskr, *exec ) )
 		    success = true;
 	    }
 	    if ( success )
@@ -193,8 +193,8 @@ void HorizonMgr::setUpHorizons( const TypeSet<MultiID>& horids,
 	    }
 	    else
 	    {
-		uiString errms = tr("Cannot load %1.")
-			       .arg(ioobj->name());
+		errms = tr("Cannot load %1.")
+		      .arg(ioobj->name());
 		return;
 	    }
 	}
