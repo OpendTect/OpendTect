@@ -86,10 +86,10 @@ bool SEGYDirect2DLineIOProvider::getTxtInfo( const IOObj& obj,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<SEGYSeisTrcTranslator> tr = gtTransl( fnm );
-    if ( !tr ) return false;
+    PtrMan<SEGYSeisTrcTranslator> trans = gtTransl( fnm );
+    if ( !trans ) return false;
 
-    const SeisPacketInfo& pinf = tr->packetInfo();
+    const SeisPacketInfo& pinf = trans->packetInfo();
     uinf = pinf.usrinfo;
     stdinf = pinf.stdinfo;
     return true;

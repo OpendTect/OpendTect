@@ -89,10 +89,10 @@ bool SeisCBVS2DLineIOProvider::getTxtInfo( const IOObj& obj, Pos::GeomID geomid,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, true );
-    if ( !tr ) return false;
+    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, true );
+    if ( !trans ) return false;
 
-    const SeisPacketInfo& pinf = tr->packetInfo();
+    const SeisPacketInfo& pinf = trans->packetInfo();
     uinf = pinf.usrinfo;
     stdinf = pinf.stdinfo;
     return true;
@@ -105,10 +105,10 @@ bool SeisCBVS2DLineIOProvider::getRanges( const IOObj& obj, Pos::GeomID geomid,
     if ( fnm.isEmpty() )
 	return false;
 
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, true );
-    if ( !tr ) return false;
+    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, true );
+    if ( !trans ) return false;
 
-    const SeisPacketInfo& pinf = tr->packetInfo();
+    const SeisPacketInfo& pinf = trans->packetInfo();
     trcrg = pinf.crlrg; zrg = pinf.zrg;
     return true;
 }
@@ -290,17 +290,17 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOObj& obj,
     }
 
     uiString errmsg;
-    PtrMan<CBVSSeisTrcTranslator> tr = gtTransl( fnm, false, &errmsg );
-    if ( !tr )
+    PtrMan<CBVSSeisTrcTranslator> trans = gtTransl( fnm, false, &errmsg );
+    if ( !trans )
     {
 	ErrMsg( errmsg.getFullString() );
 	return false;
     }
 
-    const CBVSInfo& cbvsinf = tr->readMgr()->info();
+    const CBVSInfo& cbvsinf = trans->readMgr()->info();
     TypeSet<Coord> coords; TypeSet<BinID> binids;
-    tr->readMgr()->getPositions( coords );
-    tr->readMgr()->getPositions( binids );
+    trans->readMgr()->getPositions( coords );
+    trans->readMgr()->getPositions( binids );
 
     StepInterval<float> zrg( cbvsinf.sd_.start, 0, cbvsinf.sd_.step );
     zrg.stop = cbvsinf.sd_.start + (cbvsinf.nrsamples_-1) * cbvsinf.sd_.step;

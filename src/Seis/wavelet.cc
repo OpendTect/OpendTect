@@ -146,15 +146,15 @@ Wavelet* Wavelet::get( const IOObj* ioobj )
 bool Wavelet::put( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
-    PtrMan<WaveletTranslator> tr =
+    PtrMan<WaveletTranslator> trans =
         (WaveletTranslator*)ioobj->createTranslator();
-    if ( !tr ) return false;
+    if ( !trans ) return false;
     bool retval = false;
 
     Conn* connptr = ioobj->getConn( Conn::Write );
     if ( connptr && !connptr->isBad() )
     {
-	if ( tr->write( this, *connptr ) )
+	if ( trans->write( this, *connptr ) )
 	    retval = true;
 	else
 	    ErrMsg( "Cannot write Wavelet" );

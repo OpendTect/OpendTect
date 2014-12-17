@@ -281,7 +281,7 @@ protected:
 };
 
 
-bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
+bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* trans )
 {
     if ( !velreader_ )
 	return true;
@@ -330,7 +330,7 @@ bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* tr )
 
     TimeDepthDataLoader loader( *arr, *velreader_, readcs, veldesc_,
 	    SamplingData<double>(voi.zrg), velintime_, voiintime_[idx] );
-    if ( !TaskRunner::execute( tr, loader ) )
+    if ( !TaskRunner::execute( trans, loader ) )
 	return false;
 
     return true;
@@ -669,8 +669,8 @@ void Depth2TimeStretcher::removeVolumeOfInterest( int id )
 { stretcher_->removeVolumeOfInterest( id ); }
 
 
-bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* tr )
-{ return stretcher_->loadDataIfMissing( id, tr ); }
+bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* trans )
+{ return stretcher_->loadDataIfMissing( id, trans ); }
 
 
 void Depth2TimeStretcher::transformTrc(const TrcKey& trckey,

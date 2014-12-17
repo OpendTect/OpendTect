@@ -227,10 +227,10 @@ bool MultiCubeSeisPSReader::writeData( const char* fnm,
 void MultiCubeSeisPSReader::getCubeData( const SeisTrcReader& rdr,
 					 PosInfo::CubeData& cd ) const
 {
-    const SeisTrcTranslator* tr = rdr.seisTranslator();
-    if ( !tr )
+    const SeisTrcTranslator* trans = rdr.seisTranslator();
+    if ( !trans )
 	return;
-    const SeisPacketInfo& pi( const_cast<SeisTrcTranslator*>(tr)->packetInfo());
+    const SeisPacketInfo& pi( const_cast<SeisTrcTranslator*>(trans)->packetInfo());
     if ( pi.cubedata )
 	cd = *pi.cubedata;
     else
