@@ -26,7 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/BoundingBox>
 #include <osg/UserDataContainer>
 
-#include <osgGeo\LayeredTexture>
+#include <osgGeo/LayeredTexture>
 
 using namespace visBase;
 
