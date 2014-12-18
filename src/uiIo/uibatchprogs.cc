@@ -167,15 +167,15 @@ void BatchProgInfoList::getEntries( const char* fnm )
 
 
 uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
-        : uiDialog(p,uiDialog::Setup(tr("Run batch program"),
-		   tr("Specify batch program and parameters"),
-                   mODHelpKey(mBatchProgLaunchHelpID) ) )
-	, pil(*new BatchProgInfoList)
-	, progfld(0)
-	, browser(0)
-	, exbut(0)
+    : uiDialog(p,uiDialog::Setup(tr("Run batch program"),
+	       tr("Specify batch program and parameters"),
+	       mODHelpKey(mBatchProgLaunchHelpID) ) )
+    , pil_(*new BatchProgInfoList)
+    , progfld_(0)
+    , browser_(0)
+    , exbut_(0)
 {
-    if ( pil.size() < 1 )
+    if ( pil_.size() < 1 )
     {
 	setCtrlStyle( CloseOnly );
         new uiLabel( this, tr("Not found any BatchPrograms.*"
@@ -184,23 +184,25 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
     }
     setCtrlStyle( RunAndClose );
 
-    progfld = new uiLabeledComboBox( this, tr("Batch program") );
-    for ( int idx=0; idx<pil.size(); idx++ )
-	progfld->box()->addItem( pil[idx]->name );
-    progfld->box()->setCurrentItem( 0 );
-    progfld->box()->selectionChanged.notify(
+    uiLabeledComboBox* lcc = new uiLabeledComboBox( this, tr("Batch program") );
+    progfld_ = lcc->box();
+    for ( int idx=0; idx<pil_.size(); idx++ )
+	progfld_->addItem( pil_[idx]->name );
+    progfld_->setCurrentItem( 0 );
+    progfld_->selectionChanged.notify(
 			mCB(this,uiBatchProgLaunch,progSel) );
+    progfld_->setHSzPol( uiObject::WideVar );
 
-    commfld = new uiTextEdit( this, "Comments" );
-    commfld->attach( centeredBelow, progfld );
-    commfld->setPrefHeightInChar( 5 );
-    commfld->setPrefWidth( 400 );
+    commfld_ = new uiTextEdit( this, "Comments" );
+    commfld_->attach( leftAlignedBelow, lcc );
+    commfld_->setPrefHeightInChar( 5 );
+    commfld_->setPrefWidth( 400 );
 
-    for ( int ibpi=0; ibpi<pil.size(); ibpi++ )
+    for ( int ibpi=0; ibpi<pil_.size(); ibpi++ )
     {
-	const BatchProgInfo& bpi = *pil[ibpi];
+	const BatchProgInfo& bpi = *pil_[ibpi];
 	ObjectSet<uiGenInput>* inplst = new ObjectSet<uiGenInput>;
-	inps += inplst;
+	inps_ += inplst;
 	for ( int iarg=0; iarg<bpi.args.size(); iarg++ )
 	{
 	    BufferString txt;
@@ -228,22 +230,22 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 		newinp->attach( alignedBelow, (*inplst)[iarg-1] );
 	    else
 	    {
-		newinp->attach( alignedBelow, progfld );
-		newinp->attach( ensureBelow, commfld );
+		newinp->attach( alignedBelow, lcc );
+		newinp->attach( ensureBelow, commfld_ );
 	    }
 	    (*inplst) += newinp;
 	}
 	if ( !bpi.exampleinput.isEmpty() )
 	{
-	    if ( !exbut )
+	    if ( !exbut_ )
 	    {
-		exbut = new uiPushButton( this, tr("Show example input"),
+		exbut_ = new uiPushButton( this, tr("Show example input"),
 				mCB(this,uiBatchProgLaunch,exButPush), false );
 		if ( inplst->size() )
-		    exbut->attach( alignedBelow, (*inplst)[inplst->size()-1] );
+		    exbut_->attach( alignedBelow, (*inplst)[inplst->size()-1] );
 	    }
 	    else if ( inplst->size() )
-		exbut->attach( ensureBelow, (*inplst)[inplst->size()-1] );
+		exbut_->attach( ensureBelow, (*inplst)[inplst->size()-1] );
 	}
     }
 
@@ -254,33 +256,33 @@ uiBatchProgLaunch::uiBatchProgLaunch( uiParent* p )
 
 uiBatchProgLaunch::~uiBatchProgLaunch()
 {
-    if ( browser ) browser->reject(0);
-    delete &pil;
+    if ( browser_ ) browser_->reject(0);
+    delete &pil_;
 }
 
 
 void uiBatchProgLaunch::progSel( CallBacker* )
 {
-    const int selidx = progfld->box()->currentItem();
-    const BatchProgInfo& bpi = *pil[selidx];
-    commfld->setText( bpi.comments );
+    const int selidx = progfld_->currentItem();
+    const BatchProgInfo& bpi = *pil_[selidx];
+    commfld_->setText( bpi.comments );
 
-    for ( int ilst=0; ilst<inps.size(); ilst++ )
+    for ( int ilst=0; ilst<inps_.size(); ilst++ )
     {
-	ObjectSet<uiGenInput>& inplst = *inps[ilst];
+	ObjectSet<uiGenInput>& inplst = *inps_[ilst];
 	for ( int iinp=0; iinp<inplst.size(); iinp++ )
 	    inplst[iinp]->display( ilst == selidx );
     }
 
-    if ( exbut )
-	exbut->display( !bpi.exampleinput.isEmpty() );
+    if ( exbut_ )
+	exbut_->display( !bpi.exampleinput.isEmpty() );
 }
 
 
 void uiBatchProgLaunch::exButPush( CallBacker* )
 {
-    const int selidx = progfld->box()->currentItem();
-    const BatchProgInfo& bpi = *pil[selidx];
+    const int selidx = progfld_->currentItem();
+    const BatchProgInfo& bpi = *pil_[selidx];
     if ( bpi.exampleinput.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
     BufferString sourceex( mGetSetupFileName(bpi.exampleinput) );
@@ -294,27 +296,27 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 	File::makeWritable( targetex, true, false );
     }
 
-    if ( browser )
-	browser->setFileName( targetex );
+    if ( browser_ )
+	browser_->setFileName( targetex );
     else
     {
-	browser = new uiTextFileDlg( this, targetex );
-	browser->editor()->fileNmChg.notify(
+	browser_ = new uiTextFileDlg( this, targetex );
+	browser_->editor()->fileNmChg.notify(
 				mCB(this,uiBatchProgLaunch,filenmUpd) );
     }
-    browser->show();
+    browser_->show();
 }
 
 
 bool uiBatchProgLaunch::acceptOK( CallBacker* )
 {
-    if ( !progfld ) return true;
+    if ( !progfld_ ) return true;
 
-    const int selidx = progfld->box()->currentItem();
-    const BatchProgInfo& bpi = *pil[selidx];
-    ObjectSet<uiGenInput>& inplst = *inps[selidx];
+    const int selidx = progfld_->currentItem();
+    const BatchProgInfo& bpi = *pil_[selidx];
+    ObjectSet<uiGenInput>& inplst = *inps_[selidx];
 
-    BufferString prognm = progfld->box()->text();
+    BufferString prognm = progfld_->text();
     if ( prognm.isEmpty() )
 	return false;
 
@@ -364,9 +366,9 @@ void uiBatchProgLaunch::filenmUpd( CallBacker* cb )
     mDynamicCastGet(uiTextFile*,uitf,cb)
     if ( !uitf ) return;
 
-    const int selidx = progfld->box()->currentItem();
+    const int selidx = progfld_->currentItem();
 
-    ObjectSet<uiGenInput>& inplst = *inps[selidx];
+    ObjectSet<uiGenInput>& inplst = *inps_[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
     {
 	uiGenInput* inp = inplst[iinp];

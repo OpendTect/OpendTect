@@ -14,17 +14,17 @@ ________________________________________________________________________
 
 #include "uiiomod.h"
 #include "uidialog.h"
+
+class uiComboBox;
 class uiGenInput;
-class uiTextEdit;
 class uiPushButton;
+class uiTextEdit;
 class uiTextFileDlg;
 class BatchProgInfoList;
-class uiLabeledComboBox;
-
 
 
 mExpClass(uiIo) uiBatchProgLaunch : public uiDialog
-{ mODTextTranslationClass(uiBatchProgLaunch);
+{ mODTextTranslationClass(uiBatchProgLaunch)
 public:
 
 			uiBatchProgLaunch(uiParent*);
@@ -32,13 +32,13 @@ public:
 
 protected:
 
-    uiLabeledComboBox*	progfld;
-    uiTextEdit*		commfld;
-    uiTextFileDlg*	browser;
-    uiPushButton*	exbut;
-    ObjectSet< ObjectSet<uiGenInput> > inps;
+    uiComboBox*		progfld_;
+    uiTextEdit*		commfld_;
+    uiTextFileDlg*	browser_;
+    uiPushButton*	exbut_;
+    ObjectSet< ObjectSet<uiGenInput> > inps_;
 
-    BatchProgInfoList&	pil;
+    BatchProgInfoList&	pil_;
 
     void		progSel(CallBacker*);
     void		exButPush(CallBacker*);
