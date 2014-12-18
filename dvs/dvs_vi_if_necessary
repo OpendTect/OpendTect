@@ -1,4 +1,0 @@
-#!/bin/csh -f
-
-dvs_ed_if_necessary $*
-vi $*

@@ -1,9 +1,0 @@
-#!/bin/csh -f
-
-if ( "$1" == "--upd" ) then
-    shift
-    dvs update $*
-endif
-
-dvs_ed $*
-vim $*
