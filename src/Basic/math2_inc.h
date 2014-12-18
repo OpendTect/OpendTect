@@ -8,7 +8,7 @@
 
 bool Math::IsNormalNumber( mTYPE x )
 {
-    return finite( x );
+    return isfinite( x );
 }
 
 

@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "plfdefs.h"
 
 #include <stdexcept>
+#include <new>
 
 
 //--- FP rounding and equality
