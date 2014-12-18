@@ -961,22 +961,13 @@ bool TileResolutionData::getTextureCoordinates( unsigned int unit,
     const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
 
     const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
-    const Coord entireopposite = Coord( 1.0, 1.0 ) - entireorigin;
-
-    const int entwidth = entireimg->s();
-    const int entheight = entireimg->t();
-
     const int spacing = sectile_->hrsection_.spacing_[resolution_];
     const int nrcoords = sectile_->hrsection_.nrcoordspertileside_;
-    
-    double fragx = (double)nrcoords/entireimg->s();
-    double fragy = (double)nrcoords/entireimg->t();
 
     Coord offset;
     offset.x = sectile_->txorigin_[0]/entireimg->s() + entireorigin.x;
     offset.y = sectile_->txorigin_[1]/entireimg->t() + entireorigin.y;
 
-    int crdidx = 0;
     for ( int y=0; y<nrcoords; y+=spacing )
     {
 	for ( int x=0; x<nrcoords; x+=spacing )
