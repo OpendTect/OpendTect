@@ -411,9 +411,9 @@ void Well::Track::toTime( const Data& wd )
     const double srddepth = -1. * SI().seismicReferenceDatum();
     const float dummythickness = 1000.f;
     TypeSet<float> replveldepths, replveltimes;
-    replveldepths += srddepth - dummythickness;
+    replveldepths += mCast(float,srddepth) - dummythickness;
     replveltimes += -2.f * dummythickness / wd.info().replvel;
-    replveldepths += srddepth;
+    replveldepths += mCast(float,srddepth);
     replveltimes += 0.f;
     replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
 			   replveldepths.size() );
@@ -435,7 +435,8 @@ void Well::Track::toTime( const Data& wd )
 	if ( dist > cDistTol )
 	{
 	    const int nrchunks = mCast( int, dist / cDistTol );
-	    StepInterval<float> dahrange( prevdah, curdah, nrchunks + 1 );
+	    const float step = dist / mCast(float, nrchunks );
+	    StepInterval<float> dahrange( prevdah, curdah, step );
 	    for ( int idx=1; idx<dahrange.nrSteps(); idx++ )
 	    {
 		const float dahsegment = dahrange.atIndex( idx );
