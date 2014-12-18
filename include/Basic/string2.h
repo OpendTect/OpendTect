@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include <ctype.h>
 #include <wctype.h>
 namespace OD { class String; }
+class CompoundKey;
 
 mGlobal(Basic) const char* toString(od_int32);
 mGlobal(Basic) const char* toString(od_uint32);
@@ -46,6 +47,7 @@ mGlobal(Basic) const char* toString(unsigned char);
 mGlobal(Basic) const char* toString(signed char);
 mGlobal(Basic) const char* toString(bool);
 mGlobal(Basic) const char* toString(const OD::String&);
+mGlobal(Basic) const char* toString(const CompoundKey&);
 
 mGlobal(Basic) bool getFromString(int&,const char*,int udfval);
 mGlobal(Basic) bool getFromString(float&,const char*,float udfval);

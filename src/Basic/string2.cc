@@ -7,15 +7,19 @@
 
 static const char* rcsID mUsedVar = "$Id$";
 
+#include "string2.h"
+
+#include "compoundkey.h"
+#include "keystrs.h"
 #include "nrbytes2string.h"
+#include "odcomplex.h"
 #include "perthreadrepos.h"
 #include "survinfo.h"
 #include "undefval.h"
-#include "odcomplex.h"
-#include "keystrs.h"
+
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
 
 #ifndef OD_NO_QT
 # include <QString>
@@ -776,6 +780,9 @@ const char* toString( unsigned char c )
 
 const char* toString( const OD::String& ods )
 { return ods.buf(); }
+
+const char* toString( const CompoundKey& key )
+{ return key.buf(); }
 
 template <class T>
 static const char* toStringLimImpl( T val, int maxtxtwdth )
