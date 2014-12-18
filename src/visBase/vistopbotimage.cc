@@ -15,8 +15,10 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "vistransform.h"
 #include "vismaterial.h"
+#include "envvars.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "settings.h"
 #include "odimage.h"
 
 #include <osgGeo/TexturePlane>
@@ -44,6 +46,15 @@ TopBotImage::TopBotImage()
     texplane_->ref();
     layerid_ = laytex_->addDataLayer();
     laytex_->addProcess( new osgGeo::IdentityLayerProcess(*laytex_, layerid_) );
+
+    bool userwantsshading = true;
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )
+	userwantsshading = false;
+    else
+	Settings::common().getYN("dTect.Use surface shaders", userwantsshading);
+
+    laytex_->allowShaders( userwantsshading );
+
     texplane_->setLayeredTexture( laytex_ );
     addChild( texplane_ );
 
@@ -152,6 +163,8 @@ void TopBotImage::setRGBImage( const OD::RGBImage& rgbimg )
 
 void TopBotImage::fillPar( IOPar& iopar ) const
 {
+    VisualObjectImpl::fillPar( iopar );
+
     iopar.set( sKeyTopLeftCoord(), pos0_ );
     iopar.set( sKeyBottomRightCoord(), pos1_ );
     iopar.set( sKeyFileNameStr(), filenm_  );
@@ -161,6 +174,8 @@ void TopBotImage::fillPar( IOPar& iopar ) const
 
 bool TopBotImage::usePar( const IOPar& iopar )
 {
+    VisualObjectImpl::usePar( iopar );
+
     Coord3 ltpos;
     Coord3 brpos;
     float transparency = 0;

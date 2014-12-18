@@ -23,6 +23,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uitable.h"
 
@@ -261,6 +262,7 @@ static int theiconsz = -1;
 #define mUseVolShaders		"dTect.Use volume shaders"
 
 HiddenParam<uiSettingsGroup,char> needsrestartgrp( false );
+HiddenParam<uiSettingsGroup,char> needsrenewalgrp( false );
 
 mImplFactory2Param( uiSettingsGroup, uiParent*, Settings&,
 		    uiSettingsGroup::factory )
@@ -272,12 +274,14 @@ uiSettingsGroup::uiSettingsGroup( uiParent* p, const uiString& caption,
     , changed_(false)
 {
     needsrestartgrp.setParam( this, false );
+    needsrenewalgrp.setParam( this, false );
 }
 
 
 uiSettingsGroup::~uiSettingsGroup()
 {
     needsrestartgrp.removeParam( this );
+    needsrenewalgrp.removeParam( this );
 }
 
 
@@ -285,8 +289,16 @@ void uiSettingsGroup::setNeedsRestart( bool yn )
 { needsrestartgrp.setParam( this, yn ); }
 
 
+void uiSettingsGroup::setNeedsRenewal( bool yn )
+{ needsrenewalgrp.setParam( this, yn ); }
+
+
 bool uiSettingsGroup::needsRestart() const
 { return needsrestartgrp.getParam( this ); }
+
+
+bool uiSettingsGroup::needsRenewal() const
+{ return needsrenewalgrp.getParam( this ); }
 
 
 const char* uiSettingsGroup::errMsg() const
@@ -380,16 +392,18 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     , usesurfshaders_(true)
     , usevolshaders_(true)
 {
+    uiLabel* shadinglbl = new uiLabel( this,
+				       "Use OpenGL shading when available:" );
     setts_.getYN( mUseSurfShaders, usesurfshaders_ );
-    usesurfshadersfld_ = new uiGenInput( this,
-					 "Use OpenGL shading when available",
+    usesurfshadersfld_ = new uiGenInput( this, "for surface rendering",
 					 BoolInpSpec(usesurfshaders_) );
     usesurfshadersfld_->valuechanged.notify(
 				mCB(this,uiVisSettingsGroup,shadersChange) );
+    usesurfshadersfld_->attach( leftAlignedBelow, shadinglbl );
     setts_.getYN( mUseVolShaders, usevolshaders_ );
-    usevolshadersfld_ = new uiGenInput( this, "Also for volume rendering?",
+    usevolshadersfld_ = new uiGenInput( this, "for volume rendering",
 					BoolInpSpec(usevolshaders_) );
-    usevolshadersfld_->attach( alignedBelow, usesurfshadersfld_ );
+    usevolshadersfld_->attach( leftAlignedBelow, usesurfshadersfld_, 0 );
 
     setts_.get( mTextureResFactor, textureresfactor_ );
     uiLabeledComboBox* lcb =
@@ -415,8 +429,6 @@ uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
     }
 
     textureresfactorfld_->setCurrentItem( selection );
-
-    shadersChange(0);
 }
 
 
@@ -425,8 +437,7 @@ bool uiVisSettingsGroup::acceptOK()
     const bool usesurfshaders = usesurfshadersfld_->getBoolValue();
     updateSettings( usesurfshaders_, usesurfshaders, mUseSurfShaders );
 
-    const bool usevolshaders = usesurfshaders &&
-			       usevolshadersfld_->getBoolValue();
+    const bool usevolshaders = usevolshadersfld_->getBoolValue();
     updateSettings( usevolshaders_, usevolshaders, mUseVolShaders );
 
     bool textureresfacchanged = false;
@@ -442,17 +453,19 @@ bool uiVisSettingsGroup::acceptOK()
 
     if ( textureresfacchanged ) changed_ = true;
 
+    if ( changed_ )
+	setNeedsRenewal( true );
+
     return true;
 }
 
 
 void uiVisSettingsGroup::shadersChange( CallBacker* )
-{
-    usevolshadersfld_->setSensitive( usesurfshadersfld_->getBoolValue() );
-}
+{}	// obsolete
 
 // uiSettingsDlg
 HiddenParam<uiSettingsDlg,char> needsrestartdlg( false );
+HiddenParam<uiSettingsDlg,char> needsrenewaldlg( false );
 
 uiSettingsDlg::uiSettingsDlg( uiParent* p )
     : uiTabStackDlg(p,uiDialog::Setup("OpendTect Settings",mNoDlgTitle,
@@ -473,17 +486,23 @@ uiSettingsDlg::uiSettingsDlg( uiParent* p )
     }
 
     needsrestartdlg.setParam( this, false );
+    needsrenewaldlg.setParam( this, false );
 }
 
 
 uiSettingsDlg::~uiSettingsDlg()
 {
     needsrestartdlg.removeParam( this );
+    needsrenewaldlg.removeParam( this );
 }
 
 
 bool uiSettingsDlg::needsRestart() const
 { return needsrestartdlg.getParam( this ); }
+
+
+bool uiSettingsDlg::needsRenewal() const
+{ return needsrenewaldlg.getParam( this ); }
 
 
 bool uiSettingsDlg::acceptOK( CallBacker* cb )
@@ -502,9 +521,14 @@ bool uiSettingsDlg::acceptOK( CallBacker* cb )
     }
 
     bool needsrestart = false;
+    bool needsrenewal = false;
     for ( int idx=0; idx<grps_.size(); idx++ )
+    {
 	needsrestart = needsrestart || grps_[idx]->needsRestart();
+	needsrenewal = needsrenewal || grps_[idx]->needsRenewal();
+    }
 
     needsrestartdlg.setParam( this, needsrestart );
+    needsrenewaldlg.setParam( this, needsrenewal );
     return true;
 }

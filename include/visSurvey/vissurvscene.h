@@ -235,7 +235,7 @@ protected:
     ZDomain::Info*		zdomaininfo_;
     float			zscale_;
 
-    bool			userwantsshading_; //from settings
+    bool			userwantsshading_; // obsolete
     CubeSampling		cs_;
     CubeSampling		annotscale_;
 
@@ -257,6 +257,7 @@ protected:
 
 public:
     NotifierAccess*		mouseCursorChange();
+    void			createTopBotImage(bool istop);
 };
 
 } // namespace visSurvey

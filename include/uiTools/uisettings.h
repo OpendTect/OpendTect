@@ -82,6 +82,10 @@ protected:
     BufferString	errmsg_;
     Settings&		setts_;
     bool		changed_;
+
+public:
+    void		setNeedsRenewal(bool);
+    bool		needsRenewal() const;
 };
 
 
@@ -101,6 +105,9 @@ protected:
     ObjectSet<uiSettingsGroup>	grps_;
     Settings&		setts_;
     bool		changed_;
+
+public:
+    bool		needsRenewal() const;
 };
 
 
@@ -146,7 +153,7 @@ public:
 
 protected:
 
-    void		shadersChange(CallBacker*);
+    void		shadersChange(CallBacker*);	// obsolete
 
     uiComboBox*		textureresfactorfld_;
     uiGenInput*		usesurfshadersfld_;

@@ -32,6 +32,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
+#include "visvolumedisplay.h"
 #include "vistopbotimage.h"
 #include "zaxistransform.h"
 #include "zdomain.h"
@@ -78,7 +79,7 @@ Scene::Scene()
     , mouseposstr_("")
     , curzstretch_( 2 )
     , datatransform_( 0 )
-    , userwantsshading_(true)
+    , userwantsshading_(true) //obsolete
     , mousecursor_( 0 )
     , polyselector_( 0 )
     , coordselector_( 0 )
@@ -90,6 +91,8 @@ Scene::Scene()
     , ctshownusepar_( false )
     , usepar_( false )
     , scenecoltab_(0)
+    , topimg_( 0 )
+    , botimg_( 0 )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     mAttachCB( events_.eventhappened, Scene::mouseCursorCB );
@@ -97,11 +100,6 @@ Scene::Scene()
 
     setCameraAmbientLight( 1 );
     setup();
-
-    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )
-	userwantsshading_ = false;
-    else
-	Settings::common().getYN("dTect.Use surface shaders",userwantsshading_);
 }
 
 
@@ -148,16 +146,6 @@ void Scene::setup()
     setCubeSampling( cs );
     addInlCrlZObject( annot_ );
     updateAnnotationText();
-
-    topimg_ = visBase::TopBotImage::create();
-    topimg_->setName( "TopImage");
-    addUTMObject( topimg_ );
-    topimg_->turnOn( false );
-
-    botimg_ = visBase::TopBotImage::create();
-    botimg_->setName( "BottomImage");
-    addUTMObject( botimg_ );
-    botimg_->turnOn( false );
 
 #define mGetProp(type,var,defval,get,str,func) \
     type var = defval; \
@@ -419,7 +407,21 @@ void Scene::addObject( visBase::DataObject* obj )
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
-	so->allowShading( userwantsshading_ );
+	mDynamicCastGet( visSurvey::VolumeDisplay*, voldisplay, so );
+
+	bool userwantsshading = true;
+	if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )
+	    userwantsshading = false;
+	else if ( voldisplay )
+	    Settings::common().getYN( "dTect.Use volume shaders",
+				      userwantsshading );
+	else
+	    Settings::common().getYN( "dTect.Use surface shaders",
+				      userwantsshading );
+	if ( voldisplay )
+	    voldisplay->allowVolumeShading( userwantsshading );
+	else
+	    so->allowShading( userwantsshading );
     }
 
     if ( vo )
@@ -1023,7 +1025,7 @@ void Scene::fillPar( IOPar& par ) const
     par.set( sKey::Scale(), zscale_ );
 
     
-    if ( topimg_->isOn() )
+    if ( topimg_ )
     {
 	IOPar topimgpar;
 	topimgpar.set( sKeyTopImageID(), topimg_->id() );
@@ -1031,7 +1033,7 @@ void Scene::fillPar( IOPar& par ) const
 	par.mergeComp( topimgpar, sKeyTopImage() );
     }
 
-    if ( botimg_->isOn() )
+    if ( botimg_ )
     {
 	IOPar botimgpar;
 	botimgpar.set( sKeyBotImageID(), botimg_->id() );
@@ -1175,12 +1177,18 @@ bool Scene::usePar( const IOPar& par )
     }
 
     PtrMan<IOPar> topimgpar = par.subselect( sKeyTopImage() );
-    if ( topimgpar && topimg_ )
-	topimg_->turnOn( topimg_->usePar(*topimgpar) );
+    if ( topimgpar )
+    {
+	createTopBotImage( true );
+	topimg_->usePar( *topimgpar );
+    }
 
     PtrMan<IOPar> botimgpar = par.subselect( sKeyBottomImage() );
-    if( botimgpar && botimg_ )
-	botimg_->turnOn( botimg_->usePar(*botimgpar) );
+    if ( botimgpar )
+    {
+	createTopBotImage( false );
+	botimg_->usePar( *botimgpar );
+    }
 
     par.getYN( sKeyShowColTab(), ctshownusepar_ );
 
@@ -1239,6 +1247,26 @@ int Scene::getImageFromPar( const IOPar& par, const char* key,
     }
 
     return 1;
+}
+
+
+void Scene::createTopBotImage( bool istop )
+{
+    if ( istop && !topimg_ )
+    {
+	topimg_ = visBase::TopBotImage::create();
+	topimg_->setName( "TopImage" );
+	addUTMObject( topimg_ );
+	topimg_->turnOn( false );
+    }
+
+    if ( !istop && !botimg_ )
+    {
+	botimg_ = visBase::TopBotImage::create();
+	botimg_->setName( "BottomImage" );
+	addUTMObject( botimg_ );
+	botimg_->turnOn( false );
+    }
 }
 
 

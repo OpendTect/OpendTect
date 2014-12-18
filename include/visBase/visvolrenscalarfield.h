@@ -40,7 +40,7 @@ public:
     static VolumeRenderScalarField*	create()
 	                        	mCreateDataObj(VolumeRenderScalarField);
 
-    void			useShading(bool yn);
+    void			useShading(bool yn);	// obsolete
 
     bool			turnOn(bool);
     bool			isOn() const;
@@ -109,7 +109,10 @@ protected:
     osg::Image*			osgvoldata_;
     osg::TransferFunction1D*	osgtransfunc_;
 
-
+public:
+    static bool			isShadingSupported();
+    void			allowShading(bool yn);
+    bool			usesShading() const;
 };
 
 }

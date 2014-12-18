@@ -98,6 +98,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     osgimagelayer_->addProperty( compprop );
 
     enableTextureInterpolation( true );
+    allowShading( useshading_ );
 }
 
 
@@ -187,8 +188,21 @@ void VolumeRenderScalarField::setROIVolumeTransform( const Coord3& trans,
 }
 
 
-void VolumeRenderScalarField::useShading( bool yn )
+bool VolumeRenderScalarField::isShadingSupported()
 {
+    return osgGeo::RayTracedTechnique::isShadingSupported();
+}
+
+
+void VolumeRenderScalarField::useShading( bool yn )
+{}	//obsolete
+
+
+void VolumeRenderScalarField::allowShading( bool yn )
+{
+    if ( yn && !isShadingSupported() )
+	yn = false;
+
     if ( useshading_==yn && osgvoltile_->getVolumeTechnique() )
 	return;
 
@@ -208,6 +222,12 @@ void VolumeRenderScalarField::useShading( bool yn )
 //    Does this have an equivalent in OSG?
 //    if ( !useshading_ )
 //	SetEnvVar( "CVR_DISABLE_PALETTED_FRAGPROG", "1" );
+}
+
+
+bool VolumeRenderScalarField::usesShading() const
+{
+    return useshading_;
 }
 
 

@@ -33,6 +33,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visvolorthoslice.h"
 #include "visvolumedisplay.h"
 
+#include "envvars.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
@@ -59,6 +60,38 @@ uiODVolrenParentTreeItem::~uiODVolrenParentTreeItem()
 {}
 
 
+bool uiODVolrenParentTreeItem::canAddVolumeToScene()
+{
+    bool userwantsshading = true;
+    if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADERS") )
+	userwantsshading = false;
+    else
+	Settings::common().getYN("dTect.Use volume shaders", userwantsshading );
+
+    if ( userwantsshading && visSurvey::VolumeDisplay::canUseVolRenShading() )
+	return true;
+
+    for ( int idx=0; idx<nrChildren(); idx++ )
+    {
+	mDynamicCastGet( uiODDisplayTreeItem*, itm, getChild(idx) );
+	const int displayid = itm ? itm->displayID() : -1;
+	mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
+		    ODMainWin()->applMgr().visServer()->getObject(displayid) );
+
+	if ( vd && !vd->usesShading() )
+	{
+	    uiMSG().message(
+		    "Can only display one fixed-function volume per scene.\n"
+		    "If available, enabling OpenGL shading for volumes\n"
+		    "in the 'Look and Feel' settings may help." );
+
+	    return false;
+	}
+    }
+    return true;
+}
+
+
 bool uiODVolrenParentTreeItem::showSubMenu()
 {
     uiMenu mnu( getUiParent(), "Action" );
@@ -66,13 +99,7 @@ bool uiODVolrenParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
     {
-	if ( nrChildren()>0 && !visSurvey::VolumeDisplay::canUseVolRenShading())
-	{
-	    uiMSG().message( "Can only display one volume per scene if one "
-			     "does not enable volume rendering to use OpenGL "
-			     "shading in the 'Look and Feel' settings." );
-	}
-	else
+	if ( canAddVolumeToScene() )
 	    addChild( new uiODVolrenTreeItem(-1), false );
     }
 

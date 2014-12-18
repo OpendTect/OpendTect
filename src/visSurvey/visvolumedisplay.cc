@@ -131,7 +131,6 @@ VolumeDisplay::VolumeDisplay()
     getMaterial()->setDiffIntensity( 0.8 );
     mAttachCB( getMaterial()->change, VolumeDisplay::materialChange );
     scalarfield_->setMaterial( getMaterial() );
-    scalarfield_->useShading( canUseVolRenShading() );
 
     CubeSampling sics = SI().sampling( true );
     CubeSampling cs = getInitCubeSampling( sics );
@@ -1547,6 +1546,21 @@ void VolumeDisplay::enableTextureInterpolation( bool yn )
 
 
 bool VolumeDisplay::canUseVolRenShading()
-{ return !Settings::common().isFalse("dTect.Use volume shaders"); }
+{
+    return visBase::VolumeRenderScalarField::isShadingSupported();
+}
+
+
+void VolumeDisplay::allowVolumeShading( bool yn )
+{
+    scalarfield_->allowShading( yn );
+}
+
+
+bool VolumeDisplay::usesShading() const
+{
+    return scalarfield_->usesShading();
+}
+
 
 } // namespace visSurvey

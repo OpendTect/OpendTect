@@ -287,6 +287,8 @@ protected:
 
 public:
     void updateMouseCursorPublicCB(CallBacker* cb) { updateMouseCursorCB(cb); }
+    void			allowVolumeShading(bool yn);
+    bool			usesShading() const;
 };
 
 } // namespace visSurvey
