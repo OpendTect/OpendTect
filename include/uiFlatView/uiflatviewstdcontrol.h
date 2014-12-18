@@ -101,7 +101,7 @@ protected:
     void		handDragged(CallBacker*);
     void		keyPressCB(CallBacker*);
     virtual void	parsCB(CallBacker*);
-    void		stateCB(CallBacker*);
+    virtual void	stateCB(CallBacker*);
     virtual void	vwrAdded(CallBacker*) 	{}
     virtual void	vwChgCB(CallBacker*);
     virtual void	wheelMoveCB(CallBacker*);
