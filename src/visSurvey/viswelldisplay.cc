@@ -114,6 +114,7 @@ WellDisplay::WellDisplay()
     , transformation_(0)
     , picksallowed_(false)
     , pseudotrack_(0)
+    , timetrack_(0)
     , needsave_(false)
     , dispprop_(0)
     , datatransform_(0)
@@ -141,6 +142,8 @@ WellDisplay::~WellDisplay()
     setBaseMap( 0 );
     if ( pseudotrack_ )
 	delete pseudotrack_;
+    if ( timetrack_ )
+	delete timetrack_;
 }
 
 
@@ -309,9 +312,11 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
     }
 
     const Well::D2TModel* d2t = wd->d2TModel();
+    const bool trackabovesrd = wd->track().zRange().stop <
+			      -1.f * mCast(float,SI().seismicReferenceDatum());
     if ( zistime_ )
     {
-	if ( !d2t )
+	if ( !d2t && !trackabovesrd )
 	    mErrRet( "No depth to time model defined" )
     }
 
@@ -334,20 +339,20 @@ void WellDisplay::getTrackPos( const Well::Data* wd,
 			       TypeSet<Coord3>& trackpos )
 {
     trackpos.erase();
-    const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
 
     if ( wd->track().size() < 1 )
 	return;
 
-    PtrMan<Well::Track> ttrack = 0;
-    if ( needsConversionToTime() )
+    const bool needsconversiontotime = needsConversionToTime();
+    if ( needsconversiontotime && !timetrack_ )
     {
-	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *d2t , wd->track() );
+	timetrack_ = new Well::Track( wd->track() );
+	timetrack_->toTime( *wd );
     }
 
-    const Well::Track& track = needsConversionToTime() ? *ttrack : wd->track();
+    const Well::Track& track = needsconversiontotime
+			     ? *timetrack_ : wd->track();
 
     Coord3 pt;
     for ( int idx=0; idx<track.size(); idx++ )
@@ -690,13 +695,12 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     val.setEmpty(); info.setEmpty();
     mGetWD(return);
 
-    PtrMan<Well::Track> ttrack = 0;
-    if ( zistime_ && wd->haveD2TModel() )
-    {
-	mTryAlloc( ttrack, Well::Track( wd->track() ) );
-	ttrack->toTime( *wd->d2TModel(), wd->track() );
-    }
-    const Well::Track& track = zistime_ ? *ttrack : wd->track();
+    const bool needsconversiontotime = needsConversionToTime();
+    if ( needsconversiontotime && !timetrack_ )
+	return;
+
+    const Well::Track& track = needsconversiontotime
+			     ? *timetrack_ : wd->track();
 
     info = "Well: "; info += wd->name();
     info += ", MD ";
@@ -968,14 +972,13 @@ void WellDisplay::setupPicking( bool yn )
 void WellDisplay::showKnownPositions()
 {
     mGetWD(return);
-    const Well::D2TModel* d2t = wd->d2TModel();
     setName( wd->name() );
     if ( !pseudotrack_ )
 	return;
 
     *pseudotrack_ = wd->track();
     if ( zistime_ )
-	pseudotrack_->toTime( *d2t, wd->track() );
+	pseudotrack_->toTime( *wd );
 
     if ( pseudotrack_->isEmpty() )
 	return;

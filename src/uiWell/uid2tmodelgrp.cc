@@ -49,7 +49,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	velfld_->attach( alignedBelow, filefld_ );
     }
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 
+    dataselfld_ = new uiTableImpDataSel( this, fd_,
                                         mODHelpKey(mD2TModelGroupHelpID) );
     dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
 							    : filefld_ );
@@ -132,6 +132,9 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 	warnmsg_ = aio.warnMsg();
     }
+
+    if ( wd.track().zRange().stop < SI().seismicReferenceDatum() )
+	return true;
 
     if ( d2t.size() < 2 )
 	mErrRet( tr("Cannot import time-depth model") )

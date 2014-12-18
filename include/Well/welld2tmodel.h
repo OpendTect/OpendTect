@@ -16,9 +16,12 @@ ________________________________________________________________________
 #include "wellmod.h"
 #include "welldahobj.h"
 
+class TimeDepthModel;
+
 namespace Well
 {
 
+class Data;
 class Track;
 
 /*!
@@ -41,6 +44,8 @@ public:
     double		getVelocityForDah(float d_ah,const Track&) const;
     double		getVelocityForDepth(float dpt,const Track&) const;
     double		getVelocityForTwt(float twt,const Track&) const;
+    bool		getTimeDepthModel(const Well::Data&,
+					  TimeDepthModel&) const;
 
     inline float	t( int idx ) const	{ return t_[idx]; }
     float		value( int idx ) const	{ return t(idx); }
@@ -62,6 +67,8 @@ public:
 				      float replvel);
 			//!< cstvel: velocity of the TD model
 			//!< replvel: Replacement velocity, above SRD
+    bool		ensureValid(const Well::Track&,float replvel);
+			//!< Returns corrected model if necessary
 
 protected:
 

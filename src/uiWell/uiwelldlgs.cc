@@ -660,9 +660,9 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
 
     uiGroup* iobutgrp = new uiButtonGroup( this, "Input/output buttons",
 					   OD::Horizontal );
-    new uiPushButton( iobutgrp, uiStrings::sImport(), 
+    new uiPushButton( iobutgrp, uiStrings::sImport(),
         mCB(this,uiD2TModelDlg,readNew), false );
-    new uiPushButton( iobutgrp, uiStrings::sExport(), 
+    new uiPushButton( iobutgrp, uiStrings::sExport(),
         mCB(this,uiD2TModelDlg,expData), false );
     if ( actbutgrp )
 	iobutgrp->attach( ensureBelow, actbutgrp );
@@ -979,7 +979,7 @@ bool uiD2TModelDlg::updateDtpointDepth( int row )
     if ( !tblrg.includes(inval,true) )
     {
 	errmsg.arg(tr("%1 is not between the depths of the previous and "
-		      "next control points").arg(lbl));	
+		      "next control points").arg(lbl));
 	tbl_->setValue( rcin, !newrow ? oldval * zfac : mUdf(float) );
 	mErrRet(errmsg)
     }
@@ -1063,7 +1063,7 @@ bool uiD2TModelDlg::updateDtpointTime( int row )
 	 !mIsUdf(getPreviousCompleteRowIdx(row)) &&
 	 !mIsUdf(getNextCompleteRowIdx(row)) )
     {
-	uiString errmsg = tr("The entered time is not between the times " 
+	uiString errmsg = tr("The entered time is not between the times "
 			     "of the previous and next control points" );
 	tbl_->setValue( rcin, !newrow ? oldval * twtfac : mUdf(float) );
 	mErrRet(errmsg)
@@ -1312,6 +1312,9 @@ bool uiD2TModelDlg::getFromScreen()
     Well::D2TModel* d2t = mD2TModel;
     getModel( *d2t );
 
+    if ( wd_.track().zRange().stop < SI().seismicReferenceDatum() && !d2t )
+	return true;
+
     if ( d2t->size() < 2 )
 	mErrRet( tr("Please define at least two control points.") )
 
@@ -1324,7 +1327,10 @@ void uiD2TModelDlg::updNow( CallBacker* )
     if ( !getFromScreen() )
 	return;
 
-    wd_.d2tchanged.trigger();
+    Well::D2TModel* d2t = mD2TModel;
+    if ( d2t )
+	wd_.d2tchanged.trigger();
+
     wd_.trackchanged.trigger();
 }
 
@@ -1345,6 +1351,13 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
+    if ( track.zRange().stop < SI().seismicReferenceDatum() && !d2t )
+    {
+	wd_.info().replvel = replvel;
+	updNow(0);
+	return;
+    }
+
     const int tracksz = wd_.track().size();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {

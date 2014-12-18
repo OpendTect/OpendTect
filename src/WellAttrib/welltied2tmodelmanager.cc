@@ -11,11 +11,7 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "welltied2tmodelmanager.h"
 
-#include "welld2tmodel.h"
 #include "welldata.h"
-#include "welllogset.h"
-#include "welllog.h"
-#include "welltrack.h"
 #include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiegeocalculator.h"
@@ -77,7 +73,7 @@ void D2TModelMgr::shiftModel( float shift)
 
     for ( int dahidx=1; dahidx<d2t->size(); dahidx++ )
 	d2t->valArr()[dahidx] += shift;
-    
+
     mRemoveSameTimeValues(d2t);
     setAsCurrent( d2t );
 }
@@ -85,25 +81,26 @@ void D2TModelMgr::shiftModel( float shift)
 
 void D2TModelMgr::setAsCurrent( Well::D2TModel* d2t )
 {
-    if ( !d2t )
+    if ( !d2t || !wd_ )
     { pErrMsg("Bad D2TMdl: ignoring"); return; }
 
-    ensureValid( *d2t );
-    if ( d2t->size() < 2 || d2t->value(1)<0 )
+    if ( !d2t->ensureValid( wd_->track(), wd_->info().replvel) )
+    { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
+
+    if ( d2t->size() < 2 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
     if ( prvd2t_ )
-	delete prvd2t_; 
-    if ( d2T() ) 
+	delete prvd2t_;
+    if ( d2T() )
 	prvd2t_ =  new Well::D2TModel( *d2T() );
-    if ( wd_ )
-	wd_->setD2TModel( d2t );
+    wd_->setD2TModel( d2t );
 }
 
 
 bool D2TModelMgr::undo()
 {
-    if ( !prvd2t_ ) return false; 
+    if ( !prvd2t_ ) return false;
     Well::D2TModel* tmpd2t =  new Well::D2TModel( *prvd2t_ );
     setAsCurrent( tmpd2t );
     return true;
@@ -124,7 +121,7 @@ bool D2TModelMgr::cancel()
 bool D2TModelMgr::updateFromWD()
 {
     if ( !wd_ || mIsUnvalidD2TM( (*wd_) ) || !d2T() )
-       return false;	
+       return false;
     setAsCurrent( d2T() );
     return true;
 }
@@ -132,7 +129,7 @@ bool D2TModelMgr::updateFromWD()
 
 bool D2TModelMgr::commitToWD()
 {
-    if ( !datawriter_.writeD2TM() ) 
+    if ( !datawriter_.writeD2TM() )
 	return false;
 
     if ( wd_ ) wd_->d2tchanged.trigger();
@@ -140,16 +137,6 @@ bool D2TModelMgr::commitToWD()
 	delete orgd2t_;
 
     return true;
-}
-
-
-void D2TModelMgr::ensureValid( Well::D2TModel& d2t )
-{
-    if ( wd_ )
-    {
-	GeoCalculator calc;
-	calc.ensureValidD2TModel( d2t, *wd_ );
-    }
 }
 
 

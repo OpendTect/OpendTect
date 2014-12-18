@@ -7,8 +7,11 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "welltrack.h"
-#include "welld2tmodel.h"
+
 #include "idxable.h"
+#include "survinfo.h"
+#include "velocitycalc.h"
+#include "welldata.h"
 
 
 Well::Track& Well::Track::operator =( const Track& t )
@@ -274,7 +277,7 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
     const Coord3& c1 = pos_[idx1];
     const Coord3& c2 = pos_[idx2];
     const double f =  1. / (d1 + d2);
-    return Coord3( f * ( d1 * c2.x + d2 * c1.x ), 
+    return Coord3( f * ( d1 * c2.x + d2 * c1.x ),
 		   f * ( d1 * c2.y + d2 * c1.y ),
 		   f * ( d1 * c2.z + d2 * c1.z ) );
 }
@@ -396,56 +399,72 @@ bool Well::Track::alwaysDownward() const
     return true;
 }
 
-
-void Well::Track::toTime( const D2TModel& d2t, const Track& track )
+#define cDistTol 0.5f
+void Well::Track::toTime( const Data& wd )
 {
+    const Track& track = wd.track();
+    const D2TModel* d2t = wd.d2TModel();
+    if ( track.isEmpty() )
+	return;
+
+    TimeDepthModel replvelmodel;
+    const double srddepth = -1. * SI().seismicReferenceDatum();
+    const float dummythickness = 1000.f;
+    TypeSet<float> replveldepths, replveltimes;
+    replveldepths += srddepth - dummythickness;
+    replveltimes += -2.f * dummythickness / wd.info().replvel;
+    replveldepths += srddepth;
+    replveltimes += 0.f;
+    replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
+			   replveldepths.size() );
+
+    TimeDepthModel dtmodel;
+    if ( d2t && !d2t->getTimeDepthModel(wd,dtmodel) )
+	return;
+
     TypeSet<float> newdah;
     TypeSet<Coord3> newpos;
+    newdah += track.dah( 0 );
+    newpos += track.pos( 0 );
 
-    // We need to collect control points from both the track and the d2t model
-    // because both will be 'bend' points in time
-
-    // First, get the dahs + positions from both - in depth.
-    // We'll start with the first track point
-    int d2tidx = 0;
-    float curdah = dah_[0];
-    while ( d2tidx < d2t.size() && d2t.dah(d2tidx) < curdah + mDefEps )
-	d2tidx++; // don't need those points: before well track
-    newdah += curdah;
-    newpos += pos_[0];
-
-    // Now collect the rest of the track points and the d2t control points
-    // Make sure no phony double points: allow a tolerance
-    const float tol = 0.001;
-    for ( int trckidx=1; trckidx<dah_.size(); trckidx++ )
+    float prevdah = newdah[0];
+    for ( int trckidx=1; trckidx<track.size(); trckidx++ )
     {
-	curdah = dah_[trckidx];
-	while ( d2tidx < d2t.size() )
+	const float curdah = track.dah( trckidx );
+	const float dist = curdah - prevdah;
+	if ( dist > cDistTol )
 	{
-	    const float d2tdah = d2t.dah( d2tidx );
-	    const float diff = d2tdah - curdah;
-	    if ( diff > tol ) // d2t dah is further down track; handle later
-		break;
-	    else if ( diff <= -tol ) // therfore a dah not on the track
+	    const int nrchunks = mCast( int, dist / cDistTol );
+	    StepInterval<float> dahrange( prevdah, curdah, nrchunks + 1 );
+	    for ( int idx=1; idx<dahrange.nrSteps(); idx++ )
 	    {
-		newdah += d2tdah;
-		newpos += getPos( d2tdah );
+		const float dahsegment = dahrange.atIndex( idx );
+		newdah += dahsegment;
+		newpos += track.getPos( dahsegment );
 	    }
-	    d2tidx++;
 	}
+
 	newdah += curdah;
-	newpos += pos_[trckidx];
+	newpos += track.pos( trckidx );
+	prevdah = curdah;
     }
 
     // Copy the extended set into the new track definition
     dah_ = newdah;
     pos_ = newpos;
-
     // Now, convert to time
     for ( int idx=0; idx<dah_.size(); idx++ )
     {
-	Coord3& pt = pos_[idx];
-	pt.z = d2t.getTime( dah_[idx], track );
+	double& depth = pos_[idx].z;
+	const bool abovesrd = depth < srddepth;
+	if ( !abovesrd && !d2t )
+	{
+	    depth = mUdf(double);
+	    continue; //Should never happen
+	}
+
+	depth = mCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
+					: dtmodel.getTime( (float)depth ) );
     }
 
     zistime_ = true;

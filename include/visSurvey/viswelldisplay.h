@@ -173,6 +173,7 @@ protected:
     visBase::MarkerSet*		markerset_;
     visBase::Well*		well_;
     Well::Track*		pseudotrack_;
+    Well::Track*		timetrack_;
     Well::Data*			wd_;
 
     ZAxisTransform*		datatransform_;

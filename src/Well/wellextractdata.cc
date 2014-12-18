@@ -678,7 +678,7 @@ int Well::LogDataExtracter::nextStep()
     {
 	if ( !wr.getD2T() ) mRetNext()
 	timetrack = new Well::Track( wd.track() );
-	timetrack->toTime( *wd.d2TModel(), wd.track() );
+	timetrack->toTime( wd );
     }
     const Well::Track& track = zistime_ ? *timetrack : wd.track();
     if ( track.size() < 2 ) mRetNext()
