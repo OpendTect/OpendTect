@@ -49,7 +49,6 @@ public:
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sExamine()	{ return tr("Examine"); }
-    static uiString sNewWord()	{ return tr("New word"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }
@@ -76,7 +75,6 @@ public:
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
     static uiString sNone()		{ return tr("None"); }
-    static uiString sOctopus()		{ return tr("Octopus"); } //test
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOk(bool)		{ return sOk(); }
     static uiString sOpen(bool immediate);
