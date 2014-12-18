@@ -144,6 +144,7 @@ int dgbSurfDataWriter::nextStep()
 	    const SectionID sectionid = surf_.sectionID( sectionindex_ );
 	    const Geometry::BinIDSurface* meshsurf =
 				surf_.geometry().sectionGeometry( sectionid );
+	    if ( !meshsurf ) continue;
 
 	    const int nrnodes = meshsurf->nrKnots();
 	    for ( int idy=0; idy<nrnodes; idy++ )
