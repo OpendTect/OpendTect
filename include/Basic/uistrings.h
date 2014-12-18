@@ -49,6 +49,7 @@ public:
     static uiString sDown()		{ return tr("Down"); }
     static uiString sEdit(bool immediate);
     static uiString sExamine()	{ return tr("Examine"); }
+    static uiString sNewWord()	{ return tr("New word"); }
     static uiString sExamine(bool)	{ return sExamine(); }
     static uiString sEmptyString()	{ return uiString(""); }
     static uiString sExport()		{ return tr("Export"); }
