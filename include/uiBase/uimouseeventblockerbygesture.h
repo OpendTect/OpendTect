@@ -7,7 +7,7 @@ ________________________________________________________________________
  (C) dGB Beheer B.V.; (LICENSE) http://opendtect.org/OpendTect_license.txt
  Author:        Ranojay Sen
  Date:          Sept 2014
- RCS:           $Id: uieventfilter.h 33340 2014-02-13 16:19:07Z bert.bril@dgbes.com $
+ RCS:		$Id$
 ________________________________________________________________________
 
 -*/
