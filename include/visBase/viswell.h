@@ -85,7 +85,7 @@ public:
     void			showWellBotName(bool);
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
-
+    const PolyLine*		getTrack() const { return track_; }
 
     //Markers
     mStruct(visBase) MarkerParams : public BasicParams
@@ -108,6 +108,7 @@ public:
     bool			markersShown() const;
     void			showMarkerName(bool);
     bool			markerNameShown() const;
+    const visBase::Text2*	getMarkerNames() const { return markernames_; }
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
 
@@ -201,6 +202,23 @@ public:
     static const char*		showlognmstr();
     static const char*		logwidthstr();
 
+    /// for pdf3d
+    const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
+    bool			hasLog(Side side) const;
+    BufferString		getLogName(Side side) const;
+    bool			getLogOsgData(LogStyle style,Side side,
+					      TypeSet<Coord3>&coords,
+					      TypeSet<Color>& colors,
+					      TypeSet<TypeSet<int> >& pss,
+					      TypeSet<Coord3>& normals,
+					      bool path) const;
+    void			getLogStyle(Side,int&) const;
+    unsigned int		getRepeat(Side side) const;
+    float			getRepeatStep(Side side) const;
+    const Text2*		getWellTopText() const { return welltoptxt_; }
+    const Text2*		getWellBottomText() const{ return wellbottxt_; }
+
+
 protected:
 
     void			transformZIfNeeded(Coord3&) const;
@@ -223,6 +241,8 @@ protected:
     ZAxisTransform*		zaxistransform_;
     int				voiidx_;
     bool			displaytube_[2];
+    bool			displaylog_[2];
+    TypeSet<BufferString>	lognames_;
 
 private:
 

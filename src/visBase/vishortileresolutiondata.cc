@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include <osg/BoundingBox>
 #include <osg/UserDataContainer>
 
+#include <osgGeo\LayeredTexture>
 
 using namespace visBase;
 
@@ -943,3 +944,75 @@ void TileResolutionData::setInvalidNormal( int row, int col )
     }
 
 }
+
+
+const osg::Vec3Array* TileResolutionData::getNormals() const
+{
+    return mGetOsgVec3Arr( normals_ );
+}
+
+
+bool TileResolutionData::getTextureCoordinates( unsigned int unit, 
+    TypeSet<Coord>& txcoords ) const 
+{
+    txcoords.setEmpty();
+
+    osgGeo::LayeredTexture* entiretxture = sectile_->hrsection_.getOsgTexture();
+    const osg::Image*	entireimg = entiretxture->getCompositeTextureImage();
+
+    const Coord entireorigin = Coord( 0.5/entireimg->s(), 0.5/entireimg->t() );
+    const Coord entireopposite = Coord( 1.0, 1.0 ) - entireorigin;
+
+    const int entwidth = entireimg->s();
+    const int entheight = entireimg->t();
+
+    const int spacing = sectile_->hrsection_.spacing_[resolution_];
+    const int nrcoords = sectile_->hrsection_.nrcoordspertileside_;
+    
+    double fragx = (double)nrcoords/entireimg->s();
+    double fragy = (double)nrcoords/entireimg->t();
+
+    Coord offset;
+    offset.x = sectile_->txorigin_[0]/entireimg->s() + entireorigin.x;
+    offset.y = sectile_->txorigin_[1]/entireimg->t() + entireorigin.y;
+
+    int crdidx = 0;
+    for ( int y=0; y<nrcoords; y+=spacing )
+    {
+	for ( int x=0; x<nrcoords; x+=spacing )
+	{
+	    const Coord txcrd = Coord( (double)x/entireimg->s(),
+		(double)y/entireimg->t() ) + offset;
+	    txcoords += txcrd;
+	}
+    }
+
+    return true;
+}
+
+
+const osg::PrimitiveSet* 
+TileResolutionData::getPrimitiveSet( GeometryType type ) const 
+{
+    const osg::Geode* geode = mGetOsgGeode( geodes_, Triangle );
+    if ( !geode ) return 0;
+
+    osg::Geometry* geom = mGetOsgGeometry( geode );
+    if ( !geom || geom->getNumPrimitiveSets()==0 ) 
+	return 0;
+
+    return geom->getPrimitiveSet( 0 );
+}
+
+
+const osg::Vec3Array* TileResolutionData::getOsgCoordinates() const
+{
+    const osg::Geode* geode = mGetOsgGeode( geodes_, Triangle );
+    if ( !geode ) return 0;
+
+    osg::Geometry* geom = mGetOsgGeometry( geode );
+    if ( !geom ) return 0;
+    
+    return dynamic_cast<osg::Vec3Array*>( geom->getVertexArray() );
+}
+

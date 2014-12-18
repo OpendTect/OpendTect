@@ -897,6 +897,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
     removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
+    secnames_.removeSingle( idx );
     sids_.removeSingle( idx );
 }
 
@@ -908,7 +909,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_, trans );
     if ( scene_ ) surf->setRightHandSystem( scene_->isRightHandSystem() );
-
+    
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
     surf->setSurface( horizon->geometry().sectionGeometry(sid), true, trans );
@@ -958,12 +959,23 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* trans )
     surf->turnOn( !displayonlyatsections_ );
 
     sections_ += surf;
+    secnames_ += emobject_->name();
+
     sids_ += sid;
     hasmoved.trigger();
 
     displaysSurfaceGrid( displaysurfacegrid_ );
 
     return true;
+}
+
+
+const BufferString HorizonDisplay::getSectionName( int secidx )
+{
+    if ( secidx >=secnames_.size() )
+	return BufferString();
+
+    return secnames_[secidx];
 }
 
 
@@ -1096,6 +1108,7 @@ void HorizonDisplay::displaysSurfaceGrid( bool yn )
     displaysurfacegrid_ = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->enableGeometryTypeDisplay( WireFrame, yn );
+    requestSingleRedraw();
 }
 
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const

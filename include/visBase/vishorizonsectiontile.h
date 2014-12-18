@@ -100,6 +100,13 @@ protected:
 
     void			updatePrimitiveSets();
     const visBase::Coordinates* getHighestResolutionCoordinates();
+    bool			getResolutionNormals(TypeSet<Coord3>&) const;
+    bool			getResolutionTextureCoordinates(
+							TypeSet<Coord>&) const;
+    bool			getResolutionPrimitiveSet(
+					     TypeSet<int>&,GeometryType) const;
+    bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
+
     void			dirtyGeometry();
 
 protected:
@@ -144,6 +151,8 @@ protected:
     osg::Switch*		osgswitchnode_;
     Threads::Mutex		datalock_;
     bool			updatenewpoint_;
+    osg::Vec2f			txorigin_;
+    osg::Vec2f			txoppsite_;
 
 };
 

@@ -13,10 +13,13 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "coord.h"
 #include "coord.h"
 #include "vistexturechannels.h"
+#include "vistexturechannel2rgba.h"
 #include "odversion.h"
 
 #include <osgGeo/LayeredTexture>
 #include <osgGeo/TexturePlane>
+#include <osg/Geometry>
+#include <osg/TexMat>
 
 mCreateFactoryEntry( visBase::TextureRectangle );
 
@@ -192,3 +195,63 @@ void TextureRectangle::setDisplayTransformation( const mVisTrans* tr )
 
 const mVisTrans* TextureRectangle::getDisplayTransformation() const
 { return displaytrans_; }
+
+
+void TextureRectangle::getTextureCoordinates( TypeSet<Coord3>& coords ) const
+{
+    Coord3 width = getWidth();
+    Coord3 center = getCenter();
+
+    char thindim = 0;
+    if ( width.x == 0 ) 
+	thindim = 0;
+    else if ( width.y == 0 ) 
+	thindim = 1;
+    else thindim = 2;
+
+    if ( displaytrans_ )
+    {
+	displaytrans_->transformDir( width );
+	displaytrans_->transform( center );
+    }
+
+    const int tw = channels_->getChannels2RGBA()->getTextureWidth();
+    const int th = channels_->getChannels2RGBA()->getTextureHeight();
+    
+    coords.erase();
+
+    for ( int idx=0; idx<4; idx++ )
+	coords += Coord3();
+    
+    coords[0] = Coord3( 0.0f, 0.0f, 0.0f );
+    coords[1] = Coord3( tw, 0.0f, 0.0f );
+    coords[2] = Coord3( 0.0f, th, 0.0f );
+    coords[3] = Coord3( tw, th, 0.0f );
+
+    const osg::Quat rotation = textureplane_->getRotation();
+    osg::Matrix rotmt;
+    rotmt.makeRotate( rotation );
+
+    for ( int idx=0; idx<4; idx++ )
+    {
+	coords[idx].x /= tw;
+	coords[idx].y /= th;
+	coords[idx] -= Coord3( 0.5f, 0.5f, 0.0f );
+
+	if ( textureplane_->areTextureAxesSwapped() )
+	    coords[idx] = Coord3( coords[idx].y, coords[idx].x, 0.0f );
+	if ( thindim==0 )
+	    coords[idx]  = Coord3( 0.0f, coords[idx].x, coords[idx].y );
+	else if ( thindim==1 )
+	    coords[idx] = Coord3( coords[idx].x, 0.0f, coords[idx].y );
+
+	coords[idx].x *= width.x;
+	coords[idx].y *= width.y;
+	coords[idx].z *= width.z;
+
+	osg::Vec3 crd = Conv::to<osg::Vec3>( coords[idx] );
+	crd = rotmt.preMult( crd );
+	coords[idx] = Conv::to<Coord3>(crd) + center;
+    }
+    
+}

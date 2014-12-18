@@ -184,6 +184,7 @@ public:
     virtual void		setPixelDensity(float);
 
     void			setSectionDisplayRestore(bool);
+    const BufferString		getSectionName(int secidx);
 
 protected:
 				~HorizonDisplay();
@@ -224,7 +225,8 @@ protected:
     bool				allowshading_;
     mVisTrans*				translation_;
 
-    ObjectSet<visBase::HorizonSection> sections_;
+    ObjectSet<visBase::HorizonSection>  sections_;
+    TypeSet<BufferString>		secnames_;
     TypeSet<EM::SectionID>		sids_;
 
     ObjectSet<visBase::VertexShape>	intersectionlines_;

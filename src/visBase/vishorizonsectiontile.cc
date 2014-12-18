@@ -45,6 +45,8 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     , righttileglue_( new HorizonSectionTileGlue )
     , bottomtileglue_( new HorizonSectionTileGlue )
     , stateset_( new osg::StateSet )
+    , txorigin_( osg::Vec2f(0,0) )
+    , txoppsite_( osg::Vec2f(0,0) )
     , tesselationqueueid_( Threads::WorkManager::twm().addQueue(
     Threads::WorkManager::MultiThread, "Tessalation" ) )
 {
@@ -421,6 +423,7 @@ HorizonSectionTile::getHighestResolutionCoordinates()
     return tileresolutiondata_[0]->getCoordinates();
 }
 
+
 void HorizonSectionTile::updatePrimitiveSets()
 {
     const char res = getActualResolution();
@@ -485,17 +488,17 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos, int res )
 void HorizonSectionTile::setTexture( const Coord& origincrd, 
     const Coord& oppositecrd )
 {
-    osg::Vec2f origin = Conv::to<osg::Vec2f>( origincrd );  
-    osg::Vec2f opposite = Conv::to<osg::Vec2f>( oppositecrd ); 
+    txorigin_ = Conv::to<osg::Vec2f>( origincrd );  
+    txoppsite_ = Conv::to<osg::Vec2f>( oppositecrd ); 
 
-    if ( (opposite - origin) == osg::Vec2f(0.0, 0.0) )
+    if ( (txoppsite_-txorigin_)==osg::Vec2f(0.0, 0.0) )
 	return;
 
     std::vector<osgGeo::LayeredTexture::TextureCoordData> tcdata;
     const osgGeo::LayeredTexture* texture = hrsection_.getOsgTexture();
 
     unRefOsgPtr( stateset_ );
-    stateset_ = texture->createCutoutStateSet( origin, opposite, tcdata );
+    stateset_ = texture->createCutoutStateSet( txorigin_, txoppsite_, tcdata );
     refOsgPtr( stateset_ );
 
     const bool eachlayersametexcoords = true;	/* Performance shortcut */
@@ -527,7 +530,7 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
 			    (int)hrsection_.nrcoordspertileside_/spacing :
 			    (int)hrsection_.nrcoordspertileside_/spacing + 1;
 
-		const osg::Vec2f diff = (opposite-origin) / spacing;
+		const osg::Vec2f diff = (txoppsite_-txorigin_)/spacing;
 
 		for ( int r=0; r<size; r++ )
 		{
@@ -564,3 +567,70 @@ const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
 	return neighbors_[idx];
     return 0;
 }
+
+
+bool HorizonSectionTile::getResolutionCoordinates(
+    TypeSet<Coord3>& coords) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::Vec3Array* osgarr=tileresolutiondata_[res]->getOsgCoordinates();
+    if ( !osgarr ) return false;
+
+    coords.setEmpty();
+    for ( int idx = 0; idx<osgarr->size(); idx++ )
+	coords += Conv::to<Coord3>( (*osgarr)[idx] );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionNormals(TypeSet<Coord3>& coords) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::Vec3Array* arr = tileresolutiondata_[res]->getNormals();
+    if ( !arr ) return false;
+
+    coords.setEmpty();
+    for ( int idx = 0; idx<arr->size(); idx++ )
+	coords += Coord3( (*arr)[idx].x(), (*arr)[idx].y(), (*arr)[idx].z() );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionTextureCoordinates(
+    TypeSet<Coord>& coords) const
+{
+    if ( txunits_.size()==0 ) return false;
+
+    coords.setEmpty();
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    tileresolutiondata_[res]->getTextureCoordinates( txunits_[0],coords );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionPrimitiveSet(
+    TypeSet<int>& ps,GeometryType type) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::PrimitiveSet* osgps = 
+	tileresolutiondata_[res]->getPrimitiveSet( type );
+
+    if ( !osgps ) return false;
+
+    for ( int idx = 0; idx<osgps->getNumIndices(); idx++ )
+	ps += osgps->index( idx );
+
+    return true;
+}
+

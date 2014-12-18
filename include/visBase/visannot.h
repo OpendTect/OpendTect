@@ -81,7 +81,10 @@ public:
     bool		usePar(const IOPar&);
 
     void		setDisplayTransformation(const mVisTrans*);
+    const mVisTrans*    getDisplayTransformation() const 
+			{ return displaytrans_; }
     virtual void	setPixelDensity(float);
+    const Text2*	getAnnotTexts() const { return axisannot_; }
 
 protected:
     			~Annotation();

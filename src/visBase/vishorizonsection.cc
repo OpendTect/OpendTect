@@ -630,5 +630,77 @@ HorizonTextureHandler& HorizonSection::getTextureHandler()
 { return *hortexturehandler_; }
 
 
+int HorizonSection::getNrTitles() const 
+{
+    return tiles_.info().getTotalSz();
+}
+
+
+bool HorizonSection::getTitleCoordinates( 
+    int titleidx, TypeSet<Coord3>& coords ) const
+{
+    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
+	return tiles_.getData()[titleidx]->getResolutionCoordinates( coords );
+    return false;
+}
+
+
+const unsigned char* HorizonSection::getTextureData( 
+    int titleidx, int& width, int& height ) const
+{
+    osgGeo::LayeredTexture* texture = getOsgTexture();
+    const osg::Image* entireimg = texture->getCompositeTextureImage();
+
+    if ( !entireimg )
+	return 0;
+
+    width = entireimg->s();
+    height = entireimg->t();
+
+    return entireimg->data();
+}
+
+
+int HorizonSection::getTexturePixelSizeInBits() const
+{
+    osgGeo::LayeredTexture* texture = getOsgTexture();
+    const osg::Image* entireimg = texture->getCompositeTextureImage();
+
+    if ( !entireimg )
+	return 0;
+
+    return entireimg->getPixelSizeInBits();
+}
+
+
+bool HorizonSection::getTitleNormals( int titleidx,
+	TypeSet<Coord3>& normals ) const
+{
+    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
+	return tiles_.getData()[titleidx]->getResolutionNormals( normals );
+    return false;
+
+}
+
+
+bool HorizonSection::getTitleTextureCoordinates(
+	int titleidx, TypeSet<Coord>& coords ) const
+{
+    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
+	return tiles_.getData()[titleidx]->getResolutionTextureCoordinates( 
+		coords );
+    return false;
+}
+
+
+bool HorizonSection::getTitlePrimitiveSet( int titleidx, TypeSet<int>& ps, 
+    GeometryType type ) const
+{
+    if ( tiles_.getData() && titleidx<tiles_.info().getTotalSz() )
+	return tiles_.getData()[titleidx]->getResolutionPrimitiveSet(ps,type); 
+    return false;
+}
+
+
 }; // namespace visBase
 

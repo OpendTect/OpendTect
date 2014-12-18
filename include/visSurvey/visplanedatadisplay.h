@@ -154,7 +154,11 @@ public:
     virtual bool		usePar(const IOPar&);
 
     void			setDisplayTransformation(const mVisTrans*);
-
+    const visBase::TextureRectangle* getTextureRectangle() const
+				{ return texturerect_;  }
+    float			getZScale() const;
+    const mVisTrans*		getDisplayTransformation() const
+				{ return displaytrans_; }
 
 protected:
 				~PlaneDataDisplay();

@@ -81,6 +81,7 @@ public:
 
     void			setDisplayTransformation(const mVisTrans*);
     const mVisTrans*		getDisplayTransformation() const;
+    void			getTextureCoordinates(TypeSet<Coord3>&) const;
 
 protected:
     				~TextureRectangle();

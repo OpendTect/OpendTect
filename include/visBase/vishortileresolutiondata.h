@@ -76,6 +76,11 @@ public:
 			highest resolution vertices.*/
 
     void		setVerticesPositions(TypeSet<Coord3>* positions = 0 );
+    bool		getTextureCoordinates(unsigned int unit,
+					      TypeSet<Coord>&) const;
+    const osg::PrimitiveSet*	   getPrimitiveSet(GeometryType) const;
+    const osg::Vec3Array*	   getOsgCoordinates()const;
+    const osg::Vec3Array*	   getNormals() const;
 
 protected:
 

@@ -142,7 +142,7 @@ public:
     virtual bool                usePar(const IOPar&);
     virtual void		setPixelDensity(float);
     const char*			errMsg() const { return errmsg_.str(); }
-
+    const visBase::Well*	getWell() const { return well_; }
 
 protected:
 				~WellDisplay();

@@ -347,6 +347,13 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 }
 
 
+float PlaneDataDisplay::getZScale() const
+{
+    return scene_ ? scene_->getZScale() : s3dgeom_->zScale();
+}
+
+
+
 float PlaneDataDisplay::maxDist() const
 {
     const float zfactor = scene_ ? scene_->getZScale():s3dgeom_->zScale();
@@ -1324,5 +1331,6 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     texturerect_->setTextureGrowth( growth );
     texturerect_->setTextureShift( -startdif - growth*0.5 );
 }
+
 
 } // namespace visSurvey

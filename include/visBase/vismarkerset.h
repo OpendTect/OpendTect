@@ -59,12 +59,15 @@ public:
 			//!<all markers will use the same color, the color can
 			//!< also be set by markerstyle
     Color		getMarkersSingleColor() const;
+    bool		usesSingleColor() const;
+    void		getColorArray(TypeSet<Color>& colors) const;
 
     void		setMarkerStyle(const MarkerStyle3D&);
     			/*!<Sets predefined shape and size.
 			    Will only use color of markerstyle if no
 			    material is set.*/
     MarkerStyle3D&	getMarkerStyle() { return markerstyle_; }
+    const MarkerStyle3D& getMarkerStyle() const { return markerstyle_; }
     void		setType(MarkerStyle3D::Type);
     			/*!<Sets predefined shape. */
     MarkerStyle3D::Type	getType() const;

@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "visosg.h"
 
 #include <osgGeo/LayeredTexture>
+#include <osg/Image>
 
 #define mNrColors	255
 
@@ -137,9 +138,37 @@ void TextureChannel2RGBA::getChannelName( int idx, BufferString& res ) const
 }
 
 
-const osg::Image* TextureChannel2RGBA::createRGBA()
+const osg::Image* TextureChannel2RGBA::createRGBA() const 
 {
      return laytex_ ? laytex_->getCompositeTextureImage() : 0;
+}
+
+
+int TextureChannel2RGBA::getTexturePixelSizeInBits() const
+{
+    if ( !createRGBA() ) return 0;
+    return createRGBA()->getPixelSizeInBits();
+}
+
+
+const unsigned char* TextureChannel2RGBA::getTextureData() const
+{
+     if ( !createRGBA() ) return 0;
+     return createRGBA()->data();
+}
+
+
+int TextureChannel2RGBA::getTextureWidth() const
+{
+    if ( !createRGBA() ) return 0;
+    return createRGBA()->s();
+}
+
+
+int TextureChannel2RGBA::getTextureHeight() const
+{
+    if ( !createRGBA() ) return 0;
+    return createRGBA()->t();
 }
 
 

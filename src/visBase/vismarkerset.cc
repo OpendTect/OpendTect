@@ -154,6 +154,22 @@ Color MarkerSet::getMarkersSingleColor() const
 }
 
 
+bool MarkerSet::usesSingleColor() const
+{
+    return markerset_->usesSingleColor();
+}
+
+
+void MarkerSet::getColorArray( TypeSet<Color>& colors ) const
+{
+    const osg::Vec4Array* clrarr = markerset_->getColorArray();
+    if ( !clrarr )
+	return;
+    for ( int idx=0; idx<clrarr->size(); idx++ )
+	colors += Conv::to<Color>((*clrarr)[idx]);
+}
+
+
 MarkerStyle3D::Type MarkerSet::getType() const
 {
     return markerstyle_.type_;

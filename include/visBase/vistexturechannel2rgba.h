@@ -43,7 +43,7 @@ public:
     virtual void		notifyChannelInsert(int ch)		{}
     virtual void		notifyChannelRemove(int ch)		{}
 
-    virtual const osg::Image*	createRGBA();
+    virtual const osg::Image*	createRGBA() const;
 				/*!<Fill the image with the output, using
 				    current settings. */
 
@@ -62,6 +62,11 @@ public:
     virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
     virtual void		getChannelName(int,BufferString&) const;
+    
+    int				getTexturePixelSizeInBits() const;
+    const unsigned char*	getTextureData() const;
+    int				getTextureWidth() const;
+    int				getTextureHeight() const;
 
 protected:
 				TextureChannel2RGBA();

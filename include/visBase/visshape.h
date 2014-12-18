@@ -91,6 +91,7 @@ public:
 
     virtual  void	  setCoordinates(Coordinates* coords);
     virtual  Coordinates* getCoordinates() { return coords_; }
+    virtual  const Coordinates*	  getCoordinates() const { return coords_; }
     virtual  void	  setLineStyle(const LineStyle&){};
 
     void		removeSwitch();
