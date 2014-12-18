@@ -725,14 +725,14 @@ void Well::getLogStyle( Side side, int& style ) const
 
     if ( logdisplay->getSeisLogStyle() )
     {
-	style = (int)LogStyle::Seismic;
+	style = (int)Seismic;
 	return;
     }
     
     if ( displaytube_[(int)side] )
-	style = (int)LogStyle::Logtube;
+	style = (int)Logtube;
     else
-	style = (int)LogStyle::Welllog;
+	style = (int)Welllog;
 }
 
 
@@ -1019,8 +1019,8 @@ bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
 	    continue;
 
 	TypeSet<int> ps;
-	for ( int idx = 0; idx<osgps->getNumIndices(); idx++ )
-	    ps += osgps->index( idx );
+	for ( int idy = 0; idy<osgps->getNumIndices(); idy++ )
+	    ps += osgps->index( idy );
 
 	pss += ps;	    
     }
