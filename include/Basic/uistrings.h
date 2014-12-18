@@ -75,6 +75,7 @@ public:
     static uiString sNext()		{ return tr("Next >"); }
     static uiString sNo()		{ return tr("No"); }
     static uiString sNone()		{ return tr("None"); }
+    static uiString sOctopus()		{ return tr("Octopus"); } //test
     static uiString sOk()		{ return tr("OK"); }
     static uiString sOk(bool)		{ return sOk(); }
     static uiString sOpen(bool immediate);
