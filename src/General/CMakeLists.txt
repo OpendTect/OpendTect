@@ -8,7 +8,7 @@
 add_custom_command( OUTPUT od_helpids.h
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     ${CMAKE_SOURCE_DIR}/external/doc_csh/od_helpids.h
-                    ${CMAKE_BINARY_DIR}/include/General/od_helpids.h )
+                    ${PROJECT_BINARY_DIR}/include/General/od_helpids.h )
 
 #Force the copy of od_helpids.h before building General
 set ( OD_MODULE_SOURCES od_helpids.h )
@@ -84,7 +84,7 @@ list ( APPEND OD_MODULE_SOURCES array2dbitmap.cc
 	    usrinputobj.cc
 	    variogramcomputers.cc
 	    zaxistransformutils.cc
-	    ziparchiveinfo.cc 
+	    ziparchiveinfo.cc
 	    ziphandler.cc
 	    ziputils.cc )
 
