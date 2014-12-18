@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
+#include "uistrings.h"
 #include "uitoolbar.h"
 #include "uitoolbutton.h"
 #include "uiworld2ui.h"
@@ -95,7 +96,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     if ( !setup.helpkey_.isEmpty() )
     {
-	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,tr("Help"));
+	uiToolButton* mDefBut(helpbut,"contexthelp",helpCB,uiStrings::sHelp());
 	helpkey_ = setup.helpkey_;
     }
 

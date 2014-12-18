@@ -19,6 +19,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
+#include "uistrings.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
 
@@ -96,7 +97,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, od_istream& s, int pid )
     quittbid_ = mAddButton( "stop", haveProcess() ? sStopAndQuit : sQuitOnly,
 			    quitFn );
     mAddButton( "save", "Save text to a file", saveFn );
-    mAddButton( "contexthelp", "Help", helpFn );
+    mAddButton( "contexthelp", uiStrings::sHelp(), helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
     uiFont& fnt = FontList().add( "Non-prop",
