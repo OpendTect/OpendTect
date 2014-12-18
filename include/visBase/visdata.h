@@ -215,6 +215,7 @@ public:								\
                         	clss();                        	\
     static void			initClass();			\
     static const char*		getStaticClassName();		\
+    static const char*		sFactoryKeyword();		\
     virtual const char*		getClassName() const
 
 
@@ -222,6 +223,7 @@ public:								\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
 { return clss::getStaticClassName(); }				\
+const char* clss::sFactoryKeyword() { return #clss; }		\
 void clss::initClass()						\
 { visBase::DataManager::factory().addCreator(			\
 		    createInternal, getStaticClassName() ); }
