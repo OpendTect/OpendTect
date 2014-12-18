@@ -11,8 +11,8 @@ ________________________________________________________________________
 
 */
 
-#include <basicmod.h>
-#include <commondefs.h>
+#include "basicmod.h"
+#include "commondefs.h"
 #include <streambuf>
 
 mFDQtclass( QIODevice );
@@ -32,16 +32,15 @@ mFDQtclass( QIODevice );
 mExpClass(Basic) qstreambuf : public std::streambuf
 {
 public:
-
-    qstreambuf(QIODevice&);
-    ~qstreambuf();
+				qstreambuf(QIODevice&);
+				~qstreambuf();
 
     virtual std::streamsize	showmanyc();
     virtual std::streamsize	xsgetn(char_type*,std::streamsize);
     virtual std::streamsize	xsputn(const char_type*,std::streamsize);
+
 private:
     QIODevice*	iodevice_;
 };
-
 
 #endif

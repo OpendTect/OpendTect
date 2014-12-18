@@ -21,17 +21,29 @@ qstreambuf::~qstreambuf()
 
 std::streamsize qstreambuf::showmanyc()
 {
+#ifndef OD_NO_QT
     return iodevice_->bytesAvailable();
+#else
+    return 0;
+#endif
 }
 
 
 std::streamsize qstreambuf::xsgetn( char_type* s, std::streamsize n )
 {
+#ifndef OD_NO_QT
     return iodevice_->read( s, n );
+#else
+    return 0;
+#endif
 }
 
 
 std::streamsize qstreambuf::xsputn( const char_type* s, std::streamsize n )
 {
+#ifndef OD_NO_QT
     return iodevice_->write( s, n );
+#else
+    return 0;
+#endif
 }
