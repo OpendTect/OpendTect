@@ -34,6 +34,31 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 }
 
 
+bool Well::D2TModel::operator ==( const Well::D2TModel& d2t ) const
+{
+    if ( &d2t == this )
+	return true;
+
+    if ( d2t.size() != size() )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !mIsEqual(d2t.dah(idx),dah_[idx],mDefEpsF) ||
+	     !mIsEqual(d2t.t(idx),t_[idx],mDefEpsF) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool Well::D2TModel::operator !=( const Well::D2TModel& d2t ) const
+{
+    return !( d2t == *this );
+}
+
+
 bool Well::D2TModel::insertAtDah( float dh, float val )
 {
     mWellDahObjInsertAtDah( dh, val, t_, true  );

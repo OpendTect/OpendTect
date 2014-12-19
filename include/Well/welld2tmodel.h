@@ -37,6 +37,8 @@ public:
 			D2TModel( const D2TModel& d2t )
 			: DahObj("")	{ *this = d2t; }
     D2TModel&		operator =(const D2TModel&);
+    bool		operator ==(const D2TModel&) const;
+    bool		operator !=(const D2TModel&) const;
 
     float		getTime(float d_ah, const Track&) const;
     float		getDepth(float time, const Track&) const;

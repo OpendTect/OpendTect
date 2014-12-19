@@ -669,6 +669,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     else
 	iobutgrp->attach( ensureBelow, tbl_ );
 
+    correctD2TModelIfInvalid();
+
     fillTable(0);
     if ( !cksh_ )
 	fillReplVel(0);
@@ -1437,6 +1439,42 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
     wd_.info().replvel = origreplvel_;
 
     return true;
+}
+
+
+void uiD2TModelDlg::correctD2TModelIfInvalid()
+{
+    Well::D2TModel* d2t = mD2TModel;
+    bool needrestore = false;
+    if ( !d2t->ensureValid( wd_.track(), wd_.info().replvel ) ||
+	 d2t->size() < 2 )
+    {
+	uiMSG().warning( tr("Invalid model detected\n"
+			    "But could not autocorrect the current model") );
+	if ( *d2t != *orgd2t_ )
+	    needrestore = true;
+    }
+    else
+    {
+	if ( *d2t != *orgd2t_ )
+	{
+	    needrestore = !uiMSG().askGoOn( tr("Invalid model detected\n"
+					       "Auto-correct?\n"
+	    "(New model will only by saved on disk on successful exit of"
+	    " the editor)") );
+
+	    if ( !needrestore )
+	    {
+		uiMSG().message( tr("Time-depth model succesfully corrected") );
+	    }
+	}
+    }
+
+    if ( needrestore )
+	*d2t = *orgd2t_;
+
+    wd_.d2tchanged.trigger();
+    wd_.trackchanged.trigger();
 }
 
 
