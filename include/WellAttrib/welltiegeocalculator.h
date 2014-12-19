@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "odcomplex.h"
 #include "wellattribmod.h"
 
-/* !brief performs the computations needed by TWTS  !*/   
+/* !brief performs the computations needed by TWTS  !*/
 
 namespace Well { class D2TModel; class Log; class Data; }
 
@@ -27,21 +27,23 @@ mExpClass(WellAttrib) GeoCalculator
 {
 public :
 //Well data operations
-    Well::D2TModel* 	getModelFromVelLog(const Well::Data&,
-	    				   const char* lognm) const;
+    Well::D2TModel*	getModelFromVelLog(const Well::Data&,
+					   const char* lognm) const;
     void		ensureValidD2TModel(Well::D2TModel&,
-	    				    const Well::Data&)const;
+					    const Well::Data&)const;
+			//!< will be removed after 5.0;
+			//!< Use Well::D2TModel::ensureValid instead
 
     void		son2TWT(Well::Log&,const Well::Data&) const;
-    void 		vel2TWT(Well::Log&,const Well::Data&) const;
+    void		vel2TWT(Well::Log&,const Well::Data&) const;
     void		son2Vel(Well::Log&) const;
     void		d2TModel2Log(const Well::D2TModel&,Well::Log&) const;
 
-//others  
+//others
     void		removeSpikes(float* inp,int sz,int gate,int fac) const;
-    double 		crossCorr(const float*,const float*,float*,int) const;
-    void 		deconvolve(const float*,const float_complex*,float*,
-	    			   int) const;
+    double		crossCorr(const float*,const float*,float*,int) const;
+    void		deconvolve(const float*,const float_complex*,float*,
+				   int) const;
 };
 
 }; //namespace WellTie

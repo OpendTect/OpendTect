@@ -669,6 +669,8 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& wd, bool cksh )
     else
 	iobutgrp->attach( ensureBelow, tbl_ );
 
+    correctD2TModelIfInvalid();
+
     fillTable(0);
     if ( !cksh_ )
 	fillReplVel(0);
@@ -1314,6 +1316,9 @@ bool uiD2TModelDlg::getFromScreen()
     Well::D2TModel* d2t = mD2TModel;
     getModel( *d2t );
 
+    if ( wd_.track().zRange().stop < SI().seismicReferenceDatum() && !d2t )
+	return true;
+
     if ( d2t->size() < 2 )
 	mErrRet( "Please define at least two control points." )
 
@@ -1326,7 +1331,10 @@ void uiD2TModelDlg::updNow( CallBacker* )
     if ( !getFromScreen() )
 	return;
 
-    wd_.d2tchanged.trigger();
+    Well::D2TModel* d2t = mD2TModel;
+    if ( d2t )
+	wd_.d2tchanged.trigger();
+
     wd_.trackchanged.trigger();
 }
 
@@ -1347,6 +1355,12 @@ void uiD2TModelDlg::updReplVelNow( CallBacker* )
 
     Well::D2TModel* d2t = mD2TModel;
     const Well::Track& track = wd_.track();
+    if ( track.zRange().stop < SI().seismicReferenceDatum() && !d2t )
+    {
+	wd_.info().replvel = replvel;
+	updNow(0);
+	return;
+    }
     const int tracksz = wd_.track().nrPoints();
     if ( !d2t || d2t->size()<2 || tracksz<2 )
     {
@@ -1426,6 +1440,42 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
     wd_.info().replvel = origreplvel_;
 
     return true;
+}
+
+
+void uiD2TModelDlg::correctD2TModelIfInvalid()
+{
+    Well::D2TModel* d2t = mD2TModel;
+    bool needrestore = false;
+    if ( !d2t->ensureValid( wd_.track(), wd_.info().replvel ) ||
+	 d2t->size() < 2 )
+    {
+	uiMSG().warning( "Invalid model detected\n"
+			    "But could not autocorrect the current model" );
+	if ( *d2t != *orgd2t_ )
+	    needrestore = true;
+    }
+    else
+    {
+	if ( *d2t != *orgd2t_ )
+	{
+	    needrestore = !uiMSG().askGoOn( "Invalid model detected\n"
+					       "Auto-correct?\n"
+	    "(New model will only by saved on disk on successful exit of"
+	    " the editor)" );
+
+	    if ( !needrestore )
+	    {
+		uiMSG().message( "Time-depth model succesfully corrected" );
+	    }
+	}
+    }
+
+    if ( needrestore )
+	*d2t = *orgd2t_;
+
+    wd_.d2tchanged.trigger();
+    wd_.trackchanged.trigger();
 }
 
 

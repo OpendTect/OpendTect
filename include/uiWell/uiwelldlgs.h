@@ -118,6 +118,7 @@ protected:
     bool		acceptOK(CallBacker*);
     void		expData(CallBacker*);
     void		getModel(Well::D2TModel&);
+    void		correctD2TModelIfInvalid();
 
     void		getColLabels(BufferStringSet&) const;
     int			getTVDGLCol() const;

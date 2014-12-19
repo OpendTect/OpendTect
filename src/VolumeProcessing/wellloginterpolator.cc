@@ -58,7 +58,7 @@ bool init()
     if ( SI().zIsTime() )
     {
 	timetrack = new Well::Track( wd_.track() );
-	timetrack->toTime( *wd_.d2TModel(), wd_.track() );
+	timetrack->toTime( wd_ );
     }
 
     const Well::Track& track = SI().zIsTime() ? *timetrack : wd_.track();
@@ -75,7 +75,7 @@ void computeLayerModelIntersection(
     if ( SI().zIsTime() )
     {
 	timetrack = new Well::Track( wd_.track() );
-	timetrack->toTime( *wd_.d2TModel(), wd_.track() );
+	timetrack->toTime( wd_ );
     }
 
     const Well::Track& track = SI().zIsTime() ? *timetrack : wd_.track();

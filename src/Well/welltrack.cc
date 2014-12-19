@@ -7,8 +7,12 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "welltrack.h"
-#include "welld2tmodel.h"
+
 #include "idxable.h"
+#include "survinfo.h"
+#include "velocitycalc.h"
+#include "welld2tmodel.h"
+#include "welldata.h"
 
 
 Well::Track& Well::Track::operator =( const Track& t )
@@ -455,6 +459,78 @@ void Well::Track::toTime( const D2TModel& d2t, const Track& track )
     {
 	Coord3& pt = pos_[idx];
 	pt.z = d2t.getTime( dah_[idx], track );
+    }
+
+    zistime_ = true;
+}
+
+#define cDistTol 0.5f
+void Well::Track::toTime( const Data& wd )
+{
+    const Track& track = wd.track();
+    const D2TModel* d2t = wd.d2TModel();
+    if ( track.isEmpty() )
+	return;
+
+    TimeDepthModel replvelmodel;
+    const double srddepth = -1. * SI().seismicReferenceDatum();
+    const float dummythickness = 1000.f;
+    TypeSet<float> replveldepths, replveltimes;
+    replveldepths += mCast(float,srddepth) - dummythickness;
+    replveltimes += -2.f * dummythickness / wd.info().replvel;
+    replveldepths += mCast(float,srddepth);
+    replveltimes += 0.f;
+    replvelmodel.setModel( replveldepths.arr(), replveltimes.arr(),
+			   replveldepths.size() );
+
+    TimeDepthModel dtmodel;
+    if ( d2t && !d2t->getTimeDepthModel(wd,dtmodel) )
+	return;
+
+    TypeSet<float> newdah;
+    TypeSet<Coord3> newpos;
+    newdah += track.dah( 0 );
+    newpos += track.pos( 0 );
+
+    float prevdah = newdah[0];
+    for ( int trckidx=1; trckidx<track.size(); trckidx++ )
+    {
+	const float curdah = track.dah( trckidx );
+	const float dist = curdah - prevdah;
+	if ( dist > cDistTol )
+	{
+	    const int nrchunks = mCast( int, dist / cDistTol );
+	    const float step = dist / mCast(float, nrchunks );
+	    StepInterval<float> dahrange( prevdah, curdah, step );
+	    for ( int idx=1; idx<dahrange.nrSteps(); idx++ )
+	    {
+		const float dahsegment = dahrange.atIndex( idx );
+		newdah += dahsegment;
+		newpos += track.getPos( dahsegment );
+	    }
+	}
+
+	newdah += curdah;
+	newpos += track.pos( trckidx );
+	prevdah = curdah;
+    }
+
+    // Copy the extended set into the new track definition
+    dah_ = newdah;
+    pos_ = newpos;
+    // Now, convert to time
+    for ( int idx=0; idx<dah_.size(); idx++ )
+    {
+	double& depth = pos_[idx].z;
+	const bool abovesrd = depth < srddepth;
+	if ( !abovesrd && !d2t )
+	{
+	    depth = mUdf(double);
+	    continue; //Should never happen
+	}
+
+	depth = mCast( double, abovesrd ? replvelmodel.getTime( (float)depth )
+					: dtmodel.getTime( (float)depth ) );
     }
 
     zistime_ = true;

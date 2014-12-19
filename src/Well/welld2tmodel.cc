@@ -7,12 +7,16 @@
 static const char* rcsID mUsedVar = "$Id$";
 
 #include "welld2tmodel.h"
-#include "welltrack.h"
+
 #include "idxable.h"
 #include "iopar.h"
+#include "mathfunc.h"
 #include "stratlevel.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "velocitycalc.h"
+#include "welldata.h"
+#include "welltrack.h"
 
 const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
 const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
@@ -27,6 +31,31 @@ Well::D2TModel& Well::D2TModel::operator =( const Well::D2TModel& d2t )
 	dah_ = d2t.dah_; t_ = d2t.t_;
     }
     return *this;
+}
+
+
+bool Well::D2TModel::operator ==( const Well::D2TModel& d2t ) const
+{
+    if ( &d2t == this )
+	return true;
+
+    if ( d2t.size() != size() )
+	return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !mIsEqual(d2t.dah(idx),dah_[idx],mDefEpsF) ||
+	     !mIsEqual(d2t.t(idx),t_[idx],mDefEpsF) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool Well::D2TModel::operator !=( const Well::D2TModel& d2t ) const
+{
+    return !( d2t == *this );
 }
 
 
@@ -312,10 +341,10 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 				    float replvel )
 {
     setEmpty();
-    const float srd = mCast( float, SI().seismicReferenceDatum() );
+    const float srddepth = mCast( float, -1.f * SI().seismicReferenceDatum() );
     const float kb  = track.getKbElev();
     const float bulkshift = mIsUdf( replvel ) ? 0.f
-			  : ( kb-srd )* ( (2.f / vel) - (2.f / replvel) );
+			  : ( kb+srddepth )* ( (2.f / vel) - (2.f / replvel) );
 
     int idahofminz = 0;
     int idahofmaxz = track.size()-1;
@@ -337,18 +366,121 @@ void Well::D2TModel::makeFromTrack( const Track& track, float vel,
 	}
     }
 
-    if ( tvdmax < -1.f * srd ) // whole track above SRD !
+    if ( tvdmax < srddepth ) // whole track above SRD !
 	return;
 
     float firstdah = track.dah(idahofminz);
-    if ( tvdmin < -1.f * srd ) // no write above SRD
+    if ( tvdmin < srddepth ) // no write above SRD
     {
-	tvdmin = -1.f * srd;
+	tvdmin = srddepth;
 	firstdah = track.getDahForTVD( tvdmin );
     }
 
-    add( firstdah, 2.f*( tvdmin+srd )/vel + bulkshift );
-    add( track.dah(idahofmaxz), 2.f*( tvdmax+srd )/vel + bulkshift );
+    add( firstdah, 2.f*( tvdmin-srddepth )/vel + bulkshift );
+    add( track.dah(idahofmaxz), 2.f*( tvdmax-srddepth )/vel + bulkshift );
 }
 
 
+#define mLocalEps	1e-2f
+
+bool Well::D2TModel::getTimeDepthModel( const Well::Data& wd,
+					TimeDepthModel& model ) const
+{
+    Well::D2TModel d2t = *this;
+    if ( !d2t.ensureValid(wd.track(),wd.info().replvel) )
+	return false;
+
+    TypeSet<float> depths;
+    TypeSet<float> times;
+    for ( int idx=0; idx<d2t.size(); idx++ )
+    {
+	const float curdah = d2t.dah( idx );
+	depths += mCast(float, wd.track().getPos( curdah ).z );
+	times += d2t.t( idx );
+    }
+
+    model.setModel( depths.arr(), times.arr(), depths.size() );
+
+    return model.isOK();
+}
+
+
+bool Well::D2TModel::ensureValid( const Well::Track& track, float replvel )
+{
+    const int sz = size();
+    if ( sz < 2 )
+	return false;
+
+    const float srddepth = mCast( float, -1.*SI().seismicReferenceDatum() );
+    const float kbdepth = -1.f * track.getKbElev();
+    const float replveldz = srddepth - kbdepth;
+    const float timeatkbelev = -2.f * replveldz / replvel;
+    const bool srdbelowkb = replveldz > mLocalEps;
+
+    TypeSet<float> dahs, depths, times;
+    mAllocVarLenArr( int, zidxs, sz );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const float curdah = dah( idx );
+	dahs += curdah;
+	depths += mCast( float, track.getPos( curdah ).z );
+	times += value( idx );
+	zidxs[idx] = idx;
+    }
+    sort_coupled( times.arr(), mVarLenArr(zidxs), sz );
+    if ( depths[zidxs[sz-1]] < srddepth-mLocalEps || times[zidxs[sz-1]] < 0.f )
+    {
+	setEmpty();
+	return true; //All points above SRD; D2TModel object should be empty
+    }
+
+    BendPointBasedMathFunction<float,float> dtmodel;
+    dtmodel.setExtrapolateType(
+	   BendPointBasedMathFunction<float,float>::ExtraPolGradient );
+    const float mindepth = srdbelowkb ? srddepth + mLocalEps
+				      : kbdepth + mLocalEps;
+    int idah = 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	dtmodel.add( depths[zidxs[idx]], times[zidxs[idx]] );
+	if ( depths[zidxs[idx]] < mindepth )
+	    idah++;
+    }
+
+    const float bulkshift = srdbelowkb
+			  ? dtmodel.getValue( srddepth )
+			  : dtmodel.getValue( kbdepth ) - timeatkbelev;
+    if ( !mIsZero(bulkshift,1e-6f) )
+    {
+	for ( int idx=idah; idx<sz; idx++ )
+	    times[zidxs[idx]] -= bulkshift;
+    }
+
+    D2TModel origmodel = *this;
+    setEmpty();
+
+    add( 0.f, timeatkbelev ); //set KB
+    if ( srdbelowkb )
+	add( track.getDahForTVD(srddepth,0.f), 0.f ); //set SRD
+
+    if ( idah < sz && times[zidxs[idah]] > 1e-6f )
+	add( dahs[zidxs[idah]], times[zidxs[idah]] );
+
+    for ( int idx=idah+1; idx<sz; idx++ )
+    {
+	const int idx0 = zidxs[idx-1];
+	const int idx1 = zidxs[idx];
+	const float dh = dahs[idx1] - dahs[idx0];
+	const float dt = times[idx1] - times[idx0];
+	if ( dh > mLocalEps && dt > 1e-6f && times[idx1] > 1e-6f )
+	    add( dahs[idx1], times[idx1] );
+    }
+
+    if ( size() < 2 )
+    {
+	*this = origmodel;
+	return false;
+    }
+
+    return true;
+}

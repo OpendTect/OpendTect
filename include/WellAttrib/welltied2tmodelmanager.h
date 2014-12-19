@@ -38,34 +38,36 @@ public:
 			D2TModelMgr(Well::Data&,DataWriter&,const Setup&);
 			~D2TModelMgr();
 
-    bool 		undo();
-    bool 		cancel();
+    bool		undo();
+    bool		cancel();
 
-    bool      		updateFromWD();
-    bool      		commitToWD();
+    bool		updateFromWD();
+    bool		commitToWD();
 
-    void		setWD( Well::Data* wd ) 	{ wd_ = wd; }
-    void 		shiftModel(float);
-    void 		setAsCurrent(Well::D2TModel*);
+    void		setWD( Well::Data* wd ) { wd_ = wd; }
+    void		shiftModel(float);
+    void		setAsCurrent(Well::D2TModel*);
     void		setFromData(float* dah,float* time,int sz);
 
-    const char* 	errMsg() const 
-    			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
+    const char*		errMsg() const
+			{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 protected:
 
-    Well::Data* 	wd_;
+    Well::Data*		wd_;
 
-    Well::D2TModel* 	d2T();
-    Well::D2TModel* 	prvd2t_;
-    Well::D2TModel* 	orgd2t_;
+    Well::D2TModel*	d2T();
+    Well::D2TModel*	prvd2t_;
+    Well::D2TModel*	orgd2t_;
 
-    BufferString 	errmsg_;
+    BufferString	errmsg_;
 
     DataWriter&		datawriter_;
     bool		emptyoninit_;
 
     void		ensureValid(Well::D2TModel&);
+			//!< will be removed after 5.0;
+			//!< Use Well::D2TModel::ensureValid instead
 };
 
 }; //namespace WellTie

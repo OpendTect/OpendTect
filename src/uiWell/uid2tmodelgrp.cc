@@ -139,6 +139,9 @@ bool uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	    warnmsg_ = aio.warnMsg();
     }
 
+    if ( wd.track().zRange().stop < SI().seismicReferenceDatum() )
+	return true;
+
     if ( d2t.size() < 2 )
 	mErrRet( "Cannot import time-depth model" )
 
