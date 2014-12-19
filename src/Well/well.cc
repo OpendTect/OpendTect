@@ -88,15 +88,13 @@ float Well::DahObj::dahStep( bool ismin ) const
 
 void Well::DahObj::deInterpolate()
 {
-    TypeSet<Coord> dahsc;
-    dahsc.setCapacity( dah_.size(), false );
+    TypeSet<Coord> bpfinp;
+    bpfinp.setCapacity( dah_.size(), false );
     for ( int idx=0; idx<dah_.size(); idx++ )
-    {
-	dahsc += Coord( dah_[idx]*0.001, value( idx ) );
-	// gives them about same dimension
-    }
+	bpfinp += Coord( dah_[idx]*0.1, value( idx ) );
+	// for time we want a fac of 1000, but for track 1. Compromise.
 
-    BendPointFinder2D finder( dahsc, 1e-5 );
+    BendPointFinder2D finder( bpfinp, 1e-5 );
     if ( !finder.execute() || finder.bendPoints().size()<1 )
 	return;
 
@@ -104,7 +102,7 @@ void Well::DahObj::deInterpolate()
 
     int bpidx = 0;
     TypeSet<int> torem;
-    for ( int idx=0; idx<dahsc.size(); idx++ )
+    for ( int idx=0; idx<bpfinp.size(); idx++ )
     {
 	if ( idx != bpidxs[bpidx] )
 	    torem += idx;
