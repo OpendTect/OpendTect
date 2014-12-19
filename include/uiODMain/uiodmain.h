@@ -35,7 +35,6 @@ mGlobal(uiODMain) uiODMain* ODMainWin();
 
 
 /*!
-\ingroup uiODMain
 \brief OpendTect application top level object
 */
 

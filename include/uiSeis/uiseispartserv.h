@@ -30,7 +30,6 @@ namespace PosInfo { class Line2DData; }
 namespace Geometry { class RandomLine; }
 
 /*!
-\ingroup uiSeis
 \brief Seismic User Interface Part Server
 */
 

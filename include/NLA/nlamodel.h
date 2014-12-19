@@ -18,7 +18,6 @@ ________________________________________________________________________
 class NLADesign;
 
 /*!
-\ingroup NLA
 \brief Minimum Interface for NLA models
 */
 

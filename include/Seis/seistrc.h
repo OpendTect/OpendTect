@@ -24,8 +24,8 @@ template <class T> class ValueSeriesInterpolator;
 template <class T> class Array1D;
 
 /*!
-\ingroup Seis
-\brief Seismic traces
+\brief Seismic trace.
+
 A seismic trace is composed of trace info and trace data. The trace data
 consists of one or more components. These are represented by a set of buffers,
 interpreted by DataInterpreters.

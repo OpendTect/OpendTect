@@ -53,7 +53,6 @@ namespace visSurvey
 {
 
 /*!
-\ingroup visSurvey
 \brief Base class for all 'Display' objects
 */
 

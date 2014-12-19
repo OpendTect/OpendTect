@@ -28,7 +28,6 @@ class Transformation;
 class EventCatcher;
 
 /*!
-\ingroup visBase
 \brief Base class for all objects that are visual on the scene.
 */
 
