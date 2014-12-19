@@ -277,7 +277,8 @@ static const char* getStringFromFPNumber( T inpval )
     if ( mIsUdf(val) )
 	return sKey::FloatUdf();
 
-    const char* fmtend = val < (T)0.001 || val >= (T)1e8 ? "g" : "f";
+    const bool scientific = val < (T)0.001 || val >= (T)1e8;
+    const char* fmtend = scientific ? "g" : "f";
     const BufferString fmt( "%.8", fmtend );
 
     if ( isneg ) *str = '-';
@@ -286,7 +287,9 @@ static const char* getStringFromFPNumber( T inpval )
     const int nrdec = findUglyRoundOff( str );
     if ( nrdec >= 0 )
     {
-	const BufferString newfmt( "%.", nrdec, fmtend );
+	const BufferString newfmt( "%.", scientific ? nrdec+1 : nrdec, fmtend );
+	//For %.#f: # = nr decimals, for %.#g: # = nr significant digits.
+
 	sprintf( isneg ? str+1 : str, newfmt.buf(), val );
 	enforceNrDecimals( str, nrdec );
     }
