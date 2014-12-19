@@ -144,6 +144,7 @@ uiObject* uiBasemapIOObjGroup::lastObject()
 
 void uiBasemapIOObjGroup::selChg( CallBacker* )
 {
+    ioobjfld_->getChosen( mids_ );
     const int nrsel = ioobjfld_->nrChosen();
     if ( nrsel==1 )
 	setItemName( IOM().nameOf(ioobjfld_->currentID()) );
@@ -170,33 +171,51 @@ bool uiBasemapIOObjGroup::acceptOK()
 }
 
 
+int uiBasemapIOObjGroup::nrItems() const
+{
+    const int nrsel = mids_.size();
+    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
+    return addasgroup ? 1 : nrsel;
+}
+
+
+int uiBasemapIOObjGroup::nrObjsPerItem() const
+{
+    const int nrsel = mids_.size();
+    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
+    return addasgroup ? nrsel : 1;
+}
+
+
+bool uiBasemapIOObjGroup::fillItemPar( int idx, IOPar& par ) const
+{
+    const int nrobjsperitem = nrObjsPerItem();
+    par.set( sKeyNrObjs(), nrobjsperitem );
+
+    if ( nrItems()==1 )
+	par.set( sKey::Name(), itemName() );
+    else
+	par.set( sKey::Name(), IOM().nameOf(mids_[idx]) );
+
+    for ( int objidx=0; objidx<nrobjsperitem; objidx++ )
+	par.set( IOPar::compKey(sKey::ID(),objidx), mids_[idx+objidx] );
+
+    return true;
+}
+
+
 bool uiBasemapIOObjGroup::fillPar( IOPar& par ) const
 {
     bool res = uiBasemapGroup::fillPar( par );
 
-    TypeSet<MultiID> mids;
-    ioobjfld_->getChosen( mids );
-    const int nrsel = mids.size();
-    const bool addasgroup = !typefld_ || typefld_->getBoolValue() || nrsel==1;
-
-    const int nritems = addasgroup ? 1 : nrsel;
-    const int nrobjsperitem = addasgroup ? nrsel : 1;
+    const int nritems = nrItems();
     par.set( sKeyNrItems(), nritems );
     for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar ipar;
-	ipar.set( sKeyNrObjs(), nrobjsperitem );
-	if ( addasgroup )
-	    ipar.set( sKey::Name(), itemName() );
-	else
-	    ipar.set( sKey::Name(), IOM().nameOf(mids[idx]) );
-
-	for ( int objidx=0; objidx<nrobjsperitem; objidx++ )
-	{
-	    ipar.set( IOPar::compKey(sKey::ID(),objidx), mids[idx+objidx] );
-	    const BufferString key = IOPar::compKey( sKeyItem(), idx );
-	    par.mergeComp( ipar, key );
-	}
+	fillItemPar( idx, ipar );
+	const BufferString key = IOPar::compKey( sKeyItem(), idx );
+	par.mergeComp( ipar, key );
     }
 
     BufferString tmpfnm = FilePath::getTempName( "par" );

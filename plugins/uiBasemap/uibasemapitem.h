@@ -51,6 +51,7 @@ public:
 
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
+    virtual bool	fillItemPar(int idx,IOPar&) const	{ return true; }
     virtual bool	usePar(const IOPar&);
 
     static const char*	sKeyNrObjs();
@@ -75,6 +76,7 @@ public:
 
     virtual bool	acceptOK();
     virtual bool	fillPar(IOPar&) const;
+    virtual bool	fillItemPar(int idx,IOPar&) const;
     virtual bool	usePar(const IOPar&);
 
 protected:
@@ -84,9 +86,13 @@ protected:
     virtual uiObject*	lastObject();
     void		selChg(CallBacker*);
     void		typeChg(CallBacker*);
+    int			nrItems() const;
+    int			nrObjsPerItem() const;
 
     uiIOObjSelGrp*	ioobjfld_;
     uiGenInput*		typefld_;
+
+    TypeSet<MultiID>	mids_;
 };
 
 
