@@ -111,6 +111,13 @@ protected:
     static const char*		cornerprefixstr();
     static const char*		showtextstr();
     static const char*		showscalestr();
+
+public:
+    const Text2*		getAnnotTexts() const;
+    const mVisTrans*		getDisplayTransformWorkaround() const;
+				//!<Workaround to keep ABI compatibility.
+				//!<Don't use
+
 };
 
 } // namespace visBase

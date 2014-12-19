@@ -189,6 +189,8 @@ protected:
     const bool			zinfeet_;
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
+public:
+     const visBase::Well*	getWell() const { return well_; }
 };
 
 } // namespace visSurvey

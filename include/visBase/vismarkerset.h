@@ -135,6 +135,11 @@ protected:
 
     float			rotationangle_;
     Coord3			rotationvec_;
+
+public:
+    bool		 usesSingleColor() const;
+    void		 getColorArray(TypeSet<Color>& colors) const;
+    const MarkerStyle3D& getMarkerStyle() const;
 };
 
 };

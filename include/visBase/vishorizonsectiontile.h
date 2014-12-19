@@ -145,6 +145,14 @@ protected:
     Threads::Mutex		datalock_;
     bool			updatenewpoint_;
 
+public:
+    bool			getResolutionNormals(TypeSet<Coord3>&) const;
+    bool			getResolutionTextureCoordinates(
+						      TypeSet<Coord>&) const;
+    bool			getResolutionPrimitiveSet(
+					   TypeSet<int>&,GeometryType) const;
+    bool			getResolutionCoordinates(TypeSet<Coord3>&)const;
+    bool			getTextureExtent(osg::Vec2f&,osg::Vec2f&)const;
 };
 
 }

@@ -239,6 +239,23 @@ private:
     void			updateMakerNamePosition(Side side,
 							float sizefactor);
 
+public:
+     const PolyLine*		getTrack() const { return track_; }
+     const visBase::Text2*	getMarkerNames() const { return markernames_; }
+     const visBase::MarkerSet*	getMarkerSet() const { return markerset_; }
+     bool			hasLog(Side side) const;
+     BufferString		getLogName(Side side) const;
+     bool			getLogOsgData(LogStyle style,Side side,
+					      TypeSet<Coord3>&coords,
+					      TypeSet<Color>& colors,
+					      TypeSet<TypeSet<int> >& pss,
+					      TypeSet<Coord3>& normals,
+					      bool path) const;
+     void			getLogStyle(Side,int&) const;
+     unsigned int		getRepeat(Side side) const;
+     float			getRepeatStep(Side side) const;
+     const Text2*		getWellTopText() const { return welltoptxt_; }
+     const Text2*		getWellBottomText() const{ return wellbottxt_; }
 
 };
 

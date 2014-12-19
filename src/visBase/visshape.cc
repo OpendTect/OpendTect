@@ -687,6 +687,13 @@ void VertexShape::removePrimitiveSetFromScene( const osg::PrimitiveSet* ps )
     osggeom_->removePrimitiveSet( idx );
 }
 
+
+const Coordinates* VertexShape::getCoordinates() const
+{
+    return coords_;
+}
+
+
 #define mImplOsgFuncs \
 osg::PrimitiveSet* getPrimitiveSet() { return element_.get(); } \
 void setPrimitiveType( Geometry::PrimitiveSet::PrimitiveType tp ) \

@@ -12,6 +12,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscamera.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "visosg.h"
 
 #include <osg/Camera>
 
@@ -257,5 +258,49 @@ void Camera::triggerDrawCallBack( const DrawCallback* src,
     renderinfo_ = 0;
 }
 
+
+Coord3 Camera::getTranslation() const
+{
+    osg::Vec3d	curscale;
+    osg::Vec3d	curtrans;
+    osg::Quat	currot;
+    osg::Quat	curso;
+    camera_->getViewMatrix().decompose( curtrans, currot, curscale, curso );
+    return Conv::to<Coord3>( curtrans );
+}
+
+
+Coord3 Camera::getScale() const
+{
+    osg::Vec3d	curscale;
+    osg::Vec3d	curtrans;
+    osg::Quat	currot;
+    osg::Quat	curso;
+    camera_->getViewMatrix().decompose( curtrans, currot, curscale, curso );
+    return Conv::to<Coord3>( curscale );
+}
+
+
+void Camera::getRotation( Coord3& vec, double& angle ) const
+{
+    osg::Vec3d	curscale;
+    osg::Vec3d	curtrans;
+    osg::Quat	currot;
+    osg::Quat	curso;
+    camera_->getViewMatrix().decompose( curtrans, currot, curscale, curso );
+    osg::Vec3d osgvec;
+    currot.getRotate( angle, osgvec );
+    vec = Conv::to<Coord3>( osgvec );
+}
+
+
+void Camera::getLookAtMatrix( Coord3& eye, Coord3& center, Coord3& up ) const
+{
+    osg::Vec3d osgeye,osgcenter,osgup;
+    camera_->getViewMatrixAsLookAt( osgeye, osgcenter, osgup );
+    eye = Conv::to<Coord3>( osgeye );
+    center = Conv::to<Coord3>( osgcenter );
+    up = Conv::to<Coord3>( osgup );
+}
 
 }; // namespace visBase

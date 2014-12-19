@@ -543,4 +543,17 @@ bool Annotation::usePar( const IOPar& par )
     return true;
 }
 
+
+const mVisTrans* Annotation::getDisplayTransformWorkaround() const
+{
+    return displaytrans_;
+}
+
+
+const Text2* Annotation::getAnnotTexts() const 
+{
+     return axisannot_; 
+} 
+
+
 } // namespace visBase

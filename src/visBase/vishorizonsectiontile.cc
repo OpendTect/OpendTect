@@ -15,6 +15,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "viscoord.h"
 #include "vishorthreadworks.h"
 #include "binidsurface.h"
+#include "hiddenparam.h"
 
 #include <osgGeo/LayeredTexture>
 
@@ -30,6 +31,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 using namespace visBase;
 
+HiddenParam< HorizonSectionTile,osg::Vec2f > txorigin_( osg::Vec2f(0,0) );
+HiddenParam< HorizonSectionTile,osg::Vec2f > txoppsite_( osg::Vec2f(0,0) );
 
 HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
 					const RowCol& origin )
@@ -53,6 +56,8 @@ HorizonSectionTile::HorizonSectionTile( const visBase::HorizonSection& section,
     tileresolutiondata_.allowNull();
     buildOsgGeometries();
     bbox_.init();
+    txorigin_.setParam( this, osg::Vec2f(0,0) );
+    txoppsite_.setParam( this, osg::Vec2f(0,0) );
 }
 
 void HorizonSectionTile::buildOsgGeometries()
@@ -83,6 +88,8 @@ HorizonSectionTile::~HorizonSectionTile()
 
     Threads::WorkManager::twm().removeQueue( tesselationqueueid_, false );
     deepErase( tileresolutiondata_ );
+    txoppsite_.removeParam( this );
+    txorigin_.removeParam( this );
 }
 
 
@@ -488,6 +495,8 @@ void HorizonSectionTile::setTexture( const Coord& origincrd,
     osg::Vec2f origin = Conv::to<osg::Vec2f>( origincrd );  
     osg::Vec2f opposite = Conv::to<osg::Vec2f>( oppositecrd ); 
 
+    txorigin_.setParam( this, origin );
+    txoppsite_.setParam( this, opposite );
     if ( (opposite - origin) == osg::Vec2f(0.0, 0.0) )
 	return;
 
@@ -564,3 +573,82 @@ const HorizonSectionTile* HorizonSectionTile::getNeighborTile(int idx) const
 	return neighbors_[idx];
     return 0;
 }
+
+
+bool HorizonSectionTile::getResolutionCoordinates(TypeSet<Coord3>& coords) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::Vec3Array* osgarr=tileresolutiondata_[res]->getOsgCoordinates();
+    if ( !osgarr ) return false;
+
+    coords.setEmpty();
+    for ( int idx = 0; idx<osgarr->size(); idx++ )
+	coords += Conv::to<Coord3>( (*osgarr)[idx] );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionNormals( TypeSet<Coord3>& coords ) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::Vec3Array* arr = tileresolutiondata_[res]->getNormals();
+    if ( !arr ) return false;
+
+    coords.setEmpty();
+    for ( int idx = 0; idx<arr->size(); idx++ )
+	coords += Coord3( (*arr)[idx].x(), (*arr)[idx].y(), (*arr)[idx].z() );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionTextureCoordinates(
+    TypeSet<Coord>& coords ) const
+{
+    if ( txunits_.size()==0 ) return false;
+
+    coords.setEmpty();
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    tileresolutiondata_[res]->getTextureCoordinates( txunits_[0],coords );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getResolutionPrimitiveSet(
+    TypeSet<int>& ps,GeometryType type	) const
+{
+    char res = getActualResolution();
+    if ( res==-1 ) res = 0;
+
+    const osg::PrimitiveSet* osgps =
+	tileresolutiondata_[res]->getPrimitiveSet( type );
+
+    if ( !osgps ) return false;
+
+    for ( int idx = 0; idx<osgps->getNumIndices(); idx++ )
+	ps += osgps->index( idx );
+
+    return true;
+}
+
+
+bool HorizonSectionTile::getTextureExtent( osg::Vec2f& txorigin, 
+    osg::Vec2f& txoppsite ) const
+{
+    if ( !txorigin_.hasParam(this) || !txoppsite_.hasParam(this) )
+	return false;
+
+    txorigin = txorigin_.getParam( this );
+    txoppsite = txoppsite_.getParam( this );
+    
+    return true;
+}
+

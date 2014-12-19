@@ -238,6 +238,13 @@ protected:
 
 public:
     void updateMouseCursorPublicCB(CallBacker* cb) { updateMouseCursorCB(cb); }
+
+    const visBase::TextureRectangle* getTextureRectangle() const;
+    float			     getZScale() const;
+
+    const mVisTrans*		     getDisplayTransformWorkaround() const;
+				     //!<Workaround to keep ABI compatibility.
+				     //!<Don't use
 };
 
 } // namespace visSurvey

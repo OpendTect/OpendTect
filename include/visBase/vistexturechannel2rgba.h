@@ -68,6 +68,13 @@ protected:
 
     TextureChannels*		channels_;
     osgGeo::LayeredTexture*     laytex_;
+
+public:
+    const osg::Image*		createRGBA() const;
+    int				getTexturePixelSizeInBits() const;
+    const unsigned char*	getTextureData() const;
+    int				getTextureWidth() const;
+    int				getTextureHeight() const;
 };
 
 

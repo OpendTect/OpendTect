@@ -100,6 +100,12 @@ private:
     static const char*		sKeyNearDistance();
     static const char*		sKeyFarDistance();
     static const char*		sKeyFocalDistance();
+
+public:
+    Coord3			getTranslation() const;
+    Coord3			getScale() const;
+    void			getRotation(Coord3& vec,double& angle)const;
+    void			getLookAtMatrix(Coord3&,Coord3&,Coord3&)const;
 };
 
 

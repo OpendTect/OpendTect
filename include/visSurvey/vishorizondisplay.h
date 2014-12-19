@@ -288,6 +288,10 @@ protected:
     static const char*			sKeySurfaceGrid();
     static const char*			sKeySectionID();
     static const char*			sKeyZValues();
+
+public:
+    const BufferString			getSectionName(int secidx);
+
 };
 
 

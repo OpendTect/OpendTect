@@ -28,6 +28,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "scaler.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+#include "hiddenparam.h"
 
 #include <osg/Switch>
 #include <osg/Node>
@@ -41,6 +42,8 @@ mCreateFactoryEntry( visBase::Well );
 
 namespace visBase
 {
+HiddenParam< Well,TypeSet<char>* > displaylog_( 0 );
+HiddenParam< Well, TypeSet<BufferString>* >  lognames_( 0 );
 
 const char* Well::linestylestr()	{ return "Line style"; }
 const char* Well::showwelltopnmstr()	{ return "Show top name"; }
@@ -97,8 +100,16 @@ Well::Well()
     rightlogdisplay_->ref();
     addChild( rightlogdisplay_ );
 
+    lognames_.setParam( this, new TypeSet<BufferString> );
+    displaylog_.setParam( this, new TypeSet<char> );
+
     for ( int idx=0; idx<2; idx++ )
+    {
 	displaytube_[idx]= false;
+	*displaylog_.getParam(this) += false;
+	*lognames_.getParam(this) += BufferString();
+    }
+
 }
 
 
@@ -114,6 +125,11 @@ Well::~Well()
     removeLogs();
     leftlogdisplay_->unref();
     rightlogdisplay_->unref();
+
+    delete displaylog_.getParam( this );
+    delete lognames_.getParam( this );
+    displaylog_.removeParam( this );
+    lognames_.removeParam( this );
 }
 
 
@@ -569,6 +585,13 @@ void Well::setLogData(const TypeSet<Coord3Value>& crdvals,
 
     showLog( showlogs_, lp.side_ );
 
+    if ( (int)lp.side_<displaylog_.getParam(this)->size() && 
+	(int)lp.side_<lognames_.getParam(this)->size() )
+    {
+	(*displaylog_.getParam(this))[(int)lp.side_] = true;
+	(*lognames_.getParam(this))[(int)lp.side_]= lp.name_;
+    }
+
 }
 
 
@@ -643,6 +666,10 @@ void Well::clearLog( Side side )
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
     logdisplay->clearLog();
+    
+    if ( (int)side<displaylog_.getParam(this)->size() )
+	(*displaylog_.getParam(this))[(int)side] = false;
+
 }
 
 
@@ -650,6 +677,9 @@ void Well::removeLogs()
 {
     leftlogdisplay_->clearLog();
     rightlogdisplay_->clearLog();
+    
+    for ( int idx=0; idx<2; idx++ )
+	(*displaylog_.getParam(this))[idx] = false;
 }
 
 
@@ -658,6 +688,22 @@ void Well::setRepeat( int rpt, Side side )
     osgGeo::WellLog* logdisplay =
 	(side==Left) ? leftlogdisplay_ : rightlogdisplay_;
     logdisplay->setRepeatNumber( rpt );
+}
+
+
+unsigned int Well::getRepeat( Side side ) const
+{
+    osgGeo::WellLog* logdisplay =
+	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+    return logdisplay->getRepeatNumber();
+}
+
+
+float Well::getRepeatStep( Side side ) const
+{
+    osgGeo::WellLog* logdisplay =
+	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+     return logdisplay->getRepeatStep();
 }
 
 
@@ -909,6 +955,124 @@ bool Well::usePar( const IOPar& par )
     setMarkerScreenSize( markersize_ );
 
     return 1;
+}
+
+
+void Well::getLogStyle( Side side, int& style ) const
+{
+     osgGeo::WellLog* logdisplay =
+	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+
+    if ( logdisplay->getSeisLogStyle() )
+    {
+	style = (int)Seismic;
+	return;
+    }
+
+    if ( displaytube_[(int)side] )
+	style = (int)Logtube;
+    else
+	style = (int)Welllog;
+}
+
+
+
+bool Well::hasLog( Side side ) const
+{
+    if ( (int)side<displaylog_.getParam(this)->size() )
+	return (*displaylog_.getParam(this))[(int)side];
+
+    return false;
+}
+
+
+BufferString Well::getLogName( Side side ) const
+{
+    if ( (int)side<displaylog_.getParam(this)->size() && 
+	(int)side<lognames_.getParam(this)->size() )
+    {
+	if ( (*displaylog_.getParam(this))[(int)side] )
+	    return (*lognames_.getParam(this))[(int)side];
+    }
+
+    return BufferString();
+}
+
+
+bool Well::getLogOsgData( LogStyle style, Side side, TypeSet<Coord3>& coords,
+	TypeSet<Color>& colors, TypeSet<TypeSet<int> >& pss,
+	TypeSet<Coord3>& normals, bool path ) const
+{
+
+     if ( style==Logtube && !displaytube_[(int)side] )
+	return false;
+
+    if ( style==Welllog && displaytube_[(int)side] )
+	return false;
+
+    osgGeo::WellLog* logdisplay =
+	( side==Left ) ? leftlogdisplay_ : rightlogdisplay_;
+
+    if ( !logdisplay ) return false;
+
+    osg::ref_ptr<osg::Geometry> geom = 0;
+
+    if ( style == Welllog || style== Seismic)
+    {
+	geom = path ?
+	logdisplay->getLogPathGeometry() : logdisplay->getLogGeometry();
+    }
+    else
+    {
+	geom = logdisplay->getTubeGeometry();
+    }
+
+    if ( !geom )
+	return false;
+
+    if ( geom->getNumPrimitiveSets() == 0
+	|| geom->getVertexArray()->getNumElements() == 0 )
+	return false;
+
+    coords.erase();
+    normals.erase();
+    colors.erase();
+    for ( int idx=0; idx<pss.size(); idx++ )
+	pss[idx].erase();
+    pss.erase();
+
+    for ( int idx=0; idx<geom->getNumPrimitiveSets(); idx++ )
+    {
+	const osg::PrimitiveSet* osgps = geom->getPrimitiveSet( idx );
+	if ( !osgps || osgps->getNumIndices()== 0 )
+	continue;
+
+	TypeSet<int> ps;
+	for ( int idy = 0; idy<osgps->getNumIndices(); idy++ )
+	    ps += osgps->index( idy );
+
+	pss += ps;	
+    }
+
+    const osg::Vec3Array* vertices =
+	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getVertexArray()) );
+    const osg::Vec3Array* osgnormals =
+	mGetOsgVec3Arr( dynamic_cast<osg::Array*>(geom->getNormalArray()) );
+
+    const osg::Vec4Array* clrarr =
+	mGetOsgVec4Arr( dynamic_cast<osg::Array*>(geom->getColorArray()) );
+
+    for ( int idx=0; idx<vertices->size(); idx++ )
+	coords += Conv::to<Coord3>( (*vertices)[idx] );
+
+    for ( int idx=0; idx<osgnormals->size(); idx++ )
+	normals += Conv::to<Coord3>( (*osgnormals)[idx] );
+
+    for ( int idx=0; idx<clrarr->size(); idx++ )
+	colors += Conv::to<Color>( (*clrarr)[idx] );
+
+    return true;
+
 }
 
 }; // namespace visBase

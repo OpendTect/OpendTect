@@ -92,6 +92,10 @@ protected:
 
     Coord3			spanvec0_;
     Coord3			spanvec1_;
+
+public:
+    void			getTextureCoordinates(TypeSet<Coord3>&) const;
+
 };
 
 };

@@ -26,6 +26,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "mpeengine.h"
 #include "posvecdataset.h"
 #include "callback.h"
+#include "hiddenparam.h"
 
 #include "visevent.h"
 #include "vishingeline.h"
@@ -48,6 +49,8 @@ static const char* rcsID mUsedVar = "$Id$";
 
 namespace visSurvey
 {
+
+HiddenParam< HorizonDisplay,TypeSet<BufferString>* >  secnames_( 0 );
 
 const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
 const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
@@ -108,6 +111,8 @@ HorizonDisplay::HorizonDisplay()
     int res = (int)resolution_;
     Settings::common().get( "dTect.Horizon.Resolution", res );
     resolution_ = (char)res;
+
+    secnames_.setParam( this, new TypeSet<BufferString> );
 }
 
 
@@ -149,6 +154,9 @@ HorizonDisplay::~HorizonDisplay()
 
     deepErase( dispdatapackids_ );
     deepErase( shifts_ );
+
+    delete secnames_.getParam( this );
+    secnames_.removeParam( this );
 }
 
 
@@ -991,6 +999,7 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
     removeChild( sections_[idx]->osgNode() );
     sections_.removeSingle( idx )->unRef();
+    (*secnames_.getParam(this)).removeSingle( idx );
     sids_.removeSingle( idx );
 }
 
@@ -1053,6 +1062,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid, TaskRunner* tr )
 
     sections_ += surf;
     sids_ += sid;
+    *secnames_.getParam(this) += emobject_->name();
     hasmoved.trigger();
 
     displaysSurfaceGrid( displaysurfacegrid_ );
@@ -1218,6 +1228,7 @@ void HorizonDisplay::displaysSurfaceGrid( bool yn )
     displaysurfacegrid_ = yn;
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->enableGeometryTypeDisplay( WireFrame, yn );
+    requestSingleRedraw();
 }
 
 const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
@@ -2275,6 +2286,15 @@ void HorizonDisplay::setPixelDensity( float dpi )
 
     for ( int idx=0; idx<intersectionpointsets_.size(); idx++ )
 	intersectionpointsets_[idx]->setPixelDensity( dpi );
+}
+
+
+const BufferString HorizonDisplay::getSectionName( int secidx )
+{
+    if ( secidx >=secnames_.getParam(this)->size() )
+	return BufferString();
+
+    return (*secnames_.getParam(this))[secidx];
 }
 
 

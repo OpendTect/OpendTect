@@ -1335,4 +1335,24 @@ void PlaneDataDisplay::setUpdateStageTextureTransform()
     texturerect_->setTextureShift( -startdif - growth*0.5 );
 }
 
+
+const visBase::TextureRectangle* PlaneDataDisplay::getTextureRectangle() const
+{
+    return texturerect_;
+}
+
+
+float PlaneDataDisplay::getZScale() const
+{
+     return scene_ ? scene_->getZScale() : s3dgeom_->zScale();
+}
+
+
+const mVisTrans* PlaneDataDisplay::getDisplayTransformWorkaround() const
+{
+    return displaytrans_;
+}
+
+
 } // namespace visSurvey
+

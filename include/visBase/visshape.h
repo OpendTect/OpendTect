@@ -179,6 +179,8 @@ protected:
 						and osg color array*/
     ObjectSet<Geometry::PrimitiveSet>		primitivesets_;
 
+public:
+    const Coordinates*	 getCoordinates() const; 
 };
 
 #undef mDeclSetGetItem

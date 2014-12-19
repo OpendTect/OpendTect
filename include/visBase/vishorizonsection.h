@@ -206,6 +206,17 @@ protected:
     TypeSet<int>		  updatedtileresolutions_;
     bool			  wireframedisplayed_;
 
+public:
+    int				getNrTitles() const;
+    bool			getTitleCoordinates(int,TypeSet<Coord3>&) const;
+    const unsigned char*	getTextureData(int titleidx,int& w,int& h)const;
+    bool			getTitleNormals(int titleidx,
+						TypeSet<Coord3>&) const;
+    bool			getTitleTextureCoordinates(int titleidx,
+						TypeSet<Coord>&) const;
+    bool			getTitlePrimitiveSet(int titleidx,
+					      TypeSet<int>&,GeometryType) const;
+    int				getTexturePixelSizeInBits() const;
 };
 
 };

@@ -144,6 +144,12 @@ private:
 						   const osg::Array* arr,
 						   osg::StateSet*stateset,
 						   int geometrytype);
+public:
+    bool			getTextureCoordinates(unsigned int unit,
+						      TypeSet<Coord>&) const;
+    const osg::PrimitiveSet*	getPrimitiveSet(GeometryType) const;
+    const osg::Vec3Array*	getOsgCoordinates()const;
+    const osg::Vec3Array*	getNormals() const;
 };
 
 }
