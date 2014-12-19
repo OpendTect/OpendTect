@@ -71,7 +71,6 @@ list ( APPEND OD_MODULE_SOURCES array2dbitmap.cc
 	    posvecdataset.cc
 	    property.cc
 	    propertyref.cc
-	    price.cc
 	    rangeposprovider.cc
 	    raytracerrunner.cc
 	    rockphysics.cc

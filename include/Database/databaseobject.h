@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include "convert.h"
 
 class DateInfo;
-class Price;
 
 namespace SqlDB
 {
@@ -151,20 +150,6 @@ public:
 
 
 /*!
-\brief A DatabaseColumn of Price objects.
-*/
-
-mExpClass(Database) PriceDatabaseColumn : public DatabaseColumnBase
-{
-public:
-		PriceDatabaseColumn( DatabaseTable& dobj,
-				    const char* columnname );
-    bool	parse( const Query&, int column, Price& ) const;
-    const char*	dataString(const Price&) const;
-};
-
-
-/*!
 \brief A Database where each row has a unique id. A row is never deleted, by a
 new row is added where entryidcol is set to the id of the row it is replacing,
 and a timestamp will tell which row that is the current.
@@ -253,4 +238,3 @@ const char* DatabaseColumn<T>::dataString( const T& val ) const
 
 
 #endif
-

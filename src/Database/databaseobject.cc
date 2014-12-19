@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "dateinfo.h"
 #include "separstr.h"
 #include "perthreadrepos.h"
-#include "price.h"
 #include "sqlquery.h"
 
 #define mCrBackQuoteString(nm,str) BufferString nm( str ); nm.quote( '`' );
@@ -129,45 +128,6 @@ const char* DateDatabaseColumn::dataString(const DateInfo& di) const
 
     mDeclStaticString( ret );
     ret = datestr.buf();
-    return ret.buf();
-}
-
-
-PriceDatabaseColumn::PriceDatabaseColumn( DatabaseTable& dobj,
-					const char* columnname )
-    : DatabaseColumnBase( dobj, columnname, "VARCHAR(50)" )
-{}
-
-
-bool PriceDatabaseColumn::parse( const Query& query, int column,
-				Price& price ) const
-{
-    SeparString pricestr( query.data( column ), ' ' );
-    if ( pricestr.size()!=2 )
-	return false;
-
-    const Currency* currency = Currency::getCurrency( pricestr[0] );
-    if ( !currency )
-	return false;
-
-    int amount;
-    if ( !getFromString( amount, pricestr[1], mUdf(int) ) )
-	return false;
-
-    price.currency_ = currency;
-    price.amount_ = amount;
-
-    return true;
-}
-
-const char* PriceDatabaseColumn::dataString( const Price& price ) const
-{
-
-    SeparString pricestr( price.currency_->abrevation_, ' ' );
-    pricestr.add( toString( price.amount_ ) );
-
-    mDeclStaticString( ret );
-    ret = pricestr.buf();
     return ret.buf();
 }
 

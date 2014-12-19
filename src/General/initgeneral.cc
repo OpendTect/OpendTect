@@ -11,7 +11,6 @@ static const char* rcsID mUsedVar = "$Id$";
 
 #include "moddepmgr.h"
 #include "rangeposprovider.h"
-#include "price.h"
 #include "mathproperty.h"
 #include "ioman.h"
 #include "elasticpropseltransl.h"
@@ -56,9 +55,6 @@ mDefModInitFn(General)
     Survey::dgb2DSurvGeomTranslator::initClass();
 
     IOM(); //Trigger createion & reading of geometries
-
-    Currency::repository_ += new Currency( "EUR", 100 );
-    Currency::repository_ += new Currency( "USD", 100 );
 
     Batch::SingleJobDispatcher::initClass();
 }
