@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uibasemapmod.h"
 #include "factory.h"
 #include "helpview.h"
+#include "multiid.h"
 #include "uigroup.h"
 #include "uitreeitemmanager.h"
 
