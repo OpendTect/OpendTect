@@ -152,10 +152,10 @@ bool uiMultiFlatViewControl::setActiveVwr( int vwridx )
 }
 
 
-void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> centre,
+void uiMultiFlatViewControl::setNewView(Geom::Point2D<double> mousepos,
 					Geom::Size2D<double> sz)
 {
-    const uiWorldRect wr = getZoomOrPanRect( centre, sz, activevwr_->curView(),
+    const uiWorldRect wr = getZoomOrPanRect( mousepos, sz, activevwr_->curView(),
 	    				     activevwr_->boundingBox() );
     activevwr_->setView( wr );
     addSizesToZoomMgr();
