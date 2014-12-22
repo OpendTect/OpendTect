@@ -59,7 +59,12 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& hndle,uiParent* parnt,
 
 
 void uiLineEditBody::contextMenuEvent( QContextMenuEvent* ev )
-{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
+{
+    if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
+	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+    else
+	QLineEdit::contextMenuEvent( ev );
+}
 
 
 //------------------------------------------------------------------------------

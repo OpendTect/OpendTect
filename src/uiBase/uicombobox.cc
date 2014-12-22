@@ -29,28 +29,26 @@ mUseQtnamespace
 
 class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
 {
-
 public:
+uiComboBoxBody( uiComboBox& hndle, uiParent* p, const char* nm )
+    : uiObjBodyImpl<uiComboBox,QComboBox>(hndle,p,nm)
+    , messenger_( *new i_comboMessenger( this, &hndle))
+{
+    setEditable( false );
+    setAutoCompletion( false );
+    setStretch( 1, 0 );
+    setHSzPol( uiObject::Medium) ;
+}
 
-			uiComboBoxBody( uiComboBox& hndle, uiParent* p,
-					const char* nm )
-		     : uiObjBodyImpl<uiComboBox,QComboBox>(hndle,p,nm)
-		     , messenger_( *new i_comboMessenger( this, &hndle))
-		     {
-			    setEditable( false );
-			    setAutoCompletion( false );
-			    setStretch( 1, 0 );
-			    setHSzPol( uiObject::Medium) ;
-		      }
+virtual	~uiComboBoxBody()
+{ delete &messenger_; }
 
-    virtual		~uiComboBoxBody()
-			    { delete &messenger_; }
-
-    virtual int	nrTxtLines() const		{ return 1; }
+virtual int nrTxtLines() const
+{ return 1; }
 
 protected:
 
-    virtual void	contextMenuEvent(QContextMenuEvent*);
+virtual void contextMenuEvent(QContextMenuEvent*);
 
 private:
 
@@ -60,7 +58,12 @@ private:
 
 
 void uiComboBoxBody::contextMenuEvent( QContextMenuEvent* ev )
-{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
+{
+    if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
+	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+    else
+	QComboBox::contextMenuEvent( ev );
+}
 
 
 //------------------------------------------------------------------------------

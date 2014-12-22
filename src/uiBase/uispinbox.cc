@@ -152,7 +152,13 @@ bool uiSpinBoxBody::isModified() const
 
 
 void uiSpinBoxBody::contextMenuEvent( QContextMenuEvent* ev )
-{ handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() ); }
+{
+    if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
+	handle().popupVirtualKeyboard( ev->globalX(), ev->globalY() );
+    else
+	QDoubleSpinBox::contextMenuEvent( ev );
+}
+
 
 void uiSpinBoxBody::focusOutEvent( QFocusEvent* ev )
 {

@@ -31,6 +31,9 @@ public:
 
     static bool			isVirtualKeyboardActive();
 
+    static const char*		sKeyEnabVirtualKeyboard();
+    static bool			isVirtualKeyboardEnabled();
+
 protected:
 
     void			clickCB(CallBacker*);

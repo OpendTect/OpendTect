@@ -1051,14 +1051,17 @@ void uiTable::popupMenu( CallBacker* )
     const int xcursorpos = QCursor::pos().x();
     const int ycursorpos = QCursor::pos().y();
 
-    if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
-	return;
-
-    if ( (!setup_.rowgrow_ && !setup_.colgrow_ && !setup_.enablecopytext_) ||
-	 setup_.rightclickdisabled_ )
+    if ( uiVirtualKeyboard::isVirtualKeyboardEnabled() )
     {
-	popupVirtualKeyboard( xcursorpos, ycursorpos );
-	return;
+	if ( uiVirtualKeyboard::isVirtualKeyboardActive() )
+	    return;
+
+	if ( (!setup_.rowgrow_ && !setup_.colgrow_ && !setup_.enablecopytext_)
+	     || setup_.rightclickdisabled_ )
+	{
+	    popupVirtualKeyboard( xcursorpos, ycursorpos );
+	    return;
+	}
     }
 
     uiMenu* mnu = new uiMenu( parent(), uiStrings::sAction() );
