@@ -856,50 +856,6 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     isosurfaces_[idx]->touch( false, tr );
 }
 
-void VolumeDisplay::manipMotionFinishCB( CallBacker* )
-{
-/* Looks like this will be obsolete (JCG)
-
-    if ( scene_ && scene_->getZAxisTransform() )
-	return;
-
-    TrcKeyZSampling cs = getTrcKeyZSampling( true, true, 0 );
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zsamp_.start ); cs.zsamp_.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zsamp_.stop ); cs.zsamp_.stop = z1;
-
-    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
-    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
-    Interval<float> zrg( cs.zsamp_.start, cs.zsamp_.stop );
-    SI().checkInlRange( inlrg, true );
-    SI().checkCrlRange( crlrg, true );
-    SI().checkZRange( zrg, true );
-    if ( inlrg.start == inlrg.stop ||
-	 crlrg.start == crlrg.stop ||
-	 mIsEqual(zrg.start,zrg.stop,1e-8) )
-    {
-	resetManipulation();
-	return;
-    }
-    else
-    {
-	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
-	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
-	cs.zsamp_.start = zrg.start; cs.zsamp_.stop = zrg.stop;
-    }
-
-    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
-			   cs.hrg.stop.crl - cs.hrg.start.crl,
-			   cs.zsamp_.stop - cs.zsamp_.start );
-    boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
-			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
-			    0.5*(cs.zsamp_.stop + cs.zsamp_.start) );
-    boxdragger_->setCenter( newcenter );
-    */
-}
-
 
 BufferString VolumeDisplay::getManipulationString() const
 {
@@ -1209,6 +1165,12 @@ TrcKeyZSampling VolumeDisplay::getTrcKeyZSampling( bool manippos,
 
 	res.zsamp_.start = (float) ( center.z - width.z/2 );
 	res.zsamp_.stop = (float) ( center.z + width.z/2 );
+	res.zsamp_.step = SI().zStep();
+
+	SI().snap( res.hrg.start );
+	SI().snap( res.hrg.stop );
+	SI().snapZ( res.zsamp_.start );
+	SI().snapZ( res.zsamp_.stop );
     }
 
     const bool alreadytf = alreadyTransformed( attrib );

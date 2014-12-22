@@ -260,7 +260,6 @@ protected:
     TrcKeyZSampling		draggerstartcs_;
     TrcKeyZSampling		texturecs_;
 
-    void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
     void			setData(const Attrib::DataCubes*,
 	    				int datatype=0);
