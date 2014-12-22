@@ -46,9 +46,12 @@ public:
     				/*!<Returns a number of coordinates that
 				    may form a be connected or filled. */
 
+    virtual void		setMarkerStyle(const MarkerStyle2D&)	     {}
     virtual void		setMarkerStyle(int idx,const MarkerStyle2D&) {}
     virtual const MarkerStyle2D* getMarkerStyle(int shapeidx) const { return 0;}
-    virtual void		setLineStyle(int idx,const LineStyle&)	     {}
+
+    virtual void		setLineStyle(const LineStyle&)		    {}
+    virtual void		setLineStyle(int idx,const LineStyle&)	    {}
     virtual const LineStyle*	getLineStyle(int shapeidx) const { return 0; }
     virtual bool		fill(int shapeidx) const	{ return false;}
     virtual bool		close(int shapeidx) const	{ return false;}

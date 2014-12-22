@@ -801,6 +801,9 @@ void ODPolygon<T>::keepBendPoints( float eps )
         else
 	    remove( vtxidx );
     }
+
+    if ( closed_ && poly_.first() != poly_.last() )
+	poly_ += poly_.first();
 }
 
 #endif

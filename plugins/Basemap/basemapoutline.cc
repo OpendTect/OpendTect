@@ -23,7 +23,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "seisselectionimpl.h"
 #include "survinfo.h"
 
-
 namespace Basemap
 {
 
@@ -53,8 +52,18 @@ void OutlineObject::setMultiID( const MultiID& mid )
 
     setName( ioobj->name() );
     extractPolygons();
+}
 
-    updateGeometry();
+
+void OutlineObject::setLineStyle( const LineStyle& ls )
+{
+    ls_ = ls;
+}
+
+
+void OutlineObject::setLineStyle( int shapeidx, const LineStyle& ls )
+{
+    setLineStyle( ls );
 }
 
 
@@ -87,16 +96,13 @@ bool OutlineObject::extractPolygons()
 	const Coord& startpt = SI().transform(tkzs.hrg.start_);
 	const Coord& stoppt = SI().transform(tkzs.hrg.stop_);
 
-	typedef Geom::Point2D<float> Point;
+#define mPoint(x,y) \
+    Geom::Point2D<float>( mCast(float,x), mCast(float,y) )
 
-	polygon->insert( 0, Point(mCast(float,startpt.x),
-				  mCast(float,startpt.y)) );
-	polygon->insert( 1, Point(mCast(float,stoppt.x),
-				  mCast(float,startpt.y)) );
-	polygon->insert( 2, Point(mCast(float,stoppt.x),
-				  mCast(float,stoppt.y)) );
-	polygon->insert( 3, Point(mCast(float,startpt.x),
-				  mCast(float,stoppt.y)) );
+	polygon->insert( 0, mPoint(startpt.x,startpt.y) );
+	polygon->insert( 1, mPoint(stoppt.x,startpt.y) );
+	polygon->insert( 2, mPoint(stoppt.x,stoppt.y) );
+	polygon->insert( 3, mPoint(startpt.x,stoppt.y) );
 
 	polygons_.insertAt( polygon, 0 );
 	return true;
@@ -135,7 +141,7 @@ bool OutlineObject::extractPolygons()
     }
 
     IsoContourTracer outline( area );
-    outline.setBendPointsOnly( 0.5 );
+    outline.setBendPointsOnly( 0.1 );
     return outline.getContours( polygons_, 0.9f );
 }
 

@@ -37,8 +37,9 @@ public:
     int			nrShapes() const;
     const char*		getShapeName(int shapeidx) const;
     void		getPoints(int shapeidx,TypeSet<Coord>&) const;
-    const LineStyle*	getLineStyle(int shapeidx) const
-			{ return &ls_;}
+    const LineStyle*	getLineStyle(int shapeidx) const { return &ls_;}
+    virtual void	setLineStyle(const LineStyle&);
+    virtual void	setLineStyle(int shapeidx,const LineStyle&);
 
 protected:
     LineStyle&		ls_;

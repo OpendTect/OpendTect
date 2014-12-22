@@ -16,12 +16,22 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "basemapoutline.h"
 
 #include "uimenu.h"
+#include "uisellinest.h"
 #include "uistrings.h"
+#include "draw.h"
 #include "seistrctr.h"
 
+
+static const char* sKeyLS()	{ return "Line Style"; }
+
+// uiBasemapOutlineGroup
 uiBasemapOutlineGroup::uiBasemapOutlineGroup( uiParent* p, bool isadd )
-    : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true), isadd)
+    : uiBasemapIOObjGroup(p,*Seis::getIOObjContext(Seis::Vol,true),isadd)
 {
+    LineStyle lst;
+    lsfld_ = new uiSelLineStyle( this, lst, "Line style" );
+    lsfld_->attach( alignedBelow, uiBasemapIOObjGroup::lastObject() );
+
     addNameField();
 }
 
@@ -38,18 +48,33 @@ bool uiBasemapOutlineGroup::acceptOK()
 }
 
 
-bool uiBasemapOutlineGroup::fillPar(IOPar& par) const
+bool uiBasemapOutlineGroup::fillItemPar( int idx, IOPar& par ) const
 {
-    const bool res = uiBasemapIOObjGroup::fillPar( par );
+    const bool res = uiBasemapIOObjGroup::fillItemPar( idx, par );
+
+    BufferString lsstr;
+    lsfld_->getStyle().toString( lsstr );
+    par.set( sKeyLS(), lsstr );
+
     return res;
 }
 
 
-bool uiBasemapOutlineGroup::usePar(const IOPar& par)
+bool uiBasemapOutlineGroup::usePar( const IOPar& par )
 {
     const bool res = uiBasemapIOObjGroup::usePar( par );
+
+    BufferString lsstr;
+    par.get( sKeyLS(), lsstr );
+    LineStyle ls; ls.fromString( lsstr );
+    lsfld_->setStyle( ls );
+
     return res;
 }
+
+
+uiObject* uiBasemapOutlineGroup::lastObject()
+{ return lsfld_->attachObj(); }
 
 
 
@@ -69,11 +94,10 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 {
     uiBasemapTreeItem::usePar( par );
 
-// probably this will be used to set the outline line
-//    BufferString lsstr;
-//    par.get( sKeyLS(), lsstr );
-//    LineStyle ls;
-//    ls.fromString( lsstr );
+    BufferString lsstr;
+    par.get( sKeyLS(), lsstr );
+    LineStyle ls;
+    ls.fromString( lsstr );
 
     int nrobjs = 0;
     par.get( uiBasemapGroup::sKeyNrObjs(), nrobjs );
@@ -90,12 +114,18 @@ bool uiBasemapOutlineTreeItem::usePar( const IOPar& par )
 	if ( basemapobjs_.validIdx(idx) )
 	{
 	    mDynamicCastGet(Basemap::OutlineObject*,obj,basemapobjs_[idx])
-	    if ( obj ) obj->setMultiID( mid );
+	    if ( obj )
+	    {
+		obj->setMultiID( mid );
+		obj->setLineStyle( ls );
+		obj->updateGeometry();
+	    }
 	}
 	else
 	{
 	    Basemap::OutlineObject* obj =
 		new Basemap::OutlineObject( mid );
+	    obj->setLineStyle( ls );
 	    addBasemapObject( *obj );
 	    obj->updateGeometry();
 	}
