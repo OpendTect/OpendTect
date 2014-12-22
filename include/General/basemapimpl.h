@@ -26,10 +26,10 @@ public:
 
     void			setMarkerStyle(int,const MarkerStyle2D&);
     const MarkerStyle2D*	getMarkerStyle(int) const
-    				{ return &markerstyle_;}
+				{ return &markerstyle_;}
 
     TypeSet<Coord>&		positions() { return positions_; }
-    				/*!<Obtain lock if you are not main thread */
+				/*!<Obtain lock if you are not main thread */
 
     void			updateGeometry();
 
@@ -37,7 +37,6 @@ public:
 
     int				nrShapes() const { return 1; }
     void			getPoints(int shapeidx,TypeSet<Coord>&) const;
-    char			connectPoints(int shapeidx) const{ return false; }
 
 protected:
 
@@ -45,7 +44,6 @@ protected:
     TypeSet<Coord>		positions_;
 
 };
-
 
 #endif
 
