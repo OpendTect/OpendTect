@@ -56,7 +56,7 @@ inline unsigned int cDraggerIntersecTraversalMask()	{ return 0x00000010; }
 
 
 /*!\brief
-DataObject is the base class off all objects that are used in Visualisation and
+DataObject is the base class off all objects that are used in Visualization and
 ought to be shared in visBase::DataManager. The DataManager owns all the
 objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.

@@ -25,6 +25,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "uivirtualkeyboard.h"
 
 
 static const char* sKeyCommon = "<general>";
@@ -300,6 +301,7 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
     , vertcoltab_(true)
     , showinlprogress_(true)
     , showcrlprogress_(true)
+    , enabvirtualkeyboard_(false)
 {
     iconszfld_ = new uiGenInput( this, tr("Icon Size"),
 				 IntInpSpec(iconsz_,10,64) );
@@ -311,15 +313,22 @@ uiGeneralSettingsGroup::uiGeneralSettingsGroup( uiParent* p, Settings& setts )
 
     setts_.getYN( SettingsAccess::sKeyShowInlProgress(), showinlprogress_ );
     showinlprogressfld_ = new uiGenInput( this,
-	    tr("Show progress when loading stored data on in-lines"),
-	    BoolInpSpec(showinlprogress_) );
+		tr("Show progress when loading stored data on in-lines"),
+		BoolInpSpec(showinlprogress_) );
     showinlprogressfld_->attach( alignedBelow, colbarhvfld_ );
 
     setts_.getYN( SettingsAccess::sKeyShowCrlProgress(), showcrlprogress_ );
     showcrlprogressfld_ = new uiGenInput( this,
-	    tr("Show progress when loading stored data on cross-lines"),
-	    BoolInpSpec(showcrlprogress_) );
+		tr("Show progress when loading stored data on cross-lines"),
+		BoolInpSpec(showcrlprogress_) );
     showcrlprogressfld_->attach( alignedBelow, showinlprogressfld_ );
+
+    setts_.getYN( uiVirtualKeyboard::sKeyEnabVirtualKeyboard(),
+		  enabvirtualkeyboard_ );
+    virtualkeyboardfld_ = new uiGenInput( this,
+		tr("Enable Virtual Keyboard"),
+		BoolInpSpec(enabvirtualkeyboard_) );
+    virtualkeyboardfld_->attach( alignedBelow, showcrlprogressfld_ );
 }
 
 
@@ -352,6 +361,8 @@ bool uiGeneralSettingsGroup::acceptOK()
 		    SettingsAccess::sKeyShowInlProgress() );
     updateSettings( showcrlprogress_, showcrlprogressfld_->getBoolValue(),
 		    SettingsAccess::sKeyShowCrlProgress() );
+    updateSettings( enabvirtualkeyboard_, virtualkeyboardfld_->getBoolValue(),
+		    uiVirtualKeyboard::sKeyEnabVirtualKeyboard() );
 
     return true;
 }
@@ -359,7 +370,7 @@ bool uiGeneralSettingsGroup::acceptOK()
 
 // uiVisSettingsGroup
 uiVisSettingsGroup::uiVisSettingsGroup( uiParent* p, Settings& setts )
-    : uiSettingsGroup(p,"Visualisation",setts)
+    : uiSettingsGroup(p,"Visualization",setts)
     , textureresindex_(0)
     , usesurfshaders_(true)
     , usevolshaders_(true)

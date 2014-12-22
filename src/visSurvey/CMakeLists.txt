@@ -1,6 +1,6 @@
 #_______________________Pmake___________________________________________________
 #
-#	Makefile : 	Visualisation - OpendTect Specific
+#	Makefile : 	Visualization - OpendTect Specific
 # 	Jan 2002	K. Tingdahl
 #	RCS :		$Id$
 #_______________________________________________________________________________

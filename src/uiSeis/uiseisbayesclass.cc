@@ -305,7 +305,7 @@ uiSeisBayesNorm( uiParent* p, IOPar& pars )
     if ( prenormfld_ )
     {
 	const bool dopost = !pars_.isFalse( SeisBayesClass::sKeyPostNorm() );
-	postnormfld_ = new uiGenInput( this, tr("Normalise output"),
+	postnormfld_ = new uiGenInput( this, tr("Normalize output"),
 					    BoolInpSpec(dopost) );
 	postnormfld_->attach( alignedBelow, alobj );
     }

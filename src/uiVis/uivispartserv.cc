@@ -184,7 +184,7 @@ uiVisPartServer::~uiVisPartServer()
 }
 
 
-const char* uiVisPartServer::name() const  { return "Visualisation"; }
+const char* uiVisPartServer::name() const  { return "Visualization"; }
 
 
 

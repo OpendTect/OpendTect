@@ -51,7 +51,7 @@ namespace ZDomain   { class Info; }
 
 
 /*!
-\brief The Visualisation Part Server
+\brief The Visualization Part Server
 */
 
 mExpClass(uiVis) uiVisPartServer : public uiApplPartServer

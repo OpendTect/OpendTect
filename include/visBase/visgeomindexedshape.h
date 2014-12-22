@@ -35,7 +35,7 @@ class ForegroundLifter;
 class VertexShape;
 class TextureChannels;
 
-/*!Visualisation for Geometry::IndexedShape. */
+/*!Visualization for Geometry::IndexedShape. */
 
 mExpClass(visBase) GeomIndexedShape : public VisualObjectImpl
 {

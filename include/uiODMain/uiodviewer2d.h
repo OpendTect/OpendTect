@@ -96,7 +96,7 @@ public:
     uiODMain&			appl_;
 
     int				id_; /*!<Unique identifier */
-    int				visid_; /*!<ID from 3D visualisation */
+    int				visid_; /*!<ID from 3D visualization */
     BufferString		basetxt_;
 
     virtual void		usePar(const IOPar&);

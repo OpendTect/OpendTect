@@ -129,11 +129,13 @@ protected:
     uiGenInput*		colbarhvfld_;
     uiGenInput*		showinlprogressfld_;
     uiGenInput*		showcrlprogressfld_;
+    uiGenInput*		virtualkeyboardfld_;
 
     int			iconsz_;
     bool		vertcoltab_;
     bool		showinlprogress_;
     bool		showcrlprogress_;
+    bool		enabvirtualkeyboard_;
 };
 
 
@@ -144,7 +146,7 @@ public:
 				uiSettingsGroup,
 				uiVisSettingsGroup,
 				uiParent*,Settings&,
-				"Visualisation",
+				"Visualization",
 				sFactoryKeyword())
 
 			uiVisSettingsGroup(uiParent*,Settings&);

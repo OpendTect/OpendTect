@@ -82,7 +82,7 @@ mExpClass(uiODMain) uiODApplMgrDispatcher : public CallBacker
 };
 
 
-/*!\brief Does visualisation-related work for uiODApplMgr */
+/*!\brief Does visualization-related work for uiODApplMgr */
 
 mExpClass(uiODMain) uiODApplMgrAttrVisHandler : public CallBacker
 { mODTextTranslationClass(uiODApplMgrAttrVisHandler);
