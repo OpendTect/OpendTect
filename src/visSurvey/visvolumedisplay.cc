@@ -833,49 +833,9 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     isosurfaces_[idx]->touch( false, tr );
 }
 
+
 void VolumeDisplay::manipMotionFinishCB( CallBacker* )
-{
-/* Looks like this will be obsolete (JCG)
-
-    if ( scene_ && scene_->getZAxisTransform() )
-	return;
-
-    CubeSampling cs = getCubeSampling( true, true, 0 );
-    SI().snap( cs.hrg.start, BinID(0,0) );
-    SI().snap( cs.hrg.stop, BinID(0,0) );
-    float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
-    float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
-
-    Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
-    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
-    Interval<float> zrg( cs.zrg.start, cs.zrg.stop );
-    SI().checkInlRange( inlrg, true );
-    SI().checkCrlRange( crlrg, true );
-    SI().checkZRange( zrg, true );
-    if ( inlrg.start == inlrg.stop ||
-	 crlrg.start == crlrg.stop ||
-	 mIsEqual(zrg.start,zrg.stop,1e-8) )
-    {
-	resetManipulation();
-	return;
-    }
-    else
-    {
-	cs.hrg.start.inl = inlrg.start; cs.hrg.stop.inl = inlrg.stop;
-	cs.hrg.start.crl = crlrg.start; cs.hrg.stop.crl = crlrg.stop;
-	cs.zrg.start = zrg.start; cs.zrg.stop = zrg.stop;
-    }
-
-    const Coord3 newwidth( cs.hrg.stop.inl - cs.hrg.start.inl,
-			   cs.hrg.stop.crl - cs.hrg.start.crl,
-			   cs.zrg.stop - cs.zrg.start );
-    boxdragger_->setWidth( newwidth );
-    const Coord3 newcenter( 0.5*(cs.hrg.stop.inl + cs.hrg.start.inl),
-			    0.5*(cs.hrg.stop.crl + cs.hrg.start.crl),
-			    0.5*(cs.zrg.stop + cs.zrg.start) );
-    boxdragger_->setCenter( newcenter );
-    */
-}
+{} //obsolete
 
 
 BufferString VolumeDisplay::getManipulationString() const
@@ -1149,6 +1109,12 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
 
 	res.zrg.start = (float) ( center.z - width.z/2 );
 	res.zrg.stop = (float) ( center.z + width.z/2 );
+	res.zrg.step = SI().zStep();
+
+	SI().snap( res.hrg.start );
+	SI().snap( res.hrg.stop );
+	SI().snapZ( res.zrg.start );
+	SI().snapZ( res.zrg.stop );
     }
     else
     {

@@ -236,7 +236,7 @@ protected:
     CubeSampling		draggerstartcs_;
     CubeSampling		texturecs_;
 
-    void			manipMotionFinishCB(CallBacker*);
+    void			manipMotionFinishCB(CallBacker*); // obsolete
     void			sliceMoving(CallBacker*);
     void			setData(const Attrib::DataCubes*,
 	    				int datatype=0);
