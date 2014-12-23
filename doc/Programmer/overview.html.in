@@ -7,28 +7,28 @@
   - Contents:	Overview of programmer doc
   - RCS:	$Id$
  -->
-		
-	<head>
-		<base href="overview.html" />
-		<title>Overview [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
-    <link rel="stylesheet" href="style.css" type="text/css" />
-  </head>
+
+<head>
+<base href="overview.html" />
+<title>Overview [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
 
 <body id="page_bg" class="width_fmax">
 		
 <div id="all">
-        <div id="wrapper">
-                <div id="wrapper_r">
+<div id="wrapper">
+<div id="wrapper_r">
 <div id="header">
-                                <div id="header_l">
+<div id="header_l">
                                 
-                                        <div id="header_r">
-						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
-						<div id="topmenu">
-						</div>
-			<div id="leftcolumn">	
-						<table id="greenborder"><tbody>
-								<tr><td valign="top">
+<div id="header_r">
+<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+<div id="topmenu">
+</div>
+<div id="leftcolumn">	
+<table id="greenborder"><tbody>
+<tr><td valign="top">
 <center>
 <h1>OpendTect overview</h1>
   <a href=#intro>Intro</a>
@@ -162,18 +162,18 @@ Along the way, you'll have to do some digging in the include directory or the cl
 | <a href="http://opendtect.org">opendtect.org</a>
 </center>
 </p>
-										
+
 </td></tr>
 
-			 </font>
-						 </tbody>
-			 </table>
-				 </div>
-			 <div id="footer">
-			 </div>
-			 </div>
-		 </div>
-	 </div>
- </div>
- </body>
- </html>
+</font>
+</tbody>
+</table>
+</div>
+<div id="footer">
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

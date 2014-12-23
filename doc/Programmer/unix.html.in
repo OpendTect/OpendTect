@@ -7,28 +7,26 @@
   - Contents:   Getting started developping your own plugins.
   - RCS:        $Id$
  -->
-		
-	<head>
-	<title>Getting started with OpendTect development [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
-  <base href="unix.html" />
-    <link rel="stylesheet" href="style.css" type="text/css" />
-  </head>
+
+<head>
+<title>Getting started with OpendTect development [OpendTect Programmer's manual V@OpendTect_VERSION_MAJOR@.@OpendTect_VERSION_MINOR@]</title>
+<base href="unix.html" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
 
 <body id="page_bg" class="width_fmax">
-		
 <div id="all">
-        <div id="wrapper">
-                <div id="wrapper_r">
+<div id="wrapper">
+<div id="wrapper_r">
 <div id="header">
-                                <div id="header_l">
-                                
-                                        <div id="header_r">
-						<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
-						<div id="topmenu">
-						</div>
-			<div id="leftcolumn">	
-						<table id="greenborder"><tbody>
-								<tr><td valign="top">
+<div id="header_l">
+<div id="header_r">
+<a href="http://www.opendtect.org" title="OpendTect - Open Source Seismic Interpretation System" alt="OpendTect - Open Source Seismic Interpretation System" id="dGB46"><div id="topbanner"></a></div>
+<div id="topmenu">
+</div>
+<div id="leftcolumn">	
+<table id="greenborder"><tbody>
+<tr><td valign="top">
 <center>
 <h1>Getting started with OpendTect development</h1>
 
@@ -65,25 +63,19 @@ The following programs should be available:
 <a name="setup"><h2 id="heading2">Setting up the environment</h2></a>
 
 <p id="text">
-<a href="http://cmake.org">CMake</a> is used to build both the entire system aswell as plugins.
+<a href="http://cmake.org">CMake</a> is used to build both the entire system as well as plugins.
 </p>
 
 
 <h3 id="heading3">Setup ODWork dir</h3>
 
 <p id="text">
-First of all, we strongly recommended no to have no spaces in the path to your ODWork directory. A good place for your ODWork directory may be your home directory. 
+First of all, we strongly recommend to have no spaces in the path to your ODWork directory. A good place for your ODWork directory may be your home directory. 
 </p>
 
 <p id="text">
-The only environment variable besides the one you may want to use for your own CMake settings is $WORK. Set it to the root of your development tree (which itself contains the plugin subdirectories).
-</p><p id="text">
 As you will need to consult the OpendTect header files all the time, it may be handy to set links to the include directory in the installation, as in:</p>
-<pre id="code"><code>ln -s /apps/OpendTect/4.4.0/include .</code></pre>
-<p id="text">Another thing may be handy. If you have your own Qt or OpenSceneGraph installation, then try linking the Qt and OpenSceneGraph installations immediately in $WORK. CMake will automatically configure from this. Example:</p>
-<pre id="code"><code>ln -s /apps/qt/inst_458 $WORK/qt
-ln -s /apps/OpenSceneGraph/inst_rel $WORK/osg
-</code></pre>
+<pre id="code"><code>ln -s /apps/OpendTect/5.0.0/include .</code></pre>
 
 
 <a name="buildod"><h3 id="heading3">Building your own plugins</h3></a>
@@ -142,12 +134,9 @@ If you're really into it, you can build the entire OpendTect from source after y
 </code></pre>
 
 <h3 id="heading3">OpenSceneGraph</h3>
-<p id="text">You need to install a version of the <a href="http://OpenSceneGraph.org">OpenSceneGraph</a> system. Once this is done, link your Qt and OpenSceneGraph installation directories to $WORK, as in:</p>
-<pre id="code"><code>
-cd $WORK
-ln -s /apps/qt/inst_dir ./qt
-ln -s /usr/local ./osg
-</code></pre>
+<p id="text">You need to install a version of the <a href="http://OpenSceneGraph.org">OpenSceneGraph</a> system.</p>
+
+<h3 id="heading3">OpendTect</h3>
 <p id="text">Now, you can configure cmake. As always, do a 'cmake .', this time in $WORK itself. If configuring succeeds, 'make' should do the trick.
 </p>
 
