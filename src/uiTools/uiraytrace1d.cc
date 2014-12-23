@@ -14,6 +14,7 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uigeninput.h"
 #include "uiseparator.h"
 
+static const StepInterval<float> sDefaultOffsetRange( 0.f, 6000.f, 100.f );
 
 mImplFactory2Param( uiRayTracer1D, uiParent*, const uiRayTracer1D::Setup&,
 			uiRayTracer1D::factory );
@@ -46,7 +47,7 @@ uiRayTracerSel::uiRayTracerSel( uiParent* p, const uiRayTracer1D::Setup& s )
 	{
 	    grps_ += grp;
 	    if ( grp->doOffsets() )
-		grp->offsetChanged().notify(
+		grp->offsetChanged.notify(
 			mCB(this,uiRayTracerSel,offsChangedCB) );
 	    if ( raytracerselfld_ )
 	    {
@@ -151,22 +152,35 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
     , upwavefld_( 0 )
     , offsetfld_( 0 )
     , offsetstepfld_( 0 )
+    , iszerooffsetfld_( 0 )
     , lastfld_( 0 )
+    , offsetChanged( this )
 {
-    BufferString xylbl( SI().getXYUnitString(true) );
-
     if ( s.dooffsets_ )
     {
-	BufferString olb = "offset range "; olb += xylbl; olb +="(start/stop)";
+	uiString olb = tr( "offset range %1(start/stop)" )
+			.arg( SI().getXYUnitString(true) );;
 	offsetfld_ = new uiGenInput( this, olb, IntInpIntervalSpec() );
 	offsetfld_->setValue(
 			Interval<float>(s.offsetrg_.start,s.offsetrg_.stop));
 	offsetfld_->setElemSzPol( uiObject::Small );
+	offsetfld_->valuechanged.notify(
+		mCB(this,uiRayTracer1D,offsetChangedCB) );
 
 	offsetstepfld_ = new uiGenInput( this, tr("step") );
 	offsetstepfld_->attach( rightOf, offsetfld_ );
 	offsetstepfld_->setElemSzPol( uiObject::Small );
 	offsetstepfld_->setValue( s.offsetrg_.step );
+	if ( s.showzerooffsetfld_ )
+	{
+	    iszerooffsetfld_ =
+		new uiCheckBox( this, tr("Zero Offset"),
+				mCB(this,uiRayTracer1D,zeroOffsetChecked) );
+	    iszerooffsetfld_->attach( rightTo, offsetstepfld_ );
+	}
+
+
+
 	lastfld_ = offsetfld_;
     }
 
@@ -189,8 +203,34 @@ uiRayTracer1D::uiRayTracer1D( uiParent* p, const Setup& s )
 }
 
 
-Notifier<uiGenInput>& uiRayTracer1D::offsetChanged()
-{ return offsetfld_->valuechanged; }
+void uiRayTracer1D::offsetChangedCB( CallBacker* )
+{
+    offsetChanged.trigger();
+}
+
+
+bool uiRayTracer1D::isZeroOffset() const
+{
+    if ( iszerooffsetfld_ )
+	return iszerooffsetfld_->isChecked();
+    return !isOffsetFldsDisplayed();
+}
+
+
+void uiRayTracer1D::zeroOffsetChecked( CallBacker* )
+{
+    displayOffsetFlds( !iszerooffsetfld_->isChecked() );
+}
+
+#define mIsZeroOffset( offsets ) \
+    (offsets.isEmpty() || (offsets.size()==1 && mIsZero(offsets[0],mDefEps)))
+bool isZeroOffset( TypeSet<float> offsets )
+{
+    if ( offsets.isEmpty() )
+	return true;
+    const bool iszero = mIsZero(offsets[0],mDefEps);
+    return offsets.size()==1 && iszero;
+}
 
 
 bool uiRayTracer1D::usePar( const IOPar& par )
@@ -205,7 +245,9 @@ bool uiRayTracer1D::usePar( const IOPar& par )
     }
 
     TypeSet<float> offsets; par.get( RayTracer1D::sKeyOffset(), offsets );
-    if ( offsets.size()>1 )
+    const bool isps = !mIsZeroOffset(offsets);
+    displayOffsetFlds( isps );
+    if ( isps )
     {
 	const float convfactor = SI().xyInFeet() ? mToFeetFactorF : 1;
 	Interval<float> offsetrg( offsets[0], offsets[offsets.size()-1] );
@@ -215,10 +257,14 @@ bool uiRayTracer1D::usePar( const IOPar& par )
 	if ( offsetfld_ && offsetstepfld_  )
 	{
 	    offsetfld_->setValue( offsetrg );
-	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0] : 0;
+	    const float step = offsets.size() > 1 ? offsets[1]-offsets[0]
+						  : sDefaultOffsetRange.step;
 	    offsetstepfld_->setValue( step * convfactor );
 	}
     }
+
+    if ( iszerooffsetfld_ )
+	iszerooffsetfld_->setChecked( !isps );
 
     return true;
 }
@@ -236,7 +282,7 @@ void uiRayTracer1D::fillPar( IOPar& par ) const
     tmpsetup.fillPar( par );
 
     StepInterval<float> offsetrg;
-    if ( offsetfld_ && offsetstepfld_ && offsetfld_->attachObj()->isDisplayed())
+    if ( !isZeroOffset() )
     {
 	offsetrg.start = mCast( float, offsetfld_->getIInterval().start );
 	offsetrg.stop = mCast( float, offsetfld_->getIInterval().stop );
@@ -262,10 +308,19 @@ void uiRayTracer1D::setOffsetRange( StepInterval<float> rg )
 
 
 
+bool uiRayTracer1D::isOffsetFldsDisplayed() const
+{
+    return offsetfld_ && offsetstepfld_ &&
+	   offsetfld_->attachObj()->isDisplayed() &&
+	   offsetstepfld_->attachObj()->isDisplayed();
+}
+
+
 void uiRayTracer1D::displayOffsetFlds( bool yn )
 {
     offsetfld_->display( yn );
     offsetstepfld_->display( yn );
+    offsetChanged.trigger();
 }
 
 

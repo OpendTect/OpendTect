@@ -15,9 +15,8 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiraytrace1d.h"
 #include "uisplitter.h"
-#include "uiseiswvltsel.h"
+#include "uisynthseis.h"
 #include "uisynthgendlg.h"
 
 #include "synthseis.h"
@@ -26,7 +25,6 @@ static const char* rcsID mUsedVar = "$Id$";
 #include "od_helpids.h"
 
 
-static const char* sKeySimpleRayTracer()	{ return "VrmsRayTracer"; }
 #define mErrRet(s,act) \
 { uiMsgMainWinSetter mws( mainwin() ); if ( s ) uiMSG().error(s); act; }
 
@@ -74,28 +72,21 @@ uiSynthGenDlg::uiSynthGenDlg( uiParent* p, StratSynth& gp)
     finpspec.setDefaultValue( Interval<float>(0,30) );
     angleinpfld_ = new uiGenInput( toppargrp, tr("Angle Range"), finpspec );
     angleinpfld_->attach( alignedBelow, psselfld_ );
+    angleinpfld_->valuechanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
 
-    uiRayTracer1D::Setup rsu; rsu.dooffsets(true).convertedwaves(true);
-    rtsel_ = new uiRayTracerSel( toppargrp, rsu );
-    rtsel_->usePar( stratsynth_.genParams().raypars_ );
-    rtsel_->attach( alignedBelow, angleinpfld_ );
-    rtsel_->offsetChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
-
-    wvltfld_ = new uiSeisWaveletSel( toppargrp );
-    wvltfld_->newSelection.notify( mCB(this,uiSynthGenDlg,parsChanged) );
-    wvltfld_->attach( alignedBelow, rtsel_ );
-    wvltfld_->setFrame( false );
-
-    uisynthcorrgrp_ = new uiSynthCorrectionsGrp( rightgrp );
-    uisynthcorrgrp_->attach( alignedBelow, toppargrp );
-    uisynthcorrgrp_->nmoparsChanged_.notify(
-					mCB(this,uiSynthGenDlg,parsChanged) );
+    uiRayTracer1D::Setup rsu;
+    rsu.dooffsets(true).convertedwaves(true).showzerooffsetfld(false);
+    synthseis_ = new uiSynthSeisGrp( toppargrp, rsu );
+    synthseis_->parsChanged.notify( mCB(this,uiSynthGenDlg,parsChanged) );
+    synthseis_->attach( alignedBelow, angleinpfld_ );
+    toppargrp->setHAlignObj( synthseis_ );
 
     uiGroup* botpargrp = new uiGroup( rightgrp, "Parameter Group - Last Part" );
-    botpargrp->attach( centeredBelow, uisynthcorrgrp_ );
+    botpargrp->attach( alignedBelow, toppargrp );
 
     namefld_ = new uiGenInput( botpargrp, uiStrings::sName() );
     namefld_->valuechanged.notify( mCB(this,uiSynthGenDlg,nameChanged) );
+    botpargrp->setHAlignObj( namefld_ );
 
     gennewbut_ = new uiPushButton( botpargrp, tr("Add as new"), true );
     gennewbut_->activated.notify( mCB(this,uiSynthGenDlg,genNewCB) );
@@ -231,32 +222,26 @@ void uiSynthGenDlg::removeSyntheticsCB( CallBacker* )
 }
 
 
-void uiSynthGenDlg::updateFieldSensitivity()
+void uiSynthGenDlg::updateFieldDisplay()
 {
     SynthGenParams::SynthType synthtype =
 	SynthGenParams::parseEnumSynthType( typefld_->text() );
-    const bool isps = synthtype==SynthGenParams::PreStack;
     const bool psbased = synthtype == SynthGenParams::AngleStack ||
 			 synthtype == SynthGenParams::AVOGradient;
-    uisynthcorrgrp_->display( isps );
-    rtsel_->display( isps );
-    rtsel_->current()->displayOffsetFlds( isps || psbased );
+    synthseis_->updateFieldDisplay();
     psselfld_->display( psbased );
-    wvltfld_->display( !psbased );
+    if ( psbased )
+	synthseis_->updateDisplayForPSBased();
     angleinpfld_->display( psbased );
 }
 
 
 void uiSynthGenDlg::typeChg( CallBacker* )
 {
-    updateFieldSensitivity();
+    updateFieldDisplay();
     stratsynth_.genParams().synthtype_ =
 	SynthGenParams::parseEnumSynthType( typefld_->text() );
     stratsynth_.genParams().setDefaultValues();
-    BufferString raypartype;
-    stratsynth_.genParams().raypars_.get( sKey::Type(), raypartype );
-    rtsel_->setCurrentType( raypartype );
-    rtsel_->fillPar( stratsynth_.genParams().raypars_ );
     putToScreen();
     BufferString nm;
     stratsynth_.genParams().createName( nm );
@@ -266,14 +251,13 @@ void uiSynthGenDlg::typeChg( CallBacker* )
 
 void uiSynthGenDlg::putToScreen()
 {
+    NotifyStopper parschgstopper( synthseis_->parsChanged );
+    NotifyStopper angparschgstopper( angleinpfld_->valuechanged );
     const SynthGenParams& genparams = stratsynth_.genParams();
-    wvltfld_->setInput( genparams.wvltnm_ );
+    synthseis_->setWavelet( genparams.wvltnm_ );
     namefld_->setText( genparams.name_ );
 
-    const bool isps = genparams.isPreStack();
     typefld_->setCurrentItem( SynthGenParams::toString(genparams.synthtype_) );
-    if ( genparams.synthtype_ == SynthGenParams::ZeroOffset )
-	rtsel_->setCurrentType( sKeySimpleRayTracer() );
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
 	 genparams.synthtype_ == SynthGenParams::AVOGradient )
@@ -284,32 +268,12 @@ void uiSynthGenDlg::putToScreen()
 	psselfld_->box()->addItems( psnms );
 	psselfld_->box()->setCurrentItem( genparams.inpsynthnm_ );
 	angleinpfld_->setValue( genparams.anglerg_ );
-	updateFieldSensitivity();
+	updateFieldDisplay();
 	return;
     }
 
-    TypeSet<float> offsets;
-    genparams.raypars_.get( RayTracer1D::sKeyOffset(), offsets );
-
-    if ( isps )
-    {
-	bool donmo = true;
-	genparams.raypars_.getYN( Seis::SynthGenBase::sKeyNMO(), donmo );
-
-	float mutelen = Seis::SynthGenBase::cStdMuteLength();
-	genparams.raypars_.get( Seis::SynthGenBase::sKeyMuteLength(), mutelen );
-	if ( !mIsUdf(mutelen) )
-	   mutelen = mutelen *ZDomain::Time().userFactor();
-
-	float stretchlimit = Seis::SynthGenBase::cStdStretchLimit();
-	genparams.raypars_.get(
-			Seis::SynthGenBase::sKeyStretchLimit(), stretchlimit );
-
-	uisynthcorrgrp_->setValues( donmo, mutelen, mToPercent( stretchlimit ));
-    }
-
-    rtsel_->usePar( genparams.raypars_ );
-    updateFieldSensitivity();
+    synthseis_->usePar( genparams.raypars_ );
+    updateFieldDisplay();
 }
 
 
@@ -323,7 +287,6 @@ bool uiSynthGenDlg::getFromScreen()
 
     SynthGenParams& genparams = stratsynth_.genParams();
     genparams.synthtype_ = SynthGenParams::parseEnumSynthType(typefld_->text());
-    const bool isps = !typefld_->currentItem();
 
     if ( genparams.synthtype_ == SynthGenParams::AngleStack ||
 	 genparams.synthtype_ == SynthGenParams::AVOGradient )
@@ -345,25 +308,9 @@ bool uiSynthGenDlg::getFromScreen()
 	return true;
     }
 
-    rtsel_->fillPar( genparams.raypars_ );
-
-    if ( !isps )
-	RayTracer1D::setIOParsToZeroOffset( genparams.raypars_ );
-
-    genparams.wvltnm_ = wvltfld_->getName();
-    stratsynth_.setWavelet( wvltfld_->getWavelet() );
-    bool donmo = isps ? uisynthcorrgrp_->wantNMOCorr() : false;
-    genparams.raypars_.setYN( Seis::SynthGenBase::sKeyNMO(), donmo );
+    synthseis_->fillPar( genparams.raypars_ );
+    genparams.wvltnm_ = synthseis_->getWaveletName();
     genparams.name_ = namefld_->text();
-
-    if ( isps )
-    {
-	genparams.raypars_.set( Seis::SynthGenBase::sKeyMuteLength(),
-	     uisynthcorrgrp_->getMuteLength() / ZDomain::Time().userFactor() );
-	genparams.raypars_.set(
-		Seis::SynthGenBase::sKeyStretchLimit(),
-		mFromPercent( uisynthcorrgrp_->getStrechtMutePerc()) );
-    }
 
     return true;
 }
@@ -371,7 +318,7 @@ bool uiSynthGenDlg::getFromScreen()
 
 void uiSynthGenDlg::updateWaveletName()
 {
-    wvltfld_->setInput( stratsynth_.genParams().wvltnm_ );
+    synthseis_->setWavelet( stratsynth_.genParams().wvltnm_ );
     BufferString nm;
     stratsynth_.genParams().createName( nm );
     namefld_->setText( nm );
@@ -431,103 +378,3 @@ bool uiSynthGenDlg::genNewCB( CallBacker* )
     genNewReq.trigger();
     return true;
 }
-
-
-class uiSynthCorrAdvancedDlg : public uiDialog
-{ mODTextTranslationClass(uiSynthCorrAdvancedDlg);
-    public:
-				uiSynthCorrAdvancedDlg(uiParent*);
-
-    uiGenInput*		stretchmutelimitfld_;
-    uiGenInput*		mutelenfld_;
-
-    protected:
-
-    bool			acceptOK(CallBacker*);
-};
-
-
-uiSynthCorrectionsGrp::uiSynthCorrectionsGrp( uiParent* p )
-    : uiGroup( p, "Synth corrections parameters" )
-    , nmoparsChanged_(this)
-{
-    nmofld_ = new uiGenInput( this, tr("Apply NMO corrections"),
-			      BoolInpSpec(true) );
-    mAttachCB( nmofld_->valuechanged, uiSynthCorrectionsGrp::parsChanged);
-    nmofld_->setValue( true );
-
-    CallBack cbadv = mCB(this,uiSynthCorrectionsGrp,getAdvancedPush);
-    advbut_ = new uiPushButton( this, uiStrings::sAdvanced(), cbadv, false );
-    advbut_->attach( alignedBelow, nmofld_ );
-
-    uiscadvdlg_ = new uiSynthCorrAdvancedDlg( this );
-}
-
-
-void uiSynthCorrectionsGrp::parsChanged( CallBacker* )
-{
-    advbut_->display( wantNMOCorr() );
-    nmoparsChanged_.trigger();
-}
-
-
-bool uiSynthCorrectionsGrp::wantNMOCorr() const
-{
-    return nmofld_->getBoolValue();
-}
-
-
-float uiSynthCorrectionsGrp::getStrechtMutePerc() const
-{
-    return uiscadvdlg_->stretchmutelimitfld_->getfValue();
-}
-
-
-float uiSynthCorrectionsGrp::getMuteLength() const
-{
-    return uiscadvdlg_->mutelenfld_->getfValue();
-}
-
-
-void uiSynthCorrectionsGrp::getAdvancedPush( CallBacker* )
-{
-    uiscadvdlg_->go();
-}
-
-
-void uiSynthCorrectionsGrp::setValues( bool donmo, float mutelen,
-				       float stretchlim )
-{
-    nmofld_->setValue( donmo );
-    uiscadvdlg_->mutelenfld_->setValue( mutelen );
-    uiscadvdlg_->stretchmutelimitfld_->setValue( stretchlim );
-}
-
-
-uiSynthCorrAdvancedDlg::uiSynthCorrAdvancedDlg( uiParent* p )
-    : uiDialog( p, uiDialog::Setup(tr("Synthetic Corrections advanced options"),
-		tr("Specify advanced options"), mTODOHelpKey) )
-{
-    FloatInpSpec inpspec;
-    inpspec.setLimits( Interval<float>(1,500) );
-    stretchmutelimitfld_ = new uiGenInput(this, tr("Stretch mute (%)"), 
-					  inpspec );
-
-    mutelenfld_ = new uiGenInput( this, tr("Mute taper-length (ms)"),
-				  FloatInpSpec() );
-    mutelenfld_->attach( alignedBelow, stretchmutelimitfld_ );
-}
-
-
-bool uiSynthCorrAdvancedDlg::acceptOK( CallBacker* )
-{
-    if ( mIsUdf(mutelenfld_->getfValue() ) || mutelenfld_->getfValue()<0 )
-	mErrRet( "The mutelength must be more than zero.", return false );
-
-    if ( mIsUdf(stretchmutelimitfld_->getfValue()) ||
-	 stretchmutelimitfld_->getfValue()<0 )
-	mErrRet( "The stretch mute must be more than 0%", return false );
-
-    return true;
-}
-

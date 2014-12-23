@@ -105,6 +105,7 @@ uiElasticModelProvider::uiElasticModelProvider( uiParent* p, bool is2d )
 
     inpTypeSel(0);
     sourceSel(0);
+    setHAlignObj( inptypefld_ );
 }
 
 

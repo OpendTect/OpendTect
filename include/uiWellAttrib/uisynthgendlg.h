@@ -21,14 +21,10 @@ class StratSynth;
 class uiComboBox;
 class uiGenInput;
 class uiFlatViewer;
-class uiRayTracerSel;
 class uiListBox;
 class uiLabeledComboBox;
 class uiPushButton;
-class uiSynthGenDlg;
-class uiSeisWaveletSel;
-
-class uiSynthCorrectionsGrp;
+class uiSynthSeisGrp;
 
 mExpClass(uiWellAttrib) uiSynthGenDlg : public uiDialog
 { mODTextTranslationClass(uiSynthGenDlg);
@@ -46,22 +42,19 @@ public:
     CNotifier<uiSynthGenDlg,BufferString> synthChanged;
 
 protected:
-    void			updateFieldSensitivity();
+    void			updateFieldDisplay();
 
-    uiSeisWaveletSel*		wvltfld_;
     uiComboBox*			typefld_;
     uiLabeledComboBox*		psselfld_;
     uiGenInput*  		angleinpfld_;
     uiGenInput*  		namefld_;
-    uiRayTracerSel*		rtsel_;
     uiPushButton*		gennewbut_;
     uiPushButton*		applybut_;
     uiPushButton*		revertbut_;
     uiPushButton*		savebut_;
     uiListBox*			synthnmlb_;
     StratSynth&			stratsynth_;
-    uiSynthCorrectionsGrp*	uisynthcorrgrp_;
-
+    uiSynthSeisGrp*		synthseis_;
 
     void			getPSNames(BufferStringSet&);
     void			typeChg(CallBacker*);
@@ -73,30 +66,6 @@ protected:
     void			nameChanged(CallBacker*);
     bool			rejectOK(CallBacker*);
     void			finaliseDone(CallBacker*);
-};
-
-
-class uiSynthCorrAdvancedDlg;
-
-mExpClass(uiWellAttrib) uiSynthCorrectionsGrp : public uiGroup
-{ mODTextTranslationClass(uiSynthCorrectionsGrp);
-public:
-				uiSynthCorrectionsGrp(uiParent*);
-
-    bool			wantNMOCorr() const;
-    float			getStrechtMutePerc() const;
-    float			getMuteLength() const;
-    void			setValues(bool,float mutelen,float stretchlim);
-
-    Notifier<uiSynthCorrectionsGrp> nmoparsChanged_;
-
-protected:
-    uiGenInput* 		nmofld_;
-    uiPushButton*		advbut_;
-    uiSynthCorrAdvancedDlg*	uiscadvdlg_;
-
-    void			getAdvancedPush(CallBacker*);
-    void			parsChanged(CallBacker*);
 };
 
 #endif

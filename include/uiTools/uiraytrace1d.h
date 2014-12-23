@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uistring.h"
 
 class uiGenInput;
+class uiCheckBox;
 class uiLabeledComboBox;
 
 
@@ -33,12 +34,14 @@ public:
 			    : convertedwaves_(false)
 			    , doreflectivity_(true)
 			    , dooffsets_(false)
+			    , showzerooffsetfld_(true)
 			    , offsetrg_(0,6000,100)
 			    {}
 
 	mDefSetupMemb(bool,convertedwaves);
 	mDefSetupMemb(bool,dooffsets);
 	mDefSetupMemb(bool,doreflectivity);
+	mDefSetupMemb(bool,showzerooffsetfld);
 	mDefSetupMemb(StepInterval<float>,offsetrg);
     };
 
@@ -48,9 +51,12 @@ public:
     virtual void  	fillPar(IOPar&) const;
 
     void		displayOffsetFlds(bool yn); 
+    bool		isOffsetFldsDisplayed() const;
     void		setOffsetRange(StepInterval<float>);
     bool		doOffsets() const	{ return offsetfld_; }
-    Notifier<uiGenInput>& offsetChanged();
+    bool		hasZeroOffsetFld() const{ return iszerooffsetfld_; }
+    bool		isZeroOffset() const;
+    Notifier<uiRayTracer1D>	offsetChanged;
 
 protected:
 			uiRayTracer1D(uiParent*,const Setup&);
@@ -62,7 +68,11 @@ protected:
 
     uiGenInput* 	offsetfld_;
     uiGenInput* 	offsetstepfld_;
+    uiCheckBox*		iszerooffsetfld_;
     uiGenInput*		lastfld_;
+
+    void		zeroOffsetChecked(CallBacker*);
+    void		offsetChangedCB(CallBacker*);
 };
 
 
